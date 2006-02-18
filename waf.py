@@ -25,6 +25,7 @@ except:
 wafadmin_dir = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),'wafadmin')
 if sys.platform == "win32":
 	sys.path=[wafadmin_dir,'wafadmin']+sys.path
+	print wafadmin_dir
 else:
 	sys.path=[wafadmin_dir,'wafadmin','/usr/lib/wafadmin','/usr/local/lib/wafadmin']+sys.path
 
