@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import os
-import sys
+import os, types, sys, string
 import Params
 import Environment
 
@@ -27,9 +26,17 @@ def find_file_ext(file, path_list):
 					return path
 	return ''
 
-def find_program(lenv, file, path_list):
+def find_program(lenv, file, path_list=None):
 	if lenv['WINDOWS']:
 		file += '.exe'
+	if path_list is None: 
+		try:
+			path_list = os.environ['PATH']
+		except KeyError:
+			return None
+		if type(path_list) is types.StringType: 
+			path_list = string.split(path_list, os.pathsep)
+
 	for dir in path_list:
 		if os.path.exists( os.path.join(dir, file) ):
 			return os.path.join(dir, file)
