@@ -112,6 +112,8 @@ class Environment:
 		file.close()
 
 	def load(self, filename):
+		if not os.path.isfile(filename):
+			return 0
 		file=open(filename, 'r')
 		for line in file:
 			ln = line.strip()
@@ -121,6 +123,7 @@ class Environment:
 			exec line
 		file.close()
 		debug(self.m_table)
+		return 1
 
 	# set a name to this environment
 	def set_alias(self, name):
