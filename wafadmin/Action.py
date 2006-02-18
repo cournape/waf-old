@@ -58,11 +58,12 @@ class Action:
 
 # most actions contain only one well-defined command-line taking sources as input and targets as output
 class GenAction(Action):
-	def __init__(self, name, vars, src_only=0):
+	def __init__(self, name, vars, src_only=0, buildfunc=None):
 		Action.__init__(self, name)
 		self.m_vars     = vars
 		self.m_src_only = src_only
-
+		self.m_function_to_run = buildfunc
+		
 	def get_str(self, task):
 		src_str = " ".join(  map(lambda a:a.bldpath(), task.m_inputs)  )
 		tgt_str = " ".join(  map(lambda a:a.bldpath(), task.m_outputs)  )
