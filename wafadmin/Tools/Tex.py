@@ -1,0 +1,79 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# found is 1, not found is 0
+
+import os, sys
+import Utils, Params, Action, Object, Runner
+
+def detect_env(env):
+	pass
+
+tex_vardeps    = ['TEX', 'TEXFLAGS', 'TEX_ST']
+Action.GenAction('tex', tex_vardeps, src_only=1)
+
+latex_vardeps  = ['LATEX', 'LATEXFLAGS', 'LATEX_ST']
+act = Action.GenAction('latex', latex_vardeps)
+def latex_build(task):
+	com = task.m_env['LATEX']
+	reldir  = task.m_inputs[0].cd_to()
+	srcfile = task.m_inputs[0].m_name
+
+	cmd = 'cd %s && %s %s' % (reldir, com, srcfile)
+	return Runner.exec_command(cmd)
+act.m_function_to_run = latex_build
+
+bibtex_vardeps = ['BIBTEX', 'BIBTEXFLAGS', 'BIBTEX_ST']
+Action.GenAction('bibtex', bibtex_vardeps, src_only=1)
+
+dvips_vardeps  = ['DVIPS', 'DVIPSFLAGS', 'DVIPS_ST']
+Action.GenAction('dvips', dvips_vardeps)
+
+dvipdf_vardeps = ['DVIPDF', 'DVIPDFFLAGS', 'DVIPDF_ST']
+Action.GenAction('dvipdf', dvipdf_vardeps)
+
+g_texobjs=['latex','tex','bibtex','dvips','dvipdf']
+class texobj(Object.genobj):
+	def __init__(self, type='latex'):
+		Object.genobj.__init__(self, 'other', 'tex')
+                self.env = Params.g_default_env
+
+		global g_texobjs
+		if not type in g_texobjs:
+			Params.niceprint('type %s not supported for texobj', 'ERROR', 'texobj')
+			import sys
+			sys.exit(1)
+		self.m_type   = type
+		self.m_source = ''
+		self.m_target = ''
+	def apply(self):
+		for filename in (' '+self.source).split():
+			base, ext = os.path.splitext(filename)
+			if not ext=='.tex': continue
+
+			task = self.create_task('latex', self.env, 2)
+			task.m_inputs = [ self.get_mirror_node( self.m_current_path, base+'.tex') ]
+			task.m_outputs = [ self.get_mirror_node( self.m_current_path, base+'.dvi') ]
+
+def detect(env):
+	env['TEX']         = 'tex'
+	env['TEXFLAGS']    = ''
+	env['TEX_ST']      = '%s'
+
+	env['LATEX']       = 'latex'
+	env['LATEXFLAGS']  = ''
+	env['LATEX_ST']    = '%s'
+
+	env['BIBTEX']      = 'bibtex'
+	env['BIBTEXFLAGS'] = ''
+	env['BIBTEX_ST']   = '%s'
+
+	env['DVIPS']       = 'dvips'
+	env['DVIPSFLAGS']  = ''
+	env['DVIPS_ST']    = '%s -o %s'
+
+	env['DVIPDF']      = 'dvipdf'
+	env['DVIPDFFLAGS'] = ''
+	env['DVIPDF_ST']   = '%s -o %s'
+

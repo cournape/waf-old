@@ -1,0 +1,10 @@
+#! /usr/bin/env waf configure
+# Thomas Nagy, 2006
+
+# top-level script, everything happens in sub-folders
+
+# only side-effect: no loops are allowed here
+sub_config('src1')
+sub_config('src2')
+sub_config('src3')
+

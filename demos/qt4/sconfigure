@@ -1,0 +1,17 @@
+#! /usr/bin/env waf configure
+# Thomas Nagy, 2006
+
+# To comment add a '#' to the line
+# Options to add MUST fit on a single line
+add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
+
+add_option('--qtdir', type='string', help='root of the qt directory', dest='qtdir')
+add_option('--qtlib', type='string', help='root of the qt directory', dest='qtlib')
+add_option('--qtincludes', type='string', help='root of the qt directory', dest='qtincludes')
+add_option('--qtbin', type='string', help='root of the qt directory', dest='qtbin')
+
+env = create_env()
+env.detect(['gcc', 'Qt4'])
+env.store('main.cache.py')
+

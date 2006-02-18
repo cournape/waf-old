@@ -1,0 +1,24 @@
+WHAT YOU WILL FIND HERE
+-----------------------
+
+An experimental project called 'waf'
+Examples can be found in demo/
+Tests can be found in wafadmin/ (run ./Test.py and look at the folder wafadmin/test/)
+
+Try 'waf --help' too, there are predefined targets for waf itself.
+
+HOW TO RE-USE THE CODE
+-----------------------
+
+Run 'waf dist' first to generate a clean archive, and copy the result to the folder of your project.
+Your project will need to provide two scripts: 'sconfigure' and 'sconstruct'
+The file sconfigure must contain functions to call, which are:
+* custom_options to provide additional options and help for the command-line
+* detect(env) to create the main cache file for the project (copies of the environment can be made afterwards)
+
+WARNING: the configuration system is not finished
+
+...to be continued
+
+---------------------------
+Thomas Nagy, 2006 (ita)

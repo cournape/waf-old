@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+from Tools import ocamlobj
+
+print "src2/script is read"
+env = Environment.get_alias('ocaml')
+
+# build a few objects with that environment
+

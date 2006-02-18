@@ -1,0 +1,8 @@
+#! /usr/bin/env waf
+# Thomas Nagy, 2006
+
+print "src3/sconscript is read"
+env = Environment.get_alias('mylib')
+
+# build a few objects with that environment
+

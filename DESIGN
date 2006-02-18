@@ -1,0 +1,158 @@
+## Thomas Nagy, 2005, 2006 (ita)
+
+ADDITIONAL FEATURES OVER SCONS
+------------------------------
+
+* fast rescan for incremental builds (developer working on the project)
+* kernel-like output and progress bar (-v switch to display command-lines)
+* builddir set by default and with no effort
+* find source files intelligently (glob-like) to ease script maintainance - kde module only at the moment
+* customizable command-line parsing using sconfigure (works now!)
+* tight control over the scheduler (not all links at the same time, etc)
+* support for objective caml targets (incomplete though)
+
+DATA STRUCTURE
+--------------
+
+S1: Action      = { f1:display_command_line ; f2:compute_signature ; f3:launch_commands }
+S0: Environment = { HashMap{String -> Any} }
+S2: Task        = { Action ; Environment ; Source[] ; Target[] }
+S3: Object      = { Object[]; Task[] }
+S4: Build       = { Environment ; Deptree ; BuildDirectory[] }
+S5: Deptree     = { SourceNode[Tree] ; TargetNode[][Tree] }
+
+MODULE STUCTURE
+---------------
+
+Scripting.py   : entry point of the scripts, calls user code before launching the targets
+
+Node.py        : definition of the tree. The class should be as small as possible (tree is stored on-disk).
+
+Deptree.py     : dependency tree handler, contains the trees of sources and targets
+  the files are scanned only once
+  the complete tree of dirs and files is loaded on memory
+  this tree is stored in a file .dblite, and updated on next runs
+  it can be modified in-place during the compilation phase itself
+
+Environment.py : environment definition - environment copy is to be cheap
+
+Object.py      : objects create tasks using actions and (default) environments
+  It is also possible to force a particular environment over some objects
+
+Action.py      : code used for building targets
+  Generic actions take a list of environment variables to substitute upon usage
+  they contain 3 essential functions:
+  * signature
+  * code for building objects
+  * code that prints a message in the console
+  The signature takes the environment variables to sign (given in the constructor); it is meant to run fast.
+  To avoid subclassing actions, and if the target to build requires several functions or some python code,
+  it is possible to attach a function to action.m_function_to_run   
+
+Task.py        : action + environment + input objects + output objects
+  the tasks associate input files (id), output files (id), an action and an environment
+
+Build.py       : holds the data structures for building targets (deptree) and the configuration.
+  it is the entry point of the application
+
+Test.py        : some tests - uses files from the subdirectory 'test'
+  go in the Test.py folder and run './Test.py'
+
+Common.py      : common builders for C, C++, etc
+
+Params.py      : all constants and global variables, trace functions
+  there is no singleton, but the variables can be reset in Utils (for tests)
+  for now there will be a reset function in every module that keeps its own variables
+  public variables (shared by many modules) go into Params
+
+Options.py     : command-line parser, sets g_commands and g_options in Params.py
+
+Utils.py       : utilities
+
+DESIGN DECISIONS
+----------------
+
+-> There are even constraint solvers in python, thus writing a fast tool
+   for building targets without tons of overriding functions is doable
+-> Object-oriented target declaration (Object.py) when possible
+-> As few string transformations as possible to keep the tool fast
+-> When starting from a branch, higher levels are considered up2date
+   concerning the symlinking or mirroring.
+-> Groups of tasks to processs together before attempting to process another one
+   this is needed for bootstrapping (an executable is produced and used)
+-> Control over the scheduler (do not link everything at the same time for example)
+-> New tasks can be added while building other ones
+-> '#include "file.moc"' versus 'include <file.moc>' (quotes to adds the local dependency)
+-> Environments are modified according to conditions, here are some examples:
+    * builddir_1, builddir_2, builddir_3
+    * win32, darwin, linux, freebsd
+    * ultradebug, debug, release, optimized
+    * compile to bytecode in one dir, compile to native code in some other dir (for example, caml)
+   Aliases are made using a hashtable to keep pre-defined environment values
+-> Trick to start building targets even if all objects are not declared - calling a special function
+   puts all tasks that are already declared into a list to be processed immediately by the scheduler
+-> Explicit dependency handling as much as possible - tasks have a priority so it is easy to
+   enforce a partial order for tasks to execute in parallel
+
+QUESTIONS
+---------
+
+* How to set the profiler (see TODO)
+* Signature file size for the different schemes (.dblite):
+ simple  32bits: 1713 44755
+ md5str 128bits: 2272 58893
+  ... so using md5 does not increase the db file significantly for small projects
+
+STATE OF THE APPLICATION
+------------------------
+
+== Engine ==                            95%
+* mirror files and directories..........done
+* create and run tasks..................done
+* store node state between runs.........done
+* scan for dependencies.................done
+* process tasks in order................done
+* install files.........................95%
+* parallel builds.......................95%
+* support for running unit tests........?
+
+== Configuration ==                     20%
+* read and write cache files............done
+* tools system..........................done
+* custom options (user-defined).........done
+* framework for configuring projects....bits
+* functions for finding headers.........bits
+* functions for finding programs........bits
+* functions for using pkg-config........
+* process qmake configuration files.....
+
+== Unit tests ==                        5%
+* file system representation............done
+* scanning for c/cpp headers............done
+* parallel builds.......................bits
+* configuration system..................bits
+
+STATE OF THE TOOLS
+------------------
+
+== Generic Tools ==                     60%
+* basic builders for c, c++ objects.....done
+* shared and static libraries...........done
+* ocaml.................................done
+* latex.................................bits
+* java..................................
+
+== KDE3 ==                              100%
+* moc, uic..............................done
+* skel, stub............................done
+* kconfig_compiler......................done
+* translations, documentation...........done
+* kde3 documentation (meinproc).........done
+
+== Qt4/KDE4 ==                          20%
+* rcc...................................done
+* kdeinit libraries.....................bits
+* libtool file handling.................fake at the moment, real libtool file handling should come along
+
+Note: native builds on win32 are not really supported at the moment (only cygwin)
+

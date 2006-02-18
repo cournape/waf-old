@@ -1,0 +1,8 @@
+#! /usr/bin/env waf configure
+# Thomas Nagy, 2006
+
+# And of course it is possible to provide more configuration code in sub-sconscripts :-)
+
+# Options to add MUST fit on a single line
+add_option('--meow', type='string', help='option hidden in cpp/src/sconfigure', dest='meow')
+

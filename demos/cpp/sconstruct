@@ -1,0 +1,20 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+VERSION='0.0.1'
+APPNAME='cpp_test'
+
+bld.set_srcdir('.')
+bld.set_bdir('_build_')
+bld.set_default_env('main.cache.py')
+
+# folders to scan
+bld.scandirs('src')
+
+# kde rules but actually simple cpp programs, for now
+from Common import cppobj
+
+# process subfolders from here
+add_subdir('src')
+

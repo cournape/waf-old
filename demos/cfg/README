@@ -1,0 +1,23 @@
+PROJECT CONFIGURATION DEMO
+
+The goal is to design a configuration system for a huge project containing several interdependant modules.
+In practice each folder (src1, src2 and src3) would have lots of subfolders themselves.
+
+The sub-groups are identified:
+* src1 needs a simple configuration with GCC
+* src2 contains some ocaml source files
+* src3 contains some code which relies on a library
+
+The following constraints are given:
+* src1 is always compiled
+* src2 is only visited if objective caml is found
+* src3 is only visited if objective caml is found and if another library is detected
+
+Additionally, the modules src2 and src3 requires additional flags to specify on the command-line:
+--where-is-lib=path and --where-is-ocaml=path
+
+The demo is not finished yet :)
+
+--
+ita, 2006
+

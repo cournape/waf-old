@@ -1,0 +1,2 @@
+#!/bin/sh
+rm -fr _build_

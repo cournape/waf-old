@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+#print 'test script for creating testprogram is read'
+obj=cppobj('program')
+obj.source='''
+a1.cpp
+b1.cpp b2.cpp
+main.cpp
+'''
+obj.includes='. src'
+obj.target='testprogram'
