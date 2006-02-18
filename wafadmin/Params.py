@@ -176,6 +176,9 @@ def error(msg, module=''):
 	if not Utils.g_error: return
 	if module in g_trace_exclude: return
 	niceprint(msg, 'ERROR', module)
+def fatal(msg, module=''):
+	niceprint(msg, 'FATAL', module)
+	sys.exit(1)
 
 def h_file(fname):
 	global g_strong_hash
