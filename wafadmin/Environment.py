@@ -18,6 +18,9 @@ class Environment:
 		self.m_table={}
 		self.m_overriden={}
 		self.tooldir = [os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),'wafadmin','Tools')]
+		# may be there is a better place for this
+		if sys.platform == "win32":
+			self.setValue('WINDOWS',1)
 
 	def copy2(self):
 		newenv = Environment()
