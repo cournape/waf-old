@@ -26,8 +26,16 @@ def detect(env):
 	comp = Utils.where_is('g++')
 	if not comp:
 		Utils.error('g++ was not found')
-		sys.exit(1)
+		return 1;
 
+	# g++ requires ar for static libs
+	if env.detect('ar'):
+		return 1
+
+	# this should be defined here
+	env['PREFIX']         = '/usr/bin'
+	env['DESTDIR']        = ''
+	
 	if sys.platform == "win32": 
 		# c++ compiler
 		env['CXX']             = comp
