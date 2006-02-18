@@ -42,7 +42,11 @@ class Environment:
 			return
 
 		self.appendValue('tools',tool)
-		file,name,desc = imp.find_module(tool,self.tooldir)
+		try:
+			file,name,desc = imp.find_module(tool,self.tooldir)
+		except: 
+			print "no tool named '" + tool + "' found"
+			return 
 		module = imp.load_module(tool,file,name,desc)
 		module.detect(self)
 
