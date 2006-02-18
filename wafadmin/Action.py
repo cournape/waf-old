@@ -101,7 +101,14 @@ class GenAction(Action):
 
 			# obtain the command-line "command %s -o %s" % (str, str) -> command file1.o file2.o -o programname
 			#print " action is %s" % command
-			return command % (src_str, tgt_str)
+			
+			try: 
+				cmd = command % (src_str, tgt_str)
+			except:
+				print src_str
+				print tgt_str
+				cmd = ""
+			return cmd
 
 	# set the program strings using the methods right above
 	def prepare(self, task):

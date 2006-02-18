@@ -4,34 +4,37 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Utils, Action
+import Utils,Action
 
 # tool specific setup
 # is called when a build process is started 
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
 	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
-	cc_vardeps     = ['CC', 'CCFLAGS', '_CPPDEFFLAGS', '_CINCFLAGS', 'CC_ST']
-	Action.GenAction('cc', cc_vardeps)
+	cpp_vardeps    = ['CXX', 'CXXFLAGS', '_CPPDEFFLAGS', '_CXXINCFLAGS', 'CXX_ST']
+	Action.GenAction('cpp', cpp_vardeps)
 
 	# TODO: this is the same definitions as for gcc, should be separated to have independent setup
 	link_vardeps   = ['LINK', 'LINKFLAGS', 'LINK_ST', '_LIBDIRFLAGS', '_LIBFLAGS']
 	Action.GenAction('link', link_vardeps)
 
+# tool detection and initial setup 
+# is called when a configure process is started, 
+# the values are cached for further build processes
 def detect(env):
 
-	comp = Utils.where_is('gcc')
+	comp = Utils.where_is('g++')
 	if not comp:
-		Utils.error('gcc was not found')
+		Utils.error('g++ was not found')
 		sys.exit(1)
 
 	if sys.platform == "win32": 
-		# c compiler
-		env['CC']             = comp
-		env['CCFLAGS']        = '-O2'
-		env['_CPPDEFFLAGS']   = ''
-		env['_CINCFLAGS']     = ''
-		env['CC_ST']          = '%s -c -o %s'
+		# c++ compiler
+		env['CXX']             = comp
+		env['CXXFLAGS']        = '-O2'
+		env['_CPPDEFFLAGS']    = ''
+		env['_CXXINCFLAGS']    = ''
+		env['CXX_ST']          = '%s -c -o %s'
 
 		# linker	
 		env['LINK']            = comp
@@ -45,7 +48,7 @@ def detect(env):
 		env['LIBSUFFIX']       = '.dll'
 	
 		# shared library 
-		env['shlib_CFLAGS']  = ['']
+		env['shlib_CXXFLAGS']  = ['']
 		env['shlib_LINKFLAGS'] = ['-shared']
 		env['shlib_obj_ext']   = ['.o']
 		env['shlib_PREFIX']    = 'lib'
@@ -62,14 +65,15 @@ def detect(env):
 		env['program_SUFFIX']  = '.exe'
 
 	else:
-		env['CC']             = comp
-		env['CCFLAGS']        = '-O2'
-		env['_CPPDEFFLAGS']   = ''
-		env['_CINCFLAGS']     = ''
-		env['CC_ST']          = '%s -c -o %s'
+		# c++ compiler
+		env['CXX']             = 'g++'
+		env['CXXFLAGS']        = '-O2'
+		env['_CPPDEFFLAGS']    = ''
+		env['_CXXINCFLAGS']    = ''
+		env['CXX_ST']          = '%s -c -o %s'
 	
 		# linker
-		env['LINK']            = comp
+		env['LINK']            = 'g++'
 		env['LINKFLAGS']       = []
 		env['LIB']             = []
 		env['LINK_ST']         = '%s -o %s'
@@ -80,7 +84,7 @@ def detect(env):
 		env['LIBSUFFIX']       = '.so'
 	
 		# shared library 
-		env['shlib_CFLAGS']    = ['-fPIC', '-DPIC']
+		env['shlib_CXXFLAGS']  = ['-fPIC', '-DPIC']
 		env['shlib_LINKFLAGS'] = ['-shared']
 		env['shlib_obj_ext']   = ['.os']
 		env['shlib_PREFIX']    = 'lib'

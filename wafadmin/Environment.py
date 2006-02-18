@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os,sys,string, types
+import os,sys,string, types, imp
 import Params, Tools
 
 def trace(msg):
@@ -33,6 +33,7 @@ class Environment:
 				tb[key] = self.m_overriden[key]
 		return newenv
 
+	# detect tools in configure process 
 	# this method is really cool (ita)
 	# env.detect('GCC') is equivalent to import Tools.GCC\nTools.GCC.detect(env)
 	def detect(self, tool):
@@ -40,10 +41,22 @@ class Environment:
 			for i in tool: self.detect(i)
 			return
 
-		import imp
 		file,name,desc = imp.find_module(tool,self.tooldir)
 		module = imp.load_module(tool,file,name,desc)
 		module.detect(self)
+
+	# setup tools for build process
+	def setup(self, tool):
+		if type(tool) is types.ListType:
+			for i in tool: self.setup(i)
+			return
+	
+		file,name,desc = imp.find_module(tool,self.tooldir)
+		module = imp.load_module(tool,file,name,desc)
+		try:
+			module.setup(self)
+		except:
+			print "setup function missing in tool: " + tool
 
 	def __str__(self):
 		return "environment table\n"+str(self.m_table)+"\noverriden\n"+str(self.m_overriden)

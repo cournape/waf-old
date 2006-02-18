@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
+# Ralf Habacker, 2006 (rh)
 
 import os, sys
 import Utils, Configure, Action, Runner
@@ -19,8 +20,10 @@ def ar_build(task):
 	s = '%s %s %s %s && %s %s %s'
 	cmd = s % (e['AR'], e['ARFLAGS'], outfile, infiles, e['RANLIB'], e['RANLIBFLAGS'], outfile)
 	return Runner.exec_command(cmd)
-aract = Action.GenAction('arlink', ar_vardeps)
-aract.m_function_to_run = ar_build
+
+def setup(env):
+	aract = Action.GenAction('arlink', ar_vardeps)
+	aract.m_function_to_run = ar_build
 
 def detect(env):
 	comp = Utils.where_is('ar')

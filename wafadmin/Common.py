@@ -64,17 +64,6 @@ def install_as(var, destfile, srcfile, env=None):
 	print "* installing %s as %s" % (src, tgt)
 	shutil.copy2( src, tgt )
 
-# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
-# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
-cc_vardeps     = ['CC', 'CCFLAGS', '_CCDEFFLAGS', '_CPPINCFLAGS', 'CC_ST']
-Action.GenAction('cc', cc_vardeps)
-
-cpp_vardeps    = ['CXX', 'CXXFLAGS', '_CPPDEFFLAGS', '_CXXINCFLAGS', 'CXX_ST']
-Action.GenAction('cpp', cpp_vardeps)
-
-link_vardeps   = ['LINK', 'LINKFLAGS', 'LINK_ST', '_LIBDIRFLAGS', '_LIBFLAGS']
-Action.GenAction('link', link_vardeps)
-
 # fake libtool files
 fakelibtool_vardeps = ['CXX', 'PREFIX']
 def fakelibtool_build(task):
