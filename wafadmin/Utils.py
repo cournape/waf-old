@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, md5, types, sys, string
+import os, md5, types, sys, string, stat
 import Params
 
 g_trace=1
@@ -190,7 +190,7 @@ else:
 					# raised so as to not mask possibly serious disk or
 					# network issues.
 					continue
-				if os.stat.S_IMODE(st[stat.ST_MODE]) & 0111:
+				if stat.S_IMODE(st[stat.ST_MODE]) & 0111:
 					try: reject.index(f)
 					except ValueError: return os.path.normpath(f)
 					continue
