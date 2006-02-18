@@ -43,12 +43,15 @@ def detect(env):
 		env['_CPPDEFFLAGS']    = ''
 		env['_CXXINCFLAGS']    = ''
 		env['CXX_ST']          = '%s -c -o %s'
+		env['CPPPATH_ST']      = '-I%s' # template for adding include pathes
 
 		# linker	
 		env['LINK']            = comp
 		env['LINKFLAGS']       = []
 		env['LIB']             = []
 		env['LINK_ST']         = '%s -o %s'
+		env['LIB_ST']          = '-l%s'	# template for adding libs
+		env['LIBPATH_ST']      = '-L%s' # template for adding libpathes
 		env['_LIBDIRFLAGS']    = ''
 		env['_LIBFLAGS']       = ''
 	
@@ -79,12 +82,15 @@ def detect(env):
 		env['_CPPDEFFLAGS']    = ''
 		env['_CXXINCFLAGS']    = ''
 		env['CXX_ST']          = '%s -c -o %s'
+		env['CPPPATH_ST']      = '-I%s' # template for adding include pathes
 	
 		# linker
 		env['LINK']            = 'g++'
 		env['LINKFLAGS']       = []
 		env['LIB']             = []
 		env['LINK_ST']         = '%s -o %s'
+		env['LIB_ST']          = '-l%s'	# template for adding libs
+		env['LIBPATH_ST']      = '-L%s' # template for adding libpathes
 		env['_LIBDIRFLAGS']    = ''
 		env['_LIBFLAGS']       = ''
 	

@@ -214,26 +214,29 @@ class cppobj(Object.genobj):
 
 	def apply_obj_vars(self):
 		trace('apply_obj_vars called for cppobj')
-
+		cpppath_st = self.env.getValue('CPPPATH_ST')
+		lib_st = self.env.getValue('LIB_ST')
+		libpath_st = self.env.getValue('LIBPATH_ST')
+		
 		# this is usually a good idea
-		self.env.appendValue('_CXXINCFLAGS', '-I.')
+		self.env.appendValue('_CXXINCFLAGS', cpppath_st % '.')
 
 		# set the library include paths
 		for i in self.env.getValue('CPPPATH'):
-			self.env.appendValue('_CXXINCFLAGS', '-I'+i)
+			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i)
 			#print self.env['_CXXINCFLAGS']
 			#print " appending include ",i
 
 		# set the user-defined includes paths
 		if not self._incpaths_lst: self.apply_incpaths()
 		for i in self._bld_incpaths_lst:
-			self.env.appendValue('_CXXINCFLAGS', '-I'+i.bldpath())
+			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.bldpath())
 
 		for i in self.env.getValue('LIB'):
-			self.env.appendValue('LINKFLAGS', '-l'+i)
+			self.env.appendValue('LINKFLAGS', lib_st % i)
 
 		for i in self.env.getValue('LIBPATH'):
-			self.env.appendValue('LINKFLAGS', '-L'+i)
+			self.env.appendValue('LINKFLAGS', libpath_st % i)
 
 	def apply_lib_vars(self):
 		trace("apply_lib_vars called")
