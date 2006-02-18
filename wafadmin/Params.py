@@ -85,6 +85,10 @@ g_verbose = 0
 # so that we do not need to stat them one more time
 g_scanned_folders=[]
 
+
+# used by environment, this is the directory containing our Tools
+g_tooldir=''
+
 ## Mapping between extensions and languages
 g_exts = {
 '.c'   : 'cc',

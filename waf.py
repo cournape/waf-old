@@ -22,15 +22,30 @@ except:
 	sys.exit(1)
 
 # Setup the waf directory path
-wafadmin_dir = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),'wafadmin')
-if sys.platform == "win32":
-	sys.path=[wafadmin_dir,'wafadmin']+sys.path
-	print wafadmin_dir
-else:
-	sys.path=[wafadmin_dir,'wafadmin','/usr/lib/wafadmin','/usr/local/lib/wafadmin']+sys.path
+def find_wafdir(cand):
+	for dir in cand:
+		try:
+			os.stat(dir)
+			return dir
+		except:
+			pass
+	print 'The waf directory was not found'
+	print str(cand)
+	sys.exit(1)
 
-# Try to find custom options
+wafadmin_dir1 = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),'wafadmin')
+wafadmin_dir2 = os.path.join(os.path.abspath('.'), 'wafadmin')
+if sys.platform == "win32":
+	lst=[wafadmin_dir1, wafadmin_dir2]
+else:
+	lst=[wafadmin_dir1, wafadmin_dir2, '/usr/lib/wafadmin','/usr/local/lib/wafadmin']
+
+dir = find_wafdir(lst)
+sys.path=lst+sys.path
 import Options, Params
+Params.g_tooldir = [os.path.join(dir, 'Tools')]
+
+# Try to find the custom options
 
 # For now, no debugging output
 Params.set_trace(0,0,0)

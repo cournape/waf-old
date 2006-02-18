@@ -17,7 +17,6 @@ class Environment:
 	def __init__(self):
 		self.m_table={}
 		self.m_overriden={}
-		self.tooldir = [os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),'wafadmin','Tools')]
 		# may be there is a better place for this
 		if sys.platform == "win32":
 			self.setValue('WINDOWS',1)
@@ -46,7 +45,7 @@ class Environment:
 
 		self.appendValue('tools',tool)
 		try:
-			file,name,desc = imp.find_module(tool,self.tooldir)
+			file,name,desc = imp.find_module(tool, Params.g_tooldir)
 		except: 
 			print "no tool named '" + tool + "' found"
 			return 
@@ -59,7 +58,7 @@ class Environment:
 			for i in tool: self.setup(i)
 			return
 	
-		file,name,desc = imp.find_module(tool,self.tooldir)
+		file,name,desc = imp.find_module(tool, Params.g_tooldir)
 		module = imp.load_module(tool,file,name,desc)
 		try:
 			module.setup(self)
