@@ -88,8 +88,7 @@ def fakelibtool_build(task):
 	dest.write("libdir='%s/lib'" % task.m_env['PREFIX'])
 	dest.close()
 	return 0
-fakelibtoolact = Action.GenAction('fakelibtool', fakelibtool_vardeps)
-fakelibtoolact.m_function_to_run = fakelibtool_build
+fakelibtoolact = Action.GenAction('fakelibtool', fakelibtool_vardeps, buildfunc=fakelibtool_build)
 
 cpptypes=['shlib', 'program', 'staticlib']
 cppvars=['CXXFLAGS','LINKFLAGS','obj_ext']
