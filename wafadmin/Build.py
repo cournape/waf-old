@@ -61,8 +61,8 @@ class Build:
 			error('passing a null filename to set_default_env')
 			return
 		env.load(filename)
-		Params.g_default_env = env.copy()
 		env.setup(env['tools'])
+		Params.g_default_env = env.copy()
 		#debug(Params.g_default_env)
 
 	def set_srcdir(self, dir):

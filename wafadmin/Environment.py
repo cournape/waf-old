@@ -41,6 +41,7 @@ class Environment:
 			for i in tool: self.detect(i)
 			return
 
+		self.appendValue('tools',tool)
 		file,name,desc = imp.find_module(tool,self.tooldir)
 		module = imp.load_module(tool,file,name,desc)
 		module.detect(self)
