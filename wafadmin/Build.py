@@ -19,6 +19,8 @@ def debug(msg):
 	Params.debug(msg, 'Build')
 def error(msg):
 	Params.error(msg, 'Build')
+def fatal(msg):
+	Params.fatal(msg, 'Build')
 
 class Build:
 	def __init__(self):
@@ -60,7 +62,9 @@ class Build:
 		if not filename:
 			error('passing a null filename to set_default_env')
 			return
-		env.load(filename)
+		if not env.load(filename):
+			fatal("no cache file found or corrupted. You should run 'waf configure'")
+		
 		env.setup(env['tools'])
 		Params.g_default_env = env.copy()
 		#debug(Params.g_default_env)
