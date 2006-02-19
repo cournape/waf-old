@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Utils,Action
+import Utils,Action,Params
 
 # tool specific setup
 # is called when a build process is started 
@@ -37,9 +37,18 @@ def detect(env):
 	if sys.platform == "win32": 
 		if not env['PREFIX']: env['PREFIX']='c:\\'
 
+		# debug level
+		if Params.g_options.debug_level == 'release':
+			env['CXXFLAGS'] = '-O2'
+		elif Params.g_options.debug_level == 'debug':
+			env['CXXFLAGS'] = ['-g', '-DDEBUG']
+		elif Params.g_options.debug_level == 'ultradebug':
+			env['CXXFLAGS'] = ['-g3', '-O0', '-DDEBUG']
+		else:
+			env['CXXFLAGS'] = '-O2'
+
 		# c++ compiler
 		env['CXX']             = comp
-		env['CXXFLAGS']        = '-O2'
 		env['_CPPDEFFLAGS']    = ''
 		env['_CXXINCFLAGS']    = ''
 		env['CXX_ST']          = '%s -c -o %s'
@@ -75,9 +84,18 @@ def detect(env):
 	else:
 		if not env['PREFIX']: env['PREFIX'] = '/usr'
 
+		# debug level
+		if Params.g_options.debug_level == 'release':
+			env['CXXFLAGS'] = '-O2'
+		elif Params.g_options.debug_level == 'debug':
+			env['CXXFLAGS'] = ['-g', '-DDEBUG']
+		elif Params.g_options.debug_level == 'ultradebug':
+			env['CXXFLAGS'] = ['-g3', '-O0', '-DDEBUG']
+		else:
+			env['CXXFLAGS'] = '-O2'
+
 		# c++ compiler
 		env['CXX']             = 'g++'
-		env['CXXFLAGS']        = '-O2'
 		env['_CPPDEFFLAGS']    = ''
 		env['_CXXINCFLAGS']    = ''
 		env['CXX_ST']          = '%s -c -o %s'

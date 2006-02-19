@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Utils, Action
+import Utils, Action, Params
 
 # tool specific setup
 # is called when a build process is started 
@@ -27,6 +27,16 @@ def detect(env):
 
 	if sys.platform == "win32": 
 		if not env['PREFIX']: env['PREFIX']='c:\\'
+
+		# debug level
+		if Params.g_options.debug_level == 'release':
+			env['CCFLAGS'] = '-O2'
+		elif Params.g_options.debug_level == 'debug':
+			env['CCFLAGS'] = ['-g', '-DDEBUG']
+		elif Params.g_options.debug_level == 'ultradebug':
+			env['CCFLAGS'] = ['-g3', '-O0', '-DDEBUG']
+		else:
+			env['CCFLAGS'] = '-O2'
 
 		# c compiler
 		env['CC']             = comp
@@ -62,6 +72,16 @@ def detect(env):
 
 	else:
 		if not env['PREFIX']: env['PREFIX']='/usr'
+
+		# debug level
+		if Params.g_options.debug_level == 'release':
+			env['CCFLAGS'] = '-O2'
+		elif Params.g_options.debug_level == 'debug':
+			env['CCFLAGS'] = ['-g', '-DDEBUG']
+		elif Params.g_options.debug_level == 'ultradebug':
+			env['CCFLAGS'] = ['-g3', '-O0', '-DDEBUG']
+		else:
+			env['CCFLAGS'] = '-O2'
 
 		env['CC']             = comp
 		env['CCFLAGS']        = '-O2'

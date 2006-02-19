@@ -29,7 +29,7 @@ def parse_args():
 	p=parser.add_option
 
 	p('-d', '--debug-level',
-		action = 'append',
+		action = 'store',
 		default = 'release',
 		help = 'Specify the debug level. [Allowed Values: ultradebug, debug, release, optimized]',
 		dest = 'debug_level')
@@ -79,13 +79,12 @@ def parse_args():
 	#print Params.g_options, " ", args
 
 	# Now check the options that have been defined
-	#lst=['ultradebug', 'debug', 'release', 'optimized']
-	#for level in to_list(Params.g_options.debug_level):
-	#	if level not in lst:
-	#		print 'Error: Invalid debug level specified'
-	#		print parser.print_help()
-	#		sys.exit(1)
-	
+	lst=['ultradebug', 'debug', 'release', 'optimized']
+	if Params.g_options.debug_level not in lst:
+		print 'Error: Invalid debug level specified'
+		print parser.print_help()
+		sys.exit(1)
+
 	# signatures in options is a really bad idea ..
 	#if Params.g_options.signature_type not in ('timestamp', 'md5'):
 	#	print 'Error: Invalid signature type specified'
@@ -109,10 +108,10 @@ def parse_args():
 		arg = arg.strip()
 		if arg in lst:
 			Params.g_commands[arg]=True
-	#	else:
-	#		print 'Error: Invalid command specified ',arg
-	#		print parser.print_help()
-	#		sys.exit(1)
+		else:
+			print 'Error: Invalid command specified ',arg
+			print parser.print_help()
+			sys.exit(1)
 
 	Params.g_maxjobs = Params.g_options.jobs
 	Params.g_verbose = Params.g_options.verbose
