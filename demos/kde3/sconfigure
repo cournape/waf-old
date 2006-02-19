@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 env = create_env()
-env.detect('gcc')
+env.detect('g++')
 env.detect('KDE3')
 env.store('main.cache.py')
 
