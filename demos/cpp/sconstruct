@@ -9,9 +9,6 @@ bld.set_srcdir('.')
 bld.set_bdir('_build_')
 bld.set_default_env('main.cache.py')
 
-# folders to scan
-bld.scandirs('src')
-
 # kde rules but actually simple cpp programs, for now
 from Common import cppobj
 

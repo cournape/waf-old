@@ -15,7 +15,8 @@ def error(msg):
 # each script calls add_subdir
 def add_subdir(dir):
 	if Params.g_inroot:
-		node = Params.g_curdirnode.find_node(dir.split('/'))
+		#node = Params.g_curdirnode.find_node(dir.split('/'))
+		node = Params.g_build.m_tree.ensure_node_from_lst(Params.g_curdirnode, dir.split('/'))
 		Params.g_subdirs.append( [node, Params.g_curdirnode] )
 
 		if not node:
@@ -30,7 +31,8 @@ def add_subdir(dir):
 	#	error("error in subdir( "+dir)
 	#	return
 
-	Params.g_curdirnode = Params.g_curdirnode.find_node(dir.split('/'))
+	#Params.g_curdirnode = Params.g_curdirnode.find_node(dir.split('/'))
+	Params.g_curdirnode = Params.g_build.m_tree.ensure_node_from_lst(Params.g_curdirnode, dir.split('/'))
 	if Params.g_curdirnode is None:
 		error("subdir not found ("+dir+"), restore is "+str(restore))
 		sys.exit(1)

@@ -107,6 +107,7 @@ class qt4obj(Common.cppobj):
 
 	def create_rcc_task(self, base):
 		# run rcctask with one of the highest priority
+		# TODO add the dependency on the files listed in .qrc
 		rcctask = self.create_task('rcc', self.env, 2)
 		rcctask.m_inputs  = self.file_in(base+'.qrc')
 		rcctask.m_outputs = self.file_in(base+'_rc.cpp')
