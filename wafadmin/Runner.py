@@ -177,7 +177,7 @@ class Serial:
 			proc.m_hasrun=1
 
 			# register the task to the ones that have run - useful for debugging purposes
-			Params.g_done.append(proc)	
+			Params.g_tasks_done.append(proc)	
 
 			"""try:
 				proc.apply()

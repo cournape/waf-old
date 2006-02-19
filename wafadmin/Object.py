@@ -42,12 +42,12 @@ def get(name):
 # call flush for every group of object to process
 def flush():
 	trace("delayed operation called")
-	while len(Params.g_queue)>0:
+	while len(Params.g_outstanding_objs)>0:
 		trace("posting object")
 
-		obj=Params.g_queue.pop()
+		obj=Params.g_outstanding_objs.pop()
 		obj.post()
-		Params.g_posted.append(obj)
+		Params.g_posted_objs.append(obj)
 
 		trace("object posted")
 
@@ -56,6 +56,9 @@ class genobj:
 		self.m_type  = type
 		self.m_posted = 0
 		self.m_current_path = Params.g_curdirnode # emulate chdir when reading scripts
+
+		# TODO if we are building something, we need to make sure the folder is scanned
+		#if not Params.g_curdirnode in Params...
 
 		# default name of the action to use for the tasks
 		self.m_actname = actname
@@ -80,7 +83,7 @@ class genobj:
 		# an object is then posted when another one is added
 		# of course, you may want to post the object yourself first :)
 		#flush()
-		Params.g_queue.append(self)
+		Params.g_outstanding_objs.append(self)
 
 		if not type in self.get_valid_types():
 			error("BUG genobj::init : invalid type given")

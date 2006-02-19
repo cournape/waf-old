@@ -42,12 +42,14 @@ g_mode = 'slnk'
 if sys.platform == 'win32': g_mode = 'copy'
 
 ## == TASK AND RUNNER == ##
-## tasks in queue and tasks already posted
-g_queue=[]
-g_posted=[]
+# objects that are not posted and objects already posted
+# -> delay task creation
+g_outstanding_objs=[]
+g_posted_objs=[]
 
-g_waiting = []
-g_done    = []
+# tasks that have been run
+# this is used in tests to check which tasks were launched
+g_tasks_done=[]
 
 ## == BUILD == ##
 

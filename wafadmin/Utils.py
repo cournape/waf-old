@@ -64,11 +64,10 @@ def reset():
 	Params.g_excludes = ['.svn', 'scons-local-0.96.91', 'cache', '{arch}', '.arch-ids']
 	Params.g_pattern_excludes = ['_build_']
 
-	Params.g_queue=[]
-	Params.g_posted=[]
+	Params.g_outstanding_objs=[]
+	Params.g_posted_objs = []
 	
-	Params.g_waiting = []
-	Params.g_done    = []
+	Params.g_tasks_done  = []
 
 	Params.g_build    = None
 	
