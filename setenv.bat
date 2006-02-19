@@ -21,7 +21,7 @@ if not "%PYTHON%"=="" (
 	ftype Python.File=%PYTHON%\python.exe "%%1" %%*
 	set PATHEXT=%PATHEXT%;.py
 
-	::set PATH=%CD%;%PATH%
+	set PATH=%CD%;%PATH%
 	echo ...
 	echo now you can start any python script from waf 
 
