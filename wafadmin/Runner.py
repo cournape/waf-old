@@ -218,7 +218,8 @@ class TaskConsumer(threading.Thread):
 				self.m_q_out.put(ret, block=1)
 				continue
 
-			proc.update_stat()
+			try: proc.update_stat()
+			except: error('the nodes have not been produced !')
 			proc.m_hasrun=1
 
 			self.m_q_out.put(ret, block=1)
