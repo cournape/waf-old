@@ -8,14 +8,22 @@
 :: 
 @echo off
 
+if not defined PYTHON (
+	if exist "c:\PYTHON24" (
+		set PYTHON=c:\Python24
+		echo PYTHON installation found unter: %PYTHON%
+	)
+)
+
+
 if not "%PYTHON%"=="" (
 	assoc .py=Python.File
 	ftype Python.File=%PYTHON%\python.exe "%%1" %%*
 	set PATHEXT=%PATHEXT%;.py
 
-	set PATH=%CD%;%PATH%
+	::set PATH=%CD%;%PATH%
 	echo ...
-	echo now you can start any python script from bksys with bksys\scriptname
+	echo now you can start any python script from waf 
 
 
 ) else (
