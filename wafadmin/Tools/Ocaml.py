@@ -97,6 +97,10 @@ class ocamlobj(Object.genobj):
 			else:
 				return self.target
 
+def setup(env):
+	link_vardeps   = ['LINK', 'LINKFLAGS', 'LINK_ST']
+	Action.GenAction('link', link_vardeps)
+
 def detect(env):
 	env['OCAMLC']         = 'ocamlc'
 	env['OCAMLOPT']       = 'ocamlopt'
