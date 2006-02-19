@@ -252,7 +252,8 @@ def detect_qt4(env):
 	# do our best to find the QTDIR (non-Debian systems)
 	qtdir = os.getenv('QTDIR')
 
-	if qtdir and Configure.find_file('lib/libqt-mt' + env['LIBSUFFIX'], [qtdir]): qtdir=None
+	# TODO what if there are only static Qt libraries ?
+	if qtdir and Configure.find_file('lib/libqt-mt'+env['shlib_SUFFIX'], [qtdir]): qtdir=None
 	if not qtdir:
 		qtdir=Configure.find_path('include/', [ # lets find the qt include directory
 				'/usr/local/Trolltech/Qt-4.1.2/',

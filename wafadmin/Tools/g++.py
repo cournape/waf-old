@@ -30,13 +30,13 @@ def detect(env):
 
 	# g++ requires ar for static libs
 	if env.detect('ar'):
+		Utils.error('g++ needs ar - not found')
 		return 1
 
-	# this should be defined here
-	env['PREFIX']         = '/usr/bin'
-	env['DESTDIR']        = ''
-	
+	if not env['DESTDIR']: env['DESTDIR']=''
 	if sys.platform == "win32": 
+		if not env['PREFIX']: env['PREFIX']='c:\\'
+
 		# c++ compiler
 		env['CXX']             = comp
 		env['CXXFLAGS']        = '-O2'
@@ -54,9 +54,6 @@ def detect(env):
 		env['LIBPATH_ST']      = '-L%s' # template for adding libpathes
 		env['_LIBDIRFLAGS']    = ''
 		env['_LIBFLAGS']       = ''
-	
-		# TODO: for what kind of library is this used ? 
-		env['LIBSUFFIX']       = '.dll'
 	
 		# shared library 
 		env['shlib_CXXFLAGS']  = ['']
@@ -76,6 +73,8 @@ def detect(env):
 		env['program_SUFFIX']  = '.exe'
 
 	else:
+		if not env['PREFIX']: env['PREFIX'] = '/usr'
+
 		# c++ compiler
 		env['CXX']             = 'g++'
 		env['CXXFLAGS']        = '-O2'
@@ -93,9 +92,6 @@ def detect(env):
 		env['LIBPATH_ST']      = '-L%s' # template for adding libpathes
 		env['_LIBDIRFLAGS']    = ''
 		env['_LIBFLAGS']       = ''
-	
-		# TODO: for what kind of library is this used ? 
-		env['LIBSUFFIX']       = '.so'
 	
 		# shared library 
 		env['shlib_CXXFLAGS']  = ['-fPIC', '-DPIC']

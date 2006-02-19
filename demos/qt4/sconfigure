@@ -12,6 +12,6 @@ add_option('--qtincludes', type='string', help='root of the qt directory', dest=
 add_option('--qtbin', type='string', help='root of the qt directory', dest='qtbin')
 
 env = create_env()
-env.detect(['gcc', 'Qt4'])
+env.detect(['g++', 'Qt4'])
 env.store('main.cache.py')
 

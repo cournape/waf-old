@@ -26,6 +26,8 @@ def detect(env):
 		sys.exit(1)
 
 	if sys.platform == "win32": 
+		if not env['PREFIX']: env['PREFIX']='c:\\'
+
 		# c compiler
 		env['CC']             = comp
 		env['CCFLAGS']        = '-O2'
@@ -40,9 +42,6 @@ def detect(env):
 		env['LINK_ST']         = '%s -o %s'
 		env['_LIBDIRFLAGS']    = ''
 		env['_LIBFLAGS']       = ''
-	
-		# TODO: for what kind of library is this used ? 
-		env['LIBSUFFIX']       = '.dll'
 	
 		# shared library 
 		env['shlib_CFLAGS']  = ['']
@@ -62,6 +61,8 @@ def detect(env):
 		env['program_SUFFIX']  = '.exe'
 
 	else:
+		if not env['PREFIX']: env['PREFIX']='/usr'
+
 		env['CC']             = comp
 		env['CCFLAGS']        = '-O2'
 		env['_CPPDEFFLAGS']   = ''
@@ -75,9 +76,6 @@ def detect(env):
 		env['LINK_ST']         = '%s -o %s'
 		env['_LIBDIRFLAGS']    = ''
 		env['_LIBFLAGS']       = ''
-	
-		# TODO: for what kind of library is this used ? 
-		env['LIBSUFFIX']       = '.so'
 	
 		# shared library 
 		env['shlib_CFLAGS']    = ['-fPIC', '-DPIC']
