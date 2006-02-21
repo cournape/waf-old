@@ -107,11 +107,11 @@ char %s();""" % function
 		"""check if a tool is given"""
 		pass
 
-	def error(lenv,module,str):
+	def error(self,lenv,module,str):
 		"""prints an error message"""
 		print "configuration error: " + module + " " + str
 
-	def store(lenv,file):
+	def store(self, file):
 		"""save config results into a cache file"""
 		return self.config.store(file)
 

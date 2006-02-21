@@ -296,8 +296,7 @@ class Deptree:
 				for file_or_dir in names_read:
 					subpath = os.path.join(abspath, file_or_dir)
 					st = os.stat( subpath )
-					if not S_ISREG(st[ST_MODE]):
-						continue
+					if not S_ISREG(st[ST_MODE]): continue
 
 					# create the corresponding nodes in src and mir folders
 					child_node = Node.Node(file_or_dir, src_node)

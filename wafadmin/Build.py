@@ -48,6 +48,10 @@ class Build:
 		cPickle.dump(self.m_tree, file, -1)
 		file.close()
 
+	def set_dirs(self, srcdir, blddir):
+		self.set_bdir(blddir)
+		self.set_srcdir(srcdir)
+
 	def set_bdir(self, path):
 		trace("set_builddir")
 		p = os.path.abspath(path)
@@ -69,7 +73,7 @@ class Build:
 		Params.g_default_env = env.copy()
 		#debug(Params.g_default_env)
 
-	def set_srcdir(self, dir):
+	def set_srcdir(self, dir, scan='auto'):
 		trace("set_srcdir")
 		p = os.path.abspath(dir)
 		if sys.platform=='win32': p=p[2:]
@@ -78,28 +82,23 @@ class Build:
 		Params.g_srcnode = node
 		# position in the source tree when reading scripts
 		Params.g_curdirnode = node
+		# stupid behaviour (will scan every project in the folder) but scandirs-free
+		# we will see later for more intelligent behaviours (scan only folders that contain sources..)
+		if scan == 'auto':
+			trace("autoscan in use")
+			# avoid recursion
+			def scan(node):
+				if node is Params.g_bldnode: return []
+				dir = os.sep.join( Params.g_srcnode.difflst(node) )
+				self.m_tree.scanner_mirror(dir)
+				return node.m_dirs
+			mlst = scan(Params.g_srcnode)
+			while mlst:
+				el=mlst[0]
+				mlst=mlst[1:]
+				mlst += scan(el)
 
-	# TODO: does scanning folders in order matter ?
-	def scandirs_old(self, paths):
-		ldirs = (' '+paths).split()
-
-		for sub_dir in ldirs:
-			if not sub_dir: continue # TODO is this line really needed ???
-
-			this_dir = os.path.join(self.m_rootdir, sub_dir)
-
-			# scan the src directory and get the corresponding node
-			srcnode = self.m_tree.ensure_node_from_path(this_dir)
-			self.m_tree.scanner_srcdir(srcnode)
-
-			# name of the corresponding in build folder
-			#this_dir_bld = os.path.join(self.m_rootdir, b_dir, sub_dir)
-			this_dir_bld = os.path.join(self.m_rootdir, self.m_tree.m_bldnode.m_name, sub_dir)
-			# make sure there is a corresponding *Node* in the build folder
-			bldnode = self.m_tree.ensure_directory(this_dir_bld)
-			# now scan the build directory, passing the src dir as a source
-			self.m_tree.mirror(srcnode, bldnode)
-
+	# use this when autoscan is off
 	def scandirs(self, paths):
 		ldirs=paths.split()
 		for sub_dir in ldirs:
