@@ -5,15 +5,14 @@
 VERSION='0.0.1'
 APPNAME='qt4_test'
 
-bld.set_srcdir('.')
-bld.set_bdir('_build_')
+bld.set_dirs('.', '_build_')
 bld.set_default_env('main.cache.py')
 
 #import Params
 #Params.set_trace(1,1,1)
 
-# folders to scan
-bld.scandirs('src src/test src/images')
+# folders to scan in case of set_srcdir( .., .., scan='no')
+#bld.scandirs('src src/test src/images')
 
 # we want to build Qt4 programs
 from Tools.Qt4 import qt4obj

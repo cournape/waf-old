@@ -5,13 +5,12 @@
 APPNAME='kde3app'
 VERSION='0.0.1'
 
-bld.set_srcdir('.')
-bld.set_bdir('_build_')
+bld.set_dirs('.', '_build_')
 bld.set_default_env('main.cache.py')
 
 # TODO: make it possible to run without scanning src/appdata
 # scan the folders
-bld.scandirs('src')
+#bld.scandirs('src')
 
 # we want to build kde programs
 import Tools

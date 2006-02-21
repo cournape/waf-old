@@ -48,9 +48,9 @@ class Build:
 		cPickle.dump(self.m_tree, file, -1)
 		file.close()
 
-	def set_dirs(self, srcdir, blddir):
+	def set_dirs(self, srcdir, blddir, scan='auto'):
 		self.set_bdir(blddir)
-		self.set_srcdir(srcdir)
+		self.set_srcdir(srcdir, scan)
 
 	def set_bdir(self, path):
 		trace("set_builddir")

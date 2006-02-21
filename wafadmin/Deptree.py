@@ -289,6 +289,7 @@ class Deptree:
 					elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
 					elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
 			else:
+
 				# we need to update the info in the srcdir first - remove the m_files nodes
 				src_node.m_files = []
 				names_read = os.listdir( src_node.abspath() )
@@ -296,7 +297,10 @@ class Deptree:
 				for file_or_dir in names_read:
 					subpath = os.path.join(abspath, file_or_dir)
 					st = os.stat( subpath )
-					if not S_ISREG(st[ST_MODE]): continue
+					if not S_ISREG(st[ST_MODE]):
+						# this could be left aside, unfortunately that's a bad idea
+						src_node.m_dirs.append( Node.Node(file_or_dir, src_node) )
+						continue
 
 					# create the corresponding nodes in src and mir folders
 					child_node = Node.Node(file_or_dir, src_node)

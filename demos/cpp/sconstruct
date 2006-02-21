@@ -5,11 +5,10 @@
 VERSION='0.0.1'
 APPNAME='cpp_test'
 
-bld.set_srcdir('.')
-bld.set_bdir('_build_')
+bld.set_dirs('.', '_build_')
 bld.set_default_env('main.cache.py')
 
-# kde rules but actually simple cpp programs, for now
+# cpp programs, shared and static libraries
 from Common import cppobj
 
 # process subfolders from here
