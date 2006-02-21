@@ -57,9 +57,9 @@ class Configure:
 			self.config = Environment.Environment()
 		else:
 			self.config = config
-		for key in config.m_table:
+		for key in self.config.m_table:
 			if key == 'modules':
-				self.modules = config[key].split()
+				self.modules = self.config[key].split()
 
 	def execute(self):
 		env = Environment.Environment()
