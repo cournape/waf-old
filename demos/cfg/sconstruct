@@ -5,28 +5,23 @@
 VERSION='0.0.1'
 APPNAME='cfg_test'
 
-bld.set_srcdir('.')
-bld.set_bdir('_build_')
+bld.set_srcdir('.', '_build_')
 bld.set_default_env('main.cache.py')
 
 # stuff we want to load..
 from Common import cppobj
 from Tools import Ar
 
-# folders to scan
-bld.scandirs('src1')
 add_subdir('src1')
 
 env=create_env()
 if env.load('ocaml.cache.py'):
 	env.set_alias('ocaml')
-	bld.scandirs('src2')
 	add_subdir('src1')
 
 env=create_env()
 if env.load('mylib.cache.py'):
 	env.set_alias('mylib')
-	bld.scandirs('src3')
 	add_subdir('src2')
 
 

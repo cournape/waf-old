@@ -231,7 +231,7 @@ class Node:
 	# string representing a relative path between two nodes, we are at relative_to
 	def relpath_gen(self, going_to):
 		if self is going_to: return '.'
-		if going_to.m_parent is self: return going_to.m_name
+		if going_to.m_parent is self: return '..'
 
 		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
 		ancestor  = self.find_ancestor(going_to)

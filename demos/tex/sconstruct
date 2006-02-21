@@ -5,15 +5,11 @@
 VERSION='0.0.1'
 APPNAME='tex_test'
 
-bld.set_srcdir('.')
-bld.set_bdir('_build_')
+bld.set_srcdir('.', '_build_')
 bld.set_default_env('main.cache.py')
 
 #import Params
 #Params.set_trace(1,1,1)
-
-# folders to scan
-bld.scandirs('src ')
 
 # we want to build kde programs
 from Tools.Tex import texobj

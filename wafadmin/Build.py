@@ -89,6 +89,7 @@ class Build:
 			# avoid recursion
 			def scan(node):
 				if node is Params.g_bldnode: return []
+				if node.m_name=='wafadmin': return []
 				dir = os.sep.join( Params.g_srcnode.difflst(node) )
 				self.m_tree.scanner_mirror(dir)
 				return node.m_dirs

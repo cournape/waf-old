@@ -5,12 +5,8 @@
 VERSION='0.0.1'
 APPNAME='ocaml_test'
 
-bld.set_srcdir('.')
-bld.set_bdir('_build_')
+bld.set_srcdir('.', '_build_')
 bld.set_default_env('main.cache.py')
-
-# folders to scan
-bld.scandirs('src')
 
 # we want to build caml programs
 from Tools.Ocaml import ocamlobj
