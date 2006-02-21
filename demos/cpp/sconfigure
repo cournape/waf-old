@@ -5,10 +5,11 @@
 # Options to add MUST fit on a single line
 add_option('--prefix', type='string', help='installation prefix', dest='prefix')
 add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
+Params.set_trace(1,1,1)
 
-env = create_env()
-env.detect(['g++'])
-env.store('main.cache.py')
+conf = Configure.Configure()
+conf.checkTool(['g++'])
+conf.store('main.cache.py')
 
 sub_config('src')
 
