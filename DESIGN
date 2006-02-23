@@ -9,7 +9,7 @@ ADDITIONAL FEATURES OVER SCONS
 * find source files intelligently (glob-like) to ease script maintainance - kde module only at the moment
 * customizable command-line parsing using sconfigure (works now!)
 * tight control over the scheduler (not all links at the same time, etc)
-* support for objective caml targets (incomplete though)
+* support for objective caml targets (no ocamldeps yet)
 
 DATA STRUCTURE
 --------------

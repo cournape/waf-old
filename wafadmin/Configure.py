@@ -50,7 +50,6 @@ def sub_config(file):
 	return ''
 
 class Configure:
-	
 	def __init__(self, config=None):
 		if not config:
 			self.config = Environment.Environment()
@@ -197,6 +196,8 @@ char %s();""" % function
 	def detect(self,tool):
 		"""deprecated, replaced by checkTool"""
 		return self.config.detect(tool)
-	
 
+# syntactic sugar
+def create_config(config=None):
+	return Configure(config)
 

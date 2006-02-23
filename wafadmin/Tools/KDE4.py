@@ -4,9 +4,8 @@
 
 class kdeinitobj(kdeobj):
 	def __init__(self, senv=None):
-		if not senv:
-			senv = env
-		SConsEnvironment.kdeobj.__init__(self, 'shlib', senv)
+		if not self.env: self.env = env
+		kdeobj.__init__(self, 'shlib', senv)
 
 		if env['WINDOWS']:
 			self.type = 'program'
@@ -55,7 +54,7 @@ class kdeinitobj(kdeobj):
 				myext  = sext[1]
 
 		def create_kdeinit_cpp(target, source, env):
-			""" Creates the dummy kdemain file for the binary"""
+			# Creates the dummy kdemain file for the binary
 			dest=open(target[0].path, 'w')
 			dest.write('extern \"C\" int kdemain(int, char* []);\n')
 			dest.write('int main( int argc, char* argv[] ) { return kdemain(argc, argv); }\n')
@@ -79,7 +78,6 @@ class kdeinitobj(kdeobj):
 			  src_suffix=myext)
 		env.KdeinitLaCpp(myname)
 		self.source = 'kdeinit_' + self.target + '.la.cpp'
-		# TODO scons clean?
 
 		kdeobj.execute(self)
 

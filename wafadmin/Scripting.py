@@ -45,7 +45,7 @@ def Main():
 		from Utils import add_option
 		import Environment, Configure, Tools
 		from Environment import create_env
-		from Configure import sub_config
+		from Configure import sub_config, create_config
 		file = open('sconfigure', 'r')
 		exec file
 		sys.exit(0)
