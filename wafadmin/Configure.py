@@ -62,6 +62,10 @@ class Configure:
 		self.defines = {}
 		self.configheader = 'config.h'
 
+	def __del__(self):
+		if not self.config.getValue('tools'):
+			self.error('you should add at least a checkTool() call in your sconfigure, otherwise you cannot build anything')
+
 	def execute(self):
 		env = Environment.Environment()
 		sys.path.append('bksys')
@@ -172,7 +176,7 @@ char %s();""" % function
 		"""check if a a user provided module is given"""
 		pass
 
-	def error(self,lenv,module,str):
+	def error(self,module,str):
 		"""prints an error message"""
 		print "configuration error: " + module + " " + str
 
