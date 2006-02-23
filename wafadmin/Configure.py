@@ -2,8 +2,7 @@
 # encoding: utf-8
 
 import os, types, sys, string
-import Params
-import Environment
+import Params, Environment
 
 def find_path(file, path_list):
 	for dir in path_list:
@@ -60,6 +59,8 @@ class Configure:
 		for key in self.config.m_table:
 			if key == 'modules':
 				self.modules = self.config[key].split()
+		self.defines = {}
+		self.configheader = 'config.h'
 
 	def execute(self):
 		env = Environment.Environment()
@@ -71,23 +72,77 @@ class Configure:
 		filename = env.getValue('OS') + '.env'
 		env.store(filename)
 
+	def addDefine(self, define, value):
+		"""store a single define and its state into an internal list 
+		   for later writing to a config header file"""	
+		self.defines[define] = value
 	
+	def isDefined(self, define):
+		if self.defines.has_key(define):
+			return 1
+		else:
+			return 0
+
+	def getDefine(self, define):
+		"""get the value of a previously stored define"""
+		if self.defines.has_key(define):
+			return self.defines[define]
+		else:
+			return 0
+
+	def writeConfigHeader(self, configfile=''):
+		"""save the defines into a file"""
+		self.config['_BUILDDIR_'] = ''
+		if configfile=='':
+			configfile = self.configheader
+		dest=open(os.path.join(self.config['_BUILDDIR_'], configfile), 'w')
+		dest.write('/* configuration created by waf */\n')
+		for key in self.defines: 
+			if self.defines[key]:
+				dest.write('#define '+key+' 1\n')
+				#if addcontent:
+				#	dest.write(addcontent);
+			else:
+				dest.write('/* #undef '+key+' */\n')
+		dest.close()
+
 	def setConfigHeader(self, header):
 		"""set a config header file"""
+		self.configheader = header
 		pass
 
-	def checkHeaders(self, header, headers):
+	def checkHeader(self, header, define=''):
 		"""find a header"""
-		pass
+		if define == '':
+			define = 'HAVE_'+header.upper().replace('.','_')
 
-	def checkFunction(self, function, header = None, language = None):
+		if self.isDefined(define):
+			return self.getDefine(define)
+	
+		is_found = 0 #=check_if_header_isavailable
+		self.checkMessage('header',header,is_found)
+		self.addDefine(define,is_found)
+		return is_found
+
+	def checkFunction(self, function, headers = None, define='', language = None):
 		"""find a function"""
-		if not header:
-			header = """
+		if define == '':
+			define = 'HAVE_'+function.upper().replace('.','_')
+
+		if self.isDefined(define):
+			return self.getDefine(define)
+
+		if not headers:
+			headers = """
 #ifdef __cplusplus
 extern "C"
 #endif
 char %s();""" % function
+
+		is_found = 0 #=check_if_function_isavailable
+		self.checkMessage('function',function,is_found)
+		self.addDefine(define,is_found)
+		return is_found
 
 	def checkProgram(self, file, path_list=None):
 		"""find an application"""
@@ -95,16 +150,26 @@ char %s();""" % function
 		self.checkMessage('program',file,ret,ret)
 		return ret
 
-	def checkLibrary(self, header, headers):
+	def checkLibrary(self, libname, headers=None,define=''):
 		"""find a library"""
-		pass
+		if define == '':
+			define = 'HAVE_'+libname.upper().replace('.','_')
+
+		if self.isDefined(define):
+			return self.getDefine(define)
+
+		is_found = 0 #=check_if_library_isavailable
+		self.checkMessage('library',libname,is_found)
+		self.addDefine(define,is_found)
+		return is_found
+
 
 	def checkTool(self,tool):
 		"""check if a waf tool is available"""
 		return self.config.detect(tool)
 			
 	def checkModule(self,tool):
-		"""check if a tool is given"""
+		"""check if a a user provided module is given"""
 		pass
 
 	def error(self,lenv,module,str):
