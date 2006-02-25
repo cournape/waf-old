@@ -26,14 +26,14 @@ def setup(env):
 	aract.m_function_to_run = ar_build
 
 def detect(env):
-	comp = Utils.where_is('ar')
-	if not comp:
-		Utils.error('ar was not found')
-		return 1
 
-	ranlib = Utils.where_is('ranlib')
+	conf = Configure.Configure(env)
+	comp = conf.checkProgram('ar')
+	if not comp:
+		return 1;
+
+	ranlib = conf.checkProgram('ranlib')
 	if not ranlib:
-		Utils.error('ranlib was not found')
 		return 1
 
 	env['AR']                = comp
