@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Utils,Action,Params
+import Utils,Action,Params,Configure
 
 # tool specific setup
 # is called when a build process is started 
@@ -23,29 +23,19 @@ def setup(env):
 # the values are cached for further build processes
 def detect(env):
 
-	comp = Utils.where_is('g++')
+	conf = Configure.Configure(env)
+	comp = conf.checkProgram('g++')
 	if not comp:
-		Utils.error('g++ was not found')
 		return 1;
 
 	# g++ requires ar for static libs
-	if env.detect('ar'):
+	if conf.checkTool('ar'):
 		Utils.error('g++ needs ar - not found')
 		return 1
 
 	if not env['DESTDIR']: env['DESTDIR']=''
 	if sys.platform == "win32": 
 		if not env['PREFIX']: env['PREFIX']='c:\\'
-
-		# debug level
-		if Params.g_options.debug_level == 'release':
-			env['CXXFLAGS'] = '-O2'
-		elif Params.g_options.debug_level == 'debug':
-			env['CXXFLAGS'] = ['-g', '-DDEBUG']
-		elif Params.g_options.debug_level == 'ultradebug':
-			env['CXXFLAGS'] = ['-g3', '-O0', '-DDEBUG']
-		else:
-			env['CXXFLAGS'] = '-O2'
 
 		# c++ compiler
 		env['CXX']             = comp
