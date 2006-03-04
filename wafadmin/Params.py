@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import sys, types
+import os,sys, types
 import Utils
 
 g_version='0.7.4' # ph34r
@@ -183,7 +183,7 @@ def error(msg, module=''):
 	if module in g_trace_exclude: return
 	niceprint(msg, 'ERROR', module)
 def fatal(msg, module=''):
-	niceprint(msg, 'FATAL', module)
+	niceprint(msg, 'ERROR', module)
 	sys.exit(1)
 
 def h_file(fname):
