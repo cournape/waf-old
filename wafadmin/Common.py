@@ -13,6 +13,8 @@ def debug(msg):
 	Params.debug(msg, 'Common')
 def error(msg):
 	Params.error(msg, 'Common')
+def fatal(msg):
+	Params.fatal(msg, 'Common')
 
 g_cppvalues = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -96,7 +98,8 @@ class cppobj(Object.genobj):
 	def __init__(self, type='program'):
 		Object.genobj.__init__(self, "other", "cpp")
 		self.env = Params.g_default_env.copy()
-
+		if not self.env.getValue('tools'):
+			fatal('no tool selected')			
 		self.m_type = type
 
 		self.includes=''
@@ -131,8 +134,8 @@ class cppobj(Object.genobj):
 	def apply(self):
 		trace("apply called for cppobj")
 
-		self.apply_type_vars()
 		self.apply_lib_vars()
+		self.apply_type_vars()
 		self.apply_obj_vars()
 		self.apply_incpaths()
 
