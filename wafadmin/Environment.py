@@ -35,23 +35,6 @@ class Environment:
 				tb[key] = self.m_overriden[key]
 		return newenv
 
-	# detect tools in configure process 
-	# this method is really cool (ita)
-	# env.detect('GCC') is equivalent to import Tools.GCC\nTools.GCC.detect(env)
-	def detect(self, tool):
-		if type(tool) is types.ListType:
-			for i in tool: self.detect(i)
-			return
-
-		self.appendValue('tools',tool)
-		try:
-			file,name,desc = imp.find_module(tool, Params.g_tooldir)
-		except: 
-			print "no tool named '" + tool + "' found"
-			return 
-		module = imp.load_module(tool,file,name,desc)
-		module.detect(self)
-
 	# setup tools for build process
 	def setup(self, tool):
 		if type(tool) is types.ListType:
@@ -78,12 +61,14 @@ class Environment:
 
 	def setValue(self, var, value):
 		self.m_table[var]=value
+
 	def getValue(self, var):
 		try:
 			return self.m_table[var]
 		except:
 			if var in self.m_overriden: return self.m_overriden[var]
 			return []
+
 	def appendValue(self, var, value):
 		if not var in self.m_table:
 			try:
@@ -92,11 +77,13 @@ class Environment:
 				self.m_table[var] = []
 		if type(value) is types.ListType: self.m_table[var] += value
 		else: self.m_table[var].append(value)
+
 	def prependValue(self, var, value):
 		if not var in self.m_table:
 			try: self.m_table[var]    = []+self.m_overriden[var]
 			except: self.m_table[var] = []
 		self.m_table[var] = [value]+self.m_table[var]
+
 	def store(self, filename):
 		file=open(filename, 'w')
 		keys=self.m_table.keys()+self.m_overriden.keys()

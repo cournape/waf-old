@@ -238,7 +238,9 @@ class qt4obj(Common.cppobj):
 			self.install_results( 'PREFIX', 'lib', self.m_latask )
 
 
-def detect_qt4(env):
+def detect_qt4(conf):
+	env = conf.env
+
 	#def getpath(varname):
 	#	if not env.has_key('ARGS'): return None
 	#	v=env['ARGS'].get(varname, None)
@@ -250,11 +252,11 @@ def detect_qt4(env):
 	qtincludes = ''
 	p=Params.pprint
 
-	# do our best to find the QTDIR (non-Debian systems)
+		# do our best to find the QTDIR (non-Debian systems)
 	qtdir = os.getenv('QTDIR')
 
 	# TODO what if there are only static Qt libraries ?
-	if qtdir and Configure.find_file('lib/libqt-mt'+env['shlib_SUFFIX'], [qtdir]): qtdir=None
+	if qtdir and Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), qtdir): qtdir=None
 	if not qtdir:
 		qtdir=Configure.find_path('include/', [ # lets find the qt include directory
 				'/usr/local/Trolltech/Qt-4.1.2/',
@@ -279,44 +281,23 @@ def detect_qt4(env):
 		# first use the qtdir
 		path=''
 		for prog in progs:
-			path=Configure.find_program(env, prog, [os.path.join(qtdir, 'bin')])
+			path=conf.checkProgram(prog, [os.path.join(qtdir, 'bin')])
 			if path:
-				p('GREEN',"%s was found as %s" % (prog, path))
 				return path
-
-		if not env['WINDOWS']: #(js) temp. check
-			# else use the environment
-			for prog in progs:
-				path=Configure.find_program_using_which(env, prog)
-				if path:
-					p('YELLOW',"%s was found as %s" % (prog, path))
-					return path
-			
-			# and then try to guess using common paths ..
-			common_paths=['/usr/bin', '/usr/local/bin', '/opt/bin', '/opt/local/bin']
-			for prog in progs:
-				path=Configure.find_program(env, prog, common_paths)
-				if path:
-					p('YELLOW',"%s was found as %s" % (prog, path))
-					return path
 
 		# everything failed
 		p('RED',"%s was not found - make sure Qt4-devel is installed, or set $QTDIR or $PATH" % prog)
-		env.Exit(1)
+		sys.exit(1)
 	
-	print "Checking for uic-qt3           :",
 	env['QT_UIC3']= find_qt_bin(['uic-qt3', 'uic3'])
 	env['UIC3_ST']= '%s -o %s'
 
-	print "Checking for uic               :",
 	env['QT_UIC'] = find_qt_bin(['uic-qt4', 'uic'])
 	env['UIC_ST'] = '%s -o %s'
 
-	print "Checking for moc               :",
 	env['QT_MOC'] = find_qt_bin(['moc-qt4', 'moc'])
 	env['MOC_ST'] = '%s -o %s'
 
-	print "Checking for rcc               :",
 	env['QT_RCC'] = find_qt_bin(['rcc'])
 
 	# TODO is this really needed now ?
@@ -326,7 +307,7 @@ def detect_qt4(env):
 		version = version.replace('Qt user interface compiler','')
 		version = version.replace('User Interface Compiler for Qt', '')
 		p('RED', version + " (too old)")
-		env.Exit(1)
+		sys.exit(1)
 	p('GREEN', "fine - %s" % version)
 
 	#if os.environ.has_key('PKG_CONFIG_PATH'):
@@ -354,7 +335,7 @@ def detect_qt4(env):
 			qtincludes = "/usr/include"
 		else:
 			p('RED',"the qt headers were not found")
-			env.Exit(1)
+			sys.exit(1)
 
 
 	#env['QTPLUGINS']=os.popen('kde-config --expandvars --install qtplugins').read().strip()
@@ -371,7 +352,7 @@ def detect_qt4(env):
 
 	# link against libqt_debug when appropriate
 	if env['BKS_DEBUG']: debug='_debug'
-	else:                debug=''
+	else:                debug='4'
 
 	if not env['LIB_Z']:
 		env['LIB_Z']         = ['z']
@@ -381,8 +362,9 @@ def detect_qt4(env):
         ########## QT
         # QTLIBPATH is a special var used in the qt4 module - has to be changed (ita)
 	env['CPPPATH_QT']          = [ env['QTINCLUDEPATH']+'/Qt', env['QTINCLUDEPATH'] ] # TODO QTINCLUDEPATH (ita)
-        env['LIBPATH_QT']          = env['LIBPATH_X11']+[env['QTLIBPATH']]
-        env['LIB_QT']              = ['QtGui'+debug, 'pthread', 'Xext']+env['LIB_Z']+env['LIB_PNG']+env['LIB_X11']+env['LIB_SM']
+	env['LIBPATH_QT']          = env['LIBPATH_X11']+[env['QTLIBPATH']]
+#    env['LIB_QT']              = ['QtGui4'+debug, 'pthread', 'Xext']+env['LIB_Z']+env['LIB_PNG']+env['LIB_X11']+env['LIB_SM']
+	env['LIB_QT']              = ['QtGui'+debug, ]
 	env['RPATH_QT']            = env['LIBPATH_X11']+[env['QTLIBPATH']]
 
         env['CXXFLAGS_QT3SUPPORT'] = ['-DQT3_SUPPORT']
@@ -408,8 +390,8 @@ def detect_qt4(env):
         env['LIB_QTGUI']           = ['QtCore'+debug, 'QtGui'+debug]
 	env['RPATH_QTGUI']         = env['RPATH_QT']
 
-	env['CPPPATH_OPENGL']      = [ env['QTINCLUDEPATH']+'/QtOpengl' ]
-        env['LIB_QTOPENGL']        = ['QtOpenGL'+debug]
+	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpengl') ]
+        env['LIB_QTOPENGL']        = ['QtOpenGL'+debug,'opengl32']
 	env['RPATH_QTOPENGL']      = env['RPATH_QT']
 
 	env['CPPPATH_QTSQL']       = [ env['QTINCLUDEPATH']+'/QtSql' ]
@@ -424,10 +406,181 @@ def detect_qt4(env):
         env['LIB_QTEST']           = ['QtTest'+debug]
 	env['RPATH_QTEST']         = env['RPATH_QT']
 	
-	env['QTLOCALE']            = env['PREFIX']+'/share/locale'
+	print env['PREFIX']
+	env['QTLOCALE']            = str(env['PREFIX'])+'/share/locale'
 
-def detect(env):
-	detect_qt4(env)
+
+def detect_qt4_win32(conf):
+	env = conf.env
+
+	#def getpath(varname):
+	#	if not env.has_key('ARGS'): return None
+	#	v=env['ARGS'].get(varname, None)
+	#	if v : v=os.path.abspath(v)
+	#	return v
+	#qtincludes	= getpath('qtincludes')
+	#qtlibs		= getpath('qtlibs')
+	qtlibs     = ''
+	qtincludes = ''
+	p=Params.pprint
+
+		# do our best to find the QTDIR (non-Debian systems)
+	qtdir = os.getenv('QTDIR')
+
+	# TODO what if there are only static Qt libraries ?
+	if qtdir and Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), qtdir): qtdir=None
+	if not qtdir:
+		qtdir=Configure.find_path('include/', [ # lets find the qt include directory
+				'c:\\Programme\\Qt\\4.1.0',
+				'c:\\Qt\\4.1.0',
+				'f:\\Qt\\4.1.0'])
+		if qtdir: p('YELLOW', 'The qtdir was found as '+qtdir)
+		else:     p('YELLOW', 'There is no QTDIR set')
+	else: env['QTDIR'] = qtdir.strip()
+
+	# if we have the QTDIR, finding the qtlibs and qtincludes is easy
+	if qtdir:
+		if not qtlibs:     qtlibs     = os.path.join(qtdir, 'lib')
+		if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
+		#os.putenv('PATH', os.path.join(qtdir , 'bin') + ":" + os.getenv("PATH")) # TODO ita 
+
+	# Check for uic, uic-qt3, moc, rcc, ..
+	def find_qt_bin(progs):
+		# first use the qtdir
+		path=''
+		for prog in progs:
+			path=conf.checkProgram(prog, [os.path.join(qtdir, 'bin')])
+			if path:
+				return path
+
+		# everything failed
+		p('RED',"%s was not found - make sure Qt4-devel is installed, or set $QTDIR or $PATH" % prog)
+		sys.exit(1)
+	
+	env['QT_UIC3']= find_qt_bin(['uic-qt3', 'uic3'])
+	env['UIC3_ST']= '%s -o %s'
+
+	env['QT_UIC'] = find_qt_bin(['uic-qt4', 'uic'])
+	env['UIC_ST'] = '%s -o %s'
+
+	env['QT_MOC'] = find_qt_bin(['moc-qt4', 'moc'])
+	env['MOC_ST'] = '%s -o %s'
+
+	env['QT_RCC'] = find_qt_bin(['rcc'])
+
+	# TODO is this really needed now ?
+	print "Checking for uic3 version      :",
+	version = os.popen(env['QT_UIC'] + " -version 2>&1").read().strip()
+	if version.find(" 3.") != -1:
+		version = version.replace('Qt user interface compiler','')
+		version = version.replace('User Interface Compiler for Qt', '')
+		p('RED', version + " (too old)")
+		sys.exit(1)
+	p('GREEN', "fine - %s" % version)
+
+	#if os.environ.has_key('PKG_CONFIG_PATH'):
+	#	os.environ['PKG_CONFIG_PATH'] = os.environ['PKG_CONFIG_PATH'] + ':' + qtlibs
+	#else:
+	#	os.environ['PKG_CONFIG_PATH'] = qtlibs
+
+	## check for the Qt4 includes
+	print "Checking for the Qt4 includes  :",
+	if qtincludes and os.path.isfile(qtincludes + "/QtGui/QFont"):
+		# The user told where to look for and it looks valid
+		p('GREEN','ok '+qtincludes)
+	else:
+		if os.path.isfile(qtdir+'/include/QtGui/QFont'):
+			# Automatic detection
+			p('GREEN','ok '+qtdir+"/include/")
+			qtincludes = qtdir + "/include/"
+		elif os.path.isfile("/usr/include/qt4/QtGui/QFont"):
+			# Debian probably
+			p('YELLOW','the qt headers were found in /usr/include/qt4/')
+			qtincludes = "/usr/include/qt4"
+		elif os.path.isfile("/usr/include/QtGui/QFont"):
+			# e.g. SUSE 10
+			p('YELLOW','the qt headers were found in /usr/include/')
+			qtincludes = "/usr/include"
+		else:
+			p('RED',"the qt headers were not found")
+			sys.exit(1)
+
+
+	#env['QTPLUGINS']=os.popen('kde-config --expandvars --install qtplugins').read().strip()
+
+	## qt libs and includes
+	env['QTINCLUDEPATH']=qtincludes
+	if not qtlibs: qtlibs=qtdir+'/lib'
+	env['QTLIBPATH']=qtlibs
+
+        ########## X11
+        env['LIB_X11']             = ['X11']
+        env['LIBPATH_X11']         = ['/usr/X11R6/lib/']
+        env['LIB_XRENDER']         = ['Xrender']
+
+	# link against libqt_debug when appropriate
+	if env['BKS_DEBUG']: debug='_debug'
+	else:                debug='4'
+
+	if not env['LIB_Z']:
+		env['LIB_Z']         = ['z']
+		env['LIB_PNG']       = ['png', 'm'] + env['LIB_Z']
+		env['LIB_SM']        = ['SM', 'ICE']
+
+        ########## QT
+        # QTLIBPATH is a special var used in the qt4 module - has to be changed (ita)
+	env['CPPPATH_QT']          = [ env['QTINCLUDEPATH']+'/Qt', env['QTINCLUDEPATH'] ] # TODO QTINCLUDEPATH (ita)
+	env['LIBPATH_QT']          = env['LIBPATH_X11']+[env['QTLIBPATH']]
+#    env['LIB_QT']              = ['QtGui4'+debug, 'pthread', 'Xext']+env['LIB_Z']+env['LIB_PNG']+env['LIB_X11']+env['LIB_SM']
+	env['LIB_QT']              = ['QtGui'+debug, ]
+	env['RPATH_QT']            = env['LIBPATH_X11']+[env['QTLIBPATH']]
+
+	env['CXXFLAGS_QT3SUPPORT'] = ['-DQT3_SUPPORT']
+	env['CPPPATH_QT3SUPPORT']  = [ env['QTINCLUDEPATH']+'/Qt3Support' ]
+	env['LIB_QT3SUPPORT']      = ['Qt3Support'+debug]
+	env['RPATH_QT3SUPPORT']    = env['RPATH_QT']
+
+	env['CPPPATH_QTCORE']      = [ env['QTINCLUDEPATH']+'/QtCore' ]
+	env['LIB_QTCORE']          = ['QtCore'+debug]
+	env['RPATH_QTCORE']        = env['RPATH_QT']
+
+	env['CPPPATH_QTASSISTANT'] = [ env['QTINCLUDEPATH']+'/QtAssistant' ]
+	env['LIB_QTASSISTANT']     = ['QtAssistant'+debug]
+
+	env['CPPPATH_QTDESIGNER']  = [ env['QTINCLUDEPATH']+'/QtDesigner' ]
+	env['LIB_QTDESIGNER']      = ['QtDesigner'+debug]
+
+	env['CPPPATH_QTNETWORK']   = [ env['QTINCLUDEPATH']+'/QtNetwork' ]
+	env['LIB_QTNETWORK']       = ['QtNetwork'+debug]
+	env['RPATH_QTNETWORK']     = env['RPATH_QT']
+
+	env['CPPPATH_QTGUI']       = [ env['QTINCLUDEPATH']+'/QtGui' ]
+	env['LIB_QTGUI']           = ['QtCore'+debug, 'QtGui'+debug]
+	env['RPATH_QTGUI']         = env['RPATH_QT']
+
+	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpengl') ]
+	env['LIB_QTOPENGL']        = ['QtOpenGL'+debug,'opengl32']
+	env['RPATH_QTOPENGL']      = env['RPATH_QT']
+
+	env['CPPPATH_QTSQL']       = [ env['QTINCLUDEPATH']+'/QtSql' ]
+	env['LIB_QTSQL']           = ['QtSql'+debug]
+	env['RPATH_QTSQL']         = env['RPATH_QT']
+
+	env['CPPPATH_QTXML']       = [ env['QTINCLUDEPATH']+'/QtXml' ]
+	env['LIB_QTXML']           = ['QtXml'+debug]
+	env['RPATH_QTXML']         = env['RPATH_QT']
+
+	env['CPPPATH_QTEST']       = [ env['QTINCLUDEPATH']+'/QtTest' ]
+	env['LIB_QTEST']           = ['QtTest'+debug]
+	env['RPATH_QTEST']         = env['RPATH_QT']
+	
+	env['QTLOCALE']            = str(env['PREFIX'])+'/share/locale'
+
+def detect(conf):
+	if conf.env['WINDOWS']:
+		detect_qt4_win32(conf)
+	else:
+		detect_qt4(conf)
 	return 0
 
 

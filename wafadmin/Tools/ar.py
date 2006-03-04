@@ -25,21 +25,19 @@ def setup(env):
 	aract = Action.GenAction('arlink', ar_vardeps)
 	aract.m_function_to_run = ar_build
 
-def detect(env):
+def detect(conf):
 
-	conf = Configure.Configure(env)
 	comp = conf.checkProgram('ar')
 	if not comp:
-		return 1;
+		return 0;
 
 	ranlib = conf.checkProgram('ranlib')
 	if not ranlib:
-		return 1
+		return 0
 
-	env['AR']                = comp
-	env['ARFLAGS']           = 'r'
-	env['RANLIB']            = ranlib
-	env['RANLIBFLAGS']       = ''
-
-	return 0
+	conf.env['AR']                = comp
+	conf.env['ARFLAGS']           = 'r'
+	conf.env['RANLIB']            = ranlib
+	conf.env['RANLIBFLAGS']       = ''
+	return 1
 
