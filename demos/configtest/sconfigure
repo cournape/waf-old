@@ -43,7 +43,10 @@ conf.checkFunction('strcpy',define='HAVE_MY_OWN_STRCPY_DEFINE')
 
 # search for a library in standard pathes 
 # Q: How to support the uselib attribute 
-conf.checkLibrary('bz2')
+conf.checkLibrary('z','compress')
+
+#will not found
+conf.checkLibrary('bzip','compress')
 
 # ... may be by this 
 conf.checkModule('bz2')
