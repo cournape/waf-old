@@ -6,7 +6,7 @@
 add_option('--prefix', type='string', help='installation prefix', dest='prefix')
 add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
 
-env = create_env()
-env.detect('Ocaml')
-env.store('main.cache.py')
+conf = Configure.Configure()
+conf.checkTool(['Ocaml'])
+conf.store('main.cache.py')
 

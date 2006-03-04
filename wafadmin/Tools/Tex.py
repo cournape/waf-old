@@ -56,24 +56,25 @@ class texobj(Object.genobj):
 			task.m_inputs = [ self.get_mirror_node( self.m_current_path, base+'.tex') ]
 			task.m_outputs = [ self.get_mirror_node( self.m_current_path, base+'.dvi') ]
 
-def detect(env):
-	env['TEX']         = 'tex'
-	env['TEXFLAGS']    = ''
-	env['TEX_ST']      = '%s'
+def detect(conf):
+	conf.env['TEX']         = 'tex'
+	conf.env['TEXFLAGS']    = ''
+	conf.env['TEX_ST']      = '%s'
 
-	env['LATEX']       = 'latex'
-	env['LATEXFLAGS']  = ''
-	env['LATEX_ST']    = '%s'
+	conf.env['LATEX']       = 'latex'
+	conf.env['LATEXFLAGS']  = ''
+	conf.env['LATEX_ST']    = '%s'
 
-	env['BIBTEX']      = 'bibtex'
-	env['BIBTEXFLAGS'] = ''
-	env['BIBTEX_ST']   = '%s'
+	conf.env['BIBTEX']      = 'bibtex'
+	conf.env['BIBTEXFLAGS'] = ''
+	conf.env['BIBTEX_ST']   = '%s'
 
-	env['DVIPS']       = 'dvips'
-	env['DVIPSFLAGS']  = ''
-	env['DVIPS_ST']    = '%s -o %s'
+	conf.env['DVIPS']       = 'dvips'
+	conf.env['DVIPSFLAGS']  = ''
+	conf.env['DVIPS_ST']    = '%s -o %s'
 
-	env['DVIPDF']      = 'dvipdf'
-	env['DVIPDFFLAGS'] = ''
-	env['DVIPDF_ST']   = '%s -o %s'
+	conf.env['DVIPDF']      = 'dvipdf'
+	conf.env['DVIPDFFLAGS'] = ''
+	conf.env['DVIPDF_ST']   = '%s -o %s'
+	return 1
 

@@ -101,12 +101,14 @@ def setup(env):
 	link_vardeps   = ['LINK', 'LINKFLAGS', 'LINK_ST']
 	Action.GenAction('link', link_vardeps)
 
-def detect(env):
-	env['OCAMLC']         = 'ocamlc'
-	env['OCAMLOPT']       = 'ocamlopt'
-	env['OCAMLLEX']       = 'ocamllex'
-	env['OCAMLYACC']      = 'ocamlyacc'
-	env['OCAMLFLAGS']     = ''
-	env['LINK']           = ''
-	env['LINKFLAGS']      = ''
-	env['LINK_ST']        = '%s -o %s'
+def detect(conf):
+	conf.env['OCAMLC']         = 'ocamlc'
+	conf.env['OCAMLOPT']       = 'ocamlopt'
+	conf.env['OCAMLLEX']       = 'ocamllex'
+	conf.env['OCAMLYACC']      = 'ocamlyacc'
+	conf.env['OCAMLFLAGS']     = ''
+	conf.env['LINK']           = ''
+	conf.env['LINKFLAGS']      = ''
+	conf.env['LINK_ST']        = '%s -o %s'
+	return 1
+
