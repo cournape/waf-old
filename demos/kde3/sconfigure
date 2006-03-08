@@ -2,8 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-env = create_env()
-env.detect('g++')
-env.detect('KDE3')
-env.store('main.cache.py')
+conf = create_config()
+conf.checkTool(['g++', 'KDE3'])
+conf.store('main.cache.py')
 
