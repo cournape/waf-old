@@ -265,10 +265,13 @@ class Deptree:
 					mir_child_node.m_tstamp = src_node.m_tstamp
 
 					dupe = mir_child_node.abspath()
-					#print "replicate new file %s to %s"% (child_node.abspath(), dupe)
-					if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
-					elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
-					elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
+					try:
+						#print "replicate new file %s to %s"% (child_node.abspath(), dupe)
+						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
+						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
+						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
+					except OSError:
+						pass
 				else:
 					src_node.m_dirs.append(child_node)
 			src_node.m_tstamp = src_sig
@@ -285,9 +288,12 @@ class Deptree:
 					mir_child_node.m_tstamp = child_node.m_tstamp
 
 					dupe = mir_child_node.abspath()
-					if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
-					elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
-					elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
+					try:
+						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
+						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
+						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
+					except OSError:
+						pass
 			else:
 
 				# we need to update the info in the srcdir first - remove the m_files nodes
@@ -317,9 +323,12 @@ class Deptree:
 
 					# now make the link
 					dupe = mir_child_node.abspath()
-					if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
-					elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, file_or_dir), dupe )
-					elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, file_or_dir), dupe )
+					try:
+						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
+						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, file_or_dir), dupe )
+						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, file_or_dir), dupe )
+					except OSError:
+						pass
 			src_node.m_tstamp = src_sig
 
 	# ensure a directory node from a list, given a node to start from
