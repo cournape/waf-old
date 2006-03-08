@@ -431,7 +431,8 @@ class kdeobj(Common.cppobj):
 			self.install_results( 'KDE_MODULE', '', self.m_latask )
 
 
-def detect_kde(env):
+def detect_kde(conf):
+	env = conf.env
 	# Detect the qt and kde environment using kde-config mostly
 	def getpath(varname):
 		#if not env.has_key('ARGS'): return None
@@ -653,12 +654,12 @@ def detect_kde(env):
 	try: env['module_LINKFLAGS']=env['shlib_LINKFLAGS']
 	except: pass
 
-def detect(env):
-	env.setValue('KDE_IS_FOUND', 0)
+def detect(conf):
+	conf.env['KDE_IS_FOUND'] = 0
 
-	detect_kde(env)
+	detect_kde(conf)
 
-	env.setValue('KDE_IS_FOUND', 1)
+	conf.env['KDE_IS_FOUND'] = 1
 	return 0
 
 
