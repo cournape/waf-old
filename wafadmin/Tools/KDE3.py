@@ -507,6 +507,7 @@ def detect_kde(conf):
 			p('RED','Please set QTDIR first (/usr/lib/qt3?) or try scons -h for more options')
 			env.Exit(1)
 	env['QTDIR'] = qtdir.strip()
+	env['LIB_QT'] = 'qt-mt'
 
 	## Find the necessary programs uic and moc
 	print "Checking for uic                  : ",
@@ -648,6 +649,12 @@ def detect_kde(conf):
 
 	env['DCOPIDL']          = 'dcopidl'
 	env['DCOPIDL2CPP']      = 'dcopidl2cpp'
+
+	env['module_CXXFLAGS']  = ['-fPIC', '-DPIC']
+	env['module_LINKFLAGS'] = ['-shared']
+	env['module_obj_ext']   = ['.os']
+	env['module_PREFIX']    = 'lib'
+	env['module_SUFFIX']    = '.so'
 
 	try: env['module_CXXFLAGS']=env['shlib_CXXFLAGS']
 	except: pass
