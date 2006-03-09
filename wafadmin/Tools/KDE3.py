@@ -224,8 +224,8 @@ class kdeobj(Common.cppobj):
 		# run with priority 2
 		task = self.create_task('kcfg', self.env, 2)
 
-		# the following line is quite silly (name lookups)
-		task.m_inputs = [ get_node(kcfg.m_name), get_node(kcfgc.m_name) ]
+		tree = Params.g_build.m_tree
+		task.m_inputs = [ tree.get_mirror_node(kcfg), tree.get_node(kcfgc) ]
 		task.m_outputs = [ cppnode, get_node(base+'.h') ]
 
 		cpptask = self.create_cpp_task()
