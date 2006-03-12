@@ -153,7 +153,7 @@ class Configure:
 	def checkHeader(self, header, define=''):
 		"""find a header"""
 		if define == '':
-			define = 'HAVE_'+header.upper().replace('.','_')
+			define = 'HAVE_'+header.upper().replace('.','_').replace('/','_')
 
 		if self.isDefined(define):
 			return self.getDefine(define)
