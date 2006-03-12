@@ -30,6 +30,11 @@ class Deptree:
 		self.m_bldnode     = None
 		self.m_srcnode     = None           # source directory
 
+		# get bld nodes from src nodes quickly
+		self.m_src_to_bld  = {}
+		# get src nodes from bld nodes quickly
+		self.m_bld_to_src  = {}
+
 		# one node has nodes it depends on, tasks cannot be stored
 		# node -> [node; node; node ..] (all dependencies, a tree search might be needed sometimes..)
 		self.m_depends_on  = {}
@@ -154,6 +159,9 @@ class Deptree:
 
 		return ret
 
+
+
+
 	# the first important algorithm of the app:
 	#   -> replicate files into the builddir
 	#   -> find the nodes to scan for dependencies
@@ -270,6 +278,9 @@ class Deptree:
 						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
 						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
 						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
+						else:
+							self.m_bld_to_src[mir_child_node]=child_node
+						self.m_src_to_bld[child_node]=mir_child_node
 					except OSError:
 						pass
 				else:
@@ -292,6 +303,9 @@ class Deptree:
 						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
 						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
 						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
+						else:
+							self.m_bld_to_src[mir_child_node]=child_node
+						self.m_src_to_bld[child_node]=mir_child_node
 					except OSError:
 						pass
 			else:
@@ -327,6 +341,9 @@ class Deptree:
 						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
 						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, file_or_dir), dupe )
 						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, file_or_dir), dupe )
+						else:
+							self.m_bld_to_src[mir_child_node]=child_node
+						self.m_src_to_bld[child_node]=mir_child_node
 					except OSError:
 						pass
 			src_node.m_tstamp = src_sig

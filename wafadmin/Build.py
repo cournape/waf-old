@@ -89,7 +89,7 @@ class Build:
 			# avoid recursion
 			def scan(node):
 				if node is Params.g_bldnode: return []
-				if node.m_name=='wafadmin': return []
+				if node.m_name in Params.g_excludes: return []
 				dir = os.sep.join( Params.g_srcnode.difflst(node) )
 				self.m_tree.scanner_mirror(dir)
 				return node.m_dirs
@@ -106,8 +106,10 @@ class Build:
 			self.m_tree.scanner_mirror(sub_dir)
 
 	def cleanup(self):
-		self.m_tree.m_name2nodes={}
-		self.m_tree.m_flags={}
+		self.m_tree.m_name2nodes = {}
+		self.m_tree.m_flags      = {}
+		self.m_tree.m_src_to_bld = {}
+		self.m_tree.m_bld_to_src = {}
 
 		#debug("setting some stat value to a bldnode")
 		#curnode = self.m_tree.m_bldnode

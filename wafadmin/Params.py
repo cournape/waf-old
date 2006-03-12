@@ -26,7 +26,7 @@ g_fake = 0
 g_default_env=None
 
 ## == DEPTREE == ##
-g_excludes = ['.svn', 'scons-local-0.96.91', 'cache', '{arch}', '.arch-ids']
+g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
 g_pattern_excludes = ['_build_']
 g_strong_hash = 0
 
@@ -34,9 +34,11 @@ def sig_nil():
 	if g_strong_hash: return 'c01a85d0a38b176482a6e529f81f5251'
 	else: return 0
 
+# yes, i was focusing on imitating scons where this really was not necessary (ita)
 #g_mode = 'copy'
-g_mode = 'slnk'
+#g_mode = 'slnk'
 #g_mode = 'hlnk'
+g_mode = 'nocopy'
 
 # cygwin supports symlinks though ..
 if sys.platform == 'win32': g_mode = 'copy'
