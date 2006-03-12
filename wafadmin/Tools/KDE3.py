@@ -22,9 +22,9 @@ def meinproc_build(task):
 	reldir = task.m_inputs[0].cd_to()
 	com   = task.m_env['MEINPROC']
 	flags = task.m_env['MEINPROCFLAGS']
-	srcname = task.m_inputs[0].m_name
-	bldname = task.m_outputs[0].m_name
-	cmd = 'cd %s && %s %s --cache %s %s' % (reldir, com, flags, bldname, srcname)
+	#srcname = task.m_inputs[0].m_name
+	#bldname = task.m_outputs[0].m_name
+	cmd = '%s %s --cache %s %s' % (com, flags, task.m_outputs[0].bldpath(), task.m_inputs[0].bldpath())
 	return Runner.exec_command(cmd)
 meinprocact = Action.GenAction('meinproc', meinproc_vardeps)
 meinprocact.m_function_to_run = meinproc_build

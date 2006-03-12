@@ -209,7 +209,8 @@ class Node:
 				print self
 				raise
 		if not Params.g_bldnode: error("BUG in bldpath")
-		return self.relpath(Params.g_bldnode)
+		#return self.relpath(Params.g_bldnode)
+		return self.relpath_gen(Params.g_bldnode)
 
 	# find a common ancestor for two nodes - for the shortest path in hierarchy
 	def find_ancestor(self, node):

@@ -29,7 +29,7 @@ def rccbuild(task):
 	reldir = reldir = task.m_inputs[0].cd_to()
 	name = task.m_inputs[0].m_name
 	name = name[:len(name)-4]
-	cmd = 'cd %s && %s -name %s %s -o %s' % (reldir, task.m_env['QT_RCC'], name, task.m_inputs[0].m_name, task.m_outputs[0].m_name)
+	cmd = '%s -name %s %s -o %s' % (task.m_env['QT_RCC'], name, task.m_inputs[0].bldpath(), task.m_outputs[0].bldpath())
 	return Runner.exec_command(cmd)
 
 rccact = Action.GenAction('rcc', rcc_vardeps)

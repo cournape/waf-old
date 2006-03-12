@@ -200,6 +200,9 @@ class cppobj(Object.genobj):
 
 			node2 = tree.get_mirror_node(node)
 			lst.append( node2 )
+			if Params.g_mode == 'nocopy':
+				lst.append( node )
+				self._bld_incpaths_lst.append(node)
 			self._bld_incpaths_lst.append(node2)
 			
 		# now the nodes are added to self._incpaths_lst
