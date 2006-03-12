@@ -11,10 +11,11 @@ ocaml_vardeps = ['OCAMLCOMP', 'OCAMLFLAGS']
 act=Action.GenAction('ocaml', ocaml_vardeps)
 def ocaml_build(task):
 	com = task.m_env['OCAMLCOMP']
-	reldir  = task.m_inputs[0].cd_to()
-	srcfile = task.m_inputs[0].m_name
-	cmd = 'cd %s && %s -c %s' % (reldir, com, srcfile)
-	print cmd
+	#reldir  = task.m_inputs[0].cd_to()
+	srcfile = task.m_inputs[0].bldpath()
+	bldfile = task.m_outputs[0].bldpath()
+	cmd = '%s -c %s -o %s' % (com, srcfile, bldfile)
+	#print cmd
 	return Runner.exec_command(cmd)
 act.m_function_to_run = ocaml_build
 

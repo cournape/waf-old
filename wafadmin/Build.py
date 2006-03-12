@@ -108,8 +108,8 @@ class Build:
 	def cleanup(self):
 		self.m_tree.m_name2nodes = {}
 		self.m_tree.m_flags      = {}
-		self.m_tree.m_src_to_bld = {}
-		self.m_tree.m_bld_to_src = {}
+		#self.m_tree.m_src_to_bld = {}
+		#self.m_tree.m_bld_to_src = {}
 
 		#debug("setting some stat value to a bldnode")
 		#curnode = self.m_tree.m_bldnode
