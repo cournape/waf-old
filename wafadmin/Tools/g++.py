@@ -122,11 +122,5 @@ def detect(conf):
 		conf.env['program_obj_ext'] = ['.o']
 		conf.env['program_SUFFIX']  = ''
 
-	cpp_vardeps    = ['CXX', 'CXXFLAGS', 'CXXFLAGS_' + Params.g_options.debug_level, '_CPPDEFFLAGS', '_CXXINCFLAGS', 'CXX_ST']
-	Action.GenAction('cpp', cpp_vardeps)
-	link_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
-	action = Action.GenAction('link', link_vardeps)
-		
-				
 	return 1
 
