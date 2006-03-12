@@ -74,9 +74,10 @@ skelstub_vardeps = ['DCOPIDL2CPP']
 
 def kidl_build(task):
 	reldir = task.m_inputs[0].cd_to()
-	src = task.m_inputs[0].m_name
+	#src = task.m_inputs[0].m_name
+	src = task.m_inputs[0].bldpath()
 	tgt = src[:len(src)-2]+'.kidl'
-	cmd = 'cd %s && %s %s > %s || (rm -f %s ; false)' % (reldir, task.m_env['DCOPIDL'], src, tgt, tgt)
+	cmd = '%s %s > %s || (rm -f %s ; false)' % (task.m_env['DCOPIDL'], src, os.join(reldir, tgt), os.join(reldir, tgt))
 	return Runner.exec_command(cmd)
 kidlact = Action.GenAction('kidl', kidl_vardeps)
 kidlact.m_function_to_run = kidl_build

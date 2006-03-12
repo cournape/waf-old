@@ -352,7 +352,7 @@ def detect_qt4(conf):
 
 	# link against libqt_debug when appropriate
 	if env['BKS_DEBUG']: debug='_debug'
-	else:                debug='4'
+	else:                debug=''
 
 	if not env['LIB_Z']:
 		env['LIB_Z']         = ['z']
@@ -391,7 +391,7 @@ def detect_qt4(conf):
 	env['RPATH_QTGUI']         = env['RPATH_QT']
 
 	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpengl') ]
-        env['LIB_QTOPENGL']        = ['QtOpenGL'+debug,'opengl32']
+        env['LIB_QTOPENGL']        = ['QtOpenGL'+debug]
 	env['RPATH_QTOPENGL']      = env['RPATH_QT']
 
 	env['CPPPATH_QTSQL']       = [ env['QTINCLUDEPATH']+'/QtSql' ]

@@ -7,6 +7,6 @@ obj.source = 'window.cpp glwidget.cpp main.cpp textures.qrc'
 obj.uselib = 'QT QTCORE QTGUI QTOPENGL'
 obj.target = 'window'
 obj.set_name('firstobj')
-obj.include = 'src/test/ src/'
+obj.includes = 'test .'
 add_subdir('test')
 
