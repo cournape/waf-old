@@ -7,15 +7,16 @@
 import os, sys
 import Utils, Params, Action, Object, Runner, Common
 
-ocaml_vardeps = ['OCAMLCOMP', 'OCAMLFLAGS']
+ocaml_vardeps = ['OCAMLCOMP', 'OCAMLFLAGS', 'OCAMLPATH']
 act=Action.GenAction('ocaml', ocaml_vardeps)
 def ocaml_build(task):
 	com = task.m_env['OCAMLCOMP']
+	paths = " ".join(task.m_env['OCAMLPATH'])
 	#reldir  = task.m_inputs[0].cd_to()
 	srcfile = task.m_inputs[0].bldpath()
 	bldfile = task.m_outputs[0].bldpath()
-	cmd = '%s -c %s -o %s' % (com, srcfile, bldfile)
-	#print cmd
+	cmd = '%s %s -c -o %s %s' % (com, paths, bldfile, srcfile)
+	print cmd
 	return Runner.exec_command(cmd)
 act.m_function_to_run = ocaml_build
 
@@ -29,6 +30,8 @@ class ocamlobj(Object.genobj):
 		self.m_source = ''
 		self.m_target = ''
 		self.islibrary = library
+		self._incpaths_lst = []
+		self._bld_incpaths_lst = []
 
 		if not type in ['bytecode','native','all']:
 			print 'type for camlobj is undefined '+type
@@ -49,7 +52,32 @@ class ocamlobj(Object.genobj):
 			self.bytecode_env['LINKFLAGS'] = '-a'
 			self.native_env['LINKFLAGS']   = '-a'
 
+	def apply_incpaths(self):
+		inc_lst = self.includes.split()
+		lst = self._incpaths_lst
+		tree = Params.g_build.m_tree
+		for dir in inc_lst:
+			node = self.m_current_path.find_node( dir.split(os.sep) )
+			if not node:
+				error("node not found dammit")
+				continue
+			lst.append( node )
+
+			node2 = tree.get_mirror_node(node)
+			lst.append( node2 )
+			if Params.g_mode == 'nocopy':
+				lst.append( node )
+				self._bld_incpaths_lst.append(node)
+			self._bld_incpaths_lst.append(node2)
+		# now the nodes are added to self._incpaths_lst
+
 	def apply(self):
+		self.apply_incpaths()
+
+		for i in self._incpaths_lst:
+                        self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath())
+			self.native_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath())
+
 		native_tasks   = []
 		bytecode_tasks = []
 		for filename in (' '+self.source).split():

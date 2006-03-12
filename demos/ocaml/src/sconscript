@@ -7,6 +7,6 @@ obj=ocamlobj('all')
 obj.source='''
 somemodule.ml main.ml
 '''
-#obj.includes='. src'
+obj.includes='.'
 obj.target='camlprog'
 
