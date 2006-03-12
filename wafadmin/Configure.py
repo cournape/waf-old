@@ -80,7 +80,7 @@ class Configure:
 
 	def TryBuild(self,code,options=''):
 		"""check if a program could be build, returns 1 if no errors 
-		This method is currently platform specific and has to be mad platform 
+		This method is currently platform specific and has to be made platform 
 		independend, probably by refactoring the c++ or cc build engine
 		"""
 		dest=open(os.path.join(self.env['_BUILDDIR_'], 'test.c'), 'w')
@@ -90,6 +90,22 @@ class Configure:
 		# implement platform independent compile function probably by refactoring 
 		# Task/Action class 
 		if Runner.exec_command(self.env['CXX'] + ' test.c -o test ' + options + ' 2>test.log') == 0:
+			return 1
+		else:
+			return 0
+
+	def TryCPP(self,code,options=''):
+		"""run cpp for a given file, returns 1 if no errors 
+		This method is currently platform specific and has to be made platform 
+		independend, probably by refactoring the c++ or cc build engine
+		"""
+		dest=open(os.path.join(self.env['_BUILDDIR_'], 'test.c'), 'w')
+		dest.write(code)
+		dest.close()
+		# TODO: currently only for g++ 
+		# implement platform independent compile function probably by refactoring 
+		# Task/Action class 
+		if Runner.exec_command(self.env['CPP'] + ' test.c -o test ' + options + ' 2>test.log') == 0:
 			return 1
 		else:
 			return 0
@@ -148,7 +164,7 @@ int main()
 {
 }
 """ % header
-		is_found = self.TryBuild(code)
+		is_found = self.TryCPP(code)
 		self.checkMessage('header',header,is_found)
 		self.addDefine(define,is_found)
 		return is_found
