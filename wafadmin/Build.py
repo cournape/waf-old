@@ -28,6 +28,7 @@ class Build:
 		self.m_tree     = None # dependency tree
 		self.m_dirs     = []   # folders in the dependency tree to scan
 		self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
+		self.m_prune    = []
 
 		Params.g_build=self
 
@@ -84,6 +85,7 @@ class Build:
 		Params.g_curdirnode = node
 		# stupid behaviour (will scan every project in the folder) but scandirs-free
 		# we will see later for more intelligent behaviours (scan only folders that contain sources..)
+		Params.g_excludes=Params.g_excludes+self.m_prune
 		if scan == 'auto':
 			trace("autoscan in use")
 			# avoid recursion
