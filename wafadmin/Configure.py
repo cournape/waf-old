@@ -132,8 +132,16 @@ class Configure:
 
 	def writeConfigHeader(self, configfile=''):
 		"""save the defines into a file"""
-		if configfile=='':
-			configfile = self.configheader
+		if configfile=='': configfile = self.configheader
+
+		try:
+			# just in case the path is './builddir/something/blah.h'
+			lst=configfile.split('/')
+			lst = lst[:len(lst)-1]
+			os.mkdir( os.sep.join(lst) )
+		except:
+			pass
+
 		dest=open(os.path.join(self.env['_BUILDDIR_'], configfile), 'w')
 		dest.write('/* configuration created by waf */\n')
 		for key in self.defines: 
