@@ -146,7 +146,7 @@ class Configure:
 		dest.write('/* configuration created by waf */\n')
 		for key in self.defines: 
 			if self.defines[key]:
-				dest.write('#define '+key+' 1\n')
+				dest.write('#define %s %s\n' % (key, self.defines[key]))
 				#if addcontent:
 				#	dest.write(addcontent);
 			else:
