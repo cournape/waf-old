@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, os.path, types, sys, cPickle
-import Build, Params
+import Build, Params, Utils
 
 def trace(msg):
 	Params.trace(msg, 'Scripting')
@@ -56,7 +56,7 @@ def Main():
 	#bld.m_tree.dump()
 
 	Params.g_inroot=1
-	file=open('sconstruct', 'r')
+	file=Utils.open_sconstruct()
 	exec file
 	Params.g_inroot=0
 
@@ -75,7 +75,7 @@ def Main():
 
 		# idea : add an exception right here
 		# but does this slow down the process ? to investigate (TODO ita)
-		file=open('%s/sconscript'%new.abspath(), 'r')
+		file = Utils.open_sconstrict(new.abspath())
 		exec file
 
 		# restore the old node position

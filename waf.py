@@ -12,7 +12,7 @@ cwd = os.getcwd()
 try:
 	while 1:
 		dirlst = os.listdir(cwd)
-		if 'sconstruct' in dirlst:
+		if 'sconstruct' in dirlst or 'SConstruct' in dirlist:
 			os.chdir(cwd)
 			break
 		# dir up
@@ -42,7 +42,7 @@ else:
 
 dir = find_wafdir(lst)
 sys.path=lst+sys.path
-import Options, Params
+import Options, Params, Utils
 Params.g_tooldir = [os.path.join(dir, 'Tools')]
 
 # Try to find the custom options
@@ -51,7 +51,7 @@ Params.g_tooldir = [os.path.join(dir, 'Tools')]
 Params.set_trace(0,0,0)
 
 try:
-	file_content = open('sconfigure', 'rb').read()
+	file_content = Utils.open_sconfigure().read()
 	import re
 	add_opt_regexp = re.compile('[\n](add_option\(.*\))')
 	Options.g_custom_options = add_opt_regexp.findall(file_content)
@@ -67,7 +67,7 @@ if 'dist' in sys.argv:
 	appname_regexp = re.compile('APPNAME\s*=\s*[\'\"](.+)[\'\"]\s*', re.M)
 
 	try:
-		string = open('sconstruct', 'r').read()
+		string = Utils.open_sconstruct().read()
 		vnum = version_regexp.findall( string )[0]
 		app  = appname_regexp.findall( string )[0]
 	except:
