@@ -89,6 +89,13 @@ class Configure:
 		# TODO: currently only for g++ 
 		# implement platform independent compile function probably by refactoring 
 		# Task/Action class 
+		#obj = Common.cppobj('program',self.env)
+		#obj.source = 'test.c'
+		#obj.target = 'test'
+		#obj.apply()
+		#bld = Build.Build()			
+		#bld.load()
+		#bld.compile()
 		if Runner.exec_command(self.env['CXX'] + ' test.c -o test ' + options + ' 2>test.log') == 0:
 			return 1
 		else:
@@ -160,6 +167,11 @@ class Configure:
 
 	def checkHeader(self, header, define=''):
 		"""find a header"""
+		if type(header) is types.ListType:
+			for i in header: 
+				self.checkHeader(i)
+			return
+			
 		if define == '':
 			define = 'HAVE_'+header.upper().replace('.','_').replace('/','_')
 
@@ -211,7 +223,7 @@ int main()
 		self.checkMessage('program',file,ret,ret)
 		return ret
 
-	def checkLibrary(self, libname, funcname, headers=None, define=''):
+	def checkLibrary(self, libname, funcname=None, headers=None, define=''):
 		"""find a library"""
 		if define == '':
 			define = 'HAVE_'+libname.upper().replace('.','_')
@@ -219,7 +231,7 @@ int main()
 		if self.isDefined(define):
 			return self.getDefine(define)
 
-		if not headers:
+		if not headers and funcname:
 			headers = """
 #ifdef __cplusplus
 extern "C"
@@ -227,13 +239,16 @@ extern "C"
 char %s();
 """ % funcname
 
-		code = """
+			code = """
 int main()
 {
 	%s();
 }
 """ % funcname
-			
+		elif not headers and not funcname: 
+			headers = ""
+			code = ""
+
 		is_found = self.TryBuild(headers + code,(self.env['LIB_ST'] % libname) + ' ' + self.env['LIBPATH_ST'] % "c:\Programme\gnuwin32\lib" )
 		self.checkMessage('library',libname,is_found)
 		self.addDefine(define,is_found)
@@ -286,6 +301,24 @@ int main()
 	def detect(self,tool):
 		"""deprecated, replaced by checkTool"""
 		return self.checkTool(tool)
+	
+	def checkSubdir(self,dir):
+		"""experimental function"""
+		from Utils import add_option
+		import Environment, Configure, Tools
+		from Environment import create_env
+		from Configure import sub_config, create_config
+
+		if type(dir) is types.ListType:
+			for i in dir: self.checkSubdir(i)
+			return
+		print "configuring " + dir
+		path = os.path.join(dir,'sconfigure')
+		if os.path.exists(path):
+			file = open(path,'r')
+			conf = self
+			exec file
+
 
 # syntactic sugar
 def create_config(config=None):
