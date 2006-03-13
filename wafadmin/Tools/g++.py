@@ -24,6 +24,10 @@ def setup(env):
 # the values are cached for further build processes
 def detect(conf):
 
+	cpp = conf.checkProgram('cpp')
+	if not cpp:
+		return 0;
+
 	comp = conf.checkProgram('g++')
 	if not comp:
 		return 0;
@@ -32,6 +36,9 @@ def detect(conf):
 	if not conf.checkTool('ar'):
 		Utils.error('g++ needs ar - not found')
 		return 0
+
+	# preprocessor
+	conf.env['CPP']             = cpp
 
 	# c++ compiler
 	conf.env['CXX']             = comp

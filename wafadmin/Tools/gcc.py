@@ -20,6 +20,10 @@ def setup(env):
 	action = Action.GenAction('link', link_vardeps)
 
 def detect(conf):
+	cpp = conf.checkProgram('cpp')
+	if not cpp:
+		return 0;
+
 	comp = conf.checkProgram('gcc')
 	if not comp:
 		return 0;
@@ -28,6 +32,9 @@ def detect(conf):
 	if not conf.checkTool('ar'):
 		Utils.error('gcc needs ar - not found')
 		return 0
+
+	# preprocessor
+	conf.env['CPP']             = cpp
 
 	# cc compiler
 	conf.env['CC']             = comp
