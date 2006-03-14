@@ -11,13 +11,11 @@ test2view.cpp
 pref.cpp
 test2iface.skel
 """
-obj.includes='. '
 obj.uselib='QT KDECORE KIO KDEPRINT'
 
 client = kdeobj('program')
 client.source='test2_client.cpp'
 client.target='test2_client'
-client.includes='.'
 client.uselib='QT KDECORE KIO KDEPRINT'
 
 ## Install the .rc file

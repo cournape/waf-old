@@ -170,7 +170,7 @@ class Serial:
 			if ret:
 				error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
 				proc.debug(1)
-				break
+				return ret
 
 			try: proc.update_stat()
 			except: error('the nodes have not been produced !')
@@ -188,6 +188,7 @@ class Serial:
 			"""
 
 		debug("Serial end")
+		return 0
 
 import threading
 import Queue
@@ -248,17 +249,18 @@ class Parallel:
 			while self.m_count>0:
 				ret = self.m_q_out.get(block=1)
 				self.m_count -= 1
-				if ret>1:
+				if ret:
 					print "task failed - uh-oh"
-					break
+					return ret
 
-			if self.m_finished: break
+			if self.m_finished: return 0
 
 			while self.m_count<2*self.m_numjobs and not self.m_finished:
 				self.add_task()
 
 		if self.m_count != 0:
 			error("thread count is wrong "+str(self.m_count))
+		return 0
 
 	# no need to parallelize this, there is no i/o, so it will not get any faster
 	def add_task(self):

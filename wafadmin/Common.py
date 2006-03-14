@@ -151,7 +151,10 @@ class cppobj(Object.genobj):
 		for filename in lst:
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
-			if not node: error("source not found "+filename)
+			if not node:
+				error("source not found "+filename)
+				print self.m_current_path
+				sys.exit(1)
 
 			base, ext = os.path.splitext(filename)
 

@@ -50,6 +50,8 @@ class Build:
 		file.close()
 
 	def set_dirs(self, srcdir, blddir, scan='auto'):
+		if len(srcdir) >= len(blddir)-1:
+			fatal("build dir must be different from srcdir")
 		self.set_bdir(blddir)
 		self.set_srcdir(srcdir, scan)
 
@@ -133,9 +135,10 @@ class Build:
 		if Params.g_maxjobs <=1: executor = Runner.Serial(generator)
 		else:                    executor = Runner.Parallel(generator, Params.g_maxjobs)
 		trace("executor starting")
-		executor.start()
+		ret = executor.start()
 
 		os.chdir( self.m_tree.m_srcnode.abspath() )
+		return ret
 
 	def install(self):
 		trace("install called")

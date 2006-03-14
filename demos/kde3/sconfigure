@@ -4,5 +4,8 @@
 
 conf = create_config()
 conf.checkTool(['g++', 'KDE3'])
+conf.checkHeader('dlfcn.h','HAVE_DLFCN_H')
+conf.addDefine('TEST_DEFINE', '345')
+conf.writeConfigHeader('config.h')
 conf.store('main.cache.py')
 

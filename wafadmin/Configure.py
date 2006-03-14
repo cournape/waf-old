@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import os, types, sys, string, imp
-import Params, Environment, Common, Runner
+import Params, Environment, Common, Runner, Build, Utils
 
 def find_path(file, path_list):
 	for dir in path_list:
@@ -81,30 +81,50 @@ class Configure:
 	def TryBuild(self,code,options=''):
 		"""check if a program could be build, returns 1 if no errors 
 		This method is currently platform specific and has to be made platform 
-		independend, probably by refactoring the c++ or cc build engine
+		independent, probably by refactoring the c++ or cc build engine
 		"""
-		dest=open(os.path.join(self.env['_BUILDDIR_'], 'test.c'), 'w')
+
+		env = self.env.copy()
+
+		if not env['_BUILDDIR_']: env.setValue('_BUILDDIR_', '_build_')
+		dir = os.path.join(env['_BUILDDIR_'], 'trybuild')
+
+		try: os.mkdir(env['_BUILDDIR_'])
+		except: pass
+		try: os.mkdir(dir)
+		except: pass
+
+		dest=open(os.path.join(dir, 'test.c'), 'w')
 		dest.write(code)
 		dest.close()
-		# TODO: currently only for g++ 
-		# implement platform independent compile function probably by refactoring 
-		# Task/Action class 
-		#obj = Common.cppobj('program',self.env)
-		#obj.source = 'test.c'
-		#obj.target = 'test'
-		#obj.apply()
-		#bld = Build.Build()			
-		#bld.load()
-		#bld.compile()
-		if Runner.exec_command(self.env['CXX'] + ' test.c -o test ' + options + ' 2>test.log') == 0:
-			return 1
-		else:
-			return 0
+
+		Utils.reset()
+		Params.g_default_env = env
+
+		bld = Build.Build()
+		bld.load()
+		bld.set_dirs(dir, os.path.join(dir, '_build_'))
+
+		Params.g_curdirnode = Params.g_build.m_tree.m_srcnode
+
+		os.chdir(dir)
+
+		env.setup(env['tools'])
+
+		obj=Common.cppobj('program')
+		obj.source = 'test.c'
+		obj.target = 'test'
+
+		try:
+			return bld.compile()
+		except:
+			os.chdir(Params.g_build.m_tree.m_srcnode.abspath())
+		Utils.reset()
 
 	def TryCPP(self,code,options=''):
 		"""run cpp for a given file, returns 1 if no errors 
 		This method is currently platform specific and has to be made platform 
-		independend, probably by refactoring the c++ or cc build engine
+		independent, probably by refactoring the c++ or cc build engine
 		"""
 		dest=open(os.path.join(self.env['_BUILDDIR_'], 'test.c'), 'w')
 		dest.write(code)
@@ -142,7 +162,7 @@ class Configure:
 		if configfile=='': configfile = self.configheader
 
 		try:
-			# just in case the path is './builddir/something/blah.h'
+			# just in case the path is 'something/blah.h' (under the builddir)
 			lst=configfile.split('/')
 			lst = lst[:len(lst)-1]
 			os.mkdir( os.sep.join(lst) )
@@ -184,7 +204,7 @@ int main()
 {
 }
 """ % header
-		is_found = self.TryCPP(code)
+		is_found = not self.TryBuild(code)
 		self.checkMessage('header',header,is_found)
 		self.addDefine(define,is_found)
 		return is_found

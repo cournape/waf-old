@@ -1,4 +1,4 @@
-
+#include "config.h"
 #include "test2.h"
 #include <kapplication.h>
 #include <dcopclient.h>
@@ -19,6 +19,8 @@ static KCmdLineOptions options[] =
 
 int main(int argc, char **argv)
 {
+	int hmmm = TEST_DEFINE;
+
     KAboutData about("test2", I18N_NOOP("test2"), version, description,
                      KAboutData::License_BSD, "(C) 2004 ita", 0, 0, "ita@localhost.localdomain");
     about.addAuthor( "ita", 0, "ita@localhost.localdomain" );
