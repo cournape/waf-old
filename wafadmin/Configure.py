@@ -79,10 +79,12 @@ class Configure:
 		env.store(filename)
 
 	def TryBuild(self,code,options=''):
-		"""check if a program could be build, returns 1 if no errors 
+		"""Check if a program could be build, returns 1 if no errors 
 		This method is currently platform specific and has to be made platform 
 		independent, probably by refactoring the c++ or cc build engine
 		"""
+
+		# TODO this is very ugly and done really late (ita)
 
 		env = self.env.copy()
 
@@ -107,6 +109,7 @@ class Configure:
 
 		Params.g_curdirnode = Params.g_build.m_tree.m_srcnode
 
+		back=os.path.abspath('.')
 		os.chdir(dir)
 
 		env.setup(env['tools'])
@@ -116,10 +119,13 @@ class Configure:
 		obj.target = 'test'
 
 		try:
-			return bld.compile()
+			ret = bld.compile()
 		except:
-			os.chdir(Params.g_build.m_tree.m_srcnode.abspath())
+			pass
+
+		os.chdir(back)
 		Utils.reset()
+		return ret
 
 	def TryCPP(self,code,options=''):
 		"""run cpp for a given file, returns 1 if no errors 
@@ -157,7 +163,7 @@ class Configure:
 		else:
 			return 0
 
-	def writeConfigHeader(self, configfile=''):
+	def writeConfigHeader(self, configfile='config.h'):
 		"""save the defines into a file"""
 		if configfile=='': configfile = self.configheader
 
@@ -168,6 +174,8 @@ class Configure:
 			os.mkdir( os.sep.join(lst) )
 		except:
 			pass
+
+		if not self.env['_BUILDDIR_']: self.env['_BUILDDIR_']='_build_'
 
 		dest=open(os.path.join(self.env['_BUILDDIR_'], configfile), 'w')
 		dest.write('/* configuration created by waf */\n')

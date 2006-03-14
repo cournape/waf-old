@@ -11,6 +11,7 @@ test2view.cpp
 pref.cpp
 test2iface.skel
 """
+obj.includes='.'
 obj.uselib='QT KDECORE KIO KDEPRINT'
 
 client = kdeobj('program')
