@@ -135,7 +135,14 @@ class Build:
 		if Params.g_maxjobs <=1: executor = Runner.Serial(generator)
 		else:                    executor = Runner.Parallel(generator, Params.g_maxjobs)
 		trace("executor starting")
-		ret = executor.start()
+		try:
+			ret = executor.start()
+		except KeyboardInterrupt:
+			os.chdir( self.m_tree.m_srcnode.abspath() )
+			self.store()
+			raise
+		#finally:
+		#	os.chdir( self.m_tree.m_srcnode.abspath() )
 
 		os.chdir( self.m_tree.m_srcnode.abspath() )
 		return ret
