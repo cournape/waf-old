@@ -390,7 +390,7 @@ def detect_qt4(conf):
         env['LIB_QTGUI']           = ['QtCore'+debug, 'QtGui'+debug]
 	env['RPATH_QTGUI']         = env['RPATH_QT']
 
-	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpengl') ]
+	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpenGL') ]
         env['LIB_QTOPENGL']        = ['QtOpenGL'+debug]
 	env['RPATH_QTOPENGL']      = env['RPATH_QT']
 
@@ -558,7 +558,7 @@ def detect_qt4_win32(conf):
 	env['LIB_QTGUI']           = ['QtCore'+debug, 'QtGui'+debug]
 	env['RPATH_QTGUI']         = env['RPATH_QT']
 
-	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpengl') ]
+	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpenGL') ]
 	env['LIB_QTOPENGL']        = ['QtOpenGL'+debug,'opengl32']
 	env['RPATH_QTOPENGL']      = env['RPATH_QT']
 
