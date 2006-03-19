@@ -85,8 +85,10 @@ elif 'distclean' in sys.argv:
 # Process command-line options
 Options.parse_args()
 
-try: Utils.g_module.init()
-except: raise
+try:
+	Utils.g_module.init()
+except:
+	pass
 
 from Scripting import Main
 Main()

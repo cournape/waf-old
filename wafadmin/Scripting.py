@@ -46,6 +46,73 @@ def Main():
 		import Environment, Configure, Tools
 		from Environment import create_env
 		from Configure import sub_config, create_config
+		Utils.g_module.configure()
+		sys.exit(0)
+
+	# compile the project and/or install the files
+	bld = Build.Build()
+	bld.load()
+	#bld.m_tree.dump()
+
+	Utils.g_module.setup_build(bld)
+
+	Params.g_inroot=1
+	Utils.g_module.build()
+	Params.g_inroot=0
+
+	while len(Params.g_subdirs)>0:
+		# read scripts, saving the context everytime (Params.g_curdirnode)
+
+		# cheap queue
+		lst=Params.g_subdirs[0]
+		Params.g_subdirs=Params.g_subdirs[1:]
+
+		new=lst[0]
+		old=lst[1]
+
+		# take the new node position
+		Params.g_curdirnode=new
+
+		# open the script file in the folder and import the build method
+		# if it fails, just execute the script
+
+		# idea : add an exception right here
+		# but does this slow down the process ? to investigate (TODO ita)
+		#file = Utils.open_sconstrict(new.abspath())
+		#exec file
+
+		# restore the old node position
+		Params.g_curdirnode=old
+
+	#bld.m_tree.dump()
+
+	# compile
+	if 'compile' in Params.g_options or 'install' in Params.g_options:
+		try:
+			Utils.g_module.setup_build(bld)
+		except:
+			raise
+
+	# install
+	try:
+		if Params.g_commands['install']:
+			bld.install()
+	finally:
+		bld.cleanup()
+		bld.store()
+
+	# shutdown
+	try:    Utils.g_module.shutdown()
+	except: pass
+
+# TODO remove
+def Main2():
+	# configure the project
+	if Params.g_commands['configure']:
+		from Utils import options
+		import Environment, Configure, Tools
+		from Environment import create_env
+		from Configure import sub_config, create_config
 		file = open('sconfigure', 'r')
 		exec file
 		sys.exit(0)

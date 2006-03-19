@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+import Configure
+
+VERSION='0.0.1'
+APPNAME='cpp_test'
+
+def setup_build(bld):
+	bld.set_dirs('.', '_build_')
+	bld.set_default_env('main.cache.py')
+
+def build():
+	# process subfolders from here
+	add_subdir('src')
+
+def set_options(opt):
+	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+	opt.add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
+
+def configure():
+	conf = Configure.Configure()
+	conf.checkTool(['g++'])
+	conf.store('main.cache.py')
+
+	#sub_config('src')
+
