@@ -213,6 +213,20 @@ else:
 					continue
 		return None
 
+g_module=None
+def set_main_module(file_path):
+	import Options
+	import imp
+	# Load custom options, if defined
+	file = open(file_path, 'r')
+	name = 'wscript_main.py'
+	desc = ('', 'U', 1)
+
+	global g_module
+	g_module = imp.load_module(file_path, file, name, desc)
+	if file: file.close()
+
+
 def fetch_options(file_path):
 	import Options
 	import imp

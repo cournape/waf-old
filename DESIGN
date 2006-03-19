@@ -94,16 +94,43 @@ DESIGN DECISIONS
 -> Explicit dependency handling as much as possible - tasks have a priority so it is easy to
    enforce a partial order for tasks to execute in parallel
 -> It is better to have modules than grepping and executing code
+-> Signature file size for the different schemes (.dblite):
+ simple  32bits: 1713 44755
+ md5str 128bits: 2272 58893
+  ... so using md5 does not increase the db file significantly for small projects
+
+
+FUNCTIONS TO PROVIDE IN WSCRIPT
+-------------------------------
+The scripts are now real python modules, so waf will import the wscripts
+and run functions from them. The scripts may be compiled into python
+bytecode in the future (quick startup).
+Here are the function definitions
+* init()
+    called right after command-line arguments are parsed and
+    before anything is built
+    this function may contain a sys.exit
+* shutdown()
+    called after all targets are built
+* set_options(opt_object)
+    called for setting custom command-line options, 
+    it takes an option object as input and adds options on it
+* setup_build is called to set up the source and build directories,
+    it may be called more than once, in the configuration process and
+    to setup the build process.
+    This function is mandatory for the configuration and the build functions below
+* build
+* configure
+* clean
+
+Additionally, a few parameters can be given:
+* APPNAME: name of the application (used by 'dist')
+* VERSION: version of the application (used by 'dist')
 
 QUESTIONS
 ---------
 
 * How to set the profiler (see TODO)
-* Signature file size for the different schemes (.dblite):
- simple  32bits: 1713 44755
- md5str 128bits: 2272 58893
-  ... so using md5 does not increase the db file significantly for small projects
-
 STATE OF THE APPLICATION
 ------------------------
 

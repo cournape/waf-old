@@ -58,27 +58,21 @@ Params.g_tooldir = [os.path.join(dir, 'Tools')]
 # For now, no debugging output
 Params.set_trace(0,0,0)
 
+# define the main module containing the functions init, shutdown, ..
+Utils.set_main_module(os.path.join(candidate, 'wscript'))
+
 # fetch the custom command-line options
-Utils.fetch_options(os.path.join(candidate, 'wscript'))
+Options.g_custom_options.append(Utils.g_module.set_options)
 
 # TODO We should parse the command-line arguments first
 if 'dist' in sys.argv:
-	version    = '1.0'
-	appname    = 'noname'
-
-	file_path = os.path.join(candidate, 'wscript')
-
-	file = open(file_path, 'r')
-	name = 'wscript'
-	desc = ('', 'U', 1)
-
-	module = imp.load_module(file_path, file, name, desc)
-	try:    version = module.VERSION
-	except: pass
-	try:    appname = module.APPNAME
+	appname         = 'noname'
+	try:    appname = Utils.g_module.APPNAME
 	except: pass
 
-	if file: file.close()
+	version         = '1.0'
+	try:    version = Utils.g_module.VERSION
+	except: pass
 
 	from Scripting import Dist
 	Dist(appname, version)
@@ -90,6 +84,9 @@ elif 'distclean' in sys.argv:
 
 # Process command-line options
 Options.parse_args()
+
+try: Utils.g_module.init()
+except: raise
 
 from Scripting import Main
 Main()
