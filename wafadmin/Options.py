@@ -9,9 +9,10 @@ from optparse import OptionParser
 import Params
 
 g_custom_options=[]
+g_funcs=[]
 
-def do_exec(parser, pargs):
-	exec 'parser.'+pargs
+#def do_exec(parser, pargs):
+#	exec 'parser.'+pargs
 
 def parse_args():
 	Params.trace("parse_args is called")
@@ -71,8 +72,8 @@ def parse_args():
 		dest = 'wafcoder')
 
 	global g_custom_options
-	for s in g_custom_options:
-		do_exec(parser, s)
+	for fun in g_custom_options:
+		fun(parser)
 
 	# Now parse the arguments
 	(Params.g_options, args) = parser.parse_args()

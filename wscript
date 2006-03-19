@@ -11,11 +11,12 @@ import Params, os, sys
 
 # this function is called before any other for parsing the command-line
 def set_options(opt):
-	add_option('--prepare', action='store_true', default=False,
+	print "set options called"
+	opt.add_option('--prepare', action='store_true', default=False,
 		help='prepare the demo projects RUN ME PLEASE', dest='prepare')
-	add_option('--cleanup', action='store_true', default=False,
+	opt.add_option('--cleanup', action='store_true', default=False,
 		help='cleanup the demo after use (removes project files)', dest='cleanup')
-	add_option('--make-archive', action='store_true', default=False,
+	opt.add_option('--make-archive', action='store_true', default=False,
 		help='create a waf archive suitable for custom projects', dest='arch')
 
 # the init function is called right after the command-line arguments are parsed

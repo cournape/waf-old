@@ -93,6 +93,7 @@ DESIGN DECISIONS
    puts all tasks that are already declared into a list to be processed immediately by the scheduler
 -> Explicit dependency handling as much as possible - tasks have a priority so it is easy to
    enforce a partial order for tasks to execute in parallel
+-> It is better to have modules than grepping and executing code
 
 QUESTIONS
 ---------
@@ -115,6 +116,7 @@ STATE OF THE APPLICATION
 * install files.........................95%
 * parallel builds.......................95%
 * support for running unit tests........?
+* script system.........................?
 
 == Configuration ==                     20%
 * read and write cache files............done

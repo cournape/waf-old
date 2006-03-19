@@ -47,6 +47,7 @@ class Environment:
 			module.setup(self)
 		except:
 			print "setup function missing in tool: " + tool
+		if file: file.close()
 
 	def __str__(self):
 		return "environment table\n"+str(self.m_table)+"\noverriden\n"+str(self.m_overriden)

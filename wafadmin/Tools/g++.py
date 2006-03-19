@@ -6,6 +6,8 @@
 import os, sys
 import Utils,Action,Params,Configure
 
+print "boouh"
+
 # tool specific setup
 # is called when a build process is started 
 def setup(env):

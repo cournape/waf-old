@@ -81,9 +81,9 @@ def reset():
 
 	Params.g_scanned_folders=[]
 
-def add_option(key=None, action=None, default=None, help=None, dest=None, type=None):
+def options(**kwargs):
 	pass
-	
+
 def open_sconstruct(dir='.'):
  	file=open(os.path.join(dir,'sconstruct'), 'r')
 	if not file:
@@ -212,4 +212,18 @@ else:
 					except ValueError: return os.path.normpath(f)
 					continue
 		return None
+
+def fetch_options(file_path):
+	import Options
+	import imp
+	# Load custom options, if defined
+	file = open(file_path, 'r')
+	name = 'wscript'
+	desc = ('', 'U', 1)
+
+	module = imp.load_module(file_path, file, name, desc)
+	try:
+		Options.g_custom_options.append(module.set_options)
+	finally:
+		if file: file.close()
 

@@ -3,9 +3,13 @@
 
 # To comment add a '#' to the line
 # Options to add MUST fit on a single line
-add_option('--prepare', action='store_true', default=False, help='prepare the demo projects RUN ME PLEASE', dest='prepare')
-add_option('--cleanup', action='store_true', default=False, help='cleanup the demo after use (removes project files)', dest='cleanup')
-add_option('--make-archive', action='store_true', default=False, help='create a waf archive suitable for custom projects', dest='arch')
+def set_options(opt):
+	add_option('--prepare', action='store_true', default=False,
+		help='prepare the demo projects RUN ME PLEASE', dest='prepare')
+	add_option('--cleanup', action='store_true', default=False,
+		help='cleanup the demo after use (removes project files)', dest='cleanup')
+	add_option('--make-archive', action='store_true', default=False,
+		help='create a waf archive suitable for custom projects', dest='arch')
 
 # Custom options examples
 #add_option('--prefix', type='string', help='installation prefix', dest='prefix')

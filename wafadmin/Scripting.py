@@ -42,7 +42,7 @@ def add_subdir(dir):
 def Main():
 	# configure the project
 	if Params.g_commands['configure']:
-		from Utils import add_option
+		from Utils import options
 		import Environment, Configure, Tools
 		from Environment import create_env
 		from Configure import sub_config, create_config
