@@ -14,6 +14,7 @@ def setup_build(bld):
 def build(bld):
 	# process subfolders from here
 	bld.add_subdir('src')
+	bld.add_subdir('src2')
 
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')

@@ -76,17 +76,16 @@ def Main():
 		file_path = os.path.join(new.abspath(), 'wscript')
 
 		# open the script file in the folder and import the build method
-		# if it fails, just execute the script
-		module = Utils.load_module(file_path)
+		# if it fails to open, execute the script named 'sconscript'
 		try:
+			module = Utils.load_module(file_path)
 			module.build(bld)
-		except OSError:
-			exec file_path
-
-		# idea : add an exception right here
-		# but does this slow down the process ? to investigate (TODO ita)
-		#file = Utils.open_sconstrict(new.abspath())
-		#exec file
+		except IOError:
+			file_path = os.path.join(new.abspath(), 'sconscript')
+			file = open(file_path, 'r')
+			code = file.read()
+			file.close()
+			exec code
 
 		# restore the old node position
 		Params.g_curdirnode=old
