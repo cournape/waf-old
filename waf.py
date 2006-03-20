@@ -7,6 +7,10 @@ import os, string, sys, imp
 # TODO remove
 #os.popen("rm -rf _build_ .dblite")
 
+# Set an anchor so that the project is set to compile from the current directory
+
+
+
 # Climb up to the folder containing the main wscript and chdir to it
 # It is also possible that the project was configured as a sub-module
 # in this case, stop when a ".stopwscript" file is found

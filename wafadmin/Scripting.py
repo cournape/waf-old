@@ -181,6 +181,7 @@ def DistClean():
 		for f in list(filenames):
 			if f.endswith('~'): to_remove = True
 			elif f.endswith('.pyc'): to_remove = True
+			elif f.startswith('.stopwscript'): to_remove = True
 			
 			if to_remove:
 				#print "removing ",os.path.join(root, f)

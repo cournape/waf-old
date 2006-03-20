@@ -59,17 +59,22 @@ def parse_args():
 	#	help = 'Specify the target os to build for. Can specify this option multiple times if required. [Allowed Values: linux, freebsd, solaris, darwin, win32]',
 	#	dest = 'target')
 
-	p('-v', '--verbose', 
+	p('-a', '--anchor',
 		action = 'store_true',
 		default = False,
+		help = 'Set the current folder as single project [Default: False]',
+		dest = 'verbose')
+	p('-v', '--verbose', 
+		action = 'count',
+		default = 0,
 		help = 'Show verbose output [Default: False]',
 		dest = 'verbose')
 
-	p('-w', '--wafcoder',
-		action = 'store_true',
-		default = False,
-		help = 'Show ultra verbose output [Default: False]',
-		dest = 'wafcoder')
+	#p('-w', '--wafcoder',
+	#	action = 'store_true',
+	#	default = False,
+	#	help = 'Show ultra verbose output [Default: False]',
+	#	dest = 'wafcoder')
 
 	global g_custom_options
 	for fun in g_custom_options:
@@ -116,6 +121,7 @@ def parse_args():
 
 	Params.g_maxjobs = Params.g_options.jobs
 	Params.g_verbose = Params.g_options.verbose
-	if Params.g_options.wafcoder: Params.set_trace(1,1,1)
+	if Params.g_verbose>1: Params.set_trace(1,1,1)
+	#if Params.g_options.wafcoder: Params.set_trace(1,1,1)
 
 
