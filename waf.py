@@ -7,9 +7,11 @@ import os, string, sys, imp
 # TODO remove
 #os.popen("rm -rf _build_ .dblite")
 
-# Set an anchor so that the project is set to compile from the current directory
-
-
+# this will write a configure lock, to remove use distclean
+if 'configure' in sys.argv:
+	file = open('.stopwscript', 'w')
+	file.write('a')
+	file.close()
 
 # Climb up to the folder containing the main wscript and chdir to it
 # It is also possible that the project was configured as a sub-module
