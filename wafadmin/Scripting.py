@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, os.path, types, sys, imp, cPickle
-import Build, Params, Utils, Options
+import Build, Params, Utils, Options, Configure
 
 def trace(msg):
 	Params.trace(msg, 'Scripting')
@@ -94,9 +94,10 @@ def Main():
 	#bld.m_tree.dump()
 
 	# compile
-	if (compile in Params.g_commands and Params.g_commands['compile']) or Params.g_commands['install']:
+	if Params.g_commands['make'] or Params.g_commands['install']:
+	#if ('make' in Params.g_commands and Params.g_commands['make']) or Params.g_commands['install']:
 		try:
-			Utils.g_module.setup_build(bld)
+			bld.compile()
 		except:
 			raise
 
@@ -111,61 +112,6 @@ def Main():
 	# shutdown
 	try:    Utils.g_module.shutdown()
 	except: pass
-
-# TODO remove
-def Main2():
-	# configure the project
-	if Params.g_commands['configure']:
-		from Utils import options
-		import Environment, Configure, Tools
-		from Environment import create_env
-		from Configure import sub_config, create_config
-		file = open('sconfigure', 'r')
-		exec file
-		sys.exit(0)
-
-	# compile the project and/or install the files
-	bld = Build.Build()
-	bld.load()
-	#bld.m_tree.dump()
-
-	Params.g_inroot=1
-	file=Utils.open_sconstruct()
-	exec file
-	Params.g_inroot=0
-
-	while len(Params.g_subdirs)>0:
-		# read scripts, saving the context everytime (Params.g_curdirnode)
-
-		# cheap queue
-		lst=Params.g_subdirs[0]
-		Params.g_subdirs=Params.g_subdirs[1:]
-
-		new=lst[0]
-		old=lst[1]
-
-		# take the new node position
-		Params.g_curdirnode=new
-
-		# idea : add an exception right here
-		# but does this slow down the process ? to investigate (TODO ita)
-		file = Utils.open_sconstrict(new.abspath())
-		exec file
-
-		# restore the old node position
-		Params.g_curdirnode=old
-
-	#bld.m_tree.dump()
-
-	# for now
-	bld.compile()
-
-	try:
-		if Params.g_commands['install']:
-			bld.install()
-	finally:
-		bld.cleanup()
-		bld.store()
 
 # dist target - should be portable
 def Dist(appname, version):
