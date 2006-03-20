@@ -35,7 +35,7 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 def exec_command(str):
 	# for now
 	trace("system command -> "+ str)
-	if Params.g_verbose>1: print str
+	if Params.g_verbose==1: print str
 	if sys.platform == "win32":
 		return os.system(str)
 	else:
