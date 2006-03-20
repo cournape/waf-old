@@ -1,0 +1,38 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+from Object import createObj
+def build(bld):
+	# 1. A simple program
+	obj=createObj('cpp', 'program')
+	obj.source='''
+	a1.cpp
+	b1.cpp b2.cpp
+	main.cpp
+	'''
+	obj.includes='. src'
+	obj.target='testprogram'
+
+	# 2. A shared library
+	# The extension (.so) is added automatically
+	obj=createObj('cpp', 'shlib')
+	obj.source='''
+	a1.cpp
+	b1.cpp b2.cpp
+	'''
+	obj.includes='. src'
+	obj.target='testshlib'
+
+	# 3. A static library
+	# The extension (.a) is added automatically
+	obj=createObj('cpp', 'staticlib')
+	obj.source='''
+	c1.cpp
+	'''
+	obj.includes='. src'
+	obj.target='teststaticlib'
+
+def set_options(opt):
+	add_option('--meow', type='string', help='option hidden in cpp/src/sconfigure', dest='meow')
+
