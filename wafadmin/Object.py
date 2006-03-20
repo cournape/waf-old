@@ -238,3 +238,7 @@ def reset():
 	g_register={}
 	g_allobjs=[]
 
+def createObj(foo, bar):
+	from Common import cppobj
+	return cppobj(bar)
+

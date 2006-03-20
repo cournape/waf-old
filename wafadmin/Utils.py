@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, md5, types, sys, string, stat
+import os, md5, types, sys, string, stat, imp
 import Params
 
 g_trace=1
@@ -213,23 +213,28 @@ else:
 					continue
 		return None
 
-g_module=None
-def set_main_module(file_path):
-	import Options
-	import imp
-	# Load custom options, if defined
-	file = open(file_path, 'r')
-	name = 'wscript_main.py'
-	desc = ('', 'U', 1)
+def load_module(file_path, name='wscript'):
+	module = imp.new_module(name)
 
-	global g_module
-	g_module = imp.load_module(file_path, file, name, desc)
+	file = open(file_path, 'r')
+	code = file.read()
+
+	exec code in module.__dict__
 	if file: file.close()
 
+	return module
+
+g_module=None
+def set_main_module(file_path):
+	# Load custom options, if defined
+	global g_module
+	g_module = load_module(file_path, 'wscript_main')
+	
+	# remark: to register the module globally, use the following:
+	# sys.modules['wscript_main'] = g_module
 
 def fetch_options(file_path):
 	import Options
-	import imp
 	# Load custom options, if defined
 	file = open(file_path, 'r')
 	name = 'wscript'

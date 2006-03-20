@@ -152,4 +152,7 @@ class Build:
 		for obj in Object.g_allobjs:
 			obj.install()
 		
+	def add_subdir(self, dir):
+		import Scripting
+		Scripting.add_subdir(dir)
 

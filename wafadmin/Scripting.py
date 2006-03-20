@@ -2,8 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, os.path, types, sys, cPickle
-import Build, Params, Utils
+import os, os.path, types, sys, imp, cPickle
+import Build, Params, Utils, Options
 
 def trace(msg):
 	Params.trace(msg, 'Scripting')
@@ -57,7 +57,7 @@ def Main():
 	Utils.g_module.setup_build(bld)
 
 	Params.g_inroot=1
-	Utils.g_module.build()
+	Utils.g_module.build(bld)
 	Params.g_inroot=0
 
 	while len(Params.g_subdirs)>0:
@@ -73,8 +73,15 @@ def Main():
 		# take the new node position
 		Params.g_curdirnode=new
 
+		file_path = os.path.join(new.abspath(), 'wscript')
+
 		# open the script file in the folder and import the build method
 		# if it fails, just execute the script
+		module = Utils.load_module(file_path)
+		try:
+			module.build(bld)
+		except OSError:
+			exec file_path
 
 		# idea : add an exception right here
 		# but does this slow down the process ? to investigate (TODO ita)
@@ -87,7 +94,7 @@ def Main():
 	#bld.m_tree.dump()
 
 	# compile
-	if 'compile' in Params.g_options or 'install' in Params.g_options:
+	if (compile in Params.g_commands and Params.g_commands['compile']) or Params.g_commands['install']:
 		try:
 			Utils.g_module.setup_build(bld)
 		except:
