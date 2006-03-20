@@ -14,7 +14,7 @@ cwd = os.getcwd()
 candidate = None
 try:
 	while 1:
-		if len(cwd)<=3: break # stop at / or c:\
+		if len(cwd)<=3: break # stop at / or c:
 		dirlst = os.listdir(cwd)
 		if 'wscript'      in dirlst: candidate = cwd
 		if '.stopwscript' in dirlst: break
