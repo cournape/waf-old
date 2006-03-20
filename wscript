@@ -65,4 +65,7 @@ def init():
 def shutdown():
 	pass
 
+def setup_build(bld):
+	pass
+
 

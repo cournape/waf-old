@@ -87,6 +87,8 @@ Options.parse_args()
 
 try:
 	Utils.g_module.init()
+except SystemExit:
+	raise
 except:
 	pass
 
