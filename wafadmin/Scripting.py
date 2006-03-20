@@ -73,19 +73,18 @@ def Main():
 		# take the new node position
 		Params.g_curdirnode=new
 
-		file_path = os.path.join(new.abspath(), 'wscript')
-
-		# open the script file in the folder and import the build method
-		# if it fails to open, execute the script named 'sconscript'
+		# try to open 'wscript_build' for execution
+		# if unavailable, open the module wscript and call the build function from it
 		try:
-			module = Utils.load_module(file_path)
-			module.build(bld)
-		except IOError:
-			file_path = os.path.join(new.abspath(), 'sconscript')
+			file_path = os.path.join(new.abspath(), 'wscript_build')
 			file = open(file_path, 'r')
 			code = file.read()
 			file.close()
 			exec code
+		except IOError:
+			file_path = os.path.join(new.abspath(), 'wscript')
+			module = Utils.load_module(file_path)
+			module.build(bld)
 
 		# restore the old node position
 		Params.g_curdirnode=old
