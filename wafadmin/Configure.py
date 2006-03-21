@@ -104,7 +104,6 @@ class Configure:
 		Params.g_default_env = env
 
 		bld = Build.Build()
-		bld.load()
 		bld.set_dirs(dir, os.path.join(dir, '_build_'))
 
 		Params.g_curdirnode = Params.g_build.m_tree.m_srcnode

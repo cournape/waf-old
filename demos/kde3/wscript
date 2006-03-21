@@ -1,0 +1,27 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+APPNAME='kde3app'
+VERSION='0.0.1'
+
+def set_options(opt):
+	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+	opt.add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
+
+def setup_build(bld):
+	bld.set_dirs('.', '_build_')
+	bld.set_default_env('main.cache.py')
+
+def configure():
+	import Configure
+	conf = Configure.create_config()
+	conf.checkTool(['g++', 'KDE3'])
+	conf.checkHeader('dlfcn.h','HAVE_DLFCN_H')
+	conf.addDefine('TEST_DEFINE', '345')
+	conf.writeConfigHeader('config.h')
+	conf.store('main.cache.py')
+
+def build(bld):
+	bld.add_subdir('src')
+

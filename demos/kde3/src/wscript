@@ -1,0 +1,29 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2005 (ita)
+
+def build(bld):
+	from Object import createObj
+
+	obj = createObj('kde3', 'program')
+	obj.target='test2'
+	obj.source="""
+	main.cpp
+	test2.cpp
+	test2view.cpp
+	pref.cpp
+	test2iface.skel
+	"""
+	obj.includes='.'
+	obj.uselib='QT KDECORE KIO KDEPRINT'
+
+	client = createObj('kde3', 'program')
+	client.source='test2_client.cpp'
+	client.target='test2_client'
+	client.uselib='QT KDECORE KIO KDEPRINT'
+
+	## Install the .rc file
+	#install_files( 'KDEDATA', 'test2', 'test2ui.rc' )
+	## Install the .desktop file
+	#install_files( 'KDEMENU', 'Utilities', 'test2.desktop' )
+

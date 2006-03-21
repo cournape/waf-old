@@ -405,7 +405,7 @@ class kdeobj(Common.cppobj):
 			self.install_results( 'KDE_MODULE', '', self.m_latask )
 
 def setup(env):
-	Object.register('kde', kdeobj)
+	Object.register('kde3', kdeobj)
 
 def detect_kde(conf):
 	env = conf.env
@@ -451,7 +451,7 @@ def detect_kde(conf):
 		else: p('RED','kde-config was NOT found in your PATH')
 		print "Make sure kde is installed properly"
 		print "(missing package kdebase-devel?)"
-		env.Exit(1)
+		sys.exit(1)
 	if kdedir: env['KDEDIR']=kdedir
 	else: env['KDEDIR'] = os.popen(kde_config+' -prefix').read().strip()
 
@@ -481,7 +481,7 @@ def detect_kde(conf):
 		else:
 			p('RED','Qt was not found')
 			p('RED','Please set QTDIR first (/usr/lib/qt3?) or try scons -h for more options')
-			env.Exit(1)
+			sys.exit(1)
 	env['QTDIR'] = qtdir.strip()
 	env['LIB_QT'] = 'qt-mt'
 
@@ -500,7 +500,7 @@ def detect_kde(conf):
 				p('YELLOW',"uic was found as "+uic)
 			else:
 				p('RED',"uic was not found - set QTDIR put it in your PATH ?")
-				env.Exit(1)
+				sys.exit(1)
 	env['UIC'] = uic
 
 	print "Checking for moc                  : ",
@@ -516,7 +516,7 @@ def detect_kde(conf):
 			p('YELLOW',"moc was found as "+moc)
 		else:
 			p('RED',"moc was not found - set QTDIR or put it in your PATH ?")
-			env.Exit(1)
+			sys.exit(1)
 	env['MOC'] = moc
 
 	## check for the qt and kde includes
@@ -535,7 +535,7 @@ def detect_kde(conf):
 			qtincludes = "/usr/include/qt3"
 		else:
 			p('RED',"the qt headers were not found")
-			env.Exit(1)
+			sys.exit(1)
 
 	print "Checking for the kde includes     : ",
 	kdeprefix = os.popen(kde_config+" --prefix").read().strip()
@@ -550,7 +550,7 @@ def detect_kde(conf):
 			kdeincludes = kdeprefix + "/include/kde/"
 		else:
 			p('RED',"The kde includes were NOT found")
-			env.Exit(1)
+			sys.exit(1)
 
 	# kde-config options
 	kdec_opts = {'KDE_BIN'    : 'exe',     'KDE_APPS'      : 'apps',
