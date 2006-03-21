@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+def build():
+	# The first example is a simple program
+	obj=ocamlobj('all')
+	obj.source='''
+	somemodule.ml main.ml
+	'''
+	obj.includes='.'
+	obj.target='camlprog'
+
