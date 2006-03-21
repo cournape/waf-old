@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+import Object
+
 class kdeinitobj(kdeobj):
 	def __init__(self, senv=None):
 		if not self.env: self.env = env
@@ -80,4 +82,7 @@ class kdeinitobj(kdeobj):
 		self.source = 'kdeinit_' + self.target + '.la.cpp'
 
 		kdeobj.execute(self)
+
+def setup(env):
+	Object.register('kdeinit', kdeinitobj)
 

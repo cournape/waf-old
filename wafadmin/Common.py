@@ -273,6 +273,10 @@ class cppobj(Object.genobj):
 				if val:
 					self.env.appendValue(v, val)
 
+# register our object
+Object.register('cpp', cppobj)
+
+
 ## TODO rework the part below seriously
 class ccobj(Object.genobj):
 	def __init__(self):

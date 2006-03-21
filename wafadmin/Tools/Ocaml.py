@@ -130,6 +130,8 @@ def setup(env):
 	link_vardeps   = ['LINK', 'LINKFLAGS', 'LINK_ST']
 	Action.GenAction('link', link_vardeps)
 
+	Object.register('ocaml', ocamlobj)
+
 def detect(conf):
 	conf.env['OCAMLC']         = 'ocamlc'
 	conf.env['OCAMLOPT']       = 'ocamlopt'

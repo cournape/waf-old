@@ -12,6 +12,9 @@ def debug(msg):
 def error(msg):
 	Params.error(msg, 'KDE3')
 
+def setup():
+	pass
+
 # kde moc file processing
 moc_vardeps = ['MOC', 'MOC_FLAGS', 'MOC_ST']
 Action.GenAction('moc', moc_vardeps)
@@ -246,41 +249,6 @@ class kdeobj(Common.cppobj):
 		task.m_outputs = self.file_in(base+'.moc')
 		return task
 
-	#def create_kidl_task(self, base):
-	#	task = self.create_task('kidl', self.env, 2)
-	#	task.m_inputs  = self.file_in(base+'.h')
-	#	task.m_outputs = self.file_in(base+'.kidl')
-	#	return task
-
-	#def create_skel_or_stub_task(self, base, ext):
-	#	if not base in skel_or_stub:
-	#		self.m_skel_or_stub[base] = self.create_kidl_task(base)
-
-	#	type = ext[1:] # .stub -> stub
-
-	#	task = self.create_task(type, self.env, 3)
-	#	task.m_inputs  = self.m_skel_or_stub[base].m_outputs
-	#	task.m_outputs = self.file_in( ''.join([base,'_',type,'.cpp'])
-
-	#	cpptask = self.create_cpp_task()
-	#	cpptask.m_inputs  = task.m_outputs
-	#	cpptask.m_outputs = self.file_in( ''.join(base,'_',type,'.o'])
-	#	return cpptask
-
-	#def create_rcc_task(self, base):
-	#	# run rcctask with one of the highest priority
-	#	rcctask = self.create_task('rcc', self.env, 2)
-	#	rcctask.m_inputs  = self.file_in(base+'.qrc')
-	#	rcctask.m_outputs = self.file_in(base+'_rc.cpp')
-
-	#	cpptask = self.create_cpp_task()
-	#	cpptask.m_inputs  = self.file_in(base+'_rc.cpp')
-	#	cpptask.m_outputs = self.file_in(base+'.o')
-
-	#	# not mandatory
-	#	cpptask.m_run_after = [rcctask]
-	#	return cpptask
-
 	def create_cpp_task(self):
 		return self.create_task('cpp', self.env)
 
@@ -436,6 +404,8 @@ class kdeobj(Common.cppobj):
 			self.install_results( 'KDE_MODULE', '', self.m_linktask )
 			self.install_results( 'KDE_MODULE', '', self.m_latask )
 
+def setup(env):
+	Object.register('kde', kdeobj)
 
 def detect_kde(conf):
 	env = conf.env

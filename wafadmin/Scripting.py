@@ -40,6 +40,7 @@ def add_subdir(dir):
 	Params.g_subdirs.append(  [Params.g_curdirnode, restore]    )
 
 def Main():
+	from Object import createObj
 	# configure the project
 	if Params.g_commands['configure']:
 		from Utils import options

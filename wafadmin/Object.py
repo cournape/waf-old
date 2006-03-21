@@ -238,7 +238,19 @@ def reset():
 	g_register={}
 	g_allobjs=[]
 
-def createObj(foo, bar):
-	from Common import cppobj
-	return cppobj(bar)
+# The main functor 
+# build objects without having to add tons of import statements
+
+g_allclasses = {}
+def createObj(objname, *k, **kw):
+	try:
+		return g_allclasses[objname](*k, **kw)
+	except:
+		print "error in createObj"
+		raise
+
+def register(name, classval):
+	global g_allclasses
+	if name in g_allclasses: print "there is a problem in Object:register: class exists ", name
+	g_allclasses[name] = classval
 

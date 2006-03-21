@@ -5,7 +5,7 @@
 # found is 1, not found is 0
 
 import os, re, types, sys
-import Action, Common, Utils, Params, Configure, Scan, Runner
+import Action, Common, Utils, Params, Configure, Scan, Runner, Object
 
 def trace(msg):
 	Params.trace(msg, 'Qt4')
@@ -237,6 +237,8 @@ class qt4obj(Common.cppobj):
 			self.install_results( 'PREFIX', 'lib', self.m_linktask )
 			self.install_results( 'PREFIX', 'lib', self.m_latask )
 
+def setup(env):
+	Object.register('qt4', qt4obj)
 
 def detect_qt4(conf):
 	env = conf.env
