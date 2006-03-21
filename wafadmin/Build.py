@@ -76,7 +76,8 @@ class Build:
 			error('passing a null filename to set_default_env')
 			return
 		if not env.load(filename):
-			fatal("no cache file found or corrupted. You should run 'waf configure'")
+			print "the cache file was not found"
+			#fatal("no cache file found or corrupted. You should run 'waf configure'")
 		
 		env.setup(env['tools'])
 		Params.g_default_env = env.copy()

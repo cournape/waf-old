@@ -2,12 +2,15 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-def build():
+from Object import createObj
+
+def build(bld):
 	obj = createObj('qt4', 'program')
 	obj.source = 'window.cpp glwidget.cpp main.cpp textures.qrc'
 	obj.uselib = 'QT QTCORE QTGUI QTOPENGL'
 	obj.target = 'window'
 	obj.set_name('firstobj')
 	obj.includes = 'test .'
-	add_subdir('test')
+
+	bld.add_subdir('test')
 

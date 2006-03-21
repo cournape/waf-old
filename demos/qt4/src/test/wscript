@@ -11,3 +11,6 @@ obj.include = './_build_/src/test/ ./_build_/src/'
 obj.depends('firstobj')
 """
 
+def build(bld):
+	pass
+

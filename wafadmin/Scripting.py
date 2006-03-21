@@ -41,12 +41,9 @@ def add_subdir(dir):
 
 def Main():
 	from Object import createObj
+	from Configure import sub_config, create_config
 	# configure the project
 	if Params.g_commands['configure']:
-		from Utils import options
-		import Environment, Configure, Tools
-		from Environment import create_env
-		from Configure import sub_config, create_config
 		bld = Build.Build()
 		Utils.g_module.setup_build(bld)
 		Utils.g_module.configure()

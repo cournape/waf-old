@@ -15,7 +15,8 @@ def set_options(opt):
 	opt.add_option('--qtbin', type='string', help='root of the qt directory', dest='qtbin')
 
 def configure():
-	conf = create_config()
+	import Configure
+	conf = Configure.create_config()
 	conf.checkTool(['g++', 'Qt4'])
 	conf.store('main.cache.py')
 
