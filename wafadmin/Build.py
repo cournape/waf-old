@@ -32,11 +32,14 @@ class Build:
 
 		Params.g_build=self
 
-	def load(self):
+		self.m_bdir = ''
+
+	def load(self, blddir):
+		self.m_bdir = blddir
 		self.m_rootdir = os.path.abspath('.')
 		if sys.platform=='win32': self.m_rootdir=self.m_rootdir[2:]
 		try:
-			file = open(Params.g_dbfile, 'rb')
+			file = open( os.path.join(blddir, Params.g_dbfile), 'rb')
 			self.m_tree = cPickle.load(file)
 			file.close()
 		except:
@@ -45,13 +48,16 @@ class Build:
 		self.m_tree.m_root.tag(0)
 
 	def store(self):
-		file = open(Params.g_dbfile, 'wb')
+		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
 		cPickle.dump(self.m_tree, file, -1)
 		file.close()
 
 	def set_dirs(self, srcdir, blddir, scan='auto'):
 		if len(srcdir) >= len(blddir)-1:
 			fatal("build dir must be different from srcdir")
+
+		self.load(blddir)
+
 		self.set_bdir(blddir)
 		self.set_srcdir(srcdir, scan)
 

@@ -46,15 +46,15 @@ def Main():
 		import Environment, Configure, Tools
 		from Environment import create_env
 		from Configure import sub_config, create_config
+		bld = Build.Build()
+		Utils.g_module.setup_build(bld)
 		Utils.g_module.configure()
 		sys.exit(0)
 
 	# compile the project and/or install the files
 	bld = Build.Build()
-	bld.load()
-	#bld.m_tree.dump()
-
 	Utils.g_module.setup_build(bld)
+	#bld.m_tree.dump()
 
 	Params.g_inroot=1
 	Utils.g_module.build(bld)
