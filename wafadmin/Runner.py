@@ -12,6 +12,9 @@ except ImportError:
 import os, popen2, sys
 import Params, Task
 
+if sys.platform == "win32":
+	import pproc
+
 def trace(msg):
 	Params.trace(msg, 'Runner')
 def debug(msg):
@@ -37,7 +40,12 @@ def exec_command(str):
 	trace("system command -> "+ str)
 	if Params.g_verbose==1: print str
 	if sys.platform == "win32":
-		return os.system(str)
+		proc = pproc.Popen(str, shell=1, stdout=PIPE, stderr=PIPE)
+		process_cmd_output(proc.stdout, proc.stderr)
+		stat = proc.wait()
+		if stat & 0xff: return stat | 0x80
+		return stat >> 8
+		#return os.system(str)
 	else:
 		proc = popen2.Popen3(str, 1)
 		process_cmd_output(proc.fromchild, proc.childerr)

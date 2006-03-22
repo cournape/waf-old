@@ -2,12 +2,15 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+import os
 import Configure
 
 VERSION='0.0.1'
 APPNAME='cpp_test'
 
-distclean=['_build_', 'cache']
+srcdir   = '.'
+builddir = '_build_'
+cachedir = '_build_%scache' % os.sep
 
 def setup_build(bld):
 	bld.set_dirs('.', '_build_')
