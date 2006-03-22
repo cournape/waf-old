@@ -164,15 +164,19 @@ def Dist(appname, version):
 
 # distclean target - should be portable too
 def DistClean():
-	import os, shutil
-	try: os.remove('.dblite')
-	except: pass
+	import os, shutil, types
+	import Build
 
-	try: shutil.rmtree('_build_')
-	except: pass
-
-	try: shutil.rmtree('cache')
-	except: pass
+	try:
+		li=Utils.g_module.distclean
+		if not type(li) is types.ListType:
+			li = li.split()
+		for dir in li:
+			if not dir: continue
+			try: shutil.rmtree(os.path.abspath(dir))
+			except: pass
+	except:
+		pass
 
 	for (root, dirs, filenames) in os.walk('.'):
 		to_remove = False
@@ -180,6 +184,7 @@ def DistClean():
 			if f.endswith('~'): to_remove = True
 			elif f.endswith('.pyc'): to_remove = True
 			elif f.startswith('.stopwscript'): to_remove = True
+			elif f.startswith('.dblite'): to_remove = True
 			
 			if to_remove:
 				#print "removing ",os.path.join(root, f)
