@@ -8,8 +8,8 @@ import Configure
 VERSION='0.0.1'
 APPNAME='cpp_test'
 
-srcdir   = '.'
-builddir = '_build_'
+srcdir = '.'
+blddir = '_build_'
 cachedir = '_build_%scache' % os.sep
 
 def setup_build(bld):

@@ -47,6 +47,14 @@ def Main():
 		bld = Build.Build()
 		Utils.g_module.setup_build(bld)
 		Utils.g_module.configure()
+
+		# this will write a configure lock so that subsequent run will
+		# consider the current path as the root directory
+		# to remove: use 'waf distclean'
+		file = open('.lock-wscript', 'w')
+		file.write(Utils.g_module.blddir)
+		file.close()
+
 		sys.exit(0)
 
 	# compile the project and/or install the files
@@ -167,6 +175,9 @@ def DistClean():
 	import os, shutil, types
 	import Build
 
+	#print "Executing distclean in ", os.path.abspath('.')
+
+	# remove the distclean folders (may not exist)
 	try:
 		li=Utils.g_module.distclean
 		if not type(li) is types.ListType:
@@ -178,12 +189,25 @@ def DistClean():
 	except:
 		pass
 
+	# remove the builddir declared
+	try: shutil.rmtree(os.path.abspath(Utils.g_module.blddir))
+	except: pass
+
+	# remove the temporary files
 	for (root, dirs, filenames) in os.walk('.'):
 		to_remove = False
 		for f in list(filenames):
-			if f.endswith('~'): to_remove = True
+			if f=='.lock-wscript':
+				# removes a lock, and the builddir indicated
+				to_remove = True
+				file = open(os.path.join(root, f), 'r')
+				dirname = file.read().strip()
+				file.close()
+				try: shutil.rmtree(os.path.join(root, dirname))
+				except: pass
+			elif f.endswith('~'): to_remove = True
 			elif f.endswith('.pyc'): to_remove = True
-			elif f.startswith('.stopwscript'): to_remove = True
+			elif f.startswith('.lock-wscript'): to_remove = True
 			elif f.startswith('.dblite'): to_remove = True
 			
 			if to_remove:
