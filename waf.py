@@ -4,18 +4,9 @@
 
 import os, string, sys, imp
 
-# TODO remove
-#os.popen("rm -rf _build_ .dblite")
-
-# this will write a configure lock, to remove use distclean
-#if 'configure' in sys.argv:
-#	file = open('.stopwscript', 'w')
-#	file.write('a')
-#	file.close()
-
 # Climb up to the folder containing the main wscript and chdir to it
 # It is also possible that the project was configured as a sub-module
-# in this case, stop when a ".stopwscript" file is found
+# in this case, stop when a ".lock-wscript" file is found
 cwd = os.getcwd()
 candidate = None
 try:
@@ -24,7 +15,7 @@ try:
 		dirlst = os.listdir(cwd)
 		if 'wscript'      in dirlst: candidate = cwd
 		if 'configure' in sys.argv and candidate: break
-		if '.stopwscript' in dirlst: break
+		if '.lock-wscript' in dirlst: break
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
 except:
 	print '\033[91mMain wscript file was not found in dir or above, exiting now\033[0m'

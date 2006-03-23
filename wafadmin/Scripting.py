@@ -42,21 +42,25 @@ def add_subdir(dir):
 
 	Params.g_subdirs.append(  [Params.g_curdirnode, restore]    )
 
+def private_setup_build():
+	bld = Build.Build()
+	try:
+		Utils.g_module.setup_build(bld)
+	except AttributeError:
+		try:
+			bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
+			bld.set_default_env('main.cache.py') # TODO
+		except AttributeError:
+			msg = "The attributes srcdir or builddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project"
+			fatal(msg % os.path.abspath('.'))
+	return bld
+
 def Main():
 	from Object import createObj
 	from Configure import sub_config, create_config
 	# configure the project
 	if Params.g_commands['configure']:
-		bld = Build.Build()
-		try:
-			Utils.g_module.setup_build(bld)
-		except AttributeError:
-			try:
-				bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
-				bld.set_default_env('main.cache.py') # TODO
-			except AttributeError:
-				msg = "The attributes srcdir or builddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project"
-				fatal(msg % os.path.abspath('.'))
+		bld = private_setup_build()
 
 		try:
 			Utils.g_module.configure()
@@ -74,8 +78,7 @@ def Main():
 		sys.exit(0)
 
 	# compile the project and/or install the files
-	bld = Build.Build()
-	Utils.g_module.setup_build(bld)
+	bld = private_setup_build()
 	#bld.m_tree.dump()
 
 	Params.g_inroot=1
