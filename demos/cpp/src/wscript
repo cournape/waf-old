@@ -34,5 +34,5 @@ def build(bld):
 	obj.target='teststaticlib'
 
 def set_options(opt):
-	add_option('--meow', type='string', help='option hidden in cpp/src/sconfigure', dest='meow')
+	opt.add_option('--meow', type='string', help='option hidden in cpp/src/sconfigure', dest='meow')
 

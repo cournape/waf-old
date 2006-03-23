@@ -8,13 +8,16 @@ import Configure
 VERSION='0.0.1'
 APPNAME='cpp_test'
 
+# these variables will be mandatory,
+# the setup_build function is optional
 srcdir = '.'
 blddir = '_build_'
-cachedir = '_build_%scache' % os.sep
+cachedir = os.sep.join(['_build', 'cache'])
 
-def setup_build(bld):
-	bld.set_dirs('.', '_build_')
-	bld.set_default_env('main.cache.py')
+# optional, only to override the default behaviour
+#def setup_build(bld):
+#	bld.set_dirs('.', '_build_')
+#	bld.set_default_env('main.cache.py')
 
 def build(bld):
 	# process subfolders from here

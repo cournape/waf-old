@@ -185,7 +185,8 @@ def error(msg, module=''):
 	if module in g_trace_exclude: return
 	niceprint(msg, 'ERROR', module)
 def fatal(msg, module=''):
-	niceprint(msg, 'ERROR', module)
+	#niceprint(msg, 'ERROR', module)
+	pprint('RED', msg)
 	sys.exit(1)
 
 def h_file(fname):

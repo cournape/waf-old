@@ -5,12 +5,15 @@
 import os, os.path, types, sys, imp, cPickle
 import Build, Params, Utils, Options, Configure
 
+# i know this is ugly (ita)
 def trace(msg):
 	Params.trace(msg, 'Scripting')
 def debug(msg):
 	Params.debug(msg, 'Scripting')
 def error(msg):
 	Params.error(msg, 'Scripting')
+def fatal(msg):
+        Params.fatal(msg, 'Scripting')
 
 # each script calls add_subdir
 def add_subdir(dir):
@@ -45,8 +48,21 @@ def Main():
 	# configure the project
 	if Params.g_commands['configure']:
 		bld = Build.Build()
-		Utils.g_module.setup_build(bld)
-		Utils.g_module.configure()
+		try:
+			Utils.g_module.setup_build(bld)
+		except AttributeError:
+			try:
+				bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
+				bld.set_default_env('main.cache.py') # TODO
+			except AttributeError:
+				msg = "The attributes srcdir or builddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project"
+				fatal(msg % os.path.abspath('.'))
+
+		try:
+			Utils.g_module.configure()
+		except AttributeError:
+			msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+			fatal(msg % os.path.abspath('.'))
 
 		# this will write a configure lock so that subsequent run will
 		# consider the current path as the root directory
