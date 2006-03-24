@@ -311,9 +311,11 @@ int main()
 		"""prints an error message"""
 		print "configuration error: " + module + " " + str
 
-	def store(self, file):
+	def store(self, file=''):
 		"""save config results into a cache file"""
-		return self.env.store(file)
+		try: os.mkdir(Utils.g_module.cachedir)
+		except OSError: pass
+		return self.env.store(os.path.join(Utils.g_module.cachedir, 'main.cache.py'))
 
 	def checkMessage(self,type,msg,state,option=''):
 		"""print an checking message. This function is used by other checking functions"""

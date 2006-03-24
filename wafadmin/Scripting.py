@@ -49,7 +49,7 @@ def private_setup_build():
 	except AttributeError:
 		try:
 			bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
-			bld.set_default_env('main.cache.py') # TODO
+			bld.set_default_env(os.path.join(Utils.g_module.cachedir, 'main.cache.py')) # TODO
 		except AttributeError:
 			msg = "The attributes srcdir or builddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project"
 			fatal(msg % os.path.abspath('.'))
@@ -61,9 +61,9 @@ def Main():
 	# configure the project
 	if Params.g_commands['configure']:
 		bld = private_setup_build()
-
+		conf = Configure.Configure()
 		try:
-			Utils.g_module.configure()
+			Utils.g_module.configure(conf)
 		except AttributeError:
 			msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
 			fatal(msg % os.path.abspath('.'))

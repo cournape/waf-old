@@ -13,19 +13,17 @@ APPNAME='cpp_test'
 # the setup_build function is completely optional
 srcdir = '.'
 blddir = '_build_'
-cachedir = os.sep.join(['_build', 'cache'])
+cachedir = os.sep.join(['_build_', 'cache'])
 
 def build(bld):
 	# process subfolders from here
 	bld.add_subdir('src')
 	bld.add_subdir('src2')
 
-def configure():
-	conf = Configure.Configure()
+def configure(conf):
 	conf.checkTool(['g++'])
-	conf.store('main.cache.py')
-
 	#sub_config('src')
+	conf.store()
 
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
