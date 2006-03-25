@@ -10,23 +10,14 @@ from Params import debug, error, trace, fatal
 class Environment:
 	def __init__(self):
 		self.m_table={}
-		self.m_overriden={}
+
 		# may be there is a better place for this
 		if sys.platform == "win32":
 			self.setValue('WINDOWS',1)
 
-	def copy2(self):
-		newenv = Environment()
-		newenv.m_overriden = self.m_table # share the same data
-
 	def copy(self):
 		newenv = Environment()
-		tb = newenv.m_overriden
-		for key in self.m_table.keys()+self.m_overriden.keys():
-			try :
-				tb[key] = self.m_table[key]
-			except:
-				tb[key] = self.m_overriden[key]
+		newenv.m_table = self.m_table.copy()
 		return newenv
 
 	# setup tools for build process
@@ -47,37 +38,31 @@ class Environment:
 		return "environment table\n"+str(self.m_table)+"\noverriden\n"+str(self.m_overriden)
 
 	def __getitem__(self, key):
-		return self.getValue(key)
-	def __setitem__(self, key, val):
-		self.setValue(key, val)
+		try: return self.m_table[key]
+		except: return []
+	def __setitem__(self, key, value):
+		self.m_table[key] = value
 
-	# get down by only one level, there is no need to fetch values very far
-	# but copy is handled properly
+	# to be deprecated
+	def setValue(self, key, value):
+		self.m_table[key] = value
 
-	def setValue(self, var, value):
-		self.m_table[var]=value
-
-	def getValue(self, var):
-		try:
-			return self.m_table[var]
-		except:
-			if var in self.m_overriden: return self.m_overriden[var]
-			return []
+	# to be deprecated
+	def getValue(self, key):
+		try: return self.m_table[key]
+		except: return []
 
 	def appendValue(self, var, value):
-		if not var in self.m_table:
-			try:
-				self.m_table[var]    = []+self.m_overriden[var]
-			except:
-				self.m_table[var] = []
-		if type(value) is types.ListType: self.m_table[var] += value
-		else: self.m_table[var].append(value)
+		if type(value) is types.ListType: val = value
+		else: val = [value]
+
+		self.m_table[var] = self.m_table[var] + value
 
 	def prependValue(self, var, value):
-		if not var in self.m_table:
-			try: self.m_table[var]    = []+self.m_overriden[var]
-			except: self.m_table[var] = []
-		self.m_table[var] = [value]+self.m_table[var]
+		if type(value) is types.ListType: val = value
+		else: val = [value]
+
+		self.m_table[var] = value + self.m_table[var]
 
 	def store(self, filename):
 		file=open(filename, 'w')
