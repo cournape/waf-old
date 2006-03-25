@@ -5,13 +5,7 @@
 import re
 import Params
 import Node
-
-def trace(msg):
-        Params.trace(msg, 'Scan')
-def debug(msg):
-	Params.debug(msg, 'Scan')
-def error(msg):
-	Params.error(msg, 'Scan')
+from Params import debug, error, trace, fatal
 
 #cregexp='^[ \t]*#[ \t]*(?:include)[ \t]*(<|")([^>"]+)(>|")'
 cregexp1 = re.compile('^[ \t]*#[ \t]*(?:include)[ \t]*(<|")([^>"]+)(>|")', re.M)

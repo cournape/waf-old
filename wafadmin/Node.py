@@ -6,6 +6,7 @@ import os
 from stat import *
 import Deptree
 import Params
+from Params import debug, error, trace, fatal
 
 # local cache for absolute paths
 g_abspath_cache = {}
@@ -16,13 +17,6 @@ g_relpath_cache = {}
 
 # cache for height of the node
 g_height_cache = {}
-
-def trace(msg):
-	Params.trace(msg, 'Node')
-def debug(msg):
-	Params.debug(msg, 'Node')
-def error(msg):
-	Params.error(msg, 'Node')
 
 class Node:
 	def __init__(self, name, parent):

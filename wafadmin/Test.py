@@ -9,13 +9,7 @@ import Node
 import Deptree
 import Params
 import Environment
-
-def trace(msg):
-	Params.trace(msg, 'Test')
-def debug(msg):
-	Params.debug(msg, 'Test')
-def error(msg):
-	Params.error(msg, 'Test')
+from Params import debug, error, trace, fatal
 
 def info(msg):
 	Params.pprint('CYAN', msg)

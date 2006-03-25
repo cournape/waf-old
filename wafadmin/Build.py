@@ -13,14 +13,7 @@ import Params
 import Runner
 import Object
 
-def trace(msg):
-	Params.trace(msg, 'Build')
-def debug(msg):
-	Params.debug(msg, 'Build')
-def error(msg):
-	Params.error(msg, 'Build')
-def fatal(msg):
-	Params.fatal(msg, 'Build')
+from Params import debug, error, trace, fatal
 
 class Build:
 	def __init__(self):

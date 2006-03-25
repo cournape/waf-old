@@ -3,6 +3,7 @@
 
 import os, types, sys, string, imp
 import Params, Environment, Common, Runner, Build, Utils
+from Params import debug, error, trace, fatal
 
 def find_path(file, path_list):
 	for dir in path_list:
@@ -66,6 +67,17 @@ class Configure:
 	def __del__(self):
 		if not self.env.getValue('tools'):
 			self.error('you should add at least a checkTool() call in your sconfigure, otherwise you cannot build anything')
+
+	def retrieve(name, fromenv=None):
+		try:
+			env = Params.g_envs[name]
+			if fromenv:
+				print "warning, the environment %s may have been configured already" % name
+			return env
+		except:
+			env = Environment.Environment()
+			Params.g_envs[name] = env
+			return env
 
 	def execute(self):
 		"""for what is this function"""

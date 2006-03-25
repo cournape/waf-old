@@ -4,13 +4,7 @@
 
 import os
 import Params
-
-def trace(msg):
-	Params.trace(msg, 'Task')
-def debug(msg):
-	Params.debug(msg, 'Task')
-def error(msg):
-	Params.error(msg, 'Task')
+from Params import debug, error, trace, fatal
 
 # task index
 g_idx=0

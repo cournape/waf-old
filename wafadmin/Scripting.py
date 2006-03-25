@@ -4,16 +4,7 @@
 
 import os, os.path, types, sys, imp, cPickle
 import Build, Params, Utils, Options, Configure
-
-# i know this is ugly (ita)
-def trace(msg):
-	Params.trace(msg, 'Scripting')
-def debug(msg):
-	Params.debug(msg, 'Scripting')
-def error(msg):
-	Params.error(msg, 'Scripting')
-def fatal(msg):
-        Params.fatal(msg, 'Scripting')
+from Params import debug, error, trace, fatal
 
 # each script calls add_subdir
 def add_subdir(dir):

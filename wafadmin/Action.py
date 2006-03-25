@@ -3,13 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import Object, Params
-
-def trace(msg):
-	Params.trace(msg, 'Action')
-def debug(msg):
-	Params.debug(msg, 'Action')
-def error(msg):
-	Params.error(msg, 'Action')
+from Params import debug, error, trace, fatal
 
 def add_action(act):
 	Params.g_actions[act.m_name] = act

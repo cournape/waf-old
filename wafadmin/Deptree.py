@@ -10,13 +10,7 @@ import cPickle
 
 import Node
 import Params
-
-def trace(msg):
-        Params.trace(msg, 'Deptree')
-def debug(msg):
-	Params.debug(msg, 'Deptree')
-def error(msg):
-	Params.error(msg, 'Deptree')
+from Params import debug, error, trace, fatal
 
 g_cache_node_content={}
 

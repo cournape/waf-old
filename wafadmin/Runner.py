@@ -11,16 +11,10 @@ except ImportError:
 
 import os, popen2, sys
 import Params, Task
+from Params import debug, error, trace, fatal
 
 if sys.platform == "win32":
 	import pproc
-
-def trace(msg):
-	Params.trace(msg, 'Runner')
-def debug(msg):
-	Params.debug(msg, 'Runner')
-def error(msg):
-	Params.error(msg, 'Runner')
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0

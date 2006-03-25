@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, sys, types
+import os, sys, types, inspect
 import Utils
 
 g_version='0.7.4' # ph34r
@@ -176,11 +176,15 @@ def trace(msg, module=''):
 	if not Utils.g_trace: return
 	if module in g_trace_exclude: return
 	niceprint(msg, 'TRACE', module)
-def debug(msg, module=''):
+def debug(msg):
+	module = inspect.stack()[1][0].f_globals['__name__']
+
 	if not Utils.g_debug: return
 	if module in g_trace_exclude: return
 	niceprint(msg, 'DEBUG', module)
-def error(msg, module=''):
+def error(msg):
+	module = inspect.stack()[1][0].f_globals['__name__']
+
 	if not Utils.g_error: return
 	if module in g_trace_exclude: return
 	niceprint(msg, 'ERROR', module)

@@ -127,6 +127,21 @@ Additionally, a few parameters can be given:
 * APPNAME: name of the application (used by 'dist')
 * VERSION: version of the application (used by 'dist')
 
+
+Proposal for Named environments
+-------------------------------
+
+conf.newconf('main', env=None)
+conf.detect('gcc')
+conf.newconf('gtk', env='main')
+conf.detect('pkg-config')
+conf.detect('libxml2')
+conf.newconf('kde', env='main')
+conf.detect('g++')
+conf.detect('qt')
+-> three independent environents are created, the first one is considered
+to be the default for projects
+
 QUESTIONS
 ---------
 

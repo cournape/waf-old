@@ -19,13 +19,7 @@
 
 import os, shutil, types
 import Action, Params, Environment, Runner, Task
-
-def trace(msg):
-	Params.trace(msg, 'Object')
-def debug(msg):
-	Params.debug(msg, 'Object')
-def error(msg):
-	Params.error(msg, 'Object')
+from Params import debug, error, trace, fatal
 
 g_register={}
 g_allobjs=[]

@@ -4,13 +4,7 @@
 
 import os,sys,string, types, imp
 import Params, Tools
-
-def trace(msg):
-	Params.trace(msg, 'Environment')
-def debug(msg):
-	Params.debug(msg, 'Environment')
-def error(msg):
-	Params.error(msg, 'Environment')
+from Params import debug, error, trace, fatal
 
 # a safe-to-use dictionary
 class Environment:

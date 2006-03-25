@@ -6,15 +6,7 @@
 
 import os, types, shutil
 import Action, Object, Params, Runner, Scan
-
-def trace(msg):
-	Params.trace(msg, 'Common')
-def debug(msg):
-	Params.debug(msg, 'Common')
-def error(msg):
-	Params.error(msg, 'Common')
-def fatal(msg):
-	Params.fatal(msg, 'Common')
+from Params import debug, error, trace, fatal
 
 g_cppvalues = [
 'FRAMEWORK', 'FRAMEWORKPATH',
