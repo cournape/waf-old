@@ -172,7 +172,9 @@ def niceprint(msg, type='', module=''):
 		return
 	print 'TRACE: == %s == %s'% (module, msg)
 
-def trace(msg, module=''):
+def trace(msg):
+	module = inspect.stack()[1][0].f_globals['__name__']
+
 	if not Utils.g_trace: return
 	if module in g_trace_exclude: return
 	niceprint(msg, 'TRACE', module)
@@ -188,9 +190,12 @@ def error(msg):
 	if not Utils.g_error: return
 	if module in g_trace_exclude: return
 	niceprint(msg, 'ERROR', module)
-def fatal(msg, module=''):
+def fatal(msg):
+	module = inspect.stack()[1][0].f_globals['__name__']
+
+	# this one is fatal
 	#niceprint(msg, 'ERROR', module)
-	pprint('RED', msg)
+	pprint('RED', msg+" "+module)
 	sys.exit(1)
 
 def h_file(fname):
