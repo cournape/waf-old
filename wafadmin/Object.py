@@ -240,7 +240,7 @@ def createObj(objname, *k, **kw):
 	try:
 		return g_allclasses[objname](*k, **kw)
 	except:
-		print "error in createObj"
+		print "error in createObj", objname
 		raise
 
 def register(name, classval):

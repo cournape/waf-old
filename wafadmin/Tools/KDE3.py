@@ -4,16 +4,7 @@
 
 import os, shutil, sys
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
-
-def trace(msg):
-	Params.trace(msg, 'KDE3')
-def debug(msg):
-	Params.debug(msg, 'KDE3')
-def error(msg):
-	Params.error(msg, 'KDE3')
-
-def setup():
-	pass
+from Params import debug, error, trace, fatal
 
 # kde moc file processing
 moc_vardeps = ['MOC', 'MOC_FLAGS', 'MOC_ST']
@@ -636,6 +627,11 @@ def detect_kde(conf):
 	except: pass
 	try: env['module_LINKFLAGS']=env['shlib_LINKFLAGS']
 	except: pass
+
+def setup(env):
+        Object.register('kde_translations', kde_translations)
+        Object.register('kde_documentation', kde_documentation)
+        Object.register('kde', kdeobj)
 
 def detect(conf):
 	conf.env['KDE_IS_FOUND'] = 0

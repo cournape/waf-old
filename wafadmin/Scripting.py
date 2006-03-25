@@ -69,6 +69,7 @@ def private_setup_build():
 def Main():
 	from Object import createObj
 	from Configure import sub_config, create_config
+	from Common import install_files, install_as
 	# configure the project
 	if Params.g_commands['configure']:
 		bld = private_setup_build()
