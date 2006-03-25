@@ -35,7 +35,7 @@ class Environment:
 		if file: file.close()
 
 	def __str__(self):
-		return "environment table\n"+str(self.m_table)+"\noverriden\n"+str(self.m_overriden)
+		return "environment table\n"+str(self.m_table)
 
 	def __getitem__(self, key):
 		try: return self.m_table[key]
@@ -56,28 +56,21 @@ class Environment:
 		if type(value) is types.ListType: val = value
 		else: val = [value]
 
-		self.m_table[var] = self.m_table[var] + value
+		self.m_table[var] = self[var] + val
 
 	def prependValue(self, var, value):
 		if type(value) is types.ListType: val = value
 		else: val = [value]
 
-		self.m_table[var] = value + self.m_table[var]
+		self.m_table[var] = val + self[var]
 
 	def store(self, filename):
 		file=open(filename, 'w')
-		keys=self.m_table.keys()+self.m_overriden.keys()
+		keys=self.m_table.keys()
 		keys.sort()
-		curr_key = ''
 
 		for key in keys:
-			if key==curr_key:
-				next
-			if key in self.m_table:
-				file.write('%s = %r\n'%(key,self.m_table[key]))
-			else:
-				file.write('%s = %r\n'%(key,self.m_overriden[key]))
-			curr_key=key
+			file.write('%s = %r\n'%(key,self.m_table[key]))
 		file.close()
 
 	def load(self, filename):
