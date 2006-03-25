@@ -23,7 +23,11 @@ g_scanners={}
 g_fake = 0
 
 ## == ENVIRONMENT == ##
+# the default environment, will be obsolete soon
 g_default_env=None
+
+# map a name to an environment, the 'default' must be defined
+g_envs={}
 
 ## == DEPTREE == ##
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
@@ -225,4 +229,5 @@ def xor_sig(o1, o2):
 		except:
 			print o1, o2
 			raise
+
 

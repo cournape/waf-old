@@ -52,32 +52,39 @@ def sub_config(file):
 
 class Configure:
 	def __init__(self, env=None):
-		if not env:
-			self.env = Environment.Environment()
-		else:
-			self.env = env
-		for key in self.env.m_table:
-			if key == 'modules':
-				self.modules = self.env[key].split()
+		#for key in self.env.m_table:
+		#	if key == 'modules':
+		#		self.modules = self.env[key].split()
+
+		self.env       = None
+		self.m_envname = ''
+
+		self.setenv('default')
+
 		self.defines = {}
 		self.configheader = 'config.h'
-		# not sure, if this is the right place and variable
+
+		# not sure, if this is the right place and variable # TODO
 		self.env['_BUILDDIR_'] = ''
 
 	def __del__(self):
 		if not self.env.getValue('tools'):
 			self.error('you should add at least a checkTool() call in your sconfigure, otherwise you cannot build anything')
 
-	def retrieve(name, fromenv=None):
+	def retrieve(self, name, fromenv=None):
+		print "adding env"
 		try:
 			env = Params.g_envs[name]
-			if fromenv:
-				print "warning, the environment %s may have been configured already" % name
+			if fromenv: print "warning, the environment %s may have been configured already" % name
 			return env
 		except:
 			env = Environment.Environment()
 			Params.g_envs[name] = env
 			return env
+
+	def setenv(self, name):
+		self.env     = self.retrieve(name)
+		self.envname = name
 
 	def execute(self):
 		"""for what is this function"""
@@ -327,7 +334,12 @@ int main()
 		"""save config results into a cache file"""
 		try: os.mkdir(Utils.g_module.cachedir)
 		except OSError: pass
-		return self.env.store(os.path.join(Utils.g_module.cachedir, 'main.cache.py'))
+
+		if not Params.g_envs:
+			fatal("nothing to store in Configure !")
+		for key in Params.g_envs:
+			tmpenv = Params.g_envs[key]
+			self.env.store(os.path.join(Utils.g_module.cachedir, key+'.cache.py'))
 
 	def checkMessage(self,type,msg,state,option=''):
 		"""print an checking message. This function is used by other checking functions"""
@@ -360,8 +372,7 @@ int main()
 			conf = self
 			exec file
 
-
 # syntactic sugar
-def create_config(config=None):
-	return Configure(config)
+def create_config():
+	return Configure()
 

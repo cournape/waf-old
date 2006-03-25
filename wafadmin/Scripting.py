@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, os.path, types, sys, imp, cPickle
-import Build, Params, Utils, Options, Configure
+import Build, Params, Utils, Options, Configure, Environment
 from Params import debug, error, trace, fatal
 
 # each script calls add_subdir
@@ -39,11 +39,31 @@ def private_setup_build():
 		Utils.g_module.setup_build(bld)
 	except AttributeError:
 		try:
+			cachedir = Utils.g_module.cachedir
 			bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
-			bld.set_default_env(os.path.join(Utils.g_module.cachedir, 'main.cache.py')) # TODO
+			#bld.set_default_env(os.path.join(Utils.g_module.cachedir, 'main.cache.py')) # TODO
+			lst = os.listdir(Utils.g_module.cachedir)
+			for file in lst:
+				env = Environment.Environment()
+				ret = env.load(os.path.join(cachedir, file))
+				name = file.split('.')[0]
+
+				if not ret:
+					print "could not load env ", name
+					continue
+				Params.g_envs[name] = env
+				try: env.setup(env['tools'])
+				except: pass
+
+			Params.g_default_env = Params.g_envs['default']
+
 		except AttributeError:
 			msg = "The attributes srcdir or builddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project"
 			fatal(msg % os.path.abspath('.'))
+		except OSError:
+			pass
+		except KeyError:
+			pass
 	return bld
 
 def Main():
@@ -55,6 +75,7 @@ def Main():
 		conf = Configure.Configure()
 		try:
 			Utils.g_module.configure(conf)
+			conf.store()
 		except AttributeError:
 			msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
 			fatal(msg % os.path.abspath('.'))
