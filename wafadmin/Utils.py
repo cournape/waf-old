@@ -84,24 +84,6 @@ def reset():
 def options(**kwargs):
 	pass
 
-def open_sconstruct(dir='.'):
- 	file=open(os.path.join(dir,'sconstruct'), 'r')
-	if not file:
-		file=open(os.path.join(dir,'SConstruct'), 'r')
- 	return file
-
-def open_sconstrict(dir='.'):
- 	file=open(os.path.join(dir,'sconscript'), 'r')
-	if not file:
-	 	file=open(os.path.join(dir,'SConscript'), 'r')
- 	return file
-
-def open_sconfigure(dir='.'):
- 	file=open(os.path.join(dir,'sconfigure'), 'r')
-	if not file:
-	 	file=open(os.path.join(dir,'SConfigure'), 'r')
- 	return file
-
 # === part below is borrowed from scons === #
 DictType        = types.DictType
 InstanceType    = types.InstanceType

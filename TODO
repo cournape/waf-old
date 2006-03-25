@@ -1,8 +1,7 @@
 (ita)
+* finish the configuration
 * unit tests
-* sconfiguration
 * variant builds
-* cleanup - replace error/sys.exit by fatal
 
 (rh)
 * windows import library support for shared libraries

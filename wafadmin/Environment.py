@@ -55,14 +55,16 @@ class Environment:
 	def appendValue(self, var, value):
 		if type(value) is types.ListType: val = value
 		else: val = [value]
-
-		self.m_table[var] = self[var] + val
+		#print var, self[var]
+		try: self.m_table[var] = self[var] + val
+		except TypeError: self.m_table[var] = [self[var]] + val
 
 	def prependValue(self, var, value):
 		if type(value) is types.ListType: val = value
 		else: val = [value]
-
-		self.m_table[var] = val + self[var]
+		#print var, self[var]
+		try: self.m_table[var] = val + self[var]
+		except TypeError: self.m_table[var] = val + [self[var]]
 
 	def store(self, filename):
 		file=open(filename, 'w')
