@@ -156,7 +156,7 @@ class Configure:
 		# TODO: currently only for g++ 
 		# implement platform independent compile function probably by refactoring 
 		# Task/Action class
-		return Runner.exec_command('%s test.c -o test %s 2>test.log '% (self.env['CPP'], str(options)) ):
+		return Runner.exec_command('%s test.c -o test %s 2>test.log '% (self.env['CPP'], str(options)) )
 
 	def addDefine(self, define, value):
 		"""store a single define and its state into an internal list 

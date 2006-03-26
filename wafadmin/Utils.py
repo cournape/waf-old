@@ -195,7 +195,16 @@ else:
 					continue
 		return None
 
+## index modules by absolute path
+g_loaded_modules={}
+## the main module is special
+g_module=None
+
+# this function requires an absolute path
 def load_module(file_path, name='wscript'):
+	try: return g_loaded_modules[file_path]
+	except: pass
+
 	module = imp.new_module(name)
 
 	file = open(file_path, 'r')
@@ -204,9 +213,10 @@ def load_module(file_path, name='wscript'):
 	exec code in module.__dict__
 	if file: file.close()
 
+	g_loaded_modules[file_path] = module
+
 	return module
 
-g_module=None
 def set_main_module(file_path):
 	# Load custom options, if defined
 	global g_module
