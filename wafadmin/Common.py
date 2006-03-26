@@ -14,6 +14,9 @@ g_cppvalues = [
 'INCLUDE',
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS']
 
+class InstallError:
+	pass
+
 def check_dir(dir):
 	#print "check dir ", dir
 	try:    os.stat(dir)
@@ -39,7 +42,8 @@ def install_files(var, subdir, files, env=None):
 	for filename in lst:
 		file = os.path.join(node.abspath(), filename)
 		print "* installing %s in %s" % (file, destpath)
-		shutil.copy2( file, destpath )
+		try: shutil.copy2( file, destpath )
+		except: raise InstallError
 
 def install_as(var, destfile, srcfile, env=None):
 	if not Params.g_commands['install']: return
@@ -56,7 +60,8 @@ def install_as(var, destfile, srcfile, env=None):
 
 	src = os.path.join(node.abspath(), srcfile.lstrip(os.sep))
 	print "* installing %s as %s" % (src, tgt)
-	shutil.copy2( src, tgt )
+	try: shutil.copy2( src, tgt )
+	except: raise InstallError
 
 # fake libtool files
 fakelibtool_vardeps = ['CXX', 'PREFIX']
