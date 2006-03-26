@@ -60,10 +60,13 @@ Params.set_trace(0,0,0)
 Utils.set_main_module(os.path.join(candidate, 'wscript'))
 
 # fetch the custom command-line options
-Options.g_custom_options.append(Utils.g_module.set_options)
+# TODO recursion
+Options.create_parser()
+Utils.g_module.set_options(Options.g_parser)
+Options.parse_args()
 
-# TODO We should parse the command-line arguments first
-if 'dist' in sys.argv:
+# TODO use the results of the parser
+if Params.g_commands['dist']:
 	appname         = 'noname'
 	try:    appname = Utils.g_module.APPNAME
 	except: pass
@@ -75,13 +78,10 @@ if 'dist' in sys.argv:
 	from Scripting import Dist
 	Dist(appname, version)
 	sys.exit(0)
-elif 'distclean' in sys.argv:
+elif Params.g_commands['distclean']:
 	from Scripting import DistClean
 	DistClean()
 	sys.exit(0)
-
-# Process command-line options
-Options.parse_args()
 
 try:
 	Utils.g_module.init()

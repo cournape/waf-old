@@ -8,26 +8,28 @@ from types import *
 from optparse import OptionParser
 import Params
 
+g_parser = None
 g_custom_options=[]
 g_funcs=[]
 
 #def do_exec(parser, pargs):
 #	exec 'parser.'+pargs
 
-def parse_args():
+def create_parser():
 	Params.trace("parse_args is called")
 
 	def to_list(sth):
 		if type(sth) is ListType: return sth
 		else: return [sth]
 
-	parser = OptionParser(usage = """waf [options] [commands ...]
+	global g_parser
+	g_parser = OptionParser(usage = """waf [options] [commands ...]
 
 * Main commands: configure make install clean distclean dist doc
 * Example: ./waf make -j4""", version = 'waf %s' % Params.g_version)
 	
 	# Our options
-	p=parser.add_option
+	p=g_parser.add_option
 
 	p('-d', '--debug-level',
 		action = 'store',
@@ -65,10 +67,9 @@ def parse_args():
 		help = 'Show verbose output [Default: False]',
 		dest = 'verbose')
 
-	global g_custom_options
-	for fun in g_custom_options:
-		fun(parser)
-
+def parse_args():
+	global g_parser
+	parser = g_parser
 	# Now parse the arguments
 	(Params.g_options, args) = parser.parse_args()
 	#print Params.g_options, " ", args
@@ -96,7 +97,6 @@ def parse_args():
 	lst=['dist','configure','clean','distclean','make','install','doc']
 	for var in lst:    Params.g_commands[var]    = 0
 	if len(args) == 0: Params.g_commands['make'] = 1
-	
 
 	# Parse the command arguments
 	for arg in args:
