@@ -8,28 +8,20 @@ from types import *
 from optparse import OptionParser
 import Params
 
-g_parser = None
-g_custom_options=[]
-g_funcs=[]
-
-#def do_exec(parser, pargs):
-#	exec 'parser.'+pargs
-
 def create_parser():
-	Params.trace("parse_args is called")
+	Params.trace("create_parser is called")
 
 	def to_list(sth):
 		if type(sth) is ListType: return sth
 		else: return [sth]
 
-	global g_parser
-	g_parser = OptionParser(usage = """waf [options] [commands ...]
+	parser = OptionParser(usage = """waf [options] [commands ...]
 
 * Main commands: configure make install clean distclean dist doc
 * Example: ./waf make -j4""", version = 'waf %s' % Params.g_version)
 	
 	# Our options
-	p=g_parser.add_option
+	p=parser.add_option
 
 	p('-d', '--debug-level',
 		action = 'store',
@@ -66,11 +58,10 @@ def create_parser():
 		default = 0,
 		help = 'Show verbose output [Default: False]',
 		dest = 'verbose')
+	return parser
 
-def parse_args():
-	global g_parser
-	parser = g_parser
-	# Now parse the arguments
+def parse_args_impl(parser):
+
 	(Params.g_options, args) = parser.parse_args()
 	#print Params.g_options, " ", args
 
@@ -113,4 +104,17 @@ def parse_args():
 	if Params.g_verbose>1: Params.set_trace(1,1,1)
 	#if Params.g_options.wafcoder: Params.set_trace(1,1,1)
 
+# TODO bad name for a useful class
+# loads wscript modules in folders for adding options
+class Handler:
+	def __init__(self):
+		self.parser    = create_parser()
+		self.dirs      = []
+		self.stackdirs = []
+	def add_option(self, *kw, **kwargs):
+		self.parser.add_option(*kw, **kwargs)
+	def sub_options(self, dir):
+		pass
+	def parse_args(self):
+		parse_args_impl(self.parser)
 
