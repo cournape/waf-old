@@ -98,7 +98,7 @@ class Configure:
 		env.store(filename)
 
 	def TryBuild(self,code,options=''):
-		"""Check if a program could be build, returns 1 if no errors 
+		"""Check if a program could be build, returns 0 if no errors 
 		This method is currently platform specific and has to be made platform 
 		independent, probably by refactoring the c++ or cc build engine
 		"""
@@ -146,7 +146,7 @@ class Configure:
 		return ret
 
 	def TryCPP(self,code,options=''):
-		"""run cpp for a given file, returns 1 if no errors 
+		"""run cpp for a given file, returns 0 if no errors (standard)
 		This method is currently platform specific and has to be made platform 
 		independent, probably by refactoring the c++ or cc build engine
 		"""
@@ -156,11 +156,8 @@ class Configure:
 		# TODO: currently only for g++ 
 		# implement platform independent compile function probably by refactoring 
 		# Task/Action class
-		if Runner.exec_command('%s test.c -o test %s 2>test.log '% (self.env['CPP'], str(options)) ) == 0:
-			return 1
-		else:
-			return 0
-		
+		return Runner.exec_command('%s test.c -o test %s 2>test.log '% (self.env['CPP'], str(options)) ):
+
 	def addDefine(self, define, value):
 		"""store a single define and its state into an internal list 
 		   for later writing to a config header file"""	
@@ -258,7 +255,7 @@ int main()
 }
 """ % function
 
-		is_found = self.TryBuild(headers + code)
+		is_found = not self.TryBuild(headers + code)
 		self.checkMessage('function',function,is_found)
 		self.addDefine(define,is_found)
 		return is_found
@@ -295,7 +292,7 @@ int main()
 			headers = ""
 			code = ""
 
-		is_found = self.TryBuild(headers + code,(self.env['LIB_ST'] % libname) + ' ' + self.env['LIBPATH_ST'] % "c:\Programme\gnuwin32\lib" )
+		is_found = not self.TryBuild(headers + code,(self.env['LIB_ST'] % libname) + ' ' + self.env['LIBPATH_ST'] % "c:\Programme\gnuwin32\lib" )
 		self.checkMessage('library',libname,is_found)
 		self.addDefine(define,is_found)
 		return is_found
