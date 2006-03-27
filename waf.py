@@ -62,7 +62,9 @@ Utils.set_main_module(os.path.join(candidate, 'wscript'))
 # fetch the custom command-line options
 # TODO recursion
 opt_obj = Options.Handler()
-Utils.g_module.set_options(opt_obj)
+opt_obj.dirs = ['']
+#Utils.g_module.set_options(opt_obj)
+opt_obj.recurse()
 opt_obj.parse_args()
 
 # TODO use the results of the parser

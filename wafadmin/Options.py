@@ -2,11 +2,10 @@
 # encoding: utf-8
 # Scott Newton, 2005 (scottn)
 
-import sys
-import string
+import os, sys, string
 from types import *
 from optparse import OptionParser
-import Params
+import Params, Utils
 
 def create_parser():
 	Params.trace("create_parser is called")
@@ -111,10 +110,23 @@ class Handler:
 		self.parser    = create_parser()
 		self.dirs      = []
 		self.stackdirs = []
+		self.cwd = os.getcwd()
 	def add_option(self, *kw, **kwargs):
 		self.parser.add_option(*kw, **kwargs)
 	def sub_options(self, dir):
-		pass
+		self.dirs.append(os.path.join(self.cwd, dir))
+	def recurse(self):
+		while self.dirs:
+			oldcwd = self.cwd
+
+			self.cwd = os.path.join(self.cwd, self.dirs.pop())
+			cur = os.path.join(self.cwd, 'wscript')
+			try: mod = Utils.load_module(cur)
+			except: raise
+			mod.set_options(self)
+
+			self.cwd = oldcwd
+		
 	def parse_args(self):
 		parse_args_impl(self.parser)
 
