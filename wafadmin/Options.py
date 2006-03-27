@@ -109,7 +109,6 @@ class Handler:
 	def __init__(self):
 		self.parser    = create_parser()
 		self.dirs      = []
-		self.stackdirs = []
 		self.cwd = os.getcwd()
 	def add_option(self, *kw, **kwargs):
 		self.parser.add_option(*kw, **kwargs)
@@ -122,7 +121,7 @@ class Handler:
 			self.cwd = os.path.join(self.cwd, self.dirs.pop())
 			cur = os.path.join(self.cwd, 'wscript')
 			try: mod = Utils.load_module(cur)
-			except: raise
+			except: continue
 			mod.set_options(self)
 
 			self.cwd = oldcwd

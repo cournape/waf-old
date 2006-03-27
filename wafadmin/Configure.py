@@ -67,6 +67,9 @@ class Configure:
 		# not sure, if this is the right place and variable # TODO
 		self.env['_BUILDDIR_'] = ''
 
+		self.cwd  = os.getcwd()
+		self.dirs = []
+
 	def __del__(self):
 		if not self.env.getValue('tools'):
 			self.error('you should add at least a checkTool() call in your sconfigure, otherwise you cannot build anything')
@@ -368,6 +371,27 @@ int main()
 			file = open(path,'r')
 			conf = self
 			exec file
+
+	def sub_config(self, dir):
+		self.dirs.append(os.path.join(self.cwd, dir))
+
+	def recurse(self):
+		while self.dirs:
+			oldcwd = self.cwd
+			self.cwd = os.path.join(self.cwd, self.dirs.pop())
+			cur = os.path.join(self.cwd, 'wscript')
+			try:
+				mod = Utils.load_module(cur)
+			except:
+				msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+				fatal(msg % self.cwd)
+			try:
+				mod.configure(self)
+			except AttributeError:
+				msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+				fatal(msg % self.cwd)
+				
+			self.cwd = oldcwd
 
 # syntactic sugar
 def create_config():

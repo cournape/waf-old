@@ -21,6 +21,7 @@ def build(bld):
 
 def configure(conf):
 	conf.checkTool(['g++'])
+	conf.sub_config('src')
 
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')

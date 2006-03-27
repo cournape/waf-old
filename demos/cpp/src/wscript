@@ -36,3 +36,6 @@ def build(bld):
 def set_options(opt):
 	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')
 
+def configure(conf):
+	print "sub-configuration file called"
+

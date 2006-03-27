@@ -74,13 +74,9 @@ def Main():
 	if Params.g_commands['configure']:
 		bld = private_setup_build()
 		conf = Configure.Configure()
-		try:
-			Utils.g_module.configure(conf)
-			conf.store()
-		except AttributeError:
-			msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-			fatal(msg % os.path.abspath('.'))
-			#raise
+		conf.dirs = ['']
+		conf.recurse()
+		conf.store()
 
 		# this will write a configure lock so that subsequent run will
 		# consider the current path as the root directory
