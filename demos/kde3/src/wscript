@@ -5,7 +5,7 @@
 def build(bld):
 	from Object import createObj
 
-	obj = createObj('kde3', 'program')
+	obj = createObj('KDE3', 'program')
 	obj.target='test2'
 	obj.source="""
 	main.cpp
