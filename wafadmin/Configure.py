@@ -101,14 +101,10 @@ class Configure:
 		independent, probably by refactoring the c++ or cc build engine
 		"""
 
-		# TODO this is very ugly and done really late (ita)
-
 		env = self.env.copy()
 
-		if not env['_BUILDDIR_']: env.setValue('_BUILDDIR_', '_build_')
-		dir = os.path.join(env['_BUILDDIR_'], 'trybuild')
-
-		try: os.mkdir(env['_BUILDDIR_'])
+		dir = os.path.join(Utils.g_module.blddir, '.wscript-trybuild')
+		try: os.mkdir(Utils.g_module.blddir)
 		except: pass
 		try: os.mkdir(dir)
 		except: pass
