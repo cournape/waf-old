@@ -63,17 +63,12 @@ Params.set_trace(0,0,0)
 # define the main module containing the functions init, shutdown, ..
 Utils.set_main_module(os.path.join(candidate, 'wscript'))
 
-# fetch the custom command-line options
-# TODO recursion
+# fetch the custom command-line options recursively and in a procedural way
 opt_obj = Options.Handler()
-opt_obj.cwd = os.path.abspath('.')
-opt_obj.dirs = ['']
-#Utils.g_module.set_options(opt_obj)
-opt_obj.recurse()
-#opt_obj.sub_config('')
+opt_obj.sub_options('')
 opt_obj.parse_args()
 
-# TODO use the results of the parser
+# we use the results of the parser
 if Params.g_commands['dist']:
 	appname         = 'noname'
 	try:    appname = Utils.g_module.APPNAME

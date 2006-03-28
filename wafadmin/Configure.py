@@ -64,11 +64,7 @@ class Configure:
 		self.defines = {}
 		self.configheader = 'config.h'
 
-		# not sure, if this is the right place and variable # TODO
-		self.env['_BUILDDIR_'] = ''
-
 		self.cwd  = os.getcwd()
-		#self.dirs = []
 
 	def __del__(self):
 		if not self.env.getValue('tools'):
@@ -389,14 +385,6 @@ int main()
 			fatal(msg % self.cwd)
 
 		self.cwd = current
-
-#	def recurse(self):
-#		while self.dirs:
-#			oldcwd = self.cwd
-#			self.cwd = os.path.join(self.cwd, self.dirs.pop())
-#			cur = os.path.join(self.cwd, 'wscript')
-#			
-#			self.cwd = oldcwd
 
 # syntactic sugar
 def create_config():

@@ -6,6 +6,7 @@ import os, sys, string
 from types import *
 from optparse import OptionParser
 import Params, Utils
+from Params import debug, trace, fatal, error
 
 def create_parser():
 	Params.trace("create_parser is called")
@@ -108,24 +109,28 @@ def parse_args_impl(parser):
 class Handler:
 	def __init__(self):
 		self.parser    = create_parser()
-		self.dirs      = []
 		self.cwd = os.getcwd()
 	def add_option(self, *kw, **kwargs):
 		self.parser.add_option(*kw, **kwargs)
 	def sub_options(self, dir):
-		self.dirs.append(os.path.join(self.cwd, dir))
-	def recurse(self):
-		while self.dirs:
-			oldcwd = self.cwd
+		current = self.cwd
 
-			self.cwd = os.path.join(self.cwd, self.dirs.pop())
-			cur = os.path.join(self.cwd, 'wscript')
-			try: mod = Utils.load_module(cur)
-			except: continue
+		self.cwd = os.path.join(self.cwd, dir)
+		cur = os.path.join(self.cwd, 'wscript')
+
+		try:
+			mod = Utils.load_module(cur)
+		except:
+			msg = "no module was found for wscript (sub_options)\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+			fatal(msg % self.cwd)
+		try:
 			mod.set_options(self)
+		except AttributeError:
+			msg = "no set_options function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+			fatal(msg % self.cwd)
 
-			self.cwd = oldcwd
-		
+		self.cwd = current
+
 	def parse_args(self):
 		parse_args_impl(self.parser)
 
