@@ -68,7 +68,7 @@ class Configure:
 
 	def __del__(self):
 		if not self.env.getValue('tools'):
-			self.error('you should add at least a checkTool() call in your sconfigure, otherwise you cannot build anything')
+			self.error('you should add at least a checkTool() call in your wscript, otherwise you cannot build anything')
 
 	def retrieve(self, name, fromenv=None):
 		try:
@@ -95,7 +95,7 @@ class Configure:
 		filename = env.getValue('OS') + '.env'
 		env.store(filename)
 
-	def TryBuild(self,code,options=''):
+	def TryBuild(self, code, options=''):
 		"""Check if a program could be build, returns 0 if no errors 
 		This method is currently platform specific and has to be made platform 
 		independent, probably by refactoring the c++ or cc build engine
@@ -350,23 +350,6 @@ int main()
 		"""deprecated, replaced by checkTool"""
 		return self.checkTool(tool)
 	
-	def checkSubdir(self,dir):
-		"""experimental function"""
-		from Utils import add_option
-		import Environment, Configure, Tools
-		from Environment import create_env
-		from Configure import sub_config, create_config
-
-		if type(dir) is types.ListType:
-			for i in dir: self.checkSubdir(i)
-			return
-		print "configuring " + dir
-		path = os.path.join(dir,'sconfigure')
-		if os.path.exists(path):
-			file = open(path,'r')
-			conf = self
-			exec file
-
 	def sub_config(self, dir):
 		current = self.cwd
 
@@ -376,7 +359,7 @@ int main()
 		try:
 			mod = Utils.load_module(cur)
 		except:
-			msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+			msg = "no module or function configure was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
 			fatal(msg % self.cwd)
 		try:
 			mod.configure(self)
