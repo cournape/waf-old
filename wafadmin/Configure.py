@@ -68,7 +68,7 @@ class Configure:
 		self.env['_BUILDDIR_'] = ''
 
 		self.cwd  = os.getcwd()
-		self.dirs = []
+		#self.dirs = []
 
 	def __del__(self):
 		if not self.env.getValue('tools'):
@@ -373,25 +373,31 @@ int main()
 			exec file
 
 	def sub_config(self, dir):
-		self.dirs.append(os.path.join(self.cwd, dir))
+		current = self.cwd
 
-	def recurse(self):
-		while self.dirs:
-			oldcwd = self.cwd
-			self.cwd = os.path.join(self.cwd, self.dirs.pop())
-			cur = os.path.join(self.cwd, 'wscript')
-			try:
-				mod = Utils.load_module(cur)
-			except:
-				msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-				fatal(msg % self.cwd)
-			try:
-				mod.configure(self)
-			except AttributeError:
-				msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-				fatal(msg % self.cwd)
-				
-			self.cwd = oldcwd
+		self.cwd = os.path.join(self.cwd, dir)
+		cur = os.path.join(self.cwd, 'wscript')
+
+		try:
+			mod = Utils.load_module(cur)
+		except:
+			msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+			fatal(msg % self.cwd)
+		try:
+			mod.configure(self)
+		except AttributeError:
+			msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+			fatal(msg % self.cwd)
+
+		self.cwd = current
+
+#	def recurse(self):
+#		while self.dirs:
+#			oldcwd = self.cwd
+#			self.cwd = os.path.join(self.cwd, self.dirs.pop())
+#			cur = os.path.join(self.cwd, 'wscript')
+#			
+#			self.cwd = oldcwd
 
 # syntactic sugar
 def create_config():

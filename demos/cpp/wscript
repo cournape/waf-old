@@ -22,6 +22,8 @@ def build(bld):
 def configure(conf):
 	conf.checkTool(['g++'])
 	conf.sub_config('src')
+	# works in a procedural way, so the order of calls does matter
+	#conf.checkTool(['KDE3'])
 
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')

@@ -74,8 +74,10 @@ def Main():
 	if Params.g_commands['configure']:
 		bld = private_setup_build()
 		conf = Configure.Configure()
-		conf.dirs = ['']
-		conf.recurse()
+		#conf.dirs = ['']
+		#conf.recurse()
+		#conf.cwd = os.path.abspath('.')
+		conf.sub_config('')
 		conf.store()
 
 		# this will write a configure lock so that subsequent run will
