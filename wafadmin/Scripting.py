@@ -33,7 +33,7 @@ def add_subdir(dir):
 
 	Params.g_subdirs.append(  [Params.g_curdirnode, restore]    )
 
-def private_setup_build():
+def private_setup_build(load=1):
 	bld = Build.Build()
 	try:
 		Utils.g_module.setup_build(bld)
@@ -42,6 +42,7 @@ def private_setup_build():
 			cachedir = Utils.g_module.cachedir
 			bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
 			#bld.set_default_env(os.path.join(Utils.g_module.cachedir, 'main.cache.py')) # TODO
+			if not load: return bld
 			lst = os.listdir(Utils.g_module.cachedir)
 			for file in lst:
 				env = Environment.Environment()
@@ -72,11 +73,8 @@ def Main():
 	from Common import install_files, install_as
 	# configure the project
 	if Params.g_commands['configure']:
-		bld = private_setup_build()
+		bld = private_setup_build(0)
 		conf = Configure.Configure()
-		#conf.dirs = ['']
-		#conf.recurse()
-		#conf.cwd = os.path.abspath('.')
 		conf.sub_config('')
 		conf.store()
 
