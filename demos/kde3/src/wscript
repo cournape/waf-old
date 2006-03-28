@@ -5,7 +5,7 @@
 def build(bld):
 	from Object import createObj
 
-	obj = createObj('KDE3', 'program')
+	obj = createObj('kde', 'program')
 	obj.target='test2'
 	obj.source="""
 	main.cpp
@@ -17,7 +17,7 @@ def build(bld):
 	obj.includes='.'
 	obj.uselib='QT KDECORE KIO KDEPRINT'
 
-	client = createObj('kde3', 'program')
+	client = createObj('kde', 'program')
 	client.source='test2_client.cpp'
 	client.target='test2_client'
 	client.uselib='QT KDECORE KIO KDEPRINT'
