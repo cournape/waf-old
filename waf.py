@@ -21,6 +21,10 @@ except:
 	print '\033[91mMain wscript file was not found in dir or above, exiting now\033[0m'
 	sys.exit(1)
 
+if not candidate:
+	print '\033[91mMain wscript file was not found in dir or above, exiting now\033[0m'
+	sys.exit(1)
+
 # We have found wscript, but there is no guarantee that it is valid
 os.chdir(candidate)
 

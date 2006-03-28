@@ -75,7 +75,6 @@ class Configure:
 			self.error('you should add at least a checkTool() call in your sconfigure, otherwise you cannot build anything')
 
 	def retrieve(self, name, fromenv=None):
-		print "adding env"
 		try:
 			env = Params.g_envs[name]
 			if fromenv: print "warning, the environment %s may have been configured already" % name
