@@ -270,8 +270,22 @@ class cppobj(Object.genobj):
 		trace("apply_lib_vars called")
 
 		libs = self.useliblocal.split()
-		for i in libs:
-			print i
+		paths=[]
+		for lib in libs:
+			# TODO handle static libraries
+			idx=len(lib)-1
+			while 1:
+				idx = idx - 1
+				if lib[idx] == '/': break
+			# find the path for linking and the library name
+			path = lib[:idx]
+			name = lib[idx+1:]
+			if not path in paths: paths.append(path)
+			self.env.appendValue('LIB', name)
+		for p in paths:
+			# now we need to transform the path into something usable
+			node = self.m_current_path.find_node( [p] )
+			self.env.appendValue('LIBPATH', node.srcpath())
 
 		libs = self.uselib.split()
 		global g_cppvalues
