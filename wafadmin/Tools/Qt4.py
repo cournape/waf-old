@@ -228,6 +228,7 @@ class qt4obj(Common.cppobj):
 			latask.m_outputs = self.file_in(self.get_target_name('.la'))
 			self.m_latask    = latask
 
+		self.apply_libdeps()
 		# end posting constraints (apply)
 
 	def install(self):

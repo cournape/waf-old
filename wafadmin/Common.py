@@ -116,6 +116,10 @@ class cppobj(Object.genobj):
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
 
+		self.p_lib_deps_names=[]
+
+		self.m_linktask=None
+
 		global cpptypes
 		if not type in cpptypes:
 			error('Trying to build a cpp file of unknown type')
@@ -187,6 +191,20 @@ class cppobj(Object.genobj):
 			latask.m_inputs = linktask.m_outputs
 			latask.m_outputs = self.file_in(self.get_target_name('.la'))
 			self.m_latask = latask
+
+		self.apply_libdeps()
+
+	def apply_libdeps(self):
+		# for correct dependency handling, we make here one assumption:
+		# the objects that create the libraries we depend on -> they have been created already
+		# TODO : the lookup may have a cost, caching the names in a hashtable may be a good idea
+		for obj in Object.g_allobjs:
+			if obj.target in self.p_lib_deps_names:
+				# if the object we depend on is not posted we will force it right now
+				if not obj.m_posted: obj.post()
+				deptask = obj.m_linktask
+				print obj.target
+				self.m_linktask.m_run_after.append(deptask)
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -271,6 +289,7 @@ class cppobj(Object.genobj):
 
 		libs = self.useliblocal.split()
 		paths=[]
+		names=[]
 		for lib in libs:
 			# TODO handle static libraries
 			idx=len(lib)-1
@@ -281,7 +300,13 @@ class cppobj(Object.genobj):
 			path = lib[:idx]
 			name = lib[idx+1:]
 			if not path in paths: paths.append(path)
-			self.env.appendValue('LIB', name)
+			names.append(name)
+
+		self.env.appendValue('LIB', names)
+		#for n in names: self.env.appendValue('LIB', n)
+		# store for use when calling "apply"
+		self.p_lib_deps_names = names
+
 		for p in paths:
 			# now we need to transform the path into something usable
 			node = self.m_current_path.find_node( [p] )
