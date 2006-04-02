@@ -55,13 +55,15 @@ def detect(conf):
 	conf.env['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 		
 	# linker	
-	conf.env['LINK']            = comp
-	conf.env['LIB']             = []
-	conf.env['LINK_ST']         = '%s -o %s'
-	conf.env['LIB_ST']          = '-l%s'	# template for adding libs
-	conf.env['LIBPATH_ST']      = '-L%s' # template for adding libpathes
-	conf.env['_LIBDIRFLAGS']    = ''
-	conf.env['_LIBFLAGS']       = ''
+	conf.env['LINK']             = comp
+	conf.env['LIB']              = []
+	conf.env['LINK_ST']          = '%s -o %s'
+	conf.env['LIB_ST']           = '-l%s'	# template for adding libs
+	conf.env['LIBPATH_ST']       = '-L%s' # template for adding libpathes
+	conf.env['STATICLIB_ST']     = '-l%s'
+	conf.env['STATICLIBPATH_ST'] = '-L%s'
+	conf.env['_LIBDIRFLAGS']     = ''
+	conf.env['_LIBFLAGS']        = ''
 
 	# linker debug levels
 	conf.env['LINKFLAGS'] = []

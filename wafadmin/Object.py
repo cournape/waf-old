@@ -50,6 +50,7 @@ class genobj:
 		self.m_type  = type
 		self.m_posted = 0
 		self.m_current_path = Params.g_curdirnode # emulate chdir when reading scripts
+		self.name = '' # give a name to the target
 
 		# TODO if we are building something, we need to make sure the folder is scanned
 		#if not Params.g_curdirnode in Params...
@@ -57,12 +58,12 @@ class genobj:
 		# default name of the action to use for the tasks
 		self.m_actname = actname
 
-		# we use a simple list for the tasks
-		self.m_tasks = []
-
 		# targets / sources
 		self.source = ''
 		self.target = ''
+
+		# we use a simple list for the tasks TODO not used ?
+		self.m_tasks = []
 
 		# things that the obj depends on
 		self.m_deps = []

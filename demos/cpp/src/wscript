@@ -33,6 +33,23 @@ def build(bld):
 	obj.includes='. src'
 	obj.target='teststaticlib'
 
+	# 4. Another shared library
+	obj=createObj('cpp', 'shlib')
+	obj.source='''
+	d1.cpp
+	'''
+	obj.includes='. src'
+	obj.target='shlib1'
+
+	# 5. A program that links against shlib1
+	obj=createObj('cpp', 'program')
+	obj.source='''
+	e1.cpp
+	'''
+	obj.includes='. src'
+	obj.useliblocal='./shlib1 ./testshlib'
+	obj.target='program_dyn_linked'
+
 def set_options(opt):
 	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')
 

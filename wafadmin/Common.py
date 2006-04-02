@@ -111,6 +111,7 @@ class cppobj(Object.genobj):
 		self.rpaths=''
 
 		self.uselib=''
+		self.useliblocal=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
@@ -227,7 +228,9 @@ class cppobj(Object.genobj):
 		trace('apply_obj_vars called for cppobj')
 		cpppath_st = self.env.getValue('CPPPATH_ST')
 		lib_st = self.env.getValue('LIB_ST')
+		staticlib_st = self.env.getValue('STATICLIB_ST')
 		libpath_st = self.env.getValue('LIBPATH_ST')
+		staticlibpath_st = self.env.getValue('STATICLIBPATH_ST')
 
 		# local flags come first
 		# set the user-defined includes paths
@@ -251,14 +254,24 @@ class cppobj(Object.genobj):
 		except:
 			pass
 
-		for i in self.env.getValue('LIB'):
+		for i in self.env['LIB']:
 			self.env.appendValue('LINKFLAGS', lib_st % i)
 
-		for i in self.env.getValue('LIBPATH'):
+		for i in self.env['LIBPATH']:
 			self.env.appendValue('LINKFLAGS', libpath_st % i)
+
+		for i in self.env['STATICLIB']:
+			self.env.appendValue('LINKFLAGS', staticlib_st % i)
+
+		for i in self.env['LIBPATH']:
+			self.env.appendValue('LINKFLAGS', staticlibpath_st % i)
 
 	def apply_lib_vars(self):
 		trace("apply_lib_vars called")
+
+		libs = self.useliblocal.split()
+		for i in libs:
+			print i
 
 		libs = self.uselib.split()
 		global g_cppvalues
