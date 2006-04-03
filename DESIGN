@@ -106,31 +106,44 @@ The scripts are now real python modules, so waf will import the wscripts
 and run functions from them. The scripts may be compiled into python
 bytecode in the future (quick startup).
 Here are the function definitions
-* init()
-    called right after command-line arguments are parsed and
-    before anything is built
-    this function may contain a sys.exit
-* shutdown()
-    called after all targets are built
 * set_options(opt_object)
     called for setting custom command-line options, 
     it takes an option object as input and adds options on it
-* setup_build is called to set up the source and build directories,
-    it may be called more than once, in the configuration process and
-    to setup the build process.
-    This function is mandatory for the configuration and the build functions below
-* build
-* configure
-* clean
+    to collect options from a submodule located in folder 'src', use conf.sub_options('src')
+    the opt.add_option(.. calls forward the parameters to an optparse object, see
+    http://docs.python.org/lib/module-optparse.html
+* configure(conf_obj)
+    called for configuring the project, the command "waf configure" must be called from
+    the folder of the project to configure (will not climb up)
+    to use the configuration function from a submodule located in folder 'src', use
+    conf.sub_config('src')
+* init()
+    called right after command-line arguments are parsed and before anything is built
+    this function may contain a sys.exit
+* shutdown()
+    called after all targets are built
+* build(bld_object)
+    nothing is attached to the build object *yet*
+* clean (not used at the moment)
 
-Additionally, a few parameters can be given:
+Additionally, the mandatory parameters need to be given:
+* the source directory: srcdir = '.'
+* the build directory (where to put object files): blddir = '_build_'
+* the cache directory (where to put the configuration files): cachedir = os.sep.join(['_build_', 'cache'])
+
+The following parameters are mandatory for the dist targets:
 * APPNAME: name of the application (used by 'dist')
 * VERSION: version of the application (used by 'dist')
 
+IMPORTANT:
+since it is certainly annoying to make a "build" function for each folder containing target definitions,
+waf is also looking for a "wscript_build" file to replace the build function
+more naming should follow (ie: wscript_configure instead of a "configure" function)
 
 Proposal for Named environments
 -------------------------------
 
+in the configure function:
 conf.newconf('main', env=None)
 conf.detect('gcc')
 conf.newconf('gtk', env='main')
@@ -160,15 +173,15 @@ STATE OF THE APPLICATION
 * support for running unit tests........?
 * script system.........................?
 
-== Configuration ==                     20%
+== Configuration ==                     95%
 * read and write cache files............done
 * tools system..........................done
 * custom options (user-defined).........done
-* framework for configuring projects....bits
-* functions for finding headers.........bits
-* functions for finding programs........bits
-* functions for using pkg-config........
-* process qmake configuration files.....
+* framework for configuring projects....done
+* functions for finding headers.........done
+* functions for finding programs........done
+* functions for using pkg-config........?
+* process qmake configuration files.....?
 
 == Unit tests ==                        5%
 * file system representation............done
@@ -180,7 +193,7 @@ STATE OF THE TOOLS
 ------------------
 
 == Generic Tools ==                     60%
-* basic builders for c, c++ objects.....done
+* basic builders for c, c++ objects.....merge the c class with cppobj
 * shared and static libraries...........done
 * ocaml.................................done
 * latex.................................bits
