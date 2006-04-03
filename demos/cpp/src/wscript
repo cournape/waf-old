@@ -47,7 +47,7 @@ def build(bld):
 	e1.cpp
 	'''
 	obj.includes='. src'
-	obj.useliblocal='./shlib1 ./testshlib'
+	obj.useliblocal='./teststaticlib.a ./shlib1.so ./testshlib.so'
 	obj.target='program_dyn_linked'
 
 def set_options(opt):

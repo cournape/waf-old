@@ -65,6 +65,9 @@ def detect(conf):
 	conf.env['_LIBDIRFLAGS']     = ''
 	conf.env['_LIBFLAGS']        = ''
 
+	conf.env['SHLIB_MARKER']     = '-Wl,-Bdynamic'
+	conf.env['STATICLIB_MARKER'] = '-Wl,-Bstatic'
+
 	# linker debug levels
 	conf.env['LINKFLAGS'] = []
 	conf.env['LINKFLAGS_OPTIMIZED'] = ['-s']

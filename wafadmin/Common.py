@@ -116,7 +116,8 @@ class cppobj(Object.genobj):
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
 
-		self.p_lib_deps_names=[]
+		self.p_shlib_deps_names=[]
+		self.p_staticlib_deps_names=[]
 
 		self.m_linktask=None
 
@@ -198,13 +199,15 @@ class cppobj(Object.genobj):
 		# for correct dependency handling, we make here one assumption:
 		# the objects that create the libraries we depend on -> they have been created already
 		# TODO : the lookup may have a cost, caching the names in a hashtable may be a good idea
+		# TODO : bad algorithm
 		for obj in Object.g_allobjs:
-			if obj.target in self.p_lib_deps_names:
-				# if the object we depend on is not posted we will force it right now
+			# if the object we depend on is not posted we will force it right now
+			if obj.target in self.p_staticlib_deps_names:
 				if not obj.m_posted: obj.post()
-				deptask = obj.m_linktask
-				print obj.target
-				self.m_linktask.m_run_after.append(deptask)
+				self.m_linktask.m_run_after.append(obj.m_linktask)
+			elif obj.target in self.p_shlib_deps_names:
+				if not obj.m_posted: obj.post()
+				self.m_linktask.m_run_after.append(obj.m_linktask)
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -244,11 +247,11 @@ class cppobj(Object.genobj):
 
 	def apply_obj_vars(self):
 		trace('apply_obj_vars called for cppobj')
-		cpppath_st = self.env.getValue('CPPPATH_ST')
-		lib_st = self.env.getValue('LIB_ST')
-		staticlib_st = self.env.getValue('STATICLIB_ST')
-		libpath_st = self.env.getValue('LIBPATH_ST')
-		staticlibpath_st = self.env.getValue('STATICLIBPATH_ST')
+		cpppath_st       = self.env['CPPPATH_ST']
+		lib_st           = self.env['LIB_ST']
+		staticlib_st     = self.env['STATICLIB_ST']
+		libpath_st       = self.env['LIBPATH_ST']
+		staticlibpath_st = self.env['STATICLIBPATH_ST']
 
 		# local flags come first
 		# set the user-defined includes paths
@@ -272,24 +275,31 @@ class cppobj(Object.genobj):
 		except:
 			pass
 
-		for i in self.env['LIB']:
-			self.env.appendValue('LINKFLAGS', lib_st % i)
-
 		for i in self.env['LIBPATH']:
 			self.env.appendValue('LINKFLAGS', libpath_st % i)
 
-		for i in self.env['STATICLIB']:
-			self.env.appendValue('LINKFLAGS', staticlib_st % i)
-
 		for i in self.env['LIBPATH']:
 			self.env.appendValue('LINKFLAGS', staticlibpath_st % i)
+
+		if self.env['STATICLIB']:
+			self.env.appendValue('LINKFLAGS', self.env['STATICLIB_MARKER'])
+			for i in self.env['STATICLIB']:
+				self.env.appendValue('LINKFLAGS', staticlib_st % i)
+
+		if self.env['LIB']:
+			self.env.appendValue('LINKFLAGS', self.env['SHLIB_MARKER'])
+			for i in self.env['LIB']:
+				self.env.appendValue('LINKFLAGS', lib_st % i)
 
 	def apply_lib_vars(self):
 		trace("apply_lib_vars called")
 
 		libs = self.useliblocal.split()
 		paths=[]
-		names=[]
+
+		# store for use when calling "apply"
+		sh_names     = self.p_shlib_deps_names
+		static_names = self.p_staticlib_deps_names
 		for lib in libs:
 			# TODO handle static libraries
 			idx=len(lib)-1
@@ -299,13 +309,16 @@ class cppobj(Object.genobj):
 			# find the path for linking and the library name
 			path = lib[:idx]
 			name = lib[idx+1:]
+			lst = name.split('.')
+			name = lst[0]
+			ext = lst[1]
+			print name, path, ext
 			if not path in paths: paths.append(path)
-			names.append(name)
+			if ext == 'a': static_names.append(name)
+			else: sh_names.append(name)
 
-		self.env.appendValue('LIB', names)
-		#for n in names: self.env.appendValue('LIB', n)
-		# store for use when calling "apply"
-		self.p_lib_deps_names = names
+		self.env.appendValue('LIB', sh_names)
+		self.env.appendValue('STATICLIB', static_names)
 
 		for p in paths:
 			# now we need to transform the path into something usable
