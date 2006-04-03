@@ -6,6 +6,7 @@
 
 import os, sys
 import Utils, Params, Action, Object, Runner, Common
+from Params import debug, error, trace, fatal
 
 ocaml_vardeps = ['OCAMLCOMP', 'OCAMLFLAGS', 'OCAMLPATH']
 act=Action.GenAction('ocaml', ocaml_vardeps)
@@ -129,7 +130,6 @@ class ocamlobj(Object.genobj):
 def setup(env):
 	link_vardeps   = ['LINK', 'LINKFLAGS', 'LINK_ST']
 	Action.GenAction('link', link_vardeps)
-
 	Object.register('ocaml', ocamlobj)
 
 def detect(conf):
