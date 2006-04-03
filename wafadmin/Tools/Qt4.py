@@ -6,16 +6,9 @@
 
 import os, re, types, sys
 import Action, Common, Utils, Params, Configure, Scan, Runner, Object
-
-def trace(msg):
-	Params.trace(msg, 'Qt4')
-def debug(msg):
-	Params.debug(msg, 'Qt4')
-def error(msg):
-	Params.error(msg, 'Qt4')
+from Params import debug, error, trace, fatal
 
 ## QT SUPPORT ##
-
 moc_vardeps = ['QT_MOC', 'MOC_FLAGS', 'MOC_ST']
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
