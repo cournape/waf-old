@@ -396,10 +396,6 @@ class kdeobj(Common.cppobj):
 			self.install_results( 'KDE_MODULE', '', self.m_linktask )
 			self.install_results( 'KDE_MODULE', '', self.m_latask )
 
-#def setup(env):
-#	Params.g_build.m_colors['moc']='\033[92m'
-#	Params.g_build.m_colors['cpp']='\033[93m'
-
 def detect_kde(conf):
 	env = conf.env
 	# Detect the qt and kde environment using kde-config mostly

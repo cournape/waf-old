@@ -232,6 +232,9 @@ class qt4obj(Common.cppobj):
 			self.install_results( 'PREFIX', 'lib', self.m_latask )
 
 def setup(env):
+	if not sys.platform == "win32":
+		Params.g_colors['moc']='\033[94m'
+		Params.g_colors['rcc']='\033[94m'
 	Object.register('qt4', qt4obj)
 
 def detect_qt4(conf):
