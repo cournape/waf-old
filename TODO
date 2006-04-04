@@ -2,6 +2,11 @@
 * unit tests
 * variant builds
 
+resolve the ambiguity:
+"waf configure --help" (no climbing)
+vs:
+"waf --help" (climbs to the top-level module)
+
 --------------------------------------
 Last update: 04-04-2006
 Contact -> tnagyemail-mail@yahoo.fr (ita)

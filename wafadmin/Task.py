@@ -27,7 +27,7 @@ def add_task(task, priority=5):
 	try: g_tasks[0][priority].append(task)
 	except: g_tasks[0][priority] = [task]
 
-# g_wake_after[task]=next_tasks
+# g_wake_after[task]=next_tasks TODO used ?
 g_wake_after={}
 
 class Task:
@@ -138,7 +138,8 @@ class Task:
 				print node
 				print sig
 				raise
-
+		for task in self.m_run_after:
+			sig = Params.xor_sig(task.signature(), sig)
 			#debug("signature of this node is %s %s %s " % (str(s), str(n), str(node.m_tstamp)) )
 		debug("signature of the task %d is %s" % (self.m_idx, str(sig)) )
 		return sig

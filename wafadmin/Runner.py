@@ -190,6 +190,7 @@ class Serial:
 			"""
 
 		debug("Serial end")
+		print "Build finished successfully"
 		return 0
 
 import threading
@@ -262,6 +263,7 @@ class Parallel:
 
 		if self.m_count != 0:
 			error("thread count is wrong "+str(self.m_count))
+		print "Build finished successfully"
 		return 0
 
 	# no need to parallelize this, there is no i/o, so it will not get any faster
