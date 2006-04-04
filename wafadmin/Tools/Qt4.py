@@ -237,15 +237,21 @@ def setup(env):
 def detect_qt4(conf):
 	env = conf.env
 
-	#def getpath(varname):
-	#	if not env.has_key('ARGS'): return None
-	#	v=env['ARGS'].get(varname, None)
-	#	if v : v=os.path.abspath(v)
-	#	return v
-	#qtincludes	= getpath('qtincludes')
-	#qtlibs		= getpath('qtlibs')
-	qtlibs     = ''
-	qtincludes = ''
+	try: qtlibs     = Params.g_options.qtlib
+	except:
+		qtlibs=''
+		pass
+
+	try: qtincludes = Params.g_options.qtincludes
+	except:
+		qtincludes=''
+		pass
+
+	try: qtbin      = Params.g_options.qtbin
+	except:
+		qtbin=''
+		pass
+
 	p=Params.pprint
 
 		# do our best to find the QTDIR (non-Debian systems)
@@ -255,6 +261,8 @@ def detect_qt4(conf):
 	if qtdir and Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), qtdir): qtdir=None
 	if not qtdir:
 		qtdir=Configure.find_path('include/', [ # lets find the qt include directory
+				'/usr/local/Trolltech/Qt-4.2.0/',
+				'/usr/local/Trolltech/Qt-4.1.3/',
 				'/usr/local/Trolltech/Qt-4.1.2/',
 				'/usr/local/Trolltech/Qt-4.1.1/',
 				'/usr/local/Trolltech/Qt-4.1.0/',
@@ -270,14 +278,19 @@ def detect_qt4(conf):
 	if qtdir:
 		if not qtlibs:     qtlibs     = os.path.join(qtdir, 'lib')
 		if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
+		if not qtbin:      qtbin      = os.path.join(qtdir, 'bin')
 		#os.putenv('PATH', os.path.join(qtdir , 'bin') + ":" + os.getenv("PATH")) # TODO ita 
 
 	# Check for uic, uic-qt3, moc, rcc, ..
 	def find_qt_bin(progs):
 		# first use the qtdir
 		path=''
+		lst = [os.path.join(qtdir, 'bin')]
+		if qtbin: lst = [qtbin]+lst
+		#print qtbin
+		#print lst
 		for prog in progs:
-			path=conf.checkProgram(prog, [os.path.join(qtdir, 'bin')])
+			path=conf.checkProgram(prog, lst)
 			if path:
 				return path
 
@@ -407,6 +420,7 @@ def detect_qt4(conf):
 
 
 def detect_qt4_win32(conf):
+	print "win32 code"
 	env = conf.env
 
 	#def getpath(varname):

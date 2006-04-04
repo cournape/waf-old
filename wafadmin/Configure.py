@@ -256,7 +256,8 @@ int main()
 
 	def checkProgram(self, file, path_list=None):
 		"""find an application"""
-		ret = find_program(self.env, file, path_list=None)
+		#print path_list
+		ret = find_program(self.env, file, path_list)
 		self.checkMessage('program',file,ret,ret)
 		return ret
 
@@ -357,11 +358,11 @@ int main()
 		except:
 			msg = "no module or function configure was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
 			fatal(msg % self.cwd)
-		try:
-			mod.configure(self)
-		except AttributeError:
-			msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-			fatal(msg % self.cwd)
+		#try:
+		mod.configure(self)
+		#except AttributeError:
+		#	msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+		#	fatal(msg % self.cwd)
 
 		self.cwd = current
 
