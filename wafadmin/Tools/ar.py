@@ -22,7 +22,7 @@ def ar_build(task):
 	return Runner.exec_command(cmd)
 
 def setup(env):
-	aract = Action.GenAction('arlink', ar_vardeps)
+	aract = Action.GenAction('ar_link', ar_vardeps)
 	aract.m_function_to_run = ar_build
 
 def detect(conf):

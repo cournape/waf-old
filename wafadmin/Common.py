@@ -178,8 +178,8 @@ class cppobj(Object.genobj):
 
 		# and after the cpp objects, the remaining is the link step
 		# link in a lower priority (6) so it runs alone (default is 5)
-		if self.m_type=='staticlib': linktask = self.create_task('arlink', self.env, 6)
-		else:                        linktask = self.create_task('link', self.env, 6)
+		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, 6)
+		else:                        linktask = self.create_task('cpp_link', self.env, 6)
 		cppoutputs = []
 		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 
@@ -312,7 +312,7 @@ class cppobj(Object.genobj):
 			lst = name.split('.')
 			name = lst[0]
 			ext = lst[1]
-			print name, path, ext
+			trace('library found %s %s %s '%(str(name), str(path), str(ext)))
 			if not path in paths: paths.append(path)
 			if ext == 'a': static_names.append(name)
 			else: sh_names.append(name)
@@ -322,7 +322,7 @@ class cppobj(Object.genobj):
 
 		for p in paths:
 			# now we need to transform the path into something usable
-			node = self.m_current_path.find_node( [p] )
+			node = self.m_current_path.find_node( p.split('/') )
 			self.env.appendValue('LIBPATH', node.srcpath())
 
 		libs = self.uselib.split()
@@ -338,22 +338,6 @@ class cppobj(Object.genobj):
 # register our object
 Object.register('cpp', cppobj)
 
-
-## TODO rework the part below seriously
-class ccobj(Object.genobj):
-	def __init__(self):
-		Object.genobj.__init__(self, "other", "cc")
-
-	def apply(self):
-		trace("apply called for ccobj")
-
-		self.createTasks()
-
-		for t in self.m_tasks:
-			# sets nodes
-			t.m_inputs  = self.file_in(self.source)
-			t.m_outputs = self.file_in(self.target)
-			t.debug()
 
 # dummy action
 def d_setcmd(task):

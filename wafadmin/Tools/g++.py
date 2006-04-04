@@ -16,8 +16,8 @@ def setup(env):
 
 	# TODO: this is the same definitions as for gcc, should be separated to have independent setup
 	# on windows libraries must be defined after the object files 
-	link_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
-	action = Action.GenAction('link', link_vardeps)
+	link_cpp_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
+	action = Action.GenAction('cpp_link', link_cpp_vardeps)
 
 # tool detection and initial setup 
 # is called when a configure process is started, 

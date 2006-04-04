@@ -368,8 +368,8 @@ class kdeobj(Common.cppobj):
 			cpptasks.append(cpptask)
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
-		if self.m_type=='staticlib': linktask = self.create_task('arlink', self.env, 6)
-		else:                        linktask = self.create_task('link', self.env, 6)
+		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, 6)
+		else:                        linktask = self.create_task('cpp_link', self.env, 6)
 		cppoutputs = []
 		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 

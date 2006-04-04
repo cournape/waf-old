@@ -53,8 +53,11 @@ def private_setup_build(load=1):
 					print "could not load env ", name
 					continue
 				Params.g_envs[name] = env
-				try: env.setup(env['tools'])
-				except: pass
+				try:
+					env.setup(env['tools'])
+				except:
+					print "exception 1"
+					raise
 
 			Params.g_default_env = Params.g_envs['default']
 

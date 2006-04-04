@@ -16,5 +16,6 @@ obj.source='''
 main.cpp
 '''
 obj.includes='. src2'
+obj.useliblocal="../src/shlib1.so ../src/teststaticlib.a"
 obj.target='testprogram2'
 

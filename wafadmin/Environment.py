@@ -32,6 +32,8 @@ class Environment:
 			module.setup(self)
 		except:
 			print "setup function missing in tool: " + tool
+			# we cannot ignore this error now
+			raise
 		if file: file.close()
 
 	def __str__(self):
