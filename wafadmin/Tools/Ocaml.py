@@ -17,7 +17,6 @@ def ocaml_build(task):
 	srcfile = task.m_inputs[0].bldpath()
 	bldfile = task.m_outputs[0].bldpath()
 	cmd = '%s %s -c -o %s %s' % (com, paths, bldfile, srcfile)
-	print cmd
 	return Runner.exec_command(cmd)
 act.m_function_to_run = ocaml_build
 
@@ -131,6 +130,9 @@ def setup(env):
 	link_vardeps   = ['LINK', 'LINKFLAGS', 'LINK_ST']
 	Action.GenAction('link', link_vardeps)
 	Object.register('ocaml', ocamlobj)
+	if not sys.platform == "win32":
+		Params.g_colors['ocaml']='\033[92m'
+		Params.g_colors['link']='\033[93m'
 
 def detect(conf):
 	conf.env['OCAMLC']         = 'ocamlc'
