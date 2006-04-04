@@ -15,6 +15,7 @@ class Action:
 		self.mf_setcmd = cmd
 		self.mf_setsig = sig
 		self.mf_setstr = str
+		self.m_color   = ''
 
 		# TRICK_2
 		self.m_isMulti = 0

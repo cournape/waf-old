@@ -159,7 +159,14 @@ class Serial:
 
 			# display the command that we are about to run
 			(s, t) = self.m_generator.progress()
-			print ('[%d/%d] ' % (s, t)), proc.m_str
+
+			col1=''
+			col2=''
+			try:
+				col1=Params.g_colors[proc.m_action.m_name]
+				col2=Params.g_colors['NORMAL']
+			except: pass
+			print ('[%d/%d] ' % (s, t)), col1,proc.m_str,col2
 
 			# run the command, it might be a function attached to an action
 			# usually we will only popen a string

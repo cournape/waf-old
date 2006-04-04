@@ -396,8 +396,9 @@ class kdeobj(Common.cppobj):
 			self.install_results( 'KDE_MODULE', '', self.m_linktask )
 			self.install_results( 'KDE_MODULE', '', self.m_latask )
 
-def setup(env):
-	Object.register('kde3', kdeobj)
+#def setup(env):
+#	Params.g_build.m_colors['moc']='\033[92m'
+#	Params.g_build.m_colors['cpp']='\033[93m'
 
 def detect_kde(conf):
 	env = conf.env
@@ -630,6 +631,11 @@ def detect_kde(conf):
 	except: pass
 
 def setup(env):
+	if not sys.platform == "win32":
+		Params.g_colors['moc']='\033[94m'
+		Params.g_colors['skel']='\033[94m'
+		Params.g_colors['kidl']='\033[94m'
+
         Object.register('kde_translations', kde_translations)
         Object.register('kde_documentation', kde_documentation)
         Object.register('kde', kdeobj)

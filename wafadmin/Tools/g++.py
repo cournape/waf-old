@@ -19,6 +19,12 @@ def setup(env):
 	link_cpp_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
 	action = Action.GenAction('cpp_link', link_cpp_vardeps)
 
+	if not sys.platform == "win32":
+		Params.g_colors['cpp']='\033[92m'
+		Params.g_colors['cpp_link']='\033[93m'
+		Params.g_colors['ar_link']='\033[93m'
+		Params.g_colors['fakelibtool']='\033[94m'
+
 # tool detection and initial setup 
 # is called when a configure process is started, 
 # the values are cached for further build processes
