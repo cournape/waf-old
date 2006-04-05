@@ -1,18 +1,35 @@
 WHAT YOU WILL FIND HERE
 -----------------------
 
-An experimental project called 'waf'
+An experimental project called 'waf' (bsd licence: freely redistributable)
 Examples can be found in demo/
 Tests can be found in wafadmin/ (run ./Test.py and look at the folder wafadmin/test/)
 
 Try 'waf --help' too, there are predefined targets for waf itself.
 
-HOW TO RE-USE THE CODE
------------------------
+QUICK HOWTO
+-----------
 
-Run 'waf dist' first to generate a clean archive, and copy the result to the folder of your project.
-Have a look at the DESIGN file for the functions and members to provide in wscript modules,
-and imitate the cpp demo.
+Environment setup:
+  For your convenience the script 'aliases.sh' contains useful aliases:
+  'source aliases.sh' will set your environment.
+
+Starting a new project with waf:
+  Using "waf --make-archive", a small archive containing the minimum waf distribution is generated
+  (without examples). Just unpack the archive created in the directory of your folder:
+  tar xjvf miniwaf-0.x.x.tar.bz2
+    or
+  copy the wafadmin/ folder for global use: /usr/lib/wafadmin, /usr/local/lib/wafadmin 
+  you might want to look into waf.py for more details on where the wafadmin directory is searched.
+
+Using waf:
+  To begin with, have a look at the cpp demo first (demos/cpp):
+  * configure with "waf configure"
+  * compile with "waf"
+  * install with "waf install"
+  * create a tarball with "waf dist"
+  * clean with "waf distclean"
 
 ---------------------------
 Thomas Nagy, 2006 (ita)
+

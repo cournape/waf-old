@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006 (ita)
 
-VERSION='0.7.8b'
+VERSION='0.7.8c'
 APPNAME='waf'
 
 demos = ['qt4', 'tex', 'cpp', 'ocaml', 'kde3']

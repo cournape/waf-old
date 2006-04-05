@@ -7,6 +7,8 @@ resolve the ambiguity:
 vs:
 "waf --help" (climbs to the top-level module)
 
+there is no os.walk in python 2.2
+
 --------------------------------------
 Last update: 04-04-2006
 Contact -> tnagyemail-mail@yahoo.fr (ita)

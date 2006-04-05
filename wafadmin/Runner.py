@@ -10,11 +10,8 @@ except ImportError:
 """
 
 import os, popen2, sys
-import Params, Task
+import Params, Task, pproc
 from Params import debug, error, trace, fatal
-
-if sys.platform == "win32":
-	import pproc
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
@@ -28,24 +25,17 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 			if not str: stderr_eof = 1
 			else: sys.stderr.write(str)
 
-# override for win32 - see later
+# run commands in a portable way
+# the subprocess module backported from python 2.4 and should work on python >= 2.2
 def exec_command(str):
 	# for now
 	trace("system command -> "+ str)
 	if Params.g_verbose==1: print str
-	if sys.platform == "win32":
-		proc = pproc.Popen(str, shell=1, stdout=PIPE, stderr=PIPE)
-		process_cmd_output(proc.stdout, proc.stderr)
-		stat = proc.wait()
-		if stat & 0xff: return stat | 0x80
-		return stat >> 8
-		#return os.system(str)
-	else:
-		proc = popen2.Popen3(str, 1)
-		process_cmd_output(proc.fromchild, proc.childerr)
-		stat = proc.wait()
-		if stat & 0xff: return stat | 0x80
-		return stat >> 8
+	proc = pproc.Popen(str, shell=1, stdout=pproc.PIPE, stderr=pproc.PIPE)
+	process_cmd_output(proc.stdout, proc.stderr)
+	stat = proc.wait()
+	if stat & 0xff: return stat | 0x80
+	return stat >> 8
 
 # kind of iterator - the data structure is a bit complicated (price to pay for flexibility)
 class JobGenerator:
@@ -166,7 +156,7 @@ class Serial:
 				col1=Params.g_colors[proc.m_action.m_name]
 				col2=Params.g_colors['NORMAL']
 			except: pass
-			print ('[%d/%d] ' % (s, t)), col1,proc.m_str,col2
+			print '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
 
 			# run the command, it might be a function attached to an action
 			# usually we will only popen a string
@@ -301,7 +291,13 @@ class Parallel:
 
 		# display the command that we are about to run
 		(s, t) = self.m_generator.progress()
-		proc.m_str = ('[%d/%d] ' % (s, t))+ proc.m_str
+		col1=''
+		col2=''
+		try:
+			col1=Params.g_colors[proc.m_action.m_name]
+			col2=Params.g_colors['NORMAL']
+		except: pass
+		proc.m_str = '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
 
 		self.m_count+=1
 		self.m_q_in.put(proc, block=1)
