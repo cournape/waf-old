@@ -2,9 +2,6 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os
-import Configure
-
 APPNAME='kde3app'
 VERSION='0.0.1'
 
