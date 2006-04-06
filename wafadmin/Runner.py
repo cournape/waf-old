@@ -148,15 +148,15 @@ class Serial:
 			trace("executing task "+str(proc.m_idx))
 
 			# display the command that we are about to run
-			(s, t) = self.m_generator.progress()
-
-			col1=''
-			col2=''
-			try:
-				col1=Params.g_colors[proc.m_action.m_name]
-				col2=Params.g_colors['NORMAL']
-			except: pass
-			print '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
+			if not Params.g_commands['configure']:
+				(s, t) = self.m_generator.progress()
+				col1=''
+				col2=''
+				try:
+					col1=Params.g_colors[proc.m_action.m_name]
+					col2=Params.g_colors['NORMAL']
+				except: pass
+				print '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
 
 			# run the command, it might be a function attached to an action
 			# usually we will only popen a string
@@ -187,7 +187,8 @@ class Serial:
 			"""
 
 		debug("Serial end")
-		print "Build finished successfully"
+		if not Params.g_commands['configure']:
+			print "Build finished successfully"
 		return 0
 
 import threading
@@ -260,7 +261,8 @@ class Parallel:
 
 		if self.m_count != 0:
 			error("thread count is wrong "+str(self.m_count))
-		print "Build finished successfully"
+		if not Params.g_commands['configure']:
+			print "Build finished successfully"
 		return 0
 
 	# no need to parallelize this, there is no i/o, so it will not get any faster
@@ -288,16 +290,16 @@ class Parallel:
 			break
 
 		trace("executing task "+str(proc.m_idx))
-
-		# display the command that we are about to run
-		(s, t) = self.m_generator.progress()
-		col1=''
-		col2=''
-		try:
-			col1=Params.g_colors[proc.m_action.m_name]
-			col2=Params.g_colors['NORMAL']
-		except: pass
-		proc.m_str = '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
+		if not Params.g_commands['configure']:
+			# display the command that we are about to run
+			(s, t) = self.m_generator.progress()
+			col1=''
+			col2=''
+			try:
+				col1=Params.g_colors[proc.m_action.m_name]
+				col2=Params.g_colors['NORMAL']
+			except: pass
+			proc.m_str = '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
 
 		self.m_count+=1
 		self.m_q_in.put(proc, block=1)
