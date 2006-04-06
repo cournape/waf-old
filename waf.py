@@ -64,12 +64,13 @@ Params.set_trace(0,0,0)
 Utils.set_main_module(os.path.join(candidate, 'wscript'))
 
 # fix the path of the cachedir - it is mandatory
-try:
-	lst = Utils.g_module.cachedir.split('/')
-	Utils.g_module.cachedir = os.sep.join(lst)
-except:
-	print "no cachedir specified in wscript!"
-	raise
+if sys.platform=='win32':
+	try:
+		lst = Utils.g_module.cachedir.split('/')
+		Utils.g_module.cachedir = os.sep.join(lst)
+	except:
+		print "no cachedir specified in wscript!"
+		raise
 
 # fetch the custom command-line options recursively and in a procedural way
 opt_obj = Options.Handler()
