@@ -1,5 +1,0 @@
-#! /usr/bin/env waf configure
-# Thomas Nagy, 2006
-
-add_option('--where-is-lib', type='string', help='where the library is', dest='mylib')
-

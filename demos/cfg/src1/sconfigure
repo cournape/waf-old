@@ -1,9 +1,0 @@
-#! /usr/bin/env waf configure
-# Thomas Nagy, 2006
-
-add_option('--option1', type='string', help='some random option', dest='option1')
-
-env = create_env()
-env.detect(['gcc', 'ar'])
-env.store('main.cache.py')
-

@@ -1,9 +1,0 @@
-#! /usr/bin/env python
-# encoding: utf-8
-# Thomas Nagy, 2006 (ita)
-
-print "src1/script is read"
-env = Environment.get_alias('default')
-
-# build a few objects with that environment
-
