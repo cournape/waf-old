@@ -98,12 +98,31 @@ def detect(conf):
 		conf.env['staticlib_LINKFLAGS'] = ['']
 		conf.env['staticlib_obj_ext'] = ['.o']
 		conf.env['staticlib_PREFIX']= 'lib'
-		conf.env['staticlib_SUFFIX']= '.a'
+		conf.env['staticlib_SUFFIX']= '.dll.a'
 
 		# program 
 		conf.env['program_obj_ext'] = ['.o']
 		conf.env['program_SUFFIX']  = '.exe'
+	elif sys.platform == 'cygwin':
+		if not conf.env['PREFIX']: conf.env['PREFIX']='/cygdrive/c/'
 
+		# shared library 
+		conf.env['shlib_CXXFLAGS']  = ['']
+		conf.env['shlib_LINKFLAGS'] = ['-shared']
+		conf.env['shlib_obj_ext']   = ['.o']
+		conf.env['shlib_PREFIX']    = 'lib'
+		conf.env['shlib_SUFFIX']    = '.dll'
+		conf.env['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
+	
+		# static library
+		conf.env['staticlib_LINKFLAGS'] = ['']
+		conf.env['staticlib_obj_ext'] = ['.o']
+		conf.env['staticlib_PREFIX']= 'lib'
+		conf.env['staticlib_SUFFIX']= '.dll.a'
+
+		# program 
+		conf.env['program_obj_ext'] = ['.o']
+		conf.env['program_SUFFIX']  = '.exe'
 	else:
 		if not conf.env['PREFIX']: conf.env['PREFIX'] = '/usr'
 
@@ -115,7 +134,7 @@ def detect(conf):
 		conf.env['shlib_SUFFIX']    = '.so'
 	
 		# static lib
-		conf.env['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+		#conf.env['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
 		conf.env['staticlib_obj_ext'] = ['.o']
 		conf.env['staticlib_PREFIX']= 'lib'
 		conf.env['staticlib_SUFFIX']= '.a'
