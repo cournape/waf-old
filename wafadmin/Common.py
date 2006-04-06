@@ -120,19 +120,23 @@ class cppobj(Object.genobj):
 		self.p_staticlib_deps_names=[]
 
 		self.m_linktask=None
+		self.m_deps_linktask=[]
 
 		global cpptypes
 		if not type in cpptypes:
 			error('Trying to build a cpp file of unknown type')
 
 	def get_target_name(self, ext=None):
-		prefix = self.env[self.m_type+'_PREFIX']
-		suffix = self.env[self.m_type+'_SUFFIX']
+		return self.get_library_name(self.target, self.m_type, ext)
+
+	def get_library_name(self, name, type, ext=None):
+		prefix = self.env[type+'_PREFIX']
+		suffix = self.env[type+'_SUFFIX']
 
 		if ext: suffix = ext
 		if not prefix: prefix=''
 		if not suffix: suffix=''
-		return ''.join([prefix, self.target, suffix])
+		return ''.join([prefix, name, suffix])
 
 	def apply(self):
 		trace("apply called for cppobj")
@@ -164,7 +168,8 @@ class cppobj(Object.genobj):
 			if tree.needs_rescan(node):
 				tree.rescan(node, Scan.c_scanner, dir_lst)
 
-			names = tree.get_raw_deps(node)
+			# TODO FIXME WTH
+			#names = tree.get_raw_deps(node)
 
 			# create the task for the cpp file
 			cpptask = self.create_task('cpp', self.env)
@@ -208,6 +213,11 @@ class cppobj(Object.genobj):
 			elif obj.target in self.p_shlib_deps_names:
 				if not obj.m_posted: obj.post()
 				self.m_linktask.m_run_after.append(obj.m_linktask)
+		htbl = Params.g_build.m_tree.m_depends_on
+		try:
+			htbl[self.m_linktask.m_outputs[0]] += self.m_deps_linktask
+		except:
+			htbl[self.m_linktask.m_outputs[0]] = self.m_deps_linktask
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -294,14 +304,16 @@ class cppobj(Object.genobj):
 	def apply_lib_vars(self):
 		trace("apply_lib_vars called")
 
+		# TODO complicated lookups, there are certainly ways to make it simple
+		# TODO bad scheme, we are not certain that the node to depend on exists in the first place
+		# well, at least we will throw an error message that makes sense
 		libs = self.useliblocal.split()
-		paths=[]
 
 		# store for use when calling "apply"
 		sh_names     = self.p_shlib_deps_names
 		static_names = self.p_staticlib_deps_names
+		tree = Params.g_build.m_tree
 		for lib in libs:
-			# TODO handle static libraries
 			idx=len(lib)-1
 			while 1:
 				idx = idx - 1
@@ -312,18 +324,33 @@ class cppobj(Object.genobj):
 			lst = name.split('.')
 			name = lst[0]
 			ext = lst[1]
+
 			trace('library found %s %s %s '%(str(name), str(path), str(ext)))
-			if not path in paths: paths.append(path)
-			if ext == 'a': static_names.append(name)
-			else: sh_names.append(name)
+			if ext == 'a':
+				type='staticlib'
+				static_names.append(name)
+			else:
+				type='shlib'
+				sh_names.append(name)
+
+			# now that the name was added, find the corresponding node in the builddir
+			dirnode = self.m_current_path.find_node( path.split('/') )
+			self.env.appendValue('LIBPATH', dirnode.srcpath())
+			
+			# useful for the link path, but also for setting the dependency:
+			try:
+				dirnode = tree.get_mirror_node(dirnode)
+				rname = self.get_library_name(name, type)
+				node = dirnode.find_node([rname])
+				self.m_deps_linktask.append(node)
+			except:
+				print "dependency set on a node which does not exist!"
+				print "", rname, " in ", dirnode
+				print ""
+				raise
 
 		self.env.appendValue('LIB', sh_names)
 		self.env.appendValue('STATICLIB', static_names)
-
-		for p in paths:
-			# now we need to transform the path into something usable
-			node = self.m_current_path.find_node( p.split('/') )
-			self.env.appendValue('LIBPATH', node.srcpath())
 
 		libs = self.uselib.split()
 		global g_cppvalues

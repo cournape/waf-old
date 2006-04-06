@@ -30,14 +30,17 @@ class Deptree:
 		self.m_bld_to_src  = {}
 
 		# one node has nodes it depends on, tasks cannot be stored
-		# node -> [node; node; node ..] (all dependencies, a tree search might be needed sometimes..)
+		# node -> [node; node; node ..] - all dependencies
+		# m_depends_on[node] = [node1, node2, ..]
 		self.m_depends_on  = {}
+
+		# m_deps_tstamp[node] = represents the timestamp for the node last scan
 		self.m_deps_tstamp = {}
+
+		# results of a scan: self.m_raw_deps[node] = [filename1, filename2, filename3]
+		# for example, find headers in c files
 		self.m_raw_deps    = {}
 
-		# m_depends_on[node] = [node1, node2, ..]
-		# m_depends_tstamp[node] = time_of_last_scan
-		# self.m_raw_deps[node] = [filename1, filename2, filename3]
 
 		# signatures for nodes that are created in the builddir
 		self.m_sigs        = {}
@@ -126,6 +129,9 @@ class Deptree:
 	# return the node in the source directory, given a node in the build directory
 	def get_src_from_mirror(self, bldnode):
 		return self.m_srcnode.find_node( self.m_bldnode.difflst(bldnode) )
+	# TODO FIXME : why the ..
+	def get_bld_from_src(self, srcnode):
+		return self.m_src_to_bld[srcnode]
 
 	# the following is used for launching the commands to create the nodes
 	# the node must exist (and so it has a mirror), but the filename may not exist up to that point
