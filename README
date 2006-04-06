@@ -30,6 +30,13 @@ Using waf:
   * create a tarball with "waf dist"
   * clean with "waf distclean"
 
+Creating scripts:
+  * The wscript are actually python modules, from which functions with particular namings
+  are imported. For more details on the functions to provide have a look at the file DESIGN.
+  * In some cases, there is a lot of code and using a build(bld) function is not convenient:
+  a file named wscript_build ('wscript_'+function name) will replace the
+  corresponding function in the wscript module. See demos/cpp/src2
+
 ---------------------------
 Thomas Nagy, 2006 (ita)
 
