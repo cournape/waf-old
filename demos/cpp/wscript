@@ -9,10 +9,10 @@ import Configure
 VERSION='0.0.1'
 APPNAME='cpp_test'
 
-# these variables are mandatory,
+# these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = '_build_'
-cachedir = os.sep.join(['_build_', 'cache'])
+cachedir = '_build_/cache'
 
 def build(bld):
 	# process subfolders from here
