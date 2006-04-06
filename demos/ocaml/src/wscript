@@ -2,10 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-from Object import createObj
 def build(bld):
 	# The first example is a simple program
-	obj=createObj('ocaml', 'all')
+	obj = bld.createObj('ocaml', 'all')
 	obj.source='''
 	somemodule.ml main.ml
 	'''

@@ -2,10 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-from Object import createObj
 def build(bld):
 	# 1. A simple program
-	obj=createObj('cpp', 'program')
+	obj = bld.createObj('cpp', 'program')
 	obj.source='''
 	a1.cpp
 	b1.cpp b2.cpp
@@ -16,7 +15,7 @@ def build(bld):
 
 	# 2. A shared library
 	# The extension (.so) is added automatically
-	obj=createObj('cpp', 'shlib')
+	obj = bld.createObj('cpp', 'shlib')
 	obj.source='''
 	a1.cpp
 	b1.cpp b2.cpp
@@ -26,7 +25,7 @@ def build(bld):
 
 	# 3. A static library
 	# The extension (.a) is added automatically
-	obj=createObj('cpp', 'staticlib')
+	obj = bld.createObj('cpp', 'staticlib')
 	obj.source='''
 	c1.cpp
 	'''
@@ -34,7 +33,7 @@ def build(bld):
 	obj.target='teststaticlib'
 
 	# 4. Another shared library
-	obj=createObj('cpp', 'shlib')
+	obj = bld.createObj('cpp', 'shlib')
 	obj.source='''
 	d1.cpp
 	'''
@@ -42,7 +41,7 @@ def build(bld):
 	obj.target='shlib1'
 
 	# 5. A program that links against shlib1
-	obj=createObj('cpp', 'program')
+	obj = bld.createObj('cpp', 'program')
 	obj.source='''
 	e1.cpp
 	'''
@@ -51,8 +50,9 @@ def build(bld):
 	obj.target='program_dyn_linked'
 
 def set_options(opt):
+	# options defined if src/ was to be compiled as a standalone module
 	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')
 
 def configure(conf):
-	print "sub-configuration file called"
+	print "sub-configuration file called (demo)"
 

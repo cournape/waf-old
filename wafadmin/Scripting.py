@@ -71,7 +71,6 @@ def private_setup_build(load=1):
 	return bld
 
 def Main():
-	from Object import createObj
 	from Configure import sub_config, create_config
 	from Common import install_files, install_as
 	# configure the project

@@ -7,9 +7,6 @@
 import os, sys
 import Utils, Params, Action, Object, Runner
 
-def detect_env(env):
-	pass
-
 tex_vardeps    = ['TEX', 'TEXFLAGS', 'TEX_ST']
 Action.GenAction('tex', tex_vardeps, src_only=1)
 
@@ -17,8 +14,12 @@ latex_vardeps  = ['LATEX', 'LATEXFLAGS', 'LATEX_ST']
 act = Action.GenAction('latex', latex_vardeps)
 def latex_build(task):
 	com = task.m_env['LATEX']
-	reldir  = task.m_inputs[0].cd_to()
-	srcfile = task.m_inputs[0].m_name
+	node = task.m_inputs[0]
+	reldir  = node.cd_to()
+	uppath = "".join(node.m_parent.invrelpath(Params.g_build.m_tree.m_bldnode))
+	srcfile = os.path.join(uppath, node.bldpath())
+	#print srcfile
+	#sys.exit(0)
 
 	cmd = 'cd %s && %s %s' % (reldir, com, srcfile)
 	return Runner.exec_command(cmd)
@@ -77,4 +78,12 @@ def detect(conf):
 	conf.env['DVIPDFFLAGS'] = ''
 	conf.env['DVIPDF_ST']   = '%s -o %s'
 	return 1
+
+def setup(env):
+	if not sys.platform == "win32":
+		Params.g_colors['latex']='\033[94m'
+		Params.g_colors['tex']='\033[94m'
+
+        Object.register('tex', texobj)
+
 

@@ -3,9 +3,8 @@
 # Thomas Nagy, 2005 (ita)
 
 def build(bld):
-	from Object import createObj
-
-	obj = createObj('kde', 'program')
+	# first program, a kde program with a dcop interface
+	obj = bld.createObj('kde', 'program')
 	obj.target='test2'
 	obj.source="""
 	main.cpp
@@ -17,7 +16,8 @@ def build(bld):
 	obj.includes='.'
 	obj.uselib='QT KDECORE KIO KDEPRINT'
 
-	client = createObj('kde', 'program')
+	# second program, a client for the program previously created
+	client = bld.createObj('kde', 'program')
 	client.source='test2_client.cpp'
 	client.target='test2_client'
 	client.uselib='QT KDECORE KIO KDEPRINT'

@@ -6,12 +6,12 @@
 # This file is not a module, and all the code
 # from it will be executed upon compile step
 #
-# By contrast, only functions can be defined in wscripts
+# This is really the content of a "def build(bld):" function definition
+#
+# By contrast, only functions can be defined in a wscript
 #
 
-from Object import createObj
-
-obj=createObj('cpp', 'program')
+obj = bld.createObj('cpp', 'program')
 obj.source='''
 main.cpp
 '''

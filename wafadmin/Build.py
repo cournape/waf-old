@@ -155,3 +155,10 @@ class Build:
 		import Scripting
 		Scripting.add_subdir(dir)
 
+	def createObj(self, objname, *k, **kw):
+		try:
+			return Object.g_allclasses[objname](*k, **kw)
+		except:
+			print "error in createObj", objname
+			raise
+
