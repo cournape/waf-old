@@ -124,7 +124,11 @@ Here are the function definitions
     called after all targets are built
 * build(bld_object)
     nothing is attached to the build object *yet*
-* clean (not used at the moment)
+* clean() (not used at the moment)
+* dist()
+    optional, for use when the default dist scheme is not enough
+* distclean()
+    optional, for use when the default distclean scheme is not enough
 
 Additionally, the mandatory parameters need to be given:
 * the source directory: srcdir = '.'

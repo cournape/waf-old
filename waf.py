@@ -70,6 +70,12 @@ opt_obj.parse_args()
 
 # we use the results of the parser
 if Params.g_commands['dist']:
+	# try to use the user-defined dist function first, fallback to the waf scheme
+	try:
+		Utils.g_module.dist()
+		sys.exit(0)
+	except:
+		pass
 	appname         = 'noname'
 	try:    appname = Utils.g_module.APPNAME
 	except: pass
@@ -82,6 +88,13 @@ if Params.g_commands['dist']:
 	Dist(appname, version)
 	sys.exit(0)
 elif Params.g_commands['distclean']:
+	# try to use the user-defined distclean first, fallback to the waf scheme
+	try:
+		Utils.g_module.distclean()
+		sys.exit(0)
+	except:
+		pass
+
 	from Scripting import DistClean
 	DistClean()
 	sys.exit(0)
