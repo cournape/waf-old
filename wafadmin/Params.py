@@ -227,7 +227,7 @@ def xor_sig(o1, o2):
 			#return o1+o2
 			return "".join( map(lambda a, b: chr(ord(a) ^ ord(b)), o1, o2) )
 		except:
-			print o1, o2
+			print "exception xor_sig with incompatible objects", o1, o2
 			raise
 
 

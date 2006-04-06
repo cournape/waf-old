@@ -99,13 +99,13 @@ class JobGenerator:
 		#self.m_current_task_lst = [task]+self.m_current_task_lst
 
 	def debug(self):
-		error("debug in Runner.py is not implemented")
+		error("debugging a task: something went wrong:")
 		#trace("tasks to run in order")
 		#Task.g_tasks.reverse()
-		#s=""
-		#for t in Task.g_tasks:
-		#	s += str(t.m_idx)+" "
-		#trace(s)
+		s=""
+		for t in Task.g_tasks:
+			s += str(t.m_idx)+" "
+		trace(s)
 		#Task.g_tasks.reverse()
 
 class Serial:
@@ -130,6 +130,7 @@ class Serial:
 				trace("delaying task no "+str(proc.m_idx))
 				self.m_generator.postpone(proc)
 				self.m_generator.debug()
+				proc = None
 				continue
 			# # =======================
 

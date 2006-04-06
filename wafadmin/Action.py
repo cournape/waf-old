@@ -92,7 +92,7 @@ class GenAction(Action):
 
 			# if the action processes only sources, return 'command %s' % src_str
 			if self.m_src_only:
-				print command
+				print "Action: command is ", command
 				return command % (src_str)
 
 			# obtain the command-line "command %s -o %s" % (str, str) -> command file1.o file2.o -o programname
@@ -101,6 +101,7 @@ class GenAction(Action):
 			try: 
 				cmd = command % (src_str, tgt_str)
 			except:
+				print "exception #2 in Action "
 				print src_str
 				print tgt_str
 				cmd = ""

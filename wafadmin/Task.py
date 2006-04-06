@@ -134,10 +134,13 @@ class Task:
 				if n: sig = Params.xor_sig(sig, get_node_sig(n))
 				else: sig = Params.xor_sig(sig, get_node_sig(node))
 			except:
+				print "ERROR in get_deps_signature"
 				print n
 				print node
 				print sig
+				print "details for the task are: ", self.m_outputs, self.m_inputs
 				raise
+
 		for task in self.m_run_after:
 			sig = Params.xor_sig(task.signature(), sig)
 			#debug("signature of this node is %s %s %s " % (str(s), str(n), str(node.m_tstamp)) )

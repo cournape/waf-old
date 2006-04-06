@@ -1,7 +1,8 @@
 (ita)
 * unit tests
 * variant builds
-* problems when rebuilding objects, dependencies
+* problems with objects removed manually from the builddir
+* problems with parallel builds
 
 resolve the ambiguity:
 "waf configure --help" (no climbing)
