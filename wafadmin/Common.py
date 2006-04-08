@@ -365,29 +365,3 @@ class cppobj(Object.genobj):
 # register our object
 Object.register('cpp', cppobj)
 
-
-# dummy action
-def d_setcmd(task):
-	task.m_cmd = "touch %s" % (task.m_outputs[0].bldpath())
-def d_setsig(task):
-	task.m_sig=Params.h_string( task.m_outputs[0].bldpath() )
-def d_setstr(task):
-	task.m_str=" -> dummy action is called : touch %s" % (task.m_outputs[0].bldpath())
-Action.create_action('Dummy', d_setcmd, d_setsig, d_setstr)
-
-class dummy(Object.genobj):
-	def __init__(self):
-		Object.genobj.__init__(self, "other", "Dummy")
-
-	def apply(self):
-		trace("apply called for dummy obj")
-
-		self.createTasks()
-
-		for t in self.m_tasks:
-			# sets nodes
-			t.m_inputs  = self.file_in(self.source)
-			t.m_outputs = self.file_in(self.target)
-			t.debug()
-
-
