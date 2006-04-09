@@ -196,17 +196,17 @@ import threading
 import Queue
 
 class TaskConsumer(threading.Thread):
-	def __init__(self, id, q_in, q_out, lock, parallel):
+	def __init__(self, id, q_in, master):
 		threading.Thread.__init__(self)
 		self.setDaemon(1)
 
-		self.m_parallel = parallel
-		self.m_lock     = lock
+		self.m_master = master
 
 		self.m_id    = id
 		self.m_q_in  = q_in
-		self.m_q_out = q_out
+
 		self.start()
+
 	def run(self):
 		while 1:
 			proc = self.m_q_in.get(block=1)
@@ -222,100 +222,103 @@ class TaskConsumer(threading.Thread):
 				ret = exec_command(proc.m_cmd)
 
 			if ret:
+				self.m_master.m_lock.acquire(block=1)
 				error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
 				proc.debug(1)
-				self.m_q_out.put(ret, block=1)
+				self.m_count -= 1
+				self.m_finished.put(ret)
+				self.m_master.m_lock.release()
 				continue
 
 			try: proc.update_stat()
 			except: error('the nodes have not been produced !')
 			proc.m_hasrun=1
 
-			self.m_q_out.put(ret, block=1)
+			self.m_master.m_lock.acquire(block=1)
+			self.m_master.m_count -= 1
+			self.m_master.m_finished.put(ret)
+			self.m_master.m_lock.release()
 
-			self.m_lock.acquire(block=1)
-			self.m_parallel.m_count -= 1
-			self.m_lock.release()
-
-# a bit more complicated indeed
-class ParallelGen:
+# This is a bit more complicated than for serial builds
+class Parallel:
 	def __init__(self, tree, numjobs):
+		# the tree we are working on
 		self.m_tree = tree
 
-		# we will use self.m_current_group = self.m_tasks.pop()
+		# maximum amount of consumers
+		self.m_numjobs   = numjobs
+
+		# the container of all tasks: a list of hashtables containing lists of tasks
 		self.m_tasks = Task.g_tasks
-
-		# current group
-		self.m_current_group    = {}
-
-		# this is also a list that we pop to get the next task list
-		self.m_task_prio_lst    = []
-
-		# this is the list of the tasks
-		self.m_current_task_lst = {}
 
 		# progress bar
 		self.m_total     = 0
 		self.m_processed = 0
 
+		# tasks waiting to be processed
+		self.m_outstanding = []
+		# tasks waiting to be run by the consumers
+		self.m_ready       = Queue.Queue(150)
+		# results from the consumers
+		self.m_results     = Queue.Queue(150)
+		# tasks that are awaiting for another task to complete
+		self.m_frozen      = []
+
+		# lock for self.m_count - count the amount of tasks active
+		self.m_lock      = threading.Lock()
+		self.m_count     = 0
+		# counter that is not updated by the threads
+		self.m_prevcount = 0
+
+		# a priority is finished means :
+		# m_outstanding, m_ready, m_results and m_frozen are empty, and m_count is 0
+
+		# update the variables for the progress bar
 		self.compute_total()
 
-		self.m_switchflag=1 # postpone
+		#############################################################
 
-
-		self.m_numjobs   = numjobs
-
-		# More than 25 tasks at the same time is insane
-		self.m_q_in      = Queue.Queue(50)
-		self.m_q_out     = Queue.Queue(50)
-
-		self.m_count     = 0
-		self.m_finished  = 0
-
-		# postponed because of dependencies
-		self.m_postponed = []
-
-		# lock for self.m_count
-		self.m_lock = threading.Lock()
-
-		for i in range(numjobs): TaskConsumer(i, self.m_q_in, self.m_q_out)
-
+		## current group
+		#self.m_current_group    = {}
+		## this is also a list that we pop to get the next task list
+		#self.m_task_prio_lst    = []
+		## this is the list of the tasks
+		#self.m_current_task_lst = {}
+		#self.m_switchflag=1 # postpone
+		#self.m_finished  = 0
 
 	def compute_total(self):
 		self.m_total=0
 		for htbl in self.m_tasks:
 			for tasks in htbl.values():
 				self.m_total += len(tasks)
-
+	
 	# warning, this one is recursive ..
-	def get_next(self):
-		try:
-			t = self.m_current_task_lst.pop(0)
-			self.m_processed += 1
-			return t
-		except:
-			try:
-				self.m_current_task_lst = self.m_current_group[ self.m_task_prio_lst.pop(0) ]
-			except:
-				try:
-					self.m_current_group = self.m_tasks.pop(0)
-					self.m_task_prio_lst = self.m_current_group.keys()
-					self.m_task_prio_lst.sort()
-				except:
-					error("no more task to give")
-					return None
-			return self.get_next()
+	#def get_next(self):
+	#	try:
+	#		t = self.m_current_task_lst.pop(0)
+	#		self.m_processed += 1
+	#		return t
+	#	except:
+	#		try:
+	#			self.m_current_task_lst = self.m_current_group[ self.m_task_prio_lst.pop(0) ]
+	#		except:
+	#			try:
+	#				self.m_current_group = self.m_tasks.pop(0)
+	#				self.m_task_prio_lst = self.m_current_group.keys()
+	#				self.m_task_prio_lst.sort()
+	#			except:
+	#				error("no more task to give")
+	#				return None
+	#		return self.get_next()
 
-	def progress(self):
-		return (self.m_processed, self.m_total)
-
-	def postpone(self, task):
-		self.m_processed -= 1
-		# shuffle the list - some fanciness of mine (ita)
-		self.m_switchflag=-self.m_switchflag
-		if self.m_switchflag>0: self.m_current_task_lst = [task]+self.m_current_task_lst
-		else:                   self.m_current_task_lst.append(task)
-		#self.m_current_task_lst = [task]+self.m_current_task_lst
+	#def postpone(self, task):
+	#	self.m_processed -= 1
+	#	# shuffle the list - some fanciness of mine (ita)
+	#	self.m_switchflag=-self.m_switchflag
+	#	if self.m_switchflag>0: self.m_current_task_lst = [task]+self.m_current_task_lst
+	#	else:                   self.m_current_task_lst.append(task)
+	#	#self.m_current_task_lst = [task]+self.m_current_task_lst
 
 	def debug(self):
 		error("debugging a task: something went wrong:")
@@ -328,6 +331,17 @@ class ParallelGen:
 		#Task.g_tasks.reverse()
 
 	def start(self):
+
+		# unleash the consumers
+		for i in range(self.m_numjobs): TaskConsumer(i, self.m_ready, self.m_frozen)
+
+		# to be continued
+		print "parallel builds are not ready"
+		sys.exit(0)
+
+
+
+
 		self.add_task()
 
 		while 1:
@@ -370,16 +384,14 @@ class ParallelGen:
 			break
 
 		trace("executing task "+str(proc.m_idx))
-		if not Params.g_commands['configure']:
-			# display the command that we are about to run
-			(s, t) = self.progress()
-			col1=''
-			col2=''
-			try:
-				col1=Params.g_colors[proc.m_action.m_name]
-				col2=Params.g_colors['NORMAL']
-			except: pass
-			proc.m_str = '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
+		# display the command that we are about to run
+		col1=''
+		col2=''
+		try:
+			col1=Params.g_colors[proc.m_action.m_name]
+			col2=Params.g_colors['NORMAL']
+		except: pass
+		proc.m_str = '[%d/%d] %s%s%s' % (self.m_processed, self.m_total, col1, proc.m_str, col2)
 
 		self.m_lock.acquire(block=1)
 		self.m_count += 1		
