@@ -130,9 +130,12 @@ class Build:
 		os.chdir( self.m_tree.m_bldnode.abspath() )
 
 		Object.flush()
-		generator = Runner.JobGenerator(self.m_tree)
-		if Params.g_maxjobs <=1: executor = Runner.Serial(generator)
-		else:                    executor = Runner.Parallel(generator, Params.g_maxjobs)
+		if Params.g_maxjobs <=1:
+			generator = Runner.JobGenerator(self.m_tree)
+			executor = Runner.Serial(generator)
+		else:
+			executor = Runner.Parallel(self.m_tree, Params.g_maxjobs)
+
 		trace("executor starting")
 		try:
 			ret = executor.start()

@@ -168,9 +168,6 @@ class cppobj(Object.genobj):
 			if tree.needs_rescan(node):
 				tree.rescan(node, Scan.c_scanner, dir_lst)
 
-			# TODO FIXME WTH
-			#names = tree.get_raw_deps(node)
-
 			# create the task for the cpp file
 			cpptask = self.create_task('cpp', self.env)
 
@@ -245,7 +242,7 @@ class cppobj(Object.genobj):
 		# now the nodes are added to self._incpaths_lst
 
 	def apply_type_vars(self):
-		trace('apply_type_vars called for cppobj')
+		trace('apply_type_vars called')
 		global cppvars
 		for var in cppvars:
 			# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc

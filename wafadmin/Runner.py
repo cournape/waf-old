@@ -196,9 +196,13 @@ import threading
 import Queue
 
 class TaskConsumer(threading.Thread):
-	def __init__(self, id, q_in, q_out):
+	def __init__(self, id, q_in, q_out, lock, parallel):
 		threading.Thread.__init__(self)
 		self.setDaemon(1)
+
+		self.m_parallel = parallel
+		self.m_lock     = lock
+
 		self.m_id    = id
 		self.m_q_in  = q_in
 		self.m_q_out = q_out
@@ -206,7 +210,8 @@ class TaskConsumer(threading.Thread):
 	def run(self):
 		while 1:
 			proc = self.m_q_in.get(block=1)
-
+			
+			# display the label for the command executed
 			print proc.m_str
 
 			# run the command, it might be a function attached to an action
@@ -228,9 +233,36 @@ class TaskConsumer(threading.Thread):
 
 			self.m_q_out.put(ret, block=1)
 
-class Parallel:
-	def __init__(self, generator, numjobs):
-		self.m_generator = generator
+			self.m_lock.acquire(block=1)
+			self.m_parallel.m_count -= 1
+			self.m_lock.release()
+
+# a bit more complicated indeed
+class ParallelGen:
+	def __init__(self, tree, numjobs):
+		self.m_tree = tree
+
+		# we will use self.m_current_group = self.m_tasks.pop()
+		self.m_tasks = Task.g_tasks
+
+		# current group
+		self.m_current_group    = {}
+
+		# this is also a list that we pop to get the next task list
+		self.m_task_prio_lst    = []
+
+		# this is the list of the tasks
+		self.m_current_task_lst = {}
+
+		# progress bar
+		self.m_total     = 0
+		self.m_processed = 0
+
+		self.compute_total()
+
+		self.m_switchflag=1 # postpone
+
+
 		self.m_numjobs   = numjobs
 
 		# More than 25 tasks at the same time is insane
@@ -240,20 +272,67 @@ class Parallel:
 		self.m_count     = 0
 		self.m_finished  = 0
 
+		# postponed because of dependencies
+		self.m_postponed = []
+
+		# lock for self.m_count
+		self.m_lock = threading.Lock()
+
 		for i in range(numjobs): TaskConsumer(i, self.m_q_in, self.m_q_out)
 
+
+	def compute_total(self):
+		self.m_total=0
+		for htbl in self.m_tasks:
+			for tasks in htbl.values():
+				self.m_total += len(tasks)
+
+	# warning, this one is recursive ..
+	def get_next(self):
+		try:
+			t = self.m_current_task_lst.pop(0)
+			self.m_processed += 1
+			return t
+		except:
+			try:
+				self.m_current_task_lst = self.m_current_group[ self.m_task_prio_lst.pop(0) ]
+			except:
+				try:
+					self.m_current_group = self.m_tasks.pop(0)
+					self.m_task_prio_lst = self.m_current_group.keys()
+					self.m_task_prio_lst.sort()
+				except:
+					error("no more task to give")
+					return None
+			return self.get_next()
+
+	def progress(self):
+		return (self.m_processed, self.m_total)
+
+	def postpone(self, task):
+		self.m_processed -= 1
+		# shuffle the list - some fanciness of mine (ita)
+		self.m_switchflag=-self.m_switchflag
+		if self.m_switchflag>0: self.m_current_task_lst = [task]+self.m_current_task_lst
+		else:                   self.m_current_task_lst.append(task)
+		#self.m_current_task_lst = [task]+self.m_current_task_lst
+
+	def debug(self):
+		error("debugging a task: something went wrong:")
+		#trace("tasks to run in order")
+		#Task.g_tasks.reverse()
+		s=""
+		for t in Task.g_tasks:
+			s += str(t.m_idx)+" "
+		trace(s)
+		#Task.g_tasks.reverse()
+
 	def start(self):
-		i=0
-		while i<2*self.m_numjobs:
-			self.add_task()
-			i+=1
+		self.add_task()
+
 		while 1:
 			while self.m_count>0:
-				ret = self.m_q_out.get(block=1)
-				self.m_count -= 1
-				if ret:
-					print "task failed - uh-oh"
-					return ret
+				self.process_finished_targets()
 
 			if self.m_finished: return 0
 
@@ -270,15 +349,15 @@ class Parallel:
 	def add_task(self):
 		proc=None
 		while proc is None:
-			proc = self.m_generator.get_next()
+			proc = self.get_next()
 			if proc is None:
 				self.m_finished=1
 				return 0
 		
 			if not proc.may_start():
 				trace("delaying task no "+str(proc.m_idx))
-				self.m_generator.postpone(proc)
-				self.m_generator.debug()
+				self.postpone(proc)
+				self.debug()
 				proc=None
 				continue
 			#proc.debug()
@@ -293,7 +372,7 @@ class Parallel:
 		trace("executing task "+str(proc.m_idx))
 		if not Params.g_commands['configure']:
 			# display the command that we are about to run
-			(s, t) = self.m_generator.progress()
+			(s, t) = self.progress()
 			col1=''
 			col2=''
 			try:
@@ -302,7 +381,17 @@ class Parallel:
 			except: pass
 			proc.m_str = '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
 
-		self.m_count+=1
+		self.m_lock.acquire(block=1)
+		self.m_count += 1		
+		self.m_lock.release()
+
 		self.m_q_in.put(proc, block=1)
 		return 1
+
+	def process_finished_targets(self):
+		ret = self.m_q_out.get(block=1)
+		self.m_count -= 1
+		if ret:
+			print "task failed - uh-oh"
+			raise "task failed"
 
