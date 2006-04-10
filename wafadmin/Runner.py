@@ -196,20 +196,17 @@ import threading
 import Queue
 
 class TaskConsumer(threading.Thread):
-	def __init__(self, id, q_in, master):
+	def __init__(self, id, master):
 		threading.Thread.__init__(self)
 		self.setDaemon(1)
-
 		self.m_master = master
-
 		self.m_id    = id
-		self.m_q_in  = q_in
-
 		self.start()
 
 	def run(self):
+		master = self.m_master
 		while 1:
-			proc = self.m_q_in.get(block=1)
+			proc = master.m_ready.get(block=1)
 			
 			# display the label for the command executed
 			print proc.m_str
@@ -225,19 +222,26 @@ class TaskConsumer(threading.Thread):
 				self.m_master.m_lock.acquire(block=1)
 				error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
 				proc.debug(1)
-				self.m_count -= 1
-				self.m_finished.put(ret)
-				self.m_master.m_lock.release()
+				master.m_count -= 1
+				master.m_stop = 1
+				master.m_lock.release()
 				continue
 
-			try: proc.update_stat()
-			except: error('the nodes have not been produced !')
+			try:
+				proc.update_stat()
+			except:
+				self.m_master.m_lock.acquire(block=1)
+				error('the nodes have not been produced !')
+				master.m_count -= 1
+				master.m_stop = 1
+				master.m_lock.release()
+
 			proc.m_hasrun=1
 
-			self.m_master.m_lock.acquire(block=1)
-			self.m_master.m_count -= 1
-			self.m_master.m_finished.put(ret)
-			self.m_master.m_lock.release()
+			master.m_lock.acquire(block=1)
+			master.m_count -= 1
+			master.m_finished.put(ret)
+			master.m_lock.release()
 
 # This is a bit more complicated than for serial builds
 class Parallel:
@@ -259,33 +263,28 @@ class Parallel:
 		self.m_outstanding = []
 		# tasks waiting to be run by the consumers
 		self.m_ready       = Queue.Queue(150)
-		# results from the consumers
-		self.m_results     = Queue.Queue(150)
+		## results from the consumers
+		#self.m_results     = Queue.Queue(150)
 		# tasks that are awaiting for another task to complete
 		self.m_frozen      = []
 
 		# lock for self.m_count - count the amount of tasks active
-		self.m_lock      = threading.Lock()
-		self.m_count     = 0
+		self.m_count       = 0
+		self.m_countlock   = threading.Lock()
 		# counter that is not updated by the threads
-		self.m_prevcount = 0
+		self.m_prevcount   = 0
 
 		# a priority is finished means :
 		# m_outstanding, m_ready, m_results and m_frozen are empty, and m_count is 0
+		# the lock 
+		self.m_stop        = 0
+		#self.m_stoplock    = threading.Lock()
 
 		# update the variables for the progress bar
 		self.compute_total()
 
-		#############################################################
-
-		## current group
-		#self.m_current_group    = {}
-		## this is also a list that we pop to get the next task list
-		#self.m_task_prio_lst    = []
-		## this is the list of the tasks
-		#self.m_current_task_lst = {}
-		#self.m_switchflag=1 # postpone
-		#self.m_finished  = 0
+		self.m_group    = None
+		self.m_priority = None
 
 	def compute_total(self):
 		self.m_total=0
@@ -293,71 +292,15 @@ class Parallel:
 			for tasks in htbl.values():
 				self.m_total += len(tasks)
 	
-	# warning, this one is recursive ..
-	#def get_next(self):
-	#	try:
-	#		t = self.m_current_task_lst.pop(0)
-	#		self.m_processed += 1
-	#		return t
-	#	except:
-	#		try:
-	#			self.m_current_task_lst = self.m_current_group[ self.m_task_prio_lst.pop(0) ]
-	#		except:
-	#			try:
-	#				self.m_current_group = self.m_tasks.pop(0)
-	#				self.m_task_prio_lst = self.m_current_group.keys()
-	#				self.m_task_prio_lst.sort()
-	#			except:
-	#				error("no more task to give")
-	#				return None
-	#		return self.get_next()
-
-	#def postpone(self, task):
-	#	self.m_processed -= 1
-	#	# shuffle the list - some fanciness of mine (ita)
-	#	self.m_switchflag=-self.m_switchflag
-	#	if self.m_switchflag>0: self.m_current_task_lst = [task]+self.m_current_task_lst
-	#	else:                   self.m_current_task_lst.append(task)
-	#	#self.m_current_task_lst = [task]+self.m_current_task_lst
-
-	def debug(self):
-		error("debugging a task: something went wrong:")
-		#trace("tasks to run in order")
-		#Task.g_tasks.reverse()
-		s=""
-		for t in Task.g_tasks:
-			s += str(t.m_idx)+" "
-		trace(s)
-		#Task.g_tasks.reverse()
-
 	def start(self):
 
 		# unleash the consumers
 		for i in range(self.m_numjobs): TaskConsumer(i, self.m_ready, self.m_frozen)
 
-		# to be continued
-		print "parallel builds are not ready"
-		sys.exit(0)
-
-
-
-
-		self.add_task()
-
 		while 1:
-			while self.m_count>0:
-				self.process_finished_targets()
-
-			if self.m_finished: return 0
-
-			while self.m_count<2*self.m_numjobs and not self.m_finished:
-				self.add_task()
-
-		if self.m_count != 0:
-			error("thread count is wrong "+str(self.m_count))
-		if not Params.g_commands['configure']:
-			print "Build finished successfully"
-		return 0
+			if self.m_finished:
+				break
+			self.add_task()
 
 	# no need to parallelize this, there is no i/o, so it will not get any faster
 	def add_task(self):
@@ -397,7 +340,7 @@ class Parallel:
 		self.m_count += 1		
 		self.m_lock.release()
 
-		self.m_q_in.put(proc, block=1)
+		self.m_ready.put(proc, block=1)
 		return 1
 
 	def process_finished_targets(self):
