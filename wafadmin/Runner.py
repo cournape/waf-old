@@ -1,15 +1,8 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
-"""
-try:
-	import threading
-	import Queue
-except ImportError:
-	import dummy_threading as threading
-"""
 
-import os, popen2, sys
+import os, popen2, sys, time
 import Params, Task, pproc
 from Params import debug, error, trace, fatal
 
@@ -206,6 +199,13 @@ class TaskConsumer(threading.Thread):
 	def run(self):
 		master = self.m_master
 		while 1:
+			master.m_countlock.acquire()
+			if master.m_stop:
+				time.sleep(1)
+				continue
+			master.m_countlock.release()
+
+			# take the next task
 			proc = master.m_ready.get(block=1)
 			
 			# display the label for the command executed
@@ -219,29 +219,29 @@ class TaskConsumer(threading.Thread):
 				ret = exec_command(proc.m_cmd)
 
 			if ret:
-				self.m_master.m_lock.acquire(block=1)
+				self.m_master.m_countlock.acquire()
 				error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
 				proc.debug(1)
 				master.m_count -= 1
 				master.m_stop = 1
-				master.m_lock.release()
+				master.m_countlock.release()
 				continue
 
 			try:
 				proc.update_stat()
 			except:
-				self.m_master.m_lock.acquire(block=1)
+				self.m_master.m_countlock.acquire()
 				error('the nodes have not been produced !')
 				master.m_count -= 1
 				master.m_stop = 1
-				master.m_lock.release()
+				master.m_countlock.release()
 
 			proc.m_hasrun=1
 
-			master.m_lock.acquire(block=1)
+			master.m_countlock.acquire()
 			master.m_count -= 1
 			master.m_finished.put(ret)
-			master.m_lock.release()
+			master.m_countlock.release()
 
 # This is a bit more complicated than for serial builds
 class Parallel:
@@ -292,61 +292,61 @@ class Parallel:
 			for tasks in htbl.values():
 				self.m_total += len(tasks)
 	
+	def wait_finished(self):
+		while self.m_prevcount == self.m_count:
+			time.sleep(0.2)
+		if not self.m_outstanding:
+			self.m_outstanding = self.m_frozen
+
 	def start(self):
 
 		# unleash the consumers
-		for i in range(self.m_numjobs): TaskConsumer(i, self.m_ready, self.m_frozen)
+		for i in range(self.m_numjobs): TaskConsumer(i, self)
 
 		while 1:
-			if self.m_finished:
+
+			if self.m_stop:
+				self.wait_finished()
 				break
-			self.add_task()
 
-	# no need to parallelize this, there is no i/o, so it will not get any faster
-	def add_task(self):
-		proc=None
-		while proc is None:
-			proc = self.get_next()
-			if proc is None:
-				self.m_finished=1
-				return 0
-		
-			if not proc.may_start():
-				trace("delaying task no "+str(proc.m_idx))
-				self.postpone(proc)
-				self.debug()
-				proc=None
-				continue
-			#proc.debug()
-			proc.prepare()
-			if not proc.must_run():
-				proc.m_hasrun=2
-				debug("task is up-to_date "+str(proc.m_idx))
-				proc=None
-				continue
-			break
+			if not self.m_frozen and not self.m_outstanding:
+				self.wait_finished()
+				if not self.m_group:
+					try:
+						self.m_group = self.m_tasks.pop()
+					except:
+						break
+				self.m_outstanding = self.m_group.pop()
 
-		trace("executing task "+str(proc.m_idx))
-		# display the command that we are about to run
-		col1=''
-		col2=''
-		try:
-			col1=Params.g_colors[proc.m_action.m_name]
-			col2=Params.g_colors['NORMAL']
-		except: pass
-		proc.m_str = '[%d/%d] %s%s%s' % (self.m_processed, self.m_total, col1, proc.m_str, col2)
+			# now we are certain that there are outstanding or frozen threads
+			if self.m_outstanding:
+				task = self.m_outstanding.pop()
+				if not task.may_start():
+					self.m_frozen.append(task)
 
-		self.m_lock.acquire(block=1)
-		self.m_count += 1		
-		self.m_lock.release()
+					if not self.m_outstanding:
+						self.wait_finished()
 
-		self.m_ready.put(proc, block=1)
-		return 1
+					continue
+				else:
+					proc.prepare()
+					if not proc.must_run():
+						proc.m_has_run=2
+						continue
 
-	def process_finished_targets(self):
-		ret = self.m_q_out.get(block=1)
-		self.m_count -= 1
-		if ret:
-			print "task failed - uh-oh"
-			raise "task failed"
+					# display the command that we are about to run
+					col1=''
+					col2=''
+					try:
+						col1=Params.g_colors[proc.m_action.m_name]
+						col2=Params.g_colors['NORMAL']
+					except: pass
+					proc.m_str = '[%d/%d] %s%s%s' % (self.m_processed, self.m_total, col1, proc.m_str, col2)
+
+					self.m_countlock.acquire()
+					self.m_count += 1
+					self.m_prevcount = self.m_count
+					self.m_countlock.release()
+
+					self.m_ready.put(proc, block=1)
 
