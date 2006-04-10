@@ -188,12 +188,14 @@ class Serial:
 import threading
 import Queue
 
+### TODO the following part neeeds to be rewritten seriously ###
+
 class TaskConsumer(threading.Thread):
 	def __init__(self, id, master):
 		threading.Thread.__init__(self)
 		self.setDaemon(1)
 		self.m_master = master
-		self.m_id    = id
+		self.m_id     = id
 		self.start()
 
 	def run(self):
@@ -240,7 +242,6 @@ class TaskConsumer(threading.Thread):
 
 			master.m_countlock.acquire()
 			master.m_count -= 1
-			master.m_finished.put(ret)
 			master.m_countlock.release()
 
 # This is a bit more complicated than for serial builds
@@ -256,35 +257,35 @@ class Parallel:
 		self.m_tasks = Task.g_tasks
 
 		# progress bar
-		self.m_total     = 0
-		self.m_processed = 0
+		self.m_total        = 0
+		self.m_processed    = 1
 
 		# tasks waiting to be processed
-		self.m_outstanding = []
+		self.m_outstanding  = []
 		# tasks waiting to be run by the consumers
-		self.m_ready       = Queue.Queue(150)
+		self.m_ready        = Queue.Queue(150)
 		## results from the consumers
 		#self.m_results     = Queue.Queue(150)
 		# tasks that are awaiting for another task to complete
-		self.m_frozen      = []
+		self.m_frozen       = []
 
 		# lock for self.m_count - count the amount of tasks active
-		self.m_count       = 0
-		self.m_countlock   = threading.Lock()
+		self.m_count        = 0
+		self.m_countlock    = threading.Lock()
 		# counter that is not updated by the threads
-		self.m_prevcount   = 0
+		self.m_prevcount    = 0
 
 		# a priority is finished means :
 		# m_outstanding, m_ready, m_results and m_frozen are empty, and m_count is 0
 		# the lock 
-		self.m_stop        = 0
+		self.m_stop         = 0
 		#self.m_stoplock    = threading.Lock()
 
 		# update the variables for the progress bar
 		self.compute_total()
 
-		self.m_group    = None
-		self.m_priority = None
+		self.m_group        = None
+		self.m_priority     = None
 
 	def compute_total(self):
 		self.m_total=0
@@ -294,35 +295,65 @@ class Parallel:
 	
 	def wait_finished(self):
 		while self.m_prevcount == self.m_count:
-			time.sleep(0.2)
+			# check the global stop flag
+			self.m_countlock.acquire()
+			if self.m_stop:
+				break
+			self.m_countlock.release()
+
+			if self.m_count == 0: break
+
+			time.sleep(0.5)
+
 		if not self.m_outstanding:
 			self.m_outstanding = self.m_frozen
+
+	def wait_all_finished(self):
+		while self.m_count>0:
+			# check the global stop flag
+			self.m_countlock.acquire()
+			if self.m_stop:
+				break
+			self.m_countlock.release()
+
+			time.sleep(0.5)
+
 
 	def start(self):
 
 		# unleash the consumers
 		for i in range(self.m_numjobs): TaskConsumer(i, self)
 
+		# add the tasks to the queue
 		while 1:
-
 			if self.m_stop:
 				self.wait_finished()
 				break
 
-			if not self.m_frozen and not self.m_outstanding:
-				self.wait_finished()
+			if (not self.m_frozen) and (not self.m_outstanding):
+				self.wait_all_finished()
 				if not self.m_group:
 					try:
-						self.m_group = self.m_tasks.pop()
+						lst = self.m_tasks.pop(0)
+						self.m_group = []
+						keys = lst.keys()
+						keys.sort()
+						for key in keys:
+							self.m_group.append( lst[key] )
 					except:
+						self.wait_all_finished()
 						break
-				self.m_outstanding = self.m_group.pop()
+
+				self.m_outstanding = self.m_group.pop(0)
+
+			if (self.m_count != self.m_prevcount and (not self.m_outstanding)):
+				self.m_outstanding = self.m_frozen
 
 			# now we are certain that there are outstanding or frozen threads
 			if self.m_outstanding:
-				task = self.m_outstanding.pop()
-				if not task.may_start():
-					self.m_frozen.append(task)
+				proc = self.m_outstanding.pop(0)
+				if not proc.may_start():
+					self.m_frozen.append(proc)
 
 					if not self.m_outstanding:
 						self.wait_finished()
@@ -346,7 +377,11 @@ class Parallel:
 					self.m_countlock.acquire()
 					self.m_count += 1
 					self.m_prevcount = self.m_count
+					self.m_processed += 1
+
 					self.m_countlock.release()
 
 					self.m_ready.put(proc, block=1)
+
+			#print "boing"
 
