@@ -207,7 +207,7 @@ class qt4obj(Common.cppobj):
 			cpptasks.append(cpptask)
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
-		linktask = self.create_task('cpp_link', self.env, 6)
+		linktask = self.create_task('cpp_link', self.env, 101)
 		cppoutputs = []
 		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 
@@ -216,7 +216,7 @@ class qt4obj(Common.cppobj):
 		self.m_linktask = linktask
 
 		if self.m_type != 'program':
-			latask           = self.create_task('fakelibtool', self.env, 7)
+			latask           = self.create_task('fakelibtool', self.env, 101)
 			latask.m_inputs  = linktask.m_outputs
 			latask.m_outputs = self.file_in(self.get_target_name('.la'))
 			self.m_latask    = latask

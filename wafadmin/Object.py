@@ -119,8 +119,13 @@ class genobj:
 		l_task=Task.Task(self.m_actname, self.env)
 		self.m_tasks.append(l_task)
 
-	def create_task(self, type, env, priority=5):
-		task = Task.Task(type, env, priority)
+	# the lower the nice is, the higher priority tasks will run at
+	# groups are sorted like this [2, 4, 5, 100, 200]
+	# the tasks with lower nice will run first
+	# if tasks have an odd priority number, they will be run only sequentially
+	# if tasks have an even priority number, they will be allowed to be run in parallel
+	def create_task(self, type, env, nice=10):
+		task = Task.Task(type, env, nice)
 		self.m_tasks.append(task)
 		return task
 

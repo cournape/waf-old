@@ -323,7 +323,7 @@ class kdeobj(Common.cppobj):
 				# instead of saying "task.run_after(othertask)" we only give priority numbers on tasks
 
 				# the skel or stub (dcopidl2cpp)
-				task = self.create_task(type, self.env, 3)
+				task = self.create_task(type, self.env, 4)
 				task.m_inputs  = skel_or_stub[base].m_outputs
 				task.m_outputs = self.file_in(''.join([base,'_',type,'.cpp']))
 
@@ -368,8 +368,8 @@ class kdeobj(Common.cppobj):
 			cpptasks.append(cpptask)
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
-		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, 6)
-		else:                        linktask = self.create_task('cpp_link', self.env, 6)
+		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, 101)
+		else:                        linktask = self.create_task('cpp_link', self.env, 101)
 		cppoutputs = []
 		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 
@@ -378,7 +378,7 @@ class kdeobj(Common.cppobj):
 		self.m_linktask = linktask
 
 		if self.m_type != 'program':
-			latask           = self.create_task('fakelibtool', self.env, 7)
+			latask           = self.create_task('fakelibtool', self.env, 200)
 			latask.m_inputs  = linktask.m_outputs
 			latask.m_outputs = self.file_in(self.get_target_name('.la'))
 			self.m_latask    = latask

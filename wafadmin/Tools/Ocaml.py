@@ -101,14 +101,14 @@ class ocamlobj(Object.genobj):
 				bytecode_tasks.append(task)
 
 		if self.is_bytecode:
-			linktask = self.create_task('link', self.bytecode_env, 6)
+			linktask = self.create_task('link', self.bytecode_env, 101)
 			objfiles = []
 			for t in bytecode_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=1))
 
 		if self.is_native:
-			linktask = self.create_task('link', self.native_env, 7)
+			linktask = self.create_task('link', self.native_env, 101)
 			objfiles = []
 			for t in native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
