@@ -8,8 +8,12 @@ import os, types, shutil
 import Action, Object, Params, Runner, Scan
 from Params import debug, error, trace, fatal
 
+# default priority for link tasks
+# an even number means link tasks may be parallelized
+# an odd number is probably the thing to do
 priolink=101
 
+# main c/cpp variables
 g_cppvalues = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',

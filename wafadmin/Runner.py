@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, popen2, sys, time
+import os, popen2, sys, time, random
 import Params, Task, pproc
 from Params import debug, error, trace, fatal
 
@@ -264,8 +264,6 @@ class Parallel:
 		self.m_outstanding  = []
 		# tasks waiting to be run by the consumers
 		self.m_ready        = Queue.Queue(150)
-		## results from the consumers
-		#self.m_results     = Queue.Queue(150)
 		# tasks that are awaiting for another task to complete
 		self.m_frozen       = []
 
@@ -276,16 +274,11 @@ class Parallel:
 		self.m_prevcount    = 0
 
 		# a priority is finished means :
-		# m_outstanding, m_ready, m_results and m_frozen are empty, and m_count is 0
-		# the lock 
+		# m_outstanding, m_frozen are empty, and m_count is 0
 		self.m_stop         = 0
-		#self.m_stoplock    = threading.Lock()
 
 		# update the variables for the progress bar
 		self.compute_total()
-
-		self.m_group        = None
-		self.m_priority     = None
 
 	def compute_total(self):
 		self.m_total=0
@@ -293,21 +286,6 @@ class Parallel:
 			for tasks in htbl.values():
 				self.m_total += len(tasks)
 	
-	def wait_finished(self):
-		while self.m_prevcount == self.m_count:
-			# check the global stop flag
-			self.m_countlock.acquire()
-			if self.m_stop:
-				break
-			self.m_countlock.release()
-
-			if self.m_count == 0: break
-
-			time.sleep(0.05)
-
-		if not self.m_outstanding:
-			self.m_outstanding = self.m_frozen
-
 	def wait_all_finished(self):
 		while self.m_count>0:
 			# check the global stop flag
@@ -316,64 +294,88 @@ class Parallel:
 				break
 			self.m_countlock.release()
 
-			time.sleep(0.05)
-
+			time.sleep(0.02)
 
 	def start(self):
 
 		# unleash the consumers
 		for i in range(self.m_numjobs): TaskConsumer(i, self)
 
-		# use the cpu for useful stuff
-		busyloop    = 0
+		# the current group
+		group = None
+
 		# current priority
 		currentprio = 0
 
 		# add the tasks to the queue
 		while 1:
 			if self.m_stop:
-				self.wait_finished()
+				self.wait_all_finished()
 				break
 
+			# if there are no tasks to run, wait for the consumers to eat all of them
+			# and then skip to the next priority group
 			if (not self.m_frozen) and (not self.m_outstanding):
 				self.wait_all_finished()
-				if not self.m_group:
+				if not group:
 					try:
 						lst = self.m_tasks.pop(0)
-						self.m_group = []
+						group = []
 						keys = lst.keys()
 						keys.sort()
 						for key in keys:
-							self.m_group.append( (key, lst[key]) )
+							group.append( (key, lst[key]) )
 					except:
 						self.wait_all_finished()
 						break
 
-				(currentprio, self.m_outstanding) = self.m_group.pop(0)
-				print currentprio
+				(currentprio, self.m_outstanding) = group.pop(0)
 
-			if (self.m_count != self.m_prevcount and (not self.m_outstanding)):
-				self.m_outstanding = self.m_frozen
-
+			# for tasks that must run sequentially
+			# (linking object files uses a lot of memory for example)
 			if (currentprio%2)==1:
+				# make sure there is no more than one task in the queue
 				cond = 0
 				self.m_countlock.acquire()
 				if self.m_count: cond=1
 				self.m_countlock.release()
 	
 				if cond:
-					time.sleep(0.01)
+					time.sleep(0.02)
+					continue
+
+			# if there is no outstanding task to process, look at the frozen ones
+			if not self.m_outstanding:
+				cond=0
+				self.m_countlock.acquire()
+				if self.m_count != self.m_prevcount:
+					cond=1
+					self.m_prevcount = self.m_count
+				else:
+					if self.m_count == 0:
+						print "this should not happen"
+				self.m_countlock.release()
+				if cond:
+					self.m_outstanding = self.m_frozen
+					self.m_frozen = []
+				else:
+					time.sleep(0.02)
 					continue
 
 			# now we are certain that there are outstanding or frozen threads
 			if self.m_outstanding:
 				proc = self.m_outstanding.pop(0)
 				if not proc.may_start():
-					self.m_frozen.append(proc)
-
-					if not self.m_outstanding:
-						self.wait_finished()
-
+					# shuffle
+					#print "shuf0"
+					#self.m_frozen.append(proc)
+					#self.m_frozen = [proc]+self.m_frozen
+					if random.randint(0,1):
+						#print "shuf1"
+						self.m_frozen.append(proc)
+					else:
+						#print "shuf2"
+						self.m_frozen = [proc]+self.m_frozen
 					continue
 				else:
 					proc.prepare()
@@ -398,10 +400,5 @@ class Parallel:
 					self.m_countlock.release()
 
 					self.m_ready.put(proc, block=1)
-
-			busyloop += 1
-			if busyloop == 10:
-				time.sleep(0.002)
-				busyloop=0
 
 
