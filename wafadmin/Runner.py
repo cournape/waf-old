@@ -325,7 +325,9 @@ class Parallel:
 		for i in range(self.m_numjobs): TaskConsumer(i, self)
 
 		# use the cpu for useful stuff
-		busyloop=0
+		busyloop    = 0
+		# current priority
+		currentprio = 0
 
 		# add the tasks to the queue
 		while 1:
@@ -342,15 +344,26 @@ class Parallel:
 						keys = lst.keys()
 						keys.sort()
 						for key in keys:
-							self.m_group.append( lst[key] )
+							self.m_group.append( (key, lst[key]) )
 					except:
 						self.wait_all_finished()
 						break
 
-				self.m_outstanding = self.m_group.pop(0)
+				(currentprio, self.m_outstanding) = self.m_group.pop(0)
+				print currentprio
 
 			if (self.m_count != self.m_prevcount and (not self.m_outstanding)):
 				self.m_outstanding = self.m_frozen
+
+			if (currentprio%2)==1:
+				cond = 0
+				self.m_countlock.acquire()
+				if self.m_count: cond=1
+				self.m_countlock.release()
+	
+				if cond:
+					time.sleep(0.01)
+					continue
 
 			# now we are certain that there are outstanding or frozen threads
 			if self.m_outstanding:
