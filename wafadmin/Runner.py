@@ -303,7 +303,7 @@ class Parallel:
 
 			if self.m_count == 0: break
 
-			time.sleep(0.5)
+			time.sleep(0.05)
 
 		if not self.m_outstanding:
 			self.m_outstanding = self.m_frozen
@@ -316,13 +316,16 @@ class Parallel:
 				break
 			self.m_countlock.release()
 
-			time.sleep(0.5)
+			time.sleep(0.05)
 
 
 	def start(self):
 
 		# unleash the consumers
 		for i in range(self.m_numjobs): TaskConsumer(i, self)
+
+		# use the cpu for useful stuff
+		busyloop=0
 
 		# add the tasks to the queue
 		while 1:
@@ -383,5 +386,9 @@ class Parallel:
 
 					self.m_ready.put(proc, block=1)
 
-			#print "boing"
+			busyloop += 1
+			if busyloop == 10:
+				time.sleep(0.002)
+				busyloop=0
+
 

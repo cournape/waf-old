@@ -89,6 +89,9 @@ def fakelibtool_build(task):
 	return 0
 fakelibtoolact = Action.GenAction('fakelibtool', fakelibtool_vardeps, buildfunc=fakelibtool_build)
 
+# warning, this is a temporary hack
+linkprio=7
+
 cpptypes=['shlib', 'program', 'staticlib']
 cppvars=['CXXFLAGS','LINKFLAGS','obj_ext']
 class cppobj(Object.genobj):
@@ -121,6 +124,10 @@ class cppobj(Object.genobj):
 
 		self.m_linktask=None
 		self.m_deps_linktask=[]
+
+		global linkprio
+		self.linkprio=linkprio
+		linkprio += 1
 
 		global cpptypes
 		if not type in cpptypes:
@@ -178,10 +185,12 @@ class cppobj(Object.genobj):
 			cpptask.m_outputs = self.file_in(base+obj_ext)
 			cpptasks.append(cpptask)
 
+		prio = self.linkprio
+
 		# and after the cpp objects, the remaining is the link step
 		# link in a lower priority (6) so it runs alone (default is 5)
-		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, 6)
-		else:                        linktask = self.create_task('cpp_link', self.env, 6)
+		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, prio)
+		else:                        linktask = self.create_task('cpp_link', self.env, prio)
 		cppoutputs = []
 		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 
@@ -190,7 +199,7 @@ class cppobj(Object.genobj):
 		self.m_linktask = linktask
 
 		if self.m_type != 'program':	
-			latask = self.create_task('fakelibtool', self.env, 7)
+			latask = self.create_task('fakelibtool', self.env, 100)
 			latask.m_inputs = linktask.m_outputs
 			latask.m_outputs = self.file_in(self.get_target_name('.la'))
 			self.m_latask = latask
