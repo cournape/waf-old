@@ -631,6 +631,9 @@ def setup(env):
 		Params.g_colors['moc']='\033[94m'
 		Params.g_colors['skel']='\033[94m'
 		Params.g_colors['kidl']='\033[94m'
+		Params.g_colors['meinproc']='\033[94m'
+		Params.g_colors['uic']='\033[94m'
+		Params.g_colors['kcfg']='\033[94m'
 
         Object.register('kde_translations', kde_translations)
         Object.register('kde_documentation', kde_documentation)
