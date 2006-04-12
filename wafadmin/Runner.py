@@ -188,7 +188,11 @@ class Serial:
 import threading
 import Queue
 
-### TODO the following part neeeds to be rewritten seriously ###
+
+lock = None
+condition = None
+count = 0
+stop = 0
 
 class TaskConsumer(threading.Thread):
 	def __init__(self, id, master):
@@ -198,17 +202,36 @@ class TaskConsumer(threading.Thread):
 		self.m_id     = id
 		self.start()
 
+		self.m_count = 0
+		self.m_stop  = 0
+
+	def read_values(self):
+		#print "tread values acquire lock"
+		global lock, stop, count
+		lock.acquire()
+		self.m_stop  = stop
+		self.m_count = count
+		lock.release()
+		#print "tread values release lock"
+
+	def notify(self):
+		global condition
+		condition.acquire()
+		condition.notify()
+		condition.release()
+
 	def run(self):
-		master = self.m_master
+		global lock, count, stop
+
+		#master = self.m_master
 		while 1:
-			master.m_countlock.acquire()
-			if master.m_stop:
+			self.read_values()
+			if self.m_stop:
 				time.sleep(1)
 				continue
-			master.m_countlock.release()
 
 			# take the next task
-			proc = master.m_ready.get(block=1)
+			proc = self.m_master.m_ready.get(block=1)
 			
 			# display the label for the command executed
 			print proc.m_str
@@ -221,28 +244,31 @@ class TaskConsumer(threading.Thread):
 				ret = exec_command(proc.m_cmd)
 
 			if ret:
-				self.m_master.m_countlock.acquire()
+				lock.acquire()
 				error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
 				proc.debug(1)
-				master.m_count -= 1
-				master.m_stop = 1
-				master.m_countlock.release()
+				count -= 1
+				stop   = 1
+				self.notify()
+				lock.release()
 				continue
 
 			try:
 				proc.update_stat()
 			except:
-				self.m_master.m_countlock.acquire()
+				lock.acquire()
 				error('the nodes have not been produced !')
-				master.m_count -= 1
-				master.m_stop = 1
-				master.m_countlock.release()
+				count -= 1
+				stop = 1
+				self.notify()
+				lock.release()
 
-			proc.m_hasrun=1
+			proc.m_hasrun = 1
 
-			master.m_countlock.acquire()
-			master.m_count -= 1
-			master.m_countlock.release()
+			lock.acquire()
+			count -= 1
+			lock.release()
+			self.notify()
 
 # The following is a small scheduler, using an agressive scheme
 # for making as many tasks available to the consumer threads
@@ -273,16 +299,16 @@ class Parallel:
 
 		# lock for self.m_count - count the amount of tasks active
 		self.m_count        = 0
-		self.m_countlock    = threading.Lock()
-		# counter that is not updated by the threads
-		self.m_prevcount    = 0
-
-		# a priority is finished means :
-		# m_outstanding, m_frozen are empty, and m_count is 0
 		self.m_stop         = 0
 
 		# update the variables for the progress bar
 		self.compute_total()
+
+		global condition
+		condition = threading.Condition()
+
+		global lock
+		lock = threading.Lock()
 
 	def compute_total(self):
 		self.m_total=0
@@ -290,17 +316,25 @@ class Parallel:
 			for tasks in htbl.values():
 				self.m_total += len(tasks)
 	
-	def wait_all_finished(self):
-		while self.m_count>0:
-			# check the global stop flag
-			self.m_countlock.acquire()
-			if self.m_stop:
-				break
-			self.m_countlock.release()
+	def read_values(self):
+		#print "read values acquire lock"
+		global lock, stop, count
+		lock.acquire()
+		self.m_stop  = stop
+		self.m_count = count
+		lock.release()
+		#print "read values release lock"
 
-			time.sleep(0.02)
+	def wait_all_finished(self):
+		global condition
+		condition.acquire()
+		while self.m_count>0:
+			condition.wait()
+			self.read_values()
+		condition.release()
 
 	def start(self):
+		global count, lock, stop, condition
 
 		# unleash the consumers
 		for i in range(self.m_numjobs): TaskConsumer(i, self)
@@ -313,6 +347,7 @@ class Parallel:
 
 		# add the tasks to the queue
 		while 1:
+			self.read_values()
 			if self.m_stop:
 				self.wait_all_finished()
 				break
@@ -339,34 +374,15 @@ class Parallel:
 			# (linking object files uses a lot of memory for example)
 			if (currentprio%2)==1:
 				# make sure there is no more than one task in the queue
-				cond = 0
-				self.m_countlock.acquire()
-				if self.m_count: cond=1
-				self.m_countlock.release()
-	
-				if cond:
-					time.sleep(0.02)
-					continue
+				condition.acquire()
+				while self.m_count>0:
+					condition.wait()
+					self.read_values()
+				condition.release()
 
-			# if there is no outstanding task to process, look at the frozen ones
 			if not self.m_outstanding:
-				cond=0
-				self.m_countlock.acquire()
-				if self.m_count != self.m_prevcount:
-					cond=1
-					self.m_prevcount = self.m_count
-				else:
-					if self.m_count == 0:
-						#print "this should not happen"
-						cond=1
-						self.m_prevcount = self.m_count
-				self.m_countlock.release()
-				if cond:
-					self.m_outstanding = self.m_frozen
-					self.m_frozen = []
-				else:
-					time.sleep(0.02)
-					continue
+				self.m_outstanding = self.m_frozen
+				self.m_frozen = []
 
 			# now we are certain that there are outstanding or frozen threads
 			if self.m_outstanding:
@@ -382,7 +398,12 @@ class Parallel:
 					else:
 						#print "shuf2"
 						self.m_frozen = [proc]+self.m_frozen
-					continue
+					
+					if not self.m_outstanding:
+						condition.acquire()
+						condition.wait()
+						condition.release()
+
 				else:
 					proc.prepare()
 					if not proc.must_run():
@@ -398,12 +419,10 @@ class Parallel:
 					except: pass
 					proc.m_str = '[%d/%d] %s%s%s' % (self.m_processed, self.m_total, col1, proc.m_str, col2)
 
-					self.m_countlock.acquire()
-					self.m_count += 1
-					self.m_prevcount = self.m_count
+					lock.acquire()
+					count += 1
 					self.m_processed += 1
-
-					self.m_countlock.release()
+					lock.release()
 
 					self.m_ready.put(proc, block=1)
 
