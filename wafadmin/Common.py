@@ -57,8 +57,9 @@ def install_as(var, destfile, srcfile, env=None):
 	if not env: env=Params.g_default_env
 	node = Params.g_curdirnode
 
-	try: tgt = os.path.join( env['DESTDIR'], env[var].lstrip(os.sep) )
-	except: tgt = env[var]
+	tgt = env[var]
+	destdir = env['DESTDIR']
+	if destdir: tgt = os.path.join(destdir, tgt.lstrip(os.sep))
 	tgt = os.path.join(tgt, destfile.lstrip(os.sep))
 
 	dir, name = os.path.split(tgt)
@@ -173,6 +174,11 @@ class cppobj(Object.genobj):
 
 			if tree.needs_rescan(node):
 				tree.rescan(node, Scan.c_scanner, dir_lst)
+
+
+			#if 1:
+			#	fun(file)
+			#	continue
 
 			# create the task for the cpp file
 			cpptask = self.create_task('cpp', self.env)
