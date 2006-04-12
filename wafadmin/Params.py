@@ -22,6 +22,10 @@ g_scanners={}
 # fake builders, for development and testing purposes
 g_fake = 0
 
+# contains additional handler functions to add language support
+# to cpp files: for example an idl file which compiles into a cpp file
+g_handlers={}
+
 ## == ENVIRONMENT == ##
 # the default environment, will be obsolete soon
 g_default_env=None

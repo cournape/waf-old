@@ -129,6 +129,8 @@ class cppobj(Object.genobj):
 		self.m_linktask=None
 		self.m_deps_linktask=[]
 
+		self.cpptasks=[]
+
 		global cpptypes
 		if not type in cpptypes:
 			error('Trying to build a cpp file of unknown type')
@@ -160,8 +162,8 @@ class cppobj(Object.genobj):
                 tree = Params.g_build.m_tree
                 dir_lst = { 'path_lst' : self._incpaths_lst }
 
+		global g_handlers
 		lst = self.source.split()
-		cpptasks = []
 		for filename in lst:
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
@@ -172,13 +174,13 @@ class cppobj(Object.genobj):
 
 			base, ext = os.path.splitext(filename)
 
+			if 'cppobj' in Params.g_handlers:
+				if ext in Params.g_handlers['cppobj']:
+					Params.g_handlers['cppobj'][ext](self, node)
+					continue
+
 			if tree.needs_rescan(node):
 				tree.rescan(node, Scan.c_scanner, dir_lst)
-
-
-			#if 1:
-			#	fun(file)
-			#	continue
 
 			# create the task for the cpp file
 			cpptask = self.create_task('cpp', self.env)
@@ -188,7 +190,7 @@ class cppobj(Object.genobj):
 
 			cpptask.m_inputs  = self.file_in(filename)
 			cpptask.m_outputs = self.file_in(base+obj_ext)
-			cpptasks.append(cpptask)
+			self.cpptasks.append(cpptask)
 
 		global priolink
 		# and after the cpp objects, the remaining is the link step
@@ -196,7 +198,7 @@ class cppobj(Object.genobj):
 		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, priolink)
 		else:                        linktask = self.create_task('cpp_link', self.env, priolink)
 		cppoutputs = []
-		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
+		for t in self.cpptasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 
 		linktask.m_outputs = self.file_in(self.get_target_name())
 
