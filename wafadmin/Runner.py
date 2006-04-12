@@ -353,7 +353,9 @@ class Parallel:
 					self.m_prevcount = self.m_count
 				else:
 					if self.m_count == 0:
-						print "this should not happen"
+						#print "this should not happen"
+						cond=1
+						self.m_prevcount = self.m_count
 				self.m_countlock.release()
 				if cond:
 					self.m_outstanding = self.m_frozen
@@ -380,7 +382,7 @@ class Parallel:
 				else:
 					proc.prepare()
 					if not proc.must_run():
-						proc.m_has_run=2
+						proc.m_hasrun=2
 						continue
 
 					# display the command that we are about to run
