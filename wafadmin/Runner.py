@@ -244,7 +244,11 @@ class TaskConsumer(threading.Thread):
 			master.m_count -= 1
 			master.m_countlock.release()
 
-# This is a bit more complicated than for serial builds
+# The following is a small scheduler, using an agressive scheme
+# for making as many tasks available to the consumer threads
+#
+# Someone may come with a much better scheme, as i do not have too much
+# time to spend on this (ita)
 class Parallel:
 	def __init__(self, tree, numjobs):
 		# the tree we are working on

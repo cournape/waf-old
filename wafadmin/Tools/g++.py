@@ -92,13 +92,13 @@ def detect(conf):
 		conf.env['shlib_obj_ext']   = ['.o']
 		conf.env['shlib_PREFIX']    = 'lib'
 		conf.env['shlib_SUFFIX']    = '.dll'
-		conf.env['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
+		conf.env['shlib_IMPLIB_SUFFIX'] = ['.a']
 	
 		# static library
 		conf.env['staticlib_LINKFLAGS'] = ['']
 		conf.env['staticlib_obj_ext'] = ['.o']
 		conf.env['staticlib_PREFIX']= 'lib'
-		conf.env['staticlib_SUFFIX']= '.dll.a'
+		conf.env['staticlib_SUFFIX']= '.a'
 
 		# program 
 		conf.env['program_obj_ext'] = ['.o']
@@ -112,13 +112,13 @@ def detect(conf):
 		conf.env['shlib_obj_ext']   = ['.o']
 		conf.env['shlib_PREFIX']    = 'lib'
 		conf.env['shlib_SUFFIX']    = '.dll'
-		conf.env['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
+		conf.env['shlib_IMPLIB_SUFFIX'] = ['.a']
 	
 		# static library
 		conf.env['staticlib_LINKFLAGS'] = ['']
 		conf.env['staticlib_obj_ext'] = ['.o']
 		conf.env['staticlib_PREFIX']= 'lib'
-		conf.env['staticlib_SUFFIX']= '.dll.a'
+		conf.env['staticlib_SUFFIX']= '.a'
 
 		# program 
 		conf.env['program_obj_ext'] = ['.o']
