@@ -6,6 +6,9 @@ import os, popen2, sys, time, random
 import Params, Task, pproc
 from Params import debug, error, trace, fatal
 
+# output a stat file (data for gnuplot) when running tasks in parallel
+dostat=0
+
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
 	while not (stdout_eof and stderr_eof):
@@ -193,6 +196,31 @@ lock = None
 condition = None
 count = 0
 stop = 0
+running = 0
+
+
+"""
+#! /usr/bin/gnuplot -persist
+set terminal png
+set output "output.png"
+set yrange [-1:6]
+plot 'test.dat' using 1:3 with linespoints
+"""
+stat = []
+class TaskPrinter(threading.Thread):
+	def __init__(self, id, master):
+		threading.Thread.__init__(self)
+		self.setDaemon(1)
+		self.m_master = master
+		self.start()
+
+	def run(self):
+		global count, lock, running, stat
+		while 1:
+			lock.acquire()
+			stat.append( (time.time(), count, running) )
+			lock.release()
+			time.sleep(0.1)
 
 class TaskConsumer(threading.Thread):
 	def __init__(self, id, master):
@@ -205,34 +233,34 @@ class TaskConsumer(threading.Thread):
 		self.m_count = 0
 		self.m_stop  = 0
 
-	def read_values(self):
-		#print "tread values acquire lock"
-		global lock, stop, count
-		lock.acquire()
-		self.m_stop  = stop
-		self.m_count = count
-		lock.release()
-		#print "tread values release lock"
-
 	def notify(self):
 		global condition
 		condition.acquire()
 		condition.notify()
 		condition.release()
 
-	def run(self):
-		global lock, count, stop
+	def do_stat(self, num):
+		global running
+		lock.acquire()
+		running += num
+		lock.release()
 
-		#master = self.m_master
+	def run(self):
+		global lock, count, stop, running
 		while 1:
-			self.read_values()
+			lock.acquire()
+			self.m_stop  = stop
+			lock.release()
+
 			if self.m_stop:
 				time.sleep(1)
 				continue
 
 			# take the next task
 			proc = self.m_master.m_ready.get(block=1)
-			
+
+			self.do_stat(1)
+
 			# display the label for the command executed
 			print proc.m_str
 
@@ -242,6 +270,8 @@ class TaskConsumer(threading.Thread):
 				ret = proc.m_action.m_function_to_run(proc)
 			else:
 				ret = exec_command(proc.m_cmd)
+
+			self.do_stat(-1)
 
 			if ret:
 				lock.acquire()
@@ -334,10 +364,12 @@ class Parallel:
 		condition.release()
 
 	def start(self):
-		global count, lock, stop, condition
+		global count, lock, stop, condition, dostat
 
 		# unleash the consumers
 		for i in range(self.m_numjobs): TaskConsumer(i, self)
+
+		if dostat: TaskPrinter(-1, self)
 
 		# the current group
 		group = None
@@ -426,4 +458,12 @@ class Parallel:
 
 					self.m_ready.put(proc, block=1)
 
+
+		global stat
+		if dostat and stat:
+			file = open('test.dat', 'w')
+			(t1, queue, run) = stat[0]
+			for (time, queue, run) in stat:
+				file.write("%f %f %f\n" % (time-t1, queue, run))
+			file.close()
 
