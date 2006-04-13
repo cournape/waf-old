@@ -104,6 +104,11 @@ class Task:
 		# DEBUG
 		#error("signature is "+str(sg)+" while node signature is "+str(self.m_outputs[0].get_sig()))
 
+		# check if the file actually exists - expect a moderate slowdown
+		for f in self.m_outputs:
+			if not os.path.exists(f.abspath()):
+				return 1
+
 		if sg != self.m_outputs[0].get_sig():
 			trace("task %s must run %s %s" % (str(self.m_idx), str(sg), str(self.m_outputs[0].get_sig()) ))
 			return 1
