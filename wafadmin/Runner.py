@@ -20,6 +20,7 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 			str = cmd_stderr.read()
 			if not str: stderr_eof = 1
 			else: sys.stderr.write(str)
+		#time.sleep(0.1)
 
 # run commands in a portable way
 # the subprocess module backported from python 2.4 and should work on python >= 2.2
