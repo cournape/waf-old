@@ -174,10 +174,13 @@ class cppobj(Object.genobj):
 
 			base, ext = os.path.splitext(filename)
 
-			if 'cppobj' in Params.g_handlers:
-				if ext in Params.g_handlers['cppobj']:
-					Params.g_handlers['cppobj'][ext](self, node)
-					continue
+			fun = None
+			try: fun = self.env['handlers']['cppobj']['ext']
+			except: pass
+
+			if fun:
+				fun(self, node)
+				continue
 
 			if tree.needs_rescan(node):
 				tree.rescan(node, Scan.c_scanner, dir_lst)
