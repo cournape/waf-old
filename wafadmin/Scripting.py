@@ -33,7 +33,28 @@ def add_subdir(dir):
 
 	Params.g_subdirs.append(  [Params.g_curdirnode, restore]    )
 
-def private_setup_build(load=1):
+def load_envs():
+	cachedir = Utils.g_module.cachedir
+	#bld.set_default_env(os.path.join(Utils.g_module.cachedir, 'main.cache.py')) # TODO
+	lst = os.listdir(cachedir)
+	if not lst: raise "file not found"
+	for file in lst:
+		env = Environment.Environment()
+		ret = env.load(os.path.join(cachedir, file))
+		name = file.split('.')[0]
+
+		if not ret:
+			print "could not load env ", name
+			continue
+		Params.g_envs[name] = env
+		try:
+			env.setup(env['tools'])
+		except:
+			print "loading failed:", file
+			raise
+
+
+def private_setup_build():
 	bld = Build.Build()
 	try:
 		Utils.g_module.setup_build(bld)
@@ -41,26 +62,6 @@ def private_setup_build(load=1):
 		try:
 			cachedir = Utils.g_module.cachedir
 			bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
-			#bld.set_default_env(os.path.join(Utils.g_module.cachedir, 'main.cache.py')) # TODO
-			if not load: return bld
-			lst = os.listdir(Utils.g_module.cachedir)
-			for file in lst:
-				env = Environment.Environment()
-				ret = env.load(os.path.join(cachedir, file))
-				name = file.split('.')[0]
-
-				if not ret:
-					print "could not load env ", name
-					continue
-				Params.g_envs[name] = env
-				try:
-					env.setup(env['tools'])
-				except:
-					print "exception 1"
-					raise
-
-			Params.g_default_env = Params.g_envs['default']
-
 		except AttributeError:
 			msg = "The attributes srcdir or builddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project"
 			fatal(msg % os.path.abspath('.'))
@@ -75,7 +76,10 @@ def Main():
 	from Common import install_files, install_as
 	# configure the project
 	if Params.g_commands['configure']:
-		bld = private_setup_build(0)
+		bld = private_setup_build()
+
+		#Params.g_default_env = Params.g_envs['default']
+
 		conf = Configure.Configure()
 		conf.sub_config('')
 		conf.store()
@@ -91,6 +95,15 @@ def Main():
 
 	# compile the project and/or install the files
 	bld = private_setup_build()
+	try:
+		load_envs()
+	except:
+		raise
+		fatal("Configuration loading failed\n" \
+			"-> This is due most of the time because the project is not configured \n" \
+			"-> Run 'waf configure' or run 'waf distclean' and configure once again")
+	Params.g_default_env = Params.g_envs['default']
+
 	#bld.m_tree.dump()
 
 	Params.g_inroot=1

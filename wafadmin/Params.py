@@ -203,7 +203,7 @@ def fatal(msg):
 
 	# this one is fatal
 	#niceprint(msg, 'ERROR', module)
-	pprint('RED', msg+" "+module)
+	pprint('RED', msg+" \n(in "+module+")")
 	sys.exit(1)
 
 def h_file(fname):
