@@ -399,16 +399,19 @@ class kdeobj(Common.cppobj):
 def detect_kde(conf):
 	env = conf.env
 	# Detect the qt and kde environment using kde-config mostly
-	def getpath(varname):
-		#if not env.has_key('ARGS'): return None
-		#v=env['ARGS'].get(varname, None)
-		#if v: v=os.path.abspath(v)
-		#return v
-		return None
-
 	def getstr(varname):
 		#if env.has_key('ARGS'): return env['ARGS'].get(varname, '')
-		return ''
+		v=''
+		try: v = getattr(Params.g_options, varname)
+		except: return ''
+		return v
+
+	def getpath(varname):
+		v = getstr(varname)
+		#if not env.has_key('ARGS'): return None
+		#v=env['ARGS'].get(varname, None)
+		if v: v=os.path.abspath(v)
+		return v
 
 	prefix      = getpath('prefix')
 	execprefix  = getpath('execprefix')
@@ -461,7 +464,7 @@ def detect_kde(conf):
 	else:
 		try:
 			tmplibdir = os.popen(kde_config+' --expandvars --install lib').read().strip()
-			libkdeuiSO = env.join(tmplibdir, getSOfromLA(env.join(tmplibdir,'/libkdeui.la')) )
+			libkdeuiSO = os.path.join(tmplibdir, getSOfromLA(os.path.join(tmplibdir,'/libkdeui.la')) )
 			m = re.search('(.*)/lib/libqt.*', os.popen('ldd ' + libkdeuiSO + ' | grep libqt').read().strip().split()[2])
 		except: m=None
 		if m:
@@ -554,8 +557,8 @@ def detect_kde(conf):
 	if prefix:
 		## use the user-specified prefix
 		if not execprefix: execprefix=prefix
-		if not datadir: datadir=env.join(prefix,'share')
-		if not libdir: libdir=env.join(execprefix, "lib"+libsuffix)
+		if not datadir: datadir=os.path.join(prefix,'share')
+		if not libdir: libdir=os.path.join(execprefix, "lib"+libsuffix)
 
 		subst_vars = lambda x: x.replace('${exec_prefix}', execprefix)\
 				.replace('${datadir}', datadir)\
