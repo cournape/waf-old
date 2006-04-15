@@ -300,6 +300,9 @@ class cppobj(Object.genobj):
 		except:
 			pass
 
+		for i in self.env['RPATH']:
+			self.env.appendValue('LINKFLAGS', i)
+
 		for i in self.env['LIBPATH']:
 			self.env.appendValue('LINKFLAGS', libpath_st % i)
 

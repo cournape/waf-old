@@ -590,6 +590,13 @@ def detect_kde(conf):
 		qtlibs=qtdir+"/lib"+libsuffix
 	env['LIBPATH_QT']=qtlibs
 
+	# rpath settings
+	try:
+		if Params.g_options.want_rpath:
+			env['RPATH_QT']=['-Wl,--rpath='+qtlibs]
+			env['RPATH_KDECORE']=['-Wl,--rpath='+kdelibs]
+	except:
+		pass
 
         #env.setValue('LIBPATH_KDECORE','/opt/kde3/lib')
         #env.setValue('CPPPATH_KDECORE','/opt/kde3/include')
@@ -605,7 +612,7 @@ def detect_kde(conf):
 	env['MEINPROC']         = 'meinproc'
 	env['MEINPROCFLAGS']    = '--check'
 	env['MEINPROC_ST']      = '--cache %s %s'
-
+	
 	env['POCOM']            = 'msgfmt'
 	env['PO_ST']            = '%s -o %s'
 
