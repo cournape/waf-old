@@ -26,6 +26,9 @@ g_fake = 0
 # to cpp files: for example an idl file which compiles into a cpp file
 g_handlers={}
 
+# avoid importing tools several times
+g_tools = []
+
 ## == ENVIRONMENT == ##
 # the default environment, will be obsolete soon
 g_default_env=None
@@ -203,7 +206,7 @@ def fatal(msg):
 
 	# this one is fatal
 	#niceprint(msg, 'ERROR', module)
-	pprint('RED', msg+" \n(in "+module+")")
+	pprint('RED', msg+" \n(error raised in module "+module+")")
 	sys.exit(1)
 
 def h_file(fname):

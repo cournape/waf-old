@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import os, types, sys, string, imp
-import Params, Environment, Common, Runner, Build, Utils
+import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
 def find_path(file, path_list):
@@ -126,7 +126,10 @@ class Configure:
 
 		env.setup(env['tools'])
 
-		obj=Common.cppobj('program')
+		# TODO for the moment it is c++, in the future it will be c
+		# and then we may need other languages here too
+		import cpp
+		obj=cpp.cppobj('program')
 		obj.source = 'test.c'
 		obj.target = 'test'
 

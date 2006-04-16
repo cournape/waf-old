@@ -135,8 +135,15 @@ def setup(env):
 		Params.g_colors['link']='\033[93m'
 
 def detect(conf):
-	conf.env['OCAMLC']         = 'ocamlc'
-	conf.env['OCAMLOPT']       = 'ocamlopt'
+
+	opt = conf.checkProgram('ocamlopt')
+	occ = conf.checkProgram('ocamlc')
+	if (not opt) or (not occ):
+		fatal('The objective caml compiler was not found:\n' \
+			'install it or make it availaible in your PATH')
+
+	conf.env['OCAMLC']         = occ
+	conf.env['OCAMLOPT']       = opt
 	conf.env['OCAMLLEX']       = 'ocamllex'
 	conf.env['OCAMLYACC']      = 'ocamlyacc'
 	conf.env['OCAMLFLAGS']     = ''

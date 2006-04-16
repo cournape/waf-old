@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import os, shutil, sys
-import Action, Common, Object, Task, Params, Runner, Utils, Scan
+import Action, Object, Task, Params, Runner, Utils, Scan, cpp
 from Params import debug, error, trace, fatal
 
 # kde moc file processing
@@ -195,9 +195,9 @@ class kde_documentation(Object.genobj):
 
 # kde3 objects
 kdefiles = ['.cpp', '.ui', '.kcfgc', '.skel', '.stub']
-class kdeobj(Common.cppobj):
+class kdeobj(cpp.cppobj):
 	def __init__(self, type='program'):
-		Common.cppobj.__init__(self, type)
+		cpp.cppobj.__init__(self, type)
 		self.env = Params.g_default_env.copy()
 		self.m_linktask = None
 		self.m_latask = None

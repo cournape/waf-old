@@ -81,6 +81,8 @@ def reset():
 
 	Params.g_scanned_folders=[]
 
+	Params.g_tools = []
+
 def options(**kwargs):
 	pass
 
