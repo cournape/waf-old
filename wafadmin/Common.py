@@ -16,8 +16,18 @@ def check_dir(dir):
 	try:    os.stat(dir)
 	except: os.makedirs(dir)
 
+def do_install(src, tgt):
+	if Params.g_commands['install']:
+		print "* installing %s as %s" % (src, tgt)
+		try: shutil.copy2( src, tgt )
+		except: raise InstallError
+	elif Params.g_commands['uninstall']:
+		print "* uninstalling %s" % tgt
+		try: os.remove( tgt )
+		except OSError: pass
+
 def install_files(var, subdir, files, env=None):
-	if not Params.g_commands['install']: return
+	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
 
 	if not env: env=Params.g_default_env
 	node = Params.g_curdirnode
@@ -34,13 +44,20 @@ def install_files(var, subdir, files, env=None):
 
 	# copy the files to the final destination
 	for filename in lst:
+		name = filename
+
+		try:
+			lname = filename.split('/')
+			name  = lname[len(lname)-1]
+		except:
+			pass
+
 		file = os.path.join(node.abspath(), filename)
-		print "* installing %s in %s" % (file, destpath)
-		try: shutil.copy2( file, destpath )
-		except: raise InstallError
+		destfile = os.path.join(destpath, name)
+		do_install(file, destfile)
 
 def install_as(var, destfile, srcfile, env=None):
-	if not Params.g_commands['install']: return
+	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
 
 	if not env: env=Params.g_default_env
 	node = Params.g_curdirnode
@@ -54,7 +71,5 @@ def install_as(var, destfile, srcfile, env=None):
 	check_dir(dir)
 
 	src = os.path.join(node.abspath(), srcfile.lstrip(os.sep))
-	print "* installing %s as %s" % (src, tgt)
-	try: shutil.copy2( src, tgt )
-	except: raise InstallError
+	do_install(src, tgt)
 

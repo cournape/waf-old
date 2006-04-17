@@ -335,6 +335,7 @@ class cppobj(Object.genobj):
 def setup(env):
 	# prevent other modules from loading us more than once
 	if 'cpp' in Params.g_tools: return
+	Params.g_tools.append('cpp')
 
 	# register our object
 	Object.register('cpp', cppobj)
