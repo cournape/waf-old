@@ -17,7 +17,7 @@ def build(bld):
 	bld.add_subdir('src2')
 
 def configure(conf):
-	conf.checkTool(['g++'])
+	conf.checkTool(['g++', 'dang'])
 	conf.sub_config('src')
 	# works in a procedural way, so the order of calls does matter
 	#conf.checkTool(['KDE3'])

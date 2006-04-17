@@ -13,7 +13,7 @@
 
 obj = bld.createObj('cpp', 'program')
 obj.source='''
-main.cpp
+main.cpp ih.coin
 '''
 obj.includes='. src2'
 obj.useliblocal="../src/shlib1.so ../src/teststaticlib.a"

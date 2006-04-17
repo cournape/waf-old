@@ -112,7 +112,6 @@ class cppobj(Object.genobj):
                 tree = Params.g_build.m_tree
                 dir_lst = { 'path_lst' : self._incpaths_lst }
 
-		global g_handlers
 		lst = self.source.split()
 		for filename in lst:
 
@@ -125,8 +124,11 @@ class cppobj(Object.genobj):
 			base, ext = os.path.splitext(filename)
 
 			fun = None
-			try: fun = self.env['handlers']['cppobj']['ext']
-			except: pass
+			try:
+				fun = self.env['handlers_cppobj_'+ext]
+				#print "fun is", 'handlers_cppobj_'+ext, fun
+			except:
+				pass
 
 			if fun:
 				fun(self, node)

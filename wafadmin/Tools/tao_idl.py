@@ -25,7 +25,7 @@ def tao_idl_file(obj, node):
 	#idltask.m_use_outputdir = 1 # No, the task class is already way too big and i want to shrink it (ita)
 
 	# now we also add the task that creates the object file ('.o' file)
-	cpptask = obj.create_task('cpp', obj.env)
+	cpptask = obj.create_task('cpp', obj.env, 4)
 	cpptask.m_inputs  = idltask.m_outputs[1]
 	cpptask.m_outputs = fi(base+'.o')
 	obj.cpptasks.append(cpptask)
@@ -38,7 +38,7 @@ def setup(env):
 	Action.GenAction('idl', idl_vardeps)
 
 	if not sys.platform == "win32":
-		Params.g_colors['idl']='\033[92m'
+		Params.g_colors['idl']='\033[94m'
 
 	# As last, load 'idl' language
 
