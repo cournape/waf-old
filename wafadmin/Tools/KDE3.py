@@ -166,20 +166,16 @@ class kde_documentation(Object.genobj):
 				task.m_outputs = self.file_in(base+'.cache.bz2')
 				self.m_docbooks.append(task)
 	def install(self):
-		destpath = self.env['KDE_DOC']
-		destdir  = self.env['DESTDIR']
+		destpath = os.sep.join([self.m_appname, self.m_lang])
 
-		if destdir: destpath = destdir+destpath
-		destpath = os.path.join(destpath, self.m_appname+os.sep+self.m_lang)
-
-		try: os.stat(destpath)
-		except: os.makedirs(destpath)
+		current = Params.g_curdirnode
+		lst = []
 		for task in self.m_docbooks:
-			print "* installing %s to %s" % (task.m_outputs[0].bldpath(), destpath)
-			shutil.copy2(task.m_outputs[0].abspath(), destpath)
+			lst.append(task.m_outputs[0].relpath_gen(current))
 		for doc in self.m_files:
-			print "* installing %s to %s" % (doc.srcpath(), destpath)
-			shutil.copy2(doc.srcpath(), destpath)
+			lst.append(doc.srcpath())
+
+		Common.install_files('KDE_DOC', destpath, lst, self.env)
 
 # kde3 objects
 kdefiles = ['.cpp', '.ui', '.kcfgc', '.skel', '.stub']
