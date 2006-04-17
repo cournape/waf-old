@@ -7,18 +7,19 @@
 #   * sets environment on the tasks (which are copies most of the time)
 #   * modifies environments as needed
 # 
-# genobj cannot be used as it is, so you must either create a subclass or use a customobj
+# genobj cannot be used as it is, so you must create a subclass
 #
 # subclassing
 #   * makes it possible to share environment copies for several objects at once (efficiency)
 #   * be careful to call Object.genobj.__init__(...) in the init of your subclass
 #
-# using customobj
+# composition
 #   * makes it possible to declare new kind of targets quickly (give a pattern ? and the action name)
-#   * is not really flexible
+#   * is not really flexible, but lightweight
+#   * cf cppobj for more details on this scheme
 
 import os, shutil, types
-import Action, Params, Environment, Runner, Task
+import Action, Params, Environment, Runner, Task, Common
 from Params import debug, error, trace, fatal
 
 g_register={}
@@ -163,53 +164,20 @@ class genobj:
 	#	return True
 
 	# an object is to be posted, even if only for install
+	# the install function is called for uninstalling too
 	def install(self):
 		# subclass me
 		pass
 
 	def install_results(self, var, subdir, task):
-
 		trace('install results called')
-
-		destpath = task.m_env[var]
-		destdir  = task.m_env['DESTDIR']
-
-		if destdir:
-			destpath = destdir+destpath
-		if subdir:
-			destpath = os.path.join(destpath, subdir)
-
-		try:
-			os.stat(destpath)
-		except:
-			Runner.exec_command('mkdir -p %s' % destpath)
-
+		current = Params.g_curdirnode
+		# TODO what is the pythonic replacement for these three lines ?
+		lst = []
 		for node in task.m_outputs:
-			print "* installing %s to %s" % (node.bldpath(), destpath)
-			shutil.copy2(node.abspath(), destpath)
+			lst.append( node.relpath_gen(current) )
+		Common.install_files(var, subdir, lst)
 		
-class customobj:
-	def __init__(genbj, val):
-		genobj.__init__(self, val, 'CUSTOM')
-
-		self.m_prefixes=[]
-		self.m_suffixes=[]
-
-		self.instdir=None
-		self.instfiles=[]
-
-		self.m_env = None
-	# ?
-	def apply(self):
-		genobj.apply()
-	# ?
-	def handledeps(self):
-		genobj.handledeps()
-
-	def install(self):
-		for node in self.instfiles:
-			shutil.copy2(node.abspath(), self.instdir)
-
 # ['CXX', ..] -> [env['CXX'], ..]
 def list_to_env_list(env, vars_list):
 	def get_env_value(var):

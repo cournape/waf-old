@@ -151,7 +151,7 @@ def Main():
 
 	# install
 	try:
-		if Params.g_commands['install']:
+		if Params.g_commands['install'] or Params.g_commands['uninstall']:
 			bld.install()
 	finally:
 		bld.cleanup()

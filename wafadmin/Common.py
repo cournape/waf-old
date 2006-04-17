@@ -5,7 +5,7 @@
 # Stuff potentially useful for any project
 
 import os, types, shutil
-import Action, Object, Params, Runner, Scan
+import Action, Params
 from Params import debug, error, trace, fatal
 
 class InstallError:

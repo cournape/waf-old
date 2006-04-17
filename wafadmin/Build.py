@@ -149,10 +149,11 @@ class Build:
 		os.chdir( self.m_tree.m_srcnode.abspath() )
 		return ret
 
+	# this function is called for both install and uninstall
 	def install(self):
 		trace("install called")
-		for obj in Object.g_allobjs:
-			obj.install()
+		Object.flush()
+		for obj in Object.g_allobjs: obj.install()
 		
 	def add_subdir(self, dir):
 		import Scripting
