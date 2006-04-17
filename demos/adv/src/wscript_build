@@ -2,7 +2,10 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# Creates a simple program
+# Creates a simple program with a custom compiler:
+# ih.coin -> ih.cpp -> ih.o
+
+
 # This file is not a module, and all the code
 # from it will be executed upon compile step
 #
@@ -13,9 +16,8 @@
 
 obj = bld.createObj('cpp', 'program')
 obj.source='''
-main.cpp
+main.cpp ih.coin
 '''
-obj.includes='. src2'
-obj.useliblocal="../src/shlib1.so ../src/teststaticlib.a"
+obj.includes='.'
 obj.target='testprogram2'
 

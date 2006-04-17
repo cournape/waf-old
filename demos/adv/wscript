@@ -2,9 +2,12 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+# advanced tests
+# look in src/ for an example of a new compiler that creates cpp files
+
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
-APPNAME='cpp_test'
+APPNAME='adv_test'
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
@@ -14,15 +17,12 @@ cachedir = '_build_/cache'
 def build(bld):
 	# process subfolders from here
 	bld.add_subdir('src')
-	bld.add_subdir('src2')
 
 def configure(conf):
-	conf.checkTool(['g++'])
-	conf.sub_config('src')
+	conf.checkTool(['g++', 'dang'])
 	# works in a procedural way, so the order of calls does matter
 	#conf.checkTool(['KDE3'])
 
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
 	opt.add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
-	opt.sub_options('src')
