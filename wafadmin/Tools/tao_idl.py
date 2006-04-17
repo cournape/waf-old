@@ -3,24 +3,34 @@
 # Peter Soetens, 2006
 
 import os, sys, imp
-import Utils,Action,Params,Configure
+import Utils, Action, Params, Configure
 
-def tao_idl_file(cppobj, node):
-	# create the task for the idl file
-	idltask = cppobj.create_task('idl', cppobj.env)
+# This function is called when the class cppobj encounters a '.idl' file
+def tao_idl_file(obj, node):
+
+	# this function is used several times
+	fi = obj.file_in
+
+	# we create the task for the idl file
+	# idl compiler generates from one input file 4 output files.
+	idltask = obj.create_task('idl', obj.env)
 
 	idltask.m_scanner = Scan.c_scanner
 	idltask.m_scanner_params = dir_lst
 
-	# idl compiler generates from one input file 4 output files.
-	idltask.m_inputs  = self.file_in(filename)
-	idltask.m_outputs = self.file_in(base+ch_ext) + self.file_in(base+ccpp_ext) + self.file_in(base+sh_ext) + self.file_in(base+scpp_ext)
-	#idltask.m_use_outputdir = 1 # No, task classes are already too big
-	idltasks.append(idltask)
+	idltask.m_inputs  = fi(filename)
+	idltask.m_outputs = fi(base+ch_ext) + fi(base+ccpp_ext) + fi(base+sh_ext) + fi(base+scpp_ext)
+	obj.idltasks.append(idltask)
 
+	#idltask.m_use_outputdir = 1 # No, the task class is already way too big and i want to shrink it (ita)
 
-# tool specific setup
-# is called when a build process is started 
+	# now we also add the task that creates the object file ('.o' file)
+	cpptask = obj.create_task('cpp', obj.env)
+	cpptask.m_inputs  = idltask.m_outputs[1]
+	cpptask.m_outputs = fi(base+'.o')
+	obj.cpptasks.append(cpptask)
+
+# This function is called when a build process is started 
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
 	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
@@ -31,14 +41,8 @@ def setup(env):
 		Params.g_colors['idl']='\033[92m'
 
 	# As last, load 'idl' language
-	try:
-		file,name,desc = imp.find_module('idl', Params.g_langdir)
-	except: 
-		print "no language 'idl' for tool 'tao_idl' found in ", Params.g_langdir
-		raise
-	module = imp.load_module('idl', file, name, desc)
 
-	if not Params.g_handlers['cppobj']: Params.g_handlers['cppobj']={}
+	if not Params.g_handlers['cppobj']: Params.g_handlers['cppobj'] = {}
 	if not Params.g_handlers['cppobj']['.idl'] = idlfunc
 
 # tool detection and initial setup 
