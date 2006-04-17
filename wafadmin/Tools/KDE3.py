@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import os, shutil, sys
-import Action, Object, Task, Params, Runner, Utils, Scan, cpp
+import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
 from Params import debug, error, trace, fatal
 
 # kde moc file processing
@@ -129,29 +129,18 @@ class kde_translations(Object.genobj):
 				self.m_tasks.append(task)
 			except: pass
 	def install(self):
-		destfile = self.m_appname+'.gmo'
+		destfilename = self.m_appname+'.gmo'
 
-		destpath = self.env['KDE_LOCALE']
-		destdir  = self.env['DESTDIR']
-
-		if destdir:
-			destpath = destdir+destpath
-
+		current = Params.g_curdirnode
 		for file in self.m_current_path.m_files:
 			lang, ext = os.path.splitext(file.m_name)
 			if ext != '.po': continue
 
-			node = self.get_mirror_node( self.m_current_path, lang+'.gmo')
+			node = self.get_mirror_node(self.m_current_path, lang+'.gmo')
+			orig = node.relpath_gen(current)
 
-			dir = os.sep.join( [destpath, lang ] )
-			f = os.sep.join( [destpath, lang, destfile] )
-
-			try: os.stat(dir)
-			except: os.makedirs(dir)
-
-			print "* installing %s to %s" % (node.bldpath(), f)
-			shutil.copy2(node.abspath(), f)
-			#except: pass
+			destfile = os.sep.join([lang, destfilename])
+			Common.install_as('KDE_LOCALE', destfile, orig, self.env)
 
 # documentation
 class kde_documentation(Object.genobj):
@@ -177,7 +166,6 @@ class kde_documentation(Object.genobj):
 				task.m_outputs = self.file_in(base+'.cache.bz2')
 				self.m_docbooks.append(task)
 	def install(self):
-
 		destpath = self.env['KDE_DOC']
 		destdir  = self.env['DESTDIR']
 

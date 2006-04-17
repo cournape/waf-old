@@ -158,11 +158,6 @@ class genobj:
 		global g_register
 		self.m_deps.append( g_register[name] )
 
-	#def canbuild(self):
-	#	for obj in self.m_deps:
-	#		if not obj.up2date(): return False
-	#	return True
-
 	# an object is to be posted, even if only for install
 	# the install function is called for uninstalling too
 	def install(self):
