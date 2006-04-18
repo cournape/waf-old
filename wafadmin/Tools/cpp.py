@@ -51,7 +51,7 @@ cppvars=['CXXFLAGS','LINKFLAGS','obj_ext']
 class cppobj(Object.genobj):
 	def __init__(self, type='program'):
 		Object.genobj.__init__(self, "other", "cpp")
-		self.env = Params.g_default_env.copy()
+		self.env = Params.g_envs['default'].copy()
 		if not self.env.getValue('tools'):
 			fatal('no tool selected')			
 		self.m_type = type

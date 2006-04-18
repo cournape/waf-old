@@ -89,6 +89,8 @@ class genobj:
 
 	# runs the code to create the tasks
 	def post(self):
+		if not self.env: self.env = Params.m_envs['default']
+
 		if self.m_posted:
 			error("OBJECT ALREADY POSTED")
 			return
@@ -115,8 +117,7 @@ class genobj:
 
 	# important, creates the default tasks FIXME remove
 	def createTasks(self):
-		if not self.env:
-			self.env = Params.g_default_env
+		if not self.env: self.env = Params.g_envs['default']
 		l_task=Task.Task(self.m_actname, self.env)
 		self.m_tasks.append(l_task)
 

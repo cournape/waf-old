@@ -30,9 +30,6 @@ g_handlers={}
 g_tools = []
 
 ## == ENVIRONMENT == ##
-# the default environment, will be obsolete soon
-g_default_env=None
-
 # map a name to an environment, the 'default' must be defined
 g_envs={}
 

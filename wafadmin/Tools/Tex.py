@@ -38,7 +38,6 @@ g_texobjs=['latex','tex','bibtex','dvips','dvipdf']
 class texobj(Object.genobj):
 	def __init__(self, type='latex'):
 		Object.genobj.__init__(self, 'other', 'tex')
-                self.env = Params.g_default_env
 
 		global g_texobjs
 		if not type in g_texobjs:

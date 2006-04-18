@@ -101,8 +101,6 @@ class Configure:
 		independent, probably by refactoring the c++ or cc build engine
 		"""
 
-		env = self.env.copy()
-
 		dir = os.path.join(Utils.g_module.blddir, '.wscript-trybuild')
 		try: os.mkdir(Utils.g_module.blddir)
 		except: pass
@@ -113,8 +111,9 @@ class Configure:
 		dest.write(code)
 		dest.close()
 
+		env = self.env.copy()
 		Utils.reset()
-		Params.g_default_env = env
+		Params.g_envs['default'] = env
 
 		bld = Build.Build()
 		bld.set_dirs(dir, os.path.join(dir, '_build_'))

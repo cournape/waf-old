@@ -115,7 +115,6 @@ Action.GenAction('po', po_vardeps)
 class kde_translations(Object.genobj):
 	def __init__(self, appname):
 		Object.genobj.__init__(self, 'other', 'po')
-		self.env = Params.g_default_env
 		self.m_tasks=[]
 		self.m_appname = appname
 	def apply(self):
@@ -146,7 +145,6 @@ class kde_translations(Object.genobj):
 class kde_documentation(Object.genobj):
 	def __init__(self, appname, lang):
 		Object.genobj.__init__(self, 'other', 'meinproc')
-		self.env        = Params.g_default_env
 		self.m_docs     = ''
 		self.m_appname  = appname
 		self.m_docbooks = []
@@ -182,7 +180,6 @@ kdefiles = ['.cpp', '.ui', '.kcfgc', '.skel', '.stub']
 class kdeobj(cpp.cppobj):
 	def __init__(self, type='program'):
 		cpp.cppobj.__init__(self, type)
-		self.env = Params.g_default_env.copy()
 		self.m_linktask = None
 		self.m_latask = None
 

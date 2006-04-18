@@ -58,20 +58,6 @@ class Build:
 		self.m_tree.m_bldnode = node
 		Params.g_bldnode = node
 
-	def set_default_env(self, filename):
-		# update the hashtable to set the build_dir
-		env = Environment.Environment()
-		if not filename:
-			error('passing a null filename to set_default_env')
-			return
-		if not env.load(filename):
-			print "the cache file was not found"
-			#fatal("no cache file found or corrupted. You should run 'waf configure'")
-		
-		env.setup(env['tools'])
-		Params.g_default_env = env.copy()
-		#debug(Params.g_default_env)
-
 	def set_srcdir(self, dir, scan='auto'):
 		trace("set_srcdir")
 		p = os.path.abspath(dir)

@@ -72,7 +72,6 @@ qt4files = ['.cpp', '.ui', '.rcc']
 class qt4obj(Common.cppobj):
 	def __init__(self, type='program'):
 		Common.cppobj.__init__(self, type)
-		self.env = Params.g_default_env.copy()
 		self.m_linktask = None
 		self.m_latask = None
 

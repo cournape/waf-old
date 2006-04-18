@@ -35,7 +35,6 @@ def add_subdir(dir):
 
 def load_envs():
 	cachedir = Utils.g_module.cachedir
-	#bld.set_default_env(os.path.join(Utils.g_module.cachedir, 'main.cache.py')) # TODO
 	lst = os.listdir(cachedir)
 	if not lst: raise "file not found"
 	for file in lst:
@@ -78,8 +77,6 @@ def Main():
 	if Params.g_commands['configure']:
 		bld = private_setup_build()
 
-		#Params.g_default_env = Params.g_envs['default']
-
 		conf = Configure.Configure()
 		conf.sub_config('')
 		conf.store()
@@ -102,8 +99,6 @@ def Main():
 		fatal("Configuration loading failed\n" \
 			"-> This is due most of the time because the project is not configured \n" \
 			"-> Run 'waf configure' or run 'waf distclean' and configure once again")
-	Params.g_default_env = Params.g_envs['default']
-
 	#bld.m_tree.dump()
 
 	Params.g_inroot=1

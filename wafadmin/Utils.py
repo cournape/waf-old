@@ -60,7 +60,6 @@ def reset():
 	import Params
 	Params.g_rootname = "" # might be c: (without '\')
 	Params.g_dbfile='.dblite'
-	Params.g_default_env=None
 	Params.g_excludes = ['.svn', 'scons-local-0.96.91', 'cache', '{arch}', '.arch-ids']
 	Params.g_pattern_excludes = ['_build_']
 
