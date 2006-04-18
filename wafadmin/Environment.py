@@ -81,15 +81,3 @@ class Environment:
 		debug(self.m_table)
 		return 1
 
-	# set a name to this environment
-	def set_alias(self, name):
-		Params.g_mapping_env[name]=env
-
-# it is possible to give names to environments in order to re-use some of them quickly
-def get_alias(name):
-	return Params.g_mapping_env[name]
-
-# syntactic sugar
-def create_env():
-	return Environment()
-
