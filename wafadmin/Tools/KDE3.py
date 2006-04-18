@@ -215,12 +215,6 @@ class kdeobj(cpp.cppobj):
 
 		return cpptask
 
-	def create_moc_task(self, base):
-		task = self.create_task('moc', self.env)
-		task.m_inputs  = self.file_in(base+'.h')
-		task.m_outputs = self.file_in(base+'.moc')
-		return task
-
 	def create_cpp_task(self):
 		return self.create_task('cpp', self.env)
 
@@ -320,11 +314,9 @@ class kdeobj(cpp.cppobj):
 			if tree.needs_rescan(node):
 				tree.rescan(node, Scan.c_scanner, dir_lst)
 
-			names = tree.get_raw_deps(node)
-
 			moctasks=[]
 			mocfiles=[]
-			for d in names:
+			for d in tree.get_raw_deps(node):
 				base2, ext2 = os.path.splitext(d)
 				if not ext2 == '.moc': continue
 				# paranoid check
@@ -334,8 +326,20 @@ class kdeobj(cpp.cppobj):
 				# process that base.moc only once
 				mocfiles.append(d)
 
-				tmptask = self.create_moc_task(base)
-				moctasks.append( tmptask )
+				task = self.create_task('moc', self.env)
+				task.m_inputs  = self.file_in(base+'.h')
+				task.m_outputs = self.file_in(base+'.moc')
+				moctasks.append( task )
+
+			# use a cache ?
+			for d in tree.m_depends_on[node]:
+				name = d.m_name
+				if name[len(name)-4:]=='.moc':
+					task = self.create_task('moc', self.env)
+					task.m_inputs  = self.file_in(base+'.h')
+					task.m_outputs = [d]
+					moctasks.append( task )
+					break
 
 			# create the task for the cpp file
 			cpptask = self.create_cpp_task()

@@ -88,15 +88,6 @@ class qt4obj(Common.cppobj):
 					lst.append( file.relpath(self.m_current_path)[2:] )
 		self.source = " ".join(lst)
 
-	def create_moc_task(self, base):
-		file_h = base+'.h'
-		file_moc = base+'.moc'
-
-		task = self.create_task('moc', self.env)
-		task.m_inputs = [ self.get_mirror_node( self.m_current_path, file_h) ]
-		task.m_outputs = [ self.get_mirror_node( self.m_current_path, file_moc) ]
-		return task
-
 	def create_rcc_task(self, base):
 		# run rcctask with one of the highest priority
 		# TODO add the dependency on the files listed in .qrc
@@ -177,11 +168,9 @@ class qt4obj(Common.cppobj):
 			if tree.needs_rescan(node):
 				tree.rescan(node, Scan.c_scanner, dir_lst)
 
-			names = tree.get_raw_deps(node)
-
 			moctasks=[]
 			mocfiles=[]
-			for d in names:
+			for d in tree.get_raw_deps(node):
 				base2, ext2 = os.path.splitext(d)
 				if not ext2 == '.moc': continue
 				# paranoid check
@@ -191,8 +180,19 @@ class qt4obj(Common.cppobj):
 				# process that base.moc only once
 				mocfiles.append(d)
 
-				tmptask = self.create_moc_task(base)
-				moctasks.append( tmptask )
+				task = self.create_task('moc', self.env)
+				task.m_inputs  = self.file_in(base+'.h')
+				task.m_outputs = self.file_in(base+'.moc')
+				moctasks.append( task )
+
+			for d in tree.m_depends_on[node]:
+				name = d.m_name
+				if name[len(name)-4:]=='.moc':
+					task = self.create_task('moc', self.env)
+					task.m_inputs  = self.file_in(base+'.h')
+					task.m_outputs = [d]
+					moctasks.append( task )
+					break
 
 			# create the task for the cpp file
 			cpptask = self.create_cpp_task()
