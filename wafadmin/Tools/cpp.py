@@ -52,7 +52,7 @@ class cppobj(Object.genobj):
 	def __init__(self, type='program'):
 		Object.genobj.__init__(self, "other", "cpp")
 		self.env = Params.g_envs['default'].copy()
-		if not self.env.getValue('tools'):
+		if not self.env['tools']:
 			fatal('no tool selected')			
 		self.m_type = type
 
@@ -237,7 +237,7 @@ class cppobj(Object.genobj):
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.bldpath())
 
 		# set the library include paths
-		for i in self.env.getValue('CPPPATH'):
+		for i in self.env['CPPPATH']:
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i)
 			#print self.env['_CXXINCFLAGS']
 			#print " appending include ",i

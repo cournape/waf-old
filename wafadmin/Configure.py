@@ -67,7 +67,7 @@ class Configure:
 		self.cwd  = os.getcwd()
 
 	def __del__(self):
-		if not self.env.getValue('tools'):
+		if not self.env['tools']:
 			self.error('you should add at least a checkTool() call in your wscript, otherwise you cannot build anything')
 
 	def retrieve(self, name, fromenv=None):
@@ -92,7 +92,7 @@ class Configure:
 			module = __import__(module)
 			if module.exists(env):
 				env = module.generate(env)
-		filename = env.getValue('OS') + '.env'
+		filename = env['OS'] + '.env'
 		env.store(filename)
 
 	def TryBuild(self, code, options=''):

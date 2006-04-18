@@ -586,9 +586,6 @@ def detect_kde(conf):
 	except:
 		pass
 
-        #env.setValue('LIBPATH_KDECORE','/opt/kde3/lib')
-        #env.setValue('CPPPATH_KDECORE','/opt/kde3/include')
-
 	env['LIB_KDECORE']  = 'kdecore'
         env['LIB_KIO']      = 'kio'
         env['LIB_KMDI']     = 'kmdi'

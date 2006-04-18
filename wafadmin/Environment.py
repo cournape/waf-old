@@ -12,8 +12,7 @@ class Environment:
 		self.m_table={}
 
 		# may be there is a better place for this
-		if sys.platform == "win32":
-			self.setValue('WINDOWS',1)
+		if sys.platform == "win32": self.m_table['WINDOWS']=1
 
 	def copy(self):
 		newenv = Environment()
@@ -44,15 +43,6 @@ class Environment:
 		except: return []
 	def __setitem__(self, key, value):
 		self.m_table[key] = value
-
-	# to be deprecated
-	def setValue(self, key, value):
-		self.m_table[key] = value
-
-	# to be deprecated
-	def getValue(self, key):
-		try: return self.m_table[key]
-		except: return []
 
 	def appendValue(self, var, value):
 		if type(value) is types.ListType: val = value
