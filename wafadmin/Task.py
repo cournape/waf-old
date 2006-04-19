@@ -27,9 +27,6 @@ def add_task(task, priority=5):
 	try: g_tasks[0][priority].append(task)
 	except: g_tasks[0][priority] = [task]
 
-# g_wake_after[task]=next_tasks TODO used ?
-g_wake_after={}
-
 class Task:
 	def __init__(self, action_name, env, priority=5):
 		# name of the action associated to this task
@@ -179,10 +176,9 @@ class Task:
 		fun("-- end task debugging --")
 
 def reset():
-	global g_node2task, g_idx, g_wake_after, g_tasks
+	global g_node2task, g_idx, g_tasks
 	g_node2task={}
 	g_idx=0
-	g_wake_after={}
 	g_tasks=[{}]
 
 

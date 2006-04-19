@@ -2,14 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os
-import os.path
-import sys
-import cPickle
-from Deptree import Deptree
+import os, os.path, sys, cPickle, types
 
 import Environment, Params, Runner, Object, Utils
 
+from Deptree import Deptree
 from Params import debug, error, trace, fatal
 
 class Build:
@@ -141,9 +138,14 @@ class Build:
 		Object.flush()
 		for obj in Object.g_allobjs: obj.install()
 		
-	def add_subdir(self, dir):
+	def add_subdirs(self, dirs):
 		import Scripting
-		Scripting.add_subdir(dir)
+		if type(dirs) is types.ListType: lst = dirs
+		else: lst = dirs.split()
+
+		for d in lst:
+			if not d: continue
+			Scripting.add_subdir(d)
 
 	def createObj(self, objname, *k, **kw):
 		try:

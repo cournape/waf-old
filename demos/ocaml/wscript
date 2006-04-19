@@ -13,7 +13,7 @@ cachedir = '_build_/cache'
 
 # process subfolders from here
 def build(bld):
-	bld.add_subdir('src')
+	bld.add_subdirs('src')
 
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')

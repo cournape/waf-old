@@ -13,7 +13,7 @@ cachedir = '_build_/cache'
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdir('src')
+	bld.add_subdirs('src')
 
 def configure(conf):
 	conf.checkTool(['Tex'])

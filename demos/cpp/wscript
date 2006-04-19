@@ -13,8 +13,7 @@ cachedir = '_build_/cache'
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdir('src')
-	bld.add_subdir('src2')
+	bld.add_subdirs('src src2')
 
 def configure(conf):
 	conf.checkTool(['g++'])

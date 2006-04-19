@@ -5,7 +5,7 @@
 import os, sys, types, inspect
 import Utils
 
-g_version='0.7.4' # ph34r
+g_version='0.8.0' # ph34r
 g_rootname = ""
 if sys.path=='win32':
 	# get the first two letters (c:)
@@ -49,20 +49,19 @@ def sig_nil():
 g_mode = 'nocopy'
 
 # cygwin supports symlinks though ..
-if sys.platform == 'win32': g_mode = 'copy'
+#if sys.platform == 'win32': g_mode = 'copy'
 
 ## == TASK AND RUNNER == ##
 # objects that are not posted and objects already posted
 # -> delay task creation
-g_outstanding_objs=[]
-g_posted_objs=[]
+g_outstanding_objs = []
+g_posted_objs      = []
 
 # tasks that have been run
-# this is used in tests to check which tasks were launched
-g_tasks_done=[]
+# this is used in tests to check which tasks were actually launched
+g_tasks_done       = []
 
 ## == BUILD == ##
-
 ## the only Build object
 g_build    = None
 
@@ -100,22 +99,6 @@ g_scanned_folders=[]
 
 # used by environment, this is the directory containing our Tools
 g_tooldir=''
-
-## Mapping between extensions and languages
-g_exts = {
-'.c'   : 'cc',
-
-'.cpp' : 'cpp',
-'.cc'  : 'cpp',
-'.cxx' : 'cpp',
-
-'.ui'  : 'uic',
-'.moc' : 'moc',
-
-'.java': 'java',
-'.ml'  : 'caml',
-'.tex' : 'tex',
-}
 
 # no colors on win32 :-/
 if sys.platform=='win32':
@@ -223,7 +206,7 @@ def h_list(lst):
 
 def xor_sig(o1, o2):
 	try:
-		# TODO why the hell ?
+		# we add -1 to make sure these are integer values
 		s = (o1^o2)-1
 		return s
 	except:
