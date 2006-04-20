@@ -9,11 +9,6 @@ import ccroot
 import Action, Object, Params, Scan
 from Params import debug, error, trace, fatal
 
-# default priority for link tasks
-# an even number means link tasks may be parallelized
-# an odd number is probably the thing to do
-priolink=101
-
 # main c/cpp variables
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -126,11 +121,10 @@ class cppobj(ccroot.ccroot):
 			cpptask.m_outputs = self.file_in(base+obj_ext)
 			self.p_compiletasks.append(cpptask)
 
-		global priolink
 		# and after the cpp objects, the remaining is the link step
 		# link in a lower priority (101) so it runs alone (default is 10)
-		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, priolink)
-		else:                        linktask = self.create_task('cpp_link', self.env, priolink)
+		if self.m_type=='staticlib': linktask = self.create_task('cpp_link_static', self.env, ccroot.g_prio_link)
+		else:                        linktask = self.create_task('cpp_link', self.env, ccroot.g_prio_link)
 		cppoutputs = []
 		for t in self.p_compiletasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 
@@ -156,18 +150,6 @@ def setup(env):
 
 	# register our object
 	Object.register('cpp', cppobj)
-
-	# TODO : what is the following ?
-
-	## by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
-	## like '%s -o %s' which becomes 'file.cpp -o file.o' when called
-	#cc_vardeps    = ['CC', 'CCFLAGS', 'CCFLAGS_' + Params.g_options.debug_level, '_CPPDEFFLAGS', '_CINCFLAGS', 'CC_ST']
-	#Action.GenAction('cc', cc_vardeps)
-
-	## TODO: this is the same definitions as for gcc, should be separated to have independent setup
-	## on windows libraries must be defined after the object files 
-	#link_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
-	#action = Action.GenAction('link', link_vardeps)
 
 # no variable added, do nothing
 def detect(env):

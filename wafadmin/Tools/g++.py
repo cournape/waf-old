@@ -22,7 +22,7 @@ def setup(env):
 	if not sys.platform == "win32":
 		Params.g_colors['cpp']='\033[92m'
 		Params.g_colors['cpp_link']='\033[93m'
-		Params.g_colors['ar_link']='\033[93m'
+		Params.g_colors['cpp_link_static']='\033[93m'
 		Params.g_colors['fakelibtool']='\033[94m'
 
 # tool detection and initial setup 

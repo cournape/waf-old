@@ -7,6 +7,11 @@ import ccroot
 import Action, Object, Params, Scan
 from Params import debug, error, trace, fatal
 
+# default priority for link tasks
+# an even number means link tasks may be parallelized
+# an odd number is probably the thing to do
+g_prio_link=101
+
 # Parent class for programs and libraries in languages c, c++ and moc (Qt)
 class ccroot(Object.genobj):
 	def __init__(self, type='program'):

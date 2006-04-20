@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import os, sys
-import cpp
+import ccroot, cpp
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 
@@ -115,7 +115,7 @@ po_vardeps = ['POCOM', 'PO_ST']
 Action.GenAction('po', po_vardeps)
 class kde_translations(Object.genobj):
 	def __init__(self, appname):
-		Object.genobj.__init__(self, 'other', 'po')
+		Object.genobj.__init__(self, 'other')
 		self.m_tasks=[]
 		self.m_appname = appname
 	def apply(self):
@@ -145,7 +145,7 @@ class kde_translations(Object.genobj):
 # documentation
 class kde_documentation(Object.genobj):
 	def __init__(self, appname, lang):
-		Object.genobj.__init__(self, 'other', 'meinproc')
+		Object.genobj.__init__(self, 'other')
 		self.m_docs     = ''
 		self.m_appname  = appname
 		self.m_docbooks = []
@@ -354,8 +354,8 @@ class kdeobj(cpp.cppobj):
 			self.p_compiletasks.append(cpptask)
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
-		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, 101)
-		else:                        linktask = self.create_task('cpp_link', self.env, 101)
+		if self.m_type=='staticlib': linktask = self.create_task('cpp_link_static', self.env, ccroot.g_prio_link)
+		else:                        linktask = self.create_task('cpp_link', self.env, ccroot.g_prio_link)
 		cppoutputs = []
 		for t in self.p_compiletasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 
