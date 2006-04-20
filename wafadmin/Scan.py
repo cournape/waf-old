@@ -58,17 +58,14 @@ def kcfg_scanner(node, path_lst):
 	file.close()
 
 	if not found:
-		error("no kcfg file found when scanning the .kcfgc- that's very bad")
-		import sys
-		sys.exit(1)
+		fatal("no kcfg file found when scanning the .kcfgc- that's very bad")
 
 	name = found[0]
 	for dir in path_lst:
 		for node in dir.m_files:
 			if node.m_name == name:
 				return ([node], found)
-	error("the kcfg file was not found - that's very bad")
-	sys.exit(1)
+	fatal("the kcfg file was not found - that's very bad")
 
 def add_scanner(name, fun, recurse=0):
 	Params.g_scanners[name] = fun
