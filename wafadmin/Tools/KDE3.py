@@ -2,8 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, shutil, sys
-import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
+import os, sys
+import cpp
+import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 
 # kde moc file processing
@@ -181,7 +182,7 @@ class kdeobj(cpp.cppobj):
 	def __init__(self, type='program'):
 		cpp.cppobj.__init__(self, type)
 		self.m_linktask = None
-		self.m_latask = None
+		self.m_latask   = None
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
@@ -241,17 +242,18 @@ class kdeobj(cpp.cppobj):
 		return cpptask
 
 	def apply(self):
+		trace("apply called for kdeobj")
+		if not self.m_type in self.get_valid_types(): fatal('Trying to build a kde file of unknown type')
+
 		self.apply_type_vars()
 		self.apply_lib_vars()
 		self.apply_obj_vars()
 		self.apply_incpaths()
 
-		# for kde programs we need to know in advance the dependencies
-		# so we will scan them right here
-		trace("apply called for kdeobj")
+		#try: obj_ext = self.env['obj_ext'][0]
+		#except: obj_ext = '.os'
 
-		try: obj_ext = self.env['obj_ext'][0]
-		except: obj_ext = '.os'
+		obj_ext='.o'
 
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
@@ -259,7 +261,6 @@ class kdeobj(cpp.cppobj):
 		dir_lst = { 'path_lst' : self._incpaths_lst }
 
 		lst = self.source.split()
-		cpptasks = []
 		skel_or_stub = {}
 		for filename in lst:
 
@@ -270,7 +271,7 @@ class kdeobj(cpp.cppobj):
 
 			if ext == '.ui':
 				node = self.m_current_path.find_node( filename.split(os.sep) )
-				cpptasks.append( self.create_uic_task(base) )
+				self.p_compiletasks.append( self.create_uic_task(base) )
 				continue
 			#elif ext == '.qrc':
 			#	cpptasks.append( self.create_rcc_task(base) )
@@ -282,7 +283,7 @@ class kdeobj(cpp.cppobj):
 				if tree.needs_rescan(node):
 					tree.rescan(node, Scan.kcfg_scanner, dir_lst)
 				kcfg_node = tree.m_depends_on[node][0]
-				cpptasks.append( self.create_kcfg_task(kcfg_node, node, base) )
+				self.p_compiletasks.append( self.create_kcfg_task(kcfg_node, node, base) )
 				continue
 			elif ext == '.skel' or ext == '.stub':
 				if not base in skel_or_stub:
@@ -307,7 +308,7 @@ class kdeobj(cpp.cppobj):
 				cpptask.m_inputs  = task.m_outputs
 				cpptask.m_outputs = self.file_in(''.join([base,'_',type,'.o']))
 
-				cpptasks.append( cpptask )
+				self.p_compiletasks.append( cpptask )
 				continue
 
 			# scan for moc files to produce, create cpp tasks at the same time
@@ -350,13 +351,13 @@ class kdeobj(cpp.cppobj):
 			cpptask.m_inputs    = self.file_in(filename)
 			cpptask.m_outputs   = self.file_in(base+obj_ext)
 			cpptask.m_run_after = moctasks
-			cpptasks.append(cpptask)
+			self.p_compiletasks.append(cpptask)
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
 		if self.m_type=='staticlib': linktask = self.create_task('ar_link', self.env, 101)
 		else:                        linktask = self.create_task('cpp_link', self.env, 101)
 		cppoutputs = []
-		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
+		for t in self.p_compiletasks: cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs 
 		linktask.m_outputs = self.file_in(self.get_target_name())
 
@@ -613,10 +614,10 @@ def detect_kde(conf):
 	env['module_PREFIX']    = 'lib'
 	env['module_SUFFIX']    = '.so'
 
-	try: env['module_CXXFLAGS']=env['shlib_CXXFLAGS']
-	except: pass
-	try: env['module_LINKFLAGS']=env['shlib_LINKFLAGS']
-	except: pass
+	#try: env['module_CXXFLAGS']=env['shlib_CXXFLAGS']
+	#except: pass
+	#try: env['module_LINKFLAGS']=env['shlib_LINKFLAGS']
+	#except: pass
 
 def setup(env):
 	if not sys.platform == "win32":

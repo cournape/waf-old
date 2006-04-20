@@ -15,7 +15,7 @@ from Params import debug, error, trace, fatal
 priolink=101
 
 # main c/cpp variables
-g_cppvalues = [
+g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'INCLUDE',
@@ -48,7 +48,7 @@ def fakelibtool_build(task):
 fakelibtoolact = Action.GenAction('fakelibtool', fakelibtool_vardeps, buildfunc=fakelibtool_build)
 
 cpptypes=['shlib', 'program', 'staticlib']
-cppvars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
+g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 class cppobj(ccroot.ccroot):
 	def __init__(self, type='program'):
 		ccroot.ccroot.__init__(self, type)
@@ -66,15 +66,18 @@ class cppobj(ccroot.ccroot):
 		self.m_linktask=None
 		self.m_deps_linktask=[]
 
-		global g_cppvars
-		self.p_objvars=[]
-		self.p_cppvars = g_cppvalues
+		global g_cpp_flag_vars
+		self.p_flag_vars = g_cpp_flag_vars
 
-		global cpptypes
-		if not type in cpptypes: fatal('Trying to build a cpp file of unknown type')
+		global g_cpp_type_vars
+		self.p_type_vars = g_cpp_type_vars
+
+	def get_valid_types(self):
+		return ['program', 'shlib', 'staticlib']
 
 	def apply(self):
 		trace("apply called for cppobj")
+		if not self.m_type in self.get_valid_types(): fatal('Trying to build a cpp file of unknown type')
 
 		self.apply_lib_vars()
 		self.apply_type_vars()

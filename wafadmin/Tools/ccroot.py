@@ -15,7 +15,6 @@ class ccroot(Object.genobj):
 		self.env = Params.g_envs['default'].copy()
 		if not self.env['tools']: fatal('no tool selected')
 
-
 		self.includes=''
 
 		self.linkflags=''
@@ -26,20 +25,31 @@ class ccroot(Object.genobj):
 		self.uselib=''
 		self.useliblocal=''
 
+		self.m_linktask=None
+		self.m_deps_linktask=[]
+
+
+
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
 
 		self.p_shlib_deps_names=[]
 		self.p_staticlib_deps_names=[]
 
-		self.m_linktask=None
-		self.m_deps_linktask=[]
-
 		self.p_compiletasks=[]
 
 		# do not forget to set the following variables in a subclass
-		self.p_objvars = []
-		self.p_cppvars = []
+		self.p_flag_vars = []
+		self.p_type_vars = []
+
+	# subclass me
+	def apply(self):
+		fatal('subclass method apply of ccroot')
+
+	# subclass me
+	def get_valid_types(self):
+		fatal('subclass method get_valid_types of ccroot')
+
 
 	def get_target_name(self, ext=None):
 		return self.get_library_name(self.target, self.m_type, ext)
@@ -52,10 +62,6 @@ class ccroot(Object.genobj):
 		if not prefix: prefix=''
 		if not suffix: suffix=''
 		return ''.join([prefix, name, suffix])
-
-	# subclass me
-	def apply(self):
-		pass
 
 	def apply_libdeps(self):
 		# for correct dependency handling, we make here one assumption:
@@ -104,7 +110,7 @@ class ccroot(Object.genobj):
 
 	def apply_type_vars(self):
 		trace('apply_type_vars called')
-		for var in self.p_cppvars:
+		for var in self.p_type_vars:
 			# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
 			# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
 			compvar = '_'.join([self.m_type, var])
@@ -216,7 +222,7 @@ class ccroot(Object.genobj):
 
 		libs = self.uselib.split()
 		for l in libs:
-			for v in self.p_cppvalues:
+			for v in self.p_flag_vars:
 				val=''
 				try:    val = self.env[v+'_'+l]
 				except: pass
