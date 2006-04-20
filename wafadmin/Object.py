@@ -47,7 +47,7 @@ def flush():
 		trace("object posted")
 
 class genobj:
-	def __init__(self, type, actname):
+	def __init__(self, type):
 		self.m_type  = type
 		self.m_posted = 0
 		self.m_current_path = Params.g_curdirnode # emulate chdir when reading scripts
@@ -55,9 +55,6 @@ class genobj:
 
 		# TODO if we are building something, we need to make sure the folder is scanned
 		#if not Params.g_curdirnode in Params...
-
-		# default name of the action to use for the tasks
-		self.m_actname = actname
 
 		# targets / sources
 		self.source = ''
@@ -114,12 +111,6 @@ class genobj:
 	def appendAll(self, var, val):
 		for task in self.m_tasks:
 			task.appendvar(var, val)
-
-	# important, creates the default tasks FIXME remove
-	def createTasks(self):
-		if not self.env: self.env = Params.g_envs['default']
-		l_task=Task.Task(self.m_actname, self.env)
-		self.m_tasks.append(l_task)
 
 	# the lower the nice is, the higher priority tasks will run at
 	# groups are sorted like this [2, 4, 5, 100, 200]
