@@ -50,7 +50,7 @@ else:
 dir = find_wafdir(lst)
 
 # The sys.path is updated, so we can now import our modules
-sys.path=lst+sys.path
+sys.path=[dir, dir+os.sep+'Tools']+sys.path
 
 import Options, Params, Utils
 

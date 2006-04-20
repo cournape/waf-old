@@ -2,14 +2,19 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+import os, types
+import ccroot
+import Action, Object, Params, Scan
+from Params import debug, error, trace, fatal
+
 # Parent class for programs and libraries in languages c, c++ and moc (Qt)
 class ccroot(Object.genobj):
 	def __init__(self, type='program'):
 		Object.genobj.__init__(self, type)
 
 		self.env = Params.g_envs['default'].copy()
-
 		if not self.env['tools']: fatal('no tool selected')
+
 
 		self.includes=''
 
@@ -30,11 +35,11 @@ class ccroot(Object.genobj):
 		self.m_linktask=None
 		self.m_deps_linktask=[]
 
-		self.cpptasks=[]
+		self.p_compiletasks=[]
 
-		global cpptypes
-		if not type in cpptypes:
-			error('Trying to build a cpp file of unknown type')
+		# do not forget to set the following variables in a subclass
+		self.p_objvars = []
+		self.p_cppvars = []
 
 	def get_target_name(self, ext=None):
 		return self.get_library_name(self.target, self.m_type, ext)
@@ -51,7 +56,6 @@ class ccroot(Object.genobj):
 	# subclass me
 	def apply(self):
 		pass
-
 
 	def apply_libdeps(self):
 		# for correct dependency handling, we make here one assumption:
@@ -100,8 +104,7 @@ class ccroot(Object.genobj):
 
 	def apply_type_vars(self):
 		trace('apply_type_vars called')
-		global cppvars
-		for var in cppvars:
+		for var in self.p_cppvars:
 			# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
 			# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
 			compvar = '_'.join([self.m_type, var])
@@ -212,9 +215,8 @@ class ccroot(Object.genobj):
 		self.env.appendValue('STATICLIB', static_names)
 
 		libs = self.uselib.split()
-		global g_cppvalues
 		for l in libs:
-			for v in g_cppvalues:
+			for v in self.p_cppvalues:
 				val=''
 				try:    val = self.env[v+'_'+l]
 				except: pass
