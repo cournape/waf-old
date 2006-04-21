@@ -39,7 +39,7 @@ def coin_file(obj, node):
 	cpptask = obj.create_task('cpp', obj.env)
 	cpptask.m_inputs  = cointask.m_outputs
 	cpptask.m_outputs = fi(base+'.o')
-	obj.cpptasks.append(cpptask)
+	obj.p_compiletasks.append(cpptask)
 
 # This function is called when a build process is started 
 def setup(env):

@@ -33,7 +33,7 @@ def detect(conf):
 		return 0
 
 	# preprocessor (what is that ? ita)
-	conf.env['CPP']             = cpp
+	#conf.env['CPP']             = cpp
 
 	# cc compiler
 	conf.env['CC']             = comp

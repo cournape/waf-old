@@ -7,7 +7,7 @@
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
-APPNAME='adv_test'
+APPNAME='cc_test'
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
@@ -19,7 +19,7 @@ def build(bld):
 	bld.add_subdirs('src')
 
 def configure(conf):
-	conf.checkTool(['gcc', 'g++', 'dang'])
+	conf.checkTool(['gcc'])
 	# the order of calls does matter
 
 def set_options(opt):

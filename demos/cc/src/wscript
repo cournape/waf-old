@@ -1,0 +1,20 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+def build(bld):
+	# 1. A simple program
+	obj = bld.createObj('cc', 'program')
+	obj.source='''
+	main.c
+	'''
+	obj.includes='.'
+	obj.target='test_c_program'
+
+#def set_options(opt):
+#	# options defined if src/ was to be compiled as a standalone module
+#	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')
+
+#def configure(conf):
+#	print "sub-configuration file called (demo)"
+
