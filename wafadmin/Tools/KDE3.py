@@ -196,22 +196,22 @@ def handler_ui(obj, node, base=''):
 	obj.p_compiletasks.append( cpptask )
 
 def handler_kcfgc(obj, node, base=''):
+	tree = Params.g_build.m_tree
+	if tree.needs_rescan(node):
+		tree.rescan(node, Scan.kcfg_scanner, obj.dir_lst)
+	kcfg_node = tree.m_depends_on[node][0]
 	cppnode = obj.get_node(base+'.cpp')
 
 	# run with priority 2
 	task = obj.create_task('kcfg', obj.env, 2)
 
-	tree = Params.g_build.m_tree
-	task.m_inputs = [ tree.get_mirror_node(kcfg), tree.get_mirror_node(kcfgc) ]
+	task.m_inputs = [ tree.get_mirror_node(kcfg_node), tree.get_mirror_node(node) ]
 	task.m_outputs = [ cppnode, obj.get_node(base+'.h') ]
 
 	cpptask = obj.create_task('cpp', obj.env)
 	cpptask.m_inputs  = [ cppnode ]
 	cpptask.m_outputs = [ obj.get_node(base+'.o') ]
 
-	if tree.needs_rescan(node):
-		tree.rescan(node, Scan.kcfg_scanner, dir_lst)
-	kcfg_node = tree.m_depends_on[node][0]
 	obj.p_compiletasks.append( cpptask )
 
 def handler_skel_or_stub(obj, base, type):
@@ -281,7 +281,7 @@ class kdeobj(cpp.cppobj):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
 		tree = Params.g_build.m_tree
-		dir_lst = { 'path_lst' : self._incpaths_lst }
+		self.dir_lst = { 'path_lst' : self._incpaths_lst }
 
 		lst = self.source.split()
 		for filename in lst:
@@ -304,7 +304,7 @@ class kdeobj(cpp.cppobj):
 
 			# scan for moc files to produce, create cpp tasks at the same time
 			if tree.needs_rescan(node):
-				tree.rescan(node, Scan.c_scanner, dir_lst)
+				tree.rescan(node, Scan.c_scanner, self.dir_lst)
 
 			moctasks=[]
 			mocfiles=[]
@@ -337,7 +337,7 @@ class kdeobj(cpp.cppobj):
 			cpptask = self.create_task('cpp', self.env)
 
 			cpptask.m_scanner = Scan.c_scanner
-			cpptask.m_scanner_params = dir_lst
+			cpptask.m_scanner_params = self.dir_lst
 
 			cpptask.m_inputs    = self.file_in(filename)
 			cpptask.m_outputs   = self.file_in(base+obj_ext)
@@ -624,7 +624,7 @@ def setup(env):
 	if not env['handlers_kdeobj_.ui']:    env['handlers_kdeobj_.ui']   = handler_ui
 	if not env['handlers_kdeobj_.skel']:  env['handlers_kdeobj_.skel'] = handler_skel
 	if not env['handlers_kdeobj_.stub']:  env['handlers_kdeobj_.stub'] = handler_stub
-	if not env['handlers_kdeobj_.kcfgc']: env['handlers_kdeobj_.kcfg'] = handler_kcfgc
+	if not env['handlers_kdeobj_.kcfgc']: env['handlers_kdeobj_.kcfgc'] = handler_kcfgc
 
         Object.register('kde_translations', kde_translations)
         Object.register('kde_documentation', kde_documentation)
