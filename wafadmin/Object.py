@@ -50,11 +50,11 @@ class genobj:
 	def __init__(self, type):
 		self.m_type  = type
 		self.m_posted = 0
-		self.m_current_path = Params.g_curdirnode # emulate chdir when reading scripts
+		self.m_current_path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
 		self.name = '' # give a name to the target
 
 		# TODO if we are building something, we need to make sure the folder is scanned
-		#if not Params.g_curdirnode in Params...
+		#if not Params.g_build.m_curdirnode in Params...
 
 		# targets / sources
 		self.source = ''
@@ -158,7 +158,7 @@ class genobj:
 
 	def install_results(self, var, subdir, task):
 		trace('install results called')
-		current = Params.g_curdirnode
+		current = Params.g_build.m_curdirnode
 		# TODO what is the pythonic replacement for these three lines ?
 		lst = []
 		for node in task.m_outputs:

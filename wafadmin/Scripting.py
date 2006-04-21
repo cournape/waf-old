@@ -6,32 +6,35 @@ import os, os.path, types, sys, imp, cPickle
 import Build, Params, Utils, Options, Configure, Environment
 from Params import debug, error, trace, fatal
 
+g_inroot=1
+
 # each script calls add_subdir
-def add_subdir(dir):
-	if Params.g_inroot:
-		#node = Params.g_curdirnode.find_node(dir.split('/'))
-		node = Params.g_build.m_tree.ensure_node_from_lst(Params.g_curdirnode, dir.split('/'))
-		Params.g_subdirs.append( [node, Params.g_curdirnode] )
+def add_subdir(dir, bld):
+	global g_inroot
+	if g_inroot:
+		#node = bld.m_curdirnode.find_node(dir.split('/'))
+		node = bld.m_tree.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
+		Params.g_subdirs.append( [node, bld.m_curdirnode] )
 
 		if not node:
 			error("grave error in add_subdir, subdir not found for "+str(dir))
-			#print Params.g_curdirnode
-			Params.g_curdirnode.debug()
+			#print bld.m_curdirnode
+			bld.m_curdirnode.debug()
 			sys.exit(1)
 		return
 
-	restore = Params.g_curdirnode
+	restore = bld.m_curdirnode
 	#if dir is None:
 	#	error("error in subdir( "+dir)
 	#	return
 
-	#Params.g_curdirnode = Params.g_curdirnode.find_node(dir.split('/'))
-	Params.g_curdirnode = Params.g_build.m_tree.ensure_node_from_lst(Params.g_curdirnode, dir.split('/'))
-	if Params.g_curdirnode is None:
+	#bld.m_curdirnode = bld.m_curdirnode.find_node(dir.split('/'))
+	bld.m_curdirnode = bld.m_tree.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
+	if bld.m_curdirnode is None:
 		error("subdir not found ("+dir+"), restore is "+str(restore))
 		sys.exit(1)
 
-	Params.g_subdirs.append(  [Params.g_curdirnode, restore]    )
+	Params.g_subdirs.append(  [bld.m_curdirnode, restore]    )
 
 def load_envs():
 	cachedir = Utils.g_module.cachedir
@@ -101,12 +104,13 @@ def Main():
 			"-> Run 'waf configure' or run 'waf distclean' and configure once again")
 	#bld.m_tree.dump()
 
-	Params.g_inroot=1
+	global g_inroot
+	g_inroot=1
 	Utils.g_module.build(bld)
-	Params.g_inroot=0
+	g_inroot=0
 
 	while len(Params.g_subdirs)>0:
-		# read scripts, saving the context everytime (Params.g_curdirnode)
+		# read scripts, saving the context everytime (bld.m_curdirnode)
 
 		# cheap queue
 		lst=Params.g_subdirs[0]
@@ -116,7 +120,7 @@ def Main():
 		old=lst[1]
 
 		# take the new node position
-		Params.g_curdirnode=new
+		bld.m_curdirnode=new
 
 		# try to open 'wscript_build' for execution
 		# if unavailable, open the module wscript and call the build function from it
@@ -132,7 +136,7 @@ def Main():
 			module.build(bld)
 
 		# restore the old node position
-		Params.g_curdirnode=old
+		bld.m_curdirnode=old
 
 	#bld.m_tree.dump()
 

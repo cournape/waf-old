@@ -118,7 +118,7 @@ class Configure:
 		bld = Build.Build()
 		bld.set_dirs(dir, os.path.join(dir, '_build_'))
 
-		Params.g_curdirnode = Params.g_build.m_tree.m_srcnode
+		bld.m_curdirnode = Params.g_build.m_tree.m_srcnode
 
 		back=os.path.abspath('.')
 		os.chdir(dir)

@@ -66,46 +66,42 @@ class GenAction(Action):
 
 	def get_cmd(self, task):
 
-		if Params.g_fake:
-			tgt_str = " ".join(  map(lambda a:a.bldpath(), task.m_outputs)  )
-			return "%s %s" % ('touch', tgt_str)
-		else:
-			# the command should contain two '%s' for adding the source and the target
-			if not task.m_env:
-				error("task has no environment")
+		# the command should contain two '%s' for adding the source and the target
+		if not task.m_env:
+			error("task has no environment")
 
-			cmd_list = Object.list_to_env_list( task.m_env, self.m_vars )
+		cmd_list = Object.list_to_env_list( task.m_env, self.m_vars )
 
-			#print cmd_list
-			#l = task.m_env['LINK_ST']
-			#print l
-			#print task.m_env
+		#print cmd_list
+		#l = task.m_env['LINK_ST']
+		#print l
+		#print task.m_env
 
-			command = " ".join( cmd_list )
+		command = " ".join( cmd_list )
 
-			# obtain the strings "file1.o file2.o" and "programname"
-			src_str = " ".join(  map(lambda a:a.bldpath(), task.m_inputs)  )
-			tgt_str = " ".join(  map(lambda a:a.bldpath(), task.m_outputs)  )
+		# obtain the strings "file1.o file2.o" and "programname"
+		src_str = " ".join(  map(lambda a:a.bldpath(), task.m_inputs)  )
+		tgt_str = " ".join(  map(lambda a:a.bldpath(), task.m_outputs)  )
 
-			# uncomment this for debugging purposes
-			#print command, "      ",  self.m_vars
+		# uncomment this for debugging purposes
+		#print command, "      ",  self.m_vars
 
-			# if the action processes only sources, return 'command %s' % src_str
-			if self.m_src_only:
-				print "Action: command is ", command
-				return command % (src_str)
+		# if the action processes only sources, return 'command %s' % src_str
+		if self.m_src_only:
+			print "Action: command is ", command
+			return command % (src_str)
 
-			# obtain the command-line "command %s -o %s" % (str, str) -> command file1.o file2.o -o programname
-			#print " action is %s" % command
+		# obtain the command-line "command %s -o %s" % (str, str) -> command file1.o file2.o -o programname
+		#print " action is %s" % command
 			
-			try: 
-				cmd = command % (src_str, tgt_str)
-			except:
-				print "exception #2 in Action "
-				print src_str
-				print tgt_str
-				cmd = ""
-			return cmd
+		try: 
+			cmd = command % (src_str, tgt_str)
+		except:
+			print "exception #2 in Action "
+			print src_str
+			print tgt_str
+			cmd = ""
+		return cmd
 
 	# set the program strings using the methods right above
 	def prepare(self, task):

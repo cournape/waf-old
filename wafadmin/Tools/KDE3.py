@@ -131,7 +131,7 @@ class kde_translations(Object.genobj):
 	def install(self):
 		destfilename = self.m_appname+'.gmo'
 
-		current = Params.g_curdirnode
+		current = Params.g_build.m_curdirnode
 		for file in self.m_current_path.m_files:
 			lang, ext = os.path.splitext(file.m_name)
 			if ext != '.po': continue
@@ -167,7 +167,7 @@ class kde_documentation(Object.genobj):
 	def install(self):
 		destpath = os.sep.join([self.m_appname, self.m_lang])
 
-		current = Params.g_curdirnode
+		current = Params.g_build.m_curdirnode
 		lst = []
 		for task in self.m_docbooks:
 			lst.append(task.m_outputs[0].relpath_gen(current))

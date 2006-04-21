@@ -243,7 +243,7 @@ class ccroot(Object.genobj):
 		# this is usually a good idea
 		self.env.appendValue('_CXXINCFLAGS', cpppath_st % '.')
 		try:
-			tmpnode = Params.g_curdirnode
+			tmpnode = Params.g_build.m_curdirnode
 			tmpnode_mirror = Params.g_build.m_tree.self.m_src_to_bld[tmpnode]
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath())
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode_mirror.bldpath())

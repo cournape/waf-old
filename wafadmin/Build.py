@@ -18,6 +18,10 @@ class Build:
 
 		Params.g_build=self
 
+		# the current directory from which the code is run
+		# the folder changes everytime a sconscript is read
+		self.m_curdirnode = None
+
 		self.m_bdir = ''
 
 	def load(self, blddir):
@@ -63,7 +67,7 @@ class Build:
 		self.m_tree.m_srcnode = node
 		Params.g_srcnode = node
 		# position in the source tree when reading scripts
-		Params.g_curdirnode = node
+		self.m_curdirnode = node
 		# stupid behaviour (will scan every project in the folder) but scandirs-free
 		# we will see later for more intelligent behaviours (scan only folders that contain sources..)
 		try:
@@ -145,7 +149,7 @@ class Build:
 
 		for d in lst:
 			if not d: continue
-			Scripting.add_subdir(d)
+			Scripting.add_subdir(d, self)
 
 	def createObj(self, objname, *k, **kw):
 		try:

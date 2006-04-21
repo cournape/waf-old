@@ -72,8 +72,6 @@ def reset():
 	
 	Params.g_maxjobs = 1
 	
-	Params.g_inroot = 1
-	Params.g_curdirnode = None
 	Params.g_subdirs=[]
 	Params.g_srcnode = None
 	Params.g_startnode = None

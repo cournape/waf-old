@@ -5,8 +5,10 @@
 import os, sys, types, inspect
 import Utils
 
+### CONSTANTS ###
+
 g_version='0.8.0' # ph34r
-g_rootname = ""
+g_rootname = ''
 if sys.path=='win32':
 	# get the first two letters (c:)
 	g_rootname = os.getcwd()[:2]
@@ -14,44 +16,60 @@ if sys.path=='win32':
 # by default
 g_dbfile='.dblite'
 
-## == ACTIONS and SCANNERS == ##
-## actions defined globally
-g_actions ={}
-g_scanners={}
-#g_recursive_scanner=[]
-# fake builders, for development and testing purposes
-g_fake = 0
-
-# contains additional handler functions to add language support
-# to cpp files: for example an idl file which compiles into a cpp file
-g_handlers={}
-
-# avoid importing tools several times
-g_tools = []
-
-## == ENVIRONMENT == ##
-# map a name to an environment, the 'default' must be defined
-g_envs={}
-
-## == DEPTREE == ##
+# deptree
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
 g_pattern_excludes = ['_build_']
+
+
 g_strong_hash = 0
 
 def sig_nil():
 	if g_strong_hash: return 'c01a85d0a38b176482a6e529f81f5251'
 	else: return 0
 
+### NO RESETS BETWEEN RUNS ###
+
+# used by environment, this is the directory containing our Tools
+g_tooldir=''
+
 # yes, i was focusing on imitating scons where this really was not necessary (ita)
+# TODO clean the mess
 #g_mode = 'copy'
 #g_mode = 'slnk'
 #g_mode = 'hlnk'
 g_mode = 'nocopy'
 
-# cygwin supports symlinks though ..
-#if sys.platform == 'win32': g_mode = 'copy'
+# parsed command-line arguments in the options module
+g_options = []
+g_commands = {}
+g_verbose = 0
 
-## == TASK AND RUNNER == ##
+# max jobs
+g_maxjobs = 1
+
+### EXTENSIONS ###
+
+## the only Build object
+g_build    = None
+# node representing the source directory
+g_srcnode = None
+g_bldnode = None
+
+
+# contains additional handler functions to add language support
+# to cpp files: for example an idl file which compiles into a cpp file
+g_handlers={}
+
+## actions defined globally
+g_actions ={}
+g_scanners={}
+
+# avoid importing tools several times
+g_tools = []
+
+# map a name to an environment, the 'default' must be defined
+g_envs = {}
+
 # objects that are not posted and objects already posted
 # -> delay task creation
 g_outstanding_objs = []
@@ -61,44 +79,19 @@ g_posted_objs      = []
 # this is used in tests to check which tasks were actually launched
 g_tasks_done       = []
 
-## == BUILD == ##
-## the only Build object
-g_build    = None
-
-g_maxjobs = 1
-
-## == SCRIPTING == ##
-# tells if we are reading the code from the root directory or not
-g_inroot = 1
-
-## IMPORTANT
-# the current directory from which the code is run
-# the folder changes everytime a sconscript is read
-g_curdirnode = None
-
 # temporary holding the subdirectories containing scripts
 g_subdirs=[]
 
-# node representing the source directory
-g_srcnode = None
-g_bldnode = None
-
 # node representing the directory from which the program was started
 g_startnode = None
-
-## == OPTIONS == ##
-# parsed command-line arguments
-g_options = []
-g_commands = {}
-g_verbose = 0
 
 # list of folders that are already scanned
 # so that we do not need to stat them one more time
 g_scanned_folders=[]
 
 
-# used by environment, this is the directory containing our Tools
-g_tooldir=''
+
+### HELPERS ####
 
 # no colors on win32 :-/
 if sys.platform=='win32':
@@ -127,7 +120,7 @@ def pprint(col, str, label=''):
 	except: mycol=''
 	print "%s%s%s %s" % (mycol, str, g_colors['NORMAL'], label)
 
-## IMPORTANT debugging helpers
+# IMPORTANT debugging helpers
 g_levels={
 	'Action'  : 'GREEN',
 	'Build'   : 'CYAN',
@@ -147,7 +140,7 @@ def set_trace(a, b, c):
 	Utils.g_debug=b
 	Utils.g_error=c
 
-## IMPORTANT helper functions
+# IMPORTANT helper functions
 def niceprint(msg, type='', module=''):
 	if not module:
 		print '%s: %s'% (type, msg)
