@@ -606,10 +606,11 @@ def detect_kde(conf):
 	env['module_PREFIX']    = 'lib'
 	env['module_SUFFIX']    = '.so'
 
-	#try: env['module_CXXFLAGS']=env['shlib_CXXFLAGS']
-	#except: pass
-	#try: env['module_LINKFLAGS']=env['shlib_LINKFLAGS']
-	#except: pass
+	try: env['module_CXXFLAGS']=env['shlib_CXXFLAGS']
+	except: pass
+
+	try: env['module_LINKFLAGS']=env['shlib_LINKFLAGS']
+	except: pass
 
 def setup(env):
 	if not sys.platform == "win32":

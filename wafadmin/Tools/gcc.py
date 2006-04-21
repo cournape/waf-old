@@ -10,18 +10,17 @@ import Utils, Action, Params
 # is called when a build process is started 
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
-	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
+	# like '%s -o %s' which becomes 'file.c -o file.o' when called
 	cc_vardeps    = ['CC', 'CCFLAGS', 'CCFLAGS_' + Params.g_options.debug_level, '_CPPDEFFLAGS', '_CINCFLAGS', 'CC_ST']
 	Action.GenAction('cc', cc_vardeps)
 
-	# TODO: this is the same definitions as for gcc, should be separated to have independent setup
 	# on windows libraries must be defined after the object files 
 	link_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
-	action = Action.GenAction('link', link_vardeps)
+	action = Action.GenAction('cc_link', link_vardeps)
 
 def detect(conf):
-	cpp = conf.checkProgram('cpp')
-	if not cpp:
+	cc = conf.checkProgram('cc')
+	if not cc:
 		return 0;
 
 	comp = conf.checkProgram('gcc')
@@ -33,7 +32,7 @@ def detect(conf):
 		Utils.error('gcc needs ar - not found')
 		return 0
 
-	# preprocessor
+	# preprocessor (what is that ? ita)
 	conf.env['CPP']             = cpp
 
 	# cc compiler

@@ -25,6 +25,9 @@ def setup(env):
 	aract = Action.GenAction('cpp_link_static', ar_vardeps)
 	aract.m_function_to_run = ar_build
 
+	aract = Action.GenAction('cc_link_static', ar_vardeps)
+	aract.m_function_to_run = ar_build
+
 def detect(conf):
 
 	comp = conf.checkProgram('ar')
