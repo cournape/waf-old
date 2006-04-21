@@ -28,6 +28,18 @@ class Build:
 		# temporary holding the subdirectories containing scripts
 		m_subdirs=[]
 
+
+		# local cache for absolute paths
+		m_abspath_cache = {}
+
+		# local cache for relative paths
+		# two nodes - hashtable of hashtables - g_relpath_cache[child][parent])
+		m_relpath_cache = {}
+
+		# cache for height of the node
+		m_height_cache = {}
+
+
 		self.m_bdir = ''
 
 	def load(self, blddir):
