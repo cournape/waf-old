@@ -66,6 +66,7 @@ def private_setup_build():
 			bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
 		except AttributeError:
 			msg = "The attributes srcdir or builddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project"
+			raise
 			fatal(msg % os.path.abspath('.'))
 		except OSError:
 			pass

@@ -26,19 +26,21 @@ class Build:
 		self.m_allenvs = {}
 
 		# temporary holding the subdirectories containing scripts
-		m_subdirs=[]
+		self.m_subdirs=[]
 
 
 		# local cache for absolute paths
-		m_abspath_cache = {}
+		self.m_abspath_cache = {}
 
 		# local cache for relative paths
 		# two nodes - hashtable of hashtables - g_relpath_cache[child][parent])
-		m_relpath_cache = {}
+		self.m_relpath_cache = {}
 
 		# cache for height of the node
-		m_height_cache = {}
+		self.m_height_cache = {}
 
+
+		self.m_cache_node_content = {}
 
 		self.m_bdir = ''
 

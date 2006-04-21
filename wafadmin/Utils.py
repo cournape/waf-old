@@ -50,12 +50,8 @@ def h_simple_lst(lst):
 	return val+1
 
 def reset():
-	import Deptree, Object, Node, Task
-
-	Deptree.reset()
-	Object.reset
-	Node.reset()
-	Task.reset()
+	#Object.reset
+	#Task.reset()
 
 	import Params
 	Params.g_rootname = "" # might be c: (without '\')

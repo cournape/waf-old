@@ -22,17 +22,7 @@ import os, shutil, types
 import Action, Params, Environment, Runner, Task, Common
 from Params import debug, error, trace, fatal
 
-g_register={}
 g_allobjs=[]
-
-def store(name, node):
-	global g_register
-	if name in g_register: error("attempt to store %s which is already in"%name)
-	g_register[name]=node
-
-def get(name):
-	global g_register
-	return g_register[name]
 
 # call flush for every group of object to process
 def flush():
@@ -62,9 +52,6 @@ class genobj:
 
 		# we use a simple list for the tasks TODO not used ?
 		self.m_tasks = []
-
-		# things that the obj depends on
-		self.m_deps = []
 
 		# no default environment - in case if
 		self.env = None
@@ -133,22 +120,6 @@ class genobj:
 
 	def file_in(self, filename):
 		return [ self.get_mirror_node(self.m_current_path, filename) ]
-
-	# ==== dependency part ====
-	def set_name(self, name):
-		global g_register
-		if name in g_register: error("attempt to store %s which is already in"%name)
-		g_register[name]=self
-
-	def add_dep(self, obj):
-		#if self.m_posted:
-		#	error("OBJECT IS ALREADY POSTED DAMMIT!")
-		#	return
-		self.m_deps.append(obj)
-
-	def depends(self, name):
-		global g_register
-		self.m_deps.append( g_register[name] )
 
 	# an object is to be posted, even if only for install
 	# the install function is called for uninstalling too

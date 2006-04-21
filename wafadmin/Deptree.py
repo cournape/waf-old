@@ -12,8 +12,6 @@ import Node
 import Params
 from Params import debug, error, trace, fatal
 
-g_cache_node_content={}
-
 class Deptree:
 	def __init__(self):
 
@@ -355,12 +353,12 @@ class Deptree:
 			if 0:
 				if not dirname: continue
 
-				global g_cache_node_content
+				nc = Params.g_build.m_cache_node_content
 				try:
-					htbl = g_cache_node_content[curnode]
+					htbl = nc[curnode]
 				except:
-					g_cache_node_content[curnode] = {}
-					htbl = g_cache_node_content[curnode]
+					nc[curnode] = {}
+					htbl = nc[curnode]
 
 					for file in curnode.m_dirs+curnode.m_files:
 						htbl[file.m_name]=file
@@ -485,8 +483,4 @@ class Deptree:
 				curnode.m_files=[]
 			self.m_flags[curnode] = 1
 		return curnode
-
-def reset():
-	global g_cache_node_content
-	g_cache_node_content={}
 

@@ -6,7 +6,7 @@ import os
 from stat import *
 import Deptree
 import Params
-from Params import debug, error, trace, fatal, g_build
+from Params import debug, error, trace, fatal
 
 class Node:
 	def __init__(self, name, parent):
@@ -47,17 +47,17 @@ class Node:
 		return l_size
 
 	def get_sig(self):
-		try: return g_build.m_tree.m_sigs[self]
+		try: return Params.g_build.m_tree.m_sigs[self]
 		except: return self.m_tstamp
 
 	# uses a cache, so calling height should have no overhead
 	def height(self):
 		try:
-			return g_build.m_height_cache[self]
+			return Params.g_build.m_height_cache[self]
 		except:
 			if not self.m_parent: val=0
 			else:                 val=1+self.m_parent.height()
-			g_build.m_height_cache[self]=val
+			Params.g_build.m_height_cache[self]=val
 			return val
 
 	# flag a subtree
@@ -81,7 +81,7 @@ class Node:
 		if not self in g_scanned_folders:
 			# TODO: a little bit inefficient, but code factorization will come later
 			folder = '/'.join( Params.srcnode().difflst(self) )
-			g_build.m_tree.scanner_mirror(folder)
+			Params.g_build.m_tree.scanner_mirror(folder)
 		g_scanned_folders.append(self)
 
 	# list of file names that separate a node from a child
@@ -120,12 +120,12 @@ class Node:
 		#
 		## 3. with the cache
 		try:
-			return g_build.m_abspath_cache[self]
+			return Params.g_build.m_abspath_cache[self]
 		except:
 			lst=self.pathlist2()
 			lst.reverse()
 			val=''.join(lst)
-			g_build.m_abspath_cache[self]=val
+			Params.g_build.m_abspath_cache[self]=val
 			return val
 
 	# TODO : make it procedural, not recursive
@@ -163,17 +163,17 @@ class Node:
 	def relpath(self, parent):
 		#print "relpath", self, parent
 		try:
-			return g_build.m_relpath_cache[self][parent]
+			return Params.g_build.m_relpath_cache[self][parent]
 		except:
 			lst=self.pathlist3(parent)
 			lst.reverse()
 			val=''.join(lst)
 
 			try:
-				g_build.m_relpath_cache[self][parent]=val
+				Params.g_build.m_relpath_cache[self][parent]=val
 			except:
-				g_build.m_relpath_cache[self]={}
-				g_build.m_relpath_cache[self][parent]=val
+				Params.g_build.m_relpath_cache[self]={}
+				Params.g_build.m_relpath_cache[self][parent]=val
 			return val
 
 	# path relative to the src directory (useful for building targets : almost - ita)
@@ -186,7 +186,7 @@ class Node:
 	def bldpath(self):
 		if Params.g_mode == 'nocopy':
 			try:
-				orig = g_build.m_tree.m_bld_to_src[self]
+				orig = Params.g_build.m_tree.m_bld_to_src[self]
 				return orig.relpath_gen(Params.g_bldnode)
 			except KeyError:
 				pass
@@ -264,7 +264,7 @@ class Node:
 
 	# returns the folder in the build dir for reaching this node
 	def cd_to(self):
-		reldir = g_build.m_tree.m_bldnode.difflst(self)
+		reldir = Params.g_build.m_tree.m_bldnode.difflst(self)
 		reldir = reldir[:len(reldir)-1]
 		reldir = os.sep.join(reldir)
 		return reldir
