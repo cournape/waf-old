@@ -2,6 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+import os, types
+import ccroot
+import Action, Object, Params, Scan
+from Params import debug, error, trace, fatal
+
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
@@ -104,4 +109,18 @@ class ccobj(ccroot.ccroot):
 
 		self.apply_libdeps()
 
+# tool specific setup
+# is called when a build process is started 
+def setup(env):
+	print "setup for cc"
+	# prevent other modules from loading us more than once
+	if 'cc' in Params.g_tools: return
+	Params.g_tools.append('cc')
+
+	# register our object
+	Object.register('cc', ccobj)
+
+# no variable added, do nothing
+def detect(env):
+	return 1
 

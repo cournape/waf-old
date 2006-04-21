@@ -18,6 +18,12 @@ def setup(env):
 	link_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
 	action = Action.GenAction('cc_link', link_vardeps)
 
+	if not sys.platform == "win32":
+		Params.g_colors['cc']='\033[92m'
+		Params.g_colors['cc_link']='\033[93m'
+		Params.g_colors['cc_link_static']='\033[93m'
+		Params.g_colors['fakelibtool']='\033[94m'
+
 def detect(conf):
 	cc = conf.checkProgram('cc')
 	if not cc:
@@ -26,6 +32,9 @@ def detect(conf):
 	comp = conf.checkProgram('gcc')
 	if not comp:
 		return 0;
+
+	# load the cc builders
+	conf.checkTool('cc')
 
 	# gcc requires ar for static libs
 	if not conf.checkTool('ar'):
