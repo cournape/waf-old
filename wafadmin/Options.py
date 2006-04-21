@@ -35,24 +35,12 @@ def create_parser():
 		help = 'Specify the number of parallel jobs [Default: 1]',
 		dest = 'jobs')
 	
-	#p('-q', '--quiet', 
-	#	action = 'store_true',
-	#	default = False,
-	#	help = 'Show no output. [Default: False]',
-	#	dest = 'quiet')
+	p('-e', '--evil', 
+		action = 'store_true',
+		default = False,
+		help = 'IMPLEMENTED ME (Run as a daemon). [Default: False]',
+		dest = 'daemon')
 	
-	#p('-s', '--signature-type',
-	#	type = 'string',
-	#	default = 'timestamp',
-	#	help = 'Specify the signature type to use - timestamp (fast) or md5 (slow). [Default: timestamp]',
-	#	dest = 'signature_type')
-	
-	#p('-t', '--target',
-	#	action = 'append',
-	#	default = '',
-	#	help = 'Specify the target os to build for. Can specify this option multiple times if required. [Allowed Values: linux, freebsd, solaris, darwin, win32]',
-	#	dest = 'target')
-
 	p('-v', '--verbose', 
 		action = 'count',
 		default = 0,
@@ -72,18 +60,6 @@ def parse_args_impl(parser):
 		print parser.print_help()
 		sys.exit(1)
 
-	# signatures in options is a really bad idea ..
-	#if Params.g_options.signature_type not in ('timestamp', 'md5'):
-	#	print 'Error: Invalid signature type specified'
-	#	print parser.print_help()
-	#	sys.exit(1)
-	
-	#lst=['', 'linux', 'freebsd', 'solaris', 'darwin', 'win32']
-	#if Params.g_options.target not in lst:
-	#	print 'Error: Invalid target specified'
-	#	print parser.print_help()
-	#	sys.exit(1)
-	
 	# By default, 'waf' is equivalent to 'waf make'
 	lst=['dist','configure','clean','distclean','make','install','uninstall','doc']
 	for var in lst:    Params.g_commands[var]    = 0

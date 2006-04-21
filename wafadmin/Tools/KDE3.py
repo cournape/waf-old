@@ -212,7 +212,6 @@ def handler_kcfgc(obj, node, base=''):
 	if tree.needs_rescan(node):
 		tree.rescan(node, Scan.kcfg_scanner, dir_lst)
 	kcfg_node = tree.m_depends_on[node][0]
-	base, ext = node.splitname()
 	obj.p_compiletasks.append( cpptask )
 
 def handler_skel_or_stub(obj, base, type):
