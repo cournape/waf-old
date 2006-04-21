@@ -90,7 +90,7 @@ class Node:
 		global g_scanned_folders
 		if not self in g_scanned_folders:
 			# TODO: a little bit inefficient, but code factorization will come later
-			folder = '/'.join( Params.g_srcnode.difflst(self) )
+			folder = '/'.join( Params.srcnode().difflst(self) )
 			Params.g_build.m_tree.scanner_mirror(folder)
 		g_scanned_folders.append(self)
 
@@ -188,8 +188,9 @@ class Node:
 
 	# path relative to the src directory (useful for building targets : almost - ita)
 	def srcpath(self):
-		if not Params.g_srcnode: error("BUG in srcpath")
-		return self.relpath(Params.g_srcnode)
+		node = Params.srcnode()
+		if not node: error("BUG in srcpath")
+		return self.relpath(node)
 
 	# path used when building targets
 	def bldpath(self):
@@ -247,7 +248,7 @@ class Node:
 	# TODO look at relpath_gen - it is certainly possible to get rid of find_ancestor
 	def relpath_gen2(self, going_to):
 		if self is going_to: return '.'
-		ancestor = Params.g_srcnode
+		ancestor = Params.srcnode()
 		up_path   = going_to.invrelpath(ancestor)
 		down_path = self.pathlist4(ancestor)
 		down_path.reverse()

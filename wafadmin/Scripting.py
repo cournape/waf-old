@@ -14,7 +14,7 @@ def add_subdir(dir, bld):
 	if g_inroot:
 		#node = bld.m_curdirnode.find_node(dir.split('/'))
 		node = bld.m_tree.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
-		Params.g_subdirs.append( [node, bld.m_curdirnode] )
+		bld.m_subdirs.append( [node, bld.m_curdirnode] )
 
 		if not node:
 			error("grave error in add_subdir, subdir not found for "+str(dir))
@@ -34,7 +34,7 @@ def add_subdir(dir, bld):
 		error("subdir not found ("+dir+"), restore is "+str(restore))
 		sys.exit(1)
 
-	Params.g_subdirs.append(  [bld.m_curdirnode, restore]    )
+	bld.m_subdirs.append(  [bld.m_curdirnode, restore]    )
 
 def load_envs():
 	cachedir = Utils.g_module.cachedir
@@ -109,12 +109,12 @@ def Main():
 	Utils.g_module.build(bld)
 	g_inroot=0
 
-	while len(Params.g_subdirs)>0:
+	while len(bld.m_subdirs)>0:
 		# read scripts, saving the context everytime (bld.m_curdirnode)
 
 		# cheap queue
-		lst=Params.g_subdirs[0]
-		Params.g_subdirs=Params.g_subdirs[1:]
+		lst=bld.m_subdirs[0]
+		bld.m_subdirs=bld.m_subdirs[1:]
 
 		new=lst[0]
 		old=lst[1]

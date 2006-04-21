@@ -51,17 +51,13 @@ g_maxjobs = 1
 
 ## the only Build object
 g_build    = None
-# node representing the source directory
-g_srcnode = None
-g_bldnode = None
-
 
 # contains additional handler functions to add language support
 # to cpp files: for example an idl file which compiles into a cpp file
 g_handlers={}
-
-## actions defined globally
+# global actions
 g_actions ={}
+# global scanners
 g_scanners={}
 
 # avoid importing tools several times
@@ -76,17 +72,18 @@ g_posted_objs      = []
 # this is used in tests to check which tasks were actually launched
 g_tasks_done       = []
 
-# temporary holding the subdirectories containing scripts
-g_subdirs=[]
-
-# node representing the directory from which the program was started
-g_startnode = None
-
 # list of folders that are already scanned
 # so that we do not need to stat them one more time
 g_scanned_folders=[]
 
 
+def srcnode():
+	global g_build
+	return g_build.m_tree.m_srcnode
+
+def bldnode():
+	global g_build
+	return g_build.m_tree.m_bldnode
 
 ### HELPERS ####
 

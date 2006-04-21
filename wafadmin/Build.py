@@ -25,6 +25,9 @@ class Build:
 		# map a name to an environment, the 'default' must be defined
 		self.m_allenvs = {}
 
+		# temporary holding the subdirectories containing scripts
+		m_subdirs=[]
+
 		self.m_bdir = ''
 
 	def load(self, blddir):
@@ -68,7 +71,9 @@ class Build:
 		if sys.platform=='win32': p=p[2:]
 		node=self.m_tree.ensure_node_from_path(p)
 		self.m_tree.m_srcnode = node
-		Params.g_srcnode = node
+
+		srcnode = self.m_tree.m_srcnode
+
 		# position in the source tree when reading scripts
 		self.m_curdirnode = node
 		# stupid behaviour (will scan every project in the folder) but scandirs-free
@@ -83,10 +88,10 @@ class Build:
 			def scan(node):
 				if node is Params.g_bldnode: return []
 				if node.m_name in Params.g_excludes: return []
-				dir = os.sep.join( Params.g_srcnode.difflst(node) )
+				dir = os.sep.join(srcnode.difflst(node))
 				self.m_tree.scanner_mirror(dir)
 				return node.m_dirs
-			mlst = scan(Params.g_srcnode)
+			mlst = scan(srcnode)
 			while mlst:
 				el=mlst[0]
 				mlst=mlst[1:]

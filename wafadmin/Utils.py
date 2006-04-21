@@ -72,10 +72,6 @@ def reset():
 	
 	Params.g_maxjobs = 1
 	
-	Params.g_subdirs=[]
-	Params.g_srcnode = None
-	Params.g_startnode = None
-
 	Params.g_scanned_folders=[]
 
 	Params.g_tools = []
