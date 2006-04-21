@@ -22,6 +22,9 @@ class Build:
 		# the folder changes everytime a sconscript is read
 		self.m_curdirnode = None
 
+		# map a name to an environment, the 'default' must be defined
+		self.m_allenvs = {}
+
 		self.m_bdir = ''
 
 	def load(self, blddir):

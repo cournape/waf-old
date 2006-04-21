@@ -30,7 +30,7 @@ def install_files(var, subdir, files, env=None):
 	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
 
 	bld = Params.g_build
-	if not env: env=Params.g_envs['default']
+	if not env: env=Params.g_build.m_allenvs['default']
 	node = bld.m_curdirnode
 
 	if type(files) is types.ListType: lst=files
@@ -61,7 +61,7 @@ def install_as(var, destfile, srcfile, env=None):
 	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
 
 	bld = Params.g_build
-	if not env: env=Params.g_envs['default']
+	if not env: env=Params.g_build.m_allenvs['default']
 	node = bld.m_curdirnode
 
 	tgt = env[var]

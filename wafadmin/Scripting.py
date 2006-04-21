@@ -48,7 +48,7 @@ def load_envs():
 		if not ret:
 			print "could not load env ", name
 			continue
-		Params.g_envs[name] = env
+		Params.g_build.m_allenvs[name] = env
 		try:
 			env.setup(env['tools'])
 		except:

@@ -39,12 +39,12 @@ class ocamlobj(Object.genobj):
 
 		if type in native_lst:
 			self.is_native                 = 1
-			self.native_env                = Params.g_envs['default'].copy()
+			self.native_env                = Params.g_build.m_allenvs['default'].copy()
 			self.native_env['OCAMLCOMP']   = self.native_env['OCAMLOPT']
 			self.native_env['LINK']        = self.native_env['OCAMLOPT']
 		if type in bytecode_lst:
 			self.is_bytecode               = 1
-			self.bytecode_env              = Params.g_envs['default'].copy()
+			self.bytecode_env              = Params.g_build.m_allenvs['default'].copy()
 			self.bytecode_env['OCAMLCOMP'] = self.bytecode_env['OCAMLC']
 			self.bytecode_env['LINK']      = self.bytecode_env['OCAMLC']
 

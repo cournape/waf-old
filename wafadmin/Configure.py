@@ -72,12 +72,12 @@ class Configure:
 
 	def retrieve(self, name, fromenv=None):
 		try:
-			env = Params.g_envs[name]
+			env = Params.g_build.m_allenvs[name]
 			if fromenv: print "warning, the environment %s may have been configured already" % name
 			return env
 		except:
 			env = Environment.Environment()
-			Params.g_envs[name] = env
+			Params.g_build.m_allenvs[name] = env
 			return env
 
 	def setenv(self, name):
@@ -113,7 +113,7 @@ class Configure:
 
 		env = self.env.copy()
 		Utils.reset()
-		Params.g_envs['default'] = env
+		Params.g_build.m_allenvs['default'] = env
 
 		bld = Build.Build()
 		bld.set_dirs(dir, os.path.join(dir, '_build_'))
@@ -330,10 +330,10 @@ int main()
 		try: os.mkdir(Utils.g_module.cachedir)
 		except OSError: pass
 
-		if not Params.g_envs:
+		if not Params.g_build.m_allenvs:
 			fatal("nothing to store in Configure !")
-		for key in Params.g_envs:
-			tmpenv = Params.g_envs[key]
+		for key in Params.g_build.m_allenvs:
+			tmpenv = Params.g_build.m_allenvs[key]
 			self.env.store(os.path.join(Utils.g_module.cachedir, key+'.cache.py'))
 
 	def checkMessage(self,type,msg,state,option=''):

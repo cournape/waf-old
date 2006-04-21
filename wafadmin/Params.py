@@ -67,9 +67,6 @@ g_scanners={}
 # avoid importing tools several times
 g_tools = []
 
-# map a name to an environment, the 'default' must be defined
-g_envs = {}
-
 # objects that are not posted and objects already posted
 # -> delay task creation
 g_outstanding_objs = []

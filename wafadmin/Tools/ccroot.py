@@ -43,7 +43,7 @@ class ccroot(Object.genobj):
 	def __init__(self, type='program'):
 		Object.genobj.__init__(self, type)
 
-		self.env = Params.g_envs['default'].copy()
+		self.env = Params.g_build.m_allenvs['default'].copy()
 		if not self.env['tools']: fatal('no tool selected')
 
 		self.includes=''
