@@ -176,6 +176,73 @@ class kde_documentation(Object.genobj):
 
 		Common.install_files('KDE_DOC', destpath, lst, self.env)
 
+def handler_ui(obj, node, base=''):
+	cppnode = obj.get_node( base+'.cpp' )
+	hnode   = obj.get_node( base+'.h' )
+
+	uictask = obj.create_task('uic', obj.env, 2)
+	uictask.m_inputs    = obj.file_in(base+'.ui')
+	uictask.m_outputs   = [ hnode, cppnode ]
+
+	moctask = obj.create_task('moc', obj.env)
+	moctask.m_inputs    = [ hnode ]
+	moctask.m_outputs   = obj.file_in(base+'.moc')
+
+	cpptask = obj.create_task('cpp', obj.env)
+	cpptask.m_inputs    = [ cppnode ]
+	cpptask.m_outputs   = obj.file_in(base+'.o')
+	cpptask.m_run_after = [moctask]
+
+	obj.p_compiletasks.append( cpptask )
+
+def handler_kcfgc(obj, node, base=''):
+	cppnode = obj.get_node(base+'.cpp')
+
+	# run with priority 2
+	task = obj.create_task('kcfg', obj.env, 2)
+
+	tree = Params.g_build.m_tree
+	task.m_inputs = [ tree.get_mirror_node(kcfg), tree.get_mirror_node(kcfgc) ]
+	task.m_outputs = [ cppnode, obj.get_node(base+'.h') ]
+
+	cpptask = obj.create_task('cpp', obj.env)
+	cpptask.m_inputs  = [ cppnode ]
+	cpptask.m_outputs = [ obj.get_node(base+'.o') ]
+
+	if tree.needs_rescan(node):
+		tree.rescan(node, Scan.kcfg_scanner, dir_lst)
+	kcfg_node = tree.m_depends_on[node][0]
+	base, ext = node.splitname()
+	obj.p_compiletasks.append( cpptask )
+
+def handler_skel_or_stub(obj, base, type):
+	if not base in obj.skel_or_stub:
+		kidltask = obj.create_task('kidl', obj.env, 2)
+		kidltask.m_inputs  = obj.file_in(base+'.h')
+		kidltask.m_outputs = obj.file_in(base+'.kidl')
+		obj.skel_or_stub[base] = kidltask
+
+	# this is a cascading builder .h->.kidl->_stub.cpp->_stub.o->link
+	# instead of saying "task.run_after(othertask)" we only give priority numbers on tasks
+
+	# the skel or stub (dcopidl2cpp)
+	task = obj.create_task(type, obj.env, 4)
+	task.m_inputs  = obj.skel_or_stub[base].m_outputs
+	task.m_outputs = obj.file_in(''.join([base,'_',type,'.cpp']))
+
+	# compile the resulting file (g++)
+	cpptask = obj.create_task('cpp', obj.env)
+	cpptask.m_inputs  = task.m_outputs
+	cpptask.m_outputs = obj.file_in(''.join([base,'_',type,'.o']))
+
+	obj.p_compiletasks.append( cpptask )
+
+def handler_stub(obj, node, base=''):
+	handler_skel_or_stub(obj, base, 'stub')
+
+def handler_skel(obj, node, base=''):
+	handler_skel_or_stub(obj, base, 'skel')
+
 # kde3 objects
 kdefiles = ['.cpp', '.ui', '.kcfgc', '.skel', '.stub']
 class kdeobj(cpp.cppobj):
@@ -183,9 +250,13 @@ class kdeobj(cpp.cppobj):
 		cpp.cppobj.__init__(self, type)
 		self.m_linktask = None
 		self.m_latask   = None
+		self.skel_or_stub = {}
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
+
+	def get_node(self, a):
+		return self.get_mirror_node(self.m_current_path, a)
 
 	def find_kde_sources_in_dirs(self, dirnames):
 		lst=[]
@@ -197,50 +268,6 @@ class kdeobj(cpp.cppobj):
 					lst.append( file.relpath(self.m_current_path)[2:] )
 		self.source = self.source+(" ".join(lst))
 
-	def create_kcfg_task(self, kcfg, kcfgc, base):
-		def get_node(a):
-			return self.get_mirror_node( self.m_current_path, a)
-
-		cppnode = get_node(base+'.cpp')
-
-		# run with priority 2
-		task = self.create_task('kcfg', self.env, 2)
-
-		tree = Params.g_build.m_tree
-		task.m_inputs = [ tree.get_mirror_node(kcfg), tree.get_mirror_node(kcfgc) ]
-		task.m_outputs = [ cppnode, get_node(base+'.h') ]
-
-		cpptask = self.create_cpp_task()
-		cpptask.m_inputs  = [ cppnode ]
-		cpptask.m_outputs = [ get_node(base+'.o') ]
-
-		return cpptask
-
-	def create_cpp_task(self):
-		return self.create_task('cpp', self.env)
-
-	def create_uic_task(self, base):
-		def get_node(a):
-			return self.get_mirror_node( self.m_current_path, a)
-
-		cppnode = get_node( base+'.cpp' )
-		hnode   = get_node( base+'.h' )
-
-		uictask = self.create_task('uic', self.env, 2)
-		uictask.m_inputs    = self.file_in(base+'.ui')
-		uictask.m_outputs   = [ hnode, cppnode ]
-
-		moctask = self.create_task('moc', self.env)
-		moctask.m_inputs    = [ hnode ]
-		moctask.m_outputs   = self.file_in(base+'.moc')
-
-		cpptask = self.create_cpp_task()
-		cpptask.m_inputs    = [ cppnode ]
-		cpptask.m_outputs   = self.file_in(base+'.o')
-		cpptask.m_run_after = [moctask]
-
-		return cpptask
-
 	def apply(self):
 		trace("apply called for kdeobj")
 		if not self.m_type in self.get_valid_types(): fatal('Trying to build a kde file of unknown type')
@@ -250,10 +277,7 @@ class kdeobj(cpp.cppobj):
 		self.apply_obj_vars()
 		self.apply_incpaths()
 
-		#try: obj_ext = self.env['obj_ext'][0]
-		#except: obj_ext = '.os'
-
-		obj_ext='.o'
+		obj_ext = self.env[self.m_type+'_obj_ext'][0]
 
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
@@ -261,55 +285,23 @@ class kdeobj(cpp.cppobj):
 		dir_lst = { 'path_lst' : self._incpaths_lst }
 
 		lst = self.source.split()
-		skel_or_stub = {}
 		for filename in lst:
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
 			if not node: error("source not found "+filename)
-
 			base, ext = os.path.splitext(filename)
 
-			if ext == '.ui':
-				node = self.m_current_path.find_node( filename.split(os.sep) )
-				self.p_compiletasks.append( self.create_uic_task(base) )
+			fun = None
+			try:
+				fun = self.env['handlers_kdeobj_'+ext]
+				#print "fun is", 'handlers_cppobj_'+ext, fun
+			except:
+				pass
+
+			if fun:
+				fun(self, node, base=base)
 				continue
-			#elif ext == '.qrc':
-			#	cpptasks.append( self.create_rcc_task(base) )
-			#	continue
-			elif ext == '.kcfgc':
-				node = self.m_current_path.find_node( filename.split(os.sep) )
-				if not node: error("kcfgfile not found")
-				#print "kcfgc file found", filename
-				if tree.needs_rescan(node):
-					tree.rescan(node, Scan.kcfg_scanner, dir_lst)
-				kcfg_node = tree.m_depends_on[node][0]
-				self.p_compiletasks.append( self.create_kcfg_task(kcfg_node, node, base) )
-				continue
-			elif ext == '.skel' or ext == '.stub':
-				if not base in skel_or_stub:
-					kidltask = self.create_task('kidl', self.env, 2)
-					kidltask.m_inputs  = self.file_in(base+'.h')
-					kidltask.m_outputs = self.file_in(base+'.kidl')
-					skel_or_stub[base] = kidltask
 
-				# stub or skel ? (remove the dot '.stub' -> 'stub')
-				type = ext[1:]
-
-				# this is a cascading builder .h->.kidl->_stub.cpp->_stub.o->link
-				# instead of saying "task.run_after(othertask)" we only give priority numbers on tasks
-
-				# the skel or stub (dcopidl2cpp)
-				task = self.create_task(type, self.env, 4)
-				task.m_inputs  = skel_or_stub[base].m_outputs
-				task.m_outputs = self.file_in(''.join([base,'_',type,'.cpp']))
-
-				# compile the resulting file (g++)
-				cpptask = self.create_cpp_task()
-				cpptask.m_inputs  = task.m_outputs
-				cpptask.m_outputs = self.file_in(''.join([base,'_',type,'.o']))
-
-				self.p_compiletasks.append( cpptask )
-				continue
 
 			# scan for moc files to produce, create cpp tasks at the same time
 			if tree.needs_rescan(node):
@@ -343,7 +335,7 @@ class kdeobj(cpp.cppobj):
 					break
 
 			# create the task for the cpp file
-			cpptask = self.create_cpp_task()
+			cpptask = self.create_task('cpp', self.env)
 
 			cpptask.m_scanner = Scan.c_scanner
 			cpptask.m_scanner_params = dir_lst
@@ -628,6 +620,11 @@ def setup(env):
 		Params.g_colors['uic']='\033[94m'
 		Params.g_colors['kcfg']='\033[94m'
 		Params.g_colors['po']='\033[94m'
+
+	if not env['handlers_kdeobj_.ui']:    env['handlers_kdeobj_.ui']   = handler_ui
+	if not env['handlers_kdeobj_.skel']:  env['handlers_kdeobj_.skel'] = handler_skel
+	if not env['handlers_kdeobj_.stub']:  env['handlers_kdeobj_.stub'] = handler_stub
+	if not env['handlers_kdeobj_.kcfgc']: env['handlers_kdeobj_.kcfg'] = handler_kcfgc
 
         Object.register('kde_translations', kde_translations)
         Object.register('kde_documentation', kde_documentation)
