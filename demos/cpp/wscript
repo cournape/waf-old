@@ -18,6 +18,10 @@ def build(bld):
 def configure(conf):
 	conf.checkTool(['g++'])
 	conf.sub_config('src')
+
+	conf.env['CXXFLAGS_MYPROG']='-O3'
+	conf.env['LIB_MYPROG']='m'
+	
 	# works in a procedural way, so the order of calls does matter
 	#conf.checkTool(['KDE3'])
 
