@@ -103,9 +103,7 @@ class ccroot(Object.genobj):
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
 			if not node:
-				error("source not found "+filename)
-				print "source not found", self.m_current_path
-				sys.exit(1)
+				fatal("source not found: "+filename+" in "+str(self.m_current_path))
 
 			base, ext = os.path.splitext(filename)
 
