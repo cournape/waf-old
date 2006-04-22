@@ -40,6 +40,16 @@ class Build:
 		self.m_height_cache = {}
 
 
+		# objects that are not posted and objects already posted
+		# -> delay task creation
+		self.m_outstanding_objs = []
+		self.m_posted_objs      = []
+
+		# list of folders that are already scanned
+		# so that we do not need to stat them one more time
+		self.m_scanned_folders  = []
+
+
 		self.m_cache_node_content = {}
 
 		self.m_bdir = ''

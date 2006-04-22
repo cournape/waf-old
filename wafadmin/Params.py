@@ -20,7 +20,6 @@ g_dbfile='.dblite'
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
 g_pattern_excludes = ['_build_']
 
-
 g_strong_hash = 0
 
 def sig_nil():
@@ -52,31 +51,6 @@ g_maxjobs = 1
 ## the only Build object
 g_build    = None
 
-# contains additional handler functions to add language support
-# to cpp files: for example an idl file which compiles into a cpp file
-g_handlers={}
-# global actions
-g_actions ={}
-# global scanners
-g_scanners={}
-
-# avoid importing tools several times
-g_tools = []
-
-# objects that are not posted and objects already posted
-# -> delay task creation
-g_outstanding_objs = []
-g_posted_objs      = []
-
-# tasks that have been run
-# this is used in tests to check which tasks were actually launched
-g_tasks_done       = []
-
-# list of folders that are already scanned
-# so that we do not need to stat them one more time
-g_scanned_folders=[]
-
-
 def srcnode():
 	global g_build
 	return g_build.m_tree.m_srcnode
@@ -84,6 +58,14 @@ def srcnode():
 def bldnode():
 	global g_build
 	return g_build.m_tree.m_bldnode
+
+# contains additional handler functions to add language support
+# to cpp files: for example an idl file which compiles into a cpp file
+g_handlers={}
+# global actions
+g_actions ={}
+# global scanners
+g_scanners={}
 
 ### HELPERS ####
 

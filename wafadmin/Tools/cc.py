@@ -44,11 +44,6 @@ class ccobj(ccroot.ccroot):
 # tool specific setup
 # is called when a build process is started 
 def setup(env):
-	print "setup for cc"
-	# prevent other modules from loading us more than once
-	if 'cc' in Params.g_tools: return
-	Params.g_tools.append('cc')
-
 	# register our object
 	Object.register('cc', ccobj)
 

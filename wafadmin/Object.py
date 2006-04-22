@@ -26,13 +26,16 @@ g_allobjs=[]
 
 # call flush for every group of object to process
 def flush():
+	bld = Params.g_build
 	trace("delayed operation called")
-	while len(Params.g_outstanding_objs)>0:
+	while len(bld.m_outstanding_objs)>0:
 		trace("posting object")
 
-		obj=Params.g_outstanding_objs.pop()
+		obj=bld.m_outstanding_objs.pop()
 		obj.post()
-		Params.g_posted_objs.append(obj)
+
+		# TODO useless
+		bld.m_posted_objs.append(obj)
 
 		trace("object posted")
 
@@ -63,7 +66,7 @@ class genobj:
 		# an object is then posted when another one is added
 		# of course, you may want to post the object yourself first :)
 		#flush()
-		Params.g_outstanding_objs.append(self)
+		Params.g_build.m_outstanding_objs.append(self)
 
 		if not type in self.get_valid_types():
 			error("BUG genobj::init : invalid type given")
@@ -160,8 +163,6 @@ def sign_env_vars(env, vars_list):
 	return Params.h_list(lst)
 
 def reset():
-	global g_register
-	g_register={}
 	g_allobjs=[]
 
 # The main functor 
@@ -177,6 +178,8 @@ def createObj(objname, *k, **kw):
 
 def register(name, classval):
 	global g_allclasses
-	if name in g_allclasses: print "there is a problem in Object:register: class exists ", name
+	if name in g_allclasses:
+		trace('class exists in g_allclasses '+name)
+		return
 	g_allclasses[name] = classval
 

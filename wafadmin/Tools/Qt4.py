@@ -5,6 +5,7 @@
 # found is 1, not found is 0
 
 import os, re, types, sys
+import ccroot, cpp
 import Action, Common, Utils, Params, Configure, Scan, Runner, Object
 from Params import debug, error, trace, fatal
 
@@ -69,9 +70,9 @@ uic3act.m_function_to_run = uic3_build
 
 
 qt4files = ['.cpp', '.ui', '.rcc']
-class qt4obj(Common.cppobj):
+class qt4obj(cpp.cppobj):
 	def __init__(self, type='program'):
-		Common.cppobj.__init__(self, type)
+		cpp.cppobj.__init__(self, type)
 		self.m_linktask = None
 		self.m_latask = None
 

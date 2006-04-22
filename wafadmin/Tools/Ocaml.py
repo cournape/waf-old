@@ -24,7 +24,7 @@ native_lst=['native', 'all']
 bytecode_lst=['bytecode', 'all']
 class ocamlobj(Object.genobj):
 	def __init__(self, type='all', library=0):
-		Object.genobj.__init__(self, 'other', 'ocaml')
+		Object.genobj.__init__(self, 'ocaml')
 
 		self.m_type   = type
 		self.m_source = ''

@@ -77,12 +77,11 @@ class Node:
 		return None
 
 	def ensure_scan(self):
-		global g_scanned_folders
-		if not self in g_scanned_folders:
+		if not self in Params.g_build.m_scanned_folders:
 			# TODO: a little bit inefficient, but code factorization will come later
 			folder = '/'.join( Params.srcnode().difflst(self) )
 			Params.g_build.m_tree.scanner_mirror(folder)
-		g_scanned_folders.append(self)
+		Params.g_build.m_scanned_folders.append(self)
 
 	# list of file names that separate a node from a child
 	def difflst(self, child):

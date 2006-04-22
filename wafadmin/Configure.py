@@ -59,12 +59,13 @@ class Configure:
 		self.env       = None
 		self.m_envname = ''
 
-		self.setenv('default')
-
+		self.m_allenvs = {}
 		self.defines = {}
 		self.configheader = 'config.h'
-
 		self.cwd  = os.getcwd()
+
+		self.setenv('default')
+
 
 	def __del__(self):
 		if not self.env['tools']:
@@ -72,12 +73,12 @@ class Configure:
 
 	def retrieve(self, name, fromenv=None):
 		try:
-			env = Params.g_build.m_allenvs[name]
+			env = self.m_allenvs[name]
 			if fromenv: print "warning, the environment %s may have been configured already" % name
 			return env
 		except:
 			env = Environment.Environment()
-			Params.g_build.m_allenvs[name] = env
+			self.m_allenvs[name] = env
 			return env
 
 	def setenv(self, name):
@@ -113,10 +114,10 @@ class Configure:
 
 		env = self.env.copy()
 		Utils.reset()
-		Params.g_build.m_allenvs['default'] = env
 
 		bld = Build.Build()
 		bld.set_dirs(dir, os.path.join(dir, '_build_'))
+		bld.m_allenvs['default'] = env
 
 		bld.m_curdirnode = Params.g_build.m_tree.m_srcnode
 
@@ -330,10 +331,10 @@ int main()
 		try: os.mkdir(Utils.g_module.cachedir)
 		except OSError: pass
 
-		if not Params.g_build.m_allenvs:
+		if not self.m_allenvs:
 			fatal("nothing to store in Configure !")
-		for key in Params.g_build.m_allenvs:
-			tmpenv = Params.g_build.m_allenvs[key]
+		for key in self.m_allenvs:
+			tmpenv = self.m_allenvs[key]
 			self.env.store(os.path.join(Utils.g_module.cachedir, key+'.cache.py'))
 
 	def checkMessage(self,type,msg,state,option=''):

@@ -49,10 +49,6 @@ class cppobj(ccroot.ccroot):
 # tool specific setup
 # is called when a build process is started 
 def setup(env):
-	# prevent other modules from loading us more than once
-	if 'cpp' in Params.g_tools: return
-	Params.g_tools.append('cpp')
-
 	# register our object
 	Object.register('cpp', cppobj)
 

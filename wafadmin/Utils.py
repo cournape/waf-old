@@ -50,27 +50,8 @@ def h_simple_lst(lst):
 	return val+1
 
 def reset():
-	#Object.reset
-	#Task.reset()
-
 	import Params
-	Params.g_rootname = "" # might be c: (without '\')
-	Params.g_dbfile='.dblite'
-	Params.g_excludes = ['.svn', 'scons-local-0.96.91', 'cache', '{arch}', '.arch-ids']
-	Params.g_pattern_excludes = ['_build_']
-
-	Params.g_outstanding_objs=[]
-	Params.g_posted_objs = []
-	
-	Params.g_tasks_done  = []
-
-	Params.g_build    = None
-	
-	Params.g_maxjobs = 1
-	
-	Params.g_scanned_folders=[]
-
-	Params.g_tools = []
+	Params.g_build = None
 
 def options(**kwargs):
 	pass

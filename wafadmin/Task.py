@@ -8,14 +8,16 @@ from Params import debug, error, trace, fatal
 
 # task index
 g_idx=0
-# find a task from a node
-g_node2task={}
 
 # the set of tasks is a list of groups : [group 2, group 1, group 0]
 # groups are hashtables mapping priorities to lists of tasks ..
 # parallelizing tasks is thus much easier with this scheme
-
 g_tasks=[{}]
+
+# tasks that have been run
+# this is used in tests to check which tasks were actually launched
+g_tasks_done       = []
+
 
 def add_group():
 	global g_tasks
@@ -23,7 +25,7 @@ def add_group():
 	if not g_tasks[0]: return
 	g_tasks = [{}]+g_tasks
 
-def add_task(task, priority=5):
+def add_task(task, priority=6):
 	try: g_tasks[0][priority].append(task)
 	except: g_tasks[0][priority] = [task]
 
@@ -153,13 +155,6 @@ class Task:
 		self.m_action.prepare(self)
 
 	# TODO documentation
-	# special .. if a task is meant to be executed before another one, .. :)
-	def register_cascade(self):
-		global g_node2task
-		for f in self.m_inputs:
-			g_node2task[f] = self
-	
-	# TODO documentation
 	def set_run_after(self, task):
 		self.m_run_after.append(task)
 
@@ -176,9 +171,7 @@ class Task:
 		fun("-- end task debugging --")
 
 def reset():
-	global g_node2task, g_idx, g_tasks
-	g_node2task={}
-	g_idx=0
+	global g_tasks
 	g_tasks=[{}]
 
 
