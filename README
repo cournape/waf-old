@@ -22,6 +22,8 @@ Starting a new project with waf:
   copy the wafadmin/ folder for global use: /usr/lib/wafadmin, /usr/local/lib/wafadmin 
   you might want to look into waf.py for more details on where the wafadmin directory is searched.
 
+  Add sources in a subdirectory (this is how programs are built in real life), and a wscript on the top-level.
+
 Using waf:
   To begin with, have a look at the cpp demo first (demos/cpp):
   * configure with "waf configure"
