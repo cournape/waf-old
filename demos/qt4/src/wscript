@@ -7,8 +7,7 @@ def build(bld):
 	obj.source = 'window.cpp glwidget.cpp main.cpp textures.qrc'
 	obj.uselib = 'QT QTCORE QTGUI QTOPENGL'
 	obj.target = 'window'
-	obj.set_name('firstobj')
 	obj.includes = 'test .'
 
-	bld.add_subdir('test')
+	bld.add_subdirs('test')
 

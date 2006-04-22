@@ -79,6 +79,9 @@ class qt4obj(cpp.cppobj):
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
 
+	def get_node(self, a):
+		return self.get_mirror_node(self.m_current_path, a)
+
 	def find_sources_in_dirs(self, dirnames):
 		lst=[]
 		for name in dirnames.split():
@@ -377,16 +380,12 @@ def detect_qt4(conf):
 	env['LIBPATH_QT']          = env['LIBPATH_X11']+[env['QTLIBPATH']]
 #    env['LIB_QT']              = ['QtGui4'+debug, 'pthread', 'Xext']+env['LIB_Z']+env['LIB_PNG']+env['LIB_X11']+env['LIB_SM']
 	env['LIB_QT']              = ['QtGui'+debug, ]
-	env['RPATH_QT']            = env['LIBPATH_X11']+[env['QTLIBPATH']]
-
         env['CXXFLAGS_QT3SUPPORT'] = ['-DQT3_SUPPORT']
 	env['CPPPATH_QT3SUPPORT']  = [ env['QTINCLUDEPATH']+'/Qt3Support' ]
         env['LIB_QT3SUPPORT']      = ['Qt3Support'+debug]
-	env['RPATH_QT3SUPPORT']    = env['RPATH_QT']
 
 	env['CPPPATH_QTCORE']      = [ env['QTINCLUDEPATH']+'/QtCore' ]
         env['LIB_QTCORE']          = ['QtCore'+debug]
-	env['RPATH_QTCORE']        = env['RPATH_QT']
 
 	env['CPPPATH_QTASSISTANT'] = [ env['QTINCLUDEPATH']+'/QtAssistant' ]
 	env['LIB_QTASSISTANT']     = ['QtAssistant'+debug]
@@ -396,31 +395,43 @@ def detect_qt4(conf):
 
 	env['CPPPATH_QTNETWORK']   = [ env['QTINCLUDEPATH']+'/QtNetwork' ]
         env['LIB_QTNETWORK']       = ['QtNetwork'+debug]
-	env['RPATH_QTNETWORK']     = env['RPATH_QT']
 
 	env['CPPPATH_QTGUI']       = [ env['QTINCLUDEPATH']+'/QtGui' ]
         env['LIB_QTGUI']           = ['QtCore'+debug, 'QtGui'+debug]
-	env['RPATH_QTGUI']         = env['RPATH_QT']
 
 	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpenGL') ]
         env['LIB_QTOPENGL']        = ['QtOpenGL'+debug]
-	env['RPATH_QTOPENGL']      = env['RPATH_QT']
 
 	env['CPPPATH_QTSQL']       = [ env['QTINCLUDEPATH']+'/QtSql' ]
         env['LIB_QTSQL']           = ['QtSql'+debug]
-	env['RPATH_QTSQL']         = env['RPATH_QT']
 
 	env['CPPPATH_QTXML']       = [ env['QTINCLUDEPATH']+'/QtXml' ]
         env['LIB_QTXML']           = ['QtXml'+debug]
-	env['RPATH_QTXML']         = env['RPATH_QT']
 
 	env['CPPPATH_QTEST']       = [ env['QTINCLUDEPATH']+'/QtTest' ]
         env['LIB_QTEST']           = ['QtTest'+debug]
-	env['RPATH_QTEST']         = env['RPATH_QT']
 	
-	print env['PREFIX']
-	env['QTLOCALE']            = str(env['PREFIX'])+'/share/locale'
+	# rpath settings
+	try:
+		if Params.g_options.want_rpath:
 
+			lst = ['-Wl,--rpath='+env['QTLIBPATH']]
+			for d in env['LIBPATH_X11']:
+				lst.append('-Wl,--rpath='+d)
+
+			env['RPATH_QT']            = lst
+			env['RPATH_QT3SUPPORT']    = env['RPATH_QT']
+			env['RPATH_QTCORE']        = env['RPATH_QT']
+			env['RPATH_QTNETWORK']     = env['RPATH_QT']
+			env['RPATH_QTGUI']         = env['RPATH_QT']
+			env['RPATH_QTOPENGL']      = env['RPATH_QT']
+			env['RPATH_QTSQL']         = env['RPATH_QT']
+			env['RPATH_QTXML']         = env['RPATH_QT']
+			env['RPATH_QTEST']         = env['RPATH_QT']
+	except:
+		pass
+
+	env['QTLOCALE']            = str(env['PREFIX'])+'/share/locale'
 
 def detect_qt4_win32(conf):
 	print "win32 code"
