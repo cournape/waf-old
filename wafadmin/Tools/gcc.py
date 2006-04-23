@@ -11,7 +11,7 @@ import Utils, Action, Params
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
 	# like '%s -o %s' which becomes 'file.c -o file.o' when called
-	cc_vardeps    = ['CC', 'CCFLAGS', 'CCFLAGS_' + Params.g_options.debug_level, '_CPPDEFFLAGS', '_CINCFLAGS', 'CC_ST']
+	cc_vardeps    = ['CC', 'CCFLAGS', 'CCFLAGS_' + Params.g_options.debug_level, '_CPPDEFFLAGS', '_CCINCFLAGS', 'CC_ST']
 	Action.GenAction('cc', cc_vardeps)
 
 	# on windows libraries must be defined after the object files 

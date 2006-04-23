@@ -26,6 +26,11 @@ def configure(conf):
 	# pkg-config example - look in src/wscript_build, obj.uselib ..
 	conf.pkgcheck('alsa', destvar='ALSA', vnum='1.0')
 
+	# write a config.h
+	conf.checkHeader('dlfcn.h','HAVE_DLFCN_H')
+	conf.addDefine('TEST_DEFINE', '345')
+	conf.writeConfigHeader('config.h')
+
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
 	opt.add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
