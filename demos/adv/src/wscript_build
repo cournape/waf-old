@@ -19,5 +19,6 @@ obj.source='''
 main.cpp ih.coin
 '''
 obj.includes='.'
+obj.uselib='ALSA'
 obj.target='testprogram2'
 
