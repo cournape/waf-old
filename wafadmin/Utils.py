@@ -68,8 +68,11 @@ def load_module(file_path, name='wscript'):
 
 	module = imp.new_module(name)
 
-	file = open(file_path, 'r')
-	code = file.read()
+	try:
+		file = open(file_path, 'r')
+		code = file.read()
+	except:
+		Params.fatal('The file %s could not be opened!' % file_path)
 
 	exec code in module.__dict__
 	if file: file.close()
