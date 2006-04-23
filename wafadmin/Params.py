@@ -13,14 +13,13 @@ if sys.path=='win32':
 	# get the first two letters (c:)
 	g_rootname = os.getcwd()[:2]
 
-# by default
+# it is unlikely that we change the name of this file
 g_dbfile='.dblite'
 
 # deptree
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
 g_pattern_excludes = ['_build_']
-
-g_strong_hash = 0
+g_strong_hash = 1
 
 def sig_nil():
 	if g_strong_hash: return 'c01a85d0a38b176482a6e529f81f5251'
@@ -30,13 +29,6 @@ def sig_nil():
 
 # used by environment, this is the directory containing our Tools
 g_tooldir=''
-
-# yes, i was focusing on imitating scons where this really was not necessary (ita)
-# TODO clean the mess
-#g_mode = 'copy'
-#g_mode = 'slnk'
-#g_mode = 'hlnk'
-g_mode = 'nocopy'
 
 # parsed command-line arguments in the options module
 g_options = []

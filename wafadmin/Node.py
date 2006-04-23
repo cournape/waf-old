@@ -183,15 +183,14 @@ class Node:
 
 	# path used when building targets
 	def bldpath(self):
-		if Params.g_mode == 'nocopy':
-			try:
-				orig = Params.g_build.m_tree.m_bld_to_src[self]
-				return orig.relpath_gen(Params.g_bldnode)
-			except KeyError:
-				pass
-			except:
-				print self
-				raise
+		try:
+			orig = Params.g_build.m_tree.m_bld_to_src[self]
+			return orig.relpath_gen(Params.g_bldnode)
+		except KeyError:
+			pass
+		except:
+			print self
+			raise
 		if not Params.g_bldnode: error("BUG in bldpath")
 		#return self.relpath(Params.g_bldnode)
 		return self.relpath_gen(Params.g_bldnode)

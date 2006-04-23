@@ -18,7 +18,7 @@ def dang_build(task):
 dangact = Action.GenAction('dang', dang_vardeps)
 dangact.m_function_to_run = dang_build
 
-# This function is called when the class cppobj encounters a '.coin' file
+# This function (hook) is called when the class cppobj encounters a '.coin' file
 # .coin -> .cpp -> .o
 def coin_file(obj, node):
 
@@ -41,11 +41,11 @@ def coin_file(obj, node):
 	cpptask.m_outputs = fi(base+'.o')
 	obj.p_compiletasks.append(cpptask)
 
-# This function is called when a build process is started 
 def setup(env):
 	if not sys.platform == "win32":
 		Params.g_colors['dang']='\033[94m'
 
+	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.coin']: env['handlers_cppobj_.coin'] = coin_file
 
 def detect(conf):

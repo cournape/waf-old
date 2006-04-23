@@ -217,10 +217,6 @@ class Deptree:
 					# if the timestamp has changed, we need to re-scan the file - not here though
 					if ts!=file.m_tstamp:
 						trace("A file changed! %s %s now %s" % (str(file),str(ts),str(file.m_tstamp)) )
-						if Params.g_mode == 'copy':
-							#est="copy file %s %s"
-							#print est % (file.abspath(), os.path.join(mir_node.abspath(), file.m_name))
-							shutil.copy2( file.abspath(), os.path.join(mir_node.abspath(), file.m_name))
 				except:
 					# remove the node here and in the builddir
 					name = file.m_name
@@ -273,11 +269,7 @@ class Deptree:
 					dupe = mir_child_node.abspath()
 					try:
 						#print "replicate new file %s to %s"% (child_node.abspath(), dupe)
-						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
-						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
-						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
-						else:
-							self.m_bld_to_src[mir_child_node]=child_node
+						self.m_bld_to_src[mir_child_node]=child_node
 						self.m_src_to_bld[child_node]=mir_child_node
 					except OSError:
 						pass
@@ -298,11 +290,7 @@ class Deptree:
 
 					dupe = mir_child_node.abspath()
 					try:
-						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
-						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, name), dupe )
-						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, name), dupe )
-						else:
-							self.m_bld_to_src[mir_child_node]=child_node
+						self.m_bld_to_src[mir_child_node]=child_node
 						self.m_src_to_bld[child_node]=mir_child_node
 					except OSError:
 						pass
@@ -336,11 +324,7 @@ class Deptree:
 					# now make the link
 					dupe = mir_child_node.abspath()
 					try:
-						if   Params.g_mode == 'copy': shutil.copy2( child_node.abspath(), dupe )
-						elif Params.g_mode == 'slnk': os.symlink( os.path.join(relp, file_or_dir), dupe )
-						elif Params.g_mode == 'hlnk': os.link(    os.path.join(relp, file_or_dir), dupe )
-						else:
-							self.m_bld_to_src[mir_child_node]=child_node
+						self.m_bld_to_src[mir_child_node]=child_node
 						self.m_src_to_bld[child_node]=mir_child_node
 					except OSError:
 						pass

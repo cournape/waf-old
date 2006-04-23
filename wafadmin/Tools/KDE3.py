@@ -79,12 +79,7 @@ kidlact.m_function_to_run = kidl_build
 
 def skel_build(task):
 	reldir = task.m_inputs[0].cd_to()
-	#if Params.g_mode!='nocopy':
 	src = task.m_inputs[0].m_name
-	#else:
-	#	mir_node = task.m_inputs[0]
-	#	src_node = mir_node.
-
 	cmd = 'cd %s && %s --c++-suffix cpp --no-signals --no-stub %s' % (reldir, task.m_env['DCOPIDL2CPP'], src)
 	return Runner.exec_command(cmd)
 skelact = Action.GenAction('skel', skelstub_vardeps)
