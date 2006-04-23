@@ -379,8 +379,7 @@ int main()
 			if vnum:
 				s = "checking if %s is at least %s :" % (modname, vnum)
 				print s,
-				if os.popen("pkg-config --atleast-version=%s alsa" % vnum).close():
-					print "no"
+				if os.popen("pkg-config --atleast-version=%s %s" % (vnum, modname)).close():
 					raise "error"
 				print "ok"
 

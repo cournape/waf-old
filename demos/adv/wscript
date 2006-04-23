@@ -24,7 +24,7 @@ def configure(conf):
 	conf.checkTool(['gcc', 'g++', 'dang'])
 
 	# pkg-config example - look in src/wscript_build, obj.uselib ..
-	conf.pkgcheck('alsa', destvar='ALSA', vnum='1.0')
+	conf.pkgcheck('glib-2.0', destvar='GLIB', vnum='2.6.0')
 
 	# write a config.h
 	conf.checkHeader('dlfcn.h','HAVE_DLFCN_H')
