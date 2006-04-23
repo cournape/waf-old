@@ -370,6 +370,29 @@ int main()
 
 		self.cwd = current
 
+
+	def pkgcheck(self, modname, destvar='', vnum=''):
+		if not destvar:
+			destvar = modname.upper()
+
+		try:
+			if vnum:
+				s = "checking if %s is at least %s :" % (modname, vnum)
+				print s,
+				if os.popen("pkg-config --atleast-version=%s alsa" % vnum).close():
+					print "no"
+					raise "error"
+				print "ok"
+
+			self.env['CCFLAGS_'+destvar]   = os.popen('pkg-config --cflags alsa').read().strip()
+			self.env['CXXFLAGS_'+destvar]  = os.popen('pkg-config --cflags alsa').read().strip()
+			self.env['LINKFLAGS_'+destvar] = os.popen('pkg-config --libs alsa').read().strip()
+			self.env['HAVE_'+destvar] = 1
+		except:
+			self.env['HAVE_'+destvar] = 0
+			return 0
+		return 1
+
 # syntactic sugar
 def create_config():
 	return Configure()
