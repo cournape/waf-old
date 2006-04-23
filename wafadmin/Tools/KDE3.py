@@ -444,7 +444,7 @@ def detect_kde(conf):
 			p('YELLOW',"qt was found as "+m.group(1))
 		else:
 			p('RED','Qt was not found')
-			p('RED','Please set QTDIR first (/usr/lib/qt3?) or try scons -h for more options')
+			p('RED','Please set QTDIR first (/usr/lib/qt3?) or try waf -h for more options')
 			sys.exit(1)
 	env['QTDIR'] = qtdir.strip()
 	env['LIB_QT'] = 'qt-mt'

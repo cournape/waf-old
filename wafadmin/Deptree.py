@@ -267,12 +267,9 @@ class Deptree:
 					mir_child_node.m_tstamp = src_node.m_tstamp
 
 					dupe = mir_child_node.abspath()
-					try:
-						#print "replicate new file %s to %s"% (child_node.abspath(), dupe)
-						self.m_bld_to_src[mir_child_node]=child_node
-						self.m_src_to_bld[child_node]=mir_child_node
-					except OSError:
-						pass
+
+					self.m_bld_to_src[mir_child_node]=child_node
+					self.m_src_to_bld[child_node]=mir_child_node
 				else:
 					src_node.m_dirs.append(child_node)
 			src_node.m_tstamp = src_sig
@@ -289,11 +286,8 @@ class Deptree:
 					mir_child_node.m_tstamp = child_node.m_tstamp
 
 					dupe = mir_child_node.abspath()
-					try:
-						self.m_bld_to_src[mir_child_node]=child_node
-						self.m_src_to_bld[child_node]=mir_child_node
-					except OSError:
-						pass
+					self.m_bld_to_src[mir_child_node]=child_node
+					self.m_src_to_bld[child_node]=mir_child_node
 			else:
 
 				# we need to update the info in the srcdir first - remove the m_files nodes
@@ -321,13 +315,9 @@ class Deptree:
 					child_node.m_tstamp = tstamp
 					mir_child_node.m_tstamp = tstamp
 
-					# now make the link
 					dupe = mir_child_node.abspath()
-					try:
-						self.m_bld_to_src[mir_child_node]=child_node
-						self.m_src_to_bld[child_node]=mir_child_node
-					except OSError:
-						pass
+					self.m_bld_to_src[mir_child_node]=child_node
+					self.m_src_to_bld[child_node]=mir_child_node
 			src_node.m_tstamp = src_sig
 
 	# ensure a directory node from a list, given a node to start from

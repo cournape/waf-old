@@ -19,7 +19,7 @@ class Build:
 		Params.g_build=self
 
 		# the current directory from which the code is run
-		# the folder changes everytime a sconscript is read
+		# the folder changes everytime a wscript is read
 		self.m_curdirnode = None
 
 		# map a name to an environment, the 'default' must be defined
