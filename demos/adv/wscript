@@ -25,6 +25,7 @@ def configure(conf):
 
 	# pkg-config example - look in src/wscript_build, obj.uselib ..
 	try:
+		if os.popen("pkg-config --atleast-version=1.0 alsa").close(): raise "error"
 		conf.env['CCFLAGS_ALSA']   = os.popen('pkg-config --cflags alsa').read().strip()
 		conf.env['CXXFLAGS_ALSA']  = os.popen('pkg-config --cflags alsa').read().strip()
 		conf.env['LINKFLAGS_ALSA'] = os.popen('pkg-config --libs alsa').read().strip()
