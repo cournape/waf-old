@@ -11,7 +11,6 @@ import Params, os, sys
 
 # this function is called before any other for parsing the command-line
 def set_options(opt):
-	print "set options called"
 	opt.add_option('--prepare', action='store_true', default=False,
 		help='prepare the demo projects RUN ME PLEASE', dest='prepare')
 	opt.add_option('--cleanup', action='store_true', default=False,
@@ -25,7 +24,7 @@ def init():
 		print "preparing the cpp demo (run ./waf --cleanup to remove)"
 		print "cd to demos/cpp/ and execute waf there (there other demos, not all are ready)"
 		for d in demos:
-			ret = os.popen("ln -s ../../wafadmin ./demos/%s/wafadmin && cp setenv.bat waf.py ./demos/%s/" % (d,d))
+			ret = os.popen("if test ! -L ./demos/%s/wafadmin; then ln -sf ../../wafadmin ./demos/%s/wafadmin && cp setenv.bat waf.py ./demos/%s/; fi" % (d,d,d))
 		sys.exit(0)
 	elif Params.g_options.cleanup:
 		print "cleaning up the demo folders"
