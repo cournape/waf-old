@@ -383,9 +383,9 @@ int main()
 					raise "error"
 				print "ok"
 
-			self.env['CCFLAGS_'+destvar]   = os.popen('pkg-config --cflags alsa').read().strip()
-			self.env['CXXFLAGS_'+destvar]  = os.popen('pkg-config --cflags alsa').read().strip()
-			self.env['LINKFLAGS_'+destvar] = os.popen('pkg-config --libs alsa').read().strip()
+			self.env['CCFLAGS_'+destvar]   = os.popen('pkg-config --cflags %s' % modname).read().strip()
+			self.env['CXXFLAGS_'+destvar]  = os.popen('pkg-config --cflags %s' % modname).read().strip()
+			self.env['LINKFLAGS_'+destvar] = os.popen('pkg-config --libs %s' % modname).read().strip()
 			self.env['HAVE_'+destvar] = 1
 		except:
 			self.env['HAVE_'+destvar] = 0
