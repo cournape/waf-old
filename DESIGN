@@ -172,10 +172,10 @@ STATE OF THE APPLICATION
 * store node state between runs.........done
 * scan for dependencies.................done
 * process tasks in order................done
-* install files.........................95%
-* parallel builds.......................95%
+* install files.........................done
+* parallel builds.......................done
 * support for running unit tests........?
-* script system.........................?
+* script system.........................done
 
 == Configuration ==                     95%
 * read and write cache files............done
@@ -184,23 +184,24 @@ STATE OF THE APPLICATION
 * framework for configuring projects....done
 * functions for finding headers.........done
 * functions for finding programs........done
-* functions for using pkg-config........?
+* functions for using pkg-config........done
 * process qmake configuration files.....?
 
-== Unit tests ==                        5%
-* file system representation............done
-* scanning for c/cpp headers............done
-* parallel builds.......................bits
-* configuration system..................bits
+== Unit tests ==                        0%
+* file system representation............
+* scanning for c/cpp headers............
+* parallel builds.......................
+* configuration system..................
 
 STATE OF THE TOOLS
 ------------------
 
 == Generic Tools ==                     60%
-* basic builders for c, c++ objects.....merge the c class with cppobj
+* basic builders for c, c++ objects.....done
+* libtool support.......................
 * shared and static libraries...........done
 * ocaml.................................done
-* latex.................................bits
+* latex.................................done
 * java..................................
 
 == KDE3 ==                              100%
