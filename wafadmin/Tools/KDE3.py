@@ -71,8 +71,9 @@ def kidl_build(task):
 	reldir = task.m_inputs[0].cd_to()
 	#src = task.m_inputs[0].m_name
 	src = task.m_inputs[0].bldpath()
-	tgt = src[:len(src)-2]+'.kidl'
-	cmd = '%s %s > %s || (rm -f %s ; false)' % (task.m_env['DCOPIDL'], src, os.path.join(reldir, tgt), os.path.join(reldir, tgt))
+	#tgt = src[:len(src)-2]+'.kidl'
+	tgt = task.m_outputs[0].bldpath()
+	cmd = '%s %s > %s || (rm -f %s ; false)' % (task.m_env['DCOPIDL'], src, tgt, tgt)
 	return Runner.exec_command(cmd)
 kidlact = Action.GenAction('kidl', kidl_vardeps)
 kidlact.m_function_to_run = kidl_build
