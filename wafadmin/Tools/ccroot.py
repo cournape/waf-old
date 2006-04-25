@@ -2,9 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, types
+import os, types, sys
 import ccroot
-import Action, Object, Params, Scan
+import Action, Object, Params, Scan, Common
 from Params import debug, error, trace, fatal
 
 # default priority for link tasks
@@ -59,7 +59,8 @@ class ccroot(Object.genobj):
 		self.m_linktask=None
 		self.m_deps_linktask=[]
 
-
+		# versionned libraries
+		self.vnum=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
@@ -266,7 +267,35 @@ class ccroot(Object.genobj):
 			for i in self.env['LIB']:
 				self.env.appendValue('LINKFLAGS', lib_st % i)
 
+	def install(self):
+		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 
+		if self.m_type == 'program':
+			self.install_results('PREFIX', 'bin', self.m_linktask )
+		elif self.m_type == 'shlib':
+			if sys.platform=='win32' or not self.vnum:
+				self.install_results('PREFIX', 'lib', self.m_linktask )
+				self.install_results('PREFIX', 'lib', self.m_latask )
+			else:
+				libname = self.m_linktask.m_outputs[0].m_name
+
+				nums=self.vnum.split('.')
+				name3 = libname+'.'+self.vnum
+				name2 = libname+'.'+nums[0]
+				name1 = libname
+
+				filename = self.m_linktask.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
+				Common.install_as('PREFIX', 'lib/'+name3, filename)
+
+				#print 'lib/'+name2, '->', name3
+				#print 'lib/'+name1, '->', name2
+
+				Common.symlink_as('PREFIX', name3, 'lib/'+name2)
+				Common.symlink_as('PREFIX', name2, 'lib/'+name1)
+
+		# static libraries are not to be installed so you will have to make a subclass
+		#elif self.m_type == 'staticlib':
+		#	self.install_results('PREFIX', 'lib', self.m_linktask )
 
 	def apply_lib_vars(self):
 		trace("apply_lib_vars called")

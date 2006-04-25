@@ -14,11 +14,23 @@
 # By contrast, only functions can be defined in a wscript
 #
 
+# a program that links using the GLIB library, defined in the configuration
+# it also processes coin files, defined in the dang.py module (coin hook)
 obj = bld.createObj('cpp', 'program')
 obj.source='''
 main.cpp ih.coin
 '''
 obj.includes='.'
-obj.uselib='ALSA'
+obj.uselib='GLIB'
 obj.target='testprogram2'
+
+
+# a shared library, with a version number -> libshlib1.so.4.2.1
+obj = bld.createObj('cc', 'shlib')
+obj.source='''
+stuff.c
+'''
+obj.includes='.'
+obj.target='shlib1'
+obj.vnum='4.2.1'
 
