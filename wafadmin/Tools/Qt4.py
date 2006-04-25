@@ -227,13 +227,6 @@ class qt4obj(cpp.cppobj):
 		self.apply_libdeps()
 		# end posting constraints (apply)
 
-	def install(self):
-		if self.m_type == 'program':
-			self.install_results( 'PREFIX', 'bin', self.m_linktask )
-		elif self.m_type == 'shlib':
-			self.install_results( 'PREFIX', 'lib', self.m_linktask )
-			self.install_results( 'PREFIX', 'lib', self.m_latask )
-
 def setup(env):
 	if not sys.platform == "win32":
 		Params.g_colors['moc']='\033[94m'

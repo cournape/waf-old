@@ -360,14 +360,11 @@ class kdeobj(cpp.cppobj):
 		# end posting constraints (apply)
 
 	def install(self):
-		if self.m_type == 'program':
-			self.install_results( 'KDE_BIN', '', self.m_linktask )
-		elif self.m_type == 'shlib':
-			self.install_results( 'KDE_LIB', '', self.m_linktask )
-			self.install_results( 'KDE_LIB', '', self.m_latask )
-		elif self.m_type == 'module':
-			self.install_results( 'KDE_MODULE', '', self.m_linktask )
-			self.install_results( 'KDE_MODULE', '', self.m_latask )
+		if self.m_type == 'module':
+			self.install_results('KDE_MODULE', '', self.m_linktask )
+			self.install_results('KDE_MODULE', '', self.m_latask )
+		else:
+			ccroot.ccroot.install(self)
 
 def detect_kde(conf):
 	env = conf.env
