@@ -39,6 +39,8 @@ def build(bld):
 	'''
 	obj.includes='. src'
 	obj.target='shlib1'
+	obj.want_libtool=1
+	obj.vnum='1.2.3'
 
 	# 5. A program that links against shlib1
 	obj = bld.createObj('cpp', 'program')

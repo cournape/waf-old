@@ -218,7 +218,7 @@ class qt4obj(cpp.cppobj):
 
 		self.m_linktask = linktask
 
-		if self.m_type != 'program':
+		if self.m_type != 'program' and self.want_libtool:
 			latask           = self.create_task('fakelibtool', self.env, 101)
 			latask.m_inputs  = linktask.m_outputs
 			latask.m_outputs = self.file_in(self.get_target_name('.la'))

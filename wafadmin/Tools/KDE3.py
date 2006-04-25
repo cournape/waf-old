@@ -246,6 +246,7 @@ class kdeobj(cpp.cppobj):
 		self.m_linktask = None
 		self.m_latask   = None
 		self.skel_or_stub = {}
+		self.want_libtool = 1
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
@@ -350,7 +351,7 @@ class kdeobj(cpp.cppobj):
 
 		self.m_linktask = linktask
 
-		if self.m_type != 'program':
+		if self.m_type != 'program' and self.want_libtool:
 			latask           = self.create_task('fakelibtool', self.env, 200)
 			latask.m_inputs  = linktask.m_outputs
 			latask.m_outputs = self.file_in(self.get_target_name('.la'))
@@ -361,8 +362,8 @@ class kdeobj(cpp.cppobj):
 
 	def install(self):
 		if self.m_type == 'module':
-			self.install_results('KDE_MODULE', '', self.m_linktask )
-			self.install_results('KDE_MODULE', '', self.m_latask )
+			self.install_results('KDE_MODULE', '', self.m_linktask)
+			if self.want_libtool: self.install_results('KDE_MODULE', '', self.m_latask)
 		else:
 			ccroot.ccroot.install(self)
 

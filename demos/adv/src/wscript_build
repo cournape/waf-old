@@ -33,4 +33,5 @@ stuff.c
 obj.includes='.'
 obj.target='shlib1'
 obj.vnum='4.2.1'
+obj.want_libtool=1
 

@@ -92,7 +92,7 @@ def symlink_as(var, src, dest, env=None):
 
 	if Params.g_commands['install']:
 		try:
-			print "* symlink %s -> %s" % (src, tgt)
+			print "* symlink %s (-> %s)" % (tgt, src)
 			os.symlink(src, tgt)
 			return 0
 		except:
