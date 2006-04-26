@@ -10,6 +10,7 @@ ADDITIONAL FEATURES OVER SCONS
 * customizable command-line parsing using sconfigure (works now!)
 * tight control over the scheduler (not all links at the same time, etc)
 * support for objective caml targets (no ocamldeps yet)
+* and more to come..
 
 DATA STRUCTURE
 --------------
@@ -144,29 +145,10 @@ since it is certainly annoying to make a "build" function for each folder contai
 waf is also looking for a "wscript_build" file to replace the build function
 more naming should follow (ie: wscript_configure instead of a "configure" function)
 
-Proposal for Named environments
--------------------------------
-
-in the configure function:
-conf.newconf('main', env=None)
-conf.detect('gcc')
-conf.newconf('gtk', env='main')
-conf.detect('pkg-config')
-conf.detect('libxml2')
-conf.newconf('kde', env='main')
-conf.detect('g++')
-conf.detect('qt')
--> three independent environents are created, the first one is considered
-to be the default for projects
-
-QUESTIONS
----------
-
-* How to set the profiler (see TODO)
 STATE OF THE APPLICATION
 ------------------------
 
-== Engine ==                            95%
+== Engine ==                            80%
 * mirror files and directories..........done
 * create and run tasks..................done
 * store node state between runs.........done
@@ -174,8 +156,11 @@ STATE OF THE APPLICATION
 * process tasks in order................done
 * install files.........................done
 * parallel builds.......................done
-* support for running unit tests........?
 * script system.........................done
+* support for running unit tests........?
+* support for multiple builddirs........?
+* background recompilation..............?
+* optimize the file system interface....?
 
 == Configuration ==                     95%
 * read and write cache files............done
@@ -196,9 +181,9 @@ STATE OF THE APPLICATION
 STATE OF THE TOOLS
 ------------------
 
-== Generic Tools ==                     60%
+== Generic Tools ==                     80%
 * basic builders for c, c++ objects.....done
-* libtool support.......................
+* libtool support.......................fake at the moment
 * shared and static libraries...........done
 * ocaml.................................done
 * latex.................................done
