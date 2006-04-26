@@ -247,22 +247,14 @@ class kdeobj(cpp.cppobj):
 		self.m_latask   = None
 		self.skel_or_stub = {}
 		self.want_libtool = 1
+		global kdefiles
+		self.m_src_file_ext = kdefiles
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
 
 	def get_node(self, a):
 		return self.get_mirror_node(self.m_current_path, a)
-
-	def find_kde_sources_in_dirs(self, dirnames):
-		lst=[]
-		for name in dirnames.split():
-			node = self.m_current_path.find_node( name.split(os.sep) )
-			for file in node.m_files:
-				(base, ext) = os.path.splitext(file.m_name)
-				if ext in kdefiles:
-					lst.append( file.relpath(self.m_current_path)[2:] )
-		self.source = self.source+(" ".join(lst))
 
 	def apply(self):
 		trace("apply called for kdeobj")

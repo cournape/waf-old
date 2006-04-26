@@ -12,6 +12,9 @@ from Params import debug, error, trace, fatal
 # an odd number is probably the thing to do
 g_prio_link=101
 
+# default extensions for source files
+g_src_file_ext = ['.c', '.cpp', '.cc']
+
 # fake libtool files
 fakelibtool_vardeps = ['CXX', 'PREFIX']
 def fakelibtool_build(task):
@@ -78,9 +81,23 @@ class ccroot(Object.genobj):
 
 		self.m_type_initials = ''
 
+		global g_src_file_ext
+		self.m_src_file_ext = g_src_file_ext
+
 	# subclass me
 	def get_valid_types(self):
 		fatal('subclass method get_valid_types of ccroot')
+
+	# subclass if necessary
+	def find_sources_in_dirs(self, dirnames):
+		lst=[]
+		for name in dirnames.split():
+			node = self.m_current_path.find_node( name.split(os.sep) )
+			for file in node.m_files:
+				(base, ext) = os.path.splitext(file.m_name)
+				if ext in self.m_src_file_ext:
+					lst.append( file.relpath(self.m_current_path)[2:] )
+		self.source = self.source+(" ".join(lst))
 
 	# adding some kind of genericity is tricky
 	# subclass this method if it does not suit your needs
