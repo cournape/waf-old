@@ -38,7 +38,10 @@ def add_subdir(dir, bld):
 
 def load_envs():
 	cachedir = Utils.g_module.cachedir
-	lst = os.listdir(cachedir)
+	try:
+		lst = os.listdir(cachedir)
+	except:
+		fatal('The project was not configured: run "waf configure" first!')
 	if not lst: raise "file not found"
 	for file in lst:
 		env = Environment.Environment()
