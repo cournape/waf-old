@@ -265,6 +265,8 @@ class kdeobj(cpp.cppobj):
 		self.apply_obj_vars()
 		self.apply_incpaths()
 
+		if self.want_libtool: self.apply_libtool()
+
 		obj_ext = self.env[self.m_type+'_obj_ext'][0]
 
 		# get the list of folders to use by the scanners

@@ -58,6 +58,12 @@ class Environment:
 		try: self.m_table[var] = val + self[var]
 		except TypeError: self.m_table[var] = val + [self[var]]
 
+	def appendUnique(self, var, value):
+		if not self[var]:
+			self[var]=value
+		if value in self[var]: return
+		self.appendValue(var, value)
+
 	def store(self, filename):
 		file=open(filename, 'w')
 		keys=self.m_table.keys()

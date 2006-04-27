@@ -18,13 +18,18 @@ g_src_file_ext = ['.c', '.cpp', '.cc']
 
 def read_la_file(path):
 	sp = re.compile(r'^([^=]+)=\'(.*)\'$')
-	for line in open(path, "r").readlines():
+	dc={}
+	file = open(path, "r")
+	for line in file.readlines():
 		try:
 			#print sp.split(line.strip())
 			_, left, right, _ = sp.split(line.strip())
-			print left, "    -> ", right
+			dc[left]=right
 		except:
 			pass
+	file.close()
+	return dc
+
 # fake libtool files
 fakelibtool_vardeps = ['CXX', 'PREFIX']
 def fakelibtool_build(task):
@@ -332,8 +337,42 @@ class ccroot(Object.genobj):
 		#	self.install_results('PREFIX', 'lib', self.m_linktask )
 
 	def apply_libtool(self):
-		#read_la_file('/usr/lib/librrd.la')
+		print "apply libtool called - not finished"
 		self.env['vnum']=self.vnum
+
+
+		paths=[]
+		libs=[]
+		libtool_files=[]
+
+		for l in self.env['LINKFLAGS']:
+			if l[:2]=='-L':
+				paths.append(l[2:])
+			elif l[:2]=='-l':
+				libs.append(l[2:])
+
+		for l in libs:
+			for p in paths:
+				try:
+					dict = read_la_file(p+'/lib'+l+'.la')
+					linkflags2 = dict['dependency_libs']
+					for v in linkflags2.split():
+						if v[len(v)-3:] == '.la':
+							libtool_files.append(v)
+							continue
+						self.env.appendUnique('LINKFLAGS', v)
+					break
+				except:
+					pass
+
+		while libtool_files:
+			file = libtool_files.pop()
+			dict = read_la_file(file)
+			for v in dict['dependency_libs'].split():
+				if v[len(v)-3:] == '.la':
+					libtool_files.append(v)
+					continue
+				self.env.appendUnique('LINKFLAGS', v)
 
 	def apply_lib_vars(self):
 		trace("apply_lib_vars called")
