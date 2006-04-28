@@ -339,12 +339,15 @@ int main()
 
 	def checkMessage(self,type,msg,state,option=''):
 		"""print an checking message. This function is used by other checking functions"""
-		str = 'checking for ' + type + ' ' + msg
-		if state:
-			str += ': found ' + option
-		else:
-			str += ': not found'
-		print str
+		sr = 'Checking for ' + type + ' ' + msg
+		sp = '                                                 '
+		l = len(sr)
+		print sr,
+		if l<35: print sp[:33-l],':',
+
+		p=Params.pprint
+		if state: p('GREEN', 'ok ' + option)
+		else: p('YELLOW', 'not found')
 		
 
 	def detect(self,tool):
