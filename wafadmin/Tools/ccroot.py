@@ -51,7 +51,8 @@ def fakelibtool_build(task):
 		fu("dlname='%s'\n" % sname)
 		fu("library_names='%s %s %s'\n" % (sname, sname, sname) )
 	fu("old_library=''\n")
-	fu("dependency_libs=''\n")
+	vars = ' '.join(task.m_env['libtoolvars']+task.m_env['LINKFLAGS'])
+	fu("dependency_libs='%s'\n" % vars)
 	fu("current=0\n")
 	fu("age=0\nrevision=0\ninstalled=yes\nshouldnotlink=no\n")
 	fu("dlopen=''\ndlpreopen=''\n")
@@ -337,13 +338,12 @@ class ccroot(Object.genobj):
 		#	self.install_results('PREFIX', 'lib', self.m_linktask )
 
 	def apply_libtool(self):
-		print "apply libtool called - not finished"
 		self.env['vnum']=self.vnum
-
 
 		paths=[]
 		libs=[]
 		libtool_files=[]
+		libtool_vars=[]
 
 		for l in self.env['LINKFLAGS']:
 			if l[:2]=='-L':
@@ -359,11 +359,14 @@ class ccroot(Object.genobj):
 					for v in linkflags2.split():
 						if v[len(v)-3:] == '.la':
 							libtool_files.append(v)
+							libtool_vars.append(v)
 							continue
 						self.env.appendUnique('LINKFLAGS', v)
 					break
 				except:
 					pass
+
+		self.env['libtoolvars']=libtool_vars
 
 		while libtool_files:
 			file = libtool_files.pop()
