@@ -2,9 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import re
-import Params
-import Node
+import os, re
+import Params, Node
 from Params import debug, error, trace, fatal
 
 #cregexp='^[ \t]*#[ \t]*(?:include)[ \t]*(<|")([^>"]+)(>|")'
@@ -28,6 +27,11 @@ def dummy_scanner(node, path_lst):
 
 def c_scanner(node, path_lst):
 	trace("c_scanner called for "+str(node))
+
+	res = os.popen('gcc -E %s 2>/dev/null' % node.abspath()).readlines()
+	for line in res:
+		if not line: continue
+		if line[0]=='#': print line.strip()
 
 	file = open(node.abspath(), 'rb')
 	found = cregexp1.findall( file.read() )
