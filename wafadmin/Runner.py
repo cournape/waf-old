@@ -412,6 +412,13 @@ class Parallel:
 					condition.wait()
 					self.read_values()
 				condition.release()
+			else:
+				# wait a little bit if there are enough jobs for the consumer threads
+				condition.acquire()
+				while self.m_count>self.m_numjobs+10:
+					condition.wait()
+					self.read_values()
+				condition.release()
 
 			if not self.m_outstanding:
 				self.m_outstanding = self.m_frozen

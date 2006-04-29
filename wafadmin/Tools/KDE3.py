@@ -421,11 +421,11 @@ def detect_kde(conf):
 	else:
 		p('GREEN',kde_version)
 
-	## Detect the qt library
-	print "Checking for the qt library        :",
+	## Detect the Qt library
+	print "Checking for the Qt library        :",
 	if not qtdir: qtdir = os.getenv("QTDIR")
 	if qtdir:
-		p('GREEN',"qt is in "+qtdir)
+		p('GREEN',"Qt is in "+qtdir)
 	else:
 		try:
 			tmplibdir = os.popen(kde_config+' --expandvars --install lib').read().strip()
@@ -434,7 +434,7 @@ def detect_kde(conf):
 		except: m=None
 		if m:
 			qtdir = m.group(1)
-			p('YELLOW',"qt was found as "+m.group(1))
+			p('YELLOW',"Qt was found as "+m.group(1))
 		else:
 			p('RED','Qt was not found')
 			p('RED','Please set QTDIR first (/usr/lib/qt3?) or try waf -h for more options')
@@ -488,10 +488,10 @@ def detect_kde(conf):
 			qtincludes = qtdir + "/include/"
 		elif os.path.isfile("/usr/include/qt3/qlayout.h"):
 			# Debian probably
-			p('YELLOW','the qt headers were found in /usr/include/qt3/')
+			p('YELLOW','the Qt headers were found in /usr/include/qt3/')
 			qtincludes = "/usr/include/qt3"
 		else:
-			p('RED',"the qt headers were not found")
+			p('RED',"the Qt headers were not found")
 			sys.exit(1)
 
 	print "Checking for the kde includes      :",

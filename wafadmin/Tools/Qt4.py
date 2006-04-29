@@ -29,7 +29,7 @@ def rccbuild(task):
 rccact = Action.GenAction('rcc', rcc_vardeps)
 rccact.m_function_to_run = rccbuild
 
-# qt .ui3 file processing
+# Qt .ui3 file processing
 uic_vardeps = ['UIC3', 'QTPLUGINS']
 def uic3_build(task):
 	# outputs : 1. hfile 2. cppfile
@@ -259,7 +259,7 @@ def detect_qt4(conf):
 	# TODO what if there are only static Qt libraries ?
 	if qtdir and Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), qtdir): qtdir=None
 	if not qtdir:
-		qtdir=Configure.find_path('include/', [ # lets find the qt include directory
+		qtdir=Configure.find_path('include/', [ # lets find the Qt include directory
 				'/usr/local/Trolltech/Qt-4.2.0/',
 				'/usr/local/Trolltech/Qt-4.1.3/',
 				'/usr/local/Trolltech/Qt-4.1.2/',
@@ -335,20 +335,20 @@ def detect_qt4(conf):
 			qtincludes = qtdir + "/include/"
 		elif os.path.isfile("/usr/include/qt4/QtGui/QFont"):
 			# Debian probably
-			p('YELLOW','the qt headers were found in /usr/include/qt4/')
+			p('YELLOW','the Qt headers were found in /usr/include/qt4/')
 			qtincludes = "/usr/include/qt4"
 		elif os.path.isfile("/usr/include/QtGui/QFont"):
 			# e.g. SUSE 10
-			p('YELLOW','the qt headers were found in /usr/include/')
+			p('YELLOW','the Qt headers were found in /usr/include/')
 			qtincludes = "/usr/include"
 		else:
-			p('RED',"the qt headers were not found")
+			p('RED',"the Qt headers were not found")
 			sys.exit(1)
 
 
 	#env['QTPLUGINS']=os.popen('kde-config --expandvars --install qtplugins').read().strip()
 
-	## qt libs and includes
+	## Qt libs and includes
 	env['QTINCLUDEPATH']=qtincludes
 	if not qtlibs: qtlibs=qtdir+'/lib'
 	env['QTLIBPATH']=qtlibs
@@ -447,7 +447,7 @@ def detect_qt4_win32(conf):
 	# TODO what if there are only static Qt libraries ?
 	if qtdir and Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), qtdir): qtdir=None
 	if not qtdir:
-		qtdir=Configure.find_path('include/', [ # lets find the qt include directory
+		qtdir=Configure.find_path('include/', [ # lets find the Qt include directory
 				'c:\\Programme\\Qt\\4.1.0',
 				'c:\\Qt\\4.1.0',
 				'f:\\Qt\\4.1.0'])
@@ -512,20 +512,20 @@ def detect_qt4_win32(conf):
 			qtincludes = qtdir + "/include/"
 		elif os.path.isfile("/usr/include/qt4/QtGui/QFont"):
 			# Debian probably
-			p('YELLOW','the qt headers were found in /usr/include/qt4/')
+			p('YELLOW','the Qt headers were found in /usr/include/qt4/')
 			qtincludes = "/usr/include/qt4"
 		elif os.path.isfile("/usr/include/QtGui/QFont"):
 			# e.g. SUSE 10
-			p('YELLOW','the qt headers were found in /usr/include/')
+			p('YELLOW','the Qt headers were found in /usr/include/')
 			qtincludes = "/usr/include"
 		else:
-			p('RED',"the qt headers were not found")
+			p('RED',"the Qt headers were not found")
 			sys.exit(1)
 
 
 	#env['QTPLUGINS']=os.popen('kde-config --expandvars --install qtplugins').read().strip()
 
-	## qt libs and includes
+	## Qt libs and includes
 	env['QTINCLUDEPATH']=qtincludes
 	if not qtlibs: qtlibs=qtdir+'/lib'
 	env['QTLIBPATH']=qtlibs
