@@ -378,6 +378,8 @@ class Parallel:
 		# current priority
 		currentprio = 0
 
+		loop=0
+
 		# add the tasks to the queue
 		while 1:
 			self.read_values()
@@ -419,6 +421,8 @@ class Parallel:
 					condition.wait()
 					self.read_values()
 				condition.release()
+
+			loop += 1
 
 			if not self.m_outstanding:
 				self.m_outstanding = self.m_frozen
@@ -466,7 +470,7 @@ class Parallel:
 
 					self.m_ready.put(proc, block=1)
 
-
+		trace("amount of loops "+str(loop))
 		global stat
 		if dostat and stat:
 			file = open('test.dat', 'w')
