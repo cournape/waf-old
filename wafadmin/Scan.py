@@ -28,17 +28,61 @@ def dummy_scanner(node, path_lst):
 def c_scanner(node, path_lst):
 	trace("c_scanner called for "+str(node))
 
-	res = os.popen('gcc -E %s 2>/dev/null' % node.abspath()).readlines()
-	for line in res:
-		if not line: continue
-		if line[0]=='#': print line.strip()
+	srcpath = Params.g_build.m_tree.m_srcnode.abspath()
+	bldpath = Params.g_build.m_tree.m_bldnode.abspath()
 
+	res = os.popen('gcc -E %s 2>/dev/null' % node.abspath()).readlines()
+	lst=[]
+	for line in res:
+		#if rf.search(line): print line
+		#print line,
+
+		if not line: continue
+		if not line[0]=='#': continue
+
+		try:
+			var=line.split('"')[1]
+			if var[0]!='<':
+
+				if var[:len(srcpath)]==srcpath:
+					var = var[len(srcpath)+1:]
+					if not var in lst:
+						lst.append(var)
+				elif var[:len(bldpath)]==bldpath:
+					var = var[len(bldpath)+1:]
+					if not var in lst:
+						lst.append(var)
+		except:
+			pass
+
+	names = []
+	nodes = []
+	npath = [Params.g_build.m_tree.m_srcnode, Params.g_build.m_tree.m_bldnode]
+	for name in lst:
+		alst = name.split('/')
+		if alst[len(alst)-1] == node.m_name:
+			continue
+
+		found = None
+		for dir in npath:
+
+			found = dir.find_node(alst)
+			if found:
+				break
+		if found: nodes.append(found)
+		else:     names.append(name)
+	
+	#print "-E ", nodes, names
+	return (nodes, names)
+
+def c_scanner(node, path_lst):
 	file = open(node.abspath(), 'rb')
 	found = cregexp1.findall( file.read() )
 	file.close()
 
 	nodes = []
 	names = []
+
 	for (_, name, _) in found:
 		#print 'boo', name
 
@@ -53,6 +97,7 @@ def c_scanner(node, path_lst):
 				break
 		if found: nodes.append(found)
 		else:     names.append(name)
+	#print "-S ", nodes, names
 	return (nodes, names)
 
 def kcfg_scanner(node, path_lst):
