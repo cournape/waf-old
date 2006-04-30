@@ -46,6 +46,20 @@ def create_parser():
 		default = 0,
 		help = 'Show verbose output [Default: False]',
 		dest = 'verbose')
+
+	if 'configure' in sys.argv:
+		p('-b', '--builddir',
+			action = 'store_true',
+			default='',
+			help='build dir for the project (configuration)',
+			dest = 'blddir')
+
+		p('-s', '--srcdir',
+			action = 'store_true',
+			default='',
+			help='src dir for the project (configuration)',
+			dest = 'srcdir')
+
 	return parser
 
 def parse_args_impl(parser):

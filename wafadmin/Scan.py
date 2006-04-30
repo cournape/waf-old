@@ -31,9 +31,11 @@ def c_scanner(node, path_lst):
 	srcpath = Params.g_build.m_tree.m_srcnode.abspath()
 	bldpath = Params.g_build.m_tree.m_bldnode.abspath()
 
-	res = os.popen('gcc -E %s 2>/dev/null' % node.abspath()).readlines()
+	res = os.popen('gcc -M %s 2>/dev/null' % node.abspath()).readlines()
 	lst=[]
 	for line in res:
+		print line
+
 		#if rf.search(line): print line
 		#print line,
 
