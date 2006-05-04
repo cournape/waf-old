@@ -68,8 +68,7 @@ def private_setup_build():
 			cachedir = Utils.g_module.cachedir
 			bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
 		except AttributeError:
-			msg = "The attributes srcdir or builddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project"
-			raise
+			msg = "The attributes srcdir or blddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project\n * use waf configure --srcdir=xxx --blddir=yyy"
 			fatal(msg % os.path.abspath('.'))
 		except OSError:
 			pass

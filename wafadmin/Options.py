@@ -48,14 +48,14 @@ def create_parser():
 		dest = 'verbose')
 
 	if 'configure' in sys.argv:
-		p('-b', '--builddir',
-			action = 'store_true',
+		p('-b', '--blddir',
+			action = 'store',
 			default='',
 			help='build dir for the project (configuration)',
 			dest = 'blddir')
 
 		p('-s', '--srcdir',
-			action = 'store_true',
+			action = 'store',
 			default='',
 			help='src dir for the project (configuration)',
 			dest = 'srcdir')

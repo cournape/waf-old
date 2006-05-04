@@ -83,6 +83,12 @@ class Build:
 
 	def set_bdir(self, path):
 		trace("set_builddir")
+		if path[0]=="/":
+			print "path is absolute"
+			lst = path.split('/')
+			truc = lst[len(lst)-1]
+			Params.g_excludes.append(truc)
+
 		p = os.path.abspath(path)
 		if sys.platform=='win32': p=p[2:]
 		node = self.m_tree.ensure_directory(p)
