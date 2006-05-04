@@ -43,6 +43,11 @@ g_maxjobs = 1
 ## the only Build object
 g_build    = None
 
+
+#g_srcdir = ''
+#g_blddir = ''
+g_cachedir = ''
+
 def srcnode():
 	global g_build
 	return g_build.m_tree.m_srcnode

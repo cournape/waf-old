@@ -37,11 +37,12 @@ def add_subdir(dir, bld):
 	bld.m_subdirs.append(  [bld.m_curdirnode, restore]    )
 
 def load_envs():
-	cachedir = Utils.g_module.cachedir
+	cachedir = Params.g_cachedir
 	try:
 		lst = os.listdir(cachedir)
 	except:
 		fatal('The project was not configured: run "waf configure" first!')
+
 	if not lst: raise "file not found"
 	for file in lst:
 		env = Environment.Environment()
@@ -58,15 +59,24 @@ def load_envs():
 			print "loading failed:", file
 			raise
 
-
-def private_setup_build():
-	bld = Build.Build()
-	try:
-		Utils.g_module.setup_build(bld)
-	except AttributeError:
+def Main():
+	from Configure import sub_config, create_config
+	from Common import install_files, install_as
+	# configure the project
+	if Params.g_commands['configure']:
+		bld = Build.Build()
 		try:
-			cachedir = Utils.g_module.cachedir
-			bld.set_dirs(Utils.g_module.srcdir, Utils.g_module.blddir)
+			try: srcdir = Params.g_options.srcdir
+			except: pass
+			if not srcdir: srcdir = Utils.g_module.srcdir
+
+			try: blddir = Params.g_options.blddir
+			except: pass
+			if not blddir: blddir = Utils.g_module.blddir
+	
+			Params.g_cachedir = blddir+os.sep+'_cache_'
+
+			bld.set_dirs(srcdir, blddir)
 		except AttributeError:
 			msg = "The attributes srcdir or blddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project\n * use waf configure --srcdir=xxx --blddir=yyy"
 			fatal(msg % os.path.abspath('.'))
@@ -74,14 +84,6 @@ def private_setup_build():
 			pass
 		except KeyError:
 			pass
-	return bld
-
-def Main():
-	from Configure import sub_config, create_config
-	from Common import install_files, install_as
-	# configure the project
-	if Params.g_commands['configure']:
-		bld = private_setup_build()
 
 		conf = Configure.Configure()
 		conf.sub_config('')
@@ -91,13 +93,32 @@ def Main():
 		# consider the current path as the root directory
 		# to remove: use 'waf distclean'
 		file = open('.lock-wscript', 'w')
-		file.write(Utils.g_module.blddir)
+		file.write(blddir)
+		file.write('\n')
+		file.write(srcdir)
 		file.close()
 
 		sys.exit(0)
 
 	# compile the project and/or install the files
-	bld = private_setup_build()
+	#bld = private_setup_build()
+	bld = Build.Build()
+	try:
+		file = open('.lock-wscript', 'r')
+		blddir = file.readline().strip()
+		srcdir = file.readline().strip()
+		file.close()
+	except:
+		fatal("Configuration loading failed - re-run waf configure (.lock-wscript cannot be read)")
+
+	Params.g_cachedir = blddir+os.sep+'_cache_'
+
+	try:
+		bld.set_dirs(srcdir, blddir)
+	except:
+		fatal("bld.set_dirs failed")
+
+
 	try:
 		load_envs()
 	except:
@@ -247,7 +268,7 @@ def DistClean():
 				# removes a lock, and the builddir indicated
 				to_remove = True
 				file = open(os.path.join(root, f), 'r')
-				dirname = file.read().strip()
+				dirname = file.readline().strip()
 				file.close()
 				try: shutil.rmtree(os.path.join(root, dirname))
 				except: pass

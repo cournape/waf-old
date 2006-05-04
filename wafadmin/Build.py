@@ -74,7 +74,7 @@ class Build:
 
 	def set_dirs(self, srcdir, blddir, scan='auto'):
 		if len(srcdir) >= len(blddir)-1:
-			fatal("build dir must be different from srcdir")
+			fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
 
 		self.load(blddir)
 

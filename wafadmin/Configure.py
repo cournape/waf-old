@@ -328,14 +328,14 @@ int main()
 
 	def store(self, file=''):
 		"""save config results into a cache file"""
-		try: os.mkdir(Utils.g_module.cachedir)
+		try: os.mkdir(Params.g_cachedir)
 		except OSError: pass
 
 		if not self.m_allenvs:
 			fatal("nothing to store in Configure !")
 		for key in self.m_allenvs:
 			tmpenv = self.m_allenvs[key]
-			self.env.store(os.path.join(Utils.g_module.cachedir, key+'.cache.py'))
+			self.env.store(os.path.join(Params.g_cachedir, key+'.cache.py'))
 
 	def checkMessage(self,type,msg,state,option=''):
 		"""print an checking message. This function is used by other checking functions"""
