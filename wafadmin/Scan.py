@@ -26,55 +26,52 @@ def dummy_scanner(node, path_lst):
 	return []
 
 def c_scanner(node, path_lst):
-	trace("c_scanner called for "+str(node))
+	trace("c_scanner gcc called for "+str(node))
 
-	srcpath = Params.g_build.m_tree.m_srcnode.abspath()
-	bldpath = Params.g_build.m_tree.m_bldnode.abspath()
+	def getincl(p):
+		return '-I%s' % p.abspath()
 
-	res = os.popen('gcc -M %s 2>/dev/null' % node.abspath()).readlines()
-	lst=[]
-	for line in res:
-		print line
+	includes = " ".join(map(getincl, path_lst))
+	includes += "  -I/opt/kde3/include -I/usr/lib/qt3/include -I/compilation/playground/edu/kdissert/_build_/src/kdissert/"
 
-		#if rf.search(line): print line
-		#print line,
+	print '/usr/bin/g++ -MG -MMD %s %s 2>/dev/null' % (node.abspath(), includes)
 
-		if not line: continue
-		if not line[0]=='#': continue
+	res = os.popen('/usr/bin/g++ -M %s %s ' % (node.abspath(), includes)).readlines()
 
-		try:
-			var=line.split('"')[1]
-			if var[0]!='<':
+	lst2 = map(lambda a: a.strip().rstrip('\\'), res)
+	lst2 = " ".join(lst2)
 
-				if var[:len(srcpath)]==srcpath:
-					var = var[len(srcpath)+1:]
-					if not var in lst:
-						lst.append(var)
-				elif var[:len(bldpath)]==bldpath:
-					var = var[len(bldpath)+1:]
-					if not var in lst:
-						lst.append(var)
-		except:
-			pass
+
+
+	print " ".join(res)
+
+	print "\n\n\n"
+	print lst2
+
+
+	lst2 = lst2.split()
+	lst2 = lst2[2:]
+
+
+
+	def getname(a):
+		lst=a.split('/')
+		return lst[len(lst)-1]
+
+	lst2 = map(getname, lst2)
+	print lst2
 
 	names = []
 	nodes = []
-	npath = [Params.g_build.m_tree.m_srcnode, Params.g_build.m_tree.m_bldnode]
-	for name in lst:
-		alst = name.split('/')
-		if alst[len(alst)-1] == node.m_name:
-			continue
-
+	for name in lst2:
 		found = None
-		for dir in npath:
-
-			found = dir.find_node(alst)
+		for dir in path_lst:
+			found = dir.find_node([name])
 			if found:
 				break
 		if found: nodes.append(found)
 		else:     names.append(name)
-	
-	#print "-E ", nodes, names
+	print "-E ", nodes, names
 	return (nodes, names)
 
 def c_scanner(node, path_lst):
