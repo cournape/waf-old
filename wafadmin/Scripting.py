@@ -165,8 +165,8 @@ def Main():
 	#bld.m_tree.dump()
 
 	# compile
-	if Params.g_commands['make'] or Params.g_commands['install']:
-	#if ('make' in Params.g_commands and Params.g_commands['make']) or Params.g_commands['install']:
+	if Params.g_commands['build'] or Params.g_commands['install']:
+	#if ('build' in Params.g_commands and Params.g_commands['build']) or Params.g_commands['install']:
 		try:
 			bld.compile()
 		except:
