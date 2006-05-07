@@ -60,9 +60,8 @@ def load_envs():
 			raise
 
 def Main():
-	from Configure import sub_config, create_config
-	from Common import install_files, install_as
 	# configure the project
+	from Common import install_files, install_as
 	if Params.g_commands['configure']:
 		bld = Build.Build()
 		try:

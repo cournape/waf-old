@@ -20,7 +20,7 @@ def do_install(src, tgt):
 	if Params.g_commands['install']:
 		print "* installing %s as %s" % (src, tgt)
 		try: shutil.copy2( src, tgt )
-		except: raise InstallError
+		except: fatal('could not install the file')
 	elif Params.g_commands['uninstall']:
 		print "* uninstalling %s" % tgt
 		try: os.remove( tgt )
@@ -37,7 +37,7 @@ def install_files(var, subdir, files, env=None):
 	else: lst = (' '+files).split()
 
 	destpath = env[var]
-	destdir = env['DESTDIR']
+	destdir = env.get_destdir()
 	if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 	if subdir: destpath = os.path.join(destpath, subdir.lstrip(os.sep))
 
@@ -65,7 +65,7 @@ def install_as(var, destfile, srcfile, env=None):
 	node = bld.m_curdirnode
 
 	tgt = env[var]
-	destdir = env['DESTDIR']
+	destdir = env.get_destdir()
 	if destdir: tgt = os.path.join(destdir, tgt.lstrip(os.sep))
 	tgt = os.path.join(tgt, destfile.lstrip(os.sep))
 
@@ -83,7 +83,7 @@ def symlink_as(var, src, dest, env=None):
 	node = bld.m_curdirnode
 
 	tgt = env[var]
-	destdir = env['DESTDIR']
+	destdir = env.get_destdir()
 	if destdir: tgt = os.path.join(destdir, tgt.lstrip(os.sep))
 	tgt = os.path.join(tgt, dest.lstrip(os.sep))
 
