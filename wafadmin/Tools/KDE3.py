@@ -125,7 +125,7 @@ class kde_translations(Object.genobj):
 				self.m_tasks.append(task)
 			except: pass
 	def install(self):
-		destfilename = self.m_appname+'.gmo'
+		destfilename = self.m_appname+'.mo'
 
 		current = Params.g_build.m_curdirnode
 		for file in self.m_current_path.m_files:
@@ -135,7 +135,7 @@ class kde_translations(Object.genobj):
 			node = self.get_mirror_node(self.m_current_path, lang+'.gmo')
 			orig = node.relpath_gen(current)
 
-			destfile = os.sep.join([lang, destfilename])
+			destfile = os.sep.join([lang, 'LC_MESSAGES', destfilename])
 			Common.install_as('KDE_LOCALE', destfile, orig, self.env)
 
 # documentation

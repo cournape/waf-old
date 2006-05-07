@@ -87,7 +87,7 @@ class Environment:
 		debug(self.m_table)
 		return 1
 
-	def get_destdir(env):
+	def get_destdir(self):
 		if self.m_table.has_key('NOINSTALL'): return ''
 		dst = Params.g_options.destdir
 		try: dst = dst+os.sep.self.m_table['SUBDEST']
