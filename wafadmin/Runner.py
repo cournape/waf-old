@@ -2,12 +2,30 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, popen2, sys, time, random
+import os, popen2, sys, time, random, string, time
 import Params, Task, pproc
 from Params import debug, error, trace, fatal
 
 # output a stat file (data for gnuplot) when running tasks in parallel
 dostat=0
+initial = time.time()
+
+def write_progress(s):
+	if Params.g_options.progress_bar:
+		sys.stderr.write(s + '\r')
+	else:
+		print s
+
+def progress_line(s, t, col1, as, col2):
+	if Params.g_options.progress_bar:
+		pc = (70.*s)/t
+		bar = ('='*int(pc-1)+'>').ljust(70)
+
+		global initial
+		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - initial))
+		return '[%d/%d] %s%d%%%s |%s| %s%s%s' % (s, t, col1, pc, col2, bar, col1, eta, col2)
+
+	return '[%d/%d] %s%s%s' % (s, t, col1, as, col2)
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
@@ -19,7 +37,9 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 		if not stderr_eof:
 			str = cmd_stderr.read()
 			if not str: stderr_eof = 1
-			else: sys.stderr.write(str)
+			else:
+				sys.stderr.write('\n')
+				sys.stderr.write(str)
 		#time.sleep(0.1)
 
 # run commands in a portable way
@@ -154,7 +174,7 @@ class Serial:
 					col1=Params.g_colors[proc.m_action.m_name]
 					col2=Params.g_colors['NORMAL']
 				except: pass
-				print '[%d/%d] %s%s%s' % (s, t, col1, proc.m_str, col2)
+				write_progress(progress_line(s, t, col1, proc.m_str, col2))
 
 			# run the command, it might be a function attached to an action
 			# usually we will only popen a string
@@ -186,6 +206,7 @@ class Serial:
 
 		debug("Serial end")
 		if not Params.g_commands['configure']:
+			print ""
 			print "Build finished successfully"
 		return 0
 
@@ -263,7 +284,7 @@ class TaskConsumer(threading.Thread):
 			self.do_stat(1)
 
 			# display the label for the command executed
-			print proc.m_str
+			write_progress(proc.m_str)
 
 			# run the command, it might be a function attached to an action
 			# usually we will only popen a string
@@ -461,7 +482,8 @@ class Parallel:
 						col1=Params.g_colors[proc.m_action.m_name]
 						col2=Params.g_colors['NORMAL']
 					except: pass
-					proc.m_str = '[%d/%d] %s%s%s' % (self.m_processed, self.m_total, col1, proc.m_str, col2)
+					proc.m_str = progress_line(self.m_processed, self.m_total, col1, proc.m_str, col2)
+					#proc.m_str = '[%d/%d] %s%s%s' % (self.m_processed, self.m_total, col1, proc.m_str, col2)
 
 					lock.acquire()
 					count += 1

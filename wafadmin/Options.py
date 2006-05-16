@@ -41,6 +41,12 @@ def create_parser():
 		help = 'IMPLEMENTED ME (Run as a daemon). [Default: False]',
 		dest = 'daemon')
 	
+	p('-p', '--progress',
+		action = 'store_true',
+		default = False,
+		help = 'Progress bar        [Default: False]',
+		dest = 'progress_bar')
+
 	p('-v', '--verbose', 
 		action = 'count',
 		default = 0,
