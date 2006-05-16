@@ -11,7 +11,7 @@ import Utils, Action, Params
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
 	# like '%s -o %s' which becomes 'file.c -o file.o' when called
-	cc_vardeps    = ['CC', 'CCFLAGS', 'CCFLAGS_' + Params.g_options.debug_level, '_CPPDEFFLAGS', '_CCINCFLAGS', 'CC_ST']
+	cc_vardeps    = ['CC', 'CCFLAGS', 'CCFLAGS_' + Params.g_options.debug_level, 'CPPFLAGS', '_CCINCFLAGS', 'CC_ST']
 	Action.GenAction('cc', cc_vardeps)
 
 	# on windows libraries must be defined after the object files 
@@ -46,7 +46,7 @@ def detect(conf):
 
 	# cc compiler
 	conf.env['CC']             = comp
-	conf.env['_CPPDEFFLAGS']   = ''
+	conf.env['CPPFLAGS']       = []
 	conf.env['_CINCFLAGS']     = ''
 	conf.env['CC_ST']          = '%s -c -o %s'
 	conf.env['CPPPATH_ST']     = '-I%s' # template for adding include pathes
@@ -73,6 +73,16 @@ def detect(conf):
 	conf.env['LINKFLAGS_RELEASE'] = ['-s']
 	conf.env['LINKFLAGS_DEBUG'] = ['-g']
 	conf.env['LINKFLAGS_ULTRADEBUG'] = ['-g3']
+
+	def addflags(var):
+		try:
+			c = os.environ[var]
+			if c: conf.env[var].append(c)
+		except:
+			pass
+
+	addflags('CCFLAGS')
+	addflags('CPPFLAGS')
 
 	if sys.platform == "win32": 
 		if not conf.env['PREFIX']: conf.env['PREFIX']='c:\\'

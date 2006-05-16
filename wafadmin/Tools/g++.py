@@ -11,7 +11,7 @@ import Utils,Action,Params,Configure
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
 	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
-	cpp_vardeps    = ['CXX', 'CXXFLAGS', 'CXXFLAGS_' + Params.g_options.debug_level, '_CPPDEFFLAGS', '_CXXINCFLAGS', 'CXX_ST']
+	cpp_vardeps    = ['CXX', 'CXXFLAGS', 'CXXFLAGS_' + Params.g_options.debug_level, 'CPPFLAGS', '_CXXINCFLAGS', 'CXX_ST']
 	Action.GenAction('cpp', cpp_vardeps)
 
 	# TODO: this is the same definitions as for gcc, should be separated to have independent setup
@@ -51,7 +51,7 @@ def detect(conf):
 
 	# c++ compiler
 	conf.env['CXX']             = comp
-	conf.env['_CPPDEFFLAGS']    = ''
+	conf.env['CPPFLAGS']        = []
 	conf.env['_CXXINCFLAGS']    = ''
 	conf.env['CXX_ST']          = '%s -c -o %s'
 	conf.env['CPPPATH_ST']      = '-I%s' # template for adding include pathes
@@ -62,7 +62,7 @@ def detect(conf):
 	conf.env['CXXFLAGS_RELEASE'] = ['-O2']
 	conf.env['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
 	conf.env['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
-		
+
 	# linker	
 	conf.env['LINK']             = comp
 	conf.env['LIB']              = []
@@ -83,6 +83,16 @@ def detect(conf):
 	conf.env['LINKFLAGS_RELEASE'] = ['-s']
 	conf.env['LINKFLAGS_DEBUG'] = ['-g']
 	conf.env['LINKFLAGS_ULTRADEBUG'] = ['-g3']
+
+	def addflags(var):
+		try:
+			c = os.environ[var]
+			if c: conf.env[var].append(c)
+		except:
+			pass
+
+	addflags('CXXFLAGS')
+	addflags('CPPFLAGS')
 
 	if not conf.env['DESTDIR']: conf.env['DESTDIR']=''
 	
