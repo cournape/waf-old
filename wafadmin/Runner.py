@@ -18,8 +18,8 @@ def write_progress(s):
 
 def progress_line(s, t, col1, as, col2):
 	if Params.g_options.progress_bar:
-		pc = (70.*s)/t
-		bar = ('='*int(pc-1)+'>').ljust(70)
+		pc = (100.*s)/t
+		bar = ('='*int((70.*s)/t-1)+'>').ljust(70)
 
 		global initial
 		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - initial))
