@@ -10,9 +10,16 @@ srcdir = '.'
 blddir = '_build_'
 
 def set_options(opt):
-	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
-	opt.add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
-	opt.add_option('--want-rpath', action='store_true', dest='want_rpath', default=True, help='turn rpath off or on')
+	opt.add_option('--prefix', type='string',
+		help='installation prefix',
+		dest='prefix')
+	opt.add_option('--destdir', type='string',
+		help='destination for install (when creation rpms or debs)',
+		dest='destdir')
+	opt.add_option('--want-rpath', action='store_true',
+		dest='want_rpath',
+		default=True,
+		help='turn rpath off or on')
 
 	for i in "execprefix datadir libdir kdedir kdeincludes kdelibs qtdir qtincludes qtlibs libsuffix".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)

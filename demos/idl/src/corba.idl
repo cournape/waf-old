@@ -1,0 +1,9 @@
+#include <orbsvcs/CosNaming.idl>
+
+
+module MyCorba {
+
+  struct HelloWorld {
+    string hello;
+  };
+};

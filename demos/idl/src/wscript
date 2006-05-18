@@ -1,0 +1,24 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Peter Soetens, 2006
+
+def build(bld):
+	# 1. An idl file
+	obj = bld.createObj('cpp', 'shlib')
+	obj.source='''
+	corba.idl
+	'''
+	obj.includes='. src'
+	obj.uselib = 'ACE TAO'
+	obj.target='corbashlib'
+
+	# 2. A program that links against corbashlib
+	obj = bld.createObj('cpp', 'program')
+	obj.source='''
+	corba_app.cpp
+	'''
+	obj.includes='. src'
+	obj.useliblocal='./corbashlib.so'
+	obj.uselib = 'ACE TAO TAOPOA COSNAMING'
+	obj.target='corba_program'
+

@@ -1,0 +1,24 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='idl_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = '_build_'
+
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('src')
+
+def configure(conf):
+	conf.checkTool(['g++'])
+	conf.checkTool(['tao_idl'])
+
+def set_options(opt):
+	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+	opt.add_option('--destdir', type='string', help='destination for install (when creation rpms or debs)', dest='destdir')
+	pass
