@@ -26,6 +26,9 @@ def add_group():
 	g_tasks = [{}]+g_tasks
 
 def add_task(task, priority=6):
+	global g_tasks
+	if len(g_tasks) == 0:
+		g_tasks=[{}]
 	try: g_tasks[0][priority].append(task)
 	except: g_tasks[0][priority] = [task]
 

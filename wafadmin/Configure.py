@@ -96,7 +96,7 @@ class Configure:
 		filename = env['OS'] + '.env'
 		env.store(filename)
 
-	def TryBuild(self, code, options=''):
+	def TryBuild(self, code, options='', pathlst=[]):
 		"""Check if a program could be build, returns 0 if no errors 
 		This method is currently platform specific and has to be made platform 
 		independent, probably by refactoring the c++ or cc build engine
@@ -132,11 +132,14 @@ class Configure:
 		obj=cpp.cppobj('program')
 		obj.source = 'test.c'
 		obj.target = 'test'
+		for p in pathlst:
+			bld.m_allenvs['default']['CPPFLAGS'].append(' -I%s ' % p)
 
 		try:
 			ret = bld.compile()
 		except:
-			pass
+			ret = 1
+			raise
 
 		os.chdir(back)
 		Utils.reset()
@@ -205,11 +208,11 @@ class Configure:
 		self.configheader = header
 		pass
 
-	def checkHeader(self, header, define=''):
-		"""find a header"""
+	def checkHeader(self, header, define='', pathlst=[] ):
+		"""find a C/C++ header"""
 		if type(header) is types.ListType:
 			for i in header: 
-				self.checkHeader(i)
+				self.checkHeader(i, pathlst=pathlst)
 			return
 			
 		if define == '':
@@ -224,7 +227,7 @@ int main()
 {
 }
 """ % header
-		is_found = not self.TryBuild(code)
+		is_found = not self.TryBuild(code, pathlst)
 		self.checkMessage('header',header,is_found)
 		self.addDefine(define,is_found)
 		return is_found
@@ -307,7 +310,6 @@ int main()
 		if self.isDefined(define):
 			return self.getDefine(define)
 
-		self.env.appendValue('tools',tool)
 		try:
 			file,name,desc = imp.find_module(tool, Params.g_tooldir)
 		except: 
@@ -316,6 +318,7 @@ int main()
 		module = imp.load_module(tool,file,name,desc)
 		ret = module.detect(self)
 		self.addDefine(define, ret)
+		self.env.appendValue('tools',tool)
 		return ret
 			
 	def checkModule(self,tool):
@@ -374,7 +377,7 @@ int main()
 		self.cwd = current
 
 
-	def pkgcheck(self, modname, destvar='', vnum=''):
+	def checkPkg(self, modname, destvar='', vnum=''):
 		if not destvar:
 			destvar = modname.upper()
 
