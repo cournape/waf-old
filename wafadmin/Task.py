@@ -121,7 +121,9 @@ class Task:
 		tree=Params.g_build.m_tree
 		seen=[]
 		def get_node_sig(node):
-			if node in seen: return Params.sig_nil()
+			if not node:
+				print "warning: null node in get_node_sig"
+			if not node or node in seen: return Params.sig_nil()
 			seen.append(node)
 			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
 			if self.m_recurse and self.m_scanner:
