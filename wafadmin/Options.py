@@ -53,6 +53,10 @@ def create_parser():
 		help = 'Show verbose output [Default: False]',
 		dest = 'verbose')
 
+	p('--destdir', type='string',
+		help='destination for install (when creation rpms or debs)',
+		dest='destdir')
+
 	if 'configure' in sys.argv:
 		p('-b', '--blddir',
 			action = 'store',
