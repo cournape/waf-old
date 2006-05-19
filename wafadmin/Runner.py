@@ -116,7 +116,7 @@ class JobGenerator:
 		#self.m_current_task_lst = [task]+self.m_current_task_lst
 
 	def debug(self):
-		error("debugging a task: something went wrong:")
+		debug("debugging a task: something went wrong:")
 		#trace("tasks to run in order")
 		#Task.g_tasks.reverse()
 		s=""
