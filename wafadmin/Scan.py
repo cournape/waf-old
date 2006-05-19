@@ -81,6 +81,7 @@ def c_scanner(node, path_lst):
 
 	nodes = []
 	names = []
+	if not node: return (nodes, names)
 
 	for (_, name, _) in found:
 		#print 'boo', name

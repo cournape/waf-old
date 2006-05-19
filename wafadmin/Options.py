@@ -102,6 +102,7 @@ def parse_args_impl(parser):
 	Params.g_maxjobs = Params.g_options.jobs
 	Params.g_verbose = Params.g_options.verbose
 	if Params.g_verbose>1: Params.set_trace(1,1,1)
+	else: Params.set_trace(0,0,1)
 	#if Params.g_options.wafcoder: Params.set_trace(1,1,1)
 
 # TODO bad name for a useful class

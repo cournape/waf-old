@@ -235,7 +235,7 @@ class ccroot(Object.genobj):
 		for dir in inc_lst:
 			node = self.m_current_path.find_node( dir.split(os.sep) )
 			if not node:
-				error("node not found dammit")
+				debug("node not found in ccroot:apply_incpaths "+str(dir))
 				continue
 			lst.append( node )
 

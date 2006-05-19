@@ -100,7 +100,7 @@ class JobGenerator:
 					self.m_task_prio_lst = self.m_current_group.keys()
 					self.m_task_prio_lst.sort()
 				except:
-					error("no more task to give")
+					debug("no more task to give")
 					return None
 			return self.get_next()
 

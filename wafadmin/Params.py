@@ -106,7 +106,7 @@ g_levels={
 	'Test'    : 'GREEN',
 }
 
-g_trace_exclude = "Deptree Node Object ".split()
+g_trace_exclude = "Object ".split()
 
 def set_trace(a, b, c):
 	Utils.g_trace=a
