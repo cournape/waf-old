@@ -155,7 +155,7 @@ class qt4obj(cpp.cppobj):
 		for filename in lst:
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
-			if not node: error("source not found "+filename)
+			if not node: fatal("cannot find "+filename+" in "+str(self.m_current_path))
 
 			base, ext = os.path.splitext(filename)
 
