@@ -4,7 +4,12 @@
 
 def build(bld):
 	obj = bld.createObj('qt4', 'program')
-	obj.source = 'window.cpp glwidget.cpp main.cpp textures.qrc'
+
+	## the sources can be given manually
+	## or found automatically in the directories specified
+	#obj.source = 'window.cpp glwidget.cpp main.cpp textures.qrc'
+
+	obj.find_sources_in_dirs('.')
 	obj.uselib = 'QT QTCORE QTGUI QTOPENGL'
 	obj.target = 'window'
 	obj.includes = 'test .'

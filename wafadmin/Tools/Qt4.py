@@ -69,12 +69,14 @@ uic3act.m_function_to_run = uic3_build
 
 
 
-qt4files = ['.cpp', '.ui', '.rcc']
+qt4files = ['.cpp', '.ui', '.qrc']
 class qt4obj(cpp.cppobj):
 	def __init__(self, type='program'):
 		cpp.cppobj.__init__(self, type)
 		self.m_linktask = None
 		self.m_latask = None
+		global qt4files
+                self.m_src_file_ext = qt4files
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
