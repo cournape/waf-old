@@ -246,7 +246,7 @@ class kdeobj(cpp.cppobj):
 		self.m_linktask = None
 		self.m_latask   = None
 		self.skel_or_stub = {}
-		self.want_libtool = 1
+		self.want_libtool = 0
 		global kdefiles
 		self.m_src_file_ext = kdefiles
 
