@@ -246,7 +246,7 @@ class kdeobj(cpp.cppobj):
 		self.m_linktask = None
 		self.m_latask   = None
 		self.skel_or_stub = {}
-		self.want_libtool = 0
+		self.want_libtool = -1 # fake libtool here
 		global kdefiles
 		self.m_src_file_ext = kdefiles
 
@@ -265,7 +265,7 @@ class kdeobj(cpp.cppobj):
 		self.apply_obj_vars()
 		self.apply_incpaths()
 
-		if self.want_libtool: self.apply_libtool()
+		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
 
 		obj_ext = self.env[self.m_type+'_obj_ext'][0]
 

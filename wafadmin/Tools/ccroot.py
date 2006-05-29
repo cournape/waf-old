@@ -83,7 +83,7 @@ class ccroot(Object.genobj):
 		self.m_deps_linktask=[]
 
 		# libtool emulation
-		self.want_libtool=0
+		self.want_libtool=0 # -1: fake; 1: real
 		self.vnum=''
 
 		self._incpaths_lst=[]
@@ -129,7 +129,7 @@ class ccroot(Object.genobj):
 		self.apply_obj_vars()
 		self.apply_incpaths()
 
-		if self.want_libtool: self.apply_libtool()
+		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
 
 		obj_ext = self.env[self.m_type+'_obj_ext'][0]
 		pre = self.m_type_initials
