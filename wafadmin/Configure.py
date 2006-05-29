@@ -291,7 +291,17 @@ int main()
 """ % funcname
 		elif not headers and not funcname: 
 			headers = ""
-			code = ""
+			code = """
+int main() {}
+"""
+		else:
+			code = """
+int main()
+{
+	%s();
+}
+""" % funcname
+			
 		# TODO setup libpath 
 		libpath = ""
 		is_found = not self.TryBuild(headers + code,(self.env['LIB_ST'] % libname) + ' ' + self.env['LIBPATH_ST'] % libpath )
