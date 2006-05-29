@@ -571,6 +571,7 @@ def detect_kde(conf):
         env['LIB_KMDI']     = 'kmdi'
         env['LIB_KPARTS']   = 'kparts'
         env['LIB_KDEPRINT'] = 'kdeprint'
+	env['LIB_KDEGAMES'] = 'kdegames'
 
 	env['KCONFIG_COMPILER'] = 'kconfig_compiler'
 
