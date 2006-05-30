@@ -93,7 +93,6 @@ class Build:
 		if sys.platform=='win32': p=p[2:]
 		node = self.m_tree.ensure_directory(p)
 		self.m_tree.m_bldnode = node
-		Params.g_bldnode = node
 
 	def set_srcdir(self, dir, scan='auto'):
 		trace("set_srcdir")
@@ -116,7 +115,7 @@ class Build:
 			trace("autoscan in use")
 			# avoid recursion
 			def scan(node):
-				if node is Params.g_bldnode: return []
+				if node is Params.g_build.m_tree.m_bldnode: return []
 				if node.m_name in Params.g_excludes: return []
 				dir = os.sep.join(srcnode.difflst(node))
 				self.m_tree.scanner_mirror(dir)

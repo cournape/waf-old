@@ -185,15 +185,15 @@ class Node:
 	def bldpath(self):
 		try:
 			orig = Params.g_build.m_tree.m_bld_to_src[self]
-			return orig.relpath_gen(Params.g_bldnode)
+			return orig.relpath_gen(Params.g_build.m_tree.m_bldnode)
 		except KeyError:
 			pass
 		except:
 			print self
 			raise
-		if not Params.g_bldnode: error("BUG in bldpath")
-		#return self.relpath(Params.g_bldnode)
-		return self.relpath_gen(Params.g_bldnode)
+		if not Params.g_build.m_tree.m_bldnode: error("BUG in bldpath")
+		#return self.relpath(Params.g_build.m_tree.m_bldnode)
+		return self.relpath_gen(Params.g_build.m_tree.m_bldnode)
 
 	# find a common ancestor for two nodes - for the shortest path in hierarchy
 	def find_ancestor(self, node):
