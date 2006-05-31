@@ -227,7 +227,7 @@ int main()
 {
 }
 """ % header
-		is_found = not self.TryBuild(code, pathlst)
+		is_found = not self.TryBuild(code, pathlst=pathlst)
 		self.checkMessage('header',header,is_found)
 		self.addDefine(define,is_found)
 		return is_found
@@ -304,7 +304,7 @@ int main()
 			
 		# TODO setup libpath 
 		libpath = ""
-		is_found = not self.TryBuild(headers + code,(self.env['LIB_ST'] % libname) + ' ' + self.env['LIBPATH_ST'] % libpath )
+		is_found = not self.TryBuild(headers + code, pathlst = (self.env['LIB_ST'] % libname) + ' ' + self.env['LIBPATH_ST'] % libpath )
 		self.checkMessage('library',libname,is_found)
 		self.addDefine(define,is_found)
 		return is_found
