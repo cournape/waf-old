@@ -468,7 +468,7 @@ def detect_qt4_win32(conf):
 		# first use the qtdir
 		path=''
 		for prog in progs:
-			path=conf.checkProgram(prog, [os.path.join(qtdir, 'bin')])
+			path=conf.checkProgram(prog, path_list=[os.path.join(qtdir, 'bin')]+os.environ['PATH'])
 			if path:
 				return path
 
