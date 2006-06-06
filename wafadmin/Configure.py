@@ -6,20 +6,26 @@ import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
 def find_path(file, path_list):
-	for dir in path_list:
+	if type(path_list) is types.StringType: lst = [path_list]
+	else: lst = path_list
+	for dir in lst:
 		if os.path.exists( os.path.join(dir, file) ):
 			return dir
 	return ''
 
 def find_file(file, path_list):
-	for dir in path_list:
+	if type(path_list) is types.StringType: lst = [path_list]
+	else: lst = path_list
+	for dir in lst:
 		if os.path.exists( os.path.join(dir, file) ):
 			return os.path.join(dir, file)
 	return ''
 
 def find_file_ext(file, path_list):
 	import os, fnmatch;
-	for p in path_list:
+	if type(path_list) is types.StringType: lst = [path_list]
+	else: lst = path_list
+	for p in lst:
 		for path, subdirs, files in os.walk( p ):
 			for name in files:
 				if fnmatch.fnmatch( name, file ):
@@ -27,16 +33,18 @@ def find_file_ext(file, path_list):
 	return ''
 
 def find_program(lenv, file, path_list=None):
-	if lenv['WINDOWS']:
-		file += '.exe'
-	if path_list is None: 
+	if not path_list: path_list = []
+	elif type(path_list) is types.StringType: path_list = [path_list]
+
+	if lenv['WINDOWS']: file += '.exe'
+	if not path_list: 
 		try:
-			path_list = os.environ['PATH']
+			path_list = os.environ['PATH'].split(':')
 		except KeyError:
 			return None
-		if type(path_list) is types.StringType: 
-			path_list = string.split(path_list, os.pathsep)
-
+		# ???
+		#if type(path_list) is types.StringType: 
+		#	path_list = string.split(path_list, os.pathsep)
 	for dir in path_list:
 		if os.path.exists( os.path.join(dir, file) ):
 			return os.path.join(dir, file)
