@@ -259,7 +259,10 @@ def detect_qt4(conf):
 	qtdir = os.getenv('QTDIR')
 
 	# TODO what if there are only static Qt libraries ?
-	if qtdir and Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), qtdir): qtdir=None
+	if qtdir:
+		if Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), [qtdir]):
+			p('YELLOW', 'The QTDIR %s is for Qt3, we need to find something else' % qtdir)
+			qtdir=None
 	if not qtdir:
 		qtdir=Configure.find_path('include/', [ # lets find the Qt include directory
 				'/usr/local/Trolltech/Qt-4.2.0/',
@@ -271,7 +274,7 @@ def detect_qt4(conf):
 				'/usr/local/Trolltech/Qt-4.0.2/',
 				'/usr/local/Trolltech/Qt-4.0.1/',
 				'/usr/local/Trolltech/Qt-4.0.0/'])
-		if qtdir: p('YELLOW', 'The qtdir was found as '+qtdir)
+		if qtdir: p('YELLOW', 'The QTDIR was found as '+qtdir)
 		else:     p('YELLOW', 'There is no QTDIR set')
 	else: env['QTDIR'] = qtdir.strip()
 
@@ -287,13 +290,12 @@ def detect_qt4(conf):
 		# first use the qtdir
 		path=''
 		lst = [os.path.join(qtdir, 'bin')]
-		if qtbin: lst = [qtbin]+lst
+		if qtbin: lst = [qtbin]+lst+os.environ['PATH'].split(':')
 		#print qtbin
 		#print lst
 		for prog in progs:
 			path=conf.checkProgram(prog, lst)
-			if path:
-				return path
+			if path: return path
 
 		# everything failed
 		p('RED',"%s was not found - make sure Qt4-devel is installed, or set $QTDIR or $PATH" % prog)
@@ -468,9 +470,9 @@ def detect_qt4_win32(conf):
 		# first use the qtdir
 		path=''
 		for prog in progs:
-			path=conf.checkProgram(prog, path_list=[os.path.join(qtdir, 'bin')]+os.environ['PATH'])
-			if path:
-				return path
+			lst = [os.path.join(qtdir, 'bin')] + os.environ['PATH'].split(':')
+			path=conf.checkProgram(prog, path_list=lst)
+			if path: return path
 
 		# everything failed
 		p('RED',"%s was not found - make sure Qt4-devel is installed, or set $QTDIR or $PATH" % prog)
