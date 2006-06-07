@@ -3,6 +3,9 @@
 # Thomas Nagy, 2006 (ita)
 
 def build(bld):
+	import Params
+	print "command-line parameter meow is ", Params.g_options.meow
+
 	# 1. A simple program
 	obj = bld.createObj('cpp', 'program')
 	obj.source='''

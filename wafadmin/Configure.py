@@ -396,17 +396,13 @@ int main()
 
 
 	def checkPkg(self, modname, destvar='', vnum=''):
-		if not destvar:
-			destvar = modname.upper()
+		if not destvar: destvar = modname.upper()
 
 		try:
 			if vnum:
-				s = "checking if %s is at least %s :" % (modname, vnum)
-				print s,
-				if os.popen("pkg-config --atleast-version=%s %s" % (vnum, modname)).close():
-					raise "error"
-				print "ok"
-
+				ret = os.popen("pkg-config --atleast-version=%s %s" % (vnum, modname)).close()
+				self.checkMessage('%s >= %s' % (modname, vnum), '', not ret)
+				if res: raise "error"
 			self.env['CCFLAGS_'+destvar]   = os.popen('pkg-config --cflags %s' % modname).read().strip()
 			self.env['CXXFLAGS_'+destvar]  = os.popen('pkg-config --cflags %s' % modname).read().strip()
 			self.env['LINKFLAGS_'+destvar] = os.popen('pkg-config --libs %s' % modname).read().strip()

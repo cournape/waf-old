@@ -23,7 +23,7 @@ def configure(conf):
 	conf.checkTool(['gcc', 'g++', 'dang'])
 
 	# pkg-config example - look in src/wscript_build, obj.uselib ..
-	conf.pkgcheck('glib-2.0', destvar='GLIB', vnum='2.6.0')
+	conf.checkPkg('glib-2.0', destvar='GLIB', vnum='2.6.0')
 
 	# write a config.h
 	conf.checkHeader('dlfcn.h','HAVE_DLFCN_H')
@@ -32,3 +32,4 @@ def configure(conf):
 
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+
