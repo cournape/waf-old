@@ -132,12 +132,13 @@ def Main():
 	Utils.g_module.build(bld)
 	g_inroot=0
 
-	while len(bld.m_subdirs)>0:
+	bldsubs = bld.m_subdirs
+	while bldsubs:
 		# read scripts, saving the context everytime (bld.m_curdirnode)
 
 		# cheap queue
-		lst=bld.m_subdirs[0]
-		bld.m_subdirs=bld.m_subdirs[1:]
+		lst=bldsubs[0]
+		bldsubs=bldsubs[1:]
 
 		new=lst[0]
 		old=lst[1]
