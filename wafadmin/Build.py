@@ -84,7 +84,7 @@ class Build:
 	def set_bdir(self, path):
 		trace("set_builddir")
 		if path[0]=="/":
-			print "path is absolute"
+			#print "path is absolute"
 			lst = path.split('/')
 			truc = lst[len(lst)-1]
 			Params.g_excludes.append(truc)
@@ -113,7 +113,9 @@ class Build:
 			pass
 		if scan == 'auto':
 			trace("autoscan in use")
-			# avoid recursion
+			# duplicate the folders using Deptree::scanner_mirror
+			# this is the wrong method, so there is no need to rush and try to fix it
+			# the whole module will be rewritten
 			def scan(node):
 				if node is Params.g_build.m_tree.m_bldnode: return []
 				if node.m_name in Params.g_excludes: return []

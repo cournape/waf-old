@@ -9,6 +9,16 @@ import os, string, sys, imp
 # in this case, stop when a ".lock-wscript" file is found
 cwd = os.getcwd()
 candidate = None
+
+# Some people want to configure their projects gcc-style:
+# mkdir build && cd build && ../waf.py configure && ../waf.py
+# check that this is really what is wanted
+build_dir_override = None
+if 'configure' in sys.argv:
+	#if not os.listdir(cwd):
+	if not 'wscript' in os.listdir(cwd):
+		build_dir_override = cwd
+
 try:
 	while 1:
 		if len(cwd)<=3: break # stop at / or c:
@@ -63,13 +73,22 @@ Params.set_trace(0,0,0)
 # define the main module containing the functions init, shutdown, ..
 Utils.set_main_module(os.path.join(candidate, 'wscript'))
 
+if build_dir_override:
+	try:
+		# test if user has set the blddir in wscript.
+		blddir = Utils.g_module.blddir
+		msg = 'Overriding blddir %s with %s' % (mblddir, bldcandidate)
+		Params.niceprint('YELLOW', msg)
+	except: pass
+	Utils.g_module.blddir = build_dir_override
+
 # fix the path of the cachedir - it is mandatory
 if sys.platform=='win32':
 	try:
 		lst = Utils.g_module.cachedir.split('/')
 		Utils.g_module.cachedir = os.sep.join(lst)
 	except:
-		print "no cachedir specified in wscript!"
+		Params.niceprint('RED', 'No cachedir specified in wscript!')
 		raise
 
 # fetch the custom command-line options recursively and in a procedural way
