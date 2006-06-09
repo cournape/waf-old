@@ -75,7 +75,6 @@ def Main():
 	
 			Params.g_cachedir = blddir+os.sep+'_cache_'
 
-			bld.set_dirs(srcdir, blddir)
 		except AttributeError:
 			msg = "The attributes srcdir or blddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project\n * use waf configure --srcdir=xxx --blddir=yyy"
 			fatal(msg % os.path.abspath('.'))
@@ -112,11 +111,9 @@ def Main():
 
 	Params.g_cachedir = blddir+os.sep+'_cache_'
 
-	try:
-		bld.set_dirs(srcdir, blddir)
-	except:
-		fatal("bld.set_dirs failed")
-
+	# init the Build object.
+	bld.load(blddir)
+	bld.set_srcdir(srcdir)
 
 	try:
 		load_envs()
@@ -161,6 +158,13 @@ def Main():
 
 		# restore the old node position
 		bld.m_curdirnode=old
+
+	# Finally: create the build dirs, *after* the 'build(bld)' scripts
+	# have been read.
+	try:
+		bld.load_dirs(srcdir, blddir, 'auto')
+	except:
+		fatal("bld.load_dirs failed")
 
 	#bld.m_tree.dump()
 

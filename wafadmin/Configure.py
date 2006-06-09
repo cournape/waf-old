@@ -111,9 +111,10 @@ class Configure:
 		"""
 
 		dir = os.path.join(Utils.g_module.blddir, '.wscript-trybuild')
-		try: os.mkdir(Utils.g_module.blddir)
-		except: pass
+		bdir = os.path.join( dir, '_build_')
 		try: os.mkdir(dir)
+		except: pass
+		try: os.mkdir(bdir)
 		except: pass
 
 		dest=open(os.path.join(dir, 'test.c'), 'w')
@@ -124,7 +125,9 @@ class Configure:
 		Utils.reset()
 
 		bld = Build.Build()
-		bld.set_dirs(dir, os.path.join(dir, '_build_'))
+		bld.load( bdir )
+		bld.set_srcdir(dir)
+		bld.load_dirs(dir, bdir )
 		bld.m_allenvs['default'] = env
 
 		bld.m_curdirnode = Params.g_build.m_tree.m_srcnode
@@ -349,7 +352,7 @@ int main()
 
 	def store(self, file=''):
 		"""save config results into a cache file"""
-		try: os.mkdir(Params.g_cachedir)
+		try: os.makedirs(Params.g_cachedir)
 		except OSError: pass
 
 		if not self.m_allenvs:

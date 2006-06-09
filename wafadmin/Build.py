@@ -72,19 +72,16 @@ class Build:
 		cPickle.dump(self.m_tree, file, -1)
 		file.close()
 
-	def set_dirs(self, srcdir, blddir, scan='auto'):
-		if len(srcdir) >= len(blddir)-1:
+	def load_dirs(self, srcdir, blddir, scan='auto'):
+		if os.path.samefile(srcdir,blddir):
 			fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
 
-		self.load(blddir)
+		self.set_blddir(blddir)
+		self.duplicate_srcdir(srcdir, scan)
 
-		self.set_bdir(blddir)
-		self.set_srcdir(srcdir, scan)
-
-	def set_bdir(self, path):
+	def set_blddir(self, path):
 		trace("set_builddir")
 		if path[0]=="/":
-			#print "path is absolute"
 			lst = path.split('/')
 			truc = lst[len(lst)-1]
 			Params.g_excludes.append(truc)
@@ -93,29 +90,38 @@ class Build:
 		if sys.platform=='win32': p=p[2:]
 		node = self.m_tree.ensure_directory(p)
 		self.m_tree.m_bldnode = node
-
-	def set_srcdir(self, dir, scan='auto'):
+  
+	def set_srcdir(self, dir):
+		""" Inform the Build object of the srcdir."""
 		trace("set_srcdir")
 		p = os.path.abspath(dir)
 		if sys.platform=='win32': p=p[2:]
-		node=self.m_tree.ensure_node_from_path(p)
+
+		node = self.m_tree.ensure_node_from_path(p)
 		self.m_tree.m_srcnode = node
+		# position in the source tree when reading scripts
+		self.m_curdirnode = node
+		
+	def duplicate_srcdir(self, dir, scan='auto'):
+		""" Scan the srcdir and duplicate it in the build dir.
+		This function is *not* called during the configuration step,
+		but during the build step. Use 'auto' for waf-internal build
+		dirs, use 'noauto' for user defined build dirs."""
+		trace("duplicate_srcdir")
 
 		srcnode = self.m_tree.m_srcnode
 
-		# position in the source tree when reading scripts
-		self.m_curdirnode = node
 		# stupid behaviour (will scan every project in the folder) but scandirs-free
 		# we will see later for more intelligent behaviours (scan only folders that contain sources..)
+		# (ps:) then this function must be called during the build step.
 		try:
 			Params.g_excludes=Params.g_excludes+Utils.g_module.prunedirs
 		except:
 			pass
+
 		if scan == 'auto':
 			trace("autoscan in use")
-			# duplicate the folders using Deptree::scanner_mirror
-			# this is the wrong method, so there is no need to rush and try to fix it
-			# the whole module will be rewritten
+			# This function actually dupes the dirs with 'scanner_mirror'
 			def scan(node):
 				if node is Params.g_build.m_tree.m_bldnode: return []
 				if node.m_name in Params.g_excludes: return []
@@ -127,11 +133,22 @@ class Build:
 				el=mlst[0]
 				mlst=mlst[1:]
 				mlst += scan(el)
+		else:
+			dirs = []
+			for tgt in self.m_subdirs:
+				dirs.append( os.sep.join(srcnode.difflst(tgt[0]) ) )
+			self.scandirs( dirs )
+			
+	def get_srcdir(self):
+		return self.srcnode.abspath()
+
+	def get_blddir(self):
+		return self.m_bdir
 
 	# use this when autoscan is off
 	def scandirs(self, paths):
-		ldirs=paths.split()
-		for sub_dir in ldirs:
+		#ldirs=paths.split()
+		for sub_dir in paths:
 			self.m_tree.scanner_mirror(sub_dir)
 
 	def cleanup(self):
