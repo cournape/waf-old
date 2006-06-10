@@ -161,7 +161,7 @@ class kde_documentation(Object.genobj):
 				task.m_outputs = self.file_in(base+'.cache.bz2')
 				self.m_docbooks.append(task)
 	def install(self):
-		destpath = os.sep.join([self.m_appname, self.m_lang])
+		destpath = os.sep.join([self.m_lang, self.m_appname])
 
 		current = Params.g_build.m_curdirnode
 		lst = []
