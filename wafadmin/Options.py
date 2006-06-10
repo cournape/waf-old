@@ -77,6 +77,10 @@ def parse_args_impl(parser):
 	(Params.g_options, args) = parser.parse_args()
 	#print Params.g_options, " ", args
 
+	if not Params.g_options.destdir:
+		try: Params.g_options.destdir = os.environ['DESTDIR']
+		except: pass
+
 	# Now check the options that have been defined
 	lst=['ultradebug', 'debug', 'release', 'optimized']
 	if Params.g_options.debug_level not in lst:
