@@ -405,7 +405,7 @@ int main()
 			if vnum:
 				ret = os.popen("pkg-config --atleast-version=%s %s" % (vnum, modname)).close()
 				self.checkMessage('%s >= %s' % (modname, vnum), '', not ret)
-				if res: raise "error"
+				if ret: raise "error"
 			self.env['CCFLAGS_'+destvar]   = os.popen('pkg-config --cflags %s' % modname).read().strip()
 			self.env['CXXFLAGS_'+destvar]  = os.popen('pkg-config --cflags %s' % modname).read().strip()
 			self.env['LINKFLAGS_'+destvar] = os.popen('pkg-config --libs %s' % modname).read().strip()
