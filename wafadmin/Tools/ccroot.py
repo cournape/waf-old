@@ -411,6 +411,9 @@ class ccroot(Object.genobj):
 
 			# now that the name was added, find the corresponding node in the builddir
 			dirnode = self.m_current_path.find_node( path.split('/') )
+			if not dirnode:
+				msg = "While looking for library '%s.%s': could not find directory '%s'\n"
+				fatal( msg % (str(name), str(ext), str(path)) )
 			self.env.appendValue('LIBPATH', dirnode.srcpath())
 			
 			# useful for the link path, but also for setting the dependency:
