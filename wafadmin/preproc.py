@@ -338,7 +338,7 @@ class filter:
 				self.buf.append(c)
 
 class cparse:
-	def __init__(self, paths):
+	def __init__(self, nodepaths=[], strpaths=[]):
 		#self.lines = txt.split('\n')
 		self.lines = []
 		self.i     = 0
@@ -350,21 +350,47 @@ class cparse:
 		self.state = []
 
 		# include paths
-		self.paths = paths
+		self.strpaths = strpaths
 		self.pathcontents = {}
 
 		self.deps  = []
 		self.deps_paths = []
 
+		# waf uses
+		self.m_nodepaths = nodepaths
+		self.m_nodes = []
+		self.m_names = []
+
 	def tryfind(self, filename):
-		for p in self.paths:
-			if not p in self.pathcontents:
-				self.pathcontents[p] = os.listdir(p)
-			if filename in self.pathcontents[p]:
-				#print "file %s found in path %s" % (filename, p)
-				np = os.path.join(p, filename)
-				self.addlines(np)
-				self.deps_paths.append(np)
+		if self.m_nodepaths:
+			found = 0
+			for n in self.m_nodepaths:
+				if found: break
+				for f in n.m_files:
+					if f.m_name == filename:
+						if not os.path.exists(f.abspath()): continue
+						try:
+							self.addlines(f.abspath())
+							if not f in self.m_nodes: self.m_nodes.append(f)
+							break
+						except:
+							pass
+			if not found:
+				if not filename in self.m_names:
+					self.m_names.append(filename)
+		else:
+			found = 0
+			for p in self.paths:
+				if not p in self.pathcontents:
+					self.pathcontents[p] = os.listdir(p)
+				if filename in self.pathcontents[p]:
+					#print "file %s found in path %s" % (filename, p)
+					np = os.path.join(p, filename)
+					self.addlines(np)
+					self.deps_paths.append(np)
+					found = 1
+			if not found:
+				print "could not find %s " % filename
 
 	def addlines(self, filepath):
 		try:
@@ -375,6 +401,21 @@ class cparse:
 			print "parsing %s failed" % filepath
 			raise
 
+	def start2(self, node):
+		self.addlines(node.abspath())
+
+		for line in self.lines:
+			if not line: continue
+			self.txt = line
+			self.i   = 0
+			self.max = len(line)
+			try:
+				self.process_line()
+			except:
+				print "line parsing failed >%s<" % line
+				raise
+
+	# debug only
 	def start(self, filename):
 		self.addlines(filename)
 
@@ -447,7 +488,7 @@ class cparse:
 		elif token == 'include':
 			(type, body) = self.get_include()
 
-			print "include found %s    (%s) " % (body, type)
+			#print "include found %s    (%s) " % (body, type)
 			if type == '"':
 				self.deps.append(body)
 				self.tryfind(body)
@@ -646,17 +687,18 @@ class cparse:
 		#self.defs
 		return 0
 
-try:
-	arg = sys.argv[1]
-except:
-	arg = "file.c"
+if __name__ == "__main__":
+	try:
+		arg = sys.argv[1]
+	except:
+		arg = "file.c"
 
-paths = ['.']
-gruik = cparse(paths)
-gruik.start(arg)
-print "we have found the following dependencies"
-print gruik.deps
-print gruik.deps_paths
+	paths = ['.']
+	gruik = cparse(strpaths = paths)
+	gruik.start(arg)
+	print "we have found the following dependencies"
+	print gruik.deps
+	print gruik.deps_paths
 
 # because of the includes system, it is necessary to do the preprocessing in at least two steps:
 # * 1 filter the comments and output the preprocessing lines

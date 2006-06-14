@@ -25,54 +25,13 @@ def dummy_scanner(node, path_lst):
 	error("dummy scanner called, this one does nothing")
 	return []
 
+# using the preprocessor
 def c_scanner(node, path_lst):
-	trace("c_scanner gcc called for "+str(node))
-
-	def getincl(p):
-		return '-I%s' % p.abspath()
-
-	includes = " ".join(map(getincl, path_lst))
-	includes += "  -I/opt/kde3/include -I/usr/lib/qt3/include -I/compilation/playground/edu/kdissert/_build_/src/kdissert/"
-
-	print '/usr/bin/g++ -MG -MMD %s %s 2>/dev/null' % (node.abspath(), includes)
-
-	res = os.popen('/usr/bin/g++ -M %s %s ' % (node.abspath(), includes)).readlines()
-
-	lst2 = map(lambda a: a.strip().rstrip('\\'), res)
-	lst2 = " ".join(lst2)
-
-
-
-	print " ".join(res)
-
-	print "\n\n\n"
-	print lst2
-
-
-	lst2 = lst2.split()
-	lst2 = lst2[2:]
-
-
-
-	def getname(a):
-		lst=a.split('/')
-		return lst[len(lst)-1]
-
-	lst2 = map(getname, lst2)
-	print lst2
-
-	names = []
-	nodes = []
-	for name in lst2:
-		found = None
-		for dir in path_lst:
-			found = dir.find_node([name])
-			if found:
-				break
-		if found: nodes.append(found)
-		else:     names.append(name)
-	print "-E ", nodes, names
-	return (nodes, names)
+	import preproc
+	gruik = preproc.cparse(nodepaths = path_lst)
+        gruik.start2(node)
+	#print "nodes found for ", str(node), " ", str(gruik.m_nodes), " ", str(gruik.m_names)
+	return (gruik.m_nodes, gruik.m_names)
 
 def c_scanner(node, path_lst):
 	file = open(node.abspath(), 'rb')
