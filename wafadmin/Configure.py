@@ -143,8 +143,10 @@ class Configure:
 		obj=cpp.cppobj('program')
 		obj.source = 'test.c'
 		obj.target = 'test'
+
+		envcopy = bld.m_allenvs['default'].copy()
 		for p in pathlst:
-			bld.m_allenvs['default']['CPPFLAGS'].append(' -I%s ' % p)
+			envcopy['CPPFLAGS'].append(' -I%s ' % p)
 
 		try:
 			ret = bld.compile()
@@ -398,18 +400,33 @@ int main()
 		self.cwd = current
 
 
-	def checkPkg(self, modname, destvar='', vnum=''):
+	def checkPkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin=''):
 		if not destvar: destvar = modname.upper()
 
+		if not pkgbin: pkgbin='pkg-config'
+		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
+		pkgcom = '%s %s' % (pkgpath, pkgbin)
 		try:
 			if vnum:
-				ret = os.popen("pkg-config --atleast-version=%s %s" % (vnum, modname)).close()
+				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, vnum, modname)).close()
 				self.checkMessage('%s >= %s' % (modname, vnum), '', not ret)
 				if ret: raise "error"
-			self.env['CCFLAGS_'+destvar]   = os.popen('pkg-config --cflags %s' % modname).read().strip()
-			self.env['CXXFLAGS_'+destvar]  = os.popen('pkg-config --cflags %s' % modname).read().strip()
-			self.env['LINKFLAGS_'+destvar] = os.popen('pkg-config --libs %s' % modname).read().strip()
+			self.env['CCFLAGS_'+destvar]   = os.popen('%s --cflags %s' % (pkgcom, modname)).read().strip()
+			self.env['CXXFLAGS_'+destvar]  = os.popen('%s --cflags %s' % (pkgcom, modname)).read().strip()
+			self.env['LINKFLAGS_'+destvar] = os.popen('%s --libs %s' % (pkgcom, modname)).read().strip()
 			self.env['HAVE_'+destvar] = 1
+
+			# Store the library names:
+			modlibs = os.popen('%s --libs-only-l %s' % (pkgcom, modname)).read().strip().split()
+			self.env['LIB_'+destvar] = []
+			for item in modlibs:
+				self.env['LIB_'+destvar].append( item[2:] ) #Strip '-l'
+
+			# Store the library paths:
+			modpaths = os.popen('%s --libs-only-L %s' % (pkgcom, modname)).read().strip().split()
+			self.env['LIBPATH_'+destvar] = []
+			for item in modpaths:
+				self.env['LIBPATH_'+destvar].append( item[2:] ) #Strip '-l'
 		except:
 			self.env['HAVE_'+destvar] = 0
 			return 0
