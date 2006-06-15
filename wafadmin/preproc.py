@@ -380,7 +380,7 @@ class cparse:
 					self.m_names.append(filename)
 		else:
 			found = 0
-			for p in self.paths:
+			for p in self.strpaths:
 				if not p in self.pathcontents:
 					self.pathcontents[p] = os.listdir(p)
 				if filename in self.pathcontents[p]:
@@ -475,7 +475,9 @@ class cparse:
 		#print "token is ", token
 
 		if token == 'if':
-			self.state[0] = ignored
+			ret = self.evil(self.get_body())
+			if ret: self.state[0] == accepted
+			else: self.state[0] = ignored
 			pass
 		elif token == 'ifdef':
 			ident = self.get_name()
@@ -492,13 +494,17 @@ class cparse:
 			if type == '"':
 				self.deps.append(body)
 				self.tryfind(body)
+			elif type == '<':
+				pass
+			else:
+				res = self.evil(body)
+				print 'include body is ', res
 
 		elif token == 'elif':
 			if self.state[0] == accepted:
 				self.state[0] = skipped
 			elif self.state[0] == ignored:
-				# TODO: do the job here
-				if 0:
+				if self.evil(self.get_body()):
 					self.state[0] = accepted
 				else:
 					# let another 'e' treat this case
@@ -683,7 +689,52 @@ class cparse:
 				break
 		return ''.join(buf)
 
-	def eval(self, stuff):
+	def evil(self, stuff):
+		print "-- begin evil --"
+		ret = 0
+		while stuff:
+			if stuff[0][0] == 'number':
+				try:
+					if stuff[1][0] == 'punc' and stuff[2][0] == 'number':
+						f1 = int(stuff[0][1])
+						f2 = int(stuff[2][1])
+						as = 0
+						c = stuff[1][1]
+						if c=='+':
+							as = f1+f2
+						elif c=='-':
+							as = f1-f2
+						elif c=='*':
+							as = f1*f2
+						elif c=='/':
+							as = f1/f2
+						elif c=='<':
+							as = f1<f2
+						elif c=='<=':
+							as = f1<=f2
+						elif c=='>':
+							as = f1>f2
+						elif c=='>=':
+							as = f1>=f2
+
+						if as is True: as = 1
+						elif as is False: as = 0
+
+						print "res is ", as
+						stuff = [['number', as]] + stuff[3:]
+				except:
+					break
+			else:
+				break
+
+		for token in stuff:
+			if token[0] == 'number':
+				print token
+
+		if stuff[0][0] == 'number':
+			return stuff[0][1]
+
+		print "-- end evil --"
 		#self.defs
 		return 0
 
