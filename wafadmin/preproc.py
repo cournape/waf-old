@@ -11,6 +11,12 @@ ignored   = 'i'
 undefined = 'u'
 skipped   = 's'
 
+num = 'number'
+op = 'operator'
+ident = 'ident'
+stri = 'string'
+chr = 'char'
+
 trigs = {
 '=' : '#',
 '-' : '~',
@@ -167,6 +173,137 @@ def get_punctuator_token(stuff):
 
 def get_preprocessor_token(stuff):
 	return parse_token(stuff, preproc_table)
+
+def subst(lst, defs):
+	if not lst: return []
+
+	a1_t = lst[0][0]
+	a1 = lst[0][1]
+	if len(lst) == 1:
+		if a1_t == ident:
+			if a1 in defs:
+				return defs[a1]
+		return lst
+
+	# len(lst) > 1 : search for macros
+	a2_type = lst[1][0]
+	a2 = lst[1][1]
+	if a1_t == ident:
+		if a1 == 'defined':
+			if a2_type == ident:
+				if a2 in defs:
+					return [[num, '1']] + subst(lst[2:], defs)
+				else:
+					return [[num, '0']] + subst(lst[2:], defs)
+			if a2_type == op and a2 == '(':
+				if len(lst) < 4:
+					raise "expected 4 tokens defined(ident)"
+				if lst[2][0] != ident:
+					raise "expected defined(ident)"
+				if lst[2][1] in defs:
+					return [[num, '1']] + subst(lst[4:], defs)
+				else:
+					return [[num, '0']] + subst(lst[4:], defs)
+		if a1 in defs:
+			print a2
+			if a2_type == op and a2 == '(':
+				# beginning of a macro function - ignore for now
+				args = []
+				i = 2
+				while 1:
+					if lst[i][1] == ')':
+						return subst(lst[i+1:], defs)
+					args += lst[i]
+				# TODO
+				#print 'macro subst'
+			else:
+				# not a '(', try to substitute now
+				if a1 in defs:
+					return defs[a1] + subst(lst[1:], defs)
+				else:
+					return [lst[0]] + subst(lst[1:], defs)
+	return [lst[0]] + subst(lst[1:], defs)
+
+def comp(lst):
+	if not lst: return [stri, '']
+
+	if len(lst) == 1:
+		return lst[0]
+	
+	#print "lst len is ", len(lst)
+	#print "lst is ", str(lst)
+
+	a1_type = lst[0][0]
+	a1 = lst[0][1]
+
+	a2_type = lst[1][0]
+	a2 = lst[1][1]
+
+	if a1_type == ident:
+		if a2 == '#':
+			return comp( [[stri, a1]] + lst[2:] )
+	if a1 == '#':
+		if a2_type == ident:
+			return comp( [[stri, a2]] + lst[2:] )
+	if a1_type == op:
+		if a2_type == num:
+			if a1 == '-':
+				return [num, - int(a2)]
+			if a1 == '!':
+				if int(a2) == 0:
+					return [num, 1]
+				else:
+					return [num, 0]
+			raise "cannot compute %s (1)" % str(lst)
+		raise "cannot compute %s (2)" % str(lst)
+	if a1_type == stri:
+		if a2_type == stri:
+			if lst[2:]:
+				return comp( [[stri, a1+a2], comp(lst[2:])] )
+			else:
+				return [[stri, a1+a2]]
+
+	## we need to scan the third argument given
+	try:
+		a3_type = lst[2][0]
+		a3 = lst[2][1]
+	except:
+		raise "cannot compute %s (3)" % str(lst)
+
+	if a1_type == ident:
+		#print "a1"
+		if a2 == '#':
+			#print "a2"
+			if a3_type == stri:
+				#print "hallo"
+				return comp([[stri, a1 + a3]] + lst[3:])
+
+	if a1_type == num:
+		if a3_type == num:
+			a1 = int(a1)
+			a3 = int(a3)
+			if a2_type == op:
+				val = None
+				if a2 == '+':    val = a1+a3
+				elif a2 == '-':  val = a1-a3
+				elif a2 == '/':  val = a1/a3
+				elif a2 == '*':  val = a1 * a3
+				elif a2 == '%':  val = a1 % a3
+
+				if not val is None:
+					return comp( [[num, val]] + lst[3:] )
+
+				elif a2 == '|':  val = a1 | a3
+				elif a2 == '&':  val = a1 & a3
+				elif a2 == '||': val = a1 or a3
+				elif a2 == '&&': val = a1 and a3
+
+				if val: val = 1
+				else: val = 0
+				return comp( [[num, val]] + lst[3:] )
+
+	raise "could not parse the macro %s " % str(lst)
+
 
 class filter:
 	def __init__(self):
@@ -474,8 +611,10 @@ class cparse:
 
 		#print "token is ", token
 
+		#print "line is ", self.txt, "state is ", self.state
+
 		if token == 'if':
-			ret = self.evil(self.get_body())
+			ret = self.comp(self.get_body())
 			if ret: self.state[0] == accepted
 			else: self.state[0] = ignored
 			pass
@@ -489,22 +628,26 @@ class cparse:
 			else: self.state[0] = accepted
 		elif token == 'include':
 			(type, body) = self.get_include()
-
-			#print "include found %s    (%s) " % (body, type)
-			if type == '"':
-				self.deps.append(body)
-				self.tryfind(body)
-			elif type == '<':
-				pass
-			else:
-				res = self.evil(body)
-				print 'include body is ', res
+			if self.isok():
+				#print "include found %s    (%s) " % (body, type)
+				if type == '"':
+					if not body in self.deps:
+						self.deps.append(body)
+						self.tryfind(body)
+				elif type == '<':
+					pass
+				else:
+					res = self.comp(body)
+					#print 'include body is ', res
+					if res and (not res in self.deps):
+						self.deps.append(res)
+						self.tryfind(res)
 
 		elif token == 'elif':
 			if self.state[0] == accepted:
 				self.state[0] = skipped
 			elif self.state[0] == ignored:
-				if self.evil(self.get_body()):
+				if self.comp(self.get_body()):
 					self.state[0] = accepted
 				else:
 					# let another 'e' treat this case
@@ -609,22 +752,22 @@ class cparse:
 			elif c == '"':
 				self.i += 1
 				r = self.get_string()
-				buf.append( ['string', r] )
+				buf.append( [stri, r] )
 			elif c == '\'':
 				self.i += 1
 				r = self.get_char()
-				buf.append( ['char', r] )
+				buf.append( [chr, r] )
 			elif c in string.digits:
-				num = self.get_number()
-				buf.append( ['number', num] )
+				res = self.get_number()
+				buf.append( [num, res] )
 			elif c in alpha: 
 				r = self.get_ident()
-				buf.append( ['ident', r] )
+				buf.append( [ident, r] )
 			else:
 				r = get_punctuator_token(self)
 				if r:
 					#print "r is ", r
-					buf.append( ['punc', r])
+					buf.append( [op, r])
 				#else:
 				#	print "NO PUNCTUATOR FOR ", c
 
@@ -689,53 +832,13 @@ class cparse:
 				break
 		return ''.join(buf)
 
-	def evil(self, stuff):
-		print "-- begin evil --"
-		ret = 0
-		while stuff:
-			if stuff[0][0] == 'number':
-				try:
-					if stuff[1][0] == 'punc' and stuff[2][0] == 'number':
-						f1 = int(stuff[0][1])
-						f2 = int(stuff[2][1])
-						as = 0
-						c = stuff[1][1]
-						if c=='+':
-							as = f1+f2
-						elif c=='-':
-							as = f1-f2
-						elif c=='*':
-							as = f1*f2
-						elif c=='/':
-							as = f1/f2
-						elif c=='<':
-							as = f1<f2
-						elif c=='<=':
-							as = f1<=f2
-						elif c=='>':
-							as = f1>f2
-						elif c=='>=':
-							as = f1>=f2
-
-						if as is True: as = 1
-						elif as is False: as = 0
-
-						print "res is ", as
-						stuff = [['number', as]] + stuff[3:]
-				except:
-					break
-			else:
-				break
-
-		for token in stuff:
-			if token[0] == 'number':
-				print token
-
-		if stuff[0][0] == 'number':
-			return stuff[0][1]
-
-		print "-- end evil --"
-		#self.defs
+	def comp(self, stuff):
+		clean = subst(stuff, self.defs)
+		res = comp(clean)
+		#print res
+		if res:
+			if res[0] == num: return int(res[1])
+			return res[1]
 		return 0
 
 if __name__ == "__main__":
