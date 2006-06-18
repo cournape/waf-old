@@ -26,14 +26,14 @@ def dummy_scanner(node, path_lst):
 	return []
 
 # using the preprocessor
-def c_scanner(node, path_lst):
+def c_scanner_1(node, path_lst):
 	import preproc
 	gruik = preproc.cparse(nodepaths = path_lst)
         gruik.start2(node)
 	#print "nodes found for ", str(node), " ", str(gruik.m_nodes), " ", str(gruik.m_names)
 	return (gruik.m_nodes, gruik.m_names)
 
-def c_scanner(node, path_lst):
+def c_scanner_2(node, path_lst):
 	file = open(node.abspath(), 'rb')
 	found = cregexp1.findall( file.read() )
 	file.close()
@@ -58,6 +58,12 @@ def c_scanner(node, path_lst):
 		else:     names.append(name)
 	#print "-S ", nodes, names
 	return (nodes, names)
+
+def c_scanner(node, path_lst):
+	if Params.g_preprocess:
+		return c_scanner_1(node, path_lst)
+	else:
+		return c_scanner_2(node, path_lst)
 
 def kcfg_scanner(node, path_lst):
 	trace("kcfg scanner called for "+str(node))

@@ -16,6 +16,9 @@ if sys.path=='win32':
 # it is unlikely that we change the name of this file
 g_dbfile='.dblite'
 
+# preprocessor for c/c++
+g_preprocess=0
+
 # deptree
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
 g_pattern_excludes = ['_build_']

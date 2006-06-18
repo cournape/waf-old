@@ -550,7 +550,7 @@ class cparse:
 				self.process_line()
 			except:
 				print "line parsing failed >%s<" % line
-				raise
+				#raise
 
 	# debug only
 	def start(self, filename):
