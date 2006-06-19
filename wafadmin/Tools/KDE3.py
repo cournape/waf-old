@@ -437,7 +437,9 @@ def detect_kde(conf):
 			p('YELLOW',"Qt was found as "+m.group(1))
 		else:
 			p('RED','Qt was not found')
-			p('RED','Please set QTDIR first (/usr/lib/qt3?) or try waf -h for more options')
+			p('RED','* Make sure libqt3-dev is installed')
+			p('RED','* Set QTDIR (for example, "export QTDIR=/usr/lib/qt3")')
+			p('RED','* Try "waf -h" for more options')
 			sys.exit(1)
 	env['QTDIR'] = qtdir.strip()
 	env['LIB_QT'] = 'qt-mt'
@@ -456,7 +458,9 @@ def detect_kde(conf):
 			if len(uic):
 				p('YELLOW',"uic was found as "+uic)
 			else:
-				p('RED',"uic was not found - set QTDIR put it in your PATH ?")
+				p('RED','The program uic was not found')
+				p('RED','* Make sure libqt3-dev is installed')
+				p('RED','* Set QTDIR or PATH appropriately')
 				sys.exit(1)
 	env['UIC'] = uic
 
@@ -472,7 +476,9 @@ def detect_kde(conf):
 			moc = "/usr/share/qt3/bin/moc"
 			p('YELLOW',"moc was found as "+moc)
 		else:
-			p('RED',"moc was not found - set QTDIR or put it in your PATH ?")
+			p('RED','The program moc was not found')
+			p('RED','* Make sure libqt3-dev is installed')
+			p('RED','* Set QTDIR or PATH appropriately')
 			sys.exit(1)
 	env['MOC'] = moc
 
@@ -491,7 +497,9 @@ def detect_kde(conf):
 			p('YELLOW','the Qt headers were found in /usr/include/qt3/')
 			qtincludes = "/usr/include/qt3"
 		else:
-			p('RED',"the Qt headers were not found")
+			p('RED','The Qt headers were not found')
+			p('RED','* Make sure libqt3-dev is installed')
+			p('RED','* Set QTDIR or PATH appropriately')
 			sys.exit(1)
 
 	print "Checking for the kde includes      :",
@@ -507,6 +515,8 @@ def detect_kde(conf):
 			kdeincludes = kdeprefix + "/include/kde/"
 		else:
 			p('RED',"The kde includes were NOT found")
+			p('RED',"* Make sure kdelibs-dev is installed")
+			p('RED',"* Try 'waf -h' for more options")
 			sys.exit(1)
 
 	# kde-config options
