@@ -4,6 +4,8 @@
 
 import sys, os, string
 
+parse_cache = {}
+
 alpha = string.letters + '_' + string.digits
 
 accepted  = 'a'
@@ -509,8 +511,9 @@ class cparse:
 				if found: break
 				for f in n.m_files:
 					if f.m_name == filename:
-						if not os.path.exists(f.abspath()): continue
+						#if not os.path.exists(f.abspath()): continue
 						try:
+							
 							self.addlines(f.abspath())
 							if not f in self.m_nodes: self.m_nodes.append(f)
 							break
@@ -534,12 +537,19 @@ class cparse:
 				print "could not find %s " % filename
 
 	def addlines(self, filepath):
+		global parse_cache
+		if filepath in parse_cache:
+			self.lines = parse_cache[filepath] + self.lines
+			return
+
 		try:
 			stuff = filter()
 			stuff.start(filepath)
-			#self.lines += (''.join(stuff.buf)).split('\n')
 			if stuff.buf: stuff.lines.append( "".join(stuff.buf) )
-			self.lines = stuff.lines
+			parse_cache[filepath] = stuff.lines # memorize the lines filtered
+			self.lines = stuff.lines + self.lines
+		except IOError:
+			raise
 		except:
 			print "parsing %s failed" % filepath
 			raise
@@ -547,7 +557,8 @@ class cparse:
 	def start2(self, node):
 		self.addlines(node.abspath())
 
-		for line in self.lines:
+		while self.lines:
+			line = self.lines.pop(0)
 			if not line: continue
 			self.txt = line
 			self.i   = 0
@@ -562,7 +573,8 @@ class cparse:
 	def start(self, filename):
 		self.addlines(filename)
 
-		for line in self.lines:
+		while self.lines:
+			line = self.lines.pop(0)
 			if not line: continue
 			self.txt = line
 			self.i   = 0
