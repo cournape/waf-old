@@ -312,6 +312,7 @@ class filter:
 		self.max    = 0
 		self.txt    = ""
 		self.buf    = []
+		self.lines  = []
 		#self.debug = []
 
 	def next(self):
@@ -461,7 +462,10 @@ class filter:
 		while self.good():
 			c = self.next()
 			if c == '\n':
-				self.buf.append(c)
+				#self.buf.append(c)
+
+				self.lines.append( "".join(self.buf) )
+				self.buf = []
 				break
 			elif c == '"':
 				self.buf.append(c)
@@ -533,7 +537,9 @@ class cparse:
 		try:
 			stuff = filter()
 			stuff.start(filepath)
-			self.lines += (''.join(stuff.buf)).split('\n')
+			#self.lines += (''.join(stuff.buf)).split('\n')
+			if stuff.buf: stuff.lines.append( "".join(stuff.buf) )
+			self.lines = stuff.lines
 		except:
 			print "parsing %s failed" % filepath
 			raise
