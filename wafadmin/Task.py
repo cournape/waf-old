@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os
-import Params
+import Params, Scan
 from Params import debug, error, trace, fatal
 
 # task index
@@ -66,13 +66,6 @@ class Task:
 
 		self.m_run_after = []
 
-	# TRICK_2 TODO LATER
-	# Simplification if this task does not produce targets across folders
-	# in self.must_run we look at the signature of the first object only
-	# looking at others is only necessary if targets span across several folders
-	def isMulti(self):
-		return self.m_action.m_isMulti
-
 	def signature(self):
 		#s = str(self.m_sig)+str(self.m_dep_sig)
 		#return s.__hash__()
@@ -119,6 +112,11 @@ class Task:
 	# return the signature of the dependencies
 	def get_deps_signature(self):
 		tree=Params.g_build.m_tree
+
+
+		if Scan.is_flat(self.m_scanner):
+			print "scanner is flat !!"
+
 		seen=[]
 		def get_node_sig(node):
 			if not node:

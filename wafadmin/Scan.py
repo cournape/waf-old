@@ -86,3 +86,14 @@ def add_scanner(name, fun, recurse=0):
 	if recurse: Params.g_recursive_scanners_names.append(name)
 	print ( "scanner function added: %s" % (name) )
 
+
+# This function might be difficult to extend
+# some scanners like the preprocessor need to be re-run when one header changes
+# they are also run only once on the source file
+def is_flat(scanner):
+	if scanner == c_scanner:
+		if Params.g_preprocess:
+			return 1
+	return 0
+
+
