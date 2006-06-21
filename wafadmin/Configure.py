@@ -104,7 +104,7 @@ class Configure:
 		filename = env['OS'] + '.env'
 		env.store(filename)
 
-	def TryBuild(self, code, options='', pathlst=[]):
+	def TryBuild(self, code, options='', pathlst=[], uselib=''):
 		"""Check if a program could be build, returns 0 if no errors 
 		This method is currently platform specific and has to be made platform 
 		independent, probably by refactoring the c++ or cc build engine
@@ -143,6 +143,7 @@ class Configure:
 		obj=cpp.cppobj('program')
 		obj.source = 'test.c'
 		obj.target = 'test'
+		obj.uselib = uselib
 
 		envcopy = bld.m_allenvs['default'].copy()
 		for p in pathlst:
@@ -316,12 +317,14 @@ int main()
 	%s();
 }
 """ % funcname
-			
-		# TODO setup libpath 
+		
+		self.env['LINKFLAGS_'+upname] = self.env['LIB_ST'] % libname
+
+		# TODO setup libpath
 		libpath = "."
 		is_found = int(not self.TryBuild(headers + code, 
 				pathlst = self.env['LIBPATH_ST'] % libpath,
-				uselib=uselib ))
+				uselib=uselib+" "+upname))
 		self.checkMessage('library',libname,is_found)
 		self.addDefine(define,is_found)
 		return is_found
