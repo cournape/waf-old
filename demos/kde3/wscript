@@ -26,6 +26,8 @@ def configure(conf):
 	conf.env['CXXFLAGS_QT']=['-DQT_THREAD_SUPPORT']
 	conf.checkHeader('dlfcn.h','HAVE_DLFCN_H')
 	conf.addDefine('TEST_DEFINE', '345')
+	# check for libkcal using the KDECORE variables
+	#conf.checkLibrary('kcal', uselib='KDECORE')
 	conf.writeConfigHeader('config.h')
 
 def build(bld):
