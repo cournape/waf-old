@@ -137,7 +137,32 @@ class c_scanner(scanner):
 			return self._get_signature_dumb(task)
 
 	def _get_signature_preprocessor(self, task):
-		raise "not implemented"
+		# assumption: there is only one cpp file to compile in a task
+
+		tree = Params.g_build.m_tree
+		rescan = 0
+
+		node = task.m_inputs[0]
+		if tree.needs_rescan(node): rescan = 1
+		if not rescan:
+			for node in tree.m_depends_on[node]:
+				if tree.needs_rescan(node): rescan = 1
+
+		# rescan the cpp file if necessary
+		if rescan:
+			tree.rescan(tree.get_src_from_mirror(node), self, task.m_scanner_params)
+
+		# we are certain that the files have been scanned - compute the signature
+		sig = Params.sig_nil()
+		sig = Params.xor_sig(sig, node.get_sig())
+		for n in tree.m_depends_on[tree.get_src_from_mirror(node)]:
+			sig = Params.xor_sig(sig, n.get_sig())
+
+		# and now xor the signature with the other tasks
+		for task in task.m_run_after:
+			sig = Params.xor_sig(task.signature(), sig)
+		debug("signature of the task %d is %s" % (task.m_idx, str(sig)) )
+		return sig
 
 	def _get_signature_dumb(self, task):
 		tree = Params.g_build.m_tree
