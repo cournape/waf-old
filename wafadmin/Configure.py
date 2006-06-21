@@ -176,7 +176,7 @@ class Configure:
 		   for later writing to a config header file"""	
 		self.defines[define] = value
 		# add later to make reconfiguring faster 
-		#self.env.appendValue(define,value)
+		self.env[define] = value
 	
 	def isDefined(self, define):
 		if self.defines.has_key(define):
@@ -240,7 +240,7 @@ int main()
 {
 }
 """ % header
-		is_found = not self.TryBuild(code, pathlst=pathlst)
+		is_found = int(not self.TryBuild(code, pathlst=pathlst))
 		self.checkMessage('header',header,is_found)
 		self.addDefine(define,is_found)
 		return is_found
@@ -268,7 +268,7 @@ int main()
 }
 """ % function
 
-		is_found = not self.TryBuild(headers + code)
+		is_found = int(not self.TryBuild(headers + code))
 		self.checkMessage('function',function,is_found)
 		self.addDefine(define,is_found)
 		return is_found
@@ -280,13 +280,15 @@ int main()
 		self.checkMessage('program',file,ret,ret)
 		return ret
 
-	def checkLibrary(self, libname, funcname=None, headers=None, define=''):
+	def checkLibrary(self, libname, funcname=None, headers=None, define='', uselib=''):
 		"""find a library"""
+		upname = libname.upper().replace('.','_')
 		if define == '':
-			define = 'HAVE_'+libname.upper().replace('.','_')
+			define = 'HAVE_'+upname
 
-		if self.isDefined(define):
-			return self.getDefine(define)
+		# wait ???? TODO
+		#if self.isDefined(define):
+		#	return self.getDefine(define)
 
 		if not headers and funcname:
 			headers = """
@@ -316,8 +318,10 @@ int main()
 """ % funcname
 			
 		# TODO setup libpath 
-		libpath = ""
-		is_found = not self.TryBuild(headers + code, pathlst = (self.env['LIB_ST'] % libname) + ' ' + self.env['LIBPATH_ST'] % libpath )
+		libpath = "."
+		is_found = int(not self.TryBuild(headers + code, 
+				pathlst = self.env['LIBPATH_ST'] % libpath,
+				uselib=uselib ))
 		self.checkMessage('library',libname,is_found)
 		self.addDefine(define,is_found)
 		return is_found
@@ -338,7 +342,7 @@ int main()
 		except: 
 			print "no tool named '" + tool + "' found"
 			return 
-		module = imp.load_module(tool,file,name,desc)
+		module = int(imp.load_module(tool,file,name,desc))
 		ret = module.detect(self)
 		self.addDefine(define, ret)
 		self.env.appendValue('tools',tool)
@@ -414,7 +418,7 @@ int main()
 			self.env['CCFLAGS_'+destvar]   = os.popen('%s --cflags %s' % (pkgcom, modname)).read().strip()
 			self.env['CXXFLAGS_'+destvar]  = os.popen('%s --cflags %s' % (pkgcom, modname)).read().strip()
 			#self.env['LINKFLAGS_'+destvar] = os.popen('%s --libs %s' % (pkgcom, modname)).read().strip()
-			self.env['HAVE_'+destvar] = 1
+			self.addDefine('HAVE_'+destvar, 1)
 
 			# Store the library names:
 			modlibs = os.popen('%s --libs-only-l %s' % (pkgcom, modname)).read().strip().split()
@@ -428,7 +432,7 @@ int main()
 			for item in modpaths:
 				self.env['LIBPATH_'+destvar].append( item[2:] ) #Strip '-l'
 		except:
-			self.env['HAVE_'+destvar] = 0
+			self.addDefine('HAVE_'+destvar, 0)
 			return 0
 		return 1
 
