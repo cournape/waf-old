@@ -16,7 +16,7 @@ def tao_idl_file(obj, node):
 	# idl compiler generates from one input file 4 output files.
 	idltask = obj.create_task('idl', obj.env, 4)
 
-	#idltask.m_scanner = Scan.c_scanner
+	#idltask.m_scanner = Scan.g_c_scanner
 	#idltask.m_scanner_params = dir_lst
 
 	# Setup the inputs/outputs

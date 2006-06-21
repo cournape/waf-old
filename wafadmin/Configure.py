@@ -345,8 +345,8 @@ int main()
 		except: 
 			print "no tool named '" + tool + "' found"
 			return 
-		module = int(imp.load_module(tool,file,name,desc))
-		ret = module.detect(self)
+		module = imp.load_module(tool,file,name,desc)
+		ret = int(module.detect(self))
 		self.addDefine(define, ret)
 		self.env.appendValue('tools',tool)
 		return ret

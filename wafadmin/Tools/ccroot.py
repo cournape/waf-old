@@ -160,12 +160,12 @@ class ccroot(Object.genobj):
 				continue
 
 			if tree.needs_rescan(node):
-				tree.rescan(node, Scan.c_scanner, dir_lst)
+				tree.rescan(node, Scan.g_c_scanner, dir_lst)
 
 			# create the compilation task: cpp or cc
 			task = self.create_task(self.m_type_initials, self.env)
 
-			task.m_scanner = Scan.c_scanner
+			task.m_scanner = Scan.g_c_scanner
 			task.m_scanner_params = dir_lst
 
 			task.m_inputs  = self.file_in(filename)

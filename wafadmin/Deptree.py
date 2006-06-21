@@ -74,12 +74,12 @@ class Deptree:
 		return 1
 
 	# scan for dependencies, store them in cache, and keep the date handy
-	def rescan(self, node, scanner_function, hashparams):
+	def rescan(self, node, scanner, hashparams):
 		debug("rescanning "+str(node))
 		if not node:
 			print "BUG rescanning a null node"
 			return
-		(nodes, names) = scanner_function(node, **hashparams)
+		(nodes, names) = scanner.scan(node, **hashparams)
 		self.m_depends_on[node] = nodes
 		self.m_raw_deps[node] = names
 		self.m_deps_tstamp[node] = node.m_tstamp

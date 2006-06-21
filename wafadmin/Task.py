@@ -111,48 +111,46 @@ class Task:
 
 	# return the signature of the dependencies
 	def get_deps_signature(self):
-		tree=Params.g_build.m_tree
+		if self.m_scanner:
+			# allow scanner classes to override the default behaviour
+			return self.m_scanner.get_signature(self)
+		else:
 
+			tree=Params.g_build.m_tree
+			seen=[]
+			def get_node_sig(node):
+				if not node:
+					print "warning: null node in get_node_sig"
+				if not node or node in seen: return Params.sig_nil()
+				seen.append(node)
+				_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
+				#if self.m_recurse:
+				#	# TODO looks suspicious
+				#	lst = tree.m_depends_on[node]
+				#
+				#	for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
+				return Params.xor_sig(_sig, Params.sig_nil())
+			sig=Params.sig_nil()
+			for node in self.m_inputs:
+				# WATCH OUT we are using the source node, not the build one for that kind of signature..
+	
+				try:
+					n = tree.get_src_from_mirror(node)
+					if n: sig = Params.xor_sig(sig, get_node_sig(n))
+					else: sig = Params.xor_sig(sig, get_node_sig(node))
+				except:
+					print "ERROR in get_deps_signature"
+					print n
+					print node
+					print sig
+					print "details for the task are: ", self.m_outputs, self.m_inputs
+					raise
 
-		if Scan.is_flat(self.m_scanner):
-			print "scanner is flat !!"
-
-		seen=[]
-		def get_node_sig(node):
-			if not node:
-				print "warning: null node in get_node_sig"
-			if not node or node in seen: return Params.sig_nil()
-			seen.append(node)
-			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
-			if self.m_recurse and self.m_scanner:
-				if tree.needs_rescan(node):
-					tree.rescan(node, self.m_scanner, self.m_scanner_params)
-				# TODO looks suspicious
-				lst = tree.m_depends_on[node]
-
-				for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
-			return Params.xor_sig(_sig, Params.sig_nil())
-		sig=Params.sig_nil()
-		for node in self.m_inputs:
-			# WATCH OUT we are using the source node, not the build one for that kind of signature..
-
-			try:
-				n = tree.get_src_from_mirror(node)
-				if n: sig = Params.xor_sig(sig, get_node_sig(n))
-				else: sig = Params.xor_sig(sig, get_node_sig(node))
-			except:
-				print "ERROR in get_deps_signature"
-				print n
-				print node
-				print sig
-				print "details for the task are: ", self.m_outputs, self.m_inputs
-				raise
-
-		for task in self.m_run_after:
-			sig = Params.xor_sig(task.signature(), sig)
-			#debug("signature of this node is %s %s %s " % (str(s), str(n), str(node.m_tstamp)) )
-		debug("signature of the task %d is %s" % (self.m_idx, str(sig)) )
-		return sig
+			for task in self.m_run_after:
+				sig = Params.xor_sig(task.signature(), sig)
+				#debug("signature of this node is %s %s %s " % (str(s), str(n), str(node.m_tstamp)) )
+			debug("signature of the task %d is %s" % (self.m_idx, str(sig)) )
+			return sig
 
 	def prepare(self):
 		self.m_action.prepare(self)
