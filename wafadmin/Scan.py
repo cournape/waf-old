@@ -63,13 +63,13 @@ class scanner:
 			if not node or node in seen: return Params.sig_nil()
 			seen.append(node)
 			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
-			if task.m_recurse:
-				if tree.needs_rescan(node):
-					tree.rescan(node, self, task.m_scanner_params)
-				# TODO looks suspicious
-				lst = tree.m_depends_on[node]
-
-				for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
+			#if task.m_recurse:
+			#	if tree.needs_rescan(node):
+			#		tree.rescan(node, self, task.m_scanner_params)
+			#	# TODO looks suspicious
+			#	lst = tree.m_depends_on[node]
+			#
+			#	for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
 			return Params.xor_sig(_sig, Params.sig_nil())
 		sig=Params.sig_nil()
 		for node in task.m_inputs:
@@ -132,9 +132,51 @@ class c_scanner(scanner):
 
 	def get_signature(self, task):
 		if Params.g_preprocess:
-			return self.get_signature(task)
+			return self._get_signature_preprocessor(task)
 		else:
-			return scanner.get_signature(self, task)
+			return self._get_signature_dumb(task)
+
+	def _get_signature_preprocessor(self, task):
+		raise "not implemented"
+
+	def _get_signature_dumb(self, task):
+		tree = Params.g_build.m_tree
+		seen=[]
+		def get_node_sig(node):
+			if not node:
+				print "warning: null node in get_node_sig"
+			if not node or node in seen: return Params.sig_nil()
+			seen.append(node)
+			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
+			if tree.needs_rescan(node):
+				tree.rescan(node, self, task.m_scanner_params)
+			# TODO looks suspicious
+			lst = tree.m_depends_on[node]
+			
+			for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
+			return Params.xor_sig(_sig, Params.sig_nil())
+		sig=Params.sig_nil()
+		for node in task.m_inputs:
+			# WATCH OUT we are using the source node, not the build one for that kind of signature..
+
+			try:
+				n = tree.get_src_from_mirror(node)
+				if n: sig = Params.xor_sig(sig, get_node_sig(n))
+				else: sig = Params.xor_sig(sig, get_node_sig(node))
+			except:
+				print "ERROR in get_deps_signature"
+				print n
+				print node
+				print sig
+				print "details for the task are: ", task.m_outputs, task.m_inputs
+				raise
+
+		for task in task.m_run_after:
+			sig = Params.xor_sig(task.signature(), sig)
+			#debug("signature of this node is %s %s %s " % (str(s), str(n), str(node.m_tstamp)) )
+		debug("signature of the task %d is %s" % (task.m_idx, str(sig)) )
+		return sig
+
 
 	def scan(self, node, path_lst):
 		if Params.g_preprocess:
@@ -177,10 +219,10 @@ class kcfg_scanner(scanner):
 
 
 # ======================================= #
-# these globals can be considered as singletons
+# these globals can be considered singletons
+g_default_scanner = scanner()
 g_c_scanner    = c_scanner()
 g_kcfg_scanner = kcfg_scanner()
-
 
 
 
