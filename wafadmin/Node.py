@@ -15,11 +15,13 @@ class Node:
 		self.m_parent   = parent
 
 		# contents of this node (filesystem structure)
-		self.m_dirs     = []
-		self.m_files    = []
+		# these lists contain nodes too
+		self.m_dirs     = [] # sub-folders
+		self.m_files    = [] # files existing in the src dir
+		self.m_results  = [] # files produced in the build dir
 
 		# debugging only - a node is supposed to represent exactly one folder
-		#if os.sep in name: print "error in name ? "+name
+		if os.sep in name: print "error in name ? "+name
 
 		# timestamp or hash of the file (string hash or md5) - we will use the timestamp by default
 		self.m_tstamp   = None

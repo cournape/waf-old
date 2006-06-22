@@ -12,6 +12,11 @@ import Node
 import Params
 from Params import debug, error, trace, fatal
 
+# assumptions have changed:
+# * there is a build dir
+# * there are nodes to represent the folder and file system
+# * node folders also list the files in the build dir
+# * we keep the list of folders that have been scanned
 class Deptree:
 	def __init__(self):
 
@@ -57,11 +62,11 @@ class Deptree:
 		except:
 			self.m_name2nodes[nn] = [node]
 
+	# list of dependencies, for example give the .h a .cpp relies on
 	def get_depends_on(self, node):
 		try: return self.m_depends_on[node]
 		except: return []
 
-	# TODO we might need to add the name of the scanner, but that can be too complicated
 	# tell if a node has changed, to update the cache
 	def needs_rescan(self, node):
 		#print "needs_rescan for ", node, node.m_tstamp
@@ -74,15 +79,15 @@ class Deptree:
 		return 1
 
 	# scan for dependencies, store them in cache, and keep the date handy
-	def rescan(self, node, scanner, hashparams):
-		debug("rescanning "+str(node))
-		if not node:
-			print "BUG rescanning a null node"
-			return
-		(nodes, names) = scanner.scan(node, **hashparams)
-		self.m_depends_on[node] = nodes
-		self.m_raw_deps[node] = names
-		self.m_deps_tstamp[node] = node.m_tstamp
+	#def rescan(self, node, scanner, hashparams):
+	#	debug("rescanning "+str(node))
+	#	if not node:
+	#		print "BUG rescanning a null node"
+	#		return
+	#	(nodes, names) = scanner.scan(node, **hashparams)
+	#	self.m_depends_on[node] = nodes
+	#	self.m_raw_deps[node] = names
+	#	self.m_deps_tstamp[node] = node.m_tstamp
 
 	def get_raw_deps(self, node):
 		try: return self.m_raw_deps[node]

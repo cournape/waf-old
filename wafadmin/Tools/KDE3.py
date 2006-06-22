@@ -298,7 +298,7 @@ class kdeobj(cpp.cppobj):
 
 			# scan for moc files to produce, create cpp tasks at the same time
 			if tree.needs_rescan(node):
-				tree.rescan(node, Scan.g_c_scanner, self.dir_lst)
+				Scan.g_c_scanner.rescan(tree, node, self.dir_lst)
 
 			moctasks=[]
 			mocfiles=[]
