@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+def build(bld):
+	obj = bld.createObj('docbook', 'pdf')
+	obj.source='''
+	docbook.xml
+	docbooks.sgml
+	docbookd.docbook
+	'''
+	obj.stylesheet='docbook-pdf.xsl'
+
+	obj = bld.createObj('docbook', 'html')
+	obj.source='''
+	docbook.xml
+	docbooks.sgml
+	docbookd.docbook
+	'''
+	obj.stylesheet='docbook-html.xsl'
+	
+	return
+
+def configure(conf):
+	conf.checkTool(['docbook'])
+	return
+
+def set_options(opt):
+	return

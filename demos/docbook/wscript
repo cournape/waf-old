@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='docbook_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = '_build_'
+
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('doc')
+	return
+
+def configure(conf):
+	conf.sub_config('doc')
+
+def set_options(opt):
+	return
