@@ -278,7 +278,10 @@ class kdeobj(cpp.cppobj):
 		for filename in lst:
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
-			if not node: fatal("cannot find "+filename+" in "+str(self.m_current_path))
+			if not node:
+				ext = filename[len(filename)-4:]
+				if ext != 'skel' and ext != 'stub':
+					fatal("cannot find "+filename+" in "+str(self.m_current_path))
 			base, ext = os.path.splitext(filename)
 
 			fun = None
