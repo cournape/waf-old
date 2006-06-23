@@ -12,11 +12,12 @@ import Node
 import Params
 from Params import debug, error, trace, fatal
 
-# assumptions have changed:
+# List of current assumptions:
 # * there is a build dir
 # * there are nodes to represent the folder and file system
-# * node folders also list the files in the build dir
-# * we keep the list of folders that have been scanned
+# * files are not copied/linked into the build dir
+# * the list of folders that have been scanned is kept
+# * computing the signatures is delegated to the scanner classes
 class Deptree:
 	def __init__(self):
 
@@ -78,23 +79,10 @@ class Deptree:
 			pass
 		return 1
 
-	# scan for dependencies, store them in cache, and keep the date handy
-	#def rescan(self, node, scanner, hashparams):
-	#	debug("rescanning "+str(node))
-	#	if not node:
-	#		print "BUG rescanning a null node"
-	#		return
-	#	(nodes, names) = scanner.scan(node, **hashparams)
-	#	self.m_depends_on[node] = nodes
-	#	self.m_raw_deps[node] = names
-	#	self.m_deps_tstamp[node] = node.m_tstamp
-
+	# returns the files names that do not have an associated node (scanner results)
 	def get_raw_deps(self, node):
 		try: return self.m_raw_deps[node]
 		except: return []
-
-	def is_a_built_node(self, node):
-		return node.is_child_of(self.m_bldnode)
 
 	## IMPORTANT - for debugging
 	def dump(self):
@@ -120,6 +108,11 @@ class Deptree:
 		#for k in keys:
 		#	print k, '\t\t', self.m_name2nodes[k]
 
+
+
+
+
+	# OBSOLETE
 	# return the mirror of a node in a particular builddir, both nodes must exist
 	def get_mirror_node(self, dirnode):
 		# get the difference between srcnode and dirnode
@@ -465,4 +458,9 @@ class Deptree:
 				curnode.m_files=[]
 			self.m_flags[curnode] = 1
 		return curnode
+
+	# TODO deprecated ?
+	def is_a_built_node(self, node):
+		return node.is_child_of(self.m_bldnode)
+
 

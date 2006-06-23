@@ -14,7 +14,10 @@ class Build:
 		self.m_configs  = []   # environments
 		self.m_tree     = None # dependency tree
 		self.m_dirs     = []   # folders in the dependency tree to scan
-		self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
+
+
+		# NO WAY
+		#self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
 
 		Params.g_build=self
 
@@ -36,7 +39,7 @@ class Build:
 		# two nodes - hashtable of hashtables - g_relpath_cache[child][parent])
 		self.m_relpath_cache = {}
 
-		# cache for height of the node
+		# cache for height of the node (amount of folders from the root)
 		self.m_height_cache = {}
 
 
@@ -54,32 +57,113 @@ class Build:
 
 		self.m_bdir = ''
 
-	def load(self, blddir):
-		self.m_bdir = blddir
-		self.m_rootdir = os.path.abspath('.')
-		if sys.platform=='win32': self.m_rootdir=self.m_rootdir[2:]
+	# load existing data structures from the disk (stored using self._store())
+	def _load(self):
 		try:
-			file = open( os.path.join(blddir, Params.g_dbfile), 'rb')
+			file = open( os.path.join(self.m_bdir, Params.g_dbfile), 'rb')
 			self.m_tree = cPickle.load(file)
 			file.close()
 		except:
+			debug("loading a new deptree (previous attempt failed)")
 			self.m_tree = Deptree()
 		# reset the flags of the tree
 		self.m_tree.m_root.tag(0)
 
-	def store(self):
+	# store the data structures on disk, retrieve with self._load()
+	def _store(self):
 		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
 		cPickle.dump(self.m_tree, file, -1)
 		file.close()
 
+	# clean the data structures before storing the tree on disk (pickle)
+	def _cleanup(self):
+		self.m_tree.m_name2nodes = {}
+		self.m_tree.m_flags      = {}
+		#self.m_tree.m_src_to_bld = {}
+		#self.m_tree.m_bld_to_src = {}
+
+		#debug("setting some stat value to a bldnode")
+		#curnode = self.m_tree.m_bldnode
+		#curnode = curnode.find_node(['src', 'main.cpp'])
+		#curnode.m_tstamp = os.stat(curnode.abspath()).st_mtime
+		#curnode.debug_time()
+
+	# ======================================= #
+
+	# usual computation types - dist and distclean might come here too
+	def clean(self):
+		trace("clean called")
+
+	# keep
+	def compile(self):
+		trace("compile called")
+
+		os.chdir( self.m_tree.m_bldnode.abspath() )
+
+		Object.flush()
+		if Params.g_maxjobs <=1:
+			generator = Runner.JobGenerator(self.m_tree)
+			executor = Runner.Serial(generator)
+		else:
+			executor = Runner.Parallel(self.m_tree, Params.g_maxjobs)
+
+		trace("executor starting")
+		try:
+			ret = executor.start()
+		except KeyboardInterrupt:
+			os.chdir( self.m_tree.m_srcnode.abspath() )
+			self._store()
+			raise
+		#finally:
+		#	os.chdir( self.m_tree.m_srcnode.abspath() )
+
+		os.chdir( self.m_tree.m_srcnode.abspath() )
+		return ret
+
+	# this function is called for both install and uninstall
+	def install(self):
+		trace("install called")
+		Object.flush()
+		for obj in Object.g_allobjs: obj.install()
+
+	# keep
+	def add_subdirs(self, dirs):
+		import Scripting
+		if type(dirs) is types.ListType: lst = dirs
+		else: lst = dirs.split()
+
+		for d in lst:
+			if not d: continue
+			Scripting.add_subdir(d, self)
+
+	# TODO: refactoring needed
+	def createObj(self, objname, *k, **kw):
+		try:
+			return Object.g_allclasses[objname](*k, **kw)
+		except:
+			print "error in createObj", objname
+			raise
+
+	# ======================================= #
+
+	# TODO this should be the main entry point
 	def load_dirs(self, srcdir, blddir, scan='auto'):
-		if os.path.samefile(srcdir,blddir):
+		# this functions should be the start
+		# there is no reason to bypass this check
+		if os.path.samefile(srcdir, blddir):
 			fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
 
-		self.set_blddir(blddir)
+		self._set_blddir(blddir)
 		self.duplicate_srcdir(srcdir, scan)
 
-	def set_blddir(self, path):
+	# TODO obsolete
+	# load an existing setup stored using self._store()
+	def _load_blddir(self, blddir):
+		self.m_bdir = blddir
+		self._load()
+
+
+	def _set_blddir(self, path):
 		trace("set_builddir")
 		if path[0]=="/":
 			lst = path.split('/')
@@ -90,8 +174,8 @@ class Build:
 		if sys.platform=='win32': p=p[2:]
 		node = self.m_tree.ensure_directory(p)
 		self.m_tree.m_bldnode = node
-  
-	def set_srcdir(self, dir):
+
+	def _set_srcdir(self, dir):
 		""" Inform the Build object of the srcdir."""
 		trace("set_srcdir")
 		p = os.path.abspath(dir)
@@ -102,18 +186,14 @@ class Build:
 		# position in the source tree when reading scripts
 		self.m_curdirnode = node
 		
-	def duplicate_srcdir(self, dir, scan='auto'):
-		""" Scan the srcdir and duplicate it in the build dir.
-		This function is *not* called during the configuration step,
-		but during the build step. Use 'auto' for waf-internal build
-		dirs, use 'noauto' for user defined build dirs."""
-		trace("duplicate_srcdir")
 
+	# TODO OBSOLETE
+	def duplicate_srcdir(self, dir, scan='auto'):
+		trace("duplicate_srcdir")
 		srcnode = self.m_tree.m_srcnode
 
 		# stupid behaviour (will scan every project in the folder) but scandirs-free
 		# we will see later for more intelligent behaviours (scan only folders that contain sources..)
-		# (ps:) then this function must be called during the build step.
 		try:
 			Params.g_excludes=Params.g_excludes+Utils.g_module.prunedirs
 		except:
@@ -151,66 +231,6 @@ class Build:
 		for sub_dir in paths:
 			self.m_tree.scanner_mirror(sub_dir)
 
-	def cleanup(self):
-		self.m_tree.m_name2nodes = {}
-		self.m_tree.m_flags      = {}
-		#self.m_tree.m_src_to_bld = {}
-		#self.m_tree.m_bld_to_src = {}
 
-		#debug("setting some stat value to a bldnode")
-		#curnode = self.m_tree.m_bldnode
-		#curnode = curnode.find_node(['src', 'main.cpp'])
-		#curnode.m_tstamp = os.stat(curnode.abspath()).st_mtime
-		#curnode.debug_time()
 
-	# usual computation types - dist and distclean might come here too
-	def clean(self):
-		trace("clean called")
-
-	def compile(self):
-		trace("compile called")
-
-		os.chdir( self.m_tree.m_bldnode.abspath() )
-
-		Object.flush()
-		if Params.g_maxjobs <=1:
-			generator = Runner.JobGenerator(self.m_tree)
-			executor = Runner.Serial(generator)
-		else:
-			executor = Runner.Parallel(self.m_tree, Params.g_maxjobs)
-
-		trace("executor starting")
-		try:
-			ret = executor.start()
-		except KeyboardInterrupt:
-			os.chdir( self.m_tree.m_srcnode.abspath() )
-			self.store()
-			raise
-		#finally:
-		#	os.chdir( self.m_tree.m_srcnode.abspath() )
-
-		os.chdir( self.m_tree.m_srcnode.abspath() )
-		return ret
-
-	# this function is called for both install and uninstall
-	def install(self):
-		trace("install called")
-		Object.flush()
-		for obj in Object.g_allobjs: obj.install()
-		
-	def add_subdirs(self, dirs):
-		import Scripting
-		if type(dirs) is types.ListType: lst = dirs
-		else: lst = dirs.split()
-
-		for d in lst:
-			if not d: continue
-			Scripting.add_subdir(d, self)
-
-	def createObj(self, objname, *k, **kw):
-		try:
-			return Object.g_allclasses[objname](*k, **kw)
-		except:
-			print "error in createObj", objname
-			raise
 

@@ -112,7 +112,7 @@ def Main():
 	Params.g_cachedir = blddir+os.sep+'_cache_'
 
 	# init the Build object.
-	bld.load(blddir)
+	bld.load_blddir(blddir)
 	bld.set_srcdir(srcdir)
 
 	try:
