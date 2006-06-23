@@ -48,7 +48,8 @@ class scanner:
 		return self._scan_default(node, path_lst)
 
 
-	def rescan(self, tree, node, hashparams):
+	# re-scan a node, update the tree
+	def do_scan(self, tree, node, hashparams):
 		debug("rescanning "+str(node))
 		if not node:
 			print "BUG rescanning a null node"
@@ -76,7 +77,7 @@ class scanner:
 			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
 			#if task.m_recurse:
 			#	if tree.needs_rescan(node):
-			#		self.rescan(tree, node, task.m_scanner_params)
+			#		self.do_scan(tree, node, task.m_scanner_params)
 			#	# TODO looks suspicious
 			#	lst = tree.m_depends_on[node]
 			#
@@ -161,7 +162,7 @@ class c_scanner(scanner):
 
 		# rescan the cpp file if necessary
 		if rescan:
-			self.rescan(tree, tree.get_src_from_mirror(node), task.m_scanner_params)
+			self.do_scan(tree, tree.get_src_from_mirror(node), task.m_scanner_params)
 
 		# we are certain that the files have been scanned - compute the signature
 		sig = Params.sig_nil()
@@ -185,7 +186,7 @@ class c_scanner(scanner):
 			seen.append(node)
 			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
 			if tree.needs_rescan(node):
-				self.rescan(tree, node, task.m_scanner_params)
+				self.do_scan(tree, node, task.m_scanner_params)
 			# TODO looks suspicious
 			lst = tree.m_depends_on[node]
 			
