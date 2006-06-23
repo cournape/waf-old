@@ -90,6 +90,10 @@ class Build:
 
 	# ======================================= #
 
+	def save(self):
+		self._cleanup()
+		self._store()
+
 	# usual computation types - dist and distclean might come here too
 	def clean(self):
 		trace("clean called")
@@ -153,8 +157,9 @@ class Build:
 		if os.path.samefile(srcdir, blddir):
 			fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
 
+		self._load_blddir(blddir)
 		self._set_blddir(blddir)
-		self.duplicate_srcdir(srcdir, scan)
+		self._duplicate_srcdir(srcdir, scan)
 
 	# TODO obsolete
 	# load an existing setup stored using self._store()
@@ -188,7 +193,7 @@ class Build:
 		
 
 	# TODO OBSOLETE
-	def duplicate_srcdir(self, dir, scan='auto'):
+	def _duplicate_srcdir(self, dir, scan='auto'):
 		trace("duplicate_srcdir")
 		srcnode = self.m_tree.m_srcnode
 

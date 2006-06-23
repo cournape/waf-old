@@ -112,8 +112,11 @@ def Main():
 	Params.g_cachedir = blddir+os.sep+'_cache_'
 
 	# init the Build object.
-	bld.load_blddir(blddir)
-	bld.set_srcdir(srcdir)
+	try:
+		bld.load_dirs(srcdir, blddir)
+	except:
+		#fatal("bld.load_dirs failed")
+		raise
 
 	try:
 		load_envs()
@@ -122,6 +125,7 @@ def Main():
 		fatal("Configuration loading failed\n" \
 			"-> This is due most of the time because the project is not configured \n" \
 			"-> Run 'waf configure' or run 'waf distclean' and configure once again")
+
 	#bld.m_tree.dump()
 
 	global g_inroot
@@ -159,30 +163,22 @@ def Main():
 		# restore the old node position
 		bld.m_curdirnode=old
 
-	# Finally: create the build dirs, *after* the 'build(bld)' scripts
-	# have been read.
-	try:
-		bld.load_dirs(srcdir, blddir, 'auto')
-	except:
-		fatal("bld.load_dirs failed")
-
 	#bld.m_tree.dump()
 
 	# compile
-	if Params.g_commands['build'] or Params.g_commands['install']:
-	#if ('build' in Params.g_commands and Params.g_commands['build']) or Params.g_commands['install']:
-		try:
+	# TODO: a finally block is needed
+	try:
+		if Params.g_commands['build'] or Params.g_commands['install']:
 			bld.compile()
-		except:
-			raise
+	except:
+		raise
 
 	# install
 	try:
 		if Params.g_commands['install'] or Params.g_commands['uninstall']:
 			bld.install()
 	finally:
-		bld.cleanup()
-		bld.store()
+		bld.save()
 
 	# shutdown
 	try:    Utils.g_module.shutdown()
