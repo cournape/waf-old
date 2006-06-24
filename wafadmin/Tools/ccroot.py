@@ -69,6 +69,10 @@ class ccroot(Object.genobj):
 		self.env = Params.g_build.m_allenvs['default'].copy()
 		if not self.env['tools']: fatal('no tool selected')
 
+		# installation directory, to override PREFIX/bin or PREFIX/lib
+		self.install_in = ''
+
+		# includes, seen from the current directory
 		self.includes=''
 
 		self.linkflags=''
@@ -310,12 +314,26 @@ class ccroot(Object.genobj):
 	def install(self):
 		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 
+		dest_var    = ''
+		dest_subdir = ''
+
+		if self.install_in:
+			dest_var    = self.install_in
+			dest_subdir = ''
+		else:
+			if self.m_type == 'program':
+				dest_var    = 'PREFIX'
+				dest_subdir = 'bin'
+			else:
+				dest_var    = 'PREFIX'
+				dest_subdir = 'lib'
+
 		if self.m_type == 'program':
-			self.install_results('PREFIX', 'bin', self.m_linktask )
+			self.install_results(dest_var, dest_subdir, self.m_linktask)
 		elif self.m_type == 'shlib':
-			if self.want_libtool: self.install_results('PREFIX', 'lib', self.m_latask)
+			if self.want_libtool: self.install_results(dest_var, dest_subdir, self.m_latask)
 			if sys.platform=='win32' or not self.vnum:
-				self.install_results('PREFIX', 'lib', self.m_linktask )
+				self.install_results(dest_var, dest_subdir, self.m_linktask)
 			else:
 				libname = self.m_linktask.m_outputs[0].m_name
 
@@ -325,15 +343,15 @@ class ccroot(Object.genobj):
 				name1 = libname
 
 				filename = self.m_linktask.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
-				Common.install_as('PREFIX', 'lib/'+name3, filename)
+				Common.install_as(dest_var, dest_subdir+'/'+name3, filename)
 
 				#print 'lib/'+name2, '->', name3
 				#print 'lib/'+name1, '->', name2
 
-				Common.symlink_as('PREFIX', name3, 'lib/'+name2)
-				Common.symlink_as('PREFIX', name2, 'lib/'+name1)
+				Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
+				Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
 
-		# static libraries are not to be installed so you will have to make a subclass
+		# static libraries are not to be installed so you will have to make a subclass, for example
 		#elif self.m_type == 'staticlib':
 		#	self.install_results('PREFIX', 'lib', self.m_linktask )
 

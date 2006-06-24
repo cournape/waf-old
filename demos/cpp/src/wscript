@@ -25,6 +25,7 @@ def build(bld):
 	'''
 	obj.includes='. src'
 	obj.target='testshlib'
+	obj.install_in = 'SOME_INSTALL_DIR'
 
 	# 3. A static library
 	# The extension (.a) is added automatically
