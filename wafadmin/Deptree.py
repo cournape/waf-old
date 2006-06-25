@@ -12,6 +12,8 @@ import Node
 import Params
 from Params import debug, error, trace, fatal
 
+# this module will disappear in the future (merge into Build.py)
+
 # List of current assumptions:
 # * there is a build dir
 # * there are nodes to represent the folder and file system

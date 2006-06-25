@@ -1,5 +1,10 @@
 ## Thomas Nagy, 2005, 2006 (ita)
 
+ROADMAP
+-------
+* 0.8x refactor the Build module
+* 0.9x interpreter/compiler for declaring builders more easily
+
 ADDITIONAL FEATURES OVER SCONS
 ------------------------------
 
@@ -29,11 +34,13 @@ Scripting.py   : entry point of the scripts, calls user code before launching th
 
 Node.py        : definition of the tree. The class should be as small as possible (tree is stored on-disk).
 
-Deptree.py     : dependency tree handler, contains the trees of sources and targets
+Build.py     : dependency tree handler, contains the trees of sources and targets
   the files are scanned only once
   the complete tree of dirs and files is loaded on memory
   this tree is stored in a file .dblite, and updated on next runs
   it can be modified in-place during the compilation phase itself
+holds the data structures for building targets (deptree) and the configuration.
+  it is the entry point of the application
 
 Environment.py : environment definition - environment copy is to be cheap
 
@@ -52,9 +59,6 @@ Action.py      : code used for building targets
 
 Task.py        : action + environment + input objects + output objects
   the tasks associate input files (id), output files (id), an action and an environment
-
-Build.py       : holds the data structures for building targets (deptree) and the configuration.
-  it is the entry point of the application
 
 Test.py        : some tests - uses files from the subdirectory 'test'
   go in the Test.py folder and run './Test.py'

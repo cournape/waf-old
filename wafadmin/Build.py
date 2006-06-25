@@ -9,59 +9,133 @@ import Environment, Params, Runner, Object, Utils
 from Deptree import Deptree
 from Params import debug, error, trace, fatal
 
+
+class BuildDTO:
+	def __init__(self, bdobj):
+		self.m_root        = bdobj.m_root
+		self.m_bldnode     = bdobj.m_bldnode
+		self.m_srcnode     = bdobj.m_srcnode
+		self.m_src_to_bld  = bdobj.m_src_to_bld
+		self.m_bld_to_src  = bdobj.m_bld_to_src
+		self.m_depends_on  = bdobj.m_depends_on
+		self.m_deps_tstamp = bdobj.m_deps_tstamp
+		self.m_raw_deps    = bdobj.m_raw_deps
+		self.m_sigs        = bdobj.m_sigs
+	def update_build(self, bdobj):
+		bdobj.m_root        = self.m_root
+		bdobj.m_bldnode     = self.m_bldnode
+		bdobj.m_srcnode     = self.m_srcnode
+		bdobj.m_src_to_bld  = self.m_src_to_bld
+		bdobj.m_bld_to_src  = self.m_bld_to_src
+		bdobj.m_depends_on  = self.m_depends_on
+		bdobj.m_deps_tstamp = self.m_deps_tstamp
+		bdobj.m_raw_deps    = self.m_raw_deps
+		bdobj.m_sigs        = self.m_sigs
+
 class Build:
 	def __init__(self):
-		self.m_configs  = []   # environments
-		self.m_tree     = None # dependency tree
-		self.m_dirs     = []   # folders in the dependency tree to scan
+
+		# ============================================
+		# dependency tree
+
+		# filesystem root - root name is Params.g_rootname
+		self.m_root = Node.Node('', None)
+
+		self.m_name2nodes  = {}             # access nodes quickly
+		self.m_bldnode     = None
+		self.m_srcnode     = None           # source directory
+
+		# get bld nodes from src nodes quickly
+		self.m_src_to_bld  = {}
+		# get src nodes from bld nodes quickly
+		self.m_bld_to_src  = {}
+
+		# one node has nodes it depends on, tasks cannot be stored
+		# node -> [node; node; node ..] - all dependencies
+		# m_depends_on[node] = [node1, node2, ..]
+		self.m_depends_on  = {}
+
+		# m_deps_tstamp[node] = represents the timestamp for the node last scan
+		self.m_deps_tstamp = {}
+
+		# results of a scan: self.m_raw_deps[node] = [filename1, filename2, filename3]
+		# for example, find headers in c files
+		self.m_raw_deps    = {}
 
 
-		# NO WAY
-		#self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
+		# signatures for nodes that are created in the builddir
+		self.m_sigs        = {}
 
-		Params.g_build=self
+		# give flags to nodes (eg: existing->1, not existing->0)
+		self._flags        = {}
+
+
+		# ============================================
+		# globals
+
+		# map a name to an environment, the 'default' must be defined
+		self.m_allenvs = {}
+
+		# there should be only one build dir in use at a time
+		Params.g_build = self
+
+		# ============================================
+		# code for reading the scripts
+
+		# project build directory
+		self.m_bdir = ''
 
 		# the current directory from which the code is run
 		# the folder changes everytime a wscript is read
 		self.m_curdirnode = None
 
-		# map a name to an environment, the 'default' must be defined
-		self.m_allenvs = {}
-
 		# temporary holding the subdirectories containing scripts
 		self.m_subdirs=[]
 
 
+		# ============================================
+		# cache variables
+
 		# local cache for absolute paths
-		self.m_abspath_cache = {}
+		self._abspath_cache = {}
 
 		# local cache for relative paths
 		# two nodes - hashtable of hashtables - g_relpath_cache[child][parent])
-		self.m_relpath_cache = {}
+		self._relpath_cache = {}
 
 		# cache for height of the node (amount of folders from the root)
-		self.m_height_cache = {}
+		self._height_cache = {}
 
+		# list of folders that are already scanned
+		# so that we do not need to stat them one more time
+		self._scanned_folders  = []
+
+		# file contents
+		self._cache_node_content = {}
+
+
+		# =============================================
+		# tasks and objects
 
 		# objects that are not posted and objects already posted
 		# -> delay task creation
 		self.m_outstanding_objs = []
 		self.m_posted_objs      = []
 
-		# list of folders that are already scanned
-		# so that we do not need to stat them one more time
-		self.m_scanned_folders  = []
 
 
-		self.m_cache_node_content = {}
+		#self.m_tree     = None # dependency tree
+		#self.m_dirs     = []   # folders in the dependency tree to scan
 
-		self.m_bdir = ''
+		# NO WAY
+		#self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
 
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
 		try:
-			file = open( os.path.join(self.m_bdir, Params.g_dbfile), 'rb')
-			self.m_tree = cPickle.load(file)
+			file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'rb')
+			dto = cPickle.load(file)
+			dto.update_build(self)
 			file.close()
 		except:
 			debug("loading a new deptree (previous attempt failed)")
@@ -72,21 +146,8 @@ class Build:
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
 		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
-		cPickle.dump(self.m_tree, file, -1)
+		cPickle.dump(BuildDTO(self), file, -1)
 		file.close()
-
-	# clean the data structures before storing the tree on disk (pickle)
-	def _cleanup(self):
-		self.m_tree.m_name2nodes = {}
-		self.m_tree.m_flags      = {}
-		#self.m_tree.m_src_to_bld = {}
-		#self.m_tree.m_bld_to_src = {}
-
-		#debug("setting some stat value to a bldnode")
-		#curnode = self.m_tree.m_bldnode
-		#curnode = curnode.find_node(['src', 'main.cpp'])
-		#curnode.m_tstamp = os.stat(curnode.abspath()).st_mtime
-		#curnode.debug_time()
 
 	# ======================================= #
 
@@ -157,17 +218,23 @@ class Build:
 		if os.path.samefile(srcdir, blddir):
 			fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
 
-		self._load_blddir(blddir)
-		self._set_blddir(blddir)
-		self._duplicate_srcdir(srcdir, scan)
 
-	# TODO obsolete
-	# load an existing setup stored using self._store()
-	def _load_blddir(self, blddir):
+		self._set_srcdir(srcdir)
+		node = self.m_tree.ensure_node_from_path(p)
+		self.m_tree.m_srcnode = node
+		self.m_curdirnode = node
+
+
+		# mkdir blddir ?
 		self.m_bdir = blddir
 		self._load()
 
 
+		self._set_blddir(blddir)
+		self._duplicate_srcdir(srcdir, scan)
+
+
+	# obsolete
 	def _set_blddir(self, path):
 		trace("set_builddir")
 		if path[0]=="/":
@@ -180,6 +247,7 @@ class Build:
 		node = self.m_tree.ensure_directory(p)
 		self.m_tree.m_bldnode = node
 
+	# obsolete
 	def _set_srcdir(self, dir):
 		""" Inform the Build object of the srcdir."""
 		trace("set_srcdir")
