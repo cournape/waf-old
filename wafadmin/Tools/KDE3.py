@@ -302,7 +302,10 @@ class kdeobj(cpp.cppobj):
 
 			moctasks=[]
 			mocfiles=[]
-			for d in tree.get_raw_deps(node):
+
+			try: tmp_lst = tree.m_raw_deps[node]
+			except: tmp_lst = []
+			for d in tmp_lst:
 				base2, ext2 = os.path.splitext(d)
 				if not ext2 == '.moc': continue
 				# paranoid check
@@ -316,6 +319,7 @@ class kdeobj(cpp.cppobj):
 				task.m_inputs  = self.file_in(base+'.h')
 				task.m_outputs = self.file_in(base+'.moc')
 				moctasks.append( task )
+			
 
 			# use a cache ?
 			for d in tree.m_depends_on[node]:

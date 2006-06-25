@@ -54,38 +54,6 @@ class Deptree:
 		# give flags to nodes (eg: existing->1, not existing->0)
 		self.m_flags       = {}
 
-	# IMPORTANT
-	# Fast node access - feed an internal dictionary (to keep between runs -> TODO not sure)
-	def store_node(self, node):
-		nn=node.m_name
-		try:
-			# prevent silly errors
-			if node in self.m_name2nodes[nn]: print "BUG: name2nodes already contains node!", nn
-			else: self.m_name2nodes[nn].append(node)
-		except:
-			self.m_name2nodes[nn] = [node]
-
-	# list of dependencies, for example give the .h a .cpp relies on
-	def get_depends_on(self, node):
-		try: return self.m_depends_on[node]
-		except: return []
-
-	# tell if a node has changed, to update the cache
-	def needs_rescan(self, node):
-		#print "needs_rescan for ", node, node.m_tstamp
-		try:
-			if self.m_deps_tstamp[node] == node.m_tstamp:
-				#print "no need to rescan", node.m_tstamp
-				return 0
-		except:
-			pass
-		return 1
-
-	# returns the files names that do not have an associated node (scanner results)
-	def get_raw_deps(self, node):
-		try: return self.m_raw_deps[node]
-		except: return []
-
 	## IMPORTANT - for debugging
 	def dump(self):
 		def printspaces(count):

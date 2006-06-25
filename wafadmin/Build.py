@@ -233,6 +233,59 @@ class Build:
 		self._duplicate_srcdir(srcdir, scan)
 
 	# ======================================= #
+	# TODO
+
+
+	# tell if a node has changed, to update the cache
+	def needs_rescan(self, node):
+		#print "needs_rescan for ", node, node.m_tstamp
+		try:
+			if self.m_deps_tstamp[node] == node.m_tstamp:
+				#print "no need to rescan", node.m_tstamp
+				return 0
+		except:
+			pass
+		return 1
+
+	# Fast node access - feed an internal dictionary (to keep between runs -> TODO not sure)
+	def store_node(self, node):
+		nn=node.m_name
+		try:
+			# prevent silly errors
+			if node in self.m_name2nodes[nn]: print "BUG: name2nodes already contains node!", nn
+			else: self.m_name2nodes[nn].append(node)
+		except:
+			self.m_name2nodes[nn] = [node]
+
+
+	## IMPORTANT - for debugging
+	def dump(self):
+		def printspaces(count):
+			if count>0: return printspaces(count-1)+"-"
+			return ""
+		def recu(node, count):
+			accu = printspaces(count)
+			accu+= "> "+node.m_name+" (d)\n"
+			for child in node.m_files:
+				accu+= printspaces(count)
+				accu+= '> '+child.m_name+' '
+				accu+= ' '+str(child.m_tstamp)+'\n'
+				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
+				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
+			for dir in node.m_dirs: accu += recu(dir, count+1)
+			return accu
+
+		Params.pprint('CYAN', recu(self.m_root, 0) )
+		Params.pprint('CYAN', 'size is '+str(self.m_root.size()))
+
+		#keys = self.m_name2nodes.keys()
+		#for k in keys:
+		#	print k, '\t\t', self.m_name2nodes[k]
+
+
+
+
+	# ======================================= #
 	# obsolete code
 
 	# TODO obsolete

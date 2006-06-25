@@ -303,7 +303,9 @@ class kdeobj(cpp.cppobj):
 
 			moctasks=[]
 			mocfiles=[]
-			for d in tree.get_raw_deps(node):
+			try: tmp_lst = tree.m_raw_deps[node]
+			except: tmp_lst=[]
+			for d in tmp_lst:
 				base2, ext2 = os.path.splitext(d)
 				if not ext2 == '.moc': continue
 				# paranoid check
