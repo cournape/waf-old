@@ -1,18 +1,8 @@
 (ita)
-* unit tests
-* variant builds
-* problems with objects removed manually from the builddir
-* problems with parallel builds
-
-resolve the ambiguity:
-"waf configure --help" (no climbing)
-vs:
-"waf --help" (climbs to the top-level module)
-
-there is no os.walk in python 2.2
-there is no optparse in python 2.2
--> standardize on python 2.3 ?
+* Build.py refactoring
+* compiler/interpreter for creating builders more easily
+* functions in the preprocessor
 
 --------------------------------------
-Last update: 06-04-2006
+Last update: 25-06-2006
 Contact -> tnagyemail-mail@yahoo.fr (ita)
