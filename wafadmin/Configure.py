@@ -123,16 +123,13 @@ class Configure:
 
 		env = self.env.copy()
 		Utils.reset()
+	
+		back=os.path.abspath('.')
 
 		bld = Build.Build()
-		bld.load( bdir )
-		bld.set_srcdir(dir)
-		bld.load_dirs(dir, bdir )
+		bld.load_dirs(dir, bdir)
 		bld.m_allenvs['default'] = env
 
-		bld.m_curdirnode = Params.g_build.m_tree.m_srcnode
-
-		back=os.path.abspath('.')
 		os.chdir(dir)
 
 		env.setup(env['tools'])

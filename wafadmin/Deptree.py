@@ -424,7 +424,7 @@ class Deptree:
 	# Creates the folders if they do not exist
 	# Flag the intermediate nodes as 'already existing' with m_flag=1
 	def ensure_directory(self, path):
-		trace('Deptree:ensure_directory %s' % (path))
+		trace('ensure_directory %s' % (path))
 		dir_lst = path.split(os.sep)
 
 		curnode = self.m_root # root of the tree

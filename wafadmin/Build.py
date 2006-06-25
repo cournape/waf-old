@@ -35,7 +35,7 @@ class BuildDTO:
 class Build:
 	def __init__(self):
 
-		# ============================================
+		# ======================================= #
 		# dependency tree
 
 		# filesystem root - root name is Params.g_rootname
@@ -69,8 +69,7 @@ class Build:
 		# give flags to nodes (eg: existing->1, not existing->0)
 		self._flags        = {}
 
-
-		# ============================================
+		# ======================================= #
 		# globals
 
 		# map a name to an environment, the 'default' must be defined
@@ -79,7 +78,7 @@ class Build:
 		# there should be only one build dir in use at a time
 		Params.g_build = self
 
-		# ============================================
+		# ======================================= #
 		# code for reading the scripts
 
 		# project build directory
@@ -92,8 +91,7 @@ class Build:
 		# temporary holding the subdirectories containing scripts
 		self.m_subdirs=[]
 
-
-		# ============================================
+		# ======================================= #
 		# cache variables
 
 		# local cache for absolute paths
@@ -113,8 +111,7 @@ class Build:
 		# file contents
 		self._cache_node_content = {}
 
-
-		# =============================================
+		# ======================================= #
 		# tasks and objects
 
 		# objects that are not posted and objects already posted
@@ -155,6 +152,7 @@ class Build:
 		self._cleanup()
 		self._store()
 
+	# TODO: is this really useful ?
 	# usual computation types - dist and distclean might come here too
 	def clean(self):
 		trace("clean called")
@@ -201,17 +199,18 @@ class Build:
 			if not d: continue
 			Scripting.add_subdir(d, self)
 
-	# TODO: refactoring needed
-	def createObj(self, objname, *k, **kw):
+	# keep
+	def create_obj(self, objname, *k, **kw):
 		try:
 			return Object.g_allclasses[objname](*k, **kw)
 		except:
-			print "error in createObj", objname
+			print "error in create_obj", objname
 			raise
 
 	# ======================================= #
+	# node and folder handling
 
-	# TODO this should be the main entry point
+	# this should be the main entry point
 	def load_dirs(self, srcdir, blddir, scan='auto'):
 		# this functions should be the start
 		# there is no reason to bypass this check
@@ -233,8 +232,10 @@ class Build:
 		self._set_blddir(blddir)
 		self._duplicate_srcdir(srcdir, scan)
 
+	# ======================================= #
+	# obsolete code
 
-	# obsolete
+	# TODO obsolete
 	def _set_blddir(self, path):
 		trace("set_builddir")
 		if path[0]=="/":
@@ -247,7 +248,7 @@ class Build:
 		node = self.m_tree.ensure_directory(p)
 		self.m_tree.m_bldnode = node
 
-	# obsolete
+	# TODO obsolete
 	def _set_srcdir(self, dir):
 		""" Inform the Build object of the srcdir."""
 		trace("set_srcdir")
@@ -292,18 +293,4 @@ class Build:
 				dirs.append( os.sep.join(srcnode.difflst(tgt[0]) ) )
 			self.scandirs( dirs )
 			
-	def get_srcdir(self):
-		return self.srcnode.abspath()
-
-	def get_blddir(self):
-		return self.m_bdir
-
-	# use this when autoscan is off
-	def scandirs(self, paths):
-		#ldirs=paths.split()
-		for sub_dir in paths:
-			self.m_tree.scanner_mirror(sub_dir)
-
-
-
 
