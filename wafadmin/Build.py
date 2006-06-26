@@ -232,8 +232,85 @@ class Build:
 		self._set_blddir(blddir)
 		self._duplicate_srcdir(srcdir, scan)
 
+
+
+
 	# ======================================= #
 	# TODO
+
+	def rescan(self, src_node):
+
+		# first list the files in the src dir and update the nodes
+		# for each build dir (multiple build dirs):
+		#     list the files in the build dir, update the nodes
+		#
+		# this makes (n bdirs)+srdir to scan (at least 2 folders)
+		# so we might want to do it in parallel
+		# the source code needs to be shrinked carefully (no copy-paste)
+
+		names_read = os.listdir(src_node.abspath())
+		removed = []
+		added   = []
+
+		e_files = []
+		e_dirs  = []
+		e_unknown = []
+		for file in src_node.m_files:
+			try:
+				# try to stat the file ..
+				st = os.stat(file.abspath())
+				ts = file.m_tstamp
+
+				#file.m_tstamp = st.st_mtime
+				file.m_tstamp = Params.h_file(file.abspath())
+
+				e_files.append(file.m_name)
+				# if the timestamp has changed, we need to re-scan the file - not here though
+				if ts!=file.m_tstamp:
+					trace("A file changed! %s %s now %s" % (str(file),str(ts),str(file.m_tstamp)) )
+			except:
+				# remove the node here and in the builddir
+				name = file.m_name
+				src_node.m_files.remove(file)
+
+				for mn in mir_node.m_files:
+					if mn.m_name == name:
+						mir_node.m_files.remove(mn)
+						#print "remove trailing file %s from builddir "%mn.m_name²
+						try: os.remove(os.path.join(mir_node.abspath(), mn.m_name))
+						except: pass
+						break
+
+		for file in src_node.m_dirs:
+			# same as above comment, if fails then the dir does not exist anymore
+			st = os.stat(file.abspath())
+			file.m_tstamp = st.st_mtime
+			e_dirs.append(file.m_name)
+
+		excl = e_files+e_dirs+Params.g_excludes
+		#print excl
+		for name in names_read:
+			if name in excl: continue
+			e_unknown.append(name)
+
+		#print "unkn ", e_unknown
+		for name in e_unknown:
+			# new files or dirs - create the corresponding nodes
+			child_node = Node.Node(name, src_node)
+			#print 'adding child node '+str(child_node)
+
+			st = os.stat( child_node.abspath() )
+
+			# in case of a regular file, create a mirror node in the builddir
+			if S_ISREG( st[ST_MODE] ):
+				#print "regular file"
+				src_node.m_files.append(child_node)
+
+				#child_node.m_tstamp = st.st_mtime
+				child_node.m_tstamp = Params.h_file(child_node.abspath())
+			else:
+				src_node.m_dirs.append(child_node)
+		src_node.m_tstamp = src_sig
 
 
 	# tell if a node has changed, to update the cache
