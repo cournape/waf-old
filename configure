@@ -1,0 +1,141 @@
+#! /bin/sh
+# waf configure wrapper
+
+# Fancy colors used to beautify the output a bit.
+#
+NORMAL="\033[0m"
+BOLD="\033[1m"
+RED="\033[91m"
+YELLOW="\033[93m"
+GREEN="\033[92m"
+
+EXIT_SUCCESS=0
+EXIT_FAILURE=1
+EXIT_ERROR=2
+EXIT_BUG=10
+
+WORKINGDIR=`dirname $0`
+
+
+# Checks for Python interpreter. Honours $PYTHON if set. Stores path to
+# interpreter in $PYTHON.
+#
+checkPython()
+{
+	if [ -z $PYTHON ]; then
+	  PYTHON=`which python 2>/dev/null`
+	fi
+	echo -n "Checking for Python               :  "
+	if [ ! -x "$PYTHON" ]; then
+	  echo -e $GREEN"not found!"$NORMAL
+	  echo "Please make sure that the Python interpreter is available in your PATH"
+	  echo "or invoke configure using the PYTHON flag, e.g."
+	  echo "$ PYTHON=/usr/local/bin/python configure"
+	  exit $EXIT_FAILURE
+	fi
+	echo -e $GREEN"$PYTHON"$NORMAL
+}
+
+# Checks for WAF. Honours $WAF if set. Stores path to 'waf' in $WAF.
+# Requires that $PYTHON is set.
+#
+checkWAF()
+{
+	echo -n "Checking for WAF                :  "
+	#global installed waf with waf->waf.py link
+	if [ -z "$WAF" ]; then
+	  WAF=`which waf 2>/dev/null`
+	fi
+	#global installed waf with waf.py
+	if [ -z "$WAF" ]; then
+	    WAF=`which waf.py 2>/dev/null`
+	fi
+	#installed miniwaf in sourcedir
+	if [ -z "$WAF" ]; then
+	    if [ -x "$WORKINGDIR/waf.py" ] ; then
+		WAF="./waf.py"
+	    fi
+	fi
+	if [ ! -x "$WAF" ]; then
+	    echo -e $BOLD"not found, will use mini distribution."$NORMAL
+	    if [ -d "$WORKINGDIR/wafadmin" ] ; then
+		if [ -e "$WORKINGDIR/wafadmin/miniwaf.tar.bz2" ] ; then
+		    CUR_DIR=$PWD
+		    cd $WORKINGDIR 
+		    tar xvfj wafadmin/miniwaf.tar.bz2
+		    cd $CUR_DIR
+		fi
+		if [ -x "$WORKINGDIR/waf.py" ] ; then
+		    WAF="./waf.py"
+		fi
+	    fi
+	fi
+	# neither waf nor miniwaf could be found
+	if [ ! -x "$WAF" ]; then
+	    echo -e $RED"neither waf nor miniwaf could be found"$NORMAL
+	    echo "goto http://www.freehackers.org/~tnagy/bksys.html"
+	    echo "and download a waf version >= http://www.freehackers.org/~tnagy/waf-0.8.2d1.tar.bz2"
+	    echo "or download miniwaf >0.8.2d"
+	    exit $EXIT_FAILURE
+	else
+	  echo -e $GREEN"$WAF"$NORMAL
+	fi
+}
+
+# Generates a Makefile. Requires that $SCONS is set.
+#
+generateMakefile()
+{
+	cat > Makefile << EOF
+WAF_DESTDIR := ""
+WAD_DESTDIR += \$(DESTDIR)
+
+all:
+	@$WAF build
+
+all_debug:
+	@$WAF -v build
+		
+all_progress:
+	@$WAF -p build
+			
+install:
+	@(if test \$(WAD_DESTDIR) ; then $WAF install --destdir=\$(WAD_DESTDIR) ; else $WAF install ; fi)
+
+uninstall:
+	@$WAF uninstall
+						
+clean:
+	@$WAF clean
+
+distclean:
+	@$WAF distclean
+	@-rm -rf cache/
+	@-rm -rf _build_
+	@-rm -rf \`find . -type f -name "*.pyc" -print\`
+	@-rm -f config.mak
+	@-rm -f Makefile
+
+dist:
+	@$WAF dist
+
+EOF
+}
+
+checkPython
+checkWAF
+
+
+echo "calling waf configure with parameters"
+$WAF configure $* || exit $EXIT_ERROR
+
+#create a Makefile if waf configure succeeds
+if test -e .lock-wscript ; then
+    if test -e Makefile ; then
+	echo ""
+    else
+        generateMakefile
+    fi
+fi
+			    
+exit $EXIT_SUCCESS
