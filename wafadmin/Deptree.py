@@ -54,33 +54,6 @@ class Deptree:
 		# give flags to nodes (eg: existing->1, not existing->0)
 		self.m_flags       = {}
 
-	## IMPORTANT - for debugging
-	def dump(self):
-		def printspaces(count):
-			if count>0: return printspaces(count-1)+"-"
-			return ""
-		def recu(node, count):
-			accu = printspaces(count)
-			accu+= "> "+node.m_name+" (d)\n"
-			for child in node.m_files:
-				accu+= printspaces(count)
-				accu+= '> '+child.m_name+' '
-				accu+= ' '+str(child.m_tstamp)+'\n'
-				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
-				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
-			for dir in node.m_dirs: accu += recu(dir, count+1)
-			return accu
-
-		Params.pprint('CYAN', recu(self.m_root, 0) )
-		Params.pprint('CYAN', 'size is '+str(self.m_root.size()))
-
-		#keys = self.m_name2nodes.keys()
-		#for k in keys:
-		#	print k, '\t\t', self.m_name2nodes[k]
-
-
-
-
 
 	# OBSOLETE
 	# return the mirror of a node in a particular builddir, both nodes must exist
