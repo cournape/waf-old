@@ -9,6 +9,54 @@ import Environment, Params, Runner, Object, Utils
 from Deptree import Deptree
 from Params import debug, error, trace, fatal
 
+def scan_path(i_parent_node, i_path, i_existing_nodes):
+
+	# read the dir contents, ignore the folders in it
+	l_names_read = os.listdir(i_path)
+
+	# there are two ways to obtain the partitions:
+	# 1 run the comparisons two times (not very smart)
+	# 2 reduce the sizes of the list while looping
+
+	l_names = l_names_read
+	l_nodes = i_existing_nodes
+	l_kept  = []
+
+	for node in l_nodes:
+		i     = 0
+		name  = node.m_name
+		l_len = len(l_names)
+		while i < l_len:
+			if l_names[i] == name:
+				l_kept.append(node)
+				break
+			i += 1
+		if i < l_len:
+			l_names = l_names[:i-1]+l_names[i+1:]
+
+	# Now:
+	# l_names contains the new nodes (or files)
+	# l_kept contains only nodes that actually exist on the filesystem
+	for node in l_kept:
+		try:
+			# update the time stamp
+			node.m_tstamp = Params.h_file(node.abspath())
+		except:
+			fatal("a file is readonly or has become a dir "+node.abspath())
+
+	l_path = i_path + os.sep
+	for name in l_names:
+		try:
+			# will throw an exception if not a file or if not readable
+			# we assume that this is better than performing a stat() first
+			# TODO is it possible to distinguish the cases ?
+			st = Params.h_file(l_path + name)
+			l_child = Node.Node(name, i_parent_node)
+			l_child.m_tstamp = st
+			l_kept.append(l_child)
+		except:
+			pass
+	return l_kept
 
 class BuildDTO:
 	def __init__(self, bdobj):
@@ -236,81 +284,21 @@ class Build:
 
 
 	# ======================================= #
-	# TODO
-
 	def rescan(self, src_node):
-
+		pass
 		# first list the files in the src dir and update the nodes
 		# for each build dir (multiple build dirs):
 		#     list the files in the build dir, update the nodes
 		#
 		# this makes (n bdirs)+srdir to scan (at least 2 folders)
 		# so we might want to do it in parallel
-		# the source code needs to be shrinked carefully (no copy-paste)
 
-		names_read = os.listdir(src_node.abspath())
-		removed = []
-		added   = []
+		# list the files in the src directory
+		files = scan_path(src_node, src_node.abspath(), src_node.m_files)
+		src_node.m_files = files
 
-		e_files = []
-		e_dirs  = []
-		e_unknown = []
-		for file in src_node.m_files:
-			try:
-				# try to stat the file ..
-				st = os.stat(file.abspath())
-				ts = file.m_tstamp
-
-				#file.m_tstamp = st.st_mtime
-				file.m_tstamp = Params.h_file(file.abspath())
-
-				e_files.append(file.m_name)
-				# if the timestamp has changed, we need to re-scan the file - not here though
-				if ts!=file.m_tstamp:
-					trace("A file changed! %s %s now %s" % (str(file),str(ts),str(file.m_tstamp)) )
-			except:
-				# remove the node here and in the builddir
-				name = file.m_name
-				src_node.m_files.remove(file)
-
-				for mn in mir_node.m_files:
-					if mn.m_name == name:
-						mir_node.m_files.remove(mn)
-						#print "remove trailing file %s from builddir "%mn.m_name²
-						try: os.remove(os.path.join(mir_node.abspath(), mn.m_name))
-						except: pass
-						break
-
-		for file in src_node.m_dirs:
-			# same as above comment, if fails then the dir does not exist anymore
-			st = os.stat(file.abspath())
-			file.m_tstamp = st.st_mtime
-			e_dirs.append(file.m_name)
-
-		excl = e_files+e_dirs+Params.g_excludes
-		#print excl
-		for name in names_read:
-			if name in excl: continue
-			e_unknown.append(name)
-
-		#print "unkn ", e_unknown
-		for name in e_unknown:
-			# new files or dirs - create the corresponding nodes
-			child_node = Node.Node(name, src_node)
-			#print 'adding child node '+str(child_node)
-
-			st = os.stat( child_node.abspath() )
-
-			# in case of a regular file, create a mirror node in the builddir
-			if S_ISREG( st[ST_MODE] ):
-				#print "regular file"
-				src_node.m_files.append(child_node)
-
-				#child_node.m_tstamp = st.st_mtime
-				child_node.m_tstamp = Params.h_file(child_node.abspath())
-			else:
-				src_node.m_dirs.append(child_node)
-		src_node.m_tstamp = src_sig
+		# now list the files in the build dirs
+		# TODO
 
 
 	# tell if a node has changed, to update the cache
