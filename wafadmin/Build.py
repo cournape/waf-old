@@ -123,6 +123,9 @@ class Build:
 		# map a name to an environment, the 'default' must be defined
 		self.m_allenvs = {}
 
+		# build dir variants (release, debug, ..)
+		self.m_variants = []
+
 		# there should be only one build dir in use at a time
 		Params.g_build = self
 
@@ -284,22 +287,29 @@ class Build:
 
 
 	# ======================================= #
-	def rescan(self, src_node):
-		pass
+	def rescan(self, src_dir_node):
 		# first list the files in the src dir and update the nodes
-		# for each build dir (multiple build dirs):
+		# for each variant build dir (multiple build dirs):
 		#     list the files in the build dir, update the nodes
 		#
 		# this makes (n bdirs)+srdir to scan (at least 2 folders)
-		# so we might want to do it in parallel
+		# so we might want to do it in parallel in the future
 
 		# list the files in the src directory
 		files = scan_path(src_node, src_node.abspath(), src_node.m_files)
 		src_node.m_files = files
 
 		# now list the files in the build dirs
-		# TODO
-
+		lst = self.m_src_node.difflst(src_dir_node)
+		for dir in self.m_variants:
+			# obtain the path: '/path/to/build', 'release', ['src', 'dir1']
+			sub_path = os.sep.join([self.m_bld_node.abspath(), dir] + lst)
+			try:
+				files = scan_path(src_node, sub_path, src_node.get_variant(dir))
+				src_node.m_variants[dir] = files
+			except:
+				os.makedirs(sub_path)
+				src_node.m_variants[dir] = []
 
 	# tell if a node has changed, to update the cache
 	def needs_rescan(self, node):
