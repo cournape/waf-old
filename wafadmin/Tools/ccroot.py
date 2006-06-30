@@ -216,10 +216,14 @@ class ccroot(Object.genobj):
 		for obj in Object.g_allobjs:
 			# if the object we depend on is not posted we will force it right now
 			if obj.target in self.p_staticlib_deps_names:
-				if not obj.m_posted: obj.post()
+				if not obj.m_posted:
+					if not self is obj:
+						obj.post()
 				self.m_linktask.m_run_after.append(obj.m_linktask)
 			elif obj.target in self.p_shlib_deps_names:
-				if not obj.m_posted: obj.post()
+				if not obj.m_posted:
+					if not self is obj:
+						obj.post()
 				self.m_linktask.m_run_after.append(obj.m_linktask)
 		htbl = Params.g_build.m_depends_on
 		try:
