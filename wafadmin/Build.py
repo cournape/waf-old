@@ -4,9 +4,8 @@
 
 import os, os.path, sys, cPickle, types
 
-import Environment, Params, Runner, Object, Utils
+import Environment, Params, Runner, Object, Utils, Node
 
-from Deptree import Deptree
 from Params import debug, error, trace, fatal
 
 def scan_path(i_parent_node, i_path, i_existing_nodes):
@@ -60,6 +59,18 @@ def scan_path(i_parent_node, i_path, i_existing_nodes):
 
 class BuildDTO:
 	def __init__(self, bdobj):
+		pass
+	def reset(self):
+		self.m_root        = Node.Node('', None)
+		self.m_bldnode     = None
+		self.m_srcnode     = None
+		self.m_src_to_bld  = {}
+		self.m_bld_to_src  = {}
+		self.m_depends_on  = {}
+		self.m_deps_tstamp = {}
+		self.m_raw_deps    = {}
+		self.m_sigs        = {}
+	def init(self, bdobj):
 		self.m_root        = bdobj.m_root
 		self.m_bldnode     = bdobj.m_bldnode
 		self.m_srcnode     = bdobj.m_srcnode
@@ -124,7 +135,7 @@ class Build:
 		self.m_allenvs = {}
 
 		# build dir variants (release, debug, ..)
-		self.m_variants = []
+		self.m_variants = ['default']
 
 		# there should be only one build dir in use at a time
 		Params.g_build = self
@@ -172,7 +183,6 @@ class Build:
 
 
 
-		#self.m_tree     = None # dependency tree
 		#self.m_dirs     = []   # folders in the dependency tree to scan
 
 		# NO WAY
@@ -186,10 +196,13 @@ class Build:
 			dto.update_build(self)
 			file.close()
 		except:
-			debug("loading a new deptree (previous attempt failed)")
-			self.m_tree = Deptree()
+			debug("resetting the build object (previous attempt failed)")
+			dto = BuildDTO(self)
+			dto.reset()
+			dto.update_build(self)
+			
 		# reset the flags of the tree
-		self.m_tree.m_root.tag(0)
+		self.m_root.tag(0)
 
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
@@ -212,26 +225,26 @@ class Build:
 	def compile(self):
 		trace("compile called")
 
-		os.chdir( self.m_tree.m_bldnode.abspath() )
+		os.chdir( self.m_bldnode.abspath() )
 
 		Object.flush()
 		if Params.g_maxjobs <=1:
-			generator = Runner.JobGenerator(self.m_tree)
+			generator = Runner.JobGenerator(self)
 			executor = Runner.Serial(generator)
 		else:
-			executor = Runner.Parallel(self.m_tree, Params.g_maxjobs)
+			executor = Runner.Parallel(self, Params.g_maxjobs)
 
 		trace("executor starting")
 		try:
 			ret = executor.start()
 		except KeyboardInterrupt:
-			os.chdir( self.m_tree.m_srcnode.abspath() )
+			os.chdir( self.m_srcnode.abspath() )
 			self._store()
 			raise
 		#finally:
-		#	os.chdir( self.m_tree.m_srcnode.abspath() )
+		#	os.chdir( self.m_srcnode.abspath() )
 
-		os.chdir( self.m_tree.m_srcnode.abspath() )
+		os.chdir( self.m_srcnode.abspath() )
 		return ret
 
 	# this function is called for both install and uninstall
@@ -270,8 +283,8 @@ class Build:
 
 
 		self._set_srcdir(srcdir)
-		node = self.m_tree.ensure_node_from_path(p)
-		self.m_tree.m_srcnode = node
+		node = self.ensure_node_from_path(p)
+		self.m_srcnode = node
 		self.m_curdirnode = node
 
 
@@ -300,16 +313,27 @@ class Build:
 		src_node.m_files = files
 
 		# now list the files in the build dirs
-		lst = self.m_src_node.difflst(src_dir_node)
-		for dir in self.m_variants:
-			# obtain the path: '/path/to/build', 'release', ['src', 'dir1']
-			sub_path = os.sep.join([self.m_bld_node.abspath(), dir] + lst)
-			try:
-				files = scan_path(src_node, sub_path, src_node.get_variant(dir))
-				src_node.m_variants[dir] = files
-			except:
-				os.makedirs(sub_path)
-				src_node.m_variants[dir] = []
+		if 1: #self.m_variants:
+			lst = self.m_src_node.difflst(src_dir_node)
+			for dir in self.m_variants:
+				# obtain the path: '/path/to/build', 'release', ['src', 'dir1']
+				sub_path = os.sep.join([self.m_bld_node.abspath(), dir] + lst)
+				try:
+					files = scan_path(src_node, sub_path, src_node.get_variant(dir))
+					src_node.m_variants[dir] = files
+				except:
+					os.makedirs(sub_path)
+					src_node.m_variants[dir] = []
+		#else:
+		#	# simplification when there is only one variant
+		#	lst = self.m_src_node.difflst(src_dir_node)
+		#	sub_path = os.sep.join([self.m_bld_node.abspath()] + lst)
+		#	try:
+		#		files = scan_path(src_node, sub_path, src_node.get_variant('default'))
+		#		src_node.m_variants[dir] = files
+		#	except:
+		#		os.makedirs(sub_path)
+		#		src_node.m_variants['default'] = []
 
 	# tell if a node has changed, to update the cache
 	def needs_rescan(self, node):
@@ -373,8 +397,8 @@ class Build:
 
 		p = os.path.abspath(path)
 		if sys.platform=='win32': p=p[2:]
-		node = self.m_tree.ensure_directory(p)
-		self.m_tree.m_bldnode = node
+		node = self.ensure_directory(p)
+		self.m_bldnode = node
 
 	# TODO obsolete
 	def _set_srcdir(self, dir):
@@ -383,8 +407,8 @@ class Build:
 		p = os.path.abspath(dir)
 		if sys.platform=='win32': p=p[2:]
 
-		node = self.m_tree.ensure_node_from_path(p)
-		self.m_tree.m_srcnode = node
+		node = self.ensure_node_from_path(p)
+		self.m_srcnode = node
 		# position in the source tree when reading scripts
 		self.m_curdirnode = node
 		
@@ -392,7 +416,7 @@ class Build:
 	# TODO OBSOLETE
 	def _duplicate_srcdir(self, dir, scan='auto'):
 		trace("duplicate_srcdir")
-		srcnode = self.m_tree.m_srcnode
+		srcnode = self.m_srcnode
 
 		# stupid behaviour (will scan every project in the folder) but scandirs-free
 		# we will see later for more intelligent behaviours (scan only folders that contain sources..)
@@ -405,10 +429,10 @@ class Build:
 			trace("autoscan in use")
 			# This function actually dupes the dirs with 'scanner_mirror'
 			def scan(node):
-				if node is Params.g_build.m_tree.m_bldnode: return []
+				if node is Params.g_build.m_bldnode: return []
 				if node.m_name in Params.g_excludes: return []
 				dir = os.sep.join(srcnode.difflst(node))
-				self.m_tree.scanner_mirror(dir)
+				self.scanner_mirror(dir)
 				return node.m_dirs
 			mlst = scan(srcnode)
 			while mlst:

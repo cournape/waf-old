@@ -16,7 +16,7 @@ def latex_build(task):
 	com = task.m_env['LATEX']
 	node = task.m_inputs[0]
 	reldir  = node.cd_to()
-	uppath = "".join(node.m_parent.invrelpath(Params.g_build.m_tree.m_bldnode))
+	uppath = "".join(node.m_parent.invrelpath(Params.g_build.m_bldnode))
 	srcfile = os.path.join(uppath, node.bldpath())
 	#print srcfile
 	#sys.exit(0)

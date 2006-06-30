@@ -149,7 +149,7 @@ class qt4obj(cpp.cppobj):
 
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
-		tree = Params.g_build.m_tree
+		tree = Params.g_build
 		dir_lst = { 'path_lst' : self._incpaths_lst }
 
 		lst = self.source.split()

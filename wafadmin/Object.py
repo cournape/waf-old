@@ -118,7 +118,6 @@ class genobj:
 		trace("nothing to do")
 
 	def get_mirror_node(self, node, filename):
-		tree=Params.g_build.m_tree
 		return tree.mirror_file(node, filename)
 
 	def file_in(self, filename):

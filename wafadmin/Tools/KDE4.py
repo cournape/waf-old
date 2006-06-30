@@ -196,7 +196,7 @@ def handler_ui(obj, node, base=''):
 	obj.p_compiletasks.append( cpptask )
 
 def handler_kcfgc(obj, node, base=''):
-	tree = Params.g_build.m_tree
+	tree = Params.g_build
 	if tree.needs_rescan(node):
 		tree.rescan(node, Scan.kcfg_scanner, obj.dir_lst)
 	kcfg_node = tree.m_depends_on[node][0]
@@ -275,7 +275,7 @@ class kdeobj(cpp.cppobj):
 
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
-		tree = Params.g_build.m_tree
+		tree = Params.g_build
 		self.dir_lst = { 'path_lst' : self._incpaths_lst }
 
 		lst = self.source.split()

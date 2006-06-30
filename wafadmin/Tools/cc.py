@@ -65,7 +65,7 @@ class ccobj(ccroot.ccroot):
 		self.env.appendValue('_CCINCFLAGS', cpppath_st % '.')
 		try:
 			tmpnode = Params.g_build.m_curdirnode
-			tmpnode_mirror = Params.g_build.m_tree.self.m_src_to_bld[tmpnode]
+			tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
 			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode.bldpath())
 			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode_mirror.bldpath())
 		except:

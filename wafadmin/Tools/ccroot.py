@@ -140,7 +140,7 @@ class ccroot(Object.genobj):
 
 		# get the list of folders to use by the scanners
                 # all our objects share the same include paths anyway
-                tree = Params.g_build.m_tree
+                tree = Params.g_build
                 dir_lst = { 'path_lst' : self._incpaths_lst }
 
 		lst = self.source.split()
@@ -221,7 +221,7 @@ class ccroot(Object.genobj):
 			elif obj.target in self.p_shlib_deps_names:
 				if not obj.m_posted: obj.post()
 				self.m_linktask.m_run_after.append(obj.m_linktask)
-		htbl = Params.g_build.m_tree.m_depends_on
+		htbl = Params.g_build.m_depends_on
 		try:
 			htbl[self.m_linktask.m_outputs[0]] += self.m_deps_linktask
 		except:
@@ -232,10 +232,10 @@ class ccroot(Object.genobj):
 		lst = self._incpaths_lst
 
 		# add the build directory
-		self._incpaths_lst.append( Params.g_build.m_tree.m_bldnode )
+		self._incpaths_lst.append( Params.g_build.m_bldnode )
 
 		# now process the include paths
-		tree = Params.g_build.m_tree
+		tree = Params.g_build
 		for dir in inc_lst:
 			node = self.m_current_path.find_node( dir.split(os.sep) )
 			if not node:
@@ -286,7 +286,7 @@ class ccroot(Object.genobj):
 		self.env.appendValue('_CXXINCFLAGS', cpppath_st % '.')
 		try:
 			tmpnode = Params.g_build.m_curdirnode
-			tmpnode_mirror = Params.g_build.m_tree.self.m_src_to_bld[tmpnode]
+			tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath())
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode_mirror.bldpath())
 		except:
@@ -406,7 +406,7 @@ class ccroot(Object.genobj):
 		# store for use when calling "apply"
 		sh_names     = self.p_shlib_deps_names
 		static_names = self.p_staticlib_deps_names
-		tree = Params.g_build.m_tree
+		tree = Params.g_build
 		for lib in libs:
 			idx=len(lib)-1
 			while 1:

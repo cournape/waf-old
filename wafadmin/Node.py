@@ -4,7 +4,6 @@
 
 import os
 from stat import *
-import Deptree
 import Params
 from Params import debug, error, trace, fatal
 
@@ -27,7 +26,7 @@ class Node:
 		self.m_tstamp   = None
 
 		# IMPORTANT:
-		# Some would-be class properties are stored in Deptree: nodes to depend on, signature, flags, ..
+		# Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
 		# In fact, unused class members increase the .dblite file size sensibly with lots of objects 
 		#   eg: the m_tstamp is used for every node, while the signature is computed only for build files
 
@@ -53,7 +52,7 @@ class Node:
 		return l_size
 
 	def get_sig(self):
-		try: return Params.g_build.m_tree.m_sigs[self]
+		try: return Params.g_build.m_sigs[self]
 		except: return self.m_tstamp
 
 	# uses a cache, so calling height should have no overhead
@@ -86,7 +85,7 @@ class Node:
 		if not self in Params.g_build.m_scanned_folders:
 			# TODO: a little bit inefficient, but code factorization will come later
 			folder = '/'.join( Params.srcnode().difflst(self) )
-			Params.g_build.m_tree.scanner_mirror(folder)
+			Params.g_build.scanner_mirror(folder)
 		Params.g_build.m_scanned_folders.append(self)
 
 	# list of file names that separate a node from a child
@@ -190,16 +189,16 @@ class Node:
 	# path used when building targets
 	def bldpath(self):
 		try:
-			orig = Params.g_build.m_tree.m_bld_to_src[self]
-			return orig.relpath_gen(Params.g_build.m_tree.m_bldnode)
+			orig = Params.g_build.m_bld_to_src[self]
+			return orig.relpath_gen(Params.g_build.m_bldnode)
 		except KeyError:
 			pass
 		except:
 			print self
 			raise
-		if not Params.g_build.m_tree.m_bldnode: error("BUG in bldpath")
-		#return self.relpath(Params.g_build.m_tree.m_bldnode)
-		return self.relpath_gen(Params.g_build.m_tree.m_bldnode)
+		if not Params.g_build.m_bldnode: error("BUG in bldpath")
+		#return self.relpath(Params.g_build.m_bldnode)
+		return self.relpath_gen(Params.g_build.m_bldnode)
 
 	# find a common ancestor for two nodes - for the shortest path in hierarchy
 	def find_ancestor(self, node):
@@ -268,7 +267,7 @@ class Node:
 
 	# returns the folder in the build dir for reaching this node
 	def cd_to(self):
-		reldir = Params.g_build.m_tree.m_bldnode.difflst(self)
+		reldir = Params.g_build.m_bldnode.difflst(self)
 		reldir = reldir[:len(reldir)-1]
 		reldir = os.sep.join(reldir)
 		return reldir

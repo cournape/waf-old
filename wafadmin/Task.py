@@ -71,7 +71,7 @@ class Task:
 		return Params.xor_sig(self.m_sig, self.m_dep_sig)
 
 	def update_stat(self):
-		tree=Params.g_build.m_tree
+		tree=Params.g_build
 		for node in self.m_outputs:
 			#trace("updating_stat of node "+node.abspath())
 			#node.m_tstamp = os.stat(node.abspath()).st_mtime

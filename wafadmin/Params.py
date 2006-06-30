@@ -53,11 +53,11 @@ g_cachedir = ''
 
 def srcnode():
 	global g_build
-	return g_build.m_tree.m_srcnode
+	return g_build.m_srcnode
 
 def bldnode():
 	global g_build
-	return g_build.m_tree.m_bldnode
+	return g_build.m_bldnode
 
 # contains additional handler functions to add language support
 # to cpp files: for example an idl file which compiles into a cpp file
@@ -100,7 +100,6 @@ def pprint(col, str, label=''):
 g_levels={
 	'Action'  : 'GREEN',
 	'Build'   : 'CYAN',
-	'Deptree' : 'CYAN',
 	'KDE'     : 'REDP',
 	'Node'    : 'GREEN',
 	'Object'  : 'GREEN',

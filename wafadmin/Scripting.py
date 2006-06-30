@@ -13,7 +13,7 @@ def add_subdir(dir, bld):
 	global g_inroot
 	if g_inroot:
 		#node = bld.m_curdirnode.find_node(dir.split('/'))
-		node = bld.m_tree.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
+		node = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
 		bld.m_subdirs.append( [node, bld.m_curdirnode] )
 
 		if not node:
@@ -29,7 +29,7 @@ def add_subdir(dir, bld):
 	#	return
 
 	#bld.m_curdirnode = bld.m_curdirnode.find_node(dir.split('/'))
-	bld.m_curdirnode = bld.m_tree.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
+	bld.m_curdirnode = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
 	if bld.m_curdirnode is None:
 		error("subdir not found ("+dir+"), restore is "+str(restore))
 		sys.exit(1)
@@ -126,7 +126,7 @@ def Main():
 			"-> This is due most of the time because the project is not configured \n" \
 			"-> Run 'waf configure' or run 'waf distclean' and configure once again")
 
-	#bld.m_tree.dump()
+	#bld.dump()
 
 	global g_inroot
 	g_inroot=1
@@ -163,7 +163,7 @@ def Main():
 		# restore the old node position
 		bld.m_curdirnode=old
 
-	#bld.m_tree.dump()
+	#bld.dump()
 
 	# compile
 	# TODO: a finally block is needed

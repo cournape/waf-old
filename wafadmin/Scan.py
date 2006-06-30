@@ -67,7 +67,7 @@ class scanner:
 	# the climbing scheme must be deterministic
 	def _get_signature(self, task):	
 
-		tree = Params.g_build.m_tree
+		tree = Params.g_build
 		seen=[]
 		def get_node_sig(node):
 			if not node:
@@ -151,7 +151,7 @@ class c_scanner(scanner):
 	def _get_signature_preprocessor(self, task):
 		# assumption: there is only one cpp file to compile in a task
 
-		tree = Params.g_build.m_tree
+		tree = Params.g_build
 		rescan = 0
 
 		node = task.m_inputs[0]
@@ -177,7 +177,7 @@ class c_scanner(scanner):
 		return sig
 
 	def _get_signature_dumb(self, task):
-		tree = Params.g_build.m_tree
+		tree = Params.g_build
 		seen=[]
 		def get_node_sig(node):
 			if not node:

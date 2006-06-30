@@ -6,7 +6,6 @@ import os, sys
 
 import Build
 import Node
-import Deptree
 import Params
 import Environment
 from Params import debug, error, trace, fatal

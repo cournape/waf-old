@@ -55,7 +55,7 @@ class ocamlobj(Object.genobj):
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
 		lst = self._incpaths_lst
-		tree = Params.g_build.m_tree
+		tree = Params.g_build
 		for dir in inc_lst:
 			node = self.m_current_path.find_node( dir.split(os.sep) )
 			if not node:
