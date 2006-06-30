@@ -83,6 +83,8 @@ def Main():
 		except KeyError:
 			pass
 
+		bld.load_dirs(srcdir, blddir)
+
 		conf = Configure.Configure()
 		conf.sub_config('')
 		conf.store(bld)

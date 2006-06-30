@@ -181,11 +181,8 @@ class Build:
 		self.m_outstanding_objs = []
 		self.m_posted_objs      = []
 
-
-
+		# TODO obsolete
 		#self.m_dirs     = []   # folders in the dependency tree to scan
-
-		# NO WAY
 		#self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
 
 	# load existing data structures from the disk (stored using self._store())
@@ -275,29 +272,54 @@ class Build:
 	# node and folder handling
 
 	# this should be the main entry point
-	def load_dirs(self, srcdir, blddir, scan='auto'):
+	def load_dirs(self, srcdir, blddir):
 		# this functions should be the start
 		# there is no reason to bypass this check
-		if os.path.samefile(srcdir, blddir):
-			fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
+		try:
+			if srcdir == blddir or os.path.samefile(srcdir, blddir):
+				fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
+		except:
+			pass
 
-
+		# set the source directory
 		self._set_srcdir(srcdir)
-		node = self.ensure_node_from_path(p)
-		self.m_srcnode = node
-		self.m_curdirnode = node
+		self.m_srcnode = self.ensure_node_from_path(srcdir)
+		self.m_curdirnode = self.m_srcnode
 
+		# set the build directory it is a path, not a node (either absolute or relative)
+		if blddir[0] != '/':
+			self.m_bdir = os.path.abspath(blddir)
+		else:
+			self.m_bdir = blddir
+		print "self.m_bdir is ", self.m_bdir
 
-		# mkdir blddir ?
-		self.m_bdir = blddir
-		self._load()
+		# create this build dir if necessary
+		try: os.makedirs(blddir)
+		except: pass
 
+		#self._load()
+		#self._set_blddir(blddir)
+		#self._duplicate_srcdir(srcdir, scan)
 
-		self._set_blddir(blddir)
-		self._duplicate_srcdir(srcdir, scan)
+		# TODO
 
-
-
+	# return a node corresponding to an absolute path, creates nodes if necessary
+	def ensure_node_from_path(self, abspath):
+		trace('ensure_node_from_path %s' % (abspath))
+		plst = abspath.split(os.sep)
+		curnode = self.m_root # root of the tree
+		for dirname in plst:
+			if not dirname: continue
+			found=None
+			for cand in curnode.m_dirs:
+				if cand.m_name == dirname:
+					found = cand
+					break
+			if not found:
+				found = Node.Node(dirname, curnode)
+				curnode.m_dirs.append(found)
+			curnode = found
+		return curnode
 
 	# ======================================= #
 	def rescan(self, src_dir_node):
@@ -314,10 +336,10 @@ class Build:
 
 		# now list the files in the build dirs
 		if 1: #self.m_variants:
-			lst = self.m_src_node.difflst(src_dir_node)
+			lst = self.m_srcnode.difflst(src_dir_node)
 			for dir in self.m_variants:
 				# obtain the path: '/path/to/build', 'release', ['src', 'dir1']
-				sub_path = os.sep.join([self.m_bld_node.abspath(), dir] + lst)
+				sub_path = os.sep.join([self.m_bldnode.abspath(), dir] + lst)
 				try:
 					files = scan_path(src_node, sub_path, src_node.get_variant(dir))
 					src_node.m_variants[dir] = files
@@ -326,14 +348,55 @@ class Build:
 					src_node.m_variants[dir] = []
 		#else:
 		#	# simplification when there is only one variant
-		#	lst = self.m_src_node.difflst(src_dir_node)
-		#	sub_path = os.sep.join([self.m_bld_node.abspath()] + lst)
+		#	lst = self.m_srcnode.difflst(src_dir_node)
+		#	sub_path = os.sep.join([self.m_bldnode.abspath()] + lst)
 		#	try:
 		#		files = scan_path(src_node, sub_path, src_node.get_variant('default'))
 		#		src_node.m_variants[dir] = files
 		#	except:
 		#		os.makedirs(sub_path)
 		#		src_node.m_variants['default'] = []
+
+	def ensure_directory_lst(self, node, plst):
+		curnode = node
+		exists  = 1
+		for dirname in plst:
+			#print "finding ", dirname
+			if not dirname: continue
+
+			# try to find the node in existing deptree
+			found=None
+			for cand in curnode.m_dirs:
+				if cand.m_name == dirname:
+					found = cand
+					break
+			# the node is found and is already scanned, keep walking
+			try:
+				if found and self.m_flags[found]>0:
+					curnode=found
+					continue
+			except: pass
+
+			# the node is not found, add it
+			if not found:
+				found = Node.Node(dirname, curnode)
+				curnode.m_dirs.append(found)
+			# we have a node, but it is not scanned
+			curnode = found
+			try: os.stat(curnode.abspath())
+			except OSError:
+				exists = 0
+				trace("make dir %s"%curnode.abspath())
+				try: os.mkdir(curnode.abspath())
+				except: trace('mkdir failed '+curnode.abspath())
+				#st=os.stat(curnode.abspath())
+				# TRICK_1: the subtree is obsolete -> forget sub-nodes recursively
+				curnode.m_dirs=[]
+				curnode.m_files=[]
+			self.m_flags[curnode] = 1
+		return (exists, curnode)
+
+
 
 	# tell if a node has changed, to update the cache
 	def needs_rescan(self, node):
