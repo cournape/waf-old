@@ -141,6 +141,8 @@ class Configure:
 		obj.target = 'test'
 		obj.uselib = uselib
 
+		bld.rescan(bld.m_srcnode)
+
 		envcopy = bld.m_allenvs['default'].copy()
 		for p in pathlst:
 			envcopy['CPPFLAGS'].append(' -I%s ' % p)

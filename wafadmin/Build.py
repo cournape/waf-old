@@ -223,7 +223,6 @@ class Build:
 		trace("compile called")
 
 		os.chdir(self.m_bdir)
-		self.m_bldnode = self.ensure_node_from_path(os.path.abspath('.'))
 
 		Object.flush()
 		if Params.g_maxjobs <=1:
@@ -283,7 +282,11 @@ class Build:
 			pass
 
 		# set the source directory
+		srcdir = os.path.abspath('.') + os.sep + srcdir
+
 		self.m_srcnode = self.ensure_node_from_path(srcdir)
+		debug("srcnode is "+str(self.m_srcnode)+" and srcdir "+srcdir)
+
 		self.m_curdirnode = self.m_srcnode
 
 		# set the build directory it is a path, not a node (either absolute or relative)
@@ -292,6 +295,8 @@ class Build:
 		else:
 			self.m_bdir = blddir
 		print "self.m_bdir is ", self.m_bdir
+
+		self.m_bldnode = self.ensure_node_from_path(self.m_bdir)
 
 		# create this build dir if necessary
 		try: os.makedirs(blddir)
@@ -330,22 +335,25 @@ class Build:
 		# this makes (n bdirs)+srdir to scan (at least 2 folders)
 		# so we might want to do it in parallel in the future
 
+		debug("rescanning "+str(src_dir_node))
+
 		# list the files in the src directory
-		files = scan_path(src_node, src_node.abspath(), src_node.m_files)
-		src_node.m_files = files
+		debug("srcnode path is " + src_dir_node.abspath())
+		files = scan_path(src_dir_node, src_dir_node.abspath(), src_dir_node.m_files)
+		src_dir_node.m_files = files
 
 		# now list the files in the build dirs
 		if 1: #self.m_variants:
 			lst = self.m_srcnode.difflst(src_dir_node)
 			for dir in self.m_variants:
 				# obtain the path: '/path/to/build', 'release', ['src', 'dir1']
-				sub_path = os.sep.join([self.m_blddir, dir] + lst)
+				sub_path = os.sep.join([self.m_bldnode.abspath(), dir] + lst)
 				try:
-					files = scan_path(src_node, sub_path, src_node.get_variant(dir))
-					src_node.m_variants[dir] = files
+					files = scan_path(src_dir_node, sub_path, src_dir_node.get_variant(dir))
+					src_dir_node.m_variants[dir] = files
 				except:
 					os.makedirs(sub_path)
-					src_node.m_variants[dir] = []
+					src_dir_node.m_variants[dir] = []
 		#else:
 		#	# simplification when there is only one variant
 		#	lst = self.m_srcnode.difflst(src_dir_node)

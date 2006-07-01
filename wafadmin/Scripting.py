@@ -148,6 +148,7 @@ def Main():
 
 		# take the new node position
 		bld.m_curdirnode=new
+		bld.rescan(bld.m_curdirnode)
 
 		# try to open 'wscript_build' for execution
 		# if unavailable, open the module wscript and call the build function from it
