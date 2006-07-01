@@ -157,7 +157,7 @@ class Build:
 		# cache variables
 
 		# local cache for absolute paths
-		self._abspath_cache = {}
+		self.m_abspath_cache = {}
 
 		# local cache for relative paths
 		# two nodes - hashtable of hashtables - g_relpath_cache[child][parent])
@@ -222,7 +222,8 @@ class Build:
 	def compile(self):
 		trace("compile called")
 
-		os.chdir(self.m_blddir)
+		os.chdir(self.m_bdir)
+		self.m_bldnode = self.ensure_node_from_path(os.path.abspath('.'))
 
 		Object.flush()
 		if Params.g_maxjobs <=1:
@@ -282,7 +283,6 @@ class Build:
 			pass
 
 		# set the source directory
-		self._set_srcdir(srcdir)
 		self.m_srcnode = self.ensure_node_from_path(srcdir)
 		self.m_curdirnode = self.m_srcnode
 
@@ -306,7 +306,7 @@ class Build:
 	# return a node corresponding to an absolute path, creates nodes if necessary
 	def ensure_node_from_path(self, abspath):
 		trace('ensure_node_from_path %s' % (abspath))
-		plst = abspath.split(os.sep)
+		plst = abspath.split('/')
 		curnode = self.m_root # root of the tree
 		for dirname in plst:
 			if not dirname: continue

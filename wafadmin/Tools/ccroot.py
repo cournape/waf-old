@@ -236,7 +236,7 @@ class ccroot(Object.genobj):
 		lst = self._incpaths_lst
 
 		# add the build directory
-		self._incpaths_lst.append( Params.g_build.m_bldnode )
+		self._incpaths_lst.append(Params.g_build.m_bldnode)
 
 		# now process the include paths
 		tree = Params.g_build

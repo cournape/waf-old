@@ -85,7 +85,7 @@ def Main():
 
 		bld.load_dirs(srcdir, blddir)
 
-		conf = Configure.Configure()
+		conf = Configure.Configure(srcdir=srcdir, blddir=blddir)
 		conf.sub_config('')
 		conf.store(bld)
 

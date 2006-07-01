@@ -59,13 +59,16 @@ def sub_config(file):
 	return ''
 
 class Configure:
-	def __init__(self, env=None):
+	def __init__(self, env=None, blddir='', srcdir=''):
 		#for key in self.env.m_table:
 		#	if key == 'modules':
 		#		self.modules = self.env[key].split()
 
 		self.env       = None
 		self.m_envname = ''
+
+		self.m_blddir = blddir
+		self.m_srcdir = srcdir
 
 		self.m_allenvs = {}
 		self.defines = {}
@@ -105,12 +108,8 @@ class Configure:
 		env.store(filename)
 
 	def TryBuild(self, code, options='', pathlst=[], uselib=''):
-		"""Check if a program could be build, returns 0 if no errors 
-		This method is currently platform specific and has to be made platform 
-		independent, probably by refactoring the c++ or cc build engine
-		"""
 
-		dir = os.path.join(Utils.g_module.blddir, '.wscript-trybuild')
+		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
 		bdir = os.path.join( dir, '_build_')
 		try: os.mkdir(dir)
 		except: pass
