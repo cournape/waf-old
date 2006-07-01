@@ -62,7 +62,7 @@ class BuildDTO:
 		pass
 	def reset(self):
 		self.m_root        = Node.Node('', None)
-		self.m_bldnode     = None
+		self.m_blddir      = ''
 		self.m_srcnode     = None
 		self.m_src_to_bld  = {}
 		self.m_bld_to_src  = {}
@@ -72,7 +72,7 @@ class BuildDTO:
 		self.m_sigs        = {}
 	def init(self, bdobj):
 		self.m_root        = bdobj.m_root
-		self.m_bldnode     = bdobj.m_bldnode
+		self.m_blddir      = bdobj.m_blddir
 		self.m_srcnode     = bdobj.m_srcnode
 		self.m_src_to_bld  = bdobj.m_src_to_bld
 		self.m_bld_to_src  = bdobj.m_bld_to_src
@@ -82,7 +82,7 @@ class BuildDTO:
 		self.m_sigs        = bdobj.m_sigs
 	def update_build(self, bdobj):
 		bdobj.m_root        = self.m_root
-		bdobj.m_bldnode     = self.m_bldnode
+		bdobj.m_blddir      = self.m_blddir
 		bdobj.m_srcnode     = self.m_srcnode
 		bdobj.m_src_to_bld  = self.m_src_to_bld
 		bdobj.m_bld_to_src  = self.m_bld_to_src
@@ -101,7 +101,7 @@ class Build:
 		self.m_root = Node.Node('', None)
 
 		self.m_name2nodes  = {}             # access nodes quickly
-		self.m_bldnode     = None
+		self.m_blddir      = ''
 		self.m_srcnode     = None           # source directory
 
 		# get bld nodes from src nodes quickly
@@ -222,7 +222,7 @@ class Build:
 	def compile(self):
 		trace("compile called")
 
-		os.chdir( self.m_bldnode.abspath() )
+		os.chdir(self.m_blddir)
 
 		Object.flush()
 		if Params.g_maxjobs <=1:
@@ -235,7 +235,7 @@ class Build:
 		try:
 			ret = executor.start()
 		except KeyboardInterrupt:
-			os.chdir( self.m_srcnode.abspath() )
+			os.chdir(self.m_srcnode.abspath())
 			self._store()
 			raise
 		#finally:
@@ -339,7 +339,7 @@ class Build:
 			lst = self.m_srcnode.difflst(src_dir_node)
 			for dir in self.m_variants:
 				# obtain the path: '/path/to/build', 'release', ['src', 'dir1']
-				sub_path = os.sep.join([self.m_bldnode.abspath(), dir] + lst)
+				sub_path = os.sep.join([self.m_blddir, dir] + lst)
 				try:
 					files = scan_path(src_node, sub_path, src_node.get_variant(dir))
 					src_node.m_variants[dir] = files
@@ -349,7 +349,7 @@ class Build:
 		#else:
 		#	# simplification when there is only one variant
 		#	lst = self.m_srcnode.difflst(src_dir_node)
-		#	sub_path = os.sep.join([self.m_bldnode.abspath()] + lst)
+		#	sub_path = os.sep.join([self.m_blddir] + lst)
 		#	try:
 		#		files = scan_path(src_node, sub_path, src_node.get_variant('default'))
 		#		src_node.m_variants[dir] = files
@@ -449,32 +449,6 @@ class Build:
 
 	# ======================================= #
 	# obsolete code
-
-	# TODO obsolete
-	def _set_blddir(self, path):
-		trace("set_builddir")
-		if path[0]=="/":
-			lst = path.split('/')
-			truc = lst[len(lst)-1]
-			Params.g_excludes.append(truc)
-
-		p = os.path.abspath(path)
-		if sys.platform=='win32': p=p[2:]
-		node = self.ensure_directory(p)
-		self.m_bldnode = node
-
-	# TODO obsolete
-	def _set_srcdir(self, dir):
-		""" Inform the Build object of the srcdir."""
-		trace("set_srcdir")
-		p = os.path.abspath(dir)
-		if sys.platform=='win32': p=p[2:]
-
-		node = self.ensure_node_from_path(p)
-		self.m_srcnode = node
-		# position in the source tree when reading scripts
-		self.m_curdirnode = node
-		
 
 	# TODO OBSOLETE
 	def _duplicate_srcdir(self, dir, scan='auto'):
