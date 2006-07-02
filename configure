@@ -1,4 +1,5 @@
 #! /bin/sh
+
 # waf configure wrapper
 
 # Fancy colors used to beautify the output a bit.
@@ -14,7 +15,14 @@ EXIT_FAILURE=1
 EXIT_ERROR=2
 EXIT_BUG=10
 
+CUR_DIR=$PWD
+
+#possible relative path
 WORKINGDIR=`dirname $0`
+cd $WORKINGDIR 
+#abs path
+WORKINGDIR=`pwd`
+cd $CUR_DIR
 
 
 # Checks for Python interpreter. Honours $PYTHON if set. Stores path to
@@ -27,7 +35,7 @@ checkPython()
 	fi
 	echo -n "Checking for Python               :  "
 	if [ ! -x "$PYTHON" ]; then
-	  echo -e $GREEN"not found!"$NORMAL
+	  echo -e $RED"not found!"$NORMAL
 	  echo "Please make sure that the Python interpreter is available in your PATH"
 	  echo "or invoke configure using the PYTHON flag, e.g."
 	  echo "$ PYTHON=/usr/local/bin/python configure"
@@ -53,27 +61,28 @@ checkWAF()
 	#installed miniwaf in sourcedir
 	if [ -z "$WAF" ]; then
 	    if [ -x "$WORKINGDIR/waf.py" ] ; then
-		WAF="./waf.py"
+		WAF="$WORKINGDIR/waf.py"
 	    fi
 	fi
 	if [ ! -x "$WAF" ]; then
-	    echo -e $BOLD"not found, will use mini distribution."$NORMAL
+	    echo -e $BOLD"not found, testing for mini distribution."$NORMAL
+	    echo -n "Checking for MiniWAF            :  "
 	    if [ -d "$WORKINGDIR/wafadmin" ] ; then
 		if [ -e "$WORKINGDIR/wafadmin/miniwaf.tar.bz2" ] ; then
-		    CUR_DIR=$PWD
 		    cd $WORKINGDIR 
-		    tar xvfj wafadmin/miniwaf.tar.bz2
+		    tar xvfj wafadmin/miniwaf.tar.bz2 >/dev/null
 		    cd $CUR_DIR
 		fi
 		if [ -x "$WORKINGDIR/waf.py" ] ; then
-		    WAF="./waf.py"
+		    WAF="$WORKINGDIR/waf.py"
 		fi
 	    fi
 	fi
 	# neither waf nor miniwaf could be found
 	if [ ! -x "$WAF" ]; then
-	    echo -e $RED"neither waf nor miniwaf could be found"$NORMAL
-	    echo "goto http://www.freehackers.org/~tnagy/bksys.html"
+	    echo -e $RED"not found"$NORMAL
+	    echo -e $RED"neither waf nor miniwaf could be found!"$NORMAL
+	    echo "Goto http://www.freehackers.org/~tnagy/bksys.html"
 	    echo "and download a waf version >= http://www.freehackers.org/~tnagy/waf-0.8.2d1.tar.bz2"
 	    echo "or download miniwaf >0.8.2d"
 	    exit $EXIT_FAILURE
@@ -82,7 +91,7 @@ checkWAF()
 	fi
 }
 
-# Generates a Makefile. Requires that $SCONS is set.
+# Generates a Makefile. Requires that $WAF is set.
 #
 generateMakefile()
 {
@@ -125,7 +134,7 @@ EOF
 checkPython
 checkWAF
 
-
+cd $WORKINGDIR
 echo "calling waf configure with parameters"
 $WAF configure $* || exit $EXIT_ERROR
 
@@ -137,5 +146,5 @@ if test -e .lock-wscript ; then
         generateMakefile
     fi
 fi
-			    
+cd 			    
 exit $EXIT_SUCCESS
