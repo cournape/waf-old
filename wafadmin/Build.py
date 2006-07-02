@@ -382,20 +382,24 @@ class Build:
 
 		debug("rescanning "+str(src_dir_node))
 
-		# list the files in the src directory
-		debug("srcnode path is " + src_dir_node.abspath())
+		# list the files in the src directory, adding the signatures
 		files = scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.m_files)
 		src_dir_node.m_files = files
 
-
 		# list the files in the build dirs
+		# remove the existing timestamps if the build files are removed
 		lst = self.m_srcnode.difflst(src_dir_node)
-		for dir in self.m_variants:
-			sub_path = os.sep.join([self.m_bldnode.abspath(), dir] + lst)
+		for variant in self.m_variants:
+			if not variant in self.m_tstamp_variants: self.m_tstamp_variants[variant] = {}
+			sub_path = os.sep.join([self.m_bldnode.abspath(), variant] + lst)
 			try:
-				files = scan_path(src_dir_node, sub_path, src_dir_node.m_build, dir)
+				files = scan_path(src_dir_node, sub_path, src_dir_node.m_build, variant)
 				src_dir_node.m_build = files
 			except:
+				# listdir failed, remove all sigs of nodes
+				dict = self.m_tstamp_variants[variant]
+				for node in src_dir_node.m_build:
+					dict.__delitem__(node)
 				os.makedirs(sub_path)
 				src_dir_node.m_build = []
 
