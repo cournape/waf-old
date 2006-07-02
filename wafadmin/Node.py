@@ -39,30 +39,28 @@ class Node:
 	# ====================================================== #
 
 	# for the build variants, the same nodes are used to spare memory
-	# the timestamps are accessed using the following methods
-	def get_tstamp_all_variants(self):
-		try:
-			return Params.g_build.m_tstamp_variants[self]
-		except:
-			Params.g_build.m_tstamp_variants[self] = {}
-			return Params.g_build.m_tstamp_variants[self]
+	# the timestamps/signatures are accessed using the following methods
 
 	def get_tstamp_variant(self, variant):
-		vars = get_tstamp_all_variants(self, variant)
+		# TODO remove the following check
+		if not variant in Params.g_build.m_tstamp_variants: Params.g_build.m_tstamp_variants[variant] = {}
+		vars = Params.g_build.m_tstamp_variants[variant]
 		try: return vars[variant]
-		else: return None
+		except: return None
 
 	def set_tstamp_variant(self, variant, value):
-		vars = get_tstamp_all_variants(self, variant)
-		vars[variant] = value
+		# TODO remove the following check
+		if not variant in Params.g_build.m_tstamp_variants: Params.g_build.m_tstamp_variants[variant] = {}
+		Params.g_build.m_tstamp_variants[variant][self] = value
 
 	def get_tstamp_node(self):
-		try: return get_tstamp_all_variants(self)[0]
-		else: return None
+		try: return Params.g_build.m_tstamp_variants[0][self]
+		except: return None
 
 	def set_tstamp_node(self, value):
-		vars = get_tstamp_all_variants(self)
-		vars[0] = value
+		# TODO remove the following check
+		if not 0 in Params.g_build.m_tstamp_variants: Params.g_build.m_tstamp_variants[0] = {}
+		Params.g_build.m_tstamp_variants[0][self] = value
 
 	# ====================================================== #
 
