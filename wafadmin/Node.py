@@ -17,13 +17,13 @@ class Node:
 		# these lists contain nodes too
 		self.m_dirs     = [] # sub-folders
 		self.m_files    = [] # files existing in the src dir
-		self.m_variants = {} # nodes produced in the build dirs
+		self.m_build    = [] # nodes produced in the build dirs
 
 		# debugging only - a node is supposed to represent exactly one folder
 		if os.sep in name: print "error in name ? "+name
 
 		# timestamp or hash of the file (string hash or md5) - we will use the timestamp by default
-		self.m_tstamp   = None
+		#self.m_tstamp   = None
 
 		# IMPORTANT:
 		# Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
@@ -36,9 +36,35 @@ class Node:
 	def __repr__(self):
 		return "<%s>"%self.abspath()
 
-	def get_variant(self, name):
-		try: return self.m_variants[name]
-		except: return []
+	# ====================================================== #
+
+	# for the build variants, the same nodes are used to spare memory
+	# the timestamps are accessed using the following methods
+	def get_tstamp_all_variants(self):
+		try:
+			return Params.g_build.m_tstamp_variants[self]
+		except:
+			Params.g_build.m_tstamp_variants[self] = {}
+			return Params.g_build.m_tstamp_variants[self]
+
+	def get_tstamp_variant(self, variant):
+		vars = get_tstamp_all_variants(self, variant)
+		try: return vars[variant]
+		else: return None
+
+	def set_tstamp_variant(self, variant, value):
+		vars = get_tstamp_all_variants(self, variant)
+		vars[variant] = value
+
+	def get_tstamp_node(self):
+		try: return get_tstamp_all_variants(self)[0]
+		else: return None
+
+	def set_tstamp_node(self, value):
+		vars = get_tstamp_all_variants(self)
+		vars[0] = value
+
+	# ====================================================== #
 
 	# tells if this node triggers a rebuild
 	def haschanged(self):

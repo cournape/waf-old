@@ -10,7 +10,8 @@ from Params import debug, error, trace, fatal
 class Environment:
 	def __init__(self):
 		self.m_table={}
-
+		# build variant to use
+		self.m_variant = 'default'
 		# may be there is a better place for this
 		if sys.platform == "win32": self.m_table['WINDOWS']=1
 

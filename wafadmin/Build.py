@@ -8,7 +8,7 @@ import Environment, Params, Runner, Object, Utils, Node
 
 from Params import debug, error, trace, fatal
 
-def scan_path(i_parent_node, i_path, i_existing_nodes):
+def scan_path(i_parent_node, i_path, i_existing_nodes, i_variant):
 
 	# read the dir contents, ignore the folders in it
 	l_names_read = os.listdir(i_path)
@@ -39,7 +39,7 @@ def scan_path(i_parent_node, i_path, i_existing_nodes):
 	for node in l_kept:
 		try:
 			# update the time stamp
-			node.m_tstamp = Params.h_file(node.abspath())
+			node.set_tstamp_variant(i_variant, Params.h_file(node.abspath()))
 		except:
 			fatal("a file is readonly or has become a dir "+node.abspath())
 
@@ -51,7 +51,7 @@ def scan_path(i_parent_node, i_path, i_existing_nodes):
 			# TODO is it possible to distinguish the cases ?
 			st = Params.h_file(l_path + name)
 			l_child = Node.Node(name, i_parent_node)
-			l_child.m_tstamp = st
+			l_child.set_tstamp_variant(i_variant, st)
 			l_kept.append(l_child)
 		except:
 			pass
@@ -70,6 +70,7 @@ class BuildDTO:
 		self.m_deps_tstamp = {}
 		self.m_raw_deps    = {}
 		self.m_sigs        = {}
+		self.m_tstamp_variants = {}
 	def init(self, bdobj):
 		self.m_root        = bdobj.m_root
 		self.m_blddir      = bdobj.m_blddir
@@ -80,6 +81,7 @@ class BuildDTO:
 		self.m_deps_tstamp = bdobj.m_deps_tstamp
 		self.m_raw_deps    = bdobj.m_raw_deps
 		self.m_sigs        = bdobj.m_sigs
+		self.m_tstamp_variants = bdobj.m_tstamp_variants
 	def update_build(self, bdobj):
 		bdobj.m_root        = self.m_root
 		bdobj.m_blddir      = self.m_blddir
@@ -90,6 +92,7 @@ class BuildDTO:
 		bdobj.m_deps_tstamp = self.m_deps_tstamp
 		bdobj.m_raw_deps    = self.m_raw_deps
 		bdobj.m_sigs        = self.m_sigs
+		bdobj.m_tstamp_variants = self.m_tstamp_variants
 
 class Build:
 	def __init__(self):
@@ -155,6 +158,9 @@ class Build:
 
 		# ======================================= #
 		# cache variables
+
+		# cache for signatures of bld nodes
+		self.m_tstamp_variants = {}
 
 		# local cache for absolute paths
 		self.m_abspath_cache = {}
@@ -339,21 +345,34 @@ class Build:
 
 		# list the files in the src directory
 		debug("srcnode path is " + src_dir_node.abspath())
-		files = scan_path(src_dir_node, src_dir_node.abspath(), src_dir_node.m_files)
+		files = scan_path(src_dir_node, src_dir_node.abspath(), src_dir_node.m_files, 0)
 		src_dir_node.m_files = files
 
+
+		# list the files in the build dirs
+		lst = self.m_srcnode.difflst(src_dir_node)
+		for dir in self.m_variants:
+			sub_path = os.sep.join([self.m_bldnode.abspath(), dir] + lst)
+			try:
+				files = scan_path(src_dir_node, sub_path, src_dir_node.m_build, dir)
+				src_dir_node.m_build = files
+			except:
+				os.makedirs(sub_path)
+				src_dir_node.m_build = []
+
+
 		# now list the files in the build dirs
-		if 1: #self.m_variants:
-			lst = self.m_srcnode.difflst(src_dir_node)
-			for dir in self.m_variants:
-				# obtain the path: '/path/to/build', 'release', ['src', 'dir1']
-				sub_path = os.sep.join([self.m_bldnode.abspath(), dir] + lst)
-				try:
-					files = scan_path(src_dir_node, sub_path, src_dir_node.get_variant(dir))
-					src_dir_node.m_variants[dir] = files
-				except:
-					os.makedirs(sub_path)
-					src_dir_node.m_variants[dir] = []
+		#if 1: #self.m_variants:
+		#	lst = self.m_srcnode.difflst(src_dir_node)
+		#	for dir in self.m_variants:
+		#		# obtain the path: '/path/to/build', 'release', ['src', 'dir1']
+		#		sub_path = os.sep.join([self.m_bldnode.abspath(), dir] + lst)
+		#		try:
+		#			files = scan_path(src_dir_node, sub_path, src_dir_node.get_variant(dir))
+		#			src_dir_node.m_build = files
+		#		except:
+		#			os.makedirs(sub_path)
+		#			src_dir_node.m_build = []
 		#else:
 		#	# simplification when there is only one variant
 		#	lst = self.m_srcnode.difflst(src_dir_node)
