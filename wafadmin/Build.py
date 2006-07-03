@@ -74,7 +74,7 @@ def scan_path(i_parent_node, i_path, i_existing_nodes, i_variant):
 	l_names = l_names_read
 	l_nodes = i_existing_nodes
 	l_rm    = []
-	l_kept  = []
+	#l_kept  = []
 
 	for node in l_nodes:
 		i     = 0
@@ -82,7 +82,7 @@ def scan_path(i_parent_node, i_path, i_existing_nodes, i_variant):
 		l_len = len(l_names)
 		while i < l_len:
 			if l_names[i] == name:
-				l_kept.append(node)
+				#l_kept.append(node)
 				break
 			i += 1
 		if i < l_len:
@@ -146,10 +146,8 @@ class Build:
 		self.m_blddir      = ''
 		self.m_srcnode     = None           # source directory
 
-		# get bld nodes from src nodes quickly
-		self.m_src_to_bld  = {}
-		# get src nodes from bld nodes quickly
-		self.m_bld_to_src  = {}
+		# nodes signatures: self.m_tstamp_variants[variant_name][node] = signature_value
+		self.m_tstamp_variants = {}
 
 		# one node has nodes it depends on, tasks cannot be stored
 		# node -> [node; node; node ..] - all dependencies
@@ -198,9 +196,6 @@ class Build:
 		# ======================================= #
 		# cache variables
 
-		# cache for signatures of nodes, the key is the variant (0 for sources)
-		self.m_tstamp_variants = {}
-
 		# local cache for absolute paths
 		self.m_abspath_cache = {}
 
@@ -225,6 +220,13 @@ class Build:
 		# -> delay task creation
 		self.m_outstanding_objs = []
 		self.m_posted_objs      = []
+
+
+		# TODO obsolete
+		# get bld nodes from src nodes quickly
+		self.m_src_to_bld  = {}
+		# get src nodes from bld nodes quickly
+		self.m_bld_to_src  = {}
 
 		# TODO obsolete
 		#self.m_dirs     = []   # folders in the dependency tree to scan

@@ -75,9 +75,9 @@ class Node:
 		l_size += len(self.m_files)
 		return l_size
 
-	def get_sig(self):
-		try: return Params.g_build.m_sigs[self]
-		except: return self.m_tstamp
+	#def get_sig(self):
+	#	try: return Params.g_build.m_sigs[self]
+	#	except: return self.m_tstamp
 
 	# uses a cache, so calling height should have no overhead
 	def height(self):
