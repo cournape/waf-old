@@ -133,6 +133,9 @@ class Configure:
 
 		env.setup(env['tools'])
 
+		# not sure yet when to call this:
+		bld.rescan(bld.m_srcnode)
+
 		# TODO for the moment it is c++, in the future it will be c
 		# and then we may need other languages here too
 		import cpp
@@ -141,7 +144,6 @@ class Configure:
 		obj.target = 'test'
 		obj.uselib = uselib
 
-		bld.rescan(bld.m_srcnode)
 
 		envcopy = bld.m_allenvs['default'].copy()
 		for p in pathlst:

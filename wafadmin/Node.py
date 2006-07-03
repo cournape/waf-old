@@ -64,20 +64,12 @@ class Node:
 
 	# ====================================================== #
 
-	# tells if this node triggers a rebuild
-	def haschanged(self):
-		return (self.m_oldstamp != self.m_newstamp)
-
 	# size of the subtree
 	def size(self):
 		l_size=1
 		for i in self.m_dirs: l_size += i.size()
 		l_size += len(self.m_files)
 		return l_size
-
-	#def get_sig(self):
-	#	try: return Params.g_build.m_sigs[self]
-	#	except: return self.m_tstamp
 
 	# uses a cache, so calling height should have no overhead
 	def height(self):
@@ -89,28 +81,13 @@ class Node:
 			Params.g_build.m_height_cache[self]=val
 			return val
 
-	# flag a subtree
-	def tag(self, val):
-		for i in self.m_files:
-			i.m_flag = val
-		for i in self.m_dirs:
-			i.m_flag = val
-			i.tag(val)
-
 	def child_of_name(self, name):
 		for d in self.m_dirs:
 			trace('child of name '+d.m_name)
 			if d.m_name == name:
 				return d
-		# perhaps we should throw an exception
+		# throw an exception ?
 		return None
-
-	def ensure_scan(self):
-		if not self in Params.g_build.m_scanned_folders:
-			# TODO: a little bit inefficient, but code factorization will come later
-			folder = '/'.join( Params.srcnode().difflst(self) )
-			Params.g_build.scanner_mirror(folder)
-		Params.g_build.m_scanned_folders.append(self)
 
 	# list of file names that separate a node from a child
 	def difflst(self, child):
@@ -129,7 +106,6 @@ class Node:
 	def path_list(self):
 		if not self.m_parent: return []
 		return self.m_parent.pathlist().append(self.m_name)
-
 
 	# returns a list that can be reduced to the absolute path
 	# make sure to reverse it (used by abspath)
@@ -163,6 +139,9 @@ class Node:
 		if not lst: return self
 		name=lst[0]
 
+		print self.m_dirs
+		print self.m_files
+
 		if name == '.':  return self.find_node( lst[1:] )
 		if name == '..': return self.m_parent.find_node( lst[1:] )
 
@@ -173,8 +152,15 @@ class Node:
 		trace('find_node returns nothing '+str(self)+' '+str(lst))
 		return None
 
-
 	## ===== BEGIN relpath-related methods  ===== ##
+
+	# the build is launched from the top of the build dir (for example, in _build_/)
+	def bldpath(self, env=None):
+		if self in self.m_parents.m_files:
+			return self.relpath_gen(Params.g_build.m_bldnode)
+		elif not env:
+			raise "bldpath for node: an environment is required"
+		return env.m_variant + os.sep + self.relpath_gen(Params.g_build.m_srcnode)
 
 	# returns the list of names to the node
 	# make sure to reverse it (used by relpath)
@@ -204,25 +190,6 @@ class Node:
 				Params.g_build.m_relpath_cache[self][parent]=val
 			return val
 
-	# path relative to the src directory (useful for building targets : almost - ita)
-	def srcpath(self):
-		node = Params.srcnode()
-		if not node: error("BUG in srcpath")
-		return self.relpath(node)
-
-	# path used when building targets
-	def bldpath(self):
-		try:
-			orig = Params.g_build.m_bld_to_src[self]
-			return orig.relpath_gen(Params.g_build.m_bldnode)
-		except KeyError:
-			pass
-		except:
-			print self
-			raise
-		if not Params.g_build.m_bldnode: error("BUG in bldpath")
-		#return self.relpath(Params.g_build.m_bldnode)
-		return self.relpath_gen(Params.g_build.m_bldnode)
 
 	# find a common ancestor for two nodes - for the shortest path in hierarchy
 	def find_ancestor(self, node):
@@ -279,20 +246,53 @@ class Node:
 		print "files are", self.m_files
 		print "======= end debug node ==========="
 
-	def unlink(self):
-		ret = os.unlink( self.abspath() )
-		print ret
-
 	def is_child_of(self, node):
 		if self.m_parent:
 			if self.m_parent is node: return 1
 			else: return self.m_parent.is_child_of(node)
 		return 0
 
+	# there are always much more folders than files, so this is a good heuristic (tm)
+	def ensure_scan(self):
+		if not self in Params.g_build.m_scanned_folders:
+			Params.g_build.rescan(self)
+			Params.g_build.m_scanned_folders.append(self)
+
+	# =============================================== #
+	# obsolete code
+
+	def unlink(self):
+		ret = os.unlink(self.abspath())
+		print ret
+
 	# returns the folder in the build dir for reaching this node
-	def cd_to(self):
-		reldir = Params.g_build.m_bldnode.difflst(self)
-		reldir = reldir[:len(reldir)-1]
-		reldir = os.sep.join(reldir)
-		return reldir
+	#def cd_to(self):
+	#	reldir = Params.g_build.m_bldnode.difflst(self)
+	#	reldir = reldir[:len(reldir)-1]
+	#	reldir = os.sep.join(reldir)
+	#	return reldir
+	# path relative to the src directory (useful for building targets : almost - ita)
+	#def srcpath(self):
+	#	node = Params.srcnode()
+	#	if not node: error("BUG in srcpath")
+	#	return self.relpath(node)
+	#def get_sig(self):
+	#	try: return Params.g_build.m_sigs[self]
+	#	except: return self.m_tstamp
+
+	# flag a subtree
+	#def tag(self, val):
+	#	for i in self.m_files:
+	#		i.m_flag = val
+	#	for i in self.m_dirs:
+	#		i.m_flag = val
+	#		i.tag(val)
+
+	#def ensure_scan(self):
+	#	if not self in Params.g_build.m_scanned_folders:
+	#		# TODO: a little bit inefficient, but code factorization will come later
+	#		folder = '/'.join( Params.srcnode().difflst(self) )
+	#		Params.g_build.scanner_mirror(folder)
+	#	Params.g_build.m_scanned_folders.append(self)
+
 

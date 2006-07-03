@@ -8,10 +8,13 @@ import Environment, Params, Runner, Object, Utils, Node
 
 from Params import debug, error, trace, fatal
 
-def scan_src_path(i_parent_node, i_path, i_existing_nodes):
+# TODO make scan_src_path and scan_path methods, not separate functions
+def scan_src_path(bld, i_parent_node, i_path, i_existing_nodes):
 
 	# read the dir contents, ignore the folders in it
 	l_names_read = os.listdir(i_path)
+
+	debug("folder contents "+str(l_names_read))
 
 	# there are two ways to obtain the partitions:
 	# 1 run the comparisons two times (not very smart)
@@ -39,10 +42,12 @@ def scan_src_path(i_parent_node, i_path, i_existing_nodes):
 	for node in l_kept:
 		try:
 			# update the time stamp
-			if not 0 in self.m_tstamp_variants: self.m_tstamp_variants[0] = {}
-			self.m_tstamp_variants[0][node] = Params.h_file(node.abspath())
+			if not 0 in bld.m_tstamp_variants: bld.m_tstamp_variants[0] = {}
+			bld.m_tstamp_variants[0][node] = Params.h_file(node.abspath())
 		except:
 			fatal("a file is readonly or has become a dir "+node.abspath())
+
+	debug("new files found "+str(l_names))
 
 	l_path = i_path + os.sep
 	for name in l_names:
@@ -52,17 +57,18 @@ def scan_src_path(i_parent_node, i_path, i_existing_nodes):
 			# TODO is it possible to distinguish the cases ?
 			st = Params.h_file(l_path + name)
 			l_child = Node.Node(name, i_parent_node)
-			if not 0 in self.m_tstamp_variants: self.m_tstamp_variants[0] = {}
-			self.m_tstamp_variants[0][node] = st
-			l_kept.append(l_child)
 		except:
-			pass
+			continue
+		# TODO remove the check below
+		if not 0 in bld.m_tstamp_variants: bld.m_tstamp_variants[0] = {}
+		bld.m_tstamp_variants[0][l_child] = st
+		l_kept.append(l_child)
 	return l_kept
 
 
 # in this function we do not add timestamps but we remove them
 # when the files no longer exist (file removed in the build dir)
-def scan_path(i_parent_node, i_path, i_existing_nodes, i_variant):
+def scan_path(bld, i_parent_node, i_path, i_existing_nodes, i_variant):
 
 	# read the dir contents, ignore the folders in it
 	l_names_read = os.listdir(i_path)
@@ -93,8 +99,8 @@ def scan_path(i_parent_node, i_path, i_existing_nodes, i_variant):
 	# remove the stamps of the nodes that no longer exist in the build dir
 	for node in l_rm:
 		# TODO remove this check in the future
-		if not variant in self.m_tstamp_variants: self.m_tstamp_variants[variant] = {}
-		self.m_tstamp_variants[variant].__delitem__(node)
+		if not variant in bld.m_tstamp_variants: bld.m_tstamp_variants[variant] = {}
+		bld.m_tstamp_variants[variant].__delitem__(node)
 
 class BuildDTO:
 	def __init__(self, bdobj):
@@ -208,7 +214,7 @@ class Build:
 
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
-		self._scanned_folders  = []
+		self.m_scanned_folders  = []
 
 		# file contents
 		self._cache_node_content = {}
@@ -385,7 +391,8 @@ class Build:
 		debug("rescanning "+str(src_dir_node))
 
 		# list the files in the src directory, adding the signatures
-		files = scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.m_files)
+		files = scan_src_path(self, src_dir_node, src_dir_node.abspath(), src_dir_node.m_files)
+		debug("files found in folder are "+str(files))
 		src_dir_node.m_files = files
 
 		# list the files in the build dirs
@@ -395,7 +402,7 @@ class Build:
 			if not variant in self.m_tstamp_variants: self.m_tstamp_variants[variant] = {}
 			sub_path = os.sep.join([self.m_bldnode.abspath(), variant] + lst)
 			try:
-				files = scan_path(src_dir_node, sub_path, src_dir_node.m_build, variant)
+				files = scan_path(self, src_dir_node, sub_path, src_dir_node.m_build, variant)
 				src_dir_node.m_build = files
 			except:
 				# listdir failed, remove all sigs of nodes
