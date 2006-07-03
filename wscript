@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006 (ita)
 
-VERSION='0.8.2'
+VERSION='0.8.3pre1'
 APPNAME='waf'
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook']
@@ -24,12 +24,12 @@ def init():
 		print "preparing the cpp demo (run ./waf --cleanup to remove)"
 		print "cd to demos/cpp/ and execute waf there (there other demos, not all are ready)"
 		for d in demos:
-			ret = os.popen("if test ! -L ./demos/%s/wafadmin; then ln -sf ../../wafadmin ./demos/%s/wafadmin && cp setenv.bat waf.py ./demos/%s/; fi" % (d,d,d))
+			ret = os.popen("if test ! -L ./demos/%s/wafadmin; then ln -sf ../../wafadmin ./demos/%s/wafadmin && cp configure setenv.bat waf.py ./demos/%s/; fi" % (d,d,d))
 		sys.exit(0)
 	elif Params.g_options.cleanup:
 		print "cleaning up the demo folders"
 		for d in demos:
-			ret = os.popen("rm -f ./demos/%s/waf.py ./demos/%s/setenv.bat ./demos/%s/wafadmin" % (d,d,d))
+			ret = os.popen("rm -f ./demos/%s/waf.py ./demos/%s/setenv.bat ./demos/%s/configure ./demos/%s/wafadmin" % (d,d,d))
 		sys.exit(0)
 	elif Params.g_options.arch:
 		print "preparing an archive of waf for use in custom projects"
@@ -38,14 +38,14 @@ def init():
 		mw = 'miniwaf-'+VERSION
 		cmd = [
 		"rm -rf %s/ %s.tar.bz2 && mkdir -p %s/wafadmin/Tools/" % (mw,mw,mw),
-		"cp waf.py setenv.bat %s/ && cp wafadmin/*.py %s/wafadmin/" % (mw,mw),
+		"cp waf.py configure setenv.bat %s/ && cp wafadmin/*.py %s/wafadmin/" % (mw,mw),
 		"cp wafadmin/Tools/*.py %s/wafadmin/Tools/" % mw,
 		"rm -f %s/wafadmin/Test.py" % mw,
 		#"pushd %s/wafadmin/ && perl -pi -e 's/^\s*#[^!].*$//' *.py && popd" % mw,
 		#"pushd %s/wafadmin/ && perl -pi -e 's/^$//' *.py && popd" % mw,
 		#"pushd %s/wafadmin/Tools && perl -pi -e 's/^\s*#[^!].*$//' *.py && popd" % mw,
 		#"pushd %s/wafadmin/Tools && perl -pi -e 's/^$//' *.py && popd" % mw,
-		"pushd %s && tar cjvf ../%s.tar.bz2 waf.py setenv.bat wafadmin" % (mw, mw),
+		"pushd %s && tar cjvf ../%s.tar.bz2 waf.py setenv.bat configure wafadmin" % (mw, mw),
 		"rm -rf %s/" % mw,
 		]
 
