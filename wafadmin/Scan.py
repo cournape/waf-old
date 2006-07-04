@@ -103,12 +103,10 @@ class scanner:
 			# WATCH OUT we are using the source node, not the build one for that kind of signature..
 
 			try:
-				n = tree.get_src_from_mirror(node)
-				if n: sig = Params.xor_sig(sig, get_node_sig(n))
-				else: sig = Params.xor_sig(sig, get_node_sig(node))
+				sig = Params.xor_sig(sig, get_node_sig(node))
 			except:
+				raise
 				print "ERROR in get_deps_signature"
-				print n
 				print node
 				print sig
 				print "details for the task are: ", task.m_outputs, task.m_inputs

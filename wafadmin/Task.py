@@ -75,7 +75,13 @@ class Task:
 		for node in self.m_outputs:
 			#trace("updating_stat of node "+node.abspath())
 			#node.m_tstamp = os.stat(node.abspath()).st_mtime
-			node.m_tstamp = Params.h_file(node.abspath())
+			#node.m_tstamp = Params.h_file(node.abspath())
+
+			if node in node.m_parents.m_files: variant = 0
+			else: variant = self.m_env.m_variant
+
+			Params.g_build.m_tstamp_variants[variant][node] = Params.h_file(node.abspath())
+
 			if node.get_sig() == self.signature():
 				error("NODE ALREADY TAGGED - GRAVE ERROR")
 			tree.m_sigs[node] = self.signature()
@@ -127,8 +133,8 @@ class Task:
 		fun("action: "+str(self.m_action)+" idx: "+str(self.m_idx))
 		fun(str(self.m_inputs))
 		fun(str(self.m_outputs))
-		for node in self.m_outputs:
-			fun(str(node.m_tstamp))
+		#for node in self.m_outputs:
+		#	fun(str(node.m_tstamp))
 		fun("-- end task debugging --")
 
 def reset():

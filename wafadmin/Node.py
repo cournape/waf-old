@@ -276,9 +276,11 @@ class Node:
 	#	node = Params.srcnode()
 	#	if not node: error("BUG in srcpath")
 	#	return self.relpath(node)
-	#def get_sig(self):
-	#	try: return Params.g_build.m_sigs[self]
-	#	except: return self.m_tstamp
+
+	# TODO FIXME
+	def get_sig(self):
+		try: return Params.g_build.m_tstamp_variants[0][self]
+		except: return Params.sig_nil()
 
 	# flag a subtree
 	#def tag(self, val):
