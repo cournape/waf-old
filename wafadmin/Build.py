@@ -156,14 +156,13 @@ class Build:
 		self.m_tstamp_variants = {}
 
 		# one node has nodes it depends on, tasks cannot be stored
-		# node -> [node; node; node ..] - all dependencies
-		# m_depends_on[node] = [node1, node2, ..]
+		# self.m_depends_on[variant][node] = [node1, node2, ..]
 		self.m_depends_on  = {}
 
-		# m_deps_tstamp[node] = represents the timestamp for the node last scan
+		# m_deps_tstamp[variant][node] = node_tstamp_of_the_last_scan
 		self.m_deps_tstamp = {}
 
-		# results of a scan: self.m_raw_deps[node] = [filename1, filename2, filename3]
+		# results of a scan: self.m_raw_deps[variant][node] = [filename1, filename2, filename3]
 		# for example, find headers in c files
 		self.m_raw_deps    = {}
 

@@ -44,20 +44,35 @@ class scanner:
 	# it returns a tuple containing:
 	# * a list of nodes corresponding to real files
 	# * a list of names for files not found in path_lst
-	def scan(self, node, path_lst):
-		return self._scan_default(node, path_lst)
+	def scan(self, node, env, path_lst):
+		return self._scan_default(node, env, path_lst)
 
 
 	# re-scan a node, update the tree
-	def do_scan(self, tree, node, hashparams):
+	def do_scan(self, node, env, hashparams):
+
+		if node in node.m_parent.m_files: variant = 0
+		else: variant = env.m_variant
+
 		debug("rescanning "+str(node))
 		if not node:
 			print "BUG rescanning a null node"
 			return
-		(nodes, names) = self.scan(node, **hashparams)
-		tree.m_depends_on[node] = nodes
-		tree.m_raw_deps[node] = names
-		tree.m_deps_tstamp[node] = node.m_tstamp
+		(nodes, names) = self.scan(node, env, **hashparams)
+		tree = Params.g_build
+
+		# TODO remove this check in the future:
+		for l in [tree.m_depends_on, tree.m_raw_deps, tree.m_deps_tstamp]:
+			if not variant in l:
+				l[variant] = {}
+
+		tree.m_depends_on[variant][node] = nodes
+		tree.m_raw_deps[variant][node] = names
+
+		debug("variant is "+str(variant))
+		#print tree.m_tstamp_variants[variant]
+
+		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
 
 	# ======================================= #
 	# private method
@@ -107,7 +122,12 @@ class scanner:
 
 	# private method
 	# default scanner function
-	def _scan_default(self, node, path_lst):
+	def _scan_default(self, node, env, path_lst):
+
+		if node in node.m_parents.m_files: variant = 0
+		else: variant = task.m_env.m_variant
+
+		# TODO FIXME there is a problem here
 		file = open(node.abspath(), 'rb')
 		found = cregexp1.findall( file.read() )
 		file.close()
@@ -155,19 +175,23 @@ class c_scanner(scanner):
 		rescan = 0
 
 		node = task.m_inputs[0]
+
+		if node in node.m_parents.m_files: variant = 0
+		else: variant = task.m_env.m_variant
+
 		if tree.needs_rescan(node): rescan = 1
 		if not rescan:
-			for node in tree.m_depends_on[node]:
+			for node in tree.m_depends_on[variant][node]:
 				if tree.needs_rescan(node): rescan = 1
 
 		# rescan the cpp file if necessary
 		if rescan:
-			self.do_scan(tree, tree.get_src_from_mirror(node), task.m_scanner_params)
+			self.do_scan(node, variant, task.m_scanner_params)
 
 		# we are certain that the files have been scanned - compute the signature
 		sig = Params.sig_nil()
 		sig = Params.xor_sig(sig, node.get_sig())
-		for n in tree.m_depends_on[tree.get_src_from_mirror(node)]:
+		for n in tree.m_depends_on[variant][node]:
 			sig = Params.xor_sig(sig, n.get_sig())
 
 		# and now xor the signature with the other tasks
@@ -183,12 +207,16 @@ class c_scanner(scanner):
 			if not node:
 				print "warning: null node in get_node_sig"
 			if not node or node in seen: return Params.sig_nil()
+
+			if node in node.m_parent.m_files: variant = 0
+			else: variant = task.m_env.m_variant
+
 			seen.append(node)
 			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
 			if tree.needs_rescan(node):
-				self.do_scan(tree, node, task.m_scanner_params)
+				self.do_scan(node, variant, task.m_scanner_params)
 			# TODO looks suspicious
-			lst = tree.m_depends_on[node]
+			lst = tree.m_depends_on[variant][node]
 			
 			for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
 			return Params.xor_sig(_sig, Params.sig_nil())
@@ -215,16 +243,16 @@ class c_scanner(scanner):
 		return sig
 
 
-	def scan(self, node, path_lst):
+	def scan(self, node, env, path_lst):
 		if Params.g_preprocess:
-			return self._scan_preprocessor(node, path_lst)
+			return self._scan_preprocessor(node, env, path_lst)
 		else:
-			return scanner.scan(self, node, path_lst)
+			return scanner.scan(self, node, env, path_lst)
 
-	def _scan_preprocessor(self, node, path_lst):
+	def _scan_preprocessor(self, node, env, path_lst):
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst)
-	        gruik.start2(node)
+	        gruik.start2(node, env)
 		#print "nodes found for ", str(node), " ", str(gruik.m_nodes), " ", str(gruik.m_names)
 		return (gruik.m_nodes, gruik.m_names)
 
@@ -233,7 +261,12 @@ class kcfg_scanner(scanner):
 	def __init__(self):
 		scanner.__init__(self)
 
-	def scan(self, node, path_lst):
+	def scan(self, node, env, path_lst):
+
+		if node in node.m_parents.m_files: variant = 0
+		else: variant = task.m_env.m_variant
+
+		# TODO FIXME use the variant
 		trace("kcfg scanner called for "+str(node))
 		file = open(node.abspath(), 'rb')
 		found = kcfg_regexp.findall( file.read() )

@@ -554,7 +554,11 @@ class cparse:
 			print "parsing %s failed" % filepath
 			raise
 
-	def start2(self, node):
+	def start2(self, node, env):
+		if node in node.m_parent.m_files: variant = 0
+		else: variant = env.m_variant
+
+		# TODO  FIXME variant path
 		self.addlines(node.abspath())
 
 		while self.lines:
