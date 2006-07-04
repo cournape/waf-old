@@ -247,11 +247,11 @@ class ccroot(Object.genobj):
 				continue
 			lst.append( node )
 
-			node2 = tree.get_mirror_node(node)
-			lst.append( node2 )
+			#node2 = tree.get_mirror_node(node)
+			#lst.append( node2 )
 			lst.append( node )
 			self._bld_incpaths_lst.append(node)
-			self._bld_incpaths_lst.append(node2)
+			#self._bld_incpaths_lst.append(node2)
 			
 		# now the nodes are added to self._incpaths_lst
 
@@ -440,7 +440,7 @@ class ccroot(Object.genobj):
 			
 			# useful for the link path, but also for setting the dependency:
 			try:
-				dirnode = tree.get_mirror_node(dirnode)
+				#dirnode = tree.get_mirror_node(dirnode)
 				rname = self.get_library_name(name, type)
 				node = dirnode.find_node([rname])
 				self.m_deps_linktask.append(node)

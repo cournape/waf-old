@@ -124,7 +124,7 @@ class scanner:
 	# default scanner function
 	def _scan_default(self, node, env, path_lst):
 
-		if node in node.m_parents.m_files: variant = 0
+		if node in node.m_parent.m_files: variant = 0
 		else: variant = task.m_env.m_variant
 
 		# TODO FIXME there is a problem here
@@ -176,7 +176,7 @@ class c_scanner(scanner):
 
 		node = task.m_inputs[0]
 
-		if node in node.m_parents.m_files: variant = 0
+		if node in node.m_parent.m_files: variant = 0
 		else: variant = task.m_env.m_variant
 
 		if tree.needs_rescan(node): rescan = 1
@@ -263,7 +263,7 @@ class kcfg_scanner(scanner):
 
 	def scan(self, node, env, path_lst):
 
-		if node in node.m_parents.m_files: variant = 0
+		if node in node.m_parent.m_files: variant = 0
 		else: variant = task.m_env.m_variant
 
 		# TODO FIXME use the variant

@@ -60,8 +60,8 @@ class GenAction(Action):
 		self.m_function_to_run = buildfunc
 		
 	def get_str(self, task):
-		src_str = " ".join(  map(lambda a:a.bldpath(), task.m_inputs)  )
-		tgt_str = " ".join(  map(lambda a:a.bldpath(), task.m_outputs)  )
+		src_str = " ".join(  map(lambda a:a.bldpath(task.m_env), task.m_inputs)  )
+		tgt_str = " ".join(  map(lambda a:a.bldpath(task.m_env), task.m_outputs)  )
 		return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 
 	def get_cmd(self, task):
@@ -80,8 +80,8 @@ class GenAction(Action):
 		command = " ".join( cmd_list )
 
 		# obtain the strings "file1.o file2.o" and "programname"
-		src_str = " ".join(  map(lambda a:a.bldpath(), task.m_inputs)  )
-		tgt_str = " ".join(  map(lambda a:a.bldpath(), task.m_outputs)  )
+		src_str = " ".join(  map(lambda a:a.bldpath(task.m_env), task.m_inputs)  )
+		tgt_str = " ".join(  map(lambda a:a.bldpath(task.m_env), task.m_outputs)  )
 
 		# uncomment this for debugging purposes
 		#print command, "      ",  self.m_vars

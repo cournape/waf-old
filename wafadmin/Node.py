@@ -156,7 +156,7 @@ class Node:
 
 	# the build is launched from the top of the build dir (for example, in _build_/)
 	def bldpath(self, env=None):
-		if self in self.m_parents.m_files:
+		if self in self.m_parent.m_files:
 			return self.relpath_gen(Params.g_build.m_bldnode)
 		elif not env:
 			raise "bldpath for node: an environment is required"

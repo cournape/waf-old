@@ -19,7 +19,7 @@
 #   * cf cppobj for more details on this scheme
 
 import os, shutil, types
-import Action, Params, Environment, Runner, Task, Common
+import Action, Params, Environment, Runner, Task, Common, Node
 from Params import debug, error, trace, fatal
 
 g_allobjs=[]
@@ -120,8 +120,23 @@ class genobj:
 	def get_mirror_node(self, node, filename):
 		return tree.mirror_file(node, filename)
 
+	def get_bld_node(self, parent, filename):
+		# this might be a source file TODO FIXME
+		for f in parent.m_files:
+			if f.m_name == filename:
+				return f
+		# this is not a source file, look in the build files
+		print parent.m_build
+		for f in parent.m_build:
+			if f.m_name == filename:
+				return f
+		# bld node does not exist, create it
+		node = Node.Node(filename, parent)
+		parent.m_build.append(node)
+		return node
+
 	def file_in(self, filename):
-		return [ self.get_mirror_node(self.m_current_path, filename) ]
+		return [ self.get_bld_node(self.m_current_path, filename) ]
 
 	# an object is to be posted, even if only for install
 	# the install function is called for uninstalling too

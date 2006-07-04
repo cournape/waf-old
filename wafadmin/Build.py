@@ -102,6 +102,8 @@ def scan_path(bld, i_parent_node, i_path, i_existing_nodes, i_variant):
 		if not variant in bld.m_tstamp_variants: bld.m_tstamp_variants[variant] = {}
 		bld.m_tstamp_variants[variant].__delitem__(node)
 
+	return l_nodes
+
 class BuildDTO:
 	def __init__(self, bdobj):
 		pass
@@ -209,7 +211,7 @@ class Build:
 		self._relpath_cache = {}
 
 		# cache for height of the node (amount of folders from the root)
-		self._height_cache = {}
+		self.m_height_cache = {}
 
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
