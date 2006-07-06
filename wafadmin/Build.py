@@ -105,7 +105,7 @@ def scan_path(bld, i_parent_node, i_path, i_existing_nodes, i_variant):
 	return l_nodes
 
 class BuildDTO:
-	def __init__(self, bdobj):
+	def __init__(self):
 		pass
 	def reset(self):
 		self.m_root        = Node.Node('', None)
@@ -252,7 +252,9 @@ class Build:
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
 		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
-		cPickle.dump(BuildDTO(self), file, -1)
+		dto = BuildDTO()
+		dto.init(self)
+		cPickle.dump(dto, file, -1)
 		file.close()
 
 	# ======================================= #
