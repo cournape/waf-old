@@ -258,7 +258,6 @@ class Build:
 	# ======================================= #
 
 	def save(self):
-		self._cleanup()
 		self._store()
 
 	# TODO: is this really useful ?
@@ -361,6 +360,22 @@ class Build:
 		trace('ensure_node_from_path %s' % (abspath))
 		plst = abspath.split('/')
 		curnode = self.m_root # root of the tree
+		for dirname in plst:
+			if not dirname: continue
+			found=None
+			for cand in curnode.m_dirs:
+				if cand.m_name == dirname:
+					found = cand
+					break
+			if not found:
+				found = Node.Node(dirname, curnode)
+				curnode.m_dirs.append(found)
+			curnode = found
+		return curnode
+
+	# ensure a directory node from a list, given a node to start from
+	def ensure_node_from_lst(self, node, plst):
+		curnode=node
 		for dirname in plst:
 			if not dirname: continue
 			found=None
@@ -495,6 +510,12 @@ class Build:
 		#	print k, '\t\t', self.m_name2nodes[k]
 
 
+	# shortcut for object creation
+	def createObj(self, objname, *k, **kw):
+		try:
+			return Object.g_allclasses[objname](*k, **kw)
+		except:
+			fatal("error in createObj "+str(objname))
 
 
 	# ======================================= #

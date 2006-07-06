@@ -12,7 +12,6 @@ g_inroot=1
 def add_subdir(dir, bld):
 	global g_inroot
 	if g_inroot:
-		#node = bld.m_curdirnode.find_node(dir.split('/'))
 		node = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
 		bld.m_subdirs.append( [node, bld.m_curdirnode] )
 
@@ -24,11 +23,10 @@ def add_subdir(dir, bld):
 		return
 
 	restore = bld.m_curdirnode
-	#if dir is None:
+	#if restore is None:
 	#	error("error in subdir( "+dir)
 	#	return
 
-	#bld.m_curdirnode = bld.m_curdirnode.find_node(dir.split('/'))
 	bld.m_curdirnode = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
 	if bld.m_curdirnode is None:
 		error("subdir not found ("+dir+"), restore is "+str(restore))

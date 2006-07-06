@@ -194,7 +194,7 @@ def handler_ui(obj, node, base=''):
 def handler_kcfgc(obj, node, base=''):
 	tree = Params.g_build
 	if tree.needs_rescan(node):
-		Scan.kcfg_scanner.do_scan(tree, node, obj.dir_lst)
+		Scan.g_kcfg_scanner.do_scan(node, self.env, hashparams = self.dir_lst)
 	kcfg_node = tree.m_depends_on[node][0]
 	cppnode = obj.get_node(base+'.cpp')
 
@@ -298,7 +298,7 @@ class kdeobj(cpp.cppobj):
 
 			# scan for moc files to produce, create cpp tasks at the same time
 			if tree.needs_rescan(node):
-				Scan.g_c_scanner.do_scan(tree, node, self.dir_lst)
+				Scan.g_c_scanner.do_scan(node, self.env, hashparams = self.dir_lst)
 
 			moctasks=[]
 			mocfiles=[]

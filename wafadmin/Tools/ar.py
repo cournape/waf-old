@@ -10,8 +10,8 @@ ar_vardeps = ['AR', 'RANLIB', 'ARFLAGS', 'RANLIBFLAGS']
 def ar_build(task):
 	#reldir = task.m_inputs[0].cd_to()
 
-	infiles = " ".join(  map(lambda a:a.bldpath(), task.m_inputs)  )
-	outfile = " ".join(  map(lambda a:a.bldpath(), task.m_outputs)  )
+	infiles = " ".join(  map(lambda a:a.bldpath(task.m_env), task.m_inputs)  )
+	outfile = " ".join(  map(lambda a:a.bldpath(task.m_env), task.m_outputs)  )
 
 	#infiles = task.m_inputs[0].bldpath()
 	#outfile = task.m_outputs[0].m_name
