@@ -279,6 +279,7 @@ class ccroot(Object.genobj):
 		if not self._incpaths_lst: self.apply_incpaths()
 		for i in self._bld_incpaths_lst:
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
+			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.srcpath())
 
 		# set the library include paths
 		for i in self.env['CPPPATH']:
@@ -290,9 +291,9 @@ class ccroot(Object.genobj):
 		self.env.appendValue('_CXXINCFLAGS', cpppath_st % '.')
 		try:
 			tmpnode = Params.g_build.m_curdirnode
-			tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
+			#tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode_mirror.bldpath(self.env))
+			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
 		except:
 			pass
 

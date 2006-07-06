@@ -14,12 +14,12 @@ Action.GenAction('moc', moc_vardeps)
 # kde documentation
 meinproc_vardeps = ['MEINPROC', 'MEINPROCFLAGS']
 def meinproc_build(task):
-	reldir = task.m_inputs[0].cd_to()
+	reldir = task.m_inputs[0].cd_to(task.m_env)
 	com   = task.m_env['MEINPROC']
 	flags = task.m_env['MEINPROCFLAGS']
 	#srcname = task.m_inputs[0].m_name
 	#bldname = task.m_outputs[0].m_name
-	cmd = '%s %s --cache %s %s' % (com, flags, task.m_outputs[0].bldpath(), task.m_inputs[0].bldpath())
+	cmd = '%s %s --cache %s %s' % (com, flags, task.m_outputs[0].bldpath(task.m_env), task.m_inputs[0].bldpath(task.m_env))
 	return Runner.exec_command(cmd)
 meinprocact = Action.GenAction('meinproc', meinproc_vardeps)
 meinprocact.m_function_to_run = meinproc_build
@@ -36,9 +36,9 @@ def uic_build(task):
 	inc_kde  ='#include <klocale.h>\n#include <kdialog.h>\n'
 	inc_moc  ='#include "%s.moc"\n' % base
 
-	ui_path   = task.m_inputs[0].bldpath()
-	h_path    = task.m_outputs[0].bldpath()
-	cpp_path  = task.m_outputs[1].bldpath()
+	ui_path   = task.m_inputs[0].bldpath(task.m_env)
+	h_path    = task.m_outputs[0].bldpath(task.m_env)
+	cpp_path  = task.m_outputs[1].bldpath(task.m_env)
 
 	qtplugins   = task.m_env['QTPLUGINS']
 	uic_command = task.m_env['UIC']
@@ -68,18 +68,18 @@ kidl_vardeps = ['DCOPIDL']
 skelstub_vardeps = ['DCOPIDL2CPP']
 
 def kidl_build(task):
-	reldir = task.m_inputs[0].cd_to()
+	reldir = task.m_inputs[0].cd_to(task.m_env)
 	#src = task.m_inputs[0].m_name
-	src = task.m_inputs[0].bldpath()
+	src = task.m_inputs[0].bldpath(task.m_env)
 	#tgt = src[:len(src)-2]+'.kidl'
-	tgt = task.m_outputs[0].bldpath()
+	tgt = task.m_outputs[0].bldpath(task.m_env)
 	cmd = '%s %s > %s || (rm -f %s ; false)' % (task.m_env['DCOPIDL'], src, tgt, tgt)
 	return Runner.exec_command(cmd)
 kidlact = Action.GenAction('kidl', kidl_vardeps)
 kidlact.m_function_to_run = kidl_build
 
 def skel_build(task):
-	reldir = task.m_inputs[0].cd_to()
+	reldir = task.m_inputs[0].cd_to(task.m_env)
 	src = task.m_inputs[0].m_name
 	cmd = 'cd %s && %s --c++-suffix cpp --no-signals --no-stub %s' % (reldir, task.m_env['DCOPIDL2CPP'], src)
 	return Runner.exec_command(cmd)
@@ -87,7 +87,7 @@ skelact = Action.GenAction('skel', skelstub_vardeps)
 skelact.m_function_to_run = skel_build
 
 def stub_build(task):
-	reldir = task.m_inputs[0].cd_to()
+	reldir = task.m_inputs[0].cd_to(task.m_env)
 	src = task.m_inputs[0].m_name
 	cmd = 'cd %s && %s --c++-suffix cpp --no-signals --no-skel %s' % (reldir, task.m_env['DCOPIDL2CPP'], src)
 	return Runner.exec_command(cmd)
@@ -98,9 +98,9 @@ stubact.m_function_to_run = stub_build
 kcfg_vardeps = ['KCONFIG_COMPILER']
 def kcfg_build(task):
 	com = task.m_env['KCONFIG_COMPILER']
-	reldir = task.m_inputs[0].cd_to()
-	kcfg1 = task.m_inputs[0].bldpath()
-	kcfg2 = task.m_inputs[1].bldpath()
+	reldir = task.m_inputs[0].cd_to(task.m_env)
+	kcfg1 = task.m_inputs[0].bldpath(task.m_env)
+	kcfg2 = task.m_inputs[1].bldpath(task.m_env)
 	cmd = '%s -d%s %s %s' % (com, reldir, kcfg1, kcfg2)
 	return Runner.exec_command(cmd)
 kcfgact = Action.GenAction('kcfg', kcfg_vardeps)
@@ -297,13 +297,22 @@ class kdeobj(cpp.cppobj):
 
 
 			# scan for moc files to produce, create cpp tasks at the same time
-			if tree.needs_rescan(node):
-				Scan.g_c_scanner.do_scan(node, self.env, hashparams = self.dir_lst)
+
+			
+			# TODO
+			#if tree.needs_rescan(node):
+			Scan.g_c_scanner.do_scan(node, self.env, hashparams = self.dir_lst)
 
 			moctasks=[]
 			mocfiles=[]
 
-			try: tmp_lst = tree.m_raw_deps[node]
+			if node in node.m_parent.m_files: variant = 0
+			else: variant = env.m_variant
+
+			# TODO: remove this check
+			if not variant in tree.m_raw_deps: tree.m_raw_deps[variant] = {}
+
+			try: tmp_lst = tree.m_raw_deps[variant][node]
 			except: tmp_lst = []
 			for d in tmp_lst:
 				base2, ext2 = os.path.splitext(d)
@@ -320,9 +329,8 @@ class kdeobj(cpp.cppobj):
 				task.m_outputs = self.file_in(base+'.moc')
 				moctasks.append( task )
 			
-
 			# use a cache ?
-			for d in tree.m_depends_on[node]:
+			for d in tree.m_depends_on[variant][node]:
 				name = d.m_name
 				if name[len(name)-4:]=='.moc':
 					task = self.create_task('moc', self.env)

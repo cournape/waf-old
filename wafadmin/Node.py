@@ -188,6 +188,12 @@ class Node:
 		debug("var is "+var)
 		return var
 
+	# the build is launched from the top of the build dir (for example, in _build_/)
+	def srcpath(self):
+		var = self.relpath_gen(Params.g_build.m_bldnode)
+		debug("var is "+var)
+		return var
+
 	# returns the list of names to the node
 	# make sure to reverse it (used by relpath)
 	def pathlist3(self, node):
@@ -287,6 +293,9 @@ class Node:
 		if not self in Params.g_build.m_scanned_folders:
 			Params.g_build.rescan(self)
 			Params.g_build.m_scanned_folders.append(self)
+
+	def cd_to(self, env=None):
+		return self.m_parent.bldpath(env)
 
 	# =============================================== #
 	# obsolete code
