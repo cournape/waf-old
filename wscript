@@ -29,7 +29,7 @@ def init():
 	elif Params.g_options.cleanup:
 		print "cleaning up the demo folders"
 		for d in demos:
-			ret = os.popen("rm -f ./demos/%s/waf.py ./demos/%s/setenv.bat ./demos/%s/configure ./demos/%s/wafadmin" % (d,d,d))
+			ret = os.popen("rm -f ./demos/%s/waf.py ./demos/%s/setenv.bat ./demos/%s/configure ./demos/%s/wafadmin" % (d,d,d,d))
 		sys.exit(0)
 	elif Params.g_options.arch:
 		print "preparing an archive of waf for use in custom projects"

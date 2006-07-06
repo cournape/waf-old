@@ -107,6 +107,7 @@ def Main():
 		srcdir = file.readline().strip()
 		file.close()
 	except:
+		#raise
 		fatal("Configuration loading failed - re-run waf configure (.lock-wscript cannot be read)")
 
 	Params.g_cachedir = blddir+os.sep+'_cache_'

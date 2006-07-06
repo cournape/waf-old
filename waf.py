@@ -128,11 +128,14 @@ elif Params.g_commands['distclean']:
 	sys.exit(0)
 
 try:
-	Utils.g_module.init()
+	fun = None
+	try:
+		fun = Utils.g_module.init
+	except:
+		pass
+	if fun: fun()
 except SystemExit:
 	raise
-except:
-	pass
 
 from Scripting import Main
 Main()
