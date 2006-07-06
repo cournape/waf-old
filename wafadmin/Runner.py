@@ -189,8 +189,11 @@ class Serial:
 				proc.debug(1)
 				return ret
 
-			try: proc.update_stat()
-			except: error('the nodes have not been produced !')
+			try:
+				proc.update_stat()
+			except:
+				error('the nodes have not been produced !')
+				raise
 			proc.m_hasrun=1
 
 			# register the task to the ones that have run - useful for debugging purposes

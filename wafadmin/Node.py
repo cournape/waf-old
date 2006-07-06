@@ -114,7 +114,19 @@ class Node:
 		return [self.m_name, os.sep]+self.m_parent.pathlist2()
 
 	# absolute path
-	def abspath(self):
+	def abspath(self, env=None):
+
+		if not env:
+			variant = 0
+		else:
+			if self in self.m_parent.m_files:
+				variant = 0
+			else:
+				variant = env.m_variant
+
+		if not variant in Params.g_build.m_abspath_cache:
+			Params.g_build.m_abspath_cache[variant]={}
+
 		## 1. stupid method
 		# if self.m_parent is None: return ''
 		# return self.m_parent.abspath()+os.sep+self.m_name
@@ -124,12 +136,12 @@ class Node:
 		#
 		## 3. with the cache
 		try:
-			return Params.g_build.m_abspath_cache[self]
+			return Params.g_build.m_abspath_cache[variant][self]
 		except:
 			lst=self.pathlist2()
 			lst.reverse()
 			val=''.join(lst)
-			Params.g_build.m_abspath_cache[self]=val
+			Params.g_build.m_abspath_cache[variant][self]=val
 			return val
 
 	# TODO : make it procedural, not recursive

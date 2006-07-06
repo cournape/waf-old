@@ -71,20 +71,21 @@ class Task:
 		return Params.xor_sig(self.m_sig, self.m_dep_sig)
 
 	def update_stat(self):
-		tree=Params.g_build
+		tree = Params.g_build
+		env  = self.m_env
 		for node in self.m_outputs:
 			#trace("updating_stat of node "+node.abspath())
 			#node.m_tstamp = os.stat(node.abspath()).st_mtime
 			#node.m_tstamp = Params.h_file(node.abspath())
 
-			if node in node.m_parents.m_files: variant = 0
+			if node in node.m_parent.m_files: variant = 0
 			else: variant = self.m_env.m_variant
 
-			Params.g_build.m_tstamp_variants[variant][node] = Params.h_file(node.abspath())
+			Params.g_build.m_tstamp_variants[variant][node] = Params.h_file(node.bldpath(env))
 
 			if node.get_sig() == self.signature():
 				error("NODE ALREADY TAGGED - GRAVE ERROR")
-			tree.m_sigs[node] = self.signature()
+			tree.m_tstamp_variants[variant][node] = self.signature()
 		self.m_executed=1
 
 	# wait for other tasks to complete
@@ -106,7 +107,7 @@ class Task:
 
 		# check if the file actually exists - expect a moderate slowdown
 		for f in self.m_outputs:
-			if not os.path.exists(f.abspath()):
+			if not os.path.exists(f.bldpath(self.m_env)):
 				return 1
 
 		if sg != self.m_outputs[0].get_sig():
