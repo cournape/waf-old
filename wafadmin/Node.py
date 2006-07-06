@@ -160,8 +160,8 @@ class Node:
 		if not lst: return self
 		name=lst[0]
 
-		print self.m_dirs
-		print self.m_files
+		#print self.m_dirs
+		#print self.m_files
 
 		if name == '.':  return self.find_node( lst[1:] )
 		if name == '..': return self.m_parent.find_node( lst[1:] )

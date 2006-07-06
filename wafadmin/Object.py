@@ -126,7 +126,7 @@ class genobj:
 			if f.m_name == filename:
 				return f
 		# this is not a source file, look in the build files
-		print parent.m_build
+		#print parent.m_build
 		for f in parent.m_build:
 			if f.m_name == filename:
 				return f

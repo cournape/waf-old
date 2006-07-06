@@ -70,7 +70,7 @@ def crefun(ra):
         return eval('f')
 
 fun = crefun("hola");
-print fun()
+#print fun()
 
 # most actions contain only one well-defined command-line taking sources as input and targets as output
 class GenAction(Action):

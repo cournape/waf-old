@@ -341,7 +341,7 @@ class Build:
 			self.m_bdir = os.path.abspath(blddir)
 		else:
 			self.m_bdir = blddir
-		print "self.m_bdir is ", self.m_bdir
+		#print "self.m_bdir is ", self.m_bdir
 
 		self.m_bldnode = self.ensure_node_from_path(self.m_bdir)
 

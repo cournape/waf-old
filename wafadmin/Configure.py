@@ -356,7 +356,6 @@ int main()
 		pass
 
 	def error(self,module,str=''):
-		"""prints an error message"""
 		print "configuration error: " + module + " " + str
 
 	def store(self, file=''):
