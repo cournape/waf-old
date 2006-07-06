@@ -93,6 +93,8 @@ class Node:
 		# throw an exception ?
 		return None
 
+	## ===== BEGIN relpath-related methods  ===== ##
+
 	# list of file names that separate a node from a child
 	def difflst(self, child):
 		if not child: error('Node difflst takes a non-null parameter!')
@@ -116,6 +118,26 @@ class Node:
 	def pathlist2(self):
 		if not self.m_parent: return [Params.g_rootname]
 		return [self.m_name, os.sep]+self.m_parent.pathlist2()
+
+	# TODO : make it procedural, not recursive
+	# find a node given an existing node and a list like ['usr', 'local', 'bin']
+	def find_node(self, lst):
+		#print self, lst
+		if not lst: return self
+		name=lst[0]
+
+		#print self.m_dirs
+		#print self.m_files
+
+		if name == '.':  return self.find_node( lst[1:] )
+		if name == '..': return self.m_parent.find_node( lst[1:] )
+
+		for d in self.m_dirs+self.m_files:
+			if d.m_name == name:
+				return d.find_node( lst[1:] )
+
+		trace('find_node returns nothing '+str(self)+' '+str(lst))
+		return None
 
 	# absolute path
 	def abspath(self, env=None):
@@ -150,38 +172,21 @@ class Node:
 				return val
 			else:
 				p = Params.g_build.m_bldnode.abspath() + os.sep + env.m_variant + os.sep
-				q = self.relpath_gen(Params.g_build.m_srcnode)
+				q = self.relpath(Params.g_build.m_srcnode)
+				debug("var is p+q is "+p+q)
 				return p+q
 
-	# TODO : make it procedural, not recursive
-	# find a node given an existing node and a list like ['usr', 'local', 'bin']
-	def find_node(self, lst):
-		#print self, lst
-		if not lst: return self
-		name=lst[0]
-
-		#print self.m_dirs
-		#print self.m_files
-
-		if name == '.':  return self.find_node( lst[1:] )
-		if name == '..': return self.m_parent.find_node( lst[1:] )
-
-		for d in self.m_dirs+self.m_files:
-			if d.m_name == name:
-				return d.find_node( lst[1:] )
-
-		trace('find_node returns nothing '+str(self)+' '+str(lst))
-		return None
-
-	## ===== BEGIN relpath-related methods  ===== ##
 
 	# the build is launched from the top of the build dir (for example, in _build_/)
 	def bldpath(self, env=None):
 		if self in self.m_parent.m_files:
-			return self.relpath_gen(Params.g_build.m_bldnode)
+			var = self.relpath_gen(Params.g_build.m_bldnode)
 		elif not env:
 			raise "bldpath for node: an environment is required"
-		return env.m_variant + os.sep + self.relpath_gen(Params.g_build.m_srcnode)
+		else:
+			var = env.m_variant + os.sep + self.relpath(Params.g_build.m_srcnode)
+		debug("var is "+var)
+		return var
 
 	# returns the list of names to the node
 	# make sure to reverse it (used by relpath)
@@ -197,19 +202,23 @@ class Node:
 	# path relative to a direct parent
 	def relpath(self, parent):
 		#print "relpath", self, parent
-		try:
-			return Params.g_build.m_relpath_cache[self][parent]
-		except:
-			lst=self.pathlist3(parent)
-			lst.reverse()
-			val=''.join(lst)
+		#try:
+		#	return Params.g_build.m_relpath_cache[self][parent]
+		#except:
+		#	lst=self.pathlist3(parent)
+		#	lst.reverse()
+		#	val=''.join(lst)
 
-			try:
-				Params.g_build.m_relpath_cache[self][parent]=val
-			except:
-				Params.g_build.m_relpath_cache[self]={}
-				Params.g_build.m_relpath_cache[self][parent]=val
-			return val
+		#	try:
+		#		Params.g_build.m_relpath_cache[self][parent]=val
+		#	except:
+		#		Params.g_build.m_relpath_cache[self]={}
+		#		Params.g_build.m_relpath_cache[self][parent]=val
+		#	return val
+		lst=self.pathlist4(parent)
+		lst.reverse()
+		val=''.join(lst)
+		return val
 
 
 	# find a common ancestor for two nodes - for the shortest path in hierarchy

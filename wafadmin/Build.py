@@ -151,6 +151,10 @@ class Build:
 		self.m_blddir      = ''
 		self.m_srcnode     = None           # source directory
 
+		# TODO FIXME separate signatures from tstamps ? is it really necessary to stat
+		# the files in the build dir to collect timestamps ?
+		# document the signature steps
+
 		# nodes signatures: self.m_tstamp_variants[variant_name][node] = signature_value
 		self.m_tstamp_variants = {}
 
@@ -254,7 +258,8 @@ class Build:
 		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
 		dto = BuildDTO()
 		dto.init(self)
-		cPickle.dump(dto, file, -1)
+		#cPickle.dump(dto, file, -1) # optimized version, do not use in development phase
+		cPickle.dump(dto, file)
 		file.close()
 
 	# ======================================= #
