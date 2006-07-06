@@ -51,6 +51,27 @@ class Action:
 		if self.mf_setstr: self.mf_setstr(task)
 		else: print "attach a function or reimplement"
 
+
+# TODO (ita)
+# Actions declared using a string are compiled before use:
+# * a class with the necessary functions is created (so the string is parsed only once)
+# * all variables (CXX, ..) can be strings or lists of strings only
+# * the keywords TARGET TARGETS SOURCE SOURCES cannot be overridden
+# Example:
+# str = '${CXX} -o ${TARGET} ${SOURCES} -I ${SOURCES[0].dir}'
+# act = GenAction(str)
+
+def crefun(ra):
+        vars   = []
+        mastr  = []
+
+        total = "def f():\n\treturn \"%s\"\n" % ra
+        exec(total)
+        return eval('f')
+
+fun = crefun("hola");
+print fun()
+
 # most actions contain only one well-defined command-line taking sources as input and targets as output
 class GenAction(Action):
 	def __init__(self, name, vars, src_only=0, buildfunc=None):
