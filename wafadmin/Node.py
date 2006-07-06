@@ -31,10 +31,14 @@ class Node:
 		#   eg: the m_tstamp is used for every node, while the signature is computed only for build files
 
 	def __str__(self):
-		return "<%s>"%self.abspath()
+		if self in self.m_parent.m_files: isbld = ""
+		else: isbld = "b:"
+		return "<%s%s>" % (isbld, self.abspath())
 
 	def __repr__(self):
-		return "<%s>"%self.abspath()
+		if self in self.m_parent.m_files: isbld = ""
+		else: isbld = "b:"
+		return "<%s%s>" % (isbld, self.abspath())
 
 	# ====================================================== #
 
@@ -119,10 +123,10 @@ class Node:
 		if not env:
 			variant = 0
 		else:
-			if self in self.m_parent.m_files:
-				variant = 0
-			else:
-				variant = env.m_variant
+			if self in self.m_parent.m_files: variant = 0
+			else: variant = env.m_variant
+
+		#print "variant is", self.m_name, variant, "and env is ", env
 
 		if not variant in Params.g_build.m_abspath_cache:
 			Params.g_build.m_abspath_cache[variant]={}
@@ -138,11 +142,16 @@ class Node:
 		try:
 			return Params.g_build.m_abspath_cache[variant][self]
 		except:
-			lst=self.pathlist2()
-			lst.reverse()
-			val=''.join(lst)
-			Params.g_build.m_abspath_cache[variant][self]=val
-			return val
+			if not variant:
+				lst=self.pathlist2()
+				lst.reverse()
+				val=''.join(lst)
+				Params.g_build.m_abspath_cache[variant][self]=val
+				return val
+			else:
+				p = Params.g_build.m_bldnode.abspath() + os.sep + env.m_variant + os.sep
+				q = self.relpath_gen(Params.g_build.m_srcnode)
+				return p+q
 
 	# TODO : make it procedural, not recursive
 	# find a node given an existing node and a list like ['usr', 'local', 'bin']
@@ -273,8 +282,8 @@ class Node:
 	# =============================================== #
 	# obsolete code
 
-	def unlink(self):
-		ret = os.unlink(self.abspath())
+	def unlink(self, env=None):
+		ret = os.unlink(self.abspath(env))
 		print ret
 
 	# returns the folder in the build dir for reaching this node

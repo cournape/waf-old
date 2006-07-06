@@ -125,8 +125,7 @@ class scanner:
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = task.m_env.m_variant
 
-		# TODO FIXME there is a problem here
-		file = open(node.abspath(), 'rb')
+		file = open(node.abspath(env), 'rb')
 		found = cregexp1.findall( file.read() )
 		file.close()
 
@@ -264,10 +263,9 @@ class kcfg_scanner(scanner):
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = task.m_env.m_variant
 
-		# TODO FIXME use the variant
 		trace("kcfg scanner called for "+str(node))
-		file = open(node.abspath(), 'rb')
-		found = kcfg_regexp.findall( file.read() )
+		file = open(node.abspath(env), 'rb')
+		found = kcfg_regexp.findall(file.read())
 		file.close()
 
 		if not found:

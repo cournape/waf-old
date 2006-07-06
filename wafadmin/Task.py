@@ -81,7 +81,8 @@ class Task:
 			if node in node.m_parent.m_files: variant = 0
 			else: variant = self.m_env.m_variant
 
-			Params.g_build.m_tstamp_variants[variant][node] = Params.h_file(node.bldpath(env))
+			print node, node.m_parent.m_files
+			Params.g_build.m_tstamp_variants[variant][node] = Params.h_file(node.abspath(env))
 
 			if node.get_sig() == self.signature():
 				error("NODE ALREADY TAGGED - GRAVE ERROR")

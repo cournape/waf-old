@@ -53,7 +53,7 @@ def install_files(var, subdir, files, env=None):
 		except:
 			pass
 
-		file = os.path.join(node.abspath(), filename)
+		file = os.path.join(node.abspath(env), filename)
 		destfile = os.path.join(destpath, name)
 		do_install(file, destfile)
 
@@ -72,7 +72,7 @@ def install_as(var, destfile, srcfile, env=None):
 	dir, name = os.path.split(tgt)
 	check_dir(dir)
 
-	src = os.path.join(node.abspath(), srcfile.lstrip(os.sep))
+	src = os.path.join(node.abspath(env), srcfile.lstrip(os.sep))
 	do_install(src, tgt)
 
 def symlink_as(var, src, dest, env=None):

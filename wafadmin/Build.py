@@ -116,7 +116,6 @@ class BuildDTO:
 		self.m_depends_on  = {}
 		self.m_deps_tstamp = {}
 		self.m_raw_deps    = {}
-		#self.m_sigs        = {}
 		self.m_tstamp_variants = {}
 	def init(self, bdobj):
 		self.m_root        = bdobj.m_root
@@ -127,7 +126,6 @@ class BuildDTO:
 		self.m_depends_on  = bdobj.m_depends_on
 		self.m_deps_tstamp = bdobj.m_deps_tstamp
 		self.m_raw_deps    = bdobj.m_raw_deps
-		#self.m_sigs        = bdobj.m_sigs
 		self.m_tstamp_variants = bdobj.m_tstamp_variants
 	def update_build(self, bdobj):
 		bdobj.m_root        = self.m_root
@@ -138,7 +136,6 @@ class BuildDTO:
 		bdobj.m_depends_on  = self.m_depends_on
 		bdobj.m_deps_tstamp = self.m_deps_tstamp
 		bdobj.m_raw_deps    = self.m_raw_deps
-		#bdobj.m_sigs        = self.m_sigs
 		bdobj.m_tstamp_variants = self.m_tstamp_variants
 
 class Build:
@@ -168,9 +165,6 @@ class Build:
 		# for example, find headers in c files
 		self.m_raw_deps    = {}
 
-
-		# signatures for nodes that are created in the builddir
-		#self.m_sigs        = {}
 
 		# give flags to nodes (eg: existing->1, not existing->0)
 		self._flags        = {}
