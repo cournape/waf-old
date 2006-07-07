@@ -55,22 +55,96 @@ class Action:
 # TODO (ita)
 # Actions declared using a string are compiled before use:
 # * a class with the necessary functions is created (so the string is parsed only once)
-# * all variables (CXX, ..) can be strings or lists of strings only
-# * the keywords TARGET TARGETS SOURCE SOURCES cannot be overridden
+# * all variables (CXX, ..) can be strings or lists of strings (only)
+# * the keywords TGT and SRC cannot be overridden (they represent the task input and output nodes)
 # Example:
-# str = '${CXX} -o ${TARGET} ${SOURCES} -I ${SOURCES[0].dir}'
+# str = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'
 # act = GenAction(str)
 
-def crefun(ra):
-        vars   = []
-        mastr  = []
+class alex:
+	def __init__(self, s):
+		self.str = s
+		self.out = []
+		self.params = []
 
-        total = "def f():\n\treturn \"%s\"\n" % ra
-        exec(total)
-        return eval('f')
+		self.i = 0
+		self.size = len(self.str)
 
-fun = crefun("hola");
-#print fun()
+	def start(self):
+		while self.i < self.size:
+			# quoted '$'
+			c = self.str[self.i]
+			if c == '\\':
+				if self.i < self.size - 1 and self.str[self.i+1]=='$':
+					self.out.append('$')
+					self.i += 1
+				else:
+					self.out.append(c)
+			elif c == '$':
+				if self.str[self.i+1]=='{':
+					self.i += 2
+					self.varmatch()
+				else:
+					self.out.append(c)
+			else:
+				self.out.append(c)
+			self.i += 1
+	def varmatch(self):
+		name = []
+		meth = []
+
+		cur = self.i
+		while cur < self.size:
+			if self.str[cur] == '}':
+				s = ''.join(name)
+				self.params.append( (''.join(name), ''.join(meth)) )
+				self.out.append('%s')
+
+				self.i = cur
+				break
+			else:
+				c = self.str[cur]
+				if meth:
+					meth.append(c)
+				else:
+					if c=='.' or c =='[':
+						meth.append(c)
+					else:
+						name.append(c)
+			cur += 1
+	def res(self):
+		lst = ['def f(task):\n\treturn "']
+		lst += self.out
+		lst.append('"')
+
+		alst=[]
+		for (name, meth) in obj.params:
+			if name == 'SRC':
+				if meth: alst.append('task.m_inputs%s' % meth)
+				else: alst.append('map(lambda a:a.srcpath(task.m_env), task.m_inputs)')
+			elif name == 'TGT':
+				if meth: alst.append('task.m_outputs%s' % meth)
+				else: alst.append('map(lambda a:a.bldpath(task.m_env), task.m_outputs)')
+			else:
+				alst.append("task.m_env['%s']" % name)
+		if alst:
+			lst.append(' % (\\\n\t\t')
+			lst += ", \\\n\t\t".join(alst)
+			lst.append(')\n')
+
+		return "".join(lst)
+
+	def fun(self):
+		exec(self.res())
+		return eval('f')
+			
+astr = '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].m_parent.bldpath()}'
+obj = alex(astr)
+obj.start()
+#print 'o: ', ''.join(obj.out)
+#print 'p: ', obj.params
+#print obj.res()
+#print obj.fun()
 
 # most actions contain only one well-defined command-line taking sources as input and targets as output
 class GenAction(Action):
