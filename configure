@@ -134,17 +134,15 @@ EOF
 checkPython
 checkWAF
 
-cd $WORKINGDIR
 echo "calling waf configure with parameters"
 $WAF configure $* || exit $EXIT_ERROR
 
 #create a Makefile if waf configure succeeds
-if test -e .lock-wscript ; then
-    if test -e Makefile ; then
+if [ -e "$WORKINGDIR/.lock-wscript" ] ; then
+    if [ -e "Makefile" ] ; then
 	echo ""
     else
         generateMakefile
     fi
 fi
-cd 			    
 exit $EXIT_SUCCESS
