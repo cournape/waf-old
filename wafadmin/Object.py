@@ -169,6 +169,20 @@ class genobj:
 			lst.append( node.relpath_gen(current) )
 		Common.install_files(var, subdir, lst)
 		
+
+def flatten(env, var):
+	try:
+		v = env[var]
+
+		if not v: debug("variable %s does not exist in env !" % var)
+	
+		if type(v) is types.ListType:
+			return " ".join(v)
+		else:
+			return v
+	except:
+		fatal("variable %s does not exist in env !" % var)
+
 # ['CXX', ..] -> [env['CXX'], ..]
 def list_to_env_list(env, vars_list):
 	def get_env_value(var):

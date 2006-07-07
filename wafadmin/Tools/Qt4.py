@@ -10,14 +10,17 @@ import Action, Common, Utils, Params, Configure, Scan, Runner, Object
 from Params import debug, error, trace, fatal
 
 ## QT SUPPORT ##
-moc_vardeps = ['QT_MOC', 'MOC_FLAGS', 'MOC_ST']
+
+Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}')
+Action.simple_action('moc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} ${TGT}')
+
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
 uic3_vardeps = ['QT_UIC3', 'UIC3_FLAGS', 'UIC3_ST']
 
-Action.GenAction('moc', moc_vardeps)
 Action.GenAction('uic', uic_vardeps)
 
+"""
 ## for rcc it is a bit particular
 def rccbuild(task):
 	reldir = reldir = task.m_inputs[0].cd_to()
@@ -28,6 +31,7 @@ def rccbuild(task):
 
 rccact = Action.GenAction('rcc', rcc_vardeps)
 rccact.m_function_to_run = rccbuild
+"""
 
 # Qt .ui3 file processing
 uic_vardeps = ['UIC3', 'QTPLUGINS']
@@ -267,12 +271,15 @@ def detect_qt4(conf):
 			qtdir=None
 	if not qtdir:
 		qtdir=Configure.find_path('include/', [ # lets find the Qt include directory
+				'/usr/local/Trolltech/Qt-4.2.3/',
+				'/usr/local/Trolltech/Qt-4.2.2/',
+				'/usr/local/Trolltech/Qt-4.2.1/',
 				'/usr/local/Trolltech/Qt-4.2.0/',
 				'/usr/local/Trolltech/Qt-4.1.3/',
 				'/usr/local/Trolltech/Qt-4.1.2/',
 				'/usr/local/Trolltech/Qt-4.1.1/',
 				'/usr/local/Trolltech/Qt-4.1.0/',
-				'/usr/local/Trolltech/Qt-4.0.3/', # one never knows
+				'/usr/local/Trolltech/Qt-4.0.3/',
 				'/usr/local/Trolltech/Qt-4.0.2/',
 				'/usr/local/Trolltech/Qt-4.0.1/',
 				'/usr/local/Trolltech/Qt-4.0.0/'])
@@ -310,7 +317,7 @@ def detect_qt4(conf):
 	env['UIC_ST'] = '%s -o %s'
 
 	env['QT_MOC'] = find_qt_bin(['moc-qt4', 'moc'])
-	env['MOC_ST'] = '%s -o %s'
+	env['MOC_ST'] = '-o'
 
 	env['QT_RCC'] = find_qt_bin(['rcc'])
 

@@ -8,17 +8,8 @@ import os, sys
 import Utils, Params, Action, Object, Runner, Common
 from Params import debug, error, trace, fatal
 
-ocaml_vardeps = ['OCAMLCOMP', 'OCAMLFLAGS', 'OCAMLPATH']
-act=Action.GenAction('ocaml', ocaml_vardeps)
-def ocaml_build(task):
-	com = task.m_env['OCAMLCOMP']
-	paths = " ".join(task.m_env['OCAMLPATH'])
-	#reldir  = task.m_inputs[0].cd_to()
-	srcfile = task.m_inputs[0].bldpath()
-	bldfile = task.m_outputs[0].bldpath()
-	cmd = '%s %s -c -o %s %s' % (com, paths, bldfile, srcfile)
-	return Runner.exec_command(cmd)
-act.m_function_to_run = ocaml_build
+
+Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} -c -o ${TGT} ${SRC}')
 
 native_lst=['native', 'all']
 bytecode_lst=['bytecode', 'all']
@@ -61,21 +52,21 @@ class ocamlobj(Object.genobj):
 			if not node:
 				error("node not found dammit")
 				continue
-			lst.append( node )
 
-			node2 = tree.get_mirror_node(node)
-			lst.append( node2 )
 			lst.append( node )
 			self._bld_incpaths_lst.append(node)
-			self._bld_incpaths_lst.append(node2)
+			#self._bld_incpaths_lst.append(node2)
 		# now the nodes are added to self._incpaths_lst
 
 	def apply(self):
 		self.apply_incpaths()
 
 		for i in self._incpaths_lst:
-                        self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath())
-			self.native_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath())
+     			self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
+			self.native_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
+
+			self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+			self.native_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
 
 		native_tasks   = []
 		bytecode_tasks = []

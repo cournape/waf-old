@@ -39,6 +39,7 @@ def tao_idl_file(obj, node):
 	obj.p_compiletasks.append(cpptask)
 
 # first, we define an action to build something
+"""
 tao_idl_vardeps    = ['IDL', 'IDL_DEFFLAGS', 'IDL_INCFLAGS','IDL_ST','ACE_ROOT','TAO_ROOT']
 def tao_idl_build(task):
 	tgt = task.m_inputs[0].cd_to()
@@ -47,6 +48,10 @@ def tao_idl_build(task):
 	return Runner.exec_command(cmd)
 tao_idlact = Action.GenAction('idl', tao_idl_vardeps)
 tao_idlact.m_function_to_run = tao_idl_build
+"""
+
+# TODO define the vars
+Action.simple_action('idl', '${IDL} ${SRC} -o ${TGT}')
 
 # This function is called when a build process is started 
 def setup(env):
