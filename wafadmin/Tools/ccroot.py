@@ -279,7 +279,7 @@ class ccroot(Object.genobj):
 		if not self._incpaths_lst: self.apply_incpaths()
 		for i in self._bld_incpaths_lst:
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
-			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.srcpath())
+			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
 
 		# set the library include paths
 		for i in self.env['CPPPATH']:

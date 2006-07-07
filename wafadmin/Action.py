@@ -126,7 +126,7 @@ class alex:
 						name.append(c)
 			cur += 1
 	def res(self):
-		lst = ['def f(task):\n\tcmd = "']
+		lst = ['def f(task):\n\tenv=task.m_env\n\tcmd = "']
 		lst += self.out
 		lst.append('"')
 
@@ -134,10 +134,10 @@ class alex:
 		for (name, meth) in self.params:
 			if name == 'SRC':
 				if meth: alst.append('task.m_inputs%s' % meth)
-				else: alst.append('" ".join(map(lambda a:a.srcpath(), task.m_inputs))')
+				else: alst.append('" ".join(map(lambda a:a.srcpath(env), task.m_inputs))')
 			elif name == 'TGT':
 				if meth: alst.append('task.m_outputs%s' % meth)
-				else: alst.append('" ".join(map(lambda a:a.bldpath(task.m_env), task.m_outputs))')
+				else: alst.append('" ".join(map(lambda a:a.bldpath(env), task.m_outputs))')
 			else:
 				self.m_vars.append(name)
 				alst.append("task.m_env['%s']" % name)
@@ -166,9 +166,7 @@ def simple_action(name, line):
 	obj = alex(line)
 	obj.start()
 	f = obj.fun()
-	print obj.res()
-	print obj.m_vars
-
+	debug(obj.res())
 	act = Action(name)
 	act.m_function_to_run = f
 	act.m_vars = obj.m_vars

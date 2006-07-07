@@ -189,10 +189,21 @@ class Node:
 		return var
 
 	# the build is launched from the top of the build dir (for example, in _build_/)
-	def srcpath(self):
-		var = self.relpath_gen(Params.g_build.m_bldnode)
+	def srcpath(self, env):
+		if not self in self.m_parent.m_build:
+			var = self.relpath_gen(Params.g_build.m_bldnode)
+		else:
+			var = self.bldpath(env)
 		debug("var is "+var)
 		return var
+
+	def cd_to(self):
+		var = self.m_parent.relpath_gen(Params.g_build.m_bldnode)
+		debug("var is "+var)
+		return var
+
+	def bld_dir(self, env):
+		return self.m_parent.bldpath(env)
 
 	# returns the list of names to the node
 	# make sure to reverse it (used by relpath)
