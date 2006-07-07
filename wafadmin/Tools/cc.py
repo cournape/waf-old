@@ -53,7 +53,7 @@ class ccobj(ccroot.ccroot):
 		# set the user-defined includes paths
 		if not self._incpaths_lst: self.apply_incpaths()
 		for i in self._bld_incpaths_lst:
-			self.env.appendValue('_CCINCFLAGS', cpppath_st % i.bldpath())
+			self.env.appendValue('_CCINCFLAGS', cpppath_st % i.bldpath(self.env))
 
 		# set the library include paths
 		for i in self.env['CPPPATH']:
@@ -66,8 +66,8 @@ class ccobj(ccroot.ccroot):
 		try:
 			tmpnode = Params.g_build.m_curdirnode
 			tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
-			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode.bldpath())
-			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode_mirror.bldpath())
+			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
+			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode_mirror.bldpath(self.env))
 		except:
 			pass
 

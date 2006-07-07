@@ -183,7 +183,7 @@ class c_scanner(scanner):
 
 		# rescan the cpp file if necessary
 		if rescan:
-			self.do_scan(node, variant, task.m_scanner_params)
+			self.do_scan(node, task.m_env, task.m_scanner_params)
 
 		# we are certain that the files have been scanned - compute the signature
 		sig = Params.sig_nil()

@@ -369,6 +369,7 @@ class Build:
 		curnode = self.m_root # root of the tree
 		for dirname in plst:
 			if not dirname: continue
+			if dirname == '.': continue
 			found=None
 			for cand in curnode.m_dirs:
 				if cand.m_name == dirname:
@@ -378,6 +379,7 @@ class Build:
 				found = Node.Node(dirname, curnode)
 				curnode.m_dirs.append(found)
 			curnode = found
+
 		return curnode
 
 	# ensure a directory node from a list, given a node to start from
@@ -385,6 +387,7 @@ class Build:
 		curnode=node
 		for dirname in plst:
 			if not dirname: continue
+			if dirname == '.': continue
 			found=None
 			for cand in curnode.m_dirs:
 				if cand.m_name == dirname:
@@ -432,9 +435,13 @@ class Build:
 	def ensure_directory_lst(self, node, plst):
 		curnode = node
 		exists  = 1
+
+		fatal("boo")
+
 		for dirname in plst:
 			#print "finding ", dirname
 			if not dirname: continue
+			if dirname == '.': continue
 
 			# try to find the node in existing deptree
 			found=None

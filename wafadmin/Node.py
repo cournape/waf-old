@@ -13,6 +13,10 @@ class Node:
 		self.m_name     = name
 		self.m_parent   = parent
 
+		if name == '.' or name == '..' or '/' in name:
+			error('name forbidden '+name)
+			raise "boo"
+
 		# contents of this node (filesystem structure)
 		# these lists contain nodes too
 		self.m_dirs     = [] # sub-folders

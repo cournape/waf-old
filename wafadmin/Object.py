@@ -120,19 +120,35 @@ class genobj:
 	def get_mirror_node(self, node, filename):
 		return tree.mirror_file(node, filename)
 
+
+	# FIXME (ita)
 	def get_bld_node(self, parent, filename):
-		# this might be a source file TODO FIXME
-		for f in parent.m_files:
-			if f.m_name == filename:
-				return f
-		# this is not a source file, look in the build files
-		#print parent.m_build
-		for f in parent.m_build:
-			if f.m_name == filename:
-				return f
-		# bld node does not exist, create it
-		node = Node.Node(filename, parent)
-		parent.m_build.append(node)
+		node = parent
+		for name in filename.split('/'):
+			found = 0
+			if not found:
+				for f in node.m_files:
+					if f.m_name == name:
+						node = f
+						found = 1
+						break
+			if not found:
+				for f in node.m_build:
+					if f.m_name == name:
+						node = f
+						found = 1
+						break
+			if not found:
+				for f in node.m_dirs:
+					if f.m_name == name:
+						node = f
+						found = 1
+						break
+			if not found:
+				# bld node does not exist, create it
+				node2 = Node.Node(name, node)
+				node.m_build.append(node2)
+				node = node2
 		return node
 
 	def file_in(self, filename):

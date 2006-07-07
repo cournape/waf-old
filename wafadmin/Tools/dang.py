@@ -7,16 +7,7 @@ import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
 from Params import debug, error, trace, fatal
 
 # first, we define an action to build something
-dang_vardeps = ['DANG']
-def dang_build(task):
-	reldir = task.m_inputs[0].cd_to()
-	#src = task.m_inputs[0].m_name
-	src = task.m_inputs[0].bldpath()
-	tgt = src[:len(src)-5]+'.cpp'
-	cmd = '%s %s > %s' % (task.m_env['DANG'], src, os.path.join(reldir, tgt))
-	return Runner.exec_command(cmd)
-dangact = Action.GenAction('dang', dang_vardeps)
-dangact.m_function_to_run = dang_build
+Action.simple_action('dang', '${DANG} ${SRC} > ${TGT}')
 
 # This function (hook) is called when the class cppobj encounters a '.coin' file
 # .coin -> .cpp -> .o
@@ -25,7 +16,11 @@ def coin_file(obj, node):
 	# this function is used several times
 	fi = obj.file_in
 
-	# we create the task for the coin file
+	# Create the task for the coin file
+	# the action 'dang' above is called for this
+	# the number '4' in the parameters is the priority of the task
+	# * lower number means high priority
+	# * odd means the task can be run in parallel with others of the same priority number
 	cointask = obj.create_task('dang', obj.env, 4)
 
 	base, ext = os.path.splitext(node.m_name)

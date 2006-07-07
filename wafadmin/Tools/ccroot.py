@@ -115,11 +115,16 @@ class ccroot(Object.genobj):
 	def find_sources_in_dirs(self, dirnames):
 		lst=[]
 		for name in dirnames.split():
-			node = self.m_current_path.find_node( name.split(os.sep) )
-			for file in node.m_files:
+			# TODO
+			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, name.split('/'))
+			Params.g_build.rescan(anode)
+
+			#node = self.m_current_path.find_node( name.split(os.sep) )
+			for file in anode.m_files:
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in self.m_src_file_ext:
-					lst.append( file.relpath(self.m_current_path)[2:] )
+					lst.append( file.relpath(self.m_current_path) )
+		print "lst is ", lst
 		self.source = self.source+(" ".join(lst))
 
 	# adding some kind of genericity is tricky
