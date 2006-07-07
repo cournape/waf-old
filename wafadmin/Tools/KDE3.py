@@ -8,21 +8,11 @@ import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 
 # kde moc file processing
-moc_vardeps = ['MOC', 'MOC_FLAGS', 'MOC_ST']
-Action.GenAction('moc', moc_vardeps)
+Action.simple_action('moc', '${MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}')
 
 # kde documentation
-meinproc_vardeps = ['MEINPROC', 'MEINPROCFLAGS']
-def meinproc_build(task):
-	reldir = task.m_inputs[0].cd_to(task.m_env)
-	com   = task.m_env['MEINPROC']
-	flags = task.m_env['MEINPROCFLAGS']
-	#srcname = task.m_inputs[0].m_name
-	#bldname = task.m_outputs[0].m_name
-	cmd = '%s %s --cache %s %s' % (com, flags, task.m_outputs[0].bldpath(task.m_env), task.m_inputs[0].bldpath(task.m_env))
-	return Runner.exec_command(cmd)
-meinprocact = Action.GenAction('meinproc', meinproc_vardeps)
-meinprocact.m_function_to_run = meinproc_build
+Action.simple_action('meinproc', '${MEINPROC} ${MEINPROCFLAGS} --cache ${TGT} ${SRC}')
+
 
 # kde .ui file processing
 #uic_vardeps = ['UIC', 'UIC_FLAGS', 'UIC_ST']
@@ -608,7 +598,7 @@ def detect_kde(conf):
 	env['PO_ST']            = '%s -o %s'
 
 	env['MOC_FLAGS']        = ''
-	env['MOC_ST']           = '%s -o %s'
+	env['MOC_ST']           = '-o'
 
 	env['DCOPIDL']          = 'dcopidl'
 	env['DCOPIDL2CPP']      = 'dcopidl2cpp'
