@@ -414,6 +414,9 @@ class Build:
 		# this makes (n bdirs)+srdir to scan (at least 2 folders)
 		# so we might want to do it in parallel in the future
 
+		# do not rescan over and over again
+		if src_dir_node in self.m_scanned_folders: return
+
 		debug("rescanning "+str(src_dir_node))
 
 		# list the files in the src directory, adding the signatures

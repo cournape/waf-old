@@ -117,15 +117,10 @@ class ccroot(Object.genobj):
 		for name in dirnames.split():
 
 			#print "name is ", name
-
-			# TODO
 			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, name.split('/'))
 			#print "anode ", anode.m_name, " ", anode.m_files
-
 			Params.g_build.rescan(anode)
-
 			#print "anode ", anode.m_name, " ", anode.m_files
-
 
 			#node = self.m_current_path.find_node( name.split(os.sep) )
 			for file in anode.m_files:
