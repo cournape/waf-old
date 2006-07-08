@@ -10,6 +10,7 @@ from Params import debug, error, trace, fatal
 
 
 Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} -c -o ${TGT} ${SRC}')
+Action.simple_action('ocalink', '${OCALINK} ${OCALINKFLAGS} ${SRC} -o ${TGT}')
 
 native_lst=['native', 'all']
 bytecode_lst=['bytecode', 'all']
@@ -32,16 +33,16 @@ class ocamlobj(Object.genobj):
 			self.is_native                 = 1
 			self.native_env                = Params.g_build.m_allenvs['default'].copy()
 			self.native_env['OCAMLCOMP']   = self.native_env['OCAMLOPT']
-			self.native_env['LINK']        = self.native_env['OCAMLOPT']
+			self.native_env['OCALINK']     = self.native_env['OCAMLOPT']
 		if type in bytecode_lst:
 			self.is_bytecode               = 1
 			self.bytecode_env              = Params.g_build.m_allenvs['default'].copy()
 			self.bytecode_env['OCAMLCOMP'] = self.bytecode_env['OCAMLC']
-			self.bytecode_env['LINK']      = self.bytecode_env['OCAMLC']
+			self.bytecode_env['OCALINK']   = self.bytecode_env['OCAMLC']
 
 		if self.islibrary:
-			self.bytecode_env['LINKFLAGS'] = '-a'
-			self.native_env['LINKFLAGS']   = '-a'
+			self.bytecode_env['OCALINKFLAGS'] = '-a'
+			self.native_env['OCALINKFLAGS']   = '-a'
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -91,14 +92,14 @@ class ocamlobj(Object.genobj):
 				bytecode_tasks.append(task)
 
 		if self.is_bytecode:
-			linktask = self.create_task('link', self.bytecode_env, 101)
+			linktask = self.create_task('ocalink', self.bytecode_env, 101)
 			objfiles = []
 			for t in bytecode_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=1))
 
 		if self.is_native:
-			linktask = self.create_task('link', self.native_env, 101)
+			linktask = self.create_task('ocalink', self.native_env, 101)
 			objfiles = []
 			for t in native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
@@ -117,12 +118,10 @@ class ocamlobj(Object.genobj):
 				return self.target
 
 def setup(env):
-	link_vardeps   = ['LINK', 'LINKFLAGS', 'LINK_ST']
-	Action.GenAction('link', link_vardeps)
 	Object.register('ocaml', ocamlobj)
 	if not sys.platform == "win32":
 		Params.g_colors['ocaml']='\033[92m'
-		Params.g_colors['link']='\033[93m'
+		Params.g_colors['ocalink']='\033[93m'
 
 def detect(conf):
 
@@ -137,8 +136,7 @@ def detect(conf):
 	conf.env['OCAMLLEX']       = 'ocamllex'
 	conf.env['OCAMLYACC']      = 'ocamlyacc'
 	conf.env['OCAMLFLAGS']     = ''
-	conf.env['LINK']           = ''
-	conf.env['LINKFLAGS']      = ''
-	conf.env['LINK_ST']        = '%s -o %s'
+	conf.env['OCALINK']        = ''
+	conf.env['OCALINKFLAGS']   = ''
 	return 1
 
