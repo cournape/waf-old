@@ -7,7 +7,7 @@ import Utils
 
 ### CONSTANTS ###
 
-g_version='0.8.0' # ph34r
+g_version='0.8.3' # ph34r
 g_rootname = ''
 if sys.path=='win32':
 	# get the first two letters (c:)

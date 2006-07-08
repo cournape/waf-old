@@ -176,12 +176,8 @@ class Serial:
 				except: pass
 				write_progress(progress_line(s, t, col1, proc.m_str, col2))
 
-			# run the command, it might be a function attached to an action
-			# usually we will only popen a string
-			if proc.m_action.m_function_to_run:
-				ret = proc.m_action.m_function_to_run(proc)
-			else:
-				ret = exec_command(proc.m_cmd)
+			# run the command
+			ret = proc.m_action.run(proc)
 
 			# non-zero means something went wrong
 			if ret:
@@ -289,12 +285,8 @@ class TaskConsumer(threading.Thread):
 			# display the label for the command executed
 			write_progress(proc.m_str)
 
-			# run the command, it might be a function attached to an action
-			# usually we will only popen a string
-			if proc.m_action.m_function_to_run:
-				ret = proc.m_action.m_function_to_run(proc)
-			else:
-				ret = exec_command(proc.m_cmd)
+			# run the command
+			ret = proc.m_action.run(proc)
 
 			self.do_stat(-1)
 

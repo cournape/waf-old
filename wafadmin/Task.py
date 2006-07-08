@@ -46,7 +46,6 @@ class Task:
 		# this task was run
 		self.m_hasrun=0
 
-		self.m_cmd=0
 		self.m_sig=0
 		self.m_str=0
 
