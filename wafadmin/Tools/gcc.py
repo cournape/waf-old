@@ -25,11 +25,11 @@ def setup(env):
 		Params.g_colors['fakelibtool']='\033[94m'
 
 def detect(conf):
-	cc = conf.checkProgram('cc')
+	cc = conf.checkProgram('cc', var='CC')
 	if not cc:
 		return 0;
 
-	comp = conf.checkProgram('gcc')
+	comp = conf.checkProgram('gcc', var='GCC')
 	if not comp:
 		return 0;
 

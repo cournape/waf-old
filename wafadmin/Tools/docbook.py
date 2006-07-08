@@ -155,21 +155,21 @@ def detect(conf):
 	else:
 		if not conf.env['PREFIX']: conf.env['PREFIX'] = '/usr'
 	# Detect programs for converting xml -> html/pdf
-	fop = conf.checkProgram('fop')
+	fop = conf.checkProgram('fop', var='FOP')
 	if fop:
 		conf.env['FOP'] = fop
-	xsltproc = conf.checkProgram('xsltproc')
+	xsltproc = conf.checkProgram('xsltproc', var='XSLTPROC')
 	if xsltproc:
 		conf.env['XSLTPROC_ST'] = '%s --xinclude %s %s > %s'
 		conf.env['XSLTPROC'] = xsltproc
 
-	xalan = conf.checkProgram('xalan')
+	xalan = conf.checkProgram('xalan', var='XALAN')
 	if not xsltproc and xalan:
 		conf.env['XSLTPROC_ST'] = '%s -xsl %s -in %s -out %s'
 		conf.env['XSLTPROC'] = xalan
 
 	# OpenJade conversion tools for converting sgml -> xyz
-	jw = conf.checkProgram('jw')
+	jw = conf.checkProgram('jw', 'JW')
 	if jw:
 		conf.env['DB2HTML'] = "jw -u -f docbook -b html -o %s %s"
 		conf.env['DB2PDF']  = "jw -f docbook -b pdf -o %s %s"

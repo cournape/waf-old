@@ -40,7 +40,7 @@ def setup(env):
 	if not env['handlers_cppobj_.l']: env['handlers_cppobj_.l'] = l_file
 
 def detect(conf):
-	flex = conf.checkProgram('flex')
+	flex = conf.checkProgram('flex', var='FLEX')
 	if not flex: return 0
 	conf.env['FLEX'] = flex
 	conf.env['FLEXFLAGS'] = ''

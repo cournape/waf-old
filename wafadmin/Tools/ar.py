@@ -30,11 +30,11 @@ def setup(env):
 
 def detect(conf):
 
-	comp = conf.checkProgram('ar')
+	comp = conf.checkProgram('ar', var='AR')
 	if not comp:
 		return 0;
 
-	ranlib = conf.checkProgram('ranlib')
+	ranlib = conf.checkProgram('ranlib', var='RANLIB')
 	if not ranlib:
 		return 0
 

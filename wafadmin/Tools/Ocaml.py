@@ -125,8 +125,8 @@ def setup(env):
 
 def detect(conf):
 
-	opt = conf.checkProgram('ocamlopt')
-	occ = conf.checkProgram('ocamlc')
+	opt = conf.checkProgram('ocamlopt', var='OCAMLOPT')
+	occ = conf.checkProgram('ocamlc', var='OCAMLC')
 	if (not opt) or (not occ):
 		fatal('The objective caml compiler was not found:\n' \
 			'install it or make it availaible in your PATH')

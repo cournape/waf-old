@@ -40,7 +40,7 @@ def setup(env):
 	if not env['handlers_cppobj_.yc']: env['handlers_cppobj_.yc'] = yc_file
 
 def detect(conf):
-	bison = conf.checkProgram('bison')
+	bison = conf.checkProgram('bison', var='BISON')
 	if not bison: return 0
 	conf.env['BISON'] = bison
 	conf.env['BISONFLAGS'] = '-d'

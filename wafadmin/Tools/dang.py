@@ -44,7 +44,7 @@ def setup(env):
 	if not env['handlers_cppobj_.coin']: env['handlers_cppobj_.coin'] = coin_file
 
 def detect(conf):
-	dang = conf.checkProgram('cat')
+	dang = conf.checkProgram('cat', var='CAT')
 	if not dang: return 0
 	conf.env['DANG'] = dang
 	return 1
