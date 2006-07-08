@@ -12,26 +12,15 @@ from Params import debug, error, trace, fatal
 ## QT SUPPORT ##
 
 Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}')
-Action.simple_action('moc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} ${TGT}')
+Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}')
+
+
 
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
 uic3_vardeps = ['QT_UIC3', 'UIC3_FLAGS', 'UIC3_ST']
 
 Action.GenAction('uic', uic_vardeps)
-
-"""
-## for rcc it is a bit particular
-def rccbuild(task):
-	reldir = reldir = task.m_inputs[0].cd_to()
-	name = task.m_inputs[0].m_name
-	name = name[:len(name)-4]
-	cmd = '%s -name %s %s -o %s' % (task.m_env['QT_RCC'], name, task.m_inputs[0].bldpath(), task.m_outputs[0].bldpath())
-	return Runner.exec_command(cmd)
-
-rccact = Action.GenAction('rcc', rcc_vardeps)
-rccact.m_function_to_run = rccbuild
-"""
 
 # Qt .ui3 file processing
 uic_vardeps = ['UIC3', 'QTPLUGINS']
@@ -43,9 +32,9 @@ def uic3_build(task):
 
 	inc_moc  ='#include "%s.moc"\n' % base
 
-	ui_path   = task.m_inputs[0].bldpath()
-	h_path    = task.m_outputs[0].bldpath()
-	cpp_path  = task.m_outputs[1].bldpath()
+	ui_path   = task.m_inputs[0].bldpath(task.m_env)
+	h_path    = task.m_outputs[0].bldpath(task.m_env)
+	cpp_path  = task.m_outputs[1].bldpath(task.m_env)
 
 	qtplugins   = task.m_env['QTPLUGINS']
 	uic_command = task.m_env['UIC3']
@@ -87,16 +76,6 @@ class qt4obj(cpp.cppobj):
 
 	def get_node(self, a):
 		return self.get_mirror_node(self.m_current_path, a)
-
-	def find_sources_in_dirs(self, dirnames):
-		lst=[]
-		for name in dirnames.split():
-			node = self.m_current_path.find_node( name.split(os.sep) )
-			for file in node.m_files:
-				(base, ext) = os.path.splitext(file.m_name)
-				if ext in qt4files:
-					lst.append( file.relpath(self.m_current_path)[2:] )
-		self.source = " ".join(lst)
 
 	def create_rcc_task(self, base):
 		# run rcctask with one of the highest priority
@@ -158,7 +137,12 @@ class qt4obj(cpp.cppobj):
 
 		lst = self.source.split()
 		cpptasks = []
+
+		#print self.source
+
 		for filename in lst:
+
+			#print "filename is ", filename
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
 			if not node: fatal("cannot find "+filename+" in "+str(self.m_current_path))
@@ -175,11 +159,46 @@ class qt4obj(cpp.cppobj):
 
 			# scan for moc files to produce, create cpp tasks at the same time
 
-			if tree.needs_rescan(node):
-				Scan.g_c_scanner.do_scan(tree, node, dir_lst)
+			#if tree.needs_rescan(node):
+			Scan.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
 
 			moctasks=[]
 			mocfiles=[]
+
+			if node in node.m_parent.m_files: variant = 0
+			else: variant = env.m_variant
+
+			# TODO: remove this check
+			if not variant in tree.m_raw_deps: tree.m_raw_deps[variant] = {}
+
+			try: tmp_lst = tree.m_raw_deps[variant][node]
+			except: tmp_lst = []
+			for d in tmp_lst:
+				base2, ext2 = os.path.splitext(d)
+				if not ext2 == '.moc': continue
+				# paranoid check
+				if d in mocfiles:
+					error("paranoia owns")
+					continue
+				# process that base.moc only once
+				mocfiles.append(d)
+
+				task = self.create_task('moc', self.env)
+				task.m_inputs  = self.file_in(base+'.h')
+				task.m_outputs = self.file_in(base+'.moc')
+				moctasks.append( task )
+			
+			# use a cache ?
+			for d in tree.m_depends_on[variant][node]:
+				name = d.m_name
+				if name[len(name)-4:]=='.moc':
+					task = self.create_task('moc', self.env)
+					task.m_inputs  = self.file_in(base+'.h')
+					task.m_outputs = [d]
+					moctasks.append( task )
+					break
+
+			"""
 			try: tmp_lst = tree.m_raw_deps[node]
 			except: tmp_lst=[]
 			for d in tmp_lst:
@@ -205,7 +224,7 @@ class qt4obj(cpp.cppobj):
 					task.m_outputs = [d]
 					moctasks.append( task )
 					break
-
+"""
 			# create the task for the cpp file
 			cpptask = self.create_cpp_task()
 

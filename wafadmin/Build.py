@@ -34,7 +34,10 @@ def scan_src_path(bld, i_parent_node, i_path, i_existing_nodes):
 				break
 			i += 1
 		if i < l_len:
-			l_names = l_names[:i-1]+l_names[i+1:]
+			if i>1:
+				l_names = l_names[:i-1]+l_names[i+1:]
+			else:
+				l_names = l_names[1:]
 
 	# Now:
 	# l_names contains the new nodes (or files)
@@ -92,7 +95,10 @@ def scan_path(bld, i_parent_node, i_path, i_existing_nodes, i_variant):
 				break
 			i += 1
 		if i < l_len:
-			l_names = l_names[:i-1]+l_names[i+1:]
+			if i>1:
+				l_names = l_names[:i-1]+l_names[i+1:]
+			else:
+				l_names = l_names[1:]
 		else:
 			l_rm.append(node)
 

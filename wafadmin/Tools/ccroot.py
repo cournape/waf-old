@@ -115,16 +115,26 @@ class ccroot(Object.genobj):
 	def find_sources_in_dirs(self, dirnames):
 		lst=[]
 		for name in dirnames.split():
+
+			#print "name is ", name
+
 			# TODO
 			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, name.split('/'))
+			#print "anode ", anode.m_name, " ", anode.m_files
+
 			Params.g_build.rescan(anode)
+
+			#print "anode ", anode.m_name, " ", anode.m_files
+
 
 			#node = self.m_current_path.find_node( name.split(os.sep) )
 			for file in anode.m_files:
+				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in self.m_src_file_ext:
-					lst.append( file.relpath(self.m_current_path) )
-		print "lst is ", lst
+					s = file.relpath(self.m_current_path)
+					if not s in lst: lst.append(s)
+
 		self.source = self.source+(" ".join(lst))
 
 	# adding some kind of genericity is tricky
@@ -168,8 +178,8 @@ class ccroot(Object.genobj):
 				fun(self, node)
 				continue
 
-			if tree.needs_rescan(node):
-				Scan.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
+			#if tree.needs_rescan(node):
+			Scan.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
 
 			# create the compilation task: cpp or cc
 			task = self.create_task(self.m_type_initials, self.env)
