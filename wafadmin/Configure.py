@@ -274,9 +274,19 @@ int main()
 		self.addDefine(define,is_found)
 		return is_found
 
-	def checkProgram(self, file, path_list=None):
+	def checkProgram(self, file, path_list=None, var=None):
 		"""find an application"""
 		#print path_list
+		# let the user override CXX from 1. the env variable 2. the os.environment
+		if var:
+			try:
+				if self.env[var]:
+					file=self.env[var]
+				else:
+					pvar=os.environ[var]
+					if pvar: file=pvar
+			except:
+				pass
 		ret = find_program(self.env, file, path_list)
 		self.checkMessage('program',file,ret,ret)
 		return ret
