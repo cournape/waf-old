@@ -15,6 +15,8 @@ def build(bld):
 	bld.add_subdirs('src src2')
 
 def configure(conf):
+	# conf.env['CXX'] = Params.g_options.meow
+	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
 	conf.checkTool(['g++'])
 	conf.sub_config('src')
 
