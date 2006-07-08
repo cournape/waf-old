@@ -64,11 +64,11 @@ class Action:
 			task.m_cmd = self.get_cmd(task)
 
 
-# TODO (ita)
 # Actions declared using a string are compiled before use:
 # * a class with the necessary functions is created (so the string is parsed only once)
 # * all variables (CXX, ..) can be strings or lists of strings (only)
 # * the keywords TGT and SRC cannot be overridden (they represent the task input and output nodes)
+#
 # Example:
 # str = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'
 # act = simple_action('name', str)
@@ -154,14 +154,6 @@ class alex:
 		exec(self.res())
 		return eval('f')
 			
-#astr = '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].m_parent.bldpath()}'
-#obj = alex(astr)
-#obj.start()
-#print 'o: ', ''.join(obj.out)
-#print 'p: ', obj.params
-#print obj.res()
-#print obj.fun()
-
 def simple_action(name, line):
 	obj = alex(line)
 	obj.start()
@@ -171,6 +163,8 @@ def simple_action(name, line):
 	act.m_function_to_run = f
 	act.m_vars = obj.m_vars
 
+
+# TODO obsolete (ita)
 # most actions contain only one well-defined command-line taking sources as input and targets as output
 class GenAction(Action):
 	def __init__(self, name, vars, src_only=0, buildfunc=None):
