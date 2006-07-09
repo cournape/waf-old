@@ -33,16 +33,18 @@ def yc_file(obj, node):
 	obj.p_compiletasks.append(cpptask)
 
 def setup(env):
-	if not sys.platform == "win32":
+	if not sys.platform == 'win32':
 		Params.g_colors['bison']='\033[94m'
 
 	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.yc']: env['handlers_cppobj_.yc'] = yc_file
+	if not env['handlers_cppobj_.y']: env['handlers_cppobj_.y'] = yc_file
 
 def detect(conf):
 	bison = conf.checkProgram('bison', var='BISON')
 	if not bison: return 0
-	conf.env['BISON'] = bison
-	conf.env['BISONFLAGS'] = '-d'
+	v = conf.env
+	v['BISON']      = bison
+	v['BISONFLAGS'] = '-d'
 	return 1
 
