@@ -5,10 +5,6 @@
 import Object, Params, Runner
 from Params import debug, error, trace, fatal
 
-def add_action(act):
-	Params.g_actions[act.m_name] = act
-	trace( "action added: %s" % (act) )
-
 # more refactoring to come
 class Action:
 	def __init__(self, name, cmd=None, sig=None, str=None):
@@ -24,10 +20,16 @@ class Action:
 		self.m_function_to_run = None
 
 		# register ourselves
-		add_action(self)
+		self._add_action()
 
 	def __str__(self):
 		return self.m_name
+
+
+	def _add_action(self):
+		if self.m_name in Params.g_actions: error('overriding action '+self.m_name)
+		Params.g_actions[self.m_name] = self
+		trace("action added: %s" % self.m_name)
 
 	# string to display to the user
 	def get_str(self, task):
@@ -203,12 +205,5 @@ class GenAction(Action):
 			Runner.exec_command(cmd)
 		else:
 			self.m_function_to_run(task)
-
-def create_action(name, cmd, sig, str):
-	act = Action(name, cmd, sig, str)
-
-def space_join(list, env):
-	cmd_list = Object.list_to_env_list( list )
-	return " ".join( cmd_list )
 
 
