@@ -11,13 +11,15 @@ import Utils,Action,Params,Configure
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
 	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
-	cpp_vardeps    = ['CXX', 'CXXFLAGS', 'CXXFLAGS_' + Params.g_options.debug_level, 'CPPFLAGS', '_CXXINCFLAGS', 'CXX_ST']
-	Action.GenAction('cpp', cpp_vardeps)
 
-	# TODO: this is the same definitions as for gcc, should be separated to have independent setup
+	deb = Params.g_options.debug_level
+
+	cpp_str = '${CXX} ${CXXFLAGS} ${CXXFLAGS%s} ${CPPFLAGS} ${_CXXINCFLAGS} ${CXX_SRC_ST}${SRC} ${CXX_TGT_ST}${TGT}' % deb
+	Action.simple_action('cpp', cpp_str)
+
 	# on windows libraries must be defined after the object files 
-	link_cpp_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
-	action = Action.GenAction('cpp_link', link_cpp_vardeps)
+	link_str = '${LINK} ${LINK_SRC_ST}${SRC} ${LINK_TGT_ST}${TGT} ${LINKFLAGS} ${LINKFLAGS_%s} ${_LIBDIRFLAGS} ${_LIBFLAGS}' % deb
+	Action.simple_action('cpp_link', link_str)
 
 	if not sys.platform == "win32":
 		Params.g_colors['cpp']='\033[92m'
@@ -47,41 +49,48 @@ def detect(conf):
 		return 0
 
 	# preprocessor
-	conf.env['CPP']             = cpp
+	conf.env['CPP']                 = cpp
 
 	# c++ compiler
-	conf.env['CXX']             = comp
-	conf.env['CPPFLAGS']        = []
-	conf.env['_CXXINCFLAGS']    = ''
-	conf.env['CXX_ST']          = '%s -c -o %s'
-	conf.env['CPPPATH_ST']      = '-I%s' # template for adding include pathes
+	conf.env['CXX']                 = comp
+	conf.env['CPPFLAGS']            = []
+	conf.env['_CXXINCFLAGS']        = ''
+
+	conf.env['CXX_SRC_ST']          = ''
+	conf.env['CXX_TGT_ST']          = '-c -o '
+
+	conf.env['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# compiler debug levels
-	conf.env['CXXFLAGS'] = []
-	conf.env['CXXFLAGS_OPTIMIZED'] = ['-O2']
-	conf.env['CXXFLAGS_RELEASE'] = ['-O2']
-	conf.env['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
+	conf.env['CXXFLAGS']            = []
+	conf.env['CXXFLAGS_OPTIMIZED']  = ['-O2']
+	conf.env['CXXFLAGS_RELEASE']    = ['-O2']
+	conf.env['CXXFLAGS_DEBUG']      = ['-g', '-DDEBUG']
 	conf.env['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
 	# linker	
-	conf.env['LINK']             = comp
-	conf.env['LIB']              = []
-	conf.env['LINK_ST']          = '%s -o %s'
-	conf.env['LIB_ST']           = '-l%s'	# template for adding libs
-	conf.env['LIBPATH_ST']       = '-L%s' # template for adding libpathes
-	conf.env['STATICLIB_ST']     = '-l%s'
-	conf.env['STATICLIBPATH_ST'] = '-L%s'
-	conf.env['_LIBDIRFLAGS']     = ''
-	conf.env['_LIBFLAGS']        = ''
+	conf.env['LINK']                = comp
+	conf.env['LIB']                 = []
 
-	conf.env['SHLIB_MARKER']     = '-Wl,-Bdynamic'
-	conf.env['STATICLIB_MARKER'] = '-Wl,-Bstatic'
+	conf.env['LINK_TGT_ST']         = '-o '
+	conf.env['LINK_SRC_ST']         = ''
+
+
+	conf.env['LIB_ST']              = '-l%s'	# template for adding libs
+	conf.env['LIBPATH_ST']          = '-L%s' # template for adding libpathes
+	conf.env['STATICLIB_ST']        = '-l%s'
+	conf.env['STATICLIBPATH_ST']    = '-L%s'
+	conf.env['_LIBDIRFLAGS']        = ''
+	conf.env['_LIBFLAGS']           = ''
+
+	conf.env['SHLIB_MARKER']        = '-Wl,-Bdynamic'
+	conf.env['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
 	# linker debug levels
-	conf.env['LINKFLAGS'] = []
+	conf.env['LINKFLAGS']           = []
 	conf.env['LINKFLAGS_OPTIMIZED'] = ['-s']
-	conf.env['LINKFLAGS_RELEASE'] = ['-s']
-	conf.env['LINKFLAGS_DEBUG'] = ['-g']
+	conf.env['LINKFLAGS_RELEASE']   = ['-s']
+	conf.env['LINKFLAGS_DEBUG']     = ['-g']
 	conf.env['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
 	def addflags(var):

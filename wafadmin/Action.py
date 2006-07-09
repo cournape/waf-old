@@ -110,7 +110,12 @@ class alex:
 						name.append(c)
 			cur += 1
 	def res(self):
-		lst = ['def f(task):\n\tenv=task.m_env\n\tp=Object.flatten\n\tcmd = "']
+		lst = ['def f(task):\n\tenv=task.m_env\n\tp=Object.flatten\n\t']
+
+		#lst.append('print task.m_inputs\n\t')
+		#lst.append('print task.m_outputs\n\t')
+
+		lst.append('cmd = "')
 		lst += self.out
 		lst.append('"')
 
