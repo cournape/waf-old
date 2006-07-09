@@ -130,6 +130,9 @@ class Node:
 		if not lst: return self
 		name=lst[0]
 
+
+		Params.g_build.rescan(self)
+
 		#print self.m_dirs
 		#print self.m_files
 

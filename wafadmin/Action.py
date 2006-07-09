@@ -5,7 +5,6 @@
 import Object, Params, Runner
 from Params import debug, error, trace, fatal
 
-# more refactoring to come
 class Action:
 	def __init__(self, name, vars=[], func=None):
 		# each action must have a user-friendly little name
@@ -24,7 +23,6 @@ class Action:
 
 	def __str__(self):
 		return self.m_name
-
 
 	def _add_action(self):
 		if self.m_name in Params.g_actions: error('overriding action '+self.m_name)
