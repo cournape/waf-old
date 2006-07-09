@@ -6,7 +6,9 @@ import os, shutil, sys
 import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
 from Params import debug, error, trace, fatal
 
-# first, we define an action to build something
+flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
+
+"""
 flex_vardeps = ['FLEX']
 def flex_build(task):
 	reldir = task.m_inputs[0].cd_to()
@@ -14,11 +16,9 @@ def flex_build(task):
 	tgt = src[:len(src)-2]+'.lex.cc'
 	cmd = '%s -o%s %s %s' % (task.m_env['FLEX'], os.path.join(reldir, tgt), task.m_env['FLEXFLAGS'], src)
 	return Runner.exec_command(cmd)
-lexact = Action.GenAction('flex', flex_vardeps)
-lexact.m_function_to_run = flex_build
+"""
 
 def l_file(obj, node):
-
 	fi = obj.file_in
 
 	ltask = obj.create_task('flex', obj.env, 4)
@@ -35,6 +35,8 @@ def l_file(obj, node):
 def setup(env):
 	if not sys.platform == "win32":
 		Params.g_colors['flex']='\033[94m'
+	# create our action here
+	Action.simple_action('flex', flex_str)
 
 	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.l']: env['handlers_cppobj_.l'] = l_file
@@ -42,7 +44,8 @@ def setup(env):
 def detect(conf):
 	flex = conf.checkProgram('flex', var='FLEX')
 	if not flex: return 0
-	conf.env['FLEX'] = flex
-	conf.env['FLEXFLAGS'] = ''
+	v = conf.env
+	v['FLEX']      = flex
+	v['FLEXFLAGS'] = ''
 	return 1
 

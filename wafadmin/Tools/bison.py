@@ -6,16 +6,8 @@ import os, shutil, sys
 import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
 from Params import debug, error, trace, fatal
 
-# first, we define an action to build something
-bison_vardeps = ['BISON']
-def bison_build(task):
-	reldir = task.m_inputs[0].cd_to()
-	src = task.m_inputs[0].bldpath()
-	tgt = src[:len(src)-3]+'.tab.cc'
-	cmd = '%s -b %s %s %s' % (task.m_env['BISON'], os.path.join(reldir, src[:len(src)-3]), task.m_env['BISONFLAGS'], src)
-	return Runner.exec_command(cmd)
-bisonact = Action.GenAction('bison', bison_vardeps)
-bisonact.m_function_to_run = bison_build
+# -o TGT ? or -b target without extension ? : to investigate
+bison_str = '${BISON} -o ${TGT} ${BISONFLAGS} ${SRC}'
 
 def yc_file(obj, node):
 
@@ -35,6 +27,9 @@ def yc_file(obj, node):
 def setup(env):
 	if not sys.platform == 'win32':
 		Params.g_colors['bison']='\033[94m'
+
+	# create our action here
+	Action.simple_action('bison', bison_str)
 
 	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.yc']: env['handlers_cppobj_.yc'] = yc_file
