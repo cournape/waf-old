@@ -59,7 +59,7 @@ def fakelibtool_build(task):
 	fu("libdir='%s/lib'\n" % task.m_env['PREFIX'])
 	dest.close()
 	return 0
-fakelibtoolact = Action.GenAction('fakelibtool', fakelibtool_vardeps, buildfunc=fakelibtool_build)
+fakelibtoolact = Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build)
 
 # Parent class for programs and libraries in languages c, c++ and moc (Qt)
 class ccroot(Object.genobj):

@@ -2,31 +2,18 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-#! /usr/bin/env python
-# encoding: utf-8
-# Thomas Nagy, 2006 (ita)
-
 import os, sys
 import ccroot, cpp
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 
-# kde moc file processing
-moc_vardeps = ['MOC', 'MOC_FLAGS', 'MOC_ST']
-Action.GenAction('moc', moc_vardeps)
-
-# kde documentation
-meinproc_vardeps = ['MEINPROC', 'MEINPROCFLAGS']
-def meinproc_build(task):
-	reldir = task.m_inputs[0].cd_to()
-	com   = task.m_env['MEINPROC']
-	flags = task.m_env['MEINPROCFLAGS']
-	#srcname = task.m_inputs[0].m_name
-	#bldname = task.m_outputs[0].m_name
-	cmd = '%s %s --cache %s %s' % (com, flags, task.m_outputs[0].bldpath(), task.m_inputs[0].bldpath())
-	return Runner.exec_command(cmd)
-meinprocact = Action.GenAction('meinproc', meinproc_vardeps)
-meinprocact.m_function_to_run = meinproc_build
+Action.simple_action('moc', '${MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}')
+Action.simple_action('po', '${POCOM} ${SRC} ${PO_ST} ${TGT}')
+Action.simple_action('meinproc', '${MEINPROC} ${MEINPROCFLAGS} --cache ${TGT} ${SRC}')
+Action.simple_action('kidl', '${DCOPIDL} ${SRC} > ${TGT} || (rm -f ${TGT} ; false)')
+Action.simple_action('skel', 'cd ${SRC[0].bld_dir(env)} && ${DCOPIDL2CPP} --c++-suffix cpp --no-signals --no-stub ${SRC[0].m_name}')
+Action.simple_action('stub', 'cd ${SRC[0].bld_dir(env)} && ${DCOPIDL2CPP} --c++-suffix cpp --no-signals --no-skel ${SRC[0].m_name}')
+Action.simple_action('kcfg', '${KCONFIG_COMPILER} -d${SRC[0].bld_dir(env)} ${SRC[0].bldpath(env)} ${SRC[1].bldpath(env)}')
 
 # kde .ui file processing
 #uic_vardeps = ['UIC', 'UIC_FLAGS', 'UIC_ST']
@@ -65,54 +52,14 @@ def uic_build(task):
 	#dest.close()
 
 	return ret
-uicact = Action.GenAction('uic', uic_vardeps)
-uicact.m_function_to_run = uic_build
+
+Action.Action('uic', vars=uic_vardeps, func=uic_build)
+
 
 kidl_vardeps = ['DCOPIDL']
 skelstub_vardeps = ['DCOPIDL2CPP']
 
-def kidl_build(task):
-	reldir = task.m_inputs[0].cd_to()
-	#src = task.m_inputs[0].m_name
-	src = task.m_inputs[0].bldpath()
-	#tgt = src[:len(src)-2]+'.kidl'
-	tgt = task.m_outputs[0].bldpath()
-	cmd = '%s %s > %s || (rm -f %s ; false)' % (task.m_env['DCOPIDL'], src, tgt, tgt)
-	return Runner.exec_command(cmd)
-kidlact = Action.GenAction('kidl', kidl_vardeps)
-kidlact.m_function_to_run = kidl_build
-
-def skel_build(task):
-	reldir = task.m_inputs[0].cd_to()
-	src = task.m_inputs[0].m_name
-	cmd = 'cd %s && %s --c++-suffix cpp --no-signals --no-stub %s' % (reldir, task.m_env['DCOPIDL2CPP'], src)
-	return Runner.exec_command(cmd)
-skelact = Action.GenAction('skel', skelstub_vardeps)
-skelact.m_function_to_run = skel_build
-
-def stub_build(task):
-	reldir = task.m_inputs[0].cd_to()
-	src = task.m_inputs[0].m_name
-	cmd = 'cd %s && %s --c++-suffix cpp --no-signals --no-skel %s' % (reldir, task.m_env['DCOPIDL2CPP'], src)
-	return Runner.exec_command(cmd)
-stubact = Action.GenAction('stub', skelstub_vardeps)
-stubact.m_function_to_run = stub_build
-
-# kconfig_compiler
-kcfg_vardeps = ['KCONFIG_COMPILER']
-def kcfg_build(task):
-	com = task.m_env['KCONFIG_COMPILER']
-	reldir = task.m_inputs[0].cd_to()
-	kcfg1 = task.m_inputs[0].bldpath()
-	kcfg2 = task.m_inputs[1].bldpath()
-	cmd = '%s -d%s %s %s' % (com, reldir, kcfg1, kcfg2)
-	return Runner.exec_command(cmd)
-kcfgact = Action.GenAction('kcfg', kcfg_vardeps)
-kcfgact.m_function_to_run = kcfg_build
-
 # translations
-po_vardeps = ['POCOM', 'PO_ST']
-Action.GenAction('po', po_vardeps)
 class kde_translations(Object.genobj):
 	def __init__(self, appname):
 		Object.genobj.__init__(self, 'other')
@@ -633,10 +580,10 @@ def detect_kde(conf):
 	env['MEINPROC_ST']      = '--cache %s %s'
 	
 	env['POCOM']            = 'msgfmt'
-	env['PO_ST']            = '%s -o %s'
+	env['PO_ST']            = '-o'
 
 	env['MOC_FLAGS']        = ''
-	env['MOC_ST']           = '%s -o %s'
+	env['MOC_ST']           = '-o'
 
 	env['DCOPIDL']          = 'dcopidl'
 	env['DCOPIDL2CPP']      = 'dcopidl2cpp'

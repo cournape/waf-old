@@ -7,11 +7,8 @@
 import os, sys
 import Utils, Params, Action, Object, Runner
 
-tex_vardeps    = ['TEX', 'TEXFLAGS', 'TEX_ST']
-Action.GenAction('tex', tex_vardeps, src_only=1)
-
+# TODO: make this more simple
 latex_vardeps  = ['LATEX', 'LATEXFLAGS', 'LATEX_ST']
-act = Action.GenAction('latex', latex_vardeps)
 def latex_build(task):
 	com = task.m_env['LATEX']
 	node = task.m_inputs[0]
@@ -23,16 +20,7 @@ def latex_build(task):
 
 	cmd = 'cd %s && %s %s' % (reldir, com, srcfile)
 	return Runner.exec_command(cmd)
-act.m_function_to_run = latex_build
 
-bibtex_vardeps = ['BIBTEX', 'BIBTEXFLAGS', 'BIBTEX_ST']
-Action.GenAction('bibtex', bibtex_vardeps, src_only=1)
-
-dvips_vardeps  = ['DVIPS', 'DVIPSFLAGS', 'DVIPS_ST']
-Action.GenAction('dvips', dvips_vardeps)
-
-dvipdf_vardeps = ['DVIPDF', 'DVIPDFFLAGS', 'DVIPDF_ST']
-Action.GenAction('dvipdf', dvipdf_vardeps)
 
 g_texobjs=['latex','tex','bibtex','dvips','dvipdf']
 class texobj(Object.genobj):
@@ -57,31 +45,35 @@ class texobj(Object.genobj):
 			task.m_outputs = [ self.get_mirror_node( self.m_current_path, base+'.dvi') ]
 
 def detect(conf):
-	conf.env['TEX']         = 'tex'
-	conf.env['TEXFLAGS']    = ''
-	conf.env['TEX_ST']      = '%s'
+	v = conf.env
 
-	conf.env['LATEX']       = 'latex'
-	conf.env['LATEXFLAGS']  = ''
-	conf.env['LATEX_ST']    = '%s'
+	v['TEX']         = 'tex'
+	v['TEXFLAGS']    = ''
 
-	conf.env['BIBTEX']      = 'bibtex'
-	conf.env['BIBTEXFLAGS'] = ''
-	conf.env['BIBTEX_ST']   = '%s'
+	v['LATEX']       = 'latex'
+	v['LATEXFLAGS']  = ''
 
-	conf.env['DVIPS']       = 'dvips'
-	conf.env['DVIPSFLAGS']  = ''
-	conf.env['DVIPS_ST']    = '%s -o %s'
+	v['BIBTEX']      = 'bibtex'
+	v['BIBTEXFLAGS'] = ''
 
-	conf.env['DVIPDF']      = 'dvipdf'
-	conf.env['DVIPDFFLAGS'] = ''
-	conf.env['DVIPDF_ST']   = '%s -o %s'
+	v['DVIPS']       = 'dvips'
+	v['DVIPSFLAGS']  = ''
+
+	v['DVIPDF']      = 'dvipdf'
+	v['DVIPDFFLAGS'] = ''
 	return 1
 
 def setup(env):
 	if not sys.platform == "win32":
 		Params.g_colors['latex']='\033[94m'
 		Params.g_colors['tex']='\033[94m'
+
+	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}')
+	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}')
+	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}')
+	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} -o ${TGT}')
+
+	act = Action.Action('latex', vars=latex_vardeps, func=latex_build)
 
         Object.register('tex', texobj)
 

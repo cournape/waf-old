@@ -52,8 +52,7 @@ def uic_build(task):
 	dest.close()
 
 	return ret
-uicact = Action.GenAction('uic', uic_vardeps)
-uicact.m_function_to_run = uic_build
+uicact = Action.Action('uic', vars=uic_vardeps, func=uic_build)
 
 # translations
 class kde_translations(Object.genobj):

@@ -15,12 +15,9 @@ Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}')
 Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}')
 
 
-
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
 uic3_vardeps = ['QT_UIC3', 'UIC3_FLAGS', 'UIC3_ST']
-
-Action.GenAction('uic', uic_vardeps)
 
 # Qt .ui3 file processing
 uic_vardeps = ['UIC3', 'QTPLUGINS']
@@ -45,9 +42,10 @@ def uic3_build(task):
 	ret = Runner.exec_command( comp_h )
 	if ret: return ret
 
-	dest = open( cpp_path, 'w' )
-	dest.write(inc_kde)
-	dest.close()
+	# TODO: there are no kde includes here
+	#dest = open( cpp_path, 'w' )
+	#dest.write(inc_kde)
+	#dest.close()
 
 	ret = Runner.exec_command( comp_c )
 	if ret: return ret
@@ -57,8 +55,11 @@ def uic3_build(task):
 	dest.close()
 
 	return ret
-uic3act = Action.GenAction('uic3', uic_vardeps)
-uic3act.m_function_to_run = uic3_build
+
+uic3act = Action.Action('uic3', vars=uic_vardeps, func=uic3_build)
+
+# TODO : it seems the uic action does not exist anymore because of rcc
+#Action.Action('uic', vars=uic_vardeps, func=uic3_build)
 
 
 

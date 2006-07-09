@@ -14,8 +14,7 @@ def fop_build(task):
 	tgt = src[:len(src)-3]+'.pdf'
 	cmd = '%s %s %s' % (task.m_env['FOP'], src, tgt)
 	return Runner.exec_command(cmd)
-fopact = Action.GenAction('fop', fop_vardeps)
-fopact.m_function_to_run = fop_build
+fopact = Action.Action('fop', vars=fop_vardeps, func=fop_build)
 
 xslt_vardeps = ['XSLTPROC', 'XSLTPROC_ST']
 
@@ -27,8 +26,7 @@ def xslt_build(task):
 	tgt = task.m_outputs[0].m_name
 	cmd = task.m_env['XSLTPROC_ST'] % (task.m_env['XSLTPROC'], os.path.join(srcdir,task.m_env['XSLT_SHEET']), src, os.path.join(bdir, tgt))
 	return Runner.exec_command(cmd)
-xsltfopact = Action.GenAction('xslt', xslt_vardeps)
-xsltfopact.m_function_to_run = xslt_build
+xsltfopact = Action.Action('xslt', vars=xslt_vardeps, func=xslt_build)
 
 # Create various file formats from a docbook or sgml file.
 db2_vardeps = ['DB2','DB2HTML', 'DB2PDF', 'DB2TXT', 'DB2PS']
@@ -37,8 +35,7 @@ def db2_build(task):
 	src = task.m_inputs[0].bldpath()
 	cmd = task.m_compiler % (bdir, src)
 	return Runner.exec_command(cmd)
-db2act = Action.GenAction('db2', db2_vardeps)
-db2act.m_function_to_run = db2_build
+db2act = Action.Action('db2', vars=db2_vardeps, func=db2_build)
 
 xslt_vardeps = ['XSLTPROC']
 

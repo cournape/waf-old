@@ -46,12 +46,7 @@ def tao_idl_build(task):
 	src = task.m_inputs[0].bldpath()
 	cmd = '%s %s %s -o %s' % (task.m_env['IDL'], task.m_env['IDLPATH_ST'] % task.m_env['IDL_INCPATH'], src, tgt)
 	return Runner.exec_command(cmd)
-tao_idlact = Action.GenAction('idl', tao_idl_vardeps)
-tao_idlact.m_function_to_run = tao_idl_build
 """
-
-# TODO define the vars
-Action.simple_action('idl', '${IDL} ${SRC} -o ${TGT}')
 
 # This function is called when a build process is started 
 def setup(env):
@@ -59,6 +54,9 @@ def setup(env):
 	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
 	if not sys.platform == "win32":
 		Params.g_colors['idl']='\033[94m'
+
+	# TODO define the vars
+	Action.simple_action('idl', '${IDL} ${SRC} -o ${TGT}')
 
 	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.idl']: env['handlers_cppobj_.idl'] = tao_idl_file
