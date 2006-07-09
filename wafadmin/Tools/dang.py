@@ -23,9 +23,9 @@ def coin_file(obj, node):
 	# * odd means the task can be run in parallel with others of the same priority number
 	cointask = obj.create_task('dang', obj.env, 4)
 
-	base, ext = os.path.splitext(node.m_name)
-	cointask.m_inputs  = fi(node.m_name)
-	cointask.m_outputs = fi(base+'.cpp')
+	#base, ext = os.path.splitext(node.m_name)
+	cointask.m_inputs  = [node]
+	cointask.m_outputs = [node.change_ext('.cpp')]
 
 	# debugging
 	#cointask.debug(1)
@@ -33,7 +33,7 @@ def coin_file(obj, node):
 	# now we also add the task that creates the object file ('.o' file)
 	cpptask = obj.create_task('cpp', obj.env)
 	cpptask.m_inputs  = cointask.m_outputs
-	cpptask.m_outputs = fi(base+'.o')
+	cpptask.m_outputs = [node.change_ext('.o')]
 	obj.p_compiletasks.append(cpptask)
 
 def setup(env):

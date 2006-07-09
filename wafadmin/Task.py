@@ -91,6 +91,7 @@ class Task:
 	def may_start(self):
 		if len(self.m_inputs) < 1 or len(self.m_outputs) < 1:
 			error("grave error, task is invalid : no inputs or outputs")
+			self.debug()
 
 		for t in self.m_run_after:
 			if not t.m_hasrun: return 0

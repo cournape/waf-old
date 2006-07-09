@@ -65,9 +65,10 @@ class kde_translations(Object.genobj):
 			try:
 				base, ext = os.path.splitext(file.m_name)
 				if ext != '.po': continue
+				
 				task = self.create_task('po', self.env, 2)
-				task.m_inputs  = self.file_in(base+'.po')
-				task.m_outputs = self.file_in(base+'.gmo')
+				task.m_inputs  = [file]
+				task.m_outputs = [file.change_ext('.gmo')]
 				self.m_tasks.append(task)
 			except: pass
 	def install(self):
@@ -98,13 +99,16 @@ class kde_documentation(Object.genobj):
 	def apply(self):
 		for filename in self.m_docs.split():
 			if not filename: continue
-			node = self.m_current_path.find_node( filename.split(os.sep) )
+			node = self.m_current_path.find_node( filename.split('/') )
+
+			print filename, self.m_current_path, node
+
 			self.m_files.append(node)
 			(base, ext) = os.path.splitext(filename)
 			if ext == '.docbook':
 				task = self.create_task('meinproc', self.env, 2)
-				task.m_inputs  = self.file_in(base+'.docbook')
-				task.m_outputs = self.file_in(base+'.cache.bz2')
+				task.m_inputs  = [node]
+				task.m_outputs = [node.change_ext('.cache.bz2')]
 				self.m_docbooks.append(task)
 	def install(self):
 		destpath = os.sep.join([self.m_lang, self.m_appname])
@@ -119,20 +123,21 @@ class kde_documentation(Object.genobj):
 		Common.install_files('KDE_DOC', destpath, lst, self.env)
 
 def handler_ui(obj, node, base=''):
-	cppnode = obj.get_node( base+'.cpp' )
-	hnode   = obj.get_node( base+'.h' )
+
+	cppnode = node.change_ext('.cpp')
+	hnode   = node.change_ext('.h')
 
 	uictask = obj.create_task('uic', obj.env, 2)
-	uictask.m_inputs    = obj.file_in(base+'.ui')
-	uictask.m_outputs   = [ hnode, cppnode ]
+	uictask.m_inputs    = [node]
+	uictask.m_outputs   = [hnode, cppnode]
 
 	moctask = obj.create_task('moc', obj.env)
-	moctask.m_inputs    = [ hnode ]
-	moctask.m_outputs   = obj.file_in(base+'.moc')
+	moctask.m_inputs    = [hnode]
+	moctask.m_outputs   = [node.change_ext('.moc')]
 
 	cpptask = obj.create_task('cpp', obj.env)
-	cpptask.m_inputs    = [ cppnode ]
-	cpptask.m_outputs   = obj.file_in(base+'.o')
+	cpptask.m_inputs    = [cppnode]
+	cpptask.m_outputs   = [node.change_ext('.o')]
 	cpptask.m_run_after = [moctask]
 
 	obj.p_compiletasks.append( cpptask )
@@ -140,21 +145,25 @@ def handler_ui(obj, node, base=''):
 def handler_kcfgc(obj, node, base=''):
 	tree = Params.g_build
 	if tree.needs_rescan(node):
-		Scan.g_kcfg_scanner.do_scan(node, self.env, hashparams = self.dir_lst)
-	kcfg_node = tree.m_depends_on[node][0]
-	cppnode = obj.get_node(base+'.cpp')
+		Scan.g_kcfg_scanner.do_scan(node, obj.env, hashparams=obj.dir_lst)
+
+	if node in node.m_parent.m_files: variant = 0
+	else: variant = env.m_variant
+
+	kcfg_node = tree.m_depends_on[variant][node][0]
+	cppnode = node.change_ext('.cpp')
 
 	# run with priority 2
 	task = obj.create_task('kcfg', obj.env, 2)
 
-	task.m_inputs = [ tree.get_mirror_node(kcfg_node), tree.get_mirror_node(node) ]
-	task.m_outputs = [ cppnode, obj.get_node(base+'.h') ]
+	task.m_inputs  = [kcfg_node, node]
+	task.m_outputs = [cppnode, node.change_ext('.h')]
 
 	cpptask = obj.create_task('cpp', obj.env)
-	cpptask.m_inputs  = [ cppnode ]
-	cpptask.m_outputs = [ obj.get_node(base+'.o') ]
+	cpptask.m_inputs  = [cppnode]
+	cpptask.m_outputs = [node.change_ext('.o')]
 
-	obj.p_compiletasks.append( cpptask )
+	obj.p_compiletasks.append(cpptask)
 
 def handler_skel_or_stub(obj, base, type):
 	if not base in obj.skel_or_stub:

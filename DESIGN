@@ -21,11 +21,10 @@ DATA STRUCTURE
 --------------
 
 S1: Action      = { f1:display_command_line ; f2:compute_signature ; f3:launch_commands }
-S0: Environment = { HashMap{String -> Any} }
+S0: Environment = { HashMap{String -> Any}, variant }
 S2: Task        = { Action ; Environment ; Source[] ; Target[] }
-S3: Object      = { Object[]; Task[] }
-S4: Build       = { Environment ; Deptree ; BuildDirectory[] }
-S5: Deptree     = { SourceNode[Tree] ; TargetNode[][Tree] }
+S3: Object      = { Task[] }
+S4: Build       = { Environment ; Node[]; BuildDirectory[] }
 
 MODULE STUCTURE
 ---------------

@@ -105,8 +105,9 @@ def scan_path(bld, i_parent_node, i_path, i_existing_nodes, i_variant):
 	# remove the stamps of the nodes that no longer exist in the build dir
 	for node in l_rm:
 		# TODO remove this check in the future
-		if not variant in bld.m_tstamp_variants: bld.m_tstamp_variants[variant] = {}
-		bld.m_tstamp_variants[variant].__delitem__(node)
+		if not i_variant in bld.m_tstamp_variants: bld.m_tstamp_variants[i_variant] = {}
+		if node in bld.m_tstamp_variants[i_variant]:
+			bld.m_tstamp_variants[i_variant].__delitem__(node)
 
 	return l_nodes
 
@@ -433,11 +434,12 @@ class Build:
 			try:
 				files = scan_path(self, src_dir_node, sub_path, src_dir_node.m_build, variant)
 				src_dir_node.m_build = files
-			except:
+			except OSError:
 				# listdir failed, remove all sigs of nodes
 				dict = self.m_tstamp_variants[variant]
 				for node in src_dir_node.m_build:
-					dict.__delitem__(node)
+					if node in dict:
+						dict.__delitem__(node)
 				os.makedirs(sub_path)
 				src_dir_node.m_build = []
 

@@ -139,9 +139,15 @@ class Node:
 		if name == '.':  return self.find_node( lst[1:] )
 		if name == '..': return self.m_parent.find_node( lst[1:] )
 
+
 		for d in self.m_dirs+self.m_files:
 			if d.m_name == name:
 				return d.find_node( lst[1:] )
+
+		if len(lst)>0:
+			node = Node(name, self)
+			self.m_dirs.append(node)
+			return node.find_node(lst[1:])
 
 		trace('find_node returns nothing '+str(self)+' '+str(lst))
 		return None
@@ -314,6 +320,27 @@ class Node:
 
 	def cd_to(self, env=None):
 		return self.m_parent.bldpath(env)
+
+
+	# =============================================== #
+	# helpers for building things
+	def change_ext(self, ext):
+		name = self.m_name
+		l = len(name)
+		while l>0:
+			l -= 1
+			if name[l] == '.':
+				break
+		newname = name[:l] + ext
+
+		for n in self.m_parent.m_build:
+			if n.m_name == newname:
+				return n
+
+		newnode = Node(newname, self.m_parent)
+		self.m_parent.m_build.append(newnode)
+
+		return newnode
 
 	# =============================================== #
 	# obsolete code

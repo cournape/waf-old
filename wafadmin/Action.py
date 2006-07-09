@@ -31,9 +31,14 @@ class Action:
 
 	# string to display to the user
 	def get_str(self, task):
-		src_str = " ".join(map(lambda a:a.bldpath(task.m_env), task.m_inputs))
-		tgt_str = " ".join(map(lambda a:a.bldpath(task.m_env), task.m_outputs))
-		return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
+		try:
+			src_str = " ".join(map(lambda a:a.bldpath(task.m_env), task.m_inputs))
+			tgt_str = " ".join(map(lambda a:a.bldpath(task.m_env), task.m_outputs))
+			return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
+		except:
+			print "exception"
+			task.debug()
+			raise
 
 	# prepare the compilation
 	def prepare(self, task):
@@ -113,7 +118,7 @@ class alex:
 		#lst.append('print task.m_inputs\n\t')
 		#lst.append('print task.m_outputs\n\t')
 
-		lst.append('cmd = "')
+		lst.append('try: cmd = "')
 		lst += self.out
 		lst.append('"')
 
@@ -132,6 +137,8 @@ class alex:
 			lst.append(' % (\\\n\t\t')
 			lst += ", \\\n\t\t".join(alst)
 			lst.append(')\n')
+
+		lst.append('\texcept: task.debug()\n')
 
 		lst.append('\tRunner.exec_command(cmd)\n')
 

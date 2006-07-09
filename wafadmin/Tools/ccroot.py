@@ -200,8 +200,8 @@ class ccroot(Object.genobj):
 
 		if self.m_type != 'program' and self.want_libtool:
 			latask = self.create_task('fakelibtool', self.env, 200)
-			latask.m_inputs = linktask.m_outputs
-			latask.m_outputs = self.file_in(self.get_target_name('.la'))
+			latask.m_inputs  = linktask.m_outputs
+			latask.m_outputs = [linktask.m_outputs[0].change_ext('.la')]
 			self.m_latask = latask
 
 		self.apply_libdeps()
