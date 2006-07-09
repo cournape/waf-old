@@ -417,6 +417,12 @@ class filter:
 		if c == '\\':
 			c = self.next()
 			if store: self.buf.append(c)
+			# skip a hex char (e.g. '\x50')
+			if c == 'x':
+				c = self.next()
+				if store: self.buf.append(c)
+				c = self.next()
+				if store: self.buf.append(c)
 		c = self.next()
 		if store: self.buf.append(c)
 		if c != '\'': print "uh-oh, invalid character"
