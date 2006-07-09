@@ -11,12 +11,16 @@ import Utils, Action, Params
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
 	# like '%s -o %s' which becomes 'file.c -o file.o' when called
-	cc_vardeps    = ['CC', 'CCFLAGS', 'CCFLAGS_' + Params.g_options.debug_level, 'CPPFLAGS', '_CCINCFLAGS', 'CC_ST']
-	Action.GenAction('cc', cc_vardeps)
 
-	# on windows libraries must be defined after the object files 
-	link_vardeps   = ['LINK', 'LINK_ST', 'LINKFLAGS', 'LINKFLAGS_' + Params.g_options.debug_level, '_LIBDIRFLAGS', '_LIBFLAGS']
-	action = Action.GenAction('cc_link', link_vardeps)
+        deb = Params.g_options.debug_level
+
+        cc_str = '${CC} ${CCFLAGS} ${CCFLAGS%s} ${CPPFLAGS} ${_CCINCFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}' % deb
+        Action.simple_action('cc', cc_str)
+
+        # on windows libraries must be defined after the object files
+        link_str = '${LINK} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${LINKFLAGS_%s} ${_LIBDIRFLAGS} ${_LIBFLAGS}' % deb
+        Action.simple_action('cc_link', link_str)
+
 
 	if not sys.platform == "win32":
 		Params.g_colors['cc']='\033[92m'
@@ -41,43 +45,48 @@ def detect(conf):
 		Utils.error('gcc needs ar - not found')
 		return 0
 
+	v = conf.env
+
 	# preprocessor (what is that ? ita)
-	#conf.env['CPP']             = cpp
+	#v['CPP']             = cpp
 
 	# cc compiler
-	conf.env['CC']             = comp
-	conf.env['CPPFLAGS']       = []
-	conf.env['_CINCFLAGS']     = ''
-	conf.env['CC_ST']          = '%s -c -o %s'
-	conf.env['CPPPATH_ST']     = '-I%s' # template for adding include pathes
+	v['CC']                   = comp
+	v['CPPFLAGS']             = []
+	v['_CINCFLAGS']           = ''
+	v['CC_SRC_F']             = ''
+	v['CC_TGT_F']             = '-c -o '
+	v['CPPPATH_ST']           = '-I%s' # template for adding include pathes
 
 	# compiler debug levels
-	conf.env['CCFLAGS'] = []
-	conf.env['CCFLAGS_OPTIMIZED']  = ['-O2']
-	conf.env['CCFLAGS_RELEASE']    = ['-O2']
-	conf.env['CCFLAGS_DEBUG']      = ['-g', '-DDEBUG']
-	conf.env['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
+	v['CCFLAGS'] = []
+	v['CCFLAGS_OPTIMIZED']    = ['-O2']
+	v['CCFLAGS_RELEASE']      = ['-O2']
+	v['CCFLAGS_DEBUG']        = ['-g', '-DDEBUG']
+	v['CCFLAGS_ULTRADEBUG']   = ['-g3', '-O0', '-DDEBUG']
 		
 	# linker	
-	conf.env['LINK']            = comp
-	conf.env['LIB']             = []
-	conf.env['LINK_ST']         = '%s -o %s'
-	conf.env['LIB_ST']          = '-l%s'	# template for adding libs
-	conf.env['LIBPATH_ST']      = '-L%s' # template for adding libpathes
-	conf.env['_LIBDIRFLAGS']    = ''
-	conf.env['_LIBFLAGS']       = ''
+	v['LINK']                 = comp
+	v['LIB']                  = []
+	v['CCLNK_SRC_F']          = ''
+	v['CCLNK_TGT_F']          = '-o '
+
+	v['LIB_ST']               = '-l%s'	# template for adding libs
+	v['LIBPATH_ST']           = '-L%s' # template for adding libpathes
+	v['_LIBDIRFLAGS']         = ''
+	v['_LIBFLAGS']            = ''
 
 	# linker debug levels
-	conf.env['LINKFLAGS'] = []
-	conf.env['LINKFLAGS_OPTIMIZED'] = ['-s']
-	conf.env['LINKFLAGS_RELEASE'] = ['-s']
-	conf.env['LINKFLAGS_DEBUG'] = ['-g']
-	conf.env['LINKFLAGS_ULTRADEBUG'] = ['-g3']
+	v['LINKFLAGS']            = []
+	v['LINKFLAGS_OPTIMIZED']  = ['-s']
+	v['LINKFLAGS_RELEASE']    = ['-s']
+	v['LINKFLAGS_DEBUG']      = ['-g']
+	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
 	def addflags(var):
 		try:
 			c = os.environ[var]
-			if c: conf.env[var].append(c)
+			if c: v[var].append(c)
 		except:
 			pass
 
@@ -85,44 +94,45 @@ def detect(conf):
 	addflags('CPPFLAGS')
 
 	if sys.platform == "win32": 
-		if not conf.env['PREFIX']: conf.env['PREFIX']='c:\\'
+		if not v['PREFIX']: v['PREFIX']='c:\\'
 	
 		# shared library 
-		conf.env['shlib_CCFLAGS']  = ['']
-		conf.env['shlib_LINKFLAGS'] = ['-shared']
-		conf.env['shlib_obj_ext']   = ['.o']
-		conf.env['shlib_PREFIX']    = 'lib'
-		conf.env['shlib_SUFFIX']    = '.dll'
-		conf.env['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
+		v['shlib_CCFLAGS']  = ['']
+		v['shlib_LINKFLAGS'] = ['-shared']
+		v['shlib_obj_ext']   = ['.o']
+		v['shlib_PREFIX']    = 'lib'
+		v['shlib_SUFFIX']    = '.dll'
+		v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 	
 		# static library
-		conf.env['staticlib_LINKFLAGS'] = ['']
-		conf.env['staticlib_obj_ext'] = ['.o']
-		conf.env['staticlib_PREFIX']= 'lib'
-		conf.env['staticlib_SUFFIX']= '.a'
+		v['staticlib_LINKFLAGS'] = ['']
+		v['staticlib_obj_ext'] = ['.o']
+		v['staticlib_PREFIX']= 'lib'
+		v['staticlib_SUFFIX']= '.a'
 
 		# program 
-		conf.env['program_obj_ext'] = ['.o']
-		conf.env['program_SUFFIX']  = '.exe'
+		v['program_obj_ext'] = ['.o']
+		v['program_SUFFIX']  = '.exe'
 
 	else:
-		if not conf.env['PREFIX']: conf.env['PREFIX'] = '/usr'
+		if not v['PREFIX']: v['PREFIX'] = '/usr'
 	
 		# shared library 
-		conf.env['shlib_CCFLAGS']  = ['-fPIC', '-DPIC']
-		conf.env['shlib_LINKFLAGS'] = ['-shared']
-		conf.env['shlib_obj_ext']   = ['.os']
-		conf.env['shlib_PREFIX']    = 'lib'
-		conf.env['shlib_SUFFIX']    = '.so'
+		v['shlib_CCFLAGS']  = ['-fPIC', '-DPIC']
+		v['shlib_LINKFLAGS'] = ['-shared']
+		v['shlib_obj_ext']   = ['.os']
+		v['shlib_PREFIX']    = 'lib'
+		v['shlib_SUFFIX']    = '.so'
 	
 		# static lib
-		conf.env['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-		conf.env['staticlib_obj_ext'] = ['.o']
-		conf.env['staticlib_PREFIX']= 'lib'
-		conf.env['staticlib_SUFFIX']= '.a'
+		v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+		v['staticlib_obj_ext'] = ['.o']
+		v['staticlib_PREFIX']= 'lib'
+		v['staticlib_SUFFIX']= '.a'
 
 		# program 
-		conf.env['program_obj_ext'] = ['.o']
-		conf.env['program_SUFFIX']  = ''
+		v['program_obj_ext'] = ['.o']
+		v['program_SUFFIX']  = ''
 
 	return 1
+
