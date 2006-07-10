@@ -14,7 +14,7 @@ def tao_idl_file(obj, node):
 
 	# we create the task for the idl file
 	# idl compiler generates from one input file 4 output files.
-	idltask = obj.create_task('idl', obj.env, 4)
+	idltask = obj.create_task('idl', nice=4)
 
 	#idltask.m_scanner = Scan.g_c_scanner
 	#idltask.m_scanner_params = dir_lst
@@ -23,20 +23,17 @@ def tao_idl_file(obj, node):
 	base, ext = os.path.splitext(node.m_name)
 	idltask.m_inputs  = fi(node.m_name)
 	idltask.m_outputs = fi(base+obj.env['idl_SH']) + fi(base+obj.env['idl_SCPP']) + fi(base+obj.env['idl_CH']) + fi(base+obj.env['idl_CCPP'])
-	#obj.p_compiletasks.append(idltask)
 
 	# now we also add the task that creates the object file ('.o' file)
-	cpptask = obj.create_task('cpp', obj.env)
+	cpptask = obj.create_task('cpp')
 	cpptask.m_inputs  = [idltask.m_outputs[1]]
 	cpptask.m_outputs = fi(base+'S.o')
 	cpptask.m_run_after = [idltask]
-	obj.p_compiletasks.append(cpptask)
 
-	cpptask = obj.create_task('cpp', obj.env)
+	cpptask = obj.create_task('cpp')
 	cpptask.m_inputs  = [idltask.m_outputs[3]]
 	cpptask.m_outputs = fi(base+'C.o')
 	cpptask.m_run_after = [idltask]
-	obj.p_compiletasks.append(cpptask)
 
 # first, we define an action to build something
 """

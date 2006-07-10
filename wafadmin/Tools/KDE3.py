@@ -131,8 +131,6 @@ def handler_ui(obj, node, base=''):
 	cpptask.m_outputs   = [node.change_ext('.o')]
 	cpptask.m_run_after = [moctask]
 
-	obj.p_compiletasks.append( cpptask )
-
 def handler_kcfgc(obj, node, base=''):
 	tree = Params.g_build
 	if tree.needs_rescan(node):
@@ -154,8 +152,6 @@ def handler_kcfgc(obj, node, base=''):
 	cpptask.m_inputs  = [cppnode]
 	cpptask.m_outputs = [node.change_ext('.o')]
 
-	obj.p_compiletasks.append(cpptask)
-
 def handler_skel_or_stub(obj, base, type):
 	if not base in obj.skel_or_stub:
 		kidltask = obj.create_task('kidl', obj.env, 2)
@@ -175,8 +171,6 @@ def handler_skel_or_stub(obj, base, type):
 	cpptask = obj.create_task('cpp', obj.env)
 	cpptask.m_inputs  = task.m_outputs
 	cpptask.m_outputs = obj.file_in(''.join([base,'_',type,'.o']))
-
-	obj.p_compiletasks.append( cpptask )
 
 def handler_stub(obj, node, base=''):
 	handler_skel_or_stub(obj, base, 'stub')
@@ -294,7 +288,6 @@ class kdeobj(cpp.cppobj):
 			cpptask.m_inputs    = self.file_in(filename)
 			cpptask.m_outputs   = self.file_in(base+obj_ext)
 			cpptask.m_run_after = moctasks
-			self.p_compiletasks.append(cpptask)
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
 		if self.m_type=='staticlib': linktask = self.create_task('cpp_link_static', self.env, ccroot.g_prio_link)

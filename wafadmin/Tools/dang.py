@@ -15,18 +15,17 @@ def coin_file(obj, node):
 	# the number '4' in the parameters is the priority of the task
 	# * lower number means high priority
 	# * odd means the task can be run in parallel with others of the same priority number
-	cointask = obj.create_task('dang', obj.env, 4)
+	cointask = obj.create_task('dang', nice=4)
 	cointask.set_inputs(node)
 	cointask.set_outputs(node.change_ext('.cpp'))
 
-	# for debugging a task, use the following code:
-	#cointask.debug(1)
-
 	# now we also add the task that creates the object file ('.o' file)
-	cpptask = obj.create_task('cpp', obj.env)
+	cpptask = obj.create_task('cpp')
 	cpptask.set_inputs(cointask.m_outputs)
 	cpptask.set_outputs(node.change_ext('.o'))
-	obj.p_compiletasks.append(cpptask)
+
+	# for debugging a task, use the following code:
+	#cointask.debug(1)
 
 def setup(env):
 	# create our action, for use with coin_file

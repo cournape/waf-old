@@ -8,14 +8,13 @@ from Params import debug, error, trace, fatal
 flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
 
 def l_file(obj, node):
-	ltask = obj.create_task('flex', obj.env, 4)
+	ltask = obj.create_task('flex', nice=4)
 	ltask.set_inputs(node)
 	ltask.set_outputs(node.change_ext('.lex.cc'))
 
-	cpptask = obj.create_task('cpp', obj.env)
+	cpptask = obj.create_task('cpp')
 	cpptask.set_inputs(ltask.m_outputs)
 	cpptask.set_outputs(node.change_ext('.lex.o'))
-	obj.p_compiletasks.append(cpptask)
 
 def setup(env):
 	# create our action here

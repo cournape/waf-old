@@ -108,6 +108,13 @@ class ccroot(Object.genobj):
 		global g_src_file_ext
 		self.m_src_file_ext = g_src_file_ext
 
+	# overrides Object.create_task to catch the creation of cpp tasks
+	def create_task(self, type, env=None, nice=10):
+		task = Object.genobj.create_task(self, type, env, nice)
+		if type == self.m_type_initials:
+			self.p_compiletasks.append(task)
+		return task
+
 	# subclass me
 	def get_valid_types(self):
 		fatal('subclass method get_valid_types of ccroot')
@@ -189,8 +196,6 @@ class ccroot(Object.genobj):
 
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(obj_ext))
-
-			self.p_compiletasks.append(task)
 
 		# and after the objects, the remaining is the link step
 		# link in a lower priority (101) so it runs alone (default is 10)

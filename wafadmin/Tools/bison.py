@@ -8,14 +8,13 @@ from Params import debug, error, trace, fatal
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
 
 def yc_file(obj, node):
-	yctask = obj.create_task('bison', obj.env, 4)
+	yctask = obj.create_task('bison', nice=4)
 	yctask.set_inputs(node)
 	yctask.set_outputs(node.change_ext('.tab.cc'))
 
-	cpptask = obj.create_task('cpp', obj.env)
+	cpptask = obj.create_task('cpp')
 	cpptask.set_inputs(yctask.m_outputs)
 	cpptask.set_outputs(node.change_ext('.tab.o'))
-	obj.p_compiletasks.append(cpptask)
 
 def setup(env):
 	# create our action here

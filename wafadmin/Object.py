@@ -107,8 +107,9 @@ class genobj:
 	# the tasks with lower nice will run first
 	# if tasks have an odd priority number, they will be run only sequentially
 	# if tasks have an even priority number, they will be allowed to be run in parallel
-	def create_task(self, type, env, nice=10):
-		task = Task.Task(type, env, nice)
+	def create_task(self, type, env=None, nice=10):
+		if env is None: env=self.env
+		task = Task.Task(type, env, 10)
 		self.m_tasks.append(task)
 		return task
 
@@ -116,10 +117,6 @@ class genobj:
 	def apply(self):
 		# subclass me
 		trace("nothing to do")
-
-	def get_mirror_node(self, node, filename):
-		return tree.mirror_file(node, filename)
-
 
 	# FIXME (ita)
 	def get_bld_node(self, parent, filename):
