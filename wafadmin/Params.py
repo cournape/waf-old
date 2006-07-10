@@ -77,6 +77,7 @@ if sys.platform=='win32':
 	'REDP'  :"",
 	'GREEN' :"",
 	'YELLOW':"",
+	'BLUE'  :"",
 	'CYAN'  :"",
 	'NORMAL':"",
 	}
@@ -87,9 +88,16 @@ else:
 	'REDP'  :"\033[33m",
 	'GREEN' :"\033[92m",
 	'YELLOW':"\033[93m", # if not readable on white backgrounds, bug in YOUR terminal
+	'BLUE'  :"\033[94m",
 	'CYAN'  :"\033[96m",
 	'NORMAL':"\033[0m",
 	}
+
+def set_color(name, color):
+	if not color in g_colors:
+		error('color does not exist as an alias ! '+color)
+	else:
+		g_colors[name]=g_colors[color]
 
 def pprint(col, str, label=''):
 	try: mycol=g_colors[col]

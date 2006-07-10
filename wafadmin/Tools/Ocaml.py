@@ -119,9 +119,8 @@ class ocamlobj(Object.genobj):
 
 def setup(env):
 	Object.register('ocaml', ocamlobj)
-	if not sys.platform == "win32":
-		Params.g_colors['ocaml']='\033[92m'
-		Params.g_colors['ocalink']='\033[93m'
+	Params.set_color('ocaml', 'GREEN')
+	Params.set_color('ocalink', 'YELLOW')
 
 def detect(conf):
 

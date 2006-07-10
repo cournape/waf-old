@@ -52,8 +52,8 @@ def tao_idl_build(task):
 def setup(env):
 	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
 	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
-	if not sys.platform == "win32":
-		Params.g_colors['idl']='\033[94m'
+
+	Params.set_color('idl', 'BLUE')
 
 	# TODO define the vars
 	Action.simple_action('idl', '${IDL} ${SRC} -o ${TGT}')

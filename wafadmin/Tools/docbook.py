@@ -139,9 +139,7 @@ class docbookobj(Object.genobj):
 			self.install_results('PREFIX', docpath, task )
 
 def setup(env):
-	if not sys.platform == "win32":
-		Params.g_colors['fop']='\033[94m'
-
+	Params.set_color('fop', 'BLUE')
         Object.register('docbook', docbookobj)
 
 ## Detect the installed programs: fop, xsltproc, xalan, docbook2xyz

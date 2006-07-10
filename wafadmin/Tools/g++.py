@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Utils,Action,Params,Configure
+import Utils, Action, Params, Configure
 
 # tool specific setup
 # is called when a build process is started 
@@ -21,11 +21,10 @@ def setup(env):
 	link_str = '${LINK} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${LINKFLAGS_%s} ${_LIBDIRFLAGS} ${_LIBFLAGS}' % deb
 	Action.simple_action('cpp_link', link_str)
 
-	if not sys.platform == "win32":
-		Params.g_colors['cpp']='\033[92m'
-		Params.g_colors['cpp_link']='\033[93m'
-		Params.g_colors['cpp_link_static']='\033[93m'
-		Params.g_colors['fakelibtool']='\033[94m'
+        Params.set_color('cpp', 'GREEN')
+        Params.set_color('cpp_link', 'YELLOW')
+        Params.set_color('cpp_link_static', 'YELLOW')
+        Params.set_color('fakelibtool', 'BLUE')
 
 # tool detection and initial setup 
 # is called when a configure process is started, 

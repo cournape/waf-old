@@ -9,23 +9,18 @@ from Params import debug, error, trace, fatal
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
 
 def yc_file(obj, node):
-
-	fi = obj.file_in
-
 	yctask = obj.create_task('bison', obj.env, 4)
-
-	base, ext = os.path.splitext(node.m_name)
-	yctask.m_inputs  = fi(node.m_name)
-	yctask.m_outputs = fi(base+'.tab.cc')
+	yctask.set_inputs(node)
+	yctask.set_outputs(node.change_ext('.tab.cc'))
 
 	cpptask = obj.create_task('cpp', obj.env)
-	cpptask.m_inputs  = yctask.m_outputs
-	cpptask.m_outputs = fi(base+'.tab.o')
+	cpptask.set_inputs(yctask.m_outputs)
+	cpptask.set_outputs(node.change_ext('.tab.o'))
 	obj.p_compiletasks.append(cpptask)
 
 def setup(env):
-	if not sys.platform == 'win32':
-		Params.g_colors['bison']='\033[94m'
+	# i can see blue bisons (ita)
+	Params.set_color('bison', 'BLUE')
 
 	# create our action here
 	Action.simple_action('bison', bison_str)

@@ -256,9 +256,8 @@ class qt4obj(cpp.cppobj):
 		# end posting constraints (apply)
 
 def setup(env):
-	if not sys.platform == "win32":
-		Params.g_colors['moc']='\033[94m'
-		Params.g_colors['rcc']='\033[94m'
+	Params.set_color('moc', 'BLUE')
+	Params.set_color('rcc', 'BLUE')
 	Object.register('qt4', qt4obj)
 
 def detect_qt4(conf):

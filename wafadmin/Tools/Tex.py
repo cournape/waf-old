@@ -64,9 +64,11 @@ def detect(conf):
 	return 1
 
 def setup(env):
-	if not sys.platform == "win32":
-		Params.g_colors['latex']='\033[94m'
-		Params.g_colors['tex']='\033[94m'
+	Params.set_color('latex', 'BLUE')
+	Params.set_color('tex', 'BLUE')
+	Params.set_color('bibtex', 'BLUE')
+	Params.set_color('dvips', 'BLUE')
+	Params.set_color('dvipdf', 'BLUE')
 
 	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}')
 	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}')

@@ -601,14 +601,8 @@ def detect_kde(conf):
 	except: pass
 
 def setup(env):
-	if not sys.platform == "win32":
-		Params.g_colors['moc']='\033[94m'
-		Params.g_colors['skel']='\033[94m'
-		Params.g_colors['kidl']='\033[94m'
-		Params.g_colors['meinproc']='\033[94m'
-		Params.g_colors['uic']='\033[94m'
-		Params.g_colors['kcfg']='\033[94m'
-		Params.g_colors['po']='\033[94m'
+	for i in 'moc skel kidl meinproc uic kcfg po'.split():
+		Params.set_color(i, 'BLUE')
 
 	if not env['handlers_kdeobj_.ui']:    env['handlers_kdeobj_.ui']   = handler_ui
 	if not env['handlers_kdeobj_.skel']:  env['handlers_kdeobj_.skel'] = handler_skel
@@ -619,7 +613,6 @@ def setup(env):
         Object.register('kde_documentation', kde_documentation)
         Object.register('kde', kdeobj)
         Object.register('kdeinit', kdeinitobj)
-
 
 def detect(conf):
 	conf.env['KDE_IS_FOUND'] = 0

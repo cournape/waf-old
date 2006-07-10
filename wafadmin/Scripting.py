@@ -168,12 +168,11 @@ def Main():
 	#bld.dump()
 
 	# compile
-	# TODO: a finally block is needed
 	try:
 		if Params.g_commands['build'] or Params.g_commands['install']:
 			bld.compile()
-	except:
-		raise
+	finally:
+		bld.save()
 
 	# install
 	try:

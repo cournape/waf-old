@@ -8,33 +8,19 @@ from Params import debug, error, trace, fatal
 
 flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
 
-"""
-flex_vardeps = ['FLEX']
-def flex_build(task):
-	reldir = task.m_inputs[0].cd_to()
-	src = task.m_inputs[0].bldpath()
-	tgt = src[:len(src)-2]+'.lex.cc'
-	cmd = '%s -o%s %s %s' % (task.m_env['FLEX'], os.path.join(reldir, tgt), task.m_env['FLEXFLAGS'], src)
-	return Runner.exec_command(cmd)
-"""
-
 def l_file(obj, node):
-	fi = obj.file_in
-
 	ltask = obj.create_task('flex', obj.env, 4)
-
-	base, ext = os.path.splitext(node.m_name)
-	ltask.m_inputs  = fi(node.m_name)
-	ltask.m_outputs = fi(base+'.lex.cc')
+	ltask.set_inputs(node)
+	ltask.set_outputs(node.change_ext('.lex.cc'))
 
 	cpptask = obj.create_task('cpp', obj.env)
-	cpptask.m_inputs  = ltask.m_outputs
-	cpptask.m_outputs = fi(base+'.lex.o')
+	cpptask.set_inputs(ltask.m_outputs)
+	cpptask.set_outputs(node.change_ext('.lex.o'))
 	obj.p_compiletasks.append(cpptask)
 
 def setup(env):
-	if not sys.platform == "win32":
-		Params.g_colors['flex']='\033[94m'
+	Params.set_color('flex', 'BLUE')
+	
 	# create our action here
 	Action.simple_action('flex', flex_str)
 

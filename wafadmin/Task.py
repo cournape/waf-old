@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os
+import os, types
 import Params, Scan
 from Params import debug, error, trace, fatal
 
@@ -25,23 +25,19 @@ def add_group():
 	if not g_tasks[0]: return
 	g_tasks = [{}]+g_tasks
 
-def add_task(task, priority=6):
-	global g_tasks
-	if len(g_tasks) == 0:
-		g_tasks=[{}]
-	try: g_tasks[0][priority].append(task)
-	except: g_tasks[0][priority] = [task]
-
 class Task:
 	def __init__(self, action_name, env, priority=5):
 		# name of the action associated to this task
 		self.m_action = Params.g_actions[action_name]
 		# environment in use
 		self.m_env = env
+
+		# use setters to set the input and output nodes - when possible
 		# nodes used as input
-		self.m_inputs=[]
+		self.m_inputs  = []
 		# nodes to produce
-		self.m_outputs=[]
+		self.m_outputs = []
+
 
 		# this task was run
 		self.m_hasrun=0
@@ -60,9 +56,28 @@ class Task:
 		self.m_scanner_params = {}
 
 		# add ourself to the list of tasks
-		add_task(self, priority)
+		self._add_task(priority)
 
 		self.m_run_after = []
+
+	def _add_task(self, priority=6):
+		global g_tasks
+		if len(g_tasks) == 0:
+			g_tasks=[{}]
+		try: g_tasks[0][priority].append(self)
+		except: g_tasks[0][priority] = [self]
+
+	def set_inputs(self, inp):
+		if type(inp) is types.ListType:
+			self.m_inputs = inp
+		else:
+			self.m_inputs = [inp]
+
+	def set_outputs(self, out):
+		if type(out) is types.ListType:
+			self.m_outputs = out
+		else:
+			self.m_outputs = [out]
 
 	def signature(self):
 		#s = str(self.m_sig)+str(self.m_dep_sig)

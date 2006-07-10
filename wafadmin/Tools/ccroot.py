@@ -176,14 +176,19 @@ class ccroot(Object.genobj):
 			#if tree.needs_rescan(node):
 			Scan.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
 
+
+			mlst = self.file_in(filename)
+			node = mlst[0]
+
 			# create the compilation task: cpp or cc
 			task = self.create_task(self.m_type_initials, self.env)
 
-			task.m_scanner = Scan.g_c_scanner
+			task.m_scanner        = Scan.g_c_scanner
 			task.m_scanner_params = dir_lst
 
-			task.m_inputs  = self.file_in(filename)
-			task.m_outputs = self.file_in(base+obj_ext)
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext(obj_ext))
+
 			self.p_compiletasks.append(task)
 
 		# and after the objects, the remaining is the link step
@@ -193,15 +198,15 @@ class ccroot(Object.genobj):
 		else:                        linktask = self.create_task(pre+'_link', self.env, g_prio_link)
 		outputs = []
 		for t in self.p_compiletasks: outputs.append(t.m_outputs[0])
-		linktask.m_inputs  = outputs 
-		linktask.m_outputs = self.file_in(self.get_target_name())
+		linktask.set_inputs(outputs)
+		linktask.set_outputs(self.file_in(self.get_target_name()))
 
 		self.m_linktask = linktask
 
 		if self.m_type != 'program' and self.want_libtool:
 			latask = self.create_task('fakelibtool', self.env, 200)
-			latask.m_inputs  = linktask.m_outputs
-			latask.m_outputs = [linktask.m_outputs[0].change_ext('.la')]
+			latask.set_inputs(linktask.m_outputs)
+			latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
 			self.m_latask = latask
 
 		self.apply_libdeps()

@@ -22,11 +22,10 @@ def setup(env):
         Action.simple_action('cc_link', link_str)
 
 
-	if not sys.platform == "win32":
-		Params.g_colors['cc']='\033[92m'
-		Params.g_colors['cc_link']='\033[93m'
-		Params.g_colors['cc_link_static']='\033[93m'
-		Params.g_colors['fakelibtool']='\033[94m'
+	Params.set_color('cc', 'GREEN')
+	Params.set_color('cc_link', 'YELLOW')
+	Params.set_color('cc_link_static', 'YELLOW')
+	Params.set_color('fakelibtool', 'BLUE')
 
 def detect(conf):
 	cc = conf.checkProgram('cc', var='CC')
