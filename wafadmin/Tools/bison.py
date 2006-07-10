@@ -6,8 +6,7 @@ import os, shutil, sys
 import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
 from Params import debug, error, trace, fatal
 
-# -o TGT ? or -b target without extension ? : to investigate
-bison_str = '${BISON} -o ${TGT} ${BISONFLAGS} ${SRC}'
+bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
 
 def yc_file(obj, node):
 
