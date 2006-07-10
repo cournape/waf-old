@@ -6,6 +6,9 @@ import os, re
 import Params, Node
 from Params import debug, error, trace, fatal
 
+# look in this global var when looking for a scanner object
+g_all_scanners={}
+
 
 # ======================================= #
 # The single scanner instances to use are at the end
@@ -26,7 +29,8 @@ kcfg_regexp = re.compile('[fF]ile\s*=\s*(.+)\s*', re.M)
 # behaviours can be very different
 class scanner:
 	def __init__(self):
-		pass
+		global g_all_scanners
+		g_all_scanners[self.__class__.__name__] = self
 
 	# ======================================= #
 	# interface definition
@@ -280,16 +284,12 @@ class kcfg_scanner(scanner):
 
 
 
-
-
-
-
 # ======================================= #
+# TODO look in g_all_scanners[classname] first
 # these globals can be considered singletons
 g_default_scanner = scanner()
 g_c_scanner    = c_scanner()
 g_kcfg_scanner = kcfg_scanner()
-
 
 
 ### obsolete code

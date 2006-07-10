@@ -95,3 +95,10 @@ class Environment:
 		except: pass
 		return dst
 
+	def hook(self, classname, ext, func):
+		name = '_'.join(['hooks', classname, ext])
+		if name in self.m_table:
+			error("hook %s was already registered " % name)
+		# TODO check if the classname really exist
+		self.m_table[name] = func
+

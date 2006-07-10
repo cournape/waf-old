@@ -584,10 +584,10 @@ def setup(env):
 		'${SRC[0].bldpath(env)} ${SRC[1].bldpath(env)}', color='BLUE')
 	Action.Action('uic', vars=uic_vardeps, func=uic_build, color='BLUE')
 
-	env['hooks_kdeobj_.ui']    = handler_ui
-	env['hooks_kdeobj_.skel']  = handler_skel
-	env['hooks_kdeobj_.stub']  = handler_stub
-	env['hooks_kdeobj_.kcfgc'] = handler_kcfgc
+	env.hook('cppobj', '.ui', handler_ui)
+	env.hook('cppobj', '.skel', handler_skel)
+	env.hook('cppobj', '.stub', handler_stub)
+	env.hook('cppobj', '.kcfgc', handler_kcfgc)
 
         Object.register('kde_translations', kde_translations)
         Object.register('kde_documentation', kde_documentation)

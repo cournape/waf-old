@@ -22,7 +22,7 @@ def setup(env):
 	Action.simple_action('flex', flex_str, color='BLUE')
 
 	# register the hook for use with cppobj
-	env['hooks_cppobj_.l'] = l_file
+	env.hook('cppobj', '.l', l_file)
 
 def detect(conf):
 	flex = conf.checkProgram('flex', var='FLEX')

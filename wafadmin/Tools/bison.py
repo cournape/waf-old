@@ -22,8 +22,8 @@ def setup(env):
 	Action.simple_action('bison', bison_str, color='BLUE')
 
 	# register the hook for use with cppobj
-	env['hooks_cppobj_.yc'] = yc_file
-	env['hooks_cppobj_.y']  = yc_file
+	env.hook('cppobj', '.y', yc_file)
+	env.hook('cppobj', '.yc', yc_file)
 
 def detect(conf):
 	bison = conf.checkProgram('bison', var='BISON')

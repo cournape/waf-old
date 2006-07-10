@@ -61,8 +61,6 @@ def bldnode():
 
 # global actions
 g_actions ={}
-# global scanners
-g_scanners={}
 
 ### HELPERS ####
 
