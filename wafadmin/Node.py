@@ -312,11 +312,11 @@ class Node:
 			else: return self.m_parent.is_child_of(node)
 		return 0
 
-	# there are always much more folders than files, so this is a good heuristic (tm)
-	def ensure_scan(self):
-		if not self in Params.g_build.m_scanned_folders:
-			Params.g_build.rescan(self)
-			Params.g_build.m_scanned_folders.append(self)
+	## there are always many more folders than files, so this is a good heuristic (tm)
+	#def ensure_scan(self):
+	#	if not self in Params.g_build.m_scanned_folders:
+	#		Params.g_build.rescan(self)
+	#		Params.g_build.m_scanned_folders.append(self)
 
 	def cd_to(self, env=None):
 		return self.m_parent.bldpath(env)
@@ -373,12 +373,5 @@ class Node:
 	#	for i in self.m_dirs:
 	#		i.m_flag = val
 	#		i.tag(val)
-
-	#def ensure_scan(self):
-	#	if not self in Params.g_build.m_scanned_folders:
-	#		# TODO: a little bit inefficient, but code factorization will come later
-	#		folder = '/'.join( Params.srcnode().difflst(self) )
-	#		Params.g_build.scanner_mirror(folder)
-	#	Params.g_build.m_scanned_folders.append(self)
 
 

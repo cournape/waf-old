@@ -11,12 +11,12 @@
 #
 # subclassing
 #   * makes it possible to share environment copies for several objects at once (efficiency)
-#   * be careful to call Object.genobj.__init__(...) in the init of your subclass
+#   * be careful to call Object.genobj.__init__(...) in the __init__ of your subclass
 #
-# composition
+# hooks
 #   * makes it possible to declare new kind of targets quickly (give a pattern ? and the action name)
 #   * is not really flexible, but lightweight
-#   * cf cppobj for more details on this scheme
+#   * cf ccroot for more details on this scheme
 
 import os, shutil, types
 import Action, Params, Environment, Runner, Task, Common, Node
