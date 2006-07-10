@@ -597,10 +597,10 @@ def setup(env):
 
 	Action.Action('uic', vars=uic_vardeps, func=uic_build, color='BLUE')
 
-	env.hook('cppobj', '.ui', handler_ui)
-	env.hook('cppobj', '.skel', handler_skel)
-	env.hook('cppobj', '.stub', handler_stub)
-	env.hook('cppobj', '.kcfgc', handler_kcfgc)
+	env.hook('kdeobj', '.ui', handler_ui)
+	env.hook('kdeobj', '.skel', handler_skel)
+	env.hook('kdeobj', '.stub', handler_stub)
+	env.hook('kdeobj', '.kcfgc', handler_kcfgc)
 
         Object.register('kde_translations', kde_translations)
         Object.register('kde_documentation', kde_documentation)
