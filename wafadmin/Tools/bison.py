@@ -3,7 +3,7 @@
 # John O'Meara, 2006
 
 import os, shutil, sys
-import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
+import Action, Common, Object, Task, Params, Runner, Utils, cpp
 from Params import debug, error, trace, fatal
 
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
@@ -19,11 +19,8 @@ def yc_file(obj, node):
 	obj.p_compiletasks.append(cpptask)
 
 def setup(env):
-	# i can see blue bisons (ita)
-	Params.set_color('bison', 'BLUE')
-
 	# create our action here
-	Action.simple_action('bison', bison_str)
+	Action.simple_action('bison', bison_str, color='BLUE')
 
 	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.yc']: env['handlers_cppobj_.yc'] = yc_file

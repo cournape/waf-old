@@ -3,7 +3,7 @@
 # John O'Meara, 2006
 
 import os, shutil, sys
-import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
+import Action, Common, Object, Task, Runner, cpp
 from Params import debug, error, trace, fatal
 
 flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
@@ -19,10 +19,8 @@ def l_file(obj, node):
 	obj.p_compiletasks.append(cpptask)
 
 def setup(env):
-	Params.set_color('flex', 'BLUE')
-	
 	# create our action here
-	Action.simple_action('flex', flex_str)
+	Action.simple_action('flex', flex_str, color='BLUE')
 
 	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.l']: env['handlers_cppobj_.l'] = l_file

@@ -6,7 +6,7 @@ import Object, Params, Runner
 from Params import debug, error, trace, fatal
 
 class Action:
-	def __init__(self, name, vars=[], func=None):
+	def __init__(self, name, vars=[], func=None, color='GREEN'):
 		# each action must have a user-friendly little name
 		self.m_name = name
 
@@ -20,6 +20,9 @@ class Action:
 
 		# register ourselves
 		self._add_action()
+
+		# register our color for the output
+		Params.set_color(name, color)
 
 	def __str__(self):
 		return self.m_name
@@ -148,12 +151,13 @@ class alex:
 		exec(self.res())
 		return eval('f')
 			
-def simple_action(name, line):
+def simple_action(name, line, color='GREEN'):
 	obj = alex(line)
 	obj.start()
 	f = obj.fun()
 	debug(obj.res())
-	act = Action(name)
+	act = Action(name, color=color)
 	act.m_function_to_run = f
 	act.m_vars = obj.m_vars
+
 

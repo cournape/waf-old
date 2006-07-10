@@ -4,13 +4,13 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Utils, Configure, Action, Runner
+import Utils, Configure, Action
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 
 def setup(env):
-	Action.simple_action('cpp_link_static', ar_str)
-	Action.simple_action('cc_link_static', ar_str)
+	Action.simple_action('cpp_link_static', ar_str, color='YELLOW')
+	Action.simple_action('cc_link_static', ar_str, color='YELLOW')
 
 def detect(conf):
 

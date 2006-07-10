@@ -64,18 +64,12 @@ def detect(conf):
 	return 1
 
 def setup(env):
-	Params.set_color('latex', 'BLUE')
-	Params.set_color('tex', 'BLUE')
-	Params.set_color('bibtex', 'BLUE')
-	Params.set_color('dvips', 'BLUE')
-	Params.set_color('dvipdf', 'BLUE')
+	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE')
+	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE')
+	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} -o ${TGT}', color='BLUE')
 
-	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}')
-	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}')
-	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}')
-	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} -o ${TGT}')
-
-	act = Action.Action('latex', vars=latex_vardeps, func=latex_build)
+	Action.Action('latex', vars=latex_vardeps, func=latex_build)
 
         Object.register('tex', texobj)
 

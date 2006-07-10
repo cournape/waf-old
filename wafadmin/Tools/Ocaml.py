@@ -9,9 +9,6 @@ import Utils, Params, Action, Object, Runner, Common
 from Params import debug, error, trace, fatal
 
 
-Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} -c -o ${TGT} ${SRC}')
-Action.simple_action('ocalink', '${OCALINK} ${OCALINKFLAGS} ${SRC} -o ${TGT}')
-
 native_lst=['native', 'all']
 bytecode_lst=['bytecode', 'all']
 class ocamlobj(Object.genobj):
@@ -119,8 +116,8 @@ class ocamlobj(Object.genobj):
 
 def setup(env):
 	Object.register('ocaml', ocamlobj)
-	Params.set_color('ocaml', 'GREEN')
-	Params.set_color('ocalink', 'YELLOW')
+	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} -c -o ${TGT} ${SRC}', color='GREEN')
+	Action.simple_action('ocalink', '${OCALINK} ${OCALINKFLAGS} ${SRC} -o ${TGT}', color='YELLOW')
 
 def detect(conf):
 

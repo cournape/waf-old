@@ -11,9 +11,6 @@ from Params import debug, error, trace, fatal
 
 ## QT SUPPORT ##
 
-Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}')
-Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}')
-
 
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
@@ -256,8 +253,8 @@ class qt4obj(cpp.cppobj):
 		# end posting constraints (apply)
 
 def setup(env):
-	Params.set_color('moc', 'BLUE')
-	Params.set_color('rcc', 'BLUE')
+	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE')
+	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
 	Object.register('qt4', qt4obj)
 
 def detect_qt4(conf):

@@ -14,7 +14,6 @@ def fop_build(task):
 	tgt = src[:len(src)-3]+'.pdf'
 	cmd = '%s %s %s' % (task.m_env['FOP'], src, tgt)
 	return Runner.exec_command(cmd)
-fopact = Action.Action('fop', vars=fop_vardeps, func=fop_build)
 
 xslt_vardeps = ['XSLTPROC', 'XSLTPROC_ST']
 
@@ -26,7 +25,6 @@ def xslt_build(task):
 	tgt = task.m_outputs[0].m_name
 	cmd = task.m_env['XSLTPROC_ST'] % (task.m_env['XSLTPROC'], os.path.join(srcdir,task.m_env['XSLT_SHEET']), src, os.path.join(bdir, tgt))
 	return Runner.exec_command(cmd)
-xsltfopact = Action.Action('xslt', vars=xslt_vardeps, func=xslt_build)
 
 # Create various file formats from a docbook or sgml file.
 db2_vardeps = ['DB2','DB2HTML', 'DB2PDF', 'DB2TXT', 'DB2PS']
@@ -35,7 +33,6 @@ def db2_build(task):
 	src = task.m_inputs[0].bldpath()
 	cmd = task.m_compiler % (bdir, src)
 	return Runner.exec_command(cmd)
-db2act = Action.Action('db2', vars=db2_vardeps, func=db2_build)
 
 xslt_vardeps = ['XSLTPROC']
 
@@ -139,8 +136,10 @@ class docbookobj(Object.genobj):
 			self.install_results('PREFIX', docpath, task )
 
 def setup(env):
-	Params.set_color('fop', 'BLUE')
-        Object.register('docbook', docbookobj)
+	Action.Action('fop', vars=fop_vardeps, func=fop_build, color='BLUE')
+	Action.Action('xslt', vars=xslt_vardeps, func=xslt_build, color='BLUE')
+	Action.Action('db2', vars=db2_vardeps, func=db2_build, color='BLUE')
+	Object.register('docbook', docbookobj)
 
 ## Detect the installed programs: fop, xsltproc, xalan, docbook2xyz
 # Favour xsltproc over xalan.

@@ -50,13 +50,8 @@ def tao_idl_build(task):
 
 # This function is called when a build process is started 
 def setup(env):
-	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
-	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
-
-	Params.set_color('idl', 'BLUE')
-
 	# TODO define the vars
-	Action.simple_action('idl', '${IDL} ${SRC} -o ${TGT}')
+	Action.simple_action('idl', '${IDL} ${SRC} -o ${TGT}', color='BLUE')
 
 	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.idl']: env['handlers_cppobj_.idl'] = tao_idl_file

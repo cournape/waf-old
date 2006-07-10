@@ -9,22 +9,18 @@ import Utils, Action, Params, Configure
 # tool specific setup
 # is called when a build process is started 
 def setup(env):
-	# by default - when loading a compiler tool, it sets CC_SOURCE_TARGET to a string
-	# like '%s -o %s' which becomes 'file.cpp -o file.o' when called
-
 	deb = Params.g_options.debug_level
 
-	cpp_str = '${CXX} ${CXXFLAGS} ${CXXFLAGS%s} ${CPPFLAGS} ${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}' % deb
-	Action.simple_action('cpp', cpp_str)
+	cpp_str = '${CXX} ${CXXFLAGS} ${CXXFLAGS%s} ${CPPFLAGS} ' \
+		'${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}' % deb
+
+	link_str = '${LINK} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ' \
+		'${LINKFLAGS} ${LINKFLAGS_%s} ${_LIBDIRFLAGS} ${_LIBFLAGS}' % deb
+
+	Action.simple_action('cpp', cpp_str, color='GREEN')
 
 	# on windows libraries must be defined after the object files 
-	link_str = '${LINK} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${LINKFLAGS_%s} ${_LIBDIRFLAGS} ${_LIBFLAGS}' % deb
-	Action.simple_action('cpp_link', link_str)
-
-        Params.set_color('cpp', 'GREEN')
-        Params.set_color('cpp_link', 'YELLOW')
-        Params.set_color('cpp_link_static', 'YELLOW')
-        Params.set_color('fakelibtool', 'BLUE')
+	Action.simple_action('cpp_link', link_str, color='YELLOW')
 
 # tool detection and initial setup 
 # is called when a configure process is started, 

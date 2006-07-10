@@ -6,9 +6,6 @@ import os, shutil, sys
 import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
 from Params import debug, error, trace, fatal
 
-# first, we define an action to build something
-Action.simple_action('dang', '${DANG} ${SRC} > ${TGT}')
-
 # This function (hook) is called when the class cppobj encounters a '.coin' file
 # .coin -> .cpp -> .o
 def coin_file(obj, node):
@@ -31,7 +28,8 @@ def coin_file(obj, node):
 	obj.p_compiletasks.append(cpptask)
 
 def setup(env):
-	Params.set_color('dang', 'BLUE')
+	# create our action, for use with coin_file
+	Action.simple_action('dang', '${DANG} ${SRC} > ${TGT}', color='BLUE')
 
 	# register the hook for use with cppobj
 	if not env['handlers_cppobj_.coin']: env['handlers_cppobj_.coin'] = coin_file

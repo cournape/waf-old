@@ -7,14 +7,6 @@ import ccroot, cpp
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 
-Action.simple_action('moc', '${MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}')
-Action.simple_action('po', '${POCOM} ${SRC} ${PO_ST} ${TGT}')
-Action.simple_action('meinproc', '${MEINPROC} ${MEINPROCFLAGS} --cache ${TGT} ${SRC}')
-Action.simple_action('kidl', '${DCOPIDL} ${SRC} > ${TGT} || (rm -f ${TGT} ; false)')
-Action.simple_action('skel', 'cd ${SRC[0].bld_dir(env)} && ${DCOPIDL2CPP} --c++-suffix cpp --no-signals --no-stub ${SRC[0].m_name}')
-Action.simple_action('stub', 'cd ${SRC[0].bld_dir(env)} && ${DCOPIDL2CPP} --c++-suffix cpp --no-signals --no-skel ${SRC[0].m_name}')
-Action.simple_action('kcfg', '${KCONFIG_COMPILER} -d${SRC[0].bld_dir(env)} ${SRC[0].bldpath(env)} ${SRC[1].bldpath(env)}')
-
 # kde .ui file processing
 #uic_vardeps = ['UIC', 'UIC_FLAGS', 'UIC_ST']
 uic_vardeps = ['UIC', 'QTPLUGINS']
@@ -52,8 +44,6 @@ def uic_build(task):
 	#dest.close()
 
 	return ret
-
-Action.Action('uic', vars=uic_vardeps, func=uic_build)
 
 
 kidl_vardeps = ['DCOPIDL']
@@ -601,8 +591,19 @@ def detect_kde(conf):
 	except: pass
 
 def setup(env):
-	for i in 'moc skel kidl meinproc uic kcfg po'.split():
-		Params.set_color(i, 'BLUE')
+	Action.simple_action('moc', '${MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE')
+	Action.simple_action('po', '${POCOM} ${SRC} ${PO_ST} ${TGT}', color='BLUE')
+	Action.simple_action('meinproc', '${MEINPROC} ${MEINPROCFLAGS} --cache ${TGT} ${SRC}', color='BLUE')
+	Action.simple_action('kidl', '${DCOPIDL} ${SRC} > ${TGT} || (rm -f ${TGT} ; false)', color='BLUE')
+	Action.simple_action('skel', 'cd ${SRC[0].bld_dir(env)} && ${DCOPIDL2CPP} --c++-suffix ' \
+		'cpp --no-signals --no-stub ${SRC[0].m_name}', color='BLUE')
+	Action.simple_action('stub', 'cd ${SRC[0].bld_dir(env)} && ${DCOPIDL2CPP} --c++-suffix ' \
+		'cpp --no-signals --no-skel ${SRC[0].m_name}', color='BLUE')
+	Action.simple_action('kcfg', '${KCONFIG_COMPILER} -d${SRC[0].bld_dir(env)} ' \
+		'${SRC[0].bldpath(env)} ${SRC[1].bldpath(env)}', color='BLUE')
+
+	Action.Action('uic', vars=uic_vardeps, func=uic_build, color='BLUE')
+
 
 	if not env['handlers_kdeobj_.ui']:    env['handlers_kdeobj_.ui']   = handler_ui
 	if not env['handlers_kdeobj_.skel']:  env['handlers_kdeobj_.skel'] = handler_skel
