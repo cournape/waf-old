@@ -2,9 +2,9 @@
 # encoding: utf-8
 # John O'Meara, 2006
 
-import os, shutil, sys
-import Action, Common, Object, Task, Params, Runner, Utils, cpp
+import Action, Common, Object, Task, Params
 from Params import debug, error, trace, fatal
+
 
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
 

@@ -2,8 +2,7 @@
 # encoding: utf-8
 # John O'Meara, 2006
 
-import os, shutil, sys
-import Action, Common, Object, Task, Runner, cpp
+import Action, Common, Object, Task, Params
 from Params import debug, error, trace, fatal
 
 flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
