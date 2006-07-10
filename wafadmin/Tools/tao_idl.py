@@ -54,7 +54,7 @@ def setup(env):
 	Action.simple_action('idl', '${IDL} ${SRC} -o ${TGT}', color='BLUE')
 
 	# register the hook for use with cppobj
-	if not env['handlers_cppobj_.idl']: env['handlers_cppobj_.idl'] = tao_idl_file
+	env['hooks_cppobj_.idl'] = tao_idl_file
 
 # tool detection and initial setup 
 # is called when a configure process is started, 

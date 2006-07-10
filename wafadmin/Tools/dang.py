@@ -33,7 +33,7 @@ def setup(env):
 	Action.simple_action('dang', dang_str, color='BLUE')
 
 	# register the hook for use with cppobj
-	if not env['handlers_cppobj_.coin']: env['handlers_cppobj_.coin'] = coin_file
+	env['hooks_cppobj_.coin'] = coin_file
 
 def detect(conf):
 	dang = conf.checkProgram('cat', var='CAT')

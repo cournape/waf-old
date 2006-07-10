@@ -59,7 +59,8 @@ def fakelibtool_build(task):
 	fu("libdir='%s/lib'\n" % task.m_env['PREFIX'])
 	dest.close()
 	return 0
-fakelibtoolact = Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build)
+# TODO move this line out
+Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE')
 
 # Parent class for programs and libraries in languages c, c++ and moc (Qt)
 class ccroot(Object.genobj):
@@ -164,8 +165,8 @@ class ccroot(Object.genobj):
 
 			fun = None
 			try:
-				fun = self.env['handlers_'+pre+'obj_'+ext]
-				#print "fun is", 'handlers_cppobj_'+ext, fun
+				fun = self.env['hooks_'+pre+'obj_'+ext]
+				#print "fun is", 'hooks_cppobj_'+ext, fun
 			except:
 				pass
 

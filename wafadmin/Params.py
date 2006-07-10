@@ -59,9 +59,6 @@ def bldnode():
 	global g_build
 	return g_build.m_bldnode
 
-# contains additional handler functions to add language support
-# to cpp files: for example an idl file which compiles into a cpp file
-g_handlers={}
 # global actions
 g_actions ={}
 # global scanners

@@ -13,7 +13,6 @@ def setup(env):
 	Action.simple_action('cc_link_static', ar_str, color='YELLOW')
 
 def detect(conf):
-
 	comp = conf.checkProgram('ar', var='AR')
 	if not comp: return 0;
 

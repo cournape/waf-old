@@ -224,8 +224,8 @@ class kdeobj(cpp.cppobj):
 
 			fun = None
 			try:
-				fun = self.env['handlers_kdeobj_'+ext]
-				#print "fun is", 'handlers_cppobj_'+ext, fun
+				fun = self.env['hooks_kdeobj_'+ext]
+				#print "fun is", 'hooks_cppobj_'+ext, fun
 			except:
 				pass
 
@@ -605,10 +605,10 @@ def setup(env):
 	Action.Action('uic', vars=uic_vardeps, func=uic_build, color='BLUE')
 
 
-	if not env['handlers_kdeobj_.ui']:    env['handlers_kdeobj_.ui']   = handler_ui
-	if not env['handlers_kdeobj_.skel']:  env['handlers_kdeobj_.skel'] = handler_skel
-	if not env['handlers_kdeobj_.stub']:  env['handlers_kdeobj_.stub'] = handler_stub
-	if not env['handlers_kdeobj_.kcfgc']: env['handlers_kdeobj_.kcfgc'] = handler_kcfgc
+	env['hooks_kdeobj_.ui']    = handler_ui
+	env['hooks_kdeobj_.skel']  = handler_skel
+	env['hooks_kdeobj_.stub']  = handler_stub
+	env['hooks_kdeobj_.kcfgc'] = handler_kcfgc
 
         Object.register('kde_translations', kde_translations)
         Object.register('kde_documentation', kde_documentation)

@@ -5,7 +5,6 @@
 import Action, Common, Object, Task, Params
 from Params import debug, error, trace, fatal
 
-
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
 
 def yc_file(obj, node):
@@ -23,8 +22,8 @@ def setup(env):
 	Action.simple_action('bison', bison_str, color='BLUE')
 
 	# register the hook for use with cppobj
-	if not env['handlers_cppobj_.yc']: env['handlers_cppobj_.yc'] = yc_file
-	if not env['handlers_cppobj_.y']: env['handlers_cppobj_.y'] = yc_file
+	env['hooks_cppobj_.yc'] = yc_file
+	env['hooks_cppobj_.y']  = yc_file
 
 def detect(conf):
 	bison = conf.checkProgram('bison', var='BISON')
