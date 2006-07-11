@@ -77,15 +77,17 @@ class ocamlobj(Object.genobj):
 			elif ext == '.mly':
 				continue
 
+			node = self.file_in(base+'.ml')[0]
+
 			if self.is_native:
 				task = self.create_task('ocaml', self.native_env, 2)
-				task.m_inputs  = self.file_in(base+'.ml')
-				task.m_outputs = self.file_in(base+'.cmx')
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.cmx'))
 				native_tasks.append(task)
 			if self.is_bytecode:
 				task = self.create_task('ocaml', self.bytecode_env, 2)
-				task.m_inputs  = self.file_in(base+'.ml')
-				task.m_outputs = self.file_in(base+'.cmo')
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.cmo'))
 				bytecode_tasks.append(task)
 
 		if self.is_bytecode:
@@ -127,12 +129,12 @@ def detect(conf):
 		fatal('The objective caml compiler was not found:\n' \
 			'install it or make it availaible in your PATH')
 
-	conf.env['OCAMLC']         = occ
-	conf.env['OCAMLOPT']       = opt
-	conf.env['OCAMLLEX']       = 'ocamllex'
-	conf.env['OCAMLYACC']      = 'ocamlyacc'
-	conf.env['OCAMLFLAGS']     = ''
-	conf.env['OCALINK']        = ''
-	conf.env['OCALINKFLAGS']   = ''
+	conf.env['OCAMLC']       = occ
+	conf.env['OCAMLOPT']     = opt
+	conf.env['OCAMLLEX']     = 'ocamllex'
+	conf.env['OCAMLYACC']    = 'ocamlyacc'
+	conf.env['OCAMLFLAGS']   = ''
+	conf.env['OCALINK']      = ''
+	conf.env['OCALINKFLAGS'] = ''
 	return 1
 

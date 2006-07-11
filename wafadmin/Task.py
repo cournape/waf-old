@@ -51,6 +51,8 @@ class Task:
 		self.m_idx=g_idx+1
 		g_idx = g_idx+1
 
+		trace("priority given is "+str(priority))
+
 		# scanner function
 		self.m_scanner        = Scan.g_default_scanner
 		self.m_scanner_params = {}

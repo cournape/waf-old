@@ -58,8 +58,8 @@ class kde_translations(Object.genobj):
 				if ext != '.po': continue
 				
 				task = self.create_task('po', self.env, 2)
-				task.m_inputs  = [file]
-				task.m_outputs = [file.change_ext('.gmo')]
+				task.set_inputs(file)
+				task.set_outputs(file.change_ext('.gmo'))
 				self.m_tasks.append(task)
 			except: pass
 	def install(self):
@@ -98,8 +98,8 @@ class kde_documentation(Object.genobj):
 			(base, ext) = os.path.splitext(filename)
 			if ext == '.docbook':
 				task = self.create_task('meinproc', self.env, 2)
-				task.m_inputs  = [node]
-				task.m_outputs = [node.change_ext('.cache.bz2')]
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.cache.bz2'))
 				self.m_docbooks.append(task)
 	def install(self):
 		destpath = os.sep.join([self.m_lang, self.m_appname])
@@ -119,16 +119,16 @@ def handler_ui(obj, node, base=''):
 	hnode   = node.change_ext('.h')
 
 	uictask = obj.create_task('uic', obj.env, 2)
-	uictask.m_inputs    = [node]
-	uictask.m_outputs   = [hnode, cppnode]
+	uictask.set_inputs(node)
+	uictask.set_outputs([hnode, cppnode])
 
 	moctask = obj.create_task('moc', obj.env)
-	moctask.m_inputs    = [hnode]
-	moctask.m_outputs   = [node.change_ext('.moc')]
+	moctask.set_inputs(hnode)
+	moctask.set_outputs(node.change_ext('.moc'))
 
 	cpptask = obj.create_task('cpp', obj.env)
-	cpptask.m_inputs    = [cppnode]
-	cpptask.m_outputs   = [node.change_ext('.o')]
+	cpptask.set_inputs(cppnode)
+	cpptask.set_outputs(node.change_ext('.o'))
 	cpptask.m_run_after = [moctask]
 
 def handler_kcfgc(obj, node, base=''):
@@ -143,20 +143,19 @@ def handler_kcfgc(obj, node, base=''):
 	cppnode = node.change_ext('.cpp')
 
 	# run with priority 2
-	task = obj.create_task('kcfg', obj.env, 2)
-
-	task.m_inputs  = [kcfg_node, node]
-	task.m_outputs = [cppnode, node.change_ext('.h')]
+	task = obj.create_task('kcfg', nice=2)
+	task.set_inputs([kcfg_node, node])
+	task.set_outputs([cppnode, node.change_ext('.h')])
 
 	cpptask = obj.create_task('cpp', obj.env)
-	cpptask.m_inputs  = [cppnode]
-	cpptask.m_outputs = [node.change_ext('.o')]
+	cpptask.set_inputs(cppnode)
+	cpptask.set_outputs(node.change_ext('.o'))
 
 def handler_skel_or_stub(obj, base, type):
 	if not base in obj.skel_or_stub:
 		kidltask = obj.create_task('kidl', obj.env, 2)
-		kidltask.m_inputs  = obj.file_in(base+'.h')
-		kidltask.m_outputs = obj.file_in(base+'.kidl')
+		kidltask.set_inputs(obj.file_in(base+'.h'))
+		kidltask.set_outputs(obj.file_in(base+'.kidl'))
 		obj.skel_or_stub[base] = kidltask
 
 	# this is a cascading builder .h->.kidl->_stub.cpp->_stub.o->link
@@ -164,13 +163,13 @@ def handler_skel_or_stub(obj, base, type):
 
 	# the skel or stub (dcopidl2cpp)
 	task = obj.create_task(type, obj.env, 4)
-	task.m_inputs  = obj.skel_or_stub[base].m_outputs
-	task.m_outputs = obj.file_in(''.join([base,'_',type,'.cpp']))
+	task.set_inputs(obj.skel_or_stub[base].m_outputs)
+	task.set_outputs(obj.file_in(''.join([base,'_',type,'.cpp'])))
 
 	# compile the resulting file (g++)
 	cpptask = obj.create_task('cpp', obj.env)
-	cpptask.m_inputs  = task.m_outputs
-	cpptask.m_outputs = obj.file_in(''.join([base,'_',type,'.o']))
+	cpptask.set_inputs(task.m_outputs)
+	cpptask.set_outputs(obj.file_in(''.join([base,'_',type,'.o'])))
 
 def handler_stub(obj, node, base=''):
 	handler_skel_or_stub(obj, base, 'stub')
@@ -265,18 +264,18 @@ class kdeobj(cpp.cppobj):
 				mocfiles.append(d)
 
 				task = self.create_task('moc', self.env)
-				task.m_inputs  = self.file_in(base+'.h')
-				task.m_outputs = self.file_in(base+'.moc')
-				moctasks.append( task )
+				task.set_inputs(node.change_ext('.h'))
+				task.set_outputs(node.change_ext('.moc'))
+				moctasks.append(task)
 			
 			# use a cache ?
 			for d in tree.m_depends_on[variant][node]:
 				name = d.m_name
 				if name[len(name)-4:]=='.moc':
 					task = self.create_task('moc', self.env)
-					task.m_inputs  = self.file_in(base+'.h')
-					task.m_outputs = [d]
-					moctasks.append( task )
+					task.set_inputs(d.change_ext('.h'))
+					task.set_outputs(d)
+					moctasks.append(task)
 					break
 
 			# create the task for the cpp file
@@ -285,8 +284,8 @@ class kdeobj(cpp.cppobj):
 			cpptask.m_scanner = Scan.g_c_scanner
 			cpptask.m_scanner_params = self.dir_lst
 
-			cpptask.m_inputs    = self.file_in(filename)
-			cpptask.m_outputs   = self.file_in(base+obj_ext)
+			cpptask.set_inputs(node)
+			cpptask.set_outputs(node.change_ext(obj_ext))
 			cpptask.m_run_after = moctasks
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
@@ -294,15 +293,15 @@ class kdeobj(cpp.cppobj):
 		else:                        linktask = self.create_task('cpp_link', self.env, ccroot.g_prio_link)
 		cppoutputs = []
 		for t in self.p_compiletasks: cppoutputs.append(t.m_outputs[0])
-		linktask.m_inputs  = cppoutputs 
-		linktask.m_outputs = self.file_in(self.get_target_name())
+		linktask.set_inputs(cppoutputs)
+		linktask.set_outputs(self.file_in(self.get_target_name()))
 
 		self.m_linktask = linktask
 
 		if self.m_type != 'program' and self.want_libtool:
 			latask           = self.create_task('fakelibtool', self.env, 200)
-			latask.m_inputs  = linktask.m_outputs
-			latask.m_outputs = self.file_in(self.get_target_name('.la'))
+			latask.set_inputs(linktask.m_outputs)
+			latask.set_outputs(self.file_in(self.get_target_name('.la')))
 			self.m_latask    = latask
 
 		self.apply_libdeps()
