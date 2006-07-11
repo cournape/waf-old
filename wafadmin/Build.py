@@ -16,6 +16,7 @@ class BuildDTO:
 		self.m_root        = Node.Node('', None)
 		self.m_blddir      = ''
 		self.m_srcnode     = None
+		self.m_bldnode     = None
 		self.m_src_to_bld  = {}
 		self.m_bld_to_src  = {}
 		self.m_depends_on  = {}
@@ -26,6 +27,7 @@ class BuildDTO:
 		self.m_root        = bdobj.m_root
 		self.m_blddir      = bdobj.m_blddir
 		self.m_srcnode     = bdobj.m_srcnode
+		self.m_bldnode     = bdobj.m_bldnode
 		self.m_src_to_bld  = bdobj.m_src_to_bld
 		self.m_bld_to_src  = bdobj.m_bld_to_src
 		self.m_depends_on  = bdobj.m_depends_on
@@ -36,6 +38,7 @@ class BuildDTO:
 		bdobj.m_root        = self.m_root
 		bdobj.m_blddir      = self.m_blddir
 		bdobj.m_srcnode     = self.m_srcnode
+		bdobj.m_bldnode     = self.m_bldnode
 		bdobj.m_src_to_bld  = self.m_src_to_bld
 		bdobj.m_bld_to_src  = self.m_bld_to_src
 		bdobj.m_depends_on  = self.m_depends_on
@@ -148,9 +151,11 @@ class Build:
 			file.close()
 		except:
 			debug("resetting the build object (previous attempt failed)")
-			dto = BuildDTO(self)
+			dto = BuildDTO()
 			dto.reset()
 			dto.update_build(self)
+
+		#self.dump()
 			
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
@@ -237,11 +242,6 @@ class Build:
 		# set the source directory
 		srcdir = os.path.abspath('.') + os.sep + srcdir
 
-		self.m_srcnode = self.ensure_node_from_path(srcdir)
-		debug("srcnode is "+str(self.m_srcnode)+" and srcdir "+srcdir)
-
-		self.m_curdirnode = self.m_srcnode
-
 		# set the build directory it is a path, not a node (either absolute or relative)
 		if blddir[0] != '/':
 			self.m_bdir = os.path.abspath(blddir)
@@ -249,17 +249,22 @@ class Build:
 			self.m_bdir = blddir
 		#print "self.m_bdir is ", self.m_bdir
 
+		self._load()
+		if self.m_srcnode:
+			self.m_curdirnode = self.m_srcnode
+			return
+
+
+		self.m_srcnode = self.ensure_node_from_path(srcdir)
+		debug("srcnode is "+str(self.m_srcnode)+" and srcdir "+srcdir)
+
+		self.m_curdirnode = self.m_srcnode
+
 		self.m_bldnode = self.ensure_node_from_path(self.m_bdir)
 
 		# create this build dir if necessary
 		try: os.makedirs(blddir)
 		except: pass
-
-		#self._load()
-		#self._set_blddir(blddir)
-		#self._duplicate_srcdir(srcdir, scan)
-
-		# TODO
 
 	# return a node corresponding to an absolute path, creates nodes if necessary
 	def ensure_node_from_path(self, abspath):
@@ -283,6 +288,11 @@ class Build:
 
 	# ensure a directory node from a list, given a node to start from
 	def ensure_node_from_lst(self, node, plst):
+
+		if not node:
+			error('ensure_node_from_lst node is not defined')
+			raise "pass a valid node to ensure_node_from_lst"
+
 		curnode=node
 		for dirname in plst:
 			if not dirname: continue
@@ -487,8 +497,8 @@ class Build:
 			accu+= "> "+node.m_name+" (d)\n"
 			for child in node.m_files:
 				accu+= printspaces(count)
-				accu+= '> '+child.m_name+' '
-				accu+= ' '+str(child.m_tstamp)+'\n'
+				accu+= '> '+child.m_name+' \n'
+				#accu+= ' '+str(child.m_tstamp)+'\n'
 				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
 				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
 			for dir in node.m_dirs: accu += recu(dir, count+1)
