@@ -333,6 +333,9 @@ class Node:
 				break
 		newname = name[:l] + ext
 
+		for n in self.m_parent.m_files:
+			if n.m_name == newname:
+				return n
 		for n in self.m_parent.m_build:
 			if n.m_name == newname:
 				return n
