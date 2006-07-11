@@ -157,8 +157,8 @@ class qt4obj(cpp.cppobj):
 
 			# scan for moc files to produce, create cpp tasks at the same time
 
-			#if tree.needs_rescan(node):
-			Scan.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
+			if tree.needs_rescan(node, self.env):
+				Scan.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
 
 			moctasks=[]
 			mocfiles=[]

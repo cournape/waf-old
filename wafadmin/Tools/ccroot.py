@@ -181,9 +181,8 @@ class ccroot(Object.genobj):
 				fun(self, node)
 				continue
 
-			#if tree.needs_rescan(node):
-			Scan.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
-
+			if tree.needs_rescan(node, self.env):
+				Scan.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
 
 			mlst = self.file_in(filename)
 			node = mlst[0]

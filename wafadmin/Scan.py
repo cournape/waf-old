@@ -95,7 +95,7 @@ class scanner:
 			seen.append(node)
 			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
 			#if task.m_recurse:
-			#	if tree.needs_rescan(node):
+			#	if tree.needs_rescan(node, task.m_env):
 			#		self.do_scan(tree, node, task.m_scanner_params)
 			#	# TODO looks suspicious
 			#	lst = tree.m_depends_on[node]
@@ -180,10 +180,10 @@ class c_scanner(scanner):
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = task.m_env.m_variant
 
-		if tree.needs_rescan(node): rescan = 1
+		if tree.needs_rescan(node, task.m_env): rescan = 1
 		if not rescan:
 			for node in tree.m_depends_on[variant][node]:
-				if tree.needs_rescan(node): rescan = 1
+				if tree.needs_rescan(node, task.m_env): rescan = 1
 
 		# rescan the cpp file if necessary
 		if rescan:
@@ -214,7 +214,7 @@ class c_scanner(scanner):
 
 			seen.append(node)
 			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
-			if tree.needs_rescan(node):
+			if tree.needs_rescan(node, task.m_env):
 				self.do_scan(node, variant, task.m_scanner_params)
 			# TODO looks suspicious
 			lst = tree.m_depends_on[variant][node]

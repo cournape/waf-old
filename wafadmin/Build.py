@@ -75,9 +75,6 @@ class Build:
 		self.m_raw_deps    = {}
 
 
-		# give flags to nodes (eg: existing->1, not existing->0)
-		self._flags        = {}
-
 		# ======================================= #
 		# globals
 
@@ -155,9 +152,6 @@ class Build:
 			dto.reset()
 			dto.update_build(self)
 			
-		# reset the flags of the tree
-		self.m_root.tag(0)
-
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
 		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
@@ -304,7 +298,6 @@ class Build:
 			curnode = found
 		return curnode
 
-	# ======================================= #
 	def rescan(self, src_dir_node):
 		# first list the files in the src dir and update the nodes
 		# for each variant build dir (multiple build dirs):
@@ -341,97 +334,28 @@ class Build:
 				os.makedirs(sub_path)
 				src_dir_node.m_build = []
 
-	def ensure_directory_lst(self, node, plst):
-		curnode = node
-		exists  = 1
-
-		fatal("boo")
-
-		for dirname in plst:
-			#print "finding ", dirname
-			if not dirname: continue
-			if dirname == '.': continue
-
-			# try to find the node in existing deptree
-			found=None
-			for cand in curnode.m_dirs:
-				if cand.m_name == dirname:
-					found = cand
-					break
-			# the node is found and is already scanned, keep walking
-			try:
-				if found and self.m_flags[found]>0:
-					curnode=found
-					continue
-			except: pass
-
-			# the node is not found, add it
-			if not found:
-				found = Node.Node(dirname, curnode)
-				curnode.m_dirs.append(found)
-			# we have a node, but it is not scanned
-			curnode = found
-			try: os.stat(curnode.abspath())
-			except OSError:
-				exists = 0
-				trace("make dir %s"%curnode.abspath())
-				try: os.mkdir(curnode.abspath())
-				except: trace('mkdir failed '+curnode.abspath())
-				#st=os.stat(curnode.abspath())
-				# TRICK_1: the subtree is obsolete -> forget sub-nodes recursively
-				curnode.m_dirs=[]
-				curnode.m_files=[]
-			self.m_flags[curnode] = 1
-		return (exists, curnode)
-
-
 
 	# tell if a node has changed, to update the cache
-	def needs_rescan(self, node):
+	def needs_rescan(self, node, env):
 		#print "needs_rescan for ", node, node.m_tstamp
+
+		if node in node.m_parent.m_files: variant = 0
+		else: variant = env.m_variant
+
+		# TODO remove these checks
+		if not variant in self.m_deps_tstamp: self.m_deps_tstamp[variant] = {}
+		if not variant in self.m_tstamp_variants: self.m_tstamp_variants[variant] = {}
+
 		try:
-			if self.m_deps_tstamp[node] == node.m_tstamp:
+			if self.m_deps_tstamp[variant][node] == self.m_tstamp_variants[variant][node]:
 				#print "no need to rescan", node.m_tstamp
 				return 0
 		except:
 			pass
 		return 1
 
-	# Fast node access - feed an internal dictionary (to keep between runs -> TODO not sure)
-	def store_node(self, node):
-		nn=node.m_name
-		try:
-			# prevent silly errors
-			if node in self.m_name2nodes[nn]: print "BUG: name2nodes already contains node!", nn
-			else: self.m_name2nodes[nn].append(node)
-		except:
-			self.m_name2nodes[nn] = [node]
 
-
-	## IMPORTANT - for debugging
-	def dump(self):
-		def printspaces(count):
-			if count>0: return printspaces(count-1)+"-"
-			return ""
-		def recu(node, count):
-			accu = printspaces(count)
-			accu+= "> "+node.m_name+" (d)\n"
-			for child in node.m_files:
-				accu+= printspaces(count)
-				accu+= '> '+child.m_name+' '
-				accu+= ' '+str(child.m_tstamp)+'\n'
-				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
-				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
-			for dir in node.m_dirs: accu += recu(dir, count+1)
-			return accu
-
-		Params.pprint('CYAN', recu(self.m_root, 0) )
-		Params.pprint('CYAN', 'size is '+str(self.m_root.size()))
-
-		#keys = self.m_name2nodes.keys()
-		#for k in keys:
-		#	print k, '\t\t', self.m_name2nodes[k]
-
+	# ======================================= #
 
 	# shortcut for object creation
 	def createObj(self, objname, *k, **kw):
@@ -541,6 +465,42 @@ class Build:
 
 	# ======================================= #
 	# obsolete code
+
+	# Fast node access - feed an internal dictionary (to keep between runs -> TODO not sure)
+	def store_node(self, node):
+		nn=node.m_name
+		try:
+			# prevent silly errors
+			if node in self.m_name2nodes[nn]: print "BUG: name2nodes already contains node!", nn
+			else: self.m_name2nodes[nn].append(node)
+		except:
+			self.m_name2nodes[nn] = [node]
+
+
+	## IMPORTANT - for debugging
+	def dump(self):
+		def printspaces(count):
+			if count>0: return printspaces(count-1)+"-"
+			return ""
+		def recu(node, count):
+			accu = printspaces(count)
+			accu+= "> "+node.m_name+" (d)\n"
+			for child in node.m_files:
+				accu+= printspaces(count)
+				accu+= '> '+child.m_name+' '
+				accu+= ' '+str(child.m_tstamp)+'\n'
+				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
+				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
+			for dir in node.m_dirs: accu += recu(dir, count+1)
+			return accu
+
+		Params.pprint('CYAN', recu(self.m_root, 0) )
+		Params.pprint('CYAN', 'size is '+str(self.m_root.size()))
+
+		#keys = self.m_name2nodes.keys()
+		#for k in keys:
+		#	print k, '\t\t', self.m_name2nodes[k]
+
 
 	# TODO OBSOLETE
 	def _duplicate_srcdir(self, dir, scan='auto'):
