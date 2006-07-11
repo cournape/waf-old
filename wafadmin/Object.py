@@ -109,7 +109,7 @@ class genobj:
 	# if tasks have an even priority number, they will be allowed to be run in parallel
 	def create_task(self, type, env=None, nice=10):
 		if env is None: env=self.env
-		task = Task.Task(type, env, 10)
+		task = Task.Task(type, env, nice)
 		self.m_tasks.append(task)
 		return task
 
