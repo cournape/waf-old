@@ -34,7 +34,7 @@ def sig_nil():
 g_tooldir=''
 
 # parsed command-line arguments in the options module
-g_options = []
+g_options = None
 g_commands = {}
 g_verbose = 0
 

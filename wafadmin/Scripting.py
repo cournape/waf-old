@@ -168,18 +168,18 @@ def Main():
 	#bld.dump()
 
 	# compile
-	try:
-		if Params.g_commands['build'] or Params.g_commands['install']:
+	if Params.g_commands['build'] or Params.g_commands['install']:
+		try:
 			bld.compile()
-	finally:
-		bld.save()
+		finally:
+			bld.save()
 
 	# install
-	try:
-		if Params.g_commands['install'] or Params.g_commands['uninstall']:
+	if Params.g_commands['install'] or Params.g_commands['uninstall']:
+		try:
 			bld.install()
-	finally:
-		bld.save()
+		finally:
+			bld.save()
 
 	# shutdown
 	try:    Utils.g_module.shutdown()

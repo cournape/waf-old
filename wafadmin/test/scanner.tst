@@ -6,27 +6,50 @@ import Runner
 pexec = Runner.exec_command
 
 # constants
-sconstruct_x = """
-bld.set_srcdir('.')
-bld.set_bdir('_build_')
-bld.scandirs('src ')
-from Common import dummy
-add_subdir('src')
+wscript_top = """
+VERSION='0.0.1'
+APPNAME='cpp_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = '_build_'
+
+def build(bld):
+	bld.add_subdirs('src src2')
+
+def configure(conf):
+	conf.checkTool(['g++'])
+
+	conf.env['CXXFLAGS_MYPROG']='-O3'
+	conf.env['LIB_MYPROG']='m'
+	conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
+
+def set_options(opt):
+	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+	opt.sub_options('src')
+
 """
 
 sconscript_0="""
-obj=dummy()
-obj.source='dummy.h'
-obj.target='dummy.i'
+def build(bld):
+	import Params
+	print "command-line parameter meow is ", Params.g_options.meow
+
+	# 1. A simple program
+	obj = bld.createObj('cpp', 'program')
+	obj.source='''
+	main.cpp
+	'''
+	obj.includes='. src'
+	obj.target='testprogram'
+
 """
 
 dummy_hfile="""
 #include <iostream>
 #include <limits.h>
-#include "file1.moc"
-	#include    "file2.moc"
-  #include "file3.moc" # haha
-// #include "file4.moc"
+
+int c = 3;
 """
 
 #
@@ -37,8 +60,8 @@ pexec('rm -rf runtest/ && mkdir -p runtest/src/sub/')
 #
 # write our files
 #
-dest = open('./runtest/sconstruct', 'w')
-dest.write(sconstruct_x)
+dest = open('./runtest/wscript', 'w')
+dest.write(wscript_top)
 dest.close()
 
 dest = open('./runtest/src/sconscript', 'w')

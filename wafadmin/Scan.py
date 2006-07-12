@@ -127,7 +127,7 @@ class scanner:
 	def _scan_default(self, node, env, path_lst):
 
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = task.m_env.m_variant
+		else: variant = env.m_variant
 
 		file = open(node.abspath(env), 'rb')
 		found = cregexp1.findall( file.read() )
