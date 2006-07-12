@@ -111,9 +111,9 @@ class Configure:
 
 		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
 		bdir = os.path.join( dir, '_build_')
-		try: os.mkdir(dir)
+		try: os.makedirs(dir)
 		except: pass
-		try: os.mkdir(bdir)
+		try: os.makedirs(bdir)
 		except: pass
 
 		dest=open(os.path.join(dir, 'test.c'), 'w')
