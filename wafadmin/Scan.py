@@ -92,16 +92,40 @@ class scanner:
 			if not node:
 				print "warning: null node in get_node_sig"
 			if not node or node in seen: return Params.sig_nil()
+
+			if node in node.m_parent.m_files: variant = 0
+			else: variant = task.m_env.m_variant
+
 			seen.append(node)
-			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
-			#if task.m_recurse:
-			#	if tree.needs_rescan(node, task.m_env):
-			#		self.do_scan(tree, node, task.m_scanner_params)
-			#	# TODO looks suspicious
-			#	lst = tree.m_depends_on[node]
-			#
-			#	for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
+			_sig = Params.xor_sig(tree.m_tstamp_variants[variant][node], Params.sig_nil())
+			#if tree.needs_rescan(node, task.m_env):
+			#	self.do_scan(node, variant, task.m_scanner_params)
+			# TODO looks suspicious
+
+
+			# TODO
+			if not variant in tree.m_depends_on: tree.m_depends_on[variant]={}
+
+			if node in tree.m_depends_on[variant]:
+				lst = tree.m_depends_on[variant][node]
+			
+				for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
 			return Params.xor_sig(_sig, Params.sig_nil())
+
+		#def get_node_sig(node):
+		#	if not node:
+		#		print "warning: null node in get_node_sig"
+		#	if not node or node in seen: return Params.sig_nil()
+		#	seen.append(node)
+		#	_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
+		#	#if task.m_recurse:
+		#	#	if tree.needs_rescan(node, task.m_env):
+		#	#		self.do_scan(tree, node, task.m_scanner_params)
+		#	#	# TODO looks suspicious
+		#	#	lst = tree.m_depends_on[node]
+		#	#
+		#	#	for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
+		#	return Params.xor_sig(_sig, Params.sig_nil())
 		sig=Params.sig_nil()
 		for node in task.m_inputs:
 			# WATCH OUT we are using the source node, not the build one for that kind of signature..
@@ -213,7 +237,7 @@ class c_scanner(scanner):
 			else: variant = task.m_env.m_variant
 
 			seen.append(node)
-			_sig = Params.xor_sig(node.get_sig(), Params.sig_nil())
+			_sig = Params.xor_sig(tree.m_tstamp_variants[variant][node], Params.sig_nil())
 			if tree.needs_rescan(node, task.m_env):
 				self.do_scan(node, variant, task.m_scanner_params)
 			# TODO looks suspicious
