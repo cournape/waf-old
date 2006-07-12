@@ -113,7 +113,7 @@ class scanner:
 				print "ERROR in get_deps_signature"
 				print node
 				print sig
-				print "details for the task are: ", task.m_outputs, task.m_inputs, task.m_name
+				print "details for the task are: ", task.m_outputs, task.m_inputs, task.m_action.m_name
 				raise
 
 		for task in task.m_run_after:
@@ -232,7 +232,7 @@ class c_scanner(scanner):
 				#print n
 				#print node
 				#print sig
-				print "details for the task are: ", task.m_outputs, task.m_inputs, task.m_name
+				print "details for the task are: ", task.m_outputs, task.m_inputs, task.m_action.m_name
 				raise
 
 		for task in task.m_run_after:

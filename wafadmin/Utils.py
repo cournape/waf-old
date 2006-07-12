@@ -21,17 +21,17 @@ def h_md5_file(filename):
 		m.update(readString)
 		readBytes = len(readString)
 	f.close()
-	return m.hexdigest()
+	return m.digest()
 
 def h_md5_str(str):
 	m = md5.new()
 	m.update( str )
-	return m.hexdigest()
+	return m.digest()
 
 def h_md5_lst(lst):
 	m = md5.new()
 	for el in lst: m.update(str(el))
-	return m.hexdigest()
+	return m.digest()
 
 # --
 

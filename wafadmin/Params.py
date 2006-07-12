@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, sys, types, inspect
+import os, sys, types, inspect, md5
 import Utils
 
 ### CONSTANTS ###
@@ -25,7 +25,7 @@ g_pattern_excludes = ['_build_']
 g_strong_hash = 1
 
 def sig_nil():
-	if g_strong_hash: return 'c01a85d0a38b176482a6e529f81f5251'
+	if g_strong_hash: return '\xaea\x86\xf0T\xbd\x93\xc5V\x01\xc6Y"\x7fi\xd4'
 	else: return 0
 
 ### NO RESETS BETWEEN RUNS ###
@@ -182,10 +182,11 @@ def xor_sig(o1, o2):
 		return s
 	except:
 		try:
-			#return o1+o2
 			return "".join( map(lambda a, b: chr(ord(a) ^ ord(b)), o1, o2) )
 		except:
-			print "exception xor_sig with incompatible objects", o1, o2
+			print len(o1), len(o2)
+			print repr(o1), repr(o2)
+			print "exception xor_sig with incompatible objects", str(o1), str(o2)
 			raise
 
 import base64
