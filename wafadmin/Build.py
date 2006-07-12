@@ -410,10 +410,7 @@ class Build:
 					break
 				i += 1
 			if i < l_len:
-				if i>0:
-					l_names = l_names[:i]+l_names[i+1:]
-				else:
-					l_names = l_names[1:]
+				l_names = l_names[:i]+l_names[i+1:]
 
 		# Now:
 		# l_names contains the new nodes (or files)
@@ -468,10 +465,7 @@ class Build:
 					break
 				i += 1
 			if i < l_len:
-				if i>0:
-					l_names = l_names[:i]+l_names[i+1:]
-				else:
-					l_names = l_names[1:]
+				l_names = l_names[:i]+l_names[i+1:]
 			else:
 				l_rm.append(node)
 
