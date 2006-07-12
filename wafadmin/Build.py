@@ -155,7 +155,7 @@ class Build:
 			dto.reset()
 			dto.update_build(self)
 
-		self.dump()
+		#self.dump()
 			
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
@@ -183,6 +183,9 @@ class Build:
 		os.chdir(self.m_bdir)
 
 		Object.flush()
+
+		#self.dump()
+
 		if Params.g_maxjobs <=1:
 			generator = Runner.JobGenerator(self)
 			executor = Runner.Serial(generator)
@@ -199,7 +202,7 @@ class Build:
 		#finally:
 		#	os.chdir( self.m_srcnode.abspath() )
 
-		self.dump()
+		#self.dump()
 
 		os.chdir( self.m_srcnode.abspath() )
 		return ret
@@ -340,6 +343,8 @@ class Build:
 				files = self._scan_path(src_dir_node, sub_path, src_dir_node.m_build, variant)
 				src_dir_node.m_build = files
 			except OSError:
+				debug("osError on " + sub_path)
+
 				# listdir failed, remove all sigs of nodes
 				dict = self.m_tstamp_variants[variant]
 				for node in src_dir_node.m_build:
@@ -347,6 +352,7 @@ class Build:
 						dict.__delitem__(node)
 				os.makedirs(sub_path)
 				src_dir_node.m_build = []
+		self.m_scanned_folders.append(src_dir_node)
 
 
 	# tell if a node has changed, to update the cache
@@ -404,8 +410,8 @@ class Build:
 					break
 				i += 1
 			if i < l_len:
-				if i>1:
-					l_names = l_names[:i-1]+l_names[i+1:]
+				if i>0:
+					l_names = l_names[:i]+l_names[i+1:]
 				else:
 					l_names = l_names[1:]
 
@@ -462,8 +468,8 @@ class Build:
 					break
 				i += 1
 			if i < l_len:
-				if i>1:
-					l_names = l_names[:i-1]+l_names[i+1:]
+				if i>0:
+					l_names = l_names[:i]+l_names[i+1:]
 				else:
 					l_names = l_names[1:]
 			else:
@@ -471,6 +477,12 @@ class Build:
 
 		# remove the stamps of the nodes that no longer exist in the build dir
 		for node in l_rm:
+
+			print "\nremoving the timestamp of ", node, node.m_name
+			print node.m_parent.m_build
+			print l_names_read
+			print l_names
+
 			# TODO remove this check in the future
 			if not i_variant in self.m_tstamp_variants: self.m_tstamp_variants[i_variant] = {}
 			if node in self.m_tstamp_variants[i_variant]:

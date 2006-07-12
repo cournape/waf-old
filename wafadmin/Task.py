@@ -89,6 +89,9 @@ class Task:
 	def update_stat(self):
 		tree = Params.g_build
 		env  = self.m_env
+
+		s = self.signature()
+
 		for node in self.m_outputs:
 			#trace("updating_stat of node "+node.abspath())
 			#node.m_tstamp = os.stat(node.abspath()).st_mtime
@@ -97,10 +100,9 @@ class Task:
 			if node in node.m_parent.m_files: variant = 0
 			else: variant = self.m_env.m_variant
 
-			Params.g_build.m_tstamp_variants[variant][node] = Params.h_file(node.abspath(env))
-
-			if node.get_sig() == self.signature():
-				error("NODE ALREADY TAGGED - GRAVE ERROR")
+			if node in tree.m_tstamp_variants[variant]:
+				print "variant is ", variant
+				print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
 			tree.m_tstamp_variants[variant][node] = self.signature()
 		self.m_executed=1
 
@@ -119,16 +121,27 @@ class Task:
 		self.m_dep_sig = self.get_deps_signature()
 		sg = self.signature()
 
+		node = self.m_outputs[0]
+
+		if node in node.m_parent.m_files: variant = 0
+		else: variant = self.m_env.m_variant
+
+
+		if not node in Params.g_build.m_tstamp_variants[variant]:
+			debug("task must run, node does not exist"+str(node))
+			return 1
+
+		outs = Params.g_build.m_tstamp_variants[variant][node]
+
+		a1 = Params.vsig(sg)
+		a2 = Params.vsig(outs)
+		
 		# DEBUG
-		#error("signature is "+str(sg)+" while node signature is "+str(self.m_outputs[0].get_sig()))
+		debug("task must run ? signature is %s while node signature is %s" % (a1, a2))
 
-		# check if the file actually exists - expect a moderate slowdown
-		for f in self.m_outputs:
-			if not os.path.exists(f.bldpath(self.m_env)):
-				return 1
+		if sg != outs:
+			print "task must run"
 
-		if sg != self.m_outputs[0].get_sig():
-			trace("task %s must run %s %s" % (str(self.m_idx), Params.vsig(sg), Params.vsig(self.m_outputs[0].get_sig()) ))
 			return 1
 		return 0
 
