@@ -128,7 +128,7 @@ class Task:
 				return 1
 
 		if sg != self.m_outputs[0].get_sig():
-			trace("task %s must run %s %s" % (str(self.m_idx), str(sg), str(self.m_outputs[0].get_sig()) ))
+			trace("task %s must run %s %s" % (str(self.m_idx), Params.vsig(sg), Params.vsig(self.m_outputs[0].get_sig()) ))
 			return 1
 		return 0
 

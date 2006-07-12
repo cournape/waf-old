@@ -155,7 +155,7 @@ class Build:
 			dto.reset()
 			dto.update_build(self)
 
-		#self.dump()
+		self.dump()
 			
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
@@ -199,6 +199,8 @@ class Build:
 		#finally:
 		#	os.chdir( self.m_srcnode.abspath() )
 
+		self.dump()
+
 		os.chdir( self.m_srcnode.abspath() )
 		return ret
 
@@ -230,7 +232,7 @@ class Build:
 	# node and folder handling
 
 	# this should be the main entry point
-	def load_dirs(self, srcdir, blddir):
+	def load_dirs(self, srcdir, blddir, isconfigure=None):
 		# this functions should be the start
 		# there is no reason to bypass this check
 		try:
@@ -249,10 +251,11 @@ class Build:
 			self.m_bdir = blddir
 		#print "self.m_bdir is ", self.m_bdir
 
-		self._load()
-		if self.m_srcnode:
-			self.m_curdirnode = self.m_srcnode
-			return
+		if not isconfigure:
+			self._load()
+			if self.m_srcnode:
+				self.m_curdirnode = self.m_srcnode
+				return
 
 
 		self.m_srcnode = self.ensure_node_from_path(srcdir)
@@ -497,7 +500,31 @@ class Build:
 			accu+= "> "+node.m_name+" (d)\n"
 			for child in node.m_files:
 				accu+= printspaces(count)
-				accu+= '> '+child.m_name+' \n'
+				accu+= '> '+child.m_name+' '
+
+				for variant in self.m_tstamp_variants:
+					#print "variant %s"%variant
+					var = self.m_tstamp_variants[variant]
+					#print var
+					if child in var:
+						accu+=' [%s,%s] ' % (str(variant), Params.vsig(var[child]))
+
+				accu+='\n'
+				#accu+= ' '+str(child.m_tstamp)+'\n'
+				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
+				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
+			for child in node.m_build:
+				accu+= printspaces(count)
+				accu+= '> '+child.m_name+' (b) '
+
+				for variant in self.m_tstamp_variants:
+					#print "variant %s"%variant
+					var = self.m_tstamp_variants[variant]
+					#print var
+					if child in var:
+						accu+=' [%s,%s] ' % (str(variant), Params.vsig(var[child]))
+
+				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'
 				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
 				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"

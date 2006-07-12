@@ -17,7 +17,7 @@ if sys.path=='win32':
 g_dbfile='.dblite'
 
 # preprocessor for c/c++
-g_preprocess=1
+g_preprocess=0
 
 # deptree
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
@@ -188,4 +188,10 @@ def xor_sig(o1, o2):
 			print "exception xor_sig with incompatible objects", o1, o2
 			raise
 
+import base64
+def vsig(s):
+	n = base64.encodestring(s)
+	if len(n)>2:
+		return n[:len(n)-2]
+	return n
 

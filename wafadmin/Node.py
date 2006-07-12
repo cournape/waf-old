@@ -17,6 +17,17 @@ class Node:
 			error('name forbidden '+name)
 			raise "boo"
 
+		if parent:
+			for node in parent.m_files:
+				if name == node.m_name:
+					error('node %s exists in the parent files %s already' % name, str(parent))
+
+			for node in parent.m_build:
+				if name == node.m_name:
+					error('node %s exists in the parent build %s already' % name, str(parent))
+
+
+
 		# contents of this node (filesystem structure)
 		# these lists contain nodes too
 		self.m_dirs     = [] # sub-folders

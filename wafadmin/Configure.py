@@ -126,7 +126,7 @@ class Configure:
 		back=os.path.abspath('.')
 
 		bld = Build.Build()
-		bld.load_dirs(dir, bdir)
+		bld.load_dirs(dir, bdir, is_configure=1)
 		bld.m_allenvs['default'] = env
 
 		os.chdir(dir)

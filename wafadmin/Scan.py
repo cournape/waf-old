@@ -113,13 +113,13 @@ class scanner:
 				print "ERROR in get_deps_signature"
 				print node
 				print sig
-				print "details for the task are: ", task.m_outputs, task.m_inputs
+				print "details for the task are: ", task.m_outputs, task.m_inputs, task.m_name
 				raise
 
 		for task in task.m_run_after:
 			sig = Params.xor_sig(task.signature(), sig)
 			#debug("signature of this node is %s %s %s " % (str(s), str(n), str(node.m_tstamp)) )
-		debug("signature of the task %d is %s" % (task.m_idx, str(sig)) )
+		debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
 		return sig
 
 	# private method
@@ -198,7 +198,7 @@ class c_scanner(scanner):
 		# and now xor the signature with the other tasks
 		for task in task.m_run_after:
 			sig = Params.xor_sig(task.signature(), sig)
-		debug("signature of the task %d is %s" % (task.m_idx, str(sig)) )
+		debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
 		return sig
 
 	def _get_signature_dumb(self, task):
@@ -226,21 +226,19 @@ class c_scanner(scanner):
 			# WATCH OUT we are using the source node, not the build one for that kind of signature..
 
 			try:
-				n = tree.get_src_from_mirror(node)
-				if n: sig = Params.xor_sig(sig, get_node_sig(n))
-				else: sig = Params.xor_sig(sig, get_node_sig(node))
+				sig = Params.xor_sig(sig, get_node_sig(node))
 			except:
 				print "ERROR in get_deps_signature"
-				print n
-				print node
-				print sig
-				print "details for the task are: ", task.m_outputs, task.m_inputs
+				#print n
+				#print node
+				#print sig
+				print "details for the task are: ", task.m_outputs, task.m_inputs, task.m_name
 				raise
 
 		for task in task.m_run_after:
 			sig = Params.xor_sig(task.signature(), sig)
 			#debug("signature of this node is %s %s %s " % (str(s), str(n), str(node.m_tstamp)) )
-		debug("signature of the task %d is %s" % (task.m_idx, str(sig)) )
+		debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
 		return sig
 
 
