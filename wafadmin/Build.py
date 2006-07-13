@@ -8,43 +8,18 @@ import Environment, Params, Runner, Object, Utils, Node
 
 from Params import debug, error, trace, fatal
 
-
+g_saved_attrs = 'm_root m_blddir m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
 class BuildDTO:
 	def __init__(self):
 		pass
-	def reset(self):
-		self.m_root        = Node.Node('', None)
-		self.m_blddir      = ''
-		self.m_srcnode     = None
-		self.m_bldnode     = None
-		self.m_src_to_bld  = {}
-		self.m_bld_to_src  = {}
-		self.m_depends_on  = {}
-		self.m_deps_tstamp = {}
-		self.m_raw_deps    = {}
-		self.m_tstamp_variants = {}
 	def init(self, bdobj):
-		self.m_root        = bdobj.m_root
-		self.m_blddir      = bdobj.m_blddir
-		self.m_srcnode     = bdobj.m_srcnode
-		self.m_bldnode     = bdobj.m_bldnode
-		self.m_src_to_bld  = bdobj.m_src_to_bld
-		self.m_bld_to_src  = bdobj.m_bld_to_src
-		self.m_depends_on  = bdobj.m_depends_on
-		self.m_deps_tstamp = bdobj.m_deps_tstamp
-		self.m_raw_deps    = bdobj.m_raw_deps
-		self.m_tstamp_variants = bdobj.m_tstamp_variants
+		global g_saved_attrs
+		for a in g_saved_attrs:
+			setattr(self, a, getattr(bdobj, a))
 	def update_build(self, bdobj):
-		bdobj.m_root        = self.m_root
-		bdobj.m_blddir      = self.m_blddir
-		bdobj.m_srcnode     = self.m_srcnode
-		bdobj.m_bldnode     = self.m_bldnode
-		bdobj.m_src_to_bld  = self.m_src_to_bld
-		bdobj.m_bld_to_src  = self.m_bld_to_src
-		bdobj.m_depends_on  = self.m_depends_on
-		bdobj.m_deps_tstamp = self.m_deps_tstamp
-		bdobj.m_raw_deps    = self.m_raw_deps
-		bdobj.m_tstamp_variants = self.m_tstamp_variants
+		global g_saved_attrs
+		for a in g_saved_attrs:
+			setattr(bdobj, a, getattr(self, a))
 
 class Build:
 	def __init__(self):
@@ -52,31 +27,7 @@ class Build:
 		# ======================================= #
 		# dependency tree
 
-		# filesystem root - root name is Params.g_rootname
-		self.m_root = Node.Node('', None)
-
-		self.m_name2nodes  = {}             # access nodes quickly
-		self.m_blddir      = ''
-		self.m_srcnode     = None           # source directory
-
-		# TODO FIXME separate signatures from tstamps ? is it really necessary to stat
-		# the files in the build dir to collect timestamps ?
-		# document the signature steps
-
-		# nodes signatures: self.m_tstamp_variants[variant_name][node] = signature_value
-		self.m_tstamp_variants = {}
-
-		# one node has nodes it depends on, tasks cannot be stored
-		# self.m_depends_on[variant][node] = [node1, node2, ..]
-		self.m_depends_on  = {}
-
-		# m_deps_tstamp[variant][node] = node_tstamp_of_the_last_scan
-		self.m_deps_tstamp = {}
-
-		# results of a scan: self.m_raw_deps[variant][node] = [filename1, filename2, filename3]
-		# for example, find headers in c files
-		self.m_raw_deps    = {}
-
+		self._init_data()
 
 		# ======================================= #
 		# globals
@@ -137,10 +88,35 @@ class Build:
 		self.m_src_to_bld  = {}
 		# get src nodes from bld nodes quickly
 		self.m_bld_to_src  = {}
+		self.m_name2nodes  = {}             # access nodes quickly
 
 		# TODO obsolete
 		#self.m_dirs     = []   # folders in the dependency tree to scan
 		#self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
+
+	def _init_data(self):
+		# filesystem root - root name is Params.g_rootname
+		self.m_root            = Node.Node('', None)
+
+		self.m_blddir          = ''
+		self.m_srcnode         = None           # source directory
+
+
+		self.m_bldnode         = None
+
+		# nodes signatures: self.m_tstamp_variants[variant_name][node] = signature_value
+		self.m_tstamp_variants = {}
+
+		# one node has nodes it depends on, tasks cannot be stored
+		# self.m_depends_on[variant][node] = [node1, node2, ..]
+		self.m_depends_on      = {}
+
+		# m_deps_tstamp[variant][node] = node_tstamp_of_the_last_scan
+		self.m_deps_tstamp     = {}
+
+		# results of a scan: self.m_raw_deps[variant][node] = [filename1, filename2, filename3]
+		# for example, find headers in c files
+		self.m_raw_deps        = {}
 
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
@@ -150,10 +126,8 @@ class Build:
 			dto.update_build(self)
 			file.close()
 		except:
-			debug("resetting the build object (previous attempt failed)")
-			dto = BuildDTO()
-			dto.reset()
-			dto.update_build(self)
+			debug("resetting the build object (dto failed)")
+			self._init_data()	
 
 		#self.dump()
 			
