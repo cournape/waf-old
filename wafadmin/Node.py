@@ -61,15 +61,11 @@ class Node:
 	# the timestamps/signatures are accessed using the following methods
 
 	def get_tstamp_variant(self, variant):
-		# TODO remove the following check
-		if not variant in Params.g_build.m_tstamp_variants: Params.g_build.m_tstamp_variants[variant] = {}
 		vars = Params.g_build.m_tstamp_variants[variant]
 		try: return vars[variant]
 		except: return None
 
 	def set_tstamp_variant(self, variant, value):
-		# TODO remove the following check
-		if not variant in Params.g_build.m_tstamp_variants: Params.g_build.m_tstamp_variants[variant] = {}
 		Params.g_build.m_tstamp_variants[variant][self] = value
 
 	def get_tstamp_node(self):
@@ -77,8 +73,6 @@ class Node:
 		except: return None
 
 	def set_tstamp_node(self, value):
-		# TODO remove the following check
-		if not 0 in Params.g_build.m_tstamp_variants: Params.g_build.m_tstamp_variants[0] = {}
 		Params.g_build.m_tstamp_variants[0][self] = value
 
 	# ====================================================== #
@@ -173,9 +167,6 @@ class Node:
 			else: variant = env.m_variant
 
 		#print "variant is", self.m_name, variant, "and env is ", env
-
-		if not variant in Params.g_build.m_abspath_cache:
-			Params.g_build.m_abspath_cache[variant]={}
 
 		## 1. stupid method
 		# if self.m_parent is None: return ''

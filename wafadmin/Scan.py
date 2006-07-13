@@ -65,11 +65,6 @@ class scanner:
 		(nodes, names) = self.scan(node, env, **hashparams)
 		tree = Params.g_build
 
-		# TODO remove this check in the future:
-		for l in [tree.m_depends_on, tree.m_raw_deps, tree.m_deps_tstamp]:
-			if not variant in l:
-				l[variant] = {}
-
 		tree.m_depends_on[variant][node] = nodes
 		tree.m_raw_deps[variant][node] = names
 
@@ -102,9 +97,6 @@ class scanner:
 			#	self.do_scan(node, variant, task.m_scanner_params)
 			# TODO looks suspicious
 
-
-			# TODO
-			if not variant in tree.m_depends_on: tree.m_depends_on[variant]={}
 
 			if node in tree.m_depends_on[variant]:
 				lst = tree.m_depends_on[variant][node]

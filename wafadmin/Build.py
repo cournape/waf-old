@@ -8,7 +8,7 @@ import Environment, Params, Runner, Object, Utils, Node
 
 from Params import debug, error, trace, fatal
 
-g_saved_attrs = 'm_root m_blddir m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
+g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
 class BuildDTO:
 	def __init__(self):
 		pass
@@ -35,23 +35,20 @@ class Build:
 		# map a name to an environment, the 'default' must be defined
 		self.m_allenvs = {}
 
-		# build dir variants (release, debug, ..)
-		self.m_variants = ['default']
-
 		# there should be only one build dir in use at a time
 		Params.g_build = self
 
 		# ======================================= #
 		# code for reading the scripts
 
-		# project build directory
+		# project build directory - do not reset() from load_dirs() or _init_data()
 		self.m_bdir = ''
 
 		# the current directory from which the code is run
 		# the folder changes everytime a wscript is read
 		self.m_curdirnode = None
 
-		# temporary holding the subdirectories containing scripts
+		# temporary holding the subdirectories containing scripts - look in Scripting.py
 		self.m_subdirs=[]
 
 		# ======================================= #
@@ -82,6 +79,9 @@ class Build:
 		self.m_outstanding_objs = []
 		self.m_posted_objs      = []
 
+		# build dir variants (release, debug, ..)
+		self.set_variants(['default'])
+
 
 		# TODO obsolete
 		# get bld nodes from src nodes quickly
@@ -89,21 +89,23 @@ class Build:
 		# get src nodes from bld nodes quickly
 		self.m_bld_to_src  = {}
 		self.m_name2nodes  = {}             # access nodes quickly
-
-		# TODO obsolete
 		#self.m_dirs     = []   # folders in the dependency tree to scan
 		#self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
 
+		self.m_tstamp_variants[0]
+
 	def _init_data(self):
+		trace("init data called")
+
 		# filesystem root - root name is Params.g_rootname
 		self.m_root            = Node.Node('', None)
 
-		self.m_blddir          = ''
-		self.m_srcnode         = None           # source directory
-
-
+		# source directory
+		self.m_srcnode         = None
+		# build directory
 		self.m_bldnode         = None
 
+		# TODO: this code does not look too good
 		# nodes signatures: self.m_tstamp_variants[variant_name][node] = signature_value
 		self.m_tstamp_variants = {}
 
@@ -118,6 +120,14 @@ class Build:
 		# for example, find headers in c files
 		self.m_raw_deps        = {}
 
+	def _init_variants(self):
+		trace("init variants")
+		for name in self._variants+[0]:
+			for v in 'm_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_abspath_cache'.split():
+				var = getattr(self, v)
+				if not name in var:
+					var[name] = {}
+
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
 		try:
@@ -127,10 +137,10 @@ class Build:
 			file.close()
 		except:
 			debug("resetting the build object (dto failed)")
-			self._init_data()	
-
+			self._init_data()
+			self._init_variants()
 		#self.dump()
-			
+
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
 		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
@@ -141,6 +151,11 @@ class Build:
 		file.close()
 
 	# ======================================= #
+
+	def set_variants(self, variants):
+		trace("set_variants")
+		self._variants = variants
+		self._init_variants()
 
 	def save(self):
 		self._store()
@@ -155,6 +170,7 @@ class Build:
 		trace("compile called")
 
 		os.chdir(self.m_bdir)
+
 
 		Object.flush()
 
@@ -310,8 +326,7 @@ class Build:
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
 		lst = self.m_srcnode.difflst(src_dir_node)
-		for variant in self.m_variants:
-			if not variant in self.m_tstamp_variants: self.m_tstamp_variants[variant] = {}
+		for variant in self._variants:
 			sub_path = os.sep.join([self.m_bldnode.abspath(), variant] + lst)
 			try:
 				files = self._scan_path(src_dir_node, sub_path, src_dir_node.m_build, variant)
@@ -335,10 +350,6 @@ class Build:
 
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = env.m_variant
-
-		# TODO remove these checks
-		if not variant in self.m_deps_tstamp: self.m_deps_tstamp[variant] = {}
-		if not variant in self.m_tstamp_variants: self.m_tstamp_variants[variant] = {}
 
 		try:
 			if self.m_deps_tstamp[variant][node] == self.m_tstamp_variants[variant][node]:
@@ -392,7 +403,6 @@ class Build:
 		for node in l_kept:
 			try:
 				# update the time stamp
-				if not 0 in self.m_tstamp_variants: self.m_tstamp_variants[0] = {}
 				self.m_tstamp_variants[0][node] = Params.h_file(node.abspath())
 			except:
 				fatal("a file is readonly or has become a dir "+node.abspath())
@@ -409,8 +419,6 @@ class Build:
 				l_child = Node.Node(name, i_parent_node)
 			except:
 				continue
-			# TODO remove the check below
-			if not 0 in self.m_tstamp_variants: self.m_tstamp_variants[0] = {}
 			self.m_tstamp_variants[0][l_child] = st
 			l_kept.append(l_child)
 		return l_kept
@@ -451,8 +459,6 @@ class Build:
 			print l_names_read
 			print l_names
 
-			# TODO remove this check in the future
-			if not i_variant in self.m_tstamp_variants: self.m_tstamp_variants[i_variant] = {}
 			if node in self.m_tstamp_variants[i_variant]:
 				self.m_tstamp_variants[i_variant].__delitem__(node)
 		return l_nodes
