@@ -5,6 +5,9 @@
 import Object, Params, Runner
 from Params import debug, error, trace, fatal
 
+# global actions
+g_actions ={}
+
 class Action:
 	def __init__(self, name, vars=[], func=None, color='GREEN'):
 		# each action must have a user-friendly little name
@@ -28,8 +31,9 @@ class Action:
 		return self.m_name
 
 	def _add_action(self):
-		if self.m_name in Params.g_actions: error('overriding action '+self.m_name)
-		Params.g_actions[self.m_name] = self
+		global g_actions
+		if self.m_name in g_actions: error('overriding action '+self.m_name)
+		g_actions[self.m_name] = self
 		trace("action added: %s" % self.m_name)
 
 	# string to display to the user

@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, types
-import Params, Scan
+import Params, Scan, Action
 from Params import debug, error, trace, fatal
 
 # task index
@@ -28,7 +28,7 @@ def add_group():
 class Task:
 	def __init__(self, action_name, env, priority=5):
 		# name of the action associated to this task
-		self.m_action = Params.g_actions[action_name]
+		self.m_action = Action.g_actions[action_name]
 		# environment in use
 		self.m_env = env
 

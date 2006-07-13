@@ -47,20 +47,7 @@ g_maxjobs = 1
 g_build    = None
 
 
-#g_srcdir = ''
-#g_blddir = ''
 g_cachedir = ''
-
-def srcnode():
-	global g_build
-	return g_build.m_srcnode
-
-def bldnode():
-	global g_build
-	return g_build.m_bldnode
-
-# global actions
-g_actions ={}
 
 ### HELPERS ####
 
