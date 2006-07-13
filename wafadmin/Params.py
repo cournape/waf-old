@@ -22,7 +22,7 @@ g_preprocess=0
 # deptree
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
 g_pattern_excludes = ['_build_']
-g_strong_hash = 1
+g_strong_hash = 0
 
 def sig_nil():
 	if g_strong_hash: return '\xaea\x86\xf0T\xbd\x93\xc5V\x01\xc6Y"\x7fi\xd4'
@@ -163,12 +163,18 @@ def h_list(lst):
 	return Utils.h_simple_lst(lst)
 
 def xor_sig(o1, o2):
+	if o1 == o2: return o1
 	try:
 		# we add -1 to make sure these are integer values
 		s = (o1^o2)-1
 		return s
 	except:
 		try:
+			#m = md5.new()
+			#m.update(o1)
+			#m.update(o2)
+			#return m.digest()
+	
 			return "".join( map(lambda a, b: chr(ord(a) ^ ord(b)), o1, o2) )
 		except:
 			print len(o1), len(o2)
@@ -178,8 +184,10 @@ def xor_sig(o1, o2):
 
 import base64
 def vsig(s):
-	n = base64.encodestring(s)
-	if len(n)>2:
-		return n[:len(n)-2]
-	return n
-
+	if type(s) is types.StringType:
+		n = base64.encodestring(s)
+		if len(n)>2:
+			return n[:len(n)-2]
+		return n
+	else:
+		return str(s)

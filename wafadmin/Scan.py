@@ -229,14 +229,21 @@ class c_scanner(scanner):
 			else: variant = task.m_env.m_variant
 
 			seen.append(node)
+
+			# the node does exist to this point, so it has a tstamp
 			_sig = Params.xor_sig(tree.m_tstamp_variants[variant][node], Params.sig_nil())
+
+
 			if tree.needs_rescan(node, task.m_env):
 				self.do_scan(node, variant, task.m_scanner_params)
 			# TODO looks suspicious
 			lst = tree.m_depends_on[variant][node]
-			
-			for dep in lst: _sig = Params.xor_sig(_sig, get_node_sig(dep))
-			return Params.xor_sig(_sig, Params.sig_nil())
+			for dep in lst:
+				_sig = Params.xor_sig(_sig, get_node_sig(dep))
+
+			return _sig
+			#return Params.xor_sig(_sig, Params.sig_nil())
+
 		sig=Params.sig_nil()
 		for node in task.m_inputs:
 			# WATCH OUT we are using the source node, not the build one for that kind of signature..

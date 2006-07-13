@@ -114,6 +114,10 @@ class Task:
 
 		self.m_dep_sig = self.m_scanner.get_signature(self)
 
+		i1 = Params.vsig(self.m_sig)
+		i2 = Params.vsig(self.m_dep_sig)
+
+
 		sg = self.signature()
 
 		node = self.m_outputs[0]
@@ -132,11 +136,10 @@ class Task:
 		a2 = Params.vsig(outs)
 		
 		# DEBUG
-		debug("task must run ? signature is %s while node signature is %s" % (a1, a2))
+		#print ("task %s must run ? signature is %s while node signature is %s (sig:%s depsig:%s)" \
+		#	% (str(self.m_idx), a1, a2, i1, i2))
 
 		if sg != outs:
-			print "task must run"
-
 			return 1
 		return 0
 
