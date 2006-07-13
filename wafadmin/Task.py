@@ -43,8 +43,6 @@ class Task:
 		self.m_hasrun=0
 
 		self.m_sig=0
-		self.m_str=0
-
 		self.m_dep_sig=0
 
 		global g_idx
@@ -93,16 +91,11 @@ class Task:
 		s = self.signature()
 
 		for node in self.m_outputs:
-			#trace("updating_stat of node "+node.abspath())
-			#node.m_tstamp = os.stat(node.abspath()).st_mtime
-			#node.m_tstamp = Params.h_file(node.abspath())
-
 			if node in node.m_parent.m_files: variant = 0
 			else: variant = self.m_env.m_variant
-
-			if node in tree.m_tstamp_variants[variant]:
-				print "variant is ", variant
-				print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
+			#if node in tree.m_tstamp_variants[variant]:
+			#	print "variant is ", variant
+			#	print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
 			tree.m_tstamp_variants[variant][node] = self.signature()
 		self.m_executed=1
 
@@ -118,7 +111,9 @@ class Task:
 
 	# see if this task must or must not be run
 	def must_run(self):
-		self.m_dep_sig = self.get_deps_signature()
+
+		self.m_dep_sig = self.m_scanner.get_signature(self)
+
 		sg = self.signature()
 
 		node = self.m_outputs[0]
@@ -144,10 +139,6 @@ class Task:
 
 			return 1
 		return 0
-
-	# return the signature of the dependencies
-	def get_deps_signature(self):
-		return self.m_scanner.get_signature(self)
 
 	def prepare(self):
 		self.m_action.prepare(self)
