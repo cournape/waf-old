@@ -53,6 +53,7 @@ def reset():
 	import Params, Task
 	Params.g_build = None
 	Task.g_tasks_done = []
+	Task.g_idx = 0
 
 def options(**kwargs):
 	pass
