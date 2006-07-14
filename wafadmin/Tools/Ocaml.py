@@ -24,18 +24,23 @@ class ocamlobj(Object.genobj):
 		self._mlltasks = []
 		self._mlytasks = []
 
+		self.includes = ''
+		self.uselib = ''
+
+		if not self.env: self.env = Params.g_build.m_allenvs['default']
+
 		if not type in ['bytecode','native','all']:
 			print 'type for camlobj is undefined '+type
 			type='all'
 
 		if type in native_lst:
 			self.is_native                 = 1
-			self.native_env                = Params.g_build.m_allenvs['default'].copy()
+			self.native_env                = self.env.copy()
 			self.native_env['OCAMLCOMP']   = self.native_env['OCAMLOPT']
 			self.native_env['OCALINK']     = self.native_env['OCAMLOPT']
 		if type in bytecode_lst:
 			self.is_bytecode               = 1
-			self.bytecode_env              = Params.g_build.m_allenvs['default'].copy()
+			self.bytecode_env              = self.env.copy()
 			self.bytecode_env['OCAMLCOMP'] = self.bytecode_env['OCAMLC']
 			self.bytecode_env['OCALINK']   = self.bytecode_env['OCAMLC']
 
@@ -68,6 +73,15 @@ class ocamlobj(Object.genobj):
 			self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
 			self.native_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
 
+		varnames = ['INCLUDES', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
+		for name in self.uselib.split():
+			for vname in varnames:
+				cnt = self.env[vname+'_'+name]
+				if cnt:
+					print (vname+'_'+name), cnt
+					self.bytecode_env.appendValue(vname, cnt)
+					self.native_env.appendValue(vname, cnt)
+
 		native_tasks   = []
 		bytecode_tasks = []
 		for filename in (' '+self.source).split():
@@ -92,12 +106,16 @@ class ocamlobj(Object.genobj):
 				task.set_inputs(mly_task.m_outputs[1])
 				task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
 
-				node = mll_task.m_outputs[0]
+				node = mly_task.m_outputs[0]
 			elif ext == '.mli':
 				task = self.create_task('ocamlcmi', self.native_env, 4)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmi'))
 				continue
+			else:
+				pass
+
+			print "creating task with node ", node
 
 			if self.is_native:
 				task = self.create_task('ocaml', self.native_env, 6)
@@ -118,7 +136,7 @@ class ocamlobj(Object.genobj):
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=1))
 
 		if self.is_native:
-			linktask = self.create_task('ocalink', self.native_env, 101)
+			linktask = self.create_task('ocalinkopt', self.native_env, 101)
 			objfiles = []
 			for t in native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
@@ -138,9 +156,10 @@ class ocamlobj(Object.genobj):
 
 def setup(env):
 	Object.register('ocaml', ocamlobj)
-	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} -c -o ${TGT} ${SRC}', color='GREEN')
-	Action.simple_action('ocalink', '${OCALINK} ${OCALINKFLAGS} ${SRC} -o ${TGT}', color='YELLOW')
-	Action.simple_action('ocamlcmi', '${OCAMLC} -c ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
+	Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW')
+	Action.simple_action('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW')
+	Action.simple_action('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE')
 	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE')
 	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE')
 
@@ -161,6 +180,7 @@ def detect(conf):
 	conf.env['OCAMLYACC']    = yacc
 	conf.env['OCAMLFLAGS']   = ''
 	conf.env['OCALINK']      = ''
+	conf.env['OCAMLLIB']     = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep
 	conf.env['OCALINKFLAGS'] = ''
 	return 1
 
