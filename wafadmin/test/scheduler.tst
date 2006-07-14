@@ -285,7 +285,7 @@ check_tasks_done([1, 4])
 
 # g. now that the header a2.h is removed, check if changing it triggers anything
 Utils.reset()
-info("test g: nothing should be rebuilt now")
+info("test g: nothing should be rebuilt now (a2.h modified)")
 time.sleep(wait)
 modify_file('./runtest/src/a2.h')
 t=measure()

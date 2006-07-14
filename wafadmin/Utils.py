@@ -50,10 +50,11 @@ def h_simple_lst(lst):
 	return val+1
 
 def reset():
-	import Params, Task
+	import Params, Task, preproc
 	Params.g_build = None
 	Task.g_tasks_done = []
 	Task.g_idx = 0
+	preproc.parse_cache = {}
 
 def options(**kwargs):
 	pass

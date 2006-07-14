@@ -174,7 +174,7 @@ class c_scanner(scanner):
 
 	# re-scan a node, update the tree
 	def do_scan(self, node, env, hashparams):
-		print "c:do_scan(self, node, env, hashparams)"
+		trace("c:do_scan(self, node, env, hashparams)")
 
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = env.m_variant
@@ -199,7 +199,7 @@ class c_scanner(scanner):
 
 
 	def get_signature(self, task):
-		#print "c:get_signature(self, task)"
+		trace("c:get_signature(self, task)")
 		if Params.g_preprocess:
 			#print "c: will preprocess"
 			if Params.g_strong_hash:
@@ -213,14 +213,14 @@ class c_scanner(scanner):
 				return self._get_signature_regexp_weak(task)
 
 	def scan(self, node, env, path_lst):
-		#print "c:scan"
+		trace("c:scan")
 		if Params.g_preprocess:
 			return self._scan_preprocessor(node, env, path_lst)
 		else:
 			return scanner.scan(self, node, env, path_lst)
 
 	def _scan_preprocessor(self, node, env, path_lst):
-		#print "c:_scan_preprocessor(self, node, env, path_lst)"
+		trace("c:_scan_preprocessor(self, node, env, path_lst)")
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst)
 	        gruik.start2(node, env)
@@ -356,13 +356,13 @@ class c_scanner(scanner):
 
 
 		if tree.needs_rescan(node, task.m_env): rescan = 1
-
-		if rescan: print "node has changed, a rescan is req ", node
+		#if rescan: print "node has changed, a rescan is req ", node
 
 		if not rescan:
+			#print node, "depends on ", tree.m_depends_on[variant][node]
 			for anode in tree.m_depends_on[variant][node]:
 				if tree.needs_rescan(anode, task.m_env):
-					print "rescanning because of ", anode
+					#print "rescanning because of ", anode
 					rescan = 1
 
 		# rescan the cpp file if necessary
@@ -370,6 +370,7 @@ class c_scanner(scanner):
 			#print "rescanning ", node
 			self.do_scan(node, task.m_env, task.m_scanner_params)
 
+		# DEBUG
 		#print "rescan for ", task.m_inputs[0], " is ", rescan,  " and deps ", \
 		#	tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
 
@@ -407,8 +408,6 @@ class kcfg_scanner(scanner):
 				if node.m_name == name:
 					return ([node], found)
 		fatal("the kcfg file was not found - that's very bad")
-
-
 
 # ======================================= #
 # TODO look in g_all_scanners[classname] first
