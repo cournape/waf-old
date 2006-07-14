@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, sys, types, inspect, md5
+import os, sys, types, inspect, md5, random
 import Utils
 
 ### CONSTANTS ###
@@ -22,7 +22,7 @@ g_preprocess=0
 # deptree
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
 g_pattern_excludes = ['_build_']
-g_strong_hash = 0
+g_strong_hash = 1
 
 def sig_nil():
 	if g_strong_hash: return '\xaea\x86\xf0T\xbd\x93\xc5V\x01\xc6Y"\x7fi\xd4'
@@ -163,10 +163,10 @@ def h_list(lst):
 	return Utils.h_simple_lst(lst)
 
 def xor_sig(o1, o2):
-	if o1 == o2: return o1
+	#if o1 == o2: return o1
 	try:
-		# we add -1 to make sure these are integer values
-		s = (o1^o2)-1
+		# we add -0 to make sure these are integer values
+		s = (o1^o2)-0
 		return s
 	except:
 		try:
