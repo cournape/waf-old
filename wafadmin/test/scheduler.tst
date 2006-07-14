@@ -14,14 +14,14 @@ Params.set_trace(1, 1, 1)
 #Params.set_trace(0, 0, 0)
 
 # constants
-cache_x = """AR = '/usr/bin/ar'
+cache_x = """AR = 'ar'
 ARFLAGS = 'r'
-CPP = '/usr/bin/cpp'
+CPP = 'cpp'
 CPPFLAGS = []
 CPPLNK_SRC_F = ''
 CPPLNK_TGT_F = '-o '
 CPPPATH_ST = '-I%s'
-CXX = '/home/waf/bin/g++'
+CXX = 'g++'
 CXXFLAGS = ['-O2 -march=pentium4']
 CXXFLAGS_DEBUG = ['-g', '-DDEBUG']
 CXXFLAGS_MYPROG = '-O3'
@@ -38,14 +38,14 @@ LIB = []
 LIBPATH_ST = '-L%s'
 LIB_MYPROG = 'm'
 LIB_ST = '-l%s'
-LINK = '/home/waf/bin/g++'
+LINK = 'g++'
 LINKFLAGS = []
 LINKFLAGS_DEBUG = ['-g']
 LINKFLAGS_OPTIMIZED = ['-s']
 LINKFLAGS_RELEASE = ['-s']
 LINKFLAGS_ULTRADEBUG = ['-g3']
 PREFIX = '/usr'
-RANLIB = '/usr/bin/ranlib'
+RANLIB = 'ranlib'
 RANLIBFLAGS = ''
 SHLIB_MARKER = '-Wl,-Bdynamic'
 SOME_INSTALL_DIR = '/tmp/ahoy/lib/'
