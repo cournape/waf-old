@@ -454,10 +454,10 @@ class Build:
 		# remove the stamps of the nodes that no longer exist in the build dir
 		for node in l_rm:
 
-			print "\nremoving the timestamp of ", node, node.m_name
-			print node.m_parent.m_build
-			print l_names_read
-			print l_names
+			#print "\nremoving the timestamp of ", node, node.m_name
+			#print node.m_parent.m_build
+			#print l_names_read
+			#print l_names
 
 			if node in self.m_tstamp_variants[i_variant]:
 				self.m_tstamp_variants[i_variant].__delitem__(node)
