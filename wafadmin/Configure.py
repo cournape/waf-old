@@ -430,6 +430,10 @@ int main()
 				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, vnum, modname)).close()
 				self.checkMessage('%s >= %s' % (modname, vnum), '', not ret)
 				if ret: raise "error"
+			else:
+				ret = os.popen("%s %s" % (pkgcom, modname)).close()
+				self.checkMessage('%s ' % (modname), '', not ret)
+				if ret: raise "error"
 			self.env['CCFLAGS_'+destvar]   = os.popen('%s --cflags %s' % (pkgcom, modname)).read().strip()
 			self.env['CXXFLAGS_'+destvar]  = os.popen('%s --cflags %s' % (pkgcom, modname)).read().strip()
 			#self.env['LINKFLAGS_'+destvar] = os.popen('%s --libs %s' % (pkgcom, modname)).read().strip()

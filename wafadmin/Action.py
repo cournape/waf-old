@@ -32,7 +32,7 @@ class Action:
 
 	def _add_action(self):
 		global g_actions
-		if self.m_name in g_actions: error('overriding action '+self.m_name)
+		if self.m_name in g_actions: trace('overriding action '+self.m_name)
 		g_actions[self.m_name] = self
 		trace("action added: %s" % self.m_name)
 
