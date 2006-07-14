@@ -21,6 +21,8 @@ class ocamlobj(Object.genobj):
 		self.islibrary = library
 		self._incpaths_lst = []
 		self._bld_incpaths_lst = []
+		self._mlltasks = []
+		self._mlytasks = []
 
 		if not type in ['bytecode','native','all']:
 			print 'type for camlobj is undefined '+type
@@ -71,21 +73,39 @@ class ocamlobj(Object.genobj):
 		for filename in (' '+self.source).split():
 			base, ext = os.path.splitext(filename)
 
-			# TODO ocamllex and ocamlyacc
+			node = self.file_in(filename)[0]
 			if ext == '.mll':
-				continue
-			elif ext == '.mly':
-				continue
+				mll_task = self.create_task('ocamllex', self.native_env, 1)
+				mll_task.set_inputs(node)
+				mll_task.set_outputs(node.change_ext('.ml'))
+				self._mlltasks.append(mll_task)
 
-			node = self.file_in(base+'.ml')[0]
+				node = mll_task.m_outputs[0]
+
+			elif ext == '.mly':
+				mly_task = self.create_task('ocamlyacc', self.native_env, 1)
+				mly_task.set_inputs(node)
+				mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
+				self._mlytasks.append(mly_task)
+
+				task = self.create_task('ocamlcmi', self.native_env, 4)
+				task.set_inputs(mly_task.m_outputs[1])
+				task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
+
+				node = mll_task.m_outputs[0]
+			elif ext == '.mli':
+				task = self.create_task('ocamlcmi', self.native_env, 4)
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.cmi'))
+				continue
 
 			if self.is_native:
-				task = self.create_task('ocaml', self.native_env, 2)
+				task = self.create_task('ocaml', self.native_env, 6)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmx'))
 				native_tasks.append(task)
 			if self.is_bytecode:
-				task = self.create_task('ocaml', self.bytecode_env, 2)
+				task = self.create_task('ocaml', self.bytecode_env, 6)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmo'))
 				bytecode_tasks.append(task)
@@ -120,6 +140,9 @@ def setup(env):
 	Object.register('ocaml', ocamlobj)
 	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} -c -o ${TGT} ${SRC}', color='GREEN')
 	Action.simple_action('ocalink', '${OCALINK} ${OCALINKFLAGS} ${SRC} -o ${TGT}', color='YELLOW')
+	Action.simple_action('ocamlcmi', '${OCAMLC} -c ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE')
 
 def detect(conf):
 
@@ -129,10 +152,13 @@ def detect(conf):
 		fatal('The objective caml compiler was not found:\n' \
 			'install it or make it availaible in your PATH')
 
+	lex  = conf.checkProgram('ocamllex', var='OCAMLLEX')
+	yacc = conf.checkProgram('ocamlyacc', var='OCAMLYACC')
+
 	conf.env['OCAMLC']       = occ
 	conf.env['OCAMLOPT']     = opt
-	conf.env['OCAMLLEX']     = 'ocamllex'
-	conf.env['OCAMLYACC']    = 'ocamlyacc'
+	conf.env['OCAMLLEX']     = lex
+	conf.env['OCAMLYACC']    = yacc
 	conf.env['OCAMLFLAGS']   = ''
 	conf.env['OCALINK']      = ''
 	conf.env['OCALINKFLAGS'] = ''

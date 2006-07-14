@@ -220,6 +220,18 @@ class Node:
 	def bld_dir(self, env):
 		return self.m_parent.bldpath(env)
 
+	def bldbase(self, env):
+		i = 0
+		n = self.m_name
+		while 1:
+			try:
+				if n[i]=='.': break
+			except:
+				break
+			i += 1
+		s = n[:i]
+		return self.bld_dir(env)+os.sep+s
+
 	# returns the list of names to the node
 	# make sure to reverse it (used by relpath)
 	def pathlist3(self, node):

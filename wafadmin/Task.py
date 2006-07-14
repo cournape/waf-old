@@ -96,6 +96,13 @@ class Task:
 			#if node in tree.m_tstamp_variants[variant]:
 			#	print "variant is ", variant
 			#	print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
+
+			# check if the node exists ..
+			try:
+				os.stat(node.abspath(env))
+			except:
+				fatal('a node was not produced for task %s %s' % (str(self.m_idx), node.abspath(env)))
+
 			tree.m_tstamp_variants[variant][node] = self.signature()
 		self.m_executed=1
 
