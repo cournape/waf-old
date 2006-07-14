@@ -49,7 +49,7 @@ def docb_file(obj, node):
 	# Input format is XML
 	if ext == '.xml':
 		if not obj.env['XSLTPROC']:
-			fatal("Can not process %s: no xml processor detected.")
+			fatal("Can not process %s: no xml processor detected." % node.m_name)
 	if ext == '.xml' and obj.get_type() == 'pdf':
 		trace("building pdf")
 		xslttask = obj.create_task('xslt', obj.env, 4)
@@ -79,7 +79,7 @@ def docb_file(obj, node):
 	# Input format is docbook.
 	if ext == '.sgml' or ext == '.docbook':
 		if not obj.env["DB2%s" % string.upper(obj.get_type()) ]:
-			fatal("Can not process %s: no suitable docbook processor detected.")
+			fatal("Can not process %s: no suitable docbook processor detected." %  node.m_name )
 	if ext == '.sgml' or ext == '.docbook':
 		trace("building %s" % obj.get_type())
 
@@ -163,7 +163,7 @@ def detect(conf):
 		conf.env['XSLTPROC'] = xalan
 
 	# OpenJade conversion tools for converting sgml -> xyz
-	jw = conf.checkProgram('jw', 'JW')
+	jw = conf.checkProgram('jw', var='JW')
 	if jw:
 		conf.env['DB2HTML'] = "jw -u -f docbook -b html -o %s %s"
 		conf.env['DB2PDF']  = "jw -f docbook -b pdf -o %s %s"
