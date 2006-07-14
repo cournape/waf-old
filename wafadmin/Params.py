@@ -17,7 +17,7 @@ if sys.path=='win32':
 g_dbfile='.dblite'
 
 # preprocessor for c/c++
-g_preprocess=0
+g_preprocess = 1
 
 # deptree
 g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']

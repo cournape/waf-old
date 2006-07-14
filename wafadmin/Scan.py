@@ -38,6 +38,7 @@ class scanner:
 	# computes the signature for a task
 	# returns a string
 	def get_signature(self, task):
+		#print "scanner:get_signature(self, task)"
 		return self._get_signature(task)
 
 	# scans a node
@@ -49,11 +50,13 @@ class scanner:
 	# * a list of nodes corresponding to real files
 	# * a list of names for files not found in path_lst
 	def scan(self, node, env, path_lst):
+		#print "scanner:scan(self, node, env, path_lst)"
 		return self._scan_default(node, env, path_lst)
 
 
 	# re-scan a node, update the tree
 	def do_scan(self, node, env, hashparams):
+		#print "scanner:do_scan(self, node, env, hashparams)"
 
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = env.m_variant
@@ -79,7 +82,8 @@ class scanner:
 	# default scanner scheme
 	# climb up until all nodes have been visited and xor signatures
 	# the climbing scheme must be deterministic
-	def _get_signature(self, task):	
+	def _get_signature(self, task):
+		#print "scanner:_get_signature(self, task)"
 		if Params.g_strong_hash:
 			return self._get_signature_default_strong(task)
 		else:
@@ -88,7 +92,7 @@ class scanner:
 	# private method
 	# default scanner function
 	def _scan_default(self, node, env, path_lst):
-
+		#print "scanner:_scan_default(self, node, env, path_lst)"
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = env.m_variant
 
@@ -116,8 +120,6 @@ class scanner:
 			else:     names.append(name)
 		#print "-S ", nodes, names
 		return (nodes, names)
-
-
 
 	def _get_signature_default_strong(self, task):
 		m = md5.new()
@@ -148,20 +150,12 @@ class scanner:
 			if node in seen: return 0
 
 			sum = 0
-
 			# TODO - using the variant each time is stupid
 			if node in node.m_parent.m_files: variant = 0
 			else: variant = task.m_env.m_variant
 			seen.append(node)
 
 			sum += tree.m_tstamp_variants[variant][node]
-			# rescan if necessary, and add the signatures of the nodes it depends on
-			if task.m_scanner:
-				if tree.needs_rescan(node, task.m_env):
-					self.do_scan(node, variant, task.m_scanner_params)
-			lst = tree.m_depends_on[variant][node]
-			for dep in lst:
-				sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
 		for node in task.m_inputs: msum += add_node_sig(node)
@@ -179,61 +173,35 @@ class c_scanner(scanner):
 		scanner.__init__(self)
 
 	def get_signature(self, task):
+		#print "c:get_signature(self, task)"
 		if Params.g_preprocess:
-			return self._get_signature_preprocessor(task)
+			#print "c: will preprocess"
+			if Params.g_strong_hash:
+				return self._get_signature_preprocessor(task)
+			else:
+				return self._get_signature_preprocessor_weak(task)
 		else:
 			if Params.g_strong_hash:
-				return self._get_signature_dumb_strong(task)
+				return self._get_signature_regexp_strong(task)
 			else:
-				return self._get_signature_dumb_weak(task)
-
-	def _get_signature_preprocessor(self, task):
-		# assumption: there is only one cpp file to compile in a task
-
-		tree = Params.g_build
-		rescan = 0
-
-		node = task.m_inputs[0]
-
-		if node in node.m_parent.m_files: variant = 0
-		else: variant = task.m_env.m_variant
-
-		if tree.needs_rescan(node, task.m_env): rescan = 1
-		if not rescan:
-			for node in tree.m_depends_on[variant][node]:
-				if tree.needs_rescan(node, task.m_env): rescan = 1
-
-		# rescan the cpp file if necessary
-		if rescan:
-			self.do_scan(node, task.m_env, task.m_scanner_params)
-
-		# we are certain that the files have been scanned - compute the signature
-		sig = Params.sig_nil()
-		sig = Params.xor_sig(sig, node.get_sig())
-		for n in tree.m_depends_on[variant][node]:
-			sig = Params.xor_sig(sig, n.get_sig())
-
-		# and now xor the signature with the other tasks
-		for task in task.m_run_after:
-			sig = Params.xor_sig(task.signature(), sig)
-		debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
-		return sig
+				return self._get_signature_regexp_weak(task)
 
 	def scan(self, node, env, path_lst):
+		#print "c:scan"
 		if Params.g_preprocess:
 			return self._scan_preprocessor(node, env, path_lst)
 		else:
 			return scanner.scan(self, node, env, path_lst)
 
 	def _scan_preprocessor(self, node, env, path_lst):
+		#print "c:_scan_preprocessor(self, node, env, path_lst)"
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst)
 	        gruik.start2(node, env)
 		#print "nodes found for ", str(node), " ", str(gruik.m_nodes), " ", str(gruik.m_names)
 		return (gruik.m_nodes, gruik.m_names)
 
-
-	def _get_signature_dumb_strong(self, task):
+	def _get_signature_regexp_strong(self, task):
 		m = md5.new()
 		tree = Params.g_build
 		seen = []
@@ -247,7 +215,7 @@ class c_scanner(scanner):
 			seen.append(node)
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
-			if tree.needs_rescan(node, task.m_env): self.do_scan(node, variant, task.m_scanner_params)
+			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
                         lst = tree.m_depends_on[variant][node]
                         for dep in lst: add_node_sig(dep)
 			m.update(tree.m_tstamp_variants[variant][node])
@@ -257,7 +225,7 @@ class c_scanner(scanner):
 		for task in task.m_run_after: m.update(task.signature())
 		return m.digest()
 
-	def _get_signature_dumb_weak(self, task):
+	def _get_signature_regexp_weak(self, task):
 		msum = 0
 		tree = Params.g_build
 		seen = []
@@ -274,7 +242,7 @@ class c_scanner(scanner):
 
 			sum += tree.m_tstamp_variants[variant][node]
 			# rescan if necessary, and add the signatures of the nodes it depends on
-			if tree.needs_rescan(node, task.m_env): self.do_scan(node, variant, task.m_scanner_params)
+			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
 			lst = tree.m_depends_on[variant][node]
 			for dep in lst: sum += add_node_sig(dep)
 			return sum
@@ -283,6 +251,105 @@ class c_scanner(scanner):
 		# add the signatures of the task it depends on
 		for task in task.m_run_after: msum += task.signature()
 		return int(msum % 2000000011) # this number was not chosen randomly
+
+	def _get_signature_preprocessor_weak(self, task):
+		msum = 0
+		tree = Params.g_build
+		rescan = 0
+
+		seen=[]
+		def add_node_sig(n):
+			if not n: print "warning: null node in get_node_sig"
+			if n in seen: return 0
+
+			# TODO - using the variant each time is stupid
+			if n in n.m_parent.m_files: variant = 0
+			else: variant = task.m_env.m_variant
+			seen.append(n)
+
+			return tree.m_tstamp_variants[variant][n]
+
+		# there is only one c/cpp file as input
+		node = task.m_inputs[0]
+
+		if node in node.m_parent.m_files: variant = 0
+		else: variant = task.m_env.m_variant
+
+		if not variant == 0: fatal('variant is not 0')
+
+		if tree.needs_rescan(node, task.m_env): rescan = 1
+		if not rescan:
+			for anode in tree.m_depends_on[variant][node]:
+				if tree.needs_rescan(anode, task.m_env): rescan = 1
+
+		# rescan the cpp file if necessary
+		if rescan:
+			#print "rescanning ", node
+			self.do_scan(node, task.m_env, task.m_scanner_params)
+
+#		print "rescan for ", task.m_inputs[0], " is ", rescan,  " and deps ", \
+#			tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
+
+		# we are certain that the files have been scanned - compute the signature
+		msum += add_node_sig(node)
+		for n in tree.m_depends_on[variant][node]: msum += add_node_sig(n)
+
+		# and now xor the signature with the other tasks
+		for task in task.m_run_after: msum += task.signature()
+		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
+
+		return int(msum % 2000000011) # this number was not chosen randomly
+
+	def _get_signature_preprocessor(self, task):
+		# assumption: there is only one cpp file to compile in a task
+
+		#print "_get_signature_preprocessor"
+
+		tree = Params.g_build
+		rescan = 0
+
+		m = md5.new()
+		seen=[]
+		def add_node_sig(n):
+			if not n: print "warning: null node in get_node_sig"
+			if n in seen: return
+
+			# TODO - using the variant each time is stupid
+			if n in n.m_parent.m_files: variant = 0
+			else: variant = task.m_env.m_variant
+			seen.append(n)
+
+			m.update(tree.m_tstamp_variants[variant][n])
+
+		# there is only one c/cpp file as input
+		node = task.m_inputs[0]
+
+		if node in node.m_parent.m_files: variant = 0
+		else: variant = task.m_env.m_variant
+
+		if not variant == 0: fatal('variant is not 0')
+
+		if tree.needs_rescan(node, task.m_env): rescan = 1
+		if not rescan:
+			for anode in tree.m_depends_on[variant][node]:
+				if tree.needs_rescan(anode, task.m_env): rescan = 1
+
+		# rescan the cpp file if necessary
+		if rescan:
+			#print "rescanning ", node
+			self.do_scan(node, task.m_env, task.m_scanner_params)
+
+#		print "rescan for ", task.m_inputs[0], " is ", rescan,  " and deps ", \
+#			tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
+
+		# we are certain that the files have been scanned - compute the signature
+		add_node_sig(node)
+		for n in tree.m_depends_on[variant][node]: add_node_sig(n)
+
+		# and now xor the signature with the other tasks
+		for task in task.m_run_after: m.update(task.signature())
+		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
+		return m.digest()
 
 
 # a scanner for .kcfgc files (kde xml configuration files)
@@ -324,5 +391,5 @@ g_kcfg_scanner = kcfg_scanner()
 def add_scanner(name, fun, recurse=0):
 	Params.g_scanners[name] = fun
 	if recurse: Params.g_recursive_scanners_names.append(name)
-	print ( "scanner function added: %s" % (name) )
+	#print ( "scanner function added: %s" % (name) )
 
