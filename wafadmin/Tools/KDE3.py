@@ -92,8 +92,6 @@ class kde_documentation(Object.genobj):
 			if not filename: continue
 			node = self.m_current_path.find_node( filename.split('/') )
 
-			print filename, self.m_current_path, node
-
 			self.m_files.append(node)
 			(base, ext) = os.path.splitext(filename)
 			if ext == '.docbook':

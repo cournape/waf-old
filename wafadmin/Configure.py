@@ -330,13 +330,16 @@ int main()
 		
 		self.env['LINKFLAGS_'+upname] = self.env['LIB_ST'] % libname
 
+		
+
 		# TODO setup libpath
 		libpath = "."
-		is_found = int(not self.TryBuild(headers + code, 
-				pathlst = self.env['LIBPATH_ST'] % libpath,
-				uselib=uselib+" "+upname))
-		self.checkMessage('library',libname,is_found)
-		self.addDefine(define,is_found)
+
+		ret = self.TryBuild(headers + code, pathlst = [libpath], uselib=uselib)
+
+		is_found = int(not ret)
+		self.checkMessage('library', libname, is_found)
+		self.addDefine(define, is_found)
 		return is_found
 
 	def checkTool(self,tool):
