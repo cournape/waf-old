@@ -20,11 +20,11 @@ class Node:
 		if parent:
 			for node in parent.m_files:
 				if name == node.m_name:
-					error('node %s exists in the parent files %s already' % name, str(parent))
+					error('node %s exists in the parent files %s already' % (name, str(parent)))
 
 			for node in parent.m_build:
 				if name == node.m_name:
-					error('node %s exists in the parent build %s already' % name, str(parent))
+					error('node %s exists in the parent build %s already' % (name, str(parent)))
 
 
 
