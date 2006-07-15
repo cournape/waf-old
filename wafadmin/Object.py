@@ -62,6 +62,9 @@ class genobj:
 		# register ourselves - used at install time
 		g_allobjs.append(self)
 
+		# nodes that this object produces
+		self.out_nodes = []
+
 		# allow delayed operations on objects created (declarative style)
 		# an object is then posted when another one is added
 		# of course, you may want to post the object yourself first :)

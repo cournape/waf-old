@@ -73,7 +73,7 @@ class ocamlobj(Object.genobj):
 		for i in self._incpaths_lst:
 			if self.bytecode_env:
 				self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
-				elf.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+				self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
 
 			if self.native_env:
 				self.native_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
@@ -117,6 +117,13 @@ class ocamlobj(Object.genobj):
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmi'))
 				continue
+			elif ext == '.c':
+				task = self.create_task('ocamlcc', self.native_env, 6)
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.o'))
+
+				self.out_nodes += task.m_outputs
+				continue
 			else:
 				pass
 
@@ -145,6 +152,8 @@ class ocamlobj(Object.genobj):
 			linktask.m_inputs  = objfiles
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=0))
 
+			self.out_nodes += linktask.m_outputs
+
 	def get_target_name(self, bytecode):
 		if bytecode:
 			if self.islibrary:
@@ -165,6 +174,7 @@ def setup(env):
 	Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW')
 	Action.simple_action('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW')
 	Action.simple_action('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE')
+	Action.simple_action('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
 	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE')
 	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE')
 

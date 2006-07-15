@@ -301,6 +301,7 @@ class kdeobj(cpp.cppobj):
 			self.m_latask    = latask
 
 		self.apply_libdeps()
+		self.apply_objdeps()
 		# end posting constraints (apply)
 
 	def install(self):

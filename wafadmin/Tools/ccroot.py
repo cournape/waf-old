@@ -84,6 +84,9 @@ class ccroot(Object.genobj):
 		self.uselib=''
 		self.useliblocal=''
 
+		# add .o files produced by another Object subclass
+		self.add_objects = ''
+
 		self.m_linktask=None
 		self.m_deps_linktask=[]
 
@@ -215,6 +218,7 @@ class ccroot(Object.genobj):
 			self.m_latask = latask
 
 		self.apply_libdeps()
+		self.apply_objdeps()
 
 	def get_target_name(self, ext=None):
 		return self.get_library_name(self.target, self.m_type, ext)
@@ -227,6 +231,14 @@ class ccroot(Object.genobj):
 		if not prefix: prefix=''
 		if not suffix: suffix=''
 		return ''.join([prefix, name, suffix])
+
+	# add .o files produced by some other object files
+	def apply_objdeps(self):
+		lst = self.add_objects.split()
+		for obj in Object.g_allobjs:
+			if obj.name in lst:
+				obj.post()
+				self.m_linktask.m_inputs += obj.out_nodes
 
 	def apply_libdeps(self):
 		# for correct dependency handling, we make here one assumption:
