@@ -9,37 +9,38 @@ import Utils, Params, Action, Object, Runner, Common
 from Params import debug, error, trace, fatal
 
 
-native_lst=['native', 'all']
+native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
 class ocamlobj(Object.genobj):
 	def __init__(self, type='all', library=0):
 		Object.genobj.__init__(self, 'ocaml')
 
-		self.m_type   = type
-		self.m_source = ''
-		self.m_target = ''
-		self.islibrary = library
+		self.m_type       = type
+		self.m_source     = ''
+		self.m_target     = ''
+		self.islibrary    = library
 		self._incpaths_lst = []
 		self._bld_incpaths_lst = []
-		self._mlltasks = []
-		self._mlytasks = []
+		self._mlltasks    = []
+		self._mlytasks    = []
 
-		self.includes = ''
-		self.uselib = ''
+		self.bytecode_env = None
+		self.native_env   = None
+
+		self.includes     = ''
+		self.uselib       = ''
 
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
 
-		if not type in ['bytecode','native','all']:
+		if not type in ['bytecode','native','all','c_object']:
 			print 'type for camlobj is undefined '+type
 			type='all'
 
 		if type in native_lst:
-			self.is_native                 = 1
 			self.native_env                = self.env.copy()
 			self.native_env['OCAMLCOMP']   = self.native_env['OCAMLOPT']
 			self.native_env['OCALINK']     = self.native_env['OCAMLOPT']
 		if type in bytecode_lst:
-			self.is_bytecode               = 1
 			self.bytecode_env              = self.env.copy()
 			self.bytecode_env['OCAMLCOMP'] = self.bytecode_env['OCAMLC']
 			self.bytecode_env['OCALINK']   = self.bytecode_env['OCAMLC']
@@ -47,6 +48,9 @@ class ocamlobj(Object.genobj):
 		if self.islibrary:
 			self.bytecode_env['OCALINKFLAGS'] = '-a'
 			self.native_env['OCALINKFLAGS']   = '-a'
+
+		if self.m_type == 'c_object':
+			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -67,20 +71,21 @@ class ocamlobj(Object.genobj):
 		self.apply_incpaths()
 
 		for i in self._incpaths_lst:
-     			self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
-			self.native_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
+			if self.bytecode_env:
+				self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
+				elf.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
 
-			self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
-			self.native_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+			if self.native_env:
+				self.native_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+				self.native_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
 
 		varnames = ['INCLUDES', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
 		for name in self.uselib.split():
 			for vname in varnames:
 				cnt = self.env[vname+'_'+name]
 				if cnt:
-					print (vname+'_'+name), cnt
-					self.bytecode_env.appendValue(vname, cnt)
-					self.native_env.appendValue(vname, cnt)
+					if self.bytecode_env: self.bytecode_env.appendValue(vname, cnt)
+					if self.native_env: self.native_env.appendValue(vname, cnt)
 
 		native_tasks   = []
 		bytecode_tasks = []
@@ -115,27 +120,25 @@ class ocamlobj(Object.genobj):
 			else:
 				pass
 
-			print "creating task with node ", node
-
-			if self.is_native:
+			if self.native_env:
 				task = self.create_task('ocaml', self.native_env, 6)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmx'))
 				native_tasks.append(task)
-			if self.is_bytecode:
+			if self.bytecode_env:
 				task = self.create_task('ocaml', self.bytecode_env, 6)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmo'))
 				bytecode_tasks.append(task)
 
-		if self.is_bytecode:
+		if self.bytecode_env:
 			linktask = self.create_task('ocalink', self.bytecode_env, 101)
 			objfiles = []
 			for t in bytecode_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=1))
 
-		if self.is_native:
+		if self.native_env:
 			linktask = self.create_task('ocalinkopt', self.native_env, 101)
 			objfiles = []
 			for t in native_tasks: objfiles.append(t.m_outputs[0])
@@ -149,6 +152,8 @@ class ocamlobj(Object.genobj):
 			else:
 				return self.target+'.run'
 		else:
+			if self.m_type == 'c_object': return self.target+'.o'
+
 			if self.islibrary:
 				return self.target+'.cmxa'
 			else:
