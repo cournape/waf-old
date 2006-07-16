@@ -105,3 +105,13 @@ def fetch_options(file_path):
 	finally:
 		if file: file.close()
 
+def to_hashtable(s):
+	tbl = {}
+	lst = s.split('\n')
+	for line in lst:
+		if not line: continue
+		mems = line.split('=')
+		tbl[mems[0]] = mems[1]
+	return tbl
+
+
