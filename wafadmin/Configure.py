@@ -108,7 +108,6 @@ class Configure:
 		env.store(filename)
 
 	def TryBuild(self, code, options='', pathlst=[], uselib=''):
-
 		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
 		bdir = os.path.join( dir, '_build_')
 		try: os.makedirs(dir)
@@ -134,7 +133,7 @@ class Configure:
 		env.setup(env['tools'])
 
 		# not sure yet when to call this:
-		bld.rescan(bld.m_srcnode)
+		#bld.rescan(bld.m_srcnode)
 
 		# TODO for the moment it is c++, in the future it will be c
 		# and then we may need other languages here too
@@ -143,7 +142,6 @@ class Configure:
 		obj.source = 'test.c'
 		obj.target = 'test'
 		obj.uselib = uselib
-
 
 		envcopy = bld.m_allenvs['default'].copy()
 		for p in pathlst:
@@ -155,9 +153,65 @@ class Configure:
 			ret = 1
 			raise
 
+		#if runopts is not None:
+		#	ret = os.popen(obj.m_linktask.m_outputs[0].abspath(obj.env)).read().strip()
+
 		os.chdir(back)
 		Utils.reset()
 		return ret
+
+	def TryRun(self, code, options='', pathlst=[], uselib=''):
+		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
+		bdir = os.path.join( dir, '_build_')
+		try: os.makedirs(dir)
+		except: pass
+		try: os.makedirs(bdir)
+		except: pass
+
+		dest=open(os.path.join(dir, 'test.c'), 'w')
+		dest.write(code)
+		dest.close()
+
+		env = self.env.copy()
+		Utils.reset()
+	
+		back=os.path.abspath('.')
+
+		bld = Build.Build()
+		bld.load_dirs(dir, bdir, isconfigure=1)
+		bld.m_allenvs['default'] = env
+
+		os.chdir(dir)
+
+		env.setup(env['tools'])
+
+		# not sure yet when to call this:
+		#bld.rescan(bld.m_srcnode)
+
+		# TODO for the moment it is c++, in the future it will be c
+		# and then we may need other languages here too
+		import cpp
+		obj=cpp.cppobj('program')
+		obj.source = 'test.c'
+		obj.target = 'test'
+		obj.uselib = uselib
+
+		envcopy = bld.m_allenvs['default'].copy()
+		for p in pathlst:
+			envcopy['CPPFLAGS'].append(' -I%s ' % p)
+
+		try:
+			ret = bld.compile()
+		except:
+			ret = 1
+			raise
+
+		ret = os.popen(obj.m_linktask.m_outputs[0].abspath(obj.env)).read().strip()
+
+		os.chdir(back)
+		Utils.reset()
+		return ret
+
 
 	def TryCPP(self,code,options=''):
 		"""run cpp for a given file, returns 0 if no errors (standard)
@@ -222,7 +276,7 @@ class Configure:
 		self.configheader = header
 		pass
 
-	def checkHeader(self, header, define='', pathlst=[] ):
+	def checkHeader(self, header, define='', pathlst=[]):
 		"""find a C/C++ header"""
 		if type(header) is types.ListType:
 			for i in header: 
@@ -393,7 +447,17 @@ int main()
 		p=Params.pprint
 		if state: p('GREEN', 'ok ' + option)
 		else: p('YELLOW', 'not found')
-		
+
+	def checkMessageCustom(self,type,msg,custom,option=''):
+		"""print an checking message. This function is used by other checking functions"""
+		sr = 'Checking for ' + type + ' ' + msg
+		sp = '                                                 '
+		l = len(sr)
+		print sr,
+		if l<35: print sp[:33-l],':',
+
+		p=Params.pprint
+		p('CYAN', custom)
 
 	def detect(self,tool):
 		"""deprecated, replaced by checkTool"""
