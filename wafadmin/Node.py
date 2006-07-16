@@ -21,12 +21,12 @@ class Node:
 			for node in parent.m_files:
 				if name == node.m_name:
 					error('node %s exists in the parent files %s already' % (name, str(parent)))
+					raise "inconsistency"
 
 			for node in parent.m_build:
 				if name == node.m_name:
 					error('node %s exists in the parent build %s already' % (name, str(parent)))
-
-
+					raise "inconsistency"
 
 		# contents of this node (filesystem structure)
 		# these lists contain nodes too
