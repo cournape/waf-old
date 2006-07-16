@@ -33,14 +33,15 @@ class AM2Waf(amtool.AMFile):
 		self.defaultUseLibs = 'QT QTCORE QTGUI QT3SUPPORT KDE4'
 
 		self.LibHandlerMapping = {
-		'noinst' : 'env.kdeobj(\'convenience\')',
-		'kdeinit' : 'env.kdeinitobj()',
-		'lib' : 'env.kdeobj(\'shlib\')\nobj.it_is_a_kdelib()',
-		'kde_module' : 'env.kdeobj(\'module\')',
+		'noinst' : 'bld.createObj(\'kde\', \'convenience\')',
+		'kdeinit' : 'bld.createObj()',
+		'lib' : 'bld.createObj(\'kde\', \'shlib\')',
+		'kde_module' : 'bld.createObj(\'kde\', \'module\')',
+		'plugin' : 'bld.createObj(\'cpp\', \'shlib\')',
 		}
 		
 		self.ProgHandlerMapping = {
-		'bin' : 'env.kdeobj(\'program\')',
+		'bin' : 'bld.createObj(\'\kde\', \'program\')',
 		'check' : 'env.kdeobj(\'program\')\nobj.env = env.Copy()\nobj.env[\'NOAUTOINSTALL\'] = 1',
 		'EXTRA' : 'env.kdeobj(\'program\')\nobj.env = env.Copy()\nobj.env[\'NOAUTOINSTALL\'] = 1',
 		}
@@ -72,13 +73,13 @@ class AM2Waf(amtool.AMFile):
 		
 		self.out_buf_header = """#! /usr/bin/env python
 #generated from %s by am2waf.py
-Import('env')
 
 """
 	#generate source lists
 	def generateSources(self):
 		out_buf = ""
 		for key in self.sources.keys():
+			out_buf += "\t"
 			out_buf += key + "_sources = \"\"\"\n"
 			sources = self.sources[key].split()
 			sources.sort()
@@ -88,13 +89,14 @@ Import('env')
 				del sources[:4]
 			if len(sources):
 				out_buf += ' '.join(sources) + "\n"
-			out_buf += "\"\"\"\n\n"
+			out_buf += "\"\"\"\n"
 		return out_buf
 
 	#generate header file lists
 	def generateHeaders(self):
 		out_buf = ""
 		for key in self.headers.keys():
+			out_buf += "\t"
 			out_buf += key + "_headers = \"\"\"\n"
 			headers = self.headers[key].split()
 			headers.sort()
@@ -104,7 +106,7 @@ Import('env')
 				del headers[:4]
 			if len(headers):
 				out_buf += ' '.join(headers) + "\n"
-			out_buf += "\"\"\"\n\n"
+			out_buf += "\"\"\"\n"
 		return out_buf
 
 	def generateLibadds(self, name):
@@ -141,22 +143,22 @@ Import('env')
 						libpaths.append(path)
 					convertedlibs.append(libname)
 			if len(convertedlibs):
-				out_buf += "obj.libpaths = '%s '\n" % ' '.join(libpaths)
-				out_buf += "obj.libs = '%s '\n" % ' '.join(convertedlibs)
+				out_buf += "\tobj.libpaths = '%s '\n" % ' '.join(libpaths)
+				out_buf += "\tobj.libs = '%s '\n" % ' '.join(convertedlibs)
 		
-		out_buf += 'obj.uselib = \'%s \'\n' % ' '.join(uselibs)
+		out_buf += '\tobj.uselib = \'%s \'\n' % ' '.join(uselibs)
 		return out_buf
 
 	def generateObj(self, islib, objtype, name):
 		if islib:
-			out_buf = "obj = %s\n" % self.LibHandlerMapping[objtype]
+			out_buf = "\tobj = %s\n" % self.LibHandlerMapping[objtype]
 		else:
-			out_buf = "obj = %s\n" % self.ProgHandlerMapping[objtype]
+			out_buf = "\tobj = %s\n" % self.ProgHandlerMapping[objtype]
 
 		include = ""
 		
 		#TARGET
-		out_buf += "obj.target = '%s'\n" % name
+		out_buf += "\tobj.target = '%s'\n" % name
 		
 		#FIXME: other LDFLAGS support
 		#Version number
@@ -174,12 +176,12 @@ Import('env')
 							newVal = str(val) + "." + tab[2]+ "." + tab[1]
 						else:
 							newVal = tab[0] + "." + tab[1]+ ".0"
-						out_buf += "obj.vnum = '%s'\n" % newVal 
+						out_buf += "\tobj.vnum = '%s'\n" % newVal 
 					else:
 						print "WARNING: version-info format is incorrect"
 		
 		#SOURCES
-		out_buf += "obj.source = %s_sources\n" % name
+		out_buf += "\tobj.source = %s_sources\n" % name
 		
 		#INCLUDES
 		if self.includes.has_key(name):
@@ -188,12 +190,12 @@ Import('env')
 			include = 'includes'
 		
 		if include:
-			out_buf += "obj.includes = %s\n" % include
+			out_buf += "\tobj.includes = %s\n" % include
 		
 		#LIBADD
 		out_buf += self.generateLibadds(name)
 		
-		out_buf += 'obj.execute()\n\n'
+		#out_buf += 'obj.execute()\n\n'
 		
 		return out_buf
 
@@ -202,8 +204,7 @@ Import('env')
 		if len(self.subdirs):
 			dirs = self.subdirs.split()
 			if dirs.count('.'): del dirs[dirs.index('.')]
-			out_buf = "env.subdirs('%s')\n\n" % " ".join(dirs)
-		
+			out_buf = "\tbld.add_subdirs(['%s'])\n\n" % "', '".join(dirs)
 		return out_buf;
 
 	def generateData(self, files, inst_dir):
@@ -232,23 +233,25 @@ Import('env')
 		if len(files):
 			(insttype, subdir) = getKDEInstType(inst_dir)
 			if insttype:
-				out_buf = "env.bksys_insttype('%s', '%s', '%s')\n\n" % (insttype, subdir, files)
+				out_buf = "\tinstall_files('%s', '%s', '%s')\n\n" % (insttype, subdir, files)
 		return out_buf
 
 	def generateConscript(self):
 		out_buf = self.out_buf_header % self.path
+		out_buf +="def build(bld):\n"
+		out_buf +="\t# process subfolders from here\n"
 		
 		self.getIncludes()	#fix path
 		
-		out_buf += self.generateSubdirs()
-		
 		out_buf += self.generateSources()
-
+		
 		out_buf += self.generateHeaders()
 
 		#find global includes setting for self dir:
 		if self.includes.has_key('_DIR_GLOBAL_'):
-			out_buf += "includes = '%s '\n\n" % self.includes['_DIR_GLOBAL_']
+			out_buf += "\tincludes = '%s '\n\n" % self.includes['_DIR_GLOBAL_']
+			
+			
 			
 		#generate library objects
 		for libtypekey in self.libs.keys():
@@ -273,6 +276,7 @@ Import('env')
 		for dataname in self.data.keys():
 			out_buf += self.generateData(self.data[dataname], self.datadirs[dataname])
 		
+		out_buf += self.generateSubdirs()
 		if len(self.defines):
 			out_buf += '\n"""Unhandled Defines \n'
 			for key in self.defines.keys():
@@ -284,6 +288,7 @@ Import('env')
 			for key in self.targets.keys():
 				out_buf += key  + ' = ' + self.targets[key] + "\n"
 			out_buf += '"""\n'
+
 		
 		return out_buf
 		
@@ -309,11 +314,11 @@ Import('env')
 	
 if len(sys.argv) == 1:
 	print "am2waf [options] Makefile.am"
-	print "Convert a Makefile.am to waf SConscript"
+	print "Convert a Makefile.am to waf wscript"
 	print "options:" 
-	print "    -o file  Write generated SConscript to this file" 
-	print "    -w Write generated SConscript to the same dir as the Makefile.am" 
-	print "By default, am2waf will output the generated SConscript to stdout" 
+	print "    -o file  Write generated wscript to this file" 
+	print "    -w Write generated wscript to the same dir as the Makefile.am" 
+	print "By default, am2waf will output the generated wscript to stdout" 
 else:
 	outputfile = ""
 	for a in range(1,len(sys.argv)):
@@ -336,7 +341,7 @@ else:
 		if len(outputfile):
 			try:
 				if outputfile == "#":
-					outputfile = inputfile.replace("Makefile.am", "SConscript")
+					outputfile = inputfile.replace("Makefile.am", "wscript")
 				dest = open(outputfile, 'w')
 			except:
 				exit
