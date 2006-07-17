@@ -73,11 +73,10 @@ def load_module(file_path, name='wscript'):
 
 	try:
 		file = open(file_path, 'r')
-		code = file.read()
 	except:
 		Params.fatal('The file %s could not be opened!' % file_path)
 
-	exec code in module.__dict__
+	exec file in module.__dict__
 	if file: file.close()
 
 	g_loaded_modules[file_path] = module

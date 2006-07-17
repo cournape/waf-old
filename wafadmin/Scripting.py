@@ -154,9 +154,8 @@ def Main():
 		try:
 			file_path = os.path.join(new.abspath(), 'wscript_build')
 			file = open(file_path, 'r')
-			code = file.read()
-			file.close()
-			exec code
+			exec file
+			if file: file.close()
 		except IOError:
 			file_path = os.path.join(new.abspath(), 'wscript')
 			module = Utils.load_module(file_path)
