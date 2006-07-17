@@ -9,12 +9,8 @@ import Utils, Action, Params
 # tool specific setup
 # is called when a build process is started 
 def setup(env):
-        deb = Params.g_options.debug_level
-
-	cc_str = '${CC} ${CCFLAGS} ${CCFLAGS%s} ${CPPFLAGS} ${_CCINCFLAGS} ' \
-		'${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}' % deb
-	link_str = '${LINK} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ' \
-		'${LINKFLAGS} ${LINKFLAGS_%s} ${_LIBDIRFLAGS} ${_LIBFLAGS}' % deb
+	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
+	link_str = '${LINK} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
         Action.simple_action('cc', cc_str, 'GREEN')
 
@@ -52,7 +48,7 @@ def detect(conf):
 	v['CPPPATH_ST']           = '-I%s' # template for adding include pathes
 
 	# compiler debug levels
-	v['CCFLAGS'] = []
+	v['CCFLAGS'] = ['-Wall']
 	v['CCFLAGS_OPTIMIZED']    = ['-O2']
 	v['CCFLAGS_RELEASE']      = ['-O2']
 	v['CCFLAGS_DEBUG']        = ['-g', '-DDEBUG']
@@ -75,6 +71,13 @@ def detect(conf):
 	v['LINKFLAGS_RELEASE']    = ['-s']
 	v['LINKFLAGS_DEBUG']      = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
+
+        deb = Params.g_options.debug_level
+	try:
+		v['CCFLAGS']   += v['CCFLAGS_'+deb]
+		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
+	except:
+		pass
 
 	def addflags(var):
 		try:

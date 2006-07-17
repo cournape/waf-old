@@ -11,11 +11,8 @@ import Utils, Action, Params, Configure
 def setup(env):
 	deb = Params.g_options.debug_level
 
-	cpp_str = '${CXX} ${CXXFLAGS} ${CXXFLAGS%s} ${CPPFLAGS} ' \
-		'${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}' % deb
-
-	link_str = '${LINK} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ' \
-		'${LINKFLAGS} ${LINKFLAGS_%s} ${_LIBDIRFLAGS} ${_LIBFLAGS}' % deb
+	cpp_str = '${CXX} ${CXXFLAGS} ${CXXFLAGS} ${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+	link_str = '${LINK} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
 	Action.simple_action('cpp', cpp_str, color='GREEN')
 
@@ -59,7 +56,7 @@ def detect(conf):
 	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# compiler debug levels
-	v['CXXFLAGS']            = []
+	v['CXXFLAGS']            = ['-Wall']
 	v['CXXFLAGS_OPTIMIZED']  = ['-O2']
 	v['CXXFLAGS_RELEASE']    = ['-O2']
 	v['CXXFLAGS_DEBUG']      = ['-g', '-DDEBUG']
@@ -89,6 +86,13 @@ def detect(conf):
 	v['LINKFLAGS_RELEASE']   = ['-s']
 	v['LINKFLAGS_DEBUG']     = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
+
+        deb = Params.g_options.debug_level
+	try:
+		v['CCFLAGS']   += v['CCFLAGS_'+deb]
+		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
+	except:
+		pass
 
 	def addflags(var):
 		try:
