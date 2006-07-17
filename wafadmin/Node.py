@@ -145,7 +145,7 @@ class Node:
 		if name == '..': return self.m_parent.find_node( lst[1:] )
 
 
-		for d in self.m_dirs+self.m_files:
+		for d in self.m_dirs+self.m_files+self.m_build:
 			if d.m_name == name:
 				return d.find_node( lst[1:] )
 
