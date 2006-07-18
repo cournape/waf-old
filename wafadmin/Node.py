@@ -259,6 +259,8 @@ class Node:
 		#		Params.g_build.m_relpath_cache[self]={}
 		#		Params.g_build.m_relpath_cache[self][parent]=val
 		#	return val
+		if self is parent: return ''
+
 		lst=self.pathlist4(parent)
 		lst.reverse()
 		val=''.join(lst)

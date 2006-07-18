@@ -37,6 +37,10 @@ def install_files(var, subdir, files, env=None):
 	else: lst = (' '+files).split()
 
 	destpath = env[var]
+	if not destpath:
+		print "warning: undefined ", var
+		destpath = ''
+
 	destdir = env.get_destdir()
 	if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 	if subdir: destpath = os.path.join(destpath, subdir.lstrip(os.sep))
