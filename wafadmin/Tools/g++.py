@@ -11,7 +11,7 @@ import Utils, Action, Params, Configure
 def setup(env):
 	deb = Params.g_options.debug_level
 
-	cpp_str = '${CXX} ${CXXFLAGS} ${CXXFLAGS} ${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	link_str = '${LINK} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
 	Action.simple_action('cpp', cpp_str, color='GREEN')
