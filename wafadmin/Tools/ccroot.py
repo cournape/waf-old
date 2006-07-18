@@ -82,13 +82,16 @@ class ccroot(Object.genobj):
 		self.rpaths=''
 
 		self.uselib=''
-		self.useliblocal=''
+
+		# new scheme: provide the names of the local libraries to link with
+		# the objects found will be post()-ed
+		self.uselib_local=''
+
 
 		# add .o files produced by another Object subclass
 		self.add_objects = ''
 
 		self.m_linktask=None
-		self.m_deps_linktask=[]
 
 		# libtool emulation
 		self.want_libtool=0 # -1: fake; 1: real
@@ -97,17 +100,16 @@ class ccroot(Object.genobj):
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
 
-		self.p_shlib_deps_names=[]
-		self.p_staticlib_deps_names=[]
-
 		self.p_compiletasks=[]
 
 		# do not forget to set the following variables in a subclass
 		self.p_flag_vars = []
 		self.p_type_vars = []
 
+		# TODO ???
 		self.m_type_initials = ''
 
+		# list of file extensions, useful for the function find_source_in_dirs('dir1 dir2 ..')
 		global g_src_file_ext
 		self.m_src_file_ext = g_src_file_ext
 
@@ -149,9 +151,7 @@ class ccroot(Object.genobj):
 		trace("apply called for "+self.m_type_initials)
 		if not self.m_type in self.get_valid_types(): fatal('Invalid type for object: '+self.m_type_initials)
 
-		self.apply_lib_vars()
 		self.apply_type_vars()
-		self.apply_obj_vars()
 		self.apply_incpaths()
 
 		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
@@ -217,7 +217,8 @@ class ccroot(Object.genobj):
 			latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
 			self.m_latask = latask
 
-		self.apply_libdeps()
+		self.apply_lib_vars()
+		self.apply_obj_vars()
 		self.apply_objdeps()
 
 	def get_target_name(self, ext=None):
@@ -231,37 +232,6 @@ class ccroot(Object.genobj):
 		if not prefix: prefix=''
 		if not suffix: suffix=''
 		return ''.join([prefix, name, suffix])
-
-	# add .o files produced by some other object files
-	def apply_objdeps(self):
-		lst = self.add_objects.split()
-		for obj in Object.g_allobjs:
-			if obj.name in lst:
-				obj.post()
-				self.m_linktask.m_inputs += obj.out_nodes
-
-	def apply_libdeps(self):
-		# for correct dependency handling, we make here one assumption:
-		# the objects that create the libraries we depend on -> they have been created already
-		# TODO : the lookup may have a cost, caching the names in a hashtable may be a good idea
-		# TODO : bad algorithm
-		for obj in Object.g_allobjs:
-			# if the object we depend on is not posted we will force it right now
-			if obj.target in self.p_staticlib_deps_names:
-				if not obj.m_posted:
-					if not self is obj:
-						obj.post()
-				self.m_linktask.m_run_after.append(obj.m_linktask)
-			elif obj.target in self.p_shlib_deps_names:
-				if not obj.m_posted:
-					if not self is obj:
-						obj.post()
-				self.m_linktask.m_run_after.append(obj.m_linktask)
-		htbl = Params.g_build.m_depends_on
-		try:
-			htbl[self.m_linktask.m_outputs[0]] += self.m_deps_linktask
-		except:
-			htbl[self.m_linktask.m_outputs[0]] = self.m_deps_linktask
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -341,6 +311,7 @@ class ccroot(Object.genobj):
 		if self.env['STATICLIB']:
 			self.env.appendValue('LINKFLAGS', self.env['STATICLIB_MARKER'])
 			for i in self.env['STATICLIB']:
+				print "adding staticlib ", i
 				self.env.appendValue('LINKFLAGS', staticlib_st % i)
 
 		if self.env['LIB']:
@@ -392,6 +363,7 @@ class ccroot(Object.genobj):
 		#elif self.m_type == 'staticlib':
 		#	self.install_results('PREFIX', 'lib', self.m_linktask )
 
+	# TODO: broken, update
 	def apply_libtool(self):
 		self.env['vnum']=self.vnum
 
@@ -433,59 +405,40 @@ class ccroot(Object.genobj):
 				self.env.appendUnique('LINKFLAGS', v)
 
 	def apply_lib_vars(self):
-		trace("apply_lib_vars called")
+		trace('apply_lib_vars called')
 
-		# TODO complicated lookups, there are certainly ways to make it simple
-		# TODO bad scheme, we are not certain that the node to depend on exists in the first place
-		# well, at least we will throw an error message that makes sense
-		libs = self.useliblocal.split()
+		# 1. the case of the libs defined in the project
+		names = self.uselib_local.split()
+		env=self.env
+		htbl = Params.g_build.m_depends_on
+		for obj in Object.g_allobjs:
+			if obj.name in names:
+				obj.post()
 
-		# store for use when calling "apply"
-		sh_names     = self.p_shlib_deps_names
-		static_names = self.p_staticlib_deps_names
-		tree = Params.g_build
-		for lib in libs:
-			idx=len(lib)-1
-			while 1:
-				idx = idx - 1
-				if lib[idx] == '/': break
-			# find the path for linking and the library name
-			path = lib[:idx]
-			name = lib[idx+1:]
-			lst = name.split('.')
-			name = lst[0]
-			ext = lst[1]
+				if obj.m_type == 'shlib':
+					env.appendValue('LIB', obj.target)
+				elif obj.m_type == 'staticlib':
+					env.appendValue('STATICLIB', obj.target)
+				else:
+					error('unknown object type %s in apply_lib_vars' % obj.name)
 
-			trace('library found %s %s %s '%(str(name), str(path), str(ext)))
-			if ext == 'a':
-				type='staticlib'
-				static_names.append(name)
-			else:
-				type='shlib'
-				sh_names.append(name)
+				# add the path too
+				tmp_path = obj.m_current_path.bldpath(self.env)
+				if not tmp_path in env['LIBPATH']: env.appendValue('LIBPATH', tmp_path)
 
-			# now that the name was added, find the corresponding node in the builddir
-			dirnode = self.m_current_path.find_node( path.split('/') )
-			if not dirnode:
-				msg = "While looking for library '%s.%s': could not find directory '%s'\n"
-				fatal( msg % (str(name), str(ext), str(path)) )
-			self.env.appendValue('LIBPATH', dirnode.bldpath(self.env))
-			
-			# useful for the link path, but also for setting the dependency:
-			try:
-				#dirnode = tree.get_mirror_node(dirnode)
-				rname = self.get_library_name(name, type)
-				node = dirnode.find_node([rname])
-				self.m_deps_linktask.append(node)
-			except:
-				print "dependency set on a node which does not exist!"
-				print "", rname, " in ", dirnode
-				print ""
-				raise
+				# set the dependency over the link task
+				self.m_linktask.m_run_after.append(obj.m_linktask)
+				
+				# make sure to rebuild our link task if obj.m_linktask is re-run
+				try:
+					lst = htbl[self.m_linktask.m_outputs[0]]
+					for a in obj.m_linktask:
+						if not a in lst:
+							lst.append(a)
+				except:
+					htbl[self.m_linktask.m_outputs[0]] = obj.m_linktask.m_outputs
 
-		self.env.appendValue('LIB', sh_names)
-		self.env.appendValue('STATICLIB', static_names)
-
+		# 2. the case of the libs defined outside
 		libs = self.uselib.split()
 		for l in libs:
 			for v in self.p_flag_vars:
@@ -495,4 +448,11 @@ class ccroot(Object.genobj):
 				if val:
 					self.env.appendValue(v, val)
 
+	# add the .o files produced by some other object files in the same manner as uselib_local
+	def apply_objdeps(self):
+		lst = self.add_objects.split()
+		for obj in Object.g_allobjs:
+			if obj.name in lst:
+				obj.post()
+				self.m_linktask.m_inputs += obj.out_nodes
 

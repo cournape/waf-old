@@ -198,8 +198,6 @@ class kdeobj(cpp.cppobj):
 		if not self.m_type in self.get_valid_types(): fatal('Trying to build a kde file of unknown type')
 
 		self.apply_type_vars()
-		self.apply_lib_vars()
-		self.apply_obj_vars()
 		self.apply_incpaths()
 
 		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
@@ -300,7 +298,8 @@ class kdeobj(cpp.cppobj):
 			latask.set_outputs(self.file_in(self.get_target_name('.la')))
 			self.m_latask    = latask
 
-		self.apply_libdeps()
+		self.apply_lib_vars()
+		self.apply_obj_vars()
 		self.apply_objdeps()
 		# end posting constraints (apply)
 
