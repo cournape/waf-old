@@ -48,7 +48,7 @@ def tao_idl_build(task):
 # This function is called when a build process is started 
 def setup(env):
 	# TODO define the vars
-	Action.simple_action('idl', '${IDL} ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('idl', '${IDL} ${IDL_INCLUDES} ${SRC} -o ${SRC[0].m_parent.bldpath(env)}', color='BLUE')
 
 	# register the hook for use with cppobj
 	env.hook('cppobj', '.idl', tao_idl_file)
@@ -98,9 +98,9 @@ def detect(conf):
 	conf.env['IDL']             = idl
 	conf.env['IDL_DEFFLAGS']    = ''
 	conf.env['IDL_INCPATH']     = os.path.join(taodir,'orbsvcs')
-	conf.env.appendValue('CPPPATH', conf.env['IDL_INCPATH'])
-	conf.env['IDL_ST']          = '%s -o %s'
-	conf.env['IDLPATH_ST']      = '-I%s' # template for adding include pathes
+	conf.env['IDL_INCLUDES']     = '-I%s' % conf.env['IDL_INCPATH']
+	# Seems to be unused by waf:
+	#conf.env.appendValue('CPPPATH', conf.env['IDL_INCPATH'])
 
 	# tao_idl generated suffixes
 	conf.env['idl_SH'] = 'S.h'

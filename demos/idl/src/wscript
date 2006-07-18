@@ -9,7 +9,7 @@ def build(bld):
 	corba.idl
 	'''
 	obj.includes='. src'
-	obj.uselib = 'ACE TAO'
+	obj.uselib = 'ACE TAO ORBSVCS'
 	obj.target='corbashlib'
 
 	# 2. A program that links against corbashlib
@@ -19,6 +19,6 @@ def build(bld):
 	'''
 	obj.includes='. src'
 	obj.useliblocal='./corbashlib.so'
-	obj.uselib = 'ACE TAO TAOPOA COSNAMING'
+	obj.uselib = 'ACE TAO TAOPOA COSNAMING ORBSVCS'
 	obj.target='corba_program'
 
