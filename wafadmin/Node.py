@@ -200,7 +200,7 @@ class Node:
 			raise "bldpath for node: an environment is required"
 		else:
 			var = env.m_variant + os.sep + self.relpath(Params.g_build.m_srcnode)
-		debug("var is "+var)
+		debug("bldpath: "+var)
 		return var
 
 	# the build is launched from the top of the build dir (for example, in _build_/)
@@ -209,12 +209,12 @@ class Node:
 			var = self.relpath_gen(Params.g_build.m_bldnode)
 		else:
 			var = self.bldpath(env)
-		debug("var is "+var)
+		debug("srcpath: "+var)
 		return var
 
 	def cd_to(self):
 		var = self.m_parent.relpath_gen(Params.g_build.m_bldnode)
-		debug("var is "+var)
+		debug("cd_to: "+var)
 		return var
 
 	def bld_dir(self, env):

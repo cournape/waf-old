@@ -145,7 +145,10 @@ class alex:
 			lst += ", \\\n\t\t".join(alst)
 			lst.append(')\n')
 
-		lst.append('\texcept: task.debug()\n')
+		#lst.append('\texcept: task.debug()\n')
+		lst.append('\texcept:\n')
+		lst.append('\t\ttask.debug()\n')
+		lst.append('\t\traise\n')
 
 		lst.append('\tRunner.exec_command(cmd)\n')
 
