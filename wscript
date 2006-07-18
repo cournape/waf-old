@@ -61,7 +61,7 @@ def init():
 		    tar.add(tarThisFile)
 		tar.close()
 		
-		print "your archive is ready"
+		print "your archive is ready: %s.tar.bz2" % mw
 		sys.exit(0)
 	else:
 		print "run 'waf --help' to know more about allowed commands !"
