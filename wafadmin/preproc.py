@@ -557,7 +557,7 @@ class cparse:
 		except IOError:
 			raise
 		except:
-			print "parsing %s failed" % filepath
+			print "warning: parsing %s failed" % filepath
 			raise
 
 	def start2(self, node, env):
@@ -578,7 +578,7 @@ class cparse:
 			try:
 				self.process_line()
 			except:
-				print "line parsing failed >%s<" % line
+				print "warning: line parsing failed >%s<" % line
 				#raise
 
 	# debug only
@@ -594,7 +594,7 @@ class cparse:
 			try:
 				self.process_line()
 			except:
-				print "line parsing failed >%s<" % line
+				print "warning: line parsing failed >%s<" % line
 				raise
 	def back(self, c):
 		self.i -= c
