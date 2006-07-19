@@ -487,7 +487,7 @@ class Build:
 			accu+= "> "+node.m_name+" (d)\n"
 			for child in node.m_files:
 				accu+= printspaces(count)
-				accu+= '> '+child.m_name+' '
+				accu+= '-> '+child.m_name+' '
 
 				for variant in self.m_tstamp_variants:
 					#print "variant %s"%variant
@@ -502,7 +502,7 @@ class Build:
 				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
 			for child in node.m_build:
 				accu+= printspaces(count)
-				accu+= '> '+child.m_name+' (b) '
+				accu+= '-> '+child.m_name+' (b) '
 
 				for variant in self.m_tstamp_variants:
 					#print "variant %s"%variant
@@ -524,38 +524,4 @@ class Build:
 		#keys = self.m_name2nodes.keys()
 		#for k in keys:
 		#	print k, '\t\t', self.m_name2nodes[k]
-
-
-	# TODO OBSOLETE
-	def _duplicate_srcdir(self, dir, scan='auto'):
-		trace("duplicate_srcdir")
-		srcnode = self.m_srcnode
-
-		# stupid behaviour (will scan every project in the folder) but scandirs-free
-		# we will see later for more intelligent behaviours (scan only folders that contain sources..)
-		try:
-			Params.g_excludes=Params.g_excludes+Utils.g_module.prunedirs
-		except:
-			pass
-
-		if scan == 'auto':
-			trace("autoscan in use")
-			# This function actually dupes the dirs with 'scanner_mirror'
-			def scan(node):
-				if node is Params.g_build.m_bldnode: return []
-				if node.m_name in Params.g_excludes: return []
-				dir = os.sep.join(srcnode.difflst(node))
-				self.scanner_mirror(dir)
-				return node.m_dirs
-			mlst = scan(srcnode)
-			while mlst:
-				el=mlst[0]
-				mlst=mlst[1:]
-				mlst += scan(el)
-		else:
-			dirs = []
-			for tgt in self.m_subdirs:
-				dirs.append( os.sep.join(srcnode.difflst(tgt[0]) ) )
-			self.scandirs( dirs )
-			
 
