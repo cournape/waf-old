@@ -3,9 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, os.path, sys, cPickle, types
-
 import Environment, Params, Runner, Object, Utils, Node
-
 from Params import debug, error, trace, fatal
 
 g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
@@ -81,18 +79,6 @@ class Build:
 
 		# build dir variants (release, debug, ..)
 		self.set_variants(['default'])
-
-
-		# TODO obsolete
-		# get bld nodes from src nodes quickly
-		self.m_src_to_bld  = {}
-		# get src nodes from bld nodes quickly
-		self.m_bld_to_src  = {}
-		self.m_name2nodes  = {}             # access nodes quickly
-		#self.m_dirs     = []   # folders in the dependency tree to scan
-		#self.m_rootdir  = ''   # root of the build, in case if the build is moved ?
-
-		self.m_tstamp_variants[0]
 
 	def _init_data(self):
 		trace("init data called")
@@ -343,7 +329,6 @@ class Build:
 				src_dir_node.m_build = []
 		self.m_scanned_folders.append(src_dir_node)
 
-
 	# tell if a node has changed, to update the cache
 	def needs_rescan(self, node, env):
 		#print "needs_rescan for ", node, node.m_tstamp
@@ -358,7 +343,6 @@ class Build:
 		except:
 			pass
 		return 1
-
 
 	# ======================================= #
 
@@ -462,20 +446,6 @@ class Build:
 			if node in self.m_tstamp_variants[i_variant]:
 				self.m_tstamp_variants[i_variant].__delitem__(node)
 		return l_nodes
-
-	# ======================================= #
-	# obsolete code
-
-	# Fast node access - feed an internal dictionary (to keep between runs -> TODO not sure)
-	def store_node(self, node):
-		nn=node.m_name
-		try:
-			# prevent silly errors
-			if node in self.m_name2nodes[nn]: print "BUG: name2nodes already contains node!", nn
-			else: self.m_name2nodes[nn].append(node)
-		except:
-			self.m_name2nodes[nn] = [node]
-
 
 	## IMPORTANT - for debugging
 	def dump(self):

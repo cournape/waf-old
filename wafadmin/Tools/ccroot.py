@@ -311,7 +311,6 @@ class ccroot(Object.genobj):
 		if self.env['STATICLIB']:
 			self.env.appendValue('LINKFLAGS', self.env['STATICLIB_MARKER'])
 			for i in self.env['STATICLIB']:
-				print "adding staticlib ", i
 				self.env.appendValue('LINKFLAGS', staticlib_st % i)
 
 		if self.env['LIB']:
