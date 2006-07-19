@@ -68,6 +68,10 @@ staticlib_obj_ext = ['.o']
 tools = ['cpp', 'ar', 'g++']
 """
 
+import sys
+if sys.platform == "cygwin":
+	cache_x += "program_SUFFIX = '.exe'\n"
+
 wscript_top = """
 VERSION='0.0.1'
 APPNAME='cpp_test'
@@ -96,7 +100,7 @@ obj = bld.createObj('cpp', 'program')
 obj.source='''
 a1.cpp b1.cpp b2.cpp
 '''
-obj.includes='. src'
+obj.includes='.'
 obj.target='testprogram'
 """
 
@@ -105,7 +109,7 @@ obj = bld.createObj('cpp', 'program')
 obj.source='''
 a1.cpp b1.cpp b2.cpp b3.cpp
 '''
-obj.includes='. src'
+obj.includes='.'
 obj.target='testprogram'
 """
 
