@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, md5, types, sys, string, stat, imp
+import os, md5, types, sys, string, stat, imp, copy
 import Params
 
 g_trace=1
@@ -112,5 +112,12 @@ def to_hashtable(s):
 		mems = line.split('=')
 		tbl[mems[0]] = mems[1]
 	return tbl
+
+def copyobj(obj):
+	cp = obj.__class__()
+	for at in obj.__dict__.keys():
+		setattr(cp, at, getattr(obj, at))
+
+	return cp
 
 

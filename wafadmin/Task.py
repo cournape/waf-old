@@ -92,7 +92,7 @@ class Task:
 
 		for node in self.m_outputs:
 			if node in node.m_parent.m_files: variant = 0
-			else: variant = self.m_env.m_variant
+			else: variant = self.m_env.variant()
 			#if node in tree.m_tstamp_variants[variant]:
 			#	print "variant is ", variant
 			#	print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
@@ -130,7 +130,7 @@ class Task:
 		node = self.m_outputs[0]
 
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = self.m_env.m_variant
+		else: variant = self.m_env.variant()
 
 
 		if not node in Params.g_build.m_tstamp_variants[variant]:

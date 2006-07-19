@@ -82,6 +82,10 @@ class Configure:
 		if not self.env['tools']:
 			self.error('you should add at least a checkTool() call in your wscript, otherwise you cannot build anything')
 
+	def set_env_name(self, name, env):
+		self.m_allenvs[name] = env
+		return env
+
 	def retrieve(self, name, fromenv=None):
 		try:
 			env = self.m_allenvs[name]
@@ -434,7 +438,7 @@ int main()
 			fatal("nothing to store in Configure !")
 		for key in self.m_allenvs:
 			tmpenv = self.m_allenvs[key]
-			self.env.store(os.path.join(Params.g_cachedir, key+'.cache.py'))
+			tmpenv.store(os.path.join(Params.g_cachedir, key+'.cache.py'))
 
 	def checkMessage(self,type,msg,state,option=''):
 		"""print an checking message. This function is used by other checking functions"""

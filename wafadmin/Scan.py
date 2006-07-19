@@ -59,7 +59,7 @@ class scanner:
 		#print "scanner:do_scan(self, node, env, hashparams)"
 
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = env.m_variant
+		else: variant = env.variant()
 
 		debug("rescanning "+str(node))
 		if not node:
@@ -94,7 +94,7 @@ class scanner:
 	def _scan_default(self, node, env, path_lst):
 		#print "scanner:_scan_default(self, node, env, path_lst)"
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = env.m_variant
+		else: variant = env.variant()
 
 		file = open(node.abspath(env), 'rb')
 		found = cregexp1.findall( file.read() )
@@ -131,7 +131,7 @@ class scanner:
 
 			# TODO - using the variant each time is stupid
 			if node in node.m_parent.m_files: variant = 0
-			else: variant = task.m_env.m_variant
+			else: variant = task.m_env.variant()
 			seen.append(node)
 
 			m.update(tree.m_tstamp_variants[variant][node])
@@ -152,7 +152,7 @@ class scanner:
 			sum = 0
 			# TODO - using the variant each time is stupid
 			if node in node.m_parent.m_files: variant = 0
-			else: variant = task.m_env.m_variant
+			else: variant = task.m_env.variant()
 			seen.append(node)
 
 			sum += tree.m_tstamp_variants[variant][node]
@@ -177,7 +177,7 @@ class c_scanner(scanner):
 		trace("c:do_scan(self, node, env, hashparams)")
 
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = env.m_variant
+		else: variant = env.variant()
 
 		debug("rescanning "+str(node))
 		if not node:
@@ -237,7 +237,7 @@ class c_scanner(scanner):
 
 			# TODO - using the variant each time is stupid
 			if node in node.m_parent.m_files: variant = 0
-			else: variant = task.m_env.m_variant
+			else: variant = task.m_env.variant()
 			seen.append(node)
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
@@ -263,7 +263,7 @@ class c_scanner(scanner):
 
 			# TODO - using the variant each time is stupid
 			if node in node.m_parent.m_files: variant = 0
-			else: variant = task.m_env.m_variant
+			else: variant = task.m_env.variant()
 			seen.append(node)
 
 			sum += tree.m_tstamp_variants[variant][node]
@@ -290,7 +290,7 @@ class c_scanner(scanner):
 
 			# TODO - using the variant each time is stupid
 			if n in n.m_parent.m_files: variant = 0
-			else: variant = task.m_env.m_variant
+			else: variant = task.m_env.variant()
 			seen.append(n)
 
 			return tree.m_tstamp_variants[variant][n]
@@ -299,7 +299,7 @@ class c_scanner(scanner):
 		node = task.m_inputs[0]
 
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = task.m_env.m_variant
+		else: variant = task.m_env.variant()
 
 		if not variant == 0: fatal('variant is not 0')
 
@@ -342,7 +342,7 @@ class c_scanner(scanner):
 
 			# TODO - using the variant each time is stupid
 			if n in n.m_parent.m_files: variant = 0
-			else: variant = task.m_env.m_variant
+			else: variant = task.m_env.variant()
 			seen.append(n)
 
 			m.update(tree.m_tstamp_variants[variant][n])
@@ -351,7 +351,7 @@ class c_scanner(scanner):
 		node = task.m_inputs[0]
 
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = task.m_env.m_variant
+		else: variant = task.m_env.variant()
 		if not variant == 0: fatal('variant is not 0')
 
 
@@ -392,7 +392,7 @@ class kcfg_scanner(scanner):
 	def scan(self, node, env, path_lst):
 
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = task.m_env.m_variant
+		else: variant = task.m_env.variant()
 
 		trace("kcfg scanner called for "+str(node))
 		file = open(node.abspath(env), 'rb')

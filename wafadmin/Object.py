@@ -18,8 +18,8 @@
 #   * is not really flexible, but lightweight
 #   * cf ccroot for more details on this scheme
 
-import os, shutil, types
-import Action, Params, Environment, Runner, Task, Common, Node
+import os, shutil, types, copy
+import Action, Params, Environment, Runner, Task, Common, Node, Utils
 from Params import debug, error, trace, fatal
 
 g_allobjs=[]
@@ -168,7 +168,19 @@ class genobj:
 		for node in task.m_outputs:
 			lst.append( node.relpath_gen(current) )
 		Common.install_files(var, subdir, lst)
-		
+	
+	def clone(self, env):
+		newobj = Utils.copyobj(self)
+
+		if type(env) is types.StringType:
+			newobj.env = Params.g_build.m_allenvs[env]
+		else:
+			newobj.env = env
+
+		g_allobjs.append(newobj)
+		Params.g_build.m_outstanding_objs.append(newobj)
+
+		return newobj
 
 def flatten(env, var):
 	try:

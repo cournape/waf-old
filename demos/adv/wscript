@@ -17,7 +17,8 @@ blddir = '_build_'
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdirs('src complex')
+	bld.set_variants(['default', 'variant2'])
+	bld.add_subdirs('src complex variant')
 
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
@@ -32,6 +33,10 @@ def configure(conf):
 	conf.checkFeatures()
 	conf.addDefine('TEST_DEFINE', '345')
 	conf.writeConfigHeader('config.h')
+
+	env_variant2 = conf.env.copy()
+	env_variant2.set_variant('variant2')
+	conf.set_env_name('variant2', env_variant2)
 
 def set_options(opt):
 	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')

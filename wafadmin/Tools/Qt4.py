@@ -164,7 +164,7 @@ class qt4obj(cpp.cppobj):
 			mocfiles=[]
 
 			if node in node.m_parent.m_files: variant = 0
-			else: variant = env.m_variant
+			else: variant = env.variant()
 
 			# TODO: remove this check
 			if not variant in tree.m_raw_deps: tree.m_raw_deps[variant] = {}

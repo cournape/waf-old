@@ -164,7 +164,7 @@ class Node:
 			variant = 0
 		else:
 			if self in self.m_parent.m_files: variant = 0
-			else: variant = env.m_variant
+			else: variant = env.variant()
 
 		#print "variant is", self.m_name, variant, "and env is ", env
 
@@ -186,7 +186,7 @@ class Node:
 				Params.g_build.m_abspath_cache[variant][self]=val
 				return val
 			else:
-				p = Params.g_build.m_bldnode.abspath() + os.sep + env.m_variant + os.sep
+				p = Params.g_build.m_bldnode.abspath() + os.sep + env.variant() + os.sep
 				q = self.relpath(Params.g_build.m_srcnode)
 				debug("var is p+q is "+p+q)
 				return p+q
@@ -199,7 +199,7 @@ class Node:
 		elif not env:
 			raise "bldpath for node: an environment is required"
 		else:
-			var = env.m_variant + os.sep + self.relpath(Params.g_build.m_srcnode)
+			var = env.variant() + os.sep + self.relpath(Params.g_build.m_srcnode)
 		debug("bldpath: "+var)
 		return var
 
