@@ -2,8 +2,7 @@
 
 ROADMAP
 -------
-* 0.8x refactor the Build module
-* 0.9x interpreter/compiler for declaring builders more easily
+0.9x daemon mode
 
 ADDITIONAL FEATURES OVER SCONS
 ------------------------------
@@ -148,61 +147,11 @@ since it is certainly annoying to make a "build" function for each folder contai
 waf is also looking for a "wscript_build" file to replace the build function
 more naming should follow (ie: wscript_configure instead of a "configure" function)
 
-STATE OF THE APPLICATION
-------------------------
+WHAT IS MISSING
+---------------
 
-== Engine ==                            80%
-* mirror files and directories..........done
-* create and run tasks..................done
-* store node state between runs.........done
-* scan for dependencies.................done
-* process tasks in order................done
-* install files.........................done
-* parallel builds.......................done
-* script system.........................done
-* support for running unit tests........?
-* support for multiple builddirs........?
-* background recompilation..............?
-* optimize the file system interface....?
-
-== Configuration ==                     95%
-* read and write cache files............done
-* tools system..........................done
-* custom options (user-defined).........done
-* framework for configuring projects....done
-* functions for finding headers.........done
-* functions for finding programs........done
-* functions for using pkg-config........done
-* process qmake configuration files.....?
-
-== Unit tests ==                        0%
-* file system representation............
-* scanning for c/cpp headers............
-* parallel builds.......................
-* configuration system..................
-
-STATE OF THE TOOLS
-------------------
-
-== Generic Tools ==                     80%
-* basic builders for c, c++ objects.....done
-* libtool support.......................fake at the moment
-* shared and static libraries...........done
-* ocaml.................................done
-* latex.................................done
-* java..................................
-
-== KDE3 ==                              100%
-* moc, uic..............................done
-* skel, stub............................done
-* kconfig_compiler......................done
-* translations, documentation...........done
-* kde3 documentation (meinproc).........done
-
-== Qt4/KDE4 ==                          20%
-* rcc...................................done
-* kdeinit libraries.....................bits
-* libtool file handling.................fake at the moment, real libtool file handling should come along
-
-Note: native builds on win32 are not really supported at the moment (only cygwin)
+java support
+background recompilation
+support for unit tests
+native win32 support (ita: i will not do that myself anyway)
 

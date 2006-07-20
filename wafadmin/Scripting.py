@@ -47,8 +47,6 @@ def load_envs():
 		ret = env.load(os.path.join(cachedir, file))
 		name = file.split('.')[0]
 
-		print 'env variant is ', env.variant()
-
 		if not ret:
 			print "could not load env ", name
 			continue
