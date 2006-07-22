@@ -72,8 +72,8 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']      = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
-        deb = Params.g_options.debug_level
 	try:
+	        deb = Params.g_options.debug_level
 		v['CCFLAGS']   += v['CCFLAGS_'+deb]
 		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
 	except:
@@ -90,8 +90,6 @@ def detect(conf):
 	addflags('CPPFLAGS')
 
 	if sys.platform == "win32": 
-		if not v['PREFIX']: v['PREFIX']='c:\\'
-	
 		# shared library 
 		v['shlib_CCFLAGS']  = ['']
 		v['shlib_LINKFLAGS'] = ['-shared']
@@ -111,8 +109,6 @@ def detect(conf):
 		v['program_SUFFIX']  = '.exe'
 
 	else:
-		if not v['PREFIX']: v['PREFIX'] = '/usr'
-	
 		# shared library 
 		v['shlib_CCFLAGS']  = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS'] = ['-shared']

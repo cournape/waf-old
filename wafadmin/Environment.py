@@ -13,6 +13,9 @@ class Environment:
 		# may be there is a better place for this
 		if sys.platform == "win32": self.m_table['WINDOWS']=1
 
+		# set the prefix once and for everybody on creation (configuration)
+		self.m_table['PREFIX'] = Params.g_options.prefix
+
 	def set_variant(self, name):
 		self.m_table['_VARIANT_'] = name
 
@@ -102,7 +105,7 @@ class Environment:
 	def get_destdir(self):
 		if self.m_table.has_key('NOINSTALL'): return ''
 		dst = Params.g_options.destdir
-		try: dst = dst+os.sep.self.m_table['SUBDEST']
+		try: dst = dst+os.sep+self.m_table['SUBDEST']
 		except: pass
 		return dst
 

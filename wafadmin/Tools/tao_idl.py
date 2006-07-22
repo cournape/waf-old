@@ -128,15 +128,5 @@ def detect(conf):
         conf.env['LIB_TAOPOA']       = ['TAO_PortableServer']
         conf.env['LIB_COSNAMING']    = ['TAO_CosNaming']
 
-	# hmmm this is usually set elsewhere
-	if sys.platform == "win32": 
-		if not conf.env['PREFIX']: conf.env['PREFIX']='c:\\'
-	elif sys.platform == 'cygwin':
-		if not conf.env['PREFIX']: conf.env['PREFIX']='/cygdrive/c/'
-	else:
-		if not conf.env['PREFIX']: conf.env['PREFIX'] = '/usr'
-
 	return 1
-
-
 

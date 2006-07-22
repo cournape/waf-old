@@ -144,10 +144,6 @@ def setup(env):
 ## Detect the installed programs: fop, xsltproc, xalan, docbook2xyz
 # Favour xsltproc over xalan.
 def detect(conf):
-	if sys.platform == "win32": 
-		if not conf.env['PREFIX']: conf.env['PREFIX']='c:\\'
-	else:
-		if not conf.env['PREFIX']: conf.env['PREFIX'] = '/usr'
 	# Detect programs for converting xml -> html/pdf
 	fop = conf.checkProgram('fop', var='FOP')
 	if fop:

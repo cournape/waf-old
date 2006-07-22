@@ -9,8 +9,6 @@ import Utils, Action, Params, Configure
 # tool specific setup
 # is called when a build process is started 
 def setup(env):
-	deb = Params.g_options.debug_level
-
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	link_str = '${LINK} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
@@ -87,8 +85,8 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']     = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
-        deb = Params.g_options.debug_level
 	try:
+		deb = Params.g_options.debug_level
 		v['CCFLAGS']   += v['CCFLAGS_'+deb]
 		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
 	except:
@@ -107,8 +105,6 @@ def detect(conf):
 	if not v['DESTDIR']: v['DESTDIR']=''
 	
 	if sys.platform == "win32": 
-		if not v['PREFIX']: v['PREFIX']='c:\\'
-
 		# shared library 
 		v['shlib_CXXFLAGS']  = ['']
 		v['shlib_LINKFLAGS'] = ['-shared']
@@ -127,8 +123,6 @@ def detect(conf):
 		v['program_obj_ext'] = ['.o']
 		v['program_SUFFIX']  = '.exe'
 	elif sys.platform == 'cygwin':
-		if not v['PREFIX']: v['PREFIX']='/cygdrive/c/'
-
 		# shared library 
 		v['shlib_CXXFLAGS']  = ['']
 		v['shlib_LINKFLAGS'] = ['-shared']
@@ -147,8 +141,6 @@ def detect(conf):
 		v['program_obj_ext'] = ['.o']
 		v['program_SUFFIX']  = '.exe'
 	else:
-		if not v['PREFIX']: v['PREFIX'] = '/usr'
-
 		# shared library 
 		v['shlib_CXXFLAGS']  = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS'] = ['-shared']
