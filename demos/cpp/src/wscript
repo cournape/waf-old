@@ -18,7 +18,7 @@ def build(bld):
 	b1.cpp b2.cpp
 	main.cpp
 	'''
-	obj.includes='. src'
+	obj.includes='.'
 	obj.target='testprogram'
 
 	# 2. A shared library
@@ -28,7 +28,7 @@ def build(bld):
 	a1.cpp
 	b1.cpp b2.cpp
 	'''
-	obj.includes     = '. src'
+	obj.includes     = '.'
 	obj.name         = 'peter'
 	obj.target       = 'testshlib'
 	obj.install_in   = 'SOME_INSTALL_DIR'
@@ -39,7 +39,7 @@ def build(bld):
 	obj.source='''
 	c1.cpp
 	'''
-	obj.includes     = '. src'
+	obj.includes     = '.'
 	obj.name         = 'tony'
 	obj.target       = 'teststaticlib'
 
@@ -48,7 +48,7 @@ def build(bld):
 	obj.source='''
 	d1.cpp
 	'''
-	obj.includes     = '. src'
+	obj.includes     = '.'
 	obj.target       = 'shlib1'
 	obj.name         = 'john'
 	obj.want_libtool = 1
@@ -59,7 +59,7 @@ def build(bld):
 	obj.source='''
 	e1.cpp
 	'''
-	obj.includes     = '. src'
+	obj.includes     = '.'
 	obj.uselib       = 'MYPROG'
 	obj.uselib_local = 'tony john peter'
 	obj.target       = 'program_dyn_linked'
