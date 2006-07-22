@@ -8,6 +8,9 @@ from optparse import OptionParser
 import Params, Utils
 from Params import debug, trace, fatal, error
 
+if sys.platform == 'win32': default_prefix='c:\\temp\\'
+else: default_prefix = '/usr/local/'
+
 def create_parser():
 	Params.trace("create_parser is called")
 
@@ -23,52 +26,52 @@ def create_parser():
 	# Our options
 	p=parser.add_option
 
-	p('-d', '--debug-level',
-		action = 'store',
-		default = 'release',
-		help = 'Specify the debug level. [Allowed Values: ultradebug, debug, release, optimized]',
-		dest = 'debug_level')
-	
 	p('-j', '--jobs', 
-		type = 'int',
+		type    = 'int',
 		default = 1,
-		help = 'Specify the number of parallel jobs [Default: 1]',
-		dest = 'jobs')
+		help    = 'specify the number of parallel jobs [Default: 1]',
+		dest    = 'jobs')
 	
 	p('-e', '--evil', 
-		action = 'store_true',
+		action  = 'store_true',
 		default = False,
-		help = 'IMPLEMENTED ME (Run as a daemon). [Default: False]',
-		dest = 'daemon')
+		help    = 'run as a daemon [Default: False] (TODO)',
+		dest    = 'daemon')
 	
 	p('-p', '--progress',
-		action = 'store_true',
+		action  = 'store_true',
 		default = False,
-		help = 'Progress bar        [Default: False]',
-		dest = 'progress_bar')
+		help    = 'progress bar        [Default: False]',
+		dest    = 'progress_bar')
 
 	p('-v', '--verbose', 
-		action = 'count',
+		action  = 'count',
 		default = 0,
-		help = 'Show verbose output [Default: False]',
-		dest = 'verbose')
+		help    = 'show verbose output [Default: False]',
+		dest    = 'verbose')
 
-	p('--destdir', type='string',
-		help='destination for install (when creation rpms or debs)',
-		dest='destdir')
+	p('--prefix',
+		help    = 'installation prefix [Default: %s]' % default_prefix,
+		default = default_prefix,
+		dest    = 'prefix')
+
+	p('--destdir',
+		help    = 'destination for install (rpms or debs creation)',
+		default = '',
+		dest    = 'destdir')
 
 	if 'configure' in sys.argv:
 		p('-b', '--blddir',
-			action = 'store',
-			default='',
-			help='build dir for the project (configuration)',
-			dest = 'blddir')
+			action  = 'store',
+			default = '',
+			help    = 'build dir for the project (configuration)',
+			dest    = 'blddir')
 
 		p('-s', '--srcdir',
-			action = 'store',
-			default='',
-			help='src dir for the project (configuration)',
-			dest = 'srcdir')
+			action  = 'store',
+			default = '',
+			help    = 'src dir for the project (configuration)',
+			dest    = 'srcdir')
 
 	return parser
 
@@ -80,13 +83,6 @@ def parse_args_impl(parser):
 	if not Params.g_options.destdir:
 		try: Params.g_options.destdir = os.environ['DESTDIR']
 		except: pass
-
-	# Now check the options that have been defined
-	lst=['ultradebug', 'debug', 'release', 'optimized']
-	if Params.g_options.debug_level not in lst:
-		print 'Error: Invalid debug level specified'
-		print parser.print_help()
-		sys.exit(1)
 
 	# By default, 'waf' is equivalent to 'waf build'
 	lst=['dist','configure','clean','distclean','build','install','uninstall','doc']
