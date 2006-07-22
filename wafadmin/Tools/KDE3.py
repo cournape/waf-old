@@ -105,9 +105,9 @@ class kde_documentation(Object.genobj):
 		current = Params.g_build.m_curdirnode
 		lst = []
 		for task in self.m_docbooks:
-			lst.append(task.m_outputs[0].relpath_gen(current))
+			lst.append(task.m_outputs[0].abspath(self.env))
 		for doc in self.m_files:
-			lst.append(doc.srcpath(self.env))
+			lst.append(doc.abspath(self.env))
 
 		Common.install_files('KDE_DOC', destpath, lst, self.env)
 
