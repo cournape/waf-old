@@ -15,8 +15,7 @@ def build(bld):
 	bld.add_subdirs('src')
 
 def configure(conf):
-	conf.checkTool(['g++'])
-	conf.checkTool(['tao_idl'])
+	conf.checkTool(['g++', 'tao_idl'])
 
 def set_options(opt):
-	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+	pass
