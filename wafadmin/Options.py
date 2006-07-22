@@ -2,11 +2,11 @@
 # encoding: utf-8
 # Scott Newton, 2005 (scottn)
 
-import os, sys, string
+import os, sys, string, imp
 from types import *
 from optparse import OptionParser
 import Params, Utils
-from Params import debug, trace, fatal, error
+from Params import debug, trace, fatal, error, warning
 
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 try:
@@ -137,6 +137,24 @@ class Handler:
 			fatal(msg % self.cwd)
 
 		self.cwd = current
+
+	def tool_options(self, tool):
+		if type(tool) is ListType:
+			for i in tool: self.tool_options(i)
+			return
+
+		try:
+			file,name,desc = imp.find_module(tool, Params.g_tooldir)
+		except: 
+			warning("no tool named '%s' found" % tool)
+			raise
+			return 
+		module = imp.load_module(tool,file,name,desc)
+		try:
+			module.set_options(self)
+		except:
+			warning("tool %s has no function set_options or set_options failed" % tool)
+			pass
 
 	def parse_args(self):
 		parse_args_impl(self.parser)

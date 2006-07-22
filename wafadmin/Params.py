@@ -113,6 +113,9 @@ def niceprint(msg, type='', module=''):
 	if type=='ERROR':
 		print '%s: %s == %s == %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
 		return
+	if type=='WARNING':
+		print '%s: %s == %s == %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
+		return
 	if type=='DEBUG':
 		print '%s: %s == %s == %s %s'% (type, g_colors['YELLOW'], module, g_colors['NORMAL'], msg)
 		return
@@ -127,6 +130,9 @@ def trace(msg):
 	if not Utils.g_trace: return
 	if module in g_trace_exclude: return
 	niceprint(msg, 'TRACE', module)
+def warning(msg):
+	module = inspect.stack()[1][0].f_globals['__name__']
+	niceprint(msg, 'WARNING', module)
 def debug(msg):
 	module = inspect.stack()[1][0].f_globals['__name__']
 

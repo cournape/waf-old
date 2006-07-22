@@ -128,3 +128,14 @@ def detect(conf):
 
 	return 1
 
+def set_options(opt):
+	try:
+		opt.add_option('-d', '--debug-level',
+		action = 'store',
+		default = 'release',
+		help = 'Specify the debug level. [Allowed Values: ultradebug, debug, release, optimized]',
+		dest = 'debug_level')
+	except:
+		# the g++ tool might have added that option already
+		pass
+
