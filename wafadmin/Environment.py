@@ -44,8 +44,7 @@ class Environment:
 		try:
 			module.setup(self)
 		except:
-			print "setup function missing in tool: " + tool
-			# we cannot ignore this error now
+			fatal("setup function missing in tool: %s " % str(tool))
 			raise
 		if file: file.close()
 

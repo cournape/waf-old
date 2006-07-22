@@ -169,6 +169,5 @@ def set_options(opt):
 		dest = 'debug_level')
 	except:
 		# the gcc tool might have added that option already
-		print "uh"
 		pass
 

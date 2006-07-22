@@ -19,8 +19,14 @@ def check_dir(dir):
 def do_install(src, tgt):
 	if Params.g_commands['install']:
 		print "* installing %s as %s" % (src, tgt)
-		try: shutil.copy2( src, tgt )
-		except: fatal('could not install the file')
+		try:
+			shutil.copy2( src, tgt )
+		except:
+			try:
+				os.stat(src)
+			except:
+				error('file %s does not exist' % str(src))
+			fatal('could not install the file')
 	elif Params.g_commands['uninstall']:
 		print "* uninstalling %s" % tgt
 		try: os.remove( tgt )
@@ -49,16 +55,17 @@ def install_files(var, subdir, files, env=None):
 
 	# copy the files to the final destination
 	for filename in lst:
-		name = filename
+		if filename[0] != '/':
+			alst = filename.split('/')
+			filenode = node.find_node(alst)
+	
+			file     = filenode.abspath(env)
+			destfile = os.path.join(destpath, filenode.m_name)
+		else:
+			file     = filename
+			alst     = filename.split('/')
+			destfile = os.path.join(destpath, alst[len(alst)-1])
 
-		try:
-			lname = filename.split('/')
-			name  = lname[len(lname)-1]
-		except:
-			pass
-
-		file = os.path.join(node.abspath(env), filename)
-		destfile = os.path.join(destpath, name)
 		do_install(file, destfile)
 
 def install_as(var, destfile, srcfile, env=None):
@@ -76,7 +83,14 @@ def install_as(var, destfile, srcfile, env=None):
 	dir, name = os.path.split(tgt)
 	check_dir(dir)
 
-	src = os.path.join(node.abspath(env), srcfile.lstrip(os.sep))
+	# the source path
+	if srcfile[0] != '/':
+		alst = srcfile.split('/')
+		filenode = node.find_node(alst)
+		src = filenode.abspath(env)
+	else:
+		src = srcfile
+
 	do_install(src, tgt)
 
 def symlink_as(var, src, dest, env=None):

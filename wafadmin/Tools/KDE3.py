@@ -70,7 +70,7 @@ class kde_translations(Object.genobj):
 			lang, ext = os.path.splitext(file.m_name)
 			if ext != '.po': continue
 
-			node = self.get_mirror_node(self.m_current_path, lang+'.gmo')
+			node = self.m_current_path.find_node( (lang+'.gmo').split('/') )
 			orig = node.relpath_gen(current)
 
 			destfile = os.sep.join([lang, 'LC_MESSAGES', destfilename])
@@ -189,9 +189,6 @@ class kdeobj(cpp.cppobj):
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
-
-	def get_node(self, a):
-		return self.get_mirror_node(self.m_current_path, a)
 
 	def apply(self):
 		trace("apply called for kdeobj")

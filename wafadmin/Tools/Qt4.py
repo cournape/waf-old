@@ -72,9 +72,6 @@ class qt4obj(cpp.cppobj):
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
 
-	def get_node(self, a):
-		return self.get_mirror_node(self.m_current_path, a)
-
 	def create_rcc_task(self, base):
 		# run rcctask with one of the highest priority
 		# TODO add the dependency on the files listed in .qrc
