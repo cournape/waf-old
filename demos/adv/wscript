@@ -39,5 +39,8 @@ def configure(conf):
 	conf.set_env_name('variant2', env_variant2)
 
 def set_options(opt):
-	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
+	# to use after the command-line is parsed:
+	# import Params
+	# print Params.g_options.someopt
 

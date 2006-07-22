@@ -589,4 +589,7 @@ def detect(conf):
 	conf.env['KDE_IS_FOUND'] = 1
 	return 0
 
+def set_options(opt):
+	for i in "execprefix datadir libdir kdedir kdeincludes kdelibs qtdir qtincludes qtlibs libsuffix".split():
+		opt.add_option('--'+i, type='string', default='', dest=i)
 

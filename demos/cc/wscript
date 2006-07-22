@@ -22,4 +22,4 @@ def configure(conf):
 	# the order of calls does matter
 
 def set_options(opt):
-	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
+	pass
