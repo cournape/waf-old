@@ -8,8 +8,18 @@ from optparse import OptionParser
 import Params, Utils
 from Params import debug, trace, fatal, error
 
-if sys.platform == 'win32': default_prefix='c:\\temp\\'
-else: default_prefix = '/usr/local/'
+# Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
+try:
+	default_prefix = os.environ['PREFIX']
+except:
+	if sys.platform == 'win32': default_prefix='c:\\temp\\'
+	else: default_prefix = '/usr/local/'
+
+try:
+	default_destdir = os.environ['DESTDIR']
+except:
+	default_destdir = ''
+
 
 def create_parser():
 	Params.trace("create_parser is called")
@@ -51,13 +61,13 @@ def create_parser():
 		dest    = 'verbose')
 
 	p('--prefix',
-		help    = 'installation prefix [Default: %s]' % default_prefix,
+		help    = "installation prefix [Default: '%s']" % default_prefix,
 		default = default_prefix,
 		dest    = 'prefix')
 
 	p('--destdir',
-		help    = 'destination for install (rpms or debs creation)',
-		default = '',
+		help    = "installation root   [Default: '%s']" % default_destdir,
+		default = default_destdir,
 		dest    = 'destdir')
 
 	if 'configure' in sys.argv:
@@ -79,10 +89,6 @@ def parse_args_impl(parser):
 
 	(Params.g_options, args) = parser.parse_args()
 	#print Params.g_options, " ", args
-
-	if not Params.g_options.destdir:
-		try: Params.g_options.destdir = os.environ['DESTDIR']
-		except: pass
 
 	# By default, 'waf' is equivalent to 'waf build'
 	lst=['dist','configure','clean','distclean','build','install','uninstall','doc']
