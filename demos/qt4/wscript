@@ -2,8 +2,6 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006 (ita)
 
-import Configure
-
 VERSION='0.0.1'
 APPNAME='qt4_test'
 

@@ -5,8 +5,6 @@
 # advanced tests
 # look in src/ for an example of a new compiler that creates cpp files
 
-import os
-
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
 APPNAME='adv_test'

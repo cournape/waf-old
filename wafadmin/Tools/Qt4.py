@@ -114,9 +114,8 @@ class qt4obj(cpp.cppobj):
 
 	def apply(self):
 		self.apply_type_vars()
-		self.apply_lib_vars()
-		self.apply_obj_vars()
 		self.apply_incpaths()
+
 
 		# for qt4 programs we need to know in advance the dependencies
 		# so we will scan them right here
@@ -246,7 +245,9 @@ class qt4obj(cpp.cppobj):
 			latask.m_outputs = self.file_in(self.get_target_name('.la'))
 			self.m_latask    = latask
 
-		self.apply_libdeps()
+		self.apply_lib_vars()
+		self.apply_obj_vars()
+		self.apply_objdeps()
 		# end posting constraints (apply)
 
 def setup(env):

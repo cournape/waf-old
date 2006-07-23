@@ -2,7 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import Params
+# look for 'meow' below
+#import Params
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
@@ -13,9 +14,6 @@ srcdir = '.'
 blddir = '_build_'
 
 def build(bld):
-	# the PREFIX is set everytime for the default environment
-	# you might want to set it for the configuration only
-	bld.m_allenvs['default']['PREFIX'] = Params.g_options.prefix
 	# process subfolders from here
 	bld.add_subdirs('src src2')
 
