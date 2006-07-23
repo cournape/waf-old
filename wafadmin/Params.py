@@ -2,10 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, sys, types, inspect, md5, random
+import os, sys, types, inspect, md5, random, base64
 import Utils
 
-### CONSTANTS ###
+# =================================== #
+# Fixed constants, change with care
 
 g_version='0.8.3' # ph34r
 g_rootname = ''
@@ -13,43 +14,50 @@ if sys.path=='win32':
 	# get the first two letters (c:)
 	g_rootname = os.getcwd()[:2]
 
-# it is unlikely that we change the name of this file
+# It is unlikely that we change the name of this file
 g_dbfile='.dblite'
 
-# preprocessor for c/c++
+# Preprocessor for c/c++
 g_preprocess = 1
 
-# deptree
-g_excludes = ['.svn', 'CVS', 'wafadmin', 'cache', '{arch}', '.arch-ids']
-g_pattern_excludes = ['_build_']
+# Dependency tree
+g_excludes = ['.svn', 'CVS', 'wafadmin', '.arch-ids']
+
+# Hash method: md5 or simple scheme over integers
 g_strong_hash = 1
 
+# The null signature depends upon the Hash method in use
 def sig_nil():
 	if g_strong_hash: return '\xaea\x86\xf0T\xbd\x93\xc5V\x01\xc6Y"\x7fi\xd4'
 	else: return 0
 
-### NO RESETS BETWEEN RUNS ###
+# =================================== #
+# Constants set on runtime
 
-# used by environment, this is the directory containing our Tools
+# Set by waf.py
+g_launchdir = None
+
+# This is the directory containing our Tools (used in particular by Environment.py)
 g_tooldir=''
 
-# parsed command-line arguments in the options module
+# Parsed command-line arguments in the options module
 g_options = None
 g_commands = {}
+
+# Verbosity: -v displays warnings, -vv displays developper info
 g_verbose = 0
 
-# max jobs
+# Max jobs: option -jn
 g_maxjobs = 1
 
-### EXTENSIONS ###
-
-## the only Build object
+# The only Build object
 g_build    = None
 
-
+# Our cache directory
 g_cachedir = ''
 
-### HELPERS ####
+# =================================== #
+# HELPERS
 
 # no colors on win32 :-/
 if sys.platform=='win32':
@@ -86,7 +94,6 @@ def pprint(col, str, label=''):
 	except: mycol=''
 	print "%s%s%s %s" % (mycol, str, g_colors['NORMAL'], label)
 
-# IMPORTANT debugging helpers
 g_levels={
 	'Action'  : 'GREEN',
 	'Build'   : 'CYAN',
@@ -105,7 +112,6 @@ def set_trace(a, b, c):
 	Utils.g_debug=b
 	Utils.g_error=c
 
-# IMPORTANT helper functions
 def niceprint(msg, type='', module=''):
 	if not module:
 		print '%s: %s'% (type, msg)
@@ -188,7 +194,7 @@ def xor_sig(o1, o2):
 			print "exception xor_sig with incompatible objects", str(o1), str(o2)
 			raise
 
-import base64
+# used for displaying signatures
 def vsig(s):
 	if type(s) is types.StringType:
 		n = base64.encodestring(s)
@@ -197,3 +203,4 @@ def vsig(s):
 		return n
 	else:
 		return str(s)
+
