@@ -5,20 +5,17 @@
 def build(bld):
 	# 1. An idl file
 	obj = bld.createObj('cpp', 'shlib')
-	obj.source='''
-	corba.idl
-	'''
-	obj.includes='. src'
-	obj.uselib = 'ACE TAO ORBSVCS'
-	obj.target='corbashlib'
+	obj.source      = 'corba.idl'
+	obj.includes    = '.'
+	obj.uselib      = 'ACE TAO ORBSVCS'
+	obj.target      = 'corbashlib'
+	obj.name        = 'mycorbalib'
 
 	# 2. A program that links against corbashlib
 	obj = bld.createObj('cpp', 'program')
-	obj.source='''
-	corba_app.cpp
-	'''
-	obj.includes='. src'
-	obj.useliblocal='./corbashlib.so'
-	obj.uselib = 'ACE TAO TAOPOA COSNAMING ORBSVCS'
-	obj.target='corba_program'
+	obj.source      = 'corba_app.cpp'
+	obj.includes    = '.'
+	obj.useliblocal = 'mycorbalib'
+	obj.uselib      = 'ACE TAO TAOPOA COSNAMING ORBSVCS'
+	obj.target      = 'corba_program'
 

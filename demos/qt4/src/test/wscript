@@ -7,8 +7,7 @@ obj = kdeobj()
 obj.source = 'window.cpp'
 obj.target = 'window'
 obj.uselib = 'QT QTCORE QTGUI QTOPENGL'
-obj.include = './_build_/src/test/ ./_build_/src/'
-obj.depends('firstobj')
+obj.include = '.. .'
 """
 
 def build(bld):
