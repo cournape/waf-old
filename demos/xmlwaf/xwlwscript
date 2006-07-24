@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<document version='1.0'>
+	<version>0.0.1</version>
+	<appname>cpp_test</appname>
+	<srcdir>.</srcdir>
+	<blddir>_build_</blddir>
+
+
+	<build>
+		<dir name='src'>
+			<obj class="cpp" type="shlib">
+				<sources>
+					<source name="d1.cpp"/>
+				</sources>
+				<includes>
+					<include value="."/>
+				</includes>
+				<target value="shlib1"/>
+				<name value="john"/>
+				<want_libtool>1</want_libtool>
+				<vnum value="1.2.3"/>
+			</obj>
+		</dir>
+	</build>
+
+
+	<!-- configuration is a little bit harder to define
+		it would be surprizing if an IDE could handle the rules,
+		so we might want to let some python code here -->
+	<config>
+		<code>
+# conf.env['CXX'] = Params.g_options.meow
+# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
+conf.checkTool(['g++'])
+conf.sub_config('src')
+
+conf.env['CXXFLAGS_MYPROG']='-O3'
+conf.env['LIB_MYPROG']='m'
+conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
+
+# works in a procedural way, so the order of calls does matter
+#conf.checkTool(['KDE3'])
+		</code>
+	</config>
+
+	<options>
+		<tools>
+			<tool>g++</tool>
+		</tools>
+
+		<!-- mapping the optparse api is a bit silly - we might want to leave python code here too -->
+		<option>
+			<param>--meow</param>
+			<param name="type">string</param>
+			<param name="help">some option</param>
+			<param name="dest">meow</param>
+		</option>
+	</options>
+</document>
+
