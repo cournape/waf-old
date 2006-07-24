@@ -41,8 +41,9 @@ class ccobj(ccroot.ccroot):
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
 
+
 	def apply_obj_vars(self):
-		trace('apply_obj_vars called for ccobj')
+		trace('apply_obj_vars called for cppobj')
 		cpppath_st       = self.env['CPPPATH_ST']
 		lib_st           = self.env['LIB_ST']
 		staticlib_st     = self.env['STATICLIB_ST']
@@ -54,6 +55,7 @@ class ccobj(ccroot.ccroot):
 		if not self._incpaths_lst: self.apply_incpaths()
 		for i in self._bld_incpaths_lst:
 			self.env.appendValue('_CCINCFLAGS', cpppath_st % i.bldpath(self.env))
+			self.env.appendValue('_CCINCFLAGS', cpppath_st % i.srcpath(self.env))
 
 		# set the library include paths
 		for i in self.env['CPPPATH']:
@@ -65,9 +67,9 @@ class ccobj(ccroot.ccroot):
 		self.env.appendValue('_CCINCFLAGS', cpppath_st % '.')
 		try:
 			tmpnode = Params.g_build.m_curdirnode
-			tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
+			#tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
 			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode_mirror.bldpath(self.env))
+			self.env.appendValue('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
 		except:
 			pass
 
@@ -89,7 +91,6 @@ class ccobj(ccroot.ccroot):
 			self.env.appendValue('LINKFLAGS', self.env['SHLIB_MARKER'])
 			for i in self.env['LIB']:
 				self.env.appendValue('LINKFLAGS', lib_st % i)
-
 
 # tool specific setup
 # is called when a build process is started 
