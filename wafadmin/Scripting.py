@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, os.path, types, sys, imp, cPickle
+import os, os.path, types, sys, imp
 import Build, Params, Utils, Options, Configure, Environment
 from Params import debug, error, trace, fatal
 

@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
 <document version='1.0'>
+
+<!--
+  people who prefer an xml file (gui) will find what they need
+-->
+
 	<version>0.0.1</version>
 	<appname>cpp_test</appname>
 	<srcdir>.</srcdir>
@@ -24,9 +29,12 @@
 	</build>
 
 
-	<!-- configuration is a little bit harder to define
-		it would be surprizing if an IDE could handle the rules,
-		so we might want to let some python code here -->
+<!--
+  configuration is a little bit harder to define
+  it would be surprizing if an IDE could handle the rules,
+  so we might want to let some python code here
+-->
+
 	<config>
 		<code>
 # conf.env['CXX'] = Params.g_options.meow

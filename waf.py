@@ -9,6 +9,7 @@ import os, string, sys, imp
 # in this case, stop when a ".lock-wscript" file is found
 cwd = os.getcwd()
 candidate = None
+xml = None
 
 # Some people want to configure their projects gcc-style:
 # mkdir build && cd build && ../waf.py configure && ../waf.py
@@ -16,15 +17,17 @@ candidate = None
 build_dir_override = None
 if 'configure' in sys.argv:
 	#if not os.listdir(cwd):
-	if not 'wscript' in os.listdir(cwd):
+	lst = os.listdir(cwd)
+	if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
 		build_dir_override = cwd
 
 try:
 	while 1:
 		if len(cwd)<=3: break # stop at / or c:
 		dirlst = os.listdir(cwd)
-		if 'wscript'      in dirlst: candidate = cwd
-		if 'configure' in sys.argv and candidate: break
+		if 'wscript'       in dirlst: candidate = cwd
+		if 'wscript_xml'   in dirlst: candidate = cwd, xml=1
+		if 'configure'     in sys.argv and candidate: break
 		if '.lock-wscript' in dirlst: break
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
 except:
@@ -67,8 +70,10 @@ import Options, Params, Utils
 # Set the directory containing the tools
 Params.g_tooldir = [os.path.join(dir, 'Tools')]
 
-# For now, no debugging output
-Params.set_trace(0,0,0)
+# with xml files jump to the parser
+if xml:
+	from XMLScripting import Main
+	Main()
 
 # define the main module containing the functions init, shutdown, ..
 Utils.set_main_module(os.path.join(candidate, 'wscript'))

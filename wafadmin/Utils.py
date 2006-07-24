@@ -5,9 +5,9 @@
 import os, md5, types, sys, string, stat, imp, copy
 import Params
 
-g_trace=1
-g_debug=1
-g_error=1
+g_trace=0
+g_debug=0
+g_error=0
 
 def error(msg):
 	Params.niceprint(msg, 'ERROR', 'Configuration')

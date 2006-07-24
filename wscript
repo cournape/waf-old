@@ -5,7 +5,7 @@
 VERSION='0.8.4p1'
 APPNAME='waf'
 
-demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook']
+demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf']
 
 import Params, os, sys
 
