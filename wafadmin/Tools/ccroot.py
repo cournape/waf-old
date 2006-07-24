@@ -247,16 +247,10 @@ class ccroot(Object.genobj):
 			if not node:
 				debug("node not found in ccroot:apply_incpaths "+str(dir))
 				continue
-			lst.append( node )
-
-			#node2 = tree.get_mirror_node(node)
-			#lst.append( node2 )
-			lst.append( node )
+			if not node in lst: lst.append(node)
+			Params.g_build.rescan(node)
 			self._bld_incpaths_lst.append(node)
-			#self._bld_incpaths_lst.append(node2)
-			
 		# now the nodes are added to self._incpaths_lst
-
 
 	def apply_type_vars(self):
 		trace('apply_type_vars called')

@@ -61,10 +61,9 @@ class ocamlobj(Object.genobj):
 			if not node:
 				error("node not found dammit")
 				continue
-
-			lst.append( node )
+			Params.g_build.rescan(node)
+			if not node in lst: lst.append( node )
 			self._bld_incpaths_lst.append(node)
-			#self._bld_incpaths_lst.append(node2)
 		# now the nodes are added to self._incpaths_lst
 
 	def apply(self):
