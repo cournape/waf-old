@@ -1,6 +1,8 @@
 (ita)
 * functions in the preprocessor
 * daemon
+* cache test results to ~/somewhere
+* xml input files
 
 --------------------------------------
 Last update: 20-07-2006
