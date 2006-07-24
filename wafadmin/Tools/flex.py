@@ -12,9 +12,9 @@ def l_file(obj, node):
 	ltask.set_inputs(node)
 	ltask.set_outputs(node.change_ext('.lex.cc'))
 
-	cpptask = obj.create_task('cpp')
-	cpptask.set_inputs(ltask.m_outputs)
-	cpptask.set_outputs(node.change_ext('.lex.o'))
+	task = obj.create_task(obj.m_type_initials)
+	task.set_inputs(ltask.m_outputs)
+	task.set_outputs(node.change_ext('.lex.o'))
 
 def setup(env):
 	# create our action here

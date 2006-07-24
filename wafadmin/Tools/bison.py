@@ -12,9 +12,9 @@ def yc_file(obj, node):
 	yctask.set_inputs(node)
 	yctask.set_outputs(node.change_ext('.tab.cc'))
 
-	cpptask = obj.create_task('cpp')
-	cpptask.set_inputs(yctask.m_outputs)
-	cpptask.set_outputs(node.change_ext('.tab.o'))
+	task = obj.create_task(obj.m_type_initials)
+	task.set_inputs(yctask.m_outputs)
+	task.set_outputs(node.change_ext('.tab.o'))
 
 def setup(env):
 	# create our action here
