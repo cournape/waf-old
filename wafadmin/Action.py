@@ -56,7 +56,7 @@ class Action:
 	def run(self, task):
 		if not self.m_function_to_run:
 			fatal(self.m_name+" action has no function !")
-		self.m_function_to_run(task)
+		return self.m_function_to_run(task)
 
 # Actions declared using a string are compiled before use:
 # * a class with the necessary functions is created (so the string is parsed only once)
