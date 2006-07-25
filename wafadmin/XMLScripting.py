@@ -6,14 +6,15 @@ import os, os.path, types, sys, imp
 import Build, Params, Utils, Options, Configure, Environment
 from Params import debug, error, trace, fatal
 
-def Main(file):
-	try:
-		from xml.sax import make_parser 
-		from xml.sax.handler import ContentHandler 
-	except:
-		fatal('wscript_xml requires the Python xml modules (sax)!')
+try:
+	from xml.sax import make_parser 
+	from xml.sax.handler import ContentHandler 
+except:
+	fatal('wscript_xml requires the Python xml modules (sax)!')
 
-	fatal('wscript_xml is not implemented yet!')
+
+def Main(file):
+	#fatal('wscript_xml is not implemented yet!')
 
 	parser = make_parser()
 	curHandler = XMLHandler()
@@ -24,6 +25,7 @@ class XMLHandler(ContentHandler):
 	def __init__(self):
 		pass
 	def startElement(self, name, attrs): 
+		print "startelement ", name
 		if name == 'icondirent':
 			return
 		return

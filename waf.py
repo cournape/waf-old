@@ -26,7 +26,9 @@ try:
 		if len(cwd)<=3: break # stop at / or c:
 		dirlst = os.listdir(cwd)
 		if 'wscript'       in dirlst: candidate = cwd
-		if 'wscript_xml'   in dirlst: candidate = cwd, xml=1
+		if 'wscript_xml'   in dirlst:
+			candidate = cwd
+			xml=1
 		if 'configure'     in sys.argv and candidate: break
 		if '.lock-wscript' in dirlst: break
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
@@ -73,75 +75,75 @@ Params.g_tooldir = [os.path.join(dir, 'Tools')]
 # with xml files jump to the parser
 if xml:
 	from XMLScripting import Main
-	Main()
+	Main(candidate+os.sep+'wscript_xml')
+else:
+	# define the main module containing the functions init, shutdown, ..
+	Utils.set_main_module(os.path.join(candidate, 'wscript'))
 
-# define the main module containing the functions init, shutdown, ..
-Utils.set_main_module(os.path.join(candidate, 'wscript'))
+	if build_dir_override:
+		try:
+			# test if user has set the blddir in wscript.
+			blddir = Utils.g_module.blddir
+			msg = 'Overriding blddir %s with %s' % (mblddir, bldcandidate)
+			Params.niceprint('YELLOW', msg)
+		except: pass
+		Utils.g_module.blddir = build_dir_override
 
-if build_dir_override:
+	# fix the path of the cachedir - it is mandatory
+	if sys.platform=='win32':
+		try:
+			lst = Utils.g_module.cachedir.split('/')
+			Utils.g_module.cachedir = os.sep.join(lst)
+		except:
+			Params.niceprint('RED', 'No cachedir specified in wscript!')
+			raise
+
+	# fetch the custom command-line options recursively and in a procedural way
+	opt_obj = Options.Handler()
+	opt_obj.sub_options('')
+	opt_obj.parse_args()
+
+	# we use the results of the parser
+	if Params.g_commands['dist']:
+		# try to use the user-defined dist function first, fallback to the waf scheme
+		try:
+			Utils.g_module.dist()
+			sys.exit(0)
+		except:
+			pass
+		appname         = 'noname'
+		try:    appname = Utils.g_module.APPNAME
+		except: pass
+	
+		version         = '1.0'
+		try:    version = Utils.g_module.VERSION
+		except: pass
+
+		from Scripting import Dist
+		Dist(appname, version)
+		sys.exit(0)
+	elif Params.g_commands['distclean']:
+		# try to use the user-defined distclean first, fallback to the waf scheme
+		try:
+			Utils.g_module.distclean()
+			sys.exit(0)
+		except:
+			pass
+
+		from Scripting import DistClean
+		DistClean()
+		sys.exit(0)
+
 	try:
-		# test if user has set the blddir in wscript.
-		blddir = Utils.g_module.blddir
-		msg = 'Overriding blddir %s with %s' % (mblddir, bldcandidate)
-		Params.niceprint('YELLOW', msg)
-	except: pass
-	Utils.g_module.blddir = build_dir_override
-
-# fix the path of the cachedir - it is mandatory
-if sys.platform=='win32':
-	try:
-		lst = Utils.g_module.cachedir.split('/')
-		Utils.g_module.cachedir = os.sep.join(lst)
-	except:
-		Params.niceprint('RED', 'No cachedir specified in wscript!')
+		fun = None
+		try:
+			fun = Utils.g_module.init
+		except:
+			pass
+		if fun: fun()
+	except SystemExit:
 		raise
 
-# fetch the custom command-line options recursively and in a procedural way
-opt_obj = Options.Handler()
-opt_obj.sub_options('')
-opt_obj.parse_args()
-
-# we use the results of the parser
-if Params.g_commands['dist']:
-	# try to use the user-defined dist function first, fallback to the waf scheme
-	try:
-		Utils.g_module.dist()
-		sys.exit(0)
-	except:
-		pass
-	appname         = 'noname'
-	try:    appname = Utils.g_module.APPNAME
-	except: pass
-
-	version         = '1.0'
-	try:    version = Utils.g_module.VERSION
-	except: pass
-
-	from Scripting import Dist
-	Dist(appname, version)
-	sys.exit(0)
-elif Params.g_commands['distclean']:
-	# try to use the user-defined distclean first, fallback to the waf scheme
-	try:
-		Utils.g_module.distclean()
-		sys.exit(0)
-	except:
-		pass
-
-	from Scripting import DistClean
-	DistClean()
-	sys.exit(0)
-
-try:
-	fun = None
-	try:
-		fun = Utils.g_module.init
-	except:
-		pass
-	if fun: fun()
-except SystemExit:
-	raise
-
-from Scripting import Main
-Main()
+	from Scripting import Main
+	Main()
 
