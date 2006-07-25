@@ -36,32 +36,31 @@
 -->
 
 	<config>
-		<code>
-# conf.env['CXX'] = Params.g_options.meow
-# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
-conf.checkTool(['g++'])
-conf.sub_config('src')
+		<config-code>
+	# conf.env['CXX'] = Params.g_options.meow
+	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
+	conf.checkTool(['g++'])
 
-conf.env['CXXFLAGS_MYPROG']='-O3'
-conf.env['LIB_MYPROG']='m'
-conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
+	conf.env['CXXFLAGS_MYPROG']='-O3'
+	conf.env['LIB_MYPROG']='m'
+	conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
 
-# works in a procedural way, so the order of calls does matter
-#conf.checkTool(['KDE3'])
-		</code>
+	# works in a procedural way, so the order of calls does matter
+	#conf.checkTool(['KDE3'])
+		</config-code>
 	</config>
 
 	<options>
-		<tools>
-			<tool>g++</tool>
-		</tools>
+		<tool_options>
+			<tool_option value="g++"/>
+		</tool_options>
 
 		<!-- mapping the optparse api is a bit silly - we might want to leave python code here too -->
 		<option>
-			<param>--meow</param>
-			<param name="type">string</param>
-			<param name="help">some option</param>
-			<param name="dest">meow</param>
+			<optparam value="--meow"/>
+			<optparam name="type" value="string"/>
+			<optparam name="help" value="some option"/>
+			<optparam name="dest" value="meow"/>
 		</option>
 	</options>
 </document>

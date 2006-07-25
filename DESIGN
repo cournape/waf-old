@@ -1,21 +1,5 @@
 ## Thomas Nagy, 2005, 2006 (ita)
 
-ROADMAP
--------
-0.9x daemon mode
-
-ADDITIONAL FEATURES OVER SCONS
-------------------------------
-
-* fast rescan for incremental builds (developer working on the project)
-* kernel-like output and progress bar (-v switch to display command-lines)
-* builddir set by default and with no effort
-* find source files intelligently (glob-like) to ease script maintainance - kde module only at the moment
-* customizable command-line parsing using sconfigure (works now!)
-* tight control over the scheduler (not all links at the same time, etc)
-* support for objective caml targets (no ocamldeps yet)
-* and more to come..
-
 DATA STRUCTURE
 --------------
 
