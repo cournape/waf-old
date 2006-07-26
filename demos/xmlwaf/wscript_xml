@@ -14,17 +14,31 @@
 	<build>
 		<dir name='src'>
 			<obj class="cpp" type="shlib">
-				<sources>
-					<source name="d1.cpp"/>
-				</sources>
-				<includes>
-					<include value="."/>
+				<source type="list">
+					<item value="d1.cpp"/>
+				</source>
+				<includes type="list">
+					<item value="."/>
 				</includes>
-				<target value="shlib1"/>
-				<name value="john"/>
-				<want_libtool>1</want_libtool>
-				<vnum value="1.2.3"/>
+				<target       value="shlib1"/>
+				<name         value="john"/>
+				<want_libtool value="1"/>
+				<vnum         value="1.2.3"/>
 			</obj>
+
+			<dir name='subsrc'>
+				<obj class="cpp" type="program">
+					<source type="list">
+						<item value="e1.cpp"/>
+					</source>
+					<includes type="list">
+						<item value="."/>
+					</includes>
+					<target       value="prog1"/>
+					<uselib_local value="john"/>
+				</obj>
+			</dir>
+
 		</dir>
 	</build>
 

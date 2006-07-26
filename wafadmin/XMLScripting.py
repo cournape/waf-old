@@ -25,8 +25,8 @@ def compile(file_path):
 	res = "".join(curHandler.doc)
 	module = imp.new_module('wscript')
 
-	print res
-	fatal('stop now')
+	#print res
+	#fatal('stop now')
 
 	exec res in module.__dict__
 
@@ -51,14 +51,19 @@ class XMLHandler(ContentHandler):
 				#setattr(self.obj, name, self.tmp_lst)
 				return
 
-			print '\tobj.%s="%s"\n' % (name, attrs['value'])
+			self.doc += '\tobj.%s="%s"\n' % (name, attrs['value'])
 			#setattr(self.obj, name, attrs['value'])
 
 			return
 
 		if name == 'obj':
-			self.doc += '\tobj = bld.createObj("%s")\n' % attrs['type']
+			self.doc += '\tobj = bld.createObj("%s")\n' % attrs['class']
+			self.doc += '\tobj.m_type = "%s"\n' % attrs['type']
 			self.obj += 1
+			return
+
+		if name == 'dir':
+			self.doc += '\tbld.pushdir("%s")\n' % attrs['name']
 			return
 
 		if name == 'document':
@@ -93,12 +98,16 @@ class XMLHandler(ContentHandler):
 		# object handling
 		if self.obj and name != 'obj':
 			if self.tmp_lst and name != 'item':
-				self.doc += "\tobj.%s = " % name
-				self.doc += str(self.tmp_lst) + "\n"
+				self.doc += "\tobj.%s = '" % name
+				self.doc += " ".join(self.tmp_lst) + "'\n"
 				self.tmp_lst = []
 			return
 		if name == 'obj':
 			self.obj -= 1
+			return
+
+		if name == 'dir':
+			self.doc += '\tbld.popdir()\n'
 			return
 
 		if name == 'version':

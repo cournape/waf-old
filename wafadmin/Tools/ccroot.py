@@ -234,7 +234,8 @@ class ccroot(Object.genobj):
 		return ''.join([prefix, name, suffix])
 
 	def apply_incpaths(self):
-		inc_lst = self.includes.split()
+		if type(self.includes) is types.ListType: inc_lst = self.includes
+		else: inc_lst = self.includes.split()
 		lst = self._incpaths_lst
 
 		# add the build directory

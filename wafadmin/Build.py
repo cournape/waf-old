@@ -80,6 +80,9 @@ class Build:
 		# build dir variants (release, debug, ..)
 		self.set_variants(['default'])
 
+		# TODO used by xmlwaf
+		self.pushed = []
+
 	def _init_data(self):
 		trace("init data called")
 
@@ -494,4 +497,14 @@ class Build:
 		#keys = self.m_name2nodes.keys()
 		#for k in keys:
 		#	print k, '\t\t', self.m_name2nodes[k]
+
+
+	def pushdir(self, dir):
+		node = self.ensure_node_from_lst(self.m_curdirnode, dir.split('/'))
+		self.pushed = [self.m_curdirnode]+self.pushed
+		self.m_curdirnode = node
+
+	def popdir(self):
+		self.m_curdirnode = self.pushed.pop(0)
+
 
