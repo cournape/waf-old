@@ -101,7 +101,7 @@ if sys.platform=='win32':
 
 # fetch the custom command-line options recursively and in a procedural way
 opt_obj = Options.Handler()
-#opt_obj.sub_options('')
+opt_obj.sub_options('')
 opt_obj.parse_args()
 
 # we use the results of the parser
