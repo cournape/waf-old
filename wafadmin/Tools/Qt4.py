@@ -273,10 +273,16 @@ def detect_qt4(conf):
 		qtbin=''
 		pass
 
+	try: qtdir      = Params.g_options.qtdir
+	except:
+		qtbin=''
+		pass
+
+
 	p=Params.pprint
 
-		# do our best to find the QTDIR (non-Debian systems)
-	qtdir = os.getenv('QTDIR')
+	# do our best to find the QTDIR (non-Debian systems)
+	if not qtdir: qtdir = os.getenv('QTDIR')
 
 	# TODO what if there are only static Qt libraries ?
 	if qtdir:
@@ -439,15 +445,15 @@ def detect_qt4(conf):
 			for d in env['LIBPATH_X11']:
 				lst.append('-Wl,--rpath='+d)
 
-			env['RPATH_QT']            = lst
-			env['RPATH_QT3SUPPORT']    = env['RPATH_QT']
-			env['RPATH_QTCORE']        = env['RPATH_QT']
-			env['RPATH_QTNETWORK']     = env['RPATH_QT']
-			env['RPATH_QTGUI']         = env['RPATH_QT']
-			env['RPATH_QTOPENGL']      = env['RPATH_QT']
-			env['RPATH_QTSQL']         = env['RPATH_QT']
-			env['RPATH_QTXML']         = env['RPATH_QT']
-			env['RPATH_QTEST']         = env['RPATH_QT']
+			env['RPATH_QT']         = lst
+			env['RPATH_QT3SUPPORT'] = env['RPATH_QT']
+			env['RPATH_QTCORE']     = env['RPATH_QT']
+			env['RPATH_QTNETWORK']  = env['RPATH_QT']
+			env['RPATH_QTGUI']      = env['RPATH_QT']
+			env['RPATH_QTOPENGL']   = env['RPATH_QT']
+			env['RPATH_QTSQL']      = env['RPATH_QT']
+			env['RPATH_QTXML']      = env['RPATH_QT']
+			env['RPATH_QTEST']      = env['RPATH_QT']
 	except:
 		pass
 
@@ -627,4 +633,11 @@ def detect(conf):
 		detect_qt4(conf)
 	return 0
 
+def set_options(opt):
+	try:
+		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
+	except:
+		pass
+	for i in "qtdir qtincludes qtlibs qtbin".split():
+		opt.add_option('--'+i, type='string', default='', dest=i)
 

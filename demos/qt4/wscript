@@ -10,10 +10,7 @@ srcdir = '.'
 blddir = '_build_'
 
 def set_options(opt):
-	opt.add_option('--qtdir', type='string', help='root of the qt directory', dest='qtdir')
-	opt.add_option('--qtlib', type='string', help='root of the qt directory', dest='qtlib')
-	opt.add_option('--qtincludes', type='string', help='root of the qt directory', dest='qtincludes')
-	opt.add_option('--qtbin', type='string', help='root of the qt directory', dest='qtbin')
+	opt.tool_options('Qt4')
 
 def configure(conf):
 	conf.checkTool(['g++', 'Qt4'])

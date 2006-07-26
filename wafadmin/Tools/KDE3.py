@@ -587,6 +587,10 @@ def detect(conf):
 	return 0
 
 def set_options(opt):
+	try:
+		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
+	except:
+		pass
 	for i in "execprefix datadir libdir kdedir kdeincludes kdelibs qtdir qtincludes qtlibs libsuffix".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 
