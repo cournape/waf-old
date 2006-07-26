@@ -15,7 +15,6 @@ except:
 
 
 def compile(file_path):
-	#fatal('wscript_xml is not implemented yet!')
 	parser = make_parser()
 	curHandler = XMLHandler()
 	parser.setContentHandler(curHandler)
@@ -26,6 +25,9 @@ def compile(file_path):
 	res = "".join(curHandler.doc)
 	module = imp.new_module('wscript')
 
+	print res
+	fatal('stop now')
+
 	exec res in module.__dict__
 
 	Utils.g_loaded_modules[file_path[:len(file_path)-4]] = module
@@ -35,7 +37,30 @@ class XMLHandler(ContentHandler):
 	def __init__(self):
 		self.doc = []
 		self.buf = []
-	def startElement(self, name, attrs): 
+		self.obj = 0
+		self.tmp_lst = []
+	def startElement(self, name, attrs):
+		if self.obj and name != 'obj':
+
+			if name == 'item':
+				self.tmp_lst.append(attrs['value'])
+				return
+
+			if 'type' in attrs and attrs['type'] == 'list':
+				self.tmp_lst = []
+				#setattr(self.obj, name, self.tmp_lst)
+				return
+
+			print '\tobj.%s="%s"\n' % (name, attrs['value'])
+			#setattr(self.obj, name, attrs['value'])
+
+			return
+
+		if name == 'obj':
+			self.doc += '\tobj = bld.createObj("%s")\n' % attrs['type']
+			self.obj += 1
+			return
+
 		if name == 'document':
 			self.buf = []
 			return
@@ -64,6 +89,18 @@ class XMLHandler(ContentHandler):
 		self.buf = []
 	def endElement(self, name): 
 		buf = "".join(self.buf)
+
+		# object handling
+		if self.obj and name != 'obj':
+			if self.tmp_lst and name != 'item':
+				self.doc += "\tobj.%s = " % name
+				self.doc += str(self.tmp_lst) + "\n"
+				self.tmp_lst = []
+			return
+		if name == 'obj':
+			self.obj -= 1
+			return
+
 		if name == 'version':
 			self.doc += 'VERSION = "%s"\n' % buf
 			return
@@ -91,6 +128,8 @@ class XMLHandler(ContentHandler):
 		if name == 'config-code':
 			self.doc += '%s\n\n' % buf
 			return
+
+
 		if name == 'version':
 			return
 		if name == 'version':
@@ -103,5 +142,4 @@ class XMLHandler(ContentHandler):
 
 	def characters(self, cars):
 		self.buf.append(cars)
-
 
