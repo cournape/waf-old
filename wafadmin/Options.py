@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Scott Newton, 2005 (scottn)
+# Thomas Nagy, 2006 (ita)
 
 import os, sys, string, imp
 from types import *
@@ -82,6 +83,12 @@ def create_parser():
 			default = '',
 			help    = 'src dir for the project (configuration)',
 			dest    = 'srcdir')
+
+		p('--nocache',
+			action  = 'store_true',
+			default = False,
+			help    = 're-run all compilation tests',
+			dest    = 'nocache')
 
 	return parser
 

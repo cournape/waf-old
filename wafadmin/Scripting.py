@@ -86,6 +86,7 @@ def Main():
 		conf = Configure.Configure(srcdir=srcdir, blddir=blddir)
 		conf.sub_config('')
 		conf.store(bld)
+		conf.cleanup()
 
 		# this will write a configure lock so that subsequent run will
 		# consider the current path as the root directory

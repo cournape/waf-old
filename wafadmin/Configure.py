@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import os, types, sys, string, imp
+import os, types, sys, string, imp, cPickle
 import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
@@ -77,6 +77,14 @@ class Configure:
 
 		self.setenv('default')
 
+		self.m_cache_table = {}
+
+		try:
+			file = open(os.sep.join([os.environ['HOME'], '.wafcache', 'runs.txt']), 'rb')
+			self.m_cache_table = cPickle.load(file)
+			file.close()
+		except:
+			pass
 
 	def __del__(self):
 		if not self.env['tools']:
@@ -112,6 +120,14 @@ class Configure:
 		env.store(filename)
 
 	def TryBuild(self, code, options='', pathlst=[], uselib=''):
+		""" Uses the cache """
+
+		hash = "".join(['TryBuild', code, str(options), str(pathlst), str(uselib)])
+		if not Params.g_options.nocache:
+			if hash in self.m_cache_table:
+				#print "cache for tryBuild found !!!  skipping ", hash
+				return self.m_cache_table[hash]
+
 		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
 		bdir = os.path.join( dir, '_build_')
 		try: os.makedirs(dir)
@@ -162,9 +178,19 @@ class Configure:
 
 		os.chdir(back)
 		Utils.reset()
+
+		self.m_cache_table[hash] = ret
 		return ret
 
 	def TryRun(self, code, options='', pathlst=[], uselib=''):
+		""" Uses the cache """
+
+		hash = "".join(['TryRun', code, str(options), str(pathlst), str(uselib)])
+		if not Params.g_options.nocache:
+			if hash in self.m_cache_table:
+				#print "cache for tryBuild found !!!  skipping ", hash
+				return self.m_cache_table[hash]
+
 		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
 		bdir = os.path.join( dir, '_build_')
 		try: os.makedirs(dir)
@@ -214,8 +240,9 @@ class Configure:
 
 		os.chdir(back)
 		Utils.reset()
-		return ret
 
+		self.m_cache_table[hash] = ret
+		return ret
 
 	def TryCPP(self,code,options=''):
 		"""run cpp for a given file, returns 0 if no errors (standard)
@@ -523,7 +550,19 @@ int main()
 			return 0
 		return 1
 
-# syntactic sugar
-def create_config():
-	return Configure()
+	# this method is called usually only once
+	def cleanup(self):
+		try:
+			dir = os.sep.join([os.environ['HOME'], '.wafcache'])
+			try:
+				os.makedirs(dir)
+			except:
+				pass
+
+			file = open(os.sep.join([os.environ['HOME'], '.wafcache', 'runs.txt']), 'wb')
+			cPickle.dump(self.m_cache_table, file)
+			file.close()
+		except:
+			raise
+			pass
 
