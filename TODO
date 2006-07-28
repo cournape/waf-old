@@ -1,10 +1,15 @@
 (ita)
+* daemon mode
+* packaging (rpms, debs)
+* unit testing system
+
+low priority:
+* java+mono (volunteer needed)
 * functions in the preprocessor
-* daemon
-* cache test results to ~/somewhere
-* xml input files
-* manual
+
+documentation
+* cache for configuration tests
 
 --------------------------------------
-Last update: 20-07-2006
+Last update: 28-07-2006
 Contact -> tnagyemail-mail@yahoo.fr (ita)
