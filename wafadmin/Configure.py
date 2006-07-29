@@ -159,8 +159,13 @@ class Configure:
 
 		# TODO for the moment it is c++, in the future it will be c
 		# and then we may need other languages here too
-		import cpp
-		obj=cpp.cppobj('program')
+		if env['CXX']:
+			import cpp
+			obj=cpp.cppobj('program')
+		else:
+			import cc
+			obj=cc.ccobj('program')
+
 		obj.source = 'test.c'
 		obj.target = 'test'
 		obj.uselib = uselib
@@ -222,8 +227,13 @@ class Configure:
 
 		# TODO for the moment it is c++, in the future it will be c
 		# and then we may need other languages here too
-		import cpp
-		obj=cpp.cppobj('program')
+		if env['CXX']:
+			import cpp
+			obj=cpp.cppobj('program')
+		else:
+			import cc
+			obj=cc.ccobj('program')
+
 		obj.source = 'test.c'
 		obj.target = 'test'
 		obj.uselib = uselib

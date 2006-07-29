@@ -18,6 +18,7 @@
  * USA
  */
 
+#include <locale.h>
 #include <config.h>
 #include <glib-object.h>
 #include <glib/gi18n.h>
