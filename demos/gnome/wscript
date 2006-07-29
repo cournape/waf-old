@@ -6,7 +6,7 @@ import os
 import Params
 
 # the following two variables are used by the target "waf dist"
-VERSION='0.0.1'
+VERSION='0.0.2'
 APPNAME='gnome_test'
 
 # these variables are mandatory ('/' are converted automatically)
@@ -15,10 +15,10 @@ blddir = '_build_'
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdirs('src')
+	bld.add_subdirs('src pixmaps po')
 
 def configure(conf):
-	conf.checkTool(['gcc', 'gnome'])
+	conf.checkTool('gcc gnome')
 
 	conf.checkPkg('libgnome-2.0',        destvar='GNOME',    vnum='2.10.0')
 	conf.checkPkg('libgnomeui-2.0',      destvar='GNOMEUI',  vnum='2.10.0')
@@ -37,6 +37,8 @@ def configure(conf):
 	datadir= '/usr/include'
 	localedir = datadir+os.sep+'locale'
 
+	conf.env['POCOM'] = 'msgfmt'
+
 	conf.addDefine('VERSION', '"%s"' % VERSION)
 	conf.addDefine('DATADIR', '"%s"' % datadir)
 	conf.addDefine('GNOMELOCALEDIR', '"%s"' % localedir)
@@ -44,7 +46,11 @@ def configure(conf):
 	conf.addDefine('GETTEXT_PACKAGE', '"gnome-hello-2.0"')
 	conf.addDefine('PACKAGE', '"gnome-hello"')
 
-	conf.addDefine('GNOME_PARAM_GOPTION_CONTEXT', '"gnome-hello"')
+
+	conf.env.appendValue('CCFLAGS', '-DHAVE_CONFIG_H')
+
+	# FIXME !!!!! this define looks necessary
+	#conf.addDefine('GNOME_PARAM_GOPTION_CONTEXT', '"goption-context"')
 
 	conf.writeConfigHeader('config.h')
 

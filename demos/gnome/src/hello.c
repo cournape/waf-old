@@ -97,7 +97,7 @@ main (int argc, char **argv)
 
   program = gnome_program_init (PACKAGE, VERSION, LIBGNOMEUI_MODULE,
 				argc, argv, 
-				GNOME_PARAM_GOPTION_CONTEXT, context,
+//				GNOME_PARAM_GOPTION_CONTEXT, context,
 				GNOME_PARAM_APP_DATADIR,DATADIR,
 				NULL);
 

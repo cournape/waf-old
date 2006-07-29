@@ -18,6 +18,9 @@ def build(bld):
 	bld.set_variants(['default', 'variant2'])
 	bld.add_subdirs('src complex variant')
 
+def package(bld):
+	pass
+
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
 	conf.checkTool(['checks', 'gcc', 'g++', 'dang'])
