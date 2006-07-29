@@ -5,6 +5,8 @@ import os, types, sys, string, imp, cPickle
 import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
+maxlen = 10
+
 def find_path(file, path_list):
 	if type(path_list) is types.StringType: lst = [path_list]
 	else: lst = path_list
@@ -477,10 +479,23 @@ int main()
 	def checkMessage(self,type,msg,state,option=''):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for ' + type + ' ' + msg
-		sp = '                                                 '
-		l = len(sr)
-		print sr,
-		if l<35: print sp[:33-l],':',
+
+		lst = []
+		lst.append(sr)
+
+		global maxlen
+		dist = len(sr)
+		if dist > maxlen:
+			maxlen = dist+1
+
+		if dist < maxlen:
+			diff = maxlen - dist
+			while diff>0:
+				lst.append(' ')
+				diff -= 1
+
+		lst.append(':')
+		print ''.join(lst),
 
 		p=Params.pprint
 		if state: p('GREEN', 'ok ' + option)
