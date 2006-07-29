@@ -99,6 +99,6 @@ def setup(env):
 	Object.register('cc', ccobj)
 
 # no variable added, do nothing
-def detect(env):
+def detect(conf):
 	return 1
 

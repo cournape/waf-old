@@ -53,6 +53,6 @@ def setup(env):
 	Object.register('cpp', cppobj)
 
 # no variable added, do nothing
-def detect(env):
+def detect(conf):
 	return 1
 

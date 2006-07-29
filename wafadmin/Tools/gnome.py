@@ -4,6 +4,7 @@
 
 import os
 import Object, Action
+from Params import fatal, error
 
 # translations
 class gnome_translations(Object.genobj):
@@ -41,7 +42,12 @@ def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 	Object.register('gnome_translations', gnome_translations)
 
-def detect(env):
-	# nothing to do yet
+def detect(conf):
+
+	pocom = conf.checkProgram('msgfmt')
+	if not pocom:
+		fatal('The program msgfmt (gettext) is mandatory !')
+	conf.env['POCOM'] = pocom
+
 	return 1
 

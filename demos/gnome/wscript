@@ -37,8 +37,6 @@ def configure(conf):
 	datadir= '/usr/include'
 	localedir = datadir+os.sep+'locale'
 
-	conf.env['POCOM'] = 'msgfmt'
-
 	conf.addDefine('VERSION', '"%s"' % VERSION)
 	conf.addDefine('DATADIR', '"%s"' % datadir)
 	conf.addDefine('GNOMELOCALEDIR', '"%s"' % localedir)
