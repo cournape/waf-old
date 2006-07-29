@@ -49,5 +49,32 @@ def detect(conf):
 		fatal('The program msgfmt (gettext) is mandatory !')
 	conf.env['POCOM'] = pocom
 
+	def getstr(varname):
+		#if env.has_key('ARGS'): return env['ARGS'].get(varname, '')
+		v=''
+		try: v = getattr(Params.g_options, varname)
+		except: return ''
+		return v
+
+	prefix  = conf.env['PREFIX']
+	datadir = getstr('datadir')
+	libdir  = getstr('libdir')
+	if not datadir: datadir = os.path.join(prefix,'share')
+	if not libdir:  libdir  = os.path.join(prefix,'lib')
+
+	conf.env['DATADIR'] = datadir
+	conf.env['LIBDIR']  = libdir
+	conf.env['GNOMELOCALEDIR'] = os.path.join(datadir, 'locale')
+
 	return 1
+
+def set_options(opt):
+	try:
+		# we do not know yet
+		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
+	except:
+		pass
+
+	for i in "execprefix datadir libdir".split():
+		opt.add_option('--'+i, type='string', default='', dest=i)
 

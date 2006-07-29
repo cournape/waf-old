@@ -33,13 +33,7 @@ def configure(conf):
 	conf.checkPkg('libxml-2.0',          destvar='XML',      vnum='2.4.23')
 	conf.checkPkg('gdk-x11-2.0',         destvar='GDK',      vnum='1.0.0')
 
-	# TODO this is certainly not the datadir wanted
-	datadir= '/usr/include'
-	localedir = datadir+os.sep+'locale'
-
 	conf.addDefine('VERSION', '"%s"' % VERSION)
-	conf.addDefine('DATADIR', '"%s"' % datadir)
-	conf.addDefine('GNOMELOCALEDIR', '"%s"' % localedir)
 
 	conf.addDefine('GETTEXT_PACKAGE', '"gnome-hello-2.0"')
 	conf.addDefine('PACKAGE', '"gnome-hello"')
