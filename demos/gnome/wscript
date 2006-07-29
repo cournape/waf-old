@@ -1,0 +1,64 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+import os
+import Params
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='gnome_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = '_build_'
+
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('src')
+
+def configure(conf):
+	conf.checkTool(['gcc', 'gnome'])
+
+	conf.checkPkg('libgnome-2.0',        destvar='GNOME',    vnum='2.10.0')
+	conf.checkPkg('libgnomeui-2.0',      destvar='GNOMEUI',  vnum='2.10.0')
+	conf.checkPkg('gtk+-2.0',            destvar='GTK',      vnum='2.6.0')
+	conf.checkPkg('glib-2.0',            destvar='GLIB',     vnum='2.6.0')
+	conf.checkPkg('libbonobo-2.0',       destvar='BONOBO',   vnum='2.0.0')
+	conf.checkPkg('libbonoboui-2.0',     destvar='BONOBOUI', vnum='2.0.0')
+	conf.checkPkg('libglade-2.0',        destvar='GLADE',    vnum='2.0.1')
+	conf.checkPkg('libgnomecanvas-2.0',  destvar='CANVAS',   vnum='2.0.1')
+	conf.checkPkg('libgnomeprintui-2.2', destvar='PRINTUI',  vnum='2.2.0')
+	conf.checkPkg('libgnomeprint-2.2',   destvar='PRINT',    vnum='2.2.0')
+	conf.checkPkg('libxml-2.0',          destvar='XML',      vnum='2.4.23')
+	conf.checkPkg('gdk-x11-2.0',         destvar='GDK',      vnum='1.0.0')
+
+	# TODO this is certainly not the datadir wanted
+	datadir= '/usr/include'
+	localedir = datadir+os.sep+'locale'
+
+	conf.addDefine('VERSION', '"%s"' % VERSION)
+	conf.addDefine('DATADIR', '"%s"' % datadir)
+	conf.addDefine('GNOMELOCALEDIR', '"%s"' % localedir)
+
+	conf.addDefine('GETTEXT_PACKAGE', '"gnome-hello-2.0"')
+	conf.addDefine('PACKAGE', '"gnome-hello"')
+
+	conf.addDefine('GNOME_PARAM_GOPTION_CONTEXT', '"gnome-hello"')
+
+	conf.writeConfigHeader('config.h')
+
+def set_options(opt):
+	# TODO add custom options here
+	pass
+
+def shutdown():
+	if Params.g_options.install:
+		import Runner
+		command = 'gtk-update-icon-cache -f -t %s/icons/hicolor' % Params.g_build.m_allenvs['default']['DATADIR']
+		ret = Runner.exec_command(command)
+		if not ret:
+			print "installation ok"
+		else:
+			print "gtk-update-icon-cache failed"
+

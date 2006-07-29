@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# A c program that links using the GLIB library, defined in the configuration
+# it also processes coin files, defined in the dang.py module (coin hook)
+obj = bld.createObj('cc', 'program')
+obj.source='''
+menus.c app.c hello.c icon.c
+'''
+obj.includes='.'
+obj.uselib='GTK GNOME GNOMEUI GLIB BONOBO BONOBOUI PRINT PRINTUI GLADE CANVAS XML GDK'
+obj.target='gnome-hello'
+
+
