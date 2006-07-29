@@ -334,8 +334,8 @@ class Configure:
 	
 		code = """
 #include <%s>
-int main()
-{
+int main() {
+	return 0;
 }
 """ % header
 		is_found = int(not self.TryBuild(code, pathlst=pathlst))
@@ -360,9 +360,9 @@ char %s();
 """ % function
 
 		code = """
-int main()
-{
+int main() {
 	%s();
+	return 0;
 }
 """ % function
 
@@ -407,21 +407,21 @@ char %s();
 """ % funcname
 
 			code = """
-int main()
-{
+int main() {
 	%s();
+	return 0;
 }
 """ % funcname
 		elif not headers and not funcname: 
 			headers = ""
 			code = """
-int main() {}
+int main() { return 0; }
 """
 		else:
 			code = """
-int main()
-{
+int main() {
 	%s();
+	return 0;
 }
 """ % funcname
 		
