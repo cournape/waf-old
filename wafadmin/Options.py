@@ -31,7 +31,7 @@ def create_parser():
 
 	parser = OptionParser(usage = """waf [options] [commands ...]
 
-* Main commands: configure build install clean dist distclean uninstall
+* Main commands: configure build install clean pack dist distclean uninstall
 * Example: ./waf build -j4""", version = 'waf %s' % Params.g_version)
 	
 	# Our options
@@ -98,7 +98,7 @@ def parse_args_impl(parser):
 	#print Params.g_options, " ", args
 
 	# By default, 'waf' is equivalent to 'waf build'
-	lst=['dist','configure','clean','distclean','build','install','uninstall','doc']
+	lst='dist configure clean distclean build install uninstall pack'.split()
 	for var in lst:    Params.g_commands[var]    = 0
 	if len(args) == 0: Params.g_commands['build'] = 1
 

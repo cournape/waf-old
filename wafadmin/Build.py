@@ -192,6 +192,12 @@ class Build:
 		Object.flush()
 		for obj in Object.g_allobjs: obj.install()
 
+	# this function is called for creating packages
+	# the install and compile functions should be called earlier
+	def pack(self):
+		trace("pack called")
+		pass
+
 	# keep
 	def add_subdirs(self, dirs):
 		import Scripting
