@@ -427,12 +427,19 @@ int main()
 		self.addDefine(define, is_found)
 		return is_found
 
-	def checkTool(self,tool):
+	def checkTool(self, input):
 		"""check if a waf tool is available"""
-		if type(tool) is types.ListType:
-			for i in tool: self.checkTool(i)
-			return
+		if type(input) is types.ListType:
+			lst = input
+		else:
+			lst = input.split()
 
+		ret = True
+		for i in lst:
+			ret = ret and self._checkToolImpl(i)
+		return ret
+
+	def _checkToolImpl(self, tool):
 		define = 'HAVE_'+tool.upper().replace('.','_').replace('+','P')
 
 		if self.isDefined(define):
