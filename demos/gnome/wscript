@@ -52,7 +52,7 @@ def shutdown():
 
 		# add the gconf schema
 		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/gnome_test.schemas')
-		command = 'gconftool-2 --install-schema-file=%s' % dir
+		command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
 		ret = Runner.exec_command(command)
 
 		# update the pixmap cache directory
