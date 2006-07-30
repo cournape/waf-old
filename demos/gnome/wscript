@@ -50,7 +50,6 @@ def configure(conf):
 	conf.addDefine('HAVE_DCGETTEXT', '1')
 
 	#Define to 1 if you have the <dlfcn.h> header file.
-	#conf.addDefine('HAVE_DLFCN_H', '1')
 	conf.checkHeader('dlfcn.h', 'HAVE_DLFCN_H')
  
 	# TODO
@@ -58,7 +57,6 @@ def configure(conf):
 	conf.addDefine('HAVE_GETTEXT', '1')
  
 	#Define to 1 if you have the <inttypes.h> header file.
-	#conf.addDefine('HAVE_INTTYPES_H', '1')
 	conf.checkHeader('inttypes.h', 'HAVE_INTTYPES_H')
  
 	# TODO FIXME
@@ -66,47 +64,33 @@ def configure(conf):
 	#conf.addDefine('HAVE_LC_MESSAGES', '1')
  
 	#Define to 1 if you have the <locale.h> header file.
-	#conf.addDefine('HAVE_LOCALE_H', '1')
 	conf.checkHeader('locale.h', 'HAVE_LOCALE_H')
 
 	#Define to 1 if you have the <memory.h> header file.
-	#conf.addDefine('HAVE_MEMORY_H', '1')
 	conf.checkHeader('memory.h', 'HAVE_MEMORY_H')
 
 	#Define to 1 if you have the <stdint.h> header file.
-	#conf.addDefine('HAVE_STDINT_H', '1')
 	conf.checkHeader('stdint.h', 'HAVE_STDINT_H')
 
 	#Define to 1 if you have the <stdlib.h> header file.
-	#conf.addDefine('HAVE_STDLIB_H', '1')
 	conf.checkHeader('stdlib.h', 'HAVE_STDLIB_H')
  
 	#Define to 1 if you have the <strings.h> header file.
-	#conf.addDefine('HAVE_STRINGS_H', '1')
 	conf.checkHeader('strings.h', 'HAVE_STRINGS_H')
  
 	#Define to 1 if you have the <string.h> header file.
-	#conf.addDefine('HAVE_STRING_H', '1')
 	conf.checkHeader('string.h', 'HAVE_STRING_H')
  
         #Define to 1 if you have the <sys/stat.h> header file.
-        #conf.addDefine('HAVE_SYS_STAT_H', '1')
 	conf.checkHeader('sys/stat.h', 'HAVE_SYS_STAT_H')
  
 	#Define to 1 if you have the <sys/types.h> header file.
-	#conf.addDefine('HAVE_SYS_TYPES_H', '1')
 	conf.checkHeader('sys/types.h', 'HAVE_SYS_TYPES_H')
  
 	#Define to 1 if you have the <unistd.h> header file.
-	#conf.addDefine('HAVE_UNISTD_H', '1')
 	conf.checkHeader('unistd.h', 'HAVE_UNISTD_H')
 
-
-
 	conf.env.appendValue('CCFLAGS', '-DHAVE_CONFIG_H')
-
-	# FIXME !!!!! this define looks necessary
-	#conf.addDefine('GNOME_PARAM_GOPTION_CONTEXT', '"goption-context"')
 
 	conf.writeConfigHeader('config.h')
 
