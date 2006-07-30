@@ -360,8 +360,8 @@ class Build:
 		try:
 			return Object.g_allclasses[objname](*k, **kw)
 		except:
-			fatal("error in createObj "+str(objname))
-
+			error("error in createObj "+str(objname))
+			raise
 
 	def _scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
 

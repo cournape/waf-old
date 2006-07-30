@@ -55,16 +55,6 @@ def shutdown():
 		command = 'gconftool-2 --install-schema-file=%s' % dir
 		ret = Runner.exec_command(command)
 
-		# todo support all of the aclocal.m4 .in targets
-		# merge the service.in files from the intltool data
-		command = 'intltool-merge -s -u -c _build_/.intltool-merge-cache po data/gnome_test.schemas.in data/gnome_test.schemas'
-		ret = Runner.exec_command(command)
-
-		# merge the desktop.in files from the intltool data
-		# todo: we have to do this for each .desktop.in file, which we should probably abstract
-		command = 'intltool-merge -d -u -c _build_/.intltool-merge-cache po data/gnome_test.desktop.in data/gnome_test.desktop'
-		ret = Runner.exec_command(command)
-
 		# update the pixmap cache directory
 		dir = Common.path_install('DATADIR', 'icons/hicolor')
 		command = 'gtk-update-icon-cache -f -t %s' % dir

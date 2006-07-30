@@ -33,6 +33,37 @@ class sgml_man_scanner(Scan.scanner):
 
 sgml_scanner = sgml_man_scanner()
 
+# intltool
+class gnome_intltool(Object.genobj):
+	def __init__(self):
+		Object.genobj.__init__(self, 'other')
+		self.sources = ''
+		self.destvar = ''
+		self.subdir  = ''
+		self.m_tasks   = []
+
+	def apply(self):
+		tree = Params.g_build
+		current = tree.m_curdirnode
+		for i in self.sources.split():
+			node = self.m_current_path.find_node(i.split(os.sep))
+
+			podirnode = self.m_current_path.find_node(self.podir.split(os.sep) )
+
+			self.env['INTLCACHE'] = Params.g_build.m_curdirnode.bldpath(self.env) + os.sep + ".intlcache"
+			self.env['INTLPODIR'] = podirnode.bldpath(self.env)
+
+			task = self.create_task('intltool', self.env, 2)
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext(''))
+			self.m_tasks.append(task)
+
+	def install(self):	
+		current = Params.g_build.m_curdirnode
+		for task in self.m_tasks:
+			out = task.m_outputs[0]
+			Common.install_files(self.destvar, self.subdir, out.abspath(self.env), self.env)
+
 # sgml2man
 class gnome_sgml2man(Object.genobj):
 	def __init__(self, appname):
@@ -109,8 +140,14 @@ class gnome_translations(Object.genobj):
 def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE')
+	Action.simple_action( \
+		'intltool', \
+		'${INTLTOOL} -s -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', \
+		color='BLUE')
+
 	Object.register('gnome_translations', gnome_translations)
 	Object.register('gnome_sgml2man', gnome_sgml2man)
+	Object.register('gnome_intltool', gnome_intltool)
 
 def detect(conf):
 
@@ -124,6 +161,10 @@ def detect(conf):
 		fatal('The program docbook2man is mandatory!')
 	conf.env['SGML2MAN'] = sgml2man
 
+	intltool = conf.checkProgram('intltool-merge')
+	if not intltool:
+		fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
+	conf.env['INTLTOOL'] = intltool
 
 	def getstr(varname):
 		#if env.has_key('ARGS'): return env['ARGS'].get(varname, '')
