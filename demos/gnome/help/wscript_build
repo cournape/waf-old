@@ -2,8 +2,9 @@
 # encoding: utf-8
 # Richard Hughes, 2006 (hughsie)
 
+# we should glob for *.omf here
+install_files('DATADIR', 'omf/gnome-hello', 'gnome-hello-C.omf')
+
 # we should glob for directories here
 bld.add_subdirs('C')
 
-# we should glob for *.omf here
-install_files('DATADIR', 'omf/gnome-hello', 'gnome-hello-C.omf')
