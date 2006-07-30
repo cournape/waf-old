@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import os
-import Object, Action
+import Object, Action, Params, Common
 from Params import fatal, error
 
 # translations
@@ -35,8 +35,7 @@ class gnome_translations(Object.genobj):
 			orig = node.relpath_gen(current)
 
 			destfile = os.sep.join([lang, 'LC_MESSAGES', destfilename])
-			Common.install_as('GNOME_LOCALE', destfile, orig, self.env)
-
+			Common.install_as('GNOMELOCALEDIR', destfile, orig, self.env)
 
 def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
