@@ -57,13 +57,13 @@ def shutdown():
 
 		# update the pixmap cache directory
 		dir = Common.path_install('DATADIR', 'icons/hicolor')
-		command = 'gtk-update-icon-cache -f -t %s' % dir
+		command = 'gtk-update-icon-cache -q -f -t %s' % dir
 		ret = Runner.exec_command(command)
 
 		# now the scrollkeeper update if we can write to the log file
 		if os.path.iswriteable('/var/log/scrollkeeper.log'):
 			dir1 = Common.path_install('PREFIX', 'var/scrollkeeper')
 			dir2 = Common.path_install('DATADIR', 'omf/gnome-hello')
-			command = 'scrollkeeper-update -p %s -o %s' % (dir1, dir2)
+			command = 'scrollkeeper-update -q -p %s -o %s' % (dir1, dir2)
 			ret = Runner.exec_command(command)
 
