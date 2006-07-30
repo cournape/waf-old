@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+#todo
+#GCONF_CONFIG_SOURCE=xml:merged:/etc/gconf/gconf.xml.defaults \
+#/usr/bin/gconftool-2 --makefile-install-rule gnome-power-manager.schemas
