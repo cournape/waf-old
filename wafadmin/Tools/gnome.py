@@ -2,9 +2,77 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os
-import Object, Action, Params, Common
-from Params import fatal, error
+import os, re
+import Object, Action, Params, Common, Scan
+from Params import fatal, error, trace
+
+n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
+n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
+
+class sgml_man_scanner(Scan.scanner):
+	def __init__(self):
+		Scan.scanner.__init__(self)
+	def scan(self, node, env):
+		if node in node.m_parent.m_files: variant = 0
+		else: variant = task.m_env.variant()
+
+		fi = open(node.abspath(env), 'r')
+		content = fi.read()
+		fi.close()
+
+		names = n1_regexp.findall(content)
+		nums = n2_regexp.findall(content)
+
+		name = names[0]
+		num  = nums[0]
+
+		doc_name = name+'.'+num
+
+		#print "@@@@@@@@@@@@@@@@@@@@@@@@@@ ", doc_name
+		return ([], [doc_name])
+
+sgml_scanner = sgml_man_scanner()
+
+# sgml2man
+class gnome_sgml2man(Object.genobj):
+	def __init__(self, appname):
+		Object.genobj.__init__(self, 'other')
+		self.m_tasks=[]
+		self.m_appname = appname
+	def apply(self):
+		tree = Params.g_build
+		for node in self.m_current_path.m_files:
+			try:
+				base, ext = os.path.splitext(node.m_name)
+				if ext != '.sgml': continue
+
+				if tree.needs_rescan(node, self.env):
+					sgml_scanner.do_scan(node, self.env, hashparams={})
+
+				if node in node.m_parent.m_files: variant = 0
+				else: variant = env.variant()
+
+				try: tmp_lst = tree.m_raw_deps[variant][node]
+				except: tmp_lst = []
+				name = tmp_lst[0]
+
+				task = self.create_task('sgml2man', self.env, 2)
+				task.set_inputs(node)
+				task.set_outputs(self.file_in(name))
+				self.m_tasks.append(task)
+			except:
+				raise
+				pass
+
+	def install(self):	
+		current = Params.g_build.m_curdirnode
+
+		for task in self.m_tasks:
+			out = task.m_outputs[0]
+			# get the number 1..9
+			ext = out[len(out)-1]
+			# and install the file
+			Common.install('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)
 
 # translations
 class gnome_translations(Object.genobj):
@@ -39,14 +107,22 @@ class gnome_translations(Object.genobj):
 
 def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
+	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE')
 	Object.register('gnome_translations', gnome_translations)
+	Object.register('gnome_sgml2man', gnome_sgml2man)
 
 def detect(conf):
 
 	pocom = conf.checkProgram('msgfmt')
 	if not pocom:
-		fatal('The program msgfmt (gettext) is mandatory !')
+		fatal('The program msgfmt (gettext) is mandatory!')
 	conf.env['POCOM'] = pocom
+
+	sgml2man = conf.checkProgram('docbook2man')
+	if not sgml2man:
+		fatal('The program docbook2man is mandatory!')
+	conf.env['SGML2MAN'] = sgml2man
+
 
 	def getstr(varname):
 		#if env.has_key('ARGS'): return env['ARGS'].get(varname, '')

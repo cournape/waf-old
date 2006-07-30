@@ -2,8 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# and example with file globbing would be better, but for now it will stay like this
-install_files('DATADIR', 'icons/hicolor/48x48/apps', 'gnome-hello-logo.png')
+# automatic
+obj=bld.createObj('gnome_sgml2man', 'gnome-hello')
 
 #todo
 #docbook2man foo.sgml
