@@ -33,10 +33,9 @@ def configure(conf):
 	conf.checkPkg('libxml-2.0',          destvar='XML',      vnum='2.4.23')
 	conf.checkPkg('gdk-x11-2.0',         destvar='GDK',      vnum='1.0.0')
 
-	conf.addDefine('VERSION', '"%s"' % VERSION)
-
-	conf.addDefine('GETTEXT_PACKAGE', '"gnome-hello-2.0"')
-	conf.addDefine('PACKAGE', '"gnome-hello"')
+	conf.addDefine('VERSION', VERSION)
+	conf.addDefine('GETTEXT_PACKAGE', 'gnome-hello-2.0')
+	conf.addDefine('PACKAGE', 'gnome-hello')
 
 	conf.env.appendValue('CCFLAGS', '-DHAVE_CONFIG_H')
 

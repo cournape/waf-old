@@ -61,12 +61,10 @@ def detect(conf):
 	if not datadir: datadir = os.path.join(prefix,'share')
 	if not libdir:  libdir  = os.path.join(prefix,'lib')
 
-	conf.env['DATADIR'] = datadir
-	conf.env['LIBDIR']  = libdir
-	conf.env['GNOMELOCALEDIR'] = os.path.join(datadir, 'locale')
-
-	conf.addDefine('GNOMELOCALEDIR', '"%s"' % conf.env['GNOMELOCALEDIR'])
-	conf.addDefine('DATADIR', '"%s"' % conf.env['DATADIR'])
+	# addefine also sets the variable to the env
+	conf.addDefine('GNOMELOCALEDIR', os.path.join(datadir, 'locale'))
+	conf.addDefine('DATADIR', datadir)
+	conf.addDefine('LIBDIR', libdir)
 
 	# TODO: maybe the following checks should be in a more generic module.
 

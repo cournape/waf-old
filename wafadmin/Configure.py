@@ -269,10 +269,20 @@ class Configure:
 		# Task/Action class
 		return Runner.exec_command('%s test.c -o test %s 2>test.log '% (self.env['CPP'], str(options)) )
 
-	def addDefine(self, define, value):
+	def addDefine(self, define, value, quote=-1):
 		"""store a single define and its state into an internal list 
-		   for later writing to a config header file"""	
-		self.defines[define] = value
+		   for later writing to a config header file"""
+		# the user forgot to tell if the value is quoted or not
+		if quote < 0:
+			if type(value) is types.StringType:
+				self.defines[define] = '"%s"' % str(value)
+			else:
+				self.defines[define] = value
+		elif not quote:
+			self.defines[define] = value
+		else:
+			self.defines[define] = '"%s"' % str(value)
+
 		# add later to make reconfiguring faster 
 		self.env[define] = value
 	
