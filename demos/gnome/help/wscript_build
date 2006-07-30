@@ -7,4 +7,3 @@ install_files('DATADIR', 'omf/gnome-hello', 'gnome-hello-C.omf')
 
 # we should glob for directories here
 bld.add_subdirs('C')
-
