@@ -16,11 +16,12 @@ def check_dir(dir):
 	try:    os.stat(dir)
 	except: os.makedirs(dir)
 
-def do_install(src, tgt):
+def do_install(src, tgt, chmod=0644):
 	if Params.g_commands['install']:
 		print "* installing %s as %s" % (src, tgt)
 		try:
-			shutil.copy2( src, tgt )
+			shutil.copy2(src, tgt)
+			os.chmod(tgt, chmod)
 		except:
 			try:
 				os.stat(src)
@@ -32,7 +33,20 @@ def do_install(src, tgt):
 		try: os.remove( tgt )
 		except OSError: pass
 
-def install_files(var, subdir, files, env=None):
+def path_install(var, subdir, env=None):
+	bld = Params.g_build
+	if not env: env=Params.g_build.m_allenvs['default']
+	destpath = env[var]
+	if not destpath:
+		print "warning: undefined ", var
+		destpath = ''
+	destdir = env.get_destdir()
+	if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
+	if subdir: destpath = os.path.join(destpath, subdir.lstrip(os.sep))
+
+	return destpath
+
+def install_files(var, subdir, files, env=None, chmod=0644):
 	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
 
 	bld = Params.g_build
@@ -66,9 +80,9 @@ def install_files(var, subdir, files, env=None):
 			alst     = filename.split('/')
 			destfile = os.path.join(destpath, alst[len(alst)-1])
 
-		do_install(file, destfile)
+		do_install(file, destfile, chmod=chmod)
 
-def install_as(var, destfile, srcfile, env=None):
+def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
 
 	bld = Params.g_build
@@ -91,7 +105,7 @@ def install_as(var, destfile, srcfile, env=None):
 	else:
 		src = srcfile
 
-	do_install(src, tgt)
+	do_install(src, tgt, chmod=chmod)
 
 def symlink_as(var, src, dest, env=None):
 	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return

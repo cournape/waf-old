@@ -109,6 +109,8 @@ class ccroot(Object.genobj):
 		# TODO ???
 		self.m_type_initials = ''
 
+		self.chmod = 0755
+
 		# list of file extensions, useful for the function find_source_in_dirs('dir1 dir2 ..')
 		global g_src_file_ext
 		self.m_src_file_ext = g_src_file_ext
@@ -345,7 +347,7 @@ class ccroot(Object.genobj):
 				name1 = libname
 
 				filename = self.m_linktask.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
-				Common.install_as(dest_var, dest_subdir+'/'+name3, filename)
+				Common.install_as(dest_var, dest_subdir+'/'+name3, filename, chmod=self.chmod)
 
 				#print 'lib/'+name2, '->', name3
 				#print 'lib/'+name1, '->', name2
