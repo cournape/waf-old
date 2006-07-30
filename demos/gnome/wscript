@@ -15,7 +15,7 @@ blddir = '_build_'
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdirs('src pixmaps po help')
+	bld.add_subdirs('src pixmaps po help data')
 
 def configure(conf):
 	conf.checkTool('gcc gnome')
@@ -49,16 +49,20 @@ def shutdown():
 	# this piece of code may be move right after the pixmap or documentation installation
 	if Params.g_commands['install']:
 		import Runner, Common
+
+		# add the gconf schema
+		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/gnome_test.schemas')
+		command = 'gconftool-2 --install-schema-file=%s' % dir
+		ret = Runner.exec_command(command)
+
 		# update the pixmap cache directory
 		dir = Common.path_install('DATADIR', 'icons/hicolor')
 		command = 'gtk-update-icon-cache -f -t %s' % dir
 		ret = Runner.exec_command(command)
 
-		# now the scrollkeeper update
-
+		# now the scrollkeeper update if we can write to the log file
 		if os.path.iswriteable('/var/log/scrollkeeper.log'):
 			dir1 = Common.path_install('PREFIX', 'var/scrollkeeper')
 			dir2 = Common.path_install('DATADIR', 'omf/gnome-hello')
 			command = 'scrollkeeper-update -p %s -o %s' % (dir1, dir2)
 			ret = Runner.exec_command(command)
-
