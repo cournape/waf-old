@@ -70,9 +70,10 @@ class gnome_sgml2man(Object.genobj):
 		for task in self.m_tasks:
 			out = task.m_outputs[0]
 			# get the number 1..9
-			ext = out[len(out)-1]
+			name = out.m_name
+			ext = name[len(name)-1]
 			# and install the file
-			Common.install('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)
+			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)
 
 # translations
 class gnome_translations(Object.genobj):
