@@ -56,7 +56,6 @@ class gnome_intltool(Object.genobj):
 			task = self.create_task('intltool', self.env, 2)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(''))
-			self.m_tasks.append(task)
 
 	def install(self):	
 		current = Params.g_build.m_curdirnode
@@ -90,7 +89,6 @@ class gnome_sgml2man(Object.genobj):
 				task = self.create_task('sgml2man', self.env, 2)
 				task.set_inputs(node)
 				task.set_outputs(self.file_in(name))
-				self.m_tasks.append(task)
 			except:
 				raise
 				pass
@@ -104,6 +102,7 @@ class gnome_sgml2man(Object.genobj):
 			name = out.m_name
 			ext = name[len(name)-1]
 			# and install the file
+
 			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)
 
 # translations
@@ -121,7 +120,6 @@ class gnome_translations(Object.genobj):
 				task = self.create_task('po', self.env, 2)
 				task.set_inputs(file)
 				task.set_outputs(file.change_ext('.gmo'))
-				self.m_tasks.append(task)
 			except: pass
 	def install(self):
 		destfilename = self.m_appname+'.mo'
