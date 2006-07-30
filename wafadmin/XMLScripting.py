@@ -41,29 +41,27 @@ class XMLHandler(ContentHandler):
 		self.tmp_lst = []
 	def startElement(self, name, attrs):
 		if self.obj and name != 'obj':
-
 			if name == 'item':
-				self.tmp_lst.append(attrs['value'])
+				self.tmp_lst.append(attrs.get('value'))
 				return
 
-			if 'type' in attrs and attrs['type'] == 'list':
+			if 'type' in attrs.keys() and attrs.get('type') == 'list':
 				self.tmp_lst = []
 				#setattr(self.obj, name, self.tmp_lst)
 				return
 
-			self.doc += '\tobj.%s="%s"\n' % (name, attrs['value'])
-			#setattr(self.obj, name, attrs['value'])
-
+			self.doc += '\tobj.%s="%s"\n' % (name, attrs.get('value'))
+			#setattr(self.obj, name, attrs.get('value'))
 			return
 
 		if name == 'obj':
-			self.doc += '\tobj = bld.createObj("%s")\n' % attrs['class']
-			self.doc += '\tobj.m_type = "%s"\n' % attrs['type']
+			self.doc += '\tobj = bld.createObj("%s")\n' % attrs.get('class')
+			self.doc += '\tobj.m_type = "%s"\n' % attrs.get('type')
 			self.obj += 1
 			return
 
 		if name == 'dir':
-			self.doc += '\tbld.pushdir("%s")\n' % attrs['name']
+			self.doc += '\tbld.pushdir("%s")\n' % attrs.get('name')
 			return
 
 		if name == 'document':
@@ -79,19 +77,20 @@ class XMLHandler(ContentHandler):
 			self.doc += 'def build(bld):\n'
 			return
 		if name == 'tool_option':
-			self.doc += '\topt.tool_options("%s")\n' % attrs['value']
+			self.doc += '\topt.tool_options("%s")\n' % attrs.get('value')
 			return
 
 		if name == 'option':
 			self.doc += '\topt.add_option('
 			return
 		if name == 'optparam':
-			if 'name' in attrs:
-				self.doc += "%s='%s', " % (attrs['name'], attrs['value'])
+			if 'name' in attrs.keys():
+				self.doc += "%s='%s', " % (attrs.get('name'), attrs.get('value'))
 			else:
-				self.doc += "'%s', " % attrs['value']
+				self.doc += "'%s', " % attrs.get('value')
 
 		self.buf = []
+
 	def endElement(self, name): 
 		buf = "".join(self.buf)
 
@@ -136,16 +135,6 @@ class XMLHandler(ContentHandler):
 			return
 		if name == 'config-code':
 			self.doc += '%s\n\n' % buf
-			return
-
-
-		if name == 'version':
-			return
-		if name == 'version':
-			return
-		if name == 'version':
-			return
-		if name == 'version':
 			return
 		return
 
