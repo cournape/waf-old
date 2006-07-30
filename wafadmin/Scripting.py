@@ -168,22 +168,30 @@ def Main():
 	#bld.dump()
 
 	# compile
-	if Params.g_commands['build'] or Params.g_commands['install']:
+	if Params.g_commands['build'] or Params.g_commands['install'] or Params.g_commands['pack']:
 		try:
 			bld.compile()
 		finally:
 			bld.save()
 
 	# install
-	if Params.g_commands['install'] or Params.g_commands['uninstall']:
+	if Params.g_commands['install'] or Params.g_commands['uninstall'] or Params.g_commands['pack']:
 		try:
 			bld.install()
 		finally:
 			bld.save()
 
+	#if Params.g_commands['install'] or Params.g_commands['pack']:
+	#	try:
+	#		bld.pack()
+	#	finally:
+	#		bld.save()
+
 	# shutdown
 	try:    Utils.g_module.shutdown()
-	except: pass
+	except:
+		#raise
+		pass
 
 # dist target - should be portable
 def Dist(appname, version):

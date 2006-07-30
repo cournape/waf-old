@@ -186,7 +186,7 @@ class Configure:
 		os.chdir(back)
 		Utils.reset()
 
-		self.m_cache_table[hash] = ret
+		if not ret: self.m_cache_table[hash] = ret
 		return ret
 
 	def TryRun(self, code, options='', pathlst=[], uselib=''):
