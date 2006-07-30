@@ -2,14 +2,18 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-#install the schema files to the prefix root
-#install_files('PREFIX', 'etc/gconf/schemas', 'gnome_test.schemas')
-
 # process .in files with intl_tool
+
 obj=bld.createObj('gnome_intltool')
 obj.sources = 'gnome_test.schemas.in'
 obj.destvar = 'PREFIX'
-obj.subdir  = 'etc'
+obj.subdir  = 'etc/gconf/schemas'
+obj.podir   = '../po'
+obj.flags   = '-s'
+
+obj=bld.createObj('gnome_intltool')
+obj.sources = 'gnome_test.desktop.in'
+obj.destvar = 'PREFIX'
+obj.subdir  = 'usr/share/gnome/autostart'
 obj.podir   = '../po'
 obj.flags   = '-d'
-

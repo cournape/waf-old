@@ -144,7 +144,7 @@ def setup(env):
 	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE')
 	Action.simple_action( \
 		'intltool', \
-		'${INTLTOOL} ${INTLFLAGS} -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', \
+		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', \
 		color='BLUE')
 
 	Object.register('gnome_translations', gnome_translations)
