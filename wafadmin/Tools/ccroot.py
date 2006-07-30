@@ -333,7 +333,7 @@ class ccroot(Object.genobj):
 				dest_subdir = 'lib'
 
 		if self.m_type == 'program':
-			self.install_results(dest_var, dest_subdir, self.m_linktask)
+			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
 		elif self.m_type == 'shlib':
 			if self.want_libtool: self.install_results(dest_var, dest_subdir, self.m_latask)
 			if sys.platform=='win32' or not self.vnum:
@@ -347,7 +347,8 @@ class ccroot(Object.genobj):
 				name1 = libname
 
 				filename = self.m_linktask.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
-				Common.install_as(dest_var, dest_subdir+'/'+name3, filename, chmod=self.chmod)
+
+				Common.install_as(dest_var, dest_subdir+'/'+name3, filename)
 
 				#print 'lib/'+name2, '->', name3
 				#print 'lib/'+name1, '->', name2

@@ -160,14 +160,14 @@ class genobj:
 		# subclass me
 		pass
 
-	def install_results(self, var, subdir, task):
+	def install_results(self, var, subdir, task, chmod=0644):
 		trace('install results called')
 		current = Params.g_build.m_curdirnode
 		# TODO what is the pythonic replacement for these three lines ?
 		lst = []
 		for node in task.m_outputs:
 			lst.append( node.relpath_gen(current) )
-		Common.install_files(var, subdir, lst)
+		Common.install_files(var, subdir, lst, chmod=chmod)
 	
 	def clone(self, env):
 		newobj = Utils.copyobj(self)
