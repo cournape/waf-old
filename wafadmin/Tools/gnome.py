@@ -65,6 +65,9 @@ def detect(conf):
 	conf.env['LIBDIR']  = libdir
 	conf.env['GNOMELOCALEDIR'] = os.path.join(datadir, 'locale')
 
+	conf.addDefine('GNOMELOCALEDIR', '"%s"' % conf.env['GNOMELOCALEDIR'])
+	conf.addDefine('DATADIR', '"%s"' % conf.env['DATADIR'])
+
 	return 1
 
 def set_options(opt):
