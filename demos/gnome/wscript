@@ -15,7 +15,7 @@ blddir = '_build_'
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdirs('src pixmaps po')
+	bld.add_subdirs('src pixmaps po help')
 
 def configure(conf):
 	conf.checkTool('gcc gnome')

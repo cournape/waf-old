@@ -4,4 +4,3 @@
 
 # and example with file globbing would be better, but for now it will stay like this
 install_files('DATADIR', 'icons/hicolor/48x48/apps', 'gnome-hello-logo.png')
-
