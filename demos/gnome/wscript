@@ -55,9 +55,10 @@ def shutdown():
 		ret = Runner.exec_command(command)
 
 		# now the scrollkeeper update
-		dir1 = Common.path_install('PREFIX', 'var/scrollkeeper')
-		dir2 = Common.path_install('DATADIR', 'omf/gnome-hello')
-		command = 'scrollkeeper-update -p %s -o %s' % (dir1, dir2)
-		print command
-		ret = Runner.exec_command(command)
+
+		if os.path.iswriteable('/var/log/scrollkeeper.log'):
+			dir1 = Common.path_install('PREFIX', 'var/scrollkeeper')
+			dir2 = Common.path_install('DATADIR', 'omf/gnome-hello')
+			command = 'scrollkeeper-update -p %s -o %s' % (dir1, dir2)
+			ret = Runner.exec_command(command)
 
