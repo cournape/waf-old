@@ -190,7 +190,7 @@ def Main():
 	# shutdown
 	try:    Utils.g_module.shutdown()
 	except:
-		raise
+		#raise
 		pass
 
 # dist target - should be portable
