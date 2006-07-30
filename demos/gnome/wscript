@@ -55,6 +55,10 @@ def shutdown():
 		command = 'gconftool-2 --install-schema-file=%s' % dir
 		ret = Runner.exec_command(command)
 
+		# merge the service .in files from the intltool data
+		command = 'intltool-merge -s -u -c _build_/.intltool-merge-cache po data/gnome_test.schemas.in data/gnome_test.schemas'
+		ret = Runner.exec_command(command)
+
 		# update the pixmap cache directory
 		dir = Common.path_install('DATADIR', 'icons/hicolor')
 		command = 'gtk-update-icon-cache -f -t %s' % dir

@@ -8,8 +8,8 @@
       <type>bool</type>
       <default>true</default>
       <locale name="C">
-        <short>If the PC speaker (beeping) should be used</short>
-        <long>If the PC speaker should be used to beep when the power is low, or inhibit requests have stopped the policy action.</long>
+        <short>GNOME Hello Demo</short>
+        <long>Sample application using GNOME technologies</long>
       </locale>
     </schema>
 
