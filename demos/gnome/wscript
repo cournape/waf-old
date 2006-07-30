@@ -47,12 +47,9 @@ def set_options(opt):
 
 def shutdown():
 	if Params.g_commands['install']:
-		import Runner
-		command = 'gtk-update-icon-cache -f -t %s/icons/hicolor' % Params.g_build.m_allenvs['default']['DATADIR']
-		print command
+		import Runner, Common
+		# update the pixmap cache directory
+		dir = Common.path_install('DATADIR', 'icons/hicolor')
+		command = 'gtk-update-icon-cache -f -t %s' % dir
 		ret = Runner.exec_command(command)
-		if not ret:
-			print "installation ok"
-		else:
-			print "gtk-update-icon-cache failed"
 
