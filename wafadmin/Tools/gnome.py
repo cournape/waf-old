@@ -40,9 +40,12 @@ class gnome_intltool(Object.genobj):
 		self.sources = ''
 		self.destvar = ''
 		self.subdir  = ''
-		self.m_tasks   = []
+		self.flags   = ''
+
+		self.m_tasks = []
 
 	def apply(self):
+		self.env = self.env.copy()
 		tree = Params.g_build
 		current = tree.m_curdirnode
 		for i in self.sources.split():
@@ -52,6 +55,7 @@ class gnome_intltool(Object.genobj):
 
 			self.env['INTLCACHE'] = Params.g_build.m_curdirnode.bldpath(self.env) + os.sep + ".intlcache"
 			self.env['INTLPODIR'] = podirnode.bldpath(self.env)
+			self.env['INTLFLAGS'] = self.flags
 
 			task = self.create_task('intltool', self.env, 2)
 			task.set_inputs(node)
@@ -140,7 +144,7 @@ def setup(env):
 	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE')
 	Action.simple_action( \
 		'intltool', \
-		'${INTLTOOL} -s -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', \
+		'${INTLTOOL} ${INTLFLAGS} -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', \
 		color='BLUE')
 
 	Object.register('gnome_translations', gnome_translations)

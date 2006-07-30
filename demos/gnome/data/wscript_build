@@ -11,4 +11,5 @@ obj.sources = 'gnome_test.schemas.in'
 obj.destvar = 'PREFIX'
 obj.subdir  = 'etc'
 obj.podir   = '../po'
+obj.flags   = '-d'
 
