@@ -46,9 +46,10 @@ def set_options(opt):
 	pass
 
 def shutdown():
-	if Params.g_options.install:
+	if Params.g_commands['install']:
 		import Runner
 		command = 'gtk-update-icon-cache -f -t %s/icons/hicolor' % Params.g_build.m_allenvs['default']['DATADIR']
+		print command
 		ret = Runner.exec_command(command)
 		if not ret:
 			print "installation ok"
