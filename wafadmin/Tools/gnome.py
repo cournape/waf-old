@@ -141,7 +141,7 @@ class gnome_translations(Object.genobj):
 
 def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
-	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE')
+	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 	Action.simple_action( \
 		'intltool', \
 		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', \
