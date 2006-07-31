@@ -10,7 +10,7 @@ import Utils, Action, Params
 # is called when a build process is started 
 def setup(env):
 	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-	link_str = '${LINK} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
+	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
         Action.simple_action('cc', cc_str, 'GREEN')
 
@@ -55,7 +55,7 @@ def detect(conf):
 	v['CCFLAGS_ULTRADEBUG']   = ['-g3', '-O0', '-DDEBUG']
 		
 	# linker	
-	v['LINK']                 = comp
+	v['LINK_CC']              = comp
 	v['LIB']                  = []
 	v['CCLNK_SRC_F']          = ''
 	v['CCLNK_TGT_F']          = '-o '

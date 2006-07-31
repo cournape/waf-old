@@ -10,7 +10,7 @@ import Utils, Action, Params, Configure
 # is called when a build process is started 
 def setup(env):
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-	link_str = '${LINK} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
+	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
 	Action.simple_action('cpp', cpp_str, color='GREEN')
 
@@ -61,7 +61,7 @@ def detect(conf):
 	v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
 	# linker	
-	v['LINK']                = comp
+	v['LINK_CXX']            = comp
 	v['LIB']                 = []
 
 	v['CPPLNK_TGT_F']        = '-o '
