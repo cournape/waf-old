@@ -2,6 +2,7 @@
 * daemon mode
 * packaging (rpms, debs)
 * unit testing system
+* checklibrary extensions
 
 low priority:
 * java+mono (volunteer needed)

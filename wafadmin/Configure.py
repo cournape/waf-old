@@ -621,3 +621,7 @@ int main() {
 			raise
 			pass
 
+	def hook(self, func):
+		# attach the function given as input as new method
+		setattr(self.__class__, func.__name__, func) 
+

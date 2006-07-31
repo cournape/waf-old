@@ -51,7 +51,7 @@ def setup(env):
 	Action.simple_action('idl', '${IDL} ${IDL_INCLUDES} ${SRC} -o ${SRC[0].m_parent.bldpath(env)}', color='BLUE')
 
 	# register the hook for use with cppobj
-	env.hook('cppobj', '.idl', tao_idl_file)
+	Object.hook('cpp', '.idl', tao_idl_file)
 
 # tool detection and initial setup 
 # is called when a configure process is started, 

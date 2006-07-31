@@ -11,16 +11,12 @@ blddir = '_build_'
 
 def set_options(opt):
 	opt.tool_options('KDE3')
-	opt.add_option('--want-rpath', action='store_true',
-		dest='want_rpath',
-		default=True,
-		help='turn rpath off or on')
 
 def configure(conf):
 	conf.checkTool(['g++', 'KDE3'])
 	conf.env['CXXFLAGS_QT']=['-DQT_THREAD_SUPPORT']
 	conf.checkHeader('dlfcn.h','HAVE_DLFCN_H')
-	conf.addDefine('TEST_DEFINE', '345')
+	conf.addDefine('TEST_DEFINE', 345)
 	# check for libkcal using the KDECORE variables
 	#conf.checkLibrary('kcal', uselib='KDECORE')
 	conf.writeConfigHeader('config.h')

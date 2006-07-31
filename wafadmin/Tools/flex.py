@@ -7,12 +7,12 @@ from Params import debug, error, trace, fatal
 
 flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
 
-def l_file(obj, node):
-	ltask = obj.create_task('flex', nice=4)
+def l_file(self, node):
+	ltask = self.create_task('flex', nice=4)
 	ltask.set_inputs(node)
 	ltask.set_outputs(node.change_ext('.lex.cc'))
 
-	task = obj.create_task(obj.m_type_initials)
+	task = self.create_task(self.m_type_initials)
 	task.set_inputs(ltask.m_outputs)
 	task.set_outputs(node.change_ext('.lex.o'))
 
@@ -21,8 +21,8 @@ def setup(env):
 	Action.simple_action('flex', flex_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	env.hook('cppobj', '.l', l_file)
-	env.hook('ccobj', '.l', l_file)
+	env.hook('cpp', '.l', l_file)
+	env.hook('cc', '.l', l_file)
 
 def detect(conf):
 	flex = conf.checkProgram('flex', var='FLEX')

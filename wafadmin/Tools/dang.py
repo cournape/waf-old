@@ -9,18 +9,18 @@ dang_str = '${DANG} ${SRC} > ${TGT}'
 
 # This function (hook) is called when the class cppobj encounters a '.coin' file
 # .coin -> .cpp -> .o
-def coin_file(obj, node):
+def coin_file(self, node):
 	# Create the task for the coin file
 	# the action 'dang' above is called for this
 	# the number '4' in the parameters is the priority of the task
 	# * lower number means high priority
 	# * odd means the task can be run in parallel with others of the same priority number
-	cointask = obj.create_task('dang', nice=4)
+	cointask = self.create_task('dang', nice=4)
 	cointask.set_inputs(node)
 	cointask.set_outputs(node.change_ext('.cpp'))
 
 	# now we also add the task that creates the object file ('.o' file)
-	cpptask = obj.create_task('cpp')
+	cpptask = self.create_task('cpp')
 	cpptask.set_inputs(cointask.m_outputs)
 	cpptask.set_outputs(node.change_ext('.o'))
 
@@ -32,7 +32,7 @@ def setup(env):
 	Action.simple_action('dang', dang_str, color='BLUE')
 
 	# register the hook for use with cppobj
-	env.hook('cppobj', '.coin', coin_file)
+	env.hook('cpp', '.coin', coin_file)
 
 def detect(conf):
 	dang = conf.checkProgram('cat', var='CAT')

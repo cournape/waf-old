@@ -110,7 +110,7 @@ def setup(env):
 
 def detect(conf):
 	# attach the checks to the conf object
-	setattr(conf.__class__, checkEndian.__name__, checkEndian)
-	setattr(conf.__class__, checkFeatures.__name__, checkFeatures)
+	conf.hook(checkEndian)
+	conf.hook(checkFeatures)
 	return 1
 

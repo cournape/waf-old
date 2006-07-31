@@ -111,28 +111,28 @@ class kde_documentation(Object.genobj):
 
 		Common.install_files('KDE_DOC', destpath, lst, self.env)
 
-def handler_ui(obj, node, base=''):
+def handler_ui(self, node, base=''):
 
 	cppnode = node.change_ext('.cpp')
 	hnode   = node.change_ext('.h')
 
-	uictask = obj.create_task('uic', obj.env, 2)
+	uictask = self.create_task('uic', self.env, 2)
 	uictask.set_inputs(node)
 	uictask.set_outputs([hnode, cppnode])
 
-	moctask = obj.create_task('moc', obj.env)
+	moctask = self.create_task('moc', self.env)
 	moctask.set_inputs(hnode)
 	moctask.set_outputs(node.change_ext('.moc'))
 
-	cpptask = obj.create_task('cpp', obj.env)
+	cpptask = self.create_task('cpp', self.env)
 	cpptask.set_inputs(cppnode)
 	cpptask.set_outputs(node.change_ext('.o'))
 	cpptask.m_run_after = [moctask]
 
-def handler_kcfgc(obj, node, base=''):
+def handler_kcfgc(self, node, base=''):
 	tree = Params.g_build
-	if tree.needs_rescan(node, obj.env):
-		Scan.g_kcfg_scanner.do_scan(node, obj.env, hashparams=obj.dir_lst)
+	if tree.needs_rescan(node, self.env):
+		Scan.g_kcfg_scanner.do_scan(node, self.env, hashparams=self.dir_lst)
 
 	if node in node.m_parent.m_files: variant = 0
 	else: variant = env.variant()
@@ -141,11 +141,11 @@ def handler_kcfgc(obj, node, base=''):
 	cppnode = node.change_ext('.cpp')
 
 	# run with priority 2
-	task = obj.create_task('kcfg', nice=2)
+	task = self.create_task('kcfg', nice=2)
 	task.set_inputs([kcfg_node, node])
 	task.set_outputs([cppnode, node.change_ext('.h')])
 
-	cpptask = obj.create_task('cpp', obj.env)
+	cpptask = self.create_task('cpp', self.env)
 	cpptask.set_inputs(cppnode)
 	cpptask.set_outputs(node.change_ext('.o'))
 
@@ -169,11 +169,11 @@ def handler_skel_or_stub(obj, base, type):
 	cpptask.set_inputs(task.m_outputs)
 	cpptask.set_outputs(obj.file_in(''.join([base,'_',type,'.o'])))
 
-def handler_stub(obj, node, base=''):
-	handler_skel_or_stub(obj, base, 'stub')
+def handler_stub(self, node, base=''):
+	handler_skel_or_stub(self, base, 'stub')
 
-def handler_skel(obj, node, base=''):
-	handler_skel_or_stub(obj, base, 'skel')
+def handler_skel(self, node, base=''):
+	handler_skel_or_stub(self, base, 'skel')
 
 # kde3 objects
 kdefiles = ['.cpp', '.ui', '.kcfgc', '.skel', '.stub']
@@ -216,17 +216,10 @@ class kdeobj(cpp.cppobj):
 					fatal("cannot find "+filename+" in "+str(self.m_current_path))
 			base, ext = os.path.splitext(filename)
 
-			fun = None
-			try:
-				fun = self.env['hooks_kdeobj_'+ext]
-				#print "fun is", 'hooks_cppobj_'+ext, fun
-			except:
-				pass
-
+			fun = self.get_hook(ext)
 			if fun:
 				fun(self, node, base=base)
 				continue
-
 
 			# scan for moc files to produce, create cpp tasks at the same time
 
@@ -569,14 +562,15 @@ def setup(env):
 		'${SRC[0].bldpath(env)} ${SRC[1].bldpath(env)}', color='BLUE')
 	Action.Action('uic', vars=uic_vardeps, func=uic_build, color='BLUE')
 
-	env.hook('kdeobj', '.ui', handler_ui)
-	env.hook('kdeobj', '.skel', handler_skel)
-	env.hook('kdeobj', '.stub', handler_stub)
-	env.hook('kdeobj', '.kcfgc', handler_kcfgc)
-
         Object.register('kde_translations', kde_translations)
         Object.register('kde_documentation', kde_documentation)
         Object.register('kde', kdeobj)
+
+	Object.hook('kde', '.ui', handler_ui)
+	Object.hook('kde', '.skel', handler_skel)
+	Object.hook('kde', '.stub', handler_stub)
+	Object.hook('kde', '.kcfgc', handler_kcfgc)
+
 
 def detect(conf):
 	conf.env['KDE_IS_FOUND'] = 0

@@ -39,6 +39,11 @@ def flush():
 
 		trace("object posted")
 
+def hook(objname, ext, func):
+	# attach the function given as input as new method   hooks_yc
+	name = 'hooks_'+ext[1:]
+	setattr(g_allclasses[objname], name, func)
+
 class genobj:
 	def __init__(self, type):
 		self.m_type  = type
@@ -76,6 +81,13 @@ class genobj:
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'other']
+
+	def get_hook(self, ext):
+		name = "hooks_"+ext[1:]
+		try:
+			return getattr(self.__class__, name)
+		except:
+			return None
 
 	# runs the code to create the tasks
 	def post(self):

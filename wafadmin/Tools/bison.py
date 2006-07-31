@@ -7,12 +7,12 @@ from Params import debug, error, trace, fatal
 
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
 
-def yc_file(obj, node):
-	yctask = obj.create_task('bison', nice=4)
+def yc_file(self, node):
+	yctask = self.create_task('bison', nice=4)
 	yctask.set_inputs(node)
 	yctask.set_outputs(node.change_ext('.tab.cc'))
 
-	task = obj.create_task(obj.m_type_initials)
+	task = self.create_task(self.m_type_initials)
 	task.set_inputs(yctask.m_outputs)
 	task.set_outputs(node.change_ext('.tab.o'))
 
@@ -21,10 +21,10 @@ def setup(env):
 	Action.simple_action('bison', bison_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	env.hook('cppobj', '.y', yc_file)
-	env.hook('cppobj', '.yc', yc_file)
-	env.hook('ccobj', '.y', yc_file)
-	env.hook('ccobj', '.yc', yc_file)
+	Object.hook('cpp', '.y', yc_file)
+	Object.hook('cpp', '.yc', yc_file)
+	Object.hook('cc', '.y', yc_file)
+	Object.hook('cc', '.yc', yc_file)
 
 def detect(conf):
 	bison = conf.checkProgram('bison', var='BISON')

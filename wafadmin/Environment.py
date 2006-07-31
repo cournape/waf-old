@@ -44,7 +44,7 @@ class Environment:
 		try:
 			module.setup(self)
 		except:
-			fatal("setup function missing in tool: %s " % str(tool))
+			error("setup function missing in tool: %s " % str(tool))
 			raise
 		if file: file.close()
 
@@ -109,9 +109,24 @@ class Environment:
 		return dst
 
 	def hook(self, classname, ext, func):
-		name = '_'.join(['hooks', classname, ext])
-		if name in self.m_table:
-			error("hook %s was already registered " % name)
+		# There are two different ways to extend object behaviour, the first one
+		# is by attaching a function to the enfironment
+
+		# VERSION 1
+		# the problem with this version is that a hook needs to be added to every environment
+		# the environment cannot be pickled anymore
+		# comments are left in case if
+
+		#name = '_'.join(['hooks', classname, ext])
+		#if name in self.m_table:
+		#	error("hook %s was already registered " % name)
 		# TODO check if the classname really exist
-		self.m_table[name] = func
+		#self.m_table[name] = func
+
+		# VERSION 2
+		# in this version we attach the function to the object directly
+		# this might be less flexible
+
+		import Object
+		Object.hook(classname, ext, func)
 

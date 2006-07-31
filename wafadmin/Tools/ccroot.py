@@ -175,13 +175,7 @@ class ccroot(Object.genobj):
 
 			base, ext = os.path.splitext(filename)
 
-			fun = None
-			try:
-				fun = self.env['hooks_'+pre+'obj_'+ext]
-				#print "fun is", 'hooks_cppobj_'+ext, fun
-			except:
-				pass
-
+			fun = self.get_hook(ext)
 			if fun:
 				fun(self, node)
 				continue
