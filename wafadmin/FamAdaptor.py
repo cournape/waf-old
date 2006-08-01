@@ -126,8 +126,8 @@ class WatchMonitor:
 
         def __processDirEvents(self, fe):
                 if fe.code2str() in self.__watcher[fe.userData][0].getHandleEvents():
-                        self.suspendDirWatch(fe.userData)
-                        self.__loops=False
+                        #self.suspendDirWatch(fe.userData)
+                        #self.__loops=False
                         __watcher=self.__watcher[fe.userData][0]
                         __watcher.getCallBackThis()(fe.userData, __watcher.getFullPath(fe.filename), fe.code2str())
         

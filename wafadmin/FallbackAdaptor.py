@@ -204,8 +204,8 @@ class WatchMonitor:
         
         def __processDirEvents(self, pathName, event, idxName):
                 if event in self.__watcher[idxName][0].getHandleEvents():
-                        self.suspendDirWatch(idxName)
-                        self.__loops=False
+                        #self.suspendDirWatch(idxName)
+                        #self.__loops=False
                         self.__watcher[idxName][0].getCallBackThis()(idxName, pathName, event)
         
         def loop(self):

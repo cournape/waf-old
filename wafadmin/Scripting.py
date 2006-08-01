@@ -6,7 +6,9 @@ import os, os.path, types, sys, imp
 import Build, Params, Utils, Options, Configure, Environment, DirWatch
 from Params import debug, error, trace, fatal
 
-g_inroot=1
+g_inroot     = 1
+g_dirwatch   = None
+g_daemonlock = 0
 
 # each script calls add_subdir
 def add_subdir(dir, bld):
@@ -35,23 +37,41 @@ def add_subdir(dir, bld):
 	bld.m_subdirs.append(  [bld.m_curdirnode, restore]    )
 
 def callBack(idxName, pathName, event):
-	"""this is just a fake method.. but this has to be written"""
 	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
+
+	# check the daemon lock state
+	global g_daemonlock
+	if g_daemonlock: return
+	g_daemonlock = 1
+
+	# Utils.reset cleans up existing variables (at least, this is the intent)
 	Utils.reset()
+
+	# start another main function
 	Main()
 
-def demonMode():
-	w = DirWatch.DirectoryWatcher()
-	#print "daemon"
+	# release the daemon lock
+	g_daemonlock = 0
 
-	m_dirs=[]
-	for nodeDir in Params.g_build.m_srcnode.m_dirs:
-		tmpstr = "%s" %nodeDir
-		tmpstr = "%s" %(tmpstr[3:])[:-1]
-		m_dirs.append(tmpstr)
-	#print "DirList : ", m_dirs
-	w.addDirWatch("tmp Test", callBack, m_dirs)
-	w.loop()
+def startDaemon():
+	# start a new directory watcher, if it does not exist already
+	# else, return immediately
+	global g_dirwatch
+	if not g_dirwatch:
+		g_dirwatch = DirWatch.DirectoryWatcher()
+		#print "daemon"
+
+		m_dirs=[]
+		for nodeDir in Params.g_build.m_srcnode.m_dirs:
+			tmpstr = "%s" %nodeDir
+			tmpstr = "%s" %(tmpstr[3:])[:-1]
+			m_dirs.append(tmpstr)
+			#print "DirList : ", m_dirs
+
+		g_dirwatch.addDirWatch("tmp Test", callBack, m_dirs)
+
+		# infinite loop, no need to exit except on ctrl+c
+		g_dirwatch.loop()
 
 def load_envs():
 	cachedir = Params.g_cachedir
@@ -208,7 +228,7 @@ def Main():
 
 	# daemon here
 	if Params.g_options.daemon and Params.g_commands['build']:
-		demonMode()
+		startDaemon()
 		return
 
 	# shutdown
