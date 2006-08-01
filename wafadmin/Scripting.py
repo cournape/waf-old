@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, os.path, types, sys, imp
-import Build, Params, Utils, Options, Configure, Environment
+import Build, Params, Utils, Options, Configure, Environment, DirWatch
 from Params import debug, error, trace, fatal
 
 g_inroot=1
@@ -33,6 +33,25 @@ def add_subdir(dir, bld):
 		sys.exit(1)
 
 	bld.m_subdirs.append(  [bld.m_curdirnode, restore]    )
+
+def callBack(idxName, pathName, event):
+	"""this is just a fake method.. but this has to be written"""
+	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
+	Utils.reset()
+	Main()
+
+def demonMode():
+	w = DirWatch.DirectoryWatcher()
+	#print "daemon"
+
+	m_dirs=[]
+	for nodeDir in Params.g_build.m_srcnode.m_dirs:
+		tmpstr = "%s" %nodeDir
+		tmpstr = "%s" %(tmpstr[3:])[:-1]
+		m_dirs.append(tmpstr)
+	#print "DirList : ", m_dirs
+	w.addDirWatch("tmp Test", callBack, m_dirs)
+	w.loop()
 
 def load_envs():
 	cachedir = Params.g_cachedir
@@ -187,8 +206,14 @@ def Main():
 	#	finally:
 	#		bld.save()
 
+	# daemon here
+	if Params.g_options.daemon and Params.g_commands['build']:
+		demonMode()
+		return
+
 	# shutdown
-	try:    Utils.g_module.shutdown()
+	try:
+		Utils.g_module.shutdown()
 	except:
 		#raise
 		pass

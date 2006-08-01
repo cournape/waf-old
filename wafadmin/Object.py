@@ -230,20 +230,17 @@ def sign_env_vars(env, vars_list):
 	lst = list_to_env_list(env, vars_list)
 	return Params.h_list(lst)
 
-def reset():
-	g_allobjs=[]
-
-# The main functor 
-# build objects without having to add tons of import statements
-
-g_allclasses = {}
+"""
 def createObj(objname, *k, **kw):
 	try:
 		return g_allclasses[objname](*k, **kw)
 	except:
 		print "error in createObj", objname
 		raise
+"""
 
+# TODO there is probably a way to make this more simple
+g_allclasses = {}
 def register(name, classval):
 	global g_allclasses
 	if name in g_allclasses:

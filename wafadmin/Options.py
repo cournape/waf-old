@@ -46,7 +46,7 @@ def create_parser():
 	p('-e', '--evil', 
 		action  = 'store_true',
 		default = False,
-		help    = 'run as a daemon [Default: False] (TODO)',
+		help    = 'run as a daemon     [Default: False]',
 		dest    = 'daemon')
 	
 	p('-p', '--progress',
