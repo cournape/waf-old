@@ -56,7 +56,14 @@ class DirectoryWatcher:
                 self.__adapter.resumeAllDirWatch()
         
         def loop(self):
-                self.__adapter.loop()
+                try:
+                        self.__adapter.loop()
+                except KeyboardInterrupt:
+                        self.requestEndLoop()
+        
+        def requestEndLoop(self):
+                """sets a flag that stops the loop. it do not stop the loop directly!"""
+                self.__adapter.requestEndLoop()
 
 class test:
         def __init__(self):

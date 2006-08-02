@@ -141,11 +141,17 @@ class WatchMonitor:
         
         def __processDirEvents(self, pathName, event, idxName):
                 if self.__code2str(event) in self.__watcher[idxName][0].getHandleEvents():
-                        #self.disconnect()
+                        self.disconnect()
                         #self.__loops=False
                         __watcher=self.__watcher[idxName][0]
                         __watcher.getCallBackThis()(idxName, __watcher.getFullPath(pathName), self.__code2str(event))
+                        self.connect()
+                        self.resumeDirWatch(idxName)
         
+        def requestEndLoop(self):
+                """sets a flag that stops the loop. it do not stop the loop directly!"""
+                self.__loops=False
+                
         def loop(self):
                 self.__loops=True
                 while (self.__loops) and (self.__gamin != None) :

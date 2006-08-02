@@ -126,11 +126,17 @@ class WatchMonitor:
 
         def __processDirEvents(self, fe):
                 if fe.code2str() in self.__watcher[fe.userData][0].getHandleEvents():
-                        #self.suspendDirWatch(fe.userData)
+                        self.suspendDirWatch(fe.userData)
                         #self.__loops=False
+                        #print "name \"%s\", file: %s, event: %s"%(fe.userData, fe.filename, fe.code2str())
                         __watcher=self.__watcher[fe.userData][0]
                         __watcher.getCallBackThis()(fe.userData, __watcher.getFullPath(fe.filename), fe.code2str())
+                        self.resumeDirWatch(fe.userData)
         
+        def requestEndLoop(self):
+                """sets a flag that stops the loop. it do not stop the loop directly!"""
+                self.__loops=False
+                
         def loop(self):
                 self.__loops=True
                 while (self.__loops) and (self.__fam!= None) :
