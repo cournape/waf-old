@@ -101,7 +101,8 @@ class Task:
 			try:
 				os.stat(node.abspath(env))
 			except:
-				fatal('a node was not produced for task %s %s' % (str(self.m_idx), node.abspath(env)))
+				error('a node was not produced for task %s %s' % (str(self.m_idx), node.abspath(env)))
+				raise
 
 			tree.m_tstamp_variants[variant][node] = self.signature()
 		self.m_executed=1

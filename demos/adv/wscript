@@ -39,6 +39,23 @@ def configure(conf):
 	env_variant2.set_variant('variant2')
 	conf.set_env_name('variant2', env_variant2)
 
+	# a function check
+	conf.checkFunction("printfa")
+
+	# a more complicated check, anything can be put in the following code:
+	code = """
+int main()
+{
+        somefunction();
+        return 0;
+}
+"""
+	ret = conf.TryBuild(code)
+	conf.addDefine('SOMEFUNCTION', ret)
+
+	# finally, write the configuration header
+	conf.writeConfigHeader('config.h')
+
 def set_options(opt):
 	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
 	# to use after the command-line is parsed:

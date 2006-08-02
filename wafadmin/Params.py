@@ -112,6 +112,9 @@ def set_trace(a, b, c):
 	Utils.g_debug=b
 	Utils.g_error=c
 
+def get_trace():
+	return (Utils.g_trace, Utils.g_debug, Utils.g_error)
+
 def niceprint(msg, type='', module=''):
 	if not module:
 		print '%s: %s'% (type, msg)

@@ -174,11 +174,15 @@ class Configure:
 		for p in pathlst:
 			envcopy['CPPFLAGS'].append(' -I%s ' % p)
 
+		(a,b,c) = Params.get_trace()
 		try:
+			Params.set_trace(0,0,0)
 			ret = bld.compile()
 		except:
+			Params.set_trace(a,b,c)
 			ret = 1
-			raise
+			#raise
+		Params.set_trace(a,b,c)
 
 		#if runopts is not None:
 		#	ret = os.popen(obj.m_linktask.m_outputs[0].abspath(obj.env)).read().strip()
