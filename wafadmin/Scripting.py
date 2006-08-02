@@ -207,24 +207,18 @@ def Main():
 	#bld.dump()
 
 	# compile
-	if Params.g_commands['build'] or Params.g_commands['install'] or Params.g_commands['pack']:
+	if Params.g_commands['build'] or Params.g_commands['install']:
 		try:
 			bld.compile()
 		finally:
 			bld.save()
 
 	# install
-	if Params.g_commands['install'] or Params.g_commands['uninstall'] or Params.g_commands['pack']:
+	if Params.g_commands['install'] or Params.g_commands['uninstall']:
 		try:
 			bld.install()
 		finally:
 			bld.save()
-
-	#if Params.g_commands['install'] or Params.g_commands['pack']:
-	#	try:
-	#		bld.pack()
-	#	finally:
-	#		bld.save()
 
 	# daemon here
 	if Params.g_options.daemon and Params.g_commands['build']:
