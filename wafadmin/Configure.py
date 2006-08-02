@@ -6,7 +6,7 @@ import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
 g_maxlen = 35
-g_debug = 0
+g_debug  = 0
 
 class check:
 	def __init__(self):
@@ -748,6 +748,9 @@ int main() {
 			if hash in self.m_cache_table:
 				#print "cache for tryBuild found !!!  skipping ", hash
 				ret = self.m_cache_table[hash]
+				if obj.fun == 'try_build_and_exec':
+					return ret
+
 				checkS(ret, " (cached)")
 
 				#if obj.fun == 'check_function':
@@ -840,6 +843,7 @@ int main() {
 			if ret: return None
 			try:
 				ret = os.popen(lastprog).read().strip()
+				self.m_cache_table[hash] = ret
 			except:
 				pass
 

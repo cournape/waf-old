@@ -41,14 +41,16 @@ def configure(conf):
 
 	# TODO: obsolete (a more complicated check, anything can be put in the following code:)
 	code = """
+#include <stdio.h>
 int main()
 {
-        somefunction();
+        printf("ahoy");
         return 0;
 }
 """
-	ret = conf.TryBuild(code)
-	conf.addDefine('SOMEFUNCTION', int(not ret))
+	ret = conf.try_build_and_exec(code)
+	conf.checkMessage('ahoj', '', 'ahoy'==ret)
+	conf.addDefine('AHOJ', ret)
 
 
 	# these are the new functions to use
