@@ -6,7 +6,7 @@ import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
 g_maxlen = 35
-g_debug = 1
+g_debug = 0
 
 class check:
 	def __init__(self):
@@ -22,6 +22,8 @@ class check:
 		self.function_name = '' # function to check for
 		self.headers_code  = '' # additional headers for the main function
 
+		self.lib           = []
+		self.libpath       = [] # libpath for linking
 
 		self.define_name   = '' # define to add if run is successful
 
@@ -362,6 +364,9 @@ class Configure:
 
 
 		dir = os.path.join(self.env['_BUILDDIR_'], self.env.variant())
+		try: os.makedirs(dir)
+		except: pass
+
 		dir = os.path.join(dir, configfile)
 
 		dest=open(dir, 'w')
@@ -771,7 +776,11 @@ int main() {
 		dest.write(obj.code)
 		dest.close()
 
-		env = self.env.copy()
+		if obj.env:
+			env = obj.env
+		else:
+			env = self.env.copy()
+
 		Utils.reset()
 	
 		back=os.path.abspath('.')
@@ -889,7 +898,42 @@ int main() {
 		return ret
 
 	# this one is a bit different
-	def find_library(self, lib_name, lib_paths=[], define_name='', code=''):
-		pass
+	def find_library(self, lib_name, lib_paths=[], define_name='', code='', env=None):
+
+		if not env: env=self.env.copy()
+		else: env = env.copy()
+
+		oldlibpath = env['LIBPATH']
+		oldlib = env['LIB']
+
+		env['LIB'] = [lib_name]
+
+		found = ''
+
+		if not code: code = "\n\nint main() {return 0;}\n"
+
+		for l in lib_paths:
+			env['LIBPATH'] = [l]
+			obj               = check()
+			obj.code          = code
+			obj.fun           = 'find_library'
+			obj.env           = env
+			ret = self.check(obj)
+
+			if not ret:
+				found = l
+				break
+
+
+		env['LIB'] = oldlib
+		env['LIBPATH'] = oldlibpath
+
+		if define_name:
+			if found: ret = 1
+			else:     ret = 0
+			env[define_name] = ret
+			self.checkMessage('library '+lib_name, '', found, option=found)
+
+		return found
 
 

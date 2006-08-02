@@ -56,6 +56,8 @@ int main()
 	conf.check_header('stdio.h')
 	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
 	conf.check_function('printf("a")', headers_code='#include <stdio.h>')
+	conf.find_library('X11', ['/usr/lib','/usr/X11R6/lib'], define_name='X11_DIR')
+
 
 	# finally, write the configuration header
 	conf.writeConfigHeader('config.h')
