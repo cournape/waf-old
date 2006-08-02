@@ -10,6 +10,8 @@ from Params import debug, error, trace, fatal
 dostat=0
 initial = time.time()
 
+g_quiet = 0
+
 def write_progress(s):
 	if Params.g_options.progress_bar:
 		sys.stderr.write(s + '\r')
@@ -33,11 +35,11 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 		if not stdout_eof:
 			str = cmd_stdout.read()
 			if not str: stdout_eof = 1
-			else: sys.stdout.write(str)
+			elif not g_quiet: sys.stdout.write(str)
 		if not stderr_eof:
 			str = cmd_stderr.read()
 			if not str: stderr_eof = 1
-			else:
+			elif not g_quiet:
 				sys.stderr.write('\n')
 				sys.stderr.write(str)
 		#time.sleep(0.1)
