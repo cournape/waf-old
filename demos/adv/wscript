@@ -28,21 +28,18 @@ def configure(conf):
 	# pkg-config example - look in src/wscript_build, obj.uselib ..
 	conf.checkPkg('glib-2.0', destvar='GLIB', vnum='2.6.0')
 
-	# write a config.h
-	conf.checkHeader('dlfcn.h','HAVE_DLFCN_H')
+
+
 	#conf.checkEndian()
+
 	conf.checkFeatures()
 	conf.addDefine('TEST_DEFINE', 345)
-	conf.writeConfigHeader('config.h')
 
-	env_variant2 = conf.env.copy()
-	env_variant2.set_variant('variant2')
-	conf.set_env_name('variant2', env_variant2)
 
 	# a function check
-	conf.checkFunction("printfa")
+	#conf.checkFunction("printfa")
 
-	# a more complicated check, anything can be put in the following code:
+	# TODO: obsolete (a more complicated check, anything can be put in the following code:)
 	code = """
 int main()
 {
@@ -51,10 +48,23 @@ int main()
 }
 """
 	ret = conf.TryBuild(code)
-	conf.addDefine('SOMEFUNCTION', ret)
+	conf.addDefine('SOMEFUNCTION', int(not ret))
+
+
+	# these are the new functions to use
+	conf.find_program('cat', ['/usr/bin', '/bin'])
+	conf.check_header('stdio.h')
+	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
+	conf.check_function('printf("a")', headers_code='#include <stdio.h>')
 
 	# finally, write the configuration header
 	conf.writeConfigHeader('config.h')
+
+	# set a variant, with another config.h
+	env_variant2 = conf.env.copy()
+	env_variant2.set_variant('variant2')
+	conf.set_env_name('variant2', env_variant2)
+	conf.writeConfigHeader('config.h', env=env_variant2)
 
 def set_options(opt):
 	opt.add_option('--someopt', type='string', help='some option', dest='someopt')

@@ -5,7 +5,31 @@ import os, types, sys, string, imp, cPickle
 import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
-maxlen = 35
+g_maxlen = 35
+g_debug = 1
+
+class check:
+	def __init__(self):
+		self.fun           = '' # function calling
+
+		self.env           = '' # environment to use
+
+		self.code          = '' # the code to execute
+
+		self.uselib        = '' # uselib
+		self.includes      = '' # include paths
+
+		self.function_name = '' # function to check for
+		self.headers_code  = '' # additional headers for the main function
+
+
+		self.define_name   = '' # define to add if run is successful
+
+		self.header_name   = '' # header name to check for
+		self.function_name = '' # function to check for
+
+		self.options       = '' # command-line options
+
 
 def find_path(file, path_list):
 	if type(path_list) is types.StringType: lst = [path_list]
@@ -34,7 +58,7 @@ def find_file_ext(file, path_list):
 					return path
 	return ''
 
-def find_program(lenv, file, path_list=None):
+def find_program_impl(lenv, file, path_list=None):
 	if not path_list: path_list = []
 	elif type(path_list) is types.StringType: path_list = [path_list]
 
@@ -81,12 +105,19 @@ class Configure:
 
 		self.m_cache_table = {}
 
+		self.lastprog = ''
+
 		try:
 			file = open(os.sep.join([os.environ['HOME'], '.wafcache', 'runs.txt']), 'rb')
 			self.m_cache_table = cPickle.load(file)
 			file.close()
 		except:
 			pass
+
+		self._a=0
+		self._b=0
+		self._c=0
+		self._quiet=0
 
 	def __del__(self):
 		if not self.env['tools']:
@@ -131,6 +162,11 @@ class Configure:
 				return self.m_cache_table[hash]
 
 		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
+		# if the folder already exists, remove it
+		for (root, dirs, filenames) in os.walk(dir):
+			for f in list(filenames):
+				os.remove(os.path.join(root, f))
+
 		bdir = os.path.join( dir, '_build_')
 		try: os.makedirs(dir)
 		except: pass
@@ -205,6 +241,11 @@ class Configure:
 				return self.m_cache_table[hash]
 
 		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
+		# if the folder already exists, remove it
+		for (root, dirs, filenames) in os.walk(dir):
+			for f in list(filenames):
+				os.remove(os.path.join(root, f))
+
 		bdir = os.path.join( dir, '_build_')
 		try: os.makedirs(dir)
 		except: pass
@@ -305,7 +346,7 @@ class Configure:
 		else:
 			return 0
 
-	def writeConfigHeader(self, configfile='config.h'):
+	def writeConfigHeader(self, configfile='config.h', env=''):
 		"""save the defines into a file"""
 		if configfile=='': configfile = self.configheader
 
@@ -319,7 +360,11 @@ class Configure:
 
 		if not self.env['_BUILDDIR_']: self.env['_BUILDDIR_']='_build_'
 
-		dest=open(os.path.join(self.env['_BUILDDIR_'], configfile), 'w')
+
+		dir = os.path.join(self.env['_BUILDDIR_'], self.env.variant())
+		dir = os.path.join(dir, configfile)
+
+		dest=open(dir, 'w')
 		dest.write('/* configuration created by waf */\n')
 		for key in self.defines: 
 			if self.defines[key]:
@@ -335,6 +380,7 @@ class Configure:
 		self.configheader = header
 		pass
 
+	# OBSOLETE
 	def checkHeader(self, header, define='', pathlst=[]):
 		"""find a C/C++ header"""
 		if type(header) is types.ListType:
@@ -358,7 +404,8 @@ int main() {
 		self.checkMessage('header',header,is_found)
 		self.addDefine(define,is_found)
 		return is_found
-
+	
+	# OBSOLETE
 	def checkFunction(self, function, headers = None, define='', language = None):
 		"""find a function"""
 		if define == '':
@@ -387,8 +434,9 @@ int main() {
 		self.addDefine(define,is_found)
 		return is_found
 
+	# OBSOLETE
 	def checkProgram(self, file, path_list=None, var=None):
-		"""find an application"""
+		""" Find an application in the list of paths given as input """
 		#print path_list
 		# let the user override CXX from 1. the env variable 2. the os.environment
 		if var:
@@ -400,7 +448,7 @@ int main() {
 					if pvar: file=pvar
 			except:
 				pass
-		ret = find_program(self.env, file, path_list)
+		ret = find_program_impl(self.env, file, path_list)
 		self.checkMessage('program',file,ret,ret)
 		return ret
 
@@ -509,13 +557,13 @@ int main() {
 		lst = []
 		lst.append(sr)
 
-		global maxlen
+		global g_maxlen
 		dist = len(sr)
-		if dist > maxlen:
-			maxlen = dist+1
+		if dist > g_maxlen:
+			g_maxlen = dist+1
 
-		if dist < maxlen:
-			diff = maxlen - dist
+		if dist < g_maxlen:
+			diff = g_maxlen - dist
 			while diff>0:
 				lst.append(' ')
 				diff -= 1
@@ -534,13 +582,13 @@ int main() {
 		lst = []
 		lst.append(sr)
 
-		global maxlen
+		global g_maxlen
 		dist = len(sr)
-		if dist > maxlen:
-			maxlen = dist+1
+		if dist > g_maxlen:
+			g_maxlen = dist+1
 
-		if dist < maxlen:
-			diff = maxlen - dist
+		if dist < g_maxlen:
+			diff = g_maxlen - dist
 			while diff>0:
 				lst.append(' ')
 				diff -= 1
@@ -630,4 +678,218 @@ int main() {
 	def hook(self, func):
 		# attach the function given as input as new method
 		setattr(self.__class__, func.__name__, func) 
+
+	def mute_logging(self):
+		# store the settings
+		(self._a,self._b,self._c) = Params.get_trace()
+		self._quiet = Runner.g_quiet
+		# then mute
+		if not g_debug:
+			Params.set_trace(0,0,0)
+			Runner.g_quiet = 1
+
+	def restore_logging(self):
+		# restore the settings
+		if not g_debug:
+			Params.set_trace(self._a,self._b,self._c)
+			Runner.g_quiet = self._quiet
+
+	def check(self, obj):
+		"compile, etc"
+		def checkS(ret, cached):
+			res = not int(ret)
+			if obj.fun == 'check_function':
+				if not obj.define_name:
+       		                 	obj.define_name = 'HAVE_'+obj.function_name.upper().replace('.','_').replace('/','_')
+					self.addDefine(obj.define_name, ret)
+				self.checkMessage('function', obj.function_name+cached, res)
+			elif obj.fun == 'check_header':
+				if not obj.define_name:
+					obj.define_name = 'HAVE_'+obj.header_name.upper().replace('.','_').replace('/','_')
+					self.addDefine(obj.define_name, ret)
+				self.checkMessage('header', obj.header_name+cached, res)
+
+
+		# first make sure the code to execute is defined
+		if not obj.code:
+			if obj.fun == 'check_header':
+				obj.code = """
+#include <%s>
+int main() {
+	return 0;
+}
+""" % obj.header_name
+			elif obj.fun == 'check_function':
+				p=obj.function_name
+				if not '(' in p:
+					p = p+'();'
+				elif not ';' in obj.function_name:
+					p = p+';'
+				obj.code = """
+%s
+int main() {
+	%s
+        return 0;
+}
+""" % (obj.headers_code, p)
+			else:
+				fatal('no code to process in check')
+
+		# do not run the test if it is in cache
+		hash = "".join([obj.fun, obj.code])
+
+		# return early if "--nocache" on the command-line was given - do not re-run the compilation
+		if not Params.g_options.nocache:
+			if hash in self.m_cache_table:
+				#print "cache for tryBuild found !!!  skipping ", hash
+				ret = self.m_cache_table[hash]
+				checkS(ret, " (cached)")
+
+				#if obj.fun == 'check_function':
+				#	self.checkMessage('function', obj.function_name+' (cached)', not str(ret))
+				#elif obj.fun == 'check_header':
+				#	self.checkMessage('header', obj.header_name+' (cached)', not str(ret))
+
+				return ret
+
+		# create a small folder for testing
+		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
+
+		# if the folder already exists, remove it
+		for (root, dirs, filenames) in os.walk(dir):
+			for f in list(filenames):
+				os.remove(os.path.join(root, f))
+
+		bdir = os.path.join( dir, '_build_')
+		try: os.makedirs(dir)
+		except: pass
+		try: os.makedirs(bdir)
+		except: pass
+
+
+		dest=open(os.path.join(dir, 'test.c'), 'w')
+		dest.write(obj.code)
+		dest.close()
+
+		env = self.env.copy()
+		Utils.reset()
+	
+		back=os.path.abspath('.')
+
+		bld = Build.Build()
+		bld.load_dirs(dir, bdir, isconfigure=1)
+		bld.m_allenvs['default'] = env
+
+		os.chdir(dir)
+
+		env.setup(env['tools'])
+
+		# not sure yet when to call this:
+		#bld.rescan(bld.m_srcnode)
+
+		# TODO for the moment it is c++, in the future it will be c
+		# and then we may need other languages here too
+		if env['CXX']:
+			import cpp
+			o=cpp.cppobj('program')
+		else:
+			import cc
+			o=cc.ccobj('program')
+
+		o.source = 'test.c'
+		o.target = 'testprog'
+		o.uselib = obj.uselib
+
+
+		# compile the program
+		self.mute_logging()
+		try:
+			ret = bld.compile()
+			self.restore_logging()
+		except:
+			ret = 1
+			self.restore_logging()
+
+		# keep the name of the program to execute
+		lastprog = o.m_linktask.m_outputs[0].abspath(o.env)
+
+		#if runopts is not None:
+		#	ret = os.popen(obj.m_linktask.m_outputs[0].abspath(obj.env)).read().strip()
+
+		os.chdir(back)
+		Utils.reset()
+
+		checkS(ret, "")
+		if not obj.fun in ['check_function', 'check_header']:
+			# store the results of the build
+			if not ret: self.m_cache_table[hash] = ret
+		else:
+			self.m_cache_table[hash] = ret
+
+		# if we need to run the program, try to get its result
+		if obj.fun == 'try_build_and_exec':
+			if ret: return None
+			try:
+				ret = os.popen(lastprog).read().strip()
+			except:
+				pass
+
+		return ret
+
+	# TODO for the moment it will do the same as try_build
+	def try_compile(self, code, env='', uselib=''):
+		"check if a c/c++ piece of code compiles"
+		obj        = check()
+		obj.fun    = 'try_compile'
+		obj.code   = code
+		obj.env    = env
+		obj.uselib = uselib
+		self.check(obj)
+
+	def try_build(self, code, env='', uselib=''):
+		"check if a c/c++ piece of code compiles and links into a program"
+		obj        = check()
+		obj.fun    = 'try_build'
+		obj.code   = code
+		obj.env    = env
+		obj.uselib = uselib
+		return self.check(obj)
+
+	def try_build_and_exec(self, code, env='', uselib='', options=''):
+		"check if a c/c++ piece of code compiles and then return its output (None if it does not compile)"
+		obj         = check()
+		obj.fun     = 'try_build_and_exec'
+		obj.code    = code
+		obj.env     = env
+		obj.uselib  = uselib
+		obj.options = options
+		return self.check(obj)
+
+	def check_header(self, header_name, define_name='', includes=[]):
+		"check if a header is available in the include path given and set a define"
+		obj             = check()
+		obj.fun         = 'check_header'
+		obj.define_name = define_name
+		obj.header_name = header_name
+		obj.includes    = includes
+		return self.check(obj)
+
+	def check_function(self, function_name, define_name='', headers_code=''):
+		"check if a function exists in the include path "
+		obj               = check()
+		obj.fun           = 'check_function'
+		obj.function_name = function_name
+		obj.define_name   = define_name
+		obj.headers_code  = headers_code
+		return self.check(obj)
+
+	def find_program(self, program_name, path_list=[]):
+		ret = find_program_impl(self.env, program_name, path_list)
+		self.checkMessage('program', program_name, ret, ret)
+		return ret
+
+	# this one is a bit different
+	def find_library(self, lib_name, lib_paths=[], define_name='', code=''):
+		pass
+
 

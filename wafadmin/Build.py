@@ -157,6 +157,7 @@ class Build:
 	# keep
 	def compile(self):
 		trace("compile called")
+		ret = 0
 
 		os.chdir(self.m_bdir)
 
