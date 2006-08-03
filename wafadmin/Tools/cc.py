@@ -65,6 +65,7 @@ class ccobj(ccroot.ccroot):
 	
 		# this is usually a good idea
 		self.env.appendValue('_CCINCFLAGS', cpppath_st % '.')
+		self.env.appendValue('_CCINCFLAGS', cpppath_st % self.env.variant())
 		try:
 			tmpnode = Params.g_build.m_curdirnode
 			#tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
