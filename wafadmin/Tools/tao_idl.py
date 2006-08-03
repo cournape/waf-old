@@ -67,10 +67,10 @@ def detect(conf):
 	if acedir:
 		acebindir = [os.path.join(acedir,'bin')]
 		idl = conf.checkProgram('tao_idl', acebindir)
-		if not conf.checkHeader('ace/ACE.h', pathlst=[ os.path.join(acedir,'include') ]):
+		if not conf.check_header('ace/ACE.h', pathlst=[ os.path.join(acedir,'include') ]):
 			return 0
 	else:
-		if not conf.checkHeader('ace/ACE.h'):
+		if not conf.check_header('ace/ACE.h'):
 			return 0
 		
 	if not idl:
@@ -78,10 +78,10 @@ def detect(conf):
 		if not idl:
 			return 0
 	if taodir:
-		if not conf.checkHeader('tao/corba.h', pathlst=[ os.path.join(acedir,'include'), os.path.join(taodir,'include') ]):
+		if not conf.check_header('tao/corba.h', pathlst=[ os.path.join(acedir,'include'), os.path.join(taodir,'include') ]):
 			return 0
 	else:
-		if not conf.checkHeader('tao/corba.h'):
+		if not conf.check_header('tao/corba.h'):
 			return 0
 	
 	# Check if the headers are present:

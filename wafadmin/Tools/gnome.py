@@ -200,45 +200,45 @@ def detect(conf):
 	conf.addDefine('HAVE_DCGETTEXT', '1')
 
 	#Define to 1 if you have the <dlfcn.h> header file.
-	conf.checkHeader('dlfcn.h', 'HAVE_DLFCN_H')
+	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
  
 	# TODO
 	#Define if the GNU gettext() function is already present or preinstalled.
 	conf.addDefine('HAVE_GETTEXT', '1')
  
 	#Define to 1 if you have the <inttypes.h> header file.
-	conf.checkHeader('inttypes.h', 'HAVE_INTTYPES_H')
+	conf.check_header('inttypes.h', 'HAVE_INTTYPES_H')
  
 	# TODO FIXME
 	#Define if your <locale.h> file defines LC_MESSAGES.
 	#conf.addDefine('HAVE_LC_MESSAGES', '1')
  
 	#Define to 1 if you have the <locale.h> header file.
-	conf.checkHeader('locale.h', 'HAVE_LOCALE_H')
+	conf.check_header('locale.h', 'HAVE_LOCALE_H')
 
 	#Define to 1 if you have the <memory.h> header file.
-	conf.checkHeader('memory.h', 'HAVE_MEMORY_H')
+	conf.check_header('memory.h', 'HAVE_MEMORY_H')
 
 	#Define to 1 if you have the <stdint.h> header file.
-	conf.checkHeader('stdint.h', 'HAVE_STDINT_H')
+	conf.check_header('stdint.h', 'HAVE_STDINT_H')
 
 	#Define to 1 if you have the <stdlib.h> header file.
-	conf.checkHeader('stdlib.h', 'HAVE_STDLIB_H')
+	conf.check_header('stdlib.h', 'HAVE_STDLIB_H')
  
 	#Define to 1 if you have the <strings.h> header file.
-	conf.checkHeader('strings.h', 'HAVE_STRINGS_H')
+	conf.check_header('strings.h', 'HAVE_STRINGS_H')
  
 	#Define to 1 if you have the <string.h> header file.
-	conf.checkHeader('string.h', 'HAVE_STRING_H')
+	conf.check_header('string.h', 'HAVE_STRING_H')
  
         #Define to 1 if you have the <sys/stat.h> header file.
-	conf.checkHeader('sys/stat.h', 'HAVE_SYS_STAT_H')
+	conf.check_header('sys/stat.h', 'HAVE_SYS_STAT_H')
  
 	#Define to 1 if you have the <sys/types.h> header file.
-	conf.checkHeader('sys/types.h', 'HAVE_SYS_TYPES_H')
+	conf.check_header('sys/types.h', 'HAVE_SYS_TYPES_H')
  
 	#Define to 1 if you have the <unistd.h> header file.
-	conf.checkHeader('unistd.h', 'HAVE_UNISTD_H')
+	conf.check_header('unistd.h', 'HAVE_UNISTD_H')
 
 	return 1
 
