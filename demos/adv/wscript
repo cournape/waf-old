@@ -29,6 +29,7 @@ def configure(conf):
 	conf.checkPkg('glib-2.0', destvar='GLIB', vnum='2.6.0')
 
 
+	conf.addDefine('HAVE_SOMETHING', 1)
 
 	#conf.checkEndian()
 
@@ -56,6 +57,8 @@ int main()
 
 	conf.find_library('X11', ['/usr/lib','/usr/X11R6/lib'], define_name='X11_DIR')
 	conf.find_header('klocale.h', ['/usr/local/include', '/usr/include', '/opt/kde3/include/'], define_name='KDE_DIR')
+
+	conf.detect_library('XCURSOR', 'Xcursor', ['/usr/lib','/usr/X11R6/lib'])
 
 	# finally, write the configuration header
 	conf.writeConfigHeader('config.h')

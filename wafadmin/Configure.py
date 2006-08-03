@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import os, types, sys, string, imp, cPickle
+import os, types, sys, string, imp, cPickle, md5
 import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
@@ -28,10 +28,19 @@ class check:
 		self.define_name   = '' # define to add if run is successful
 
 		self.header_name   = '' # header name to check for
-		self.function_name = '' # function to check for
 
 		self.options       = '' # command-line options
 
+	def hash(self):
+		attrs = 'fun code uselib includes function_name headers_code lib libpath define_name header_name options'
+		m = md5.new()
+		for a in attrs.split():
+			val = getattr(self, a)
+			m.update(str(val))
+		if self.fun == 'find_library':
+			m.update(str(self.env['LIBPATH']))
+
+		return m.digest()
 
 def find_path(file, path_list):
 	if type(path_list) is types.StringType: lst = [path_list]
@@ -742,7 +751,8 @@ int main() {
 				fatal('no code to process in check')
 
 		# do not run the test if it is in cache
-		hash = "".join([obj.fun, obj.code])
+		#hash = "".join([obj.fun, obj.code])
+		hash = obj.hash()
 
 		# return early if "--nocache" on the command-line was given - do not re-run the compilation
 		if not Params.g_options.nocache:
@@ -751,7 +761,8 @@ int main() {
 				ret = self.m_cache_table[hash]
 				if obj.fun == 'try_build_and_exec':
 					return ret
-
+				if obj.fun == 'find_library':
+					return ret
 				checkS(ret, " (cached)")
 
 				#if obj.fun == 'check_function':
@@ -800,8 +811,6 @@ int main() {
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
 
-		# TODO for the moment it is c++, in the future it will be c
-		# and then we may need other languages here too
 		if env['CXX']:
 			import cpp
 			o=cpp.cppobj('program')
@@ -931,7 +940,6 @@ int main() {
 				found = l
 				break
 
-
 		env['LIB'] = oldlib
 		env['LIBPATH'] = oldlibpath
 
@@ -954,6 +962,14 @@ int main() {
 
 		return found
 
+	def detect_library(self, uselibname, libname, lib_paths):
+		env = self.env
+		ret = self.find_library(libname, lib_paths = lib_paths, define_name='HAVE_'+uselibname)
+		if ret:
+			env['LIB_'+uselibname]=libname
+			env['LIBPATH_'+uselibname]=ret
+
+"""
 	# this one is a bit different too
 	def find_header_2(self, header_name, include_paths=[], define_name='', code='', env=None):
 		# TODO this one is broken (ita)
@@ -992,4 +1008,5 @@ int main() {
 
 		return found
 
+"""
 
