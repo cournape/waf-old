@@ -702,16 +702,16 @@ int main() {
 	def check(self, obj):
 		"compile, etc"
 		def checkS(ret, cached):
-			res = not int(ret)
+			res = int(not ret)
 			if obj.fun == 'check_function':
 				if not obj.define_name:
        		                 	obj.define_name = 'HAVE_'+obj.function_name.upper().replace('.','_').replace('/','_')
-				self.addDefine(obj.define_name, ret)
+				self.addDefine(obj.define_name, res)
 				self.checkMessage('function', obj.function_name+cached, res)
 			elif obj.fun == 'check_header':
 				if not obj.define_name:
 					obj.define_name = 'HAVE_'+obj.header_name.upper().replace('.','_').replace('/','_')
-				self.addDefine(obj.define_name, ret)
+				self.addDefine(obj.define_name, res)
 				self.checkMessage('header', obj.header_name+cached, res)
 
 

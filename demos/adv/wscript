@@ -36,10 +36,7 @@ def configure(conf):
 	conf.addDefine('TEST_DEFINE', 345)
 
 
-	# a function check
-	#conf.checkFunction("printfa")
-
-	# TODO: obsolete (a more complicated check, anything can be put in the following code:)
+	# a more complicated check, anything can be put in the following code:
 	code = """
 #include <stdio.h>
 int main()
@@ -48,23 +45,23 @@ int main()
         return 0;
 }
 """
-	ret = conf.try_build_and_exec(code)
+	ret = conf.try_build_and_exec(code) # the method conf.try_build( works too
 	conf.checkMessage('ahoj', '', 'ahoy'==ret)
 	conf.addDefine('AHOJ', ret)
 
-
-	# these are the new functions to use
 	conf.find_program('cat', ['/usr/bin', '/bin'])
 	conf.check_header('stdio.h')
 	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
 	conf.check_function('printf("a")', define_name="PRINTF_FUN", headers_code='#include <stdio.h>')
-	conf.find_library('X11', ['/usr/lib','/usr/X11R6/lib'], define_name='X11_DIR')
 
+	conf.find_library('X11', ['/usr/lib','/usr/X11R6/lib'], define_name='X11_DIR')
+	conf.find_header('klocale.h', ['/usr/local/include', '/usr/include', '/opt/kde3/include/'], define_name='KDE_DIR')
 
 	# finally, write the configuration header
 	conf.writeConfigHeader('config.h')
 
-	# set a variant, with another config.h
+
+	# set a variant called "variant2", with another config.h
 	env_variant2 = conf.env.copy()
 	env_variant2.set_variant('variant2')
 	conf.set_env_name('variant2', env_variant2)
