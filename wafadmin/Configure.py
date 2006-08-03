@@ -46,7 +46,7 @@ def find_file(file, path_list):
 	else: lst = path_list
 	for dir in lst:
 		if os.path.exists( os.path.join(dir, file) ):
-			return os.path.join(dir, file)
+			return dir
 	return ''
 
 def find_file_ext(file, path_list):
@@ -706,12 +706,12 @@ int main() {
 			if obj.fun == 'check_function':
 				if not obj.define_name:
        		                 	obj.define_name = 'HAVE_'+obj.function_name.upper().replace('.','_').replace('/','_')
-					self.addDefine(obj.define_name, ret)
+				self.addDefine(obj.define_name, ret)
 				self.checkMessage('function', obj.function_name+cached, res)
 			elif obj.fun == 'check_header':
 				if not obj.define_name:
 					obj.define_name = 'HAVE_'+obj.header_name.upper().replace('.','_').replace('/','_')
-					self.addDefine(obj.define_name, ret)
+				self.addDefine(obj.define_name, ret)
 				self.checkMessage('header', obj.header_name+cached, res)
 
 
@@ -719,11 +719,12 @@ int main() {
 		if not obj.code:
 			if obj.fun == 'check_header':
 				obj.code = """
+%s
 #include <%s>
 int main() {
 	return 0;
 }
-""" % obj.header_name
+""" % (obj.headers_code, obj.header_name)
 			elif obj.fun == 'check_function':
 				p=obj.function_name
 				if not '(' in p:
@@ -878,13 +879,15 @@ int main() {
 		obj.options = options
 		return self.check(obj)
 
-	def check_header(self, header_name, define_name='', includes=[]):
+	def check_header(self, header_name, define_name='', headers_code='', includes=[]):
 		"check if a header is available in the include path given and set a define"
-		obj             = check()
-		obj.fun         = 'check_header'
-		obj.define_name = define_name
-		obj.header_name = header_name
-		obj.includes    = includes
+		obj               = check()
+		obj.fun           = 'check_header'
+		obj.define_name   = define_name
+		obj.header_name   = header_name
+		obj.headers_code  = headers_code
+		obj.includes      = includes
+		obj.env           = self.env
 		return self.check(obj)
 
 	def check_function(self, function_name, define_name='', headers_code=''):
@@ -894,6 +897,7 @@ int main() {
 		obj.function_name = function_name
 		obj.define_name   = define_name
 		obj.headers_code  = headers_code
+		obj.env           = self.env
 		return self.check(obj)
 
 	def find_program(self, program_name, path_list=[]):
@@ -903,9 +907,8 @@ int main() {
 
 	# this one is a bit different
 	def find_library(self, lib_name, lib_paths=[], define_name='', code='', env=None):
-
-		if not env: env=self.env.copy()
-		else: env = env.copy()
+		# give a define else the message is not printed
+		if not env: env=self.env
 
 		oldlibpath = env['LIBPATH']
 		oldlib = env['LIB']
@@ -937,6 +940,55 @@ int main() {
 			else:     ret = 0
 			env[define_name] = ret
 			self.checkMessage('library '+lib_name, '', found, option=found)
+
+		return found
+
+	def find_header(self, header_name, include_paths=[], define_name='', env=None):
+		if not env: env=self.env
+		found = find_file(header_name, include_paths)
+		if define_name:
+			if found: ret = 1
+			else:     ret = 0
+			env[define_name] = ret
+			self.checkMessage('header '+header_name, '', found, option=found)
+
+		return found
+
+	# this one is a bit different too
+	def find_header_2(self, header_name, include_paths=[], define_name='', code='', env=None):
+		# TODO this one is broken (ita)
+		# TODO i doubt that it will be used in practice:
+		# * it cannot find headers in /usr/include or /usr/bin/
+		# * it might not be able to compile a program for the check
+
+		# give a define else the message is not printed
+		if not env: env=self.env
+
+		old_cpp_path = env['CPPPATH']
+
+		found = ''
+
+		if not code: code = "\n\nint main() {return 0;}\n"
+
+		for l in include_paths:
+			env['CPPPATH']    = [l]
+			obj               = check()
+			obj.code          = code
+			obj.fun           = 'find_header'
+			obj.env           = env
+			ret = self.check(obj)
+
+			if not ret:
+				found = l
+				break
+
+		env['CPPPATH'] = old_cpp_path
+
+		if define_name:
+			if found: ret = 1
+			else:     ret = 0
+			env[define_name] = ret
+			self.checkMessage('header '+header_name, '', found, option=found)
 
 		return found
 
