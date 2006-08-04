@@ -24,6 +24,7 @@
 				<name         value="john"/>
 				<want_libtool value="1"/>
 				<vnum         value="1.2.3"/>
+				<cxxflags     value="-pedantic"/>
 			</obj>
 
 			<dir name='subsrc'>
