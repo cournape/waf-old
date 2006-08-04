@@ -267,6 +267,21 @@ class ccroot(Object.genobj):
 		libpath_st       = self.env['LIBPATH_ST']
 		staticlibpath_st = self.env['STATICLIBPATH_ST']
 
+		if type(self.cxxflags) is types.StringType:
+			for i in (" "+self.cxxflags).split():
+				self.env.appendValue('CXXFLAGS', i)
+		else:
+			# TODO: double-check
+			self.env['CXXFLAGS'] += self.cxxflags
+
+		if type(self.cppflags) is types.StringType:
+			for i in (' '+self.cppflags).split():
+				self.env.appendValue('CPPFLAGS', i)
+		else:
+			# TODO: double-check
+			self.env['CPPFLAGS'] += self.cppflags
+
+
 		# local flags come first
 		# set the user-defined includes paths
 		if not self._incpaths_lst: self.apply_incpaths()

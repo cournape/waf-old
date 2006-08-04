@@ -20,6 +20,7 @@ class ccobj(ccroot.ccroot):
 		ccroot.ccroot.__init__(self, type)
 
 		self.ccflags=''
+		self.cppflags=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
@@ -49,6 +50,20 @@ class ccobj(ccroot.ccroot):
 		staticlib_st     = self.env['STATICLIB_ST']
 		libpath_st       = self.env['LIBPATH_ST']
 		staticlibpath_st = self.env['STATICLIBPATH_ST']
+
+		if type(self.ccflags) is types.StringType:
+			for i in self.ccflags.split():
+				self.env.appendValue('CCFLAGS', i)
+		else:
+			# TODO: double-check
+			self.env['CCFLAGS'] += self.ccflags
+
+		if type(self.cppflags) is types.StringType:
+			for i in self.cppflags.split():
+				self.env.appendValue('CPPFLAGS', i)
+		else:
+			# TODO: double-check
+			self.env['CPPFLAGS'] += self.cppflags
 
 		# local flags come first
 		# set the user-defined includes paths
