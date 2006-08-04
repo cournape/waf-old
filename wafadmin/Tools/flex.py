@@ -8,9 +8,16 @@ from Params import debug, error, trace, fatal
 flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
 
 def l_file(self, node):
+	if self.__class__.__name__ == 'ccobj':
+		ext = '.lex.c'
+	elif self.__class__.__name__ == 'cppobj':
+		ext = '.lex.cc'
+	else:
+		fatal('neither c nor c++ for flex.py')
+
 	ltask = self.create_task('flex', nice=4)
 	ltask.set_inputs(node)
-	ltask.set_outputs(node.change_ext('.lex.cc'))
+	ltask.set_outputs(node.change_ext(ext))
 
 	task = self.create_task(self.m_type_initials)
 	task.set_inputs(ltask.m_outputs)
