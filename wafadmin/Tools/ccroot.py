@@ -453,8 +453,8 @@ class ccroot(Object.genobj):
 
 	def addflags(self, var, value):
 		if type(var) is types.StringType:
-			for i in var.split():
-				self.env.appendValue(value, i)
+			for i in value.split():
+				self.env.appendValue(var, i)
 		else:
 			# TODO: double-check
 			self.env[var] += value
