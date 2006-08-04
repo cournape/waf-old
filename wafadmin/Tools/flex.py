@@ -21,8 +21,11 @@ def setup(env):
 	Action.simple_action('flex', flex_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	env.hook('cpp', '.l', l_file)
-	env.hook('cc', '.l', l_file)
+	try: env.hook('cpp', '.l', l_file)
+	except: pass
+
+	try: env.hook('cc', '.l', l_file)
+	except: pass
 
 def detect(conf):
 	flex = conf.checkProgram('flex', var='FLEX')

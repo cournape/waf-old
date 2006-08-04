@@ -33,10 +33,17 @@ def setup(env):
 	Action.simple_action('bison', bison_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	Object.hook('cpp', '.y', yc_file)
-	Object.hook('cpp', '.yc', yc_file)
-	Object.hook('cc', '.y', yc_file)
-	Object.hook('cc', '.yc', yc_file)
+	try:
+		Object.hook('cpp', '.y', yc_file)
+		Object.hook('cpp', '.yc', yc_file)
+	except:
+		pass
+
+	try:
+		Object.hook('cc', '.y', yc_file)
+		Object.hook('cc', '.yc', yc_file)
+	except:
+		pass
 
 def detect(conf):
 	bison = conf.checkProgram('bison', var='BISON')
