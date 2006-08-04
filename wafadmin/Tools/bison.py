@@ -2,7 +2,7 @@
 # encoding: utf-8
 # John O'Meara, 2006
 
-import Action, Common, Object, Task, Params
+import Action, Common, Object, Task, Params, os
 from Params import debug, error, trace, fatal
 
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
@@ -10,10 +10,22 @@ bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspat
 def yc_file(self, node):
 	yctask = self.create_task('bison', nice=4)
 	yctask.set_inputs(node)
-	yctask.set_outputs(node.change_ext('.tab.cc'))
 
+	# figure out what nodes bison will build
+	sep=node.m_name.rfind(os.extsep)
+	endstr = node.m_name[sep+1:]
+	if len(endstr) > 1:
+		endstr = endstr[1:]
+	else:
+		endstr = ""
+	# set up the nodes
+	newnodes = [node.change_ext('.tab.c' + endstr)]
+	if "-d" in self.env['BISONFLAGS']:
+		newnodes.append(node.change_ext('.tab.h'+endstr))
+	yctask.set_outputs(newnodes)
+	
 	task = self.create_task(self.m_type_initials)
-	task.set_inputs(yctask.m_outputs)
+	task.set_inputs(yctask.m_outputs[0])
 	task.set_outputs(node.change_ext('.tab.o'))
 
 def setup(env):

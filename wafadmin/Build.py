@@ -508,4 +508,12 @@ class Build:
 	def popdir(self):
 		self.m_curdirnode = self.pushed.pop(0)
 
-
+	def env_of_name(self, name):
+		if not name:
+			error('env_of_name called with no name!')
+			return None
+		try:
+			return self.m_allenvs[name]
+		except:
+			error('no such environment'+name)
+			return None
