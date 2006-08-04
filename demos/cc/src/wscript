@@ -9,6 +9,7 @@ def build(bld):
 	main.c
 	'''
 	obj.includes='.'
+	obj.ccflags='-Wmain'
 	obj.target='test_c_program'
 
 #def set_options(opt):

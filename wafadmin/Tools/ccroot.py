@@ -451,6 +451,7 @@ class ccroot(Object.genobj):
 				obj.post()
 				self.m_linktask.m_inputs += obj.out_nodes
 
+	# utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS
 	def addflags(self, var, value):
 		if type(var) is types.StringType:
 			for i in value.split():
