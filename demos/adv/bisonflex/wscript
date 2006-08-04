@@ -8,7 +8,7 @@ def build(bld):
 
 	obj = bld.createObj(mode, 'program')
 	obj.source='''
-	main.cc
+	main.c
 	calc.l
 	calc.yc
 	'''
