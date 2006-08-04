@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+def build(bld):
+	obj = bld.createObj('cpp', 'program')
+	obj.source='''
+	main.cc
+	calc.l
+	calc.yc
+	'''
+	obj.includes='.'
+	obj.target='calc'
+	obj.uselib="CALC"
