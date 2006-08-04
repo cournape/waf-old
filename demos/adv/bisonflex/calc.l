@@ -1,6 +1,6 @@
 %{
 #define YYSTYPE double
-#include "calc.tab.hc"
+#include "calc.tab.h"
 extern YYSTYPE yylval;
 %}
 
