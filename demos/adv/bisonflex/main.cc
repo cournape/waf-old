@@ -1,8 +1,8 @@
-//#include <stdio.h>
+#include <stdio.h>
 //#include <stdlib.h>
-#include <iostream>
+//#include <iostream>
 
-using namespace std;
+//using namespace std;
 extern int yyparse();
 
 int yyerror (char const *a)
