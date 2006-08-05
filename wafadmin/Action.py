@@ -150,7 +150,7 @@ class alex:
 		lst.append('\t\ttask.debug()\n')
 		lst.append('\t\traise\n')
 
-		lst.append('\tRunner.exec_command(cmd)\n')
+		lst.append('\treturn Runner.exec_command(cmd)\n')
 
 		return "".join(lst)
 
