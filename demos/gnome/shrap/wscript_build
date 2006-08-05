@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+obj = bld.createObj('cs', 'program')
+obj.source='''
+Simple.cs
+'''
+obj.includes='.'
+obj.flags  = '-pkg:gtk-sharp'
+#obj.uselib = 'GTK GNOME GNOMEUI'
+obj.target = 'mono-hello.exe'
+
+# NOTES
+# obj.uselib should work, yet it seems useless
+# just make a bug report if you need improvements
+
