@@ -7,6 +7,8 @@ import ccroot, cpp
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 
+g_headers_poss = ['.h', '.hh', '.hpp', '.H', '.HH']
+
 # kde .ui file processing
 #uic_vardeps = ['UIC', 'UIC_FLAGS', 'UIC_ST']
 uic_vardeps = ['UIC', 'QTPLUGINS']
@@ -244,17 +246,38 @@ class kdeobj(cpp.cppobj):
 				# process that base.moc only once
 				mocfiles.append(d)
 
+				# find the extension - this search is done only once
+				if Params.g_options.kde_header_ext:
+					ext = Params.g_options.kde_header_ext
+				else:
+					path = node.m_parent.srcpath(self.env) + os.sep
+					for i in g_headers_poss:
+						try:
+							os.stat(path+base2+i)
+							ext = i
+							break
+						except:
+							pass
+					if not ext:
+						fatal("no header found for %s which is a moc file" % filename)
+
+				# next time we will not search for the extension (look at the 'for' loop below)
+				h_node = node.change_ext(ext)
+				m_node = node.change_ext('.moc')
+				tree.m_depends_on[variant][m_node] = h_node
+
+				# create the task
 				task = self.create_task('moc', self.env)
-				task.set_inputs(node.change_ext('.h'))
-				task.set_outputs(node.change_ext('.moc'))
+				task.set_inputs(h_node)
+				task.set_outputs(m_node)
 				moctasks.append(task)
-			
-			# use a cache ?
+
+			# look at the file inputs, it is set right above
 			for d in tree.m_depends_on[variant][node]:
 				name = d.m_name
 				if name[len(name)-4:]=='.moc':
 					task = self.create_task('moc', self.env)
-					task.set_inputs(d.change_ext('.h'))
+					task.set_inputs(tree.m_depends_on[variant][d])
 					task.set_outputs(d)
 					moctasks.append(task)
 					break
@@ -597,6 +620,13 @@ def set_options(opt):
 		action='store_true',
 		help='force prefix=/usr/local/',
 		dest='usrlocal')
+
+	opt.add_option('--header-ext',
+		type='string',
+		default='',
+		help='header extension for moc files',
+		dest='kde_header_ext')
+
 	for i in "execprefix datadir libdir kdedir kdeincludes kdelibs qtdir qtincludes qtlibs libsuffix".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 

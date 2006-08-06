@@ -1,6 +1,6 @@
 
 #include "test2.h"
-#include "pref.h"
+#include "pref.hh"
 
 #include <qdragobject.h>
 #include <kprinter.h>

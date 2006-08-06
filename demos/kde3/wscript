@@ -22,5 +22,11 @@ def configure(conf):
 	conf.writeConfigHeader('config.h')
 
 def build(bld):
+	## headers of kde apps take the extension ".h", if you are certain that
+	## all your headers end in ".h", uncomment the following two lines:
+
+	#import Params
+	#Params.g_options.kde_header_ext = '.h'
+
 	bld.add_subdirs('src')
 

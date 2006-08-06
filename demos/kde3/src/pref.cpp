@@ -1,5 +1,6 @@
 
-#include "pref.h"
+// using custom extensions is not recommended, but it should work
+#include "pref.hh"
 
 #include <klocale.h>
 
