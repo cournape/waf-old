@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-#include "glwidget.h"
+#include "glwidget.hh"
 
 GLuint GLWidget::sharedObject = 0;
 int GLWidget::refCount = 0;

@@ -258,8 +258,7 @@ class kdeobj(cpp.cppobj):
 							break
 						except:
 							pass
-					if not ext:
-						fatal("no header found for %s which is a moc file" % filename)
+					if not ext: fatal("no header found for %s which is a moc file" % filename)
 
 				# next time we will not search for the extension (look at the 'for' loop below)
 				h_node = node.change_ext(ext)

@@ -28,7 +28,7 @@
 
 #include <QtGui>
 
-#include "glwidget.h"
+#include "glwidget.hh"
 #include "window.h"
 
 Window::Window()

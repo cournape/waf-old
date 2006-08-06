@@ -11,6 +11,8 @@ from Params import debug, error, trace, fatal
 
 ## QT SUPPORT ##
 
+g_headers_poss = ['.h', '.hh', '.hpp', '.H', '.HH']
+
 
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
@@ -174,48 +176,41 @@ class qt4obj(cpp.cppobj):
 				# process that base.moc only once
 				mocfiles.append(d)
 
+				# find the extension - this search is done only once
+				if Params.g_options.qt_header_ext:
+					ext = Params.g_options.qt_header_ext
+				else:
+					path = node.m_parent.srcpath(self.env) + os.sep
+					for i in g_headers_poss:
+						try:
+							os.stat(path+base2+i)
+							ext = i
+							break
+						except:
+							pass
+					if not ext: fatal("no header found for %s which is a moc file" % filename)
+
+				# next time we will not search for the extension (look at the 'for' loop below)
+				h_node = node.change_ext(ext)
+				m_node = node.change_ext('.moc')
+				tree.m_depends_on[variant][m_node] = h_node
+
+				# create the task
 				task = self.create_task('moc', self.env)
-				task.m_inputs  = self.file_in(base+'.h')
-				task.m_outputs = self.file_in(base+'.moc')
-				moctasks.append( task )
-			
-			# use a cache ?
+				task.set_inputs(h_node)
+				task.set_outputs(m_node)
+				moctasks.append(task)
+
+			# look at the file inputs, it is set right above
 			for d in tree.m_depends_on[variant][node]:
 				name = d.m_name
 				if name[len(name)-4:]=='.moc':
 					task = self.create_task('moc', self.env)
-					task.m_inputs  = self.file_in(base+'.h')
-					task.m_outputs = [d]
-					moctasks.append( task )
+					task.set_inputs(tree.m_depends_on[variant][d])
+					task.set_outputs(d)
+					moctasks.append(task)
 					break
 
-			"""
-			try: tmp_lst = tree.m_raw_deps[node]
-			except: tmp_lst=[]
-			for d in tmp_lst:
-				base2, ext2 = os.path.splitext(d)
-				if not ext2 == '.moc': continue
-				# paranoid check
-				if d in mocfiles:
-					error("paranoia owns")
-					continue
-				# process that base.moc only once
-				mocfiles.append(d)
-
-				task = self.create_task('moc', self.env)
-				task.m_inputs  = self.file_in(base+'.h')
-				task.m_outputs = self.file_in(base+'.moc')
-				moctasks.append( task )
-
-			for d in tree.m_depends_on[node]:
-				name = d.m_name
-				if name[len(name)-4:]=='.moc':
-					task = self.create_task('moc', self.env)
-					task.m_inputs  = self.file_in(base+'.h')
-					task.m_outputs = [d]
-					moctasks.append( task )
-					break
-"""
 			# create the task for the cpp file
 			cpptask = self.create_cpp_task()
 
@@ -384,9 +379,26 @@ def detect_qt4(conf):
 	env['QTLIBPATH']=qtlibs
 
 	# now that we have qtlibs ..
-	vars = '''Qt3Support_debug  QtCore       QtNetwork_debug  QtOpenGL     QtSvg_debug   QtTest
-Qt3Support        QtGui_debug  QtNetwork        QtSql_debug  QtSvg         QtXml_debug
-QtCore_debug      QtGui        QtOpenGL_debug   QtSql        QtTest_debug  QtXml'''
+	vars = '''
+Qt3Support_debug
+Qt3Support
+QtCore_debug
+QtCore
+QtGui_debug
+QtGui
+QtNetwork_debug
+QtNetwork
+QtOpenGL_debug
+QtOpenGL
+QtSql_debug
+QtSql
+QtSvg_debug
+QtSvg
+QtTest_debug
+QtTest
+QtXml_debug
+QtXml
+'''
 
 	for i in vars.split():
 		conf.checkPkg(i, pkgpath=qtlibs)
@@ -599,6 +611,13 @@ def set_options(opt):
 		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
 	except:
 		pass
+
+	opt.add_option('--header-ext',
+		type='string',
+		default='',
+		help='header extension for moc files',
+		dest='qt_header_ext')
+
 	for i in "qtdir qtincludes qtlibs qtbin".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 
