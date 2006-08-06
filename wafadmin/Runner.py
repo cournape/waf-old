@@ -206,9 +206,6 @@ class Serial:
 			"""
 
 		debug("Serial end")
-		if not Params.g_commands['configure']:
-			print ""
-			print "Build finished successfully"
 		return 0
 
 import threading

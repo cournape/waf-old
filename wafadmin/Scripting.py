@@ -210,6 +210,7 @@ def Main():
 	if Params.g_commands['build'] or Params.g_commands['install']:
 		try:
 			bld.compile()
+			Params.pprint('GREEN', 'Compilation finished successfully')
 		finally:
 			bld.save()
 
@@ -217,6 +218,7 @@ def Main():
 	if Params.g_commands['install'] or Params.g_commands['uninstall']:
 		try:
 			bld.install()
+			Params.pprint('GREEN', 'Installation finished successfully')
 		finally:
 			bld.save()
 
