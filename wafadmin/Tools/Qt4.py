@@ -383,57 +383,20 @@ def detect_qt4(conf):
 	if not qtlibs: qtlibs=qtdir+'/lib'
 	env['QTLIBPATH']=qtlibs
 
-        ########## X11
-        env['LIB_X11']             = ['X11']
-        env['LIBPATH_X11']         = ['/usr/X11R6/lib/']
-        env['LIB_XRENDER']         = ['Xrender']
+	# now that we have qtlibs ..
+	vars = '''Qt3Support_debug  QtCore       QtNetwork_debug  QtOpenGL     QtSvg_debug   QtTest
+Qt3Support        QtGui_debug  QtNetwork        QtSql_debug  QtSvg         QtXml_debug
+QtCore_debug      QtGui        QtOpenGL_debug   QtSql        QtTest_debug  QtXml'''
 
-	# link against libqt_debug when appropriate
-	if env['BKS_DEBUG']: debug='_debug'
-	else:                debug=''
+	for i in vars.split():
+		conf.checkPkg(i, pkgpath=qtlibs)
 
-	if not env['LIB_Z']:
-		env['LIB_Z']         = ['z']
-		env['LIB_PNG']       = ['png', 'm'] + env['LIB_Z']
-		env['LIB_SM']        = ['SM', 'ICE']
+	## link against libqt_debug when appropriate
+	#if env['BKS_DEBUG']: debug='_debug'
+	#else:                debug=''
 
-        ########## QT
-        # QTLIBPATH is a special var used in the qt4 module - has to be changed (ita)
-	env['CPPPATH_QT']          = [ env['QTINCLUDEPATH']+'/Qt', env['QTINCLUDEPATH'] ] # TODO QTINCLUDEPATH (ita)
-	env['LIBPATH_QT']          = env['LIBPATH_X11']+[env['QTLIBPATH']]
-#    env['LIB_QT']              = ['QtGui4'+debug, 'pthread', 'Xext']+env['LIB_Z']+env['LIB_PNG']+env['LIB_X11']+env['LIB_SM']
-	env['LIB_QT']              = ['QtGui'+debug, ]
-        env['CXXFLAGS_QT3SUPPORT'] = ['-DQT3_SUPPORT']
-	env['CPPPATH_QT3SUPPORT']  = [ env['QTINCLUDEPATH']+'/Qt3Support' ]
-        env['LIB_QT3SUPPORT']      = ['Qt3Support'+debug]
-
-	env['CPPPATH_QTCORE']      = [ env['QTINCLUDEPATH']+'/QtCore' ]
-        env['LIB_QTCORE']          = ['QtCore'+debug]
-
-	env['CPPPATH_QTASSISTANT'] = [ env['QTINCLUDEPATH']+'/QtAssistant' ]
-	env['LIB_QTASSISTANT']     = ['QtAssistant'+debug]
-
-	env['CPPPATH_QTDESIGNER']  = [ env['QTINCLUDEPATH']+'/QtDesigner' ]
-        env['LIB_QTDESIGNER']      = ['QtDesigner'+debug]
-
-	env['CPPPATH_QTNETWORK']   = [ env['QTINCLUDEPATH']+'/QtNetwork' ]
-        env['LIB_QTNETWORK']       = ['QtNetwork'+debug]
-
-	env['CPPPATH_QTGUI']       = [ env['QTINCLUDEPATH']+'/QtGui' ]
-        env['LIB_QTGUI']           = ['QtCore'+debug, 'QtGui'+debug]
-
-	env['CPPPATH_QTOPENGL']      = [ os.path.join(env['QTINCLUDEPATH'],'QtOpenGL') ]
-        env['LIB_QTOPENGL']        = ['QtOpenGL'+debug]
-
-	env['CPPPATH_QTSQL']       = [ env['QTINCLUDEPATH']+'/QtSql' ]
-        env['LIB_QTSQL']           = ['QtSql'+debug]
-
-	env['CPPPATH_QTXML']       = [ env['QTINCLUDEPATH']+'/QtXml' ]
-        env['LIB_QTXML']           = ['QtXml'+debug]
-
-	env['CPPPATH_QTEST']       = [ env['QTINCLUDEPATH']+'/QtTest' ]
-        env['LIB_QTEST']           = ['QtTest'+debug]
 	
+	"""
 	# rpath settings
 	try:
 		if Params.g_options.want_rpath:
@@ -453,6 +416,7 @@ def detect_qt4(conf):
 			env['RPATH_QTEST']      = env['RPATH_QT']
 	except:
 		pass
+	"""
 
 	env['QTLOCALE']            = str(env['PREFIX'])+'/share/locale'
 
