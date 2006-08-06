@@ -317,6 +317,12 @@ def detect_kde(conf):
 		if v: v=os.path.abspath(v)
 		return v
 
+	def exec_and_read(cmd):
+		p = os.popen(cmd)
+		ret = p.read().strip()
+		p.close()
+		return ret
+
 	prefix      = getpath('prefix')
 	execprefix  = getpath('execprefix')
 	datadir     = getpath('datadir')
@@ -342,7 +348,7 @@ def detect_kde(conf):
 	print "Checking for kde-config            :",
 	str="which kde-config 2>/dev/null"
 	if kdedir: str="which %s 2>/dev/null" % (kdedir+'/bin/kde-config')
-	kde_config = os.popen(str).read().strip()
+	kde_config = exec_and_read(str)
 	if len(kde_config):
 		p('GREEN', 'kde-config was found as '+kde_config)
 	else:
@@ -352,10 +358,10 @@ def detect_kde(conf):
 		print "(missing package kdebase-devel?)"
 		sys.exit(1)
 	if kdedir: env['KDEDIR']=kdedir
-	else: env['KDEDIR'] = os.popen(kde_config+' -prefix').read().strip()
+	else: env['KDEDIR'] = exec_and_read('%s -prefix' % kde_config)
 
 	print "Checking for kde version           :",
-	kde_version = os.popen(kde_config+" --version|grep KDE").read().strip().split()[1]
+	kde_version = exec_and_read('%s --version|grep KDE' % kde_config).split()[1]
 	if int(kde_version[0]) != 3 or int(kde_version[2]) < 2:
 		p('RED', kde_version)
 		p('RED',"Your kde version can be too old")
@@ -370,9 +376,9 @@ def detect_kde(conf):
 		p('GREEN',"Qt is in "+qtdir)
 	else:
 		try:
-			tmplibdir = os.popen(kde_config+' --expandvars --install lib').read().strip()
+			tmplibdir = exec_and_read('%s --expandvars --install lib' % kde_config)
 			libkdeuiSO = os.path.join(tmplibdir, getSOfromLA(os.path.join(tmplibdir,'/libkdeui.la')) )
-			m = re.search('(.*)/lib/libqt.*', os.popen('ldd ' + libkdeuiSO + ' | grep libqt').read().strip().split()[2])
+			m = re.search('(.*)/lib/libqt.*', exec_and_read('ldd %s | grep libqt' % libkdeuiSO).split()[2])
 		except: m=None
 		if m:
 			qtdir = m.group(1)
@@ -392,11 +398,11 @@ def detect_kde(conf):
 	if os.path.isfile(uic):
 		p('GREEN',"uic was found as "+uic)
 	else:
-		uic = os.popen("which uic 2>/dev/null").read().strip()
+		uic = exec_and_read("which uic 2>/dev/null")
 		if len(uic):
 			p('YELLOW',"uic was found as "+uic)
 		else:
-			uic = os.popen("which uic 2>/dev/null").read().strip()
+			uic = exec_and_read("which uic 2>/dev/null")
 			if len(uic):
 				p('YELLOW',"uic was found as "+uic)
 			else:
@@ -411,7 +417,7 @@ def detect_kde(conf):
 	if os.path.isfile(moc):
 		p('GREEN',"moc was found as "+moc)
 	else:
-		moc = os.popen("which moc 2>/dev/null").read().strip()
+		moc = exec_and_read("which moc 2>/dev/null")
 		if len(moc):
 			p('YELLOW',"moc was found as "+moc)
 		elif os.path.isfile("/usr/share/qt3/bin/moc"):
@@ -445,7 +451,7 @@ def detect_kde(conf):
 			sys.exit(1)
 
 	print "Checking for the kde includes      :",
-	kdeprefix = os.popen(kde_config+" --prefix").read().strip()
+	kdeprefix = exec_and_read('%s --prefix' % kde_config)
 	if not kdeincludes:
 		kdeincludes = kdeprefix+"/include/"
 	if os.path.isfile(kdeincludes + "/klineedit.h"):
@@ -485,23 +491,23 @@ def detect_kde(conf):
 		env['PREFIX'] = prefix
 		env['KDE_LIB'] = libdir
 		for (var, option) in kdec_opts.items():
-			dir = os.popen(kde_config+' --install ' + option).read().strip()
+			dir = exec_and_read('%s --install %s' % (kde_config, option))
 			if var == 'KDE_DOC': dir = debian_fix(dir)
 			env[var] = subst_vars(dir)
 
 	else:
-		env['PREFIX'] = os.popen(kde_config+' --expandvars --prefix').read().strip()
-		env['KDE_LIB'] = os.popen(kde_config+' --expandvars --install lib').read().strip()
+		env['PREFIX'] = exec_and_read('%s --expandvars --prefix' % kde_config)
+		env['KDE_LIB'] = exec_and_read('%s --expandvars --install lib' % kde_config)
 		for (var, option) in kdec_opts.items():
-			dir = os.popen(kde_config+' --expandvars --install ' + option).read().strip()
+			dir = exec_and_read('%s --expandvars --install %s' % (kde_config, option))
 			env[var] = dir
 
-	env['QTPLUGINS']=os.popen(kde_config+' --expandvars --install qtplugins').read().strip()
+	env['QTPLUGINS']=exec_and_read('%s --expandvars --install qtplugins' % kde_config)
 
 	## kde libs and includes
 	env['CPPPATH_KDECORE']=kdeincludes
 	if not kdelibs:
-		kdelibs=os.popen(kde_config+' --expandvars --install lib').read().strip()
+		kdelibs=exec_and_read('%s --expandvars --install lib' % kde_config)
 	env['LIBPATH_KDECORE']=kdelibs
 
 	## qt libs and includes
