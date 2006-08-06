@@ -331,6 +331,9 @@ def detect_kde(conf):
 	qtlibs      = getpath('qtlibs')
 	libsuffix   = getstr('libsuffix')
 
+	if (prefix=='/usr/local' or prefix=='/usr/local/') and not Params.g_options.usrlocal:
+		prefix=''
+
 	p=Params.pprint
 
 	if libdir: libdir = libdir+libsuffix
@@ -585,6 +588,12 @@ def set_options(opt):
 		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
 	except:
 		pass
+
+	opt.add_option('--usrlocal',
+		default=False,
+		action='store_true',
+		help='force prefix=/usr/local/',
+		dest='usrlocal')
 	for i in "execprefix datadir libdir kdedir kdeincludes kdelibs qtdir qtincludes qtlibs libsuffix".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 
