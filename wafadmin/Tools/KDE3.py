@@ -232,9 +232,6 @@ class kdeobj(cpp.cppobj):
 			if node in node.m_parent.m_files: variant = 0
 			else: variant = env.variant()
 
-			# TODO: remove this check
-			if not variant in tree.m_raw_deps: tree.m_raw_deps[variant] = {}
-
 			try: tmp_lst = tree.m_raw_deps[variant][node]
 			except: tmp_lst = []
 			for d in tmp_lst:
