@@ -4,7 +4,7 @@
 
 # Stuff potentially useful for any project
 
-import os, types, shutil
+import os, types, shutil, stat
 import Action, Params
 from Params import debug, error, trace, fatal
 
@@ -18,19 +18,30 @@ def check_dir(dir):
 
 def do_install(src, tgt, chmod=0644):
 	if Params.g_commands['install']:
-		print "* installing %s as %s" % (src, tgt)
-		try:
-			shutil.copy2(src, tgt)
-			os.chmod(tgt, chmod)
-		except:
+		# check if the file is already there to avoid a copy
+		do_install = 1
+		if not Params.g_options.force:
 			try:
-				os.stat(src)
+				t1 = os.stat(tgt)[stat.ST_MTIME]
+				t2 = os.stat(src)[stat.ST_MTIME]
+				if t1 >= t2: do_install = 0
 			except:
-				error('file %s does not exist' % str(src))
-			fatal('could not install the file')
+				do_install = 1
+
+		if do_install:
+			print "* installing %s as %s" % (src, tgt)
+			try:
+				shutil.copy2(src, tgt)
+				os.chmod(tgt, chmod)
+			except:
+				try:
+					os.stat(src)
+				except:
+					error('file %s does not exist' % str(src))
+				fatal('could not install the file')
 	elif Params.g_commands['uninstall']:
 		print "* uninstalling %s" % tgt
-		try: os.remove( tgt )
+		try: os.remove(tgt)
 		except OSError: pass
 
 def path_install(var, subdir, env=None):

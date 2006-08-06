@@ -42,12 +42,18 @@ def create_parser():
 		default = 1,
 		help    = 'specify the number of parallel jobs [Default: 1]',
 		dest    = 'jobs')
-	
+
 	p('-e', '--evil', 
 		action  = 'store_true',
 		default = False,
 		help    = 'run as a daemon     [Default: False]',
 		dest    = 'daemon')
+
+	p('-f', '--force', 
+		action  = 'store_true',
+		default = False,
+		help    = 'force the files installation',
+		dest    = 'force')
 	
 	p('-p', '--progress',
 		action  = 'store_true',
