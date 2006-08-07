@@ -16,6 +16,8 @@ class check:
 
 		self.code          = '' # the code to execute
 
+		self.flags         = '' # the flags to give to the compiler
+
 		self.uselib        = '' # uselib
 		self.includes      = '' # include paths
 
@@ -726,6 +728,8 @@ int main() {
 					obj.define_name = 'HAVE_'+obj.header_name.upper().replace('.','_').replace('/','_')
 				self.addDefine(obj.define_name, res)
 				self.checkMessage('header', obj.header_name+cached, res)
+			elif obj.fun == 'check_flags':
+				self.checkMessage('flags', obj.flags, res)
 
 
 		# first make sure the code to execute is defined
@@ -822,9 +826,10 @@ int main() {
 			import cc
 			o=cc.ccobj('program')
 
-		o.source = 'test.c'
-		o.target = 'testprog'
-		o.uselib = obj.uselib
+		o.source   = 'test.c'
+		o.target   = 'testprog'
+		o.uselib   = obj.uselib
+		o.cppflags = obj.flags
 
 
 		# compile the program
@@ -846,7 +851,7 @@ int main() {
 		Utils.reset()
 
 		checkS(ret, "")
-		if not obj.fun in ['check_function', 'check_header']:
+		if not obj.fun in ['check_function', 'check_header', 'check_flags']:
 			# store the results of the build
 			if not ret: self.m_cache_table[hash] = ret
 		else:
@@ -910,6 +915,14 @@ int main() {
 		obj.function_name = function_name
 		obj.define_name   = define_name
 		obj.headers_code  = headers_code
+		obj.env           = self.env
+		return self.check(obj)
+
+	def check_flags(self, flags):
+		obj               = check()
+		obj.fun           = 'check_flags'
+		obj.flags         = flags
+		obj.code          = 'int main() { return 0; }\n'
 		obj.env           = self.env
 		return self.check(obj)
 

@@ -68,6 +68,8 @@ int main()
 
 	conf.detect_library('XCURSOR', 'Xcursor', ['/usr/lib','/usr/X11R6/lib'])
 
+	conf.check_flags('Wno-pointer-sign') # typo intended
+
 	# finally, write the configuration header
 	conf.writeConfigHeader('config.h')
 
