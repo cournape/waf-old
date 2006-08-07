@@ -6,8 +6,9 @@ import os, sys
 import ccroot, cpp
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
+from Params import set_globals, globals
 
-g_headers_poss = ['.h', '.hh', '.hpp', '.H', '.HH']
+set_globals('MOC_H', ['.hh', '.h'])
 
 # kde .ui file processing
 #uic_vardeps = ['UIC', 'UIC_FLAGS', 'UIC_ST']
@@ -249,7 +250,7 @@ class kdeobj(cpp.cppobj):
 					ext = Params.g_options.kde_header_ext
 				else:
 					path = node.m_parent.srcpath(self.env) + os.sep
-					for i in g_headers_poss:
+					for i in globals('MOC_H'):
 						try:
 							os.stat(path+base2+i)
 							ext = i

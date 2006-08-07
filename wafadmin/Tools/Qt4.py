@@ -8,11 +8,10 @@ import os, re, types, sys, string
 import ccroot, cpp
 import Action, Common, Utils, Params, Configure, Scan, Runner, Object
 from Params import debug, error, trace, fatal
+from Params import set_globals, globals
 
 ## QT SUPPORT ##
-
-g_headers_poss = ['.h', '.hh', '.hpp', '.H', '.HH']
-
+set_globals('MOC_H', ['.hh', '.h'])
 
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
@@ -181,7 +180,7 @@ class qt4obj(cpp.cppobj):
 					ext = Params.g_options.qt_header_ext
 				else:
 					path = node.m_parent.srcpath(self.env) + os.sep
-					for i in g_headers_poss:
+					for i in globals('MOC_H'):
 						try:
 							os.stat(path+base2+i)
 							ext = i
