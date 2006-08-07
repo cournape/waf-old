@@ -130,8 +130,6 @@ class ccroot(Object.genobj):
 		except: exc_lst = excludes
 
 		for name in dirnames.split():
-			if name in exc_lst: continue
-
 			#print "name is ", name
 			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, name.split('/'))
 			#print "anode ", anode.m_name, " ", anode.m_files
@@ -144,7 +142,9 @@ class ccroot(Object.genobj):
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in self.s_default_ext:
 					s = file.relpath(self.m_current_path)
-					if not s in lst: lst.append(s)
+					if not s in lst:
+						if s in exc_lst: continue
+						lst.append(s)
 
 		self.source = self.source+' '+(" ".join(lst))
 
