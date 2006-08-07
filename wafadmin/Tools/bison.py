@@ -4,12 +4,22 @@
 
 import Action, Common, Object, Task, Params, os
 from Params import debug, error, trace, fatal
+from Params import set_globals, globals
 
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
+
+# we register our extensions to global variables
+set_globals('EXT_BISON_C', '.tab.c')
+set_globals('EXT_BISON_H', '.tab.h')
+set_globals('EXT_BISON_OUT', '.tab.o')
 
 def yc_file(self, node):
 	yctask = self.create_task('bison', nice=4)
 	yctask.set_inputs(node)
+
+	c_ext = globals('EXT_BISON_C')
+	h_ext = globals('EXT_BISON_H')
+	o_ext = globals('EXT_BISON_OUT')
 
 	# figure out what nodes bison will build
 	sep=node.m_name.rfind(os.extsep)
@@ -19,14 +29,14 @@ def yc_file(self, node):
 	else:
 		endstr = ""
 	# set up the nodes
-	newnodes = [node.change_ext('.tab.c' + endstr)]
+	newnodes = [node.change_ext(c_ext + endstr)]
 	if "-d" in self.env['BISONFLAGS']:
-		newnodes.append(node.change_ext('.tab.h'+endstr))
+		newnodes.append(node.change_ext(h_ext+endstr))
 	yctask.set_outputs(newnodes)
 	
 	task = self.create_task(self.m_type_initials)
 	task.set_inputs(yctask.m_outputs[0])
-	task.set_outputs(node.change_ext('.tab.o'))
+	task.set_outputs(node.change_ext(o_ext))
 
 def setup(env):
 	# create our action here

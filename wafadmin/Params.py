@@ -34,6 +34,13 @@ def sig_nil():
 # =================================== #
 # Constants set on runtime
 
+g_globals = {}
+def set_globals(name, value):
+	g_globals[name] = value
+def globals(name):
+	try: return g_globals[name]
+	except: return []
+
 # Set by waf.py
 g_launchdir = None
 
