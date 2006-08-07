@@ -16,6 +16,7 @@ g_cc_flag_vars = [
 cctypes=['shlib', 'program', 'staticlib']
 g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):
+	s_default_ext = ['.c', '.cc', '.C']
 	def __init__(self, type='program'):
 		ccroot.ccroot.__init__(self, type)
 
@@ -41,7 +42,6 @@ class ccobj(ccroot.ccroot):
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
-
 
 	def apply_obj_vars(self):
 		trace('apply_obj_vars called for cppobj')

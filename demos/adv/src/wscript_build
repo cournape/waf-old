@@ -21,7 +21,7 @@ obj.source='''
 main.cpp ih.coin
 '''
 obj.includes='.'
-obj.cxxflags='-Werr'
+obj.cxxflags='-Werror'
 obj.uselib='GLIB'
 obj.target='testprogram2'
 

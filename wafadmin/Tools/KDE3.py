@@ -178,16 +178,14 @@ def handler_skel(self, node, base=''):
 	handler_skel_or_stub(self, base, 'skel')
 
 # kde3 objects
-kdefiles = ['.cpp', '.ui', '.kcfgc', '.skel', '.stub']
 class kdeobj(cpp.cppobj):
+	s_default_ext = ['.cpp', '.ui', '.kcfgc', '.skel', '.stub']
 	def __init__(self, type='program'):
 		cpp.cppobj.__init__(self, type)
 		self.m_linktask = None
 		self.m_latask   = None
 		self.skel_or_stub = {}
 		self.want_libtool = -1 # fake libtool here
-		global kdefiles
-		self.m_src_file_ext = kdefiles
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
@@ -215,7 +213,7 @@ class kdeobj(cpp.cppobj):
 			if not node:
 				ext = filename[len(filename)-4:]
 				if ext != 'skel' and ext != 'stub':
-					fatal("cannot find "+filename+" in "+str(self.m_current_path))
+					fatal("cannot find %s in %s" % (filename, str(self.m_current_path)))
 			base, ext = os.path.splitext(filename)
 
 			fun = self.get_hook(ext)

@@ -64,6 +64,7 @@ Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, c
 
 # Parent class for programs and libraries in languages c, c++ and moc (Qt)
 class ccroot(Object.genobj):
+	s_default_ext = []
 	def __init__(self, type='program'):
 		Object.genobj.__init__(self, type)
 
@@ -111,10 +112,6 @@ class ccroot(Object.genobj):
 
 		self.chmod = 0755
 
-		# list of file extensions, useful for the function find_source_in_dirs('dir1 dir2 ..')
-		global g_src_file_ext
-		self.m_src_file_ext = g_src_file_ext
-
 	# overrides Object.create_task to catch the creation of cpp tasks
 	def create_task(self, type, env=None, nice=10):
 		task = Object.genobj.create_task(self, type, env, nice)
@@ -141,11 +138,11 @@ class ccroot(Object.genobj):
 			for file in anode.m_files:
 				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
-				if ext in self.m_src_file_ext:
+				if ext in self.s_default_ext:
 					s = file.relpath(self.m_current_path)
 					if not s in lst: lst.append(s)
 
-		self.source = self.source+(" ".join(lst))
+		self.source = self.source+' '+(" ".join(lst))
 
 	# adding some kind of genericity is tricky
 	# subclass this method if it does not suit your needs

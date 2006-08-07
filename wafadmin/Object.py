@@ -42,7 +42,10 @@ def flush():
 def hook(objname, ext, func):
 	# attach the function given as input as new method   hooks_yc
 	name = 'hooks_'+ext[1:]
-	setattr(g_allclasses[objname], name, func)
+	klass = g_allclasses[objname]
+	setattr(klass, name, func)
+	if not ext in klass.__dict__['s_default_ext']:
+		klass.__dict__['s_default_ext'] += [ext]
 
 class genobj:
 	def __init__(self, type):
