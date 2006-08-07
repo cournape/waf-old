@@ -124,8 +124,11 @@ class ccroot(Object.genobj):
 		fatal('subclass method get_valid_types of ccroot')
 
 	# subclass if necessary
-	def find_sources_in_dirs(self, dirnames):
+	def find_sources_in_dirs(self, dirnames, excludes=[]):
 		lst=[]
+		try:    exc_lst = excludes.split()
+		except: exc_lst = excludes
+
 		for name in dirnames.split():
 
 			#print "name is ", name
@@ -137,6 +140,7 @@ class ccroot(Object.genobj):
 			#node = self.m_current_path.find_node( name.split(os.sep) )
 			for file in anode.m_files:
 				#print "file found ->", file
+				if file in exc_lst: continue
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in self.s_default_ext:
 					s = file.relpath(self.m_current_path)
