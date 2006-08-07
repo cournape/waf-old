@@ -354,10 +354,8 @@ class ccroot(Object.genobj):
 
 				Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
 				Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
-
-		# static libraries are not to be installed so you will have to make a subclass, for example
-		#elif self.m_type == 'staticlib':
-		#	self.install_results('PREFIX', 'lib', self.m_linktask )
+		elif self.m_type == 'staticlib':
+			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=0644)
 
 	# TODO: broken, update
 	def apply_libtool(self):
