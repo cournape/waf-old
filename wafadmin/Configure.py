@@ -369,6 +369,7 @@ class Configure:
 		except:
 			pass
 
+		# TODO uh-oh
 		if not self.env['_BUILDDIR_']: self.env['_BUILDDIR_']='_build_'
 
 
@@ -380,6 +381,8 @@ class Configure:
 
 		dest=open(dir, 'w')
 		dest.write('/* configuration created by waf */\n')
+		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
+
 		for key in self.defines: 
 			if self.defines[key]:
 				dest.write('#define %s %s\n' % (key, self.defines[key]))
@@ -387,6 +390,7 @@ class Configure:
 				#	dest.write(addcontent);
 			else:
 				dest.write('/* #undef '+key+' */\n')
+		dest.write('\n#endif /* _CONFIG_H_WAF */\n')
 		dest.close()
 
 	def setConfigHeader(self, header):
