@@ -209,18 +209,20 @@ def Main():
 	# compile
 	if Params.g_commands['build'] or Params.g_commands['install']:
 		try:
-			bld.compile()
-			Params.pprint('GREEN', 'Compilation finished successfully')
+			ret = bld.compile()
+			if not ret: Params.pprint('GREEN', 'Compilation finished successfully')
 		finally:
 			bld.save()
+	if ret: fatal('Compilation failed')
 
 	# install
 	if Params.g_commands['install'] or Params.g_commands['uninstall']:
 		try:
-			bld.install()
-			Params.pprint('GREEN', 'Installation finished successfully')
+			ret = bld.install()
+			if not ret: Params.pprint('GREEN', 'Installation finished successfully')
 		finally:
 			bld.save()
+	if ret: fatal('Compilation failed')
 
 	# daemon here
 	if Params.g_options.daemon and Params.g_commands['build']:
