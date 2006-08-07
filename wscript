@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006 (ita)
 
-VERSION='0.8.5b'
+VERSION="0.8.5b"
 APPNAME='waf'
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
@@ -17,6 +17,8 @@ def set_options(opt):
 		help='cleanup the demo after use (removes project files)', dest='cleanup')
 	opt.add_option('--make-archive', action='store_true', default=False,
 		help='create a waf archive suitable for custom projects', dest='arch')
+	opt.add_option('--set-version', default='',
+		help='set the version number for waf releases', dest='setver')
 
 # the init function is called right after the command-line arguments are parsed
 def init():
@@ -62,6 +64,11 @@ def init():
 		tar.close()
 		
 		print "your archive is ready: %s.tar.bz2" % mw
+		sys.exit(0)
+	elif Params.g_options.setver:
+		ver = Params.g_options.setver
+		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
+		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		sys.exit(0)
 	else:
 		print "run 'waf --help' to know more about allowed commands !"
