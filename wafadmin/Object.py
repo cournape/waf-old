@@ -52,7 +52,7 @@ class genobj:
 		self.m_type  = type
 		self.m_posted = 0
 		self.m_current_path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
-		self.name = '' # give a name to the target
+		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 
 		# TODO if we are building something, we need to make sure the folder is scanned
 		#if not Params.g_build.m_curdirnode in Params...
@@ -95,6 +95,8 @@ class genobj:
 	# runs the code to create the tasks
 	def post(self):
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
+
+		if not self.name: self.name = self.target
 
 		if self.m_posted:
 			error("OBJECT ALREADY POSTED")
