@@ -34,7 +34,7 @@ class check:
 		self.options       = '' # command-line options
 
 	def hash(self):
-		attrs = 'fun code uselib includes function_name headers_code lib libpath define_name header_name options'
+		attrs = 'fun code uselib includes function_name headers_code lib libpath define_name header_name options flags'
 		m = md5.new()
 		for a in attrs.split():
 			val = getattr(self, a)
@@ -830,6 +830,7 @@ int main() {
 		o.target   = 'testprog'
 		o.uselib   = obj.uselib
 		o.cppflags = obj.flags
+		o.includes = obj.includes
 
 
 		# compile the program
