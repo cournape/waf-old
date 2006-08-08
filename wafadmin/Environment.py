@@ -82,18 +82,20 @@ class Environment:
 
 		keys=self.m_table.keys()
 		keys.sort()
-
+		file.write('#VERSION=%s\n' % Params.g_version)
 		for key in keys:
 			file.write('%s = %r\n'%(key,self.m_table[key]))
 		file.close()
 
 	def load(self, filename):
-		if not os.path.isfile(filename):
-			return 0
+		if not os.path.isfile(filename): return 0
 		file=open(filename, 'r')
 		for line in file:
 			ln = line.strip()
-			if not ln or ln[0]=='#': continue
+			if not ln: continue
+			if ln[:9]=='#VERSION=':
+				if ln[9:] != Params.g_version: error('waf version mismatch, you should perhaps reconfigure')
+			if ln[0]=='#': continue
 			(key,value) = string.split(ln, '=', 1)
 			line = 'self.m_table["%s"] = %s'%(key.strip(), value.strip())
 			exec line
