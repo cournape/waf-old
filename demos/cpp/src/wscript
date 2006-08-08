@@ -29,7 +29,7 @@ def build(bld):
 	b1.cpp b2.cpp
 	'''
 	obj.includes     = '.'
-	obj.name         = 'peter'
+	#obj.name         = 'peter'
 	obj.target       = 'testshlib'
 	obj.install_in   = 'SOME_INSTALL_DIR'
 
@@ -61,8 +61,12 @@ def build(bld):
 	'''
 	obj.includes     = '.'
 	obj.uselib       = 'MYPROG'
-	obj.uselib_local = 'tony john peter'
+	obj.uselib_local = 'tony john testshlib' # 'tony john peter' # look for 'peter' above
 	obj.target       = 'program_dyn_linked'
+
+	# IMPORTANT WARNING:
+	# uselib_local expects *names*, that is, the field obj.name
+	# by simplicity, when there is no ambiguity: obj.target == obj.name
 
 def set_options(opt):
 	# options defined if src/ was to be compiled as a standalone module
