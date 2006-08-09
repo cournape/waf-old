@@ -12,6 +12,7 @@ from Params import debug, error, trace, fatal
 native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
 class ocamlobj(Object.genobj):
+	s_default_ext = ['.mli', '.mll', '.mly', '.ml']
 	def __init__(self, type='all', library=0):
 		Object.genobj.__init__(self, 'ocaml')
 
@@ -24,11 +25,18 @@ class ocamlobj(Object.genobj):
 		self._mlltasks    = []
 		self._mlytasks    = []
 
+		self._mlitasks    = []
+		self._native_tasks   = []
+		self._bytecode_tasks = []
+
 		self.bytecode_env = None
 		self.native_env   = None
 
 		self.includes     = ''
 		self.uselib       = ''
+
+		# TODO
+		self.are_deps_set = 0
 
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
 
@@ -86,12 +94,16 @@ class ocamlobj(Object.genobj):
 					if self.bytecode_env: self.bytecode_env.appendValue(vname, cnt)
 					if self.native_env: self.native_env.appendValue(vname, cnt)
 
-		native_tasks   = []
-		bytecode_tasks = []
-		for filename in (' '+self.source).split():
-			base, ext = os.path.splitext(filename)
+		source_lst = self.source.split()
+		nodes_lst = []
 
+		# first create the nodes corresponding to the sources
+		for filename in source_lst:
+			base, ext = os.path.splitext(filename)
 			node = self.file_in(filename)[0]
+			if not ext in self.s_default_ext:
+				print "??? ", filename
+
 			if ext == '.mll':
 				mll_task = self.create_task('ocamllex', self.native_env, 1)
 				mll_task.set_inputs(node)
@@ -115,6 +127,7 @@ class ocamlobj(Object.genobj):
 				task = self.create_task('ocamlcmi', self.native_env, 4)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmi'))
+				self._mlitasks.append(task)
 				continue
 			elif ext == '.c':
 				task = self.create_task('ocamlcc', self.native_env, 6)
@@ -130,24 +143,24 @@ class ocamlobj(Object.genobj):
 				task = self.create_task('ocaml', self.native_env, 6)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmx'))
-				native_tasks.append(task)
+				self._native_tasks.append(task)
 			if self.bytecode_env:
 				task = self.create_task('ocaml', self.bytecode_env, 6)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmo'))
-				bytecode_tasks.append(task)
+				self._bytecode_tasks.append(task)
 
 		if self.bytecode_env:
 			linktask = self.create_task('ocalink', self.bytecode_env, 101)
 			objfiles = []
-			for t in bytecode_tasks: objfiles.append(t.m_outputs[0])
+			for t in self._bytecode_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=1))
 
 		if self.native_env:
 			linktask = self.create_task('ocalinkopt', self.native_env, 101)
 			objfiles = []
-			for t in native_tasks: objfiles.append(t.m_outputs[0])
+			for t in self._native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=0))
 
@@ -166,6 +179,79 @@ class ocamlobj(Object.genobj):
 				return self.target+'.cmxa'
 			else:
 				return self.target
+
+	def find_sources_in_dirs(self, dirnames, excludes=[]):
+		lst=[]
+		try:    exc_lst = excludes.split()
+		except: exc_lst = excludes
+
+		for name in dirnames.split():
+			#print "name is ", name
+			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, name.split('/'))
+			#print "anode ", anode.m_name, " ", anode.m_files
+			Params.g_build.rescan(anode)
+			#print "anode ", anode.m_name, " ", anode.m_files
+
+			#node = self.m_current_path.find_node( name.split(os.sep) )
+			for file in anode.m_files:
+				#print "file found ->", file
+				(base, ext) = os.path.splitext(file.m_name)
+				if ext in self.s_default_ext:
+					s = file.relpath(self.m_current_path)
+					if not s in lst:
+						if s in exc_lst: continue
+						lst.append(s)
+
+		self.source = self.source+' '+(" ".join(lst))
+
+	def comptask(self):
+		# use ocamldep to set the dependencies
+		#
+		# we cannot run this method when posting the object as the mly and mll tasks
+		# are not run yet, so the resulting .ml and .mli files do not exist, leading to
+		# incomplete dependencies
+
+		curdir = self.m_current_path
+		file2task = {}
+
+		dirs  = []
+		milst = []
+		lst = []
+		for i in self._mlitasks + self._nativetasks + self._bytecodetasks:
+			node = i.m_inputs[0]
+			path = node.bldpath(self.env)
+			if not path in milst:
+				milst.append(path)
+				dir = node.m_parent.srcpath(self.env)
+				if not dir in dirs: dirs.append(dir)
+
+			m = i.m_outputs[0]
+			file2task[m.bldpath(self.env)] = i
+
+		cmd = ['ocamldep']
+		for i in dirs:
+			cmd.append('-I')
+			cmd.append(i)
+		for i in htbl:
+			cmd.append(i)
+
+		cmd = " ".join(cmd)
+		ret = os.popen(cmd).read().strip()
+		print ret
+
+		#hashdeps = {}
+		lines = ret.split('\n')
+		for line in lines:
+			lst = line.split(': ')
+			#hashdeps[lst[0]] = lst[1].split()
+
+			if lst[0] in file2task:
+				t = file2task[lst[0]]
+
+				for name in lst[1].split():
+					if name in file2task:
+						t.m_run_after.append(file2task[name])
+
 
 def setup(env):
 	Object.register('ocaml', ocamlobj)
