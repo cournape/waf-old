@@ -15,8 +15,9 @@ Environment setup:
   'source aliases.sh' will set your environment.
 
 Starting a new project with waf:
-  Using "waf --make-archive", a small archive containing the minimum waf distribution is generated
-  (without examples). Just unpack the archive created in the directory of your folder:
+  Using "waf --make-archive" in the waf source directory, a small archive 
+  containing the minimum waf distribution is generated
+  (without examples). Just unpack the archive created where you have your sources:
   tar xjvf miniwaf-0.x.x.tar.bz2
     or
   copy the wafadmin/ folder for global use: /usr/lib/wafadmin, /usr/local/lib/wafadmin 

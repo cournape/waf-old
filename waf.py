@@ -4,6 +4,11 @@
 
 import os, string, sys, imp
 
+msg1 = """\033[91mWaf: *** Nothing to do! Please run waf (or ./waf.py) from a directory containing a file named "wscript"\033[0m
+"""
+
+msg2 = """\033[91mWaf: *** The wafadmin directory was not found (not installed)\033[0m"""
+
 # Climb up to the folder containing the main wscript and chdir to it
 # It is also possible that the project was configured as a sub-module
 # in this case, stop when a ".lock-wscript" file is found
@@ -34,11 +39,11 @@ try:
 		if '.lock-wscript' in dirlst: break
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
 except:
-	print '\033[91mMain wscript file was not found in dir or above, exiting now\033[0m'
+	print msg1
 	sys.exit(1)
 
 if not candidate:
-	print '\033[91mMain wscript file was not found in dir or above, exiting now\033[0m'
+	print msg1
 	sys.exit(1)
 
 # We have found wscript, but there is no guarantee that it is valid
@@ -52,8 +57,8 @@ def find_wafdir(lst_cand):
 			return dir
 		except:
 			pass
-	print 'The waf directory was not found'
-	print str(lst_cand)
+	print msg2
+	print "candidates were: ", str(lst_cand)
 	sys.exit(1)
 
 wafadmin_dir1 = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),'wafadmin')
@@ -91,6 +96,7 @@ if build_dir_override:
 	Utils.g_module.blddir = build_dir_override
 
 # fix the path of the cachedir - it is mandatory
+# untested code (ita)
 if sys.platform=='win32':
 	try:
 		lst = Utils.g_module.cachedir.split('/')
