@@ -986,6 +986,7 @@ int main() {
 		if ret:
 			env['LIB_'+uselibname]=libname
 			env['LIBPATH_'+uselibname]=ret
+		return ret
 
 """
 	# this one is a bit different too
