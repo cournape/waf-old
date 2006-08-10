@@ -6,7 +6,7 @@ def build(bld):
 	# The first example is a simple program
 	obj = bld.createObj('ocaml', 'all')
 	obj.source='''
-	somemodule.ml main.ml
+	main.ml somemodule.ml
 	'''
 	obj.includes='.'
 	obj.target='camlprog'

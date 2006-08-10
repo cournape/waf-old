@@ -5,9 +5,20 @@
 # found is 1, not found is 0
 
 import os, sys
-import Utils, Params, Action, Object, Runner, Common
+import Utils, Params, Action, Object, Runner, Common, Scan
 from Params import debug, error, trace, fatal
 
+g_map_id_to_obj = {}
+
+class ocaml_scanner(Scan.scanner):
+	def __init__(self):
+		Scan.scanner.__init__(self)
+	def may_start(self, task):
+		global g_map_id_to_obj
+		if task.m_idx in g_map_id_to_obj: g_map_id_to_obj[task.m_idx].comptask()
+		return 1
+
+g_caml_scanner = ocaml_scanner()
 
 native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
@@ -28,6 +39,7 @@ class ocamlobj(Object.genobj):
 		self._mlitasks    = []
 		self._native_tasks   = []
 		self._bytecode_tasks = []
+		self._linktasks      = []
 
 		self.bytecode_env = None
 		self.native_env   = None
@@ -35,8 +47,7 @@ class ocamlobj(Object.genobj):
 		self.includes     = ''
 		self.uselib       = ''
 
-		# TODO
-		self.are_deps_set = 0
+		self._are_deps_set = 0
 
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
 
@@ -59,6 +70,12 @@ class ocamlobj(Object.genobj):
 
 		if self.m_type == 'c_object':
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
+
+	def _map_task(self, task):
+		global g_caml_scanner
+		task.m_scanner = g_caml_scanner
+		global g_map_id_to_obj
+		g_map_id_to_obj[task.m_idx] = self
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -143,11 +160,13 @@ class ocamlobj(Object.genobj):
 				task = self.create_task('ocaml', self.native_env, 6)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmx'))
+				self._map_task(task)
 				self._native_tasks.append(task)
 			if self.bytecode_env:
 				task = self.create_task('ocaml', self.bytecode_env, 6)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmo'))
+				self._map_task(task)
 				self._bytecode_tasks.append(task)
 
 		if self.bytecode_env:
@@ -156,13 +175,14 @@ class ocamlobj(Object.genobj):
 			for t in self._bytecode_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=1))
-
+			self._linktasks.append(linktask)
 		if self.native_env:
 			linktask = self.create_task('ocalinkopt', self.native_env, 101)
 			objfiles = []
 			for t in self._native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.m_outputs = self.file_in(self.get_target_name(bytecode=0))
+			self._linktasks.append(linktask)
 
 			self.out_nodes += linktask.m_outputs
 
@@ -211,13 +231,18 @@ class ocamlobj(Object.genobj):
 		# are not run yet, so the resulting .ml and .mli files do not exist, leading to
 		# incomplete dependencies
 
+		if self._are_deps_set: return
+		self._are_deps_set = 1
+
+		#print "comptask called!"
+
 		curdir = self.m_current_path
 		file2task = {}
 
 		dirs  = []
 		milst = []
 		lst = []
-		for i in self._mlitasks + self._nativetasks + self._bytecodetasks:
+		for i in self._mlitasks + self._native_tasks + self._bytecode_tasks:
 			node = i.m_inputs[0]
 			path = node.bldpath(self.env)
 			if not path in milst:
@@ -226,31 +251,50 @@ class ocamlobj(Object.genobj):
 				if not dir in dirs: dirs.append(dir)
 
 			m = i.m_outputs[0]
-			file2task[m.bldpath(self.env)] = i
+			file2task[m.relpath_gen(Params.g_build.m_bldnode)] = i
 
 		cmd = ['ocamldep']
 		for i in dirs:
 			cmd.append('-I')
 			cmd.append(i)
-		for i in htbl:
+		for i in milst:
 			cmd.append(i)
 
 		cmd = " ".join(cmd)
 		ret = os.popen(cmd).read().strip()
-		print ret
 
-		#hashdeps = {}
+		hashdeps = {}
 		lines = ret.split('\n')
 		for line in lines:
 			lst = line.split(': ')
-			#hashdeps[lst[0]] = lst[1].split()
+			hashdeps[lst[0]] = lst[1].split()
+
+			#print "found ", lst[0], file2task
 
 			if lst[0] in file2task:
 				t = file2task[lst[0]]
 
 				for name in lst[1].split():
 					if name in file2task:
-						t.m_run_after.append(file2task[name])
+						t.set_run_after(file2task[name])
+
+		# sort the files in the link tasks .. damn
+		def cmp(n1, n2):
+			v1 = n1.relpath_gen(Params.g_build.m_bldnode)
+			v2 = n2.relpath_gen(Params.g_build.m_bldnode)
+
+			if v1 in hashdeps:
+				if v2 in hashdeps[v1]:
+					return 1
+			elif v2 in hashdeps:
+				if v1 in hashdeps[v2]:
+					return -1
+			return 0
+
+		for task in self._linktasks:
+			task.m_inputs.sort(cmp)
+		#for task in self._native_tasks:
+		#	print task.m_run_after
 
 
 def setup(env):

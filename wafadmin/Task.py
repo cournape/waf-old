@@ -113,6 +113,8 @@ class Task:
 			error("grave error, task is invalid : no inputs or outputs")
 			self.debug()
 
+		if not self.m_scanner.may_start(self): return 1
+
 		for t in self.m_run_after:
 			if not t.m_hasrun: return 0
 		return 1
