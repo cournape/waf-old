@@ -3,6 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import sys, os, string
+import Params
 
 parse_cache = {}
 
@@ -557,7 +558,7 @@ class cparse:
 		except IOError:
 			raise
 		except:
-			print "warning: parsing %s failed" % filepath
+			if Params.g_verbose > 0: print "warning: parsing %s failed" % filepath
 			raise
 
 	def start2(self, node, env):
@@ -578,7 +579,7 @@ class cparse:
 			try:
 				self.process_line()
 			except:
-				print "warning: line parsing failed >%s<" % line
+				if Params.g_verbose > 0: print "warning: line parsing failed >%s<" % line
 				#raise
 
 	# debug only
