@@ -15,13 +15,13 @@ set_globals('EXT_FLEX_OUT', '.lex.o')
 
 def l_file(self, node):
 	if self.__class__.__name__ == 'ccobj':
-		ext = globals('EXT_FLEX_C')
+		ext = self.env['EXT_FLEX_C']
 	elif self.__class__.__name__ == 'cppobj':
-		ext = globals('EXT_FLEX_CC')
+		ext = self.env['EXT_FLEX_CC']
 	else:
 		fatal('neither c nor c++ for flex.py')
 
-	obj_ext = globals('EXT_FLEX_OUT')
+	obj_ext = self.env['EXT_FLEX_OUT']
 
 	ltask = self.create_task('flex', nice=4)
 	ltask.set_inputs(node)
@@ -36,10 +36,9 @@ def setup(env):
 	Action.simple_action('flex', flex_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	try: env.hook('cpp', '.l', l_file)
+	try: env.hook('cpp', 'FLEX_EXT', l_file)
 	except: pass
-
-	try: env.hook('cc', '.l', l_file)
+	try: env.hook('cc', 'FLEX_EXT', l_file)
 	except: pass
 
 def detect(conf):
@@ -48,5 +47,6 @@ def detect(conf):
 	v = conf.env
 	v['FLEX']      = flex
 	v['FLEXFLAGS'] = ''
+	v['FLEX_EXT']  = ['.l']
 	return 1
 

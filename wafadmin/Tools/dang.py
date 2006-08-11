@@ -32,11 +32,12 @@ def setup(env):
 	Action.simple_action('dang', dang_str, color='BLUE')
 
 	# register the hook for use with cppobj
-	env.hook('cpp', '.coin', coin_file)
+	env.hook('cpp', 'DANG_EXT', coin_file)
 
 def detect(conf):
 	dang = conf.checkProgram('cat', var='CAT')
 	if not dang: return 0
 	conf.env['DANG'] = dang
+	conf.env['DANG_EXT'] = ['.coin']
 	return 1
 

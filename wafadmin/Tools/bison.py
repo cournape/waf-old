@@ -17,9 +17,9 @@ def yc_file(self, node):
 	yctask = self.create_task('bison', nice=4)
 	yctask.set_inputs(node)
 
-	c_ext = globals('EXT_BISON_C')
-	h_ext = globals('EXT_BISON_H')
-	o_ext = globals('EXT_BISON_OUT')
+	c_ext = self.env['EXT_BISON_C']
+	h_ext = self.env['EXT_BISON_H']
+	o_ext = self.env['EXT_BISON_OUT']
 
 	# figure out what nodes bison will build
 	sep=node.m_name.rfind(os.extsep)
@@ -43,17 +43,11 @@ def setup(env):
 	Action.simple_action('bison', bison_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	try:
-		Object.hook('cpp', '.y', yc_file)
-		Object.hook('cpp', '.yc', yc_file)
-	except:
-		pass
+	try: Object.hook('cpp', 'BISON_EXT', yc_file)
+	except: pass
 
-	try:
-		Object.hook('cc', '.y', yc_file)
-		Object.hook('cc', '.yc', yc_file)
-	except:
-		pass
+	try: Object.hook('cc', 'BISON_EXT', yc_file)
+	except: pass
 
 def detect(conf):
 	bison = conf.checkProgram('bison', var='BISON')
@@ -61,5 +55,6 @@ def detect(conf):
 	v = conf.env
 	v['BISON']      = bison
 	v['BISONFLAGS'] = '-d'
+	v['BISON_EXT']  = ['.y', '.yc']
 	return 1
 

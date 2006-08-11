@@ -15,7 +15,7 @@
 #
 # hooks
 #   * makes it possible to declare new kind of targets quickly (give a pattern ? and the action name)
-#   * is not really flexible, but lightweight
+#   * several extensions are mapped to a single method
 #   * cf ccroot for more details on this scheme
 
 import os, shutil, types, copy
@@ -39,13 +39,19 @@ def flush():
 
 		trace("object posted")
 
-def hook(objname, ext, func):
-	# attach the function given as input as new method   hooks_yc
-	name = 'hooks_'+ext[1:]
+#def hook(objname, ext, func):
+#	# attach the function given as input as new method   hooks_yc
+#	name = 'hooks_'+ext[1:]
+#	klass = g_allclasses[objname]
+#	setattr(klass, name, func)
+#	if not ext in klass.__dict__['s_default_ext']:
+#		klass.__dict__['s_default_ext'] += [ext]
+
+def hook(objname, var, func):
 	klass = g_allclasses[objname]
-	setattr(klass, name, func)
-	if not ext in klass.__dict__['s_default_ext']:
-		klass.__dict__['s_default_ext'] += [ext]
+	klass.__dict__[var] = func
+	try: klass.__dict__['all_hooks'].append(var)
+	except: klass.__dict__['all_hooks'] = [var]
 
 class genobj:
 	def __init__(self, type):
@@ -86,9 +92,10 @@ class genobj:
 		return ['program', 'shlib', 'staticlib', 'other']
 
 	def get_hook(self, ext):
-		name = "hooks_"+ext[1:]
 		try:
-			return getattr(self.__class__, name)
+			for i in self.__class__.__dict__['all_hooks']:
+				if ext in self.env[i]:
+					return self.__class__.__dict__[i]
 		except:
 			return None
 
