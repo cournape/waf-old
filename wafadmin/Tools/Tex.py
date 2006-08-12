@@ -82,19 +82,19 @@ class texobj(Object.genobj):
 def detect(conf):
 	v = conf.env
 
-	v['TEX']         = 'tex'
+	v['TEX']         = conf.find_program('tex')
 	v['TEXFLAGS']    = ''
 
-	v['LATEX']       = 'latex'
+	v['LATEX']       = conf.find_program('latex')
 	v['LATEXFLAGS']  = ''
 
-	v['BIBTEX']      = 'bibtex'
+	v['BIBTEX']      = conf.find_program('bibtex')
 	v['BIBTEXFLAGS'] = ''
 
-	v['DVIPS']       = 'dvips'
+	v['DVIPS']       = conf.find_program('dvips')
 	v['DVIPSFLAGS']  = ''
 
-	v['DVIPDF']      = 'dvipdf'
+	v['DVIPDF']      = conf.find_program('dvipdf')
 	v['DVIPDFFLAGS'] = ''
 	return 1
 
