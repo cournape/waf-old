@@ -130,7 +130,7 @@ class ccroot(Object.genobj):
 		except: exc_lst = excludes
 
 		ext_lst = []
-		ext_lst += self.self_default_ext
+		ext_lst += self.s_default_ext
 		try:
 			for var in self.__class__.__dict__['all_hooks']:
 				ext_lst += self.env[var]
