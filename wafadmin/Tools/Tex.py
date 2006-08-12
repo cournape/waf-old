@@ -56,6 +56,7 @@ def latex_build(task):
 
 g_texobjs=['latex','tex','bibtex','dvips','dvipdf']
 class texobj(Object.genobj):
+	s_default_ext = ['.tex', '.ltx']
 	def __init__(self, type='latex'):
 		Object.genobj.__init__(self, 'tex')
 
@@ -65,12 +66,14 @@ class texobj(Object.genobj):
 			import sys
 			sys.exit(1)
 		self.m_type   = type
-		self.m_source = ''
-		self.m_target = ''
+		self.outs     = '' # example: "ps pdf"
 	def apply(self):
-		for filename in (' '+self.source).split():
+		
+		outs = self.outs.split()
+
+		for filename in self.source.split():
 			base, ext = os.path.splitext(filename)
-			if not ext=='.tex': continue
+			if not ext in self.s_default_ext: continue
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
 			if not node: fatal('cannot find %s' % filename)
@@ -78,6 +81,16 @@ class texobj(Object.genobj):
 			task = self.create_task('latex', self.env, 2)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.dvi'))
+
+
+			if 'ps' in outs:
+				pstask = self.create_task('dvips', self.env, 40)
+				pstask.set_inputs(task.m_outputs)
+				pstask.set_outputs(node.change_ext('.ps'))
+			if 'pdf' in outs:
+				pdftask = self.create_task('dvipdf', self.env, 40)
+				pdftask.set_inputs(task.m_outputs)
+				pdftask.set_outputs(node.change_ext('.pdf'))
 
 def detect(conf):
 	v = conf.env
@@ -102,7 +115,7 @@ def setup(env):
 	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE')
 	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE')
 	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE')
-	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE')
 
 	Action.Action('latex', vars=latex_vardeps, func=latex_build)
 
