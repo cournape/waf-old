@@ -129,6 +129,14 @@ class ccroot(Object.genobj):
 		try:    exc_lst = excludes.split()
 		except: exc_lst = excludes
 
+		ext_lst = []
+		ext_lst += self.self_default_ext
+		try:
+			for var in self.__class__.__dict__['all_hooks']:
+				ext_lst += self.env[var]
+		except:
+			pass
+
 		for name in dirnames.split():
 			#print "name is ", name
 			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, name.split('/'))
@@ -140,7 +148,7 @@ class ccroot(Object.genobj):
 			for file in anode.m_files:
 				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
-				if ext in self.s_default_ext:
+				if ext in ext_lst: 
 					s = file.relpath(self.m_current_path)
 					if not s in lst:
 						if s in exc_lst: continue
