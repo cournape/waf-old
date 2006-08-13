@@ -7,8 +7,7 @@
 import os, sys
 import Utils, Params, Action, Object, Runner
 
-# TODO: make this more simple
-latex_vardeps  = ['LATEX', 'LATEXFLAGS', 'LATEX_ST']
+latex_vardeps  = ['LATEX']
 def latex_build(task):
 	com = task.m_env['LATEX']
 	node = task.m_inputs[0]
@@ -19,10 +18,9 @@ def latex_build(task):
 	lst = []
 	for c in reldir.split(os.sep):
 		if c: lst.append('..')
-	lst.append(srcfile)
+	sr = os.sep.join(lst + [srcfile])
+	sr2 = os.sep.join(lst + [node.m_parent.srcpath(task.m_env)])
 
-	sr = os.sep.join(lst)
-	
 	aux_node = node.change_ext('.aux')
 
 	hash     = ''
@@ -47,7 +45,7 @@ def latex_build(task):
 		if hash and hash == old_hash: break
 
 		# run the command
-		cmd = 'cd %s && %s %s' % (reldir, com, sr)
+		cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
 		ret = Runner.exec_command(cmd)
 		if ret: return ret
 
