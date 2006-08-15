@@ -4,181 +4,189 @@
 # Oscar Blumberg 2006 (nael)
 # edited by Matthias Jahn <jahn.matthias@freenet.de>
 # this depends on python gamin and on gamin demon
-
+__revision__ = "0.1.0"
 import os, sys, select, errno
 try:
-        import gamin
-        support = True
+	import gamin
+	support = True
 except:
-        support = False
+	support = False
 
 class WatchMonitor:
-        class WatchObject:
-                def __init__(self, idxName, namePath, isDir, callBackThis, handleEvents):
-                        self.__fr = None
-                        self.__idxName=idxName
-                        self.__namePath = namePath
-                        self.__isDir = isDir
-                        self.__callBackThis = callBackThis
-                        self.__handleEvents = handleEvents
-                        self.__watcher=None
-                
-                def __del__(self):
-                        self.unwatch()
-        
-                def watch(self, watcher, callBack):
-                        if self.__fr != None:
-                                self.unwatch()
-                        if self.__isDir:
-                                self.__watcher=watcher
-                                self.__fr = watcher.watch_directory(self.__namePath, callBack, self.__idxName)
-                        else:
-                                self.__fr = watcher.watch_file(self.__namePath, callBack, self.__idxName)
-        
-                def unwatch(self):
-                        if self.__watcher==None:
-                                raise "fam not init"
-                        self.__watcher.stop_watch(self.__namePath)
-                
-                def getHandleEvents(self):
-                        return self.__handleEvents
-                
-                def getCallBackThis(self):
-                        return self.__callBackThis
-                
-                def getFullPath(self, fileName):
-                        return os.path.join(self.__namePath, fileName)
-                
-                def getIdxName(self):
-                        return self.__idxName
-        
-                def __str__(self):
-                        if self.__isDir:
-                                return 'DIR %s: ' % self.__name
-                        else:
-                                return 'FILE %s: ' %self.__name
+	class WatchObject:
+		def __init__(self, idxName, name, isDir, callBackThis, handleEvents):
+			self.__fr = None
+			self.__idxName = idxName
+			self.__name = name
+			self.__isDir = isDir
+			self.__callBackThis = callBackThis
+			self.__handleEvents = handleEvents
+			self.__watcher = None
+		
+		def __del__(self):
+			self.unwatch()
+	
+		def watch(self, watcher, callBack):
+			if self.__fr != None:
+				self.unwatch()
+			if self.__isDir:
+				self.__watcher = watcher
+				self.__fr = watcher.watch_directory(self.__name, callBack, self.__idxName)
+			else:
+				self.__fr = watcher.watch_file(self.__name, callBack, self.__idxName)
+	
+		def unwatch(self):
+			if self.__watcher == None:
+				raise "fam not init"
+			self.__watcher.stop_watch(self.__name)
+		
+		def getHandleEvents(self):
+			return self.__handleEvents
+		
+		def getCallBackThis(self):
+			return self.__callBackThis
+		
+		def getFullPath(self, fileName):
+			return os.path.join(self.__name, fileName)
+		
+		def getIdxName(self):
+			return self.__idxName
+	
+		def __str__(self):
+			if self.__isDir:
+				return 'DIR %s: ' % self.__name
+			else:
+				return 'FILE %s: ' % self.__name
 
-        def __init__(self):
-                if support == False:
-                        raise "gamin not supported"
-                self.__gamin = None
-                self.connect()
-                self.__watcher={}
-                self.__loops = True
-        
-        def __del__ (self):
-                self.disconnect()
-                self.removeAllDirWatch()
+	def __init__(self):
+		if support == False:
+			raise "gamin not supported"
+		self.__gamin = None
+		self.connect()
+		self.__watcher = {}
+		self.__loops = True
+	
+	def __del__ (self):
+		self.disconnect()
+		self.removeAllDirWatch()
 
-        def __raise_disconnected(self):
-                raise("Already disconnected")
+	def __raise_disconnected(self):
+		raise("Already disconnected")
 
-        def connect(self):
-                self.__gamin=gamin.WatchMonitor()
-        
-        def disconnect(self):
-                if  self.__gamin != None:
-                        self.suspendAllDirWatch()
-                        self.__gamin.disconnect()
-                self.__gamin = None;
-        
-        def addDirWatch(self, idxName, CallBackThis, dirList, handleEvents=['changed', 'deleted', 'created']):
-                """add dirList to watch.
-                idxName: unique name for ref
-                CallBackThis: is called if something in dirs in dirlist has events (handleEvents)  
-                callbackthis(idxName, changedFilePath)
-                dirList: list of dirs to watch
-                handleEvents:  events to handle possible are 'changed', 'delete', 'create', 'exist'
-                        suspendDirWatch after a handled change
-                """
-                self.removeDirWatch(idxName)
-                self.__watcher[idxName]=[]
-                for dir in dirList:
-                        watchObject=self.WatchObject(idxName, os.path.abspath(dir), 1, CallBackThis, handleEvents)
-                        self.__watcher[idxName].append(watchObject)
-                self.resumeDirWatch(idxName)
-        
-        def removeDirWatch(self, idxName):
-                """remove DirWatch with name idxName"""
-                if self.__watcher.has_key(idxName):
-                        self.suspendDirWatch(idxName)
-                        del self.__watcher[idxName]
-        
-        def removeAllDirWatch(self):
-                """remove all DirWatcher"""
-                self.__watcher={}
-        
-        def suspendDirWatch(self, idxName):
-                """suspend DirWatch with name idxName. No dir/filechanges will be reacted until resume"""
-                if self.__watcher.has_key(idxName):
-                        for watchObject in self.__watcher[idxName]:
-                                watchObject.unwatch()
-        
-        def suspendAllDirWatch(self):
-                """suspend all DirWatcher ... they could be resumed with resumeAllDirWatch"""
-                for idxName in self.__watcher.keys():
-                        self.suspendDirWatch(idxName)
-        
-        def resumeDirWatch(self, idxName):
-                """resume a DirWatch that was supended with suspendDirWatch or suspendAllDirWatch"""
-                if  self.__gamin == None:
-                        self.connect()
-                for watchObject in self.__watcher[idxName]:
-                        watchObject.watch(self.__gamin, self.__processDirEvents)
-        
-        def resumeAllDirWatch(self):
-                """ resume all DirWatcher"""
-                for idxName in self.__watcher.keys():
-                        self.resumeDirWatch(idxName)
-        
-        def __code2str(self, event):
-                gaminCodes={1: "changed", 2: "deleted", 3: "StartExecuting", 4: "StopExecuting",
-                        5: "created", 6: "moved", 7: "acknowledge", 8: "exists", 9: "endExist"}
-                try:
-                        return gaminCodes[event]
-                except:
-                        return "unknown"
-        
-        def __processDirEvents(self, pathName, event, idxName):
-                if self.__code2str(event) in self.__watcher[idxName][0].getHandleEvents():
-                        self.disconnect()
-                        #self.__loops=False
-                        __watcher=self.__watcher[idxName][0]
-                        __watcher.getCallBackThis()(idxName, __watcher.getFullPath(pathName), self.__code2str(event))
-                        self.connect()
-                        self.resumeDirWatch(idxName)
-        
-        def requestEndLoop(self):
-                """sets a flag that stops the loop. it do not stop the loop directly!"""
-                self.__loops=False
-                
-        def loop(self):
-                self.__loops=True
-                while (self.__loops) and (self.__gamin != None) :
-                        try:
-                                ri, ro, re = select.select([self.__gamin.get_fd()], [], [])
-                        except select.error, er:
-                                errnumber, strerr = er
-                                if errnumber == errno.EINTR:
-                                        continue
-                                else:
-                                        raise strerr
-                                        sys.exit(1)
-                        while self.__gamin.event_pending():
-                                self.__gamin.handle_events()
-                                if not self.__loops:
-                                        break
- 
-class test:
-        def __init__(self):
-                self.fam_test=WatchMonitor()
-                self.fam_test.addDirWatch("tmp Test", self.thisIsCalledBack, ["/tmp"])
-                self.fam_test.loop()
-                self.fam_test.loop()
-        
-        def thisIsCalledBack(self, idxName, pathName, event):
-                print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
-                self.fam_test.resumeAllDirWatch()
+	def connect(self):
+		self.__gamin = gamin.WatchMonitor()
+	
+	def disconnect(self):
+		if  self.__gamin != None:
+			self.suspendAllDirWatch()
+			self.__gamin.disconnect()
+		self.__gamin = None;
+	
+	def addDirWatch(self, idxName, callBackThis, dirList, handleEvents=['changed', 'deleted', 'created']):
+		"""add dirList to watch.
+		idxName: unique name for ref
+		callBackThis: is called if something in dirs in dirlist has events (handleEvents)  
+		callBackThis(idxName, changedFilePath)
+		dirList: list of directories to watch
+		handleEvents:  events to handle possible are 'changed', 'delete', 'create', 'exist'
+			suspendDirWatch after a handled change
+		"""
+		self.removeDirWatch(idxName)
+		self.__watcher[idxName] = []
+		for directory in dirList:
+			watchObject = self.WatchObject(idxName, os.path.abspath(directory), 1, callBackThis, handleEvents)
+			self.__watcher[idxName].append(watchObject)
+		self.resumeDirWatch(idxName)
+	
+	def removeDirWatch(self, idxName):
+		"""remove DirWatch with name idxName"""
+		if self.__watcher.has_key(idxName):
+			self.suspendDirWatch(idxName)
+			del self.__watcher[idxName]
+	
+	def removeAllDirWatch(self):
+		"""remove all DirWatcher"""
+		self.__watcher = {}
+	
+	def suspendDirWatch(self, idxName):
+		"""suspend DirWatch with name idxName. No dir/filechanges will be reacted until resume"""
+		if self.__watcher.has_key(idxName):
+			for watchObject in self.__watcher[idxName]:
+				watchObject.unwatch()
+	
+	def suspendAllDirWatch(self):
+		"""suspend all DirWatcher ... they could be resumed with resumeAllDirWatch"""
+		for idxName in self.__watcher.keys():
+			self.suspendDirWatch(idxName)
+	
+	def resumeDirWatch(self, idxName):
+		"""resume a DirWatch that was supended with suspendDirWatch or suspendAllDirWatch"""
+		if  self.__gamin == None:
+			self.connect()
+		for watchObject in self.__watcher[idxName]:
+			watchObject.watch(self.__gamin, self.__processDirEvents)
+	
+	def resumeAllDirWatch(self):
+		""" resume all DirWatcher"""
+		for idxName in self.__watcher.keys():
+			self.resumeDirWatch(idxName)
+	
+	def __code2str(self, event):
+		gaminCodes = {
+			1: "changed",
+			2: "deleted",
+			3: "StartExecuting",
+			4: "StopExecuting",
+			5: "created",
+			6: "moved",
+			7: "acknowledge",
+			8: "exists",
+			9: "endExist"
+		}
+		try:
+			return gaminCodes[event]
+		except:
+			return "unknown"
+	
+	def __processDirEvents(self, pathName, event, idxName):
+		if self.__code2str(event) in self.__watcher[idxName][0].getHandleEvents():
+			self.disconnect()
+			__watcher = self.__watcher[idxName][0]
+			__watcher.getCallBackThis()(idxName, __watcher.getFullPath(pathName), self.__code2str(event))
+			self.connect()
+			self.resumeDirWatch(idxName)
+	
+	def requestEndLoop(self):
+		"""sets a flag that stops the loop. it do not stop the loop directly!"""
+		self.__loops = False
+		
+	def loop(self):
+		self.__loops = True
+		while (self.__loops) and (self.__gamin != None) :
+			try:
+				ri, ro, re = select.select([self.__gamin.get_fd()], [], [])
+			except select.error, er:
+				errnumber, strerr = er
+				if errnumber == errno.EINTR:
+					continue
+				else:
+					raise strerr
+					sys.exit(1)
+			while self.__gamin.event_pending():
+				self.__gamin.handle_events()
+				if not self.__loops:
+					break
 
-if __name__=="__main__":
-        test() 
+class Test:
+	def __init__(self):
+		self.fam_test = WatchMonitor()
+		self.fam_test.addDirWatch("tmp Test", self.thisIsCalledBack, ["/tmp"])
+		self.fam_test.loop()
+		self.fam_test.loop()
+	
+	def thisIsCalledBack(self, idxName, pathName, event):
+		print "idxName=%s, Path=%s, Event=%s " % (idxName, pathName, event)
+		self.fam_test.resumeAllDirWatch()
+
+if __name__ == "__main__":
+	Test() 
