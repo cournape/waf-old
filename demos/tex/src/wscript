@@ -1,10 +1,6 @@
-#! /usr/bin/env python
-# encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# -*- mode: python  encoding: utf-8 -*-
 
-def build(bld):
-	obj = bld.createObj('tex', 'latex')
-	obj.source = 'main.tex'
-	obj.outs   = 'ps'
-	#obj.outs = 'ps pdf'
-
+def build ( bld ) :
+        obj = bld.createObj ( 'tex' , 'latex' )
+        obj.source = 'document.ltx'
+        obj.outs = 'ps'
