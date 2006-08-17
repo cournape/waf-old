@@ -2,11 +2,18 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, sys
+import os, sys, re
 import ccroot, cpp
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 from Params import set_globals, globals
+
+# a helper function
+def getSOfromLA(lafile):
+	contents = open(lafile, 'r').read()
+	match = re.search("^dlname='([^']*)'$", contents, re.M)
+	if match: return match.group(1)
+	return None
 
 set_globals('MOC_H', ['.hh', '.h'])
 
