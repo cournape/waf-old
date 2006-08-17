@@ -7,6 +7,13 @@ import ccroot, cpp
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 
+# a helper function
+def getSOfromLA(lafile):
+	contents = open(lafile, 'r').read()
+	match = re.search("^dlname='([^']*)'$", contents, re.M)
+	if match: return match.group(1)
+	return None
+
 # kde .ui file processing
 #uic_vardeps = ['UIC', 'UIC_FLAGS', 'UIC_ST']
 uic_vardeps = ['UIC', 'QTPLUGINS']
