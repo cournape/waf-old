@@ -95,6 +95,27 @@ class ccobj(ccroot.ccroot):
 			for i in self.env['LIB']:
 				self.env.appendValue('LINKFLAGS', lib_st % i)
 
+	def apply_defines(self):
+		lst = self.to_list(self.defines)
+		milst = self.defines_lst
+
+		# now process the local defines
+		tree = Params.g_build
+		for defi in lst:
+			if not defi in milst:
+				milst.append(defi)
+
+		# CCDEFINES_
+		libs = self.to_list(self.uselib)
+		for l in libs:
+			val=''
+			try:    val = self.env['CCDEFINES_'+l]
+			except: pass
+			if val: milst += val
+
+		y = self.env['CCDEFINES_ST']
+		self.env['_CCDEFFLAGS'] = map(lambda x: y%x, milst)
+
 # tool specific setup
 # is called when a build process is started 
 def setup(env):

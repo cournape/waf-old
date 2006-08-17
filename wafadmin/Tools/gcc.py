@@ -57,18 +57,18 @@ def detect(conf):
 	v['CCFLAGS_DEBUG']        = ['-g', '-DDEBUG']
 	v['CCFLAGS_ULTRADEBUG']   = ['-g3', '-O0', '-DDEBUG']
 
-	# linker	
+	# linker
 	v['LINK_CC']              = comp
 	v['LIB']                  = []
 	v['CCLNK_SRC_F']          = ''
 	v['CCLNK_TGT_F']          = '-o '
 
-	v['LIB_ST']              = '-l%s'	# template for adding libs
-	v['LIBPATH_ST']          = '-L%s' # template for adding libpathes
-	v['STATICLIB_ST']        = '-l%s'
-	v['STATICLIBPATH_ST']    = '-L%s'
-	v['_LIBDIRFLAGS']        = ''
-	v['_LIBFLAGS']           = ''
+	v['LIB_ST']               = '-l%s'	# template for adding libs
+	v['LIBPATH_ST']           = '-L%s' # template for adding libpathes
+	v['STATICLIB_ST']         = '-l%s'
+	v['STATICLIBPATH_ST']     = '-L%s'
+	v['_LIBDIRFLAGS']         = ''
+	v['_LIBFLAGS']            = ''
 	v['CCDEFINES_ST']         = '-D%s'
 
 	# linker debug levels

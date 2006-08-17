@@ -45,6 +45,27 @@ class cppobj(ccroot.ccroot):
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
 
+	def apply_defines(self):
+		lst = self.to_list(self.defines)
+		milst = self.defines_lst
+
+		# now process the local defines
+		tree = Params.g_build
+		for defi in lst:
+			if not defi in milst:
+				milst.append(defi)
+
+		# CXXDEFINES_
+		libs = self.to_list(self.uselib)
+		for l in libs:
+			val=''
+			try:    val = self.env['CXXDEFINES_'+l]
+			except: pass
+			if val: milst += val
+
+		y = self.env['CXXDEFINES_ST']
+		self.env['_CXXDEFFLAGS'] = map( lambda x: y%x, milst )
+
 # tool specific setup
 # is called when a build process is started 
 def setup(env):

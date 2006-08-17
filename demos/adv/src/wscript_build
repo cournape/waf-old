@@ -22,7 +22,8 @@ main.cpp ih.coin
 '''
 obj.includes='.'
 obj.cxxflags='-Werror'
-obj.uselib='GLIB'
+obj.defines='bidule=34'
+obj.uselib='GLIB DEFTEST'
 obj.target='testprogram2'
 
 

@@ -67,10 +67,10 @@ class csobj(Object.genobj):
 				if val:
 					self.env.appendValue(v, val)
 
-	def to_list(self, value):
-		if type(value) is types.ListType: lst = self.value
-		else: lst = value.split()
-		return lst
+	#def to_list(self, value):
+	#	if type(value) is types.ListType: lst = self.value
+	#	else: lst = value.split()
+	#	return lst
 
 def setup(env):
 	Object.register('cs', csobj)

@@ -75,7 +75,7 @@ def detect(conf):
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpathes
 	v['STATICLIB_ST']        = '-l%s'
 	v['STATICLIBPATH_ST']    = '-L%s'
-	v['CPPDEFINES_ST']       = '-D%s'
+	v['CXXDEFINES_ST']       = '-D%s'
 	v['_LIBDIRFLAGS']        = ''
 	v['_LIBFLAGS']           = ''
 

@@ -488,7 +488,7 @@ class filter:
 				self.buf.append(c)
 
 class cparse:
-	def __init__(self, nodepaths=[], strpaths=[]):
+	def __init__(self, nodepaths=[], strpaths=[], defines=[]):
 		#self.lines = txt.split('\n')
 		self.lines = []
 		self.i     = 0
@@ -498,6 +498,21 @@ class cparse:
 
 		self.defs  = {}
 		self.state = []
+
+		# mind the defines:
+		if defines:
+			for tdef in defines:
+				i = 0
+				for c in tdef:
+					if c == '=': break
+					i += 1
+
+				if i == len(tdef):
+					# empty define
+					self.defs[tdef] = ""
+				else:
+					# mydef=value
+					self.defs[tdef[:i]] = tdef[i+1:]
 
 		# include paths
 		self.strpaths = strpaths

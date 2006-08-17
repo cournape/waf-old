@@ -99,6 +99,7 @@ class ccroot(Object.genobj):
 		self.vnum=''
 
 		self._incpaths_lst=[]
+		self.defines_lst = []
 		self._bld_incpaths_lst=[]
 
 		self.p_compiletasks=[]
@@ -164,6 +165,7 @@ class ccroot(Object.genobj):
 
 		self.apply_type_vars()
 		self.apply_incpaths()
+		self.apply_defines()
 
 		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
 
@@ -173,7 +175,7 @@ class ccroot(Object.genobj):
 		# get the list of folders to use by the scanners
                 # all our objects share the same include paths anyway
                 tree = Params.g_build
-                dir_lst = { 'path_lst' : self._incpaths_lst }
+                dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
 		lst = self.source.split()
 		for filename in lst:
@@ -237,6 +239,10 @@ class ccroot(Object.genobj):
 		if not prefix: prefix=''
 		if not suffix: suffix=''
 		return ''.join([prefix, name, suffix])
+
+	def apply_defines(self):
+		"subclass me"
+		pass
 
 	def apply_incpaths(self):
 		if type(self.includes) is types.ListType: inc_lst = self.includes

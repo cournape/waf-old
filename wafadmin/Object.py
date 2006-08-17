@@ -206,6 +206,13 @@ class genobj:
 
 		return newobj
 
+	def to_list(self, value):
+		"helper: returns a list"
+		if type(value) is types.StringType: lst = value.split()
+		#if type(value) is types.ListType: lst = self.value
+		else: lst = value
+		return lst
+
 def flatten(env, var):
 	try:
 		v = env[var]

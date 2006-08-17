@@ -40,6 +40,8 @@ def configure(conf):
 	conf.checkFeatures()
 	conf.addDefine('TEST_DEFINE', 345)
 
+	# command-line defines
+	conf.env['CXXDEFINES_DEFTEST'] = ['truc=blah', 'boo']
 
 	conf.env['LIB_CALC']='fl'
 

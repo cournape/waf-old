@@ -215,17 +215,18 @@ class c_scanner(scanner):
 			else:
 				return self._get_signature_regexp_weak(task)
 
-	def scan(self, node, env, path_lst):
+	def scan(self, node, env, path_lst, defines=[]):
 		trace("c:scan")
 		if Params.g_preprocess:
-			return self._scan_preprocessor(node, env, path_lst)
+			return self._scan_preprocessor(node, env, path_lst, defines)
 		else:
+			# the regular scanner does not use the define values
 			return scanner.scan(self, node, env, path_lst)
 
-	def _scan_preprocessor(self, node, env, path_lst):
+	def _scan_preprocessor(self, node, env, path_lst, defines=[]):
 		trace("c:_scan_preprocessor(self, node, env, path_lst)")
 		import preproc
-		gruik = preproc.cparse(nodepaths = path_lst)
+		gruik = preproc.cparse(nodepaths = path_lst, defines=defines)
 	        gruik.start2(node, env)
 		#print "nodes found for ", str(node), " ", str(gruik.m_nodes), " ", str(gruik.m_names)
 		return (gruik.m_nodes, gruik.m_names)
