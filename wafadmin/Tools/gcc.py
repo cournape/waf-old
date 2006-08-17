@@ -9,7 +9,7 @@ import Utils, Action, Params
 # tool specific setup
 # is called when a build process is started 
 def setup(env):
-	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
+	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
         Action.simple_action('cc', cc_str, 'GREEN')
@@ -42,7 +42,10 @@ def detect(conf):
 	# cc compiler
 	v['CC']                   = comp
 	v['CPPFLAGS']             = []
-	v['_CINCFLAGS']           = ''
+	v['CCDEFINES']            = []
+	v['_CCINCFLAGS']          = []
+	v['_CCDEFFLAGS']          = []
+
 	v['CC_SRC_F']             = ''
 	v['CC_TGT_F']             = '-c -o '
 	v['CPPPATH_ST']           = '-I%s' # template for adding include pathes
@@ -53,7 +56,7 @@ def detect(conf):
 	v['CCFLAGS_RELEASE']      = ['-O2']
 	v['CCFLAGS_DEBUG']        = ['-g', '-DDEBUG']
 	v['CCFLAGS_ULTRADEBUG']   = ['-g3', '-O0', '-DDEBUG']
-		
+
 	# linker	
 	v['LINK_CC']              = comp
 	v['LIB']                  = []
@@ -66,7 +69,7 @@ def detect(conf):
 	v['STATICLIBPATH_ST']    = '-L%s'
 	v['_LIBDIRFLAGS']        = ''
 	v['_LIBFLAGS']           = ''
-
+	v['CCDEFINES_ST']         = '-D%s'
 
 	# linker debug levels
 	v['LINKFLAGS']            = []

@@ -9,7 +9,7 @@ import Utils, Action, Params, Configure
 # tool specific setup
 # is called when a build process is started 
 def setup(env):
-	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
 	Action.simple_action('cpp', cpp_str, color='GREEN')
@@ -46,7 +46,10 @@ def detect(conf):
 	# c++ compiler
 	v['CXX']                 = comp
 	v['CPPFLAGS']            = []
-	v['_CXXINCFLAGS']        = ''
+	v['CXXDEFINES']          = [] # command-line defines
+
+	v['_CXXINCFLAGS']        = []
+	v['_CXXDEFFLAGS']        = []
 
 	v['CXX_SRC_F']           = ''
 	v['CXX_TGT_F']           = '-c -o '
@@ -72,6 +75,7 @@ def detect(conf):
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpathes
 	v['STATICLIB_ST']        = '-l%s'
 	v['STATICLIBPATH_ST']    = '-L%s'
+	v['CPPDEFINES_ST']       = '-D%s'
 	v['_LIBDIRFLAGS']        = ''
 	v['_LIBFLAGS']           = ''
 

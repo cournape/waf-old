@@ -14,7 +14,7 @@ g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'INCLUDE',
-'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS']
+'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CXXDEFINES']
 
 cpptypes=['shlib', 'program', 'staticlib']
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
@@ -26,12 +26,10 @@ class cppobj(ccroot.ccroot):
 		self.cxxflags=''
 		self.cppflags=''
 		self.ccflags=''
+		self.defines=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
-
-		self.p_shlib_deps_names=[]
-		self.p_staticlib_deps_names=[]
 
 		self.m_linktask=None
 		self.m_deps_linktask=[]

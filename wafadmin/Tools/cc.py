@@ -11,7 +11,7 @@ g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'INCLUDE',
-'CCFLAGS', 'CPPPATH', 'CPPLAGS']
+'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CCDEFINES']
 
 cctypes=['shlib', 'program', 'staticlib']
 g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
@@ -22,12 +22,10 @@ class ccobj(ccroot.ccroot):
 
 		self.ccflags=''
 		self.cppflags=''
+		self.defines=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
-
-		self.p_shlib_deps_names=[]
-		self.p_staticlib_deps_names=[]
 
 		self.m_linktask=None
 		self.m_deps_linktask=[]
