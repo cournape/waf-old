@@ -15,6 +15,9 @@ g_quiet = 0
 def write_progress(s):
 	if Params.g_options.progress_bar == 1:
 		sys.stderr.write(s + '\r')
+	elif Params.g_options.progress_bar == 2:
+		print s
+		sys.stdout.flush()
 	else:
 		print s
 
