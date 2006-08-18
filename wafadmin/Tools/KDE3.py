@@ -16,6 +16,10 @@ def getSOfromLA(lafile):
 	return None
 
 set_globals('MOC_H', ['.hh', '.h'])
+set_globals('UI_EXT', ['.ui'])
+set_globals('SKEL_EXT', ['.skel'])
+set_globals('STUB_EXT', ['.stub'])
+set_globals('KCFGC_EXT', ['.kcfgc'])
 
 # kde .ui file processing
 #uic_vardeps = ['UIC', 'UIC_FLAGS', 'UIC_ST']
@@ -600,10 +604,10 @@ def setup(env):
         Object.register('kde_documentation', kde_documentation)
         Object.register('kde', kdeobj)
 
-	Object.hook('kde', '.ui', handler_ui)
-	Object.hook('kde', '.skel', handler_skel)
-	Object.hook('kde', '.stub', handler_stub)
-	Object.hook('kde', '.kcfgc', handler_kcfgc)
+	Object.hook('kde', 'UI_EXT', handler_ui)
+	Object.hook('kde', 'SKEL_EXT', handler_skel)
+	Object.hook('kde', 'STUB_EXT', handler_stub)
+	Object.hook('kde', 'KCFGC_EXT', handler_kcfgc)
 
 
 def detect(conf):
