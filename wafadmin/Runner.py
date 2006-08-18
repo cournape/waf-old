@@ -8,26 +8,33 @@ from Params import debug, error, trace, fatal
 
 # output a stat file (data for gnuplot) when running tasks in parallel
 dostat=0
-initial = time.time()
+g_initial = time.time()
 
 g_quiet = 0
 
 def write_progress(s):
-	if Params.g_options.progress_bar:
+	if Params.g_options.progress_bar == 1:
 		sys.stderr.write(s + '\r')
 	else:
 		print s
 
-def progress_line(s, t, col1, as, col2):
-	if Params.g_options.progress_bar:
+def progress_line(s, t, col1, task, col2):
+	global g_initial
+	if Params.g_options.progress_bar == 1:
 		pc = (100.*s)/t
 		bar = ('='*int((70.*s)/t-1)+'>').ljust(70)
 
-		global initial
-		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - initial))
+		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
 		return '[%d/%d] %s%d%%%s |%s| %s%s%s' % (s, t, col1, pc, col2, bar, col1, eta, col2)
+	elif Params.g_options.progress_bar == 2:
+		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
 
-	return '[%d/%d] %s%s%s' % (s, t, col1, as, col2)
+		ins  = ','.join(map(lambda n: n.m_name, task.m_inputs))
+		outs = ','.join(map(lambda n: n.m_name, task.m_outputs))
+
+		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|' % (t, s, ins, outs, eta)
+
+	return '[%d/%d] %s%s%s' % (s, t, col1, task.m_str, col2)
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
@@ -176,7 +183,7 @@ class Serial:
 					col1=Params.g_colors[proc.m_action.m_name]
 					col2=Params.g_colors['NORMAL']
 				except: pass
-				write_progress(progress_line(s, t, col1, proc.m_str, col2))
+				write_progress(progress_line(s, t, col1, proc, col2))
 
 			# run the command
 			ret = proc.m_action.run(proc)
@@ -476,7 +483,7 @@ class Parallel:
 						col1=Params.g_colors[proc.m_action.m_name]
 						col2=Params.g_colors['NORMAL']
 					except: pass
-					proc.m_str = progress_line(self.m_processed, self.m_total, col1, proc.m_str, col2)
+					proc.m_str = progress_line(self.m_processed, self.m_total, col1, proc, col2)
 					#proc.m_str = '[%d/%d] %s%s%s' % (self.m_processed, self.m_total, col1, proc.m_str, col2)
 
 					lock.acquire()

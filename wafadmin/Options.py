@@ -56,9 +56,9 @@ def create_parser():
 		dest    = 'force')
 	
 	p('-p', '--progress',
-		action  = 'store_true',
-		default = False,
-		help    = 'progress bar        [Default: False]',
+		action  = 'count',
+		default = 0,
+		help    = '-p: progress bar; -pp: ide output',
 		dest    = 'progress_bar')
 
 	p('-v', '--verbose', 

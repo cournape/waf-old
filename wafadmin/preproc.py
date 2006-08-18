@@ -208,7 +208,7 @@ def subst(lst, defs):
 				else:
 					return [[num, '0']] + subst(lst[4:], defs)
 		if a1 in defs:
-			print a2
+			#print a2
 			if a2_type == op and a2 == '(':
 				# beginning of a macro function - ignore for now
 				args = []
