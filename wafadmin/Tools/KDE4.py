@@ -7,6 +7,13 @@ import ccroot, cpp
 import Action, Common, Object, Task, Params, Runner, Utils, Scan
 from Params import debug, error, trace, fatal
 
+
+set_globals('MOC_H', ['.hh', '.h'])
+set_globals('UI_EXT', ['.ui'])
+set_globals('SKEL_EXT', ['.skel'])
+set_globals('STUB_EXT', ['.stub'])
+set_globals('KCFGC_EXT', ['.kcfgc'])
+
 # a helper function
 def getSOfromLA(lafile):
 	contents = open(lafile, 'r').read()
@@ -247,20 +254,41 @@ class kdeobj(cpp.cppobj):
 				# process that base.moc only once
 				mocfiles.append(d)
 
-				task = self.create_task('moc', self.env)
-				task.m_inputs  = self.file_in(base+'.h')
-				task.m_outputs = self.file_in(base+'.moc')
-				moctasks.append( task )
+				# find the extension - this search is done only once
+				if Params.g_options.kde_header_ext:
+					ext = Params.g_options.kde_header_ext
+				else:
+					path = node.m_parent.srcpath(self.env) + os.sep
+					for i in globals('MOC_H'):
+						try:
+							os.stat(path+base2+i)
+							ext = i
+							break
+						except:
+							pass
+					if not ext: fatal("no header found for %s which is a moc file" % filename)
 
-			# use a cache ?
-			for d in tree.m_depends_on[node]:
+				# next time we will not search for the extension (look at the 'for' loop below)
+				h_node = node.change_ext(ext)
+				m_node = node.change_ext('.moc')
+				tree.m_depends_on[variant][m_node] = h_node
+
+				# create the task
+				task = self.create_task('moc', self.env)
+				task.set_inputs(h_node)
+				task.set_outputs(m_node)
+				moctasks.append(task)
+
+			# look at the file inputs, it is set right above
+			for d in tree.m_depends_on[variant][node]:
 				name = d.m_name
 				if name[len(name)-4:]=='.moc':
 					task = self.create_task('moc', self.env)
-					task.m_inputs  = self.file_in(base+'.h')
-					task.m_outputs = [d]
-					moctasks.append( task )
+					task.set_inputs(tree.m_depends_on[variant][d])
+					task.set_outputs(d)
+					moctasks.append(task)
 					break
+
 
 			# create the task for the cpp file
 			cpptask = self.create_task('cpp', self.env)
@@ -603,10 +631,10 @@ def setup(env):
         Object.register('kde', kdeobj)
         Object.register('kdeinit', kdeinitobj)
 
-	Object.hook('kde', '.ui', handler_ui)
-	Object.hook('kde', '.skel', handler_skel)
-	Object.hook('kde', '.stub', handler_stub)
-	Object.hook('kde', '.kcfgc', handler_kcfgc)
+	Object.hook('kde', 'UI_EXT', handler_ui)
+	Object.hook('kde', 'SKEL_EXT', handler_skel)
+	Object.hook('kde', 'STUB_EXT', handler_stub)
+	Object.hook('kde', 'KCFGC_EXT', handler_kcfgc)
 
 def detect(conf):
 	conf.env['KDE_IS_FOUND'] = 0

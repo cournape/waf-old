@@ -4,7 +4,9 @@
 
 import os, shutil, sys
 import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
-from Params import debug, error, trace, fatal
+from Params import debug, error, trace, fatal, set_globals
+
+set_globals('TAO_IDL_EXT', ['.idl'])
 
 # This function is called when the class cppobj encounters a '.idl' file
 def tao_idl_file(obj, node):
@@ -51,7 +53,7 @@ def setup(env):
 	Action.simple_action('idl', '${IDL} ${IDL_INCLUDES} ${SRC} -o ${SRC[0].m_parent.bldpath(env)}', color='BLUE')
 
 	# register the hook for use with cppobj
-	Object.hook('cpp', '.idl', tao_idl_file)
+	Object.hook('cpp', 'TAO_IDL_EXT', tao_idl_file)
 
 # tool detection and initial setup 
 # is called when a configure process is started, 
