@@ -4,6 +4,7 @@
 
 import os, re
 import Object, Action, Params, Common, Scan
+import cc
 from Params import fatal, error, trace
 
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
@@ -139,6 +140,64 @@ class gnome_translations(Object.genobj):
 			destfile = os.sep.join([lang, 'LC_MESSAGES', destfilename])
 			Common.install_as('GNOMELOCALEDIR', destfile, orig, self.env)
 
+
+class gnomeobj(cc.ccobj):
+	def __init__(self, type='program'):
+		cc.ccobj.__init__(self, type)
+		self.m_linktask = None
+		self.m_latask   = None
+		self.want_libtool = -1 # fake libtool here
+
+		self.dbus_h    = ''
+		self.marshal_h = ''
+
+		# TODO when needed
+		self.marshal_c = ''
+
+	def apply_defines(self):
+		cc.ccobj.apply_defines(self)
+
+		if self.marshal_h:
+			lst = self.to_list(self.marshal_h)
+			for i in lst:
+				node = self.m_current_path.find_node(i.split('/'))
+
+				if not node:
+					fatal('file not found on gnome obj '+i)
+
+				env = self.env.copy()
+
+				env['GGM_PREFIX'] = 'gpm_manager'
+				env['GGM_MODE']   = '--header'
+
+				task = self.create_task('glib_genmarshal', env, 2)
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.h'))
+
+
+		if self.dbus_h:
+			lst = self.to_list(self.dbus_h)
+			for i in lst:
+				node = self.m_current_path.find_node(i.split('/'))
+
+				if not node:
+					fatal('file not found on gnome obj '+i)
+
+				env = self.env.copy()
+
+				env['DBT_PREFIX'] = 'gpm_manager'
+				env['DBT_MODE']   = 'header'
+
+				task = self.create_task('dbus_binding_tool', env, 2)
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.h'))
+
+
+
+
+		print "apply_defines called"
+
+
 def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
@@ -147,9 +206,18 @@ def setup(env):
 		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', \
 		color='BLUE')
 
+	Action.simple_action('glib_genmarshal',
+		'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
+		color='BLUE')
+
+	Action.simple_action('dbus_binding_tool',
+		'${DBT} --prefix=${DBT_PREFIX} --mode=${DBT_MODE} --output=${TGT} ${SRC}',
+		color='BLUE')
+
 	Object.register('gnome_translations', gnome_translations)
 	Object.register('gnome_sgml2man', gnome_sgml2man)
 	Object.register('gnome_intltool', gnome_intltool)
+        Object.register('gnome', gnomeobj)
 
 def detect(conf):
 
@@ -167,6 +235,12 @@ def detect(conf):
 	if not intltool:
 		fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 	conf.env['INTLTOOL'] = intltool
+
+	glib_genmarshal = conf.checkProgram('glib-genmarshal')
+	conf.env['GGM'] = glib_genmarshal
+
+	dbus_binding_tool = conf.checkProgram('dbus-binding-tool')
+	conf.env['DBT'] = dbus_binding_tool
 
 	def getstr(varname):
 		#if env.has_key('ARGS'): return env['ARGS'].get(varname, '')
