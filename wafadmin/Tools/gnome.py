@@ -167,7 +167,7 @@ class gnomeobj(cc.ccobj):
 
 				env = self.env.copy()
 
-				env['GGM_PREFIX'] = 'gpm_manager'
+				if not env['GGM_PREFIX']: env['GGM_PREFIX'] = self.target
 				env['GGM_MODE']   = '--header'
 
 				task = self.create_task('glib_genmarshal', env, 2)
@@ -185,7 +185,7 @@ class gnomeobj(cc.ccobj):
 
 				env = self.env.copy()
 
-				env['DBT_PREFIX'] = 'gpm_manager'
+				if not env['DBT_PREFIX']: env['DBT_PREFIX'] = self.target
 				env['DBT_MODE']   = 'header'
 
 				task = self.create_task('dbus_binding_tool', env, 2)
