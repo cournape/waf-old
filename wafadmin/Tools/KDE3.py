@@ -202,13 +202,7 @@ class kdeobj(cpp.cppobj):
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
 
-	def apply(self):
-		trace("apply called for kdeobj")
-		if not self.m_type in self.get_valid_types(): fatal('Trying to build a kde file of unknown type')
-
-		self.apply_type_vars()
-		self.apply_incpaths()
-		self.apply_defines()
+	def apply_core(self):
 
 		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
 
@@ -217,7 +211,7 @@ class kdeobj(cpp.cppobj):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
 		tree = Params.g_build
-		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
+		self.dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
 		lst = self.source.split()
 		for filename in lst:
@@ -317,11 +311,6 @@ class kdeobj(cpp.cppobj):
 			latask.set_inputs(linktask.m_outputs)
 			latask.set_outputs(self.file_in(self.get_target_name('.la')))
 			self.m_latask    = latask
-
-		self.apply_lib_vars()
-		self.apply_obj_vars()
-		self.apply_objdeps()
-		# end posting constraints (apply)
 
 	def install(self):
 		if self.m_type == 'module':

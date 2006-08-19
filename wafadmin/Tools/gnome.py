@@ -157,9 +157,7 @@ class gnomeobj(cc.ccobj):
 	def add_marshal_file(self, filename, prefix, mode):
 		self._marshal_lst.append([filename, prefix, mode])
 
-	def apply_defines(self):
-		cc.ccobj.apply_defines(self)
-
+	def apply_core(self):
 		for i in self._marshal_lst:
 			node = self.m_current_path.find_node(i[0].split('/'))
 
@@ -195,6 +193,9 @@ class gnomeobj(cc.ccobj):
 			task = self.create_task('dbus_binding_tool', env, 2)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.h'))
+
+		# after our targets are created, process the .c files, etc
+		cc.ccobj.apply_core(self)
 
 def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')

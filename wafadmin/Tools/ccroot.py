@@ -167,6 +167,13 @@ class ccroot(Object.genobj):
 		self.apply_incpaths()
 		self.apply_defines()
 
+		self.apply_core()
+
+		self.apply_lib_vars()
+		self.apply_obj_vars()
+		self.apply_objdeps()
+
+	def apply_core(self):
 		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
 
 		obj_ext = self.env[self.m_type+'_obj_ext'][0]
@@ -223,10 +230,6 @@ class ccroot(Object.genobj):
 			latask.set_inputs(linktask.m_outputs)
 			latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
 			self.m_latask = latask
-
-		self.apply_lib_vars()
-		self.apply_obj_vars()
-		self.apply_objdeps()
 
 	def get_target_name(self, ext=None):
 		return self.get_library_name(self.target, self.m_type, ext)
