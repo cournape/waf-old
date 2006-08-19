@@ -175,6 +175,19 @@ class gnomeobj(cc.ccobj):
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.h'))
 
+			elif i[2] == '--body':
+				env['GGM_PREFIX'] = i[1]
+				env['GGM_MODE']   = i[2]
+
+				task = self.create_task('glib_genmarshal', env, 2)
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.c'))
+
+				# this task is really created with self.env
+				ctask = self.create_task('cc', self.env)
+				ctask.m_inputs = task.m_outputs
+				ctask.set_outputs(node.change_ext('.o'))
+
 			else:
 				error("unknown type for marshal "+i[2])
 
