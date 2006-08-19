@@ -148,55 +148,53 @@ class gnomeobj(cc.ccobj):
 		self.m_latask   = None
 		self.want_libtool = -1 # fake libtool here
 
-		self.dbus_h    = ''
-		self.marshal_h = ''
+		self._dbus_lst    = []
+		self._marshal_lst = []
 
-		# TODO when needed
-		self.marshal_c = ''
+	def add_dbus_file(self, filename, prefix, mode):
+		self._dbus_lst.append([filename, prefix, mode])
+
+	def add_marshal_file(self, filename, prefix, mode):
+		self._marshal_lst.append([filename, prefix, mode])
 
 	def apply_defines(self):
 		cc.ccobj.apply_defines(self)
 
-		if self.marshal_h:
-			lst = self.to_list(self.marshal_h)
-			for i in lst:
-				node = self.m_current_path.find_node(i.split('/'))
+		for i in self._marshal_lst:
+			node = self.m_current_path.find_node(i[0].split('/'))
 
-				if not node:
-					fatal('file not found on gnome obj '+i)
+			if not node:
+				fatal('file not found on gnome obj '+i[0])
 
-				env = self.env.copy()
+			env = self.env.copy()
 
-				if not env['GGM_PREFIX']: env['GGM_PREFIX'] = self.target
-				env['GGM_MODE']   = '--header'
+			if i[2] == '--header':
+
+				env['GGM_PREFIX'] = i[1]
+				env['GGM_MODE']   = i[2]
 
 				task = self.create_task('glib_genmarshal', env, 2)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.h'))
 
-
-		if self.dbus_h:
-			lst = self.to_list(self.dbus_h)
-			for i in lst:
-				node = self.m_current_path.find_node(i.split('/'))
-
-				if not node:
-					fatal('file not found on gnome obj '+i)
-
-				env = self.env.copy()
-
-				if not env['DBT_PREFIX']: env['DBT_PREFIX'] = self.target
-				if not env['DBT_MODE']: env['DBT_MODE']   = 'glib-server'
-
-				task = self.create_task('dbus_binding_tool', env, 2)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.h'))
+			else:
+				error("unknown type for marshal "+i[2])
 
 
+		for i in self._dbus_lst:
+			node = self.m_current_path.find_node(i[0].split('/'))
 
+			if not node:
+				fatal('file not found on gnome obj '+i[0])
 
-		print "apply_defines called"
+			env = self.env.copy()
 
+			env['DBT_PREFIX'] = i[1]
+			env['DBT_MODE']   = i[2]
+
+			task = self.create_task('dbus_binding_tool', env, 2)
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext('.h'))
 
 def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')

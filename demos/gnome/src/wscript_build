@@ -11,8 +11,8 @@ obj.find_sources_in_dirs('.') # take the sources in the current folder
 obj.includes='.'
 obj.uselib='GTK GNOME GNOMEUI'
 obj.target='gnome-hello'
-#obj.dbus_h    = 'manager.xml' # does not work yet, TODO hughsie
-obj.marshal_h = 'marshal.list'
+#obj.add_dbus_file('manager.xml', 'test_prefix', 'add_dbus_file') # TODO hughsie
+obj.add_marshal_file('marshal.list', 'test_prefix', '--header')
 
 # it is also possible to add tons if libraries
 #obj.uselib='GTK GNOME GNOMEUI GLIB BONOBO BONOBOUI PRINT PRINTUI GLADE CANVAS XML GDK'
