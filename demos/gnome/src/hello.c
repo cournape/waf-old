@@ -23,9 +23,17 @@
 #include <glib-object.h>
 #include <glib/gi18n.h>
 #include <gnome.h>
+#include <dbus/dbus-glib.h>
+
+gboolean
+test_prefix_get_low_power_mode (gpointer  *foo,
+				gboolean    *retval,
+				GError     **error);
+
 
 #include "app.h"
-
+#include "manager.h"
+#include "marshal.h"
 
 static void session_die  (GnomeClient* client, gpointer client_data);
 static gint save_session (GnomeClient *client, gint phase, 
@@ -79,6 +87,15 @@ static GOptionEntry option_entries[] =
   }
 };
 
+gboolean
+test_prefix_get_low_power_mode (gpointer  *foo,
+				gboolean    *retval,
+				GError     **error)
+{
+	*retval = TRUE;
+	return TRUE;
+}
+
 int 
 main (int argc, char **argv)
 {
@@ -103,6 +120,12 @@ main (int argc, char **argv)
 				NULL);
 
   gtk_window_set_default_icon_name ("gnome-hello-logo");
+
+  dbus_g_object_register_marshaller (test_prefix_VOID__STRING_STRING,
+				     G_TYPE_NONE, G_TYPE_STRING, G_TYPE_STRING,
+				     G_TYPE_INVALID);
+
+  dbus_g_object_type_install_info (0, &dbus_glib_test_prefix_object_info);
 
   if (greet_mode && args)
     {

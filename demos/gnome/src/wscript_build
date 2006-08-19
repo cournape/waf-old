@@ -9,9 +9,9 @@ obj = bld.createObj('gnome', 'program')
 #'''
 obj.find_sources_in_dirs('.') # take the sources in the current folder
 obj.includes='.'
-obj.uselib='GTK GNOME GNOMEUI'
+obj.uselib='GTK GNOME GNOMEUI DBUSGLIB'
 obj.target='gnome-hello'
-#obj.add_dbus_file('manager.xml', 'test_prefix', 'add_dbus_file') # TODO hughsie
+obj.add_dbus_file('manager.xml', 'test_prefix', 'glib-server') # TODO hughsie
 obj.add_marshal_file('marshal.list', 'test_prefix', '--header')
 obj.add_marshal_file('marshal.list', 'test_prefix', '--body')
 
