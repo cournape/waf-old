@@ -67,7 +67,7 @@ g_cachedir = ''
 # HELPERS
 
 # no colors on win32 :-/
-if sys.platform=='win32':
+if sys.platform=='win32' or 'NOCOLOR' in os.environ:
 	g_colors = {
 	'BOLD'  :"",
 	'RED'   :"",
