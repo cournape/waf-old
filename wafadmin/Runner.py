@@ -66,6 +66,15 @@ def exec_command(str):
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
+# this one is for the latex output, where we cannot capture the output while the process waits for stdin
+def exec_command_batch(str):
+	trace("system command (batch) -> "+ str)
+	if Params.g_verbose==1: print str
+	proc = pproc.Popen(str, shell=1)
+	stat = proc.wait()
+	if stat & 0xff: return stat | 0x80
+	return stat >> 8
+
 # kind of iterator - the data structure is a bit complicated (price to pay for flexibility)
 class JobGenerator:
 	def __init__(self, tree):

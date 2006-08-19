@@ -45,7 +45,7 @@ def latex_build(task):
 	# mandatory first pass
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
 	warning('first pass on latex')
-	ret = Runner.exec_command(latex_compile_cmd)
+	ret = Runner.exec_command_batch(latex_compile_cmd)
 	if ret: return ret
 
 	# look in the .aux file if there is a bibfile to process
@@ -59,7 +59,7 @@ def latex_build(task):
 			bibtex_compile_cmd = 'cd %s && BIBINPUTS=%s:$BIBINPUTS %s %s' % (reldir, sr2, env['BIBTEX'], docuname)
 
 			warning('calling bibtex')
-			ret = Runner.exec_command(bibtex_compile_cmd)
+			ret = Runner.exec_command_batch(bibtex_compile_cmd)
 			if ret:
 				error('error when calling bibtex %s' % bibtex_compile_cmd)
 				return ret
@@ -75,7 +75,7 @@ def latex_build(task):
 		
 		makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
 		warning('calling makeindex')
-		ret = Runner.exec_command(makeindex_compile_cmd)
+		ret = Runner.exec_command_batch(makeindex_compile_cmd)
 		if ret:
 			error('error when calling makeindex %s' % makeindex_compile_cmd)
 			return ret
@@ -103,7 +103,7 @@ def latex_build(task):
 
 		# run the command
 		warning('calling latex')
-		ret = Runner.exec_command(latex_compile_cmd)
+		ret = Runner.exec_command_batch(latex_compile_cmd)
 		if ret:
 			error('error when calling latex %s' % latex_compile_cmd)
 			return ret
