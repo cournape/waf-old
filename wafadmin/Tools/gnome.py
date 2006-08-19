@@ -186,7 +186,7 @@ class gnomeobj(cc.ccobj):
 				env = self.env.copy()
 
 				if not env['DBT_PREFIX']: env['DBT_PREFIX'] = self.target
-				env['DBT_MODE']   = 'header'
+				if not env['DBT_MODE']: env['DBT_MODE']   = 'glib-server'
 
 				task = self.create_task('dbus_binding_tool', env, 2)
 				task.set_inputs(node)
