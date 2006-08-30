@@ -52,15 +52,19 @@ try:
 	#check all directories above current dir for wscript or
 	#wscript_xml if still not found 
 	while not candidate:
-		if len(cwd)<=3: break # stop at / or c:
+		if len(cwd) <= 3: 
+			break # stop at / or c:
 		dirlst = os.listdir(cwd)
-		if 'wscript'       in dirlst: candidate = cwd
+		if 'wscript'       in dirlst:
+			candidate = cwd
 		if 'wscript_xml'   in dirlst:
 			candidate = cwd
-			xml=1
+			xml = 1
 			break
-		if 'configure'     in sys.argv and candidate: break
-		if '.lock-wscript' in dirlst: break
+		if 'configure'     in sys.argv and candidate:
+			break
+		if '.lock-wscript' in dirlst:
+			break
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
 except:
 	print msg1
@@ -75,32 +79,32 @@ os.chdir(candidate)
 
 # The following function returns the first wafadmin folder found in the list of candidates
 def find_wafdir(lst_cand):
-	for dir in lst_cand:
+	for cand_dir in lst_cand:
 		try:
-			os.stat(dir)
-			return dir
+			os.stat(cand_dir)
+			return cand_dir
 		except:
 			pass
 	print msg2
 	print "candidates were: ", str(lst_cand)
 	sys.exit(1)
 
-wafadmin_dir1 = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])),'wafadmin')
+wafadmin_dir1 = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'wafadmin')
 wafadmin_dir2 = os.path.join(os.path.abspath('.'), 'wafadmin')
 if sys.platform == "win32":
-	lst=[wafadmin_dir1, wafadmin_dir2]
+	lst = [wafadmin_dir1, wafadmin_dir2]
 else:
-	lst=[wafadmin_dir1, wafadmin_dir2, '/usr/lib/wafadmin','/usr/local/lib/wafadmin']
+	lst = [wafadmin_dir1, wafadmin_dir2, '/usr/lib/wafadmin', '/usr/local/lib/wafadmin']
 
-dir = find_wafdir(lst)
+wafadmin_dir = find_wafdir(lst)
 
 # The sys.path is updated, so we can now import our modules
-sys.path=[dir, dir+os.sep+'Tools']+sys.path
+sys.path = [wafadmin_dir, wafadmin_dir+os.sep+'Tools']+sys.path
 
 import Options, Params, Utils
 
 # Set the directory containing the tools
-Params.g_tooldir = [os.path.join(dir, 'Tools')]
+Params.g_tooldir = [os.path.join(wafadmin_dir, 'Tools')]
 
 # with xml files jump to the parser
 if xml:
@@ -116,12 +120,13 @@ if build_dir_override:
 		blddir = Utils.g_module.blddir
 		msg = 'Overriding blddir %s with %s' % (mblddir, bldcandidate)
 		Params.niceprint('YELLOW', msg)
-	except: pass
+	except:
+		pass
 	Utils.g_module.blddir = build_dir_override
 
 # fix the path of the cachedir - it is mandatory
 # untested code (ita)
-if sys.platform=='win32':
+if sys.platform == 'win32':
 	try:
 		lst = Utils.g_module.cachedir.split('/')
 		Utils.g_module.cachedir = os.sep.join(lst)
@@ -143,12 +148,16 @@ if Params.g_commands['dist']:
 	except:
 		pass
 	appname         = 'noname'
-	try:    appname = Utils.g_module.APPNAME
-	except: pass
+	try:
+		appname = Utils.g_module.APPNAME
+	except: 
+		pass
 
 	version         = '1.0'
-	try:    version = Utils.g_module.VERSION
-	except: pass
+	try:
+		version = Utils.g_module.VERSION
+	except:
+		pass
 
 	from Scripting import Dist
 	Dist(appname, version)
@@ -171,7 +180,8 @@ try:
 		fun = Utils.g_module.init
 	except:
 		pass
-	if fun: fun()
+	if fun: 
+		fun()
 except SystemExit:
 	raise
 
