@@ -20,14 +20,38 @@ xml = None
 # mkdir build && cd build && ../waf.py configure && ../waf.py
 # check that this is really what is wanted
 build_dir_override = None
-if 'configure' in sys.argv:
-	#if not os.listdir(cwd):
-	lst = os.listdir(cwd)
-	if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
-		build_dir_override = cwd
+candidate = None
+	
+#if not os.listdir(cwd):
+lst = os.listdir(cwd)
+#check if a wscript or a wscript_xml file is in current directory
+if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
+	#set the build directory with the current directory
+	build_dir_override = cwd
+else:
+	#wscript or wscript_xml is in current directory
+	#use this directory as candidate
+	candidate = cwd
+	#check if wscript_xml is there
+	if 'wscript_xml'   in lst:
+		xml = 1
 
 try:
-	while 1:
+	#check the following dirs for wscript or wscript_xml
+	
+	#check first the calldir if there is wscript or wscript_xml
+	#for example: /usr/src/configure the calldir would be /usr/src
+	calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
+	lst_calldir = os.listdir(calldir)
+	if 'wscript'       in lst_calldir: 
+		candidate = calldir
+	if 'wscript_xml'   in lst_calldir:
+		candidate = calldir
+		xml = 1
+		
+	#check all directories above current dir for wscript or
+	#wscript_xml if still not found 
+	while not candidate:
 		if len(cwd)<=3: break # stop at / or c:
 		dirlst = os.listdir(cwd)
 		if 'wscript'       in dirlst: candidate = cwd
