@@ -1,6 +1,9 @@
-# -*- mode: python  encoding: utf-8 -*-
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
 
 def build ( bld ) :
-        obj = bld.createObj ( 'tex' , 'latex' )
+        obj = bld.createObj('tex' , 'latex')
         obj.source = 'document.ltx'
-        obj.outs = 'ps'
+        obj.outs   = 'ps'
+	obj.prompt = 1 # put 0 for the batchmode

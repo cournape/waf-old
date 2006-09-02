@@ -14,7 +14,14 @@ latex_vardeps  = ['LATEX']
 def latex_build(task):
 	env = task.m_env
 
-	com = env['LATEX']
+	if env['PROMPT_LATEX']:
+		exec_cmd = Runner.exec_command_interact
+		com = env['LATEX']
+	else:
+		exec_cmd = Runner.exec_command
+		com = '%s %s' % (env['LATEX'], '-interaction=batchmode')
+
+
 	node = task.m_inputs[0]
 	reldir  = node.cd_to(env)
 
@@ -34,19 +41,23 @@ def latex_build(task):
 
 
 
-	# TODO remove
-	#import Runner
-	#Runner.g_quiet = 1
-
 
 	nm = aux_node.m_name
 	docuname = nm[ : len(nm) - 4 ] # 4 is the size of ".aux"
 
-	# mandatory first pass
+
+	try:
+		tmp_lst = tree.m_raw_deps[variant][node]
+	except:
+		tmp_lst = None
+
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
 	warning('first pass on latex')
-	ret = Runner.exec_command_batch(latex_compile_cmd)
+	ret = exec_cmd(latex_compile_cmd)
 	if ret: return ret
+
+
+
 
 	# look in the .aux file if there is a bibfile to process
 	try:
@@ -59,7 +70,7 @@ def latex_build(task):
 			bibtex_compile_cmd = 'cd %s && BIBINPUTS=%s:$BIBINPUTS %s %s' % (reldir, sr2, env['BIBTEX'], docuname)
 
 			warning('calling bibtex')
-			ret = Runner.exec_command_batch(bibtex_compile_cmd)
+			ret = exec_cmd(bibtex_compile_cmd)
 			if ret:
 				error('error when calling bibtex %s' % bibtex_compile_cmd)
 				return ret
@@ -75,7 +86,7 @@ def latex_build(task):
 		
 		makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
 		warning('calling makeindex')
-		ret = Runner.exec_command_batch(makeindex_compile_cmd)
+		ret = exec_cmd(makeindex_compile_cmd)
 		if ret:
 			error('error when calling makeindex %s' % makeindex_compile_cmd)
 			return ret
@@ -103,7 +114,7 @@ def latex_build(task):
 
 		# run the command
 		warning('calling latex')
-		ret = Runner.exec_command_batch(latex_compile_cmd)
+		ret = exec_cmd(latex_compile_cmd)
 		if ret:
 			error('error when calling latex %s' % latex_compile_cmd)
 			return ret
@@ -124,9 +135,11 @@ class texobj(Object.genobj):
 			sys.exit(1)
 		self.m_type   = type
 		self.outs     = '' # example: "ps pdf"
+		self.prompt   = 1  # prompt for incomplete files (else the batchmode is used)
 	def apply(self):
 		
 		outs = self.outs.split()
+		self.env['PROMPT_LATEX'] = self.prompt
 
 		for filename in self.source.split():
 			base, ext = os.path.splitext(filename)
@@ -138,7 +151,6 @@ class texobj(Object.genobj):
 			task = self.create_task('latex', self.env, 2)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.dvi'))
-
 
 			if 'ps' in outs:
 				pstask = self.create_task('dvips', self.env, 40)

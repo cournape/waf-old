@@ -56,7 +56,7 @@ int main()
 }
 """
 	ret = conf.try_build_and_exec(code) # the method conf.try_build( works too
-	conf.checkMessage('ahoj', '', 'ahoy'==ret)
+	conf.checkMessage('ahoj', '', 'ahoy'==ret) # boolean needed
 	conf.addDefine('AHOJ', ret)
 
 	conf.find_program('cat', ['/usr/bin', '/bin'])

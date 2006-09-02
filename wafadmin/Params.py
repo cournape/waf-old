@@ -8,7 +8,7 @@ import Utils
 # =================================== #
 # Fixed constants, change with care
 
-g_version="0.8.6"
+g_version="0.8.7"
 g_rootname = ''
 if sys.path=='win32':
 	# get the first two letters (c:)

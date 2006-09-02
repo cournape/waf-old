@@ -49,6 +49,7 @@ class scanner:
 	# it returns a tuple containing:
 	# * a list of nodes corresponding to real files
 	# * a list of names for files not found in path_lst
+	# the input parameters may have more parameters that the ones used below
 	def scan(self, node, env, path_lst):
 		#print "scanner:scan(self, node, env, path_lst)"
 		return self._scan_default(node, env, path_lst)

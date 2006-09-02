@@ -67,8 +67,8 @@ def exec_command(str):
 	return stat >> 8
 
 # this one is for the latex output, where we cannot capture the output while the process waits for stdin
-def exec_command_batch(str):
-	trace("system command (batch) -> "+ str)
+def exec_command_interact(str):
+	trace("system command (interact) -> "+ str)
 	if Params.g_verbose==1: print str
 	proc = pproc.Popen(str, shell=1)
 	stat = proc.wait()
