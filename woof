@@ -23,11 +23,11 @@ except:
 		except:
 			print "\033[91mdevelopers using woof must set the WAFDIR (export WAFDIR=/folder)\033[0m"
 			sys.exit(1)
-
-	if sys.platform == 'win32':
-		wafdir='c:\\temp\\waf-%s\\' % VERSION
 	else:
-		wafdir = '%s/.waf-%s' % (os.environ['HOME'], VERSION)
+		if sys.platform == 'win32':
+			wafdir='c:\\temp\\waf-%s\\' % VERSION
+		else:
+			wafdir = '%s/.waf-%s' % (os.environ['HOME'], VERSION)
 
 # look if the wafdir exists
 try:
