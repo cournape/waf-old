@@ -17,7 +17,7 @@ except:
 	name = sys.argv[0]
 	if name[len(name)-4:] == 'woof':
 		# woof --make-waf should work from the top-level
-		wafdir = os.path.join(cwd, 'wafadmin')
+		wafdir = cwd
 		try:
 			os.stat(wafdir)
 		except:
