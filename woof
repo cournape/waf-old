@@ -15,8 +15,13 @@ try:
 	wafdir = os.environ['WAFDIR']
 except:
 	if sys.argv[0] == 'woof':
-		print "\033[91mdevelopers using woof must set the WAFDIR (export WAFDIR=/folder)\033[0m"
-		sys.exit(1)
+		# woof --make-waf should work from the top-level
+		wafdir = os.path.join(cwd, 'wafadmin')
+		try:
+			os.stat(wafdir)
+		except:
+			print "\033[91mdevelopers using woof must set the WAFDIR (export WAFDIR=/folder)\033[0m"
+			sys.exit(1)
 
 	if sys.platform == 'win32':
 		wafdir='c:\\temp\\waf-%s\\' % VERSION
@@ -27,7 +32,7 @@ except:
 try:
 	os.stat(wafdir)
 except:
-	file = open('woof', 'rb')
+	file = open(sys.argv[0], 'rb')
 	lst = []
 
 	while 1:

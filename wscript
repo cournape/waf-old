@@ -20,7 +20,7 @@ def set_options(opt):
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
 	opt.add_option('--make-waf', action='store_true', default=False,
-		help='creates the waf script', dest='woof')
+		help='creates the waf script', dest='waf')
 
 # the init function is called right after the command-line arguments are parsed
 def init():
@@ -72,45 +72,9 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf.py""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		sys.exit(0)
-		"""
-	elif Params.g_options.instwaf:
-		print "installing waf on the system"
-
-		import shutil, re
-		if sys.platform == 'win32':
-			print "installing waf on windows is not possible yet"
-			sys.exit(0)
-
-		try:
-			os.makedirs('/usr/local/wafadmin/Tools/')
-		except:
-			pass
-
-		try:
-			pyFileExp = re.compile(".*\.py$")
-			wafadminFiles = os.listdir('wafadmin')
-			wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
-			for pyFile in wafadminFiles:
-				if pyFile == "Test.py": continue
-				shutil.copy2(os.path.join('wafadmin', pyFile), os.path.join('/usr/local/wafadmin/', pyFile))
-			tooldir = 'wafadmin'+os.sep+'Tools'
-			wafadminFiles = os.listdir(tooldir)
-			wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
-			for pyFile in wafadminFiles:
-				if pyFile == "Test.py": continue
-				shutil.copy2(os.path.join(tooldir, pyFile), os.path.join('/usr/local/wafadmin/Tools', pyFile))
-
-			shutil.copy2('waf.py', os.path.join('/usr/local/bin/waf'))
-		except:
-			print "installation failed: cannot write to /usr/local/"
-			raise
-			sys.exit(0)
-		print "waf is now installed in /usr/local [/usr/local/bin/waf, /usr/local/wafadmin]"
-		sys.exit(0)
-	"""
-	elif Params.g_options.woof:
-		print "preparing woof"
-		mw = 'tmp-woof-'+VERSION
+	elif Params.g_options.waf:
+		print "preparing waf"
+		mw = 'tmp-waf-'+VERSION
 
 		import tarfile, re
 
@@ -137,7 +101,7 @@ def init():
 			tar.add(tarThisFile)
 		tar.close()
 		
-		file = open('waf.py', 'rb')
+		file = open('woof', 'rb')
 		code1 = file.read()
 		file.close()
 
@@ -147,7 +111,7 @@ def init():
 
 		code2 = base64.encodestring(cnt)
 
-		file = open('woof', 'wb')
+		file = open('waf.py', 'wb')
 		file.write(code1)
 		file.write('""" # ===>BEGIN WOOF<===\n')
 		file.write(code2)
