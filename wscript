@@ -12,17 +12,15 @@ import Params, os, sys, base64
 # this function is called before any other for parsing the command-line
 def set_options(opt):
 	opt.add_option('--prepare', action='store_true', default=False,
-		help='prepare the demo projects RUN ME PLEASE', dest='prepare')
+		help='prepares the demo projects RUN ME PLEASE', dest='prepare')
 	opt.add_option('--cleanup', action='store_true', default=False,
-		help='cleanup the demo after use (removes project files)', dest='cleanup')
+		help='cleanups the demo after use (removes project files)', dest='cleanup')
 	opt.add_option('--make-archive', action='store_true', default=False,
-		help='create a waf archive suitable for custom projects', dest='arch')
+		help='creates a waf archive suitable for custom projects', dest='arch')
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
-	#opt.add_option('--install', default=False,
-	#	help='install waf on the system', action='store_true', dest='instwaf')
-	opt.add_option('--make-woof', action='store_true', default=False,
-		help='create the woof script', dest='woof')
+	opt.add_option('--make-waf', action='store_true', default=False,
+		help='creates the waf script', dest='woof')
 
 # the init function is called right after the command-line arguments are parsed
 def init():
