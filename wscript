@@ -118,6 +118,7 @@ def init():
 		file.write('""" # ===>END WOOF<===\n')
 		file.close()
 
+		os.chmod('waf.py', 0755)
 		os.unlink('%s.tar.bz2' % mw)
 
 		sys.exit(0)
