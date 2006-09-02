@@ -45,11 +45,11 @@ def latex_build(task):
 	nm = aux_node.m_name
 	docuname = nm[ : len(nm) - 4 ] # 4 is the size of ".aux"
 
-
-	try:
-		tmp_lst = tree.m_raw_deps[variant][node]
-	except:
-		tmp_lst = None
+	# TODO
+	#try:
+	#	tmp_lst = tree.m_raw_deps[variant][node]
+	#except:
+	#	tmp_lst = None
 
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
 	warning('first pass on latex')
@@ -62,7 +62,11 @@ def latex_build(task):
 	# look in the .aux file if there is a bibfile to process
 	try:
 		file = open(aux_node.abspath(env), 'r')
-		fo = g_bibtex_re.findall(file.read())
+
+		ct = file.read()
+		#print '---------------------------', ct, '---------------------------'
+
+		fo = g_bibtex_re.findall(ct)
 		file.close()
 
 		# yes, there is a .aux file to process
@@ -136,21 +140,46 @@ class texobj(Object.genobj):
 		self.m_type   = type
 		self.outs     = '' # example: "ps pdf"
 		self.prompt   = 1  # prompt for incomplete files (else the batchmode is used)
+		self.mode     = 'latex' # pdflatex
+		self.deps     = ''
 	def apply(self):
 		
+		tree = Params.g_build
 		outs = self.outs.split()
 		self.env['PROMPT_LATEX'] = self.prompt
+
+		deps_lst = []
+
+		if self.deps:
+			deps = self.to_list(self.deps)
+			for filename in deps:
+				n = self.m_current_path.find_node( filename.split('/') )
+				if not n in deps_lst: deps_lst.append(n)
 
 		for filename in self.source.split():
 			base, ext = os.path.splitext(filename)
 			if not ext in self.s_default_ext: continue
 
-			node = self.m_current_path.find_node( filename.split(os.sep) )
+			node = self.m_current_path.find_node( filename.split('/') )
 			if not node: fatal('cannot find %s' % filename)
 
 			task = self.create_task('latex', self.env, 2)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.dvi'))
+
+			if deps_lst:
+
+				if node in node.m_parent.m_files: variant = 0
+        	        	else: variant = env.variant()
+
+				outnode = task.m_outputs[0]
+				try:
+					lst = tree.m_depends_on[variant][node]
+					for n in deps_lst:
+						if not n in lst:
+							lst.append(n)
+				except:
+					tree.m_depends_on[variant][node] = deps_lst
 
 			if 'ps' in outs:
 				pstask = self.create_task('dvips', self.env, 40)

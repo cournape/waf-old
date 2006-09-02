@@ -17,7 +17,7 @@ g_tasks=[{}]
 # tasks that have been run
 # this is used in tests to check which tasks were actually launched
 g_tasks_done       = []
-
+g_default_param    = { 'path_lst' : [] }
 
 def add_group():
 	global g_tasks
@@ -51,9 +51,11 @@ class Task:
 
 		trace("priority given is "+str(priority))
 
+		global g_default_param
+
 		# scanner function
 		self.m_scanner        = Scan.g_default_scanner
-		self.m_scanner_params = {}
+		self.m_scanner_params = g_default_param
 
 		# add ourself to the list of tasks
 		self._add_task(priority)
@@ -124,6 +126,7 @@ class Task:
 
 		self.m_dep_sig = self.m_scanner.get_signature(self)
 
+
 		i1 = Params.vsig(self.m_sig)
 		i2 = Params.vsig(self.m_dep_sig)
 
@@ -145,9 +148,8 @@ class Task:
 		a1 = Params.vsig(sg)
 		a2 = Params.vsig(outs)
 		
-		# DEBUG
-		#print ("task %s must run ? signature is %s while node signature is %s (sig:%s depsig:%s)" \
-		#	% (str(self.m_idx), a1, a2, i1, i2))
+		debug("task %s must run ? signature is %s while node signature is %s (sig:%s depsig:%s)" \
+			% (str(self.m_idx), a1, a2, i1, i2))
 
 		if sg != outs:
 			return 1

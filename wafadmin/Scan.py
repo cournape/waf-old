@@ -39,7 +39,9 @@ class scanner:
 	# returns a string
 	def get_signature(self, task):
 		#print "scanner:get_signature(self, task)"
-		return self._get_signature(task)
+		ret = self._get_signature(task)
+		debug("scanner:get_signature(self, task) %s" % str(Params.vsig(ret)))
+		return ret
 
 	# scans a node
 	# this method takes as input a node and a list of paths
@@ -138,7 +140,12 @@ class scanner:
 			else: variant = task.m_env.variant()
 			seen.append(node)
 
+			# rescan if necessary, and add the signatures of the nodes it depends on
+			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
+                        lst = tree.m_depends_on[variant][node]
+                        for dep in lst: add_node_sig(dep)
 			m.update(tree.m_tstamp_variants[variant][node])
+
 		# add the signatures of the input nodes
 		for node in task.m_inputs: add_node_sig(node)
 		# add the signatures of the task it depends on
@@ -154,19 +161,23 @@ class scanner:
 			if node in seen: return 0
 
 			sum = 0
+
 			# TODO - using the variant each time is stupid
 			if node in node.m_parent.m_files: variant = 0
 			else: variant = task.m_env.variant()
 			seen.append(node)
 
 			sum += tree.m_tstamp_variants[variant][node]
+			# rescan if necessary, and add the signatures of the nodes it depends on
+			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
+			lst = tree.m_depends_on[variant][node]
+			for dep in lst: sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
 		for node in task.m_inputs: msum += add_node_sig(node)
 		# add the signatures of the task it depends on
 		for task in task.m_run_after: msum += task.signature()
 		return int(msum % 2000000011) # this number was not chosen randomly
-
 
 # ======================================= #
 # scanner implementations

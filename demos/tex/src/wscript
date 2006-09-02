@@ -4,6 +4,9 @@
 
 def build ( bld ) :
         obj = bld.createObj('tex' , 'latex')
-        obj.source = 'document.ltx'
-        obj.outs   = 'ps'
-	obj.prompt = 1 # put 0 for the batchmode
+        obj.source = 'document.ltx' # mandatory, the source
+
+	# optional parameters
+        obj.outs   = 'ps' # we want a postscript output too - 'ps pdf' works too
+	obj.prompt = 1 # put 0 for the batchmode (conceals the debug output)
+	obj.deps   = 'crossreferencing.ltx' # use this to give dependencies directly
