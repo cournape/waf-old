@@ -14,7 +14,8 @@ cwd = os.getcwd()
 try:
 	wafdir = os.environ['WAFDIR']
 except:
-	if sys.argv[0] == 'woof':
+	name = sys.argv[0]
+	if name[len(name)-4:] == 'woof':
 		# woof --make-waf should work from the top-level
 		wafdir = os.path.join(cwd, 'wafadmin')
 		try:
@@ -41,6 +42,10 @@ except:
 		if line=='""" # ===>BEGIN WOOF<===\n': break
 
 	while 1:
+		if not line:
+			print "something went wrong with woof, exiting"
+			sys.exit(1)
+
 		line = file.readline()
 		if line=='""" # ===>END WOOF<===\n': break
 		lst.append(line)

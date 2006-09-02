@@ -15,8 +15,6 @@ def set_options(opt):
 		help='prepares the demo projects RUN ME PLEASE', dest='prepare')
 	opt.add_option('--cleanup', action='store_true', default=False,
 		help='cleanups the demo after use (removes project files)', dest='cleanup')
-	opt.add_option('--make-archive', action='store_true', default=False,
-		help='creates a waf archive suitable for custom projects', dest='arch')
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
 	opt.add_option('--make-waf', action='store_true', default=False,
@@ -35,41 +33,10 @@ def init():
 		for d in demos:
 			ret = os.popen("rm -f ./demos/%s/waf.py ./demos/%s/setenv.bat ./demos/%s/configure ./demos/%s/wafadmin" % (d,d,d,d))
 		sys.exit(0)
-	elif Params.g_options.arch:
-		print "preparing an archive of waf for use in custom projects"
-		mw = 'miniwaf-'+VERSION
-
-		import tarfile, re
-
-		#open a file as tar.bz2 for writing
-		tar = tarfile.open('%s.tar.bz2' % mw, "w:bz2")
-		tarFiles=['waf.py', 'configure', 'setenv.bat']
-		#regexpr for python files
-		pyFileExp = re.compile(".*\.py$")
-
-		wafadminFiles = os.listdir('wafadmin')
-		#filter all files out that do not match pyFileExp
-		wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
-		for pyFile in wafadminFiles:
-			if pyFile == "Test.py": continue
-			#add the dir to the file and append to tarFiles
-			tarFiles.append(os.path.join('wafadmin', pyFile))
-		    
-		wafadTolFiles = os.listdir(os.path.join('wafadmin', 'Tools'))
-		wafadTolFiles = filter (lambda s: pyFileExp.match(s), wafadTolFiles)
-		for pyFile in wafadTolFiles:
-			tarFiles.append(os.path.join('wafadmin', 'Tools', pyFile))
-		    
-		for tarThisFile in tarFiles:
-			tar.add(tarThisFile)
-		tar.close()
-		
-		print "your archive is ready: %s.tar.bz2" % mw
-		sys.exit(0)
 	elif Params.g_options.setver: # maintainer only (ita)
 		ver = Params.g_options.setver
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
-		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf.py""" % ver).close()
+		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' woof""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		sys.exit(0)
 	elif Params.g_options.waf:
