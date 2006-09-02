@@ -4,15 +4,75 @@
 
 import os, string, sys, imp
 
+VERSION = '0.8.7'
+cwd = os.getcwd()
+
+# first, we need wafdir otherwise we cannot parse the command-line arguments
+# or print the version number
+
+# unpack wafadmin if necessary, developers should use the environment variable "WAFADMIN"
+try:
+	wafdir = os.environ['WAFDIR']
+except:
+	if sys.platform == 'win32':
+		wafdir='c:\\temp\\waf-%s\\' % VERSION
+	else:
+		wafdir = '%s/.waf-%s' % (os.environ['HOME'], VERSION)
+
+# look if the wafdir exists
+try:
+	os.stat(wafdir)
+except:
+	file = open('woof', 'rb')
+	lst = []
+
+	while 1:
+		line = file.readline()
+		if not line: break
+		if line=='""" # ===>BEGIN WOOF<===\n': break
+
+	while 1:
+		line = file.readline()
+		if line=='""" # ===>END WOOF<===\n': break
+		lst.append(line)
+
+	import base64
+	cnt = ''.join(lst)
+	cnt = base64.decodestring(cnt)
+
+	# create the directory
+	try:
+		os.makedirs(wafdir)
+	except:
+		print "could not make ", wafdir
+
+	os.chdir(wafdir)
+	file = open('wafadmin.tar.bz2', 'wb')
+	file.write(cnt)
+	file.close()
+
+	# now we have the tar file to open
+	import tarfile
+	tar = tarfile.open('wafadmin.tar.bz2')
+	for tarinfo in tar:
+		tar.extract(tarinfo)
+	tar.close()
+
+	# cleanup the tarfile and chdir to the previous directory
+	os.chmod('wafadmin', 0755)
+	os.chmod('wafadmin'+os.sep+'Tools', 0755)
+	os.unlink('wafadmin.tar.bz2')
+	os.chdir(cwd)
+
+# now find the wscript file
+
+
 msg1 = """\033[91mWaf: *** Nothing to do! Please run waf (or ./waf.py) from a directory containing a file named "wscript"\033[0m
 """
-
-msg2 = """\033[91mWaf: *** The wafadmin directory was not found (not installed)\033[0m"""
 
 # Climb up to the folder containing the main wscript and chdir to it
 # It is also possible that the project was configured as a sub-module
 # in this case, stop when a ".lock-wscript" file is found
-cwd = os.getcwd()
 candidate = None
 xml = None
 
@@ -21,7 +81,7 @@ xml = None
 # check that this is really what is wanted
 build_dir_override = None
 candidate = None
-	
+
 #if not os.listdir(cwd):
 lst = os.listdir(cwd)
 #check if a wscript or a wscript_xml file is in current directory
@@ -77,6 +137,7 @@ if not candidate:
 # We have found wscript, but there is no guarantee that it is valid
 os.chdir(candidate)
 
+"""
 # The following function returns the first wafadmin folder found in the list of candidates
 def find_wafdir(lst_cand):
 	for cand_dir in lst_cand:
@@ -97,14 +158,18 @@ else:
 	lst = [wafadmin_dir1, wafadmin_dir2, '/usr/lib/wafadmin', '/usr/local/lib/wafadmin']
 
 wafadmin_dir = find_wafdir(lst)
+"""
+
 
 # The sys.path is updated, so we can now import our modules
-sys.path = [wafadmin_dir, wafadmin_dir+os.sep+'Tools']+sys.path
+wafadmindir = os.path.join(wafdir, 'wafadmin')
+tooldir = os.path.join(wafadmindir, 'Tools')
+sys.path = [wafadmindir, tooldir] + sys.path
 
 import Options, Params, Utils
 
 # Set the directory containing the tools
-Params.g_tooldir = [os.path.join(wafadmin_dir, 'Tools')]
+Params.g_tooldir = [tooldir]
 
 # with xml files jump to the parser
 if xml:
