@@ -5,7 +5,12 @@ An experimental project called 'waf' (bsd licence: freely redistributable)
 Examples can be found in demo/
 Tests can be found in wafadmin/ (run ./Test.py and look at the folder wafadmin/test/)
 
-Try 'waf --help' too, there are predefined targets for waf itself.
+GENERATE WAF
+------------
+
+Run './woof --make-waf' to generate waf or look at './woof --help'
+
+Then try 'waf --help', there are predefined targets for waf itself.
 
 QUICK HOWTO
 -----------
@@ -15,13 +20,7 @@ Environment setup:
   'source aliases.sh' will set your environment.
 
 Starting a new project with waf:
-  Using "waf --make-archive" in the waf source directory, a small archive 
-  containing the minimum waf distribution is generated
-  (without examples). Just unpack the archive created where you have your sources:
-  tar xjvf miniwaf-0.x.x.tar.bz2
-    or
-  copy the wafadmin/ folder for global use: /usr/lib/wafadmin, /usr/local/lib/wafadmin 
-  you might want to look into waf.py for more details on where the wafadmin directory is searched.
+  Copy the 'waf' script to your project.
 
   Add sources in a subdirectory (this is how programs are built in real life), and a wscript on the top-level.
 

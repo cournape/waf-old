@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006 (ita)
 
-VERSION="0.8.7"
+VERSION="0.8.7a"
 APPNAME='waf'
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
@@ -28,12 +28,12 @@ def init():
 		print "preparing the cpp demo (run ./waf --cleanup to remove)"
 		print "cd to demos/cpp/ and execute waf there (there other demos, not all are ready)"
 		for d in demos:
-			ret = os.popen("if test ! -L ./demos/%s/wafadmin; then ln -sf ../../wafadmin ./demos/%s/wafadmin && cp configure setenv.bat waf.py ./demos/%s/; fi" % (d,d,d))
+			ret = os.popen("if test ! -L ./demos/%s/wafadmin; then ln -sf ../../wafadmin ./demos/%s/wafadmin && cp configure setenv.bat waf ./demos/%s/; fi" % (d,d,d))
 		sys.exit(0)
 	elif Params.g_options.cleanup:
 		print "cleaning up the demo folders"
 		for d in demos:
-			ret = os.popen("rm -f ./demos/%s/waf.py ./demos/%s/setenv.bat ./demos/%s/configure ./demos/%s/wafadmin" % (d,d,d,d))
+			ret = os.popen("rm -f ./demos/%s/waf ./demos/%s/setenv.bat ./demos/%s/configure ./demos/%s/wafadmin" % (d,d,d,d))
 		sys.exit(0)
 	elif Params.g_options.setver: # maintainer only (ita)
 		ver = Params.g_options.setver
@@ -82,14 +82,14 @@ def init():
 
 		code2 = base64.encodestring(cnt)
 
-		file = open('waf.py', 'wb')
+		file = open('waf', 'wb')
 		file.write(code1)
 		file.write('""" # ===>BEGIN WOOF<===\n')
 		file.write(code2)
 		file.write('""" # ===>END WOOF<===\n')
 		file.close()
 
-		os.chmod('waf.py', 0755)
+		os.chmod('waf', 0755)
 		os.unlink('%s.tar.bz2' % mw)
 
 		sys.exit(0)

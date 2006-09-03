@@ -4,7 +4,7 @@
 
 import os, string, sys, imp
 
-VERSION = '0.8.7'
+VERSION="0.8.7a"
 cwd = os.getcwd()
 
 # ##########################################################################
@@ -96,7 +96,7 @@ from Params import debug, fatal, error, warning
 Params.g_tooldir = [tooldir]
 
 if Params.g_version != VERSION:
-	fatal('version mismatch waf.py %s <-> wafadmin %s' % (VERSION, Params.g_version))
+	fatal('version mismatch waf %s <-> wafadmin %s' % (VERSION, Params.g_version))
 
 ## right now it is possible to use all the module features (fatal, etc) ##
 
@@ -110,7 +110,7 @@ if '--version' in sys.argv:
 # now find the wscript file
 # ##########################################################################
 
-msg1 = 'Waf: *** Nothing to do! Please run waf (or ./waf.py) from a directory containing a file named "wscript"'
+msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "wscript"'
 
 # Climb up to the folder containing the main wscript and chdir to it
 # It is also possible that the project was configured as a sub-module
@@ -119,7 +119,7 @@ candidate = None
 xml = None
 
 # Some people want to configure their projects gcc-style:
-# mkdir build && cd build && ../waf.py configure && ../waf.py
+# mkdir build && cd build && ../waf configure && ../waf
 # check that this is really what is wanted
 build_dir_override = None
 candidate = None
