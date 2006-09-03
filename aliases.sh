@@ -1,5 +1,5 @@
 #! /bin/sh
 
-alias waf=$PWD/'waf.py'
-alias configure=$PWD/'waf.py configure '
-export WAF=$PWD/'waf.py'
+alias waf=$PWD/'waf'
+alias configure=$PWD/'waf configure '
+export WAF=$PWD/'waf'
