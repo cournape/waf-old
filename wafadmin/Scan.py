@@ -142,7 +142,8 @@ class scanner:
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
 			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
-                        lst = tree.m_depends_on[variant][node]
+                        try: lst = tree.m_depends_on[variant][node]
+			except: lst = []
                         for dep in lst: add_node_sig(dep)
 			m.update(tree.m_tstamp_variants[variant][node])
 
@@ -170,7 +171,8 @@ class scanner:
 			sum += tree.m_tstamp_variants[variant][node]
 			# rescan if necessary, and add the signatures of the nodes it depends on
 			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
-			lst = tree.m_depends_on[variant][node]
+			try: lst = tree.m_depends_on[variant][node]
+			except: lst = []
 			for dep in lst: sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
