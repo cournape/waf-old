@@ -275,6 +275,7 @@ def Dist(appname, version):
 			elif f in ['config.log']: to_remove = True
 			elif f.endswith('.tar.bz2') and not f.endswith('miniwaf.tar.bz2'): to_remove = True
 			elif f.endswith('.zip'): to_remove = True
+			elif f.endswith('Makefile'): to_remove = True
 			
 			if to_remove:
 				os.remove(os.path.join(root, f))
