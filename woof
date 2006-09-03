@@ -28,6 +28,10 @@ except:
 			wafdir='c:\\temp\\waf-%s\\' % VERSION
 		else:
 			wafdir = '%s/.waf-%s' % (os.environ['HOME'], VERSION)
+		if "--nocache" in sys.argv:
+			import shutil
+			print "removing the local wafdir", wafdir
+			shutil.rmtree(wafdir)
 
 # look if the wafdir exists
 try:
