@@ -700,6 +700,8 @@ int main() {
 		setattr(self.__class__, func.__name__, func) 
 
 	def mute_logging(self):
+		if Params.g_options.verbose: return
+
 		# store the settings
 		(self._a,self._b,self._c) = Params.get_trace()
 		self._quiet = Runner.g_quiet
@@ -709,10 +711,17 @@ int main() {
 			Runner.g_quiet = 1
 
 	def restore_logging(self):
+		if Params.g_options.verbose: return
+
 		# restore the settings
 		if not g_debug:
 			Params.set_trace(self._a,self._b,self._c)
 			Runner.g_quiet = self._quiet
+
+
+
+
+
 
 	def check(self, obj):
 		"compile, etc"
