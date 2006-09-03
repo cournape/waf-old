@@ -7,8 +7,10 @@ import os, string, sys, imp
 VERSION = '0.8.7'
 cwd = os.getcwd()
 
+# ##########################################################################
 # first, we need wafdir otherwise we cannot parse the command-line arguments
 # or print the version number
+# ##########################################################################
 
 # unpack wafadmin if necessary, developers should use the environment variable "WAFADMIN"
 try:
@@ -16,10 +18,10 @@ try:
 except:
 	name = sys.argv[0]
 	if name[len(name)-4:] == 'woof':
-		# woof --make-waf should work from the top-level
+		# woof --make-waf should work from the top-level so we check if wafadmin is in cwd
 		wafdir = cwd
 		try:
-			os.stat(wafdir)
+			os.stat(wafdir+os.sep+'wafadmin')
 		except:
 			print "\033[91mdevelopers using woof must set the WAFDIR (export WAFDIR=/folder)\033[0m"
 			sys.exit(1)
@@ -82,10 +84,31 @@ except:
 	os.unlink('wafadmin.tar.bz2')
 	os.chdir(cwd)
 
-# now find the wscript file
+# Update sys.path and import our modules
+wafadmindir = os.path.join(wafdir, 'wafadmin')
+tooldir = os.path.join(wafadmindir, 'Tools')
+sys.path = [wafadmindir, tooldir] + sys.path
 
-msg1 = """\033[91mWaf: *** Nothing to do! Please run waf (or ./waf.py) from a directory containing a file named "wscript"\033[0m
-"""
+import Options, Params, Utils
+from Params import debug, fatal, error, warning
+
+# Set the directory containing the tools
+Params.g_tooldir = [tooldir]
+
+
+## right now it is possible to use all the module features (fatal, etc) ##
+
+# some command-line options can be processed immediately
+if '--version' in sys.argv:
+	opt_obj = Options.Handler()
+	opt_obj.parse_args()
+	sys.exit(0)
+
+# ##########################################################################
+# now find the wscript file
+# ##########################################################################
+
+msg1 = 'Waf: *** Nothing to do! Please run waf (or ./waf.py) from a directory containing a file named "wscript"'
 
 # Climb up to the folder containing the main wscript and chdir to it
 # It is also possible that the project was configured as a sub-module
@@ -144,25 +167,21 @@ try:
 			break
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
 except:
-	print msg1
-	sys.exit(1)
+	fatal(msg1)
 
 if not candidate:
-	print msg1
-	sys.exit(1)
+	# check if the user only wanted to display the help
+	if '-h' in sys.argv or '--help' in sys.argv:
+		warning('No wscript file found: the help message may be incomplete')
+	        opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		parse_options()
+		sys.exit(0)
+	else:
+		fatal(msg1)
 
 # We have found wscript, but there is no guarantee that it is valid
 os.chdir(candidate)
-
-# The sys.path is updated, so we can now import our modules
-wafadmindir = os.path.join(wafdir, 'wafadmin')
-tooldir = os.path.join(wafadmindir, 'Tools')
-sys.path = [wafadmindir, tooldir] + sys.path
-
-import Options, Params, Utils
-
-# Set the directory containing the tools
-Params.g_tooldir = [tooldir]
 
 # with xml files jump to the parser
 if xml:
@@ -194,7 +213,7 @@ if sys.platform == 'win32':
 
 # fetch the custom command-line options recursively and in a procedural way
 opt_obj = Options.Handler()
-opt_obj.sub_options('')
+opt_obj.sub_options('') # will look in wscript
 opt_obj.parse_args()
 
 # we use the results of the parser
