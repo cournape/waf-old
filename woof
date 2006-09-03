@@ -95,6 +95,8 @@ from Params import debug, fatal, error, warning
 # Set the directory containing the tools
 Params.g_tooldir = [tooldir]
 
+if Params.g_version != VERSION:
+	fatal('version mismatch waf.py %s <-> wafadmin %s' % (VERSION, Params.g_version))
 
 ## right now it is possible to use all the module features (fatal, etc) ##
 
