@@ -248,8 +248,7 @@ class ccroot(Object.genobj):
 		pass
 
 	def apply_incpaths(self):
-		if type(self.includes) is types.ListType: inc_lst = self.includes
-		else: inc_lst = self.includes.split()
+		inc_lst = self.to_list(self.includes)
 		lst = self._incpaths_lst
 
 		# add the build directory
@@ -258,6 +257,10 @@ class ccroot(Object.genobj):
 		# now process the include paths
 		tree = Params.g_build
 		for dir in inc_lst:
+			if dir[0] == '/' or dir[1] == ':':
+				self.env.appendValue('CPPPATH', dir)
+				continue
+
 			node = self.m_current_path.find_node( dir.split(os.sep) )
 			if not node:
 				debug("node not found in ccroot:apply_incpaths "+str(dir))

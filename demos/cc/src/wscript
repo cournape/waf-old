@@ -8,7 +8,7 @@ def build(bld):
 	obj.source='''
 	main.c
 	'''
-	obj.includes='.'
+	obj.includes='. /usr/include'
 	obj.ccflags='-Wmain'
 	obj.target='test_c_program'
 
