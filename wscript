@@ -19,6 +19,8 @@ def set_options(opt):
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
 	opt.add_option('--make-waf', action='store_true', default=False,
 		help='creates the waf script', dest='waf')
+	opt.add_option('--nocache', action='store_true', default=False,
+		help='removes the waf cached scripts', dest='nocache')
 
 # the init function is called right after the command-line arguments are parsed
 def init():
@@ -38,6 +40,8 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' woof""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
+		sys.exit(0)
+	elif Params.g_options.nocache:
 		sys.exit(0)
 	elif Params.g_options.waf:
 		print "preparing waf"

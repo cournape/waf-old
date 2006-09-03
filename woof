@@ -12,7 +12,7 @@ cwd = os.getcwd()
 
 # unpack wafadmin if necessary, developers should use the environment variable "WAFADMIN"
 try:
-	wafdir = os.environ['WAFDIR']
+	wafdir = os.path.abspath(os.environ['WAFDIR'])
 except:
 	name = sys.argv[0]
 	if name[len(name)-4:] == 'woof':
