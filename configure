@@ -62,37 +62,17 @@ checkWAF()
 	if [ -z "$WAF" ]; then
 	  WAF=`which waf 2>/dev/null`
 	fi
-	#global installed waf with waf.py
-	if [ -z "$WAF" ]; then
-	    WAF=`which waf.py 2>/dev/null`
-	fi
 	#installed miniwaf in sourcedir
 	if [ -z "$WAF" ]; then
-	    if [ -x "$WORKINGDIR/waf.py" ] ; then
-		WAF="$WORKINGDIR/waf.py"
-	    fi
-	fi
-	if [ ! -x "$WAF" ]; then
-	    echo -e $BOLD"not found, testing for mini distribution."$NORMAL
-	    echo -n "Checking for MiniWAF            :  "
-	    if [ -d "$WORKINGDIR/wafadmin" ] ; then
-		if [ -e "$WORKINGDIR/wafadmin/miniwaf.tar.bz2" ] ; then
-		    cd $WORKINGDIR 
-		    tar xvfj wafadmin/miniwaf.tar.bz2 >/dev/null
-		    cd $CUR_DIR
-		fi
-		if [ -x "$WORKINGDIR/waf.py" ] ; then
-		    WAF="$WORKINGDIR/waf.py"
-		fi
+	    if [ -x "$WORKINGDIR/waf" ] ; then
+		WAF="$WORKINGDIR/waf"
 	    fi
 	fi
 	# neither waf nor miniwaf could be found
 	if [ ! -x "$WAF" ]; then
 	    echo -e $RED"not found"$NORMAL
-	    echo -e $RED"neither waf nor miniwaf could be found!"$NORMAL
 	    echo "Goto http://www.freehackers.org/~tnagy/bksys.html"
-	    echo "and download a waf version >= http://www.freehackers.org/~tnagy/waf-0.8.2d1.tar.bz2"
-	    echo "or download miniwaf >0.8.2d"
+	    echo "and download a waf version"
 	    exit $EXIT_FAILURE
 	else
 	  echo -e $GREEN"$WAF"$NORMAL
@@ -129,8 +109,6 @@ distclean:
 	@$WAF distclean
 	@-rm -rf cache/
 	@-rm -rf _build_
-	@-rm -rf \`find . -type f -name "*.pyc" -print\`
-	@-rm -f config.mak
 	@-rm -f Makefile
 
 dist:
