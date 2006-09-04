@@ -10,16 +10,15 @@ from Params import error, warning
 
 g_bibtex_re = re.compile('bibdata', re.M)
 
-latex_vardeps  = ['LATEX']
-def latex_build(task):
+def tex_build(task, command='LATEX'):
 	env = task.m_env
 
 	if env['PROMPT_LATEX']:
 		exec_cmd = Runner.exec_command_interact
-		com = env['LATEX']
+		com = '%s %s' % (env[command], env[command+'FLAGS'])
 	else:
 		exec_cmd = Runner.exec_command
-		com = '%s %s' % (env['LATEX'], '-interaction=batchmode')
+		com = '%s %s %s' % (env[command], env[command+'FLAGS'], '-interaction=batchmode')
 
 
 	node = task.m_inputs[0]
@@ -52,7 +51,7 @@ def latex_build(task):
 	#	tmp_lst = None
 
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
-	warning('first pass on latex')
+	warning('first pass on %s' % command)
 	ret = exec_cmd(latex_compile_cmd)
 	if ret: return ret
 
@@ -117,16 +116,24 @@ def latex_build(task):
 		if hash and hash == old_hash: break
 
 		# run the command
-		warning('calling latex')
+		warning('calling %s' % command)
 		ret = exec_cmd(latex_compile_cmd)
 		if ret:
-			error('error when calling latex %s' % latex_compile_cmd)
+			error('error when calling %s %s' % (command, latex_compile_cmd))
 			return ret
 
 	# 0 means no error
 	return 0
 
-g_texobjs=['latex','tex','bibtex','dvips','dvipdf']
+latex_vardeps  = ['LATEX', 'LATEXFLAGS']
+def latex_build(task):
+	return tex_build(task, 'LATEX')
+
+pdflatex_vardeps  = ['PDFLATEX', 'PDFLATEXFLAGS']
+def pdflatex_build(task):
+	return tex_build(task, 'PDFLATEX')
+
+g_texobjs=['latex','pdflatex']
 class texobj(Object.genobj):
 	s_default_ext = ['.tex', '.ltx']
 	def __init__(self, type='latex'):
@@ -134,13 +141,12 @@ class texobj(Object.genobj):
 
 		global g_texobjs
 		if not type in g_texobjs:
-			Params.niceprint('type %s not supported for texobj', 'ERROR', 'texobj')
+			Params.niceprint('type %s not supported for texobj' % type, 'ERROR', 'texobj')
 			import sys
 			sys.exit(1)
 		self.m_type   = type
 		self.outs     = '' # example: "ps pdf"
 		self.prompt   = 1  # prompt for incomplete files (else the batchmode is used)
-		self.mode     = 'latex' # pdflatex
 		self.deps     = ''
 	def apply(self):
 		
@@ -163,9 +169,16 @@ class texobj(Object.genobj):
 			node = self.m_current_path.find_node( filename.split('/') )
 			if not node: fatal('cannot find %s' % filename)
 
-			task = self.create_task('latex', self.env, 2)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.dvi'))
+			if self.m_type == 'latex':
+				task = self.create_task('latex', self.env, 2)
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.dvi'))
+			elif self.m_type == 'pdflatex':
+				task = self.create_task('pdflatex', self.env, 2)
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.pdf'))
+			else:
+				fatal('no type or invalid type given in tex object (should be latex or pdflatex)')
 
 			if deps_lst:
 
@@ -181,14 +194,20 @@ class texobj(Object.genobj):
 				except:
 					tree.m_depends_on[variant][node] = deps_lst
 
-			if 'ps' in outs:
-				pstask = self.create_task('dvips', self.env, 40)
-				pstask.set_inputs(task.m_outputs)
-				pstask.set_outputs(node.change_ext('.ps'))
-			if 'pdf' in outs:
-				pdftask = self.create_task('dvipdf', self.env, 40)
-				pdftask.set_inputs(task.m_outputs)
-				pdftask.set_outputs(node.change_ext('.pdf'))
+			if self.m_type == 'latex':
+				if 'ps' in outs:
+					pstask = self.create_task('dvips', self.env, 40)
+					pstask.set_inputs(task.m_outputs)
+					pstask.set_outputs(node.change_ext('.ps'))
+				if 'pdf' in outs:
+					pdftask = self.create_task('dvipdf', self.env, 40)
+					pdftask.set_inputs(task.m_outputs)
+					pdftask.set_outputs(node.change_ext('.pdf'))
+			elif self.m_type == 'pdflatex':
+				if 'ps' in outs:
+					pstask = self.create_task('pdf2ps', self.env, 40)
+					pstask.set_inputs(task.m_outputs)
+					pstask.set_outputs(node.change_ext('.ps'))
 
 def detect(conf):
 	v = conf.env
@@ -199,14 +218,20 @@ def detect(conf):
 	v['LATEX']       = conf.find_program('latex')
 	v['LATEXFLAGS']  = ''
 
+	v['PDFLATEX']       = conf.find_program('pdflatex')
+	v['PDFLATEXFLAGS']  = ''
+
 	v['BIBTEX']      = conf.find_program('bibtex')
 	v['BIBTEXFLAGS'] = ''
 
 	v['DVIPS']       = conf.find_program('dvips')
-	v['DVIPSFLAGS']  = ''
+	v['DVIPSFLAGS']  = '-Ppdf'
 
 	v['DVIPDF']      = conf.find_program('dvipdf')
 	v['DVIPDFFLAGS'] = ''
+
+	v['PDF2PS']      = conf.find_program('ps2pdf')
+	v['PDF2PSFLAGS'] = ''
 
 	v['MAKEINDEX']   = conf.find_program('makeindex')
 
@@ -217,8 +242,10 @@ def setup(env):
 	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE')
 	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE')
 	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE')
+	Action.simple_action('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE')
 
 	Action.Action('latex', vars=latex_vardeps, func=latex_build)
+	Action.Action('pdflatex', vars=pdflatex_vardeps, func=pdflatex_build)
 
         Object.register('tex', texobj)
 
