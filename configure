@@ -64,8 +64,11 @@ checkWAF()
 	fi
 	#installed miniwaf in sourcedir
 	if [ -z "$WAF" ]; then
-	    if [ -x "$WORKINGDIR/waf" ] ; then
+	    if [ -e "$WORKINGDIR/waf" ] ; then
 		WAF="$WORKINGDIR/waf"
+		if ! [ -x $WAF ] ; then
+		    chmod +x $WAF
+		fi
 	    fi
 	fi
 	# neither waf nor miniwaf could be found
