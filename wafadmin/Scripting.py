@@ -312,11 +312,9 @@ def DistClean():
 	except:
 		pass
 
-	# remove the builddir declared
-	try: shutil.rmtree(os.path.abspath(Utils.g_module.blddir))
-	except: pass
-
 	# remove the temporary files
+	# the builddir is given by lock-wscript only
+	# we do no try to remove it if there is no lock file (rmtree)
 	for (root, dirs, filenames) in os.walk('.'):
 		to_remove = False
 		for f in list(filenames):
