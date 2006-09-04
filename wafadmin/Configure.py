@@ -371,11 +371,7 @@ class Configure:
 		except:
 			pass
 
-		# TODO uh-oh
-		if not self.env['_BUILDDIR_']: self.env['_BUILDDIR_']='_build_'
-
-
-		dir = os.path.join(self.env['_BUILDDIR_'], self.env.variant())
+		dir = os.path.join(self.m_blddir, self.env.variant())
 		try: os.makedirs(dir)
 		except: pass
 
