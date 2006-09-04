@@ -12,28 +12,32 @@ cwd = os.getcwd()
 # or print the version number
 # ##########################################################################
 
-# unpack wafadmin if necessary, developers should use the environment variable "WAFADMIN"
 try:
-	wafdir = os.path.abspath(os.environ['WAFDIR'])
+	# if wafadmin is in /usr/local/waf-x.x.x/ then use it directly
+	wafdir = '/usr/local/waf-%s/' % VERSION
+	os.stat(wafdir+'/wafadmin')
 except:
-	name = sys.argv[0]
-	if name[len(name)-4:] == 'woof':
-		# woof --make-waf should work from the top-level so we check if wafadmin is in cwd
-		wafdir = cwd
-		try:
-			os.stat(wafdir+os.sep+'wafadmin')
-		except:
-			print "\033[91mdevelopers using woof must set the WAFDIR (export WAFDIR=/folder)\033[0m"
-			sys.exit(1)
-	else:
-		if sys.platform == 'win32':
-			wafdir='c:\\temp\\waf-%s\\' % VERSION
+	try:
+		wafdir = os.path.abspath(os.environ['WAFDIR'])
+	except:
+		name = sys.argv[0]
+		if name[len(name)-4:] == 'woof':
+			# woof --make-waf should work from the top-level so we check if wafadmin is in cwd
+			wafdir = cwd
+			try:
+				os.stat(wafdir+os.sep+'wafadmin')
+			except:
+				print "\033[91mdevelopers using woof must set the WAFDIR (export WAFDIR=/folder)\033[0m"
+				sys.exit(1)
 		else:
-			wafdir = '%s/.waf-%s' % (os.environ['HOME'], VERSION)
-		if "--nocache" in sys.argv:
-			import shutil
-			print "removing the local wafdir", wafdir
-			shutil.rmtree(wafdir)
+			if sys.platform == 'win32':
+				wafdir='c:\\temp\\waf-%s\\' % VERSION
+			else:
+				wafdir = '%s/.waf-%s' % (os.environ['HOME'], VERSION)
+			if "--nocache" in sys.argv:
+				import shutil
+				print "removing the local wafdir", wafdir
+				shutil.rmtree(wafdir)
 
 # look if the wafdir exists
 try:
@@ -44,7 +48,12 @@ except:
 
 	while 1:
 		line = file.readline()
-		if not line: break
+		if not line:
+			print "This is a stripped-down waf, there is no wafadmin directory available"
+			print "Please set WAFDIR to a directory containing a directory named wafadmin"
+			print "Or use the full waf version available freely at http://freehackers.org/~tnagy/bksys.html"
+			print "\033[91mNo wafadmin: cannot execute anything (error)\033[0m"
+			sys.exit(1)
 		if line=='""" # ===>BEGIN WOOF<===\n': break
 
 	while 1:
