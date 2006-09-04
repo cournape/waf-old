@@ -11,6 +11,11 @@ def build(bld):
 	obj.includes='. /usr/include'
 	obj.ccflags='-Wmain'
 	obj.target='test_c_program'
+	obj.uselib_local='teststaticlib'
+
+	obj = bld.createObj('cc', 'staticlib')
+	obj.source = 'test.c'
+	obj.target='teststaticlib'
 
 #def set_options(opt):
 #	# options defined if src/ was to be compiled as a standalone module

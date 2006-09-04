@@ -78,6 +78,9 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']      = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
+	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
+	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
+
 	try:
 	        deb = Params.g_options.debug_level
 		v['CCFLAGS']   += v['CCFLAGS_'+deb]

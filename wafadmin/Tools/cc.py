@@ -90,8 +90,12 @@ class ccobj(ccroot.ccroot):
 			for i in self.env['STATICLIB']:
 				self.env.appendValue('LINKFLAGS', staticlib_st % i)
 
+		# i doubt that anyone will make a fully static binary anyway
+		if not self.env['FULLSTATIC']:
+			if self.env['STATICLIB'] or self.env['LIB']:
+				self.env.appendValue('LINKFLAGS', self.env['SHLIB_MARKER'])
+
 		if self.env['LIB']:
-			self.env.appendValue('LINKFLAGS', self.env['SHLIB_MARKER'])
 			for i in self.env['LIB']:
 				self.env.appendValue('LINKFLAGS', lib_st % i)
 
