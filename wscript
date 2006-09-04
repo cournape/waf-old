@@ -11,22 +11,22 @@ import Params, os, sys, base64, shutil
 
 # this function is called before any other for parsing the command-line
 def set_options(opt):
-	opt.add_option('--prepare', action='store_true', default=False,
-		help='prepares the demo projects RUN ME PLEASE', dest='prepare')
-	opt.add_option('--cleanup', action='store_true', default=False,
-		help='cleanups the demo after use (removes project files)', dest='cleanup')
-	opt.add_option('--set-version', default='',
-		help='set the version number for waf releases (for the maintainer)', dest='setver')
+
+	# generate waf
 	opt.add_option('--make-waf', action='store_true', default=False,
 		help='creates the waf script', dest='waf')
-	opt.add_option('--nocache', action='store_true', default=False,
-		help='removes the waf cached scripts', dest='nocache')
+
 	# ita: i suggest using waf directly, installing is useless but some people cannot live without it
 	opt.add_option('--install', default=False,
 		help='install waf on the system', action='store_true', dest='install')
 	opt.add_option('--uninstall', default=False,
 		help='uninstall waf from the system', action='store_true', dest='uninstall')
 
+	# those ones are not too interesting
+	opt.add_option('--set-version', default='',
+		help='set the version number for waf releases (for the maintainer)', dest='setver')
+	opt.add_option('--nocache', action='store_true', default=False,
+		help='removes the waf cached scripts', dest='nocache')
 
 def create_waf():
 	print "preparing waf"
@@ -142,18 +142,7 @@ def uninstall_waf():
 
 # the init function is called right after the command-line arguments are parsed
 def init():
-	if Params.g_options.prepare:
-		print "preparing the cpp demo (run ./waf --cleanup to remove)"
-		print "cd to demos/cpp/ and execute waf there (there other demos, not all are ready)"
-		for d in demos:
-			ret = os.popen("if test ! -L ./demos/%s/wafadmin; then ln -sf ../../wafadmin ./demos/%s/wafadmin && cp configure setenv.bat waf ./demos/%s/; fi" % (d,d,d))
-		sys.exit(0)
-	elif Params.g_options.cleanup:
-		print "cleaning up the demo folders"
-		for d in demos:
-			ret = os.popen("rm -f ./demos/%s/waf ./demos/%s/setenv.bat ./demos/%s/configure ./demos/%s/wafadmin" % (d,d,d,d))
-		sys.exit(0)
-	elif Params.g_options.setver: # maintainer only (ita)
+	if Params.g_options.setver: # maintainer only (ita)
 		ver = Params.g_options.setver
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' woof""" % ver).close()
