@@ -329,8 +329,12 @@ class ccroot(Object.genobj):
 			for i in self.env['STATICLIB']:
 				self.env.appendValue('LINKFLAGS', staticlib_st % i)
 
+		# fully static binaries ?
+		if not self.env['FULLSTATIC']:
+			if self.env['STATICLIB'] or self.env['LIB']:
+				self.env.appendValue('LINKFLAGS', self.env['SHLIB_MARKER'])
+
 		if self.env['LIB']:
-			self.env.appendValue('LINKFLAGS', self.env['SHLIB_MARKER'])
 			for i in self.env['LIB']:
 				self.env.appendValue('LINKFLAGS', lib_st % i)
 
