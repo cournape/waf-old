@@ -163,20 +163,25 @@ class ccroot(Object.genobj):
 		trace("apply called for "+self.m_type_initials)
 		if not self.m_type in self.get_valid_types(): fatal('Invalid type for object: '+self.m_type_initials)
 
+		single = (self.m_type == 'objects')
+
 		self.apply_type_vars()
 		self.apply_incpaths()
 		self.apply_defines()
 
 		self.apply_core()
 
-		self.apply_lib_vars()
+		if not single: self.apply_lib_vars()
 		self.apply_obj_vars()
-		self.apply_objdeps()
+		if not single: self.apply_objdeps()
 
 	def apply_core(self):
 		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
 
-		obj_ext = self.env[self.m_type+'_obj_ext'][0]
+		if self.m_type == 'objects': type = 'program'
+		else: type = self.m_type
+
+		obj_ext = self.env[type+'_obj_ext'][0]
 		pre = self.m_type_initials
 
 		# get the list of folders to use by the scanners
@@ -212,6 +217,13 @@ class ccroot(Object.genobj):
 
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(obj_ext))
+
+		# if we are only building .o files, tell which ones we built
+		if self.m_type=='objects':
+			outputs = []
+                	for t in self.p_compiletasks: outputs.append(t.m_outputs[0])
+			self.out_nodes = outputs
+			return
 
 		# and after the objects, the remaining is the link step
 		# link in a lower priority (101) so it runs alone (default is 10)
@@ -469,8 +481,9 @@ class ccroot(Object.genobj):
 	# add the .o files produced by some other object files in the same manner as uselib_local
 	def apply_objdeps(self):
 		lst = self.add_objects.split()
+		if not lst: return
 		for obj in Object.g_allobjs:
-			if obj.name in lst:
+			if obj.target in lst or obj.name in lst:
 				obj.post()
 				self.m_linktask.m_inputs += obj.out_nodes
 

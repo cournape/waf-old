@@ -16,7 +16,7 @@ g_cpp_flag_vars = [
 'INCLUDE',
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CXXDEFINES']
 
-cpptypes=['shlib', 'program', 'staticlib']
+cpptypes=['shlib', 'program', 'staticlib', 'objects']
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 class cppobj(ccroot.ccroot):
 	s_default_ext = ['.c', '.cpp', '.cc']
@@ -43,7 +43,8 @@ class cppobj(ccroot.ccroot):
 		self.p_type_vars = g_cpp_type_vars
 
 	def get_valid_types(self):
-		return ['program', 'shlib', 'staticlib']
+		global cpptypes
+		return cpptypes
 
 	def apply_defines(self):
 		lst = self.to_list(self.defines)
