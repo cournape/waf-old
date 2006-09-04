@@ -110,57 +110,79 @@ def detect(conf):
 	
 	if sys.platform == "win32": 
 		# shared library 
-		v['shlib_CXXFLAGS']  = ['']
-		v['shlib_LINKFLAGS'] = ['-shared']
-		v['shlib_obj_ext']   = ['.o']
-		v['shlib_PREFIX']    = 'lib'
-		v['shlib_SUFFIX']    = '.dll'
+		v['shlib_CXXFLAGS']    = ['']
+		v['shlib_LINKFLAGS']   = ['-shared']
+		v['shlib_obj_ext']     = ['.o']
+		v['shlib_PREFIX']      = 'lib'
+		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
 	
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
 		v['staticlib_obj_ext'] = ['.o']
-		v['staticlib_PREFIX']= 'lib'
-		v['staticlib_SUFFIX']= '.a'
+		v['staticlib_PREFIX']  = 'lib'
+		v['staticlib_SUFFIX']  = '.a'
 
 		# program 
-		v['program_obj_ext'] = ['.o']
-		v['program_SUFFIX']  = '.exe'
+		v['program_obj_ext']   = ['.o']
+		v['program_SUFFIX']    = '.exe'
 	elif sys.platform == 'cygwin':
 		# shared library 
-		v['shlib_CXXFLAGS']  = ['']
-		v['shlib_LINKFLAGS'] = ['-shared']
-		v['shlib_obj_ext']   = ['.o']
-		v['shlib_PREFIX']    = 'lib'
-		v['shlib_SUFFIX']    = '.dll'
+		v['shlib_CXXFLAGS']    = ['']
+		v['shlib_LINKFLAGS']   = ['-shared']
+		v['shlib_obj_ext']     = ['.o']
+		v['shlib_PREFIX']      = 'lib'
+		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
 	
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
 		v['staticlib_obj_ext'] = ['.o']
-		v['staticlib_PREFIX']= 'lib'
-		v['staticlib_SUFFIX']= '.a'
+		v['staticlib_PREFIX']  = 'lib'
+		v['staticlib_SUFFIX']  = '.a'
 
 		# program 
-		v['program_obj_ext'] = ['.o']
-		v['program_SUFFIX']  = '.exe'
+		v['program_obj_ext']   = ['.o']
+		v['program_SUFFIX']    = '.exe'
+	elif sys.platform == 'darwin':
+		v['SHLIB_MARKER']      = ' '
+		v['STATICLIB_MARKER']  = ' '
+
+		# shared library
+		v['shlib_MARKER']      = ''
+		v['shlib_CXXFLAGS']    = ['-fPIC']
+		v['shlib_LINKFLAGS']   = ['-dynamiclib']
+		v['shlib_obj_ext']     = ['.os']
+		v['shlib_PREFIX']      = 'lib'
+		v['shlib_SUFFIX']      = '.dylib'
+
+		# static lib
+		v['staticlib_MARKER']  = ''
+		v['staticlib_LINKFLAGS'] = ['']
+		v['staticlib_obj_ext'] = ['.o']
+		v['staticlib_PREFIX']  = 'lib'
+		v['staticlib_SUFFIX']  = '.a'
+
+		# program
+		v['program_obj_ext']   = ['.o']
+		v['program_SUFFIX']    = ''
 	else:
 		# shared library 
-		v['shlib_CXXFLAGS']  = ['-fPIC', '-DPIC']
-		v['shlib_LINKFLAGS'] = ['-shared']
-		v['shlib_obj_ext']   = ['.os']
-		v['shlib_PREFIX']    = 'lib'
-		v['shlib_SUFFIX']    = '.so'
+		v['shlib_CXXFLAGS']    = ['-fPIC', '-DPIC']
+		v['shlib_LINKFLAGS']   = ['-shared']
+		v['shlib_obj_ext']     = ['.os']
+		v['shlib_PREFIX']      = 'lib'
+		v['shlib_SUFFIX']      = '.so'
 	
 		# static lib
 		#v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
 		v['staticlib_obj_ext'] = ['.o']
-		v['staticlib_PREFIX']= 'lib'
-		v['staticlib_SUFFIX']= '.a'
+		v['staticlib_PREFIX']  = 'lib'
+		v['staticlib_SUFFIX']  = '.a'
 
 		# program 
-		v['program_obj_ext'] = ['.o']
-		v['program_SUFFIX']  = ''
+		v['program_obj_ext']   = ['.o']
+		v['program_SUFFIX']    = ''
 
 	return 1
 

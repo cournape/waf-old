@@ -97,40 +97,57 @@ def detect(conf):
 
 	if sys.platform == "win32": 
 		# shared library 
-		v['shlib_CCFLAGS']  = ['']
-		v['shlib_LINKFLAGS'] = ['-shared']
-		v['shlib_obj_ext']   = ['.o']
-		v['shlib_PREFIX']    = 'lib'
-		v['shlib_SUFFIX']    = '.dll'
+		v['shlib_CCFLAGS']       = ['']
+		v['shlib_LINKFLAGS']     = ['-shared']
+		v['shlib_obj_ext']       = ['.o']
+		v['shlib_PREFIX']        = 'lib'
+		v['shlib_SUFFIX']        = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 	
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext'] = ['.o']
-		v['staticlib_PREFIX']= 'lib'
-		v['staticlib_SUFFIX']= '.a'
+		v['staticlib_obj_ext']   = ['.o']
+		v['staticlib_PREFIX']    = 'lib'
+		v['staticlib_SUFFIX']    = '.a'
 
 		# program 
-		v['program_obj_ext'] = ['.o']
-		v['program_SUFFIX']  = '.exe'
+		v['program_obj_ext']     = ['.o']
+		v['program_SUFFIX']      = '.exe'
+
+	elif sys.platform == "darwin":
+		v['shlib_CCFLAGS']       = ['-fPIC']
+		v['shlib_LINKFLAGS']     = ['-dynamiclib']
+		v['shlib_obj_ext']       = ['.os']
+		v['shlib_PREFIX']        = 'lib'
+		v['shlib_SUFFIX']        = '.dynlib'
+
+		# static lib
+		v['staticlib_LINKFLAGS'] = ['']
+		v['staticlib_obj_ext']   = ['.o']
+		v['staticlib_PREFIX']    = 'lib'
+		v['staticlib_SUFFIX']    = '.a'
+
+		# program
+		v['program_obj_ext']     = ['.o']
+		v['program_SUFFIX']      = ''
 
 	else:
 		# shared library 
-		v['shlib_CCFLAGS']  = ['-fPIC', '-DPIC']
-		v['shlib_LINKFLAGS'] = ['-shared']
-		v['shlib_obj_ext']   = ['.os']
-		v['shlib_PREFIX']    = 'lib'
-		v['shlib_SUFFIX']    = '.so'
+		v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
+		v['shlib_LINKFLAGS']     = ['-shared']
+		v['shlib_obj_ext']       = ['.os']
+		v['shlib_PREFIX']        = 'lib'
+		v['shlib_SUFFIX']        = '.so'
 	
 		# static lib
 		v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-		v['staticlib_obj_ext'] = ['.o']
-		v['staticlib_PREFIX']= 'lib'
-		v['staticlib_SUFFIX']= '.a'
+		v['staticlib_obj_ext']   = ['.o']
+		v['staticlib_PREFIX']    = 'lib'
+		v['staticlib_SUFFIX']    = '.a'
 
 		# program 
-		v['program_obj_ext'] = ['.o']
-		v['program_SUFFIX']  = ''
+		v['program_obj_ext']     = ['.o']
+		v['program_SUFFIX']      = ''
 
 	return 1
 
