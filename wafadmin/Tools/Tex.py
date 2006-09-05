@@ -5,11 +5,67 @@
 # found is 1, not found is 0
 
 import os, sys, re
-import Utils, Params, Action, Object, Runner
+import Utils, Params, Action, Object, Runner, Scan
 from Params import error, warning
 
-g_bibtex_re = re.compile('bibdata', re.M)
+#tex_regexp = re.compile('^[^%]*\\\\bringin{(.*)}', re.M)
+tex_regexp = re.compile('^\\\\bringin{(.*)}', re.M)
+class tex_scanner(Scan.scanner):
+	def __init__(self):
+		Scan.scanner.__init__(self)
+	def scan(self, node, env, curdirnode):
+		if node in node.m_parent.m_files: variant = 0
+		else: variant = task.m_env.variant()
 
+		fi = open(node.abspath(env), 'r')
+		content = fi.read()
+		fi.close()
+
+		print "content is ", content
+
+		found = tex_regexp.findall(content)
+
+		nodes = []
+		names = []
+		if not node: return (nodes, names)
+
+		abs = curdirnode.abspath()
+		for path in found:
+			#print 'boo', name
+
+			filepath = os.path.join(abs, path)
+
+			ok = 0
+			try:
+				os.stat(filepath)
+				ok = filepath
+			except:
+				pass
+
+			if not ok:
+				for k in ['.tex', '.ltx']:
+					try:
+						print "trying ", filepath+k
+						os.stat(filepath+k)
+						ok = filepath+k
+						path = path+k
+					except:
+						pass
+
+			if ok:
+				node = curdirnode.find_node(path.split(os.sep))
+				nodes.append(node)
+			else:
+				print 'could not find', filepath
+				names.append(path)
+
+		print "found the following : ", nodes, " and names ", names
+		return (nodes, names)
+
+g_tex_scanner = tex_scanner()
+
+
+g_bibtex_re = re.compile('bibdata', re.M)
 def tex_build(task, command='LATEX'):
 	env = task.m_env
 
@@ -23,6 +79,7 @@ def tex_build(task, command='LATEX'):
 
 	node = task.m_inputs[0]
 	reldir  = node.cd_to(env)
+
 
 	srcfile = node.srcpath(env)
 
@@ -44,29 +101,20 @@ def tex_build(task, command='LATEX'):
 	nm = aux_node.m_name
 	docuname = nm[ : len(nm) - 4 ] # 4 is the size of ".aux"
 
-	# TODO
-	#try:
-	#	tmp_lst = tree.m_raw_deps[variant][node]
-	#except:
-	#	tmp_lst = None
-
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
 	warning('first pass on %s' % command)
 	ret = exec_cmd(latex_compile_cmd)
 	if ret: return ret
-
-
-
 
 	# look in the .aux file if there is a bibfile to process
 	try:
 		file = open(aux_node.abspath(env), 'r')
 
 		ct = file.read()
+		file.close()
 		#print '---------------------------', ct, '---------------------------'
 
 		fo = g_bibtex_re.findall(ct)
-		file.close()
 
 		# yes, there is a .aux file to process
 		if fo:
@@ -180,8 +228,12 @@ class texobj(Object.genobj):
 			else:
 				fatal('no type or invalid type given in tex object (should be latex or pdflatex)')
 
-			if deps_lst:
+			# rescan the source file if necessary
+			if tree.needs_rescan(node, self.env):
+				g_tex_scanner.do_scan(node, self.env, hashparams={'curdirnode':self.m_current_path})
 
+			# add the manual dependencies
+			if deps_lst:
 				if node in node.m_parent.m_files: variant = 0
         	        	else: variant = env.variant()
 
