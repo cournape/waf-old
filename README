@@ -8,7 +8,7 @@ Tests can be found in wafadmin/ (run ./Test.py and look at the folder wafadmin/t
 GENERATE WAF
 ------------
 
-Run './woof --make-waf' to generate waf or look at './woof --help'
+Run './waf-light --make-waf' to generate waf or look at './waf-light --help'
 
 Then try 'waf --help', there are predefined targets for waf itself.
 

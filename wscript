@@ -57,7 +57,7 @@ def create_waf():
 		tar.add(tarThisFile)
 	tar.close()
 	
-	file = open('woof', 'rb')
+	file = open('waf-light', 'rb')
 	code1 = file.read()
 	file.close()
 
@@ -145,7 +145,7 @@ def init():
 	if Params.g_options.setver: # maintainer only (ita)
 		ver = Params.g_options.setver
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
-		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' woof""" % ver).close()
+		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		sys.exit(0)
 	elif Params.g_options.nocache:
