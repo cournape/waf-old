@@ -8,8 +8,8 @@ import os, sys, re
 import Utils, Params, Action, Object, Runner, Scan
 from Params import error, warning
 
+tex_regexp = re.compile('^\\\\include{(.*)}', re.M)
 #tex_regexp = re.compile('^[^%]*\\\\bringin{(.*)}', re.M)
-tex_regexp = re.compile('^\\\\bringin{(.*)}', re.M)
 class tex_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
