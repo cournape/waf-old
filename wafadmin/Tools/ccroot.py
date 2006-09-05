@@ -163,17 +163,15 @@ class ccroot(Object.genobj):
 		trace("apply called for "+self.m_type_initials)
 		if not self.m_type in self.get_valid_types(): fatal('Invalid type for object: '+self.m_type_initials)
 
-		single = (self.m_type == 'objects')
-
 		self.apply_type_vars()
 		self.apply_incpaths()
 		self.apply_defines()
 
 		self.apply_core()
 
-		if not single: self.apply_lib_vars()
+		self.apply_lib_vars()
 		self.apply_obj_vars()
-		if not single: self.apply_objdeps()
+		if self.m_type != 'objects': self.apply_objdeps()
 
 	def apply_core(self):
 		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
