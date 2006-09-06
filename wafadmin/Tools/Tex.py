@@ -6,7 +6,7 @@
 
 import os, sys, re
 import Utils, Params, Action, Object, Runner, Scan
-from Params import error, warning
+from Params import error, warning, trace
 
 tex_regexp = re.compile('^\\\\include{(.*)}', re.M)
 #tex_regexp = re.compile('^[^%]*\\\\bringin{(.*)}', re.M)
@@ -20,8 +20,6 @@ class tex_scanner(Scan.scanner):
 		fi = open(node.abspath(env), 'r')
 		content = fi.read()
 		fi.close()
-
-		print "content is ", content
 
 		found = tex_regexp.findall(content)
 
@@ -45,7 +43,7 @@ class tex_scanner(Scan.scanner):
 			if not ok:
 				for k in ['.tex', '.ltx']:
 					try:
-						print "trying ", filepath+k
+						trace("trying %s%s" % (filepath, k))
 						os.stat(filepath+k)
 						ok = filepath+k
 						path = path+k
@@ -59,7 +57,7 @@ class tex_scanner(Scan.scanner):
 				print 'could not find', filepath
 				names.append(path)
 
-		print "found the following : ", nodes, " and names ", names
+		trace("found the following : %s and names %s" % (nodes, names))
 		return (nodes, names)
 
 g_tex_scanner = tex_scanner()
