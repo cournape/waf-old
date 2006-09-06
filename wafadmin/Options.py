@@ -77,6 +77,12 @@ def create_parser():
 		default = default_destdir,
 		dest    = 'destdir')
 
+	p('--nocache',
+		action  = 'store_true',
+		default = False,
+		help    = 're-run all compilation tests',
+		dest    = 'nocache')
+
 	if 'configure' in sys.argv:
 		p('-b', '--blddir',
 			action  = 'store',
@@ -89,12 +95,6 @@ def create_parser():
 			default = '',
 			help    = 'src dir for the project (configuration)',
 			dest    = 'srcdir')
-
-		p('--nocache',
-			action  = 'store_true',
-			default = False,
-			help    = 're-run all compilation tests',
-			dest    = 'nocache')
 
 	return parser
 
@@ -137,6 +137,8 @@ class Handler:
 
 		self.cwd = os.path.join(self.cwd, dir)
 		cur = os.path.join(self.cwd, 'wscript')
+
+		trace("cur is "+str(cur))
 
 		try:
 			mod = Utils.load_module(cur)

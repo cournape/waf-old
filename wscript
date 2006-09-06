@@ -25,8 +25,6 @@ def set_options(opt):
 	# those ones are not too interesting
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
-	opt.add_option('--nocache', action='store_true', default=False,
-		help='removes the waf cached scripts', dest='nocache')
 
 def create_waf():
 	print "preparing waf"
@@ -147,8 +145,6 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
-		sys.exit(0)
-	elif Params.g_options.nocache:
 		sys.exit(0)
 	elif Params.g_options.install:
 		create_waf()

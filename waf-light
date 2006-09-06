@@ -133,7 +133,6 @@ xml = None
 build_dir_override = None
 candidate = None
 
-#if not os.listdir(cwd):
 lst = os.listdir(cwd)
 #check if a wscript or a wscript_xml file is in current directory
 if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
@@ -186,7 +185,6 @@ if not candidate:
 		warning('No wscript file found: the help message may be incomplete')
 	        opt_obj = Options.Handler()
 		opt_obj.parse_args()
-		parse_options()
 		sys.exit(0)
 	else:
 		fatal(msg1)
