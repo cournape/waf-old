@@ -8,6 +8,512 @@ from Params import debug, error, trace, fatal
 g_maxlen = 35
 g_debug  = 0
 
+
+
+class enumerator_base:
+	def __init__(self,conf):
+		self.env			= None
+		self.hashvalue		= None
+		self.conf			= conf
+		self.define_name	= ''
+
+	def update_hash(self,md5hash):
+		classvars = vars(self)
+		for (var,value) in classvars.iteritems():
+			if not callable(var) and value != self and value != self.env and value != self.hashvalue and value != self.conf:
+				md5hash.update(str(value))
+		
+	def hash(self):
+		m = md5.new()
+		self.update_hash(m)
+
+		return m.digest()
+
+
+	
+	def run(self):
+		if not self.compare_hash():
+			return self.conf.m_cache_table[self.hashvalue]
+	
+		ret = self.run_impl()
+	
+		self.conf.m_cache_table[self.hashvalue] = ret
+		return ret
+		
+	
+	# Override this method, not run()!
+	def run_impl(self):
+		return 0
+
+
+	def compare_hash(self):
+		newhash = self.hash()
+		if self.hashvalue == newhash:
+			return 0
+		else:
+			self.hashvalue = newhash
+			return 1
+
+
+class configurator_base(enumerator_base):
+	def __init__(self,conf):
+		enumerator_base.__init__(self,conf)
+	
+		self.uselib_name	= ''
+		self.mandatory		= 0
+
+
+
+
+
+# ENUMERATORS
+
+class program_enumerator(enumerator_base):
+	def __init__(self,conf):
+		enumerator_base.__init__(self, conf)
+	
+		self.name			= ''
+		self.paths 			= []
+		
+	def run_impl(self):
+		ret = find_program_impl(self.conf.env, self.name, self.paths)
+		self.conf.checkMessage('program', self.name, ret, ret)
+
+		if self.define_name:
+			env[self.define_name] = ret
+
+		return ret
+
+
+class function_enumerator(enumerator_base):
+	def __init__(self,conf):
+		enumerator_base.__init__(self, conf)
+
+		self.function_calls	= []
+		self.headers		= []
+		self.include_paths	= []
+		self.header_code	= ''
+		self.libs			= []
+		self.lib_paths		= []
+		
+	def run_impl(self):
+		env = self.env	
+		if not env: env = self.conf.env
+
+		foundname = ''
+	
+		ret = ''
+
+		oldlibpath = env['LIBPATH']
+		oldlib = env['LIB']
+
+		for funccall in self.function_calls:
+		
+			code = self.header_code
+			for header in self.headers:
+				code=code+"#include <%s>\n" % header
+			
+			# If a third column is present and not empty, use the given code
+			# (the third column contains optional custom code for probing functions; useful for overloaded functions)
+			customcheck = 0
+			if len(funccall)>=3:
+				if funccall[2]: customcheck = 1			
+			
+			if customcheck:
+				code+="""
+int main()
+{
+	%s
+	return 0;
+}
+""" % funccall[2];
+				
+			else:
+				code+="""
+int main()
+{
+	void *p;
+	p=(void*)(%s);
+	return 0;
+}
+""" % funccall[0];
+
+			env['LIB'] = self.libs
+			env['LIBPATH'] = self.lib_paths
+
+			obj               = check()
+			obj.fun           = ''
+			obj.define_name   = self.define_name
+			obj.code          = code
+			obj.includes      = self.include_paths
+			obj.env           = env
+
+			ret = self.conf.check(obj)
+			
+			self.conf.checkMessage('function '+funccall[0], '', not ret, option='')
+
+			# If a second column is present and not empty, set the given defines
+			# (the second column contains optional defines to be set)
+			if len(funccall)>=2:
+				if funccall[1]:
+				
+					# Necessary because direct assignment of "not ret" results in "True" or "False", but not 0 or 1
+					if ret:
+						retnum = 0
+					else:
+						retnum = 1
+				
+					env[funccall[1]]=retnum
+					self.conf.addDefine(funccall[1],retnum)
+
+			if not ret:
+				# Store the found name
+				foundname = funccall[0]
+				break
+				
+				
+				
+		
+		env['LIB'] = oldlib
+		env['LIBPATH'] = oldlibpath
+				
+		return foundname
+
+
+class library_enumerator(enumerator_base):
+	def __init__(self,conf):
+		enumerator_base.__init__(self,conf)
+
+		self.names			= []
+		self.paths			= []
+		self.code			= ''
+
+
+	def update_hash(self,md5hash):
+		enumerator_base.update_hash(self,md5hash)
+
+		env = self.env
+		if not env: env=self.conf.env
+
+		md5hash.update(str(env['LIBPATH']))
+
+
+	def run_impl(self):
+		env = self.env
+		if not env: env=self.conf.env
+
+		oldlibpath = env['LIBPATH']
+		oldlib = env['LIB']
+
+		foundname = ''
+		foundpath = ''
+		found = []
+
+		code = self.code
+		if not code: code = "\n\nint main() {return 0;}\n"
+
+		ret=''
+		
+		if self.paths:
+
+			for libname in self.names:
+				for libpath in self.paths:
+
+					#First look for a shared library
+					full_libname=env['shlib_PREFIX']+libname+env['shlib_SUFFIX']
+					ret = find_file(full_libname, [libpath])
+					
+					#If no shared lib was found, look for a static one
+					if not ret:
+						full_libname=env['staticlib_PREFIX']+libname+env['staticlib_SUFFIX']
+						ret = find_file(full_libname, [libpath])				
+	
+					if ret:
+						foundname = libname
+						foundpath = libpath
+						found = [foundname, foundpath]
+						break
+
+				self.conf.checkMessage('library '+libname, '', ret, option=libpath)
+						
+				if ret: break
+		
+		if not ret: # Either lib was not found in the libpaths, or no paths were given. Test if the compiler can find the lib anyway
+
+			for libname in self.names:
+				env['LIB'] = [libname]
+
+				env['LIBPATH'] = ['']
+				obj               = check()
+				obj.code          = code
+				obj.fun           = 'find_library'
+				obj.env           = env
+				ret = self.conf.check(obj)
+
+				self.conf.checkMessage('library '+libname+' via linker', '', not ret, option='')
+				#self.conf.checkMessage('library '+libname, '', not ret, option='')
+	
+				if not ret:
+					foundname = libname
+					foundpath = libpath
+					found = [foundname, foundpath]
+					break
+
+
+		env['LIB'] = oldlib
+		env['LIBPATH'] = oldlibpath
+
+		if found: ret = 1
+		else:     ret = 0
+		
+		if self.define_name:
+			env[self.define_name] = ret
+			
+		return found
+
+
+class header_enumerator(enumerator_base):
+	def __init__(self,conf):
+		enumerator_base.__init__(self,conf)
+
+		self.names			= []
+		self.paths			= []
+		self.code			= ''
+		
+	def run_impl(self):
+		env = self.env	
+		if not env: env = self.conf.env
+
+		foundname = ''
+		foundpath = ''
+		found = []
+
+		ret=''
+		
+		if self.paths:
+		
+			for headername in self.names:
+				for incpath in self.paths:
+
+					ret = find_file(headername, [incpath])
+	
+					if ret:
+						foundname = headername
+						foundpath = incpath
+						found = [foundname, foundpath]
+						break
+						
+				if ret: break
+					
+		if not ret: # Either the header was not found in the incpaths, or no paths were given. Test if the compiler can find the header anyway
+		
+			for headername in self.names:
+				
+				obj               = check()
+				obj.fun           = 'check_header'
+				obj.define_name   = self.define_name #TODO: should this be '' ? The define is set below anyway
+				obj.header_name   = headername
+				obj.headers_code  = self.code
+				obj.env           = env
+				ret = self.conf.check(obj)
+					
+				if not ret:
+					foundname = headername
+					foundpath = ''
+					found = [foundname, foundpath]
+					break
+
+		if found: ret = 1
+		else:     ret = 0
+
+		self.conf.checkMessage('header '+foundname, '', ret, option=foundpath)
+		
+		if self.define_name:
+			env[self.define_name] = ret
+
+		return found
+
+# ENUMERATORS END
+
+
+
+# CONFIGURATORS
+
+class cfgtool_configurator(configurator_base):
+	def __init__(self,conf):
+		configurator_base.__init__(self,conf)
+	
+		self.binary			= ''
+		self.cflagsparam 	= '--cflags'
+		self.cppflagsparam	= '--cflags'
+		self.libsparam		= '--libs'
+
+	def run_impl(self):
+		env = self.env	
+		if not env: env = self.conf.env
+		
+		define_name = self.define_name
+		if not define_name: define_name = 'HAVE_'+self.uselib_name
+	
+		#TODO: replace the "2>/dev/null" with some other mechanism for suppressing the stderr output
+		bincflagscom = '%s %s 2>/dev/null' % (self.binary, self.cflagsparam)
+		bincppflagscom = '%s %s 2>/dev/null' % (self.binary, self.cppflagsparam)
+		binlibscom = '%s %s 2>/dev/null' % (self.binary, self.libsparam)
+				
+		try:
+			ret = os.popen(bincflagscom).close()
+			if ret: raise "error"
+
+			env['CCFLAGS_'+self.uselib_name]   = os.popen(bincflagscom).read().strip()
+			env['CXXFLAGS_'+self.uselib_name]  = os.popen(bincppflagscom).read().strip()
+			env['LINKFLAGS_'+self.uselib_name] = os.popen(binlibscom).read().strip()
+			self.conf.addDefine(define_name, 1)
+			ret = 1
+
+		except:
+			ret = 0
+			self.conf.addDefine(define_name, 0)
+
+		self.conf.checkMessage('config-tool '+self.binary, '', ret,option='')
+			
+		return ret
+
+
+class pkgconfig_configurator(configurator_base):
+	def __init__(self,conf):
+		configurator_base.__init__(self,conf)
+
+		self.name			= ''
+		self.version		= ''
+		self.path			= ''
+		self.binary			= ''
+		self.variables		= []
+	
+	def run_impl(self):
+		pkgpath = self.path
+		pkgbin = self.binary
+		
+		env = self.env
+		if not env: env=self.conf.env
+
+		uselib = self.uselib_name
+		if not uselib: uselib = self.name.upper()
+
+		define_name = self.define_name	
+		if not define_name: define_name = 'HAVE_'+uselib
+
+		if not pkgbin: pkgbin='pkg-config'
+		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
+		pkgcom = '%s %s' % (pkgpath, pkgbin)
+		try:
+			if self.version:
+				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, self.version, self.name)).close()
+				self.conf.checkMessage('package %s >= %s' % (self.name, self.version), '', not ret)
+				if ret: raise "error"
+			else:
+				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
+				self.conf.checkMessage('package %s ' % (self.name), '', not ret)
+				if ret: raise "error"
+
+			env['CCFLAGS_'+uselib]   = os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()
+			env['CXXFLAGS_'+uselib]  = os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()
+			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
+			self.conf.addDefine('HAVE_'+uselib, 1)
+
+			# Store the library names:
+			modlibs = os.popen('%s --libs-only-l %s' % (pkgcom, self.name)).read().strip().split()
+			env['LIB_'+uselib] = []
+			for item in modlibs:
+				env['LIB_'+uselib].append( item[2:] ) #Strip '-l'
+
+			# Store the library paths:
+			modpaths = os.popen('%s --libs-only-L %s' % (pkgcom, self.name)).read().strip().split()
+			env['LIBPATH_'+uselib] = []
+			for item in modpaths:
+				env['LIBPATH_'+uselib].append( item[2:] ) #Strip '-l'
+				
+			for variable in variables:
+				var_defname = ''
+				if len(variable) >= 2:
+					if variable[1]:
+						var_defname = variable[1]
+
+				if not var_defname:				
+					var_defname = uselib + '_' + variable.upper()
+
+				env[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
+		except:
+			self.conf.addDefine(define_name, 0)
+			return 0
+		return 1
+
+
+class library_configurator(configurator_base):
+	def __init__(self,conf):
+		configurator_base.__init__(self,conf)
+
+		self.names			= []
+		self.paths			= []
+		self.code			= ''
+		
+	def run_impl(self):
+		env = self.env
+		if not env: env = self.conf.env
+
+		define_name = self.define_name	
+		if not define_name: define_name = 'HAVE_'+self.uselib_name
+
+		library_enumerator = self.conf.create_library_enumerator()
+		library_enumerator.names = self.names
+		library_enumerator.paths = self.paths
+		library_enumerator.code = self.code
+		library_enumerator.define_name = define_name
+		library_enumerator.env = env
+		ret = library_enumerator.run()
+
+		if ret:
+			env['LIB_'+self.uselib_name]=ret[0]
+			env['LIBPATH_'+self.uselib_name]=ret[1]
+		return ret
+
+
+class header_configurator(configurator_base):
+	def __init__(self,conf):
+		configurator_base.__init__(self,conf)
+
+		self.names			= []
+		self.paths			= []
+		self.code			= ''
+
+	def run_impl(self):	
+		env = self.env
+		if not env: env = self.conf.env
+
+		define_name = self.define_name
+		if not define_name: define_name = 'HAVE_'+self.uselib_name
+		
+		header_enumerator = self.conf.create_header_enumerator()
+		header_enumerator.names = self.names
+		header_enumerator.paths = self.paths
+		header_enumerator.code = self.code
+		header_enumerator.define_name = define_name
+		ret = header_enumerator.run()
+		
+		if ret:
+			env['CPPPATH_'+self.uselib_name]=ret[1]
+		return ret
+
+# CONFIGURATORS END
+
+
+
+
+
+
+
+
+
+
 class check:
 	def __init__(self):
 		self.fun           = '' # function calling
@@ -96,6 +602,12 @@ def find_program_using_which(lenv, prog):
 	
 def sub_config(file):
 	return ''
+	
+	
+	
+	
+
+
 
 class Configure:
 	def __init__(self, env=None, blddir='', srcdir=''):
@@ -638,43 +1150,6 @@ int main() {
 
 		self.cwd = current
 
-
-	def checkPkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin=''):
-		if not destvar: destvar = modname.upper()
-
-		if not pkgbin: pkgbin='pkg-config'
-		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
-		pkgcom = '%s %s' % (pkgpath, pkgbin)
-		try:
-			if vnum:
-				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, vnum, modname)).close()
-				self.checkMessage('%s >= %s' % (modname, vnum), '', not ret)
-				if ret: raise "error"
-			else:
-				ret = os.popen("%s %s" % (pkgcom, modname)).close()
-				self.checkMessage('%s ' % (modname), '', not ret)
-				if ret: raise "error"
-			self.env['CCFLAGS_'+destvar]   = os.popen('%s --cflags %s' % (pkgcom, modname)).read().strip()
-			self.env['CXXFLAGS_'+destvar]  = os.popen('%s --cflags %s' % (pkgcom, modname)).read().strip()
-			#self.env['LINKFLAGS_'+destvar] = os.popen('%s --libs %s' % (pkgcom, modname)).read().strip()
-			self.addDefine('HAVE_'+destvar, 1)
-
-			# Store the library names:
-			modlibs = os.popen('%s --libs-only-l %s' % (pkgcom, modname)).read().strip().split()
-			self.env['LIB_'+destvar] = []
-			for item in modlibs:
-				self.env['LIB_'+destvar].append( item[2:] ) #Strip '-l'
-
-			# Store the library paths:
-			modpaths = os.popen('%s --libs-only-L %s' % (pkgcom, modname)).read().strip().split()
-			self.env['LIBPATH_'+destvar] = []
-			for item in modpaths:
-				self.env['LIBPATH_'+destvar].append( item[2:] ) #Strip '-l'
-		except:
-			self.addDefine('HAVE_'+destvar, 0)
-			return 0
-		return 1
-
 	# this method is called usually only once
 	def cleanup(self):
 		try:
@@ -732,7 +1207,7 @@ int main() {
 				if not obj.define_name:
 					obj.define_name = 'HAVE_'+obj.header_name.upper().replace('.','_').replace('/','_')
 				self.addDefine(obj.define_name, res)
-				self.checkMessage('header', obj.header_name+cached, res)
+				#self.checkMessage('header', obj.header_name+cached, res)
 			elif obj.fun == 'check_flags':
 				self.checkMessage('flags', obj.flags, res)
 
@@ -762,7 +1237,7 @@ int main() {
 """ % (obj.headers_code, p)
 			else:
 				fatal('no code to process in check')
-
+				
 		# do not run the test if it is in cache
 		#hash = "".join([obj.fun, obj.code])
 		hash = obj.hash()
@@ -875,6 +1350,10 @@ int main() {
 
 		return ret
 
+
+
+
+
 	# TODO for the moment it will do the same as try_build
 	def try_compile(self, code, env='', uselib=''):
 		"check if a c/c++ piece of code compiles"
@@ -903,6 +1382,10 @@ int main() {
 		obj.uselib  = uselib
 		obj.options = options
 		return self.check(obj)
+
+
+
+
 
 	def check_header(self, header_name, define_name='', headers_code='', includes=[]):
 		"check if a header is available in the include path given and set a define"
@@ -933,105 +1416,55 @@ int main() {
 		obj.env           = self.env
 		return self.check(obj)
 
-	def find_program(self, program_name, path_list=[]):
-		ret = find_program_impl(self.env, program_name, path_list)
-		self.checkMessage('program', program_name, ret, ret)
-		return ret
 
-	# this one is a bit different
-	def find_library(self, lib_name, lib_paths=[], define_name='', code='', env=None):
-		# give a define else the message is not printed
+
+
+	def create_program_enumerator(self):
+		return program_enumerator(self)
+
+	def create_library_enumerator(self):
+		return library_enumerator(self)
+
+	def create_header_enumerator(self):
+		return header_enumerator(self)
+
+	def create_function_enumerator(self):
+		return function_enumerator(self)
+
+
+	def create_pkgconfig_configurator(self):
+		return pkgconfig_configurator(self)
+
+	def create_cfgtool_configurator(self):
+		return cfgtool_configurator(self)
+
+	def create_library_configurator(self):
+		return library_configurator(self)
+
+	def create_header_configurator(self):
+		return header_configurator(self)
+		
+	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
 		if not env: env=self.env
 
-		oldlibpath = env['LIBPATH']
-		oldlib = env['LIB']
+		if not pkgbin: pkgbin='pkg-config'
+		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
+		pkgcom = '%s %s' % (pkgpath, pkgbin)
+		try:
+			if pkgversion:
+				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, pkgversion, pkgname)).close()
+				self.conf.checkMessage('package %s >= %s' % (pkgname, pkgversion), '', not ret)
+				if ret: raise "error"
+			else:
+				ret = os.popen("%s %s" % (pkgcom, pkgname)).close()
+				self.conf.checkMessage('package %s ' % (pkgname), '', not ret)
+				if ret: raise "error"
 
-		env['LIB'] = [lib_name]
+				return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
+		except:
+			return ''
 
-		found = ''
 
-		if not code: code = "\n\nint main() {return 0;}\n"
 
-		for l in lib_paths:
-			env['LIBPATH'] = [l]
-			obj               = check()
-			obj.code          = code
-			obj.fun           = 'find_library'
-			obj.env           = env
-			ret = self.check(obj)
-
-			if not ret:
-				found = l
-				break
-
-		env['LIB'] = oldlib
-		env['LIBPATH'] = oldlibpath
-
-		if define_name:
-			if found: ret = 1
-			else:     ret = 0
-			env[define_name] = ret
-			self.checkMessage('library '+lib_name, '', found, option=found)
-
-		return found
-
-	def find_header(self, header_name, include_paths=[], define_name='', env=None):
-		if not env: env=self.env
-		found = find_file(header_name, include_paths)
-		if define_name:
-			if found: ret = 1
-			else:     ret = 0
-			env[define_name] = ret
-			self.checkMessage('header '+header_name, '', found, option=found)
-
-		return found
-
-	def detect_library(self, uselibname, libname, lib_paths):
-		env = self.env
-		ret = self.find_library(libname, lib_paths = lib_paths, define_name='HAVE_'+uselibname)
-		if ret:
-			env['LIB_'+uselibname]=libname
-			env['LIBPATH_'+uselibname]=ret
-		return ret
-
-"""
-	# this one is a bit different too
-	def find_header_2(self, header_name, include_paths=[], define_name='', code='', env=None):
-		# TODO this one is broken (ita)
-		# TODO i doubt that it will be used in practice:
-		# * it cannot find headers in /usr/include or /usr/bin/
-		# * it might not be able to compile a program for the check
-
-		# give a define else the message is not printed
-		if not env: env=self.env
-
-		old_cpp_path = env['CPPPATH']
-
-		found = ''
-
-		if not code: code = "\n\nint main() {return 0;}\n"
-
-		for l in include_paths:
-			env['CPPPATH']    = [l]
-			obj               = check()
-			obj.code          = code
-			obj.fun           = 'find_header'
-			obj.env           = env
-			ret = self.check(obj)
-
-			if not ret:
-				found = l
-				break
-
-		env['CPPPATH'] = old_cpp_path
-
-		if define_name:
-			if found: ret = 1
-			else:     ret = 0
-			env[define_name] = ret
-			self.checkMessage('header '+header_name, '', found, option=found)
-
-		return found
-
-"""
+### autoconfig_xxx functions end
 
