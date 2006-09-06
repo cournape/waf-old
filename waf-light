@@ -185,10 +185,10 @@ else:
 	if 'wscript_xml'   in lst:
 		xml = 1
 
-if not candidate:
-	try:
-		#check the following dirs for wscript or wscript_xml
-
+try:
+	#check the following dirs for wscript or wscript_xml
+	search_for_candidate = True
+	if not candidate:
 		#check first the calldir if there is wscript or wscript_xml
 		#for example: /usr/src/configure the calldir would be /usr/src
 		calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -198,26 +198,27 @@ if not candidate:
 		if 'wscript_xml'   in lst_calldir:
 			candidate = calldir
 			xml = 1
+		search_for_candidate = False
 
-		#check all directories above current dir for wscript or
-		#wscript_xml if still not found
-		while not candidate:
-			if len(cwd) <= 3:
-				break # stop at / or c:
-			dirlst = os.listdir(cwd)
-			if 'wscript'       in dirlst:
-				candidate = cwd
-			if 'wscript_xml'   in dirlst:
-				candidate = cwd
-				xml = 1
-				break
-			if 'configure'     in sys.argv and candidate:
-				break
-			if '.lock-wscript' in dirlst:
-				break
-			cwd = cwd[:cwd.rfind(os.sep)] # climb up
-	except:
-		fatal(msg1)
+	#check all directories above current dir for wscript or
+	#wscript_xml if still not found
+	while search_for_candidate:
+		if len(cwd) <= 3:
+			break # stop at / or c:
+		dirlst = os.listdir(cwd)
+		if 'wscript'       in dirlst:
+			candidate = cwd
+		if 'wscript_xml'   in dirlst:
+			candidate = cwd
+			xml = 1
+			break
+		if 'configure'     in sys.argv and candidate:
+			break
+		if '.lock-wscript' in dirlst:
+			break
+		cwd = cwd[:cwd.rfind(os.sep)] # climb up
+except:
+	fatal(msg1)
 
 if not candidate:
 	# check if the user only wanted to display the help
