@@ -187,7 +187,7 @@ else:
 
 try:
 	#check the following dirs for wscript or wscript_xml
-	search_for_candidate = False
+	search_for_candidate = True
 	if not candidate:
 		#check first the calldir if there is wscript or wscript_xml
 		#for example: /usr/src/configure the calldir would be /usr/src
@@ -195,12 +195,12 @@ try:
 		lst_calldir = os.listdir(calldir)
 		if 'wscript'       in lst_calldir:
 			candidate = calldir
+			search_for_candidate = False
 		if 'wscript_xml'   in lst_calldir:
 			candidate = calldir
 			xml = 1
-	if not candidate:
-		search_for_candidate = True
-		
+			search_for_candidate = False
+
 	#check all directories above current dir for wscript or
 	#wscript_xml if still not found
 	while search_for_candidate:
