@@ -160,11 +160,6 @@ if '--version' in sys.argv:
 
 msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "wscript"'
 
-# Climb up to the folder containing the main wscript and chdir to it
-# It is also possible that the project was configured as a sub-module
-# in this case, stop when a ".lock-wscript" file is found
-candidate = None
-xml = None
 
 # Some people want to configure their projects gcc-style:
 # mkdir build && cd build && ../waf configure && ../waf
@@ -175,15 +170,16 @@ candidate = None
 lst = os.listdir(cwd)
 #check if a wscript or a wscript_xml file is in current directory
 if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
-	#set the build directory with the current directory
-	build_dir_override = cwd
+	if 'configure' in sys.argv:
+		#set the build directory with the current directory
+		build_dir_override = cwd
+	if 'wscript_build' in lst:
+		#try to find the wscript root
+		candidate = cwd
 else:
 	#wscript or wscript_xml is in current directory
 	#use this directory as candidate
 	candidate = cwd
-	#check if wscript_xml is there
-	if 'wscript_xml'   in lst:
-		xml = 1
 
 try:
 	#check the following dirs for wscript or wscript_xml
@@ -209,6 +205,7 @@ try:
 		dirlst = os.listdir(cwd)
 		if 'wscript'       in dirlst:
 			candidate = cwd
+			xml = 0
 		if 'wscript_xml'   in dirlst:
 			candidate = cwd
 			xml = 1
