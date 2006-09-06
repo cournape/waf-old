@@ -24,15 +24,38 @@ from Params import debug, error, trace, fatal
 
 g_allobjs=[]
 
+def find_launch_node(node, lst):
+	#if node.m_parent: print node, lst
+	#else: print '/', lst
+	if not lst: return node
+	name=lst[0]
+	if not name:     return find_launch_node(node, lst[1:])
+	if name == '.':  return find_launch_node(node, lst[1:])
+	if name == '..': return find_launch_node(node.m_parent, lst[1:])
+	for d in node.m_dirs+node.m_files:
+		if d.m_name == name:
+			return find_launch_node(d, lst[1:])
+	return None
+
 # call flush for every group of object to process
 def flush():
 	bld = Params.g_build
-	trace("delayed operation called")
+	trace("delayed operation Object.flush() called")
+
+	dir_lst = Params.g_launchdir.split(os.sep)
+	root    = bld.m_root
+	launch_dir_node = find_launch_node(root, dir_lst)
+
 	while len(bld.m_outstanding_objs)>0:
 		trace("posting object")
 
 		obj=bld.m_outstanding_objs.pop()
-		obj.post()
+
+		# compile only targets under the launch directory
+		if launch_dir_node:
+			objnode = obj.m_current_path
+			if objnode is launch_dir_node or objnode.is_child_of(launch_dir_node):
+				obj.post()
 
 		# TODO useless
 		bld.m_posted_objs.append(obj)
