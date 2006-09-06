@@ -141,6 +141,7 @@ from Params import debug, fatal, error, warning
 
 # Set the directory containing the tools
 Params.g_tooldir = [tooldir]
+Params.g_launchdir = cwd
 
 if Params.g_version != VERSION:
 	fatal('version mismatch waf %s <-> wafadmin %s' % (VERSION, Params.g_version))
