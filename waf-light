@@ -12,37 +12,9 @@ cwd = os.getcwd()
 # or print the version number
 # ##########################################################################
 
-try:
-	# if wafadmin is in /usr/local/waf-x.x.x/ then use it directly
-	wafdir = '/usr/local/waf-%s/' % VERSION
-	os.stat(wafdir+'/wafadmin')
-except:
-	try:
-		wafdir = os.path.abspath(os.environ['WAFDIR'])
-	except:
-		name = sys.argv[0]
-		if name[len(name)-5:] == 'light':
-			# waf-light --make-waf should work from the top-level so we check if wafadmin is in cwd
-			wafdir = cwd
-			try:
-				os.stat(wafdir+os.sep+'wafadmin')
-			except:
-				print "\033[91mdevelopers using waf-light must set the WAFDIR (export WAFDIR=/folder)\033[0m"
-				sys.exit(1)
-		else:
-			if sys.platform == 'win32':
-				wafdir='c:\\temp\\waf-%s\\' % VERSION
-			else:
-				wafdir = '%s/.waf-%s' % (os.environ['HOME'], VERSION)
-			if "--nocache" in sys.argv:
-				import shutil
-				print "removing the local wafdir", wafdir
-				shutil.rmtree(wafdir)
+wafdir = None
 
-# look if the wafdir exists
-try:
-	os.stat(wafdir)
-except:
+def uncompress_wafdir(newdir):
 	file = open(sys.argv[0], 'rb')
 	lst = []
 
@@ -71,11 +43,11 @@ except:
 
 	# create the directory
 	try:
-		os.makedirs(wafdir)
+		os.makedirs(newdir)
 	except:
-		print "could not make ", wafdir
+		print "could not make ", newdir
 
-	os.chdir(wafdir)
+	os.chdir(newdir)
 	file = open('wafadmin.tar.bz2', 'wb')
 	file.write(cnt)
 	file.close()
@@ -92,6 +64,72 @@ except:
 	os.chmod('wafadmin'+os.sep+'Tools', 0755)
 	os.unlink('wafadmin.tar.bz2')
 	os.chdir(cwd)
+
+	global wafdir
+	wafdir = newdir
+
+def try_wafdir(dir):
+	global wafdir
+	if wafdir: return
+	try:
+		os.stat("%s%swafadmin" % (dir, os.sep))
+		wafdir = os.path.abspath(dir)
+	except:
+		pass
+
+def find_wafadmin():
+	global wafdir
+
+	# if wafadmin is in /usr/local/waf-x.x.x/ then use it directly
+	try_wafdir('/usr/local/waf-%s/' % VERSION)
+	if wafdir: return
+
+	# wafadmin may be in $WAFDIR, have a look
+	if 'WAFDIR' in os.environ:
+		try_wafdir(os.environ['WAFDIR'])
+	if wafdir: return
+
+	# look at $HOME/.waf-version
+	if sys.platform != 'win32':
+		try_wafdir('%s/.waf-%s' % (os.environ['HOME'], VERSION))
+	else:
+		try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
+
+
+	# remove $HOME/.waf-version if asked to
+	name = sys.argv[0]
+	if wafdir:
+		if name[len(name)-5:] != 'light':
+			if "--nocache" in sys.argv:
+				import shutil
+				print "removing the local wafdir", wafdir
+				shutil.rmtree(wafdir)
+			wafdir = None
+
+	if wafdir: return
+
+	# uncompress the local waf directory
+	if name[len(name)-5:] != 'light':
+		if sys.platform != 'win32':
+			uncompress_wafdir('%s/.waf-%s' % (os.environ['HOME'], VERSION))
+		else:
+			uncompress_wafdir('c:\\temp\\waf-%s\\' % VERSION)
+		if wafdir: return
+
+	# look in the directory of the program
+	lst = sys.argv[0].split(os.sep)
+	lst = lst[:len(lst)-1]
+	path = os.path.abspath(os.sep.join(lst))
+	try_wafdir(path)
+	if wafdir: return
+
+	# we did our best
+	print "\033[91mdevelopers using waf-light must set the WAFDIR (export WAFDIR=/folder)\033[0m"
+	sys.exit(1)
+
+# run the test
+find_wafadmin()
+if "-vv" in sys.argv: print "wafdir is ", wafdir
 
 # Update sys.path and import our modules
 wafadmindir = os.path.join(wafdir, 'wafadmin')
