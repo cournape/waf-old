@@ -146,38 +146,39 @@ else:
 	if 'wscript_xml'   in lst:
 		xml = 1
 
-try:
-	#check the following dirs for wscript or wscript_xml
-	
-	#check first the calldir if there is wscript or wscript_xml
-	#for example: /usr/src/configure the calldir would be /usr/src
-	calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
-	lst_calldir = os.listdir(calldir)
-	if 'wscript'       in lst_calldir: 
-		candidate = calldir
-	if 'wscript_xml'   in lst_calldir:
-		candidate = calldir
-		xml = 1
-		
-	#check all directories above current dir for wscript or
-	#wscript_xml if still not found 
-	while not candidate:
-		if len(cwd) <= 3: 
-			break # stop at / or c:
-		dirlst = os.listdir(cwd)
-		if 'wscript'       in dirlst:
-			candidate = cwd
-		if 'wscript_xml'   in dirlst:
-			candidate = cwd
+if not candidate:
+	try:
+		#check the following dirs for wscript or wscript_xml
+
+		#check first the calldir if there is wscript or wscript_xml
+		#for example: /usr/src/configure the calldir would be /usr/src
+		calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
+		lst_calldir = os.listdir(calldir)
+		if 'wscript'       in lst_calldir:
+			candidate = calldir
+		if 'wscript_xml'   in lst_calldir:
+			candidate = calldir
 			xml = 1
-			break
-		if 'configure'     in sys.argv and candidate:
-			break
-		if '.lock-wscript' in dirlst:
-			break
-		cwd = cwd[:cwd.rfind(os.sep)] # climb up
-except:
-	fatal(msg1)
+
+		#check all directories above current dir for wscript or
+		#wscript_xml if still not found
+		while not candidate:
+			if len(cwd) <= 3:
+				break # stop at / or c:
+			dirlst = os.listdir(cwd)
+			if 'wscript'       in dirlst:
+				candidate = cwd
+			if 'wscript_xml'   in dirlst:
+				candidate = cwd
+				xml = 1
+				break
+			if 'configure'     in sys.argv and candidate:
+				break
+			if '.lock-wscript' in dirlst:
+				break
+			cwd = cwd[:cwd.rfind(os.sep)] # climb up
+	except:
+		fatal(msg1)
 
 if not candidate:
 	# check if the user only wanted to display the help
@@ -236,7 +237,7 @@ if Params.g_commands['dist']:
 	appname         = 'noname'
 	try:
 		appname = Utils.g_module.APPNAME
-	except: 
+	except:
 		pass
 
 	version         = '1.0'
@@ -266,7 +267,7 @@ try:
 		fun = Utils.g_module.init
 	except:
 		pass
-	if fun: 
+	if fun:
 		fun()
 except SystemExit:
 	raise
