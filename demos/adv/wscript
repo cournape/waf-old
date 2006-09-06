@@ -13,6 +13,11 @@ APPNAME='adv_test'
 srcdir = '.'
 blddir = '_build_'
 
+# make sure waf has the version we want
+import Utils
+Utils.waf_version(mini="0.8.8", maxi="9.9.9")
+
+
 def build(bld):
 	# process subfolders from here
 	bld.set_variants(['default', 'variant2'])

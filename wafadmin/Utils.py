@@ -9,6 +9,25 @@ g_trace=0
 g_debug=0
 g_error=0
 
+def waf_version(mini="0.0.1", maxi="100.0.0"):
+	min_lst = map(int, mini.split('.'))
+	max_lst = map(int, maxi.split('.'))
+	waf_lst = map(int, Params.g_version.split('.'))
+
+	mm = min(len(min_lst), len(waf_lst))
+	for (a, b) in zip(min_lst[:mm], waf_lst[:mm]):
+		if a<b:
+			break
+		if a>b:
+			Params.fatal("waf version should be at least %s (%s found)" % (mini, Params.g_version))
+
+	mm = min(len(max_lst), len(waf_lst))
+	for (a, b) in zip(max_lst[:mm], waf_lst[:mm]):
+		if a>b:
+			break
+		if a<b:
+			Params.fatal("waf version should be at most %s (%s found)" % (maxi, Params.g_version))
+
 def error(msg):
 	Params.niceprint(msg, 'ERROR', 'Configuration')
 
@@ -121,5 +140,9 @@ def copyobj(obj):
 		setattr(cp, at, getattr(obj, at))
 
 	return cp
+
+
+
+
 
 
