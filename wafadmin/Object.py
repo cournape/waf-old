@@ -39,14 +39,6 @@ def flush():
 
 		trace("object posted")
 
-#def hook(objname, ext, func):
-#	# attach the function given as input as new method   hooks_yc
-#	name = 'hooks_'+ext[1:]
-#	klass = g_allclasses[objname]
-#	setattr(klass, name, func)
-#	if not ext in klass.__dict__['s_default_ext']:
-#		klass.__dict__['s_default_ext'] += [ext]
-
 def hook(objname, var, func):
 	klass = g_allclasses[objname]
 	klass.__dict__[var] = func
