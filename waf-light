@@ -104,7 +104,7 @@ def find_wafadmin():
 				import shutil
 				print "removing the local wafdir", wafdir
 				shutil.rmtree(wafdir)
-			wafdir = None
+				wafdir = None
 
 	if wafdir: return
 
