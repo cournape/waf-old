@@ -45,6 +45,7 @@ def flush():
 	dir_lst = Params.g_launchdir.split(os.sep)
 	root    = bld.m_root
 	launch_dir_node = find_launch_node(root, dir_lst)
+	compile_targets = Params.g_options.compile_targets.split(',')
 
 	while len(bld.m_outstanding_objs)>0:
 		trace("posting object")
@@ -54,8 +55,12 @@ def flush():
 		# compile only targets under the launch directory
 		if launch_dir_node:
 			objnode = obj.m_current_path
-			if objnode is launch_dir_node or objnode.is_child_of(launch_dir_node):
-				obj.post()
+			if not (objnode is launch_dir_node or objnode.is_child_of(launch_dir_node)):
+				continue
+		if compile_targets:
+			if not (obj.name in compile_targets or obj.target in compile_targets):
+				continue
+		obj.post()
 
 		# TODO useless
 		bld.m_posted_objs.append(obj)

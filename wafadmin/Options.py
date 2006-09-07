@@ -96,6 +96,12 @@ def create_parser():
 			help    = 'src dir for the project (configuration)',
 			dest    = 'srcdir')
 
+	p('--targets',
+		action  = 'store',
+		default = '',
+		help    = 'compile the targets given only',
+		dest    = 'compile_targets')
+
 	return parser
 
 def parse_args_impl(parser):
