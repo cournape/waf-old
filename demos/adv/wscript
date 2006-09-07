@@ -89,11 +89,16 @@ int main()
 	le.run()
 
 
-	conf.find_header('klocale.h', ['/usr/local/include', '/usr/include', '/opt/kde3/include/'], define_name='KDE_DIR')
+	test = conf.create_header_enumerator()
+	test.names = ['klocale.h']
+	test.paths = ['/usr/local/include', '/usr/include', '/opt/kde3/include/']
+	test.run()
 
-	conf.detect_library('XCURSOR', 'Xcursor', ['/usr/lib','/usr/X11R6/lib'])
+	#conf.find_header('klocale.h', ['/usr/local/include', '/usr/include', '/opt/kde3/include/'], define_name='KDE_DIR')
 
-	conf.check_flags('Wno-pointer-sign') # typo intended
+	#conf.detect_library('XCURSOR', 'Xcursor', ['/usr/lib','/usr/X11R6/lib'])
+
+	conf.check_flags('-Wno-pointer-sign') # typo intended
 
 	# finally, write the configuration header
 	conf.writeConfigHeader('config.h')

@@ -5,6 +5,10 @@ import os, types, sys, string, imp, cPickle, md5
 import Params, Environment, Runner, Build, Utils
 from Params import debug, error, trace, fatal
 
+
+import traceback
+
+
 g_maxlen = 35
 g_debug  = 0
 
@@ -12,15 +16,16 @@ g_debug  = 0
 
 class enumerator_base:
 	def __init__(self,conf):
-		self.env			= None
-		self.hashvalue		= None
-		self.conf			= conf
-		self.define_name	= ''
+		self.env				= None
+		self.conf				= conf
+		self.define_name		= ''
+		self.mandatory			= 0
+		self.mandatory_errormsg	= 'A mandatory check failed. Make sure all dependencies are ok and can be found.'
 
 	def update_hash(self,md5hash):
 		classvars = vars(self)
 		for (var,value) in classvars.iteritems():
-			if not callable(var) and value != self and value != self.env and value != self.hashvalue and value != self.conf:
+			if not callable(var) and value != self and value != self.env and value != self.conf and value != self.mandatory_errormsg:
 				md5hash.update(str(value))
 		
 	def hash(self):
@@ -32,12 +37,21 @@ class enumerator_base:
 
 	
 	def run(self):
-		if not self.compare_hash():
-			return self.conf.m_cache_table[self.hashvalue]
-	
+		if not Params.g_options.nocache:
+			newhash = self.hash()
+			try:
+				return self.conf.m_cache_table[newhash]
+			except KeyError:
+				pass
+		
 		ret = self.run_impl()
-	
-		self.conf.m_cache_table[self.hashvalue] = ret
+		
+		if self.mandatory and not ret:
+			fatal(self.mandatory_errormsg)
+
+		if not Params.g_options.nocache:
+			# Store the result no matter if it failed or not; if it is mandatory, Python never comes here anyway	
+			self.conf.m_cache_table[newhash] = ret
 		return ret
 		
 	
@@ -46,21 +60,11 @@ class enumerator_base:
 		return 0
 
 
-	def compare_hash(self):
-		newhash = self.hash()
-		if self.hashvalue == newhash:
-			return 0
-		else:
-			self.hashvalue = newhash
-			return 1
-
-
 class configurator_base(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self,conf)
 	
 		self.uselib_name	= ''
-		self.mandatory		= 0
 
 
 
@@ -74,6 +78,7 @@ class program_enumerator(enumerator_base):
 	
 		self.name			= ''
 		self.paths 			= []
+		self.mandatory_errormsg	= 'The program cannot be found. Building cannot be performed without this program. Make sure it is installed and can be found.'
 		
 	def run_impl(self):
 		ret = find_program_impl(self.conf.env, self.name, self.paths)
@@ -95,7 +100,8 @@ class function_enumerator(enumerator_base):
 		self.header_code	= ''
 		self.libs			= []
 		self.lib_paths		= []
-		
+		self.mandatory_errormsg	= 'This function could not be found in the specified headers and libraries. Make sure you have the right headers & libraries installed.'
+
 	def run_impl(self):
 		env = self.env	
 		if not env: env = self.conf.env
@@ -187,6 +193,7 @@ class library_enumerator(enumerator_base):
 		self.names			= []
 		self.paths			= []
 		self.code			= ''
+		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
 
 
 	def update_hash(self,md5hash):
@@ -279,6 +286,7 @@ class header_enumerator(enumerator_base):
 		self.names			= []
 		self.paths			= []
 		self.code			= ''
+		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
 		
 	def run_impl(self):
 		env = self.env	
@@ -347,6 +355,7 @@ class cfgtool_configurator(configurator_base):
 		self.cflagsparam 	= '--cflags'
 		self.cppflagsparam	= '--cflags'
 		self.libsparam		= '--libs'
+		self.mandatory_errormsg	= 'The config tool cannot be found. Most likely the software to which the tool belongs is not installed.'
 
 	def run_impl(self):
 		env = self.env	
@@ -388,7 +397,8 @@ class pkgconfig_configurator(configurator_base):
 		self.path			= ''
 		self.binary			= ''
 		self.variables		= []
-	
+		self.mandatory_errormsg	= 'No matching pkg-config package could be found. It is likely that the software to which the package belongs is not installed.'
+
 	def run_impl(self):
 		pkgpath = self.path
 		pkgbin = self.binary
@@ -414,7 +424,7 @@ class pkgconfig_configurator(configurator_base):
 				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
 				self.conf.checkMessage('package %s ' % (self.name), '', not ret)
 				if ret: raise "error"
-
+				
 			env['CCFLAGS_'+uselib]   = os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()
 			env['CXXFLAGS_'+uselib]  = os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()
 			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
@@ -431,8 +441,8 @@ class pkgconfig_configurator(configurator_base):
 			env['LIBPATH_'+uselib] = []
 			for item in modpaths:
 				env['LIBPATH_'+uselib].append( item[2:] ) #Strip '-l'
-				
-			for variable in variables:
+
+			for variable in self.variables:
 				var_defname = ''
 				if len(variable) >= 2:
 					if variable[1]:
@@ -442,6 +452,7 @@ class pkgconfig_configurator(configurator_base):
 					var_defname = uselib + '_' + variable.upper()
 
 				env[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
+
 		except:
 			self.conf.addDefine(define_name, 0)
 			return 0
@@ -455,6 +466,7 @@ class library_configurator(configurator_base):
 		self.names			= []
 		self.paths			= []
 		self.code			= ''
+		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
 		
 	def run_impl(self):
 		env = self.env
@@ -484,6 +496,7 @@ class header_configurator(configurator_base):
 		self.names			= []
 		self.paths			= []
 		self.code			= ''
+		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
 
 	def run_impl(self):	
 		env = self.env
