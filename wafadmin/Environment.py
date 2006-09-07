@@ -34,12 +34,14 @@ class Environment:
 		return newenv
 
 	# setup tools for build process
-	def setup(self, tool):
+	def setup(self, tool, tooldir=None):
 		if type(tool) is types.ListType:
 			for i in tool: self.setup(i)
 			return
+
+		if not tooldir: tooldir = Params.g_tooldir
 	
-		file,name,desc = imp.find_module(tool, Params.g_tooldir)
+		file,name,desc = imp.find_module(tool, tooldir)
 		module = imp.load_module(tool,file,name,desc)
 		try:
 			module.setup(self)

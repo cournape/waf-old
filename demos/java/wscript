@@ -1,0 +1,30 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+import os
+import Params
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.2'
+APPNAME='java_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = '_build_'
+
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('src')
+
+def configure(conf):
+	conf.checkTool('java')
+	#conf.checkTool('java', tooldir=[os.path.abspath('.')])
+
+def set_options(opt):
+	# add your custom options here, for example:
+	#opt.add_option('--bunny', type='string', help='how many bunnies we have', dest='bunny')
+	pass
+
+def shutdown():
+	pass

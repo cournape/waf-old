@@ -91,7 +91,7 @@ def load_envs():
 			continue
 		Params.g_build.m_allenvs[name] = env
 		try:
-			env.setup(env['tools'])
+			for t in env['tools']: env.setup(**t)
 		except:
 			print "loading failed:", file
 			raise

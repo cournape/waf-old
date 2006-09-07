@@ -713,7 +713,7 @@ class Configure:
 
 		os.chdir(dir)
 
-		env.setup(env['tools'])
+		for t in env['tools']: env.setup(**t)
 
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
@@ -792,7 +792,7 @@ class Configure:
 
 		os.chdir(dir)
 
-		env.setup(env['tools'])
+		for t in env['tools']: env.setup(**t)
 
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
@@ -1031,7 +1031,7 @@ int main() {
 		self.addDefine(define, is_found)
 		return is_found
 
-	def checkTool(self, input):
+	def checkTool(self, input, tooldir=None):
 		"""check if a waf tool is available"""
 		if type(input) is types.ListType:
 			lst = input
@@ -1040,24 +1040,24 @@ int main() {
 
 		ret = True
 		for i in lst:
-			ret = ret and self._checkToolImpl(i)
+			ret = ret and self._checkToolImpl(i, tooldir)
 		return ret
 
-	def _checkToolImpl(self, tool):
+	def _checkToolImpl(self, tool, tooldir=None):
 		define = 'HAVE_'+tool.upper().replace('.','_').replace('+','P')
 
 		if self.isDefined(define):
 			return self.getDefine(define)
 
 		try:
-			file,name,desc = imp.find_module(tool, Params.g_tooldir)
+			file,name,desc = imp.find_module(tool, tooldir)
 		except: 
 			print "no tool named '" + tool + "' found"
 			return 
 		module = imp.load_module(tool,file,name,desc)
 		ret = int(module.detect(self))
 		self.addDefine(define, ret)
-		self.env.appendValue('tools',tool)
+		self.env.appendValue('tools', {'tool':tool, 'tooldir':tooldir})
 		return ret
 			
 	def checkModule(self,tool):
@@ -1294,7 +1294,7 @@ int main() {
 
 		os.chdir(dir)
 
-		env.setup(env['tools'])
+		for t in env['tools']: env.setup(**t)
 
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
