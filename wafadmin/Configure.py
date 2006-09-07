@@ -1427,7 +1427,7 @@ int main() {
 		obj.flags         = flags
 		obj.code          = 'int main() { return 0; }\n'
 		obj.env           = self.env
-		return self.check(obj)
+		return not self.check(obj)
 
 
 
