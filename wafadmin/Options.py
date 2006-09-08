@@ -83,6 +83,12 @@ def create_parser():
 		help    = 're-run all compilation tests',
 		dest    = 'nocache')
 
+	p('--usecache',
+		action  = 'store',
+		default = None,
+		help    = 'cache directory for the objects',
+		dest    = 'usecache')
+
 	if 'configure' in sys.argv:
 		p('-b', '--blddir',
 			action  = 'store',

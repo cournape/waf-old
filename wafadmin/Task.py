@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, types
+import os, types, shutil
 import Params, Scan, Action
 from Params import debug, error, trace, fatal
 
@@ -89,9 +89,9 @@ class Task:
 	def update_stat(self):
 		tree = Params.g_build
 		env  = self.m_env
+		sig = self.signature()
 
-		s = self.signature()
-
+		cnt = 0
 		for node in self.m_outputs:
 			if node in node.m_parent.m_files: variant = 0
 			else: variant = self.m_env.variant()
@@ -106,7 +106,14 @@ class Task:
 				error('a node was not produced for task %s %s' % (str(self.m_idx), node.abspath(env)))
 				raise
 
-			tree.m_tstamp_variants[variant][node] = self.signature()
+			tree.m_tstamp_variants[variant][node] = sig
+
+			if Params.g_options.usecache:
+				ssig = sig.encode('hex')
+				dest = os.path.join(Params.g_options.usecache, ssig+'-'+str(cnt))
+				shutil.copy2(node.abspath(env), dest)
+				cnt += 1
+
 		self.m_executed=1
 
 	# wait for other tasks to complete
@@ -123,6 +130,7 @@ class Task:
 
 	# see if this task must or must not be run
 	def must_run(self):
+		ret = 0
 
 		self.m_dep_sig = self.m_scanner.get_signature(self)
 
@@ -135,13 +143,14 @@ class Task:
 
 		node = self.m_outputs[0]
 
+		# TODO should make a for loop as the first node is not enough
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = self.m_env.variant()
 
-
 		if not node in Params.g_build.m_tstamp_variants[variant]:
-			debug("task must run, node does not exist"+str(node))
-			return 1
+			debug("task should run as the first node does not exist"+str(node))
+			ret = self.can_retrieve_cache(sg)
+			return not ret
 
 		outs = Params.g_build.m_tstamp_variants[variant][node]
 
@@ -152,15 +161,45 @@ class Task:
 			% (str(self.m_idx), a1, a2, i1, i2))
 
 		if sg != outs:
-			return 1
+			ret = self.can_retrieve_cache(sg)
+			return not ret
 		return 0
 
 	def prepare(self):
 		self.m_action.prepare(self)
 
-	# TODO documentation
-	def set_run_after(self, task):
-		self.m_run_after.append(task)
+	def can_retrieve_cache(self, sig):
+		if not Params.g_options.usecache: return None
+		if Params.g_options.nocache: return None
+
+		tree = Params.g_build
+		env  = self.m_env
+		sig = self.signature()
+
+		try:
+			cnt = 0
+			for node in self.m_outputs:
+				if node in node.m_parent.m_files: variant = 0
+				else: variant = self.m_env.variant()
+
+				ssig = sig.encode('hex')
+				orig = os.path.join(Params.g_options.usecache, ssig+'-'+str(cnt))
+				#print "trying to restore ", orig, node.abspath(env)
+				shutil.copy2(orig, node.abspath(env))
+				# GOTCHA 
+				# touch the file that we copied, so it should be possible to clean
+				# the temporary directory by time (unlike scons)
+				os.utime(orig, None)
+				cnt += 1
+
+				Params.g_build.m_tstamp_variants[variant][node] = sig
+				Params.pprint('GREEN', "restored from cache %s" % node.bldpath(env))
+		except:
+			# just return 1 if the retrieval failed
+			debug("failed retrieving file")
+			return None
+
+		return 1
 
 	def debug(self, level=0):
 		fun=debug
@@ -173,6 +212,10 @@ class Task:
 		#for node in self.m_outputs:
 		#	fun(str(node.m_tstamp))
 		fun("-- end task debugging --")
+
+	# IMPORTANT: users want this to set dependencies on other tasks
+	def set_run_after(self, task):
+		self.m_run_after.append(task)
 
 def reset():
 	global g_tasks
