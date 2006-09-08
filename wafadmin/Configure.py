@@ -85,7 +85,7 @@ class program_enumerator(enumerator_base):
 
 
 	def print_message_cached(self,retvalue):
-		self.conf.checkMessage('program '+self.name+' (cached)', ret, ret, option='')
+		self.conf.checkMessage('program '+self.name+' (cached)', '', retvalue, option=retvalue)
 
 
 	def run_impl(self):
