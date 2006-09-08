@@ -227,7 +227,18 @@ def Main():
 			bld.save()
 		if ret: fatal('Compilation failed')
 
-	# daemon here
+	# clean
+	if Params.g_commands['clean']:
+		try:
+			ret = bld.clean()
+			if not ret: Params.pprint('GREEN', 'Project cleaned successfully')
+		finally:
+			bld.save()
+		if ret:
+			msg='Cleanup failed for a mysterious reason'
+			error(msg)
+
+	# daemon look here
 	if Params.g_options.daemon and Params.g_commands['build']:
 		startDaemon()
 		return

@@ -149,12 +149,21 @@ class Build:
 	def save(self):
 		self._store()
 
-	# TODO: is this really useful ?
-	# usual computation types - dist and distclean might come here too
 	def clean(self):
 		trace("clean called")
+		Object.flush()
+		# if something special is needed
+		for obj in Object.g_allobjs: obj.cleanup()
+		# now for each task, make sure to remove the objects
+		# 4 for loops
+		import Task
+		for hash in Task.g_tasks:
+			for prio in hash:
+				for t in hash[prio]:
+					for node in t.m_outputs:
+						try: os.remove(node.abspath(t.m_env))
+						except: pass
 
-	# keep
 	def compile(self):
 		trace("compile called")
 		ret = 0

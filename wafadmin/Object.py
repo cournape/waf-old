@@ -204,6 +204,10 @@ class genobj:
 		# subclass me
 		pass
 
+	def cleanup(self):
+		# subclass me if necessary
+		pass
+
 	def install_results(self, var, subdir, task, chmod=0644):
 		trace('install results called')
 		current = Params.g_build.m_curdirnode
