@@ -346,6 +346,8 @@ class header_enumerator(enumerator_base):
 						found = [foundname, foundpath]
 						break
 						
+				self.conf.checkMessage('header '+headername, '', ret, option=incpath)
+						
 				if ret: break
 					
 		if not ret: # Either the header was not found in the incpaths, or no paths were given. Test if the compiler can find the header anyway
@@ -365,12 +367,12 @@ class header_enumerator(enumerator_base):
 					foundpath = ''
 					found = [foundname, foundpath]
 					break
+					
+				self.conf.checkMessage('header '+headername+' via compiler', '', ret, option='')
 
 		if found: ret = 1
 		else:     ret = 0
 
-		self.conf.checkMessage('header '+foundname, '', ret, option=foundpath)
-		
 		if self.define_name:
 			env[self.define_name] = ret
 
@@ -1549,6 +1551,7 @@ int main() {
 
 
 ### autoconfig_xxx functions end
+
 
 
 
