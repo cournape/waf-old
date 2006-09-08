@@ -83,7 +83,7 @@ int main()
 	#conf.find_library('X11', ['/usr/lib','/usr/X11R6/lib'], define_name='X11_DIR')
 
 	le = conf.create_library_enumerator()
-	le.names = 'X11'
+	le.names = ['X11']
 	le.paths = ['/usr/lib','/usr/X11R6/lib']
 	#le.define = 'X11_DIR'
 	le.run()
@@ -97,11 +97,126 @@ int main()
 	#conf.find_header('klocale.h', ['/usr/local/include', '/usr/include', '/opt/kde3/include/'], define_name='KDE_DIR')
 
 	#conf.detect_library('XCURSOR', 'Xcursor', ['/usr/lib','/usr/X11R6/lib'])
+	
+	#check for std flags that could be used with obj.uselib = "GLOBAL"
+	conf.env['CCFLAGS_GLOBAL'] = []
+	conf.env['CXXFLAGS_GLOBAL'] = []
+	if conf.check_flags('-Wno-pointer-sign'):
+		conf.env['CCFLAGS_GLOBAL'].append('-Wno-pointer-sign')
+		conf.env['CXXFLAGS_GLOBAL'].append('-Wno-pointer-sign')
+	if conf.check_flags('-fvisibility=hidden'):
+		conf.env['CCFLAGS_GLOBAL'].append('-fvisibility=hidden')
+		conf.env['CXXFLAGS_GLOBAL'].append('-fvisibility=hidden')
+	if conf.check_flags('-fno-strict-aliasing'):
+		conf.env['CCFLAGS_GLOBAL'].append('-fno-strict-aliasing')
+		conf.env['CXXFLAGS_GLOBAL'].append('-fno-strict-aliasing')
 
-	conf.check_flags('-Wno-pointer-sign') # typo intended
+	headers='sys/wait.h fcntl.h sys/ioctl.h sys/time.h unistd.h \
+	sys/file.h string.h strings.h ctype.h stdlib.h stdarg.h stdint.h \
+	stddef.h sys/socket.h sys/modem.h termios.h sys/filio.h inttypes.h \
+	wchar.h direct.h sys/types.h alloca.h libintl.h'
+	
+	#check for headers and append found headers to headers_found
+	#so i could be used later
+	headers_found = []
+	for header in headers.split():
+		if not conf.check_header(header):
+			headers_found.append(header)
+	
+	#check for ALL function in check_for_this using found headers
+	check_for_this=[
+		['mktime', 'HAVE_MKTIME'], ['timegm', 'HAVE_TIMEGM'], ['gettimeofday', 'HAVE_GETTIMEOFDAY'],
+		['select', 'HAVE_SELECT'], ['poll', 'HAVE_POLL'], ['wcrtomb', 'HAVE_WCRTOMB'], ['strchr', 'HAVE_STRCHR'], 
+		['strdup', 'HAVE_STRDUP'], ['strstr', 'HAVE_STRSTR'], ['strtol', 'HAVE_STRTOL'], ['strtok', 'HAVE_STRTOK'], 
+		['strsep', 'HAVE_STRSEP'], ['asprintf', 'HAVE_ASPRINTF'], ['vasprintf', 'HAVE_VASPRINTF'], 
+		['snprintf','HAVE_SNPRINTF'], ['vsnprintf', 'HAVE_VSNPRINTF']
+	]
+	functionfind = conf.create_function_enumerator()
+	functionfind.headers = headers_found
+	functionfind.include_paths = ['/usr/include']
+	for func in check_for_this:
+		functionfind.function_calls = [func]
+		functionfind.run()
+	code = """
+#include <time.h>
+struct tm t; t.tm_gmtoff = 0;
+"""
+	if conf.TryBuild(code):
+		conf.addDefine('HAVE_TM_GMTON', 1)
 
-	# finally, write the configuration header
-	conf.writeConfigHeader('config.h')
+	code = """
+#include <sys/time.h>
+struct timeval tv; timerisset(&tv); timerclear(&tv); timercmp(&tv, &tv, <);
+timeradd(&tv, &tv, &tv); timersub(&tv, &tv, &tv);
+"""
+	if conf.TryBuild(code):
+		conf.addDefine('HAVE_TIMEOPS', 1)
+
+	code = """
+#include <termios.h>
+struct termios t; cfsetspeed(&t, B9600);
+"""
+	if conf.TryBuild(code):
+		conf.addDefine('HAVE_CFSETSPEED', 1)
+	else:
+		code = """
+#include <termios.h>
+struct termios t; cfsetispeed(&t, B9600);  cfsetospeed(&t, B9600);
+"""
+		if conf.TryBuild(code):
+			conf.addDefine('HAVE_CFSETISPEED', 1)
+			conf.addDefine('HAVE_CFSETOSPEED', 1)
+		else:
+			code ="""
+ #include <termios.h>
+ struct termios t; t.c_iflag = B9600; t.c_oflag = B9600;
+"""
+			if conf.TryBuild(code):
+				conf.addDefine('HAVE_TERMIOS_CSPEED', 1)
+
+	code = """
+#define _XOPEN_SOURCE 500
+#include <sys/types.h>
+#include <sys/socket.h>
+struct msghdr msg; msg.msg_control;
+"""
+	if conf.TryBuild(code):
+		conf.addDefine('HAVE_MSGHDR_MSG_CONTROL', 1)
+
+	code = """
+#define  _XOPEN_SOURCE 500
+
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main()
+{
+    char *name = NULL;
+    int master, err;
+		
+    master = open("/dev/ptmx", O_RDWR | O_NOCTTY | O_NONBLOCK);
+    if (master >= 0) {
+        err = grantpt(master);
+        err = err || unlockpt(master);
+        if (!err) {
+            name = ptsname(master);
+        } else {
+            exit(-1);
+        }
+    } else {
+        exit(-1);
+    }
+    close(master);
+    exit(0);
+}																										
+"""
+	if conf.TryBuild(code):
+		conf.addDefine('USE_UNIX98PTYS', 1)
+
+
 
 
 	headerconf=conf.create_header_configurator()
@@ -159,6 +274,14 @@ int main()
 	pkgconf.name = 'gtkmm-2.4'
 	pkgconf.run()
 
+	pkgconf.uselib_name = 'BLUETOOTH'
+	pkgconf.name = 'bluez'
+	if pkgconf.run():
+		conf.addDefine('HAVE_BLUETOOTH_BLUEZ', 1)
+	
+	pkgconf.uselib_name = 'GLIB'
+	pkgconf.name = 'glib-2.0'
+	pkgconf.run()
 
 
 
@@ -194,6 +317,8 @@ int main()
 	libconf.paths = ['/usr/lib']
 	libconf.run()	
 
+	# finally, write the configuration header
+	conf.writeConfigHeader('config.h')
 
 	# set a variant called "variant2", with another config.h
 	env_variant2 = conf.env.copy()

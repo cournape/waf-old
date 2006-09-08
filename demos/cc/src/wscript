@@ -17,8 +17,6 @@ def build(bld):
 	obj.source = 'test.c'
 	obj.target='teststaticlib'
 	
-	obj = bld.createObj('replace' , type='latex') # type could be pdflatex
-	obj.source = 'document.ltx' 
 
 #def set_options(opt):
 #	# options defined if src/ was to be compiled as a standalone module
