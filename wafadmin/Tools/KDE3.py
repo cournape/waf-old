@@ -146,7 +146,8 @@ def handler_ui(self, node, base=''):
 def handler_kcfgc(self, node, base=''):
 	tree = Params.g_build
 	if tree.needs_rescan(node, self.env):
-		Scan.g_kcfg_scanner.do_scan(node, self.env, hashparams=self.dir_lst)
+		hash = {'path_lst': self.dir_lst['path_lst']}
+		Scan.g_kcfg_scanner.do_scan(node, self.env, hashparams=hash)
 
 	if node in node.m_parent.m_files: variant = 0
 	else: variant = env.variant()
