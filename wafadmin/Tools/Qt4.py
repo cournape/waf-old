@@ -400,7 +400,9 @@ QtXml
 '''
 
 	for i in vars.split():
-		conf.checkPkg(i, pkgpath=qtlibs)
+		pkgconf.name = i
+		pkgconf.path = qtlibs
+		pkgconf.run()
 
 	## link against libqt_debug when appropriate
 	#if env['BKS_DEBUG']: debug='_debug'
