@@ -34,13 +34,16 @@ class enumerator_base:
 
 		return m.digest()
 
-
+	def print_message_cached(self,retvalue):
+		pass
 	
 	def run(self):
 		if not Params.g_options.nocache:
 			newhash = self.hash()
 			try:
-				return self.conf.m_cache_table[newhash]
+				ret = self.conf.m_cache_table[newhash]
+				self.print_message_cached(ret)
+				return ret
 			except KeyError:
 				pass
 		
@@ -79,7 +82,12 @@ class program_enumerator(enumerator_base):
 		self.name			= ''
 		self.paths 			= []
 		self.mandatory_errormsg	= 'The program cannot be found. Building cannot be performed without this program. Make sure it is installed and can be found.'
-		
+
+
+	def print_message_cached(self,retvalue):
+		self.conf.checkMessage('program '+self.name+' (cached)', ret, ret, option='')
+
+
 	def run_impl(self):
 		ret = find_program_impl(self.conf.env, self.name, self.paths)
 		self.conf.checkMessage('program', self.name, ret, ret)
@@ -101,6 +109,15 @@ class function_enumerator(enumerator_base):
 		self.libs			= []
 		self.lib_paths		= []
 		self.mandatory_errormsg	= 'This function could not be found in the specified headers and libraries. Make sure you have the right headers & libraries installed.'
+
+
+	def print_message_cached(self,retvalue):
+		if retvalue:
+			self.conf.checkMessage('function '+retvalue+' (cached)', '', 1, option='')
+		else:
+			for funccall in self.function_calls:
+				self.conf.checkMessage('function '+funccall[0]+' (cached)', '', 0, option='')
+
 
 	def run_impl(self):
 		env = self.env	
@@ -196,6 +213,15 @@ class library_enumerator(enumerator_base):
 		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
 
 
+	def print_message_cached(self,retvalue):
+		if retvalue:
+			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+		else:
+			for name in self.names:
+				self.conf.checkMessage('library '+name+' (cached)', '', 0, option='')
+		
+
+
 	def update_hash(self,md5hash):
 		enumerator_base.update_hash(self,md5hash)
 
@@ -287,7 +313,16 @@ class header_enumerator(enumerator_base):
 		self.paths			= []
 		self.code			= ''
 		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
-		
+
+
+	def print_message_cached(self,retvalue):
+		if retvalue:
+			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+		else:
+			for name in self.names:
+				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
+
+
 	def run_impl(self):
 		env = self.env	
 		if not env: env = self.conf.env
@@ -357,6 +392,14 @@ class cfgtool_configurator(configurator_base):
 		self.libsparam		= '--libs'
 		self.mandatory_errormsg	= 'The config tool cannot be found. Most likely the software to which the tool belongs is not installed.'
 
+
+	def print_message_cached(self,retvalue):
+		if retvalue:
+			self.conf.checkMessage('config-tool '+self.binary+' (cached)', '', 1, option='')
+		else:
+			self.conf.checkMessage('config-tool '+self.binary+' (cached)', '', 0, option='')
+
+
 	def run_impl(self):
 		env = self.env	
 		if not env: env = self.conf.env
@@ -398,6 +441,14 @@ class pkgconfig_configurator(configurator_base):
 		self.binary			= ''
 		self.variables		= []
 		self.mandatory_errormsg	= 'No matching pkg-config package could be found. It is likely that the software to which the package belongs is not installed.'
+
+
+	def print_message_cached(self,retvalue):
+		if retvalue:
+			self.conf.checkMessage('package '+self.name+' (cached)', '', 1, option='')
+		else:
+			self.conf.checkMessage('package '+self.name+' (cached)', '', 0, option='')
+
 
 	def run_impl(self):
 		pkgpath = self.path
@@ -467,7 +518,16 @@ class library_configurator(configurator_base):
 		self.paths			= []
 		self.code			= ''
 		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
-		
+
+
+	def print_message_cached(self,retvalue):
+		if retvalue:
+			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+		else:
+			for name in self.names:
+				self.conf.checkMessage('library '+name+' (cached)', '', 0, option='')
+
+
 	def run_impl(self):
 		env = self.env
 		if not env: env = self.conf.env
@@ -497,6 +557,15 @@ class header_configurator(configurator_base):
 		self.paths			= []
 		self.code			= ''
 		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
+
+
+	def print_message_cached(self,retvalue):
+		if retvalue:
+			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+		else:
+			for name in self.names:
+				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
+
 
 	def run_impl(self):	
 		env = self.env
@@ -1480,4 +1549,6 @@ int main() {
 
 
 ### autoconfig_xxx functions end
+
+
 
