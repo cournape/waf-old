@@ -469,7 +469,7 @@ class cfgtool_configurator(configurator_base):
 			retval['LINKFLAGS_'+self.uselib_name] = [os.popen(binlibscom).read().strip()]
 
 			self.update_env(retval)
-			self.conf.addDefine(define_name, 1)
+			self.conf.addDefine(self.define_name, 1)
 		except:
 			retval = {}
 			self.conf.addDefine(self.define_name, 0)
