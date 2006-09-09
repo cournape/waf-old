@@ -262,28 +262,28 @@ class texobj(Object.genobj):
 def detect(conf):
 	v = conf.env
 
-	v['TEX']         = conf.find_program('tex')
+	v['TEX']         = conf.find_program('tex', var='TEX')
 	v['TEXFLAGS']    = ''
 
-	v['LATEX']       = conf.find_program('latex')
+	v['LATEX']       = conf.find_program('latex', var='LATEX')
 	v['LATEXFLAGS']  = ''
 
-	v['PDFLATEX']       = conf.find_program('pdflatex')
+	v['PDFLATEX']       = conf.find_program('pdflatex', var='PDFLATEX')
 	v['PDFLATEXFLAGS']  = ''
 
-	v['BIBTEX']      = conf.find_program('bibtex')
+	v['BIBTEX']      = conf.find_program('bibtex', var='BIBTEX')
 	v['BIBTEXFLAGS'] = ''
 
-	v['DVIPS']       = conf.find_program('dvips')
+	v['DVIPS']       = conf.find_program('dvips', var='DVIPS')
 	v['DVIPSFLAGS']  = '-Ppdf'
 
-	v['DVIPDF']      = conf.find_program('dvipdf')
+	v['DVIPDF']      = conf.find_program('dvipdf', var='DVIPDF')
 	v['DVIPDFFLAGS'] = ''
 
-	v['PDF2PS']      = conf.find_program('ps2pdf')
+	v['PDF2PS']      = conf.find_program('ps2pdf', var='PS2PDF')
 	v['PDF2PSFLAGS'] = ''
 
-	v['MAKEINDEX']   = conf.find_program('makeindex')
+	v['MAKEINDEX']   = conf.find_program('makeindex', var='MAKEINDEX')
 
 	return 1
 

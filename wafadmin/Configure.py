@@ -79,8 +79,9 @@ class program_enumerator(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
 	
-		self.name			= ''
-		self.paths 			= []
+		self.name               = ''
+		self.path               = []
+		self.var                = None
 		self.mandatory_errormsg	= 'The program cannot be found. Building cannot be performed without this program. Make sure it is installed and can be found.'
 
 
@@ -89,7 +90,7 @@ class program_enumerator(enumerator_base):
 
 
 	def run_impl(self):
-		ret = find_program_impl(self.conf.env, self.name, self.paths)
+		ret = find_program_impl(self.conf.env, self.name, self.paths, self.var)
 		self.conf.checkMessage('program', self.name, ret, ret)
 
 		if self.define_name:
@@ -661,9 +662,13 @@ def find_file_ext(file, path_list):
 					return path
 	return ''
 
-def find_program_impl(lenv, file, path_list=None):
+def find_program_impl(lenv, file, path_list=None, var=None):
 	if not path_list: path_list = []
-	elif type(path_list) is types.StringType: path_list = [path_list]
+	elif type(path_list) is types.StringType: path_list = path_list.split()
+
+	if var:
+		if lenv[var]: return lenv[var]
+		elif var in os.environ: return os.environ[var]
 
 	if lenv['WINDOWS']: file += '.exe'
 	if not path_list: 
@@ -671,9 +676,6 @@ def find_program_impl(lenv, file, path_list=None):
 			path_list = os.environ['PATH'].split(':')
 		except KeyError:
 			return None
-		# ???
-		#if type(path_list) is types.StringType: 
-		#	path_list = string.split(path_list, os.pathsep)
 	for dir in path_list:
 		if os.path.exists( os.path.join(dir, file) ):
 			return os.path.join(dir, file)
@@ -1046,22 +1048,10 @@ int main() {
 		self.addDefine(define,is_found)
 		return is_found
 
-	# OBSOLETE
-	def checkProgram(self, file, path_list=None, var=None):
-		""" Find an application in the list of paths given as input """
-		#print path_list
-		# let the user override CXX from 1. the env variable 2. the os.environment
-		if var:
-			try:
-				if self.env[var]:
-					file=self.env[var]
-				else:
-					pvar=os.environ[var]
-					if pvar: file=pvar
-			except:
-				pass
-		ret = find_program_impl(self.env, file, path_list)
-		self.checkMessage('program',file,ret,ret)
+	# keep, dammit!
+	def find_program(self, program_name, path_list=[], var=None):
+		ret = find_program_impl(self.env, program_name, path_list, var)
+		self.checkMessage('program', program_name, ret, ret)
 		return ret
 
 	def checkLibrary(self, libname, funcname=None, headers=None, define='', uselib=''):
@@ -1117,10 +1107,8 @@ int main() {
 
 	def checkTool(self, input, tooldir=None):
 		"""check if a waf tool is available"""
-		if type(input) is types.ListType:
-			lst = input
-		else:
-			lst = input.split()
+		if type(input) is types.ListType: lst = input
+		else: lst = input.split()
 
 		ret = True
 		for i in lst:

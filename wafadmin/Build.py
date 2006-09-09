@@ -293,6 +293,9 @@ class Build:
 		for dirname in plst:
 			if not dirname: continue
 			if dirname == '.': continue
+			if dirname == '..':
+				curnode = curnode.m_parent
+				continue
 			found=None
 			for cand in curnode.m_dirs:
 				if cand.m_name == dirname:
