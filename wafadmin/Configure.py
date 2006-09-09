@@ -518,6 +518,8 @@ class pkgconfig_configurator(configurator_base):
 			
 			env['CCFLAGS_'+uselib]   = retvalue[0]
 			env['CXXFLAGS_'+uselib]  = retvalue[1]
+			env['LIB_'+uselib]   = retvalue[2]
+			env['LIBPATH_'+uselib]  = retvalue[3]
 
 			self.conf.addDefine(define_name, 1)
 		else:
@@ -553,9 +555,11 @@ class pkgconfig_configurator(configurator_base):
 				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
 				self.conf.checkMessage('package %s ' % (self.name), '', not ret)
 				if ret: raise "error"
+				
+			returnval = ['','','','']
 
-			returnval += [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
-			returnval += [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
+			returnval[0] = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
+			returnval[1] = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
 				
 			env['CCFLAGS_'+uselib]   = returnval[0]
 			env['CXXFLAGS_'+uselib]  = returnval[1]
@@ -584,6 +588,9 @@ class pkgconfig_configurator(configurator_base):
 					var_defname = uselib + '_' + variable.upper()
 
 				env[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
+				
+			returnval[2] = env['LIB_'+uselib]
+			returnval[3] = env['LIBPATH_'+uselib]
 
 		except:
 			self.conf.addDefine(define_name, 0)
