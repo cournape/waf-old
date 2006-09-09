@@ -441,6 +441,9 @@ class cfgtool_configurator(configurator_base):
 
 
 	def print_message_cached(self,retvalue):
+		define_name = self.define_name
+		if not define_name: define_name = 'HAVE_'+self.uselib_name	
+	
 		if retvalue:
 			env = self.env
 			if not env: env = self.conf.env
@@ -448,6 +451,10 @@ class cfgtool_configurator(configurator_base):
 			env['CCFLAGS_'+self.uselib_name]   = retvalue[0]
 			env['CXXFLAGS_'+self.uselib_name]  = retvalue[1]
 			env['LINKFLAGS_'+self.uselib_name] = retvalue[2]
+			
+			self.conf.addDefine(define_name, 1)
+		else:
+			self.conf.addDefine(define_name, 0)
 
 		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retvalue, option='')
 
@@ -476,8 +483,8 @@ class cfgtool_configurator(configurator_base):
 			env['CCFLAGS_'+self.uselib_name]   = returnval[0]
 			env['CXXFLAGS_'+self.uselib_name]  = returnval[1]
 			env['LINKFLAGS_'+self.uselib_name] = returnval[2]
-			self.conf.addDefine(define_name, 1)
 
+			self.conf.addDefine(define_name, 1)
 		except:
 			self.conf.addDefine(define_name, 0)
 
@@ -499,12 +506,22 @@ class pkgconfig_configurator(configurator_base):
 
 
 	def print_message_cached(self,retvalue):
+		uselib = self.uselib_name
+		if not uselib: uselib = self.name.upper()
+
+		define_name = self.define_name	
+		if not define_name: define_name = 'HAVE_'+uselib
+
 		if retvalue:		
 			env = self.env
 			if not env: env = self.conf.env
+			
+			env['CCFLAGS_'+uselib]   = retvalue[0]
+			env['CXXFLAGS_'+uselib]  = retvalue[1]
 
-			env['CCFLAGS_'+self.uselib_name]   = retvalue[0]
-			env['CXXFLAGS_'+self.uselib_name]  = retvalue[1]
+			self.conf.addDefine(define_name, 1)
+		else:
+			self.conf.addDefine(define_name, 0)
 
 		self.conf.checkMessage('package %s (cached)' % self.name, '', retvalue, option='')
 
@@ -585,6 +602,9 @@ class library_configurator(configurator_base):
 
 
 	def print_message_cached(self,retvalue):
+		define_name = self.define_name	
+		if not define_name: define_name = 'HAVE_'+self.uselib_name
+
 		if retvalue:
 			env = self.env
 			if not env: env = self.conf.env
@@ -593,7 +613,11 @@ class library_configurator(configurator_base):
 			env['LIBPATH_'+self.uselib_name]=retvalue[1]
 
 			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+
+			self.conf.addDefine(define_name, 1)
 		else:
+			self.conf.addDefine(define_name, 0)
+
 			for name in self.names:
 				self.conf.checkMessage('library '+name+' (cached)', '', 0, option='')
 
@@ -630,6 +654,9 @@ class header_configurator(configurator_base):
 
 
 	def print_message_cached(self,retvalue):
+		define_name = self.define_name	
+		if not define_name: define_name = 'HAVE_'+self.uselib_name
+
 		if retvalue:
 			env = self.env
 			if not env: env = self.conf.env
@@ -637,7 +664,11 @@ class header_configurator(configurator_base):
 			env['CPPPATH_'+self.uselib_name]=retvalue[1]
 
 			self.conf.checkMessage('library %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
+
+			self.conf.addDefine(define_name, 1)
 		else:
+			self.conf.addDefine(define_name, 0)
+
 			for name in self.names:
 				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
 
@@ -1560,10 +1591,9 @@ int main() {
 				self.conf.checkMessage('package %s ' % (pkgname), '', not ret)
 				if ret: raise "error"
 
-				return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
+			return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 		except:
 			return ''
-		fatal('mail dv at dword.org for this bug')
 
 
 ### autoconfig_xxx functions end
