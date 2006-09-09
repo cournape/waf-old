@@ -441,6 +441,14 @@ class cfgtool_configurator(configurator_base):
 
 
 	def print_message_cached(self,retvalue):
+		if retvalue:
+			env = self.env
+			if not env: env = self.conf.env
+
+			env['CCFLAGS_'+self.uselib_name]   = retvalue[0]
+			env['CXXFLAGS_'+self.uselib_name]  = retvalue[1]
+			env['LINKFLAGS_'+self.uselib_name] = retvalue[2]
+
 		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retvalue, option='')
 
 	def run_impl(self):
@@ -449,6 +457,8 @@ class cfgtool_configurator(configurator_base):
 		
 		define_name = self.define_name
 		if not define_name: define_name = 'HAVE_'+self.uselib_name
+		
+		returnval = []
 	
 		#TODO: replace the "2>/dev/null" with some other mechanism for suppressing the stderr output
 		bincflagscom = '%s %s 2>/dev/null' % (self.binary, self.cflagsparam)
@@ -459,19 +469,22 @@ class cfgtool_configurator(configurator_base):
 			ret = os.popen(bincflagscom).close()
 			if ret: raise "error"
 
-			env['CCFLAGS_'+self.uselib_name]   = os.popen(bincflagscom).read().strip()
-			env['CXXFLAGS_'+self.uselib_name]  = os.popen(bincppflagscom).read().strip()
-			env['LINKFLAGS_'+self.uselib_name] = os.popen(binlibscom).read().strip()
+			returnval += [os.popen(bincflagscom).read().strip()]
+			returnval += [os.popen(bincppflagscom).read().strip()]
+			returnval += [os.popen(binlibscom).read().strip()]
+
+			env['CCFLAGS_'+self.uselib_name]   = returnval[0]
+			env['CXXFLAGS_'+self.uselib_name]  = returnval[1]
+			env['LINKFLAGS_'+self.uselib_name] = returnval[2]
 			self.conf.addDefine(define_name, 1)
-			ret = 1
 
 		except:
-			ret = 0
 			self.conf.addDefine(define_name, 0)
 
 		self.conf.checkMessage('config-tool '+self.binary, '', ret, option='')
 			
-		return ret
+		return returnval
+
 
 class pkgconfig_configurator(configurator_base):
 	def __init__(self,conf):
@@ -486,6 +499,13 @@ class pkgconfig_configurator(configurator_base):
 
 
 	def print_message_cached(self,retvalue):
+		if retvalue:		
+			env = self.env
+			if not env: env = self.conf.env
+
+			env['CCFLAGS_'+self.uselib_name]   = retvalue[0]
+			env['CXXFLAGS_'+self.uselib_name]  = retvalue[1]
+
 		self.conf.checkMessage('package %s (cached)' % self.name, '', retvalue, option='')
 
 	def run_impl(self):
@@ -504,6 +524,9 @@ class pkgconfig_configurator(configurator_base):
 		if not pkgbin: pkgbin='pkg-config'
 		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
+		
+		returnval = []
+		
 		try:
 			if self.version:
 				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, self.version, self.name)).close()
@@ -513,9 +536,12 @@ class pkgconfig_configurator(configurator_base):
 				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
 				self.conf.checkMessage('package %s ' % (self.name), '', not ret)
 				if ret: raise "error"
+
+			returnval += [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
+			returnval += [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
 				
-			env['CCFLAGS_'+uselib]   = os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()
-			env['CXXFLAGS_'+uselib]  = os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()
+			env['CCFLAGS_'+uselib]   = returnval[0]
+			env['CXXFLAGS_'+uselib]  = returnval[1]
 			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
 			self.conf.addDefine('HAVE_'+uselib, 1)
 
@@ -544,8 +570,8 @@ class pkgconfig_configurator(configurator_base):
 
 		except:
 			self.conf.addDefine(define_name, 0)
-			return 0
-		return 1
+
+		return returnval
 
 
 class library_configurator(configurator_base):
@@ -560,6 +586,12 @@ class library_configurator(configurator_base):
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
+			env = self.env
+			if not env: env = self.conf.env
+
+			env['LIB_'+self.uselib_name]=retvalue[0]
+			env['LIBPATH_'+self.uselib_name]=retvalue[1]
+
 			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
 		else:
 			for name in self.names:
@@ -599,6 +631,11 @@ class header_configurator(configurator_base):
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
+			env = self.env
+			if not env: env = self.conf.env
+
+			env['CPPPATH_'+self.uselib_name]=retvalue[1]
+
 			self.conf.checkMessage('library %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
 		else:
 			for name in self.names:
@@ -1530,6 +1567,7 @@ int main() {
 
 
 ### autoconfig_xxx functions end
+
 
 
 
