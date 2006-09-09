@@ -18,7 +18,7 @@ def build(bld):
 	bld.add_subdirs('src')
 
 def configure(conf):
-	conf.checkTool(['gcc'])
+	conf.checkTool('gcc')
 	# the order of calls does matter
 
 def set_options(opt):

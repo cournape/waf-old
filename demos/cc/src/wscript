@@ -17,7 +17,6 @@ def build(bld):
 	obj.source = 'test.c'
 	obj.target='teststaticlib'
 	
-
 #def set_options(opt):
 #	# options defined if src/ was to be compiled as a standalone module
 #	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')

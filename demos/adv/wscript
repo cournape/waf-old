@@ -32,7 +32,7 @@ def package(bld):
 
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
-	conf.checkTool(['checks', 'gcc', 'g++', 'dang', 'flex', 'bison'])
+	conf.checkTool('checks gcc g++ dang flex bison')
 
 
 

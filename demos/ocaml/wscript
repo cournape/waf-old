@@ -18,5 +18,5 @@ def set_options(opt):
 	pass
 
 def configure(conf):
-	conf.checkTool(['Ocaml'])
+	conf.checkTool('Ocaml')
 
