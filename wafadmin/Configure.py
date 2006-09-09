@@ -317,7 +317,7 @@ class header_enumerator(enumerator_base):
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
-			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+			self.conf.checkMessage('header '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
 		else:
 			for name in self.names:
 				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
