@@ -92,7 +92,16 @@ class enumerator_base:
 			if value == self.conf:               continue
 			if value == self.mandatory_errormsg: continue
 			md5hash.update(str(value))
-		
+
+	def update_env(self, hashtable):
+		for name in hashtable:
+			self.env[name] = hashtable[name]
+
+	def validate(self):
+		try: self.names = self.names.split()
+		except: pass
+		if not self.env: self.env = self.conf.env
+
 	def hash(self):
 		m = md5.new()
 		self.update_hash(m)
@@ -102,9 +111,7 @@ class enumerator_base:
 		pass
 	
 	def run(self):
-		try: self.names = self.names.split()
-		except: pass
-
+		self.validate()
 		if not Params.g_options.nocache:
 			newhash = self.hash()
 			try:
@@ -148,7 +155,7 @@ class program_enumerator(enumerator_base):
 		self.conf.checkMessage('program %s (cached)' % self.name, '', retvalue, option=retvalue)
 
 	def run_impl(self):
-		ret = find_program_impl(self.conf.env, self.name, self.paths, self.var)
+		ret = find_program_impl(self.env, self.name, self.paths, self.var)
 		self.conf.checkMessage('program', self.name, ret, ret)
 		return ret
 
@@ -172,15 +179,12 @@ class function_enumerator(enumerator_base):
 				self.conf.checkMessage('function %s (cached)' % str(funccall[0]), '', 0, option='')
 
 	def run_impl(self):
-		env = self.env	
-		if not env: env = self.conf.env
-
 		foundname = ''
 	
 		ret = ''
 
-		oldlibpath = env['LIBPATH']
-		oldlib = env['LIB']
+		oldlibpath = self.env['LIBPATH']
+		oldlib = self.env['LIB']
 
 		for funccall in self.function_calls:
 		
@@ -213,15 +217,15 @@ int main()
 }
 """ % funccall[0];
 
-			env['LIB'] = self.libs
-			env['LIBPATH'] = self.lib_paths
+			self.env['LIB'] = self.libs
+			self.env['LIBPATH'] = self.lib_paths
 
 			obj               = check()
 			obj.fun           = ''
 			obj.define_name   = self.define_name
 			obj.code          = code
 			obj.includes      = self.include_paths
-			obj.env           = env
+			obj.env           = self.env
 
 			ret = self.conf.check(obj)
 			
@@ -238,7 +242,7 @@ int main()
 					else:
 						retnum = 1
 				
-					env[funccall[1]]=retnum
+					self.env[funccall[1]]=retnum
 					self.conf.addDefine(funccall[1],retnum)
 
 			if not ret:
@@ -246,8 +250,8 @@ int main()
 				foundname = funccall[0]
 				break
 
-		env['LIB'] = oldlib
-		env['LIBPATH'] = oldlibpath
+		self.env['LIB'] = oldlib
+		self.env['LIBPATH'] = oldlibpath
 				
 		return foundname
 
@@ -269,17 +273,10 @@ class library_enumerator(enumerator_base):
 
 	def update_hash(self,md5hash):
 		enumerator_base.update_hash(self,md5hash)
-
-		env = self.env
-		if not env: env=self.conf.env
-
-		md5hash.update(str(env['LIBPATH']))
-
+		md5hash.update(str(self.env['LIBPATH']))
 
 	def run_impl(self):
 		env = self.env
-		if not env: env=self.conf.env
-
 		oldlibpath = env['LIBPATH']
 		oldlib = env['LIB']
 
@@ -359,7 +356,6 @@ class header_enumerator(enumerator_base):
 		self.code			= ''
 		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
 
-
 	def print_message_cached(self,retvalue):
 		if retvalue:
 			self.conf.checkMessage('header %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
@@ -367,10 +363,8 @@ class header_enumerator(enumerator_base):
 			for name in self.names:
 				self.conf.checkMessage('header %s (cached)' % name, '', 0, option='')
 
-
 	def run_impl(self):
 		env = self.env
-		if not env: env = self.conf.env
 
 		foundname = ''
 		foundpath = ''
@@ -432,41 +426,31 @@ class header_enumerator(enumerator_base):
 class cfgtool_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
-	
+
+		self.define_name        = ''
 		self.binary		= ''
 		self.cflagsparam 	= '--cflags'
 		self.cppflagsparam	= '--cflags'
 		self.libsparam		= '--libs'
 		self.mandatory_errormsg	= 'The config tool cannot be found. Most likely the software to which the tool belongs is not installed.'
 
+	def validate(self):
+		try: self.names = self.names.split()
+		except: pass
+		if not self.env: self.env = self.conf.env
+		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
-	def print_message_cached(self,retvalue):
-		define_name = self.define_name
-		if not define_name: define_name = 'HAVE_'+self.uselib_name	
-	
-		if retvalue:
-			env = self.env
-			if not env: env = self.conf.env
-
-			env['CCFLAGS_'+self.uselib_name]   = retvalue[0]
-			env['CXXFLAGS_'+self.uselib_name]  = retvalue[1]
-			env['LINKFLAGS_'+self.uselib_name] = retvalue[2]
-			
-			self.conf.addDefine(define_name, 1)
+	def print_message_cached(self, retval):
+		if retval:
+			self.update_env(retval)
+			self.conf.addDefine(self.define_name, 1)
 		else:
-			self.conf.addDefine(define_name, 0)
-
-		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retvalue, option='')
+			self.conf.addDefine(self.define_name, 0)
+		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retval, option='')
 
 	def run_impl(self):
-		env = self.env	
-		if not env: env = self.conf.env
-		
-		define_name = self.define_name
-		if not define_name: define_name = 'HAVE_'+self.uselib_name
-		
-		returnval = ['','','']
-	
+		retval = {}
+
 		#TODO: replace the "2>/dev/null" with some other mechanism for suppressing the stderr output
 		bincflagscom = '%s %s 2>/dev/null' % (self.binary, self.cflagsparam)
 		bincppflagscom = '%s %s 2>/dev/null' % (self.binary, self.cppflagsparam)
@@ -476,23 +460,18 @@ class cfgtool_configurator(configurator_base):
 			ret = os.popen(bincflagscom).close()
 			if ret: raise "error"
 
-			returnval[0] = [os.popen(bincflagscom).read().strip()]
-			returnval[1] = [os.popen(bincppflagscom).read().strip()]
-			returnval[2] = [os.popen(binlibscom).read().strip()]
+			retval['CCFLAGS_'+self.uselib_name]   = [os.popen(bincflagscom).read().strip()]
+			retval['CXXFLAGS_'+self.uselib_name]  = [os.popen(bincppflagscom).read().strip()]
+			retval['LINKFLAGS_'+self.uselib_name] = [os.popen(binlibscom).read().strip()]
 
-			env['CCFLAGS_'+self.uselib_name]   = returnval[0]
-			env['CXXFLAGS_'+self.uselib_name]  = returnval[1]
-			env['LINKFLAGS_'+self.uselib_name] = returnval[2]
-
+			self.update_env(retval)
 			self.conf.addDefine(define_name, 1)
 		except:
-			returnval = []
+			retval = {}
 			self.conf.addDefine(define_name, 0)
 
 		self.conf.checkMessage('config-tool '+self.binary, '', ret, option='')
-			
-		return returnval
-
+		return retval
 
 class pkgconfig_configurator(configurator_base):
 	def __init__(self,conf):
@@ -505,26 +484,21 @@ class pkgconfig_configurator(configurator_base):
 		self.variables		= []
 		self.mandatory_errormsg	= 'No matching pkg-config package could be found. It is likely that the software to which the package belongs is not installed.'
 
+	def validate(self):
+		try: self.names = self.names.split()
+		except: pass
+		if not self.env: self.env = self.conf.env
+		if not self.define_name: self.define_name = 'HAVE_'+self.uselib
+
+		self.uselib = self.uselib_name
+		if not self.uselib: uselib = self.name.upper()
 
 	def print_message_cached(self,retvalue):
-		uselib = self.uselib_name
-		if not uselib: uselib = self.name.upper()
-
-		define_name = self.define_name	
-		if not define_name: define_name = 'HAVE_'+uselib
-
-		if retvalue:		
-			env = self.env
-			if not env: env = self.conf.env
-			
-			env['CCFLAGS_'+uselib]   = retvalue[0]
-			env['CXXFLAGS_'+uselib]  = retvalue[1]
-			env['LIB_'+uselib]   = retvalue[2]
-			env['LIBPATH_'+uselib]  = retvalue[3]
-
-			self.conf.addDefine(define_name, 1)
+		if retvalue:
+			self.update_env(retvalue)
+			self.conf.addDefine(self.define_name, 1)
 		else:
-			self.conf.addDefine(define_name, 0)
+			self.conf.addDefine(self.define_name, 0)
 
 		self.conf.checkMessage('package %s (cached)' % self.name, '', retvalue, option='')
 
@@ -533,19 +507,12 @@ class pkgconfig_configurator(configurator_base):
 		pkgbin = self.binary
 		
 		env = self.env
-		if not env: env=self.conf.env
-
-		uselib = self.uselib_name
-		if not uselib: uselib = self.name.upper()
-
-		define_name = self.define_name	
-		if not define_name: define_name = 'HAVE_'+uselib
 
 		if not pkgbin: pkgbin='pkg-config'
 		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
 		
-		returnval = []
+		retval = {}
 		
 		try:
 			if self.version:
@@ -557,27 +524,20 @@ class pkgconfig_configurator(configurator_base):
 				self.conf.checkMessage('package %s ' % (self.name), '', not ret)
 				if ret: raise "error"
 				
-			returnval = ['','','','']
-
-			returnval[0] = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
-			returnval[1] = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
-				
-			env['CCFLAGS_'+uselib]   = returnval[0]
-			env['CXXFLAGS_'+uselib]  = returnval[1]
+			retval['CCFLAGS_'+uselib]   = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
+			retval['CXXFLAGS_'+uselib]  = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
 			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
-			self.conf.addDefine('HAVE_'+uselib, 1)
-
 			# Store the library names:
 			modlibs = os.popen('%s --libs-only-l %s' % (pkgcom, self.name)).read().strip().split()
-			env['LIB_'+uselib] = []
+			retval['LIB_'+uselib] = []
 			for item in modlibs:
-				env['LIB_'+uselib].append( item[2:] ) #Strip '-l'
+				retval['LIB_'+uselib].append( item[2:] ) #Strip '-l'
 
 			# Store the library paths:
 			modpaths = os.popen('%s --libs-only-L %s' % (pkgcom, self.name)).read().strip().split()
-			env['LIBPATH_'+uselib] = []
+			retval['LIBPATH_'+uselib] = []
 			for item in modpaths:
-				env['LIBPATH_'+uselib].append( item[2:] ) #Strip '-l'
+				retval['LIBPATH_'+uselib].append( item[2:] ) #Strip '-l'
 
 			for variable in self.variables:
 				var_defname = ''
@@ -588,14 +548,13 @@ class pkgconfig_configurator(configurator_base):
 				if not var_defname:				
 					var_defname = uselib + '_' + variable.upper()
 
-				env[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
-				
-			returnval[2] = env['LIB_'+uselib]
-			returnval[3] = env['LIBPATH_'+uselib]
+				retval[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
 
+			self.conf.addDefine(self.define_name, 1)
+			self.update_env(retval)	
 		except:
-			returnval = []
-			self.conf.addDefine(define_name, 0)
+			returnval = {}
+			self.conf.addDefine(self.define_name, 0)
 
 		return returnval
 
@@ -610,39 +569,32 @@ class library_configurator(configurator_base):
 		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
 
 
-	def print_message_cached(self,retvalue):
-		define_name = self.define_name	
-		if not define_name: define_name = 'HAVE_'+self.uselib_name
-
+	def print_message_cached(self,retval):
+		#if not define_name: define_name = 'HAVE_'+self.uselib_name
 		if retvalue:
-			env = self.env
-			if not env: env = self.conf.env
-
-			env['LIB_'+self.uselib_name]=retvalue[0]
-			env['LIBPATH_'+self.uselib_name]=retvalue[1]
-
 			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
-
-			self.conf.addDefine(define_name, 1)
+			self.update_env(retval)
+			self.conf.addDefine(self.define_name, 1)
 		else:
-			self.conf.addDefine(define_name, 0)
+			self.conf.addDefine(self.define_name, 0)
 
 			for name in self.names:
 				self.conf.checkMessage('library '+name+' (cached)', '', 0, option='')
 
+	def validate(self):
+		try: self.names = self.names.split()
+		except: pass
+		if not self.env: self.env = self.conf.env
+		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
 	def run_impl(self):
 		env = self.env
-		if not env: env = self.conf.env
-
-		define_name = self.define_name	
-		if not define_name: define_name = 'HAVE_'+self.uselib_name
 
 		library_enumerator = self.conf.create_library_enumerator()
 		library_enumerator.names = self.names
 		library_enumerator.paths = self.paths
 		library_enumerator.code = self.code
-		library_enumerator.define_name = define_name
+		library_enumerator.define_name = self.define_name
 		library_enumerator.env = env
 		ret = library_enumerator.run()
 
@@ -662,22 +614,19 @@ class header_configurator(configurator_base):
 		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
 
 
+	def validate(self):
+		try: self.names = self.names.split()
+		except: pass
+		if not self.env: self.env = self.conf.env
+		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
+
 	def print_message_cached(self,retvalue):
-		define_name = self.define_name	
-		if not define_name: define_name = 'HAVE_'+self.uselib_name
-
 		if retvalue:
-			env = self.env
-			if not env: env = self.conf.env
-
-			env['CPPPATH_'+self.uselib_name]=retvalue[1]
-
-			self.conf.checkMessage('library %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
-
+			self.update_env(retvalue)
+			self.conf.checkMessage('library %s (cached)' % str(retvalue), '', 1, option=str(retvalue[1]))
 			self.conf.addDefine(define_name, 1)
 		else:
 			self.conf.addDefine(define_name, 0)
-
 			for name in self.names:
 				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
 
@@ -685,14 +634,11 @@ class header_configurator(configurator_base):
 		env = self.env
 		if not env: env = self.conf.env
 
-		define_name = self.define_name
-		if not define_name: define_name = 'HAVE_'+self.uselib_name
-		
 		header_enumerator = self.conf.create_header_enumerator()
 		header_enumerator.names = self.names
 		header_enumerator.paths = self.paths
 		header_enumerator.code = self.code
-		header_enumerator.define_name = define_name
+		header_enumerator.define_name = self.define_name
 		ret = header_enumerator.run()
 		
 		if ret:
