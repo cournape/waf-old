@@ -282,7 +282,7 @@ class library_enumerator(enumerator_base):
 
 		foundname = ''
 		foundpath = ''
-		found = []
+		found = {}
 
 		code = self.code
 		if not code: code = "\n\nint main() {return 0;}\n"
@@ -306,7 +306,8 @@ class library_enumerator(enumerator_base):
 					if ret:
 						foundname = libname
 						foundpath = libpath
-						found = [foundname, foundpath]
+						found['name'] = foundname
+						found['path'] = foundpath
 						break
 
 				self.conf.checkMessage('library '+libname, '', ret, option=libpath)
@@ -333,7 +334,8 @@ class library_enumerator(enumerator_base):
 				if not ret:
 					foundname = libname
 					foundpath = libpath
-					found = [foundname, foundpath]
+					found['name'] = foundname
+					found['path'] = foundpath
 					break
 
 		env['LIB'] = oldlib
@@ -368,7 +370,7 @@ class header_enumerator(enumerator_base):
 
 		foundname = ''
 		foundpath = ''
-		found = []
+		found = {}
 
 		ret=''
 		
@@ -382,7 +384,8 @@ class header_enumerator(enumerator_base):
 					if ret:
 						foundname = headername
 						foundpath = incpath
-						found = [foundname, foundpath]
+						found['name'] = foundname
+						found['path'] = foundpath
 						break
 						
 				self.conf.checkMessage('header '+headername, '', ret, option=incpath)
@@ -404,7 +407,8 @@ class header_enumerator(enumerator_base):
 				if not ret:
 					foundname = headername
 					foundpath = ''
-					found = [foundname, foundpath]
+					found['name'] = foundname
+					found['path'] = foundpath
 					break
 					
 				self.conf.checkMessage('header %s via compiler' % headername, '', ret, option='')
@@ -468,7 +472,7 @@ class cfgtool_configurator(configurator_base):
 			self.conf.addDefine(define_name, 1)
 		except:
 			retval = {}
-			self.conf.addDefine(define_name, 0)
+			self.conf.addDefine(self.define_name, 0)
 
 		self.conf.checkMessage('config-tool '+self.binary, '', ret, option='')
 		return retval
@@ -488,10 +492,10 @@ class pkgconfig_configurator(configurator_base):
 		try: self.names = self.names.split()
 		except: pass
 		if not self.env: self.env = self.conf.env
-		if not self.define_name: self.define_name = 'HAVE_'+self.uselib
+		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
 		self.uselib = self.uselib_name
-		if not self.uselib: uselib = self.name.upper()
+		if not self.uselib: self.uselib = self.name.upper()
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
@@ -506,8 +510,6 @@ class pkgconfig_configurator(configurator_base):
 		pkgpath = self.path
 		pkgbin = self.binary
 		
-		env = self.env
-
 		if not pkgbin: pkgbin='pkg-config'
 		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
@@ -588,21 +590,18 @@ class library_configurator(configurator_base):
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
 	def run_impl(self):
-		env = self.env
-
 		library_enumerator = self.conf.create_library_enumerator()
 		library_enumerator.names = self.names
 		library_enumerator.paths = self.paths
 		library_enumerator.code = self.code
 		library_enumerator.define_name = self.define_name
-		library_enumerator.env = env
+		library_enumerator.env = self.env
 		ret = library_enumerator.run()
 
 		if ret:
-			env['LIB_'+self.uselib_name]=ret[0]
-			env['LIBPATH_'+self.uselib_name]=ret[1]
+			self.env['LIB_'+self.uselib_name]     = ret['name']
+			self.env['LIBPATH_'+self.uselib_name] = ret['path']
 		return ret
-
 
 class header_configurator(configurator_base):
 	def __init__(self,conf):
@@ -631,9 +630,6 @@ class header_configurator(configurator_base):
 				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
 
 	def run_impl(self):	
-		env = self.env
-		if not env: env = self.conf.env
-
 		header_enumerator = self.conf.create_header_enumerator()
 		header_enumerator.names = self.names
 		header_enumerator.paths = self.paths
@@ -642,7 +638,7 @@ class header_configurator(configurator_base):
 		ret = header_enumerator.run()
 		
 		if ret:
-			env['CPPPATH_'+self.uselib_name]=ret[1]
+			self.env['CPPPATH_'+self.uselib_name] = ret['path']
 		return ret
 
 # CONFIGURATORS END
