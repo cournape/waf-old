@@ -465,7 +465,7 @@ class cfgtool_configurator(configurator_base):
 		define_name = self.define_name
 		if not define_name: define_name = 'HAVE_'+self.uselib_name
 		
-		returnval = []
+		returnval = ['','','']
 	
 		#TODO: replace the "2>/dev/null" with some other mechanism for suppressing the stderr output
 		bincflagscom = '%s %s 2>/dev/null' % (self.binary, self.cflagsparam)
@@ -476,9 +476,9 @@ class cfgtool_configurator(configurator_base):
 			ret = os.popen(bincflagscom).close()
 			if ret: raise "error"
 
-			returnval += [os.popen(bincflagscom).read().strip()]
-			returnval += [os.popen(bincppflagscom).read().strip()]
-			returnval += [os.popen(binlibscom).read().strip()]
+			returnval[0] = [os.popen(bincflagscom).read().strip()]
+			returnval[1] = [os.popen(bincppflagscom).read().strip()]
+			returnval[2] = [os.popen(binlibscom).read().strip()]
 
 			env['CCFLAGS_'+self.uselib_name]   = returnval[0]
 			env['CXXFLAGS_'+self.uselib_name]  = returnval[1]
@@ -486,6 +486,7 @@ class cfgtool_configurator(configurator_base):
 
 			self.conf.addDefine(define_name, 1)
 		except:
+			returnval = []
 			self.conf.addDefine(define_name, 0)
 
 		self.conf.checkMessage('config-tool '+self.binary, '', ret, option='')
@@ -593,6 +594,7 @@ class pkgconfig_configurator(configurator_base):
 			returnval[3] = env['LIBPATH_'+uselib]
 
 		except:
+			returnval = []
 			self.conf.addDefine(define_name, 0)
 
 		return returnval
