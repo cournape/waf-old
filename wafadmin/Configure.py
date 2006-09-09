@@ -13,6 +13,65 @@ g_maxlen = 35
 g_debug  = 0
 
 
+#######################################################################
+## Helper functions
+
+def find_path(file, path_list):
+	if type(path_list) is types.StringType: lst = [path_list]
+	else: lst = path_list
+	for dir in lst:
+		if os.path.exists( os.path.join(dir, file) ):
+			return dir
+	return ''
+
+def find_file(file, path_list):
+	if type(path_list) is types.StringType: lst = [path_list]
+	else: lst = path_list
+	for dir in lst:
+		if os.path.exists( os.path.join(dir, file) ):
+			return dir
+	return ''
+
+def find_file_ext(file, path_list):
+	import os, fnmatch;
+	if type(path_list) is types.StringType: lst = [path_list]
+	else: lst = path_list
+	for p in lst:
+		for path, subdirs, files in os.walk( p ):
+			for name in files:
+				if fnmatch.fnmatch( name, file ):
+					return path
+	return ''
+
+def find_program_impl(lenv, file, path_list=None, var=None):
+	if not path_list: path_list = []
+	elif type(path_list) is types.StringType: path_list = path_list.split()
+
+	if var:
+		if lenv[var]: return lenv[var]
+		elif var in os.environ: return os.environ[var]
+
+	if lenv['WINDOWS']: file += '.exe'
+	if not path_list: 
+		try:
+			path_list = os.environ['PATH'].split(':')
+		except KeyError:
+			return None
+	for dir in path_list:
+		if os.path.exists( os.path.join(dir, file) ):
+			return os.path.join(dir, file)
+	return ''
+
+def find_program_using_which(lenv, prog):
+	if lenv['WINDOWS']: # we're not depending on Cygwin
+		return ''
+	return os.popen("which %s 2>/dev/null" % prog).read().strip()
+
+
+
+#######################################################################
+## ENUMERATORS
+
 
 class enumerator_base:
 	def __init__(self,conf):
@@ -71,8 +130,6 @@ class configurator_base(enumerator_base):
 
 
 
-
-# ENUMERATORS
 
 class program_enumerator(enumerator_base):
 	def __init__(self,conf):
@@ -366,11 +423,11 @@ class header_enumerator(enumerator_base):
 
 		return found
 
-# ENUMERATORS END
+## ENUMERATORS END
+#######################################################################
 
-
-
-# CONFIGURATORS
+#######################################################################
+## CONFIGURATORS
 
 class cfgtool_configurator(configurator_base):
 	def __init__(self,conf):
@@ -566,9 +623,7 @@ class header_configurator(configurator_base):
 		return ret
 
 # CONFIGURATORS END
-
-
-
+#######################################################################
 
 
 
@@ -611,59 +666,6 @@ class check:
 
 		return m.digest()
 
-def find_path(file, path_list):
-	if type(path_list) is types.StringType: lst = [path_list]
-	else: lst = path_list
-	for dir in lst:
-		if os.path.exists( os.path.join(dir, file) ):
-			return dir
-	return ''
-
-def find_file(file, path_list):
-	if type(path_list) is types.StringType: lst = [path_list]
-	else: lst = path_list
-	for dir in lst:
-		if os.path.exists( os.path.join(dir, file) ):
-			return dir
-	return ''
-
-def find_file_ext(file, path_list):
-	import os, fnmatch;
-	if type(path_list) is types.StringType: lst = [path_list]
-	else: lst = path_list
-	for p in lst:
-		for path, subdirs, files in os.walk( p ):
-			for name in files:
-				if fnmatch.fnmatch( name, file ):
-					return path
-	return ''
-
-def find_program_impl(lenv, file, path_list=None, var=None):
-	if not path_list: path_list = []
-	elif type(path_list) is types.StringType: path_list = path_list.split()
-
-	if var:
-		if lenv[var]: return lenv[var]
-		elif var in os.environ: return os.environ[var]
-
-	if lenv['WINDOWS']: file += '.exe'
-	if not path_list: 
-		try:
-			path_list = os.environ['PATH'].split(':')
-		except KeyError:
-			return None
-	for dir in path_list:
-		if os.path.exists( os.path.join(dir, file) ):
-			return os.path.join(dir, file)
-	return ''
-
-def find_program_using_which(lenv, prog):
-	if lenv['WINDOWS']: # we're not depending on Cygwin
-		return ''
-	return os.popen("which %s 2>/dev/null" % prog).read().strip()
-
-
-
 class Configure:
 	def __init__(self, env=None, blddir='', srcdir=''):
 		#for key in self.env.m_table:
@@ -701,7 +703,7 @@ class Configure:
 
 	def __del__(self):
 		if not self.env['tools']:
-			self.error('you should add at least a checkTool() call in your wscript, otherwise you cannot build anything')
+			error('you should add at least a checkTool() call in your wscript, otherwise you cannot build anything')
 
 	def set_env_name(self, name, env):
 		self.m_allenvs[name] = env
@@ -1127,9 +1129,6 @@ int main() {
 	def checkModule(self,tool):
 		"""check if a a user provided module is given"""
 		pass
-
-	def error(self,module,str=''):
-		print "configuration error: " + module + " " + str
 
 	def store(self, file=''):
 		"""save config results into a cache file"""
