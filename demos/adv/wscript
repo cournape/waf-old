@@ -36,10 +36,10 @@ def configure(conf):
 
 
 
-	"""
 	# pkg-config example - look in src/wscript_build, obj.uselib ..
-	conf.checkPkg('glib-2.0', destvar='GLIB', vnum='2.6.0')
+	conf.check_pkg('glib-2.0', destvar='GLIB', vnum='2.6.0')
 
+	"""
 	conf.check_header('GL/gl.h', '', '', ['/usr/X11R6/include','/usr/include'])
 	"""
 

@@ -1054,6 +1054,20 @@ int main() {
 		self.checkMessage('program', program_name, ret, ret)
 		return ret
 
+	# keep
+	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin=''):
+
+		pkgconf = self.create_pkgconfig_configurator()
+
+		if not destvar: destvar = modname.upper()
+
+		pkgconf.uselib_name = destvar
+		pkgconf.name = modname
+		pkgconf.version = vnum
+		pkgconf.path = pkgpath
+		pkgconf.binary = pkgbin
+		return pkgconf.run()
+
 	def checkLibrary(self, libname, funcname=None, headers=None, define='', uselib=''):
 		"""find a library"""
 		upname = libname.upper().replace('.','_')
