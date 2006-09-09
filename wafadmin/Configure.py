@@ -484,6 +484,7 @@ class pkgconfig_configurator(configurator_base):
 		self.name		= ''
 		self.version		= ''
 		self.path		= ''
+		self.uselib_name        = ''
 		self.binary		= ''
 		self.variables		= []
 		self.mandatory_errormsg	= 'No matching pkg-config package could be found. It is likely that the software to which the package belongs is not installed.'
@@ -492,10 +493,9 @@ class pkgconfig_configurator(configurator_base):
 		try: self.names = self.names.split()
 		except: pass
 		if not self.env: self.env = self.conf.env
-		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
-		self.uselib = self.uselib_name
-		if not self.uselib: self.uselib = self.name.upper()
+		if not self.uselib_name: self.uselib_name = self.name.upper()
+		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
@@ -509,7 +509,7 @@ class pkgconfig_configurator(configurator_base):
 	def run_impl(self):
 		pkgpath = self.path
 		pkgbin = self.binary
-		uselib = self.uselib
+		uselib = self.uselib_name
 		
 		if not pkgbin: pkgbin='pkg-config'
 		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
