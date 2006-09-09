@@ -314,7 +314,7 @@ def detect_qt4(conf):
 		#print qtbin
 		#print lst
 		for prog in progs:
-			path=conf.checkProgram(prog, path_list=lst, var=string.upper(prog))
+			path=conf.find_program(prog, path_list=lst, var=string.upper(prog))
 			if path: return path
 
 		# everything failed
@@ -475,7 +475,7 @@ def detect_qt4_win32(conf):
 		path=''
 		for prog in progs:
 			lst = [os.path.join(qtdir, 'bin')] + os.environ['PATH'].split(':')
-			path=conf.checkProgram(prog, path_list=lst, var=string.upper(prog))
+			path=conf.find_program(prog, path_list=lst, var=string.upper(prog))
 			if path: return path
 
 		# everything failed

@@ -309,14 +309,14 @@ def setup(env):
 
 def detect(conf):
 
-	opt = conf.checkProgram('ocamlopt', var='OCAMLOPT')
-	occ = conf.checkProgram('ocamlc', var='OCAMLC')
+	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
+	occ = conf.find_program('ocamlc', var='OCAMLC')
 	if (not opt) or (not occ):
 		fatal('The objective caml compiler was not found:\n' \
 			'install it or make it availaible in your PATH')
 
-	lex  = conf.checkProgram('ocamllex', var='OCAMLLEX')
-	yacc = conf.checkProgram('ocamlyacc', var='OCAMLYACC')
+	lex  = conf.find_program('ocamllex', var='OCAMLLEX')
+	yacc = conf.find_program('ocamlyacc', var='OCAMLYACC')
 
 	conf.env['OCAMLC']       = occ
 	conf.env['OCAMLOPT']     = opt

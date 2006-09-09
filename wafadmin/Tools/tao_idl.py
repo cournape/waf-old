@@ -68,7 +68,7 @@ def detect(conf):
 	# fall back to system paths.
 	if acedir:
 		acebindir = [os.path.join(acedir,'bin')]
-		idl = conf.checkProgram('tao_idl', acebindir)
+		idl = conf.find_program('tao_idl', acebindir)
 		if not conf.check_header('ace/ACE.h', pathlst=[ os.path.join(acedir,'include') ]):
 			return 0
 	else:
@@ -76,7 +76,7 @@ def detect(conf):
 			return 0
 		
 	if not idl:
-		idl = conf.checkProgram('tao_idl')
+		idl = conf.find_program('tao_idl')
 		if not idl:
 			return 0
 	if taodir:

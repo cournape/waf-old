@@ -21,7 +21,7 @@ def build(bld):
 	return
 
 def configure(conf):
-	conf.checkTool(['docbook'])
+	conf.checkTool('docbook')
 	return
 
 def set_options(opt):

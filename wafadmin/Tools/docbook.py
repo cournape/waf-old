@@ -145,21 +145,21 @@ def setup(env):
 # Favour xsltproc over xalan.
 def detect(conf):
 	# Detect programs for converting xml -> html/pdf
-	fop = conf.checkProgram('fop', var='FOP')
+	fop = conf.find_program('fop', var='FOP')
 	if fop:
 		conf.env['FOP'] = fop
-	xsltproc = conf.checkProgram('xsltproc', var='XSLTPROC')
+	xsltproc = conf.find_program('xsltproc', var='XSLTPROC')
 	if xsltproc:
 		conf.env['XSLTPROC_ST'] = '%s --xinclude %s %s > %s'
 		conf.env['XSLTPROC'] = xsltproc
 
-	xalan = conf.checkProgram('xalan', var='XALAN')
+	xalan = conf.find_program('xalan', var='XALAN')
 	if not xsltproc and xalan:
 		conf.env['XSLTPROC_ST'] = '%s -xsl %s -in %s -out %s'
 		conf.env['XSLTPROC'] = xalan
 
 	# OpenJade conversion tools for converting sgml -> xyz
-	jw = conf.checkProgram('jw', var='JW')
+	jw = conf.find_program('jw', var='JW')
 	if jw:
 		conf.env['DB2HTML'] = "jw -u -f docbook -b html -o %s %s"
 		conf.env['DB2PDF']  = "jw -f docbook -b pdf -o %s %s"

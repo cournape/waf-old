@@ -233,25 +233,25 @@ def setup(env):
 
 def detect(conf):
 
-	pocom = conf.checkProgram('msgfmt')
+	pocom = conf.find_program('msgfmt')
 	if not pocom:
 		fatal('The program msgfmt (gettext) is mandatory!')
 	conf.env['POCOM'] = pocom
 
-	sgml2man = conf.checkProgram('docbook2man')
+	sgml2man = conf.find_program('docbook2man')
 	if not sgml2man:
 		fatal('The program docbook2man is mandatory!')
 	conf.env['SGML2MAN'] = sgml2man
 
-	intltool = conf.checkProgram('intltool-merge')
+	intltool = conf.find_program('intltool-merge')
 	if not intltool:
 		fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 	conf.env['INTLTOOL'] = intltool
 
-	glib_genmarshal = conf.checkProgram('glib-genmarshal')
+	glib_genmarshal = conf.find_program('glib-genmarshal')
 	conf.env['GGM'] = glib_genmarshal
 
-	dbus_binding_tool = conf.checkProgram('dbus-binding-tool')
+	dbus_binding_tool = conf.find_program('dbus-binding-tool')
 	conf.env['DBT'] = dbus_binding_tool
 
 	def getstr(varname):

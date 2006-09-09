@@ -18,11 +18,11 @@ def setup(env):
         Action.simple_action('cc_link', link_str, color='YELLOW')
 
 def detect(conf):
-	cc = conf.checkProgram('cc', var='CC')
+	cc = conf.find_program('cc', var='CC')
 	if not cc:
 		return 0;
 
-	comp = conf.checkProgram('gcc', var='GCC')
+	comp = conf.find_program('gcc', var='GCC')
 	if not comp:
 		return 0;
 

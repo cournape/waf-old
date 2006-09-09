@@ -42,7 +42,7 @@ def setup(env):
 	except: pass
 
 def detect(conf):
-	flex = conf.checkProgram('flex', var='FLEX')
+	flex = conf.find_program('flex', var='FLEX')
 	if not flex: return 0
 	v = conf.env
 	v['FLEX']      = flex

@@ -37,7 +37,7 @@ def setup(env):
 	Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].cd_to(env)} ${SRC}', color='BLUE')
 
 def detect(conf):
-	javac = conf.checkProgram('javac', os.environ['PATH'].split(':'))
+	javac = conf.find_program('javac', var='JAVAC')
 	if not javac: return 0
 	conf.env['JAVAC'] = javac
 

@@ -50,7 +50,7 @@ def setup(env):
 	except: pass
 
 def detect(conf):
-	bison = conf.checkProgram('bison', var='BISON')
+	bison = conf.find_program('bison', var='BISON')
 	if not bison: return 0
 	v = conf.env
 	v['BISON']      = bison

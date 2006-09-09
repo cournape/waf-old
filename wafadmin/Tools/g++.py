@@ -22,11 +22,11 @@ def setup(env):
 # the values are cached for further build processes
 def detect(conf):
 
-	cpp = conf.checkProgram('cpp', var='CPP')
+	cpp = conf.find_program('cpp', var='CPP')
 	if not cpp:
 		return 0;
 
-	comp = conf.checkProgram('g++', var='CXX')
+	comp = conf.find_program('g++', var='CXX')
 	if not comp:
 		return 0;
 
