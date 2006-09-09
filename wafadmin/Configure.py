@@ -509,6 +509,7 @@ class pkgconfig_configurator(configurator_base):
 	def run_impl(self):
 		pkgpath = self.path
 		pkgbin = self.binary
+		uselib = self.uselib
 		
 		if not pkgbin: pkgbin='pkg-config'
 		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
@@ -555,10 +556,10 @@ class pkgconfig_configurator(configurator_base):
 			self.conf.addDefine(self.define_name, 1)
 			self.update_env(retval)	
 		except:
-			returnval = {}
+			retval = {}
 			self.conf.addDefine(self.define_name, 0)
 
-		return returnval
+		return retval
 
 
 class library_configurator(configurator_base):
