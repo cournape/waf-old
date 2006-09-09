@@ -35,9 +35,8 @@ def setup(env):
 	env.hook('cpp', 'DANG_EXT', coin_file)
 
 def detect(conf):
-	dang = conf.find_program('cat', var='CAT')
-	if not dang: return 0
-	conf.env['DANG'] = dang
+	dang = conf.find_program('cat', var='DANG')
+	if not dang: return 0 # make it fatal
 	conf.env['DANG_EXT'] = ['.coin']
 	return 1
 

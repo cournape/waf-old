@@ -77,8 +77,6 @@ def setup(env):
 	Action.simple_action('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 
 def detect(conf):
-	mcs = conf.find_program('mcs', var='MCS')
-	conf.env['MCS'] = mcs
-
+	conf.find_program('mcs', var='MCS')
 	return 1
 

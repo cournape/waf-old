@@ -39,8 +39,6 @@ def setup(env):
 def detect(conf):
 	javac = conf.find_program('javac', var='JAVAC')
 	if not javac: return 0
-	conf.env['JAVAC'] = javac
-
 
 	conf.env['JAVA_EXT'] = ['.java']
 	return 1
