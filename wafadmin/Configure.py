@@ -31,7 +31,6 @@ class enumerator_base:
 	def hash(self):
 		m = md5.new()
 		self.update_hash(m)
-
 		return m.digest()
 
 	def print_message_cached(self,retvalue):
@@ -84,10 +83,8 @@ class program_enumerator(enumerator_base):
 		self.var                = None
 		self.mandatory_errormsg	= 'The program cannot be found. Building cannot be performed without this program. Make sure it is installed and can be found.'
 
-
 	def print_message_cached(self,retvalue):
-		self.conf.checkMessage('program '+self.name+' (cached)', '', retvalue, option=retvalue)
-
+		self.conf.checkMessage('program %s (cached)' % self.name, '', retvalue, option=retvalue)
 
 	def run_impl(self):
 		ret = find_program_impl(self.conf.env, self.name, self.paths, self.var)
@@ -98,7 +95,6 @@ class program_enumerator(enumerator_base):
 
 		return ret
 
-
 class function_enumerator(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
@@ -107,18 +103,16 @@ class function_enumerator(enumerator_base):
 		self.headers		= []
 		self.include_paths	= []
 		self.header_code	= ''
-		self.libs			= []
+		self.libs		= []
 		self.lib_paths		= []
 		self.mandatory_errormsg	= 'This function could not be found in the specified headers and libraries. Make sure you have the right headers & libraries installed.'
-
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
 			self.conf.checkMessage('function '+retvalue+' (cached)', '', 1, option='')
 		else:
 			for funccall in self.function_calls:
-				self.conf.checkMessage('function '+funccall[0]+' (cached)', '', 0, option='')
-
+				self.conf.checkMessage('function %s (cached)' % str(funccall[0]), '', 0, option='')
 
 	def run_impl(self):
 		env = self.env	
@@ -174,7 +168,7 @@ int main()
 
 			ret = self.conf.check(obj)
 			
-			self.conf.checkMessage('function '+funccall[0], '', not ret, option='')
+			self.conf.checkMessage('function %s' % funccall[0], '', not ret, option='')
 
 			# If a second column is present and not empty, set the given defines
 			# (the second column contains optional defines to be set)
@@ -194,34 +188,27 @@ int main()
 				# Store the found name
 				foundname = funccall[0]
 				break
-				
-				
-				
-		
+
 		env['LIB'] = oldlib
 		env['LIBPATH'] = oldlibpath
 				
 		return foundname
 
-
 class library_enumerator(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self,conf)
 
-		self.names			= []
-		self.paths			= []
-		self.code			= ''
+		self.names		= []
+		self.paths		= []
+		self.code		= ''
 		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
-
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
-			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+			self.conf.checkMessage('library %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
 		else:
 			for name in self.names:
-				self.conf.checkMessage('library '+name+' (cached)', '', 0, option='')
-		
-
+				self.conf.checkMessage('library %s (cached)' % name, '', 0, option='')
 
 	def update_hash(self,md5hash):
 		enumerator_base.update_hash(self,md5hash)
@@ -269,10 +256,12 @@ class library_enumerator(enumerator_base):
 						break
 
 				self.conf.checkMessage('library '+libname, '', ret, option=libpath)
-						
+
 				if ret: break
 		
-		if not ret: # Either lib was not found in the libpaths, or no paths were given. Test if the compiler can find the lib anyway
+		if not ret:
+			# Either lib was not found in the libpaths
+			#or no paths were given. Test if the compiler can find the lib anyway
 
 			for libname in self.names:
 				env['LIB'] = [libname]
@@ -284,7 +273,7 @@ class library_enumerator(enumerator_base):
 				obj.env           = env
 				ret = self.conf.check(obj)
 
-				self.conf.checkMessage('library '+libname+' via linker', '', not ret, option='')
+				self.conf.checkMessage('library %s via linker' % libname, '', not ret, option='')
 				#self.conf.checkMessage('library '+libname, '', not ret, option='')
 	
 				if not ret:
@@ -292,7 +281,6 @@ class library_enumerator(enumerator_base):
 					foundpath = libpath
 					found = [foundname, foundpath]
 					break
-
 
 		env['LIB'] = oldlib
 		env['LIBPATH'] = oldlibpath
@@ -304,7 +292,6 @@ class library_enumerator(enumerator_base):
 			env[self.define_name] = ret
 			
 		return found
-
 
 class header_enumerator(enumerator_base):
 	def __init__(self,conf):
@@ -318,14 +305,14 @@ class header_enumerator(enumerator_base):
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
-			self.conf.checkMessage('header '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+			self.conf.checkMessage('header %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
 		else:
 			for name in self.names:
-				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
+				self.conf.checkMessage('header %s (cached)' % name, '', 0, option='')
 
 
 	def run_impl(self):
-		env = self.env	
+		env = self.env
 		if not env: env = self.conf.env
 
 		foundname = ''
@@ -369,7 +356,7 @@ class header_enumerator(enumerator_base):
 					found = [foundname, foundpath]
 					break
 					
-				self.conf.checkMessage('header '+headername+' via compiler', '', ret, option='')
+				self.conf.checkMessage('header %s via compiler' % headername, '', ret, option='')
 
 		if found: ret = 1
 		else:     ret = 0
@@ -389,7 +376,7 @@ class cfgtool_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
 	
-		self.binary			= ''
+		self.binary		= ''
 		self.cflagsparam 	= '--cflags'
 		self.cppflagsparam	= '--cflags'
 		self.libsparam		= '--libs'
@@ -397,11 +384,7 @@ class cfgtool_configurator(configurator_base):
 
 
 	def print_message_cached(self,retvalue):
-		if retvalue:
-			self.conf.checkMessage('config-tool '+self.binary+' (cached)', '', 1, option='')
-		else:
-			self.conf.checkMessage('config-tool '+self.binary+' (cached)', '', 0, option='')
-
+		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retvalue, option='')
 
 	def run_impl(self):
 		env = self.env	
@@ -429,29 +412,24 @@ class cfgtool_configurator(configurator_base):
 			ret = 0
 			self.conf.addDefine(define_name, 0)
 
-		self.conf.checkMessage('config-tool '+self.binary, '', ret,option='')
+		self.conf.checkMessage('config-tool '+self.binary, '', ret, option='')
 			
 		return ret
-
 
 class pkgconfig_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
 
-		self.name			= ''
+		self.name		= ''
 		self.version		= ''
-		self.path			= ''
-		self.binary			= ''
+		self.path		= ''
+		self.binary		= ''
 		self.variables		= []
 		self.mandatory_errormsg	= 'No matching pkg-config package could be found. It is likely that the software to which the package belongs is not installed.'
 
 
 	def print_message_cached(self,retvalue):
-		if retvalue:
-			self.conf.checkMessage('package '+self.name+' (cached)', '', 1, option='')
-		else:
-			self.conf.checkMessage('package '+self.name+' (cached)', '', 0, option='')
-
+		self.conf.checkMessage('package %s (cached)' % self.name, '', retvalue, option='')
 
 	def run_impl(self):
 		pkgpath = self.path
@@ -564,11 +542,10 @@ class header_configurator(configurator_base):
 
 	def print_message_cached(self,retvalue):
 		if retvalue:
-			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+			self.conf.checkMessage('library %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
 		else:
 			for name in self.names:
 				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
-
 
 	def run_impl(self):	
 		env = self.env
@@ -589,7 +566,6 @@ class header_configurator(configurator_base):
 		return ret
 
 # CONFIGURATORS END
-
 
 
 
@@ -685,13 +661,6 @@ def find_program_using_which(lenv, prog):
 	if lenv['WINDOWS']: # we're not depending on Cygwin
 		return ''
 	return os.popen("which %s 2>/dev/null" % prog).read().strip()
-	
-def sub_config(file):
-	return ''
-	
-	
-	
-	
 
 
 
@@ -1067,6 +1036,15 @@ int main() {
 		pkgconf.path = pkgpath
 		pkgconf.binary = pkgbin
 		return pkgconf.run()
+
+
+
+
+
+
+
+
+
 
 	def checkLibrary(self, libname, funcname=None, headers=None, define='', uselib=''):
 		"""find a library"""
@@ -1549,7 +1527,7 @@ int main() {
 				return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 		except:
 			return ''
-
+		fatal('mail dv at dword.org for this bug')
 
 
 ### autoconfig_xxx functions end
