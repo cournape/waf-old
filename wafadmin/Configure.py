@@ -43,6 +43,7 @@ def find_file_ext(file, path_list):
 					return path
 	return ''
 
+# find the program "file" in folders path_lst, and sets lenv[var]
 def find_program_impl(lenv, file, path_list=None, var=None):
 	if not path_list: path_list = []
 	elif type(path_list) is types.StringType: path_list = path_list.split()
@@ -59,7 +60,9 @@ def find_program_impl(lenv, file, path_list=None, var=None):
 			return None
 	for dir in path_list:
 		if os.path.exists( os.path.join(dir, file) ):
-			return os.path.join(dir, file)
+			ret = os.path.join(dir, file)
+			if var: lenv[var] = ret
+			return ret
 	return ''
 
 def find_program_using_which(lenv, prog):
@@ -99,6 +102,9 @@ class enumerator_base:
 		pass
 	
 	def run(self):
+		try: self.names = self.names.split()
+		except: pass
+
 		if not Params.g_options.nocache:
 			newhash = self.hash()
 			try:
@@ -127,12 +133,7 @@ class enumerator_base:
 class configurator_base(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self,conf)
-	
 		self.uselib_name	= ''
-
-
-
-
 
 class program_enumerator(enumerator_base):
 	def __init__(self,conf):
@@ -149,10 +150,6 @@ class program_enumerator(enumerator_base):
 	def run_impl(self):
 		ret = find_program_impl(self.conf.env, self.name, self.paths, self.var)
 		self.conf.checkMessage('program', self.name, ret, ret)
-
-		if self.define_name:
-			env[self.define_name] = ret
-
 		return ret
 
 class function_enumerator(enumerator_base):
