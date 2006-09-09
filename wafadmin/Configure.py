@@ -72,27 +72,30 @@ def find_program_using_which(lenv, prog):
 #######################################################################
 ## ENUMERATORS
 
-
 class enumerator_base:
-	def __init__(self,conf):
-		self.env				= None
-		self.conf				= conf
-		self.define_name		= ''
-		self.mandatory			= 0
+	def __init__(self, conf):
+		self.env                = None
+		self.conf               = conf
+		self.define_name        = ''
+		self.mandatory          = 0
 		self.mandatory_errormsg	= 'A mandatory check failed. Make sure all dependencies are ok and can be found.'
 
-	def update_hash(self,md5hash):
+	def update_hash(self, md5hash):
 		classvars = vars(self)
-		for (var,value) in classvars.iteritems():
-			if not callable(var) and value != self and value != self.env and value != self.conf and value != self.mandatory_errormsg:
-				md5hash.update(str(value))
+		for (var, value) in classvars.iteritems():
+			if callable(var):                    continue
+			if value == self:                    continue
+			if value == self.env:                continue
+			if value == self.conf:               continue
+			if value == self.mandatory_errormsg: continue
+			md5hash.update(str(value))
 		
 	def hash(self):
 		m = md5.new()
 		self.update_hash(m)
 		return m.digest()
 
-	def print_message_cached(self,retvalue):
+	def print_message_cached(self, retvalue):
 		pass
 	
 	def run(self):
