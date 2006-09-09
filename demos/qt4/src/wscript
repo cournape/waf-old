@@ -10,7 +10,7 @@ def build(bld):
 	#obj.source = 'window.cpp glwidget.cpp main.cpp textures.qrc'
 
 	obj.find_sources_in_dirs('.')
-	obj.uselib = 'QTCORE_DEBUG QTGUI_DEBUG QTOPENGL_DEBUG'
+	obj.uselib = 'QTCORE QTGUI QTOPENGL'
 	obj.target = 'window'
 	obj.includes = 'test .'
 
