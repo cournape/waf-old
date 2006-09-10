@@ -269,10 +269,14 @@ class header_enumerator(enumerator_base):
 		self.name   = []
 		self.path   = []
 		self.define = []
+		self.nosystem = 0
 
 	def validate(self):
 		if not self.path:
-			self.path = ['/usr/include/', '/usr/local/include/', '/opt/include/']
+			self.path = ['/usr/include/', '/usr/local/include/']
+		else:
+			if not self.nosystem:
+				self.path += ['/usr/include/', '/usr/local/include/']
 
 	def error(self):
 		fatal('cannot find %s in %s' % (self.name, str(self.path)))
