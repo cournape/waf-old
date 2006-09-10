@@ -30,7 +30,12 @@ def checkEndian(self, define='', pathlst=[]):
 	if self.isDefined(define): return self.getDefine(define)
 
 	global endian
-	code = self.TryRun(endian_str, pathlst=pathlst)
+
+	test = self.create_test_configurator()
+	test.code = endian_str
+	code = test.run()['result']
+
+	#code = self.TryRun(endian_str, pathlst=pathlst)
 
 	try:
 		t = Utils.to_hashtable(code)
@@ -74,7 +79,11 @@ int main()
 def checkFeatures(self, lst=[], pathlst=[]):
 
 	global endian
-	code = self.TryRun(features_str, pathlst=pathlst)
+
+	test = self.create_test_configurator()
+	test.code = features_str
+	code = test.run()['result']
+	#code = self.TryRun(features_str, pathlst=pathlst)
 
 	try:
 		t = Utils.to_hashtable(code)
