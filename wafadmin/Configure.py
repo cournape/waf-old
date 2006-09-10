@@ -429,33 +429,62 @@ class pkgconfig_configurator(configurator_base):
 
 		return retval
 
+class test_configurator(configurator_base):
+	def __init__(self, conf):
+		configurator_base.__init__(self, conf)
+		self.name = ''
+		self.code = ''
+		self.define = ''
+		self.uselib = ''
+		self.want_message = 0
+
+	def error(self):
+		fatal('test program would not run')
+
+	def run_cache(self, retval):
+		if self.want_message:
+			self.conf.checkMessage('custom code (cached)', '', 1, option=retval['result'])
+
+	def validate(self):
+		if not self.code:
+			fatal('test configurator needs code to compile and run!')
+
+	def run_test(self):
+		obj = check_data()
+		obj.code = self.code
+		obj.env  = self.env
+		obj.execute = 1
+		ret = self.conf.run_check(obj)
+
+		if self.want_message:
+			if ret: data = ret['result']
+			else: data = ''
+
+			self.conf.checkMessage('custom code', '', ret, option=data)
+
+		return ret
 
 class library_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
 
-		self.names			= []
-		self.paths			= []
-		self.code			= ''
-		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
+		self.name = ''
+		self.path = []
+		self.define = ''
 
+		self.code = 'int main(){ return 0; }'
+
+	def error(self):
+		fatal('library %s cannot be linked')
 
 	def run_cache(self, retval):
-		#if not define_name: define_name = 'HAVE_'+self.uselib_name
-		if retval:
-			self.conf.checkMessage('library '+retval['name']+' (cached)', '', 1, option=retval['path'])
-			self.update_env(retval)
-			self.conf.addDefine(self.define_name, 1)
-		else:
-			self.conf.addDefine(self.define_name, 0)
-
-			for name in self.names:
-				self.conf.checkMessage('library '+name+' (cached)', '', 0, option='')
+		self.conf.checkMessage('library %s (cached)' % self.name, '', 1, option=retval)
+		self.env['LIB_'+self.uselib] = self.name
+		self.env['LIBPATH_'+self.uselib] = retval
 
 	def validate(self):
-		try: self.names = self.names.split()
-		except: pass
-		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
+		if not self.path:
+			self.path = ['/usr/lib/', '/usr/local/lib', '/lib', '/opt/lib/']
 
 	def run_test(self):
 		library_enumerator = self.conf.create_library_enumerator()
@@ -475,11 +504,12 @@ class header_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
 
-		self.names			= []
-		self.paths			= []
-		self.code			= 'int main() {return 0;}'
-		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
+		self.name = []
+		self.path = []
+		self.code = 'int main() {return 0;}'
 
+	def error(self):
+		fatal('header %s cannot be found via compiler' % self.name)
 
 	def validate(self):
 		try: self.names = self.names.split()
@@ -810,6 +840,9 @@ class Configure:
 	def create_cfgtool_configurator(self):
 		return cfgtool_configurator(self)
 
+	def create_test_configurator(self):
+		return test_configurator(self)
+
 	def create_library_configurator(self):
 		return library_configurator(self)
 
@@ -931,8 +964,10 @@ class Configure:
 		if obj.execute:
 			if ret: return None
 			try:
-				ret = os.popen(lastprog).read().strip()
+				data = os.popen(lastprog).read().strip()
+				ret = {'result': data} 
 			except:
+				raise
 				pass
 		return ret
 
