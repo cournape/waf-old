@@ -8,8 +8,7 @@ from Params import debug, error, trace, fatal, warning
 
 import traceback
 
-
-g_maxlen = 45
+g_maxlen = 40
 g_debug  = 0
 
 
@@ -640,47 +639,6 @@ class header_configurator(configurator_base):
 # CONFIGURATORS END
 #######################################################################
 
-
-
-
-
-# deprecated (should be removed soon)
-class check:
-	def __init__(self):
-		self.fun           = '' # function calling
-
-		self.env           = '' # environment to use
-
-		self.code          = '' # the code to execute
-
-		self.flags         = '' # the flags to give to the compiler
-
-		self.uselib        = '' # uselib
-		self.includes      = '' # include paths
-
-		self.function_name = '' # function to check for
-		self.headers_code  = '' # additional headers for the main function
-
-		self.lib           = []
-		self.libpath       = [] # libpath for linking
-
-		self.define_name   = '' # define to add if run is successful
-
-		self.header_name   = '' # header name to check for
-
-		self.options       = '' # command-line options
-
-	def hash(self):
-		attrs = 'fun code uselib includes function_name headers_code lib libpath define_name header_name options flags'
-		m = md5.new()
-		for a in attrs.split():
-			val = getattr(self, a)
-			m.update(str(val))
-		if self.fun == 'find_library':
-			m.update(str(self.env['LIBPATH']))
-
-		return m.digest()
-
 class Configure:
 	def __init__(self, env=None, blddir='', srcdir=''):
 
@@ -730,7 +688,7 @@ class Configure:
 			return env
 
 	def checkTool(self, input, tooldir=None):
-		"Load a waf tool"
+		"load a waf tool"
 		if type(input) is types.ListType: lst = input
 		else: lst = input.split()
 
@@ -740,7 +698,7 @@ class Configure:
 		return ret
 
 	def _checkToolImpl(self, tool, tooldir=None):
-		"Private method, do not use directly"
+		"private method, do not use directly"
 		define = 'HAVE_'+tool.upper().replace('.','_').replace('+','P')
 
 		if self.isDefined(define):
@@ -769,7 +727,7 @@ class Configure:
 		return ret
 
 	def store(self, file=''):
-		"Save the config results into the cache file"
+		"save the config results into the cache file"
 		try: os.makedirs(Params.g_cachedir)
 		except OSError: pass
 
@@ -854,7 +812,7 @@ class Configure:
 		except: return 0
 
 	def writeConfigHeader(self, configfile='config.h', env=''):
-		"""save the defines into a file"""
+		"save the defines into a file"
 		if configfile=='': configfile = self.configheader
 
 		try:
@@ -886,176 +844,11 @@ class Configure:
 		dest.close()
 
 	def setConfigHeader(self, header):
-		"""set a config header file"""
+		"set a config header file"
 		self.configheader = header
 
-
-
-	def TryBuild(self, code, options='', pathlst=[], uselib=''):
-		""" Uses the cache """
-
-		hash = "".join(['TryBuild', code, str(options), str(pathlst), str(uselib)])
-		if not Params.g_options.nocache:
-			if hash in self.m_cache_table:
-				#print "cache for tryBuild found !!!  skipping ", hash
-				return self.m_cache_table[hash]
-
-		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
-		# if the folder already exists, remove it
-		for (root, dirs, filenames) in os.walk(dir):
-			for f in list(filenames):
-				os.remove(os.path.join(root, f))
-
-		bdir = os.path.join( dir, '_build_')
-		try: os.makedirs(dir)
-		except: pass
-		try: os.makedirs(bdir)
-		except: pass
-
-		dest=open(os.path.join(dir, 'test.c'), 'w')
-		dest.write(code)
-		dest.close()
-
-		env = self.env.copy()
-		Utils.reset()
-	
-		back=os.path.abspath('.')
-
-		bld = Build.Build()
-		bld.load_dirs(dir, bdir, isconfigure=1)
-		bld.m_allenvs['default'] = env
-
-		os.chdir(dir)
-
-		for t in env['tools']: env.setup(**t)
-
-		# not sure yet when to call this:
-		#bld.rescan(bld.m_srcnode)
-
-		# TODO for the moment it is c++, in the future it will be c
-		# and then we may need other languages here too
-		if env['CXX']:
-			import cpp
-			obj=cpp.cppobj('program')
-		else:
-			import cc
-			obj=cc.ccobj('program')
-
-		obj.source = 'test.c'
-		obj.target = 'test'
-		obj.uselib = uselib
-
-		envcopy = bld.m_allenvs['default'].copy()
-		for p in pathlst:
-			envcopy['CPPFLAGS'].append(' -I%s ' % p)
-
-		(a,b,c) = Params.get_trace()
-		quiet = Runner.g_quiet
-		try:
-			Params.set_trace(0,0,0)
-			Runner.g_quiet = 1
-			ret = bld.compile()
-		except:
-			ret = 1
-			#raise
-		Params.set_trace(a,b,c)
-		Runner.g_quiet = quiet
-
-		#if runopts is not None:
-		#	ret = os.popen(obj.m_linktask.m_outputs[0].abspath(obj.env)).read().strip()
-
-		os.chdir(back)
-		Utils.reset()
-
-		if not ret: self.m_cache_table[hash] = ret
-		return ret
-
-	def TryRun(self, code, options='', pathlst=[], uselib=''):
-		""" Uses the cache """
-
-		hash = "".join(['TryRun', code, str(options), str(pathlst), str(uselib)])
-		if not Params.g_options.nocache:
-			if hash in self.m_cache_table:
-				#print "cache for tryBuild found !!!  skipping ", hash
-				return self.m_cache_table[hash]
-
-		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
-		# if the folder already exists, remove it
-		for (root, dirs, filenames) in os.walk(dir):
-			for f in list(filenames):
-				os.remove(os.path.join(root, f))
-
-		bdir = os.path.join( dir, '_build_')
-		try: os.makedirs(dir)
-		except: pass
-		try: os.makedirs(bdir)
-		except: pass
-
-		dest=open(os.path.join(dir, 'test.c'), 'w')
-		dest.write(code)
-		dest.close()
-
-		env = self.env.copy()
-		Utils.reset()
-	
-		back=os.path.abspath('.')
-
-		bld = Build.Build()
-		bld.load_dirs(dir, bdir, isconfigure=1)
-		bld.m_allenvs['default'] = env
-
-		os.chdir(dir)
-
-		for t in env['tools']: env.setup(**t)
-
-		# not sure yet when to call this:
-		#bld.rescan(bld.m_srcnode)
-
-		# TODO for the moment it is c++, in the future it will be c
-		# and then we may need other languages here too
-		if env['CXX']:
-			import cpp
-			obj=cpp.cppobj('program')
-		else:
-			import cc
-			obj=cc.ccobj('program')
-
-		obj.source = 'test.c'
-		obj.target = 'test'
-		obj.uselib = uselib
-
-		envcopy = bld.m_allenvs['default'].copy()
-		for p in pathlst:
-			envcopy['CPPFLAGS'].append(' -I%s ' % p)
-
-		try:
-			ret = bld.compile()
-		except:
-			ret = 1
-			raise
-
-		ret = os.popen(obj.m_linktask.m_outputs[0].abspath(obj.env)).read().strip()
-
-		os.chdir(back)
-		Utils.reset()
-
-		self.m_cache_table[hash] = ret
-		return ret
-
-
-
-
-
-
-
-
-
-
-
-
-
 	def checkMessage(self,type,msg,state,option=''):
-		"""print an checking message. This function is used by other checking functions"""
+		"print an checking message. This function is used by other checking functions"
 		sr = 'Checking for ' + type + ' ' + msg
 
 		lst = []
@@ -1078,33 +871,6 @@ class Configure:
 		p=Params.pprint
 		if state: p('GREEN', 'ok ' + option)
 		else: p('YELLOW', 'not found')
-
-	def checkMessageCustom(self,type,msg,custom,option=''):
-		"""print an checking message. This function is used by other checking functions"""
-		sr = 'Checking for ' + type + ' ' + msg
-
-		lst = []
-		lst.append(sr)
-
-		global g_maxlen
-		dist = len(sr)
-		if dist > g_maxlen:
-			g_maxlen = dist+1
-
-		if dist < g_maxlen:
-			diff = g_maxlen - dist
-			while diff>0:
-				lst.append(' ')
-				diff -= 1
-
-		lst.append(':')
-		print ''.join(lst),
-
-		p=Params.pprint
-		p('CYAN', custom)
-
-
-
 
 	def hook(self, func):
 		"attach the function given as input as new method"
@@ -1130,7 +896,6 @@ class Configure:
 			Runner.g_quiet = self._quiet
 
 
-
 	def create_program_enumerator(self):
 		return program_enumerator(self)
 
@@ -1154,7 +919,7 @@ class Configure:
 
 	def create_header_configurator(self):
 		return header_configurator(self)
-		
+
 	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
 		if not env: env=self.env
 
@@ -1174,239 +939,4 @@ class Configure:
 			return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 		except:
 			return ''
-
-
-
-
-
-
-
-	# OBSOLETE
-
-
-
-	def check(self, obj):
-		"compile, etc"
-		def checkS(ret, cached):
-			res = int(not ret)
-			if obj.fun == 'check_function':
-				if not obj.define_name:
-       		                 	obj.define_name = 'HAVE_'+obj.function_name.upper().replace('.','_').replace('/','_')
-				self.addDefine(obj.define_name, res)
-				self.checkMessage('function', obj.function_name+cached, res)
-			elif obj.fun == 'check_header':
-				if not obj.define_name:
-					obj.define_name = 'HAVE_'+obj.header_name.upper().replace('.','_').replace('/','_')
-				self.addDefine(obj.define_name, res)
-				#self.checkMessage('header', obj.header_name+cached, res)
-			elif obj.fun == 'check_flags':
-				self.checkMessage('flags', obj.flags, res)
-
-
-		# first make sure the code to execute is defined
-		if not obj.code:
-			if obj.fun == 'check_header':
-				obj.code = """
-%s
-#include <%s>
-int main() {
-	return 0;
-}
-""" % (obj.headers_code, obj.header_name)
-			elif obj.fun == 'check_function':
-				p=obj.function_name
-				if not '(' in p:
-					p = p+'();'
-				elif not ';' in obj.function_name:
-					p = p+';'
-				obj.code = """
-%s
-int main() {
-	%s
-        return 0;
-}
-""" % (obj.headers_code, p)
-			else:
-				fatal('no code to process in check')
-				
-		# do not run the test if it is in cache
-		#hash = "".join([obj.fun, obj.code])
-		hash = obj.hash()
-
-		# return early if "--nocache" on the command-line was given - do not re-run the compilation
-		if not Params.g_options.nocache:
-			if hash in self.m_cache_table:
-				#print "cache for tryBuild found !!!  skipping ", hash
-				ret = self.m_cache_table[hash]
-				if obj.fun == 'try_build_and_exec':
-					return ret
-				if obj.fun == 'find_library':
-					return ret
-				checkS(ret, " (cached)")
-
-				#if obj.fun == 'check_function':
-				#	self.checkMessage('function', obj.function_name+' (cached)', not str(ret))
-				#elif obj.fun == 'check_header':
-				#	self.checkMessage('header', obj.header_name+' (cached)', not str(ret))
-
-				return ret
-
-		# create a small folder for testing
-		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
-
-		# if the folder already exists, remove it
-		for (root, dirs, filenames) in os.walk(dir):
-			for f in list(filenames):
-				os.remove(os.path.join(root, f))
-
-		bdir = os.path.join( dir, '_build_')
-		try: os.makedirs(dir)
-		except: pass
-		try: os.makedirs(bdir)
-		except: pass
-
-
-		dest=open(os.path.join(dir, 'test.c'), 'w')
-		dest.write(obj.code)
-		dest.close()
-
-		if obj.env:
-			env = obj.env
-		else:
-			env = self.env.copy()
-
-		Utils.reset()
-	
-		back=os.path.abspath('.')
-
-		bld = Build.Build()
-		bld.load_dirs(dir, bdir, isconfigure=1)
-		bld.m_allenvs['default'] = env
-
-		os.chdir(dir)
-
-		for t in env['tools']: env.setup(**t)
-
-		# not sure yet when to call this:
-		#bld.rescan(bld.m_srcnode)
-
-		if env['CXX']:
-			import cpp
-			o=cpp.cppobj('program')
-		else:
-			import cc
-			o=cc.ccobj('program')
-
-		o.source   = 'test.c'
-		o.target   = 'testprog'
-		o.uselib   = obj.uselib
-		o.cppflags = obj.flags
-		o.includes = obj.includes
-
-
-		# compile the program
-		self.mute_logging()
-		try:
-			ret = bld.compile()
-			self.restore_logging()
-		except:
-			ret = 1
-			self.restore_logging()
-
-		# keep the name of the program to execute
-		if obj.fun == 'try_build_and_exec':
-			lastprog = o.m_linktask.m_outputs[0].abspath(o.env)
-
-		#if runopts is not None:
-		#	ret = os.popen(obj.m_linktask.m_outputs[0].abspath(obj.env)).read().strip()
-
-		os.chdir(back)
-		Utils.reset()
-
-		checkS(ret, "")
-		if not obj.fun in ['check_function', 'check_header', 'check_flags']:
-			# store the results of the build
-			if not ret: self.m_cache_table[hash] = ret
-		else:
-			self.m_cache_table[hash] = ret
-
-		# if we need to run the program, try to get its result
-		if obj.fun == 'try_build_and_exec':
-			if ret: return None
-			try:
-				ret = os.popen(lastprog).read().strip()
-				self.m_cache_table[hash] = ret
-			except:
-				pass
-
-		return ret
-
-
-
-
-
-	# TODO for the moment it will do the same as try_build
-	def try_compile(self, code, env='', uselib=''):
-		"check if a c/c++ piece of code compiles"
-		obj        = check()
-		obj.fun    = 'try_compile'
-		obj.code   = code
-		obj.env    = env
-		obj.uselib = uselib
-		self.check(obj)
-
-	def try_build(self, code, env='', uselib=''):
-		"check if a c/c++ piece of code compiles and links into a program"
-		obj        = check()
-		obj.fun    = 'try_build'
-		obj.code   = code
-		obj.env    = env
-		obj.uselib = uselib
-		return self.check(obj)
-
-	def try_build_and_exec(self, code, env='', uselib='', options=''):
-		"check if a c/c++ piece of code compiles and then return its output (None if it does not compile)"
-		obj         = check()
-		obj.fun     = 'try_build_and_exec'
-		obj.code    = code
-		obj.env     = env
-		obj.uselib  = uselib
-		obj.options = options
-		return self.check(obj)
-
-
-
-
-
-	def check_header(self, header_name, define_name='', headers_code='', includes=[]):
-		"check if a header is available in the include path given and set a define"
-		obj               = check()
-		obj.fun           = 'check_header'
-		obj.define_name   = define_name
-		obj.header_name   = header_name
-		obj.headers_code  = headers_code
-		obj.includes      = includes
-		obj.env           = self.env
-		return self.check(obj)
-
-	def check_function(self, function_name, define_name='', headers_code=''):
-		"check if a function exists in the include path "
-		obj               = check()
-		obj.fun           = 'check_function'
-		obj.function_name = function_name
-		obj.define_name   = define_name
-		obj.headers_code  = headers_code
-		obj.env           = self.env
-		return self.check(obj)
-
-	def check_flags(self, flags):
-		obj               = check()
-		obj.fun           = 'check_flags'
-		obj.flags         = flags
-		obj.code          = 'int main() { return 0; }\n'
-		obj.env           = self.env
-		return not self.check(obj)
-
-
-	### autoconfig_xxx functions end
 
