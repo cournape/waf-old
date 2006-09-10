@@ -242,10 +242,10 @@ class library_enumerator(enumerator_base):
 
 	def validate(self):
 		if not self.path:
-			self.path = ['/usr/lib/', '/usr/local/lib/']
+			self.path = ['/usr/lib/', '/usr/local/lib/', '/lib']
 		else:
 			if not self.nosystem:
-				self.path += ['/usr/lib/', '/usr/local/lib/']
+				self.path += ['/usr/lib/', '/usr/local/lib/', '/lib']
 
 	def run_test(self):
 		ret=''
@@ -336,7 +336,7 @@ class cfgtool_configurator(configurator_base):
 		found = 1
 		
 		try:
-			ret = os.popen(bincflagscom).close()
+			ret = os.popen('%s --help' % self.binary).close()
 			if ret: raise "error"
 
 			for flag in self.tests:
@@ -437,6 +437,7 @@ class pkgconfig_configurator(configurator_base):
 
 		return retval
 
+# ok
 class test_configurator(configurator_base):
 	def __init__(self, conf):
 		configurator_base.__init__(self, conf)
@@ -461,6 +462,7 @@ class test_configurator(configurator_base):
 		obj = check_data()
 		obj.code = self.code
 		obj.env  = self.env
+		obj.uselib = self.uselib
 		obj.execute = 1
 		ret = self.conf.run_check(obj)
 
@@ -492,7 +494,7 @@ class library_configurator(configurator_base):
 
 	def validate(self):
 		if not self.path:
-			self.path = ['/usr/lib/', '/usr/local/lib', '/lib', '/opt/lib/']
+			self.path = ['/usr/lib/', '/usr/local/lib', '/lib']
 
 	def run_test(self):
 		library_enumerator = self.conf.create_library_enumerator()
