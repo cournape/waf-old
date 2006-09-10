@@ -222,22 +222,20 @@ class function_enumerator(enumerator_base):
 
 class library_enumerator(enumerator_base):
 	def __init__(self, conf):
-		enumerator_base.__init__(self,conf)
+		enumerator_base.__init__(self, conf)
 
-		self.names		= []
-		self.paths		= []
-		self.code		= 'int main() {return 0;}'
-		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
+		self.name = ''
+		self.path = []
+		self.code = 'int main() {return 0;}'
 
-	def run_cache(self,retvalue):
-		if retvalue:
-			self.conf.checkMessage('library %s (cached)' % retvalue['name'], '', 1, option=retvalue['path'])
-		else:
-			for name in self.names:
-				self.conf.checkMessage('library %s (cached)' % name, '', 0, option='')
+	def error(self):
+		fatal('library %s cannot be found' % self.name)
+
+	def run_cache(self, retvalue):
+		self.conf.checkMessage('library %s (cached)' % retvalue['name'], '', 1, option=retvalue['path'])
 
 	def update_hash(self,md5hash):
-		enumerator_base.update_hash(self,md5hash)
+		enumerator_base.update_hash(self, md5hash)
 		md5hash.update(str(self.env['LIBPATH']))
 
 	def run_test(self):
@@ -249,36 +247,30 @@ class library_enumerator(enumerator_base):
 		foundpath = ''
 		found = {}
 
-		code = self.code
-		if not code: code = "\n\nint main() {return 0;}\n"
-
 		ret=''
 		
 		if self.paths:
 
-			for libname in self.names:
-				for libpath in self.paths:
+			for libpath in self.paths:
 
-					#First look for a shared library
-					full_libname=env['shlib_PREFIX']+libname+env['shlib_SUFFIX']
-					ret = find_file(full_libname, [libpath])
-					
-					#If no shared lib was found, look for a static one
-					if not ret:
-						full_libname=env['staticlib_PREFIX']+libname+env['staticlib_SUFFIX']
-						ret = find_file(full_libname, [libpath])				
+				#First look for a shared library
+				full_libname=env['shlib_PREFIX']+libname+env['shlib_SUFFIX']
+				ret = find_file(full_libname, [libpath])
+				
+				#If no shared lib was found, look for a static one
+				if not ret:
+					full_libname=env['staticlib_PREFIX']+libname+env['staticlib_SUFFIX']
+					ret = find_file(full_libname, [libpath])				
 	
-					if ret:
-						foundname = libname
-						foundpath = libpath
-						found['name'] = foundname
-						found['path'] = foundpath
-						break
+				if ret:
+					foundname = libname
+					foundpath = libpath
+					found['name'] = foundname
+					found['path'] = foundpath
+					break
 
-				self.conf.checkMessage('library '+libname, '', ret, option=libpath)
+			self.conf.checkMessage('library '+libname, '', ret, option=libpath)
 
-				if ret: break
-		
 		if not ret:
 			# Either lib was not found in the libpaths
 			#or no paths were given. Test if the compiler can find the lib anyway
@@ -441,33 +433,34 @@ class cfgtool_configurator(configurator_base):
 		self.conf.checkMessage('config-tool '+self.binary, '', ret, option='')
 		return retval
 
+# ok
 class pkgconfig_configurator(configurator_base):
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
 
-		self.name		= ''
-		self.version		= ''
-		self.path		= ''
-		self.uselib_name        = ''
-		self.binary		= ''
-		self.variables		= []
-		self.mandatory_errormsg	= 'No matching pkg-config package could be found. It is likely that the software to which the package belongs is not installed.'
+		self.name        = ''
+		self.version     = ''
+		self.path        = ''
+		self.uselib_name = '' # can be set automatically
+		self.define_name = '' # can be set automatically
+		self.binary      = ''
+		self.variables   = []
+
+	def error(self):
+		if self.version: fatal('pkg-config cannot find %s >= %s' % (self.name, self.version))
+		fatal('pkg-config cannot find %s' % self.name)
 
 	def validate(self):
-		try: self.names = self.names.split()
-		except: pass
-
 		if not self.uselib_name: self.uselib_name = self.name.upper()
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
-	def run_cache(self,retvalue):
-		if retvalue:
-			self.update_env(retvalue)
-			self.conf.addDefine(self.define_name, 1)
+	def run_cache(self, retval):
+		if self.version:
+			self.conf.checkMessage('package %s >= %s (cached)' % (self.name, self.version), '', retval, option='')
 		else:
-			self.conf.addDefine(self.define_name, 0)
-
-		self.conf.checkMessage('package %s (cached)' % self.name, '', retvalue, option='')
+			self.conf.checkMessage('package %s (cached)' % self.name, '', retval, option='')
+		self.conf.addDefine(self.define_name, retval)
+		self.update_env(retval)
 
 	def run_test(self):
 		pkgpath = self.path
@@ -487,7 +480,7 @@ class pkgconfig_configurator(configurator_base):
 				if ret: raise "error"
 			else:
 				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
-				self.conf.checkMessage('package %s ' % (self.name), '', not ret)
+				self.conf.checkMessage('package %s' % (self.name), '', not ret)
 				if ret: raise "error"
 				
 			retval['CCFLAGS_'+uselib]   = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
