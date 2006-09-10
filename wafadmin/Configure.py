@@ -3,13 +3,13 @@
 
 import os, types, sys, string, imp, cPickle, md5
 import Params, Environment, Runner, Build, Utils
-from Params import debug, error, trace, fatal
+from Params import debug, error, trace, fatal, warning
 
 
 import traceback
 
 
-g_maxlen = 35
+g_maxlen = 45
 g_debug  = 0
 
 
@@ -644,7 +644,7 @@ class header_configurator(configurator_base):
 
 
 
-
+# deprecated (should be removed soon)
 class check:
 	def __init__(self):
 		self.fun           = '' # function calling
@@ -683,9 +683,6 @@ class check:
 
 class Configure:
 	def __init__(self, env=None, blddir='', srcdir=''):
-		#for key in self.env.m_table:
-		#	if key == 'modules':
-		#		self.modules = self.env[key].split()
 
 		self.env       = None
 		self.m_envname = ''
@@ -696,7 +693,7 @@ class Configure:
 		self.m_allenvs = {}
 		self.defines = {}
 		self.configheader = 'config.h'
-		self.cwd  = os.getcwd()
+		self.cwd = os.getcwd()
 
 		self.setenv('default')
 
@@ -716,18 +713,16 @@ class Configure:
 		self._c=0
 		self._quiet=0
 
-	def __del__(self):
-		if not self.env['tools']:
-			error('you should add at least a checkTool() call in your wscript, otherwise you cannot build anything')
-
 	def set_env_name(self, name, env):
+		"add a new environment called name"
 		self.m_allenvs[name] = env
 		return env
 
 	def retrieve(self, name, fromenv=None):
+		"retrieve an environment called name"
 		try:
 			env = self.m_allenvs[name]
-			if fromenv: print "warning, the environment %s may have been configured already" % name
+			if fromenv: warning("The environment %s may have been configured already" % name)
 			return env
 		except:
 			env = Environment.Environment()
@@ -735,19 +730,33 @@ class Configure:
 			return env
 
 	def setenv(self, name):
+		"enable the environment called name"
 		self.env     = self.retrieve(name)
 		self.envname = name
 
-	def execute(self):
-		"""for what is this function"""
-		env = Environment.Environment()
-		sys.path.append('bksys')
-		for module in self.modules:
-			module = __import__(module)
-			if module.exists(env):
-				env = module.generate(env)
-		filename = env['OS'] + '.env'
-		env.store(filename)
+	def find_program(self, program_name, path_list=[], var=None):
+		"wrapper provided for convenience"
+		ret = find_program_impl(self.env, program_name, path_list, var)
+		self.checkMessage('program', program_name, ret, ret)
+		return ret
+
+	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin=''):
+		"wrapper provided for convenience"
+		pkgconf = self.create_pkgconfig_configurator()
+
+		if not destvar: destvar = modname.upper()
+
+		pkgconf.uselib_name = destvar
+		pkgconf.name = modname
+		pkgconf.version = vnum
+		pkgconf.path = pkgpath
+		pkgconf.binary = pkgbin
+		return pkgconf.run()
+
+
+
+
+
 
 	def TryBuild(self, code, options='', pathlst=[], uselib=''):
 		""" Uses the cache """
@@ -913,6 +922,7 @@ class Configure:
 		# Task/Action class
 		return Runner.exec_command('%s test.c -o test %s 2>test.log '% (self.env['CPP'], str(options)) )
 
+
 	def addDefine(self, define, value, quote=-1):
 		"""store a single define and its state into an internal list 
 		   for later writing to a config header file"""
@@ -942,6 +952,8 @@ class Configure:
 			return self.defines[define]
 		else:
 			return 0
+
+
 
 	def writeConfigHeader(self, configfile='config.h', env=''):
 		"""save the defines into a file"""
@@ -979,6 +991,21 @@ class Configure:
 		"""set a config header file"""
 		self.configheader = header
 		pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	# OBSOLETE
 	def checkHeader(self, header, define='', pathlst=[]):
@@ -1033,26 +1060,6 @@ int main() {
 		self.checkMessage('function',function,is_found)
 		self.addDefine(define,is_found)
 		return is_found
-
-	# keep, dammit!
-	def find_program(self, program_name, path_list=[], var=None):
-		ret = find_program_impl(self.env, program_name, path_list, var)
-		self.checkMessage('program', program_name, ret, ret)
-		return ret
-
-	# keep
-	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin=''):
-
-		pkgconf = self.create_pkgconfig_configurator()
-
-		if not destvar: destvar = modname.upper()
-
-		pkgconf.uselib_name = destvar
-		pkgconf.name = modname
-		pkgconf.version = vnum
-		pkgconf.path = pkgpath
-		pkgconf.binary = pkgbin
-		return pkgconf.run()
 
 
 
