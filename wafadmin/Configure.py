@@ -77,8 +77,8 @@ def find_program_using_which(lenv, prog):
 
 class enumerator_base:
 	def __init__(self, conf):
-		self.env                = None
 		self.conf               = conf
+		self.env                = conf.env
 		self.define_name        = ''
 		self.mandatory          = 0
 		self.mandatory_errormsg	= 'A mandatory check failed. Make sure all dependencies are ok and can be found.'
@@ -100,7 +100,6 @@ class enumerator_base:
 	def validate(self):
 		try: self.names = self.names.split()
 		except: pass
-		if not self.env: self.env = self.conf.env
 
 	def hash(self):
 		m = md5.new()
@@ -441,7 +440,6 @@ class cfgtool_configurator(configurator_base):
 	def validate(self):
 		try: self.names = self.names.split()
 		except: pass
-		if not self.env: self.env = self.conf.env
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
 	def print_message_cached(self, retval):
@@ -478,7 +476,7 @@ class cfgtool_configurator(configurator_base):
 		return retval
 
 class pkgconfig_configurator(configurator_base):
-	def __init__(self,conf):
+	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
 
 		self.name		= ''
@@ -492,7 +490,6 @@ class pkgconfig_configurator(configurator_base):
 	def validate(self):
 		try: self.names = self.names.split()
 		except: pass
-		if not self.env: self.env = self.conf.env
 
 		if not self.uselib_name: self.uselib_name = self.name.upper()
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
@@ -572,10 +569,10 @@ class library_configurator(configurator_base):
 		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
 
 
-	def print_message_cached(self,retval):
+	def print_message_cached(self, retval):
 		#if not define_name: define_name = 'HAVE_'+self.uselib_name
-		if retvalue:
-			self.conf.checkMessage('library '+retvalue[0]+' (cached)', '', 1, option=retvalue[1])
+		if retval:
+			self.conf.checkMessage('library '+retval['name']+' (cached)', '', 1, option=retval['path'])
 			self.update_env(retval)
 			self.conf.addDefine(self.define_name, 1)
 		else:
@@ -587,7 +584,6 @@ class library_configurator(configurator_base):
 	def validate(self):
 		try: self.names = self.names.split()
 		except: pass
-		if not self.env: self.env = self.conf.env
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
 	def run_impl(self):
@@ -617,7 +613,6 @@ class header_configurator(configurator_base):
 	def validate(self):
 		try: self.names = self.names.split()
 		except: pass
-		if not self.env: self.env = self.conf.env
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
 	def print_message_cached(self,retvalue):

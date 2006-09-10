@@ -391,9 +391,9 @@ QtXml_debug
 QtXml
 '''
 
-	pkgconf = conf.create_pkgconfig_configurator()
 	for i in vars.split():
 		#conf.check_pkg(i, pkgpath=qtlibs)
+		pkgconf = conf.create_pkgconfig_configurator()
 		pkgconf.name = i
 		pkgconf.path = qtlibs
 		pkgconf.run()
