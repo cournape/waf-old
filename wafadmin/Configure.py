@@ -106,7 +106,7 @@ class enumerator_base:
 		self.update_hash(m)
 		return m.digest()
 
-	def print_message_cached(self, retvalue):
+	def run_cache(self, retvalue):
 		pass
 	
 	def run(self):
@@ -115,7 +115,7 @@ class enumerator_base:
 			newhash = self.hash()
 			try:
 				ret = self.conf.m_cache_table[newhash]
-				self.print_message_cached(ret)
+				self.run_cache(ret)
 				return ret
 			except KeyError:
 				pass
@@ -150,7 +150,7 @@ class program_enumerator(enumerator_base):
 		self.var                = None
 		self.mandatory_errormsg	= 'The program cannot be found. Building cannot be performed without this program. Make sure it is installed and can be found.'
 
-	def print_message_cached(self,retvalue):
+	def run_cache(self,retvalue):
 		self.conf.checkMessage('program %s (cached)' % self.name, '', retvalue, option=retvalue)
 
 	def run_impl(self):
@@ -170,7 +170,7 @@ class function_enumerator(enumerator_base):
 		self.lib_paths		= []
 		self.mandatory_errormsg	= 'This function could not be found in the specified headers and libraries. Make sure you have the right headers & libraries installed.'
 
-	def print_message_cached(self,retvalue):
+	def run_cache(self,retvalue):
 		if retvalue:
 			self.conf.checkMessage('function '+retvalue+' (cached)', '', 1, option='')
 		else:
@@ -263,7 +263,7 @@ class library_enumerator(enumerator_base):
 		self.code		= ''
 		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
 
-	def print_message_cached(self,retvalue):
+	def run_cache(self,retvalue):
 		if retvalue:
 			self.conf.checkMessage('library %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
 		else:
@@ -357,7 +357,7 @@ class header_enumerator(enumerator_base):
 		self.code			= ''
 		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
 
-	def print_message_cached(self,retvalue):
+	def run_cache(self,retvalue):
 		if retvalue:
 			self.conf.checkMessage('header %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
 		else:
@@ -442,7 +442,7 @@ class cfgtool_configurator(configurator_base):
 		except: pass
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
-	def print_message_cached(self, retval):
+	def run_cache(self, retval):
 		if retval:
 			self.update_env(retval)
 			self.conf.addDefine(self.define_name, 1)
@@ -494,7 +494,7 @@ class pkgconfig_configurator(configurator_base):
 		if not self.uselib_name: self.uselib_name = self.name.upper()
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
-	def print_message_cached(self,retvalue):
+	def run_cache(self,retvalue):
 		if retvalue:
 			self.update_env(retvalue)
 			self.conf.addDefine(self.define_name, 1)
@@ -569,7 +569,7 @@ class library_configurator(configurator_base):
 		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
 
 
-	def print_message_cached(self, retval):
+	def run_cache(self, retval):
 		#if not define_name: define_name = 'HAVE_'+self.uselib_name
 		if retval:
 			self.conf.checkMessage('library '+retval['name']+' (cached)', '', 1, option=retval['path'])
@@ -615,7 +615,7 @@ class header_configurator(configurator_base):
 		except: pass
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
-	def print_message_cached(self,retvalue):
+	def run_cache(self,retvalue):
 		if retvalue:
 			self.update_env(retvalue)
 			self.conf.checkMessage('library %s (cached)' % str(retvalue), '', 1, option=str(retvalue[1]))
