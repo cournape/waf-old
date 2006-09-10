@@ -64,6 +64,7 @@ def find_program_impl(lenv, file, path_list=None, var=None):
 			return ret
 	return ''
 
+# TODO
 def find_program_using_which(lenv, prog):
 	if lenv['WINDOWS']: # we're not depending on Cygwin
 		return ''
@@ -76,20 +77,21 @@ def find_program_using_which(lenv, prog):
 
 class enumerator_base:
 	def __init__(self, conf):
-		self.conf               = conf
-		self.env                = conf.env
-		self.define_name        = ''
-		self.mandatory          = 0
-		self.mandatory_errormsg	= 'A mandatory check failed. Make sure all dependencies are ok and can be found.'
+		self.conf        = conf
+		self.env         = conf.env
+		self.define_name = ''
+		self.mandatory   = 0
+
+	def error(self):
+		fatal('A mandatory check failed. Make sure all dependencies are ok and can be found.')
 
 	def update_hash(self, md5hash):
 		classvars = vars(self)
 		for (var, value) in classvars.iteritems():
-			if callable(var):                    continue
-			if value == self:                    continue
-			if value == self.env:                continue
-			if value == self.conf:               continue
-			if value == self.mandatory_errormsg: continue
+			if callable(var):          continue
+			if value == self:          continue
+			if value == self.env:      continue
+			if value == self.conf:     continue
 			md5hash.update(str(value))
 
 	def update_env(self, hashtable):
@@ -122,135 +124,101 @@ class enumerator_base:
 		ret = self.run_test()
 		
 		if self.mandatory and not ret:
-			fatal(self.mandatory_errormsg)
+			self.error()
 
 		if not Params.g_options.nocache:
-			# Store the result no matter if it failed or not; if it is mandatory, Python never comes here anyway	
 			self.conf.m_cache_table[newhash] = ret
 		return ret
-		
-	
+
 	# Override this method, not run()!
 	def run_test(self):
 		return 0
 
-
+# ok
 class configurator_base(enumerator_base):
-	def __init__(self,conf):
-		enumerator_base.__init__(self,conf)
-		self.uselib_name	= ''
+	def __init__(self, conf):
+		enumerator_base.__init__(self, conf)
+		self.uselib_name = ''
 
+# ok
 class program_enumerator(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
 	
-		self.name               = ''
-		self.path               = []
-		self.var                = None
-		self.mandatory_errormsg	= 'The program cannot be found. Building cannot be performed without this program. Make sure it is installed and can be found.'
+		self.name = ''
+		self.path = []
+		self.var  = None
 
-	def run_cache(self,retvalue):
-		self.conf.checkMessage('program %s (cached)' % self.name, '', retvalue, option=retvalue)
+	def error(self):
+		fatal('program %s cannot be found' % self.name)
+
+	def run_cache(self, retval):
+		self.conf.checkMessage('program %s (cached)' % self.name, '', retval, option=retval)
+		if self.var: self.env[self.var] = retval
 
 	def run_test(self):
-		ret = find_program_impl(self.env, self.name, self.paths, self.var)
+		ret = find_program_impl(self.env, self.name, self.path, self.var)
 		self.conf.checkMessage('program', self.name, ret, ret)
+		if self.var: self.env[self.var] = retval
 		return ret
 
+# ok
 class function_enumerator(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
 
-		self.function_calls	= []
-		self.headers		= []
-		self.include_paths	= []
-		self.header_code	= ''
-		self.libs		= []
-		self.lib_paths		= []
-		self.mandatory_errormsg	= 'This function could not be found in the specified headers and libraries. Make sure you have the right headers & libraries installed.'
+		self.function      = ''
+		self.define        = ''
 
-	def run_cache(self,retvalue):
-		if retvalue:
-			self.conf.checkMessage('function '+retvalue+' (cached)', '', 1, option='')
-		else:
-			for funccall in self.function_calls:
-				self.conf.checkMessage('function %s (cached)' % str(funccall[0]), '', 0, option='')
+		self.headers       = []
+		self.header_code   = ''
+		self.custom_code   = ''
+
+		self.include_paths = []
+		self.libs          = []
+		self.lib_paths     = []
+
+	def error(self):
+		fatal('function %s cannot be found' % self.function)
+
+	def run_cache(self, retval):
+		self.conf.checkMessage('function %s (cached)' % self.function, '', 1, option='')
+		self.conf.addDefine(self.define_name, retval)
 
 	def run_test(self):
-		foundname = ''
-	
-		ret = ''
+		ret = 0 # not found
 
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
 
-		for funccall in self.function_calls:
-		
-			code = self.header_code
-			for header in self.headers:
-				code=code+"#include <%s>\n" % header
-			
-			# If a third column is present and not empty, use the given code
-			# (the third column contains optional custom code for probing functions; useful for overloaded functions)
-			customcheck = 0
-			if len(funccall)>=3:
-				if funccall[2]: customcheck = 1			
-			
-			if customcheck:
-				code+="""
-int main()
-{
-	%s
-	return 0;
-}
-""" % funccall[2];
-				
-			else:
-				code+="""
-int main()
-{
-	void *p;
-	p=(void*)(%s);
-	return 0;
-}
-""" % funccall[0];
+		code = []
+		code.append(self.header_code)
+		code.append('\n')
+		for header in self.headers:
+			code.append('#include <%s>\n' % header)
 
-			self.env['LIB'] = self.libs
-			self.env['LIBPATH'] = self.lib_paths
+		if self.custom_code:
+			code.append('int main(){%s\nreturn 0;}\n' % self.custom_code)
+		else:
+			code.append('int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % self.function)
 
-			obj               = check_data()
-			obj.define_name   = self.define_name
-			obj.code          = code
-			obj.includes      = self.include_paths
-			obj.env           = self.env
+		self.env['LIB'] = self.libs
+		self.env['LIBPATH'] = self.lib_paths
 
-			ret = self.conf.run_check(obj)
-			
-			self.conf.checkMessage('function %s' % funccall[0], '', not ret, option='')
+		obj               = check_data()
+		obj.code          = "\n".join(code)
+		obj.includes      = self.include_paths
+		obj.env           = self.env
 
-			# If a second column is present and not empty, set the given defines
-			# (the second column contains optional defines to be set)
-			if len(funccall)>=2:
-				if funccall[1]:
-				
-					# Necessary because direct assignment of "not ret" results in "True" or "False", but not 0 or 1
-					if ret:
-						retnum = 0
-					else:
-						retnum = 1
-				
-					self.env[funccall[1]]=retnum
-					self.conf.addDefine(funccall[1],retnum)
+		ret = int(not self.conf.run_check(obj))
+		self.conf.checkMessage('function %s' % self.function, '', ret, option='')
 
-			if not ret:
-				# Store the found name
-				foundname = funccall[0]
-				break
+		self.conf.addDefine(self.define, ret)
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
 				
-		return foundname
+		return ret
 
 class library_enumerator(enumerator_base):
 	def __init__(self, conf):
@@ -389,12 +357,13 @@ class header_enumerator(enumerator_base):
 						
 				if ret: break
 					
-		if not ret: # Either the header was not found in the incpaths, or no paths were given. Test if the compiler can find the header anyway
+		if not ret:
+			# Either the header was not found in the incpaths
+			# or no paths were given. Test if the compiler can find the header anyway
 		
 			for headername in self.names:
 
 				obj               = check_data()
-				#obj.define_name   = self.define_name #TODO: should this be '' ? The define is set below anyway
 				obj.header_name   = headername
 				obj.code          = self.code
 				obj.env           = env
@@ -963,6 +932,18 @@ class Configure:
 			return ''
 
 
+	def check_header(self, header_name, define_name='', headers_code='', includes=[]):
+		"check if a header is available in the include path given and set a define (provided for convenience)"
+
+		obj = self.create_header_configurator()
+		#obj               = check()
+		#obj.fun           = 'check_header'
+		#obj.define_name   = define_name
+		#obj.header_name   = header_name
+		#obj.headers_code  = headers_code
+		#obj.includes      = includes
+		#obj.env           = self.env
+		#return self.check(obj)
 
 	def run_check(self, obj):
 		"compile, link and run if necessary"
