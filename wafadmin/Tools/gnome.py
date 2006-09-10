@@ -233,6 +233,8 @@ def setup(env):
 
 def detect(conf):
 
+	conf.checkTool('checks')
+
 	pocom = conf.find_program('msgfmt')
 	if not pocom:
 		fatal('The program msgfmt (gettext) is mandatory!')
