@@ -615,7 +615,7 @@ class header_configurator(configurator_base):
 		except: pass
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
-	def run_cache(self,retvalue):
+	def run_cache(self, retvalue):
 		if retvalue:
 			self.update_env(retvalue)
 			self.conf.checkMessage('library %s (cached)' % str(retvalue), '', 1, option=str(retvalue[1]))
@@ -729,6 +729,34 @@ class Configure:
 			self.m_allenvs[name] = env
 			return env
 
+	def checkTool(self, input, tooldir=None):
+		"Load a waf tool"
+		if type(input) is types.ListType: lst = input
+		else: lst = input.split()
+
+		ret = True
+		for i in lst:
+			ret = ret and self._checkToolImpl(i, tooldir)
+		return ret
+
+	def _checkToolImpl(self, tool, tooldir=None):
+		"Private method, do not use directly"
+		define = 'HAVE_'+tool.upper().replace('.','_').replace('+','P')
+
+		if self.isDefined(define):
+			return self.getDefine(define)
+
+		try:
+			file,name,desc = imp.find_module(tool, tooldir)
+		except: 
+			print "no tool named '" + tool + "' found"
+			return 
+		module = imp.load_module(tool,file,name,desc)
+		ret = int(module.detect(self))
+		self.addDefine(define, ret)
+		self.env.appendValue('tools', {'tool':tool, 'tooldir':tooldir})
+		return ret
+	
 	def setenv(self, name):
 		"enable the environment called name"
 		self.env     = self.retrieve(name)
@@ -739,6 +767,17 @@ class Configure:
 		ret = find_program_impl(self.env, program_name, path_list, var)
 		self.checkMessage('program', program_name, ret, ret)
 		return ret
+
+	def store(self, file=''):
+		"Save the config results into the cache file"
+		try: os.makedirs(Params.g_cachedir)
+		except OSError: pass
+
+		if not self.m_allenvs:
+			fatal("nothing to store in Configure !")
+		for key in self.m_allenvs:
+			tmpenv = self.m_allenvs[key]
+			tmpenv.store(os.path.join(Params.g_cachedir, key+'.cache.py'))
 
 	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin=''):
 		"wrapper provided for convenience"
@@ -753,6 +792,40 @@ class Configure:
 		pkgconf.binary = pkgbin
 		return pkgconf.run()
 
+	def sub_config(self, dir):
+		"executes the configure function of a wscript module"
+		current = self.cwd
+
+		self.cwd = os.path.join(self.cwd, dir)
+		cur = os.path.join(self.cwd, 'wscript')
+
+		try:
+			mod = Utils.load_module(cur)
+		except:
+			msg = "no module or function configure was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+			fatal(msg % self.cwd)
+
+		# TODO check
+		#if not 'configure' in mod:
+		#	fatal('the module has no configure function')
+		mod.configure(self)
+		self.cwd = current
+
+	def cleanup(self):
+		"called on shutdown"
+		try:
+			dir = os.sep.join([os.environ['HOME'], '.wafcache'])
+			try:
+				os.makedirs(dir)
+			except:
+				pass
+
+			file = open(os.sep.join([os.environ['HOME'], '.wafcache', 'runs.txt']), 'wb')
+			cPickle.dump(self.m_cache_table, file)
+			file.close()
+		except:
+			raise
+			pass
 
 
 	def addDefine(self, define, value, quote=-1):
@@ -773,19 +846,12 @@ class Configure:
 		self.env[define] = value
 	
 	def isDefined(self, define):
-		if self.defines.has_key(define):
-			return 1
-		else:
-			return 0
+		return self.defines.has_key(define)
 
 	def getDefine(self, define):
-		"""get the value of a previously stored define"""
-		if self.defines.has_key(define):
-			return self.defines[define]
-		else:
-			return 0
-
-
+		"get the value of a previously stored define"
+		try: return self.defines[define]
+		except: return 0
 
 	def writeConfigHeader(self, configfile='config.h', env=''):
 		"""save the defines into a file"""
@@ -822,9 +888,6 @@ class Configure:
 	def setConfigHeader(self, header):
 		"""set a config header file"""
 		self.configheader = header
-		pass
-
-
 
 
 
@@ -991,164 +1054,6 @@ class Configure:
 
 
 
-
-
-	# OBSOLETE
-	def _checkHeader(self, header, define='', pathlst=[]):
-		"""find a C/C++ header"""
-		if type(header) is types.ListType:
-			for i in header: 
-				self.checkHeader(i, pathlst=pathlst)
-			return
-			
-		if define == '':
-			define = 'HAVE_'+header.upper().replace('.','_').replace('/','_')
-
-		if self.isDefined(define):
-			return self.getDefine(define)
-	
-		code = """
-#include <%s>
-int main() {
-	return 0;
-}
-""" % header
-		is_found = int(not self.TryBuild(code, pathlst=pathlst))
-		self.checkMessage('header',header,is_found)
-		self.addDefine(define,is_found)
-		return is_found
-	
-	# OBSOLETE
-	def checkFunction(self, function, headers = None, define='', language = None):
-		"""find a function"""
-		if define == '':
-			define = 'HAVE_'+function.upper().replace('.','_')
-
-		if self.isDefined(define):
-			return self.getDefine(define)
-
-		if not headers:
-			headers = """
-#ifdef __cplusplus
-extern "C"
-#endif
-char %s();
-""" % function
-
-		code = """
-int main() {
-	%s();
-	return 0;
-}
-""" % function
-
-		is_found = int(not self.TryBuild(headers + code))
-		self.checkMessage('function',function,is_found)
-		self.addDefine(define,is_found)
-		return is_found
-
-
-
-
-
-
-
-
-
-
-	def checkLibrary(self, libname, funcname=None, headers=None, define='', uselib=''):
-		"""find a library"""
-		upname = libname.upper().replace('.','_')
-		if define == '':
-			define = 'HAVE_'+upname
-
-		# wait ???? TODO
-		#if self.isDefined(define):
-		#	return self.getDefine(define)
-
-		if not headers and funcname:
-			headers = """
-#ifdef __cplusplus
-extern "C"
-#endif
-char %s();
-""" % funcname
-
-			code = """
-int main() {
-	%s();
-	return 0;
-}
-""" % funcname
-		elif not headers and not funcname: 
-			headers = ""
-			code = """
-int main() { return 0; }
-"""
-		else:
-			code = """
-int main() {
-	%s();
-	return 0;
-}
-""" % funcname
-		
-		self.env['LINKFLAGS_'+upname] = self.env['LIB_ST'] % libname
-
-		
-
-		# TODO setup libpath
-		libpath = "."
-
-		ret = self.TryBuild(headers + code, pathlst = [libpath], uselib=uselib)
-
-		is_found = int(not ret)
-		self.checkMessage('library', libname, is_found)
-		self.addDefine(define, is_found)
-		return is_found
-
-	def checkTool(self, input, tooldir=None):
-		"""check if a waf tool is available"""
-		if type(input) is types.ListType: lst = input
-		else: lst = input.split()
-
-		ret = True
-		for i in lst:
-			ret = ret and self._checkToolImpl(i, tooldir)
-		return ret
-
-	def _checkToolImpl(self, tool, tooldir=None):
-		define = 'HAVE_'+tool.upper().replace('.','_').replace('+','P')
-
-		if self.isDefined(define):
-			return self.getDefine(define)
-
-		try:
-			file,name,desc = imp.find_module(tool, tooldir)
-		except: 
-			print "no tool named '" + tool + "' found"
-			return 
-		module = imp.load_module(tool,file,name,desc)
-		ret = int(module.detect(self))
-		self.addDefine(define, ret)
-		self.env.appendValue('tools', {'tool':tool, 'tooldir':tooldir})
-		return ret
-			
-	def checkModule(self,tool):
-		"""check if a a user provided module is given"""
-		pass
-
-	def store(self, file=''):
-		"""save config results into a cache file"""
-		try: os.makedirs(Params.g_cachedir)
-		except OSError: pass
-
-		if not self.m_allenvs:
-			fatal("nothing to store in Configure !")
-		for key in self.m_allenvs:
-			tmpenv = self.m_allenvs[key]
-			tmpenv.store(os.path.join(Params.g_cachedir, key+'.cache.py'))
-
 	def checkMessage(self,type,msg,state,option=''):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for ' + type + ' ' + msg
@@ -1198,52 +1103,16 @@ int main() {
 		p=Params.pprint
 		p('CYAN', custom)
 
-	def detect(self,tool):
-		"""deprecated, replaced by checkTool"""
-		return self.checkTool(tool)
-	
-	def sub_config(self, dir):
-		current = self.cwd
 
-		self.cwd = os.path.join(self.cwd, dir)
-		cur = os.path.join(self.cwd, 'wscript')
 
-		try:
-			mod = Utils.load_module(cur)
-		except:
-			msg = "no module or function configure was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-			fatal(msg % self.cwd)
-		#try:
-		mod.configure(self)
-		#except AttributeError:
-		#	msg = "no configure function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-		#	fatal(msg % self.cwd)
-
-		self.cwd = current
-
-	# this method is called usually only once
-	def cleanup(self):
-		try:
-			dir = os.sep.join([os.environ['HOME'], '.wafcache'])
-			try:
-				os.makedirs(dir)
-			except:
-				pass
-
-			file = open(os.sep.join([os.environ['HOME'], '.wafcache', 'runs.txt']), 'wb')
-			cPickle.dump(self.m_cache_table, file)
-			file.close()
-		except:
-			raise
-			pass
 
 	def hook(self, func):
-		# attach the function given as input as new method
+		"attach the function given as input as new method"
 		setattr(self.__class__, func.__name__, func) 
 
 	def mute_logging(self):
+		"mutes the output temporarily"
 		if Params.g_options.verbose: return
-
 		# store the settings
 		(self._a,self._b,self._c) = Params.get_trace()
 		self._quiet = Runner.g_quiet
@@ -1253,8 +1122,8 @@ int main() {
 			Runner.g_quiet = 1
 
 	def restore_logging(self):
+		"see mute_logging"
 		if Params.g_options.verbose: return
-
 		# restore the settings
 		if not g_debug:
 			Params.set_trace(self._a,self._b,self._c)
@@ -1262,6 +1131,57 @@ int main() {
 
 
 
+	def create_program_enumerator(self):
+		return program_enumerator(self)
+
+	def create_library_enumerator(self):
+		return library_enumerator(self)
+
+	def create_header_enumerator(self):
+		return header_enumerator(self)
+
+	def create_function_enumerator(self):
+		return function_enumerator(self)
+
+	def create_pkgconfig_configurator(self):
+		return pkgconfig_configurator(self)
+
+	def create_cfgtool_configurator(self):
+		return cfgtool_configurator(self)
+
+	def create_library_configurator(self):
+		return library_configurator(self)
+
+	def create_header_configurator(self):
+		return header_configurator(self)
+		
+	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
+		if not env: env=self.env
+
+		if not pkgbin: pkgbin='pkg-config'
+		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
+		pkgcom = '%s %s' % (pkgpath, pkgbin)
+		try:
+			if pkgversion:
+				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, pkgversion, pkgname)).close()
+				self.conf.checkMessage('package %s >= %s' % (pkgname, pkgversion), '', not ret)
+				if ret: raise "error"
+			else:
+				ret = os.popen("%s %s" % (pkgcom, pkgname)).close()
+				self.conf.checkMessage('package %s ' % (pkgname), '', not ret)
+				if ret: raise "error"
+
+			return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
+		except:
+			return ''
+
+
+
+
+
+
+
+	# OBSOLETE
 
 
 
@@ -1488,57 +1408,5 @@ int main() {
 		return not self.check(obj)
 
 
-
-
-	def create_program_enumerator(self):
-		return program_enumerator(self)
-
-	def create_library_enumerator(self):
-		return library_enumerator(self)
-
-	def create_header_enumerator(self):
-		return header_enumerator(self)
-
-	def create_function_enumerator(self):
-		return function_enumerator(self)
-
-
-	def create_pkgconfig_configurator(self):
-		return pkgconfig_configurator(self)
-
-	def create_cfgtool_configurator(self):
-		return cfgtool_configurator(self)
-
-	def create_library_configurator(self):
-		return library_configurator(self)
-
-	def create_header_configurator(self):
-		return header_configurator(self)
-		
-	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
-		if not env: env=self.env
-
-		if not pkgbin: pkgbin='pkg-config'
-		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
-		pkgcom = '%s %s' % (pkgpath, pkgbin)
-		try:
-			if pkgversion:
-				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, pkgversion, pkgname)).close()
-				self.conf.checkMessage('package %s >= %s' % (pkgname, pkgversion), '', not ret)
-				if ret: raise "error"
-			else:
-				ret = os.popen("%s %s" % (pkgcom, pkgname)).close()
-				self.conf.checkMessage('package %s ' % (pkgname), '', not ret)
-				if ret: raise "error"
-
-			return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
-		except:
-			return ''
-
-
-### autoconfig_xxx functions end
-
-
-
-
+	### autoconfig_xxx functions end
 
