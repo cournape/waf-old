@@ -230,6 +230,7 @@ class library_enumerator(enumerator_base):
 		self.path = []
 		self.code = 'int main() {return 0;}'
 		self.uselib = '' # to set the LIB_NAME and LIBPATH_NAME
+		self.nosystem = 0 # do not use standard lib paths
 
 	def error(self):
 		fatal('library %s cannot be found' % self.name)
@@ -241,7 +242,10 @@ class library_enumerator(enumerator_base):
 
 	def validate(self):
 		if not self.path:
-			self.path = ['/usr/lib/', '/lib/', '/opt/lib/', '/usr/local/lib/']
+			self.path = ['/usr/lib/', '/usr/local/lib/']
+		else:
+			if not self.nosystem:
+				self.path += ['/usr/lib/', '/usr/local/lib/']
 
 	def run_test(self):
 		ret=''
