@@ -384,21 +384,27 @@ class header_enumerator(enumerator_base):
 #######################################################################
 ## CONFIGURATORS
 
+# ok
 class cfgtool_configurator(configurator_base):
 	def __init__(self,conf):
-		configurator_base.__init__(self,conf)
+		configurator_base.__init__(self, conf)
 
-		self.define_name        = ''
-		self.binary		= ''
-		self.cflagsparam 	= '--cflags'
-		self.cppflagsparam	= '--cflags'
-		self.libsparam		= '--libs'
-		self.mandatory_errormsg	= 'The config tool cannot be found. Most likely the software to which the tool belongs is not installed.'
+		self.define_name   = ''
+		self.binary        = ''
+
+		self.tests = {}
+		self.uselib_name   = ''
+
+	def error(self):
+		fatal('%s cannot be found' % self.binary)
 
 	def validate(self):
-		try: self.names = self.names.split()
-		except: pass
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
+
+		if not self.tests:
+			self.tests['--cflags'] = 'CCFLAGS'
+			self.tests['--cflags'] = 'CXXFLAGS'
+			self.tests['--libs']   = 'LINKFLAGS'
 
 	def run_cache(self, retval):
 		if retval:
@@ -410,27 +416,24 @@ class cfgtool_configurator(configurator_base):
 
 	def run_test(self):
 		retval = {}
-
-		#TODO: replace the "2>/dev/null" with some other mechanism for suppressing the stderr output
-		bincflagscom = '%s %s 2>/dev/null' % (self.binary, self.cflagsparam)
-		bincppflagscom = '%s %s 2>/dev/null' % (self.binary, self.cppflagsparam)
-		binlibscom = '%s %s 2>/dev/null' % (self.binary, self.libsparam)
-				
+		found = 1
+		
 		try:
 			ret = os.popen(bincflagscom).close()
 			if ret: raise "error"
 
-			retval['CCFLAGS_'+self.uselib_name]   = [os.popen(bincflagscom).read().strip()]
-			retval['CXXFLAGS_'+self.uselib_name]  = [os.popen(bincppflagscom).read().strip()]
-			retval['LINKFLAGS_'+self.uselib_name] = [os.popen(binlibscom).read().strip()]
+			for flag in self.tests:
+				var = self.tests[flag]+'_'+self.uselib_name
+				cmd = '%s %s 2>/dev/null' % (self.binary, flag)
+				retval[var] = [os.popen(cmd).read().strip()]
 
 			self.update_env(retval)
-			self.conf.addDefine(self.define_name, 1)
 		except:
 			retval = {}
-			self.conf.addDefine(self.define_name, 0)
+			found = 0
 
-		self.conf.checkMessage('config-tool '+self.binary, '', ret, option='')
+		self.conf.addDefine(self.define_name, found)
+		self.conf.checkMessage('config-tool '+self.binary, '', found, option='')
 		return retval
 
 # ok
