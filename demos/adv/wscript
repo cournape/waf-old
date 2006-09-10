@@ -32,7 +32,7 @@ def package(bld):
 
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
-	conf.checkTool('checks gcc g++ dang flex bison')
+	conf.checkTool('gcc g++ dang flex bison')
 
 
 
@@ -46,7 +46,7 @@ def configure(conf):
 	conf.addDefine('HAVE_SOMETHING', 1)
 
 	#conf.checkEndian()
-	conf.checkFeatures()
+	#conf.checkFeatures()
 	
 	conf.addDefine('TEST_DEFINE', 345)
 
@@ -63,10 +63,10 @@ int main()
         printf("ahoy");
         return 0;
 }"""
-	ret = conf.try_build_and_exec(code) # the method conf.try_build( works too
+	#ret = conf.try_build_and_exec(code) # the method conf.try_build( works too
 
-	conf.checkMessage('ahoj', '', 'ahoy'==ret) # boolean needed
-	conf.addDefine('AHOJ', ret)
+	#conf.checkMessage('ahoj', '', 'ahoy'==ret) # boolean needed
+	#conf.addDefine('AHOJ', ret)
 
 	#conf.find_program_impl('cat', ['/usr/bin', '/bin'])
 	pc = conf.create_program_enumerator()
@@ -75,10 +75,10 @@ int main()
 	pc.run()
 
 
-	conf.check_header('stdio.h')
-	conf.check_header('stdarg.h', 'HAVE_STDARG_H')
-	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
-	conf.check_function('printf("a")', define_name="PRINTF_FUN", headers_code='#include <stdio.h>')
+	#conf.check_header('stdio.h')
+	#conf.check_header('stdarg.h', 'HAVE_STDARG_H')
+	#conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
+	#conf.check_function('printf("a")', define_name="PRINTF_FUN", headers_code='#include <stdio.h>')
 
 	#conf.find_library('X11', ['/usr/lib','/usr/X11R6/lib'], define_name='X11_DIR')
 
@@ -99,6 +99,7 @@ int main()
 	#conf.detect_library('XCURSOR', 'Xcursor', ['/usr/lib','/usr/X11R6/lib'])
 	
 	#check for std flags that could be used with obj.uselib = "GLOBAL"
+	"""
 	conf.env['CCFLAGS_GLOBAL'] = []
 	conf.env['CXXFLAGS_GLOBAL'] = []
 	if conf.check_flags('-Wno-pointer-sign'):
@@ -110,6 +111,7 @@ int main()
 	if conf.check_flags('-fno-strict-aliasing'):
 		conf.env['CCFLAGS_GLOBAL'].append('-fno-strict-aliasing')
 		conf.env['CXXFLAGS_GLOBAL'].append('-fno-strict-aliasing')
+	"""
 
 	headers='sys/wait.h fcntl.h sys/ioctl.h sys/time.h unistd.h \
 	sys/file.h string.h strings.h ctype.h stdlib.h stdarg.h stdint.h \
@@ -118,11 +120,13 @@ int main()
 	
 	#check for headers and append found headers to headers_found
 	#so i could be used later
+	"""
 	headers_found = []
 	for header in headers.split():
 		if not conf.check_header(header):
 			headers_found.append(header)
-	
+	"""	
+
 	#check for ALL function in check_for_this using found headers
 	check_for_this=[
 		['mktime', 'HAVE_MKTIME'], ['timegm', 'HAVE_TIMEGM'], ['gettimeofday', 'HAVE_GETTIMEOFDAY'],
@@ -132,7 +136,7 @@ int main()
 		['snprintf','HAVE_SNPRINTF'], ['vsnprintf', 'HAVE_VSNPRINTF']
 	]
 	functionfind = conf.create_function_enumerator()
-	functionfind.headers = headers_found
+	#functionfind.headers = headers_found
 	functionfind.include_paths = ['/usr/include']
 	for func in check_for_this:
 		functionfind.function_calls = [func]
@@ -141,22 +145,22 @@ int main()
 #include <time.h>
 struct tm t; t.tm_gmtoff = 0;
 """
-	if conf.TryBuild(code):
-		conf.addDefine('HAVE_TM_GMTON', 1)
+	#if conf.TryBuild(code):
+	#	conf.addDefine('HAVE_TM_GMTON', 1)
 
 	code = """
 #include <sys/time.h>
 struct timeval tv; timerisset(&tv); timerclear(&tv); timercmp(&tv, &tv, <);
 timeradd(&tv, &tv, &tv); timersub(&tv, &tv, &tv);
 """
-	if conf.TryBuild(code):
-		conf.addDefine('HAVE_TIMEOPS', 1)
+	#if conf.TryBuild(code):
+	#	conf.addDefine('HAVE_TIMEOPS', 1)
 
 	code = """
 #include <termios.h>
 struct termios t; cfsetspeed(&t, B9600);
 """
-	if conf.TryBuild(code):
+	if 1: #conf.TryBuild(code):
 		conf.addDefine('HAVE_CFSETSPEED', 1)
 	else:
 		code = """
@@ -180,8 +184,8 @@ struct termios t; cfsetispeed(&t, B9600);  cfsetospeed(&t, B9600);
 #include <sys/socket.h>
 struct msghdr msg; msg.msg_control;
 """
-	if conf.TryBuild(code):
-		conf.addDefine('HAVE_MSGHDR_MSG_CONTROL', 1)
+	#if conf.TryBuild(code):
+	#	conf.addDefine('HAVE_MSGHDR_MSG_CONTROL', 1)
 
 	code = """
 #define  _XOPEN_SOURCE 500
@@ -213,8 +217,8 @@ int main()
     exit(0);
 }																										
 """
-	if conf.TryBuild(code):
-		conf.addDefine('USE_UNIX98PTYS', 1)
+	#if conf.TryBuild(code):
+	#	conf.addDefine('USE_UNIX98PTYS', 1)
 
 
 
@@ -223,7 +227,8 @@ int main()
 
 	# This demonstrates that after testing the specified paths, the compiler is given a chance
 	# to see if it can find the header by itself
-	
+
+
 	headerconf.uselib_name='STDL'
 	headerconf.names=['stdlib.h']
 	headerconf.paths=['/zapp/brannigan']

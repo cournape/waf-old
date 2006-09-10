@@ -119,7 +119,7 @@ class enumerator_base:
 			except KeyError:
 				pass
 		
-		ret = self.run_impl()
+		ret = self.run_test()
 		
 		if self.mandatory and not ret:
 			fatal(self.mandatory_errormsg)
@@ -131,7 +131,7 @@ class enumerator_base:
 		
 	
 	# Override this method, not run()!
-	def run_impl(self):
+	def run_test(self):
 		return 0
 
 
@@ -152,7 +152,7 @@ class program_enumerator(enumerator_base):
 	def run_cache(self,retvalue):
 		self.conf.checkMessage('program %s (cached)' % self.name, '', retvalue, option=retvalue)
 
-	def run_impl(self):
+	def run_test(self):
 		ret = find_program_impl(self.env, self.name, self.paths, self.var)
 		self.conf.checkMessage('program', self.name, ret, ret)
 		return ret
@@ -176,7 +176,7 @@ class function_enumerator(enumerator_base):
 			for funccall in self.function_calls:
 				self.conf.checkMessage('function %s (cached)' % str(funccall[0]), '', 0, option='')
 
-	def run_impl(self):
+	def run_test(self):
 		foundname = ''
 	
 		ret = ''
@@ -218,14 +218,13 @@ int main()
 			self.env['LIB'] = self.libs
 			self.env['LIBPATH'] = self.lib_paths
 
-			obj               = check()
-			obj.fun           = ''
+			obj               = check_data()
 			obj.define_name   = self.define_name
 			obj.code          = code
 			obj.includes      = self.include_paths
 			obj.env           = self.env
 
-			ret = self.conf.check(obj)
+			ret = self.conf.run_check(obj)
 			
 			self.conf.checkMessage('function %s' % funccall[0], '', not ret, option='')
 
@@ -254,17 +253,17 @@ int main()
 		return foundname
 
 class library_enumerator(enumerator_base):
-	def __init__(self,conf):
+	def __init__(self, conf):
 		enumerator_base.__init__(self,conf)
 
 		self.names		= []
 		self.paths		= []
-		self.code		= ''
+		self.code		= 'int main() {return 0;}'
 		self.mandatory_errormsg	= 'No matching library could be found. Make sure the library is installed and can be found.'
 
 	def run_cache(self,retvalue):
 		if retvalue:
-			self.conf.checkMessage('library %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
+			self.conf.checkMessage('library %s (cached)' % retvalue['name'], '', 1, option=retvalue['path'])
 		else:
 			for name in self.names:
 				self.conf.checkMessage('library %s (cached)' % name, '', 0, option='')
@@ -273,7 +272,7 @@ class library_enumerator(enumerator_base):
 		enumerator_base.update_hash(self,md5hash)
 		md5hash.update(str(self.env['LIBPATH']))
 
-	def run_impl(self):
+	def run_test(self):
 		env = self.env
 		oldlibpath = env['LIBPATH']
 		oldlib = env['LIB']
@@ -320,11 +319,11 @@ class library_enumerator(enumerator_base):
 				env['LIB'] = [libname]
 
 				env['LIBPATH'] = ['']
-				obj               = check()
+
+				obj               = check_data()
 				obj.code          = code
-				obj.fun           = 'find_library'
 				obj.env           = env
-				ret = self.conf.check(obj)
+				ret = self.conf.run_check(obj)
 
 				self.conf.checkMessage('library %s via linker' % libname, '', not ret, option='')
 				#self.conf.checkMessage('library '+libname, '', not ret, option='')
@@ -353,17 +352,17 @@ class header_enumerator(enumerator_base):
 
 		self.names			= []
 		self.paths			= []
-		self.code			= ''
+		self.code			= 'int main() {return 0;}'
 		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
 
 	def run_cache(self,retvalue):
 		if retvalue:
-			self.conf.checkMessage('header %s (cached)' % retvalue[0], '', 1, option=retvalue[1])
+			self.conf.checkMessage('header %s (cached)' % retvalue['name'], '', 1, option=retvalue['path'])
 		else:
 			for name in self.names:
 				self.conf.checkMessage('header %s (cached)' % name, '', 0, option='')
 
-	def run_impl(self):
+	def run_test(self):
 		env = self.env
 
 		foundname = ''
@@ -393,14 +392,13 @@ class header_enumerator(enumerator_base):
 		if not ret: # Either the header was not found in the incpaths, or no paths were given. Test if the compiler can find the header anyway
 		
 			for headername in self.names:
-				
-				obj               = check()
-				obj.fun           = 'check_header'
-				obj.define_name   = self.define_name #TODO: should this be '' ? The define is set below anyway
+
+				obj               = check_data()
+				#obj.define_name   = self.define_name #TODO: should this be '' ? The define is set below anyway
 				obj.header_name   = headername
-				obj.headers_code  = self.code
+				obj.code          = self.code
 				obj.env           = env
-				ret = self.conf.check(obj)
+				ret = self.conf.run_check(obj)
 					
 				if not ret:
 					foundname = headername
@@ -449,7 +447,7 @@ class cfgtool_configurator(configurator_base):
 			self.conf.addDefine(self.define_name, 0)
 		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retval, option='')
 
-	def run_impl(self):
+	def run_test(self):
 		retval = {}
 
 		#TODO: replace the "2>/dev/null" with some other mechanism for suppressing the stderr output
@@ -502,7 +500,7 @@ class pkgconfig_configurator(configurator_base):
 
 		self.conf.checkMessage('package %s (cached)' % self.name, '', retvalue, option='')
 
-	def run_impl(self):
+	def run_test(self):
 		pkgpath = self.path
 		pkgbin = self.binary
 		uselib = self.uselib_name
@@ -585,7 +583,7 @@ class library_configurator(configurator_base):
 		except: pass
 		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
 
-	def run_impl(self):
+	def run_test(self):
 		library_enumerator = self.conf.create_library_enumerator()
 		library_enumerator.names = self.names
 		library_enumerator.paths = self.paths
@@ -605,7 +603,7 @@ class header_configurator(configurator_base):
 
 		self.names			= []
 		self.paths			= []
-		self.code			= ''
+		self.code			= 'int main() {return 0;}'
 		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
 
 
@@ -617,14 +615,14 @@ class header_configurator(configurator_base):
 	def run_cache(self, retvalue):
 		if retvalue:
 			self.update_env(retvalue)
-			self.conf.checkMessage('library %s (cached)' % str(retvalue), '', 1, option=str(retvalue[1]))
-			self.conf.addDefine(define_name, 1)
+			self.conf.checkMessage('library %s (cached)' % retvalue['name'], '', 1, option=retvalue['path'])
+			self.conf.addDefine(self.define_name, 1)
 		else:
-			self.conf.addDefine(define_name, 0)
+			self.conf.addDefine(self.define_name, 0)
 			for name in self.names:
 				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
 
-	def run_impl(self):	
+	def run_test(self):	
 		header_enumerator = self.conf.create_header_enumerator()
 		header_enumerator.names = self.names
 		header_enumerator.paths = self.paths
@@ -638,6 +636,30 @@ class header_configurator(configurator_base):
 
 # CONFIGURATORS END
 #######################################################################
+
+class check_data:
+	def __init__(self):
+
+		self.env           = '' # environment to use
+
+		self.code          = '' # the code to execute
+
+		self.flags         = '' # the flags to give to the compiler
+
+		self.uselib        = '' # uselib
+		self.includes      = '' # include paths
+
+		self.function_name = '' # function to check for
+
+		self.lib           = []
+		self.libpath       = [] # libpath for linking
+
+		self.define_name   = '' # define to add if run is successful
+
+		self.header_name   = '' # header name to check for
+
+		self.execute       = 0  # execute the program produced and return its output
+		self.options       = '' # command-line options
 
 class Configure:
 	def __init__(self, env=None, blddir='', srcdir=''):
@@ -939,4 +961,92 @@ class Configure:
 			return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 		except:
 			return ''
+
+
+
+	def run_check(self, obj):
+		"compile, link and run if necessary"
+
+		# first make sure the code to execute is defined
+		if not obj.code:
+			error('run_check: no code to process in check')
+			raise
+
+		# create a small folder for testing
+		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
+
+		# if the folder already exists, remove it
+		for (root, dirs, filenames) in os.walk(dir):
+			for f in list(filenames):
+				os.remove(os.path.join(root, f))
+
+		bdir = os.path.join( dir, '_build_')
+		try: os.makedirs(dir)
+		except: pass
+		try: os.makedirs(bdir)
+		except: pass
+
+		dest=open(os.path.join(dir, 'test.c'), 'w')
+		dest.write(obj.code)
+		dest.close()
+
+		if obj.env: env = obj.env
+		else: env = self.env.copy()
+
+		# very important
+		Utils.reset()
+	
+		back=os.path.abspath('.')
+
+		bld = Build.Build()
+		bld.load_dirs(dir, bdir, isconfigure=1)
+		bld.m_allenvs['default'] = env
+
+		os.chdir(dir)
+
+		for t in env['tools']: env.setup(**t)
+
+		# not sure yet when to call this:
+		#bld.rescan(bld.m_srcnode)
+
+		if env['CXX']:
+			import cpp
+			o=cpp.cppobj('program')
+		else:
+			import cc
+			o=cc.ccobj('program')
+
+		o.source   = 'test.c'
+		o.target   = 'testprog'
+		o.uselib   = obj.uselib
+		o.cppflags = obj.flags
+		o.includes = obj.includes
+
+		# compile the program
+		self.mute_logging()
+		try:
+			ret = bld.compile()
+			self.restore_logging()
+		except:
+			ret = 1
+			self.restore_logging()
+
+		# keep the name of the program to execute
+		if obj.execute:
+			lastprog = o.m_linktask.m_outputs[0].abspath(o.env)
+
+		#if runopts is not None:
+		#	ret = os.popen(obj.m_linktask.m_outputs[0].abspath(obj.env)).read().strip()
+
+		os.chdir(back)
+		Utils.reset()
+
+		# if we need to run the program, try to get its result
+		if obj.execute:
+			if ret: return None
+			try:
+				ret = os.popen(lastprog).read().strip()
+			except:
+				pass
+		return ret
 
