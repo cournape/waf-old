@@ -75,6 +75,7 @@ def find_program_using_which(lenv, prog):
 #######################################################################
 ## ENUMERATORS
 
+# TODO add for loop to run the same test over lists
 class enumerator_base:
 	def __init__(self, conf):
 		self.conf        = conf
@@ -231,12 +232,14 @@ class library_enumerator(enumerator_base):
 		self.code = 'int main() {return 0;}'
 		self.uselib = '' # to set the LIB_NAME and LIBPATH_NAME
 		self.nosystem = 0 # do not use standard lib paths
+		self.want_message = 1
 
 	def error(self):
 		fatal('library %s cannot be found' % self.name)
 
 	def run_cache(self, retval):
-		self.conf.checkMessage('library %s (cached)' % self.name, '', 1, option=retval)
+		if self.want_message:
+			self.conf.checkMessage('library %s (cached)' % self.name, '', 1, option=retval)
 		self.env['LIB_'+self.uselib] = self.name
 		self.env['LIBPATH_'+self.uselib] = retval
 
@@ -257,7 +260,8 @@ class library_enumerator(enumerator_base):
 			name = self.env['staticlib_PREFIX']+self.name+self.env['staticlib_SUFFIX']
 			ret  = find_file(name, self.path)
 
-		self.conf.checkMessage('library '+self.name, '', ret, option=ret)
+		if self.want_message:
+			self.conf.checkMessage('library '+self.name, '', ret, option=ret)
 		if self.uselib:
 			self.env['LIB_'+self.uselib] = self.name
 			self.env['LIBPATH_'+self.uselib] = ret
@@ -474,6 +478,7 @@ class test_configurator(configurator_base):
 
 		return ret
 
+# ok
 class library_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
@@ -481,14 +486,15 @@ class library_configurator(configurator_base):
 		self.name = ''
 		self.path = []
 		self.define = ''
+		self.uselib = ''
 
 		self.code = 'int main(){ return 0; }'
 
 	def error(self):
-		fatal('library %s cannot be linked')
+		fatal('library %s cannot be linked' % self.name)
 
 	def run_cache(self, retval):
-		self.conf.checkMessage('library %s (cached)' % self.name, '', 1, option=retval)
+		self.conf.checkMessage('library %s (cached)' % self.name, '', 1)
 		self.env['LIB_'+self.uselib] = self.name
 		self.env['LIBPATH_'+self.uselib] = retval
 
@@ -496,56 +502,122 @@ class library_configurator(configurator_base):
 		if not self.path:
 			self.path = ['/usr/lib/', '/usr/local/lib', '/lib']
 
+		if not self.uselib: self.uselib = self.name.upper()
+		if not self.define: self.define = 'HAVE_'+self.uselib
+
+		if not self.uselib: fatal('uselib is not defined')
+		if not self.code: fatal('library enumerator must have code to compile')
+
 	def run_test(self):
-		library_enumerator = self.conf.create_library_enumerator()
-		library_enumerator.names = self.names
-		library_enumerator.paths = self.paths
-		library_enumerator.code = self.code
-		library_enumerator.define_name = self.define_name
-		library_enumerator.env = self.env
-		ret = library_enumerator.run()
+		oldlibpath = self.env['LIBPATH']
+		oldlib = self.env['LIB']
+
+		# try the enumerator to find the correct libpath
+		test = self.conf.create_library_enumerator()
+		test.name = self.name
+		test.want_message = 0
+		test.path = self.path
+		test.env = self.env
+		ret = test.run()
 
 		if ret:
-			self.env['LIB_'+self.uselib_name]     = ret['name']
-			self.env['LIBPATH_'+self.uselib_name] = ret['path']
-		return ret
+			self.env['LIBPATH_'+self.uselib] = ret
 
+		self.env['LIB_'+self.uselib] = self.name
+
+		val = {}
+
+		#self.env['LIB'] = self.name
+		#self.env['LIBPATH'] = self.lib_paths
+
+		obj               = check_data()
+		obj.code          = self.code
+		obj.env           = self.env
+		obj.uselib        = self.uselib
+
+		ret = int(not self.conf.run_check(obj))
+		self.conf.checkMessage('library %s' % self.name, '', ret)
+
+		self.conf.addDefine(self.define, ret)
+
+		if ret:
+			val['LIBPATH_'+self.uselib] = self.env['LIBPATH_'+self.uselib]
+			val['LIB_'+self.uselib] = self.env['LIB_'+self.uselib]
+			val[self.define] = ret
+
+		self.env['LIB'] = oldlib
+		self.env['LIBPATH'] = oldlibpath
+
+		if not ret: return {}
+		return val
+
+# ok
 class header_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
 
-		self.name = []
-		self.path = []
+		self.name = ''
+		self.include_paths = []
+		self.header_code = ''
+		self.custom_code = ''
 		self.code = 'int main() {return 0;}'
+
+		self.define = '' # HAVE_something
+
+		self.libs = []
+		self.lib_paths = []
+		self.uselib = ''
 
 	def error(self):
 		fatal('header %s cannot be found via compiler' % self.name)
 
 	def validate(self):
-		try: self.names = self.names.split()
-		except: pass
-		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
+		#try: self.names = self.names.split()
+		#except: pass
+		#if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
+
+		if not self.code: self.code = "#include <%s>\nint main(){return 0;}\n"
+
+		if not self.code: fatal('no code to run')
+		if not self.define: fatal('no define given')
 
 	def run_cache(self, retvalue):
-		if retvalue:
-			self.update_env(retvalue)
-			self.conf.checkMessage('library %s (cached)' % retvalue['name'], '', 1, option=retvalue['path'])
-			self.conf.addDefine(self.define_name, 1)
-		else:
-			self.conf.addDefine(self.define_name, 0)
-			for name in self.names:
-				self.conf.checkMessage('header '+name+' (cached)', '', 0, option='')
+		self.update_env(retvalue)
+		self.conf.checkMessage('header %s (cached)' % self.name, '', 1)
+		self.conf.addDefine(self.define_name, 1)
 
-	def run_test(self):	
-		header_enumerator = self.conf.create_header_enumerator()
-		header_enumerator.names = self.names
-		header_enumerator.paths = self.paths
-		header_enumerator.code = self.code
-		header_enumerator.define_name = self.define_name
-		ret = header_enumerator.run()
-		
-		if ret:
-			self.env['CPPPATH_'+self.uselib_name] = ret['path']
+	def run_test(self):
+		ret = {} # not found
+
+		oldlibpath = self.env['LIBPATH']
+		oldlib = self.env['LIB']
+
+		code = []
+		code.append(self.header_code)
+		code.append('\n')
+		code.append('#include <%s>\n' % self.name)
+
+		code.append('int main(){%s\nreturn 0;}\n' % self.custom_code)
+
+		self.env['LIB'] = self.libs
+		self.env['LIBPATH'] = self.lib_paths
+
+		obj               = check_data()
+		obj.code          = "\n".join(code)
+		obj.includes      = self.include_paths
+		obj.env           = self.env
+		obj.uselib        = self.uselib
+
+		ret = int(not self.conf.run_check(obj))
+		self.conf.checkMessage('header %s' % self.name, '', ret, option='')
+
+		self.conf.addDefine(self.define, ret)
+
+		self.env['LIB'] = oldlib
+		self.env['LIBPATH'] = oldlibpath
+
+		if not ret: return {}
+		ret = {self.define: 1}
 		return ret
 
 # CONFIGURATORS END
@@ -904,19 +976,6 @@ class Configure:
 		except:
 			return ''
 
-
-	def check_header(self, header_name, define_name='', headers_code='', includes=[]):
-		"check if a header is available in the include path given and set a define (provided for convenience)"
-
-		obj = self.create_header_configurator()
-		#obj               = check()
-		#obj.fun           = 'check_header'
-		#obj.define_name   = define_name
-		#obj.header_name   = header_name
-		#obj.headers_code  = headers_code
-		#obj.includes      = includes
-		#obj.env           = self.env
-		#return self.check(obj)
 
 	def run_check(self, obj):
 		"compile, link and run if necessary"
