@@ -220,91 +220,45 @@ class function_enumerator(enumerator_base):
 				
 		return ret
 
+# ok
 class library_enumerator(enumerator_base):
+	"find a library in a list of paths"
 	def __init__(self, conf):
 		enumerator_base.__init__(self, conf)
 
 		self.name = ''
 		self.path = []
 		self.code = 'int main() {return 0;}'
+		self.uselib = '' # to set the LIB_NAME and LIBPATH_NAME
 
 	def error(self):
 		fatal('library %s cannot be found' % self.name)
 
-	def run_cache(self, retvalue):
-		self.conf.checkMessage('library %s (cached)' % retvalue['name'], '', 1, option=retvalue['path'])
+	def run_cache(self, retval):
+		self.conf.checkMessage('library %s (cached)' % self.name, '', 1, option=retval)
+		self.env['LIB_'+self.uselib] = self.name
+		self.env['LIBPATH_'+self.uselib] = retval
 
-	def update_hash(self,md5hash):
-		enumerator_base.update_hash(self, md5hash)
-		md5hash.update(str(self.env['LIBPATH']))
+	def validate(self):
+		if not self.path:
+			self.path = ['/usr/lib/', '/lib/', '/opt/lib/', '/usr/local/lib/']
 
 	def run_test(self):
-		env = self.env
-		oldlibpath = env['LIBPATH']
-		oldlib = env['LIB']
-
-		foundname = ''
-		foundpath = ''
-		found = {}
-
 		ret=''
 		
-		if self.paths:
-
-			for libpath in self.paths:
-
-				#First look for a shared library
-				full_libname=env['shlib_PREFIX']+libname+env['shlib_SUFFIX']
-				ret = find_file(full_libname, [libpath])
-				
-				#If no shared lib was found, look for a static one
-				if not ret:
-					full_libname=env['staticlib_PREFIX']+libname+env['staticlib_SUFFIX']
-					ret = find_file(full_libname, [libpath])				
-	
-				if ret:
-					foundname = libname
-					foundpath = libpath
-					found['name'] = foundname
-					found['path'] = foundpath
-					break
-
-			self.conf.checkMessage('library '+libname, '', ret, option=libpath)
+		name = self.env['shlib_PREFIX']+self.name+self.env['shlib_SUFFIX']
+		ret  = find_file(name, self.path)
 
 		if not ret:
-			# Either lib was not found in the libpaths
-			#or no paths were given. Test if the compiler can find the lib anyway
+			name = self.env['staticlib_PREFIX']+self.name+self.env['staticlib_SUFFIX']
+			ret  = find_file(name, self.path)
 
-			for libname in self.names:
-				env['LIB'] = [libname]
+		self.conf.checkMessage('library '+self.name, '', ret, option=ret)
+		if self.uselib:
+			self.env['LIB_'+self.uselib] = self.name
+			self.env['LIBPATH_'+self.uselib] = ret
 
-				env['LIBPATH'] = ['']
-
-				obj               = check_data()
-				obj.code          = code
-				obj.env           = env
-				ret = self.conf.run_check(obj)
-
-				self.conf.checkMessage('library %s via linker' % libname, '', not ret, option='')
-				#self.conf.checkMessage('library '+libname, '', not ret, option='')
-	
-				if not ret:
-					foundname = libname
-					foundpath = libpath
-					found['name'] = foundname
-					found['path'] = foundpath
-					break
-
-		env['LIB'] = oldlib
-		env['LIBPATH'] = oldlibpath
-
-		if found: ret = 1
-		else:     ret = 0
-		
-		if self.define_name:
-			env[self.define_name] = ret
-			
-		return found
+		return ret
 
 # ok
 class header_enumerator(enumerator_base):
@@ -332,63 +286,6 @@ class header_enumerator(enumerator_base):
 		self.conf.checkMessage('header', self.name, ret, ret)
 		if self.define: self.env[self.define] = ret
 		return ret
-
-	"""
-	def run_test(self):
-		env = self.env
-
-		foundname = ''
-		foundpath = ''
-		found = {}
-
-		ret=''
-		
-		if self.paths:
-		
-			for headername in self.names:
-				for incpath in self.paths:
-
-					ret = find_file(headername, [incpath])
-	
-					if ret:
-						foundname = headername
-						foundpath = incpath
-						found['name'] = foundname
-						found['path'] = foundpath
-						break
-						
-				self.conf.checkMessage('header '+headername, '', ret, option=incpath)
-						
-				if ret: break
-					
-		if not ret:
-			# Either the header was not found in the incpaths
-			# or no paths were given. Test if the compiler can find the header anyway
-		
-			for headername in self.names:
-
-				obj               = check_data()
-				obj.header_name   = headername
-				obj.code          = self.code
-				obj.env           = env
-				ret = self.conf.run_check(obj)
-					
-				if not ret:
-					foundname = headername
-					foundpath = ''
-					found['name'] = foundname
-					found['path'] = foundpath
-					break
-					
-				self.conf.checkMessage('header %s via compiler' % headername, '', ret, option='')
-
-		if found: ret = 1
-		else:     ret = 0
-
-		if self.define_name:
-			env[self.define_name] = ret
-
-		return found"""
 
 ## ENUMERATORS END
 #######################################################################
