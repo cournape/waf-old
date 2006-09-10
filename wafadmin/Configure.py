@@ -306,22 +306,34 @@ class library_enumerator(enumerator_base):
 			
 		return found
 
+# ok
 class header_enumerator(enumerator_base):
+	"find a header in a list of paths"
 	def __init__(self,conf):
-		enumerator_base.__init__(self,conf)
+		enumerator_base.__init__(self, conf)
 
-		self.names			= []
-		self.paths			= []
-		self.code			= 'int main() {return 0;}'
-		self.mandatory_errormsg	= 'No matching header could be found. Make sure the header is installed and can be found.'
+		self.name   = []
+		self.path   = []
+		self.define = []
 
-	def run_cache(self,retvalue):
-		if retvalue:
-			self.conf.checkMessage('header %s (cached)' % retvalue['name'], '', 1, option=retvalue['path'])
-		else:
-			for name in self.names:
-				self.conf.checkMessage('header %s (cached)' % name, '', 0, option='')
+	def validate(self):
+		if not self.path:
+			self.path = ['/usr/include/', '/usr/local/include/', '/opt/include/']
 
+	def error(self):
+		fatal('cannot find %s in %s' % (self.name, str(self.path)))
+
+	def run_cache(self, retval):
+		self.conf.checkMessage('header %s (cached)' % self.name, '', 1, option=retval)
+		if self.define: self.env[self.define] = retval
+
+	def run_test(self):
+		ret = find_file(self.name, self.path)
+		self.conf.checkMessage('header', self.name, ret, ret)
+		if self.define: self.env[self.define] = ret
+		return ret
+
+	"""
 	def run_test(self):
 		env = self.env
 
@@ -376,7 +388,7 @@ class header_enumerator(enumerator_base):
 		if self.define_name:
 			env[self.define_name] = ret
 
-		return found
+		return found"""
 
 ## ENUMERATORS END
 #######################################################################
@@ -957,7 +969,7 @@ class Configure:
 			for f in list(filenames):
 				os.remove(os.path.join(root, f))
 
-		bdir = os.path.join( dir, '_build_')
+		bdir = os.path.join( dir, '_testbuild_')
 		try: os.makedirs(dir)
 		except: pass
 		try: os.makedirs(bdir)
