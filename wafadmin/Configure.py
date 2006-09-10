@@ -383,7 +383,8 @@ class pkgconfig_configurator(configurator_base):
 			self.conf.checkMessage('package %s >= %s (cached)' % (self.name, self.version), '', retval, option='')
 		else:
 			self.conf.checkMessage('package %s (cached)' % self.name, '', retval, option='')
-		self.conf.addDefine(self.define_name, retval)
+		if retval: self.conf.addDefine(self.define_name, 1)
+		else: self.conf.addDefine(self.define_name, 0)
 		self.update_env(retval)
 
 	def run_test(self):
@@ -584,7 +585,7 @@ class header_configurator(configurator_base):
 	def run_cache(self, retvalue):
 		self.update_env(retvalue)
 		self.conf.checkMessage('header %s (cached)' % self.name, '', 1)
-		self.conf.addDefine(self.define_name, 1)
+		self.conf.addDefine(self.define, 1)
 
 	def run_test(self):
 		ret = {} # not found
@@ -807,6 +808,8 @@ class Configure:
 			self.defines[define] = value
 		else:
 			self.defines[define] = '"%s"' % str(value)
+
+		if not define: raise "define must be .. defined"
 
 		# add later to make reconfiguring faster 
 		self.env[define] = value
