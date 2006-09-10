@@ -755,6 +755,76 @@ class Configure:
 
 
 
+	def addDefine(self, define, value, quote=-1):
+		"""store a single define and its state into an internal list 
+		   for later writing to a config header file"""
+		# the user forgot to tell if the value is quoted or not
+		if quote < 0:
+			if type(value) is types.StringType:
+				self.defines[define] = '"%s"' % str(value)
+			else:
+				self.defines[define] = value
+		elif not quote:
+			self.defines[define] = value
+		else:
+			self.defines[define] = '"%s"' % str(value)
+
+		# add later to make reconfiguring faster 
+		self.env[define] = value
+	
+	def isDefined(self, define):
+		if self.defines.has_key(define):
+			return 1
+		else:
+			return 0
+
+	def getDefine(self, define):
+		"""get the value of a previously stored define"""
+		if self.defines.has_key(define):
+			return self.defines[define]
+		else:
+			return 0
+
+
+
+	def writeConfigHeader(self, configfile='config.h', env=''):
+		"""save the defines into a file"""
+		if configfile=='': configfile = self.configheader
+
+		try:
+			# just in case the path is 'something/blah.h' (under the builddir)
+			lst=configfile.split('/')
+			lst = lst[:len(lst)-1]
+			os.mkdir( os.sep.join(lst) )
+		except:
+			pass
+
+		dir = os.path.join(self.m_blddir, self.env.variant())
+		try: os.makedirs(dir)
+		except: pass
+
+		dir = os.path.join(dir, configfile)
+
+		dest=open(dir, 'w')
+		dest.write('/* configuration created by waf */\n')
+		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
+
+		for key in self.defines: 
+			if self.defines[key]:
+				dest.write('#define %s %s\n' % (key, self.defines[key]))
+				#if addcontent:
+				#	dest.write(addcontent);
+			else:
+				dest.write('/* #undef '+key+' */\n')
+		dest.write('\n#endif /* _CONFIG_H_WAF */\n')
+		dest.close()
+
+	def setConfigHeader(self, header):
+		"""set a config header file"""
+		self.configheader = header
+		pass
+
+
 
 
 
@@ -909,90 +979,6 @@ class Configure:
 		self.m_cache_table[hash] = ret
 		return ret
 
-	def TryCPP(self,code,options=''):
-		"""run cpp for a given file, returns 0 if no errors (standard)
-		This method is currently platform specific and has to be made platform 
-		independent, probably by refactoring the c++ or cc build engine
-		"""
-		dest=open(os.path.join(self.env['_BUILDDIR_'], 'test.c'), 'w')
-		dest.write(code)
-		dest.close()
-		# TODO: currently only for g++ 
-		# implement platform independent compile function probably by refactoring 
-		# Task/Action class
-		return Runner.exec_command('%s test.c -o test %s 2>test.log '% (self.env['CPP'], str(options)) )
-
-
-	def addDefine(self, define, value, quote=-1):
-		"""store a single define and its state into an internal list 
-		   for later writing to a config header file"""
-		# the user forgot to tell if the value is quoted or not
-		if quote < 0:
-			if type(value) is types.StringType:
-				self.defines[define] = '"%s"' % str(value)
-			else:
-				self.defines[define] = value
-		elif not quote:
-			self.defines[define] = value
-		else:
-			self.defines[define] = '"%s"' % str(value)
-
-		# add later to make reconfiguring faster 
-		self.env[define] = value
-	
-	def isDefined(self, define):
-		if self.defines.has_key(define):
-			return 1
-		else:
-			return 0
-
-	def getDefine(self, define):
-		"""get the value of a previously stored define"""
-		if self.defines.has_key(define):
-			return self.defines[define]
-		else:
-			return 0
-
-
-
-	def writeConfigHeader(self, configfile='config.h', env=''):
-		"""save the defines into a file"""
-		if configfile=='': configfile = self.configheader
-
-		try:
-			# just in case the path is 'something/blah.h' (under the builddir)
-			lst=configfile.split('/')
-			lst = lst[:len(lst)-1]
-			os.mkdir( os.sep.join(lst) )
-		except:
-			pass
-
-		dir = os.path.join(self.m_blddir, self.env.variant())
-		try: os.makedirs(dir)
-		except: pass
-
-		dir = os.path.join(dir, configfile)
-
-		dest=open(dir, 'w')
-		dest.write('/* configuration created by waf */\n')
-		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
-
-		for key in self.defines: 
-			if self.defines[key]:
-				dest.write('#define %s %s\n' % (key, self.defines[key]))
-				#if addcontent:
-				#	dest.write(addcontent);
-			else:
-				dest.write('/* #undef '+key+' */\n')
-		dest.write('\n#endif /* _CONFIG_H_WAF */\n')
-		dest.close()
-
-	def setConfigHeader(self, header):
-		"""set a config header file"""
-		self.configheader = header
-		pass
-
-
 
 
 
@@ -1008,7 +994,7 @@ class Configure:
 
 
 	# OBSOLETE
-	def checkHeader(self, header, define='', pathlst=[]):
+	def _checkHeader(self, header, define='', pathlst=[]):
 		"""find a C/C++ header"""
 		if type(header) is types.ListType:
 			for i in header: 
