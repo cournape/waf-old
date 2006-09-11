@@ -34,14 +34,9 @@ def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
 	conf.checkTool('checks gcc g++ dang flex bison')
 
-	headers='sys/wait.h fcntl.h sys/ioctl.h sys/time.h unistd.h \
-	sys/file.h string.h strings.h ctype.h stdlib.h stdarg.h stdint.h \
-	stddef.h sys/socket.h sys/modem.h termios.h sys/filio.h inttypes.h \
-	wchar.h direct.h sys/types.h alloca.h libintl.h'
-	
-	# checkEndian and checkFeatures are available when 'checks' is in conf.checkTool()
+	# checkFeatures is only available when 'checks' is in conf.checkTool()
+	# look in wafadmin/Tools/checks.py for the other tests available
 	conf.checkEndian()
-	#conf.checkFeatures()
 
 	e = conf.create_header_configurator()
 	e.mandatory = 1
@@ -142,15 +137,7 @@ int main()
 	test.path = ['/usr/local/include', '/usr/include', '/opt/kde3/include/']
 	test.run()
 
-def bub():
-
-
-	#conf.find_header('klocale.h', ['/usr/local/include', '/usr/include', '/opt/kde3/include/'], define_name='KDE_DIR')
-
-	#conf.detect_library('XCURSOR', 'Xcursor', ['/usr/lib','/usr/X11R6/lib'])
-	
 	#check for std flags that could be used with obj.uselib = "GLOBAL"
-	"""
 	conf.env['CCFLAGS_GLOBAL'] = []
 	conf.env['CXXFLAGS_GLOBAL'] = []
 	if conf.check_flags('-Wno-pointer-sign'):
@@ -162,37 +149,51 @@ def bub():
 	if conf.check_flags('-fno-strict-aliasing'):
 		conf.env['CCFLAGS_GLOBAL'].append('-fno-strict-aliasing')
 		conf.env['CXXFLAGS_GLOBAL'].append('-fno-strict-aliasing')
-	"""
+
 
 	headers='sys/wait.h fcntl.h sys/ioctl.h sys/time.h unistd.h \
 	sys/file.h string.h strings.h ctype.h stdlib.h stdarg.h stdint.h \
 	stddef.h sys/socket.h sys/modem.h termios.h sys/filio.h inttypes.h \
 	wchar.h direct.h sys/types.h alloca.h libintl.h'
 	
-	#check for headers and append found headers to headers_found
-	#so i could be used later
-
+	# check for headers and append found headers to headers_found for later use
 	headers_found = []
 	for header in headers.split():
-		if not conf.check_header(header):
+		if conf.check_header(header):
 			headers_found.append(header)
-
 
 	#check for ALL function in check_for_this using found headers
 	check_for_this=[
-		['mktime', 'HAVE_MKTIME'], ['timegm', 'HAVE_TIMEGM'], ['gettimeofday', 'HAVE_GETTIMEOFDAY'],
-		['select', 'HAVE_SELECT'], ['poll', 'HAVE_POLL'], ['wcrtomb', 'HAVE_WCRTOMB'], ['strchr', 'HAVE_STRCHR'], 
-		['strdup', 'HAVE_STRDUP'], ['strstr', 'HAVE_STRSTR'], ['strtol', 'HAVE_STRTOL'], ['strtok', 'HAVE_STRTOK'], 
-		['strsep', 'HAVE_STRSEP'], ['asprintf', 'HAVE_ASPRINTF'], ['vasprintf', 'HAVE_VASPRINTF'], 
-		['snprintf','HAVE_SNPRINTF'], ['vsnprintf', 'HAVE_VSNPRINTF']
+		['mktime', 'HAVE_MKTIME'],
+		['timegm', 'HAVE_TIMEGM'],
+		['gettimeofday', 'HAVE_GETTIMEOFDAY'],
+		['select', 'HAVE_SELECT'],
+		['poll', 'HAVE_POLL'],
+		['wcrtomb', 'HAVE_WCRTOMB'],
+		['strchr', 'HAVE_STRCHR'], 
+		['strdup', 'HAVE_STRDUP'],
+		['strstr', 'HAVE_STRSTR'],
+		['strtol', 'HAVE_STRTOL'],
+		['strtok', 'HAVE_STRTOK'], 
+		['strsep', 'HAVE_STRSEP'],
+		['asprintf', 'HAVE_ASPRINTF'],
+		['vasprintf', 'HAVE_VASPRINTF'], 
+		['snprintf','HAVE_SNPRINTF'],
+		['vsnprintf', 'HAVE_VSNPRINTF']
 	]
-	functionfind = conf.create_function_enumerator()
-	functionfind.mandatory = 1
-	#functionfind.headers = headers_found
-	functionfind.include_paths = ['/usr/include']
-	for func in check_for_this:
-		functionfind.function_calls = [func]
+
+	for pair in check_for_this:
+		functionfind = conf.create_function_enumerator()
+		#functionfind.mandatory = 1 # stop when a function is not found
+		functionfind.headers = headers_found
+		#functionfind.include_paths = ['/usr/include']
+		functionfind.function = pair[0]
+		functionfind.define = pair[1]
 		functionfind.run()
+
+def bub():
+
+
 	code = """
 #include <time.h>
 struct tm t; t.tm_gmtoff = 0;
