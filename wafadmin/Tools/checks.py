@@ -112,7 +112,12 @@ def checkFeatures(self, lst=[], pathlst=[]):
 
 	return is_big
 
-def check_header(self, header, define):
+def check_header(self, header, define=''):
+
+	if not define:
+		upstr = header.upper().replace('/', '_').replace('.', '_')
+		define = 'HAVE_' + upstr
+
 	test = self.create_header_configurator()
 	test.name = header
 	test.define = define
@@ -126,6 +131,18 @@ def try_build_and_exec(self, code, uselib=''):
 	if ret: return ret['result']
 	return None
 
+def check_flags(self, flags, uselib='', options='', msg=1):
+	test = self.create_test_configurator()
+	test.uselib = uselib
+        test.code = 'int main() {return 0;}\n'
+	test.flags = flags
+	ret = test.run()
+
+	if msg: self.checkMessage('flags', flags, not (ret is None))
+
+	if ret: return 1
+	return None
+
 def setup(env):
 	# we provide no new action or builder
 	pass
@@ -136,5 +153,6 @@ def detect(conf):
 	conf.hook(checkFeatures)
 	conf.hook(check_header)
 	conf.hook(try_build_and_exec)
+	conf.hook(check_flags)
 	return 1
 

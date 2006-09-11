@@ -445,6 +445,7 @@ class test_configurator(configurator_base):
 		configurator_base.__init__(self, conf)
 		self.name = ''
 		self.code = ''
+		self.flags = ''
 		self.define = ''
 		self.uselib = ''
 		self.want_message = 0
@@ -465,6 +466,7 @@ class test_configurator(configurator_base):
 		obj.code = self.code
 		obj.env  = self.env
 		obj.uselib = self.uselib
+		obj.flags = self.flags
 		obj.execute = 1
 		ret = self.conf.run_check(obj)
 
