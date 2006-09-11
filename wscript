@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006 (ita)
 
-VERSION="0.8.8"
+VERSION="0.9.0"
 APPNAME='waf'
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
@@ -62,8 +62,6 @@ def create_waf():
 	file = open('%s.tar.bz2' % mw, 'rb')
 	cnt = file.read()
 	file.close()
-
-	# TODO someone might want to use ascii85 here
 	code2 = base64.encodestring(cnt)
 
 	file = open('waf', 'wb')

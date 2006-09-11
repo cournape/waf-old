@@ -32,12 +32,66 @@ def package(bld):
 
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
-	conf.checkTool('gcc g++ dang flex bison')
+	conf.checkTool('checks gcc g++ dang flex bison')
+
+	headers='sys/wait.h fcntl.h sys/ioctl.h sys/time.h unistd.h \
+	sys/file.h string.h strings.h ctype.h stdlib.h stdarg.h stdint.h \
+	stddef.h sys/socket.h sys/modem.h termios.h sys/filio.h inttypes.h \
+	wchar.h direct.h sys/types.h alloca.h libintl.h'
+	
+	#conf.checkEndian()
+	conf.checkFeatures()
+
+	e = conf.create_header_configurator()
+	e.mandatory = 1
+	e.name = 'stdio.h'
+	e.define = 'HAVE_STDIO'
+	e.run()
+
+	e = conf.create_library_configurator()
+	e.mandatory = 1
+	e.name = 'kdecore'
+	e.path = ['/opt/kde3/lib']
+	e.run()
+
+	e = conf.create_function_enumerator()
+	e.mandatory = 1
+	e.headers = ['time.h']
+	e.include_paths = ['/usr/include']
+	e.function = 'mktime'
+	e.define = 'MKTIME'
+	e.run()
+
+	e = conf.create_program_enumerator()
+	e.mandatory = 1
+	e.name = 'cat'
+	e.run()
+
+	e = conf.create_header_enumerator()
+	e.mandatory = 1
+	e.name = 'stdio.h'
+	e.run()
+
+	e = conf.create_library_enumerator()
+	e.mandatory = 1
+	e.name = 'png'
+	e.run()
+
+	e = conf.create_test_configurator()
+	e.mandatory = 1
+	e.code = '#include <stdio.h>\nint main() {printf("hello world"); return 0; }\n'
+	e.want_message = 1
+	e.run()
+
+	conf.check_pkg('libgnome-2.0',        destvar='GNOME',    vnum='32.10.0')
 
 
 
 	# pkg-config example - look in src/wscript_build, obj.uselib ..
 	conf.check_pkg('glib-2.0', destvar='GLIB', vnum='2.6.0')
+
+
+def bub():
 
 	"""
 	conf.check_header('GL/gl.h', '', '', ['/usr/X11R6/include','/usr/include'])
@@ -120,12 +174,12 @@ int main()
 	
 	#check for headers and append found headers to headers_found
 	#so i could be used later
-	"""
+
 	headers_found = []
 	for header in headers.split():
 		if not conf.check_header(header):
 			headers_found.append(header)
-	"""	
+
 
 	#check for ALL function in check_for_this using found headers
 	check_for_this=[
@@ -136,6 +190,7 @@ int main()
 		['snprintf','HAVE_SNPRINTF'], ['vsnprintf', 'HAVE_VSNPRINTF']
 	]
 	functionfind = conf.create_function_enumerator()
+	functionfind.mandatory = 1
 	#functionfind.headers = headers_found
 	functionfind.include_paths = ['/usr/include']
 	for func in check_for_this:

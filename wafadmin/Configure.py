@@ -182,9 +182,12 @@ class function_enumerator(enumerator_base):
 	def error(self):
 		fatal('function %s cannot be found' % self.function)
 
+	def validate(self):
+		if not self.define: self.define = self.function.upper()
+
 	def run_cache(self, retval):
 		self.conf.checkMessage('function %s (cached)' % self.function, '', 1, option='')
-		self.conf.addDefine(self.define_name, retval)
+		self.conf.addDefine(self.define, retval)
 
 	def run_test(self):
 		ret = 0 # not found

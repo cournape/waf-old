@@ -19,7 +19,6 @@ def build(bld):
 
 def configure(conf):
 	conf.checkTool('gcc')
-	# the order of calls does matter
 
 def set_options(opt):
 	pass
