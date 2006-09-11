@@ -118,6 +118,14 @@ def check_header(self, header, define):
 	test.define = define
 	return test.run()
 
+def try_build_and_exec(self, code, uselib=''):
+	test = self.create_test_configurator()
+	test.uselib = uselib
+        test.code = code
+	ret = test.run()
+	if ret: return ret['result']
+	return None
+
 def setup(env):
 	# we provide no new action or builder
 	pass
@@ -127,5 +135,6 @@ def detect(conf):
 	conf.hook(checkEndian)
 	conf.hook(checkFeatures)
 	conf.hook(check_header)
+	conf.hook(try_build_and_exec)
 	return 1
 

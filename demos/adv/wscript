@@ -39,8 +39,9 @@ def configure(conf):
 	stddef.h sys/socket.h sys/modem.h termios.h sys/filio.h inttypes.h \
 	wchar.h direct.h sys/types.h alloca.h libintl.h'
 	
-	#conf.checkEndian()
-	conf.checkFeatures()
+	# checkEndian and checkFeatures are available when 'checks' is in conf.checkTool()
+	conf.checkEndian()
+	#conf.checkFeatures()
 
 	e = conf.create_header_configurator()
 	e.mandatory = 1
@@ -85,29 +86,24 @@ def configure(conf):
 
 	conf.check_pkg('libgnome-2.0',        destvar='GNOME',    vnum='32.10.0')
 
-
-
 	# pkg-config example - look in src/wscript_build, obj.uselib ..
 	conf.check_pkg('glib-2.0', destvar='GLIB', vnum='2.6.0')
 
 
-def bub():
-
+	# TODO
 	"""
 	conf.check_header('GL/gl.h', '', '', ['/usr/X11R6/include','/usr/include'])
 	"""
 
 	conf.addDefine('HAVE_SOMETHING', 1)
-
-	#conf.checkEndian()
-	#conf.checkFeatures()
-	
 	conf.addDefine('TEST_DEFINE', 345)
+
 
 	# command-line defines
 	conf.env['CXXDEFINES_DEFTEST'] = ['truc=blah', 'boo']
 
 	conf.env['LIB_CALC']='fl'
+
 
 	# a more complicated check, anything can be put in the following code:
 	code = """
@@ -117,17 +113,15 @@ int main()
         printf("ahoy");
         return 0;
 }"""
-	#ret = conf.try_build_and_exec(code) # the method conf.try_build( works too
+	ret = conf.try_build_and_exec(code)
+	conf.checkMessage('ahoj', '', 'ahoy'==ret) # boolean needed
+	conf.addDefine('AHOJ', ret)
 
-	#conf.checkMessage('ahoj', '', 'ahoy'==ret) # boolean needed
-	#conf.addDefine('AHOJ', ret)
 
-	#conf.find_program_impl('cat', ['/usr/bin', '/bin'])
 	pc = conf.create_program_enumerator()
 	pc.name  = 'cat'
 	pc.paths = ['/usr/bin', '/bin']
 	pc.run()
-
 
 	#conf.check_header('stdio.h')
 	#conf.check_header('stdarg.h', 'HAVE_STDARG_H')
@@ -137,16 +131,19 @@ int main()
 	#conf.find_library('X11', ['/usr/lib','/usr/X11R6/lib'], define_name='X11_DIR')
 
 	le = conf.create_library_enumerator()
-	le.names = ['X11']
-	le.paths = ['/usr/lib','/usr/X11R6/lib']
+	le.name = 'X11'
+	le.path = ['/usr/lib','/usr/X11R6/lib']
 	#le.define = 'X11_DIR'
 	le.run()
 
 
 	test = conf.create_header_enumerator()
-	test.names = ['klocale.h']
-	test.paths = ['/usr/local/include', '/usr/include', '/opt/kde3/include/']
+	test.name = 'klocale.h'
+	test.path = ['/usr/local/include', '/usr/include', '/opt/kde3/include/']
 	test.run()
+
+def bub():
+
 
 	#conf.find_header('klocale.h', ['/usr/local/include', '/usr/include', '/opt/kde3/include/'], define_name='KDE_DIR')
 
@@ -360,11 +357,8 @@ int main()
 	toolconf.run()
 
 
-
-
-	libconf = conf.create_library_configurator()
-
 	# Looks for the GL lib in the specified directories
+	libconf = conf.create_library_configurator()
 	libconf.uselib_name = 'GL'
 	libconf.names = ['GL']
 	libconf.paths = ['/usr/X11R6/lib','/usr/lib','/usr/local/lib']
@@ -389,7 +383,7 @@ int main()
 
 def set_options(opt):
 	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
-	# to use after the command-line is parsed:
+	# the following is to use after the command-line is parsed:
 	# import Params
 	# print Params.g_options.someopt
 
