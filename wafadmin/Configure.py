@@ -12,7 +12,11 @@ g_maxlen = 40
 g_debug  = 0
 
 
-#######################################################################
+g_stdincpath = ['/usr/include/', '/usr/local/include/']
+g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
+
+
+#####################
 ## Helper functions
 
 def find_path(file, path_list):
@@ -64,18 +68,16 @@ def find_program_impl(lenv, file, path_list=None, var=None):
 			return ret
 	return ''
 
-# TODO
+# TODO remove ?
 def find_program_using_which(lenv, prog):
 	if lenv['WINDOWS']: # we're not depending on Cygwin
 		return ''
 	return os.popen("which %s 2>/dev/null" % prog).read().strip()
 
 
-
-#######################################################################
+###############
 ## ENUMERATORS
 
-# TODO add for loop to run the same test over lists
 class enumerator_base:
 	def __init__(self, conf):
 		self.conf        = conf
@@ -135,13 +137,11 @@ class enumerator_base:
 	def run_test(self):
 		return 0
 
-# ok
 class configurator_base(enumerator_base):
 	def __init__(self, conf):
 		enumerator_base.__init__(self, conf)
 		self.uselib_name = ''
 
-# ok
 class program_enumerator(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
@@ -163,7 +163,6 @@ class program_enumerator(enumerator_base):
 		if self.var: self.env[self.var] = retval
 		return ret
 
-# ok
 class function_enumerator(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
@@ -224,7 +223,6 @@ class function_enumerator(enumerator_base):
 				
 		return ret
 
-# ok
 class library_enumerator(enumerator_base):
 	"find a library in a list of paths"
 	def __init__(self, conf):
@@ -248,10 +246,10 @@ class library_enumerator(enumerator_base):
 
 	def validate(self):
 		if not self.path:
-			self.path = ['/usr/lib/', '/usr/local/lib/', '/lib']
+			self.path = g_stdlibpath
 		else:
 			if not self.nosystem:
-				self.path += ['/usr/lib/', '/usr/local/lib/', '/lib']
+				self.path += g_stdlibpath
 
 	def run_test(self):
 		ret=''
@@ -271,7 +269,6 @@ class library_enumerator(enumerator_base):
 
 		return ret
 
-# ok
 class header_enumerator(enumerator_base):
 	"find a header in a list of paths"
 	def __init__(self,conf):
@@ -284,10 +281,10 @@ class header_enumerator(enumerator_base):
 
 	def validate(self):
 		if not self.path:
-			self.path = ['/usr/include/', '/usr/local/include/']
+			self.path = g_stdincpath
 		else:
 			if not self.nosystem:
-				self.path += ['/usr/include/', '/usr/local/include/']
+				self.path += g_stdincpath
 
 	def error(self):
 		fatal('cannot find %s in %s' % (self.name, str(self.path)))
@@ -303,12 +300,11 @@ class header_enumerator(enumerator_base):
 		return ret
 
 ## ENUMERATORS END
-#######################################################################
+###################
 
-#######################################################################
+###################
 ## CONFIGURATORS
 
-# ok
 class cfgtool_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self, conf)
@@ -360,7 +356,6 @@ class cfgtool_configurator(configurator_base):
 		self.conf.checkMessage('config-tool '+self.binary, '', found, option='')
 		return retval
 
-# ok
 class pkgconfig_configurator(configurator_base):
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
@@ -445,7 +440,6 @@ class pkgconfig_configurator(configurator_base):
 
 		return retval
 
-# ok
 class test_configurator(configurator_base):
 	def __init__(self, conf):
 		configurator_base.__init__(self, conf)
@@ -482,7 +476,6 @@ class test_configurator(configurator_base):
 
 		return ret
 
-# ok
 class library_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
@@ -555,7 +548,6 @@ class library_configurator(configurator_base):
 		if not ret: return {}
 		return val
 
-# ok
 class header_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
@@ -625,7 +617,7 @@ class header_configurator(configurator_base):
 		return ret
 
 # CONFIGURATORS END
-#######################################################################
+####################
 
 class check_data:
 	def __init__(self):
