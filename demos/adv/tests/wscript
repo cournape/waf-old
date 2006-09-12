@@ -1,0 +1,82 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# advanced tests
+def build(bld):
+	pass
+
+def package(bld):
+	pass
+
+def configure(conf):
+	#check for std flags that could be used with obj.uselib = "GLOBAL"
+	import buildfile
+	conf.env['CCFLAGS_GLOBAL'] = []
+	conf.env['CXXFLAGS_GLOBAL'] = []
+	if conf.check_flags('-Wno-pointer-sign'):
+		conf.env['CCFLAGS_GLOBAL'].append('-Wno-pointer-sign')
+		conf.env['CXXFLAGS_GLOBAL'].append('-Wno-pointer-sign')
+	if conf.check_flags('-fvisibility=hidden'):
+		conf.env['CCFLAGS_GLOBAL'].append('-fvisibility=hidden')
+		conf.env['CXXFLAGS_GLOBAL'].append('-fvisibility=hidden')
+	if conf.check_flags('-fno-strict-aliasing'):
+		conf.env['CCFLAGS_GLOBAL'].append('-fno-strict-aliasing')
+		conf.env['CXXFLAGS_GLOBAL'].append('-fno-strict-aliasing')
+
+
+	headers='sys/wait.h fcntl.h sys/ioctl.h sys/time.h unistd.h \
+	sys/file.h string.h strings.h ctype.h stdlib.h stdarg.h stdint.h \
+	stddef.h sys/socket.h sys/modem.h termios.h sys/filio.h inttypes.h \
+	wchar.h direct.h sys/types.h alloca.h libintl.h'
+	
+	# check for headers and append found headers to headers_found for later use
+	headers_found = []
+	for header in headers.split():
+		if conf.check_header(header):
+			headers_found.append(header)
+
+	#check for ALL function in check_for_this using found headers
+	check_for_this=[
+		['mktime', 'HAVE_MKTIME'],
+		['timegm', 'HAVE_TIMEGM'],
+		['gettimeofday', 'HAVE_GETTIMEOFDAY'],
+		['select', 'HAVE_SELECT'],
+		['poll', 'HAVE_POLL'],
+		['wcrtomb', 'HAVE_WCRTOMB'],
+		['strchr', 'HAVE_STRCHR'], 
+		['strdup', 'HAVE_STRDUP'],
+		['strstr', 'HAVE_STRSTR'],
+		['strtol', 'HAVE_STRTOL'],
+		['strtok', 'HAVE_STRTOK'], 
+		['strsep', 'HAVE_STRSEP'],
+		['asprintf', 'HAVE_ASPRINTF'],
+		['vasprintf', 'HAVE_VASPRINTF'], 
+		['snprintf','HAVE_SNPRINTF'],
+		['vsnprintf', 'HAVE_VSNPRINTF']
+	]
+
+	for pair in check_for_this:
+		functionfind = conf.create_function_enumerator()
+		#functionfind.mandatory = 1 # stop when a function is not found
+		functionfind.headers = headers_found
+		functionfind.function = pair[0]
+		functionfind.define = pair[1]
+		functionfind.run()
+
+	buildfile.try_build_file(conf, 'tests/tm_gmton.c')
+	buildfile.try_build_file(conf, 'tests/timeops.c')
+	buildfile.try_build_file(conf, 'tests/msghdr_msg_control.c')
+	if not buildfile.try_build_file(conf, 'tests/unix98ptys.c', 'USE'):
+		print "unix98pty not supported"
+
+	if not buildfile.try_build_file(conf, 'tests/cfsetspeed.c'):
+		if buildfile.try_build_file(conf, 'tests/cfsetispeed.c'):
+			conf.addDefine('HAVE_CFSETOSPEED', 1)
+		else:
+			try_build_file(conf, 'tests/termios_cspeed.c')
+
+
+def set_options(opt):
+	pass
+
