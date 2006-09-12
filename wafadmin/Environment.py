@@ -20,13 +20,7 @@ class Environment:
 		self.m_table['_VARIANT_'] = name
 
 	def variant(self):
-		ret = ''
-		try:
-			ret = self.m_table['_VARIANT_']
-		except:
-			pass
-		if not ret: return 'default'
-		else: return ret
+		return self.m_table.get('_VARIANT_', 'default')
 
 	def copy(self):
 		newenv = Environment()
