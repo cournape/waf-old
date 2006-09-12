@@ -175,11 +175,11 @@ class Build:
 
 		#self.dump()
 
-		if Params.g_maxjobs <=1:
+		if Params.g_options.jobs <=1:
 			generator = Runner.JobGenerator(self)
 			executor = Runner.Serial(generator)
 		else:
-			executor = Runner.Parallel(self, Params.g_maxjobs)
+			executor = Runner.Parallel(self, Params.g_options.jobs)
 
 		trace("executor starting")
 		try:

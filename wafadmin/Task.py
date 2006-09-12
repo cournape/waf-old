@@ -9,6 +9,11 @@ from Params import debug, error, trace, fatal
 # task index
 g_idx=0
 
+# group index
+g_group_idx = 0
+g_group_names = []
+g_group_messages = []
+
 # the set of tasks is a list of groups : [group 2, group 1, group 0]
 # groups are hashtables mapping priorities to lists of tasks ..
 # parallelizing tasks is thus much easier with this scheme
@@ -19,11 +24,16 @@ g_tasks=[{}]
 g_tasks_done       = []
 g_default_param    = { 'path_lst' : [] }
 
-def add_group():
+def add_group(name=''):
+	if not name:
+		name = 'group %s' % str(len(g_group_names))
+
 	global g_tasks
 	# we already have an empty group to fill with tasks
 	if not g_tasks[0]: return
 	g_tasks = [{}]+g_tasks
+
+	g_group_names.append(name)
 
 class Task:
 	def __init__(self, action_name, env, priority=5):

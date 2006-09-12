@@ -146,6 +146,15 @@ class JobGenerator:
 		trace(s)
 		#Task.g_tasks.reverse()
 
+	# TODO
+	def skip_group(self, reason):
+		try:
+			self.m_current_group = self.m_tasks.pop(0)
+			self.m_task_prio_lst = self.m_current_group.keys()
+			self.m_task_prio_lst.sort()
+		except:
+			pass
+
 class Serial:
 	def __init__(self, generator):
 		self.m_generator = generator

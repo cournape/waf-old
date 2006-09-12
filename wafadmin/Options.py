@@ -54,7 +54,13 @@ def create_parser():
 		default = False,
 		help    = 'force the files installation',
 		dest    = 'force')
-	
+
+	p('-k', '--keep', 
+		action  = 'store_true',
+		default = False,
+		help    = 'keep running happily on independant task groups',
+		dest    = 'keep')
+
 	p('-p', '--progress',
 		action  = 'count',
 		default = 0,
@@ -130,7 +136,9 @@ def parse_args_impl(parser):
 			print parser.print_help()
 			sys.exit(1)
 
-	Params.g_maxjobs = Params.g_options.jobs
+	# TODO -k => -j0
+	if Params.g_options.keep: Params.g_options.jobs = 1
+
 	Params.g_verbose = Params.g_options.verbose
 	if Params.g_verbose>1: Params.set_trace(1,1,1)
 	else: Params.set_trace(0,0,1)

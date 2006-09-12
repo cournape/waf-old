@@ -54,9 +54,6 @@ g_commands = {}
 # Verbosity: -v displays warnings, -vv displays developper info
 g_verbose = 0
 
-# Max jobs: option -jn
-g_maxjobs = 1
-
 # The only Build object
 g_build    = None
 
