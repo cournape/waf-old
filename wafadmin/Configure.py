@@ -309,17 +309,18 @@ class cfgtool_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self, conf)
 
-		self.define_name   = ''
-		self.binary        = ''
+		self.uselib   = ''
+		self.define   = ''
+		self.binary   = ''
 
-		self.tests = {}
+		self.tests    = {}
 		self.uselib_name   = ''
 
 	def error(self):
 		fatal('%s cannot be found' % self.binary)
 
 	def validate(self):
-		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
+		if not self.define: self.define = 'HAVE_'+self.uselib
 
 		if not self.tests:
 			self.tests['--cflags'] = 'CCFLAGS'
@@ -329,9 +330,9 @@ class cfgtool_configurator(configurator_base):
 	def run_cache(self, retval):
 		if retval:
 			self.update_env(retval)
-			self.conf.addDefine(self.define_name, 1)
+			self.conf.addDefine(self.define, 1)
 		else:
-			self.conf.addDefine(self.define_name, 0)
+			self.conf.addDefine(self.define, 0)
 		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retval, option='')
 
 	def run_test(self):
@@ -343,7 +344,7 @@ class cfgtool_configurator(configurator_base):
 			if ret: raise "error"
 
 			for flag in self.tests:
-				var = self.tests[flag]+'_'+self.uselib_name
+				var = self.tests[flag]+'_'+self.uselib
 				cmd = '%s %s 2>/dev/null' % (self.binary, flag)
 				retval[var] = [os.popen(cmd).read().strip()]
 
@@ -352,7 +353,7 @@ class cfgtool_configurator(configurator_base):
 			retval = {}
 			found = 0
 
-		self.conf.addDefine(self.define_name, found)
+		self.conf.addDefine(self.define, found)
 		self.conf.checkMessage('config-tool '+self.binary, '', found, option='')
 		return retval
 

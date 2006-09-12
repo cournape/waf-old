@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import Utils
+import Utils, Configure
 from Params import error
 
 endian_str = """
@@ -23,6 +23,46 @@ int main()
   return 0;
 }
 """
+
+
+# inheritance demo
+class compile_configurator(Configure.configurator_base):
+	def __init__(self, conf):
+		Configure.configurator_base.__init__(self, conf)
+		self.name = ''
+		self.code = ''
+		self.flags = ''
+		self.define = ''
+		self.uselib = ''
+		self.want_message = 0
+		self.msg = ''
+
+	def error(self):
+		fatal('test program would not run')
+
+	def run_cache(self, retval):
+		if self.want_message:
+			self.conf.checkMessage('compile code (cached)', '', 1, option=self.msg)
+
+	def validate(self):
+		if not self.code:
+			fatal('test configurator needs code to compile and run!')
+
+	def run_test(self):
+		obj = Configure.check_data()
+		obj.code = self.code
+		obj.env  = self.env
+		obj.uselib = self.uselib
+		obj.flags = self.flags
+		ret = self.conf.run_check(obj)
+
+		if self.want_message:
+			self.conf.checkMessage('compile code', '', ret, option=self.msg)
+
+		return ret
+
+def create_compile_configurator(self):
+	return compile_configurator(self)
 
 def checkEndian(self, define='', pathlst=[]):
 	if define == '': define = 'IS_BIGENDIAN'
@@ -131,6 +171,16 @@ def try_build_and_exec(self, code, uselib=''):
 	if ret: return ret['result']
 	return None
 
+def try_build(self, code, uselib='', msg=''):
+	test = self.create_compile_configurator()
+	test.uselib = uselib
+        test.code = code
+	if msg:
+		test.want_message = 1
+		test.msg = msg
+	ret = test.run()
+	return ret
+
 def check_flags(self, flags, uselib='', options='', msg=1):
 	test = self.create_test_configurator()
 	test.uselib = uselib
@@ -152,6 +202,8 @@ def detect(conf):
 	conf.hook(checkEndian)
 	conf.hook(checkFeatures)
 	conf.hook(check_header)
+	conf.hook(create_compile_configurator)
+	conf.hook(try_build)
 	conf.hook(try_build_and_exec)
 	conf.hook(check_flags)
 	return 1
