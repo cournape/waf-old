@@ -85,6 +85,8 @@ class JobGenerator:
 		self.curprio  = -1
 		self.curlst   = [] # list of tasks in the current priority
 
+		self.priolst  = []
+
 		# progress bar
 		self.m_total     = Task.g_tasks.total()
 		self.m_processed = 0
@@ -117,10 +119,11 @@ class JobGenerator:
 		
 		# sort keys if necessary
 		if self.curprio == 0:
-			group.prio.keys().sort()
+			self.priolst = group.prio.keys()
+			self.priolst.sort()
 
 		# now fill curlst
-		id = group.prio.keys()[self.curprio]
+		id = self.priolst[self.curprio]
 		self.curlst = group.prio[id]
 		
 		return self.get_next()
