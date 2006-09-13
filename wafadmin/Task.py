@@ -4,36 +4,58 @@
 
 import os, types, shutil
 import Params, Scan, Action
-from Params import debug, error, trace, fatal
-
-# task index
-g_idx=0
-
-# group index
-g_group_idx = 0
-g_group_names = []
-g_group_messages = []
-
-# the set of tasks is a list of groups : [group 2, group 1, group 0]
-# groups are hashtables mapping priorities to lists of tasks ..
-# parallelizing tasks is thus much easier with this scheme
-g_tasks=[{}]
+from Params import debug, error, trace, fatal, warning
 
 # tasks that have been run
 # this is used in tests to check which tasks were actually launched
 g_tasks_done       = []
 g_default_param    = { 'path_lst' : [] }
 
-def add_group(name=''):
-	if not name:
-		name = 'group %s' % str(len(g_group_names))
+class TaskManager:
+	def __init__(self):
+		self.groups = None
+		self.idx    = 0
+	def add_group(self, name=''):
+		# groups are added in a "first in last out fashion"
+		if not name:
+			try: size = len(self.groups)
+			except: size = 0
+			name = 'group-%d' % size
+		if not self.groups:
+			self.groups = [TaskGroup(name)]
+			return
+		if not self.groups[0].prio:
+			warning('add_group: an empty group is already present')
+			return
+		self.groups = self.groups + [TaskGroup(name)]
+	def add_task(self, task, prio):
+		if not self.groups: self.add_group()
+		task.m_idx = self.idx
+		self.idx += 1
+		self.groups[-1].add_task(task, prio)
+	def total(self):
+		total = 0
+		if not self.groups: return 0
+		for group in self.groups:
+			for p in group.prio:
+				total += len(group.prio[p])
+		return total
+	def debug(self):
+		for i in self.groups:
+			print "--------------group-----------------", i.name
+			for j in i.prio:
+				print "prio: ", j, str(i.prio[j])
 
-	global g_tasks
-	# we already have an empty group to fill with tasks
-	if not g_tasks[0]: return
-	g_tasks = [{}]+g_tasks
+g_tasks = TaskManager()
 
-	g_group_names.append(name)
+class TaskGroup:
+	def __init__(self, name):
+		self.name = name
+		self.info = ''
+		self.prio = {} # map priority numbers to tasks
+	def add_task(self, task, prio):
+		try: self.prio[prio].append(task)
+		except: self.prio[prio] = [task]
 
 class Task:
 	def __init__(self, action_name, env, priority=5):
@@ -55,12 +77,6 @@ class Task:
 		self.m_sig=0
 		self.m_dep_sig=0
 
-		global g_idx
-		self.m_idx=g_idx+1
-		g_idx = g_idx+1
-
-		trace("priority given is "+str(priority))
-
 		global g_default_param
 
 		# scanner function
@@ -68,16 +84,11 @@ class Task:
 		self.m_scanner_params = g_default_param
 
 		# add ourself to the list of tasks
-		self._add_task(priority)
+		#self._add_task(priority)
+		global g_tasks
+		g_tasks.add_task(self, priority)
 
 		self.m_run_after = []
-
-	def _add_task(self, priority=6):
-		global g_tasks
-		if len(g_tasks) == 0:
-			g_tasks=[{}]
-		try: g_tasks[0][priority].append(self)
-		except: g_tasks[0][priority] = [self]
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType:
@@ -211,24 +222,27 @@ class Task:
 
 		return 1
 
-	def debug(self, level=0):
-		fun=debug
-		if level>0: fun=error
+	def debug_info(self):
+		ret = []
+		ret.append('-- begin task debugging --')
+		ret.append('action: %s' % str(self.m_action))
+		ret.append('idx:    %s' % str(self.m_idx))
+		ret.append('source: %s' % str(self.m_inputs))
+		ret.append('target: %s' % str(self.m_outputs))
+		ret.append('-- end task debugging --')
+		return '\n'.join(ret)
 
-		fun("-- begin task debugging --")
-		fun("action: "+str(self.m_action)+" idx: "+str(self.m_idx))
-		fun(str(self.m_inputs))
-		fun(str(self.m_outputs))
-		#for node in self.m_outputs:
-		#	fun(str(node.m_tstamp))
-		fun("-- end task debugging --")
+	def debug(self, level=0):
+		fun=Params.debug
+		if level>0: fun=Params.error
+		fun(self.debug_info())
 
 	# IMPORTANT: users want this to set dependencies on other tasks
 	def set_run_after(self, task):
 		self.m_run_after.append(task)
 
-def reset():
-	global g_tasks
-	g_tasks=[{}]
+#def reset():
+#	global g_tasks
+#	g_tasks=[{}]
 
 

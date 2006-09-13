@@ -5,6 +5,7 @@
 import os, popen2, sys, time, random, string, time
 import Params, Task, pproc
 from Params import debug, error, trace, fatal
+from Task import TaskManager
 
 # output a stat file (data for gnuplot) when running tasks in parallel
 dostat=0
@@ -80,50 +81,49 @@ class JobGenerator:
 	def __init__(self, tree):
 		self.m_tree = tree
 
-		# we will use self.m_current_group = self.m_tasks.pop()
-		self.m_tasks = Task.g_tasks
-
-		# current group
-		self.m_current_group    = {}
-
-		# this is also a list that we pop to get the next task list
-		self.m_task_prio_lst    = []
-
-		# this is the list of the tasks
-		self.m_current_task_lst = {}
+		self.curgroup = 0
+		self.curprio  = -1
+		self.curlst   = [] # list of tasks in the current priority
 
 		# progress bar
-		self.m_total     = 0
+		self.m_total     = Task.g_tasks.total()
 		self.m_processed = 0
-
-		self.compute_total()
 
 		self.m_switchflag=1 # postpone
 
-	def compute_total(self):
-		self.m_total=0
-		for htbl in self.m_tasks:
-			for tasks in htbl.values():
-				self.m_total += len(tasks)
+		#Task.g_tasks.debug()
 
 	# warning, this one is recursive ..
 	def get_next(self):
-		try:
-			t = self.m_current_task_lst.pop(0)
+		if self.curlst:
+			t = self.curlst[0]
+			self.curlst=self.curlst[1:]
 			self.m_processed += 1
 			return t
-		except:
-			try:
-				self.m_current_task_lst = self.m_current_group[ self.m_task_prio_lst.pop(0) ]
-			except:
-				try:
-					self.m_current_group = self.m_tasks.pop(0)
-					self.m_task_prio_lst = self.m_current_group.keys()
-					self.m_task_prio_lst.sort()
-				except:
-					debug("no more task to give")
-					return None
+
+		# stop condition
+		if self.curgroup >= len(Task.g_tasks.groups):
+			return None
+
+		# increase the priority value
+		self.curprio += 1
+
+		# there is no current list
+		group = Task.g_tasks.groups[self.curgroup]
+		if self.curprio >= len(group.prio.keys()):
+			self.curprio = -1
+			self.curgroup += 1
 			return self.get_next()
+		
+		# sort keys if necessary
+		if self.curprio == 0:
+			group.prio.keys().sort()
+
+		# now fill curlst
+		id = group.prio.keys()[self.curprio]
+		self.curlst = group.prio[id]
+		
+		return self.get_next()
 
 	def progress(self):
 		return (self.m_processed, self.m_total)
@@ -132,10 +132,11 @@ class JobGenerator:
 		self.m_processed -= 1
 		# shuffle the list - some fanciness of mine (ita)
 		self.m_switchflag=-self.m_switchflag
-		if self.m_switchflag>0: self.m_current_task_lst = [task]+self.m_current_task_lst
-		else:                   self.m_current_task_lst.append(task)
+		if self.m_switchflag>0: self.curlst = [task]+self.curlst
+		else:                   self.curlst.append(task)
 		#self.m_current_task_lst = [task]+self.m_current_task_lst
 
+	# TODO FIXME
 	def debug(self):
 		debug("debugging a task: something went wrong:")
 		#trace("tasks to run in order")
@@ -146,14 +147,15 @@ class JobGenerator:
 		trace(s)
 		#Task.g_tasks.reverse()
 
-	# TODO
+	# skip a group and report the failure
 	def skip_group(self, reason):
-		try:
-			self.m_current_group = self.m_tasks.pop(0)
-			self.m_task_prio_lst = self.m_current_group.keys()
-			self.m_task_prio_lst.sort()
-		except:
-			pass
+		print "reason is ", reason
+		Task.g_tasks.groups[self.curgroup].info = reason
+		self.curgroup += 1
+		self.curprio = -1 
+		self.curlst = []
+		try: Task.g_tasks.groups[self.curgroup].prio.sort()
+		except: pass
 
 class Serial:
 	def __init__(self, generator):
@@ -176,7 +178,7 @@ class Serial:
 			if not proc.may_start():
 				trace("delaying task no "+str(proc.m_idx))
 				self.m_generator.postpone(proc)
-				self.m_generator.debug()
+				#self.m_generator.debug()
 				proc = None
 				continue
 			# # =======================
@@ -213,13 +215,23 @@ class Serial:
 			if ret:
 				error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
 				proc.debug(1)
-				return ret
+
+				if Params.g_options.keep:
+					self.m_generator.skip_group('non-zero return code\n' + proc.debug_info())
+					continue
+				else:
+					return ret
 
 			try:
 				proc.update_stat()
 			except:
 				error('the nodes have not been produced !')
-				raise
+
+				if Params.g_options.keep:
+					self.m_generator.skip_group('missing nodes\n' + proc.debug_info())
+					continue
+				else:
+					raise
 			proc.m_hasrun=1
 
 			# register the task to the ones that have run - useful for debugging purposes
@@ -361,7 +373,7 @@ class Parallel:
 		self.m_tasks = Task.g_tasks
 
 		# progress bar
-		self.m_total        = 0
+		self.m_total        = Task.g_tasks.total()
 		self.m_processed    = 1
 
 		# tasks waiting to be processed
@@ -375,21 +387,12 @@ class Parallel:
 		self.m_count        = 0
 		self.m_stop         = 0
 
-		# update the variables for the progress bar
-		self.compute_total()
-
 		global condition
 		condition = threading.Condition()
 
 		global lock
 		lock = threading.Lock()
 
-	def compute_total(self):
-		self.m_total=0
-		for htbl in self.m_tasks:
-			for tasks in htbl.values():
-				self.m_total += len(tasks)
-	
 	def read_values(self):
 		#print "read values acquire lock"
 		global lock, stop, count

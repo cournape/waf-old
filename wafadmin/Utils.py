@@ -71,11 +71,7 @@ def h_simple_lst(lst):
 def reset():
 	import Params, Task, preproc, Scripting, Object
 	Params.g_build = None
-
-
-	Task.g_tasks_done = []
-	Task.g_idx = 0
-
+	Task.g_tasks = Task.TaskManager()
 	preproc.parse_cache = {}
 	Scripting.g_inroot = 1
 	Object.g_allobjs = []
