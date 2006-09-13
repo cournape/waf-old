@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+import sys, os
+
 # advanced tests
 def build(bld):
 	pass
@@ -11,7 +13,12 @@ def package(bld):
 
 def configure(conf):
 	#check for std flags that could be used with obj.uselib = "GLOBAL"
+
+	oldsyspath = sys.path
+	sys.path = [os.getcwd()] + sys.path
 	import buildfile
+	sys.path = oldsyspath
+
 	conf.env['CCFLAGS_GLOBAL'] = []
 	conf.env['CXXFLAGS_GLOBAL'] = []
 	if conf.check_flags('-Wno-pointer-sign'):
