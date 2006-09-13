@@ -15,7 +15,7 @@ def build(bld):
 	bld.add_subdirs('src')
 
 def configure(conf):
-	conf.checkTool('Tex')
+	conf.check_tool('Tex')
 
 def set_options(opt):
 	pass

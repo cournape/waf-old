@@ -4,7 +4,7 @@
 
 def build(bld):
 	# 1. A simple program
-	obj = bld.createObj('cc', 'program')
+	obj = bld.create_obj('cc', 'program')
 	obj.source='''
 	main.c
 	'''
@@ -13,7 +13,7 @@ def build(bld):
 	obj.target='test_c_program'
 	obj.uselib_local='teststaticlib'
 
-	obj = bld.createObj('cc', 'staticlib')
+	obj = bld.create_obj('cc', 'staticlib')
 	obj.source = 'test.c'
 	obj.target='teststaticlib'
 	

@@ -55,7 +55,7 @@ class XMLHandler(ContentHandler):
 			return
 
 		if name == 'obj':
-			self.doc += '\tobj = bld.createObj("%s")\n' % attrs.get('class')
+			self.doc += '\tobj = bld.create_obj("%s")\n' % attrs.get('class')
 			self.doc += '\tobj.m_type = "%s"\n' % attrs.get('type')
 			self.obj += 1
 			return

@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 def build(bld):
-	obj = bld.createObj('docbook', 'pdf')
+	obj = bld.create_obj('docbook', 'pdf')
 	obj.source='''
 	docbook.xml
 	docbooks.sgml
@@ -10,7 +10,7 @@ def build(bld):
 	'''
 	obj.stylesheet='docbook-pdf.xsl'
 
-	obj = bld.createObj('docbook', 'html')
+	obj = bld.create_obj('docbook', 'html')
 	obj.source='''
 	docbook.xml
 	docbooks.sgml

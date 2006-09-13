@@ -2,9 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-obj = bld.createObj('java')
+obj = bld.create_obj('java')
 obj.source='''
 Hello.java
 '''
-#obj.includes='.'
 

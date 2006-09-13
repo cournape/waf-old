@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-obj = bld.createObj('cs', 'program')
+obj = bld.create_obj('cs', 'program')
 obj.source='''
 Simple.cs
 '''

@@ -31,10 +31,10 @@ def detect(conf):
 		return 0;
 
 	# load the cpp builders
-	conf.checkTool('cpp')
+	conf.check_tool('cpp')
 
 	# g++ requires ar for static libs
-	if not conf.checkTool('ar'):
+	if not conf.check_tool('ar'):
 		Utils.error('g++ needs ar - not found')
 		return 0
 

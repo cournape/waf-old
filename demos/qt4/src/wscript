@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 def build(bld):
-	obj = bld.createObj('qt4', 'program')
+	obj = bld.create_obj('qt4', 'program')
 
 	## the sources can be given manually
 	## or found automatically in the directories specified

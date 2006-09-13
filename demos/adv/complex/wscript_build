@@ -16,7 +16,7 @@
 
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
-obj = bld.createObj('cpp', 'program')
+obj = bld.create_obj('cpp', 'program')
 obj.find_sources_in_dirs('. gui')
 obj.includes='.'
 obj.uselib='GLIB'

@@ -233,7 +233,7 @@ def setup(env):
 
 def detect(conf):
 
-	conf.checkTool('checks')
+	conf.check_tool('checks')
 
 	pocom = conf.find_program('msgfmt')
 	if not pocom:

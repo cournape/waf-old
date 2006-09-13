@@ -4,7 +4,7 @@
 
 def build(bld):
 	# The first example is a simple program
-	obj = bld.createObj('ocaml', 'all')
+	obj = bld.create_obj('ocaml', 'all')
 	obj.source='''
 	main.ml somemodule.ml
 	'''

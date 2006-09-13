@@ -18,8 +18,8 @@ def build(bld):
 	bld.add_subdirs('src')
 
 def configure(conf):
-	conf.checkTool('java')
-	#conf.checkTool('java', tooldir=[os.path.abspath('.')])
+	conf.check_tool('java')
+	#conf.check_tool('java', tooldir=[os.path.abspath('.')])
 
 def set_options(opt):
 	# add your custom options here, for example:

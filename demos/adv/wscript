@@ -32,9 +32,9 @@ def package(bld):
 
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
-	conf.checkTool('checks gcc g++ dang flex bison')
+	conf.check_tool('checks gcc g++ dang flex bison')
 
-	# checkFeatures is only available when 'checks' is in conf.checkTool()
+	# checkFeatures is only available when 'checks' is in conf.check_tool()
 	# look in wafadmin/Tools/checks.py for the other tests available
 	conf.checkEndian()
 

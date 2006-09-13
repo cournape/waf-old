@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 # automatic
-obj=bld.createObj('gnome_sgml2man', 'gnome-hello')
+obj=bld.create_obj('gnome_sgml2man', 'gnome-hello')
 
 #todo
 #docbook2man foo.sgml

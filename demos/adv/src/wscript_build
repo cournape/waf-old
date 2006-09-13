@@ -16,7 +16,7 @@
 
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
-obj = bld.createObj('cpp', 'program')
+obj = bld.create_obj('cpp', 'program')
 obj.source='''
 main.cpp ih.coin
 '''
@@ -28,7 +28,7 @@ obj.target='testprogram2'
 
 
 # a shared library, with a version number -> libshlib1.so.4.2.1
-obj = bld.createObj('cc', 'shlib')
+obj = bld.create_obj('cc', 'shlib')
 obj.source='''
 stuff.c
 '''
@@ -40,21 +40,21 @@ obj.want_libtool=1
 #############################################
 
 # A few object files
-obj = bld.createObj('cpp', 'objects')
+obj = bld.create_obj('cpp', 'objects')
 obj.source="f1.cpp f2.cpp"
 obj.includes="."
 obj.defines="DEBUG=1"
 obj.target="gruik"
 
 # A program using the object files
-obj = bld.createObj('cpp', 'program')
+obj = bld.create_obj('cpp', 'program')
 obj.source="m1.cpp"
 obj.includes="."
 obj.target="m1"
 obj.add_objects="gruik"
 
 # Another program using the object files too
-obj = bld.createObj('cpp', 'program')
+obj = bld.create_obj('cpp', 'program')
 obj.source="m2.cpp"
 obj.includes="."
 obj.target="m2"

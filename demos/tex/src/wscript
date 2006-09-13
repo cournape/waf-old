@@ -9,7 +9,7 @@ def build ( bld ) :
 	Tex.tex_regexp = re.compile('^\\\\bringin{(.*)}', re.M)
 
 	# now create your tex object for compiling the files
-        obj = bld.createObj('tex' , type='latex') # type could be pdflatex
+        obj = bld.create_obj('tex' , type='latex') # type could be pdflatex
         obj.source = 'document.ltx' # mandatory, the source
 
 	# optional parameters

@@ -20,7 +20,7 @@ def build(bld):
 		bld.add_subdirs('shrap')
 
 def configure(conf):
-	conf.checkTool('gcc gnome cs')
+	conf.check_tool('gcc gnome cs')
 
 	conf.check_pkg('libgnome-2.0',        destvar='GNOME',    vnum='2.10.0')
 	conf.check_pkg('libgnomeui-2.0',      destvar='GNOMEUI',  vnum='2.10.0')

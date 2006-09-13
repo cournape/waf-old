@@ -626,7 +626,7 @@ def setup(env):
 
 
 def detect(conf):
-	conf.checkTool('checks')
+	conf.check_tool('checks')
 	conf.env['KDE_IS_FOUND'] = 0
 
 	detect_kde(conf)

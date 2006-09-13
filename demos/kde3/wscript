@@ -13,7 +13,7 @@ def set_options(opt):
 	opt.tool_options('KDE3')
 
 def configure(conf):
-	conf.checkTool('g++ KDE3')
+	conf.check_tool('g++ KDE3')
 	conf.env['CXXFLAGS_QT']=['-DQT_THREAD_SUPPORT']
 	conf.check_header('dlfcn.h','HAVE_DLFCN_H')
 	conf.addDefine('TEST_DEFINE', 345)

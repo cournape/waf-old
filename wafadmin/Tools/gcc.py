@@ -27,10 +27,10 @@ def detect(conf):
 		return 0;
 
 	# load the cc builders
-	conf.checkTool('cc')
+	conf.check_tool('cc')
 
 	# gcc requires ar for static libs
-	if not conf.checkTool('ar'):
+	if not conf.check_tool('ar'):
 		Utils.error('gcc needs ar - not found')
 		return 0
 

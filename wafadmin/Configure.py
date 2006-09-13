@@ -694,17 +694,16 @@ class Configure:
 			self.m_allenvs[name] = env
 			return env
 
-	def checkTool(self, input, tooldir=None):
+	def check_tool(self, input, tooldir=None):
 		"load a waf tool"
 		if type(input) is types.ListType: lst = input
 		else: lst = input.split()
 
 		ret = True
-		for i in lst:
-			ret = ret and self._checkToolImpl(i, tooldir)
+		for i in lst: ret = ret and self._check_tool_impl(i, tooldir)
 		return ret
 
-	def _checkToolImpl(self, tool, tooldir=None):
+	def _check_tool_impl(self, tool, tooldir=None):
 		"private method, do not use directly"
 		define = 'HAVE_'+tool.upper().replace('.','_').replace('+','P')
 
@@ -1065,4 +1064,10 @@ class Configure:
 				raise
 				pass
 		return ret
+
+
+	# TODO deprecated
+	def checkTool(self, input, tooldir=None):
+		warning('use conf.check_tool instead of checkTool')
+		return self.check_tool(input, tooldir)
 

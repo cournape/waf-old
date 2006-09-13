@@ -12,7 +12,7 @@ def build(bld):
 	print "command-line parameter meow is ", Params.g_options.meow
 
 	# 1. A simple program
-	obj = bld.createObj('cpp', 'program')
+	obj = bld.create_obj('cpp', 'program')
 	obj.source='''
 	a1.cpp
 	b1.cpp b2.cpp
@@ -23,7 +23,7 @@ def build(bld):
 
 	# 2. A shared library
 	# The extension (.so) is added automatically
-	obj = bld.createObj('cpp', 'shlib')
+	obj = bld.create_obj('cpp', 'shlib')
 	obj.source='''
 	a1.cpp
 	b1.cpp b2.cpp
@@ -35,7 +35,7 @@ def build(bld):
 
 	# 3. A static library
 	# The extension (.a) is added automatically
-	obj = bld.createObj('cpp', 'staticlib')
+	obj = bld.create_obj('cpp', 'staticlib')
 	obj.source='''
 	c1.cpp
 	'''
@@ -44,7 +44,7 @@ def build(bld):
 	obj.target       = 'teststaticlib'
 
 	# 4. Another shared library
-	obj = bld.createObj('cpp', 'shlib')
+	obj = bld.create_obj('cpp', 'shlib')
 	obj.source='''
 	d1.cpp
 	'''
@@ -55,7 +55,7 @@ def build(bld):
 	obj.vnum         = '1.2.3'
 
 	# 5. A program that links against shlib1
-	obj = bld.createObj('cpp', 'program')
+	obj = bld.create_obj('cpp', 'program')
 	obj.source='''
 	e1.cpp
 	'''

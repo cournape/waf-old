@@ -20,7 +20,7 @@ def build(bld):
 def configure(conf):
 	# conf.env['CXX'] = Params.g_options.meow
 	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
-	conf.checkTool('g++')
+	conf.check_tool('g++')
 	conf.sub_config('src')
 
 	conf.env['CXXFLAGS_MYPROG']='-O3'
@@ -28,7 +28,7 @@ def configure(conf):
 	conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
 	
 	# works in a procedural way, so the order of calls does matter
-	#conf.checkTool(['KDE3'])
+	#conf.check_tool(['KDE3'])
 
 def set_options(opt):
 	opt.sub_options('src')

@@ -6,7 +6,7 @@ def build(bld):
 	mode = 'cpp'
 	#mode = 'cc'
 
-	obj = bld.createObj(mode, 'program')
+	obj = bld.create_obj(mode, 'program')
 	#obj.source='''
 	#main.c
 	#calc.l

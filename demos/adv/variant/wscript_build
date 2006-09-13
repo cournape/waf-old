@@ -4,7 +4,7 @@
 
 # provides a demo for different objects built using different variants
 
-lib_in_variant1 = bld.createObj('cc', 'shlib')
+lib_in_variant1 = bld.create_obj('cc', 'shlib')
 lib_in_variant1.source='''
 lib1.c
 '''
@@ -13,7 +13,7 @@ lib_in_variant1.target        = 'lib1'
 lib_in_variant1.name          = 'lib1'
 
 
-prog_in_variant1 = bld.createObj('cpp', 'program')
+prog_in_variant1 = bld.create_obj('cpp', 'program')
 prog_in_variant1.source='''
 src1.c
 '''

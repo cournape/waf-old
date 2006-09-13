@@ -13,7 +13,7 @@ def set_options(opt):
 	opt.tool_options('Qt4')
 
 def configure(conf):
-	conf.checkTool('g++ Qt4')
+	conf.check_tool('g++ Qt4')
 	conf.env.appendValue('CXXFLAGS', '-g -D_REENTRANT  -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE -DQT_OPENGL_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED')
 
 def build(bld):

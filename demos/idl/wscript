@@ -15,7 +15,7 @@ def build(bld):
 	bld.add_subdirs('src')
 
 def configure(conf):
-	conf.checkTool('g++ tao_idl')
+	conf.check_tool('g++ tao_idl')
 
 def set_options(opt):
 	pass

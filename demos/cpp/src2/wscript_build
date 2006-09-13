@@ -11,7 +11,7 @@
 # By contrast, only functions can be defined in a wscript
 #
 
-obj = bld.createObj('cpp', 'program')
+obj = bld.create_obj('cpp', 'program')
 obj.source='''
 main.cpp
 '''

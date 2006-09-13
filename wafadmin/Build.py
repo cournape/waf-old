@@ -4,7 +4,7 @@
 
 import os, os.path, sys, cPickle, types
 import Environment, Params, Runner, Object, Utils, Node, Task
-from Params import debug, error, trace, fatal
+from Params import debug, error, trace, fatal, warning
 
 g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
 class BuildDTO:
@@ -362,11 +362,11 @@ class Build:
 	# ======================================= #
 
 	# shortcut for object creation
-	def createObj(self, objname, *k, **kw):
+	def create_obj(self, objname, *k, **kw):
 		try:
 			return Object.g_allclasses[objname](*k, **kw)
 		except:
-			error("error in createObj "+str(objname))
+			error("error in create_obj "+str(objname))
 			raise
 
 	def _scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
@@ -532,4 +532,10 @@ class Build:
 	def add_group(self, name=''):
 		Object.flush()
 		Task.g_tasks.add_group(name)
+
+
+	# TODO obsolete
+	def createObj(self, objname, *k, **kw):
+		warning('use bld.create_obj instead of bld.createObj')
+		return self.create_obj(objname, *k, **kw)
 
