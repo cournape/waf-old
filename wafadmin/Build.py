@@ -157,9 +157,9 @@ class Build:
 		# now for each task, make sure to remove the objects
 		# 4 for loops
 		import Task
-		for hash in Task.g_tasks:
-			for prio in hash:
-				for t in hash[prio]:
+		for group in Task.g_tasks.groups:
+			for p in group.prio:
+				for t in group.prio[p]:
 					for node in t.m_outputs:
 						try: os.remove(node.abspath(t.m_env))
 						except: pass
