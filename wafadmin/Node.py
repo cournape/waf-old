@@ -371,7 +371,7 @@ class Node:
 	# returns the folder in the build dir for reaching this node
 	#def cd_to(self):
 	#	reldir = Params.g_build.m_bldnode.difflst(self)
-	#	reldir = reldir[:len(reldir)-1]
+	#	reldir = reldir[:-1]
 	#	reldir = os.sep.join(reldir)
 	#	return reldir
 	# path relative to the src directory (useful for building targets : almost - ita)

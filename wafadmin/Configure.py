@@ -827,7 +827,7 @@ class Configure:
 		try:
 			# just in case the path is 'something/blah.h' (under the builddir)
 			lst=configfile.split('/')
-			lst = lst[:len(lst)-1]
+			lst = lst[:-1]
 			os.mkdir( os.sep.join(lst) )
 		except:
 			pass

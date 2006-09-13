@@ -205,9 +205,8 @@ def xor_sig(o1, o2):
 def vsig(s):
 	if type(s) is types.StringType:
 		n = base64.encodestring(s)
-		if len(n)>2:
-			return n[:len(n)-2]
-		return n
+		try: return n[-2]
+		except: return n
 	else:
 		return str(s)
 

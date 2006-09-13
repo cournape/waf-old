@@ -89,7 +89,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 		else:
 			file     = filename
 			alst     = filename.split('/')
-			destfile = os.path.join(destpath, alst[len(alst)-1])
+			destfile = os.path.join(destpath, alst[-1])
 
 		do_install(file, destfile, chmod=chmod)
 
