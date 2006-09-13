@@ -390,6 +390,11 @@ class Parallel:
 		self.m_count        = 0
 		self.m_stop         = 0
 
+
+		self.curgroup = 0
+		self.curprio = -1
+		self.priolst = []
+
 		global condition
 		condition = threading.Condition()
 
@@ -413,6 +418,30 @@ class Parallel:
 			self.read_values()
 		condition.release()
 
+	def get_next_prio(self):
+		# stop condition
+		if self.curgroup >= len(Task.g_tasks.groups):
+			return (None, None)
+
+		# increase the priority value
+		self.curprio += 1
+
+		# there is no current list
+		group = Task.g_tasks.groups[self.curgroup]
+		if self.curprio >= len(group.prio.keys()):
+			self.curprio = -1
+			self.curgroup += 1
+			return self.get_next_prio()
+		
+		# sort keys if necessary
+		if self.curprio == 0:
+			self.priolst = group.prio.keys()
+			self.priolst.sort()
+
+		# now fill curlst
+		id = self.priolst[self.curprio]
+		return (id, group.prio[id])
+
 	def start(self):
 		global count, lock, stop, condition, dostat
 
@@ -422,7 +451,7 @@ class Parallel:
 		if dostat: TaskPrinter(-1, self)
 
 		# the current group
-		group = None
+		#group = None
 
 		# current priority
 		currentprio = 0
@@ -440,19 +469,8 @@ class Parallel:
 			# and then skip to the next priority group
 			if (not self.m_frozen) and (not self.m_outstanding):
 				self.wait_all_finished()
-				if not group:
-					try:
-						lst = self.m_tasks.pop(0)
-						group = []
-						keys = lst.keys()
-						keys.sort()
-						for key in keys:
-							group.append( (key, lst[key]) )
-					except:
-						self.wait_all_finished()
-						break
-
-				(currentprio, self.m_outstanding) = group.pop(0)
+				(currentprio, self.m_outstanding) = self.get_next_prio()
+				if currentprio is None: break
 
 			# for tasks that must run sequentially
 			# (linking object files uses a lot of memory for example)
