@@ -224,12 +224,12 @@ class Task:
 
 	def debug_info(self):
 		ret = []
-		ret.append('-- begin task debugging --')
+		ret.append('-- task details begin --')
 		ret.append('action: %s' % str(self.m_action))
 		ret.append('idx:    %s' % str(self.m_idx))
 		ret.append('source: %s' % str(self.m_inputs))
 		ret.append('target: %s' % str(self.m_outputs))
-		ret.append('-- end task debugging --')
+		ret.append('-- task details end --')
 		return '\n'.join(ret)
 
 	def debug(self, level=0):

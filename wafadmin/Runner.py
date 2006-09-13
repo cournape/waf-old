@@ -93,7 +93,7 @@ class JobGenerator:
 
 		self.m_switchflag=1 # postpone
 
-		Task.g_tasks.debug()
+		#Task.g_tasks.debug()
 
 	# warning, this one is recursive ..
 	def get_next(self):
@@ -152,7 +152,6 @@ class JobGenerator:
 
 	# skip a group and report the failure
 	def skip_group(self, reason):
-		print "reason is ", reason
 		Task.g_tasks.groups[self.curgroup].info = reason
 		self.curgroup += 1
 		self.curprio = -1 
@@ -216,24 +215,22 @@ class Serial:
 
 			# non-zero means something went wrong
 			if ret:
-				error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
-				proc.debug(1)
-
 				if Params.g_options.keep:
 					self.m_generator.skip_group('non-zero return code\n' + proc.debug_info())
 					continue
 				else:
+					error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
+					proc.debug(1)
 					return ret
 
 			try:
 				proc.update_stat()
 			except:
-				error('the nodes have not been produced !')
-
 				if Params.g_options.keep:
 					self.m_generator.skip_group('missing nodes\n' + proc.debug_info())
 					continue
 				else:
+					error('the nodes have not been produced !')
 					raise
 			proc.m_hasrun=1
 
