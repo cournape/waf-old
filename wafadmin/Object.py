@@ -45,12 +45,15 @@ def flush():
 	dir_lst = Params.g_launchdir.split(os.sep)
 	root    = bld.m_root
 	launch_dir_node = find_launch_node(root, dir_lst)
-	compile_targets = Params.g_options.compile_targets.split(',')
+	if Params.g_options.compile_targets:
+		compile_targets = Params.g_options.compile_targets.split(',')
+	else:
+		compile_targets = None
 
-	while len(bld.m_outstanding_objs)>0:
+	for obj in bld.m_outstanding_objs:
 		trace("posting object")
 
-		obj=bld.m_outstanding_objs.pop()
+		if obj.m_posted: continue
 
 		# compile only targets under the launch directory
 		if launch_dir_node:
@@ -58,12 +61,14 @@ def flush():
 			if not (objnode is launch_dir_node or objnode.is_child_of(launch_dir_node)):
 				continue
 		if compile_targets:
-			if not (obj.name in compile_targets or obj.target in compile_targets):
+			if obj.name and not (obj.name in compile_targets):
+				trace("skipping because of name")
 				continue
+			if not obj.target in compile_targets:
+				trace("skipping because of target")
+				continue
+		# post the object
 		obj.post()
-
-		# TODO useless
-		bld.m_posted_objs.append(obj)
 
 		trace("object posted")
 

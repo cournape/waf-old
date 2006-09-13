@@ -93,7 +93,7 @@ class JobGenerator:
 
 		self.m_switchflag=1 # postpone
 
-		#Task.g_tasks.debug()
+		Task.g_tasks.debug()
 
 	# warning, this one is recursive ..
 	def get_next(self):

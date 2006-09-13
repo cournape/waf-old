@@ -29,7 +29,7 @@ class TaskManager:
 			return
 		self.groups = self.groups + [TaskGroup(name)]
 	def add_task(self, task, prio):
-		if not self.groups: self.add_group()
+		if not self.groups: self.add_group('group-0')
 		task.m_idx = self.idx
 		self.idx += 1
 		self.groups[-1].add_task(task, prio)

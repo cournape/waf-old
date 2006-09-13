@@ -75,7 +75,6 @@ class Build:
 		# objects that are not posted and objects already posted
 		# -> delay task creation
 		self.m_outstanding_objs = []
-		self.m_posted_objs      = []
 
 		# build dir variants (release, debug, ..)
 		self.set_variants(['default'])
