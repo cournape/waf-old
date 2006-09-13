@@ -226,6 +226,7 @@ class Serial:
 			try:
 				proc.update_stat()
 			except:
+				raise
 				if Params.g_options.keep:
 					self.m_generator.skip_group('missing nodes\n' + proc.debug_info())
 					continue

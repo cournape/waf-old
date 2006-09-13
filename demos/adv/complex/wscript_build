@@ -24,3 +24,13 @@ obj.target='shlib3'
 obj.want_libtool=1
 obj.vnum='1.2.3'
 
+
+def print_hello(task):
+	print "ahoy"
+	return 0
+
+# execute arbitrary code in the middle of the build
+obj = bld.create_obj('cmd')
+obj.fun = print_hello
+obj.prio = 1 # execute this task first
+

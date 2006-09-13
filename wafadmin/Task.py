@@ -139,9 +139,10 @@ class Task:
 
 	# wait for other tasks to complete
 	def may_start(self):
-		if len(self.m_inputs) < 1 or len(self.m_outputs) < 1:
-			error("grave error, task is invalid : no inputs or outputs")
-			self.debug()
+		if (not self.m_inputs) or (not self.m_outputs):
+			if not (not self.m_inputs) and (not self.m_outputs):
+				error("potentially grave error, task is invalid : no inputs or outputs")
+				self.debug()
 
 		if not self.m_scanner.may_start(self): return 1
 
@@ -152,6 +153,9 @@ class Task:
 	# see if this task must or must not be run
 	def must_run(self):
 		ret = 0
+		if not self.m_inputs and not self.m_outputs:
+			self.m_dep_sig = Params.sig_nil()
+			return 1
 
 		self.m_dep_sig = self.m_scanner.get_signature(self)
 
