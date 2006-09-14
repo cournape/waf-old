@@ -11,13 +11,34 @@ def build(bld):
 def package(bld):
 	pass
 
+def readCodeFromFile(fileName):
+	"""opens a textfile and read the complete file
+	into code string"""
+	f=open(fileName, 'r')
+	code = f.read()
+	f.close()
+	return code
+
+def try_build_file(conf, fileName, msgPrefix="HAVE"):
+	"""try to build a file and fill a define value"""
+	import os
+	try:
+		code = readCodeFromFile(fileName)
+	except:
+		print "file %s not found or could not be opened." % fileName
+		return False
+	try:
+		__msg = msgPrefix + "_" + ((fileName.split(os.sep)[-1]).split('.')[0]).upper()
+		if conf.try_build(code, msg = __msg):
+			conf.addDefine(__msg, 1)
+			return True
+		else:
+			return False
+	except:
+		return False
+
 def configure(conf):
 	#check for std flags that could be used with obj.uselib = "GLOBAL"
-
-	oldsyspath = sys.path
-	sys.path = [os.getcwd()] + sys.path
-	import buildfile
-	sys.path = oldsyspath
 
 	conf.env['CCFLAGS_GLOBAL'] = []
 	conf.env['CXXFLAGS_GLOBAL'] = []
@@ -36,7 +57,7 @@ def configure(conf):
 	sys/file.h string.h strings.h ctype.h stdlib.h stdarg.h stdint.h \
 	stddef.h sys/socket.h sys/modem.h termios.h sys/filio.h inttypes.h \
 	wchar.h direct.h sys/types.h alloca.h libintl.h'
-	
+
 	# check for headers and append found headers to headers_found for later use
 	headers_found = []
 	for header in headers.split():
@@ -51,14 +72,14 @@ def configure(conf):
 		['select', 'HAVE_SELECT'],
 		['poll', 'HAVE_POLL'],
 		['wcrtomb', 'HAVE_WCRTOMB'],
-		['strchr', 'HAVE_STRCHR'], 
+		['strchr', 'HAVE_STRCHR'],
 		['strdup', 'HAVE_STRDUP'],
 		['strstr', 'HAVE_STRSTR'],
 		['strtol', 'HAVE_STRTOL'],
-		['strtok', 'HAVE_STRTOK'], 
+		['strtok', 'HAVE_STRTOK'],
 		['strsep', 'HAVE_STRSEP'],
 		['asprintf', 'HAVE_ASPRINTF'],
-		['vasprintf', 'HAVE_VASPRINTF'], 
+		['vasprintf', 'HAVE_VASPRINTF'],
 		['snprintf','HAVE_SNPRINTF'],
 		['vsnprintf', 'HAVE_VSNPRINTF']
 	]
@@ -71,14 +92,14 @@ def configure(conf):
 		functionfind.define = pair[1]
 		functionfind.run()
 
-	buildfile.try_build_file(conf, 'tests/tm_gmton.c')
-	buildfile.try_build_file(conf, 'tests/timeops.c')
-	buildfile.try_build_file(conf, 'tests/msghdr_msg_control.c')
-	if not buildfile.try_build_file(conf, 'tests/unix98ptys.c', 'USE'):
+	try_build_file(conf, 'tests/tm_gmton.c')
+	try_build_file(conf, 'tests/timeops.c')
+	try_build_file(conf, 'tests/msghdr_msg_control.c')
+	if not try_build_file(conf, 'tests/unix98ptys.c', 'USE'):
 		print "unix98pty not supported"
 
-	if not buildfile.try_build_file(conf, 'tests/cfsetspeed.c'):
-		if buildfile.try_build_file(conf, 'tests/cfsetispeed.c'):
+	if not try_build_file(conf, 'tests/cfsetspeed.c'):
+		if try_build_file(conf, 'tests/cfsetispeed.c'):
 			conf.addDefine('HAVE_CFSETOSPEED', 1)
 		else:
 			try_build_file(conf, 'tests/termios_cspeed.c')
