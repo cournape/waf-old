@@ -24,7 +24,7 @@ g_preprocess = 1
 g_excludes = ['.svn', 'CVS', 'wafadmin', '.arch-ids']
 
 # Hash method: md5 or simple scheme over integers
-g_strong_hash = 1
+g_strong_hash = 0
 
 # The null signature depends upon the Hash method in use
 def sig_nil():
@@ -166,6 +166,15 @@ def fatal(msg):
 	pprint('RED', msg+" \n(error raised in module "+module+")")
 	sys.exit(1)
 
+
+# used for displaying signatures
+def vsig(s):
+	if type(s) is types.StringType:
+		n = base64.encodestring(s)
+		return n[:-2]
+	else:
+		return str(s)
+
 def h_file(fname):
 	global g_strong_hash
 	if g_strong_hash: return Utils.h_md5_file(fname)
@@ -181,32 +190,35 @@ def h_list(lst):
 	if g_strong_hash: return Utils.h_md5_lst(lst)
 	return Utils.h_simple_lst(lst)
 
-def xor_sig(o1, o2):
-	#if o1 == o2: return o1
-	try:
-		# we add -0 to make sure these are integer values
-		s = int(int(33*o1)+o2)
-		return s
-	except:
-		try:
-			#m = md5.new()
-			#m.update(o1)
-			#m.update(o2)
-			#return m.digest()
-	
-			return "".join( map(lambda a, b: chr(ord(a) ^ ord(b)), o1, o2) )
-		except:
-			print len(o1), len(o2)
-			print repr(o1), repr(o2)
-			print "exception xor_sig with incompatible objects", str(o1), str(o2)
-			raise
 
-# used for displaying signatures
-def vsig(s):
-	if type(s) is types.StringType:
-		n = base64.encodestring(s)
-		try: return n[-2]
-		except: return n
-	else:
-		return str(s)
+# hash functions
+def hash_sig(o1, o2):
+	return None
+
+def hash_sig_weak(o1, o2):
+	return int(33*o1) ^ o2
+
+def hash_sig_strong(o1, o2):
+	m = md5.new()
+	m.update(o1)
+	m.update(o2)
+	return m.digest()
+	#try:
+	#	#m = md5.new()
+	#	#m.update(o1)
+	#	#m.update(o2)
+	#	#return m.digest()
+	#	# from two md5 digests we want a more or less unique string
+	#	#return "".join( map(lambda a, b: chr((33*ord(a)) ^ ord(b)), o1, o2) )
+	#except:
+	#	print len(o1), len(o2)
+	#	print repr(o1), repr(o2)
+	#	print "exception xor_sig with incompatible objects", str(o1), str(o2)
+	#	raise
+
+if g_strong_hash:
+	hash_sig = hash_sig_strong
+else:
+	hash_sig = hash_sig_weak
+
 

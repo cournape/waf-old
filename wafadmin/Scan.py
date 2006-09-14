@@ -3,8 +3,9 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, re, md5
-import Params, Node
+import Params, Node, Utils
 from Params import debug, error, trace, fatal
+from Params import hash_sig_weak
 
 # look in this global var when looking for a scanner object
 g_all_scanners={}
@@ -176,9 +177,9 @@ class scanner:
 			for dep in lst: sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
-		for node in task.m_inputs: msum = int(msum * 33) + add_node_sig(node)
+		for node in task.m_inputs: msum = hash_sig_weak(msum, add_node_sig(node))
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: msum = int(msum * 33) + task.signature()
+		for task in task.m_run_after: msum = hash_sig_weak(msum, task.signature())
 		return int(msum)
 
 # ======================================= #
@@ -291,9 +292,9 @@ class c_scanner(scanner):
 			for dep in lst: sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
-		for node in task.m_inputs: msum = int(33*msum) + add_node_sig(node)
+		for node in task.m_inputs: msum = hash_sig_weak(msum, add_node_sig(node))
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: msum = int(33*msum) + task.signature()
+		for task in task.m_run_after: msum = hash_sig_weak(msum, task.signature())
 		return int(msum)
 
 	def _get_signature_preprocessor_weak(self, task):
@@ -335,11 +336,11 @@ class c_scanner(scanner):
 #			tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
 
 		# we are certain that the files have been scanned - compute the signature
-		msum = int(33*msum) + add_node_sig(node)
-		for n in tree.m_depends_on[variant][node]: msum = int(33*msum) + add_node_sig(n)
+		msum = hash_sig_weak(msum, add_node_sig(node))
+		for n in tree.m_depends_on[variant][node]: msum = hash_sig_weak(msum, add_node_sig(n))
 
 		# and now xor the signature with the other tasks
-		for task in task.m_run_after: msum = int(33*msum) + task.signature()
+		for task in task.m_run_after: msum = hash_sig_weak(msum, task.signature())
 		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
 
 		return int(msum) # this number was not chosen randomly

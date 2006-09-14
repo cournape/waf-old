@@ -105,7 +105,7 @@ class Task:
 	def signature(self):
 		#s = str(self.m_sig)+str(self.m_dep_sig)
 		#return s.__hash__()
-		return Params.xor_sig(self.m_sig, self.m_dep_sig)
+		return Params.hash_sig(self.m_sig, self.m_dep_sig)
 
 	def update_stat(self):
 		tree = Params.g_build
