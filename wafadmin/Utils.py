@@ -31,40 +31,6 @@ def waf_version(mini="0.0.1", maxi="100.0.0"):
 def error(msg):
 	Params.niceprint(msg, 'ERROR', 'Configuration')
 
-def h_md5_file(filename):
-	f = file(filename,'rb')
-	m = md5.new()
-	readBytes = 1024 # read 1024 bytes per time
-	while (readBytes):
-		readString = f.read(readBytes)
-		m.update(readString)
-		readBytes = len(readString)
-	f.close()
-	return m.digest()
-
-def h_md5_str(str):
-	m = md5.new()
-	m.update( str )
-	return m.digest()
-
-def h_md5_lst(lst):
-	m = md5.new()
-	m.update(str(lst))
-	return m.digest()
-
-def h_simple_file(filename):
-	f = file(filename,'rb')
-	s = f.read().__hash__()
-	f.close()
-	return s
-	#return os.stat(filename).st_mtime
-
-def h_simple_str(str):
-	return str.__hash__()
-
-def h_simple_lst(lst):
-	return hash(str(lst))
-
 def reset():
 	import Params, Task, preproc, Scripting, Object
 	Params.g_build = None
@@ -134,11 +100,5 @@ def copyobj(obj):
 	cp = obj.__class__()
 	for at in obj.__dict__.keys():
 		setattr(cp, at, getattr(obj, at))
-
 	return cp
-
-
-
-
-
 

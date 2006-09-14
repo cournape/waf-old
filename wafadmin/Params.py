@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, sys, types, inspect, md5, random, base64
+import os, sys, types, inspect, md5, random, base64, stat
 import Utils
 
 # =================================== #
@@ -24,7 +24,9 @@ g_preprocess = 1
 g_excludes = ['.svn', 'CVS', 'wafadmin', '.arch-ids']
 
 # Hash method: md5 or simple scheme over integers
-g_strong_hash = 1
+g_strong_hash = 1 # 1 use md5
+# Timestamp only
+g_timestamp = 0 # 0 look at the file contents
 
 # The null signature depends upon the Hash method in use
 def sig_nil():
@@ -175,38 +177,85 @@ def vsig(s):
 	else:
 		return str(s)
 
-def h_file(fname):
-	global g_strong_hash
-	if g_strong_hash: return Utils.h_md5_file(fname)
-	return Utils.h_simple_file(fname)
-
-def h_string(string):
-	global g_strong_hash
-	if g_strong_hash: return Utils.h_md5_str(string)
-	return Utils.h_simple_str(string)
-
-def h_list(lst):
-	global g_strong_hash
-	if g_strong_hash: return Utils.h_md5_lst(lst)
-	return Utils.h_simple_lst(lst)
-
-
-# hash functions
+##################
+# functions to use
 def hash_sig(o1, o2):
 	return None
-
+def h_file():
+	return None
+def h_string(s):
+	return None
+def h_list(lst):
+	return None
+##################
+# hash files
+def h_md5_file(filename):
+	f = file(filename,'rb')
+	m = md5.new()
+	readBytes = 1024 # read 1024 bytes per time
+	while (readBytes):
+		readString = f.read(readBytes)
+		m.update(readString)
+		readBytes = len(readString)
+	f.close()
+	return m.digest()
+def h_md5_file_tstamp(filename):
+	st = os.stat(filename)
+	if stat.S_ISDIR(st.st_mode): raise OSError
+	tt = st.st_mtime
+	m = md5.new()
+	m.update(str(tt)+filename)
+	return m.digest()
+def h_simple_file(filename):
+	f = file(filename,'rb')
+	s = f.read().__hash__()
+	f.close()
+	return s
+def h_simple_file_tstamp(filename):
+	st = os.stat(filename)
+	if stat.S_ISDIR(st.st_mode): raise OSError
+	m = md5.new()
+	return hash( (st.st_mtime, filename) )
+#################
+# hash signatures
 def hash_sig_weak(o1, o2):
 	return hash( (o1, o2) )
-
 def hash_sig_strong(o1, o2):
 	m = md5.new()
 	m.update(o1)
 	m.update(o2)
 	return m.digest()
-
+##############
+# hash string
+def h_md5_str(str):
+	m = md5.new()
+	m.update( str )
+	return m.digest()
+def h_simple_str(str):
+	return str.__hash__()
+###############
+# hash lists
+def h_md5_lst(lst):
+	m = md5.new()
+	m.update(str(lst))
+	return m.digest()
+def h_simple_lst(lst):
+	return hash(str(lst))
+##############
+#def set_hash(hash, tstamp):
 if g_strong_hash:
 	hash_sig = hash_sig_strong
+	h_string = h_md5_str
+	h_list = h_md5_lst
+	if g_timestamp: h_file = h_md5_file_tstamp
+	else: h_file = h_md5_file
 else:
 	hash_sig = hash_sig_weak
+	h_string = h_simple_str
+	h_list = h_simple_lst
+	if g_timestamp: h_file = h_simple_file_tstamp
+	else: h_file = h_simple_file
 
+# will be set on import
+#set_hash(g_strong_hash, g_timestamp)
 

@@ -22,8 +22,8 @@ def do_install(src, tgt, chmod=0644):
 		do_install = 1
 		if not Params.g_options.force:
 			try:
-				t1 = os.stat(tgt)[stat.ST_MTIME]
-				t2 = os.stat(src)[stat.ST_MTIME]
+				t1 = os.stat(tgt).st_mtime
+				t2 = os.stat(src).st_mtime
 				if t1 >= t2: do_install = 0
 			except:
 				do_install = 1
