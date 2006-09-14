@@ -176,10 +176,10 @@ class scanner:
 			for dep in lst: sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
-		for node in task.m_inputs: msum += add_node_sig(node)
+		for node in task.m_inputs: msum = int(msum * 33) + add_node_sig(node)
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: msum += task.signature()
-		return int(msum % 2000000011) # this number was not chosen randomly
+		for task in task.m_run_after: msum = int(msum * 33) + task.signature()
+		return int(msum)
 
 # ======================================= #
 # scanner implementations
@@ -291,10 +291,10 @@ class c_scanner(scanner):
 			for dep in lst: sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
-		for node in task.m_inputs: msum += add_node_sig(node)
+		for node in task.m_inputs: msum = int(33*msum) + add_node_sig(node)
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: msum += task.signature()
-		return int(msum % 2000000011) # this number was not chosen randomly
+		for task in task.m_run_after: msum = int(33*msum) + task.signature()
+		return int(msum)
 
 	def _get_signature_preprocessor_weak(self, task):
 		msum = 0
@@ -335,14 +335,14 @@ class c_scanner(scanner):
 #			tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
 
 		# we are certain that the files have been scanned - compute the signature
-		msum += add_node_sig(node)
-		for n in tree.m_depends_on[variant][node]: msum += add_node_sig(n)
+		msum = int(33*msum) + add_node_sig(node)
+		for n in tree.m_depends_on[variant][node]: msum = int(33*msum) + add_node_sig(n)
 
 		# and now xor the signature with the other tasks
-		for task in task.m_run_after: msum += task.signature()
+		for task in task.m_run_after: msum = int(33*msum) + task.signature()
 		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
 
-		return int(msum % 2000000011) # this number was not chosen randomly
+		return int(msum) # this number was not chosen randomly
 
 	def _get_signature_preprocessor(self, task):
 		# assumption: there is only one cpp file to compile in a task

@@ -28,7 +28,7 @@ g_strong_hash = 1
 
 # The null signature depends upon the Hash method in use
 def sig_nil():
-	if g_strong_hash: return '\xaea\x86\xf0T\xbd\x93\xc5V\x01\xc6Y"\x7fi\xd4'
+	if g_strong_hash: return 'iluvcuteoverload'
 	else: return 0
 
 # =================================== #
@@ -185,7 +185,7 @@ def xor_sig(o1, o2):
 	#if o1 == o2: return o1
 	try:
 		# we add -0 to make sure these are integer values
-		s = (o1^o2)-0
+		s = int(int(33*o1)+o2)
 		return s
 	except:
 		try:
