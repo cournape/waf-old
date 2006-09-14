@@ -11,7 +11,7 @@ def build(bld):
 def package(bld):
 	pass
 
-def readCodeFromFile(fileName):
+def read_code_from_file(fileName):
 	"""opens a textfile and read the complete file
 	into code string"""
 	f=open(fileName, 'r')
@@ -23,7 +23,7 @@ def try_build_file(conf, fileName, msgPrefix="HAVE"):
 	"""try to build a file and fill a define value"""
 	import os
 	try:
-		code = readCodeFromFile(fileName)
+		code = read_code_from_file(fileName)
 	except:
 		print "file %s not found or could not be opened." % fileName
 		return False
@@ -92,6 +92,9 @@ def configure(conf):
 		functionfind.define = pair[1]
 		functionfind.run()
 
+	try_build_file(conf, 'tests/long_long.c')
+	try_build_file(conf, 'tests/long_double.c')
+	try_build_file(conf, 'tests/ptr_t.c')
 	try_build_file(conf, 'tests/tm_gmton.c')
 	try_build_file(conf, 'tests/timeops.c')
 	try_build_file(conf, 'tests/msghdr_msg_control.c')
