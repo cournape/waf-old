@@ -49,10 +49,8 @@ def h_md5_str(str):
 
 def h_md5_lst(lst):
 	m = md5.new()
-	for el in lst: m.update(str(el))
+	m.update(str(lst))
 	return m.digest()
-
-# --
 
 def h_simple_file(filename):
 	f = file(filename,'rb')
@@ -65,8 +63,7 @@ def h_simple_str(str):
 	return str.__hash__()
 
 def h_simple_lst(lst):
-	return hash(lst)
-	#return reduce( lambda a,b : hash( (a,b) ), ['']+lst )
+	return hash(str(lst))
 
 def reset():
 	import Params, Task, preproc, Scripting, Object

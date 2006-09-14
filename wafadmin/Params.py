@@ -24,7 +24,7 @@ g_preprocess = 1
 g_excludes = ['.svn', 'CVS', 'wafadmin', '.arch-ids']
 
 # Hash method: md5 or simple scheme over integers
-g_strong_hash = 0
+g_strong_hash = 1
 
 # The null signature depends upon the Hash method in use
 def sig_nil():
@@ -203,18 +203,6 @@ def hash_sig_strong(o1, o2):
 	m.update(o1)
 	m.update(o2)
 	return m.digest()
-	#try:
-	#	#m = md5.new()
-	#	#m.update(o1)
-	#	#m.update(o2)
-	#	#return m.digest()
-	#	# from two md5 digests we want a more or less unique string
-	#	#return "".join( map(lambda a, b: chr((33*ord(a)) ^ ord(b)), o1, o2) )
-	#except:
-	#	print len(o1), len(o2)
-	#	print repr(o1), repr(o2)
-	#	print "exception xor_sig with incompatible objects", str(o1), str(o2)
-	#	raise
 
 if g_strong_hash:
 	hash_sig = hash_sig_strong
