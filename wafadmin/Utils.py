@@ -65,8 +65,8 @@ def h_simple_str(str):
 	return str.__hash__()
 
 def h_simple_lst(lst):
-	val = reduce( lambda a,b : a.__hash__() ^ b.__hash__(), ['']+lst )
-	return val+1
+	return hash(lst)
+	#return reduce( lambda a,b : hash( (a,b) ), ['']+lst )
 
 def reset():
 	import Params, Task, preproc, Scripting, Object

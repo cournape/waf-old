@@ -196,7 +196,7 @@ def hash_sig(o1, o2):
 	return None
 
 def hash_sig_weak(o1, o2):
-	return int(33*o1) ^ o2
+	return hash( (o1, o2) )
 
 def hash_sig_strong(o1, o2):
 	m = md5.new()
