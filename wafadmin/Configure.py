@@ -1,12 +1,9 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import os, types, sys, string, imp, cPickle, md5
+import os, types, imp, cPickle, md5
 import Params, Environment, Runner, Build, Utils
-from Params import debug, error, trace, fatal, warning
-
-
-import traceback
+from Params import error, fatal, warning
 
 g_maxlen = 40
 g_debug  = 0
@@ -160,7 +157,7 @@ class program_enumerator(enumerator_base):
 	def run_test(self):
 		ret = find_program_impl(self.env, self.name, self.path, self.var)
 		self.conf.checkMessage('program', self.name, ret, ret)
-		if self.var: self.env[self.var] = retval
+		if self.var: self.env[self.var] = ret
 		return ret
 
 class function_enumerator(enumerator_base):

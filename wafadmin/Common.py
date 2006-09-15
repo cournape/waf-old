@@ -4,9 +4,9 @@
 
 # Stuff potentially useful for any project
 
-import os, types, shutil, stat
-import Action, Params
-from Params import debug, error, trace, fatal
+import os, types, shutil
+import Params
+from Params import error, fatal
 
 class InstallError:
 	pass

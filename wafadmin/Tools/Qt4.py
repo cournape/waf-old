@@ -4,10 +4,10 @@
 
 # found is 1, not found is 0
 
-import os, re, types, sys, string
+import os, sys, string
 import ccroot, cpp
-import Action, Common, Utils, Params, Configure, Scan, Runner, Object
-from Params import debug, error, trace, fatal
+import Action, Params, Configure, Scan, Runner, Object
+from Params import error, trace, fatal
 from Params import set_globals, globals
 
 ## QT SUPPORT ##
@@ -158,7 +158,7 @@ class qt4obj(cpp.cppobj):
 			mocfiles=[]
 
 			if node in node.m_parent.m_files: variant = 0
-			else: variant = env.variant()
+			else: variant = self.env.variant()
 
 			try: tmp_lst = tree.m_raw_deps[variant][node]
 			except: tmp_lst = []

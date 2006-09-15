@@ -2,9 +2,8 @@
 # encoding: utf-8
 # John O'Meara, 2006
 
-import Action, Common, Object, Task, Params, os
-from Params import debug, error, trace, fatal
-from Params import set_globals, globals
+import Action, Object, os
+from Params import set_globals
 
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
 

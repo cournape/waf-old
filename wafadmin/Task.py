@@ -2,9 +2,14 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"""wafadmin.Task
+
+ahoj
+"""
+
 import os, types, shutil
 import Params, Scan, Action
-from Params import debug, error, trace, fatal, warning
+from Params import debug, error, warning
 
 # tasks that have been run, this is used in tests to check which tasks were actually launched
 g_tasks_done    = []

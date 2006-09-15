@@ -2,9 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, re, md5
-import Params, Node, Utils
-from Params import debug, error, trace, fatal
+import re, md5
+import Params
+from Params import debug, trace, fatal
 from Params import hash_sig_weak
 
 # look in this global var when looking for a scanner object
@@ -411,7 +411,7 @@ class kcfg_scanner(scanner):
 	def scan(self, node, env, path_lst):
 
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = task.m_env.variant()
+		else: variant = env.variant()
 
 		trace("kcfg scanner called for "+str(node))
 		file = open(node.abspath(env), 'rb')

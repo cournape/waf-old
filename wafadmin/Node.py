@@ -3,9 +3,8 @@
 # Thomas Nagy, 2005 (ita)
 
 import os
-from stat import *
 import Params
-from Params import debug, error, trace, fatal
+from Params import debug, error, trace
 
 class Node:
 	def __init__(self, name, parent):

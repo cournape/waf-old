@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, string, sys, imp
+import os, sys
 
 VERSION="0.9.0"
 cwd = os.getcwd()
@@ -137,7 +137,7 @@ tooldir = os.path.join(wafadmindir, 'Tools')
 sys.path = [wafadmindir, tooldir] + sys.path
 
 import Options, Params, Utils
-from Params import debug, fatal, error, warning
+from Params import fatal, warning
 
 # Set the directory containing the tools
 Params.g_tooldir = [tooldir]
@@ -243,7 +243,7 @@ if build_dir_override:
 	try:
 		# test if user has set the blddir in wscript.
 		blddir = Utils.g_module.blddir
-		msg = 'Overriding blddir %s with %s' % (mblddir, bldcandidate)
+		msg = 'Overriding blddir %s with %s' % (blddir, build_dir_override)
 		Params.niceprint('YELLOW', msg)
 	except:
 		pass

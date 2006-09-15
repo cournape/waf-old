@@ -2,8 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import Action, Common, Object, Task, Params
-from Params import debug, error, trace, fatal
+import Action
 
 dang_str = '${DANG} ${SRC} > ${TGT}'
 

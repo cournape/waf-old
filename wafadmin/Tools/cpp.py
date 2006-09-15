@@ -4,10 +4,8 @@
 
 # common builders and actions
 
-import os, types
 import ccroot
-import Action, Object, Params, Scan
-from Params import debug, error, trace, fatal
+import Object, Params
 
 # main c/cpp variables
 g_cpp_flag_vars = [

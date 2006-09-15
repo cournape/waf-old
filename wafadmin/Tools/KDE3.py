@@ -4,8 +4,8 @@
 
 import os, sys, re
 import ccroot, cpp
-import Action, Common, Object, Task, Params, Runner, Utils, Scan
-from Params import debug, error, trace, fatal
+import Action, Common, Object, Params, Runner, Scan
+from Params import error, fatal
 from Params import set_globals, globals
 
 # a helper function
@@ -150,7 +150,7 @@ def handler_kcfgc(self, node, base=''):
 		Scan.g_kcfg_scanner.do_scan(node, self.env, hashparams=hash)
 
 	if node in node.m_parent.m_files: variant = 0
-	else: variant = env.variant()
+	else: variant = self.env.variant()
 
 	kcfg_node = tree.m_depends_on[variant][node][0]
 	cppnode = node.change_ext('.cpp')
@@ -238,7 +238,7 @@ class kdeobj(cpp.cppobj):
 			mocfiles=[]
 
 			if node in node.m_parent.m_files: variant = 0
-			else: variant = env.variant()
+			else: variant = self.env.variant()
 
 			try: tmp_lst = tree.m_raw_deps[variant][node]
 			except: tmp_lst = []

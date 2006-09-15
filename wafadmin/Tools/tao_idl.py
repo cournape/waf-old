@@ -2,9 +2,9 @@
 # encoding: utf-8
 # Peter Soetens, 2006
 
-import os, shutil, sys
-import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
-from Params import debug, error, trace, fatal, set_globals
+import os
+import Action, Object
+from Params import set_globals
 
 set_globals('TAO_IDL_EXT', ['.idl'])
 

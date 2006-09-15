@@ -2,8 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, os.path, sys, cPickle, types
-import Environment, Params, Runner, Object, Utils, Node, Task
+import os, cPickle, types
+import Params, Runner, Object, Node, Task
 from Params import debug, error, trace, fatal, warning
 
 g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
@@ -532,7 +532,6 @@ class Build:
 	def add_group(self, name=''):
 		Object.flush()
 		Task.g_tasks.add_group(name)
-
 
 	# TODO obsolete
 	def createObj(self, objname, *k, **kw):

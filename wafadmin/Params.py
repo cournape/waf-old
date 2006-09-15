@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, sys, types, inspect, md5, random, base64, stat
+import os, sys, types, inspect, md5, base64, stat
 import Utils
 
 # =================================== #

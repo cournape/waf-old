@@ -5,7 +5,7 @@
 import os, re
 import Object, Action, Params, Common, Scan
 import cc
-from Params import fatal, error, trace
+from Params import fatal, error
 
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
@@ -15,7 +15,7 @@ class sgml_man_scanner(Scan.scanner):
 		Scan.scanner.__init__(self)
 	def scan(self, node, env):
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = task.m_env.variant()
+		else: variant = env.variant()
 
 		fi = open(node.abspath(env), 'r')
 		content = fi.read()
@@ -85,7 +85,7 @@ class gnome_sgml2man(Object.genobj):
 					sgml_scanner.do_scan(node, self.env, hashparams={})
 
 				if node in node.m_parent.m_files: variant = 0
-				else: variant = env.variant()
+				else: variant = self.env.variant()
 
 				try: tmp_lst = tree.m_raw_deps[variant][node]
 				except: tmp_lst = []

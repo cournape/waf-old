@@ -2,10 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, types
 import ccroot
-import Action, Object, Params, Scan
-from Params import debug, error, trace, fatal
+import Object, Params
+from Params import trace
 
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',

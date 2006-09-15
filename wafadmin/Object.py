@@ -18,8 +18,8 @@
 #   * several extensions are mapped to a single method
 #   * cf ccroot for more details on this scheme
 
-import os, shutil, types, copy
-import Action, Params, Environment, Runner, Task, Common, Node, Utils
+import os, types
+import Params, Task, Common, Node, Utils
 from Params import debug, error, trace, fatal
 
 g_allobjs=[]

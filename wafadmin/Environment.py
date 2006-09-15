@@ -3,8 +3,8 @@
 # Thomas Nagy, 2005 (ita)
 
 import os,sys,string, types, imp
-import Params, Tools
-from Params import debug, error, trace, fatal
+import Params
+from Params import debug, error
 
 # a safe-to-use dictionary
 class Environment:

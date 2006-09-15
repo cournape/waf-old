@@ -2,9 +2,9 @@
 # encoding: utf-8
 # John O'Meara, 2006
 
-import Action, Common, Object, Task, Params
-from Params import debug, error, trace, fatal
-from Params import set_globals, globals
+import Action
+from Params import fatal
+from Params import set_globals
 
 flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
 

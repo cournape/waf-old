@@ -2,10 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, os.path, types, sys, imp
-import Build, Params, Utils, Options, Configure, Environment
-from Params import debug, error, trace, fatal
+import imp
 import Utils
+from Params import fatal
 
 try:
 	from xml.sax import make_parser 

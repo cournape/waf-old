@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Utils, Action, Params, Configure
+import Utils, Action, Params
 
 # tool specific setup
 # is called when a build process is started 

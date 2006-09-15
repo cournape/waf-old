@@ -2,9 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, os.path, types, sys, imp
-import Build, Params, Utils, Options, Configure, Environment, DirWatch
-from Params import debug, error, trace, fatal
+import os, sys
+import Params, Utils, Configure, Environment, DirWatch, Build
+from Params import error, fatal
 
 g_inroot     = 1
 g_dirwatch   = None

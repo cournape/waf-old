@@ -3,7 +3,6 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, types, sys, re
-import ccroot
 import Action, Object, Params, Scan, Common
 from Params import debug, error, trace, fatal
 

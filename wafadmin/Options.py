@@ -3,11 +3,11 @@
 # Scott Newton, 2005 (scottn)
 # Thomas Nagy, 2006 (ita)
 
-import os, sys, string, imp
+import os, sys, imp
 from types import *
 from optparse import OptionParser
 import Params, Utils
-from Params import debug, trace, fatal, error, warning
+from Params import trace, fatal, warning
 
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 try:

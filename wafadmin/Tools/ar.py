@@ -3,8 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 # Ralf Habacker, 2006 (rh)
 
-import os, sys
-import Utils, Configure, Action
+import Action
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 

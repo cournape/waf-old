@@ -4,9 +4,9 @@
 
 # found is 1, not found is 0
 
-import os, sys
-import Utils, Params, Action, Object, Runner, Common, Scan
-from Params import debug, error, trace, fatal
+import os
+import Params, Action, Object, Scan
+from Params import error, fatal
 
 g_map_id_to_obj = {}
 

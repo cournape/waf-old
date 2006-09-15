@@ -2,10 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, popen2, sys, time, random, string, time
+import sys, time, random
 import Params, Task, pproc
-from Params import debug, error, trace, fatal
-from Task import TaskManager
+from Params import debug, error, trace
 
 # output a stat file (data for gnuplot) when running tasks in parallel
 dostat=0

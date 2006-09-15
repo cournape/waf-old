@@ -2,9 +2,9 @@
 # encoding: utf-8
 # Peter Soetens, 2006
 
-import os, shutil, sys, string
-import Action, Common, Object, Task, Params, Runner, Utils, Scan, cpp
-from Params import debug, error, trace, fatal
+import os, string
+import Action, Object, Params, Runner, Utils
+from Params import trace, fatal
 
 # first, we define an action to build something
 fop_vardeps = ['FOP']

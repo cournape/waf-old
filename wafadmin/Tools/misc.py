@@ -2,9 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, sys, types
-import Utils, Params, Action, Object, Runner, Common
-from Params import debug, error, trace, fatal
+import Object
+from Params import fatal
 
 class cmdobj(Object.genobj):
 	def __init__(self, type='none'):

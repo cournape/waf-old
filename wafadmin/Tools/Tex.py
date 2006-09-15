@@ -2,11 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# found is 1, not found is 0
-
-import os, sys, re
+import os, re
 import Utils, Params, Action, Object, Runner, Scan
-from Params import error, warning, trace
+from Params import error, warning, trace, fatal
 
 tex_regexp = re.compile('^\\\\include{(.*)}', re.M)
 #tex_regexp = re.compile('^[^%]*\\\\bringin{(.*)}', re.M)
@@ -15,7 +13,7 @@ class tex_scanner(Scan.scanner):
 		Scan.scanner.__init__(self)
 	def scan(self, node, env, curdirnode):
 		if node in node.m_parent.m_files: variant = 0
-		else: variant = task.m_env.variant()
+		else: variant = env.variant()
 
 		fi = open(node.abspath(env), 'r')
 		content = fi.read()
@@ -233,7 +231,7 @@ class texobj(Object.genobj):
 			# add the manual dependencies
 			if deps_lst:
 				if node in node.m_parent.m_files: variant = 0
-        	        	else: variant = env.variant()
+        	        	else: variant = self.env.variant()
 
 				outnode = task.m_outputs[0]
 				try:

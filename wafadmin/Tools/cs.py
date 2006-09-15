@@ -2,9 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, sys, types
-import Utils, Params, Action, Object, Runner, Common
-from Params import debug, error, trace, fatal
+import Params, Action, Object
+from Params import error
 
 g_types_lst = ['program', 'library']
 class csobj(Object.genobj):
@@ -36,7 +35,7 @@ class csobj(Object.genobj):
 		# process the flags for the assemblies
 		assemblies_flags = []
 		for i in self.to_list(self.assemblies) + self.env['ASSEMBLIES']:
-			nodes += '/r:'+i
+			assemblies_flags += '/r:'+i
 		self.env['_ASSEMBLIES'] += assemblies_flags
 
 		# process the flags for the resources
@@ -62,10 +61,9 @@ class csobj(Object.genobj):
 		for var in self.to_list(self.uselib):
 			for v in self._flag_vars:
 				val=''
-				try:    val = self.env[v+'_'+l]
+				try:    val = self.env[v+'_'+var]
 				except: pass
-				if val:
-					self.env.appendValue(v, val)
+				if val: self.env.appendValue(v, val)
 
 	#def to_list(self, value):
 	#	if type(value) is types.ListType: lst = self.value

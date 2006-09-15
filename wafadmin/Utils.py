@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, md5, types, sys, string, stat, imp, copy
+import imp
 import Params
 
 g_trace=0

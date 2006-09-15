@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import Utils, Configure
-from Params import error
+from Params import error, fatal
 
 endian_str = """
 #include <stdio.h>

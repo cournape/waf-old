@@ -2,8 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import Object, Params, Runner
-from Params import debug, error, trace, fatal
+import Object, Runner
+from Params import debug, trace, fatal
 
 # global actions
 g_actions ={}
@@ -25,9 +25,6 @@ class Action:
 		self._add_action()
 
 		self.m_color = color
-
-		# register our color for the output
-		#Params.set_color(name, color)
 
 	def __str__(self):
 		return self.m_name
@@ -168,5 +165,4 @@ def simple_action(name, line, color='GREEN'):
 	act = Action(name, color=color)
 	act.m_function_to_run = f
 	act.m_vars = obj.m_vars
-
 

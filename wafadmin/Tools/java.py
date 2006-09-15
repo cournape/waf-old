@@ -3,8 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import os
-import Action, Common, Object, Task, Params
-from Params import debug, error, trace, fatal
+import Object, Action
 
 class javaobj(Object.genobj):
 	s_default_ext = ['.java']
