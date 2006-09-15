@@ -6,8 +6,8 @@ import os,sys,string, types, imp
 import Params
 from Params import debug, error
 
-# a safe-to-use dictionary
 class Environment:
+	"A safe-to-use dictionary, but do not attach functions to it please (break cPickle)"
 	def __init__(self):
 		self.m_table={}
 		# may be there is a better place for this
@@ -27,8 +27,8 @@ class Environment:
 		newenv.m_table = self.m_table.copy()
 		return newenv
 
-	# setup tools for build process
 	def setup(self, tool, tooldir=None):
+		"setup tools for build process"
 		if type(tool) is types.ListType:
 			for i in tool: self.setup(i)
 			return
@@ -76,8 +76,8 @@ class Environment:
 		self.appendValue(var, value)
 
 	def store(self, filename):
+		"Write the variables into a file"
 		file=open(filename, 'w')
-
 		keys=self.m_table.keys()
 		keys.sort()
 		file.write('#VERSION=%s\n' % Params.g_version)
@@ -86,6 +86,7 @@ class Environment:
 		file.close()
 
 	def load(self, filename):
+		"Retrieve the variables from a file"
 		if not os.path.isfile(filename): return 0
 		file=open(filename, 'r')
 		for line in file:
@@ -102,6 +103,7 @@ class Environment:
 		return 1
 
 	def get_destdir(self):
+		"return the destdir, useful for installing"
 		if self.m_table.has_key('NOINSTALL'): return ''
 		dst = Params.g_options.destdir
 		try: dst = dst+os.sep+self.m_table['SUBDEST']
@@ -109,24 +111,6 @@ class Environment:
 		return dst
 
 	def hook(self, classname, ext, func):
-		# There are two different ways to extend object behaviour, the first one
-		# is by attaching a function to the enfironment
-
-		# VERSION 1
-		# the problem with this version is that a hook needs to be added to every environment
-		# the environment cannot be pickled anymore
-		# comments are left in case if
-
-		#name = '_'.join(['hooks', classname, ext])
-		#if name in self.m_table:
-		#	error("hook %s was already registered " % name)
-		# TODO check if the classname really exist
-		#self.m_table[name] = func
-
-		# VERSION 2
-		# in this version we attach the function to the object directly
-		# this might be less flexible
-
 		import Object
 		Object.hook(classname, ext, func)
 

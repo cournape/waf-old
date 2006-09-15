@@ -2,21 +2,23 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-# genobj is an abstract class for declaring targets:
-#   * creates tasks (consisting of a task, an environment, a list of source and list of target)
-#   * sets environment on the tasks (which are copies most of the time)
-#   * modifies environments as needed
-# 
-# genobj cannot be used as it is, so you must create a subclass
-#
-# subclassing
-#   * makes it possible to share environment copies for several objects at once (efficiency)
-#   * be careful to call Object.genobj.__init__(...) in the __init__ of your subclass
-#
-# hooks
-#   * makes it possible to declare new kind of targets quickly (give a pattern ? and the action name)
-#   * several extensions are mapped to a single method
-#   * cf ccroot for more details on this scheme
+"""
+genobj is an abstract class for declaring targets:
+  * creates tasks (consisting of a task, an environment, a list of source and list of target)
+  * sets environment on the tasks (which are copies most of the time)
+  * modifies environments as needed
+ 
+ genobj cannot be used as it is, so you must create a subclass
+
+subclassing
+  * makes it possible to share environment copies for several objects at once (efficiency)
+  * be careful to call Object.genobj.__init__(...) in the __init__ of your subclass
+
+hooks
+  * declare new kind of targets quickly (give a pattern ? and the action name)
+  * several extensions are mapped to a single method
+  * cf ccroot.py and flex.py for more details on this scheme
+"""
 
 import os, types
 import Params, Task, Common, Node, Utils
@@ -73,6 +75,7 @@ def flush():
 		trace("object posted")
 
 def hook(objname, var, func):
+	"Attach a new method to an object class (objname is the name of the class)"
 	klass = g_allclasses[objname]
 	klass.__dict__[var] = func
 	try: klass.__dict__['all_hooks'].append(var)

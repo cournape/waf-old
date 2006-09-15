@@ -6,25 +6,22 @@ import Params, Environment, Runner, Build, Utils
 from Params import error, fatal, warning
 
 g_maxlen = 40
-g_debug  = 0
+"""initial length of configuration messages"""
 
+g_debug  = 0
+"""enable/disable debug"""
 
 g_stdincpath = ['/usr/include/', '/usr/local/include/']
-g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
+"""standard include paths"""
 
+g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
+"""standard library search paths"""
 
 #####################
 ## Helper functions
 
-def find_path(file, path_list):
-	if type(path_list) is types.StringType: lst = [path_list]
-	else: lst = path_list
-	for dir in lst:
-		if os.path.exists( os.path.join(dir, file) ):
-			return dir
-	return ''
-
 def find_file(file, path_list):
+	"find a file in a list of paths"
 	if type(path_list) is types.StringType: lst = [path_list]
 	else: lst = path_list
 	for dir in lst:
@@ -43,8 +40,8 @@ def find_file_ext(file, path_list):
 					return path
 	return ''
 
-# find the program "file" in folders path_lst, and sets lenv[var]
 def find_program_impl(lenv, file, path_list=None, var=None):
+	"find the program 'file' in folders path_lst, and sets lenv[var]"
 	if not path_list: path_list = []
 	elif type(path_list) is types.StringType: path_list = path_list.split()
 
@@ -64,13 +61,6 @@ def find_program_impl(lenv, file, path_list=None, var=None):
 			if var: lenv[var] = ret
 			return ret
 	return ''
-
-# TODO remove ?
-def find_program_using_which(lenv, prog):
-	if lenv['WINDOWS']: # we're not depending on Cygwin
-		return ''
-	return os.popen("which %s 2>/dev/null" % prog).read().strip()
-
 
 ###############
 ## ENUMERATORS

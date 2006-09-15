@@ -2,16 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"""wafadmin.Task
-
-ahoj
-"""
-
 import os, types, shutil
 import Params, Scan, Action
 from Params import debug, error, warning
 
-# tasks that have been run, this is used in tests to check which tasks were actually launched
+"tasks that have been run, this is used in tests to check which tasks were actually launched"
 g_tasks_done    = []
 g_default_param = {'path_lst':[]}
 
@@ -52,6 +47,7 @@ class TaskManager:
 			for j in i.prio:
 				print "prio: ", j, str(i.prio[j])
 
+"the container of all tasks (instance of TaskManager)"
 g_tasks = TaskManager()
 
 class TaskGroup:
@@ -73,20 +69,28 @@ class TaskBase:
 		global g_tasks
 		g_tasks.add_task(self, priority)
 	def may_start(self):
+		"return non-zero if the task may is ready"
 		return 1
 	def must_run(self):
+		"return 0 if the task does not need to run"
 		return 1
 	def prepare(self):
+		"prepare the task for further processing"
 		pass
 	def update_stat(self):
+		"update the dependency tree (node stats)"
 		pass
 	def debug_info(self):
+		"return debug info"
 		return ''
 	def debug(self):
-		return ''
+		"prints the debug info"
+		pass
 	def run(self):
+		"process the task"
 		pass
 	def color(self):
+		"return the color to use for the console messages"
 		return 'BLUE'
 
 class Task(TaskBase):

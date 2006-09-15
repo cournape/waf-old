@@ -10,6 +10,7 @@ g_debug=0
 g_error=0
 
 def waf_version(mini="0.0.1", maxi="100.0.0"):
+	"throws an exception if the waf version is not the one desired"
 	min_lst = map(int, mini.split('.'))
 	max_lst = map(int, maxi.split('.'))
 	waf_lst = map(int, Params.g_version.split('.'))
@@ -51,8 +52,8 @@ g_loaded_modules={}
 ## the main module is special
 g_module=None
 
-# this function requires an absolute path
 def load_module(file_path, name='wscript'):
+	"this function requires an absolute path"
 	try: return g_loaded_modules[file_path]
 	except: pass
 

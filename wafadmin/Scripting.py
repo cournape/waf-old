@@ -10,8 +10,8 @@ g_inroot     = 1
 g_dirwatch   = None
 g_daemonlock = 0
 
-# each script calls add_subdir
 def add_subdir(dir, bld):
+	"each wscript calls bld.add_subdir"
 	global g_inroot
 	if g_inroot:
 		node = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))

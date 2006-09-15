@@ -5,8 +5,8 @@
 import Object, Runner
 from Params import debug, trace, fatal
 
-"global actions"
 g_actions ={}
+"global actions"
 
 class Action:
 	"Base class for all Actions"

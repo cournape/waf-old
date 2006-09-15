@@ -12,7 +12,6 @@ try:
 except:
 	fatal('wscript_xml requires the Python xml modules (sax)!')
 
-
 def compile(file_path):
 	parser = make_parser()
 	curHandler = XMLHandler()

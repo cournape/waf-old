@@ -89,12 +89,6 @@ else:
 	'NORMAL':"\033[0m",
 	}
 
-#def set_color(name, color):
-#	if not color in g_colors:
-#		error('color does not exist as an alias ! '+color)
-#	else:
-#		g_colors[name]=g_colors[color]
-
 def pprint(col, str, label=''):
 	try: mycol=g_colors[col]
 	except: mycol=''
@@ -168,16 +162,15 @@ def fatal(msg):
 	pprint('RED', msg+" \n(error raised in module "+module+")")
 	sys.exit(1)
 
-
-# used for displaying signatures
 def vsig(s):
+	"used for displaying signatures"
 	if type(s) is types.StringType:
 		n = base64.encodestring(s)
 		return n[:-2]
 	else:
 		return str(s)
 
-##################
+##
 # functions to use
 def hash_sig(o1, o2):
 	return None
@@ -187,7 +180,7 @@ def h_string(s):
 	return None
 def h_list(lst):
 	return None
-##################
+##
 # hash files
 def h_md5_file(filename):
 	f = file(filename,'rb')
@@ -216,7 +209,7 @@ def h_simple_file_tstamp(filename):
 	if stat.S_ISDIR(st.st_mode): raise OSError
 	m = md5.new()
 	return hash( (st.st_mtime, filename) )
-#################
+##
 # hash signatures
 def hash_sig_weak(o1, o2):
 	return hash( (o1, o2) )
@@ -225,7 +218,7 @@ def hash_sig_strong(o1, o2):
 	m.update(o1)
 	m.update(o2)
 	return m.digest()
-##############
+##
 # hash string
 def h_md5_str(str):
 	m = md5.new()
@@ -233,7 +226,7 @@ def h_md5_str(str):
 	return m.digest()
 def h_simple_str(str):
 	return str.__hash__()
-###############
+##
 # hash lists
 def h_md5_lst(lst):
 	m = md5.new()
@@ -241,7 +234,7 @@ def h_md5_lst(lst):
 	return m.digest()
 def h_simple_lst(lst):
 	return hash(str(lst))
-##############
+##
 #def set_hash(hash, tstamp):
 if g_strong_hash:
 	hash_sig = hash_sig_strong
