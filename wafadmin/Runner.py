@@ -17,12 +17,17 @@ def write_progress(s):
 	if Params.g_options.progress_bar == 1:
 		sys.stderr.write(s + '\r')
 	elif Params.g_options.progress_bar == 2:
-		print s
-		sys.stdout.flush()
+		# do not display anything if there is nothing to display
+		if s:
+			print s
+			sys.stdout.flush()
 	else:
-		print s
+		if s: print s
 
 def progress_line(s, t, col1, task, col2):
+	# do not print anything if there is nothing to display
+	if not task.display:
+		return ''
 	global g_initial
 	if Params.g_options.progress_bar == 1:
 		pc = (100.*s)/t
@@ -38,7 +43,7 @@ def progress_line(s, t, col1, task, col2):
 
 		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|' % (t, s, ins, outs, eta)
 
-	return '[%d/%d] %s%s%s' % (s, t, col1, task.m_str, col2)
+	return '[%d/%d] %s%s%s' % (s, t, col1, task.display, col2)
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
@@ -205,13 +210,13 @@ class Serial:
 				col1=''
 				col2=''
 				try:
-					col1=Params.g_colors[proc.m_action.m_name]
+					col1=Params.g_colors[proc.color()]
 					col2=Params.g_colors['NORMAL']
 				except: pass
 				write_progress(progress_line(s, t, col1, proc, col2))
 
 			# run the command
-			ret = proc.m_action.run(proc)
+			ret = proc.run()
 
 			# non-zero means something went wrong
 			if ret:
@@ -323,10 +328,10 @@ class TaskConsumer(threading.Thread):
 			self.do_stat(1)
 
 			# display the label for the command executed
-			write_progress(proc.m_str)
+			write_progress(proc.display)
 
 			# run the command
-			ret = proc.m_action.run(proc)
+			ret = proc.run()
 
 			self.do_stat(-1)
 
@@ -523,11 +528,10 @@ class Parallel:
 					col1=''
 					col2=''
 					try:
-						col1=Params.g_colors[proc.m_action.m_name]
+						col1=Params.g_colors[proc.color()]
 						col2=Params.g_colors['NORMAL']
 					except: pass
-					proc.m_str = progress_line(self.m_processed, self.m_total, col1, proc, col2)
-					#proc.m_str = '[%d/%d] %s%s%s' % (self.m_processed, self.m_total, col1, proc.m_str, col2)
+					proc.display = progress_line(self.m_processed, self.m_total, col1, proc, col2)
 
 					lock.acquire()
 					count += 1

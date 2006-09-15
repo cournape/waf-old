@@ -57,7 +57,27 @@ class TaskGroup:
 		try: self.prio[prio].append(task)
 		except: self.prio[prio] = [task]
 
-class Task:
+
+class TaskInterface:
+	"Interface for tasks"
+	def __init__(self):
+		self.display = ''
+	def may_start(self):
+		return 1
+	def must_run(self):
+		return 1
+	def prepare(self):
+		pass
+	def debug_info(self):
+		return ''
+	def debug(self):
+		return ''
+	def run(self):
+		pass
+	def color(self):
+		return 'BLUE'
+
+class Task(TaskInterface):
 	def __init__(self, action_name, env, priority=5):
 		# name of the action associated to this task
 		self.m_action = Action.g_actions[action_name]
@@ -103,8 +123,6 @@ class Task:
 			self.m_outputs = [out]
 
 	def signature(self):
-		#s = str(self.m_sig)+str(self.m_dep_sig)
-		#return s.__hash__()
 		return Params.hash_sig(self.m_sig, self.m_dep_sig)
 
 	def update_stat(self):
@@ -174,7 +192,7 @@ class Task:
 
 		if not node in Params.g_build.m_tstamp_variants[variant]:
 			debug("task should run as the first node does not exist"+str(node))
-			ret = self.can_retrieve_cache(sg)
+			ret = self._can_retrieve_cache(sg)
 			return not ret
 
 		outs = Params.g_build.m_tstamp_variants[variant][node]
@@ -186,14 +204,14 @@ class Task:
 			% (str(self.m_idx), a1, a2, i1, i2))
 
 		if sg != outs:
-			ret = self.can_retrieve_cache(sg)
+			ret = self._can_retrieve_cache(sg)
 			return not ret
 		return 0
 
 	def prepare(self):
 		self.m_action.prepare(self)
 
-	def can_retrieve_cache(self, sig):
+	def _can_retrieve_cache(self, sig):
 		if not Params.g_options.usecache: return None
 		if Params.g_options.nocache: return None
 
@@ -241,12 +259,27 @@ class Task:
 		if level>0: fun=Params.error
 		fun(self.debug_info())
 
+	def run(self):
+		self.m_action.run(self)
+
+	def color(self):
+		return self.m_action.m_color
+
 	# IMPORTANT: users want this to set dependencies on other tasks
 	def set_run_after(self, task):
 		self.m_run_after.append(task)
 
-#def reset():
-#	global g_tasks
-#	g_tasks=[{}]
 
+class TaskCmd(TaskInterface):
+	def __init__(self):
+		TaskInterface.__init__(self)
+		self.fun = None
+	def prepare(self):
+		pass
+	def debug_info(self):
+		return ''
+	def debug(self):
+		return ''
+	def run(self):
+		self.fun()
 

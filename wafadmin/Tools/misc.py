@@ -21,12 +21,10 @@ class cmdobj(Object.genobj):
 
 	def apply(self):
 		# create the task
-
 		if not self.fun:
 			fatal('cmdobj needs a function!')
 
 		name = self.fun.__name__
-
 		if not name in Action.g_actions:
 			act = NAction(name, vars=[], func=self.fun)
 

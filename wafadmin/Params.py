@@ -89,11 +89,11 @@ else:
 	'NORMAL':"\033[0m",
 	}
 
-def set_color(name, color):
-	if not color in g_colors:
-		error('color does not exist as an alias ! '+color)
-	else:
-		g_colors[name]=g_colors[color]
+#def set_color(name, color):
+#	if not color in g_colors:
+#		error('color does not exist as an alias ! '+color)
+#	else:
+#		g_colors[name]=g_colors[color]
 
 def pprint(col, str, label=''):
 	try: mycol=g_colors[col]
@@ -255,7 +255,4 @@ else:
 	h_list = h_simple_lst
 	if g_timestamp: h_file = h_simple_file_tstamp
 	else: h_file = h_simple_file
-
-# will be set on import
-#set_hash(g_strong_hash, g_timestamp)
 

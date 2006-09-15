@@ -24,8 +24,10 @@ class Action:
 		# register ourselves
 		self._add_action()
 
+		self.m_color = color
+
 		# register our color for the output
-		Params.set_color(name, color)
+		#Params.set_color(name, color)
 
 	def __str__(self):
 		return self.m_name
@@ -50,7 +52,7 @@ class Action:
 	# prepare the compilation
 	def prepare(self, task):
 		task.m_sig = Object.sign_env_vars(task.m_env, self.m_vars)
-		task.m_str = self.get_str(task)
+		task.display = self.get_str(task)
 
 	# run the compilation
 	def run(self, task):
