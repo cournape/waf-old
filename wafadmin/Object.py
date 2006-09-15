@@ -237,15 +237,12 @@ class genobj:
 
 	def to_list(self, value):
 		"helper: returns a list"
-		if type(value) is types.StringType: lst = value.split()
-		#if type(value) is types.ListType: lst = self.value
-		else: lst = value
-		return lst
+		if type(value) is types.StringType: return value.split()
+		else: return value
 
 def flatten(env, var):
 	try:
 		v = env[var]
-
 		if not v: debug("variable %s does not exist in env !" % var)
 	
 		if type(v) is types.ListType:
@@ -272,9 +269,6 @@ def list_to_env_list(env, vars_list):
 	return map(get_env_value, vars_list)
 
 def sign_env_vars(env, vars_list):
-	#lst = list_to_env_list(env, vars_list)
-	#val = reduce( lambda a,b : Params.h_string(b)+Params.h_string(a), lst )
-	#return val
 	lst = list_to_env_list(env, vars_list)
 	return Params.h_list(lst)
 

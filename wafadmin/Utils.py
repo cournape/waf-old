@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import imp
+import imp, types
 import Params
 
 g_trace=0
@@ -38,6 +38,10 @@ def reset():
 	preproc.parse_cache = {}
 	Scripting.g_inroot = 1
 	Object.g_allobjs = []
+
+def to_list(sth):
+	if type(sth) is types.ListType: return sth
+	else: return [sth]
 
 def options(**kwargs):
 	pass

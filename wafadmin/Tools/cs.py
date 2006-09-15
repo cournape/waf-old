@@ -65,11 +65,6 @@ class csobj(Object.genobj):
 				except: pass
 				if val: self.env.appendValue(v, val)
 
-	#def to_list(self, value):
-	#	if type(value) is types.ListType: lst = self.value
-	#	else: lst = value.split()
-	#	return lst
-
 def setup(env):
 	Object.register('cs', csobj)
 	Action.simple_action('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')

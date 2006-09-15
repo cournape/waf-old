@@ -2,13 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, sys
-
-import Build
-import Node
 import Params
-import Environment
-from Params import debug, error, trace, fatal
 
 def info(msg):
 	Params.pprint('CYAN', msg)

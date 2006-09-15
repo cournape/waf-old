@@ -3,8 +3,7 @@
 # Scott Newton, 2005 (scottn)
 # Thomas Nagy, 2006 (ita)
 
-import os, sys, imp
-from types import *
+import os, sys, imp, types
 from optparse import OptionParser
 import Params, Utils
 from Params import trace, fatal, warning
@@ -24,10 +23,6 @@ except:
 
 def create_parser():
 	Params.trace("create_parser is called")
-
-	def to_list(sth):
-		if type(sth) is ListType: return sth
-		else: return [sth]
 
 	parser = OptionParser(usage = """waf [options] [commands ...]
 
@@ -174,7 +169,7 @@ class Handler:
 		self.cwd = current
 
 	def tool_options(self, tool):
-		if type(tool) is ListType:
+		if type(tool) is types.ListType:
 			for i in tool: self.tool_options(i)
 			return
 

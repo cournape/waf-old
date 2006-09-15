@@ -22,9 +22,7 @@ class BuildDTO:
 class Build:
 	def __init__(self):
 
-		# ======================================= #
 		# dependency tree
-
 		self._init_data()
 
 		# ======================================= #
@@ -195,13 +193,12 @@ class Build:
 		os.chdir( self.m_srcnode.abspath() )
 		return ret
 
-	# this function is called for both install and uninstall
 	def install(self):
+		"this function is called for both install and uninstall"
 		trace("install called")
 		Object.flush()
 		for obj in Object.g_allobjs: obj.install()
 
-	# keep
 	def add_subdirs(self, dirs):
 		import Scripting
 		if type(dirs) is types.ListType: lst = dirs
@@ -211,7 +208,6 @@ class Build:
 			if not d: continue
 			Scripting.add_subdir(d, self)
 
-	# keep
 	def create_obj(self, objname, *k, **kw):
 		try:
 			return Object.g_allclasses[objname](*k, **kw)
@@ -224,7 +220,8 @@ class Build:
 
 	# this should be the main entry point
 	def load_dirs(self, srcdir, blddir, isconfigure=None):
-		# this functions should be the start
+		"this functions should be the start of everything"
+
 		# there is no reason to bypass this check
 		try:
 			if srcdir == blddir or os.path.samefile(srcdir, blddir):
@@ -241,7 +238,6 @@ class Build:
 			self.m_bdir = os.path.abspath(blddir)
 		else:
 			self.m_bdir = blddir
-		#print "self.m_bdir is ", self.m_bdir
 
 		if not isconfigure:
 			self._load()
@@ -261,8 +257,8 @@ class Build:
 		try: os.makedirs(blddir)
 		except: pass
 
-	# return a node corresponding to an absolute path, creates nodes if necessary
 	def ensure_node_from_path(self, abspath):
+		"return a node corresponding to an absolute path, creates nodes if necessary"
 		trace('ensure_node_from_path %s' % (abspath))
 		plst = abspath.split('/')
 		curnode = self.m_root # root of the tree
@@ -281,9 +277,8 @@ class Build:
 
 		return curnode
 
-	# ensure a directory node from a list, given a node to start from
 	def ensure_node_from_lst(self, node, plst):
-
+		"ensure a directory node from a list, given a node to start from"
 		if not node:
 			error('ensure_node_from_lst node is not defined')
 			raise "pass a valid node to ensure_node_from_lst"
@@ -307,12 +302,12 @@ class Build:
 		return curnode
 
 	def rescan(self, src_dir_node):
-		# first list the files in the src dir and update the nodes
-		# for each variant build dir (multiple build dirs):
-		#     list the files in the build dir, update the nodes
-		#
-		# this makes (n bdirs)+srdir to scan (at least 2 folders)
-		# so we might want to do it in parallel in the future
+		""" first list the files in the src dir and update the nodes
+		for each variant build dir (multiple build dirs):
+		     list the files in the build dir, update the nodes
+		
+		this makes (n bdirs)+srdir to scan (at least 2 folders)
+		so we might want to do it in parallel in some future"""
 
 		# do not rescan over and over again
 		if src_dir_node in self.m_scanned_folders: return
@@ -344,13 +339,11 @@ class Build:
 				src_dir_node.m_build = []
 		self.m_scanned_folders.append(src_dir_node)
 
-	# tell if a node has changed, to update the cache
 	def needs_rescan(self, node, env):
+		"tell if a node has changed, to update the cache"
 		#print "needs_rescan for ", node, node.m_tstamp
-
 		if node in node.m_parent.m_files: variant = 0
 		else: variant = env.variant()
-
 		try:
 			if self.m_deps_tstamp[variant][node] == self.m_tstamp_variants[variant][node]:
 				#print "no need to rescan", node.m_tstamp
@@ -361,8 +354,8 @@ class Build:
 
 	# ======================================= #
 
-	# shortcut for object creation
 	def create_obj(self, objname, *k, **kw):
+		"shortcut for object creation"
 		try:
 			return Object.g_allclasses[objname](*k, **kw)
 		except:
@@ -422,9 +415,9 @@ class Build:
 			l_kept.append(l_child)
 		return l_kept
 
-	# in this function we do not add timestamps but we remove them
-	# when the files no longer exist (file removed in the build dir)
 	def _scan_path(self, i_parent_node, i_path, i_existing_nodes, i_variant):
+		"""in this function we do not add timestamps but we remove them
+		when the files no longer exist (file removed in the build dir)"""
 
 		# read the dir contents, ignore the folders in it
 		l_names_read = os.listdir(i_path)
@@ -462,8 +455,8 @@ class Build:
 				self.m_tstamp_variants[i_variant].__delitem__(node)
 		return l_nodes
 
-	## IMPORTANT - for debugging
 	def dump(self):
+		"for debugging"
 		def printspaces(count):
 			if count>0: return printspaces(count-1)+"-"
 			return ""
@@ -533,8 +526,8 @@ class Build:
 		Object.flush()
 		Task.g_tasks.add_group(name)
 
-	# TODO obsolete
 	def createObj(self, objname, *k, **kw):
+		"deprecated"
 		warning('use bld.create_obj instead of bld.createObj')
 		return self.create_obj(objname, *k, **kw)
 
