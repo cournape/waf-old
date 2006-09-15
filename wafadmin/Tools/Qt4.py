@@ -325,7 +325,7 @@ def detect_qt4(conf):
 	env['QT_RCC'] = find_qt_bin(['rcc'])
 
 	# TODO is this really needed now ?
-	print "Checking for uic3 version          :",
+	print "Checking for uic3 version               :",
 	version = os.popen(env['QT_UIC'] + " -version 2>&1").read().strip()
 	if version.find(" 3.") != -1:
 		version = version.replace('Qt user interface compiler','')
@@ -340,7 +340,7 @@ def detect_qt4(conf):
 	#	os.environ['PKG_CONFIG_PATH'] = qtlibs
 
 	## check for the Qt4 includes
-	print "Checking for the Qt4 includes      :",
+	print "Checking for the Qt4 includes           :",
 	if qtincludes and os.path.isfile(qtincludes + "/QtGui/QFont"):
 		# The user told where to look for and it looks valid
 		p('GREEN','ok '+qtincludes)

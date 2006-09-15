@@ -419,7 +419,7 @@ def detect_kde(conf):
 	if libdir: libdir = libdir+libsuffix
 
 	## Detect the kde libraries
-	print "Checking for kde-config            :",
+	print "Checking for kde-config                 :",
 	str="which kde-config 2>/dev/null"
 	if kdedir: str="which %s 2>/dev/null" % (kdedir+'/bin/kde-config')
 	kde_config = exec_and_read(str)
@@ -434,7 +434,7 @@ def detect_kde(conf):
 	if kdedir: env['KDEDIR']=kdedir
 	else: env['KDEDIR'] = exec_and_read('%s -prefix' % kde_config)
 
-	print "Checking for kde version           :",
+	print "Checking for kde version                :",
 	kde_version = exec_and_read('%s --version|grep KDE' % kde_config).split()[1]
 	if int(kde_version[0]) != 3 or int(kde_version[2]) < 2:
 		p('RED', kde_version)
@@ -444,7 +444,7 @@ def detect_kde(conf):
 		p('GREEN',kde_version)
 
 	## Detect the Qt library
-	print "Checking for the Qt library        :",
+	print "Checking for the Qt library             :",
 	if not qtdir: qtdir = os.getenv("QTDIR")
 	if qtdir:
 		p('GREEN',"Qt is in "+qtdir)
@@ -467,7 +467,7 @@ def detect_kde(conf):
 	env['LIB_QT'] = 'qt-mt'
 
 	## Find the necessary programs uic and moc
-	print "Checking for uic                   :",
+	print "Checking for uic                        :",
 	uic = qtdir + "/bin/uic"
 	if os.path.isfile(uic):
 		p('GREEN',"uic was found as "+uic)
@@ -486,7 +486,7 @@ def detect_kde(conf):
 				sys.exit(1)
 	env['UIC'] = uic
 
-	print "Checking for moc                   :",
+	print "Checking for moc                        :",
 	moc = qtdir + "/bin/moc"
 	if os.path.isfile(moc):
 		p('GREEN',"moc was found as "+moc)
@@ -505,7 +505,7 @@ def detect_kde(conf):
 	env['MOC'] = moc
 
 	## check for the qt and kde includes
-	print "Checking for the Qt includes       :",
+	print "Checking for the Qt includes            :",
 	if qtincludes and os.path.isfile(qtincludes + "/qlayout.h"):
 		# The user told where to look for and it looks valid
 		p('GREEN',"ok "+qtincludes)
@@ -524,7 +524,7 @@ def detect_kde(conf):
 			p('RED','* Set QTDIR or PATH appropriately')
 			sys.exit(1)
 
-	print "Checking for the kde includes      :",
+	print "Checking for the kde includes           :",
 	kdeprefix = exec_and_read('%s --prefix' % kde_config)
 	if not kdeincludes:
 		kdeincludes = kdeprefix+"/include/"
