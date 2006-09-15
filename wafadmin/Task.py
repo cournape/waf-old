@@ -6,17 +6,18 @@ import os, types, shutil
 import Params, Scan, Action
 from Params import debug, error, trace, fatal, warning
 
-# tasks that have been run
-# this is used in tests to check which tasks were actually launched
-g_tasks_done       = []
-g_default_param    = { 'path_lst' : [] }
+# tasks that have been run, this is used in tests to check which tasks were actually launched
+g_tasks_done    = []
+g_default_param = {'path_lst':[]}
 
 class TaskManager:
+	"""There is a single instance of TaskManager held by Task.py:g_tasks
+	The manager holds a list of TaskGroup
+	Each TaskGroup contains a map(priority, list of tasks)"""
 	def __init__(self):
 		self.groups = None
 		self.idx    = 0
 	def add_group(self, name=''):
-		# groups are added in a "first in last out fashion"
 		if not name:
 			try: size = len(self.groups)
 			except: size = 0
@@ -42,13 +43,14 @@ class TaskManager:
 		return total
 	def debug(self):
 		for i in self.groups:
-			print "--------------group-----------------", i.name
+			print "-----group-------", i.name
 			for j in i.prio:
 				print "prio: ", j, str(i.prio[j])
 
 g_tasks = TaskManager()
 
 class TaskGroup:
+	"A TaskGroup maps priorities (integers) to lists of tasks"
 	def __init__(self, name):
 		self.name = name
 		self.info = ''
@@ -57,16 +59,21 @@ class TaskGroup:
 		try: self.prio[prio].append(task)
 		except: self.prio[prio] = [task]
 
-
-class TaskInterface:
-	"Interface for tasks"
-	def __init__(self):
+class TaskBase:
+	"TaskBase is the base class for task objects"
+	def __init__(self, priority):
 		self.display = ''
+		self.m_hasrun=0
+		# add to the list of tasks
+		global g_tasks
+		g_tasks.add_task(self, priority)
 	def may_start(self):
 		return 1
 	def must_run(self):
 		return 1
 	def prepare(self):
+		pass
+	def update_stat(self):
 		pass
 	def debug_info(self):
 		return ''
@@ -77,22 +84,22 @@ class TaskInterface:
 	def color(self):
 		return 'BLUE'
 
-class Task(TaskInterface):
+class Task(TaskBase):
+	"Task is the more common task. It has input nodes and output nodes"
 	def __init__(self, action_name, env, priority=5):
+		TaskBase.__init__(self, priority)
+
 		# name of the action associated to this task
 		self.m_action = Action.g_actions[action_name]
 		# environment in use
 		self.m_env = env
 
-		# use setters to set the input and output nodes - when possible
-		# nodes used as input
+		# use setters when possible
+		# input nodes
 		self.m_inputs  = []
 		# nodes to produce
 		self.m_outputs = []
 
-
-		# this task was run
-		self.m_hasrun=0
 
 		self.m_sig=0
 		self.m_dep_sig=0
@@ -103,24 +110,15 @@ class Task(TaskInterface):
 		self.m_scanner        = Scan.g_default_scanner
 		self.m_scanner_params = g_default_param
 
-		# add ourself to the list of tasks
-		#self._add_task(priority)
-		global g_tasks
-		g_tasks.add_task(self, priority)
-
 		self.m_run_after = []
 
 	def set_inputs(self, inp):
-		if type(inp) is types.ListType:
-			self.m_inputs = inp
-		else:
-			self.m_inputs = [inp]
+		if type(inp) is types.ListType: self.m_inputs = inp
+		else: self.m_inputs = [inp]
 
 	def set_outputs(self, out):
-		if type(out) is types.ListType:
-			self.m_outputs = out
-		else:
-			self.m_outputs = [out]
+		if type(out) is types.ListType: self.m_outputs = out
+		else: self.m_outputs = [out]
 
 	def signature(self):
 		return Params.hash_sig(self.m_sig, self.m_dep_sig)
@@ -212,10 +210,13 @@ class Task(TaskInterface):
 		self.m_action.prepare(self)
 
 	def _can_retrieve_cache(self, sig):
+		"""Retrieve build nodes from the cache
+		It modifies the time stamp of files that are copied
+		so it is possible to clean the least used files from
+                the cache directory"
 		if not Params.g_options.usecache: return None
-		if Params.g_options.nocache: return None
+		if Params.g_options.nocache: return None"""
 
-		tree = Params.g_build
 		env  = self.m_env
 		sig = self.signature()
 
@@ -223,25 +224,21 @@ class Task(TaskInterface):
 			cnt = 0
 			for node in self.m_outputs:
 				if node in node.m_parent.m_files: variant = 0
-				else: variant = self.m_env.variant()
+				else: variant = env.variant()
 
 				ssig = sig.encode('hex')
 				orig = os.path.join(Params.g_options.usecache, ssig+'-'+str(cnt))
-				#print "trying to restore ", orig, node.abspath(env)
 				shutil.copy2(orig, node.abspath(env))
-				# GOTCHA 
-				# touch the file that we copied, so it should be possible to clean
-				# the temporary directory by time (unlike scons)
+
+				# touch the file
 				os.utime(orig, None)
 				cnt += 1
 
 				Params.g_build.m_tstamp_variants[variant][node] = sig
-				Params.pprint('GREEN', "restored from cache %s" % node.bldpath(env))
+				Params.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
 		except:
-			# just return 1 if the retrieval failed
 			debug("failed retrieving file")
 			return None
-
 		return 1
 
 	def debug_info(self):
@@ -265,21 +262,22 @@ class Task(TaskInterface):
 	def color(self):
 		return self.m_action.m_color
 
-	# IMPORTANT: users want this to set dependencies on other tasks
+	# IMPORTANT: set dependencies on other tasks
 	def set_run_after(self, task):
 		self.m_run_after.append(task)
 
-
-class TaskCmd(TaskInterface):
-	def __init__(self):
-		TaskInterface.__init__(self)
-		self.fun = None
+class TaskCmd(TaskBase):
+	"TaskCmd executes commands. Instances always execute their function."
+	def __init__(self, fun, env, priority):
+		TaskBase.__init__(self, priority)
+		self.fun = fun
+		self.env = env
 	def prepare(self):
-		pass
+		self.display = "* executing: "+self.fun.__name__
 	def debug_info(self):
-		return ''
+		return 'TaskCmd:fun %s' % self.fun.__name__
 	def debug(self):
-		return ''
+		return 'TaskCmd:fun %s' % self.fun.__name__
 	def run(self):
-		self.fun()
+		self.fun(self)
 
