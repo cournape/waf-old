@@ -21,6 +21,36 @@ set_globals('SKEL_EXT', ['.skel'])
 set_globals('STUB_EXT', ['.stub'])
 set_globals('KCFGC_EXT', ['.kcfgc'])
 
+kcfg_regexp = re.compile('[fF]ile\s*=\s*(.+)\s*', re.M)
+"regexp for the kcfg scanner"
+
+class kcfg_scanner(Scan.scanner):
+	"a scanner for .kcfgc files (kde xml configuration files)"
+	def __init__(self):
+		Scan.scanner.__init__(self)
+
+	def scan(self, node, env, path_lst):
+		variant = node.variant(env)
+
+		trace("kcfg scanner called for "+str(node))
+		file = open(node.abspath(env), 'rb')
+		found = kcfg_regexp.findall(file.read())
+		file.close()
+
+		if not found:
+			fatal("no kcfg file found when scanning the .kcfgc- that's very bad")
+
+		name = found[0]
+		for dir in path_lst:
+			for node in dir.m_files:
+				if node.m_name == name:
+					return ([node], found)
+		fatal("the kcfg file was not found - that's very bad")
+
+
+g_kcfg_scanner = kcfg_scanner()
+"scanner for kcfg files (kde)"
+
 # kde .ui file processing
 #uic_vardeps = ['UIC', 'UIC_FLAGS', 'UIC_ST']
 uic_vardeps = ['UIC', 'QTPLUGINS']
@@ -147,7 +177,7 @@ def handler_kcfgc(self, node, base=''):
 	tree = Params.g_build
 	if tree.needs_rescan(node, self.env):
 		hash = {'path_lst': self.dir_lst['path_lst']}
-		Scan.g_kcfg_scanner.do_scan(node, self.env, hashparams=hash)
+		g_kcfg_scanner.do_scan(node, self.env, hashparams=hash)
 
 	if node in node.m_parent.m_files: variant = 0
 	else: variant = self.env.variant()
@@ -232,7 +262,7 @@ class kdeobj(cpp.cppobj):
 			# scan for moc files to produce, create cpp tasks at the same time
 
 			if tree.needs_rescan(node, self.env):
-				Scan.g_c_scanner.do_scan(node, self.env, hashparams = self.dir_lst)
+				ccroot.g_c_scanner.do_scan(node, self.env, hashparams = self.dir_lst)
 
 			moctasks=[]
 			mocfiles=[]
@@ -290,7 +320,7 @@ class kdeobj(cpp.cppobj):
 			# create the task for the cpp file
 			cpptask = self.create_task('cpp', self.env)
 
-			cpptask.m_scanner = Scan.g_c_scanner
+			cpptask.m_scanner = ccroot.g_c_scanner
 			cpptask.m_scanner_params = self.dir_lst
 
 			cpptask.set_inputs(node)
@@ -654,4 +684,6 @@ def set_options(opt):
 
 	for i in "execprefix datadir libdir kdedir kdeincludes kdelibs qtdir qtincludes qtlibs libsuffix".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
+
+
 

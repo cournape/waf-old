@@ -327,7 +327,6 @@ class Node:
 			else: return self.m_parent.is_child_of(node)
 		return 0
 
-	## there are always many more folders than files, so this is a good heuristic (tm)
 	#def ensure_scan(self):
 	#	if not self in Params.g_build.m_scanned_folders:
 	#		Params.g_build.rescan(self)
@@ -336,6 +335,10 @@ class Node:
 	def cd_to(self, env=None):
 		return self.m_parent.bldpath(env)
 
+
+	def variant(self, env):
+		if self in self.m_parent.m_files: return 0
+		else: return env.variant()
 
 	# =============================================== #
 	# helpers for building things
@@ -367,29 +370,8 @@ class Node:
 		ret = os.unlink(self.abspath(env))
 		print ret
 
-	# returns the folder in the build dir for reaching this node
-	#def cd_to(self):
-	#	reldir = Params.g_build.m_bldnode.difflst(self)
-	#	reldir = reldir[:-1]
-	#	reldir = os.sep.join(reldir)
-	#	return reldir
-	# path relative to the src directory (useful for building targets : almost - ita)
-	#def srcpath(self):
-	#	node = Params.srcnode()
-	#	if not node: error("BUG in srcpath")
-	#	return self.relpath(node)
-
 	# TODO FIXME
 	def get_sig(self):
 		try: return Params.g_build.m_tstamp_variants[0][self]
 		except: return Params.sig_nil()
-
-	# flag a subtree
-	#def tag(self, val):
-	#	for i in self.m_files:
-	#		i.m_flag = val
-	#	for i in self.m_dirs:
-	#		i.m_flag = val
-	#		i.tag(val)
-
 
