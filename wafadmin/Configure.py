@@ -348,12 +348,19 @@ class pkgconfig_configurator(configurator_base):
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
 
-		self.name        = ''
-		self.version     = ''
-		self.path        = ''
+		self.name        = '' # name of the .pc file
+		self.version     = '' # version to check
+		self.path        = '' # PKG_CONFIG_PATH
 		self.uselib_name = '' # can be set automatically
 		self.define_name = '' # can be set automatically
-		self.binary      = ''
+		self.binary      = '' # name and path for pkg-config
+		
+		# You could also check for extra values in a pkg-config file.
+		# Use this value to define which values should be checked
+		# and defined. Several formats for this value are supported:
+		# - string with spaces to separate a list
+		# - list of values to check (define name will be upper(uselib_name"_"value_name))
+		# - a list of [value_name, override define_name]
 		self.variables   = []
 
 	def error(self):
@@ -377,9 +384,17 @@ class pkgconfig_configurator(configurator_base):
 		pkgpath = self.path
 		pkgbin = self.binary
 		uselib = self.uselib_name
-		
-		if not pkgbin: pkgbin='pkg-config'
-		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
+
+		# check if self.variables is a string with spaces
+		# to separate the variables to check for
+		# if yes convert variables to a list
+		if type(self.variables) is types.StringType:
+			self.variables = str(self.variables).split()
+			
+		if not pkgbin:
+			pkgbin = 'pkg-config'
+		if pkgpath:
+			pkgpath = 'PKG_CONFIG_PATH=' + pkgpath
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
 		
 		retval = {}
@@ -411,10 +426,16 @@ class pkgconfig_configurator(configurator_base):
 
 			for variable in self.variables:
 				var_defname = ''
-				if len(variable) >= 2:
-					if variable[1]:
+				# check if variable is a list
+				if (type(variable) is types.ListType):
+					# is it a list of [value_name, override define_name] ?
+					if len(variable) == 2 and variable[1]:
+						# if so use the overrided define_name as var_defname
 						var_defname = variable[1]
-
+				# convert variable to a string that name the variable to check for.
+				variable = variable[0]
+				
+				# if var_defname was not overrided by the list containing the define_name
 				if not var_defname:				
 					var_defname = uselib + '_' + variable.upper()
 

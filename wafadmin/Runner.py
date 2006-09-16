@@ -107,6 +107,11 @@ class JobGenerator:
 			self.m_processed += 1
 			return t
 
+		# handle case where only one wscript exist
+		# that only install files
+		if not Task.g_tasks.groups:
+			return None
+
 		# stop condition
 		if self.curgroup >= len(Task.g_tasks.groups):
 			return None
