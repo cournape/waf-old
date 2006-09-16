@@ -20,44 +20,68 @@ g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
 #####################
 ## Helper functions
 
-def find_file(file, path_list):
-	"find a file in a list of paths"
-	if type(path_list) is types.StringType: lst = [path_list]
-	else: lst = path_list
-	for dir in lst:
-		if os.path.exists( os.path.join(dir, file) ):
-			return dir
+def find_file(filename, path_list):
+	"""find a file in a list of paths
+filename - name of the file to search for
+path_list - list of directories to search
+returns the first occurrence filename or '' if filename could not be found
+"""
+	if type(path_list) is types.StringType: 
+		lst = path_list.split()
+	else: 
+		lst = path_list
+	for directory in lst:
+		if os.path.exists( os.path.join(directory, filename) ):
+			return directory
 	return ''
 
-def find_file_ext(file, path_list):
+def find_file_ext(filename, path_list):
+	"""find a file in a list of paths using fnmatch
+filename - name of the file to search for
+path_list - list of directories to search
+returns the first occurrence filename or '' if filename could not be found
+"""
 	import os, fnmatch;
-	if type(path_list) is types.StringType: lst = [path_list]
-	else: lst = path_list
-	for p in lst:
-		for path, subdirs, files in os.walk( p ):
+	if type(path_list) is types.StringType: 
+		lst = path_list.split()
+	else: 
+		lst = path_list
+	for directory in lst:
+		for path, subdirs, files in os.walk( directory ):
 			for name in files:
-				if fnmatch.fnmatch( name, file ):
+				if fnmatch.fnmatch( name, filename ):
 					return path
 	return ''
 
-def find_program_impl(lenv, file, path_list=None, var=None):
-	"find the program 'file' in folders path_lst, and sets lenv[var]"
-	if not path_list: path_list = []
-	elif type(path_list) is types.StringType: path_list = path_list.split()
+def find_program_impl(lenv, filename, path_list=None, var=None):
+	"""find a program in folders path_lst, and sets lenv[var]
+lenv - directory to be set
+filename - name of the program to search for
+path_list - list of directories to search for filename
+var - environment value to be checked for in lenv or os.environ
+returns - eigther the value that is referenced with [var] in lenv or os.environ
+or the first  occurrence filename or '' if filename could not be found
+"""
+	if not path_list: 
+		path_list = []
+	elif type(path_list) is types.StringType: 
+		path_list = path_list.split()
 
 	if var:
-		if lenv[var]: return lenv[var]
-		elif var in os.environ: return os.environ[var]
+		if lenv[var]: 
+			return lenv[var]
+		elif var in os.environ: 
+			return os.environ[var]
 
-	if lenv['WINDOWS']: file += '.exe'
+	if lenv['WINDOWS']: filename += '.exe'
 	if not path_list: 
 		try:
 			path_list = os.environ['PATH'].split(':')
 		except KeyError:
 			return None
-	for dir in path_list:
-		if os.path.exists( os.path.join(dir, file) ):
-			ret = os.path.join(dir, file)
+	for directory in path_list:
+		if os.path.exists( os.path.join(directory, filename) ):
+			ret = os.path.join(directory, filename)
 			if var: lenv[var] = ret
 			return ret
 	return ''
@@ -69,7 +93,7 @@ class enumerator_base:
 	def __init__(self, conf):
 		self.conf        = conf
 		self.env         = conf.env
-		self.define_name = ''
+		self.define = ''
 		self.mandatory   = 0
 
 	def error(self):
@@ -127,7 +151,7 @@ class enumerator_base:
 class configurator_base(enumerator_base):
 	def __init__(self, conf):
 		enumerator_base.__init__(self, conf)
-		self.uselib_name = ''
+		self.uselib = ''
 
 class program_enumerator(enumerator_base):
 	def __init__(self,conf):
@@ -169,7 +193,8 @@ class function_enumerator(enumerator_base):
 		fatal('function %s cannot be found' % self.function)
 
 	def validate(self):
-		if not self.define: self.define = self.function.upper()
+		if not self.define: 
+			self.define = self.function.upper()
 
 	def run_cache(self, retval):
 		self.conf.checkMessage('function %s (cached)' % self.function, '', 1, option='')
@@ -301,13 +326,15 @@ class cfgtool_configurator(configurator_base):
 		self.binary   = ''
 
 		self.tests    = {}
-		self.uselib_name   = ''
 
 	def error(self):
 		fatal('%s cannot be found' % self.binary)
 
 	def validate(self):
-		if not self.define: self.define = 'HAVE_'+self.uselib
+		if not self.binary:
+			raise "error"
+		if not self.define: 
+			self.define = 'HAVE_'+self.uselib
 
 		if not self.tests:
 			self.tests['--cflags'] = 'CCFLAGS'
@@ -331,7 +358,7 @@ class cfgtool_configurator(configurator_base):
 			if ret: raise "error"
 
 			for flag in self.tests:
-				var = self.tests[flag]+'_'+self.uselib
+				var = self.tests[flag] + '_' + self.uselib
 				cmd = '%s %s 2>/dev/null' % (self.binary, flag)
 				retval[var] = [os.popen(cmd).read().strip()]
 
@@ -341,49 +368,67 @@ class cfgtool_configurator(configurator_base):
 			found = 0
 
 		self.conf.addDefine(self.define, found)
-		self.conf.checkMessage('config-tool '+self.binary, '', found, option='')
+		self.conf.checkMessage('config-tool ' + self.binary, '', found, option = '')
 		return retval
 
 class pkgconfig_configurator(configurator_base):
+	""" pkgconfig_configurator is a frontend to pkg-config
+variables:
+ name - name of the .pc file  (has to be set at least)
+ version - atleast-version to check for
+ path - override the pkgconfig path (PKG_CONFIG_PATH)
+ uselib - name that could be used in tasks with obj.uselib
+              if not set uselib = upper(name)
+ define - name that will be used in config.h  ...
+              if not set define = HAVE_+uselib
+
+variables - list of addional variables to be checked for
+                for  example variables='prefix libdir' 
+"""
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
 
 		self.name        = '' # name of the .pc file
 		self.version     = '' # version to check
 		self.path        = '' # PKG_CONFIG_PATH
-		self.uselib_name = '' # can be set automatically
-		self.define_name = '' # can be set automatically
+		self.uselib = '' # can be set automatically
+		self.define = '' # can be set automatically
 		self.binary      = '' # name and path for pkg-config
 		
 		# You could also check for extra values in a pkg-config file.
 		# Use this value to define which values should be checked
 		# and defined. Several formats for this value are supported:
 		# - string with spaces to separate a list
-		# - list of values to check (define name will be upper(uselib_name"_"value_name))
+		# - list of values to check (define name will be upper(uselib"_"value_name))
 		# - a list of [value_name, override define_name]
 		self.variables   = []
 
 	def error(self):
-		if self.version: fatal('pkg-config cannot find %s >= %s' % (self.name, self.version))
+		if self.version: 
+			fatal('pkg-config cannot find %s >= %s' % (self.name, self.version))
 		fatal('pkg-config cannot find %s' % self.name)
 
 	def validate(self):
-		if not self.uselib_name: self.uselib_name = self.name.upper()
-		if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
+		if not self.uselib: 
+			self.uselib = self.name.upper()
+		if not self.define: 
+			self.define = 'HAVE_'+self.uselib
 
 	def run_cache(self, retval):
 		if self.version:
 			self.conf.checkMessage('package %s >= %s (cached)' % (self.name, self.version), '', retval, option='')
 		else:
 			self.conf.checkMessage('package %s (cached)' % self.name, '', retval, option='')
-		if retval: self.conf.addDefine(self.define_name, 1)
-		else: self.conf.addDefine(self.define_name, 0)
+		if retval: 
+			self.conf.addDefine(self.define, 1)
+		else: 
+			self.conf.addDefine(self.define, 0)
 		self.update_env(retval)
 
 	def run_test(self):
 		pkgpath = self.path
 		pkgbin = self.binary
-		uselib = self.uselib_name
+		uselib = self.uselib
 
 		# check if self.variables is a string with spaces
 		# to separate the variables to check for
@@ -432,8 +477,8 @@ class pkgconfig_configurator(configurator_base):
 					if len(variable) == 2 and variable[1]:
 						# if so use the overrided define_name as var_defname
 						var_defname = variable[1]
-				# convert variable to a string that name the variable to check for.
-				variable = variable[0]
+					# convert variable to a string that name the variable to check for.
+					variable = variable[0]
 				
 				# if var_defname was not overrided by the list containing the define_name
 				if not var_defname:				
@@ -441,11 +486,11 @@ class pkgconfig_configurator(configurator_base):
 
 				retval[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
 
-			self.conf.addDefine(self.define_name, 1)
+			self.conf.addDefine(self.define, 1)
 			self.update_env(retval)	
 		except:
 			retval = {}
-			self.conf.addDefine(self.define_name, 0)
+			self.conf.addDefine(self.define, 0)
 
 		return retval
 
@@ -581,7 +626,7 @@ class header_configurator(configurator_base):
 	def validate(self):
 		#try: self.names = self.names.split()
 		#except: pass
-		#if not self.define_name: self.define_name = 'HAVE_'+self.uselib_name
+		#if not self.define: self.define = 'HAVE_'+self.uselib
 
 		if not self.code: self.code = "#include <%s>\nint main(){return 0;}\n"
 
@@ -647,7 +692,7 @@ class check_data:
 		self.lib           = []
 		self.libpath       = [] # libpath for linking
 
-		self.define_name   = '' # define to add if run is successful
+		self.define   = '' # define to add if run is successful
 
 		self.header_name   = '' # header name to check for
 
@@ -757,7 +802,7 @@ class Configure:
 
 		if not destvar: destvar = modname.upper()
 
-		pkgconf.uselib_name = destvar
+		pkgconf.uselib = destvar
 		pkgconf.name = modname
 		pkgconf.version = vnum
 		pkgconf.path = pkgpath
