@@ -157,21 +157,21 @@ int main()
 
 	# Looks for pkg-config package "blah5000" (should fail unless you really have such a package)
 	pkgconf = conf.create_pkgconfig_configurator()
-	pkgconf.define = 'BLAH5000'
+	pkgconf.define_name = 'BLAH5000'
 	pkgconf.name = 'blah5000'
 	pkgconf.run()
 
 	# Looks for pkg-config packages "gtkmm-2.4" and sets the uselib variables with name "GTKMM"
-	pkgconf.define = 'GTKMM'
+	pkgconf.uselib_name = 'GTKMM'
 	pkgconf.name = 'gtkmm-2.4'
 	pkgconf.run()
 
-	pkgconf.define = 'BLUETOOTH'
+	pkgconf.uselib_name = 'BLUETOOTH'
 	pkgconf.name = 'bluez'
-	if pkgconf.run():
-		conf.addDefine('HAVE_BLUETOOTH_BLUEZ', 1)
+	pkgconf.define_name = 'HAVE_BLUETOOTH_BLUEZ'
+	pkgconf.run
 	
-	pkgconf.define = 'GLIB'
+	pkgconf.uselib_name = 'GLIB'
 	pkgconf.name = 'glib-2.0'
 	pkgconf.run()
 
