@@ -206,7 +206,7 @@ class Task(TaskBase):
 
 		a1 = Params.vsig(sg)
 		a2 = Params.vsig(outs)
-		
+
 		debug("task %s must run ? signature is %s while node signature is %s (sig:%s depsig:%s)" \
 			% (str(self.m_idx), a1, a2, i1, i2))
 

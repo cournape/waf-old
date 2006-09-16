@@ -64,7 +64,7 @@ class ccobj(ccroot.ccroot):
 			self.env.appendValue('_CCINCFLAGS', cpppath_st % i)
 			#print self.env['_CCINCFLAGS']
 			#print " appending include ",i
-	
+
 		# this is usually a good idea
 		self.env.appendValue('_CCINCFLAGS', cpppath_st % '.')
 		self.env.appendValue('_CCINCFLAGS', cpppath_st % self.env.variant())
@@ -120,13 +120,9 @@ class ccobj(ccroot.ccroot):
 		y = self.env['CCDEFINES_ST']
 		self.env['_CCDEFFLAGS'] = map(lambda x: y%x, milst)
 
-# tool specific setup
-# is called when a build process is started 
 def setup(env):
-	# register our object
 	Object.register('cc', ccobj)
 
-# no variable added, do nothing
 def detect(conf):
 	return 1
 

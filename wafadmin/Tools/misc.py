@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"an object that executes a function everytime"
+
 import Object
 from Params import fatal
 

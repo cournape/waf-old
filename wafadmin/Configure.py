@@ -26,9 +26,9 @@ filename - name of the file to search for
 path_list - list of directories to search
 returns the first occurrence filename or '' if filename could not be found
 """
-	if type(path_list) is types.StringType: 
+	if type(path_list) is types.StringType:
 		lst = path_list.split()
-	else: 
+	else:
 		lst = path_list
 	for directory in lst:
 		if os.path.exists( os.path.join(directory, filename) ):
@@ -42,9 +42,9 @@ path_list - list of directories to search
 returns the first occurrence filename or '' if filename could not be found
 """
 	import os, fnmatch;
-	if type(path_list) is types.StringType: 
+	if type(path_list) is types.StringType:
 		lst = path_list.split()
-	else: 
+	else:
 		lst = path_list
 	for directory in lst:
 		for path, subdirs, files in os.walk( directory ):
@@ -62,19 +62,19 @@ var - environment value to be checked for in lenv or os.environ
 returns - eigther the value that is referenced with [var] in lenv or os.environ
 or the first  occurrence filename or '' if filename could not be found
 """
-	if not path_list: 
+	if not path_list:
 		path_list = []
-	elif type(path_list) is types.StringType: 
+	elif type(path_list) is types.StringType:
 		path_list = path_list.split()
 
 	if var:
-		if lenv[var]: 
+		if lenv[var]:
 			return lenv[var]
-		elif var in os.environ: 
+		elif var in os.environ:
 			return os.environ[var]
 
 	if lenv['WINDOWS']: filename += '.exe'
-	if not path_list: 
+	if not path_list:
 		try:
 			path_list = os.environ['PATH'].split(':')
 		except KeyError:
@@ -123,7 +123,7 @@ class enumerator_base:
 
 	def run_cache(self, retvalue):
 		pass
-	
+
 	def run(self):
 		self.validate()
 		if not Params.g_options.nocache:
@@ -134,9 +134,9 @@ class enumerator_base:
 				return ret
 			except KeyError:
 				pass
-		
+
 		ret = self.run_test()
-		
+
 		if self.mandatory and not ret:
 			self.error()
 
@@ -156,7 +156,7 @@ class configurator_base(enumerator_base):
 class program_enumerator(enumerator_base):
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
-	
+
 		self.name = ''
 		self.path = []
 		self.var  = None
@@ -193,7 +193,7 @@ class function_enumerator(enumerator_base):
 		fatal('function %s cannot be found' % self.function)
 
 	def validate(self):
-		if not self.define: 
+		if not self.define:
 			self.define = self.function.upper()
 
 	def run_cache(self, retval):
@@ -232,7 +232,7 @@ class function_enumerator(enumerator_base):
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
-				
+
 		return ret
 
 class library_enumerator(enumerator_base):
@@ -265,7 +265,7 @@ class library_enumerator(enumerator_base):
 
 	def run_test(self):
 		ret=''
-		
+
 		name = self.env['shlib_PREFIX']+self.name+self.env['shlib_SUFFIX']
 		ret  = find_file(name, self.path)
 
@@ -333,7 +333,7 @@ class cfgtool_configurator(configurator_base):
 	def validate(self):
 		if not self.binary:
 			raise "error"
-		if not self.define: 
+		if not self.define:
 			self.define = 'HAVE_'+self.uselib
 
 		if not self.tests:
@@ -352,7 +352,7 @@ class cfgtool_configurator(configurator_base):
 	def run_test(self):
 		retval = {}
 		found = 1
-		
+
 		try:
 			ret = os.popen('%s --help' % self.binary).close()
 			if ret: raise "error"
@@ -383,7 +383,7 @@ variables:
               if not set define = HAVE_+uselib
 
 variables - list of addional variables to be checked for
-                for  example variables='prefix libdir' 
+                for  example variables='prefix libdir'
 """
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
@@ -394,7 +394,7 @@ variables - list of addional variables to be checked for
 		self.uselib = '' # can be set automatically
 		self.define = '' # can be set automatically
 		self.binary      = '' # name and path for pkg-config
-		
+
 		# You could also check for extra values in a pkg-config file.
 		# Use this value to define which values should be checked
 		# and defined. Several formats for this value are supported:
@@ -404,14 +404,14 @@ variables - list of addional variables to be checked for
 		self.variables   = []
 
 	def error(self):
-		if self.version: 
+		if self.version:
 			fatal('pkg-config cannot find %s >= %s' % (self.name, self.version))
 		fatal('pkg-config cannot find %s' % self.name)
 
 	def validate(self):
-		if not self.uselib: 
+		if not self.uselib:
 			self.uselib = self.name.upper()
-		if not self.define: 
+		if not self.define:
 			self.define = 'HAVE_'+self.uselib
 
 	def run_cache(self, retval):
@@ -419,9 +419,9 @@ variables - list of addional variables to be checked for
 			self.conf.checkMessage('package %s >= %s (cached)' % (self.name, self.version), '', retval, option='')
 		else:
 			self.conf.checkMessage('package %s (cached)' % self.name, '', retval, option='')
-		if retval: 
+		if retval:
 			self.conf.addDefine(self.define, 1)
-		else: 
+		else:
 			self.conf.addDefine(self.define, 0)
 		self.update_env(retval)
 
@@ -435,15 +435,15 @@ variables - list of addional variables to be checked for
 		# if yes convert variables to a list
 		if type(self.variables) is types.StringType:
 			self.variables = str(self.variables).split()
-			
+
 		if not pkgbin:
 			pkgbin = 'pkg-config'
 		if pkgpath:
 			pkgpath = 'PKG_CONFIG_PATH=' + pkgpath
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
-		
+
 		retval = {}
-		
+
 		try:
 			if self.version:
 				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, self.version, self.name)).close()
@@ -453,7 +453,7 @@ variables - list of addional variables to be checked for
 				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
 				self.conf.checkMessage('package %s' % (self.name), '', not ret)
 				if ret: raise "error"
-				
+
 			retval['CCFLAGS_'+uselib]   = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
 			retval['CXXFLAGS_'+uselib]  = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
 			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
@@ -479,15 +479,15 @@ variables - list of addional variables to be checked for
 						var_defname = variable[1]
 					# convert variable to a string that name the variable to check for.
 					variable = variable[0]
-				
+
 				# if var_defname was not overrided by the list containing the define_name
-				if not var_defname:				
+				if not var_defname:
 					var_defname = uselib + '_' + variable.upper()
 
 				retval[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
 
 			self.conf.addDefine(self.define, 1)
-			self.update_env(retval)	
+			self.update_env(retval)
 		except:
 			retval = {}
 			self.conf.addDefine(self.define, 0)
@@ -765,15 +765,15 @@ class Configure:
 
 		try:
 			file,name,desc = imp.find_module(tool, tooldir)
-		except: 
+		except:
 			print "no tool named '" + tool + "' found"
-			return 
+			return
 		module = imp.load_module(tool,file,name,desc)
 		ret = int(module.detect(self))
 		self.addDefine(define, ret)
 		self.env.appendValue('tools', {'tool':tool, 'tooldir':tooldir})
 		return ret
-	
+
 	def setenv(self, name):
 		"enable the environment called name"
 		self.env     = self.retrieve(name)
@@ -846,7 +846,7 @@ class Configure:
 
 
 	def addDefine(self, define, value, quote=-1):
-		"""store a single define and its state into an internal list 
+		"""store a single define and its state into an internal list
 		   for later writing to a config header file"""
 		# the user forgot to tell if the value is quoted or not
 		if quote < 0:
@@ -861,9 +861,9 @@ class Configure:
 
 		if not define: raise "define must be .. defined"
 
-		# add later to make reconfiguring faster 
+		# add later to make reconfiguring faster
 		self.env[define] = value
-	
+
 	def isDefined(self, define):
 		return self.defines.has_key(define)
 
@@ -894,7 +894,7 @@ class Configure:
 		dest.write('/* configuration created by waf */\n')
 		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
 
-		for key in self.defines: 
+		for key in self.defines:
 			if self.defines[key]:
 				dest.write('#define %s %s\n' % (key, self.defines[key]))
 				#if addcontent:
@@ -957,10 +957,9 @@ class Configure:
 		p=Params.pprint
 		p('CYAN', custom)
 
-
 	def hook(self, func):
 		"attach the function given as input as new method"
-		setattr(self.__class__, func.__name__, func) 
+		setattr(self.__class__, func.__name__, func)
 
 	def mute_logging(self):
 		"mutes the output temporarily"
@@ -1061,7 +1060,7 @@ class Configure:
 
 		# very important
 		Utils.reset()
-	
+
 		back=os.path.abspath('.')
 
 		bld = Build.Build()
@@ -1112,7 +1111,7 @@ class Configure:
 			if ret: return None
 			try:
 				data = os.popen(lastprog).read().strip()
-				ret = {'result': data} 
+				ret = {'result': data}
 			except:
 				raise
 				pass

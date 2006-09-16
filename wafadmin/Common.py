@@ -83,7 +83,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 		if filename[0] != '/':
 			alst = filename.split('/')
 			filenode = node.find_node(alst)
-	
+
 			file     = filenode.abspath(env)
 			destfile = os.path.join(destpath, filenode.m_name)
 		else:

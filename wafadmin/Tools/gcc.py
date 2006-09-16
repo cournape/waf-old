@@ -6,8 +6,6 @@
 import os, sys
 import Utils, Action, Params
 
-# tool specific setup
-# is called when a build process is started 
 def setup(env):
 	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
@@ -98,22 +96,22 @@ def detect(conf):
 	addflags('CCFLAGS')
 	addflags('CPPFLAGS')
 
-	if sys.platform == "win32": 
-		# shared library 
+	if sys.platform == "win32":
+		# shared library
 		v['shlib_CCFLAGS']       = ['']
 		v['shlib_LINKFLAGS']     = ['-shared']
 		v['shlib_obj_ext']       = ['.o']
 		v['shlib_PREFIX']        = 'lib'
 		v['shlib_SUFFIX']        = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
-	
+
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
 		v['staticlib_obj_ext']   = ['.o']
 		v['staticlib_PREFIX']    = 'lib'
 		v['staticlib_SUFFIX']    = '.a'
 
-		# program 
+		# program
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = '.exe'
 
@@ -135,20 +133,20 @@ def detect(conf):
 		v['program_SUFFIX']      = ''
 
 	else:
-		# shared library 
+		# shared library
 		v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS']     = ['-shared']
 		v['shlib_obj_ext']       = ['.os']
 		v['shlib_PREFIX']        = 'lib'
 		v['shlib_SUFFIX']        = '.so'
-	
+
 		# static lib
 		v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
 		v['staticlib_obj_ext']   = ['.o']
 		v['staticlib_PREFIX']    = 'lib'
 		v['staticlib_SUFFIX']    = '.a'
 
-		# program 
+		# program
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = ''
 

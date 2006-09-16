@@ -28,29 +28,29 @@ def create_parser():
 
 * Main commands: configure build install clean dist distclean uninstall
 * Example: ./waf build -j4""", version = 'waf %s' % Params.g_version)
-	
+
 	# Our options
 	p=parser.add_option
 
-	p('-j', '--jobs', 
+	p('-j', '--jobs',
 		type    = 'int',
 		default = 1,
 		help    = 'specify the number of parallel jobs [Default: 1]',
 		dest    = 'jobs')
 
-	p('-e', '--evil', 
+	p('-e', '--evil',
 		action  = 'store_true',
 		default = False,
 		help    = 'run as a daemon     [Default: False]',
 		dest    = 'daemon')
 
-	p('-f', '--force', 
+	p('-f', '--force',
 		action  = 'store_true',
 		default = False,
 		help    = 'force the files installation',
 		dest    = 'force')
 
-	p('-k', '--keep', 
+	p('-k', '--keep',
 		action  = 'store_true',
 		default = False,
 		help    = 'keep running happily on independant task groups',
@@ -62,7 +62,7 @@ def create_parser():
 		help    = '-p: progress bar; -pp: ide output',
 		dest    = 'progress_bar')
 
-	p('-v', '--verbose', 
+	p('-v', '--verbose',
 		action  = 'count',
 		default = 0,
 		help    = 'show verbose output [Default: False]',
@@ -175,10 +175,10 @@ class Handler:
 
 		try:
 			file,name,desc = imp.find_module(tool, Params.g_tooldir)
-		except: 
+		except:
 			warning("no tool named '%s' found" % tool)
 			raise
-			return 
+			return
 		module = imp.load_module(tool,file,name,desc)
 		try:
 			module.set_options(self)

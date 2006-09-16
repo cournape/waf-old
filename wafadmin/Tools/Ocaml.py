@@ -2,8 +2,6 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# found is 1, not found is 0
-
 import os
 import Params, Action, Object, Scan
 from Params import error, fatal
@@ -308,7 +306,6 @@ def setup(env):
 	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE')
 
 def detect(conf):
-
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
 	occ = conf.find_program('ocamlc', var='OCAMLC')
 	if (not opt) or (not occ):

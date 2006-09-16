@@ -6,8 +6,17 @@ import sys, time, random
 import Params, Task, pproc
 from Params import debug, error, trace
 
-# output a stat file (data for gnuplot) when running tasks in parallel
 dostat=0
+"""
+output a stat file (data for gnuplot) when running tasks in parallel
+
+#! /usr/bin/gnuplot -persist
+set terminal png
+set output "output.png"
+set yrange [-1:6]
+plot 'test.dat' using 1:3 with linespoints
+"""
+
 g_initial = time.time()
 
 g_quiet = 0
@@ -24,7 +33,7 @@ def write_progress(s):
 		if s: print s
 
 def progress_line(s, t, col1, task, col2):
-	# do not print anything if there is nothing to display
+	"do not print anything if there is nothing to display"
 	if not task.display:
 		return ''
 	global g_initial
@@ -59,10 +68,8 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 				sys.stderr.write(str)
 		#time.sleep(0.1)
 
-# run commands in a portable way
-# the subprocess module backported from python 2.4 and should work on python >= 2.2
 def exec_command(str):
-	# for now
+	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
 	trace("system command -> "+ str)
 	if Params.g_verbose==1: print str
 	proc = pproc.Popen(str, shell=1, stdout=pproc.PIPE, stderr=pproc.PIPE)
@@ -71,8 +78,8 @@ def exec_command(str):
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
-# this one is for the latex output, where we cannot capture the output while the process waits for stdin
 def exec_command_interact(str):
+	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
 	trace("system command (interact) -> "+ str)
 	if Params.g_verbose==1: print str
 	proc = pproc.Popen(str, shell=1)
@@ -80,8 +87,8 @@ def exec_command_interact(str):
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
-# kind of iterator - the data structure is a bit complicated (price to pay for flexibility)
 class JobGenerator:
+	"kind of iterator - the data structure is a bit complicated (price to pay for flexibility)"
 	def __init__(self, tree):
 		self.m_tree = tree
 
@@ -96,7 +103,6 @@ class JobGenerator:
 		self.m_processed = 0
 
 		self.m_switchflag=1 # postpone
-
 		#Task.g_tasks.debug()
 
 	# warning, this one is recursive ..
@@ -125,7 +131,7 @@ class JobGenerator:
 			self.curprio = -1
 			self.curgroup += 1
 			return self.get_next()
-		
+
 		# sort keys if necessary
 		if self.curprio == 0:
 			self.priolst = group.prio.keys()
@@ -134,7 +140,7 @@ class JobGenerator:
 		# now fill curlst
 		id = self.priolst[self.curprio]
 		self.curlst = group.prio[id]
-		
+
 		return self.get_next()
 
 	def progress(self):
@@ -163,7 +169,7 @@ class JobGenerator:
 	def skip_group(self, reason):
 		Task.g_tasks.groups[self.curgroup].info = reason
 		self.curgroup += 1
-		self.curprio = -1 
+		self.curprio = -1
 		self.curlst = []
 		try: Task.g_tasks.groups[self.curgroup].prio.sort()
 		except: pass
@@ -245,7 +251,7 @@ class Serial:
 			proc.m_hasrun=1
 
 			# register the task to the ones that have run - useful for debugging purposes
-			Task.g_tasks_done.append(proc)	
+			Task.g_tasks_done.append(proc)
 
 			"""try:
 				proc.apply()
@@ -269,13 +275,6 @@ stop = 0
 running = 0
 
 
-"""
-#! /usr/bin/gnuplot -persist
-set terminal png
-set output "output.png"
-set yrange [-1:6]
-plot 'test.dat' using 1:3 with linespoints
-"""
 stat = []
 class TaskPrinter(threading.Thread):
 	def __init__(self, id, master):
@@ -366,18 +365,19 @@ class TaskConsumer(threading.Thread):
 			lock.release()
 			self.notify()
 
-# The following is a small scheduler, using an agressive scheme
-# for making as many tasks available to the consumer threads
-#
-# Someone may come with a much better scheme, as i do not have too much
-# time to spend on this (ita)
 class Parallel:
+	"""
+	The following is a small scheduler, using an agressive scheme
+	for making as many tasks available to the consumer threads
+	Someone may come with a much better scheme, as i do not have too much
+	time to spend on this (ita)
+	"""
 	def __init__(self, tree, numjobs):
 		# the tree we are working on
 		self.m_tree = tree
 
-		# maximum amount of consumers
-		self.m_numjobs   = numjobs
+		# number of consumers
+		self.m_numjobs = numjobs
 
 		# the container of all tasks: a list of hashtables containing lists of tasks
 		self.m_tasks = Task.g_tasks
@@ -439,7 +439,7 @@ class Parallel:
 			self.curprio = -1
 			self.curgroup += 1
 			return self.get_next_prio()
-		
+
 		# sort keys if necessary
 		if self.curprio == 0:
 			self.priolst = group.prio.keys()
@@ -516,7 +516,6 @@ class Parallel:
 					else:
 						#print "shuf2"
 						self.m_frozen = [proc]+self.m_frozen
-					
 					if not self.m_outstanding:
 						condition.acquire()
 						condition.wait()

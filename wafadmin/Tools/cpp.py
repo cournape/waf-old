@@ -65,13 +65,9 @@ class cppobj(ccroot.ccroot):
 		y = self.env['CXXDEFINES_ST']
 		self.env['_CXXDEFFLAGS'] = map( lambda x: y%x, milst )
 
-# tool specific setup
-# is called when a build process is started 
 def setup(env):
-	# register our object
 	Object.register('cpp', cppobj)
 
-# no variable added, do nothing
 def detect(conf):
 	return 1
 

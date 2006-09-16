@@ -7,7 +7,7 @@ genobj is an abstract class for declaring targets:
   * creates tasks (consisting of a task, an environment, a list of source and list of target)
   * sets environment on the tasks (which are copies most of the time)
   * modifies environments as needed
- 
+
  genobj cannot be used as it is, so you must create a subclass
 
 subclassing
@@ -224,7 +224,7 @@ class genobj:
 		for node in task.m_outputs:
 			lst.append( node.relpath_gen(current) )
 		Common.install_files(var, subdir, lst, chmod=chmod)
-	
+
 	def clone(self, env):
 		newobj = Utils.copyobj(self)
 
@@ -247,7 +247,7 @@ def flatten(env, var):
 	try:
 		v = env[var]
 		if not v: debug("variable %s does not exist in env !" % var)
-	
+
 		if type(v) is types.ListType:
 			return " ".join(v)
 		else:

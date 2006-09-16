@@ -305,7 +305,7 @@ class kdeobj(cpp.cppobj):
 		else:                        linktask = self.create_task('cpp_link', self.env, ccroot.g_prio_link)
 		cppoutputs = []
 		for t in self.p_compiletasks: cppoutputs.append(t.m_outputs[0])
-		linktask.m_inputs  = cppoutputs 
+		linktask.m_inputs  = cppoutputs
 		linktask.m_outputs = self.file_in(self.get_target_name())
 
 		self.m_linktask = linktask
@@ -574,7 +574,7 @@ def detect_kde(conf):
         env['LIB_KPARTS']   = 'kparts'
         env['LIB_KDEPRINT'] = 'kdeprint'
         env['LIB_KDEGAMES'] = 'kdegames'
-      
+
         env['LIB_KDEUI'] = 'kdeui'
         env['LIB_KDE3SUPPORT'] = 'kde3support'
         env['LIB_KHTML'] = 'khtml'
@@ -590,7 +590,7 @@ def detect_kde(conf):
 	env['MEINPROC']         = 'meinproc'
 	env['MEINPROCFLAGS']    = '--check'
 	env['MEINPROC_ST']      = '--cache %s %s'
-	
+
 	env['POCOM']            = 'msgfmt'
 	env['PO_ST']            = '-o'
 

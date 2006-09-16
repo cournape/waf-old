@@ -32,7 +32,7 @@ def yc_file(self, node):
 	if "-d" in self.env['BISONFLAGS']:
 		newnodes.append(node.change_ext(h_ext+endstr))
 	yctask.set_outputs(newnodes)
-	
+
 	task = self.create_task(self.m_type_initials)
 	task.set_inputs(yctask.m_outputs[0])
 	task.set_outputs(node.change_ext(o_ext))

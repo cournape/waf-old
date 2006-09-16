@@ -8,8 +8,8 @@ import Action, Common, Object, Params, Runner, Scan
 from Params import error, fatal
 from Params import set_globals, globals
 
-# a helper function
 def getSOfromLA(lafile):
+	"a helper function"
 	contents = open(lafile, 'r').read()
 	match = re.search("^dlname='([^']*)'$", contents, re.M)
 	if match: return match.group(1)
@@ -100,7 +100,6 @@ class kde_translations(Object.genobj):
 			try:
 				base, ext = os.path.splitext(file.m_name)
 				if ext != '.po': continue
-				
 				task = self.create_task('po', self.env, 2)
 				task.set_inputs(file)
 				task.set_outputs(file.change_ext('.gmo'))
@@ -610,7 +609,7 @@ def detect_kde(conf):
 	env['MEINPROC']         = 'meinproc'
 	env['MEINPROCFLAGS']    = '--check'
 	env['MEINPROC_ST']      = '--cache %s %s'
-	
+
 	env['POCOM']            = 'msgfmt'
 	env['PO_ST']            = '-o'
 
@@ -684,6 +683,4 @@ def set_options(opt):
 
 	for i in "execprefix datadir libdir kdedir kdeincludes kdelibs qtdir qtincludes qtlibs libsuffix".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
-
-
 

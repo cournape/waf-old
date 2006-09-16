@@ -97,7 +97,6 @@ def load_envs():
 			raise
 
 def Main():
-	# configure the project
 	from Common import install_files, install_as
 	if Params.g_commands['configure']:
 		bld = Build.Build()
@@ -109,7 +108,7 @@ def Main():
 			try: blddir = Params.g_options.blddir
 			except: pass
 			if not blddir: blddir = Utils.g_module.blddir
-	
+
 			Params.g_cachedir = blddir+os.sep+'_cache_'
 
 		except AttributeError:
@@ -128,8 +127,7 @@ def Main():
 		conf.cleanup()
 
 		# this will write a configure lock so that subsequent run will
-		# consider the current path as the root directory
-		# to remove: use 'waf distclean'
+		# consider the current path as the root directory, to remove: use 'waf distclean'
 		file = open('.lock-wscript', 'w')
 		file.write(blddir)
 		file.write('\n')
@@ -168,7 +166,6 @@ def Main():
 			"-> Run 'waf configure' or run 'waf distclean' and configure once again")
 
 	#bld.dump()
-
 	global g_inroot
 	g_inroot=1
 	Utils.g_module.build(bld)
@@ -250,8 +247,8 @@ def Main():
 		#raise
 		pass
 
-# dist target - should be portable
 def Dist(appname, version):
+	"dist target - should be portable"
 	import shutil, tarfile
 
 	# Our temporary folder where to put our files
@@ -275,7 +272,7 @@ def Dist(appname, version):
 			else:
 				clean_dirs += d
 		dirs = clean_dirs
-					
+
 		to_remove = False
 		for f in list(filenames):
 			if f.startswith('.'): to_remove = True
@@ -287,14 +284,14 @@ def Dist(appname, version):
 			elif f.endswith('.tar.bz2') and not f.endswith('miniwaf.tar.bz2'): to_remove = True
 			elif f.endswith('.zip'): to_remove = True
 			elif f.endswith('Makefile'): to_remove = True
-			
+
 			if to_remove:
 				os.remove(os.path.join(root, f))
 				to_remove = False
 
 	# go back to the root directory
 	os.chdir('..')
-	
+
 	tar = tarfile.open(TMPFOLDER+'.tar.bz2','w:bz2')
 	tar.add(TMPFOLDER)
 	tar.close()
@@ -304,13 +301,12 @@ def Dist(appname, version):
 
 	sys.exit(0)
 
-# distclean target - should be portable too
 def DistClean():
+	"clean the project"
 	import os, shutil, types
 	import Build
 
 	#print "Executing distclean in ", os.path.abspath('.')
-
 	# remove the distclean folders (may not exist)
 	try:
 		li=Utils.g_module.distclean
@@ -340,7 +336,7 @@ def DistClean():
 			elif f.endswith('~'): to_remove = True
 			elif f.endswith('.pyc'): to_remove = True
 			elif f.startswith('.dblite'): to_remove = True
-			
+
 			if to_remove:
 				#print "removing ",os.path.join(root, f)
 				os.remove(os.path.join(root, f))

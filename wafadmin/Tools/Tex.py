@@ -130,7 +130,7 @@ def tex_build(task, command='LATEX'):
 	try:
 		idx_path = idx_node.abspath(env)
 		os.stat(idx_path)
-		
+
 		makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
 		warning('calling makeindex')
 		ret = exec_cmd(makeindex_compile_cmd)
@@ -193,7 +193,7 @@ class texobj(Object.genobj):
 		self.prompt   = 1  # prompt for incomplete files (else the batchmode is used)
 		self.deps     = ''
 	def apply(self):
-		
+
 		tree = Params.g_build
 		outs = self.outs.split()
 		self.env['PROMPT_LATEX'] = self.prompt

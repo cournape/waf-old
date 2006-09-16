@@ -2,15 +2,12 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# found is 1, not found is 0
-
 import os, sys, string
 import ccroot, cpp
 import Action, Params, Configure, Scan, Runner, Object
 from Params import error, trace, fatal
 from Params import set_globals, globals
 
-## QT SUPPORT ##
 set_globals('MOC_H', ['.hh', '.h'])
 
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
@@ -222,7 +219,7 @@ class qt4obj(cpp.cppobj):
 		linktask = self.create_task('cpp_link', self.env, 101)
 		cppoutputs = []
 		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
-		linktask.m_inputs  = cppoutputs 
+		linktask.m_inputs  = cppoutputs
 		linktask.m_outputs = self.file_in(self.get_target_name())
 
 		self.m_linktask = linktask
@@ -295,7 +292,7 @@ def detect_qt4(conf):
 		if not qtlibs:     qtlibs     = os.path.join(qtdir, 'lib')
 		if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
 		if not qtbin:      qtbin      = os.path.join(qtdir, 'bin')
-		#os.putenv('PATH', os.path.join(qtdir , 'bin') + ":" + os.getenv("PATH")) # TODO ita 
+		#os.putenv('PATH', os.path.join(qtdir , 'bin') + ":" + os.getenv("PATH")) # TODO ita
 
 	# Check for uic, uic-qt3, moc, rcc, ..
 	def find_qt_bin(progs):
@@ -312,7 +309,7 @@ def detect_qt4(conf):
 		# everything failed
 		p('RED',"%s was not found - make sure Qt4-devel is installed, or set $QTDIR or $PATH" % prog)
 		sys.exit(1)
-	
+
 	env['QT_UIC3']= find_qt_bin(['uic-qt3', 'uic3'])
 	env['UIC3_ST']= '%s -o %s'
 
@@ -402,7 +399,7 @@ QtXml
 	#if env['BKS_DEBUG']: debug='_debug'
 	#else:                debug=''
 
-	
+	# TODO
 	"""
 	# rpath settings
 	try:
@@ -460,7 +457,7 @@ def detect_qt4_win32(conf):
 	if qtdir:
 		if not qtlibs:     qtlibs     = os.path.join(qtdir, 'lib')
 		if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
-		#os.putenv('PATH', os.path.join(qtdir , 'bin') + ":" + os.getenv("PATH")) # TODO ita 
+		#os.putenv('PATH', os.path.join(qtdir , 'bin') + ":" + os.getenv("PATH")) # TODO ita
 
 	# Check for uic, uic-qt3, moc, rcc, ..
 	def find_qt_bin(progs):
@@ -474,7 +471,7 @@ def detect_qt4_win32(conf):
 		# everything failed
 		p('RED',"%s was not found - make sure Qt4-devel is installed, or set $QTDIR or $PATH" % prog)
 		sys.exit(1)
-	
+
 	env['QT_UIC3']= find_qt_bin(['uic-qt3', 'uic3'])
 	env['UIC3_ST']= '%s -o %s'
 
@@ -591,7 +588,7 @@ def detect_qt4_win32(conf):
 	env['CPPPATH_QTEST']       = [ env['QTINCLUDEPATH']+'/QtTest' ]
 	env['LIB_QTEST']           = ['QtTest'+debug]
 	env['RPATH_QTEST']         = env['RPATH_QT']
-	
+
 	env['QTLOCALE']            = str(env['PREFIX'])+'/share/locale'
 
 def detect(conf):

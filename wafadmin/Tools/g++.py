@@ -6,19 +6,17 @@
 import os, sys
 import Utils, Action, Params
 
-# tool specific setup
-# is called when a build process is started 
 def setup(env):
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
 	Action.simple_action('cpp', cpp_str, color='GREEN')
 
-	# on windows libraries must be defined after the object files 
+	# on windows libraries must be defined after the object files
 	Action.simple_action('cpp_link', link_str, color='YELLOW')
 
-# tool detection and initial setup 
-# is called when a configure process is started, 
+# tool detection and initial setup
+# is called when a configure process is started,
 # the values are cached for further build processes
 def detect(conf):
 
@@ -63,7 +61,7 @@ def detect(conf):
 	v['CXXFLAGS_DEBUG']      = ['-g', '-DDEBUG']
 	v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
-	# linker	
+	# linker
 	v['LINK_CXX']            = comp
 	v['LIB']                 = []
 
@@ -107,41 +105,41 @@ def detect(conf):
 	addflags('CPPFLAGS')
 
 	if not v['DESTDIR']: v['DESTDIR']=''
-	
-	if sys.platform == "win32": 
-		# shared library 
+
+	if sys.platform == "win32":
+		# shared library
 		v['shlib_CXXFLAGS']    = ['']
 		v['shlib_LINKFLAGS']   = ['-shared']
 		v['shlib_obj_ext']     = ['.o']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
-	
+
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
 		v['staticlib_obj_ext'] = ['.o']
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
-		# program 
+		# program
 		v['program_obj_ext']   = ['.o']
 		v['program_SUFFIX']    = '.exe'
 	elif sys.platform == 'cygwin':
-		# shared library 
+		# shared library
 		v['shlib_CXXFLAGS']    = ['']
 		v['shlib_LINKFLAGS']   = ['-shared']
 		v['shlib_obj_ext']     = ['.o']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
-	
+
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
 		v['staticlib_obj_ext'] = ['.o']
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
-		# program 
+		# program
 		v['program_obj_ext']   = ['.o']
 		v['program_SUFFIX']    = '.exe'
 	elif sys.platform == 'darwin':
@@ -167,20 +165,20 @@ def detect(conf):
 		v['program_obj_ext']   = ['.o']
 		v['program_SUFFIX']    = ''
 	else:
-		# shared library 
+		# shared library
 		v['shlib_CXXFLAGS']    = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS']   = ['-shared']
 		v['shlib_obj_ext']     = ['.os']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.so'
-	
+
 		# static lib
 		#v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
 		v['staticlib_obj_ext'] = ['.o']
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
-		# program 
+		# program
 		v['program_obj_ext']   = ['.o']
 		v['program_SUFFIX']    = ''
 

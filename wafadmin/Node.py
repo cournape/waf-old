@@ -236,12 +236,12 @@ class Node:
 	def pathlist3(self, node):
 		if self is node: return ['.']
 		return [self.m_name, os.sep]+self.m_parent.pathlist3(node)
-	
+
 	# same as pathlist3, but do not append './' at the beginning
 	def pathlist4(self, node):
 		if self.m_parent is node: return [self.m_name]
 		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
-	
+
 	# path relative to a direct parent
 	def relpath(self, parent):
 		#print "relpath", self, parent

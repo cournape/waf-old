@@ -67,7 +67,8 @@ class alex:
 
 	Example:
 	str = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'
-	act = simple_action('name', str)"""
+	act = simple_action('name', str)
+	"""
 	def __init__(self, s):
 		self.str = s
 		self.out = []
@@ -157,7 +158,7 @@ class alex:
 	def fun(self):
 		exec(self.res())
 		return eval('f')
-			
+
 def simple_action(name, line, color='GREEN'):
 	"helper provided for convenience"
 	obj = alex(line)

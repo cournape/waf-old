@@ -62,7 +62,7 @@ class gnome_intltool(Object.genobj):
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(''))
 
-	def install(self):	
+	def install(self):
 		current = Params.g_build.m_curdirnode
 		for task in self.m_tasks:
 			out = task.m_outputs[0]
@@ -98,7 +98,7 @@ class gnome_sgml2man(Object.genobj):
 				raise
 				pass
 
-	def install(self):	
+	def install(self):
 		current = Params.g_build.m_curdirnode
 
 		for task in self.m_tasks:
@@ -289,18 +289,18 @@ def detect(conf):
 
 	#Define to 1 if you have the <dlfcn.h> header file.
 	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
- 
+
 	# TODO
 	#Define if the GNU gettext() function is already present or preinstalled.
 	conf.addDefine('HAVE_GETTEXT', '1')
- 
+
 	#Define to 1 if you have the <inttypes.h> header file.
 	conf.check_header('inttypes.h', 'HAVE_INTTYPES_H')
- 
+
 	# TODO FIXME
 	#Define if your <locale.h> file defines LC_MESSAGES.
 	#conf.addDefine('HAVE_LC_MESSAGES', '1')
- 
+
 	#Define to 1 if you have the <locale.h> header file.
 	conf.check_header('locale.h', 'HAVE_LOCALE_H')
 
@@ -312,19 +312,19 @@ def detect(conf):
 
 	#Define to 1 if you have the <stdlib.h> header file.
 	conf.check_header('stdlib.h', 'HAVE_STDLIB_H')
- 
+
 	#Define to 1 if you have the <strings.h> header file.
 	conf.check_header('strings.h', 'HAVE_STRINGS_H')
- 
+
 	#Define to 1 if you have the <string.h> header file.
 	conf.check_header('string.h', 'HAVE_STRING_H')
- 
+
         #Define to 1 if you have the <sys/stat.h> header file.
 	conf.check_header('sys/stat.h', 'HAVE_SYS_STAT_H')
- 
+
 	#Define to 1 if you have the <sys/types.h> header file.
 	conf.check_header('sys/types.h', 'HAVE_SYS_TYPES_H')
- 
+
 	#Define to 1 if you have the <unistd.h> header file.
 	conf.check_header('unistd.h', 'HAVE_UNISTD_H')
 

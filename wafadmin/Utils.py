@@ -47,10 +47,11 @@ def to_list(sth):
 def options(**kwargs):
 	pass
 
-## index modules by absolute path
 g_loaded_modules={}
-## the main module is special
+"index modules by absolute path"
+
 g_module=None
+"the main module is special"
 
 def load_module(file_path, name='wscript'):
 	"this function requires an absolute path"
@@ -72,16 +73,16 @@ def load_module(file_path, name='wscript'):
 	return module
 
 def set_main_module(file_path):
-	# Load custom options, if defined
+	"Load custom options, if defined"
 	global g_module
 	g_module = load_module(file_path, 'wscript_main')
-	
+
 	# remark: to register the module globally, use the following:
 	# sys.modules['wscript_main'] = g_module
 
 def fetch_options(file_path):
+	"Load custom options, if defined"
 	import Options
-	# Load custom options, if defined
 	file = open(file_path, 'r')
 	name = 'wscript'
 	desc = ('', 'U', 1)

@@ -305,9 +305,10 @@ class Build:
 		""" first list the files in the src dir and update the nodes
 		for each variant build dir (multiple build dirs):
 		     list the files in the build dir, update the nodes
-		
+
 		this makes (n bdirs)+srdir to scan (at least 2 folders)
-		so we might want to do it in parallel in some future"""
+		so we might want to do it in parallel in some future
+		"""
 
 		# do not rescan over and over again
 		if src_dir_node in self.m_scanned_folders: return
@@ -376,7 +377,7 @@ class Build:
 		l_names = l_names_read
 		l_nodes = i_existing_nodes
 		l_kept  = []
-	
+
 		for node in l_nodes:
 			i     = 0
 			name  = node.m_name

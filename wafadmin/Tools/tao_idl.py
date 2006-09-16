@@ -47,7 +47,7 @@ def tao_idl_build(task):
 	return Runner.exec_command(cmd)
 """
 
-# This function is called when a build process is started 
+# This function is called when a build process is started
 def setup(env):
 	# TODO define the vars
 	Action.simple_action('idl', '${IDL} ${IDL_INCLUDES} ${SRC} -o ${SRC[0].m_parent.bldpath(env)}', color='BLUE')
@@ -55,8 +55,8 @@ def setup(env):
 	# register the hook for use with cppobj
 	Object.hook('cpp', 'TAO_IDL_EXT', tao_idl_file)
 
-# tool detection and initial setup 
-# is called when a configure process is started, 
+# tool detection and initial setup
+# is called when a configure process is started,
 # the values are cached for further build processes
 def detect(conf):
 
@@ -74,7 +74,7 @@ def detect(conf):
 	else:
 		if not conf.check_header('ace/ACE.h'):
 			return 0
-		
+
 	if not idl:
 		idl = conf.find_program('tao_idl')
 		if not idl:
@@ -85,8 +85,8 @@ def detect(conf):
 	else:
 		if not conf.check_header('tao/corba.h'):
 			return 0
-	
-	# Check if the headers are present:
+
+# Check if the headers are present:
 # 	if conf.checkPkg('TAO'):
 # 		# OK, everything present.
 # 		print 'TAO'
@@ -96,7 +96,7 @@ def detect(conf):
 # 		# OK, ACE found
 # 		print 'ACE'
 # 	else:
-		
+
 	conf.env['IDL']             = idl
 	conf.env['IDL_DEFFLAGS']    = ''
 	conf.env['IDL_INCPATH']     = os.path.join(taodir,'orbsvcs')
@@ -116,7 +116,7 @@ def detect(conf):
 		conf.env['ACE_ROOT'] = acedir
 		conf.env['LIBPATH_ACE']  = [ libdir ]
 		conf.env['CPPPATH_ACE']  = [ conf.env['ACE_ROOT'] ]
-	
+
         conf.env['LIB_ACE']          = ['ACE']
 
 	# only add include paths if TAO_ROOT was set.
@@ -125,7 +125,7 @@ def detect(conf):
 		conf.env['CPPPATH_TAO']      = [ conf.env['TAO_ROOT'] ]
 		conf.env['CPPPATH_ORBSVCS']  = [ conf.env['TAO_ROOT']+'/orbsvcs' ]
 		conf.env['CPPPATH_TAO_NAMING']  = [ conf.env['CPPPATH_ORBSVCS' ][0] ]
-	
+
         conf.env['LIB_TAO']          = ['TAO']
         conf.env['LIB_TAOPOA']       = ['TAO_PortableServer']
         conf.env['LIB_COSNAMING']    = ['TAO_CosNaming']

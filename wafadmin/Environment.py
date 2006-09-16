@@ -34,7 +34,7 @@ class Environment:
 			return
 
 		if not tooldir: tooldir = Params.g_tooldir
-	
+
 		file,name,desc = imp.find_module(tool, tooldir)
 		module = imp.load_module(tool,file,name,desc)
 		try:

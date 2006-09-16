@@ -7,8 +7,8 @@ import Utils
 from Params import fatal
 
 try:
-	from xml.sax import make_parser 
-	from xml.sax.handler import ContentHandler 
+	from xml.sax import make_parser
+	from xml.sax.handler import ContentHandler
 except:
 	fatal('wscript_xml requires the Python xml modules (sax)!')
 
@@ -31,7 +31,7 @@ def compile(file_path):
 	Utils.g_loaded_modules[file_path[:len(file_path)-4]] = module
 	Utils.g_module = module
 
-class XMLHandler(ContentHandler): 
+class XMLHandler(ContentHandler):
 	def __init__(self):
 		self.doc = []
 		self.buf = []
@@ -89,7 +89,7 @@ class XMLHandler(ContentHandler):
 
 		self.buf = []
 
-	def endElement(self, name): 
+	def endElement(self, name):
 		buf = "".join(self.buf)
 
 		# object handling

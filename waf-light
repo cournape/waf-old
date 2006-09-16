@@ -10,7 +10,6 @@ cwd = os.getcwd()
 # ##########################################################################
 # first, we need wafdir otherwise we cannot parse the command-line arguments
 # or print the version number
-# ##########################################################################
 
 wafdir = None
 
@@ -156,10 +155,8 @@ if '--version' in sys.argv:
 
 # ##########################################################################
 # now find the wscript file
-# ##########################################################################
 
 msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "wscript"'
-
 
 # Some people want to configure their projects gcc-style:
 # mkdir build && cd build && ../waf configure && ../waf

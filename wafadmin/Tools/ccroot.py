@@ -558,7 +558,7 @@ class ccroot(Object.genobj):
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i)
 			#print self.env['_CXXINCFLAGS']
 			#print " appending include ",i
-	
+
 		# this is usually a good idea
 		self.env.appendValue('_CXXINCFLAGS', cpppath_st % '.')
 		self.env.appendValue('_CXXINCFLAGS', cpppath_st % self.env.variant())
@@ -701,7 +701,7 @@ class ccroot(Object.genobj):
 
 				# set the dependency over the link task
 				self.m_linktask.m_run_after.append(obj.m_linktask)
-				
+
 				# make sure to rebuild our link task if obj.m_linktask is re-run
 				try:
 					lst = htbl[self.m_linktask.m_outputs[0]]
