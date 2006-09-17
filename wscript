@@ -109,8 +109,8 @@ def install_waf():
 
 		shutil.copy2('waf', os.path.join(binpath))
 	except:
-		print "installation failed: cannot write to %s" % prefix
-		sys.exit(0)
+		print "->>> installation failed: cannot write to %s <<<-" % prefix
+		sys.exit(1)
 	print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
 	if prefix != '/usr/local/':
 		print "WARNING: make sure to always set WAFDIR to %s and PATH to %sbin:$PATH" % (prefix, prefix)
