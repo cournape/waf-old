@@ -62,6 +62,10 @@ class XMLHandler(ContentHandler):
 			self.doc += '\tbld.pushdir("%s")\n' % attrs.get('name')
 			return
 
+		if name == 'group':
+			self.doc += '\tbld.add_group("%s")\n' % attrs.get('name')
+			return
+
 		if name == 'document':
 			self.buf = []
 			return

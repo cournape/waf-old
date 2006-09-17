@@ -60,10 +60,12 @@ class Action:
 		return self.m_function_to_run(task)
 
 class alex:
-	"""Actions declared using a string are compiled before use:
-	* a class with the necessary functions is created (so the string is parsed only once)
-	* all variables (CXX, ..) can be strings or lists of strings (only)
-	* the keywords TGT and SRC cannot be overridden (they represent the task input and output nodes)
+	"""
+	Actions declared using a string are compiled before use:
+
+	A class with the necessary functions is created (so the string is parsed only once)
+	All variables (CXX, ..) can be strings or lists of strings (only)
+	The keywords TGT and SRC cannot be overridden (they represent the task input and output nodes)
 
 	Example:
 	str = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'

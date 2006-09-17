@@ -13,6 +13,7 @@
 
 	<build>
 		<dir name='src'>
+			<group name='testgroup'/>
 			<obj class="cpp" type="shlib">
 				<source type="list">
 					<item value="d1.cpp"/>
