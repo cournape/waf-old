@@ -134,6 +134,9 @@ def parse_args_impl(parser):
 	# TODO -k => -j0
 	if Params.g_options.keep: Params.g_options.jobs = 1
 
+	# make sure usecache is an absolute path
+	if Params.g_options.usecache: Params.g_options.usecache = os.path.abspath(Params.g_options.usecache)
+
 	Params.g_verbose = Params.g_options.verbose
 	if Params.g_verbose>1: Params.set_trace(1,1,1)
 	else: Params.set_trace(0,0,1)
