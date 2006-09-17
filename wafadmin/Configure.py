@@ -165,12 +165,12 @@ class program_enumerator(enumerator_base):
 		fatal('program %s cannot be found' % self.name)
 
 	def run_cache(self, retval):
-		self.conf.checkMessage('program %s (cached)' % self.name, '', retval, option=retval)
+		self.conf.check_message('program %s (cached)' % self.name, '', retval, option=retval)
 		if self.var: self.env[self.var] = retval
 
 	def run_test(self):
 		ret = find_program_impl(self.env, self.name, self.path, self.var)
-		self.conf.checkMessage('program', self.name, ret, ret)
+		self.conf.check_message('program', self.name, ret, ret)
 		if self.var: self.env[self.var] = ret
 		return ret
 
@@ -197,7 +197,7 @@ class function_enumerator(enumerator_base):
 			self.define = self.function.upper()
 
 	def run_cache(self, retval):
-		self.conf.checkMessage('function %s (cached)' % self.function, '', 1, option='')
+		self.conf.check_message('function %s (cached)' % self.function, '', 1, option='')
 		self.conf.add_define(self.define, retval)
 
 	def run_test(self):
@@ -226,7 +226,7 @@ class function_enumerator(enumerator_base):
 		obj.env           = self.env
 
 		ret = int(not self.conf.run_check(obj))
-		self.conf.checkMessage('function %s' % self.function, '', ret, option='')
+		self.conf.check_message('function %s' % self.function, '', ret, option='')
 
 		self.conf.add_define(self.define, ret)
 
@@ -252,7 +252,7 @@ class library_enumerator(enumerator_base):
 
 	def run_cache(self, retval):
 		if self.want_message:
-			self.conf.checkMessage('library %s (cached)' % self.name, '', 1, option=retval)
+			self.conf.check_message('library %s (cached)' % self.name, '', 1, option=retval)
 		self.env['LIB_'+self.uselib] = self.name
 		self.env['LIBPATH_'+self.uselib] = retval
 
@@ -274,7 +274,7 @@ class library_enumerator(enumerator_base):
 			ret  = find_file(name, self.path)
 
 		if self.want_message:
-			self.conf.checkMessage('library '+self.name, '', ret, option=ret)
+			self.conf.check_message('library '+self.name, '', ret, option=ret)
 		if self.uselib:
 			self.env['LIB_'+self.uselib] = self.name
 			self.env['LIBPATH_'+self.uselib] = ret
@@ -302,12 +302,12 @@ class header_enumerator(enumerator_base):
 		fatal('cannot find %s in %s' % (self.name, str(self.path)))
 
 	def run_cache(self, retval):
-		self.conf.checkMessage('header %s (cached)' % self.name, '', 1, option=retval)
+		self.conf.check_message('header %s (cached)' % self.name, '', 1, option=retval)
 		if self.define: self.env[self.define] = retval
 
 	def run_test(self):
 		ret = find_file(self.name, self.path)
-		self.conf.checkMessage('header', self.name, ret, ret)
+		self.conf.check_message('header', self.name, ret, ret)
 		if self.define: self.env[self.define] = ret
 		return ret
 
@@ -347,7 +347,7 @@ class cfgtool_configurator(configurator_base):
 			self.conf.add_define(self.define, 1)
 		else:
 			self.conf.add_define(self.define, 0)
-		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retval, option='')
+		self.conf.check_message('config-tool %s (cached)' % self.binary, '', retval, option='')
 
 	def run_test(self):
 		retval = {}
@@ -368,7 +368,7 @@ class cfgtool_configurator(configurator_base):
 			found = 0
 
 		self.conf.add_define(self.define, found)
-		self.conf.checkMessage('config-tool ' + self.binary, '', found, option = '')
+		self.conf.check_message('config-tool ' + self.binary, '', found, option = '')
 		return retval
 
 class pkgconfig_configurator(configurator_base):
@@ -416,9 +416,9 @@ variables - list of addional variables to be checked for
 
 	def run_cache(self, retval):
 		if self.version:
-			self.conf.checkMessage('package %s >= %s (cached)' % (self.name, self.version), '', retval, option='')
+			self.conf.check_message('package %s >= %s (cached)' % (self.name, self.version), '', retval, option='')
 		else:
-			self.conf.checkMessage('package %s (cached)' % self.name, '', retval, option='')
+			self.conf.check_message('package %s (cached)' % self.name, '', retval, option='')
 		if retval:
 			self.conf.add_define(self.define, 1)
 		else:
@@ -447,11 +447,11 @@ variables - list of addional variables to be checked for
 		try:
 			if self.version:
 				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, self.version, self.name)).close()
-				self.conf.checkMessage('package %s >= %s' % (self.name, self.version), '', not ret)
+				self.conf.check_message('package %s >= %s' % (self.name, self.version), '', not ret)
 				if ret: raise "error"
 			else:
 				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
-				self.conf.checkMessage('package %s' % (self.name), '', not ret)
+				self.conf.check_message('package %s' % (self.name), '', not ret)
 				if ret: raise "error"
 
 			retval['CCFLAGS_'+uselib]   = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
@@ -509,7 +509,7 @@ class test_configurator(configurator_base):
 
 	def run_cache(self, retval):
 		if self.want_message:
-			self.conf.checkMessage('custom code (cached)', '', 1, option=retval['result'])
+			self.conf.check_message('custom code (cached)', '', 1, option=retval['result'])
 
 	def validate(self):
 		if not self.code:
@@ -528,7 +528,7 @@ class test_configurator(configurator_base):
 			if ret: data = ret['result']
 			else: data = ''
 
-			self.conf.checkMessage('custom code', '', ret, option=data)
+			self.conf.check_message('custom code', '', ret, option=data)
 
 		return ret
 
@@ -547,7 +547,7 @@ class library_configurator(configurator_base):
 		fatal('library %s cannot be linked' % self.name)
 
 	def run_cache(self, retval):
-		self.conf.checkMessage('library %s (cached)' % self.name, '', 1)
+		self.conf.check_message('library %s (cached)' % self.name, '', 1)
 		self.env['LIB_'+self.uselib] = self.name
 		self.env['LIBPATH_'+self.uselib] = retval
 
@@ -589,7 +589,7 @@ class library_configurator(configurator_base):
 		obj.uselib        = self.uselib
 
 		ret = int(not self.conf.run_check(obj))
-		self.conf.checkMessage('library %s' % self.name, '', ret)
+		self.conf.check_message('library %s' % self.name, '', ret)
 
 		self.conf.add_define(self.define, ret)
 
@@ -635,7 +635,7 @@ class header_configurator(configurator_base):
 
 	def run_cache(self, retvalue):
 		self.update_env(retvalue)
-		self.conf.checkMessage('header %s (cached)' % self.name, '', 1)
+		self.conf.check_message('header %s (cached)' % self.name, '', 1)
 		self.conf.add_define(self.define, 1)
 
 	def run_test(self):
@@ -661,7 +661,7 @@ class header_configurator(configurator_base):
 		obj.uselib        = self.uselib
 
 		ret = int(not self.conf.run_check(obj))
-		self.conf.checkMessage('header %s' % self.name, '', ret, option='')
+		self.conf.check_message('header %s' % self.name, '', ret, option='')
 
 		self.conf.add_define(self.define, ret)
 
@@ -782,7 +782,7 @@ class Configure:
 	def find_program(self, program_name, path_list=[], var=None):
 		"wrapper provided for convenience"
 		ret = find_program_impl(self.env, program_name, path_list, var)
-		self.checkMessage('program', program_name, ret, ret)
+		self.check_message('program', program_name, ret, ret)
 		return ret
 
 	def store(self, file=''):
@@ -908,7 +908,7 @@ class Configure:
 		"set a config header file"
 		self.configheader = header
 
-	def checkMessage(self,type,msg,state,option=''):
+	def check_message(self,type,msg,state,option=''):
 		"print an checking message. This function is used by other checking functions"
 		sr = 'Checking for ' + type + ' ' + msg
 
@@ -933,7 +933,7 @@ class Configure:
 		if state: p('GREEN', 'ok ' + option)
 		else: p('YELLOW', 'not found')
 
-	def checkMessageCustom(self,type,msg,custom,option=''):
+	def check_message_custom(self,type,msg,custom,option=''):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for ' + type + ' ' + msg
 
@@ -1017,11 +1017,11 @@ class Configure:
 		try:
 			if pkgversion:
 				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, pkgversion, pkgname)).close()
-				self.conf.checkMessage('package %s >= %s' % (pkgname, pkgversion), '', not ret)
+				self.conf.check_message('package %s >= %s' % (pkgname, pkgversion), '', not ret)
 				if ret: raise "error"
 			else:
 				ret = os.popen("%s %s" % (pkgcom, pkgname)).close()
-				self.conf.checkMessage('package %s ' % (pkgname), '', not ret)
+				self.conf.check_message('package %s ' % (pkgname), '', not ret)
 				if ret: raise "error"
 
 			return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()

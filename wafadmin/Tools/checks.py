@@ -42,7 +42,7 @@ class compile_configurator(Configure.configurator_base):
 
 	def run_cache(self, retval):
 		if self.want_message:
-			self.conf.checkMessage('compile code (cached)', '', 1, option=self.msg)
+			self.conf.check_message('compile code (cached)', '', 1, option=self.msg)
 
 	def validate(self):
 		if not self.code:
@@ -57,7 +57,7 @@ class compile_configurator(Configure.configurator_base):
 		ret = self.conf.run_check(obj)
 
 		if self.want_message:
-			self.conf.checkMessage('compile code', '', ret, option=self.msg)
+			self.conf.check_message('compile code', '', ret, option=self.msg)
 
 		return ret
 
@@ -88,7 +88,7 @@ def checkEndian(self, define='', pathlst=[]):
 	if is_big: strbig = 'big endian'
 	else:      strbig = 'little endian'
 
-	self.checkMessageCustom('endianness', '', strbig)
+	self.check_message_custom('endianness', '', strbig)
 	self.add_define(define, is_big)
 	return is_big
 
@@ -137,12 +137,12 @@ def checkFeatures(self, lst=[], pathlst=[]):
 	else:      strbig = 'little endian'
 
 
-	self.checkMessageCustom('endianness', '', strbig)
+	self.check_message_custom('endianness', '', strbig)
 
-	self.checkMessageCustom('int size', '', t['int_size'])
-	self.checkMessageCustom('long int size', '', t['long_int_size'])
-	self.checkMessageCustom('long long int size', '', t['long_long_int_size'])
-	self.checkMessageCustom('double size', '', t['double_size'])
+	self.check_message_custom('int size', '', t['int_size'])
+	self.check_message_custom('long int size', '', t['long_int_size'])
+	self.check_message_custom('long long int size', '', t['long_long_int_size'])
+	self.check_message_custom('double size', '', t['double_size'])
 
 	self.add_define('IS_BIGENDIAN', is_big)
 	self.add_define('INT_SIZE', int(t['int_size']))
@@ -188,7 +188,7 @@ def check_flags(self, flags, uselib='', options='', msg=1):
 	test.flags = flags
 	ret = test.run()
 
-	if msg: self.checkMessage('flags', flags, not (ret is None))
+	if msg: self.check_message('flags', flags, not (ret is None))
 
 	if ret: return 1
 	return None
