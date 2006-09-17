@@ -90,8 +90,8 @@ def configure(conf):
 	conf.check_header('GL/gl.h', '', '', ['/usr/X11R6/include','/usr/include'])
 	"""
 
-	conf.addDefine('HAVE_SOMETHING', 1)
-	conf.addDefine('TEST_DEFINE', 345)
+	conf.add_define('HAVE_SOMETHING', 1)
+	conf.add_define('TEST_DEFINE', 345)
 
 
 	# command-line defines
@@ -110,7 +110,7 @@ int main()
 }"""
 	ret = conf.try_build_and_exec(code)
 	conf.checkMessage('ahoj', '', 'ahoy'==ret) # boolean needed
-	conf.addDefine('AHOJ', ret)
+	conf.add_define('AHOJ', ret)
 
 
 	pc = conf.create_program_enumerator()

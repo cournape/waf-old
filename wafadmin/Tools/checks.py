@@ -89,7 +89,7 @@ def checkEndian(self, define='', pathlst=[]):
 	else:      strbig = 'little endian'
 
 	self.checkMessageCustom('endianness', '', strbig)
-	self.addDefine(define, is_big)
+	self.add_define(define, is_big)
 	return is_big
 
 features_str = """
@@ -144,11 +144,11 @@ def checkFeatures(self, lst=[], pathlst=[]):
 	self.checkMessageCustom('long long int size', '', t['long_long_int_size'])
 	self.checkMessageCustom('double size', '', t['double_size'])
 
-	self.addDefine('IS_BIGENDIAN', is_big)
-	self.addDefine('INT_SIZE', int(t['int_size']))
-	self.addDefine('LONG_INT_SIZE', int(t['long_int_size']))
-	self.addDefine('LONG_LONG_INT_SIZE', int(t['long_long_int_size']))
-	self.addDefine('DOUBLE_SIZE', int(t['double_size']))
+	self.add_define('IS_BIGENDIAN', is_big)
+	self.add_define('INT_SIZE', int(t['int_size']))
+	self.add_define('LONG_INT_SIZE', int(t['long_int_size']))
+	self.add_define('LONG_LONG_INT_SIZE', int(t['long_long_int_size']))
+	self.add_define('DOUBLE_SIZE', int(t['double_size']))
 
 	return is_big
 

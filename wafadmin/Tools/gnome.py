@@ -270,36 +270,36 @@ def detect(conf):
 	if not libdir:  libdir  = os.path.join(prefix,'lib')
 
 	# addefine also sets the variable to the env
-	conf.addDefine('GNOMELOCALEDIR', os.path.join(datadir, 'locale'))
-	conf.addDefine('DATADIR', datadir)
-	conf.addDefine('LIBDIR', libdir)
+	conf.add_define('GNOMELOCALEDIR', os.path.join(datadir, 'locale'))
+	conf.add_define('DATADIR', datadir)
+	conf.add_define('LIBDIR', libdir)
 
 	# TODO: maybe the following checks should be in a more generic module.
 
 	#always defined to indicate that i18n is enabled */
-	conf.addDefine('ENABLE_NLS', '1')
+	conf.add_define('ENABLE_NLS', '1')
 
 	# TODO
 	#Define to 1 if you have the `bind_textdomain_codeset' function.
-	conf.addDefine('HAVE_BIND_TEXTDOMAIN_CODESET', '1')
+	conf.add_define('HAVE_BIND_TEXTDOMAIN_CODESET', '1')
 
 	# TODO
 	#Define to 1 if you have the `dcgettext' function.
-	conf.addDefine('HAVE_DCGETTEXT', '1')
+	conf.add_define('HAVE_DCGETTEXT', '1')
 
 	#Define to 1 if you have the <dlfcn.h> header file.
 	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
 
 	# TODO
 	#Define if the GNU gettext() function is already present or preinstalled.
-	conf.addDefine('HAVE_GETTEXT', '1')
+	conf.add_define('HAVE_GETTEXT', '1')
 
 	#Define to 1 if you have the <inttypes.h> header file.
 	conf.check_header('inttypes.h', 'HAVE_INTTYPES_H')
 
 	# TODO FIXME
 	#Define if your <locale.h> file defines LC_MESSAGES.
-	#conf.addDefine('HAVE_LC_MESSAGES', '1')
+	#conf.add_define('HAVE_LC_MESSAGES', '1')
 
 	#Define to 1 if you have the <locale.h> header file.
 	conf.check_header('locale.h', 'HAVE_LOCALE_H')

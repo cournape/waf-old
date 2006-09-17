@@ -198,7 +198,7 @@ class function_enumerator(enumerator_base):
 
 	def run_cache(self, retval):
 		self.conf.checkMessage('function %s (cached)' % self.function, '', 1, option='')
-		self.conf.addDefine(self.define, retval)
+		self.conf.add_define(self.define, retval)
 
 	def run_test(self):
 		ret = 0 # not found
@@ -228,7 +228,7 @@ class function_enumerator(enumerator_base):
 		ret = int(not self.conf.run_check(obj))
 		self.conf.checkMessage('function %s' % self.function, '', ret, option='')
 
-		self.conf.addDefine(self.define, ret)
+		self.conf.add_define(self.define, ret)
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
@@ -344,9 +344,9 @@ class cfgtool_configurator(configurator_base):
 	def run_cache(self, retval):
 		if retval:
 			self.update_env(retval)
-			self.conf.addDefine(self.define, 1)
+			self.conf.add_define(self.define, 1)
 		else:
-			self.conf.addDefine(self.define, 0)
+			self.conf.add_define(self.define, 0)
 		self.conf.checkMessage('config-tool %s (cached)' % self.binary, '', retval, option='')
 
 	def run_test(self):
@@ -367,7 +367,7 @@ class cfgtool_configurator(configurator_base):
 			retval = {}
 			found = 0
 
-		self.conf.addDefine(self.define, found)
+		self.conf.add_define(self.define, found)
 		self.conf.checkMessage('config-tool ' + self.binary, '', found, option = '')
 		return retval
 
@@ -420,9 +420,9 @@ variables - list of addional variables to be checked for
 		else:
 			self.conf.checkMessage('package %s (cached)' % self.name, '', retval, option='')
 		if retval:
-			self.conf.addDefine(self.define, 1)
+			self.conf.add_define(self.define, 1)
 		else:
-			self.conf.addDefine(self.define, 0)
+			self.conf.add_define(self.define, 0)
 		self.update_env(retval)
 
 	def run_test(self):
@@ -486,11 +486,11 @@ variables - list of addional variables to be checked for
 
 				retval[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
 
-			self.conf.addDefine(self.define, 1)
+			self.conf.add_define(self.define, 1)
 			self.update_env(retval)
 		except:
 			retval = {}
-			self.conf.addDefine(self.define, 0)
+			self.conf.add_define(self.define, 0)
 
 		return retval
 
@@ -591,7 +591,7 @@ class library_configurator(configurator_base):
 		ret = int(not self.conf.run_check(obj))
 		self.conf.checkMessage('library %s' % self.name, '', ret)
 
-		self.conf.addDefine(self.define, ret)
+		self.conf.add_define(self.define, ret)
 
 		if ret:
 			val['LIBPATH_'+self.uselib] = self.env['LIBPATH_'+self.uselib]
@@ -636,7 +636,7 @@ class header_configurator(configurator_base):
 	def run_cache(self, retvalue):
 		self.update_env(retvalue)
 		self.conf.checkMessage('header %s (cached)' % self.name, '', 1)
-		self.conf.addDefine(self.define, 1)
+		self.conf.add_define(self.define, 1)
 
 	def run_test(self):
 		ret = {} # not found
@@ -663,7 +663,7 @@ class header_configurator(configurator_base):
 		ret = int(not self.conf.run_check(obj))
 		self.conf.checkMessage('header %s' % self.name, '', ret, option='')
 
-		self.conf.addDefine(self.define, ret)
+		self.conf.add_define(self.define, ret)
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
@@ -770,7 +770,7 @@ class Configure:
 			return
 		module = imp.load_module(tool,file,name,desc)
 		ret = int(module.detect(self))
-		self.addDefine(define, ret)
+		self.add_define(define, ret)
 		self.env.appendValue('tools', {'tool':tool, 'tooldir':tooldir})
 		return ret
 
@@ -845,7 +845,7 @@ class Configure:
 			pass
 
 
-	def addDefine(self, define, value, quote=-1):
+	def add_define(self, define, value, quote=-1):
 		"""store a single define and its state into an internal list
 		   for later writing to a config header file"""
 		# the user forgot to tell if the value is quoted or not
