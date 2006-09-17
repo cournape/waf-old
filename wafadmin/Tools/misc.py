@@ -7,7 +7,7 @@ An object that executes a function everytime
 An object that copies a file somewhere else
 """
 
-import shutil
+import shutil, re
 import Object, Action, Node, Params
 from Params import fatal
 
@@ -16,6 +16,34 @@ def copy_func(task):
 	env = task.m_env
 	infile = task.m_inputs[0].abspath(env)
 	outfile = task.m_outputs[0].abspath(env)
+	try:
+		shutil.copy2(infile, outfile)
+		if task.chmod: os.chmod(outfile, chmod)
+		return 0
+	except:
+		return 1
+
+def subst_func(task):
+	"Substitutes variables in a .in file"
+
+	m4_re = re.compile('@(\s+)@', re.M)
+
+	env = task.m_env
+	infile = task.m_inputs[0].abspath(env)
+	outfile = task.m_outputs[0].abspath(env)
+
+	file = open(infile, 'r')
+	code = file.read()
+	file.close()
+
+	s = m4_re.sub(r'%(\1)s', code)
+
+	file = open(outfile, 'w')
+	file.write(s)
+	file.close()
+
+	return 0
+
 	try:
 		shutil.copy2(infile, outfile)
 		if task.chmod: os.chmod(outfile, chmod)
@@ -82,9 +110,64 @@ class copyobj(Object.genobj):
 				task.debug()
 				fatal('task witout an environment')
 
+def subst_func(task):
+	"Substitutes variables in a .in file"
+
+	m4_re = re.compile('@(\w+)@', re.M)
+
+	env = task.m_env
+	infile = task.m_inputs[0].abspath(env)
+	outfile = task.m_outputs[0].abspath(env)
+
+	file = open(infile, 'r')
+	code = file.read()
+	file.close()
+
+	s = m4_re.sub(r'%(\1)s', code)
+
+	dict = task.dict
+	if not dict:
+		names = m4_re.findall(code)
+		for i in names:
+			try: dict[i] = " ".join( task.m_env[i] )
+			except: dict[i] = task.m_env[i]
+
+	file = open(outfile, 'w')
+	file.write(s % dict)
+	file.close()
+
+	return 0
+
+class substobj(Object.genobj):
+	def __init__(self, type='none'):
+		Object.genobj.__init__(self, 'none')
+		self.fun = subst_func
+		self.dict = {}
+	def apply(self):
+
+		lst = self.to_list(self.source)
+
+		for filename in lst:
+			node = self.m_current_path.find_node( filename.split('/') )
+			if not node: fatal('cannot find input file %s for processing' % filename)
+
+			newnode = node.change_ext('')
+
+			task = self.create_task('copy', self.env, 8)
+			task.set_inputs(node)
+			task.set_outputs(newnode)
+			task.m_env = self.env
+			task.fun = self.fun
+			task.dict = self.dict
+
+			if not task.m_env:
+				task.debug()
+				fatal('task witout an environment')
+
 def setup(env):
 	Object.register('cmd', cmdobj)
 	Object.register('copy', copyobj)
+	Object.register('subst', substobj)
 	Action.Action('copy', vars=[], func=action_process_file_func)
 
 def detect(conf):

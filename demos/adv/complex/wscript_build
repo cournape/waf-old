@@ -24,7 +24,13 @@ obj.target='shlib3'
 obj.want_libtool=1
 obj.vnum='1.2.3'
 
+# process file.pc.in -> file.pc
+obj = bld.create_obj('subst', 'uh')
+obj.source = 'test.pc.in'
+obj.target = 'test.pc'
+obj.dict   = {'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm', 'VERSION': '1.0', 'XPM_LIBS': '-lxpm'}
 
+# a function to execute in the middle of the build
 def print_hello(task):
 	print "ahoy"
 	return 0
