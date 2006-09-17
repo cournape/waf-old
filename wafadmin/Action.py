@@ -45,7 +45,7 @@ class Action:
 			return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 		except:
 			print "exception"
-			task.debug()
+			task.debug(level=1)
 			raise
 
 	def prepare(self, task):

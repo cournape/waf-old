@@ -156,6 +156,24 @@ class Node:
 		trace('find_node returns nothing '+str(self)+' '+str(lst))
 		return None
 
+	def search_existing_node(self, lst):
+		"returns a node from the tree, do not create if missing"
+		#print self, lst
+		if not lst: return self
+		name=lst[0]
+
+		Params.g_build.rescan(self)
+
+		if name == '.':  return self.find_node( lst[1:] )
+		if name == '..': return self.m_parent.find_node( lst[1:] )
+
+		for d in self.m_dirs+self.m_files+self.m_build:
+			if d.m_name == name:
+				return d.find_node( lst[1:] )
+
+		trace('search_node returns nothing '+str(self)+' '+str(lst))
+		return None
+
 	# absolute path
 	def abspath(self, env=None):
 
