@@ -16,10 +16,10 @@ def configure(conf):
 	conf.check_tool('g++ KDE3')
 	conf.env['CXXFLAGS_QT']=['-DQT_THREAD_SUPPORT']
 	conf.check_header('dlfcn.h','HAVE_DLFCN_H')
-	conf.addDefine('TEST_DEFINE', 345)
+	conf.add_define('TEST_DEFINE', 345)
 	# check for libkcal using the KDECORE variables
 	#conf.checkLibrary('kcal', uselib='KDECORE')
-	conf.writeConfigHeader('config.h')
+	conf.write_config_header('config.h')
 
 def build(bld):
 	## headers of kde apps take the extension ".h", if you are certain that

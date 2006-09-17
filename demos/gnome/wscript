@@ -46,7 +46,7 @@ def configure(conf):
 
 	conf.env['ASSEMBLIES_GLIB'] = '/usr/lib/mono/gtk-sharp/glib-sharp.dll'
 
-	conf.writeConfigHeader('config.h')
+	conf.write_config_header('config.h')
 
 def set_options(opt):
 	# add your custom options here, for example:

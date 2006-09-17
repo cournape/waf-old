@@ -212,14 +212,14 @@ int main()
 
 
 	# finally, write the configuration header
-	conf.writeConfigHeader('config.h')
+	conf.write_config_header('config.h')
 
 	# set a variant called "variant2", with another config.h
 	env_variant2 = conf.env.copy()
 	env_variant2.set_variant('variant2')
 	conf.set_env_name('variant2', env_variant2)
 
-	conf.writeConfigHeader('config.h', env=env_variant2)
+	conf.write_config_header('config.h', env=env_variant2)
 
 def set_options(opt):
 	opt.add_option('--someopt', type='string', help='some option', dest='someopt')

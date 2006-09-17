@@ -872,7 +872,7 @@ class Configure:
 		try: return self.defines[define]
 		except: return 0
 
-	def writeConfigHeader(self, configfile='config.h', env=''):
+	def write_config_header(self, configfile='config.h', env=''):
 		"save the defines into a file"
 		if configfile=='': configfile = self.configheader
 
@@ -904,7 +904,7 @@ class Configure:
 		dest.write('\n#endif /* _CONFIG_H_WAF */\n')
 		dest.close()
 
-	def setConfigHeader(self, header):
+	def set_config_header(self, header):
 		"set a config header file"
 		self.configheader = header
 
