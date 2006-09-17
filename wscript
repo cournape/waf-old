@@ -45,16 +45,16 @@ def create_waf():
 		if pyFile == "Test.py": continue
 		#add the dir to the file and append to tarFiles
 		tarFiles.append(os.path.join('wafadmin', pyFile))
-	    
+
 	wafadTolFiles = os.listdir(os.path.join('wafadmin', 'Tools'))
 	wafadTolFiles = filter (lambda s: pyFileExp.match(s), wafadTolFiles)
 	for pyFile in wafadTolFiles:
 		tarFiles.append(os.path.join('wafadmin', 'Tools', pyFile))
-	    
+
 	for tarThisFile in tarFiles:
 		tar.add(tarThisFile)
 	tar.close()
-	
+
 	file = open('waf-light', 'rb')
 	code1 = file.read()
 	file.close()
@@ -110,7 +110,6 @@ def install_waf():
 		shutil.copy2('waf', os.path.join(binpath))
 	except:
 		print "installation failed: cannot write to %s" % prefix
-		raise
 		sys.exit(0)
 	print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
 	if prefix != '/usr/local/':
