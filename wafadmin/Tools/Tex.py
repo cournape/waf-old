@@ -214,19 +214,19 @@ class texobj(Object.genobj):
 			if not node: fatal('cannot find %s' % filename)
 
 			if self.m_type == 'latex':
-				task = self.create_task('latex', self.env, 2)
+				task = self.create_task('latex', self.env, 20)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.dvi'))
 			elif self.m_type == 'pdflatex':
-				task = self.create_task('pdflatex', self.env, 2)
+				task = self.create_task('pdflatex', self.env, 20)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.pdf'))
 			else:
 				fatal('no type or invalid type given in tex object (should be latex or pdflatex)')
 
-			# rescan the source file if necessary
-			if tree.needs_rescan(node, self.env):
-				g_tex_scanner.do_scan(node, self.env, hashparams={'curdirnode':self.m_current_path})
+			task.m_scanner = g_tex_scanner
+			task.m_env     = self.env
+			task.m_scanner_params = {'curdirnode':self.m_current_path}
 
 			# add the manual dependencies
 			if deps_lst:
