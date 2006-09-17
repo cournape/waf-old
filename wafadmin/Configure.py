@@ -760,8 +760,8 @@ class Configure:
 		"private method, do not use directly"
 		define = 'HAVE_'+tool.upper().replace('.','_').replace('+','P')
 
-		if self.isDefined(define):
-			return self.getDefine(define)
+		if self.is_defined(define):
+			return self.get_define(define)
 
 		try:
 			file,name,desc = imp.find_module(tool, tooldir)
@@ -864,10 +864,10 @@ class Configure:
 		# add later to make reconfiguring faster
 		self.env[define] = value
 
-	def isDefined(self, define):
+	def is_defined(self, define):
 		return self.defines.has_key(define)
 
-	def getDefine(self, define):
+	def get_define(self, define):
 		"get the value of a previously stored define"
 		try: return self.defines[define]
 		except: return 0

@@ -67,7 +67,7 @@ def create_compile_configurator(self):
 def checkEndian(self, define='', pathlst=[]):
 	if define == '': define = 'IS_BIGENDIAN'
 
-	if self.isDefined(define): return self.getDefine(define)
+	if self.is_defined(define): return self.get_define(define)
 
 	global endian
 
