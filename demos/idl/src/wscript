@@ -15,7 +15,7 @@ def build(bld):
 	obj = bld.create_obj('cpp', 'program')
 	obj.source      = 'corba_app.cpp'
 	obj.includes    = '.'
-	obj.useliblocal = 'mycorbalib'
+	obj.uselib_local = 'mycorbalib'
 	obj.uselib      = 'ACE TAO TAOPOA COSNAMING ORBSVCS'
 	obj.target      = 'corba_program'
 

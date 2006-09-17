@@ -109,7 +109,7 @@ int main()
         return 0;
 }"""
 	ret = conf.try_build_and_exec(code)
-	conf.checkMessage('ahoj', '', 'ahoy'==ret) # boolean needed
+	conf.check_message('ahoj', '', 'ahoy'==ret) # boolean needed
 	conf.add_define('AHOJ', ret)
 
 
