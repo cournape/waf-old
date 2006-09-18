@@ -22,7 +22,7 @@ prog_in_variant1.target       = 'myprog'
 prog_in_variant1.uselib_local = 'lib1'
 
 
-prog2 = prog_in_variant1.clone('variant2')
+prog2 = prog_in_variant1.clone('debug')
 prog2.uselib_local = ''
 
 # until a better clone scheme is provided

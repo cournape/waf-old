@@ -20,7 +20,7 @@ Utils.waf_version(mini="0.8.8", maxi="9.9.9")
 
 def build(bld):
 	# process subfolders from here
-	bld.set_variants(['default', 'variant2'])
+	bld.set_variants(['default', 'debug'])
 	bld.add_subdirs('src complex variant tests')
 
 	# compile the flex+bison test if available

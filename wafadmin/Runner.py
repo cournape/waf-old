@@ -68,7 +68,7 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 				sys.stderr.write(str)
 		#time.sleep(0.1)
 
-def exec_command(str):
+def exec_command_normal(str):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
 	trace("system command -> "+ str)
 	if Params.g_verbose==1: print str
@@ -88,6 +88,11 @@ def exec_command_interact(str):
 	return stat >> 8
 
 exec_command = exec_command_interact # python bug on stdout overload
+def set_exec(mode):
+	global exec_command
+	if mode == 'normal': exec_command = exec_command_normal
+	elif mode == 'noredir': exec_command = exec_command_interact
+	else: error('set_runner_mode')
 
 class JobGenerator:
 	"kind of iterator - the data structure is a bit complicated (price to pay for flexibility)"

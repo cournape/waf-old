@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, sys
-import Params, Utils, Configure, Environment, DirWatch, Build
+import Params, Utils, Configure, Environment, DirWatch, Build, Runner
 from Params import error, fatal
 
 g_inroot     = 1
@@ -102,6 +102,7 @@ def load_envs():
 def Main():
 	from Common import install_files, install_as
 	if Params.g_commands['configure']:
+		Runner.set_exec('normal')
 		bld = Build.Build()
 		try:
 			try: srcdir = Params.g_options.srcdir
@@ -138,6 +139,8 @@ def Main():
 		file.close()
 
 		sys.exit(0)
+
+	Runner.set_exec('noredir')
 
 	# compile the project and/or install the files
 	#bld = private_setup_build()
