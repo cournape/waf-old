@@ -78,7 +78,8 @@ def exec_command(str):
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
-def exec_command_interact(str):
+#def exec_command_interact(str):
+def exec_command(str): # safe
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
 	trace("system command (interact) -> "+ str)
 	if Params.g_verbose==1: print str
