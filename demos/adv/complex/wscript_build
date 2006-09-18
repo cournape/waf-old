@@ -40,3 +40,6 @@ obj = bld.create_obj('cmd')
 obj.fun = print_hello
 obj.prio = 1 # execute this task first
 
+# build dir traversal
+bld.add_subdirs('gui gui2')
+

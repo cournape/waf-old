@@ -24,17 +24,11 @@ def add_subdir(dir, bld):
 			sys.exit(1)
 		return
 
-	restore = bld.m_curdirnode
-	#if restore is None:
-	#	error("error in subdir( "+dir)
-	#	return
+	newdirnode = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
+	if newdirnode is None:
+		fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
 
-	bld.m_curdirnode = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
-	if bld.m_curdirnode is None:
-		error("subdir not found ("+dir+"), restore is "+str(restore))
-		sys.exit(1)
-
-	bld.m_subdirs.append(  [bld.m_curdirnode, restore]    )
+	bld.m_subdirs.append([newdirnode, bld.m_curdirnode])
 
 def callBack(idxName, pathName, event):
 	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)

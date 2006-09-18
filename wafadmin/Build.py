@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, cPickle, types
-import Params, Runner, Object, Node, Task
+import Params, Runner, Object, Node, Task, Scripting, Utils
 from Params import debug, error, trace, fatal, warning
 
 g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
@@ -203,10 +203,7 @@ class Build:
 		for obj in Object.g_allobjs: obj.install()
 
 	def add_subdirs(self, dirs):
-		import Scripting
-		if type(dirs) is types.ListType: lst = dirs
-		else: lst = dirs.split()
-
+		lst = Utils.to_list(dirs)
 		for d in lst:
 			if not d: continue
 			Scripting.add_subdir(d, self)

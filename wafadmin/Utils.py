@@ -42,7 +42,7 @@ def reset():
 
 def to_list(sth):
 	if type(sth) is types.ListType: return sth
-	else: return [sth]
+	else: return sth.split()
 
 def options(**kwargs):
 	pass
