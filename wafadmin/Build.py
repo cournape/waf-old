@@ -157,9 +157,12 @@ class Build:
 		for group in Task.g_tasks.groups:
 			for p in group.prio:
 				for t in group.prio[p]:
-					for node in t.m_outputs:
-						try: os.remove(node.abspath(t.m_env))
-						except: pass
+					try:
+						for node in t.m_outputs:
+							try: os.remove(node.abspath(t.m_env))
+							except: pass
+					except:
+						pass
 
 	def compile(self):
 		trace("compile called")
