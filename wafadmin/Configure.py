@@ -753,26 +753,21 @@ class Configure:
 		else: lst = input.split()
 
 		ret = True
-		for i in lst: ret = ret and self._check_tool_impl(i, tooldir)
-		return ret
+		for i in lst:
+			# TODO: is this really necessary ?
+			#define = 'HAVE_'+i.upper().replace('.','_').replace('+','P')
+			#if self.is_defined(define): continue
 
-	def _check_tool_impl(self, tool, tooldir=None):
-		"private method, do not use directly"
-		define = 'HAVE_'+tool.upper().replace('.','_').replace('+','P')
-
-		if self.is_defined(define):
-			return self.get_define(define)
-
-		try:
-			file,name,desc = imp.find_module(tool, tooldir)
-		except:
-			print "no tool named '" + tool + "' found"
-			return
-		module = imp.load_module(tool,file,name,desc)
-		ret = int(module.detect(self))
-		self.add_define(define, ret)
-		self.env.appendValue('tools', {'tool':tool, 'tooldir':tooldir})
-		return ret
+			try:
+				file,name,desc = imp.find_module(i, tooldir)
+			except:
+				error("no tool named '%s' found" % i)
+				return 0
+			module = imp.load_module(i,file,name,desc)
+			ret = int(module.detect(self))
+			#self.add_define(define, ret)
+			self.env.appendValue('tools', {'tool':i, 'tooldir':tooldir})
+		return 1
 
 	def setenv(self, name):
 		"enable the environment called name"
