@@ -354,7 +354,7 @@ class cfgtool_configurator(configurator_base):
 		found = 1
 
 		try:
-			ret = os.popen('%s --help' % self.binary).close()
+			ret = os.popen('%s %s 2>/dev/null' % (self.binary, self.tests.keys()[0] )).close()
 			if ret: raise "error"
 
 			for flag in self.tests:
