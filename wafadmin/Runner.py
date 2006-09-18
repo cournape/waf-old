@@ -78,8 +78,7 @@ def exec_command(str):
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
-#def exec_command_interact(str):
-def exec_command(str): # safe
+def exec_command_interact(str):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
 	trace("system command (interact) -> "+ str)
 	if Params.g_verbose==1: print str
@@ -87,6 +86,8 @@ def exec_command(str): # safe
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
+
+exec_command = exec_command_interact # python bug on stdout overload
 
 class JobGenerator:
 	"kind of iterator - the data structure is a bit complicated (price to pay for flexibility)"
