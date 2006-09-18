@@ -848,28 +848,34 @@ class Configure:
 	def add_define(self, define, value, quote=-1):
 		"""store a single define and its state into an internal list
 		   for later writing to a config header file"""
+
+		tbl = self.env['defines']
+		if not tbl: tbl = {}
+
 		# the user forgot to tell if the value is quoted or not
 		if quote < 0:
 			if type(value) is types.StringType:
-				self.defines[define] = '"%s"' % str(value)
+				tbl[define] = '"%s"' % str(value)
 			else:
-				self.defines[define] = value
+				tbl[define] = value
 		elif not quote:
-			self.defines[define] = value
+			tbl[define] = value
 		else:
-			self.defines[define] = '"%s"' % str(value)
+			tbl[define] = '"%s"' % str(value)
 
 		if not define: raise "define must be .. defined"
 
 		# add later to make reconfiguring faster
+		self.env['defines'] = tbl
 		self.env[define] = value
 
 	def is_defined(self, define):
-		return self.defines.has_key(define)
+		try: return self.env['defines'].has_key(define)
+		except: return None
 
 	def get_define(self, define):
 		"get the value of a previously stored define"
-		try: return self.defines[define]
+		try: return self.env['define']
 		except: return 0
 
 	def write_config_header(self, configfile='config.h', env=''):
@@ -895,13 +901,13 @@ class Configure:
 		dest.write('/* configuration created by waf */\n')
 		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
 
-		for key in self.defines:
-			if self.defines[key]:
-				dest.write('#define %s %s\n' % (key, self.defines[key]))
+		for key in env['defines']:
+			if env['defines'][key]:
+				dest.write('#define %s %s\n' % (key, env['defines'][key]))
 				#if addcontent:
 				#	dest.write(addcontent);
 			else:
-				dest.write('/* #undef '+key+' */\n')
+				dest.write('/* #undef %s */\n' % key)
 		dest.write('\n#endif /* _CONFIG_H_WAF */\n')
 		dest.close()
 

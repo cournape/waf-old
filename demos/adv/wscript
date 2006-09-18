@@ -138,7 +138,7 @@ int main()
 	test.run()
 
 	conf.sub_config('tests')
-	
+
 	# This demonstrates that after testing the specified paths, the compiler is given a chance
 	# to see if it can find the header by itself
 	headerconf=conf.create_header_configurator()
@@ -170,11 +170,11 @@ int main()
 	pkgconf.name = 'bluez'
 	pkgconf.define = 'HAVE_BLUETOOTH_BLUEZ'
 	pkgconf.run()
-	
+
 	#variables example
 	pkgconf.uselib = 'GLIB'
 	pkgconf.name = 'glib-2.0'
-	pkgconf.variables = "prefix includedir" 
+	pkgconf.variables = "prefix includedir"
 	pkgconf.run()
 
 
@@ -200,7 +200,7 @@ int main()
 	libconf.uselib = 'GL'
 	libconf.name   = 'GL'
 	libconf.paths = ['/usr/X11R6/lib','/usr/lib','/usr/local/lib']
-	libconf.run()	
+	libconf.run()
 
 	# Looks for one of the specified libs in the directories
 	# The first match will be used
@@ -216,10 +216,16 @@ int main()
 
 	# set a variant called "variant2", with another config.h
 	env_variant2 = conf.env.copy()
-	env_variant2.set_variant('variant2')
-	conf.set_env_name('variant2', env_variant2)
+	conf.set_env_name('debug', env_variant2)
+	env_variant2.set_variant('debug')
+
+	conf.setenv('debug')
+	#conf.env['defines'] = [] # use this to remove the defines copied
+	conf.add_define('DEBUG', 1)
+	conf.set_env_name('debug', env_variant2)
 
 	conf.write_config_header('config.h', env=env_variant2)
+
 
 def set_options(opt):
 	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
