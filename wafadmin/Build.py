@@ -108,7 +108,7 @@ class Build:
 
 	def _init_variants(self):
 		trace("init variants")
-		for name in self._variants+[0]:
+		for name in Utils.to_list(self._variants)+[0]:
 			for v in 'm_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var:
@@ -323,7 +323,7 @@ class Build:
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
 		lst = self.m_srcnode.difflst(src_dir_node)
-		for variant in self._variants:
+		for variant in Utils.to_list(self._variants):
 			sub_path = os.sep.join([self.m_bldnode.abspath(), variant] + lst)
 			try:
 				files = self._scan_path(src_dir_node, sub_path, src_dir_node.m_build, variant)
