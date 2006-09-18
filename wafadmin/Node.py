@@ -229,11 +229,6 @@ class Node:
 		debug("srcpath: "+var)
 		return var
 
-	def cd_to(self):
-		var = self.m_parent.relpath_gen(Params.g_build.m_bldnode)
-		debug("cd_to: "+var)
-		return var
-
 	def bld_dir(self, env):
 		return self.m_parent.bldpath(env)
 
