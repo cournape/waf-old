@@ -355,14 +355,6 @@ class Build:
 
 	# ======================================= #
 
-	def create_obj(self, objname, *k, **kw):
-		"shortcut for object creation"
-		try:
-			return Object.g_allclasses[objname](*k, **kw)
-		except:
-			error("error in create_obj "+str(objname))
-			raise
-
 	def _scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
 
 		# read the dir contents, ignore the folders in it
