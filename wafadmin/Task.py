@@ -266,7 +266,7 @@ class Task(TaskBase):
 		fun(self.debug_info())
 
 	def run(self):
-		self.m_action.run(self)
+		return self.m_action.run(self)
 
 	def color(self):
 		return self.m_action.m_color
