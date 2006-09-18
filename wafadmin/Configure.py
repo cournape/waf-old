@@ -884,7 +884,8 @@ class Configure:
 		except:
 			pass
 
-		dir = os.path.join(self.m_blddir, self.env.variant())
+		if not env: env=self.env
+		dir = os.path.join(self.m_blddir, env.variant())
 		try: os.makedirs(dir)
 		except: pass
 
