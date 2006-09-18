@@ -23,34 +23,6 @@ def copy_func(task):
 	except:
 		return 1
 
-def subst_func(task):
-	"Substitutes variables in a .in file"
-
-	m4_re = re.compile('@(\s+)@', re.M)
-
-	env = task.m_env
-	infile = task.m_inputs[0].abspath(env)
-	outfile = task.m_outputs[0].abspath(env)
-
-	file = open(infile, 'r')
-	code = file.read()
-	file.close()
-
-	s = m4_re.sub(r'%(\1)s', code)
-
-	file = open(outfile, 'w')
-	file.write(s)
-	file.close()
-
-	return 0
-
-	try:
-		shutil.copy2(infile, outfile)
-		if task.chmod: os.chmod(outfile, chmod)
-		return 0
-	except:
-		return 1
-
 def action_process_file_func(task):
 	"Ask the function attached to the task to process it"
 	if not task.fun: fatal('task must have a function attached to it for copy_func to work!')
