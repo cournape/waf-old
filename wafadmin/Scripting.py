@@ -82,6 +82,9 @@ def load_envs():
 
 	if not lst: raise "file not found"
 	for file in lst:
+		if len(file) < 3: continue
+		if file[-3:] != '.py': continue
+
 		env = Environment.Environment()
 		ret = env.load(os.path.join(cachedir, file))
 		name = file.split('.')[0]
