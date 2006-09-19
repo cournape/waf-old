@@ -182,7 +182,7 @@ g_texobjs = ['latex','pdflatex']
 class texobj(Object.genobj):
 	s_default_ext = ['.tex', '.ltx']
 	def __init__(self, type='latex'):
-		Object.genobj.__init__(self, 'tex')
+		Object.genobj.__init__(self, 'other')
 
 		global g_texobjs
 		if not type in g_texobjs:

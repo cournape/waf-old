@@ -23,7 +23,7 @@ bytecode_lst=['bytecode', 'all']
 class ocamlobj(Object.genobj):
 	s_default_ext = ['.mli', '.mll', '.mly', '.ml']
 	def __init__(self, type='all', library=0):
-		Object.genobj.__init__(self, 'ocaml')
+		Object.genobj.__init__(self, 'other')
 
 		self.m_type       = type
 		self.m_source     = ''
@@ -223,11 +223,13 @@ class ocamlobj(Object.genobj):
 		self.source = self.source+' '+(" ".join(lst))
 
 	def comptask(self):
-		# use ocamldep to set the dependencies
-		#
-		# we cannot run this method when posting the object as the mly and mll tasks
-		# are not run yet, so the resulting .ml and .mli files do not exist, leading to
-		# incomplete dependencies
+		"""
+		use ocamldep to set the dependencies
+
+		we cannot run this method when posting the object as the mly and mll tasks
+		are not run yet, so the resulting .ml and .mli files do not exist, leading to
+		incomplete dependencies
+		"""
 
 		if self._are_deps_set: return
 		self._are_deps_set = 1

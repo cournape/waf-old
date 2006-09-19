@@ -18,8 +18,7 @@ def copy_func(task):
 	outfile = task.m_outputs[0].abspath(env)
 	try:
 		shutil.copy2(infile, outfile)
-		if task.chmod: 
-			os.chmod(outfile, chmod)
+		if task.chmod: os.chmod(outfile, chmod)
 		return 0
 	except:
 		return 1
@@ -32,7 +31,7 @@ def action_process_file_func(task):
 class cmdobj(Object.genobj):
 	"This object will call a command everytime"
 	def __init__(self, type='none'):
-		Object.genobj.__init__(self, 'none')
+		Object.genobj.__init__(self, 'other')
 		self.m_type = type
 		self.prio   = 1
 		self.fun    = None
@@ -46,7 +45,7 @@ class cmdobj(Object.genobj):
 class copyobj(Object.genobj):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
 	def __init__(self, type='none'):
-		Object.genobj.__init__(self, 'copy')
+		Object.genobj.__init__(self, 'other')
 
 		self.source = ''
 		self.target = ''
@@ -113,7 +112,7 @@ def subst_func(task):
 
 class substobj(Object.genobj):
 	def __init__(self, type='none'):
-		Object.genobj.__init__(self, 'none')
+		Object.genobj.__init__(self, 'other')
 		self.fun = subst_func
 		self.dict = {}
 	def apply(self):

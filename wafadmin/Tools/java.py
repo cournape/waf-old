@@ -8,7 +8,7 @@ import Object, Action
 class javaobj(Object.genobj):
 	s_default_ext = ['.java']
 	def __init__(self, type='all', library=0):
-		Object.genobj.__init__(self, 'java')
+		Object.genobj.__init__(self, 'other')
 
 		self.m_type       = type
 		self.m_source     = ''

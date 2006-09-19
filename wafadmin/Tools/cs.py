@@ -8,7 +8,7 @@ from Params import error
 g_types_lst = ['program', 'library']
 class csobj(Object.genobj):
 	def __init__(self, type='program'):
-		Object.genobj.__init__(self, 'cs')
+		Object.genobj.__init__(self, 'other')
 
 		self.m_type       = type
 
