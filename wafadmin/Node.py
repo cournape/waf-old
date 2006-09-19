@@ -386,5 +386,5 @@ class Node:
 	# TODO FIXME
 	def get_sig(self):
 		try: return Params.g_build.m_tstamp_variants[0][self]
-		except: return Params.sig_nil()
+		except: return Params.sig_nil
 

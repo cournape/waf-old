@@ -179,7 +179,7 @@ class Task(TaskBase):
 	def must_run(self):
 		ret = 0
 		if not self.m_inputs and not self.m_outputs:
-			self.m_dep_sig = Params.sig_nil()
+			self.m_dep_sig = Params.sig_nil
 			return 1
 
 		self.m_dep_sig = self.m_scanner.get_signature(self)

@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"Main parameters"
+
 import os, sys, types, inspect, md5, base64, stat
 import Utils
 
@@ -9,8 +11,6 @@ import Utils
 # Fixed constants, change with care
 
 g_version="0.9.1"
-"no comment"
-
 g_rootname = ''
 if sys.path=='win32':
 	# get the first two letters (c:)
@@ -25,15 +25,14 @@ g_preprocess = 1
 g_excludes = ['.svn', 'CVS', 'wafadmin', '.arch-ids']
 "exclude from dist"
 
-# Hash method: md5 or simple scheme over integers
-g_strong_hash = 1 # 1 use md5
-# Timestamp only
-g_timestamp = 0 # 0 look at the file contents
+g_strong_hash = 1
+"hash method: md5 (1:default) or integers"
 
-# The null signature depends upon the Hash method in use
-def sig_nil():
-	if g_strong_hash: return 'iluvcuteoverload'
-	else: return 0
+g_timestamp = 0
+"if 1: do not look at the file contents for dependencies"
+
+if g_strong_hash: sig_nil = 'iluvcuteoverload'
+else: sig_nil = 17
 
 # =================================== #
 # Constants set on runtime
@@ -53,21 +52,22 @@ g_launchdir = None
 g_tooldir=''
 "Tools directory (used in particular by Environment.py)"
 
-# Parsed command-line arguments in the options module
 g_options = None
+"Parsed command-line arguments in the options module"
+
 g_commands = {}
+"build, configure, .."
 
-# Verbosity: -v displays warnings, -vv displays developper info
 g_verbose = 0
+"-v: warnings, -vv: developer info"
 
-# The only Build object
-g_build    = None
+g_build = None
+"only one build object is active at a time"
 
-# Our cache directory
 g_cachedir = ''
+"config cache directory"
 
-# home
-g_homedir = ''
+g_homedir=''
 try: g_homedir = os.environ['HOME']
 except: g_homedir = os.environ['HOMEPATH']
 
@@ -78,29 +78,19 @@ except: g_lockfile = '.lock-wscript'
 # =================================== #
 # HELPERS
 
-# no colors on win32 :-/
+g_col_names = ['BOLD', 'RED', 'REDP', 'GREEN', 'YELLOW', 'BLUE', 'CYAN', 'NORMAL']
+"color names"
+
+g_col_scheme = [1, 91, 33, 92, 93, 94, 96, 0]
+"yellow not readable on white backgrounds? -> bug in *YOUR* terminal"
+
+g_colors = {}
+"colors used for printing messages"
+
 if sys.platform=='win32' or 'NOCOLOR' in os.environ:
-	g_colors = {
-	'BOLD'  :"",
-	'RED'   :"",
-	'REDP'  :"",
-	'GREEN' :"",
-	'YELLOW':"",
-	'BLUE'  :"",
-	'CYAN'  :"",
-	'NORMAL':"",
-	}
+	for i in g_col_names: g_colors[i]=''
 else:
-	g_colors= {
-	'BOLD'  :"\033[1m",
-	'RED'   :"\033[91m",
-	'REDP'  :"\033[33m",
-	'GREEN' :"\033[92m",
-	'YELLOW':"\033[93m", # if not readable on white backgrounds, bug in YOUR terminal
-	'BLUE'  :"\033[94m",
-	'CYAN'  :"\033[96m",
-	'NORMAL':"\033[0m",
-	}
+	for (i,j) in zip(g_col_names, g_col_scheme): g_colors[i]="\033[%dm"%j
 
 def pprint(col, str, label=''):
 	try: mycol=g_colors[col]
@@ -108,17 +98,18 @@ def pprint(col, str, label=''):
 	print "%s%s%s %s" % (mycol, str, g_colors['NORMAL'], label)
 
 g_levels={
-	'Action'  : 'GREEN',
-	'Build'   : 'CYAN',
-	'KDE'     : 'REDP',
-	'Node'    : 'GREEN',
-	'Object'  : 'GREEN',
-	'Runner'  : 'REDP',
-	'Task'    : 'GREEN',
-	'Test'    : 'GREEN',
+'Action' : 'GREEN',
+'Build'  : 'CYAN',
+'KDE'    : 'REDP',
+'Node'   : 'GREEN',
+'Object' : 'GREEN',
+'Runner' : 'REDP',
+'Task'   : 'GREEN',
+'Test'   : 'GREEN',
 }
 
-g_trace_exclude = [] # nothing to exclude for the moment
+g_trace_exclude = []
+"nothing to exclude for the moment"
 
 def set_trace(a, b, c):
 	Utils.g_trace=a
@@ -169,9 +160,7 @@ def error(msg):
 	niceprint(msg, 'ERROR', module)
 def fatal(msg):
 	module = __get_module()
-	# this one is fatal
-	#niceprint(msg, 'ERROR', module)
-	pprint('RED', msg+" \n(error raised in module "+module+")")
+	pprint('RED', '%s \n (error raised in module %s)' % (msg, module))
 	sys.exit(1)
 
 def vsig(s):
