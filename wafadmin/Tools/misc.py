@@ -7,7 +7,7 @@ An object that executes a function everytime
 An object that copies a file somewhere else
 """
 
-import shutil, re
+import shutil, re, os
 import Object, Action, Node, Params
 from Params import fatal
 
@@ -18,7 +18,8 @@ def copy_func(task):
 	outfile = task.m_outputs[0].abspath(env)
 	try:
 		shutil.copy2(infile, outfile)
-		if task.chmod: os.chmod(outfile, chmod)
+		if task.chmod: 
+			os.chmod(outfile, chmod)
 		return 0
 	except:
 		return 1
@@ -68,7 +69,7 @@ class copyobj(Object.genobj):
 			# TODO the file path may be incorrect
 			newnode = self.m_current_path.search_existing_node( target.split('/') )
 			if not newnode:
-                		newnode = Node.Node(target, self.m_current_path)
+				newnode = Node.Node(target, self.m_current_path)
 				self.m_current_path.m_build.append(newnode)
 
 			task = self.create_task('copy', self.env, 8)

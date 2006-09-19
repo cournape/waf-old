@@ -178,7 +178,7 @@ pdflatex_vardeps  = ['PDFLATEX', 'PDFLATEXFLAGS']
 def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
 
-g_texobjs=['latex','pdflatex']
+g_texobjs = ['latex','pdflatex']
 class texobj(Object.genobj):
 	s_default_ext = ['.tex', '.ltx']
 	def __init__(self, type='latex'):
@@ -231,8 +231,10 @@ class texobj(Object.genobj):
 
 			# add the manual dependencies
 			if deps_lst:
-				if node in node.m_parent.m_files: variant = 0
-        	        	else: variant = self.env.variant()
+				if node in node.m_parent.m_files: 
+					variant = 0
+				else: 
+					variant = self.env.variant()
 
 				outnode = task.m_outputs[0]
 				try:
@@ -277,6 +279,6 @@ def setup(env):
 	Action.Action('latex', vars=latex_vardeps, func=latex_build)
 	Action.Action('pdflatex', vars=pdflatex_vardeps, func=pdflatex_build)
 
-        Object.register('tex', texobj)
+	Object.register('tex', texobj)
 
 

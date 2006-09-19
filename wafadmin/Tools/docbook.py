@@ -106,10 +106,11 @@ class docbookobj(Object.genobj):
 	def get_type(self):
 		return self.m_type
 
- 	def apply(self):
- 		trace("apply called for docbookobj")
+	def apply(self):
+		trace("apply called for docbookobj")
 
-  		if not self.m_type in self.get_valid_types(): fatal('Trying to convert docbook file to unknown type')
+		if not self.m_type in self.get_valid_types(): 
+			fatal('Trying to convert docbook file to unknown type')
 
 		# for each source argument, create a task
 		lst = self.source.split()
@@ -122,7 +123,8 @@ class docbookobj(Object.genobj):
 			docb_file(self, node)
 
 	def install(self):
-		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
+		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): 
+			return
 
 		current = Params.g_build.m_curdirnode
 		lst = []

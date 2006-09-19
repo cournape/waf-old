@@ -452,7 +452,8 @@ variables - list of addional variables to be checked for
 			else:
 				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
 				self.conf.check_message('package %s' % (self.name), '', not ret)
-				if ret: raise "error"
+				if ret: 
+					raise "error"
 
 			retval['CCFLAGS_'+uselib]   = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
 			retval['CXXFLAGS_'+uselib]  = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
@@ -525,8 +526,10 @@ class test_configurator(configurator_base):
 		ret = self.conf.run_check(obj)
 
 		if self.want_message:
-			if ret: data = ret['result']
-			else: data = ''
+			if ret: 
+				data = ret['result']
+			else: 
+				data = ''
 
 			self.conf.check_message('custom code', '', ret, option=data)
 
@@ -555,11 +558,15 @@ class library_configurator(configurator_base):
 		if not self.path:
 			self.path = ['/usr/lib/', '/usr/local/lib', '/lib']
 
-		if not self.uselib: self.uselib = self.name.upper()
-		if not self.define: self.define = 'HAVE_'+self.uselib
+		if not self.uselib: 
+			self.uselib = self.name.upper()
+		if not self.define: 
+			self.define = 'HAVE_'+self.uselib
 
-		if not self.uselib: fatal('uselib is not defined')
-		if not self.code: fatal('library enumerator must have code to compile')
+		if not self.uselib: 
+			fatal('uselib is not defined')
+		if not self.code: 
+			fatal('library enumerator must have code to compile')
 
 	def run_test(self):
 		oldlibpath = self.env['LIBPATH']
@@ -601,7 +608,8 @@ class library_configurator(configurator_base):
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
 
-		if not ret: return {}
+		if not ret: 
+			return {}
 		return val
 
 class header_configurator(configurator_base):
@@ -628,10 +636,13 @@ class header_configurator(configurator_base):
 		#except: pass
 		#if not self.define: self.define = 'HAVE_'+self.uselib
 
-		if not self.code: self.code = "#include <%s>\nint main(){return 0;}\n"
+		if not self.code: 
+			self.code = "#include <%s>\nint main(){return 0;}\n"
 
-		if not self.code: fatal('no code to run')
-		if not self.define: fatal('no define given')
+		if not self.code: 
+			fatal('no code to run')
+		if not self.define: 
+			fatal('no define given')
 
 	def run_cache(self, retvalue):
 		self.update_env(retvalue)
@@ -668,7 +679,8 @@ class header_configurator(configurator_base):
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
 
-		if not ret: return {}
+		if not ret: 
+			return {}
 		ret = {self.define: 1}
 		return ret
 
@@ -740,7 +752,8 @@ class Configure:
 		"retrieve an environment called name"
 		try:
 			env = self.m_allenvs[name]
-			if fromenv: warning("The environment %s may have been configured already" % name)
+			if fromenv: 
+				warning("The environment %s may have been configured already" % name)
 			return env
 		except:
 			env = Environment.Environment()
@@ -749,8 +762,10 @@ class Configure:
 
 	def check_tool(self, input, tooldir=None):
 		"load a waf tool"
-		if type(input) is types.ListType: lst = input
-		else: lst = input.split()
+		if type(input) is types.ListType: 
+			lst = input
+		else: 
+			lst = input.split()
 
 		ret = True
 		for i in lst:
@@ -782,8 +797,10 @@ class Configure:
 
 	def store(self, file=''):
 		"save the config results into the cache file"
-		try: os.makedirs(Params.g_cachedir)
-		except OSError: pass
+		try: 
+			os.makedirs(Params.g_cachedir)
+		except OSError: 
+			pass
 
 		if not self.m_allenvs:
 			fatal("nothing to store in Configure !")
@@ -845,7 +862,8 @@ class Configure:
 		   for later writing to a config header file"""
 
 		tbl = self.env['defines']
-		if not tbl: tbl = {}
+		if not tbl: 
+			tbl = {}
 
 		# the user forgot to tell if the value is quoted or not
 		if quote < 0:
@@ -858,24 +876,30 @@ class Configure:
 		else:
 			tbl[define] = '"%s"' % str(value)
 
-		if not define: raise "define must be .. defined"
+		if not define: 
+			raise "define must be .. defined"
 
 		# add later to make reconfiguring faster
 		self.env['defines'] = tbl
 		self.env[define] = value
 
 	def is_defined(self, define):
-		try: return self.env['defines'].has_key(define)
-		except: return None
+		try: 
+			return self.env['defines'].has_key(define)
+		except: 
+			return None
 
 	def get_define(self, define):
 		"get the value of a previously stored define"
-		try: return self.env['define']
-		except: return 0
+		try: 
+			return self.env['define']
+		except: 
+			return 0
 
 	def write_config_header(self, configfile='config.h', env=''):
 		"save the defines into a file"
-		if configfile=='': configfile = self.configheader
+		if configfile == '': 
+			configfile = self.configheader
 
 		try:
 			# just in case the path is 'something/blah.h' (under the builddir)
@@ -885,14 +909,17 @@ class Configure:
 		except:
 			pass
 
-		if not env: env=self.env
+		if not env: 
+			env = self.env
 		dir = os.path.join(self.m_blddir, env.variant())
-		try: os.makedirs(dir)
-		except: pass
+		try: 
+			os.makedirs(dir)
+		except: 
+			pass
 
 		dir = os.path.join(dir, configfile)
 
-		dest=open(dir, 'w')
+		dest = open(dir, 'w')
 		dest.write('/* configuration created by waf */\n')
 		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
 
@@ -924,14 +951,14 @@ class Configure:
 
 		if dist < g_maxlen:
 			diff = g_maxlen - dist
-			while diff>0:
+			while diff > 0:
 				lst.append(' ')
 				diff -= 1
 
 		lst.append(':')
 		print ''.join(lst),
 
-		p=Params.pprint
+		p = Params.pprint
 		if state: p('GREEN', 'ok ' + option)
 		else: p('YELLOW', 'not found')
 
@@ -949,14 +976,14 @@ class Configure:
 
 		if dist < g_maxlen:
 			diff = g_maxlen - dist
-			while diff>0:
+			while diff > 0:
 				lst.append(' ')
 				diff -= 1
 
 		lst.append(':')
 		print ''.join(lst),
 
-		p=Params.pprint
+		p = Params.pprint
 		p('CYAN', custom)
 
 	def hook(self, func):

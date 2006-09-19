@@ -229,7 +229,7 @@ def setup(env):
 	Object.register('gnome_translations', gnome_translations)
 	Object.register('gnome_sgml2man', gnome_sgml2man)
 	Object.register('gnome_intltool', gnome_intltool)
-        Object.register('gnome', gnomeobj)
+	Object.register('gnome', gnomeobj)
 
 def detect(conf):
 

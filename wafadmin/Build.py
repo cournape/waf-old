@@ -153,7 +153,7 @@ class Build:
 		for obj in Object.g_allobjs: obj.cleanup()
 		# now for each task, make sure to remove the objects
 		# 4 for loops
-		import Task
+		#import Task
 		for group in Task.g_tasks.groups:
 			for p in group.prio:
 				for t in group.prio[p]:

@@ -222,7 +222,7 @@ class Task(TaskBase):
 		"""Retrieve build nodes from the cache
 		It modifies the time stamp of files that are copied
 		so it is possible to clean the least used files from
-                the cache directory"
+		the cache directory"
 		if not Params.g_options.usecache: return None
 		if Params.g_options.nocache: return None"""
 

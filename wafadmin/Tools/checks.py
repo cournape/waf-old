@@ -166,7 +166,7 @@ def check_header(self, header, define=''):
 def try_build_and_exec(self, code, uselib=''):
 	test = self.create_test_configurator()
 	test.uselib = uselib
-        test.code = code
+	test.code = code
 	ret = test.run()
 	if ret: return ret['result']
 	return None
@@ -174,7 +174,7 @@ def try_build_and_exec(self, code, uselib=''):
 def try_build(self, code, uselib='', msg=''):
 	test = self.create_compile_configurator()
 	test.uselib = uselib
-        test.code = code
+	test.code = code
 	if msg:
 		test.want_message = 1
 		test.msg = msg
@@ -184,7 +184,7 @@ def try_build(self, code, uselib='', msg=''):
 def check_flags(self, flags, uselib='', options='', msg=1):
 	test = self.create_test_configurator()
 	test.uselib = uselib
-        test.code = 'int main() {return 0;}\n'
+	test.code = 'int main() {return 0;}\n'
 	test.flags = flags
 	ret = test.run()
 

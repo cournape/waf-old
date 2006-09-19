@@ -10,10 +10,10 @@ def setup(env):
 	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-        Action.simple_action('cc', cc_str, 'GREEN')
+	Action.simple_action('cc', cc_str, 'GREEN')
 
-        # on windows libraries must be defined after the object files
-        Action.simple_action('cc_link', link_str, color='YELLOW')
+	# on windows libraries must be defined after the object files
+	Action.simple_action('cc_link', link_str, color='YELLOW')
 
 def detect(conf):
 	cc = conf.find_program('cc', var='CC')
@@ -80,7 +80,7 @@ def detect(conf):
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
 	try:
-	        deb = Params.g_options.debug_level
+		deb = Params.g_options.debug_level
 		v['CCFLAGS']   += v['CCFLAGS_'+deb]
 		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
 	except:

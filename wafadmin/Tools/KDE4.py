@@ -526,39 +526,39 @@ def detect_kde(conf):
 	if env['BKS_DEBUG']: debug='_debug'
 	else:                debug=''
 
-        ########## QT
-        # QTLIBPATH is a special var used in the qt4 module - has to be changed (ita)
+	########## QT
+	# QTLIBPATH is a special var used in the qt4 module - has to be changed (ita)
 	env['LIB_QT']              = ['QtGui'+debug, ]
-        env['CXXFLAGS_QT3SUPPORT'] = ['-DQT3_SUPPORT']
+	env['CXXFLAGS_QT3SUPPORT'] = ['-DQT3_SUPPORT']
 	env['CPPPATH_QT3SUPPORT']  = [ qtincludes+'/Qt3Support' ]
-        env['LIB_QT3SUPPORT']      = ['Qt3Support'+debug]
+	env['LIB_QT3SUPPORT']      = ['Qt3Support'+debug]
 
 	env['CPPPATH_QTCORE']      = [ qtincludes+'/QtCore' ]
-        env['LIB_QTCORE']          = ['QtCore'+debug]
+	env['LIB_QTCORE']          = ['QtCore'+debug]
 
 	env['CPPPATH_QTASSISTANT'] = [ qtincludes+'/QtAssistant' ]
 	env['LIB_QTASSISTANT']     = ['QtAssistant'+debug]
 
 	env['CPPPATH_QTDESIGNER']  = [ qtincludes+'/QtDesigner' ]
-        env['LIB_QTDESIGNER']      = ['QtDesigner'+debug]
+	env['LIB_QTDESIGNER']      = ['QtDesigner'+debug]
 
 	env['CPPPATH_QTNETWORK']   = [ qtincludes+'/QtNetwork' ]
-        env['LIB_QTNETWORK']       = ['QtNetwork'+debug]
+	env['LIB_QTNETWORK']       = ['QtNetwork'+debug]
 
 	env['CPPPATH_QTGUI']       = [ qtincludes+'/QtGui' ]
-        env['LIB_QTGUI']           = ['QtCore'+debug, 'QtGui'+debug]
+	env['LIB_QTGUI']           = ['QtCore'+debug, 'QtGui'+debug]
 
 	env['CPPPATH_QTOPENGL']      = [ os.path.join(qtincludes,'QtOpenGL') ]
-        env['LIB_QTOPENGL']        = ['QtOpenGL'+debug]
+	env['LIB_QTOPENGL']        = ['QtOpenGL'+debug]
 
 	env['CPPPATH_QTSQL']       = [ qtincludes+'/QtSql' ]
-        env['LIB_QTSQL']           = ['QtSql'+debug]
+	env['LIB_QTSQL']           = ['QtSql'+debug]
 
 	env['CPPPATH_QTXML']       = [ qtincludes+'/QtXml' ]
-        env['LIB_QTXML']           = ['QtXml'+debug]
+	env['LIB_QTXML']           = ['QtXml'+debug]
 
 	env['CPPPATH_QTEST']       = [ qtincludes+'/QtTest' ]
-        env['LIB_QTEST']           = ['QtTest'+debug]
+	env['LIB_QTEST']           = ['QtTest'+debug]
 
 
 	# rpath settings
@@ -570,19 +570,19 @@ def detect_kde(conf):
 		pass
 
 	env['LIB_KDECORE']  = 'kdecore'
-        env['LIB_KIO']      = 'kio'
-        env['LIB_KPARTS']   = 'kparts'
-        env['LIB_KDEPRINT'] = 'kdeprint'
-        env['LIB_KDEGAMES'] = 'kdegames'
+	env['LIB_KIO']      = 'kio'
+	env['LIB_KPARTS']   = 'kparts'
+	env['LIB_KDEPRINT'] = 'kdeprint'
+	env['LIB_KDEGAMES'] = 'kdegames'
 
-        env['LIB_KDEUI'] = 'kdeui'
-        env['LIB_KDE3SUPPORT'] = 'kde3support'
-        env['LIB_KHTML'] = 'khtml'
-        env['LIB_KJS'] = 'kjs'
-        env['LIB_KWALLETCLIENT'] = 'kwalletclient'
-        env['LIB_KDESU'] = 'kdesu'
-        env['LIB_DCOP'] = 'dcop'
-        env['LIB_KDEFX'] = 'kdefx'
+	env['LIB_KDEUI'] = 'kdeui'
+	env['LIB_KDE3SUPPORT'] = 'kde3support'
+	env['LIB_KHTML'] = 'khtml'
+	env['LIB_KJS'] = 'kjs'
+	env['LIB_KWALLETCLIENT'] = 'kwalletclient'
+	env['LIB_KDESU'] = 'kdesu'
+	env['LIB_DCOP'] = 'dcop'
+	env['LIB_KDEFX'] = 'kdefx'
 
 
 	env['KCONFIG_COMPILER'] = 'kconfig_compiler'
@@ -626,10 +626,10 @@ def setup(env):
 
 	Action.Action('uic', vars=uic_vardeps, func=uic_build, color='BLUE')
 
-        Object.register('kde_translations', kde_translations)
-        Object.register('kde_documentation', kde_documentation)
-        Object.register('kde', kdeobj)
-        Object.register('kdeinit', kdeinitobj)
+	Object.register('kde_translations', kde_translations)
+	Object.register('kde_documentation', kde_documentation)
+	Object.register('kde', kdeobj)
+	Object.register('kdeinit', kdeinitobj)
 
 	Object.hook('kde', 'UI_EXT', handler_ui)
 	Object.hook('kde', 'SKEL_EXT', handler_skel)

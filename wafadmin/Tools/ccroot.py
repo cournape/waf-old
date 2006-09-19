@@ -5,6 +5,7 @@
 import os, types, sys, re, md5
 import Action, Object, Params, Scan, Common
 from Params import debug, error, trace, fatal
+from Params import hash_sig_weak
 
 g_prio_link=101
 """default priority for link tasks:
@@ -102,7 +103,7 @@ class c_scanner(Scan.scanner):
 		trace("c:_scan_preprocessor(self, node, env, path_lst)")
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst, defines=defines)
-	        gruik.start2(node, env)
+		gruik.start2(node, env)
 		#print "nodes found for ", str(node), " ", str(gruik.m_nodes), " ", str(gruik.m_names)
 		return (gruik.m_nodes, gruik.m_names)
 
@@ -120,14 +121,18 @@ class c_scanner(Scan.scanner):
 			seen.append(node)
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
-			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
-                        lst = tree.m_depends_on[variant][node]
-                        for dep in lst: add_node_sig(dep)
+			if tree.needs_rescan(node, task.m_env): 
+				self.do_scan(node, task.m_env, task.m_scanner_params)
+			lst = tree.m_depends_on[variant][node]
+			for dep in lst: 
+				add_node_sig(dep)
 			m.update(tree.m_tstamp_variants[variant][node])
 		# add the signatures of the input nodes
-		for node in task.m_inputs: add_node_sig(node)
+		for node in task.m_inputs: 
+			add_node_sig(node)
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: m.update(task.signature())
+		for task in task.m_run_after: 
+			m.update(task.signature())
 		return m.digest()
 
 
@@ -153,9 +158,11 @@ class c_scanner(Scan.scanner):
 			for dep in lst: sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
-		for node in task.m_inputs: msum = hash_sig_weak(msum, add_node_sig(node))
+		for node in task.m_inputs: 
+			msum = hash_sig_weak(msum, add_node_sig(node))
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: msum = hash_sig_weak(msum, task.signature())
+		for task in task.m_run_after: 
+			msum = hash_sig_weak(msum, task.signature())
 		return int(msum)
 
 	def _get_signature_preprocessor_weak(self, task):
@@ -194,10 +201,12 @@ class c_scanner(Scan.scanner):
 
 		# we are certain that the files have been scanned - compute the signature
 		msum = hash_sig_weak(msum, add_node_sig(node))
-		for n in tree.m_depends_on[variant][node]: msum = hash_sig_weak(msum, add_node_sig(n))
+		for n in tree.m_depends_on[variant][node]: 
+			msum = hash_sig_weak(msum, add_node_sig(n))
 
 		# and now xor the signature with the other tasks
-		for task in task.m_run_after: msum = hash_sig_weak(msum, task.signature())
+		for task in task.m_run_after: 
+			msum = hash_sig_weak(msum, task.signature())
 		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
 
 		return int(msum) # this number was not chosen randomly
@@ -250,7 +259,8 @@ class c_scanner(Scan.scanner):
 
 		# we are certain that the files have been scanned - compute the signature
 		add_node_sig(node)
-		for n in tree.m_depends_on[variant][node]: add_node_sig(n)
+		for n in tree.m_depends_on[variant][node]: 
+			add_node_sig(n)
 
 		# and now xor the signature with the other tasks
 		#for task in task.m_run_after: m.update(task.signature())
@@ -406,7 +416,8 @@ class ccroot(Object.genobj):
 	# subclass this method if it does not suit your needs
 	def apply(self):
 		trace("apply called for "+self.m_type_initials)
-		if not self.m_type in self.get_valid_types(): fatal('Invalid type for object: '+self.m_type_initials)
+		if not self.m_type in self.get_valid_types(): 
+			fatal('Invalid type for object: '+self.m_type_initials)
 
 		self.apply_type_vars()
 		self.apply_incpaths()
@@ -419,18 +430,21 @@ class ccroot(Object.genobj):
 		if self.m_type != 'objects': self.apply_objdeps()
 
 	def apply_core(self):
-		if self.want_libtool and self.want_libtool>0: self.apply_libtool()
+		if self.want_libtool and self.want_libtool>0: 
+			self.apply_libtool()
 
-		if self.m_type == 'objects': type = 'program'
-		else: type = self.m_type
+		if self.m_type == 'objects': 
+			type = 'program'
+		else: 
+			type = self.m_type
 
 		obj_ext = self.env[type+'_obj_ext'][0]
 		pre = self.m_type_initials
 
 		# get the list of folders to use by the scanners
-                # all our objects share the same include paths anyway
-                tree = Params.g_build
-                dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
+		# all our objects share the same include paths anyway
+		tree = Params.g_build
+		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
 		lst = self.source.split()
 		for filename in lst:
@@ -464,17 +478,21 @@ class ccroot(Object.genobj):
 		# if we are only building .o files, tell which ones we built
 		if self.m_type=='objects':
 			outputs = []
-                	for t in self.p_compiletasks: outputs.append(t.m_outputs[0])
+			for t in self.p_compiletasks: 
+				outputs.append(t.m_outputs[0])
 			self.out_nodes = outputs
 			return
 
 		# and after the objects, the remaining is the link step
 		# link in a lower priority (101) so it runs alone (default is 10)
 		global g_prio_link
-		if self.m_type=='staticlib': linktask = self.create_task(pre+'_link_static', self.env, g_prio_link)
-		else:                        linktask = self.create_task(pre+'_link', self.env, g_prio_link)
+		if self.m_type=='staticlib': 
+			linktask = self.create_task(pre+'_link_static', self.env, g_prio_link)
+		else:
+			linktask = self.create_task(pre+'_link', self.env, g_prio_link)
 		outputs = []
-		for t in self.p_compiletasks: outputs.append(t.m_outputs[0])
+		for t in self.p_compiletasks: 
+			outputs.append(t.m_outputs[0])
 		linktask.set_inputs(outputs)
 		linktask.set_outputs(self.file_in(self.get_target_name()))
 
@@ -548,7 +566,8 @@ class ccroot(Object.genobj):
 
 		# local flags come first
 		# set the user-defined includes paths
-		if not self._incpaths_lst: self.apply_incpaths()
+		if not self._incpaths_lst: 
+			self.apply_incpaths()
 		for i in self._bld_incpaths_lst:
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
@@ -594,7 +613,8 @@ class ccroot(Object.genobj):
 				self.env.appendValue('LINKFLAGS', lib_st % i)
 
 	def install(self):
-		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
+		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): 
+			return
 
 		dest_var    = ''
 		dest_subdir = ''
@@ -613,7 +633,8 @@ class ccroot(Object.genobj):
 		if self.m_type == 'program':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
 		elif self.m_type == 'shlib':
-			if self.want_libtool: self.install_results(dest_var, dest_subdir, self.m_latask)
+			if self.want_libtool: 
+				self.install_results(dest_var, dest_subdir, self.m_latask)
 			if sys.platform=='win32' or not self.vnum:
 				self.install_results(dest_var, dest_subdir, self.m_linktask)
 			else:
@@ -697,7 +718,8 @@ class ccroot(Object.genobj):
 
 				# add the path too
 				tmp_path = obj.m_current_path.bldpath(self.env)
-				if not tmp_path in env['LIBPATH']: env.appendValue('LIBPATH', tmp_path)
+				if not tmp_path in env['LIBPATH']: 
+					env.appendValue('LIBPATH', tmp_path)
 
 				# set the dependency over the link task
 				self.m_linktask.m_run_after.append(obj.m_linktask)

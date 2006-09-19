@@ -5,11 +5,11 @@
 import imp, types
 import Params
 
-g_trace=0
-g_debug=0
-g_error=0
+g_trace = 0
+g_debug = 0
+g_error = 0
 
-def waf_version(mini="0.0.1", maxi="100.0.0"):
+def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 	"throws an exception if the waf version is not the one desired"
 	min_lst = map(int, mini.split('.'))
 	max_lst = map(int, maxi.split('.'))
@@ -17,16 +17,16 @@ def waf_version(mini="0.0.1", maxi="100.0.0"):
 
 	mm = min(len(min_lst), len(waf_lst))
 	for (a, b) in zip(min_lst[:mm], waf_lst[:mm]):
-		if a<b:
+		if a < b:
 			break
-		if a>b:
+		if a > b:
 			Params.fatal("waf version should be at least %s (%s found)" % (mini, Params.g_version))
 
 	mm = min(len(max_lst), len(waf_lst))
 	for (a, b) in zip(max_lst[:mm], waf_lst[:mm]):
-		if a>b:
+		if a > b:
 			break
-		if a<b:
+		if a < b:
 			Params.fatal("waf version should be at most %s (%s found)" % (maxi, Params.g_version))
 
 def error(msg):
@@ -41,13 +41,15 @@ def reset():
 	Object.g_allobjs = []
 
 def to_list(sth):
-	if type(sth) is types.ListType: return sth
-	else: return sth.split()
+	if type(sth) is types.ListType: 
+		return sth
+	else: 
+		return sth.split()
 
 def options(**kwargs):
 	pass
 
-g_loaded_modules={}
+g_loaded_modules = {}
 "index modules by absolute path"
 
 g_module=None
@@ -55,8 +57,10 @@ g_module=None
 
 def load_module(file_path, name='wscript'):
 	"this function requires an absolute path"
-	try: return g_loaded_modules[file_path]
-	except: pass
+	try: 
+		return g_loaded_modules[file_path]
+	except: 
+		pass
 
 	module = imp.new_module(name)
 
@@ -97,7 +101,8 @@ def to_hashtable(s):
 	tbl = {}
 	lst = s.split('\n')
 	for line in lst:
-		if not line: continue
+		if not line: 
+			continue
 		mems = line.split('=')
 		tbl[mems[0]] = mems[1]
 	return tbl

@@ -35,7 +35,8 @@ def uic3_build(task):
 	comp_c   = '%s -L %s -nounload -impl %s %s >> %s' % (uic_command, qtplugins, h_path, ui_path, cpp_path)
 
 	ret = Runner.exec_command( comp_h )
-	if ret: return ret
+	if ret: 
+		return ret
 
 	# TODO: there are no kde includes here
 	#dest = open( cpp_path, 'w' )
@@ -43,7 +44,8 @@ def uic3_build(task):
 	#dest.close()
 
 	ret = Runner.exec_command( comp_c )
-	if ret: return ret
+	if ret: 
+		return ret
 
 	dest = open( cpp_path, 'a' )
 	dest.write(inc_moc)
@@ -65,7 +67,7 @@ class qt4obj(cpp.cppobj):
 		self.m_linktask = None
 		self.m_latask = None
 		global qt4files
-                self.m_src_file_ext = qt4files
+		self.m_src_file_ext = qt4files
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
@@ -116,8 +118,10 @@ class qt4obj(cpp.cppobj):
 		# so we will scan them right here
 		trace("apply called for qt4obj")
 
-		try: obj_ext = self.env['obj_ext'][0]
-		except: obj_ext = '.os'
+		try: 
+			obj_ext = self.env['obj_ext'][0]
+		except: 
+			obj_ext = '.os'
 
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
@@ -134,7 +138,8 @@ class qt4obj(cpp.cppobj):
 			#print "filename is ", filename
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
-			if not node: fatal("cannot find "+filename+" in "+str(self.m_current_path))
+			if not node: 
+				fatal("cannot find "+filename+" in "+str(self.m_current_path))
 
 			base, ext = os.path.splitext(filename)
 
@@ -154,11 +159,15 @@ class qt4obj(cpp.cppobj):
 			moctasks=[]
 			mocfiles=[]
 
-			if node in node.m_parent.m_files: variant = 0
-			else: variant = self.env.variant()
+			if node in node.m_parent.m_files: 
+				variant = 0
+			else: 
+				variant = self.env.variant()
 
-			try: tmp_lst = tree.m_raw_deps[variant][node]
-			except: tmp_lst = []
+			try: 
+				tmp_lst = tree.m_raw_deps[variant][node]
+			except: 
+				tmp_lst = []
 			for d in tmp_lst:
 				base2, ext2 = os.path.splitext(d)
 				if not ext2 == '.moc': continue
@@ -181,7 +190,8 @@ class qt4obj(cpp.cppobj):
 							break
 						except:
 							pass
-					if not ext: fatal("no header found for %s which is a moc file" % filename)
+					if not ext: 
+						fatal("no header found for %s which is a moc file" % filename)
 
 				# next time we will not search for the extension (look at the 'for' loop below)
 				h_node = node.change_ext(ext)
@@ -218,7 +228,8 @@ class qt4obj(cpp.cppobj):
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
 		linktask = self.create_task('cpp_link', self.env, 101)
 		cppoutputs = []
-		for t in cpptasks: cppoutputs.append(t.m_outputs[0])
+		for t in cpptasks: 
+			cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs
 		linktask.m_outputs = self.file_in(self.get_target_name())
 
@@ -238,31 +249,36 @@ def setup(env):
 def detect_qt4(conf):
 	env = conf.env
 
-	try: qtlibs     = Params.g_options.qtlib
+	try: 
+		qtlibs     = Params.g_options.qtlib
 	except:
 		qtlibs=''
 		pass
 
-	try: qtincludes = Params.g_options.qtincludes
+	try: 
+		qtincludes = Params.g_options.qtincludes
 	except:
 		qtincludes=''
 		pass
 
-	try: qtbin      = Params.g_options.qtbin
+	try: 
+		qtbin      = Params.g_options.qtbin
 	except:
 		qtbin=''
 		pass
 
-	try: qtdir      = Params.g_options.qtdir
+	try: 
+		qtdir      = Params.g_options.qtdir
 	except:
-		qtbin=''
+		qtbin = ''
 		pass
 
 
 	p=Params.pprint
 
 	# do our best to find the QTDIR (non-Debian systems)
-	if not qtdir: qtdir = os.getenv('QTDIR')
+	if not qtdir: 
+		qtdir = os.getenv('QTDIR')
 
 	# TODO what if there are only static Qt libraries ?
 	if qtdir:
@@ -437,15 +453,16 @@ def detect_qt4_win32(conf):
 	#qtlibs		= getpath('qtlibs')
 	qtlibs     = ''
 	qtincludes = ''
-	p=Params.pprint
+	p = Params.pprint
 
 		# do our best to find the QTDIR (non-Debian systems)
 	qtdir = os.getenv('QTDIR')
 
 	# TODO what if there are only static Qt libraries ?
-	if qtdir and Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), qtdir): qtdir=None
+	if qtdir and Configure.find_file('lib/libqt-mt' + str(env['shlib_SUFFIX']), qtdir): 
+		qtdir = None
 	if not qtdir:
-		qtdir=Configure.find_path('include/', [ # lets find the Qt include directory
+		qtdir = Configure.find_path('include/', [ # lets find the Qt include directory
 				'c:\\Programme\\Qt\\4.1.0',
 				'c:\\Qt\\4.1.0',
 				'f:\\Qt\\4.1.0'])
@@ -455,8 +472,10 @@ def detect_qt4_win32(conf):
 
 	# if we have the QTDIR, finding the qtlibs and qtincludes is easy
 	if qtdir:
-		if not qtlibs:     qtlibs     = os.path.join(qtdir, 'lib')
-		if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
+		if not qtlibs:
+			qtlibs     = os.path.join(qtdir, 'lib')
+		if not qtincludes: 
+			qtincludes = os.path.join(qtdir, 'include')
 		#os.putenv('PATH', os.path.join(qtdir , 'bin') + ":" + os.getenv("PATH")) # TODO ita
 
 	# Check for uic, uic-qt3, moc, rcc, ..
@@ -466,7 +485,8 @@ def detect_qt4_win32(conf):
 		for prog in progs:
 			lst = [os.path.join(qtdir, 'bin')] + os.environ['PATH'].split(':')
 			path=conf.find_program(prog, path_list=lst, var=string.upper(prog))
-			if path: return path
+			if path: 
+				return path
 
 		# everything failed
 		p('RED',"%s was not found - make sure Qt4-devel is installed, or set $QTDIR or $PATH" % prog)
@@ -525,25 +545,28 @@ def detect_qt4_win32(conf):
 
 	## Qt libs and includes
 	env['QTINCLUDEPATH']=qtincludes
-	if not qtlibs: qtlibs=qtdir+'/lib'
+	if not qtlibs: 
+		qtlibs=qtdir+'/lib'
 	env['QTLIBPATH']=qtlibs
 
-        ########## X11
-        env['LIB_X11']             = ['X11']
-        env['LIBPATH_X11']         = ['/usr/X11R6/lib/']
-        env['LIB_XRENDER']         = ['Xrender']
+	########## X11
+	env['LIB_X11']             = ['X11']
+	env['LIBPATH_X11']         = ['/usr/X11R6/lib/']
+	env['LIB_XRENDER']         = ['Xrender']
 
 	# link against libqt_debug when appropriate
-	if env['BKS_DEBUG']: debug='_debug'
-	else:                debug='4'
+	if env['BKS_DEBUG']: 
+		debug='_debug'
+	else:
+		debug = '4'
 
 	if not env['LIB_Z']:
 		env['LIB_Z']         = ['z']
 		env['LIB_PNG']       = ['png', 'm'] + env['LIB_Z']
 		env['LIB_SM']        = ['SM', 'ICE']
 
-        ########## QT
-        # QTLIBPATH is a special var used in the qt4 module - has to be changed (ita)
+	########## QT
+	# QTLIBPATH is a special var used in the qt4 module - has to be changed (ita)
 	env['CPPPATH_QT']          = [ env['QTINCLUDEPATH']+'/Qt', env['QTINCLUDEPATH'] ] # TODO QTINCLUDEPATH (ita)
 	env['LIBPATH_QT']          = env['LIBPATH_X11']+[env['QTLIBPATH']]
 #    env['LIB_QT']              = ['QtGui4'+debug, 'pthread', 'Xext']+env['LIB_Z']+env['LIB_PNG']+env['LIB_X11']+env['LIB_SM']

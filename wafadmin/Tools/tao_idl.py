@@ -117,7 +117,7 @@ def detect(conf):
 		conf.env['LIBPATH_ACE']  = [ libdir ]
 		conf.env['CPPPATH_ACE']  = [ conf.env['ACE_ROOT'] ]
 
-        conf.env['LIB_ACE']          = ['ACE']
+	conf.env['LIB_ACE']          = ['ACE']
 
 	# only add include paths if TAO_ROOT was set.
 	if taodir:
@@ -126,9 +126,9 @@ def detect(conf):
 		conf.env['CPPPATH_ORBSVCS']  = [ conf.env['TAO_ROOT']+'/orbsvcs' ]
 		conf.env['CPPPATH_TAO_NAMING']  = [ conf.env['CPPPATH_ORBSVCS' ][0] ]
 
-        conf.env['LIB_TAO']          = ['TAO']
-        conf.env['LIB_TAOPOA']       = ['TAO_PortableServer']
-        conf.env['LIB_COSNAMING']    = ['TAO_CosNaming']
+	conf.env['LIB_TAO']          = ['TAO']
+	conf.env['LIB_TAOPOA']       = ['TAO_PortableServer']
+	conf.env['LIB_COSNAMING']    = ['TAO_CosNaming']
 
 	return 1
 

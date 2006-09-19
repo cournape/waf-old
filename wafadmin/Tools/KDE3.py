@@ -598,10 +598,10 @@ def detect_kde(conf):
 		pass
 
 	env['LIB_KDECORE']  = 'kdecore'
-        env['LIB_KIO']      = 'kio'
-        env['LIB_KMDI']     = 'kmdi'
-        env['LIB_KPARTS']   = 'kparts'
-        env['LIB_KDEPRINT'] = 'kdeprint'
+	env['LIB_KIO']      = 'kio'
+	env['LIB_KMDI']     = 'kmdi'
+	env['LIB_KPARTS']   = 'kparts'
+	env['LIB_KDEPRINT'] = 'kdeprint'
 	env['LIB_KDEGAMES'] = 'kdegames'
 
 	env['KCONFIG_COMPILER'] = 'kconfig_compiler'
@@ -644,9 +644,9 @@ def setup(env):
 		'${SRC[0].bldpath(env)} ${SRC[1].bldpath(env)}', color='BLUE')
 	Action.Action('uic', vars=uic_vardeps, func=uic_build, color='BLUE')
 
-        Object.register('kde_translations', kde_translations)
-        Object.register('kde_documentation', kde_documentation)
-        Object.register('kde', kdeobj)
+	Object.register('kde_translations', kde_translations)
+	Object.register('kde_documentation', kde_documentation)
+	Object.register('kde', kdeobj)
 
 	Object.hook('kde', 'UI_EXT', handler_ui)
 	Object.hook('kde', 'SKEL_EXT', handler_skel)
