@@ -136,7 +136,9 @@ class XMLHandler(ContentHandler):
 			self.doc += ')\n'
 			return
 		if name == 'config-code':
-			self.doc += '%s\n\n' % buf
+			for line in buf.split('\n'):
+				self.doc += '\t%s\n' % line
+			self.doc += '\n'
 			return
 		return
 

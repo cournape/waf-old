@@ -53,16 +53,16 @@
 
 	<config>
 		<config-code>
-	# conf.env['CXX'] = Params.g_options.meow
-	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
-	conf.check_tool('g++')
+# conf.env['CXX'] = Params.g_options.meow
+# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
+conf.check_tool('g++')
 
-	conf.env['CXXFLAGS_MYPROG']='-O3'
-	conf.env['LIB_MYPROG']='m'
-	conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
+conf.env['CXXFLAGS_MYPROG']='-O3'
+conf.env['LIB_MYPROG']='m'
+conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
 
-	# works in a procedural way, so the order of calls does matter
-	#conf.check_tool('KDE3')
+# works in a procedural way, so the order of calls does matter
+#conf.check_tool('KDE3')
 		</config-code>
 	</config>
 
