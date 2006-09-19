@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import imp, types
+import os, sys, imp, types
 import Params
 
 g_trace = 0
@@ -117,7 +117,7 @@ def get_term_cols():
 	return 55
 
 try:
-	import struct, fcntl, sys, termios
+	import struct, fcntl, termios
 	def machin():
 		lines, cols = struct.unpack("HHHH", \
 		fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
@@ -126,4 +126,31 @@ try:
 	get_term_cols = machin
 except:
 	pass
+
+
+def split_path(path):
+	"Split path into components. Supports UNC paths on Windows"
+	if 'win' in sys.platform:
+		h,t = os.path.splitunc(path)
+		if not h: return __split_dirs(t)
+		return [h] + __split_dirs(t)[1:]
+	return __split_dirs(path)
+
+def __split_dirs(path):
+	h,t = os.path.split(path)
+	if not h: return [t]
+	if h == path: return [h]
+	if not t:
+		return __split_dirs(h)
+	else:
+		return __split_dirs(h) + [t]
+
+def get_path_dirs():
+	"Get directories in system 'path' variable"
+	path_list = []
+	if 'win' in sys.platform:
+		path_list=os.environ['PATH'].split(';')
+	else:
+		path_list=os.environ['PATH'].split(':')
+	return path_list
 

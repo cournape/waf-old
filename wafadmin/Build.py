@@ -230,11 +230,11 @@ class Build:
 			pass
 
 		# set the source directory
-		if srcdir[0] != '/':
+		if not os.path.isabs(srcdir):
 			srcdir = os.path.abspath('.') + os.sep + srcdir
 
 		# set the build directory it is a path, not a node (either absolute or relative)
-		if blddir[0] != '/':
+		if not os.path.isabs(blddir):
 			self.m_bdir = os.path.abspath(blddir)
 		else:
 			self.m_bdir = blddir
