@@ -62,6 +62,11 @@ g_build    = None
 # Our cache directory
 g_cachedir = ''
 
+# home
+g_homedir = ''
+try: g_homedir = os.environ['HOME']
+except: g_homedir = os.environ['HOMEPATH']
+
 # =================================== #
 # HELPERS
 
