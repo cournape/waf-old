@@ -9,19 +9,21 @@ import Utils
 # Fixed constants, change with care
 
 g_version="0.9.1"
+"no comment"
+
 g_rootname = ''
 if sys.path=='win32':
 	# get the first two letters (c:)
 	g_rootname = os.getcwd()[:2]
 
-# It is unlikely that we change the name of this file
 g_dbfile='.dblite'
+"name of the db file"
 
-# Preprocessor for c/c++
 g_preprocess = 1
+"use the c/c++ preprocessor"
 
-# Dependency tree
 g_excludes = ['.svn', 'CVS', 'wafadmin', '.arch-ids']
+"exclude from dist"
 
 # Hash method: md5 or simple scheme over integers
 g_strong_hash = 1 # 1 use md5
@@ -37,17 +39,19 @@ def sig_nil():
 # Constants set on runtime
 
 g_globals = {}
+"global vars"
+
 def set_globals(name, value):
 	g_globals[name] = value
 def globals(name):
 	try: return g_globals[name]
 	except: return []
 
-# Set by waf.py
 g_launchdir = None
+"set by waf"
 
-# This is the directory containing our Tools (used in particular by Environment.py)
 g_tooldir=''
+"Tools directory (used in particular by Environment.py)"
 
 # Parsed command-line arguments in the options module
 g_options = None
@@ -66,6 +70,10 @@ g_cachedir = ''
 g_homedir = ''
 try: g_homedir = os.environ['HOME']
 except: g_homedir = os.environ['HOMEPATH']
+
+# allow different names for lockfile
+try: g_lockfile = os.environ['WAFLOCK']
+except: g_lockfile = '.lock-wscript'
 
 # =================================== #
 # HELPERS

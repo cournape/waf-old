@@ -4,7 +4,7 @@
 
 import os, sys
 import Params, Utils, Configure, Environment, DirWatch, Build, Runner
-from Params import error, fatal
+from Params import error, fatal, g_lockfile
 
 g_inroot     = 1
 g_dirwatch   = None
@@ -126,7 +126,7 @@ def Main():
 
 		# this will write a configure lock so that subsequent run will
 		# consider the current path as the root directory, to remove: use 'waf distclean'
-		file = open('.lock-wscript', 'w')
+		file = open(g_lockfile, 'w')
 		file.write(blddir)
 		file.write('\n')
 		file.write(srcdir)
@@ -140,13 +140,13 @@ def Main():
 	#bld = private_setup_build()
 	bld = Build.Build()
 	try:
-		file = open('.lock-wscript', 'r')
+		file = open(g_lockfile, 'r')
 		blddir = file.readline().strip()
 		srcdir = file.readline().strip()
 		file.close()
 	except:
 		#raise
-		fatal("Configuration loading failed - re-run waf configure (.lock-wscript cannot be read)")
+		fatal("Configuration loading failed - re-run waf configure (lockfile cannot be read)")
 
 	Params.g_cachedir = blddir+os.sep+'_cache_'
 
@@ -326,7 +326,7 @@ def DistClean():
 	for (root, dirs, filenames) in os.walk('.'):
 		to_remove = False
 		for f in list(filenames):
-			if f=='.lock-wscript':
+			if f==g_lockfile:
 				# removes a lock, and the builddir indicated
 				to_remove = True
 				file = open(os.path.join(root, f), 'r')

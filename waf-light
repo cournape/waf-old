@@ -208,16 +208,16 @@ try:
 		if len(cwd) <= 3:
 			break # stop at / or c:
 		dirlst = os.listdir(cwd)
-		if 'wscript'       in dirlst:
+		if 'wscript' in dirlst:
 			candidate = cwd
 			xml = 0
-		if 'wscript_xml'   in dirlst:
+		if 'wscript_xml' in dirlst:
 			candidate = cwd
 			xml = 1
 			break
-		if 'configure'     in sys.argv and candidate:
+		if 'configure' in sys.argv and candidate:
 			break
-		if '.lock-wscript' in dirlst:
+		if Params.g_lockfile in dirlst:
 			break
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
 except:
