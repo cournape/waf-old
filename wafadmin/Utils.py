@@ -41,9 +41,9 @@ def reset():
 	Object.g_allobjs = []
 
 def to_list(sth):
-	if type(sth) is types.ListType: 
+	if type(sth) is types.ListType:
 		return sth
-	else: 
+	else:
 		return sth.split()
 
 def options(**kwargs):
@@ -57,9 +57,9 @@ g_module=None
 
 def load_module(file_path, name='wscript'):
 	"this function requires an absolute path"
-	try: 
+	try:
 		return g_loaded_modules[file_path]
-	except: 
+	except:
 		pass
 
 	module = imp.new_module(name)
@@ -101,7 +101,7 @@ def to_hashtable(s):
 	tbl = {}
 	lst = s.split('\n')
 	for line in lst:
-		if not line: 
+		if not line:
 			continue
 		mems = line.split('=')
 		tbl[mems[0]] = mems[1]
@@ -112,4 +112,19 @@ def copyobj(obj):
 	for at in obj.__dict__.keys():
 		setattr(cp, at, getattr(obj, at))
 	return cp
+
+def get_term_cols():
+	return 55
+
+try:
+	import struct, fcntl, sys, termios
+	def machin():
+		lines, cols = struct.unpack("HHHH", \
+		fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
+		struct.pack("HHHH", 0, 0, 0, 0)))[:2]
+		return cols
+	global get_term_cols
+	get_term_cols = machin
+except:
+	pass
 

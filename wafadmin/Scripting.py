@@ -207,6 +207,7 @@ def Main():
 	if Params.g_commands['build'] or Params.g_commands['install']:
 		try:
 			ret = bld.compile()
+			if Params.g_options.progress_bar: print ''
 			if not ret: Params.pprint('GREEN', 'Compilation finished successfully')
 		finally:
 			bld.save()
