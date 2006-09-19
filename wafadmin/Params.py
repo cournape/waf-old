@@ -110,7 +110,7 @@ g_levels={
 	'Test'    : 'GREEN',
 }
 
-g_trace_exclude = "Object ".split()
+g_trace_exclude = [] # nothing to exclude for the moment
 
 def set_trace(a, b, c):
 	Utils.g_trace=a

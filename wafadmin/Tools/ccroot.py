@@ -121,20 +121,16 @@ class c_scanner(Scan.scanner):
 			seen.append(node)
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
-			if tree.needs_rescan(node, task.m_env): 
+			if tree.needs_rescan(node, task.m_env):
 				self.do_scan(node, task.m_env, task.m_scanner_params)
 			lst = tree.m_depends_on[variant][node]
-			for dep in lst: 
-				add_node_sig(dep)
+			for dep in lst: add_node_sig(dep)
 			m.update(tree.m_tstamp_variants[variant][node])
 		# add the signatures of the input nodes
-		for node in task.m_inputs: 
-			add_node_sig(node)
+		for node in task.m_inputs: add_node_sig(node)
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: 
-			m.update(task.signature())
+		for task in task.m_run_after: m.update(task.signature())
 		return m.digest()
-
 
 	def _get_signature_regexp_weak(self, task):
 		msum = 0
@@ -158,11 +154,9 @@ class c_scanner(Scan.scanner):
 			for dep in lst: sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
-		for node in task.m_inputs: 
-			msum = hash_sig_weak(msum, add_node_sig(node))
+		for node in task.m_inputs: msum = hash_sig_weak(msum, add_node_sig(node))
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: 
-			msum = hash_sig_weak(msum, task.signature())
+		for task in task.m_run_after: msum = hash_sig_weak(msum, task.signature())
 		return int(msum)
 
 	def _get_signature_preprocessor_weak(self, task):
@@ -201,16 +195,15 @@ class c_scanner(Scan.scanner):
 
 		# we are certain that the files have been scanned - compute the signature
 		msum = hash_sig_weak(msum, add_node_sig(node))
-		for n in tree.m_depends_on[variant][node]: 
+		for n in tree.m_depends_on[variant][node]:
 			msum = hash_sig_weak(msum, add_node_sig(n))
 
 		# and now xor the signature with the other tasks
-		for task in task.m_run_after: 
+		for task in task.m_run_after:
 			msum = hash_sig_weak(msum, task.signature())
 		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
 
-		return int(msum) # this number was not chosen randomly
-
+		return int(msum)
 
 	def _get_signature_preprocessor(self, task):
 		# assumption: there is only one cpp file to compile in a task
@@ -259,8 +252,7 @@ class c_scanner(Scan.scanner):
 
 		# we are certain that the files have been scanned - compute the signature
 		add_node_sig(node)
-		for n in tree.m_depends_on[variant][node]: 
-			add_node_sig(n)
+		for n in tree.m_depends_on[variant][node]: add_node_sig(n)
 
 		# and now xor the signature with the other tasks
 		#for task in task.m_run_after: m.update(task.signature())
@@ -317,8 +309,8 @@ def fakelibtool_build(task):
 # TODO move this line out
 Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE')
 
-# Parent class for programs and libraries in languages c, c++ and moc (Qt)
 class ccroot(Object.genobj):
+	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	s_default_ext = []
 	def __init__(self, type='program'):
 		Object.genobj.__init__(self, type)
@@ -368,19 +360,19 @@ class ccroot(Object.genobj):
 
 		self.chmod = 0755
 
-	# overrides Object.create_task to catch the creation of cpp tasks
 	def create_task(self, type, env=None, nice=10):
+		"overrides Object.create_task to catch the creation of cpp tasks"
 		task = Object.genobj.create_task(self, type, env, nice)
 		if type == self.m_type_initials:
 			self.p_compiletasks.append(task)
 		return task
 
-	# subclass me
 	def get_valid_types(self):
+		"subclass me"
 		fatal('subclass method get_valid_types of ccroot')
 
-	# subclass if necessary
 	def find_sources_in_dirs(self, dirnames, excludes=[]):
+		"subclass if necessary"
 		lst=[]
 		try:    exc_lst = excludes.split()
 		except: exc_lst = excludes
@@ -404,7 +396,7 @@ class ccroot(Object.genobj):
 			for file in anode.m_files:
 				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
-				if ext in ext_lst: 
+				if ext in ext_lst:
 					s = file.relpath(self.m_current_path)
 					if not s in lst:
 						if s in exc_lst: continue
@@ -412,11 +404,10 @@ class ccroot(Object.genobj):
 
 		self.source = self.source+' '+(" ".join(lst))
 
-	# adding some kind of genericity is tricky
-	# subclass this method if it does not suit your needs
 	def apply(self):
+		"adding some kind of genericity is tricky subclass this method if it does not suit your needs"
 		trace("apply called for "+self.m_type_initials)
-		if not self.m_type in self.get_valid_types(): 
+		if not self.m_type in self.get_valid_types():
 			fatal('Invalid type for object: '+self.m_type_initials)
 
 		self.apply_type_vars()
@@ -430,12 +421,12 @@ class ccroot(Object.genobj):
 		if self.m_type != 'objects': self.apply_objdeps()
 
 	def apply_core(self):
-		if self.want_libtool and self.want_libtool>0: 
+		if self.want_libtool and self.want_libtool>0:
 			self.apply_libtool()
 
-		if self.m_type == 'objects': 
+		if self.m_type == 'objects':
 			type = 'program'
-		else: 
+		else:
 			type = self.m_type
 
 		obj_ext = self.env[type+'_obj_ext'][0]
@@ -478,21 +469,19 @@ class ccroot(Object.genobj):
 		# if we are only building .o files, tell which ones we built
 		if self.m_type=='objects':
 			outputs = []
-			for t in self.p_compiletasks: 
-				outputs.append(t.m_outputs[0])
+			for t in self.p_compiletasks: outputs.append(t.m_outputs[0])
 			self.out_nodes = outputs
 			return
 
 		# and after the objects, the remaining is the link step
 		# link in a lower priority (101) so it runs alone (default is 10)
 		global g_prio_link
-		if self.m_type=='staticlib': 
+		if self.m_type=='staticlib':
 			linktask = self.create_task(pre+'_link_static', self.env, g_prio_link)
 		else:
 			linktask = self.create_task(pre+'_link', self.env, g_prio_link)
 		outputs = []
-		for t in self.p_compiletasks: 
-			outputs.append(t.m_outputs[0])
+		for t in self.p_compiletasks: outputs.append(t.m_outputs[0])
 		linktask.set_inputs(outputs)
 		linktask.set_outputs(self.file_in(self.get_target_name()))
 
@@ -566,8 +555,7 @@ class ccroot(Object.genobj):
 
 		# local flags come first
 		# set the user-defined includes paths
-		if not self._incpaths_lst: 
-			self.apply_incpaths()
+		if not self._incpaths_lst: self.apply_incpaths()
 		for i in self._bld_incpaths_lst:
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
 			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
@@ -633,7 +621,7 @@ class ccroot(Object.genobj):
 		if self.m_type == 'program':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
 		elif self.m_type == 'shlib':
-			if self.want_libtool: 
+			if self.want_libtool:
 				self.install_results(dest_var, dest_subdir, self.m_latask)
 			if sys.platform=='win32' or not self.vnum:
 				self.install_results(dest_var, dest_subdir, self.m_linktask)
@@ -707,7 +695,7 @@ class ccroot(Object.genobj):
 		htbl = Params.g_build.m_depends_on
 		for obj in Object.g_allobjs:
 			if obj.name in names:
-				obj.post()
+				if not obj.m_posted: obj.post()
 
 				if obj.m_type == 'shlib':
 					env.appendValue('LIB', obj.target)
@@ -718,8 +706,7 @@ class ccroot(Object.genobj):
 
 				# add the path too
 				tmp_path = obj.m_current_path.bldpath(self.env)
-				if not tmp_path in env['LIBPATH']: 
-					env.appendValue('LIBPATH', tmp_path)
+				if not tmp_path in env['LIBPATH']: env.appendValue('LIBPATH', tmp_path)
 
 				# set the dependency over the link task
 				self.m_linktask.m_run_after.append(obj.m_linktask)
@@ -743,17 +730,17 @@ class ccroot(Object.genobj):
 				if val:
 					self.env.appendValue(v, val)
 
-	# add the .o files produced by some other object files in the same manner as uselib_local
 	def apply_objdeps(self):
+		"add the .o files produced by some other object files in the same manner as uselib_local"
 		lst = self.add_objects.split()
 		if not lst: return
 		for obj in Object.g_allobjs:
 			if obj.target in lst or obj.name in lst:
-				obj.post()
+				if not obj.m_posted: obj.post()
 				self.m_linktask.m_inputs += obj.out_nodes
 
-	# utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS
 	def addflags(self, var, value):
+		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
 		if type(var) is types.StringType:
 			for i in value.split():
 				self.env.appendValue(var, i)

@@ -130,7 +130,6 @@ class genobj:
 	# runs the code to create the tasks
 	def post(self):
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
-
 		if not self.name: self.name = self.target
 
 		if self.m_posted:
