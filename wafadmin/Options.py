@@ -29,7 +29,6 @@ def create_parser():
 * Main commands: configure build install clean dist distclean uninstall
 * Example: ./waf build -j4""", version = 'waf %s' % Params.g_version)
 
-	# Our options
 	p=parser.add_option
 
 	p('-j', '--jobs',
@@ -112,7 +111,6 @@ def create_parser():
 	return parser
 
 def parse_args_impl(parser):
-
 	(Params.g_options, args) = parser.parse_args()
 	#print Params.g_options, " ", args
 
@@ -142,11 +140,10 @@ def parse_args_impl(parser):
 	else: Params.set_trace(0,0,1)
 	#if Params.g_options.wafcoder: Params.set_trace(1,1,1)
 
-# TODO bad name for a useful class
-# loads wscript modules in folders for adding options
 class Handler:
+	"loads wscript modules in folders for adding options"
 	def __init__(self):
-		self.parser    = create_parser()
+		self.parser = create_parser()
 		self.cwd = os.getcwd()
 	def add_option(self, *kw, **kwargs):
 		self.parser.add_option(*kw, **kwargs)

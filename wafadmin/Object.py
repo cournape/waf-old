@@ -39,8 +39,9 @@ def find_launch_node(node, lst):
 			return find_launch_node(d, lst[1:])
 	return None
 
-# call flush for every group of object to process
 def flush():
+	"force all objects to post their tasks"
+
 	bld = Params.g_build
 	trace("delayed operation Object.flush() called")
 
@@ -127,8 +128,8 @@ class genobj:
 		except:
 			return None
 
-	# runs the code to create the tasks
 	def post(self):
+		"runs the code to create the tasks, do not subclass"
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
 		if not self.name: self.name = self.target
 
@@ -138,39 +139,21 @@ class genobj:
 		self.apply()
 		self.m_posted=1
 
-	# probably important ?
-	def to_real_file(self, file):
-		# append the builddir to the file name, calls object to .. :)
-		pass
-
-	# the following function is used to modify the environments of the tasks
-	def setForAll(self, var, val):
-		for task in self.m_tasks:
-			task.setvar(var, val)
-	# the following function is used to modify the environments of the tasks
-	def prependAll(self, var, val):
-		for task in self.m_tasks:
-			task.prependvar(var, val)
-	# the following function is used to modify the environments of the tasks
-	def appendAll(self, var, val):
-		for task in self.m_tasks:
-			task.appendvar(var, val)
-
-	# the lower the nice is, the higher priority tasks will run at
-	# groups are sorted like this [2, 4, 5, 100, 200]
-	# the tasks with lower nice will run first
-	# if tasks have an odd priority number, they will be run only sequentially
-	# if tasks have an even priority number, they will be allowed to be run in parallel
 	def create_task(self, type, env=None, nice=10):
+		"""the lower the nice is, the higher priority tasks will run at
+		groups are sorted like this [2, 4, 5, 100, 200]
+		the tasks with lower nice will run first
+		if tasks have an odd priority number, they will be run only sequentially
+		if tasks have an even priority number, they will be allowed to be run in parallel
+		"""
 		if env is None: env=self.env
 		task = Task.Task(type, env, nice)
 		self.m_tasks.append(task)
 		return task
 
-	# creates the tasks, override this method
 	def apply(self):
-		# subclass me
-		trace("nothing to do")
+		"subclass me"
+		fatal("subclass me!")
 
 	# FIXME (ita)
 	def get_bld_node(self, parent, filename):
@@ -254,8 +237,8 @@ def flatten(env, var):
 	except:
 		fatal("variable %s does not exist in env !" % var)
 
-# ['CXX', ..] -> [env['CXX'], ..]
 def list_to_env_list(env, vars_list):
+	" ['CXX', ..] -> [env['CXX'], ..]"
 	def get_env_value(var):
 		# TODO add a cache here ?
 		#return env[var]

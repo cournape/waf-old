@@ -45,11 +45,9 @@ class XMLHandler(ContentHandler):
 
 			if 'type' in attrs.keys() and attrs.get('type') == 'list':
 				self.tmp_lst = []
-				#setattr(self.obj, name, self.tmp_lst)
 				return
 
 			self.doc += '\tobj.%s="%s"\n' % (name, attrs.get('value'))
-			#setattr(self.obj, name, attrs.get('value'))
 			return
 
 		if name == 'obj':
@@ -96,7 +94,6 @@ class XMLHandler(ContentHandler):
 	def endElement(self, name):
 		buf = "".join(self.buf)
 
-		# object handling
 		if self.obj and name != 'obj':
 			if self.tmp_lst and name != 'item':
 				self.doc += "\tobj.%s = '" % name
