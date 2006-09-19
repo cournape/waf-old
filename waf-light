@@ -106,7 +106,7 @@ def find_wafadmin():
 	# remove $HOME/.waf-version if asked to
 	name = sys.argv[0]
 	if wafdir:
-		if name[len(name)-5:] != 'light':
+		if name[-5:] != 'light':
 			if "--nocache" in sys.argv:
 				import shutil
 				print "removing the local wafdir", wafdir
@@ -116,7 +116,7 @@ def find_wafadmin():
 	if wafdir: return
 
 	# uncompress the local waf directory
-	if name[len(name)-5:] != 'light':
+	if name[-5:] != 'light':
 		if sys.platform != 'win32':
 			uncompress_wafdir('%s/.waf-%s' % (os.environ['HOME'], VERSION))
 		else:
@@ -125,7 +125,7 @@ def find_wafadmin():
 
 	# look in the directory of the program
 	lst = sys.argv[0].split(os.sep)
-	lst = lst[:len(lst)-1]
+	lst = lst[:-1]
 	path = os.path.abspath(os.sep.join(lst))
 	try_wafdir(path)
 	if wafdir: return
