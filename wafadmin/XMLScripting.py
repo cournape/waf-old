@@ -28,7 +28,7 @@ def compile(file_path):
 
 	exec res in module.__dict__
 
-	Utils.g_loaded_modules[file_path[:len(file_path)-4]] = module
+	Utils.g_loaded_modules[file_path[:-4]] = module
 	Utils.g_module = module
 
 class XMLHandler(ContentHandler):

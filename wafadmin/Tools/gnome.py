@@ -105,7 +105,7 @@ class gnome_sgml2man(Object.genobj):
 			out = task.m_outputs[0]
 			# get the number 1..9
 			name = out.m_name
-			ext = name[len(name)-1]
+			ext = name[-1]
 			# and install the file
 
 			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)

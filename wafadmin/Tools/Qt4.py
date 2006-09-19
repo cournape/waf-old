@@ -20,7 +20,7 @@ def uic3_build(task):
 	# outputs : 1. hfile 2. cppfile
 
 	base = task.m_outputs[1].m_name
-	base = base[:len(base)-4]
+	base = base[:-4]
 
 	inc_moc  ='#include "%s.moc"\n' % base
 
@@ -35,7 +35,7 @@ def uic3_build(task):
 	comp_c   = '%s -L %s -nounload -impl %s %s >> %s' % (uic_command, qtplugins, h_path, ui_path, cpp_path)
 
 	ret = Runner.exec_command( comp_h )
-	if ret: 
+	if ret:
 		return ret
 
 	# TODO: there are no kde includes here
@@ -44,8 +44,7 @@ def uic3_build(task):
 	#dest.close()
 
 	ret = Runner.exec_command( comp_c )
-	if ret: 
-		return ret
+	if ret: return ret
 
 	dest = open( cpp_path, 'a' )
 	dest.write(inc_moc)
@@ -118,10 +117,8 @@ class qt4obj(cpp.cppobj):
 		# so we will scan them right here
 		trace("apply called for qt4obj")
 
-		try: 
-			obj_ext = self.env['obj_ext'][0]
-		except: 
-			obj_ext = '.os'
+		try: obj_ext = self.env['obj_ext'][0]
+		except: obj_ext = '.os'
 
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
@@ -138,7 +135,7 @@ class qt4obj(cpp.cppobj):
 			#print "filename is ", filename
 
 			node = self.m_current_path.find_node( filename.split(os.sep) )
-			if not node: 
+			if not node:
 				fatal("cannot find "+filename+" in "+str(self.m_current_path))
 
 			base, ext = os.path.splitext(filename)
@@ -158,15 +155,15 @@ class qt4obj(cpp.cppobj):
 
 			moctasks=[]
 			mocfiles=[]
+			variant = node.variant(self.env)
+			#if node in node.m_parent.m_files:
+			#	variant = 0
+			#else:
+			#	variant = self.env.variant()
 
-			if node in node.m_parent.m_files: 
-				variant = 0
-			else: 
-				variant = self.env.variant()
-
-			try: 
+			try:
 				tmp_lst = tree.m_raw_deps[variant][node]
-			except: 
+			except:
 				tmp_lst = []
 			for d in tmp_lst:
 				base2, ext2 = os.path.splitext(d)
@@ -207,7 +204,7 @@ class qt4obj(cpp.cppobj):
 			# look at the file inputs, it is set right above
 			for d in tree.m_depends_on[variant][node]:
 				name = d.m_name
-				if name[len(name)-4:]=='.moc':
+				if name[-4:]=='.moc':
 					task = self.create_task('moc', self.env)
 					task.set_inputs(tree.m_depends_on[variant][d])
 					task.set_outputs(d)

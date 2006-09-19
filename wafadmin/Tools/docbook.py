@@ -11,7 +11,7 @@ fop_vardeps = ['FOP']
 def fop_build(task):
 	bdir = task.m_inputs[0].cd_to()
 	src = task.m_inputs[0].bldpath()
-	tgt = src[:len(src)-3]+'.pdf'
+	tgt = src[:-3]+'.pdf'
 	cmd = '%s %s %s' % (task.m_env['FOP'], src, tgt)
 	return Runner.exec_command(cmd)
 
@@ -109,7 +109,7 @@ class docbookobj(Object.genobj):
 	def apply(self):
 		trace("apply called for docbookobj")
 
-		if not self.m_type in self.get_valid_types(): 
+		if not self.m_type in self.get_valid_types():
 			fatal('Trying to convert docbook file to unknown type')
 
 		# for each source argument, create a task

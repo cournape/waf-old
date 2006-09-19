@@ -666,7 +666,7 @@ class ccroot(Object.genobj):
 					dict = read_la_file(p+'/lib'+l+'.la')
 					linkflags2 = dict['dependency_libs']
 					for v in linkflags2.split():
-						if v[len(v)-3:] == '.la':
+						if v[-3:] == '.la':
 							libtool_files.append(v)
 							libtool_vars.append(v)
 							continue
@@ -681,7 +681,7 @@ class ccroot(Object.genobj):
 			file = libtool_files.pop()
 			dict = read_la_file(file)
 			for v in dict['dependency_libs'].split():
-				if v[len(v)-3:] == '.la':
+				if v[-3:] == '.la':
 					libtool_files.append(v)
 					continue
 				self.env.appendUnique('LINKFLAGS', v)

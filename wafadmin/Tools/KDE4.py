@@ -28,7 +28,7 @@ def uic_build(task):
 	# outputs : 1. hfile 2. cppfile
 
 	base = task.m_outputs[1].m_name
-	base = base[:len(base)-4]
+	base = base[:-4]
 
 	inc_kde  ='#include <klocale.h>\n#include <kdialog.h>\n'
 	inc_moc  ='#include "%s.moc"\n' % base
@@ -282,7 +282,7 @@ class kdeobj(cpp.cppobj):
 			# look at the file inputs, it is set right above
 			for d in tree.m_depends_on[variant][node]:
 				name = d.m_name
-				if name[len(name)-4:]=='.moc':
+				if name[-4:]=='.moc':
 					task = self.create_task('moc', self.env)
 					task.set_inputs(tree.m_depends_on[variant][d])
 					task.set_outputs(d)
