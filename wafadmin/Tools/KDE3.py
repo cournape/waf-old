@@ -5,7 +5,7 @@
 import os, sys, re
 import ccroot, cpp
 import Action, Common, Object, Params, Runner, Scan
-from Params import error, fatal
+from Params import error, fatal, trace
 from Params import set_globals, globals
 
 def getSOfromLA(lafile):
