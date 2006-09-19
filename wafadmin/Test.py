@@ -11,7 +11,7 @@ def testname(file):
 	return open('test/'+file, 'r')
 
 if __name__ == "__main__":
-	
+
 	for i in ['dist','configure','clean','distclean','make','install','doc']:
 		Params.g_commands[i]=0
 

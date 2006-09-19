@@ -123,7 +123,6 @@ try:
 		fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
 		struct.pack("HHHH", 0, 0, 0, 0)))[:2]
 		return cols
-	global get_term_cols
 	get_term_cols = machin
 except:
 	pass

@@ -91,11 +91,11 @@ class scanner:
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
 			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
-			try: 
+			try:
 				lst = tree.m_depends_on[variant][node]
-			except: 
+			except:
 				lst = []
-			for dep in lst: 
+			for dep in lst:
 				add_node_sig(dep)
 			m.update(tree.m_tstamp_variants[variant][node])
 
