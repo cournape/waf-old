@@ -148,7 +148,7 @@ def __split_dirs(path):
 def get_path_dirs():
 	"Get directories in system 'path' variable"
 	path_list = []
-	if 'win' in sys.platform:
+	if sys.platform == 'win32':
 		path_list=os.environ['PATH'].split(';')
 	else:
 		path_list=os.environ['PATH'].split(':')
