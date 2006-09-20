@@ -92,7 +92,10 @@ class TaskBase:
 	def color(self):
 		"return the color to use for the console messages"
 		return 'BLUE'
-
+	def set_display(self, v):
+		self.display = v
+	def get_display(self):
+		return self.display
 class Task(TaskBase):
 	"Task is the more common task. It has input nodes and output nodes"
 	def __init__(self, action_name, env, priority=5):
@@ -120,6 +123,10 @@ class Task(TaskBase):
 		self.m_scanner_params = g_default_param
 
 		self.m_run_after = []
+
+	def get_display(self):
+		"reimpl"
+		return self.m_action.get_str(self)
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs = inp

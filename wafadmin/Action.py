@@ -44,7 +44,6 @@ class Action:
 	def prepare(self, task):
 		"prepare the compilation"
 		task.m_sig = Object.sign_env_vars(task.m_env, self.m_vars)
-		task.display = self.get_str(task)
 
 	def run(self, task):
 		"run the compilation"

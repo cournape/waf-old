@@ -34,8 +34,8 @@ def write_progress(s):
 
 def progress_line(s, t, col1, task, col2):
 	"do not print anything if there is nothing to display"
-	if not task.display:
-		return ''
+	disp = task.get_display()
+	if not disp: return ''
 	global g_initial
 	if Params.g_options.progress_bar == 1:
 		pc = (100.*s)/t
@@ -61,7 +61,7 @@ def progress_line(s, t, col1, task, col2):
 
 		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|' % (t, s, ins, outs, eta)
 
-	return '[%d/%d] %s%s%s' % (s, t, col1, task.display, col2)
+	return '[%d/%d] %s%s%s' % (s, t, col1, disp, col2)
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
@@ -348,7 +348,7 @@ class TaskConsumer(threading.Thread):
 			self.do_stat(1)
 
 			# display the label for the command executed
-			write_progress(proc.display)
+			write_progress(proc.get_display())
 
 			# run the command
 			ret = proc.run()
@@ -551,7 +551,7 @@ class Parallel:
 						col1=Params.g_colors[proc.color()]
 						col2=Params.g_colors['NORMAL']
 					except: pass
-					proc.display = progress_line(self.m_processed, self.m_total, col1, proc, col2)
+					proc.set_display(progress_line(self.m_processed, self.m_total, col1, proc, col2))
 
 					lock.acquire()
 					count += 1
