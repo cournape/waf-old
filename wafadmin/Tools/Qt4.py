@@ -264,7 +264,7 @@ def detect_qt4(conf):
 		qtbin=''
 		pass
 
-	try: 
+	try:
 		qtdir      = Params.g_options.qtdir
 	except:
 		qtbin = ''
@@ -274,7 +274,7 @@ def detect_qt4(conf):
 	p=Params.pprint
 
 	# do our best to find the QTDIR (non-Debian systems)
-	if not qtdir: 
+	if not qtdir:
 		qtdir = os.getenv('QTDIR')
 
 	# TODO what if there are only static Qt libraries ?
@@ -284,6 +284,7 @@ def detect_qt4(conf):
 			qtdir=None
 	if not qtdir:
 		qtdir=Configure.find_path('include/', [ # lets find the Qt include directory
+				'/usr/local/Trolltech/Qt-4.2.4/',
 				'/usr/local/Trolltech/Qt-4.2.3/',
 				'/usr/local/Trolltech/Qt-4.2.2/',
 				'/usr/local/Trolltech/Qt-4.2.1/',
@@ -295,7 +296,8 @@ def detect_qt4(conf):
 				'/usr/local/Trolltech/Qt-4.0.3/',
 				'/usr/local/Trolltech/Qt-4.0.2/',
 				'/usr/local/Trolltech/Qt-4.0.1/',
-				'/usr/local/Trolltech/Qt-4.0.0/'])
+				'/usr/local/Trolltech/Qt-4.0.0/',
+				'/usr/share/qt4' # Ubuntu/Debian default ])
 		if qtdir: p('YELLOW', 'The QTDIR was found as '+qtdir)
 		else:     p('YELLOW', 'There is no QTDIR set')
 	else: env['QTDIR'] = qtdir.strip()
