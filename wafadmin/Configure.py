@@ -74,7 +74,7 @@ or the first  occurrence filename or '' if filename could not be found
 			return os.environ[var]
 
 	if lenv['WINDOWS']: filename += '.exe'
-	if not path_list: path_list = Utils.get_path_dirs()
+	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
 	for directory in path_list:
 		if os.path.exists( os.path.join(directory, filename) ):
 			ret = os.path.join(directory, filename)
