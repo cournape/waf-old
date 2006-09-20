@@ -184,6 +184,7 @@ class Task(TaskBase):
 
 	# see if this task must or must not be run
 	def must_run(self):
+		#return 0
 		ret = 0
 		if not self.m_inputs and not self.m_outputs:
 			self.m_dep_sig = Params.sig_nil
@@ -191,31 +192,29 @@ class Task(TaskBase):
 
 		self.m_dep_sig = self.m_scanner.get_signature(self)
 
-
-		i1 = Params.vsig(self.m_sig)
-		i2 = Params.vsig(self.m_dep_sig)
-
+		#i1 = Params.vsig(self.m_sig)
+		#i2 = Params.vsig(self.m_dep_sig)
 
 		sg = self.signature()
 
 		node = self.m_outputs[0]
 
 		# TODO should make a for loop as the first node is not enough
-		if node in node.m_parent.m_files: variant = 0
-		else: variant = self.m_env.variant()
+		variant = node.variant(self.m_env)
+		#if node in node.m_parent.m_files: variant = 0
+		#else: variant = self.m_env.variant()
 
 		if not node in Params.g_build.m_tstamp_variants[variant]:
-			debug("task should run as the first node does not exist"+str(node))
+			#debug("task should run as the first node does not exist"+str(node))
 			ret = self._can_retrieve_cache(sg)
 			return not ret
 
 		outs = Params.g_build.m_tstamp_variants[variant][node]
 
-		a1 = Params.vsig(sg)
-		a2 = Params.vsig(outs)
-
-		debug("task %s must run ? signature is %s while node signature is %s (sig:%s depsig:%s)" \
-			% (str(self.m_idx), a1, a2, i1, i2))
+		#a1 = Params.vsig(sg)
+		#a2 = Params.vsig(outs)
+		#debug("task %s must run ? signature is %s while node signature is %s (sig:%s depsig:%s)" \
+		#	% (str(self.m_idx), a1, a2, i1, i2))
 
 		if sg != outs:
 			ret = self._can_retrieve_cache(sg)
@@ -229,9 +228,9 @@ class Task(TaskBase):
 		"""Retrieve build nodes from the cache
 		It modifies the time stamp of files that are copied
 		so it is possible to clean the least used files from
-		the cache directory"
+		the cache directory"""
 		if not Params.g_options.usecache: return None
-		if Params.g_options.nocache: return None"""
+		if Params.g_options.nocache: return None
 
 		env  = self.m_env
 		sig = self.signature()

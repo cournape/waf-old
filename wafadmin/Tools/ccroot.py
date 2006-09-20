@@ -49,7 +49,7 @@ class c_scanner(Scan.scanner):
 
 
 	def get_signature(self, task):
-		trace("c:get_signature(self, task)")
+		#trace("c:get_signature(self, task)")
 		if Params.g_preprocess:
 			#print "c: will preprocess"
 			if Params.g_strong_hash:

@@ -200,20 +200,19 @@ class Serial:
 		while 1:
 			# get next Task
 			proc = self.m_generator.get_next()
-			if proc is None:
-				break
+			if proc is None: break
 
-			trace("retrieving task "+str(proc.m_idx))
+			#trace("retrieving task "+str(proc.m_idx))
 
 			# # =======================
-			if proc.m_hasrun:
-				error("task has already run! "+str(proc.m_idx))
+			#if proc.m_hasrun:
+			#	error("task has already run! "+str(proc.m_idx))
 
 			if not proc.may_start():
-				trace("delaying task no "+str(proc.m_idx))
+				#trace("delaying task no "+str(proc.m_idx))
 				self.m_generator.postpone(proc)
 				#self.m_generator.debug()
-				proc = None
+				#proc = None
 				continue
 			# # =======================
 
@@ -226,7 +225,7 @@ class Serial:
 			#continue
 			if not proc.must_run():
 				proc.m_hasrun=2
-				debug("task is up-to_date "+str(proc.m_idx))
+				#debug("task is up-to_date "+str(proc.m_idx))
 				continue
 
 			trace("executing task "+str(proc.m_idx))
