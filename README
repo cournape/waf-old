@@ -39,6 +39,13 @@ Creating scripts:
   a file named wscript_build ('wscript_'+function name) will replace the
   corresponding function in the wscript module. See demos/cpp/src2
 
+DEVELOPERS
+----------
+
+Developers must set WAFDIR
+A cache in $HOME/.waf-version may cause problems between svn updates
+(the version number is not always incremented between changes)
+
 ---------------------------
 Thomas Nagy, 2006 (ita)
 
