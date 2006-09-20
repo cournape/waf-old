@@ -534,17 +534,12 @@ class cparse:
 	def tryfind(self, filename):
 		if self.m_nodepaths:
 			found = 0
+			lst = filename.split('/')
 			for n in self.m_nodepaths:
-				if found: break
-				for f in n.m_files:
-					if f.m_name == filename:
-						#if not os.path.exists(f.abspath()): continue
-						try:
-							self.addlines(f.abspath())
-							if not f in self.m_nodes: self.m_nodes.append(f)
-							break
-						except:
-							pass
+				found = n.search_existing_node(lst)
+				if found:
+					self.m_nodes.append(found)
+					break
 			if not found:
 				if not filename in self.m_names:
 					self.m_names.append(filename)
@@ -584,9 +579,7 @@ class cparse:
 
 		#print "parent node of ", node.m_name, " is ", node.m_parent.m_name, " and the contents ", node.m_parent.m_files
 
-		if node in node.m_parent.m_files: variant = 0
-		else: variant = env.variant()
-
+		variant = node.variant(env)
 		self.addlines(node.abspath(env))
 
 		while self.lines:

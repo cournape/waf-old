@@ -510,11 +510,16 @@ class ccroot(Object.genobj):
 		pass
 
 	def apply_incpaths(self):
-		inc_lst = self.to_list(self.includes)
+		lst = []
+		for i in self.to_list(self.uselib):
+			if self.env['CPPPATH_'+i]:
+				lst += self.to_list(self.env['CPPPATH_'+i])
+		inc_lst = self.to_list(self.includes) + lst
 		lst = self._incpaths_lst
 
 		# add the build directory
 		self._incpaths_lst.append(Params.g_build.m_bldnode)
+		self._incpaths_lst.append(Params.g_build.m_srcnode)
 
 		# now process the include paths
 		tree = Params.g_build
