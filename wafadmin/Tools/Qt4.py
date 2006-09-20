@@ -297,7 +297,7 @@ def detect_qt4(conf):
 				'/usr/local/Trolltech/Qt-4.0.2/',
 				'/usr/local/Trolltech/Qt-4.0.1/',
 				'/usr/local/Trolltech/Qt-4.0.0/',
-				'/usr/share/qt4' # Ubuntu/Debian default ])
+				'/usr/share/qt4' ]) # Ubuntu/Debian default
 		if qtdir: p('YELLOW', 'The QTDIR was found as '+qtdir)
 		else:     p('YELLOW', 'There is no QTDIR set')
 	else: env['QTDIR'] = qtdir.strip()
