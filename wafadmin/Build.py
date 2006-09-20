@@ -200,7 +200,8 @@ class Build:
 		"this function is called for both install and uninstall"
 		trace("install called")
 		Object.flush()
-		for obj in Object.g_allobjs: obj.install()
+		for obj in Object.g_allobjs:
+			if obj.m_posted: obj.install()
 
 	def add_subdirs(self, dirs):
 		lst = Utils.to_list(dirs)
