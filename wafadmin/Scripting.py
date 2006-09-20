@@ -48,22 +48,16 @@ def callBack(idxName, pathName, event):
 	g_daemonlock = 0
 
 def startDaemon():
-	# start a new directory watcher, if it does not exist already
-	# else, return immediately
+	"if it does not exist already:start a new directory watcher; else: return immediately"
 	global g_dirwatch
 	if not g_dirwatch:
 		g_dirwatch = DirWatch.DirectoryWatcher()
-		#print "daemon"
-
 		m_dirs=[]
 		for nodeDir in Params.g_build.m_srcnode.m_dirs:
 			tmpstr = "%s" %nodeDir
 			tmpstr = "%s" %(tmpstr[3:])[:-1]
 			m_dirs.append(tmpstr)
-			#print "DirList : ", m_dirs
-
 		g_dirwatch.addDirWatch("tmp Test", callBack, m_dirs)
-
 		# infinite loop, no need to exit except on ctrl+c
 		g_dirwatch.loop()
 
@@ -154,7 +148,6 @@ def Main():
 	try:
 		bld.load_dirs(srcdir, blddir)
 	except:
-		#fatal("bld.load_dirs failed")
 		raise
 
 	try:
@@ -307,7 +300,6 @@ def DistClean():
 	import os, shutil, types
 	import Build
 
-	#print "Executing distclean in ", os.path.abspath('.')
 	# remove the distclean folders (may not exist)
 	try:
 		li=Utils.g_module.distclean
