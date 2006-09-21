@@ -218,14 +218,8 @@ try:
 			break
 		if 'configure' in sys.argv and candidate:
 			break
-		# in first run Params.g_lockfile is not defined and so is the 
-		# access to it not possible and throws an exception. For this 
-		# case we need a try except here.
-		try:
-			if Params.g_lockfile in dirlst:
-				break
-		except:
-			pass
+		if Params.g_lockfile in dirlst:
+			break
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
 except:
 	fatal(msg1)
@@ -284,17 +278,11 @@ if Params.g_commands['dist']:
 		sys.exit(0)
 	except:
 		pass
-	appname         = 'noname'
-	try:
-		appname = Utils.g_module.APPNAME
-	except:
-		pass
+	try: appname = Utils.g_module.APPNAME
+	except: appname = 'noname'
 
-	version         = '1.0'
-	try:
-		version = Utils.g_module.VERSION
-	except:
-		pass
+	try: version = Utils.g_module.VERSION
+	except: version = '1.0'
 
 	from Scripting import Dist
 	Dist(appname, version)
