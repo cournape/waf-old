@@ -5,7 +5,7 @@ class C1
 {
 	public:
 	C1();
-	
+
 	private:
 	int m_number1;
 };

@@ -73,7 +73,9 @@ def flush():
 		# post the object
 		obj.post()
 
-		trace("object posted")
+		if Params.g_options.verbose == 3:
+			import time
+			print "flushed at ", time.asctime(time.localtime())
 
 def hook(objname, var, func):
 	"Attach a new method to an object class (objname is the name of the class)"
