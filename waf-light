@@ -217,8 +217,14 @@ try:
 			break
 		if 'configure' in sys.argv and candidate:
 			break
-		if Params.g_lockfile in dirlst:
-			break
+		# in first run Params.g_locklile is not defined and so is the 
+		# access to it not possible and throws an exception. For this 
+		# case we need a try except here.
+		try:
+			if Params.g_lockfile in dirlst:
+				break
+		except:
+			pass
 		cwd = cwd[:cwd.rfind(os.sep)] # climb up
 except:
 	fatal(msg1)
