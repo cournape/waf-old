@@ -173,6 +173,7 @@ build_dir_override = None
 candidate = None
 
 lst = os.listdir(cwd)
+xml = 0
 #check if a wscript or a wscript_xml file is in current directory
 if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
 	if 'configure' in sys.argv:
