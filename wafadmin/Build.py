@@ -170,7 +170,10 @@ class Build:
 
 		os.chdir(self.m_bdir)
 
-
+		#import hotshot
+		#prof = hotshot.Profile("/tmp/proftest.txt")
+		#prof.runcall(Object.flush)
+		#prof.close()
 		Object.flush()
 
 		#self.dump()

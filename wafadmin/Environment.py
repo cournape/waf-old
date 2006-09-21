@@ -49,9 +49,9 @@ class Environment:
 
 	def __getitem__(self, key):
 		try: return self.m_table[key]
-		except:
+		except KeyError:
 			try: return Params.globals(key)
-			except: return []
+			except KeyError: return []
 	def __setitem__(self, key, value):
 		self.m_table[key] = value
 

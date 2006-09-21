@@ -141,21 +141,21 @@ def __get_module():
 	try: return inspect.stack()[2][0].f_globals['__name__']
 	except: return "unknown"
 def trace(msg):
-	module = __get_module()
 	if not Utils.g_trace: return
+	module = __get_module()
 	if module in g_trace_exclude: return
 	niceprint(msg, 'TRACE', module)
 def warning(msg):
 	module = __get_module()
 	niceprint(msg, 'WARNING', module)
 def debug(msg):
-	module = __get_module()
 	if not Utils.g_debug: return
+	module = __get_module()
 	if module in g_trace_exclude: return
 	niceprint(msg, 'DEBUG', module)
 def error(msg):
-	module = __get_module()
 	if not Utils.g_error: return
+	module = __get_module()
 	if module in g_trace_exclude: return
 	niceprint(msg, 'ERROR', module)
 def fatal(msg):
