@@ -4,13 +4,12 @@
 
 import os, sys
 
-"""
-try:
-	import psyco
-	psyco.full()
-except:
-	pass
-"""
+if 'PSYCOWAF' in os.environ:
+	try:
+		import psyco
+		psyco.full()
+	except:
+		pass
 
 VERSION="0.9.1"
 cwd = os.getcwd()
