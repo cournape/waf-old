@@ -217,7 +217,7 @@ try:
 			break
 		if 'configure' in sys.argv and candidate:
 			break
-		# in first run Params.g_locklile is not defined and so is the 
+		# in first run Params.g_lockfile is not defined and so is the 
 		# access to it not possible and throws an exception. For this 
 		# case we need a try except here.
 		try:

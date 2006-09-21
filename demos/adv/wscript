@@ -148,7 +148,7 @@ int main()
 	headerconf.run()
 
 	# Finds GL/gl.h
-	headerconf.define='GL'
+	headerconf.define='HAVE_GL_GL_H'
 	headerconf.name='GL/gl.h'
 	headerconf.path=['/usr/X11R6/include','/usr/include']
 	headerconf.run()
@@ -198,6 +198,12 @@ int main()
 	# Looks for the GL lib in the specified directories
 	libconf = conf.create_library_configurator()
 	libconf.uselib = 'GL'
+	libconf.name   = 'GL'
+	libconf.paths = ['/usr/X11R6/lib','/usr/lib','/usr/local/lib']
+	libconf.run()
+
+	libconf = conf.create_library_configurator()
+	libconf.uselib = 'GLAS'
 	libconf.name   = 'GL'
 	libconf.paths = ['/usr/X11R6/lib','/usr/lib','/usr/local/lib']
 	libconf.run()

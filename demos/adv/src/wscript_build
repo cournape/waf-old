@@ -50,6 +50,7 @@ obj.target="gruik"
 obj = bld.create_obj('cpp', 'program')
 obj.source="m1.cpp"
 obj.includes="."
+obj.uselib="GL"
 obj.target="m1"
 obj.add_objects="gruik"
 

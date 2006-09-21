@@ -105,8 +105,10 @@ class enumerator_base:
 			md5hash.update(str(value))
 
 	def update_env(self, hashtable):
-		for name in hashtable:
-			self.env[name] = hashtable[name]
+		# skip this if hashtable is only a string
+		if not type(hashtable) is types.StringType:
+			for name in hashtable.keys():
+				self.env[name] = hashtable[name]
 
 	def validate(self):
 		try: self.names = self.names.split()
@@ -249,8 +251,7 @@ class library_enumerator(enumerator_base):
 	def run_cache(self, retval):
 		if self.want_message:
 			self.conf.check_message('library %s (cached)' % self.name, '', 1, option=retval)
-		self.env['LIB_'+self.uselib] = self.name
-		self.env['LIBPATH_'+self.uselib] = retval
+		self.update_env(retval)
 
 	def validate(self):
 		if not self.path:
@@ -544,8 +545,11 @@ class library_configurator(configurator_base):
 
 	def run_cache(self, retval):
 		self.conf.check_message('library %s (cached)' % self.name, '', 1)
-		self.env['LIB_'+self.uselib] = self.name
-		self.env['LIBPATH_'+self.uselib] = retval
+		if retval:
+			self.update_env(retval)
+			self.conf.add_define(self.define, 1)
+		else:
+			self.conf.add_define(self.define, 0)
 
 	def validate(self):
 		if not self.path:
