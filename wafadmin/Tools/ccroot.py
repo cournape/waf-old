@@ -442,8 +442,8 @@ class ccroot(Object.genobj):
 
 		lst = self.source.split()
 		for filename in lst:
-
-			node = self.m_current_path.find_node( filename.split(os.sep) )
+			node = self.file_in(filename)[0]
+			#node = self.m_current_path.find_node( filename.split(os.sep) )
 			if not node:
 				fatal("source not found: "+filename+" in "+str(self.m_current_path))
 
@@ -453,9 +453,6 @@ class ccroot(Object.genobj):
 			if fun:
 				fun(self, node)
 				continue
-
-			mlst = self.file_in(filename)
-			node = mlst[0]
 
 			# create the compilation task: cpp or cc
 			task = self.create_task(self.m_type_initials, self.env)
