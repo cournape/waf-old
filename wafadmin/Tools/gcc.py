@@ -17,11 +17,9 @@ def setup(env):
 
 def detect(conf):
 	cc = conf.find_program('cc', var='CC')
-	if not cc:
-		return 0;
 
 	comp = conf.find_program('gcc', var='GCC')
-	if not comp:
+	if not cc and not comp:
 		return 0;
 
 	# load the cc builders

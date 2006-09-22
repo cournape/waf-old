@@ -64,14 +64,19 @@ def create_waf():
 	file.close()
 	code2 = base64.encodestring(cnt)
 
-	file = open('waf', 'wb')
+	if sys.platform == 'win32':
+		file = open('waf.bat', 'wb')
+		file.write('@python -x "%~f0" %* & exit /b\n')
+	else:
+		file = open('waf', 'wb')
 	file.write(code1)
 	file.write('""" # ===>BEGIN WOOF<===\n')
 	file.write(code2)
 	file.write('""" # ===>END WOOF<===\n')
 	file.close()
 
-	os.chmod('waf', 0755)
+	if sys.platform != 'win32':
+		os.chmod('waf', 0755)
 	os.unlink('%s.tar.bz2' % mw)
 
 def install_waf():

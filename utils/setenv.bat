@@ -9,19 +9,23 @@
 @echo off
 
 if not defined PYTHON (
-	if exist "c:\PYTHON24" (
-		set PYTHON=c:\Python24
+	if exist "\PYTHON24\python.exe" (
+		set PYTHON=\Python24
 		echo PYTHON installation found unter: %PYTHON%
+	)	else (
+		if exist "c:\PYTHON24\python.exe" (
+			set PYTHON=c:\Python24
+			echo PYTHON installation found unter: %PYTHON%
+		)
 	)
 )
-
 
 if not "%PYTHON%"=="" (
 	assoc .py=Python.File
 	ftype Python.File=%PYTHON%\python.exe "%%1" %%*
 	set PATHEXT=%PATHEXT%;.py
 
-	set PATH=%CD%;%PATH%
+	set PATH=%CD%;%CD%\utils;%PATH%
 	echo ...
 	echo now you can start any python script from waf 
 
