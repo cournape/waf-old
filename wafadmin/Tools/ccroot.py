@@ -442,8 +442,8 @@ class ccroot(Object.genobj):
 
 		lst = self.source.split()
 		for filename in lst:
-			node = self.find(filename)
-			#node = self.m_current_path.find_node( filename.split(os.sep) )
+			#node = self.find(filename)
+			node = self.m_current_path.find_node( filename.split(os.sep) )
 			if not node:
 				fatal("source not found: "+filename+" in "+str(self.m_current_path))
 
