@@ -157,9 +157,8 @@ class genobj:
 		"subclass me"
 		fatal("subclass me!")
 
-	# FIXME (ita)
-	def get_bld_node(self, parent, filename):
-		node = parent
+	def find(self, filename):
+		node = self.m_current_path
 		for name in filename.split('/'):
 			found = 0
 			if not found:
@@ -186,9 +185,6 @@ class genobj:
 				node.m_build.append(node2)
 				node = node2
 		return node
-
-	def file_in(self, filename):
-		return [ self.get_bld_node(self.m_current_path, filename) ]
 
 	# an object is to be posted, even if only for install
 	# the install function is called for uninstalling too

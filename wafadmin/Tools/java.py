@@ -23,7 +23,7 @@ class javaobj(Object.genobj):
 		# first create the nodes corresponding to the sources
 		for filename in source_lst:
 			base, ext = os.path.splitext(filename)
-			node = self.file_in(filename)[0]
+			node = self.find(filename)
 			if not ext in self.s_default_ext:
 				print "??? ", filename
 

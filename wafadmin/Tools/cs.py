@@ -48,12 +48,12 @@ class csobj(Object.genobj):
 		# process the sources
 		nodes = []
 		for i in self.to_list(self.source):
-			nodes += self.file_in(i)
+			nodes.append(self.find(i))
 
 		# create the task
 		task = self.create_task('mcs', self.env, 101)
 		task.m_inputs  = nodes
-		task.m_outputs = self.file_in(self.target)
+		task.set_outputs(self.find(self.target))
 
 	def apply_uselib(self):
 		if not self.uselib:

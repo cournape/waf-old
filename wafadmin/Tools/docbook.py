@@ -42,7 +42,7 @@ def docb_file(obj, node):
 	trace("Seen docbook file type")
 
 	# this function is used several times
-	fi = obj.file_in
+	fi = obj.find
 
 	base, ext = os.path.splitext(node.m_name)
 
@@ -54,8 +54,8 @@ def docb_file(obj, node):
 		trace("building pdf")
 		xslttask = obj.create_task('xslt', obj.env, 4)
 
-		xslttask.m_inputs  = fi(node.m_name)
-		xslttask.m_outputs = fi(base+'.fo')
+		xslttask.m_inputs  = [fi(node.m_name)]
+		xslttask.m_outputs = [fi(base+'.fo')]
 		if not obj.stylesheet:
 			fatal('No stylesheet specified for creating pdf.')
 
@@ -64,14 +64,14 @@ def docb_file(obj, node):
 		# now we also add the task that creates the pdf file
 		foptask = obj.create_task('fop', obj.env)
 		foptask.m_inputs  = xslttask.m_outputs
-		foptask.m_outputs = fi(base+'.pdf')
+		foptask.m_outputs = [fi(base+'.pdf')]
 
 	if ext == '.xml' and obj.get_type() == 'html':
 		trace("building html")
 		xslttask = obj.create_task('xslt', obj.env, 4)
 
-		xslttask.m_inputs  = fi(node.m_name)
-		xslttask.m_outputs = fi(base+'.html')
+		xslttask.m_inputs  = [fi(node.m_name)]
+		xslttask.m_outputs = [fi(base+'.html')]
 		if not obj.stylesheet:
 			fatal('No stylesheet specified for creating html.')
 		xslttask.m_env['XSLT_SHEET'] = obj.stylesheet
@@ -85,8 +85,8 @@ def docb_file(obj, node):
 
 		xslttask = obj.create_task('db2', obj.env)
 
-		xslttask.m_inputs  = fi(node.m_name)
-		xslttask.m_outputs = fi(base+'.'+obj.get_type())
+		xslttask.m_inputs  = [fi(node.m_name)]
+		xslttask.m_outputs = [fi(base+'.'+obj.get_type())]
 		xslttask.m_compiler = obj.env[ "DB2%s" % string.upper(obj.get_type() ) ]
 
 	if ext == '.xml':

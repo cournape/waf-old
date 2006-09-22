@@ -75,12 +75,12 @@ class qt4obj(cpp.cppobj):
 		# run rcctask with one of the highest priority
 		# TODO add the dependency on the files listed in .qrc
 		rcctask = self.create_task('rcc', self.env, 2)
-		rcctask.m_inputs  = self.file_in(base+'.qrc')
-		rcctask.m_outputs = self.file_in(base+'_rc.cpp')
+		rcctask.set_inputs(self.find(base+'.qrc'))
+		rcctask.set_outputs(self.find(base+'_rc.cpp'))
 
 		cpptask = self.create_cpp_task()
-		cpptask.m_inputs  = self.file_in(base+'_rc.cpp')
-		cpptask.m_outputs = self.file_in(base+'.o')
+		cpptask.m_inputs  = [self.find(base+'_rc.cpp')]
+		cpptask.m_outputs = [self.find(base+'.o')]
 
 		# not mandatory
 		cpptask.m_run_after = [rcctask]
@@ -97,16 +97,16 @@ class qt4obj(cpp.cppobj):
 		hnode   = get_node( base+'.h' )
 
 		uictask = self.create_task('uic', self.env, 2)
-		uictask.m_inputs    = self.file_in(base+'.ui')
+		uictask.m_inputs    = [self.find(base+'.ui')]
 		uictask.m_outputs   = [ hnode, cppnode ]
 
 		moctask = self.create_task('moc', self.env)
 		moctask.m_inputs    = [ hnode ]
-		moctask.m_outputs   = self.file_in(base+'.moc')
+		moctask.m_outputs   = [self.find(base+'.moc')]
 
 		cpptask = self.create_cpp_task()
 		cpptask.m_inputs    = [ cppnode ]
-		cpptask.m_outputs   = self.file_in(base+'.o')
+		cpptask.m_outputs   = [self.find(base+'.o')]
 		cpptask.m_run_after = [moctask]
 
 		return cpptask
@@ -217,25 +217,25 @@ class qt4obj(cpp.cppobj):
 			cpptask.m_scanner = ccroot.g_c_scanner
 			cpptask.m_scanner_params = dir_lst
 
-			cpptask.m_inputs    = self.file_in(filename)
-			cpptask.m_outputs   = self.file_in(base+obj_ext)
+			cpptask.m_inputs    = [self.find(filename)]
+			cpptask.m_outputs   = [self.find(base+obj_ext)]
 			cpptask.m_run_after = moctasks
 			cpptasks.append(cpptask)
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
 		linktask = self.create_task('cpp_link', self.env, 101)
 		cppoutputs = []
-		for t in cpptasks: 
+		for t in cpptasks:
 			cppoutputs.append(t.m_outputs[0])
 		linktask.m_inputs  = cppoutputs
-		linktask.m_outputs = self.file_in(self.get_target_name())
+		linktask.m_outputs = [self.find(self.get_target_name())]
 
 		self.m_linktask = linktask
 
 		if self.m_type != 'program' and self.want_libtool:
 			latask           = self.create_task('fakelibtool', self.env, 101)
 			latask.m_inputs  = linktask.m_outputs
-			latask.m_outputs = self.file_in(self.get_target_name('.la'))
+			latask.m_outputs = [self.find(self.get_target_name('.la'))]
 			self.m_latask    = latask
 
 def setup(env):
@@ -246,19 +246,19 @@ def setup(env):
 def detect_qt4(conf):
 	env = conf.env
 
-	try: 
+	try:
 		qtlibs     = Params.g_options.qtlib
 	except:
 		qtlibs=''
 		pass
 
-	try: 
+	try:
 		qtincludes = Params.g_options.qtincludes
 	except:
 		qtincludes=''
 		pass
 
-	try: 
+	try:
 		qtbin      = Params.g_options.qtbin
 	except:
 		qtbin=''

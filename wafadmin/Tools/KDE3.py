@@ -196,8 +196,8 @@ def handler_kcfgc(self, node, base=''):
 def handler_skel_or_stub(obj, base, type):
 	if not base in obj.skel_or_stub:
 		kidltask = obj.create_task('kidl', obj.env, 2)
-		kidltask.set_inputs(obj.file_in(base+'.h'))
-		kidltask.set_outputs(obj.file_in(base+'.kidl'))
+		kidltask.set_inputs(obj.find(base+'.h'))
+		kidltask.set_outputs(obj.find(base+'.kidl'))
 		obj.skel_or_stub[base] = kidltask
 
 	# this is a cascading builder .h->.kidl->_stub.cpp->_stub.o->link
@@ -206,12 +206,12 @@ def handler_skel_or_stub(obj, base, type):
 	# the skel or stub (dcopidl2cpp)
 	task = obj.create_task(type, obj.env, 4)
 	task.set_inputs(obj.skel_or_stub[base].m_outputs)
-	task.set_outputs(obj.file_in(''.join([base,'_',type,'.cpp'])))
+	task.set_outputs(obj.find(''.join([base,'_',type,'.cpp'])))
 
 	# compile the resulting file (g++)
 	cpptask = obj.create_task('cpp', obj.env)
 	cpptask.set_inputs(task.m_outputs)
-	cpptask.set_outputs(obj.file_in(''.join([base,'_',type,'.o'])))
+	cpptask.set_outputs(obj.find(''.join([base,'_',type,'.o'])))
 
 def handler_stub(self, node, base=''):
 	handler_skel_or_stub(self, base, 'stub')
@@ -246,7 +246,7 @@ class kdeobj(cpp.cppobj):
 		lst = self.source.split()
 		for filename in lst:
 
-			node = self.m_current_path.find_node( filename.split(os.sep) )
+			node = self.find(filename)
 			if not node:
 				ext = filename[-4:]
 				if ext != 'skel' and ext != 'stub':
@@ -266,8 +266,7 @@ class kdeobj(cpp.cppobj):
 			moctasks=[]
 			mocfiles=[]
 
-			if node in node.m_parent.m_files: variant = 0
-			else: variant = self.env.variant()
+			variant = node.variant(self.env)
 
 			try: tmp_lst = tree.m_raw_deps[variant][node]
 			except: tmp_lst = []
@@ -332,14 +331,14 @@ class kdeobj(cpp.cppobj):
 		cppoutputs = []
 		for t in self.p_compiletasks: cppoutputs.append(t.m_outputs[0])
 		linktask.set_inputs(cppoutputs)
-		linktask.set_outputs(self.file_in(self.get_target_name()))
+		linktask.set_outputs(self.find(self.get_target_name()))
 
 		self.m_linktask = linktask
 
 		if self.m_type != 'program' and self.want_libtool:
 			latask           = self.create_task('fakelibtool', self.env, 200)
 			latask.set_inputs(linktask.m_outputs)
-			latask.set_outputs(self.file_in(self.get_target_name('.la')))
+			latask.set_outputs(self.find(self.get_target_name('.la')))
 			self.m_latask    = latask
 
 	def install(self):
