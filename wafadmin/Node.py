@@ -153,7 +153,7 @@ class Node:
 			self.m_dirs.append(node)
 			return node.find_node(lst[1:])
 
-		trace('find_node returns nothing '+str(self)+' '+str(lst))
+		#trace('find_node returns nothing '+str(self)+' '+str(lst))
 		return None
 
 	def search_existing_node(self, lst):

@@ -317,11 +317,11 @@ class Build:
 		# do not rescan over and over again
 		if src_dir_node in self.m_scanned_folders: return
 
-		debug("rescanning "+str(src_dir_node))
+		#debug("rescanning "+str(src_dir_node))
 
 		# list the files in the src directory, adding the signatures
 		files = self._scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.m_files)
-		debug("files found in folder are "+str(files))
+		#debug("files found in folder are "+str(files))
 		src_dir_node.m_files = files
 
 		# list the files in the build dirs
@@ -333,7 +333,7 @@ class Build:
 				files = self._scan_path(src_dir_node, sub_path, src_dir_node.m_build, variant)
 				src_dir_node.m_build = files
 			except OSError:
-				debug("osError on " + sub_path)
+				#debug("osError on " + sub_path)
 
 				# listdir failed, remove all sigs of nodes
 				dict = self.m_tstamp_variants[variant]
