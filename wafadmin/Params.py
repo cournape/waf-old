@@ -44,7 +44,7 @@ def set_globals(name, value):
 	g_globals[name] = value
 def globals(name):
 	try: return g_globals[name]
-	except: return []
+	except KeyError: return []
 
 g_launchdir = None
 "set by waf"
