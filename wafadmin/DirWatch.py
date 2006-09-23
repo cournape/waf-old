@@ -6,6 +6,49 @@
 from Params import debug
 import GaminAdaptor, FamAdaptor, FallbackAdaptor
 
+class WatchObject:
+	def __init__(self, idxName, namePath, isDir, callBackThis, handleEvents):
+		self.__fr = None
+		self.__idxName = idxName
+		self.__name = namePath
+		self.__isDir = isDir
+		self.__callBackThis = callBackThis
+		self.__handleEvents = handleEvents
+
+	def __del__(self):
+		self.unwatch()
+
+	def watch(self, watcher):
+		if self.__fr != None:
+			self.unwatch()
+		if self.__isDir:
+			self.__fr = watcher.monitorDirectory(self.__name, self.__idxName)
+		else:
+			self.__fr = watcher.monitorFile(self.__name, self.__idxName)
+
+	def unwatch(self):
+		if self.__fr == None:
+			raise "fam not init"
+		self.__fr.cancelMonitor()
+
+	def getHandleEvents(self):
+		return self.__handleEvents
+
+	def getCallBackThis(self):
+		return self.__callBackThis
+
+	def getFullPath(self, fileName):
+		return os.path.join(self.__name, fileName)
+
+	def getIdxName(self):
+		return self.__idxName
+
+	def __str__(self):
+		if self.__isDir:
+			return 'DIR %s: ' %  self.__name
+		else:
+			return 'FILE %s: ' % self.__name
+
 class DirectoryWatcher:
 	"""DirWatch chooses a supported backend (fam, gamin or fallback)
 	it is mainly a wrapper script without own methods beside this

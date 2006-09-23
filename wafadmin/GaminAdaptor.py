@@ -13,51 +13,6 @@ except:
 	support = False
 
 class WatchMonitor:
-	class WatchObject:
-		def __init__(self, idxName, name, isDir, callBackThis, handleEvents):
-			self.__fr = None
-			self.__idxName = idxName
-			self.__name = name
-			self.__isDir = isDir
-			self.__callBackThis = callBackThis
-			self.__handleEvents = handleEvents
-			self.__watcher = None
-
-		def __del__(self):
-			self.unwatch()
-
-		def watch(self, watcher, callBack):
-			if self.__fr != None:
-				self.unwatch()
-			if self.__isDir:
-				self.__watcher = watcher
-				self.__fr = watcher.watch_directory(self.__name, callBack, self.__idxName)
-			else:
-				self.__fr = watcher.watch_file(self.__name, callBack, self.__idxName)
-
-		def unwatch(self):
-			if self.__watcher == None:
-				raise "fam not init"
-			self.__watcher.stop_watch(self.__name)
-
-		def getHandleEvents(self):
-			return self.__handleEvents
-
-		def getCallBackThis(self):
-			return self.__callBackThis
-
-		def getFullPath(self, fileName):
-			return os.path.join(self.__name, fileName)
-
-		def getIdxName(self):
-			return self.__idxName
-
-		def __str__(self):
-			if self.__isDir:
-				return 'DIR %s: ' % self.__name
-			else:
-				return 'FILE %s: ' % self.__name
-
 	def __init__(self):
 		if support == False:
 			raise "gamin not supported"

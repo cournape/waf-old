@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"important functions: install_files, install_as, symlink_as (destdir is taken into account)"
+"Important functions: install_files, install_as, symlink_as (destdir is taken into account)"
 
 import os, types, shutil
 import Params

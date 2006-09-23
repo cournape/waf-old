@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+"Configuration system"
+
 import os, types, imp, cPickle, md5
 import Params, Environment, Runner, Build, Utils
 from Params import error, fatal, warning

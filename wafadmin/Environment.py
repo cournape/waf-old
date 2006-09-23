@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"look at the Environment class"
+"Environment representation"
 
 import os,sys,string, types, imp
 import Params

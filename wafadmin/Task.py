@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"tasks: atomic operations that create nodes or execute commands"
+"Atomic operations that create nodes or execute commands"
 
 import os, types, shutil
 import Params, Scan, Action
