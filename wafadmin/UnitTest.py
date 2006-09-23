@@ -2,11 +2,21 @@
 # encoding: utf-8
 # Carlos Rafael Giani, 2006
 
-"
+"""
 Unit tests run in the shutdown() method, and for c/c++ programs
 
 One should NOT have to give parameters to programs to execute
-"
+
+In the shutdown method, add the following code:
+
+	>>> def shutdown():
+	...	ut = unit_test.unit_test()
+	...	ut.run()
+	...	ut.print_results()
+
+
+Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
+"""
 
 import Params, Object, pproc
 
