@@ -111,7 +111,7 @@ class JobGenerator:
 
 		self.curgroup = 0
 		self.curprio  = -1
-		self.curlst   = [] # list of tasks in the current priority
+		self.m_outstanding   = [] # list of tasks in the current priority
 
 		self.priolst  = []
 
@@ -124,9 +124,9 @@ class JobGenerator:
 
 	# warning, this one is recursive ..
 	def get_next(self):
-		if self.curlst:
-			t = self.curlst[0]
-			self.curlst=self.curlst[1:]
+		if self.m_outstanding:
+			t = self.m_outstanding[0]
+			self.m_outstanding=self.m_outstanding[1:]
 			self.m_processed += 1
 			return t
 
@@ -154,9 +154,9 @@ class JobGenerator:
 			self.priolst = group.prio.keys()
 			self.priolst.sort()
 
-		# now fill curlst
+		# now fill m_outstanding
 		id = self.priolst[self.curprio]
-		self.curlst = group.prio[id]
+		self.m_outstanding = group.prio[id]
 
 		return self.get_next()
 
@@ -167,8 +167,8 @@ class JobGenerator:
 		self.m_processed -= 1
 		# shuffle the list - some fanciness of mine (ita)
 		self.m_switchflag=-self.m_switchflag
-		if self.m_switchflag>0: self.curlst = [task]+self.curlst
-		else:                   self.curlst.append(task)
+		if self.m_switchflag>0: self.m_outstanding = [task]+self.m_outstanding
+		else:                   self.m_outstanding.append(task)
 		#self.m_current_task_lst = [task]+self.m_current_task_lst
 
 	# TODO FIXME
@@ -187,7 +187,7 @@ class JobGenerator:
 		Task.g_tasks.groups[self.curgroup].info = reason
 		self.curgroup += 1
 		self.curprio = -1
-		self.curlst = []
+		self.m_outstanding = []
 		try: Task.g_tasks.groups[self.curgroup].prio.sort()
 		except: pass
 
@@ -402,7 +402,7 @@ class Parallel:
 		self.m_total        = Task.g_tasks.total()
 		self.m_processed    = 1
 
-		# tasks waiting to be processed
+		# tasks waiting to be processed - IMPORTANT
 		self.m_outstanding  = []
 		# tasks waiting to be run by the consumers
 		self.m_ready        = Queue.Queue(150)
@@ -461,7 +461,6 @@ class Parallel:
 			self.priolst = group.prio.keys()
 			self.priolst.sort()
 
-		# now fill curlst
 		id = self.priolst[self.curprio]
 		return (id, group.prio[id])
 
