@@ -6,11 +6,25 @@
 """Depends on python gamin and on gamin demon"""
 
 import os, sys, select, errno
+import DirWatch
 try:
 	import gamin
 	support = True
 except:
 	support = False
+
+class WatchObjGamin(DirWatch.WatchObject):
+	def watch(self, watcher, callBack=None):
+		if self.__fr != None:
+			self.unwatch()
+		if self.__isDir:
+			self.__watcher = watcher
+			self.__fr = watcher.watch_directory(self.__name, callBack, self.__idxName)
+		else:
+			self.__fr = watcher.watch_file(self.__name, callBack, self.__idxName)
+	def unwatch(self):
+		if self.__watcher == None: raise "gamin not init"
+		self.__watcher.stop_watch(self.__name)
 
 class WatchMonitor:
 	def __init__(self):
@@ -41,7 +55,7 @@ class WatchMonitor:
 		self.removeDirWatch(idxName)
 		self.__watcher[idxName] = []
 		for directory in dirList:
-			watchObject = self.WatchObject(idxName, os.path.abspath(directory), 1, callBackThis, handleEvents)
+			watchObject = WatchObjGamin(idxName, os.path.abspath(directory), 1, callBackThis, handleEvents)
 			self.__watcher[idxName].append(watchObject)
 		self.resumeDirWatch(idxName)
 

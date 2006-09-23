@@ -9,7 +9,22 @@ it works at least under linux ... windows or other  *nix are untested
 """
 
 import os, time
+import DirWatch
+
 support = True
+
+class WatchObjFall(DirWatch.WatchObject):
+	def watch(self, watcher, callBack=None):
+		if self.__fr != None:
+			self.unwatch()
+		if self.__isDir:
+			self.__fr = watcher.watch_directory(self.__name, callBack, self.__idxName)
+		else:
+			self.__fr = watcher.watch_file(self.__name, callBack, self.__idxName)
+
+	def unwatch(self):
+		if self.__fr == None: raise "fallback not init"
+		self.__fr.unwatch_directory(self.__name)
 
 class Fallback:
 	class Helper:
@@ -95,46 +110,6 @@ the modification time.
 		del self.__changeLog[pathName]
 
 class WatchMonitor:
-	class WatchObject:
-		def __init__(self, idxName, name, isDir, callBackThis, handleEvents):
-			self.__fr = None
-			self.__idxName = idxName
-			self.__name = name
-			self.__isDir = isDir
-			self.__callBackThis = callBackThis
-			self.__handleEvents = handleEvents
-
-		def __del__(self):
-			self.unwatch()
-
-		def watch(self, watcher, callBack):
-			if self.__fr != None:
-				self.unwatch()
-			if self.__isDir:
-				self.__fr = watcher.watch_directory(self.__name, callBack, self.__idxName)
-			else:
-				self.__fr = watcher.watch_file(self.__name, callBack, self.__idxName)
-
-		def unwatch(self):
-			if self.__fr == None:
-				raise "fam not init"
-			self.__fr.unwatch_directory(self.__name)
-
-		def getHandleEvents(self):
-			return self.__handleEvents
-
-		def getCallBackThis(self):
-			return self.__callBackThis
-
-		def getIdxName(self):
-			return self.__idxName
-
-		def __str__(self):
-			if self.__isDir:
-				return 'DIR %s: ' % self.__name
-			else:
-				return 'FILE %s: ' % self.__name
-
 	def __init__(self):
 		self.__fallback = None
 		self.connect()
@@ -159,7 +134,7 @@ class WatchMonitor:
 		self.removeDirWatch(idxName)
 		self.__watcher[idxName] = []
 		for directory in dirList:
-			watchObject = self.WatchObject(idxName, os.path.abspath(directory), 1, callBack, handleEvents)
+			watchObject = WatchObjFall(idxName, os.path.abspath(directory), 1, callBack, handleEvents)
 			self.__watcher[idxName].append(watchObject)
 		self.resumeDirWatch(idxName)
 

@@ -7,29 +7,17 @@ from Params import debug
 import GaminAdaptor, FamAdaptor, FallbackAdaptor
 
 class WatchObject:
-	def __init__(self, idxName, namePath, isDir, callBackThis, handleEvents):
+	def __init__(self, idxName, name, isDir, callBackThis, handleEvents):
 		self.__fr = None
 		self.__idxName = idxName
-		self.__name = namePath
+		self.__name = name
 		self.__isDir = isDir
 		self.__callBackThis = callBackThis
 		self.__handleEvents = handleEvents
+		self.__watcher = None
 
 	def __del__(self):
 		self.unwatch()
-
-	def watch(self, watcher):
-		if self.__fr != None:
-			self.unwatch()
-		if self.__isDir:
-			self.__fr = watcher.monitorDirectory(self.__name, self.__idxName)
-		else:
-			self.__fr = watcher.monitorFile(self.__name, self.__idxName)
-
-	def unwatch(self):
-		if self.__fr == None:
-			raise "fam not init"
-		self.__fr.cancelMonitor()
 
 	def getHandleEvents(self):
 		return self.__handleEvents
