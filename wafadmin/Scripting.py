@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"Module called for configuring, compiling and installing targets"
+
 import os, sys
 import Params, Utils, Configure, Environment, DirWatch, Build, Runner
 from Params import error, fatal, g_lockfile

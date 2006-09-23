@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"Some waf tests - most are obsolete"
+
 import Params
 
 def info(msg):

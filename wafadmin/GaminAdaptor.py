@@ -83,14 +83,6 @@ class WatchMonitor:
 		self.__gamin = None;
 
 	def addDirWatch(self, idxName, callBackThis, dirList, handleEvents=['changed', 'deleted', 'created']):
-		"""add dirList to watch.
-		idxName: unique name for ref
-		callBackThis: is called if something in dirs in dirlist has events (handleEvents)
-		callBackThis(idxName, changedFilePath)
-		dirList: list of directories to watch
-		handleEvents:  events to handle possible are 'changed', 'delete', 'create', 'exist'
-			suspendDirWatch after a handled change
-		"""
 		self.removeDirWatch(idxName)
 		self.__watcher[idxName] = []
 		for directory in dirList:

@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
-#Matthias Jahn <jahn.matthias@freenet.de> 2006
+# Matthias Jahn <jahn.matthias@freenet.de> 2006
+
 """
 Fallback WatchMonitor should work anywhere ..;-)
 this do not depends on gamin or fam instead it polls for changes
@@ -155,14 +156,6 @@ class WatchMonitor:
 		self.__fallback = None;
 
 	def addDirWatch(self, idxName, callBack, dirList, handleEvents=['changed', 'deleted', 'created']):
-		"""add dirList to watch.
-		idxName: unique name for ref
-		callBack: is called if something in dirs in dirlist has events (handleEvents)  
-		callBack(idxName, changedFilePath)
-		dirList: list of dirs to watch
-		handleEvents:  events to handle possible are 'changed', 'delete', 'create', 'exist'
-			suspendDirWatch after a handled change
-		"""
 		self.removeDirWatch(idxName)
 		self.__watcher[idxName] = []
 		for directory in dirList:

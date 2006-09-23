@@ -2,12 +2,17 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"Dependency tree holder"
+
 import os, cPickle, types
 import Params, Runner, Object, Node, Task, Scripting, Utils
 from Params import debug, error, trace, fatal, warning
 
 g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
+"Build class members to save"
+
 class BuildDTO:
+	"holds the data to store using cPickle"
 	def __init__(self):
 		pass
 	def init(self, bdobj):
@@ -20,6 +25,7 @@ class BuildDTO:
 			setattr(bdobj, a, getattr(self, a))
 
 class Build:
+	"holds the dependency tree"
 	def __init__(self):
 
 		# dependency tree

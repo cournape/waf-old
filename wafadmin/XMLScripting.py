@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"Use xml files as waf input, the files are transformed into wscript modules"
+
 import imp
 import Utils
 from Params import fatal

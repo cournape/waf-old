@@ -2,13 +2,17 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"tasks: atomic operations that create nodes or execute commands"
+
 import os, types, shutil
 import Params, Scan, Action
 from Params import debug, error, warning
 
-"tasks that have been run, this is used in tests to check which tasks were actually launched"
 g_tasks_done    = []
+"tasks that have been run, this is used in tests to check which tasks were actually launched"
+
 g_default_param = {'path_lst':[]}
+"the default scanner parameter"
 
 class TaskManager:
 	"""There is a single instance of TaskManager held by Task.py:g_tasks

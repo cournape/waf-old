@@ -3,6 +3,8 @@
 # Scott Newton, 2005 (scottn)
 # Thomas Nagy, 2006 (ita)
 
+"custom command-line options"
+
 import os, sys, imp, types
 from optparse import OptionParser
 import Params, Utils

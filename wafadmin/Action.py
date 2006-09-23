@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"Actions are used to build the nodes of most tasks"
+
 import Object, Runner
 from Params import debug, trace, fatal
 

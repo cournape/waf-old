@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-#Matthias Jahn <jahn.matthias@freenet.de> 2006
+# Matthias Jahn <jahn.matthias@freenet.de> 2006
 
 "Fam WatchMonitor depends on python-fam ... it works with fam or gamin demon"
 
@@ -77,14 +77,6 @@ class WatchMonitor:
 		self.__fam = None;
 
 	def addDirWatch(self, idxName, callBackThis, dirList, handleEvents = ['changed', 'deleted', 'created']):
-		"""add dirList to watch.
-		idxName: unique name for ref
-		callBackThis: is called if something in dirs in dirlist has events (handleEvents)
-		callBackThis(idxName, changedFilePath)
-		dirList: list of directories to watch
-		handleEvents:  events to handle possible are 'changed', 'delete', 'create', 'exist'
-			suspendDirWatch after a handled change
-		"""
 		self.removeDirWatch(idxName)
 		self.__watcher[idxName] = []
 		for directory in dirList:

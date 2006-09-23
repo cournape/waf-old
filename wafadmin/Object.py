@@ -13,11 +13,13 @@ genobj is an abstract class for declaring targets:
 subclassing
   * makes it possible to share environment copies for several objects at once (efficiency)
   * be careful to call Object.genobj.__init__(...) in the __init__ of your subclass
+  * examples are ccroot, ocamlobj, ..
 
 hooks
   * declare new kind of targets quickly (give a pattern ? and the action name)
   * several extensions are mapped to a single method
-  * cf ccroot.py and flex.py for more details on this scheme
+  * they do not work with all objects (work with ccroot)
+  * cf bison.py and flex.py for more details on this scheme
 """
 
 import os, types

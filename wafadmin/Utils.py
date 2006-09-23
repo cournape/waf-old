@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"Utility functions"
+
 import os, sys, imp, types
 import Params
 

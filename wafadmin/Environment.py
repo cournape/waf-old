@@ -2,12 +2,16 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"look at the Environment class"
+
 import os,sys,string, types, imp
 import Params
 from Params import debug, error
 
 class Environment:
-	"A safe-to-use dictionary, but do not attach functions to it please (break cPickle)"
+	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
+	An environment instance can be stored into a file and loaded easily
+	"""
 	def __init__(self):
 		self.m_table={}
 		# may be there is a better place for this

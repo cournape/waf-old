@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"scan for dependencies, compute task signatures"
+
 import re, md5
 import Params
 from Params import debug, trace, fatal

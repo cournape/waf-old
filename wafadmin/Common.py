@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-# Stuff potentially useful for any project
+"important functions: install_files, install_as, symlink_as (destdir is taken into account)"
 
 import os, types, shutil
 import Params
@@ -19,16 +19,16 @@ def check_dir(dir):
 def do_install(src, tgt, chmod=0644):
 	if Params.g_commands['install']:
 		# check if the file is already there to avoid a copy
-		do_install = 1
+		_do_install = 1
 		if not Params.g_options.force:
 			try:
 				t1 = os.stat(tgt).st_mtime
 				t2 = os.stat(src).st_mtime
-				if t1 >= t2: do_install = 0
+				if t1 >= t2: _do_install = 0
 			except:
-				do_install = 1
+				_do_install = 1
 
-		if do_install:
+		if _do_install:
 			print "* installing %s as %s" % (src, tgt)
 			try:
 				shutil.copy2(src, tgt)

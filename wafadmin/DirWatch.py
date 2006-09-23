@@ -1,9 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
-#
-#DirWatch chooses a supported backend (fam, gamin or fallback)
-#it is mainly a wrapper script without own methods beside this
-__revision__ = "0.1.0"
+
+"DirWatch chooses a supported backend (fam, gamin or fallback) it is mainly a wrapper script without own methods beside this"
 
 from Params import debug
 import GaminAdaptor, FamAdaptor, FallbackAdaptor
