@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 # encoding: utf-8
+# Matthias Jahn <jahn.matthias@freenet.de>, 2006
 
 "DirWatch chooses a supported backend (fam, gamin or fallback) it is mainly a wrapper script without own methods beside this"
 
 from Params import debug
-import GaminAdaptor, FamAdaptor, FallbackAdaptor
 
 class WatchObject:
 	def __init__(self, idxName, name, isDir, callBackThis, handleEvents):
@@ -36,6 +36,8 @@ class WatchObject:
 			return 'DIR %s: ' %  self.__name
 		else:
 			return 'FILE %s: ' % self.__name
+
+import GaminAdaptor, FamAdaptor, FallbackAdaptor
 
 class DirectoryWatcher:
 	"""DirWatch chooses a supported backend (fam, gamin or fallback)

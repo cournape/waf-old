@@ -5,7 +5,7 @@
 "Module called for configuring, compiling and installing targets"
 
 import os, sys
-import Params, Utils, Configure, Environment, DirWatch, Build, Runner
+import Params, Utils, Configure, Environment, Build, Runner
 from Params import error, fatal, g_lockfile
 
 g_inroot     = 1
@@ -53,6 +53,7 @@ def startDaemon():
 	"if it does not exist already:start a new directory watcher; else: return immediately"
 	global g_dirwatch
 	if not g_dirwatch:
+		import DirWatch
 		g_dirwatch = DirWatch.DirectoryWatcher()
 		m_dirs=[]
 		for nodeDir in Params.g_build.m_srcnode.m_dirs:
