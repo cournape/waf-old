@@ -57,59 +57,63 @@ uic3act = Action.Action('uic3', vars=uic_vardeps, func=uic3_build)
 # TODO : it seems the uic action does not exist anymore because of rcc
 #Action.Action('uic', vars=uic_vardeps, func=uic3_build)
 
+def create_rcc_task(self, base):
+	"hook for rcc files"
+	# run rcctask with one of the highest priority
+	# TODO add the dependency on the files listed in .qrc
+	rcctask = self.create_task('rcc', self.env, 6)
+	rcctask.set_inputs(self.find(base+'.qrc'))
+	rcctask.set_outputs(self.find(base+'_rc.cpp'))
 
+	cpptask = self.create_cpp_task()
+	cpptask.m_inputs  = [self.find(base+'_rc.cpp')]
+	cpptask.m_outputs = [self.find(base+'.o')]
 
-qt4files = ['.cpp', '.ui', '.qrc']
+	# not mandatory
+	cpptask.m_run_after = [rcctask]
+	return cpptask
+
+def create_uic_task(self, base):
+	"hook for uic tasks"
+	def get_node(a):
+		return self.get_mirror_node( self.m_current_path, a)
+
+	cppnode = get_node( base+'.cpp' )
+	hnode   = get_node( base+'.h' )
+
+	uictask = self.create_task('uic', self.env, 6)
+	uictask.m_inputs    = [self.find(base+'.ui')]
+	uictask.m_outputs   = [ hnode, cppnode ]
+
+	moctask = self.create_task('moc', self.env)
+	moctask.m_inputs    = [ hnode ]
+	moctask.m_outputs   = [self.find(base+'.moc')]
+
+	cpptask = self.create_cpp_task()
+	cpptask.m_inputs    = [ cppnode ]
+	cpptask.m_outputs   = [self.find(base+'.o')]
+	cpptask.m_run_after = [moctask]
+
+	return cpptask
+
 class qt4obj(cpp.cppobj):
 	def __init__(self, type='program'):
 		cpp.cppobj.__init__(self, type)
 		self.m_linktask = None
 		self.m_latask = None
-		global qt4files
-		self.m_src_file_ext = qt4files
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
 
-	def create_rcc_task(self, base):
-		# run rcctask with one of the highest priority
-		# TODO add the dependency on the files listed in .qrc
-		rcctask = self.create_task('rcc', self.env, 2)
-		rcctask.set_inputs(self.find(base+'.qrc'))
-		rcctask.set_outputs(self.find(base+'_rc.cpp'))
-
-		cpptask = self.create_cpp_task()
-		cpptask.m_inputs  = [self.find(base+'_rc.cpp')]
-		cpptask.m_outputs = [self.find(base+'.o')]
-
-		# not mandatory
-		cpptask.m_run_after = [rcctask]
-		return cpptask
+	def create_task(self, type, env=None, nice=10):
+		"overrides Object.create_task to catch the creation of cpp tasks"
+		task = Object.genobj.create_task(self, type, env, nice)
+		if type == self.m_type_initials:
+			self.p_compiletasks.append(task)
+		return task
 
 	def create_cpp_task(self):
 		return self.create_task('cpp', self.env)
-
-	def create_uic_task(self, base):
-		def get_node(a):
-			return self.get_mirror_node( self.m_current_path, a)
-
-		cppnode = get_node( base+'.cpp' )
-		hnode   = get_node( base+'.h' )
-
-		uictask = self.create_task('uic', self.env, 2)
-		uictask.m_inputs    = [self.find(base+'.ui')]
-		uictask.m_outputs   = [ hnode, cppnode ]
-
-		moctask = self.create_task('moc', self.env)
-		moctask.m_inputs    = [ hnode ]
-		moctask.m_outputs   = [self.find(base+'.moc')]
-
-		cpptask = self.create_cpp_task()
-		cpptask.m_inputs    = [ cppnode ]
-		cpptask.m_outputs   = [self.find(base+'.o')]
-		cpptask.m_run_after = [moctask]
-
-		return cpptask
 
 	def apply_core(self):
 
@@ -242,6 +246,12 @@ def setup(env):
 	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE')
 	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
 	Object.register('qt4', qt4obj)
+
+	try: env.hook('qt4', 'UI_EXT', create_uic_task)
+	except: pass
+
+	try: env.hook('qt4', 'RCC_EXT', create_rcc_task)
+	except: pass
 
 def detect_qt4(conf):
 	env = conf.env
