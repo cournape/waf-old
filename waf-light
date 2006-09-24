@@ -85,12 +85,11 @@ def find_wafadmin():
 	global wafdir
 
 	# if wafadmin is in /usr/local/waf-x.x.x/ then use it directly
-	try_wafdir('/usr/local/waf-%s/' % VERSION)
+	try_wafdir('/usr/local/lib/waf-%s/' % VERSION)
 	if wafdir: return
 
 	# wafadmin may be in $WAFDIR, have a look
-	if 'WAFDIR' in os.environ:
-		try_wafdir(os.environ['WAFDIR'])
+	if 'WAFDIR' in os.environ: try_wafdir(os.environ['WAFDIR'])
 	if wafdir: return
 
 	homevar=''

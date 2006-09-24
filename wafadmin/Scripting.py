@@ -134,7 +134,6 @@ def Main():
 	Runner.set_exec('noredir')
 
 	# compile the project and/or install the files
-	#bld = private_setup_build()
 	bld = Build.Build()
 	try:
 		file = open(g_lockfile, 'r')

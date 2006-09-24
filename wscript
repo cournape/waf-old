@@ -88,11 +88,11 @@ def install_waf():
 		sys.exit(0)
 
 	prefix      = Params.g_options.prefix
-	binpath     = '%sbin/waf' % prefix
-	wafadmindir = '%swaf-%s/wafadmin/' % (prefix, VERSION)
-	toolsdir    = '%sTools/' % wafadmindir
+	binpath     = os.path.join(prefix, 'bin%swaf' % os.sep)
+	wafadmindir = os.path.join(prefix, 'lib%swaf-%s%swafadmin%s' % (os.sep, VERSION, os.sep, os.sep))
+	toolsdir    = os.path.join(wafadmindir, 'Tools' + os.sep)
 
-	try: os.makedirs('%sbin' % prefix)
+	try: os.makedirs(os.path.join(prefix, 'bin'))
 	except: pass
 
 	try: os.makedirs(toolsdir)
@@ -122,9 +122,9 @@ def install_waf():
 
 def uninstall_waf():
 	print "uninstalling waf from the system"
-	prefix = Params.g_options.prefix
-	binpath = '%sbin/waf' % prefix
-	wafdir  = '%swaf-%s/' % (prefix, VERSION)
+	prefix  = Params.g_options.prefix
+	binpath = os.path.join(prefix, 'bin%swaf' % os.sep)
+	wafdir  = os.path.join(prefix, 'lib%swaf-%s' % (os.sep, VERSION))
 	try:
 		shutil.rmtree(wafdir)
 	except:
@@ -149,7 +149,7 @@ def init():
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		sys.exit(0)
 	elif Params.g_options.install:
-		create_waf()
+		if len(sys.argv[0]) > 6 and sys.argv[0][-6:]=='-light': create_waf()
 		install_waf()
 		sys.exit(0)
 	elif Params.g_options.uninstall:

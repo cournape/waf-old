@@ -31,7 +31,6 @@ class sgml_man_scanner(Scan.scanner):
 
 		doc_name = name+'.'+num
 
-		#print "@@@@@@@@@@@@@@@@@@@@@@@@@@ ", doc_name
 		return ([], [doc_name])
 
 sgml_scanner = sgml_man_scanner()
