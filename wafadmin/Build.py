@@ -315,8 +315,8 @@ class Build:
 
 	def rescan(self, src_dir_node):
 		""" first list the files in the src dir and update the nodes
-		for each variant build dir (multiple build dirs):
-		     list the files in the build dir, update the nodes
+		    - for each variant build dir (multiple build dirs):
+		        - list the files in the build dir, update the nodes
 
 		this makes (n bdirs)+srdir to scan (at least 2 folders)
 		so we might want to do it in parallel in some future

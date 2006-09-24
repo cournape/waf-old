@@ -56,12 +56,10 @@ class DirectoryWatcher:
 
 	def addDirWatch(self, idxName, callBackThis, dirList, handleEvents=['changed', 'deleted', 'created']):
 		"""add dirList to watch.
-		idxName: unique name for ref
-		callBackThis: is called if something in dirs in dirlist has events (handleEvents)
-		callBackThis(idxName, changedFilePath)
-		dirList: list of dirs to watch
-		handleEvents:  events to handle possible are 'changed', 'deleted', 'created', 'exist'
-			suspendDirWatch after a handled change
+		@param idxName: unique name for ref
+		@param callBackThis: is called if something in dirs in dirlist has events (handleEvents) callBackThis(idxName, changedFilePath)
+		@param dirList: list of dirs to watch
+		@param handleEvents: events to handle possible are 'changed', 'deleted', 'created', 'exist' suspendDirWatch after a handled change
 		"""
 		self.__adapter.addDirWatch(idxName, callBackThis, dirList, handleEvents)
 

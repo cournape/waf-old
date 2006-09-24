@@ -62,8 +62,8 @@ class alex:
 	The keywords TGT and SRC cannot be overridden (they represent the task input and output nodes)
 
 	Example:
-	str = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'
-	act = simple_action('name', str)
+	    - str = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'
+	    - act = simple_action('name', str)
 	"""
 	def __init__(self, s):
 		self.str = s

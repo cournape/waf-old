@@ -12,7 +12,7 @@ g_debug = 0
 g_error = 0
 
 def waf_version(mini = "0.0.1", maxi = "100.0.0"):
-	"throws an exception if the waf version is not the one desired"
+	"throws an exception if the waf version is wrong"
 	min_lst = map(int, mini.split('.'))
 	max_lst = map(int, maxi.split('.'))
 	waf_lst = map(int, Params.g_version.split('.'))
@@ -129,7 +129,6 @@ try:
 except:
 	pass
 
-
 def split_path(path):
 	"Split path into components. Supports UNC paths on Windows"
 	if 'win' in sys.platform:
@@ -142,8 +141,6 @@ def __split_dirs(path):
 	h,t = os.path.split(path)
 	if not h: return [t]
 	if h == path: return [h]
-	if not t:
-		return __split_dirs(h)
-	else:
-		return __split_dirs(h) + [t]
+	if not t: return __split_dirs(h)
+	else: return __split_dirs(h) + [t]
 

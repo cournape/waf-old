@@ -4,22 +4,21 @@
 
 """
 genobj is an abstract class for declaring targets:
-  * creates tasks (consisting of a task, an environment, a list of source and list of target)
-  * sets environment on the tasks (which are copies most of the time)
-  * modifies environments as needed
-
- genobj cannot be used as it is, so you must create a subclass
+  - creates tasks (consisting of a task, an environment, a list of source and list of target)
+  - sets environment on the tasks (which are copies most of the time)
+  - modifies environments as needed
+  - genobj cannot be used as it is, so you must create a subclass
 
 subclassing
-  * makes it possible to share environment copies for several objects at once (efficiency)
-  * be careful to call Object.genobj.__init__(...) in the __init__ of your subclass
-  * examples are ccroot, ocamlobj, ..
+  - makes it possible to share environment copies for several objects at once (efficiency)
+  - be careful to call Object.genobj.__init__(...) in the __init__ of your subclass
+  - examples are ccroot, ocamlobj, ..
 
 hooks
-  * declare new kind of targets quickly (give a pattern ? and the action name)
-  * several extensions are mapped to a single method
-  * they do not work with all objects (work with ccroot)
-  * cf bison.py and flex.py for more details on this scheme
+  - declare new kind of targets quickly (give a pattern ? and the action name)
+  - several extensions are mapped to a single method
+  - they do not work with all objects (work with ccroot)
+  - cf bison.py and flex.py for more details on this scheme
 """
 
 import os, types

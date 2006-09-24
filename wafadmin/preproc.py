@@ -2,10 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"""Waf preprocessor for finding dependencies
-because of the includes system, it is necessary to do the preprocessing in at least two steps:
-* 1 filter the comments and output the preprocessing lines
-* 2 interpret the preprocessing lines, jumping on the headers during the process
+"""Waf preprocessor for finding dependencies because of the includes system, it is necessary to do the preprocessing in at least two steps:
+  - filter the comments and output the preprocessing lines
+  - interpret the preprocessing lines, jumping on the headers during the process
 """
 
 import sys, os, string

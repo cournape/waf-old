@@ -24,9 +24,9 @@ g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
 
 def find_file(filename, path_list):
 	"""find a file in a list of paths
-filename - name of the file to search for
-path_list - list of directories to search
-returns the first occurrence filename or '' if filename could not be found
+@param filename: name of the file to search for
+@param path_list: list of directories to search
+@return: the first occurrence filename or '' if filename could not be found
 """
 	if type(path_list) is types.StringType:
 		lst = path_list.split()
@@ -39,9 +39,9 @@ returns the first occurrence filename or '' if filename could not be found
 
 def find_file_ext(filename, path_list):
 	"""find a file in a list of paths using fnmatch
-filename - name of the file to search for
-path_list - list of directories to search
-returns the first occurrence filename or '' if filename could not be found
+@param filename: name of the file to search for
+@param path_list: list of directories to search
+@return: the first occurrence filename or '' if filename could not be found
 """
 	import os, fnmatch;
 	if type(path_list) is types.StringType:
@@ -57,12 +57,12 @@ returns the first occurrence filename or '' if filename could not be found
 
 def find_program_impl(lenv, filename, path_list=None, var=None):
 	"""find a program in folders path_lst, and sets lenv[var]
-lenv - directory to be set
-filename - name of the program to search for
-path_list - list of directories to search for filename
-var - environment value to be checked for in lenv or os.environ
-returns - eigther the value that is referenced with [var] in lenv or os.environ
-or the first  occurrence filename or '' if filename could not be found
+@param lenv: environment
+@param filename: name of the program to search for
+@param path_list: list of directories to search for filename
+@param var: environment value to be checked for in lenv or os.environ
+@return: either the value that is referenced with [var] in lenv or os.environ
+         or the first  occurrence filename or '' if filename could not be found
 """
 	if not path_list:
 		path_list = []
@@ -371,18 +371,13 @@ class cfgtool_configurator(configurator_base):
 		return retval
 
 class pkgconfig_configurator(configurator_base):
-	""" pkgconfig_configurator is a frontend to pkg-config
-variables:
- name - name of the .pc file  (has to be set at least)
- version - atleast-version to check for
- path - override the pkgconfig path (PKG_CONFIG_PATH)
- uselib - name that could be used in tasks with obj.uselib
-              if not set uselib = upper(name)
- define - name that will be used in config.h  ...
-              if not set define = HAVE_+uselib
-
-variables - list of addional variables to be checked for
-                for  example variables='prefix libdir'
+	""" pkgconfig_configurator is a frontend to pkg-config variables:
+	- name: name of the .pc file  (has to be set at least)
+	- version: atleast-version to check for
+	- path: override the pkgconfig path (PKG_CONFIG_PATH)
+	- uselib: name that could be used in tasks with obj.uselib if not set uselib = upper(name)
+	- define: name that will be used in config.h if not set define = HAVE_+uselib
+	- variables: list of addional variables to be checked for, for example variables='prefix libdir'
 """
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
