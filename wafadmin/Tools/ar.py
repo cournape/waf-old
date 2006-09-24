@@ -3,6 +3,8 @@
 # Thomas Nagy, 2006 (ita)
 # Ralf Habacker, 2006 (rh)
 
+"ar and ranlib"
+
 import Action
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'

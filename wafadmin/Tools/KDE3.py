@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"KDE3 support"
+
 import os, sys, re
 import ccroot, cpp
 import Action, Common, Object, Params, Runner, Scan

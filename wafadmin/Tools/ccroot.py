@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
+"base for all c/c++ programs and libraries"
+
 import os, types, sys, re, md5
 import Action, Object, Params, Scan, Common
 from Params import debug, error, trace, fatal

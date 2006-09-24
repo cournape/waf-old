@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"Additional configuration checks hooked on the configuration class"
+
 import Utils, Configure
 from Params import error, fatal
 
@@ -24,9 +26,8 @@ int main()
 }
 """
 
-
-# inheritance demo
 class compile_configurator(Configure.configurator_base):
+	"inheritance demo"
 	def __init__(self, conf):
 		Configure.configurator_base.__init__(self, conf)
 		self.name = ''
@@ -194,11 +195,10 @@ def check_flags(self, flags, uselib='', options='', msg=1):
 	return None
 
 def setup(env):
-	# we provide no new action or builder
 	pass
 
 def detect(conf):
-	# attach the checks to the conf object
+	"attach the checks to the conf object"
 	conf.hook(checkEndian)
 	conf.hook(checkFeatures)
 	conf.hook(check_header)

@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"Java support"
+
 import os
 import Object, Action
 
@@ -10,9 +12,9 @@ class javaobj(Object.genobj):
 	def __init__(self, type='all', library=0):
 		Object.genobj.__init__(self, 'other')
 
-		self.m_type       = type
-		self.m_source     = ''
-		self.m_target     = ''
+		self.m_type   = type
+		self.m_source = ''
+		self.m_target = ''
 
 	def apply(self):
 		source_lst = self.source.split()

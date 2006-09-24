@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"This function (hook) is called when the class cppobj encounters a '.coin' file: .coin -> .cpp -> .o"
+"Demo: this hook is called when the class cppobj encounters a '.coin' file: X{.coin -> .cpp -> .o}"
 
 import Action
 
@@ -13,8 +13,8 @@ def coin_file(self, node):
 	"""Create the task for the coin file
 	the action 'dang' above is called for this
 	the number '4' in the parameters is the priority of the task
-	* lower number means high priority
-	* odd means the task can be run in parallel with others of the same priority number
+	 - lower number means high priority
+	 - odd means the task can be run in parallel with others of the same priority number
 	"""
 	cointask = self.create_task('dang', nice=4)
 	cointask.set_inputs(node)

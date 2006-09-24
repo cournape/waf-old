@@ -2,6 +2,8 @@
 # encoding: utf-8
 # John O'Meara, 2006
 
+"Flex processing"
+
 import Action
 from Params import fatal
 from Params import set_globals

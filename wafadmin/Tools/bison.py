@@ -2,6 +2,8 @@
 # encoding: utf-8
 # John O'Meara, 2006
 
+"Bison processing"
+
 import Action, Object, os
 from Params import set_globals
 

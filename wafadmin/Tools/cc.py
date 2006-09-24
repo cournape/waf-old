@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"Base for c programs/libraries"
+
 import ccroot
 import Object, Params
 from Params import trace

@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"LaTeX/PDFLaTeX support"
+
 import os, re
 import Utils, Params, Action, Object, Runner, Scan
 from Params import error, warning, trace, fatal

@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"C# support"
+
 import Params, Action, Object
 from Params import error
 

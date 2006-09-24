@@ -3,8 +3,9 @@
 # Thomas Nagy, 2006 (ita)
 
 """
-An object that executes a function everytime
-An object that copies a file somewhere else
+Custom objects:
+ - execute a function everytime
+ - copy a file somewhere else
 """
 
 import shutil, re, os

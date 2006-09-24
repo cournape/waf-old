@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"Gnome support"
+
 import os, re
 import Object, Action, Params, Common, Scan
 import cc

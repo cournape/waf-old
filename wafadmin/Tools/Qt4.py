@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"Qt4 support"
+
 import os, sys, string
 import ccroot, cpp
 import Action, Params, Configure, Scan, Runner, Object, Task
@@ -12,12 +14,11 @@ set_globals('MOC_H', ['.hh', '.h'])
 set_globals('RCC_EXT', ['.qrc'])
 set_globals('UI_EXT', ['.ui'])
 
-
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
 
 class MTask(Task.Task):
-	"a cpp task that may create a moc task dynamically"
+	"A cpp task that may create a moc task dynamically"
 	def __init__(self, action_name, env, parent, priority=10):
 		Task.Task.__init__(self, action_name, env, priority)
 		self.moc_done = 0

@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Peter Soetens, 2006
 
+"docbook processing (may be broken)"
+
 import os, string
 import Action, Object, Params, Runner, Utils
 from Params import trace, fatal

@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+"Ocaml support"
+
 import os
 import Params, Action, Object, Scan
 from Params import error, fatal

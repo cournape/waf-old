@@ -2,17 +2,17 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-# common builders and actions
+"Base for c++ programs and libraries"
 
 import ccroot
 import Object, Params
 
-# main c/cpp variables
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'INCLUDE',
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CXXDEFINES']
+"main cpp variables"
 
 cpptypes=['shlib', 'program', 'staticlib', 'objects']
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
