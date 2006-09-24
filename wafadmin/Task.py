@@ -66,12 +66,16 @@ class TaskGroup:
 
 class TaskBase:
 	"TaskBase is the base class for task objects"
-	def __init__(self, priority):
+	def __init__(self, priority, normal=1):
 		self.display = ''
 		self.m_hasrun=0
-		# add to the list of tasks
 		global g_tasks
-		g_tasks.add_task(self, priority)
+		if normal:
+			# add to the list of tasks
+			g_tasks.add_task(self, priority)
+		else:
+			self.m_idx = g_tasks.idx
+			g_tasks.idx += 1
 	def may_start(self):
 		"return non-zero if the task may is ready"
 		return 1
@@ -102,8 +106,8 @@ class TaskBase:
 		return self.display
 class Task(TaskBase):
 	"Task is the more common task. It has input nodes and output nodes"
-	def __init__(self, action_name, env, priority=5):
-		TaskBase.__init__(self, priority)
+	def __init__(self, action_name, env, priority=5, normal=1):
+		TaskBase.__init__(self, priority, normal)
 
 		# name of the action associated to this task
 		self.m_action = Action.g_actions[action_name]

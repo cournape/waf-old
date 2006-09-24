@@ -426,6 +426,9 @@ class Parallel:
 		global lock
 		lock = threading.Lock()
 
+		# for consistency
+		self.m_generator = self
+
 	def read_values(self):
 		#print "read values acquire lock"
 		global lock, stop, count

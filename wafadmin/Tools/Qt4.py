@@ -4,11 +4,12 @@
 
 import os, sys, string
 import ccroot, cpp
-import Action, Params, Configure, Scan, Runner, Object
+import Action, Params, Configure, Scan, Runner, Object, Task
 from Params import error, trace, fatal
 from Params import set_globals, globals
 
 set_globals('MOC_H', ['.hh', '.h'])
+set_globals('RCC_EXT', ['.qrc'])
 
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
@@ -57,44 +58,99 @@ uic3act = Action.Action('uic3', vars=uic_vardeps, func=uic3_build)
 # TODO : it seems the uic action does not exist anymore because of rcc
 #Action.Action('uic', vars=uic_vardeps, func=uic3_build)
 
-def create_rcc_task(self, base):
+class MTask(Task.Task):
+	"a cpp task that may create a moc task dynamically"
+	def __init__(self, action_name, env, parent, priority=10):
+		Task.Task.__init__(self, action_name, env, priority)
+		self.moc_done = 0
+		self.parent = parent
+
+	def may_start(self):
+		if self.moc_done: return Task.Task.may_start(self)
+
+		tree = Params.g_build
+		parn = self.parent
+		node = self.m_inputs[0]
+
+		# scan the .cpp files and find if there is a moc file to run
+		if tree.needs_rescan(node, parn.env):
+			ccroot.g_c_scanner.do_scan(node, parn.env, hashparams = self.m_scanner_params)
+
+		moctasks=[]
+		mocfiles=[]
+		variant = node.variant(parn.env)
+		try:
+			tmp_lst = tree.m_raw_deps[variant][node]
+		except:
+			tmp_lst = []
+		for d in tmp_lst:
+			base2, ext2 = os.path.splitext(d)
+			if not ext2 == '.moc': continue
+			# paranoid check
+			if d in mocfiles:
+				error("paranoia owns")
+				continue
+			# process that base.moc only once
+			mocfiles.append(d)
+
+			# find the extension - this search is done only once
+			if Params.g_options.qt_header_ext:
+				ext = Params.g_options.qt_header_ext
+			else:
+				path = node.m_parent.srcpath(parn.env) + os.sep
+				for i in globals('MOC_H'):
+					try:
+						os.stat(path+base2+i)
+						ext = i
+						break
+					except:
+						pass
+				if not ext: fatal("no header found for %s which is a moc file" % filename)
+
+			# next time we will not search for the extension (look at the 'for' loop below)
+			h_node = node.change_ext(ext)
+			m_node = node.change_ext('.moc')
+			tree.m_depends_on[variant][m_node] = h_node
+
+			# create the task
+			task = parn.create_task('moc_hack', parn.env)
+			task.set_inputs(h_node)
+			task.set_outputs(m_node)
+			moctasks.append(task)
+		self.m_run_after = moctasks
+		self.moc_done = 1
+		return Task.Task.may_start(self)
+
+def create_rcc_task(self, node):
 	"hook for rcc files"
 	# run rcctask with one of the highest priority
 	# TODO add the dependency on the files listed in .qrc
+	rcnode = node.change_ext('_rc.cpp')
+
 	rcctask = self.create_task('rcc', self.env, 6)
-	rcctask.set_inputs(self.find(base+'.qrc'))
-	rcctask.set_outputs(self.find(base+'_rc.cpp'))
+	rcctask.m_inputs = [node]
+	rcctask.m_outputs = [rcnode]
 
-	cpptask = self.create_cpp_task()
-	cpptask.m_inputs  = [self.find(base+'_rc.cpp')]
-	cpptask.m_outputs = [self.find(base+'.o')]
+	cpptask = self.create_task('cpp', self.env)
+	cpptask.m_inputs  = [rcnode]
+	cpptask.m_outputs = [node.change_ext('.o')]
 
-	# not mandatory
-	cpptask.m_run_after = [rcctask]
-	return cpptask
-
-def create_uic_task(self, base):
+def create_uic_task(self, node):
 	"hook for uic tasks"
-	def get_node(a):
-		return self.get_mirror_node( self.m_current_path, a)
-
-	cppnode = get_node( base+'.cpp' )
-	hnode   = get_node( base+'.h' )
+	cppnode = node.change_ext('.cpp')
+	hnode   = node.change_ext('.h')
 
 	uictask = self.create_task('uic', self.env, 6)
-	uictask.m_inputs    = [self.find(base+'.ui')]
-	uictask.m_outputs   = [ hnode, cppnode ]
+	uictask.m_inputs    = [node]
+	uictask.m_outputs   = [hnode, cppnode]
 
-	moctask = self.create_task('moc', self.env)
-	moctask.m_inputs    = [ hnode ]
-	moctask.m_outputs   = [self.find(base+'.moc')]
+	moctask = self.create_task('moc', self.env, 8)
+	moctask.m_inputs    = [hnode]
+	moctask.m_outputs   = [node.change_ext('.moc')]
 
-	cpptask = self.create_cpp_task()
-	cpptask.m_inputs    = [ cppnode ]
-	cpptask.m_outputs   = [self.find(base+'.o')]
-	cpptask.m_run_after = [moctask]
-
-	return cpptask
+	cpptask = self.create_task('cpp_ui', self.env, 10)
+	cpptask.m_inputs    = [cppnode]
+	cpptask.m_outputs   = [node.change_ext('.o')]
 
 class qt4obj(cpp.cppobj):
 	def __init__(self, type='program'):
@@ -107,140 +163,22 @@ class qt4obj(cpp.cppobj):
 
 	def create_task(self, type, env=None, nice=10):
 		"overrides Object.create_task to catch the creation of cpp tasks"
-		task = Object.genobj.create_task(self, type, env, nice)
-		if type == self.m_type_initials:
-			self.p_compiletasks.append(task)
+
+		if env is None: env=self.env
+		if type == 'cpp':
+			task = MTask(type, env, self, nice)
+		elif type == 'cpp_ui':
+			task = Task.Task('cpp', env, nice)
+		elif type == 'moc_hack': # add a task while the build has started
+			task = Task.Task('moc', env, nice, normal=0)
+			#Params.g_build.m_generator.m_outstanding.append(task)
+			Params.g_build.m_generator.m_outstanding = [task] + Params.g_build.m_generator.m_outstanding
+		else:
+			task = Task.Task(type, env, nice)
+
+		self.m_tasks.append(task)
+		if type == 'cpp': self.p_compiletasks.append(task)
 		return task
-
-	def create_cpp_task(self):
-		return self.create_task('cpp', self.env)
-
-	def apply_core(self):
-
-		# for qt4 programs we need to know in advance the dependencies
-		# so we will scan them right here
-		trace("apply called for qt4obj")
-
-		try: obj_ext = self.env['obj_ext'][0]
-		except: obj_ext = '.os'
-
-		# get the list of folders to use by the scanners
-		# all our objects share the same include paths anyway
-		tree = Params.g_build
-		dir_lst = { 'path_lst' : self._incpaths_lst }
-
-		lst = self.source.split()
-		cpptasks = []
-
-		#print self.source
-
-		for filename in lst:
-
-			#print "filename is ", filename
-
-			node = self.m_current_path.find_node( filename.split(os.sep) )
-			if not node:
-				fatal("cannot find "+filename+" in "+str(self.m_current_path))
-
-			base, ext = os.path.splitext(filename)
-
-			if ext == '.ui':
-				node = self.m_current_path.find_node( filename.split(os.sep) )
-				cpptasks.append( self.create_uic_task(base) )
-				continue
-			elif ext == '.qrc':
-				cpptasks.append( self.create_rcc_task(base) )
-				continue
-
-			# scan for moc files to produce, create cpp tasks at the same time
-
-			if tree.needs_rescan(node, self.env):
-				ccroot.g_c_scanner.do_scan(node, self.env, hashparams = dir_lst)
-
-			moctasks=[]
-			mocfiles=[]
-			variant = node.variant(self.env)
-			#if node in node.m_parent.m_files:
-			#	variant = 0
-			#else:
-			#	variant = self.env.variant()
-
-			try:
-				tmp_lst = tree.m_raw_deps[variant][node]
-			except:
-				tmp_lst = []
-			for d in tmp_lst:
-				base2, ext2 = os.path.splitext(d)
-				if not ext2 == '.moc': continue
-				# paranoid check
-				if d in mocfiles:
-					error("paranoia owns")
-					continue
-				# process that base.moc only once
-				mocfiles.append(d)
-
-				# find the extension - this search is done only once
-				if Params.g_options.qt_header_ext:
-					ext = Params.g_options.qt_header_ext
-				else:
-					path = node.m_parent.srcpath(self.env) + os.sep
-					for i in globals('MOC_H'):
-						try:
-							os.stat(path+base2+i)
-							ext = i
-							break
-						except:
-							pass
-					if not ext: 
-						fatal("no header found for %s which is a moc file" % filename)
-
-				# next time we will not search for the extension (look at the 'for' loop below)
-				h_node = node.change_ext(ext)
-				m_node = node.change_ext('.moc')
-				tree.m_depends_on[variant][m_node] = h_node
-
-				# create the task
-				task = self.create_task('moc', self.env)
-				task.set_inputs(h_node)
-				task.set_outputs(m_node)
-				moctasks.append(task)
-
-			# look at the file inputs, it is set right above
-			for d in tree.m_depends_on[variant][node]:
-				name = d.m_name
-				if name[-4:]=='.moc':
-					task = self.create_task('moc', self.env)
-					task.set_inputs(tree.m_depends_on[variant][d])
-					task.set_outputs(d)
-					moctasks.append(task)
-					break
-
-			# create the task for the cpp file
-			cpptask = self.create_cpp_task()
-
-			cpptask.m_scanner = ccroot.g_c_scanner
-			cpptask.m_scanner_params = dir_lst
-
-			cpptask.m_inputs    = [self.find(filename)]
-			cpptask.m_outputs   = [self.find(base+obj_ext)]
-			cpptask.m_run_after = moctasks
-			cpptasks.append(cpptask)
-
-		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
-		linktask = self.create_task('cpp_link', self.env, 101)
-		cppoutputs = []
-		for t in cpptasks:
-			cppoutputs.append(t.m_outputs[0])
-		linktask.m_inputs  = cppoutputs
-		linktask.m_outputs = [self.find(self.get_target_name())]
-
-		self.m_linktask = linktask
-
-		if self.m_type != 'program' and self.want_libtool:
-			latask           = self.create_task('fakelibtool', self.env, 101)
-			latask.m_inputs  = linktask.m_outputs
-			latask.m_outputs = [self.find(self.get_target_name('.la'))]
-			self.m_latask    = latask
 
 def setup(env):
 	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE')

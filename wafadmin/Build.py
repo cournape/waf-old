@@ -190,6 +190,8 @@ class Build:
 		else:
 			executor = Runner.Parallel(self, Params.g_options.jobs)
 
+		self.m_generator = executor.m_generator
+
 		trace("executor starting")
 		try:
 			ret = executor.start()
