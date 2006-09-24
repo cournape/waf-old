@@ -10,7 +10,7 @@ One should NOT have to give parameters to programs to execute
 In the shutdown method, add the following code:
 
 	>>> def shutdown():
-	...	ut = unit_test.unit_test()
+	...	ut = UnitTest.unit_test()
 	...	ut.run()
 	...	ut.print_results()
 
@@ -58,6 +58,12 @@ class unit_test:
 		self.unit_test_results = {}
 		self.unit_test_erroneous = {}
 
+		# If waf is not building, don't run anything
+		try:
+			if not Params.g_commands['build']: return
+		except:
+			pass
+
 		# Gather unit tests to call
 		for obj in Object.g_allobjs:
 			if not hasattr(obj,'unit_test'): continue
@@ -91,6 +97,13 @@ class unit_test:
 
 	def print_results(self):
 		"Pretty-prints a summary of all unit tests, along with some statistics"
+
+		# If waf is not building, don't output anything
+		try:
+			if not Params.g_commands['build']: return
+		except:
+			pass
+
 		p = Params.pprint
 		# Early quit if no tests were performed
 		if self.total_num_tests == 0:
