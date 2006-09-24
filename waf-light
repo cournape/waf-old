@@ -14,9 +14,7 @@ if 'PSYCOWAF' in os.environ:
 VERSION="0.9.2"
 cwd = os.getcwd()
 
-# ##########################################################################
-# first, we need wafdir otherwise we cannot parse the command-line arguments
-# or print the version number
+# first, we need wafdir otherwise we cannot parse the command-line arguments or print the version number
 
 wafdir = None
 
@@ -95,9 +93,15 @@ def find_wafadmin():
 		try_wafdir(os.environ['WAFDIR'])
 	if wafdir: return
 
+	homevar=''
+	for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
+		if var in os.environ:
+			homevar=os.environ[var]
+			break
+
 	# look at $HOME/.waf-version
 	if sys.platform != 'win32':
-		try_wafdir('%s/.waf-%s' % (os.environ['HOME'], VERSION))
+		try_wafdir('%s/.waf-%s' % (homevar, VERSION))
 	else:
 		try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
 
@@ -117,7 +121,7 @@ def find_wafadmin():
 	# uncompress the local waf directory
 	if name[-5:] != 'light':
 		if sys.platform != 'win32':
-			uncompress_wafdir('%s/.waf-%s' % (os.environ['HOME'], VERSION))
+			uncompress_wafdir('%s/.waf-%s' % (homevar, VERSION))
 		else:
 			uncompress_wafdir('c:\\temp\\waf-%s\\' % VERSION)
 		if wafdir: return

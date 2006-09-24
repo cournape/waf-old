@@ -68,8 +68,10 @@ g_cachedir = ''
 "config cache directory"
 
 g_homedir=''
-try: g_homedir = os.environ['HOME']
-except: g_homedir = os.environ['HOMEPATH']
+for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
+	if var in os.environ:
+		g_homedir=os.environ[var]
+		break
 
 # allow different names for lockfile
 try: g_lockfile = os.environ['WAFLOCK']
