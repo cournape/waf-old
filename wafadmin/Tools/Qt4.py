@@ -10,53 +10,11 @@ from Params import set_globals, globals
 
 set_globals('MOC_H', ['.hh', '.h'])
 set_globals('RCC_EXT', ['.qrc'])
+set_globals('UI_EXT', ['.ui'])
+
 
 uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
 rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
-uic3_vardeps = ['QT_UIC3', 'UIC3_FLAGS', 'UIC3_ST']
-
-# Qt .ui3 file processing
-uic_vardeps = ['UIC3', 'QTPLUGINS']
-def uic3_build(task):
-	# outputs : 1. hfile 2. cppfile
-
-	base = task.m_outputs[1].m_name
-	base = base[:-4]
-
-	inc_moc  ='#include "%s.moc"\n' % base
-
-	ui_path   = task.m_inputs[0].bldpath(task.m_env)
-	h_path    = task.m_outputs[0].bldpath(task.m_env)
-	cpp_path  = task.m_outputs[1].bldpath(task.m_env)
-
-	qtplugins   = task.m_env['QTPLUGINS']
-	uic_command = task.m_env['UIC3']
-
-	comp_h   = '%s -L %s -nounload -o %s %s' % (uic_command, qtplugins, h_path, ui_path)
-	comp_c   = '%s -L %s -nounload -impl %s %s >> %s' % (uic_command, qtplugins, h_path, ui_path, cpp_path)
-
-	ret = Runner.exec_command( comp_h )
-	if ret:
-		return ret
-
-	# TODO: there are no kde includes here
-	#dest = open( cpp_path, 'w' )
-	#dest.write(inc_kde)
-	#dest.close()
-
-	ret = Runner.exec_command( comp_c )
-	if ret: return ret
-
-	dest = open( cpp_path, 'a' )
-	dest.write(inc_moc)
-	dest.close()
-
-	return ret
-
-uic3act = Action.Action('uic3', vars=uic_vardeps, func=uic3_build)
-
-# TODO : it seems the uic action does not exist anymore because of rcc
-#Action.Action('uic', vars=uic_vardeps, func=uic3_build)
 
 class MTask(Task.Task):
 	"a cpp task that may create a moc task dynamically"
@@ -137,20 +95,9 @@ def create_rcc_task(self, node):
 
 def create_uic_task(self, node):
 	"hook for uic tasks"
-	cppnode = node.change_ext('.cpp')
-	hnode   = node.change_ext('.h')
-
-	uictask = self.create_task('uic', self.env, 6)
+	uictask = self.create_task('uic4', self.env, 6)
 	uictask.m_inputs    = [node]
-	uictask.m_outputs   = [hnode, cppnode]
-
-	moctask = self.create_task('moc', self.env, 8)
-	moctask.m_inputs    = [hnode]
-	moctask.m_outputs   = [node.change_ext('.moc')]
-
-	cpptask = self.create_task('cpp_ui', self.env, 10)
-	cpptask.m_inputs    = [cppnode]
-	cpptask.m_outputs   = [node.change_ext('.o')]
+	uictask.m_outputs   = [node.change_ext('.h')]
 
 class qt4obj(cpp.cppobj):
 	def __init__(self, type='program'):
@@ -183,6 +130,7 @@ class qt4obj(cpp.cppobj):
 def setup(env):
 	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE')
 	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
+	Action.simple_action('uic4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE')
 	Object.register('qt4', qt4obj)
 
 	try: env.hook('qt4', 'UI_EXT', create_uic_task)
