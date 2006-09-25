@@ -153,98 +153,65 @@ def setup(env):
 
 def detect_qt4(conf):
 	env = conf.env
+	opt = Params.g_options
 
-	try:
-		qtlibs     = Params.g_options.qtlib
-	except:
-		qtlibs=''
-		pass
+	try: qtlibs = opt.qtlibs
+	except: qtlibs=''
 
-	try:
-		qtincludes = Params.g_options.qtincludes
-	except:
-		qtincludes=''
-		pass
+	try: qtincludes = opt.qtincludes
+	except: qtincludes=''
 
-	try:
-		qtbin      = Params.g_options.qtbin
-	except:
-		qtbin=''
-		pass
+	try: qtbin = opt.qtbin
+	except: qtbin=''
 
-	try:
-		qtdir      = Params.g_options.qtdir
-	except:
-		qtbin = ''
-		pass
+	# if qtdir is given - helper for finding qtlibs, qtincludes and qtbin
+	try: qtdir = opt.qtdir
+	except: qtdir = ''
 
-
-	p=Params.pprint
-
-	# do our best to find the QTDIR (non-Debian systems)
 	if not qtdir:
-		qtdir = os.getenv('QTDIR')
+		try:
+			lst = os.listdir('/usr/local/Trolltech/')
+			lst.sort()
+			lst.reverse()
+			qtdir = '/usr/local/Trolltech/%s/' % lst[0]
 
-	# TODO what if there are only static Qt libraries ?
-	if qtdir:
-		if Configure.find_file('lib/libqt-mt'+str(env['shlib_SUFFIX']), [qtdir]):
-			p('YELLOW', 'The QTDIR %s is for Qt3, we need to find something else' % qtdir)
-			qtdir=None
-	if not qtdir:
-		qtdir=Configure.find_path('include/', [ # lets find the Qt include directory
-				'/usr/local/Trolltech/Qt-4.2.4/',
-				'/usr/local/Trolltech/Qt-4.2.3/',
-				'/usr/local/Trolltech/Qt-4.2.2/',
-				'/usr/local/Trolltech/Qt-4.2.1/',
-				'/usr/local/Trolltech/Qt-4.2.0/',
-				'/usr/local/Trolltech/Qt-4.1.3/',
-				'/usr/local/Trolltech/Qt-4.1.2/',
-				'/usr/local/Trolltech/Qt-4.1.1/',
-				'/usr/local/Trolltech/Qt-4.1.0/',
-				'/usr/local/Trolltech/Qt-4.0.3/',
-				'/usr/local/Trolltech/Qt-4.0.2/',
-				'/usr/local/Trolltech/Qt-4.0.1/',
-				'/usr/local/Trolltech/Qt-4.0.0/',
-				'/usr/share/qt4' ]) # Ubuntu/Debian default
-		if qtdir: p('YELLOW', 'The QTDIR was found as '+qtdir)
-		else:     p('YELLOW', 'There is no QTDIR set')
-	else: env['QTDIR'] = qtdir.strip()
+		except OSError:
+			pass
 
-	# if we have the QTDIR, finding the qtlibs and qtincludes is easy
-	if qtdir:
-		if not qtlibs:     qtlibs     = os.path.join(qtdir, 'lib')
-		if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
-		if not qtbin:      qtbin      = os.path.join(qtdir, 'bin')
-		#os.putenv('PATH', os.path.join(qtdir , 'bin') + ":" + os.getenv("PATH")) # TODO ita
+	# check for the qt includes first
+	if not qtincludes: qtincludes = qtdir + 'include/'
+	env['QTINCLUDEPATH']=qtincludes
 
-	# Check for uic, uic-qt3, moc, rcc, ..
-	def find_qt_bin(progs):
-		# first use the qtdir
-		path=''
-		lst = [os.path.join(qtdir, 'bin')]
-		if qtbin: lst = [qtbin]+lst+os.environ['PATH'].split(':')
-		#print qtbin
-		#print lst
-		for prog in progs:
-			path=conf.find_program(prog, path_list=lst, var=string.upper(prog))
-			if path: return path
+	lst = [qtincludes, '/usr/include/qt4', '/opt/qt4/include']
+        test = conf.create_header_enumerator()
+        test.name = 'QtGui/QFont'
+	test.path = lst
+	test.mandatory = 1
+        ret = test.run()
 
-		# everything failed
-		p('RED',"%s was not found - make sure Qt4-devel is installed, or set $QTDIR or $PATH" % prog)
-		sys.exit(1)
 
-	env['QT_UIC3']= find_qt_bin(['uic-qt3', 'uic3'])
+	# check for the qtbinaries
+	if not qtbin: qtbin = qtdir + 'bin/'
+
+	binpath = [qtbin] + os.environ['PATH'].split(':')
+	def find_bin(lst, var):
+		for f in lst:
+			ret = conf.find_program(f, path_list=binpath)
+			if ret:
+				env[var]=ret
+				break
+
+	find_bin(['uic-qt3', 'uic3'], 'QT_UIC3')
+	find_bin(['uic-qt4', 'uic'], 'QT_UIC')
+	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
+	find_bin(['rcc'], 'QT_RCC')
+
 	env['UIC3_ST']= '%s -o %s'
-
-	env['QT_UIC'] = find_qt_bin(['uic-qt4', 'uic'])
 	env['UIC_ST'] = '%s -o %s'
-
-	env['QT_MOC'] = find_qt_bin(['moc-qt4', 'moc'])
 	env['MOC_ST'] = '-o'
 
-	env['QT_RCC'] = find_qt_bin(['rcc'])
 
-	# TODO is this really needed now ?
+	"""
 	print "Checking for uic3 version               :",
 	version = os.popen(env['QT_UIC'] + " -version 2>&1").read().strip()
 	if version.find(" 3.") != -1:
@@ -252,44 +219,14 @@ def detect_qt4(conf):
 		version = version.replace('User Interface Compiler for Qt', '')
 		p('RED', version + " (too old)")
 		sys.exit(1)
+		fatal('uic 3 was not found !!!')
 	p('GREEN', "fine - %s" % version)
+"""
 
-	#if os.environ.has_key('PKG_CONFIG_PATH'):
-	#	os.environ['PKG_CONFIG_PATH'] = os.environ['PKG_CONFIG_PATH'] + ':' + qtlibs
-	#else:
-	#	os.environ['PKG_CONFIG_PATH'] = qtlibs
-
-	## check for the Qt4 includes
-	print "Checking for the Qt4 includes           :",
-	if qtincludes and os.path.isfile(qtincludes + "/QtGui/QFont"):
-		# The user told where to look for and it looks valid
-		p('GREEN','ok '+qtincludes)
-	else:
-		if os.path.isfile(qtdir+'/include/QtGui/QFont'):
-			# Automatic detection
-			p('GREEN','ok '+qtdir+"/include/")
-			qtincludes = qtdir + "/include/"
-		elif os.path.isfile("/usr/include/qt4/QtGui/QFont"):
-			# Debian probably
-			p('YELLOW','the Qt headers were found in /usr/include/qt4/')
-			qtincludes = "/usr/include/qt4"
-		elif os.path.isfile("/usr/include/QtGui/QFont"):
-			# e.g. SUSE 10
-			p('YELLOW','the Qt headers were found in /usr/include/')
-			qtincludes = "/usr/include"
-		else:
-			p('RED',"the Qt headers were not found")
-			sys.exit(1)
-
-
-	#env['QTPLUGINS']=os.popen('kde-config --expandvars --install qtplugins').read().strip()
-
-	## Qt libs and includes
-	env['QTINCLUDEPATH']=qtincludes
-	if not qtlibs: qtlibs=qtdir+'/lib'
+	# check for the qt libraries
+	if not qtlibs: qtlibs = qtdir + 'lib'
 	env['QTLIBPATH']=qtlibs
 
-	# now that we have qtlibs ..
 	vars = '''
 Qt3Support_debug
 Qt3Support
@@ -318,13 +255,9 @@ QtXml
 		pkgconf.path = qtlibs
 		pkgconf.run()
 
-	## link against libqt_debug when appropriate
-	#if env['BKS_DEBUG']: debug='_debug'
-	#else:                debug=''
-
-	# TODO
+	# TODO rpath
 	"""
-	# rpath settings
+	# rpath
 	try:
 		if Params.g_options.want_rpath:
 
