@@ -3,7 +3,7 @@
 
 "Configuration system"
 
-import os, types, imp, cPickle, md5
+import os, types, imp, cPickle, md5, sys
 import Params, Environment, Runner, Build, Utils
 from Params import error, fatal, warning
 
@@ -723,7 +723,7 @@ class Configure:
 		self.lastprog = ''
 
 		try:
-			file = open(os.sep.join([Params.g_homedir, '.wafcache', 'runs.txt']), 'rb')
+			file = open(os.sep.join([Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()]), 'rb')
 			self.m_cache_table = cPickle.load(file)
 			file.close()
 		except:
@@ -833,7 +833,7 @@ class Configure:
 			except:
 				pass
 
-			file = open(os.sep.join([Params.g_homedir, '.wafcache', 'runs.txt']), 'wb')
+			file = open(os.sep.join([Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()]), 'wb')
 			cPickle.dump(self.m_cache_table, file)
 			file.close()
 		except:
@@ -1119,6 +1119,11 @@ class Configure:
 				raise
 				pass
 		return ret
+
+	def _cache_platform(self):
+		m = md5.new()
+		m.update(sys.platform)
+		return m.hexdigest()
 
 	# TODO deprecated
 	def checkTool(self, input, tooldir=None):
