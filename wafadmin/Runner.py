@@ -112,16 +112,16 @@ class JobGenerator:
 		self.m_tree = tree
 
 		self.curgroup = 0
-		self.curprio  = -1
-		self.m_outstanding   = [] # list of tasks in the current priority
+		self.curprio = -1
+		self.m_outstanding = [] # list of tasks in the current priority
 
-		self.priolst  = []
+		self.priolst = []
 
 		# progress bar
-		self.m_total     = Task.g_tasks.total()
+		self.m_total = Task.g_tasks.total()
 		self.m_processed = 0
 
-		self.m_switchflag=1 # postpone
+		self.m_switchflag = 1 # postpone
 		#Task.g_tasks.debug()
 
 	# warning, this one is recursive ..
@@ -401,20 +401,19 @@ class Parallel:
 		self.m_tasks = Task.g_tasks
 
 		# progress bar
-		self.m_total        = Task.g_tasks.total()
-		self.m_processed    = 1
+		self.m_total = Task.g_tasks.total()
+		self.m_processed = 1
 
 		# tasks waiting to be processed - IMPORTANT
-		self.m_outstanding  = []
+		self.m_outstanding = []
 		# tasks waiting to be run by the consumers
-		self.m_ready        = Queue.Queue(150)
+		self.m_ready = Queue.Queue(150)
 		# tasks that are awaiting for another task to complete
-		self.m_frozen       = []
+		self.m_frozen = []
 
 		# lock for self.m_count - count the amount of tasks active
-		self.m_count        = 0
-		self.m_stop         = 0
-
+		self.m_count = 0
+		self.m_stop = 0
 
 		self.curgroup = 0
 		self.curprio = -1
@@ -433,7 +432,7 @@ class Parallel:
 		#print "read values acquire lock"
 		global lock, stop, count
 		lock.acquire()
-		self.m_stop  = stop
+		self.m_stop = stop
 		self.m_count = count
 		lock.release()
 		#print "read values release lock"

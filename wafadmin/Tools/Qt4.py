@@ -128,8 +128,10 @@ class qt4obj(cpp.cppobj):
 			task = Task.Task('cpp', env, nice)
 		elif type == 'moc_hack': # add a task while the build has started
 			task = Task.Task('moc', env, nice, normal=0)
-			#Params.g_build.m_generator.m_outstanding.append(task)
-			Params.g_build.m_generator.m_outstanding = [task] + Params.g_build.m_generator.m_outstanding
+			generator = Params.g_build.m_generator
+			#generator.m_outstanding.append(task)
+			generator.m_outstanding = [task] + generator.m_outstanding
+			generator.m_total += 1
 		else:
 			task = Task.Task(type, env, nice)
 
