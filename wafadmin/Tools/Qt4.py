@@ -170,7 +170,7 @@ def detect_qt4(conf):
 
 	# if qtdir is given - helper for finding qtlibs, qtincludes and qtbin
 	try: qtdir = opt.qtdir
-	except: qtdir = ''
+	except: qtdir = os.environ.get('QT4_ROOT', '')
 
 	if not qtdir:
 		try:
@@ -180,7 +180,7 @@ def detect_qt4(conf):
 			qtdir = '/usr/local/Trolltech/%s/' % lst[0]
 
 		except OSError:
-			qtdir = os.environ.get('QT4_ROOT', '')
+			pass
 
 	# check for the qt includes first
 	if not qtincludes: qtincludes = qtdir + 'include/'
@@ -229,57 +229,39 @@ def detect_qt4(conf):
 	env['QTLIBPATH']=qtlibs
 
 	vars = '''
-Qt3Support_debug
-Qt3Support
-QtCore_debug
-QtCore
-QtGui_debug
-QtGui
-QtNetwork_debug
-QtNetwork
-QtOpenGL_debug
-QtOpenGL
-QtSql_debug
-QtSql
-QtSvg_debug
-QtSvg
-QtTest_debug
-QtTest
-QtXml_debug
-QtXml
-'''
+Qt3Support_debug Qt3Support
+QtCore_debug QtCore
+QtGui_debug QtGui
+QtNetwork_debug QtNetwork
+QtOpenGL_debug QtOpenGL
+QtSql_debug QtSql
+QtSvg_debug QtSvg
+QtTest_debug QtTest
+QtXml_debug QtXml
+'''.split()
 
-	for i in vars.split():
+	for i in vars:
 		#conf.check_pkg(i, pkgpath=qtlibs)
 		pkgconf = conf.create_pkgconfig_configurator()
 		pkgconf.name = i
 		pkgconf.path = qtlibs
 		pkgconf.run()
 
-	# TODO rpath
-	"""
-	# rpath
-	try:
-		if Params.g_options.want_rpath:
+	# rpath if wanted
+	if Params.g_options.want_rpath:
+		for d in vars:
+			var = d.upper()
+			value = env['LIBPATH_'+var]
+			if value:
 
-			lst = ['-Wl,--rpath='+env['QTLIBPATH']]
-			for d in env['LIBPATH_X11']:
-				lst.append('-Wl,--rpath='+d)
+				core = env['LIBPATH_QTCORE']
+				accu = []
+				for lib in value:
+					if lib in core: pass
+					accu.append('-Wl,--rpath='+lib)
+				env['RPATH_'+var] = accu
 
-			env['RPATH_QT']         = lst
-			env['RPATH_QT3SUPPORT'] = env['RPATH_QT']
-			env['RPATH_QTCORE']     = env['RPATH_QT']
-			env['RPATH_QTNETWORK']  = env['RPATH_QT']
-			env['RPATH_QTGUI']      = env['RPATH_QT']
-			env['RPATH_QTOPENGL']   = env['RPATH_QT']
-			env['RPATH_QTSQL']      = env['RPATH_QT']
-			env['RPATH_QTXML']      = env['RPATH_QT']
-			env['RPATH_QTEST']      = env['RPATH_QT']
-	except:
-		pass
-	"""
-
-	env['QTLOCALE']            = str(env['PREFIX'])+'/share/locale'
+	env['QTLOCALE'] = str(env['PREFIX'])+'/share/locale'
 
 def detect_qt4_win32(conf):
 	print "win32 code"
