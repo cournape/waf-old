@@ -76,6 +76,15 @@ class MTask(Task.Task):
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 			moctasks.append(task)
+		# look at the file inputs, it is set right above
+		for d in tree.m_depends_on[variant][node]:
+			name = d.m_name
+			if name[-4:]=='.moc':
+				task = parn.create_task('moc_hack', parn.env)
+				task.set_inputs(tree.m_depends_on[variant][d])
+				task.set_outputs(d)
+				moctasks.append(task)
+				break
 		self.m_run_after = moctasks
 		self.moc_done = 1
 		return Task.Task.may_start(self)
