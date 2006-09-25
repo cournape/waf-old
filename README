@@ -12,6 +12,14 @@ Run './waf-light --make-waf' to generate waf or look at './waf-light --help'
 
 Then try 'waf --help', there are predefined targets for waf itself.
 
+ENVIRONMENT VARIABLES
+---------------------
+
+WAF_HOME: where .wafcache (configuration cache) and .waf-x.y.z (library cache) will be stored
+WAFLOCK: name of the lock file (default: .lock-wscript)
+WAFDIR: path to the wafadmin folder (developers must set it)
+WAFCACHE: path to the target cache (replaces --usecache)
+
 QUICK HOWTO
 -----------
 
