@@ -2,7 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"Qt4 support"
+"""
+Qt4 support
+
+If QT4_ROOT is given (absolute path), the configuration will look in it first
+"""
 
 import os, sys, string
 import ccroot, cpp
@@ -202,7 +206,16 @@ def detect_qt4(conf):
 				break
 
 	find_bin(['uic-qt3', 'uic3'], 'QT_UIC3')
+
 	find_bin(['uic-qt4', 'uic'], 'QT_UIC')
+	version = os.popen(env['QT_UIC'] + " -version 2>&1").read().strip()
+	version = version.replace('Qt User Interface Compiler ','')
+	version = version.replace('User Interface Compiler for Qt', '')
+	if version.find(" 3.") != -1:
+		conf.check_message('uic version', '(too old)', 0, option='(%s)'%version)
+		sys.exit(1)
+	conf.check_message('uic version', '', 1, option='(%s)'%version)
+
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
 	find_bin(['rcc'], 'QT_RCC')
 
@@ -210,18 +223,6 @@ def detect_qt4(conf):
 	env['UIC_ST'] = '%s -o %s'
 	env['MOC_ST'] = '-o'
 
-
-	"""
-	print "Checking for uic3 version               :",
-	version = os.popen(env['QT_UIC'] + " -version 2>&1").read().strip()
-	if version.find(" 3.") != -1:
-		version = version.replace('Qt user interface compiler','')
-		version = version.replace('User Interface Compiler for Qt', '')
-		p('RED', version + " (too old)")
-		sys.exit(1)
-		fatal('uic 3 was not found !!!')
-	p('GREEN', "fine - %s" % version)
-"""
 
 	# check for the qt libraries
 	if not qtlibs: qtlibs = qtdir + 'lib'
