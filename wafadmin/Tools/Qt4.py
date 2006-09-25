@@ -170,7 +170,9 @@ def detect_qt4(conf):
 
 	# if qtdir is given - helper for finding qtlibs, qtincludes and qtbin
 	try: qtdir = opt.qtdir
-	except: qtdir = os.environ.get('QT4_ROOT', '')
+	except: qtdir=''
+
+	if not qtdir: qtdir = os.environ.get('QT4_ROOT', '')
 
 	if not qtdir:
 		try:
