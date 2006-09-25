@@ -176,7 +176,7 @@ def detect_qt4(conf):
 			qtdir = '/usr/local/Trolltech/%s/' % lst[0]
 
 		except OSError:
-			pass
+			qtdir = os.environ.get('QT4_ROOT', '')
 
 	# check for the qt includes first
 	if not qtincludes: qtincludes = qtdir + 'include/'
