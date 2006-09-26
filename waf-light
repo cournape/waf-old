@@ -14,6 +14,41 @@ if 'PSYCOWAF' in os.environ:
 VERSION="0.9.3"
 cwd = os.getcwd()
 
+def decodeAscii85(s):
+	out=[]
+	app=out.append
+	s=''.join(s.split()).replace('z','!!!!!')
+	p1,p2=divmod(len(s), 5)
+	stop=5*p1
+	p3,p4=s[0:stop],s[stop:]
+	for i in range(p1):
+		offset = i*5
+		a=ord(p3[offset])-33
+		b=ord(p3[offset+1])-33
+		c=ord(p3[offset+2])-33
+		d=ord(p3[offset+3])-33
+		e=ord(p3[offset+4])-33
+		num=(52200625L*a)+(614125*b)+(7225*c)+(85*d)+e
+		x,p=divmod(num,256)
+		x,o=divmod(x,256)
+		m,n=divmod(x,256)
+		app(chr(m)+chr(n)+chr(o)+chr(p))
+	if p2:
+		while len(p4)<5: p4=p4+'!'
+		a=ord(p4[0])-33
+		b=ord(p4[1])-33
+		c=ord(p4[2])-33
+		d=ord(p4[3])-33
+		e=ord(p4[4])-33
+		num=(52200625L*a)+(614125*b)+(7225*c)+(85*d)+e
+		x,p=divmod(num,256)
+		x,o=divmod(x,256)
+		m,n=divmod(x, 256)
+		if p2==2: app(chr(m))
+		elif p2==3: app(chr(m)+chr(n))
+		elif p2==4: app(chr(m)+chr(n)+chr(o))
+	return ''.join(out)
+
 # first, we need wafdir otherwise we cannot parse the command-line arguments or print the version number
 
 wafdir = None
@@ -28,20 +63,19 @@ def uncompress_wafdir(newdir):
 			print "Or use the full waf version available freely at http://freehackers.org/~tnagy/bksys.html"
 			print "\033[91mNo wafadmin: cannot execute anything (error)\033[0m"
 			sys.exit(1)
-		if line=='""" # ===>BEGIN WOOF<===\n':
+		if line=='# ===>BEGIN WOOF<===\n':
 			cnt = file.readline()
 			if not cnt:
 				print "something went wrong with waf, exiting"
 				sys.exit(1)
 
 			line = file.readline()
-			if line!='""" # ===>END WOOF<===\n':
+			if line!='# ===>END WOOF<===\n':
 				print "invalid waf file contents"
 				sys.exit(1)
 			break
 
-	import base64
-	cnt = base64.decodestring(cnt)
+	cnt = decodeAscii85(cnt[1:])
 
 	# create the directory
 	try: os.makedirs(newdir)
@@ -151,7 +185,7 @@ Params.g_launchdir = cwd
 if Params.g_version != VERSION:
 	fatal('version mismatch waf %s <-> wafadmin %s' % (VERSION, Params.g_version))
 
-## right now it is possible to use all the module features (fatal, etc) ##
+# right now it is possible to use all the module features (fatal, etc)
 
 # some command-line options can be processed immediately
 if '--version' in sys.argv:
@@ -159,7 +193,6 @@ if '--version' in sys.argv:
 	opt_obj.parse_args()
 	sys.exit(0)
 
-# ##########################################################################
 # now find the wscript file
 
 msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "wscript"'
@@ -181,8 +214,7 @@ if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
 		#try to find the wscript root
 		candidate = cwd
 else:
-	#wscript or wscript_xml is in current directory
-	#use this directory as candidate
+	#wscript or wscript_xml is in current directory, use this directory as candidate
 	candidate = cwd
 
 try:
@@ -201,8 +233,7 @@ try:
 			xml = 1
 			search_for_candidate = False
 
-	#check all directories above current dir for wscript or
-	#wscript_xml if still not found
+	#check all directories above current dir for wscript or wscript_xml if still not found
 	while search_for_candidate:
 		if len(cwd) <= 3:
 			break # stop at / or c:
@@ -252,9 +283,6 @@ if build_dir_override:
 	except:
 		pass
 	Utils.g_module.blddir = build_dir_override
-
-# fix the path of the cachedir - it is mandatory
-# untested code (ita)
 
 # fetch the custom command-line options recursively and in a procedural way
 opt_obj = Options.Handler()

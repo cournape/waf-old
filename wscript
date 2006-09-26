@@ -26,6 +26,36 @@ def set_options(opt):
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
 
+def encodeAscii85(s):
+	out=[]
+	app=out.append
+	v=[(0,16777216L),(1,65536),(2,256),(3,1)]
+	cnt,r = divmod(len(s),4)
+	stop=4*cnt
+	p1,p2=s[0:stop],s[stop:]
+	for i in range(cnt):
+		offset=i*4
+		num=0
+		for (j,mul) in v: num+=mul*ord(p1[offset+j])
+		if num==0: out.append('z')
+		else:
+			x,e=divmod(num,85)
+			x,d=divmod(x,85)
+			x,c=divmod(x,85)
+			a,b=divmod(x,85)
+			app(chr(a+33)+chr(b+33)+chr(c+33)+chr(d+33)+chr(e+33))
+	if r>0:
+		while len(p2)<4: p2=p2+'\x00'
+		num=0
+		for (j,mul) in v: num+=mul*ord(p2[j])
+		x,e=divmod(num,85)
+		x,d=divmod(x,85)
+		x,c=divmod(x,85)
+		a,b=divmod(x,85)
+		end=chr(a+33)+chr(b+33)+chr(c+33)+chr(d+33)+chr(e+33)
+		app(end[0:1+r])
+	return ''.join(out)
+
 def create_waf():
 	print "preparing waf"
 	mw = 'tmp-waf-'+VERSION
@@ -62,19 +92,18 @@ def create_waf():
 	file = open('%s.tar.bz2' % mw, 'rb')
 	cnt = file.read()
 	file.close()
-	code2 = base64.encodestring(cnt)
-	code2 = code2.replace('\n', '')
-
+	code2 = encodeAscii85(cnt)
 	if sys.platform == 'win32':
 		file = open('waf.bat', 'wb')
 		file.write('@python -x "%~f0" %* & exit /b\n')
 	else:
 		file = open('waf', 'wb')
 	file.write(code1)
-	file.write('""" # ===>BEGIN WOOF<===\n')
+	file.write('# ===>BEGIN WOOF<===\n')
+	file.write('#')
 	file.write(code2)
 	file.write('\n')
-	file.write('""" # ===>END WOOF<===\n')
+	file.write('# ===>END WOOF<===\n')
 	file.close()
 
 	if sys.platform != 'win32':
