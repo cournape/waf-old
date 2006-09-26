@@ -443,18 +443,23 @@ class ccroot(Object.genobj):
 		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
 		lst = self.source.split()
+		find_node = self.m_current_path.find_node
 		for filename in lst:
 			#node = self.find(filename)
-			node = self.m_current_path.find_node( filename.split(os.sep) )
-			if not node:
-				fatal("source not found: "+filename+" in "+str(self.m_current_path))
+			node = find_node(filename.split('/'))
+			if not node: fatal("source not found: %s in %s" % (filename, str(self.m_current_path)))
 
-			base, ext = os.path.splitext(filename)
+			k=len(filename)-1
+			while k>0:
+				if filename[k]=='.': break
+				k-=1
+			ext1 = filename[k:]
 
-			fun = self.get_hook(ext)
-			if fun:
-				fun(self, node)
+			try:
+				self.get_hook(ext1)(self, node)
 				continue
+			except TypeError:
+				pass
 
 			# create the compilation task: cpp or cc
 			task = self.create_task(self.m_type_initials, self.env)
@@ -462,13 +467,14 @@ class ccroot(Object.genobj):
 			task.m_scanner        = g_c_scanner
 			task.m_scanner_params = dir_lst
 
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext(obj_ext))
+			task.m_inputs = [node]
+			task.m_outputs = [node.change_ext(obj_ext)]
 
 		# if we are only building .o files, tell which ones we built
 		if self.m_type=='objects':
 			outputs = []
-			for t in self.p_compiletasks: outputs.append(t.m_outputs[0])
+			app = outputs.append
+			for t in self.p_compiletasks: app(t.m_outputs[0])
 			self.out_nodes = outputs
 			return
 
@@ -480,7 +486,8 @@ class ccroot(Object.genobj):
 		else:
 			linktask = self.create_task(pre+'_link', self.env, g_prio_link)
 		outputs = []
-		for t in self.p_compiletasks: outputs.append(t.m_outputs[0])
+		app = outputs.append
+		for t in self.p_compiletasks: app(t.m_outputs[0])
 		linktask.set_inputs(outputs)
 		linktask.set_outputs(self.find(self.get_target_name()))
 
@@ -557,56 +564,53 @@ class ccroot(Object.genobj):
 		self.addflags('CXXFLAGS', self.cxxflags)
 		self.addflags('CPPFLAGS', self.cppflags)
 
+		app = self.env.appendValue
+
 		# local flags come first
 		# set the user-defined includes paths
 		if not self._incpaths_lst: self.apply_incpaths()
 		for i in self._bld_incpaths_lst:
-			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
-			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
+			app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
+			app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
 
 		# set the library include paths
 		for i in self.env['CPPPATH']:
-			self.env.appendValue('_CXXINCFLAGS', cpppath_st % i)
+			app('_CXXINCFLAGS', cpppath_st % i)
 			#print self.env['_CXXINCFLAGS']
 			#print " appending include ",i
 
 		# this is usually a good idea
-		self.env.appendValue('_CXXINCFLAGS', cpppath_st % '.')
-		self.env.appendValue('_CXXINCFLAGS', cpppath_st % self.env.variant())
-		try:
-			tmpnode = Params.g_build.m_curdirnode
-			#tmpnode_mirror = Params.g_build.m_src_to_bld[tmpnode]
-			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-			self.env.appendValue('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
-		except:
-			pass
+		app('_CXXINCFLAGS', cpppath_st % '.')
+		app('_CXXINCFLAGS', cpppath_st % self.env.variant())
+		tmpnode = Params.g_build.m_curdirnode
+		app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
+		app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
 
 		for i in self.env['RPATH']:
-			self.env.appendValue('LINKFLAGS', i)
+			app('LINKFLAGS', i)
 
 		for i in self.env['LIBPATH']:
-			self.env.appendValue('LINKFLAGS', libpath_st % i)
+			app('LINKFLAGS', libpath_st % i)
 
 		for i in self.env['LIBPATH']:
-			self.env.appendValue('LINKFLAGS', staticlibpath_st % i)
+			app('LINKFLAGS', staticlibpath_st % i)
 
 		if self.env['STATICLIB']:
-			self.env.appendValue('LINKFLAGS', self.env['STATICLIB_MARKER'])
+			app('LINKFLAGS', self.env['STATICLIB_MARKER'])
 			for i in self.env['STATICLIB']:
-				self.env.appendValue('LINKFLAGS', staticlib_st % i)
+				app('LINKFLAGS', staticlib_st % i)
 
 		# fully static binaries ?
 		if not self.env['FULLSTATIC']:
 			if self.env['STATICLIB'] or self.env['LIB']:
-				self.env.appendValue('LINKFLAGS', self.env['SHLIB_MARKER'])
+				app('LINKFLAGS', self.env['SHLIB_MARKER'])
 
 		if self.env['LIB']:
 			for i in self.env['LIB']:
-				self.env.appendValue('LINKFLAGS', lib_st % i)
+				app('LINKFLAGS', lib_st % i)
 
 	def install(self):
-		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): 
-			return
+		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 
 		dest_var    = ''
 		dest_subdir = ''
@@ -728,11 +732,8 @@ class ccroot(Object.genobj):
 		libs = self.uselib.split()
 		for l in libs:
 			for v in self.p_flag_vars:
-				val=''
-				try:    val = self.env[v+'_'+l]
-				except: pass
-				if val:
-					self.env.appendValue(v, val)
+				val=self.env[v+'_'+l]
+				if val: self.env.appendValue(v, val)
 
 	def apply_objdeps(self):
 		"add the .o files produced by some other object files in the same manner as uselib_local"
