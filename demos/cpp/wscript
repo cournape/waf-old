@@ -26,7 +26,7 @@ def configure(conf):
 	conf.env['CXXFLAGS_MYPROG']='-O3'
 	conf.env['LIB_MYPROG']='m'
 	conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
-	
+
 	# works in a procedural way, so the order of calls does matter
 	#conf.check_tool(['KDE3'])
 

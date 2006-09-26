@@ -3,7 +3,6 @@
 # Thomas Nagy, 2005 (ita)
 
 import os, sys
-
 if 'PSYCOWAF' in os.environ:
 	try:
 		import psyco
@@ -22,12 +21,12 @@ def decodeAscii85(s):
 	stop=5*p1
 	p3,p4=s[0:stop],s[stop:]
 	for i in range(p1):
-		offset = i*5
-		a=ord(p3[offset])-33
-		b=ord(p3[offset+1])-33
-		c=ord(p3[offset+2])-33
-		d=ord(p3[offset+3])-33
-		e=ord(p3[offset+4])-33
+		off=i*5
+		a=ord(p3[off])-33
+		b=ord(p3[off+1])-33
+		c=ord(p3[off+2])-33
+		d=ord(p3[off+3])-33
+		e=ord(p3[off+4])-33
 		num=(52200625L*a)+(614125*b)+(7225*c)+(85*d)+e
 		x,p=divmod(num,256)
 		x,o=divmod(x,256)
@@ -49,8 +48,7 @@ def decodeAscii85(s):
 		elif p2==4: app(chr(m)+chr(n)+chr(o))
 	return ''.join(out)
 
-# first, we need wafdir otherwise we cannot parse the command-line arguments or print the version number
-
+# wafdir is needed to parse the command-line arguments or print the version number
 wafdir = None
 
 def uncompress_wafdir(newdir):
@@ -66,7 +64,7 @@ def uncompress_wafdir(newdir):
 		if line=='# ===>BEGIN WOOF<===\n':
 			cnt = file.readline()
 			if not cnt:
-				print "something went wrong with waf, exiting"
+				print "truncated waf contents, exiting"
 				sys.exit(1)
 
 			line = file.readline()
@@ -77,7 +75,7 @@ def uncompress_wafdir(newdir):
 
 	cnt = decodeAscii85(cnt[1:])
 
-	# create the directory
+	# create wafadmin
 	try: os.makedirs(newdir)
 	except: print "could not make ", newdir
 
@@ -122,18 +120,15 @@ def find_wafadmin():
 	if 'WAFDIR' in os.environ: try_wafdir(os.environ['WAFDIR'])
 	if wafdir: return
 
+	# look in $HOME
 	homevar=''
 	for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
 		if var in os.environ:
 			homevar=os.environ[var]
 			break
 
-	# look at $HOME/.waf-version
-	if sys.platform != 'win32':
-		try_wafdir('%s/.waf-%s' % (homevar, VERSION))
-	else:
-		try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
-
+	if sys.platform != 'win32': try_wafdir('%s/.waf-%s' % (homevar, VERSION))
+	else: try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
 
 	# remove $HOME/.waf-version if asked to
 	name = sys.argv[0]
@@ -147,7 +142,7 @@ def find_wafadmin():
 
 	if wafdir: return
 
-	# uncompress the local waf directory
+	# uncompress waf-local
 	if name[-5:] != 'light':
 		if sys.platform != 'win32':
 			uncompress_wafdir('%s/.waf-%s' % (homevar, VERSION))
@@ -162,7 +157,6 @@ def find_wafadmin():
 	try_wafdir(path)
 	if wafdir: return
 
-	# we did our best
 	print "\033[91mdevelopers using waf-light must set the WAFDIR (export WAFDIR=/folder)\033[0m"
 	sys.exit(1)
 
@@ -185,8 +179,6 @@ Params.g_launchdir = cwd
 if Params.g_version != VERSION:
 	fatal('version mismatch waf %s <-> wafadmin %s' % (VERSION, Params.g_version))
 
-# right now it is possible to use all the module features (fatal, etc)
-
 # some command-line options can be processed immediately
 if '--version' in sys.argv:
 	opt_obj = Options.Handler()
@@ -194,7 +186,6 @@ if '--version' in sys.argv:
 	sys.exit(0)
 
 # now find the wscript file
-
 msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "wscript"'
 
 # Some people want to configure their projects gcc-style:
@@ -266,7 +257,7 @@ if not candidate:
 # We have found wscript, but there is no guarantee that it is valid
 os.chdir(candidate)
 
-# with xml files jump to the parser
+# xml -> jump to the parser
 if xml:
 	from XMLScripting import compile
 	compile(candidate+os.sep+'wscript_xml')
@@ -289,13 +280,13 @@ opt_obj = Options.Handler()
 opt_obj.sub_options('') # will look in wscript
 opt_obj.parse_args()
 
-# we use the results of the parser
+# use the parser results
 if Params.g_commands['dist']:
 	# try to use the user-defined dist function first, fallback to the waf scheme
 	try:
 		Utils.g_module.dist()
 		sys.exit(0)
-	except:
+	except AttributeError:
 		pass
 	try: appname = Utils.g_module.APPNAME
 	except: appname = 'noname'
@@ -311,23 +302,15 @@ elif Params.g_commands['distclean']:
 	try:
 		Utils.g_module.distclean()
 		sys.exit(0)
-	except:
+	except AttributeError:
 		pass
-
 	from Scripting import DistClean
 	DistClean()
 	sys.exit(0)
 
-try:
-	fun = None
-	try:
-		fun = Utils.g_module.init
-	except:
-		pass
-	if fun:
-		fun()
-except SystemExit:
-	raise
+try: Utils.g_module.init()
+except AttributeError: pass
+except SystemExit: raise
 
 from Scripting import Main
 Main()
