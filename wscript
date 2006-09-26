@@ -63,6 +63,7 @@ def create_waf():
 	cnt = file.read()
 	file.close()
 	code2 = base64.encodestring(cnt)
+	code2 = code2.replace('\n', '')
 
 	if sys.platform == 'win32':
 		file = open('waf.bat', 'wb')
@@ -72,6 +73,7 @@ def create_waf():
 	file.write(code1)
 	file.write('""" # ===>BEGIN WOOF<===\n')
 	file.write(code2)
+	file.write('\n')
 	file.write('""" # ===>END WOOF<===\n')
 	file.close()
 

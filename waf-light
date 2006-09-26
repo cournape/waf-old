@@ -20,8 +20,6 @@ wafdir = None
 
 def uncompress_wafdir(newdir):
 	file = open(sys.argv[0], 'rb')
-	lst = []
-
 	while 1:
 		line = file.readline()
 		if not line:
@@ -30,26 +28,24 @@ def uncompress_wafdir(newdir):
 			print "Or use the full waf version available freely at http://freehackers.org/~tnagy/bksys.html"
 			print "\033[91mNo wafadmin: cannot execute anything (error)\033[0m"
 			sys.exit(1)
-		if line=='""" # ===>BEGIN WOOF<===\n': break
+		if line=='""" # ===>BEGIN WOOF<===\n':
+			cnt = file.readline()
+			if not cnt:
+				print "something went wrong with waf, exiting"
+				sys.exit(1)
 
-	while 1:
-		if not line:
-			print "something went wrong with waf, exiting"
-			sys.exit(1)
-
-		line = file.readline()
-		if line=='""" # ===>END WOOF<===\n': break
-		lst.append(line)
+			line = file.readline()
+			if line!='""" # ===>END WOOF<===\n':
+				print "invalid waf file contents"
+				sys.exit(1)
+			break
 
 	import base64
-	cnt = ''.join(lst)
 	cnt = base64.decodestring(cnt)
 
 	# create the directory
-	try:
-		os.makedirs(newdir)
-	except:
-		print "could not make ", newdir
+	try: os.makedirs(newdir)
+	except: print "could not make ", newdir
 
 	os.chdir(newdir)
 	file = open('wafadmin.tar.bz2', 'wb')
