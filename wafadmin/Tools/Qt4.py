@@ -230,38 +230,51 @@ def detect_qt4(conf):
 	if not qtlibs: qtlibs = qtdir + 'lib'
 	env['QTLIBPATH']=qtlibs
 
-	vars = '''
-Qt3Support_debug Qt3Support
-QtCore_debug QtCore
-QtGui_debug QtGui
-QtNetwork_debug QtNetwork
-QtOpenGL_debug QtOpenGL
-QtSql_debug QtSql
-QtSvg_debug QtSvg
-QtTest_debug QtTest
-QtXml_debug QtXml
-'''.split()
+	vars = "Qt3Support QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml".split()
+	vars_debug = map(lambda a: a+'_debug', vars)
 
-	for i in vars:
+	for i in vars_debug+vars:
 		#conf.check_pkg(i, pkgpath=qtlibs)
 		pkgconf = conf.create_pkgconfig_configurator()
 		pkgconf.name = i
 		pkgconf.path = qtlibs
 		pkgconf.run()
 
-	# rpath if wanted
-	if Params.g_options.want_rpath:
-		for d in vars:
+
+	# the libpaths are set nicely, unfortunately they make really long command-lines
+	# remove the qtcore ones from qtgui, etc
+	def process_lib(vars_, coreval):
+		for d in vars_:
 			var = d.upper()
+			if var == 'QTCORE': continue
+
 			value = env['LIBPATH_'+var]
 			if value:
-
-				core = env['LIBPATH_QTCORE']
+				core = env[coreval]
 				accu = []
 				for lib in value:
-					if lib in core: pass
-					accu.append('-Wl,--rpath='+lib)
-				env['RPATH_'+var] = accu
+					if lib in core: continue
+					accu.append(lib)
+				env['LIBPATH_'+var] = accu
+
+	process_lib(vars, 'LIBPATH_QTCORE')
+	process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+
+	# rpath if wanted
+	if Params.g_options.want_rpath:
+		def process_rpath(vars_, coreval):
+			for d in vars_:
+				var = d.upper()
+				value = env['LIBPATH_'+var]
+				if value:
+					core = env[coreval]
+					accu = []
+					for lib in value:
+						if lib in core: continue
+						accu.append('-Wl,--rpath='+lib)
+					env['RPATH_'+var] = accu
+		process_rpath(vars, 'LIBPATH_QTCORE')
+		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
 	env['QTLOCALE'] = str(env['PREFIX'])+'/share/locale'
 
