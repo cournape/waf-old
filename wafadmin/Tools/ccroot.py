@@ -172,11 +172,11 @@ class c_scanner(Scan.scanner):
 		seen=[]
 		def add_node_sig(n):
 			if not n: print "warning: null node in get_node_sig"
-			if n in seen: return 0
+			if n.m_name in seen: return 0
 
 			# TODO - using the variant each time is stupid
 			variant = n.variant(env)
-			seen.append(n)
+			seen.append(n.m_name)
 			return tree.m_tstamp_variants[variant][n]
 
 		# there is only one c/cpp file as input
@@ -221,13 +221,13 @@ class c_scanner(Scan.scanner):
 		env = task.m_env
 		def add_node_sig(n):
 			if not n: print "warning: null node in get_node_sig"
-			if n in seen:
+			if n.m_name in seen:
 				print "node already seen"
 				return
 
 			# TODO - using the variant each time is stupid
 			variant = n.variant(env)
-			seen.append(n)
+			seen.append(n.m_name)
 			m.update(tree.m_tstamp_variants[variant][n])
 
 		# there is only one c/cpp file as input

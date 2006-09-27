@@ -87,7 +87,7 @@ class scanner:
 		def add_node_sig(node):
 			if not node: print "warning: null node in get_node_sig"
 			#if node in seen: return
-			seen.append(node)
+			seen.append(node.m_name)
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
 			if tree.needs_rescan(node, env): self.do_scan(node, env, task.m_scanner_params)
@@ -96,7 +96,7 @@ class scanner:
 			except KeyError:
 				lst = []
 			for dep in lst:
-				if not dep in seen:
+				if not dep.m_name in seen:
 					add_node_sig(dep)
 			m.update(tree.m_tstamp_variants[variant][node])
 
@@ -117,7 +117,7 @@ class scanner:
 			#if node in seen: return 0
 
 			sum = 0
-			seen.append(node)
+			seen.append(node.m_name)
 
 			sum += tree.m_tstamp_variants[variant][node]
 			# rescan if necessary, and add the signatures of the nodes it depends on
@@ -125,7 +125,7 @@ class scanner:
 			try: lst = tree.m_depends_on[variant][node]
 			except KeyError: lst = []
 			for dep in lst:
-				if not dep in seen:
+				if not dep.m_name in seen:
 					sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes

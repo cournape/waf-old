@@ -210,7 +210,7 @@ class Node:
 	def bldpath(self, env=None):
 		name = self.m_name
 		for x in self.m_parent.m_files:
-			if x.name == name:
+			if x.m_name == name:
 				return self.relpath_gen(Params.g_build.m_bldnode)
 		return env.variant() + os.sep + self.relpath(Params.g_build.m_srcnode)
 
@@ -218,7 +218,7 @@ class Node:
 	def srcpath(self, env):
 		name = self.m_name
 		for x in self.m_parent.m_build:
-			if name == x.name:
+			if name == x.m_name:
 				return self.bldpath(env)
 		return self.relpath_gen(Params.g_build.m_bldnode)
 
