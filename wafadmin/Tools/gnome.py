@@ -237,18 +237,18 @@ def detect(conf):
 	conf.check_tool('checks')
 
 	pocom = conf.find_program('msgfmt')
-	if not pocom:
-		fatal('The program msgfmt (gettext) is mandatory!')
+	#if not pocom:
+	#	fatal('The program msgfmt (gettext) is mandatory!')
 	conf.env['POCOM'] = pocom
 
 	sgml2man = conf.find_program('docbook2man')
-	if not sgml2man:
-		fatal('The program docbook2man is mandatory!')
+	#if not sgml2man:
+	#	fatal('The program docbook2man is mandatory!')
 	conf.env['SGML2MAN'] = sgml2man
 
 	intltool = conf.find_program('intltool-merge')
-	if not intltool:
-		fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
+	#if not intltool:
+	#	fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 	conf.env['INTLTOOL'] = intltool
 
 	glib_genmarshal = conf.find_program('glib-genmarshal')
