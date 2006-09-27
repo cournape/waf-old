@@ -43,7 +43,7 @@ class Node:
 
 		# IMPORTANT:
 		# Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
-		# In fact, unused class members increase the .dblite file size sensibly with lots of objects 
+		# In fact, unused class members increase the .wafpickle file size sensibly with lots of objects
 		#   eg: the m_tstamp is used for every node, while the signature is computed only for build files
 
 	def __str__(self):

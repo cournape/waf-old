@@ -16,7 +16,7 @@ if sys.path=='win32':
 	# get the first two letters (c:)
 	g_rootname = os.getcwd()[:2]
 
-g_dbfile='.dblite'
+g_dbfile='.wafpickle'
 "name of the db file"
 
 g_preprocess = 1

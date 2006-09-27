@@ -330,7 +330,7 @@ def DistClean():
 				except: pass
 			elif f.endswith('~'): to_remove = True
 			elif f.endswith('.pyc'): to_remove = True
-			elif f.startswith('.dblite'): to_remove = True
+			elif f.startswith('.wafpickle'): to_remove = True
 
 			if to_remove:
 				#print "removing ",os.path.join(root, f)
