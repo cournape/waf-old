@@ -318,8 +318,8 @@ def DistClean():
 	# the builddir is given by lock-wscript only
 	# we do no try to remove it if there is no lock file (rmtree)
 	for (root, dirs, filenames) in os.walk('.'):
-		to_remove = False
 		for f in list(filenames):
+			to_remove = 0
 			if f==g_lockfile:
 				# removes a lock, and the builddir indicated
 				to_remove = True
@@ -328,13 +328,12 @@ def DistClean():
 				file.close()
 				try: shutil.rmtree(os.path.join(root, dirname))
 				except: pass
-			elif f.endswith('~'): to_remove = True
-			elif f.endswith('.pyc'): to_remove = True
-			elif f.startswith('.wafpickle'): to_remove = True
+			elif f.endswith('~'): to_remove = 1
+			elif f.endswith('.pyc'): to_remove = 1
+			elif f.startswith('.wafpickle'): to_remove = 1
 
 			if to_remove:
 				#print "removing ",os.path.join(root, f)
 				os.remove(os.path.join(root, f))
-				to_remove = False
 	sys.exit(0)
 
