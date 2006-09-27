@@ -83,22 +83,21 @@ class scanner:
 		tree = Params.g_build
 		seen = []
 		env  = task.m_env
+		variant = task.m_inputs[0].variant(env)
 		def add_node_sig(node):
 			if not node: print "warning: null node in get_node_sig"
-			if node in seen: return
-
-			# TODO - using the variant each time is stupid
-			variant = node.variant(env)
+			#if node in seen: return
 			seen.append(node)
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
-			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
+			if tree.needs_rescan(node, env): self.do_scan(node, env, task.m_scanner_params)
 			try:
 				lst = tree.m_depends_on[variant][node]
-			except:
+			except KeyError:
 				lst = []
 			for dep in lst:
-				add_node_sig(dep)
+				if not dep in seen:
+					add_node_sig(dep)
 			m.update(tree.m_tstamp_variants[variant][node])
 
 		# add the signatures of the input nodes
@@ -112,22 +111,22 @@ class scanner:
 		tree = Params.g_build
 		seen = []
 		env  = task.m_env
+		variant = task.m_inputs[0].variant(env)
 		def add_node_sig(node):
 			if not node: print "warning: null node in get_node_sig"
-			if node in seen: return 0
+			#if node in seen: return 0
 
 			sum = 0
-
-			# TODO - using the variant each time is stupid
-			variant = node.variant(env)
 			seen.append(node)
 
 			sum += tree.m_tstamp_variants[variant][node]
 			# rescan if necessary, and add the signatures of the nodes it depends on
 			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
 			try: lst = tree.m_depends_on[variant][node]
-			except: lst = []
-			for dep in lst: sum += add_node_sig(dep)
+			except KeyError: lst = []
+			for dep in lst:
+				if not dep in seen:
+					sum += add_node_sig(dep)
 			return sum
 		# add the signatures of the input nodes
 		for node in task.m_inputs: msum = hash_sig_weak(msum, add_node_sig(node))
