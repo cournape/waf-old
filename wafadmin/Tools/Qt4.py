@@ -272,7 +272,9 @@ def detect_qt4(conf):
 					core = env[coreval]
 					accu = []
 					for lib in value:
-						if lib in core: continue
+						if var != 'QTCORE':
+							if lib in core:
+								continue
 						accu.append('-Wl,--rpath='+lib)
 					env['RPATH_'+var] = accu
 		process_rpath(vars, 'LIBPATH_QTCORE')
