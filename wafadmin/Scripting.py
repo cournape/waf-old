@@ -60,7 +60,7 @@ def startDaemon():
 			tmpstr = "%s" %nodeDir
 			tmpstr = "%s" %(tmpstr[3:])[:-1]
 			m_dirs.append(tmpstr)
-		g_dirwatch.addDirWatch("tmp Test", callBack, m_dirs)
+		g_dirwatch.add_watch("tmp Test", callBack, m_dirs)
 		# infinite loop, no need to exit except on ctrl+c
 		g_dirwatch.loop()
 
