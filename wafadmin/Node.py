@@ -178,12 +178,8 @@ class Node:
 
 	# absolute path
 	def abspath(self, env=None):
-
-		if not env:
-			variant = 0
-		else:
-			if self in self.m_parent.m_files: variant = 0
-			else: variant = env.variant()
+		if not env: variant = 0
+		else: variant = self.variant(env)
 
 		#print "variant is", self.m_name, variant, "and env is ", env
 
@@ -197,7 +193,7 @@ class Node:
 		## 3. with the cache
 		try:
 			return Params.g_build.m_abspath_cache[variant][self]
-		except:
+		except KeyError:
 			if not variant:
 				lst=self.pathlist2()
 				lst.reverse()
@@ -210,26 +206,21 @@ class Node:
 				debug("var is p+q is "+p+q)
 				return p+q
 
-
 	# the build is launched from the top of the build dir (for example, in _build_/)
 	def bldpath(self, env=None):
-		if self in self.m_parent.m_files:
-			var = self.relpath_gen(Params.g_build.m_bldnode)
-		elif not env:
-			raise "bldpath for node: an environment is required"
-		else:
-			var = env.variant() + os.sep + self.relpath(Params.g_build.m_srcnode)
-		debug("bldpath: "+var)
-		return var
+		name = self.m_name
+		for x in self.m_parent.m_files:
+			if x.name == name:
+				return self.relpath_gen(Params.g_build.m_bldnode)
+		return env.variant() + os.sep + self.relpath(Params.g_build.m_srcnode)
 
 	# the build is launched from the top of the build dir (for example, in _build_/)
 	def srcpath(self, env):
-		if not self in self.m_parent.m_build:
-			var = self.relpath_gen(Params.g_build.m_bldnode)
-		else:
-			var = self.bldpath(env)
-		debug("srcpath: "+var)
-		return var
+		name = self.m_name
+		for x in self.m_parent.m_build:
+			if name == x.name:
+				return self.bldpath(env)
+		return self.relpath_gen(Params.g_build.m_bldnode)
 
 	def bld_dir(self, env):
 		return self.m_parent.bldpath(env)
