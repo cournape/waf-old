@@ -352,8 +352,10 @@ class Node:
 
 
 	def variant(self, env):
-		if self in self.m_parent.m_files: return 0
-		else: return env.variant()
+		name = self.m_name
+		for i in self.m_parent.m_files:
+			if i.m_name == name: return 0
+		return env.m_table.get('_VARIANT_', 'default')
 
 	# =============================================== #
 	# helpers for building things
