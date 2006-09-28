@@ -7,7 +7,7 @@
 import Action, Object, os
 from Params import set_globals
 
-bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()}'
+bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].m_name}'
 
 # we register our extensions to global variables
 set_globals('EXT_BISON_C', '.tab.c')
