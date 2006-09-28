@@ -7,13 +7,19 @@
 import os, select, errno
 try:
 	import _fam
+	# check if fam or gamin runs and accepts connenction
+	test = _fam.open()
+	test.close()
+	test = None
 	support = True
 except:
 	support = False
 
 class FamAdaptor:
+	"""fam helper class for use with DirWatcher"""
 	def __init__( self, eventHandler ):
-		""" """
+		""" creates the fam adaptor class
+		@param eventHandler: callback method for event handling"""
 		self.__fam = _fam.open()
 		self.__eventHandler = eventHandler # callBack function
 		self.__watchHandler = {} # {name : famId}

@@ -5,22 +5,28 @@
 
 """Depends on python gamin and on gamin demon"""
 
-import os, sys, select, errno
+import select, errno
 try:
 	import gamin
+	# check if gamin runs and accepts connenction
+	test = gamin.WatchMonitor()
+	test.disconnect()
+	test = None
 	support = True
 except:
 	support = False
 
 class GaminAdaptor:
+	"""gamin helper class for use with DirWatcher"""
 	def __init__( self, eventHandler ):
-		""" """
+		""" creates the gamin wrapper
+		@param eventHandler: callback method for event handling"""
 		self.__gamin = gamin.WatchMonitor()
 		self.__eventHandler = eventHandler # callBack function
 		self.__watchHandler = {} # {name : famId}
 	
 	def __del__( self ):
-		""""""
+		"""clean remove"""
 		if self.__gamin:
 			for handle in self.__watchHandler.keys():
 				self.stop_watch( handle )
@@ -28,16 +34,39 @@ class GaminAdaptor:
 			self.__gamin = None
 	
 	def __check_gamin(self):
+		"""is gamin connected"""
 		if self.__gamin == None:
-			raise "gamin not init"		
+			raise "gamin not init"
+	
+	def __code2str( self, event ):
+		"""convert event numbers to string"""
+		gaminCodes = {
+			1: "changed", 
+			2: "deleted", 
+			3: "StartExecuting", 
+			4: "StopExecuting", 
+			5: "created", 
+			6: "moved", 
+			7: "acknowledge", 
+			8: "exists", 
+			9: "endExist"
+		}
+		try:
+			return gaminCodes[event]
+		except:
+			return "unknown"
+
+	def __eventhandler_helper(self, pathName, event, idxName):
+		"""local eventhandler helps to convert event numbers to string"""
+		self.__eventHandler(pathName, self.__code2str(event), idxName)
 	
 	def watch_directory( self, name, idxName ):
 		""""""
 		self.__check_gamin()
 		if self.__watchHandler.has_key( name ):
 			raise "dir allready watched"
-		# set famId
-		self.__watchHandler[name] = self.__gamin.watch_directory( name, self.__eventHandler, idxName )
+		# set gaminId
+		self.__watchHandler[name] = self.__gamin.watch_directory( name, self.__eventhandler_helper, idxName )
 		return(self.__watchHandler[name])
 	
 	def watch_file( self, name, idxName ):
@@ -46,7 +75,7 @@ class GaminAdaptor:
 		if self.__watchHandler.has_key( name ):
 			raise "file allready watched"
 		# set famId
-		self.__watchHandler[name] = self.__gamin.watch_directory( name, self.__eventHandler, idxName )
+		self.__watchHandler[name] = self.__gamin.watch_directory( name, self.__eventhandler_helper, idxName )
 		return(self.__watchHandler[name])
 	
 	def stop_watch( self, name ):
