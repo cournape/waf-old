@@ -194,12 +194,13 @@ class Build:
 
 		trace("executor starting")
 		try:
+
 			#import hotshot
 			#prof = hotshot.Profile("/tmp/proftest.txt")
 			#prof.runcall(executor.start)
 			#prof.close()
-			#ret = 0
 			ret = executor.start()
+			#ret = 0
 		except KeyboardInterrupt:
 			os.chdir(self.m_srcnode.abspath())
 			self._store()
@@ -360,13 +361,15 @@ class Build:
 	def needs_rescan(self, node, env):
 		"tell if a node has changed, to update the cache"
 		#print "needs_rescan for ", node, node.m_tstamp
+		#if node in node.m_parent.m_files: variant = 0
+		#else: variant = env.variant()
 		variant = node.variant(env)
 		try:
 			if self.m_deps_tstamp[variant][node] == self.m_tstamp_variants[variant][node]:
 				#print "no need to rescan", node.m_tstamp
 				return 0
-		except:
-			pass
+		except KeyError:
+			return 1
 		return 1
 
 	# ======================================= #

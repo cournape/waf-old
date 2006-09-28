@@ -10,7 +10,7 @@ if 'PSYCOWAF' in os.environ:
 	except:
 		pass
 
-VERSION="0.9.3"
+VERSION="0.9.4"
 cwd = os.getcwd()
 
 def decodeAscii85(s):
