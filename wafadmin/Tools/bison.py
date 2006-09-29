@@ -11,16 +11,14 @@ bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspat
 
 # we register our extensions to global variables
 set_globals('EXT_BISON_C', '.tab.c')
-set_globals('EXT_BISON_H', '.tab.h')
-set_globals('EXT_BISON_OUT', '.tab.o')
 
 def yc_file(self, node):
 	yctask = self.create_task('bison', nice=4)
 	yctask.set_inputs(node)
 
 	c_ext = self.env['EXT_BISON_C']
-	h_ext = self.env['EXT_BISON_H']
-	o_ext = self.env['EXT_BISON_OUT']
+	h_ext = c_ext.replace('.c', '.h')
+	o_ext = c_ext.replace('.c', '.o')
 
 	# figure out what nodes bison will build
 	sep=node.m_name.rfind(os.extsep)
