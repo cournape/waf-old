@@ -983,33 +983,26 @@ class Configure:
 			Params.set_trace(self._a,self._b,self._c)
 			Runner.g_quiet = self._quiet
 
+	def create(self, enumerator = None, configurator = None):
+		# Only one of these can be set (xor)
+		if (enumerator and configurator) or (not enumerator and not configurator):
+			raise KeyError, "either enumerator or configurator has to be set (not both)"
 
-	def create_program_enumerator(self):
-		return program_enumerator(self)
+		try:
+			if enumerator:
+				return globals()["%s_enumerator" % enumerator](self)
+			elif configurator:
+				return globals()["%s_configurator" % configurator](self)
+		except:
+			pass
 
-	def create_library_enumerator(self):
-		return library_enumerator(self)
-
-	def create_header_enumerator(self):
-		return header_enumerator(self)
-
-	def create_function_enumerator(self):
-		return function_enumerator(self)
-
-	def create_pkgconfig_configurator(self):
-		return pkgconfig_configurator(self)
-
-	def create_cfgtool_configurator(self):
-		return cfgtool_configurator(self)
-
-	def create_test_configurator(self):
-		return test_configurator(self)
-
-	def create_library_configurator(self):
-		return library_configurator(self)
-
-	def create_header_configurator(self):
-		return header_configurator(self)
+	def __getattr__(self,attr):
+		def creator():
+			return globals()[attr[7:]](self)
+		if attr.startswith("create_"):
+			return creator
+		else:
+			raise AttributeError, attr
 
 	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
 		if not env: env=self.env
