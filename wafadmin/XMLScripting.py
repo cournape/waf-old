@@ -75,6 +75,9 @@ class XMLHandler(ContentHandler):
 		if name == 'config':
 			self.doc += 'def configure(conf):\n'
 			return
+		if name == 'shutdown':
+			self.doc += 'def shutdown():\n'
+			return
 		if name == 'build':
 			self.doc += 'def build(bld):\n'
 			return
@@ -128,6 +131,9 @@ class XMLHandler(ContentHandler):
 		if name == 'config':
 			self.doc += '\treturn\n'
 			return
+		if name == 'shutdown':
+			self.doc += '\treturn\n'
+			return
 		if name == 'options':
 			self.doc += '\treturn\n'
 			return
@@ -135,6 +141,11 @@ class XMLHandler(ContentHandler):
 			self.doc += ')\n'
 			return
 		if name == 'config-code':
+			for line in buf.split('\n'):
+				self.doc += '\t%s\n' % line
+			self.doc += '\n'
+			return
+		if name == 'shutdown-code':
 			for line in buf.split('\n'):
 				self.doc += '\t%s\n' % line
 			self.doc += '\n'
