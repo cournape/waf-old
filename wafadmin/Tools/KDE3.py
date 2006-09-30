@@ -180,10 +180,7 @@ def handler_kcfgc(self, node, base=''):
 		hash = {'path_lst': self.dir_lst['path_lst']}
 		g_kcfg_scanner.do_scan(node, self.env, hashparams=hash)
 
-	#TODO: fix this
-	if node in node.m_parent.files(): variant = 0
-	else: variant = self.env.variant()
-
+	variant = node.variant(self.env)
 	kcfg_node = tree.m_depends_on[variant][node][0]
 	cppnode = node.change_ext('.cpp')
 

@@ -14,10 +14,7 @@ class tex_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def scan(self, node, env, curdirnode):
-		#TODO: fix this
-		if node in node.m_parent.files(): variant = 0
-		else: variant = env.variant()
-
+		variant = node.variant(env)
 		fi = open(node.abspath(env), 'r')
 		content = fi.read()
 		fi.close()
@@ -237,12 +234,7 @@ class texobj(Object.genobj):
 
 			# add the manual dependencies
 			if deps_lst:
-				#TODO: fix this
-				if node in node.m_parent.files(): 
-					variant = 0
-				else: 
-					variant = self.env.variant()
-
+				variant = node.variant(self.env)
 				outnode = task.m_outputs[0]
 				try:
 					lst = tree.m_depends_on[variant][node]

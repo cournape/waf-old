@@ -362,8 +362,6 @@ class Build:
 	def needs_rescan(self, node, env):
 		"tell if a node has changed, to update the cache"
 		#print "needs_rescan for ", node, node.m_tstamp
-		#if node in node.m_parent.m_files: variant = 0
-		#else: variant = env.variant()
 		variant = node.variant(env)
 		try:
 			if self.m_deps_tstamp[variant][node] == self.m_tstamp_variants[variant][node]:

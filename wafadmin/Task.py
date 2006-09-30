@@ -157,10 +157,7 @@ class Task(TaskBase):
 
 		cnt = 0
 		for node in self.m_outputs:
-			#TODO: fix this
-			if node in node.m_parent.files(): variant = 0
-			#if node.m_parent.get_file(node.m_name): variant = 0
-			else: variant = self.m_env.variant()
+			variant = node.variant(env)
 			#if node in tree.m_tstamp_variants[variant]:
 			#	print "variant is ", variant
 			#	print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
@@ -214,8 +211,6 @@ class Task(TaskBase):
 
 		# TODO should make a for loop as the first node is not enough
 		variant = node.variant(self.m_env)
-		#if node in node.m_parent.files(): variant = 0
-		#else: variant = self.m_env.variant()
 
 		if not node in Params.g_build.m_tstamp_variants[variant]:
 			#debug("task should run as the first node does not exist"+str(node))
@@ -256,10 +251,7 @@ class Task(TaskBase):
 		try:
 			cnt = 0
 			for node in self.m_outputs:
-				#TODO: also fix this
-				if node in node.m_parent.files(): variant = 0
-				#if node.m_parent.get_file(node.m_name): variant = 0
-				else: variant = env.variant()
+				variant = node.variant(env)
 
 				ssig = sig.encode('hex')
 				orig = os.path.join(Params.g_options.usecache, ssig+'-'+str(cnt))

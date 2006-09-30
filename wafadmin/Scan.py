@@ -86,7 +86,6 @@ class scanner:
 		variant = task.m_inputs[0].variant(env)
 		def add_node_sig(node):
 			if not node: print "warning: null node in get_node_sig"
-			#if node in seen: return
 			seen.append(node.m_name)
 
 			# rescan if necessary, and add the signatures of the nodes it depends on
@@ -114,7 +113,6 @@ class scanner:
 		variant = task.m_inputs[0].variant(env)
 		def add_node_sig(node):
 			if not node: print "warning: null node in get_node_sig"
-			#if node in seen: return 0
 
 			sum = 0
 			seen.append(node.m_name)

@@ -16,9 +16,7 @@ class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def scan(self, node, env):
-		#TODO: fix this
-		if node in node.m_parent.files(): variant = 0
-		else: variant = env.variant()
+		variant = node.variant(env)
 
 		fi = open(node.abspath(env), 'r')
 		content = fi.read()
@@ -88,9 +86,7 @@ class gnome_sgml2man(Object.genobj):
 				if tree.needs_rescan(node, self.env):
 					sgml_scanner.do_scan(node, self.env, hashparams={})
 
-				#TODO: fix this
-				if node in node.m_parent.files(): variant = 0
-				else: variant = self.env.variant()
+				variant = node.variant(self.env)
 
 				try: tmp_lst = tree.m_raw_deps[variant][node]
 				except: tmp_lst = []
