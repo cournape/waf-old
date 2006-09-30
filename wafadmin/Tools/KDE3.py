@@ -247,6 +247,7 @@ class kdeobj(cpp.cppobj):
 		self.dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
 		lst = self.source.split()
+		lst.sort()
 		for filename in lst:
 
 			node = self.find(filename)
