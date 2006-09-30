@@ -8,7 +8,7 @@ Custom objects:
  - copy a file somewhere else
 """
 
-import shutil, re, os
+import shutil, re, os, types
 import Object, Action, Node, Params
 from Params import fatal
 
