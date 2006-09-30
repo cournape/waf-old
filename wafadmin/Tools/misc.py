@@ -9,7 +9,7 @@ Custom objects:
 """
 
 import shutil, re, os, types
-import Object, Action, Node, Params
+import Object, Action, Node, Params, Utils
 from Params import fatal
 
 def copy_func(task):
@@ -19,7 +19,7 @@ def copy_func(task):
 	outfile = task.m_outputs[0].abspath(env)
 	try:
 		shutil.copy2(infile, outfile)
-		if task.chmod: os.chmod(outfile, chmod)
+		if task.chmod: os.chmod(outfile, task.chmod)
 		return 0
 	except:
 		return 1
@@ -60,17 +60,19 @@ class copyobj(Object.genobj):
 		lst = self.to_list(self.source)
 
 		for filename in lst:
-			node = self.m_current_path.find_node( filename.split('/') )
+			node = self.m_current_path.find_node( 
+				Utils.split_path(filename) )
 			if not node: fatal('cannot find input file %s for processing' % filename)
 
 			target = self.target
 			if not target or len(lst)>1: target = node.m_name
 
 			# TODO the file path may be incorrect
-			newnode = self.m_current_path.search_existing_node( target.split('/') )
+			newnode = self.m_current_path.search_existing_node( 
+				Utils.split_path(target) )
 			if not newnode:
 				newnode = Node.Node(target, self.m_current_path)
-				self.m_current_path.m_build.append(newnode)
+				self.m_current_path.append_build(newnode)
 
 			task = self.create_task('copy', self.env, 8)
 			task.set_inputs(node)
@@ -122,7 +124,8 @@ class substobj(Object.genobj):
 		lst = self.to_list(self.source)
 
 		for filename in lst:
-			node = self.m_current_path.find_node( filename.split('/') )
+			node = self.m_current_path.find_node( 
+				Utils.split_path(filename) )
 			if not node: fatal('cannot find input file %s for processing' % filename)
 
 			newnode = node.change_ext('')

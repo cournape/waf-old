@@ -5,7 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, types, sys, re, md5
-import Action, Object, Params, Scan, Common
+import Action, Object, Params, Scan, Common, Utils
 from Params import debug, error, trace, fatal
 from Params import hash_sig_weak
 
@@ -73,7 +73,7 @@ class c_scanner(Scan.scanner):
 			return self._scan_preprocessor(node, env, path_lst, defines)
 		else:
 			# the regular scanner does not use the define values
-			return self.scan_default(self, node, env, path_lst)
+			return self._scan_default(node, env, path_lst)
 		#return self._scan_default(node, env, path_lst)
 
 	def _scan_default(self, node, env, path_lst):
@@ -93,10 +93,7 @@ class c_scanner(Scan.scanner):
 			# quite a few nested 'for' loops, looking suspicious
 			found = None
 			for dir in path_lst:
-				for node in dir.m_files:
-					if node.m_name == name:
-						found = node
-						break
+				found = dir.get_file(name)
 				if found:
 					break
 			if found: nodes.append(found)
@@ -392,13 +389,14 @@ class ccroot(Object.genobj):
 
 		for name in dirnames.split():
 			#print "name is ", name
-			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, name.split('/'))
-			#print "anode ", anode.m_name, " ", anode.m_files
+			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, 
+				Utils.split_path(name))
+			#print "anode ", anode.m_name, " ", anode.files()
 			Params.g_build.rescan(anode)
-			#print "anode ", anode.m_name, " ", anode.m_files
+			#print "anode ", anode.m_name, " ", anode.files()
 
 			#node = self.m_current_path.find_node( name.split(os.sep) )
-			for file in anode.m_files:
+			for file in anode.files():
 				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in ext_lst:
@@ -446,7 +444,7 @@ class ccroot(Object.genobj):
 		find_node = self.m_current_path.find_node
 		for filename in lst:
 			#node = self.find(filename)
-			node = find_node(filename.split('/'))
+			node = self.m_current_path.find_node(Utils.split_path(filename))
 			if not node: fatal("source not found: %s in %s" % (filename, str(self.m_current_path)))
 
 			k=len(filename)-1
@@ -530,11 +528,12 @@ class ccroot(Object.genobj):
 		# now process the include paths
 		tree = Params.g_build
 		for dir in inc_lst:
-			if dir[0] == '/' or (len(dir) > 1 and dir[1] == ':'):
+			if os.path.isabs(dir[0]) or (len(dir) > 1 and dir[1] == ':'):
 				self.env.appendValue('CPPPATH', dir)
 				continue
 
-			node = self.m_current_path.find_node( dir.split(os.sep) )
+			node = self.m_current_path.find_node( 
+				Utils.split_path(dir) )
 			if not node:
 				debug("node not found in ccroot:apply_incpaths "+str(dir))
 				continue

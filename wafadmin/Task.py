@@ -121,6 +121,9 @@ class Task(TaskBase):
 		self.m_outputs = []
 
 
+		# Display is calculated on demand 
+		self.m_display = ""
+
 		self.m_sig=0
 		self.m_dep_sig=0
 
@@ -154,7 +157,9 @@ class Task(TaskBase):
 
 		cnt = 0
 		for node in self.m_outputs:
-			if node in node.m_parent.m_files: variant = 0
+			#TODO: fix this
+			if node in node.m_parent.files(): variant = 0
+			#if node.m_parent.get_file(node.m_name): variant = 0
 			else: variant = self.m_env.variant()
 			#if node in tree.m_tstamp_variants[variant]:
 			#	print "variant is ", variant
@@ -209,7 +214,7 @@ class Task(TaskBase):
 
 		# TODO should make a for loop as the first node is not enough
 		variant = node.variant(self.m_env)
-		#if node in node.m_parent.m_files: variant = 0
+		#if node in node.m_parent.files(): variant = 0
 		#else: variant = self.m_env.variant()
 
 		if not node in Params.g_build.m_tstamp_variants[variant]:
@@ -232,6 +237,11 @@ class Task(TaskBase):
 	def prepare(self):
 		self.m_action.prepare(self)
 
+	def get_display(self):
+		if self.m_display: return self.m_display
+		m_display=self.m_action.get_str(self)
+		return m_display
+
 	def _can_retrieve_cache(self, sig):
 		"""Retrieve build nodes from the cache
 		It modifies the time stamp of files that are copied
@@ -246,7 +256,9 @@ class Task(TaskBase):
 		try:
 			cnt = 0
 			for node in self.m_outputs:
-				if node in node.m_parent.m_files: variant = 0
+				#TODO: also fix this
+				if node in node.m_parent.files(): variant = 0
+				#if node.m_parent.get_file(node.m_name): variant = 0
 				else: variant = env.variant()
 
 				ssig = sig.encode('hex')

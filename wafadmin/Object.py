@@ -21,7 +21,7 @@ hooks
   - cf bison.py and flex.py for more details on this scheme
 """
 
-import os, types
+import types
 import Params, Task, Common, Node, Utils
 from Params import debug, error, trace, fatal
 
@@ -35,9 +35,12 @@ def find_launch_node(node, lst):
 	if not name:     return find_launch_node(node, lst[1:])
 	if name == '.':  return find_launch_node(node, lst[1:])
 	if name == '..': return find_launch_node(node.m_parent, lst[1:])
-	for d in node.m_dirs+node.m_files:
-		if d.m_name == name:
-			return find_launch_node(d, lst[1:])
+
+	res = node.get_dir(name)
+	if not res:
+		res = node.get_file(name)
+	if res: return find_launch_node(res, lst[1:])
+
 	return None
 
 def flush():
@@ -46,7 +49,7 @@ def flush():
 	bld = Params.g_build
 	trace("delayed operation Object.flush() called")
 
-	dir_lst = Params.g_launchdir.split(os.sep)
+	dir_lst = Utils.split_path(Params.g_launchdir)
 	root    = bld.m_root
 	launch_dir_node = find_launch_node(root, dir_lst)
 	if Params.g_options.compile_targets:
@@ -160,31 +163,20 @@ class genobj:
 
 	def find(self, filename):
 		node = self.m_current_path
-		for name in filename.split('/'):
-			found = 0
-			if not found:
-				for f in node.m_files:
-					if f.m_name == name:
-						node = f
-						found = 1
-						break
-			if not found:
-				for f in node.m_build:
-					if f.m_name == name:
-						node = f
-						found = 1
-						break
-			if not found:
-				for f in node.m_dirs:
-					if f.m_name == name:
-						node = f
-						found = 1
-						break
-			if not found:
+		for name in Utils.split_path(filename):
+			res = node.get_file(name)
+			if not res:
+				res = node.get_build(name)
+			if not res:
+				res = node.get_dir(name)
+
+			if not res:
 				# bld node does not exist, create it
 				node2 = Node.Node(name, node)
-				node.m_build.append(node2)
+				node.append_build(node2)
 				node = node2
+			else:
+				node = res
 		return node
 
 	# an object is to be posted, even if only for install
@@ -240,7 +232,6 @@ def list_to_env_list(env, vars_list):
 	" ['CXX', ..] -> [env['CXX'], ..]"
 	def get_env_value(var):
 		# TODO add a cache here ?
-		#return env[var]
 		try:
 			v = env[var]
 			if type(v) is types.ListType:

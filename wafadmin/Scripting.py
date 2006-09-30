@@ -16,7 +16,8 @@ def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
 	global g_inroot
 	if g_inroot:
-		node = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
+		node = bld.ensure_node_from_lst(bld.m_curdirnode, 
+                Utils.split_path(dir))
 		bld.m_subdirs.append( [node, bld.m_curdirnode] )
 
 		if not node:
@@ -56,7 +57,7 @@ def startDaemon():
 		import DirWatch
 		g_dirwatch = DirWatch.DirectoryWatcher()
 		m_dirs=[]
-		for nodeDir in Params.g_build.m_srcnode.m_dirs:
+		for nodeDir in Params.g_build.m_srcnode.dirs():
 			tmpstr = "%s" %nodeDir
 			tmpstr = "%s" %(tmpstr[3:])[:-1]
 			m_dirs.append(tmpstr)
@@ -96,15 +97,17 @@ def Main():
 		Runner.set_exec('normal')
 		bld = Build.Build()
 		try:
+			srcdir = ""
 			try: srcdir = Params.g_options.srcdir
 			except: pass
 			if not srcdir: srcdir = Utils.g_module.srcdir
 
+			blddir = ""
 			try: blddir = Params.g_options.blddir
 			except: pass
 			if not blddir: blddir = Utils.g_module.blddir
 
-			Params.g_cachedir = blddir+os.sep+'_cache_'
+			Params.g_cachedir = Utils.join_path(blddir,'_cache_')
 
 		except AttributeError:
 			msg = "The attributes srcdir or blddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project\n * use waf configure --srcdir=xxx --blddir=yyy"
@@ -144,7 +147,7 @@ def Main():
 		#raise
 		fatal("Configuration loading failed - re-run waf configure (lockfile cannot be read)")
 
-	Params.g_cachedir = blddir+os.sep+'_cache_'
+	Params.g_cachedir = Utils.join_path(blddir,'_cache_')
 
 	# init the Build object.
 	try:
@@ -179,6 +182,7 @@ def Main():
 
 		# take the new node position
 		bld.m_curdirnode=new
+		#print bld.m_curdirnode.abspath()
 		bld.rescan(bld.m_curdirnode)
 
 		# try to open 'wscript_build' for execution

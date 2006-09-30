@@ -6,7 +6,7 @@
 
 import os, sys, re
 import ccroot, cpp
-import Action, Common, Object, Params, Runner, Scan
+import Action, Common, Object, Params, Runner, Scan, Utils
 from Params import error, fatal, trace
 from Params import set_globals, globals
 
@@ -44,9 +44,8 @@ class kcfg_scanner(Scan.scanner):
 
 		name = found[0]
 		for dir in path_lst:
-			for node in dir.m_files:
-				if node.m_name == name:
-					return ([node], found)
+			node = dir.get_file(name)
+			if node: return ([node], found)
 		fatal("the kcfg file was not found - that's very bad")
 
 
@@ -98,7 +97,7 @@ class kde_translations(Object.genobj):
 		self.m_tasks=[]
 		self.m_appname = appname
 	def apply(self):
-		for file in self.m_current_path.m_files:
+		for file in self.m_current_path.files():
 			try:
 				base, ext = os.path.splitext(file.m_name)
 				if ext != '.po': continue
@@ -111,14 +110,15 @@ class kde_translations(Object.genobj):
 		destfilename = self.m_appname+'.mo'
 
 		current = Params.g_build.m_curdirnode
-		for file in self.m_current_path.m_files:
+		for file in self.m_current_path.files():
 			lang, ext = os.path.splitext(file.m_name)
 			if ext != '.po': continue
 
-			node = self.m_current_path.find_node( (lang+'.gmo').split('/') )
+			node = self.m_current_path.find_node( 
+				Utils.split_path(lang+'.gmo') )
 			orig = node.relpath_gen(current)
 
-			destfile = os.sep.join([lang, 'LC_MESSAGES', destfilename])
+			destfile = Utils.join_path(lang, 'LC_MESSAGES', destfilename)
 			Common.install_as('KDE_LOCALE', destfile, orig, self.env)
 
 # documentation
@@ -135,7 +135,7 @@ class kde_documentation(Object.genobj):
 	def apply(self):
 		for filename in self.m_docs.split():
 			if not filename: continue
-			node = self.m_current_path.find_node( filename.split('/') )
+			node = self.m_current_path.find_node(Utils.split_path(filename))
 
 			self.m_files.append(node)
 			(base, ext) = os.path.splitext(filename)
@@ -145,7 +145,7 @@ class kde_documentation(Object.genobj):
 				task.set_outputs(node.change_ext('.cache.bz2'))
 				self.m_docbooks.append(task)
 	def install(self):
-		destpath = os.sep.join([self.m_lang, self.m_appname])
+		destpath = Utils.join_path(self.m_lang, self.m_appname)
 
 		current = Params.g_build.m_curdirnode
 		lst = []
@@ -180,7 +180,8 @@ def handler_kcfgc(self, node, base=''):
 		hash = {'path_lst': self.dir_lst['path_lst']}
 		g_kcfg_scanner.do_scan(node, self.env, hashparams=hash)
 
-	if node in node.m_parent.m_files: variant = 0
+	#TODO: fix this
+	if node in node.m_parent.files(): variant = 0
 	else: variant = self.env.variant()
 
 	kcfg_node = tree.m_depends_on[variant][node][0]
@@ -286,10 +287,10 @@ class kdeobj(cpp.cppobj):
 				if Params.g_options.kde_header_ext:
 					ext = Params.g_options.kde_header_ext
 				else:
-					path = node.m_parent.srcpath(self.env) + os.sep
+					path = node.m_parent.srcpath(self.env)
 					for i in globals('MOC_H'):
 						try:
-							os.stat(path+base2+i)
+							os.stat(Utils.join_path(path,base2+i))
 							ext = i
 							break
 						except:

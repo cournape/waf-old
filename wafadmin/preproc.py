@@ -577,7 +577,7 @@ class cparse:
 
 	def start2(self, node, env):
 
-		#print "parent node of ", node.m_name, " is ", node.m_parent.m_name, " and the contents ", node.m_parent.m_files
+		#print "parent node of ", node.m_name, " is ", node.m_parent.m_name, " and the contents ", node.m_parent.files()
 
 		variant = node.variant(env)
 		self.addlines(node.abspath(env))

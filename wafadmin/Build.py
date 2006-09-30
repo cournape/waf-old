@@ -4,7 +4,7 @@
 
 "Dependency tree holder"
 
-import os, cPickle, types
+import os, cPickle
 import Params, Runner, Object, Node, Task, Scripting, Utils
 from Params import debug, error, trace, fatal, warning
 
@@ -138,8 +138,7 @@ class Build:
 		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
 		dto = BuildDTO()
 		dto.init(self)
-		#cPickle.dump(dto, file, -1) # optimized version, do not use in development phase
-		cPickle.dump(dto, file)
+		cPickle.dump(dto, file, -1) # remove the '-1' for unoptimized version
 		file.close()
 
 	# ======================================= #
@@ -249,7 +248,7 @@ class Build:
 
 		# set the source directory
 		if not os.path.isabs(srcdir):
-			srcdir = os.path.abspath('.') + os.sep + srcdir
+			srcdir = Utils.join_path(os.path.abspath('.'),srcdir)
 
 		# set the build directory it is a path, not a node (either absolute or relative)
 		if not os.path.isabs(blddir):
@@ -278,19 +277,20 @@ class Build:
 	def ensure_node_from_path(self, abspath):
 		"return a node corresponding to an absolute path, creates nodes if necessary"
 		trace('ensure_node_from_path %s' % (abspath))
-		plst = abspath.split('/')
+		plst = Utils.split_path(abspath)
 		curnode = self.m_root # root of the tree
 		for dirname in plst:
 			if not dirname: continue
 			if dirname == '.': continue
-			found=None
-			for cand in curnode.m_dirs:
-				if cand.m_name == dirname:
-					found = cand
-					break
+			#found=None
+			found = curnode.get_dir(dirname,None)
+			#for cand in curnode.m_dirs:
+			#	if cand.m_name == dirname:
+			#		found = cand
+			#		break
 			if not found:
 				found = Node.Node(dirname, curnode)
-				curnode.m_dirs.append(found)
+				curnode.append_dir(found)
 			curnode = found
 
 		return curnode
@@ -308,14 +308,15 @@ class Build:
 			if dirname == '..':
 				curnode = curnode.m_parent
 				continue
-			found=None
-			for cand in curnode.m_dirs:
-				if cand.m_name == dirname:
-					found = cand
-					break
+			#found=None
+			found=curnode.get_dir(dirname, None)
+			#for cand in curnode.m_dirs:
+			#	if cand.m_name == dirname:
+			#		found = cand
+			#		break
 			if not found:
 				found = Node.Node(dirname, curnode)
-				curnode.m_dirs.append(found)
+				curnode.append_dir(found)
 			curnode = found
 		return curnode
 
@@ -334,28 +335,28 @@ class Build:
 		#debug("rescanning "+str(src_dir_node))
 
 		# list the files in the src directory, adding the signatures
-		files = self._scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.m_files)
+		files = self._scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.files())
 		#debug("files found in folder are "+str(files))
-		src_dir_node.m_files = files
+		src_dir_node.set_files(files)
 
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
 		lst = self.m_srcnode.difflst(src_dir_node)
 		for variant in Utils.to_list(self._variants):
-			sub_path = os.sep.join([self.m_bldnode.abspath(), variant] + lst)
+			sub_path = Utils.join_path(self.m_bldnode.abspath(), variant , *lst)
 			try:
-				files = self._scan_path(src_dir_node, sub_path, src_dir_node.m_build, variant)
-				src_dir_node.m_build = files
+				files = self._scan_path(src_dir_node, sub_path, src_dir_node.build(), variant)
+				src_dir_node.set_build(files)
 			except OSError:
 				#debug("osError on " + sub_path)
 
 				# listdir failed, remove all sigs of nodes
 				dict = self.m_tstamp_variants[variant]
-				for node in src_dir_node.m_build:
+				for node in src_dir_node.build():
 					if node in dict:
 						dict.__delitem__(node)
 				os.makedirs(sub_path)
-				src_dir_node.m_build = []
+				src_dir_node.set_build([])
 		self.m_scanned_folders.append(src_dir_node)
 
 	def needs_rescan(self, node, env):
@@ -385,21 +386,17 @@ class Build:
 		# 1 run the comparisons two times (not very smart)
 		# 2 reduce the sizes of the list while looping
 
-		l_names = l_names_read
+		l_names = set(l_names_read)
 		l_nodes = i_existing_nodes
 		l_kept  = []
+		l_kept_names = set()
 
 		for node in l_nodes:
-			i     = 0
-			name  = node.m_name
-			l_len = len(l_names)
-			while i < l_len:
-				if l_names[i] == name:
-					l_kept.append(node)
-					break
-				i += 1
-			if i < l_len:
-				del l_names[i]
+			if node.m_name in l_names:
+				l_kept.append(node)
+				l_kept_names.add(node.m_name)
+
+		l_new_files = l_names.difference(l_kept_names)
 
 		# Now:
 		# l_names contains the new nodes (or files)
@@ -413,13 +410,12 @@ class Build:
 
 		debug("new files found "+str(l_names))
 
-		l_path = i_path + os.sep
-		for name in l_names:
+		for name in l_new_files:#l_names:
 			try:
 				# will throw an exception if not a file or if not readable
 				# we assume that this is better than performing a stat() first
 				# TODO is it possible to distinguish the cases ?
-				st = Params.h_file(l_path + name)
+				st = Params.h_file(Utils.join_path(i_path,name))
 				l_child = Node.Node(name, i_parent_node)
 			except:
 				continue
@@ -438,26 +434,17 @@ class Build:
 		# 1 run the comparisons two times (not very smart)
 		# 2 reduce the sizes of the list while looping
 
-		l_names = l_names_read
+		l_names = set(l_names_read)
+		l_node_names = set()
 		l_nodes = i_existing_nodes
 		l_rm    = []
 
 		for node in l_nodes:
-			i     = 0
-			name  = node.m_name
-			l_len = len(l_names)
-			while i < l_len:
-				if l_names[i] == name:
-					break
-				i += 1
-			if i < l_len:
-				del l_names[i]
-			else:
+			if not node.m_name in l_names:
 				l_rm.append(node)
 
 		# remove the stamps of the nodes that no longer exist in the build dir
 		for node in l_rm:
-
 			#print "\nremoving the timestamp of ", node, node.m_name
 			#print node.m_parent.m_build
 			#print l_names_read
@@ -475,7 +462,7 @@ class Build:
 		def recu(node, count):
 			accu = printspaces(count)
 			accu+= "> "+node.m_name+" (d)\n"
-			for child in node.m_files:
+			for child in node.files():
 				accu+= printspaces(count)
 				accu+= '-> '+child.m_name+' '
 
@@ -488,9 +475,9 @@ class Build:
 
 				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'
-				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
-				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
-			for child in node.m_build:
+				# TODO #if node.files()[file].m_newstamp != node.files()[file].m_oldstamp: accu += "\t\t\t(modified)"
+				#accu+= node.files()[file].m_newstamp + "< >" + node.files()[file].m_oldstamp + "\n"
+			for child in node.build():
 				accu+= printspaces(count)
 				accu+= '-> '+child.m_name+' (b) '
 
@@ -503,9 +490,9 @@ class Build:
 
 				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'
-				# TODO #if node.m_files[file].m_newstamp != node.m_files[file].m_oldstamp: accu += "\t\t\t(modified)"
-				#accu+= node.m_files[file].m_newstamp + "< >" + node.m_files[file].m_oldstamp + "\n"
-			for dir in node.m_dirs: accu += recu(dir, count+1)
+				# TODO #if node.files()[file].m_newstamp != node.files()[file].m_oldstamp: accu += "\t\t\t(modified)"
+				#accu+= node.files()[file].m_newstamp + "< >" + node.files()[file].m_oldstamp + "\n"
+			for dir in node.dirs(): accu += recu(dir, count+1)
 			return accu
 
 		Params.pprint('CYAN', recu(self.m_root, 0) )
@@ -517,7 +504,7 @@ class Build:
 
 
 	def pushdir(self, dir):
-		node = self.ensure_node_from_lst(self.m_curdirnode, dir.split('/'))
+		node = self.ensure_node_from_lst(self.m_curdirnode, Utils.split_path(dir))
 		self.pushed = [self.m_curdirnode]+self.pushed
 		self.m_curdirnode = node
 
@@ -542,4 +529,3 @@ class Build:
 		"deprecated"
 		warning('use bld.create_obj instead of bld.createObj')
 		return self.create_obj(objname, *k, **kw)
-

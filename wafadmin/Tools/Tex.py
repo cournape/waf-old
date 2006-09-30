@@ -14,7 +14,8 @@ class tex_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def scan(self, node, env, curdirnode):
-		if node in node.m_parent.m_files: variant = 0
+		#TODO: fix this
+		if node in node.m_parent.files(): variant = 0
 		else: variant = env.variant()
 
 		fi = open(node.abspath(env), 'r')
@@ -51,7 +52,8 @@ class tex_scanner(Scan.scanner):
 						pass
 
 			if ok:
-				node = curdirnode.find_node(path.split(os.sep))
+				node = curdirnode.find_node(
+					Utils.split_path(path))
 				nodes.append(node)
 			else:
 				print 'could not find', filepath
@@ -82,10 +84,10 @@ def tex_build(task, command='LATEX'):
 	srcfile = node.srcpath(env)
 
 	lst = []
-	for c in reldir.split(os.sep):
+	for c in Utils.split_path(reldir):
 		if c: lst.append('..')
-	sr = os.sep.join(lst + [srcfile])
-	sr2 = os.sep.join(lst + [node.m_parent.srcpath(env)])
+	sr = Utils.join_path_list(lst + [srcfile])
+	sr2 = Utils.join_path_list(lst + [node.m_parent.srcpath(env)])
 
 	aux_node = node.change_ext('.aux')
 	idx_node = node.change_ext('.idx')
@@ -206,14 +208,16 @@ class texobj(Object.genobj):
 		if self.deps:
 			deps = self.to_list(self.deps)
 			for filename in deps:
-				n = self.m_current_path.find_node( filename.split('/') )
+				n = self.m_current_path.find_node( 
+					Utils.split_path(filename) )
 				if not n in deps_lst: deps_lst.append(n)
 
 		for filename in self.source.split():
 			base, ext = os.path.splitext(filename)
 			if not ext in self.s_default_ext: continue
 
-			node = self.m_current_path.find_node( filename.split('/') )
+			node = self.m_current_path.find_node( 
+				Utils.split_path(filename) )
 			if not node: fatal('cannot find %s' % filename)
 
 			if self.m_type == 'latex':
@@ -233,7 +237,8 @@ class texobj(Object.genobj):
 
 			# add the manual dependencies
 			if deps_lst:
-				if node in node.m_parent.m_files: 
+				#TODO: fix this
+				if node in node.m_parent.files(): 
 					variant = 0
 				else: 
 					variant = self.env.variant()

@@ -140,26 +140,41 @@ def niceprint(msg, type='', module=''):
 	print 'TRACE: == %s == %s'% (module, msg)
 
 def __get_module():
+	try:
+		return inspect.stack()[2][0].f_globals['__name__']
+	except:
+		return "unknown"
+
+def __get_module():
 	try: return inspect.stack()[2][0].f_globals['__name__']
 	except: return "unknown"
+
 def trace(msg):
 	if not Utils.g_trace: return
 	module = __get_module()
 	if module in g_trace_exclude: return
 	niceprint(msg, 'TRACE', module)
+
 def warning(msg):
 	module = __get_module()
 	niceprint(msg, 'WARNING', module)
+
 def debug(msg):
 	if not Utils.g_debug: return
 	module = __get_module()
 	if module in g_trace_exclude: return
 	niceprint(msg, 'DEBUG', module)
+
+def warning(msg):
+	module = __get_module()
+	niceprint(msg, 'WARNING', module)
+
 def error(msg):
 	if not Utils.g_error: return
 	module = __get_module()
 	if module in g_trace_exclude: return
 	niceprint(msg, 'ERROR', module)
+
 def fatal(msg):
 	module = __get_module()
 	pprint('RED', '%s \n (error raised in module %s)' % (msg, module))

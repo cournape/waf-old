@@ -4,9 +4,9 @@
 
 "Scan for dependencies, compute task signatures"
 
-import re, md5
+import md5
 import Params
-from Params import debug, trace, fatal
+from Params import debug
 from Params import hash_sig_weak
 
 g_all_scanners={}

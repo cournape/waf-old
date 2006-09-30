@@ -5,7 +5,7 @@
 "Gnome support"
 
 import os, re
-import Object, Action, Params, Common, Scan
+import Object, Action, Params, Common, Scan, Utils
 import cc
 from Params import fatal, error
 
@@ -16,7 +16,8 @@ class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def scan(self, node, env):
-		if node in node.m_parent.m_files: variant = 0
+		#TODO: fix this
+		if node in node.m_parent.files(): variant = 0
 		else: variant = env.variant()
 
 		fi = open(node.abspath(env), 'r')
@@ -51,11 +52,13 @@ class gnome_intltool(Object.genobj):
 		tree = Params.g_build
 		current = tree.m_curdirnode
 		for i in self.sources.split():
-			node = self.m_current_path.find_node(i.split(os.sep))
+			node = self.m_current_path.find_node(
+				Utils.split_path(i))
 
-			podirnode = self.m_current_path.find_node(self.podir.split(os.sep) )
+			podirnode = self.m_current_path.find_node(
+				Utils.split_path(self.podir) )
 
-			self.env['INTLCACHE'] = Params.g_build.m_curdirnode.bldpath(self.env) + os.sep + ".intlcache"
+			self.env['INTLCACHE'] = Utils.join_path(Params.g_build.m_curdirnode.bldpath(self.env),".intlcache")
 			self.env['INTLPODIR'] = podirnode.bldpath(self.env)
 			self.env['INTLFLAGS'] = self.flags
 
@@ -77,7 +80,7 @@ class gnome_sgml2man(Object.genobj):
 		self.m_appname = appname
 	def apply(self):
 		tree = Params.g_build
-		for node in self.m_current_path.m_files:
+		for node in self.m_current_path.files():
 			try:
 				base, ext = os.path.splitext(node.m_name)
 				if ext != '.sgml': continue
@@ -85,7 +88,8 @@ class gnome_sgml2man(Object.genobj):
 				if tree.needs_rescan(node, self.env):
 					sgml_scanner.do_scan(node, self.env, hashparams={})
 
-				if node in node.m_parent.m_files: variant = 0
+				#TODO: fix this
+				if node in node.m_parent.files(): variant = 0
 				else: variant = self.env.variant()
 
 				try: tmp_lst = tree.m_raw_deps[variant][node]
@@ -118,7 +122,7 @@ class gnome_translations(Object.genobj):
 		self.m_tasks=[]
 		self.m_appname = appname
 	def apply(self):
-		for file in self.m_current_path.m_files:
+		for file in self.m_current_path.files():
 			try:
 				base, ext = os.path.splitext(file.m_name)
 				if ext != '.po': continue
@@ -131,14 +135,15 @@ class gnome_translations(Object.genobj):
 		destfilename = self.m_appname+'.mo'
 
 		current = Params.g_build.m_curdirnode
-		for file in self.m_current_path.m_files:
+		for file in self.m_current_path.files():
 			lang, ext = os.path.splitext(file.m_name)
 			if ext != '.po': continue
 
-			node = self.m_current_path.find_node( (lang+'.gmo').split('/') )
+			node = self.m_current_path.find_node( 
+				Utils.split_path(lang+'.gmo') )
 			orig = node.relpath_gen(current)
 
-			destfile = os.sep.join([lang, 'LC_MESSAGES', destfilename])
+			destfile = Utils.join_path(lang, 'LC_MESSAGES', destfilename)
 			Common.install_as('GNOMELOCALEDIR', destfile, orig, self.env)
 
 
@@ -160,7 +165,8 @@ class gnomeobj(cc.ccobj):
 
 	def apply_core(self):
 		for i in self._marshal_lst:
-			node = self.m_current_path.find_node(i[0].split('/'))
+			node = self.m_current_path.find_node(
+				Utils.split_path(i[0]))
 
 			if not node:
 				fatal('file not found on gnome obj '+i[0])
@@ -194,7 +200,8 @@ class gnomeobj(cc.ccobj):
 
 
 		for i in self._dbus_lst:
-			node = self.m_current_path.find_node(i[0].split('/'))
+			node = self.m_current_path.find_node(
+				Utils.split_path(i[0]))
 
 			if not node:
 				fatal('file not found on gnome obj '+i[0])

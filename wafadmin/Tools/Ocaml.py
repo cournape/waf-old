@@ -5,7 +5,7 @@
 "Ocaml support"
 
 import os
-import Params, Action, Object, Scan
+import Params, Action, Object, Scan, Utils
 from Params import error, fatal
 
 g_map_id_to_obj = {}
@@ -82,7 +82,8 @@ class ocamlobj(Object.genobj):
 		lst = self._incpaths_lst
 		tree = Params.g_build
 		for dir in inc_lst:
-			node = self.m_current_path.find_node( dir.split(os.sep) )
+			node = self.m_current_path.find_node( 
+				Utils.split_path(dir) )
 			if not node:
 				error("node not found dammit")
 				continue
@@ -207,13 +208,14 @@ class ocamlobj(Object.genobj):
 
 		for name in dirnames.split():
 			#print "name is ", name
-			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, name.split('/'))
-			#print "anode ", anode.m_name, " ", anode.m_files
+			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, 
+				Utils.split_path(name))
+			#print "anode ", anode.m_name, " ", anode.files()
 			Params.g_build.rescan(anode)
-			#print "anode ", anode.m_name, " ", anode.m_files
+			#print "anode ", anode.m_name, " ", anode.files()
 
 			#node = self.m_current_path.find_node( name.split(os.sep) )
-			for file in anode.m_files:
+			for file in anode.files():
 				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in self.s_default_ext:

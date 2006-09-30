@@ -5,54 +5,107 @@
 "A node represents a file"
 
 import os
-import Params
+import Params, Utils
 from Params import debug, error, trace
 
 class Node:
 	def __init__(self, name, parent):
 
-		self.m_name     = name
-		self.m_parent   = parent
+		self.m_name		= name
+		self.m_parent	= parent
+		self.m_cached_path = ""
 
-		if name == '.' or name == '..' or '/' in name:
+		# Lookup dictionaries for O(1) access
+		self.m_dirs_lookup = {}
+		self.m_files_lookup = {}
+		self.m_build_lookup = {}
+
+		# Node name must contain only one level
+		if Utils.split_path(name)[0] != name:  #name == '.' or name == '..' or '/' in name or os.sep in name:
 			error('name forbidden '+name)
 			raise "boo"
 
 		if parent:
-			for node in parent.m_files:
-				if name == node.m_name:
-					error('node %s exists in the parent files %s already' % (name, str(parent)))
-					raise "inconsistency"
+			if parent.get_file(name):
+#			for node in parent.m_files:
+#				if name == node.m_name:
+				error('node %s exists in the parent files %s already' % (name, str(parent)))
+				raise "inconsistency"
 
-			for node in parent.m_build:
-				if name == node.m_name:
-					error('node %s exists in the parent build %s already' % (name, str(parent)))
-					raise "inconsistency"
+			if parent.get_build(name):
+#			for node in parent.m_build:
+#				if name == node.m_name:
+				error('node %s exists in the parent build %s already' % (name, str(parent)))
+				raise "inconsistency"
 
 		# contents of this node (filesystem structure)
 		# these lists contain nodes too
-		self.m_dirs     = [] # sub-folders
-		self.m_files    = [] # files existing in the src dir
-		self.m_build    = [] # nodes produced in the build dirs
+		#self.m_dirs		= [] # sub-folders
+		#self.m_files	= [] # files existing in the src dir
+		#self.m_build	= [] # nodes produced in the build dirs
 
 		# debugging only - a node is supposed to represent exactly one folder
-		if os.sep in name: print "error in name ? "+name
+		# if os.sep in name: print "error in name ? "+name
 
 		# timestamp or hash of the file (string hash or md5) - we will use the timestamp by default
-		#self.m_tstamp   = None
+		#self.m_tstamp	 = None
 
 		# IMPORTANT:
 		# Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
 		# In fact, unused class members increase the .wafpickle file size sensibly with lots of objects
-		#   eg: the m_tstamp is used for every node, while the signature is computed only for build files
+		#	eg: the m_tstamp is used for every node, while the signature is computed only for build files
+
+	def dirs(self):
+		return self.m_dirs_lookup.values() #self.m_dirs
+
+	def get_dir(self,name,default=None):
+		return self.m_dirs_lookup.get(name,default)
+
+	def append_dir(self, dir):
+		self.m_dirs_lookup[dir.m_name]=dir
+		#self.m_dirs.append(dir)
+
+	def files(self):
+		return self.m_files_lookup.values() #self.m_files
+
+	def set_files(self,files):
+		self.m_files_lookup={}
+		for i in files: self.m_files_lookup[i.m_name]=i
+		#self.m_files=files
+
+	def get_file(self,name,default=None):
+		return self.m_files_lookup.get(name,default)
+
+	def append_file(self, dir):
+		self.m_files_lookup[dir.m_name]=dir
+		#self.m_files.append(dir)
+
+	def build(self):
+		return self.m_build_lookup.values() #self.m_build
+
+	def set_build(self, build):
+		self.m_build_lookup={}
+		for i in build: self.m_build_lookup[i.m_name]=i
+		#self.m_build=build
+
+	def get_build(self,name,default=None):
+		return self.m_build_lookup.get(name,default)
+
+	def append_build(self, dir):
+		self.m_build_lookup[dir.m_name]=dir
+		#self.m_build.append(dir)
 
 	def __str__(self):
-		if self in self.m_parent.m_files: isbld = ""
+		#TODO: fix this
+		if self in self.m_parent.files(): isbld = ""
+		#if self.m_parent.get_file(self.m_name): isbld = ""
 		else: isbld = "b:"
 		return "<%s%s>" % (isbld, self.abspath())
 
 	def __repr__(self):
-		if self in self.m_parent.m_files: isbld = ""
+		#TODO: fix this
+		if self in self.m_parent.files(): isbld = ""
+		#if self.m_parent.get_file(self.m_name): isbld = ""
 		else: isbld = "b:"
 		return "<%s%s>" % (isbld, self.abspath())
 
@@ -81,8 +134,8 @@ class Node:
 	# size of the subtree
 	def size(self):
 		l_size=1
-		for i in self.m_dirs: l_size += i.size()
-		l_size += len(self.m_files)
+		for i in self.dirs(): l_size += i.size()
+		l_size += len(self.files())
 		return l_size
 
 	# uses a cache, so calling height should have no overhead
@@ -91,19 +144,20 @@ class Node:
 			return Params.g_build.m_height_cache[self]
 		except:
 			if not self.m_parent: val=0
-			else:                 val=1+self.m_parent.height()
+			else:				  val=1+self.m_parent.height()
 			Params.g_build.m_height_cache[self]=val
 			return val
 
 	def child_of_name(self, name):
-		for d in self.m_dirs:
-			trace('child of name '+d.m_name)
-			if d.m_name == name:
-				return d
+		return self.get_dir(name,None)
+		#for d in self.m_dirs:
+		#	trace('child of name '+d.m_name)
+		#	if d.m_name == name:
+		#		return d
 		# throw an exception ?
-		return None
+		#return None
 
-	## ===== BEGIN relpath-related methods  ===== ##
+	## ===== BEGIN relpath-related methods	===== ##
 
 	# list of file names that separate a node from a child
 	def difflst(self, child):
@@ -123,11 +177,37 @@ class Node:
 		if not self.m_parent: return []
 		return self.m_parent.pathlist().append(self.m_name)
 
-	# returns a list that can be reduced to the absolute path
-	# make sure to reverse it (used by abspath)
-	def pathlist2(self):
-		if not self.m_parent: return [Params.g_rootname]
-		return [self.m_name, os.sep]+self.m_parent.pathlist2()
+	# returns a joined path string that can be reduced to the absolute path
+	# DOES NOT needs to be reversed anymore (used by abspath)
+	def __pathstr2(self):
+		if self.m_cached_path: return self.m_cached_path
+		dirlist = [self.m_name]
+		cur_dir=self.m_parent
+		while cur_dir:
+			if cur_dir.m_name:
+				dirlist = dirlist + [cur_dir.m_name]
+			cur_dir = cur_dir.m_parent
+		dirlist.reverse()
+
+		joined = ""
+		for f in dirlist: joined = os.path.join(joined,f)
+		if not os.path.isabs(joined):
+			joined = os.sep + joined
+
+		self.m_cached_path=joined
+		return joined
+		#if not self.m_parent: return [Params.g_rootname]
+		#return [self.m_name, os.sep]+self.m_parent.pathlist2()
+
+	def find_node_by_name(self, name, lst):
+		res = self.get_dir(name,None)
+		if not res:
+			res=self.get_file(name)
+		if not res:
+			res=self.get_build(name)
+		if not res: return None
+
+		return res.find_node( lst[1:] )
 
 	# TODO : make it procedural, not recursive
 	# find a node given an existing node and a list like ['usr', 'local', 'bin']
@@ -136,23 +216,21 @@ class Node:
 		if not lst: return self
 		name=lst[0]
 
-
 		Params.g_build.rescan(self)
 
-		#print self.m_dirs
-		#print self.m_files
+		#print self.dirs()
+		#print self.files()
 
 		if name == '.':  return self.find_node( lst[1:] )
 		if name == '..': return self.m_parent.find_node( lst[1:] )
 
-
-		for d in self.m_dirs+self.m_files+self.m_build:
-			if d.m_name == name:
-				return d.find_node( lst[1:] )
+		res = self.find_node_by_name(name,lst)
+		if res: return res
 
 		if len(lst)>0:
 			node = Node(name, self)
-			self.m_dirs.append(node)
+			self.append_dir(node)
+			#self.m_dirs.append(node)
 			return node.find_node(lst[1:])
 
 		#trace('find_node returns nothing '+str(self)+' '+str(lst))
@@ -169,9 +247,8 @@ class Node:
 		if name == '.':  return self.find_node( lst[1:] )
 		if name == '..': return self.m_parent.find_node( lst[1:] )
 
-		for d in self.m_dirs+self.m_files+self.m_build:
-			if d.m_name == name:
-				return d.find_node( lst[1:] )
+		res = self.find_node_by_name(name,lst)
+		if res: return res
 
 		trace('search_node returns nothing '+str(self)+' '+str(lst))
 		return None
@@ -195,31 +272,29 @@ class Node:
 			return Params.g_build.m_abspath_cache[variant][self]
 		except KeyError:
 			if not variant:
-				lst=self.pathlist2()
-				lst.reverse()
-				val=''.join(lst)
+				val=self.__pathstr2()
+				#lst.reverse() - no need to reverse list anymore
+				#val=''.join(lst)
 				Params.g_build.m_abspath_cache[variant][self]=val
 				return val
 			else:
-				p = Params.g_build.m_bldnode.abspath() + os.sep + env.variant() + os.sep
-				q = self.relpath(Params.g_build.m_srcnode)
-				debug("var is p+q is "+p+q)
-				return p+q
+				p = Utils.join_path(Params.g_build.m_bldnode.abspath(),env.variant(),
+					self.relpath(Params.g_build.m_srcnode))
+				debug("var is p+q is "+p)
+				return p
 
 	# the build is launched from the top of the build dir (for example, in _build_/)
 	def bldpath(self, env=None):
 		name = self.m_name
-		for x in self.m_parent.m_files:
-			if x.m_name == name:
-				return self.relpath_gen(Params.g_build.m_bldnode)
-		return env.variant() + os.sep + self.relpath(Params.g_build.m_srcnode)
+		x = self.m_parent.get_file(name)
+		if x: return self.relpath_gen(Params.g_build.m_bldnode)
+		return Utils.join_path(env.variant(),self.relpath(Params.g_build.m_srcnode))
 
 	# the build is launched from the top of the build dir (for example, in _build_/)
 	def srcpath(self, env):
 		name = self.m_name
-		for x in self.m_parent.m_build:
-			if name == x.m_name:
-				return self.bldpath(env)
+		x = self.m_parent.get_build(name)
+		if x: return self.bldpath(env)
 		return self.relpath_gen(Params.g_build.m_bldnode)
 
 	def bld_dir(self, env):
@@ -235,18 +310,18 @@ class Node:
 				break
 			i += 1
 		s = n[:i]
-		return self.bld_dir(env)+os.sep+s
+		return Utils.join_path(self.bld_dir(env),s)
 
 	# returns the list of names to the node
 	# make sure to reverse it (used by relpath)
 	def pathlist3(self, node):
 		if self is node: return ['.']
-		return [self.m_name, os.sep]+self.m_parent.pathlist3(node)
+		return [self.m_name, os.sep]+self.m_parent.pathlist3(node) #TODO: fix this
 
 	# same as pathlist3, but do not append './' at the beginning
 	def pathlist4(self, node):
 		if self.m_parent is node: return [self.m_name]
-		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
+		return [self.m_name, os.sep]+self.m_parent.pathlist4(node) #TODO: fix this
 
 	# path relative to a direct parent
 	def relpath(self, parent):
@@ -294,7 +369,7 @@ class Node:
 		cand=self
 		while cand is not parent:
 			cand=cand.m_parent
-			lst+=['..',os.sep]
+			lst+=['..',os.sep] #TODO: fix this
 		return lst
 
 	# TODO: do this in a single function (this one uses invrelpath, find_ancestor and pathlist4)
@@ -323,8 +398,8 @@ class Node:
 
 	def debug(self):
 		print "========= debug node ============="
-		print "dirs are ", self.m_dirs
-		print "files are", self.m_files
+		print "dirs are ", self.dirs()
+		print "files are", self.files()
 		print "======= end debug node ==========="
 
 	def is_child_of(self, node):
@@ -344,30 +419,23 @@ class Node:
 
 	def variant(self, env):
 		name = self.m_name
-		for i in self.m_parent.m_files:
-			if i.m_name == name: return 0
+		i = self.m_parent.get_file(name)
+		if i: return 0
 		return env.m_table.get('_VARIANT_', 'default')
 
 	# =============================================== #
 	# helpers for building things
 	def change_ext(self, ext):
 		name = self.m_name
-		l = len(name)
-		while l>0:
-			l -= 1
-			if name[l] == '.':
-				break
-		newname = name[:l] + ext
+		newname = os.path.splitext(name)[0] + ext
 
-		for n in self.m_parent.m_files:
-			if n.m_name == newname:
-				return n
-		for n in self.m_parent.m_build:
-			if n.m_name == newname:
-				return n
+		n = self.m_parent.get_file(newname)
+		if not n:
+			n = self.m_parent.get_build(newname)
+		if n: return n
 
 		newnode = Node(newname, self.m_parent)
-		self.m_parent.m_build.append(newnode)
+		self.m_parent.append_build(newnode)
 
 		return newnode
 

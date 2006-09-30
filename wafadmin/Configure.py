@@ -76,6 +76,7 @@ def find_program_impl(lenv, filename, path_list=None, var=None):
 			return os.environ[var]
 
 	if lenv['WINDOWS']: filename += '.exe'
+	#TODO: we really need to add cross-platform functions for such things!
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
 	for directory in path_list:
 		if os.path.exists( os.path.join(directory, filename) ):
@@ -723,7 +724,7 @@ class Configure:
 		self.lastprog = ''
 
 		try:
-			file = open(os.sep.join([Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()]), 'rb')
+			file = open(Utils.join_path(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'rb')
 			self.m_cache_table = cPickle.load(file)
 			file.close()
 		except:
@@ -827,13 +828,14 @@ class Configure:
 	def cleanup(self):
 		"called on shutdown"
 		try:
-			dir = os.sep.join([Params.g_homedir, '.wafcache'])
+			dir = Utils.join_path(Params.g_homedir, '.wafcache') #TODO: PORTABILITY!!!
 			try:
 				os.makedirs(dir)
 			except:
 				pass
 
-			file = open(os.sep.join([Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()]), 'wb')
+			#TODO: PORTABILITY!!!
+			file = open(Utils.join_path(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'wb')
 			cPickle.dump(self.m_cache_table, file)
 			file.close()
 		except:
@@ -880,18 +882,18 @@ class Configure:
 
 		try:
 			# just in case the path is 'something/blah.h' (under the builddir)
-			lst=configfile.split('/')
+			lst=Utils.split_path(configfile)
 			lst = lst[:-1]
-			os.mkdir( os.sep.join(lst) )
+			os.mkdir( Utils.join_path(lst) )
 		except:
 			pass
 
 		if not env: env = self.env
-		dir = os.path.join(self.m_blddir, env.variant())
+		dir = Utils.join_path(self.m_blddir, env.variant())
 		try: os.makedirs(dir)
 		except: pass
 
-		dir = os.path.join(dir, configfile)
+		dir = Utils.join_path(dir, configfile)
 
 		dest = open(dir, 'w')
 		dest.write('/* configuration created by waf */\n')

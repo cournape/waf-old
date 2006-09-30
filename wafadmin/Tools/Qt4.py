@@ -10,10 +10,10 @@ If QT4_ROOT is given (absolute path), the configuration will look in it first
 This module also demonstrates how to add tasks dynamically (when the build has started)
 """
 
-import os, sys, string
+import os, sys
 import ccroot, cpp
-import Action, Params, Configure, Scan, Runner, Object, Task
-from Params import error, trace, fatal
+import Action, Params, Object, Task, Utils
+from Params import error, fatal
 from Params import set_globals, globals
 
 set_globals('MOC_H', ['.hh', '.h'])
@@ -62,15 +62,15 @@ class MTask(Task.Task):
 			if Params.g_options.qt_header_ext:
 				ext = Params.g_options.qt_header_ext
 			else:
-				path = node.m_parent.srcpath(parn.env) + os.sep
+				path = node.m_parent.srcpath(parn.env)
 				for i in globals('MOC_H'):
 					try:
-						os.stat(path+base2+i)
+						os.stat(Utils.join_path(path,base2+i))
 						ext = i
 						break
 					except:
 						pass
-				if not ext: fatal("no header found for %s which is a moc file" % filename)
+				if not ext: fatal("no header found for %s which is a moc file" % str(d))
 
 			# next time we will not search for the extension (look at the 'for' loop below)
 			h_node = node.change_ext(ext)

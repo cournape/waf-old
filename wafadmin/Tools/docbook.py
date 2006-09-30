@@ -117,7 +117,8 @@ class docbookobj(Object.genobj):
 		# for each source argument, create a task
 		lst = self.source.split()
 		for filename in lst:
-			node = self.m_current_path.find_node( filename.split(os.sep) )
+			node = self.m_current_path.find_node( 
+				Utils.split_path(filename) )
 			if not node:
 				fatal("source not found: "+filename+" in "+str(self.m_current_path))
 
@@ -130,7 +131,7 @@ class docbookobj(Object.genobj):
 
 		current = Params.g_build.m_curdirnode
 		lst = []
-		docpath = os.sep.join(['share',Utils.g_module.APPNAME, 'doc'])
+		docpath = Utils.join_path('share',Utils.g_module.APPNAME, 'doc')
 
 		# Install all generated docs
 		for task in self.m_tasks:

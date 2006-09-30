@@ -5,7 +5,7 @@
 "Important functions: install_files, install_as, symlink_as (destdir is taken into account)"
 
 import os, types, shutil
-import Params
+import Params, Utils
 from Params import error, fatal
 
 class InstallError:
@@ -80,15 +80,15 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 
 	# copy the files to the final destination
 	for filename in lst:
-		if filename[0] != '/':
-			alst = filename.split('/')
+		if not os.path.isabs(filename):
+			alst = Utils.split_path(filename)
 			filenode = node.find_node(alst)
 
 			file     = filenode.abspath(env)
 			destfile = os.path.join(destpath, filenode.m_name)
 		else:
 			file     = filename
-			alst     = filename.split('/')
+			alst     = Utils.split_path(filename)
 			destfile = os.path.join(destpath, alst[-1])
 
 		do_install(file, destfile, chmod=chmod)
@@ -109,8 +109,8 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	check_dir(dir)
 
 	# the source path
-	if srcfile[0] != '/':
-		alst = srcfile.split('/')
+	if not os.path.isabs(srcfile):
+		alst = Utils.split_path(srcfile)
 		filenode = node.find_node(alst)
 		src = filenode.abspath(env)
 	else:

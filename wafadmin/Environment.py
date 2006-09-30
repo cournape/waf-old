@@ -5,7 +5,7 @@
 "Environment representation"
 
 import os,sys,string, types, imp
-import Params
+import Params, Utils
 from Params import debug, error
 
 class Environment:
@@ -14,6 +14,7 @@ class Environment:
 	"""
 	def __init__(self):
 		self.m_table={}
+		self.m_var_cache={}
 		# may be there is a better place for this
 		if sys.platform == "win32": self.m_table['WINDOWS']=1
 
@@ -110,7 +111,7 @@ class Environment:
 		"return the destdir, useful for installing"
 		if self.m_table.has_key('NOINSTALL'): return ''
 		dst = Params.g_options.destdir
-		try: dst = dst+os.sep+self.m_table['SUBDEST']
+		try: dst = Utils.join_path(dst,os.sep,self.m_table['SUBDEST'])
 		except: pass
 		return dst
 
