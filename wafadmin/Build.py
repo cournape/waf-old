@@ -4,7 +4,7 @@
 
 "Dependency tree holder"
 
-import os, cPickle
+import os, cPickle, sys
 import Params, Runner, Object, Node, Task, Scripting, Utils
 from Params import debug, error, trace, fatal, warning
 
@@ -374,85 +374,178 @@ class Build:
 		return 1
 
 	# ======================================= #
+	if not sys.version_info[:2] < [2,4]:
+		def _scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
 
-	def _scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
+			# read the dir contents, ignore the folders in it
+			l_names_read = os.listdir(i_path)
 
-		# read the dir contents, ignore the folders in it
-		l_names_read = os.listdir(i_path)
+			debug("folder contents "+str(l_names_read))
 
-		debug("folder contents "+str(l_names_read))
+			# there are two ways to obtain the partitions:
+			# 1 run the comparisons two times (not very smart)
+			# 2 reduce the sizes of the list while looping
 
-		# there are two ways to obtain the partitions:
-		# 1 run the comparisons two times (not very smart)
-		# 2 reduce the sizes of the list while looping
+			l_names = set(l_names_read)
+			l_nodes = i_existing_nodes
+			l_kept  = []
+			l_kept_names = set()
 
-		l_names = set(l_names_read)
-		l_nodes = i_existing_nodes
-		l_kept  = []
-		l_kept_names = set()
+			for node in l_nodes:
+				if node.m_name in l_names:
+					l_kept.append(node)
+					l_kept_names.add(node.m_name)
 
-		for node in l_nodes:
-			if node.m_name in l_names:
-				l_kept.append(node)
-				l_kept_names.add(node.m_name)
+			l_new_files = l_names.difference(l_kept_names)
+			
+			# Now:
+			# l_names contains the new nodes (or files)
+			# l_kept contains only nodes that actually exist on the filesystem
+			for node in l_kept:
+				try:
+					# update the time stamp
+					self.m_tstamp_variants[0][node] = Params.h_file(node.abspath())
+				except:
+					fatal("a file is readonly or has become a dir "+node.abspath())
 
-		l_new_files = l_names.difference(l_kept_names)
+			debug("new files found "+str(l_names))
 
-		# Now:
-		# l_names contains the new nodes (or files)
-		# l_kept contains only nodes that actually exist on the filesystem
-		for node in l_kept:
-			try:
-				# update the time stamp
-				self.m_tstamp_variants[0][node] = Params.h_file(node.abspath())
-			except:
-				fatal("a file is readonly or has become a dir "+node.abspath())
+			for name in l_new_files:#l_names:
+				try:
+					# will throw an exception if not a file or if not readable
+					# we assume that this is better than performing a stat() first
+					# TODO is it possible to distinguish the cases ?
+					st = Params.h_file(Utils.join_path(i_path,name))
+					l_child = Node.Node(name, i_parent_node)
+				except:
+					continue
+				self.m_tstamp_variants[0][l_child] = st
+				l_kept.append(l_child)
+			return l_kept
 
-		debug("new files found "+str(l_names))
+		def _scan_path(self, i_parent_node, i_path, i_existing_nodes, i_variant):
+			"""in this function we do not add timestamps but we remove them
+			when the files no longer exist (file removed in the build dir)"""
 
-		for name in l_new_files:#l_names:
-			try:
-				# will throw an exception if not a file or if not readable
-				# we assume that this is better than performing a stat() first
-				# TODO is it possible to distinguish the cases ?
-				st = Params.h_file(Utils.join_path(i_path,name))
-				l_child = Node.Node(name, i_parent_node)
-			except:
-				continue
-			self.m_tstamp_variants[0][l_child] = st
-			l_kept.append(l_child)
-		return l_kept
+			# read the dir contents, ignore the folders in it
+			l_names_read = os.listdir(i_path)
 
-	def _scan_path(self, i_parent_node, i_path, i_existing_nodes, i_variant):
-		"""in this function we do not add timestamps but we remove them
-		when the files no longer exist (file removed in the build dir)"""
+			# there are two ways to obtain the partitions:
+			# 1 run the comparisons two times (not very smart)
+			# 2 reduce the sizes of the list while looping
 
-		# read the dir contents, ignore the folders in it
-		l_names_read = os.listdir(i_path)
+			l_names = set(l_names_read)
+			l_node_names = set()
+			l_nodes = i_existing_nodes
+			l_rm    = []
 
-		# there are two ways to obtain the partitions:
-		# 1 run the comparisons two times (not very smart)
-		# 2 reduce the sizes of the list while looping
+			for node in l_nodes:
+				if not node.m_name in l_names:
+					l_rm.append(node)
 
-		l_names = set(l_names_read)
-		l_node_names = set()
-		l_nodes = i_existing_nodes
-		l_rm    = []
+			# remove the stamps of the nodes that no longer exist in the build dir
+			for node in l_rm:
+				#print "\nremoving the timestamp of ", node, node.m_name
+				#print node.m_parent.m_build
+				#print l_names_read
+				#print l_names
 
-		for node in l_nodes:
-			if not node.m_name in l_names:
-				l_rm.append(node)
+				if node in self.m_tstamp_variants[i_variant]:
+					self.m_tstamp_variants[i_variant].__delitem__(node)
+			return l_nodes
+	else:
+		def _scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
 
-		# remove the stamps of the nodes that no longer exist in the build dir
-		for node in l_rm:
-			#print "\nremoving the timestamp of ", node, node.m_name
-			#print node.m_parent.m_build
-			#print l_names_read
-			#print l_names
+			# read the dir contents, ignore the folders in it
+			l_names_read = os.listdir(i_path)
 
-			if node in self.m_tstamp_variants[i_variant]:
-				self.m_tstamp_variants[i_variant].__delitem__(node)
-		return l_nodes
+			debug("folder contents "+str(l_names_read))
+
+			# there are two ways to obtain the partitions:
+			# 1 run the comparisons two times (not very smart)
+			# 2 reduce the sizes of the list while looping
+
+			l_names = l_names_read
+			l_nodes = i_existing_nodes
+			l_kept  = []
+
+			for node in l_nodes:
+				i     = 0
+				name  = node.m_name
+				l_len = len(l_names)
+				while i < l_len:
+					if l_names[i] == name:
+						l_kept.append(node)
+						break
+					i += 1
+				if i < l_len:
+					del l_names[i]
+
+			# Now:
+			# l_names contains the new nodes (or files)
+			# l_kept contains only nodes that actually exist on the filesystem
+			for node in l_kept:
+				try:
+					# update the time stamp
+					self.m_tstamp_variants[0][node] = Params.h_file(node.abspath())
+				except:
+					fatal("a file is readonly or has become a dir "+node.abspath())
+		
+			debug("new files found "+str(l_names))
+
+			l_path = i_path + os.sep
+			for name in l_names:
+				try:
+					# will throw an exception if not a file or if not readable
+					# we assume that this is better than performing a stat() first
+					# TODO is it possible to distinguish the cases ?
+					st = Params.h_file(l_path + name)
+					l_child = Node.Node(name, i_parent_node)
+				except:
+					continue
+				self.m_tstamp_variants[0][l_child] = st
+				l_kept.append(l_child)
+			return l_kept
+
+		def _scan_path(self, i_parent_node, i_path, i_existing_nodes, i_variant):
+			"""in this function we do not add timestamps but we remove them
+			when the files no longer exist (file removed in the build dir)"""
+
+			# read the dir contents, ignore the folders in it
+			l_names_read = os.listdir(i_path)
+
+			# there are two ways to obtain the partitions:
+			# 1 run the comparisons two times (not very smart)
+			# 2 reduce the sizes of the list while looping
+
+			l_names = l_names_read
+			l_nodes = i_existing_nodes
+			l_rm    = []
+
+			for node in l_nodes:
+				i     = 0
+				name  = node.m_name
+				l_len = len(l_names)
+				while i < l_len:
+					if l_names[i] == name:
+						break
+					i += 1
+				if i < l_len:
+					del l_names[i]
+				else:
+					l_rm.append(node)
+
+			# remove the stamps of the nodes that no longer exist in the build dir
+			for node in l_rm:
+
+				#print "\nremoving the timestamp of ", node, node.m_name
+				#print node.m_parent.m_build
+				#print l_names_read
+				#print l_names
+
+				if node in self.m_tstamp_variants[i_variant]:
+					self.m_tstamp_variants[i_variant].__delitem__(node)
+			return l_nodes
 
 	def dump(self):
 		"for debugging"
