@@ -205,9 +205,9 @@ def subst(lst, defs):
 					return [[num, '0']] + subst(lst[2:], defs)
 			if a2_type == op and a2 == '(':
 				if len(lst) < 4:
-					raise "expected 4 tokens defined(ident)"
+					raise ValueError, "expected 4 tokens defined(ident)"
 				if lst[2][0] != ident:
-					raise "expected defined(ident)"
+					raise ValueError, "expected defined(ident)"
 				if lst[2][1] in defs:
 					return [[num, '1']] + subst(lst[4:], defs)
 				else:
@@ -262,8 +262,8 @@ def comp(lst):
 					return [num, 1]
 				else:
 					return [num, 0]
-			raise "cannot compute %s (1)" % str(lst)
-		raise "cannot compute %s (2)" % str(lst)
+			raise ValueError, "cannot compute %s (1)" % str(lst)
+		raise ValueError, "cannot compute %s (2)" % str(lst)
 	if a1_type == stri:
 		if a2_type == stri:
 			if lst[2:]:
@@ -276,7 +276,7 @@ def comp(lst):
 		a3_type = lst[2][0]
 		a3 = lst[2][1]
 	except:
-		raise "cannot compute %s (3)" % str(lst)
+		raise ValueError, "cannot compute %s (3)" % str(lst)
 
 	if a1_type == ident:
 		#print "a1"
@@ -310,7 +310,7 @@ def comp(lst):
 				else: val = 0
 				return comp( [[num, val]] + lst[3:] )
 
-	raise "could not parse the macro %s " % str(lst)
+	raise ValueError, "could not parse the macro %s " % str(lst)
 
 
 class filter:
