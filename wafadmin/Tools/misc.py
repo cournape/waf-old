@@ -102,8 +102,9 @@ def subst_func(task):
 	if not dict:
 		names = m4_re.findall(code)
 		for i in names:
-			try: dict[i] = " ".join( task.m_env[i] )
-			except: dict[i] = task.m_env[i]
+			if task.m_env[i] and type(task.m_env[i]) is types.ListType :
+				dict[i] = " ".join( task.m_env[i] )
+			else: dict[i] = task.m_env[i]
 
 	file = open(outfile, 'w')
 	file.write(s % dict)
