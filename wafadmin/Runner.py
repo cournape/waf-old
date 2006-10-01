@@ -553,6 +553,7 @@ class Parallel:
 					proc.prepare()
 					if not proc.must_run():
 						proc.m_hasrun=2
+						self.m_processed += 1
 						continue
 
 					# display the command that we are about to run
