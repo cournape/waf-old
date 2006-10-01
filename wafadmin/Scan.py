@@ -26,7 +26,7 @@ class scanner:
 	def get_signature(self, task):
 		#print "scanner:get_signature(self, task)"
 		ret = self._get_signature(task)
-		debug("scanner:get_signature(self, task) %s" % str(Params.vsig(ret)))
+		debug("scanner:get_signature(self, task) %s" % str(Params.vsig(ret)), 'scan')
 		return ret
 
 	# scans a node
@@ -47,21 +47,18 @@ class scanner:
 
 	# re-scan a node, update the tree
 	def do_scan(self, node, env, hashparams):
-		#print "scanner:do_scan(self, node, env, hashparams)"
+		debug("scanner:do_scan(self, node, env, hashparams)", 'scan')
 
 		variant = node.variant(env)
-		debug("rescanning "+str(node))
 		if not node:
-			print "BUG rescanning a null node"
+			error("BUG rescanning a null node")
 			return
 		(nodes, names) = self.scan(node, env, **hashparams)
+		if Params.g_zones: debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'scan')
 		tree = Params.g_build
 
 		tree.m_depends_on[variant][node] = nodes
 		tree.m_raw_deps[variant][node] = names
-
-		debug("variant is "+str(variant))
-		#print tree.m_tstamp_variants[variant]
 
 		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
 

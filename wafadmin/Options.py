@@ -8,7 +8,7 @@
 import os, sys, imp, types
 from optparse import OptionParser
 import Params, Utils
-from Params import trace, fatal, warning
+from Params import debug, fatal, warning
 
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 try:
@@ -24,7 +24,7 @@ except:
 
 
 def create_parser():
-	Params.trace("create_parser is called")
+	debug("create_parser is called", 'options')
 
 	parser = OptionParser(usage = """waf [options] [commands ...]
 
@@ -104,6 +104,12 @@ def create_parser():
 			help    = 'src dir for the project (configuration)',
 			dest    = 'srcdir')
 
+	p('--zones',
+		action  = 'store',
+		default = '',
+		help    = 'debugging zones',
+		dest    = 'zones')
+
 	p('--targets',
 		action  = 'store',
 		default = '',
@@ -140,10 +146,11 @@ def parse_args_impl(parser):
 	elif 'WAFCACHE' in os.environ:
 		Params.g_options.usecache = os.path.abspath(os.environ['WAFCACHE'])
 
+
 	Params.g_verbose = Params.g_options.verbose
+	Params.g_zones = Params.g_options.zones.split(',')
 	if Params.g_verbose>1: Params.set_trace(1,1,1)
 	else: Params.set_trace(0,0,1)
-	#if Params.g_options.wafcoder: Params.set_trace(1,1,1)
 
 class Handler:
 	"loads wscript modules in folders for adding options"
@@ -158,7 +165,7 @@ class Handler:
 		self.cwd = os.path.join(self.cwd, dir)
 		cur = os.path.join(self.cwd, 'wscript')
 
-		trace("cur is "+str(cur))
+		debug("cur is "+str(cur), 'options')
 
 		try:
 			mod = Utils.load_module(cur)

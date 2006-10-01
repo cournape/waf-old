@@ -6,7 +6,7 @@
 
 import os
 import Params, Utils
-from Params import debug, error, trace
+from Params import debug, error
 
 class Node:
 	def __init__(self, name, parent):
@@ -151,7 +151,7 @@ class Node:
 	def child_of_name(self, name):
 		return self.get_dir(name,None)
 		#for d in self.m_dirs:
-		#	trace('child of name '+d.m_name)
+		#	debug('child of name '+d.m_name, 300)
 		#	if d.m_name == name:
 		#		return d
 		# throw an exception ?
@@ -233,7 +233,7 @@ class Node:
 			#self.m_dirs.append(node)
 			return node.find_node(lst[1:])
 
-		#trace('find_node returns nothing '+str(self)+' '+str(lst))
+		#debug('find_node returns nothing '+str(self)+' '+str(lst), 300)
 		return None
 
 	def search_existing_node(self, lst):
@@ -250,7 +250,7 @@ class Node:
 		res = self.find_node_by_name(name,lst)
 		if res: return res
 
-		trace('search_node returns nothing '+str(self)+' '+str(lst))
+		debug('search_existing_node returns nothing %s %s' % (str(self), str(lst)), 'node')
 		return None
 
 	# absolute path
@@ -280,7 +280,7 @@ class Node:
 			else:
 				p = Utils.join_path(Params.g_build.m_bldnode.abspath(),env.variant(),
 					self.relpath(Params.g_build.m_srcnode))
-				debug("var is p+q is "+p)
+				debug("var is p+q is "+p, 'node')
 				return p
 
 	# the build is launched from the top of the build dir (for example, in _build_/)

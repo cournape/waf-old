@@ -202,9 +202,6 @@ class Task(TaskBase):
 
 		self.m_dep_sig = self.m_scanner.get_signature(self)
 
-		#i1 = Params.vsig(self.m_sig)
-		#i2 = Params.vsig(self.m_dep_sig)
-
 		sg = self.signature()
 
 		node = self.m_outputs[0]
@@ -213,16 +210,19 @@ class Task(TaskBase):
 		variant = node.variant(self.m_env)
 
 		if not node in Params.g_build.m_tstamp_variants[variant]:
-			#debug("task should run as the first node does not exist"+str(node))
+			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
 			ret = self._can_retrieve_cache(sg)
 			return not ret
 
 		outs = Params.g_build.m_tstamp_variants[variant][node]
 
-		#a1 = Params.vsig(sg)
-		#a2 = Params.vsig(outs)
-		#debug("task %s must run ? signature is %s while node signature is %s (sig:%s depsig:%s)" \
-		#	% (str(self.m_idx), a1, a2, i1, i2))
+		if Params.g_zones:
+			i1 = Params.vsig(self.m_sig)
+			i2 = Params.vsig(self.m_dep_sig)
+			a1 = Params.vsig(sg)
+			a2 = Params.vsig(outs)
+			debug("must run %d: task #%d signature:%s - node signature:%s (sig:%s depsig:%s)" \
+				% (int(sg != outs), self.m_idx, a1, a2, i1, i2), 'task')
 
 		if sg != outs:
 			ret = self._can_retrieve_cache(sg)
@@ -264,7 +264,7 @@ class Task(TaskBase):
 				Params.g_build.m_tstamp_variants[variant][node] = sig
 				Params.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
 		except:
-			debug("failed retrieving file")
+			debug("failed retrieving file", 'task')
 			return None
 		return 1
 

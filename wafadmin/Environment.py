@@ -104,7 +104,7 @@ class Environment:
 			line = 'self.m_table["%s"] = %s'%(key.strip(), value.strip())
 			exec line
 		file.close()
-		debug(self.m_table)
+		debug(self.m_table, 'env')
 		return 1
 
 	def get_destdir(self):

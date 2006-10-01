@@ -6,7 +6,7 @@
 
 import os, types, sys, re, md5
 import Action, Object, Params, Scan, Common, Utils
-from Params import debug, error, trace, fatal
+from Params import debug, error, debug, fatal
 from Params import hash_sig_weak
 
 g_prio_link=101
@@ -27,22 +27,19 @@ class c_scanner(Scan.scanner):
 
 	# re-scan a node, update the tree
 	def do_scan(self, node, env, hashparams):
-		trace("c:do_scan(self, node, env, hashparams)")
+		debug("do_scan(self, node, env, hashparams)", 'ccroot')
 
 		variant = node.variant(env)
 
-		debug("rescanning "+str(node))
 		if not node:
-			print "BUG rescanning a null node"
+			error("BUG rescanning a null node")
 			return
 		(nodes, names) = self.scan(node, env, **hashparams)
-		tree = Params.g_build
+		if Params.g_zones: debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
 
+		tree = Params.g_build
 		tree.m_depends_on[variant][node] = nodes
 		tree.m_raw_deps[variant][node] = names
-
-		debug("variant is "+str(variant))
-		#print tree.m_tstamp_variants[variant]
 
 		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
 		if Params.g_preprocess:
@@ -54,9 +51,8 @@ class c_scanner(Scan.scanner):
 
 
 	def get_signature(self, task):
-		#trace("c:get_signature(self, task)")
+		debug("get_signature(self, task)", 'ccroot')
 		if Params.g_preprocess:
-			#print "c: will preprocess"
 			if Params.g_strong_hash:
 				return self._get_signature_preprocessor(task)
 			else:
@@ -68,7 +64,7 @@ class c_scanner(Scan.scanner):
 				return self._get_signature_regexp_weak(task)
 
 	def scan(self, node, env, path_lst, defines=[]):
-		trace("c:scan")
+		debug("scan", 'ccroot')
 		if Params.g_preprocess:
 			return self._scan_preprocessor(node, env, path_lst, defines)
 		else:
@@ -77,7 +73,7 @@ class c_scanner(Scan.scanner):
 		#return self._scan_default(node, env, path_lst)
 
 	def _scan_default(self, node, env, path_lst):
-		#print "scanner:_scan_default(self, node, env, path_lst)"
+		debug("_scan_default(self, node, env, path_lst)", 'ccroot')
 		variant = node.variant(env)
 		file = open(node.abspath(env), 'rb')
 		found = cregexp1.findall( file.read() )
@@ -102,11 +98,12 @@ class c_scanner(Scan.scanner):
 		return (nodes, names)
 
 	def _scan_preprocessor(self, node, env, path_lst, defines=[]):
-		trace("c:_scan_preprocessor(self, node, env, path_lst)")
+		debug("_scan_preprocessor(self, node, env, path_lst)", 'croot')
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst, defines=defines)
 		gruik.start2(node, env)
-		#print "nodes found for ", str(node), " ", str(gruik.m_nodes), " ", str(gruik.m_names)
+		if Params.g_verbose:
+			debug("nodes found for %s %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
 		return (gruik.m_nodes, gruik.m_names)
 
 	def _get_signature_regexp_strong(self, task):
@@ -115,7 +112,7 @@ class c_scanner(Scan.scanner):
 		seen = []
 		env  = task.m_env
 		def add_node_sig(node):
-			if not node: print "warning: null node in get_node_sig"
+			if not node: warning("null node in get_node_sig")
 			if node in seen: return
 
 			# TODO - using the variant each time is stupid
@@ -140,7 +137,7 @@ class c_scanner(Scan.scanner):
 		seen = []
 		env  = task.m_env
 		def add_node_sig(node):
-			if not node: print "warning: null node in get_node_sig"
+			if not node: warning("null node in get_node_sig")
 			if node in seen: return 0
 
 			sum = 0
@@ -168,7 +165,7 @@ class c_scanner(Scan.scanner):
 		env=task.m_env
 		seen=[]
 		def add_node_sig(n):
-			if not n: print "warning: null node in get_node_sig"
+			if not n: warning("null node in get_node_sig")
 			if n.m_name in seen: return 0
 
 			# TODO - using the variant each time is stupid
@@ -203,7 +200,7 @@ class c_scanner(Scan.scanner):
 		# and now xor the signature with the other tasks
 		for task in task.m_run_after:
 			msum = hash_sig_weak(msum, task.signature())
-		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
+		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)), 'ccroot')
 
 		return int(msum)
 
@@ -217,10 +214,8 @@ class c_scanner(Scan.scanner):
 		seen=[]
 		env = task.m_env
 		def add_node_sig(n):
-			if not n: print "warning: null node in get_node_sig"
-			if n.m_name in seen:
-				print "node already seen"
-				return
+			if not n: warning("warning: null node in get_node_sig")
+			if n.m_name in seen: return
 
 			# TODO - using the variant each time is stupid
 			variant = n.variant(env)
@@ -258,10 +253,10 @@ class c_scanner(Scan.scanner):
 
 		# and now xor the signature with the other tasks
 		#for task in task.m_run_after: m.update(task.signature())
-		#debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)) )
+		debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)), 'ccroot')
 		return m.digest()
 
-g_c_scanner    = c_scanner()
+g_c_scanner = c_scanner()
 "scanner for c programs"
 
 
@@ -409,7 +404,7 @@ class ccroot(Object.genobj):
 
 	def apply(self):
 		"adding some kind of genericity is tricky subclass this method if it does not suit your needs"
-		trace("apply called for "+self.m_type_initials)
+		debug("apply called for "+self.m_type_initials, 'ccroot')
 		if not self.m_type in self.get_valid_types():
 			fatal('Invalid type for object: '+self.m_type_initials)
 
@@ -533,10 +528,9 @@ class ccroot(Object.genobj):
 				self.env.appendValue('CPPPATH', dir)
 				continue
 
-			node = self.m_current_path.find_node( 
-				Utils.split_path(dir) )
+			node = self.m_current_path.find_node(Utils.split_path(dir))
 			if not node:
-				debug("node not found in ccroot:apply_incpaths "+str(dir))
+				debug("node not found in ccroot:apply_incpaths "+str(dir), 'ccroot')
 				continue
 			if not node in lst: lst.append(node)
 			Params.g_build.rescan(node)
@@ -544,7 +538,7 @@ class ccroot(Object.genobj):
 		# now the nodes are added to self._incpaths_lst
 
 	def apply_type_vars(self):
-		trace('apply_type_vars called')
+		debug('apply_type_vars called', 'ccroot')
 		for var in self.p_type_vars:
 			# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
 			# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
@@ -554,7 +548,7 @@ class ccroot(Object.genobj):
 			if value: self.env.appendValue(var, value)
 
 	def apply_obj_vars(self):
-		trace('apply_obj_vars called for cppobj')
+		debug('apply_obj_vars called for cppobj', 'ccroot')
 		cpppath_st       = self.env['CPPPATH_ST']
 		lib_st           = self.env['LIB_ST']
 		staticlib_st     = self.env['STATICLIB_ST']
@@ -695,7 +689,7 @@ class ccroot(Object.genobj):
 				self.env.appendUnique('LINKFLAGS', v)
 
 	def apply_lib_vars(self):
-		trace('apply_lib_vars called')
+		debug('apply_lib_vars called', 'ccroot')
 
 		# 1. the case of the libs defined in the project
 		names = self.uselib_local.split()

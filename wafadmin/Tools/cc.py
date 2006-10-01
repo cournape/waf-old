@@ -6,7 +6,7 @@
 
 import ccroot
 import Object, Params
-from Params import trace
+from Params import debug
 
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -44,7 +44,7 @@ class ccobj(ccroot.ccroot):
 		return cctypes
 
 	def apply_obj_vars(self):
-		trace('apply_obj_vars called for cppobj')
+		debug('apply_obj_vars called for ccobj', 'cc')
 		cpppath_st       = self.env['CPPPATH_ST']
 		lib_st           = self.env['LIB_ST']
 		staticlib_st     = self.env['STATICLIB_ST']

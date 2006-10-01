@@ -110,8 +110,7 @@ g_levels={
 'Test'   : 'GREEN',
 }
 
-g_trace_exclude = []
-"nothing to exclude for the moment"
+g_zones = []
 
 def set_trace(a, b, c):
 	Utils.g_trace=a
@@ -122,9 +121,9 @@ def get_trace():
 	return (Utils.g_trace, Utils.g_debug, Utils.g_error)
 
 def niceprint(msg, type='', module=''):
-	if not module:
-		print '%s: %s'% (type, msg)
-		return
+	#if not module:
+	#	print '%s: %s'% (type, msg)
+	#	return
 	if type=='ERROR':
 		print '%s: %s == %s == %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
 		return
@@ -132,7 +131,7 @@ def niceprint(msg, type='', module=''):
 		print '%s: %s == %s == %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
 		return
 	if type=='DEBUG':
-		print '%s: %s == %s == %s %s'% (type, g_colors['YELLOW'], module, g_colors['NORMAL'], msg)
+		print '%s: %s == %s == %s %s'% (type, g_colors['CYAN'], module, g_colors['NORMAL'], msg)
 		return
 	if module in g_levels:
 		print '%s: %s == %s == %s %s'% (type, g_colors[g_levels[module]], module, g_colors['NORMAL'], msg)
@@ -140,39 +139,25 @@ def niceprint(msg, type='', module=''):
 	print 'TRACE: == %s == %s'% (module, msg)
 
 def __get_module():
-	try:
-		return inspect.stack()[2][0].f_globals['__name__']
-	except:
-		return "unknown"
-
-def __get_module():
 	try: return inspect.stack()[2][0].f_globals['__name__']
 	except: return "unknown"
 
-def trace(msg):
-	if not Utils.g_trace: return
+def debug(msg, zone=None):
+	if g_zones:
+		if not zone in g_zones:
+			return
+	elif not Utils.g_debug:
+		return
 	module = __get_module()
-	if module in g_trace_exclude: return
-	niceprint(msg, 'TRACE', module)
-
-def warning(msg):
-	module = __get_module()
-	niceprint(msg, 'WARNING', module)
-
-def debug(msg):
-	if not Utils.g_debug: return
-	module = __get_module()
-	if module in g_trace_exclude: return
 	niceprint(msg, 'DEBUG', module)
 
-def warning(msg):
+def warning(msg, zone=0):
 	module = __get_module()
 	niceprint(msg, 'WARNING', module)
 
 def error(msg):
 	if not Utils.g_error: return
 	module = __get_module()
-	if module in g_trace_exclude: return
 	niceprint(msg, 'ERROR', module)
 
 def fatal(msg):

@@ -6,7 +6,7 @@
 
 import os, cPickle, sys
 import Params, Runner, Object, Node, Task, Scripting, Utils
-from Params import debug, error, trace, fatal, warning
+from Params import debug, error, fatal, warning
 
 g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
 "Build class members to save"
@@ -87,7 +87,7 @@ class Build:
 		self.pushed = []
 
 	def _init_data(self):
-		trace("init data called")
+		debug("init data called", 'build')
 
 		# filesystem root - root name is Params.g_rootname
 		self.m_root            = Node.Node('', None)
@@ -113,7 +113,7 @@ class Build:
 		self.m_raw_deps        = {}
 
 	def _init_variants(self):
-		trace("init variants")
+		debug("init variants", 'build')
 		for name in Utils.to_list(self._variants)+[0]:
 			for v in 'm_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
@@ -128,7 +128,7 @@ class Build:
 			dto.update_build(self)
 			file.close()
 		except:
-			debug("resetting the build object (dto failed)")
+			debug("resetting the build object (dto failed)", 'build')
 			self._init_data()
 			self._init_variants()
 		#self.dump()
@@ -144,7 +144,7 @@ class Build:
 	# ======================================= #
 
 	def set_variants(self, variants):
-		trace("set_variants")
+		debug("set_variants", 'build')
 		self._variants = variants
 		self._init_variants()
 
@@ -152,7 +152,7 @@ class Build:
 		self._store()
 
 	def clean(self):
-		trace("clean called")
+		debug("clean called", 'build')
 		Object.flush()
 		# if something special is needed
 		for obj in Object.g_allobjs: obj.cleanup()
@@ -170,7 +170,7 @@ class Build:
 						pass
 
 	def compile(self):
-		trace("compile called")
+		debug("compile called", 'build')
 		ret = 0
 
 		os.chdir(self.m_bdir)
@@ -191,7 +191,7 @@ class Build:
 
 		self.m_generator = executor.m_generator
 
-		trace("executor starting")
+		debug("executor starting", 'build')
 		try:
 
 			#import hotshot
@@ -214,7 +214,7 @@ class Build:
 
 	def install(self):
 		"this function is called for both install and uninstall"
-		trace("install called")
+		debug("install called", 'build')
 		Object.flush()
 		for obj in Object.g_allobjs:
 			if obj.m_posted: obj.install()
@@ -264,7 +264,7 @@ class Build:
 
 
 		self.m_srcnode = self.ensure_node_from_path(srcdir)
-		debug("srcnode is "+str(self.m_srcnode)+" and srcdir "+srcdir)
+		debug("srcnode is %s and srcdir %s" % (str(self.m_srcnode), srcdir), 'build')
 
 		self.m_curdirnode = self.m_srcnode
 
@@ -276,7 +276,7 @@ class Build:
 
 	def ensure_node_from_path(self, abspath):
 		"return a node corresponding to an absolute path, creates nodes if necessary"
-		trace('ensure_node_from_path %s' % (abspath))
+		debug('ensure_node_from_path %s' % (abspath), 'build')
 		plst = Utils.split_path(abspath)
 		curnode = self.m_root # root of the tree
 		for dirname in plst:
@@ -332,11 +332,11 @@ class Build:
 		# do not rescan over and over again
 		if src_dir_node in self.m_scanned_folders: return
 
-		#debug("rescanning "+str(src_dir_node))
+		#debug("rescanning "+str(src_dir_node), 'build')
 
 		# list the files in the src directory, adding the signatures
 		files = self.scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.files())
-		#debug("files found in folder are "+str(files))
+		#debug("files found in folder are "+str(files), 'build')
 		src_dir_node.set_files(files)
 
 		# list the files in the build dirs
@@ -348,7 +348,7 @@ class Build:
 				files = self.scan_path(src_dir_node, sub_path, src_dir_node.build(), variant)
 				src_dir_node.set_build(files)
 			except OSError:
-				#debug("osError on " + sub_path)
+				#debug("osError on " + sub_path, 'build')
 
 				# listdir failed, remove all sigs of nodes
 				dict = self.m_tstamp_variants[variant]
@@ -377,7 +377,7 @@ class Build:
 		# read the dir contents, ignore the folders in it
 		l_names_read = os.listdir(i_path)
 
-		debug("folder contents "+str(l_names_read))
+		debug("folder contents "+str(l_names_read), 'build')
 
 		# there are two ways to obtain the partitions:
 		# 1 run the comparisons two times (not very smart)
@@ -409,7 +409,7 @@ class Build:
 			except:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
-		debug("new files found "+str(l_names))
+		debug("new files found "+str(l_names), 'build')
 
 		l_path = i_path + os.sep
 		for name in l_names:
@@ -568,7 +568,7 @@ if 0: #sys.version_info[:2] < [2,3]:
 			except:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
-		debug("new files found "+str(l_names))
+		debug("new files found "+str(l_names), 'build')
 
 		for name in l_new_files:#l_names:
 			try:

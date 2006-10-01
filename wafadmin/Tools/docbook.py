@@ -6,7 +6,7 @@
 
 import os, string
 import Action, Object, Params, Runner, Utils
-from Params import trace, fatal
+from Params import debug, fatal
 
 # first, we define an action to build something
 fop_vardeps = ['FOP']
@@ -41,7 +41,7 @@ xslt_vardeps = ['XSLTPROC']
 ## Given a 'docbook' object and a node to build,
 # create the tasks to build the node's target.
 def docb_file(obj, node):
-	trace("Seen docbook file type")
+	debug("Seen docbook file type")
 
 	# this function is used several times
 	fi = obj.find
@@ -53,7 +53,7 @@ def docb_file(obj, node):
 		if not obj.env['XSLTPROC']:
 			fatal("Can not process %s: no xml processor detected." % node.m_name)
 	if ext == '.xml' and obj.get_type() == 'pdf':
-		trace("building pdf")
+		debug("building pdf")
 		xslttask = obj.create_task('xslt', obj.env, 4)
 
 		xslttask.m_inputs  = [fi(node.m_name)]
@@ -69,7 +69,7 @@ def docb_file(obj, node):
 		foptask.m_outputs = [fi(base+'.pdf')]
 
 	if ext == '.xml' and obj.get_type() == 'html':
-		trace("building html")
+		debug("building html")
 		xslttask = obj.create_task('xslt', obj.env, 4)
 
 		xslttask.m_inputs  = [fi(node.m_name)]
@@ -83,7 +83,7 @@ def docb_file(obj, node):
 		if not obj.env["DB2%s" % string.upper(obj.get_type()) ]:
 			fatal("Can not process %s: no suitable docbook processor detected." %  node.m_name )
 	if ext == '.sgml' or ext == '.docbook':
-		trace("building %s" % obj.get_type())
+		debug("building %s" % obj.get_type())
 
 		xslttask = obj.create_task('db2', obj.env)
 
@@ -109,7 +109,7 @@ class docbookobj(Object.genobj):
 		return self.m_type
 
 	def apply(self):
-		trace("apply called for docbookobj")
+		debug("apply called for docbookobj")
 
 		if not self.m_type in self.get_valid_types():
 			fatal('Trying to convert docbook file to unknown type')

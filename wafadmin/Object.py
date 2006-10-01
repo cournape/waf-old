@@ -23,7 +23,7 @@ hooks
 
 import types
 import Params, Task, Common, Node, Utils
-from Params import debug, error, trace, fatal
+from Params import debug, error, fatal
 
 g_allobjs=[]
 
@@ -47,7 +47,7 @@ def flush():
 	"force all objects to post their tasks"
 
 	bld = Params.g_build
-	trace("delayed operation Object.flush() called")
+	debug("delayed operation Object.flush() called", 'object')
 
 	dir_lst = Utils.split_path(Params.g_launchdir)
 	root    = bld.m_root
@@ -58,7 +58,7 @@ def flush():
 		compile_targets = None
 
 	for obj in bld.m_outstanding_objs:
-		trace("posting object")
+		debug("posting object", 'object')
 
 		if obj.m_posted: continue
 
@@ -69,10 +69,10 @@ def flush():
 				continue
 		if compile_targets:
 			if obj.name and not (obj.name in compile_targets):
-				trace("skipping because of name")
+				debug("skipping because of name", 'object')
 				continue
 			if not obj.target in compile_targets:
-				trace("skipping because of target")
+				debug("skipping because of target", 'object')
 				continue
 		# post the object
 		obj.post()
@@ -190,7 +190,7 @@ class genobj:
 		pass
 
 	def install_results(self, var, subdir, task, chmod=0644):
-		trace('install results called')
+		debug('install results called', 'object')
 		current = Params.g_build.m_curdirnode
 		# TODO what is the pythonic replacement for these three lines ?
 		lst = []
@@ -219,7 +219,7 @@ class genobj:
 def flatten(env, var):
 	try:
 		v = env[var]
-		if not v: debug("variable %s does not exist in env !" % var)
+		if not v: debug("variable %s does not exist in env !" % var, 'object')
 
 		if type(v) is types.ListType:
 			return " ".join(v)
@@ -239,7 +239,7 @@ def list_to_env_list(env, vars_list):
 			else:
 				return v
 		except:
-			debug("variable %s does not exist in env !" % var)
+			debug("variable %s does not exist in env !" % var, 'object')
 			return ''
 	return map(get_env_value, vars_list)
 
@@ -252,7 +252,7 @@ g_allclasses = {}
 def register(name, classval):
 	global g_allclasses
 	if name in g_allclasses:
-		trace('class exists in g_allclasses '+name)
+		debug('class exists in g_allclasses '+name, 'object')
 		return
 	g_allclasses[name] = classval
 

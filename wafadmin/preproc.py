@@ -9,6 +9,7 @@
 
 import sys, os, string
 import Params
+from Params import debug
 
 parse_cache = {}
 
@@ -591,7 +592,7 @@ class cparse:
 			try:
 				self.process_line()
 			except:
-				if Params.g_verbose > 0: print "warning: line parsing failed >%s<" % line
+				debug("line parsing failed >%s<" % line, 'preproc')
 				#raise
 
 	# debug only
@@ -830,7 +831,7 @@ class cparse:
 			buf.append(c)
 		c = self.next()
 		#buf.append(c)
-		if c != '\'': print "uh-oh, invalid character", c
+		if c != '\'': error("uh-oh, invalid character"+str(c))
 
 		return ''.join(buf)
 
@@ -885,10 +886,8 @@ class cparse:
 		return 0
 
 if __name__ == "__main__":
-	try:
-		arg = sys.argv[1]
-	except:
-		arg = "file.c"
+	try: arg = sys.argv[1]
+	except: arg = "file.c"
 
 	paths = ['.']
 	gruik = cparse(strpaths = paths)

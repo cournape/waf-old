@@ -7,7 +7,7 @@
 import os, sys, re
 import ccroot, cpp
 import Action, Common, Object, Params, Runner, Scan, Utils
-from Params import error, fatal, trace
+from Params import error, fatal, debug
 from Params import set_globals, globals
 
 def getSOfromLA(lafile):
@@ -34,7 +34,7 @@ class kcfg_scanner(Scan.scanner):
 	def scan(self, node, env, path_lst):
 		variant = node.variant(env)
 
-		trace("kcfg scanner called for "+str(node))
+		debug("kcfg scanner called for "+str(node), 'kcfg')
 		file = open(node.abspath(env), 'rb')
 		found = kcfg_regexp.findall(file.read())
 		file.close()

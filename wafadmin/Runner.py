@@ -6,7 +6,7 @@
 
 import sys, time, random
 import Params, Task, pproc, Utils
-from Params import debug, error, trace
+from Params import debug, error
 
 dostat=0
 """
@@ -82,7 +82,7 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 
 def exec_command_normal(str):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
-	trace("system command -> "+ str)
+	debug("system command -> "+ str, 'runner')
 	if Params.g_verbose==1: print str
 	proc = pproc.Popen(str, shell=1, stdout=pproc.PIPE, stderr=pproc.PIPE)
 	process_cmd_output(proc.stdout, proc.stderr)
@@ -92,7 +92,7 @@ def exec_command_normal(str):
 
 def exec_command_interact(str):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
-	trace("system command (interact) -> "+ str)
+	debug("system command (interact) -> "+ str, 'runner')
 	if Params.g_verbose==1: print str
 	proc = pproc.Popen(str, shell=1)
 	stat = proc.wait()
@@ -175,14 +175,11 @@ class JobGenerator:
 
 	# TODO FIXME
 	def debug(self):
-		debug("debugging a task: something went wrong:")
-		#trace("tasks to run in order")
-		#Task.g_tasks.reverse()
+		debug("debugging a task: something went wrong:", 'runner')
 		s=""
 		for t in Task.g_tasks:
 			s += str(t.m_idx)+" "
-		trace(s)
-		#Task.g_tasks.reverse()
+		debug(s, 'runner')
 
 	# skip a group and report the failure
 	def skip_group(self, reason):
@@ -197,21 +194,21 @@ class Serial:
 	def __init__(self, generator):
 		self.m_generator = generator
 	def start(self):
-		debug("Serial start called")
+		debug("Serial start called", 'runner')
 		#self.m_generator.debug()
 		while 1:
 			# get next Task
 			proc = self.m_generator.get_next()
 			if proc is None: break
 
-			#trace("retrieving task "+str(proc.m_idx))
+			debug("retrieving #"+str(proc.m_idx), 'runner')
 
 			# # =======================
 			#if proc.m_hasrun:
 			#	error("task has already run! "+str(proc.m_idx))
 
 			if not proc.may_start():
-				#trace("delaying task no "+str(proc.m_idx))
+				debug("delaying   #"+str(proc.m_idx), 'runner')
 				self.m_generator.postpone(proc)
 				#self.m_generator.debug()
 				#proc = None
@@ -221,16 +218,16 @@ class Serial:
 			proc.prepare()
 			#proc.debug()
 
-			#trace("m_sig is "+str(proc.m_sig))
-			#trace("obj output m_sig is "+str(proc.m_outputs[0].get_sig()))
+			#debug("m_sig is "+str(proc.m_sig), 'runner')
+			#debug("obj output m_sig is "+str(proc.m_outputs[0].get_sig()), 'runner')
 
 			#continue
 			if not proc.must_run():
 				proc.m_hasrun=2
-				#debug("task is up-to_date "+str(proc.m_idx))
+				#debug("task is up-to_date "+str(proc.m_idx), 'runner')
 				continue
 
-			trace("executing task "+str(proc.m_idx))
+			debug("executing  #"+str(proc.m_idx), 'runner')
 
 			# display the command that we are about to run
 			if not Params.g_commands['configure']:
@@ -252,7 +249,7 @@ class Serial:
 					self.m_generator.skip_group('non-zero return code\n' + proc.debug_info())
 					continue
 				else:
-					error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
+					error("task failed! (return code %s for #%s)"%(str(ret), str(proc.m_idx)))
 					proc.debug(1)
 					return ret
 
@@ -279,7 +276,7 @@ class Serial:
 				print "hum hum .. task failed!"
 			"""
 
-		debug("Serial end")
+		debug("Serial end", 'runner')
 		return 0
 
 import threading
@@ -562,7 +559,7 @@ class Parallel:
 
 					self.m_ready.put(proc, block=1)
 
-		trace("amount of loops "+str(loop))
+		debug("amount of loops "+str(loop), 'runner')
 		global stat
 		if dostat and stat:
 			file = open('test.dat', 'w')

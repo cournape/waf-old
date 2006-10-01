@@ -5,7 +5,7 @@
 "Actions are used to build the nodes of most tasks"
 
 import Object, Runner
-from Params import debug, trace, fatal
+from Params import debug, fatal
 
 g_actions={}
 "global actions"
@@ -28,9 +28,9 @@ class Action:
 
 	def _add_action(self):
 		global g_actions
-		if self.m_name in g_actions: trace('overriding action '+self.m_name)
+		if self.m_name in g_actions: debug('overriding action '+self.m_name, 'action')
 		g_actions[self.m_name] = self
-		trace("action added: %s" % self.m_name)
+		debug("action added: %s" % self.m_name, 'action')
 
 	def get_str(self, task):
 		"string to display to the user"
@@ -160,7 +160,7 @@ def simple_action(name, line, color='GREEN'):
 	obj = alex(line)
 	obj.start()
 	f = obj.fun()
-	debug(obj.res())
+	debug(obj.res(), 'action')
 	act = Action(name, color=color)
 	act.m_function_to_run = f
 	act.m_vars = obj.m_vars
