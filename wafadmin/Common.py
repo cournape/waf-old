@@ -29,7 +29,13 @@ def do_install(src, tgt, chmod=0644):
 				_do_install = 1
 
 		if _do_install:
-			print "* installing %s as %s" % (src, tgt)
+			srclbl = src
+			try:
+				srclbl = src.replace(Params.g_build.m_bldnode.abspath(None)+os.sep, '')
+				srclbl = src.replace(Params.g_build.m_srcnode.abspath(None)+os.sep, '')
+			except:
+				pass
+			print "* installing %s as %s" % (srclbl, tgt)
 			try:
 				shutil.copy2(src, tgt)
 				os.chmod(tgt, chmod)
