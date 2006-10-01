@@ -25,7 +25,7 @@ g_preprocess = 1
 g_excludes = ['.svn', 'CVS', 'wafadmin', '.arch-ids']
 "exclude from dist"
 
-g_strong_hash = 0
+g_strong_hash = 1
 "hash method: md5 (1:default) or integers"
 
 g_timestamp = 0

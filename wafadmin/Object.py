@@ -228,24 +228,26 @@ def flatten(env, var):
 	except:
 		fatal("variable %s does not exist in env !" % var)
 
-def list_to_env_list(env, vars_list):
-	" ['CXX', ..] -> [env['CXX'], ..]"
-	def get_env_value(var):
-		# TODO add a cache here ?
-		try:
-			v = env[var]
-			if type(v) is types.ListType:
-				return " ".join(v)
-			else:
-				return v
-		except:
-			debug("variable %s does not exist in env !" % var, 'object')
-			return ''
-	return map(get_env_value, vars_list)
-
+g_cache_max={}
 def sign_env_vars(env, vars_list):
-	lst = list_to_env_list(env, vars_list)
-	return Params.h_list(lst)
+	" ['CXX', ..] -> [env['CXX'], ..]"
+
+	# ccroot objects use the same environment for building the .o at once
+	# the same environment and the same variables are used
+	s = str(vars_list)
+	try: return g_cache_max[s]
+	except KeyError: pass
+
+	def get_env_value(var):
+		v = env[var]
+		if type(v) is types.ListType: return " ".join(v)
+		else: return v
+
+	lst = map(get_env_value, vars_list)
+	ret = Params.h_list(lst)
+	# next time
+	g_cache_max[s] = ret
+	return ret
 
 # TODO there is probably a way to make this more simple
 g_allclasses = {}

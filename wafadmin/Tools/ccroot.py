@@ -251,9 +251,7 @@ class c_scanner(Scan.scanner):
 		add_node_sig(node)
 		for n in tree.m_depends_on[variant][node]: add_node_sig(n)
 
-		# and now xor the signature with the other tasks
 		#for task in task.m_run_after: m.update(task.signature())
-		debug("signature of the task %d is %s" % (task.m_idx, Params.vsig(sig)), 'ccroot')
 		return m.digest()
 
 g_c_scanner = c_scanner()
