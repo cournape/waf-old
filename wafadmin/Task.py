@@ -67,7 +67,7 @@ class TaskGroup:
 class TaskBase:
 	"TaskBase is the base class for task objects"
 	def __init__(self, priority, normal=1):
-		self.display = ''
+		self.m_display = ''
 		self.m_hasrun=0
 		global g_tasks
 		if normal:
@@ -101,9 +101,9 @@ class TaskBase:
 		"return the color to use for the console messages"
 		return 'BLUE'
 	def set_display(self, v):
-		self.display = v
+		self.m_display = v
 	def get_display(self):
-		return self.display
+		return self.m_display
 class Task(TaskBase):
 	"Task is the more common task. It has input nodes and output nodes"
 	def __init__(self, action_name, env, priority=5, normal=1):
@@ -120,10 +120,6 @@ class Task(TaskBase):
 		# nodes to produce
 		self.m_outputs = []
 
-
-		# Display is calculated on demand 
-		self.m_display = ""
-
 		self.m_sig=0
 		self.m_dep_sig=0
 
@@ -134,10 +130,6 @@ class Task(TaskBase):
 		self.m_scanner_params = g_default_param
 
 		self.m_run_after = []
-
-	def get_display(self):
-		"reimpl"
-		return self.m_action.get_str(self)
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs = inp
@@ -234,8 +226,8 @@ class Task(TaskBase):
 
 	def get_display(self):
 		if self.m_display: return self.m_display
-		m_display=self.m_action.get_str(self)
-		return m_display
+		self.m_display=self.m_action.get_str(self)
+		return self.m_display
 
 	def _can_retrieve_cache(self, sig):
 		"""Retrieve build nodes from the cache
