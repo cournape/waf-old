@@ -163,9 +163,9 @@ class Task(TaskBase):
 
 			tree.m_tstamp_variants[variant][node] = sig
 
-			if Params.g_options.usecache:
+			if Params.g_usecache:
 				ssig = sig.encode('hex')
-				dest = os.path.join(Params.g_options.usecache, ssig+'-'+str(cnt))
+				dest = os.path.join(Params.g_usecache, ssig+'-'+str(cnt))
 				shutil.copy2(node.abspath(env), dest)
 				cnt += 1
 
@@ -234,7 +234,7 @@ class Task(TaskBase):
 		It modifies the time stamp of files that are copied
 		so it is possible to clean the least used files from
 		the cache directory"""
-		if not Params.g_options.usecache: return None
+		if not Params.g_usecache: return None
 		if Params.g_options.nocache: return None
 
 		env  = self.m_env
@@ -246,7 +246,7 @@ class Task(TaskBase):
 				variant = node.variant(env)
 
 				ssig = sig.encode('hex')
-				orig = os.path.join(Params.g_options.usecache, ssig+'-'+str(cnt))
+				orig = os.path.join(Params.g_usecache, ssig+'-'+str(cnt))
 				shutil.copy2(orig, node.abspath(env))
 
 				# touch the file

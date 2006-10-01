@@ -73,6 +73,10 @@ for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
 		g_homedir=os.environ[var]
 		break
 
+g_usecache = ''
+try: g_usecache = os.path.abspath(os.environ['WAFCACHE'])
+except KeyError: pass
+
 # allow different names for lockfile
 try: g_lockfile = os.environ['WAFLOCK']
 except: g_lockfile = '.lock-wscript'

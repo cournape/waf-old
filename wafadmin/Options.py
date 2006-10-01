@@ -85,12 +85,6 @@ def create_parser():
 		help    = 're-run all compilation tests',
 		dest    = 'nocache')
 
-	p('--usecache',
-		action  = 'store',
-		default = None,
-		help    = 'cache directory for the objects',
-		dest    = 'usecache')
-
 	if 'configure' in sys.argv:
 		p('-b', '--blddir',
 			action  = 'store',
@@ -139,13 +133,6 @@ def parse_args_impl(parser):
 
 	# TODO -k => -j0
 	if Params.g_options.keep: Params.g_options.jobs = 1
-
-	# make sure usecache is an absolute path
-	if Params.g_options.usecache:
-		Params.g_options.usecache = os.path.abspath(Params.g_options.usecache)
-	elif 'WAFCACHE' in os.environ:
-		Params.g_options.usecache = os.path.abspath(os.environ['WAFCACHE'])
-
 
 	Params.g_verbose = Params.g_options.verbose
 	Params.g_zones = Params.g_options.zones.split(',')
