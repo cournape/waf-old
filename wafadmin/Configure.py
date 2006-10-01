@@ -332,8 +332,10 @@ class cfgtool_configurator(configurator_base):
 
 	def validate(self):
 		if not self.binary:
-			raise "error"
-		if not self.define:
+			raise ValueError, "no binary given in cfgtool!"
+		if not self.uselib:
+			raise ValueError, "no uselib given in cfgtool!"
+		if not self.define and self.uselib:
 			self.define = 'HAVE_'+self.uselib
 
 		if not self.tests:
