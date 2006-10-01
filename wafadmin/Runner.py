@@ -5,7 +5,7 @@
 "Execute the tasks"
 
 import sys, time, random
-import Params, Task, pproc, Utils
+import Params, Task, Utils
 from Params import debug, error
 
 dostat=0
@@ -20,8 +20,20 @@ plot 'test.dat' using 1:3 with linespoints
 """
 
 g_initial = time.time()
+"time since the start of the build"
 
 g_quiet = 0
+"do not output anything"
+
+exetor = None
+"subprocess"
+try:
+	import subprocess
+	exetor = subprocess
+except:
+	# this is provided for python < 2.4, will be removed in the future
+	import pproc
+	exetor = pproc
 
 def write_progress(s):
 	if Params.g_options.progress_bar == 1:
@@ -84,7 +96,7 @@ def exec_command_normal(str):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
 	debug("system command -> "+ str, 'runner')
 	if Params.g_verbose==1: print str
-	proc = pproc.Popen(str, shell=1, stdout=pproc.PIPE, stderr=pproc.PIPE)
+	proc = exetor.Popen(str, shell=1, stdout=exetor.PIPE, stderr=exetor.PIPE)
 	process_cmd_output(proc.stdout, proc.stderr)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
@@ -94,7 +106,7 @@ def exec_command_interact(str):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
 	debug("system command (interact) -> "+ str, 'runner')
 	if Params.g_verbose==1: print str
-	proc = pproc.Popen(str, shell=1)
+	proc = exetor.Popen(str, shell=1)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
