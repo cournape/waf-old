@@ -219,11 +219,13 @@ try:
 		lst_calldir = os.listdir(calldir)
 		if 'wscript'       in lst_calldir:
 			candidate = calldir
-			Params.g_launchdir = calldir
+			if not Params.g_launchdir:
+				Params.g_launchdir = calldir
 			search_for_candidate = False
 		if 'wscript_xml'   in lst_calldir:
 			candidate = calldir
-			Params.g_launchdir = calldir
+			if not Params.g_launchdir:
+				Params.g_launchdir = calldir
 			xml = 1
 			search_for_candidate = False
 
