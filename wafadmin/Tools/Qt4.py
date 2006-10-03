@@ -49,8 +49,7 @@ class MTask(Task.Task):
 		except:
 			tmp_lst = []
 		for d in tmp_lst:
-			base2, ext2 = os.path.splitext(d)
-			if not ext2 == '.moc': continue
+			if not d[-4:] == '.moc': continue
 			# paranoid check
 			if d in mocfiles:
 				error("paranoia owns")
@@ -62,6 +61,7 @@ class MTask(Task.Task):
 			if Params.g_options.qt_header_ext:
 				ext = Params.g_options.qt_header_ext
 			else:
+				base2 = d[:-4]
 				path = node.m_parent.srcpath(parn.env)
 				for i in globals('MOC_H'):
 					try:
