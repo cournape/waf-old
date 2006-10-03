@@ -190,7 +190,7 @@ def detect_qt4(conf):
 	if not qtincludes: qtincludes = qtdir + 'include/'
 	env['QTINCLUDEPATH']=qtincludes
 
-	lst = [qtincludes, '/usr/include/qt4', '/opt/qt4/include']
+	lst = [qtincludes, '/usr/share/qt4/include/', '/opt/qt4/include']
         test = conf.create_header_enumerator()
         test.name = 'QtGui/QFont'
 	test.path = lst
@@ -201,7 +201,7 @@ def detect_qt4(conf):
 	# check for the qtbinaries
 	if not qtbin: qtbin = qtdir + 'bin/'
 
-	binpath = [qtbin] + os.environ['PATH'].split(':')
+	binpath = [qtbin, '/usr/share/qt4/bin/'] + os.environ['PATH'].split(':')
 	def find_bin(lst, var):
 		for f in lst:
 			ret = conf.find_program(f, path_list=binpath)
