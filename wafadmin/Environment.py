@@ -8,11 +8,15 @@ import os,sys,string, types, imp
 import Params, Utils
 from Params import debug, error
 
+g_idx = 0
 class Environment:
 	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
 	An environment instance can be stored into a file and loaded easily
 	"""
 	def __init__(self):
+		global g_idx
+		self.m_idx = g_idx
+		g_idx += 1
 		self.m_table={}
 		self.m_var_cache={}
 		# may be there is a better place for this

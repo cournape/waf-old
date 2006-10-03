@@ -234,7 +234,7 @@ def sign_env_vars(env, vars_list):
 
 	# ccroot objects use the same environment for building the .o at once
 	# the same environment and the same variables are used
-	s = str(vars_list)
+	s = str([env.m_idx]+vars_list)
 	try: return g_cache_max[s]
 	except KeyError: pass
 
