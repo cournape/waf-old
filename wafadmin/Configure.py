@@ -758,10 +758,6 @@ class Configure:
 		lst = Utils.to_list(input)
 		ret = True
 		for i in lst:
-			# TODO: is this really necessary ?
-			#define = 'HAVE_'+i.upper().replace('.','_').replace('+','P')
-			#if self.is_defined(define): continue
-
 			try:
 				file,name,desc = imp.find_module(i, tooldir)
 			except:
@@ -769,7 +765,6 @@ class Configure:
 				return 0
 			module = imp.load_module(i,file,name,desc)
 			ret = int(module.detect(self))
-			#self.add_define(define, ret)
 			self.env.appendValue('tools', {'tool':i, 'tooldir':tooldir})
 		return 1
 

@@ -167,13 +167,14 @@ class Handler:
 
 		self.cwd = current
 
-	def tool_options(self, tool):
+	def tool_options(self, tool, tooldir=None):
 		if type(tool) is types.ListType:
-			for i in tool: self.tool_options(i)
+			for i in tool: self.tool_options(i, tooldir)
 			return
 
+		if not tooldir: tooldir = Params.g_tooldir
 		try:
-			file,name,desc = imp.find_module(tool, Params.g_tooldir)
+			file,name,desc = imp.find_module(tool, tooldir)
 		except:
 			warning("no tool named '%s' found" % tool)
 			raise
