@@ -757,6 +757,7 @@ class Configure:
 		"load a waf tool"
 		lst = Utils.to_list(input)
 		ret = True
+		if tooldir: tooldir = Utils.to_list(tooldir)
 		for i in lst:
 			try:
 				file,name,desc = imp.find_module(i, tooldir)

@@ -173,11 +173,11 @@ class Handler:
 			return
 
 		if not tooldir: tooldir = Params.g_tooldir
+		tooldir = Utils.to_list(tooldir)
 		try:
 			file,name,desc = imp.find_module(tool, tooldir)
 		except:
-			warning("no tool named '%s' found" % tool)
-			raise
+			error("no tool named '%s' found" % tool)
 			return
 		module = imp.load_module(tool,file,name,desc)
 		try:
