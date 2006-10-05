@@ -244,11 +244,13 @@ class Node:
 
 		Params.g_build.rescan(self)
 
-		if name == '.':  return self.find_node( lst[1:] )
-		if name == '..': return self.m_parent.find_node( lst[1:] )
+		if name == '.':  return self.search_existing_node(lst[1:])
+		if name == '..': return self.m_parent.search_existing_node(lst[1:])
 
-		res = self.find_node_by_name(name,lst)
-		if res: return res
+		res = self.get_dir(name,None)
+		if not res: res=self.get_file(name)
+		if not res: res=self.get_build(name)
+		if res: return res.search_existing_node(lst[1:])
 
 		debug('search_existing_node returns nothing %s %s' % (str(self), str(lst)), 'node')
 		return None
