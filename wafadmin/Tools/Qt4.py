@@ -107,7 +107,7 @@ def create_rcc_task(self, node):
 
 	cpptask = self.create_task('cpp', self.env)
 	cpptask.m_inputs  = [rcnode]
-	cpptask.m_outputs = [node.change_ext('.o')]
+	cpptask.m_outputs = [rcnode.change_ext('.o')]
 
 def create_uic_task(self, node):
 	"hook for uic tasks"
