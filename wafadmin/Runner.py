@@ -261,8 +261,9 @@ class Serial:
 					self.m_generator.skip_group('non-zero return code\n' + proc.debug_info())
 					continue
 				else:
-					error("task failed! (return code %s for #%s)"%(str(ret), str(proc.m_idx)))
-					proc.debug(1)
+					if Params.g_verbose:
+						error("task failed! (return code %s for #%s)"%(str(ret), str(proc.m_idx)))
+						proc.debug(1)
 					return ret
 
 			try:
@@ -273,7 +274,8 @@ class Serial:
 					self.m_generator.skip_group('missing nodes\n' + proc.debug_info())
 					continue
 				else:
-					error('the nodes have not been produced !')
+					if Params.g_verbose:
+						error('the nodes have not been produced !')
 					raise
 			proc.m_hasrun=1
 
@@ -367,8 +369,9 @@ class TaskConsumer(threading.Thread):
 
 			if ret:
 				lock.acquire()
-				error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
-				proc.debug(1)
+				if Params.g_verbose:
+					error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
+					proc.debug(1)
 				count -= 1
 				stop   = 1
 				self.notify()
@@ -379,7 +382,8 @@ class TaskConsumer(threading.Thread):
 				proc.update_stat()
 			except:
 				lock.acquire()
-				error('the nodes have not been produced !')
+				if Params.g_verbose:
+					error('the nodes have not been produced !')
 				count -= 1
 				stop = 1
 				self.notify()
