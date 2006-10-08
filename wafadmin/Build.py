@@ -4,7 +4,7 @@
 
 "Dependency tree holder"
 
-import os, cPickle, sys
+import os, cPickle
 import Params, Runner, Object, Node, Task, Scripting, Utils
 from Params import debug, error, fatal, warning
 

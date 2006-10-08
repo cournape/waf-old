@@ -56,7 +56,7 @@ class tex_scanner(Scan.scanner):
 				print 'could not find', filepath
 				names.append(path)
 
-		tex("found the following : %s and names %s" % (nodes, names), 'tex')
+		debug("found the following : %s and names %s" % (nodes, names), 'tex')
 		return (nodes, names)
 
 g_tex_scanner = tex_scanner()

@@ -6,7 +6,7 @@
 
 import md5
 import Params
-from Params import debug
+from Params import debug, error
 from Params import hash_sig_weak
 
 g_all_scanners={}

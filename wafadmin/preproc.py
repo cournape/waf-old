@@ -9,7 +9,7 @@
 
 import sys, os, string
 import Params
-from Params import debug
+from Params import debug, error
 
 parse_cache = {}
 

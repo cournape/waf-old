@@ -6,7 +6,7 @@
 
 import os, types, sys, re, md5
 import Action, Object, Params, Scan, Common, Utils
-from Params import debug, error, debug, fatal
+from Params import error, debug, fatal, warning
 from Params import hash_sig_weak
 
 g_prio_link=101
