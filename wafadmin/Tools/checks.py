@@ -197,14 +197,61 @@ def check_flags(self, flags, uselib='', options='', msg=1):
 def setup(env):
 	pass
 
+
+# function wrappers for convenience
+def check_header2(self, name, mandatory=1, define=''):
+	import os
+	ck_hdr = self.create_header_configurator()
+	if define: ck_hdr.define = define
+	# header provides no fallback for define:
+	else: ck_hdr.define = 'HAVE_' + os.path.basename(name).replace('.','_').upper()
+	ck_hdr.mandatory = mandatory
+	ck_hdr.name = name
+	return ck_hdr.run()
+
+def check_library2(self, name, mandatory=1, uselib=''):
+	ck_lib = self.create_library_configurator()
+	if uselib: ck_lib.uselib = uselib
+	ck_lib.mandatory = mandatory
+	ck_lib.name = name
+	return ck_lib.run()
+
+def check_pkg2(self, name, version, mandatory=1, uselib=''):
+	ck_pkg = self.create_pkgconfig_configurator()
+	if uselib: ck_pkg.uselib = uselib
+	ck_pkg.mandatory = mandatory
+	ck_pkg.version = version
+	ck_pkg.name = name
+	return ck_pkg.run()
+
+def check_cfg2(self, name, mandatory=1, define='', uselib=''):
+	ck_cfg = self.create_cfgtool_configurator()
+	if uselib: ck_cfg.uselib = uselib
+	# cfgtool provides no fallback for uselib:
+	else: ck_cfg.uselib = name.upper()
+ 	ck_cfg.mandatory = mandatory
+	ck_cfg.binary = name + '-config'
+	return ck_cfg.run()
+
 def detect(conf):
 	"attach the checks to the conf object"
-	conf.hook(checkEndian)
-	conf.hook(checkFeatures)
+
 	conf.hook(check_header)
 	conf.hook(create_compile_configurator)
 	conf.hook(try_build)
 	conf.hook(try_build_and_exec)
 	conf.hook(check_flags)
+
+	# additional methods
+	conf.hook(check_header2)
+	conf.hook(check_library2)
+	conf.hook(check_pkg2)
+	conf.hook(check_cfg2)
+
+	# the point of checkEndian is to make an example, the following is better
+	# if sys.byteorder == "little":
+	conf.hook(checkEndian)
+	conf.hook(checkFeatures)
+
 	return 1
 
