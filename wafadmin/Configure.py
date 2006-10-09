@@ -630,7 +630,9 @@ class header_configurator(configurator_base):
 	def validate(self):
 		#try: self.names = self.names.split()
 		#except: pass
-		#if not self.define: self.define = 'HAVE_'+self.uselib
+		if not self.define:
+			if self.name: self.define = 'HAVE_'+self.name.upper().replace('/','_').replace('-','_')
+			elif self.uselib: self.define = 'HAVE_'+self.uselib
 
 		if not self.code:
 			self.code = "#include <%s>\nint main(){return 0;}\n"
