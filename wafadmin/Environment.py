@@ -36,6 +36,12 @@ class Environment:
 		newenv.m_table = self.m_table.copy()
 		return newenv
 
+	def deepcopy(self):
+		import copy
+		newenv = Environment()
+		newenv.m_table = copy.deepcopy(self.m_table)
+		return newenv
+
 	def setup(self, tool, tooldir=None):
 		"setup tools for build process"
 		if type(tool) is types.ListType:
