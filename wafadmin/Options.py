@@ -8,7 +8,7 @@
 import os, sys, imp, types
 from optparse import OptionParser
 import Params, Utils
-from Params import debug, fatal, warning
+from Params import debug, fatal, warning, error
 
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 try:
