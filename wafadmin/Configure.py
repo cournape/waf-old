@@ -436,7 +436,7 @@ class pkgconfig_configurator(configurator_base):
 		if not pkgbin:
 			pkgbin = 'pkg-config'
 		if pkgpath:
-			pkgpath = 'PKG_CONFIG_PATH=' + pkgpath
+			pkgpath = 'PKG_CONFIG_PATH=$PKG_CONFIG_PATH:' + pkgpath
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
 
 		retval = {}
@@ -1010,7 +1010,7 @@ class Configure:
 		if not env: env=self.env
 
 		if not pkgbin: pkgbin='pkg-config'
-		if pkgpath: pkgpath='PKG_CONFIG_PATH='+pkgpath
+		if pkgpath: pkgpath='PKG_CONFIG_PATH=$PKG_CONFIG_PATH:'+pkgpath
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
 		try:
 			if pkgversion:

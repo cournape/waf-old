@@ -230,7 +230,6 @@ def detect_qt4(conf):
 
 	# check for the qt libraries
 	if not qtlibs: qtlibs = qtdir + 'lib'
-	env['QTLIBPATH']=qtlibs
 
 	vars = "Qt3Support QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml".split()
 	vars_debug = map(lambda a: a+'_debug', vars)
@@ -239,7 +238,7 @@ def detect_qt4(conf):
 		#conf.check_pkg(i, pkgpath=qtlibs)
 		pkgconf = conf.create_pkgconfig_configurator()
 		pkgconf.name = i
-		pkgconf.path = qtlibs
+		pkgconf.path = qtlibs + ':/usr/lib/qt4/lib:/opt/qt4/lib'
 		pkgconf.run()
 
 
