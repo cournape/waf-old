@@ -138,6 +138,11 @@ class genobj:
 		"runs the code to create the tasks, do not subclass"
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
 		if not self.name: self.name = self.target
+		try:
+			self.sources
+			error("typo: self.sources -> self.source")
+		except AttributeError:
+			pass
 
 		if self.m_posted:
 			error("OBJECT ALREADY POSTED")
