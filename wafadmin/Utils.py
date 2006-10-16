@@ -131,7 +131,7 @@ except:
 
 def split_path(path):
 	"Split path into components. Supports UNC paths on Windows"
-	if 'win' in sys.platform:
+	if 'win' in sys.platform and sys.platform != 'darwin':
 		h,t = os.path.splitunc(path)
 		if not h: return __split_dirs(t)
 		return [h] + __split_dirs(t)[1:]
