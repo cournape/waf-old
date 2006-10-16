@@ -1,7 +1,10 @@
-low priority:
+after 1.0:
 * functions in the preprocessor
 * packaging (rpms, debs) ?
+* more compilers and cross compilation
+* scons emulation
+* ncurses options menu support
 
 --------------------------------------
-Last update: 23-09-2006
+Last update: 17-10-2006
 Contact -> tnagyemail-mail@yahoo.fr (ita)
