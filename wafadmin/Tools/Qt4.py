@@ -16,7 +16,7 @@ import Action, Params, Object, Task, Utils
 from Params import error, fatal
 from Params import set_globals, globals
 
-set_globals('MOC_H', ['.hh', '.h'])
+set_globals('MOC_H', ['.h', '.hpp', '.hxx', '.hh'])
 set_globals('RCC_EXT', ['.qrc'])
 set_globals('UI_EXT', ['.ui'])
 
