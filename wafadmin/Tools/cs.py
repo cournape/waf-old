@@ -4,7 +4,7 @@
 
 "C# support"
 
-import Params, Action, Object
+import Params, Action, Object, Utils
 from Params import error
 
 g_types_lst = ['program', 'library']
@@ -47,10 +47,12 @@ class csobj(Object.genobj):
 		# additional flags
 		self.env['_FLAGS'] += self.to_list(self.flags) + self.env['FLAGS']
 
+		curnode = self.m_current_path
+
 		# process the sources
 		nodes = []
 		for i in self.to_list(self.source):
-			nodes.append(self.find(i))
+			nodes.append(curnode.find_node(Utils.split_path(i)))
 
 		# create the task
 		task = self.create_task('mcs', self.env, 101)
