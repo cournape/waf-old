@@ -1,4 +1,4 @@
-after 1.0:
+After 1.0:
 * functions in the preprocessor
 * packaging (rpms, debs) ?
 * more compilers and cross compilation
@@ -6,5 +6,5 @@ after 1.0:
 * ncurses options menu support
 
 --------------------------------------
-Last update: 17-10-2006
+Last update: 18-10-2006
 Contact -> tnagyemail-mail@yahoo.fr (ita)
