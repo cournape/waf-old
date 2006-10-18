@@ -13,6 +13,11 @@ APPNAME='cpp_test'
 srcdir = '.'
 blddir = '_build_'
 
+def init():
+	# show how to disable the preprocessor
+	import Params
+	Params.g_preprocess=0
+
 def build(bld):
 	# process subfolders from here
 	bld.add_subdirs('src src2')
