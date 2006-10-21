@@ -14,9 +14,14 @@ srcdir = '.'
 blddir = '_build_'
 
 def init():
-	# show how to disable the preprocessor
-	import Params
-	Params.g_preprocess=0
+	pass
+	# disable the Waf preprocessor for finding dependencies
+	#import Params
+	#Params.g_preprocess=0
+
+	# redefine the cpp source extensions
+	#import cpp
+	#cpp.cppobj.s_default_ext = ['.cxx', '.cxy', '.cxyz']
 
 def build(bld):
 	# process subfolders from here

@@ -17,6 +17,15 @@ blddir = '_build_'
 import Utils
 Utils.waf_version(mini="0.8.8", maxi="9.9.9")
 
+def init():
+	pass
+	# disable the Waf preprocessor for finding dependencies
+	#import Params
+	#Params.g_preprocess=0
+
+	# redefine the cpp source extensions
+	#import cpp
+	#cpp.cppobj.s_default_ext = ['.cxx', '.cxy', '.cxyz']
 
 def build(bld):
 	# process subfolders from here
