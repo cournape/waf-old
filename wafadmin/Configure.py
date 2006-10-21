@@ -631,7 +631,7 @@ class header_configurator(configurator_base):
 		#try: self.names = self.names.split()
 		#except: pass
 		if not self.define:
-			if self.name: self.define = 'HAVE_'+self.name.upper().replace('/','_').replace('-','_')
+			if self.name: self.define = 'HAVE_'+self.name.upper().replace('/','_').replace('-','_').replace('.', '_')
 			elif self.uselib: self.define = 'HAVE_'+self.uselib
 
 		if not self.code:
