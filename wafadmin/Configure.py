@@ -3,7 +3,7 @@
 
 "Configuration system"
 
-import os, types, imp, cPickle, md5, sys
+import os, types, imp, cPickle, md5, sys, re
 import Params, Environment, Runner, Build, Utils
 from Params import error, fatal, warning
 
@@ -631,7 +631,9 @@ class header_configurator(configurator_base):
 		#try: self.names = self.names.split()
 		#except: pass
 		if not self.define:
-			if self.name: self.define = 'HAVE_'+self.name.upper().replace('/','_').replace('-','_').replace('.', '_')
+			if self.name:
+				reg=re.compile('[/\\\\.-]', re.M)
+				self.define = 'HAVE_'+'_'.join(reg.split(self.name)).upper()
 			elif self.uselib: self.define = 'HAVE_'+self.uselib
 
 		if not self.code:
