@@ -38,7 +38,7 @@ sgml_scanner = sgml_man_scanner()
 class gnome_intltool(Object.genobj):
 	def __init__(self):
 		Object.genobj.__init__(self, 'other')
-		self.sources = ''
+		self.source  = ''
 		self.destvar = ''
 		self.subdir  = ''
 		self.flags   = ''
@@ -49,7 +49,7 @@ class gnome_intltool(Object.genobj):
 		self.env = self.env.copy()
 		tree = Params.g_build
 		current = tree.m_curdirnode
-		for i in self.sources.split():
+		for i in self.to_list(self.source):
 			node = self.m_current_path.find_node(
 				Utils.split_path(i))
 

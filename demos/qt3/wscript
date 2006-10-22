@@ -13,8 +13,7 @@ def set_options(opt):
 	opt.tool_options('Qt3')
 
 def configure(conf):
-	conf.check_tool('g++')
-	conf.check_tool('Qt3')
+	conf.check_tool('g++ Qt3')
 
 def build(bld):
 	obj = bld.create_obj('qt3', 'program')

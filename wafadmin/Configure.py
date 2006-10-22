@@ -357,7 +357,7 @@ class cfgtool_configurator(configurator_base):
 
 		try:
 			ret = os.popen('%s %s 2>/dev/null' % (self.binary, self.tests.keys()[0] )).close()
-			if ret: raise "error"
+			if ret: raise ValueError, "error"
 
 			for flag in self.tests:
 				var = self.tests[flag] + '_' + self.uselib
@@ -365,7 +365,7 @@ class cfgtool_configurator(configurator_base):
 				retval[var] = [os.popen(cmd).read().strip()]
 
 			self.update_env(retval)
-		except:
+		except ValueError:
 			retval = {}
 			found = 0
 
@@ -445,12 +445,12 @@ class pkgconfig_configurator(configurator_base):
 			if self.version:
 				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, self.version, self.name)).close()
 				self.conf.check_message('package %s >= %s' % (self.name, self.version), '', not ret)
-				if ret: raise "error"
+				if ret: raise ValueError, "error"
 			else:
 				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
 				self.conf.check_message('package %s' % (self.name), '', not ret)
 				if ret:
-					raise "error"
+					raise ValueError, "error"
 
 			retval['CCFLAGS_'+uselib]   = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
 			retval['CXXFLAGS_'+uselib]  = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
@@ -486,7 +486,7 @@ class pkgconfig_configurator(configurator_base):
 
 			self.conf.add_define(self.define, 1)
 			self.update_env(retval)
-		except:
+		except ValueError:
 			retval = {}
 			self.conf.add_define(self.define, 0)
 
