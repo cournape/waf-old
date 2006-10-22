@@ -651,7 +651,8 @@ class cparse:
 
 		# skip lines when in a dead block
 		# wait for the endif
-		if not self.isok(): return
+		if not token in ['else', 'elif']:
+			if not self.isok(): return
 
 		#print "token is ", token
 
