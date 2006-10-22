@@ -659,9 +659,8 @@ class cparse:
 
 		if token == 'if':
 			ret = self.comp(self.get_body())
-			if ret: self.state[0] == accepted
+			if ret: self.state[0] = accepted
 			else: self.state[0] = ignored
-			pass
 		elif token == 'ifdef':
 			ident = self.get_name()
 			if ident in self.defs: self.state[0] = accepted
