@@ -11,6 +11,10 @@ import sys, os, string
 import Params
 from Params import debug, error
 
+
+strict_quotes = 0
+"Keep <> for system includes (do not search for those includes)"
+
 parse_cache = {}
 
 alpha = string.letters + '_' + string.digits
@@ -679,7 +683,10 @@ class cparse:
 						self.deps.append(body)
 						self.tryfind(body)
 				elif type == '<':
-					pass
+					if not strict_quotes:
+						if not body in self.deps:
+							self.deps.append(body)
+							self.tryfind(body)
 				else:
 					res = self.comp(body)
 					#print 'include body is ', res
