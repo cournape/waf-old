@@ -13,8 +13,13 @@ class InstallError:
 
 def check_dir(dir):
 	#print "check dir ", dir
-	try:    os.stat(dir)
-	except: os.makedirs(dir)
+	try:
+		os.stat(dir)
+	except OSError:
+		try:
+			os.makedirs(dir)
+		except OSError:
+			fatal("Cannot create folder " + dir)
 
 def do_install(src, tgt, chmod=0644):
 	if Params.g_commands['install']:
@@ -25,7 +30,7 @@ def do_install(src, tgt, chmod=0644):
 				t1 = os.stat(tgt).st_mtime
 				t2 = os.stat(src).st_mtime
 				if t1 >= t2: _do_install = 0
-			except:
+			except OSError:
 				_do_install = 1
 
 		if _do_install:
@@ -39,10 +44,10 @@ def do_install(src, tgt, chmod=0644):
 			try:
 				shutil.copy2(src, tgt)
 				os.chmod(tgt, chmod)
-			except:
+			except OSError:
 				try:
 					os.stat(src)
-				except:
+				except OSError:
 					error('file %s does not exist' % str(src))
 				fatal('could not install the file')
 	elif Params.g_commands['uninstall']:
@@ -149,13 +154,13 @@ def symlink_as(var, src, dest, env=None):
 			print "* symlink %s (-> %s)" % (tgt, src)
 			os.symlink(src, tgt)
 			return 0
-		except:
+		except OSError:
 			return 1
 	elif Params.g_commands['uninstall']:
 		try:
 			print "* removing %s" % (tgt)
 			os.remove(tgt)
 			return 0
-		except:
+		except OSError:
 			return 1
 
