@@ -638,16 +638,14 @@ class header_configurator(configurator_base):
 
 		if not self.code:
 			self.code = "#include <%s>\nint main(){return 0;}\n"
-
-		if not self.code:
-			fatal('no code to run')
 		if not self.define:
 			fatal('no define given')
 
 	def run_cache(self, retvalue):
 		self.update_env(retvalue)
-		self.conf.check_message('header %s (cached)' % self.name, '', 1)
-		self.conf.add_define(self.define, 1)
+		val = retvalue[self.define]
+		self.conf.check_message('header %s (cached)' % self.name, '', val)
+		self.conf.add_define(self.define, val)
 
 	def run_test(self):
 		ret = {} # not found
