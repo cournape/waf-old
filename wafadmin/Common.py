@@ -4,7 +4,7 @@
 
 "Important functions: install_files, install_as, symlink_as (destdir is taken into account)"
 
-import os, types, shutil
+import os, types, shutil, glob
 import Params, Utils
 from Params import error, fatal
 
@@ -70,8 +70,13 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 	if not env: env=Params.g_build.m_allenvs['default']
 	node = bld.m_curdirnode
 
-	if type(files) is types.ListType: lst=files
-	else: lst = (' '+files).split()
+	if type(files) is types.StringType:
+		if '*' in files:
+			gl = node.abspath()+os.sep+files
+			lst = glob.glob(gl)
+		else:
+			lst = files.split()
+	else: lst=files
 
 	destpath = env[var]
 	if not destpath:
