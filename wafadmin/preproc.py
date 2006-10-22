@@ -166,13 +166,13 @@ preproc_table = [
 def parse_token(stuff, table):
 	c = stuff.next()
 	stuff.back(1)
-	if not (c in table[0]):
+	if not (c in table[0].keys()):
 		#print "error, character is not in table", c
 		return 0
 	pos = 0
 	while stuff.good():
 		c = stuff.next()
-		if c in table[pos]:
+		if c in table[pos].keys():
 			pos = table[pos][c]
 		else:
 			stuff.back(1)
@@ -551,7 +551,7 @@ class cparse:
 		else:
 			found = 0
 			for p in self.strpaths:
-				if not p in self.pathcontents:
+				if not p in self.pathcontents.keys():
 					self.pathcontents[p] = os.listdir(p)
 				if filename in self.pathcontents[p]:
 					#print "file %s found in path %s" % (filename, p)
@@ -564,7 +564,7 @@ class cparse:
 
 	def addlines(self, filepath):
 		global parse_cache
-		if filepath in parse_cache:
+		if filepath in parse_cache.keys():
 			self.lines = parse_cache[filepath] + self.lines
 			return
 
@@ -668,11 +668,11 @@ class cparse:
 			else: self.state[0] = ignored
 		elif token == 'ifdef':
 			ident = self.get_name()
-			if ident in self.defs: self.state[0] = accepted
+			if ident in self.defs.keys(): self.state[0] = accepted
 			else: self.state[0] = ignored
 		elif token == 'ifndef':
 			ident = self.get_name()
-			if ident in self.defs: self.state[0] = ignored
+			if ident in self.defs.keys(): self.state[0] = ignored
 			else: self.state[0] = accepted
 		elif token == 'include':
 			(type, body) = self.get_include()
@@ -724,7 +724,7 @@ class cparse:
 		elif token == 'undef':
 			name = self.get_name()
 			if name:
-				if name in self.defs:
+				if name in self.defs.keys():
 					self.defs.__delitem__(name)
 				#print "undef %s" % name
 
