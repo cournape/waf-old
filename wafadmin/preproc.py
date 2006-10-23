@@ -560,7 +560,8 @@ class cparse:
 					self.deps_paths.append(np)
 					found = 1
 			if not found:
-				print "could not find %s " % filename
+				pass
+				#error("could not find %s " % filename)
 
 	def addlines(self, filepath):
 		global parse_cache
