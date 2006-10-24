@@ -130,6 +130,9 @@ def detect(conf):
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = ''
 
+		v['SHLIB_MARKER']        = ''
+		v['STATICLIB_MARKER']    = ''
+
 	else:
 		# shared library
 		v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
