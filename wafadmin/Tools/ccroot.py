@@ -433,9 +433,7 @@ class ccroot(Object.genobj):
 		tree = Params.g_build
 		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
-		lst = self.source
-		if isinstance(self.source, str):
-			lst = lst.split()
+		lst = self.to_list(self.source)
 		find_node = self.m_current_path.find_node
 		for filename in lst:
 			#node = self.find(filename)
