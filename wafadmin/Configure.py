@@ -900,7 +900,9 @@ class Configure:
 		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
 
 		for key in env['defines']:
-			if env['defines'][key]:
+			if env['defines'][key] is None:
+				dest.write('#define %s\n' % key)
+			elif env['defines'][key]:
 				dest.write('#define %s %s\n' % (key, env['defines'][key]))
 				#if addcontent:
 				#	dest.write(addcontent);
