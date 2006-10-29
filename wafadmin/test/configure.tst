@@ -5,11 +5,11 @@
 import Runner
 pexec = Runner.exec_command
 
-pexec('rm -rf bksys/ && mkdir -p bksys/')
+pexec('rm -rf waf/ && mkdir -p waf/')
 
 config={'modules':'conftest'}
 
-dest = open('./bksys/conftest.py', 'w')
+dest = open('./waf/conftest.py', 'w')
 dest.write('import sys\n')
 dest.write('def exists(env):\n')
 dest.write('   return True\n')
@@ -36,5 +36,5 @@ t2=time.clock()
 # cleanup
 info("* reading and writing the configure test took %.2f seconds" % (t2-t1))
 info("configure test end")
-pexec('rm -rf bksys/')
+pexec('rm -rf waf/')
 

@@ -2,7 +2,7 @@
 
 ## 
 # @file 
-# bksys Makefile.am related tools
+# waf Makefile.am related tools
 # 
 # note: may be a future base of a Makefile.am to scons converter if someone like to write it 
 #
