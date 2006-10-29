@@ -694,8 +694,10 @@ class ccroot(Object.genobj):
 		names = self.uselib_local.split()
 		env=self.env
 		htbl = Params.g_build.m_depends_on
-		for obj in Object.g_allobjs:
-			if obj.name in names:
+		for name in names:
+			for obj in Object.g_allobjs:
+				if obj.name != name: continue
+
 				if not obj.m_posted: obj.post()
 
 				if obj.m_type == 'shlib':
@@ -720,6 +722,9 @@ class ccroot(Object.genobj):
 							lst.append(a)
 				except:
 					htbl[self.m_linktask.m_outputs[0]] = obj.m_linktask.m_outputs
+
+				# do not continue on all objects, we have found the interesting one
+				break
 
 		# 2. the case of the libs defined outside
 		libs = self.uselib.split()
