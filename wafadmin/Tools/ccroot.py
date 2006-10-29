@@ -440,14 +440,10 @@ class ccroot(Object.genobj):
 			node = self.m_current_path.find_node(Utils.split_path(filename))
 			if not node: fatal("source not found: %s in %s" % (filename, str(self.m_current_path)))
 
-			k=len(filename)-1
-			while k>0:
-				if filename[k]=='.': break
-				k-=1
-			ext1 = filename[k:]
-
+			# Extract the extension and look for a handler hook.
+			k = max(0, filename.rfind('.'))
 			try:
-				self.get_hook(ext1)(self, node)
+				self.get_hook(filename[k:])(self, node)
 				continue
 			except TypeError:
 				pass
