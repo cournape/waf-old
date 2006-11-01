@@ -185,6 +185,20 @@ def detect_qt4(conf):
 
 		except OSError:
 			pass
+	
+	if not qtdir:
+		try:
+			path = os.environ['PATH'].split(':')
+			for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
+				qmake = conf.find_program(qmk, path)
+				if qmake:
+					version = os.popen(qmake+" -query QT_VERSION").read().strip().split('.')
+					if version[0] == "4":
+						break;
+					
+			qtdir = os.popen(qmake + " -query QT_INSTALL_PREFIX 2>&1").read().strip()+"/"
+		except OSError:
+			pass
 
 	# check for the qt includes first
 	if not qtincludes: qtincludes = qtdir + 'include/'
