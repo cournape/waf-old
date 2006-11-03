@@ -433,22 +433,17 @@ class ccroot(Object.genobj):
 		tree = Params.g_build
 		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
-		lst = self.source.split()
-		lst.sort()
+		lst = self.to_list(self.source)
 		find_node = self.m_current_path.find_node
 		for filename in lst:
 			#node = self.find(filename)
 			node = self.m_current_path.find_node(Utils.split_path(filename))
 			if not node: fatal("source not found: %s in %s" % (filename, str(self.m_current_path)))
 
-			k=len(filename)-1
-			while k>0:
-				if filename[k]=='.': break
-				k-=1
-			ext1 = filename[k:]
-
+			# Extract the extension and look for a handler hook.
+			k = max(0, filename.rfind('.'))
 			try:
-				self.get_hook(ext1)(self, node)
+				self.get_hook(filename[k:])(self, node)
 				continue
 			except TypeError:
 				pass
@@ -693,8 +688,10 @@ class ccroot(Object.genobj):
 		names = self.uselib_local.split()
 		env=self.env
 		htbl = Params.g_build.m_depends_on
-		for obj in Object.g_allobjs:
-			if obj.name in names:
+		for name in names:
+			for obj in Object.g_allobjs:
+				if obj.name != name: continue
+
 				if not obj.m_posted: obj.post()
 
 				if obj.m_type == 'shlib':
@@ -719,6 +716,9 @@ class ccroot(Object.genobj):
 							lst.append(a)
 				except:
 					htbl[self.m_linktask.m_outputs[0]] = obj.m_linktask.m_outputs
+
+				# do not continue on all objects, we have found the interesting one
+				break
 
 		# 2. the case of the libs defined outside
 		libs = self.uselib.split()

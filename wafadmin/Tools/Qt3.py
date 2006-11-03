@@ -33,7 +33,7 @@ class MTask(Task.Task):
 		tree = Params.g_build
 		parn = self.parent
 		node = self.m_inputs[0]
-		
+
 		# scan the .cpp files and find if there is a moc file to run
 		if tree.needs_rescan(node, parn.env):
 			ccroot.g_c_scanner.do_scan(node, parn.env, hashparams = self.m_scanner_params)
@@ -60,6 +60,7 @@ class MTask(Task.Task):
 				ext = Params.g_options.qt3_header_ext
 			else:
 				path = node.m_parent.srcpath(parn.env)
+				ext = None
 				for i in globals('QT3_MOC_H'):
 					try:
 						os.stat(Utils.join_path(path,base2+i))
@@ -82,7 +83,7 @@ class MTask(Task.Task):
 		# look at the file inputs, it is set right above
 		for d in tree.m_depends_on[variant][node]:
 			deps = tree.m_depends_on[variant]
-			
+
 			name = d.m_name
 			if name[-4:]=='.moc':
 				task = parn.create_task('moc3_hack', parn.env)
@@ -162,7 +163,7 @@ def detect_qt3(conf):
 	# Gentoo support ('/usr/qt/3')
 	if not qt3dir:
 		candidates = ['/usr/share/qt3/', '/usr/qt/3/']
-		
+
 		for candidate in candidates:
 			if os.path.exists(candidate):
 				qt3dir = candidate
@@ -173,7 +174,7 @@ def detect_qt3(conf):
 
 	if qt3dir:
 		env['QT3_DIR'] = qt3dir
-		
+
 	if not qt3dir:
 		if qt3libs and qt3includes and qt3bin:
 			Params.pprint("YELLOW", "No valid qtdir found; using the specified qtlibs, qtincludes and qtbin params");
@@ -219,7 +220,7 @@ def detect_qt3(conf):
 
 	if not qt3includes: qt3includes = qt3dir + 'include/'
 	if not qt3libs: qt3libs = qt3dir + 'lib/'
-	
+
 	# check for the qt-mt package
 	Params.pprint("GREEN", "Trying to use the qt-mt pkg-config package");
 	pkgconf = conf.create_pkgconfig_configurator()
@@ -228,7 +229,7 @@ def detect_qt3(conf):
 	pkgconf.path = qt3libs
 	if not pkgconf.run():
 		Params.pprint("YELLOW", "qt-mt package not found - trying to enumerate paths & flags manually");
-		
+
 		# check for the qt includes first
 		lst = [qt3includes, '/usr/qt/3/include', '/usr/include/qt3', '/opt/qt3/include', '/usr/local/include', '/usr/include']
 		headertest = conf.create_header_enumerator()
@@ -249,13 +250,13 @@ def detect_qt3(conf):
 		env['LIB_QT3'] = 'qt-mt'
 
 	env['QT3_FOUND'] = 1
-		
+
 	# rpath settings
-	# TODO: Check if this works in darwin
+	# TODO: Check if this works on darwin
 	try:
 		if Params.g_options.want_rpath_qt3:
-			env['RPATH_QT3']=['-Wl,--rpath='+qtlibs]
-	except:
+			env['RPATH_QT3']=['-Wl,--rpath='+qt3libs]
+	except AttributeError:
 		pass
 
 def detect(conf):

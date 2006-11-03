@@ -10,7 +10,7 @@ import Utils
 # =================================== #
 # Fixed constants, change with care
 
-g_version="1.0.0"
+g_version="1.0.1"
 g_rootname = ''
 if sys.path=='win32':
 	# get the first two letters (c:)
@@ -166,7 +166,10 @@ def error(msg):
 
 def fatal(msg):
 	module = __get_module()
-	pprint('RED', '%s \n (error raised in module %s)' % (msg, module))
+	if g_verbose > 0:
+		pprint('RED', '%s \n (error raised in module %s)' % (msg, module))
+	else:
+		pprint('RED', '%s' % msg)
 	sys.exit(1)
 
 def vsig(s):

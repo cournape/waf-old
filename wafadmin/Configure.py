@@ -92,11 +92,15 @@ class enumerator_base:
 	def __init__(self, conf):
 		self.conf        = conf
 		self.env         = conf.env
-		self.define = ''
+		self.define      = ''
 		self.mandatory   = 0
+		self.message     = ''
 
 	def error(self):
-		fatal('A mandatory check failed. Make sure all dependencies are ok and can be found.')
+		if self.message:
+			fatal(self.message)
+		else:
+			fatal('A mandatory check failed. Make sure all dependencies are ok and can be found.')
 
 	def update_hash(self, md5hash):
 		classvars = vars(self)
@@ -163,7 +167,9 @@ class program_enumerator(enumerator_base):
 		self.var  = None
 
 	def error(self):
-		fatal('program %s cannot be found' % self.name)
+		errmsg = 'program %s cannot be found' % self.name
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
 
 	def run_cache(self, retval):
 		self.conf.check_message('program %s (cached)' % self.name, '', retval, option=retval)
@@ -191,7 +197,9 @@ class function_enumerator(enumerator_base):
 		self.lib_paths     = []
 
 	def error(self):
-		fatal('function %s cannot be found' % self.function)
+		errmsg = 'function %s cannot be found' % self.function
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
 
 	def validate(self):
 		if not self.define:
@@ -249,7 +257,9 @@ class library_enumerator(enumerator_base):
 		self.want_message = 1
 
 	def error(self):
-		fatal('library %s cannot be found' % self.name)
+		errmsg = 'library %s cannot be found' % self.name
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
 
 	def run_cache(self, retval):
 		if self.want_message:
@@ -299,7 +309,9 @@ class header_enumerator(enumerator_base):
 				self.path += g_stdincpath
 
 	def error(self):
-		fatal('cannot find %s in %s' % (self.name, str(self.path)))
+		errmsg = 'cannot find %s in %s' % (self.name, str(self.path))
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
 
 	def run_cache(self, retval):
 		self.conf.check_message('header %s (cached)' % self.name, '', 1, option=retval)
@@ -328,7 +340,9 @@ class cfgtool_configurator(configurator_base):
 		self.tests    = {}
 
 	def error(self):
-		fatal('%s cannot be found' % self.binary)
+		errmsg = '%s cannot be found' % self.binary
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
 
 	def validate(self):
 		if not self.binary:
@@ -402,8 +416,12 @@ class pkgconfig_configurator(configurator_base):
 
 	def error(self):
 		if self.version:
-			fatal('pkg-config cannot find %s >= %s' % (self.name, self.version))
-		fatal('pkg-config cannot find %s' % self.name)
+			errmsg = 'pkg-config cannot find %s >= %s' % (self.name, self.version)
+		else:
+			errmsg = 'pkg-config cannot find %s' % self.name
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
+
 
 	def validate(self):
 		if not self.uselib:
@@ -503,7 +521,9 @@ class test_configurator(configurator_base):
 		self.want_message = 0
 
 	def error(self):
-		fatal('test program would not run')
+		errmsg = 'test program would not run'
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
 
 	def run_cache(self, retval):
 		if self.want_message:
@@ -541,7 +561,9 @@ class library_configurator(configurator_base):
 		self.code = 'int main(){ return 0; }'
 
 	def error(self):
-		fatal('library %s cannot be linked' % self.name)
+		errmsg = 'library %s cannot be linked' % self.name
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
 
 	def run_cache(self, retval):
 		self.conf.check_message('library %s (cached)' % self.name, '', 1)
@@ -625,7 +647,9 @@ class header_configurator(configurator_base):
 		self.uselib = ''
 
 	def error(self):
-		fatal('header %s cannot be found via compiler' % self.name)
+		errmsg = 'header %s cannot be found via compiler' % self.name
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
 
 	def validate(self):
 		#try: self.names = self.names.split()
@@ -900,7 +924,9 @@ class Configure:
 		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
 
 		for key in env['defines']:
-			if env['defines'][key]:
+			if env['defines'][key] is None:
+				dest.write('#define %s\n' % key)
+			elif env['defines'][key]:
 				dest.write('#define %s %s\n' % (key, env['defines'][key]))
 				#if addcontent:
 				#	dest.write(addcontent);
