@@ -185,7 +185,7 @@ def detect_qt4(conf):
 
 		except OSError:
 			pass
-	
+
 	if not qtdir:
 		try:
 			path = os.environ['PATH'].split(':')
@@ -194,9 +194,10 @@ def detect_qt4(conf):
 				if qmake:
 					version = os.popen(qmake+" -query QT_VERSION").read().strip().split('.')
 					if version[0] == "4":
+						qtincludes = os.popen(qmake+" -query QT_INSTALL_HEADERS").read().strip()
+						qtdir = os.popen(qmake + " -query QT_INSTALL_PREFIX").read().strip()+"/"
+						qtbin = os.popen(qmake + " -query QT_INSTALL_BINS").read().strip()+"/"
 						break;
-					
-			qtdir = os.popen(qmake + " -query QT_INSTALL_PREFIX 2>&1").read().strip()+"/"
 		except OSError:
 			pass
 
