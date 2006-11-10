@@ -266,6 +266,8 @@ def detect_qt4(conf):
 
 		# now we add some static depends.
 		env["LINKFLAGS_QTOPENGL"] += ['-framework', 'OpenGL']
+		env["LINKFLAGS_QTGUI"] += ['-framework', 'AppKit']
+		env["LINKFLAGS_QTGUI"] += ['-framework', 'ApplicationServices']
 		framework_ok = True
 
 	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
