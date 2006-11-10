@@ -170,6 +170,9 @@ def detect_qt4(conf):
 	try: qtbin = opt.qtbin
 	except: qtbin=''
 
+	try: useframework = opt.use_qt4_osxframework
+	except: useframework = True
+
 	# if qtdir is given - helper for finding qtlibs, qtincludes and qtbin
 	try: qtdir = opt.qtdir
 	except: qtdir=''
@@ -247,52 +250,70 @@ def detect_qt4(conf):
 	if not qtlibs: qtlibs = qtdir + 'lib'
 
 	vars = "Qt3Support QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml".split()
-	vars_debug = map(lambda a: a+'_debug', vars)
 
-	for i in vars_debug+vars:
-		#conf.check_pkg(i, pkgpath=qtlibs)
-		pkgconf = conf.create_pkgconfig_configurator()
-		pkgconf.name = i
-		pkgconf.path = qtlibs + ':/usr/lib/qt4/lib:/opt/qt4/lib'
-		pkgconf.run()
+	framework_ok = False
+	if sys.platform == "darwin" and useframework:
+		for i in vars:
+			e = conf.create_framework_configurator()
+			e.path = [qtlibs]
+			e.name = i
+			e.remove_dot_h = 1
+			e.run()
+
+			env['CCFLAGS_' + i.upper ()] += ['-I' + qtincludes + '/' + i]
+			env['CXXFLAGS_' + i.upper ()] += ['-I' + qtincludes + '/' + i]
+
+		# now we add some static depends.
+		env["LINKFLAGS_QTOPENGL"] += ['-framework', 'OpenGL']
+		framework_ok = True
+
+	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
+		vars_debug = map(lambda a: a+'_debug', vars)
+
+		for i in vars_debug+vars:
+			#conf.check_pkg(i, pkgpath=qtlibs)
+			pkgconf = conf.create_pkgconfig_configurator()
+			pkgconf.name = i
+			pkgconf.path = qtlibs + ':/usr/lib/qt4/lib:/opt/qt4/lib'
+			pkgconf.run()
 
 
-	# the libpaths are set nicely, unfortunately they make really long command-lines
-	# remove the qtcore ones from qtgui, etc
-	def process_lib(vars_, coreval):
-		for d in vars_:
-			var = d.upper()
-			if var == 'QTCORE': continue
-
-			value = env['LIBPATH_'+var]
-			if value:
-				core = env[coreval]
-				accu = []
-				for lib in value:
-					if lib in core: continue
-					accu.append(lib)
-				env['LIBPATH_'+var] = accu
-
-	process_lib(vars, 'LIBPATH_QTCORE')
-	process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
-
-	# rpath if wanted
-	if Params.g_options.want_rpath:
-		def process_rpath(vars_, coreval):
+		# the libpaths are set nicely, unfortunately they make really long command-lines
+		# remove the qtcore ones from qtgui, etc
+		def process_lib(vars_, coreval):
 			for d in vars_:
 				var = d.upper()
+				if var == 'QTCORE': continue
+
 				value = env['LIBPATH_'+var]
 				if value:
 					core = env[coreval]
 					accu = []
 					for lib in value:
-						if var != 'QTCORE':
-							if lib in core:
-								continue
-						accu.append('-Wl,--rpath='+lib)
-					env['RPATH_'+var] = accu
-		process_rpath(vars, 'LIBPATH_QTCORE')
-		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+						if lib in core: continue
+						accu.append(lib)
+					env['LIBPATH_'+var] = accu
+
+		process_lib(vars, 'LIBPATH_QTCORE')
+		process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+
+		# rpath if wanted
+		if Params.g_options.want_rpath:
+			def process_rpath(vars_, coreval):
+				for d in vars_:
+					var = d.upper()
+					value = env['LIBPATH_'+var]
+					if value:
+						core = env[coreval]
+						accu = []
+						for lib in value:
+							if var != 'QTCORE':
+								if lib in core:
+									continue
+							accu.append('-Wl,--rpath='+lib)
+						env['RPATH_'+var] = accu
+			process_rpath(vars, 'LIBPATH_QTCORE')
+			process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
 	env['QTLOCALE'] = str(env['PREFIX'])+'/share/locale'
 
@@ -314,3 +335,5 @@ def set_options(opt):
 	for i in "qtdir qtincludes qtlibs qtbin".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 
+	if sys.platform == "darwin":
+		opt.add_option('--no-qt4-framework', action="store_false", help='do not use the framework version of Qt4 in OS X', dest='use_qt4_osxframework',default=True)
