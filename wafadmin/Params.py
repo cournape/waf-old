@@ -70,7 +70,11 @@ g_cachedir = ''
 g_homedir=''
 for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
 	if var in os.environ:
-		g_homedir=os.environ[var]
+		#In windows, the home path is split into HOMEDRIVE and HOMEPATH
+		if var == 'HOMEPATH' and 'HOMEDRIVE' in os.environ:
+			g_homedir='%s%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'])
+		else:
+			g_homedir=os.environ[var]
 		break
 
 g_usecache = ''

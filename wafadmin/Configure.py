@@ -300,6 +300,7 @@ class header_enumerator(enumerator_base):
 		self.path   = []
 		self.define = []
 		self.nosystem = 0
+		self.want_message = 1
 
 	def validate(self):
 		if not self.path:
@@ -314,12 +315,14 @@ class header_enumerator(enumerator_base):
 		fatal(errmsg)
 
 	def run_cache(self, retval):
-		self.conf.check_message('header %s (cached)' % self.name, '', 1, option=retval)
+		if self.want_message:
+			self.conf.check_message('header %s (cached)' % self.name, '', 1, option=retval)
 		if self.define: self.env[self.define] = retval
 
 	def run_test(self):
 		ret = find_file(self.name, self.path)
-		self.conf.check_message('header', self.name, ret, ret)
+		if self.want_message:
+			self.conf.check_message('header', self.name, ret, ret)
 		if self.define: self.env[self.define] = ret
 		return ret
 
@@ -613,6 +616,7 @@ class library_configurator(configurator_base):
 		obj.code          = self.code
 		obj.env           = self.env
 		obj.uselib        = self.uselib
+		obj.libpath       = self.path
 
 		ret = int(not self.conf.run_check(obj))
 		self.conf.check_message('library %s' % self.name, '', ret)
@@ -635,7 +639,7 @@ class header_configurator(configurator_base):
 		configurator_base.__init__(self,conf)
 
 		self.name = ''
-		self.include_paths = []
+		self.path = []
 		self.header_code = ''
 		self.custom_code = ''
 		self.code = 'int main() {return 0;}'
@@ -666,16 +670,30 @@ class header_configurator(configurator_base):
 			fatal('no define given')
 
 	def run_cache(self, retvalue):
-		self.update_env(retvalue)
-		val = retvalue[self.define]
-		self.conf.check_message('header %s (cached)' % self.name, '', val)
-		self.conf.add_define(self.define, val)
+		self.conf.check_message('header %s (cached)' % self.name, '', 1)
+		if retvalue:
+			self.update_env(retvalue)
+			self.conf.add_define(self.define, 1)
+		else:
+			self.conf.add_define(self.define, 0)
 
 	def run_test(self):
 		ret = {} # not found
 
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
+
+		# try the enumerator to find the correct includepath
+		if self.uselib:
+			test = self.conf.create_header_enumerator()
+			test.name = self.name
+			test.want_message = 0
+			test.path = self.path
+			test.env = self.env
+			ret = test.run()
+
+			if ret:
+				self.env['CPPPATH_'+self.uselib] = ret
 
 		code = []
 		code.append(self.header_code)
@@ -689,7 +707,7 @@ class header_configurator(configurator_base):
 
 		obj               = check_data()
 		obj.code          = "\n".join(code)
-		obj.includes      = self.include_paths
+		obj.includes      = self.path
 		obj.env           = self.env
 		obj.uselib        = self.uselib
 
@@ -701,8 +719,13 @@ class header_configurator(configurator_base):
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
 
+		val = {}
+		if ret:
+			val['CPPPATH_'+self.uselib] = self.env['CPPPATH_'+self.uselib]
+			val[self.define] = ret
+
 		if not ret: return {}
-		return {self.define: 1}
+		return val
 
 # CONFIGURATORS END
 ####################

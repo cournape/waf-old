@@ -128,7 +128,11 @@ def find_wafadmin():
 			break
 
 	if sys.platform != 'win32': try_wafdir('%s/.waf-%s' % (homevar, VERSION))
-	else: try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
+	else:
+		if ('HOMEPATH' in os.environ) and ('HOMEDRIVE' in os.environ):
+			try_wafdir('%s%s\\waf-%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'], VERSION))
+		else:
+			try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
 
 	# remove $HOME/.waf-version if asked to
 	name = sys.argv[0]
@@ -147,7 +151,10 @@ def find_wafadmin():
 		if sys.platform != 'win32':
 			uncompress_wafdir('%s/.waf-%s' % (homevar, VERSION))
 		else:
-			uncompress_wafdir('c:\\temp\\waf-%s\\' % VERSION)
+			if ('HOMEPATH' in os.environ) and ('HOMEDRIVE' in os.environ):
+				uncompress_wafdir('%s%s\\waf-%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'], VERSION))
+			else:
+				uncompress_wafdir('c:\\temp\\waf-%s\\' % VERSION)
 		if wafdir: return
 
 	# look in the directory of the program
