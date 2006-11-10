@@ -14,7 +14,7 @@ g_cc_flag_vars = [
 'INCLUDE',
 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CCDEFINES']
 
-cctypes=['shlib', 'program', 'staticlib', 'objects']
+cctypes=['plugin', 'shlib', 'program', 'staticlib', 'objects']
 g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):
 	s_default_ext = ['.c', '.cc', '.C']

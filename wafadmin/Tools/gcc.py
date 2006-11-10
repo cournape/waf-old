@@ -113,6 +113,13 @@ def detect(conf):
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = '.exe'
 
+		# plugins, loadable modules.
+		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
+		v['plugin_obj_ext']      = v['shlib_obj_ext']
+		v['plugin_PREFIX']       = v['shlib_PREFIX']
+		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
+
 	elif sys.platform == "darwin":
 		v['shlib_CCFLAGS']       = ['-fPIC']
 		v['shlib_LINKFLAGS']     = ['-dynamiclib']
@@ -130,6 +137,13 @@ def detect(conf):
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = ''
 
+		# bundles
+		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
+		v['plugin_obj_ext']      = ['.os']
+		v['plugin_CCFLAGS']      = ['-fPIC']
+		v['plugin_PREFIX']       = ''
+		v['plugin_SUFFIX']       = '.bundle'
+
 		v['SHLIB_MARKER']        = ''
 		v['STATICLIB_MARKER']    = ''
 
@@ -140,6 +154,14 @@ def detect(conf):
 		v['shlib_obj_ext']       = ['.os']
 		v['shlib_PREFIX']        = 'lib'
 		v['shlib_SUFFIX']        = '.so'
+
+		# plugins. We handle them exactly as shlibs
+		# everywhere except on osx, where we do bundles
+		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
+		v['plugin_obj_ext']      = v['shlib_obj_ext']
+		v['plugin_PREFIX']       = v['shlib_PREFIX']
+		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
 
 		# static lib
 		v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']

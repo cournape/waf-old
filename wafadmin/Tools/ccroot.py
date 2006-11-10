@@ -615,7 +615,7 @@ class ccroot(Object.genobj):
 
 		if self.m_type == 'program':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
-		elif self.m_type == 'shlib':
+		elif self.m_type == 'shlib' or self.m_type == 'plugin':
 			if self.want_libtool:
 				self.install_results(dest_var, dest_subdir, self.m_latask)
 			if sys.platform=='win32' or not self.vnum:
@@ -696,6 +696,11 @@ class ccroot(Object.genobj):
 
 				if obj.m_type == 'shlib':
 					env.appendValue('LIB', obj.target)
+				elif obj.m_type == 'plugin':
+					if platform == 'darwin':
+						env.appendValue('PLUGIN', obj.target)
+					else:
+						env.appendValue('LIB', obj.target)
 				elif obj.m_type == 'staticlib':
 					env.appendValue('STATICLIB', obj.target)
 				else:
