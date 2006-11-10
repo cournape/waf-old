@@ -58,6 +58,7 @@ class MTask(Task.Task):
 			mocfiles.append(d)
 
 			# find the extension - this search is done only once
+			ext = ''
 			if Params.g_options.qt_header_ext:
 				ext = Params.g_options.qt_header_ext
 			else:
