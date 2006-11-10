@@ -143,6 +143,15 @@ class qt4obj(cpp.cppobj):
 		if type == 'cpp': self.p_compiletasks.append(task)
 		return task
 
+        def apply(self):
+		cpp.cppobj.apply(self)
+		lst = []
+		for flag in self.to_list(self.env['CXXFLAGS']):
+			if len(flag) < 2: continue
+			if flag[0:2] == '-D' or flag[0:2] == '-I':
+				lst.append(flag)
+		self.env['MOC_FLAGS'] = lst
+
 def setup(env):
 	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE')
 	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
