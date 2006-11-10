@@ -261,13 +261,30 @@ def detect_qt4(conf):
 			e.remove_dot_h = 1
 			e.run()
 
-			env['CCFLAGS_' + i.upper ()] += ['-I' + qtincludes + '/' + i]
-			env['CXXFLAGS_' + i.upper ()] += ['-I' + qtincludes + '/' + i]
+			if not i == 'QtCore':
+				# strip -F flag so it don't get reduant
+				for r in env['CCFLAGS_' + i.upper()]:
+					if r.startswith('-F'):
+						env['CCFLAGS_' + i.upper()].remove(r)
+						break
+		
+			incflag = '-I%s' % os.path.join(qtincludes, i)
+			if not incflag in env["CCFLAGS_" + i.upper ()]:
+				env['CCFLAGS_' + i.upper ()] += [incflag]
+			if not incflag in env["CXXFLAGS_" + i.upper ()]:
+				env['CXXFLAGS_' + i.upper ()] += [incflag]
 
 		# now we add some static depends.
-		env["LINKFLAGS_QTOPENGL"] += ['-framework', 'OpenGL']
-		env["LINKFLAGS_QTGUI"] += ['-framework', 'AppKit']
-		env["LINKFLAGS_QTGUI"] += ['-framework', 'ApplicationServices']
+		if conf.is_defined("HAVE_QTOPENGL"):
+			if not '-framework OpenGL' in env["LINKFLAGS_QTOPENGL"]:
+				env["LINKFLAGS_QTOPENGL"] += ['-framework OpenGL']
+
+		if conf.is_defined("HAVE_QTGUI"):
+			if not '-framework AppKit' in env["LINKFLAGS_QTGUI"]:
+				env["LINKFLAGS_QTGUI"] += ['-framework AppKit']
+			if not '-framework ApplicationServices' in env["LINKFLAGS_QTGUI"]:
+				env["LINKFLAGS_QTGUI"] += ['-framework ApplicationServices']
+
 		framework_ok = True
 
 	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
