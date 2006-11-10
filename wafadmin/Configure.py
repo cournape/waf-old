@@ -634,6 +634,93 @@ class library_configurator(configurator_base):
 		if not ret: return {}
 		return val
 
+class framework_configurator(configurator_base):
+	def __init__(self,conf):
+		configurator_base.__init__(self,conf)
+
+		self.name = ''
+		self.custom_code = ''
+		self.code = 'int main() {return 0;}'
+
+		self.define = '' # HAVE_something
+
+		self.path = []
+		self.uselib = ''
+		self.remove_dot_h = False
+
+	def error(self):
+		errmsg = 'framework %s cannot be found via compiler, try pass -F' % self.name
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
+
+	def validate(self):
+		if not self.uselib:
+			self.uselib = self.name.upper()
+		if not self.define:
+			self.define = 'HAVE_'+self.uselib
+		if not self.code:
+			self.code = "#include <%s>\nint main(){return 0;}\n"
+		if not self.uselib:
+			self.uselib = self.name.upper()
+
+	def run_cache(self, retval):
+		self.conf.check_message('framework %s (cached)' % self.name, '', 1)
+		self.update_env(retval)
+		if retval:
+			self.conf.add_define(self.define, 1)
+		else:
+			self.conf.add_define(self.define, 0)
+
+	def run_test(self):
+		oldlkflags = []
+		oldccflags = []
+		oldcxxflags = []
+
+		oldlkflags += self.env['LINKFLAGS']
+		oldccflags += self.env['CCFLAGS']
+		oldcxxflags += self.env['CXXFLAGS']
+
+		code = []
+		if self.remove_dot_h:
+			code.append('#include <%s/%s>\n' % (self.name, self.name))
+		else:
+			code.append('#include <%s/%s.h>\n' % (self.name, self.name))
+
+		code.append('int main(){%s\nreturn 0;}\n' % self.custom_code)
+
+		linkflags = []
+		linkflags += ['-framework', self.name]
+		linkflags += ['-F%s' % p for p in self.path]
+		cflags = ['-F%s' % p for p in self.path]
+
+		myenv = self.env.copy()
+		myenv['LINKFLAGS'] += linkflags
+
+		obj               = check_data()
+		obj.code          = "\n".join(code)
+		obj.env           = myenv
+		obj.uselib        = self.uselib
+		obj.flags		  += " ".join (cflags)
+		
+		ret = int(not self.conf.run_check(obj))
+		self.conf.check_message('framework %s' % self.name, '', ret, option='')
+		self.conf.add_define(self.define, ret)
+		
+		val = {}
+		if ret:
+			val["LINKFLAGS_" + self.uselib] = linkflags
+			val["CCFLAGS_" + self.uselib] = cflags
+			val["CXXFLAGS_" + self.uselib] = cflags
+			val[self.define] = ret
+
+		self.env['LINKFLAGS'] = oldlkflags
+		self.env['CCFLAGS'] = oldccflags
+		self.env['CXXFLAGS'] = oldcxxflags
+
+		self.update_env(val)
+		
+		return val
+
 class header_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
