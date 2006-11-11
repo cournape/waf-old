@@ -86,19 +86,6 @@ def set_main_module(file_path):
 	# remark: to register the module globally, use the following:
 	# sys.modules['wscript_main'] = g_module
 
-def fetch_options(file_path):
-	"Load custom options, if defined"
-	import Options
-	file = open(file_path, 'r')
-	name = 'wscript'
-	desc = ('', 'U', 1)
-
-	module = imp.load_module(file_path, file, name, desc)
-	try:
-		Options.g_custom_options.append(module.set_options)
-	finally:
-		if file: file.close()
-
 def to_hashtable(s):
 	tbl = {}
 	lst = s.split('\n')
