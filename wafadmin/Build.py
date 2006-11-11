@@ -204,6 +204,8 @@ class Build:
 			os.chdir(self.m_srcnode.abspath())
 			self._store()
 			raise
+		except Runner.CompilationError:
+			fatal("Compilation failed")
 		#finally:
 		#	os.chdir( self.m_srcnode.abspath() )
 
