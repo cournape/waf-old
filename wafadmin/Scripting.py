@@ -243,7 +243,7 @@ def Main():
 	# shutdown
 	try:
 		Utils.g_module.shutdown()
-	except:
+	except AttributeError:
 		#raise
 		pass
 
