@@ -544,6 +544,7 @@ class cparse:
 				found = n.search_existing_node(lst)
 				if found:
 					self.m_nodes.append(found)
+					self.addlines(found.abspath())
 					break
 			if not found:
 				if not filename in self.m_names:
@@ -583,7 +584,7 @@ class cparse:
 
 	def start2(self, node, env):
 
-		#print "parent node of ", node.m_name, " is ", node.m_parent.m_name, " and the contents ", node.m_parent.files()
+		debug("scanning %s (in %s)" % (node.m_name, node.m_parent.m_name), 'preproc')
 
 		variant = node.variant(env)
 		self.addlines(node.abspath(env))
@@ -661,7 +662,7 @@ class cparse:
 
 		#print "token is ", token
 
-		#print "line is ", self.txt, "state is ", self.state
+		debug("line is %s state is %s" % (self.txt, self.state), 'preproc')
 
 		if token == 'if':
 			ret = self.comp(self.get_body())
@@ -678,7 +679,7 @@ class cparse:
 		elif token == 'include':
 			(type, body) = self.get_include()
 			if self.isok():
-				#print "include found %s    (%s) " % (body, type)
+				debug("include found %s    (%s) " % (body, type), 'preproc')
 				if type == '"':
 					if not body in self.deps:
 						self.deps.append(body)
