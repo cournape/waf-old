@@ -143,9 +143,11 @@ def Main():
 		blddir = file.readline().strip()
 		srcdir = file.readline().strip()
 		file.close()
-	except:
-		#raise
-		fatal("Configuration loading failed - re-run waf configure (lockfile cannot be read)")
+	except IOError:
+		if Params.g_commands['clean']:
+			fatal("Nothing to clean (project not configured)", ret=0)
+		else:
+			fatal("Configuration loading failed - re-run waf configure (lockfile cannot be read)")
 
 	Params.g_cachedir = Utils.join_path(blddir,'_cache_')
 

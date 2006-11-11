@@ -168,13 +168,13 @@ def error(msg):
 	module = __get_module()
 	niceprint(msg, 'ERROR', module)
 
-def fatal(msg):
+def fatal(msg, ret=1):
 	module = __get_module()
 	if g_verbose > 0:
 		pprint('RED', '%s \n (error raised in module %s)' % (msg, module))
 	else:
 		pprint('RED', '%s' % msg)
-	sys.exit(1)
+	sys.exit(ret)
 
 def vsig(s):
 	"used for displaying signatures"
