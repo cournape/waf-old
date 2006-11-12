@@ -80,8 +80,8 @@ def detect(conf):
 	ron = os.environ
 	def addflags(orig, dest=None):
 		if not dest: dest=orig
-		try: env[dest] = ron[orig]
-		except: pass
+		try: conf.env[dest] = ron[orig]
+		except KeyError: pass
 	addflags('CCFLAGS', 'CFLAGS')
 	addflags('CPPFLAGS')
 	addflags('LINKFLAGS')
