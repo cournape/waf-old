@@ -355,11 +355,8 @@ class TaskConsumer(threading.Thread):
 			lock.release()
 
 			if self.m_stop:
-				lock.acquire()
-				if failed: failed += 1
-				lock.release()
 				while 1:
-					if failed > 0: count = 0
+					if failed > 0: count = 0 # force the scheduler to check for failure
 					time.sleep(1)
 
 			# take the next task
@@ -438,6 +435,7 @@ class Parallel:
 		self.m_count = 0
 		self.m_stop = 0
 		self.m_failed = 0
+		self.m_running = 0
 
 		self.curgroup = 0
 		self.curprio = -1
@@ -459,6 +457,7 @@ class Parallel:
 		self.m_stop = stop
 		self.m_count = count
 		self.m_failed = failed
+		self.m_running = running
 		lock.release()
 		#print "read values release lock"
 
@@ -472,7 +471,7 @@ class Parallel:
 		if self.m_failed:
 			while 1:
 				self.read_values()
-				if self.m_failed >= self.m_numjobs+1: raise CompilationError()
+				if self.m_running == 0: raise CompilationError()
 				time.sleep(0.5)
 
 	def get_next_prio(self):
