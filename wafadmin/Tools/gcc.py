@@ -77,22 +77,14 @@ def detect(conf):
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
-	try:
-		deb = Params.g_options.debug_level
-		v['CCFLAGS']   += v['CCFLAGS_'+deb]
-		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
-	except:
-		pass
-
-	def addflags(var):
-		try:
-			c = os.environ[var]
-			if c: v[var].append(c)
-		except:
-			pass
-
-	addflags('CCFLAGS')
+	ron = os.environ
+	def addflags(orig, dest=None):
+		if not dest: dest=orig
+		try: env[dest] = ron[orig]
+		except: pass
+	addflags('CCFLAGS', 'CFLAGS')
 	addflags('CPPFLAGS')
+	addflags('LINKFLAGS')
 
 	if sys.platform == "win32":
 		# shared library

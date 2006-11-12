@@ -68,7 +68,6 @@ def detect(conf):
 	v['CPPLNK_TGT_F']        = '-o '
 	v['CPPLNK_SRC_F']        = ''
 
-
 	v['LIB_ST']              = '-l%s'	# template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpathes
 	v['STATICLIB_ST']        = '-l%s'
@@ -87,22 +86,14 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']     = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
-	try:
-		deb = Params.g_options.debug_level
-		v['CCFLAGS']   += v['CCFLAGS_'+deb]
-		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
-	except:
-		pass
-
-	def addflags(var):
-		try:
-			c = os.environ[var]
-			if c: v[var].append(c)
-		except:
-			pass
-
+	ron = os.environ
+	def addflags(orig, dest=None):
+		if not dest: dest=orig
+		try: env[dest] = ron[orig]
+		except: pass
 	addflags('CXXFLAGS')
 	addflags('CPPFLAGS')
+	addflags('LINKFLAGS')
 
 	if not v['DESTDIR']: v['DESTDIR']=''
 
