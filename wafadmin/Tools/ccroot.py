@@ -369,8 +369,10 @@ class ccroot(Object.genobj):
 	def find_sources_in_dirs(self, dirnames, excludes=[]):
 		"subclass if necessary"
 		lst=[]
-		try:    exc_lst = excludes.split()
-		except: exc_lst = excludes
+		excludes = Utils.to_list(excludes)
+		#make sure dirnames is a list helps with 
+		#dirnames with spaces
+		dirnames = Utils.to_list(dirnames)
 
 		ext_lst = []
 		ext_lst += self.s_default_ext
@@ -380,7 +382,7 @@ class ccroot(Object.genobj):
 		except:
 			pass
 
-		for name in dirnames.split():
+		for name in dirnames:
 			#print "name is ", name
 			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, 
 				Utils.split_path(name))
@@ -395,7 +397,7 @@ class ccroot(Object.genobj):
 				if ext in ext_lst:
 					s = file.relpath(self.m_current_path)
 					if not s in lst:
-						if s in exc_lst: continue
+						if s in excludes: continue
 						lst.append(s)
 
 		self.source = self.source+' '+(" ".join(lst))
