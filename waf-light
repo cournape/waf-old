@@ -324,7 +324,6 @@ elif Params.g_commands['distclean']:
 
 try: Utils.g_module.init()
 except AttributeError: pass
-except SystemExit: raise
 
 from Scripting import Main
 Main()
