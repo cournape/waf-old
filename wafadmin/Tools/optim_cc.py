@@ -1,4 +1,4 @@
-
+import shutil
 import Action, Object, Task, ccroot
 
 class TaskMaster(Task.Task):
@@ -30,12 +30,15 @@ class TaskMaster(Task.Task):
 		tmpoutputs = self.m_outputs
 		self.m_outputs = self.m_outputs2
 
-		#env = self.m_env
-		self.m_env['OFILES']=[]
-		for i in self.m_outputs:
-			self.m_env['OFILES'].append(i.m_name)
-
 		ret = self.m_action.run(self)
+
+		# unfortunately building the files in batch mode outputs them in the current folder (the build dir)
+		# now move the files from the top of the builddir to the correct location
+		for i in self.m_outputs:
+			name = i.m_name
+			if name[-1] == "s": name = name[:-1] # extension for shlib is .os, remove the s
+			shutil.move(name, i.bldpath(self.m_env))
+
 		self.m_inputs = tmpinputs
 		self.m_outputs = tmpoutputs
 
@@ -61,7 +64,7 @@ class TaskSlave(Task.Task):
 		return 0
 
 def create_task_new(self, type, env=None, nice=10):
-	if self.m_type == "program" and (type == "cc" or type == "cpp"):
+	if type == "cc" or type == "cpp":
 
 		if env is None: env=self.env
 		try:
@@ -88,10 +91,10 @@ def detect(conf):
 	return 1
 
 def setup(env):
-	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC} && mv ${OFILES} ${TGT[0].m_parent.bldpath(env)}'
+	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC}'
         Action.simple_action('all_cc', cc_str, 'GREEN')
 
-	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC} && mv ${OFILES} ${TGT[0].m_parent.bldpath(env)}'
+	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
 	Action.simple_action('all_cpp', cpp_str, color='GREEN')
 
 	ccroot.ccroot.create_task = create_task_new
