@@ -31,6 +31,10 @@ def configure(conf):
 	# conf.env['CXX'] = Params.g_options.meow
 	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
 	conf.check_tool('g++')
+
+	## batched builds can be enabled by including the module optim_cc
+	# conf.check_tool('batched_cc')
+
 	conf.sub_config('src')
 
 	conf.env['CXXFLAGS_MYPROG']='-O3'
