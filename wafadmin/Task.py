@@ -203,7 +203,7 @@ class Task(TaskBase):
 
 		if not node in Params.g_build.m_tstamp_variants[variant]:
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
-			ret = self._can_retrieve_cache(sg)
+			ret = self.can_retrieve_cache(sg)
 			return not ret
 
 		outs = Params.g_build.m_tstamp_variants[variant][node]
@@ -217,7 +217,7 @@ class Task(TaskBase):
 				% (int(sg != outs), self.m_idx, a1, a2, i1, i2), 'task')
 
 		if sg != outs:
-			ret = self._can_retrieve_cache(sg)
+			ret = self.can_retrieve_cache(sg)
 			return not ret
 		return 0
 
@@ -229,7 +229,8 @@ class Task(TaskBase):
 		self.m_display=self.m_action.get_str(self)
 		return self.m_display
 
-	def _can_retrieve_cache(self, sig):
+	# be careful when overriding
+	def can_retrieve_cache(self, sig):
 		"""Retrieve build nodes from the cache
 		It modifies the time stamp of files that are copied
 		so it is possible to clean the least used files from

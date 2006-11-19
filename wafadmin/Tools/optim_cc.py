@@ -63,6 +63,9 @@ class TaskSlave(Task.Task):
 	def run(self):
 		return 0
 
+	def can_retrieve_cache(self, sig):
+		return None
+
 def create_task_new(self, type, env=None, nice=10):
 	if type == "cc" or type == "cpp":
 
