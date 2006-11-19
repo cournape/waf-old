@@ -1,3 +1,24 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+"""
+Batched builds
+instead of compiling object files one by one, c/c++ compilers are often able to compile at once:
+cc -c ../file1.c ../file2.c ../file3.c
+
+Files are output on the directory where the compiler is called, and dependencies are more difficult
+to track (do not run the command on all source files if only one file changes)
+
+As such, we do as if the files were compiled one by one, but no command is actually run:
+replace each cc/cpp Task by a TaskSlave
+A new task called TaskMaster collects the signatures from each slave and finds out the command-line
+to run.
+
+To set this up, the method ccroot::create_task is replaced by a new version, to enable batched builds
+it is only necessary to import this module in the configuration (no other change required)
+"""
+
 import shutil
 import Action, Object, Task, ccroot
 
@@ -101,5 +122,4 @@ def setup(env):
 	Action.simple_action('all_cpp', cpp_str, color='GREEN')
 
 	ccroot.ccroot.create_task = create_task_new
-
 
