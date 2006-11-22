@@ -20,12 +20,9 @@ def setup(env):
 # the values are cached for further build processes
 def detect(conf):
 
-	cpp = conf.find_program('cpp', var='CPP')
+	cpp = conf.find_program('c++', var='CXX')
+	if not cpp: cpp = conf.find_program('g++', var='CXX')
 	if not cpp:
-		return 0;
-
-	comp = conf.find_program('g++', var='CXX')
-	if not comp:
 		return 0;
 
 	# load the cpp builders
@@ -37,12 +34,8 @@ def detect(conf):
 		return 0
 
 	v = conf.env
+	v['CPP'] = v['CXX']
 
-	# preprocessor
-	v['CPP']                 = cpp
-
-	# c++ compiler
-	v['CXX']                 = comp
 	v['CPPFLAGS']            = []
 	v['CXXDEFINES']          = [] # command-line defines
 
@@ -62,7 +55,7 @@ def detect(conf):
 	v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
 	# linker
-	v['LINK_CXX']            = comp
+	v['LINK_CXX']            = v['CXX']
 	v['LIB']                 = []
 
 	v['CPPLNK_TGT_F']        = '-o '

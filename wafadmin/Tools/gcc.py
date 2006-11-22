@@ -17,9 +17,8 @@ def setup(env):
 
 def detect(conf):
 	cc = conf.find_program('cc', var='CC')
-
-	comp = conf.find_program('gcc', var='GCC')
-	if not cc and not comp:
+	if not cc: cc=conf.find_program('gcc', var='CC')
+	if not cc:
 		return 0;
 
 	# load the cc builders
@@ -32,11 +31,8 @@ def detect(conf):
 
 	v = conf.env
 
-	# preprocessor (what is that ? ita)
-	#v['CPP']             = cpp
+	v['CPP'] = v['CC']
 
-	# cc compiler
-	v['CC']                   = comp
 	v['CPPFLAGS']             = []
 	v['CCDEFINES']            = []
 	v['_CCINCFLAGS']          = []
@@ -54,7 +50,7 @@ def detect(conf):
 	v['CCFLAGS_ULTRADEBUG']   = ['-g3', '-O0', '-DDEBUG']
 
 	# linker
-	v['LINK_CC']              = comp
+	v['LINK_CC']              = v['CC']
 	v['LIB']                  = []
 	v['CCLNK_SRC_F']          = ''
 	v['CCLNK_TGT_F']          = '-o '
