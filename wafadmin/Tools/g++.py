@@ -20,10 +20,13 @@ def setup(env):
 # the values are cached for further build processes
 def detect(conf):
 
-	cpp = conf.find_program('c++', var='CXX')
-	if not cpp: cpp = conf.find_program('g++', var='CXX')
-	if not cpp:
+	cxx = conf.find_program('c++', var='CXX')
+	if not cxx: cxx = conf.find_program('g++', var='CXX')
+	if not cxx:
 		return 0;
+
+	cpp = conf.find_program('cpp', var='CPP')
+	if not cpp: cpp = cxx
 
 	# load the cpp builders
 	conf.check_tool('cpp')
@@ -34,7 +37,8 @@ def detect(conf):
 		return 0
 
 	v = conf.env
-	v['CPP'] = v['CXX']
+	v['CXX'] = cxx
+	v['CPP'] = cpp
 
 	v['CPPFLAGS']            = []
 	v['CXXDEFINES']          = [] # command-line defines

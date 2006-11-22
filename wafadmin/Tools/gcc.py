@@ -31,7 +31,11 @@ def detect(conf):
 
 	v = conf.env
 
-	v['CPP'] = v['CC']
+        cpp = conf.find_program('cpp', var='CPP')
+        if not cpp: cpp = cc
+
+	v['CC']  = cc
+	v['CPP'] = cpp
 
 	v['CPPFLAGS']             = []
 	v['CCDEFINES']            = []
