@@ -166,7 +166,8 @@ class Task(TaskBase):
 			if Params.g_usecache:
 				ssig = sig.encode('hex')
 				dest = os.path.join(Params.g_usecache, ssig+'-'+str(cnt))
-				shutil.copy2(node.abspath(env), dest)
+				try: shutil.copy2(node.abspath(env), dest)
+				except IOError: warning('could not write the file to the cache')
 				cnt += 1
 
 		self.m_executed=1
