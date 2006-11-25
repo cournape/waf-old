@@ -5,7 +5,7 @@
 "Base for c programs/libraries"
 
 import ccroot
-import Object, Params
+import Object, Params, Action
 from Params import debug
 
 g_cc_flag_vars = [
@@ -123,6 +123,14 @@ class ccobj(ccroot.ccroot):
 		self.env['_CCDEFFLAGS'] = map(lambda x: y%x, milst)
 
 def setup(env):
+	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
+	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
+
+	Action.simple_action('cc', cc_str, 'GREEN')
+
+	# on windows libraries must be defined after the object files
+	Action.simple_action('cc_link', link_str, color='YELLOW')
+
 	Object.register('cc', ccobj)
 
 def detect(conf):

@@ -7,13 +7,7 @@ import os, sys
 import Utils, Action, Params
 
 def setup(env):
-	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
-
-	Action.simple_action('cpp', cpp_str, color='GREEN')
-
-	# on windows libraries must be defined after the object files
-	Action.simple_action('cpp_link', link_str, color='YELLOW')
+	pass
 
 # tool detection and initial setup
 # is called when a configure process is started,

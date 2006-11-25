@@ -7,20 +7,11 @@ import os, sys
 import Utils, Action, Params
 
 def setup(env):
-	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 	static_link_str = '${STLIBLINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-	Action.simple_action('cc', cc_str, color='GREEN')
-	Action.simple_action('cpp', cpp_str, color='GREEN')
-
 	# on windows libraries must be defined after the object files
-	Action.simple_action('cc_link', link_str, color='YELLOW')
 	Action.simple_action('cc_link_static', static_link_str, color='YELLOW')
-	Action.simple_action('cpp_link', link_str, color='YELLOW')
 	Action.simple_action('cpp_link_static', static_link_str, color='YELLOW')
-
 
 def detect(conf):
 
@@ -38,8 +29,7 @@ def detect(conf):
 
 
 	# load the cpp builders
-	conf.check_tool('cc')
-	conf.check_tool('cpp')
+	conf.check_tool('cc cpp')
 
 	v = conf.env
 
