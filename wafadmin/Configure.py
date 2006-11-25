@@ -901,9 +901,8 @@ class Configure:
 				error("no tool named '%s' found" % i)
 				return 0
 			module = imp.load_module(i,file,name,desc)
-			ret = int(module.detect(self))
+			ret = ret and int(module.detect(self))
 			self.env.appendValue('tools', {'tool':i, 'tooldir':tooldir})
-			if not ret: return ret
 		return 1
 
 	def setenv(self, name):
