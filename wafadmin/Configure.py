@@ -903,6 +903,7 @@ class Configure:
 			module = imp.load_module(i,file,name,desc)
 			ret = int(module.detect(self))
 			self.env.appendValue('tools', {'tool':i, 'tooldir':tooldir})
+			if not ret: return ret
 		return 1
 
 	def setenv(self, name):
