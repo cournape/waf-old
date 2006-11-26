@@ -10,8 +10,13 @@ def setup(env):
 	pass
 
 def detect(conf):
-	cc = conf.find_program('cc', var='CC')
-	if not cc: cc=conf.find_program('gcc', var='CC')
+	cc = None
+	if conf.env['CC']:
+		cc = conf.env['CC']
+	elif 'CC' in os.environ:
+		cc = os.environ['CC']
+	if not cc: cc = conf.find_program('gcc', var='CC')
+	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc:
 		return 0;
 

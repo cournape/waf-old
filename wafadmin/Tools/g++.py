@@ -13,9 +13,13 @@ def setup(env):
 # is called when a configure process is started,
 # the values are cached for further build processes
 def detect(conf):
-
-	cxx = conf.find_program('c++', var='CXX')
+	cxx = None
+	if conf.env['CXX']:
+		cxx = conf.env['CXX']
+	elif 'CXX' in os.environ:
+		cxx = os.environ['CXX']
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
+	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx:
 		return 0;
 
