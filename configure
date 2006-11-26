@@ -86,8 +86,10 @@ checkWAF()
 generateMakefile()
 {
 	cat > Makefile << EOF
-WAF_DESTDIR := ""
-WAD_DESTDIR += \$(DESTDIR)
+#!/usr/bin/make -f
+
+# Waf Makefile wrapper
+# http://www.freehackers.org/~tnagy/waf.html
 
 all:
 	@$WAF build
@@ -99,7 +101,7 @@ all_progress:
 	@$WAF -p build
 			
 install:
-	@(if test \$(WAD_DESTDIR) ; then $WAF install --destdir=\$(WAD_DESTDIR) ; else $WAF install ; fi)
+	@$WAF install
 
 uninstall:
 	@$WAF uninstall
