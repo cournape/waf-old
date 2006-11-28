@@ -76,7 +76,7 @@ for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
 		else:
 			g_homedir=os.environ[var]
 		break
-
+g_homedir=os.path.abspath(g_homedir)
 g_usecache = ''
 try: g_usecache = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: pass
