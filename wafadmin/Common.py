@@ -60,8 +60,8 @@ def path_install(var, subdir, env=None):
 	if not env: env=Params.g_build.m_allenvs['default']
 	destpath = env[var]
 	if not destpath:
-		print "warning: undefined ", var
-		destpath = ''
+		error("Installing: to set a destination folder use env['%s']" % (var, var))
+		destpath = var
 	destdir = env.get_destdir()
 	if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 	if subdir: destpath = os.path.join(destpath, subdir.lstrip(os.sep))
