@@ -145,7 +145,7 @@ def detect(conf):
 		v['shlib_LINKFLAGS']   = ['-dynamiclib']
 		v['shlib_obj_ext']     = ['.os']
 		v['shlib_PREFIX']      = 'lib'
-		v['shlib_SUFFIX']      = '.dylib'
+		v['shlib_SUFFIX']      = '.dynlib'
 
 		# static lib
 		v['staticlib_MARKER']  = ''
