@@ -701,11 +701,11 @@ class framework_configurator(configurator_base):
 		obj.env           = myenv
 		obj.uselib        = self.uselib
 		obj.flags		  += " ".join (cflags)
-		
+
 		ret = int(not self.conf.run_check(obj))
 		self.conf.check_message('framework %s' % self.name, '', ret, option='')
 		self.conf.add_define(self.define, ret)
-		
+
 		val = {}
 		if ret:
 			val["LINKFLAGS_" + self.uselib] = linkflags
@@ -718,7 +718,7 @@ class framework_configurator(configurator_base):
 		self.env['CXXFLAGS'] = oldcxxflags
 
 		self.update_env(val)
-		
+
 		return val
 
 class header_configurator(configurator_base):
@@ -956,19 +956,19 @@ class Configure:
 		# TODO check
 		#if not 'configure' in mod:
 		#	fatal('the module has no configure function')
-		mod.configure(self)
+		ret = mod.configure(self)
 		self.cwd = current
+		return ret
 
 	def cleanup(self):
 		"called on shutdown"
 		try:
-			dir = Utils.join_path(Params.g_homedir, '.wafcache') #TODO: PORTABILITY!!!
+			dir = Utils.join_path(Params.g_homedir, '.wafcache')
 			try:
 				os.makedirs(dir)
 			except:
 				pass
 
-			#TODO: PORTABILITY!!!
 			file = open(Utils.join_path(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'wb')
 			cPickle.dump(self.m_cache_table, file)
 			file.close()
