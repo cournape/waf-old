@@ -68,6 +68,14 @@ def create_waf():
 	#regexpr for python files
 	pyFileExp = re.compile(".*\.py$")
 
+	# set the revision in the files to avoid version mismatch
+	try:
+		rev = os.popen("svnversion . TODO").read().strip()
+		os.popen("""perl -pi -e 's/^REVISION=(.*)?$/REVISION="%s"/' waf-light""" % rev).close()
+		os.popen("""perl -pi -e 's/^REVISION=(.*)?$/REVISION="%s"/' wafadmin/Params.py""" % rev).close()
+	except:
+		pass
+
 	wafadminFiles = os.listdir('wafadmin')
 	#filter all files out that do not match pyFileExp
 	wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
@@ -85,9 +93,17 @@ def create_waf():
 		tar.add(tarThisFile)
 	tar.close()
 
+
 	file = open('waf-light', 'rb')
 	code1 = file.read()
 	file.close()
+
+	# revert the files to normal
+	try:
+		os.popen("""perl -pi -e 's/^REVISION=(.*)?$/REVISION="x"/' waf-light""").close()
+		os.popen("""perl -pi -e 's/^REVISION=(.*)?$/REVISION="x"/' wafadmin/Params.py""").close()
+	except:
+		pass
 
 	file = open('%s.tar.bz2' % mw, 'rb')
 	cnt = file.read()
