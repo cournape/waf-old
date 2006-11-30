@@ -116,7 +116,7 @@ def detect(conf):
 		v['shlib_LINKFLAGS']     = ['-dynamiclib']
 		v['shlib_obj_ext']       = ['.os']
 		v['shlib_PREFIX']        = 'lib'
-		v['shlib_SUFFIX']        = '.dynlib'
+		v['shlib_SUFFIX']        = '.dylib'
 
 		# static lib
 		v['staticlib_LINKFLAGS'] = ['']
