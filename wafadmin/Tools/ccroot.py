@@ -600,7 +600,7 @@ class ccroot(Object.genobj):
 
 	def install(self):
 		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
-
+		if self.install_in is 0: return
 		dest_var    = ''
 		dest_subdir = ''
 
