@@ -319,9 +319,6 @@ class ccroot(Object.genobj):
 		# includes, seen from the current directory
 		self.includes=''
 
-		self.linkflags=''
-		self.linkpaths=''
-
 		self.rpaths=''
 
 		self.uselib=''
