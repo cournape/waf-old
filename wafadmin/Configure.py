@@ -1014,20 +1014,16 @@ class Configure:
 		"save the defines into a file"
 		if configfile == '': configfile = self.configheader
 
-		try:
-			# just in case the path is 'something/blah.h' (under the builddir)
-			lst=Utils.split_path(configfile)
-			lst = lst[:-1]
-			os.mkdir( Utils.join_path(lst) )
-		except:
-			pass
+		lst=Utils.split_path(configfile)
+		base = lst[:-1]
 
 		if not env: env = self.env
-		dir = Utils.join_path(self.m_blddir, env.variant())
+		base = [self.m_blddir, env.variant()]+base
+		dir = Utils.join_path(*base)
 		try: os.makedirs(dir)
 		except: pass
 
-		dir = Utils.join_path(dir, configfile)
+		dir = Utils.join_path(dir, lst[-1])
 
 		dest = open(dir, 'w')
 		dest.write('/* configuration created by waf */\n')
