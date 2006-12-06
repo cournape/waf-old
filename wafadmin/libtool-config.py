@@ -6,7 +6,7 @@
 import os
 from optparse import OptionParser
 
-REVISION="0.1.1"
+REVISION="0.1.2"
 
 class libtool_la_file:
 	def __init__ (self, la_filename):
@@ -90,6 +90,7 @@ class libtool_config:
 		self.__version = "%s.%s.%s\n" %(tmp.current, tmp.age, tmp.revision)
 		self.__sub_la_files = []
 		self.__sub_la_files.append(la_filename)
+		self.__libs = None
 		
 	def __cmp__(self, other):
 		"""make it compareable with X.Y.Z versions 
@@ -147,7 +148,30 @@ class libtool_config:
 						libs_list.extend(self.__get_la_libs(entry))
 				else:
 					libs_map[entry]=1
-		return libs_map.keys()
+		self.__libs = libs_map.keys()
+		return self.__libs
+
+	def get_libs_only_L(self):
+		if not self.__libs:
+			self.get_libs()
+		libs = self.__libs
+		libs = filter(lambda s: str(s).startswith('-L'), libs)
+		return libs
+	
+	def get_libs_only_l(self):
+		if not self.__libs:
+			self.get_libs()
+		libs = self.__libs
+		libs = filter(lambda s: str(s).startswith('-l'), libs)
+		return libs
+		
+	def get_libs_only_other(self):
+		if not self.__libs:
+			self.get_libs()
+		libs = self.__libs
+		libs = filter(lambda s: not (str(s).startswith('-L') or str(s).startswith('-l')), libs)
+		return libs
+		
 
 
 def useCmdLine():
@@ -221,18 +245,15 @@ def useCmdLine():
 		print str(" ").join(ltf.get_libs())
 		return 0
 	if options.libs_only_l:
-		libs = ltf.get_libs()
-		libs = filter(lambda s: str(s).startswith('-l'), libs)
+		libs = ltf.get_libs_only_l()
 		print str(" ").join(libs)
 		return 0
 	if options.libs_only_L:
-		libs = ltf.get_libs()
-		libs = filter(lambda s: str(s).startswith('-L'), libs)
+		libs = ltf.get_libs_only_L()
 		print str(" ").join(libs)
 		return 0
 	if options.libs_only_other:
-		libs = ltf.get_libs()
-		libs = filter(lambda s: not (str(s).startswith('-L') or str(s).startswith('-l')), libs)
+		libs = ltf.get_libs_only_other()
 		print str(" ").join(libs)
 		return 0
 
