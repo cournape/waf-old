@@ -36,10 +36,10 @@ class libtool_la_file:
 		self.dlpreopen = None
 		# Directory that this library needs to be installed in:
 		self.libdir = '/usr/lib'
-		if not self.parse():
+		if not self.__parse():
 			raise "file %s not found!!" %(la_filename)
 	
-	def parse(self):
+	def __parse(self):
 		"Retrieve the variables from a file"
 		if not os.path.isfile(self.__la_filename): return 0
 		la_file=open(self.__la_filename, 'r')
@@ -57,11 +57,13 @@ class libtool_la_file:
 		return 1
 
 	def get_libs(self):
+		"""return linkflags for this lib"""
 		libs = []
 		if self.dependency_libs:
 			libs = str(self.dependency_libs).strip().split()
 		if libs == None:
 			libs = []
+		# add la lib and libdir
 		libs.insert(0, "-l%s" % self.linkname.strip())
 		libs.insert(0,"-L%s" % self.libdir.strip())
 		return libs
@@ -86,22 +88,30 @@ class libtool_config:
 		self.__libtool_la_file = libtool_la_file(la_filename)
 		tmp = self.__libtool_la_file
 		self.__version= "%s.%s.%s\n" %(tmp.current, tmp.age, tmp.revision)
+		
 	def __cmp__(self, other):
+		"""make it compareable with X.Y.Z versions 
+		(Y and Z are optional)"""
 		othervers = str(other).strip().split(".")
 		if not othervers:
 			return 1
 		othernum = 0
 		selfnum = 0
+		# we need a version in this formal X.Y.Z
+		# add_zero would be 2 if we only had X
+		# this way we need to add X.0.0
 		add_zero = 3-len(othervers)
 		while add_zero:
 			add_zero -= 1
 			othervers.append("0")
+		
 		for num in othervers:
 			othernum = othernum + int(num)
 			othernum *= 1000
 		for num in str(self.__version).split("."):
 			selfnum = selfnum + int(num)
 			selfnum *= 1000
+		
 		if selfnum == othernum:
 			return 0
 		if selfnum > othernum:
@@ -121,6 +131,8 @@ class libtool_config:
 		return libtool_la_file(la_filename).get_libs()
 	
 	def get_libs(self):
+		"""return the complete uniqe linkflags that do not 
+		contain .la files anymore"""
 		libs_list = list(self.__libtool_la_file.get_libs())
 		libs_map = {}
 		while len(libs_list) > 0:
@@ -219,7 +231,5 @@ def useCmdLine():
 		print str(" ").join(libs)
 		return 0
 
-useCmdLine()
-
-#ltf = libtool_la_file("/usr/lib/libIlmImf.la")
-#print(ltf)
+if __name__ == "__main__":
+	useCmdLine()
