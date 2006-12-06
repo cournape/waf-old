@@ -488,6 +488,12 @@ class pkgconfig_configurator(configurator_base):
 			for item in modpaths:
 				retval['LIBPATH_'+uselib].append( item[2:] ) #Strip '-l'
 
+			# Store only other:
+			modother = os.popen('%s --libs-only-other %s' % (pkgcom, self.name)).read().strip().split()
+			retval['LINKFLAGS_'+uselib] = []
+			for item in modother:
+				retval['LINKFLAGS_'+uselib].append( item ) #do not strip anything
+
 			for variable in self.variables:
 				var_defname = ''
 				# check if variable is a list
