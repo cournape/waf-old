@@ -87,7 +87,9 @@ class libtool_config:
 	def __init__ (self, la_filename):
 		self.__libtool_la_file = libtool_la_file(la_filename)
 		tmp = self.__libtool_la_file
-		self.__version= "%s.%s.%s\n" %(tmp.current, tmp.age, tmp.revision)
+		self.__version = "%s.%s.%s\n" %(tmp.current, tmp.age, tmp.revision)
+		self.__sub_la_files = []
+		self.__sub_la_files.append(la_filename)
 		
 	def __cmp__(self, other):
 		"""make it compareable with X.Y.Z versions 
@@ -139,7 +141,10 @@ class libtool_config:
 			entry = libs_list.pop(0)
 			if entry:
 				if str(entry).endswith(".la"):
-					libs_list.extend(self.__get_la_libs(entry))
+					## prevents duplicate .la checks
+					if entry not in self.__sub_la_files:
+						self.__sub_la_files.append(entry)
+						libs_list.extend(self.__get_la_libs(entry))
 				else:
 					libs_map[entry]=1
 		return libs_map.keys()
