@@ -4,7 +4,7 @@
 "Configuration system"
 
 import os, types, imp, cPickle, md5, sys, re
-import Params, Environment, Runner, Build, Utils
+import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
 
 g_maxlen = 40
@@ -492,7 +492,16 @@ class pkgconfig_configurator(configurator_base):
 			modother = os.popen('%s --libs-only-other %s' % (pkgcom, self.name)).read().strip().split()
 			retval['LINKFLAGS_'+uselib] = []
 			for item in modother:
-				retval['LINKFLAGS_'+uselib].append( item ) #do not strip anything
+				if str(item).endswith(".la"):
+					la_config = libtool_config.libtool_config(item)
+					libs_only_L = la_config.get_libs_only_L()
+					libs_only_l = la_config.get_libs_only_l()
+					for entry in libs_only_l:
+						retval['LIB_'+uselib].append( entry[2:] ) #Strip '-l'
+					for entry in libs_only_L:
+						retval['LIBPATH_'+uselib].append( entry[2:] ) #Strip '-L'
+				else:
+					retval['LINKFLAGS_'+uselib].append( item ) #do not strip anything
 
 			for variable in self.variables:
 				var_defname = ''
