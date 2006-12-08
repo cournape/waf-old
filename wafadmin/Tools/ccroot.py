@@ -367,8 +367,7 @@ class ccroot(Object.genobj):
 		"subclass if necessary"
 		lst=[]
 		excludes = Utils.to_list(excludes)
-		#make sure dirnames is a list helps with 
-		#dirnames with spaces
+		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = Utils.to_list(dirnames)
 
 		ext_lst = []
@@ -639,7 +638,7 @@ class ccroot(Object.genobj):
 		elif self.m_type == 'staticlib':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=0644)
 
-	# TODO: broken, update
+	# This piece of code must suck, no one uses it
 	def apply_libtool(self):
 		self.env['vnum']=self.vnum
 
@@ -682,6 +681,9 @@ class ccroot(Object.genobj):
 
 	def apply_lib_vars(self):
 		debug('apply_lib_vars called', 'ccroot')
+
+		# 0. override if necessary
+		self.process_vnum()
 
 		# 1. the case of the libs defined in the project
 		names = self.uselib_local.split()
@@ -730,6 +732,11 @@ class ccroot(Object.genobj):
 			for v in self.p_flag_vars:
 				val=self.env[v+'_'+l]
 				if val: self.env.appendValue(v, val)
+	def process_vnum(self):
+		if self.vnum:
+			nums=self.vnum.split('.')
+			name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum
+			self.env.appendValue('LINKFLAGS', '-Wl,-soname,'+name3)
 
 	def apply_objdeps(self):
 		"add the .o files produced by some other object files in the same manner as uselib_local"
