@@ -392,7 +392,10 @@ class filter:
 				else:
 					self.eat_line()
 			elif c == '/':
-				self.skip_comment()
+				c = self.next()
+				if c == '*': self.get_c_comment()
+				elif c == '/': self.get_cc_comment()
+				# else: let the 2 cars read go
 			elif c == '"':
 				self.skip_string()
 				self.eat_line()
@@ -415,11 +418,6 @@ class filter:
 			else:
 				prev = 0
 			c = self.next()
-
-	def skip_comment(self):
-		c = self.next()
-		if c == '*': self.get_c_comment()
-		elif c == '/': self.get_cc_comment()
 
 	def skip_char(self, store=0):
 		c = self.next()
@@ -468,7 +466,10 @@ class filter:
 			elif c == '\'':
 				self.skip_char()
 			elif c == '/':
-				self.skip_comment()
+				c = self.next()
+				if c == '*': self.get_c_comment()
+				elif c == '/': self.get_cc_comment()
+				# else: let the two cars read go
 
 	def preprocess(self):
 		#self.buf.append('#')
@@ -493,7 +494,10 @@ class filter:
 				self.buf.append(c)
 				self.skip_char(store=1)
 			elif c == '/':
-				self.skip_comment()
+				c = self.next()
+				if c == '*': self.get_c_comment()
+				elif c == '/': self.get_cc_comment()
+				else: self.buf.append('/'+c) # simple punctuator '/'
 			else:
 				self.buf.append(c)
 
