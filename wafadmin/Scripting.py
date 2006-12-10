@@ -92,7 +92,7 @@ def load_envs():
 			raise
 
 def Main():
-	from Common import install_files, install_as
+	from Common import install_files, install_as, symlink_as # do not remove
 	if Params.g_commands['configure']:
 		Runner.set_exec('normal')
 		bld = Build.Build()
