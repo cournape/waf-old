@@ -737,7 +737,7 @@ class ccroot(Object.genobj):
 			nums=self.vnum.split('.')
 			# this is very unix-specific
 			try: name3 = self.soname
-			except: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum
+			except: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 			self.env.appendValue('LINKFLAGS', '-Wl,-soname,'+name3)
 
 	def apply_objdeps(self):
