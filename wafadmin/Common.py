@@ -44,12 +44,12 @@ def do_install(src, tgt, chmod=0644):
 			try:
 				shutil.copy2(src, tgt)
 				os.chmod(tgt, chmod)
-			except OSError:
+			except IOError:
 				try:
 					os.stat(src)
-				except OSError:
+				except IOError:
 					error('file %s does not exist' % str(src))
-				fatal('could not install the file')
+				fatal('Could not install the file %s' % str(tgt))
 	elif Params.g_commands['uninstall']:
 		print "* uninstalling %s" % tgt
 		try: os.remove(tgt)
