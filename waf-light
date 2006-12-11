@@ -11,6 +11,7 @@ if 'PSYCOWAF' in os.environ:
 		pass
 
 VERSION="1.0.1"
+REVISION="x"
 cwd = os.getcwd()
 
 def decodeAscii85(s):
@@ -128,7 +129,11 @@ def find_wafadmin():
 			break
 
 	if sys.platform != 'win32': try_wafdir('%s/.waf-%s' % (homevar, VERSION))
-	else: try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
+	else:
+		if ('HOMEPATH' in os.environ) and ('HOMEDRIVE' in os.environ):
+			try_wafdir('%s%s\\waf-%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'], VERSION))
+		else:
+			try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
 
 	# remove $HOME/.waf-version if asked to
 	name = sys.argv[0]
@@ -147,7 +152,10 @@ def find_wafadmin():
 		if sys.platform != 'win32':
 			uncompress_wafdir('%s/.waf-%s' % (homevar, VERSION))
 		else:
-			uncompress_wafdir('c:\\temp\\waf-%s\\' % VERSION)
+			if ('HOMEPATH' in os.environ) and ('HOMEDRIVE' in os.environ):
+				uncompress_wafdir('%s%s\\waf-%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'], VERSION))
+			else:
+				uncompress_wafdir('c:\\temp\\waf-%s\\' % VERSION)
 		if wafdir: return
 
 	# look in the directory of the program
@@ -177,6 +185,10 @@ Params.g_tooldir = [tooldir]
 
 if Params.g_version != VERSION:
 	fatal('version mismatch waf %s <-> wafadmin %s' % (VERSION, Params.g_version))
+
+if Params.REVISION != REVISION:
+	if not 'WAFDIR' in os.environ:
+		warning('possible revision mismatch (set WAFDIR)')
 
 # some command-line options can be processed immediately
 if '--version' in sys.argv:
@@ -317,7 +329,6 @@ elif Params.g_commands['distclean']:
 
 try: Utils.g_module.init()
 except AttributeError: pass
-except SystemExit: raise
 
 from Scripting import Main
 Main()

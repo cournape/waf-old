@@ -54,6 +54,21 @@ Developers must set WAFDIR
 A cache in $HOME/.waf-version may cause problems between svn updates
 (the version number is not always incremented between changes)
 
+PACKAGERS
+---------
+
+By default, waf uncompresses itself into $HOME/.waf-version
+To avoid this behaviour when making packages, set WAF_HOME like this:
+WAF_HOME=$PWD ./waf configure
+
+SUGGESTED USAGE
+---------------
+
+Do not rely on define on the command-line, generate a config.h file instead.
+Do not use includes having ".." in the path to avoid scanning system headers
+or folders out of the project directory (can be slow).
+
+
 ---------------------------
 Thomas Nagy, 2006 (ita)
 
