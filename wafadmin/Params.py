@@ -10,7 +10,7 @@ import Utils
 # =================================== #
 # Fixed constants, change with care
 
-g_version="1.0.1"
+g_version="1.0.2"
 REVISION="x"
 g_rootname = ''
 if sys.path=='win32':
