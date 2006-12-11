@@ -733,7 +733,7 @@ class ccroot(Object.genobj):
 				val=self.env[v+'_'+l]
 				if val: self.env.appendValue(v, val)
 	def process_vnum(self):
-		if self.vnum:
+		if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
 			nums=self.vnum.split('.')
 			# this is very unix-specific
 			try: name3 = self.soname
