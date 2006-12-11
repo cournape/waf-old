@@ -7,26 +7,24 @@ import os, sys
 import Utils, Action, Params
 
 def setup(env):
-	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
-
-	Action.simple_action('cpp', cpp_str, color='GREEN')
-
-	# on windows libraries must be defined after the object files
-	Action.simple_action('cpp_link', link_str, color='YELLOW')
+	pass
 
 # tool detection and initial setup
 # is called when a configure process is started,
 # the values are cached for further build processes
 def detect(conf):
+	cxx = None
+	if conf.env['CXX']:
+		cxx = conf.env['CXX']
+	elif 'CXX' in os.environ:
+		cxx = os.environ['CXX']
+	if not cxx: cxx = conf.find_program('g++', var='CXX')
+	if not cxx: cxx = conf.find_program('c++', var='CXX')
+	if not cxx:
+		return 0;
 
 	cpp = conf.find_program('cpp', var='CPP')
-	if not cpp:
-		return 0;
-
-	comp = conf.find_program('g++', var='CXX')
-	if not comp:
-		return 0;
+	if not cpp: cpp = cxx
 
 	# load the cpp builders
 	conf.check_tool('cpp')
@@ -37,12 +35,9 @@ def detect(conf):
 		return 0
 
 	v = conf.env
+	v['CXX'] = cxx
+	v['CPP'] = cpp
 
-	# preprocessor
-	v['CPP']                 = cpp
-
-	# c++ compiler
-	v['CXX']                 = comp
 	v['CPPFLAGS']            = []
 	v['CXXDEFINES']          = [] # command-line defines
 
@@ -62,12 +57,11 @@ def detect(conf):
 	v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
 	# linker
-	v['LINK_CXX']            = comp
+	v['LINK_CXX']            = v['CXX']
 	v['LIB']                 = []
 
 	v['CPPLNK_TGT_F']        = '-o '
 	v['CPPLNK_SRC_F']        = ''
-
 
 	v['LIB_ST']              = '-l%s'	# template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpathes
@@ -87,22 +81,14 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']     = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
-	try:
-		deb = Params.g_options.debug_level
-		v['CCFLAGS']   += v['CCFLAGS_'+deb]
-		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
-	except:
-		pass
-
-	def addflags(var):
-		try:
-			c = os.environ[var]
-			if c: v[var].append(c)
-		except:
-			pass
-
+	ron = os.environ
+	def addflags(orig, dest=None):
+		if not dest: dest=orig
+		try: conf.env[dest] = ron[orig]
+		except KeyError: pass
 	addflags('CXXFLAGS')
 	addflags('CPPFLAGS')
+	addflags('LINKFLAGS')
 
 	if not v['DESTDIR']: v['DESTDIR']=''
 
@@ -124,6 +110,13 @@ def detect(conf):
 		# program
 		v['program_obj_ext']   = ['.o']
 		v['program_SUFFIX']    = '.exe'
+
+		# plugins, loadable modules.
+		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
+		v['plugin_obj_ext']      = v['shlib_obj_ext']
+		v['plugin_PREFIX']       = v['shlib_PREFIX']
+		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
 	elif sys.platform == 'cygwin':
 		# shared library
 		v['shlib_CXXFLAGS']    = ['']
@@ -161,6 +154,13 @@ def detect(conf):
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
+		# bundles
+		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
+		v['plugin_obj_ext']      = ['.os']
+		v['plugin_CCFLAGS']      = ['-fPIC']
+		v['plugin_PREFIX']       = ''
+		v['plugin_SUFFIX']       = '.bundle'
+
 		# program
 		v['program_obj_ext']   = ['.o']
 		v['program_SUFFIX']    = ''
@@ -174,6 +174,13 @@ def detect(conf):
 		v['shlib_obj_ext']     = ['.os']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.so'
+
+		# plugins, loadable modules.
+		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
+		v['plugin_obj_ext']      = v['shlib_obj_ext']
+		v['plugin_PREFIX']       = v['shlib_PREFIX']
+		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
 
 		# static lib
 		#v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']

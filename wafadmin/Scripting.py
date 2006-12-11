@@ -92,7 +92,7 @@ def load_envs():
 			raise
 
 def Main():
-	from Common import install_files, install_as
+	from Common import install_files, install_as, symlink_as # do not remove
 	if Params.g_commands['configure']:
 		Runner.set_exec('normal')
 		bld = Build.Build()
@@ -143,9 +143,11 @@ def Main():
 		blddir = file.readline().strip()
 		srcdir = file.readline().strip()
 		file.close()
-	except:
-		#raise
-		fatal("Configuration loading failed - re-run waf configure (lockfile cannot be read)")
+	except IOError:
+		if Params.g_commands['clean']:
+			fatal("Nothing to clean (project not configured)", ret=0)
+		else:
+			fatal("Configuration loading failed - re-run waf configure (lockfile cannot be read)")
 
 	Params.g_cachedir = Utils.join_path(blddir,'_cache_')
 
@@ -243,7 +245,7 @@ def Main():
 	# shutdown
 	try:
 		Utils.g_module.shutdown()
-	except:
+	except AttributeError:
 		#raise
 		pass
 

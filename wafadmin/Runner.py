@@ -25,6 +25,10 @@ g_initial = time.time()
 g_quiet = 0
 "do not output anything"
 
+
+class CompilationError(Exception):
+	pass
+
 exetor = None
 "subprocess"
 try:
@@ -269,14 +273,13 @@ class Serial:
 			try:
 				proc.update_stat()
 			except:
-				raise
 				if Params.g_options.keep:
 					self.m_generator.skip_group('missing nodes\n' + proc.debug_info())
 					continue
 				else:
 					if Params.g_verbose:
 						error('the nodes have not been produced !')
-					raise
+					raise CompilationError()
 			proc.m_hasrun=1
 
 			# register the task to the ones that have run - useful for debugging purposes
@@ -302,6 +305,7 @@ condition = None
 count = 0
 stop = 0
 running = 0
+failed = 0
 
 
 stat = []
@@ -344,15 +348,16 @@ class TaskConsumer(threading.Thread):
 		lock.release()
 
 	def run(self):
-		global lock, count, stop, running
+		global lock, count, stop, running, failed
 		while 1:
 			lock.acquire()
 			self.m_stop  = stop
 			lock.release()
 
 			if self.m_stop:
-				time.sleep(1)
-				continue
+				while 1:
+					if failed > 0: count = 0 # force the scheduler to check for failure
+					time.sleep(1)
 
 			# take the next task
 			proc = self.m_master.m_ready.get(block=1)
@@ -374,6 +379,7 @@ class TaskConsumer(threading.Thread):
 					proc.debug(1)
 				count -= 1
 				stop   = 1
+				failed = 1
 				self.notify()
 				lock.release()
 				continue
@@ -385,7 +391,8 @@ class TaskConsumer(threading.Thread):
 				if Params.g_verbose:
 					error('the nodes have not been produced !')
 				count -= 1
-				stop = 1
+				stop   = 1
+				failed = 1
 				self.notify()
 				lock.release()
 
@@ -427,6 +434,8 @@ class Parallel:
 		# lock for self.m_count - count the amount of tasks active
 		self.m_count = 0
 		self.m_stop = 0
+		self.m_failed = 0
+		self.m_running = 0
 
 		self.curgroup = 0
 		self.curprio = -1
@@ -443,10 +452,12 @@ class Parallel:
 
 	def read_values(self):
 		#print "read values acquire lock"
-		global lock, stop, count
+		global lock, stop, count, failed
 		lock.acquire()
 		self.m_stop = stop
 		self.m_count = count
+		self.m_failed = failed
+		self.m_running = running
 		lock.release()
 		#print "read values release lock"
 
@@ -457,6 +468,11 @@ class Parallel:
 			condition.wait()
 			self.read_values()
 		condition.release()
+		if self.m_failed:
+			while 1:
+				self.read_values()
+				if self.m_running == 0: raise CompilationError()
+				time.sleep(0.5)
 
 	def get_next_prio(self):
 		# stop condition

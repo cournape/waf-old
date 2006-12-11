@@ -119,18 +119,18 @@ class substobj(Object.genobj):
 		Object.genobj.__init__(self, 'other')
 		self.fun = subst_func
 		self.dict = {}
+		self.prio = 8
 	def apply(self):
 
 		lst = self.to_list(self.source)
 
 		for filename in lst:
-			node = self.m_current_path.find_node( 
-				Utils.split_path(filename) )
+			node = self.m_current_path.find_node(Utils.split_path(filename))
 			if not node: fatal('cannot find input file %s for processing' % filename)
 
 			newnode = node.change_ext('')
 
-			task = self.create_task('copy', self.env, 8)
+			task = self.create_task('copy', self.env, self.prio)
 			task.set_inputs(node)
 			task.set_outputs(newnode)
 			task.m_env = self.env

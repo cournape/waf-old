@@ -155,7 +155,7 @@ class alex:
 		exec(self.res())
 		return eval('f')
 
-def simple_action(name, line, color='GREEN'):
+def simple_action(name, line, color='GREEN', vars=[]):
 	"helper provided for convenience"
 	obj = alex(line)
 	obj.start()
@@ -164,4 +164,5 @@ def simple_action(name, line, color='GREEN'):
 	act = Action(name, color=color)
 	act.m_function_to_run = f
 	act.m_vars = obj.m_vars
+	if vars: act.m_vars = vars
 

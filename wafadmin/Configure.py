@@ -4,7 +4,7 @@
 "Configuration system"
 
 import os, types, imp, cPickle, md5, sys, re
-import Params, Environment, Runner, Build, Utils
+import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
 
 g_maxlen = 40
@@ -300,6 +300,7 @@ class header_enumerator(enumerator_base):
 		self.path   = []
 		self.define = []
 		self.nosystem = 0
+		self.want_message = 1
 
 	def validate(self):
 		if not self.path:
@@ -314,12 +315,14 @@ class header_enumerator(enumerator_base):
 		fatal(errmsg)
 
 	def run_cache(self, retval):
-		self.conf.check_message('header %s (cached)' % self.name, '', 1, option=retval)
+		if self.want_message:
+			self.conf.check_message('header %s (cached)' % self.name, '', 1, option=retval)
 		if self.define: self.env[self.define] = retval
 
 	def run_test(self):
 		ret = find_file(self.name, self.path)
-		self.conf.check_message('header', self.name, ret, ret)
+		if self.want_message:
+			self.conf.check_message('header', self.name, ret, ret)
 		if self.define: self.env[self.define] = ret
 		return ret
 
@@ -485,6 +488,21 @@ class pkgconfig_configurator(configurator_base):
 			for item in modpaths:
 				retval['LIBPATH_'+uselib].append( item[2:] ) #Strip '-l'
 
+			# Store only other:
+			modother = os.popen('%s --libs-only-other %s' % (pkgcom, self.name)).read().strip().split()
+			retval['LINKFLAGS_'+uselib] = []
+			for item in modother:
+				if str(item).endswith(".la"):
+					la_config = libtool_config.libtool_config(item)
+					libs_only_L = la_config.get_libs_only_L()
+					libs_only_l = la_config.get_libs_only_l()
+					for entry in libs_only_l:
+						retval['LIB_'+uselib].append( entry[2:] ) #Strip '-l'
+					for entry in libs_only_L:
+						retval['LIBPATH_'+uselib].append( entry[2:] ) #Strip '-L'
+				else:
+					retval['LINKFLAGS_'+uselib].append( item ) #do not strip anything
+
 			for variable in self.variables:
 				var_defname = ''
 				# check if variable is a list
@@ -613,6 +631,7 @@ class library_configurator(configurator_base):
 		obj.code          = self.code
 		obj.env           = self.env
 		obj.uselib        = self.uselib
+		obj.libpath       = self.path
 
 		ret = int(not self.conf.run_check(obj))
 		self.conf.check_message('library %s' % self.name, '', ret)
@@ -630,12 +649,99 @@ class library_configurator(configurator_base):
 		if not ret: return {}
 		return val
 
+class framework_configurator(configurator_base):
+	def __init__(self,conf):
+		configurator_base.__init__(self,conf)
+
+		self.name = ''
+		self.custom_code = ''
+		self.code = 'int main() {return 0;}'
+
+		self.define = '' # HAVE_something
+
+		self.path = []
+		self.uselib = ''
+		self.remove_dot_h = False
+
+	def error(self):
+		errmsg = 'framework %s cannot be found via compiler, try pass -F' % self.name
+		if self.message: errmsg += '\n%s' % self.message
+		fatal(errmsg)
+
+	def validate(self):
+		if not self.uselib:
+			self.uselib = self.name.upper()
+		if not self.define:
+			self.define = 'HAVE_'+self.uselib
+		if not self.code:
+			self.code = "#include <%s>\nint main(){return 0;}\n"
+		if not self.uselib:
+			self.uselib = self.name.upper()
+
+	def run_cache(self, retval):
+		self.conf.check_message('framework %s (cached)' % self.name, '', 1)
+		self.update_env(retval)
+		if retval:
+			self.conf.add_define(self.define, 1)
+		else:
+			self.conf.add_define(self.define, 0)
+
+	def run_test(self):
+		oldlkflags = []
+		oldccflags = []
+		oldcxxflags = []
+
+		oldlkflags += self.env['LINKFLAGS']
+		oldccflags += self.env['CCFLAGS']
+		oldcxxflags += self.env['CXXFLAGS']
+
+		code = []
+		if self.remove_dot_h:
+			code.append('#include <%s/%s>\n' % (self.name, self.name))
+		else:
+			code.append('#include <%s/%s.h>\n' % (self.name, self.name))
+
+		code.append('int main(){%s\nreturn 0;}\n' % self.custom_code)
+
+		linkflags = []
+		linkflags += ['-framework', self.name]
+		linkflags += ['-F%s' % p for p in self.path]
+		cflags = ['-F%s' % p for p in self.path]
+
+		myenv = self.env.copy()
+		myenv['LINKFLAGS'] += linkflags
+
+		obj               = check_data()
+		obj.code          = "\n".join(code)
+		obj.env           = myenv
+		obj.uselib        = self.uselib
+		obj.flags		  += " ".join (cflags)
+
+		ret = int(not self.conf.run_check(obj))
+		self.conf.check_message('framework %s' % self.name, '', ret, option='')
+		self.conf.add_define(self.define, ret)
+
+		val = {}
+		if ret:
+			val["LINKFLAGS_" + self.uselib] = linkflags
+			val["CCFLAGS_" + self.uselib] = cflags
+			val["CXXFLAGS_" + self.uselib] = cflags
+			val[self.define] = ret
+
+		self.env['LINKFLAGS'] = oldlkflags
+		self.env['CCFLAGS'] = oldccflags
+		self.env['CXXFLAGS'] = oldcxxflags
+
+		self.update_env(val)
+
+		return val
+
 class header_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
 
 		self.name = ''
-		self.include_paths = []
+		self.path = []
 		self.header_code = ''
 		self.custom_code = ''
 		self.code = 'int main() {return 0;}'
@@ -666,16 +772,30 @@ class header_configurator(configurator_base):
 			fatal('no define given')
 
 	def run_cache(self, retvalue):
-		self.update_env(retvalue)
-		val = retvalue[self.define]
-		self.conf.check_message('header %s (cached)' % self.name, '', val)
-		self.conf.add_define(self.define, val)
+		self.conf.check_message('header %s (cached)' % self.name, '', 1)
+		if retvalue:
+			self.update_env(retvalue)
+			self.conf.add_define(self.define, 1)
+		else:
+			self.conf.add_define(self.define, 0)
 
 	def run_test(self):
 		ret = {} # not found
 
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
+
+		# try the enumerator to find the correct includepath
+		if self.uselib:
+			test = self.conf.create_header_enumerator()
+			test.name = self.name
+			test.want_message = 0
+			test.path = self.path
+			test.env = self.env
+			ret = test.run()
+
+			if ret:
+				self.env['CPPPATH_'+self.uselib] = ret
 
 		code = []
 		code.append(self.header_code)
@@ -689,7 +809,7 @@ class header_configurator(configurator_base):
 
 		obj               = check_data()
 		obj.code          = "\n".join(code)
-		obj.includes      = self.include_paths
+		obj.includes      = self.path
 		obj.env           = self.env
 		obj.uselib        = self.uselib
 
@@ -701,8 +821,13 @@ class header_configurator(configurator_base):
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
 
+		val = {}
+		if ret:
+			val['CPPPATH_'+self.uselib] = self.env['CPPPATH_'+self.uselib]
+			val[self.define] = ret
+
 		if not ret: return {}
-		return {self.define: 1}
+		return val
 
 # CONFIGURATORS END
 ####################
@@ -791,9 +916,9 @@ class Configure:
 				error("no tool named '%s' found" % i)
 				return 0
 			module = imp.load_module(i,file,name,desc)
-			ret = int(module.detect(self))
+			ret = ret and int(module.detect(self))
 			self.env.appendValue('tools', {'tool':i, 'tooldir':tooldir})
-		return 1
+		return ret
 
 	def setenv(self, name):
 		"enable the environment called name"
@@ -846,19 +971,19 @@ class Configure:
 		# TODO check
 		#if not 'configure' in mod:
 		#	fatal('the module has no configure function')
-		mod.configure(self)
+		ret = mod.configure(self)
 		self.cwd = current
+		return ret
 
 	def cleanup(self):
 		"called on shutdown"
 		try:
-			dir = Utils.join_path(Params.g_homedir, '.wafcache') #TODO: PORTABILITY!!!
+			dir = Utils.join_path(Params.g_homedir, '.wafcache')
 			try:
 				os.makedirs(dir)
 			except:
 				pass
 
-			#TODO: PORTABILITY!!!
 			file = open(Utils.join_path(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'wb')
 			cPickle.dump(self.m_cache_table, file)
 			file.close()
@@ -904,20 +1029,16 @@ class Configure:
 		"save the defines into a file"
 		if configfile == '': configfile = self.configheader
 
-		try:
-			# just in case the path is 'something/blah.h' (under the builddir)
-			lst=Utils.split_path(configfile)
-			lst = lst[:-1]
-			os.mkdir( Utils.join_path(lst) )
-		except:
-			pass
+		lst=Utils.split_path(configfile)
+		base = lst[:-1]
 
 		if not env: env = self.env
-		dir = Utils.join_path(self.m_blddir, env.variant())
+		base = [self.m_blddir, env.variant()]+base
+		dir = Utils.join_path(*base)
 		try: os.makedirs(dir)
 		except: pass
 
-		dir = Utils.join_path(dir, configfile)
+		dir = Utils.join_path(dir, lst[-1])
 
 		dest = open(dir, 'w')
 		dest.write('/* configuration created by waf */\n')

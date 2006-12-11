@@ -71,6 +71,10 @@ def load_module(file_path, name='wscript'):
 	except:
 		Params.fatal('The file %s could not be opened!' % file_path)
 
+	import Common
+	module.__dict__['install_files'] = Common.install_files
+	module.__dict__['install_as'] = Common.install_as
+	module.__dict__['symlink_as'] = Common.symlink_as
 	exec file in module.__dict__
 	if file: file.close()
 
@@ -85,19 +89,6 @@ def set_main_module(file_path):
 
 	# remark: to register the module globally, use the following:
 	# sys.modules['wscript_main'] = g_module
-
-def fetch_options(file_path):
-	"Load custom options, if defined"
-	import Options
-	file = open(file_path, 'r')
-	name = 'wscript'
-	desc = ('', 'U', 1)
-
-	module = imp.load_module(file_path, file, name, desc)
-	try:
-		Options.g_custom_options.append(module.set_options)
-	finally:
-		if file: file.close()
 
 def to_hashtable(s):
 	tbl = {}
@@ -131,7 +122,7 @@ except:
 
 def split_path(path):
 	"Split path into components. Supports UNC paths on Windows"
-	if 'win' in sys.platform and sys.platform != 'darwin':
+	if 'win' == sys.platform[:3] :
 		h,t = os.path.splitunc(path)
 		if not h: return __split_dirs(t)
 		return [h] + __split_dirs(t)[1:]

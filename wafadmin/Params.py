@@ -11,6 +11,7 @@ import Utils
 # Fixed constants, change with care
 
 g_version="1.0.1"
+REVISION="x"
 g_rootname = ''
 if sys.path=='win32':
 	# get the first two letters (c:)
@@ -70,9 +71,13 @@ g_cachedir = ''
 g_homedir=''
 for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
 	if var in os.environ:
-		g_homedir=os.environ[var]
+		#In windows, the home path is split into HOMEDRIVE and HOMEPATH
+		if var == 'HOMEPATH' and 'HOMEDRIVE' in os.environ:
+			g_homedir='%s%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'])
+		else:
+			g_homedir=os.environ[var]
 		break
-
+g_homedir=os.path.abspath(g_homedir)
 g_usecache = ''
 try: g_usecache = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: pass
@@ -164,13 +169,13 @@ def error(msg):
 	module = __get_module()
 	niceprint(msg, 'ERROR', module)
 
-def fatal(msg):
+def fatal(msg, ret=1):
 	module = __get_module()
 	if g_verbose > 0:
 		pprint('RED', '%s \n (error raised in module %s)' % (msg, module))
 	else:
 		pprint('RED', '%s' % msg)
-	sys.exit(1)
+	sys.exit(ret)
 
 def vsig(s):
 	"used for displaying signatures"

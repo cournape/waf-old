@@ -20,9 +20,6 @@ set_globals('MOC_H', ['.h', '.hpp', '.hxx', '.hh'])
 set_globals('RCC_EXT', ['.qrc'])
 set_globals('UI_EXT', ['.ui'])
 
-uic_vardeps = ['QT_UIC', 'UIC_FLAGS', 'UIC_ST']
-rcc_vardeps = ['QT_RCC', 'RCC_FLAGS']
-
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
 	def __init__(self, action_name, env, parent, priority=10):
@@ -58,6 +55,7 @@ class MTask(Task.Task):
 			mocfiles.append(d)
 
 			# find the extension - this search is done only once
+			ext = ''
 			if Params.g_options.qt_header_ext:
 				ext = Params.g_options.qt_header_ext
 			else:
@@ -145,8 +143,17 @@ class qt4obj(cpp.cppobj):
 		if type == 'cpp': self.p_compiletasks.append(task)
 		return task
 
+        def apply(self):
+		cpp.cppobj.apply(self)
+		lst = []
+		for flag in self.to_list(self.env['CXXFLAGS']):
+			if len(flag) < 2: continue
+			if flag[0:2] == '-D' or flag[0:2] == '-I':
+				lst.append(flag)
+		self.env['MOC_FLAGS'] = lst
+
 def setup(env):
-	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE')
+	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
 	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
 	Action.simple_action('uic4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE')
 	Object.register('qt4', qt4obj)
@@ -170,6 +177,9 @@ def detect_qt4(conf):
 	try: qtbin = opt.qtbin
 	except: qtbin=''
 
+	try: useframework = opt.use_qt4_osxframework
+	except: useframework = True
+
 	# if qtdir is given - helper for finding qtlibs, qtincludes and qtbin
 	try: qtdir = opt.qtdir
 	except: qtdir=''
@@ -185,7 +195,7 @@ def detect_qt4(conf):
 
 		except OSError:
 			pass
-	
+
 	if not qtdir:
 		try:
 			path = os.environ['PATH'].split(':')
@@ -194,9 +204,10 @@ def detect_qt4(conf):
 				if qmake:
 					version = os.popen(qmake+" -query QT_VERSION").read().strip().split('.')
 					if version[0] == "4":
+						qtincludes = os.popen(qmake+" -query QT_INSTALL_HEADERS").read().strip()
+						qtdir = os.popen(qmake + " -query QT_INSTALL_PREFIX").read().strip()+"/"
+						qtbin = os.popen(qmake + " -query QT_INSTALL_BINS").read().strip()+"/"
 						break;
-					
-			qtdir = os.popen(qmake + " -query QT_INSTALL_PREFIX 2>&1").read().strip()+"/"
 		except OSError:
 			pass
 
@@ -246,52 +257,89 @@ def detect_qt4(conf):
 	if not qtlibs: qtlibs = qtdir + 'lib'
 
 	vars = "Qt3Support QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml".split()
-	vars_debug = map(lambda a: a+'_debug', vars)
 
-	for i in vars_debug+vars:
-		#conf.check_pkg(i, pkgpath=qtlibs)
-		pkgconf = conf.create_pkgconfig_configurator()
-		pkgconf.name = i
-		pkgconf.path = qtlibs + ':/usr/lib/qt4/lib:/opt/qt4/lib'
-		pkgconf.run()
+	framework_ok = False
+	if sys.platform == "darwin" and useframework:
+		for i in vars:
+			e = conf.create_framework_configurator()
+			e.path = [qtlibs]
+			e.name = i
+			e.remove_dot_h = 1
+			e.run()
+
+			if not i == 'QtCore':
+				# strip -F flag so it don't get reduant
+				for r in env['CCFLAGS_' + i.upper()]:
+					if r.startswith('-F'):
+						env['CCFLAGS_' + i.upper()].remove(r)
+						break
+		
+			incflag = '-I%s' % os.path.join(qtincludes, i)
+			if not incflag in env["CCFLAGS_" + i.upper ()]:
+				env['CCFLAGS_' + i.upper ()] += [incflag]
+			if not incflag in env["CXXFLAGS_" + i.upper ()]:
+				env['CXXFLAGS_' + i.upper ()] += [incflag]
+
+		# now we add some static depends.
+		if conf.is_defined("HAVE_QTOPENGL"):
+			if not '-framework OpenGL' in env["LINKFLAGS_QTOPENGL"]:
+				env["LINKFLAGS_QTOPENGL"] += ['-framework OpenGL']
+
+		if conf.is_defined("HAVE_QTGUI"):
+			if not '-framework AppKit' in env["LINKFLAGS_QTGUI"]:
+				env["LINKFLAGS_QTGUI"] += ['-framework AppKit']
+			if not '-framework ApplicationServices' in env["LINKFLAGS_QTGUI"]:
+				env["LINKFLAGS_QTGUI"] += ['-framework ApplicationServices']
+
+		framework_ok = True
+
+	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
+		vars_debug = map(lambda a: a+'_debug', vars)
+
+		for i in vars_debug+vars:
+			#conf.check_pkg(i, pkgpath=qtlibs)
+			pkgconf = conf.create_pkgconfig_configurator()
+			pkgconf.name = i
+			pkgconf.path = qtlibs + ':/usr/lib/qt4/lib:/opt/qt4/lib'
+			pkgconf.run()
 
 
-	# the libpaths are set nicely, unfortunately they make really long command-lines
-	# remove the qtcore ones from qtgui, etc
-	def process_lib(vars_, coreval):
-		for d in vars_:
-			var = d.upper()
-			if var == 'QTCORE': continue
-
-			value = env['LIBPATH_'+var]
-			if value:
-				core = env[coreval]
-				accu = []
-				for lib in value:
-					if lib in core: continue
-					accu.append(lib)
-				env['LIBPATH_'+var] = accu
-
-	process_lib(vars, 'LIBPATH_QTCORE')
-	process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
-
-	# rpath if wanted
-	if Params.g_options.want_rpath:
-		def process_rpath(vars_, coreval):
+		# the libpaths are set nicely, unfortunately they make really long command-lines
+		# remove the qtcore ones from qtgui, etc
+		def process_lib(vars_, coreval):
 			for d in vars_:
 				var = d.upper()
+				if var == 'QTCORE': continue
+
 				value = env['LIBPATH_'+var]
 				if value:
 					core = env[coreval]
 					accu = []
 					for lib in value:
-						if var != 'QTCORE':
-							if lib in core:
-								continue
-						accu.append('-Wl,--rpath='+lib)
-					env['RPATH_'+var] = accu
-		process_rpath(vars, 'LIBPATH_QTCORE')
-		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+						if lib in core: continue
+						accu.append(lib)
+					env['LIBPATH_'+var] = accu
+
+		process_lib(vars, 'LIBPATH_QTCORE')
+		process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+
+		# rpath if wanted
+		if Params.g_options.want_rpath:
+			def process_rpath(vars_, coreval):
+				for d in vars_:
+					var = d.upper()
+					value = env['LIBPATH_'+var]
+					if value:
+						core = env[coreval]
+						accu = []
+						for lib in value:
+							if var != 'QTCORE':
+								if lib in core:
+									continue
+							accu.append('-Wl,--rpath='+lib)
+						env['RPATH_'+var] = accu
+			process_rpath(vars, 'LIBPATH_QTCORE')
+			process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
 	env['QTLOCALE'] = str(env['PREFIX'])+'/share/locale'
 
@@ -313,3 +361,5 @@ def set_options(opt):
 	for i in "qtdir qtincludes qtlibs qtbin".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 
+	if sys.platform == "darwin":
+		opt.add_option('--no-qt4-framework', action="store_false", help='do not use the framework version of Qt4 in OS X', dest='use_qt4_osxframework',default=True)

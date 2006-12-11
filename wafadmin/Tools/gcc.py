@@ -7,19 +7,17 @@ import os, sys
 import Utils, Action, Params
 
 def setup(env):
-	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
-
-	Action.simple_action('cc', cc_str, 'GREEN')
-
-	# on windows libraries must be defined after the object files
-	Action.simple_action('cc_link', link_str, color='YELLOW')
+	pass
 
 def detect(conf):
-	cc = conf.find_program('cc', var='CC')
-
-	comp = conf.find_program('gcc', var='GCC')
-	if not cc and not comp:
+	cc = None
+	if conf.env['CC']:
+		cc = conf.env['CC']
+	elif 'CC' in os.environ:
+		cc = os.environ['CC']
+	if not cc: cc = conf.find_program('gcc', var='CC')
+	if not cc: cc = conf.find_program('cc', var='CC')
+	if not cc:
 		return 0;
 
 	# load the cc builders
@@ -32,11 +30,12 @@ def detect(conf):
 
 	v = conf.env
 
-	# preprocessor (what is that ? ita)
-	#v['CPP']             = cpp
+        cpp = conf.find_program('cpp', var='CPP')
+        if not cpp: cpp = cc
 
-	# cc compiler
-	v['CC']                   = comp
+	v['CC']  = cc
+	v['CPP'] = cpp
+
 	v['CPPFLAGS']             = []
 	v['CCDEFINES']            = []
 	v['_CCINCFLAGS']          = []
@@ -54,7 +53,7 @@ def detect(conf):
 	v['CCFLAGS_ULTRADEBUG']   = ['-g3', '-O0', '-DDEBUG']
 
 	# linker
-	v['LINK_CC']              = comp
+	v['LINK_CC']              = v['CC']
 	v['LIB']                  = []
 	v['CCLNK_SRC_F']          = ''
 	v['CCLNK_TGT_F']          = '-o '
@@ -77,22 +76,14 @@ def detect(conf):
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
-	try:
-		deb = Params.g_options.debug_level
-		v['CCFLAGS']   += v['CCFLAGS_'+deb]
-		v['LINKFLAGS'] += v['LINKFLAGS_'+deb]
-	except:
-		pass
-
-	def addflags(var):
-		try:
-			c = os.environ[var]
-			if c: v[var].append(c)
-		except:
-			pass
-
-	addflags('CCFLAGS')
+	ron = os.environ
+	def addflags(orig, dest=None):
+		if not dest: dest=orig
+		try: conf.env[dest] = ron[orig]
+		except KeyError: pass
+	addflags('CCFLAGS', 'CFLAGS')
 	addflags('CPPFLAGS')
+	addflags('LINKFLAGS')
 
 	if sys.platform == "win32":
 		# shared library
@@ -113,12 +104,19 @@ def detect(conf):
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = '.exe'
 
+		# plugins, loadable modules.
+		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
+		v['plugin_obj_ext']      = v['shlib_obj_ext']
+		v['plugin_PREFIX']       = v['shlib_PREFIX']
+		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
+
 	elif sys.platform == "darwin":
 		v['shlib_CCFLAGS']       = ['-fPIC']
 		v['shlib_LINKFLAGS']     = ['-dynamiclib']
 		v['shlib_obj_ext']       = ['.os']
 		v['shlib_PREFIX']        = 'lib'
-		v['shlib_SUFFIX']        = '.dynlib'
+		v['shlib_SUFFIX']        = '.dylib'
 
 		# static lib
 		v['staticlib_LINKFLAGS'] = ['']
@@ -130,6 +128,13 @@ def detect(conf):
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = ''
 
+		# bundles
+		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
+		v['plugin_obj_ext']      = ['.os']
+		v['plugin_CCFLAGS']      = ['-fPIC']
+		v['plugin_PREFIX']       = ''
+		v['plugin_SUFFIX']       = '.bundle'
+
 		v['SHLIB_MARKER']        = ''
 		v['STATICLIB_MARKER']    = ''
 
@@ -140,6 +145,14 @@ def detect(conf):
 		v['shlib_obj_ext']       = ['.os']
 		v['shlib_PREFIX']        = 'lib'
 		v['shlib_SUFFIX']        = '.so'
+
+		# plugins. We handle them exactly as shlibs
+		# everywhere except on osx, where we do bundles
+		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
+		v['plugin_obj_ext']      = v['shlib_obj_ext']
+		v['plugin_PREFIX']       = v['shlib_PREFIX']
+		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
 
 		# static lib
 		v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']

@@ -5,7 +5,7 @@
 "Base for c++ programs and libraries"
 
 import ccroot
-import Object, Params
+import Object, Params, Action
 
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -14,7 +14,7 @@ g_cpp_flag_vars = [
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CXXDEFINES']
 "main cpp variables"
 
-cpptypes=['shlib', 'program', 'staticlib', 'objects']
+cpptypes=['plugin', 'shlib', 'program', 'staticlib', 'objects']
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 class cppobj(ccroot.ccroot):
 	s_default_ext = ['.c', '.cpp', '.cc']
@@ -66,6 +66,14 @@ class cppobj(ccroot.ccroot):
 		self.env['_CXXDEFFLAGS'] = map( lambda x: y%x, milst )
 
 def setup(env):
+	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
+
+	Action.simple_action('cpp', cpp_str, color='GREEN')
+
+	# on windows libraries must be defined after the object files
+	Action.simple_action('cpp_link', link_str, color='YELLOW')
+
 	Object.register('cpp', cppobj)
 
 def detect(conf):

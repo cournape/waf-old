@@ -319,9 +319,6 @@ class ccroot(Object.genobj):
 		# includes, seen from the current directory
 		self.includes=''
 
-		self.linkflags=''
-		self.linkpaths=''
-
 		self.rpaths=''
 
 		self.uselib=''
@@ -369,8 +366,9 @@ class ccroot(Object.genobj):
 	def find_sources_in_dirs(self, dirnames, excludes=[]):
 		"subclass if necessary"
 		lst=[]
-		try:    exc_lst = excludes.split()
-		except: exc_lst = excludes
+		excludes = Utils.to_list(excludes)
+		#make sure dirnames is a list helps with dirnames with spaces
+		dirnames = Utils.to_list(dirnames)
 
 		ext_lst = []
 		ext_lst += self.s_default_ext
@@ -380,7 +378,7 @@ class ccroot(Object.genobj):
 		except:
 			pass
 
-		for name in dirnames.split():
+		for name in dirnames:
 			#print "name is ", name
 			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, 
 				Utils.split_path(name))
@@ -395,7 +393,7 @@ class ccroot(Object.genobj):
 				if ext in ext_lst:
 					s = file.relpath(self.m_current_path)
 					if not s in lst:
-						if s in exc_lst: continue
+						if s in excludes: continue
 						lst.append(s)
 
 		self.source = self.source+' '+(" ".join(lst))
@@ -598,7 +596,7 @@ class ccroot(Object.genobj):
 
 	def install(self):
 		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
-
+		if self.install_in is 0: return
 		dest_var    = ''
 		dest_subdir = ''
 
@@ -615,7 +613,7 @@ class ccroot(Object.genobj):
 
 		if self.m_type == 'program':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
-		elif self.m_type == 'shlib':
+		elif self.m_type == 'shlib' or self.m_type == 'plugin':
 			if self.want_libtool:
 				self.install_results(dest_var, dest_subdir, self.m_latask)
 			if sys.platform=='win32' or not self.vnum:
@@ -640,7 +638,7 @@ class ccroot(Object.genobj):
 		elif self.m_type == 'staticlib':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=0644)
 
-	# TODO: broken, update
+	# This piece of code must suck, no one uses it
 	def apply_libtool(self):
 		self.env['vnum']=self.vnum
 
@@ -684,6 +682,9 @@ class ccroot(Object.genobj):
 	def apply_lib_vars(self):
 		debug('apply_lib_vars called', 'ccroot')
 
+		# 0. override if necessary
+		self.process_vnum()
+
 		# 1. the case of the libs defined in the project
 		names = self.uselib_local.split()
 		env=self.env
@@ -696,6 +697,11 @@ class ccroot(Object.genobj):
 
 				if obj.m_type == 'shlib':
 					env.appendValue('LIB', obj.target)
+				elif obj.m_type == 'plugin':
+					if platform == 'darwin':
+						env.appendValue('PLUGIN', obj.target)
+					else:
+						env.appendValue('LIB', obj.target)
 				elif obj.m_type == 'staticlib':
 					env.appendValue('STATICLIB', obj.target)
 				else:
@@ -726,6 +732,13 @@ class ccroot(Object.genobj):
 			for v in self.p_flag_vars:
 				val=self.env[v+'_'+l]
 				if val: self.env.appendValue(v, val)
+	def process_vnum(self):
+		if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
+			nums=self.vnum.split('.')
+			# this is very unix-specific
+			try: name3 = self.soname
+			except: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
+			self.env.appendValue('LINKFLAGS', '-Wl,-soname,'+name3)
 
 	def apply_objdeps(self):
 		"add the .o files produced by some other object files in the same manner as uselib_local"
