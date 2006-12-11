@@ -184,7 +184,7 @@ from Params import fatal, warning
 Params.g_tooldir = [tooldir]
 
 if Params.g_version != VERSION:
-	fatal('version mismatch waf %s <-> wafadmin %s' % (VERSION, Params.g_version))
+	fatal('version mismatch waf %s <-> wafadmin %s (wafdir %s)' % (VERSION, Params.g_version, wafdir))
 
 if Params.REVISION != REVISION:
 	if not 'WAFDIR' in os.environ:
