@@ -24,8 +24,6 @@ def set_options(opt):
 # assuming that all files are in the current directory
 
 #def build(bld):
-#	bld.set_variants('default psdir')
-#
 #	# the ps and pdf files cannot share their intermediate files
 #	# separate build dirs are necessary
 #

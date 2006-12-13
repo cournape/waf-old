@@ -29,7 +29,6 @@ def init():
 
 def build(bld):
 	# process subfolders from here
-	bld.set_variants('default debug')
 	bld.add_subdirs('src complex variant tests')
 
 	# compile the flex+bison test if available
