@@ -1045,7 +1045,8 @@ class Configure:
 		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
 
 		# yes, this is special
-		self.env['dep_files'] += [configfile]
+		if not configfile in self.env['dep_files']:
+			self.env['dep_files'] += [configfile]
 		for key in env['defines']:
 			if env['defines'][key] is None:
 				dest.write('#define %s\n' % key)
