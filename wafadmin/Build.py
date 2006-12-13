@@ -124,15 +124,16 @@ class Build:
 		for env in self.m_allenvs.values():
 			for f in env['dep_files']:
 				lst = f.split('/')
-				topnode = self.m_srcnode.search_existing_node(lst[:-1])
-				#print "looking into ", topnode.abspath(env)
+				topnode = self.m_srcnode.find_node(lst[:-1])
 				newnode = topnode.search_existing_node([lst[-1]])
 				if not newnode:
-					print "newnode is null"
-					newnode = Node.Node(f, topnode)
+					newnode = Node.Node(lst[-1], topnode)
 					topnode.append_build(newnode)
-				self.m_tstamp_variants[env.variant()][newnode] = Params.h_file(newnode.abspath(env))
-
+				try:
+					hash = Params.h_file(topnode.abspath(env)+os.sep+lst[-1])
+				except IOError:
+					hash = Params.sig_nil
+				self.m_tstamp_variants[env.variant()][newnode] = hash
 
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
