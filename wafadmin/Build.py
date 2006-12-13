@@ -113,6 +113,7 @@ class Build:
 		self.m_raw_deps        = {}
 
 	def _init_variants(self):
+		#print "init variants called"
 		debug("init variants", 'build')
 		for name in Utils.to_list(self._variants)+[0]:
 			for v in 'm_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_abspath_cache'.split():
@@ -122,12 +123,14 @@ class Build:
 
 		for env in self.m_allenvs.values():
 			for f in env['dep_files']:
-				newnode = self.m_srcnode.search_existing_node([f])
+				lst = f.split('/')
+				topnode = self.m_srcnode.search_existing_node(lst[:-1])
+				#print "looking into ", topnode.abspath(env)
+				newnode = topnode.search_existing_node([lst[-1]])
 				if not newnode:
-					print "creating node "+f
-					newnode = Node.Node(f, self.m_srcnode)
-					self.m_srcnode.append_build(newnode)
-				print newnode.abspath(env)
+					print "newnode is null"
+					newnode = Node.Node(f, topnode)
+					topnode.append_build(newnode)
 				self.m_tstamp_variants[env.variant()][newnode] = Params.h_file(newnode.abspath(env))
 
 
