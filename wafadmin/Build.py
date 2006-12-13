@@ -5,7 +5,7 @@
 "Dependency tree holder"
 
 import os, cPickle
-import Params, Runner, Object, Node, Task, Scripting, Utils
+import Params, Runner, Object, Node, Task, Scripting, Utils, Environment
 from Params import debug, error, fatal, warning
 
 g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
@@ -120,6 +120,17 @@ class Build:
 				if not name in var:
 					var[name] = {}
 
+		for env in self.m_allenvs.values():
+			for f in env['dep_files']:
+				newnode = self.m_srcnode.search_existing_node([f])
+				if not newnode:
+					print "creating node "+f
+					newnode = Node.Node(f, self.m_srcnode)
+					self.m_srcnode.append_build(newnode)
+				print newnode.abspath(env)
+				self.m_tstamp_variants[env.variant()][newnode] = Params.h_file(newnode.abspath(env))
+
+
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
 		try:
@@ -233,6 +244,32 @@ class Build:
 		except:
 			print "error in create_obj", objname
 			raise
+
+	def load_envs(self):
+		cachedir = Params.g_cachedir
+		try:
+			lst = os.listdir(cachedir)
+		except:
+			fatal('The project was not configured: run "waf configure" first!')
+
+		if not lst: raise "file not found"
+		for file in lst:
+			if len(file) < 3: continue
+			if file[-3:] != '.py': continue
+
+			env = Environment.Environment()
+			ret = env.load(os.path.join(cachedir, file))
+			name = file.split('.')[0]
+
+			if not ret:
+				print "could not load env ", name
+				continue
+			self.m_allenvs[name] = env
+			try:
+				for t in env['tools']: env.setup(**t)
+			except:
+				print "loading failed:", file
+				raise
 
 	# ======================================= #
 	# node and folder handling

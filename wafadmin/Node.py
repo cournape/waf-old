@@ -6,13 +6,13 @@
 
 import os
 import Params, Utils
-from Params import debug, error
+from Params import debug, error, fatal
 
 class Node:
 	def __init__(self, name, parent):
 
-		self.m_name		= name
-		self.m_parent	= parent
+		self.m_name = name
+		self.m_parent = parent
 		self.m_cached_path = ""
 
 		# Lookup dictionaries for O(1) access
@@ -21,20 +21,17 @@ class Node:
 		self.m_build_lookup = {}
 
 		# Node name must contain only one level
-		if Utils.split_path(name)[0] != name:  #name == '.' or name == '..' or '/' in name or os.sep in name:
-			error('name forbidden '+name)
-			raise "boo"
+		if Utils.split_path(name)[0] != name:
+		#name == '.' or name == '..' or '/' in name or os.sep in name:
+		#if '/' in name and parent:
+			fatal('name forbidden '+name)
 
 		if parent:
 			if parent.get_file(name):
-#			for node in parent.m_files:
-#				if name == node.m_name:
 				error('node %s exists in the parent files %s already' % (name, str(parent)))
 				raise "inconsistency"
 
 			if parent.get_build(name):
-#			for node in parent.m_build:
-#				if name == node.m_name:
 				error('node %s exists in the parent build %s already' % (name, str(parent)))
 				raise "inconsistency"
 

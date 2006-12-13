@@ -65,32 +65,6 @@ def startDaemon():
 		# infinite loop, no need to exit except on ctrl+c
 		g_dirwatch.loop()
 
-def load_envs():
-	cachedir = Params.g_cachedir
-	try:
-		lst = os.listdir(cachedir)
-	except:
-		fatal('The project was not configured: run "waf configure" first!')
-
-	if not lst: raise "file not found"
-	for file in lst:
-		if len(file) < 3: continue
-		if file[-3:] != '.py': continue
-
-		env = Environment.Environment()
-		ret = env.load(os.path.join(cachedir, file))
-		name = file.split('.')[0]
-
-		if not ret:
-			print "could not load env ", name
-			continue
-		Params.g_build.m_allenvs[name] = env
-		try:
-			for t in env['tools']: env.setup(**t)
-		except:
-			print "loading failed:", file
-			raise
-
 def Main():
 	from Common import install_files, install_as, symlink_as # do not remove
 	if Params.g_commands['configure']:
@@ -158,7 +132,7 @@ def Main():
 		raise
 
 	try:
-		load_envs()
+		bld.load_envs()
 	except:
 		raise
 		fatal("Configuration loading failed\n" \
