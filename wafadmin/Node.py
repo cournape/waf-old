@@ -233,6 +233,24 @@ class Node:
 		#debug('find_node returns nothing '+str(self)+' '+str(lst), 300)
 		return None
 
+	# TODO moved from Object.py
+	# not recursive - search for a node, it is created if it does not exis
+	def find_or_create(self, filename):
+		node = self
+		for name in Utils.split_path(filename):
+			res = node.get_file(name)
+			if not res: res = node.get_build(name)
+			if not res: res = node.get_dir(name)
+
+			if not res:
+				# bld node does not exist, create it
+				node2 = Node(name, node)
+				node.append_build(node2)
+				node = node2
+			else:
+				node = res
+		return node
+
 	def search_existing_node(self, lst):
 		"returns a node from the tree, do not create if missing"
 		#print self, lst

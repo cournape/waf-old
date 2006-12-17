@@ -247,7 +247,7 @@ class kdeobj(cpp.cppobj):
 		lst.sort()
 		for filename in lst:
 
-			node = self.find(filename)
+			node = self.path().find_or_create(filename)
 			if not node:
 				ext = filename[-4:]
 				if ext != 'skel' and ext != 'stub':
@@ -332,14 +332,14 @@ class kdeobj(cpp.cppobj):
 		cppoutputs = []
 		for t in self.p_compiletasks: cppoutputs.append(t.m_outputs[0])
 		linktask.set_inputs(cppoutputs)
-		linktask.set_outputs(self.find(self.get_target_name()))
+		linktask.set_outputs(self.path().find_or_create(self.get_target_name()))
 
 		self.m_linktask = linktask
 
 		if self.m_type != 'program' and self.want_libtool:
 			latask           = self.create_task('fakelibtool', self.env, 200)
 			latask.set_inputs(linktask.m_outputs)
-			latask.set_outputs(self.find(self.get_target_name('.la')))
+			latask.set_outputs(self.path().find_or_create(self.get_target_name('.la')))
 			self.m_latask    = latask
 
 	def install(self):

@@ -434,7 +434,7 @@ class ccroot(Object.genobj):
 		lst = self.to_list(self.source)
 		find_node = self.m_current_path.find_node
 		for filename in lst:
-			#node = self.find(filename)
+			#node = self.path().find_or_create(filename)
 			node = self.m_current_path.find_node(Utils.split_path(filename))
 			if not node: fatal("source not found: %s in %s" % (filename, str(self.m_current_path)))
 
@@ -474,7 +474,7 @@ class ccroot(Object.genobj):
 		app = outputs.append
 		for t in self.p_compiletasks: app(t.m_outputs[0])
 		linktask.set_inputs(outputs)
-		linktask.set_outputs(self.find(self.get_target_name()))
+		linktask.set_outputs(self.path().find_or_create(self.get_target_name()))
 
 		self.m_linktask = linktask
 

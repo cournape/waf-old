@@ -159,25 +159,6 @@ class genobj:
 		"subclass me"
 		fatal("subclass me!")
 
-	# TODO
-	def find(self, filename):
-		node = self.m_current_path
-		for name in Utils.split_path(filename):
-			res = node.get_file(name)
-			if not res:
-				res = node.get_build(name)
-			if not res:
-				res = node.get_dir(name)
-
-			if not res:
-				# bld node does not exist, create it
-				node2 = Node.Node(name, node)
-				node.append_build(node2)
-				node = node2
-			else:
-				node = res
-		return node
-
 	# an object is to be posted, even if only for install
 	# the install function is called for uninstalling too
 	def install(self):
@@ -211,6 +192,9 @@ class genobj:
 		"helper: returns a list"
 		if type(value) is types.StringType: return value.split()
 		else: return value
+
+	def path(self):
+		return self.m_current_path
 
 def flatten(env, var):
 	try:

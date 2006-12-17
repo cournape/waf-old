@@ -118,7 +118,7 @@ class ocamlobj(Object.genobj):
 		# first create the nodes corresponding to the sources
 		for filename in source_lst:
 			base, ext = os.path.splitext(filename)
-			node = self.find(filename)
+			node = self.path().find_or_create(filename)
 			if not ext in self.s_default_ext:
 				print "??? ", filename
 
@@ -175,14 +175,14 @@ class ocamlobj(Object.genobj):
 			objfiles = []
 			for t in self._bytecode_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
-			linktask.set_outputs(self.find(self.get_target_name(bytecode=1)))
+			linktask.set_outputs(self.path().find_or_create(self.get_target_name(bytecode=1)))
 			self._linktasks.append(linktask)
 		if self.native_env:
 			linktask = self.create_task('ocalinkopt', self.native_env, 101)
 			objfiles = []
 			for t in self._native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
-			linktask.set_outputs(self.find(self.get_target_name(bytecode=0)))
+			linktask.set_outputs(self.path().find_or_create(self.get_target_name(bytecode=0)))
 			self._linktasks.append(linktask)
 
 			self.out_nodes += linktask.m_outputs
