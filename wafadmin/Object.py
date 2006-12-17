@@ -110,8 +110,7 @@ class genobj:
 
 		# allow delayed operations on objects created (declarative style)
 		# an object is then posted when another one is added
-		# of course, you may want to post the object yourself first :)
-		#flush()
+		# Objects can be posted manually, but this can break a few things, use with care
 		Params.g_build.m_outstanding_objs.append(self)
 
 		if not type in self.get_valid_types():
@@ -121,12 +120,11 @@ class genobj:
 		return ['program', 'shlib', 'staticlib', 'other']
 
 	def get_hook(self, ext):
-		try:
-			for i in self.__class__.__dict__['all_hooks']:
-				if ext in self.env[i]:
-					return self.__class__.__dict__[i]
-		except:
-			return None
+		env=self.env
+		for i in self.__class__.__dict__['all_hooks']:
+			if ext in env[i]:
+				return self.__class__.__dict__[i]
+		return None
 
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
@@ -146,8 +144,7 @@ class genobj:
 
 	def create_task(self, type, env=None, nice=10):
 		"""the lower the nice is, the higher priority tasks will run at
-		groups are sorted like this [2, 4, 5, 100, 200]
-		the tasks with lower nice will run first
+		groups are sorted in ascending order [2, 3, 4], the tasks with lower nice will run first
 		if tasks have an odd priority number, they will be run only sequentially
 		if tasks have an even priority number, they will be allowed to be run in parallel
 		"""
@@ -160,6 +157,7 @@ class genobj:
 		"subclass me"
 		fatal("subclass me!")
 
+	# TODO
 	def find(self, filename):
 		node = self.m_current_path
 		for name in Utils.split_path(filename):
