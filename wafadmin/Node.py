@@ -254,22 +254,23 @@ class Node:
 
 	def search_existing_node(self, lst):
 		"returns a node from the tree, do not create if missing"
-		#print self, lst
 		if not lst: return self
-		name=lst[0]
-
-		Params.g_build.rescan(self)
-
-		if name == '.':  return self.search_existing_node(lst[1:])
-		if name == '..': return self.m_parent.search_existing_node(lst[1:])
-
-		res = self.get_dir(name,None)
-		if not res: res=self.get_file(name)
-		if not res: res=self.get_build(name)
-		if res: return res.search_existing_node(lst[1:])
-
-		debug('search_existing_node returns nothing %s %s' % (str(self), str(lst)), 'node')
-		return None
+		node = self
+		rescan = Params.g_build.rescan
+		for name in lst:
+			if not node: return None
+			rescan(node)
+			if name == '.': continue
+			if name == '..':
+				node = self.m_parent
+				continue
+			old = node
+			node = old.get_file(name)
+			if node: continue
+			node = old.get_build(name)
+			if node: continue
+			node = old.get_dir(name)
+		return node
 
 	# absolute path
 	def abspath(self, env=None):
