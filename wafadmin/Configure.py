@@ -1238,12 +1238,8 @@ class Configure:
 
 		# compile the program
 		self.mute_logging()
-		try:
-			ret = bld.compile()
-			self.restore_logging()
-		except:
-			ret = 1
-			self.restore_logging()
+		ret = bld.compile()
+		self.restore_logging()
 
 		# keep the name of the program to execute
 		if obj.execute:
