@@ -205,16 +205,14 @@ class texobj(Object.genobj):
 		if self.deps:
 			deps = self.to_list(self.deps)
 			for filename in deps:
-				n = self.m_current_path.find_node( 
-					Utils.split_path(filename) )
+				n = self.path.find_node(Utils.split_path(filename))
 				if not n in deps_lst: deps_lst.append(n)
 
 		for filename in self.source.split():
 			base, ext = os.path.splitext(filename)
 			if not ext in self.s_default_ext: continue
 
-			node = self.m_current_path.find_node( 
-				Utils.split_path(filename) )
+			node = self.path.find_node(Utils.split_path(filename))
 			if not node: fatal('cannot find %s' % filename)
 
 			if self.m_type == 'latex':
@@ -230,7 +228,7 @@ class texobj(Object.genobj):
 
 			task.m_scanner = g_tex_scanner
 			task.m_env     = self.env
-			task.m_scanner_params = {'curdirnode':self.m_current_path}
+			task.m_scanner_params = {'curdirnode':self.path}
 
 			# add the manual dependencies
 			if deps_lst:

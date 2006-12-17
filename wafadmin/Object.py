@@ -64,7 +64,7 @@ def flush():
 
 		# compile only targets under the launch directory
 		if launch_dir_node:
-			objnode = obj.m_current_path
+			objnode = obj.path
 			if not (objnode is launch_dir_node or objnode.is_child_of(launch_dir_node)):
 				continue
 		if compile_targets:
@@ -92,7 +92,7 @@ class genobj:
 	def __init__(self, type):
 		self.m_type  = type
 		self.m_posted = 0
-		self.m_current_path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
+		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 
 		# targets / sources
@@ -192,9 +192,6 @@ class genobj:
 		"helper: returns a list"
 		if type(value) is types.StringType: return value.split()
 		else: return value
-
-	def path(self):
-		return self.m_current_path
 
 def flatten(env, var):
 	try:

@@ -25,7 +25,7 @@ class javaobj(Object.genobj):
 		# first create the nodes corresponding to the sources
 		for filename in source_lst:
 			base, ext = os.path.splitext(filename)
-			node = self.path().find_or_create(filename)
+			node = self.path.find_or_create(filename)
 			if not ext in self.s_default_ext:
 				print "??? ", filename
 

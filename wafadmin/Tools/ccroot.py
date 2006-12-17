@@ -380,18 +380,17 @@ class ccroot(Object.genobj):
 
 		for name in dirnames:
 			#print "name is ", name
-			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, 
-				Utils.split_path(name))
+			anode = Params.g_build.ensure_node_from_lst(self.path, Utils.split_path(name))
 			#print "anode ", anode.m_name, " ", anode.files()
 			Params.g_build.rescan(anode)
 			#print "anode ", anode.m_name, " ", anode.files()
 
-			#node = self.m_current_path.find_node( name.split(os.sep) )
+			#node = self.path.find_node( name.split(os.sep) )
 			for file in anode.files():
 				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in ext_lst:
-					s = file.relpath(self.m_current_path)
+					s = file.relpath(self.path)
 					if not s in lst:
 						if s in excludes: continue
 						lst.append(s)
@@ -432,11 +431,11 @@ class ccroot(Object.genobj):
 		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
 		lst = self.to_list(self.source)
-		find_node = self.m_current_path.find_node
+		find_node = self.path.find_node
 		for filename in lst:
-			#node = self.path().find_or_create(filename)
-			node = self.m_current_path.find_node(Utils.split_path(filename))
-			if not node: fatal("source not found: %s in %s" % (filename, str(self.m_current_path)))
+			#node = self.path.find_or_create(filename)
+			node = self.path.find_node(Utils.split_path(filename))
+			if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
 
 			# Extract the extension and look for a handler hook.
 			k = max(0, filename.rfind('.'))
@@ -474,7 +473,7 @@ class ccroot(Object.genobj):
 		app = outputs.append
 		for t in self.p_compiletasks: app(t.m_outputs[0])
 		linktask.set_inputs(outputs)
-		linktask.set_outputs(self.path().find_or_create(self.get_target_name()))
+		linktask.set_outputs(self.path.find_or_create(self.get_target_name()))
 
 		self.m_linktask = linktask
 
@@ -519,7 +518,7 @@ class ccroot(Object.genobj):
 				self.env.appendValue('CPPPATH', dir)
 				continue
 
-			node = self.m_current_path.find_node(Utils.split_path(dir))
+			node = self.path.find_node(Utils.split_path(dir))
 			if not node:
 				debug("node not found in ccroot:apply_incpaths "+str(dir), 'ccroot')
 				continue
@@ -708,7 +707,7 @@ class ccroot(Object.genobj):
 					error('unknown object type %s in apply_lib_vars' % obj.name)
 
 				# add the path too
-				tmp_path = obj.m_current_path.bldpath(self.env)
+				tmp_path = obj.path.bldpath(self.env)
 				if not tmp_path in env['LIBPATH']: env.prependValue('LIBPATH', tmp_path)
 
 				# set the dependency over the link task

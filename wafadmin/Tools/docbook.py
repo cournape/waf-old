@@ -117,16 +117,15 @@ class docbookobj(Object.genobj):
 		# for each source argument, create a task
 		lst = self.source.split()
 		for filename in lst:
-			node = self.m_current_path.find_node( 
-				Utils.split_path(filename) )
+			node = self.path.find_node(Utils.split_path(filename) )
 			if not node:
-				fatal("source not found: "+filename+" in "+str(self.m_current_path))
+				fatal("source not found: "+filename+" in "+str(self.path))
 
 			# create a task to process the source file.
 			docb_file(self, node)
 
 	def install(self):
-		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): 
+		if not (Params.g_commands['install'] or Params.g_commands['uninstall']):
 			return
 
 		current = Params.g_build.m_curdirnode

@@ -47,6 +47,8 @@ class ocamlobj(Object.genobj):
 		self.includes     = ''
 		self.uselib       = ''
 
+		self.out_nodes    = []
+
 		self._are_deps_set = 0
 
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
@@ -82,8 +84,7 @@ class ocamlobj(Object.genobj):
 		lst = self._incpaths_lst
 		tree = Params.g_build
 		for dir in inc_lst:
-			node = self.m_current_path.find_node( 
-				Utils.split_path(dir) )
+			node = self.path.find_node(Utils.split_path(dir))
 			if not node:
 				error("node not found dammit")
 				continue
@@ -118,7 +119,7 @@ class ocamlobj(Object.genobj):
 		# first create the nodes corresponding to the sources
 		for filename in source_lst:
 			base, ext = os.path.splitext(filename)
-			node = self.path().find_or_create(filename)
+			node = self.path.find_or_create(filename)
 			if not ext in self.s_default_ext:
 				print "??? ", filename
 
@@ -175,14 +176,14 @@ class ocamlobj(Object.genobj):
 			objfiles = []
 			for t in self._bytecode_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
-			linktask.set_outputs(self.path().find_or_create(self.get_target_name(bytecode=1)))
+			linktask.set_outputs(self.path.find_or_create(self.get_target_name(bytecode=1)))
 			self._linktasks.append(linktask)
 		if self.native_env:
 			linktask = self.create_task('ocalinkopt', self.native_env, 101)
 			objfiles = []
 			for t in self._native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
-			linktask.set_outputs(self.path().find_or_create(self.get_target_name(bytecode=0)))
+			linktask.set_outputs(self.path.find_or_create(self.get_target_name(bytecode=0)))
 			self._linktasks.append(linktask)
 
 			self.out_nodes += linktask.m_outputs
@@ -208,18 +209,17 @@ class ocamlobj(Object.genobj):
 
 		for name in dirnames.split():
 			#print "name is ", name
-			anode = Params.g_build.ensure_node_from_lst(self.m_current_path, 
-				Utils.split_path(name))
+			anode = Params.g_build.ensure_node_from_lst(self.path, Utils.split_path(name))
 			#print "anode ", anode.m_name, " ", anode.files()
 			Params.g_build.rescan(anode)
 			#print "anode ", anode.m_name, " ", anode.files()
 
-			#node = self.m_current_path.find_node( name.split(os.sep) )
+			#node = self.path.find_node( name.split(os.sep) )
 			for file in anode.files():
 				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in self.s_default_ext:
-					s = file.relpath(self.m_current_path)
+					s = file.relpath(self.path)
 					if not s in lst:
 						if s in exc_lst: continue
 						lst.append(s)
@@ -240,7 +240,7 @@ class ocamlobj(Object.genobj):
 
 		#print "comptask called!"
 
-		curdir = self.m_current_path
+		curdir = self.path
 		file2task = {}
 
 		dirs  = []
