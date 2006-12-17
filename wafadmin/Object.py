@@ -95,14 +95,11 @@ class genobj:
 		self.m_current_path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 
-		# TODO if we are building something, we need to make sure the folder is scanned
-		#if not Params.g_build.m_curdirnode in Params...
-
 		# targets / sources
 		self.source = ''
 		self.target = ''
 
-		# we use a simple list for the tasks TODO not used ?
+		# collect all tasks in a list - a few subclasses need it
 		self.m_tasks = []
 
 		# no default environment - in case if
@@ -110,9 +107,6 @@ class genobj:
 
 		# register ourselves - used at install time
 		g_allobjs.append(self)
-
-		# nodes that this object produces
-		self.out_nodes = []
 
 		# allow delayed operations on objects created (declarative style)
 		# an object is then posted when another one is added

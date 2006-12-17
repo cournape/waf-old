@@ -217,11 +217,7 @@ class Build:
 			Scripting.add_subdir(d, self)
 
 	def create_obj(self, objname, *k, **kw):
-		try:
-			return Object.g_allclasses[objname](*k, **kw)
-		except:
-			print "error in create_obj", objname
-			raise
+		return Object.g_allclasses[objname](*k, **kw)
 
 	def load_envs(self):
 		cachedir = Params.g_cachedir
