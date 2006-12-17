@@ -121,10 +121,12 @@ class genobj:
 
 	def get_hook(self, ext):
 		env=self.env
-		for i in self.__class__.__dict__['all_hooks']:
-			if ext in env[i]:
-				return self.__class__.__dict__[i]
-		return None
+		try:
+			for i in self.__class__.__dict__['all_hooks']:
+				if ext in env[i]:
+					return self.__class__.__dict__[i]
+		except KeyError:
+			return None
 
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
