@@ -86,7 +86,7 @@ def hook(objname, var, func):
 	klass = g_allclasses[objname]
 	klass.__dict__[var] = func
 	try: klass.__dict__['all_hooks'].append(var)
-	except: klass.__dict__['all_hooks'] = [var]
+	except KeyError: klass.__dict__['all_hooks'] = [var]
 
 class genobj:
 	def __init__(self, type):
