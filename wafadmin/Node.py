@@ -233,10 +233,15 @@ class Node:
 		#debug('find_node returns nothing '+str(self)+' '+str(lst), 300)
 		return None
 
-	# not recursive - search for a node, it is created if it does not exist
-	def find_or_create(self, filename):
+	def find_or_create(self, path):
+		"convenience method"
+		lst = Utils.split_path(path)
+		return self.find_or_create_lst(lst)
+
+	def find_or_create_lst(self, lst):
+		"search for a node, it is created if it does not exist (not recursive)"
 		node = self
-		for name in Utils.split_path(filename):
+		for name in lst:
 			if name == '.': continue
 			if name == '..':
 				node = self.m_parent
@@ -252,8 +257,13 @@ class Node:
 			old.append_build(node)
 		return node
 
-	def search_existing_node(self, lst):
-		"returns a node from the tree, do not create if missing"
+	def search_existing_node(self, path):
+		"convenience method"
+		lst = Utils.split_path(path)
+		return self.search_existing_node_lst(lst)
+
+	def search_existing_node_lst(self, lst):
+		"returns a node from the tree, do not create if missing (not recursive)"
 		if not lst: return self
 		node = self
 		rescan = Params.g_build.rescan

@@ -545,7 +545,7 @@ class cparse:
 			found = 0
 			lst = filename.split('/')
 			for n in self.m_nodepaths:
-				found = n.search_existing_node(lst)
+				found = n.search_existing_node_lst(lst)
 				if found:
 					self.m_nodes.append(found)
 					self.addlines(found.abspath())
@@ -603,7 +603,7 @@ class cparse:
 				self.process_line()
 			except:
 				debug("line parsing failed >%s<" % line, 'preproc')
-				#raise
+				if Params.g_verbose: raise
 
 	# debug only
 	def start(self, filename):

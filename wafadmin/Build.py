@@ -265,7 +265,7 @@ class Build:
 			for f in env['dep_files']:
 				lst = f.split('/')
 				topnode = self.m_srcnode.find_node(lst[:-1])
-				newnode = topnode.search_existing_node([lst[-1]])
+				newnode = topnode.search_existing_node_lst([lst[-1]])
 				if not newnode:
 					newnode = Node.Node(lst[-1], topnode)
 					topnode.append_build(newnode)
