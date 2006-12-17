@@ -197,10 +197,7 @@ class genobj:
 	def install_results(self, var, subdir, task, chmod=0644):
 		debug('install results called', 'object')
 		current = Params.g_build.m_curdirnode
-		# TODO what is the pythonic replacement for these three lines ?
-		lst = []
-		for node in task.m_outputs:
-			lst.append( node.relpath_gen(current) )
+		lst=map(lambda a: a.relpath_gen(current), task.m_outputs)
 		Common.install_files(var, subdir, lst, chmod=chmod)
 
 	def clone(self, env):
