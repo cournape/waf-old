@@ -42,6 +42,7 @@ def do_install(src, tgt, chmod=0644):
 				pass
 			print "* installing %s as %s" % (srclbl, tgt)
 			try:
+				os.remove(tgt)
 				shutil.copy2(src, tgt)
 				os.chmod(tgt, chmod)
 			except IOError:
