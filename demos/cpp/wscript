@@ -45,6 +45,21 @@ def configure(conf):
 	#conf.check_tool(['KDE3'])
 
 def set_options(opt):
+	# options provided in a script in a subdirectory named "src"
 	opt.sub_options('src')
+
+	# options provided by the modules
 	opt.tool_options('g++')
+
+	# custom options
+	opt.add_option('--exe', action='store_true', default=False, help='exe')
+
+def shutdown():
+	# command to execute
+	cmd = "PATH=plugins:$PATH LD_LIBRARY_PATH=_build_/default/src/:$LD_LIBRARY_PATH _build_/default/src/testprogram"
+
+	# if the custom option is set, execute the program
+	import os, Params
+	if Params.g_options.exe:
+		os.popen(cmd)
 
