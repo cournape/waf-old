@@ -13,6 +13,6 @@ def build(bld):
 	obj.uselib = 'QTCORE QTGUI QTOPENGL QTSVG'
 	obj.target = 'window'
 	obj.includes = 'test .'
-
+	obj.defines="WAF=1" # add a define around foo.moc
 	bld.add_subdirs('test')
 

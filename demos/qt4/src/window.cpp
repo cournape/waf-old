@@ -75,4 +75,7 @@ void Window::rotateOneStep()
         currentGlWidget->rotateBy(+2 * 16, +2 * 16, -1 * 16);
 }
 
+#ifdef WAF
 #include "window.moc"
+#endif
+
