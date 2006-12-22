@@ -9,7 +9,7 @@
 
 import sys, os, string
 import Params
-from Params import debug, error
+from Params import debug, error, warning
 
 
 strict_quotes = 0
@@ -583,7 +583,7 @@ class cparse:
 		except IOError:
 			raise
 		except:
-			if Params.g_verbose > 0: print "warning: parsing %s failed" % filepath
+			if Params.g_verbose > 0: warning("parsing %s failed" % filepath)
 			raise
 
 	def start2(self, node, env):
@@ -603,7 +603,7 @@ class cparse:
 				self.process_line()
 			except:
 				debug("line parsing failed >%s<" % line, 'preproc')
-				if Params.g_verbose: raise
+				if Params.g_verbose: warning("line parsing failed >%s<" % line)
 
 	# debug only
 	def start(self, filename):
