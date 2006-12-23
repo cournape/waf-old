@@ -55,31 +55,31 @@ def progress_line(s, t, col1, task, col2):
 	disp = task.get_display()
 	if not disp: return ''
 	global g_initial
+
+	n=0; k=t
+	while k>=10: k=k/10; n+=1
+	n+=1
+
 	if Params.g_options.progress_bar == 1:
 		pc = (100.*s)/t
 		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
-
-		left = "[%d/%d] %s%d%%%s |" % (s, t, col1, pc, col2)
+		fs = "[%%%dd/%%%dd] %%s%%2d%%%%%%s |" % (n, n)
+		left = fs % (s, t, col1, pc, col2)
 		right = '| %s%s%s' % (col1, eta, col2)
-
 		cols = Utils.get_term_cols() - len(left) - len(right) + 15
 		if cols < 7: cols = 7
-
 		bar = ('='*int(((cols+1.)*s)/t-1)+'>').ljust(cols)
-
 		disp = '%s%s%s' % (left, bar, right)
 		return disp
 
-		return '[%d/%d] %s%d%%%s |%s| %s%s%s' % (s, t, col1, pc, col2, bar, col1, eta, col2)
 	elif Params.g_options.progress_bar == 2:
 		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
-
 		ins  = ','.join(map(lambda n: n.m_name, task.m_inputs))
 		outs = ','.join(map(lambda n: n.m_name, task.m_outputs))
-
 		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|' % (t, s, ins, outs, eta)
 
-	return '[%d/%d] %s%s%s' % (s, t, col1, disp, col2)
+	fs = "[%%%dd/%%%dd] %%s%%s%%s" % (n, n)
+	return fs % (s, t, col1, disp, col2)
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
