@@ -57,13 +57,11 @@ class cppobj(ccroot.ccroot):
 		# CXXDEFINES_
 		libs = self.to_list(self.uselib)
 		for l in libs:
-			val=''
-			try:    val = self.env['CXXDEFINES_'+l]
-			except: pass
-			if val: milst += val
+			val = self.env['CXXDEFINES_'+l]
+			if val: milst += self.to_list(val)
 
 		y = self.env['CXXDEFINES_ST']
-		self.env['_CXXDEFFLAGS'] = map( lambda x: y%x, milst )
+		self.env['_CXXDEFFLAGS'] = map(lambda x: y%x, milst)
 
 def setup(env):
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
