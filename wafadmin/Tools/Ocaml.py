@@ -224,6 +224,7 @@ class ocamlobj(Object.genobj):
 						if s in exc_lst: continue
 						lst.append(s)
 
+		lst.sort()
 		self.source = self.source+' '+(" ".join(lst))
 
 	def comptask(self):

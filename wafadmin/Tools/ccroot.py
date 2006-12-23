@@ -396,6 +396,7 @@ class ccroot(Object.genobj):
 						if s in excludes: continue
 						lst.append(s)
 
+		lst.sort()
 		self.source = self.source+' '+(" ".join(lst))
 
 	def apply(self):
