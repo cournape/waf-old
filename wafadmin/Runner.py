@@ -31,13 +31,13 @@ class CompilationError(Exception):
 
 exetor = None
 "subprocess"
-try:
-	import subprocess
-	exetor = subprocess
-except:
-	# this is provided for python < 2.4, will be removed in the future
-	import pproc
-	exetor = pproc
+#try:
+#	import subprocess
+#	exetor = subprocess
+#except ImportError:
+# Python < 2.5 is way buggy
+import pproc
+exetor = pproc
 
 def write_progress(s):
 	if Params.g_options.progress_bar == 1:
