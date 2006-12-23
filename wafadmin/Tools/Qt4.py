@@ -109,7 +109,7 @@ def create_rcc_task(self, node):
 
 def create_uic_task(self, node):
 	"hook for uic tasks"
-	uictask = self.create_task('uic4', self.env, 6)
+	uictask = self.create_task('ui4', self.env, 6)
 	uictask.m_inputs    = [node]
 	uictask.m_outputs   = [node.change_ext('.h')]
 
@@ -155,7 +155,7 @@ class qt4obj(cpp.cppobj):
 def setup(env):
 	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
 	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
-	Action.simple_action('uic4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE')
 	Object.register('qt4', qt4obj)
 
 	try: env.hook('qt4', 'UI_EXT', create_uic_task)
