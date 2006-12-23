@@ -202,31 +202,6 @@ class ocamlobj(Object.genobj):
 			else:
 				return self.target
 
-	def find_sources_in_dirs(self, dirnames, excludes=[]):
-		lst=[]
-		try:    exc_lst = excludes.split()
-		except: exc_lst = excludes
-
-		for name in dirnames.split():
-			#print "name is ", name
-			anode = Params.g_build.ensure_node_from_lst(self.path, Utils.split_path(name))
-			#print "anode ", anode.m_name, " ", anode.files()
-			Params.g_build.rescan(anode)
-			#print "anode ", anode.m_name, " ", anode.files()
-
-			#node = self.path.find_node( name.split(os.sep) )
-			for file in anode.files():
-				#print "file found ->", file
-				(base, ext) = os.path.splitext(file.m_name)
-				if ext in self.s_default_ext:
-					s = file.relpath(self.path)
-					if not s in lst:
-						if s in exc_lst: continue
-						lst.append(s)
-
-		lst.sort()
-		self.source = self.source+' '+(" ".join(lst))
-
 	def comptask(self):
 		"""
 		use ocamldep to set the dependencies

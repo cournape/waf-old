@@ -21,7 +21,7 @@ hooks
   - cf bison.py and flex.py for more details on this scheme
 """
 
-import types
+import os, types
 import Params, Task, Common, Node, Utils
 from Params import debug, error, fatal
 
@@ -192,6 +192,41 @@ class genobj:
 		"helper: returns a list"
 		if type(value) is types.StringType: return value.split()
 		else: return value
+
+	def find_sources_in_dirs(self, dirnames, excludes=[]):
+		"subclass if necessary"
+		lst=[]
+		excludes = self.to_list(excludes)
+		#make sure dirnames is a list helps with dirnames with spaces
+		dirnames = self.to_list(dirnames)
+
+		ext_lst = []
+		ext_lst += self.s_default_ext
+		try:
+			for var in self.__class__.__dict__['all_hooks']:
+				ext_lst += self.env[var]
+		except KeyError:
+			pass
+
+		for name in dirnames:
+			#print "name is ", name
+			anode = Params.g_build.ensure_node_from_lst(self.path, Utils.split_path(name))
+			#print "anode ", anode.m_name, " ", anode.files()
+			Params.g_build.rescan(anode)
+			#print "anode ", anode.m_name, " ", anode.files()
+
+			#node = self.path.find_node( name.split(os.sep) )
+			for file in anode.files():
+				#print "file found ->", file
+				(base, ext) = os.path.splitext(file.m_name)
+				if ext in ext_lst:
+					s = file.relpath(self.path)
+					if not s in lst:
+						if s in excludes: continue
+						lst.append(s)
+
+		lst.sort()
+		self.source = self.source+' '+(" ".join(lst))
 
 def flatten(env, var):
 	try:
