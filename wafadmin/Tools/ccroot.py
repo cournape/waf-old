@@ -318,7 +318,7 @@ class ccroot(Object.genobj):
 
 		# includes, seen from the current directory
 		self.includes=''
-
+		self.defines=''
 		self.rpaths=''
 
 		self.uselib=''
@@ -337,10 +337,6 @@ class ccroot(Object.genobj):
 		self.want_libtool=0 # -1: fake; 1: real
 		self.vnum=''
 
-		self._incpaths_lst=[]
-		self.defines_lst = []
-		self._bld_incpaths_lst=[]
-
 		self.p_compiletasks=[]
 
 		# do not forget to set the following variables in a subclass
@@ -351,6 +347,11 @@ class ccroot(Object.genobj):
 		self.m_type_initials = ''
 
 		self.chmod = 0755
+
+		# these are kind of private, do not touch
+		self._incpaths_lst=[]
+		self.defines_lst = []
+		self._bld_incpaths_lst=[]
 
 	def create_task(self, type, env=None, nice=10):
 		"overrides Object.create_task to catch the creation of cpp tasks"

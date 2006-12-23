@@ -95,11 +95,11 @@ class ccobj(ccroot.ccroot):
 		for i in env['LIB']: app('LINKFLAGS', lib_st % i)
 
 	def apply_defines(self):
-		lst = self.to_list(self.defines)
+		tree = Params.g_build
+		lst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
 		milst = self.defines_lst
 
 		# now process the local defines
-		tree = Params.g_build
 		for defi in lst:
 			if not defi in milst:
 				milst.append(defi)
@@ -107,9 +107,7 @@ class ccobj(ccroot.ccroot):
 		# CCDEFINES_
 		libs = self.to_list(self.uselib)
 		for l in libs:
-			val=''
-			try:    val = self.env['CCDEFINES_'+l]
-			except: pass
+			val = self.env['CCDEFINES_'+l]
 			if val: milst += val
 
 		y = self.env['CCDEFINES_ST']

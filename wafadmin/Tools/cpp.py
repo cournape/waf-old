@@ -23,8 +23,6 @@ class cppobj(ccroot.ccroot):
 
 		self.cxxflags=''
 		self.cppflags=''
-		self.ccflags=''
-		self.defines=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
@@ -45,16 +43,16 @@ class cppobj(ccroot.ccroot):
 		return cpptypes
 
 	def apply_defines(self):
-		lst = self.to_list(self.defines)
+		tree = Params.g_build
+		lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
 		milst = self.defines_lst
 
 		# now process the local defines
-		tree = Params.g_build
 		for defi in lst:
 			if not defi in milst:
 				milst.append(defi)
 
-		# CXXDEFINES_
+		# CXXDEFINES_USELIB
 		libs = self.to_list(self.uselib)
 		for l in libs:
 			val = self.env['CXXDEFINES_'+l]
