@@ -99,7 +99,7 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 def exec_command_normal(str):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
 	debug("system command -> "+ str, 'runner')
-	if Params.g_verbose==1: print str
+	if Params.g_verbose>=1: print str
 	proc = exetor.Popen(str, shell=1, stdout=exetor.PIPE, stderr=exetor.PIPE)
 	process_cmd_output(proc.stdout, proc.stderr)
 	stat = proc.wait()
@@ -109,7 +109,7 @@ def exec_command_normal(str):
 def exec_command_interact(str):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
 	debug("system command (interact) -> "+ str, 'runner')
-	if Params.g_verbose==1: print str
+	if Params.g_verbose>=1: print str
 	proc = exetor.Popen(str, shell=1)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
