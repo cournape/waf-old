@@ -4,7 +4,7 @@
 
 "Actions are used to build the nodes of most tasks"
 
-import Object, Runner
+import Object, Runner, Params
 from Params import debug, fatal
 
 g_actions={}
@@ -35,9 +35,14 @@ class Action:
 	def get_str(self, task):
 		"string to display to the user"
 		try:
-			src_str = " ".join(map(lambda a:a.bldpath(task.m_env), task.m_inputs))
-			tgt_str = " ".join(map(lambda a:a.bldpath(task.m_env), task.m_outputs))
-			return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
+			if Params.g_verbose:
+				src_str = " ".join(map(lambda a:a.abspath(task.m_env), task.m_inputs))
+				tgt_str = " ".join(map(lambda a:a.abspath(task.m_env), task.m_outputs))
+				return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
+			else:
+				src_str = " ".join(map(lambda a:a.bldpath(task.m_env), task.m_inputs))
+				#src_str = " ".join(map(lambda a:a.m_name, task.m_inputs))
+				return "* %s : %s" % (self.m_name, src_str)
 		except:
 			print "exception"
 			task.debug(level=1)
