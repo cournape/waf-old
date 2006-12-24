@@ -492,16 +492,14 @@ class Node:
 
 
 
-	#def ensure_scan(self):
-	#	if not self in Params.g_build.m_scanned_folders:
-	#		Params.g_build.rescan(self)
-	#		Params.g_build.m_scanned_folders.append(self)
-
 	# =============================================== #
 	# helpers for building things
 	def change_ext(self, ext):
+		# TODO not certain
 		name = self.m_name
-		newname = os.path.splitext(name)[0] + ext
+		k = name.rfind('.')
+		newname = name[:k]+ext
+		#newname = os.path.splitext(name)[0] + ext
 
 		n = self.m_parent.get_file(newname)
 		if not n: n = self.m_parent.get_build(newname)
