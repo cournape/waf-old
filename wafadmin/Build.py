@@ -219,10 +219,10 @@ class Build:
 		cachedir = Params.g_cachedir
 		try:
 			lst = os.listdir(cachedir)
-		except:
+		except OSError:
 			fatal('The project was not configured: run "waf configure" first!')
-
-		if not lst: raise "file not found"
+		if not lst:
+			fatal('The cache directory is empty: reconfigure the project')
 		for file in lst:
 			if len(file) < 3: continue
 			if file[-3:] != '.py': continue
@@ -232,13 +232,10 @@ class Build:
 			name = file.split('.')[0]
 
 			if not ret:
-				print "could not load env ", name
+				error("could not load env "+name)
 				continue
 			self.m_allenvs[name] = env
-			try:
-				for t in env['tools']: env.setup(**t)
-			except:
-				fatal("loading failed:"+file)
+			for t in env['tools']: env.setup(**t)
 
 		debug("init variants", 'build')
 
@@ -447,7 +444,7 @@ class Build:
 			try:
 				# update the time stamp
 				self.m_tstamp_variants[0][node] = Params.h_file(node.abspath())
-			except:
+			except IOError:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
 		debug("new files found "+str(l_names), 'build')
@@ -460,7 +457,7 @@ class Build:
 				# TODO is it possible to distinguish the cases ?
 				st = Params.h_file(l_path + name)
 				l_child = Node.Node(name, i_parent_node)
-			except:
+			except IOError:
 				continue
 			self.m_tstamp_variants[0][l_child] = st
 			l_kept.append(l_child)
