@@ -182,6 +182,8 @@ from Params import fatal, warning
 
 # Set the directory containing the tools
 Params.g_tooldir = [tooldir]
+print "cwd is ", cwd
+Params.g_cwd_launch = cwd
 
 if Params.g_version != VERSION:
 	fatal('version mismatch waf %s <-> wafadmin %s (wafdir %s)' % (VERSION, Params.g_version, wafdir))
@@ -215,11 +217,9 @@ if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
 	if 'wscript_build' in lst:
 		#try to find the wscript root
 		candidate = cwd
-		Params.g_launchdir = cwd
 else:
 	#wscript or wscript_xml is in current directory, use this directory as candidate
 	candidate = cwd
-	Params.g_launchdir = cwd
 
 try:
 	#check the following dirs for wscript or wscript_xml
@@ -231,13 +231,9 @@ try:
 		lst_calldir = os.listdir(calldir)
 		if 'wscript'       in lst_calldir:
 			candidate = calldir
-			if not Params.g_launchdir:
-				Params.g_launchdir = calldir
 			search_for_candidate = False
 		if 'wscript_xml'   in lst_calldir:
 			candidate = calldir
-			if not Params.g_launchdir:
-				Params.g_launchdir = calldir
 			xml = 1
 			search_for_candidate = False
 
@@ -271,8 +267,6 @@ if not candidate:
 	else:
 		fatal(msg1)
 
-if not Params.g_launchdir:
-	Params.g_launchdir = candidate
 # We have found wscript, but there is no guarantee that it is valid
 os.chdir(candidate)
 

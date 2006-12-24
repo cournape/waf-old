@@ -50,6 +50,9 @@ def globals(name):
 g_launchdir = None
 "set by waf"
 
+g_cwd_launch = None
+"directory from which waf was called"
+
 g_tooldir=''
 "Tools directory (used in particular by Environment.py)"
 

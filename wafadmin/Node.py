@@ -135,15 +135,20 @@ class Node:
 		l_size += len(self.files())
 		return l_size
 
-	# uses a cache, so calling height should have no overhead
 	def height(self):
-		try:
-			return Params.g_build.m_height_cache[self]
-		except:
-			if not self.m_parent: val=0
-			else:				  val=1+self.m_parent.height()
-			Params.g_build.m_height_cache[self]=val
-			return val
+		#try:
+		#	return Params.g_build.m_height_cache[self]
+		#except KeyError:
+		#	if not self.m_parent: val=0
+		#	else: val=1+self.m_parent.height()
+		#	Params.g_build.m_height_cache[self]=val
+		#	return val
+		d = self
+		val = 0
+		while d.m_parent:
+			d=d.m_parent
+			val += 1
+		return val
 
 	def child_of_name(self, name):
 		return self.get_dir(name,None)
@@ -421,6 +426,60 @@ class Node:
 		up_path   = going_to.invrelpath(ancestor)
 		down_path = self.pathlist4(ancestor)
 		down_path.reverse()
+		return "".join( up_path+down_path )
+
+
+
+	def relative_path(self, other):
+		hh1 = h1 = self.height()
+		hh2 = h2 = other.height()
+		p1=self
+		p2=other
+		while h1>h2:
+			p1=p1.m_parent
+			h1-=1
+		while h2>h1:
+			p2=p2.m_parent
+			h2-=1
+
+		# now we have two nodes of the same height
+		ancestor = None
+		if p1.m_name == p2.m_name:
+			ancestor = p1
+		while p1.m_parent:
+			p1=p1.m_parent
+			p2=p2.m_parent
+			if p1.m_name != p2.m_name:
+				ancestor = None
+			elif not ancestor:
+				ancestor = p1
+
+		#print "ancestor is ", ancestor.abspath(), ancestor.height()
+		#print "self is ", self.abspath(), self.height()
+		#print "to is ", other.abspath(), other.height()
+
+		anh = ancestor.height()
+		n1 = hh1-anh # file
+		n2 = hh2-anh # directory
+
+		#print hh1, hh2, anh, "     ", n1, n2
+
+
+		lst=[]
+		tmp = self
+		while n1:
+			n1 -= 1
+			lst.append(tmp.m_name)
+			tmp = tmp.m_parent
+
+		lst.reverse()
+		up_path=os.sep.join(lst)
+		down_path = "../" * n2
+
+		#up_path   = other.invrelpath(ancestor)
+		#down_path = self.pathlist4(ancestor)
+		#down_path.reverse()
+
 		return "".join( up_path+down_path )
 
 	## ===== END relpath-related methods  ===== ##

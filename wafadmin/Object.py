@@ -49,9 +49,9 @@ def flush():
 	bld = Params.g_build
 	debug("delayed operation Object.flush() called", 'object')
 
-	dir_lst = Utils.split_path(Params.g_launchdir)
-	root    = bld.m_root
-	launch_dir_node = find_launch_node(root, dir_lst)
+	dir_lst = Utils.split_path(Params.g_cwd_launch)
+	#launch_dir_node = find_launch_node(bld.m_root, dir_lst)
+	launch_dir_node = bld.m_root.find_or_create(Params.g_cwd_launch)
 	if Params.g_options.compile_targets:
 		compile_targets = Params.g_options.compile_targets.split(',')
 	else:
