@@ -122,10 +122,10 @@ class Build:
 			dto = cPickle.load(file)
 			dto.update_build(self)
 			file.close()
-		except:
+		except IOError:
 			debug("resetting the build object (dto failed)", 'build')
 			self._init_data()
-		#self.dump()
+		if Params.g_verbose>2: self.dump()
 
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
@@ -147,16 +147,12 @@ class Build:
 		for obj in Object.g_allobjs: obj.cleanup()
 		# now for each task, make sure to remove the objects
 		# 4 for loops
-		#import Task
 		for group in Task.g_tasks.groups:
 			for p in group.prio:
 				for t in group.prio[p]:
-					try:
-						for node in t.m_outputs:
-							try: os.remove(node.abspath(t.m_env))
-							except: pass
-					except:
-						pass
+					for node in t.m_outputs:
+						try: os.remove(node.abspath(t.m_env))
+						except OSError: pass
 
 	def compile(self):
 		debug("compile called", 'build')
@@ -242,8 +238,7 @@ class Build:
 			try:
 				for t in env['tools']: env.setup(**t)
 			except:
-				print "loading failed:", file
-				raise
+				fatal("loading failed:"+file)
 
 		debug("init variants", 'build')
 
@@ -289,7 +284,7 @@ class Build:
 		try:
 			if srcdir == blddir or os.path.samefile(srcdir, blddir):
 				fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
-		except:
+		except OSError:
 			pass
 
 		# set the source directory
@@ -318,7 +313,7 @@ class Build:
 
 		# create this build dir if necessary
 		try: os.makedirs(blddir)
-		except: pass
+		except OSError: pass
 
 	def ensure_node_from_path(self, abspath):
 		"return a node corresponding to an absolute path, creates nodes if necessary"
@@ -574,7 +569,7 @@ class Build:
 			return None
 		try:
 			return self.m_allenvs[name]
-		except:
+		except KeyError:
 			error('no such environment'+name)
 			return None
 
