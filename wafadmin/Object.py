@@ -211,14 +211,6 @@ class genobj:
 		lst.sort()
 		self.source = self.source+' '+(" ".join(lst))
 
-def flatten(env, var):
-	v = env[var]
-	if not v:
-		debug("variable %s does not exist in env !" % var, 'object')
-		return ''
-	if type(v) is types.ListType: return ' '.join(v)
-	else: return v
-
 g_cache_max={}
 def sign_env_vars(env, vars_list):
 	" ['CXX', ..] -> [env['CXX'], ..]"
