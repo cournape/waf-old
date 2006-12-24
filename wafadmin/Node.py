@@ -2,7 +2,21 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"A node represents a file"
+"""
+Node: filesystem structure, contains lists of nodes
+self.m_dirs  : sub-folders
+self.m_files : files existing in the src dir
+self.m_build : nodes produced in the build dirs
+
+A folder is represented by exactly one node
+
+IMPORTANT:
+Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
+In fact, unused class members increase the .wafpickle file size sensibly with lots of objects
+eg: the m_tstamp is used for every node, while the signature is computed only for build files
+
+the build is launched from the top of the build dir (for example, in _build_/)
+"""
 
 import os
 import Params, Utils
@@ -12,7 +26,6 @@ g_launch_node=None
 
 class Node:
 	def __init__(self, name, parent):
-
 		self.m_name = name
 		self.m_parent = parent
 		self.m_cached_path = ""
@@ -22,34 +35,19 @@ class Node:
 		self.m_files_lookup = {}
 		self.m_build_lookup = {}
 
+		# The checks below could be disabled for speed, if necessary
+		# TODO check for . .. / \ in name
+
 		# Node name must contain only one level
 		if Utils.split_path(name)[0] != name:
-		#name == '.' or name == '..' or '/' in name or os.sep in name:
-		#if '/' in name and parent:
 			fatal('name forbidden '+name)
 
 		if parent:
 			if parent.get_file(name):
-				error('node %s exists in the parent files %s already' % (name, str(parent)))
-				raise "inconsistency"
+				fatal('node %s exists in the parent files %s already' % (name, str(parent)))
 
 			if parent.get_build(name):
-				error('node %s exists in the parent build %s already' % (name, str(parent)))
-				raise "inconsistency"
-
-		# contents of this node (filesystem structure)
-		# these lists contain nodes too
-		#self.m_dirs		= [] # sub-folders
-		#self.m_files	= [] # files existing in the src dir
-		#self.m_build	= [] # nodes produced in the build dirs
-
-		# debugging only - a node is supposed to represent exactly one folder
-		# if os.sep in name: print "error in name ? "+name
-
-		# IMPORTANT:
-		# Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
-		# In fact, unused class members increase the .wafpickle file size sensibly with lots of objects
-		#	eg: the m_tstamp is used for every node, while the signature is computed only for build files
+				fatal('node %s exists in the parent build %s already' % (name, str(parent)))
 
 	def dirs(self):
 		return self.m_dirs_lookup.values()
@@ -79,9 +77,6 @@ class Node:
 
 	def get_build(self,name,default=None):
 		return self.m_build_lookup.get(name,default)
-
-	def append_build(self, dir):
-		self.m_build_lookup[dir.m_name]=dir
 
 	def __str__(self):
 		if self.m_name in self.m_parent.m_files_lookup: isbld = ""
@@ -123,13 +118,7 @@ class Node:
 		return l_size
 
 	def height(self):
-		#try:
-		#	return Params.g_build.m_height_cache[self]
-		#except KeyError:
-		#	if not self.m_parent: val=0
-		#	else: val=1+self.m_parent.height()
-		#	Params.g_build.m_height_cache[self]=val
-		#	return val
+		# TODO enable a cache ?
 		d = self
 		val = 0
 		while d.m_parent:
@@ -195,17 +184,17 @@ class Node:
 	# TODO : make it procedural, not recursive
 	# find a node given an existing node and a list like ['usr', 'local', 'bin']
 	def find_node(self, lst):
-		#print self, lst
+		return self.find_node_lst(lst)
+
+	def find_node_lst(self, lst):
 		if not lst: return self
 		name=lst[0]
 
+		# unfortunately, it is necessary to check if the nodes still exist
 		Params.g_build.rescan(self)
 
-		#print self.dirs()
-		#print self.files()
-
-		if name == '.':  return self.find_node( lst[1:] )
-		if name == '..': return self.m_parent.find_node( lst[1:] )
+		if name == '.':  return self.find_node_lst(lst[1:])
+		if name == '..': return self.m_parent.find_node_lst(lst[1:])
 
 		res = self.find_node_by_name(name,lst)
 		if res: return res
@@ -214,10 +203,12 @@ class Node:
 			node = Node(name, self)
 			self.append_dir(node)
 			#self.m_dirs.append(node)
-			return node.find_node(lst[1:])
+			return node.find_node_lst(lst[1:])
 
 		#debug('find_node returns nothing '+str(self)+' '+str(lst), 300)
 		return None
+
+
 
 	def find_or_create(self, path):
 		"convenience method"
@@ -240,7 +231,7 @@ class Node:
 			node = old.get_dir(name)
 			if node: continue
 			node = Node(name, old)
-			old.append_build(node)
+			old.m_build_lookup[node.m_name]=node
 		return node
 
 	def search_existing_node(self, path):
@@ -271,16 +262,6 @@ class Node:
 	# absolute path
 	def abspath(self, env=None):
 		variant = self.variant(env)
-		#print "variant is", self.m_name, variant, "and env is ", env
-
-		## 1. stupid method
-		# if self.m_parent is None: return ''
-		# return self.m_parent.abspath()+os.sep+self.m_name
-		#
-		## 2. without a cache
-		# return ''.join( self.pathlist2() )
-		#
-		## 3. with the cache
 		try:
 			return Params.g_build.m_abspath_cache[variant][self]
 		except KeyError:
@@ -296,14 +277,12 @@ class Node:
 				debug("var is p+q is "+p, 'node')
 				return p
 
-	# the build is launched from the top of the build dir (for example, in _build_/)
 	def bldpath(self, env=None):
 		name = self.m_name
 		x = self.m_parent.get_file(name)
 		if x: return self.relpath_gen(Params.g_build.m_bldnode)
 		return Utils.join_path(env.variant(),self.relpath(Params.g_build.m_srcnode))
 
-	# the build is launched from the top of the build dir (for example, in _build_/)
 	def srcpath(self, env):
 		name = self.m_name
 		x = self.m_parent.get_build(name)
@@ -324,6 +303,13 @@ class Node:
 			i += 1
 		s = n[:i]
 		return Utils.join_path(self.bld_dir(env),s)
+
+
+
+
+
+
+
 
 	# returns the list of names to the node
 	# make sure to reverse it (used by relpath)
@@ -511,9 +497,6 @@ class Node:
 	#		Params.g_build.rescan(self)
 	#		Params.g_build.m_scanned_folders.append(self)
 
-	def cd_to(self, env=None):
-		return self.m_parent.bldpath(env)
-
 	# =============================================== #
 	# helpers for building things
 	def change_ext(self, ext):
@@ -525,7 +508,7 @@ class Node:
 		if n: return n
 
 		newnode = Node(newname, self.m_parent)
-		self.m_parent.append_build(newnode)
+		self.m_parent.m_build_lookup[newnode.m_name]=newnode
 
 		return newnode
 
