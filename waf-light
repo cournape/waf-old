@@ -182,7 +182,6 @@ from Params import fatal, warning
 
 # Set the directory containing the tools
 Params.g_tooldir = [tooldir]
-print "cwd is ", cwd
 Params.g_cwd_launch = cwd
 
 if Params.g_version != VERSION:

@@ -27,22 +27,6 @@ from Params import debug, error, fatal
 
 g_allobjs=[]
 
-def find_launch_node(node, lst):
-	#if node.m_parent: print node, lst
-	#else: print '/', lst
-	if not lst: return node
-	name=lst[0]
-	if not name:     return find_launch_node(node, lst[1:])
-	if name == '.':  return find_launch_node(node, lst[1:])
-	if name == '..': return find_launch_node(node.m_parent, lst[1:])
-
-	res = node.get_dir(name)
-	if not res:
-		res = node.get_file(name)
-	if res: return find_launch_node(res, lst[1:])
-
-	return None
-
 def flush():
 	"force all objects to post their tasks"
 
@@ -50,7 +34,6 @@ def flush():
 	debug("delayed operation Object.flush() called", 'object')
 
 	dir_lst = Utils.split_path(Params.g_cwd_launch)
-	#launch_dir_node = find_launch_node(bld.m_root, dir_lst)
 	launch_dir_node = bld.m_root.find_or_create(Params.g_cwd_launch)
 	if Params.g_options.compile_targets:
 		compile_targets = Params.g_options.compile_targets.split(',')
