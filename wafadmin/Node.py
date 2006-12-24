@@ -508,10 +508,19 @@ class Node:
 		print "======= end debug node ==========="
 
 	def is_child_of(self, node):
-		if self.m_parent:
-			if self.m_parent is node: return 1
-			else: return self.m_parent.is_child_of(node)
-		return 0
+		if not self.m_parent: return 0
+		return self.m_parent.equals(node)
+
+	def equals(self, node):
+		p1 = self
+		p2 = node
+		while p1 and p2:
+			if p1.m_name != p2.m_name:
+				return 0
+			p1=p1.m_parent
+			p2=p2.m_parent
+		if p1 or p2: return 0
+		return 1
 
 	#def ensure_scan(self):
 	#	if not self in Params.g_build.m_scanned_folders:

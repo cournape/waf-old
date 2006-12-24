@@ -21,47 +21,44 @@ hooks
   - cf bison.py and flex.py for more details on this scheme
 """
 
-import os, types
+import os, types, time
 import Params, Task, Common, Node, Utils
 from Params import debug, error, fatal
 
 g_allobjs=[]
+"contains all objects, provided they are created (not in distclean or in dist)"
 
 def flush():
-	"force all objects to post their tasks"
+	"object instances under the launch directory create the tasks now"
 
-	bld = Params.g_build
+	tree = Params.g_build
 	debug("delayed operation Object.flush() called", 'object')
 
 	dir_lst = Utils.split_path(Params.g_cwd_launch)
-	launch_dir_node = bld.m_root.find_or_create(Params.g_cwd_launch)
+	launch_dir_node = tree.m_root.find_or_create(Params.g_cwd_launch)
 	if Params.g_options.compile_targets:
 		compile_targets = Params.g_options.compile_targets.split(',')
 	else:
 		compile_targets = None
 
-	for obj in bld.m_outstanding_objs:
+	for obj in tree.m_outstanding_objs:
 		debug("posting object", 'object')
 
 		if obj.m_posted: continue
 
-		# compile only targets under the launch directory
 		if launch_dir_node:
 			objnode = obj.path
-			if not (objnode is launch_dir_node or objnode.is_child_of(launch_dir_node)):
+			if not objnode.is_child_of(launch_dir_node):
 				continue
 		if compile_targets:
 			if obj.name and not (obj.name in compile_targets):
-				debug("skipping because of name", 'object')
+				debug('skipping because of name', 'object')
 				continue
 			if not obj.target in compile_targets:
-				debug("skipping because of target", 'object')
+				debug('skipping because of target', 'object')
 				continue
-		# post the object
 		obj.post()
-
 		if Params.g_options.verbose == 3:
-			import time
 			print "flushed at ", time.asctime(time.localtime())
 
 def hook(objname, var, func):
