@@ -541,7 +541,7 @@ class Node:
 		name = self.m_name
 		i = self.m_parent.get_file(name)
 		if i: return 0
-		return env.m_table.get('_VARIANT_', 'default')
+		return env.variant()
 
 	# =============================================== #
 	# helpers for building things
