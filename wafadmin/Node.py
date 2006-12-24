@@ -508,8 +508,14 @@ class Node:
 		print "======= end debug node ==========="
 
 	def is_child_of(self, node):
-		if not self.m_parent: return 0
-		return self.m_parent.equals(node)
+		p=self
+		h1=self.height()
+		h2=node.height()
+		diff=h1-h2
+		while diff>0:
+			diff-=1
+			p=p.m_parent
+		return p.equals(node)
 
 	def equals(self, node):
 		p1 = self
