@@ -44,11 +44,8 @@ class c_scanner(Scan.scanner):
 		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
 		if Params.g_preprocess:
 			for n in nodes:
-				try:
-					tree.m_deps_tstamp[variant][n] = tree.m_tstamp_variants[variant][n]
-				except:
-					pass
-
+				vv = n.variant(env)
+				tree.m_deps_tstamp[vv][n] = tree.m_tstamp_variants[vv][n]
 
 	def get_signature(self, task):
 		debug("get_signature(self, task)", 'ccroot')
