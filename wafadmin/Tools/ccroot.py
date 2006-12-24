@@ -44,8 +44,13 @@ class c_scanner(Scan.scanner):
 		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
 		if Params.g_preprocess:
 			for n in nodes:
-				vv = n.variant(env)
-				tree.m_deps_tstamp[vv][n] = tree.m_tstamp_variants[vv][n]
+				try:
+					# FIXME some tools do not behave properly and this part fails
+					# it should not be allowed to scan ahead of time
+					vv = n.variant(env)
+					tree.m_deps_tstamp[vv][n] = tree.m_tstamp_variants[vv][n]
+				except KeyError:
+					pass
 
 	def get_signature(self, task):
 		debug("get_signature(self, task)", 'ccroot')
