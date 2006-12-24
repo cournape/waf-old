@@ -47,9 +47,6 @@ def globals(name):
 	try: return g_globals[name]
 	except KeyError: return []
 
-g_launchdir = None
-"set by waf"
-
 g_cwd_launch = None
 "directory from which waf was called"
 
