@@ -75,7 +75,7 @@ def tex_build(task, command='LATEX'):
 
 
 	node = task.m_inputs[0]
-	reldir  = node.cd_to(env)
+	reldir  = node.bld_dir(env)
 
 
 	srcfile = node.srcpath(env)

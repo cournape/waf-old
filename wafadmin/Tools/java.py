@@ -35,7 +35,7 @@ class javaobj(Object.genobj):
 
 def setup(env):
 	Object.register('java', javaobj)
-	Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].cd_to(env)} ${SRC}', color='BLUE')
+	Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE')
 
 def detect(conf):
 	javac = conf.find_program('javac', var='JAVAC')

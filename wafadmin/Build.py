@@ -63,9 +63,6 @@ class Build:
 		# two nodes - hashtable of hashtables - g_relpath_cache[child][parent])
 		self._relpath_cache = {}
 
-		# cache for height of the node (amount of folders from the root)
-		self.m_height_cache = {}
-
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
 		self.m_scanned_folders  = []
@@ -260,7 +257,7 @@ class Build:
 				newnode = topnode.search_existing_node_lst([lst[-1]])
 				if not newnode:
 					newnode = Node.Node(lst[-1], topnode)
-					topnode.append_build(newnode)
+					topnode.m_build_lookup[newnode.m_name]=newnode
 				try:
 					hash = Params.h_file(topnode.abspath(env)+os.sep+lst[-1])
 				except IOError:
