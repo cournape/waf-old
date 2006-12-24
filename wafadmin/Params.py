@@ -44,8 +44,7 @@ g_globals = {}
 def set_globals(name, value):
 	g_globals[name] = value
 def globals(name):
-	try: return g_globals[name]
-	except KeyError: return []
+	return g_globals.get(name, [])
 
 g_cwd_launch = None
 "directory from which waf was called"

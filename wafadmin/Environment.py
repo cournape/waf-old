@@ -62,20 +62,18 @@ class Environment:
 		return "environment table\n"+str(self.m_table)
 
 	def __getitem__(self, key):
-		try: return self.m_table[key]
-		except KeyError:
-			try: return Params.globals(key)
-			except KeyError: return []
+		r = self.m_table.get(key, None)
+		if r: return r
+		return Params.g_globals.get(key, [])
+
 	def __setitem__(self, key, value):
 		self.m_table[key] = value
 
 	def get_flat(self, key):
-		try:
-			s = self.m_table[key]
-			if type(s) is types.ListType: return ' '.join(s)
-			else: return s
-		except KeyError:
-			return ''
+		s = self.m_table.get(key, '')
+		if not s: return ''
+		if type(s) is types.ListType: return ' '.join(s)
+		else: return s
 
 	def appendValue(self, var, value):
 		if type(value) is types.ListType: val = value
