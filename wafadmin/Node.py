@@ -46,65 +46,50 @@ class Node:
 		# debugging only - a node is supposed to represent exactly one folder
 		# if os.sep in name: print "error in name ? "+name
 
-		# timestamp or hash of the file (string hash or md5) - we will use the timestamp by default
-		#self.m_tstamp	 = None
-
 		# IMPORTANT:
 		# Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
 		# In fact, unused class members increase the .wafpickle file size sensibly with lots of objects
 		#	eg: the m_tstamp is used for every node, while the signature is computed only for build files
 
 	def dirs(self):
-		return self.m_dirs_lookup.values() #self.m_dirs
+		return self.m_dirs_lookup.values()
 
 	def get_dir(self,name,default=None):
 		return self.m_dirs_lookup.get(name,default)
 
 	def append_dir(self, dir):
 		self.m_dirs_lookup[dir.m_name]=dir
-		#self.m_dirs.append(dir)
 
 	def files(self):
-		return self.m_files_lookup.values() #self.m_files
+		return self.m_files_lookup.values()
 
 	def set_files(self,files):
 		self.m_files_lookup={}
 		for i in files: self.m_files_lookup[i.m_name]=i
-		#self.m_files=files
 
 	def get_file(self,name,default=None):
 		return self.m_files_lookup.get(name,default)
 
 	def append_file(self, dir):
 		self.m_files_lookup[dir.m_name]=dir
-		#self.m_files.append(dir)
-
-	def build(self):
-		return self.m_build_lookup.values() #self.m_build
 
 	def set_build(self, build):
 		self.m_build_lookup={}
 		for i in build: self.m_build_lookup[i.m_name]=i
-		#self.m_build=build
 
 	def get_build(self,name,default=None):
 		return self.m_build_lookup.get(name,default)
 
 	def append_build(self, dir):
 		self.m_build_lookup[dir.m_name]=dir
-		#self.m_build.append(dir)
 
 	def __str__(self):
-		#TODO: fix this
-		if self in self.m_parent.files(): isbld = ""
-		#if self.m_parent.get_file(self.m_name): isbld = ""
+		if self.m_name in self.m_parent.m_files_lookup: isbld = ""
 		else: isbld = "b:"
 		return "<%s%s>" % (isbld, self.abspath())
 
 	def __repr__(self):
-		#TODO: fix this
-		if self in self.m_parent.files(): isbld = ""
-		#if self.m_parent.get_file(self.m_name): isbld = ""
+		if self.m_name in self.m_parent.m_files_lookup: isbld = ""
 		else: isbld = "b:"
 		return "<%s%s>" % (isbld, self.abspath())
 
@@ -175,12 +160,6 @@ class Node:
 		return lst
 
 	## ------------ TODO : the following may need to be improved
-	# list of paths up to the root
-	# cannot remember where it is used (ita)
-	def path_list(self):
-		if not self.m_parent: return []
-		return self.m_parent.pathlist().append(self.m_name)
-
 	# returns a joined path string that can be reduced to the absolute path
 	# DOES NOT needs to be reversed anymore (used by abspath)
 	def __pathstr2(self):
@@ -291,9 +270,7 @@ class Node:
 
 	# absolute path
 	def abspath(self, env=None):
-		if not env: variant = 0
-		else: variant = self.variant(env)
-
+		variant = self.variant(env)
 		#print "variant is", self.m_name, variant, "and env is ", env
 
 		## 1. stupid method
@@ -352,12 +329,12 @@ class Node:
 	# make sure to reverse it (used by relpath)
 	def pathlist3(self, node):
 		if self is node: return ['.']
-		return [self.m_name, os.sep]+self.m_parent.pathlist3(node) #TODO: fix this
+		return [self.m_name, os.sep]+self.m_parent.pathlist3(node)
 
 	# same as pathlist3, but do not append './' at the beginning
 	def pathlist4(self, node):
 		if self.m_parent is node: return [self.m_name]
-		return [self.m_name, os.sep]+self.m_parent.pathlist4(node) #TODO: fix this
+		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
 
 	# path relative to a direct parent
 	def relpath(self, parent):
@@ -437,6 +414,7 @@ class Node:
 
 
 	def nice_path(self, env=None):
+		"printed in the console, open files easily from the launch directory"
 		tree = Params.g_build
 		global g_launch_node
 		if not g_launch_node:
@@ -447,11 +425,12 @@ class Node:
 		if x: return self.relative_path(g_launch_node)
 		else: return tree.m_bldnode.relative_path(g_launch_node) + os.sep + self.relative_path(tree.m_srcnode)
 
-	def relative_path(self, other):
+	def relative_path(self, folder):
+		"relative path between a node and a directory"
 		hh1 = h1 = self.height()
-		hh2 = h2 = other.height()
+		hh2 = h2 = folder.height()
 		p1=self
-		p2=other
+		p2=folder
 		while h1>h2:
 			p1=p1.m_parent
 			h1-=1
@@ -471,16 +450,9 @@ class Node:
 			elif not ancestor:
 				ancestor = p1
 
-		#print "ancestor is ", ancestor.abspath(), ancestor.height()
-		#print "self is ", self.abspath(), self.height()
-		#print "to is ", other.abspath(), other.height()
-
 		anh = ancestor.height()
-		n1 = hh1-anh # file
-		n2 = hh2-anh # directory
-
-		#print hh1, hh2, anh, "     ", n1, n2
-
+		n1 = hh1-anh
+		n2 = hh2-anh
 
 		lst=[]
 		tmp = self
@@ -491,11 +463,7 @@ class Node:
 
 		lst.reverse()
 		up_path=os.sep.join(lst)
-		down_path = "../" * n2
-
-		#up_path   = other.invrelpath(ancestor)
-		#down_path = self.pathlist4(ancestor)
-		#down_path.reverse()
+		down_path = (".."+os.sep) * n2
 
 		return "".join( down_path+up_path )
 
@@ -528,6 +496,16 @@ class Node:
 		if p1 or p2: return 0
 		return 1
 
+	def variant(self, env):
+		if not env: return 0
+		i = self.m_parent.get_file(self.m_name)
+		if i: return 0
+		return env.variant()
+
+
+
+
+
 	#def ensure_scan(self):
 	#	if not self in Params.g_build.m_scanned_folders:
 	#		Params.g_build.rescan(self)
@@ -536,13 +514,6 @@ class Node:
 	def cd_to(self, env=None):
 		return self.m_parent.bldpath(env)
 
-
-	def variant(self, env):
-		name = self.m_name
-		i = self.m_parent.get_file(name)
-		if i: return 0
-		return env.variant()
-
 	# =============================================== #
 	# helpers for building things
 	def change_ext(self, ext):
@@ -550,24 +521,11 @@ class Node:
 		newname = os.path.splitext(name)[0] + ext
 
 		n = self.m_parent.get_file(newname)
-		if not n:
-			n = self.m_parent.get_build(newname)
+		if not n: n = self.m_parent.get_build(newname)
 		if n: return n
 
 		newnode = Node(newname, self.m_parent)
 		self.m_parent.append_build(newnode)
 
 		return newnode
-
-	# =============================================== #
-	# obsolete code
-
-	def unlink(self, env=None):
-		ret = os.unlink(self.abspath(env))
-		print ret
-
-	# TODO FIXME
-	def get_sig(self):
-		try: return Params.g_build.m_tstamp_variants[0][self]
-		except: return Params.sig_nil
 

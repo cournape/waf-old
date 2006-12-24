@@ -391,14 +391,14 @@ class Build:
 		for variant in self._variants:
 			sub_path = Utils.join_path(self.m_bldnode.abspath(), variant , *lst)
 			try:
-				files = self.scan_path(src_dir_node, sub_path, src_dir_node.build(), variant)
+				files = self.scan_path(src_dir_node, sub_path, src_dir_node.m_build_lookup.values(), variant)
 				src_dir_node.set_build(files)
 			except OSError:
 				#debug("osError on " + sub_path, 'build')
 
 				# listdir failed, remove all sigs of nodes
 				dict = self.m_tstamp_variants[variant]
-				for node in src_dir_node.build():
+				for node in src_dir_node.m_build_lookup.values():
 					if node in dict:
 						dict.__delitem__(node)
 				os.makedirs(sub_path)
@@ -534,7 +534,7 @@ class Build:
 				#accu+= ' '+str(child.m_tstamp)+'\n'
 				# TODO #if node.files()[file].m_newstamp != node.files()[file].m_oldstamp: accu += "\t\t\t(modified)"
 				#accu+= node.files()[file].m_newstamp + "< >" + node.files()[file].m_oldstamp + "\n"
-			for child in node.build():
+			for child in node.m_build_lookup.values():
 				accu+= printspaces(count)
 				accu+= '-> '+child.m_name+' (b) '
 
