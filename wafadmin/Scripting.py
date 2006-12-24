@@ -16,8 +16,7 @@ def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
 	global g_inroot
 	if g_inroot:
-		node = bld.ensure_node_from_lst(bld.m_curdirnode, 
-                Utils.split_path(dir))
+		node = bld.ensure_node_from_lst(bld.m_curdirnode, Utils.split_path(dir))
 		bld.m_subdirs.append( [node, bld.m_curdirnode] )
 
 		if not node:
@@ -73,12 +72,12 @@ def Main():
 		try:
 			srcdir = ""
 			try: srcdir = Params.g_options.srcdir
-			except: pass
+			except AttributeError: pass
 			if not srcdir: srcdir = Utils.g_module.srcdir
 
 			blddir = ""
 			try: blddir = Params.g_options.blddir
-			except: pass
+			except AttributError: pass
 			if not blddir: blddir = Utils.g_module.blddir
 
 			Params.g_cachedir = Utils.join_path(blddir,'_cache_')
@@ -125,19 +124,8 @@ def Main():
 
 	Params.g_cachedir = Utils.join_path(blddir,'_cache_')
 
-	# init the Build object.
-	try:
-		bld.load_dirs(srcdir, blddir)
-	except:
-		raise
-
-	try:
-		bld.load_envs()
-	except:
-		raise
-		fatal("Configuration loading failed\n" \
-			"-> This is due most of the time because the project is not configured \n" \
-			"-> Run 'waf configure' or run 'waf distclean' and configure once again")
+	bld.load_dirs(srcdir, blddir)
+	bld.load_envs()
 
 	#bld.dump()
 	global g_inroot
@@ -283,16 +271,10 @@ def DistClean():
 	import os, shutil, types
 	import Build
 
-	# remove the distclean folders (may not exist)
+	# execute the user-provided distclean function
 	try:
-		li=Utils.g_module.distclean
-		if not type(li) is types.ListType:
-			li = li.split()
-		for dir in li:
-			if not dir: continue
-			try: shutil.rmtree(os.path.abspath(dir))
-			except: pass
-	except:
+		if not Utils.g_module.distclean(): sys.exit(0)
+	except AttributeError:
 		pass
 
 	# remove the temporary files
@@ -308,7 +290,7 @@ def DistClean():
 				dirname = file.readline().strip()
 				file.close()
 				try: shutil.rmtree(os.path.join(root, dirname))
-				except: pass
+				except OSError: pass
 			elif f.endswith('~'): to_remove = 1
 			elif f.endswith('.pyc'): to_remove = 1
 			elif f.startswith('.wafpickle'): to_remove = 1
