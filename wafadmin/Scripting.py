@@ -158,8 +158,9 @@ def Main():
 
 		# take the new node position
 		bld.m_curdirnode=new
-		#print bld.m_curdirnode.abspath()
-		bld.rescan(bld.m_curdirnode)
+
+		try: bld.rescan(bld.m_curdirnode)
+		except OSError: fatal("No such directory "+bld.m_curdirnode.abspath())
 
 		# try to open 'wscript_build' for execution
 		# if unavailable, open the module wscript and call the build function from it

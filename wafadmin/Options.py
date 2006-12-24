@@ -13,13 +13,13 @@ from Params import debug, fatal, warning, error
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 try:
 	default_prefix = os.environ['PREFIX']
-except:
+except KeyError:
 	if sys.platform == 'win32': default_prefix='c:\\temp\\'
 	else: default_prefix = '/usr/local/'
 
 try:
 	default_destdir = os.environ['DESTDIR']
-except:
+except KeyError:
 	default_destdir = ''
 
 
@@ -176,13 +176,13 @@ class Handler:
 		tooldir = Utils.to_list(tooldir)
 		try:
 			file,name,desc = imp.find_module(tool, tooldir)
-		except:
+		except ImportError:
 			error("no tool named '%s' found" % tool)
 			return
 		module = imp.load_module(tool,file,name,desc)
 		try:
 			module.set_options(self)
-		except:
+		except AttributeError:
 			warning("tool %s has no function set_options or set_options failed" % tool)
 			pass
 

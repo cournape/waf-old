@@ -6,7 +6,7 @@
 
 import os, sys, string, types, imp
 import Params, Utils
-from Params import debug, error
+from Params import debug, error, fatal
 
 g_idx = 0
 class Environment:
@@ -54,9 +54,8 @@ class Environment:
 		module = imp.load_module(tool,file,name,desc)
 		try:
 			module.setup(self)
-		except:
-			error("setup function missing in tool: %s " % str(tool))
-			raise
+		except AttributeError:
+			fatal("setup function missing in tool: %s " % str(tool))
 		if file: file.close()
 
 	def __str__(self):
