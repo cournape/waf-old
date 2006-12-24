@@ -4,7 +4,7 @@
 
 "Environment representation"
 
-import os,sys,string, types, imp
+import os, sys, string, types, imp
 import Params, Utils
 from Params import debug, error
 
@@ -69,6 +69,14 @@ class Environment:
 			except KeyError: return []
 	def __setitem__(self, key, value):
 		self.m_table[key] = value
+
+	def get_flat(self, key):
+		try:
+			s = self.m_table[key]
+			if type(s) is types.ListType: return ' '.join(s)
+			else: return s
+		except KeyError:
+			return ''
 
 	def appendValue(self, var, value):
 		if type(value) is types.ListType: val = value

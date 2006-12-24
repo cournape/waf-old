@@ -229,12 +229,7 @@ def sign_env_vars(env, vars_list):
 	try: return g_cache_max[s]
 	except KeyError: pass
 
-	def get_env_value(var):
-		v = env[var]
-		if type(v) is types.ListType: return " ".join(v)
-		else: return v
-
-	lst = map(get_env_value, vars_list)
+	lst = map(lambda a: env.get_flat(a), vars_list)
 	ret = Params.h_list(lst)
 	if Params.g_zones: debug("%s %s" % (Params.vsig(ret), str(lst)), 'envhash')
 

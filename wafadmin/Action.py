@@ -127,7 +127,7 @@ class alex:
 						name.append(c)
 			cur += 1
 	def res(self):
-		lst = ['def f(task):\n\tenv=task.m_env\n\tp=Object.flatten\n\t']
+		lst = ['def f(task):\n\tenv=task.m_env\n\tp=env.get_flat\n\t']
 
 		#lst.append('print task.m_inputs\n\t')
 		#lst.append('print task.m_outputs\n\t')
@@ -146,7 +146,7 @@ class alex:
 				else: alst.append('" ".join(map(lambda a:a.bldpath(env), task.m_outputs))')
 			else:
 				self.m_vars.append(name)
-				alst.append("p(env, '%s')" % name)
+				alst.append("p('%s')" % name)
 		if alst:
 			lst.append(' % (\\\n\t\t')
 			lst += ", \\\n\t\t".join(alst)
