@@ -8,6 +8,8 @@ import os
 import Params, Utils
 from Params import debug, error, fatal
 
+g_launch_node=None
+
 class Node:
 	def __init__(self, name, parent):
 
@@ -430,6 +432,21 @@ class Node:
 
 
 
+
+
+
+
+	def nice_path(self, env=None):
+		tree = Params.g_build
+		global g_launch_node
+		if not g_launch_node:
+			g_launch_node = tree.m_root.find_or_create(Params.g_cwd_launch)
+
+		name = self.m_name
+		x = self.m_parent.get_file(name)
+		if x: return self.relative_path(g_launch_node)
+		else: return tree.m_bldnode.relative_path(g_launch_node) + os.sep + self.relative_path(tree.m_srcnode)
+
 	def relative_path(self, other):
 		hh1 = h1 = self.height()
 		hh2 = h2 = other.height()
@@ -480,7 +497,7 @@ class Node:
 		#down_path = self.pathlist4(ancestor)
 		#down_path.reverse()
 
-		return "".join( up_path+down_path )
+		return "".join( down_path+up_path )
 
 	## ===== END relpath-related methods  ===== ##
 

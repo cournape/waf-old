@@ -34,19 +34,14 @@ class Action:
 
 	def get_str(self, task):
 		"string to display to the user"
-		nd = Params.g_build.m_root.find_or_create(Params.g_cwd_launch)
 		try:
-			src_str = " ".join(map(lambda a:a.relative_path(nd), task.m_inputs))
-			tgt_str = " ".join(map(lambda a:a.relative_path(nd), task.m_outputs))
-			return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
-
 			if Params.g_verbose:
 				src_str = " ".join(map(lambda a:a.abspath(task.m_env), task.m_inputs))
 				tgt_str = " ".join(map(lambda a:a.abspath(task.m_env), task.m_outputs))
 				return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 			else:
-				src_str = " ".join(map(lambda a:a.bldpath(task.m_env), task.m_inputs))
-				tgt_str = " ".join(map(lambda a:a.m_name, task.m_outputs))
+				src_str = " ".join(map(lambda a:a.nice_path(task.m_env), task.m_inputs))
+				tgt_str = " ".join(map(lambda a:a.nice_path(task.m_env), task.m_outputs))
 				return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 		except:
 			print "exception"

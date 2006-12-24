@@ -139,17 +139,15 @@ class genobj:
 		return task
 
 	def apply(self):
-		"subclass me"
+		"Subclass me"
 		fatal("subclass me!")
 
-	# an object is to be posted, even if only for install
-	# the install function is called for uninstalling too
 	def install(self):
-		# subclass me
+		"subclass me"
 		pass
 
 	def cleanup(self):
-		# subclass me if necessary
+		"subclass me if necessary"
 		pass
 
 	def install_results(self, var, subdir, task, chmod=0644):
