@@ -212,16 +212,12 @@ class genobj:
 		self.source = self.source+' '+(" ".join(lst))
 
 def flatten(env, var):
-	try:
-		v = env[var]
-		if not v: debug("variable %s does not exist in env !" % var, 'object')
-
-		if type(v) is types.ListType:
-			return " ".join(v)
-		else:
-			return v
-	except:
-		fatal("variable %s does not exist in env !" % var)
+	v = env[var]
+	if not v:
+		debug("variable %s does not exist in env !" % var, 'object')
+		return ''
+	if type(v) is types.ListType: return ' '.join(v)
+	else: return v
 
 g_cache_max={}
 def sign_env_vars(env, vars_list):
@@ -241,6 +237,7 @@ def sign_env_vars(env, vars_list):
 	lst = map(get_env_value, vars_list)
 	ret = Params.h_list(lst)
 	if Params.g_zones: debug("%s %s" % (Params.vsig(ret), str(lst)), 'envhash')
+
 	# next time
 	g_cache_max[s] = ret
 	return ret
