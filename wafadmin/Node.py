@@ -49,6 +49,16 @@ class Node:
 			if parent.get_build(name):
 				fatal('node %s exists in the parent build %s already' % (name, str(parent)))
 
+	def __str__(self):
+		if self.m_name in self.m_parent.m_files_lookup: isbld = ""
+		else: isbld = "b:"
+		return "<%s%s>" % (isbld, self.abspath())
+
+	def __repr__(self):
+		if self.m_name in self.m_parent.m_files_lookup: isbld = ""
+		else: isbld = "b:"
+		return "<%s%s>" % (isbld, self.abspath())
+
 	def dirs(self):
 		return self.m_dirs_lookup.values()
 
@@ -61,36 +71,16 @@ class Node:
 	def files(self):
 		return self.m_files_lookup.values()
 
-	def set_files(self,files):
-		self.m_files_lookup={}
-		for i in files: self.m_files_lookup[i.m_name]=i
-
 	def get_file(self,name,default=None):
 		return self.m_files_lookup.get(name,default)
 
 	def append_file(self, dir):
 		self.m_files_lookup[dir.m_name]=dir
 
-	def set_build(self, build):
-		self.m_build_lookup={}
-		for i in build: self.m_build_lookup[i.m_name]=i
-
 	def get_build(self,name,default=None):
 		return self.m_build_lookup.get(name,default)
 
-	def __str__(self):
-		if self.m_name in self.m_parent.m_files_lookup: isbld = ""
-		else: isbld = "b:"
-		return "<%s%s>" % (isbld, self.abspath())
-
-	def __repr__(self):
-		if self.m_name in self.m_parent.m_files_lookup: isbld = ""
-		else: isbld = "b:"
-		return "<%s%s>" % (isbld, self.abspath())
-
-	# ====================================================== #
-
-	# for the build variants, the same nodes are used to spare memory
+	# for the build variants, the same nodes are used to save memory
 	# the timestamps/signatures are accessed using the following methods
 
 	def get_tstamp_variant(self, variant):
@@ -110,8 +100,7 @@ class Node:
 
 	# ====================================================== #
 
-	# size of the subtree
-	def size(self):
+	def size_subtree(self):
 		l_size=1
 		for i in self.dirs(): l_size += i.size()
 		l_size += len(self.files())
@@ -126,14 +115,7 @@ class Node:
 			val += 1
 		return val
 
-	def child_of_name(self, name):
-		return self.get_dir(name,None)
-		#for d in self.m_dirs:
-		#	debug('child of name '+d.m_name, 300)
-		#	if d.m_name == name:
-		#		return d
-		# throw an exception ?
-		#return None
+
 
 	## ===== BEGIN relpath-related methods	===== ##
 
@@ -412,7 +394,7 @@ class Node:
 		else: return tree.m_bldnode.relative_path(g_launch_node) + os.sep + self.relative_path(tree.m_srcnode)
 
 	def relative_path(self, folder):
-		"relative path between a node and a directory"
+		"relative path between a node and a directory node"
 		hh1 = h1 = self.height()
 		hh2 = h2 = folder.height()
 		p1=self
@@ -451,7 +433,7 @@ class Node:
 		up_path=os.sep.join(lst)
 		down_path = (".."+os.sep) * n2
 
-		return "".join( down_path+up_path )
+		return "".join(down_path+up_path)
 
 	## ===== END relpath-related methods  ===== ##
 
@@ -492,14 +474,14 @@ class Node:
 
 
 
-	# =============================================== #
+	##
 	# helpers for building things
+
 	def change_ext(self, ext):
 		# TODO not certain
 		name = self.m_name
 		k = name.rfind('.')
 		newname = name[:k]+ext
-		#newname = os.path.splitext(name)[0] + ext
 
 		n = self.m_parent.get_file(newname)
 		if not n: n = self.m_parent.get_build(newname)

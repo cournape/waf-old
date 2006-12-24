@@ -372,7 +372,8 @@ class Build:
 		# list the files in the src directory, adding the signatures
 		files = self.scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.files())
 		#debug("files found in folder are "+str(files), 'build')
-		src_dir_node.set_files(files)
+		src_dir_node.m_files_lookup={}
+		for i in files:	src_dir_node.m_files_lookup[i.m_name]=i
 
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
@@ -381,7 +382,8 @@ class Build:
 			sub_path = Utils.join_path(self.m_bldnode.abspath(), variant , *lst)
 			try:
 				files = self.scan_path(src_dir_node, sub_path, src_dir_node.m_build_lookup.values(), variant)
-				src_dir_node.set_build(files)
+				src_dir_node.m_build_lookup={}
+				for i in files: src_dir_node.m_build_lookup[i.m_name]=i
 			except OSError:
 				#debug("osError on " + sub_path, 'build')
 
@@ -391,7 +393,7 @@ class Build:
 					if node in dict:
 						dict.__delitem__(node)
 				os.makedirs(sub_path)
-				src_dir_node.set_build([])
+				src_dir_node.m_build_lookup={}
 		self.m_scanned_folders.append(src_dir_node)
 
 	def needs_rescan(self, node, env):
@@ -542,7 +544,7 @@ class Build:
 			return accu
 
 		Params.pprint('CYAN', recu(self.m_root, 0) )
-		Params.pprint('CYAN', 'size is '+str(self.m_root.size()))
+		Params.pprint('CYAN', 'size is '+str(self.m_root.size_subtree()))
 
 		#keys = self.m_name2nodes.keys()
 		#for k in keys:
