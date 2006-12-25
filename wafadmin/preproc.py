@@ -543,9 +543,8 @@ class cparse:
 	def tryfind(self, filename):
 		if self.m_nodepaths:
 			found = 0
-			lst = filename.split('/')
 			for n in self.m_nodepaths:
-				found = n.search_existing_node_lst(lst)
+				found = n.find_source(filename)
 				if found:
 					self.m_nodes.append(found)
 					self.addlines(found.abspath())

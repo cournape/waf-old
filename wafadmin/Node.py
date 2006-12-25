@@ -160,7 +160,7 @@ class Node:
 		return self.find_build_lst(lst)
 
 	def find_build_lst(self, lst):
-		"search a source or a build node in the filesystem, rescan intermediate folders"
+		"search a source or a build node in the filesystem, rescan intermediate folders, create if necessary"
 		rescan = Params.g_build.rescan
 		current = self
 		while lst:
@@ -268,32 +268,6 @@ class Node:
 			node = Node(name, old)
 			old.m_build_lookup[node.m_name]=node
 		return node
-
-	def search_existing_node(self, path):
-		"convenience method"
-		lst = Utils.split_path(path)
-		return self.search_existing_node_lst(lst)
-
-	def search_existing_node_lst(self, lst):
-		"returns a node from the tree, do not create if missing"
-		if not lst: return self
-		node = self
-		rescan = Params.g_build.rescan
-		for name in lst:
-			if not node: return None
-			rescan(node)
-			if name == '.': continue
-			if name == '..':
-				node = self.m_parent
-				continue
-			old = node
-			node = old.get_file(name)
-			if node: continue
-			node = old.get_build(name)
-			if node: continue
-			node = old.get_dir(name)
-		return node
-
 
 
 

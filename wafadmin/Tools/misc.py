@@ -67,10 +67,7 @@ class copyobj(Object.genobj):
 			if not target or len(lst)>1: target = node.m_name
 
 			# TODO the file path may be incorrect
-			newnode = self.path.search_existing_node(target)
-			if not newnode:
-				newnode = Node.Node(target, self.path)
-				self.path.append_build(newnode)
+			newnode = self.path.find_build(target)
 
 			task = self.create_task('copy', self.env, 8)
 			task.set_inputs(node)
