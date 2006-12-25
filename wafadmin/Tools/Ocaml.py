@@ -84,7 +84,7 @@ class ocamlobj(Object.genobj):
 		lst = self._incpaths_lst
 		tree = Params.g_build
 		for dir in inc_lst:
-			node = self.path.find_node(Utils.split_path(dir))
+			node = self.path.find_source(dir)
 			if not node:
 				error("node not found dammit")
 				continue

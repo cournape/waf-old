@@ -400,10 +400,9 @@ class ccroot(Object.genobj):
 		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
 
 		lst = self.to_list(self.source)
-		find_node = self.path.find_node
+		find_source_lst = self.path.find_source_lst
 		for filename in lst:
-			#node = self.path.find_or_create(filename)
-			node = self.path.find_node(Utils.split_path(filename))
+			node = find_source_lst(Utils.split_path(filename))
 			if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
 
 			# Extract the extension and look for a handler hook.
@@ -487,7 +486,7 @@ class ccroot(Object.genobj):
 				self.env.appendValue('CPPPATH', dir)
 				continue
 
-			node = self.path.find_node(Utils.split_path(dir))
+			node = self.path.find_source_lst(Utils.split_path(dir))
 			if not node:
 				debug("node not found in ccroot:apply_incpaths "+str(dir), 'ccroot')
 				continue

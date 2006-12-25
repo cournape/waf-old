@@ -153,42 +153,95 @@ class Node:
 		#if not self.m_parent: return [Params.g_rootname]
 		#return [self.m_name, os.sep]+self.m_parent.pathlist2()
 
-	def find_node_by_name(self, name, lst):
-		res = self.get_dir(name,None)
-		if not res:
-			res=self.get_file(name)
-		if not res:
-			res=self.get_build(name)
-		if not res: return None
 
-		return res.find_node( lst[1:] )
 
-	# TODO : make it procedural, not recursive
-	# find a node given an existing node and a list like ['usr', 'local', 'bin']
-	def find_node(self, lst):
-		return self.find_node_lst(lst)
+	def find_build(self, path):
+		lst = Utils.split_path(path)
+		return self.find_build_lst(lst)
 
-	def find_node_lst(self, lst):
-		if not lst: return self
-		name=lst[0]
+	def find_build_lst(self, lst):
+		"search a source or a build node in the filesystem, rescan intermediate folders"
+		rescan = Params.g_build.rescan
+		current = self
+		while lst:
+			rescan(current)
+			name= lst[0]
+			lst = lst[1:]
+			prev = current
 
-		# unfortunately, it is necessary to check if the nodes still exist
-		Params.g_build.rescan(self)
+			if name == '.':
+				continue
+			elif name == '..':
+				current = self.m_parent
+			else:
+				if lst:
+					# FIXME: perhaps a mistake ? arent dirs created automatically on rescan ?
+					current = prev.m_dirs_lookup.get(name, None)
+					if not current:
+						current = Node(name, prev)
+						# create a directory
+						prev.m_dirs_lookup[name] = current
+				else:
+					current = prev.m_build_lookup.get(name, None)
+					# next line for finding source files too
+					if not current: current = prev.m_files_lookup.get(name, None)
+					if not current:
+						current = Node(name, prev)
+						# last item is the build file (rescan would have found the source)
+						prev.m_build_lookup[name] = current
+		return current
 
-		if name == '.':  return self.find_node_lst(lst[1:])
-		if name == '..': return self.m_parent.find_node_lst(lst[1:])
+	def find_source(self, path):
+		lst = Utils.split_path(path)
+		return self.find_source_lst(lst)
 
-		res = self.find_node_by_name(name,lst)
-		if res: return res
+	def find_source_lst(self, lst):
+		"search a source in the filesystem, rescan intermediate folders"
+		rescan = Params.g_build.rescan
+		current = self
+		while lst:
+			rescan(current)
+			name= lst[0]
+			lst = lst[1:]
+			prev = current
 
-		if len(lst)>0:
-			node = Node(name, self)
-			self.append_dir(node)
-			#self.m_dirs.append(node)
-			return node.find_node_lst(lst[1:])
+			if name == '.':
+				continue
+			elif name == '..':
+				current = self.m_parent
+			else:
+				if lst:
+					current = prev.m_dirs_lookup.get(name, None)
+				else:
+					current = prev.m_files_lookup.get(name, None)
+					# try hard to find something
+					if not current: current = prev.m_dirs_lookup.get(name, None)
+					if not current: current = prev.m_build_lookup.get(name, None)
+				if not current: return None
+		return current
 
-		#debug('find_node returns nothing '+str(self)+' '+str(lst), 300)
-		return None
+	def find_raw(self, path):
+		lst = Utils.split_path(path)
+		return self.find_raw_lst(lst)
+
+	def find_raw_lst(self, lst):
+		"just find a node in the tree, do not rescan folders"
+		current = self
+		while lst:
+			name=lst[0]
+			lst=lst[1:]
+			prev = current
+			if name == '.':
+				continue
+			elif name == '..':
+				current = self.m_parent
+			else:
+				current = prev.m_dirs_lookup[name]
+				if not current: current=prev.m_files_lookup[name]
+				if not current: current=prev.m_build_lookup[name]
+				if not current: return None
+		return current
+
 
 
 
@@ -206,11 +259,11 @@ class Node:
 				node = self.m_parent
 				continue
 			old = node
-			node = old.get_file(name)
+			node = old.m_files_lookup.get(name, None)
 			if node: continue
-			node = old.get_build(name)
+			node = old.m_build_lookup.get(name, None)
 			if node: continue
-			node = old.get_dir(name)
+			node = old.m_dirs_lookup.get(name, None)
 			if node: continue
 			node = Node(name, old)
 			old.m_build_lookup[node.m_name]=node
@@ -222,7 +275,7 @@ class Node:
 		return self.search_existing_node_lst(lst)
 
 	def search_existing_node_lst(self, lst):
-		"returns a node from the tree, do not create if missing (not recursive)"
+		"returns a node from the tree, do not create if missing"
 		if not lst: return self
 		node = self
 		rescan = Params.g_build.rescan
@@ -240,6 +293,10 @@ class Node:
 			if node: continue
 			node = old.get_dir(name)
 		return node
+
+
+
+
 
 	# absolute path
 	def abspath(self, env=None):
@@ -483,12 +540,13 @@ class Node:
 		k = name.rfind('.')
 		newname = name[:k]+ext
 
-		n = self.m_parent.get_file(newname)
-		if not n: n = self.m_parent.get_build(newname)
+		p = self.m_parent
+		n = p.m_files_lookup.get(newname, None)
+		if not n: n = p.m_build_lookup.get(newname, None)
 		if n: return n
 
-		newnode = Node(newname, self.m_parent)
-		self.m_parent.m_build_lookup[newnode.m_name]=newnode
+		newnode = Node(newname, p)
+		p.m_build_lookup[newnode.m_name]=newnode
 
 		return newnode
 

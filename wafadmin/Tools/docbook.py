@@ -117,7 +117,7 @@ class docbookobj(Object.genobj):
 		# for each source argument, create a task
 		lst = self.source.split()
 		for filename in lst:
-			node = self.path.find_node(Utils.split_path(filename) )
+			node = self.path.find_source(filename)
 			if not node:
 				fatal("source not found: "+filename+" in "+str(self.path))
 

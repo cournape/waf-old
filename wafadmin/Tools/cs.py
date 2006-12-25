@@ -52,7 +52,7 @@ class csobj(Object.genobj):
 		# process the sources
 		nodes = []
 		for i in self.to_list(self.source):
-			nodes.append(curnode.find_node(Utils.split_path(i)))
+			nodes.append(curnode.find_source(i))
 
 		# create the task
 		task = self.create_task('mcs', self.env, 101)

@@ -193,7 +193,6 @@ class genobj:
 			Params.g_build.rescan(anode)
 			#print "anode ", anode.m_name, " ", anode.files()
 
-			#node = self.path.find_node( name.split(os.sep) )
 			for file in anode.files():
 				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)

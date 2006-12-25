@@ -114,7 +114,7 @@ class kde_translations(Object.genobj):
 			lang, ext = os.path.splitext(file.m_name)
 			if ext != '.po': continue
 
-			node = self.path.find_node(Utils.split_path(lang+'.gmo'))
+			node = self.path.find_source(lang+'.gmo')
 			orig = node.relpath_gen(current)
 
 			destfile = Utils.join_path(lang, 'LC_MESSAGES', destfilename)
@@ -134,7 +134,7 @@ class kde_documentation(Object.genobj):
 	def apply(self):
 		for filename in self.m_docs.split():
 			if not filename: continue
-			node = self.path.find_node(Utils.split_path(filename))
+			node = self.path.find_source(filename)
 
 			self.m_files.append(node)
 			(base, ext) = os.path.splitext(filename)

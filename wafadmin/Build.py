@@ -252,20 +252,16 @@ class Build:
 
 		for env in self.m_allenvs.values():
 			for f in env['dep_files']:
-				lst = f.split('/')
-				topnode = self.m_srcnode.find_node(lst[:-1])
-				newnode = topnode.search_existing_node_lst([lst[-1]])
-				if not newnode:
-					newnode = Node.Node(lst[-1], topnode)
-					topnode.m_build_lookup[newnode.m_name]=newnode
+				newnode = self.m_srcnode.find_build(f)
 				try:
-					hash = Params.h_file(topnode.abspath(env)+os.sep+lst[-1])
+					hash = Params.h_file(newnode.abspath(env))
 				except IOError:
+					error("cannot find "+f)
+					hash = Params.sig_nil
+				except AttributeError:
+					error("cannot find "+f)
 					hash = Params.sig_nil
 				self.m_tstamp_variants[env.variant()][newnode] = hash
-
-
-
 
 	# ======================================= #
 	# node and folder handling

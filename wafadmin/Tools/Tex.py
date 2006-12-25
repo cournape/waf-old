@@ -49,8 +49,7 @@ class tex_scanner(Scan.scanner):
 						pass
 
 			if ok:
-				node = curdirnode.find_node(
-					Utils.split_path(path))
+				node = curdirnode.find_source(path)
 				nodes.append(node)
 			else:
 				print 'could not find', filepath
@@ -205,14 +204,14 @@ class texobj(Object.genobj):
 		if self.deps:
 			deps = self.to_list(self.deps)
 			for filename in deps:
-				n = self.path.find_node(Utils.split_path(filename))
+				n = self.path.find_source(filename)
 				if not n in deps_lst: deps_lst.append(n)
 
 		for filename in self.source.split():
 			base, ext = os.path.splitext(filename)
 			if not ext in self.s_default_ext: continue
 
-			node = self.path.find_node(Utils.split_path(filename))
+			node = self.path.find_source(filename)
 			if not node: fatal('cannot find %s' % filename)
 
 			if self.m_type == 'latex':
