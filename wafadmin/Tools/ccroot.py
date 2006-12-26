@@ -594,7 +594,6 @@ class ccroot(Object.genobj):
 				name1 = libname
 
 				filename = self.m_linktask.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
-
 				Common.install_as(dest_var, dest_subdir+'/'+name3, filename)
 
 				#print 'lib/'+name2, '->', name3

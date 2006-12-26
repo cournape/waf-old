@@ -246,36 +246,6 @@ class Node:
 
 
 
-	# absolute path
-	def abspath(self, env=None):
-		variant = self.variant(env)
-		try:
-			return Params.g_build.m_abspath_cache[variant][self]
-		except KeyError:
-			if not variant:
-				val=self.__pathstr2()
-				#lst.reverse() - no need to reverse list anymore
-				#val=''.join(lst)
-				Params.g_build.m_abspath_cache[variant][self]=val
-				return val
-			else:
-				p = Utils.join_path(Params.g_build.m_bldnode.abspath(),env.variant(),
-					self.relpath(Params.g_build.m_srcnode))
-				debug("var is p+q is "+p, 'node')
-				return p
-
-	def bldpath(self, env=None):
-		name = self.m_name
-		x = self.m_parent.get_file(name)
-		if x: return self.relpath_gen(Params.g_build.m_bldnode)
-		return Utils.join_path(env.variant(),self.relpath(Params.g_build.m_srcnode))
-
-	def srcpath(self, env):
-		name = self.m_name
-		x = self.m_parent.get_build(name)
-		if x: return self.bldpath(env)
-		return self.relpath_gen(Params.g_build.m_bldnode)
-
 
 
 
@@ -355,17 +325,6 @@ class Node:
 		down_path = self.pathlist4(ancestor)
 		down_path.reverse()
 		return "".join( up_path+down_path )
-
-	# TODO look at relpath_gen - it is certainly possible to get rid of find_ancestor
-	def relpath_gen2(self, going_to):
-		if self is going_to: return '.'
-		ancestor = Params.srcnode()
-		up_path   = going_to.invrelpath(ancestor)
-		down_path = self.pathlist4(ancestor)
-		down_path.reverse()
-		return "".join( up_path+down_path )
-
-
 
 
 
@@ -482,9 +441,27 @@ class Node:
 
 	# helpers for building things
 
+	def abspath(self, env=None):
+		"absolute path"
+		variant = self.variant(env)
+		try:
+			return Params.g_build.m_abspath_cache[variant][self]
+		except KeyError:
+			if not variant:
+				val=self.__pathstr2()
+				#lst.reverse() - no need to reverse list anymore
+				#val=''.join(lst)
+				Params.g_build.m_abspath_cache[variant][self]=val
+				return val
+			else:
+				p = Utils.join_path(Params.g_build.m_bldnode.abspath(),env.variant(),
+					self.relpath(Params.g_build.m_srcnode))
+				debug("var is p+q is "+p, 'node')
+				return p
+
+
 	def change_ext(self, ext):
 		"node of the same path, but with a different extension"
-		# TODO not certain
 		name = self.m_name
 		k = name.rfind('.')
 		newname = name[:k]+ext
@@ -512,4 +489,17 @@ class Node:
 			if n[l]=='.': break
 		s = n[:l]
 		return Utils.join_path(self.bld_dir(env),s)
+
+	def bldpath(self, env=None):
+		"path seen from the build dir default/src/foo.cpp"
+		x = self.m_parent.get_file(self.m_name)
+		if x: return self.relpath_gen(Params.g_build.m_bldnode)
+		return Utils.join_path(env.variant(), self.relpath(Params.g_build.m_srcnode))
+
+	def srcpath(self, env):
+		"path in the srcdir from the build dir ../src/foo.cpp"
+		x = self.m_parent.get_build(self.m_name)
+		if x: return self.bldpath(env)
+		return self.relpath_gen(Params.g_build.m_bldnode)
+
 
