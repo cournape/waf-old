@@ -139,20 +139,16 @@ class Build:
 
 	def clean(self):
 		debug("clean called", 'build')
-		Object.flush()
-		# if something special is needed
-		for obj in Object.g_allobjs: obj.cleanup()
-		# now for each task, make sure to remove the objects
-		# 4 for loops
-		for group in Task.g_tasks.groups:
-			for p in group.prio:
-				for t in group.prio[p]:
-					try:
-						for node in t.m_outputs:
-							try: os.remove(node.abspath(t.m_env))
-							except OSError: pass
-					except AttributeError:
-						pass
+		def clean_rec(node):
+			for x in node.m_build_lookup:
+				nd = node.m_build_lookup[x]
+				for env in self.m_allenvs.values():
+					try: os.remove(nd.abspath(env))
+					except OSError: pass
+			for x in node.m_dirs_lookup:
+				nd = node.m_dirs_lookup[x]
+				clean_rec(nd)
+		clean_rec(self.m_srcnode)
 
 	def compile(self):
 		debug("compile called", 'build')
