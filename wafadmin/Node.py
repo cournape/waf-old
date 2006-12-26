@@ -222,7 +222,6 @@ class Node:
 	## ===== BEGIN relpath-related methods	===== ##
 
 	# returns a joined path string that can be reduced to the absolute path
-	# DOES NOT needs to be reversed anymore (used by abspath)
 	def __pathstr2(self):
 		if self.m_cached_path: return self.m_cached_path
 		dirlist = [self.m_name]
@@ -240,27 +239,10 @@ class Node:
 
 		self.m_cached_path=joined
 		return joined
-		#if not self.m_parent: return [Params.g_rootname]
-		#return [self.m_name, os.sep]+self.m_parent.pathlist2()
-
-
-
-
-
-
-
-
-
-
-
-	# returns the list of names to the node
-	# make sure to reverse it (used by relpath)
-	def pathlist3(self, node):
-		if self is node: return ['.']
-		return [self.m_name, os.sep]+self.m_parent.pathlist3(node)
 
 	# same as pathlist3, but do not append './' at the beginning
 	def pathlist4(self, node):
+		#print "pathlist4 called"
 		if self.m_parent is node: return [self.m_name]
 		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
 
@@ -449,16 +431,12 @@ class Node:
 		except KeyError:
 			if not variant:
 				val=self.__pathstr2()
-				#lst.reverse() - no need to reverse list anymore
-				#val=''.join(lst)
-				Params.g_build.m_abspath_cache[variant][self]=val
-				return val
 			else:
-				p = Utils.join_path(Params.g_build.m_bldnode.abspath(),env.variant(),
+				val=Utils.join_path(Params.g_build.m_bldnode.abspath(),env.variant(),
 					self.relpath(Params.g_build.m_srcnode))
-				debug("var is p+q is "+p, 'node')
-				return p
-
+			Params.g_build.m_abspath_cache[variant][self]=val
+			#print "val is", val
+			return val
 
 	def change_ext(self, ext):
 		"node of the same path, but with a different extension"
