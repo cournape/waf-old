@@ -244,6 +244,9 @@ class kdeobj(cpp.cppobj):
 
 		lst = self.source.split()
 		lst.sort()
+
+		# attach a new method called "find" (i know, evil ;; ita)
+		self.find = self.path.find_build
 		for filename in lst:
 
 			node = self.path.find_build(filename)
