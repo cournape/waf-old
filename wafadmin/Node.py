@@ -221,25 +221,6 @@ class Node:
 
 	## ===== BEGIN relpath-related methods	===== ##
 
-	# returns a joined path string that can be reduced to the absolute path
-	def __pathstr2(self):
-		if self.m_cached_path: return self.m_cached_path
-		dirlist = [self.m_name]
-		cur_dir=self.m_parent
-		while cur_dir:
-			if cur_dir.m_name:
-				dirlist = dirlist + [cur_dir.m_name]
-			cur_dir = cur_dir.m_parent
-		dirlist.reverse()
-
-		joined = ""
-		for f in dirlist: joined = os.path.join(joined,f)
-		if not os.path.isabs(joined):
-			joined = os.sep + joined
-
-		self.m_cached_path=joined
-		return joined
-
 	# same as pathlist3, but do not append './' at the beginning
 	def pathlist4(self, node):
 		#print "pathlist4 called"
@@ -430,12 +411,17 @@ class Node:
 			return Params.g_build.m_abspath_cache[variant][self]
 		except KeyError:
 			if not variant:
-				val=self.__pathstr2()
+				cur=self
+				lst=[]
+				while cur:
+					lst.append(cur.m_name)
+					cur=cur.m_parent
+				lst.reverse()
+				val=Utils.join_path(*lst)
 			else:
 				val=Utils.join_path(Params.g_build.m_bldnode.abspath(),env.variant(),
 					self.relpath(Params.g_build.m_srcnode))
 			Params.g_build.m_abspath_cache[variant][self]=val
-			#print "val is", val
 			return val
 
 	def change_ext(self, ext):
