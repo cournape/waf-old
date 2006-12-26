@@ -450,7 +450,7 @@ class Node:
 	def size_subtree(self):
 		"for debugging, returns the amount of subnodes"
 		l_size=1
-		for i in self.dirs(): l_size += i.size()
+		for i in self.dirs(): l_size += i.size_subtree()
 		l_size += len(self.files())
 		return l_size
 

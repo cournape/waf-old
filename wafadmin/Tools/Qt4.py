@@ -273,7 +273,7 @@ def detect_qt4(conf):
 					if r.startswith('-F'):
 						env['CCFLAGS_' + i.upper()].remove(r)
 						break
-		
+
 			incflag = '-I%s' % os.path.join(qtincludes, i)
 			if not incflag in env["CCFLAGS_" + i.upper ()]:
 				env['CCFLAGS_' + i.upper ()] += [incflag]
