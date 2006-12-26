@@ -375,7 +375,20 @@ class Build:
 
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
-		lst = self.m_srcnode.difflst(src_dir_node)
+
+		# first obtain the differences between srcnode and src_dir_node
+		#lst = self.m_srcnode.difflst(src_dir_node)
+		h1 = self.m_srcnode.height()
+		h2 = src_dir_node.height()
+
+		lst=[]
+		child = src_dir_node
+		while h2 > h1:
+			lst.append(child.m_name)
+			child=child.m_parent
+			h2-=1
+		lst.reverse()
+
 		for variant in self._variants:
 			sub_path = Utils.join_path(self.m_bldnode.abspath(), variant , *lst)
 			try:
