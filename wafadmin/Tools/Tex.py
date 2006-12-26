@@ -67,10 +67,10 @@ def tex_build(task, command='LATEX'):
 
 	if env['PROMPT_LATEX']:
 		exec_cmd = Runner.exec_command_interact
-		com = '%s %s' % (env[command], env[command+'FLAGS'])
+		com = '%s %s' % (env[command], env.get_flat(command+'FLAGS'))
 	else:
 		exec_cmd = Runner.exec_command
-		com = '%s %s %s' % (env[command], env[command+'FLAGS'], '-interaction=batchmode')
+		com = '%s %s %s' % (env[command], env.get_flat(command+'FLAGS'), '-interaction=batchmode')
 
 
 	node = task.m_inputs[0]
