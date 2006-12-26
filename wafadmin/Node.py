@@ -101,6 +101,8 @@ class Node:
 	## ===== BEGIN find methods	===== ##
 
 	def find_build(self, path):
+		#print "find build", path
+		if path == "/compilation/linpacker": raise
 		lst = Utils.split_path(path)
 		return self.find_build_lst(lst)
 
@@ -186,6 +188,31 @@ class Node:
 				if not current: current=prev.m_build_lookup[name]
 				if not current: return None
 		return current
+
+	def find_dir(self, path):
+		lst = Utils.split_path(path)
+		return self.find_dir_lst(lst)
+
+	def find_dir_lst(self, lst):
+		"search a folder in the filesystem, do not scan, create if necessary"
+		current = self
+		while lst:
+			name= lst[0]
+			lst = lst[1:]
+			prev = current
+
+			if name == '.':
+				continue
+			elif name == '..':
+				current = self.m_parent
+			else:
+				current = prev.m_dirs_lookup.get(name, None)
+				if not current:
+					current = Node(name, prev)
+					# create a directory
+					prev.m_dirs_lookup[name] = current
+		return current
+
 
 	## ===== END find methods	===== ##
 
@@ -360,7 +387,7 @@ class Node:
 		tree = Params.g_build
 		global g_launch_node
 		if not g_launch_node:
-			g_launch_node = tree.m_root.find_build(Params.g_cwd_launch)
+			g_launch_node = tree.m_root.find_dir(Params.g_cwd_launch)
 
 		name = self.m_name
 		x = self.m_parent.get_file(name)

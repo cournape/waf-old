@@ -363,7 +363,7 @@ class Build:
 		if src_dir_node in self.m_scanned_folders: return
 
 		# do not rescan the nodes above srcnode
-		if src_dir_node.height() < self.m_srcnode.height(): return
+		#if src_dir_node.height() < self.m_srcnode.height(): return
 
 		#debug("rescanning "+str(src_dir_node), 'build')
 
