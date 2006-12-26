@@ -441,7 +441,7 @@ class ccroot(Object.genobj):
 		app = outputs.append
 		for t in self.p_compiletasks: app(t.m_outputs[0])
 		linktask.set_inputs(outputs)
-		linktask.set_outputs(self.path.find_or_create(self.get_target_name()))
+		linktask.set_outputs(self.path.find_build(self.get_target_name()))
 
 		self.m_linktask = linktask
 

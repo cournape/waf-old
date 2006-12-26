@@ -57,7 +57,7 @@ class csobj(Object.genobj):
 		# create the task
 		task = self.create_task('mcs', self.env, 101)
 		task.m_inputs  = nodes
-		task.set_outputs(self.path.find_or_create(self.target))
+		task.set_outputs(self.path.find_build(self.target))
 
 	def apply_uselib(self):
 		if not self.uselib:

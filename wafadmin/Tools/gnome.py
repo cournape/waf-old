@@ -92,7 +92,7 @@ class gnome_sgml2man(Object.genobj):
 
 				task = self.create_task('sgml2man', self.env, 2)
 				task.set_inputs(node)
-				task.set_outputs(self.path.find_or_create(name))
+				task.set_outputs(self.path.find_build(name))
 			except:
 				raise
 				pass

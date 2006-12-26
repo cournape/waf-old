@@ -98,62 +98,7 @@ class Node:
 	def set_tstamp_node(self, value):
 		Params.g_build.m_tstamp_variants[0][self] = value
 
-	# ====================================================== #
-
-	def size_subtree(self):
-		l_size=1
-		for i in self.dirs(): l_size += i.size()
-		l_size += len(self.files())
-		return l_size
-
-	def height(self):
-		# TODO enable a cache ?
-		d = self
-		val = 0
-		while d.m_parent:
-			d=d.m_parent
-			val += 1
-		return val
-
-
-
-	## ===== BEGIN relpath-related methods	===== ##
-
-	# list of file names that separate a node from a child
-	def difflst(self, child):
-		if not child: error('Node difflst takes a non-null parameter!')
-		lst=[]
-		node = child
-		while child != self:
-			lst.append(child.m_name)
-			child=child.m_parent
-		lst.reverse()
-		return lst
-
-	## ------------ TODO : the following may need to be improved
-	# returns a joined path string that can be reduced to the absolute path
-	# DOES NOT needs to be reversed anymore (used by abspath)
-	def __pathstr2(self):
-		if self.m_cached_path: return self.m_cached_path
-		dirlist = [self.m_name]
-		cur_dir=self.m_parent
-		while cur_dir:
-			if cur_dir.m_name:
-				dirlist = dirlist + [cur_dir.m_name]
-			cur_dir = cur_dir.m_parent
-		dirlist.reverse()
-
-		joined = ""
-		for f in dirlist: joined = os.path.join(joined,f)
-		if not os.path.isabs(joined):
-			joined = os.sep + joined
-
-		self.m_cached_path=joined
-		return joined
-		#if not self.m_parent: return [Params.g_rootname]
-		#return [self.m_name, os.sep]+self.m_parent.pathlist2()
-
-
+	## ===== BEGIN find methods	===== ##
 
 	def find_build(self, path):
 		lst = Utils.split_path(path)
@@ -242,32 +187,45 @@ class Node:
 				if not current: return None
 		return current
 
+	## ===== END find methods	===== ##
 
 
+	## ===== BEGIN relpath-related methods	===== ##
 
-	def find_or_create(self, path):
-		"convenience method"
-		lst = Utils.split_path(path)
-		return self.find_or_create_lst(lst)
+	# TODO clean this section
 
-	def find_or_create_lst(self, lst):
-		"search for a node, it is created if it does not exist (not recursive)"
-		node = self
-		for name in lst:
-			if name == '.': continue
-			if name == '..':
-				node = self.m_parent
-				continue
-			old = node
-			node = old.m_files_lookup.get(name, None)
-			if node: continue
-			node = old.m_build_lookup.get(name, None)
-			if node: continue
-			node = old.m_dirs_lookup.get(name, None)
-			if node: continue
-			node = Node(name, old)
-			old.m_build_lookup[node.m_name]=node
-		return node
+	# list of file names that separate a node from a child
+	def difflst(self, child):
+		if not child: error('Node difflst takes a non-null parameter!')
+		lst=[]
+		node = child
+		while child != self:
+			lst.append(child.m_name)
+			child=child.m_parent
+		lst.reverse()
+		return lst
+
+	# returns a joined path string that can be reduced to the absolute path
+	# DOES NOT needs to be reversed anymore (used by abspath)
+	def __pathstr2(self):
+		if self.m_cached_path: return self.m_cached_path
+		dirlist = [self.m_name]
+		cur_dir=self.m_parent
+		while cur_dir:
+			if cur_dir.m_name:
+				dirlist = dirlist + [cur_dir.m_name]
+			cur_dir = cur_dir.m_parent
+		dirlist.reverse()
+
+		joined = ""
+		for f in dirlist: joined = os.path.join(joined,f)
+		if not os.path.isabs(joined):
+			joined = os.sep + joined
+
+		self.m_cached_path=joined
+		return joined
+		#if not self.m_parent: return [Params.g_rootname]
+		#return [self.m_name, os.sep]+self.m_parent.pathlist2()
 
 
 
@@ -301,21 +259,6 @@ class Node:
 		x = self.m_parent.get_build(name)
 		if x: return self.bldpath(env)
 		return self.relpath_gen(Params.g_build.m_bldnode)
-
-	def bld_dir(self, env):
-		return self.m_parent.bldpath(env)
-
-	def bldbase(self, env):
-		i = 0
-		n = self.m_name
-		while 1:
-			try:
-				if n[i]=='.': break
-			except:
-				break
-			i += 1
-		s = n[:i]
-		return Utils.join_path(self.bld_dir(env),s)
 
 
 
@@ -417,7 +360,7 @@ class Node:
 		tree = Params.g_build
 		global g_launch_node
 		if not g_launch_node:
-			g_launch_node = tree.m_root.find_or_create(Params.g_cwd_launch)
+			g_launch_node = tree.m_root.find_build(Params.g_cwd_launch)
 
 		name = self.m_name
 		x = self.m_parent.get_file(name)
@@ -475,6 +418,7 @@ class Node:
 		print "======= end debug node ==========="
 
 	def is_child_of(self, node):
+		"does this node belong to the subtree node"
 		p=self
 		h1=self.height()
 		h2=node.height()
@@ -485,6 +429,7 @@ class Node:
 		return p.equals(node)
 
 	def equals(self, node):
+		"is one node equal to another one"
 		p1 = self
 		p2 = node
 		while p1 and p2:
@@ -496,19 +441,33 @@ class Node:
 		return 1
 
 	def variant(self, env):
+		"variant, or output directory for this node, a source has for variant 0"
 		if not env: return 0
 		i = self.m_parent.get_file(self.m_name)
 		if i: return 0
 		return env.variant()
 
+	def size_subtree(self):
+		"for debugging, returns the amount of subnodes"
+		l_size=1
+		for i in self.dirs(): l_size += i.size()
+		l_size += len(self.files())
+		return l_size
 
+	def height(self):
+		"amount of parents"
+		# README a cache can be added here if necessary
+		d = self
+		val = 0
+		while d.m_parent:
+			d=d.m_parent
+			val += 1
+		return val
 
-
-
-	##
 	# helpers for building things
 
 	def change_ext(self, ext):
+		"node of the same path, but with a different extension"
 		# TODO not certain
 		name = self.m_name
 		k = name.rfind('.')
@@ -523,4 +482,18 @@ class Node:
 		p.m_build_lookup[newnode.m_name]=newnode
 
 		return newnode
+
+	def bld_dir(self, env):
+		"build path without the file name"
+		return self.m_parent.bldpath(env)
+
+	def bldbase(self, env):
+		"build path without the extension: src/dir/foo(.cpp)"
+		l = len(self.m_name)
+		n = self.m_name
+		while l>0:
+			l -= 1
+			if n[l]=='.': break
+		s = n[:l]
+		return Utils.join_path(self.bld_dir(env),s)
 
