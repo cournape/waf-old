@@ -227,29 +227,22 @@ class Node:
 		if self.m_parent is node: return [self.m_name]
 		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
 
-	# path relative to a direct parent
 	def relpath(self, parent):
-		#print "relpath", self, parent
-		#try:
-		#	return Params.g_build.m_relpath_cache[self][parent]
-		#except:
-		#	lst=self.pathlist3(parent)
-		#	lst.reverse()
-		#	val=''.join(lst)
-
-		#	try:
-		#		Params.g_build.m_relpath_cache[self][parent]=val
-		#	except:
-		#		Params.g_build.m_relpath_cache[self]={}
-		#		Params.g_build.m_relpath_cache[self][parent]=val
-		#	return val
-		if self is parent: return ''
-
-		lst=self.pathlist4(parent)
-		lst.reverse()
-		val=''.join(lst)
-		return val
-
+		"path relative to a direct parent, as string"
+		lst=[]
+		p=self
+		h1=parent.height()
+		h2=p.height()
+		while h2>h1:
+			h2-=1
+			lst.append(p.m_name)
+			p=p.m_parent
+		if lst:
+			lst.reverse()
+			ret=os.path.join(*lst)
+		else:
+			ret=''
+		return ret
 
 	# find a common ancestor for two nodes - for the shortest path in hierarchy
 	def find_ancestor(self, node):
@@ -408,7 +401,8 @@ class Node:
 		"absolute path"
 		variant = self.variant(env)
 		try:
-			return Params.g_build.m_abspath_cache[variant][self]
+			ret= Params.g_build.m_abspath_cache[variant][self]
+			return ret
 		except KeyError:
 			if not variant:
 				cur=self
@@ -417,9 +411,9 @@ class Node:
 					lst.append(cur.m_name)
 					cur=cur.m_parent
 				lst.reverse()
-				val=Utils.join_path(*lst)
+				val=os.path.join(*lst)
 			else:
-				val=Utils.join_path(Params.g_build.m_bldnode.abspath(),env.variant(),
+				val=os.path.join(Params.g_build.m_bldnode.abspath(),env.variant(),
 					self.relpath(Params.g_build.m_srcnode))
 			Params.g_build.m_abspath_cache[variant][self]=val
 			return val
