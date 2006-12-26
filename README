@@ -23,10 +23,6 @@ WAFCACHE: path to the target cache (replaces --usecache)
 QUICK HOWTO
 -----------
 
-Environment setup:
-  For your convenience the script 'aliases.sh' contains useful aliases:
-  'source aliases.sh' will set your environment.
-
 Starting a new project with waf:
   Copy the 'waf' script to your project.
 
@@ -42,7 +38,7 @@ Using waf:
 
 Creating scripts:
   * The wscript are actually python modules, from which functions with particular namings
-  are imported. For more details on the functions to provide have a look at the file DESIGN.
+  are imported: init, shutdown, configure(conf), build(bld) and set_options(opt)
   * In some cases, there is a lot of code and using a build(bld) function is not convenient:
   a file named wscript_build ('wscript_'+function name) will replace the
   corresponding function in the wscript module. See demos/cpp/src2
