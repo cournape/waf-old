@@ -35,7 +35,9 @@ class c_scanner(Scan.scanner):
 			error("BUG rescanning a null node")
 			return
 		(nodes, names) = self.scan(node, env, **hashparams)
-		if Params.g_zones: debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
+		if Params.g_verbose:
+			if Params.g_zones:
+				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
 
 		tree = Params.g_build
 		tree.m_depends_on[variant][node] = nodes
