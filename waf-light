@@ -281,8 +281,8 @@ if build_dir_override:
 	try:
 		# test if user has set the blddir in wscript.
 		blddir = Utils.g_module.blddir
-		msg = 'Overriding blddir %s with %s' % (blddir, build_dir_override)
-		Params.niceprint('YELLOW', msg)
+		msg = 'Overriding build directory %s with %s' % (blddir, build_dir_override)
+		Params.niceprint(msg, 'WARNING', 'waf')
 	except:
 		pass
 	Utils.g_module.blddir = build_dir_override
