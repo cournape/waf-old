@@ -323,6 +323,9 @@ elif Params.g_commands['distclean']:
 try: Utils.g_module.init()
 except AttributeError: pass
 
-from Scripting import Main
-Main()
-
+import Scripting
+Scripting.Main()
+#import hotshot
+#prof=hotshot.Profile("/tmp/proftest.txt")
+#prof.runcall(Scripting.Main)
+#prof.close()

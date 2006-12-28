@@ -156,13 +156,9 @@ class Build:
 
 		os.chdir(self.m_bdir)
 
-		#import hotshot
-		#prof = hotshot.Profile("/tmp/proftest.txt")
-		#prof.runcall(Object.flush)
-		#prof.close()
 		Object.flush()
 
-		#self.dump()
+		if Params.g_verbose>2: self.dump()
 
 		if Params.g_options.jobs <=1:
 			generator = Runner.JobGenerator(self)
@@ -175,10 +171,6 @@ class Build:
 		debug("executor starting", 'build')
 		try:
 
-			#import hotshot
-			#prof = hotshot.Profile("/tmp/proftest.txt")
-			#prof.runcall(executor.start)
-			#prof.close()
 			ret = executor.start()
 			#ret = 0
 		except KeyboardInterrupt:
@@ -187,12 +179,10 @@ class Build:
 			raise
 		except Runner.CompilationError:
 			fatal("Compilation failed")
-		#finally:
-		#	os.chdir( self.m_srcnode.abspath() )
 
-		#self.dump()
+		if Params.g_verbose>2: self.dump()
 
-		os.chdir( self.m_srcnode.abspath() )
+		os.chdir(self.m_srcnode.abspath())
 		return ret
 
 	def install(self):
