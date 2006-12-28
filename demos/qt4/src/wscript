@@ -16,3 +16,7 @@ def build(bld):
 	obj.defines="WAF=1" # add a define around foo.moc
 	bld.add_subdirs('test')
 
+	obj2 = bld.create_obj('qt4_trans')
+	obj2.lang='fr es'
+	obj2.source = obj.source
+

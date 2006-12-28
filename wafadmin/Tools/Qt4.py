@@ -152,11 +152,27 @@ class qt4obj(cpp.cppobj):
 				lst.append(flag)
 		self.env['MOC_FLAGS'] = lst
 
+
+class qt4_trans(Object.genobj):
+	def __init__(self):
+		Object.genobj.__init__(self, 'program')
+		self.source=''
+		self.lang=''
+		self.update=0
+
+	def apply(self):
+		for l in self.to_list(self.lang):
+			t = Task.Task('ts2qm', self.env, 4)
+			t.set_inputs(self.path.find_build(l+'.ts'))
+			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
+
 def setup(env):
 	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
 	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
 	Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE')
 	Object.register('qt4', qt4obj)
+	Object.register('qt4_trans', qt4_trans)
 
 	try: env.hook('qt4', 'UI_EXT', create_uic_task)
 	except: pass
@@ -247,6 +263,8 @@ def detect_qt4(conf):
 
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
 	find_bin(['rcc'], 'QT_RCC')
+	find_bin(['lrelease'], 'QT_LRELEASE')
+	find_bin(['lupdate'], 'QT_LUPDATE')
 
 	env['UIC3_ST']= '%s -o %s'
 	env['UIC_ST'] = '%s -o %s'
