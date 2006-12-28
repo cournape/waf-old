@@ -36,6 +36,10 @@ def flush():
 
 	dir_lst = Utils.split_path(Params.g_cwd_launch)
 	launch_dir_node = tree.m_root.find_dir(Params.g_cwd_launch)
+
+	if launch_dir_node.is_child_of(tree.m_bldnode):
+		launch_dir_node=tree.m_srcnode
+
 	if Params.g_options.compile_targets:
 		compile_targets = Params.g_options.compile_targets.split(',')
 	else:
