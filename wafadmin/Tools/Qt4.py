@@ -173,6 +173,7 @@ class qt4_trans(Object.genobj):
 			t = Task.Task('qm2rcc', self.env, 6)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_build(self.name+'.qrc'))
+			t.path = self.path
 
 def process_qm2rcc(task):
 	outfile = task.m_outputs[0].abspath(task.m_env)
@@ -180,7 +181,8 @@ def process_qm2rcc(task):
 	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
 	for k in task.m_inputs:
 		f.write(' <file>')
-		f.write(k.m_name)
+		#f.write(k.m_name)
+		f.write(k.relpath(task.path))
 		f.write('</file>\n')
 	f.write('</qresource>\n</RCC>')
 	f.close()
