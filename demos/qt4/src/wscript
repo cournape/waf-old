@@ -16,7 +16,13 @@ def build(bld):
 	obj.defines="WAF=1" # add a define around foo.moc
 	bld.add_subdirs('test')
 
+	# add the translation files as resource
+	#obj.source += " langs.qrc"
+
 	obj2 = bld.create_obj('qt4_trans')
 	obj2.lang='fr es'
-	obj2.source = obj.source
+	obj2.name='langs'
+
+	# unused (for now)
+	#obj2.source = obj.source
 

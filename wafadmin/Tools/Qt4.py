@@ -159,18 +159,40 @@ class qt4_trans(Object.genobj):
 		self.source=''
 		self.lang=''
 		self.update=0
+		self.name=''
 
 	def apply(self):
+		lst=[]
 		for l in self.to_list(self.lang):
 			t = Task.Task('ts2qm', self.env, 4)
 			t.set_inputs(self.path.find_build(l+'.ts'))
 			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
+			lst.append(t.m_outputs[0])
+
+		if self.name:
+			t = Task.Task('qm2rcc', self.env, 6)
+			t.set_inputs(lst)
+			t.set_outputs(self.path.find_build(self.name+'.qrc'))
+
+def process_qm2rcc(task):
+	outfile = task.m_outputs[0].abspath(task.m_env)
+	f = open(outfile, 'w')
+	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
+	for k in task.m_inputs:
+		f.write(' <file>')
+		f.write(k.m_name)
+		f.write('</file>\n')
+	f.write('</qresource>\n</RCC>')
+	f.close()
 
 def setup(env):
 	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
 	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
 	Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE')
 	Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE')
+
+	Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE')
+
 	Object.register('qt4', qt4obj)
 	Object.register('qt4_trans', qt4_trans)
 
