@@ -296,7 +296,7 @@ class Node:
 		name = self.m_name
 		x = self.m_parent.get_file(name)
 		if x: return self.relative_path(g_launch_node)
-		else: return tree.m_bldnode.relative_path(g_launch_node) + os.sep + self.relative_path(tree.m_srcnode)
+		else: return os.path.join(tree.m_bldnode.relative_path(g_launch_node), env.variant(), self.relative_path(tree.m_srcnode))
 
 	def relative_path(self, folder):
 		"relative path between a node and a directory node"
