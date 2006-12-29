@@ -118,6 +118,8 @@ class qt4obj(cpp.cppobj):
 		cpp.cppobj.__init__(self, type)
 		self.m_linktask = None
 		self.m_latask = None
+		self.lang=''
+		self.langname=''
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
@@ -144,6 +146,22 @@ class qt4obj(cpp.cppobj):
 		return task
 
         def apply(self):
+		if self.lang:
+			lst=[]
+			for l in self.to_list(self.lang):
+				t = Task.Task('ts2qm', self.env, 4)
+				t.set_inputs(self.path.find_build(l+'.ts'))
+				t.set_outputs(t.m_inputs[0].change_ext('.qm'))
+				lst.append(t.m_outputs[0])
+
+			if self.langname:
+				self.source += ' '+self.langname+'.qrc'
+
+				t = Task.Task('qm2rcc', self.env, 6)
+				t.set_inputs(lst)
+				t.set_outputs(self.path.find_build(self.langname+'.qrc'))
+				t.path = self.path
+
 		cpp.cppobj.apply(self)
 		lst = []
 		for flag in self.to_list(self.env['CXXFLAGS']):
@@ -152,28 +170,6 @@ class qt4obj(cpp.cppobj):
 				lst.append(flag)
 		self.env['MOC_FLAGS'] = lst
 
-
-class qt4_trans(Object.genobj):
-	def __init__(self):
-		Object.genobj.__init__(self, 'program')
-		self.source=''
-		self.lang=''
-		self.update=0
-		self.name=''
-
-	def apply(self):
-		lst=[]
-		for l in self.to_list(self.lang):
-			t = Task.Task('ts2qm', self.env, 4)
-			t.set_inputs(self.path.find_build(l+'.ts'))
-			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
-			lst.append(t.m_outputs[0])
-
-		if self.name:
-			t = Task.Task('qm2rcc', self.env, 6)
-			t.set_inputs(lst)
-			t.set_outputs(self.path.find_build(self.name+'.qrc'))
-			t.path = self.path
 
 def process_qm2rcc(task):
 	outfile = task.m_outputs[0].abspath(task.m_env)
@@ -196,7 +192,6 @@ def setup(env):
 	Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE')
 
 	Object.register('qt4', qt4obj)
-	Object.register('qt4_trans', qt4_trans)
 
 	try: env.hook('qt4', 'UI_EXT', create_uic_task)
 	except: pass
