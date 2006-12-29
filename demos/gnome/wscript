@@ -42,7 +42,7 @@ def configure(conf):
 	conf.add_define('GETTEXT_PACKAGE', 'gnome-hello-2.0')
 	conf.add_define('PACKAGE', 'gnome-hello')
 
-	conf.env.appendValue('CCFLAGS', '-DHAVE_CONFIG_H')
+	conf.env.append_value('CCFLAGS', '-DHAVE_CONFIG_H')
 
 	conf.env['ASSEMBLIES_GLIB'] = '/usr/lib/mono/gtk-sharp/glib-sharp.dll'
 
