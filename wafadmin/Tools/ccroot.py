@@ -485,7 +485,7 @@ class ccroot(Object.genobj):
 		tree = Params.g_build
 		for dir in inc_lst:
 			if os.path.isabs(dir[0]) or (len(dir) > 1 and dir[1] == ':'):
-				self.env.appendValue('CPPPATH', dir)
+				self.env.append_value('CPPPATH', dir)
 				continue
 
 			node = self.path.find_source_lst(Utils.split_path(dir))
@@ -505,7 +505,7 @@ class ccroot(Object.genobj):
 			compvar = '_'.join([self.m_type, var])
 			#print compvar
 			value = self.env[compvar]
-			if value: self.env.appendValue(var, value)
+			if value: self.env.append_value(var, value)
 
 	def apply_obj_vars(self):
 		debug('apply_obj_vars called for cppobj', 'ccroot')
@@ -518,7 +518,7 @@ class ccroot(Object.genobj):
 		self.addflags('CXXFLAGS', self.cxxflags)
 		self.addflags('CPPFLAGS', self.cppflags)
 
-		app = self.env.appendValue
+		app = self.env.append_unique
 
 		# local flags come first
 		# set the user-defined includes paths
@@ -631,7 +631,7 @@ class ccroot(Object.genobj):
 							libtool_files.append(v)
 							libtool_vars.append(v)
 							continue
-						self.env.appendUnique('LINKFLAGS', v)
+						self.env.append_unique('LINKFLAGS', v)
 					break
 				except:
 					pass
@@ -645,7 +645,7 @@ class ccroot(Object.genobj):
 				if v[-3:] == '.la':
 					libtool_files.append(v)
 					continue
-				self.env.appendUnique('LINKFLAGS', v)
+				self.env.append_unique('LINKFLAGS', v)
 
 	def apply_lib_vars(self):
 		debug('apply_lib_vars called', 'ccroot')
@@ -664,20 +664,20 @@ class ccroot(Object.genobj):
 				if not obj.m_posted: obj.post()
 
 				if obj.m_type == 'shlib':
-					env.appendValue('LIB', obj.target)
+					env.append_value('LIB', obj.target)
 				elif obj.m_type == 'plugin':
 					if platform == 'darwin':
-						env.appendValue('PLUGIN', obj.target)
+						env.append_value('PLUGIN', obj.target)
 					else:
-						env.appendValue('LIB', obj.target)
+						env.append_value('LIB', obj.target)
 				elif obj.m_type == 'staticlib':
-					env.appendValue('STATICLIB', obj.target)
+					env.append_value('STATICLIB', obj.target)
 				else:
 					error('unknown object type %s in apply_lib_vars' % obj.name)
 
 				# add the path too
 				tmp_path = obj.path.bldpath(self.env)
-				if not tmp_path in env['LIBPATH']: env.prependValue('LIBPATH', tmp_path)
+				if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
 				# set the dependency over the link task
 				self.m_linktask.m_run_after.append(obj.m_linktask)
@@ -699,14 +699,14 @@ class ccroot(Object.genobj):
 		for l in libs:
 			for v in self.p_flag_vars:
 				val=self.env[v+'_'+l]
-				if val: self.env.appendValue(v, val)
+				if val: self.env.append_value(v, val)
 	def process_vnum(self):
 		if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
 			nums=self.vnum.split('.')
 			# this is very unix-specific
 			try: name3 = self.soname
 			except: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
-			self.env.appendValue('LINKFLAGS', '-Wl,-soname,'+name3)
+			self.env.append_value('LINKFLAGS', '-Wl,-soname,'+name3)
 
 	def apply_objdeps(self):
 		"add the .o files produced by some other object files in the same manner as uselib_local"
@@ -721,7 +721,7 @@ class ccroot(Object.genobj):
 		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
 		if type(var) is types.StringType:
 			for i in value.split():
-				self.env.appendValue(var, i)
+				self.env.append_value(var, i)
 		else:
 			# TODO: double-check
 			self.env[var] += value

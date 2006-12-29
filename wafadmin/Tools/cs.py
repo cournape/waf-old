@@ -67,7 +67,7 @@ class csobj(Object.genobj):
 				val=''
 				try:    val = self.env[v+'_'+var]
 				except: pass
-				if val: self.env.appendValue(v, val)
+				if val: self.env.append_value(v, val)
 
 def setup(env):
 	Object.register('cs', csobj)

@@ -98,20 +98,20 @@ class ocamlobj(Object.genobj):
 
 		for i in self._incpaths_lst:
 			if self.bytecode_env:
-				self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
-				self.bytecode_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+				self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
+				self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
 
 			if self.native_env:
-				self.native_env.appendValue('OCAMLPATH', '-I %s' % i.bldpath(self.env))
-				self.native_env.appendValue('OCAMLPATH', '-I %s' % i.srcpath(self.env))
+				self.native_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+				self.native_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
 
 		varnames = ['INCLUDES', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
 		for name in self.uselib.split():
 			for vname in varnames:
 				cnt = self.env[vname+'_'+name]
 				if cnt:
-					if self.bytecode_env: self.bytecode_env.appendValue(vname, cnt)
-					if self.native_env: self.native_env.appendValue(vname, cnt)
+					if self.bytecode_env: self.bytecode_env.append_value(vname, cnt)
+					if self.native_env: self.native_env.append_value(vname, cnt)
 
 		source_lst = self.source.split()
 		nodes_lst = []

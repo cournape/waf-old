@@ -75,25 +75,25 @@ class Environment:
 		if type(s) is types.ListType: return ' '.join(s)
 		else: return s
 
-	def appendValue(self, var, value):
+	def append_value(self, var, value):
 		if type(value) is types.ListType: val = value
 		else: val = [value]
 		#print var, self[var]
 		try: self.m_table[var] = self[var] + val
 		except TypeError: self.m_table[var] = [self[var]] + val
 
-	def prependValue(self, var, value):
+	def prepend_value(self, var, value):
 		if type(value) is types.ListType: val = value
 		else: val = [value]
 		#print var, self[var]
 		try: self.m_table[var] = val + self[var]
 		except TypeError: self.m_table[var] = val + [self[var]]
 
-	def appendUnique(self, var, value):
+	def append_unique(self, var, value):
 		if not self[var]:
 			self[var]=value
 		if value in self[var]: return
-		self.appendValue(var, value)
+		self.append_value(var, value)
 
 	def store(self, filename):
 		"Write the variables into a file"

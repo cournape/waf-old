@@ -46,7 +46,7 @@ class ccobj(ccroot.ccroot):
 	def apply_obj_vars(self):
 		debug('apply_obj_vars called for ccobj', 'cc')
 		env = self.env
-		app = env.appendValue
+		app = env.append_unique
 
 		cpppath_st       = env['CPPPATH_ST']
 		lib_st           = env['LIB_ST']
