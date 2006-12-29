@@ -15,7 +15,7 @@ def build(bld):
 	obj.includes = 'test .'
 	obj.defines="WAF=1" # add a define around foo.moc
 
-	obj.lang='fr es'
+	#obj.lang='fr es' <- find_sources_in_dirs sets this
 	obj.langname='langs'
 
 	bld.add_subdirs('test')

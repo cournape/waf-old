@@ -170,6 +170,41 @@ class qt4obj(cpp.cppobj):
 				lst.append(flag)
 		self.env['MOC_FLAGS'] = lst
 
+	def find_sources_in_dirs(self, dirnames, excludes=[]):
+		"the .ts files are added to self.lang"
+		lst=[]
+		excludes = self.to_list(excludes)
+		#make sure dirnames is a list helps with dirnames with spaces
+		dirnames = self.to_list(dirnames)
+
+		ext_lst = []
+		ext_lst += self.s_default_ext
+		try:
+			for var in self.__class__.__dict__['all_hooks']:
+				ext_lst += self.env[var]
+		except KeyError:
+			pass
+
+		for name in dirnames:
+			#print "name is ", name
+			anode = Params.g_build.ensure_node_from_lst(self.path, Utils.split_path(name))
+			#print "anode ", anode.m_name, " ", anode.files()
+			Params.g_build.rescan(anode)
+			#print "anode ", anode.m_name, " ", anode.files()
+
+			for file in anode.files():
+				#print "file found ->", file
+				(base, ext) = os.path.splitext(file.m_name)
+				if ext in ext_lst:
+					s = file.relpath(self.path)
+					if not s in lst:
+						if s in excludes: continue
+						lst.append(s)
+				elif ext == '.ts':
+					self.lang += ' '+base
+
+		lst.sort()
+		self.source = self.source+' '+(" ".join(lst))
 
 def process_qm2rcc(task):
 	outfile = task.m_outputs[0].abspath(task.m_env)
