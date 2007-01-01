@@ -17,7 +17,7 @@ g_cpp_flag_vars = [
 cpptypes=['plugin', 'shlib', 'program', 'staticlib', 'objects']
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 class cppobj(ccroot.ccroot):
-	s_default_ext = ['.c', '.cpp', '.cc']
+	s_default_ext = ['.c', '.cpp', '.cc', '.cxx']
 	def __init__(self, type='program'):
 		ccroot.ccroot.__init__(self, type)
 
