@@ -488,7 +488,7 @@ class ccroot(Object.genobj):
 				self.env.append_value('CPPPATH', dir)
 				continue
 
-			node = self.path.find_source_lst(Utils.split_path(dir))
+			node = self.path.find_dir_lst(Utils.split_path(dir))
 			if not node:
 				debug("node not found in ccroot:apply_incpaths "+str(dir), 'ccroot')
 				continue

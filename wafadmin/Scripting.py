@@ -230,7 +230,7 @@ def Dist(appname, version):
 	for (root, dirs, filenames) in os.walk('.'):
 		clean_dirs = []
 		for d in dirs:
-			if d in ['CVS', 'cache', '_build_', '{arch}']:
+			if d in ['CVS', '.svn', 'cache', '_build_', '{arch}']:
 				shutil.rmtree(os.path.join(root,d))
 			elif d.startswith('.'):
 				shutil.rmtree(os.path.join(root,d))
