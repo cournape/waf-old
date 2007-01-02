@@ -63,3 +63,8 @@ def shutdown():
 	if Params.g_options.exe:
 		os.popen(cmd)
 
+	# in case if more people ask
+	#if Params.g_commands['install']:
+	#	try: os.popen("/sbin/ldconfig")
+	#	except: pass
+
