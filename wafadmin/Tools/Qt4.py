@@ -12,7 +12,7 @@ This module also demonstrates how to add tasks dynamically (when the build has s
 
 import os, sys
 import ccroot, cpp
-import Action, Params, Object, Task, Utils
+import Action, Params, Object, Task, Utils, Runner
 from Params import error, fatal
 from Params import set_globals, globals
 
@@ -93,13 +93,24 @@ class MTask(Task.Task):
 		self.moc_done = 1
 		return Task.Task.may_start(self)
 
+def translation_update(task):
+	outs=map(lambda a: a.abspath(task.env), task.m_outputs)
+	outs=" ".join(outs)
+	lupdate = task.env['QT_LUPDATE']
+
+	for x in task.m_inputs:
+		file = x.abspath(task.env)
+		cmd = "%s %s -ts %s" % (lupdate, file, outs)
+		Params.pprint('BLUE', cmd)
+		Runner.exec_command(cmd)
+
 def create_rcc_task(self, node):
 	"hook for rcc files"
 	# run rcctask with one of the highest priority
 	# TODO add the dependency on the files listed in .qrc
 	rcnode = node.change_ext('_rc.cpp')
 
-	rcctask = self.create_task('rcc', self.env, 6)
+	rcctask = self.create_task('rcc', self.env, 60)
 	rcctask.m_inputs = [node]
 	rcctask.m_outputs = [rcnode]
 
@@ -107,9 +118,11 @@ def create_rcc_task(self, node):
 	cpptask.m_inputs  = [rcnode]
 	cpptask.m_outputs = [rcnode.change_ext('.o')]
 
+	return cpptask
+
 def create_uic_task(self, node):
 	"hook for uic tasks"
-	uictask = self.create_task('ui4', self.env, 6)
+	uictask = self.create_task('ui4', self.env, 60)
 	uictask.m_inputs    = [node]
 	uictask.m_outputs   = [node.change_ext('.h')]
 
@@ -120,11 +133,12 @@ class qt4obj(cpp.cppobj):
 		self.m_latask = None
 		self.lang=''
 		self.langname=''
+		self.update=0
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib']
 
-	def create_task(self, type, env=None, nice=10):
+	def create_task(self, type, env=None, nice=100):
 		"overrides Object.create_task to catch the creation of cpp tasks"
 
 		if env is None: env=self.env
@@ -146,23 +160,33 @@ class qt4obj(cpp.cppobj):
 		return task
 
         def apply(self):
+		cpp.cppobj.apply(self)
+
 		if self.lang:
 			lst=[]
+			trans=[]
 			for l in self.to_list(self.lang):
 				t = Task.Task('ts2qm', self.env, 4)
 				t.set_inputs(self.path.find_build(l+'.ts'))
 				t.set_outputs(t.m_inputs[0].change_ext('.qm'))
 				lst.append(t.m_outputs[0])
 
-			if self.langname:
-				self.source += ' '+self.langname+'.qrc'
+				if self.update:
+					trans.append(t.m_inputs[0])
 
-				t = Task.Task('qm2rcc', self.env, 6)
+			if self.update and Params.g_options.trans_qt4:
+				u = Task.TaskCmd(translation_update, self.env, 2)
+				u.m_inputs = map(lambda a: a.m_inputs[0], self.p_compiletasks)
+				u.m_outputs=trans
+
+			if self.langname:
+				t = Task.Task('qm2rcc', self.env, 40)
 				t.set_inputs(lst)
 				t.set_outputs(self.path.find_build(self.langname+'.qrc'))
 				t.path = self.path
+				k = create_rcc_task(self, t.m_outputs[0])
+				self.m_linktask.m_inputs.append(k.m_outputs[0])
 
-		cpp.cppobj.apply(self)
 		lst = []
 		for flag in self.to_list(self.env['CXXFLAGS']):
 			if len(flag) < 2: continue
@@ -435,3 +459,6 @@ def set_options(opt):
 
 	if sys.platform == "darwin":
 		opt.add_option('--no-qt4-framework', action="store_false", help='do not use the framework version of Qt4 in OS X', dest='use_qt4_osxframework',default=True)
+
+	opt.add_option('--translate', action="store_true", help="collect translation strings", dest="trans_qt4", default=False)
+
