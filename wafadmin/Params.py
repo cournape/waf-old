@@ -100,7 +100,7 @@ g_colors = {}
 if sys.platform=='win32' or 'NOCOLOR' in os.environ:
 	for i in g_col_names: g_colors[i]=''
 else:
-	for (i,j) in zip(g_col_names, g_col_scheme): g_colors[i]="\033[%dm"%j
+	for (i,j) in zip(g_col_names, g_col_scheme): g_colors[i]="\033[01;%dm"%j
 
 def pprint(col, str, label=''):
 	try: mycol=g_colors[col]
