@@ -10,7 +10,7 @@ import Utils
 # =================================== #
 # Fixed constants, change with care
 
-g_version="1.0.2"
+g_version="1.5.0"
 REVISION="x"
 g_rootname = ''
 if sys.path=='win32':
@@ -88,19 +88,31 @@ except: g_lockfile = '.lock-wscript'
 # =================================== #
 # HELPERS
 
-g_col_names = ['BOLD', 'RED', 'REDP', 'GREEN', 'YELLOW', 'BLUE', 'CYAN', 'NORMAL']
-"color names"
+#g_col_names = ['BOLD', 'RED', 'REDP', 'GREEN', 'YELLOW', 'BLUE', 'CYAN', 'NORMAL']
+#"color names"
 
 g_col_scheme = [1, 91, 33, 92, 93, 94, 96, 0]
 "yellow not readable on white backgrounds? -> bug in *YOUR* terminal"
 
-g_colors = {}
+g_colors = {
+'BOLD'  :'\033[01;1m',
+'RED'   :'\033[01;91m',
+'REDP'  :'\033[01;33m',
+'GREEN' :'\033[01;92m',
+'YELLOW':'\033[01;93m',
+'BLUE'  :'\033[01;94m',
+'CYAN'  :'\033[01;96m',
+'NORMAL':'\033[0m'
+}
 "colors used for printing messages"
 
+def reset_colors():
+	global g_colors
+	for k in g_colors.keys():
+		g_colors[k]=''
+
 if sys.platform=='win32' or 'NOCOLOR' in os.environ:
-	for i in g_col_names: g_colors[i]=''
-else:
-	for (i,j) in zip(g_col_names, g_col_scheme): g_colors[i]="\033[01;%dm"%j
+	reset_colors()
 
 def pprint(col, str, label=''):
 	try: mycol=g_colors[col]

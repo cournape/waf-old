@@ -5,6 +5,9 @@
 VERSION='0.0.1'
 APPNAME='qt4_test'
 
+import Params
+Params.reset_colors()
+
 # these variables are mandatory,
 srcdir = '.'
 blddir = '_build_'
