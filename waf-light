@@ -50,7 +50,7 @@ def decodeAscii85(s):
 	return ''.join(out)
 
 # wafdir is needed to parse the command-line arguments or print the version number
-wafdir = None
+wafdir=None # SPECIAL LINE
 
 def uncompress_wafdir(newdir):
 	file = open(sys.argv[0], 'rb')
@@ -65,20 +65,26 @@ def uncompress_wafdir(newdir):
 		if line=='# ===>BEGIN WOOF<===\n':
 			cnt = file.readline()
 			if not cnt:
-				print "truncated waf contents, exiting"
+				print "Corrupted waf (1)"
 				sys.exit(1)
 
 			line = file.readline()
 			if line!='# ===>END WOOF<===\n':
-				print "invalid waf file contents"
+				print "Corrupted waf (2)"
 				sys.exit(1)
 			break
+	if not cnt:
+		print "Corrupted waf (3)"
+		sys.exit(1)
 
 	cnt = decodeAscii85(cnt[1:])
 
 	# create wafadmin
+	import shutil
+	try: shutil.rmtree(newdir)
+	except OSError: pass
 	try: os.makedirs(newdir)
-	except: print "could not make ", newdir
+	except OSError: print "could not make ", newdir
 
 	os.chdir(newdir)
 	file = open('wafadmin.tar.bz2', 'wb')
@@ -105,68 +111,62 @@ def try_wafdir(dir):
 	global wafdir
 	if wafdir: return
 	try:
-		os.stat("%s%swafadmin" % (dir, os.sep))
+		os.stat(os.path.join(dir, 'wafadmin'))
 		wafdir = os.path.abspath(dir)
-	except:
+	except OSError:
 		pass
 
 def find_wafadmin():
 	global wafdir
-
-	# if wafadmin is in /usr/local/waf-x.x.x/ then use it directly
-	try_wafdir('/usr/local/lib/waf-%s/' % VERSION)
-	if wafdir: return
-
-	# wafadmin may be in $WAFDIR, have a look
-	if 'WAFDIR' in os.environ: try_wafdir(os.environ['WAFDIR'])
-	if wafdir: return
-
-	# look in $HOME
-	homevar=''
-	for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
-		if var in os.environ:
-			homevar=os.environ[var]
-			break
-
-	if sys.platform != 'win32': try_wafdir('%s/.waf-%s' % (homevar, VERSION))
-	else:
-		if ('HOMEPATH' in os.environ) and ('HOMEDRIVE' in os.environ):
-			try_wafdir('%s%s\\waf-%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'], VERSION))
-		else:
-			try_wafdir('c:\\temp\\waf-%s\\' % VERSION)
-
-	# remove $HOME/.waf-version if asked to
 	name = sys.argv[0]
-	if wafdir:
-		if name[-5:] != 'light':
-			if "--nocache" in sys.argv:
-				import shutil
-				print "removing the local wafdir", wafdir
-				shutil.rmtree(wafdir)
-				wafdir = None
 
-	if wafdir: return
+	# waf-light is a special beast
+	if name[-5:] == 'light':
+		if 'WAFDIR' in os.environ: try_wafdir(os.environ['WAFDIR'])
+		if wafdir: return
+		try_wafdir(os.path.dirname(os.path.abspath(name)))
+		if wafdir: return
+		print "\033[91mwaf-light in use, wafadmin not found -> export WAFDIR=/folder\033[0m"
+		sys.exit(1)
 
-	# uncompress waf-local
-	if name[-5:] != 'light':
-		if sys.platform != 'win32':
-			uncompress_wafdir('%s/.waf-%s' % (homevar, VERSION))
-		else:
-			if ('HOMEPATH' in os.environ) and ('HOMEDRIVE' in os.environ):
-				uncompress_wafdir('%s%s\\waf-%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'], VERSION))
-			else:
-				uncompress_wafdir('c:\\temp\\waf-%s\\' % VERSION)
+	if not wafdir:
+		# if wafadmin is in /usr/local/waf-x.x.x/ then use it directly
+		try_wafdir('/usr/local/lib/waf-%s/' % VERSION)
 		if wafdir: return
 
-	# look in the directory of the program
-	lst = sys.argv[0].split(os.sep)
-	lst = lst[:-1]
-	path = os.path.abspath(os.sep.join(lst))
-	try_wafdir(path)
+		# wafadmin may be in $WAFDIR (developers)
+		if 'WAFDIR' in os.environ: try_wafdir(os.environ['WAFDIR'])
+		if wafdir: return
+
+	# remove $HOME/.waf-version if asked to
+	if wafdir:
+		if "--nocache" in sys.argv:
+			import shutil
+			print "removing the local wafdir", wafdir
+			try: shutil.rmtree(wafdir)
+			except OSError: pass
+		try: os.stat(wafdir)
+		except OSError: wafdir=None
+
 	if wafdir: return
 
-	print "\033[91mdevelopers using waf-light must set the WAFDIR (export WAFDIR=/folder)\033[0m"
-	sys.exit(1)
+	# uncompress waf-local to the directory containing waf
+	if sys.platform == 'win32': s='waf-%s'
+	else: s='.waf-%s'
+	wafdir = os.path.join(os.path.dirname(os.path.abspath(name)), s%VERSION)
+	uncompress_wafdir(wafdir)
+
+	# auto-modify waf
+	file = open(name, 'r')
+	ct = file.read()
+	file.close()
+
+	import re
+	reg = re.compile('^wafdir=(.*) # SPECIAL LINE', re.M)
+
+	file = open(name, 'w')
+	file.write(reg.sub('wafdir="%s" # SPECIAL LINE'%wafdir, ct))
+	file.close()
 
 # run the test
 find_wafadmin()
