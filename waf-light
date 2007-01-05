@@ -10,7 +10,7 @@ if 'PSYCOWAF' in os.environ:
 	except:
 		pass
 
-VERSION="1.0.2"
+VERSION="1.5.0"
 REVISION="x"
 cwd = os.getcwd()
 
@@ -84,7 +84,10 @@ def uncompress_wafdir(newdir):
 	try: shutil.rmtree(newdir)
 	except OSError: pass
 	try: os.makedirs(newdir)
-	except OSError: print "could not make ", newdir
+	except OSError:
+		print "Could uncompress waf-local into %s"%newdir
+		print "Please install waf system-wide or move waf in a writeable directory"
+		sys.exit(1)
 
 	os.chdir(newdir)
 	file = open('wafadmin.tar.bz2', 'wb')
