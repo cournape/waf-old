@@ -53,7 +53,7 @@ def configure(conf):
 	e.run()
 
 	e = conf.create_library_configurator()
-	e.mandatory = 1
+	#e.mandatory = 1
 	e.name = 'kdecore'
 	e.path = ['/opt/kde3/lib']
 	e.message = "Make sure the kdecore development package is installed"
