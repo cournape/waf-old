@@ -27,16 +27,12 @@ def init():
 	#import cpp
 	#cpp.cppobj.s_default_ext = ['.cxx', '.cxy', '.cxyz']
 
-def build(bld):
-	# process subfolders from here
-	bld.add_subdirs('src complex variant tests')
-
-	# compile the flex+bison test if available
-	if bld.env_of_name('default')['FLEX']:
-		bld.add_subdirs('bisonflex')
-
-def package(bld):
-	pass
+def set_options(opt):
+	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
+#	opt.sub_options('tests')
+	# the following is to use after the command-line is parsed:
+	# import Params
+	# print Params.g_options.someopt
 
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
@@ -239,11 +235,12 @@ int main()
 	conf.add_define('DEBUG', 1)
 	conf.write_config_header('config.h', env=env_variant2)
 
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('src complex variant tests')
 
-def set_options(opt):
-	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
-#	opt.sub_options('tests')
-	# the following is to use after the command-line is parsed:
-	# import Params
-	# print Params.g_options.someopt
+	# compile the flex+bison test if available
+	if bld.env_of_name('default')['FLEX']:
+		bld.add_subdirs('bisonflex')
+
 
