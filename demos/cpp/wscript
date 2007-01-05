@@ -23,9 +23,15 @@ def init():
 	#import cpp
 	#cpp.cppobj.s_default_ext = ['.cxx', '.cxy', '.cxyz']
 
-def build(bld):
-	# process subfolders from here
-	bld.add_subdirs('src src2')
+def set_options(opt):
+	# options provided in a script in a subdirectory named "src"
+	opt.sub_options('src')
+
+	# options provided by the modules
+	opt.tool_options('g++')
+
+	# custom options
+	opt.add_option('--exe', action='store_true', default=False, help='exe')
 
 def configure(conf):
 	# conf.env['CXX'] = Params.g_options.meow
@@ -44,15 +50,9 @@ def configure(conf):
 	# works in a procedural way, so the order of calls does matter
 	#conf.check_tool(['KDE3'])
 
-def set_options(opt):
-	# options provided in a script in a subdirectory named "src"
-	opt.sub_options('src')
-
-	# options provided by the modules
-	opt.tool_options('g++')
-
-	# custom options
-	opt.add_option('--exe', action='store_true', default=False, help='exe')
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('src src2')
 
 def shutdown():
 	# command to execute

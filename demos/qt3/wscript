@@ -15,6 +15,7 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('g++ Qt3')
 	#conf.write_config_header()
+
 def build(bld):
 	obj = bld.create_obj('qt3', 'program')
 

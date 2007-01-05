@@ -13,18 +13,18 @@ APPNAME='java_test'
 srcdir = '.'
 blddir = '_build_'
 
-def build(bld):
-	# process subfolders from here
-	bld.add_subdirs('src')
+def set_options(opt):
+	# add your custom options here, for example:
+	#opt.add_option('--bunny', type='string', help='how many bunnies we have', dest='bunny')
+	pass
 
 def configure(conf):
 	conf.check_tool('java')
 	#conf.check_tool('java', tooldir=[os.path.abspath('.')])
 
-def set_options(opt):
-	# add your custom options here, for example:
-	#opt.add_option('--bunny', type='string', help='how many bunnies we have', dest='bunny')
-	pass
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('src')
 
 def shutdown():
 	pass

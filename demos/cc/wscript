@@ -13,12 +13,13 @@ APPNAME='cc_test'
 srcdir = '.'
 blddir = '_build_'
 
-def build(bld):
-	# process subfolders from here
-	bld.add_subdirs('src')
+def set_options(opt):
+	pass
 
 def configure(conf):
 	conf.check_tool('gcc')
 
-def set_options(opt):
-	pass
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('src')
+

@@ -10,13 +10,13 @@ APPNAME='ocaml_test'
 srcdir = '.'
 blddir = '_build_'
 
-# process subfolders from here
-def build(bld):
-	bld.add_subdirs('src')
-
 def set_options(opt):
 	pass
 
 def configure(conf):
 	conf.check_tool('Ocaml')
+
+# process subfolders from here
+def build(bld):
+	bld.add_subdirs('src')
 

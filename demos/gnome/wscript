@@ -13,11 +13,10 @@ APPNAME='gnome_test'
 srcdir = '.'
 blddir = '_build_'
 
-def build(bld):
-	# process subfolders from here
-	bld.add_subdirs('src pixmaps po help man data')
-	if bld.env_of_name('default')['MCS']:
-		bld.add_subdirs('shrap')
+def set_options(opt):
+	# add your custom options here, for example:
+	#opt.add_option('--bunny', type='string', help='how many bunnies we have', dest='bunny')
+	pass
 
 def configure(conf):
 	conf.check_tool('gcc gnome cs')
@@ -48,10 +47,11 @@ def configure(conf):
 
 	conf.write_config_header('config.h')
 
-def set_options(opt):
-	# add your custom options here, for example:
-	#opt.add_option('--bunny', type='string', help='how many bunnies we have', dest='bunny')
-	pass
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('src pixmaps po help man data')
+	if bld.env_of_name('default')['MCS']:
+		bld.add_subdirs('shrap')
 
 def shutdown():
 	# this piece of code may be move right after the pixmap or documentation installation

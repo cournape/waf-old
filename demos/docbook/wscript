@@ -10,14 +10,15 @@ APPNAME='docbook_test'
 srcdir = '.'
 blddir = '_build_'
 
-def build(bld):
-	# process subfolders from here
-	bld.add_subdirs('doc')
+def set_options(opt):
 	return
 
 def configure(conf):
 	# look in the script below for the check_tool call
 	conf.sub_config('doc')
 
-def set_options(opt):
+def build(bld):
+	# process subfolders from here
+	bld.add_subdirs('doc')
 	return
+
