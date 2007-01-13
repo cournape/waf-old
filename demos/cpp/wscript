@@ -13,6 +13,11 @@ APPNAME='cpp_test'
 srcdir = '.'
 blddir = '_build_'
 
+
+# if you do not like colors, uncomment the following lines:
+#import Params
+#Params.reset_colors()
+
 def init():
 	pass
 	# disable the Waf preprocessor for finding dependencies
