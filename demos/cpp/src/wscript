@@ -68,6 +68,10 @@ def build(bld):
 	# uselib_local expects *names*, that is, the field obj.name
 	# by simplicity, when there is no ambiguity: obj.target == obj.name
 
+	# installing files, headers ..
+	install_files('PREFIX', 'include', 'a1.h')
+	#install_as('PREFIX', 'dir/ahoy.h', 'a1.h')
+
 def set_options(opt):
 	# options defined if src/ was to be compiled as a standalone module
 	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')
