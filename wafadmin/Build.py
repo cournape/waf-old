@@ -143,7 +143,10 @@ class Build:
 			for x in node.m_build_lookup:
 				nd = node.m_build_lookup[x]
 				for env in self.m_allenvs.values():
-					try: os.remove(nd.abspath(env))
+					pt = nd.abspath(env)
+					# do not remove config files
+					if pt in env['waf_config_files']: continue
+					try: os.remove(pt)
 					except OSError: pass
 			for x in node.m_dirs_lookup:
 				nd = node.m_dirs_lookup[x]

@@ -1040,6 +1040,9 @@ class Configure:
 
 		dir = Utils.join_path(dir, lst[-1])
 
+		# remember config files - do not remove them on "waf clean"
+		self.env.append_value('waf_config_files', os.path.abspath(dir))
+
 		dest = open(dir, 'w')
 		dest.write('/* configuration created by waf */\n')
 		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
