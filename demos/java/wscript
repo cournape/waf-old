@@ -23,8 +23,9 @@ def configure(conf):
 	#conf.check_tool('java', tooldir=[os.path.abspath('.')])
 
 def build(bld):
-	# process subfolders from here
-	bld.add_subdirs('src')
+	obj = bld.create_obj('java')
+	obj.source='src/Hello.java'
+	obj.jarname='nono.jar'
 
 def shutdown():
 	pass

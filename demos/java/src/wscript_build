@@ -1,9 +1,0 @@
-#! /usr/bin/env python
-# encoding: utf-8
-# Thomas Nagy, 2006 (ita)
-
-obj = bld.create_obj('java')
-obj.source='''
-Hello.java
-'''
-
