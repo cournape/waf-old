@@ -26,6 +26,8 @@ def build(bld):
 	obj = bld.create_obj('java')
 	obj.source='src/Hello.java'
 	obj.jarname='nono.jar'
+	#obj.jaropts='-C default/src/ .' # can be used to give files
+	#obj.classpath='..:.' # can be used to set a custom classpath
 
 def shutdown():
 	pass
