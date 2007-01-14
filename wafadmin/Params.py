@@ -163,10 +163,11 @@ def __get_module():
 	except: return "unknown"
 
 def debug(msg, zone=None):
+	global g_zones, g_verbose
 	if g_zones:
 		if not zone in g_zones:
 			return
-	elif not Utils.g_debug:
+	elif not g_verbose>2:
 		return
 	module = __get_module()
 	niceprint(msg, 'DEBUG', module)
