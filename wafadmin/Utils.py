@@ -72,9 +72,10 @@ def load_module(file_path, name='wscript'):
 		Params.fatal('The file %s could not be opened!' % file_path)
 
 	import Common
-	module.__dict__['install_files'] = Common.install_files
-	module.__dict__['install_as'] = Common.install_as
-	module.__dict__['symlink_as'] = Common.symlink_as
+	d = module.__dict__
+	d['install_files'] = Common.install_files
+	d['install_as'] = Common.install_as
+	d['symlink_as'] = Common.symlink_as
 	exec file in module.__dict__
 	if file: file.close()
 
