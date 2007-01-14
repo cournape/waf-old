@@ -225,12 +225,18 @@ def Dist(appname, version):
 	# Copy everything into the new folder
 	shutil.copytree('.', TMPFOLDER)
 
+	# Remove the Build dir
+	try:
+		if Utils.g_module.blddir: shutil.rmtree(os.path.join(TMPFOLDER, Utils.g_module.blddir))
+	except AttributeError:
+		pass
+
 	# Enter into it and remove unnecessary files
 	os.chdir(TMPFOLDER)
 	for (root, dirs, filenames) in os.walk('.'):
 		clean_dirs = []
 		for d in dirs:
-			if d in ['CVS', '.svn', 'cache', '_build_', '{arch}']:
+			if d in ['CVS', '.svn', '{arch}']:
 				shutil.rmtree(os.path.join(root,d))
 			elif d.startswith('.'):
 				shutil.rmtree(os.path.join(root,d))
