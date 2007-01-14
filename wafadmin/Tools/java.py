@@ -9,10 +9,9 @@ import Object, Action, Utils
 
 class javaobj(Object.genobj):
 	s_default_ext = ['.java']
-	def __init__(self, type='all', library=0):
+	def __init__(self):
 		Object.genobj.__init__(self, 'other')
 
-		self.m_type  = type
 		self.jarname = ''
 		self.jaropts = ''
 		self.classpath = '..:.'
@@ -47,7 +46,10 @@ class javaobj(Object.genobj):
 			task.set_outputs(self.path.find_build_lst(Utils.split_path(self.jarname)))
 
 			if not self.env['JAROPTS']:
-				self.env.append_unique('JAROPTS', '-C %s .' % self.path.bldpath(self.env))
+				if self.jaropts:
+					self.env['JAROPTS'] = self.jaropts
+				else:
+					self.env.append_unique('JAROPTS', '-C %s .' % self.path.bldpath(self.env))
 
 def setup(env):
 	Object.register('java', javaobj)
