@@ -7,7 +7,7 @@ APPNAME='qt3_test'
 
 # these variables are mandatory,
 srcdir = '.'
-blddir = '_build_'
+blddir = 'build'
 
 def set_options(opt):
 	opt.tool_options('Qt3')

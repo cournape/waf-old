@@ -11,7 +11,7 @@ APPNAME='gnome_test'
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
-blddir = '_build_'
+blddir = 'build'
 
 def set_options(opt):
 	# add your custom options here, for example:

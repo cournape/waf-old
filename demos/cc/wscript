@@ -11,7 +11,7 @@ APPNAME='cc_test'
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
-blddir = '_build_'
+blddir = 'build'
 
 def set_options(opt):
 	pass

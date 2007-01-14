@@ -8,7 +8,7 @@
 	<version>0.0.1</version>
 	<appname>wafxml_test</appname>
 	<srcdir>.</srcdir>
-	<blddir>_build_</blddir>
+	<blddir>build</blddir>
 
 
 	<build>

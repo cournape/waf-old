@@ -11,7 +11,7 @@ APPNAME='cpp_test'
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
-blddir = '_build_'
+blddir = 'build'
 
 
 # if you do not like colors, uncomment the following lines:
