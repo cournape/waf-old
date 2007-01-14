@@ -102,7 +102,6 @@ class Node:
 
 	def find_build(self, path):
 		#print "find build", path
-		if path == "/compilation/linpacker": raise
 		lst = Utils.split_path(path)
 		return self.find_build_lst(lst)
 
