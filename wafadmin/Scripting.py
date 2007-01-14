@@ -167,6 +167,8 @@ def Main():
 
 	#bld.dump()
 
+	pre_build()
+
 	# compile
 	if Params.g_commands['build'] or Params.g_commands['install']:
 		try:
@@ -211,6 +213,9 @@ def Main():
 	except AttributeError:
 		#raise
 		pass
+
+def pre_build():
+	pass
 
 def Dist(appname, version):
 	"dist target - should be portable"
