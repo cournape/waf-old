@@ -162,7 +162,6 @@ class Node:
 				current = prev.m_dirs_lookup.get(name, None)
 				if not current:
 					# create a directory
-					print "creating directory of name ", name
 					current = Node(name, prev)
 					prev.m_dirs_lookup[name] = current
 			else:
