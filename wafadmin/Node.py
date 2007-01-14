@@ -145,7 +145,7 @@ class Node:
 		return self.find_source_lst(lst)
 
 	def find_source_lst(self, lst):
-		"search a source in the filesystem, rescan intermediate folders"
+		"search a source in the filesystem, rescan intermediate folders, create intermediate folders if necessary"
 		rescan = Params.g_build.rescan
 		current = self
 		while lst:
@@ -158,15 +158,20 @@ class Node:
 				continue
 			elif name == '..':
 				current = self.m_parent
+				continue
+			if lst:
+				current = prev.m_dirs_lookup.get(name, None)
+				if not current:
+					# create a directory
+					print "creating directory of name ", name
+					current = Node(name, prev)
+					prev.m_dirs_lookup[name] = current
 			else:
-				if lst:
-					current = prev.m_dirs_lookup.get(name, None)
-				else:
-					current = prev.m_files_lookup.get(name, None)
-					# try hard to find something
-					if not current: current = prev.m_dirs_lookup.get(name, None)
-					if not current: current = prev.m_build_lookup.get(name, None)
-				if not current: return None
+				current = prev.m_files_lookup.get(name, None)
+				# try hard to find something
+				if not current and lst: current = prev.m_dirs_lookup.get(name, None)
+				if not current: current = prev.m_build_lookup.get(name, None)
+			if not current: return None
 		return current
 
 	def find_raw(self, path):
