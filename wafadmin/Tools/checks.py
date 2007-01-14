@@ -153,7 +153,7 @@ def checkFeatures(self, lst=[], pathlst=[]):
 
 	return is_big
 
-def find_header(self, header, define='', paths):
+def find_header(self, header, define='', paths=''):
 	if not define:
 		define = 'HAVE_' + header.upper().replace('/', '_').replace('.', '_')
 	test = self.create_header_enumerator()
