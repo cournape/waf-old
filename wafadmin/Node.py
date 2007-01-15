@@ -119,24 +119,24 @@ class Node:
 				continue
 			elif name == '..':
 				current = self.m_parent
+				continue
+			if lst:
+				# TODO: check that dirs are created automatically on rescan
+				current = prev.m_dirs_lookup.get(name, None)
+				if not current: fatal("invalid path")
+				#if not current:
+				#	current = Node(name, prev)
+				#	# create a directory
+				#	prev.m_dirs_lookup[name] = current
 			else:
-				if lst:
-					# TODO: check that dirs are created automatically on rescan
-					current = prev.m_dirs_lookup.get(name, None)
-					if not current: fatal("invalid path")
-					#if not current:
-					#	current = Node(name, prev)
-					#	# create a directory
-					#	prev.m_dirs_lookup[name] = current
-				else:
-					current = prev.m_build_lookup.get(name, None)
-					# next line for finding source files too
-					if not current: current = prev.m_files_lookup.get(name, None)
-					# TODO do not use this for finding folders
-					if not current:
-						current = Node(name, prev)
-						# last item is the build file (rescan would have found the source)
-						prev.m_build_lookup[name] = current
+				current = prev.m_build_lookup.get(name, None)
+				# next line for finding source files too
+				if not current: current = prev.m_files_lookup.get(name, None)
+				# TODO do not use this for finding folders
+				if not current:
+					current = Node(name, prev)
+					# last item is the build file (rescan would have found the source)
+					prev.m_build_lookup[name] = current
 		return current
 
 	def find_source(self, path):
@@ -160,10 +160,10 @@ class Node:
 				continue
 			if lst:
 				current = prev.m_dirs_lookup.get(name, None)
-				if not current:
-					# create a directory
-					current = Node(name, prev)
-					prev.m_dirs_lookup[name] = current
+				#if not current:
+				#	# create a directory
+				#	current = Node(name, prev)
+				#	prev.m_dirs_lookup[name] = current
 			else:
 				current = prev.m_files_lookup.get(name, None)
 				# try hard to find something
