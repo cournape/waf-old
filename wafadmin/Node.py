@@ -139,11 +139,11 @@ class Node:
 					prev.m_build_lookup[name] = current
 		return current
 
-	def find_source(self, path):
+	def find_source(self, path, create=1):
 		lst = Utils.split_path(path)
-		return self.find_source_lst(lst)
+		return self.find_source_lst(lst, create)
 
-	def find_source_lst(self, lst):
+	def find_source_lst(self, lst, create=1):
 		"search a source in the filesystem, rescan intermediate folders, create intermediate folders if necessary"
 		rescan = Params.g_build.rescan
 		current = self
@@ -160,10 +160,10 @@ class Node:
 				continue
 			if lst:
 				current = prev.m_dirs_lookup.get(name, None)
-				#if not current:
-				#	# create a directory
-				#	current = Node(name, prev)
-				#	prev.m_dirs_lookup[name] = current
+				if not current and create:
+					# create a directory
+					current = Node(name, prev)
+					prev.m_dirs_lookup[name] = current
 			else:
 				current = prev.m_files_lookup.get(name, None)
 				# try hard to find something
@@ -187,11 +187,11 @@ class Node:
 				continue
 			elif name == '..':
 				current = self.m_parent
-			else:
-				current = prev.m_dirs_lookup[name]
-				if not current: current=prev.m_files_lookup[name]
-				if not current: current=prev.m_build_lookup[name]
-				if not current: return None
+				continue
+			current = prev.m_dirs_lookup[name]
+			if not current: current=prev.m_files_lookup[name]
+			if not current: current=prev.m_build_lookup[name]
+			if not current: return None
 		return current
 
 	def ensure_node_from_lst(self, plst):
