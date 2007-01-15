@@ -100,12 +100,12 @@ class Node:
 
 	## ===== BEGIN find methods	===== ##
 
-	def find_build(self, path):
+	def find_build(self, path, create=0):
 		#print "find build", path
 		lst = Utils.split_path(path)
 		return self.find_build_lst(lst)
 
-	def find_build_lst(self, lst):
+	def find_build_lst(self, lst, create=0):
 		"search a source or a build node in the filesystem, rescan intermediate folders, create if necessary"
 		rescan = Params.g_build.rescan
 		current = self
@@ -121,13 +121,10 @@ class Node:
 				current = self.m_parent
 				continue
 			if lst:
-				# TODO: check that dirs are created automatically on rescan
 				current = prev.m_dirs_lookup.get(name, None)
-				if not current: fatal("invalid path")
-				#if not current:
-				#	current = Node(name, prev)
-				#	# create a directory
-				#	prev.m_dirs_lookup[name] = current
+				if not current and create:
+					current = Node(name, prev)
+					prev.m_dirs_lookup[name] = current
 			else:
 				current = prev.m_build_lookup.get(name, None)
 				# next line for finding source files too
