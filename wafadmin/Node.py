@@ -194,6 +194,26 @@ class Node:
 				if not current: return None
 		return current
 
+	def ensure_node_from_lst(self, plst):
+		curnode=self
+		for dirname in plst:
+			if not dirname: continue
+			if dirname == '.': continue
+			if dirname == '..':
+				curnode = curnode.m_parent
+				continue
+			#found=None
+			found=curnode.get_dir(dirname, None)
+			#for cand in curnode.m_dirs:
+			#	if cand.m_name == dirname:
+			#		found = cand
+			#		break
+			if not found:
+				found = Node(dirname, curnode)
+				curnode.append_dir(found)
+			curnode = found
+		return curnode
+
 	def find_dir(self, path):
 		lst = Utils.split_path(path)
 		return self.find_dir_lst(lst)

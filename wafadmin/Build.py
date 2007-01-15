@@ -286,57 +286,26 @@ class Build:
 				return
 
 
-		self.m_srcnode = self.ensure_node_from_path(srcdir)
+		self.m_srcnode = self.ensure_dir_node_from_path(srcdir)
 		debug("srcnode is %s and srcdir %s" % (str(self.m_srcnode), srcdir), 'build')
 
 		self.m_curdirnode = self.m_srcnode
 
-		self.m_bldnode = self.ensure_node_from_path(self.m_bdir)
+		self.m_bldnode = self.ensure_dir_node_from_path(self.m_bdir)
 
 		# create this build dir if necessary
 		try: os.makedirs(blddir)
 		except OSError: pass
 
-	def ensure_node_from_path(self, abspath):
+	def ensure_dir_node_from_path(self, abspath):
 		"return a node corresponding to an absolute path, creates nodes if necessary"
-		debug('ensure_node_from_path %s' % (abspath), 'build')
+		debug('ensure_dir_node_from_path %s' % (abspath), 'build')
 		plst = Utils.split_path(abspath)
 		curnode = self.m_root # root of the tree
 		for dirname in plst:
 			if not dirname: continue
 			if dirname == '.': continue
-			#found=None
-			found = curnode.get_dir(dirname,None)
-			#for cand in curnode.m_dirs:
-			#	if cand.m_name == dirname:
-			#		found = cand
-			#		break
-			if not found:
-				found = Node.Node(dirname, curnode)
-				curnode.append_dir(found)
-			curnode = found
-
-		return curnode
-
-	def ensure_node_from_lst(self, node, plst):
-		"ensure a directory node from a list, given a node to start from"
-		if not node:
-			error('ensure_node_from_lst node is not defined')
-			raise "pass a valid node to ensure_node_from_lst"
-
-		curnode=node
-		for dirname in plst:
-			if not dirname: continue
-			if dirname == '.': continue
-			if dirname == '..':
-				curnode = curnode.m_parent
-				continue
-			#found=None
-			found=curnode.get_dir(dirname, None)
-			#for cand in curnode.m_dirs:
-			#	if cand.m_name == dirname:
-			#		found = cand
-			#		break
+			found = curnode.get_dir(dirname, None)
 			if not found:
 				found = Node.Node(dirname, curnode)
 				curnode.append_dir(found)
@@ -556,7 +525,7 @@ class Build:
 
 
 	def pushdir(self, dir):
-		node = self.ensure_node_from_lst(self.m_curdirnode, Utils.split_path(dir))
+		node = self.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
 		self.pushed = [self.m_curdirnode]+self.pushed
 		self.m_curdirnode = node
 

@@ -16,7 +16,7 @@ def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
 	global g_inroot
 	if g_inroot:
-		node = bld.ensure_node_from_lst(bld.m_curdirnode, Utils.split_path(dir))
+		node = bld.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
 		bld.m_subdirs.append( [node, bld.m_curdirnode] )
 
 		if not node:
@@ -26,7 +26,7 @@ def add_subdir(dir, bld):
 			sys.exit(1)
 		return
 
-	newdirnode = bld.ensure_node_from_lst(bld.m_curdirnode, dir.split('/'))
+	newdirnode = bld.m_curdirnode.ensure_node_from_lst(dir.split('/'))
 	if newdirnode is None:
 		fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
 
