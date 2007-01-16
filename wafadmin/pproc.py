@@ -1,4 +1,6 @@
-# subprocess module borrowed from python 2.5 (python license) - see python 2.5 #
+# Copyright (c) 2003-2005 by Peter Astrand <astrand@lysator.liu.se>
+# subprocess module borrowed from python 2.5 #
+
 import sys
 mswindows = (sys.platform == "win32")
 import os
@@ -40,22 +42,17 @@ else:
     import errno
     import fcntl
     import pickle
-
 __all__ = ["Popen", "PIPE", "STDOUT", "call", "check_call", "CalledProcessError"]
-
 try:
     MAXFD = os.sysconf("SC_OPEN_MAX")
 except:
     MAXFD = 256
-
 try:
     False
 except NameError:
     False = 0
     True = 1
-
 _active = []
-
 def _cleanup():
     for inst in _active[:]:
         if inst.poll(_deadstate=sys.maxint) >= 0:
@@ -65,10 +62,8 @@ def _cleanup():
                 pass
 PIPE = -1
 STDOUT = -2
-
 def call(*popenargs, **kwargs):
     return Popen(*popenargs, **kwargs).wait()
-
 def check_call(*popenargs, **kwargs):
     retcode = call(*popenargs, **kwargs)
     cmd = kwargs.get("args")
@@ -82,9 +77,8 @@ def list2cmdline(seq):
     needquote = False
     for arg in seq:
         bs_buf = []
-        if result:
-            result.append(' ')
-        needquote = (" " in arg) or ("\t" in arg)
+        if result: result.append(' ')
+        needquote = (" " in arg) or ("\t" in arg) or arg == ""
         if needquote:
             result.append('"')
         for c in arg:
@@ -138,7 +132,6 @@ class Popen(object):
         (p2cread, p2cwrite,
          c2pread, c2pwrite,
          errread, errwrite) = self._get_handles(stdin, stdout, stderr)
-
         self._execute_child(args, executable, preexec_fn, close_fds,
                             cwd, env, universal_newlines,
                             startupinfo, creationflags, shell,
@@ -186,11 +179,9 @@ class Popen(object):
         def _get_handles(self, stdin, stdout, stderr):
             if stdin is None and stdout is None and stderr is None:
                 return (None, None, None, None, None, None)
-
             p2cread, p2cwrite = None, None
             c2pread, c2pwrite = None, None
             errread, errwrite = None, None
-
             if stdin is None:
                 p2cread = GetStdHandle(STD_INPUT_HANDLE)
             elif stdin == PIPE:
@@ -214,7 +205,6 @@ class Popen(object):
             else:
                 c2pwrite = msvcrt.get_osfhandle(stdout.fileno())
             c2pwrite = self._make_inheritable(c2pwrite)
-
             if stderr is None:
                 errwrite = GetStdHandle(STD_ERROR_HANDLE)
             elif stderr == PIPE:
@@ -228,13 +218,9 @@ class Popen(object):
             else:
                 errwrite = msvcrt.get_osfhandle(stderr.fileno())
             errwrite = self._make_inheritable(errwrite)
-            return (p2cread, p2cwrite,
-                    c2pread, c2pwrite,
-                    errread, errwrite)
+            return (p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite)
         def _make_inheritable(self, handle):
-            return DuplicateHandle(GetCurrentProcess(), handle,
-                                   GetCurrentProcess(), 0, 1,
-                                   DUPLICATE_SAME_ACCESS)
+            return DuplicateHandle(GetCurrentProcess(), handle, GetCurrentProcess(), 0, 1, DUPLICATE_SAME_ACCESS)
         def _find_w9xpopen(self):
             w9xpopen = os.path.join(os.path.dirname(GetModuleFileName(0)), "w9xpopen.exe")
             if not os.path.exists(w9xpopen):
@@ -259,6 +245,7 @@ class Popen(object):
                 startupinfo.hStdInput = p2cread
                 startupinfo.hStdOutput = c2pwrite
                 startupinfo.hStdError = errwrite
+
             if shell:
                 startupinfo.dwFlags |= STARTF_USESHOWWINDOW
                 startupinfo.wShowWindow = SW_HIDE
@@ -289,15 +276,11 @@ class Popen(object):
                 c2pwrite.Close()
             if errwrite is not None:
                 errwrite.Close()
-
-
         def poll(self, _deadstate=None):
             if self.returncode is None:
                 if WaitForSingleObject(self._handle, 0) == WAIT_OBJECT_0:
                     self.returncode = GetExitCodeProcess(self._handle)
             return self.returncode
-
-
         def wait(self):
             if self.returncode is None:
                 obj = WaitForSingleObject(self._handle, INFINITE)
@@ -308,25 +291,20 @@ class Popen(object):
         def _communicate(self, input):
             stdout = None
             stderr = None
-
             if self.stdout:
                 stdout = []
-                stdout_thread = threading.Thread(target=self._readerthread,
-                                                 args=(self.stdout, stdout))
+                stdout_thread = threading.Thread(target=self._readerthread, args=(self.stdout, stdout))
                 stdout_thread.setDaemon(True)
                 stdout_thread.start()
             if self.stderr:
                 stderr = []
-                stderr_thread = threading.Thread(target=self._readerthread,
-                                                 args=(self.stderr, stderr))
+                stderr_thread = threading.Thread(target=self._readerthread, args=(self.stderr, stderr))
                 stderr_thread.setDaemon(True)
                 stderr_thread.start()
-
             if self.stdin:
                 if input is not None:
                     self.stdin.write(input)
                 self.stdin.close()
-
             if self.stdout:
                 stdout_thread.join()
             if self.stderr:
@@ -340,7 +318,6 @@ class Popen(object):
                     stdout = self._translate_newlines(stdout)
                 if stderr:
                     stderr = self._translate_newlines(stderr)
-
             self.wait()
             return (stdout, stderr)
     else:
@@ -348,6 +325,7 @@ class Popen(object):
             p2cread, p2cwrite = None, None
             c2pread, c2pwrite = None, None
             errread, errwrite = None, None
+
             if stdin is None:
                 pass
             elif stdin == PIPE:
@@ -364,6 +342,7 @@ class Popen(object):
                 c2pwrite = stdout
             else:
                 c2pwrite = stdout.fileno()
+
             if stderr is None:
                 pass
             elif stderr == PIPE:
@@ -383,6 +362,7 @@ class Popen(object):
                 cloexec_flag = fcntl.FD_CLOEXEC
             except AttributeError:
                 cloexec_flag = 1
+
             old = fcntl.fcntl(fd, fcntl.F_GETFD)
             fcntl.fcntl(fd, fcntl.F_SETFD, old | cloexec_flag)
         def _close_fds(self, but):
@@ -401,6 +381,8 @@ class Popen(object):
                            errread, errwrite):
             if isinstance(args, types.StringTypes):
                 args = [args]
+            else:
+                args = list(args)
             if shell:
                 args = ["/bin/sh", "-c"] + args
             if executable is None:
@@ -424,8 +406,12 @@ class Popen(object):
                         os.dup2(c2pwrite, 1)
                     if errwrite:
                         os.dup2(errwrite, 2)
-                    for fd in set((p2cread, c2pwrite, errwrite))-set((0,1,2)):
-                        if fd: os.close(fd)
+                    if p2cread and p2cread not in (0,):
+                        os.close(p2cread)
+                    if c2pwrite and c2pwrite not in (p2cread, 1):
+                        os.close(c2pwrite)
+                    if errwrite and errwrite not in (p2cread, c2pwrite, 2):
+                        os.close(errwrite)
                     if close_fds:
                         self._close_fds(but=errpipe_write)
                     if cwd is not None:
@@ -502,14 +488,12 @@ class Popen(object):
                     if not input:
                         self.stdin.close()
                         write_set.remove(self.stdin)
-
                 if self.stdout in rlist:
                     data = os.read(self.stdout.fileno(), 1024)
                     if data == "":
                         self.stdout.close()
                         read_set.remove(self.stdout)
                     stdout.append(data)
-
                 if self.stderr in rlist:
                     data = os.read(self.stderr.fileno(), 1024)
                     if data == "":
