@@ -96,7 +96,7 @@ def detect(conf):
 		# shared library
 		v['shlib_CXXFLAGS']    = ['']
 		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_obj_ext']     = ['.o']
+		v['shlib_obj_ext']     = ['.os']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
@@ -121,7 +121,7 @@ def detect(conf):
 		# shared library
 		v['shlib_CXXFLAGS']    = ['']
 		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_obj_ext']     = ['.o']
+		v['shlib_obj_ext']     = ['.os']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
