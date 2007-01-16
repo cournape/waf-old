@@ -99,9 +99,12 @@ def configure():
 	# this will write a configure lock so that subsequent run will
 	# consider the current path as the root directory, to remove: use 'waf distclean'
 	file = open(g_lockfile, 'w')
-	file.write(blddir)
-	file.write('\n')
-	file.write(srcdir)
+	w = file.write
+	w(blddir)
+	w('\n')
+	w(srcdir)
+	w('\n')
+	w(str(sys.argv[1:]))
 	file.close()
 
 def Main():
