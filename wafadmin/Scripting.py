@@ -8,29 +8,15 @@ import os, sys
 import Params, Utils, Configure, Environment, Build, Runner
 from Params import error, fatal, g_lockfile
 
-g_inroot     = 1
 g_dirwatch   = None
 g_daemonlock = 0
 
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
-	global g_inroot
-	if g_inroot:
-		node = bld.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
-		bld.m_subdirs.append( [node, bld.m_curdirnode] )
-
-		if not node:
-			error("grave error in add_subdir, subdir not found for "+str(dir))
-			#print bld.m_curdirnode
-			bld.m_curdirnode.debug()
-			sys.exit(1)
-		return
-
-	newdirnode = bld.m_curdirnode.ensure_node_from_lst(dir.split('/'))
-	if newdirnode is None:
+	node = bld.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
+	if node is None:
 		fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
-
-	bld.m_subdirs.append([newdirnode, bld.m_curdirnode])
+	bld.m_subdirs.append([node, bld.m_curdirnode])
 
 def callBack(idxName, pathName, event):
 	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
@@ -142,10 +128,7 @@ def Main():
 	bld.load_envs()
 
 	#bld.dump()
-	global g_inroot
-	g_inroot=1
 	Utils.g_module.build(bld)
-	g_inroot=0
 
 	# bld.m_subdirs can be modified *within* the loop, so do not touch this piece of code
 	while bld.m_subdirs:
