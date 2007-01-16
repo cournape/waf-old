@@ -211,7 +211,7 @@ class qt4obj(cpp.cppobj):
 
 		for name in dirnames:
 			#print "name is ", name
-			anode = Params.g_build.ensure_node_from_lst(self.path, Utils.split_path(name))
+			anode = self.path.ensure_node_from_lst(Utils.split_path(name))
 			#print "anode ", anode.m_name, " ", anode.files()
 			Params.g_build.rescan(anode)
 			#print "anode ", anode.m_name, " ", anode.files()
