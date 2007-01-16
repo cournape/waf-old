@@ -25,6 +25,7 @@ def Builder(**kw):
 		key = m.hexdigest()
 
 		Action.simple_action(key, a, kw.get('color', 'GREEN'))
+		kw['action']=key
 
 def setup(env):
 	pass

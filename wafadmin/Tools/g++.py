@@ -171,17 +171,17 @@ def detect(conf):
 	elif sys.platform == 'aix5':
 		# shared library
 		v['shlib_CXXFLAGS']    = ['-fPIC', '-DPIC']
-		v['shlib_LINKFLAGS']   = ['-shared']
+		v['shlib_LINKFLAGS']   = ['-shared','-Wl,-brtl,-bexpfull']
 		v['shlib_obj_ext']     = ['.os']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.so'
 
 		# plugins, loadable modules.
-		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
-		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_obj_ext']      = v['shlib_obj_ext']
-		v['plugin_PREFIX']       = v['shlib_PREFIX']
-		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
+		v['plugin_CCFLAGS']    = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS']  = v['shlib_LINKFLAGS']
+		v['plugin_obj_ext']    = v['shlib_obj_ext']
+		v['plugin_PREFIX']     = v['shlib_PREFIX']
+		v['plugin_SUFFIX']     = v['shlib_SUFFIX']
 
 		# static lib
 		#v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
@@ -190,11 +190,11 @@ def detect(conf):
 		v['staticlib_SUFFIX']  = '.a'
 
 		# program
+		v['program_LINKFLAGS'] = ['-Wl,-brtl']
 		v['program_obj_ext']   = ['.o']
 		v['program_SUFFIX']    = ''
 
-		v['SHLIB_MARKER']        = ''
-
+		v['SHLIB_MARKER']      = ''
 	else:
 		# shared library
 		v['shlib_CXXFLAGS']    = ['-fPIC', '-DPIC']
