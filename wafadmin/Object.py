@@ -153,8 +153,8 @@ class genobj:
 
 	def install_results(self, var, subdir, task, chmod=0644):
 		debug('install results called', 'object')
-		current = Params.g_build.m_curdirnode
-		lst=map(lambda a: a.relpath_gen(current), task.m_outputs)
+		#current = Params.g_build.m_curdirnode
+		lst=map(lambda a: a.relpath_gen(self.path), task.m_outputs)
 		Common.install_files(var, subdir, lst, chmod=chmod)
 
 	def clone(self, env):
