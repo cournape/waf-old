@@ -165,7 +165,7 @@ def __get_module():
 def debug(msg, zone=None):
 	global g_zones, g_verbose
 	if g_zones:
-		if not zone in g_zones:
+		if (not zone in g_zones) and (not '*' in g_zones):
 			return
 	elif not g_verbose>2:
 		return
