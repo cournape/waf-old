@@ -14,7 +14,7 @@ else
     NORMAL="\033[0m"
     BOLD="\033[1m"
     RED="\033[91m"
-    YELLOW="\033[93m"
+    YELLOW="\033[01;93m"
     GREEN="\033[92m"
 fi
 
@@ -27,7 +27,7 @@ CUR_DIR=$PWD
 
 #possible relative path
 WORKINGDIR=`dirname $0`
-cd $WORKINGDIR 
+cd $WORKINGDIR
 #abs path
 WORKINGDIR=`pwd`
 cd $CUR_DIR
@@ -36,7 +36,7 @@ cd $CUR_DIR
 # interpreter in $PYTHON.
 #
 checkPython()
-{	
+{
 	if [ -z "$PYTHON" ] ; then
 	    PYTHON=`which python 2>/dev/null`
 	fi
@@ -96,16 +96,16 @@ all:
 
 all_debug:
 	@$WAF -v build
-		
+
 all_progress:
 	@$WAF -p build
-			
+
 install:
 	@$WAF install
 
 uninstall:
 	@$WAF uninstall
-						
+
 clean:
 	@$WAF clean
 
