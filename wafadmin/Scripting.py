@@ -64,47 +64,50 @@ def startDaemon():
 		# infinite loop, no need to exit except on ctrl+c
 		g_dirwatch.loop()
 
+
+def configure():
+	Runner.set_exec('normal')
+	bld = Build.Build()
+	try:
+		srcdir = ""
+		try: srcdir = Params.g_options.srcdir
+		except AttributeError: pass
+		if not srcdir: srcdir = Utils.g_module.srcdir
+
+		blddir = ""
+		try: blddir = Params.g_options.blddir
+		except AttributeError: pass
+		if not blddir: blddir = Utils.g_module.blddir
+
+		Params.g_cachedir = Utils.join_path(blddir,'_cache_')
+
+	except AttributeError:
+		msg = "The attributes srcdir or blddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project\n * use waf configure --srcdir=xxx --blddir=yyy"
+		fatal(msg % os.path.abspath('.'))
+	except OSError:
+		pass
+	except KeyError:
+		pass
+
+	bld.load_dirs(srcdir, blddir)
+
+	conf = Configure.Configure(srcdir=srcdir, blddir=blddir)
+	conf.sub_config('')
+	conf.store(bld)
+	conf.cleanup()
+
+	# this will write a configure lock so that subsequent run will
+	# consider the current path as the root directory, to remove: use 'waf distclean'
+	file = open(g_lockfile, 'w')
+	file.write(blddir)
+	file.write('\n')
+	file.write(srcdir)
+	file.close()
+
 def Main():
 	from Common import install_files, install_as, symlink_as # do not remove
 	if Params.g_commands['configure']:
-		Runner.set_exec('normal')
-		bld = Build.Build()
-		try:
-			srcdir = ""
-			try: srcdir = Params.g_options.srcdir
-			except AttributeError: pass
-			if not srcdir: srcdir = Utils.g_module.srcdir
-
-			blddir = ""
-			try: blddir = Params.g_options.blddir
-			except AttributError: pass
-			if not blddir: blddir = Utils.g_module.blddir
-
-			Params.g_cachedir = Utils.join_path(blddir,'_cache_')
-
-		except AttributeError:
-			msg = "The attributes srcdir or blddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project\n * use waf configure --srcdir=xxx --blddir=yyy"
-			fatal(msg % os.path.abspath('.'))
-		except OSError:
-			pass
-		except KeyError:
-			pass
-
-		bld.load_dirs(srcdir, blddir)
-
-		conf = Configure.Configure(srcdir=srcdir, blddir=blddir)
-		conf.sub_config('')
-		conf.store(bld)
-		conf.cleanup()
-
-		# this will write a configure lock so that subsequent run will
-		# consider the current path as the root directory, to remove: use 'waf distclean'
-		file = open(g_lockfile, 'w')
-		file.write(blddir)
-		file.write('\n')
-		file.write(srcdir)
-		file.close()
-
+		configure()
 		sys.exit(0)
 
 	Runner.set_exec('noredir')
@@ -120,7 +123,15 @@ def Main():
 		if Params.g_commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=0)
 		else:
-			fatal("Configuration loading failed - re-run waf configure (lockfile cannot be read)")
+			print "Run waf configure next time..."
+
+			configure()
+
+			bld = Build.Build()
+			file = open(g_lockfile, 'r')
+			blddir = file.readline().strip()
+			srcdir = file.readline().strip()
+			file.close()
 
 	Params.g_cachedir = Utils.join_path(blddir,'_cache_')
 
