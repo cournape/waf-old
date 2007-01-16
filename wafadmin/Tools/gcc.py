@@ -160,7 +160,7 @@ def detect(conf):
 		# shared library
 		v['shlib_CCFLAGS']     = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS']   = ['-shared','-Wl,-brtl,-bexpfull']
-		v['shlib_obj_ext']     = ['.ok']
+		v['shlib_obj_ext']     = ['_sh.o']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.so'
 
