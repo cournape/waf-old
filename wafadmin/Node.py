@@ -226,7 +226,7 @@ class Node:
 			if name == '.':
 				continue
 			elif name == '..':
-				current = self.m_parent
+				current = current.m_parent
 			else:
 				current = prev.m_dirs_lookup.get(name, None)
 				if not current:
