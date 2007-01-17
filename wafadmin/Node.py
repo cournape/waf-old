@@ -118,7 +118,7 @@ class Node:
 			if name == '.':
 				continue
 			elif name == '..':
-				current = self.m_parent
+				current = current.m_parent
 				continue
 			if lst:
 				current = prev.m_dirs_lookup.get(name, None)
@@ -153,7 +153,7 @@ class Node:
 			if name == '.':
 				continue
 			elif name == '..':
-				current = self.m_parent
+				current = current.m_parent
 				continue
 			if lst:
 				current = prev.m_dirs_lookup.get(name, None)
@@ -183,7 +183,7 @@ class Node:
 			if name == '.':
 				continue
 			elif name == '..':
-				current = self.m_parent
+				current = current.m_parent
 				continue
 			current = prev.m_dirs_lookup[name]
 			if not current: current=prev.m_files_lookup[name]
