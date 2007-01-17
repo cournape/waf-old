@@ -112,7 +112,7 @@ def Main():
 		if Params.g_commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=0)
 		else:
-			print "Run waf configure next time..."
+			print "Run waf configure first..."
 
 			configure()
 

@@ -1270,8 +1270,4 @@ class Configure:
 		m.update(sys.platform)
 		return m.hexdigest()
 
-	# TODO deprecated
-	def checkTool(self, input, tooldir=None):
-		warning('use conf.check_tool instead of checkTool')
-		return self.check_tool(input, tooldir)
 
