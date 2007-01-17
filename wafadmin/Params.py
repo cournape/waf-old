@@ -32,6 +32,9 @@ g_strong_hash = 1
 g_timestamp = 0
 "if 1: do not look at the file contents for dependencies"
 
+g_autoconfig = 0
+"reconfigure the project automatically"
+
 if g_strong_hash: sig_nil = 'iluvcuteoverload'
 else: sig_nil = 17
 

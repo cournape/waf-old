@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys
+import os, sys, cPickle
 import Params, Utils, Configure, Environment, Build, Runner
 from Params import error, fatal, g_lockfile
 
@@ -50,7 +50,6 @@ def startDaemon():
 		# infinite loop, no need to exit except on ctrl+c
 		g_dirwatch.loop()
 
-
 def configure():
 	Runner.set_exec('normal')
 	bld = Build.Build()
@@ -86,12 +85,21 @@ def configure():
 	# consider the current path as the root directory, to remove: use 'waf distclean'
 	file = open(g_lockfile, 'w')
 	w = file.write
-	w(blddir)
-	w('\n')
-	w(srcdir)
-	w('\n')
-	w(str(sys.argv[1:]))
+
+	proj={}
+	proj['blddir']=blddir
+	proj['srcdir']=srcdir
+	proj['argv']=sys.argv
+	proj['hash']=conf.hash
+	proj['files']=conf.files
+	cPickle.dump(proj, file)
 	file.close()
+
+def read_cache_file(filename):
+	file = open(g_lockfile, 'r')
+	proj = cPickle.load(file)
+	file.close()
+	return proj
 
 def Main():
 	from Common import install_files, install_as, symlink_as # do not remove
@@ -104,27 +112,41 @@ def Main():
 	# compile the project and/or install the files
 	bld = Build.Build()
 	try:
-		file = open(g_lockfile, 'r')
-		blddir = file.readline().strip()
-		srcdir = file.readline().strip()
-		file.close()
+		proj = read_cache_file(g_lockfile)
 	except IOError:
 		if Params.g_commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=0)
 		else:
 			print "Run waf configure first..."
-
 			configure()
-
 			bld = Build.Build()
-			file = open(g_lockfile, 'r')
-			blddir = file.readline().strip()
-			srcdir = file.readline().strip()
-			file.close()
+			proj = read_cache_file(g_lockfile)
 
-	Params.g_cachedir = Utils.join_path(blddir,'_cache_')
+	if Params.g_autoconfig:
+		reconf = 0
 
-	bld.load_dirs(srcdir, blddir)
+		try:
+			hash = 0
+			for file in proj['files']:
+				mod = Utils.load_module(file)
+				hash = Params.hash_sig_strong(str(hash), str(mod.configure))
+			reconf = (hash != proj['hash'])
+		except:
+			print "reconfigure for exception"
+			reconf=1
+
+		if reconf:
+			print "reconfiguring the project as a configuration detection has changed"
+
+			# will need to re-parse the command-line .. ouch
+			#sys.argv=proj['argv']
+			configure()
+			bld = Build.Build()
+			proj = read_cache_file(g_lockfile)
+
+	Params.g_cachedir = Utils.join_path(proj['blddir'], '_cache_')
+
+	bld.load_dirs(proj['srcdir'], proj['blddir'])
 	bld.load_envs()
 
 	#bld.dump()

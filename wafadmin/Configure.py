@@ -888,6 +888,9 @@ class Configure:
 		self._c=0
 		self._quiet=0
 
+		self.hash=0
+		self.files=[]
+
 	def set_env_name(self, name, env):
 		"add a new environment called name"
 		self.m_allenvs[name] = env
@@ -971,6 +974,11 @@ class Configure:
 		# TODO check
 		#if not 'configure' in mod:
 		#	fatal('the module has no configure function')
+
+		if Params.g_autoconfig:
+			self.hash = Params.hash_sig_strong(str(self.hash), str(mod.configure))
+			self.files.append(os.path.abspath(cur))
+
 		ret = mod.configure(self)
 		self.cwd = current
 		return ret
