@@ -59,6 +59,13 @@ def build(bld):
 	# process subfolders from here
 	bld.add_subdirs('src src2')
 
+	## installing resources and files - call them under build(bld) or shutdown()
+	## to trigger the glob, ad a star in the name
+	## the functions are not called if not in install mode
+	#install_files('PREFIX', '', 'src/a2.h src/a1.h')
+	install_files('PREFIX', 'subfolder/subsubfolder', 'src/*.h')
+	#install_as('PREFIX', 'dir/bar.png', 'foo.png')
+
 def shutdown():
 	# command to execute
 	cmd = "PATH=plugins:$PATH LD_LIBRARY_PATH=_build_/default/src/:$LD_LIBRARY_PATH _build_/default/src/testprogram"
