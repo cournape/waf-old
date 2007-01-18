@@ -975,11 +975,10 @@ class Configure:
 		#if not 'configure' in mod:
 		#	fatal('the module has no configure function')
 
-		if Params.g_autoconfig:
-			self.hash = Params.hash_sig_strong(str(self.hash), str(mod.configure))
-			self.files.append(os.path.abspath(cur))
-
 		ret = mod.configure(self)
+		if Params.g_autoconfig:
+			self.hash = Params.hash_sig_weak(self.hash, mod.configure.func_code.co_code.__hash__())
+			self.files.append(os.path.abspath(cur))
 		self.cwd = current
 		return ret
 

@@ -5,8 +5,8 @@
 "Module called for configuring, compiling and installing targets"
 
 import os, sys, cPickle
-import Params, Utils, Configure, Environment, Build, Runner
-from Params import error, fatal, g_lockfile
+import Params, Utils, Configure, Environment, Build, Runner, Options
+from Params import error, fatal, warning, g_lockfile
 
 g_dirwatch   = None
 g_daemonlock = 0
@@ -89,7 +89,7 @@ def configure():
 	proj={}
 	proj['blddir']=blddir
 	proj['srcdir']=srcdir
-	proj['argv']=sys.argv
+	proj['argv']=sys.argv[1:]
 	proj['hash']=conf.hash
 	proj['files']=conf.files
 	cPickle.dump(proj, file)
@@ -117,7 +117,7 @@ def Main():
 		if Params.g_commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=0)
 		else:
-			print "Run waf configure first..."
+			warning("Run waf configure first...")
 			configure()
 			bld = Build.Build()
 			proj = read_cache_file(g_lockfile)
@@ -129,18 +129,30 @@ def Main():
 			hash = 0
 			for file in proj['files']:
 				mod = Utils.load_module(file)
-				hash = Params.hash_sig_strong(str(hash), str(mod.configure))
+				hash = Params.hash_sig_weak(hash, mod.configure.func_code.co_code.__hash__())
 			reconf = (hash != proj['hash'])
 		except:
-			print "reconfigure for exception"
+			warning("Reconfiguring the project as an exception occured")
 			reconf=1
 
 		if reconf:
-			print "reconfiguring the project as a configuration detection has changed"
+			warning("Reconfiguring the project as the configuration changed")
 
-			# will need to re-parse the command-line .. ouch
-			#sys.argv=proj['argv']
+
+			a1 = Params.g_commands
+			a2 = Params.g_options
+			a3 = Params.g_zones
+			a4 = Params.g_verbose
+
+			Options.g_parser.parse_args(args=proj['argv'])
 			configure()
+
+			Params.g_commands = a1
+			Params.g_options = a2
+			Params.g_zones = a3
+			Params.g_verbose = a4
+
+
 			bld = Build.Build()
 			proj = read_cache_file(g_lockfile)
 
