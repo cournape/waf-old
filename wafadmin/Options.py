@@ -117,6 +117,7 @@ def parse_args_impl(parser, _args=None):
 
 	# By default, 'waf' is equivalent to 'waf build'
 	lst='dist configure clean distclean build install uninstall'.split()
+	Params.g_commands={}
 	for var in lst:    Params.g_commands[var]    = 0
 	if len(args) == 0: Params.g_commands['build'] = 1
 
