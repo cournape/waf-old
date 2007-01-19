@@ -513,6 +513,8 @@ class cparse:
 		self.defs  = {}
 		self.state = []
 
+		self.env   = None # needed for the variant when searching for files
+
 		# mind the defines:
 		if defines:
 			for tdef in defines:
@@ -547,7 +549,7 @@ class cparse:
 				found = n.find_source(filename, create=0)
 				if found:
 					self.m_nodes.append(found)
-					self.addlines(found.abspath())
+					self.addlines(found.abspath(self.env))
 					break
 			if not found:
 				if not filename in self.m_names:
@@ -586,9 +588,9 @@ class cparse:
 			raise
 
 	def start2(self, node, env):
-
 		debug("scanning %s (in %s)" % (node.m_name, node.m_parent.m_name), 'preproc')
 
+		self.env = env
 		variant = node.variant(env)
 		self.addlines(node.abspath(env))
 
