@@ -113,6 +113,7 @@ def read_cache_file(filename):
 
 def Main():
 	from Common import install_files, install_as, symlink_as # do not remove
+	import inspect
 	if Params.g_commands['configure']:
 		configure()
 		sys.exit(0)
@@ -139,7 +140,7 @@ def Main():
 			hash = 0
 			for file in proj['files']:
 				mod = Utils.load_module(file)
-				hash = Params.hash_sig_weak(hash, mod.configure.func_code.co_code.__hash__())
+				hash = Params.hash_sig_weak(hash, inspect.getsource(mod.configure).__hash__())
 			reconf = (hash != proj['hash'])
 		except:
 			warning("Reconfiguring the project as an exception occured")

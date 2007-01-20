@@ -6,6 +6,7 @@
 import os, types, imp, cPickle, md5, sys, re
 import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
+import inspect 
 
 g_maxlen = 40
 """initial length of configuration messages"""
@@ -977,7 +978,7 @@ class Configure:
 
 		ret = mod.configure(self)
 		if Params.g_autoconfig:
-			self.hash = Params.hash_sig_weak(self.hash, mod.configure.func_code.co_code.__hash__())
+			self.hash = Params.hash_sig_weak(self.hash, inspect.getsource(mod.configure).__hash__())
 			self.files.append(os.path.abspath(cur))
 		self.cwd = current
 		return ret
