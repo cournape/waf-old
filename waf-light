@@ -167,9 +167,11 @@ def find_wafadmin():
 	import re
 	reg = re.compile('^wafdir=(.*) # SPECIAL LINE', re.M)
 
-	file = open(name, 'w')
-	file.write(reg.sub('wafdir="%s" # SPECIAL LINE'%wafdir, ct))
+	file = open(name+".tmp", 'w')
+	file.write(reg.sub(r'wafdir="%s" # SPECIAL LINE' % (wafdir.replace('\\', '\\\\'),), ct))
 	file.close()
+        os.unlink(name)
+        os.rename(name+".tmp", name)
 
 # run the test
 find_wafadmin()
