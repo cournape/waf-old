@@ -67,7 +67,7 @@ class c_scanner(Scan.scanner):
 			else:
 				return self._get_signature_regexp_weak(task)
 
-	def scan(self, node, env, path_lst, defines=[]):
+	def scan(self, node, env, path_lst, defines={}):
 		debug("scan", 'ccroot')
 		if Params.g_preprocess:
 			return self._scan_preprocessor(node, env, path_lst, defines)
@@ -101,7 +101,7 @@ class c_scanner(Scan.scanner):
 		#print "-S ", nodes, names
 		return (nodes, names)
 
-	def _scan_preprocessor(self, node, env, path_lst, defines=[]):
+	def _scan_preprocessor(self, node, env, path_lst, defines={}):
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'croot')
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst, defines=defines)
@@ -354,7 +354,7 @@ class ccroot(Object.genobj):
 
 		# these are kind of private, do not touch
 		self._incpaths_lst=[]
-		self.defines_lst = []
+		self.scanner_defines = {}
 		self._bld_incpaths_lst=[]
 
 	def create_task(self, type, env=None, nice=10):
@@ -399,7 +399,7 @@ class ccroot(Object.genobj):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
 		tree = Params.g_build
-		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.defines_lst }
+		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.scanner_defines }
 
 		lst = self.to_list(self.source)
 		find_source_lst = self.path.find_source_lst

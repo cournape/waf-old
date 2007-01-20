@@ -45,7 +45,7 @@ class cppobj(ccroot.ccroot):
 	def apply_defines(self):
 		tree = Params.g_build
 		lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
-		milst = self.defines_lst
+		milst = []
 
 		# now process the local defines
 		for defi in lst:
