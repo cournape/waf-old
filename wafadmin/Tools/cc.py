@@ -109,7 +109,7 @@ class ccobj(ccroot.ccroot):
 		for l in libs:
 			val = self.env['CCDEFINES_'+l]
 			if val: milst += val
-
+		self.env['DEFLINES'] = map(lambda x: "define %s"%  ' '.join(x.split('=', 1)), milst)
 		y = self.env['CCDEFINES_ST']
 		self.env['_CCDEFFLAGS'] = map(lambda x: y%x, milst)
 

@@ -592,7 +592,10 @@ class cparse:
 
 		self.env = env
 		variant = node.variant(env)
+
 		self.addlines(node.abspath(env))
+		if env['DEFLINES']:
+			self.lines = env['DEFLINES'] + self.lines
 
 		while self.lines:
 			line = self.lines.pop(0)
