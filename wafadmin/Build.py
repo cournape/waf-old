@@ -264,7 +264,7 @@ class Build:
 
 		# there is no reason to bypass this check
 		try:
-			if srcdir == blddir or os.path.samefile(srcdir, blddir):
+			if srcdir == blddir or os.path.abspath(srcdir)==os.path.abspath(blddir):
 				fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
 		except OSError:
 			pass
