@@ -17,12 +17,6 @@ def set_options(opt):
 	opt.add_option('--make-waf', action='store_true', default=False,
 		help='creates the waf script', dest='waf')
 
-	# ita: i suggest using waf directly, installing is useless but some people cannot live without it
-	opt.add_option('--install', default=False,
-		help='install waf on the system', action='store_true', dest='install')
-	opt.add_option('--uninstall', default=False,
-		help='uninstall waf from the system', action='store_true', dest='uninstall')
-
 	# those ones are not too interesting
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
@@ -161,8 +155,8 @@ def install_waf():
 		print "->>> installation failed: cannot write to %s <<<-" % prefix
 		sys.exit(1)
 	print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
-	if prefix != '/usr/local/':
-		print "WARNING: make sure to set PATH to %s/bin:$PATH" % prefix
+
+	Params.warning("make sure to set PATH to %s/bin:$PATH" % prefix)
 
 def uninstall_waf():
 	print "uninstalling waf from the system"
@@ -185,6 +179,8 @@ def uninstall_waf():
 		pass
 
 # the init function is called right after the command-line arguments are parsed
+# it is run before configure(), build() and shutdown()
+# in this case it calls sys.exit(0) to terminate the program
 def init():
 	if Params.g_options.setver: # maintainer only (ita)
 		ver = Params.g_options.setver
@@ -192,11 +188,11 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		sys.exit(0)
-	elif Params.g_options.install:
+	elif Params.g_commands['install']:
 		if len(sys.argv[0]) > 6 and sys.argv[0][-6:]=='-light': create_waf()
 		install_waf()
 		sys.exit(0)
-	elif Params.g_options.uninstall:
+	elif Params.g_commands['uninstall']:
 		uninstall_waf()
 		sys.exit(0)
 	elif Params.g_options.waf:
@@ -205,9 +201,4 @@ def init():
 	else:
 		print "run 'waf --help' to know more about allowed commands !"
 		sys.exit(0)
-
-# provided as an example
-def shutdown():
-	pass
-
 
