@@ -18,24 +18,19 @@ def add_subdir(dir, bld):
 		fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
 	bld.m_subdirs.append([node, bld.m_curdirnode])
 
-def callBack(idxName, pathName, event):
+def call_back(idxName, pathName, event):
 	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
-
 	# check the daemon lock state
 	global g_daemonlock
 	if g_daemonlock: return
 	g_daemonlock = 1
 
-	# Utils.reset cleans up existing variables (at least, this is the intent)
+	# clean up existing variables, and start a new instance
 	Utils.reset()
-
-	# start another main function
 	Main()
-
-	# release the daemon lock
 	g_daemonlock = 0
 
-def startDaemon():
+def start_daemon():
 	"if it does not exist already:start a new directory watcher; else: return immediately"
 	global g_dirwatch
 	if not g_dirwatch:
@@ -46,7 +41,7 @@ def startDaemon():
 			tmpstr = "%s" %nodeDir
 			tmpstr = "%s" %(tmpstr[3:])[:-1]
 			m_dirs.append(tmpstr)
-		g_dirwatch.add_watch("tmp Test", callBack, m_dirs)
+		g_dirwatch.add_watch("tmp Test", call_back, m_dirs)
 		# infinite loop, no need to exit except on ctrl+c
 		g_dirwatch.loop()
 		g_dirwatch = None
@@ -57,8 +52,7 @@ def startDaemon():
 			tmpstr = "%s" %nodeDir
 			tmpstr = "%s" %(tmpstr[3:])[:-1]
 			m_dirs.append(tmpstr)
-		g_dirwatch.add_watch("tmp Test", callBack, m_dirs)
-		
+		g_dirwatch.add_watch("tmp Test", call_back, m_dirs)
 
 def configure():
 	Runner.set_exec('normal')
@@ -246,7 +240,7 @@ def Main():
 
 	# daemon look here
 	if Params.g_options.daemon and Params.g_commands['build']:
-		startDaemon()
+		start_daemon()
 		return
 
 	# shutdown
