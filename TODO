@@ -1,13 +1,8 @@
 After 1.0:
 * functions in the preprocessor
 * packaging (rpms, debs) ?
-* more compilers and cross compilation
 * scons emulation
 * ncurses options menu support
-
-
-known problems:
-* the preprocessor does not take the variants into account so the config.h is not read
 
 --------------------------------------
 Last update: 16-01-2007
