@@ -123,10 +123,13 @@ def find_wafadmin():
 	global wafdir
 	name = sys.argv[0]
 
+	# wafadmin may be in $WAFDIR (developers)
+	if 'WAFDIR' in os.environ:
+		try_wafdir(os.environ['WAFDIR'])
+		if wafdir: return
+
 	# waf-light is a special beast
 	if name[-5:] == 'light':
-		if 'WAFDIR' in os.environ: try_wafdir(os.environ['WAFDIR'])
-		if wafdir: return
 		try_wafdir(os.path.dirname(os.path.abspath(name)))
 		if wafdir: return
 		print "\033[91mwaf-light in use, wafadmin not found -> export WAFDIR=/folder\033[0m"
@@ -135,10 +138,6 @@ def find_wafadmin():
 	if not wafdir:
 		# if wafadmin is in /usr/local/waf-x.x.x/ then use it directly
 		try_wafdir('/usr/local/lib/waf-%s/' % VERSION)
-		if wafdir: return
-
-		# wafadmin may be in $WAFDIR (developers)
-		if 'WAFDIR' in os.environ: try_wafdir(os.environ['WAFDIR'])
 		if wafdir: return
 
 	# remove $HOME/.waf-version if asked to
