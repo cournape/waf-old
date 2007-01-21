@@ -172,6 +172,7 @@ def find_wafadmin():
 	file.close()
         os.unlink(name)
         os.rename(name+".tmp", name)
+	os.chmod(name, 0755)
 
 # run the test
 find_wafadmin()
