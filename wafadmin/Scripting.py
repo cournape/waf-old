@@ -339,9 +339,7 @@ def DistClean():
 			if f==g_lockfile:
 				# removes a lock, and the builddir indicated
 				to_remove = True
-				file = open(os.path.join(root, f), 'r')
-				proj = cPickle.load(file)
-				file.close()
+				proj = read_cache_file(os.path.join(root, f))
 				try: shutil.rmtree(os.path.join(root, proj['blddir']))
 				except OSError: pass
 			elif f.endswith('~'): to_remove = 1
