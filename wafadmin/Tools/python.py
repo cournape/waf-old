@@ -45,40 +45,18 @@ class pyobj(Object.genobj):
 		for i in self.m_tasks:
 			self.install_results('PREFIX', self.inst_dir, i)
 
-def py_build(task, type):
-	env = task.m_env
-	infile = task.m_inputs[0].abspath(env)
-	outfile = task.m_outputs[0].abspath(env)
-
-	base = outfile[:outfile.rfind('.')]
-
-	flag=''
-	if type == '.pyo': flag='-O'
-
-	code = "import sys, py_compile;py_compile.compile(sys.argv[1], sys.argv[2])"
-	cmd = '%s %s -c "%s" %s %s' % (env['PYTHON'], flag, code, infile, outfile)
-
-	if Params.g_verbose:
-		print cmd
-
-	ret = Runner.exec_command(cmd)
-	return ret
-
-def pyc_build(task):
-	return py_build(task, '.pyc')
-
-def pyo_build(task):
-	return py_build(task, '.pyo')
-
 def setup(env):
 	Object.register('py', pyobj)
-	Action.simple_action('pyc', '${PYTHON} -c ${PYCMD}', color='BLUE')
-	Action.Action('pyc', vars=['PYTHON'], func=pyc_build)
-	Action.Action('pyo', vars=['PYTHON'], func=pyo_build)
+	Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
+	Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
 
 def detect(conf):
 	python = conf.find_program('python', var='PYTHON')
 	if not python: return 0
+
+	conf.env['PYCMD'] = '"import sys, py_compile;py_compile.compile(sys.argv[1], sys.argv[2])"'
+	conf.env['PYFLAGS'] = ''
+	conf.env['PYFLAGS_OPT'] = '-O'
 
 	return 1
 
