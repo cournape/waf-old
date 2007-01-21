@@ -333,9 +333,11 @@ def DistClean():
 			if f==g_lockfile:
 				# removes a lock, and the builddir indicated
 				to_remove = True
-				proj = read_cache_file(os.path.join(root, f))
-				try: shutil.rmtree(os.path.join(root, proj['blddir']))
+				try:
+					proj = read_cache_file(os.path.join(root, f))
+					shutil.rmtree(os.path.join(root, proj['blddir']))
 				except OSError: pass
+				except IOError: pass
 			elif f.endswith('~'): to_remove = 1
 			elif f.endswith('.pyc'): to_remove = 1
 			elif f.startswith('.wafpickle'): to_remove = 1
