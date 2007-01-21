@@ -205,7 +205,7 @@ class function_enumerator(enumerator_base):
 			self.define = self.function.upper()
 
 	def run_cache(self, retval):
-		self.conf.check_message('function %s (cached)' % self.function, '', 1, option='')
+		self.conf.check_message('function %s (cached)' % self.function, '', retval, option='')
 		self.conf.add_define(self.define, retval)
 
 	def run_test(self):
@@ -262,7 +262,7 @@ class library_enumerator(enumerator_base):
 
 	def run_cache(self, retval):
 		if self.want_message:
-			self.conf.check_message('library %s (cached)' % self.name, '', 1, option=retval)
+			self.conf.check_message('library %s (cached)' % self.name, '', retval, option=retval)
 		self.update_env(retval)
 
 	def validate(self):
@@ -315,7 +315,7 @@ class header_enumerator(enumerator_base):
 
 	def run_cache(self, retval):
 		if self.want_message:
-			self.conf.check_message('header %s (cached)' % self.name, '', 1, option=retval)
+			self.conf.check_message('header %s (cached)' % self.name, '', retval, option=retval)
 		if self.define: self.env[self.define] = retval
 
 	def run_test(self):
@@ -583,7 +583,7 @@ class library_configurator(configurator_base):
 		fatal(errmsg)
 
 	def run_cache(self, retval):
-		self.conf.check_message('library %s (cached)' % self.name, '', 1)
+		self.conf.check_message('library %s (cached)' % self.name, '', retval)
 		if retval:
 			self.update_env(retval)
 			self.conf.add_define(self.define, 1)
@@ -678,7 +678,7 @@ class framework_configurator(configurator_base):
 			self.uselib = self.name.upper()
 
 	def run_cache(self, retval):
-		self.conf.check_message('framework %s (cached)' % self.name, '', 1)
+		self.conf.check_message('framework %s (cached)' % self.name, '', retval)
 		self.update_env(retval)
 		if retval:
 			self.conf.add_define(self.define, 1)
@@ -771,7 +771,7 @@ class header_configurator(configurator_base):
 			fatal('no define given')
 
 	def run_cache(self, retvalue):
-		self.conf.check_message('header %s (cached)' % self.name, '', 1)
+		self.conf.check_message('header %s (cached)' % self.name, '', retvalue)
 		if retvalue:
 			self.update_env(retvalue)
 			self.conf.add_define(self.define, 1)
