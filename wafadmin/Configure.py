@@ -3,10 +3,9 @@
 
 "Configuration system"
 
-import os, types, imp, cPickle, md5, sys, re
+import os, types, imp, cPickle, md5, sys, re, inspect
 import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
-import inspect 
 
 g_maxlen = 40
 """initial length of configuration messages"""
@@ -77,7 +76,6 @@ def find_program_impl(lenv, filename, path_list=None, var=None):
 			return os.environ[var]
 
 	if lenv['WINDOWS']: filename += '.exe'
-	#TODO: we really need to add cross-platform functions for such things!
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
 	for directory in path_list:
 		if os.path.exists( os.path.join(directory, filename) ):
