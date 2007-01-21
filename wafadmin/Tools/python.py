@@ -46,20 +46,16 @@ def py_build(task, type):
 
 	base = outfile[:outfile.rfind('.')]
 
-	newfile = base+'.py'
-	shutil.copy2(infile, newfile)
-
 	flag=''
 	if type == '.pyo': flag='-O'
 
-	code = "import sys, py_compile;py_compile.compile(sys.argv[1])"
-	cmd = '%s %s -c "%s" %s' % (env['PYTHON'], flag, code, newfile)
+	code = "import sys, py_compile;py_compile.compile(sys.argv[1], sys.argv[2])"
+	cmd = '%s %s -c "%s" %s %s' % (env['PYTHON'], flag, code, infile, outfile)
 
 	if Params.g_verbose:
 		print cmd
 
 	ret = Runner.exec_command(cmd)
-	os.unlink(newfile)
 	return ret
 
 def pyc_build(task):

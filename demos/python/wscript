@@ -18,4 +18,5 @@ def configure(conf):
 
 def build(bld):
 	obj = bld.create_obj('py')
+	obj.pyo = 1
 	obj.source = 'foo.py'
