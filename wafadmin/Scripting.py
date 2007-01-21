@@ -340,9 +340,9 @@ def DistClean():
 				# removes a lock, and the builddir indicated
 				to_remove = True
 				file = open(os.path.join(root, f), 'r')
-				dirname = file.readline().strip()
+				proj = cPickle.load(file)
 				file.close()
-				try: shutil.rmtree(os.path.join(root, dirname))
+				try: shutil.rmtree(os.path.join(root, proj['blddir']))
 				except OSError: pass
 			elif f.endswith('~'): to_remove = 1
 			elif f.endswith('.pyc'): to_remove = 1
