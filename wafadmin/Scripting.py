@@ -351,5 +351,10 @@ def DistClean():
 			if to_remove:
 				#print "removing ",os.path.join(root, f)
 				os.remove(os.path.join(root, f))
+	lst = os.listdir('.')
+	for f in lst:
+		if f.startswith('.waf-'):
+			try: shutil.rmtree(f)
+			except: pass
 	sys.exit(0)
 
