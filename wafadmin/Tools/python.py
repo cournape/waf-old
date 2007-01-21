@@ -14,6 +14,8 @@ class pyobj(Object.genobj):
 		self.pyopts = ''
 		self.pyc = 1
 		self.pyo = 0
+		self.inst_var = 'PREFIX'
+		self.inst_dir = 'lib'
 
 	def apply(self):
 		find_source_lst = self.path.find_source_lst
@@ -38,6 +40,10 @@ class pyobj(Object.genobj):
 				task = self.create_task('pyo', self.env, 50)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.pyo'))
+
+	def install(self):
+		for i in self.m_tasks:
+			self.install_results('PREFIX', self.inst_dir, i)
 
 def py_build(task, type):
 	env = task.m_env
