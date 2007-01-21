@@ -7,7 +7,7 @@ APPNAME='waf'
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 
-import Params, os, sys, base64, shutil
+import Params, os, sys, base64, shutil, re, random
 
 # this function is called before any other for parsing the command-line
 def set_options(opt):
@@ -68,14 +68,6 @@ def create_waf():
 	#regexpr for python files
 	pyFileExp = re.compile(".*\.py$")
 
-	# set the revision in the files to avoid version mismatch
-	try:
-		rev = os.popen("svnversion . TODO").read().strip()
-		os.popen("""perl -pi -e 's/^REVISION=(.*)?$/REVISION="%s"/' waf-light""" % rev).close()
-		os.popen("""perl -pi -e 's/^REVISION=(.*)?$/REVISION="%s"/' wafadmin/Params.py""" % rev).close()
-	except:
-		pass
-
 	wafadminFiles = os.listdir('wafadmin')
 	#filter all files out that do not match pyFileExp
 	wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
@@ -98,12 +90,11 @@ def create_waf():
 	code1 = file.read()
 	file.close()
 
-	# revert the files to normal
-	try:
-		os.popen("""perl -pi -e 's/^REVISION=(.*)?$/REVISION="x"/' waf-light""").close()
-		os.popen("""perl -pi -e 's/^REVISION=(.*)?$/REVISION="x"/' wafadmin/Params.py""").close()
-	except:
-		pass
+	# now store the revision unique number in waf
+	v = 1000000000
+	rev = random.randint(v, 2*v)
+        reg = re.compile('^REVISION=(.*)', re.M)
+        code1 = reg.sub(r'REVISION="%d"' % rev, code1)
 
 	file = open('%s.tar.bz2' % mw, 'rb')
 	cnt = file.read()

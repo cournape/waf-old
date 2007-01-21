@@ -136,9 +136,10 @@ def find_wafadmin():
 		sys.exit(1)
 
 	if not wafdir:
-		# if wafadmin is in /usr/local/waf-x.x.x/ then use it directly
-		try_wafdir('/usr/local/lib/waf-%s/' % VERSION)
-		if wafdir: return
+		dir = "/waf-%s-%s/" % (VERSION, REVISION)
+		for i in ['/usr/lib', '/usr/local/lib', '/opt/lib']:
+			try_wafdir(i+dir)
+			if wafdir: return
 
 	# remove $HOME/.waf-version if asked to
 	if wafdir:
@@ -153,25 +154,10 @@ def find_wafadmin():
 	if wafdir: return
 
 	# uncompress waf-local to the directory containing waf
-	if sys.platform == 'win32': s='waf-%s'
-	else: s='.waf-%s'
-	wafdir = os.path.join(os.path.dirname(os.path.abspath(name)), s%VERSION)
+	if sys.platform == 'win32': s='waf-%s-%s'
+	else: s='.waf-%s-%s'
+	wafdir = os.path.join(os.path.dirname(os.path.abspath(name)), s % (VERSION, REVISION))
 	uncompress_wafdir(wafdir)
-
-	# auto-modify waf
-	file = open(name, 'r')
-	ct = file.read()
-	file.close()
-
-	import re
-	reg = re.compile('^wafdir=(.*) # SPECIAL LINE', re.M)
-
-	file = open(name+".tmp", 'w')
-	file.write(reg.sub(r'wafdir="%s" # SPECIAL LINE' % (wafdir.replace('\\', '\\\\'),), ct))
-	file.close()
-        os.unlink(name)
-        os.rename(name+".tmp", name)
-	os.chmod(name, 0755)
 
 # run the test
 find_wafadmin()
@@ -191,10 +177,6 @@ Params.g_cwd_launch = cwd
 
 if Params.g_version != VERSION:
 	fatal('version mismatch waf %s <-> wafadmin %s (wafdir %s)' % (VERSION, Params.g_version, wafdir))
-
-if Params.REVISION != REVISION:
-	if not 'WAFDIR' in os.environ:
-		warning('possible revision mismatch (set WAFDIR)')
 
 # some command-line options can be processed immediately
 if '--version' in sys.argv:
