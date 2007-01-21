@@ -4,6 +4,7 @@
 
 VERSION="1.1.0"
 APPNAME='waf'
+REVISION=''
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 
@@ -92,9 +93,14 @@ def create_waf():
 
 	# now store the revision unique number in waf
 	v = 1000000000
-	rev = random.randint(v, 2*v)
+	global REVISION
+	REVISION = random.randint(v, 2*v)
         reg = re.compile('^REVISION=(.*)', re.M)
-        code1 = reg.sub(r'REVISION="%d"' % rev, code1)
+        code1 = reg.sub(r'REVISION="%d"' % REVISION, code1)
+
+	prefix = Params.g_options.prefix
+	reg = re.compile('^INSTALL=(.*)', re.M)
+	code1 = reg.sub(r'INSTALL="%s"' % prefix, code1)
 
 	file = open('%s.tar.bz2' % mw, 'rb')
 	cnt = file.read()
@@ -127,7 +133,7 @@ def install_waf():
 
 	prefix      = Params.g_options.prefix
 	binpath     = os.path.join(prefix, 'bin%swaf' % os.sep)
-	wafadmindir = os.path.join(prefix, 'lib%swaf-%s%swafadmin%s' % (os.sep, VERSION, os.sep, os.sep))
+	wafadmindir = os.path.join(prefix, 'lib%swaf-%s-%s%swafadmin%s' % (os.sep, VERSION, REVISION, os.sep, os.sep))
 	toolsdir    = os.path.join(wafadmindir, 'Tools' + os.sep)
 
 	try: os.makedirs(os.path.join(prefix, 'bin'))
@@ -156,7 +162,7 @@ def install_waf():
 		sys.exit(1)
 	print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
 	if prefix != '/usr/local/':
-		print "WARNING: make sure to always set WAFDIR to %s and PATH to %sbin:$PATH" % (prefix, prefix)
+		print "WARNING: make sure to set PATH to %s/bin:$PATH" % prefix
 
 def uninstall_waf():
 	print "uninstalling waf from the system"

@@ -12,6 +12,7 @@ if 'PSYCOWAF' in os.environ:
 
 VERSION="1.1.0"
 REVISION="x"
+INSTALL="x"
 cwd = os.getcwd()
 
 def decodeAscii85(s):
@@ -136,8 +137,8 @@ def find_wafadmin():
 		sys.exit(1)
 
 	if not wafdir:
-		dir = "/waf-%s-%s/" % (VERSION, REVISION)
-		for i in ['/usr/lib', '/usr/local/lib', '/opt/lib']:
+		dir = "/lib/waf-%s-%s/" % (VERSION, REVISION)
+		for i in [INSTALL, '/usr', '/usr/local', '/opt']:
 			try_wafdir(i+dir)
 			if wafdir: return
 
