@@ -14,10 +14,18 @@ def set_options(opt):
 	pass
 
 def configure(conf):
-	conf.check_tool('python')
+	conf.check_tool('python gcc')
 
 def build(bld):
+	# first compile a few pyc files
 	obj = bld.create_obj('py')
 	obj.pyo = 1
 	#obj.source = 'foo.py'
 	obj.find_sources_in_dirs('.')
+
+	# then a c program
+	obj = bld.create_obj('cc', 'program')
+	obj.source='test.c'
+	obj.target='test'
+	obj.uselib='PYTHON'
+
