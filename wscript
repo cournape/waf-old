@@ -2,6 +2,16 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006 (ita)
 
+"""
+This script is not a good example:
+ * it is complicated
+ * it does not build anything, it just exits in the init method
+
+Have a look at demos/cc/wscript instead
+For configuration examples: demos/adv/wscript
+For a project without subdirectory: demos/python/wscript
+"""
+
 VERSION="1.1.0"
 APPNAME='waf'
 REVISION=''
