@@ -15,7 +15,6 @@ Then try 'waf --help', there are predefined targets for waf itself.
 ENVIRONMENT VARIABLES
 ---------------------
 
-WAF_HOME: where .wafcache (configuration cache) and .waf-x.y.z (library cache) will be stored
 WAFLOCK: name of the lock file (default: .lock-wscript)
 WAFDIR: path to the wafadmin folder (developers must set it)
 WAFCACHE: path to the target cache (replaces --usecache)
@@ -39,31 +38,25 @@ Using waf:
 Creating scripts:
   * The wscript are actually python modules, from which functions with particular namings
   are imported: init, shutdown, configure(conf), build(bld) and set_options(opt)
-  * In some cases, there is a lot of code and using a build(bld) function is not convenient:
-  a file named wscript_build ('wscript_'+function name) will replace the
-  corresponding function in the wscript module. See demos/cpp/src2
+  * The mandatory functions are configure(conf), build(bld) and set_options(opt)
 
 DEVELOPERS
 ----------
 
-Developers must set WAFDIR
-A cache in $HOME/.waf-version may cause problems between svn updates
-(the version number is not always incremented between changes)
+Developers must set WAFDIR instead of regenerating waf all the time.
 
 PACKAGERS
 ---------
 
-By default, waf uncompresses itself into $HOME/.waf-version
-To avoid this behaviour when making packages, set WAF_HOME like this:
-WAF_HOME=$PWD ./waf configure
+By default, waf uncompresses itself into its current directory (.waf-version-rev)
+The destdir is of course taken into account: "DESTDIR=/tmp/stuff waf install"
 
 SUGGESTED USAGE
 ---------------
 
-Do not rely on define on the command-line, generate a config.h file instead.
-Do not use includes having ".." in the path to avoid scanning system headers
-or folders out of the project directory (can be slow).
-
+Do not rely on command-line defines, generate a config.h file instead.
+Avoid includes having ".." in the path as system headers and folders out
+of the project directory could be scanned (can be slow).
 
 ---------------------------
 Thomas Nagy, 2006 (ita)

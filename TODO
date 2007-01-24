@@ -1,9 +1,8 @@
-After 1.0:
-* functions in the preprocessor
-* packaging (rpms, debs) ?
-* scons emulation
+* preprocessor improvements
+* packaging (rpms, debs)
+* improve the scons emulation
 * ncurses options menu support
 
 --------------------------------------
-Last update: 16-01-2007
+Last update: 25-01-2007
 Contact -> tnagyemail-mail@yahoo.fr (ita)
