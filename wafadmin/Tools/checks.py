@@ -43,7 +43,7 @@ class compile_configurator(Configure.configurator_base):
 
 	def run_cache(self, retval):
 		if self.want_message:
-			self.conf.check_message('compile code (cached)', '', retval, option=self.msg)
+			self.conf.check_message('compile code (cached)', '', not int(retval), option=self.msg)
 
 	def validate(self):
 		if not self.code:
@@ -58,7 +58,7 @@ class compile_configurator(Configure.configurator_base):
 		ret = self.conf.run_check(obj)
 
 		if self.want_message:
-			self.conf.check_message('compile code', '', ret, option=self.msg)
+			self.conf.check_message('compile code', '', not int(ret), option=self.msg)
 
 		return ret
 
