@@ -14,7 +14,8 @@ srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-	pass
+	# the gcc module provides a --debug-level option
+	opt.tool_options('gcc')
 
 def configure(conf):
 	conf.check_tool('gcc')

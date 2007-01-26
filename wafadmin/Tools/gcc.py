@@ -76,15 +76,6 @@ def detect(conf):
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
-	ron = os.environ
-	def addflags(orig, dest=None):
-		if not dest: dest=orig
-		try: conf.env[dest] = ron[orig]
-		except KeyError: pass
-	addflags('CCFLAGS', 'CFLAGS')
-	addflags('CPPFLAGS')
-	addflags('LINKFLAGS')
-
 	if sys.platform == "win32":
 		# shared library
 		v['shlib_CCFLAGS']       = ['']
@@ -208,14 +199,29 @@ def detect(conf):
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = ''
 
+	# see the option below
+	try:
+		v['CCFLAGS'] = v['CCFLAGS_'+Params.g_options.debug_level.upper()]
+	except AttributeError:
+		pass
+
+	ron = os.environ
+	def addflags(orig, dest=None):
+		if not dest: dest=orig
+		try: conf.env[dest] = ron[orig]
+		except KeyError: pass
+	addflags('CCFLAGS', 'CFLAGS')
+	addflags('CPPFLAGS')
+	addflags('LINKFLAGS')
+
 	return 1
 
 def set_options(opt):
 	try:
 		opt.add_option('-d', '--debug-level',
 		action = 'store',
-		default = 'release',
-		help = 'Specify the debug level. [Allowed Values: ultradebug, debug, release, optimized]',
+		default = '',
+		help = 'Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: ultradebug, debug, release, optimized]',
 		dest = 'debug_level')
 	except:
 		# the g++ tool might have added that option already

@@ -81,17 +81,6 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']     = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
-	ron = os.environ
-	def addflags(orig, dest=None):
-		if not dest: dest=orig
-		try: conf.env[dest] = ron[orig]
-		except KeyError: pass
-	addflags('CXXFLAGS')
-	addflags('CPPFLAGS')
-	addflags('LINKFLAGS')
-
-	if not v['DESTDIR']: v['DESTDIR']=''
-
 	if sys.platform == "win32":
 		# shared library
 		v['shlib_CXXFLAGS']    = ['']
@@ -220,6 +209,24 @@ def detect(conf):
 		v['program_obj_ext']   = ['.o']
 		v['program_SUFFIX']    = ''
 
+	# see the option below
+	try:
+		v['CXXFLAGS'] = v['CXXFLAGS_'+Params.g_options.debug_level.upper()]
+	except AttributeError:
+		pass
+
+	ron = os.environ
+	def addflags(orig, dest=None):
+		if not dest: dest=orig
+		try: conf.env[dest] = ron[orig]
+		except KeyError: pass
+	addflags('CXXFLAGS')
+	addflags('CPPFLAGS')
+	addflags('LINKFLAGS')
+
+	if not v['DESTDIR']: v['DESTDIR']=''
+
+
 	return 1
 
 def set_options(opt):
@@ -227,7 +234,7 @@ def set_options(opt):
 		opt.add_option('-d', '--debug-level',
 		action = 'store',
 		default = 'release',
-		help = 'Specify the debug level. [Allowed Values: ultradebug, debug, release, optimized]',
+		help = 'Specify the debug level, does nothing if CXXFLAGS is set in the environment. [Allowed Values: ultradebug, debug, release, optimized]',
 		dest = 'debug_level')
 	except:
 		# the gcc tool might have added that option already
