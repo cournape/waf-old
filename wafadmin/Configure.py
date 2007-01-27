@@ -73,6 +73,7 @@ def find_program_impl(lenv, filename, path_list=None, var=None):
 		if lenv[var]:
 			return lenv[var]
 		elif var in os.environ:
+			lenv[var] = os.environ[var]
 			return os.environ[var]
 
 	if lenv['WINDOWS']: filename += '.exe'
