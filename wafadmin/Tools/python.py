@@ -5,8 +5,7 @@
 
 "Python support"
 
-import os
-import string
+import os, sys
 import Object, Action, Utils, Runner, Params, Common
 from pproc import *
 
@@ -160,7 +159,7 @@ main(int argc, char *argv[])
 		conf.env['LIBPATH_PYEMBED'] = lib.path
 		conf.env.append_value('LIB_PYEMBED', lib.name)
 
-	if Py_ENABLE_SHARED is not None:
+	if sys.platform == 'win32' or Py_ENABLE_SHARED is not None:
 		conf.env['LIBPATH_PYEXT'] = conf.env['LIBPATH_PYEMBED']
 		conf.env['LIB_PYEXT'] = conf.env['LIB_PYEMBED']
 
