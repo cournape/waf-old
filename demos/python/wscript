@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Gustavo Carneiro, 2007
 
+import sys
+
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
 APPNAME='python_test'
@@ -30,6 +32,8 @@ def build(bld):
 	obj.target = 'spam'
 	obj.uselib = 'PYEXT'
 	obj.env['shlib_PREFIX'] = ''
+	if sys.platform == 'win32':
+		obj.env['shlib_SUFFIX'] = '.pyd'
 	obj.install_in = 'PYTHONDIR'
 
 	# then a c program
