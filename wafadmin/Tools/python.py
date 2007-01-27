@@ -48,9 +48,9 @@ class pyobj(Object.genobj):
 	def install(self):
 		for i in self.m_tasks:
 			current = Params.g_build.m_curdirnode
-			lst=map(lambda a: a.relpath_gen(current), task.m_outputs)
+			lst=map(lambda a: a.relpath_gen(current), i.m_outputs)
 			Common.install_files(self.inst_var, self.inst_dir, lst)
-			lst=map(lambda a: a.relpath_gen(current), task.m_inputs)
+			lst=map(lambda a: a.relpath_gen(current), i.m_inputs)
 			Common.install_files(self.inst_var, self.inst_dir, lst)
 			#self.install_results(self.inst_var, self.inst_dir, i)
 
