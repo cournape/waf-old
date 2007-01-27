@@ -174,14 +174,19 @@ def check_python_version(conf, minver=None):
 
 	## compare python version with the minimum required
 	result = (minver is None) or (pyver_tuple >= minver)
-	
+
 	if result:
 		## define useful environment variables
 		pyver = '.'.join(map(str, pyver_tuple[:2]))
 		conf.env['PYTHON_VERSION'] = pyver
-		conf.add_define('PYTHONDIR', os.path.join(
-			conf.env['PREFIX'], "lib", "python" + pyver, "site-packages"))
-		conf.hook(check_python_headers)
+
+		if 'PYTHONDIR' in os.environ:
+			dir = os.environ['PYTHONDIR']
+		else:
+			dir = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver, "site-packages")
+
+		conf.add_define('PYTHONDIR', dir)
+		conf.env['PYTHONDIR'] = dir
 
 	## Feedback
 	pyver_full = '.'.join(map(str, pyver_tuple[:3]))
@@ -205,6 +210,7 @@ def detect(conf):
 	conf.env['PYFLAGS_OPT'] = '-O'
 
 	conf.hook(check_python_version)
+	conf.hook(check_python_headers)
 
 	return 1
 
