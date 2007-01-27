@@ -73,7 +73,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	return_values = []
 	for s in output:
 		if s:
-			return_values.append(eval(s))
+			return_values.append(eval(s.rstrip()))
 		else:
 			break
 	return return_values
@@ -89,16 +89,23 @@ def check_python_headers(conf):
 	Note: this test requires that check_python_version was previously
 	executed and successful."""
 
-	#context.Message("Checking for headers required to compile python extensions...\n")
 	python = conf.env['PYTHON']
 	assert python, ("python is %r !" % (python,))
 
-	py_prefix, py_exec_prefix = _get_python_variables(python, ['sys.prefix', 'sys.exec_prefix'])
-	python_includes = [os.path.join(py_prefix, "include",
-									"python" + conf.env['PYTHON_VERSION'])]
-	if py_prefix != py_exec_prefix:
-		python_includes.append(path.join(py_exec_prefix, "include",
-										 "python" + conf.env['PYTHON_VERSION']))
+	(python_prefix, python_CC, python_SYSLIBS, python_SHLIBS,
+	 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED) = \
+			_get_python_variables(python, [
+		"get_config_var('prefix')",
+		"get_config_var('CC')",
+		"get_config_var('SYSLIBS')",
+		"get_config_var('SHLIBS')",
+		"get_config_var('LIBDIR')",
+		"get_config_var('LIBPL')",
+		"get_config_var('INCLUDEPY')",
+		"get_config_var('Py_ENABLE_SHARED')",
+		], ['from distutils.sysconfig import get_config_var'])
+	python_includes = [INCLUDEPY]
+
 	header = conf.create_header_configurator()
 	header.path = python_includes
 	header.name = 'Python.h'
@@ -110,21 +117,13 @@ def check_python_headers(conf):
 	conf.env['CPPPATH_PYEXT'] = python_includes
 	conf.env['CPPPATH_PYEMBED'] = python_includes
 
-	(python_CC, python_SYSLIBS, python_SHLIBS, python_LIBDIR, python_LIBPL) = \
-				_get_python_variables(python, [
-		"get_config_var('CC')",
-		"get_config_var('SYSLIBS')",
-		"get_config_var('SHLIBS')",
-		"get_config_var('LIBDIR')",
-		"get_config_var('LIBPL')",], ['from distutils.sysconfig import get_config_var'])
-
-	#print (python_CC, python_SYSLIBS, python_SHLIBS, python_LIBDIR, python_LIBPL)
-
 	## Check for python libraries for embedding
-	conf.env['LIB_PYEMBED'] = [python_SYSLIBS, python_SHLIBS]
+	if python_SYSLIBS is not None:
+		conf.env.append_value('LIB_PYEMBED', python_SYSLIBS)
+	if python_SHLIBS is not None:
+		conf.env.append_value('LIB_PYEMBED', python_SHLIBS)
 	lib = conf.create_library_configurator()
 	lib.name = 'python' + conf.env['PYTHON_VERSION']
-	lib.path = [python_LIBDIR]
 	lib.uselib = 'PYEMBED'
 	lib.code = """
 #include <Python.h>
@@ -137,20 +136,28 @@ main(int argc, char *argv[])
 	return 0;
 }
 """
-	result = lib.run()
+	if python_LIBDIR is not None:
+		lib.path = [python_LIBDIR]
+		result = lib.run()
+	else:
+		result = 0
 
 	## try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)
 	if not result:
-		lib.path = [python_LIBPL]
+		if python_LIBPL is not None:
+			lib.path = [python_LIBPL]
+			result = lib.run()
+		else:
+			result = 0
+
+	## try again with -L$prefix/libs (win32)
+	if not result:
+		lib.path = [os.path.join(python_prefix, "libs")]
 		result = lib.run()
 
 	if result:
 		conf.env['LIBPATH_PYEMBED'] = lib.path
 		conf.env.append_value('LIB_PYEMBED', lib.name)
-
-	Py_ENABLE_SHARED, = _get_python_variables(python, [
-		"get_config_var('Py_ENABLE_SHARED')",
-		], ['from distutils.sysconfig import get_config_var'])
 
 	if Py_ENABLE_SHARED is not None:
 		conf.env['LIBPATH_PYEXT'] = conf.env['LIBPATH_PYEMBED']
@@ -191,7 +198,13 @@ def check_python_version(conf, minver=None):
 		if 'PYTHONDIR' in os.environ:
 			dir = os.environ['PYTHONDIR']
 		else:
-			dir = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver, "site-packages")
+			(python_LIBDEST,) = \
+						_get_python_variables(python, [
+				"get_config_var('LIBDEST')",
+				], ['from distutils.sysconfig import get_config_var'])
+			if python_LIBDEST is None:
+				python_LIBDEST = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver)
+			dir = os.path.join(python_LIBDEST, "site-packages")
 
 		conf.add_define('PYTHONDIR', dir)
 		conf.env['PYTHONDIR'] = dir
