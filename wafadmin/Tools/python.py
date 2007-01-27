@@ -10,16 +10,19 @@ import string
 import Object, Action, Utils, Runner, Params, Common
 from pproc import *
 
-
 class pyobj(Object.genobj):
 	s_default_ext = ['.py']
-	def __init__(self):
+	def __init__(self, env=None):
 		Object.genobj.__init__(self, 'other')
 		self.pyopts = ''
-		self.pyc = 1
-		self.pyo = 0
+
 		self.inst_var = 'PYTHONDIR'
 		self.inst_dir = ''
+
+		self.env = env
+		if not self.env: self.env = Params.g_build.m_allenvs['default']
+		self.pyc = self.env['PYC']
+		self.pyo = self.env['PYO']
 
 	def apply(self):
 		find_source_lst = self.path.find_source_lst
@@ -214,9 +217,19 @@ def detect(conf):
 	conf.env['PYFLAGS'] = ''
 	conf.env['PYFLAGS_OPT'] = '-O'
 
+	try:
+		conf.env['PYC'] = Params.g_options.pyc
+		conf.env['PYO'] = Params.g_options.pyo
+	except TypeError:
+		conf.env['PYC']=1
+		conf.env['PYO']=1
+
 	conf.hook(check_python_version)
 	conf.hook(check_python_headers)
 
 	return 1
 
+def set_options(opt):
+	opt.add_option('--nopyc', action = 'store_false', default = 1, help = 'no pyc files (configuration)', dest = 'pyc')
+	opt.add_option('--nopyo', action = 'store_false', default = 1, help = 'no pyo files (configuration)', dest = 'pyo')
 
