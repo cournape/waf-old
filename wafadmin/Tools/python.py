@@ -150,9 +150,10 @@ main(int argc, char *argv[])
 		else:
 			result = 0
 
-	## try again with -L$prefix/libs (win32)
+	## try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)
 	if not result:
 		lib.path = [os.path.join(python_prefix, "libs")]
+		lib.name = 'python' + conf.env['PYTHON_VERSION'].replace('.', '')
 		result = lib.run()
 
 	if result:
