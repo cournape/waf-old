@@ -18,14 +18,12 @@ def configure(conf):
 	conf.check_python_version((2,4,2))
 	conf.check_python_headers()
 
-
 def build(bld):
 	# first compile a few pyc files
 	obj = bld.create_obj('py')
 	obj.pyo = 1
 	#obj.source = 'foo.py'
 	obj.find_sources_in_dirs('.')
-	obj.install_in = 'PYTHONDIR'
 
 	# then a c extension module
 	obj = bld.create_obj('cc', 'shlib')
@@ -39,7 +37,6 @@ def build(bld):
 	obj.source = 'test.c'
 	obj.target = 'test'
 	obj.uselib = 'PYEMBED'
-
 
 def shutdown():
 	import os

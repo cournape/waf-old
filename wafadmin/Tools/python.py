@@ -18,8 +18,8 @@ class pyobj(Object.genobj):
 		self.pyopts = ''
 		self.pyc = 1
 		self.pyo = 0
-		self.inst_var = 'PREFIX'
-		self.inst_dir = 'lib'
+		self.inst_var = 'PYTHONDIR'
+		self.inst_dir = ''
 
 	def apply(self):
 		find_source_lst = self.path.find_source_lst
@@ -47,7 +47,7 @@ class pyobj(Object.genobj):
 
 	def install(self):
 		for i in self.m_tasks:
-			self.install_results('PREFIX', self.inst_dir, i)
+			self.install_results(self.inst_var, self.inst_dir, i)
 
 def setup(env):
 	Object.register('py', pyobj)
@@ -80,7 +80,7 @@ def check_python_headers(conf):
 
 	Note: this test requires that check_python_version was previously
 	executed and successful."""
-	
+
 	#context.Message("Checking for headers required to compile python extensions...\n")
 	python = conf.env['PYTHON']
 	assert python, ("python is %r !" % (python,))
@@ -143,11 +143,11 @@ main(int argc, char *argv[])
 	Py_ENABLE_SHARED, = _get_python_variables(python, [
 		"get_config_var('Py_ENABLE_SHARED')",
 		], ['from distutils.sysconfig import get_config_var'])
-		
+
 	if Py_ENABLE_SHARED is not None:
 		conf.env['LIBPATH_PYEXT'] = conf.env['LIBPATH_PYEMBED']
 		conf.env['LIB_PYEXT'] = conf.env['LIB_PYEMBED']
-		
+
 	return result
 
 
