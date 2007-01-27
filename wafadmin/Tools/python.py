@@ -198,10 +198,13 @@ def check_python_version(conf, minver=None):
 		if 'PYTHONDIR' in os.environ:
 			dir = os.environ['PYTHONDIR']
 		else:
-			(python_LIBDEST,) = \
+			if sys.platform == 'win32':
+				(python_LIBDEST,) = \
 						_get_python_variables(python, [
 				"get_config_var('LIBDEST')",
 				], ['from distutils.sysconfig import get_config_var'])
+			else:
+				python_LIBDEST = None
 			if python_LIBDEST is None:
 				python_LIBDEST = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver)
 			dir = os.path.join(python_LIBDEST, "site-packages")
