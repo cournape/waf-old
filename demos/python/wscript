@@ -39,3 +39,9 @@ def build(bld):
 	obj.source = 'test.c'
 	obj.target = 'test'
 	obj.uselib = 'PYEMBED'
+
+
+def shutdown():
+	import os
+	print os.popen('build/default/test').read()
+
