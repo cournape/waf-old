@@ -7,7 +7,7 @@
 
 import os
 import string
-import Object, Action, Utils, Runner, Params
+import Object, Action, Utils, Runner, Params, Common
 from pproc import *
 
 
@@ -47,7 +47,12 @@ class pyobj(Object.genobj):
 
 	def install(self):
 		for i in self.m_tasks:
-			self.install_results(self.inst_var, self.inst_dir, i)
+			current = Params.g_build.m_curdirnode
+			lst=map(lambda a: a.relpath_gen(current), task.m_outputs)
+			Common.install_files(self.inst_var, self.inst_dir, lst)
+			lst=map(lambda a: a.relpath_gen(current), task.m_inputs)
+			Common.install_files(self.inst_var, self.inst_dir, lst)
+			#self.install_results(self.inst_var, self.inst_dir, i)
 
 def setup(env):
 	Object.register('py', pyobj)
