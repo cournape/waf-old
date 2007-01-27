@@ -31,6 +31,7 @@ def build(bld):
 	obj.target = 'spam'
 	obj.uselib = 'PYEXT'
 	obj.env['shlib_PREFIX'] = ''
+	obj.install_in = 'PYTHONDIR'
 
 	# then a c program
 	obj = bld.create_obj('cc', 'program')
