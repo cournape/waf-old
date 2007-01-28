@@ -56,8 +56,30 @@ class pyobj(Object.genobj):
 			Common.install_files(self.inst_var, self.inst_dir, lst)
 			#self.install_results(self.inst_var, self.inst_dir, i)
 
+def _modify_cc_obj_defaults(obj):
+	obj.env = Params.g_build.m_allenvs['default']
+	obj.uselib = 'PYEXT'
+	obj.env['shlib_PREFIX'] = ''
+	if sys.platform == 'win32':
+		obj.env['shlib_SUFFIX'] = '.pyd'
+	obj.install_in = 'PYTHONDIR'
+
+def pyextccobj():
+	obj = Object.g_allclasses['cc']('shlib')
+	_modify_cc_obj_defaults(obj)
+	return obj
+
+def pyextcppobj():
+	obj = Object.g_allclasses['cpp']('shlib')
+	_modify_cc_obj_defaults(obj)
+	return obj
+
+
 def setup(env):
 	Object.register('py', pyobj)
+	Object.register('pyext', pyextccobj)
+	Object.register('pyextcpp', pyextcppobj)
+	
 	Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
 	Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
 

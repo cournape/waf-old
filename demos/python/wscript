@@ -27,14 +27,9 @@ def build(bld):
 	obj.find_sources_in_dirs('.')
 
 	# then a c extension module
-	obj = bld.create_obj('cc', 'shlib')
+	obj = bld.create_obj('pyext')
 	obj.source = 'spammodule.c'
 	obj.target = 'spam'
-	obj.uselib = 'PYEXT'
-	obj.env['shlib_PREFIX'] = ''
-	if sys.platform == 'win32':
-		obj.env['shlib_SUFFIX'] = '.pyd'
-	obj.install_in = 'PYTHONDIR'
 
 	# then a c program
 	obj = bld.create_obj('cc', 'program')
