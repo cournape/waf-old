@@ -12,7 +12,7 @@ import Utils
 
 g_version="1.1.0"
 g_rootname = ''
-if sys.path=='win32':
+if sys.platform=='win32':
 	# get the first two letters (c:)
 	g_rootname = os.getcwd()[:2]
 
