@@ -253,7 +253,6 @@ def detect(conf):
 
 	if sys.platform == 'win32':
 		obj.env['pyext_SUFFIX'] = '.pyd'
-		obj.env['pyembed_SUFFIX'] = '.pyd'
 
 	# now a small difference
 	v['pyext_USELIB'] = 'PYTHON PYEXT'
