@@ -290,6 +290,7 @@ def Dist(appname, version):
 			if f.startswith('.'): to_remove = True
 			elif f.endswith('~'): to_remove = True
 			elif f.endswith('.pyc'): to_remove = True
+			elif f.endswith('.pyo'): to_remove = True
 			elif f.endswith('.bak'): to_remove = True
 			elif f.endswith('.orig'): to_remove = True
 			elif f in ['config.log']: to_remove = True
