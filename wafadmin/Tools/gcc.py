@@ -214,6 +214,15 @@ def detect(conf):
 	addflags('CPPFLAGS')
 	addflags('LINKFLAGS')
 
+	if not v['DESTDIR']: v['DESTDIR']=''
+
+	v['program_INST_VAR'] = 'PREFIX'
+	v['program_INST_DIR'] = 'bin'
+	v['shlib_INST_VAR'] = 'PREFIX'
+	v['shlib_INST_DIR'] = 'lib'
+	v['staticlib_INST_VAR'] = 'PREFIX'
+	v['staticlib_INST_DIR'] = 'lib'
+
 	return 1
 
 def set_options(opt):

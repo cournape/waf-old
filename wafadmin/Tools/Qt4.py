@@ -135,8 +135,7 @@ class qt4obj(cpp.cppobj):
 		self.langname=''
 		self.update=0
 
-	def get_valid_types(self):
-		return ['program', 'shlib', 'staticlib']
+		# valid types are ['program', 'shlib', 'staticlib']
 
 	def create_task(self, type, env=None, nice=100):
 		"overrides Object.create_task to catch the creation of cpp tasks"

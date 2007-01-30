@@ -228,8 +228,7 @@ class kdeobj(cpp.cppobj):
 		self.skel_or_stub = {}
 		self.want_libtool = -1 # fake libtool here
 
-	def get_valid_types(self):
-		return ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
+		# valid types are ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
 
 	def apply_core(self):
 

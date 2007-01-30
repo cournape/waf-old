@@ -107,8 +107,7 @@ class qt3obj(cpp.cppobj):
 		self.m_linktask = None
 		self.m_latask = None
 
-	def get_valid_types(self):
-		return ['program', 'shlib', 'staticlib']
+		# valid types are ['program', 'shlib', 'staticlib']
 
 	def create_task(self, type, env=None, nice=10):
 		"overrides Object.create_task to catch the creation of cpp tasks"

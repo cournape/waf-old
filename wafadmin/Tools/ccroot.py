@@ -311,7 +311,7 @@ Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, c
 class ccroot(Object.genobj):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	s_default_ext = []
-	def __init__(self, type='program'):
+	def __init__(self, type='program', subtype=None):
 		Object.genobj.__init__(self, type)
 
 		self.env = Params.g_build.m_allenvs['default'].copy()
@@ -319,6 +319,9 @@ class ccroot(Object.genobj):
 
 		# installation directory, to override PREFIX/bin or PREFIX/lib
 		self.install_in = ''
+
+		self.install_var = ''
+		self.install_subdir = ''
 
 		# includes, seen from the current directory
 		self.includes=''
@@ -357,6 +360,16 @@ class ccroot(Object.genobj):
 		self.scanner_defines = {}
 		self._bld_incpaths_lst=[]
 
+		# the subtype, used for all sorts of things
+		self.subtype = subtype
+		if not self.subtype:
+			if self.m_type == 'program':
+				self.subtype = 'program'
+			elif self.m_type == 'staticlib':
+				self.subtype = 'staticlib'
+			else:
+				self.subtype = 'shlib'
+
 	def create_task(self, type, env=None, nice=10):
 		"overrides Object.create_task to catch the creation of cpp tasks"
 		task = Object.genobj.create_task(self, type, env, nice)
@@ -364,15 +377,9 @@ class ccroot(Object.genobj):
 			self.p_compiletasks.append(task)
 		return task
 
-	def get_valid_types(self):
-		"subclass me"
-		fatal('subclass method get_valid_types of ccroot')
-
 	def apply(self):
 		"adding some kind of genericity is tricky subclass this method if it does not suit your needs"
 		debug("apply called for "+self.m_type_initials, 'ccroot')
-		if not self.m_type in self.get_valid_types():
-			fatal('Invalid type for object: '+self.m_type_initials)
 
 		self.apply_type_vars()
 		self.apply_incpaths()
@@ -499,9 +506,13 @@ class ccroot(Object.genobj):
 
 	def apply_type_vars(self):
 		debug('apply_type_vars called', 'ccroot')
+		# if the subtype defines uselib to add, add them
+		st = self.env[self.subtype+'_USELIB']
+		if st: self.uselib = self.uselib + st
+
+		# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
+		# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
 		for var in self.p_type_vars:
-			# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
-			# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
 			compvar = '_'.join([self.m_type, var])
 			#print compvar
 			value = self.env[compvar]
@@ -566,19 +577,13 @@ class ccroot(Object.genobj):
 	def install(self):
 		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 		if self.install_in is 0: return
-		dest_var    = ''
-		dest_subdir = ''
 
-		if self.install_in:
-			dest_var    = self.install_in
-			dest_subdir = ''
-		else:
-			if self.m_type == 'program':
-				dest_var    = 'PREFIX'
-				dest_subdir = 'bin'
-			else:
-				dest_var    = 'PREFIX'
-				dest_subdir = 'lib'
+		inst_var    = self.install_var
+		inst_subdir = self.install_subdir
+
+		if not dest_var:
+			dest_var = self.env[self.subtype+'_INST_VAR']
+			dest_subdir = self.env[self.subtype+'_INST_SUBDIR']
 
 		if self.m_type == 'program':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
