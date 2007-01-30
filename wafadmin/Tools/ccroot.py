@@ -461,11 +461,18 @@ class ccroot(Object.genobj):
 			self.m_latask = latask
 
 	def get_target_name(self, ext=None):
-		return self.get_library_name(self.target, self.m_type, ext)
+		return self.get_library_name(self.target, ext)
 
-	def get_library_name(self, name, type, ext=None):
-		prefix = self.env[type+'_PREFIX']
-		suffix = self.env[type+'_SUFFIX']
+	def get_library_name(self, name, ext=None):
+		v = self.env
+
+		prefix = v[self.m_type+'_PREFIX']
+		if self.subtype+'_PREFIX' in v.m_table:
+			prefix = v[self.subtype+'_PREFIX']
+
+		suffix = v[self.m_type+'_SUFFIX']
+		if self.subtype+'_SUFFIX' in v.m_table:
+			suffix = v[self.subtype+'_SUFFIX']
 
 		if ext: suffix = ext
 		if not prefix: prefix=''
