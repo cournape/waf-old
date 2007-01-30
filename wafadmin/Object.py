@@ -97,9 +97,6 @@ class genobj:
 		# Objects can be posted manually, but this can break a few things, use with care
 		Params.g_build.m_outstanding_objs.append(self)
 
-		if not type in self.get_valid_types():
-			error("BUG genobj::init : invalid type given")
-
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'other']
 
