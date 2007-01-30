@@ -113,7 +113,8 @@ def reset_colors():
 	for k in g_colors.keys():
 		g_colors[k]=''
 
-if sys.platform=='win32' or 'NOCOLOR' in os.environ:
+if (sys.platform=='win32' or 'NOCOLOR' in os.environ
+	or os.environ.get('TERM', 'dumb') == 'dumb'):
 	reset_colors()
 
 def pprint(col, str, label=''):
