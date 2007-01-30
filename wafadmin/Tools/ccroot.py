@@ -515,7 +515,7 @@ class ccroot(Object.genobj):
 		debug('apply_type_vars called', 'ccroot')
 		# if the subtype defines uselib to add, add them
 		st = self.env[self.subtype+'_USELIB']
-		if st: self.uselib = self.uselib + st
+		if st: self.uselib = self.uselib + ' ' + st
 
 		# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
 		# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
