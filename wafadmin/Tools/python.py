@@ -56,33 +56,10 @@ class pyobj(Object.genobj):
 			Common.install_files(self.inst_var, self.inst_dir, lst)
 			#self.install_results(self.inst_var, self.inst_dir, i)
 
-def _modify_cc_obj_defaults(obj):
-	obj.env = Params.g_build.m_allenvs['default']
-	obj.uselib = 'PYEXT'
-	obj.env['shlib_PREFIX'] = ''
-	if sys.platform == 'win32':
-		obj.env['shlib_SUFFIX'] = '.pyd'
-	obj.install_in = 'PYTHONDIR'
-
-def pyextccobj():
-	obj = Object.g_allclasses['cc']('shlib')
-	_modify_cc_obj_defaults(obj)
-	return obj
-
-def pyextcppobj():
-	obj = Object.g_allclasses['cpp']('shlib')
-	_modify_cc_obj_defaults(obj)
-	return obj
-
-
 def setup(env):
 	Object.register('py', pyobj)
-	Object.register('pyext', pyextccobj)
-	Object.register('pyextcpp', pyextcppobj)
-	
 	Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
 	Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
-
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""
@@ -251,16 +228,37 @@ def detect(conf):
 	if not python:
 		return 0
 
-	conf.env['PYCMD'] = '"import sys, py_compile;py_compile.compile(sys.argv[1], sys.argv[2])"'
-	conf.env['PYFLAGS'] = ''
-	conf.env['PYFLAGS_OPT'] = '-O'
+	v = conf.env
+
+	v['PYCMD'] = '"import sys, py_compile;py_compile.compile(sys.argv[1], sys.argv[2])"'
+	v['PYFLAGS'] = ''
+	v['PYFLAGS_OPT'] = '-O'
 
 	try:
-		conf.env['PYC'] = Params.g_options.pyc
-		conf.env['PYO'] = Params.g_options.pyo
+		v['PYC'] = Params.g_options.pyc
+		v['PYO'] = Params.g_options.pyo
 	except TypeError:
-		conf.env['PYC']=1
-		conf.env['PYO']=1
+		v['PYC']=1
+		v['PYO']=1
+
+
+	v['pyext_INST_VAR'] = 'PYTHONDIR'
+	v['pyext_INST_DIR'] = ''
+
+	v['pyembed_INST_VAR'] = 'PYTHONDIR'
+	v['pyembed_INST_DIR'] = ''
+
+	v['pyext_PREFIX'] = ''
+	v['pyembed_PREFIX'] = ''
+
+	if sys.platform == 'win32':
+		obj.env['pyext_SUFFIX'] = '.pyd'
+		obj.env['pyembed_SUFFIX'] = '.pyd'
+
+	# now a small difference
+	v['pyext_USELIB'] = 'PYTHON PYEXT'
+	v['pyembed_USELIB'] = 'PYTHON PYEMBED'
+
 
 	conf.hook(check_python_version)
 	conf.hook(check_python_headers)

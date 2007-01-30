@@ -18,7 +18,7 @@ g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):
 	s_default_ext = ['.c', '.cc', '.C']
 	def __init__(self, type='program', subtype=None):
-		ccroot.ccroot.__init__(self, type)
+		ccroot.ccroot.__init__(self, type, subtype)
 
 		self.ccflags=''
 		self.cppflags=''
