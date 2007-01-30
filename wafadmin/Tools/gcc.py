@@ -4,6 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
+import optparse
 import Utils, Action, Params
 
 def setup(env):
@@ -232,7 +233,6 @@ def set_options(opt):
 		default = '',
 		help = 'Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: ultradebug, debug, release, optimized]',
 		dest = 'debug_level')
-	except:
+	except optparse.OptionConflictError:
 		# the g++ tool might have added that option already
 		pass
-

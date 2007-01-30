@@ -4,6 +4,7 @@
 # Visual C support - beta, needs more testing
 
 import os, sys
+import optparse
 import Utils, Action, Params
 
 def setup(env):
@@ -166,5 +167,5 @@ def set_options(opt):
 		default = 'debug',
 		help = 'Specify the debug level. [Allowed values: ultradebug, debug, release, optimized]',
 		dest = 'debug_level')
-	except:
+	except optparse.OptionConflictError:
 		pass

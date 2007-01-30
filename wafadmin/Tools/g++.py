@@ -4,6 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
+import optparse
 import Utils, Action, Params
 
 def setup(env):
@@ -236,9 +237,12 @@ def detect(conf):
 	return 1
 
 def set_options(opt):
-	opt.add_option('-d', '--debug-level',
-	action = 'store',
-	default = 'release',
-	help = 'Specify the debug level, does nothing if CXXFLAGS is set in the environment. [Allowed Values: ultradebug, debug, release, optimized]',
-	dest = 'debug_level')
-
+	try:
+		opt.add_option('-d', '--debug-level',
+		action = 'store',
+		default = 'release',
+		help = 'Specify the debug level, does nothing if CXXFLAGS is set in the environment. [Allowed Values: ultradebug, debug, release, optimized]',
+		dest = 'debug_level')
+	except optparse.OptionConflictError:
+		# the gcc tool might have added that option already
+		pass
