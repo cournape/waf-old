@@ -106,12 +106,15 @@ def check_python_headers(conf):
 
 	## Check for python libraries for embedding
 	if python_SYSLIBS is not None:
-		conf.env.append_value('LIB_PYEMBED', python_SYSLIBS)
+		for lib in python_SYSLIBS.split():
+			libname = lib[2:] # strip '-l'
+			conf.env.append_value('LIB_PYEMBED', libname)
 	if python_SHLIBS is not None:
-		conf.env.append_value('LIB_PYEMBED', python_SHLIBS)
+		for lib in python_SHLIBS.split():
+			libname = lib[2:] # strip '-l'
+			conf.env.append_value('LIB_PYEMBED', libname)
 	lib = conf.create_library_configurator()
 	lib.name = 'python' + conf.env['PYTHON_VERSION']
-	lib.env['shlib_PREFIX'] = ''
 	lib.code = """
 #ifdef __cplusplus
 extern "C" {
@@ -166,6 +169,18 @@ main(int argc, char *argv[])
 	header.name = 'Python.h'
 	header.define = 'HAVE_PYTHON_H'
 	header.uselib = 'PYEXT'
+	header.code = """
+#include <Python.h>
+
+int
+main(int argc, char *argv[])
+{
+	Py_Initialize();
+	Py_Finalize();
+	return 0;
+}
+"""
+	
 	result = header.run()
 	if not result:
 		return result
