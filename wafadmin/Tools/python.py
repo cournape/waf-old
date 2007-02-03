@@ -104,17 +104,6 @@ def check_python_headers(conf):
 		], ['from distutils.sysconfig import get_config_var'])
 	python_includes = [INCLUDEPY]
 
-	header = conf.create_header_configurator()
-	header.path = python_includes
-	header.name = 'Python.h'
-	header.define = 'HAVE_PYTHON_H'
-	result = header.run()
-	if not result:
-		return result
-
-	conf.env['CPPPATH_PYEXT'] = python_includes
-	conf.env['CPPPATH_PYEMBED'] = python_includes
-
 	## Check for python libraries for embedding
 	if python_SYSLIBS is not None:
 		conf.env.append_value('LIB_PYEMBED', python_SYSLIBS)
@@ -122,9 +111,18 @@ def check_python_headers(conf):
 		conf.env.append_value('LIB_PYEMBED', python_SHLIBS)
 	lib = conf.create_library_configurator()
 	lib.name = 'python' + conf.env['PYTHON_VERSION']
-	lib.uselib = 'PYEMBED'
+	lib.env['shlib_PREFIX'] = ''
 	lib.code = """
-#include <Python.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void Py_Initialize(void);
+void Py_Finalize(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 int
 main(int argc, char *argv[])
@@ -161,6 +159,20 @@ main(int argc, char *argv[])
 	if sys.platform == 'win32' or Py_ENABLE_SHARED is not None:
 		conf.env['LIBPATH_PYEXT'] = conf.env['LIBPATH_PYEMBED']
 		conf.env['LIB_PYEXT'] = conf.env['LIB_PYEMBED']
+
+	## Check for Python headers
+	header = conf.create_header_configurator()
+	header.path = python_includes
+	header.name = 'Python.h'
+	header.define = 'HAVE_PYTHON_H'
+	header.uselib = 'PYEXT'
+	result = header.run()
+	if not result:
+		return result
+
+	conf.env['CPPPATH_PYEXT'] = python_includes
+	conf.env['CPPPATH_PYEMBED'] = python_includes
+
 
 	return result
 
