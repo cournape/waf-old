@@ -4,6 +4,7 @@
 "Configuration system"
 
 import os, types, imp, cPickle, md5, sys, re, inspect
+import shlex
 import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
 
@@ -473,8 +474,15 @@ class pkgconfig_configurator(configurator_base):
 				if ret:
 					raise ValueError, "error"
 
-			retval['CCFLAGS_'+uselib]   = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
-			retval['CXXFLAGS_'+uselib]  = [os.popen('%s --cflags %s' % (pkgcom, self.name)).read().strip()]
+			cflags_I = shlex.split(os.popen('%s --cflags-only-I %s' % (pkgcom, self.name)).read())
+			cflags_other = shlex.split(os.popen('%s --cflags-only-other %s' % (pkgcom, self.name)).read())
+			retval['CCFLAGS_'+uselib] = cflags_other
+			retval['CXXFLAGS_'+uselib] = cflags_other
+			retval['CPPPATH_'+uselib] = []
+			for incpath in cflags_I:
+				assert incpath[:2] == '-I' or incpath[:2] == '/I'
+				retval['CPPPATH_'+uselib].append(incpath[2:]) # strip '-I' or '/I'
+
 			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
 			# Store the library names:
 			modlibs = os.popen('%s --libs-only-l %s' % (pkgcom, self.name)).read().strip().split()
