@@ -127,6 +127,7 @@ def detect(conf):
 	else:
 		debuglevel = debuglevel.upper()
 	v['CCFLAGS']   += v['CCFLAGS_'+debuglevel]
+	v['CXXFLAGS']  += v['CXXFLAGS_'+debuglevel]
 	v['LINKFLAGS'] += v['LINKFLAGS_'+debuglevel]
 
 	def addflags(var):
