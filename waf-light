@@ -154,11 +154,16 @@ def find_wafadmin():
 
 	if wafdir: return
 
-	# uncompress waf-local to the directory containing waf
+	# look in the directory containing waf
 	if sys.platform == 'win32': s='waf-%s-%s'
 	else: s='.waf-%s-%s'
-	wafdir = os.path.join(os.path.dirname(os.path.abspath(name)), s % (VERSION, REVISION))
-	uncompress_wafdir(wafdir)
+	dir = os.path.join(os.path.dirname(os.path.abspath(name)), s % (VERSION, REVISION))
+	try_wafdir(dir)
+	if wafdir: return
+
+	# not found, uncompress
+	wafdir = dir
+	uncompress_wafdir(dir)
 
 # run the test
 find_wafadmin()
