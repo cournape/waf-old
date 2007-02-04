@@ -244,7 +244,7 @@ class Build:
 
 		for env in self.m_allenvs.values():
 			for f in env['dep_files']:
-				newnode = self.m_srcnode.find_build(f)
+				newnode = self.m_srcnode.find_build(f, create=1)
 				try:
 					hash = Params.h_file(newnode.abspath(env))
 				except IOError:
