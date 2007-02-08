@@ -585,8 +585,8 @@ class ccroot(Object.genobj):
 		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 		if self.install_in is 0: return
 
-		inst_var    = self.install_var
-		inst_subdir = self.install_subdir
+		dest_var    = self.install_var
+		dest_subdir = self.install_subdir
 
 		if not dest_var:
 			dest_var = self.env[self.subtype+'_INST_VAR']
