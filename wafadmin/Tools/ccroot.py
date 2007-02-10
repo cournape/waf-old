@@ -590,7 +590,7 @@ class ccroot(Object.genobj):
 
 		if not dest_var:
 			dest_var = self.env[self.subtype+'_INST_VAR']
-			dest_subdir = self.env[self.subtype+'_INST_SUBDIR']
+			dest_subdir = self.env[self.subtype+'_INST_DIR']
 
 		if self.m_type == 'program':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
