@@ -272,8 +272,8 @@ def detect(conf):
 	v['pyext_INST_VAR'] = 'PYTHONDIR'
 	v['pyext_INST_DIR'] = ''
 
-	v['pyembed_INST_VAR'] = 'PYTHONDIR'
-	v['pyembed_INST_DIR'] = ''
+	v['pyembed_INST_VAR'] = v['program_INST_VAR']
+	v['pyembed_INST_DIR'] = v['program_INST_DIR']
 
 	v['pyext_PREFIX'] = ''
 	v['pyembed_PREFIX'] = ''
