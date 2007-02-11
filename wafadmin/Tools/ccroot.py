@@ -726,7 +726,7 @@ class ccroot(Object.genobj):
 		if not lst: return
 		for obj in Object.g_allobjs:
 			if obj.target in lst or obj.name in lst:
-				if obj.target == self.target: continue
+				if obj.target == self.target and obj.name == self.name: continue
 				if not obj.m_posted: obj.post()
 				self.m_linktask.m_inputs += obj.out_nodes
 
