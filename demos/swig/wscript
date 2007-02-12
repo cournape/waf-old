@@ -26,9 +26,9 @@ def configure(conf):
 	conf.check_python_headers()
 
 def build(bld):
-	obj = bld.create_obj('cpp','shlib','pyext')
+	obj = bld.create_obj('cpp','program','pyembed')
 	obj.source = 'swigtooldemo.cpp swigtooldemo.swig'
-	obj.target = '_swigdemo'
+	obj.target = 'swigdemo'
 	obj.include = '.'
 def shutdown():
 	pass
