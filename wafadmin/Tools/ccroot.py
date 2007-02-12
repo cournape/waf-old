@@ -317,9 +317,6 @@ class ccroot(Object.genobj):
 		self.env = Params.g_build.m_allenvs['default'].copy()
 		if not self.env['tools']: fatal('no tool selected')
 
-		# installation directory, to override PREFIX/bin or PREFIX/lib
-		self.install_in = ''
-
 		self.install_var = ''
 		self.install_subdir = ''
 
@@ -583,10 +580,10 @@ class ccroot(Object.genobj):
 
 	def install(self):
 		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
-		if self.install_in is 0: return
 
 		dest_var    = self.install_var
 		dest_subdir = self.install_subdir
+		if dest_var == 0: return
 
 		if not dest_var:
 			dest_var = self.env[self.subtype+'_INST_VAR']
