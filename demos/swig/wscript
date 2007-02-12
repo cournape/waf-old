@@ -30,7 +30,8 @@ def build(bld):
 	obj.source = 'swigtooldemo.cpp swigtooldemo.swig'
 	obj.target = 'swigdemo'
 	obj.include = '.'
-def shutdown():
-	pass
 
+def shutdown():
+	import os
+	os.popen('export PYTHONPATH=$PYTHONPATH:build/default/; build/default/swigdemo')
 

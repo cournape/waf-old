@@ -19,7 +19,7 @@ int main()
         PyRun_SimpleFile(file_py, i_oFile.toLocal8Bit());
         fclose(file_py);
 	*/
-	PyRun_SimpleString("import _swigdemo\nprint 'hey pfo'\nprint _swigdemo.instance()");
+	PyRun_SimpleString("import swigdemo, sys\nsys.stderr.write('hey pfo\\n')\nsys.stderr.write(str(swigdemo.TestClass.instance()))");
 
         Py_Finalize();
 }
