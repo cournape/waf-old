@@ -276,7 +276,6 @@ def detect(conf):
 	v['pyembed_INST_DIR'] = v['program_INST_DIR']
 
 	v['pyext_PREFIX'] = ''
-	v['pyembed_PREFIX'] = ''
 
 	if sys.platform == 'win32':
 		v['pyext_SUFFIX'] = '.pyd'
