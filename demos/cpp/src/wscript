@@ -31,7 +31,7 @@ def build(bld):
 	obj.includes     = '.'
 	#obj.name         = 'peter'
 	obj.target       = 'testshlib'
-	obj.install_in   = 'SOME_INSTALL_DIR'
+	obj.install_var  = 'SOME_INSTALL_DIR'
 
 	# 3. A static library
 	# The extension (.a) is added automatically
