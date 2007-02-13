@@ -76,7 +76,11 @@ def load_module(file_path, name='wscript'):
 	d['install_files'] = Common.install_files
 	d['install_as'] = Common.install_as
 	d['symlink_as'] = Common.symlink_as
+
+	module_dir = os.path.dirname(file_path)
+	sys.path.insert(0, module_dir)
 	exec file in module.__dict__
+	sys.path.remove(module_dir)
 	if file: file.close()
 
 	g_loaded_modules[file_path] = module
