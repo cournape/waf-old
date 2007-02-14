@@ -115,6 +115,7 @@ def check_python_headers(conf):
 			conf.env.append_value('LIB_PYEMBED', libname)
 	lib = conf.create_library_configurator()
 	lib.name = 'python' + conf.env['PYTHON_VERSION']
+	lib.uselib = 'PYTHON'
 	lib.code = """
 #ifdef __cplusplus
 extern "C" {

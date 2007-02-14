@@ -9,33 +9,44 @@ from Params import fatal
 from Params import set_globals
 
 
+
 swig_str = '${SWIG} ${SWIGFLAGS} -o ${TGT} ${SRC}'
 
-
-set_globals('EXT_SWIG_I', '.swig')
-set_globals('EXT_SWIG_OUT','_swigwrap.cpp')
-set_globals('EXT_SWIG_OBJ_OUT','_swigwrap.os')
+set_globals('EXT_SWIG_C','.swigwrap.c')
+set_globals('EXT_SWIG_CC','.swigwrap.cc')
+set_globals('EXT_SWIG_OUT','.swigwrap.os')
 
 def i_file(self, node):
-	ext = self.env['EXT_SWIG_I']
-	out_ext = self.env['EXT_SWIG_OUT']
-	obj_ext = self.env['EXT_SWIG_OBJ_OUT']
+	if self.__class__.__name__ == 'ccobj':
+		ext = self.env['EXT_SWIG_C']
+	elif self.__class__.__name__ == 'cppobj':
+		ext = self.env['EXT_SWIG_CC']
+	else:
+		fatal('neither c nor c++ for swig.py')
 
-	ltask = self.create_task('swig', nice=4)
-	ltask.set_inputs(node)
-	ltask.set_outputs(node.change_ext(out_ext))  
+	swig_file = open(node.abspath(), 'r')
+	first_line = swig_file.readline()
+	swig_file.close()
+	if str(first_line).startswith("%module"):
+		obj_ext = self.env['EXT_SWIG_OUT']
 
-	task = self.create_task(self.m_type_initials)
-	task.set_inputs(ltask.m_outputs)
+		ltask = self.create_task('swig', nice=4)
+		ltask.set_inputs(node)
+		ltask.set_outputs(node.change_ext(ext))
 
-	
-	task.set_outputs(node.change_ext(obj_ext))
+		task = self.create_task(self.m_type_initials)
+		task.set_inputs(ltask.m_outputs)
+		task.set_outputs(node.change_ext(obj_ext))
+
 
 
 def setup(env):
 	Action.simple_action('swig', swig_str, color='BLUE')
 
+	# register the hook for use with cppobj and ccobj
 	try: env.hook('cpp', 'SWIG_EXT', i_file)
+	except: pass
+	try: env.hook('cc', 'SWIG_EXT', i_file)
 	except: pass
 
 def detect(conf):
