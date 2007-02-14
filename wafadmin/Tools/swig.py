@@ -14,36 +14,42 @@ set_globals('EXT_SWIG_CC','.swigwrap.cc')
 set_globals('EXT_SWIG_OUT','.swigwrap.os')
 
 re_1 = re.compile('%module (.*)', re.M)
-re_2 = re.compile('%include "(.*.i)"', re.M)
-re_3 = re.compile('#include "(.*.i)"', re.M)
+re_2 = re.compile('%include "(.*)"', re.M)
+re_3 = re.compile('#include "(.*)"', re.M)
 
 class swig_class_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def scan(self, node, env):
 		variant = node.variant(env)
+		tree = Params.g_build
 
 		lst_names = []
 		lst_src = []
 
+		# read the file
 		fi = open(node.abspath(env), 'r')
 		content = fi.read()
 		fi.close()
 
+		# module name, only for the .swig file
 		names = re_1.findall(content)
 		if names: lst_names.append(names[0])
 
+		# find .i files (and perhaps .h files)
 		names = re_2.findall(content)
 		for n in names:
 			u = node.m_parent.find_source(n)
 			if u: lst_src.append(u)
 
+		# find project headers
 		names = re_3.findall(content)
 		for n in names:
 			u = node.m_parent.find_source(n)
 			if u: lst_src.append(u)
 
-		print lst_src, lst_names
+		# list of nodes this one depends on, and module name if present
+		print "result of ", node, lst_src, lst_names
 		return (lst_src, lst_names)
 
 swig_scanner = swig_class_scanner()
@@ -56,11 +62,20 @@ def i_file(self, node):
 	else:
 		fatal('neither c nor c++ for swig.py')
 
-	if Params.g_build.needs_rescan(node, self.env):
-		swig_scanner.do_scan(node, self.env, hashparams={})
+	variant = node.variant(self.env)
+
+	# check if rescanning is needed
+	# the swig include system makes a small tree
+	def check_rec(nn, env, variant, tree):
+		if tree.needs_rescan(nn, env):
+			swig_scanner.do_scan(nn, env, hashparams={})
+		nodes = tree.m_depends_on[variant][nn]
+		for kk in nodes:
+			if kk.m_name[-2:] != '.i': return # avoid others than .i files
+			check_rec(kk, env, variant, tree)
+	check_rec(node, self.env, variant, Params.g_build)
 
 	# get the name of the swig module to process
-	variant = node.variant(self.env)
 	try: modname = Params.g_build.m_raw_deps[variant][node][0]
 	except: return
 
