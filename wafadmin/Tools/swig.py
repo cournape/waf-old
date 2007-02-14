@@ -85,6 +85,9 @@ def i_file(self, node):
 	# swig generates a python file in python mode TODO: other modes ?
 	if '-python' in self.env['SWIGFLAGS']:
 		outs.append(node.m_parent.find_build(modname+'.py'))
+	elif '-ocaml' in self.env['SWIGFLAGS']:
+		outs.append(node.m_parent.find_build(modname+'.ml'))
+		outs.append(node.m_parent.find_build(modname+'.mli'))
 
 	# create the swig task
 	ltask = self.create_task('swig', nice=4)
