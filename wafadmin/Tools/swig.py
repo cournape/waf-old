@@ -1,20 +1,52 @@
 #! /usr/bin/env python
 # encoding: UTF-8
 # Petar Forai
+# Thomas Nagy
 
-"""SWIG file processing. This Tool assumes that the `main' swig file has the `.swig' extension (instead of .i like in the documentation). The reason for this is that one swig file can include others and via this assumption we make things easier."""
+import re
+import Action, Scan, Params
+from Params import fatal, set_globals
 
-import Action
-from Params import fatal
-from Params import set_globals
-
-
-
-swig_str = '${SWIG} ${SWIGFLAGS} -o ${TGT} ${SRC}'
+swig_str = '${SWIG} ${SWIGFLAGS} -o ${TGT[0].bldpath(env)} ${SRC}'
 
 set_globals('EXT_SWIG_C','.swigwrap.c')
 set_globals('EXT_SWIG_CC','.swigwrap.cc')
 set_globals('EXT_SWIG_OUT','.swigwrap.os')
+
+re_1 = re.compile('%module (.*)', re.M)
+re_2 = re.compile('%include "(.*.i)"', re.M)
+re_3 = re.compile('#include "(.*.i)"', re.M)
+
+class swig_class_scanner(Scan.scanner):
+	def __init__(self):
+		Scan.scanner.__init__(self)
+	def scan(self, node, env):
+		variant = node.variant(env)
+
+		lst_names = []
+		lst_src = []
+
+		fi = open(node.abspath(env), 'r')
+		content = fi.read()
+		fi.close()
+
+		names = re_1.findall(content)
+		if names: lst_names.append(names[0])
+
+		names = re_2.findall(content)
+		for n in names:
+			u = node.m_parent.find_source(n)
+			if u: lst_src.append(u)
+
+		names = re_3.findall(content)
+		for n in names:
+			u = node.m_parent.find_source(n)
+			if u: lst_src.append(u)
+
+		print lst_src, lst_names
+		return (lst_src, lst_names)
+
+swig_scanner = swig_class_scanner()
 
 def i_file(self, node):
 	if self.__class__.__name__ == 'ccobj':
@@ -24,21 +56,29 @@ def i_file(self, node):
 	else:
 		fatal('neither c nor c++ for swig.py')
 
-	swig_file = open(node.abspath(), 'r')
-	first_line = swig_file.readline()
-	swig_file.close()
-	if str(first_line).startswith("%module"):
-		obj_ext = self.env['EXT_SWIG_OUT']
+	if Params.g_build.needs_rescan(node, self.env):
+		swig_scanner.do_scan(node, self.env, hashparams={})
 
-		ltask = self.create_task('swig', nice=4)
-		ltask.set_inputs(node)
-		ltask.set_outputs(node.change_ext(ext))
+	# get the name of the swig module to process
+	variant = node.variant(self.env)
+	try: modname = Params.g_build.m_raw_deps[variant][node][0]
+	except: return
 
-		task = self.create_task(self.m_type_initials)
-		task.set_inputs(ltask.m_outputs)
-		task.set_outputs(node.change_ext(obj_ext))
+	# set the output files
+	outs = [node.change_ext(ext)]
+	# swig generates a python file in python mode TODO: other modes ?
+	if '-python' in self.env['SWIGFLAGS']:
+		outs.append(node.m_parent.find_build(modname+'.py'))
 
+	# create the swig task
+	ltask = self.create_task('swig', nice=4)
+	ltask.set_inputs(node)
+	ltask.set_outputs(outs)
 
+	# create the build task (c or cpp)
+	task = self.create_task(self.m_type_initials)
+	task.set_inputs(ltask.m_outputs[0])
+	task.set_outputs(node.change_ext(self.env['EXT_SWIG_OUT']))
 
 def setup(env):
 	Action.simple_action('swig', swig_str, color='BLUE')
