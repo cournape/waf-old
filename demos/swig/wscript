@@ -32,6 +32,10 @@ def build(bld):
 	obj.include = '.'
 
 def shutdown():
-	import os
-	os.popen('export PYTHONPATH=$PYTHONPATH:build/default/; build/default/swigdemo')
+	import os, stat
+	try:
+		os.stat('build/default/swigdemo')
+		os.popen('export PYTHONPATH=$PYTHONPATH:build/default/; build/default/swigdemo')
+	except:
+		pass
 

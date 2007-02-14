@@ -1,50 +1,29 @@
 #ifndef SWIGTOOLDEMO_HPP
 #define SWIGTOOLDEMO_HPP
 
-#include <string>
-#include <iostream>
+// singleton shared between test app and python
+class TestClass
+{
+	public:
+		static TestClass* instance()
+		{
+			if (_instance == 0)
+				_instance = new TestClass();
+			return _instance;
+		}
 
-//this is a inline singleton pattern implementing class.
-class TestClass {
-    
-public:
-    static TestClass* instance() {
-	if (_instance == 0)
-	    _instance = new TestClass();
-	return _instance;
-    }
+		void destroy () { delete _instance; _instance = 0; }
 
-    void destroy () { delete _instance; _instance = 0; }
-    
-protected:
-    TestClass() {};
-    ~TestClass(){};
-    
-public:
-    void printHelloWorldString() { std::cout << "Hello World from C++" << std::endl; }
-    
-private:
-    static TestClass* _instance;
+	protected:
+		TestClass() {};
+		~TestClass(){};
+
+	public:
+		const char* test() { return "Hello World from C++\n"; }
+
+	private:
+		static TestClass* _instance;
 };
 
-
-// int test_all() {
-//     static TestClass* instance = TestClass::instance();
-//     instance->printHelloWorldString();
-//     instance->destroy();
-//     return 0;
-// }
-
-// int test_create() {
-//     static TestClass* instance = TestClass::instance();
-//     return 0;
-// }
-
-// int test_delete() {
-//     static TestClass* instance = TestClass::instance();
-//     instance->destroy();
-//     return 0;
-// }
-
-
 #endif //SWIGTOOLDEMO_HPP
+
