@@ -49,7 +49,7 @@ class swig_class_scanner(Scan.scanner):
 			if u: lst_src.append(u)
 
 		# list of nodes this one depends on, and module name if present
-		print "result of ", node, lst_src, lst_names
+		#print "result of ", node, lst_src, lst_names
 		return (lst_src, lst_names)
 
 swig_scanner = swig_class_scanner()
@@ -60,7 +60,8 @@ def i_file(self, node):
 	elif self.__class__.__name__ == 'cppobj':
 		ext = self.env['EXT_SWIG_CC']
 	else:
-		fatal('neither c nor c++ for swig.py')
+		ext = self.env['EXT_SWIG_C']
+		# the extension does not matter so much, does it ? (ita)
 
 	variant = node.variant(self.env)
 
