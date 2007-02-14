@@ -13,7 +13,7 @@ set_globals('EXT_SWIG_C','.swigwrap.c')
 set_globals('EXT_SWIG_CC','.swigwrap.cc')
 set_globals('EXT_SWIG_OUT','.swigwrap.os')
 
-re_1 = re.compile('^%module.*?\s+(\W)\s*?$', re.M)
+re_1 = re.compile(r'^%module.*?\s+([\w]+)\s*?$', re.M)
 re_2 = re.compile('%include "(.*)"', re.M)
 re_3 = re.compile('#include "(.*)"', re.M)
 
