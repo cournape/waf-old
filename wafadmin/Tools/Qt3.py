@@ -97,7 +97,7 @@ class MTask(Task.Task):
 
 def create_uic_task(self, node):
 	"hook for uic tasks"
-	uictask = self.create_task('qt3_uic3', self.env, 6)
+	uictask = self.create_task('qt3_uic3', self.env, 60)
 	uictask.m_inputs    = [node]
 	uictask.m_outputs   = [node.change_ext('.h')]
 
@@ -109,7 +109,7 @@ class qt3obj(cpp.cppobj):
 
 		# valid types are ['program', 'shlib', 'staticlib']
 
-	def create_task(self, type, env=None, nice=10):
+	def create_task(self, type, env=None, nice=100):
 		"overrides Object.create_task to catch the creation of cpp tasks"
 
 		if env is None: env=self.env

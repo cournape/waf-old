@@ -124,7 +124,7 @@ class ocamlobj(Object.genobj):
 				print "??? ", filename
 
 			if ext == '.mll':
-				mll_task = self.create_task('ocamllex', self.native_env, 1)
+				mll_task = self.create_task('ocamllex', self.native_env, 10)
 				mll_task.set_inputs(node)
 				mll_task.set_outputs(node.change_ext('.ml'))
 				self._mlltasks.append(mll_task)
@@ -132,24 +132,24 @@ class ocamlobj(Object.genobj):
 				node = mll_task.m_outputs[0]
 
 			elif ext == '.mly':
-				mly_task = self.create_task('ocamlyacc', self.native_env, 1)
+				mly_task = self.create_task('ocamlyacc', self.native_env, 10)
 				mly_task.set_inputs(node)
 				mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
 				self._mlytasks.append(mly_task)
 
-				task = self.create_task('ocamlcmi', self.native_env, 4)
+				task = self.create_task('ocamlcmi', self.native_env, 40)
 				task.set_inputs(mly_task.m_outputs[1])
 				task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
 
 				node = mly_task.m_outputs[0]
 			elif ext == '.mli':
-				task = self.create_task('ocamlcmi', self.native_env, 4)
+				task = self.create_task('ocamlcmi', self.native_env, 40)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmi'))
 				self._mlitasks.append(task)
 				continue
 			elif ext == '.c':
-				task = self.create_task('ocamlcc', self.native_env, 6)
+				task = self.create_task('ocamlcc', self.native_env, 60)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.o'))
 
@@ -159,13 +159,13 @@ class ocamlobj(Object.genobj):
 				pass
 
 			if self.native_env:
-				task = self.create_task('ocaml', self.native_env, 6)
+				task = self.create_task('ocaml', self.native_env, 60)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmx'))
 				self._map_task(task)
 				self._native_tasks.append(task)
 			if self.bytecode_env:
-				task = self.create_task('ocaml', self.bytecode_env, 6)
+				task = self.create_task('ocaml', self.bytecode_env, 60)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmo'))
 				self._map_task(task)

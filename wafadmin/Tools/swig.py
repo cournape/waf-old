@@ -90,7 +90,7 @@ def i_file(self, node):
 		outs.append(node.m_parent.find_build(modname+'.mli'))
 
 	# create the swig task
-	ltask = self.create_task('swig', nice=4)
+	ltask = self.create_task('swig', nice=40)
 	ltask.set_inputs(node)
 	ltask.set_outputs(outs)
 

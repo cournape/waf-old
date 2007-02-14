@@ -69,7 +69,7 @@ class copyobj(Object.genobj):
 			# TODO the file path may be incorrect
 			newnode = self.path.find_build(target)
 
-			task = self.create_task('copy', self.env, 8)
+			task = self.create_task('copy', self.env, 10)
 			task.set_inputs(node)
 			task.set_outputs(newnode)
 			task.m_env = self.env

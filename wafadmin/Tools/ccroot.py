@@ -367,7 +367,7 @@ class ccroot(Object.genobj):
 			else:
 				self.subtype = 'shlib'
 
-	def create_task(self, type, env=None, nice=10):
+	def create_task(self, type, env=None, nice=100):
 		"overrides Object.create_task to catch the creation of cpp tasks"
 		task = Object.genobj.create_task(self, type, env, nice)
 		if type == self.m_type_initials:
