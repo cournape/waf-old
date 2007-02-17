@@ -37,13 +37,14 @@ class compile_configurator(Configure.configurator_base):
 		self.uselib = ''
 		self.want_message = 0
 		self.msg = ''
+		self.force_compiler = None
 
 	def error(self):
 		fatal('test program would not run')
 
 	def run_cache(self, retval):
 		if self.want_message:
-			self.conf.check_message('compile code (cached)', '', not int(retval), option=self.msg)
+			self.conf.check_message('compile code (cached)', '', not (retval is False), option=self.msg)
 
 	def validate(self):
 		if not self.code:
@@ -55,10 +56,13 @@ class compile_configurator(Configure.configurator_base):
 		obj.env  = self.env
 		obj.uselib = self.uselib
 		obj.flags = self.flags
-		ret = self.conf.run_check(obj)
+		if self.force_compiler:
+			ret = self.conf.run_check(obj, force_compiler = self.force_compiler)
+		else:
+			ret = self.conf.run_check(obj)
 
 		if self.want_message:
-			self.conf.check_message('compile code', '', not int(ret), option=self.msg)
+			self.conf.check_message('compile code', '', not (ret is False), option=self.msg)
 
 		return ret
 
@@ -181,10 +185,12 @@ def try_build_and_exec(self, code, uselib=''):
 	if ret: return ret['result']
 	return None
 
-def try_build(self, code, uselib='', msg=''):
+def try_build(self, code, uselib='', msg='', force_compiler = ''):
 	test = self.create_compile_configurator()
 	test.uselib = uselib
 	test.code = code
+	if force_compiler:
+		test.force_compiler = force_compiler
 	if msg:
 		test.want_message = 1
 		test.msg = msg
@@ -198,7 +204,7 @@ def check_flags(self, flags, uselib='', options='', msg=1):
 	test.flags = flags
 	ret = test.run()
 
-	if msg: self.check_message('flags', flags, not (ret is None))
+	if msg: self.check_message('flags', flags, not (ret is False))
 
 	if ret: return 1
 	return None
@@ -238,7 +244,7 @@ def check_cfg2(self, name, mandatory=1, define='', uselib=''):
 	if uselib: ck_cfg.uselib = uselib
 	# cfgtool provides no fallback for uselib:
 	else: ck_cfg.uselib = name.upper()
- 	ck_cfg.mandatory = mandatory
+	ck_cfg.mandatory = mandatory
 	ck_cfg.binary = name + '-config'
 	return ck_cfg.run()
 

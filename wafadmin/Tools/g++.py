@@ -211,7 +211,7 @@ def detect(conf):
 	test.env = v
 	test.execute = 1
 	ret = conf.run_check(test, "shlib", "cpp")
-	conf.check_message('compiler could create', 'pragramms', not (ret is None))
+	conf.check_message('compiler could create', 'pragramms', not (ret is False))
 	if not ret:
 		return 0
 	#test if the compiler could build a shlib
@@ -219,7 +219,7 @@ def detect(conf):
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
 	ret = conf.run_check(lib_obj, "shlib", "cpp")
-	conf.check_message('compiler could create', 'shared libs', not (ret is None))
+	conf.check_message('compiler could create', 'shared libs', not (ret is False))
 	if not ret:
 		return 0
 	#test if the compiler could build a staiclib
@@ -227,7 +227,7 @@ def detect(conf):
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
 	ret = conf.run_check(lib_obj, "staticlib", "cpp")
-	conf.check_message('compiler could create', 'static libs', not (ret is None))
+	conf.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret:
 		return 0
 
