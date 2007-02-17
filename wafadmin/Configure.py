@@ -235,7 +235,7 @@ class function_enumerator(enumerator_base):
 		obj.includes      = self.include_paths
 		obj.env           = self.env
 
-		ret = int(not self.conf.run_check(obj))
+		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('function %s' % self.function, '', ret, option='')
 
 		self.conf.add_define(self.define, ret)
@@ -641,7 +641,7 @@ class library_configurator(configurator_base):
 		obj.uselib        = self.uselib
 		obj.libpath       = self.path
 
-		ret = int(not self.conf.run_check(obj))
+		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('library %s' % self.name, '', ret)
 
 		self.conf.add_define(self.define, ret)
@@ -725,7 +725,7 @@ class framework_configurator(configurator_base):
 		obj.uselib        = self.uselib
 		obj.flags		  += " ".join (cflags)
 
-		ret = int(not self.conf.run_check(obj))
+		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('framework %s' % self.name, '', ret, option='')
 		self.conf.add_define(self.define, ret)
 
@@ -821,7 +821,7 @@ class header_configurator(configurator_base):
 		obj.env           = self.env
 		obj.uselib        = self.uselib
 
-		ret = int(not self.conf.run_check(obj))
+		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('header %s' % self.name, '', ret, option='')
 
 		self.conf.add_define(self.define, ret)
@@ -1195,9 +1195,14 @@ class Configure:
 			return ''
 
 
-	def run_check(self, obj):
-		"compile, link and run if necessary"
-
+	def run_check(self, obj, build_type = 'program', force_compiler = None):
+		"""compile, link and run if necessary
+@param obj: data of type check_data
+@param build_type: could be program (default), shlib or staticlib
+@param force_compiler: could be None (default), cc or cpp
+@return: (False if a error during build happens) or ( (True if build ok) or 
+(a {'result': ''} if execute was set))
+"""
 		# first make sure the code to execute is defined
 		if not obj.code:
 			error('run_check: no code to process in check')
@@ -1241,13 +1246,12 @@ class Configure:
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
 
-		if env['CXX']:
+		if (not force_compiler and env['CXX']) or force_compiler == "cpp":
 			import cpp
-			o=cpp.cppobj('program')
+			o=cpp.cppobj(build_type)
 		else:
 			import cc
-			o=cc.ccobj('program')
-
+			o=cc.ccobj(build_type)
 		o.source   = 'test.c'
 		o.target   = 'testprog'
 		o.uselib   = obj.uselib
@@ -1271,14 +1275,16 @@ class Configure:
 
 		# if we need to run the program, try to get its result
 		if obj.execute:
-			if ret: return None
+			if ret: return not ret
 			try:
 				data = os.popen(lastprog).read().strip()
 				ret = {'result': data}
+				return ret
 			except:
 				raise
 				pass
-		return ret
+		
+		return not ret
 
 	def _cache_platform(self):
 		m = md5.new()

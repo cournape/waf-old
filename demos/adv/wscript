@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
-
+from Params import fatal
 # advanced tests
 # look in src/ for an example of a new compiler that creates cpp files
 
@@ -36,7 +36,12 @@ def set_options(opt):
 
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
-	conf.check_tool('checks gcc g++ dang flex bison misc')
+	conf.check_tool('checks')
+	if not conf.check_tool('gcc'):
+		fatal('gcc not found')
+	if not conf.check_tool('g++'):
+		fatal('g++ not found')
+	conf.check_tool('dang flex bison misc')
 
 	# checkFeatures is only available when 'checks' is in conf.check_tool()
 	# look in wafadmin/Tools/checks.py for the other tests available
