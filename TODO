@@ -1,8 +1,13 @@
+* improve the scanner classes - make them more simple
+* make the ccroot class a link class with hooks, move the c/c++ support into the hooks
+* move common configuration flags into the globals to make env smaller
+* refactor the apis
+
 * preprocessor improvements
 * packaging (rpms, debs)
 * improve the scons emulation
 * ncurses options menu support
 
 --------------------------------------
-Last update: 25-01-2007
+Last update: 17-02-2007
 Contact -> tnagyemail-mail@yahoo.fr (ita)
