@@ -210,7 +210,7 @@ def detect(conf):
 	test.code = 'int main() {return 0;}\n'
 	test.env = v
 	test.execute = 1
-	ret = conf.run_check(test, "shlib", "cpp")
+	ret = conf.run_check(test, "program", "cpp")
 	conf.check_message('compiler could create', 'pragramms', not (ret is False))
 	if not ret:
 		return 0
