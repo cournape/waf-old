@@ -115,6 +115,9 @@ distclean:
 	@-rm -rf _build_
 	@-rm -f Makefile
 
+check:
+	@$WAF check
+
 dist:
 	@$WAF dist
 

@@ -116,7 +116,7 @@ def parse_args_impl(parser, _args=None):
 	#print Params.g_options, " ", args
 
 	# By default, 'waf' is equivalent to 'waf build'
-	lst='dist configure clean distclean build install uninstall'.split()
+	lst='dist configure clean distclean build install uninstall check'.split()
 	Params.g_commands={}
 	for var in lst:    Params.g_commands[var]    = 0
 	if len(args) == 0: Params.g_commands['build'] = 1
@@ -130,6 +130,8 @@ def parse_args_impl(parser, _args=None):
 			print 'Error: Invalid command specified ',arg
 			print parser.print_help()
 			sys.exit(1)
+	if Params.g_commands['check']:
+		Params.g_commands['build'] = True
 
 	# TODO -k => -j0
 	if Params.g_options.keep: Params.g_options.jobs = 1
