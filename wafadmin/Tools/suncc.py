@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 # Ralf Habacker, 2006 (rh)
 
-import os, sys
+import os, sys, pproc, Object
 import optparse
 import Utils, Action, Params, checks, Configure
 
@@ -19,8 +19,13 @@ def detect(conf):
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc:
 		return 0;
-
+	#TODO: Has anyone a better ida to check if this is a sun cc?
+	ret = os.popen("%s -flags" %cc).close()
+	if ret:
+		conf.check_message('suncc', '', not ret)
+		return 0 #at least gcc exit with error
 	conf.check_tool('checks')
+	
 	# load the cc builders
 	conf.check_tool('cc')
 
@@ -71,8 +76,8 @@ def detect(conf):
 	
 	# shared library
 	v['shlib_CCFLAGS']       = ['-KPIC', '-DPIC']
-	v['shlib_LINKFLAGS']     = ['-shared']
-	v['shlib_obj_ext']       = ['.os']
+	v['shlib_LINKFLAGS']     = ['-G',  '-K pic']
+	v['shlib_obj_ext']       = ['.o']
 	v['shlib_PREFIX']        = 'lib'
 	v['shlib_SUFFIX']        = '.so'
 
@@ -123,8 +128,7 @@ def detect(conf):
 		return 0
 
 	# compiler debug levels
-	if conf.check_flags('-Wall'):
-		v['CCFLAGS'] = ['-Wall']
+	v['CCFLAGS'] = ['']
 	if conf.check_flags('-O2'):
 		v['CCFLAGS_OPTIMIZED'] = ['-O2']
 		v['CCFLAGS_RELEASE'] = ['-O2']
