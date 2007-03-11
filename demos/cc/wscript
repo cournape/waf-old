@@ -15,10 +15,10 @@ blddir = 'build'
 
 def set_options(opt):
 	# the gcc module provides a --debug-level option
-	opt.tool_options('gcc')
+	opt.tool_options('compiler_cc')
 
 def configure(conf):
-	conf.check_tool('gcc')
+	conf.check_tool('compiler_cc')
 
 def build(bld):
 	# process subfolders from here

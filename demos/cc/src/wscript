@@ -9,7 +9,7 @@ def build(bld):
 	main.c
 	'''
 	obj.includes='. /usr/include'
-	obj.ccflags='-Wmain'
+#	obj.ccflags='-Wmain'
 	obj.target='test_c_program'
 	obj.uselib_local='teststaticlib'
 
