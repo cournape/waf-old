@@ -31,12 +31,12 @@ def detect(conf):
 
 	# sun cc requires ar for static libs
 	if not conf.check_tool('ar'):
-		Utils.error('gcc needs ar - not found')
+		Utils.error('suncc needs ar - not found')
 		return 0
 
 	v = conf.env
 
-        cpp = cc
+	cpp = cc
 
 	v['CC']  = cc
 	v['CPP'] = cpp
@@ -53,8 +53,9 @@ def detect(conf):
 	# linker
 	v['LINK_CC']              = v['CC']
 	v['LIB']                  = []
-	v['CCLNK_SRC_F']          = ''
-	v['CCLNK_TGT_F']          = '-o '
+	
+	v['CPPLNK_SRC_F']          = ''
+	v['CPPLNK_TGT_F']          = '-o '
 
 	v['LIB_ST']               = '-l%s'	# template for adding libs
 	v['LIBPATH_ST']           = '-L%s' # template for adding libpathes
