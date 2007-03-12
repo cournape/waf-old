@@ -71,12 +71,12 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']      = ['-g']
 	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
-	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
-	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
+	v['SHLIB_MARKER']        = '-Bdynamic'
+	v['STATICLIB_MARKER']    = '-Bstatic'
 	
 	# shared library
-	v['shlib_CCFLAGS']       = ['-KPIC', '-DPIC']
-	v['shlib_LINKFLAGS']     = ['-G',  '-K pic']
+	v['shlib_CCFLAGS']       = ['-Kpic', '-DPIC']
+	v['shlib_LINKFLAGS']     = ['-G']
 	v['shlib_obj_ext']       = ['.o']
 	v['shlib_PREFIX']        = 'lib'
 	v['shlib_SUFFIX']        = '.so'
@@ -90,7 +90,7 @@ def detect(conf):
 	v['plugin_SUFFIX']       = v['shlib_SUFFIX']
 
 	# static lib
-	v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+	v['staticlib_LINKFLAGS'] = ['-Bstatic']
 	v['staticlib_obj_ext']   = ['.o']
 	v['staticlib_PREFIX']    = 'lib'
 	v['staticlib_SUFFIX']    = '.a'
@@ -128,7 +128,7 @@ def detect(conf):
 		return 0
 
 	# compiler debug levels
-	v['CCFLAGS'] = ['']
+	v['CCFLAGS'] = ['-O']
 	if conf.check_flags('-O2'):
 		v['CCFLAGS_OPTIMIZED'] = ['-O2']
 		v['CCFLAGS_RELEASE'] = ['-O2']

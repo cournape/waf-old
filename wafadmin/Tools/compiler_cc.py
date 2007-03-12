@@ -35,7 +35,7 @@ def __detect_platform():
 def __list_possible_compiler():
 	plattform = __detect_platform()
 	c_compiler = {
-		"win32": ['msvc', 'mingw', 'gcc'],
+		"win32": ['msvc', 'gcc'],
 		"cygwin": ['gcc'],
 		"darwin": ['gcc'],
 		"aix5": ['gcc'],
