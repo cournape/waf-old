@@ -46,9 +46,9 @@ def __list_possible_compiler():
 		"default": ['gcc']
 	}
 	try:
-		return(c_compiler[plattform])
-	except:
-		return(c_compiler["default"])
+		return c_compiler[plattform]
+	except KeyError:
+		return c_compiler["default"]
 		
 	
 def setup(env):
