@@ -47,7 +47,7 @@ def __list_possible_compiler():
 	}
 	try:
 		return(c_compiler[plattform])
-	except:
+	except KeyError:
 		return(c_compiler["default"])
 		
 	
