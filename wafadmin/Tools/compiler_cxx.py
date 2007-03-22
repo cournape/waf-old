@@ -67,7 +67,7 @@ def set_options(opt):
 	test_for_compiler = str(" ").join(__list_possible_compiler())
 	cxx_compiler_opts = opt.parser.add_option_group("C++ Compiler Options")
 	try:
-		cc_compiler_opts.add_option('--check-cxx-compiler', default="%s" % test_for_compiler,
+		cxx_compiler_opts.add_option('--check-cxx-compiler', default="%s" % test_for_compiler,
 			help='On this Plattform (%s) following C++ Compiler will be checked default: "%s"' % 
 								(__detect_platform(), test_for_compiler),
 			dest="check_cxx_compiler")
