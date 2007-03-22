@@ -6,34 +6,7 @@ import os, sys, imp, types
 import optparse
 import Utils, Action, Params, checks, Configure
 
-def __detect_platform():
-	"""Stolen from scons"""
-	osname = os.name
-	if osname == 'java':
-		osname = os._osType
-	if osname == 'posix':
-		if sys.platform == 'cygwin':
-			return 'cygwin'
-		if str.find(sys.platform, 'linux') != -1:
-			return 'linux'
-		if str.find(sys.platform, 'irix') != -1:
-			return 'irix'
-		if str.find(sys.platform, 'sunos') != -1:
-			return 'sunos'
-		if str.find(sys.platform, 'hp-ux') != -1:
-			return 'hpux'
-		if str.find(sys.platform, 'aix') != -1:
-			return 'aix'
-		if str.find(sys.platform, 'darwin') != -1:
-			return 'darwin'
-		return 'posix'
-	elif os.name == 'os2':
-		return 'os2'
-	else:
-		return sys.platform
-
-def __list_possible_compiler():
-	plattform = __detect_platform()
+def __list_possible_compiler(plattform):
 	c_compiler = {
 		"win32": ['msvc', 'g++'],
 		"cygwin": ['g++'],
@@ -64,12 +37,14 @@ def detect(conf):
 	return (0)
 
 def set_options(opt):
-	test_for_compiler = str(" ").join(__list_possible_compiler())
+	detected_plattform = checks.detect_platform(None)
+	possible_compiler_list = __list_possible_compiler(detected_plattform)
+	test_for_compiler = str(" ").join(possible_compiler_list)
 	cxx_compiler_opts = opt.parser.add_option_group("C++ Compiler Options")
 	try:
 		cxx_compiler_opts.add_option('--check-cxx-compiler', default="%s" % test_for_compiler,
 			help='On this Plattform (%s) following C++ Compiler will be checked default: "%s"' % 
-								(__detect_platform(), test_for_compiler),
+								(detected_plattform, test_for_compiler),
 			dest="check_cxx_compiler")
 	except optparse.OptionConflictError:
 		# the g++ tool might have added that option already

@@ -157,6 +157,33 @@ def checkFeatures(self, lst=[], pathlst=[]):
 
 	return is_big
 
+def detect_platform(self):
+	"""adapted from scons"""
+	import os, sys
+	osname = os.name
+	if osname == 'java':
+		osname = os._osType
+	if osname == 'posix':
+		if sys.platform == 'cygwin':
+			return 'cygwin'
+		if str.find(sys.platform, 'linux') != -1:
+			return 'linux'
+		if str.find(sys.platform, 'irix') != -1:
+			return 'irix'
+		if str.find(sys.platform, 'sunos') != -1:
+			return 'sunos'
+		if str.find(sys.platform, 'hp-ux') != -1:
+			return 'hpux'
+		if str.find(sys.platform, 'aix') != -1:
+			return 'aix'
+		if str.find(sys.platform, 'darwin') != -1:
+			return 'darwin'
+		return 'posix'
+	elif os.name == 'os2':
+		return 'os2'
+	else:
+		return sys.platform
+
 def find_header(self, header, define='', paths=''):
 	if not define:
 		define = 'HAVE_' + header.upper().replace('/', '_').replace('.', '_')
@@ -268,6 +295,7 @@ def detect(conf):
 	# if sys.byteorder == "little":
 	conf.hook(checkEndian)
 	conf.hook(checkFeatures)
+	conf.hook(detect_platform)
 
 	return 1
 
