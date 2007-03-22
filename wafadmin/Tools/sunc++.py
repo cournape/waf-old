@@ -35,43 +35,46 @@ def detect(conf):
 		return 0
 
 	v = conf.env
-	
-	v['CXX']  = cxx
+	v['CXX'] = cxx
 	v['CPP'] = cpp
 
-	v['CPPFLAGS']             = []
-	v['CXXDEFINES']            = [] # command-line defines
-	v['_CXXINCFLAGS']          = []
-	v['_CXXDEFFLAGS']          = []
+	v['CPPFLAGS']            = []
+	v['CXXDEFINES']          = [] # command-line defines
 
-	v['CXX_SRC_F']             = ''
-	v['CXX_TGT_F']             = '-c -o '
-	v['CPPPATH_ST']           = '-I%s' # template for adding include pathes
+	v['_CXXINCFLAGS']        = []
+	v['_CXXDEFFLAGS']        = []
+
+	v['CXX_SRC_F']           = ''
+	v['CXX_TGT_F']           = '-c -o '
+
+	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
+
 
 	# linker
-	v['LINK_CXX']              = v['CXX']
-	v['LIB']                  = []
-	v['CPPLNK_SRC_F']          = ''
-	v['CPPLNK_TGT_F']          = '-o '
+	v['LINK_CXX']            = v['CXX']
+	v['LIB']                 = []
 
-	v['LIB_ST']               = '-l%s'	# template for adding libs
-	v['LIBPATH_ST']           = '-L%s' # template for adding libpathes
-	v['STATICLIB_ST']         = '-l%s'
-	v['STATICLIBPATH_ST']     = '-L%s'
-	v['_LIBDIRFLAGS']         = ''
-	v['_LIBFLAGS']            = ''
-	v['CCCDEFINES_ST']         = '-D%s'
+	v['CPPLNK_TGT_F']        = '-o '
+	v['CPPLNK_SRC_F']        = ''
 
-	# linker debug levels
-	v['LINKFLAGS']            = []
-	v['LINKFLAGS_OPTIMIZED']  = ['-s']
-	v['LINKFLAGS_RELEASE']    = ['-s']
-	v['LINKFLAGS_DEBUG']      = ['-g']
-	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
+	v['LIB_ST']              = '-l%s'	# template for adding libs
+	v['LIBPATH_ST']          = '-L%s' # template for adding libpathes
+	v['STATICLIB_ST']        = '-l%s'
+	v['STATICLIBPATH_ST']    = '-L%s'
+	v['CXXDEFINES_ST']       = '-D%s'
+	v['_LIBDIRFLAGS']        = ''
+	v['_LIBFLAGS']           = ''
 
 	v['SHLIB_MARKER']        = '-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Bstatic'
 	
+	# linker debug levels
+	v['LINKFLAGS']           = []
+	v['LINKFLAGS_OPTIMIZED'] = ['-s']
+	v['LINKFLAGS_RELEASE']   = ['-s']
+	v['LINKFLAGS_DEBUG']     = ['-g']
+	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
+
 	# shared library
 	v['shlib_CXXFLAGS']       = ['-Kpic', '-DPIC']
 	v['shlib_LINKFLAGS']     = ['-G']
@@ -81,7 +84,7 @@ def detect(conf):
 
 	# plugins. We handle them exactly as shlibs
 	# everywhere except on osx, where we do bundles
-	v['plugin_CXXFLAGS']      = v['shlib_CXXFLAGS']
+	v['plugin_CCCFLAGS']      = v['shlib_CCFLAGS']
 	v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
 	v['plugin_obj_ext']      = v['shlib_obj_ext']
 	v['plugin_PREFIX']       = v['shlib_PREFIX']
