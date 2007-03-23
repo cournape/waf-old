@@ -40,7 +40,7 @@ def set_options(opt):
 	detected_plattform = checks.detect_platform(None)
 	possible_compiler_list = __list_possible_compiler(detected_plattform)
 	test_for_compiler = str(" ").join(possible_compiler_list)
-	cc_compiler_opts = opt.parser.add_option_group("C Compiler Options")
+	cc_compiler_opts = opt.add_option_group("C Compiler Options")
 	try:
 		cc_compiler_opts.add_option('--check-c-compiler', default="%s" % test_for_compiler,
 			help='On this Plattform (%s) following C-Compiler will be checked default: "%s"' % 
@@ -50,25 +50,6 @@ def set_options(opt):
 		# the g++ tool might have added that option already
 		pass
 
-	def l_tool_options(opts, tool, tooldir=None):
-		if type(tool) is types.ListType:
-			for i in tool: self.tool_options(i, tooldir)
-			return
-
-		if not tooldir: tooldir = Params.g_tooldir
-		tooldir = Utils.to_list(tooldir)
-		try:
-			file,name,desc = imp.find_module(tool, tooldir)
-		except:
-			error("no tool named '%s' found" % tool)
-			return
-		module = imp.load_module(tool,file,name,desc)
-		try:
-			module.set_options(opts)
-		except:
-			warning("tool %s has no function set_options or set_options failed" % tool)
-			pass
-
 	for c_compiler in test_for_compiler.split():
-		l_tool_options(cc_compiler_opts, '%s' % c_compiler)
+		opt.tool_options('%s' % c_compiler, option_group=cc_compiler_opts)
 
