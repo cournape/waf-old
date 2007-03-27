@@ -1058,9 +1058,11 @@ class Configure:
 		# remember config files - do not remove them on "waf clean"
 		self.env.append_value('waf_config_files', os.path.abspath(dir))
 
+		inclusion_guard_name = '_%s_WAF' % (Utils.path_to_preprocessor_name(configfile),)
+
 		dest = open(dir, 'w')
 		dest.write('/* configuration created by waf */\n')
-		dest.write('#ifndef _CONFIG_H_WAF\n#define _CONFIG_H_WAF\n\n')
+		dest.write('#ifndef %s\n#define %s\n\n' % (inclusion_guard_name, inclusion_guard_name))
 
 		# yes, this is special
 		if not configfile in self.env['dep_files']:
@@ -1074,7 +1076,7 @@ class Configure:
 				#	dest.write(addcontent);
 			else:
 				dest.write('/* #undef %s */\n' % key)
-		dest.write('\n#endif /* _CONFIG_H_WAF */\n')
+		dest.write('\n#endif /* %s */\n' % (inclusion_guard_name,))
 		dest.close()
 
 	def set_config_header(self, header):

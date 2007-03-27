@@ -4,7 +4,7 @@
 
 "Utility functions"
 
-import os, sys, imp, types
+import os, sys, imp, types, string
 import Params
 
 g_trace = 0
@@ -146,3 +146,19 @@ def join_path(*path):
 
 def join_path_list(path_lst):
 	return join_path(*path_lst)
+
+_path_to_preprocessor_name_translation = None
+def path_to_preprocessor_name(path):
+	"""Converts a file path like foo/zbr-xpto.h to a C preprocessor
+	name like FOO_ZBR_XPTO_H"""
+	global _path_to_preprocessor_name_translation
+	if _path_to_preprocessor_name_translation is None:
+		## make a translation table mapping everything except
+		## alfanumeric chars to '_'
+		invalid_chars = [chr(x) for x in xrange(256)]
+		for valid in string.digits + string.uppercase:
+			invalid_chars.remove(valid)
+		_path_to_preprocessor_name_translation = string.maketrans(
+			''.join(invalid_chars), '_'*len(invalid_chars))
+
+	return string.translate(string.upper(path), _path_to_preprocessor_name_translation)
