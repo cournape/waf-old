@@ -204,7 +204,9 @@ class genobj:
 						lst.append(s)
 
 		lst.sort()
-		self.source = self.source+' '+(" ".join(lst))
+		self.source = self.to_list(self.source)
+		if not self.source: self.source = lst
+		else: self.source = self.source.extend(lst)
 
 g_cache_max={}
 def sign_env_vars(env, vars_list):
