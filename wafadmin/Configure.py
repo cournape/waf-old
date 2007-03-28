@@ -1279,7 +1279,7 @@ class Configure:
 		if obj.execute:
 			if ret: return not ret
 			try:
-				data = os.popen(lastprog).read().strip()
+				data = os.popen('"%s"' %lastprog).read().strip()
 				ret = {'result': data}
 				return ret
 			except:
