@@ -43,3 +43,18 @@ obj.prio = 1 # execute this task first
 # build dir traversal
 bld.add_subdirs('gui gui2')
 
+## generate files from a command
+obj = bld.create_obj('command-output')
+obj.output = 'test1'
+obj.input = 'wscript_build'
+obj.command = 'some-script'
+#obj.command_is_external = False
+#obj.priority = 1
+
+obj = bld.create_obj('command-output')
+obj.input = 'test1'
+obj.output = 'test2'
+obj.command = 'cat'
+obj.command_is_external = True
+#obj.priority = 2
+

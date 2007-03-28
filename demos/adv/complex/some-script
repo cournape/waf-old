@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+
+import fileinput
+print "-------------------- BEGIN ------------------------------"
+for line in fileinput.input():
+    print line,
+print "--------------------- END ------------------------------"
