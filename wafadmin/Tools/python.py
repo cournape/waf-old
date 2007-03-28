@@ -160,7 +160,8 @@ main(int argc, char *argv[])
 		conf.env['LIBPATH_PYEMBED'] = lib.path
 		conf.env.append_value('LIB_PYEMBED', lib.name)
 
-	if sys.platform == 'win32' or Py_ENABLE_SHARED is not None:
+	if sys.platform == 'win32' or (Py_ENABLE_SHARED is not None
+					and sys.platform != 'darwin'):
 		conf.env['LIBPATH_PYEXT'] = conf.env['LIBPATH_PYEMBED']
 		conf.env['LIB_PYEXT'] = conf.env['LIB_PYEMBED']
 
