@@ -181,7 +181,6 @@ class c_scanner(Scan.scanner):
 		node = task.m_inputs[0]
 
 		variant = node.variant(env)
-		if not variant == 0: fatal('variant is not 0')
 
 		if tree.needs_rescan(node, task.m_env): rescan = 1
 		if not rescan:
@@ -230,7 +229,6 @@ class c_scanner(Scan.scanner):
 		node = task.m_inputs[0]
 
 		variant = node.variant(env)
-		if not variant == 0: fatal('variant is not 0')
 
 		if tree.needs_rescan(node, task.m_env): rescan = 1
 		#if rescan: print "node has changed, a rescan is req ", node
