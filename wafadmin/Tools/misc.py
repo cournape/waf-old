@@ -8,8 +8,8 @@ Custom objects:
  - copy a file somewhere else
 """
 
-import shutil, re, os, types
-import Object, Action, Node, Params, Utils
+import shutil, re, os, types, subprocess
+import Object, Action, Node, Params, Utils, Task
 from Params import fatal
 
 def copy_func(task):
@@ -136,11 +136,90 @@ class substobj(Object.genobj):
 				task.debug()
 				fatal('task witout an environment')
 
+class CommandOutput(Object.genobj):
+
+	def __init__(self, env=None):
+		Object.genobj.__init__(self, 'other')
+		self.env = env
+		if not self.env:
+			self.env = Params.g_build.m_allenvs['default']
+
+		## input file(s)
+		## note: if multiple inputs are specified, only the first is
+		## used (as stdin of the command); other input files are just
+		## informative to let waf work out the dependencies correctly.
+		self.input = ''
+
+		## output file(s)
+		## note: if multiple outputs are specified, only the first is
+		## used (as stdout of the command); other output files are just
+		## informative to let waf work out the dependencies correctly.
+		self.output = ''
+		
+		## the command to execute
+		self.command = None
+
+		## whether it is an external command; otherwise it is assumed
+		## to be an excutable binary or script that lives in the
+		## source or build tree.
+		self.command_is_external = False
+
+		## extra parameters (argv) to pass to the command
+		self.command_args = []
+
+		## task priority
+		self.priority = 5
+
+	def _command_output_func(task):
+		assert len(task.m_inputs) > 0
+		if task.command_is_external:
+			script_fname = task.command
+			inputs = [inp.srcpath(task.m_env) for inp in task.m_inputs]
+		else:
+			script_fname = task.m_inputs[0].srcpath(task.m_env)
+			inputs = [inp.srcpath(task.m_env) for inp in task.m_inputs[1:]]
+		if inputs:
+			stdin = file(inputs[0])
+		else:
+			stdin = None
+		assert len(task.m_outputs) >= 1
+		stdout = file(task.m_outputs[0].bldpath(task.m_env), "w")
+		argv = [script_fname] + task.command_args
+		Params.debug("command-output: stdin=%r, stdout=%r, argv=%r" %
+					 (stdin, stdout, argv))
+		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout)
+		return command.wait()
+
+	_command_output_func = staticmethod(_command_output_func)
+
+	def apply(self):
+		if self.command_is_external:
+			inputs = []
+		else:
+			cmd_node = self.path.find_source(self.command)
+			assert cmd_node is not None,\
+				   "Could not find command '%s' in source tree." % (self.command,)
+			inputs = [cmd_node]
+		outputs = [self.path.find_build(target) for target in self.to_list(self.output)]
+		inputs.extend([self.path.find_source(input_) for input_ in self.to_list(self.input)])
+		assert inputs
+		task = self.create_task('command-output', self.env, self.priority)
+		task.command_args = self.command_args
+		task.command_is_external = self.command_is_external
+		task.command = self.command
+		task.set_inputs(inputs)
+		task.set_outputs(outputs)
+
+	def install(self):
+		pass
+
 def setup(env):
 	Object.register('cmd', cmdobj)
 	Object.register('copy', copyobj)
 	Object.register('subst', substobj)
 	Action.Action('copy', vars=[], func=action_process_file_func)
+	Action.Action('command-output', func=CommandOutput._command_output_func, color='BLUE')
+	Object.register('command-output', CommandOutput)
 
 def detect(conf):
 	return 1
