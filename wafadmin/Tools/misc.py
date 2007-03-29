@@ -170,6 +170,10 @@ class CommandOutput(Object.genobj):
 		## task priority
 		self.priority = 5
 
+		## dependencies to other command objects
+		## values must be 'command-output' objects (not names!)
+		self.dependencies = []
+
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
 		if task.command_is_external:
@@ -209,6 +213,14 @@ class CommandOutput(Object.genobj):
 		task.command = self.command
 		task.set_inputs(inputs)
 		task.set_outputs(outputs)
+		self.task = task
+
+		for dep in self.dependencies:
+			assert dep.__class__ is self.__class__ and dep is not self
+			if not dep.m_posted:
+				dep.post()
+			task.m_run_after.append(dep.task)
+
 
 	def install(self):
 		pass
