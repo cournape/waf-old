@@ -176,19 +176,14 @@ class CommandOutput(Object.genobj):
 
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
-		if task.command_is_external:
-			script_fname = task.command
-			inputs = [inp.srcpath(task.m_env) for inp in task.m_inputs]
-		else:
-			script_fname = task.m_inputs[0].srcpath(task.m_env)
-			inputs = [inp.srcpath(task.m_env) for inp in task.m_inputs[1:]]
+		inputs = [inp.srcpath(task.m_env) for inp in task.m_inputs]
 		if inputs:
 			stdin = file(inputs[0])
 		else:
 			stdin = None
 		assert len(task.m_outputs) >= 1
 		stdout = file(task.m_outputs[0].bldpath(task.m_env), "w")
-		argv = [script_fname] + task.command_args
+		argv = [task.command] + task.command_args
 		Params.debug("command-output: stdin=%r, stdout=%r, argv=%r" %
 					 (stdin, stdout, argv))
 		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout)
@@ -198,21 +193,20 @@ class CommandOutput(Object.genobj):
 
 	def apply(self):
 		if self.command_is_external:
-			inputs = []
+			cmd = self.command
 		else:
 			cmd_node = self.path.find_source(self.command)
 			assert cmd_node is not None,\
 				   ("Could not find command '%s' in source tree.\n"
 					"Hint: if this is an external command, "
 					"use command_is_external=True") % (self.command,)
-			inputs = [cmd_node]
-		outputs = [self.path.find_build(target) for target in self.to_list(self.output)]
-		inputs.extend([self.path.find_source(input_) for input_ in self.to_list(self.input)])
+ 			cmd = cmd_node.bldpath(self.env)
+ 		outputs = [self.path.find_build(target) for target in self.to_list(self.output)]
+ 		inputs = [self.path.find_source(input_) for input_ in self.to_list(self.input)]
 		assert inputs
 		task = self.create_task('command-output', self.env, self.priority)
 		task.command_args = self.command_args
-		task.command_is_external = self.command_is_external
-		task.command = self.command
+		task.command = cmd
 		task.set_inputs(inputs)
 		task.set_outputs(outputs)
 
