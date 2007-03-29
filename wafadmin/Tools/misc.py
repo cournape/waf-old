@@ -138,6 +138,8 @@ class substobj(Object.genobj):
 
 class CommandOutput(Object.genobj):
 
+	CMD_ARGV_INPUT, CMD_ARGV_OUTPUT = range(2)
+
 	def __init__(self, env=None):
 		Object.genobj.__init__(self, 'other')
 		self.env = env
@@ -176,14 +178,55 @@ class CommandOutput(Object.genobj):
 
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
-		inputs = [inp.srcpath(task.m_env) for inp in task.m_inputs]
+		inputs = [inp.bldpath(task.m_env) for inp in task.m_inputs]
+		outputs = [out.bldpath(task.m_env) for out in task.m_outputs]
+
+		args = []
+		for idx, arg in enumerate(task.command_args):
+			if isinstance(arg, str):
+				args.append(arg)
+			else:
+				role, position = arg
+				if role == CommandOutput.CMD_ARGV_INPUT:
+					args.append(inputs[position])
+					inputs[position] = None
+				elif role == CommandOutput.CMD_ARGV_OUTPUT:
+					args.append(outputs[position])
+					outputs[position] = None
+				else:
+					raise AssertionError
+
+		## remove all the None's in inputs
+		while 1:
+			for idx, elem in enumerate(inputs):
+				if elem is None:
+					del inputs[idx]
+					break
+			else:
+				break
+		## remove all the None's in outputs
+		while 1:
+			for idx, elem in enumerate(outputs):
+				if elem is None:
+					del outputs[idx]
+					break
+			else:
+				break
+		
+		argv = [task.command] + args
+
+		## if there are any inputs left, use the first one as stdin
 		if inputs:
 			stdin = file(inputs[0])
 		else:
 			stdin = None
-		assert len(task.m_outputs) >= 1
-		stdout = file(task.m_outputs[0].bldpath(task.m_env), "w")
-		argv = [task.command] + task.command_args
+
+		## if there are any outputs left, use the first one as stdout
+		if outputs:
+			stdout = file(outputs[0], "w")
+		else:
+			stdout = None
+
 		Params.debug("command-output: stdin=%r, stdout=%r, argv=%r" %
 					 (stdin, stdout, argv))
 		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout)
@@ -216,6 +259,18 @@ class CommandOutput(Object.genobj):
 				dep.post()
 			for dep_task in dep.m_tasks:
 				task.m_run_after.append(dep_task)
+
+	def argv_input(self, position):
+		"""Returns an object to be used as argv element that instructs
+		the task to use a file from the input vector at the given
+		position as argv element."""
+		return (CommandOutput.CMD_ARGV_INPUT, position)
+
+	def argv_output(self, position):
+		"""Returns an object to be used as argv element that instructs
+		the task to use a file from the output vector at the given
+		position as argv element."""
+		return (CommandOutput.CMD_ARGV_OUTPUT, position)
 
 	def install(self):
 		pass
