@@ -168,10 +168,10 @@ class CommandOutput(Object.genobj):
 		self.command_args = []
 
 		## task priority
-		self.priority = 5
+		self.priority = 100
 
-		## dependencies to other command objects
-		## values must be 'command-output' objects (not names!)
+		## dependencies to other objects
+		## values must be 'genobj' instances (not names!)
 		self.dependencies = []
 
 	def _command_output_func(task):
@@ -200,12 +200,14 @@ class CommandOutput(Object.genobj):
 		if self.command_is_external:
 			inputs = []
 		else:
-			cmd_node = self.path.find_source(self.command)
+			cmd_node = self.path.find_source(self.command, self.env)
 			assert cmd_node is not None,\
-				   "Could not find command '%s' in source tree." % (self.command,)
+				   ("Could not find command '%s' in source tree.\n"
+					"Hint: if this is an external command, "
+					"use command_is_external=True") % (self.command,)
 			inputs = [cmd_node]
-		outputs = [self.path.find_build(target) for target in self.to_list(self.output)]
-		inputs.extend([self.path.find_source(input_) for input_ in self.to_list(self.input)])
+		outputs = [self.path.find_build(target, self.env) for target in self.to_list(self.output)]
+		inputs.extend([self.path.find_source(input_, self.env) for input_ in self.to_list(self.input)])
 		assert inputs
 		task = self.create_task('command-output', self.env, self.priority)
 		task.command_args = self.command_args
@@ -213,14 +215,13 @@ class CommandOutput(Object.genobj):
 		task.command = self.command
 		task.set_inputs(inputs)
 		task.set_outputs(outputs)
-		self.task = task
 
 		for dep in self.dependencies:
-			assert dep.__class__ is self.__class__ and dep is not self
+			assert dep is not self
 			if not dep.m_posted:
 				dep.post()
-			task.m_run_after.append(dep.task)
-
+			for dep_task in dep.m_tasks:
+				task.m_run_after.append(dep_task)
 
 	def install(self):
 		pass
