@@ -200,14 +200,14 @@ class CommandOutput(Object.genobj):
 		if self.command_is_external:
 			inputs = []
 		else:
-			cmd_node = self.path.find_source(self.command, self.env)
+			cmd_node = self.path.find_source(self.command)
 			assert cmd_node is not None,\
 				   ("Could not find command '%s' in source tree.\n"
 					"Hint: if this is an external command, "
 					"use command_is_external=True") % (self.command,)
 			inputs = [cmd_node]
-		outputs = [self.path.find_build(target, self.env) for target in self.to_list(self.output)]
-		inputs.extend([self.path.find_source(input_, self.env) for input_ in self.to_list(self.input)])
+		outputs = [self.path.find_build(target) for target in self.to_list(self.output)]
+		inputs.extend([self.path.find_source(input_) for input_ in self.to_list(self.input)])
 		assert inputs
 		task = self.create_task('command-output', self.env, self.priority)
 		task.command_args = self.command_args
