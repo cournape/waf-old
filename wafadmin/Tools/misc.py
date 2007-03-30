@@ -270,7 +270,7 @@ class CommandOutput(Object.genobj):
 			cmd = self.command
 			cmd_node = None
 		else:
-			cmd_node = self.path.find_source(self.command)
+			cmd_node = self.path.find_build(self.command)
 			assert cmd_node is not None,\
 				   ("Could not find command '%s' in source tree.\n"
 					"Hint: if this is an external command, "
@@ -287,11 +287,15 @@ class CommandOutput(Object.genobj):
 			else:
 				role, file_name = arg
 				if role == CommandOutput.CMD_ARGV_INPUT:
-					input_node = self.path.find_source(file_name)
+					input_node = self.path.find_build(file_name)
+					if input_node is None:
+						Params.fatal("File %s not found" % (file_name,))
 					inputs.append(input_node)
 					args.append((role, input_node))
 				elif role == CommandOutput.CMD_ARGV_OUTPUT:
 					output_node = self.path.find_build(file_name)
+					if output_node is None:
+						Params.fatal("File %s not found" % (file_name,))
 					outputs.append(output_node)
 					args.append((role, output_node))
 				else:
@@ -301,12 +305,16 @@ class CommandOutput(Object.genobj):
 			stdout = None
 		else:
 			stdout = self.path.find_build(self.stdout)
+			if stdout is None:
+				Params.fatal("File %s not found" % (self.stdout,))
 			outputs.append(stdout)
 
 		if self.stdin is None:
 			stdin = None
 		else:
-			stdin = self.path.find_source(self.stdin)
+			stdin = self.path.find_build(self.stdin)
+			if stdin is None:
+				Params.fatal("File %s not found" % (self.stdin,))
 			inputs.append(stdin)
 
 		if not inputs:
