@@ -139,11 +139,13 @@ class substobj(Object.genobj):
 
 class CommandOutputTask(Task.Task):
 
-	def __init__(self, env, priority, command, command_node, command_args):
+	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout):
 		Task.Task.__init__(self, 'command-output', env, priority, normal=1)
 		self.command = command
 		self.command_node = command_node
 		self.command_args = command_args
+		self.stdin = stdin
+		self.stdout = stdout
 
 	def must_run(self):
 		#return 0
@@ -154,6 +156,7 @@ class CommandOutputTask(Task.Task):
 
 		self.m_dep_sig = self.m_scanner.get_signature(self)
 
+		## --- everything above this line should be the same as in the parent class
 		## in addition, check to see if the command script has been modified
 		if self.command_node:
 			variant = self.command_node.variant(self.m_env)
@@ -162,6 +165,7 @@ class CommandOutputTask(Task.Task):
 			m.update(self.m_dep_sig)
 			m.update(cmd_sig)
 			self.m_dep_sig = m.digest()
+		## --- everything below this line should be the same as in the parent class
 
 		sg = self.signature()
 
@@ -201,17 +205,11 @@ class CommandOutput(Object.genobj):
 		if not self.env:
 			self.env = Params.g_build.m_allenvs['default']
 
-		## input file(s)
-		## note: if multiple inputs are specified, only the first is
-		## used (as stdin of the command); other input files are just
-		## informative to let waf work out the dependencies correctly.
-		self.input = ''
+		## file to use as stdin
+		self.stdin = None
 
-		## output file(s)
-		## note: if multiple outputs are specified, only the first is
-		## used (as stdout of the command); other output files are just
-		## informative to let waf work out the dependencies correctly.
-		self.output = ''
+		## file to use as stdout
+		self.stdout = None
 		
 		## the command to execute
 		self.command = None
@@ -221,8 +219,9 @@ class CommandOutput(Object.genobj):
 		## source or build tree.
 		self.command_is_external = False
 
-		## extra parameters (argv) to pass to the command
-		self.command_args = []
+		## extra parameters (argv) to pass to the command (excluding
+		## the command itself)
+		self.argv = []
 
 		## task priority
 		self.priority = 100
@@ -236,49 +235,26 @@ class CommandOutput(Object.genobj):
 		inputs = [inp.bldpath(task.m_env) for inp in task.m_inputs]
 		outputs = [out.bldpath(task.m_env) for out in task.m_outputs]
 
-		args = []
-		for idx, arg in enumerate(task.command_args):
+		argv = [task.command]
+		for arg in task.command_args:
 			if isinstance(arg, str):
-				args.append(arg)
+				argv.append(arg)
 			else:
-				role, position = arg
+				role, node = arg
 				if role == CommandOutput.CMD_ARGV_INPUT:
-					args.append(inputs[position])
-					inputs[position] = None
+					argv.append(node.srcpath(task.m_env))
 				elif role == CommandOutput.CMD_ARGV_OUTPUT:
-					args.append(outputs[position])
-					outputs[position] = None
+					argv.append(node.bldpath(task.m_env))
 				else:
 					raise AssertionError
 
-		## remove all the None's in inputs
-		while 1:
-			for idx, elem in enumerate(inputs):
-				if elem is None:
-					del inputs[idx]
-					break
-			else:
-				break
-		## remove all the None's in outputs
-		while 1:
-			for idx, elem in enumerate(outputs):
-				if elem is None:
-					del outputs[idx]
-					break
-			else:
-				break
-		
-		argv = [task.command] + args
-
-		## if there are any inputs left, use the first one as stdin
-		if inputs:
-			stdin = file(inputs[0])
+		if task.stdin:
+			stdin = file(task.stdin.srcpath(task.m_env))
 		else:
 			stdin = None
 
-		## if there are any outputs left, use the first one as stdout
-		if outputs:
-			stdout = file(outputs[0], "w")
+		if task.stdout:
+			stdout = file(task.stdout.bldpath(task.m_env), "w")
 		else:
 			stdout = None
 
@@ -300,12 +276,45 @@ class CommandOutput(Object.genobj):
 					"Hint: if this is an external command, "
 					"use command_is_external=True") % (self.command,)
  			cmd = cmd_node.bldpath(self.env)
- 		outputs = [self.path.find_build(target) for target in self.to_list(self.output)]
- 		inputs = [self.path.find_source(input_) for input_ in self.to_list(self.input)]
-		assert inputs
+
+		args = []
+		inputs = []
+		outputs = []
+		
+		for arg in self.argv:
+			if isinstance(arg, str):
+				args.append(arg)
+			else:
+				role, file_name = arg
+				if role == CommandOutput.CMD_ARGV_INPUT:
+					input_node = self.path.find_source(file_name)
+					inputs.append(input_node)
+					args.append((role, input_node))
+				elif role == CommandOutput.CMD_ARGV_OUTPUT:
+					output_node = self.path.find_build(file_name)
+					outputs.append(output_node)
+					args.append((role, output_node))
+				else:
+					raise AssertionError
+
+		if self.stdout is None:
+			stdout = None
+		else:
+			stdout = self.path.find_build(self.stdout)
+			outputs.append(stdout)
+
+		if self.stdin is None:
+			stdin = None
+		else:
+			stdin = self.path.find_source(self.stdin)
+			inputs.append(stdin)
+
+		if not inputs:
+			Params.fatal("command-output objects must have at least one input file")
 
 		task = CommandOutputTask(self.env, self.priority,
-								 cmd, cmd_node, self.command_args)
+								 cmd, cmd_node, args,
+								 stdin, stdout)
 		self.m_tasks.append(task)
 
 		task.set_inputs(inputs)
@@ -318,17 +327,17 @@ class CommandOutput(Object.genobj):
 			for dep_task in dep.m_tasks:
 				task.m_run_after.append(dep_task)
 
-	def argv_input(self, position):
+	def input_file(self, file_name):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a file from the input vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_INPUT, position)
+		return (CommandOutput.CMD_ARGV_INPUT, file_name)
 
-	def argv_output(self, position):
+	def output_file(self, file_name):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a file from the output vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_OUTPUT, position)
+		return (CommandOutput.CMD_ARGV_OUTPUT, file_name)
 
 	def install(self):
 		pass
