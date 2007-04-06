@@ -944,8 +944,10 @@ class Configure:
 
 	def store(self, file=''):
 		"save the config results into the cache file"
-		try: os.makedirs(Params.g_cachedir)
-		except OSError: pass
+		try:
+			os.makedirs(Params.g_cachedir)
+		except OSError:
+			pass
 
 		if not self.m_allenvs:
 			fatal("nothing to store in Configure !")
@@ -1050,9 +1052,11 @@ class Configure:
 		if not env: env = self.env
 		base = [self.m_blddir, env.variant()]+base
 		dir = Utils.join_path(*base)
-		try: os.makedirs(dir)
-		except: pass
-
+		try:
+			os.makedirs(dir)
+		except OSError:
+			pass
+		
 		dir = Utils.join_path(dir, lst[-1])
 
 		# remember config files - do not remove them on "waf clean"
@@ -1219,10 +1223,14 @@ class Configure:
 				os.remove(os.path.join(root, f))
 
 		bdir = os.path.join( dir, '_testbuild_')
-		try: os.makedirs(dir)
-		except: pass
-		try: os.makedirs(bdir)
-		except: pass
+		try:
+			os.makedirs(dir)
+		except OSError:
+			pass
+		try:
+			os.makedirs(bdir)
+		except OSError:
+			pass
 
 		dest=open(os.path.join(dir, 'test.c'), 'w')
 		dest.write(obj.code)
