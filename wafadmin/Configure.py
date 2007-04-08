@@ -1012,6 +1012,9 @@ class Configure:
 			raise
 			pass
 
+	class IntDefine(int):
+		"""Special int subclass to denote a literal integer being defined"""
+		pass
 
 	def add_define(self, define, value, quote=-1, comment=''):
 		"""store a single define and its state into an internal list
@@ -1027,7 +1030,10 @@ class Configure:
 			else:
 				tbl[define] = value
 		elif not quote:
-			tbl[define] = value
+			if isinstance(value, int):
+				tbl[define] = self.IntDefine(value)
+			else:
+				tbl[define] = value
 		else:
 			tbl[define] = '"%s"' % str(value)
 
@@ -1075,11 +1081,13 @@ class Configure:
 		# yes, this is special
 		if not configfile in self.env['dep_files']:
 			self.env['dep_files'] += [configfile]
-		for key in env['defines']:
-			if env['defines'][key] is None:
+		for key, value in env['defines'].iteritems():
+			if value is None:
 				dest.write('#define %s\n' % key)
-			elif env['defines'][key]:
-				dest.write('#define %s %s\n' % (key, env['defines'][key]))
+			elif isinstance(value, self.IntDefine):
+				dest.write('#define %s %i\n' % (key, value))
+			elif value:
+				dest.write('#define %s %s\n' % (key, value))
 				#if addcontent:
 				#	dest.write(addcontent);
 			else:
