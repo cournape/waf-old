@@ -1190,19 +1190,18 @@ class Configure:
 		if not pkgbin: pkgbin='pkg-config'
 		if pkgpath: pkgpath='PKG_CONFIG_PATH=$PKG_CONFIG_PATH:'+pkgpath
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
-		try:
-			if pkgversion:
-				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, pkgversion, pkgname)).close()
-				self.conf.check_message('package %s >= %s' % (pkgname, pkgversion), '', not ret)
-				if ret: raise "error"
-			else:
-				ret = os.popen("%s %s" % (pkgcom, pkgname)).close()
-				self.conf.check_message('package %s ' % (pkgname), '', not ret)
-				if ret: raise "error"
+		if pkgversion:
+			ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, pkgversion, pkgname)).close()
+			self.conf.check_message('package %s >= %s' % (pkgname, pkgversion), '', not ret)
+			if ret:
+				return '' # error
+		else:
+			ret = os.popen("%s %s" % (pkgcom, pkgname)).close()
+			self.check_message('package %s ' % (pkgname), '', not ret)
+			if ret:
+				return '' # error
 
-			return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
-		except:
-			return ''
+		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
 
 	def run_check(self, obj, build_type = 'program', force_compiler = None):
