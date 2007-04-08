@@ -465,17 +465,21 @@ class pkgconfig_configurator(configurator_base):
 
 		try:
 			if self.version:
-				ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, self.version, self.name)).close()
+				cmd = "%s --atleast-version=%s \"%s\"" % (pkgcom, self.version, self.name)
+				ret = os.popen(cmd).close()
+				Params.debug("pkg-config cmd '%s' returned %s" % (cmd, ret))
 				self.conf.check_message('package %s >= %s' % (self.name, self.version), '', not ret)
 				if ret: raise ValueError, "error"
 			else:
-				ret = os.popen("%s %s" % (pkgcom, self.name)).close()
+				cmd = "%s \"%s\"" % (pkgcom, self.name)
+				ret = os.popen(cmd).close()
+				Params.debug("pkg-config cmd '%s' returned %s" % (cmd, ret))
 				self.conf.check_message('package %s' % (self.name), '', not ret)
 				if ret:
 					raise ValueError, "error"
 
-			cflags_I = shlex.split(os.popen('%s --cflags-only-I %s' % (pkgcom, self.name)).read())
-			cflags_other = shlex.split(os.popen('%s --cflags-only-other %s' % (pkgcom, self.name)).read())
+			cflags_I = shlex.split(os.popen('%s --cflags-only-I \"%s\"' % (pkgcom, self.name)).read())
+			cflags_other = shlex.split(os.popen('%s --cflags-only-other \"%s\"' % (pkgcom, self.name)).read())
 			retval['CCFLAGS_'+uselib] = cflags_other
 			retval['CXXFLAGS_'+uselib] = cflags_other
 			retval['CPPPATH_'+uselib] = []
@@ -485,19 +489,19 @@ class pkgconfig_configurator(configurator_base):
 
 			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
 			# Store the library names:
-			modlibs = os.popen('%s --libs-only-l %s' % (pkgcom, self.name)).read().strip().split()
+			modlibs = os.popen('%s --libs-only-l \"%s\"' % (pkgcom, self.name)).read().strip().split()
 			retval['LIB_'+uselib] = []
 			for item in modlibs:
 				retval['LIB_'+uselib].append( item[2:] ) #Strip '-l'
 
 			# Store the library paths:
-			modpaths = os.popen('%s --libs-only-L %s' % (pkgcom, self.name)).read().strip().split()
+			modpaths = os.popen('%s --libs-only-L \"%s\"' % (pkgcom, self.name)).read().strip().split()
 			retval['LIBPATH_'+uselib] = []
 			for item in modpaths:
 				retval['LIBPATH_'+uselib].append( item[2:] ) #Strip '-l'
 
 			# Store only other:
-			modother = os.popen('%s --libs-only-other %s' % (pkgcom, self.name)).read().strip().split()
+			modother = os.popen('%s --libs-only-other \"%s\"' % (pkgcom, self.name)).read().strip().split()
 			retval['LINKFLAGS_'+uselib] = []
 			for item in modother:
 				if str(item).endswith(".la"):
@@ -526,7 +530,7 @@ class pkgconfig_configurator(configurator_base):
 				if not var_defname:
 					var_defname = uselib + '_' + variable.upper()
 
-				retval[var_defname] = os.popen('%s --variable=%s %s' % (pkgcom, variable, self.name)).read().strip()
+				retval[var_defname] = os.popen('%s --variable=%s \"%s\"' % (pkgcom, variable, self.name)).read().strip()
 
 			self.conf.add_define(self.define, 1)
 			self.update_env(retval)
