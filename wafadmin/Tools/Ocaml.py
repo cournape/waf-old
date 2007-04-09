@@ -49,7 +49,7 @@ class ocamlobj(Object.genobj):
 
 		self.out_nodes    = []
 
-		self._are_deps_set = 0
+		self.are_deps_set = 0
 
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
 
@@ -72,6 +72,9 @@ class ocamlobj(Object.genobj):
 
 		if self.m_type == 'c_object':
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
+
+	def lastlinktask(self):
+		return self._linktasks[0]
 
 	def _map_task(self, task):
 		global g_caml_scanner
@@ -105,7 +108,7 @@ class ocamlobj(Object.genobj):
 				self.native_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
 				self.native_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
 
-		varnames = ['INCLUDES', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
+		varnames = ['INCLUDES', 'OCAMLFLAGS', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
 		for name in self.uselib.split():
 			for vname in varnames:
 				cnt = self.env[vname+'_'+name]
@@ -120,8 +123,8 @@ class ocamlobj(Object.genobj):
 		for filename in source_lst:
 			base, ext = os.path.splitext(filename)
 			node = self.path.find_build(filename)
-			if not ext in self.s_default_ext:
-				print "??? ", filename
+			#if not ext in self.s_default_ext:
+			#	print "??? ", filename
 
 			if ext == '.mll':
 				mll_task = self.create_task('ocamllex', self.native_env, 10)
@@ -184,8 +187,10 @@ class ocamlobj(Object.genobj):
 			for t in self._native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=0)))
+			#linktask.set_outputs(objfiles[0].m_parent.find_build(self.get_target_name(bytecode=0)))
 			self._linktasks.append(linktask)
 
+			#if self.m_type != 'c_object': self.out_nodes += linktask.m_outputs
 			self.out_nodes += linktask.m_outputs
 
 	def get_target_name(self, bytecode):
@@ -211,8 +216,8 @@ class ocamlobj(Object.genobj):
 		incomplete dependencies
 		"""
 
-		if self._are_deps_set: return
-		self._are_deps_set = 1
+		if self.are_deps_set: return
+		self.are_deps_set = 1
 
 		#print "comptask called!"
 
@@ -279,11 +284,11 @@ class ocamlobj(Object.genobj):
 
 def setup(env):
 	Object.register('ocaml', ocamlobj)
-	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
+	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
 	Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW')
 	Action.simple_action('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW')
 	Action.simple_action('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE')
-	Action.simple_action('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
+	Action.simple_action('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
 	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE')
 	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE')
 
