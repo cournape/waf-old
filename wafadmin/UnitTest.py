@@ -45,7 +45,8 @@ class unit_test:
 		self.unit_test_erroneous = {}	# Dictionary indicating erroneous unit tests.
 						# Key: the label, value: true = unit test has an error  false = unit test is ok
 		self.change_to_testfile_dir = False #True if the test file needs to be executed from the same dir
-		self.want_to_see_test_output = False #True to see the output from the testfile (for example check suites)
+		self.want_to_see_test_output = False #True to see the stdout from the testfile (for example check suites)
+		self.want_to_see_test_error = False #True to see the stderr from the testfile (for example check suites)
 		self.run_if_waf_does = 'check' #build was the old default
 
 	def run(self):
@@ -82,22 +83,30 @@ class unit_test:
 		curdir = os.getcwd() # store the current dir (only if self.change_to_testfile_dir)
 		for label, filename in self.unit_tests.iteritems():
 			try:
-				if self.change_to_testfile_dir: os.chdir(os.path.dirname(filename))
-				if self.want_to_see_test_output:
-					pp = pproc.Popen(filename, stderr = pproc.PIPE)
-				else:
-					pp = pproc.Popen(filename, stdout = pproc.PIPE, stderr = pproc.PIPE) # PIPE for ignoring output
+				if self.change_to_testfile_dir:
+					os.chdir(os.path.dirname(filename))
+
+				kwargs = dict()
+				if not self.want_to_see_test_output:
+					kwargs['stdout'] = pproc.PIPE  # PIPE for ignoring output
+				if not self.want_to_see_test_error:
+					kwargs['stderr'] = pproc.PIPE  # PIPE for ignoring output
+				pp = pproc.Popen(filename, **kwargs)
 				pp.wait()
-				if self.change_to_testfile_dir: os.chdir(curdir)
+				
+				if self.change_to_testfile_dir:
+					os.chdir(curdir)
 
 				result = int(pp.returncode == self.returncode_ok)
 
-				if result: self.num_tests_ok += 1
-				else: self.num_tests_failed += 1
+				if result:
+					self.num_tests_ok += 1
+				else:
+					self.num_tests_failed += 1
 
 				self.unit_test_results[label] = result
 				self.unit_test_erroneous[label] = 0
-			except:
+			except OSError:
 				self.unit_test_erroneous[label] = 1
 				self.num_tests_err += 1
 
