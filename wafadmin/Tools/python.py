@@ -263,13 +263,8 @@ def detect(conf):
 	v['PYFLAGS'] = ''
 	v['PYFLAGS_OPT'] = '-O'
 
-	try:
-		v['PYC'] = Params.g_options.pyc
-		v['PYO'] = Params.g_options.pyo
-	except TypeError:
-		v['PYC']=1
-		v['PYO']=1
-
+	v['PYC'] = getattr(Params.g_options, 'pyc', 1)
+	v['PYO'] = getattr(Params.g_options, 'pyo', 1)
 
 	v['pyext_INST_VAR'] = 'PYTHONDIR'
 	v['pyext_INST_DIR'] = ''
