@@ -1260,9 +1260,10 @@ class Configure:
 		bld.m_allenvs['default'] = env
 		bld._variants=['default']
 
-		os.chdir(dir)
 
 		for t in env['tools']: env.setup(**t)
+
+		os.chdir(dir)
 
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
