@@ -108,6 +108,37 @@ def setup(env):
 	try: env.hook('cc', 'SWIG_EXT', i_file)
 	except: pass
 
+def check_swig_version(conf, minver=None):
+	"""Check for a minimum swig version  like conf.check_swig_version("1.3.28")
+	or conf.check_swig_version((1,3,28)) """
+	import types
+	from pproc import Popen, PIPE
+	reg_swig = re.compile(r'SWIG Version\s(.*)', re.M)
+	if type(minver) is types.StringType : minver = minver.split('.')
+	proc = Popen([conf.env['SWIG'], "-version"], stdout=PIPE)
+	swig_out = proc.communicate()[0]
+	swigver=reg_swig.findall(swig_out)[0].split(".")
+
+	def is_swig_version_ok(minver, swig_version):
+		i=0
+		for n in minver:
+			if int(n)<int(swig_version[i]):
+				return True
+			if int(n)>int(swig_version[i]):
+				return False
+			i=i+1
+		return True
+	result = is_swig_version_ok(minver, swigver)
+	if result:
+		conf.env['SWIG_VERSION'] = swigver
+	swigver_full = '.'.join(map(str, swigver[:3]))
+	minver_str = '.'.join(map(str, minver))
+	if minver is None:
+		conf.check_message_custom('swig version', '', swigver_full)
+	else:
+		conf.check_message('swig version', ">= %s" % (minver_str,), result, option=swigver_full)
+	return result
+
 def detect(conf):
 	swig = conf.find_program('swig', var='SWIG')
 	if not swig: return 0
@@ -115,5 +146,6 @@ def detect(conf):
 	env['SWIG']      = swig
 	env['SWIGFLAGS'] = ''
 	env['SWIG_EXT']  = ['.swig']
+	conf.hook(check_swig_version)
 	return 1
 
