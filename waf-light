@@ -63,14 +63,15 @@ def uncompress_wafdir(newdir):
 			print "Or use the full waf version available freely at http://freehackers.org/~tnagy/bksys.html"
 			print "\033[91mNo wafadmin: cannot execute anything (error)\033[0m"
 			sys.exit(1)
-		if line=='# ===>BEGIN WOOF<===\n':
+		line=line.rstrip()
+		if line=='# ===>BEGIN WOOF<===':
 			cnt = file.readline()
 			if not cnt:
 				print "Corrupted waf (1)"
 				sys.exit(1)
 
-			line = file.readline()
-			if line!='# ===>END WOOF<===\n':
+			line = file.readline().rstrip()
+			if line!='# ===>END WOOF<===':
 				print "Corrupted waf (2)"
 				sys.exit(1)
 			break
