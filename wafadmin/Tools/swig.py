@@ -120,7 +120,7 @@ def check_swig_version(conf, minver=None):
 		minver = [int(s) for s in minver.split(".")]
 	if isinstance(minver, tuple):
 		minver = [int(s) for s in minver]
-	result = (minver==None) or (minver[:3]<=swigver[:3])
+	result = (minver is None) or (minver[:3] <= swigver[:3])
 	swigver_full = '.'.join(map(str, swigver))
 	if result:
 		conf.env['SWIG_VERSION'] = swigver_full
