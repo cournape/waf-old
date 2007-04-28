@@ -234,11 +234,12 @@ class c_scanner(Scan.scanner):
 		#if rescan: print "node has changed, a rescan is req ", node
 
 		if not rescan:
-			#print node, "depends on ", tree.m_depends_on[variant][node]
-			for anode in tree.m_depends_on[variant][node]:
-				if tree.needs_rescan(anode, task.m_env):
-					#print "rescanning because of ", anode
-					rescan = 1
+			if node in tree.m_depends_on[variant]:
+				#print node, "depends on ", tree.m_depends_on[variant][node]
+				for anode in tree.m_depends_on[variant][node]:
+					if tree.needs_rescan(anode, task.m_env):
+						#print "rescanning because of ", anode
+						rescan = 1
 
 		# rescan the cpp file if necessary
 		if rescan:
@@ -251,7 +252,8 @@ class c_scanner(Scan.scanner):
 
 		# we are certain that the files have been scanned - compute the signature
 		add_node_sig(node)
-		for n in tree.m_depends_on[variant][node]: add_node_sig(n)
+		if node in tree.m_depends_on[variant]:
+			for n in tree.m_depends_on[variant][node]: add_node_sig(n)
 
 		#for task in task.m_run_after: m.update(task.signature())
 		return m.digest()
