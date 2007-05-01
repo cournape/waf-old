@@ -694,11 +694,16 @@ class ccroot(Object.genobj):
 				# make sure to rebuild our link task if obj.m_linktask is re-run
 				try:
 					lst = htbl[self.m_linktask.m_outputs[0]]
-					for a in obj.m_linktask:
+				except KeyError:
+					htbl[self.m_linktask.m_outputs[0]] = obj.m_linktask.m_outputs
+				else:
+					if isinstance(obj.m_linktask, (list, tuple)):
+						linktasks = obj.m_linktask
+					else:
+						linktasks = [obj.m_linktask]
+					for a in linktasks:
 						if not a in lst:
 							lst.append(a)
-				except:
-					htbl[self.m_linktask.m_outputs[0]] = obj.m_linktask.m_outputs
 
 				# do not continue on all objects, we have found the interesting one
 				break
