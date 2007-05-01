@@ -696,13 +696,16 @@ class ccroot(Object.genobj):
 					lst = htbl[self.m_linktask.m_outputs[0]]
 				except KeyError:
 					htbl[self.m_linktask.m_outputs[0]] = obj.m_linktask.m_outputs
+					lst = obj.m_linktask.m_outputs
+
+				try:
+					iter(obj.m_linktask)
+				except TypeError:
+					if obj.m_linktask not in lst:
+						lst.append(obj.m_linktask)
 				else:
-					if isinstance(obj.m_linktask, (list, tuple)):
-						linktasks = obj.m_linktask
-					else:
-						linktasks = [obj.m_linktask]
 					for a in linktasks:
-						if not a in lst:
+						if a not in lst:
 							lst.append(a)
 
 				# do not continue on all objects, we have found the interesting one
