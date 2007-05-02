@@ -134,12 +134,12 @@ class alex:
 			for (name, meth) in params:
 				if name == 'SRC':
 					if meth:
-						alst.append(getattr(task, 'm_inputs%s' % meth))
+						alst.append(eval('task.m_inputs%s' % meth))
 					else:
 						alst.append(" ".join([a.srcpath(env) for a in task.m_inputs]))
 				elif name == 'TGT':
 					if meth:
-						alst.append(getattr(task, 'm_outputs%s' % meth))
+						alst.append(eval('task.m_outputs%s' % meth))
 					else:
 						alst.append(" ".join([a.bldpath(env) for a in task.m_outputs]))
 				else:
