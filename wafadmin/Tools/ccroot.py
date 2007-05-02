@@ -691,7 +691,6 @@ class ccroot(Object.genobj):
 				# set the dependency over the link task
 				self.m_linktask.m_run_after.append(obj.m_linktask)
 
-				#break
 				# make sure to rebuild our link task if obj.m_linktask is re-run
 				try:
 					lst = htbl[self.m_linktask.m_outputs[0]]
@@ -702,6 +701,9 @@ class ccroot(Object.genobj):
 
 				# do not continue on all objects, we have found the interesting one
 				break
+			else:
+				error("uselib_local of %s includes %s which is not found" %
+					  (self.name, name))
 
 		# 2. the case of the libs defined outside
 		libs = self.uselib.split()
