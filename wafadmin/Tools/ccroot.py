@@ -691,22 +691,14 @@ class ccroot(Object.genobj):
 				# set the dependency over the link task
 				self.m_linktask.m_run_after.append(obj.m_linktask)
 
+				#break
 				# make sure to rebuild our link task if obj.m_linktask is re-run
 				try:
 					lst = htbl[self.m_linktask.m_outputs[0]]
 				except KeyError:
 					htbl[self.m_linktask.m_outputs[0]] = obj.m_linktask.m_outputs
-					lst = obj.m_linktask.m_outputs
-
-				try:
-					iter(obj.m_linktask)
-				except TypeError:
-					if obj.m_linktask not in lst:
-						lst.append(obj.m_linktask)
 				else:
-					for a in linktasks:
-						if a not in lst:
-							lst.append(a)
+					lst.extend(obj.m_linktask.m_outputs)
 
 				# do not continue on all objects, we have found the interesting one
 				break
