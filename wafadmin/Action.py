@@ -122,41 +122,43 @@ class alex:
 						name.append(c)
 			cur += 1
 
-	def fun(self):
+	def res(self):
+		lst = ['def f(task):\n\tenv=task.m_env\n\tp=env.get_flat\n\t']
 
-		cmd_tmpl = ''.join(self.out)
-		params = self.params
+		#lst.append('print task.m_inputs\n\t')
+		#lst.append('print task.m_outputs\n\t')
 
-		def f(task):
-			env = task.m_env
-			p = env.get_flat
-			alst=[]
-			for (name, meth) in params:
-				if name == 'SRC':
-					if meth:
-						alst.append(eval('task.m_inputs%s' % meth))
-					else:
-						alst.append(" ".join([a.srcpath(env) for a in task.m_inputs]))
-				elif name == 'TGT':
-					if meth:
-						alst.append(eval('task.m_outputs%s' % meth))
-					else:
-						alst.append(" ".join([a.bldpath(env) for a in task.m_outputs]))
-				else:
-					self.m_vars.append(name)
-					alst.append(p(name))
-			if alst:
-				try:
-					cmd = cmd_tmpl % tuple(alst)
-				except Exception:
-					task.debug()
-					raise
+		lst.append('try: cmd = "')
+		lst += self.out
+		lst.append('"')
+
+		alst=[]
+		for (name, meth) in self.params:
+			if name == 'SRC':
+				if meth: alst.append('task.m_inputs%s' % meth)
+				else: alst.append('" ".join(map(lambda a:a.srcpath(env), task.m_inputs))')
+			elif name == 'TGT':
+				if meth: alst.append('task.m_outputs%s' % meth)
+				else: alst.append('" ".join(map(lambda a:a.bldpath(env), task.m_outputs))')
 			else:
-				cmd = cmd_tmpl
+				self.m_vars.append(name)
+				alst.append("p('%s')" % name)
+		if alst:
+			lst.append(' % (\\\n\t\t')
+			lst += ", \\\n\t\t".join(alst)
+			lst.append(')\n')
 
-			return Runner.exec_command(cmd)
+		lst.append('\texcept:\n')
+		lst.append('\t\ttask.debug()\n')
+		lst.append('\t\traise\n')
 
-		return f
+		lst.append('\treturn Runner.exec_command(cmd)\n')
+
+		return "".join(lst)
+
+	def fun(self):
+		exec(self.res())
+		return eval('f')
 
 def simple_action(name, line, color='GREEN', vars=[]):
 	"helper provided for convenience"
@@ -164,7 +166,7 @@ def simple_action(name, line, color='GREEN', vars=[]):
 	obj.start()
 	f = obj.fun()
 	act = Action(name, color=color)
-	#debug(obj.res(), 'action')
+	debug(obj.res(), 'action')
 	act.m_function_to_run = f
 	act.m_vars = obj.m_vars
 	if vars: act.m_vars = vars
