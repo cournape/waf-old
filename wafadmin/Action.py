@@ -44,7 +44,8 @@ class Action:
 				tgt_str = " ".join(map(lambda a:a.nice_path(task.m_env), task.m_outputs))
 				return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 		except:
-			print "exception"
+			import traceback
+			traceback.print_exc()
 			task.debug(level=1)
 			raise
 
