@@ -228,6 +228,20 @@ class Build:
 
 		self._initialize_variants()
 
+		for env in self.m_allenvs.values():
+			for f in env['dep_files']:
+				newnode = self.m_srcnode.find_build(f, create=1)
+				try:
+					hash = Params.h_file(newnode.abspath(env))
+				except IOError:
+					error("cannot find "+f)
+					hash = Params.sig_nil
+				except AttributeError:
+					error("cannot find "+f)
+					hash = Params.sig_nil
+				self.m_tstamp_variants[env.variant()][newnode] = hash
+
+
 	def _initialize_variants(self):
 		debug("init variants", 'build')
 
@@ -244,19 +258,6 @@ class Build:
 				var = getattr(self, v)
 				if not name in var:
 					var[name] = {}
-
-		for env in self.m_allenvs.values():
-			for f in env['dep_files']:
-				newnode = self.m_srcnode.find_build(f, create=1)
-				try:
-					hash = Params.h_file(newnode.abspath(env))
-				except IOError:
-					error("cannot find "+f)
-					hash = Params.sig_nil
-				except AttributeError:
-					error("cannot find "+f)
-					hash = Params.sig_nil
-				self.m_tstamp_variants[env.variant()][newnode] = hash
 
 	# ======================================= #
 	# node and folder handling
