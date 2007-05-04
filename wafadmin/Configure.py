@@ -1256,9 +1256,10 @@ class Configure:
 		back=os.path.abspath('.')
 
 		bld = Build.Build()
-		bld.load_dirs(dir, bdir, isconfigure=1)
+		bld.m_allenvs.update(self.m_allenvs)
 		bld.m_allenvs['default'] = env
-		bld._variants=['default']
+		bld._variants=bld.m_allenvs.keys()
+		bld.load_dirs(dir, bdir, isconfigure=1)
 
 
 		for t in env['tools']: env.setup(**t)

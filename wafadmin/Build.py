@@ -226,6 +226,9 @@ class Build:
 			self.m_allenvs[name] = env
 			for t in env['tools']: env.setup(**t)
 
+		self._initialize_variants()
+
+	def _initialize_variants(self):
 		debug("init variants", 'build')
 
 		lstvariants = []
@@ -296,6 +299,9 @@ class Build:
 		# create this build dir if necessary
 		try: os.makedirs(blddir)
 		except OSError: pass
+
+		self._initialize_variants()
+
 
 	def ensure_dir_node_from_path(self, abspath):
 		"return a node corresponding to an absolute path, creates nodes if necessary"
