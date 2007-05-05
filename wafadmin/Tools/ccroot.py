@@ -495,7 +495,7 @@ class ccroot(Object.genobj):
 		# now process the include paths
 		tree = Params.g_build
 		for dir in inc_lst:
-			if os.path.isabs(dir[0]) or (len(dir) > 1 and dir[1] == ':'):
+			if os.path.isabs(dir[0]) or (len(dir) > 1 and dir.find(':') > 0):
 				self.env.append_value('CPPPATH', dir)
 				continue
 
