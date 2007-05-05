@@ -71,8 +71,8 @@ def detect(conf):
 
 	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] =				['/MTd']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] =		['/MDd']
-	v['CPPDEFINES_CRT_MULTITHREADED'] =					['_DEBUG', '_MT']
-	v['CPPDEFINES_CRT_MULTITHREADED_DLL'] =			['_DEBUG', '_MT', '_DLL']
+	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] =					['_DEBUG', '_MT']
+	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] =			['_DEBUG', '_MT', '_DLL']
 
 
 	# compiler debug levels
