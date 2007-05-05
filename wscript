@@ -17,8 +17,9 @@ APPNAME='waf'
 REVISION=''
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
+zip_types = ['bz2', 'gz']
 
-import Params, os, sys, base64, shutil, re, random
+import Params, Utils, os, sys, base64, shutil, re, random
 
 # this function is called before any other for parsing the command-line
 def set_options(opt):
@@ -26,6 +27,9 @@ def set_options(opt):
 	# generate waf
 	opt.add_option('--make-waf', action='store_true', default=False,
 		help='creates the waf script', dest='waf')
+	
+	opt.add_option('--zip-type', action='store', default='bz2',
+		help='specify the zip type [Allowed values: %s]' % ' '.join(zip_types), dest='zip')
 
 	# those ones are not too interesting
 	opt.add_option('--set-version', default='',
@@ -66,9 +70,13 @@ def create_waf():
 	mw = 'tmp-waf-'+VERSION
 
 	import tarfile, re
+	
+	zipType = Params.g_options.zip.strip().lower()
+	if zipType not in zip_types:
+		zipType = zip_types[0]
 
-	#open a file as tar.bz2 for writing
-	tar = tarfile.open('%s.tar.bz2' % mw, "w:bz2")
+	#open a file as tar.[extension] for writing
+	tar = tarfile.open('%s.tar.%s' % (mw, zipType), "w:%s" % zipType)
 	tarFiles=[]
 	#regexpr for python files
 	pyFileExp = re.compile(".*\.py$")
@@ -90,7 +98,6 @@ def create_waf():
 		tar.add(tarThisFile)
 	tar.close()
 
-
 	file = open('waf-light', 'rb')
 	code1 = file.read()
 	file.close()
@@ -105,8 +112,11 @@ def create_waf():
 	prefix = Params.g_options.prefix
 	reg = re.compile('^INSTALL=(.*)', re.M)
 	code1 = reg.sub(r'INSTALL="%s"' % prefix, code1)
+	#change the tarfile extension in the waf script
+	reg = re.compile('bz2', re.M)
+	code1 = reg.sub(zipType, code1)
 
-	file = open('%s.tar.bz2' % mw, 'rb')
+	file = open('%s.tar.%s' % (mw, zipType), 'rb')
 	cnt = file.read()
 	file.close()
 	code2 = encodeAscii85(cnt)
@@ -125,7 +135,7 @@ def create_waf():
 
 	if sys.platform != 'win32':
 		os.chmod('waf', 0755)
-	os.unlink('%s.tar.bz2' % mw)
+	os.unlink('%s.tar.%s' % (mw, zipType))
 
 def install_waf():
 	print "installing waf on the system"
