@@ -668,11 +668,7 @@ class ccroot(Object.genobj):
 		htbl = Params.g_build.m_depends_on
 		for name in names:
 			for obj in Object.g_allobjs:
-				#print obj.name, obj.target
-
 				if not (obj.name == name or (not obj.name and obj.target == name)): continue
-
-				#if obj.name != name and (not obj.name and obj.target != name): continue
 				if not obj.m_posted: obj.post()
 
 				if obj.m_type == 'shlib':
@@ -694,7 +690,7 @@ class ccroot(Object.genobj):
 				# set the dependency over the link task
 				self.m_linktask.m_run_after.append(obj.m_linktask)
 
-				# do not continue on all objects, we have found the interesting one
+				# do not continue on all objects, we have found the one
 				break
 			else:
 				error("uselib_local of %s includes %s which is not found" %
@@ -725,10 +721,5 @@ class ccroot(Object.genobj):
 
 	def addflags(self, var, value):
 		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
-		if type(var) is types.StringType:
-			for i in value.split():
-				self.env.append_value(var, i)
-		else:
-			# TODO: double-check
-			self.env[var] += value
+		self.env.append_value(var, self.to_list(value))
 
