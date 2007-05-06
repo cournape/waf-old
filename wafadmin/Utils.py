@@ -4,7 +4,7 @@
 
 "Utility functions"
 
-import os, sys, imp, types, string
+import os, sys, imp, types, string, re
 import Params
 
 g_trace = 0
