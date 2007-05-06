@@ -663,13 +663,16 @@ class ccroot(Object.genobj):
 		self.process_vnum()
 
 		# 1. the case of the libs defined in the project
-		names = self.uselib_local.split()
+		names = self.to_list(self.uselib_local)
 		env=self.env
 		htbl = Params.g_build.m_depends_on
 		for name in names:
 			for obj in Object.g_allobjs:
-				if obj.name != name: continue
+				#print obj.name, obj.target
 
+				if not (obj.name == name or (not obj.name and obj.target == name)): continue
+
+				#if obj.name != name and (not obj.name and obj.target != name): continue
 				if not obj.m_posted: obj.post()
 
 				if obj.m_type == 'shlib':
@@ -698,7 +701,7 @@ class ccroot(Object.genobj):
 					  (self.name, name))
 
 		# 2. the case of the libs defined outside
-		libs = self.uselib.split()
+		libs = self.to_list(self.uselib)
 		for l in libs:
 			for v in self.p_flag_vars:
 				val=self.env[v+'_'+l]
