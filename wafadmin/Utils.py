@@ -147,6 +147,15 @@ def join_path(*path):
 def join_path_list(path_lst):
 	return join_path(*path_lst)
 
+def is_absolute_path(path):
+	""" more thorough absoluate path check """
+	isabs = os.path.isabs(path)
+	if not isabs and sys.platform == 'win32':
+		isabs = (len(path) > 1 and path.find(':') > 0)
+	elif not isabs and sys.platform != 'win32':
+		isabs = re.search(r'^[\"\']/', path.strip(), re.M) != None
+	return isabs
+
 _path_to_preprocessor_name_translation = None
 def path_to_preprocessor_name(path):
 	"""Converts a file path like foo/zbr-xpto.h to a C preprocessor
