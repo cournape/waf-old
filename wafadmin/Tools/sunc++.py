@@ -23,6 +23,7 @@ def detect(conf):
 	if not cxx:
 		conf.check_message('sunc++', '', False)
 		return 0;
+	conf.check_tool('checks')
 
 	cpp = cxx
 
@@ -99,7 +100,7 @@ def detect(conf):
 	# program
 	v['program_obj_ext']     = ['.o']
 	v['program_SUFFIX']      = ''
-		
+	
 	#test if the compiler could build a prog
 	test = Configure.check_data()
 	test.code = 'int main() {return 0;}\n'
