@@ -250,8 +250,7 @@ class Popen(object):
                 startupinfo.dwFlags |= STARTF_USESHOWWINDOW
                 startupinfo.wShowWindow = SW_HIDE
                 comspec = os.environ.get("COMSPEC", "cmd.exe")
-                # if we wrap the command in quotes, cmd.exe will not modify it
-                args = comspec + ' /s /c "%s"' % args
+                args = comspec + " /c " + args
                 if (GetVersion() >= 0x80000000L or
                         os.path.basename(comspec).lower() == "command.com"):
                     w9xpopen = self._find_w9xpopen()

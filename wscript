@@ -19,7 +19,7 @@ REVISION=''
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']
 
-import Params, Utils, os, sys, base64, shutil, re, random
+import Params, Utils, Options, os, sys, base64, shutil, re, random
 
 # this function is called before any other for parsing the command-line
 def set_options(opt):
@@ -30,7 +30,11 @@ def set_options(opt):
 	
 	opt.add_option('--zip-type', action='store', default='bz2',
 		help='specify the zip type [Allowed values: %s]' % ' '.join(zip_types), dest='zip')
-
+	
+	opt.add_option('--make-batch', action='store_true', default=False,
+		help='creates a waf.bat file that calls the waf script. (this is done automatically on win32 systems)',
+		dest='make_batch')
+	
 	# those ones are not too interesting
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
@@ -110,8 +114,15 @@ def create_waf():
         code1 = reg.sub(r'REVISION="%d"' % REVISION, code1)
 
 	prefix = Params.g_options.prefix
+	# if the prefix is the default, let's be nice and be platform-independent
+	# just in case the created waf is used on either windows or unix
+	if prefix == Options.default_prefix:
+		prefix = "sys.platform=='win32' and 'c:/temp' or '/usr/local'"
+	else:
+		prefix = '"%s"' % prefix #encase in quotes 
+	
 	reg = re.compile('^INSTALL=(.*)', re.M)
-	code1 = reg.sub(r'INSTALL="%s"' % prefix, code1)
+	code1 = reg.sub(r'INSTALL=%s' % prefix, code1)
 	#change the tarfile extension in the waf script
 	reg = re.compile('bz2', re.M)
 	code1 = reg.sub(zipType, code1)
@@ -120,11 +131,7 @@ def create_waf():
 	cnt = file.read()
 	file.close()
 	code2 = encodeAscii85(cnt)
-	if sys.platform == 'win32':
-		file = open('waf.bat', 'wb')
-		file.write('@python -x "%~f0" %* & exit /b\n')
-	else:
-		file = open('waf', 'wb')
+	file = open('waf', 'wb')
 	file.write(code1)
 	file.write('# ===>BEGIN WOOF<===\n')
 	file.write('#')
@@ -132,6 +139,11 @@ def create_waf():
 	file.write('\n')
 	file.write('# ===>END WOOF<===\n')
 	file.close()
+	
+	if sys.platform == 'win32' or Params.g_options.make_batch:
+		file = open('waf.bat', 'wb')
+		file.write('@python -x waf %* & exit /b\n')
+		file.close()
 
 	if sys.platform != 'win32':
 		os.chmod('waf', 0755)

@@ -34,9 +34,9 @@ def detect(conf):
 
 	v = conf.env
 
-	# c/c++ compiler - needs to be in parenthesis because the default path includes whitespaces
-	v['CC']                 = '\"%s\"' % comp
-	v['CXX']                 = '\"%s\"' % comp
+	# c/c++ compiler - check for whitespace, and if so, add quotes
+	v['CC']                 = (comp.strip().find(' ') > 0 and '"%s"' % comp or comp).replace('""', '"')
+	v['CXX']                 = v['CC']
 
 	v['CPPFLAGS']            = ['/W3', '/nologo', '/c', '/EHsc', '/errorReport:prompt']
 	v['CCDEFINES']          = ['WIN32'] # command-line defines
