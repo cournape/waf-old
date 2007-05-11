@@ -8,7 +8,9 @@ import os, cPickle
 import Params, Runner, Object, Node, Task, Scripting, Utils, Environment
 from Params import debug, error, fatal, warning
 
-g_saved_attrs = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
+
+
+SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps'.split()
 "Build class members to save"
 
 class BuildDTO:
@@ -16,12 +18,12 @@ class BuildDTO:
 	def __init__(self):
 		pass
 	def init(self, bdobj):
-		global g_saved_attrs
-		for a in g_saved_attrs:
+		global SAVED_ATTRS
+		for a in SAVED_ATTRS:
 			setattr(self, a, getattr(bdobj, a))
 	def update_build(self, bdobj):
-		global g_saved_attrs
-		for a in g_saved_attrs:
+		global SAVED_ATTRS
+		for a in SAVED_ATTRS:
 			setattr(bdobj, a, getattr(self, a))
 
 class Build:
