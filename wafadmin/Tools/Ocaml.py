@@ -116,7 +116,7 @@ class ocamlobj(Object.genobj):
 					if self.bytecode_env: self.bytecode_env.append_value(vname, cnt)
 					if self.native_env: self.native_env.append_value(vname, cnt)
 
-		source_lst = self.source.split()
+		source_lst = self.to_list(self.source)
 		nodes_lst = []
 
 		# first create the nodes corresponding to the sources
