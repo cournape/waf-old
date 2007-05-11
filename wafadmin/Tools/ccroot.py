@@ -663,10 +663,10 @@ class ccroot(Object.genobj):
 		self.process_vnum()
 
 		# 1. the case of the libs defined in the project
-		names = list(self.to_list(self.uselib_local))
+		names = self.to_list(self.uselib_local)
 
 		# add the recursive dependencies
-		for name in list(names):
+		for name in names:
 			for obj in Object.g_allobjs:
 				if not (obj.name == name or (not obj.name and obj.target == name)):
 					continue
@@ -679,11 +679,9 @@ class ccroot(Object.genobj):
 						if (dep_obj.m_type in ['shlib', 'plugin', 'staticlib']
 							and dep not in names):
 							names.append(dep)
-						
 						break
-
 				break
-		
+
 		env=self.env
 		htbl = Params.g_build.m_depends_on
 		for name in names:

@@ -209,20 +209,20 @@ class genobj:
 		else: self.source = self.source.extend(lst)
 
 	def get_recursive_deps(self):
-		"recursively finds all dependencies of this object; returns list of dependency names"
+		"finds all dependencies of this object; returns the list of names without duplicates"
 		try:
 			deps = self.deps
 		except AttributeError:
 			deps = []
-		retval = list(self.to_list(deps))
+		retval = self.to_list(deps)
 		for depname in retval:
-			for dep in Params.g_build.m_outstanding_objs:
-				if dep.name == depname:
-					recursive_deps = dep.get_recursive_deps()
-					for recursive_dep in recursive_deps:
-						if recursive_dep not in retval:
-							retval.append(recursive_dep)
-					break
+			for dep in g_allobjs:
+				if not (dep.name == name or (not dep.name and dep.target == name)):
+					continue
+				recursive_deps = dep.get_recursive_deps()
+				for recursive_dep in recursive_deps:
+					if recursive_dep not in retval: retval.append(recursive_dep)
+				break
 			else:
 				error("Object %s lists %s as dependency, but %s is not defined."
 					  % (self.name, depname, depname))
