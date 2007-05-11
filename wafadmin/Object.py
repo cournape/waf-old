@@ -208,27 +208,6 @@ class genobj:
 		if not self.source: self.source = lst
 		else: self.source = self.source.extend(lst)
 
-	def get_recursive_deps(self):
-		"finds all dependencies of this object; returns the list of names without duplicates"
-		try:
-			deps = self.deps
-		except AttributeError:
-			deps = []
-		retval = self.to_list(deps)
-		for depname in retval:
-			for dep in g_allobjs:
-				if not (dep.name == name or (not dep.name and dep.target == name)):
-					continue
-				recursive_deps = dep.get_recursive_deps()
-				for recursive_dep in recursive_deps:
-					if recursive_dep not in retval: retval.append(recursive_dep)
-				break
-			else:
-				error("Object %s lists %s as dependency, but %s is not defined."
-					  % (self.name, depname, depname))
-		return retval
-
-
 g_cache_max={}
 def sign_env_vars(env, vars_list):
 	" ['CXX', ..] -> [env['CXX'], ..]"
