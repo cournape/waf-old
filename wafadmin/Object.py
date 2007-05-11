@@ -208,6 +208,27 @@ class genobj:
 		if not self.source: self.source = lst
 		else: self.source = self.source.extend(lst)
 
+	def get_recursive_deps(self):
+		"recursively finds all dependencies of this object; returns list of dependency names"
+		try:
+			deps = self.deps
+		except AttributeError:
+			deps = []
+		retval = list(self.to_list(deps))
+		for depname in retval:
+			for dep in Params.g_build.m_outstanding_objs:
+				if dep.name == depname:
+					recursive_deps = dep.get_recursive_deps()
+					for recursive_dep in recursive_deps:
+						if recursive_dep not in retval:
+							retval.append(recursive_dep)
+					break
+			else:
+				error("Object %s lists %s as dependency, but %s is not defined."
+					  % (self.name, depname, depname))
+		return retval
+
+
 g_cache_max={}
 def sign_env_vars(env, vars_list):
 	" ['CXX', ..] -> [env['CXX'], ..]"
