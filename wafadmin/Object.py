@@ -28,8 +28,10 @@ from Params import debug, error, fatal
 g_allobjs=[]
 "contains all objects, provided they are created (not in distclean or in dist)"
 
+
 def flush():
 	"object instances under the launch directory create the tasks now"
+	global g_allobjs
 
 	tree = Params.g_build
 	debug("delayed operation Object.flush() called", 'object')
@@ -45,7 +47,7 @@ def flush():
 	else:
 		compile_targets = None
 
-	for obj in tree.m_outstanding_objs:
+	for obj in g_allobjs:
 		debug("posting object", 'object')
 
 		if obj.m_posted: continue
@@ -89,13 +91,11 @@ class genobj:
 		# no default environment - in case if
 		self.env = None
 
-		# register ourselves - used at install time
-		g_allobjs.append(self)
-
 		# allow delayed operations on objects created (declarative style)
 		# an object is then posted when another one is added
 		# Objects can be posted manually, but this can break a few things, use with care
-		Params.g_build.m_outstanding_objs.append(self)
+		# used at install time too
+		g_allobjs.append(self)
 
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'other']
@@ -163,7 +163,6 @@ class genobj:
 			newobj.env = env
 
 		g_allobjs.append(newobj)
-		Params.g_build.m_outstanding_objs.append(newobj)
 
 		return newobj
 

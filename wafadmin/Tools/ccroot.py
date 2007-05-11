@@ -665,22 +665,8 @@ class ccroot(Object.genobj):
 		# 1. the case of the libs defined in the project
 		names = self.to_list(self.uselib_local)
 
-		# add the recursive dependencies
-		for name in names:
-			for obj in Object.g_allobjs:
-				if not (obj.name == name or (not obj.name and obj.target == name)):
-					continue
-				for dep in obj.get_recursive_deps():
+		tree = Params.g_build
 
-					for dep_obj in Object.g_allobjs:
-						if not (dep_obj.name == dep or (not dep_obj.name and dep_obj.target == dep)):
-							continue
-
-						if (dep_obj.m_type in ['shlib', 'plugin', 'staticlib']
-							and dep not in names):
-							names.append(dep)
-						break
-				break
 
 		env=self.env
 		htbl = Params.g_build.m_depends_on

@@ -75,10 +75,6 @@ class Build:
 		# ======================================= #
 		# tasks and objects
 
-		# objects that are not posted and objects already posted
-		# -> delay task creation
-		self.m_outstanding_objs = []
-
 		# build dir variants (release, debug, ..)
 		for name in ['default', 0]:
 			for v in 'm_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_abspath_cache'.split():
