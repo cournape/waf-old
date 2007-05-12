@@ -664,6 +664,8 @@ class ccroot(Object.genobj):
 		self.process_vnum()
 
 		# 2. the case of the libs defined in the project (visit ancestors first)
+		# the ancestors external libraries (uselib) will be prepended
+		uselib = self.to_list(self.uselib)
 		seen = []
 		names = self.to_list(self.uselib_local) # consume the list of names
 		while names:
@@ -681,10 +683,10 @@ class ccroot(Object.genobj):
 				names = names[1:]
 				continue
 
-			# object has children to process first ? update the list of names
+			# object has ancestors to process first ? update the list of names
 			if y.uselib_local:
 				added = 0
-				lst = self.to_list(self.uselib_local)
+				lst = y.to_list(y.uselib_local)
 				lst.reverse()
 				for u in lst:
 					if u in seen: continue
@@ -694,6 +696,7 @@ class ccroot(Object.genobj):
 
 			# safe to process the current object
 			if not y.m_posted: y.post()
+			seen.append(x)
 
 			if y.m_type == 'shlib':
 				env.append_value('LIB', y.target)
@@ -712,10 +715,16 @@ class ccroot(Object.genobj):
 			# set the dependency over the link task
 			self.m_linktask.m_run_after.append(y.m_linktask)
 
+			# add ancestors uselib too
+			# TODO potential problems with static libraries ?
+			morelibs = y.to_list(y.uselib)
+			for v in morelibs:
+				if v in uselib: continue
+				uselib = [v]+uselib
 			names = names[1:]
 
 		# 3. the case of the libs defined outside
-		for x in self.to_list(self.uselib):
+		for x in uselib:
 			for v in self.p_flag_vars:
 				val = self.env[v+'_'+x]
 				if val: self.env.append_value(v, val)
