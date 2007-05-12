@@ -660,17 +660,40 @@ class ccroot(Object.genobj):
 		debug('apply_lib_vars called', 'ccroot')
 		env=self.env
 
-		# 0. override if necessary
+		# 1. override if necessary
 		self.process_vnum()
 
-		# 1. the case of the libs defined in the project
-		for name in self.to_list(self.uselib_local):
-			y = Object.name_to_obj(name)
-			if not y:
-				error('object not found in uselib_local: obj %s uselib %s' % (self.name, name))
+		# 2. the case of the libs defined in the project (visit ancestors first)
+		seen = []
+		names = self.to_list(self.uselib_local) # consume the list of names
+		while names:
+			x = names[0]
+
+			# visit dependencies only once
+			if x in seen:
+				names = names[1:]
 				continue
-			if not y.m_posted:
-				y.post()
+
+			# object does not exist ?
+			y = Object.name_to_obj(x)
+			if not y:
+				error('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
+				names = names[1:]
+				continue
+
+			# object has children to process first ? update the list of names
+			if y.uselib_local:
+				added = 0
+				lst = self.to_list(self.uselib_local)
+				lst.reverse()
+				for u in lst:
+					if u in seen: continue
+					added = 1
+					names = [u]+names
+				if added: continue # list of names modified, loop
+
+			# safe to process the current object
+			if not y.m_posted: y.post()
 
 			if y.m_type == 'shlib':
 				env.append_value('LIB', y.target)
@@ -682,14 +705,16 @@ class ccroot(Object.genobj):
 			else:
 				error('unknown object type %s in apply_lib_vars, uselib_local' % obj.name)
 
-			# add the path too
+			# add the link path too
 			tmp_path = y.path.bldpath(self.env)
 			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
 			# set the dependency over the link task
 			self.m_linktask.m_run_after.append(y.m_linktask)
 
-		# 2. the case of the libs defined outside
+			names = names[1:]
+
+		# 3. the case of the libs defined outside
 		for x in self.to_list(self.uselib):
 			for v in self.p_flag_vars:
 				val = self.env[v+'_'+x]
