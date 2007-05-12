@@ -658,53 +658,41 @@ class ccroot(Object.genobj):
 
 	def apply_lib_vars(self):
 		debug('apply_lib_vars called', 'ccroot')
+		env=self.env
 
 		# 0. override if necessary
 		self.process_vnum()
 
 		# 1. the case of the libs defined in the project
-		names = self.to_list(self.uselib_local)
+		for name in self.to_list(self.uselib_local):
+			y = Object.name_to_obj(name)
+			if not y:
+				error('object not found in uselib_local: obj %s uselib %s' % (self.name, name))
+				continue
+			if not y.m_posted:
+				y.post()
 
-		tree = Params.g_build
-
-
-		env=self.env
-		htbl = Params.g_build.m_depends_on
-		for name in names:
-			for obj in Object.g_allobjs:
-				if not (obj.name == name or (not obj.name and obj.target == name)): continue
-				if not obj.m_posted: obj.post()
-
-				if obj.m_type == 'shlib':
-					env.append_value('LIB', obj.target)
-				elif obj.m_type == 'plugin':
-					if platform == 'darwin':
-						env.append_value('PLUGIN', obj.target)
-					else:
-						env.append_value('LIB', obj.target)
-				elif obj.m_type == 'staticlib':
-					env.append_value('STATICLIB', obj.target)
-				else:
-					error('unknown object type %s in apply_lib_vars' % obj.name)
-
-				# add the path too
-				tmp_path = obj.path.bldpath(self.env)
-				if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
-
-				# set the dependency over the link task
-				self.m_linktask.m_run_after.append(obj.m_linktask)
-
-				# do not continue on all objects, we have found the one
-				break
+			if y.m_type == 'shlib':
+				env.append_value('LIB', y.target)
+			elif y.m_type == 'plugin':
+				if platform == 'darwin': env.append_value('PLUGIN', y.target)
+				else: env.append_value('LIB', y.target)
+			elif y.m_type == 'staticlib':
+				env.append_value('STATICLIB', y.target)
 			else:
-				error("uselib_local of %s includes %s which is not found" %
-					  (self.name, name))
+				error('unknown object type %s in apply_lib_vars, uselib_local' % obj.name)
+
+			# add the path too
+			tmp_path = y.path.bldpath(self.env)
+			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
+
+			# set the dependency over the link task
+			self.m_linktask.m_run_after.append(y.m_linktask)
 
 		# 2. the case of the libs defined outside
-		libs = self.to_list(self.uselib)
-		for l in libs:
+		for x in self.to_list(self.uselib):
 			for v in self.p_flag_vars:
-				val=self.env[v+'_'+l]
+				val = self.env[v+'_'+x]
 				if val: self.env.append_value(v, val)
 	def process_vnum(self):
 		if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
