@@ -10,7 +10,7 @@ if 'PSYCOWAF' in os.environ:
 	except:
 		pass
 
-VERSION="1.1.0"
+VERSION="1.1.1"
 REVISION="x"
 INSTALL="x"
 cwd = os.getcwd()
