@@ -221,6 +221,7 @@ class Build:
 
 	def add_subdirs(self, dirs):
 		lst = Utils.to_list(dirs)
+		lst.reverse()
 		for d in lst:
 			if not d: continue
 			Scripting.add_subdir(d, self)
