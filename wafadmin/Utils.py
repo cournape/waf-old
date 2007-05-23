@@ -105,12 +105,6 @@ def to_hashtable(s):
 		tbl[mems[0]] = mems[1]
 	return tbl
 
-def copyobj(obj):
-	cp = obj.__class__()
-	for at in obj.__dict__.keys():
-		setattr(cp, at, getattr(obj, at))
-	return cp
-
 def get_term_cols():
 	return 55
 
