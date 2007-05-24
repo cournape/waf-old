@@ -4,6 +4,7 @@
 
 "This hook is called when the class cppobj/ccobj encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
 
+import os
 import Action
 
 winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CXXDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CXXINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F}${TGT} ${WINRC_SRC_F}${SRC}'
@@ -30,8 +31,8 @@ def setup(env):
 def detect(conf):
 	v = conf.env
 
-	cc = ''.join(v['CC']).lower()
-	cxx = ''.join(v['CXX']).lower()
+	cc = os.path.basename(''.join(v['CC']).lower())
+	cxx = os.path.basename(''.join(v['CXX']).lower())
 
 	if cc.find('gcc')>-1 or cc.find('cc')>-1 or cxx.find('g++')>-1 or cxx.find('c++')>-1 :
 		# find windres while use gcc toolchain
@@ -39,7 +40,7 @@ def detect(conf):
 		v['WINRC_TGT_F'] = '-o '
 		v['WINRC_SRC_F'] = '-i '
 		v['winrc_obj_ext'] = '.rc.o' # in case if a .o already exists
-	elif cc.find('cl.exe')>-1 or cxx.find('cl')>-1 :
+	elif cc.find('cl.exe')>-1 or cxx.find('cl.exe')>-1 :
 		# find rc.exe while use msvc
 		winrc = conf.find_program('RC', var='WINRC')
 		v['WINRC_TGT_F'] = '/fo '
