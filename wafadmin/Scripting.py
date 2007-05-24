@@ -302,6 +302,15 @@ def Dist(appname, version):
 				os.remove(os.path.join(root, f))
 				to_remove = False
 
+	try:
+		dist_hook = Utils.g_module.dist_hook
+	except AttributeError:
+		pass
+	else:
+		blddir = os.path.join("..", Utils.g_module.blddir)
+		srcdir = os.path.join("..", Utils.g_module.srcdir)
+		dist_hook(srcdir, blddir)
+
 	# go back to the root directory
 	os.chdir('..')
 
