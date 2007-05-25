@@ -10,7 +10,7 @@ if 'PSYCOWAF' in os.environ:
 	except:
 		pass
 
-VERSION="1.1.0"
+VERSION="1.1.1"
 REVISION="x"
 INSTALL="x"
 cwd = os.getcwd()
@@ -318,7 +318,8 @@ try: Utils.g_module.init()
 except AttributeError: pass
 
 import Scripting
-Scripting.Main()
+try: Scripting.Main()
+except KeyboardInterrupt: Params.fatal('build interrupted')
 #import hotshot
 #prof=hotshot.Profile("/tmp/proftest.txt")
 #prof.runcall(Scripting.Main)

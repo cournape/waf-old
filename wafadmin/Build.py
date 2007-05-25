@@ -72,6 +72,9 @@ class Build:
 		# file contents
 		self._cache_node_content = {}
 
+		# list of targets to uninstall for removing the empty folders after uninstalling
+		self.m_uninstall = []
+
 		# ======================================= #
 		# tasks and objects
 
@@ -189,12 +192,36 @@ class Build:
 	def install(self):
 		"this function is called for both install and uninstall"
 		debug("install called", 'build')
+
 		Object.flush()
 		for obj in Object.g_allobjs:
 			if obj.m_posted: obj.install()
 
+		# remove empty folders after uninstalling
+		if Params.g_commands['uninstall']:
+			lst = []
+			for x in self.m_uninstall:
+				dir = os.path.dirname(x)
+				if not dir in lst: lst.append(dir)
+			lst.sort()
+			lst.reverse()
+
+			nlst = []
+			for y in lst:
+				x = y
+				while len(x) > 4:
+					if not x in nlst: nlst.append(x)
+					x = os.path.dirname(x)
+
+			nlst.sort()
+			nlst.reverse()
+			for x in nlst:
+				try: os.rmdir(x)
+				except OSError: pass
+
 	def add_subdirs(self, dirs):
 		lst = Utils.to_list(dirs)
+		lst.reverse()
 		for d in lst:
 			if not d: continue
 			Scripting.add_subdir(d, self)

@@ -12,7 +12,7 @@ For configuration examples: demos/adv/wscript
 For a project without subdirectory: demos/python/wscript
 """
 
-VERSION="1.1.0"
+VERSION="1.1.1"
 APPNAME='waf'
 REVISION=''
 
@@ -27,14 +27,14 @@ def set_options(opt):
 	# generate waf
 	opt.add_option('--make-waf', action='store_true', default=False,
 		help='creates the waf script', dest='waf')
-	
+
 	opt.add_option('--zip-type', action='store', default='bz2',
 		help='specify the zip type [Allowed values: %s]' % ' '.join(zip_types), dest='zip')
-	
+
 	opt.add_option('--make-batch', action='store_true', default=False,
 		help='creates a waf.bat file that calls the waf script. (this is done automatically on win32 systems)',
 		dest='make_batch')
-	
+
 	# those ones are not too interesting
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
@@ -74,7 +74,7 @@ def create_waf():
 	mw = 'tmp-waf-'+VERSION
 
 	import tarfile, re
-	
+
 	zipType = Params.g_options.zip.strip().lower()
 	if zipType not in zip_types:
 		zipType = zip_types[0]
@@ -119,8 +119,8 @@ def create_waf():
 	if prefix == Options.default_prefix:
 		prefix = "sys.platform=='win32' and 'c:/temp' or '/usr/local'"
 	else:
-		prefix = '"%s"' % prefix #encase in quotes 
-	
+		prefix = '"%s"' % prefix #encase in quotes
+
 	reg = re.compile('^INSTALL=(.*)', re.M)
 	code1 = reg.sub(r'INSTALL=%s' % prefix, code1)
 	#change the tarfile extension in the waf script
@@ -139,7 +139,7 @@ def create_waf():
 	file.write('\n')
 	file.write('# ===>END WOOF<===\n')
 	file.close()
-	
+
 	if sys.platform == 'win32' or Params.g_options.make_batch:
 		file = open('waf.bat', 'wb')
 		file.write('@python -x waf %* & exit /b\n')
