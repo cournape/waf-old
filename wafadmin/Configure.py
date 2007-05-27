@@ -868,6 +868,9 @@ class check_data:
 		self.execute       = 0  # execute the program produced and return its output
 		self.options       = '' # command-line options
 
+		self.force_compiler= None
+		self.build_type    = 'program'
+
 class Configure:
 	def __init__(self, env=None, blddir='', srcdir=''):
 
@@ -1212,12 +1215,10 @@ class Configure:
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
 
-	def run_check(self, obj, build_type = 'program', force_compiler = None):
+	def run_check(self, obj):
 		"""compile, link and run if necessary
 @param obj: data of type check_data
-@param build_type: could be program (default), shlib or staticlib
-@param force_compiler: could be None (default), cc or cpp
-@return: (False if a error during build happens) or ( (True if build ok) or 
+@return: (False if a error during build happens) or ( (True if build ok) or
 (a {'result': ''} if execute was set))
 """
 		# first make sure the code to execute is defined
@@ -1269,12 +1270,12 @@ class Configure:
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
 
-		if (not force_compiler and env['CXX']) or force_compiler == "cpp":
+		if (not obj.force_compiler and env['CXX']) or obj.force_compiler == "cpp":
 			import cpp
-			o=cpp.cppobj(build_type)
+			o=cpp.cppobj(obj.build_type)
 		else:
 			import cc
-			o=cc.ccobj(build_type)
+			o=cc.ccobj(obj.build_type)
 		o.source   = 'test.c'
 		o.target   = 'testprog'
 		o.uselib   = obj.uselib
