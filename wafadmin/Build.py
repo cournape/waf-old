@@ -574,6 +574,9 @@ class Build:
 			error('no such environment'+name)
 			return None
 
+	def env(self, name='default')
+		return self.env_of_name(name)
+
 	def add_group(self, name=''):
 		Object.flush()
 		Task.g_tasks.add_group(name)
