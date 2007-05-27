@@ -66,6 +66,9 @@ g_verbose = 0
 g_build = None
 "only one build object is active at a time"
 
+g_platform = sys.platform
+"current platform"
+
 g_cachedir = ''
 "config cache directory"
 

@@ -77,7 +77,7 @@ def find_program_impl(lenv, filename, path_list=None, var=None):
 			lenv[var] = os.environ[var]
 			return os.environ[var]
 
-	if lenv['WINDOWS']: filename += '.exe'
+	if Params.g_platform=='win32': filename += '.exe'
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
 	for directory in path_list:
 		if os.path.exists( os.path.join(directory, filename) ):
@@ -1066,7 +1066,7 @@ class Configure:
 			os.makedirs(dir)
 		except OSError:
 			pass
-		
+
 		dir = Utils.join_path(dir, lst[-1])
 
 		# remember config files - do not remove them on "waf clean"
@@ -1306,7 +1306,7 @@ class Configure:
 			except:
 				raise
 				pass
-		
+
 		return not ret
 
 	def _cache_platform(self):
