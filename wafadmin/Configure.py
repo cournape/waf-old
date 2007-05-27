@@ -1311,7 +1311,7 @@ class Configure:
 
 	def _cache_platform(self):
 		m = md5.new()
-		m.update(sys.platform)
+		m.update(Params.g_platform)
 		return m.hexdigest()
 
 
