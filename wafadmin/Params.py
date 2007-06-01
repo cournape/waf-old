@@ -193,6 +193,9 @@ def fatal(msg, ret=1):
 		pprint('RED', '%s \n (error raised in module %s)' % (msg, module))
 	else:
 		pprint('RED', '%s' % msg)
+	if g_verbose > 1:
+		import traceback
+		traceback.print_stack()
 	sys.exit(ret)
 
 def vsig(s):
