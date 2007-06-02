@@ -248,7 +248,7 @@ def detect(conf):
 		if not dest: dest=orig
 		try: conf.env[dest] = ron[orig]
 		except KeyError: pass
-	addflags('CCFLAGS', 'CFLAGS')
+	addflags('CFLAGS', 'CCFLAGS')
 	addflags('CPPFLAGS')
 	addflags('LINKFLAGS')
 
