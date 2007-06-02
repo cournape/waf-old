@@ -7,7 +7,7 @@ Custom objects:
  - execute a function everytime
  - copy a file somewhere else
 """
-
+import warnings
 import shutil, re, os, types, subprocess, md5
 import Object, Action, Node, Params, Utils, Task
 from Params import fatal, debug
@@ -224,11 +224,26 @@ class CommandOutput(Object.genobj):
 		self.argv = []
 
 		## task priority
-		self.priority = 100
+		self.prio = 100
 
 		## dependencies to other objects
 		## values must be 'genobj' instances (not names!)
 		self.dependencies = []
+
+
+	## 'priority' backward compatibility
+	def __compat_get_prio(self):
+		warnings.warn("command-output 'priority' is deprecated; use 'prio'",
+					  DeprecationWarning, stacklevel=2)
+		return self.prio
+	def __compat_set_prio(self, prio):
+		warnings.warn("command-output 'priority' is deprecated; use 'prio'",
+					  DeprecationWarning, stacklevel=2)
+		self.prio = prio
+	priority = property(__compat_get_prio,
+						__compat_set_prio, None,
+						"deprecated aliast to the 'prio' atttribute")
+
 
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
@@ -266,6 +281,8 @@ class CommandOutput(Object.genobj):
 	_command_output_func = staticmethod(_command_output_func)
 
 	def apply(self):
+		if self.command is None:
+			Params.fatal("command-output missing command")
 		if self.command_is_external:
 			cmd = self.command
 			cmd_node = None
@@ -320,7 +337,7 @@ class CommandOutput(Object.genobj):
 		if not inputs:
 			Params.fatal("command-output objects must have at least one input file")
 
-		task = CommandOutputTask(self.env, self.priority,
+		task = CommandOutputTask(self.env, self.prio,
 								 cmd, cmd_node, args,
 								 stdin, stdout)
 		self.m_tasks.append(task)
