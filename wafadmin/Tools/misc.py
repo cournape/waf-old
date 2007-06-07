@@ -8,8 +8,9 @@ Custom objects:
  - copy a file somewhere else
 """
 import warnings
-import shutil, re, os, types, subprocess, md5
+import shutil, re, os, types, md5
 import Object, Action, Node, Params, Utils, Task
+import pproc as subprocess
 from Params import fatal, debug
 
 def copy_func(task):
