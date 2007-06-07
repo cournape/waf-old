@@ -1052,7 +1052,7 @@ class Configure:
 
 	def get_define(self, define):
 		"get the value of a previously stored define"
-		try: return self.env['define']
+		try: return self.env['defines'][define]
 		except: return 0
 
 	def write_config_header(self, configfile='config.h', env=''):
