@@ -246,7 +246,7 @@ def detect(conf):
 
 	# see the option below
 	try:
-		v['CXXFLAGS'] = v['CXXFLAGS_'+Params.g_options.debug_level.upper()]
+		v.append_value('CXXFLAGS', v['CXXFLAGS_'+Params.g_options.debug_level.upper()])
 	except AttributeError:
 		pass
 
