@@ -90,6 +90,7 @@ generateMakefile()
 
 # Waf Makefile wrapper
 # http://www.freehackers.org/~tnagy/waf.html
+WAF_HOME=$CUR_DIR
 
 all:
 	@$WAF build
