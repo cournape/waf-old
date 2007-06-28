@@ -531,7 +531,10 @@ class cparse:
 		if self.m_nodepaths:
 			found = 0
 			for n in self.m_nodepaths:
-				found = n.find_source(filename, create=0)
+				try:
+					found = n.find_source(filename, create=0)
+				except OSError:
+					continue
 				if found:
 					self.m_nodes.append(found)
 					self.addlines(found.abspath(self.env))
