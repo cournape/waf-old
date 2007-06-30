@@ -32,8 +32,10 @@ def detect(conf):
 	for c_compiler in test_for_compiler.split():
 		if conf.check_tool(c_compiler):
 			conf.check_message("%s" %c_compiler, '', True)
+			conf.env["COMPILER_CC"] = "%s" %c_compiler #store the choosed c compiler
 			return (1)
 		conf.check_message("%s" %c_compiler, '', False)
+	conf.env["COMPILER_CC"] = None
 	return (0)
 
 def set_options(opt):
