@@ -43,7 +43,7 @@ def set_options(opt):
 	cc_compiler_opts = opt.add_option_group("C Compiler Options")
 	try:
 		cc_compiler_opts.add_option('--check-c-compiler', default="%s" % test_for_compiler,
-			help='On this Plattform (%s) following C-Compiler will be checked default: "%s"' % 
+			help='On this platform (%s) following C-Compiler will be checked default: "%s"' % 
 								(detected_plattform, test_for_compiler),
 			dest="check_c_compiler")
 	except optparse.OptionConflictError:
