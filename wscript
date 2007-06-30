@@ -15,7 +15,8 @@ For a project without subdirectory: demos/python/wscript
 VERSION="1.1.1"
 APPNAME='waf'
 REVISION=''
-
+srcdir="."
+blddir="_build_"
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']
 
@@ -157,7 +158,18 @@ def install_waf():
 		print "installing waf on windows is not possible yet"
 		sys.exit(0)
 
-	prefix      = Params.g_options.prefix
+	destdir = None
+	if "DESTDIR" in os.environ: 
+		destdir = os.environ["DESTDIR"]
+	elif Params.g_options.destdir: 
+		destdir = Params.g_options.destdir
+	
+	if destdir: 
+		
+		prefix = "%s%s"%(destdir,Params.g_options.prefix)
+	else: 
+		prefix = Params.g_options.prefix
+	
 	binpath     = os.path.join(prefix, 'bin%swaf' % os.sep)
 	wafadmindir = os.path.join(prefix, 'lib%swaf-%s-%s%swafadmin%s' % (os.sep, VERSION, REVISION, os.sep, os.sep))
 	toolsdir    = os.path.join(wafadmindir, 'Tools' + os.sep)
