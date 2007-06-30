@@ -110,8 +110,8 @@ def create_waf():
 	v = 1000000000
 	global REVISION
 	REVISION = random.randint(v, 2*v)
-        reg = re.compile('^REVISION=(.*)', re.M)
-        code1 = reg.sub(r'REVISION="%d"' % REVISION, code1)
+	reg = re.compile('^REVISION=(.*)', re.M)
+	code1 = reg.sub(r'REVISION="%d"' % REVISION, code1)
 
 	prefix = Params.g_options.prefix
 	# if the prefix is the default, let's be nice and be platform-independent
