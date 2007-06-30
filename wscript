@@ -15,8 +15,7 @@ For a project without subdirectory: demos/python/wscript
 VERSION="1.1.1"
 APPNAME='waf'
 REVISION=''
-srcdir="."
-blddir="_build_"
+
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']
 
