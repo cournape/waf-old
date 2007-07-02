@@ -738,7 +738,7 @@ class ccroot(Object.genobj):
 
 	def apply_objdeps(self):
 		"add the .o files produced by some other object files in the same manner as uselib_local"
-		lst = self.add_objects.split()
+		lst = self.to_list(self.add_objects)
 		if not lst: return
 		for obj in Object.g_allobjs:
 			if (not obj.name and obj.target in lst) or obj.name in lst:
