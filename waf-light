@@ -299,8 +299,15 @@ if Params.g_commands['dist']:
 	try: appname = Utils.g_module.APPNAME
 	except: appname = 'noname'
 
-	try: version = Utils.g_module.VERSION
-	except: version = '1.0'
+	try:
+		get_version = Utils.g_module.get_version
+	except AttributeError:
+		try:
+			version = Utils.g_module.VERSION
+		except AttributeError:
+			version = '1.0'
+	else:
+		version = get_version()
 
 	from Scripting import Dist
 	Dist(appname, version)
