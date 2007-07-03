@@ -35,17 +35,17 @@ class build_dir(unittest.TestCase):
 			self.assert_(os.path.isfile("waf-light"), "please run test with 'waf-light check'")
 			self.assert_(os.path.isdir("demos"), "you need also demos dir from waf distribution")
 			root_dir=os.getcwd()
-			print "current dir is", root_dir
+			#print "current dir is", root_dir
 			demos_dir=os.path.abspath("demos")
-			print "demos_dir is", demos_dir
+			#print "demos_dir is", demos_dir
 			build_dir_root=os.path.abspath(os.path.join("tests", "test_build_dir"))
 			if os.path.isdir(build_dir_root):
 				shutil.rmtree(build_dir_root)
 			os.makedirs(build_dir_root)
-			print "build_dir_root is", build_dir_root
+			#print "build_dir_root is", build_dir_root
 			waf_dir=os.path.join(build_dir_root, "waf")
 			os.mkdir(waf_dir)
-			print "waf_dir is", waf_dir
+			#print "waf_dir is", waf_dir
 			copy("wafadmin", "%s"%waf_dir)
 			copy("waf-light", "%s"%waf_dir)
 			copy("wscript", "%s"%waf_dir)
