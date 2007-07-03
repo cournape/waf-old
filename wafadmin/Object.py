@@ -79,11 +79,11 @@ def flush():
 def hook(objname, var, func):
 	"Attach a new method to an object class (objname is the name of the class)"
 	klass = g_allclasses[objname]
-	klass.__dict__[var] = func
-	try: klass.__dict__['all_hooks'].append(var)
-	except KeyError: klass.__dict__['all_hooks'] = [var]
+	setattr(klass, var, func)
+	try: klass.all_hooks.append(var)
+	except AttributeError: klass.all_hooks = [var]
 
-class genobj:
+class genobj(object):
 	def __init__(self, type):
 		self.m_type  = type
 		self.m_posted = 0
