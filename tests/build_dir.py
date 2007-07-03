@@ -10,6 +10,7 @@ build_dir_root=None
 demos_dir=None
 
 def l_call(*option):
+	"subprocess call method with silent stdout"
 	kwargs = dict()
 	kwargs['stdout'] = subprocess.PIPE
 	return subprocess.call( *option, **kwargs)
@@ -18,6 +19,8 @@ class build_dir(unittest.TestCase):
 	def setUp(self):
 		global waf_dir, build_dir_root, demos_dir
 		if not waf_dir:
+			self.assert_(os.path.isfile("../waf-light"), "please run test with 'waf-light check'")
+			self.assert_(os.path.isdir("../demos"), "you need also demos dir from waf distribution")
 			demos_dir=os.path.abspath("../demos")
 			build_dir_root=os.path.abspath("test_build_dir")
 			if os.path.isdir(build_dir_root):
@@ -34,6 +37,7 @@ class build_dir(unittest.TestCase):
 			self.assert_(os.path.isfile("waf"), "waf is not created in current dir")
 
 	def test_build1(self):
+		self.assert_(waf_dir)
 		print "\n**standard build without overided builddir:"
 		l_call(["cp", "-la", "%s" % os.path.join(demos_dir,"cc"), "%s/"%build_dir_root])
 		l_call(["cp", "-la", "%s" % os.path.join(waf_dir,"waf"), "%s/"%os.path.join(build_dir_root,"cc/")])
@@ -45,6 +49,7 @@ class build_dir(unittest.TestCase):
 		self.assert_(not l_call(["make", "distclean"]))
 
 	def test_build2(self):
+		self.assert_(waf_dir)
 		print "\n**build with build_dir overide within the project root \
 		\nwith commandline -blddir option:"
 		os.chdir(os.path.join(build_dir_root,"cc/"))
@@ -54,6 +59,7 @@ class build_dir(unittest.TestCase):
 		self.assert_(not l_call(["make", "distclean"]))
 
 	def test_build3(self):
+		self.assert_(waf_dir)
 		print "\n**build with build_dir overide within the project root \
 		\nby configure within the self created buidldir:"
 		os.chdir(os.path.join(build_dir_root,"cc/"))
@@ -68,6 +74,7 @@ class build_dir(unittest.TestCase):
 		os.chdir(os.path.join(build_dir_root,"cc/"))
 	
 	def test_build4(self):
+		self.assert_(waf_dir)
 		print "\n**build with build_dir overide outside the project root \
 		\nby configure within the self created buidldir:"
 		os.chdir("..")
