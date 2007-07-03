@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Matthias Jahn, 2007 (pmarat)
 
-import os, shutil, pproc
+import os, sys, shutil, pproc
 import unittest
 
 waf_dir=None
@@ -10,7 +10,15 @@ build_dir_root=None
 demos_dir=None
 root_dir=None
 
-def l_call(*option):
+def copy(source, target):
+	if str.find(sys.platform, 'linux') != -1:
+		_call(["cp", "-la", source, target])
+	elif os.name=="posix":
+		_call(["cp", "-a", source, target])
+	else:
+		shutil.copytree(source, target)
+
+def _call(*option):
 	"subprocess call method with silent stdout"
 	kwargs = dict()
 	kwargs['stdout'] = pproc.PIPE
@@ -30,34 +38,34 @@ class build_dir(unittest.TestCase):
 			os.makedirs(build_dir_root)
 			waf_dir=os.path.join(build_dir_root, "waf")
 			os.mkdir(waf_dir)
-			l_call(["cp", "-la", "wafadmin", "%s/"%waf_dir])
-			l_call(["cp", "-la", "waf-light", "%s/"%waf_dir])
-			l_call(["cp", "-la", "wscript", "%s/"%waf_dir])
-			l_call(["cp", "-la", "configure", "%s/"%waf_dir])
+			copy("wafadmin", "%s/"%waf_dir)
+			copy("waf-light", "%s/"%waf_dir)
+			copy("wscript", "%s/"%waf_dir)
+			copy("configure", "%s/"%waf_dir)
 			os.chdir(waf_dir)
-			self.assert_(not l_call(["./waf-light", "--make-waf"]), "waf could not be created")
+			self.assert_(not _call(["./waf-light", "--make-waf"]), "waf could not be created")
 			self.assert_(os.path.isfile("waf"), "waf is not created in current dir")
 	def test_build1(self):
 		self.assert_(waf_dir)
 		print "\n**standard build without overided builddir:"
-		l_call(["cp", "-la", "%s" % os.path.join(demos_dir,"cc"), "%s/"%build_dir_root])
-		l_call(["cp", "-la", "%s" % os.path.join(waf_dir,"waf"), "%s/"%os.path.join(build_dir_root,"cc/")])
-		l_call(["cp", "-la", "%s" % os.path.join(waf_dir,"configure"), "%s/"%os.path.join(build_dir_root,"cc/")])
+		copy("%s" % os.path.join(demos_dir,"cc"), "%s/"%build_dir_root)
+		copy("%s" % os.path.join(waf_dir,"waf"), "%s/"%os.path.join(build_dir_root,"cc/"))
+		copy("%s" % os.path.join(waf_dir,"configure"), "%s/"%os.path.join(build_dir_root,"cc/"))
 		os.chdir(os.path.join(build_dir_root,"cc/"))
-		self.assert_(not l_call(["./configure"]))
-		self.assert_(not l_call(["make"]))
-		self.assert_(not l_call(["build/default/src/test_c_program"]))
-		self.assert_(not l_call(["make", "distclean"]))
+		self.assert_(not _call(["./configure"]))
+		self.assert_(not _call(["make"]))
+		self.assert_(not _call(["build/default/src/test_c_program"]))
+		self.assert_(not _call(["make", "distclean"]))
 
 	def test_build2(self):
 		self.assert_(waf_dir)
 		print "\n**build with build_dir overide within the project root \
 		\nwith commandline -blddir option:"
 		os.chdir(os.path.join(build_dir_root,"cc/"))
-		self.assert_(not l_call(["./configure", "--blddir=test_build2"]))
-		self.assert_(not l_call(["make"]))
-		self.assert_(not l_call(["test_build2/default/src/test_c_program"]))
-		self.assert_(not l_call(["make", "distclean"]))
+		self.assert_(not _call(["./configure", "--blddir=test_build2"]))
+		self.assert_(not _call(["make"]))
+		self.assert_(not _call(["test_build2/default/src/test_c_program"]))
+		self.assert_(not _call(["make", "distclean"]))
 
 	def test_build3(self):
 		self.assert_(waf_dir)
@@ -66,12 +74,12 @@ class build_dir(unittest.TestCase):
 		os.chdir(os.path.join(build_dir_root,"cc/"))
 		os.mkdir("test_build2")
 		os.chdir("test_build2")
-		self.assert_(not l_call(["../configure"]))
-		self.assert_(not l_call(["make"]))
-		self.assert_(not l_call(["default/src/test_c_program"]))
-		l_call(["touch", "test_file"]) #create a file to check the distclean
+		self.assert_(not _call(["../configure"]))
+		self.assert_(not _call(["make"]))
+		self.assert_(not _call(["default/src/test_c_program"]))
+		_call(["touch", "test_file"]) #create a file to check the distclean
 		#attention current dir will be completly removed including the  "test_file" file
-		self.assert_(not l_call(["make", "distclean"]))
+		self.assert_(not _call(["make", "distclean"]))
 		os.chdir(os.path.join(build_dir_root,"cc/"))
 	
 	def test_build4(self):
@@ -81,14 +89,14 @@ class build_dir(unittest.TestCase):
 		os.chdir("..")
 		os.mkdir("test_build2")
 		os.chdir("test_build2")
-		l_call(["touch", "test_file"]) #this file must be accesable after distclean
+		_call(["touch", "test_file"]) #this file must be accesable after distclean
 		test_dir=os.getcwd()
 		os.mkdir("test_build2")
 		os.chdir("test_build2")
-		self.assert_(not l_call(["%s"%os.path.join(build_dir_root,"cc","configure")]))
-		self.assert_(not l_call(["make"]))
-		self.assert_(not l_call(["default/src/test_c_program"]))
-		self.assert_(not l_call(["make", "distclean"]))
+		self.assert_(not _call(["%s"%os.path.join(build_dir_root,"cc","configure")]))
+		self.assert_(not _call(["make"]))
+		self.assert_(not _call(["default/src/test_c_program"]))
+		self.assert_(not _call(["make", "distclean"]))
 		os.chdir(test_dir)
 		self.assert_(os.path.isfile("test_file"), "test_file did not exists distclean did not work")
 		os.chdir(os.path.join(build_dir_root,"cc/"))
