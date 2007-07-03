@@ -13,7 +13,8 @@ def testname(file):
 	return open('test/'+file, 'r')
 
 def run_tests():
-	exec testname("build_dir.py")
+	from test import build_dir
+	build_dir.run_tests()
 
 if __name__ == "__main__":
 

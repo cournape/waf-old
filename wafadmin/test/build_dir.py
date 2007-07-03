@@ -2,40 +2,41 @@
 # encoding: utf-8
 # Matthias Jahn, 2007 (pmarat)
 
-import os, shutil, subprocess
+import os, shutil, pproc
 import unittest
 
 waf_dir=None
 build_dir_root=None
 demos_dir=None
+root_dir=None
 
 def l_call(*option):
 	"subprocess call method with silent stdout"
 	kwargs = dict()
-	kwargs['stdout'] = subprocess.PIPE
-	return subprocess.call( *option, **kwargs)
+	kwargs['stdout'] = pproc.PIPE
+	return pproc.call( *option, **kwargs)
 
 class build_dir(unittest.TestCase):
 	def setUp(self):
-		global waf_dir, build_dir_root, demos_dir
+		global waf_dir, build_dir_root, demos_dir, root_dir
 		if not waf_dir:
-			self.assert_(os.path.isfile("../waf-light"), "please run test with 'waf-light check'")
-			self.assert_(os.path.isdir("../demos"), "you need also demos dir from waf distribution")
-			demos_dir=os.path.abspath("../demos")
-			build_dir_root=os.path.abspath("test_build_dir")
+			self.assert_(os.path.isfile("waf-light"), "please run test with 'waf-light check'")
+			self.assert_(os.path.isdir("demos"), "you need also demos dir from waf distribution")
+			root_dir=os.getcwd()
+			demos_dir=os.path.abspath("demos")
+			build_dir_root=os.path.abspath(os.path.join("tests", "test_build_dir"))
 			if os.path.isdir(build_dir_root):
 				shutil.rmtree(build_dir_root)
-			os.mkdir(build_dir_root)
+			os.makedirs(build_dir_root)
 			waf_dir=os.path.join(build_dir_root, "waf")
 			os.mkdir(waf_dir)
-			l_call(["cp", "-la", "../wafadmin", "%s/"%waf_dir])
-			l_call(["cp", "-la", "../waf-light", "%s/"%waf_dir])
-			l_call(["cp", "-la", "../wscript", "%s/"%waf_dir])
-			l_call(["cp", "-la", "../configure", "%s/"%waf_dir])
+			l_call(["cp", "-la", "wafadmin", "%s/"%waf_dir])
+			l_call(["cp", "-la", "waf-light", "%s/"%waf_dir])
+			l_call(["cp", "-la", "wscript", "%s/"%waf_dir])
+			l_call(["cp", "-la", "configure", "%s/"%waf_dir])
 			os.chdir(waf_dir)
 			self.assert_(not l_call(["./waf-light", "--make-waf"]), "waf could not be created")
 			self.assert_(os.path.isfile("waf"), "waf is not created in current dir")
-
 	def test_build1(self):
 		self.assert_(waf_dir)
 		print "\n**standard build without overided builddir:"
@@ -92,7 +93,10 @@ class build_dir(unittest.TestCase):
 		self.assert_(os.path.isfile("test_file"), "test_file did not exists distclean did not work")
 		os.chdir(os.path.join(build_dir_root,"cc/"))
 
-
-if __name__ == '__main__':
+def run_tests():
 	suite = unittest.TestLoader().loadTestsFromTestCase(build_dir)
 	unittest.TextTestRunner(verbosity=2).run(suite)
+	os.chdir(root_dir)
+
+if __name__ == '__main__':
+	run_tests()
