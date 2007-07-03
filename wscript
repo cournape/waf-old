@@ -242,6 +242,13 @@ def init():
 	elif Params.g_options.waf:
 		create_waf()
 		sys.exit(0)
+	elif Params.g_commands['check']:
+		import pproc
+		cur_dir=os.getcwd()
+		os.chdir("tests")
+		pproc.call(["python", "build_dir.py"])
+		os.chdir(cur_dir)
+		sys.exit(0)
 	else:
 		print "run 'waf --help' to know more about allowed commands !"
 		sys.exit(0)
