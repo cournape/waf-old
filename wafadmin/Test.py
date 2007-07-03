@@ -12,6 +12,9 @@ def info(msg):
 def testname(file):
 	return open('test/'+file, 'r')
 
+def run_tests():
+	exec testname("build_dir.py")
+
 if __name__ == "__main__":
 
 	for i in ['dist','configure','clean','distclean','make','install','doc']:
