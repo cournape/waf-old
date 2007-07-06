@@ -175,6 +175,10 @@ Params.pprint('YELLOW', "===> There is a %d second(s) pause between each test <=
 info("test 0: build all targets normally")
 t=measure()
 check_tasks_done([0, 1, 2, 3])
+#############
+Params.pprint('YELLOW', "check if reset works 1")
+Utils.reset()
+check_tasks_done([])
 
 # a. modify a1.cpp
 Utils.reset()
