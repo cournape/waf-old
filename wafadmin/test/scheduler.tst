@@ -174,7 +174,7 @@ wait=0
 Params.pprint('YELLOW', "===> There is a %d second(s) pause between each test <==="%wait)
 info("test 0: build all targets normally")
 t=measure()
-check_tasks_done([1, 2, 3, 4])
+check_tasks_done([0, 1, 2, 3])
 
 # a. modify a1.cpp
 Utils.reset()
@@ -182,7 +182,7 @@ info("test a: a1.cpp is modified")
 time.sleep(wait)
 modify_file('./tests/runtest/src/a1.cpp')
 t=measure()
-check_tasks_done([1, 4])
+check_tasks_done([0, 3])
 
 # b. modify a1.h
 Utils.reset()
@@ -190,7 +190,7 @@ info("test b: a1.h is modified")
 time.sleep(wait)
 modify_file('./tests/runtest/src/a1.h')
 t=measure()
-check_tasks_done([1, 4])
+check_tasks_done([0, 3])
 
 # c. modify a2.h
 Utils.reset()
@@ -198,7 +198,7 @@ info("test c: a2.h is modified")
 time.sleep(wait)
 modify_file('./tests/runtest/src/a2.h')
 t=measure()
-check_tasks_done([1, 4])
+check_tasks_done([0, 3])
 
 # d. modify b1.h
 Utils.reset()
@@ -206,7 +206,7 @@ info("test d: b1.h is modified")
 time.sleep(wait)
 modify_file('./tests/runtest/src/b1.h')
 t=measure()
-check_tasks_done([2, 3, 4])
+check_tasks_done([1, 2, 3])
 
 # e. nothing changed
 Utils.reset()
@@ -226,7 +226,7 @@ dest.write('// #include "a2.h"\n')
 dest.close()
 
 measure()
-check_tasks_done([1, 4])
+check_tasks_done([0, 3])
 
 # g. now that the header a2.h is removed, check if changing it triggers anything
 Utils.reset()
@@ -250,7 +250,7 @@ dest.write(wscript_build_1)
 dest.close()
 
 measure()
-check_tasks_done([4, 5])
+check_tasks_done([3, 4])
 
 # i. remove a source file from the project
 Utils.reset()
@@ -264,7 +264,7 @@ dest.write(wscript_build_0)
 dest.close()
 
 measure()
-check_tasks_done([4])
+check_tasks_done([3])
 
 # j. nothing changed
 Utils.reset()
