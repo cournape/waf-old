@@ -15,9 +15,13 @@ def testname(file, tests_dir='test'):
 
 def run_tests():
 	from test import build_dir
+	info("******** build dir tests ********")
 	build_dir.run_tests()
 	for i in ['dist','configure','clean','distclean','make','install','doc']:
 		Params.g_commands[i]=0
+	info("******** node path tests ********")
+	exec testname('paths.tst', os.path.join('wafadmin', 'test'))
+	info("******** scheduler and task tests ********")
 	exec testname('scheduler.tst', os.path.join('wafadmin', 'test'))
 
 if __name__ == "__main__":
