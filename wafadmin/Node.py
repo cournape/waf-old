@@ -244,7 +244,7 @@ class Node:
 	# same as pathlist3, but do not append './' at the beginning
 	def pathlist4(self, node):
 		#print "pathlist4 called"
-		if self.m_parent is node: return [self.m_name]
+		if self.m_parent.equals(node): return [self.m_name]
 		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
 
 	def relpath(self, parent):
@@ -273,18 +273,18 @@ class Node:
 		while dist>0:
 			cand=cand.m_parent
 			dist=dist-1
-		if cand is node: return cand
+		if cand.equals(node): return cand
 		cursor=node
 		while cand.m_parent:
 			cand   = cand.m_parent
 			cursor = cursor.m_parent
-			if cand is cursor: return cand
+			if cand.equals(cursor): return cand
 
 	# prints the amount of "../" between two nodes
 	def invrelpath(self, parent):
 		lst=[]
 		cand=self
-		while cand is not parent:
+		while not cand.equals(parent):
 			cand=cand.m_parent
 			lst+=['..',os.sep] #TODO: fix this
 		return lst
@@ -292,8 +292,8 @@ class Node:
 	# TODO: do this in a single function (this one uses invrelpath, find_ancestor and pathlist4)
 	# string representing a relative path between two nodes, we are at relative_to
 	def relpath_gen(self, going_to):
-		if self is going_to: return '.'
-		if going_to.m_parent is self: return '..'
+		if self.equals(going_to): return '.'
+		if going_to.m_parent.equals(self): return '..'
 
 		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
 		ancestor  = self.find_ancestor(going_to)
@@ -472,7 +472,9 @@ class Node:
 		"path seen from the build dir default/src/foo.cpp"
 		x = self.m_parent.get_file(self.m_name)
 		if x: return self.relpath_gen(Params.g_build.m_bldnode)
-		return Utils.join_path(env.variant(), self.relpath(Params.g_build.m_srcnode))
+		if self.relpath(Params.g_build.m_srcnode) is not '':
+			return Utils.join_path(env.variant(), self.relpath(Params.g_build.m_srcnode))
+		return env.variant()
 
 	def srcpath(self, env):
 		"path in the srcdir from the build dir ../src/foo.cpp"
