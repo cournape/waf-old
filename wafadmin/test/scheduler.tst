@@ -37,6 +37,11 @@ def configure(conf):
 	conf.env['LIB_MYPROG']='m'
 	conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
 
+	# set a variant called "default", with another config.h
+	env_variant2 = conf.env.copy()
+	conf.set_env_name('debug', env_variant2)
+	env_variant2.set_variant('debug')
+
 def set_options(opt):
 	pass
 #	opt.sub_options('src')
@@ -58,6 +63,17 @@ a1.cpp b1.cpp b2.cpp b3.cpp
 '''
 obj.includes='.'
 obj.target='testprogram'
+"""
+
+wscript_build_variant="""
+obj = bld.create_obj('cpp', 'program')
+obj.source='''
+a1.cpp b1.cpp b2.cpp
+'''
+obj.includes='.'
+obj.target='testprogram'
+
+obj_debug = obj.clone('debug')
 """
 
 # clean before building
@@ -277,6 +293,33 @@ time.sleep(wait)
 t=measure()
 check_tasks_done([])
 
+#############
+# variant tests
+#############
+Utils.reset()
+info("test k: [variant] add debug variant")
+dest = open('./tests/runtest/src/wscript_build', 'w')
+dest.write(wscript_build_variant)
+dest.close()
+
+time.sleep(wait)
+t=measure()
+check_tasks_done([4,5,6,7])
+
+# l. nothing changed
+Utils.reset()
+info("test l: [variant] nothing changed")
+time.sleep(wait)
+t=measure()
+check_tasks_done([])
+
+# m. modify b1.h [variant]
+Utils.reset()
+info("test m: [variant] b1.h is modified")
+time.sleep(wait)
+modify_file('./tests/runtest/src/b1.h')
+t=measure()
+check_tasks_done([1, 2, 3, 5, 6, 7])
 
 ## other tests
 # make the app fail ! (ita)
