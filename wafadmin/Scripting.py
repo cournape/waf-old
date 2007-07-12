@@ -110,6 +110,7 @@ def Main():
 	import inspect
 	if Params.g_commands['configure']:
 		configure()
+		Params.pprint('GREEN', 'Configuration finished successfully; project is now ready to build.')
 		sys.exit(0)
 
 	Runner.set_exec('noredir')
