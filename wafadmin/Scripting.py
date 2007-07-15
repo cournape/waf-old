@@ -269,7 +269,8 @@ def Dist(appname, version):
 
 	# Remove the Build dir
 	try:
-		if Utils.g_module.blddir: shutil.rmtree(os.path.join(TMPFOLDER, Utils.g_module.blddir))
+		if Utils.g_module.blddir:
+			shutil.rmtree(os.path.join(TMPFOLDER, Utils.g_module.blddir), True)
 	except AttributeError:
 		pass
 
