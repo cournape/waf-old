@@ -2,73 +2,20 @@
 
 # loading an environment
 
-import time
+import time, sys, os
+dir = os.path.abspath('wafadmin')
+sys.path=[dir, os.path.join(dir,'Tools')]+sys.path
+Params.g_tooldir = [os.path.join(dir,'Tools')]
+
 import Params, Runner, Task
 import Utils
 pexec = Runner.exec_command
-
 #### WARNING!! GOTCHA ! comment this line to use the gcc compiler for testing
 Params.g_fake=1
 
 Params.set_trace(1, 1, 1)
 #Params.set_trace(0, 0, 0)
 
-# constants
-cache_x = """AR = 'ar'
-ARFLAGS = 'r'
-CPP = 'cpp'
-CPPFLAGS = []
-CPPLNK_SRC_F = ''
-CPPLNK_TGT_F = '-o '
-CPPPATH_ST = '-I%s'
-CXX = 'g++'
-CXXFLAGS = ['-O2 -march=pentium4']
-CXXFLAGS_DEBUG = ['-g', '-DDEBUG']
-CXXFLAGS_MYPROG = '-O3'
-CXXFLAGS_OPTIMIZED = ['-O2']
-CXXFLAGS_RELEASE = ['-O2']
-CXXFLAGS_ULTRADEBUG = ['-g3', '-O0', '-DDEBUG']
-CXX_SRC_F = ''
-CXX_TGT_F = '-c -o '
-DESTDIR = ''
-HAVE_AR = 1
-HAVE_CPP = 1
-HAVE_GPP = 1
-LIB = []
-LIBPATH_ST = '-L%s'
-LIB_MYPROG = 'm'
-LIB_ST = '-l%s'
-LINK_CXX = 'g++'
-LINKFLAGS = []
-LINKFLAGS_DEBUG = ['-g']
-LINKFLAGS_OPTIMIZED = ['-s']
-LINKFLAGS_RELEASE = ['-s']
-LINKFLAGS_ULTRADEBUG = ['-g3']
-PREFIX = '/usr'
-RANLIB = 'ranlib'
-RANLIBFLAGS = ''
-SHLIB_MARKER = '-Wl,-Bdynamic'
-SOME_INSTALL_DIR = '/tmp/ahoy/lib/'
-STATICLIBPATH_ST = '-L%s'
-STATICLIB_MARKER = '-Wl,-Bstatic'
-STATICLIB_ST = '-l%s'
-_CXXINCFLAGS = ''
-_LIBDIRFLAGS = ''
-_LIBFLAGS = ''
-program_SUFFIX = ''
-program_obj_ext = ['.o']
-shlib_CXXFLAGS = ['-fPIC', '-DPIC']
-shlib_LINKFLAGS = ['-shared']
-shlib_PREFIX = 'lib'
-shlib_SUFFIX = '.so'
-shlib_obj_ext = ['.os']
-staticlib_PREFIX = 'lib'
-staticlib_SUFFIX = '.a'
-staticlib_obj_ext = ['.o']
-tools = ['cpp', 'ar', 'g++']
-"""
-
-import sys
 if sys.platform == "cygwin":
 	cache_x += "program_SUFFIX = '.exe'\n"
 
@@ -84,19 +31,24 @@ def build(bld):
 	bld.add_subdirs('src')
 
 def configure(conf):
-	conf.checkTool(['g++'])
+	conf.check_tool(['g++'])
 
 	conf.env['CXXFLAGS_MYPROG']='-O3'
 	conf.env['LIB_MYPROG']='m'
 	conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
 
+	# set a variant called "default", with another config.h
+	env_variant2 = conf.env.copy()
+	conf.set_env_name('debug', env_variant2)
+	env_variant2.set_variant('debug')
+
 def set_options(opt):
-	opt.add_option('--prefix', type='string', help='installation prefix', dest='prefix')
-	opt.sub_options('src')
+	pass
+#	opt.sub_options('src')
 """
 
 wscript_build_0="""
-obj = bld.createObj('cpp', 'program')
+obj = bld.create_obj('cpp', 'program')
 obj.source='''
 a1.cpp b1.cpp b2.cpp
 '''
@@ -105,7 +57,7 @@ obj.target='testprogram'
 """
 
 wscript_build_1="""
-obj = bld.createObj('cpp', 'program')
+obj = bld.create_obj('cpp', 'program')
 obj.source='''
 a1.cpp b1.cpp b2.cpp b3.cpp
 '''
@@ -113,34 +65,36 @@ obj.includes='.'
 obj.target='testprogram'
 """
 
+wscript_build_variant="""
+obj = bld.create_obj('cpp', 'program')
+obj.source='''
+a1.cpp b1.cpp b2.cpp
+'''
+obj.includes='.'
+obj.target='testprogram'
+
+obj_debug = obj.clone('debug')
+"""
+
 # clean before building
-pexec('rm -rf runtest/ && mkdir -p runtest/src/ && mkdir -p runtest/_build_/_cache_/')
+pexec('rm -rf tests/runtest/ && mkdir -p tests/runtest/src/')
+pexec('cp tests/test_build_dir/waf/waf tests/runtest/')
 
-dest = open('./runtest/.lock-wscript', 'w')
-dest.write('_build_\n.')
-dest.close()
-
-dest = open('./runtest/wscript', 'w')
+dest = open('./tests/runtest/wscript', 'w')
 dest.write(wscript_top)
 dest.close()
 
-dest = open('./runtest/src/wscript_build', 'w')
+dest = open('./tests/runtest/src/wscript_build', 'w')
 dest.write(wscript_build_0)
 dest.close()
 
-dest = open('./runtest/_build_/_cache_/default.cache.py', 'w')
-dest.write(cache_x)
-dest.close()
-
+pexec('cd tests/runtest/ && ./waf configure && cd ../../')
 
 # ================================================ #
 # initialisations
 
-dir = os.path.abspath('.')
-sys.path=[dir, dir+os.sep+'Tools']+sys.path
-Params.g_tooldir = [dir+os.sep+'Tools']
 
-Utils.set_main_module(os.path.join('runtest', 'wscript'))
+Utils.set_main_module(os.path.join('tests','runtest', 'wscript'))
 
 
 import Options
@@ -149,36 +103,36 @@ opt_obj.parse_args()
 
 
 # 1. one cpp files with one header which includes another header
-dest = open('./runtest/src/a1.cpp', 'w')
+dest = open('./tests/runtest/src/a1.cpp', 'w')
 dest.write('#include "a1.h"\n')
 dest.write('int main()\n{return 0;}\n')
 dest.close()
 
-dest = open('./runtest/src/a1.h', 'w')
+dest = open('./tests/runtest/src/a1.h', 'w')
 dest.write('#include "a2.h"\n')
 dest.close()
 
-dest = open('./runtest/src/a2.h', 'w')
+dest = open('./tests/runtest/src/a2.h', 'w')
 dest.write('int val=2;\n')
 dest.close()
 
 # 2. two cpp files including each other headers
-dest = open('./runtest/src/b1.cpp', 'w')
+dest = open('./tests/runtest/src/b1.cpp', 'w')
 dest.write('#include "b1.h"\n')
 dest.write('#include "b2.h"\n')
 dest.write('static int b1_val=42;\n')
 dest.close()
 
-dest = open('./runtest/src/b2.cpp', 'w')
+dest = open('./tests/runtest/src/b2.cpp', 'w')
 dest.write('#include "b1.h"\n')
 dest.write('#include "b2.h"\n')
 dest.write('static int b2_val=24;\n')
 dest.close()
 
-dest = open('./runtest/src/b1.h', 'w')
+dest = open('./tests/runtest/src/b1.h', 'w')
 dest.write('/* */\n')
 dest.close()
-dest = open('./runtest/src/b2.h', 'w')
+dest = open('./tests/runtest/src/b2.h', 'w')
 dest.write('/* */\n')
 dest.close()
 
@@ -190,10 +144,11 @@ Params.g_trace_exclude = "Action Common Deptree Node Option Scripting Build Conf
 #Params.g_trace_exclude = "Configure Environment".split()
 
 def measure():
+	global sys, time
 	# now that the files are there, run the app
 	Params.set_trace(0,0,0)
 
-	os.chdir('runtest')
+	os.chdir('tests/runtest')
 	sys.path.append('..')
 	import Scripting
 
@@ -202,11 +157,13 @@ def measure():
 	t2=time.clock()
 
 	os.chdir('..')
+	os.chdir('..')
 	#Params.set_trace(1,1,1)
 
 	return (t2-t1)
 
 def check_tasks_done(lst):
+	global Task
 	done = map( lambda a: a.m_idx, Task.g_tasks_done )
 	ok=1
 	for i in lst:
@@ -233,39 +190,43 @@ wait=0
 Params.pprint('YELLOW', "===> There is a %d second(s) pause between each test <==="%wait)
 info("test 0: build all targets normally")
 t=measure()
-check_tasks_done([1, 2, 3, 4])
+check_tasks_done([0, 1, 2, 3])
+#############
+Params.pprint('YELLOW', "check if reset works 1")
+Utils.reset()
+check_tasks_done([])
 
 # a. modify a1.cpp
 Utils.reset()
 info("test a: a1.cpp is modified")
 time.sleep(wait)
-modify_file('./runtest/src/a1.cpp')
+modify_file('./tests/runtest/src/a1.cpp')
 t=measure()
-check_tasks_done([1, 4])
+check_tasks_done([0, 3])
 
 # b. modify a1.h
 Utils.reset()
 info("test b: a1.h is modified")
 time.sleep(wait)
-modify_file('./runtest/src/a1.h')
+modify_file('./tests/runtest/src/a1.h')
 t=measure()
-check_tasks_done([1, 4])
+check_tasks_done([0, 3])
 
 # c. modify a2.h
 Utils.reset()
 info("test c: a2.h is modified")
 time.sleep(wait)
-modify_file('./runtest/src/a2.h')
+modify_file('./tests/runtest/src/a2.h')
 t=measure()
-check_tasks_done([1, 4])
+check_tasks_done([0, 3])
 
 # d. modify b1.h
 Utils.reset()
 info("test d: b1.h is modified")
 time.sleep(wait)
-modify_file('./runtest/src/b1.h')
+modify_file('./tests/runtest/src/b1.h')
 t=measure()
-check_tasks_done([2, 3, 4])
+check_tasks_done([1, 2, 3])
 
 # e. nothing changed
 Utils.reset()
@@ -280,18 +241,18 @@ Utils.reset()
 info("test f: remove the a2.h include from a1.h")
 
 time.sleep(wait)
-dest = open('./runtest/src/a1.h', 'w')
+dest = open('./tests/runtest/src/a1.h', 'w')
 dest.write('// #include "a2.h"\n')
 dest.close()
 
 measure()
-check_tasks_done([1, 4])
+check_tasks_done([0, 3])
 
 # g. now that the header a2.h is removed, check if changing it triggers anything
 Utils.reset()
 info("test g: nothing should be rebuilt now (a2.h modified)")
 time.sleep(wait)
-modify_file('./runtest/src/a2.h')
+modify_file('./tests/runtest/src/a2.h')
 t=measure()
 check_tasks_done([])
 
@@ -300,30 +261,30 @@ Utils.reset()
 info("test h: add a new source file to the project")
 
 time.sleep(wait)
-dest = open('./runtest/src/b3.cpp', 'w')
+dest = open('./tests/runtest/src/b3.cpp', 'w')
 dest.write('// #include "a2.h"\n')
 dest.close()
 
-dest = open('./runtest/src/wscript_build', 'w')
+dest = open('./tests/runtest/src/wscript_build', 'w')
 dest.write(wscript_build_1)
 dest.close()
 
 measure()
-check_tasks_done([4, 5])
+check_tasks_done([3, 4])
 
 # i. remove a source file from the project
 Utils.reset()
 info("test i: remove a source from the project")
 
 time.sleep(wait)
-os.unlink('./runtest/src/b3.cpp')
+os.unlink('./tests/runtest/src/b3.cpp')
 
-dest = open('./runtest/src/wscript_build', 'w')
+dest = open('./tests/runtest/src/wscript_build', 'w')
 dest.write(wscript_build_0)
 dest.close()
 
 measure()
-check_tasks_done([4])
+check_tasks_done([3])
 
 # j. nothing changed
 Utils.reset()
@@ -332,6 +293,33 @@ time.sleep(wait)
 t=measure()
 check_tasks_done([])
 
+#############
+# variant tests
+#############
+Utils.reset()
+info("test k: [variant] add debug variant")
+dest = open('./tests/runtest/src/wscript_build', 'w')
+dest.write(wscript_build_variant)
+dest.close()
+
+time.sleep(wait)
+t=measure()
+check_tasks_done([4,5,6,7])
+
+# l. nothing changed
+Utils.reset()
+info("test l: [variant] nothing changed")
+time.sleep(wait)
+t=measure()
+check_tasks_done([])
+
+# m. modify b1.h [variant]
+Utils.reset()
+info("test m: [variant] b1.h is modified")
+time.sleep(wait)
+modify_file('./tests/runtest/src/b1.h')
+t=measure()
+check_tasks_done([1, 2, 3, 5, 6, 7])
 
 ## other tests
 # make the app fail ! (ita)

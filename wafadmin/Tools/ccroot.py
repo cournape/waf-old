@@ -102,7 +102,7 @@ class c_scanner(Scan.scanner):
 		return (nodes, names)
 
 	def _scan_preprocessor(self, node, env, path_lst, defines={}):
-		debug("_scan_preprocessor(self, node, env, path_lst)", 'croot')
+		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst, defines=defines)
 		gruik.start2(node, env)
@@ -738,12 +738,40 @@ class ccroot(Object.genobj):
 
 	def apply_objdeps(self):
 		"add the .o files produced by some other object files in the same manner as uselib_local"
-		lst = self.add_objects.split()
-		if not lst: return
-		for obj in Object.g_allobjs:
-			if (not obj.name and obj.target in lst) or obj.name in lst:
-				if not obj.m_posted: obj.post()
-				self.m_linktask.m_inputs += obj.out_nodes
+		seen = []
+		names = self.to_list(self.add_objects)
+		while names:
+			x = names[0]
+
+			# visit dependencies only once
+			if x in seen:
+				names = names[1:]
+				continue
+
+			# object does not exist ?
+			y = Object.name_to_obj(x)
+			if not y:
+				error('object not found in add_objects: obj %s add_objects %s' % (self.name, x))
+				names = names[1:]
+				continue
+
+			# object has ancestors to process first ? update the list of names
+			if y.add_objects:
+				added = 0
+				lst = y.to_list(y.add_objects)
+				lst.reverse()
+				for u in lst:
+					if u in seen: continue
+					added = 1
+					names = [u]+names
+				if added: continue # list of names modified, loop
+
+			# safe to process the current object
+			if not y.m_posted: y.post()
+			seen.append(x)
+
+			self.m_linktask.m_inputs += y.out_nodes
+
 
 	def addflags(self, var, value):
 		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
