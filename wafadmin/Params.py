@@ -254,6 +254,38 @@ def hash_sig_strong(o1, o2):
 	m.update(o1)
 	m.update(o2)
 	return m.digest()
+
+def hash_function_with_globals(prevhash, func):
+	"""
+	Computes the hash of the code of a function object, including
+	global variables visible to this function (as given by
+	func.func_globals.  The rationale for including the global
+	variables is that they may affect the behaviour of the
+	function.
+
+	Caveat: global variables that are not hashable (i.e. when
+	hash(variable) raises TypeError) are simply ignored.  For
+	instance, if you have a list global variable, you should
+	convert it to a tuple, so that changes in it are properly
+	detected.
+	
+	prevhash -- previous hash value to be combined with this one;
+	if there is no previous value, zero should be used here
+
+	func -- a Python function object.
+	"""
+	assert type(func) is types.FunctionType
+	for name, value in func.func_globals.iteritems():
+		if type(value) in (types.BuiltinFunctionType,
+				   types.ModuleType,
+				   types.FunctionType):
+			continue
+		try:
+			prevhash = hash_sig_weak(prevhash, (name, value))
+		except TypeError: # raised for unhashable elements
+			pass
+        return hash_sig_weak(prevhash, inspect.getsource(func))
+
 ##
 # hash string
 def h_md5_str(str):

@@ -135,10 +135,10 @@ def Main():
 			hash = 0
 			for file in proj['files']:
 				mod = Utils.load_module(file)
-				hash = Params.hash_sig_weak(hash, inspect.getsource(mod.configure).__hash__())
+				hash = Params.hash_function_with_globals(hash, mod.configure)
 			reconf = (hash != proj['hash'])
-		except:
-			warning("Reconfiguring the project as an exception occured")
+		except Exception, ex:
+			warning("Reconfiguring the project as an exception occured: %s" % (str(ex),))
 			reconf=1
 
 		if reconf:

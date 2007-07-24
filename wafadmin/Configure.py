@@ -994,7 +994,7 @@ class Configure:
 
 		ret = mod.configure(self)
 		if Params.g_autoconfig:
-			self.hash = Params.hash_sig_weak(self.hash, inspect.getsource(mod.configure).__hash__())
+			self.hash = Params.hash_function_with_globals(self.hash, mod.configure)
 			self.files.append(os.path.abspath(cur))
 		self.cwd = current
 		return ret
