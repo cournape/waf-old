@@ -278,7 +278,9 @@ def hash_function_with_globals(prevhash, func):
 	for name, value in func.func_globals.iteritems():
 		if type(value) in (types.BuiltinFunctionType,
 				   types.ModuleType,
-				   types.FunctionType):
+				   types.FunctionType,
+				   types.ClassType,
+				   types.TypeType):
 			continue
 		try:
 			prevhash = hash_sig_weak(prevhash, (name, value))
