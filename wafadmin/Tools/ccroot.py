@@ -322,6 +322,16 @@ class ccroot(Object.genobj):
 
 		# includes, seen from the current directory
 		self.includes=''
+
+		## list of directories to enable when scanning
+		## #include directives in source files for automatic
+		## dependency tracking.  If left empty, scanning the
+		## whole project tree is enabled.  If non-empty, only
+		## the indicated directories (which must be relative
+		## paths), plus the directories in obj.includes, are
+		## scanned for #includes.
+		self.dependencies = ''
+
 		self.defines=''
 		self.rpaths=''
 
@@ -354,6 +364,7 @@ class ccroot(Object.genobj):
 
 		# these are kind of private, do not touch
 		self._incpaths_lst=[]
+		self._deppaths_lst = []
 		self.scanner_defines = {}
 		self._bld_incpaths_lst=[]
 
@@ -380,6 +391,7 @@ class ccroot(Object.genobj):
 
 		self.apply_type_vars()
 		self.apply_incpaths()
+		self.apply_dependencies()
 		self.apply_defines()
 
 		self.apply_core()
@@ -403,7 +415,7 @@ class ccroot(Object.genobj):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
 		tree = Params.g_build
-		dir_lst = { 'path_lst' : self._incpaths_lst, 'defines' : self.scanner_defines }
+		dir_lst = { 'path_lst' : self._deppaths_lst, 'defines' : self.scanner_defines }
 
 		lst = self.to_list(self.source)
 		find_source_lst = self.path.find_source_lst
@@ -507,6 +519,31 @@ class ccroot(Object.genobj):
 			Params.g_build.rescan(node)
 			self._bld_incpaths_lst.append(node)
 		# now the nodes are added to self._incpaths_lst
+
+	def apply_dependencies(self):
+		if self.dependencies:
+			dep_lst = (self.to_list(self.dependencies)
+				   + self.to_list(self.includes))
+			self._deppaths_lst = []
+			for directory in dep_lst:
+				if Utils.is_absolute_path(directory):
+					Params.fatal("Absolute paths not allowed in obj.dependencies")
+					return
+
+				node = self.path.find_dir_lst(Utils.split_path(directory))
+				if not node:
+					Params.fatal("node not found in ccroot:apply_dependencies "
+						     + str(directory), 'ccroot')
+					return
+				if node not in self._deppaths_lst:
+					self._deppaths_lst.append(node)
+		else:
+			## by default, we include the whole project tree
+			lst = []
+			for obj in Object.g_allobjs:
+				if obj.path not in lst:
+					lst.append(obj.path)
+			self._deppaths_lst = lst
 
 	def apply_type_vars(self):
 		debug('apply_type_vars called', 'ccroot')
