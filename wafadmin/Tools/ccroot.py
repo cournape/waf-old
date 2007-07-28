@@ -4,7 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import os, types, sys, re, md5
+import sys, re, md5
 import Action, Object, Params, Scan, Common, Utils
 from Params import error, debug, fatal, warning
 from Params import hash_sig_weak
@@ -738,12 +738,12 @@ class ccroot(Object.genobj):
 			if y.m_type == 'shlib':
 				env.append_value('LIB', y.target)
 			elif y.m_type == 'plugin':
-				if platform == 'darwin': env.append_value('PLUGIN', y.target)
+				if sys.platform == 'darwin': env.append_value('PLUGIN', y.target)
 				else: env.append_value('LIB', y.target)
 			elif y.m_type == 'staticlib':
 				env.append_value('STATICLIB', y.target)
 			else:
-				error('unknown object type %s in apply_lib_vars, uselib_local' % obj.name)
+				error('unknown object type %s in apply_lib_vars, uselib_local' % y.name)
 
 			# add the link path too
 			tmp_path = y.path.bldpath(self.env)
