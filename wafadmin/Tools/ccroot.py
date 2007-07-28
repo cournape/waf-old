@@ -716,7 +716,7 @@ class ccroot(Object.genobj):
 			# object does not exist ?
 			y = Object.name_to_obj(x)
 			if not y:
-				error('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
+				fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
 				names = names[1:]
 				continue
 
