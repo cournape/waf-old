@@ -67,7 +67,7 @@ class c_scanner(Scan.scanner):
 			else:
 				return self._get_signature_regexp_weak(task)
 
-	def scan(self, node, env, path_lst, defines={}):
+	def scan(self, node, env, path_lst, defines=None):
 		debug("scan", 'ccroot')
 		if Params.g_preprocess:
 			return self._scan_preprocessor(node, env, path_lst, defines)
@@ -101,13 +101,14 @@ class c_scanner(Scan.scanner):
 		#print "-S ", nodes, names
 		return (nodes, names)
 
-	def _scan_preprocessor(self, node, env, path_lst, defines={}):
+	def _scan_preprocessor(self, node, env, path_lst, defines=None):
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst, defines=defines)
 		gruik.start2(node, env)
 		if Params.g_verbose:
-			debug("nodes found for %s %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
+			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
+			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
 		return (gruik.m_nodes, gruik.m_names)
 
 	def _get_signature_regexp_strong(self, task):

@@ -502,7 +502,7 @@ class filter:
 				self.buf.append(c)
 
 class cparse:
-	def __init__(self, nodepaths=[], strpaths=[], defines={}):
+	def __init__(self, nodepaths=None, strpaths=None, defines=None):
 		#self.lines = txt.split('\n')
 		self.lines = []
 		self.i     = 0
@@ -510,20 +510,29 @@ class cparse:
 		self.max   = 0
 		self.buf   = []
 
-		self.defs  = defines
+                if defines is None:
+                        self.defs  = {}
+                else:
+                        self.defs  = dict(defines) # make a copy
 		self.state = []
 
 		self.env   = None # needed for the variant when searching for files
 
 		# include paths
-		self.strpaths = strpaths
+                if strpaths is None:
+                        self.strpaths = []
+                else:
+                        self.strpaths = strpaths
 		self.pathcontents = {}
 
 		self.deps  = []
 		self.deps_paths = []
 
 		# waf uses
-		self.m_nodepaths = nodepaths
+                if nodepaths is None:
+                        self.m_nodepaths = []
+                else:
+                        self.m_nodepaths = nodepaths
 		self.m_nodes = []
 		self.m_names = []
 
@@ -590,9 +599,9 @@ class cparse:
 			self.max = len(line)
 			try:
 				self.process_line()
-			except:
-				debug("line parsing failed >%s<" % line, 'preproc')
-				if Params.g_verbose: warning("line parsing failed >%s<" % line)
+			except Exception, ex:
+				if Params.g_verbose:
+                                        warning("line parsing failed (%s): %s" % (str(ex), line))
 
 	# debug only
 	def start(self, filename):
@@ -606,8 +615,9 @@ class cparse:
 			self.max = len(line)
 			try:
 				self.process_line()
-			except:
-				print "warning: line parsing failed >%s<" % line
+			except Exception, ex:
+				if Params.g_verbose:
+                                        warning("line parsing failed (%s): %s" % (str(ex), line))
 				raise
 	def back(self, c):
 		self.i -= c
@@ -639,7 +649,9 @@ class cparse:
 		type = ''
 		l = len(self.txt)
 		token = get_preprocessor_token(self)
-		if not token: return
+		if not token:
+                        debug("line %s has no preprocessor token" % self.txt, 'preproc')
+                        return
 
 		if token == 'endif':
 			self.state.pop(0)
@@ -651,7 +663,8 @@ class cparse:
 		# skip lines when in a dead block
 		# wait for the endif
 		if not token in ['else', 'elif']:
-			if not self.isok(): return
+			if not self.isok():
+                                return
 
 		#print "token is ", token
 
@@ -667,7 +680,8 @@ class cparse:
 			else: self.state[0] = ignored
 		elif token == 'ifndef':
 			ident = self.get_name()
-			if ident in self.defs.keys(): self.state[0] = ignored
+			if ident in self.defs.keys(): 
+                                self.state[0] = ignored
 			else: self.state[0] = accepted
 		elif token == 'include':
 			(type, body) = self.get_include()
@@ -888,6 +902,8 @@ class cparse:
 		return 0
 
 if __name__ == "__main__":
+        Params.g_verbose = 2
+        Params.g_zones = ['preproc']
 	try: arg = sys.argv[1]
 	except: arg = "file.c"
 
