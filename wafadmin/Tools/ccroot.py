@@ -544,7 +544,7 @@ class ccroot(Object.genobj):
 			for obj in Object.g_allobjs:
 				if obj.path not in lst:
 					lst.append(obj.path)
-			self._deppaths_lst = lst
+			self._deppaths_lst = lst + self._incpaths_lst
 
 	def apply_type_vars(self):
 		debug('apply_type_vars called', 'ccroot')
