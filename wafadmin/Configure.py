@@ -930,8 +930,8 @@ class Configure:
 		for i in lst:
 			try:
 				file,name,desc = imp.find_module(i, tooldir)
-			except:
-				error("no tool named '%s' found" % i)
+			except Exception, ex:
+				error("no tool named '%s' found (%s)" % (i, str(ex)))
 				return 0
 			module = imp.load_module(i,file,name,desc)
 			ret = ret and int(module.detect(self))
@@ -984,13 +984,12 @@ class Configure:
 
 		try:
 			mod = Utils.load_module(cur)
-		except:
-			msg = "no module or function configure was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-			fatal(msg % self.cwd)
+		except IOError:
+			fatal("the wscript file %s was not found." % cur)
 
-		# TODO check
-		#if not 'configure' in mod:
-		#	fatal('the module has no configure function')
+		if not hasattr(mod, 'configure'):
+			fatal('the module %s has no configure function; '
+			      'make sure such a function is defined' % cur)
 
 		ret = mod.configure(self)
 		if Params.g_autoconfig:
