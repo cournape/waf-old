@@ -211,7 +211,7 @@ def detect(conf):
 	test.env = v
 	test.execute = 1
 	ret = conf.run_check(test)
-	conf.check_message('compiler could create', 'pragramms', not (ret is False))
+	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
 		return 0
 	#test if the compiler could build a shlib

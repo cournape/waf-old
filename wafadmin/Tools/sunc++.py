@@ -68,7 +68,7 @@ def detect(conf):
 
 	v['SHLIB_MARKER']        = '-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Bstatic'
-	
+
 	# linker debug levels
 	v['LINKFLAGS']           = []
 	v['LINKFLAGS_OPTIMIZED'] = ['-s']
@@ -100,7 +100,7 @@ def detect(conf):
 	# program
 	v['program_obj_ext']     = ['.o']
 	v['program_SUFFIX']      = ''
-	
+
 	#test if the compiler could build a prog
 	test = Configure.check_data()
 	test.code = 'int main() {return 0;}\n'
@@ -108,7 +108,7 @@ def detect(conf):
 	test.execute = 1
 	test.force_compiler = "cpp"
 	ret = conf.run_check(test)
-	conf.check_message('compiler could create', 'programms', not (ret is False))
+	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
 		return 0
 	#test if the compiler could build a shlib
@@ -141,7 +141,7 @@ def detect(conf):
 		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
-	
+
 	# see the option below
 	try:
 		v['CXXFLAGS'] = v['CXXFLAGS_'+Params.g_options.debug_level.upper()]
@@ -178,3 +178,4 @@ def set_options(opt):
 	except optparse.OptionConflictError:
 		# the gcc tool might have added that option already
 		pass
+

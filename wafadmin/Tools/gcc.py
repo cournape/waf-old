@@ -200,7 +200,7 @@ def detect(conf):
 	test.execute = 1
 	test.force_compiler="cc"
 	ret = conf.run_check(test)
-	conf.check_message('compiler could create', 'pragramms', not (ret is False))
+	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
 		return 0
 	ret = 0
