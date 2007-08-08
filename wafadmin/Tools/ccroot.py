@@ -743,6 +743,8 @@ class ccroot(Object.genobj):
 				else: env.append_value('LIB', y.target)
 			elif y.m_type == 'staticlib':
 				env.append_value('STATICLIB', y.target)
+			elif y.m_type == 'objects':
+				pass
 			else:
 				error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
 				      % (y.name, y.m_type))
@@ -752,7 +754,8 @@ class ccroot(Object.genobj):
 			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
 			# set the dependency over the link task
-			self.m_linktask.set_run_after(y.m_linktask)
+			if y.m_linktask is not None:
+				self.m_linktask.set_run_after(y.m_linktask)
 
 			# add ancestors uselib too
 			# TODO potential problems with static libraries ?
