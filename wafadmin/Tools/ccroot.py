@@ -751,7 +751,7 @@ class ccroot(Object.genobj):
 			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
 			# set the dependency over the link task
-			self.m_linktask.m_run_after.append(y.m_linktask)
+			self.m_linktask.set_run_after(y.m_linktask)
 
 			# add ancestors uselib too
 			# TODO potential problems with static libraries ?

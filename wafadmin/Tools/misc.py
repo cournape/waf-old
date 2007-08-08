@@ -351,7 +351,7 @@ class CommandOutput(Object.genobj):
 			if not dep.m_posted:
 				dep.post()
 			for dep_task in dep.m_tasks:
-				task.m_run_after.append(dep_task)
+				task.set_run_after(dep_task)
 
 	def input_file(self, file_name):
 		"""Returns an object to be used as argv element that instructs
