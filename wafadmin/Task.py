@@ -288,6 +288,7 @@ class Task(TaskBase):
 
 	# IMPORTANT: set dependencies on other tasks
 	def set_run_after(self, task):
+		assert isinstance(task, TaskBase)
 		self.m_run_after.append(task)
 
 class TaskCmd(TaskBase):
