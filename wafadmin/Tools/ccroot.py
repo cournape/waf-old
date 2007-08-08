@@ -744,7 +744,8 @@ class ccroot(Object.genobj):
 			elif y.m_type == 'staticlib':
 				env.append_value('STATICLIB', y.target)
 			else:
-				error('unknown object type %s in apply_lib_vars, uselib_local' % y.name)
+				error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
+				      % (y.name, y.m_type))
 
 			# add the link path too
 			tmp_path = y.path.bldpath(self.env)
