@@ -54,7 +54,7 @@ class MTask(Task.Task):
 			# process that base.moc only once
 			mocfiles.append(d)
 
-			# find the extension - this search is done only once
+			# find the extension - this search is done only once - TODO the parent was already scanned
 			ext = ''
 			if Params.g_options.qt_header_ext:
 				ext = Params.g_options.qt_header_ext
@@ -71,8 +71,8 @@ class MTask(Task.Task):
 				if not ext: fatal("no header found for %s which is a moc file" % str(d))
 
 			# next time we will not search for the extension (look at the 'for' loop below)
-			h_node = node.change_ext(ext)
-			m_node = node.change_ext('.moc')
+			h_node = node.m_parent.find_source(base2+i)
+			m_node = h_node.change_ext('.moc')
 			tree.m_depends_on[variant][m_node] = h_node
 
 			# create the task
