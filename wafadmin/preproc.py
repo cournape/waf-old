@@ -543,7 +543,8 @@ class cparse:
 				found = n.find_source(filename, create=0)
 				if found:
 					self.m_nodes.append(found)
-					self.addlines(found.abspath(self.env))
+					# screw Qt
+					if filename[-4:] != '.moc': self.addlines(found.abspath(self.env))
 					break
 			if not found:
 				if not filename in self.m_names:
@@ -556,7 +557,8 @@ class cparse:
 				if filename in self.pathcontents[p]:
 					#print "file %s found in path %s" % (filename, p)
 					np = os.path.join(p, filename)
-					self.addlines(np)
+					# screw Qt two times
+					if filename[-4:] != '.moc': self.addlines(np)
 					self.deps_paths.append(np)
 					found = 1
 			if not found:
