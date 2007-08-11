@@ -340,8 +340,8 @@ def detect_qt4(conf):
 
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
 	find_bin(['rcc'], 'QT_RCC')
-	find_bin(['lrelease'], 'QT_LRELEASE')
-	find_bin(['lupdate'], 'QT_LUPDATE')
+	find_bin(['lrelease-qt4', 'lrelease'], 'QT_LRELEASE')
+	find_bin(['lupdate-qt4', 'lupdate'], 'QT_LUPDATE')
 
 	env['UIC3_ST']= '%s -o %s'
 	env['UIC_ST'] = '%s -o %s'
