@@ -33,6 +33,8 @@ class pyobj(Object.genobj):
 		# first create the nodes corresponding to the sources
 		for filename in self.to_list(self.source):
 			node = find_source_lst(Utils.split_path(filename))
+			if node is None:
+				Params.fatal("Python source '%s' not found" % filename)
 
 			base, ext = os.path.splitext(filename)
 			#node = self.path.find_build(filename)
