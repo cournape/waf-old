@@ -281,7 +281,7 @@ class library_enumerator(enumerator_base):
 		ret  = find_file(name, self.path)
 
                 ## on cygwin, look also for .dll.a files
-		if not ret and sys.platform == 'cygwin':
+		if not ret and sys.platform in ['cygwin', 'win32']:
                         name = self.env['shlib_PREFIX'] + self.name + ".dll.a"
                         ret  = find_file(name, self.path)
 
