@@ -280,6 +280,11 @@ class library_enumerator(enumerator_base):
 		name = self.env['shlib_PREFIX']+self.name+self.env['shlib_SUFFIX']
 		ret  = find_file(name, self.path)
 
+                ## on cygwin, look also for .dll.a files
+		if not ret and sys.platform == 'cygwin':
+                        name = self.env['shlib_PREFIX'] + self.name + ".dll.a"
+                        ret  = find_file(name, self.path)
+
 		if not ret:
 			name = self.env['staticlib_PREFIX']+self.name+self.env['staticlib_SUFFIX']
 			ret  = find_file(name, self.path)
