@@ -103,7 +103,7 @@ def detect(conf):
 		v['shlib_obj_ext']     = ['.os']
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dll'
-		v['shlib_IMPLIB_SUFFIX'] = ['.a']
+		v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
