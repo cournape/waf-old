@@ -12,7 +12,7 @@ g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'INCLUDE',
-'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CCDEFINES']
+'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
 g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):
