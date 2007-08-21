@@ -376,6 +376,8 @@ class ccroot(Object.genobj):
 				self.subtype = 'program'
 			elif self.m_type == 'staticlib':
 				self.subtype = 'staticlib'
+			elif self.m_type == 'plugin':
+				self.subtype = 'plugin'
 			else:
 				self.subtype = 'shlib'
 
@@ -406,7 +408,7 @@ class ccroot(Object.genobj):
 			self.apply_libtool()
 
 		if self.m_type == 'objects':
-			type = 'program'
+			type = 'program' # TODO: incorrect for shlibs
 		else:
 			type = self.m_type
 
