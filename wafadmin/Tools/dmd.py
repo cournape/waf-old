@@ -16,7 +16,7 @@ def detect(conf):
 	if not d_compiler:
 		return 0;
 
-	conf.check_tool('d', '.')
+	conf.check_tool('d')
 
 	v = conf.env
 
