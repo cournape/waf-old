@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='d_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	opt.tool_options('dmd')
+
+def configure(conf):
+	conf.check_tool('dmd')
+	conf.env['LIB_PTHREAD'] = ['pthread']
+
+def build(bld):
+	obj = bld.create_obj('d', 'program')
+	obj.source = '''
+	example.d
+	'''
+	obj.imports = '/home/dv'
+	obj.dflags = '-w -g'
+	obj.target = 'd_test'
+	obj.uselib = 'PTHREAD'
