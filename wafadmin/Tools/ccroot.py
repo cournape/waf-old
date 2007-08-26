@@ -489,7 +489,13 @@ class ccroot(Object.genobj):
 		if ext: suffix = ext
 		if not prefix: prefix=''
 		if not suffix: suffix=''
-		return ''.join([prefix, name, suffix])
+
+		# Handle the case where the name contains a directory src/mylib
+		k=name.rfind('/')
+		if k == -1:
+			return ''.join([prefix, name, suffix])
+		else:
+			return name[0:k+1] + ''.join([prefix, name[k+1:], suffix])
 
 	def apply_defines(self):
 		"subclass me"
