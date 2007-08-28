@@ -51,6 +51,7 @@ class scanner:
 
 	# re-scan a node, update the tree
 	def do_scan(self, node, env, hashparams):
+
 		debug("scanner:do_scan(self, node, env, hashparams)", 'scan')
 
 		variant = node.variant(env)
@@ -67,10 +68,12 @@ class scanner:
 		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
 
 	# ======================================= #
-	# private method
+	# protected method
 
 	def get_signature_impl(self, task):
-		"TODO: the weak scheme is hardly ever used, provide a function for replacing the methods"
+		# assumption: changing an dependency does not mean we have to rescan
+		# this scheme will work well in general, but not with macros such as #if IS_SOMETHING ..
+
 		m = md5.new()
 		tree = Params.g_build
 		seen = []
@@ -102,33 +105,6 @@ class scanner:
 		# add the signatures of the task it depends on
 		for task in task.m_run_after: m.update(task.signature())
 		return m.digest()
-
-	def get_signature_default_weak(self, task):
-		msum = 0
-		tree = Params.g_build
-		seen = []
-		env  = task.m_env
-		variant = task.m_inputs[0].variant(env)
-		def add_node_sig(node):
-			if not node: print "warning: null node in get_node_sig"
-
-			sum = 0
-			seen.append(node.m_name)
-
-			sum += tree.m_tstamp_variants[variant][node]
-			# rescan if necessary, and add the signatures of the nodes it depends on
-			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
-			try: lst = tree.m_depends_on[variant][node]
-			except KeyError: lst = []
-			for dep in lst:
-				if not dep.m_name in seen:
-					sum += add_node_sig(dep)
-			return sum
-		# add the signatures of the input nodes
-		for node in task.m_inputs: msum = hash_sig_weak(msum, add_node_sig(node))
-		# add the signatures of the task it depends on
-		for task in task.m_run_after: msum = hash_sig_weak(msum, task.signature())
-		return int(msum)
 
 g_default_scanner = scanner()
 "default scanner: unique instance"

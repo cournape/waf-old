@@ -56,63 +56,86 @@ class c_scanner(Scan.scanner):
 	def scan(self, node, env, path_lst, defines=None):
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
 		import preproc
-		gruik = preproc.cparse(nodepaths = path_lst, defines=defines)
+		gruik = preproc.cparse(nodepaths = path_lst, defines = defines)
 		gruik.start2(node, env)
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
 			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
 		return (gruik.m_nodes, gruik.m_names)
 
-	def get_signature(self, task):
-		# assumption: there is only one cpp file to compile in a task
-
+	def get_signature_queue(self, task):
 		tree = Params.g_build
+
+		# assumption: the source and object files are all in the same variant
+		variant = task.m_inputs[0].variant(env)
+
 		rescan = 0
-
+		seen = []
+		queue = task.m_inputs[0]
 		m = md5.new()
-		seen=[]
+
+		# add the include paths into the hash
+		m.update(str(task.m_scanner_params))
+
+		# add the defines
+		m.update(str(task.m_env['CXXDEFINES']))
+		m.update(str(task.m_env['CCDEFINES']))
+
+		# add the hashes of all files entering into the dependency system
+		while len(queue) > 0:
+			node = queue[0]
+			queue = queue[1:]
+			seen.append(node)
+
+			# TODO: look at the case of stale nodes and dependencies types
+			try: queue += tree.m_depends_on[variant][node]
+			except: pass
+
+			m.update(tree.m_tstamp_variants[variant][node])
+
+		return m.digest()
+
+	def get_signature(self, task):
+		tree = Params.g_build
 		env = task.m_env
-		def add_node_sig(n):
-			if not n: warning("warning: null node in get_node_sig")
-			if n.m_name in seen: return
 
-			# TODO - using the variant each time is stupid
-			variant = n.variant(env)
-			seen.append(n.m_name)
-			m.update(tree.m_tstamp_variants[variant][n])
+		# assumption: the source and object files are all in the same variant
+		variant = task.m_inputs[0].variant(env)
 
-		# there is only one c/cpp file as input
-		node = task.m_inputs[0]
+		# we can compute and return the signature if
+		#   * the source files have not changed (rescan is 0)
+		#   * the computed signature has not changed
+		sig = get_signature_queue()
+		# TODO implement a global scanner caching system for tasks
+		if sig == self.scanner_cache(task):
+			return sig
 
-		variant = node.variant(env)
-
-		if tree.needs_rescan(node, task.m_env): rescan = 1
-		#if rescan: print "node has changed, a rescan is req ", node
-
-		if not rescan:
-			if node in tree.m_depends_on[variant]:
-				#print node, "depends on ", tree.m_depends_on[variant][node]
-				for anode in tree.m_depends_on[variant][node]:
-					if tree.needs_rescan(anode, task.m_env):
-						#print "rescanning because of ", anode
-						rescan = 1
-
-		# rescan the cpp file if necessary
-		if rescan:
-			#print "rescanning ", node
+		# a source or a header is dirty, rescan the source files
+		for node in task.m_inputs:
 			self.do_scan(node, task.m_env, task.m_scanner_params)
+
+		sig = get_signature_queue()
+
+		# TODO remember the previous signature
+		self.store_scan(task, sig)
 
 		# DEBUG
 		#print "rescan for ", task.m_inputs[0], " is ", rescan,  " and deps ", \
 		#	tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
 
-		# we are certain that the files have been scanned - compute the signature
-		add_node_sig(node)
-		if node in tree.m_depends_on[variant]:
-			for n in tree.m_depends_on[variant][node]: add_node_sig(n)
+		return sig
 
-		#for task in task.m_run_after: m.update(task.signature())
-		return m.digest()
+	# what we need to remember here ..
+	#   the scanner name or type
+	#   the source files
+	#   the hashes of the source files
+	#   the signature obtained
+
+	def store_scan(self, task, signature):
+		pass
+
+	def scanner_cache(self, task):
+		return Params.sig_nil
 
 g_c_scanner = c_scanner()
 "scanner for c programs"

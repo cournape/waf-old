@@ -198,6 +198,33 @@ def set_weak_hash():
 		#print "-S ", nodes, names
 		return (nodes, names)
 
+	def get_signature_default_weak(self, task):
+		msum = 0
+		tree = Params.g_build
+		seen = []
+		env  = task.m_env
+		variant = task.m_inputs[0].variant(env)
+		def add_node_sig(node):
+			if not node: print "warning: null node in get_node_sig"
+
+			sum = 0
+			seen.append(node.m_name)
+
+			sum += tree.m_tstamp_variants[variant][node]
+			# rescan if necessary, and add the signatures of the nodes it depends on
+			if tree.needs_rescan(node, task.m_env): self.do_scan(node, task.m_env, task.m_scanner_params)
+			try: lst = tree.m_depends_on[variant][node]
+			except KeyError: lst = []
+			for dep in lst:
+				if not dep.m_name in seen:
+					sum += add_node_sig(dep)
+			return sum
+		# add the signatures of the input nodes
+		for node in task.m_inputs: msum = hash_sig_weak(msum, add_node_sig(node))
+		# add the signatures of the task it depends on
+		for task in task.m_run_after: msum = hash_sig_weak(msum, task.signature())
+		return int(msum)
+
 
 """
 
