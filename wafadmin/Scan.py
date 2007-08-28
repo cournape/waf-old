@@ -14,6 +14,8 @@ g_all_scanners={}
 
 # TODO double check for threading issues
 class scanner:
+	"TODO: call this a dependency manager (not a scanner), as it does scan and compute the signatures"
+
 	def __init__(self):
 		global g_all_scanners
 		g_all_scanners[self.__class__.__name__] = self
@@ -21,11 +23,13 @@ class scanner:
 	# ======================================= #
 	# interface definition
 
+	"TODO: add the manually added dependencies"
+	"TODO: add the environment variables dependencies"
+
 	# computes the signature for a task
 	# returns a string
 	def get_signature(self, task):
-		#print "scanner:get_signature(self, task)"
-		ret = self._get_signature(task)
+		ret = self.get_signature_impl(task)
 		debug("scanner:get_signature(self, task) %s" % str(Params.vsig(ret)), 'scan')
 		return ret
 
@@ -65,17 +69,8 @@ class scanner:
 	# ======================================= #
 	# private method
 
-	# default scanner scheme
-	# climb up until all nodes have been visited and xor signatures
-	# the climbing scheme must be deterministic
-	def _get_signature(self, task):
-		#print "scanner:_get_signature(self, task)"
-		if Params.g_strong_hash:
-			return self._get_signature_default_strong(task)
-		else:
-			return self._get_signature_default_weak(task)
-
-	def _get_signature_default_strong(self, task):
+	def get_signature_impl(self, task):
+		"TODO: the weak scheme is hardly ever used, provide a function for replacing the methods"
 		m = md5.new()
 		tree = Params.g_build
 		seen = []
@@ -103,11 +98,12 @@ class scanner:
 
 		# add the signatures of the input nodes
 		for node in task.m_inputs: add_node_sig(node)
+
 		# add the signatures of the task it depends on
 		for task in task.m_run_after: m.update(task.signature())
 		return m.digest()
 
-	def _get_signature_default_weak(self, task):
+	def get_signature_default_weak(self, task):
 		msum = 0
 		tree = Params.g_build
 		seen = []

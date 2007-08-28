@@ -130,6 +130,16 @@ class Environment:
 		return dst
 
 	def hook(self, classname, ext, func):
+		"silly wrapper"
 		import Object
 		Object.hook(classname, ext, func)
+
+	def set_dependency(self, infile, outfile):
+		"TODO: future: set manual dependencies"
+		pass
+
+	def set_var_dependency(self, infile, text):
+		"TODO: future: add manual dependencies on env variables"
+		pass
+
 

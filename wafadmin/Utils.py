@@ -151,18 +151,20 @@ def is_absolute_path(path):
 		isabs = re.search(r'^[\"\']/', path.strip(), re.M) != None
 	return isabs
 
-_path_to_preprocessor_name_translation = None
-def path_to_preprocessor_name(path):
+"why this complexity ? (ita)"
+_path_to_define_name_translation = None
+def path_to_define_name(path):
 	"""Converts a file path like foo/zbr-xpto.h to a C preprocessor
 	name like FOO_ZBR_XPTO_H"""
-	global _path_to_preprocessor_name_translation
-	if _path_to_preprocessor_name_translation is None:
+	global _path_to_define_name_translation
+	if _path_to_define_name_translation is None:
 		## make a translation table mapping everything except
 		## alfanumeric chars to '_'
 		invalid_chars = [chr(x) for x in xrange(256)]
 		for valid in string.digits + string.uppercase:
 			invalid_chars.remove(valid)
-		_path_to_preprocessor_name_translation = string.maketrans(
+		_path_to_define_name_translation = string.maketrans(
 			''.join(invalid_chars), '_'*len(invalid_chars))
 
-	return string.translate(string.upper(path), _path_to_preprocessor_name_translation)
+	return string.translate(string.upper(path), _path_to_define_name_translation)
+
