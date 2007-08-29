@@ -105,7 +105,9 @@ def reset_colors():
 	for k in g_colors.keys():
 		g_colors[k]=''
 
-if (sys.platform=='win32') or ('NOCOLOR' in os.environ) or (os.environ.get('TERM', 'dumb') == 'dumb'):
+if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
+	or (os.environ.get('TERM', 'dumb') == 'dumb') \
+	or (not os.isatty(sys.stdout.fileno())):
 	reset_colors()
 
 def pprint(col, str, label=''):
