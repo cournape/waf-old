@@ -21,6 +21,8 @@ zip_types = ['bz2', 'gz']
 
 import Params, Utils, Options, os, sys, base64, shutil, re, random
 
+print "------> Executing code from the top-level wscript <-----"
+
 # this function is called before any other for parsing the command-line
 def set_options(opt):
 
@@ -70,7 +72,7 @@ def encodeAscii85(s):
 	return ''.join(out)
 
 def create_waf():
-	print "preparing waf"
+	print "-> preparing waf"
 	mw = 'tmp-waf-'+VERSION
 
 	import tarfile, re
@@ -158,17 +160,16 @@ def install_waf():
 		sys.exit(0)
 
 	destdir = None
-	if "DESTDIR" in os.environ: 
+	if "DESTDIR" in os.environ:
 		destdir = os.environ["DESTDIR"]
-	elif Params.g_options.destdir: 
+	elif Params.g_options.destdir:
 		destdir = Params.g_options.destdir
-	
-	if destdir: 
-		
+
+	if destdir:
 		prefix = "%s%s"%(destdir,Params.g_options.prefix)
-	else: 
+	else:
 		prefix = Params.g_options.prefix
-	
+
 	binpath     = os.path.join(prefix, 'bin%swaf' % os.sep)
 	wafadmindir = os.path.join(prefix, 'lib%swaf-%s-%s%swafadmin%s' % (os.sep, VERSION, REVISION, os.sep, os.sep))
 	toolsdir    = os.path.join(wafadmindir, 'Tools' + os.sep)
