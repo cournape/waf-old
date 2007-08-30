@@ -10,6 +10,8 @@ from Params import error, fatal, warning, g_lockfile
 
 g_dirwatch   = None
 g_daemonlock = 0
+g_dist_exts  = '.rej .orig ~ .pyc .pyo .bak config.log .tar.bz2 .zip Makefile'.split()
+g_distclean_exts = '~ .pyc .wafpickle'.split()
 
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
@@ -287,24 +289,19 @@ def Dist(appname, version):
 				clean_dirs += d
 		dirs = clean_dirs
 
-		to_remove = False
+		global g_dist_exts # you may add additional forbidden files
 		for f in list(filenames):
-			if f.startswith('.'): to_remove = True
-			elif f.startswith('++'): to_remove = True
-			elif f.endswith('.rej'): to_remove = True
-			elif f.endswith('~'): to_remove = True
-			elif f.endswith('.pyc'): to_remove = True
-			elif f.endswith('.pyo'): to_remove = True
-			elif f.endswith('.bak'): to_remove = True
-			elif f.endswith('.orig'): to_remove = True
-			elif f in ['config.log']: to_remove = True
-			elif f.endswith('.tar.bz2'): to_remove = True
-			elif f.endswith('.zip'): to_remove = True
-			elif f.endswith('Makefile'): to_remove = True
-
+			to_remove = 0
+			ends = f.endswith
+			if f.startswith('.') or f.startswith('++'):
+				to_remove = 1
+			else:
+				for x in g_dist_exts:
+					if ends(x):
+						to_remove = true
+						break
 			if to_remove:
 				os.remove(os.path.join(root, f))
-				to_remove = False
 
 	try:
 		dist_hook = Utils.g_module.dist_hook
@@ -352,10 +349,12 @@ def DistClean():
 					shutil.rmtree(os.path.join(root, proj['blddir']))
 				except OSError: pass
 				except IOError: pass
-			elif f.endswith('~'): to_remove = 1
-			elif f.endswith('.pyc'): to_remove = 1
-			elif f.startswith('.wafpickle'): to_remove = 1
-
+			else:
+				ends = f.endswith
+				for x in g_distclean_exts:
+					if ends(x):
+						to_remove = 1
+						break
 			if to_remove:
 				#print "removing ",os.path.join(root, f)
 				os.remove(os.path.join(root, f))
