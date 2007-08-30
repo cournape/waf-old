@@ -74,15 +74,21 @@ class scanner:
 
 	# what we need to remember here ..
 	#   the scanner name or type
-	#   the source files
+	#   the source file
 	#   the hashes of the source files
 	#   the signature obtained
 
 	def get_scanner_cache(self, task):
-		return None
+		node = task.m_inputs[0]
+		name = self.__class__.__name__
+		return Params.g_build.get_scanner_cache(name, node.variant(task.m_env), node)
 
 	def set_scanner_cache(self, task, sig):
-		pass
+		tree = Params.g_build
+		name = self.__class__.__name__
+		env = task.m_env
+		for x in task.m_inputs:
+			tree.set_scanner_cache(name, x.variant(env), x, sig)
 
 	def get_signature_impl(self, task):
 		# assumption: changing an dependency does not mean we have to rescan
