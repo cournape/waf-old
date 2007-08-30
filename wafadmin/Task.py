@@ -146,7 +146,7 @@ class Task(TaskBase):
 		# TODO: handle list or object
 		assert isinstance(task, TaskBase)
 		try: self.m_run_after.append(task)
-		except KeyError: self.m_run_after = [task]
+		except AttributeError: self.m_run_after = [task]
 
 	def get_run_after(self):
 		try: return self.m_run_after
@@ -246,7 +246,7 @@ class Task(TaskBase):
 			return not ret
 
 		if Params.g_zones:
-			debug_why()
+			self.debug_why()
 
 		if new_sig != prev_sig:
 			# if the node has not changed, try to use the cache
@@ -353,7 +353,7 @@ class Task(TaskBase):
 		if level>0: fun=Params.error
 		fun(self.debug_info())
 
-	def debug_why():
+	def debug_why(self):
 		"explains why a task is run"
 		# TODO: print all signatures, and the global result
 		# TODO: store all signatures, for explaining why a particular task is run
