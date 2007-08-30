@@ -10,7 +10,7 @@ from Params import debug, error, fatal, warning
 
 
 
-SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_scanner_cache'.split()
+SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_sig_cache'.split()
 "Build class members to save"
 
 class BuildDTO:
@@ -80,7 +80,7 @@ class Build:
 
 		# build dir variants (release, debug, ..)
 		for name in ['default', 0]:
-			for v in 'm_tstamp_variants m_depends_on m_scanner_cache m_deps_tstamp m_raw_deps m_abspath_cache'.split():
+			for v in 'm_tstamp_variants m_depends_on m_sig_cache m_deps_tstamp m_raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var: var[name] = {}
 
@@ -113,7 +113,7 @@ class Build:
 		# for example, find headers in c files
 		self.m_raw_deps        = {}
 
-		self.m_scanner_cache   = {}
+		self.m_sig_cache       = {}
 
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
@@ -588,16 +588,13 @@ class Build:
 		Task.g_tasks.add_group(name)
 
 
+	def set_sig_cache(self, key, val):
+		self.m_sig_cache[key] = val
 
-	def get_scanner_cache(self, name, variant, node):
-		hish = self.m_tstamp_variants[variant][node]
-		#try: return self.m_scanner_cache[name][variant][node][hash]
-		truc = hash( (name, variant, node, hish) )
-		try: return self.m_scanner_cache[truc]
-		except KeyError: return Params.sig_nil
-
-	def set_scanner_cache(self, name, variant, node, sig):
-		hish = self.m_tstamp_variants[variant][node]
-		truc = hash( (name, variant, node, hish) )
-		self.m_scanner_cache[truc] = sig
+	def get_sig_cache(self, key):
+		try:
+			return self.m_sig_cache[key]
+		except KeyError:
+			s = Params.sig_nil
+			return [s, s, s, s, s]
 

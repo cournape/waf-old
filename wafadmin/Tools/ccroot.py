@@ -102,23 +102,30 @@ class c_scanner(Scan.scanner):
 		# assumption: the source and object files are all in the same variant
 		variant = task.m_inputs[0].variant(env)
 
+		# assumption: we assume that we can still get the old signature from the signature cache
+		try:
+			node = task.m_outputs[0]
+			time = tree.m_tstamp_variants[variant][node]
+			key = hash( (node.variant(self.m_env), node, time, self.m_scanner.__class__.__name__) )
+			prev_sig = tree.get_sig_cache(key)[1]
+		except KeyError:
+			prev_sig = Params.sig_nil
+
 		# we can compute and return the signature if
 		#   * the source files have not changed (rescan is 0)
 		#   * the computed signature has not changed
 		sig = self.get_signature_queue(task)
 
-		# get the global scanner cache - the previous signature
-		if sig == self.get_scanner_cache(task):
+		# if the previous signature is the same
+		if sig == prev_sig:
 			return sig
 
-		# a source or a header is dirty, rescan the source files
+		# therefore some source or some header is dirty, rescan the source files
 		for node in task.m_inputs:
 			self.do_scan(node, task.m_env, task.m_scanner_params)
 
+		# recompute the signature and return it
 		sig = self.get_signature_queue(task)
-
-		# store the new scanner signature
-		self.set_scanner_cache(task, sig)
 
 		# DEBUG
 		#print "rescan for ", task.m_inputs[0], " is ", rescan,  " and deps ", \

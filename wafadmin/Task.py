@@ -165,6 +165,8 @@ class Task(TaskBase):
 		try: return self._sign_all
 		except AttributeError: pass
 
+		tree = Params.g_build
+
 		m = md5.new()
 
 		dep_sig = self.m_scanner.get_signature(self)
@@ -194,8 +196,7 @@ class Task(TaskBase):
 		# hash additional node dependencies
 		ret = m.digest()
 
-		# TODO store all hashes somewhere in the build object, in debug mode at least
-		# bld.set_hashes(node, [ret, dep_sig, act_sig, var_sig, node_sig])
+		self.cache_sig = [ret, dep_sig, act_sig, var_sig, node_sig]
 
 		self._sign_all = ret
 		return ret
@@ -224,6 +225,7 @@ class Task(TaskBase):
 		"see if the task must be run or not"
 		#return 0 # benchmarking
 
+		tree = Params.g_build
 		ret = 0
 
 		# for tasks that have no inputs or outputs and are run all the time
@@ -231,22 +233,27 @@ class Task(TaskBase):
 			self.m_dep_sig = Params.sig_nil
 			return 1
 
-		new_sig = self.signature()
-		node = self.m_outputs[0]
-
+		# look at the previous signature first
 		try:
-			# might need to add a for loop if the first node variant does not do it
-			prev_sig = Params.g_build.m_tstamp_variants[node.variant(self.m_env)][node]
+			node = self.m_outputs[0]
+			variant = node.variant(self.m_env)
+			time = tree.m_tstamp_variants[variant][node]
+			key = hash( (variant, node, time, self.m_scanner.__class__.__name__) )
+			prev_sig = tree.m_sig_cache[key][0]
 		except KeyError:
 			# an exception here means the object files do not exist
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
 
-			# maybe we can just retrieve the object files from the cache
-			ret = self.can_retrieve_cache(new_sig)
+			# maybe we can just retrieve the object files from the cache then
+			ret = self.can_retrieve_cache(self.signature())
 			return not ret
 
+		# debug if asked to
 		if Params.g_zones:
-			self.debug_why()
+			self.debug_why(tree.m_sig_cache[key])
+
+		# make certain we compute the signature after looking at the old one, for 'debug_why' to work
+		new_sig = self.signature()
 
 		if new_sig != prev_sig:
 			# if the node has not changed, try to use the cache
@@ -288,6 +295,14 @@ class Task(TaskBase):
 				try: shutil.copy2(node.abspath(env), dest)
 				except IOError: warning('could not write the file to the cache')
 				cnt += 1
+
+		# keep the signatures in the first node
+		node = self.m_outputs[0]
+		variant = node.variant(self.m_env)
+		time = tree.m_tstamp_variants[variant][node]
+		key = hash( (variant, node, time, self.m_scanner.__class__.__name__) )
+		val = self.cache_sig
+		tree.set_sig_cache(key, val)
 
 		self.m_executed=1
 
@@ -353,7 +368,7 @@ class Task(TaskBase):
 		if level>0: fun=Params.error
 		fun(self.debug_info())
 
-	def debug_why(self):
+	def debug_why(self, old_sigs):
 		"explains why a task is run"
 		# TODO: print all signatures, and the global result
 		# TODO: store all signatures, for explaining why a particular task is run
