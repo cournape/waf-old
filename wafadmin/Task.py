@@ -129,6 +129,10 @@ class Task(TaskBase):
 		global g_default_param
 		self.m_scanner_params = g_default_param
 
+		# additionally, you may define the following
+		# self.dep_vars = 'some_env_var'
+
+
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs = inp
 		else: self.m_inputs = [inp]
@@ -148,6 +152,11 @@ class Task(TaskBase):
 		try: return self.m_run_after
 		except KeyError: return []
 
+	def add_file_dependency(self, filename)
+		"TODO user-provided file dependencies"
+		node = Params.g_build.m_current.find_build(filename)
+		try: self.m_deps_nodes.append(node)
+		except: self.m_deps_nodes = [node]
 
 	#------------ users are probably less interested in the following methods --------------#
 
@@ -162,11 +171,32 @@ class Task(TaskBase):
 		dep_sig = self.m_scanner.get_signature(self)
 		m.update(dep_sig)
 
-		# TODO hash additional node dependencies
-		# TODO hash additional environment variable dependencies
+		act_sig = None
+		try: act_sig = self.m_action.signature(self)
+		except AttributeError: act_sig = Object.sign_env_vars(self.m_env, self.m_action.m_vars)
+		m.update(act_sig)
+
+		var_sig = None
+		try:
+			var_sig = Object.sign_env_vars(self.m_env, self.dep_vars)
+			m.update(var_sig)
+		except AttributeError:
+			pass
+
+		node_sig = None # the node sig will be slightly bigger than other ones, but i am too lazy to make a md5
+		try:
+			for x in self.dep_nodes:
+				v = tree.m_tstamp_variants[variant][x]
+				node_sig += v
+				m.update(v)
+		except AttributeError:
+			pass
+
+		# hash additional node dependencies
 		ret = self.digest()
 
-		# TODO store all hashes somewhere, in debug mode at least
+		# TODO store all hashes somewhere in the build object, in debug mode at least
+		# bld.set_hashes(node, [ret, dep_sig, act_sig, var_sig, node_sig])
 
 		self._sign_all = ret
 		return ret

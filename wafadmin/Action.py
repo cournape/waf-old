@@ -49,9 +49,9 @@ class Action:
 			task.debug(level=1)
 			raise
 
-	def prepare(self, task):
-		"prepare the compilation"
-		task.m_sig = Object.sign_env_vars(task.m_env, self.m_vars)
+	#def prepare(self, task):
+	#	"prepare the compilation"
+	#	task.m_sig = Object.sign_env_vars(task.m_env, self.m_vars)
 
 	def run(self, task):
 		"run the compilation"
