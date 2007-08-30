@@ -10,48 +10,15 @@ from Params import error, debug, fatal, warning
 
 g_prio_link=101
 """default priority for link tasks:
-an even number means link tasks may be parallelized
-an odd number is probably the thing to do"""
+an odd number means one link at a time (no parallelization)"""
 
 g_src_file_ext = ['.c', '.cpp', '.cc']
 "default extensions for source files"
-
-cregexp1 = re.compile(r'^[ \t]*#[ \t]*(?:include)[ \t]*(?:/\*.*?\*/)?[ \t]*(<|")([^>"]+)(>|")', re.M)
-"regexp for computing dependencies (when not using the preprocessor)"
 
 class c_scanner(Scan.scanner):
 	"scanner for c/c++ files"
 	def __init__(self):
 		Scan.scanner.__init__(self)
-
-	# re-scan a node, update the tree
-	def do_scan(self, node, env, hashparams):
-		debug("do_scan(self, node, env, hashparams)", 'ccroot')
-
-		variant = node.variant(env)
-
-		if not node:
-			error("BUG rescanning a null node")
-			return
-		(nodes, names) = self.scan(node, env, **hashparams)
-		if Params.g_verbose:
-			if Params.g_zones:
-				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
-
-		tree = Params.g_build
-		tree.m_depends_on[variant][node] = nodes
-		tree.m_raw_deps[variant][node] = names
-
-		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
-		if Params.g_preprocess:
-			for n in nodes:
-				try:
-					# FIXME some tools do not behave properly and this part fails
-					# it should not be allowed to scan ahead of time
-					vv = n.variant(env)
-					tree.m_deps_tstamp[vv][n] = tree.m_tstamp_variants[vv][n]
-				except KeyError:
-					pass
 
 	def scan(self, node, env, path_lst, defines=None):
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
@@ -63,15 +30,46 @@ class c_scanner(Scan.scanner):
 			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
 		return (gruik.m_nodes, gruik.m_names)
 
+	# re-scan a node, update the tree
+	def do_scan(self, node, env, hashparams):
+		debug("do_scan(self, node, env, hashparams)", 'ccroot')
+
+		variant = node.variant(env)
+
+		if not node:
+			error("BUG rescanning a null node")
+			return
+
+		(nodes, names) = self.scan(node, env, **hashparams)
+		if Params.g_verbose:
+			if Params.g_zones:
+				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
+
+		tree = Params.g_build
+		tree.m_depends_on[variant][node] = nodes
+		tree.m_raw_deps[variant][node] = names
+
+		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
+
+		# FIXME
+		for n in nodes:
+			try:
+				# FIXME some tools do not behave properly and this part fails
+				# it should not be allowed to scan ahead of time
+				vv = n.variant(env)
+				tree.m_deps_tstamp[vv][n] = tree.m_tstamp_variants[vv][n]
+			except KeyError:
+				pass
+
 	def get_signature_queue(self, task):
 		tree = Params.g_build
 
 		# assumption: the source and object files are all in the same variant
-		variant = task.m_inputs[0].variant(env)
+		variant = task.m_inputs[0].variant(task.m_env)
 
 		rescan = 0
 		seen = []
-		queue = task.m_inputs[0]
+		queue = [task.m_inputs[0]]
 		m = md5.new()
 
 		# add the include paths into the hash
@@ -85,6 +83,8 @@ class c_scanner(Scan.scanner):
 		while len(queue) > 0:
 			node = queue[0]
 			queue = queue[1:]
+
+			if node in seen: continue
 			seen.append(node)
 
 			# TODO: look at the case of stale nodes and dependencies types
@@ -105,19 +105,20 @@ class c_scanner(Scan.scanner):
 		# we can compute and return the signature if
 		#   * the source files have not changed (rescan is 0)
 		#   * the computed signature has not changed
-		sig = get_signature_queue()
-		# TODO implement a global scanner caching system for tasks
-		if sig == self.scanner_cache(task):
+		sig = self.get_signature_queue(task)
+
+		# get the global scanner cache - the previous signature
+		if sig == self.get_scanner_cache(task):
 			return sig
 
 		# a source or a header is dirty, rescan the source files
 		for node in task.m_inputs:
 			self.do_scan(node, task.m_env, task.m_scanner_params)
 
-		sig = get_signature_queue()
+		sig = self.get_signature_queue(task)
 
-		# TODO remember the previous signature
-		self.store_scan(task, sig)
+		# store the new scanner signature
+		self.set_scanner_cache(task, sig)
 
 		# DEBUG
 		#print "rescan for ", task.m_inputs[0], " is ", rescan,  " and deps ", \

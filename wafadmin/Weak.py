@@ -5,8 +5,11 @@
 "Enable other signature/preprocessing/timestamp schemes - all tweaks go here"
 
 import Params
-
 from Params import hash_sig_weak
+
+cregexp1 = re.compile(r'^[ \t]*#[ \t]*(?:include)[ \t]*(?:/\*.*?\*/)?[ \t]*(<|")([^>"]+)(>|")', re.M)
+"regexp for computing dependencies (when not using the preprocessor)"
+
 
 g_timestamp = 0
 "if 1: do not look at the file contents for dependencies"

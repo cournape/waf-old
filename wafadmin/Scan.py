@@ -7,7 +7,6 @@
 import md5
 import Params
 from Params import debug, error
-from Params import hash_sig_weak
 
 g_all_scanners={}
 "all instances of scanners"
@@ -71,7 +70,13 @@ class scanner:
 		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
 
 	# ======================================= #
-	# protected method
+	# protected methods
+
+	def get_scanner_cache(self, task):
+		return None
+
+	def set_scanner_cache(self, task, sig):
+		pass
 
 	def get_signature_impl(self, task):
 		# assumption: changing an dependency does not mean we have to rescan
@@ -105,8 +110,10 @@ class scanner:
 		# add the signatures of the input nodes
 		for node in task.m_inputs: add_node_sig(node)
 
+		# TODO I do not think so - this one is only for the scheduler
 		# add the signatures of the task it depends on
-		for task in task.m_run_after: m.update(task.signature())
+		#for task in task.m_run_after: m.update(task.signature())
+
 		return m.digest()
 
 g_default_scanner = scanner()

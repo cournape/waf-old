@@ -249,8 +249,8 @@ def hash_function_with_globals(prevhash, func):
 		if type(value) in (types.BuiltinFunctionType, types.ModuleType, types.FunctionType, types.ClassType, types.TypeType):
 			continue
 		try:
-			prevhash = hash_sig_weak(prevhash, (name, value))
+			prevhash = hash(prevhash, (name, value))
 		except TypeError: # raised for unhashable elements
 			pass
-        return hash_sig_weak(prevhash, inspect.getsource(func))
+        return hash(prevhash, inspect.getsource(func))
 

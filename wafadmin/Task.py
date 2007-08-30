@@ -5,7 +5,7 @@
 "Atomic operations that create nodes or execute commands"
 
 import os, types, shutil, md5
-import Params, Scan, Action, Runner
+import Params, Scan, Action, Runner, Object
 from Params import debug, error, warning
 
 g_tasks_done    = []
@@ -150,9 +150,9 @@ class Task(TaskBase):
 
 	def get_run_after(self):
 		try: return self.m_run_after
-		except KeyError: return []
+		except AttributeError: return []
 
-	def add_file_dependency(self, filename)
+	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
 		node = Params.g_build.m_current.find_build(filename)
 		try: self.m_deps_nodes.append(node)
@@ -166,7 +166,6 @@ class Task(TaskBase):
 		except AttributeError: pass
 
 		m = md5.new()
-		m.update(self.m_dep_sig)
 
 		dep_sig = self.m_scanner.get_signature(self)
 		m.update(dep_sig)
@@ -193,7 +192,7 @@ class Task(TaskBase):
 			pass
 
 		# hash additional node dependencies
-		ret = self.digest()
+		ret = m.digest()
 
 		# TODO store all hashes somewhere in the build object, in debug mode at least
 		# bld.set_hashes(node, [ret, dep_sig, act_sig, var_sig, node_sig])
@@ -243,7 +242,7 @@ class Task(TaskBase):
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
 
 			# maybe we can just retrieve the object files from the cache
-			ret = self.can_retrieve_cache(sg)
+			ret = self.can_retrieve_cache(new_sig)
 			return not ret
 
 		if Params.g_zones:
@@ -251,7 +250,7 @@ class Task(TaskBase):
 
 		if new_sig != prev_sig:
 			# if the node has not changed, try to use the cache
-			ret = self.can_retrieve_cache(sg)
+			ret = self.can_retrieve_cache(new_sig)
 			return not ret
 
 		return 0
@@ -325,7 +324,8 @@ class Task(TaskBase):
 		return 1
 
 	def prepare(self):
-		self.m_action.prepare(self)
+		try: self.m_action.prepare(self)
+		except AttributeError: pass
 
 	def run(self):
 		return self.m_action.run(self)
