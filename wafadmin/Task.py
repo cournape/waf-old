@@ -4,7 +4,7 @@
 
 "Atomic operations that create nodes or execute commands"
 
-import os, types, shutil
+import os, types, shutil, md5
 import Params, Scan, Action, Runner
 from Params import debug, error, warning
 
@@ -104,32 +104,30 @@ class TaskBase:
 		self.m_display = v
 	def get_display(self):
 		return self.m_display
+
 class Task(TaskBase):
 	"Task is the more common task. It has input nodes and output nodes"
 	def __init__(self, action_name, env, priority=5, normal=1):
 		TaskBase.__init__(self, priority, normal)
 
-		# name of the action associated to this task
+		# name of the action associated to this task type
 		self.m_action = Action.g_actions[action_name]
+
 		# environment in use
 		self.m_env = env
 
+		# inputs and outputs are nodes
 		# use setters when possible
-		# input nodes
 		self.m_inputs  = []
-		# nodes to produce
 		self.m_outputs = []
-
-		self.m_sig=0
-		self.m_dep_sig=0
-
-		global g_default_param
 
 		# scanner function
 		self.m_scanner        = Scan.g_default_scanner
-		self.m_scanner_params = g_default_param
 
-		self.m_run_after = []
+		# TODO get rid of this:
+		# default scanner parameter
+		global g_default_param
+		self.m_scanner_params = g_default_param
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs = inp
@@ -139,10 +137,97 @@ class Task(TaskBase):
 		if type(out) is types.ListType: self.m_outputs = out
 		else: self.m_outputs = [out]
 
+	def set_run_after(self, task):
+		"set (scheduler) dependency on another task"
+		# TODO: handle list or object
+		assert isinstance(task, TaskBase)
+		try: self.m_run_after.append(task)
+		except KeyError: self.m_run_after = [task]
+
+	def get_run_after(self):
+		try: return self.m_run_after
+		except KeyError: return []
+
+
+	#------------ users are probably less interested in the following methods --------------#
+
 	def signature(self):
-		return Params.hash_sig(self.m_sig, self.m_dep_sig)
+		# compute the result one time, and suppose the scanner.get_signature will give the good result
+		try: return self._sign_all
+		except AttributeError: pass
+
+		m = md5.new()
+		m.update(self.m_dep_sig)
+
+		dep_sig = self.m_scanner.get_signature(self)
+		m.update(dep_sig)
+
+		# TODO hash additional node dependencies
+		# TODO hash additional environment variable dependencies
+		ret = self.digest()
+
+		# TODO store all hashes somewhere, in debug mode at least
+
+		self._sign_all = ret
+		return ret
+
+	def may_start(self):
+		"wait for other tasks to complete"
+		if (not self.m_inputs) or (not self.m_outputs):
+			if not (not self.m_inputs) and (not self.m_outputs):
+				error("potentially grave error, task is invalid : no inputs or outputs")
+				self.debug()
+
+		# the scanner has its word to say
+		try:
+			if not self.m_scanner.may_start(self):
+				return 1
+		except AttributeError:
+			pass
+
+		# this is a dependency using the scheduler, as opposed to hash-based ones
+		for t in self.get_run_after():
+			if not t.m_hasrun:
+				return 0
+		return 1
+
+	def must_run(self):
+		"see if the task must be run or not"
+		#return 0 # benchmarking
+
+		ret = 0
+
+		# for tasks that have no inputs or outputs and are run all the time
+		if not self.m_inputs and not self.m_outputs:
+			self.m_dep_sig = Params.sig_nil
+			return 1
+
+		new_sig = self.signature()
+		node = self.m_outputs[0]
+
+		try:
+			# might need to add a for loop if the first node variant does not do it
+			prev_sig = Params.g_build.m_tstamp_variants[node.variant(self.m_env)][node]
+		except KeyError:
+			# an exception here means the object files do not exist
+			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
+
+			# maybe we can just retrieve the object files from the cache
+			ret = self.can_retrieve_cache(sg)
+			return not ret
+
+		if Params.g_zones:
+			debug_why()
+
+		if new_sig != prev_sig:
+			# if the node has not changed, try to use the cache
+			ret = self.can_retrieve_cache(sg)
+			return not ret
+
+		return 0
 
 	def update_stat(self):
+		"this is called after a sucessful task run"
 		tree = Params.g_build
 		env  = self.m_env
 		sig = self.signature()
@@ -161,7 +246,12 @@ class Task(TaskBase):
 				error('a node was not produced for task %s %s' % (str(self.m_idx), node.abspath(env)))
 				raise
 
+			# important, store the signature for the next run
 			tree.m_tstamp_variants[variant][node] = sig
+
+			# We could re-create the signature of the task with the signature of the outputs
+			# in practice, this means hashing the output files
+			# this is unnecessary
 
 			if Params.g_usecache:
 				ssig = sig.encode('hex')
@@ -172,70 +262,9 @@ class Task(TaskBase):
 
 		self.m_executed=1
 
-	# wait for other tasks to complete
-	def may_start(self):
-		if (not self.m_inputs) or (not self.m_outputs):
-			if not (not self.m_inputs) and (not self.m_outputs):
-				error("potentially grave error, task is invalid : no inputs or outputs")
-				self.debug()
-
-		if not self.m_scanner.may_start(self): return 1
-
-		for t in self.m_run_after:
-			if not t.m_hasrun: return 0
-		return 1
-
-	# see if this task must or must not be run
-	def must_run(self):
-		#return 0
-		ret = 0
-		if not self.m_inputs and not self.m_outputs:
-			self.m_dep_sig = Params.sig_nil
-			return 1
-
-		self.m_dep_sig = self.m_scanner.get_signature(self)
-
-		sg = self.signature()
-
-		node = self.m_outputs[0]
-
-		# TODO should make a for loop as the first node is not enough
-		variant = node.variant(self.m_env)
-
-		if not node in Params.g_build.m_tstamp_variants[variant]:
-			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
-			ret = self.can_retrieve_cache(sg)
-			return not ret
-
-		outs = Params.g_build.m_tstamp_variants[variant][node]
-
-		if Params.g_zones:
-			i1 = Params.vsig(self.m_sig)
-			i2 = Params.vsig(self.m_dep_sig)
-			a1 = Params.vsig(sg)
-			a2 = Params.vsig(outs)
-			debug("must run %d: task #%d signature:%s - node signature:%s (sig:%s depsig:%s)" \
-				% (int(sg != outs), self.m_idx, a1, a2, i1, i2), 'task')
-
-		if sg != outs:
-			ret = self.can_retrieve_cache(sg)
-			return not ret
-		return 0
-
-	def prepare(self):
-		self.m_action.prepare(self)
-
-	def get_display(self):
-		if self.m_display: return self.m_display
-		self.m_display=self.m_action.get_str(self)
-		return self.m_display
-
-	# be careful when overriding
 	def can_retrieve_cache(self, sig):
-		"""Retrieve build nodes from the cache
-		It modifies the time stamp of files that are copied
-		so it is possible to clean the least used files from
-		the cache directory"""
+		"""Retrieve build nodes from the cache - the file time stamps are updated
+		for cleaning the least used files from the cache dir - be careful when overriding"""
 		if not Params.g_usecache: return None
 		if Params.g_options.nocache: return None
 
@@ -265,6 +294,20 @@ class Task(TaskBase):
 			return None
 		return 1
 
+	def prepare(self):
+		self.m_action.prepare(self)
+
+	def run(self):
+		return self.m_action.run(self)
+
+	def get_display(self):
+		if self.m_display: return self.m_display
+		self.m_display=self.m_action.get_str(self)
+		return self.m_display
+
+	def color(self):
+		return self.m_action.m_color
+
 	def debug_info(self):
 		ret = []
 		ret.append('-- task details begin --')
@@ -280,16 +323,18 @@ class Task(TaskBase):
 		if level>0: fun=Params.error
 		fun(self.debug_info())
 
-	def run(self):
-		return self.m_action.run(self)
+	def debug_why():
+		"explains why a task is run"
+		# TODO: print all signatures, and the global result
+		# TODO: store all signatures, for explaining why a particular task is run
 
-	def color(self):
-		return self.m_action.m_color
-
-	# IMPORTANT: set dependencies on other tasks
-	def set_run_after(self, task):
-		assert isinstance(task, TaskBase)
-		self.m_run_after.append(task)
+		#i1 = Params.vsig(self.m_sig)
+		#i2 = Params.vsig(self.m_dep_sig)
+		#a1 = Params.vsig(sg)
+		#a2 = Params.vsig(prev_sig)
+		debug("must run:", 'task')
+		#task #%d signature:%s - node signature:%s (sig:%s depsig:%s)" \
+		#	% (int(sg != prev_sig), self.m_idx, a1, a2, i1, i2), 'task')
 
 class TaskCmd(TaskBase):
 	"TaskCmd executes commands. Instances always execute their function."

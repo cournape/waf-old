@@ -46,8 +46,9 @@ class scanner:
 		return ([], [])
 
 	# last minute check: may this task run?
-	def may_start(self, task):
-		return 1
+	# this is a hack anyway, and needed only in a rare cases to add last minute tasks (moc)
+	#def may_start(self, task):
+	#	return 1
 
 	# re-scan a node, update the tree
 	def do_scan(self, node, env, hashparams):
