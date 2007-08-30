@@ -126,18 +126,6 @@ class c_scanner(Scan.scanner):
 
 		return sig
 
-	# what we need to remember here ..
-	#   the scanner name or type
-	#   the source files
-	#   the hashes of the source files
-	#   the signature obtained
-
-	def store_scan(self, task, signature):
-		pass
-
-	def scanner_cache(self, task):
-		return Params.sig_nil
-
 g_c_scanner = c_scanner()
 "scanner for c programs"
 

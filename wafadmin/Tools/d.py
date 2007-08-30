@@ -18,11 +18,6 @@ class dobj(Object.genobj):
 		self.uselib = ''
 		self.uselib_local = ''
 
-
-	def detect(conf):
-		return 1
-
-
 	def apply(self):
 
 		#initialization
@@ -30,17 +25,15 @@ class dobj(Object.genobj):
 			type = 'program'
 		else:
 			type = self.m_type
-		
+
 		env = self.env
 		dpath_st         = env['DPATH_ST']
 		lib_st           = env['DLIB_ST']
 		libpath_st       = env['DLIBPATH_ST']
 
-
 		importpaths = []
 		libpaths = []
 		libs = []
-
 
 		linktask = self.create_task('d_link', self.env, 101)
 
@@ -148,7 +141,6 @@ class dobj(Object.genobj):
 
 		self.m_linktask = linktask
 
-
 	def get_target_name(self):
 		v = self.env
 
@@ -159,10 +151,8 @@ class dobj(Object.genobj):
 		if not suffix: suffix=''
 		return ''.join([prefix, self.target, suffix])
 
-
 	def install(self):
 		pass
-
 
 def setup(env):
 	d_str = '${D_COMPILER} ${DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
@@ -172,7 +162,6 @@ def setup(env):
 	Action.simple_action('d_link', link_str, color='YELLOW')
 
 	Object.register('d', dobj)
-
 
 def detect(conf):
 	return 1
