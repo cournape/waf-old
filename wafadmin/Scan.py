@@ -72,6 +72,12 @@ class scanner:
 	# ======================================= #
 	# protected methods
 
+	# what we need to remember here ..
+	#   the scanner name or type
+	#   the source files
+	#   the hashes of the source files
+	#   the signature obtained
+
 	def get_scanner_cache(self, task):
 		return None
 

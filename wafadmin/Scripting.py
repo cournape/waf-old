@@ -281,7 +281,7 @@ def Dist(appname, version):
 		for d in dirs:
 			if d in ['CVS', '.svn', '{arch}']:
 				shutil.rmtree(os.path.join(root,d))
-			elif d.startswith('.'):
+			elif d.startswith('.') or d.startswith(',,') or d.startswith('++'):
 				shutil.rmtree(os.path.join(root,d))
 			else:
 				clean_dirs += d
@@ -290,6 +290,8 @@ def Dist(appname, version):
 		to_remove = False
 		for f in list(filenames):
 			if f.startswith('.'): to_remove = True
+			elif f.startswith('++'): to_remove = True
+			elif f.endswith('.rej'): to_remove = True
 			elif f.endswith('~'): to_remove = True
 			elif f.endswith('.pyc'): to_remove = True
 			elif f.endswith('.pyo'): to_remove = True
