@@ -29,6 +29,7 @@ class scanner:
 	# computes the signature for a task
 	# returns a string
 	def get_signature(self, task):
+		"almost never reimplemented"
 		ret = self.get_signature_impl(task)
 		debug("scanner:get_signature(self, task) %s" % str(Params.vsig(ret)), 'scan')
 		return ret
@@ -43,6 +44,7 @@ class scanner:
 	# * a list of names for files not found in path_lst
 	# the input parameters may have more parameters that the ones used below
 	def scan(self, node, env, path_lst):
+		"usually reimplemented"
 		return ([], [])
 
 	# last minute check: may this task run?
@@ -52,7 +54,7 @@ class scanner:
 
 	# re-scan a node, update the tree
 	def do_scan(self, node, env, hashparams):
-
+		"not reimplemented very often"
 		debug("scanner:do_scan(self, node, env, hashparams)", 'scan')
 
 		variant = node.variant(env)

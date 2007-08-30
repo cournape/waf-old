@@ -15,8 +15,6 @@ from Params import debug, error, warning
 strict_quotes = 0
 "Keep <> for system includes (do not search for those includes)"
 
-parse_cache = {}
-
 alpha = string.letters + '_' + string.digits
 
 accepted  = 'a'
@@ -536,6 +534,13 @@ class cparse:
 		self.m_nodes = []
 		self.m_names = []
 
+		# dynamic cache
+		try:
+			self.parse_cache = Params.g_build.parse_cache
+		except AttributeError:
+			Params.g_build.parse_cache = {}
+			self.parse_cache = Params.g_build.parse_cache
+
 	def tryfind(self, filename):
 		if self.m_nodepaths:
 			found = 0
@@ -566,16 +571,16 @@ class cparse:
 				#error("could not find %s " % filename)
 
 	def addlines(self, filepath):
-		global parse_cache
-		if filepath in parse_cache.keys():
-			self.lines = parse_cache[filepath] + self.lines
+		pc = self.parse_cache
+		if filepath in pc.keys():
+			self.lines = pc[filepath] + self.lines
 			return
 
 		try:
 			stuff = filter()
 			stuff.start(filepath)
 			if stuff.buf: stuff.lines.append( "".join(stuff.buf) )
-			parse_cache[filepath] = stuff.lines # memorize the lines filtered
+			pc[filepath] = stuff.lines # memorize the lines filtered
 			self.lines = stuff.lines + self.lines
 		except IOError:
 			raise
