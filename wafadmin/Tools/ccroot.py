@@ -91,6 +91,7 @@ class c_scanner(Scan.scanner):
 			try: queue += tree.m_depends_on[variant][node]
 			except: pass
 
+			variant = node.variant(task.m_env)
 			m.update(tree.m_tstamp_variants[variant][node])
 
 		return m.digest()
