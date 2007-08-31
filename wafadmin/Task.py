@@ -248,12 +248,12 @@ class Task(TaskBase):
 			ret = self.can_retrieve_cache(self.signature())
 			return not ret
 
+		new_sig = self.signature()
+
 		# debug if asked to
 		if Params.g_zones:
 			self.debug_why(tree.m_sig_cache[key])
 
-		# make certain we compute the signature after looking at the old one, for 'debug_why' to work
-		new_sig = self.signature()
 
 		if new_sig != prev_sig:
 			# if the node has not changed, try to use the cache
@@ -370,16 +370,19 @@ class Task(TaskBase):
 
 	def debug_why(self, old_sigs):
 		"explains why a task is run"
-		# TODO: print all signatures, and the global result
-		# TODO: store all signatures, for explaining why a particular task is run
 
-		#i1 = Params.vsig(self.m_sig)
-		#i2 = Params.vsig(self.m_dep_sig)
-		#a1 = Params.vsig(sg)
-		#a2 = Params.vsig(prev_sig)
-		debug("must run:", 'task')
-		#task #%d signature:%s - node signature:%s (sig:%s depsig:%s)" \
-		#	% (int(sg != prev_sig), self.m_idx, a1, a2, i1, i2), 'task')
+		new_sigs = self.cache_sig
+		v = Params.vsig
+
+		debug("Task %s must run: %s" % (self.m_idx, old_sigs[0] != new_sigs[0]), 'task')
+		if (new_sigs[1] != old_sigs[1]):
+			debug(' -> A source file has changed %s %s' % (v(old_sigs[1]), v(new_sigs[1])), 'task')
+		if (new_sigs[2] != old_sigs[2]):
+			debug(' -> An environment variable has changed %s %s' % (v(old_sigs[2]), v(new_sigs[2])), 'task')
+		if (new_sigs[3] != old_sigs[3]):
+			debug(' -> A manual dependency has changed %s %s' % (v(old_sigs[3]), v(new_sigs[3])), 'task')
+		if (new_sigs[4] != old_sigs[4]):
+			debug(' -> A user-given environment variable has changed %s %s' % (v(old_sigs[4]), v(new_sigs[4])), 'task')
 
 class TaskCmd(TaskBase):
 	"TaskCmd executes commands. Instances always execute their function."
