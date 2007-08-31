@@ -148,6 +148,7 @@ class CommandOutputTask(Task.Task):
 		self.stdout = stdout
 
 		self.dep_nodes = [command_node]
+		self.dep_vars = [] # additional environment variables to look
 
 class CommandOutput(Object.genobj):
 
@@ -180,11 +181,13 @@ class CommandOutput(Object.genobj):
 		## task priority
 		self.prio = 100
 
-		## dependencies to other objects
+		## dependencies to other objects -> this is probably not what you want (ita)
 		## values must be 'genobj' instances (not names!)
 		self.dependencies = []
 
+		self.dep_vars = []
 
+	# FIXME can you make it more complicated than that ???
 	# FIXME make all methods private please, we will never need to override anything ?????????? (ita)
 
 	## 'priority' backward compatibility
@@ -297,6 +300,7 @@ class CommandOutput(Object.genobj):
 
 		task.set_inputs(inputs)
 		task.set_outputs(outputs)
+		task.dep_vars = self.to_list(self.dep_vars)
 
 		for dep in self.dependencies:
 			assert dep is not self
