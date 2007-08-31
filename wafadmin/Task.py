@@ -184,11 +184,12 @@ class Task(TaskBase):
 		except AttributeError:
 			pass
 
-		node_sig = None # the node sig will be slightly bigger than other ones, but i am too lazy to make a md5
+		node_sig = Params.sig_nil
 		try:
 			for x in self.dep_nodes:
+				variant = x.variant(self.m_env)
 				v = tree.m_tstamp_variants[variant][x]
-				node_sig += v
+				node_sig = hash( (node_sig, v) )
 				m.update(v)
 		except AttributeError:
 			pass

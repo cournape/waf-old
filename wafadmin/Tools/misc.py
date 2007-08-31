@@ -143,58 +143,11 @@ class CommandOutputTask(Task.Task):
 	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout):
 		Task.Task.__init__(self, 'command-output', env, priority, normal=1)
 		self.command = command
-		self.command_node = command_node
 		self.command_args = command_args
 		self.stdin = stdin
 		self.stdout = stdout
 
-	def must_run(self):
-		#return 0
-		ret = 0
-		if not self.m_inputs and not self.m_outputs:
-			self.m_dep_sig = Params.sig_nil
-			return 1
-
-		self.m_dep_sig = self.m_scanner.get_signature(self)
-
-		## --- everything above this line should be the same as in the parent class
-		## in addition, check to see if the command script has been modified
-		if self.command_node:
-			variant = self.command_node.variant(self.m_env)
-			cmd_sig = Params.g_build.m_tstamp_variants[variant][self.command_node]
-			m = md5.new()
-			m.update(self.m_dep_sig)
-			m.update(cmd_sig)
-			self.m_dep_sig = m.digest()
-		## --- everything below this line should be the same as in the parent class
-
-		sg = self.signature()
-
-		node = self.m_outputs[0]
-
-		# TODO should make a for loop as the first node is not enough
-		variant = node.variant(self.m_env)
-
-		if not node in Params.g_build.m_tstamp_variants[variant]:
-			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
-			ret = self.can_retrieve_cache(sg)
-			return not ret
-
-		outs = Params.g_build.m_tstamp_variants[variant][node]
-
-		if Params.g_zones:
-			i1 = Params.vsig(self.m_sig)
-			i2 = Params.vsig(self.m_dep_sig)
-			a1 = Params.vsig(sg)
-			a2 = Params.vsig(outs)
-			debug("must run %d: task #%d signature:%s - node signature:%s (sig:%s depsig:%s)" \
-				% (int(sg != outs), self.m_idx, a1, a2, i1, i2), 'task')
-
-		if sg != outs:
-			ret = self.can_retrieve_cache(sg)
-			return not ret
-		return 0
-
+		self.dep_nodes = [command_node]
 
 class CommandOutput(Object.genobj):
 
@@ -211,7 +164,7 @@ class CommandOutput(Object.genobj):
 
 		## file to use as stdout
 		self.stdout = None
-		
+
 		## the command to execute
 		self.command = None
 
@@ -232,19 +185,18 @@ class CommandOutput(Object.genobj):
 		self.dependencies = []
 
 
+	# FIXME make all methods private please, we will never need to override anything ?????????? (ita)
+
 	## 'priority' backward compatibility
 	def __compat_get_prio(self):
-		warnings.warn("command-output 'priority' is deprecated; use 'prio'",
-					  DeprecationWarning, stacklevel=2)
+		warnings.warn("command-output 'priority' is deprecated; use 'prio'", DeprecationWarning, stacklevel=2)
 		return self.prio
 	def __compat_set_prio(self, prio):
-		warnings.warn("command-output 'priority' is deprecated; use 'prio'",
-					  DeprecationWarning, stacklevel=2)
+		warnings.warn("command-output 'priority' is deprecated; use 'prio'", DeprecationWarning, stacklevel=2)
 		self.prio = prio
-	priority = property(__compat_get_prio,
-						__compat_set_prio, None,
-						"deprecated aliast to the 'prio' atttribute")
 
+	# FIXME what is doing this in the middle of the class ?????? (ita)
+	priority = property(__compat_get_prio, __compat_set_prio, None, "deprecated alias to the 'prio' atttribute")
 
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
@@ -298,7 +250,7 @@ class CommandOutput(Object.genobj):
 		args = []
 		inputs = []
 		outputs = []
-		
+
 		for arg in self.argv:
 			if isinstance(arg, str):
 				args.append(arg)
