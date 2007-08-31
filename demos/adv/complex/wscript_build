@@ -14,6 +14,8 @@
 # By contrast, only functions can be defined in a wscript
 #
 
+print "complex"
+
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
 obj = bld.create_obj('cpp', 'program')
@@ -49,13 +51,16 @@ out1.stdout = 'test1'
 out1.stdin = 'wscript_build'
 out1.command = 'some-script'
 out1.argv = ['--output-md5', out1.output_file('test1.md5')]
+out1.vars='COINCOIN'
+out1.env['COINCOIN']='Some string to trigger rebuilds'
 #obj.command_is_external = False
 
 out2 = bld.create_obj('command-output')
 out2.stdout = 'test2'
 out2.command = 'some-script'
 out2.argv = ['--input', out2.input_file('test1')]
-out2.dependencies = [out1]
+out2.vars='MIAOU'
+out2.env['MIAOU']='Another string to trigger rebuilds'
 
 out3 = bld.create_obj('command-output')
 out3.stdin = 'test2'
