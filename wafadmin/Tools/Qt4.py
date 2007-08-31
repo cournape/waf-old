@@ -395,7 +395,7 @@ def detect_qt4(conf):
 			#conf.check_pkg(i, pkgpath=qtlibs)
 			pkgconf = conf.create_pkgconfig_configurator()
 			pkgconf.name = i
-			pkgconf.path = qtlibs + ':/usr/lib/qt4/lib:/opt/qt4/lib'
+			pkgconf.path = '%s:%s/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
 			pkgconf.run()
 
 
