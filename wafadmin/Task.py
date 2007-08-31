@@ -376,7 +376,7 @@ class Task(TaskBase):
 
 		debug("Task %s must run: %s" % (self.m_idx, old_sigs[0] != new_sigs[0]), 'task')
 		if (new_sigs[1] != old_sigs[1]):
-			debug(' -> A source file has changed %s %s' % (v(old_sigs[1]), v(new_sigs[1])), 'task')
+			debug(' -> A source file (or a dependency) has changed %s %s' % (v(old_sigs[1]), v(new_sigs[1])), 'task')
 		if (new_sigs[2] != old_sigs[2]):
 			debug(' -> An environment variable has changed %s %s' % (v(old_sigs[2]), v(new_sigs[2])), 'task')
 		if (new_sigs[3] != old_sigs[3]):
