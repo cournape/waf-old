@@ -99,7 +99,6 @@ class c_scanner(Scan.scanner):
 			key = hash( (variant, node, time, self.m_scanner.__class__.__name__) )
 			prev_sig = tree.get_sig_cache(key)[1]
 		except KeyError:
-			print "could not find the old sig"
 			prev_sig = Params.sig_nil
 
 		# we can compute and return the signature if
