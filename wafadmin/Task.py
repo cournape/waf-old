@@ -169,8 +169,17 @@ class Task(TaskBase):
 
 		m = md5.new()
 
-		dep_sig = self.m_scanner.get_signature(self)
-		m.update(dep_sig)
+		dep_sig = Params.sig_nil
+		try:
+			dep_sig = self.m_scanner.get_signature(self)
+			m.update(dep_sig)
+		except:
+			# there is no scanner for the task
+			for x in self.m_inputs:
+				variant = x.variant(self.m_env)
+				v = tree.m_tstamp_variants[variant][x]
+				dep_sig = hash( (dep_sig, v) )
+				m.update(v)
 
 		act_sig = None
 		try: act_sig = self.m_action.signature(self)
