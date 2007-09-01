@@ -18,8 +18,7 @@ def detect(conf):
 		cc = os.environ['CC']
 	if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
-	if not cc:
-		return 0;
+	if not cc: return 0
 
 	conf.check_tool('checks')
 	# load the cc builders

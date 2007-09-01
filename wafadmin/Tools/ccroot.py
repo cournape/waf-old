@@ -50,20 +50,6 @@ class c_scanner(Scan.scanner):
 		tree.m_depends_on[variant][node] = nodes
 		tree.m_raw_deps[variant][node] = names
 
-		# TODO old stuff
-		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
-
-		# FIXME
-		for n in nodes:
-			try:
-				# TODO i cannot remember (ita)
-				# FIXME some tools do not behave properly and this part fails
-				# it should not be allowed to scan ahead of time
-				vv = n.variant(env)
-				tree.m_deps_tstamp[vv][n] = tree.m_tstamp_variants[vv][n]
-			except KeyError:
-				pass
-
 	def get_signature_queue(self, task):
 		"the basic scheme for computing signatures from .cpp and inferred .h files"
 		tree = Params.g_build
@@ -92,10 +78,10 @@ class c_scanner(Scan.scanner):
 			seen.append(node)
 
 			# TODO: look at the case of stale nodes and dependencies types
+			variant = node.variant(task.m_env)
 			try: queue += tree.m_depends_on[variant][node]
 			except: pass
 
-			variant = node.variant(task.m_env)
 			m.update(tree.m_tstamp_variants[variant][node])
 
 		return m.digest()
@@ -105,16 +91,15 @@ class c_scanner(Scan.scanner):
 		tree = Params.g_build
 		env = task.m_env
 
-		# assumption: the source and object files are all in the same variant
-		variant = task.m_inputs[0].variant(env)
-
 		# assumption: we assume that we can still get the old signature from the signature cache
 		try:
 			node = task.m_outputs[0]
+			variant = node.variant(self.m_env)
 			time = tree.m_tstamp_variants[variant][node]
-			key = hash( (node.variant(self.m_env), node, time, self.m_scanner.__class__.__name__) )
+			key = hash( (variant, node, time, self.m_scanner.__class__.__name__) )
 			prev_sig = tree.get_sig_cache(key)[1]
 		except KeyError:
+			print "could not find the old sig"
 			prev_sig = Params.sig_nil
 
 		# we can compute and return the signature if
