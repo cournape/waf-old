@@ -335,7 +335,7 @@ class ccroot(Object.genobj):
 		# link in a lower priority (101) so it runs alone (default is 10)
 		global g_prio_link
 		if self.m_type=='staticlib':
-			linktask = self.create_task(pre+'_link_static', self.env, g_prio_link)
+			linktask = self.create_task('ar_link_static', self.env, g_prio_link)
 		else:
 			linktask = self.create_task(pre+'_link', self.env, g_prio_link)
 		outputs = []

@@ -15,6 +15,8 @@ class dobj(Object.genobj):
 
 		self.dflags = ''
 		self.importpaths = ''
+		self.libs = ''
+		self.libpaths = ''
 		self.uselib = ''
 		self.uselib_local = ''
 
@@ -35,7 +37,10 @@ class dobj(Object.genobj):
 		libpaths = []
 		libs = []
 
-		linktask = self.create_task('d_link', self.env, 101)
+		if type == 'staticlib':
+			linktask = self.create_task('ar_link_static', self.env, 101)
+		else:
+			linktask = self.create_task('d_link', self.env, 101)
 
 		# go through the local uselibs
 		for local_uselib in self.to_list(self.uselib_local):
@@ -87,6 +92,7 @@ class dobj(Object.genobj):
 		for i in self.to_list(self.uselib):
 			if self.env['LIBPATH_' + i]:
 				libpaths += self.to_list(self.env['LIBPATH_' + i])
+		libpaths = self.to_list(self.libpaths) + libpaths
 
 		# now process the library paths
 		for path in libpaths:
@@ -97,6 +103,7 @@ class dobj(Object.genobj):
 		for i in self.to_list(self.uselib):
 			if self.env['LIB_' + i]:
 				libs += self.to_list(self.env['LIB_' + i])
+		libs = libs + self.to_list(self.libs)
 
 		# now process the libraries
 		for lib in libs:
@@ -120,6 +127,8 @@ class dobj(Object.genobj):
 		for filename in self.to_list(self.source):
 			node = find_source_lst(Utils.split_path(filename))
 			base, ext = os.path.splitext(filename)
+			#mod_names = get_module_names_from_file(find_source_lst(Utils.split_path(filename)).srcpath(self.env))
+			#print mod_names
 
 			if not ext in self.s_default_ext:
 				fatal("unknown file " + filename)
@@ -166,3 +175,44 @@ def setup(env):
 def detect(conf):
 	return 1
 
+
+def get_module_names_from_file(fname):
+	import re
+	f = open(fname)
+	impnames = []
+	try:
+		code = f.read()
+
+
+		mod_name = re.search("module\s+([^;]+)", code)
+		if mod_name:
+			mod_name = mod_name.group(1)
+		else:
+			mod_name = ''
+		
+
+
+		results = re.findall("import\s+[^;]+", code)
+
+		for result in results:
+			impname = result
+			r = re.match("(import\s+)([^:]+)\s+:\s+(.*)", impname)
+			if r:
+				impname = r.group(2)
+
+			r = re.match("([^=]+)\s+=\s+(.+)", impname)
+			if r:
+				impname = r.group(2)
+
+			r = re.match("(import\s+)(.*)", impname)
+			if r:
+				impname = r.group(2)
+
+			impnames = impnames + [impname]
+
+	except:
+		pass
+
+	f.close()
+
+	return [mod_name, impnames]

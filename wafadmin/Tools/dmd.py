@@ -18,12 +18,16 @@ def detect(conf):
 
 	conf.check_tool('d')
 
+	if not conf.check_tool('ar'):
+		Utils.error('ar is needed for static libraries - not found')
+		return 0
+
 	v = conf.env
 
 	#compiler
 	v['D_COMPILER']           = d_compiler
 
-	v['DFLAGS']               = []
+	v['DFLAGS']               = ['-version=Posix']
 	v['_DIMPORTFLAGS']        = []
 
 	v['D_SRC_F']              = ''
@@ -45,7 +49,7 @@ def detect(conf):
 	v['DLINKFLAGS_OPTIMIZED']  = ['-O']
 	v['DLINKFLAGS_RELEASE']    = ['-O']
 	v['DLINKFLAGS_DEBUG']      = ['-g']
-	v['DLINKFLAGS_ULTRADEBUG'] = ['-g']
+	v['DLINKFLAGS_ULTRADEBUG'] = ['-g -debug']
 
 
 	if sys.platform == "win32":

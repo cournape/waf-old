@@ -11,9 +11,8 @@ def setup(env):
 	static_link_str = '${STLIBLINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
 	# on windows libraries must be defined after the object files
-	Action.simple_action('cc_link_static', static_link_str, color='YELLOW')
-	Action.simple_action('cpp_link_static', static_link_str, color='YELLOW')
-
+	Action.simple_action('ar_link_static', static_link_str, color='YELLOW')
+	
 def detect(conf):
 
 	comp = conf.find_program('CL', var='CXX')

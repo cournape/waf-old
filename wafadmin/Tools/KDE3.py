@@ -226,6 +226,7 @@ class kdeobj(cpp.cppobj):
 		self.m_linktask = None
 		self.m_latask   = None
 		self.skel_or_stub = {}
+		self.defines_lst = {}
 		self.want_libtool = -1 # fake libtool here
 
 		# valid types are ['program', 'shlib', 'staticlib', 'module', 'convenience', 'other']
@@ -328,7 +329,7 @@ class kdeobj(cpp.cppobj):
 			cpptask.m_run_after = moctasks
 
 		# and after the cpp objects, the remaining is the link step - in a lower priority so it runs alone
-		if self.m_type=='staticlib': linktask = self.create_task('cpp_link_static', self.env, ccroot.g_prio_link)
+		if self.m_type=='staticlib': linktask = self.create_task('ar_link_static', self.env, ccroot.g_prio_link)
 		else:                        linktask = self.create_task('cpp_link', self.env, ccroot.g_prio_link)
 		cppoutputs = []
 		for t in self.p_compiletasks: cppoutputs.append(t.m_outputs[0])
