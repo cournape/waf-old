@@ -173,8 +173,7 @@ class Task(TaskBase):
 		try:
 			dep_sig = self.m_scanner.get_signature(self)
 			m.update(dep_sig)
-		except:
-			# there is no scanner for the task
+		except AttributeError: # there is no scanner for the task
 			for x in self.m_inputs:
 				variant = x.variant(self.m_env)
 				v = tree.m_tstamp_variants[variant][x]
