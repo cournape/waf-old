@@ -21,6 +21,7 @@ class c_scanner(Scan.scanner):
 		Scan.scanner.__init__(self)
 
 	def scan(self, node, env, path_lst, defines=None):
+		"look for .h the .cpp need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
 		import preproc
 		gruik = preproc.cparse(nodepaths = path_lst, defines = defines)
@@ -30,8 +31,8 @@ class c_scanner(Scan.scanner):
 			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
 		return (gruik.m_nodes, gruik.m_names)
 
-	# re-scan a node, update the tree
 	def do_scan(self, node, env, hashparams):
+		"call scan which will call the preprocessor"
 		debug("do_scan(self, node, env, hashparams)", 'ccroot')
 
 		variant = node.variant(env)
@@ -49,11 +50,13 @@ class c_scanner(Scan.scanner):
 		tree.m_depends_on[variant][node] = nodes
 		tree.m_raw_deps[variant][node] = names
 
+		# TODO old stuff
 		tree.m_deps_tstamp[variant][node] = tree.m_tstamp_variants[variant][node]
 
 		# FIXME
 		for n in nodes:
 			try:
+				# TODO i cannot remember (ita)
 				# FIXME some tools do not behave properly and this part fails
 				# it should not be allowed to scan ahead of time
 				vv = n.variant(env)
@@ -62,6 +65,7 @@ class c_scanner(Scan.scanner):
 				pass
 
 	def get_signature_queue(self, task):
+		"the basic scheme for computing signatures from .cpp and inferred .h files"
 		tree = Params.g_build
 
 		# assumption: the source and object files are all in the same variant
@@ -97,6 +101,7 @@ class c_scanner(Scan.scanner):
 		return m.digest()
 
 	def get_signature(self, task):
+		"the signature obtained may not be the one if the files have changed, we do it in two steps"
 		tree = Params.g_build
 		env = task.m_env
 
