@@ -240,6 +240,20 @@ int main()
 	conf.add_define('DEBUG', 1)
 	conf.write_config_header('config.h', env=env_variant2)
 
+	# pkg-config variable substitution, might be nice when crosscompiling
+	conf.env['PKG_CONFIG_DEFINES'] = {'prefix':'/tmp'}
+	conf.check_pkg('mad', destvar='somedest')
+	print conf.env['CPPPATH_somedest']
+
+	# Per check_pkg defines
+	conf.check_pkg('alsa', destvar='somedest',
+	               pkgdefs={'prefix':'/temp',
+	                        'exec_prefix':'/temp'})
+	print conf.env['CPPPATH_somedest']
+	print conf.env['LIBPATH_somedest']
+
+
+
 def build(bld):
 	# process subfolders from here
 	bld.add_subdirs('src complex variant tests')
