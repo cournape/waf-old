@@ -754,6 +754,11 @@ class cparse:
 if __name__ == "__main__":
 	Params.g_verbose = 2
 	Params.g_zones = ['preproc']
+	class dum:
+		def __init__(self):
+			self.parse_cache = {}
+	Params.g_build = dum()
+
 	try: arg = sys.argv[1]
 	except: arg = "file.c"
 
