@@ -98,7 +98,7 @@ class MTask(Task.Task):
 		return Task.Task.may_start(self)
 
 def translation_update(task):
-	outs=map(lambda a: a.abspath(task.env), task.m_outputs)
+	outs=[a.abspath(task.env) for a in task.m_outputs]
 	outs=" ".join(outs)
 	lupdate = task.env['QT_LUPDATE']
 
@@ -179,7 +179,7 @@ class qt4obj(cpp.cppobj):
 
 			if self.update and Params.g_options.trans_qt4:
 				u = Task.TaskCmd(translation_update, self.env, 2)
-				u.m_inputs = map(lambda a: a.m_inputs[0], self.p_compiletasks)
+				u.m_inputs = [a.m_inputs[0] for a in self.p_compiletasks]
 				u.m_outputs=trans
 
 			if self.langname:
@@ -393,7 +393,7 @@ def detect_qt4(conf):
 		framework_ok = True
 
 	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
-		vars_debug = map(lambda a: a+'_debug', vars)
+		vars_debug = [a+'_debug' for a in vars]
 
 		for i in vars_debug+vars:
 			#conf.check_pkg(i, pkgpath=qtlibs)

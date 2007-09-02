@@ -72,8 +72,8 @@ def progress_line(s, t, col1, task, col2):
 
 	elif Params.g_options.progress_bar == 2:
 		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
-		ins  = ','.join(map(lambda n: n.m_name, task.m_inputs))
-		outs = ','.join(map(lambda n: n.m_name, task.m_outputs))
+		ins  = ','.join([n.m_name for n in task.m_inputs])
+		outs = ','.join([n.m_name for n in task.m_outputs])
 		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|' % (t, s, ins, outs, eta)
 
 	fs = "[%%%dd/%%%dd] %%s%%s%%s" % (n, n)

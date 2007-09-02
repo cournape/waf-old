@@ -36,12 +36,12 @@ class Action:
 		"string to display to the user"
 		try:
 			if Params.g_verbose:
-				src_str = " ".join(map(lambda a:a.abspath(task.m_env), task.m_inputs))
-				tgt_str = " ".join(map(lambda a:a.abspath(task.m_env), task.m_outputs))
+				src_str = " ".join([a.abspath(task.m_env) for a in task.m_inputs])
+				tgt_str = " ".join([a.abspath(task.m_env) for a in task.m_outputs])
 				return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 			else:
-				src_str = " ".join(map(lambda a:a.nice_path(task.m_env), task.m_inputs))
-				tgt_str = " ".join(map(lambda a:a.nice_path(task.m_env), task.m_outputs))
+				src_str = " ".join([a.nice_path(task.m_env) for a in task.m_inputs])
+				tgt_str = " ".join([a.nice_path(task.m_env) for a in task.m_outputs])
 				return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 		except:
 			import traceback
@@ -137,10 +137,10 @@ class alex:
 		for (name, meth) in self.params:
 			if name == 'SRC':
 				if meth: alst.append('task.m_inputs%s' % meth)
-				else: alst.append('" ".join(map(lambda a:a.srcpath(env), task.m_inputs))')
+				else: alst.append('" ".join([a.srcpath(env) for a in task.m_inputs])')
 			elif name == 'TGT':
 				if meth: alst.append('task.m_outputs%s' % meth)
-				else: alst.append('" ".join(map(lambda a:a.bldpath(env), task.m_outputs))')
+				else: alst.append('" ".join([a.bldpath(env) for a in task.m_outputs])')
 			else:
 				self.m_vars.append(name)
 				alst.append("p('%s')" % name)
