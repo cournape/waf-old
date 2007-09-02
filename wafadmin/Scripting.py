@@ -298,7 +298,7 @@ def Dist(appname, version):
 			else:
 				for x in g_dist_exts:
 					if ends(x):
-						to_remove = true
+						to_remove = True
 						break
 			if to_remove:
 				os.remove(os.path.join(root, f))
