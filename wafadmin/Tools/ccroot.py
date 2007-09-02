@@ -109,8 +109,7 @@ class c_scanner(Scan.scanner):
 		sig = self.get_signature_queue(task)
 
 		# if the previous signature is the same
-		if sig == prev_sig:
-			return sig
+		if sig == prev_sig: return sig
 
 		#print "scanning the file", task.m_inputs[0].abspath()
 

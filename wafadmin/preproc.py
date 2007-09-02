@@ -199,7 +199,7 @@ def parse_token(stuff, table):
 		else:
 			stuff.back(1)
 			try: return table[pos]['$$']
-			except: return 0
+			except KeyError: return 0
 			# lexer error
 	return table[pos]['$$']
 

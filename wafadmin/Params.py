@@ -6,9 +6,9 @@
 
 import os, sys, types, inspect, base64, stat
 try:
-        from hashlib import md5
+	from hashlib import md5
 except ImportError:
-        from md5 import md5
+	from md5 import md5
 
 import Utils
 
@@ -248,5 +248,5 @@ def hash_function_with_globals(prevhash, func):
 			prevhash = hash( (prevhash, name, value) )
 		except TypeError: # raised for unhashable elements
 			pass
-        return hash( (prevhash, inspect.getsource(func)) )
+	return hash( (prevhash, inspect.getsource(func)) )
 

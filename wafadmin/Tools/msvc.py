@@ -12,7 +12,7 @@ def setup(env):
 
 	# on windows libraries must be defined after the object files
 	Action.simple_action('ar_link_static', static_link_str, color='YELLOW')
-	
+
 def detect(conf):
 
 	comp = conf.find_program('CL', var='CXX')
@@ -26,7 +26,6 @@ def detect(conf):
 	stliblink = conf.find_program('LIB')
 	if not stliblink:
 		return 0;
-
 
 	# load the cpp builders
 	conf.check_tool('cc cpp')

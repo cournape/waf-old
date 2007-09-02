@@ -281,11 +281,10 @@ class library_enumerator(enumerator_base):
 		ret  = find_file(name, self.path)
 
 		if not ret:
-                        for implib_suffix in self.env['shlib_IMPLIB_SUFFIX']:
-                                name = self.env['shlib_PREFIX'] + self.name + implib_suffix
-                                ret  = find_file(name, self.path)
-                                if ret:
-                                        break
+			for implib_suffix in self.env['shlib_IMPLIB_SUFFIX']:
+				name = self.env['shlib_PREFIX'] + self.name + implib_suffix
+				ret  = find_file(name, self.path)
+				if ret: break
 
 		if not ret:
 			name = self.env['staticlib_PREFIX']+self.name+self.env['staticlib_SUFFIX']

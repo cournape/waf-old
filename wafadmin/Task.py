@@ -6,9 +6,9 @@
 
 import os, types, shutil
 try:
-        from hashlib import md5
+	from hashlib import md5
 except ImportError:
-        from md5 import md5
+	from md5 import md5
 
 import Params, Scan, Action, Runner, Object
 from Params import debug, error, warning
