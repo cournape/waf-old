@@ -94,12 +94,14 @@ class c_scanner(Scan.scanner):
 		# assumption: we assume that we can still get the old signature from the signature cache
 		try:
 			node = task.m_outputs[0]
-			variant = node.variant(self.m_env)
+			variant = node.variant(task.m_env)
 			time = tree.m_tstamp_variants[variant][node]
-			key = hash( (variant, node, time, self.m_scanner.__class__.__name__) )
+			key = hash( (variant, node, time, self.__class__.__name__) )
 			prev_sig = tree.get_sig_cache(key)[1]
 		except KeyError:
 			prev_sig = Params.sig_nil
+		except:
+			raise
 
 		# we can compute and return the signature if
 		#   * the source files have not changed (rescan is 0)
@@ -109,6 +111,8 @@ class c_scanner(Scan.scanner):
 		# if the previous signature is the same
 		if sig == prev_sig:
 			return sig
+
+		#print "scanning the file", task.m_inputs[0].abspath()
 
 		# therefore some source or some header is dirty, rescan the source files
 		for node in task.m_inputs:

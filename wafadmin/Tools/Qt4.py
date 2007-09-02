@@ -35,8 +35,11 @@ class MTask(Task.Task):
 		node = self.m_inputs[0]
 
 		# scan the .cpp files and find if there is a moc file to run
-		if tree.needs_rescan(node, parn.env):
-			ccroot.g_c_scanner.do_scan(node, parn.env, hashparams = self.m_scanner_params)
+		#if tree.needs_rescan(node, parn.env):
+		#	ccroot.g_c_scanner.do_scan(node, parn.env, hashparams = self.m_scanner_params)
+
+		# this will make sure the dependencies are computed
+		foo = self.signature()
 
 		moctasks=[]
 		mocfiles=[]
@@ -89,6 +92,7 @@ class MTask(Task.Task):
 				task.set_outputs(d)
 				moctasks.append(task)
 				break
+		# simple scheduler dependency: run the moc task before others
 		self.m_run_after = moctasks
 		self.moc_done = 1
 		return Task.Task.may_start(self)
