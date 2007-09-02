@@ -1,4 +1,4 @@
-* improve the scanner classes - make them more simple
+* clean the scanner classes
 * make the ccroot class a link class with hooks, move the c/c++ support into the hooks
 * move common configuration flags into the globals to make env smaller
 * refactor the apis
@@ -8,6 +8,8 @@
 * improve the scons emulation
 * ncurses options menu support
 
+Qt4.py: do not hash the moc files in the signature
+
 --------------------------------------
-Last update: 17-02-2007
-Contact -> tnagyemail-mail@yahoo.fr (ita)
+Last update: 02-09-2007
+Contact -> tnagyemail-mail at yahoo.fr (ita)

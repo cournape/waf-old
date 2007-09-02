@@ -227,17 +227,8 @@ def h_list(lst):
 
 def hash_function_with_globals(prevhash, func):
 	"""
-	Computes the hash of the code of a function object, including
-	global variables visible to this function (as given by
-	func.func_globals.  The rationale for including the global
-	variables is that they may affect the behaviour of the
-	function.
-
-	Caveat: global variables that are not hashable (i.e. when
-	hash(variable) raises TypeError) are simply ignored.  For
-	instance, if you have a list global variable, you should
-	convert it to a tuple, so that changes in it are properly
-	detected.
+	hash a function (object) and the global vars needed from outside
+	ignore unhashable global variables (lists)
 
 	prevhash -- previous hash value to be combined with this one;
 	if there is no previous value, zero should be used here
