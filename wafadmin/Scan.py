@@ -4,10 +4,8 @@
 
 "Scan for dependencies, compute task signatures"
 
-try:
-	from hashlib import md5
-except ImportError:
-	from md5 import md5
+try: from hashlib import md5
+except ImportError: from md5 import md5
 import Params
 from Params import debug, error
 

@@ -4,7 +4,10 @@
 
 "base for all c/c++ programs and libraries"
 
-import sys, re, md5
+import sys, re
+try: from hashlib import md5
+except ImportError: from md5 import md5
+
 import Action, Object, Params, Scan, Common, Utils
 from Params import error, debug, fatal, warning
 
@@ -60,7 +63,7 @@ class c_scanner(Scan.scanner):
 		rescan = 0
 		seen = []
 		queue = [task.m_inputs[0]]
-		m = md5.new()
+		m = md5()
 
 		# add the include paths into the hash
 		m.update(str(task.m_scanner_params))

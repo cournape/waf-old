@@ -3,8 +3,10 @@
 
 "Configuration system"
 
-import os, types, imp, cPickle, md5, sys, re, inspect
-import shlex
+import os, types, imp, cPickle, sys, re, inspect, shlex
+try: from hashlib import md5
+except ImportError: from md5 import md5
+
 import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
 
@@ -123,7 +125,7 @@ class enumerator_base:
 		except: pass
 
 	def hash(self):
-		m = md5.new()
+		m = md5()
 		self.update_hash(m)
 		return m.digest()
 
@@ -1330,7 +1332,7 @@ class Configure:
 		return not ret
 
 	def _cache_platform(self):
-		m = md5.new()
+		m = md5()
 		m.update(Params.g_platform)
 		return m.hexdigest()
 

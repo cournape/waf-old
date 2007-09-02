@@ -5,10 +5,8 @@
 "Main parameters"
 
 import os, sys, types, inspect, base64, stat
-try:
-	from hashlib import md5
-except ImportError:
-	from md5 import md5
+try: from hashlib import md5
+except ImportError: from md5 import md5
 
 import Utils
 
