@@ -7,10 +7,33 @@
   - interpret the preprocessing lines, jumping on the headers during the process
 """
 
-import sys, os, string
+import re, sys, os, string
 import Params
 from Params import debug, error, warning
 
+reg_define = re.compile('^\s*#')
+reg_nl = re.compile('\\\\\n', re.MULTILINE)
+reg_cpp = re.compile(r"""/\*[^*]*\*+([^/*][^*]*\*+)*/|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
+def repl(m):
+    s = m.group(2)
+    if s is None:
+        return ''
+    return s
+
+def filter_comments(filename):
+	f = open(filename, "r")
+	code = f.read()
+	f.close()
+
+	code = reg_nl.sub('', code)
+	code = reg_cpp.sub(repl, code)
+	code = code.split('\n')
+
+	lst=[]
+	for line in code:
+		if reg_define.match(line):
+			lst.append(reg_define.sub("", line))
+	return lst
 
 strict_quotes = 0
 "Keep <> for system includes (do not search for those includes)"
@@ -322,189 +345,6 @@ def comp(lst):
 	raise ValueError, "could not parse the macro %s " % str(lst)
 
 
-class filter:
-	def __init__(self):
-		self.fn     = ''
-		self.i      = 0
-		self.max    = 0
-		self.txt    = ""
-		self.buf    = []
-		self.lines  = []
-		#self.debug = []
-
-	def next(self):
-		ret = self.txt[self.i]
-		# trigraphs can be filtered straight away
-		if ret == '?':
-			if self.txt[self.i+1] == '?':
-				try:
-					car = trigs[self.txt[self.i+2]]
-					self.i += 3
-					#self.debug.append(car)
-					return car
-				except:
-					pass
-		# unterminated lines can be eliminated too
-		elif ret == '\\':
-			try:
-				if self.txt[self.i+1] == '\n':
-					self.i += 2
-					return self.next()
-				elif self.txt[self.i+1] == '\r':
-					if self.txt[self.i+2] == '\n':
-						self.i += 3
-						return self.next()
-				else:
-					pass
-			except:
-				pass
-		elif ret == '\r':
-			if self.txt[self.i+1] == '\n':
-				self.i += 2
-				#self.debug.append('\n')
-				return '\n'
-		self.i += 1
-		#self.debug.append(ret)
-		return ret
-
-	def good(self):
-		return self.i < self.max
-
-	def initialize(self, filename):
-		self.fn = filename
-		f=open(filename, "r")
-		self.txt = f.read()
-		f.close()
-
-		self.i = 0
-		self.max = len(self.txt)
-
-	def start(self, filename):
-		self.initialize(filename)
-		while self.good():
-			c = self.next()
-			#print self.buf.append(c)
-			#continue
-			if c == ' ' or c == '\t' or c == '\n':
-				continue
-			elif c == '#':
-				self.preprocess()
-			elif c == '%':
-				d = self.next()
-				if d == ':':
-					self.preprocess()
-				else:
-					self.eat_line()
-			elif c == '/':
-				c = self.next()
-				if c == '*': self.get_c_comment()
-				elif c == '/': self.get_cc_comment()
-				# else: let the 2 cars read go
-			elif c == '"':
-				self.skip_string()
-				self.eat_line()
-			elif c == '\'':
-				self.skip_char()
-				self.eat_line()
-
-	def get_cc_comment(self):
-		c = self.next()
-		while c != '\n': c = self.next()
-
-	def get_c_comment(self):
-		c = self.next()
-		prev = 0
-		while self.good():
-			if c == '*':
-				prev = 1
-			elif c == '/':
-				if prev: break
-			else:
-				prev = 0
-			c = self.next()
-
-	def skip_char(self, store=0):
-		c = self.next()
-		if store: self.buf.append(c)
-		# skip one more character if there is a backslash '\''
-		if c == '\\':
-			c = self.next()
-			if store: self.buf.append(c)
-			# skip a hex char (e.g. '\x50')
-			if c == 'x':
-				c = self.next()
-				if store: self.buf.append(c)
-				c = self.next()
-				if store: self.buf.append(c)
-		c = self.next()
-		if store: self.buf.append(c)
-		if c != '\'': print "uh-oh, invalid character"
-
-	def skip_string(self, store=0):
-		c=''
-		while self.good():
-			p = c
-			c = self.next()
-			if store: self.buf.append(c)
-			if c == '"':
-				cnt = 0
-				while 1:
-					#print "cntcnt = ", str(cnt), self.txt[self.i-2-cnt]
-					if self.txt[self.i-2-cnt] == '\\': cnt+=1
-					else: break
-				#print "cnt is ", str(cnt)
-				if (cnt%2)==0: break
-
-			#if c == '\n':
-			#	print 'uh-oh, invalid line >'+c+'< '+self.fn
-			#	raise "".join(self.debug)
-			#	break
-
-	def eat_line(self):
-		while self.good():
-			c = self.next()
-			if c == '\n':
-				break
-			elif c == '"':
-				self.skip_string()
-			elif c == '\'':
-				self.skip_char()
-			elif c == '/':
-				c = self.next()
-				if c == '*': self.get_c_comment()
-				elif c == '/': self.get_cc_comment()
-				# else: let the two cars read go
-
-	def preprocess(self):
-		#self.buf.append('#')
-		# skip whitespaces like "#  define"
-		while self.good():
-			car = self.txt[self.i]
-			if car == ' ' or car == '\t': self.i+=1
-			else: break
-
-		while self.good():
-			c = self.next()
-			if c == '\n':
-				#self.buf.append(c)
-
-				self.lines.append( "".join(self.buf) )
-				self.buf = []
-				break
-			elif c == '"':
-				self.buf.append(c)
-				self.skip_string(store=1)
-			elif c == '\'':
-				self.buf.append(c)
-				self.skip_char(store=1)
-			elif c == '/':
-				c = self.next()
-				if c == '*': self.get_c_comment()
-				elif c == '/': self.get_cc_comment()
-				else: self.buf.append('/'+c) # simple punctuator '/'
-			else:
-				self.buf.append(c)
-
 class cparse:
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
 		#self.lines = txt.split('\n')
@@ -583,11 +423,9 @@ class cparse:
 			return
 
 		try:
-			stuff = filter()
-			stuff.start(filepath)
-			if stuff.buf: stuff.lines.append( "".join(stuff.buf) )
-			pc[filepath] = stuff.lines # memorize the lines filtered
-			self.lines = stuff.lines + self.lines
+			lines = filter_comments(filepath)
+			pc[filepath] = lines # memorize the lines filtered
+			self.lines = lines + self.lines
 		except IOError:
 			raise
 		except:
