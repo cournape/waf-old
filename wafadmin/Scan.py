@@ -4,7 +4,10 @@
 
 "Scan for dependencies, compute task signatures"
 
-import md5
+try:
+        from hashlib import md5
+except ImportError:
+        from md5 import md5
 import Params
 from Params import debug, error
 
@@ -76,7 +79,7 @@ class scanner:
 		# assumption: changing an dependency does not mean we have to rescan
 		# this scheme will work well in general, but not with macros such as #if IS_SOMETHING ..
 
-		m = md5.new()
+		m = md5()
 		tree = Params.g_build
 		seen = []
 		env  = task.m_env

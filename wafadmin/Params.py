@@ -4,7 +4,12 @@
 
 "Main parameters"
 
-import os, sys, types, inspect, md5, base64, stat
+import os, sys, types, inspect, base64, stat
+try:
+        from hashlib import md5
+except ImportError:
+        from md5 import md5
+
 import Utils
 
 # =================================== #
@@ -199,14 +204,14 @@ def vsig(s):
 
 def hash_sig(o1, o2):
 	"hash two signatures"
-	m = md5.new()
+	m = md5()
 	m.update(o1)
 	m.update(o2)
 	return m.digest()
 
 def h_file(filename):
 	f = file(filename,'rb')
-	m = md5.new()
+	m = md5()
 	readBytes = 1024 # read 1024 bytes per time
 	while (readBytes):
 		readString = f.read(readBytes)
@@ -216,12 +221,12 @@ def h_file(filename):
 	return m.digest()
 
 def h_string(str):
-	m = md5.new()
+	m = md5()
 	m.update(str)
 	return m.digest()
 
 def h_list(lst):
-	m = md5.new()
+	m = md5()
 	m.update(str(lst))
 	return m.digest()
 

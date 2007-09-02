@@ -4,7 +4,12 @@
 
 "Atomic operations that create nodes or execute commands"
 
-import os, types, shutil, md5
+import os, types, shutil
+try:
+        from hashlib import md5
+except ImportError:
+        from md5 import md5
+
 import Params, Scan, Action, Runner, Object
 from Params import debug, error, warning
 
@@ -167,7 +172,7 @@ class Task(TaskBase):
 
 		tree = Params.g_build
 
-		m = md5.new()
+		m = md5()
 
 		dep_sig = Params.sig_nil
 		scan = None
