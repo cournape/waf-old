@@ -15,10 +15,9 @@ reg_define = re.compile('^\s*#')
 reg_nl = re.compile('\\\\\n', re.MULTILINE)
 reg_cpp = re.compile(r"""/\*[^*]*\*+([^/*][^*]*\*+)*/|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
 def repl(m):
-    s = m.group(2)
-    if s is None:
-        return ''
-    return s
+	s = m.group(2)
+	if s is None: return ''
+	return s
 
 def filter_comments(filename):
 	f = open(filename, "r")
@@ -354,29 +353,29 @@ class cparse:
 		self.max   = 0
 		self.buf   = []
 
-                if defines is None:
-                        self.defs  = {}
-                else:
-                        self.defs  = dict(defines) # make a copy
+		if defines is None:
+			self.defs  = {}
+		else:
+			self.defs  = dict(defines) # make a copy
 		self.state = []
 
 		self.env   = None # needed for the variant when searching for files
 
 		# include paths
-                if strpaths is None:
-                        self.strpaths = []
-                else:
-                        self.strpaths = strpaths
+		if strpaths is None:
+			self.strpaths = []
+		else:
+			self.strpaths = strpaths
 		self.pathcontents = {}
 
 		self.deps  = []
 		self.deps_paths = []
 
 		# waf uses
-                if nodepaths is None:
-                        self.m_nodepaths = []
-                else:
-                        self.m_nodepaths = nodepaths
+		if nodepaths is None:
+			self.m_nodepaths = []
+		else:
+			self.m_nodepaths = nodepaths
 		self.m_nodes = []
 		self.m_names = []
 
@@ -452,7 +451,7 @@ class cparse:
 				self.process_line()
 			except Exception, ex:
 				if Params.g_verbose:
-                                        warning("line parsing failed (%s): %s" % (str(ex), line))
+					warning("line parsing failed (%s): %s" % (str(ex), line))
 
 	# debug only
 	def start(self, filename):
@@ -468,7 +467,7 @@ class cparse:
 				self.process_line()
 			except Exception, ex:
 				if Params.g_verbose:
-                                        warning("line parsing failed (%s): %s" % (str(ex), line))
+					warning("line parsing failed (%s): %s" % (str(ex), line))
 				raise
 	def back(self, c):
 		self.i -= c
@@ -501,8 +500,8 @@ class cparse:
 		l = len(self.txt)
 		token = get_preprocessor_token(self)
 		if not token:
-                        debug("line %s has no preprocessor token" % self.txt, 'preproc')
-                        return
+			debug("line %s has no preprocessor token" % self.txt, 'preproc')
+			return
 
 		if token == 'endif':
 			self.state.pop(0)
@@ -515,7 +514,7 @@ class cparse:
 		# wait for the endif
 		if not token in ['else', 'elif']:
 			if not self.isok():
-                                return
+				return
 
 		#print "token is ", token
 
@@ -532,7 +531,7 @@ class cparse:
 		elif token == 'ifndef':
 			ident = self.get_name()
 			if ident in self.defs.keys():
-                                self.state[0] = ignored
+				self.state[0] = ignored
 			else: self.state[0] = accepted
 		elif token == 'include' or token == 'import':
 			(type, body) = self.get_include()
@@ -753,8 +752,8 @@ class cparse:
 		return 0
 
 if __name__ == "__main__":
-        Params.g_verbose = 2
-        Params.g_zones = ['preproc']
+	Params.g_verbose = 2
+	Params.g_zones = ['preproc']
 	try: arg = sys.argv[1]
 	except: arg = "file.c"
 
