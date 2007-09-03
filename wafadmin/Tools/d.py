@@ -3,10 +3,10 @@
 # Carlos Rafael Giani, 2007 (dv)
 # Thomas Nagy, 2007 (ita)
 
-import os, sys, re
+import os, sys, re, optparse
 sys.path.append(os.path.abspath('..'))
-import optparse
 import Object, Utils, Action, Params, checks, Configure, Scan
+from Params import debug, error
 
 
 class filter:
@@ -143,6 +143,9 @@ class parser:
 		self.re_import_bindings = re.compile("([^:]+):(.*)")
 		self.re_import_alias = re.compile("[^=]+=(.+)")
 
+		self.m_nodes = []
+		self.m_names = []
+
 	def run(self):
 		self.imports = []
 		self.module = ''
@@ -186,6 +189,12 @@ class parser:
 		self.code = "".join(gruik.buf)
 		self.run()
 
+	def start2(self, node, env):
+		gruik = filter()
+		gruik.start(node.abspath(env))
+		self.code = "".join(gruik.buf)
+		self.run()
+
 class d_scanner(Scan.scanner):
 	"scanner for d files"
 	def __init__(self):
@@ -219,9 +228,6 @@ class dobj(Object.genobj):
 		self.libpaths = ''
 		self.uselib = ''
 		self.uselib_local = ''
-
-		self.m_nodes = []
-		self.m_names = []
 
 	def apply(self):
 
