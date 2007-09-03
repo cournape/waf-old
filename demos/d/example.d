@@ -1,4 +1,11 @@
+module abc.
+def.	gh;
+
 import std.stdio;       // for writefln()
+import std .  // system2;
+system  ;
+static import std.date, std.thread /+ /+ +/ , std.io +/ ;
+import std.boxer, uhf = std.date, io = std.stdio : foo = writef, read  ;
 
 int main(string[] args)   // string is a type alias for const(char)[]
 {

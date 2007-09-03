@@ -4,8 +4,10 @@
 # Thomas Nagy, 2007 (ita)
 
 import os, sys
+sys.path.append(os.path.abspath('..'))
 import optparse
 import Object, Utils, Action, Params, checks, Configure
+
 
 class filter:
 	def __init__(self):
@@ -264,8 +266,6 @@ class dobj(Object.genobj):
 		for filename in self.to_list(self.source):
 			node = find_source_lst(Utils.split_path(filename))
 			base, ext = os.path.splitext(filename)
-			#mod_names = get_module_names_from_file(find_source_lst(Utils.split_path(filename)).srcpath(self.env))
-			#print mod_names
 
 			if not ext in self.s_default_ext:
 				fatal("unknown file " + filename)
@@ -313,46 +313,55 @@ def detect(conf):
 	return 1
 
 
-# def get_module_names_from_file(fname):
-# 	import re
-# 	f = open(fname)
-# 	impnames = []
-# 	try:
-# 		code = f.read()
 
+import re
 
-# 		mod_name = re.search("module\s+([^;]+)", code)
-# 		if mod_name:
-# 			mod_name = mod_name.group(1)
-# 		else:
-# 			mod_name = ''
-# 		
+class parser:
 
+	def __init__(self):
 
-# 		results = re.findall("import\s+[^;]+", code)
+		self.code = ''
+		self.module = ''
+		self.imports = []
+		self.re_module = re.compile("module\s+([^;]+)")
+		self.re_import = re.compile("import\s+([^;]+)")
+		self.re_import_bindings = re.compile("([^:]+):(.*)")
+		self.re_import_alias = re.compile("[^=]+=(.+)")
 
-# 		for result in results:
-# 			impname = result
-# 			r = re.match("(import\s+)([^:]+)\s+:\s+(.*)", impname)
-# 			if r:
-# 				impname = r.group(2)
+	def run(self):
+		self.imports = []
+		self.module = ''
 
-# 			r = re.match("([^=]+)\s+=\s+(.+)", impname)
-# 			if r:
-# 				impname = r.group(2)
+		# get the module name (if present)
 
-# 			r = re.match("(import\s+)(.*)", impname)
-# 			if r:
-# 				impname = r.group(2)
+		mod_name = self.re_module.search(self.code)
+		if mod_name:
+			self.module = re.sub('\s+', '', mod_name.group(1)) # strip all whitespaces
 
-# 			impnames = impnames + [impname]
+		# go through the code, have a look at all import occurrences
 
-# 	except:
-# 		pass
+		# first, lets look at anything beginning with "import" and ending with ";"
+		import_iterator = self.re_import.finditer(self.code)
+		if import_iterator:
+			for import_match in import_iterator:
+				import_match_str = re.sub('\s+', '', import_match.group(1)) # strip all whitespaces
 
-# 	f.close()
+				# does this end with an import bindings declaration? (import bindings always terminate the list of imports)
+				bindings_match = self.re_import_bindings.match(import_match_str)
+				if bindings_match:
+					import_match_str = bindings_match.group(1) # if so, extract the part before the ":" (since the module declaration(s) is/are located there)
 
-# 	return [mod_name, impnames]
+				matches = import_match_str.split(',') # split the matching string into a bunch of strings, separated by a comma
+
+				for match in matches:
+					alias_match = self.re_import_alias.match(match)
+					if alias_match: # is this an alias declaration? (alias = module name) if so, extract the module name
+						match = alias_match.group(1)
+
+					self.imports = self.imports + [match] # hooray!
+						
+				
+
 
 
 if __name__ == "__main__":
@@ -370,6 +379,21 @@ if __name__ == "__main__":
 	gruik = filter()
 	gruik.start(arg)
 
+	code = "".join(gruik.buf)
+
 	print "we have found the following code"
-	print "".join(gruik.buf)
+	print code
+
+	print "now parsing"
+	print "-------------------------------------------"
+
+	parser_ = parser()
+	parser_.code = code
+	parser_.run()
+
+	print "module: %s" % parser_.module
+	print "imports: ",
+	for imp in parser_.imports:
+		print imp + " ",
+	print
 

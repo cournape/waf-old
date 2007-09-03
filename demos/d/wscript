@@ -18,6 +18,8 @@ def configure(conf):
 	conf.env['LIB_PTHREAD'] = ['pthread']
 
 def build(bld):
+	bld.add_subdirs('src2')
+
 	obj = bld.create_obj('d', 'program')
 	obj.source = '''
 	example.d
