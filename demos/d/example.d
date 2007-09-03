@@ -12,7 +12,7 @@ int main(string[] args)   // string is a type alias for const(char)[]
     // Declare an associative array with string keys and
     // arrays of strings as data
     char[][] [char[]] container;
- 
+
     // Add some people to the container and let them carry some items
     container["Anya"] ~= "scarf";
     container["Dimitri"] ~= "tickets";
@@ -23,7 +23,7 @@ int main(string[] args)   // string is a type alias for const(char)[]
         display_item_count(person, items);
     return 0;
 }
- 
+
 void display_item_count(char[] person, char[][] items)
 {
     writefln(person, " is carrying ", items.length, " items.");
