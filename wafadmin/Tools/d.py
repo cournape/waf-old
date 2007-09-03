@@ -1,10 +1,135 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Carlos Rafael Giani, 2007 (dv)
+# Thomas Nagy, 2007 (ita)
 
 import os, sys
 import optparse
 import Object, Utils, Action, Params, checks, Configure
+
+class filter:
+	def __init__(self):
+		self.fn     = ''
+		self.i      = 0
+		self.max    = 0
+		self.txt    = ""
+		self.buf    = []
+
+	def next(self):
+		ret = self.txt[self.i]
+		# unterminated lines can be eliminated
+		if ret == '\\':
+			try:
+				if self.txt[self.i+1] == '\n':
+					self.i += 2
+					return self.next()
+				elif self.txt[self.i+1] == '\r':
+					if self.txt[self.i+2] == '\n':
+						self.i += 3
+						return self.next()
+				else:
+					pass
+			except:
+				pass
+		elif ret == '\r':
+			if self.txt[self.i+1] == '\n':
+				self.i += 2
+				return '\n'
+		self.i += 1
+		return ret
+
+	def good(self):
+		return self.i < self.max
+
+	def initialize(self, filename):
+		self.fn = filename
+		f = open(filename, "r")
+		self.txt = f.read()
+		f.close()
+
+		self.i = 0
+		self.max = len(self.txt)
+
+	def start(self, filename):
+		self.initialize(filename)
+		while self.good():
+			c = self.next()
+			if c == '"':
+				self.skip_string()
+			elif c == "'":
+				self.skip_char()
+			elif c == '/':
+				c = self.next()
+				if c == '+': self.get_p_comment()
+				if c == '*': self.get_c_comment()
+				elif c == '/': self.get_cc_comment()
+				#else: self.buf.append('/'+c) # simple punctuator '/'
+			else:
+				self.buf.append(c)
+
+
+	def get_p_comment(self):
+		self.nesting = 1
+		prev = 0
+		while self.good():
+			c = self.next()
+			if c == '+':
+				prev = 1
+			elif c == '/':
+				if prev:
+					self.nesting -= 1
+					if self.nesting == 0: break
+				else:
+					if self.good():
+						c = self.next()
+						if c == '+':
+							self.nesting += 1
+					else:
+						break
+			else:
+				prev = 0
+
+	def get_cc_comment(self):
+		c = self.next()
+		while c != '\n': c = self.next()
+
+	def get_c_comment(self):
+		c = self.next()
+		prev = 0
+		while self.good():
+			if c == '*':
+				prev = 1
+			elif c == '/':
+				if prev: break
+			else:
+				prev = 0
+			c = self.next()
+
+	def skip_char(self):
+		c = self.next()
+		# skip one more character if there is a backslash '\''
+		if c == '\\':
+			c = self.next()
+			# skip a hex char (e.g. '\x50')
+			if c == 'x':
+				c = self.next()
+				c = self.next()
+		c = self.next()
+		if c != '\'': print "uh-oh, invalid character"
+
+	def skip_string(self):
+		c=''
+		while self.good():
+			p = c
+			c = self.next()
+			if c == '"':
+				cnt = 0
+				while 1:
+					#print "cntcnt = ", str(cnt), self.txt[self.i-2-cnt]
+					if self.txt[self.i-2-cnt] == '\\': cnt+=1
+					else: break
+				#print "cnt is ", str(cnt)
+				if (cnt%2)==0: break
 
 
 class dobj(Object.genobj):
@@ -228,3 +353,23 @@ def detect(conf):
 # 	f.close()
 
 # 	return [mod_name, impnames]
+
+
+if __name__ == "__main__":
+	#Params.g_verbose = 2
+	#Params.g_zones = ['preproc']
+	#class dum:
+	#	def __init__(self):
+	#		self.parse_cache_d = {}
+	#Params.g_build = dum()
+
+	try: arg = sys.argv[1]
+	except: arg = "file.d"
+
+	paths = ['.']
+	gruik = filter()
+	gruik.start(arg)
+
+	print "we have found the following code"
+	print "".join(gruik.buf)
+
