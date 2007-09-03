@@ -11,10 +11,10 @@ srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-	opt.tool_options('dmd')
+	opt.tool_options('gdc')
 
 def configure(conf):
-	conf.check_tool('dmd')
+	conf.check_tool('gdc')
 	conf.env['LIB_PTHREAD'] = ['pthread']
 
 def build(bld):
@@ -23,6 +23,5 @@ def build(bld):
 	example.d
 	'''
 	obj.imports = '/home/dv'
-	obj.dflags = '-w -g'
 	obj.target = 'd_test'
 	obj.uselib = 'PTHREAD'

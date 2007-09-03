@@ -72,6 +72,10 @@ class dobj(Object.genobj):
 		if self.dflags:
 			self.env.append_unique('DFLAGS', self.dflags)
 
+		d_shlib_dflags = self.env['D_' + type + '_DFLAGS']
+		if d_shlib_dflags:
+			self.env.append_unique('DFLAGS', d_shlib_dflags)
+
 
 		# add import paths
 		for i in self.to_list(self.uselib):
@@ -114,6 +118,10 @@ class dobj(Object.genobj):
 		for i in self.to_list(self.uselib):
 			if self.env['DLINKFLAGS_' + i]:
 				self.env.append_unique('DLINKFLAGS', self.env['DLINKFLAGS_' + i])
+
+		d_shlib_linkflags = self.env['D_' + type + '_LINKFLAGS']
+		if d_shlib_linkflags:
+			self.env.append_unique('DLINKFLAGS', d_shlib_linkflags)
 
 
 		# create compile tasks
