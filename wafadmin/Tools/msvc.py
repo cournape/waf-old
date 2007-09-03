@@ -33,7 +33,7 @@ def msvc_linker(task):
 
 	outfile=task.m_outputs[0].bldpath(e)
 	manifest=outfile+'.manifest'
-	
+
 	objs=" ".join(map(lambda a: "\""+a.abspath(e)+"\"", task.m_inputs))
 
 	cmd="%s %s%s %s%s %s %s %s" % (linker,srcf,objs,trgtf,outfile, linkflags, libdirs,libs)
@@ -51,7 +51,7 @@ def msvc_linker(task):
 			mode='1'
 		elif task.m_type == 'shlib':
 			mode='2'
-	
+
 		debug('embedding manifest','msvcobj')
 		flags=task.m_env['MTFLAGS']
 		if flags:
@@ -225,7 +225,7 @@ class msvcobj(ccroot.ccroot):
 			return None
 
 		[lt_path,lt_libname,lt_static]=self.find_lt_names(lib,is_static)
-		
+
 		if lt_path != None and lt_libname != None:
 			if lt_static == True:
 				# file existance check has been made by find_lt_names
@@ -243,16 +243,16 @@ class msvcobj(ccroot.ccroot):
 			'lib%s.lib' % lib,
 			]
 
-		dynamic_libs=[ 
-			'lib%s.dll.lib' % lib, 
-			'lib%s.dll.a' % lib, 
-			'%s.dll.lib' % lib, 
-			'%s.dll.a' % lib, 
-			'lib%s_d.lib' % lib, 
-			'%s_d.lib' % lib, 
-			'%s.lib' %lib, 
+		dynamic_libs=[
+			'lib%s.dll.lib' % lib,
+			'lib%s.dll.a' % lib,
+			'%s.dll.lib' % lib,
+			'%s.dll.a' % lib,
+			'lib%s_d.lib' % lib,
+			'%s_d.lib' % lib,
+			'%s.lib' %lib,
 			]
-		
+
 		libnames=static_libs
 		if not is_static:
 			libnames=dynamic_libs + static_libs
@@ -262,9 +262,9 @@ class msvcobj(ccroot.ccroot):
 				if os.path.exists(os.path.join(path,libn)):
 					debug('lib found: %s' % os.path.join(path,libn), 'msvc')
 					return libn
-		
+
 		return None
-		
+
 	def apply_obj_vars(self):
 		debug('apply_obj_vars called for msvcobj', 'msvc')
 		env = self.env
@@ -309,11 +309,11 @@ class msvcobj(ccroot.ccroot):
 			pass
 
 		for i in env['RPATH']:   app('LINKFLAGS', i)
-		for i in env['LIBPATH']: 
+		for i in env['LIBPATH']:
 			app('LINKFLAGS', libpath_st % i)
 			if not self.libpaths.count(i):
 				self.libpaths.append(i)
-		for i in env['LIBPATH']: 
+		for i in env['LIBPATH']:
 			app('LINKFLAGS', staticlibpath_st % i)
 			if not self.libpaths.count(i):
 				self.libpaths.append(i)
@@ -333,7 +333,7 @@ class msvcobj(ccroot.ccroot):
 					app('LINKFLAGS', libname)
 
 		if self.env['LIB']:
-			for i in env['LIB']: 
+			for i in env['LIB']:
 				debug('libname: %s' % i,'msvc')
 				libname=self.getlibname(i)
 				debug('libnamefixed: %s' % libname,'msvc')
@@ -492,7 +492,7 @@ def detect(conf):
 	def addflags(var):
 		try:
 			c = os.environ[var]
-			if c: 
+			if c:
 				# stripping leading and trailing and whitespace and ", Windows cmd is a bit stupid ...
 				c=c.strip('" ')
 				for cv in c.split():
@@ -542,3 +542,4 @@ def set_options(opt):
 		dest = 'debug_level')
 	except optparse.OptionConflictError:
 		pass
+
