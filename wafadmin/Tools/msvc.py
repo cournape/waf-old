@@ -14,11 +14,11 @@ from ccroot import read_la_file
 from os.path import exists
 
 def msvc_linker(task):
-	"""special linker for MSVC with support for embedding manifests into DLL's
+	"""Special linker for MSVC with support for embedding manifests into DLL's
 	and executables compiled by Visual Studio 2005 or probably later. Without
-	the accompaniing manifest file, these binaries are unusable.  see:
-	http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx Problems with
-	this tool: It's allways called whether MSVC creates manifests or not..."""
+	the manifest file, the binaries are unusable.
+	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
+	Problems with this tool: it is always called whether MSVC creates manifests or not."""
 	e=task.m_env
 	linker=e['LINK_CXX']
 	srcf=e['CPPLNK_SRC_F']
@@ -34,7 +34,7 @@ def msvc_linker(task):
 	outfile=task.m_outputs[0].bldpath(e)
 	manifest=outfile+'.manifest'
 
-	objs=" ".join(map(lambda a: "\""+a.abspath(e)+"\"", task.m_inputs))
+	objs=" ".join(['"%s"' % a.abspath(e) for a in task.m_inputs])
 
 	cmd="%s %s%s %s%s %s %s %s" % (linker,srcf,objs,trgtf,outfile, linkflags, libdirs,libs)
 	ret=Runner.exec_command(cmd)
@@ -67,50 +67,31 @@ def msvc_linker(task):
 g_msvc_type_vars=['CCFLAGS', 'CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
-g_msvc_systemlibs={ 'aclui': 1, 'activeds': 1, 'ad1': 1, 'adptif': 1,
-'adsiid': 1, 'advapi32': 1, 'asycfilt': 1, 'authz': 1, 'bhsupp': 1, 'bits':
-1, 'bufferoverflowu': 1, 'cabinet': 1, 'cap': 1, 'certadm': 1, 'certidl': 1,
-'ciuuid': 1, 'clusapi': 1, 'comctl32': 1, 'comdlg32': 1, 'comsupp': 1,
-'comsuppd': 1, 'comsuppw': 1, 'comsuppwd': 1, 'comsvcs': 1, 'credui': 1,
-'crypt32': 1, 'cryptnet': 1, 'cryptui': 1, 'd3d8thk': 1, 'daouuid': 1,
-'dbgeng': 1, 'dbghelp': 1, 'dciman32': 1, 'ddao35': 1, 'ddao35d': 1,
-'ddao35u': 1, 'ddao35ud': 1, 'delayimp': 1, 'dhcpcsvc': 1, 'dhcpsapi': 1,
-'dlcapi': 1, 'dnsapi': 1, 'dsprop': 1, 'dsuiext': 1, 'dtchelp': 1,
-'faultrep': 1, 'fcachdll': 1, 'fci': 1, 'fdi': 1, 'framedyd': 1, 'framedyn':
-1, 'gdi32': 1, 'gdiplus': 1, 'glaux': 1, 'glu32': 1, 'gpedit': 1, 'gpmuuid':
-1, 'gtrts32w': 1, 'gtrtst32': 1, 'hlink': 1, 'htmlhelp': 1, 'httpapi': 1,
-'icm32': 1, 'icmui': 1, 'imagehlp': 1, 'imm32': 1, 'iphlpapi': 1, 'iprop': 1,
-'kernel32': 1, 'ksguid': 1, 'ksproxy': 1, 'ksuser': 1, 'libcmt': 1,
-'libcmtd': 1, 'libcpmt': 1, 'libcpmtd': 1, 'loadperf': 1, 'lz32': 1, 'mapi':
-1, 'mapi32': 1, 'mgmtapi': 1, 'minidump': 1, 'mmc': 1, 'mobsync': 1, 'mpr':
-1, 'mprapi': 1, 'mqoa': 1, 'mqrt': 1, 'msacm32': 1, 'mscms': 1, 'mscoree': 1,
-'msdasc': 1, 'msimg32': 1, 'msrating': 1, 'mstask': 1, 'msvcmrt': 1,
-'msvcmrtd': 1, 'msvcprt': 1, 'msvcprtd': 1, 'msvcrt': 1, 'msvcrtd': 1,
-'msvcurt': 1, 'msvcurtd': 1, 'mswsock': 1, 'msxml2': 1, 'mtx': 1, 'mtxdm': 1,
-'netapi32': 1, 'nmapi': 1, 'nmsupp': 1, 'npptools': 1, 'ntdsapi': 1,
-'ntdsbcli': 1, 'ntmsapi': 1, 'ntquery': 1, 'odbc32': 1, 'odbcbcp': 1,
-'odbccp32': 1, 'oldnames': 1, 'ole32': 1, 'oleacc': 1, 'oleaut32': 1,
-'oledb': 1, 'oledlg': 1, 'olepro32': 1, 'opends60': 1, 'opengl32': 1,
-'osptk': 1, 'parser': 1, 'pdh': 1, 'penter': 1, 'pgobootrun': 1, 'pgort': 1,
-'powrprof': 1, 'psapi': 1, 'ptrustm': 1, 'ptrustmd': 1, 'ptrustu': 1,
-'ptrustud': 1, 'qosname': 1, 'rasapi32': 1, 'rasdlg': 1, 'rassapi': 1,
-'resutils': 1, 'riched20': 1, 'rpcndr': 1, 'rpcns4': 1, 'rpcrt4': 1, 'rtm':
-1, 'rtutils': 1, 'runtmchk': 1, 'scarddlg': 1, 'scrnsave': 1, 'scrnsavw': 1,
-'secur32': 1, 'sensapi': 1, 'setupapi': 1, 'sfc': 1, 'shell32': 1,
-'shfolder': 1, 'shlwapi': 1, 'sisbkup': 1, 'snmpapi': 1, 'sporder': 1,
-'srclient': 1, 'sti': 1, 'strsafe': 1, 'svcguid': 1, 'tapi32': 1, 'thunk32':
-1, 'traffic': 1, 'unicows': 1, 'url': 1, 'urlmon': 1, 'user32': 1, 'userenv':
-1, 'usp10': 1, 'uuid': 1, 'uxtheme': 1, 'vcomp': 1, 'vcompd': 1, 'vdmdbg': 1,
-'version': 1, 'vfw32': 1, 'wbemuuid': 1, 'webpost': 1, 'wiaguid': 1,
-'wininet': 1, 'winmm': 1, 'winscard': 1, 'winspool': 1, 'winstrm': 1,
-'wintrust': 1, 'wldap32': 1, 'wmiutils': 1, 'wow32': 1, 'ws2_32': 1,
-'wsnmp32': 1, 'wsock32': 1, 'wst': 1, 'wtsapi32': 1, 'xaswitch': 1, 'xolehlp':1
-}
+nm = """
+aclui activeds ad1 adptif adsiid advapi32 asycfilt authz bhsupp bits bufferoverflowu cabinet
+cap certadm certidl ciuuid clusapi comctl32 comdlg32 comsupp comsuppd comsuppw comsuppwd comsvcs
+credui  crypt32 cryptnet cryptui d3d8thk daouuid dbgeng dbghelp dciman32 ddao35 ddao35d
+ddao35u ddao35ud delayimp dhcpcsvc dhcpsapi dlcapi dnsapi dsprop dsuiext dtchelp
+faultrep fcachdll fci fdi framedyd framedyn gdi32 gdiplus glauxglu32 gpedit gpmuuid
+gtrts32w gtrtst32hlink htmlhelp httpapi icm32 icmui imagehlp imm32 iphlpapi iprop
+kernel32 ksguid ksproxy ksuser libcmt libcmtd libcpmt libcpmtd loadperf lz32 mapi
+mapi32 mgmtapi minidump mmc mobsync mpr mprapi mqoa mqrt msacm32 mscms mscoree
+msdasc msimg32 msrating mstask msvcmrt msvcurt msvcurtd mswsock msxml2 mtx mtxdm
+netapi32 nmapinmsupp npptools ntdsapi ntdsbcli ntmsapi ntquery odbc32 odbcbcp
+odbccp32 oldnames ole32 oleacc oleaut32 oledb oledlgolepro32 opends60 opengl32
+osptk parser pdh penter pgobootrun pgort powrprof psapi ptrustm ptrustmd ptrustu
+ptrustud qosname rasapi32 rasdlgrassapi  resutilsriched20 rpcndr rpcns4 rpcrt4 rtm
+rtutils runtmchk scarddlg scrnsave scrnsavw secur32 sensapi setupapi sfc shell32
+shfolder shlwapi sisbkup snmpapi sporder srclient sti strsafe svcguid tapi32 thunk32
+traffic unicows url urlmon user32 userenv usp10 uuid uxtheme vcomp vcompd vdmdbg
+version vfw32 wbemuuid  webpost wiaguid wininet winmm winscard winspool winstrm
+wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xolehlp
+"""
+g_msvc_systemlibs={}
+for x in nm.split: g_msvc_systemlibs[x] = 1
 
 g_msvc_flag_vars = [
-'FRAMEWORK', 'FRAMEWORKPATH',
-'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
-'INCLUDE',
+'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH', 'INCLUDE',
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CXXDEFINES']
 "main msvc variables"
 
@@ -165,13 +146,13 @@ class msvcobj(ccroot.ccroot):
 			if val: cmilst += self.to_list(val)
 			val = self.env['CCDEFINES_'+l]
 			if val: cppmilst += val
-		self.env['DEFLINES'] = map(lambda x: "define %s"%  ' '.join(x.split('=', 1)), cmilst)
-		self.env['DEFLINES'] = self.env['DEFLINES'] + map(lambda x: "define %s"%  ' '.join(x.split('=', 1)), cppmilst)
+		self.env['DEFLINES'] = ["define %s" % ' '.join(x.split('=', 1)) for x in cmilst]
+		self.env['DEFLINES'] = self.env['DEFLINES'] + ["define %s" % ' '.join(x.split('=', 1)) for x in cppmilst]
 
 		y = self.env['CCDEFINES_ST']
-		self.env['_CCDEFFLAGS'] = map(lambda x: y%x, cmilst)
+		self.env['_CCDEFFLAGS'] = [y%x for x in cmilst]
 		y = self.env['CXXDEFINES_ST']
-		self.env['_CXXDEFFLAGS'] = map(lambda x: y%x, cppmilst)
+		self.env['_CXXDEFFLAGS'] = [y%x for x in cppmilst]
 
 	def is_syslib(self,libname):
 		global g_msvc_systemlibs
