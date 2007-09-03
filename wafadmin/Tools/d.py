@@ -3,10 +3,10 @@
 # Carlos Rafael Giani, 2007 (dv)
 # Thomas Nagy, 2007 (ita)
 
-import os, sys
+import os, sys, re
 sys.path.append(os.path.abspath('..'))
 import optparse
-import Object, Utils, Action, Params, checks, Configure
+import Object, Utils, Action, Params, checks, Configure, Scan
 
 
 class filter:
@@ -133,6 +133,58 @@ class filter:
 				#print "cnt is ", str(cnt)
 				if (cnt%2)==0: break
 
+class parser:
+	def __init__(self):
+		self.code = ''
+		self.module = ''
+		self.imports = []
+		self.re_module = re.compile("module\s+([^;]+)")
+		self.re_import = re.compile("import\s+([^;]+)")
+		self.re_import_bindings = re.compile("([^:]+):(.*)")
+		self.re_import_alias = re.compile("[^=]+=(.+)")
+
+	def run(self):
+		self.imports = []
+		self.module = ''
+
+		# get the module name (if present)
+
+		mod_name = self.re_module.search(self.code)
+		if mod_name:
+			self.module = re.sub('\s+', '', mod_name.group(1)) # strip all whitespaces
+
+		# go through the code, have a look at all import occurrences
+
+		# first, lets look at anything beginning with "import" and ending with ";"
+		import_iterator = self.re_import.finditer(self.code)
+		if import_iterator:
+			for import_match in import_iterator:
+				import_match_str = re.sub('\s+', '', import_match.group(1)) # strip all whitespaces
+
+				# does this end with an import bindings declaration?
+				# (import bindings always terminate the list of imports)
+				bindings_match = self.re_import_bindings.match(import_match_str)
+				if bindings_match:
+					import_match_str = bindings_match.group(1)
+					# if so, extract the part before the ":" (since the module declaration(s) is/are located there)
+
+				# split the matching string into a bunch of strings, separated by a comma
+				matches = import_match_str.split(',')
+
+				for match in matches:
+					alias_match = self.re_import_alias.match(match)
+					if alias_match:
+						# is this an alias declaration? (alias = module name) if so, extract the module name
+						match = alias_match.group(1)
+
+					if not match in self.imports:
+						self.imports.append(match) # hooray!
+
+	def start(self, file):
+		gruik = filter()
+		gruik.start(file)
+		self.code = "".join(gruik.buf)
+		self.run()
 
 class dobj(Object.genobj):
 
@@ -312,55 +364,120 @@ def setup(env):
 def detect(conf):
 	return 1
 
-
-
-import re
-
-class parser:
-
+class d_scanner(Scan.scanner):
+	"scanner for d files"
 	def __init__(self):
+		Scan.scanner.__init__(self)
 
-		self.code = ''
-		self.module = ''
-		self.imports = []
-		self.re_module = re.compile("module\s+([^;]+)")
-		self.re_import = re.compile("import\s+([^;]+)")
-		self.re_import_bindings = re.compile("([^:]+):(.*)")
-		self.re_import_alias = re.compile("[^=]+=(.+)")
+	def scan(self, node, env, path_lst, defines=None):
+		"look for .d/.di the .d source need"
+		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
+		import preproc
+		gruik = preproc.cparse(nodepaths = path_lst, defines = defines)
+		gruik.start2(node, env)
+		if Params.g_verbose:
+			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
+			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
+		return (gruik.m_nodes, gruik.m_names)
 
-	def run(self):
-		self.imports = []
-		self.module = ''
+	def do_scan(self, node, env, hashparams):
+		"call scan which will call the preprocessor"
+		debug("do_scan(self, node, env, hashparams)", 'ccroot')
 
-		# get the module name (if present)
+		variant = node.variant(env)
 
-		mod_name = self.re_module.search(self.code)
-		if mod_name:
-			self.module = re.sub('\s+', '', mod_name.group(1)) # strip all whitespaces
+		if not node:
+			error("BUG rescanning a null node")
+			return
 
-		# go through the code, have a look at all import occurrences
+		(nodes, names) = self.scan(node, env, **hashparams)
+		if Params.g_verbose:
+			if Params.g_zones:
+				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
 
-		# first, lets look at anything beginning with "import" and ending with ";"
-		import_iterator = self.re_import.finditer(self.code)
-		if import_iterator:
-			for import_match in import_iterator:
-				import_match_str = re.sub('\s+', '', import_match.group(1)) # strip all whitespaces
+		tree = Params.g_build
+		tree.m_depends_on[variant][node] = nodes
+		tree.m_raw_deps[variant][node] = names
 
-				# does this end with an import bindings declaration? (import bindings always terminate the list of imports)
-				bindings_match = self.re_import_bindings.match(import_match_str)
-				if bindings_match:
-					import_match_str = bindings_match.group(1) # if so, extract the part before the ":" (since the module declaration(s) is/are located there)
+	def get_signature_queue(self, task):
+		"the basic scheme for computing signatures from .cpp and inferred .h files"
+		tree = Params.g_build
 
-				matches = import_match_str.split(',') # split the matching string into a bunch of strings, separated by a comma
+		# assumption: the source and object files are all in the same variant
+		variant = task.m_inputs[0].variant(task.m_env)
 
-				for match in matches:
-					alias_match = self.re_import_alias.match(match)
-					if alias_match: # is this an alias declaration? (alias = module name) if so, extract the module name
-						match = alias_match.group(1)
+		rescan = 0
+		seen = []
+		queue = [task.m_inputs[0]]
+		m = md5()
 
-					self.imports = self.imports + [match] # hooray!
-						
-				
+		# add the include paths into the hash
+		m.update(str(task.m_scanner_params))
+
+		# add the defines
+		m.update(str(task.m_env['CXXDEFINES']))
+		m.update(str(task.m_env['CCDEFINES']))
+
+		# add the hashes of all files entering into the dependency system
+		while len(queue) > 0:
+			node = queue[0]
+			queue = queue[1:]
+
+			if node in seen: continue
+			seen.append(node)
+
+			# TODO: look at the case of stale nodes and dependencies types
+			variant = node.variant(task.m_env)
+			try: queue += tree.m_depends_on[variant][node]
+			except: pass
+
+			m.update(tree.m_tstamp_variants[variant][node])
+
+		return m.digest()
+
+	def get_signature(self, task):
+		"the signature obtained may not be the one if the files have changed, we do it in two steps"
+		tree = Params.g_build
+		env = task.m_env
+
+		# assumption: we assume that we can still get the old signature from the signature cache
+		try:
+			node = task.m_outputs[0]
+			variant = node.variant(task.m_env)
+			time = tree.m_tstamp_variants[variant][node]
+			key = hash( (variant, node, time, self.__class__.__name__) )
+			prev_sig = tree.get_sig_cache(key)[1]
+		except KeyError:
+			prev_sig = Params.sig_nil
+		except:
+			raise
+
+		# we can compute and return the signature if
+		#   * the source files have not changed (rescan is 0)
+		#   * the computed signature has not changed
+		sig = self.get_signature_queue(task)
+
+		# if the previous signature is the same
+		if sig == prev_sig: return sig
+
+		#print "scanning the file", task.m_inputs[0].abspath()
+
+		# therefore some source or some header is dirty, rescan the source files
+		for node in task.m_inputs:
+			self.do_scan(node, task.m_env, task.m_scanner_params)
+
+		# recompute the signature and return it
+		sig = self.get_signature_queue(task)
+
+		# DEBUG
+		#print "rescan for ", task.m_inputs[0], " is ", rescan,  " and deps ", \
+		#	tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
+
+		return sig
+
+
+g_d_scanner = d_scanner()
+"scanner for d programs"
 
 
 
@@ -375,21 +492,22 @@ if __name__ == "__main__":
 	try: arg = sys.argv[1]
 	except: arg = "file.d"
 
+	# TODO
 	paths = ['.']
-	gruik = filter()
-	gruik.start(arg)
 
-	code = "".join(gruik.buf)
+	#gruik = filter()
+	#gruik.start(arg)
 
-	print "we have found the following code"
-	print code
+	#code = "".join(gruik.buf)
 
-	print "now parsing"
-	print "-------------------------------------------"
+	#print "we have found the following code"
+	#print code
+
+	#print "now parsing"
+	#print "-------------------------------------------"
 
 	parser_ = parser()
-	parser_.code = code
-	parser_.run()
+	parser_.start(arg)
 
 	print "module: %s" % parser_.module
 	print "imports: ",
