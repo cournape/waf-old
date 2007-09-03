@@ -99,7 +99,7 @@ class libtool_config:
 			return 1
 		othervers = [int(s) for s in str(other).split(".")]
 		selfvers = self.__version
-		
+
 		if selfvers > othervers:
 			return 1
 		if selfvers < othervers:

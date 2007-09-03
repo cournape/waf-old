@@ -3,7 +3,6 @@
 * move common configuration flags into the globals to make env smaller
 * refactor the apis
 
-* preprocessor improvements
 * packaging (rpms, debs)
 * improve the scons emulation
 * ncurses options menu support

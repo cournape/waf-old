@@ -75,7 +75,7 @@ class Node:
 
 	def __hash__(self):
 		'return hash value based on the abs path'
-		if not self.__hash_value: 
+		if not self.__hash_value:
 			cur=self
 			lst=[]
 			while cur:
