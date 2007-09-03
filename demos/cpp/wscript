@@ -33,7 +33,7 @@ def set_options(opt):
 	opt.sub_options('src')
 
 	# options provided by the modules
-	opt.tool_options('g++')
+	opt.tool_options('compiler_cxx')
 
 	# custom options
 	opt.add_option('--exe', action='store_true', default=False, help='exe')
@@ -41,7 +41,7 @@ def set_options(opt):
 def configure(conf):
 	# conf.env['CXX'] = Params.g_options.meow
 	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
-	conf.check_tool('g++')
+	conf.check_tool('compiler_cxx')
 
 	## batched builds can be enabled by including the module optim_cc
 	# conf.check_tool('batched_cc')

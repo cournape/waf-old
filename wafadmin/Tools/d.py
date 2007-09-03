@@ -188,43 +188,43 @@ def detect(conf):
 	return 1
 
 
-def get_module_names_from_file(fname):
-	import re
-	f = open(fname)
-	impnames = []
-	try:
-		code = f.read()
+# def get_module_names_from_file(fname):
+# 	import re
+# 	f = open(fname)
+# 	impnames = []
+# 	try:
+# 		code = f.read()
 
 
-		mod_name = re.search("module\s+([^;]+)", code)
-		if mod_name:
-			mod_name = mod_name.group(1)
-		else:
-			mod_name = ''
-		
+# 		mod_name = re.search("module\s+([^;]+)", code)
+# 		if mod_name:
+# 			mod_name = mod_name.group(1)
+# 		else:
+# 			mod_name = ''
+# 		
 
 
-		results = re.findall("import\s+[^;]+", code)
+# 		results = re.findall("import\s+[^;]+", code)
 
-		for result in results:
-			impname = result
-			r = re.match("(import\s+)([^:]+)\s+:\s+(.*)", impname)
-			if r:
-				impname = r.group(2)
+# 		for result in results:
+# 			impname = result
+# 			r = re.match("(import\s+)([^:]+)\s+:\s+(.*)", impname)
+# 			if r:
+# 				impname = r.group(2)
 
-			r = re.match("([^=]+)\s+=\s+(.+)", impname)
-			if r:
-				impname = r.group(2)
+# 			r = re.match("([^=]+)\s+=\s+(.+)", impname)
+# 			if r:
+# 				impname = r.group(2)
 
-			r = re.match("(import\s+)(.*)", impname)
-			if r:
-				impname = r.group(2)
+# 			r = re.match("(import\s+)(.*)", impname)
+# 			if r:
+# 				impname = r.group(2)
 
-			impnames = impnames + [impname]
+# 			impnames = impnames + [impname]
 
-	except:
-		pass
+# 	except:
+# 		pass
 
-	f.close()
+# 	f.close()
 
-	return [mod_name, impnames]
+# 	return [mod_name, impnames]
