@@ -91,7 +91,7 @@ def create_waf():
 	#filter all files out that do not match pyFileExp
 	wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
 	for pyFile in wafadminFiles:
-		if pyFile == "Test.py": continue
+		if pyFile in ['Test.py', 'Weak.py']: continue
 		#add the dir to the file and append to tarFiles
 		tarFiles.append(os.path.join('wafadmin', pyFile))
 
