@@ -42,7 +42,7 @@ def set_options(opt):
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
 
 	opt.add_option('--strip', action='store_true', default=False,
-		help='shrink waf even more (15kb)',
+		help='Shrink waf (quits 25kb)',
 		dest='strip_comments')
 
 def encodeAscii85(s):
@@ -90,12 +90,16 @@ def create_waf():
 	tarFiles=[]
 	#regexpr for python files
 	pyFileExp = re.compile(".*\.py$")
+	re_doc_1 = re.compile('^\s*"""([^"]+)"""', re.M)
+	re_doc_2 = re.compile('^\s*"([^"]+)"', re.M)
 
 	def sfilter(path):
 		f = open(path, "r")
 		cnt = f.read()
 		f.close()
 		if not Params.g_options.strip_comments: return (StringIO.StringIO(cnt), len(cnt))
+		cnt = re_doc_1.sub('', cnt)
+		cnt = re_doc_2.sub('', cnt)
 		lst = cnt.split("\n")
 		lre = re.compile("^\s*#")
 		cnt = "\n".join([x for x in lst if x and not lre.match(x)])
@@ -161,7 +165,7 @@ def create_waf():
 
 	if sys.platform != 'win32':
 		os.chmod('waf', 0755)
-	os.unlink('%s.tar.%s' % (mw, zipType))
+	#os.unlink('%s.tar.%s' % (mw, zipType))
 
 def install_waf():
 	print "installing waf on the system"

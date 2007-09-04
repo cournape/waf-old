@@ -162,8 +162,7 @@ def path_to_define_name(path):
 		invalid_chars = [chr(x) for x in xrange(256)]
 		for valid in string.digits + string.uppercase:
 			invalid_chars.remove(valid)
-		_path_to_define_name_translation = string.maketrans(
-			''.join(invalid_chars), '_'*len(invalid_chars))
+		_path_to_define_name_translation = string.maketrans(''.join(invalid_chars), '_'*len(invalid_chars))
 
 	return string.translate(string.upper(path), _path_to_define_name_translation)
 
