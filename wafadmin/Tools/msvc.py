@@ -1,17 +1,33 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Carlos Rafael Giani, 2006 (dv)
+# Tamas Pal, 2007 (folti)
 # Visual C support - beta, needs more testing
 
 import os, sys
 import re, os.path, string
 import optparse
 import Utils, Action, Params, Object, Runner
-from Params import debug, error, fatal, warning
+from Params import debug, error, fatal, warning, set_globals
 
 import ccroot
 from ccroot import read_la_file
 from os.path import exists
+
+set_globals('EXT_RC_C','.rc')
+
+def resource_compiler(self, node):
+	"""Compiler hook for compiling res files out of rc files. These resource
+	files contains icons, forms information and generic executable informations
+	(like binary version product number and so on for windows executables.
+	The res file created by rc.exe but linked to the binary as an object."""
+	rctask=self.create_task('rc', nice=101)
+	rctask.set_inputs(node)
+	newnode=node.change_ext('.res')
+	rctask.set_outputs([newnode])
+	# FIXME: currently it works, but fails to add a the compiled file to
+	# (cc|cpp)_link's reporting line ([<step>] * cpp_link ...)
+	self.p_compiletasks.append(rctask)
 
 def msvc_linker(task):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
@@ -59,7 +75,7 @@ def msvc_linker(task):
 		else:
 			flags=''
 
-		cmd='"%s" %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
+		cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
 			manifest, outfile, mode)
 		ret=Runner.exec_command(cmd)
 	return ret
@@ -70,7 +86,7 @@ g_msvc_type_vars=['CCFLAGS', 'CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 nm = """
 aclui activeds ad1 adptif adsiid advapi32 asycfilt authz bhsupp bits bufferoverflowu cabinet
 cap certadm certidl ciuuid clusapi comctl32 comdlg32 comsupp comsuppd comsuppw comsuppwd comsvcs
-credui  crypt32 cryptnet cryptui d3d8thk daouuid dbgeng dbghelp dciman32 ddao35 ddao35d
+credui crypt32 cryptnet cryptui d3d8thk daouuid dbgeng dbghelp dciman32 ddao35 ddao35d
 ddao35u ddao35ud delayimp dhcpcsvc dhcpsapi dlcapi dnsapi dsprop dsuiext dtchelp
 faultrep fcachdll fci fdi framedyd framedyn gdi32 gdiplus glauxglu32 gpedit gpmuuid
 gtrts32w gtrtst32hlink htmlhelp httpapi icm32 icmui imagehlp imm32 iphlpapi iprop
@@ -80,7 +96,7 @@ msdasc msimg32 msrating mstask msvcmrt msvcurt msvcurtd mswsock msxml2 mtx mtxdm
 netapi32 nmapinmsupp npptools ntdsapi ntdsbcli ntmsapi ntquery odbc32 odbcbcp
 odbccp32 oldnames ole32 oleacc oleaut32 oledb oledlgolepro32 opends60 opengl32
 osptk parser pdh penter pgobootrun pgort powrprof psapi ptrustm ptrustmd ptrustu
-ptrustud qosname rasapi32 rasdlgrassapi  resutilsriched20 rpcndr rpcns4 rpcrt4 rtm
+ptrustud qosname rasapi32 rasdlg rassapi resutils riched20 rpcndr rpcns4 rpcrt4 rtm
 rtutils runtmchk scarddlg scrnsave scrnsavw secur32 sensapi setupapi sfc shell32
 shfolder shlwapi sisbkup snmpapi sporder srclient sti strsafe svcguid tapi32 thunk32
 traffic unicows url urlmon user32 userenv usp10 uuid uxtheme vcomp vcompd vdmdbg
@@ -88,7 +104,7 @@ version vfw32 wbemuuid  webpost wiaguid wininet winmm winscard winspool winstrm
 wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xolehlp
 """
 g_msvc_systemlibs={}
-for x in nm.split: g_msvc_systemlibs[x] = 1
+for x in nm.split(): g_msvc_systemlibs[x] = 1
 
 g_msvc_flag_vars = [
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH', 'INCLUDE',
@@ -99,6 +115,7 @@ g_msvc_flag_vars = [
 class msvcobj(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
+		self.s_default_ext = ['.rc']
 
 		self.ccflags=''
 		self.cxxflags=''
@@ -328,14 +345,14 @@ class msvcobj(ccroot.ccroot):
 class msvccc(msvcobj):
 	def __init__(self, type='program', subtype=None):
 		msvcobj.__init__(self, type, subtype)
-		self.s_default_ext = ['.c']
+		self.s_default_ext = self.s_default_ext + ['.c']
 		self.m_type_initials = 'cc'
 
 class msvccpp(msvcobj):
 	def __init__(self, type='program', subtype=None):
 		msvcobj.__init__(self, type, subtype)
 		self.m_type_initials = 'cpp'
-		self.s_default_ext = ['.cpp', '.cc', '.cxx','.C']
+		self.s_default_ext = self.s_default_ext + ['.cpp', '.cc', '.cxx','.C']
 
 def setup(env):
 	static_link_str = '${STLIBLINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT}'
@@ -344,15 +361,27 @@ def setup(env):
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	cpp_link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
+	rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
+
 	Action.simple_action('cc', cc_str, color='GREEN')
 	Action.simple_action('cpp', cpp_str, color='GREEN')
 	Action.simple_action('ar_link_static', static_link_str, color='YELLOW')
 
 	Action.Action('cc_link', vars=['LINK_CC', 'CCLNK_SRC_F', 'CCLNK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker)
 	Action.Action('cpp_link', vars=[ 'LINK_CXX', 'CPPLNK_SRC_F', 'CPPLNK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker)
+	Action.simple_action('rc', rc_str, color='GREEN')
 
 	Object.register('cc', msvccc)
 	Object.register('cpp', msvccpp)
+
+	try: Object.hook('cc','RC_EXT',resource_compiler)
+	except: pass
+
+	try: Object.hook('cpp','RC_EXT',resource_compiler)
+	except: pass
+
+def quote_str(str):
+		return (str.strip().find(' ') > 0 and '"%s"' % str or str).replace('""', '"')
 
 def detect(conf):
 
@@ -368,12 +397,16 @@ def detect(conf):
 	if not stliblink:
 		return 0;
 
+	rescompiler = conf.find_program('RC')
+	if not rescompiler:
+		return 0
+
 	manifesttool = conf.find_program('MT')
 
 	v = conf.env
 
 	# c/c++ compiler - check for whitespace, and if so, add quotes
-	v['CC']                 = (comp.strip().find(' ') > 0 and '"%s"' % comp or comp).replace('""', '"')
+	v['CC']                 = quote_str(comp)
 	v['CXX']                 = v['CC']
 
 	v['CPPFLAGS']            = ['/W3', '/nologo', '/c', '/EHsc', '/errorReport:prompt']
@@ -450,8 +483,13 @@ def detect(conf):
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005
 	# and later
 	if manifesttool:
-		v['MT'] = manifesttool
+		v['MT'] = quote_str (manifesttool)
 		v['MTFLAGS']=['/NOLOGO']
+
+	# MSVC Resource compiler
+	v['RC'] = quote_str(rescompiler)
+	v['RCFLAGS'] = ['/r']
+	v['RC_EXT'] = ['.rc']
 
 	# linker debug levels
 	v['LINKFLAGS']           = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
