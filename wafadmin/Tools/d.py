@@ -8,8 +8,7 @@ sys.path.append(os.path.abspath('..'))
 import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
 
-
-class filter:
+class filter_comments:
 	def __init__(self):
 		self.fn     = ''
 		self.i      = 0
@@ -19,24 +18,6 @@ class filter:
 
 	def next(self):
 		ret = self.txt[self.i]
-		# unterminated lines can be eliminated
-		if ret == '\\':
-			try:
-				if self.txt[self.i+1] == '\n':
-					self.i += 2
-					return self.next()
-				elif self.txt[self.i+1] == '\r':
-					if self.txt[self.i+2] == '\n':
-						self.i += 3
-						return self.next()
-				else:
-					pass
-			except:
-				pass
-		elif ret == '\r':
-			if self.txt[self.i+1] == '\n':
-				self.i += 2
-				return '\n'
 		self.i += 1
 		return ret
 
@@ -134,7 +115,7 @@ class filter:
 				if (cnt%2)==0: break
 
 class parser:
-	def __init__(self):
+	def __init__(self, incpaths):
 		self.code = ''
 		self.module = ''
 		self.imports = []
@@ -145,6 +126,7 @@ class parser:
 
 		self.m_nodes = []
 		self.m_names = []
+		self.incpaths = incpaths
 
 	def run(self):
 		self.imports = []
@@ -184,16 +166,18 @@ class parser:
 						self.imports.append(match) # hooray!
 
 	def start(self, file):
-		gruik = filter()
+		gruik = filter_comments()
 		gruik.start(file)
 		self.code = "".join(gruik.buf)
 		self.run()
 
 	def start2(self, node, env):
-		gruik = filter()
+		gruik = filter_comments()
 		gruik.start(node.abspath(env))
 		self.code = "".join(gruik.buf)
 		self.run()
+
+		print self.imports
 
 class d_scanner(Scan.scanner):
 	"scanner for d files"
@@ -202,11 +186,11 @@ class d_scanner(Scan.scanner):
 		self.do_scan = self.do_scan_new
 		self.get_signature = self.get_signature_rec
 
-	def scan(self, node, env, path_lst, defines=None):
+	def scan(self, task, node):
 		"look for .d/.di the .d source need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = parser()
-		gruik.start2(node, env)
+		gruik = parser(task.inc_paths)
+		gruik.start2(node, task.m_env)
 
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
@@ -228,6 +212,7 @@ class dobj(Object.genobj):
 		self.libpaths = ''
 		self.uselib = ''
 		self.uselib_local = ''
+		self.inc_paths = []
 
 	def apply(self):
 
@@ -300,7 +285,9 @@ class dobj(Object.genobj):
 			if Utils.is_absolute_path(path):
 				imppath = path
 			else:
-				imppath = self.path.find_source_lst(Utils.split_path(path)).srcpath(self.env)
+				node = self.path.find_source_lst(Utils.split_path(path))
+				self.inc_paths.append(node)
+				imppath = node.srcpath(self.env)
 			self.env.append_unique('_DIMPORTFLAGS', dpath_st % imppath)
 
 
@@ -358,6 +345,7 @@ class dobj(Object.genobj):
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(obj_ext))
 			task.m_scanner = g_d_scanner
+			task.inc_paths = self.inc_paths
 
 			compiletasks.append(task)
 

@@ -178,7 +178,7 @@ class scanner:
 
 		# therefore some source or some header is dirty, rescan the source files
 		for node in task.m_inputs:
-			self.do_scan(node, task.m_env, task.m_scanner_params)
+			self.do_scan_new(task, node)
 
 		# recompute the signature and return it
 		sig = self.get_signature_queue(task)
@@ -189,17 +189,17 @@ class scanner:
 
 		return sig
 
-	def do_scan_new(self, node, env, hashparams):
+	def do_scan_new(self, task, node):
 		"call scan which will call the preprocessor"
 		debug("do_scan(self, node, env, hashparams)", 'ccroot')
 
-		variant = node.variant(env)
+		variant = node.variant(task.m_env)
 
 		if not node:
 			error("BUG rescanning a null node")
 			return
 
-		(nodes, names) = self.scan(node, env, **hashparams)
+		(nodes, names) = self.scan(task, node)
 		if Params.g_verbose:
 			if Params.g_zones:
 				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')

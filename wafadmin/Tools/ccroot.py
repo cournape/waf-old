@@ -25,12 +25,12 @@ class c_scanner(Scan.scanner):
 		self.do_scan = self.do_scan_new
 		self.get_signature = self.get_signature_rec
 
-	def scan(self, node, env, path_lst, defines=None):
+	def scan(self, task, node):
 		"look for .h the .cpp need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
 		import preproc
-		gruik = preproc.cparse(nodepaths = path_lst, defines = defines)
-		gruik.start2(node, env)
+		gruik = preproc.cparse(nodepaths = task.path_lst, defines = task.defines)
+		gruik.start2(node, task.m_env)
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
 			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
@@ -142,7 +142,7 @@ class ccroot(Object.genobj):
 
 		# these are kind of private, do not touch
 		self._incpaths_lst=[]
-		self._deppaths_lst = []
+		self.inc_paths = []
 		self.scanner_defines = {}
 		self._bld_incpaths_lst=[]
 
@@ -195,7 +195,6 @@ class ccroot(Object.genobj):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
 		tree = Params.g_build
-		dir_lst = { 'path_lst' : self._deppaths_lst, 'defines' : self.scanner_defines }
 
 		lst = self.to_list(self.source)
 		find_source_lst = self.path.find_source_lst
@@ -215,7 +214,8 @@ class ccroot(Object.genobj):
 			task = self.create_task(self.m_type_initials, self.env)
 
 			task.m_scanner        = g_c_scanner
-			task.m_scanner_params = dir_lst
+			task.path_lst = self.inc_paths
+			task.defines  = self.scanner_defines
 
 			task.m_inputs = [node]
 			task.m_outputs = [node.change_ext(obj_ext)]
@@ -310,7 +310,7 @@ class ccroot(Object.genobj):
 		if self.dependencies:
 			dep_lst = (self.to_list(self.dependencies)
 				   + self.to_list(self.includes))
-			self._deppaths_lst = []
+			self.inc_paths = []
 			for directory in dep_lst:
 				if Utils.is_absolute_path(directory):
 					Params.fatal("Absolute paths not allowed in obj.dependencies")
@@ -321,15 +321,15 @@ class ccroot(Object.genobj):
 					Params.fatal("node not found in ccroot:apply_dependencies "
 						     + str(directory), 'ccroot')
 					return
-				if node not in self._deppaths_lst:
-					self._deppaths_lst.append(node)
+				if node not in self.inc_paths:
+					self.inc_paths.append(node)
 		else:
 			## by default, we include the whole project tree
 			lst = []
 			for obj in Object.g_allobjs:
 				if obj.path not in lst:
 					lst.append(obj.path)
-			self._deppaths_lst = lst + self._incpaths_lst
+			self.inc_paths = lst + self._incpaths_lst
 
 	def apply_type_vars(self):
 		debug('apply_type_vars called', 'ccroot')
