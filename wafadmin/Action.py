@@ -18,7 +18,8 @@ class Action:
 		for when this is used - a parameter is given, it is the task. Each action must name"""
 
 		self.m_name = name
-		self.m_vars = vars # variables that should trigger a rebuild
+		# variables for triggering a rebuild
+		self.m_vars = vars
 		self.m_function_to_run = func
 		self._add_action()
 		self.m_color = color

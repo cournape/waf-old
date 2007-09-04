@@ -19,7 +19,7 @@ REVISION=''
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']
 
-import Params, Utils, Options, os, sys, base64, shutil, re, random
+import Params, Utils, Options, os, sys, base64, shutil, re, random, StringIO
 
 print "------> Executing code from the top-level wscript <-----"
 
@@ -40,6 +40,10 @@ def set_options(opt):
 	# those ones are not too interesting
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
+
+	opt.add_option('--strip', action='store_true', default=False,
+		help='shrink waf even more (15kb)',
+		dest='strip_comments')
 
 def encodeAscii85(s):
 	out=[]
@@ -87,26 +91,34 @@ def create_waf():
 	#regexpr for python files
 	pyFileExp = re.compile(".*\.py$")
 
-	wafadminFiles = os.listdir('wafadmin')
-	#filter all files out that do not match pyFileExp
-	wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
-	for pyFile in wafadminFiles:
-		if pyFile in ['Test.py', 'Weak.py']: continue
-		#add the dir to the file and append to tarFiles
-		tarFiles.append(os.path.join('wafadmin', pyFile))
+	def sfilter(path):
+		f = open(path, "r")
+		cnt = f.read()
+		f.close()
+		if not Params.g_options.strip_comments: return (StringIO.StringIO(cnt), len(cnt))
+		lst = cnt.split("\n")
+		lre = re.compile("^\s*#")
+		cnt = "\n".join([x for x in lst if x and not lre.match(x)])
+		return (StringIO.StringIO(cnt), len(cnt))
 
-	wafadTolFiles = os.listdir(os.path.join('wafadmin', 'Tools'))
-	wafadTolFiles = filter (lambda s: pyFileExp.match(s), wafadTolFiles)
-	for pyFile in wafadTolFiles:
-		tarFiles.append(os.path.join('wafadmin', 'Tools', pyFile))
-
-	for tarThisFile in tarFiles:
-		tar.add(tarThisFile)
+	forbidden = ['Test.py', 'Weak.py']
+	lst = os.listdir('wafadmin')
+	files = [os.path.join('wafadmin', s) for s in lst if pyFileExp.match(s) and not s in forbidden]
+	tooldir = os.path.join('wafadmin', 'Tools')
+	lst = os.listdir(tooldir)
+	files += [os.path.join(tooldir, s) for s in lst if pyFileExp.match(s) and not s in forbidden]
+	for x in files:
+		tarinfo = tar.gettarinfo(x, x)
+		tarinfo.uid=tarinfo.gid=1000
+		tarinfo.uname=tarinfo.gname="bozo"
+		(code, size) = sfilter(x)
+		tarinfo.size = size
+		tar.addfile(tarinfo, code)
 	tar.close()
 
-	file = open('waf-light', 'rb')
-	code1 = file.read()
-	file.close()
+	f = open('waf-light', 'rb')
+	code1 = f.read()
+	f.close()
 
 	# now store the revision unique number in waf
 	v = 1000000000
@@ -129,23 +141,23 @@ def create_waf():
 	reg = re.compile('bz2', re.M)
 	code1 = reg.sub(zipType, code1)
 
-	file = open('%s.tar.%s' % (mw, zipType), 'rb')
-	cnt = file.read()
-	file.close()
+	f = open('%s.tar.%s' % (mw, zipType), 'rb')
+	cnt = f.read()
+	f.close()
 	code2 = encodeAscii85(cnt)
-	file = open('waf', 'wb')
-	file.write(code1)
-	file.write('# ===>BEGIN WOOF<===\n')
-	file.write('#')
-	file.write(code2)
-	file.write('\n')
-	file.write('# ===>END WOOF<===\n')
-	file.close()
+	f = open('waf', 'wb')
+	f.write(code1)
+	f.write('# ===>BEGIN WOOF<===\n')
+	f.write('#')
+	f.write(code2)
+	f.write('\n')
+	f.write('# ===>END WOOF<===\n')
+	f.close()
 
 	if sys.platform == 'win32' or Params.g_options.make_batch:
-		file = open('waf.bat', 'wb')
-		file.write('@python -x waf %* & exit /b\n')
-		file.close()
+		f = open('waf.bat', 'wb')
+		f.write('@python -x waf %* & exit /b\n')
+		f.close()
 
 	if sys.platform != 'win32':
 		os.chmod('waf', 0755)

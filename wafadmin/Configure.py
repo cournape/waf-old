@@ -213,7 +213,8 @@ class function_enumerator(enumerator_base):
 		self.conf.add_define(self.define, retval)
 
 	def run_test(self):
-		ret = 0 # not found
+		# not found
+		ret = 0
 
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
