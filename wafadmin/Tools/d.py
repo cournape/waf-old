@@ -139,19 +139,23 @@ class parser:
 		for n in self.incpaths:
 			found = n.find_source(filename, create=0)
 			if found:
+				print "found node !!"
 				self.m_nodes.append(found)
+				self.waiting.append(found)
+				break
 		if not found:
 			if not filename in self.m_names:
 				self.m_names.append(filename)
 
-	def get_contents(file):
+	def get_contents(self, file):
 		gruik = filter_comments()
-		gruik.start(node.abspath(env))
+		gruik.start(file)
 		return "".join(gruik.buf)
 
-	def get_strings(code):
+	def get_strings(self, code):
 		#self.imports = []
 		self.module = ''
+		lst = []
 
 		# get the module name (if present)
 
@@ -183,25 +187,29 @@ class parser:
 						# is this an alias declaration? (alias = module name) if so, extract the module name
 						match = alias_match.group(1)
 
-					if not match in self.allnames:
-						self.allnames.append(match)
-		return self.allnames
+					lst.append(match)
+		return lst
 
-	def start2(self, node, env):
+	def start2(self, node):
 		self.waiting = [node]
+		# while the stack is not empty, add the dependencies
 		while self.waiting:
 			nd = self.waiting.pop(0)
 			self.iter(nd)
-		print self.imports
-
-	def process_names(self, names):
-		self.m_raw_deps = names
 
 	def iter(self, node):
-		path = node.abspath(self.env)
-		code = self.get_contents(path)
-		names = self.get_strings(code)
-		self.process_names(names)
+		print "iter with node ", node
+		path = node.abspath(self.env) # obtain the absolute path
+		code = self.get_contents(path) # read the file and filter the comments
+		names = self.get_strings(code) # obtain the import strings
+		print "names are", names, "and incpaths ", self.incpaths
+		for x in names:
+			# optimization
+			if x in self.allnames: continue
+			self.allnames.append(x)
+
+			# for each name, see if it is like a node or not
+			self.tryfind(x)
 
 class d_scanner(Scan.scanner):
 	"scanner for d files"
