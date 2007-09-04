@@ -115,33 +115,54 @@ class filter_comments:
 				if (cnt%2)==0: break
 
 class parser:
-	def __init__(self, incpaths):
-		self.code = ''
-		self.module = ''
-		self.imports = []
+	def __init__(self, env, incpaths):
+		#self.code = ''
+		#self.module = ''
+		#self.imports = []
+
+		self.allnames = []
+
 		self.re_module = re.compile("module\s+([^;]+)")
 		self.re_import = re.compile("import\s+([^;]+)")
 		self.re_import_bindings = re.compile("([^:]+):(.*)")
 		self.re_import_alias = re.compile("[^=]+=(.+)")
 
+		self.env = env
+
 		self.m_nodes = []
 		self.m_names = []
+
 		self.incpaths = incpaths
 
-	def run(self):
-		self.imports = []
+	def tryfind(self, filename):
+		found = 0
+		for n in self.incpaths:
+			found = n.find_source(filename, create=0)
+			if found:
+				self.m_nodes.append(found)
+		if not found:
+			if not filename in self.m_names:
+				self.m_names.append(filename)
+
+	def get_contents(file):
+		gruik = filter_comments()
+		gruik.start(node.abspath(env))
+		return "".join(gruik.buf)
+
+	def get_strings(code):
+		#self.imports = []
 		self.module = ''
 
 		# get the module name (if present)
 
-		mod_name = self.re_module.search(self.code)
+		mod_name = self.re_module.search(code)
 		if mod_name:
 			self.module = re.sub('\s+', '', mod_name.group(1)) # strip all whitespaces
 
 		# go through the code, have a look at all import occurrences
 
 		# first, lets look at anything beginning with "import" and ending with ";"
-		import_iterator = self.re_import.finditer(self.code)
+		import_iterator = self.re_import.finditer(code)
 		if import_iterator:
 			for import_match in import_iterator:
 				import_match_str = re.sub('\s+', '', import_match.group(1)) # strip all whitespaces
@@ -162,22 +183,25 @@ class parser:
 						# is this an alias declaration? (alias = module name) if so, extract the module name
 						match = alias_match.group(1)
 
-					if not match in self.imports:
-						self.imports.append(match) # hooray!
-
-	def start(self, file):
-		gruik = filter_comments()
-		gruik.start(file)
-		self.code = "".join(gruik.buf)
-		self.run()
+					if not match in self.allnames:
+						self.allnames.append(match)
+		return self.allnames
 
 	def start2(self, node, env):
-		gruik = filter_comments()
-		gruik.start(node.abspath(env))
-		self.code = "".join(gruik.buf)
-		self.run()
-
+		self.waiting = [node]
+		while self.waiting:
+			nd = self.waiting.pop(0)
+			self.iter(nd)
 		print self.imports
+
+	def process_names(self, names):
+		self.m_raw_deps = names
+
+	def iter(self, node):
+		path = node.abspath(self.env)
+		code = self.get_contents(path)
+		names = self.get_strings(code)
+		self.process_names(names)
 
 class d_scanner(Scan.scanner):
 	"scanner for d files"
@@ -189,8 +213,8 @@ class d_scanner(Scan.scanner):
 	def scan(self, task, node):
 		"look for .d/.di the .d source need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = parser(task.inc_paths)
-		gruik.start2(node, task.m_env)
+		gruik = parser(task.m_env, task.inc_paths)
+		gruik.start2(node)
 
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
