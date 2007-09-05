@@ -170,7 +170,7 @@ def create_waf():
 
 	if sys.platform != 'win32':
 		os.chmod('waf', 0755)
-	os.unlink('%s.tar.%s' % (mw, zipType))
+	#os.unlink('%s.tar.%s' % (mw, zipType))
 
 def install_waf():
 	print "installing waf on the system"
