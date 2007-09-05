@@ -329,12 +329,6 @@ def DistClean():
 	import os, shutil, types
 	import Build
 
-	# execute the user-provided distclean function
-	try:
-		if not Utils.g_module.distclean(): sys.exit(0)
-	except AttributeError:
-		pass
-
 	# remove the temporary files
 	# the builddir is given by lock-wscript only
 	# we do no try to remove it if there is no lock file (rmtree)
