@@ -13,7 +13,7 @@ import Utils
 # =================================== #
 # Fixed constants, change with care
 
-g_version="1.1.9"
+g_version="1.2.0"
 g_rootname = ''
 if sys.platform=='win32':
 	# get the first two letters (c:)

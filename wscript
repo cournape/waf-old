@@ -12,7 +12,7 @@ For configuration examples: demos/adv/wscript
 For a project without subdirectory: demos/python/wscript
 """
 
-VERSION="1.1.9"
+VERSION="1.2.0"
 APPNAME='waf'
 REVISION=''
 
@@ -20,7 +20,7 @@ demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'x
 zip_types = ['bz2', 'gz']
 
 # exclude these modules
-forbidden = [x+'.py' for x in 'Test Weak Qt3 KDE3'.split()]
+forbidden = [x+'.py' for x in 'Test Weak'.split()]
 
 import Params, Utils, Options, os, sys, base64, shutil, re, random, StringIO
 
