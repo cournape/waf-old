@@ -30,6 +30,5 @@ def build(bld):
 	obj.source = '''
 	example.d
 	'''
-	obj.imports = '/home/dv'
 	obj.target = 'd_test'
 	obj.uselib = 'PTHREAD'
