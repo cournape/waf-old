@@ -111,18 +111,14 @@ class Popen(object):
 			raise TypeError("bufsize must be an integer")
 		if mswindows:
 			if preexec_fn is not None:
-				raise ValueError("preexec_fn is not supported on Windows "
-								 "platforms")
+				raise ValueError("preexec_fn is not supported on Windows platforms")
 			if close_fds:
-				raise ValueError("close_fds is not supported on Windows "
-								 "platforms")
+				raise ValueError("close_fds is not supported on Windows platforms")
 		else:
 			if startupinfo is not None:
-				raise ValueError("startupinfo is only supported on Windows "
-								 "platforms")
+				raise ValueError("startupinfo is only supported on Windows platforms")
 			if creationflags != 0:
-				raise ValueError("creationflags is only supported on Windows "
-								 "platforms")
+				raise ValueError("creationflags is only supported on Windows platforms")
 		self.stdin = None
 		self.stdout = None
 		self.stderr = None
@@ -226,9 +222,7 @@ class Popen(object):
 			if not os.path.exists(w9xpopen):
 				w9xpopen = os.path.join(os.path.dirname(sys.exec_prefix), "w9xpopen.exe")
 				if not os.path.exists(w9xpopen):
-					raise RuntimeError("Cannot locate w9xpopen.exe, which is "
-									   "needed for Popen to work with your "
-									   "shell or platform.")
+					raise RuntimeError("Cannot locate w9xpopen.exe, which is needed for Popen to work with your shell or platform.")
 			return w9xpopen
 		def _execute_child(self, args, executable, preexec_fn, close_fds,
 						   cwd, env, universal_newlines,

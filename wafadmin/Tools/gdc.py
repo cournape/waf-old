@@ -4,7 +4,6 @@
 
 import sys
 
-
 def setup(env):
 	pass
 
@@ -13,8 +12,7 @@ def detect(conf):
 	if conf.env['D_COMPILER']:
 		d_compiler = conf.env['D_COMPILER']
 	if not d_compiler: d_compiler = conf.find_program('gdc', var='D_COMPILER')
-	if not d_compiler:
-		return 0;
+	if not d_compiler: return 0
 
 	conf.check_tool('d')
 

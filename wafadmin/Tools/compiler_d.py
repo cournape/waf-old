@@ -6,8 +6,6 @@ import os, sys, imp, types
 import optparse
 import Utils, Action, Params, checks, Configure
 
-
-
 def setup(env):
 	pass
 
@@ -22,7 +20,7 @@ def detect(conf):
 			conf.check_message("%s" % d_compiler, '', True)
 			return (1)
 		conf.check_message("%s" % d_compiler, '', False)
-	return (0)	
+	return 0
 
 def set_options(opt):
 	d_compiler_opts = opt.add_option_group("D Compiler Options")

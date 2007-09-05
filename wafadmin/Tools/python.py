@@ -110,7 +110,7 @@ def check_python_headers(conf):
 	lib = conf.create_library_configurator()
 	lib.name = 'python' + conf.env['PYTHON_VERSION']
 	lib.uselib = 'PYTHON'
-	lib.code = """
+	lib.code = '''
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -120,7 +120,7 @@ extern "C" {
 }
 #endif
 int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
-"""
+'''
 	if python_LIBDIR is not None:
 		lib.path = [python_LIBDIR]
 		result = lib.run()
@@ -200,9 +200,8 @@ def check_python_version(conf, minver=None):
 		else:
 			if sys.platform == 'win32':
 				(python_LIBDEST,) = \
-						_get_python_variables(python, [
-				"get_config_var('LIBDEST')",
-				], ['from distutils.sysconfig import get_config_var'])
+						_get_python_variables(python, ["get_config_var('LIBDEST')"],
+						['from distutils.sysconfig import get_config_var'])
 			else:
 				python_LIBDEST = None
 			if python_LIBDEST is None:
