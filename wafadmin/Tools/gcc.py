@@ -44,7 +44,7 @@ def detect(conf):
 
 	v['CC_SRC_F']             = ''
 	v['CC_TGT_F']             = '-c -o '
-	v['CPPPATH_ST']           = '-I%s' # template for adding include pathes
+	v['CPPPATH_ST']           = '-I%s' # template for adding include paths
 
 	# linker
 	v['LINK_CC']              = v['CC']
@@ -52,8 +52,8 @@ def detect(conf):
 	v['CCLNK_SRC_F']          = ''
 	v['CCLNK_TGT_F']          = '-o '
 
-	v['LIB_ST']               = '-l%s'	# template for adding libs
-	v['LIBPATH_ST']           = '-L%s' # template for adding libpathes
+	v['LIB_ST']               = '-l%s' # template for adding libs
+	v['LIBPATH_ST']           = '-L%s' # template for adding libpaths
 	v['STATICLIB_ST']         = '-l%s'
 	v['STATICLIBPATH_ST']     = '-L%s'
 	v['_LIBDIRFLAGS']         = ''

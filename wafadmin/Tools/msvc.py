@@ -468,8 +468,8 @@ def detect(conf):
 	v['CPPLNK_SRC_F']        = ' '
 	v['CCLNK_SRC_F']         = v['CCLNK_SRC_F']
 
-	v['LIB_ST']              = '%s.lib'	# template for adding libs
-	v['LIBPATH_ST']          = '/LIBPATH:%s' # template for adding libpathes
+	v['LIB_ST']              = '%s.lib' # template for adding libs
+	v['LIBPATH_ST']          = '/LIBPATH:%s' # template for adding libpaths
 	v['STATICLIB_ST']        = '%s.lib'
 	v['STATICLIBPATH_ST']    = '/LIBPATH:%s'
 	v['CCDEFINES_ST']       = '/D%s'
@@ -480,8 +480,7 @@ def detect(conf):
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
 
-	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005
-	# and later
+	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	if manifesttool:
 		v['MT'] = quote_str (manifesttool)
 		v['MTFLAGS']=['/NOLOGO']
@@ -526,12 +525,12 @@ def detect(conf):
 	if not v['DESTDIR']: v['DESTDIR']=''
 
 	# shared library
-	v['shlib_CCFLAGS']    = ['']
-	v['shlib_CXXFLAGS']    = ['']
-	v['shlib_LINKFLAGS']   = ['/DLL']
-	v['shlib_obj_ext']     = ['.obj']
-	v['shlib_PREFIX']      = ''
-	v['shlib_SUFFIX']      = '.dll'
+	v['shlib_CCFLAGS']  = ['']
+	v['shlib_CXXFLAGS'] = ['']
+	v['shlib_LINKFLAGS']= ['/DLL']
+	v['shlib_obj_ext']  = ['.obj']
+	v['shlib_PREFIX']   = ''
+	v['shlib_SUFFIX']   = '.dll'
 	v['shlib_IMPLIB_SUFFIX'] = ['.lib']
 	v['shlib_INST_VAR'] = 'PREFIX'
 	v['shlib_INST_DIR'] = 'lib'
@@ -545,8 +544,8 @@ def detect(conf):
 	v['staticlib_INST_DIR'] = 'lib'
 
 	# program
-	v['program_obj_ext']   = ['.obj']
-	v['program_SUFFIX']    = '.exe'
+	v['program_obj_ext']  = ['.obj']
+	v['program_SUFFIX']   = '.exe'
 	v['program_INST_VAR'] = 'PREFIX'
 	v['program_INST_DIR'] = 'bin'
 

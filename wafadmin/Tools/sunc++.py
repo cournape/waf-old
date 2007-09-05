@@ -58,8 +58,8 @@ def detect(conf):
 	v['CPPLNK_TGT_F']        = '-o '
 	v['CPPLNK_SRC_F']        = ''
 
-	v['LIB_ST']              = '-l%s'	# template for adding libs
-	v['LIBPATH_ST']          = '-L%s' # template for adding libpathes
+	v['LIB_ST']              = '-l%s' # template for adding libs
+	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
 	v['STATICLIB_ST']        = '-l%s'
 	v['STATICLIBPATH_ST']    = '-L%s'
 	v['CXXDEFINES_ST']       = '-D%s'

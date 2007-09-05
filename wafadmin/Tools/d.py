@@ -4,7 +4,8 @@
 # Thomas Nagy, 2007 (ita)
 
 import os, sys, re, optparse
-sys.path.append(os.path.abspath('..'))
+if __name__ == "__main__":
+	sys.path.append(os.path.abspath('..'))
 import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
 
