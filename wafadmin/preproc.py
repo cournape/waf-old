@@ -747,6 +747,7 @@ class cparse:
 			return res[1]
 		return 0
 
+# quick test #
 if __name__ == "__main__":
 	Params.g_verbose = 2
 	Params.g_zones = ['preproc']
