@@ -70,7 +70,7 @@ def configure():
 		except AttributeError: pass
 		if not blddir: blddir = Utils.g_module.blddir
 
-		Params.g_cachedir = Utils.join_path(blddir,'_cache_')
+		Params.g_cachedir = os.path.join(blddir, '_cache_')
 
 	except AttributeError:
 		msg = "The attributes srcdir or blddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project\n * use waf configure --srcdir=xxx --blddir=yyy"
@@ -164,7 +164,7 @@ def Main():
 			bld = Build.Build()
 			proj = read_cache_file(g_lockfile)
 
-	Params.g_cachedir = Utils.join_path(proj['blddir'], '_cache_')
+	Params.g_cachedir = os.path.join(proj['blddir'], '_cache_')
 
 	bld.load_dirs(proj['srcdir'], proj['blddir'])
 	bld.load_envs()

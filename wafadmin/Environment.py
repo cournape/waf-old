@@ -125,7 +125,7 @@ class Environment:
 		"return the destdir, useful for installing"
 		if self.m_table.has_key('NOINSTALL'): return ''
 		dst = Params.g_options.destdir
-		try: dst = Utils.join_path(dst,os.sep,self.m_table['SUBDEST'])
+		try: dst = os.path.join(dst, os.sep, self.m_table['SUBDEST'])
 		except: pass
 		return dst
 

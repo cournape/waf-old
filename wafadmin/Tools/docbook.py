@@ -126,7 +126,7 @@ class docbookobj(Object.genobj):
 
 		current = Params.g_build.m_curdirnode
 		lst = []
-		docpath = Utils.join_path('share',Utils.g_module.APPNAME, 'doc')
+		docpath = os.path.join('share',Utils.g_module.APPNAME, 'doc')
 
 		# Install all generated docs
 		for task in self.m_tasks:

@@ -135,9 +135,6 @@ def __split_dirs(path):
 	else: return __split_dirs(h) + [t]
 
 
-def join_path(*path):
-	return os.path.join(*path)
-
 def join_path_list(path_lst):
 	return join_path(*path_lst)
 

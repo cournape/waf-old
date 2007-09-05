@@ -302,7 +302,7 @@ class Build:
 
 		# set the source directory
 		if not os.path.isabs(srcdir):
-			srcdir = Utils.join_path(os.path.abspath('.'),srcdir)
+			srcdir = os.path.join(os.path.abspath('.'),srcdir)
 
 		# set the build directory it is a path, not a node (either absolute or relative)
 		if not os.path.isabs(blddir):
@@ -386,7 +386,7 @@ class Build:
 		lst.reverse()
 
 		for variant in self._variants:
-			sub_path = Utils.join_path(self.m_bldnode.abspath(), variant , *lst)
+			sub_path = os.path.join(self.m_bldnode.abspath(), variant , *lst)
 			try:
 				files = self.scan_path(src_dir_node, sub_path, src_dir_node.m_build_lookup.values(), variant)
 				src_dir_node.m_build_lookup={}

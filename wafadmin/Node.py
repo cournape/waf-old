@@ -496,14 +496,14 @@ class Node:
 			l -= 1
 			if n[l]=='.': break
 		s = n[:l]
-		return Utils.join_path(self.bld_dir(env),s)
+		return os.path.join(self.bld_dir(env),s)
 
 	def bldpath(self, env=None):
 		"path seen from the build dir default/src/foo.cpp"
 		x = self.m_parent.get_file(self.m_name)
 		if x: return self.relpath_gen(Params.g_build.m_bldnode)
 		if self.relpath(Params.g_build.m_srcnode) is not '':
-			return Utils.join_path(env.variant(), self.relpath(Params.g_build.m_srcnode))
+			return os.path.join(env.variant(), self.relpath(Params.g_build.m_srcnode))
 		return env.variant()
 
 	def srcpath(self, env):

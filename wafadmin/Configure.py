@@ -912,7 +912,7 @@ class Configure:
 		self.lastprog = ''
 
 		try:
-			file = open(Utils.join_path(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'rb')
+			file = open(os.path.join(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'rb')
 			self.m_cache_table = cPickle.load(file)
 			file.close()
 		except:
@@ -1024,13 +1024,13 @@ class Configure:
 	def cleanup(self):
 		"called on shutdown"
 		try:
-			dir = Utils.join_path(Params.g_homedir, '.wafcache')
+			dir = os.path.join(Params.g_homedir, '.wafcache')
 			try:
 				os.makedirs(dir)
 			except:
 				pass
 
-			file = open(Utils.join_path(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'wb')
+			file = open(os.path.join(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'wb')
 			cPickle.dump(self.m_cache_table, file)
 			file.close()
 		except:
@@ -1086,13 +1086,13 @@ class Configure:
 
 		if not env: env = self.env
 		base = [self.m_blddir, env.variant()]+base
-		dir = Utils.join_path(*base)
+		dir = os.path.join(*base)
 		try:
 			os.makedirs(dir)
 		except OSError:
 			pass
 
-		dir = Utils.join_path(dir, lst[-1])
+		dir = os.path.join(dir, lst[-1])
 
 		# remember config files - do not remove them on "waf clean"
 		self.env.append_value('waf_config_files', os.path.abspath(dir))

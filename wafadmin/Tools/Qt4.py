@@ -66,7 +66,7 @@ class MTask(Task.Task):
 				path = node.m_parent.srcpath(parn.env)
 				for i in globals('MOC_H'):
 					try:
-						os.stat(Utils.join_path(path,base2+i))
+						os.stat(os.path.join(path,base2+i))
 						ext = i
 						break
 					except:

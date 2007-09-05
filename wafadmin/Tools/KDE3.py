@@ -117,7 +117,7 @@ class kde_translations(Object.genobj):
 			node = self.path.find_source(lang+'.gmo')
 			orig = node.relpath_gen(current)
 
-			destfile = Utils.join_path(lang, 'LC_MESSAGES', destfilename)
+			destfile = os.path.join(lang, 'LC_MESSAGES', destfilename)
 			Common.install_as('KDE_LOCALE', destfile, orig, self.env)
 
 # documentation
@@ -144,7 +144,7 @@ class kde_documentation(Object.genobj):
 				task.set_outputs(node.change_ext('.cache.bz2'))
 				self.m_docbooks.append(task)
 	def install(self):
-		destpath = Utils.join_path(self.m_lang, self.m_appname)
+		destpath = os.path.join(self.m_lang, self.m_appname)
 
 		current = Params.g_build.m_curdirnode
 		lst = []
@@ -290,7 +290,7 @@ class kdeobj(cpp.cppobj):
 					path = node.m_parent.srcpath(self.env)
 					for i in globals('MOC_H'):
 						try:
-							os.stat(Utils.join_path(path,base2+i))
+							os.stat(os.path.join(path,base2+i))
 							ext = i
 							break
 						except:
