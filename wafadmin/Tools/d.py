@@ -8,111 +8,100 @@ sys.path.append(os.path.abspath('..'))
 import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
 
-class filter_comments:
-	def __init__(self):
-		self.fn     = ''
-		self.i      = 0
-		self.max    = 0
-		self.txt    = ""
-		self.buf    = []
+def filter_comments(filename):
+	f = open(filename, 'r')
+	txt = f.read()
+	f.close()
+	buf = []
 
-	def next(self):
-		ret = self.txt[self.i]
-		self.i += 1
-		return ret
+	i = 0
+	max = len(txt)
+	while i < max:
+		c = txt[i]
+		# skip a string
+		if c == '"':
+			i += 1
+			c = ''
+			while i < max:
+				p = c
+				c = txt[i]
+				i += 1
+				if i == max: return buf
+				if c == '"':
+					cnt = 0
+					while i < cnt and i < max:
+						#print "cntcnt = ", str(cnt), self.txt[self.i-2-cnt]
+						if txt[i-2-cnt] == '\\': cnt+=1
+						else: break
+					#print "cnt is ", str(cnt)
+					if (cnt%2)==0: break
+		# skip a char
+		elif c == "'":
+			i += 1
+			if i == max: return buf
+			c = txt[i]
+			if c == '\\':
+				i += 1
+				if i == max: return buf
+				c = txt[i]
+				if c == 'x':
+					i += 2 # skip two chars
+			i += 1
+			if i == max: return buf
+			c = txt[i]
+			if c != '\'': print "uh-oh, invalid character"
 
-	def good(self):
-		return self.i < self.max
-
-	def initialize(self, filename):
-		self.fn = filename
-		f = open(filename, "r")
-		self.txt = f.read()
-		f.close()
-
-		self.i = 0
-		self.max = len(self.txt)
-
-	def start(self, filename):
-		self.initialize(filename)
-		while self.good():
-			c = self.next()
-			if c == '"':
-				self.skip_string()
-			elif c == "'":
-				self.skip_char()
-			elif c == '/':
-				c = self.next()
-				if c == '+': self.get_p_comment()
-				if c == '*': self.get_c_comment()
-				elif c == '/': self.get_cc_comment()
-				#else: self.buf.append('/'+c) # simple punctuator '/'
-			else:
-				self.buf.append(c)
-
-
-	def get_p_comment(self):
-		self.nesting = 1
-		prev = 0
-		while self.good():
-			c = self.next()
+		# skip a comment
+		elif c == '/':
+			if i == max: break
+			c = txt[i+1]
+			# eat /+ +/ comments
 			if c == '+':
-				prev = 1
-			elif c == '/':
-				if prev:
-					self.nesting -= 1
-					if self.nesting == 0: break
-				else:
-					if self.good():
-						c = self.next()
-						if c == '+':
-							self.nesting += 1
+				i += 1
+				nesting = 1
+				prev = 0
+				while i < max:
+					c = txt[i]
+					if c == '+':
+						prev = 1
+					elif c == '/':
+						if prev:
+							nesting -= 1
+							if nesting == 0: break
+						else:
+							if i < max:
+								i += 1
+								c = txt[i]
+								if c == '+':
+									nesting += 1
+							else:
+								return buf
 					else:
-						break
-			else:
-				prev = 0
-
-	def get_cc_comment(self):
-		c = self.next()
-		while c != '\n': c = self.next()
-
-	def get_c_comment(self):
-		c = self.next()
-		prev = 0
-		while self.good():
-			if c == '*':
-				prev = 1
+						prev = 0
+					i += 1
+			# eat /* */ comments
+			elif c == '*':
+				i += 1
+				while i < max:
+					c = txt[i]
+					if c == '*':
+						prev = 1
+					elif c == '/':
+						if prev: break
+					else:
+						prev = 0
+					i += 1
+			# eat // comments
 			elif c == '/':
-				if prev: break
-			else:
-				prev = 0
-			c = self.next()
-
-	def skip_char(self):
-		c = self.next()
-		# skip one more character if there is a backslash '\''
-		if c == '\\':
-			c = self.next()
-			# skip a hex char (e.g. '\x50')
-			if c == 'x':
-				c = self.next()
-				c = self.next()
-		c = self.next()
-		if c != '\'': print "uh-oh, invalid character"
-
-	def skip_string(self):
-		c=''
-		while self.good():
-			p = c
-			c = self.next()
-			if c == '"':
-				cnt = 0
-				while 1:
-					#print "cntcnt = ", str(cnt), self.txt[self.i-2-cnt]
-					if self.txt[self.i-2-cnt] == '\\': cnt+=1
-					else: break
-				#print "cnt is ", str(cnt)
-				if (cnt%2)==0: break
+				i += 1
+				c = txt[i]
+				while i < max and c != '\n':
+					i += 1
+		# a valid char, add it to the buffer
+		else:
+			buf.append(c)
+		i += 1
+	return buf
 
 class parser:
 	def __init__(self, env, incpaths):
@@ -145,11 +134,6 @@ class parser:
 		if not found:
 			if not filename in self.m_names:
 				self.m_names.append(filename)
-
-	def get_contents(self, file):
-		gruik = filter_comments()
-		gruik.start(file)
-		return "".join(gruik.buf)
 
 	def get_strings(self, code):
 		#self.imports = []
@@ -198,7 +182,7 @@ class parser:
 
 	def iter(self, node):
 		path = node.abspath(self.env) # obtain the absolute path
-		code = self.get_contents(path) # read the file and filter the comments
+		code = "".join(filter_comments(path)) # read the file and filter the comments
 		names = self.get_strings(code) # obtain the import strings
 		for x in names:
 			# optimization
@@ -426,6 +410,7 @@ if __name__ == "__main__":
 	try: arg = sys.argv[1]
 	except: arg = "file.d"
 
+	print "".join(filter_comments(arg))
 	# TODO
 	paths = ['.']
 
@@ -439,7 +424,7 @@ if __name__ == "__main__":
 
 	#print "now parsing"
 	#print "-------------------------------------------"
-
+	'''
 	parser_ = parser()
 	parser_.start(arg)
 
@@ -448,4 +433,4 @@ if __name__ == "__main__":
 	for imp in parser_.imports:
 		print imp + " ",
 	print
-
+'''
