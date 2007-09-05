@@ -99,8 +99,7 @@ def to_hashtable(s):
 	tbl = {}
 	lst = s.split('\n')
 	for line in lst:
-		if not line:
-			continue
+		if not line: continue
 		mems = line.split('=')
 		tbl[mems[0]] = mems[1]
 	return tbl
@@ -133,10 +132,6 @@ def __split_dirs(path):
 	if h == path: return [h]
 	if not t: return __split_dirs(h)
 	else: return __split_dirs(h) + [t]
-
-
-def join_path_list(path_lst):
-	return join_path(*path_lst)
 
 def is_absolute_path(path):
 	""" more thorough absoluate path check <- how am i supposed to understand what this does exactly ????? what does the re do ?  and why is this needed ? (ita)"""
