@@ -35,29 +35,13 @@ class Action:
 
 	def get_str(self, task):
 		"string to display to the user"
-		try:
-			if Params.g_verbose:
-				src_str = " ".join([a.abspath(task.m_env) for a in task.m_inputs])
-				tgt_str = " ".join([a.abspath(task.m_env) for a in task.m_outputs])
-				return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
-			else:
-				src_str = " ".join([a.nice_path(task.m_env) for a in task.m_inputs])
-				tgt_str = " ".join([a.nice_path(task.m_env) for a in task.m_outputs])
-				return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
-		except:
-			import traceback
-			traceback.print_exc()
-			task.debug(level=1)
-			raise
-
-	#def prepare(self, task):
-	#	"prepare the compilation"
-	#	task.m_sig = Object.sign_env_vars(task.m_env, self.m_vars)
+		src_str = " ".join([a.nice_path(task.m_env) for a in task.m_inputs])
+		tgt_str = " ".join([a.nice_path(task.m_env) for a in task.m_outputs])
+		return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 
 	def run(self, task):
 		"run the compilation"
-		if not self.m_function_to_run:
-			fatal(self.m_name+" action has no function !")
+		if not self.m_function_to_run: fatal(self.m_name+" action has no function !")
 		return self.m_function_to_run(task)
 
 class alex:
