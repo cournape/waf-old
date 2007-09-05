@@ -137,9 +137,8 @@ class parser:
 	def tryfind(self, filename):
 		found = 0
 		for n in self.incpaths:
-			found = n.find_source(filename, create=0)
+			found = n.find_source(filename+'.d', create=0)
 			if found:
-				print "found node !!"
 				self.m_nodes.append(found)
 				self.waiting.append(found)
 				break
@@ -198,11 +197,9 @@ class parser:
 			self.iter(nd)
 
 	def iter(self, node):
-		print "iter with node ", node
 		path = node.abspath(self.env) # obtain the absolute path
 		code = self.get_contents(path) # read the file and filter the comments
 		names = self.get_strings(code) # obtain the import strings
-		print "names are", names, "and incpaths ", self.incpaths
 		for x in names:
 			# optimization
 			if x in self.allnames: continue
