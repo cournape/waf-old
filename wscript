@@ -92,6 +92,7 @@ def create_waf():
 	pyFileExp = re.compile(".*\.py$")
 	re_doc_1 = re.compile('^\s*"""([^"]+)"""', re.M)
 	re_doc_2 = re.compile('^\s*"([^"]+)"', re.M)
+	re_doc_3 = re.compile("^\s*#")
 
 	def sfilter(path):
 		f = open(path, "r")
@@ -101,8 +102,12 @@ def create_waf():
 		cnt = re_doc_1.sub('', cnt)
 		cnt = re_doc_2.sub('', cnt)
 		lst = cnt.split("\n")
-		lre = re.compile("^\s*#")
-		cnt = "\n".join([x for x in lst if x and not lre.match(x)])
+		cnt = []
+		for x in lst:
+			if x=='# quick test #': break
+			cnt.append(x)
+		cnt = [x for x in cnt if x and not re_doc_3.match(x)]
+		cnt = "\n".join(cnt)
 		return (StringIO.StringIO(cnt), len(cnt))
 
 	forbidden = ['Test.py', 'Weak.py']
@@ -165,7 +170,7 @@ def create_waf():
 
 	if sys.platform != 'win32':
 		os.chmod('waf', 0755)
-	#os.unlink('%s.tar.%s' % (mw, zipType))
+	os.unlink('%s.tar.%s' % (mw, zipType))
 
 def install_waf():
 	print "installing waf on the system"
