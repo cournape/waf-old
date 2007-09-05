@@ -22,7 +22,6 @@ class c_scanner(Scan.scanner):
 	"scanner for c/c++ files"
 	def __init__(self):
 		Scan.scanner.__init__(self)
-		self.do_scan = self.do_scan_new
 		self.get_signature = self.get_signature_rec
 
 	def scan(self, task, node):

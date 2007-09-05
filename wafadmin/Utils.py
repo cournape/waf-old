@@ -35,7 +35,7 @@ def error(msg):
 	Params.niceprint(msg, 'ERROR', 'Configuration')
 
 def reset():
-	import Params, Task, preproc, Scripting, Object
+	import Params, Task, Scripting, Object
 	Params.g_build = None
 	Task.g_tasks_done = []
 	Task.g_tasks = Task.TaskManager()

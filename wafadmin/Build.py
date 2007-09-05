@@ -403,18 +403,6 @@ class Build:
 				src_dir_node.m_build_lookup={}
 		self.m_scanned_folders.append(src_dir_node)
 
-	def needs_rescan(self, node, env):
-		"tell if a node has changed, to update the cache"
-		#print "needs_rescan for ", node, node.m_tstamp
-		variant = node.variant(env)
-		try:
-			if self.m_deps_tstamp[variant][node] == self.m_tstamp_variants[variant][node]:
-				#print "no need to rescan", node.m_tstamp
-				return 0
-		except KeyError:
-			return 1
-		return 1
-
 	# ======================================= #
 	def scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
 
