@@ -81,7 +81,7 @@ class alex:
 		self.i = 0
 		self.size = len(self.str)
 
-	def start(self):
+	def compile(self):
 		while self.i < self.size:
 			# quoted '$'
 			c = self.str[self.i]
@@ -124,15 +124,15 @@ class alex:
 						name.append(c)
 			cur += 1
 
-	def res(self):
+	def code(self):
 		lst = ['def f(task):\n\tenv=task.m_env\n\tp=env.get_flat\n\t']
+		ap = lst.append
+		#ap('print task.m_inputs\n\t')
+		#ap('print task.m_outputs\n\t')
 
-		#lst.append('print task.m_inputs\n\t')
-		#lst.append('print task.m_outputs\n\t')
-
-		lst.append('try: cmd = "')
+		ap('try: cmd = "')
 		lst += self.out
-		lst.append('"')
+		ap('"')
 
 		alst=[]
 		for (name, meth) in self.params:
@@ -146,30 +146,30 @@ class alex:
 				self.m_vars.append(name)
 				alst.append("p('%s')" % name)
 		if alst:
-			lst.append(' % (\\\n\t\t')
-			lst += ", \\\n\t\t".join(alst)
-			lst.append(')\n')
+			ap(' % (\\\n\t\t')
+			ap(' \\\n\t\t, '.join(alst))
+			ap(')\n')
 
-		lst.append('\texcept:\n')
-		lst.append('\t\ttask.debug()\n')
-		lst.append('\t\traise\n')
+		ap('\texcept:\n')
+		ap('\t\ttask.debug()\n')
+		ap('\t\traise\n')
 
-		lst.append('\treturn Runner.exec_command(cmd)\n')
+		ap('\treturn Runner.exec_command(cmd)\n')
 
 		return "".join(lst)
 
-	def fun(self):
-		exec(self.res())
+	def get_fun(self):
+		c = self.code()
+		debug(c, 'action')
+		exec(c)
 		return eval('f')
 
 def simple_action(name, line, color='GREEN', vars=[]):
 	"helper provided for convenience"
 	obj = alex(line)
-	obj.start()
-	f = obj.fun()
+	obj.compile()
 	act = Action(name, color=color)
-	debug(obj.res(), 'action')
-	act.m_function_to_run = f
+	act.m_function_to_run = obj.get_fun()
 	act.m_vars = obj.m_vars
 	if vars: act.m_vars = vars
 
