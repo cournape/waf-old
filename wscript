@@ -19,6 +19,9 @@ REVISION=''
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']
 
+# exclude these modules
+forbidden = [x+'.py' for x in 'Test Weak Qt3 KDE3'.split()]
+
 import Params, Utils, Options, os, sys, base64, shutil, re, random, StringIO
 
 print "------> Executing code from the top-level wscript <-----"
@@ -110,7 +113,6 @@ def create_waf():
 		cnt = "\n".join(cnt)
 		return (StringIO.StringIO(cnt), len(cnt))
 
-	forbidden = ['Test.py', 'Weak.py']
 	lst = os.listdir('wafadmin')
 	files = [os.path.join('wafadmin', s) for s in lst if pyFileExp.match(s) and not s in forbidden]
 	tooldir = os.path.join('wafadmin', 'Tools')
