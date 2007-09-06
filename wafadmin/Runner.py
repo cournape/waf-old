@@ -44,7 +44,8 @@ exetor = pproc
 
 def write_progress(s):
 	if Params.g_options.progress_bar == 1:
-		sys.stderr.write(s + '\r')
+		sys.stdout.write('\x1b[K' + s + '\r')
+		sys.stdout.flush()
 	else: #if Params.g_options.progress_bar == 2:
 		# do not display anything if there is nothing to display
 		if s:
