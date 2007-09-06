@@ -12,7 +12,7 @@ import Params
 from Params import debug, error, warning
 
 reg_define = re.compile('^\s*(#|%:)')
-reg_nl = re.compile('\\\\\n', re.MULTILINE)
+reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""/\*[^*]*\*+([^/*][^*]*\*+)*/|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
 def repl(m):
 	s = m.group(2)
@@ -21,14 +21,14 @@ def repl(m):
 
 def filter_comments(filename):
 	f = open(filename, "r")
-	code = f.read().replace('\r', '')
+	code = f.read()
 	f.close()
 
 	code = reg_nl.sub('', code)
 	code = reg_cpp.sub(repl, code)
 	code = code.split('\n')
 
-	return [reg_define.sub("", line) for line in code if reg_define.search(line)]
+	return [reg_define.sub("", line).replace('\r', '') for line in code if reg_define.search(line)]
 
 strict_quotes = 0
 "Keep <> for system includes (do not search for those includes)"
