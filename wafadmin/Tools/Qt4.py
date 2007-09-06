@@ -46,7 +46,8 @@ class MTask(Task.Task):
 		variant = node.variant(parn.env)
 		try:
 			tmp_lst = tree.m_raw_deps[variant][node]
-		except:
+			tree.m_raw_deps[variant][node] = []
+		except KeyError:
 			tmp_lst = []
 		for d in tmp_lst:
 			if not d[-4:] == '.moc': continue
@@ -83,6 +84,10 @@ class MTask(Task.Task):
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 			moctasks.append(task)
+
+		# remove raw deps except the moc files to save space (optimization)
+		tmp_lst = tree.m_raw_deps[variant][node] = mocfiles
+
 		# look at the file inputs, it is set right above
 		for d in tree.m_depends_on[variant][node]:
 			name = d.m_name
