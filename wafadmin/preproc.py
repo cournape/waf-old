@@ -12,7 +12,7 @@ import Params
 from Params import debug, error, warning
 
 reg_define = re.compile('^\s*(#|%:)')
-reg_nl = re.compile('\\\\\n', re.MULTILINE)
+reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""/\*[^*]*\*+([^/*][^*]*\*+)*/|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
 def repl(m):
 	s = m.group(2)
