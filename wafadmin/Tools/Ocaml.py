@@ -8,6 +8,84 @@ import os
 import Params, Action, Object, Scan, Utils
 from Params import error, fatal
 
+def filter_comments(filename):
+	f = open(filename, 'r')
+	txt = f.read()
+	f.close()
+	buf = []
+
+	i = 0
+	max = len(txt)
+	while i < max:
+		c = txt[i]
+		# skip a string
+		if c == '"':
+			i += 1
+			c = ''
+			while i < max:
+				p = c
+				c = txt[i]
+				i += 1
+				if i == max: return buf
+				if c == '"':
+					cnt = 0
+					while i < cnt and i < max:
+						#print "cntcnt = ", str(cnt), self.txt[self.i-2-cnt]
+						if txt[i-2-cnt] == '\\': cnt+=1
+						else: break
+					#print "cnt is ", str(cnt)
+					if (cnt%2)==0: break
+		# skip a char
+		elif c == "'":
+			i += 1
+			if i == max: return buf
+			c = txt[i]
+			if c == '\\':
+				i += 1
+				if i == max: return buf
+				c = txt[i]
+				if c == 'x':
+					i += 2 # skip two chars
+			i += 1
+			if i == max: return buf
+			c = txt[i]
+			if c != '\'': print "uh-oh, invalid character"
+
+		# skip a comment
+		elif c == '(':
+			if i == max: break
+			c = txt[i+1]
+			# eat (* *) comments
+			if c == '*':
+				i += 1
+				nesting = 1
+				prev = 0
+				while i < max:
+					c = txt[i]
+					if c == '*':
+						prev = 1
+					elif c == ')':
+						if prev:
+							nesting -= 1
+							if nesting == 0: break
+						else:
+							if i < max:
+								i += 1
+								c = txt[i]
+								if c == '*':
+									nesting += 1
+							else:
+								return buf
+					else:
+						prev = 0
+					i += 1
+		# a valid char, add it to the buffer
+		else:
+			buf.append(c)
+		i += 1
+	return buf
+
+
 g_map_id_to_obj = {}
 
 class ocaml_scanner(Scan.scanner):
