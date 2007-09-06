@@ -21,7 +21,7 @@ def repl(m):
 
 def filter_comments(filename):
 	f = open(filename, "r")
-	code = f.read()
+	code = f.read().replace('\r', '')
 	f.close()
 
 	code = reg_nl.sub('', code)
