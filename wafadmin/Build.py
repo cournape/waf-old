@@ -174,20 +174,24 @@ class Build:
 
 		self.m_generator = executor.m_generator
 
+		def dw():
+			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_on)
+
 		debug("executor starting", 'build')
 		try:
 			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
 			ret = executor.start()
 			#ret = 0
 		except KeyboardInterrupt:
+			dw()
 			os.chdir(self.m_srcnode.abspath())
 			self._store()
 			raise
 		except Runner.CompilationError:
+			dw()
 			fatal("Compilation failed")
-		finally:
-			sys.stdout.write(Params.g_cursor_on)
 
+		dw()
 		if Params.g_verbose>2: self.dump()
 
 		os.chdir(self.m_srcnode.abspath())
