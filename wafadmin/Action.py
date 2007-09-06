@@ -21,17 +21,15 @@ class Action:
 		# variables for triggering a rebuild
 		self.m_vars = vars
 		self.m_function_to_run = func
-		self._add_action()
 		self.m_color = color
+
+		global g_actions
+		if name in g_actions: debug('overriding action '+name, 'action')
+		g_actions[name] = self
+		debug("action added: %s" % name, 'action')
 
 	def __str__(self):
 		return self.m_name
-
-	def _add_action(self):
-		global g_actions
-		if self.m_name in g_actions: debug('overriding action '+self.m_name, 'action')
-		g_actions[self.m_name] = self
-		debug("action added: %s" % self.m_name, 'action')
 
 	def get_str(self, task):
 		"string to display to the user"
