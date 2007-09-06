@@ -4,7 +4,7 @@
 
 "Dependency tree holder"
 
-import os, cPickle
+import os, cPickle, sys
 import Params, Runner, Object, Node, Task, Scripting, Utils, Environment
 from Params import debug, error, fatal, warning
 
@@ -176,7 +176,7 @@ class Build:
 
 		debug("executor starting", 'build')
 		try:
-
+			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
 			ret = executor.start()
 			#ret = 0
 		except KeyboardInterrupt:
@@ -185,6 +185,8 @@ class Build:
 			raise
 		except Runner.CompilationError:
 			fatal("Compilation failed")
+		finally:
+			sys.stdout.write(Params.g_cursor_on)
 
 		if Params.g_verbose>2: self.dump()
 

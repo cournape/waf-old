@@ -103,14 +103,19 @@ g_colors = {
 }
 "colors used for printing messages"
 
+g_cursor_on ='\x1b[?25h'
+g_cursor_off='\x1b[?25l'
+
 def reset_colors():
 	global g_colors
 	for k in g_colors.keys():
 		g_colors[k]=''
+	g_cursor_on=''
+	g_cursor_off=''
 
 if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
 	or (os.environ.get('TERM', 'dumb') == 'dumb') \
-	or (not os.isatty(sys.stdout.fileno())):
+	or (not sys.stdout.isatty()):
 	reset_colors()
 
 def pprint(col, str, label=''):
