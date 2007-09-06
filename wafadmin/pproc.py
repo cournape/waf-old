@@ -1,5 +1,5 @@
-# Copyright (c) 2003-2005 by Peter Astrand <astrand@lysator.liu.se>
-# subprocess module borrowed from python 2.5 #
+'''Copyright (c) 2003-2005 by Peter Astrand <astrand@lysator.liu.se>
+subprocess.py borrowed from python'''
 
 import sys
 mswindows = (sys.platform == "win32")
