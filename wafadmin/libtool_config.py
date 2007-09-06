@@ -108,9 +108,9 @@ class libtool_config:
 
 	def __str__(self):
 		tmp = str(self.__libtool_la_file)
-		tmp += str(" ").join(self.__libtool_la_file.get_libs())
+		tmp += " ".join(self.__libtool_la_file.get_libs())
 		tmp += "\nNew getlibs:\n"
-		tmp += str(" ").join(self.get_libs())
+		tmp += " ".join(self.get_libs())
 		return tmp
 
 	def __get_la_libs(self, la_filename):
@@ -135,31 +135,28 @@ class libtool_config:
 		return self.__libs
 
 	def get_libs_only_L(self):
-		if not self.__libs:
-			self.get_libs()
+		if not self.__libs: self.get_libs()
 		libs = self.__libs
 		libs = filter(lambda s: str(s).startswith('-L'), libs)
 		return libs
 
 	def get_libs_only_l(self):
-		if not self.__libs:
-			self.get_libs()
+		if not self.__libs: self.get_libs()
 		libs = self.__libs
 		libs = filter(lambda s: str(s).startswith('-l'), libs)
 		return libs
 
 	def get_libs_only_other(self):
-		if not self.__libs:
-			self.get_libs()
+		if not self.__libs: self.get_libs()
 		libs = self.__libs
 		libs = filter(lambda s: not (str(s).startswith('-L') or str(s).startswith('-l')), libs)
 		return libs
 
 def useCmdLine():
 	"""parse cmdline args and control build"""
-	usage = "Usage: %prog [options] PathToFile.la \
-	\nexample: %prog --atleast-version=2.0.0 /usr/lib/libIlmImf.la \
-	\nor: %prog --libs /usr/lib/libamarok.la"
+	usage = '''Usage: %prog [options] PathToFile.la
+example: %prog --atleast-version=2.0.0 /usr/lib/libIlmImf.la
+nor: %prog --libs /usr/lib/libamarok.la'''
 	parser = OptionParser(usage)
 	a = parser.add_option
 	a("--version", dest = "versionNumber",
@@ -209,7 +206,7 @@ def useCmdLine():
 	if options.debug:
 		print(ltf)
 	if options.atleast_version:
-		if ltf >= options.atleast_version:  return 0
+		if ltf >= options.atleast_version: return 0
 		sys.exit(1)
 	if options.exact_version:
 		if ltf == options.exact_version: return 0
@@ -217,21 +214,19 @@ def useCmdLine():
 	if options.max_version:
 		if ltf <= options.max_version: return 0
 		sys.exit(1)
+
 	if options.libs:
-		print str(" ").join(ltf.get_libs())
-		return 0
-	if options.libs_only_l:
+		print " ".join(ltf.get_libs())
+	elif options.libs_only_l:
 		libs = ltf.get_libs_only_l()
-		print str(" ").join(libs)
-		return 0
-	if options.libs_only_L:
+		print " ".join(libs)
+	elif options.libs_only_L:
 		libs = ltf.get_libs_only_L()
-		print str(" ").join(libs)
-		return 0
-	if options.libs_only_other:
+		print " ".join(libs)
+	elif options.libs_only_other:
 		libs = ltf.get_libs_only_other()
-		print str(" ").join(libs)
-		return 0
+		print " ".join(libs)
+	return 0
 
 if __name__ == "__main__":
 	useCmdLine()
