@@ -10,7 +10,7 @@ from Params import debug, error, fatal, warning
 
 
 
-SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_sig_cache'.split()
+SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_raw_deps m_sig_cache'.split()
 "Build class members to save"
 
 class BuildDTO:
@@ -80,7 +80,7 @@ class Build:
 
 		# build dir variants (release, debug, ..)
 		for name in ['default', 0]:
-			for v in 'm_tstamp_variants m_depends_on m_sig_cache m_deps_tstamp m_raw_deps m_abspath_cache'.split():
+			for v in 'm_tstamp_variants m_depends_on m_sig_cache m_raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var: var[name] = {}
 
@@ -105,9 +105,6 @@ class Build:
 		# one node has nodes it depends on, tasks cannot be stored
 		# self.m_depends_on[variant][node] = [node1, node2, ..]
 		self.m_depends_on      = {}
-
-		# m_deps_tstamp[variant][node] = node_tstamp_of_the_last_scan
-		self.m_deps_tstamp     = {}
 
 		# results of a scan: self.m_raw_deps[variant][node] = [filename1, filename2, filename3]
 		# for example, find headers in c files
@@ -287,7 +284,7 @@ class Build:
 		debug("list of variants is "+str(lstvariants), 'build')
 
 		for name in lstvariants+[0]:
-			for v in 'm_tstamp_variants m_depends_on m_deps_tstamp m_raw_deps m_abspath_cache'.split():
+			for v in 'm_tstamp_variants m_depends_on m_raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var:
 					var[name] = {}
