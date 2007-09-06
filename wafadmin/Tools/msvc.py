@@ -47,12 +47,15 @@ def msvc_linker(task):
 	libdirs=e.get_flat('_LIBDIRFLAGS')
 	libs=e.get_flat('_LIBFLAGS')
 
+	subsystem=''
+	if task.m_subsystem:
+		subsystem='/subsystem:%s' % task.m_subsystem
 	outfile=task.m_outputs[0].bldpath(e)
 	manifest=outfile+'.manifest'
 
 	objs=" ".join(['"%s"' % a.abspath(e) for a in task.m_inputs])
 
-	cmd="%s %s%s %s%s %s %s %s" % (linker,srcf,objs,trgtf,outfile, linkflags, libdirs,libs)
+	cmd="%s %s %s%s %s%s %s %s %s" % (linker,subsystem,srcf,objs,trgtf,outfile, linkflags, libdirs,libs)
 	ret=Runner.exec_command(cmd)
 	if ret: return ret
 	if os.path.exists(manifest):
@@ -128,6 +131,7 @@ class msvcobj(ccroot.ccroot):
 		self.m_deps_linktask=[]
 
 		self.m_type_initials = 'cc'
+		self.subsystem = ''
 
 		global g_msvc_flag_vars
 		self.p_flag_vars = g_msvc_flag_vars
@@ -341,6 +345,7 @@ class msvcobj(ccroot.ccroot):
 	def apply_core (self):
 		ccroot.ccroot.apply_core(self)
 		self.m_linktask.m_type=self.m_type
+		self.m_linktask.m_subsystem=self.subsystem
 
 class msvccc(msvcobj):
 	def __init__(self, type='program', subtype=None):
