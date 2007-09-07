@@ -45,10 +45,10 @@ def progress_line(state, total, col1, task, col2):
 		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
 		ins  = ','.join([n.m_name for n in task.m_inputs])
 		outs = ','.join([n.m_name for n in task.m_outputs])
-		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|' % (total, state, ins, outs, eta)
+		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (total, state, ins, outs, eta)
 
 	n = len(str(total))
-	fs = "[%%%dd/%%%dd] %%s%%s%%s" % (n, n)
+	fs = "[%%%dd/%%%dd] %%s%%s%%s\n" % (n, n)
 	return fs % (state, total, col1, task.get_display(), col2)
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
