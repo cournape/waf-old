@@ -1106,6 +1106,7 @@ class Configure:
 		# yes, this is special
 		if not configfile in self.env['dep_files']:
 			self.env['dep_files'] += [configfile]
+		if not env['defines']: env['defines']={'missing':'"code"'}
 		for key, value in env['defines'].iteritems():
 			if value is None:
 				dest.write('#define %s\n' % key)
