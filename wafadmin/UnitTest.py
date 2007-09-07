@@ -80,8 +80,19 @@ class unit_test:
 				pass
 		self.total_num_tests = len(self.unit_tests)
 		# Now run the unit tests
+		col1=Params.g_colors['GREEN']
+		col2=Params.g_colors['NORMAL']
+		Params.pprint('GREEN', 'Running the unit tests')
+		count = 0
+		result = 1
+
 		curdir = os.getcwd() # store the current dir (only if self.change_to_testfile_dir)
 		for label, filename in self.unit_tests.iteritems():
+			count += 1
+			line = progress_line(count, self.total_num_tests, col1, col2)
+			if if Params.g_options.progress_bar and line:
+				sys.stdout.write(line)
+				sys.stdout.flush()
 			try:
 				if self.change_to_testfile_dir:
 					os.chdir(os.path.dirname(filename))
@@ -109,6 +120,9 @@ class unit_test:
 			except OSError:
 				self.unit_test_erroneous[label] = 1
 				self.num_tests_err += 1
+			except KeyBoardInterrupt:
+				if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
+		if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
 
 	def print_results(self):
 		"Pretty-prints a summary of all unit tests, along with some statistics"
