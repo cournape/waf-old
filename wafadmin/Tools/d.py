@@ -127,7 +127,7 @@ class parser:
 	def tryfind(self, filename):
 		found = 0
 		for n in self.incpaths:
-			found = n.find_source(filename+'.d', create=0)
+			found = n.find_source(filename.replace('.', '/')+'.d', create=0)
 			if found:
 				self.m_nodes.append(found)
 				self.waiting.append(found)
