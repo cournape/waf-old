@@ -41,7 +41,6 @@ def h_simple_file_tstamp(filename):
 	m = md5.new()
 	return hash( (st.st_mtime, filename) )
 
-
 def set_weak_hash():
 	"TODO: some projects (or skeptics) might want to compare without md5 hashes"
 	"TODO: move this code into a separate module, and replace vars and functions dynamically"

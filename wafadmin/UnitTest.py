@@ -18,7 +18,7 @@ In the shutdown method, add the following code:
 Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
 """
 import os
-import Params, Object, pproc
+import Params, Object, pproc, Utils
 
 class unit_test:
 	"Unit test representation"
@@ -89,7 +89,7 @@ class unit_test:
 		curdir = os.getcwd() # store the current dir (only if self.change_to_testfile_dir)
 		for label, filename in self.unit_tests.iteritems():
 			count += 1
-			line = progress_line(count, self.total_num_tests, col1, col2)
+			line = Utils.progress_line(count, self.total_num_tests, col1, col2)
 			if if Params.g_options.progress_bar and line:
 				sys.stdout.write(line)
 				sys.stdout.flush()
