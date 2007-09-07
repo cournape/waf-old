@@ -379,23 +379,23 @@ class TaskConsumer(threading.Thread):
 					time.sleep(1)
 
 			# take the next task
-			proc = self.m_master.m_ready.get(block=1)
+			tsk = self.m_master.m_ready.get(block=1)
 
 			self.do_stat(1)
 
 			# display the label for the command executed
-			write_progress(proc.get_display())
+			write_progress(tsk.get_display())
 
 			# run the command
-			ret = proc.run()
+			ret = tsk.run()
 
 			self.do_stat(-1)
 
 			if ret:
 				lock.acquire()
 				if Params.g_verbose:
-					error("task failed! (return code %s and task id %s)"%(str(ret), str(proc.m_idx)))
-					proc.debug(1)
+					error("task failed! (return code %s and task id %s)"%(str(ret), str(tsk.m_idx)))
+					tsk.debug(1)
 				count -= 1
 				stop   = 1
 				failed = 1
@@ -404,7 +404,7 @@ class TaskConsumer(threading.Thread):
 				continue
 
 			try:
-				proc.update_stat()
+				tsk.update_stat()
 			except:
 				lock.acquire()
 				if Params.g_verbose:
@@ -415,7 +415,7 @@ class TaskConsumer(threading.Thread):
 				self.notify()
 				lock.release()
 
-			proc.m_hasrun = 1
+			tsk.m_hasrun = 1
 
 			lock.acquire()
 			count -= 1
@@ -571,27 +571,27 @@ class Parallel:
 
 			# now we are certain that there are outstanding or frozen threads
 			if self.m_outstanding:
-				proc = self.m_outstanding.pop(0)
-				if not proc.may_start():
+				tsk = self.m_outstanding.pop(0)
+				if not tsk.may_start():
 					# shuffle
 					#print "shuf0"
-					#self.m_frozen.append(proc)
-					#self.m_frozen = [proc]+self.m_frozen
+					#self.m_frozen.append(tsk)
+					#self.m_frozen = [tsk]+self.m_frozen
 					if random.randint(0,1):
 						#print "shuf1"
-						self.m_frozen.append(proc)
+						self.m_frozen.append(tsk)
 					else:
 						#print "shuf2"
-						self.m_frozen = [proc]+self.m_frozen
+						self.m_frozen = [tsk]+self.m_frozen
 					if not self.m_outstanding:
 						condition.acquire()
 						condition.wait()
 						condition.release()
 
 				else:
-					proc.prepare()
-					if not proc.must_run():
-						proc.m_hasrun=2
+					tsk.prepare()
+					if not tsk.must_run():
+						tsk.m_hasrun=2
 						self.m_processed += 1
 						continue
 
@@ -599,17 +599,17 @@ class Parallel:
 					col1=''
 					col2=''
 					try:
-						col1=Params.g_colors[proc.color()]
+						col1=Params.g_colors[tsk.color()]
 						col2=Params.g_colors['NORMAL']
 					except: pass
-					proc.set_display(progress_line(self.m_processed, self.m_total, col1, proc, col2))
+					tsk.set_display(progress_line(self.m_processed, self.m_total, col1, tsk, col2))
 
 					lock.acquire()
 					count += 1
 					self.m_processed += 1
 					lock.release()
 
-					self.m_ready.put(proc, block=1)
+					self.m_ready.put(tsk, block=1)
 
 		debug("amount of loops "+str(loop), 'runner')
 		global stat
