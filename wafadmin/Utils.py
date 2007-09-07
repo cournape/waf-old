@@ -4,12 +4,19 @@
 
 "Utility functions"
 
-import os, sys, imp, types, string, re
+import os, sys, imp, types, string, re, time
 import Params
 
 g_trace = 0
 g_debug = 0
 g_error = 0
+
+g_initial = time.time()
+"time since the start of the build"
+
+g_ind_idx = 0
+g_ind = ['\\', '|', '/', '-']
+"the rotation thing"
 
 def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 	"throws an exception if the waf version is wrong"
@@ -117,6 +124,29 @@ try:
 	get_term_cols = machin
 except:
 	pass
+
+def progress_line(state, total, col1, col2):
+	n = len(str(total))
+
+	global g_ind, g_ind_idx
+	g_ind_idx += 1
+	ind = g_ind[g_ind_idx % 4]
+
+	pc = (100.*state)/total
+	eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
+	fs = "[%%%dd/%%%dd][%%s%%2d%%%%%%s][%s][" % (n, n, ind)
+	left = fs % (state, total, col1, pc, col2)
+	right = '][%s%s%s]' % (col1, eta, col2)
+
+	cols = get_term_cols() - len(left) - len(right) + 2*len(col1) + 2*len(col2)
+	if cols < 7: cols = 7
+
+	ratio = int((cols*state)/total) - 1
+
+	bar = ('='*ratio+'>').ljust(cols)
+	msg = '\x1b[K%s%s%s\r' % (left, bar, right)
+
+	return msg
 
 def split_path(path):
 	"Split path into components. Supports UNC paths on Windows"

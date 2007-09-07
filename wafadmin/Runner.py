@@ -4,7 +4,7 @@
 
 "Execute the tasks"
 
-import sys, time, random
+import sys, random, time
 import Params, Task, Utils
 from Params import debug, error
 
@@ -19,15 +19,8 @@ set yrange [-1:6]
 plot 'test.dat' using 1:3 with linespoints
 """
 
-g_initial = time.time()
-"time since the start of the build"
-
 g_quiet = 0
 "do not output anything"
-
-g_ind_idx = 0
-g_ind = ['\\', '|', '/', '-']
-"the rotation thing"
 
 class CompilationError(Exception):
 	pass
@@ -42,55 +35,21 @@ exetor = None
 import pproc
 exetor = pproc
 
-def write_progress(s):
-	if Params.g_options.progress_bar == 1:
-		sys.stdout.write('\x1b[K' + s + '\r')
-		sys.stdout.flush()
-	else: #if Params.g_options.progress_bar == 2:
-		# do not display anything if there is nothing to display
-		if s:
-			print s
-			sys.stdout.flush()
-
-def progress_line(s, t, col1, task, col2):
+def progress_line(state, total, col1, task, col2):
 	"do not print anything if there is nothing to display"
-	disp = task.get_display()
-	if not disp: return ''
-	global g_initial
-
-	n=0; k=t
-	while k>=10: k=k/10; n+=1
-	n+=1
-
 	if Params.g_options.progress_bar == 1:
-		global g_ind, g_ind_idx
-		g_ind_idx += 1
-		ind = g_ind[g_ind_idx % 4]
+		return Utils.progress_line(state, total, col1, col2)
 
-		pc = (100.*s)/t
-		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
-		fs = "[%%%dd/%%%dd][%%s%%2d%%%%%%s][%s][" % (n, n, ind)
-		left = fs % (s, t, col1, pc, col2)
-		right = '][%s%s%s]' % (col1, eta, col2)
-
-		cols = Utils.get_term_cols() - len(left) - len(right) + 2*len(col1) + 2*len(col2)
-		if cols < 7: cols = 7
-
-		ratio = int((cols*s)/t) - 1
-
-		bar = ('='*ratio+'>').ljust(cols)
-		disp = '%s%s%s' % (left, bar, right)
-
-		return disp
-
-	elif Params.g_options.progress_bar == 2:
+	if Params.g_options.progress_bar == 2:
+		global g_initial
 		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
 		ins  = ','.join([n.m_name for n in task.m_inputs])
 		outs = ','.join([n.m_name for n in task.m_outputs])
-		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|' % (t, s, ins, outs, eta)
+		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|' % (total, state, ins, outs, eta)
 
+	n = len(str(total))
 	fs = "[%%%dd/%%%dd] %%s%%s%%s" % (n, n)
-	return fs % (s, t, col1, disp, col2)
+	return fs % (state, total, col1, task.get_display(), col2)
 
 def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
@@ -273,7 +232,8 @@ class Serial:
 					col1=Params.g_colors[proc.color()]
 					col2=Params.g_colors['NORMAL']
 				except: pass
-				write_progress(progress_line(s, t, col1, proc, col2))
+				sys.stdout.write(progress_line(s, t, col1, proc, col2))
+				sys.stdout.flush()
 
 			# run the command
 			ret = proc.run()
@@ -384,7 +344,8 @@ class TaskConsumer(threading.Thread):
 			self.do_stat(1)
 
 			# display the label for the command executed
-			write_progress(tsk.get_display())
+			sys.stdout.write(tsk.get_display())
+			sys.stdout.flush()
 
 			# run the command
 			ret = tsk.run()
