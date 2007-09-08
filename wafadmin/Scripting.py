@@ -151,7 +151,6 @@ def Main():
 			Params.g_zones = a3
 			Params.g_verbose = a4
 
-
 			bld = Build.Build()
 			proj = read_cache_file(g_lockfile)
 
@@ -197,7 +196,9 @@ def Main():
 
 	#bld.dump()
 
-	pre_build()
+	# TODO undocumented hook
+	pre_build = getattr(Utils.g_module, 'pre_build', None)
+	if pre_build: pre_build()
 
 	# compile
 	if Params.g_commands['build'] or Params.g_commands['install']:
@@ -240,9 +241,6 @@ def Main():
 	# shutdown
 	fun = getattr(Utils.g_module, 'shutdown', None)
 	if fun: fun()
-
-def pre_build():
-	pass
 
 def Dist(appname, version):
 	"dist target - should be portable"
@@ -288,12 +286,9 @@ def Dist(appname, version):
 			if to_remove:
 				os.remove(os.path.join(root, f))
 
-	# TODO documentation and assumptions (the attributs blddir may not exist)
+	# TODO undocumented hook
 	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
-	if dist_hook:
-		blddir = os.path.join("..", Utils.g_module.blddir)
-		srcdir = os.path.join("..", Utils.g_module.srcdir)
-		dist_hook(srcdir, blddir)
+	if dist_hook: dist_hook()
 
 	# go back to the root directory
 	os.chdir('..')
