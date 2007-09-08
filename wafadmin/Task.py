@@ -173,26 +173,26 @@ class Task(TaskBase):
 		m = md5()
 
 		dep_sig = Params.sig_nil
-		scan = None
-		try:
-			scan = self.m_scanner
-		except AttributeError: # there is no scanner for the task
+		scan = getattr(self, 'm_scanner', None)
+		if scan:
+			dep_sig = scan.get_signature(self)
+			m.update(dep_sig)
+		else:
+			# compute the signature from the inputs (no scanner)
 			for x in self.m_inputs:
 				variant = x.variant(self.m_env)
 				v = tree.m_tstamp_variants[variant][x]
 				dep_sig = hash( (dep_sig, v) )
 				m.update(v)
-		if scan:
-			dep_sig = scan.get_signature(self)
-			m.update(dep_sig)
 
-		act_sig = None
-		try: act_sig = self.m_action.signature(self)
-		except AttributeError: act_sig = Object.sign_env_vars(self.m_env, self.m_action.m_vars)
+		fun = getattr(self.m_action, 'signature', None)
+		if fun: act_sig = self.m_action.signature(self)
+		else: act_sig = Object.sign_env_vars(self.m_env, self.m_action.m_vars)
 		m.update(act_sig)
 
 		var_sig = None
 		try:
+			# fail if dep_vars does not exist
 			var_sig = Object.sign_env_vars(self.m_env, self.dep_vars)
 			m.update(var_sig)
 		except AttributeError:
@@ -200,6 +200,7 @@ class Task(TaskBase):
 
 		node_sig = Params.sig_nil
 		try:
+			# fail if dep_nodes does not exist
 			for x in self.dep_nodes:
 				variant = x.variant(self.m_env)
 				v = tree.m_tstamp_variants[variant][x]

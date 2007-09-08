@@ -238,11 +238,8 @@ def Main():
 		return
 
 	# shutdown
-	try:
-		Utils.g_module.shutdown()
-	except AttributeError:
-		#raise
-		pass
+	fun = getattr(Utils.g_module, 'shutdown', None)
+	if fun: fun()
 
 def pre_build():
 	pass
@@ -261,11 +258,8 @@ def Dist(appname, version):
 	shutil.copytree('.', TMPFOLDER)
 
 	# Remove the Build dir
-	try:
-		if Utils.g_module.blddir:
-			shutil.rmtree(os.path.join(TMPFOLDER, Utils.g_module.blddir), True)
-	except AttributeError:
-		pass
+	dir = getattr(Utils.g_module, 'blddir', None)
+	if dir: shutil.rmtree(os.path.join(TMPFOLDER, dir), True)
 
 	# Enter into it and remove unnecessary files
 	os.chdir(TMPFOLDER)
@@ -294,11 +288,9 @@ def Dist(appname, version):
 			if to_remove:
 				os.remove(os.path.join(root, f))
 
-	try:
-		dist_hook = Utils.g_module.dist_hook
-	except AttributeError:
-		pass
-	else:
+	# TODO documentation and assumptions (the attributs blddir may not exist)
+	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
+	if dist_hook:
 		blddir = os.path.join("..", Utils.g_module.blddir)
 		srcdir = os.path.join("..", Utils.g_module.srcdir)
 		dist_hook(srcdir, blddir)
