@@ -319,36 +319,28 @@ opt_obj.parse_args()
 # use the parser results
 if Params.g_commands['dist']:
 	# try to use the user-defined dist function first, fallback to the waf scheme
-	try: fun = Utils.g_module.dist
-	except AttributeError: fun = None
+	fun = getattr(Utils.g_module, 'dist', None)
 	if fun: fun(); sys.exit(0)
 
-	try: appname = Utils.g_module.APPNAME
-	except AttributeError: appname = 'noname'
+	appname = getattr(Utils.g_module, 'APPNAME', 'noname')
 
-	try:
-		get_version = Utils.g_module.get_version
-	except AttributeError:
-		try: version = Utils.g_module.VERSION
-		except AttributeError: version = '1.0'
-	else:
-		version = get_version()
+	get_version = getattr(Utils.g_module, 'get_version', None)
+	if get_version: version = get_version()
+	else: version = getattr(Utils.g_module, 'VERSION', None)
+	if not version: version = '1.0'
 
 	from Scripting import Dist
 	Dist(appname, version)
 	sys.exit(0)
 elif Params.g_commands['distclean']:
 	# try to use the user-defined distclean first, fallback to the waf scheme
-	try: fun = Utils.g_module.distclean
-	except AttributeError: fun = None
+	fun = getattr(Utils.g_module, 'distclean', None)
 	if fun: fun(); sys.exit(0)
 	from Scripting import DistClean
 	DistClean()
 	sys.exit(0)
 
-fun=None
-try: fun=Utils.g_module.init
-except AttributeError: pass
+fun=getattr(Utils.g_module, 'init', None)
 if fun: fun()
 
 import Scripting
