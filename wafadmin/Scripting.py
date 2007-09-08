@@ -58,33 +58,24 @@ def start_daemon():
 
 def configure():
 	Runner.set_exec('normal')
-	bld = Build.Build()
-	try:
-		srcdir = ""
-		try: srcdir = Params.g_options.srcdir
-		except AttributeError: pass
-		if not srcdir: srcdir = Utils.g_module.srcdir
+	tree = Build.Build()
 
-		blddir = ""
-		try: blddir = Params.g_options.blddir
-		except AttributeError: pass
-		if not blddir: blddir = Utils.g_module.blddir
+	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
 
-		Params.g_cachedir = os.path.join(blddir, '_cache_')
+	src = getattr(Params.g_options, 'srcdir', None)
+	if not src: src = getattr(Utils.g_module, 'srcdir', None)
+	if not src: fatal(err % ('srcdir', os.path.abspath('.'), 'srcdir', 'srcdir'))
 
-	except AttributeError:
-		msg = "The attributes srcdir or blddir are missing from wscript\n[%s]\n * make sure such a function is defined\n * run configure from the root of the project\n * use waf configure --srcdir=xxx --blddir=yyy"
-		fatal(msg % os.path.abspath('.'))
-	except OSError:
-		pass
-	except KeyError:
-		pass
+	bld = getattr(Params.g_options, 'blddir', None)
+	if not bld: bld = getattr(Utils.g_module, 'blddir', None)
+	if not bld: fatal(err % ('blddir', os.path.abspath('.'), 'blddir', 'blddir'))
 
-	bld.load_dirs(srcdir, blddir)
+	Params.g_cachedir = os.path.join(bld, '_cache_')
+	tree.load_dirs(src, bld)
 
-	conf = Configure.Configure(srcdir=srcdir, blddir=blddir)
+	conf = Configure.Configure(srcdir=src, blddir=bld)
 	conf.sub_config('')
-	conf.store(bld)
+	conf.store(tree)
 	conf.cleanup()
 
 	# this will write a configure lock so that subsequent run will
@@ -93,8 +84,8 @@ def configure():
 	w = file.write
 
 	proj={}
-	proj['blddir']=blddir
-	proj['srcdir']=srcdir
+	proj['blddir']=bld
+	proj['srcdir']=src
 	proj['argv']=sys.argv[1:]
 	proj['hash']=conf.hash
 	proj['files']=conf.files
