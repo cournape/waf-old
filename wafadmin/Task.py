@@ -225,7 +225,9 @@ class Task(TaskBase):
 		scan = getattr(self, 'm_scanner', None)
 		if scan:
 			fun = getattr(scan, 'may_start', None)
-			if fun: fun(self)
+			if fun:
+				if not fun(self):
+					return 0
 
 		# this is a dependency using the scheduler, as opposed to hash-based ones
 		for t in self.get_run_after():

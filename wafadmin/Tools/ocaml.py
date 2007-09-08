@@ -88,6 +88,8 @@ def filter_comments(filename):
 class ocaml_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
+	def may_start(self):
+		return 1
 	def scan(self, task, node):
 		#print "scan is called"
 		code = "".join(filter_comments(node.abspath(task.m_env)))
@@ -129,10 +131,10 @@ class ocamlobj(Object.genobj):
 		self._mlltasks    = []
 		self._mlytasks    = []
 
-		self._mlitasks    = []
-		self._native_tasks   = []
-		self._bytecode_tasks = []
-		self._linktasks      = []
+		self.mlitasks    = []
+		self.native_tasks   = []
+		self.bytecode_tasks = []
+		self.linktasks      = []
 
 		self.bytecode_env = None
 		self.native_env   = None
@@ -167,7 +169,7 @@ class ocamlobj(Object.genobj):
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
 	def lastlinktask(self):
-		return self._linktasks[0]
+		return self.linktasks[0]
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -236,7 +238,7 @@ class ocamlobj(Object.genobj):
 				task = self.create_task('ocamlcmi', self.native_env, 40)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmi'))
-				self._mlitasks.append(task)
+				self.mlitasks.append(task)
 				continue
 			elif ext == '.c':
 				task = self.create_task('ocamlcc', self.native_env, 60)
@@ -253,33 +255,33 @@ class ocamlobj(Object.genobj):
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmx'))
 				task.m_scanner = g_caml_scanner
+				task.obj = self
 				task.incpaths = self._bld_incpaths_lst
-				#self._map_task(task)
-				self._native_tasks.append(task)
+				self.native_tasks.append(task)
 			if self.bytecode_env:
 				task = self.create_task('ocaml', self.bytecode_env, 60)
 				task.set_inputs(node)
 				task.m_scanner = g_caml_scanner
+				task.obj = self
 				task.incpaths = self._bld_incpaths_lst
 				task.set_outputs(node.change_ext('.cmo'))
-				#self._map_task(task)
-				self._bytecode_tasks.append(task)
+				self.bytecode_tasks.append(task)
 
 		if self.bytecode_env:
 			linktask = self.create_task('ocalink', self.bytecode_env, 101)
 			objfiles = []
-			for t in self._bytecode_tasks: objfiles.append(t.m_outputs[0])
+			for t in self.bytecode_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=1)))
-			self._linktasks.append(linktask)
+			self.linktasks.append(linktask)
 		if self.native_env:
 			linktask = self.create_task('ocalinkopt', self.native_env, 101)
 			objfiles = []
-			for t in self._native_tasks: objfiles.append(t.m_outputs[0])
+			for t in self.native_tasks: objfiles.append(t.m_outputs[0])
 			linktask.m_inputs  = objfiles
 			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=0)))
 			#linktask.set_outputs(objfiles[0].m_parent.find_build(self.get_target_name(bytecode=0)))
-			self._linktasks.append(linktask)
+			self.linktasks.append(linktask)
 
 			#if self.m_type != 'c_object': self.out_nodes += linktask.m_outputs
 			self.out_nodes += linktask.m_outputs
@@ -298,81 +300,6 @@ class ocamlobj(Object.genobj):
 			else:
 				return self.target
 
-	def comptask(self):
-		"""
-		use ocamldep to set the dependencies
-
-		we cannot run this method when posting the object as the mly and mll tasks
-		are not run yet, so the resulting .ml and .mli files do not exist, leading to
-		incomplete dependencies
-		"""
-
-		if self.are_deps_set: return
-		self.are_deps_set = 1
-
-		#print "comptask called!"
-
-		curdir = self.path
-		file2task = {}
-
-		dirs  = []
-		milst = []
-		lst = []
-		for i in self._mlitasks + self._native_tasks + self._bytecode_tasks:
-			node = i.m_inputs[0]
-			path = node.bldpath(self.env)
-			if not path in milst:
-				milst.append(path)
-				dir = node.m_parent.srcpath(self.env)
-				if not dir in dirs: dirs.append(dir)
-
-			m = i.m_outputs[0]
-			file2task[m.relpath_gen(Params.g_build.m_bldnode)] = i
-
-		cmd = ['ocamldep']
-		for i in dirs:
-			cmd.append('-I')
-			cmd.append(i)
-		for i in milst:
-			cmd.append(i)
-
-		cmd = " ".join(cmd)
-		ret = os.popen(cmd).read().strip()
-
-		hashdeps = {}
-		lines = ret.split('\n')
-		for line in lines:
-			lst = line.split(': ')
-			hashdeps[lst[0]] = lst[1].split()
-
-			#print "found ", lst[0], file2task
-
-			if lst[0] in file2task:
-				t = file2task[lst[0]]
-
-				for name in lst[1].split():
-					if name in file2task:
-						t.set_run_after(file2task[name])
-
-		# sort the files in the link tasks .. damn
-		def cmp(n1, n2):
-			v1 = n1.relpath_gen(Params.g_build.m_bldnode)
-			v2 = n2.relpath_gen(Params.g_build.m_bldnode)
-
-			if v1 in hashdeps:
-				if v2 in hashdeps[v1]:
-					return 1
-			elif v2 in hashdeps:
-				if v1 in hashdeps[v2]:
-					return -1
-			return 0
-
-		for task in self._linktasks:
-			task.m_inputs.sort(cmp)
-		#for task in self._native_tasks:
-		#	print task.m_run_after
-
-
 def setup(env):
 	Object.register('ocaml', ocamlobj)
 	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
@@ -387,16 +314,12 @@ def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
 	occ = conf.find_program('ocamlc', var='OCAMLC')
 	if (not opt) or (not occ):
-		fatal('The objective caml compiler was not found:\n' \
-			'install it or make it availaible in your PATH')
-
-	lex  = conf.find_program('ocamllex', var='OCAMLLEX')
-	yacc = conf.find_program('ocamlyacc', var='OCAMLYACC')
+		fatal('The objective caml compiler was not found:\ninstall it or make it available in your PATH')
 
 	conf.env['OCAMLC']       = occ
 	conf.env['OCAMLOPT']     = opt
-	conf.env['OCAMLLEX']     = lex
-	conf.env['OCAMLYACC']    = yacc
+	conf.env['OCAMLLEX']     = conf.find_program('ocamllex', var='OCAMLLEX')
+	conf.env['OCAMLYACC']    = conf.find_program('ocamlyacc', var='OCAMLYACC')
 	conf.env['OCAMLFLAGS']   = ''
 	conf.env['OCALINK']      = ''
 	conf.env['OCAMLLIB']     = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep

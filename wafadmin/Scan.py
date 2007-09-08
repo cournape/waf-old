@@ -30,7 +30,7 @@ class scanner:
 	# * a list of nodes corresponding to real files
 	# * a list of names for files not found in path_lst
 	# the input parameters may have more parameters that the ones used below
-	def scan(self, node, env):
+	def scan(self, task, node):
 		"usually reimplemented"
 		return ([], [])
 
