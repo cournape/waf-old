@@ -1,4 +1,19 @@
-* clean the scanner classes
+roadmap:
+--------
+
+* move the benchmarking helpers and other tweaks into a separate module (Weak.py) - and fix it
+
+* simplification of the signature and dependency system (nearly complete)
+* improvements of the ocaml tools, and of the c preprocessor (features, speed)
+* improvement of the configuration system (started)
+* wrappers to make adding new construction rules more user-friendly (not really started)
+
+ideas to watch:
+---------------
+
+* precompiled headers support (pch)
+* cross-compilation helpers (need specs)
+
 * make the ccroot class a link class with hooks, move the c/c++ support into the hooks
 * move common configuration flags into the globals to make env smaller
 * refactor the apis
@@ -10,5 +25,5 @@
 Qt4.py: do not hash the moc files in the signature
 
 --------------------------------------
-Last update: 02-09-2007
+Last update: 08-09-2007
 Contact -> tnagyemail-mail at yahoo.fr (ita)
