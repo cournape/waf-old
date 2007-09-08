@@ -29,9 +29,10 @@ def setup(env):
 def detect(conf):
 	test_for_compiler = Params.g_options.check_c_compiler
 	for c_compiler in test_for_compiler.split():
-		if conf.check_tool(c_compiler):
+		conf.check_tool(c_compiler)
+		if conf.env['CC']:
 			conf.check_message("%s" %c_compiler, '', True)
-			conf.env["COMPILER_CC"] = "%s" %c_compiler #store the choosed c compiler
+			conf.env["COMPILER_CC"] = "%s" % c_compiler #store the choosed c compiler
 			return
 		conf.check_message("%s" %c_compiler, '', False)
 	conf.env["COMPILER_CC"] = None

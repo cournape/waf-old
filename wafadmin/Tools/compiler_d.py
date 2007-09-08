@@ -16,7 +16,8 @@ def detect(conf):
 		test_for_compiler = ['gdc', 'dmd']
 
 	for d_compiler in test_for_compiler:
-		if conf.check_tool(d_compiler):
+		conf.check_tool(d_compiler)
+		if conf.env['D_COMPILER']
 			conf.check_message("%s" % d_compiler, '', True)
 			return
 		conf.check_message("%s" % d_compiler, '', False)

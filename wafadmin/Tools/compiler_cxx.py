@@ -29,7 +29,8 @@ def setup(env):
 def detect(conf):
 	test_for_compiler = Params.g_options.check_cxx_compiler
 	for cxx_compiler in test_for_compiler.split():
-		if conf.check_tool(cxx_compiler):
+		conf.check_tool(cxx_compiler)
+		if conf.env['CXX']:
 			conf.check_message("%s" %cxx_compiler, '', True)
 			conf.env["COMPILER_CXX"] = "%s" %cxx_compiler #store the choosed c++ compiler
 			return
