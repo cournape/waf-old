@@ -302,13 +302,11 @@ else:
 	Utils.set_main_module(os.path.join(candidate, 'wscript'))
 
 if build_dir_override:
-	try:
+	d = getattr(Utils.g_module, 'blddir', None)
+	if d:
 		# test if user has set the blddir in wscript.
-		blddir = Utils.g_module.blddir
-		msg = 'Overriding build directory %s with %s' % (blddir, build_dir_override)
+		msg = 'Overriding build directory %s with %s' % (d, build_dir_override)
 		Params.niceprint(msg, 'WARNING', 'waf')
-	except:
-		pass
 	Utils.g_module.blddir = build_dir_override
 
 # fetch the custom command-line options recursively and in a procedural way

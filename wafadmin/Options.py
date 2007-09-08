@@ -17,10 +17,7 @@ except KeyError:
 	if sys.platform == 'win32': default_prefix='c:\\temp\\'
 	else: default_prefix = '/usr/local/'
 
-try:
-	default_destdir = os.environ['DESTDIR']
-except KeyError:
-	default_destdir = ''
+default_destdir = os.environ.get('DESTDIR', '')
 
 def create_parser():
 	debug("create_parser is called", 'options')
@@ -118,7 +115,7 @@ def parse_args_impl(parser, _args=None):
 	# By default, 'waf' is equivalent to 'waf build'
 	lst='dist configure clean distclean build install uninstall check'.split()
 	Params.g_commands={}
-	for var in lst:    Params.g_commands[var]    = 0
+	for var in lst:    Params.g_commands[var] = 0
 	if len(args) == 0: Params.g_commands['build'] = 1
 
 	# Parse the command arguments
