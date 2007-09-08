@@ -2,11 +2,13 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"Ocaml support"
+"ocaml support"
 
-import os
+import os, re
 import Params, Action, Object, Scan, Utils
 from Params import error, fatal
+
+open_re = re.compile('open ([a-zA-Z]+);;', re.M)
 
 def filter_comments(filename):
 	f = open(filename, 'r')
@@ -64,18 +66,16 @@ def filter_comments(filename):
 					c = txt[i]
 					if c == '*':
 						prev = 1
-					elif c == ')':
+					elif c == ')' and prev:
 						if prev:
 							nesting -= 1
 							if nesting == 0: break
-						else:
-							if i < max:
-								i += 1
-								c = txt[i]
-								if c == '*':
-									nesting += 1
-							else:
-								return buf
+					elif c == '(':
+						prev = 0
+						if i == max: return buf
+						i += 1
+						c = txt[i]
+						if c == '*': nesting += 1
 					else:
 						prev = 0
 					i += 1
@@ -85,16 +85,31 @@ def filter_comments(filename):
 		i += 1
 	return buf
 
-
-g_map_id_to_obj = {}
-
 class ocaml_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
-	def may_start(self, task):
-		global g_map_id_to_obj
-		if task.m_idx in g_map_id_to_obj: g_map_id_to_obj[task.m_idx].comptask()
-		return 1
+	def scan(self, task, node):
+		#print "scan is called"
+		code = "".join(filter_comments(node.abspath(task.m_env)))
+
+		names=[]
+		import_iterator = open_re.finditer(code)
+		if import_iterator:
+			for import_match in import_iterator:
+				names.append(import_match.group(1))
+		found_lst = []
+		raw_lst = []
+		for name in names:
+			nd = None
+			for x in task.incpaths:
+				nd = x.find_source(name.lower()+'.ml')
+				if nd:
+					found_lst.append(nd)
+					break
+			else:
+				print "not found", name
+
+		return (found_lst, raw_lst)
 
 g_caml_scanner = ocaml_scanner()
 
@@ -153,12 +168,6 @@ class ocamlobj(Object.genobj):
 
 	def lastlinktask(self):
 		return self._linktasks[0]
-
-	def _map_task(self, task):
-		global g_caml_scanner
-		task.m_scanner = g_caml_scanner
-		global g_map_id_to_obj
-		g_map_id_to_obj[task.m_idx] = self
 
 	def apply_incpaths(self):
 		inc_lst = self.includes.split()
@@ -243,13 +252,17 @@ class ocamlobj(Object.genobj):
 				task = self.create_task('ocaml', self.native_env, 60)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmx'))
-				self._map_task(task)
+				task.m_scanner = g_caml_scanner
+				task.incpaths = self._bld_incpaths_lst
+				#self._map_task(task)
 				self._native_tasks.append(task)
 			if self.bytecode_env:
 				task = self.create_task('ocaml', self.bytecode_env, 60)
 				task.set_inputs(node)
+				task.m_scanner = g_caml_scanner
+				task.incpaths = self._bld_incpaths_lst
 				task.set_outputs(node.change_ext('.cmo'))
-				self._map_task(task)
+				#self._map_task(task)
 				self._bytecode_tasks.append(task)
 
 		if self.bytecode_env:
