@@ -190,30 +190,27 @@ class Task(TaskBase):
 		else: act_sig = Object.sign_env_vars(self.m_env, self.m_action.m_vars)
 		m.update(act_sig)
 
+		# variable dependencies, if provided
 		var_sig = None
-		try:
-			# fail if dep_vars does not exist
-			var_sig = Object.sign_env_vars(self.m_env, self.dep_vars)
+		dep_vars = getattr(self, 'dep_vars', None)
+		if dep_vars:
+			var_sig = Object.sign_env_vars(self.m_env, dep_vars)
 			m.update(var_sig)
-		except AttributeError:
-			pass
 
+		# node dependencies, if provided
 		node_sig = Params.sig_nil
-		try:
-			# fail if dep_nodes does not exist
-			for x in self.dep_nodes:
-				variant = x.variant(self.m_env)
-				v = tree.m_tstamp_variants[variant][x]
-				node_sig = hash( (node_sig, v) )
-				m.update(v)
-		except AttributeError:
-			pass
+		dep_nodes = getattr(self, 'dep_nodes', [])
+		for x in dep_nodes:
+			variant = x.variant(self.m_env)
+			v = tree.m_tstamp_variants[variant][x]
+			node_sig = hash( (node_sig, v) )
+			m.update(v)
 
-		# hash additional node dependencies
+		# we now have the array of signatures
 		ret = m.digest()
-
 		self.cache_sig = [ret, dep_sig, act_sig, var_sig, node_sig]
 
+		# TODO can be dangerous
 		self._sign_all = ret
 		return ret
 
@@ -225,11 +222,10 @@ class Task(TaskBase):
 				self.debug()
 
 		# the scanner has its word to say
-		try:
-			if not self.m_scanner.may_start(self):
-				return 1
-		except AttributeError:
-			pass
+		scan = getattr(self, 'm_scanner', None)
+		if scan:
+			fun = getattr(scan, 'may_start', None)
+			if fun: fun(self)
 
 		# this is a dependency using the scheduler, as opposed to hash-based ones
 		for t in self.get_run_after():
