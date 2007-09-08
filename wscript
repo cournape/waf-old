@@ -274,8 +274,8 @@ def init():
 		print "run 'waf --help' to know more about allowed commands !"
 		sys.exit(0)
 
-def dist():
-	import Scripting
-	Scripting.g_dist_exts += ['Weak.py'] # shows how to exclude a file from dist
-	Scripting.Dist(APPNAME, VERSION)
+#def dist():
+#	import Scripting
+#	Scripting.g_dist_exts += ['Weak.py'] # shows how to exclude a file from dist
+#	Scripting.Dist(APPNAME, VERSION)
 
