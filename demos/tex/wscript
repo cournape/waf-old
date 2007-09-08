@@ -14,7 +14,7 @@ def set_options(opt):
 	pass
 
 def configure(conf):
-	conf.check_tool('Tex')
+	conf.check_tool('tex')
 
 def build(bld):
 	# process subfolders from here

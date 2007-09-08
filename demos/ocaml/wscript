@@ -14,7 +14,7 @@ def set_options(opt):
 	pass
 
 def configure(conf):
-	conf.check_tool('Ocaml')
+	conf.check_tool('ocaml')
 
 # process subfolders from here
 def build(bld):
