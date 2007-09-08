@@ -77,6 +77,3 @@ def setup(env):
 	ccroot.ccroot.apply_core = apply_core_osx
 	Action.Action('macapp', vars=[], func=app_build)
 
-def detect(conf):
-	return 1
-

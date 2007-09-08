@@ -335,6 +335,3 @@ def setup(env):
 	Action.Action('command-output', func=CommandOutput._command_output_func, color='BLUE')
 	Object.register('command-output', CommandOutput)
 
-def detect(conf):
-	return 1
-

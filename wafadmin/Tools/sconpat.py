@@ -68,7 +68,3 @@ def Environment(**kw):
 def setup(env):
 	pass
 
-def detect(conf):
-	"attach the checks to the conf object"
-	return 1
-

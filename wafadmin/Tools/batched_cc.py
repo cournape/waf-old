@@ -111,9 +111,6 @@ def create_task_new(self, type, env=None, nice=100):
 		self.p_compiletasks.append(task)
 	return task
 
-def detect(conf):
-	return 1
-
 def setup(env):
 	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC}'
 	Action.simple_action('all_cc', cc_str, 'GREEN')

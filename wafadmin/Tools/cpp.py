@@ -67,6 +67,3 @@ def setup(env):
 
 	Object.register('cpp', cppobj)
 
-def detect(conf):
-	return 1
-

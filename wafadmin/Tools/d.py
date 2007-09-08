@@ -394,9 +394,6 @@ def setup(env):
 
 	Object.register('d', dobj)
 
-def detect(conf):
-	return 1
-
 # quick test #
 if __name__ == "__main__":
 	#Params.g_verbose = 2

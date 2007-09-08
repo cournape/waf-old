@@ -119,6 +119,3 @@ def setup(env):
 
 	Object.register('cc', ccobj)
 
-def detect(conf):
-	return 1
-
