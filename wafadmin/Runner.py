@@ -8,17 +8,6 @@ import sys, random, time
 import Params, Task, Utils
 from Params import debug, error
 
-dostat=0
-"""
-output a stat file (data for gnuplot) when running tasks in parallel
-
-#! /usr/bin/gnuplot -persist
-set terminal png
-set output "output.png"
-set yrange [-1:6]
-plot 'test.dat' using 1:3 with linespoints
-"""
-
 g_quiet = 0
 "do not output anything"
 
@@ -31,7 +20,7 @@ exetor = None
 #	import subprocess
 #	exetor = subprocess
 #except ImportError:
-# Python < 2.5 is way buggy
+# Python < 2.5 is too buggy
 import pproc
 exetor = pproc
 
@@ -192,85 +181,72 @@ class Serial:
 		#self.m_generator.debug()
 		while 1:
 			# get next Task
-			proc = self.m_generator.get_next()
-			if proc is None: break
+			tsk = self.m_generator.get_next()
+			if tsk is None: break
 
-			debug("retrieving #"+str(proc.m_idx), 'runner')
+			debug("retrieving #"+str(tsk.m_idx), 'runner')
 
 			# # =======================
-			#if proc.m_hasrun:
-			#	error("task has already run! "+str(proc.m_idx))
+			#if tsk.m_hasrun:
+			#	error("task has already run! "+str(tsk.m_idx))
 
-			if not proc.may_start():
-				debug("delaying   #"+str(proc.m_idx), 'runner')
-				self.m_generator.postpone(proc)
+			if not tsk.may_start():
+				debug("delaying   #"+str(tsk.m_idx), 'runner')
+				self.m_generator.postpone(tsk)
 				#self.m_generator.debug()
-				#proc = None
+				#tsk = None
 				continue
 			# # =======================
 
-			proc.prepare()
-			#proc.debug()
+			tsk.prepare()
+			#tsk.debug()
 
-			#debug("m_sig is "+str(proc.m_sig), 'runner')
-			#debug("obj output m_sig is "+str(proc.m_outputs[0].get_sig()), 'runner')
+			#debug("m_sig is "+str(tsk.m_sig), 'runner')
+			#debug("obj output m_sig is "+str(tsk.m_outputs[0].get_sig()), 'runner')
 
 			#continue
-			if not proc.must_run():
-				proc.m_hasrun=2
-				#debug("task is up-to_date "+str(proc.m_idx), 'runner')
+			if not tsk.must_run():
+				tsk.m_hasrun=2
+				#debug("task is up-to_date "+str(tsk.m_idx), 'runner')
 				continue
 
-			debug("executing  #"+str(proc.m_idx), 'runner')
+			debug("executing  #"+str(tsk.m_idx), 'runner')
 
 			# display the command that we are about to run
 			if not Params.g_commands['configure']:
 				(s, t) = self.m_generator.progress()
-				col1=''
-				col2=''
-				try:
-					col1=Params.g_colors[proc.color()]
-					col2=Params.g_colors['NORMAL']
-				except: pass
-				sys.stdout.write(progress_line(s, t, col1, proc, col2))
+				col1=Params.g_colors[tsk.color()]
+				col2=Params.g_colors['NORMAL']
+				sys.stdout.write(progress_line(s, t, col1, tsk, col2))
 				sys.stdout.flush()
 
 			# run the command
-			ret = proc.run()
+			ret = tsk.run()
 
 			# non-zero means something went wrong
 			if ret:
 				if Params.g_options.keep:
-					self.m_generator.skip_group('non-zero return code\n' + proc.debug_info())
+					self.m_generator.skip_group('non-zero return code\n' + tsk.debug_info())
 					continue
 				else:
 					if Params.g_verbose:
-						error("task failed! (return code %s for #%s)"%(str(ret), str(proc.m_idx)))
-						proc.debug(1)
+						error("task failed! (return code %s for #%s)"%(str(ret), str(tsk.m_idx)))
+						tsk.debug(1)
 					return ret
 
 			try:
-				proc.update_stat()
+				tsk.update_stat()
 			except:
 				if Params.g_options.keep:
-					self.m_generator.skip_group('missing nodes\n' + proc.debug_info())
+					self.m_generator.skip_group('missing nodes\n' + tsk.debug_info())
 					continue
 				else:
-					if Params.g_verbose:
-						error('the nodes have not been produced !')
+					if Params.g_verbose: error('the nodes have not been produced !')
 					raise CompilationError()
-			proc.m_hasrun=1
+			tsk.m_hasrun=1
 
 			# register the task to the ones that have run - useful for debugging purposes
-			Task.g_tasks_done.append(proc)
-
-			"""try:
-				proc.apply()
-			except KeyboardInterrupt:
-				raise
-			except:
-				print "hum hum .. task failed!"
-			"""
+			Task.g_tasks_done.append(tsk)
 
 		debug("Serial end", 'runner')
 		return 0
@@ -278,30 +254,12 @@ class Serial:
 import threading
 import Queue
 
-
 lock = None
 condition = None
 count = 0
 stop = 0
 running = 0
 failed = 0
-
-
-stat = []
-class TaskPrinter(threading.Thread):
-	def __init__(self, id, master):
-		threading.Thread.__init__(self)
-		self.setDaemon(1)
-		self.m_master = master
-		self.start()
-
-	def run(self):
-		global count, lock, running, stat
-		while 1:
-			lock.acquire()
-			stat.append( (time.time(), count, running) )
-			lock.release()
-			time.sleep(0.1)
 
 class TaskConsumer(threading.Thread):
 	def __init__(self, id, master):
@@ -320,14 +278,9 @@ class TaskConsumer(threading.Thread):
 		condition.notify()
 		condition.release()
 
-	def do_stat(self, num):
-		global running
-		lock.acquire()
-		running += num
-		lock.release()
-
 	def run(self):
 		global lock, count, stop, running, failed
+		do_stat = getattr(self, 'do_stat', None)
 		while 1:
 			lock.acquire()
 			self.m_stop  = stop
@@ -335,13 +288,14 @@ class TaskConsumer(threading.Thread):
 
 			if self.m_stop:
 				while 1:
-					if failed > 0: count = 0 # force the scheduler to check for failure
+					# force the scheduler to check for failure
+					if failed > 0: count = 0
 					time.sleep(1)
 
 			# take the next task
 			tsk = self.m_master.m_ready.get(block=1)
 
-			self.do_stat(1)
+			if do_stat: do_stat(1)
 
 			# display the label for the command executed
 			sys.stdout.write(tsk.get_display())
@@ -350,7 +304,7 @@ class TaskConsumer(threading.Thread):
 			# run the command
 			ret = tsk.run()
 
-			self.do_stat(-1)
+			if do_stat: do_stat(-1)
 
 			if ret:
 				lock.acquire()
@@ -478,12 +432,10 @@ class Parallel:
 		return (id, group.prio[id])
 
 	def start(self):
-		global count, lock, stop, condition, dostat
+		global count, lock, stop, condition
 
 		# unleash the consumers
 		for i in range(self.m_numjobs): TaskConsumer(i, self)
-
-		if dostat: TaskPrinter(-1, self)
 
 		# the current group
 		#group = None
@@ -557,12 +509,8 @@ class Parallel:
 						continue
 
 					# display the command that we are about to run
-					col1=''
-					col2=''
-					try:
-						col1=Params.g_colors[tsk.color()]
-						col2=Params.g_colors['NORMAL']
-					except: pass
+					col1=Params.g_colors[tsk.color()]
+					col2=Params.g_colors['NORMAL']
 					tsk.set_display(progress_line(self.m_processed, self.m_total, col1, tsk, col2))
 
 					lock.acquire()
@@ -571,13 +519,4 @@ class Parallel:
 					lock.release()
 
 					self.m_ready.put(tsk, block=1)
-
-		debug("amount of loops "+str(loop), 'runner')
-		global stat
-		if dostat and stat:
-			file = open('test.dat', 'w')
-			(t1, queue, run) = stat[0]
-			for (time, queue, run) in stat:
-				file.write("%f %f %f\n" % (time-t1, queue, run))
-			file.close()
 
