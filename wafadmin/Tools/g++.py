@@ -22,7 +22,7 @@ def detect(conf):
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx:
-		return 0;
+		return
 
 	cpp = conf.find_program('cpp', var='CPP')
 	if not cpp: cpp = cxx
@@ -268,8 +268,6 @@ def detect(conf):
 	v['shlib_INST_DIR'] = 'lib'
 	v['staticlib_INST_VAR'] = 'PREFIX'
 	v['staticlib_INST_DIR'] = 'lib'
-
-	return 1
 
 def set_options(opt):
 	try:

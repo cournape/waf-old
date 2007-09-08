@@ -166,5 +166,3 @@ def detect(conf):
 		conf.env['DB2PS']   = "jw -f docbook -b ps -o %s %s"
 		conf.env['DB2TXT']  = "jw -f docbook -b txt -o %s %s"
 
-	return 1
-

@@ -286,5 +286,3 @@ def detect(conf):
 	conf.hook(checkFeatures)
 	conf.hook(detect_platform)
 
-	return 1
-

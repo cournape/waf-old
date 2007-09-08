@@ -258,12 +258,10 @@ class texobj(Object.genobj):
 
 def detect(conf):
 	v = conf.env
-
 	for p in 'tex latex pdflatex bibtex dvips dvipdf ps2pdf makeindex'.split():
 		conf.find_program(p, var=p.upper())
 		v[p.upper()+'FLAGS'] = ''
 	v['DVIPSFLAGS'] = '-Ppdf'
-	return 1
 
 def setup(env):
 	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE')

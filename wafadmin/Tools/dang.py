@@ -37,7 +37,6 @@ def setup(env):
 
 def detect(conf):
 	dang = conf.find_program('cat', var='DANG')
-	if not dang: return 0 # make it fatal
+	if not dang: return
 	conf.env['DANG_EXT'] = ['.coin']
-	return 1
 

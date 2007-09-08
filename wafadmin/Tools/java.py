@@ -57,11 +57,7 @@ def setup(env):
 	Action.simple_action('jar_create', '${JAR} cvf ${TGT} ${JAROPTS}', color='GREEN')
 
 def detect(conf):
-	javac = conf.find_program('javac', var='JAVAC')
-	if not javac: return 0
-
+	conf.find_program('javac', var='JAVAC')
 	conf.find_program('jar', var='JAR')
-
 	conf.env['JAVA_EXT'] = ['.java']
-	return 1
 

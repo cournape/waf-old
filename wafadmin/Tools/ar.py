@@ -17,15 +17,14 @@ def setup(env):
 
 def detect(conf):
 	comp = conf.find_program('ar', var='AR')
-	if not comp: return 0;
+	if not comp: return
 
 	ranlib = conf.find_program('ranlib', var='RANLIB')
-	if not ranlib: return 0
+	if not ranlib: return
 
 	v = conf.env
 	v['AR']          = comp
 	v['ARFLAGS']     = 'r'
 	v['RANLIB']      = ranlib
 	v['RANLIBFLAGS'] = ''
-	return 1
 

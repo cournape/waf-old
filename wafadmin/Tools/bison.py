@@ -50,10 +50,9 @@ def setup(env):
 
 def detect(conf):
 	bison = conf.find_program('bison', var='BISON')
-	if not bison: return 0
+	if not bison: return
 	v = conf.env
 	v['BISON']      = bison
 	v['BISONFLAGS'] = '-d'
 	v['BISON_EXT']  = ['.y', '.yc']
-	return 1
 

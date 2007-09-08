@@ -32,10 +32,9 @@ def detect(conf):
 		if conf.check_tool(cxx_compiler):
 			conf.check_message("%s" %cxx_compiler, '', True)
 			conf.env["COMPILER_CXX"] = "%s" %cxx_compiler #store the choosed c++ compiler
-			return (1)
+			return
 		conf.check_message("%s" %cxx_compiler, '', False)
 	conf.env["COMPILER_CXX"] = None
-	return (0)
 
 def set_options(opt):
 	detected_plattform = checks.detect_platform(None)

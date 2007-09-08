@@ -391,5 +391,4 @@ def detect(conf):
 	conf.env['CPPPATH_OCAML'] = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep
 	conf.env['LIB_OCAML'] = 'camlrun'
 	conf.env['OCALINKFLAGS'] = ''
-	return 1
 

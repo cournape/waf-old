@@ -45,10 +45,9 @@ def setup(env):
 
 def detect(conf):
 	flex = conf.find_program('flex', var='FLEX')
-	if not flex: return 0
+	if not flex: return
 	v = conf.env
 	v['FLEX']      = flex
 	v['FLEXFLAGS'] = ''
 	v['FLEX_EXT']  = ['.l']
-	return 1
 

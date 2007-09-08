@@ -349,8 +349,6 @@ def detect(conf):
 	#Define to 1 if you have the <unistd.h> header file.
 	conf.check_header('unistd.h', 'HAVE_UNISTD_H')
 
-	return 1
-
 def set_options(opt):
 	try:
 		# we do not know yet

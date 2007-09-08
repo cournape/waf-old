@@ -76,5 +76,4 @@ def setup(env):
 def detect(conf):
 	mcs = conf.find_program('mcs', var='MCS')
 	if not mcs: mcs = conf.find_program('gmcs', var='MCS')
-	return 1
 

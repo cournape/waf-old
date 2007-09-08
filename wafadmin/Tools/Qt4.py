@@ -449,8 +449,7 @@ def detect_qt4(conf):
 
 def detect(conf):
 	if sys.platform=='win32': fatal('Qt4.py will not work on win32 for now - ask the author')
-	else: detect_qt4(conf)
-	return 0
+	detect_qt4(conf)
 
 def set_options(opt):
 	try: opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')

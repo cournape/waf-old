@@ -23,16 +23,14 @@ def detect(conf):
 	ret = os.popen("%s -flags" %cc).close()
 	if ret:
 		conf.check_message('suncc', '', not ret)
-		return 0 #at least gcc exit with error
+		return
 	conf.check_tool('checks')
 
 	# load the cc builders
 	conf.check_tool('cc')
 
 	# sun cc requires ar for static libs
-	if not conf.check_tool('ar'):
-		Utils.error('suncc needs ar - not found')
-		return 0
+	conf.check_tool('ar')
 
 	v = conf.env
 
@@ -109,7 +107,7 @@ def detect(conf):
 	ret = conf.run_check(test, "program")
 	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
-		return 0
+		return
 	ret = 0
 	#test if the compiler could build a shlib
 	lib_obj = Configure.check_data()
@@ -120,7 +118,7 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'shared libs', not (ret is False))
 	if not ret:
-		return 0
+		return
 	ret = 0
 	#test if the compiler could build a staiclib
 	lib_obj = Configure.check_data()
@@ -131,7 +129,7 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret:
-		return 0
+		return
 
 	# compiler debug levels
 	v['CCFLAGS'] = ['-O']
@@ -166,8 +164,6 @@ def detect(conf):
 	v['shlib_INST_DIR'] = 'lib'
 	v['staticlib_INST_VAR'] = 'PREFIX'
 	v['staticlib_INST_DIR'] = 'lib'
-
-	return 1
 
 def set_options(opt):
 	try:

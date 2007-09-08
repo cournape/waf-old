@@ -46,13 +46,10 @@ def detect(conf):
 		v['WINRC_TGT_F'] = '/fo '
 		v['WINRC_SRC_F'] = ' '
 		v['winrc_obj_ext'] = '.res'
-	else :
-		return 0
-
+	else:
+		return
 	if not winrc :
-		return 0 # make it fatal
-
+		return
 	v['WINRC_EXT'] = ['.rc']
 	v['WINRCFLAGS'] = ''
-	return 1
 

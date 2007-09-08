@@ -12,13 +12,14 @@ def detect(conf):
 	if conf.env['D_COMPILER']:
 		d_compiler = conf.env['D_COMPILER']
 	if not d_compiler: d_compiler = conf.find_program('gdc', var='D_COMPILER')
-	if not d_compiler: return 0
+	if not d_compiler: return
 
 	conf.check_tool('d')
 
-	if not conf.check_tool('ar'):
+	conf.check_tool('ar')
+	if not conf.env['AR']
 		Utils.error('ar is needed for static libraries - not found')
-		return 0
+		raise ConfigurationError
 
 	v = conf.env
 
@@ -86,10 +87,6 @@ def detect(conf):
 		v['D_program_obj_ext']     = ['.o']
 		v['D_program_PREFIX']      = ''
 		v['D_program_SUFFIX']      = ''
-
-
-	return 1
-
 
 def set_options(opt):
 	pass

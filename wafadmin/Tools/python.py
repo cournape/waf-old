@@ -223,7 +223,7 @@ def check_python_version(conf, minver=None):
 
 def detect(conf):
 	python = conf.find_program('python', var='PYTHON')
-	if not python: return 0
+	if not python: return
 
 	v = conf.env
 
@@ -251,8 +251,6 @@ def detect(conf):
 
 	conf.hook(check_python_version)
 	conf.hook(check_python_headers)
-
-	return 1
 
 def set_options(opt):
 	opt.add_option('--nopyc', action = 'store_false', default = 1, help = 'no pyc files (configuration)', dest = 'pyc')

@@ -22,7 +22,7 @@ def detect(conf):
 	if not cxx: cxx = conf.find_program('CC', var='CXX')
 	if not cxx:
 		conf.check_message('sunc++', '', False)
-		return 0;
+		return
 	conf.check_tool('checks')
 
 	cpp = cxx
@@ -30,10 +30,8 @@ def detect(conf):
 	# load the cpp builders
 	conf.check_tool('cpp')
 
-	# g++ requires ar for static libs
-	if not conf.check_tool('ar'):
-		Utils.error('sunc++ needs ar - not found')
-		return 0
+	# for static libs
+	conf.check_tool('ar')
 
 	v = conf.env
 	v['CXX'] = cxx

@@ -18,9 +18,8 @@ def detect(conf):
 	for d_compiler in test_for_compiler:
 		if conf.check_tool(d_compiler):
 			conf.check_message("%s" % d_compiler, '', True)
-			return (1)
+			return
 		conf.check_message("%s" % d_compiler, '', False)
-	return 0
 
 def set_options(opt):
 	d_compiler_opts = opt.add_option_group("D Compiler Options")

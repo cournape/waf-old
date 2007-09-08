@@ -389,22 +389,19 @@ def quote_str(str):
 		return (str.strip().find(' ') > 0 and '"%s"' % str or str).replace('""', '"')
 
 def detect(conf):
+	# TODO raise ConfigurationError instead of just bailing out
 
 	comp = conf.find_program('CL', var='CXX')
-	if not comp:
-		return 0;
+	if not comp: return
 
 	link = conf.find_program('LINK')
-	if not link:
-		return 0;
+	if not link: return
 
 	stliblink = conf.find_program('LIB')
-	if not stliblink:
-		return 0;
+	if not stliblink: return
 
 	rescompiler = conf.find_program('RC')
-	if not rescompiler:
-		return 0
+	if not rescompiler: return
 
 	manifesttool = conf.find_program('MT')
 
@@ -553,8 +550,6 @@ def detect(conf):
 	v['program_SUFFIX']   = '.exe'
 	v['program_INST_VAR'] = 'PREFIX'
 	v['program_INST_DIR'] = 'bin'
-
-	return 1
 
 def set_options(opt):
 	try:
