@@ -10,6 +10,9 @@ except ImportError: from md5 import md5
 import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
 
+class ConfigurationError(Exception):
+	pass
+
 g_maxlen = 40
 """initial length of configuration messages"""
 
@@ -945,18 +948,17 @@ class Configure:
 	def check_tool(self, input, tooldir=None):
 		"load a waf tool"
 		lst = Utils.to_list(input)
-		ret = True
 		if tooldir: tooldir = Utils.to_list(tooldir)
 		for i in lst:
 			try:
 				file,name,desc = imp.find_module(i, tooldir)
 			except Exception, ex:
 				error("no tool named '%s' found (%s)" % (i, str(ex)))
-				return 0
+				raise ConfigurationError
 			module = imp.load_module(i,file,name,desc)
-			ret = ret and int(module.detect(self))
+			func = getattr(module, 'detect', None)
+			if func: func(self)
 			self.env.append_value('tools', {'tool':i, 'tooldir':tooldir})
-		return ret
 
 	def setenv(self, name):
 		"enable the environment called name"
