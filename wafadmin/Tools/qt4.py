@@ -89,7 +89,9 @@ class MTask(Task.Task):
 		tmp_lst = tree.m_raw_deps[variant][node] = mocfiles
 
 		# look at the file inputs, it is set right above
-		for d in tree.m_depends_on[variant][node]:
+		try: lst = tree.m_depends_on[variant][node]
+		except KeyError: lst=[]
+		for d in []:
 			name = d.m_name
 			if name[-4:]=='.moc':
 				task = parn.create_task('moc_hack', parn.env)

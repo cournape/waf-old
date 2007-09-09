@@ -124,16 +124,9 @@ class Task(TaskBase):
 		self.m_inputs  = []
 		self.m_outputs = []
 
-		# scanner function
-		self.m_scanner        = Scan.g_default_scanner
-
-		# TODO get rid of this:
-		# default scanner parameter
-		global g_default_param
-		self.m_scanner_params = g_default_param
-
-		# additionally, you may define the following
-		# self.dep_vars = 'some_env_var other_env_var'
+		# Additionally, you may define the following
+		#self.dep_vars  = 'PREFIX DATADIR'
+		#self.m_scanner = some_scanner_object
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs = inp
@@ -164,7 +157,7 @@ class Task(TaskBase):
 
 	def signature(self):
 		# compute the result one time, and suppose the scanner.get_signature will give the good result
-		try: return self._sign_all
+		try: return self.sign_all
 		except AttributeError: pass
 
 		tree = Params.g_build
@@ -210,7 +203,7 @@ class Task(TaskBase):
 		self.cache_sig = [ret, dep_sig, act_sig, var_sig, node_sig]
 
 		# TODO can be dangerous
-		self._sign_all = ret
+		self.sign_all = ret
 		return ret
 
 	def may_start(self):
@@ -251,7 +244,7 @@ class Task(TaskBase):
 			node = self.m_outputs[0]
 			variant = node.variant(self.m_env)
 			time = tree.m_tstamp_variants[variant][node]
-			key = hash( (variant, node, time, self.m_scanner.__class__.__name__) )
+			key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
 			prev_sig = tree.m_sig_cache[key][0]
 		except KeyError:
 			# an exception here means the object files do not exist
@@ -266,7 +259,6 @@ class Task(TaskBase):
 		# debug if asked to
 		if Params.g_zones:
 			self.debug_why(tree.m_sig_cache[key])
-
 
 		if new_sig != prev_sig:
 			# if the node has not changed, try to use the cache
@@ -313,7 +305,7 @@ class Task(TaskBase):
 		node = self.m_outputs[0]
 		variant = node.variant(self.m_env)
 		time = tree.m_tstamp_variants[variant][node]
-		key = hash( (variant, node, time, self.m_scanner.__class__.__name__) )
+		key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
 		val = self.cache_sig
 		tree.set_sig_cache(key, val)
 

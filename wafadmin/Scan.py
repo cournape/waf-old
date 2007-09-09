@@ -115,10 +115,7 @@ class scanner:
 		queue = [task.m_inputs[0]]
 		m = md5()
 
-		# add the include paths into the hash
-		m.update(str(task.m_scanner_params))
-
-		# add the defines
+		# add the defines - TODO make this specific for c/c++/d
 		m.update(str(task.m_env['CXXDEFINES']))
 		m.update(str(task.m_env['CCDEFINES']))
 
@@ -138,7 +135,4 @@ class scanner:
 			m.update(tree.m_tstamp_variants[variant][node])
 
 		return m.digest()
-
-g_default_scanner = scanner()
-"default scanner: unique instance"
 
