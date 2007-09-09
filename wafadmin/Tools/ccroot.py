@@ -538,9 +538,12 @@ class ccroot(Object.genobj):
 			tmp_path = y.path.bldpath(self.env)
 			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
-			# set the dependency over the link task
+			# set the dependency over the link task # FIXME it cannot be null
 			if y.m_linktask is not None:
 				self.m_linktask.set_run_after(y.m_linktask)
+				dep_nodes = getattr(self.m_linktask, 'dep_nodes', [])
+				dep_nodes += y.m_linktask.m_outputs
+				self.m_linktask.dep_nodes = dep_nodes
 
 			# add ancestors uselib too
 			# TODO potential problems with static libraries ?
