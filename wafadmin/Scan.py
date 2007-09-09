@@ -112,7 +112,7 @@ class scanner:
 
 		rescan = 0
 		seen = []
-		queue = [task.m_inputs[0]]
+		queue = []+task.m_inputs
 		m = md5()
 
 		# add the defines - TODO make this specific for c/c++/d
