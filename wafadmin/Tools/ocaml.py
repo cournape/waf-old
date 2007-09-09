@@ -5,7 +5,7 @@
 "ocaml support"
 
 import os, re
-import Params, Action, Object, Scan, Utils
+import Params, Action, Object, Scan, Utils, Task
 from Params import error, fatal
 
 open_re = re.compile('open ([a-zA-Z]+);;', re.M)
@@ -85,12 +85,44 @@ def filter_comments(filename):
 		i += 1
 	return buf
 
+class ocaml_link(Task.Task):
+	"""link tasks in ocaml are special, the command line calculation must be postponed
+	until having the dependencies on the compilation tasks, this means that we must
+	produce the .ml files (lex, ..) to decide the order on which to link the files"""
+	def __init__(self, action_name, env, priority=5, normal=1):
+		Task.Task.__init__(self, action_name, env, priority, normal)
+	def may_start(self):
+		if not getattr(self, 'order', ''):
+
+			# now reorder the m_inputs given the task dependencies
+			if getattr(self, 'bytecode', 0): alltasks = self.obj.bytecode_tasks
+			else: alltasks = self.obj.native_tasks
+
+			# this part is difficult, we do not have a total order on the tasks
+			# if the dependencies are wrong, this may not stop
+			seen = []
+			pendant = []+alltasks
+			while pendant:
+				task = pendant.pop(0)
+				if task in seen: continue
+				for x in task.get_run_after():
+					if not x in seen:
+						pendant.append(task)
+						break
+				else:
+					seen.append(task)
+			self.m_inputs = [x.m_outputs[0] for x in seen]
+			self.order=1
+		return Task.Task.may_start(self)
+
 class ocaml_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def may_start(self, task):
 		if getattr(task, 'flag_deps', ''): return 1
 
+		# the evil part is that we can only compute the dependencies after the
+		# source files can be read (this means actually producing the source files)
 		if getattr(task, 'bytecode', ''): alltasks = task.obj.bytecode_tasks
 		else: alltasks = task.obj.native_tasks
 
@@ -100,9 +132,8 @@ class ocaml_scanner(Scan.scanner):
 			lst = tree.m_depends_on[node.variant(task.m_env)][node]
 			for depnode in lst:
 				for t in alltasks:
-					if t == task: continue # might be slow
+					if t == task: continue
 					if depnode in t.m_inputs:
-						print "adding dep"
 						task.set_run_after(t)
 		task.obj.flag_deps = 'ok'
 		return 1
@@ -223,6 +254,7 @@ class ocamlobj(Object.genobj):
 					if self.native_env: self.native_env.append_value(vname, cnt)
 
 		source_lst = self.to_list(self.source)
+		source_lst.sort() # IMPORTANT make certain the list has the same order
 		nodes_lst = []
 
 		# first create the nodes corresponding to the sources
@@ -286,22 +318,17 @@ class ocamlobj(Object.genobj):
 				self.bytecode_tasks.append(task)
 
 		if self.bytecode_env:
-			linktask = self.create_task('ocalink', self.bytecode_env, 101)
-			objfiles = []
-			for t in self.bytecode_tasks: objfiles.append(t.m_outputs[0])
-			linktask.m_inputs  = objfiles
+			linktask = ocaml_link('ocalink', self.bytecode_env, 101)
+			linktask.bytecode = 1
 			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=1)))
+			linktask.obj = self
 			self.linktasks.append(linktask)
 		if self.native_env:
-			linktask = self.create_task('ocalinkopt', self.native_env, 101)
-			objfiles = []
-			for t in self.native_tasks: objfiles.append(t.m_outputs[0])
-			linktask.m_inputs  = objfiles
+			linktask = ocaml_link('ocalinkopt', self.native_env, 101)
 			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=0)))
-			#linktask.set_outputs(objfiles[0].m_parent.find_build(self.get_target_name(bytecode=0)))
+			linktask.obj = self
 			self.linktasks.append(linktask)
 
-			#if self.m_type != 'c_object': self.out_nodes += linktask.m_outputs
 			self.out_nodes += linktask.m_outputs
 
 	def get_target_name(self, bytecode):

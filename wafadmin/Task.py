@@ -133,8 +133,7 @@ class Task(TaskBase):
 		self.m_scanner_params = g_default_param
 
 		# additionally, you may define the following
-		# self.dep_vars = 'some_env_var'
-
+		# self.dep_vars = 'some_env_var other_env_var'
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs = inp
