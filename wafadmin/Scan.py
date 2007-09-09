@@ -107,9 +107,6 @@ class scanner:
 		"the basic scheme for computing signatures from .cpp and inferred .h files"
 		tree = Params.g_build
 
-		# assumption: the source and object files are all in the same variant
-		variant = task.m_inputs[0].variant(task.m_env)
-
 		rescan = 0
 		seen = []
 		queue = []+task.m_inputs
