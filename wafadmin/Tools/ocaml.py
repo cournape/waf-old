@@ -37,7 +37,7 @@ def filter_comments(filename):
 						else: break
 					#print "cnt is ", str(cnt)
 					if (cnt%2)==0: break
-		# skip a char
+		# skip a char - unfortunately caml is a bit special t'
 		elif c == "'":
 			i += 1
 			if i == max: return buf
@@ -51,7 +51,7 @@ def filter_comments(filename):
 			i += 1
 			if i == max: return buf
 			c = txt[i]
-			if c != '\'': print "uh-oh, invalid character"
+			#if c != '\'': print "uh-oh, invalid character"
 
 		# skip a comment
 		elif c == '(':
@@ -142,6 +142,7 @@ class ocaml_scanner(Scan.scanner):
 		#print "scan is called"
 		code = "".join(filter_comments(node.abspath(task.m_env)))
 
+		global open_re
 		names=[]
 		import_iterator = open_re.finditer(code)
 		if import_iterator:
