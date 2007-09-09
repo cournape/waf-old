@@ -88,8 +88,25 @@ def filter_comments(filename):
 class ocaml_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
-	def may_start(self):
+	def may_start(self, task):
+		if getattr(task, 'flag_deps', ''): return 1
+
+		if getattr(task, 'bytecode', ''): alltasks = task.obj.bytecode_tasks
+		else: alltasks = task.obj.native_tasks
+
+		task.signature() # ensure that files are scanned - unfortunately
+		tree = Params.g_build
+		for node in task.m_inputs:
+			lst = tree.m_depends_on[node.variant(task.m_env)][node]
+			for depnode in lst:
+				for t in alltasks:
+					if t == task: continue # might be slow
+					if depnode in t.m_inputs:
+						print "adding dep"
+						task.set_run_after(t)
+		task.obj.flag_deps = 'ok'
 		return 1
+
 	def scan(self, task, node):
 		#print "scan is called"
 		code = "".join(filter_comments(node.abspath(task.m_env)))
@@ -109,7 +126,7 @@ class ocaml_scanner(Scan.scanner):
 					found_lst.append(nd)
 					break
 			else:
-				print "not found", name
+				raw_lst.append(name)
 
 		return (found_lst, raw_lst)
 
@@ -263,6 +280,7 @@ class ocamlobj(Object.genobj):
 				task.set_inputs(node)
 				task.m_scanner = g_caml_scanner
 				task.obj = self
+				task.bytecode = 1
 				task.incpaths = self._bld_incpaths_lst
 				task.set_outputs(node.change_ext('.cmo'))
 				self.bytecode_tasks.append(task)
