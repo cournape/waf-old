@@ -12,14 +12,13 @@ def detect(conf):
 	if conf.env['D_COMPILER']:
 		d_compiler = conf.env['D_COMPILER']
 	if not d_compiler: d_compiler = conf.find_program('gdc', var='D_COMPILER')
-	if not d_compiler: return
+	if not d_compiler: return 0
 
 	conf.check_tool('d')
 
-	conf.check_tool('ar')
-	if not conf.env['AR']
+	if not conf.check_tool('ar'):
 		Utils.error('ar is needed for static libraries - not found')
-		raise ConfigurationError
+		return 0
 
 	v = conf.env
 
@@ -43,9 +42,12 @@ def detect(conf):
 	v['_DLIBDIRFLAGS']        = ''
 	v['_DLIBFLAGS']           = ''
 
-	# linker debug levels
+	# debug levels
 	v['DLINKFLAGS']            = []
-	v['DLINKFLAGS_OPTIMIZED']  = ['-s -O3']
+	v['DFLAGS_OPTIMIZED']      = ['-O3']
+	v['DFLAGS_DEBUG']          = ['-O0']
+	v['DFLAGS_ULTRADEBUG']     = ['-O0']
+	v['DLINKFLAGS_OPTIMIZED']  = ['-s']
 	v['DLINKFLAGS_RELEASE']    = ['-s']
 	v['DLINKFLAGS_DEBUG']      = ['-g']
 	v['DLINKFLAGS_ULTRADEBUG'] = ['-g3']
@@ -87,6 +89,10 @@ def detect(conf):
 		v['D_program_obj_ext']     = ['.o']
 		v['D_program_PREFIX']      = ''
 		v['D_program_SUFFIX']      = ''
+
+
+	return 1
+
 
 def set_options(opt):
 	pass
