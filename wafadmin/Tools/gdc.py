@@ -42,9 +42,12 @@ def detect(conf):
 	v['_DLIBDIRFLAGS']        = ''
 	v['_DLIBFLAGS']           = ''
 
-	# linker debug levels
+	# debug levels
 	v['DLINKFLAGS']            = []
-	v['DLINKFLAGS_OPTIMIZED']  = ['-s -O3']
+	v['DFLAGS_OPTIMIZED']      = ['-O3']
+	v['DFLAGS_DEBUG']          = ['-O0']
+	v['DFLAGS_ULTRADEBUG']     = ['-O0']
+	v['DLINKFLAGS_OPTIMIZED']  = ['-s']
 	v['DLINKFLAGS_RELEASE']    = ['-s']
 	v['DLINKFLAGS_DEBUG']      = ['-g']
 	v['DLINKFLAGS_ULTRADEBUG'] = ['-g3']

@@ -45,11 +45,14 @@ def detect(conf):
 	v['_DLIBFLAGS']           = ''
 
 	# linker debug levels
+	v['DFLAGS_OPTIMIZED']      = ['-O']
+	v['DFLAGS_DEBUG']          = ['-g', '-debug']
+	v['DFLAGS_ULTRADEBUG']     = ['-g', '-debug']
 	v['DLINKFLAGS']            = ['-quiet']
 	v['DLINKFLAGS_OPTIMIZED']  = ['-O']
 	v['DLINKFLAGS_RELEASE']    = ['-O']
 	v['DLINKFLAGS_DEBUG']      = ['-g']
-	v['DLINKFLAGS_ULTRADEBUG'] = ['-g -debug']
+	v['DLINKFLAGS_ULTRADEBUG'] = ['-g', '-debug']
 
 
 	if sys.platform == "win32":

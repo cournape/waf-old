@@ -243,6 +243,7 @@ class dobj(Object.genobj):
 		lib_st           = env['DLIB_ST']
 		libpath_st       = env['DLIBPATH_ST']
 
+		dflags = []
 		importpaths = []
 		libpaths = []
 		libs = []
@@ -316,46 +317,33 @@ class dobj(Object.genobj):
 			names = names[1:]
 
 
-		## go through the local uselibs
-		#for local_uselib in self.to_list(self.uselib_local):
-			#y = Object.name_to_obj(local_uselib)
-			#if not y: continue
-
-			#if not y.m_posted: y.post()
-
-			#if y.m_type == 'shlib':
-				#libs = libs + [y.target]
-			#elif y.m_type == 'staticlib':
-				#libs = libs + [y.target]
-			#elif y.m_type == 'objects':
-				#pass
-			#else:
-				#error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
-				      #% (y.name, y.m_type))
-
-			#if y.m_linktask is not None:
-				#linktask.set_run_after(y.m_linktask)
-
-			#libpaths = libpaths + [y.path.bldpath(self.env)]
-
 
 		# add compiler flags
 		for i in uselib:
 			if self.env['DFLAGS_' + i]:
-				self.env.append_unique('DFLAGS', self.env['DFLAGS_' + i])
-		if self.dflags:
-			self.env.append_unique('DFLAGS', self.dflags)
+				for dflag in self.to_list(self.env['DFLAGS_' + i]):
+					if not dflag in dflags:
+						dflags += [dflag]
+		dflags = self.to_list(self.dflags) + dflags
+
+		for dflag in dflags:
+			if not dflag in self.env['DFLAGS']:
+				self.env['DFLAGS'] += [dflag]
+
 
 		d_shlib_dflags = self.env['D_' + type + '_DFLAGS']
 		if d_shlib_dflags:
 			for dflag in d_shlib_dflags:
-				self.env.append_unique('DFLAGS', dflag)
+				if not dflag in self.env['DFLAGS']:
+					self.env['DFLAGS'] += [dflag]
 
 
 		# add import paths
 		for i in uselib:
 			if self.env['DPATH_' + i]:
-				importpaths += self.to_list(self.env['DPATH_' + i])
+				for entry in self.to_list(self.env['DPATH_' + i]):
+					if not entry in importpaths:
+						importpaths += [entry]
 		importpaths = self.to_list(self.importpaths) + importpaths
 
 		# now process the import paths
@@ -372,7 +360,9 @@ class dobj(Object.genobj):
 		# add library paths
 		for i in uselib:
 			if self.env['LIBPATH_' + i]:
-				libpaths += self.to_list(self.env['LIBPATH_' + i])
+				for entry in self.to_list(self.env['LIBPATH_' + i]):
+					if not entry in libpaths:
+						libpaths += [entry]
 		libpaths = self.to_list(self.libpaths) + libpaths
 
 		# now process the library paths
@@ -383,7 +373,9 @@ class dobj(Object.genobj):
 		# add libraries
 		for i in uselib:
 			if self.env['LIB_' + i]:
-				libs += self.to_list(self.env['LIB_' + i])
+				for entry in self.to_list(self.env['LIB_' + i]):
+					if not entry in libs:
+						libs += [entry]
 		libs = libs + self.to_list(self.libs)
 
 		# now process the libraries
