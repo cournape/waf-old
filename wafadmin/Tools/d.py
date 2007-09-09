@@ -127,7 +127,7 @@ class parser:
 	def tryfind(self, filename):
 		found = 0
 		for n in self.incpaths:
-			found = n.find_source(filename+'.d', create=0)
+			found = n.find_source(filename.replace('.', '/')+'.d', create=0)
 			if found:
 				self.m_nodes.append(found)
 				self.waiting.append(found)
@@ -197,6 +197,8 @@ class d_scanner(Scan.scanner):
 	"scanner for d files"
 	def __init__(self):
 		Scan.scanner.__init__(self)
+		self.do_scan = self.do_scan_new
+		self.get_signature = self.get_signature_rec
 
 	def scan(self, task, node):
 		"look for .d/.di the .d source need"
@@ -393,6 +395,9 @@ def setup(env):
 	Action.simple_action('d_link', link_str, color='YELLOW')
 
 	Object.register('d', dobj)
+
+def detect(conf):
+	return 1
 
 # quick test #
 if __name__ == "__main__":
