@@ -252,12 +252,39 @@ class dobj(Object.genobj):
 		else:
 			linktask = self.create_task('d_link', self.env, 101)
 
-		# go through the local uselibs
-		for local_uselib in self.to_list(self.uselib_local):
-			y = Object.name_to_obj(local_uselib)
-			if not y: continue
 
+		uselib = self.to_list(self.uselib)
+		seen = []
+		names = self.to_list(self.uselib_local)
+		while names:
+			x = names[0]
+
+			# visit dependencies only once
+			if x in seen:
+				names = names[1:]
+				continue
+
+			# object does not exist ?
+			y = Object.name_to_obj(x)
+			if not y:
+				fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
+				names = names[1:]
+				continue
+
+			# object has ancestors to process first ? update the list of names
+			if y.uselib_local:
+				added = 0
+				lst = y.to_list(y.uselib_local)
+				lst.reverse()
+				for u in lst:
+					if u in seen: continue
+					added = 1
+					names = [u]+names
+				if added: continue # list of names modified, loop
+
+			# safe to process the current object
 			if not y.m_posted: y.post()
+			seen.append(x)
 
 			if y.m_type == 'shlib':
 				libs = libs + [y.target]
@@ -269,14 +296,51 @@ class dobj(Object.genobj):
 				error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
 				      % (y.name, y.m_type))
 
+			# add the link path too
+			tmp_path = y.path.bldpath(self.env)
+			if not tmp_path in libpaths: libpaths = [tmp_path] + libpaths
+
+			# set the dependency over the link task
 			if y.m_linktask is not None:
 				linktask.set_run_after(y.m_linktask)
+				dep_nodes = getattr(linktask, 'dep_nodes', [])
+				dep_nodes += y.m_linktask.m_outputs
+				linktask.dep_nodes = dep_nodes
 
-			libpaths = libpaths + [y.path.bldpath(self.env)]
+			# add ancestors uselib too
+			# TODO potential problems with static libraries ?
+			morelibs = y.to_list(y.uselib)
+			for v in morelibs:
+				if v in uselib: continue
+				uselib = [v]+uselib
+			names = names[1:]
+
+
+		## go through the local uselibs
+		#for local_uselib in self.to_list(self.uselib_local):
+			#y = Object.name_to_obj(local_uselib)
+			#if not y: continue
+
+			#if not y.m_posted: y.post()
+
+			#if y.m_type == 'shlib':
+				#libs = libs + [y.target]
+			#elif y.m_type == 'staticlib':
+				#libs = libs + [y.target]
+			#elif y.m_type == 'objects':
+				#pass
+			#else:
+				#error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
+				      #% (y.name, y.m_type))
+
+			#if y.m_linktask is not None:
+				#linktask.set_run_after(y.m_linktask)
+
+			#libpaths = libpaths + [y.path.bldpath(self.env)]
 
 
 		# add compiler flags
-		for i in self.to_list(self.uselib):
+		for i in uselib:
 			if self.env['DFLAGS_' + i]:
 				self.env.append_unique('DFLAGS', self.env['DFLAGS_' + i])
 		if self.dflags:
@@ -289,7 +353,7 @@ class dobj(Object.genobj):
 
 
 		# add import paths
-		for i in self.to_list(self.uselib):
+		for i in uselib:
 			if self.env['DPATH_' + i]:
 				importpaths += self.to_list(self.env['DPATH_' + i])
 		importpaths = self.to_list(self.importpaths) + importpaths
@@ -306,7 +370,7 @@ class dobj(Object.genobj):
 
 
 		# add library paths
-		for i in self.to_list(self.uselib):
+		for i in uselib:
 			if self.env['LIBPATH_' + i]:
 				libpaths += self.to_list(self.env['LIBPATH_' + i])
 		libpaths = self.to_list(self.libpaths) + libpaths
@@ -317,7 +381,7 @@ class dobj(Object.genobj):
 
 
 		# add libraries
-		for i in self.to_list(self.uselib):
+		for i in uselib:
 			if self.env['LIB_' + i]:
 				libs += self.to_list(self.env['LIB_' + i])
 		libs = libs + self.to_list(self.libs)
@@ -328,7 +392,7 @@ class dobj(Object.genobj):
 
 
 		# add linker flags
-		for i in self.to_list(self.uselib):
+		for i in uselib:
 			dlinkflags = self.env['DLINKFLAGS_' + i]
 			if dlinkflags:
 				for linkflag in dlinkflags:

@@ -26,9 +26,18 @@ def configure(conf):
 def build(bld):
 	bld.add_subdirs('src2')
 
+	obj = bld.create_obj('d', 'staticlib')
+	obj.source = '''
+	testlib/code.d
+	'''
+	obj.importpath = '.'
+	obj.name = 'testlib'
+	obj.target = 'testlib'
+
 	obj = bld.create_obj('d', 'program')
 	obj.source = '''
 	example.d
 	'''
 	obj.target = 'd_test'
+	obj.uselib_local = 'testlib'
 	obj.uselib = 'PTHREAD'
