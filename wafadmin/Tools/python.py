@@ -73,7 +73,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	output = Popen([python_exe, "-c", '\n'.join(program)], stdout=PIPE).communicate()[0].split("\n")
 	return_values = []
 	for s in output:
-		# FIXME eval ????
+		# print repr(value) in the spawned python, use eval() to parse back
 		if s: return_values.append(eval(s.rstrip()))
 		else: break
 	return return_values
@@ -185,8 +185,6 @@ def check_python_version(conf, minver=None):
 	assert python, ("python is %r !" % (python,))
 
 	## Get python version string
-	## Note: only works for python >= 2.0, but we don't want to
-	## support python 1.x in 2007, do we? :)
 	proc = Popen([python, "-c", "import sys; print repr(sys.version_info)"], stdout=PIPE)
 	pyver_tuple = eval(proc.communicate()[0].rstrip())
 
