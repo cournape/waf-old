@@ -91,7 +91,7 @@ class MTask(Task.Task):
 		# look at the file inputs, it is set right above
 		try: lst = tree.m_depends_on[variant][node]
 		except KeyError: lst=[]
-		for d in []:
+		for d in lst:
 			name = d.m_name
 			if name[-4:]=='.moc':
 				task = parn.create_task('moc_hack', parn.env)
