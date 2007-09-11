@@ -8,12 +8,14 @@ import os, re
 import Utils, Params, Action, Object, Runner, Scan
 from Params import error, warning, debug, fatal
 
-tex_regexp = re.compile('^\\\\include{(.*)}', re.M)
+tex_regexp = re.compile('^\\\\(include|import){(.*)}', re.M)
 #tex_regexp = re.compile('^[^%]*\\\\bringin{(.*)}', re.M)
 class tex_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
-	def scan(self, node, env, curdirnode):
+	def scan(self, task, node):
+		env = task.m_env
+		curdirnode = task.curdirnode
 		variant = node.variant(env)
 		fi = open(node.abspath(env), 'r')
 		content = fi.read()
@@ -26,7 +28,7 @@ class tex_scanner(Scan.scanner):
 		if not node: return (nodes, names)
 
 		abs = curdirnode.abspath()
-		for path in found:
+		for (nada, path) in found:
 			#print 'boo', name
 
 			filepath = os.path.join(abs, path)
@@ -82,17 +84,14 @@ def tex_build(task, command='LATEX'):
 	lst = []
 	for c in Utils.split_path(reldir):
 		if c: lst.append('..')
-	sr = os.path.join(lst + [srcfile])
-	sr2 = os.path.join(lst + [node.m_parent.srcpath(env)])
+	sr = os.path.join(*(lst + [srcfile]))
+	sr2 = os.path.join(*(lst + [node.m_parent.srcpath(env)]))
 
 	aux_node = node.change_ext('.aux')
 	idx_node = node.change_ext('.idx')
 
 	hash     = ''
 	old_hash = ''
-
-
-
 
 	nm = aux_node.m_name
 	docuname = nm[ : len(nm) - 4 ] # 4 is the size of ".aux"
@@ -227,7 +226,7 @@ class texobj(Object.genobj):
 
 			task.m_scanner = g_tex_scanner
 			task.m_env     = self.env
-			task.m_scanner_params = {'curdirnode':self.path}
+			task.curdirnode = self.path
 
 			# add the manual dependencies
 			if deps_lst:
