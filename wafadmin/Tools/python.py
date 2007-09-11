@@ -89,6 +89,9 @@ def check_python_headers(conf):
 	Note: this test requires that check_python_version was previously
 	executed and successful."""
 
+	try: import distutils
+	except: return 0
+
 	python = conf.env['PYTHON']
 	assert python, ("python is %r !" % (python,))
 
