@@ -19,7 +19,7 @@ g_progress = '\x1b[K%s%s%s\r'
 if sys.platform=='win32':
 	# get the first two letters (c:)
 	g_rootname = os.getcwd()[:2]
-	g_progress = '\x1b[K\x1b[A%s%s%s\r'
+	g_progress = '\x1b[A\x1b[K%s%s%s\r'
 
 g_dbfile='.wafpickle'
 "name of the db file"
