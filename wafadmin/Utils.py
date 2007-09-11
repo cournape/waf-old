@@ -144,7 +144,7 @@ def progress_line(state, total, col1, col2):
 	ratio = int((cols*state)/total) - 1
 
 	bar = ('='*ratio+'>').ljust(cols)
-	msg = '\x1b[K%s%s%s\r' % (left, bar, right)
+	msg = Params.g_progress % (left, bar, right)
 
 	return msg
 
