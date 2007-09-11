@@ -4,7 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import sys, re
+import sys, re, os
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
