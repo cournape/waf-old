@@ -348,7 +348,7 @@ class dobj(Object.genobj):
 
 		# now process the import paths
 		for path in importpaths:
-			if Utils.is_absolute_path(path):
+			if os.path.isabs(path):
 				imppath = path
 			else:
 				node = self.path.find_source_lst(Utils.split_path(path))

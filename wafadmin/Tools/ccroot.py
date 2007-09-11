@@ -291,7 +291,7 @@ class ccroot(Object.genobj):
 		# now process the include paths
 		tree = Params.g_build
 		for dir in inc_lst:
-			if Utils.is_absolute_path(dir):
+			if os.path.isabs(dir):
 				self.env.append_value('CPPPATH', dir)
 				continue
 
@@ -310,7 +310,7 @@ class ccroot(Object.genobj):
 				   + self.to_list(self.includes))
 			self.inc_paths = []
 			for directory in dep_lst:
-				if Utils.is_absolute_path(directory):
+				if os.path.isabs(directory):
 					Params.fatal("Absolute paths not allowed in obj.dependencies")
 					return
 

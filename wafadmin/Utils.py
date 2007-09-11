@@ -163,15 +163,6 @@ def __split_dirs(path):
 	if not t: return __split_dirs(h)
 	else: return __split_dirs(h) + [t]
 
-def is_absolute_path(path):
-	""" more thorough absoluate path check <- how am i supposed to understand what this does exactly ????? what does the re do ?  and why is this needed ? (ita)"""
-	isabs = os.path.isabs(path)
-	if not isabs and sys.platform == 'win32':
-		isabs = (len(path) > 1 and path.find(':') > 0)
-	elif not isabs and sys.platform != 'win32':
-		isabs = re.search(r'^[\"\']/', path.strip(), re.M) != None
-	return isabs
-
 "why this complexity ? (ita)"
 _path_to_define_name_translation = None
 def path_to_define_name(path):
