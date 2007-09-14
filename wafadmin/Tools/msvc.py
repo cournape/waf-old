@@ -9,25 +9,11 @@ import re, os.path, string
 import optparse
 import Utils, Action, Params, Object, Runner
 from Params import debug, error, fatal, warning, set_globals
+from Utils import quote_whitespace
 
 import ccroot
 from ccroot import read_la_file
 from os.path import exists
-
-set_globals('EXT_RC_C','.rc')
-
-def resource_compiler(self, node):
-	"""Compiler hook for compiling res files out of rc files. These resource
-	files contains icons, forms information and generic executable informations
-	(like binary version product number and so on for windows executables.
-	The res file created by rc.exe but linked to the binary as an object."""
-	rctask=self.create_task('rc', nice=101)
-	rctask.set_inputs(node)
-	newnode=node.change_ext('.res')
-	rctask.set_outputs([newnode])
-	# FIXME: currently it works, but fails to add a the compiled file to
-	# (cc|cpp)_link's reporting line ([<step>] * cpp_link ...)
-	self.p_compiletasks.append(rctask)
 
 def msvc_linker(task):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
@@ -36,13 +22,9 @@ def msvc_linker(task):
 	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
 	Problems with this tool: it is always called whether MSVC creates manifests or not."""
 	e=task.m_env
-	linker=e['LINK_CXX']
-	srcf=e['CPPLNK_SRC_F']
-	trgtf=e['CPPLNK_TGT_F']
-	if not linker:
-		linker=e['LINK_CC']
-		srcf=e['CCLNK_SRC_F']
-		trgtf=e['CCLNK_TGT_F']
+	linker=e['LINK']
+	srcf=e['LINK_SRC_F']
+	trgtf=e['LINK_TGT_F']
 	linkflags=e.get_flat('LINKFLAGS')
 	libdirs=e.get_flat('_LIBDIRFLAGS')
 	libs=e.get_flat('_LIBFLAGS')
@@ -52,12 +34,20 @@ def msvc_linker(task):
 		subsystem='/subsystem:%s' % task.m_subsystem
 	outfile=task.m_outputs[0].bldpath(e)
 	manifest=outfile+'.manifest'
+	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
+	pdbnode=task.m_outputs[0].change_ext('.pdb')
+	pdbfile=pdbnode.bldpath(e)
 
 	objs=" ".join(['"%s"' % a.abspath(e) for a in task.m_inputs])
 
 	cmd="%s %s %s%s %s%s %s %s %s" % (linker,subsystem,srcf,objs,trgtf,outfile, linkflags, libdirs,libs)
 	ret=Runner.exec_command(cmd)
 	if ret: return ret
+
+	# check for the pdb file. if exists, add to the list of outputs
+	if os.path.exists(pdbfile):
+		task.m_outputs.append(pdbnode)
+
 	if os.path.exists(manifest):
 		debug('manifesttool', 'msvc')
 		mtool=task.m_env['MT']
@@ -118,7 +108,6 @@ g_msvc_flag_vars = [
 class msvcobj(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
-		self.s_default_ext = ['.rc']
 
 		self.ccflags=''
 		self.cxxflags=''
@@ -143,37 +132,6 @@ class msvcobj(ccroot.ccroot):
 	def apply(self):
 		ccroot.ccroot.apply(self)
 		# FIXME: /Wc, and /Wl, handling came here...
-
-	def apply_defines(self):
-		tree = Params.g_build
-		clst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
-		cpplst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
-		cmilst = []
-		cppmilst = []
-
-		# now process the local defines
-		for defi in clst:
-			if not defi in cmilst:
-				cmilst.append(defi)
-
-		for defi in cpplst:
-			if not defi in cppmilst:
-				cppmilst.append(defi)
-
-		# CXXDEFINES_USELIB
-		libs = self.to_list(self.uselib)
-		for l in libs:
-			val = self.env['CXXDEFINES_'+l]
-			if val: cmilst += self.to_list(val)
-			val = self.env['CCDEFINES_'+l]
-			if val: cppmilst += val
-		self.env['DEFLINES'] = ["define %s" % ' '.join(x.split('=', 1)) for x in cmilst]
-		self.env['DEFLINES'] = self.env['DEFLINES'] + ["define %s" % ' '.join(x.split('=', 1)) for x in cppmilst]
-
-		y = self.env['CCDEFINES_ST']
-		self.env['_CCDEFFLAGS'] = [y%x for x in cmilst]
-		y = self.env['CXXDEFINES_ST']
-		self.env['_CXXDEFFLAGS'] = [y%x for x in cppmilst]
 
 	def is_syslib(self,libname):
 		global g_msvc_systemlibs
@@ -278,37 +236,7 @@ class msvcobj(ccroot.ccroot):
 		libpath_st       = env['LIBPATH_ST']
 		staticlibpath_st = env['STATICLIBPATH_ST']
 
-		self.addflags('CCFLAGS', self.ccflags)
-		self.addflags('CXXFLAGS', self.cxxflags)
 		self.addflags('CPPFLAGS', self.cppflags)
-
-		# local flags come first
-		# set the user-defined includes paths
-		if not self._incpaths_lst: self.apply_incpaths()
-		for i in self._bld_incpaths_lst:
-			app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
-			app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
-			app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
-			app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
-
-		# set the library include paths
-		for i in env['CPPPATH']:
-			app('_CCINCFLAGS', cpppath_st % i)
-			app('_CXXINCFLAGS', cpppath_st % i)
-
-		# this is usually a good idea
-		app('_CCINCFLAGS', cpppath_st % '.')
-		app('_CCINCFLAGS', cpppath_st % env.variant())
-		app('_CXXINCFLAGS', cpppath_st % '.')
-		app('_CXXINCFLAGS', cpppath_st % self.env.variant())
-		try:
-			tmpnode = Params.g_build.m_curdirnode
-			app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-			app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-			app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-			app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
-		except:
-			pass
 
 		for i in env['RPATH']:   app('LINKFLAGS', i)
 		for i in env['LIBPATH']:
@@ -353,18 +281,127 @@ class msvccc(msvcobj):
 		self.s_default_ext = self.s_default_ext + ['.c']
 		self.m_type_initials = 'cc'
 
+	def apply_defines(self):
+		tree = Params.g_build
+		lst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
+		milst = []
+
+		# now process the local defines
+		for defi in lst:
+			if not defi in milst:
+				milst.append(defi)
+
+		libs = self.to_list(self.uselib)
+		for l in libs:
+			val = self.env['CCDEFINES_'+l]
+			if val: milst += self.to_list(val)
+		self.env['DEFLINES'] = ["define %s" % ' '.join(x.split('=', 1)) for x in milst]
+
+		y = self.env['CCDEFINES_ST']
+		self.env['_CCDEFFLAGS'] = [y%x for x in cmilst]
+
+	def apply_obj_vars(self):
+		debug('apply_obj_vars called for msvcccobj', 'msvc')
+		env = self.env
+		app = env.append_unique
+
+		cpppath_st       = env['CPPPATH_ST']
+		lib_st           = env['LIB_ST']
+		staticlib_st     = env['STATICLIB_ST']
+		libpath_st       = env['LIBPATH_ST']
+		staticlibpath_st = env['STATICLIBPATH_ST']
+
+		self.addflags('CCFLAGS', self.ccflags)
+
+		# local flags come first
+		# set the user-defined includes paths
+		if not self._incpaths_lst: self.apply_incpaths()
+		for i in self._bld_incpaths_lst:
+			app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
+			app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
+
+		# set the library include paths
+		for i in env['CPPPATH']:
+			app('_CCINCFLAGS', cpppath_st % i)
+
+		# this is usually a good idea
+		app('_CCINCFLAGS', cpppath_st % '.')
+		app('_CCINCFLAGS', cpppath_st % env.variant())
+		try:
+			tmpnode = Params.g_build.m_curdirnode
+			app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
+			app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
+		except:
+			pass
+
+		msvcobj.apply_obj_vars(self)
+
 class msvccpp(msvcobj):
 	def __init__(self, type='program', subtype=None):
 		msvcobj.__init__(self, type, subtype)
 		self.m_type_initials = 'cpp'
 		self.s_default_ext = self.s_default_ext + ['.cpp', '.cc', '.cxx','.C']
 
+	def apply_defines(self):
+		tree = Params.g_build
+		lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
+		milst = []
+
+		# now process the local defines
+		for defi in lst:
+			if not defi in milst:
+				milst.append(defi)
+
+		libs = self.to_list(self.uselib)
+		for l in libs:
+			val = self.env['CXXDEFINES_'+l]
+			if val: milst += val
+		self.env['DEFLINES'] = self.env['DEFLINES'] + ["define %s" % ' '.join(x.split('=', 1)) for x in milst]
+		y = self.env['CXXDEFINES_ST']
+		self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
+
+	def apply_obj_vars(self):
+		debug('apply_obj_vars called for msvccpp', 'msvc')
+		env = self.env
+		app = env.append_unique
+
+		cpppath_st       = env['CPPPATH_ST']
+		lib_st           = env['LIB_ST']
+		staticlib_st     = env['STATICLIB_ST']
+		libpath_st       = env['LIBPATH_ST']
+		staticlibpath_st = env['STATICLIBPATH_ST']
+
+		self.addflags('CXXFLAGS', self.cxxflags)
+
+		# local flags come first
+		# set the user-defined includes paths
+		if not self._incpaths_lst: self.apply_incpaths()
+		for i in self._bld_incpaths_lst:
+			app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
+			app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
+
+		# set the library include paths
+		for i in env['CPPPATH']:
+			app('_CXXINCFLAGS', cpppath_st % i)
+
+		# this is usually a good idea
+		app('_CXXINCFLAGS', cpppath_st % '.')
+		app('_CXXINCFLAGS', cpppath_st % self.env.variant())
+		try:
+			tmpnode = Params.g_build.m_curdirnode
+			app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
+			app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
+		except:
+			pass
+			app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
+			app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
+
+		msvcobj.apply_obj_vars(self)
+
 def setup(env):
-	static_link_str = '${STLIBLINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT}'
-	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-	cc_link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
-	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-	cpp_link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
+	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
+	cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
+	cpp_str = '${CL} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
 
 	rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 
@@ -372,21 +409,14 @@ def setup(env):
 	Action.simple_action('cpp', cpp_str, color='GREEN')
 	Action.simple_action('ar_link_static', static_link_str, color='YELLOW')
 
-	Action.Action('cc_link', vars=['LINK_CC', 'CCLNK_SRC_F', 'CCLNK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker)
-	Action.Action('cpp_link', vars=[ 'LINK_CXX', 'CPPLNK_SRC_F', 'CPPLNK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker)
+	Action.Action('cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker)
+	Action.Action('cpp_link', vars=[ 'LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker)
 	Action.simple_action('rc', rc_str, color='GREEN')
 
 	Object.register('cc', msvccc)
 	Object.register('cpp', msvccpp)
-
-	try: Object.hook('cc','RC_EXT',resource_compiler)
-	except: pass
-
-	try: Object.hook('cpp','RC_EXT',resource_compiler)
-	except: pass
-
-def quote_str(str):
-		return (str.strip().find(' ') > 0 and '"%s"' % str or str).replace('""', '"')
+	import winres
+	winres.setup(env)
 
 def detect(conf):
 	# TODO raise ConfigurationError instead of just bailing out
@@ -400,18 +430,14 @@ def detect(conf):
 	stliblink = conf.find_program('LIB')
 	if not stliblink: return
 
-	rescompiler = conf.find_program('RC')
-	if not rescompiler: return
-
 	manifesttool = conf.find_program('MT')
 
 	v = conf.env
 
 	# c/c++ compiler - check for whitespace, and if so, add quotes
-	v['CC']                 = quote_str(comp)
-	v['CXX']                 = v['CC']
+	v['CL']                 = quote_whitespace(comp)
 
-	v['CPPFLAGS']            = ['/W3', '/nologo', '/c', '/EHsc', '/errorReport:prompt']
+	v['CPPFLAGS']            = ['/W3', '/nologo', '/EHsc', '/errorReport:prompt']
 	v['CCDEFINES']          = ['WIN32'] # command-line defines
 	v['CXXDEFINES']          = ['WIN32'] # command-line defines
 
@@ -420,10 +446,8 @@ def detect(conf):
 	v['_CXXINCFLAGS']        = []
 	v['_CXXDEFFLAGS']        = []
 
-	v['CC_SRC_F']           = ''
-	v['CC_TGT_F']           = '/Fo'
-	v['CXX_SRC_F']           = ''
-	v['CXX_TGT_F']           = '/Fo'
+	v['CL_SRC_F']           = ''
+	v['CL_TGT_F']           = '/c /Fo'
 
 	v['CPPPATH_ST']          = '/I%s' # template for adding include paths
 
@@ -458,17 +482,13 @@ def detect(conf):
 	v['CXXFLAGS_DEBUG']      = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 
-
 	# linker
-	v['STLIBLINK_CXX']       = '\"%s\"' % stliblink
-	v['LINK_CXX']            = '\"%s\"' % link
-	v['LINK_CC']             = v['LINK_CXX']
+	v['STLIBLINK']       = '\"%s\"' % stliblink
+	v['LINK']            = '\"%s\"' % link
 	v['LIB']                 = []
 
-	v['CPPLNK_TGT_F']        = '/OUT:'
-	v['CCLNK_TGT_F']         = v['CPPLNK_TGT_F']
-	v['CPPLNK_SRC_F']        = ' '
-	v['CCLNK_SRC_F']         = v['CCLNK_SRC_F']
+	v['LINK_TGT_F']        = '/OUT:'
+	v['LINK_SRC_F']        = ' '
 
 	v['LIB_ST']              = '%s.lib' # template for adding libs
 	v['LIBPATH_ST']          = '/LIBPATH:%s' # template for adding libpaths
@@ -482,15 +502,15 @@ def detect(conf):
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
 
+	conf.check_tool('winres')
+
+	if not conf.env['WINRC']: 
+		warning('Resource compiler not found. Compiling resource file is disabled','msvc')
+
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	if manifesttool:
-		v['MT'] = quote_str (manifesttool)
+		v['MT'] = quote_whitespace (manifesttool)
 		v['MTFLAGS']=['/NOLOGO']
-
-	# MSVC Resource compiler
-	v['RC'] = quote_str(rescompiler)
-	v['RCFLAGS'] = ['/r']
-	v['RC_EXT'] = ['.rc']
 
 	# linker debug levels
 	v['LINKFLAGS']           = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
@@ -550,6 +570,8 @@ def detect(conf):
 	v['program_SUFFIX']   = '.exe'
 	v['program_INST_VAR'] = 'PREFIX'
 	v['program_INST_DIR'] = 'bin'
+
+	return 1
 
 def set_options(opt):
 	try:

@@ -179,3 +179,6 @@ def path_to_define_name(path):
 
 	return string.translate(string.upper(path), _path_to_define_name_translation)
 
+def quote_whitespace(path):
+	return (path.strip().find(' ') > 0 and '"%s"' % path or path).replace('""', '"')
+

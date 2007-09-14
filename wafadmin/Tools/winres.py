@@ -4,8 +4,12 @@
 
 "This hook is called when the class cppobj/ccobj encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
 
-import os
+import os, sys
 import Action
+from Params import set_globals
+from Utils import quote_whitespace
+
+set_globals('EXT_WINRC_C','.rc')
 
 winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CXXDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CXXINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F}${TGT} ${WINRC_SRC_F}${SRC}'
 
@@ -46,10 +50,15 @@ def detect(conf):
 		v['WINRC_TGT_F'] = '/fo '
 		v['WINRC_SRC_F'] = ' '
 		v['winrc_obj_ext'] = '.res'
-	else:
-		return
+	else :
+		return 0
+
 	if not winrc :
-		return
+		return 0 # make it fatal
+	else:
+		v['WINRC']=quote_whitespace(winrc)
+
 	v['WINRC_EXT'] = ['.rc']
 	v['WINRCFLAGS'] = ''
+	return 1
 
