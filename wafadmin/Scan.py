@@ -129,7 +129,8 @@ class scanner:
 			try: queue += tree.m_depends_on[variant][node]
 			except: pass
 
-			m.update(tree.m_tstamp_variants[variant][node])
+			try: m.update(tree.m_tstamp_variants[variant][node])
+			except: return Params.sig_nil
 
 		return m.digest()
 
