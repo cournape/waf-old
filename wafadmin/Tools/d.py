@@ -236,7 +236,7 @@ class dobj(Object.genobj):
 		else:
 			type = self.m_type
 
-		env = self.env
+		env = self.env.copy()
 		dpath_st         = env['DPATH_ST']
 		lib_st           = env['DLIB_ST']
 		libpath_st       = env['DLIBPATH_ST']
@@ -247,9 +247,9 @@ class dobj(Object.genobj):
 		libs = []
 
 		if type == 'staticlib':
-			linktask = self.create_task('ar_link_static', self.env, 101)
+			linktask = self.create_task('ar_link_static', env, 101)
 		else:
-			linktask = self.create_task('d_link', self.env, 101)
+			linktask = self.create_task('d_link', env, 101)
 
 
 		uselib = self.to_list(self.uselib)
@@ -296,7 +296,7 @@ class dobj(Object.genobj):
 				      % (y.name, y.m_type))
 
 			# add the link path too
-			tmp_path = y.path.bldpath(self.env)
+			tmp_path = y.path.bldpath(env)
 			if not tmp_path in libpaths: libpaths = [tmp_path] + libpaths
 
 			# set the dependency over the link task
@@ -318,28 +318,28 @@ class dobj(Object.genobj):
 
 		# add compiler flags
 		for i in uselib:
-			if self.env['DFLAGS_' + i]:
-				for dflag in self.to_list(self.env['DFLAGS_' + i]):
+			if env['DFLAGS_' + i]:
+				for dflag in self.to_list(env['DFLAGS_' + i]):
 					if not dflag in dflags:
 						dflags += [dflag]
 		dflags = self.to_list(self.dflags) + dflags
 
 		for dflag in dflags:
-			if not dflag in self.env['DFLAGS']:
-				self.env['DFLAGS'] += [dflag]
+			if not dflag in env['DFLAGS']:
+				env['DFLAGS'] += [dflag]
 
 
-		d_shlib_dflags = self.env['D_' + type + '_DFLAGS']
+		d_shlib_dflags = env['D_' + type + '_DFLAGS']
 		if d_shlib_dflags:
 			for dflag in d_shlib_dflags:
-				if not dflag in self.env['DFLAGS']:
-					self.env['DFLAGS'] += [dflag]
+				if not dflag in env['DFLAGS']:
+					env['DFLAGS'] += [dflag]
 
 
 		# add import paths
 		for i in uselib:
-			if self.env['DPATH_' + i]:
-				for entry in self.to_list(self.env['DPATH_' + i]):
+			if env['DPATH_' + i]:
+				for entry in self.to_list(env['DPATH_' + i]):
 					if not entry in importpaths:
 						importpaths += [entry]
 		importpaths = self.to_list(self.importpaths) + importpaths
@@ -351,54 +351,54 @@ class dobj(Object.genobj):
 			else:
 				node = self.path.find_source_lst(Utils.split_path(path))
 				self.inc_paths.append(node)
-				imppath = node.srcpath(self.env)
-			self.env.append_unique('_DIMPORTFLAGS', dpath_st % imppath)
+				imppath = node.srcpath(env)
+			env.append_unique('_DIMPORTFLAGS', dpath_st % imppath)
 
 
 		# add library paths
 		for i in uselib:
-			if self.env['LIBPATH_' + i]:
-				for entry in self.to_list(self.env['LIBPATH_' + i]):
+			if env['LIBPATH_' + i]:
+				for entry in self.to_list(env['LIBPATH_' + i]):
 					if not entry in libpaths:
 						libpaths += [entry]
 		libpaths = self.to_list(self.libpaths) + libpaths
 
 		# now process the library paths
 		for path in libpaths:
-			self.env.append_unique('_DLIBDIRFLAGS', libpath_st % path)
+			env.append_unique('_DLIBDIRFLAGS', libpath_st % path)
 
 
 		# add libraries
 		for i in uselib:
-			if self.env['LIB_' + i]:
-				for entry in self.to_list(self.env['LIB_' + i]):
+			if env['LIB_' + i]:
+				for entry in self.to_list(env['LIB_' + i]):
 					if not entry in libs:
 						libs += [entry]
 		libs = libs + self.to_list(self.libs)
 
 		# now process the libraries
 		for lib in libs:
-			self.env.append_unique('_DLIBFLAGS', lib_st % lib)
+			env.append_unique('_DLIBFLAGS', lib_st % lib)
 
 
 		# add linker flags
 		for i in uselib:
-			dlinkflags = self.env['DLINKFLAGS_' + i]
+			dlinkflags = env['DLINKFLAGS_' + i]
 			if dlinkflags:
 				for linkflag in dlinkflags:
-					self.env.append_unique('DLINKFLAGS', linkflag)
+					env.append_unique('DLINKFLAGS', linkflag)
 
-		d_shlib_linkflags = self.env['D_' + type + '_LINKFLAGS']
+		d_shlib_linkflags = env['D_' + type + '_LINKFLAGS']
 		if d_shlib_linkflags:
 			for linkflag in d_shlib_linkflags:
-				self.env.append_unique('DLINKFLAGS', linkflag)
+				env.append_unique('DLINKFLAGS', linkflag)
 
 
 		# create compile tasks
 
 		compiletasks = []
 
-		obj_ext = self.env['D_' + type + '_obj_ext'][0]
+		obj_ext = env['D_' + type + '_obj_ext'][0]
 
 		find_source_lst = self.path.find_source_lst
 
@@ -409,7 +409,7 @@ class dobj(Object.genobj):
 			if not ext in self.s_default_ext:
 				fatal("unknown file " + filename)
 
-			task = self.create_task('d', self.env, 10)
+			task = self.create_task('d', env, 10)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(obj_ext))
 			task.m_scanner = g_d_scanner
