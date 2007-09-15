@@ -37,10 +37,12 @@ def set_options(opt):
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
 	conf.check_tool('checks')
-	if not conf.check_tool('gcc'):
-		fatal('gcc not found')
-	if not conf.check_tool('g++'):
-		fatal('g++ not found')
+	conf.check_tool('gcc')
+	if conf.env['gcc']: fatal('gcc not found')
+
+	conf.check_tool('g++')
+	if conf.env['g++']: fatal('g++ not found')
+
 	conf.check_tool('dang flex bison misc')
 
 	# checkFeatures is only available when 'checks' is in conf.check_tool()
