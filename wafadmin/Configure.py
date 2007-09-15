@@ -385,13 +385,15 @@ class cfgtool_configurator(configurator_base):
 		retval = {}
 		found = 1
 
+		null='2>/dev/null'
+		if sys.platform == "win32": null='2>nul'
 		try:
-			ret = os.popen('%s %s 2>/dev/null' % (self.binary, self.tests.keys()[0] )).close()
+			ret = os.popen('%s %s %s' % (self.binary, self.tests.keys()[0], null)).close()
 			if ret: raise ValueError, "error"
 
 			for flag in self.tests:
 				var = self.tests[flag] + '_' + self.uselib
-				cmd = '%s %s 2>/dev/null' % (self.binary, flag)
+				cmd = '%s %s %s' % (self.binary, flag, null)
 				retval[var] = [os.popen(cmd).read().strip()]
 
 			self.update_env(retval)
