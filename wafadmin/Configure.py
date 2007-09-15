@@ -417,7 +417,7 @@ class pkgconfig_configurator(configurator_base):
 
 		self.name        = '' # name of the .pc file
 		self.version     = '' # version to check
-		self.path        = '' # PKG_CONFIG_PATH
+		self.pkgpath     = os.path.join(Params.g_options.prefix, 'lib') # pkg config path
 		self.uselib = '' # can be set automatically
 		self.define = '' # can be set automatically
 		self.binary      = '' # name and path for pkg-config
@@ -458,7 +458,7 @@ class pkgconfig_configurator(configurator_base):
 		self.update_env(retval)
 
 	def run_test(self):
-		pkgpath = self.path
+		pkgpath = self.pkgpath
 		pkgbin = self.binary
 		uselib = self.uselib
 
@@ -994,7 +994,7 @@ class Configure:
 		pkgconf.uselib = destvar
 		pkgconf.name = modname
 		pkgconf.version = vnum
-		pkgconf.path = pkgpath
+		if pkgpath: pkgconf.pkgpath = pkgpath
 		pkgconf.binary = pkgbin
 		pkgconf.variables = pkgvars
 		pkgconf.defines = pkgdefs
