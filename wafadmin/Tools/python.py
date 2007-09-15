@@ -18,6 +18,7 @@ class pyobj(Object.genobj):
 		self.inst_var = 'PYTHONDIR'
 		self.inst_dir = ''
 		self.prio = 50
+		self.chmod = 0644
 
 		self.env = env
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
@@ -41,6 +42,14 @@ class pyobj(Object.genobj):
 			if not ext in self.s_default_ext:
 				fatal("unknown file "+filename)
 
+			# Extract the extension and look for a handler hook.
+			k = max(0, filename.rfind('.'))
+			try:
+				self.get_hook(filename[k:])(self, node)
+				continue
+			except TypeError:
+				pass
+
 			if self.pyc:
 				task = self.create_task('pyc', self.env, self.prio)
 				task.set_inputs(node)
@@ -54,9 +63,9 @@ class pyobj(Object.genobj):
 		for i in self.m_tasks:
 			current = Params.g_build.m_curdirnode
 			lst=[a.relpath_gen(current) for a in i.m_outputs]
-			Common.install_files(self.inst_var, self.inst_dir, lst)
+			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod)
 			lst=[a.relpath_gen(current) for a in i.m_inputs]
-			Common.install_files(self.inst_var, self.inst_dir, lst)
+			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod)
 			#self.install_results(self.inst_var, self.inst_dir, i)
 
 def setup(env):
