@@ -71,8 +71,7 @@ class TaskSlave(Task.Task):
 		self.m_master = master
 
 	def get_display(self):
-		self.m_display=""
-		return ""
+		return "* skipping "+ self.m_inputs[0].m_name
 
 	def update_stat(self):
 		self.m_executed=1
@@ -99,11 +98,11 @@ def create_task_new(self, type, env=None, nice=100):
 
 		task = TaskSlave(type, env, nice, master=mm)
 		self.m_tasks.append(task)
-
 		mm.add_slave(task)
 
 		if type == self.m_type_initials:
 			self.p_compiletasks.append(task)
+
 		return task
 
 	task = Object.genobj.create_task(self, type, env, nice)
