@@ -151,7 +151,8 @@ class CommandOutputTask(Task.Task):
 		self.stdin = stdin
 		self.stdout = stdout
 
-		self.dep_nodes = [command_node]
+                if command_node is not None:
+                        self.dep_nodes = [command_node]
 		self.dep_vars = [] # additional environment variables to look
 
 class CommandOutput(Object.genobj):
