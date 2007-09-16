@@ -309,10 +309,9 @@ def Dist(appname, version):
 	tar = tarfile.open(TMPFOLDER+'.tar.bz2','w:bz2')
 	tar.add(TMPFOLDER)
 	tar.close()
-	print 'Your archive is ready -> '+TMPFOLDER+'.tar.bz2'
+	Params.pprint('GREEN', 'Your archive is ready -> %s.tar.bz2' % TMPFOLDER)
 
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
-
 	sys.exit(0)
 
 def DistClean():
@@ -341,7 +340,6 @@ def DistClean():
 						to_remove = 1
 						break
 			if to_remove:
-				#print "removing ",os.path.join(root, f)
 				os.remove(os.path.join(root, f))
 	lst = os.listdir('.')
 	for f in lst:
@@ -350,25 +348,23 @@ def DistClean():
 			except: pass
 	sys.exit(0)
 
-
 def DistCheck(appname, version):
 	"Makes some sanity checks on the waf dist generated tarball"
 	import shutil, tempfile
 
 	waf = os.path.abspath(sys.argv[0])
-	print "waf ", waf
 	distdir = DistDir(appname, version)
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	cwd_before = os.getcwd()
 	os.chdir(distdir)
 	try:
 		retval = subprocess.Popen(
-			"%(waf)s configure --prefix %(instdir)s && %(waf)s "
-			"&& %(waf)s check && %(waf)s install"
-			" && %(waf)s uninstall" % vars(),
+			'%(waf)s configure --prefix %(instdir)s && %(waf)s '
+			'&& %(waf)s check && %(waf)s install'
+			' && %(waf)s uninstall' % vars(),
 			shell=True).wait()
 		if retval:
-			Params.fatal("distcheck failed with code %i" % (retval))
+			Params.fatal('distcheck failed with code %i' % (retval))
 	finally:
 		os.chdir(cwd_before)
 		shutil.rmtree(distdir)
