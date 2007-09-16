@@ -613,7 +613,7 @@ class library_configurator(configurator_base):
 		self.define = ''
 		self.uselib = ''
 
-		self.code = 'int main(){ return 0; }'
+		self.code = 'int main(){return 0;}'
 
 	def error(self):
 		errmsg = 'library %s cannot be linked' % self.name
@@ -692,7 +692,7 @@ class framework_configurator(configurator_base):
 
 		self.name = ''
 		self.custom_code = ''
-		self.code = 'int main() {return 0;}'
+		self.code = 'int main(){return 0;}'
 
 		self.define = '' # HAVE_something
 
@@ -752,7 +752,7 @@ class framework_configurator(configurator_base):
 		obj.code          = "\n".join(code)
 		obj.env           = myenv
 		obj.uselib        = self.uselib
-		obj.flags		  += " ".join (cflags)
+		obj.flags         += " ".join (cflags)
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('framework %s' % self.name, '', ret, option='')
@@ -798,9 +798,7 @@ class header_configurator(configurator_base):
 		#try: self.names = self.names.split()
 		#except: pass
 		if not self.define:
-			if self.name:
-				reg=re.compile('[/\\\\.-]', re.M)
-				self.define = 'HAVE_'+'_'.join(reg.split(self.name)).upper()
+			if self.name: self.define = 'HAVE_'+ Utils.quote_define_name(self.name)
 			elif self.uselib: self.define = 'HAVE_'+self.uselib
 
 		if not self.code:
@@ -1029,10 +1027,8 @@ class Configure:
 		"called on shutdown"
 		try:
 			dir = os.path.join(Params.g_homedir, '.wafcache')
-			try:
-				os.makedirs(dir)
-			except:
-				pass
+			try: os.makedirs(dir)
+			except: pass
 
 			file = open(os.path.join(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'wb')
 			cPickle.dump(self.m_cache_table, file)
