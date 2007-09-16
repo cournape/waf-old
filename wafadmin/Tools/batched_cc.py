@@ -19,8 +19,8 @@ To set this up, the method ccroot::create_task is replaced by a new version, to 
 it is only necessary to import this module in the configuration (no other change required)
 """
 
-import shutil
-import Action, Object, Task, ccroot
+import shutil, os
+import Action, Object, Task, ccroot, Params
 
 class TaskMaster(Task.Task):
 	def __init__(self, action_name, env, priority=5, normal=1, master=None):
@@ -52,13 +52,16 @@ class TaskMaster(Task.Task):
 		self.m_outputs = self.m_outputs2
 
 		ret = self.m_action.run(self)
+		env = self.m_env
+
+		rootdir = Params.g_build.m_bldnode.abspath()
 
 		# unfortunately building the files in batch mode outputs them in the current folder (the build dir)
 		# now move the files from the top of the builddir to the correct location
 		for i in self.m_outputs:
 			name = i.m_name
 			if name[-1] == "s": name = name[:-1] # extension for shlib is .os, remove the s
-			shutil.move(name, i.bldpath(self.m_env))
+			shutil.move(os.path.join(rootdir, name), i.bldpath(env))
 
 		self.m_inputs = tmpinputs
 		self.m_outputs = tmpoutputs
