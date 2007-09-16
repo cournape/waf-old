@@ -301,8 +301,8 @@ def DistDir(appname, version):
 	os.chdir('..')
 	return TMPFOLDER
 
-def Dist(appname, version):
-	"make a tarball with all the sources in it"
+def DistTarball(appname, version):
+	"""make a tarball with all the sources in it; return (distdirname, tarballname)"""
 	import tarfile, shutil
 
 	TMPFOLDER = DistDir(appname, version)
@@ -312,10 +312,15 @@ def Dist(appname, version):
 	Params.pprint('GREEN', 'Your archive is ready -> %s.tar.bz2' % TMPFOLDER)
 
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
+	return (TMPFOLDER, TMPFOLDER+'.tar.bz2')
+
+def Dist(appname, version):
+	"""make a tarball with all the sources in it"""
+	DistTarball(appname, version)
 	sys.exit(0)
 
 def DistClean():
-	"clean the project"
+	"""clean the project"""
 	import os, shutil, types
 	import Build
 
@@ -349,11 +354,15 @@ def DistClean():
 	sys.exit(0)
 
 def DistCheck(appname, version):
-	"Makes some sanity checks on the waf dist generated tarball"
+	"""Makes some sanity checks on the waf dist generated tarball"""
 	import shutil, tempfile
 
 	waf = os.path.abspath(sys.argv[0])
-	distdir = DistDir(appname, version)
+	distdir, tarball = DistTarball(appname, version)
+	retval = subprocess.Popen('bzip2 -dc %s | tar x' % tarball, shell=True).wait()
+	if retval:
+		Params.fatal('uncompressing the tarball failed with code %i' % (retval))
+
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	cwd_before = os.getcwd()
 	os.chdir(distdir)
@@ -367,6 +376,6 @@ def DistCheck(appname, version):
 			Params.fatal('distcheck failed with code %i' % (retval))
 	finally:
 		os.chdir(cwd_before)
-		shutil.rmtree(distdir)
+	shutil.rmtree(distdir)
 	if os.path.exists(instdir):
 		Params.fatal("uninstall left files in %s" % (instdir))
