@@ -265,7 +265,7 @@ def DistDir(appname, version):
 	for (root, dirs, filenames) in os.walk('.'):
 		clean_dirs = []
 		for d in dirs:
-			if d in ['CVS', '.svn', '{arch}']:
+			if d in Params.g_excludes:
 				shutil.rmtree(os.path.join(root,d))
 			elif d.startswith('.') or d.startswith(',,') or d.startswith('++'):
 				shutil.rmtree(os.path.join(root,d))
