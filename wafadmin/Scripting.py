@@ -248,7 +248,7 @@ def Main():
 	if fun: fun()
 
 def DistDir(appname, version):
-	"dist target - should be portable"
+	"make a distribution directory with all the sources in it"
 	import shutil
 
 	# Our temporary folder where to put our files
@@ -302,7 +302,7 @@ def DistDir(appname, version):
 	return TMPFOLDER
 
 def Dist(appname, version):
-	"dist target - should be portable"
+	"make a tarball with all the sources in it"
 	import tarfile, shutil
 
 	TMPFOLDER = DistDir(appname, version)
