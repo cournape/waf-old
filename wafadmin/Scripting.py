@@ -7,6 +7,7 @@
 import os, sys, cPickle
 import Params, Utils, Configure, Environment, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
+import pproc as subprocess
 
 g_dirwatch   = None
 g_daemonlock = 0
@@ -242,9 +243,9 @@ def Main():
 	fun = getattr(Utils.g_module, 'shutdown', None)
 	if fun: fun()
 
-def Dist(appname, version):
+def DistDir(appname, version):
 	"dist target - should be portable"
-	import shutil, tarfile
+	import shutil
 
 	# Our temporary folder where to put our files
 	TMPFOLDER=appname+'-'+version
@@ -292,7 +293,13 @@ def Dist(appname, version):
 
 	# go back to the root directory
 	os.chdir('..')
+	return TMPFOLDER
 
+def Dist(appname, version):
+	"dist target - should be portable"
+	import tarfile, shutil
+
+	TMPFOLDER = DistDir(appname, version)
 	tar = tarfile.open(TMPFOLDER+'.tar.bz2','w:bz2')
 	tar.add(TMPFOLDER)
 	tar.close()
@@ -337,3 +344,27 @@ def DistClean():
 			except: pass
 	sys.exit(0)
 
+
+def DistCheck(appname, version):
+	"Makes some sanity checks on the waf dist generated tarball"
+	import shutil, tempfile
+
+	waf = os.path.abspath(sys.argv[0])
+	print "waf ", waf
+	distdir = DistDir(appname, version)
+	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
+	cwd_before = os.getcwd()
+	os.chdir(distdir)
+	try:
+		retval = subprocess.Popen(
+			"%(waf)s configure --prefix %(instdir)s && %(waf)s "
+			"&& %(waf)s check && %(waf)s install"
+			" && %(waf)s uninstall" % vars(),
+			shell=True).wait()
+		if retval:
+			Params.fatal("distcheck failed with code %i" % (retval))
+	finally:
+		os.chdir(cwd_before)
+		shutil.rmtree(distdir)
+	if os.path.exists(instdir):
+		Params.fatal("uninstall left files in %s" % (instdir))

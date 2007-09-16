@@ -337,6 +337,21 @@ elif Params.g_commands['distclean']:
 	from Scripting import DistClean
 	DistClean()
 	sys.exit(0)
+elif Params.g_commands['distcheck']:
+	# try to use the user-defined dist function first, fallback to the waf scheme
+	fun = getattr(Utils.g_module, 'dist', None)
+	if fun: fun(); sys.exit(0)
+
+	appname = getattr(Utils.g_module, 'APPNAME', 'noname')
+
+	get_version = getattr(Utils.g_module, 'get_version', None)
+	if get_version: version = get_version()
+	else: version = getattr(Utils.g_module, 'VERSION', None)
+	if not version: version = '1.0'
+
+	from Scripting import DistCheck
+	DistCheck(appname, version)
+	sys.exit(0)
 
 fun=getattr(Utils.g_module, 'init', None)
 if fun: fun()
