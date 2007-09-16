@@ -24,9 +24,6 @@ if sys.platform=='win32':
 g_dbfile='.wafpickle'
 "name of the db file"
 
-g_excludes = ['.svn', 'CVS', 'wafadmin', '.arch-ids', '{arch}']
-"exclude from dist"
-
 g_autoconfig = 0
 "reconfigure the project automatically"
 

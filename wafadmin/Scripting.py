@@ -11,7 +11,11 @@ import pproc as subprocess
 
 g_dirwatch   = None
 g_daemonlock = 0
+g_excludes = '.svn CVS wafadmin .arch-ids {arch}'.split()
+"exclude folders from dist"
 g_dist_exts  = '.rej .orig ~ .pyc .pyo .bak config.log .tar.bz2 .zip Makefile'.split()
+"exclude files from dist"
+
 g_distclean_exts = '~ .pyc .wafpickle'.split()
 
 def add_subdir(dir, bld):
@@ -260,12 +264,15 @@ def DistDir(appname, version):
 	dir = getattr(Utils.g_module, 'blddir', None)
 	if dir: shutil.rmtree(os.path.join(TMPFOLDER, dir), True)
 
+	# additional exclude files and dirs
+	global g_dist_exts, g_excludes
+
 	# Enter into it and remove unnecessary files
 	os.chdir(TMPFOLDER)
 	for (root, dirs, filenames) in os.walk('.'):
 		clean_dirs = []
 		for d in dirs:
-			if d in Params.g_excludes:
+			if d in g_excludes:
 				shutil.rmtree(os.path.join(root,d))
 			elif d.startswith('.') or d.startswith(',,') or d.startswith('++'):
 				shutil.rmtree(os.path.join(root,d))
@@ -273,7 +280,6 @@ def DistDir(appname, version):
 				clean_dirs += d
 		dirs = clean_dirs
 
-		global g_dist_exts # you may add additional forbidden files
 		for f in list(filenames):
 			to_remove = 0
 			ends = f.endswith
