@@ -61,7 +61,8 @@ class TaskMaster(Task.Task):
 		for i in self.m_outputs:
 			name = i.m_name
 			if name[-1] == "s": name = name[:-1] # extension for shlib is .os, remove the s
-			shutil.move(os.path.join(rootdir, name), i.bldpath(env))
+			try: shutil.move(os.path.join(rootdir, name), i.bldpath(env))
+			except IOError: pass
 
 		self.m_inputs = tmpinputs
 		self.m_outputs = tmpoutputs
