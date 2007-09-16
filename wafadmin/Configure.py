@@ -1101,7 +1101,7 @@ class Configure:
 		# remember config files - do not remove them on "waf clean"
 		self.env.append_value('waf_config_files', os.path.abspath(dir))
 
-		inclusion_guard_name = '_%s_WAF' % Utils.path_to_define_name(configfile)
+		inclusion_guard_name = '_%s_WAF' % Utils.quote_define_name(configfile)
 
 		dest = open(dir, 'w')
 		dest.write('/* Configuration header created by Waf - do not edit */\n')

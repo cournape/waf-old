@@ -160,21 +160,18 @@ def __split_dirs(path):
 	if not t: return __split_dirs(h)
 	else: return __split_dirs(h) + [t]
 
-"why this complexity ? (ita)"
-_path_to_define_name_translation = None
-def path_to_define_name(path):
-	"""Converts a file path like foo/zbr-xpto.h to a C preprocessor
-	name like FOO_ZBR_XPTO_H"""
-	global _path_to_define_name_translation
-	if _path_to_define_name_translation is None:
-		## make a translation table mapping everything except
-		## alfanumeric chars to '_'
-		invalid_chars = [chr(x) for x in xrange(256)]
-		for valid in string.digits + string.uppercase:
-			invalid_chars.remove(valid)
-		_path_to_define_name_translation = string.maketrans(''.join(invalid_chars), '_'*len(invalid_chars))
+_quote_define_name_translation = None
+"lazily construct a translation table for mapping invalid characters to valid ones"
 
-	return string.translate(string.upper(path), _path_to_define_name_translation)
+def quote_define_name(path):
+	"Converts a string like foo/zbr-xpto.h to a C preprocessor name like FOO_ZBR_XPTO_H"
+	global _quote_define_name_translation
+	if _quote_define_name_translation is None:
+		invalid_chars = [chr(x) for x in xrange(256)]
+		for valid in string.digits + string.uppercase: invalid_chars.remove(valid)
+		_quote_define_name_translation = string.maketrans(''.join(invalid_chars), '_'*len(invalid_chars))
+
+	return string.translate(string.upper(path), _quote_define_name_translation)
 
 def quote_whitespace(path):
 	return (path.strip().find(' ') > 0 and '"%s"' % path or path).replace('""', '"')
