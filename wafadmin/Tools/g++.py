@@ -33,7 +33,7 @@ def detect(conf):
 	# g++ requires ar for static libs
 	conf.check_tool('ar')
 	if not conf.env['AR']:
-		Utils.error('g++ needs ar - not found')
+		conf.error('g++ needs ar - not found')
 		raise ConfigurationError
 
 	v = conf.env

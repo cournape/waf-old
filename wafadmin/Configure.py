@@ -1342,4 +1342,6 @@ class Configure:
 		m.update(Params.g_platform)
 		return m.hexdigest()
 
+	def errormsg(self, msg):
+		Params.niceprint(msg, 'ERROR', 'Configuration')
 

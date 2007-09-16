@@ -27,7 +27,7 @@ def detect(conf):
 	# gcc requires ar for static libs
 	conf.check_tool('ar')
 	if not conf.env['AR']:
-		Utils.error('gcc needs ar - not found')
+		conf.error('gcc needs ar - not found')
 		raise ConfigurationError
 
 	v = conf.env

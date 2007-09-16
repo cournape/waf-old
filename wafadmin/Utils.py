@@ -38,9 +38,6 @@ def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 		if a < b:
 			Params.fatal("waf version should be at most %s (%s found)" % (maxi, Params.g_version))
 
-def error(msg):
-	Params.niceprint(msg, 'ERROR', 'Configuration')
-
 def reset():
 	import Params, Task, Scripting, Object
 	Params.g_build = None

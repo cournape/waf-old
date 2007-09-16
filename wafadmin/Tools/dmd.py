@@ -19,7 +19,7 @@ def detect(conf):
 	conf.check_tool('d')
 
 	if not conf.check_tool('ar'):
-		Utils.error('ar is needed for static libraries - not found')
+		conf.error('ar is needed for static libraries - not found')
 		return 0
 
 	v = conf.env
