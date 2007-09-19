@@ -19,7 +19,8 @@ def detect(conf):
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx:
-		return
+		conf.error("g++ was not found")
+		raise ConfigurationError
 
 	cpp = conf.find_program('cpp', var='CPP')
 	if not cpp: cpp = cxx
@@ -203,7 +204,8 @@ def detect(conf):
 		v['program_SUFFIX']    = ''
 
 	conf.check_tool('checks')
-	#test if the compiler could build a prog
+
+	# check for compiler features: programs, shared and static libraries
 	test = Configure.check_data()
 	test.code = 'int main() {return 0;}\n'
 	test.env = v
@@ -211,8 +213,9 @@ def detect(conf):
 	ret = conf.run_check(test)
 	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
-		return 0
-	#test if the compiler could build a shlib
+		conf.error("no programs")
+		raise ConfigurationError
+
 	lib_obj = Configure.check_data()
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
@@ -220,8 +223,9 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'shared libs', not (ret is False))
 	if not ret:
-		return 0
-	#test if the compiler could build a staiclib
+		conf.error("no shared libraries")
+		raise ConfigurationError
+
 	lib_obj = Configure.check_data()
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
@@ -229,7 +233,8 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret:
-		return 0
+		conf.error("no static libraries")
+		raise ConfigurationError
 
 	# compiler debug levels
 	if conf.check_flags('-Wall'):

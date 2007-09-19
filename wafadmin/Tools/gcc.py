@@ -15,7 +15,9 @@ def detect(conf):
 		cc = os.environ['CC']
 	if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
-	if not cc: return 0
+	if not cc:
+		conf.error('gcc was not found')
+		raise ConfigurationError
 
 	conf.check_tool('checks')
 	# load the cc builders
@@ -190,7 +192,9 @@ def detect(conf):
 		# program
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = ''
-	#test if the compiler could build a prog
+
+
+	# check for compiler features: programs, shared and static libraries
 	test = Configure.check_data()
 	test.code = 'int main() {return 0;}\n'
 	test.env = v
@@ -199,9 +203,9 @@ def detect(conf):
 	ret = conf.run_check(test)
 	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
-		return 0
-	ret = 0
-	#test if the compiler could build a shlib
+		conf.error("no programs")
+		raise ConfigurationError
+
 	lib_obj = Configure.check_data()
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
@@ -210,9 +214,9 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'shared libs', not (ret is False))
 	if not ret:
-		return 0
-	ret = 0
-	#test if the compiler could build a staiclib
+		conf.error("no shared libs")
+		raise ConfigurationError
+
 	lib_obj = Configure.check_data()
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
@@ -221,7 +225,8 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret:
-		return 0
+		conf.error("no static libs")
+		raise ConfigurationError
 
 	# compiler debug levels
 	if conf.check_flags('-Wall'):
@@ -257,8 +262,6 @@ def detect(conf):
 	v['shlib_INST_DIR'] = 'lib'
 	v['staticlib_INST_VAR'] = 'PREFIX'
 	v['staticlib_INST_DIR'] = 'lib'
-
-	return 1
 
 def set_options(opt):
 	try:

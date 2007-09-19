@@ -24,7 +24,6 @@ def set_options(opt):
 	try:
 		d_compiler_opts.add_option('--check-dmd-first', action = "store_true", help = 'checks for the gdc compiler before dmd (default is the other way round)', dest = 'check_dmd_first',default = False)
 	except optparse.OptionConflictError:
-		# the g++ tool might have added that option already
 		pass
 
 	for d_compiler in ['gdc', 'dmd']:
