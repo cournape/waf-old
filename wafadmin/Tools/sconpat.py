@@ -65,6 +65,3 @@ def Environment(**kw):
 			ret.__class__.__dict__[k]=miapply
 	return ret
 
-def setup(env):
-	pass
-

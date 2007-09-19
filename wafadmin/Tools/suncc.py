@@ -7,9 +7,6 @@ import os, sys, pproc, Object
 import optparse
 import Utils, Action, Params, checks, Configure
 
-def setup(env):
-	pass
-
 def detect(conf):
 	cc = None
 	if conf.env['CC']:

@@ -225,10 +225,6 @@ def check_flags(self, flags, uselib='', options='', msg=1):
 	if ret: return 1
 	return None
 
-def setup(env):
-	pass
-
-
 # function wrappers for convenience
 def check_header2(self, name, mandatory=1, define=''):
 	import os

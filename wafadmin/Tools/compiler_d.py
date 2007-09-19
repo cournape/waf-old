@@ -6,9 +6,6 @@ import os, sys, imp, types
 import optparse
 import Utils, Action, Params, checks, Configure
 
-def setup(env):
-	pass
-
 def detect(conf):
 	if Params.g_options.check_dmd_first:
 		test_for_compiler = ['dmd', 'gdc']

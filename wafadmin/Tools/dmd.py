@@ -4,10 +4,6 @@
 
 import sys
 
-
-def setup(env):
-	pass
-
 def detect(conf):
 	d_compiler = None
 	if conf.env['D_COMPILER']:

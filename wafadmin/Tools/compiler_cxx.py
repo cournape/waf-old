@@ -23,9 +23,6 @@ def __list_possible_compiler(plattform):
 	except KeyError:
 		return(c_compiler["default"])
 
-def setup(env):
-	pass
-
 def detect(conf):
 	test_for_compiler = Params.g_options.check_cxx_compiler
 	for cxx_compiler in test_for_compiler.split():

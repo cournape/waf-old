@@ -50,10 +50,7 @@ class Environment:
 
 		file,name,desc = imp.find_module(tool, tooldir)
 		module = imp.load_module(tool,file,name,desc)
-		try:
-			module.setup(self)
-		except AttributeError:
-			fatal("setup function missing in tool: %s " % str(tool))
+		if hasattr(module, "setup"): module.setup(self)
 		if file: file.close()
 
 	def __str__(self):

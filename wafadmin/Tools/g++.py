@@ -7,9 +7,6 @@ import os, sys
 import optparse
 import Utils, Action, Params, checks, Configure
 
-def setup(env):
-	pass
-
 # tool detection and initial setup
 # is called when a configure process is started,
 # the values are cached for further build processes
