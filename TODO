@@ -3,8 +3,7 @@ roadmap:
 
 * move the benchmarking helpers and other tweaks into a separate module (Weak.py) - and fix it
 
-* simplification of the signature and dependency system (nearly complete)
-* improvements of the ocaml tools, and of the c preprocessor (features, speed)
+* improvements of the c preprocessor (features)
 * improvement of the configuration system (started)
 * wrappers to make adding new construction rules more user-friendly (not really started)
 
@@ -25,5 +24,5 @@ ideas to watch:
 Qt4.py: do not hash the moc files in the signature
 
 --------------------------------------
-Last update: 08-09-2007
+Last update: 18-09-2007
 Contact -> tnagyemail-mail at yahoo.fr (ita)

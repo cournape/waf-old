@@ -1,9 +1,13 @@
 WHAT YOU WILL FIND HERE
 -----------------------
 
-An experimental project called 'waf' (bsd licence: freely redistributable)
-Examples can be found in demo/
-Tests can be found in wafadmin/ (run ./Test.py and look at the folder wafadmin/test/)
+A python script named "Waf"
+It is used to help building software (it is also called a "build system"):
+ * detect configuration variables
+ * compile source files
+ * install programs and libraries
+
+Numerous examples for various programming languages can be found in the folder demo/
 
 GENERATE WAF
 ------------
@@ -18,6 +22,7 @@ ENVIRONMENT VARIABLES
 WAFLOCK: name of the lock file (default: .lock-wscript)
 WAFDIR: path to the wafadmin folder (developers must set it)
 WAFCACHE: path to the target cache (replaces --usecache)
+NOCOLOR: set to 1, disables the waf coloring output
 
 QUICK HOWTO
 -----------
@@ -57,6 +62,17 @@ SUGGESTED USAGE
 Do not rely on command-line defines, generate a config.h file instead.
 Avoid includes having ".." in the path as system headers and folders out
 of the project directory could be scanned (can be slow).
+
+LIMITATIONS
+-----------
+
+A few assumptions are used over the user projects, for some they are features and for others these are limitations:
+  * all sources and headers belong under a source directory
+  * all files produced are put into a separate build directory (do not put all the .o files among the sources)
+  * no spaces should be used in the source file names or in the folders names
+    (waf should work anyway, but this is not a priority)
+  * waf does not constantly watch if source files have changed, once a build has started the additional modified source
+    files will not be taken into account
 
 ---------------------------
 Thomas Nagy, 2006, 2007 (ita)
