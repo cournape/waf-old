@@ -419,7 +419,7 @@ class pkgconfig_configurator(configurator_base):
 
 		self.name        = '' # name of the .pc file
 		self.version     = '' # version to check
-		self.pkgpath     = os.path.join(Params.g_options.prefix, 'lib') # pkg config path
+		self.pkgpath     = os.path.join(Params.g_options.prefix, 'lib', 'pkgconfig') # pkg config path
 		self.uselib = '' # can be set automatically
 		self.define = '' # can be set automatically
 		self.binary      = '' # name and path for pkg-config
