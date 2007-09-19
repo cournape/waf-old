@@ -26,7 +26,7 @@ class scanner:
 	"TODO: add the manually added dependencies"
 	"TODO: add the environment variables dependencies"
 
-	# it returns a tuple containing:
+	# this method returns a tuple containing:
 	# * a list of nodes corresponding to real files
 	# * a list of names for files not found in path_lst
 	# the input parameters may have more parameters that the ones used below
@@ -34,12 +34,9 @@ class scanner:
 		"usually reimplemented"
 		return ([], [])
 
-	# scans a node
-	# this method takes as input a node and a list of paths
-	# it searches dependencies in the paths, and returns a list
-	# of nodes that should trigger a rebuild.
+	# scans a node, the task may have additional parameters such as include paths, etc
 	def do_scan(self, task, node):
-		"rarely reimplemented"
+		"more rarely reimplemented"
 		debug("do_scan(self, node, env, hashparams)", 'ccroot')
 
 		variant = node.variant(task.m_env)
@@ -48,6 +45,7 @@ class scanner:
 			error("BUG rescanning a null node")
 			return
 
+		# we delegate the work to "def scan(self, task, node)" to avoid duplicate code
 		(nodes, names) = self.scan(task, node)
 		if Params.g_verbose:
 			if Params.g_zones:
@@ -57,8 +55,7 @@ class scanner:
 		tree.m_depends_on[variant][node] = nodes
 		tree.m_raw_deps[variant][node] = names
 
-	# compute the signature
-	# recompute the signature if it does not match the cache
+	# compute the signature, recompute it if there is no match in the cache
 	def get_signature(self, task):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
 		tree = Params.g_build

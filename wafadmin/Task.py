@@ -165,7 +165,7 @@ class Task(TaskBase):
 		m = md5()
 
 		# TODO maybe we could split this dep sig into two parts (nodes, dependencies)
-		# this will only help for debugging though
+		# this would only help for debugging though
 		dep_sig = Params.sig_nil
 		scan = getattr(self, 'm_scanner', None)
 		if scan:
