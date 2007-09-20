@@ -16,7 +16,7 @@ def detect(conf):
 	if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc:
-		raise ConfigurationError('gcc was not found')
+		conf.fatal('gcc was not found')
 
 	conf.check_tool('checks')
 	# load the cc builders
@@ -25,7 +25,7 @@ def detect(conf):
 	# gcc requires ar for static libs
 	conf.check_tool('ar')
 	if not conf.env['AR']:
-		raise ConfigurationError('gcc needs ar - not found')
+		conf.fatal('gcc needs ar - not found')
 
 	v = conf.env
 
@@ -201,7 +201,7 @@ def detect(conf):
 	ret = conf.run_check(test)
 	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
-		raise ConfigurationError("no programs")
+		conf.fatal("no programs")
 
 	lib_obj = Configure.check_data()
 	lib_obj.code = "int k = 3;\n"
@@ -211,7 +211,7 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'shared libs', not (ret is False))
 	if not ret:
-		raise ConfigurationError("no shared libs")
+		conf.fatal("no shared libs")
 
 	lib_obj = Configure.check_data()
 	lib_obj.code = "int k = 3;\n"
@@ -221,7 +221,7 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret:
-		raise ConfigurationError("no static libs")
+		conf.fatal("no static libs")
 
 	# compiler debug levels
 	if conf.check_flags('-Wall'):

@@ -82,7 +82,7 @@ def configure():
 	try:
 		conf.sub_config('')
 	except Configure.ConfigurationError, e:
-		error(e.message())
+		error(str(e.message))
 		sys.exit(2)
 	conf.store(tree)
 	conf.cleanup()

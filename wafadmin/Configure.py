@@ -1340,3 +1340,6 @@ class Configure:
 	def errormsg(self, msg):
 		Params.niceprint(msg, 'ERROR', 'Configuration')
 
+	def fatal(self, msg):
+		raise ConfigurationError(msg)
+
