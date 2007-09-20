@@ -79,7 +79,11 @@ def configure():
 	tree.load_dirs(src, bld)
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
-	conf.sub_config('')
+	try:
+		conf.sub_config('')
+	except Configure.ConfigurationError, e:
+		error(e.message())
+		sys.exit(2)
 	conf.store(tree)
 	conf.cleanup()
 

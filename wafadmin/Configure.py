@@ -953,8 +953,7 @@ class Configure:
 			try:
 				file,name,desc = imp.find_module(i, tooldir)
 			except Exception, ex:
-				error("no tool named '%s' found (%s)" % (i, str(ex)))
-				raise ConfigurationError
+				raise ConfigurationError("no tool named '%s' found (%s)" % (i, str(ex)))
 			module = imp.load_module(i,file,name,desc)
 			func = getattr(module, 'detect', None)
 			if func: func(self)

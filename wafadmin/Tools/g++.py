@@ -19,8 +19,7 @@ def detect(conf):
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx:
-		conf.error("g++ was not found")
-		raise ConfigurationError
+		raise ConfigurationError("g++ was not found")
 
 	cpp = conf.find_program('cpp', var='CPP')
 	if not cpp: cpp = cxx
@@ -31,8 +30,7 @@ def detect(conf):
 	# g++ requires ar for static libs
 	conf.check_tool('ar')
 	if not conf.env['AR']:
-		conf.error('g++ needs ar - not found')
-		raise ConfigurationError
+		raise ConfigurationError('g++ needs ar - not found')
 
 	v = conf.env
 	v['CXX'] = cxx
@@ -213,8 +211,7 @@ def detect(conf):
 	ret = conf.run_check(test)
 	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
-		conf.error("no programs")
-		raise ConfigurationError
+		raise ConfigurationError("no programs")
 
 	lib_obj = Configure.check_data()
 	lib_obj.code = "int k = 3;\n"
@@ -223,8 +220,7 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'shared libs', not (ret is False))
 	if not ret:
-		conf.error("no shared libraries")
-		raise ConfigurationError
+		raise ConfigurationError("no shared libraries")
 
 	lib_obj = Configure.check_data()
 	lib_obj.code = "int k = 3;\n"
@@ -233,8 +229,7 @@ def detect(conf):
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret:
-		conf.error("no static libraries")
-		raise ConfigurationError
+		raise ConfigurationError("no static libraries")
 
 	# compiler debug levels
 	if conf.check_flags('-Wall'):
