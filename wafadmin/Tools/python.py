@@ -170,13 +170,22 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	header.uselib = 'PYEXT'
 	header.code = "#include <Python.h>\nint main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }"
 	result = header.run()
-	if not result: return result
+	if not result:
+		conf.fatal("Python development headers not found.")
 
 	conf.env['CPPPATH_PYEXT'] = python_includes
 	conf.env['CPPPATH_PYEMBED'] = python_includes
 
-	return result
-
+	## Code using the Python API needs to be compiled with -fno-strict-aliasing
+	if conf.env['CC']:
+		if os.path.basename(conf.env['CC']).startswith('gcc'):
+			conf.env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
+			conf.env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
+	if conf.env['CXX']:
+		if os.path.basename(conf.env['CXX']).startswith('g++'):
+			conf.env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
+			conf.env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
+	
 
 def check_python_version(conf, minver=None):
 	"""
@@ -189,7 +198,7 @@ def check_python_version(conf, minver=None):
 	this python version, where modules/packages/extensions should be
 	installed.
 	"""
-
+	assert minver is None or isinstance(minver, tuple)
 	python = conf.env['PYTHON']
 	assert python, ("python is %r !" % (python,))
 
@@ -229,7 +238,9 @@ def check_python_version(conf, minver=None):
 		minver_str = '.'.join(map(str, minver))
 		conf.check_message('Python version', ">= %s" % (minver_str,), result, option=pyver_full)
 
-	return result
+	if not result:
+		conf.fatal("Python too old.")
+
 
 def detect(conf):
 	python = conf.find_program('python', var='PYTHON')
