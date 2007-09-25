@@ -18,14 +18,10 @@ def set_options(opt):
 	opt.tool_options('compiler_cc')
 
 def configure(conf):
-	if not conf.check_tool('compiler_cc'):
-		fatal("Error: no C compiler was found in PATH.")
-	if not (conf.check_tool('python')
-			and conf.check_python_version((2,4,2))
-			and	conf.check_python_headers()):
-		fatal("Error: missing Python development environment.\n"
-			  "(Hint: if you do not have a debugging Python library installed"
-			  " try using the configure option '--debug-level release')")
+	conf.check_tool('compiler_cc')
+	conf.check_tool('python')
+	conf.check_python_version((2,4,2))
+	conf.check_python_headers()
 
 def build(bld):
 	# first compile a few pyc and pyo files
