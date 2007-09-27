@@ -113,7 +113,7 @@ def reset_colors():
 		g_cursor_off=''
 
 if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
-	or (os.environ.get('TERM', 'dumb') == 'dumb') \
+	or (os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']) \
 	or (not sys.stdout.isatty()):
 	reset_colors()
 
