@@ -14,9 +14,6 @@ from Params import debug, error, warning
 g_tasks_done    = []
 "tasks that have been run, this is used in tests to check which tasks were actually launched"
 
-g_default_param = {'path_lst':[]}
-"the default scanner parameter"
-
 class TaskManager:
 	"""There is a single instance of TaskManager held by Task.py:g_tasks
 	The manager holds a list of TaskGroup
