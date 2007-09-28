@@ -398,7 +398,7 @@ class TaskCmd(TaskBase):
 		self.fun = fun
 		self.env = env
 	def prepare(self):
-		self.display = "* executing: "+self.fun.__name__
+		self.m_display = "* executing: "+self.fun.__name__
 	def debug_info(self):
 		return 'TaskCmd:fun %s' % self.fun.__name__
 	def debug(self):
