@@ -8,7 +8,7 @@ import Action
 from Params import fatal
 from Params import set_globals
 
-flex_str = '${FLEX} -o ${TGT} ${FLEXFLAGS} ${SRC}'
+flex_str = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}'
 
 # we register our extensions to global variables
 set_globals('EXT_FLEX_C', '.lex.c')
