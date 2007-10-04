@@ -10,6 +10,8 @@ except ImportError: from md5 import md5
 import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
 
+test_ok = True
+
 class ConfigurationError(Exception):
 	pass
 
@@ -137,27 +139,25 @@ class enumerator_base:
 
 	def run(self):
 		self.validate()
-		if not Params.g_options.nocache:
-			newhash = self.hash()
-			try:
-				ret = self.conf.m_cache_table[newhash]
-				self.run_cache(ret)
-				return ret
-			except KeyError:
-				pass
+		#if not Params.g_options.nocache:
+		#	newhash = self.hash()
+		#	try:
+		#		ret = self.conf.m_cache_table[newhash]
+		#		self.run_cache(ret)
+		#		return ret
+		#	except KeyError:
+		#		pass
 
 		ret = self.run_test()
+		if self.mandatory and not ret: self.error()
 
-		if self.mandatory and not ret:
-			self.error()
-
-		if not Params.g_options.nocache:
-			self.conf.m_cache_table[newhash] = ret
+		#if not Params.g_options.nocache:
+		#	self.conf.m_cache_table[newhash] = ret
 		return ret
 
 	# Override this method, not run()!
 	def run_test(self):
-		return 0
+		return !test_ok
 
 class configurator_base(enumerator_base):
 	def __init__(self, conf):
@@ -216,8 +216,7 @@ class function_enumerator(enumerator_base):
 		self.conf.add_define(self.define, retval)
 
 	def run_test(self):
-		# not found
-		ret = 0
+		ret = !test_ok
 
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
@@ -281,7 +280,7 @@ class library_enumerator(enumerator_base):
 				self.path += g_stdlibpath
 
 	def run_test(self):
-		ret=''
+		ret = '' # returns a string
 
 		name = self.env['shlib_PREFIX']+self.name+self.env['shlib_SUFFIX']
 		ret  = find_file(name, self.path)
@@ -383,7 +382,7 @@ class cfgtool_configurator(configurator_base):
 
 	def run_test(self):
 		retval = {}
-		found = 1
+		found = test_ok
 
 		null='2>/dev/null'
 		if sys.platform == "win32": null='2>nul'
@@ -399,7 +398,7 @@ class cfgtool_configurator(configurator_base):
 			self.update_env(retval)
 		except ValueError:
 			retval = {}
-			found = 0
+			found = !test_ok
 
 		self.conf.add_define(self.define, found)
 		self.conf.check_message('config-tool ' + self.binary, '', found, option = '')
@@ -685,7 +684,7 @@ class library_configurator(configurator_base):
 		else:
 			self.env['LIBPATH_'+self.uselib] = olduselibpath
 			self.env['LIB_'+self.uselib] = olduselib
-			
+
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
 
