@@ -13,6 +13,9 @@ sys.path = ['.', '..'] + sys.path
 import Params
 from Params import debug, error, warning
 
+class PreprocError(Exception):
+	pass
+
 # ignore #warning and #error
 reg_define = re.compile('^\s*(#|%:)\s*(if|ifdef|ifndef|else|elif|endif|include|import|define|undef|pragma)\s*(.*)\r*')
 
@@ -168,9 +171,9 @@ def subst(lst, defs):
 					return [[num, '0']] + subst(lst[2:], defs)
 			if a2_type == op and a2 == '(':
 				if len(lst) < 4:
-					raise ValueError, "expected 4 tokens defined(ident)"
+					raise PreprocError, "expected 4 tokens defined(ident)"
 				if lst[2][0] != ident:
-					raise ValueError, "expected defined(ident)"
+					raise PreprocError, "expected defined(ident)"
 				if lst[2][1] in defs:
 					return [[num, '1']] + subst(lst[4:], defs)
 				else:
@@ -217,6 +220,7 @@ def eval_macro(lst, defis):
 	print "-------- eval macro --------"
 	for x in defs:
 		print x, "\t\t", defs[x]
+	print "------ end eval macro ------"
 
 	return ''
 
@@ -253,8 +257,8 @@ def comp(lst):
 					return [num, 1]
 				else:
 					return [num, 0]
-			raise ValueError, "cannot compute %s (1)" % str(lst)
-		raise ValueError, "cannot compute %s (2)" % str(lst)
+			raise PreprocError, "cannot compute %s (1)" % str(lst)
+		raise PreprocError, "cannot compute %s (2)" % str(lst)
 	if a1_type == stri:
 		if a2_type == stri:
 			if lst[2:]:
@@ -267,7 +271,7 @@ def comp(lst):
 		a3_type = lst[2][0]
 		a3 = lst[2][1]
 	except:
-		raise ValueError, "cannot compute %s (3)" % str(lst)
+		raise PreprocError, "cannot compute %s (3)" % str(lst)
 
 	if a1_type == ident:
 		#print "a1"
@@ -301,7 +305,7 @@ def comp(lst):
 				else: val = 0
 				return comp( [[num, val]] + lst[3:] )
 
-	raise ValueError, "could not parse the macro %s " % str(lst)
+	raise PreprocError, "could not parse the macro %s " % str(lst)
 
 
 class cparse:
@@ -386,10 +390,10 @@ class cparse:
 			pc[filepath] = lines # memorize the lines filtered
 			self.lines = lines + self.lines
 		except IOError:
-			raise
+			raise PreprocError, "could not read the file"
 		except:
 			if Params.g_verbose > 0: warning("parsing %s failed" % filepath)
-			raise
+			raise PreprocError, "unknown exception"
 
 	def start2(self, node, env):
 		debug("scanning %s (in %s)" % (node.m_name, node.m_parent.m_name), 'preproc')
@@ -414,7 +418,7 @@ class cparse:
 	# debug only
 	def start(self, filename):
 		self.addlines(filename)
-		print self.lines
+		#print self.lines
 		while self.lines:
 			(type, line) = self.lines.pop(0)
 			try:
@@ -429,7 +433,9 @@ class cparse:
 		return 1
 
 	def process_line(self, token, line):
-		print "--------> type", token, "and line ", line
+
+		debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
+
 
 		# make certain we define the state if we are about to enter in an if block
 		if token in ['ifdef', 'ifndef', 'if']:
@@ -440,8 +446,6 @@ class cparse:
 			if not self.isok():
 				print "return in process line"
 				return
-
-		debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
 
 		if token == 'if':
 			ret = eval_macro(line, self.defs)
@@ -495,25 +499,29 @@ def tokenize_define(txt):
 		name = tok[1]
 
 		tok = t.pop(0)
-		if tok[0] != op: raise "expected open parenthesis"
+		if tok[0] != op: raise PreprocError, "expected open parenthesis"
 		while 1:
-			tok = t.pop(0)
-			#print tok
-			if tok[0] == op and tok[1] == ')':
-				break
-			elif tok[0] == ident:
-				params.append(tok)
-			elif tok[0] == op and tok[1] == '...':
-				params.append([ident, tok[1]])
-			else:  # TODO handle the varargs case  def foo(x, y, z...) x * y * z...
-				#print tok
-				raise "expected ident"
 			tok = t.pop(0)
 
 			if tok[0] == op and tok[1] == ')':
 				break
-			elif tok[0] != op and tok != ',':
-				raise "expected comma"
+			if tok[0] != ident and (tok[0] != op and tok[1] != '...'):
+				raise PreprocError, "expected ident"
+
+			tok2 = t.pop(0)
+			if tok2[0] == op and tok2[1] == '...':
+				params.append([ident, tok[1]+tok2[1]]) # to get the varargs "z..."
+			elif tok2[0] == op and tok2[1] == ')':
+				if tok[0] == ident:
+					params.append(tok)
+				else:
+					params.append([ident, tok[1]])
+				break
+			elif tok2[0] == op and tok2[1] == ',':
+				params.append(tok)
+			else:
+				raise PreprocError, "unexpected token "+str(tok2)
+
 		return (name, [params, t])
 	else:
 		return (t[0][1], t[1:])
@@ -535,7 +543,7 @@ def tokenize_include(txt, defs):
 		return (t[0], t)
 
 	# if we come here, parsing failed
-	raise
+	raise PreprocError, "include parsing failed %s" % txt
 
 def tokenize(txt):
 	i = 0
@@ -628,7 +636,7 @@ def tokenize(txt):
 						abuf.append([op, punctuators_table[pos]['$$']])
 						break
 					except KeyError:
-						raise "unknown char"
+						raise PreprocError, "unknown char"
 					# lexer error
 			#abuf.append([op, table[pos]['$$']])
 			#r = parse_token(stuff, punctuators_table)
