@@ -56,6 +56,7 @@ ident = 'T' # identifier
 stri = 's' # string
 chr = 'c' # char
 
+# TODO handle the trigraphs
 trigs = {
 '=' : '#',
 '-' : '~',
@@ -148,8 +149,6 @@ def parse_token(stuff, table):
 			# lexer error
 	return table[pos]['$$']
 
-def get_punctuator_token(stuff):
-	return parse_token(stuff, punctuators_table)
 
 #def comp(self, stuff):
 #	ret = red(stuff, self.defs)
@@ -230,7 +229,7 @@ def accept(sym):
 def stringize(sym):
 	pass
 
-def red(lst, defis):
+def eval_macro(lst, defis):
 	defs = defis
 
 	for x in defs:
@@ -326,8 +325,8 @@ class cparse:
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
 		#self.lines = txt.split('\n')
 		self.lines = []
-		self.i     = 0
-		self.txt   = ''
+		#self.i     = 0
+		#self.txt   = ''
 		self.max   = 0
 		self.buf   = []
 
@@ -423,12 +422,8 @@ class cparse:
 			# TODO we can skip evaluating conditions (#if) only when we are
 			# certain they contain no define, undef or include
 			(type, line) = self.lines.pop(0)
-			if not line: continue
-			self.txt = line
-			self.i   = 0
-			self.max = len(line)
 			try:
-				self.process_line()
+				self.process_line(type, line)
 			except Exception, ex:
 				if Params.g_verbose:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
@@ -439,62 +434,34 @@ class cparse:
 		print self.lines
 		while self.lines:
 			(type, line) = self.lines.pop(0)
-			#if not line: continue # rari
-
-			self.txt = line
-			self.i   = 0
-			self.max = len(line)
 			try:
-				self.process_line(type)
+				self.process_line(type, line)
 			except Exception, ex:
 				if Params.g_verbose:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
 				raise
-	def back(self, c):
-		self.i -= c
-
-	def next(self):
-		car = self.txt[self.i]
-		self.i += 1
-		return car
-
-	def good(self):
-		return self.i < self.max
-
-	def skip_spaces(self):
-		# skip the spaces
-		while self.good():
-			c = self.next()
-			if c == ' ' or c == '\t': continue
-			else:
-				self.i -= 1
-				break
-
 	def isok(self):
 		if not self.state: return 1
 		if self.state[0] in [skipped, ignored]: return None
 		return 1
 
-	def process_line(self, token):
-		l = len(self.txt)
+	def process_line(self, token, line):
+		print "--------> type", token, "and line ", line
 
-		print "--------> type", token, "and line ", self.txt
-		if token == 'endif':
-			self.state.pop(0)
-		elif token in ['ifdef', 'ifndef', 'if']:
+		# make certain we define the state if we are about to enter in an if block
+		if token in ['ifdef', 'ifndef', 'if']:
 			self.state = [undefined] + self.state
 
-
 		# skip lines when in a dead 'if' branch, wait for the endif
-		if not token in ['else', 'elif']:
+		if not token in ['else', 'elif', 'endif']:
 			if not self.isok():
 				print "return in process line"
 				return
 
-		debug("line is %s state is %s" % (self.txt, self.state), 'preproc')
+		debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
 
 		if token == 'if':
-			ret = red(self.get_body(), self.defs)
+			ret = eval_macro(line, self.defs)
 			if ret: self.state[0] = accepted
 			else: self.state[0] = ignored
 		elif token == 'ifdef':
@@ -507,211 +474,181 @@ class cparse:
 				self.state[0] = ignored
 			else: self.state[0] = accepted
 		elif token == 'include' or token == 'import':
-			(type, body) = self.get_include()
-			if self.isok():
-				debug("include found %s    (%s) " % (body, type), 'preproc')
-				if type == '"':
-					if not body in self.deps:
-						self.deps.append(body)
-						self.tryfind(body)
-				elif type == '<':
-					if not strict_quotes:
-						if not body in self.deps:
-							self.deps.append(body)
-							self.tryfind(body)
-				else:
-					print "calling comp"
-					res = red(body, self.defs)
-					print "end comp"
-					#print 'include body is ', res
-					if res and (not res in self.deps):
-						self.deps.append(res)
-						self.tryfind(res)
-
+			(type, inc) = tokenize_include(line)
+			debug("include found %s    (%s) " % (inc, type), 'preproc')
+			if strict_quotes or type == '"':
+				if not body in self.deps:
+					self.deps.append(body)
+				# allow double inclusion
+				self.tryfind(body)
 		elif token == 'elif':
 			if self.state[0] == accepted:
 				self.state[0] = skipped
 			elif self.state[0] == ignored:
-				if red(self.get_body(), self.defs):
+				if eval_macro(self.get_body(), self.defs):
 					self.state[0] = accepted
-				else:
-					# let another 'e' treat this case
-					pass
-			else:
-				pass
 		elif token == 'else':
 			if self.state[0] == accepted: self.state[0] = skipped
 			elif self.state[0] == ignored: self.state[0] = accepted
 		elif token == 'endif':
-			pass
+			self.state.pop(0)
 		elif token == 'define':
-			name = self.get_name()
-			args = self.get_args()
-			body = self.get_body()
-			#print "define %s (%s) { %s }" % (name, str(args), str(body))
-			if not args:
-				self.defs[name] = body
-			else:
-				self.defs[name] = (body, args)
+			(name, val) = tokenize_define(line)
+			print "define %s (%s) { %s }" % (name, str(val[0]), str(val[1]))
+			self.defs[name] = val
 		elif token == 'undef':
 			name = self.get_name()
-			if name:
-				if name in self.defs.keys():
-					self.defs.__delitem__(name)
+			if name and name in self.defs:
+				self.defs.__delitem__(name)
 				#print "undef %s" % name
 
-	def get_include(self):
-		self.skip_spaces()
-		delimiter = self.next()
-		if delimiter == '"':
-			buf = []
-			while self.good():
-				c = self.next()
-				if c == delimiter: break
-				buf.append(c)
-			return (delimiter, "".join(buf))
-		elif delimiter == '<':
-			buf = []
-			while self.good():
-				c = self.next()
-				if c == '>': break
-				buf.append(c)
-			return (delimiter, "".join(buf))
-		else:
-			self.i -= 1
-			return ('', self.get_body())
-
-	def get_name(self):
-		ret = []
-		self.skip_spaces()
-		# get the first word found
-		while self.good():
-			c = self.next()
-			if c != ' ' and c != '\t' and c != '(': ret.append(c)
-			else:
-				self.i -= 1
+re_function = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
+def tokenize_define(txt):
+	t = tokenize(txt)
+	if re_function.search(txt):
+		# this means we have a function
+		params = []
+		name = lst[0]
+		t = lst.pop(0)
+		if t[0] != op: raise "expected open parenthesis"
+		while 1:
+			t = lst.pop(0)
+			if t[0] == op and t[0] == ')':
 				break
-		return "".join(ret)
+			elif t[0] == iden:
+				params.append(t)
+			else:  # TODO handle the varargs case  def foo(x, y, z...) x * y * z...
+				raise "expected ident"
+			t = lst.pop(0)
+			if t[0] != op and t != ',':
+				raise "expected comma"
+		return (name, [params, lst])
+	else:
+		return (lst[0], lst[1:])
 
-	def get_args(self):
-		ret = []
-		if not self.good(): return None
-		if self.next() != '(':
-			self.i -= 1
-			return None
-		# now we are certain there is a list of arguments to match
+re_include = re.compile('^\s*(<(.*)>|"(.*)")')
+def tokenize_include(txt):
+	def replace_v(m):
+		return m.group(1)
+
+	if re_include.search(txt):
+		t = re_include.sub(replace_v, txt)
+		return (t[0], t)
+
+	# perform preprocessing and look at the result, it must match an include
+	tokens = tokenize(txt)
+	txt = eval_macro(tokens)
+	if re_include.search(txt):
+		t = re_include.sub(replace_v, txt)
+		return (t[0], t)
+
+	# if we come here, parsing failed
+	raise
+
+def tokenize(txt):
+	i = 0
+	max = len(txt)
+	def good():
+		return i<max
+
+	def next():
+		c = txt[i]
+		i += 1
+		return c
+
+	def get_ident():
 		buf = []
-		while 1: # fail if there is no ending paren
-			c = self.next()
-			if c == ' ' or c == '\t': continue # TODO match alphanum and dots only
-			elif c == ',':
-				ret.append("".join(buf))
-				buf = []
-			elif c == '.':
-				if self.txt[self.i:self.i+2]=='..':
-					buf += ['...']
-					self.i += 2
-			elif c == ')':
-				ret.append("".join(buf))
-				break
-			else:
+		while good():
+			c = next()
+			if c in alpha:
 				buf.append(c)
-		return ret
-
-	def get_body(self):
-		buf = []
-		self.skip_spaces()
-		while self.good():
-			c = self.next()
-			self.back(1)
-
-			#print "considering ", c
-
-			if c == ' ' or c == '\t':
-				self.i += 1
-				continue
-			elif c == '"':
-				self.i += 1
-				r = self.get_string()
-				buf.append( [stri, r] )
-			elif c == '\'':
-				self.i += 1
-				r = self.get_char()
-				buf.append( [chr, r] )
-			elif c in string.digits:
-				res = self.get_number()
-				buf.append( [num, res] )
-			elif c in alpha:
-				r = self.get_ident()
-				buf.append( [ident, r] )
 			else:
-				r = get_punctuator_token(self)
-				if r:
-					#print "r is ", r
-					buf.append( [op, r])
-				#else:
-				#	print "NO PUNCTUATOR FOR ", c
+				i -= 1
+				break
+		return ''.join(buf)
 
-		#def end(l):
-		#	return l[1]
-		#print buf
-		#return "".join( map(end, buf) )
-		return buf
+	def get_number():
+		buf =[]
+		while good():
+			c = next()
+			if c in string.digits: # TODO floats
+				buf.append(c)
+			else:
+				i -= 1
+				break
+		return ''.join(buf)
 
-	def get_char(self):
+	def get_char():
 		buf = []
-		c = self.next()
+		c = next()
 		buf.append(c)
 		# skip one more character if there is a backslash '\''
 		if c == '\\':
-			c = self.next()
+			c = next()
 			buf.append(c)
-		c = self.next()
-		#buf.append(c)
-		if c != '\'': error("uh-oh, invalid character"+str(c))
-
+		c = next()
+		if c != '\'': error("uh-oh, invalid character"+str(c)) # TODO special chars
 		return ''.join(buf)
 
-	def get_string(self):
-		buf = []
+	def get_string():
 		c=''
-		while self.good():
+		buf = []
+		while good():
 			p = c
-			c = self.next()
+			c = next()
 			if c == '"':
 				cnt = 0
 				while 1:
-					#print "cntcnt = ", str(cnt), self.txt[self.i-2-cnt]
-					if self.txt[self.i-2-cnt] == '\\': cnt+=1
+					#print "cntcnt = ", str(cnt), txt[i-2-cnt]
+					if txt[i-2-cnt] == '\\': cnt+=1
 					else: break
 				#print "cnt is ", str(cnt)
 				if (cnt%2)==0: break
 				else: buf.append(c)
 			else:
 				buf.append(c)
-
 		return ''.join(buf)
 
-	def get_number(self):
-		buf =[]
-		while self.good():
-			c = self.next()
-			if c in string.digits:
-				buf.append(c)
+	def skip_spaces():
+		# skip the spaces, in this version we do not produce the tokens WHITESPACE
+		# but we might if necessary
+		while good():
+			c = next()
+			if c == ' ' or c == '\t': continue
 			else:
-				self.i -= 1
+				i -= 1
 				break
-		return ''.join(buf)
-	def get_ident(self):
-		buf = []
-		while self.good():
-			c = self.next()
-			if c in alpha:
-				buf.append(c)
-			else:
-				self.i -= 1
-				break
-		return ''.join(buf)
+
+	abuf = []
+	while good():
+		c = next()
+		i -= 1
+
+		#print "look ", c
+
+		if c == ' ' or c == '\t':
+			i += 1
+			continue
+		elif c == '"':
+			i += 1
+			r = get_string()
+			abuf.append([stri, r])
+		elif c == '\'':
+			i += 1
+			r = get_char()
+			abuf.append([chr, r])
+		elif c in string.digits:
+			r = get_number()
+			abuf.append([num, r])
+		elif c in alpha:
+			r = get_ident()
+			abuf.append([ident, r])
+		else:
+			r = parse_token(stuff, punctuators_table)
+			if r:
+				#print "r is ", r
+				abuf.append( [op, r])
+	return abuf
 
 # quick test #
 if __name__ == "__main__":
