@@ -2,16 +2,20 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"""Waf preprocessor for finding dependencies because of the includes system, it is necessary to do the preprocessing in at least two steps:
+"""Waf preprocessor for finding dependencies
+  because of the includes system, it is necessary to do the preprocessing in at least two steps:
   - filter the comments and output the preprocessing lines
   - interpret the preprocessing lines, jumping on the headers during the process
 """
 
 import re, sys, os, string
+sys.path = ['.', '..'] + sys.path
+print sys.path
 import Params
 from Params import debug, error, warning
 
-reg_define = re.compile('^\s*(#|%:)')
+# ignore #warning and #error
+reg_define = re.compile('^\s*(#|%:)\s*(if|ifdef|ifndef|else|elif|endif|include|import|define|undef|pragma)\s*(.*)\r*')
 reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
 def repl(m):
@@ -21,7 +25,11 @@ def repl(m):
 	if s is None: return ''
 	return s
 
+def replace_inc(m):
+	return (m.group(2), m.group(3))
+
 def filter_comments(filename):
+	# return a list of tuples : keyword, line
 	f = open(filename, "r")
 	code = f.read()
 	f.close()
@@ -30,7 +38,7 @@ def filter_comments(filename):
 	code = reg_cpp.sub(repl, code)
 	code = code.split('\n')
 
-	return [reg_define.sub("", line).replace('\r', '') for line in code if reg_define.search(line)]
+	return [reg_define.sub(replace_inc, line) for line in code if reg_define.search(line)]
 
 strict_quotes = 0
 "Keep <> for system includes (do not search for those includes)"
@@ -122,71 +130,6 @@ punctuators_table = [
 {'$$': ','}
 ]
 
-preproc_table = [
-{'e': 21, 'd': 31, 'i': 1, 'p': 42, 'u': 37, 'w': 51},
-{'f': 13, 'm': 8, 'n': 2},
-{'c': 3},
-{'l': 4},
-{'u': 5},
-{'d': 6},
-{'e': 7},
-{'$$': 'include'},
-{'p': 9},
-{'o': 10},
-{'r': 11},
-{'t': 12},
-{'$$': 'import'},
-{'$$': 'if', 'd': 14, 'n': 17},
-{'e': 15},
-{'f': 16},
-{'$$': 'ifdef'},
-{'d': 18},
-{'e': 19},
-{'f': 20},
-{'$$': 'ifndef'},
-{'r': 58, 'l': 22, 'n': 27},
-{'i': 25, 's': 23},
-{'e': 24},
-{'$$': 'else'},
-{'f': 26},
-{'$$': 'elif'},
-{'d': 28},
-{'i': 29},
-{'f': 30},
-{'$$': 'endif'},
-{'e': 32},
-{'b': 48, 'f': 33},
-{'i': 34},
-{'n': 35},
-{'e': 36},
-{'$$': 'define'},
-{'n': 38},
-{'d': 39},
-{'e': 40},
-{'f': 41},
-{'$$': 'undef'},
-{'r': 43},
-{'a': 44},
-{'g': 45},
-{'m': 46},
-{'a': 47},
-{'$$': 'pragma'},
-{'u': 49},
-{'g': 50},
-{'$$': 'debug'},
-{'a': 52},
-{'r': 53},
-{'n': 54},
-{'i': 55},
-{'n': 56},
-{'g': 57},
-{'$$': 'warning'},
-{'r': 59},
-{'o': 60},
-{'r': 61},
-{'$$': 'error'}
-]
-
 def parse_token(stuff, table):
 	c = stuff.next()
 	stuff.back(1)
@@ -208,8 +151,18 @@ def parse_token(stuff, table):
 def get_punctuator_token(stuff):
 	return parse_token(stuff, punctuators_table)
 
-def get_preprocessor_token(stuff):
-	return parse_token(stuff, preproc_table)
+#def comp(self, stuff):
+#	ret = red(stuff, self.defs)
+
+	##print "running method comp"
+	##clean = subst(stuff, self.defs)
+	#res = comp(clean)
+	#print res
+	#if res:
+	#	if res[0] == num: return int(res[1])
+	#	return res[1]
+	#return 0
+
 
 def subst(lst, defs):
 	if not lst: return []
@@ -261,14 +214,48 @@ def subst(lst, defs):
 					return [lst[0]] + subst(lst[1:], defs)
 	return [lst[0]] + subst(lst[1:], defs)
 
+
+defs = None
+sym = None
+
+def next_sym(sym):
+	pass
+
+def expect(sym):
+	pass
+
+def accept(sym):
+	pass
+
+def stringize(sym):
+	pass
+
+def red(lst, defis):
+	defs = defis
+	return 0
+
+def redi(lst, defs):
+	if not lst: return [stri, '']
+	if len(lst) == 1: return lst[0]
+
+	#r = reductor()
+	#r.start()
+
+	#return [stri, '']
+
+	return 0
+
 def comp(lst):
+	print "entering comp"
 	if not lst: return [stri, '']
 
+	print "a"
 	if len(lst) == 1:
 		return lst[0]
 
-	#print "lst len is ", len(lst)
-	#print "lst is ", str(lst)
+	print "lst len is ", len(lst)
+	print "lst is ", str(lst)
+	print "hey \n\n\n"
 
 	a1_type = lst[0][0]
 	a1 = lst[0][1]
@@ -440,7 +427,7 @@ class cparse:
 			self.lines = env['DEFLINES'] + self.lines
 
 		while self.lines:
-			line = self.lines.pop(0)
+			(type, line) = self.lines.pop(0)
 			if not line: continue
 			self.txt = line
 			self.i   = 0
@@ -456,13 +443,14 @@ class cparse:
 		self.addlines(filename)
 
 		while self.lines:
-			line = self.lines.pop(0)
-			if not line: continue
+			(type, line) = self.lines.pop(0)
+			if not line: continue # rari
+
 			self.txt = line
 			self.i   = 0
 			self.max = len(line)
 			try:
-				self.process_line()
+				self.process_line(type)
 			except Exception, ex:
 				if Params.g_verbose:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
@@ -493,13 +481,8 @@ class cparse:
 			if tok == skipped or tok == ignored: return None
 		return 1
 
-	def process_line(self):
-		type = ''
+	def process_line(self, token):
 		l = len(self.txt)
-		token = get_preprocessor_token(self)
-		if not token:
-			debug("line %s has no preprocessor token" % self.txt, 'preproc')
-			return
 
 		if token == 'endif':
 			self.state.pop(0)
@@ -515,11 +498,10 @@ class cparse:
 				return
 
 		#print "token is ", token
-
 		debug("line is %s state is %s" % (self.txt, self.state), 'preproc')
 
 		if token == 'if':
-			ret = self.comp(self.get_body())
+			ret = red(self.get_body(), self.defs)
 			if ret: self.state[0] = accepted
 			else: self.state[0] = ignored
 		elif token == 'ifdef':
@@ -545,7 +527,9 @@ class cparse:
 							self.deps.append(body)
 							self.tryfind(body)
 				else:
-					res = self.comp(body)
+					print "calling comp"
+					res = red(body, self.defs)
+					print "end comp"
 					#print 'include body is ', res
 					if res and (not res in self.deps):
 						self.deps.append(res)
@@ -555,12 +539,11 @@ class cparse:
 			if self.state[0] == accepted:
 				self.state[0] = skipped
 			elif self.state[0] == ignored:
-				if self.comp(self.get_body()):
+				if red(self.get_body(), self.defs):
 					self.state[0] = accepted
 				else:
 					# let another 'e' treat this case
 					pass
-				pass
 			else:
 				pass
 		elif token == 'else':
@@ -595,7 +578,7 @@ class cparse:
 				if c == delimiter: break
 				buf.append(c)
 			return (delimiter, "".join(buf))
-		elif delimiter == "<":
+		elif delimiter == '<':
 			buf = []
 			while self.good():
 				c = self.next()
@@ -739,15 +722,6 @@ class cparse:
 				self.i -= 1
 				break
 		return ''.join(buf)
-
-	def comp(self, stuff):
-		clean = subst(stuff, self.defs)
-		res = comp(clean)
-		#print res
-		if res:
-			if res[0] == num: return int(res[1])
-			return res[1]
-		return 0
 
 # quick test #
 if __name__ == "__main__":
