@@ -323,7 +323,7 @@ class ccroot(Object.genobj):
 					self.inc_paths.append(node)
 		else:
 			## by default, we include the whole project tree
-			lst = []
+			lst = [self.path]
 			for obj in Object.g_allobjs:
 				if obj.path not in lst:
 					lst.append(obj.path)
