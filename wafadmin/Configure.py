@@ -157,7 +157,7 @@ class enumerator_base:
 
 	# Override this method, not run()!
 	def run_test(self):
-		return !test_ok
+		return not test_ok
 
 class configurator_base(enumerator_base):
 	def __init__(self, conf):
@@ -216,7 +216,7 @@ class function_enumerator(enumerator_base):
 		self.conf.add_define(self.define, retval)
 
 	def run_test(self):
-		ret = !test_ok
+		ret = not test_ok
 
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
@@ -398,7 +398,7 @@ class cfgtool_configurator(configurator_base):
 			self.update_env(retval)
 		except ValueError:
 			retval = {}
-			found = !test_ok
+			found = not test_ok
 
 		self.conf.add_define(self.define, found)
 		self.conf.check_message('config-tool ' + self.binary, '', found, option = '')
