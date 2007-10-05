@@ -131,24 +131,6 @@ punctuators_table = [
 {'$$': ','}
 ]
 
-def parse_token(stuff, table):
-	c = stuff.next()
-	stuff.back(1)
-	if not (c in table[0].keys()):
-		#print "error, character is not in table", c
-		return 0
-	pos = 0
-	while stuff.good():
-		c = stuff.next()
-		if c in table[pos].keys():
-			pos = table[pos][c]
-		else:
-			stuff.back(1)
-			try: return table[pos]['$$']
-			except KeyError: return 0
-			# lexer error
-	return table[pos]['$$']
-
 
 #def comp(self, stuff):
 #	ret = red(stuff, self.defs)
@@ -232,10 +214,11 @@ def stringize(sym):
 def eval_macro(lst, defis):
 	defs = defis
 
+	print "-------- eval macro --------"
 	for x in defs:
 		print x, "\t\t", defs[x]
 
-	return 0
+	return ''
 
 def comp(lst):
 	print "entering comp"
@@ -474,7 +457,7 @@ class cparse:
 				self.state[0] = ignored
 			else: self.state[0] = accepted
 		elif token == 'include' or token == 'import':
-			(type, inc) = tokenize_include(line)
+			(type, inc) = tokenize_include(line, self.defs)
 			debug("include found %s    (%s) " % (inc, type), 'preproc')
 			if strict_quotes or type == '"':
 				if not body in self.deps:
@@ -494,7 +477,7 @@ class cparse:
 			self.state.pop(0)
 		elif token == 'define':
 			(name, val) = tokenize_define(line)
-			print "define %s (%s) { %s }" % (name, str(val[0]), str(val[1]))
+			debug("define %s   %s" % (name, str(val)), 'preproc')
 			self.defs[name] = val
 		elif token == 'undef':
 			name = self.get_name()
@@ -508,26 +491,35 @@ def tokenize_define(txt):
 	if re_function.search(txt):
 		# this means we have a function
 		params = []
-		name = lst[0]
-		t = lst.pop(0)
-		if t[0] != op: raise "expected open parenthesis"
+		tok = t.pop(0)
+		name = tok[1]
+
+		tok = t.pop(0)
+		if tok[0] != op: raise "expected open parenthesis"
 		while 1:
-			t = lst.pop(0)
-			if t[0] == op and t[0] == ')':
+			tok = t.pop(0)
+			#print tok
+			if tok[0] == op and tok[1] == ')':
 				break
-			elif t[0] == iden:
-				params.append(t)
+			elif tok[0] == ident:
+				params.append(tok)
+			elif tok[0] == op and tok[1] == '...':
+				params.append([ident, tok[1]])
 			else:  # TODO handle the varargs case  def foo(x, y, z...) x * y * z...
+				#print tok
 				raise "expected ident"
-			t = lst.pop(0)
-			if t[0] != op and t != ',':
+			tok = t.pop(0)
+
+			if tok[0] == op and tok[1] == ')':
+				break
+			elif tok[0] != op and tok != ',':
 				raise "expected comma"
-		return (name, [params, lst])
+		return (name, [params, t])
 	else:
-		return (lst[0], lst[1:])
+		return (t[0][1], t[1:])
 
 re_include = re.compile('^\s*(<(.*)>|"(.*)")')
-def tokenize_include(txt):
+def tokenize_include(txt, defs):
 	def replace_v(m):
 		return m.group(1)
 
@@ -537,7 +529,7 @@ def tokenize_include(txt):
 
 	# perform preprocessing and look at the result, it must match an include
 	tokens = tokenize(txt)
-	txt = eval_macro(tokens)
+	txt = eval_macro(tokens, defs)
 	if re_include.search(txt):
 		t = re_include.sub(replace_v, txt)
 		return (t[0], t)
@@ -548,106 +540,98 @@ def tokenize_include(txt):
 def tokenize(txt):
 	i = 0
 	max = len(txt)
-	def good():
-		return i<max
-
-	def next():
-		c = txt[i]
-		i += 1
-		return c
-
-	def get_ident():
-		buf = []
-		while good():
-			c = next()
-			if c in alpha:
-				buf.append(c)
-			else:
-				i -= 1
-				break
-		return ''.join(buf)
-
-	def get_number():
-		buf =[]
-		while good():
-			c = next()
-			if c in string.digits: # TODO floats
-				buf.append(c)
-			else:
-				i -= 1
-				break
-		return ''.join(buf)
-
-	def get_char():
-		buf = []
-		c = next()
-		buf.append(c)
-		# skip one more character if there is a backslash '\''
-		if c == '\\':
-			c = next()
-			buf.append(c)
-		c = next()
-		if c != '\'': error("uh-oh, invalid character"+str(c)) # TODO special chars
-		return ''.join(buf)
-
-	def get_string():
-		c=''
-		buf = []
-		while good():
-			p = c
-			c = next()
-			if c == '"':
-				cnt = 0
-				while 1:
-					#print "cntcnt = ", str(cnt), txt[i-2-cnt]
-					if txt[i-2-cnt] == '\\': cnt+=1
-					else: break
-				#print "cnt is ", str(cnt)
-				if (cnt%2)==0: break
-				else: buf.append(c)
-			else:
-				buf.append(c)
-		return ''.join(buf)
-
-	def skip_spaces():
-		# skip the spaces, in this version we do not produce the tokens WHITESPACE
-		# but we might if necessary
-		while good():
-			c = next()
-			if c == ' ' or c == '\t': continue
-			else:
-				i -= 1
-				break
 
 	abuf = []
-	while good():
-		c = next()
-		i -= 1
+	while i<max:
+		#print abuf
+		#print "---------------------------------"
 
+		c = txt[i]
 		#print "look ", c
 
 		if c == ' ' or c == '\t':
+			# white space
 			i += 1
 			continue
 		elif c == '"':
+			# string
 			i += 1
-			r = get_string()
-			abuf.append([stri, r])
+			c=''
+			buf = []
+			while i<max:
+				p = c
+				c = txt[i]
+				i += 1
+				if c == '"':
+					cnt = 0
+					while 1:
+						#print "cntcnt = ", str(cnt), txt[i-2-cnt]
+						if txt[i-2-cnt] == '\\': cnt+=1
+						else: break
+					#print "cnt is ", str(cnt)
+					if (cnt%2)==0: break
+					else: buf.append(c)
+				else:
+					buf.append(c)
+			abuf.append([stri, ''.join(buf)])
 		elif c == '\'':
+			# char
 			i += 1
-			r = get_char()
-			abuf.append([chr, r])
+			buf = []
+			c = txt[i]
+			i += 1
+			buf.append(c)
+			# skip one more character if there is a backslash '\''
+			if c == '\\':
+				c = txt[i]
+				i += 1
+				buf.append(c)
+			c = txt[i]
+			i += 1
+			if c != '\'': error("uh-oh, invalid character"+str(c)) # TODO special chars
+			abuf.append([chr, ''.join(buf)])
+
 		elif c in string.digits:
-			r = get_number()
-			abuf.append([num, r])
+			# number
+			buf =[]
+			while i<max:
+				c = txt[i]
+				i += 1
+				if c in string.digits: # TODO floats
+					buf.append(c)
+				else:
+					i -= 1
+					break
+			abuf.append([num, ''.join(buf)])
 		elif c in alpha:
-			r = get_ident()
-			abuf.append([ident, r])
+			# identifier
+			buf = []
+			while i<max:
+				c = txt[i]
+				i += 1
+				if c in alpha:
+					buf.append(c)
+				else:
+					i -= 1
+					break
+			abuf.append([ident, ''.join(buf)])
 		else:
-			r = parse_token(stuff, punctuators_table)
-			if r:
-				#print "r is ", r
-				abuf.append( [op, r])
+			pos = 0
+			while i<max:
+				c = txt[i]
+				i += 1
+				if c in punctuators_table[pos].keys():
+					pos = punctuators_table[pos][c]
+				else:
+					i -= 1
+					try:
+						abuf.append([op, punctuators_table[pos]['$$']])
+						break
+					except KeyError:
+						raise "unknown char"
+					# lexer error
+			#abuf.append([op, table[pos]['$$']])
+			#r = parse_token(stuff, punctuators_table)
 	return abuf
 
 # quick test #
