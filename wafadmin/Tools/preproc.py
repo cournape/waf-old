@@ -10,12 +10,12 @@
 
 import re, sys, os, string
 sys.path = ['.', '..'] + sys.path
-print sys.path
 import Params
 from Params import debug, error, warning
 
 # ignore #warning and #error
 reg_define = re.compile('^\s*(#|%:)\s*(if|ifdef|ifndef|else|elif|endif|include|import|define|undef|pragma)\s*(.*)\r*')
+
 reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
 def repl(m):
@@ -232,16 +232,9 @@ def stringize(sym):
 
 def red(lst, defis):
 	defs = defis
-	return 0
 
-def redi(lst, defs):
-	if not lst: return [stri, '']
-	if len(lst) == 1: return lst[0]
-
-	#r = reductor()
-	#r.start()
-
-	#return [stri, '']
+	for x in defs:
+		print x, "   ", defs[x]
 
 	return 0
 
@@ -427,6 +420,8 @@ class cparse:
 			self.lines = env['DEFLINES'] + self.lines
 
 		while self.lines:
+			# TODO we can skip evaluating conditions (#if) only when we are
+			# certain they contain no define, undef or include
 			(type, line) = self.lines.pop(0)
 			if not line: continue
 			self.txt = line
@@ -441,10 +436,10 @@ class cparse:
 	# debug only
 	def start(self, filename):
 		self.addlines(filename)
-
+		print self.lines
 		while self.lines:
 			(type, line) = self.lines.pop(0)
-			if not line: continue # rari
+			#if not line: continue # rari
 
 			self.txt = line
 			self.i   = 0
@@ -477,27 +472,25 @@ class cparse:
 
 	def isok(self):
 		if not self.state: return 1
-		for tok in self.state:
-			if tok == skipped or tok == ignored: return None
+		if self.state[0] in [skipped, ignored]: return None
 		return 1
 
 	def process_line(self, token):
 		l = len(self.txt)
 
+		print "-------- type", token, "and line ", self.txt
 		if token == 'endif':
 			self.state.pop(0)
-		elif token[0] == 'i' and token != 'include':
+		elif token in ['ifdef', 'ifndef', 'if']:
 			self.state = [undefined] + self.state
 
-		#print "token before ok is ", token
 
-		# skip lines when in a dead block
-		# wait for the endif
+		# skip lines when in a dead 'if' branch, wait for the endif
 		if not token in ['else', 'elif']:
 			if not self.isok():
+				print "return in process line"
 				return
 
-		#print "token is ", token
 		debug("line is %s state is %s" % (self.txt, self.state), 'preproc')
 
 		if token == 'if':
@@ -559,8 +552,7 @@ class cparse:
 			if not args:
 				self.defs[name] = body
 			else:
-				# TODO handle macros
-				pass
+				self.defs[name] = (body, args)
 		elif token == 'undef':
 			name = self.get_name()
 			if name:
@@ -603,7 +595,6 @@ class cparse:
 
 	def get_args(self):
 		ret = []
-		self.skip_spaces()
 		if not self.good(): return None
 
 		c = self.next()
@@ -623,6 +614,7 @@ class cparse:
 					ret.append("".join(buf))
 					self.i += 2
 			elif c == ')':
+				ret.append("".join(buf))
 				break
 			else:
 				buf.append(c)
