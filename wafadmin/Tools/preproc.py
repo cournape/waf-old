@@ -50,11 +50,11 @@ ignored   = 'i'
 undefined = 'u'
 skipped   = 's'
 
-num = 'number'
-op = 'operator'
-ident = 'ident'
-stri = 'string'
-chr = 'char'
+num = 'i' # number
+op = '@' # operator
+ident = 'T' # identifier
+stri = 's' # string
+chr = 'c' # char
 
 trigs = {
 '=' : '#',
@@ -234,7 +234,7 @@ def red(lst, defis):
 	defs = defis
 
 	for x in defs:
-		print x, "   ", defs[x]
+		print x, "\t\t", defs[x]
 
 	return 0
 
@@ -478,7 +478,7 @@ class cparse:
 	def process_line(self, token):
 		l = len(self.txt)
 
-		print "-------- type", token, "and line ", self.txt
+		print "--------> type", token, "and line ", self.txt
 		if token == 'endif':
 			self.state.pop(0)
 		elif token in ['ifdef', 'ifndef', 'if']:
@@ -596,22 +596,20 @@ class cparse:
 	def get_args(self):
 		ret = []
 		if not self.good(): return None
-
-		c = self.next()
-		if c != '(':
+		if self.next() != '(':
 			self.i -= 1
 			return None
+		# now we are certain there is a list of arguments to match
 		buf = []
-		while self.good():
+		while 1: # fail if there is no ending paren
 			c = self.next()
-			if c == ' ' or c == '\t': continue
+			if c == ' ' or c == '\t': continue # TODO match alphanum and dots only
 			elif c == ',':
 				ret.append("".join(buf))
 				buf = []
 			elif c == '.':
 				if self.txt[self.i:self.i+2]=='..':
-					buf += ['.', '.', '.']
-					ret.append("".join(buf))
+					buf += ['...']
 					self.i += 2
 			elif c == ')':
 				ret.append("".join(buf))
