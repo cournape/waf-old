@@ -135,19 +135,6 @@ punctuators_table = [
 ]
 
 
-#def comp(self, stuff):
-#	ret = red(stuff, self.defs)
-
-	##print "running method comp"
-	##clean = subst(stuff, self.defs)
-	#res = comp(clean)
-	#print res
-	#if res:
-	#	if res[0] == num: return int(res[1])
-	#	return res[1]
-	#return 0
-
-
 def subst(lst, defs):
 	if not lst: return []
 
@@ -199,29 +186,118 @@ def subst(lst, defs):
 	return [lst[0]] + subst(lst[1:], defs)
 
 
-defs = None
-sym = None
-
-def next_sym(sym):
-	pass
-
-def expect(sym):
-	pass
-
-def accept(sym):
-	pass
-
-def stringize(sym):
-	pass
-
-def eval_macro(lst, defis):
-	defs = defis
-
+def eval_macro(lst, adefs):
+	print "\n\n\n\n"
+	print "---eval---> ", lst
 	print "-------- eval macro --------"
-	for x in defs:
-		print x, "\t\t", defs[x]
+	for x in adefs:
+		print x, "\t\t", adefs[x]
 	print "------ end eval macro ------"
+	print "the huge lst is ", lst
 
+	# substitute the defines (functions and simple macros)
+	accu = []
+	while lst:
+		#print "defs0 are ", adefs
+		tok = lst.pop(0)
+		if tok[0] == ident and tok[1] in adefs: # TODO the defined() case
+			#print "defs1 are ", adefs
+			#print "tok is ", tok
+			name = tok[1]
+			rule = adefs[tok[1]]
+			#print "defs2 are ", adefs
+			#print rule, defs
+
+			args=[]
+			if rule: args = rule[0]
+			if args == None:
+				# simple macro
+				# make the substitution, TODO make certain to disallow recursion
+				lst = rule[1] + lst
+			else:
+				# function call, collect the arguments
+				params = []
+				tmp = []
+				tok = lst.pop(0)
+				if tok[0] != op or tok[1] != '(': raise ParseError, "invalid function call "+name
+				count_paren = 0
+				while 1:
+					print "lst is ", lst
+					tok = lst.pop(0)
+					# stop condition
+					if count_paren == 0 and tok[0] == op:
+						if tok[1] == ')':
+							if tmp: params.append(tmp)
+							break
+						elif tok[1] == ',':
+							if not tmp: raise ParseError, "invalid function call "+name
+							params.append(tmp)
+							continue
+
+					# all other cases we just append the tokens to tmp
+					tmp.append(tok)
+
+					# but watch out for the matching parenthesis
+					if tok[0] == op:
+						if tok[1] == '(':
+							count_paren += 1
+						elif tok[1] == ')':
+							count_paren -= 1
+
+				# map x->1st param, y->2nd param, etc
+				idx = {}
+				i = 0
+				for u in args:
+					idx[u[0]] = u[1]
+					i += 1
+
+				# substitute the arguments within the define expression
+				lst = rule[1]
+				i = 0
+				n = len(lst)
+				while i < n:
+					tok = lst[i]
+					if tok[0] == op:
+						if tok[1] == '#':
+							# the next token is forcibly one of the args
+							name = lst[i+1][1]
+							id = idx[name]
+							code = params[id]
+							truc = string_ize(eval_macro(code, adefs))
+							accu.append(truc)
+							i += 1
+
+						if tok[1] == '##':
+							# the next token is forcibly an identifier
+							next = lst[i+1]
+							r = accu[-1]
+							accu = accu[:-1]
+							accu.append(eval_macro([ident, r[1]+next[1]], adefs))
+							# TODO is that possible to do  a##b(something) ?
+							i += 1
+						else:
+							accu.append(tok)
+					elif tok[0] == ident:
+						if tok[1] in idx:
+							code = params[idx[tok[1]]]
+							accu += eval_macro(code, adefs)
+						elif tok[1] in adefs:
+							# return the define code   #define foo val, replace foo by val
+							code = adefs[tok[1]]
+							accu += eval_macro(code, adefs)
+						else:
+							accu.append(tok)
+					else:
+						accu.append(tok)
+					i += 1
+
+		else:
+			accu.append(tok)
+
+	# TODO
+	# now reduce the expressions if possible, like 1+1->2
+
+	if accu: return accu
 	return ''
 
 def comp(lst):
@@ -524,7 +600,7 @@ def tokenize_define(txt):
 
 		return (name, [params, t])
 	else:
-		return (t[0][1], t[1:])
+		return (t[0][1], [None, t[1:]])
 
 re_include = re.compile('^\s*(<(.*)>|"(.*)")')
 def tokenize_include(txt, defs):
@@ -555,11 +631,12 @@ def tokenize(txt):
 		#print "---------------------------------"
 
 		c = txt[i]
-		#print "look ", c
+
+		#print "look ", c, '   ->', i
 
 		if c == ' ' or c == '\t':
-			# white space
 			i += 1
+			# white space
 			continue
 		elif c == '"':
 			# string
@@ -582,10 +659,11 @@ def tokenize(txt):
 				else:
 					buf.append(c)
 			abuf.append([stri, ''.join(buf)])
+			i += 1
 		elif c == '\'':
 			# char
-			i += 1
 			buf = []
+			i += 1
 			c = txt[i]
 			i += 1
 			buf.append(c)
@@ -599,44 +677,50 @@ def tokenize(txt):
 			if c != '\'': error("uh-oh, invalid character"+str(c)) # TODO special chars
 			abuf.append([chr, ''.join(buf)])
 
+			i += 1
+
 		elif c in string.digits:
 			# number
 			buf =[]
-			while i<max:
+			while 1:
 				c = txt[i]
-				i += 1
 				if c in string.digits: # TODO floats
 					buf.append(c)
+					i += 1
+					if c >= max: break
 				else:
-					i -= 1
 					break
 			abuf.append([num, ''.join(buf)])
 		elif c in alpha:
 			# identifier
 			buf = []
-			while i<max:
+			while 1:
 				c = txt[i]
-				i += 1
 				if c in alpha:
 					buf.append(c)
+					i += 1
+					if i>= max: break
 				else:
-					i -= 1
 					break
 			abuf.append([ident, ''.join(buf)])
 		else:
+			# operator
 			pos = 0
-			while i<max:
+			while 1:
 				c = txt[i]
 				i += 1
 				if c in punctuators_table[pos].keys():
 					pos = punctuators_table[pos][c]
-				else:
-					i -= 1
-					try:
+					if i >= max:
 						abuf.append([op, punctuators_table[pos]['$$']])
 						break
+				else:
+					try:
+						abuf.append([op, punctuators_table[pos]['$$']])
+						i -= 1
+						break
 					except KeyError:
-						raise PreprocError, "unknown char"
+						raise PreprocError, "unknown op"
 					# lexer error
 			#abuf.append([op, table[pos]['$$']])
 			#r = parse_token(stuff, punctuators_table)
