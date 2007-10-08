@@ -398,6 +398,7 @@ class msvccpp(msvcobj):
 
 		msvcobj.apply_obj_vars(self)
 
+
 def setup(env):
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 	cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
@@ -419,6 +420,10 @@ def setup(env):
 	winres.setup(env)
 
 def detect(conf):
+	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
+	if sys.platform != 'win32':
+		conf.fatal('MSVC module only works under native Win32 Python! Operating under Cygwin currently not supported.')
+		return 0
 	# TODO raise ConfigurationError instead of just bailing out
 
 	comp = conf.find_program('CL', var='CXX')
