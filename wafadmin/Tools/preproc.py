@@ -134,173 +134,11 @@ punctuators_table = [
 {'$$': ','}
 ]
 
+def reduce(tokens):
+	# TODO evaluate the tokens for 1+1, etc
+	return tokens
 
-def subst(lst, defs):
-	if not lst: return []
-
-	a1_t = lst[0][0]
-	a1 = lst[0][1]
-	if len(lst) == 1:
-		if a1_t == ident:
-			if a1 in defs:
-				return defs[a1]
-		return lst
-
-	# len(lst) > 1 : search for macros
-	a2_type = lst[1][0]
-	a2 = lst[1][1]
-	if a1_t == ident:
-		if a1 == 'defined':
-			if a2_type == ident:
-				if a2 in defs:
-					return [[num, '1']] + subst(lst[2:], defs)
-				else:
-					return [[num, '0']] + subst(lst[2:], defs)
-			if a2_type == op and a2 == '(':
-				if len(lst) < 4:
-					raise PreprocError, "expected 4 tokens defined(ident)"
-				if lst[2][0] != ident:
-					raise PreprocError, "expected defined(ident)"
-				if lst[2][1] in defs:
-					return [[num, '1']] + subst(lst[4:], defs)
-				else:
-					return [[num, '0']] + subst(lst[4:], defs)
-		if a1 in defs:
-			#print a2
-			if a2_type == op and a2 == '(':
-				# beginning of a macro function - ignore for now
-				args = []
-				i = 2
-				while 1:
-					if lst[i][1] == ')':
-						return subst(lst[i+1:], defs)
-					args += lst[i]
-				# TODO
-				#print 'macro subst'
-			else:
-				# not a '(', try to substitute now
-				if a1 in defs:
-					return defs[a1] + subst(lst[1:], defs)
-				else:
-					return [lst[0]] + subst(lst[1:], defs)
-	return [lst[0]] + subst(lst[1:], defs)
-
-
-def eval_macro(lst, adefs):
-	print "\n\n\n\n"
-	print "---eval---> ", lst
-	print "-------- eval macro --------"
-	for x in adefs:
-		print x, "\t\t", adefs[x]
-	print "------ end eval macro ------"
-	print "the huge lst is ", lst
-
-	# substitute the defines (functions and simple macros)
-	accu = []
-	while lst:
-		#print "defs0 are ", adefs
-		tok = lst.pop(0)
-		if tok[0] == ident and tok[1] in adefs: # TODO the defined() case
-			#print "defs1 are ", adefs
-			#print "tok is ", tok
-			name = tok[1]
-			rule = adefs[tok[1]]
-			#print "defs2 are ", adefs
-			#print rule, defs
-
-			args=[]
-			if rule: args = rule[0]
-			if args == None:
-				# simple macro
-				# make the substitution, TODO make certain to disallow recursion
-				lst = rule[1] + lst
-			else:
-				# function call, collect the arguments
-				params = []
-				tmp = []
-				tok = lst.pop(0)
-				if tok[0] != op or tok[1] != '(': raise ParseError, "invalid function call "+name
-				count_paren = 0
-				while 1:
-					print "lst is ", lst
-					tok = lst.pop(0)
-					# stop condition
-					if count_paren == 0 and tok[0] == op:
-						if tok[1] == ')':
-							if tmp: params.append(tmp)
-							break
-						elif tok[1] == ',':
-							if not tmp: raise ParseError, "invalid function call "+name
-							params.append(tmp)
-							continue
-
-					# all other cases we just append the tokens to tmp
-					tmp.append(tok)
-
-					# but watch out for the matching parenthesis
-					if tok[0] == op:
-						if tok[1] == '(':
-							count_paren += 1
-						elif tok[1] == ')':
-							count_paren -= 1
-
-				# map x->1st param, y->2nd param, etc
-				idx = {}
-				i = 0
-				for u in args:
-					idx[u[0]] = u[1]
-					i += 1
-
-				# substitute the arguments within the define expression
-				lst = rule[1]
-				i = 0
-				n = len(lst)
-				while i < n:
-					tok = lst[i]
-					if tok[0] == op:
-						if tok[1] == '#':
-							# the next token is forcibly one of the args
-							name = lst[i+1][1]
-							id = idx[name]
-							code = params[id]
-							truc = string_ize(eval_macro(code, adefs))
-							accu.append(truc)
-							i += 1
-
-						if tok[1] == '##':
-							# the next token is forcibly an identifier
-							next = lst[i+1]
-							r = accu[-1]
-							accu = accu[:-1]
-							accu.append(eval_macro([ident, r[1]+next[1]], adefs))
-							# TODO is that possible to do  a##b(something) ?
-							i += 1
-						else:
-							accu.append(tok)
-					elif tok[0] == ident:
-						if tok[1] in idx:
-							code = params[idx[tok[1]]]
-							accu += eval_macro(code, adefs)
-						elif tok[1] in adefs:
-							# return the define code   #define foo val, replace foo by val
-							code = adefs[tok[1]]
-							accu += eval_macro(code, adefs)
-						else:
-							accu.append(tok)
-					else:
-						accu.append(tok)
-					i += 1
-
-		else:
-			accu.append(tok)
-
-	# TODO
-	# now reduce the expressions if possible, like 1+1->2
-
-	if accu: return accu
-	return ''
-
-def comp(lst):
+	#
 	print "entering comp"
 	if not lst: return [stri, '']
 
@@ -383,6 +221,121 @@ def comp(lst):
 
 	raise PreprocError, "could not parse the macro %s " % str(lst)
 
+def eval_fun(name, params, defs, ban=[]):
+
+	fun_def = defs[name]
+	fun_code = []+fun_def[1]
+	fun_args = fun_def[0]
+
+	# a map  x->1st param, y->2nd param, etc
+	param_index = {}
+	i = 0
+	for u in fun_args:
+		param_index[u[1]] = i
+		i += 1
+
+	# substitute the arguments within the define expression
+	accu = []
+	while fun_code:
+		tok = fun_code.pop(0)
+		if tok[0] == op:
+			if tok[1] == '#':
+				# the next token is one of the args
+				next = fun_code.pop(0)
+				tokens = params[param_index[next[1]]]
+				# macro parameter evaluation is postponed
+				ret = eval_macro(tokens, defs, ban+[name])
+				ret = "".join(x[1] for x in ret)
+				accu.append(ret)
+
+			elif tok[1] == '##':
+				# the next token is an identifier (token pasting)
+				next = fun_code.pop(0)
+				r = accu[-1]
+				accu = accu[:-1]
+				new_tokens = [ident, r[1]+next[1]]
+				accu.append(new_token)
+				# FIXME this supposes that "a##b(foo)" evaluates as "ab(foo)"
+			else:
+				accu.append(tok)
+
+		elif tok[0] == ident:
+			if tok[1] in param_index:
+				code = params[param_index[tok[1]]]
+				accu += eval_macro(code, defs, ban+[name])
+			else:
+				accu.append(tok)
+		else:
+			accu.append(tok)
+
+	ret = eval_macro(accu, defs, ban+[name])
+	return ret
+
+def eval_macro(lst, adefs, ban=[]):
+
+	lst = []+lst # lists are mutable
+
+	#print "\n\n\n\n"
+	#print "---eval---> ", lst
+	#print "-------- eval macro --------"
+	#for x in adefs:
+	#	print x, "\t\t", adefs[x]
+	#print "------ end eval macro ------"
+	#print "the huge lst is ", lst
+
+	# substitute the defines (functions and simple macros)
+	accu = []
+	while lst:
+		tok = lst.pop(0)
+
+		if tok[0] == ident and tok[1] in adefs: # TODO the defined() case
+			# the identifier is a macro
+			name = tok[1]
+
+			fun_def = adefs[tok[1]]
+			fun_args=[]
+			if fun_def: fun_args = fun_def[0]
+			if fun_args == None:
+				# simple macro
+				# make the substitution, TODO make certain to disallow recursion
+				lst = fun_def[1] + lst
+			else:
+				# function call, collect the arguments
+				params = []
+				tmp = []
+				tok = lst.pop(0)
+				if tok[0] != op or tok[1] != '(': raise ParseError, "invalid function call "+name
+				count_paren = 0
+				while 1:
+					tok = lst.pop(0)
+					# stop condition
+					if count_paren == 0 and tok[0] == op:
+						if tok[1] == ')':
+							if tmp: params.append(tmp)
+							break
+						elif tok[1] == ',':
+							if not tmp: raise ParseError, "invalid function call "+name
+							params.append(tmp)
+							continue
+
+					# all other cases we just append the tokens to tmp
+					tmp.append(tok)
+
+					# but watch out for the matching parenthesis
+					if tok[0] == op:
+						if tok[1] == '(':
+							count_paren += 1
+						elif tok[1] == ')':
+							count_paren -= 1
+
+				accu += eval_fun(name, params, adefs)
+		else:
+			accu.append(tok)
+
+	# now reduce the expressions if possible, like 1+1->2, no more evaluation should take place
+
+	accu = reduce(accu)
+	return accu
 
 class cparse:
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
@@ -540,10 +493,10 @@ class cparse:
 			(type, inc) = tokenize_include(line, self.defs)
 			debug("include found %s    (%s) " % (inc, type), 'preproc')
 			if strict_quotes or type == '"':
-				if not body in self.deps:
-					self.deps.append(body)
+				if not inc in self.deps:
+					self.deps.append(inc)
 				# allow double inclusion
-				self.tryfind(body)
+				self.tryfind(inc)
 		elif token == 'elif':
 			if self.state[0] == accepted:
 				self.state[0] = skipped
@@ -613,7 +566,9 @@ def tokenize_include(txt, defs):
 
 	# perform preprocessing and look at the result, it must match an include
 	tokens = tokenize(txt)
-	txt = eval_macro(tokens, defs)
+	ret = eval_macro(tokens, defs) # it must return a string token
+	txt = '"%s"' % ret[0]
+
 	if re_include.search(txt):
 		t = re_include.sub(replace_v, txt)
 		return (t[0], t)
