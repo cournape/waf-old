@@ -59,7 +59,7 @@ ident = 'T' # identifier
 stri = 's' # string
 chr = 'c' # char
 
-# TODO handle the trigraphs
+# TODO handle the trigraphs too
 trigs = {
 '=' : '#',
 '-' : '~',
@@ -156,12 +156,6 @@ def reduce(tokens):
 	a2_type = lst[1][0]
 	a2 = lst[1][1]
 
-	if a1_type == ident:
-		if a2 == '#':
-			return comp( [[stri, a1]] + lst[2:] )
-	if a1 == '#':
-		if a2_type == ident:
-			return comp( [[stri, a2]] + lst[2:] )
 	if a1_type == op:
 		if a2_type == num:
 			if a1 == '-':
@@ -244,7 +238,7 @@ def eval_fun(name, params, defs, ban=[]):
 				next = fun_code.pop(0)
 				tokens = params[param_index[next[1]]]
 				# macro parameter evaluation is postponed
-				ret = eval_macro(tokens, defs, ban+[name])
+				ret = eval_tokens(tokens, defs, ban+[name])
 				ret = "".join(x[1] for x in ret)
 				accu.append(ret)
 
@@ -262,16 +256,16 @@ def eval_fun(name, params, defs, ban=[]):
 		elif tok[0] == ident:
 			if tok[1] in param_index:
 				code = params[param_index[tok[1]]]
-				accu += eval_macro(code, defs, ban+[name])
+				accu += eval_tokens(code, defs, ban+[name])
 			else:
 				accu.append(tok)
 		else:
 			accu.append(tok)
 
-	ret = eval_macro(accu, defs, ban+[name])
+	ret = eval_tokens(accu, defs, ban+[name])
 	return ret
 
-def eval_macro(lst, adefs, ban=[]):
+def eval_tokens(lst, adefs, ban=[]):
 
 	lst = []+lst # lists are mutable
 
@@ -333,18 +327,16 @@ def eval_macro(lst, adefs, ban=[]):
 			accu.append(tok)
 
 	# now reduce the expressions if possible, like 1+1->2, no more evaluation should take place
-
 	accu = reduce(accu)
 	return accu
+
+def eval_macro(lst, adefs):
+	return eval_tokens(lst, adefs, [])
 
 class cparse:
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
 		#self.lines = txt.split('\n')
 		self.lines = []
-		#self.i     = 0
-		#self.txt   = ''
-		self.max   = 0
-		self.buf   = []
 
 		if defines is None:
 			self.defs  = {}
@@ -364,7 +356,6 @@ class cparse:
 		self.deps  = []
 		self.deps_paths = []
 
-		# waf uses
 		if nodepaths is None:
 			self.m_nodepaths = []
 		else:
