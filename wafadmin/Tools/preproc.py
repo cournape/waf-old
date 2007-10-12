@@ -138,12 +138,13 @@ def reduce(tokens):
 	if not tokens: return [stri, '']
 	if len(tokens) == 1: return tokens
 
-	print "lst len is ", len(tokens)
-	print "lst is ", str(tokens)
-	print "hey \n\n\n"
+	print "lst is %s      (len %d)" % (str(tokens), len(tokens))
+	print "\n\n\n"
 
 	#print "in reduce, returning ", tokens
 	return tokens
+
+	# FIXME TODO
 
 	a1_type = lst[0][0]
 	a1 = lst[0][1]
@@ -479,7 +480,7 @@ class cparse:
 		elif token == 'include' or token == 'import':
 			(type, inc) = tokenize_include(line, self.defs)
 			debug("include found %s    (%s) " % (inc, type), 'preproc')
-			if strict_quotes or type == '"':
+			if type == '"' or not strict_quotes:
 				if not inc in self.deps:
 					self.deps.append(inc)
 				# allow double inclusion
@@ -542,29 +543,31 @@ def tokenize_define(txt):
 	else:
 		return (t[0][1], [None, t[1:]])
 
-re_include = re.compile('^\s*(<(.*)>|"(.*)")')
+re_include = re.compile('^\s*(<(.*)>|"(.*)")\s*')
 def tokenize_include(txt, defs):
 	def replace_v(m):
 		return m.group(1)
 
 	if re_include.search(txt):
 		t = re_include.sub(replace_v, txt)
-		return (t[0], t)
+		return (t[0], t[1:-1])
 
 	# perform preprocessing and look at the result, it must match an include
 	tokens = tokenize(txt)
-	ret = eval_macro(tokens, defs) # it must return a string token
+	ret = eval_macro(tokens, defs)
 	if len(ret) == 1 and ret[0][0] == stri:
-		txt = '"%s"' % ret[0][1] # token string
-	elif ret[0][0] == op: # and ret[0][1] == "<": the line could begin by a whitespace
+		# a string token, quote it
+		txt = '"%s"' % ret[0][1]
+	elif ret[0][0] == op:
+		# a list of tokens, such as <,iostream,.,h,>, concatenate
 		txt = "".join(x[1] for x in ret)
+		# TODO if we discard whitespaces, we could test for ret[0][1] == "<"
 	else:
 		raise PreprocError, "could not parse %s" % str(ret)
 
 	if re_include.search(txt):
 		t = re_include.sub(replace_v, txt)
-		#print "returning ", t[0], t
-		return (t[0], t)
+		return (t[0], t[1:-1])
 
 	# if we come here, parsing failed
 	raise PreprocError, "include parsing failed %s" % txt
