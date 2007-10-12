@@ -262,7 +262,7 @@ def eval_fun(name, params, defs, ban=[]):
 	return ret
 
 def eval_tokens(lst, adefs, ban=[]):
-
+	print "lst is ", lst
 	lst = []+lst # lists are mutable
 
 	#print "\n\n\n\n"
@@ -465,7 +465,8 @@ class cparse:
 				return
 
 		if token == 'if':
-			ret = eval_macro(line, self.defs)
+			print "line is ", line
+			ret = eval_macro(tokenize(line), self.defs)
 			if ret: self.state[0] = accepted
 			else: self.state[0] = ignored
 		elif token == 'ifdef':
@@ -489,7 +490,7 @@ class cparse:
 			if self.state[0] == accepted:
 				self.state[0] = skipped
 			elif self.state[0] == ignored:
-				if eval_macro(self.get_body(), self.defs):
+				if eval_macro(tokenize(line), self.defs):
 					self.state[0] = accepted
 		elif token == 'else':
 			if self.state[0] == accepted: self.state[0] = skipped
