@@ -135,20 +135,15 @@ punctuators_table = [
 ]
 
 def reduce(tokens):
-	# TODO evaluate the tokens for 1+1, etc
-	return tokens
+	if not tokens: return [stri, '']
+	if len(tokens) == 1: return tokens
 
-	#
-	print "entering comp"
-	if not lst: return [stri, '']
-
-	print "a"
-	if len(lst) == 1:
-		return lst[0]
-
-	print "lst len is ", len(lst)
-	print "lst is ", str(lst)
+	print "lst len is ", len(tokens)
+	print "lst is ", str(tokens)
 	print "hey \n\n\n"
+
+	#print "in reduce, returning ", tokens
+	return tokens
 
 	a1_type = lst[0][0]
 	a1 = lst[0][1]
@@ -239,7 +234,7 @@ def eval_fun(name, params, defs, ban=[]):
 				tokens = params[param_index[next[1]]]
 				# macro parameter evaluation is postponed
 				ret = eval_tokens(tokens, defs, ban+[name])
-				ret = "".join(x[1] for x in ret)
+				ret = [stri, "".join(x[1] for x in ret)]
 				accu.append(ret)
 
 			elif tok[1] == '##':
@@ -331,7 +326,8 @@ def eval_tokens(lst, adefs, ban=[]):
 	return accu
 
 def eval_macro(lst, adefs):
-	return eval_tokens(lst, adefs, [])
+	ret = eval_tokens(lst, adefs, [])
+	return ret
 
 class cparse:
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
@@ -558,10 +554,16 @@ def tokenize_include(txt, defs):
 	# perform preprocessing and look at the result, it must match an include
 	tokens = tokenize(txt)
 	ret = eval_macro(tokens, defs) # it must return a string token
-	txt = '"%s"' % ret[0]
+	if len(ret) == 1 and ret[0][0] == stri:
+		txt = '"%s"' % ret[0][1] # token string
+	elif ret[0][0] == op: # and ret[0][1] == "<": the line could begin by a whitespace
+		txt = "".join(x[1] for x in ret)
+	else:
+		raise PreprocError, "could not parse %s" % str(ret)
 
 	if re_include.search(txt):
 		t = re_include.sub(replace_v, txt)
+		#print "returning ", t[0], t
 		return (t[0], t)
 
 	# if we come here, parsing failed
