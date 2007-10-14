@@ -206,22 +206,24 @@ def get_top(tokens):
 	# now perform the operation
 	a = int(tok_1[1])
 	b = int(tok_2[1])
-	if tok_op[1] == '+':
-		c = a+b
-	elif tok_op[1] == '-':
-		c = a-b
-	elif tok_op[1] == '*':
-		c = a*b
-	elif tok_op[1] == '/':
-		c = a/b
-	elif tok_op[1] == '|':
-		c = a|b
-	elif tok_op[1] == '||':
-		c = int(a or b)
-	elif tok_op[1] == '&':
-		c = a&b
-	elif tok_op[1] == '&&':
-		c = int(a and b)
+	d = tok_op[1]
+	if d == '%':  c = a%b
+	elif d=='+':  c = a+b
+	elif d=='-':  c = a-b
+	elif d=='*':  c = a*b
+	elif d=='/':  c = a/b
+	elif d=='|':  c = a|b
+	elif d=='||': c = int(a or b)
+	elif d=='&':  c = a&b
+	elif d=='&&': c = int(a and b)
+	elif d=='==': c = int(a == b)
+	elif d=='<=': c = int(a <= b)
+	elif d=='<':  c = int(a < b)
+	elif d=='>':  c = int(a > b)
+	elif d=='>=': c = int(a >= b)
+	elif d=='^':  c = int(a^b)
+	elif d=='<<': c = a<<b
+	elif d=='>>': c = a>>b
 
 	# now make the operation and return...
 	return ([num, c], nlst)
