@@ -6,6 +6,10 @@
   because of the includes system, it is necessary to do the preprocessing in at least two steps:
   - filter the comments and output the preprocessing lines
   - interpret the preprocessing lines, jumping on the headers during the process
+
+  In the preprocessing line step, the following actions are performed:
+  - substitute the code in the functions and the defines (and use the # and ## operators)
+  - reduce the expression obtained (apply the arithmetic and boolean rules)
 """
 
 import re, sys, os, string
@@ -134,82 +138,101 @@ punctuators_table = [
 {'$$': ','}
 ]
 
+# Here is the small grammar we try to follow:
+# result := top
+# top    := expr | expr op top
+# expr   := val | ( top ) | !expr | -expr
+# The following rule should be taken into account:
+# val    := num | num . num | num "e" num
+
+def get_expr(tokens):
+	if len(tokens) == 0: return (None, tokens)
+	lst = []+tokens
+	tok = lst.pop(0)
+	if tok[0] == num:
+		return (tok, lst)
+	elif tok[0] == op:
+		if tok[1] == '!':
+			(tok2, lst2) = get_expr(lst)
+			val = int(tok2[1])
+			if val == 0: val = 1
+			else:        val = 0
+			return ([num, val], lst2)
+		elif tok[1] == '-':
+			(tok2, lst2) = get_expr(lst)
+			val = - int(tok2[1])
+			return ([num, val], lst2)
+		elif tok[1] == '(':
+			count_par = 0
+			accu = []
+			while 1:
+				tok = lst.pop(0)
+				if tok[0] == op:
+					if tok[1] == ')':
+						if count_par == 0:
+							break
+						else:
+							count_par -= 1
+					elif tok[1] == '(':
+						count_par += 1
+				accu.append(tok)
+			return (get_top(accu), lst)
+	else:
+		print "could not get an expression from ", tokens
+
+	print "wrong (re)turn"
+	return (expr, tokens)
+
+def get_top(tokens):
+	if len(tokens) == 0: return (None, tokens)
+	lst = []+tokens
+
+	(tok_1, nlst) = get_expr(lst)
+	if len(nlst) == 0: return (tok_1, nlst)
+	tok_op = nlst.pop(0)
+	(tok_2, nlst) = get_top(nlst)
+
+	# TODO: what if users are really mad and use in #if blocks
+	# floating-point arithmetic ???
+	# strings ???
+
+	# now perform the operation
+	a = int(tok_1[1])
+	b = int(tok_2[1])
+	if tok_op[1] == '+':
+		c = a+b
+	elif tok_op[1] == '-':
+		c = a-b
+	elif tok_op[1] == '*':
+		c = a*b
+	elif tok_op[1] == '/':
+		c = a/b
+	elif tok_op[1] == '|':
+		c = a|b
+	elif tok_op[1] == '||':
+		c = int(a or b)
+	elif tok_op[1] == '&':
+		c = a&b
+	elif tok_op[1] == '&&':
+		c = int(a and b)
+
+	# now make the operation and return...
+	return ([num, c], nlst)
+
 def reduce(tokens):
 	if not tokens: return [stri, '']
 	if len(tokens) == 1: return tokens
 
-	print "lst is %s      (len %d)" % (str(tokens), len(tokens))
+	lst = []+tokens
+
+	print "lst is %s (len %d)  [%s]" % (str(tokens), len(tokens), " ".join([x[1] for x in tokens]))
 	print "\n\n\n"
 
+	(tok, lst) = get_top(lst)
+	print "eval returned token", tok
+
 	#print "in reduce, returning ", tokens
-	return tokens
-
-	# FIXME TODO
-
-	a1_type = lst[0][0]
-	a1 = lst[0][1]
-
-	a2_type = lst[1][0]
-	a2 = lst[1][1]
-
-	if a1_type == op:
-		if a2_type == num:
-			if a1 == '-':
-				return [num, - int(a2)]
-			if a1 == '!':
-				if int(a2) == 0:
-					return [num, 1]
-				else:
-					return [num, 0]
-			raise PreprocError, "cannot compute %s (1)" % str(lst)
-		raise PreprocError, "cannot compute %s (2)" % str(lst)
-	if a1_type == stri:
-		if a2_type == stri:
-			if lst[2:]:
-				return comp( [[stri, a1+a2], comp(lst[2:])] )
-			else:
-				return [[stri, a1+a2]]
-
-	## we need to scan the third argument given
-	try:
-		a3_type = lst[2][0]
-		a3 = lst[2][1]
-	except:
-		raise PreprocError, "cannot compute %s (3)" % str(lst)
-
-	if a1_type == ident:
-		#print "a1"
-		if a2 == '#':
-			#print "a2"
-			if a3_type == stri:
-				#print "hallo"
-				return comp([[stri, a1 + a3]] + lst[3:])
-
-	if a1_type == num:
-		if a3_type == num:
-			a1 = int(a1)
-			a3 = int(a3)
-			if a2_type == op:
-				val = None
-				if a2 == '+':    val = a1+a3
-				elif a2 == '-':  val = a1-a3
-				elif a2 == '/':  val = a1/a3
-				elif a2 == '*':  val = a1 * a3
-				elif a2 == '%':  val = a1 % a3
-
-				if not val is None:
-					return comp( [[num, val]] + lst[3:] )
-
-				elif a2 == '|':  val = a1 | a3
-				elif a2 == '&':  val = a1 & a3
-				elif a2 == '||': val = a1 or a3
-				elif a2 == '&&': val = a1 and a3
-
-				if val: val = 1
-				else: val = 0
-				return comp( [[num, val]] + lst[3:] )
-
-	raise PreprocError, "could not parse the macro %s " % str(lst)
+	return [tok]
 
 def eval_fun(name, params, defs, ban=[]):
 
@@ -278,7 +301,7 @@ def eval_tokens(lst, adefs, ban=[]):
 	while lst:
 		tok = lst.pop(0)
 
-		if tok[0] == ident and tok[1] in adefs: # TODO the defined() case
+		if tok[0] == ident and tok[1] in adefs: # TODO the defined() and sizeof() cases
 			# the identifier is a macro
 			name = tok[1]
 
@@ -327,7 +350,26 @@ def eval_tokens(lst, adefs, ban=[]):
 	return accu
 
 def eval_macro(lst, adefs):
+	# look at the result, and try to return a 0/1 result
 	ret = eval_tokens(lst, adefs, [])
+
+	if len(ret) == 0:
+		print "could not evaluate %s to true or false (empty list)" % str(ret)
+		return False
+	if len(ret) > 1:
+		print "could not evaluate %s to true or false (could not reduce the expression)" % str(ret)
+		return False
+	if len(ret) == 1:
+		tok = ret[0]
+		if tok[0] == num:
+			r = int(tok[1])
+			return r != 0
+		elif tok[0] == ident:
+			if tok[1].lower() == 'true': return True
+			elif tok[1].lower() == 'false': return False
+			else: "could not evaluate %s to true or false (not a boolean)" % str(lst)
+		else:
+			print "could not evaluate %s to true or false (not a number/boolean)" % str(lst)
 	return ret
 
 class cparse:
@@ -555,7 +597,7 @@ def tokenize_include(txt, defs):
 
 	# perform preprocessing and look at the result, it must match an include
 	tokens = tokenize(txt)
-	ret = eval_macro(tokens, defs)
+	ret = eval_tokens(tokens, defs)
 	if len(ret) == 1 and ret[0][0] == stri:
 		# a string token, quote it
 		txt = '"%s"' % ret[0][1]
@@ -644,7 +686,7 @@ def tokenize(txt):
 					break
 			abuf.append([num, ''.join(buf)])
 		elif c in alpha:
-			# identifier
+			# identifier (except for the boolean operators 'and', 'or' and 'not')
 			buf = []
 			while 1:
 				c = txt[i]
@@ -654,7 +696,15 @@ def tokenize(txt):
 					if i>= max: break
 				else:
 					break
-			abuf.append([ident, ''.join(buf)])
+			name = ''.join(buf).lower()
+			if name == 'not':
+				abuf.append([op, '!'])
+			elif name == 'or':
+				abuf.append([op, '||'])
+			elif name == 'and':
+				abuf.append([op, '&&'])
+			else:
+				abuf.append([ident, ''.join(buf)])
 		else:
 			# operator
 			pos = 0
