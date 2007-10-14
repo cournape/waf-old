@@ -176,7 +176,10 @@ def get_expr(tokens):
 					elif tok[1] == '(':
 						count_par += 1
 				accu.append(tok)
-			return (get_top(accu), lst)
+			(tok_tmp, lst_tmp) = get_top(accu)
+			# TODO raise an exception if the expression could not be reduced properly
+			#if lst_tmp: raise ...
+			return (tok_tmp, lst)
 	else:
 		pass
 		print "could not get an expression from ", tokens
@@ -189,6 +192,8 @@ def get_top(tokens):
 
 	(tok_1, nlst) = get_expr(lst)
 	if tok_1 == None: return (None, tokens) # we cannot reduce the list of tokens
+
+	print "tok 1 is ", tok_1
 
 	if len(nlst) == 0: return (tok_1, nlst)
 	tok_op = nlst.pop(0)
@@ -227,7 +232,7 @@ def reduce(tokens):
 
 	lst = []+tokens
 
-	print "lst is %s (len %d)  [%s]" % (str(tokens), len(tokens), " ".join([x[1] for x in tokens]))
+	print "lst is %s (len %d)  [%s]" % (str(tokens), len(tokens), " ".join([str(x[1]) for x in tokens]))
 	print "\n\n\n"
 
 	(tok, lst) = get_top(lst)
@@ -332,6 +337,7 @@ def eval_tokens(lst, adefs, ban=[]):
 						elif tok[1] == ',':
 							if not tmp: raise ParseError, "invalid function call "+name
 							params.append(tmp)
+							tmp = []
 							continue
 
 					# all other cases we just append the tokens to tmp
