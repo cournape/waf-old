@@ -178,16 +178,18 @@ def get_expr(tokens):
 				accu.append(tok)
 			return (get_top(accu), lst)
 	else:
+		pass
 		print "could not get an expression from ", tokens
 
-	print "wrong (re)turn"
-	return (expr, tokens)
+	return (None, tokens)
 
 def get_top(tokens):
 	if len(tokens) == 0: return (None, tokens)
 	lst = []+tokens
 
 	(tok_1, nlst) = get_expr(lst)
+	if tok_1 == None: return (None, tokens) # we cannot reduce the list of tokens
+
 	if len(nlst) == 0: return (tok_1, nlst)
 	tok_op = nlst.pop(0)
 	(tok_2, nlst) = get_top(nlst)
@@ -229,6 +231,7 @@ def reduce(tokens):
 	print "\n\n\n"
 
 	(tok, lst) = get_top(lst)
+	if tok == None: return tokens
 	print "eval returned token", tok
 
 	#print "in reduce, returning ", tokens
@@ -507,7 +510,6 @@ class cparse:
 				return
 
 		if token == 'if':
-			print "line is ", line
 			ret = eval_macro(tokenize(line), self.defs)
 			if ret: self.state[0] = accepted
 			else: self.state[0] = ignored
