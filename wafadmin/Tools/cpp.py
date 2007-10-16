@@ -52,7 +52,7 @@ class cppobj(ccroot.ccroot):
 		for l in libs:
 			val = self.env['CXXDEFINES_'+l]
 			if val: milst += self.to_list(val)
-		self.env['DEFLINES'] = ["define %s"%  ' '.join(x.split('=', 1)) for x in milst]
+		self.env['DEFLINES'] = [' '.join(x.split('=', 1)) for x in milst]
 		y = self.env['CXXDEFINES_ST']
 		self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
 

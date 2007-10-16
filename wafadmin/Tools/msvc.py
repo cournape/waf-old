@@ -295,7 +295,7 @@ class msvccc(msvcobj):
 		for l in libs:
 			val = self.env['CCDEFINES_'+l]
 			if val: milst += self.to_list(val)
-		self.env['DEFLINES'] = ["define %s" % ' '.join(x.split('=', 1)) for x in milst]
+		self.env['DEFLINES'] = [' '.join(x.split('=', 1)) for x in milst]
 
 		y = self.env['CCDEFINES_ST']
 		self.env['_CCDEFFLAGS'] = [y%x for x in cmilst]
@@ -356,7 +356,7 @@ class msvccpp(msvcobj):
 		for l in libs:
 			val = self.env['CXXDEFINES_'+l]
 			if val: milst += val
-		self.env['DEFLINES'] = self.env['DEFLINES'] + ["define %s" % ' '.join(x.split('=', 1)) for x in milst]
+		self.env['DEFLINES'] = self.env['DEFLINES'] + [' '.join(x.split('=', 1)) for x in milst]
 		y = self.env['CXXDEFINES_ST']
 		self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
 

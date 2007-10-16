@@ -182,7 +182,7 @@ def get_expr(tokens):
 			return (tok_tmp, lst)
 	else:
 		pass
-		print "could not get an expression from ", tokens
+		#print "could not get an expression from ", tokens
 
 	return (None, tokens)
 
@@ -193,7 +193,7 @@ def get_top(tokens):
 	(tok_1, nlst) = get_expr(lst)
 	if tok_1 == None: return (None, tokens) # we cannot reduce the list of tokens
 
-	print "tok 1 is ", tok_1
+	#print "tok 1 is ", tok_1
 
 	if len(nlst) == 0: return (tok_1, nlst)
 	tok_op = nlst.pop(0)
@@ -234,12 +234,12 @@ def reduce(tokens):
 
 	lst = []+tokens
 
-	print "lst is %s (len %d)  [%s]" % (str(tokens), len(tokens), " ".join([str(x[1]) for x in tokens]))
-	print "\n\n\n"
+	#print "lst is %s (len %d)  [%s]" % (str(tokens), len(tokens), " ".join([str(x[1]) for x in tokens]))
+	#print "\n\n\n"
 
 	(tok, lst) = get_top(lst)
 	if tok == None: return tokens
-	print "eval returned token", tok
+	#print "eval returned token", tok
 
 	#print "in reduce, returning ", tokens
 	return [tok]
@@ -295,7 +295,7 @@ def eval_fun(name, params, defs, ban=[]):
 	return ret
 
 def eval_tokens(lst, adefs, ban=[]):
-	print "lst is ", lst
+	#print "lst is ", lst
 	lst = []+lst # lists are mutable
 
 	#print "\n\n\n\n"
@@ -365,10 +365,10 @@ def eval_macro(lst, adefs):
 	ret = eval_tokens(lst, adefs, [])
 
 	if len(ret) == 0:
-		print "could not evaluate %s to true or false (empty list)" % str(ret)
+		debug("could not evaluate %s to true or false (empty list)" % str(ret), 'preproc')
 		return False
 	if len(ret) > 1:
-		print "could not evaluate %s to true or false (could not reduce the expression)" % str(ret)
+		debug("could not evaluate %s to true or false (could not reduce the expression)" % str(ret), 'preproc')
 		return False
 	if len(ret) == 1:
 		tok = ret[0]
@@ -380,7 +380,7 @@ def eval_macro(lst, adefs):
 			elif tok[1].lower() == 'false': return False
 			else: "could not evaluate %s to true or false (not a boolean)" % str(lst)
 		else:
-			print "could not evaluate %s to true or false (not a number/boolean)" % str(lst)
+			debug("could not evaluate %s to true or false (not a number/boolean)" % str(lst), 'preproc')
 	return ret
 
 class cparse:
@@ -473,7 +473,8 @@ class cparse:
 
 		self.addlines(node.abspath(env))
 		if env['DEFLINES']:
-			self.lines = env['DEFLINES'] + self.lines
+			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
+
 
 		while self.lines:
 			# TODO we can skip evaluating conditions (#if) only when we are
@@ -514,7 +515,7 @@ class cparse:
 		# skip lines when in a dead 'if' branch, wait for the endif
 		if not token in ['else', 'elif', 'endif']:
 			if not self.isok():
-				print "return in process line"
+				#print "return in process line"
 				return
 
 		if token == 'if':
