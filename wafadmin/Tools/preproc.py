@@ -463,7 +463,7 @@ class cparse:
 				warning("parsing %s failed" % filepath)
 				traceback.print_exc()
 
-	def start2(self, node, env):
+	def start(self, node, env):
 		debug("scanning %s (in %s)" % (node.m_name, node.m_parent.m_name), 'preproc')
 
 		self.env = env
@@ -485,7 +485,7 @@ class cparse:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
 
 	# debug only
-	def start(self, filename):
+	def start_local(self, filename):
 		self.addlines(filename)
 		#print self.lines
 		while self.lines:
@@ -760,7 +760,7 @@ if __name__ == "__main__":
 
 	paths = ['.']
 	gruik = cparse(strpaths = paths)
-	gruik.start(arg)
+	gruik.start_local(arg)
 	print "we have found the following dependencies"
 	print gruik.deps
 	print gruik.deps_paths

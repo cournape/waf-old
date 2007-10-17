@@ -28,7 +28,7 @@ class c_scanner(Scan.scanner):
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
 		import preproc
 		gruik = preproc.cparse(nodepaths = task.path_lst, defines = task.defines)
-		gruik.start2(node, task.m_env)
+		gruik.start(node, task.m_env)
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
 			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')

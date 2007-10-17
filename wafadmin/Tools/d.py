@@ -172,7 +172,7 @@ class parser:
 					lst.append(match)
 		return lst
 
-	def start2(self, node):
+	def start(self, node):
 		self.waiting = [node]
 		# while the stack is not empty, add the dependencies
 		while self.waiting:
@@ -202,7 +202,7 @@ class d_scanner(Scan.scanner):
 		"look for .d/.di the .d source need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
 		gruik = parser(task.m_env, task.inc_paths)
-		gruik.start2(node)
+		gruik.start(node)
 
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
