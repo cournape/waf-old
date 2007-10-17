@@ -516,18 +516,24 @@ class cparse:
 				#print "return in process line"
 				return
 
+		def get_name(line):
+			ret = tokenize(line)
+			for x in ret:
+				if x[0] == ident:
+					return x[1]
+			return ''
+
 		if token == 'if':
 			ret = eval_macro(tokenize(line), self.defs)
 			if ret: self.state[0] = accepted
 			else: self.state[0] = ignored
 		elif token == 'ifdef':
-			ident = self.get_name()
-			if ident in self.defs.keys(): self.state[0] = accepted
+			name = get_name(line)
+			if name in self.defs.keys(): self.state[0] = accepted
 			else: self.state[0] = ignored
 		elif token == 'ifndef':
-			ident = self.get_name()
-			if ident in self.defs.keys():
-				self.state[0] = ignored
+			name = get_name(line)
+			if name in self.defs.keys(): self.state[0] = ignored
 			else: self.state[0] = accepted
 		elif token == 'include' or token == 'import':
 			(type, inc) = tokenize_include(line, self.defs)
@@ -553,7 +559,7 @@ class cparse:
 			debug("define %s   %s" % (name, str(val)), 'preproc')
 			self.defs[name] = val
 		elif token == 'undef':
-			name = self.get_name()
+			name = get_name(line)
 			if name and name in self.defs:
 				self.defs.__delitem__(name)
 				#print "undef %s" % name
