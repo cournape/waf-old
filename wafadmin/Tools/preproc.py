@@ -27,6 +27,7 @@ reg_define = re.compile(s, re.IGNORECASE | re.MULTILINE)
 reg_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
 reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
+
 def repl(m):
 	s = m.group(1)
 	if s is not None: return ' '
@@ -39,10 +40,8 @@ def filter_comments(filename):
 	f = open(filename, "r")
 	code = f.read()
 	f.close()
-
 	code = reg_nl.sub('', code)
 	code = reg_cpp.sub(repl, code)
-
 	return [(m.group(2), m.group(3)) for m in re.finditer(reg_define, code)]
 
 strict_quotes = 0
@@ -55,11 +54,11 @@ ignored   = 'i'
 undefined = 'u'
 skipped   = 's'
 
-num = 'i' # number
-op = '@' # operator
-ident = 'T' # identifier
-stri = 's' # string
-chr = 'c' # char
+NUM = 'i' # number
+OP = '@' # operator
+IDENT = 'T' # identifier
+STRING = 's' # string
+CHAR = 'c' # char
 
 # TODO handle the trigraphs too
 trigs = {
@@ -85,31 +84,31 @@ puncs.append('%:%: '.split())
 # top    := expr | expr op top
 # expr   := val | ( top ) | !expr | -expr
 # The following rule should be taken into account:
-# val    := num | num . num | num "e" num
+# val    := NUM | NUM . NUM | NUM "e" NUM ...
 
 def get_expr(tokens):
 	if len(tokens) == 0: return (None, None, tokens)
 	lst = []+tokens
 	(tok, val) = lst.pop(0)
-	if tok == num:
+	if tok == NUM:
 		return (tok, val, lst)
-	elif tok == op:
+	elif tok == OP:
 		if val == '!':
 			(tok2, val2, lst2) = get_expr(lst)
 			v = int(val2)
 			if v == 0: v = 1
 			else:      v = 0
-			return (num, v, lst2)
+			return (NUM, v, lst2)
 		elif val == '-':
 			(tok2, val2, lst2) = get_expr(lst)
 			v = - int(val2)
-			return (num, v, lst2)
+			return (NUM, v, lst2)
 		elif val == '(':
 			count_par = 0
 			accu = []
 			while 1:
 				(tok, val) = lst.pop(0)
-				if tok == op:
+				if tok == OP:
 					if val == ')':
 						if count_par == 0:
 							break
@@ -168,10 +167,10 @@ def get_top(tokens):
 	elif d=='>>': c = a>>b
 
 	# now make the operation and return...
-	return (num, c, nlst)
+	return (NUM, c, nlst)
 
 def reduce(tokens):
-	if not tokens: return (stri, '')
+	if not tokens: return (STRING, '')
 	if len(tokens) == 1: return tokens
 
 	lst = []+tokens
@@ -203,14 +202,14 @@ def eval_fun(name, params, defs, ban=[]):
 	accu = []
 	while fun_code:
 		(tok, val) = fun_code.pop(0)
-		if tok == op:
+		if tok == OP:
 			if val == '#':
 				# the next token is one of the args
 				(tok_next, val_next) = fun_code.pop(0)
 				tokens = params[param_index[val_next]]
 				# macro parameter evaluation is postponed
 				ret = eval_tokens(tokens, defs, ban+[name])
-				ret = (stri, "".join([y for (x,y) in ret]))
+				ret = (STRING, "".join([y for (x,y) in ret]))
 				accu.append(ret)
 
 			elif val == '##':
@@ -218,13 +217,13 @@ def eval_fun(name, params, defs, ban=[]):
 				(tok_next, val_next) = fun_code.pop(0)
 				(tok_back, val_back) = accu[-1]
 				accu = accu[:-1]
-				new_token = (ident, val_back+val_next)
+				new_token = (IDENT, val_back+val_next)
 				accu.append(new_token)
 				# FIXME this supposes that "a##b(foo)" evaluates as "ab(foo)"
 			else:
 				accu.append((tok, val))
 
-		elif tok == ident:
+		elif tok == IDENT:
 			if val in param_index:
 				code = params[param_index[val]]
 				accu += eval_tokens(code, defs, ban+[name])
@@ -253,25 +252,25 @@ def eval_tokens(lst, adefs, ban=[]):
 	while lst:
 		(tok, val) = lst.pop(0)
 
-		if tok == ident and val.lower() == 'defined':
+		if tok == IDENT and val.lower() == 'defined':
 			# "defined(identifier)" or "defined identifier"
 			(tok, val) = lst.pop(0)
 			if val == '(':
 				(tok, val_x) = lst.pop(0)
-				if tok != ident: raise PreprocError, 'expected an identifier after a defined'
+				if tok != IDENT: raise PreprocError, 'expected an identifier after a defined'
 				(tok, val) = lst.pop(0)
 				if val != ')': raise PreprocError, 'expected a ")" after a defined'
-			elif tok == ident:
+			elif tok == IDENT:
 				val_x = val
 			else:
 				raise PreprocError, 'expected a "(" or an identifier after a defined'
 
-			if val_x in adefs: accu.append((num, 1))
-			else: accu.append((num, 0))
+			if val_x in adefs: accu.append((NUM, 1))
+			else: accu.append((NUM, 0))
 
-		elif tok == ident and val.lower() == 'sizeof':
+		elif tok == IDENT and val.lower() == 'sizeof':
 			raise PreprocError, "you must be fucking kidding"
-		elif tok == ident and val in adefs:
+		elif tok == IDENT and val in adefs:
 			# the identifier is a macro
 			name = val
 
@@ -287,12 +286,12 @@ def eval_tokens(lst, adefs, ban=[]):
 				params = []
 				tmp = []
 				(tok, val) = lst.pop(0)
-				if tok != op or val != '(': raise ParseError, "invalid function call "+name
+				if tok != OP or val != '(': raise ParseError, "invalid function call "+name
 				count_paren = 0
 				while 1:
 					(tok, val) = lst.pop(0)
 					# stop condition
-					if count_paren == 0 and tok == op:
+					if count_paren == 0 and tok == OP:
 						if val == ')':
 							if tmp: params.append(tmp)
 							break
@@ -306,7 +305,7 @@ def eval_tokens(lst, adefs, ban=[]):
 					tmp.append((tok, val))
 
 					# but watch out for the matching parenthesis
-					if tok == op:
+					if tok == OP:
 						if val == '(':
 							count_paren += 1
 						elif val == ')':
@@ -332,10 +331,10 @@ def eval_macro(lst, adefs):
 		return False
 	if len(ret) == 1:
 		(tok, val) = ret[0]
-		if tok == num:
+		if tok == NUM:
 			r = int(val)
 			return r != 0
-		elif tok == ident:
+		elif tok == IDENT:
 			if val.lower() == 'true': return True
 			elif val.lower() == 'false': return False
 			else: "could not evaluate %s to true or false (not a boolean)" % str(lst)
@@ -480,7 +479,7 @@ class cparse:
 		def get_name(line):
 			ret = tokenize(line)
 			for (x, y) in ret:
-				if x == ident: return y
+				if x == IDENT: return y
 			return ''
 
 		if token == 'if':
@@ -537,25 +536,25 @@ def tokenize_define(txt):
 		name = val
 
 		(tok, val) = t.pop(0)
-		if tok != op: raise PreprocError, "expected open parenthesis"
+		if tok != OP: raise PreprocError, "expected open parenthesis"
 		while 1:
 			(tok, val) = t.pop(0)
 
-			if tok == op and val == ')':
+			if tok == OP and val == ')':
 				break
-			if tok != ident and (tok != op and val != '...'):
+			if tok != IDENT and (tok != OP and val != '...'):
 				raise PreprocError, "expected ident"
 
 			(tok2, val2) = t.pop(0)
-			if tok2 == op and val2 == '...':
-				params.append((ident, val+val2)) # to get the varargs "z..."
-			elif tok2 == op and val2 == ')':
-				if tok == ident:
+			if tok2 == OP and val2 == '...':
+				params.append((IDENT, val+val2)) # to get the varargs "z..."
+			elif tok2 == OP and val2 == ')':
+				if tok == IDENT:
 					params.append((tok, val))
 				else:
-					params.append((ident, val))
+					params.append((IDENT, val))
 				break
-			elif tok2 == op and val2 == ',':
+			elif tok2 == OP and val2 == ',':
 				params.append((tok, val))
 			else:
 				raise PreprocError, "unexpected token "+str((tok2, val2))
@@ -578,10 +577,10 @@ def tokenize_include(txt, defs):
 	tokens = tokenize(txt)
 	ret = eval_tokens(tokens, defs)
 	(tok, val) = ret[0]
-	if len(ret) == 1 and tok == stri:
+	if len(ret) == 1 and tok == STRING:
 		# a string token, quote it
 		txt = '"%s"' % val
-	elif tok == op:
+	elif tok == OP:
 		# a list of tokens, such as <,iostream,.,h,>, concatenate
 		txt = "".join(y for (x,y) in ret)
 		# TODO if we discard whitespaces, we could test for val == "<"
@@ -601,12 +600,7 @@ def tokenize(txt):
 
 	abuf = []
 	while i<max:
-		#print abuf
-		#print "---------------------------------"
-
 		c = txt[i]
-
-		#print "look ", c, '   ->', i
 
 		if c == ' ' or c == '\t':
 			i += 1
@@ -632,7 +626,7 @@ def tokenize(txt):
 					else: buf.append(c)
 				else:
 					buf.append(c)
-			abuf.append((stri, ''.join(buf)))
+			abuf.append((STRING, ''.join(buf)))
 			i += 1
 		elif c == '\'':
 			# char
@@ -649,8 +643,7 @@ def tokenize(txt):
 			c = txt[i]
 			i += 1
 			if c != '\'': error("uh-oh, invalid character"+str(c)) # TODO special chars
-			abuf.append((chr, ''.join(buf)))
-
+			abuf.append((CHAR, ''.join(buf)))
 			i += 1
 
 		elif c in string.digits:
@@ -664,7 +657,7 @@ def tokenize(txt):
 					if c >= max: break
 				else:
 					break
-			abuf.append((num, ''.join(buf)))
+			abuf.append((NUM, ''.join(buf)))
 		elif c in alpha:
 			# identifier (except for the boolean operators 'and', 'or' and 'not')
 			buf = []
@@ -678,14 +671,15 @@ def tokenize(txt):
 					break
 			name = ''.join(buf).lower()
 			if name == 'not':
-				abuf.append((op, '!'))
+				abuf.append((OP, '!'))
 			elif name == 'or':
-				abuf.append((op, '||'))
+				abuf.append((OP, '||'))
 			elif name == 'and':
-				abuf.append((op, '&&'))
+				abuf.append((OP, '&&'))
 			else:
-				abuf.append((ident, ''.join(buf)))
+				abuf.append((IDENT, ''.join(buf)))
 		else:
+			# operator
 			for x in [3, 2, 1, 0]:
 				if i < max - x:
 					s = txt[i:i+x+1]
@@ -693,7 +687,7 @@ def tokenize(txt):
 						break
 			else:
 				raise PreprocError, "unknown op %s" % txt[i-1:]
-			abuf.append((op, s))
+			abuf.append((OP, s))
 			i += x+1
 	return abuf
 
