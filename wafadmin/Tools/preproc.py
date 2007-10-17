@@ -23,7 +23,7 @@ class PreprocError(Exception):
 
 # ignore #warning and #error
 reg_define = re.compile('^\s*(#|%:)\s*(if|ifdef|ifndef|else|elif|endif|include|import|define|undef|pragma)\s*(.*)\r*')
-
+reg_pragma_once = re.compile('^\s*once\s*')
 reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
 def repl(m):
@@ -33,9 +33,6 @@ def repl(m):
 	if s is None: return ''
 	return s
 
-def replace_inc(m):
-	return (m.group(2), m.group(3))
-
 def filter_comments(filename):
 	# return a list of tuples : keyword, line
 	f = open(filename, "r")
@@ -44,9 +41,8 @@ def filter_comments(filename):
 
 	code = reg_nl.sub('', code)
 	code = reg_cpp.sub(repl, code)
-	code = code.split('\n')
 
-	return [reg_define.sub(replace_inc, line) for line in code if reg_define.search(line)]
+	return [(m.group(2), m.group(3)) for m in re.finditer(reg_define, code)]
 
 strict_quotes = 0
 "Keep <> for system includes (do not search for those includes)"
@@ -461,7 +457,7 @@ class cparse:
 			pc[filepath] = lines # memorize the lines filtered
 			self.lines = lines + self.lines
 		except IOError:
-			raise PreprocError, "could not read the file"
+			raise PreprocError, "could not read the file %s" % filepath
 		except Exception:
 			if Params.g_verbose > 0:
 				warning("parsing %s failed" % filepath)
@@ -561,6 +557,9 @@ class cparse:
 			if name and name in self.defs:
 				self.defs.__delitem__(name)
 				#print "undef %s" % name
+		elif token == 'pragma':
+			if reg_pragma_once.search(line.lower()):
+				print "found a pragma once"
 
 re_function = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
 def tokenize_define(txt):
