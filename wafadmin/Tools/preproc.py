@@ -143,67 +143,67 @@ punctuators_table = [
 # val    := num | num . num | num "e" num
 
 def get_expr(tokens):
-	if len(tokens) == 0: return (None, tokens)
+	if len(tokens) == 0: return (None, None, tokens)
 	lst = []+tokens
-	tok = lst.pop(0)
-	if tok[0] == num:
-		return (tok, lst)
-	elif tok[0] == op:
-		if tok[1] == '!':
-			(tok2, lst2) = get_expr(lst)
-			val = int(tok2[1])
-			if val == 0: val = 1
-			else:        val = 0
-			return ([num, val], lst2)
-		elif tok[1] == '-':
-			(tok2, lst2) = get_expr(lst)
-			val = - int(tok2[1])
-			return ([num, val], lst2)
-		elif tok[1] == '(':
+	(tok, val) = lst.pop(0)
+	if tok == num:
+		return (tok, val, lst)
+	elif tok == op:
+		if val == '!':
+			(tok2, val2, lst2) = get_expr(lst)
+			v = int(val2)
+			if v == 0: v = 1
+			else:      v = 0
+			return (num, v, lst2)
+		elif val == '-':
+			(tok2, val2, lst2) = get_expr(lst)
+			v = - int(val2)
+			return (num, v, lst2)
+		elif val == '(':
 			count_par = 0
 			accu = []
 			while 1:
-				tok = lst.pop(0)
-				if tok[0] == op:
-					if tok[1] == ')':
+				(tok, val) = lst.pop(0)
+				if tok == op:
+					if val == ')':
 						if count_par == 0:
 							break
 						else:
 							count_par -= 1
-					elif tok[1] == '(':
+					elif val == '(':
 						count_par += 1
-				accu.append(tok)
-			(tok_tmp, lst_tmp) = get_top(accu)
+				accu.append( (tok, val) )
+			(tok_tmp, val_tmp, lst_tmp) = get_top(accu)
 			# TODO raise an exception if the expression could not be reduced properly
 			#if lst_tmp: raise ...
-			return (tok_tmp, lst)
+			return (tok_tmp, val_tmp, lst)
 	else:
 		pass
 		#print "could not get an expression from ", tokens
 
-	return (None, tokens)
+	return (None, None, tokens)
 
 def get_top(tokens):
 	if len(tokens) == 0: return (None, tokens)
 	lst = []+tokens
 
-	(tok_1, nlst) = get_expr(lst)
-	if tok_1 == None: return (None, tokens) # we cannot reduce the list of tokens
+	(tok_1, val_1, nlst) = get_expr(lst)
+	if tok_1 == None: return (None, None, tokens) # we cannot reduce the list of tokens
 
 	#print "tok 1 is ", tok_1
 
-	if len(nlst) == 0: return (tok_1, nlst)
-	tok_op = nlst.pop(0)
-	(tok_2, nlst) = get_top(nlst)
+	if len(nlst) == 0: return (tok_1, val_1, nlst)
+	(tok_op, val_op) = nlst.pop(0)
+	(tok_2, val_2, nlst) = get_top(nlst)
 
 	# TODO: what if users are really mad and use in #if blocks
 	# floating-point arithmetic ???
 	# strings ???
 
 	# now perform the operation
-	a = int(tok_1[1])
-	b = int(tok_2[1])
-	d = tok_op[1]
+	a = int(val_1)
+	b = int(val_2)
+	d = val_op
 	if d == '%':  c = a%b
 	elif d=='+':  c = a+b
 	elif d=='-':  c = a-b
@@ -223,10 +223,10 @@ def get_top(tokens):
 	elif d=='>>': c = a>>b
 
 	# now make the operation and return...
-	return ([num, c], nlst)
+	return (num, c, nlst)
 
 def reduce(tokens):
-	if not tokens: return [stri, '']
+	if not tokens: return (stri, '')
 	if len(tokens) == 1: return tokens
 
 	lst = []+tokens
@@ -234,12 +234,12 @@ def reduce(tokens):
 	#print "lst is %s (len %d)  [%s]" % (str(tokens), len(tokens), " ".join([str(x[1]) for x in tokens]))
 	#print "\n\n\n"
 
-	(tok, lst) = get_top(lst)
+	(tok, val, lst) = get_top(lst)
 	if tok == None: return tokens
 	#print "eval returned token", tok
 
 	#print "in reduce, returning ", tokens
-	return [tok]
+	return [(tok, val)]
 
 def eval_fun(name, params, defs, ban=[]):
 
@@ -257,36 +257,36 @@ def eval_fun(name, params, defs, ban=[]):
 	# substitute the arguments within the define expression
 	accu = []
 	while fun_code:
-		tok = fun_code.pop(0)
-		if tok[0] == op:
-			if tok[1] == '#':
+		(tok, val) = fun_code.pop(0)
+		if tok == op:
+			if val == '#':
 				# the next token is one of the args
-				next = fun_code.pop(0)
-				tokens = params[param_index[next[1]]]
+				(tok_next, val_next) = fun_code.pop(0)
+				tokens = params[param_index[val_next]]
 				# macro parameter evaluation is postponed
 				ret = eval_tokens(tokens, defs, ban+[name])
-				ret = [stri, "".join(x[1] for x in ret)]
+				ret = (stri, "".join([y for (x,y) in ret]))
 				accu.append(ret)
 
-			elif tok[1] == '##':
+			elif val == '##':
 				# the next token is an identifier (token pasting)
-				next = fun_code.pop(0)
-				r = accu[-1]
+				(tok_next, val_next) = fun_code.pop(0)
+				(tok_back, val_back) = accu[-1]
 				accu = accu[:-1]
-				new_tokens = [ident, r[1]+next[1]]
+				new_token = (ident, val_back+val_next)
 				accu.append(new_token)
 				# FIXME this supposes that "a##b(foo)" evaluates as "ab(foo)"
 			else:
-				accu.append(tok)
+				accu.append((tok, val))
 
-		elif tok[0] == ident:
-			if tok[1] in param_index:
-				code = params[param_index[tok[1]]]
+		elif tok == ident:
+			if val in param_index:
+				code = params[param_index[val]]
 				accu += eval_tokens(code, defs, ban+[name])
 			else:
-				accu.append(tok)
+				accu.append((tok, val))
 		else:
-			accu.append(tok)
+			accu.append((tok, val))
 
 	ret = eval_tokens(accu, defs, ban+[name])
 	return ret
@@ -306,13 +306,13 @@ def eval_tokens(lst, adefs, ban=[]):
 	# substitute the defines (functions and simple macros)
 	accu = []
 	while lst:
-		tok = lst.pop(0)
+		(tok, val) = lst.pop(0)
 
-		if tok[0] == ident and tok[1] in adefs: # TODO the defined() and sizeof() cases
+		if tok == ident and val in adefs: # TODO the defined() and sizeof() cases
 			# the identifier is a macro
-			name = tok[1]
+			name = val
 
-			fun_def = adefs[tok[1]]
+			fun_def = adefs[val]
 			fun_args=[]
 			if fun_def: fun_args = fun_def[0]
 			if fun_args == None:
@@ -323,35 +323,35 @@ def eval_tokens(lst, adefs, ban=[]):
 				# function call, collect the arguments
 				params = []
 				tmp = []
-				tok = lst.pop(0)
-				if tok[0] != op or tok[1] != '(': raise ParseError, "invalid function call "+name
+				(tok, val) = lst.pop(0)
+				if tok != op or val != '(': raise ParseError, "invalid function call "+name
 				count_paren = 0
 				while 1:
-					tok = lst.pop(0)
+					(tok, val) = lst.pop(0)
 					# stop condition
-					if count_paren == 0 and tok[0] == op:
-						if tok[1] == ')':
+					if count_paren == 0 and tok == op:
+						if val == ')':
 							if tmp: params.append(tmp)
 							break
-						elif tok[1] == ',':
+						elif val == ',':
 							if not tmp: raise ParseError, "invalid function call "+name
 							params.append(tmp)
 							tmp = []
 							continue
 
 					# all other cases we just append the tokens to tmp
-					tmp.append(tok)
+					tmp.append((tok, val))
 
 					# but watch out for the matching parenthesis
-					if tok[0] == op:
-						if tok[1] == '(':
+					if tok == op:
+						if val == '(':
 							count_paren += 1
-						elif tok[1] == ')':
+						elif val == ')':
 							count_paren -= 1
 
 				accu += eval_fun(name, params, adefs)
 		else:
-			accu.append(tok)
+			accu.append((tok, val))
 
 	# now reduce the expressions if possible, like 1+1->2, no more evaluation should take place
 	accu = reduce(accu)
@@ -368,13 +368,13 @@ def eval_macro(lst, adefs):
 		debug("could not evaluate %s to true or false (could not reduce the expression)" % str(ret), 'preproc')
 		return False
 	if len(ret) == 1:
-		tok = ret[0]
-		if tok[0] == num:
-			r = int(tok[1])
+		(tok, val) = ret[0]
+		if tok == num:
+			r = int(val)
 			return r != 0
-		elif tok[0] == ident:
-			if tok[1].lower() == 'true': return True
-			elif tok[1].lower() == 'false': return False
+		elif tok == ident:
+			if val.lower() == 'true': return True
+			elif val.lower() == 'false': return False
 			else: "could not evaluate %s to true or false (not a boolean)" % str(lst)
 		else:
 			debug("could not evaluate %s to true or false (not a number/boolean)" % str(lst), 'preproc')
@@ -518,9 +518,8 @@ class cparse:
 
 		def get_name(line):
 			ret = tokenize(line)
-			for x in ret:
-				if x[0] == ident:
-					return x[1]
+			for (x, y) in ret:
+				if x == ident: return y
 			return ''
 
 		if token == 'if':
@@ -573,36 +572,37 @@ def tokenize_define(txt):
 	if re_function.search(txt):
 		# this means we have a function
 		params = []
-		tok = t.pop(0)
-		name = tok[1]
+		(tok, val) = t.pop(0)
+		name = val
 
-		tok = t.pop(0)
-		if tok[0] != op: raise PreprocError, "expected open parenthesis"
+		(tok, val) = t.pop(0)
+		if tok != op: raise PreprocError, "expected open parenthesis"
 		while 1:
-			tok = t.pop(0)
+			(tok, val) = t.pop(0)
 
-			if tok[0] == op and tok[1] == ')':
+			if tok == op and val == ')':
 				break
-			if tok[0] != ident and (tok[0] != op and tok[1] != '...'):
+			if tok != ident and (tok != op and val != '...'):
 				raise PreprocError, "expected ident"
 
-			tok2 = t.pop(0)
-			if tok2[0] == op and tok2[1] == '...':
-				params.append([ident, tok[1]+tok2[1]]) # to get the varargs "z..."
-			elif tok2[0] == op and tok2[1] == ')':
-				if tok[0] == ident:
-					params.append(tok)
+			(tok2, val2) = t.pop(0)
+			if tok2 == op and val2 == '...':
+				params.append((ident, val+val2)) # to get the varargs "z..."
+			elif tok2 == op and val2 == ')':
+				if tok == ident:
+					params.append((tok, val))
 				else:
-					params.append([ident, tok[1]])
+					params.append((ident, val))
 				break
-			elif tok2[0] == op and tok2[1] == ',':
-				params.append(tok)
+			elif tok2 == op and val2 == ',':
+				params.append((tok, val))
 			else:
-				raise PreprocError, "unexpected token "+str(tok2)
+				raise PreprocError, "unexpected token "+str((tok2, val2))
 
 		return (name, [params, t])
 	else:
-		return (t[0][1], [None, t[1:]])
+		(tok, val) = t.pop(0)
+		return (val, [None, t])
 
 re_include = re.compile('^\s*(<(.*)>|"(.*)")\s*')
 def tokenize_include(txt, defs):
@@ -616,13 +616,14 @@ def tokenize_include(txt, defs):
 	# perform preprocessing and look at the result, it must match an include
 	tokens = tokenize(txt)
 	ret = eval_tokens(tokens, defs)
-	if len(ret) == 1 and ret[0][0] == stri:
+	(tok, val) = ret[0]
+	if len(ret) == 1 and tok == stri:
 		# a string token, quote it
-		txt = '"%s"' % ret[0][1]
-	elif ret[0][0] == op:
+		txt = '"%s"' % val
+	elif tok == op:
 		# a list of tokens, such as <,iostream,.,h,>, concatenate
-		txt = "".join(x[1] for x in ret)
-		# TODO if we discard whitespaces, we could test for ret[0][1] == "<"
+		txt = "".join(y for (x,y) in ret)
+		# TODO if we discard whitespaces, we could test for val == "<"
 	else:
 		raise PreprocError, "could not parse %s" % str(ret)
 
@@ -670,7 +671,7 @@ def tokenize(txt):
 					else: buf.append(c)
 				else:
 					buf.append(c)
-			abuf.append([stri, ''.join(buf)])
+			abuf.append((stri, ''.join(buf)))
 			i += 1
 		elif c == '\'':
 			# char
@@ -687,7 +688,7 @@ def tokenize(txt):
 			c = txt[i]
 			i += 1
 			if c != '\'': error("uh-oh, invalid character"+str(c)) # TODO special chars
-			abuf.append([chr, ''.join(buf)])
+			abuf.append((chr, ''.join(buf)))
 
 			i += 1
 
@@ -702,7 +703,7 @@ def tokenize(txt):
 					if c >= max: break
 				else:
 					break
-			abuf.append([num, ''.join(buf)])
+			abuf.append((num, ''.join(buf)))
 		elif c in alpha:
 			# identifier (except for the boolean operators 'and', 'or' and 'not')
 			buf = []
@@ -716,13 +717,13 @@ def tokenize(txt):
 					break
 			name = ''.join(buf).lower()
 			if name == 'not':
-				abuf.append([op, '!'])
+				abuf.append((op, '!'))
 			elif name == 'or':
-				abuf.append([op, '||'])
+				abuf.append((op, '||'))
 			elif name == 'and':
-				abuf.append([op, '&&'])
+				abuf.append((op, '&&'))
 			else:
-				abuf.append([ident, ''.join(buf)])
+				abuf.append((ident, ''.join(buf)))
 		else:
 			# operator
 			pos = 0
@@ -732,11 +733,11 @@ def tokenize(txt):
 				if c in punctuators_table[pos].keys():
 					pos = punctuators_table[pos][c]
 					if i >= max:
-						abuf.append([op, punctuators_table[pos]['$$']])
+						abuf.append((op, punctuators_table[pos]['$$']))
 						break
 				else:
 					try:
-						abuf.append([op, punctuators_table[pos]['$$']])
+						abuf.append((op, punctuators_table[pos]['$$']))
 						i -= 1
 						break
 					except KeyError:
