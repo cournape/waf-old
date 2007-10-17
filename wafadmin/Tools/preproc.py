@@ -22,8 +22,9 @@ class PreprocError(Exception):
 	pass
 
 # ignore #warning and #error
-reg_define = re.compile('^\s*(#|%:)\s*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)\s*(.*)\r*$', re.MULTILINE)
-reg_pragma_once = re.compile('^\s*once\s*')
+s = '^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$'
+reg_define = re.compile(s, re.IGNORECASE | re.MULTILINE)
+reg_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
 reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
 def repl(m):
@@ -252,7 +253,25 @@ def eval_tokens(lst, adefs, ban=[]):
 	while lst:
 		(tok, val) = lst.pop(0)
 
-		if tok == ident and val in adefs: # TODO the defined() and sizeof() cases
+		if tok == ident and val.lower() == 'defined':
+			# "defined(identifier)" or "defined identifier"
+			(tok, val) = lst.pop(0)
+			if val == '(':
+				(tok, val_x) = lst.pop(0)
+				if tok != ident: raise PreprocError, 'expected an identifier after a defined'
+				(tok, val) = lst.pop(0)
+				if val != ')': raise PreprocError, 'expected a ")" after a defined'
+			elif tok == ident:
+				val_x = val
+			else:
+				raise PreprocError, 'expected a "(" or an identifier after a defined'
+
+			if val_x in adefs: accu.append((num, 1))
+			else: accu.append((num, 0))
+
+		elif tok == ident and val.lower() == 'sizeof':
+			raise PreprocError, "you must be fucking kidding"
+		elif tok == ident and val in adefs:
 			# the identifier is a macro
 			name = val
 
@@ -417,7 +436,6 @@ class cparse:
 		if env['DEFLINES']:
 			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
 
-
 		while self.lines:
 			# TODO we can skip evaluating conditions (#if) only when we are
 			# certain they contain no define, undef or include
@@ -448,7 +466,6 @@ class cparse:
 	def process_line(self, token, line):
 
 		debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
-
 
 		# make certain we define the state if we are about to enter in an if block
 		if token in ['ifdef', 'ifndef', 'if']:
