@@ -22,7 +22,7 @@ class PreprocError(Exception):
 	pass
 
 # ignore #warning and #error
-reg_define = re.compile('^\s*(#|%:)\s*(if|ifdef|ifndef|else|elif|endif|include|import|define|undef|pragma)\s*(.*)\r*')
+reg_define = re.compile('^\s*(#|%:)\s*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)\s*(.*)\r*$', re.MULTILINE)
 reg_pragma_once = re.compile('^\s*once\s*')
 reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
