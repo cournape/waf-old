@@ -16,6 +16,7 @@ import re, sys, os, string
 sys.path = ['.', '..'] + sys.path
 import Params
 from Params import debug, error, warning
+import traceback
 
 class PreprocError(Exception):
 	pass
@@ -461,9 +462,10 @@ class cparse:
 			self.lines = lines + self.lines
 		except IOError:
 			raise PreprocError, "could not read the file"
-		except:
-			if Params.g_verbose > 0: warning("parsing %s failed" % filepath)
-			#raise PreprocError, "unknown exception"
+		except Exception:
+			if Params.g_verbose > 0:
+				warning("parsing %s failed" % filepath)
+				traceback.print_exc()
 
 	def start2(self, node, env):
 		debug("scanning %s (in %s)" % (node.m_name, node.m_parent.m_name), 'preproc')
