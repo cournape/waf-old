@@ -463,7 +463,7 @@ class cparse:
 			raise PreprocError, "could not read the file"
 		except:
 			if Params.g_verbose > 0: warning("parsing %s failed" % filepath)
-			raise PreprocError, "unknown exception"
+			#raise PreprocError, "unknown exception"
 
 	def start2(self, node, env):
 		debug("scanning %s (in %s)" % (node.m_name, node.m_parent.m_name), 'preproc')
