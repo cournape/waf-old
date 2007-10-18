@@ -125,7 +125,7 @@ def get_expr(tokens):
 		pass
 		#print "could not get an expression from ", tokens
 
-	return (None, None, tokens)
+	return (NUM, 0, tokens[1:])
 
 def get_top(tokens):
 	if len(tokens) == 0: return (None, tokens)
@@ -165,6 +165,7 @@ def get_top(tokens):
 	elif d=='^':  c = int(a^b)
 	elif d=='<<': c = a<<b
 	elif d=='>>': c = a>>b
+	else: c = 0
 
 	# now make the operation and return...
 	return (NUM, c, nlst)
