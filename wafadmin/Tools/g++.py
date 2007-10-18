@@ -93,7 +93,7 @@ def detect(conf):
 		v['program_SUFFIX']    = '.exe'
 
 		# plugins, loadable modules.
-		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_CXXFLAGS']     = v['shlib_CXXFLAGS']
 		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
 		v['plugin_obj_ext']      = v['shlib_obj_ext']
 		v['plugin_PREFIX']       = v['shlib_PREFIX']
@@ -138,7 +138,7 @@ def detect(conf):
 		# bundles
 		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
 		v['plugin_obj_ext']      = ['.os']
-		v['plugin_CCFLAGS']      = ['-fPIC']
+		v['plugin_CXXFLAGS']     = ['-fPIC']
 		v['plugin_PREFIX']       = ''
 		v['plugin_SUFFIX']       = '.bundle'
 
@@ -158,7 +158,7 @@ def detect(conf):
 		v['shlib_SUFFIX']      = '.so'
 
 		# plugins, loadable modules.
-		v['plugin_CCFLAGS']    = v['shlib_CCFLAGS']
+		v['plugin_CXXFLAGS']   = v['shlib_CXXFLAGS']
 		v['plugin_LINKFLAGS']  = v['shlib_LINKFLAGS']
 		v['plugin_obj_ext']    = v['shlib_obj_ext']
 		v['plugin_PREFIX']     = v['shlib_PREFIX']
@@ -185,7 +185,7 @@ def detect(conf):
 		v['shlib_SUFFIX']      = '.so'
 
 		# plugins, loadable modules.
-		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_CXXFLAGS']     = v['shlib_CXXFLAGS']
 		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
 		v['plugin_obj_ext']      = v['shlib_obj_ext']
 		v['plugin_PREFIX']       = v['shlib_PREFIX']
