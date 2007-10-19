@@ -121,7 +121,7 @@ def reduce_nums(val_1, val_2, val_op):
 
 # Here is the small grammar we try to follow:
 # result := top
-# top    := expr | expr op top
+# top    := expr | expr op expr
 # expr   := val | ( top ) | !expr | -expr
 # The following rule should be taken into account:
 # val    := NUM | NUM . NUM | NUM "e" NUM ...
@@ -132,15 +132,15 @@ def get_expr(tokens):
 	if tok == NUM:
 		return (tok, val, lst)
 	elif tok == OP:
-		if val == '!':
+		if val == '!' or val == '~': # TODO handle bitwise complement
 			(tok2, val2, lst2) = get_expr(lst)
 			v = int(val2)
 			if v == 0: v = 1
 			else:      v = 0
 			return (NUM, v, lst2)
-		elif val == '-':
+		elif val == '-' or val == '+':
 			(tok2, val2, lst2) = get_expr(lst)
-			v = - int(val2)
+			if val == '-': v = - int(val2)
 			return (NUM, v, lst2)
 		elif val == '(':
 			count_par = 0
@@ -149,10 +149,8 @@ def get_expr(tokens):
 				(tok, val) = lst.pop(0)
 				if tok == OP:
 					if val == ')':
-						if count_par == 0:
-							break
-						else:
-							count_par -= 1
+						if count_par == 0: break
+						else: count_par -= 1
 					elif val == '(':
 						count_par += 1
 				accu.append( (tok, val) )
@@ -166,6 +164,46 @@ def get_expr(tokens):
 
 	return (NUM, 0, tokens[1:])
 
+def reduce_recurse(val_a, op_1, val_b, op_2, val_c, tokens):
+	if prec(op_1) > prec(op_2):
+		val_a = reduce_nums(val_a, val_b, op_1)
+		if tokens:
+			(tok_new, op_new) = tokens.pop(0)
+			(tok_d, val_d, new_list) = get_expr(tokens)
+			return reduce_recurse(val_a, op_2, val_c, op_new, val_d, new_list)
+		else:
+			val_a = reduce_nums(val_a, val_c, op_2)
+			return (NUM, val_a)
+	else:
+		val_b = reduce_nums(val_b, val_c, op_2)
+		if tokens:
+			(tok_new, op_new) = tokens.pop(0)
+			(tok_d, val_d, new_list) = get_expr(tokens)
+			return reduce_recurse(val_a, op_2, val_b, op_new, val_d, new_list)
+		else:
+			val_a = reduce_nums(val_a, val_b, op_1)
+			return (NUM, val_a)
+
+def reduce_tokens(tokens):
+	if not tokens: return (STRING, '')
+	if len(tokens) == 1: return tokens[0]
+
+	lst = []+tokens
+
+	(tok_a, val_a, lst1) = get_expr(lst)
+	if not lst1:
+		return (tok_a, val_a)
+	(tok_1, val_1) = lst1.pop(0)
+	(tok_b, val_b, lst2) = get_expr(lst1)
+	if not lst2:
+		val_a = reduce_nums(val_a, val_b, val_1)
+		return (tok_a, val_a)
+	(tok_2, val_2) = lst2.pop(0)
+	(tok_c, val_c, lst3) = get_expr(lst2)
+
+	return reduce_recurse(val_a, val_1, val_b, val_2, val_c, lst3)
+
+# remove
 def get_top(tokens):
 	if len(tokens) == 0: return (None, tokens)
 	lst = []+tokens
@@ -226,7 +264,7 @@ def eval_fun(name, params, defs, ban=[]):
 				tokens = params[param_index[val_next]]
 				# macro parameter evaluation is postponed
 				ret = eval_tokens(tokens, defs, ban+[name])
-				ret = (STRING, "".join([y for (x,y) in ret]))
+				ret = (STRING, "".join([str(y) for (x,y) in ret]))
 				accu.append(ret)
 
 			elif val == '##':
