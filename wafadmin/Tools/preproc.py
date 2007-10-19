@@ -74,10 +74,50 @@ trigs = {
 }
 
 puncs = []
-puncs.append('< > + - * / % = & | ^ . : ! # [ ] ( ) { } ~ ? ; ,'.split())
-puncs.append('<< <% <: <= >> >= ++ += -- -> -= *= /= %: %= %> == && &= || |= ^= :> != ##'.split())
-puncs.append('<<= >>= ...'.split())
-puncs.append('%:%: '.split())
+p = puncs.append
+p('< > + - * / % = & | ^ . : ! # [ ] ( ) { } ~ ? ; ,'.split())
+p('<< <% <: <= >> >= ++ += -- -> -= *= /= %: %= %> == && &= || |= ^= :> != ##'.split())
+p('<<= >>= ...'.split())
+p('%:%: '.split())
+
+prec = {}
+# op -> number, needed for such expressions:   #if 1 && 2 != 0
+ops = ['* / %', '+ -', '<< >>', '< <= >= >', '== !=', '& | ^', '&& ||']
+for x in range(len(ops)):
+	syms = ops[x]
+	for u in syms:
+		prec[u] = x
+
+def reduce_nums(val_1, val_2, val_op):
+	# pass two values, return a value
+
+	# TODO: what if users are really mad and use in #if blocks
+	# floating-point arithmetic ???
+	# strings ???
+
+	# now perform the operation
+	a = int(val_1)
+	b = int(val_2)
+	d = val_op
+	if d == '%':  c = a%b
+	elif d=='+':  c = a+b
+	elif d=='-':  c = a-b
+	elif d=='*':  c = a*b
+	elif d=='/':  c = a/b
+	elif d=='|':  c = a|b
+	elif d=='||': c = int(a or b)
+	elif d=='&':  c = a&b
+	elif d=='&&': c = int(a and b)
+	elif d=='==': c = int(a == b)
+	elif d=='<=': c = int(a <= b)
+	elif d=='<':  c = int(a < b)
+	elif d=='>':  c = int(a > b)
+	elif d=='>=': c = int(a >= b)
+	elif d=='^':  c = int(a^b)
+	elif d=='<<': c = a<<b
+	elif d=='>>': c = a>>b
+	else: c = 0
+	return c
 
 # Here is the small grammar we try to follow:
 # result := top
@@ -85,7 +125,6 @@ puncs.append('%:%: '.split())
 # expr   := val | ( top ) | !expr | -expr
 # The following rule should be taken into account:
 # val    := NUM | NUM . NUM | NUM "e" NUM ...
-
 def get_expr(tokens):
 	if len(tokens) == 0: return (None, None, tokens)
 	lst = []+tokens
@@ -144,30 +183,7 @@ def get_top(tokens):
 	# floating-point arithmetic ???
 	# strings ???
 
-	# now perform the operation
-	a = int(val_1)
-	b = int(val_2)
-	d = val_op
-	if d == '%':  c = a%b
-	elif d=='+':  c = a+b
-	elif d=='-':  c = a-b
-	elif d=='*':  c = a*b
-	elif d=='/':  c = a/b
-	elif d=='|':  c = a|b
-	elif d=='||': c = int(a or b)
-	elif d=='&':  c = a&b
-	elif d=='&&': c = int(a and b)
-	elif d=='==': c = int(a == b)
-	elif d=='<=': c = int(a <= b)
-	elif d=='<':  c = int(a < b)
-	elif d=='>':  c = int(a > b)
-	elif d=='>=': c = int(a >= b)
-	elif d=='^':  c = int(a^b)
-	elif d=='<<': c = a<<b
-	elif d=='>>': c = a>>b
-	else: c = 0
-
-	# now make the operation and return...
+	c = reduce_nums(val_1, val_2, val_op)
 	return (NUM, c, nlst)
 
 def reduce(tokens):
