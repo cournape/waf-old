@@ -89,6 +89,7 @@ for x in range(len(ops)):
 		prec[u] = x
 
 def reduce_nums(val_1, val_2, val_op):
+	#print val_1, val_2, val_op
 	# pass two values, return a value
 
 	# TODO: what if users are really mad and use in #if blocks
@@ -161,15 +162,9 @@ def get_expr(tokens):
 				accu.append( (tok, val) )
 			(tok_tmp, val_tmp) = reduce_tokens(accu)
 			return (tok_tmp, val_tmp, lst)
-			# FIXME
-			#(tok_tmp, val_tmp, lst_tmp) = get_top(accu)
-			## TODO raise an exception if the expression could not be reduced properly
-			##if lst_tmp: raise ...
-			#return (tok_tmp, val_tmp, lst)
 	else:
 		pass
 	raise PreprocError, "could not get an expression from %s" % tokens
-	#return (NUM, 0, tokens[1:])
 
 def reduce_recurse(val_a, op_1, val_b, op_2, val_c, tokens):
 	if prec[op_1] < prec[op_2]:
@@ -184,9 +179,10 @@ def reduce_recurse(val_a, op_1, val_b, op_2, val_c, tokens):
 	else:
 		val_b = reduce_nums(val_b, val_c, op_2)
 		if tokens:
+			# now the annoying case
 			(tok_new, op_new) = tokens.pop(0)
 			(tok_d, val_d, new_list) = get_expr(tokens)
-			return reduce_recurse(val_a, op_2, val_b, op_new, val_d, new_list)
+			return reduce_recurse(val_a, op_1, val_b, op_new, val_d, new_list)
 		else:
 			val_a = reduce_nums(val_a, val_b, op_1)
 			return (NUM, val_a)
