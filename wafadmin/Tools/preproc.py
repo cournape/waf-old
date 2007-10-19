@@ -82,10 +82,10 @@ p('%:%: '.split())
 
 prec = {}
 # op -> number, needed for such expressions:   #if 1 && 2 != 0
-ops = ['* / %', '+ -', '<< >>', '< <= >= >', '== !=', '& | ^', '&& ||']
+ops = ['. * / %', '+ -', '<< >>', '< <= >= >', '== !=', '& | ^', '&& ||']
 for x in range(len(ops)):
 	syms = ops[x]
-	for u in syms:
+	for u in syms.split():
 		prec[u] = x
 
 def reduce_nums(val_1, val_2, val_op):
@@ -95,9 +95,12 @@ def reduce_nums(val_1, val_2, val_op):
 	# floating-point arithmetic ???
 	# strings ???
 
-	# now perform the operation
-	a = int(val_1)
-	b = int(val_2)
+	# now perform the operation, make certain a and b are numeric
+	try:    a = 0 + val_1
+	except: a = int(val_1)
+	try:    b = 0 + val_2
+	except: b = int(val_2)
+
 	d = val_op
 	if d == '%':  c = a%b
 	elif d=='+':  c = a+b
@@ -109,6 +112,7 @@ def reduce_nums(val_1, val_2, val_op):
 	elif d=='&':  c = a&b
 	elif d=='&&': c = int(a and b)
 	elif d=='==': c = int(a == b)
+	elif d=='!=': c = int(a != b)
 	elif d=='<=': c = int(a <= b)
 	elif d=='<':  c = int(a < b)
 	elif d=='>':  c = int(a > b)
@@ -116,6 +120,7 @@ def reduce_nums(val_1, val_2, val_op):
 	elif d=='^':  c = int(a^b)
 	elif d=='<<': c = a<<b
 	elif d=='>>': c = a>>b
+	elif d=='.': c = a+b/100. # cast to float
 	else: c = 0
 	return c
 
@@ -154,18 +159,20 @@ def get_expr(tokens):
 					elif val == '(':
 						count_par += 1
 				accu.append( (tok, val) )
-			(tok_tmp, val_tmp, lst_tmp) = get_top(accu)
-			# TODO raise an exception if the expression could not be reduced properly
-			#if lst_tmp: raise ...
+			(tok_tmp, val_tmp) = reduce_tokens(accu)
 			return (tok_tmp, val_tmp, lst)
+			# FIXME
+			#(tok_tmp, val_tmp, lst_tmp) = get_top(accu)
+			## TODO raise an exception if the expression could not be reduced properly
+			##if lst_tmp: raise ...
+			#return (tok_tmp, val_tmp, lst)
 	else:
 		pass
-		#print "could not get an expression from ", tokens
-
-	return (NUM, 0, tokens[1:])
+	raise PreprocError, "could not get an expression from %s" % tokens
+	#return (NUM, 0, tokens[1:])
 
 def reduce_recurse(val_a, op_1, val_b, op_2, val_c, tokens):
-	if prec(op_1) > prec(op_2):
+	if prec[op_1] < prec[op_2]:
 		val_a = reduce_nums(val_a, val_b, op_1)
 		if tokens:
 			(tok_new, op_new) = tokens.pop(0)
@@ -185,60 +192,35 @@ def reduce_recurse(val_a, op_1, val_b, op_2, val_c, tokens):
 			return (NUM, val_a)
 
 def reduce_tokens(tokens):
-	if not tokens: return (STRING, '')
-	if len(tokens) == 1: return tokens[0]
-
-	lst = []+tokens
-
-	(tok_a, val_a, lst1) = get_expr(lst)
-	if not lst1:
-		return (tok_a, val_a)
-	(tok_1, val_1) = lst1.pop(0)
-	(tok_b, val_b, lst2) = get_expr(lst1)
-	if not lst2:
-		val_a = reduce_nums(val_a, val_b, val_1)
-		return (tok_a, val_a)
-	(tok_2, val_2) = lst2.pop(0)
-	(tok_c, val_c, lst3) = get_expr(lst2)
-
-	return reduce_recurse(val_a, val_1, val_b, val_2, val_c, lst3)
-
-# remove
-def get_top(tokens):
-	if len(tokens) == 0: return (None, tokens)
-	lst = []+tokens
-
-	(tok_1, val_1, nlst) = get_expr(lst)
-	if tok_1 == None: return (None, None, tokens) # we cannot reduce the list of tokens
-
-	#print "tok 1 is ", tok_1
-
-	if len(nlst) == 0: return (tok_1, val_1, nlst)
-	(tok_op, val_op) = nlst.pop(0)
-	(tok_2, val_2, nlst) = get_top(nlst)
-
-	# TODO: what if users are really mad and use in #if blocks
-	# floating-point arithmetic ???
-	# strings ???
-
-	c = reduce_nums(val_1, val_2, val_op)
-	return (NUM, c, nlst)
-
-def reduce(tokens):
-	if not tokens: return (STRING, '')
+	if not tokens: return [(STRING, '')]
 	if len(tokens) == 1: return tokens
 
 	lst = []+tokens
+	# if the expression cannot be reduced, just return the tokens
 
-	#print "lst is %s (len %d)  [%s]" % (str(tokens), len(tokens), " ".join([str(x[1]) for x in tokens]))
-	#print "\n\n\n"
+	try:
+		(tok_a, val_a, lst1) = get_expr(lst)
+		if (not tok_a) or tok_a == IDENT: return tokens
+		if not lst1:
+			return [(tok_a, val_a)]
+		(tok_1, val_1) = lst1.pop(0)
+		if tok_1 != OP: return tokens
 
-	(tok, val, lst) = get_top(lst)
-	if tok == None: return tokens
-	#print "eval returned token", tok
+		(tok_b, val_b, lst2) = get_expr(lst1)
+		if (not tok_b) or tok_b == IDENT: return tokens
+		if not lst2:
+			val_a = reduce_nums(val_a, val_b, val_1)
+			return [(tok_a, val_a)]
+		(tok_2, val_2) = lst2.pop(0)
+		if tok_2 != OP: return tokens
 
-	#print "in reduce, returning ", tokens
-	return [(tok, val)]
+		(tok_c, val_c, lst3) = get_expr(lst2)
+		if (not tok_c) or tok_c == IDENT: return tokens
+
+		(tok, val) = reduce_recurse(val_a, val_1, val_b, val_2, val_c, lst3)
+		return [(tok, val)]
+	except PreprocError:
+		return tokens
 
 def eval_fun(name, params, defs, ban=[]):
 
@@ -371,7 +353,7 @@ def eval_tokens(lst, adefs, ban=[]):
 			accu.append((tok, val))
 
 	# now reduce the expressions if possible, like 1+1->2, no more evaluation should take place
-	accu = reduce(accu)
+	accu = reduce_tokens(accu)
 	return accu
 
 def eval_macro(lst, adefs):
