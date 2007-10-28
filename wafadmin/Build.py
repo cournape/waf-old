@@ -333,7 +333,6 @@ class Build:
 
 		self._initialize_variants()
 
-
 	def ensure_dir_node_from_path(self, abspath):
 		"return a node corresponding to an absolute path, creates nodes if necessary"
 		debug('ensure_dir_node_from_path %s' % (abspath), 'build')
@@ -348,6 +347,15 @@ class Build:
 				curnode.append_dir(found)
 			curnode = found
 		return curnode
+
+	def prescan(self):
+		self.rescan_recursively(self.m_srcnode)
+
+	def rescan_recursively(self, src_dir_node):
+		self.rescan(src_dir_node)
+		tbl = src_dir_node.m_dirs_lookup
+		for x in tbl:
+			self.rescan_recursively(tbl[x])
 
 	def rescan(self, src_dir_node):
 		""" first list the files in the src dir and update the nodes
