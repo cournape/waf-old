@@ -236,7 +236,7 @@ def eval_fun(name, params, defs, ban=[]):
 	while fun_code:
 		(tok, val) = fun_code.pop(0)
 		if tok == OP:
-			if val == '#':
+			if val == '#' or val == '%:':
 				# the next token is one of the args
 				(tok_next, val_next) = fun_code.pop(0)
 				tokens = params[param_index[val_next]]
@@ -245,7 +245,7 @@ def eval_fun(name, params, defs, ban=[]):
 				ret = (STRING, "".join([str(y) for (x,y) in ret]))
 				accu.append(ret)
 
-			elif val == '##':
+			elif val == '##' or val == '%:%:':
 				# the next token is an identifier (token pasting)
 				(tok_next, val_next) = fun_code.pop(0)
 				(tok_back, val_back) = accu[-1]
