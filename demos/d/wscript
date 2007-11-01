@@ -7,20 +7,17 @@ VERSION='0.0.1'
 APPNAME='d_test'
 
 import Params
+import compiler_d
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-	opt.tool_options('dmd')
+	compiler_d.set_options(opt)
 
 def configure(conf):
-	conf.check_tool('dmd')
-	if not conf.env['D_COMPILER']:
-		conf.check_tool('gdc')
-	if not conf.env['D_COMPILER']:
-		Params.fatal('This demo requires a d compiler! (either dmd or gdc)')
+	compiler_d.detect(conf)
 	conf.env['LIB_PTHREAD'] = ['pthread']
 
 def build(bld):
