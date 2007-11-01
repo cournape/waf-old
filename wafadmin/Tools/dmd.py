@@ -14,16 +14,21 @@ def detect(conf):
 
 	conf.check_tool('d')
 
-	if not conf.check_tool('ar'):
-		conf.error('ar is needed for static libraries - not found')
-		return 0
+	conf.check_tool('ar')
+	if not conf.env['AR']:
+		conf.fatal('ar is needed for static libraries - not found')
 
 	v = conf.env
 
 	#compiler
 	v['D_COMPILER']           = d_compiler
 
-	v['DFLAGS']               = ['-version=Posix']
+	# Compiler is dmd so 'gdc' part will be ignored, just
+	# ensure key is there, so wscript can append flags to it
+	v['DFLAGS']               = {'gdc': [], 'dmd': ['-version=Posix']}
+	# Compiler-specific flags, are set to either v['DFLAGS']['gdc'] or ..['dmd']
+	# during dobj.apply()
+	v['_DFLAGS']              = []
 	v['_DIMPORTFLAGS']        = []
 
 	v['D_SRC_F']              = ''

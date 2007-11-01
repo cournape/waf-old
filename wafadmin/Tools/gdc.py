@@ -16,16 +16,19 @@ def detect(conf):
 
 	conf.check_tool('d')
 
-	if not conf.check_tool('ar'):
-		conf.error('ar is needed for static libraries - not found')
-		return 0
+	conf.check_tool('ar')
+	if not conf.env['AR']:
+		conf.fatal('ar is needed for static libraries - not found')
 
 	v = conf.env
 
 	#compiler
 	v['D_COMPILER']           = d_compiler
 
-	v['DFLAGS']               = []
+	# for mory info about the meaning of this dict see dmd.py
+	v['DFLAGS']               = {'gdc':[], 'dmd':[]}
+	v['_DFLAGS']              = []
+
 	v['_DIMPORTFLAGS']        = []
 
 	v['D_SRC_F']              = ''

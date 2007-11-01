@@ -195,8 +195,8 @@ class d_scanner(Scan.scanner):
 	"scanner for d files"
 	def __init__(self):
 		Scan.scanner.__init__(self)
-		self.do_scan = self.do_scan_new
-		self.get_signature = self.get_signature_rec
+		self.do_scan = self.scan
+		#self.get_signature = self.get_signature_rec
 
 	def scan(self, task, node):
 		"look for .d/.di the .d source need"
@@ -218,7 +218,7 @@ class dobj(Object.genobj):
 	def __init__(self, type='program'):
 		Object.genobj.__init__(self, type)
 
-		self.dflags = ''
+		self.dflags = {'gdc':'', 'dmd':''}
 		self.importpaths = ''
 		self.libs = ''
 		self.libpaths = ''
@@ -241,7 +241,7 @@ class dobj(Object.genobj):
 		lib_st           = env['DLIB_ST']
 		libpath_st       = env['DLIBPATH_ST']
 
-		dflags = []
+		dflags = {'gdc':[], 'dmd':[]}
 		importpaths = []
 		libpaths = []
 		libs = []
@@ -319,21 +319,22 @@ class dobj(Object.genobj):
 		# add compiler flags
 		for i in uselib:
 			if env['DFLAGS_' + i]:
-				for dflag in self.to_list(env['DFLAGS_' + i]):
-					if not dflag in dflags:
-						dflags += [dflag]
-		dflags = self.to_list(self.dflags) + dflags
+				for dflag in self.to_list(env['DFLAGS_' + i][env['COMPILER_D']]):
+					if not dflag in dflags[env['COMPILER_D']]:
+						dflags[env['COMPILER_D']] += [dflag]
+		dflags[env['COMPILER_D']] = self.to_list(self.dflags[env['COMPILER_D']]) + dflags[env['COMPILER_D']]
 
-		for dflag in dflags:
-			if not dflag in env['DFLAGS']:
-				env['DFLAGS'] += [dflag]
-
+		for dflag in dflags[env['COMPILER_D']]:
+			if not dflag in env['DFLAGS'][env['COMPILER_D']]:
+				env['DFLAGS'][env['COMPILER_D']] += [dflag]
 
 		d_shlib_dflags = env['D_' + type + '_DFLAGS']
 		if d_shlib_dflags:
 			for dflag in d_shlib_dflags:
-				if not dflag in env['DFLAGS']:
-					env['DFLAGS'] += [dflag]
+				if not dflag in env['DFLAGS'][env['COMPILER_D']]:
+					env['DFLAGS'][env['COMPILER_D']] += [dflag]
+
+		env['_DFLAGS'] = env['DFLAGS'][env['COMPILER_D']]
 
 
 		# add import paths
@@ -442,7 +443,7 @@ class dobj(Object.genobj):
 		pass
 
 def setup(env):
-	d_str = '${D_COMPILER} ${DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
+	d_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
 	link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${_DLIBDIRFLAGS} ${_DLIBFLAGS}'
 
 	Action.simple_action('d', d_str, 'GREEN')

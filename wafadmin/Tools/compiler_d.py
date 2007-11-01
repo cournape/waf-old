@@ -14,8 +14,9 @@ def detect(conf):
 
 	for d_compiler in test_for_compiler:
 		conf.check_tool(d_compiler)
-		if conf.env['D_COMPILER']
+		if conf.env['D_COMPILER']:
 			conf.check_message("%s" % d_compiler, '', True)
+			conf.env["COMPILER_D"] = d_compiler
 			return
 		conf.check_message("%s" % d_compiler, '', False)
 
