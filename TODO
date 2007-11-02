@@ -21,8 +21,6 @@ ideas to watch:
 * improve the scons emulation
 * ncurses options menu support
 
-Qt4.py: do not hash the moc files in the signature
-
 --------------------------------------
-Last update: 18-09-2007
+Last update: 02-11-2007
 Contact -> tnagyemail-mail at yahoo.fr (ita)

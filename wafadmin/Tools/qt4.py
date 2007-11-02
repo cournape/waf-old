@@ -28,7 +28,12 @@ class MTask(Task.Task):
 		self.parent = parent
 
 	def may_start(self):
-		if self.moc_done: return Task.Task.may_start(self)
+		if self.moc_done:
+			# we need to recompute the signature as the moc task has finally run
+			# unfortunately, the moc file enters in the dependency calculation TODO
+			delattr(self, 'sign_all')
+			self.signature()
+			return Task.Task.may_start(self)
 
 		tree = Params.g_build
 		parn = self.parent
@@ -38,8 +43,8 @@ class MTask(Task.Task):
 		#if tree.needs_rescan(node, parn.env):
 		#	ccroot.g_c_scanner.do_scan(node, parn.env, hashparams = self.m_scanner_params)
 
-		# this will make sure the dependencies are computed
-		foo = self.signature()
+		# make sure the dependencies are computed to know if there is a moc file to create
+		self.signature()
 
 		moctasks=[]
 		mocfiles=[]
