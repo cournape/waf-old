@@ -4,7 +4,7 @@
 
 "Environment representation"
 
-import os, sys, string, types, imp
+import os, sys, string, types, imp, copy
 import Params, Utils
 from Params import debug, error, fatal, warning
 from copy import deepcopy
@@ -32,12 +32,10 @@ class Environment:
 
 	def copy(self):
 		newenv = Environment()
-		#newenv.m_table = self.m_table.copy()
-		newenv.m_table = deepcopy(self.m_table)
+		newenv.m_table = self.m_table.copy()
 		return newenv
 
 	def deepcopy(self):
-		import copy
 		newenv = Environment()
 		newenv.m_table = copy.deepcopy(self.m_table)
 		return newenv
