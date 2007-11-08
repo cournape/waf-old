@@ -177,6 +177,7 @@ class Serial:
 	def __init__(self, generator):
 		self.m_generator = generator
 	def start(self):
+		global g_quiet
 		debug("Serial start called", 'runner')
 		#self.m_generator.debug()
 		while 1:
@@ -213,7 +214,7 @@ class Serial:
 			debug("executing  #"+str(tsk.m_idx), 'runner')
 
 			# display the command that we are about to run
-			if not Params.g_commands['configure']:
+			if not g_quiet:
 				(s, t) = self.m_generator.progress()
 				col1=Params.g_colors[tsk.color()]
 				col2=Params.g_colors['NORMAL']
