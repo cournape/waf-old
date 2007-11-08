@@ -118,7 +118,6 @@ def Main():
 	Runner.set_exec('noredir')
 
 	# compile the project and/or install the files
-	bld = Build.Build()
 	try:
 		proj = read_cache_file(g_lockfile)
 	except IOError:
@@ -126,9 +125,12 @@ def Main():
 			fatal("Nothing to clean (project not configured)", ret=0)
 		else:
 			warning("Run waf configure first...")
-			configure()
-			bld = Build.Build()
-			proj = read_cache_file(g_lockfile)
+			if Params.g_autoconfig:
+				configure()
+			else:
+				return
+	bld = Build.Build()
+	proj = read_cache_file(g_lockfile)
 
 	if Params.g_autoconfig:
 		reconf = 0
