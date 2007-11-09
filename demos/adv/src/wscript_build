@@ -61,3 +61,10 @@ obj.includes="."
 obj.target="m2"
 obj.add_objects="gruik"
 
+import misc
+obj = bld.create_obj('subst')
+obj.source = 'foo.in'
+obj.target = 'foo.desktop'
+obj.dict = {'TEST': 'OK', 'not': 'used'}
+obj.fun = misc.subst_func
+
