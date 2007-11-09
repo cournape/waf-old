@@ -130,12 +130,17 @@ class substobj(Object.genobj):
 
 			newnode = node.change_ext('')
 
+			if self.dict and not self.env['DICT_HASH']:
+				self.env = self.env.copy()
+				self.env['DICT_HASH'] = self.dict.hash()
+
 			task = self.create_task('copy', self.env, self.prio)
 			task.set_inputs(node)
 			task.set_outputs(newnode)
 			task.m_env = self.env
 			task.fun = self.fun
 			task.dict = self.dict
+			task.dep_vars = ['DICT_HASH']
 
 			if not task.m_env:
 				task.debug()
