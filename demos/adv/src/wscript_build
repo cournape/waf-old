@@ -14,6 +14,7 @@
 # By contrast, only functions can be defined in a wscript
 #
 
+
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
 obj = bld.create_obj('cpp', 'program')
@@ -67,4 +68,7 @@ obj.source = 'foo.in'
 obj.target = 'foo.desktop'
 obj.dict = {'TEST': 'OK', 'not': 'used'}
 obj.fun = misc.subst_func
+
+obj.install_var    = 'PREFIX'
+obj.install_subdir = 'test'
 
