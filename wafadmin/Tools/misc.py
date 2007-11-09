@@ -120,6 +120,10 @@ class substobj(Object.genobj):
 		self.fun = subst_func
 		self.dict = {}
 		self.prio = 8
+
+		self.destvar = ''
+		self.subdir = ''
+
 	def apply(self):
 
 		lst = self.to_list(self.source)
@@ -146,6 +150,13 @@ class substobj(Object.genobj):
 				task.debug()
 				fatal('task witout an environment')
 
+	def install(self):
+		if not self.destvar:
+			return
+		current = Params.g_build.m_curdirnode
+		for task in self.m_tasks:
+			out = task.m_outputs[0]
+			Common.install_files(self.destvar, self.subdir, out.abspath(self.env), self.env)
 
 class CommandOutputTask(Task.Task):
 
