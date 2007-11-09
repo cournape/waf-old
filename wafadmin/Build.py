@@ -4,7 +4,7 @@
 
 "Dependency tree holder"
 
-import os, sys, cPickle
+import os, sys, cPickle, types, imp
 import Params, Runner, Object, Node, Task, Scripting, Utils, Environment
 from Params import debug, error, fatal, warning
 
@@ -254,7 +254,7 @@ class Build:
 				error("could not load env "+name)
 				continue
 			self.m_allenvs[name] = env
-			for t in env['tools']: env.setup(**t)
+			for t in env['tools']: self.setup(**t)
 
 		self._initialize_variants()
 
@@ -270,6 +270,19 @@ class Build:
 					error("cannot find "+f)
 					hash = Params.sig_nil
 				self.m_tstamp_variants[env.variant()][newnode] = hash
+
+	def setup(self, tool, tooldir=None):
+		"setup tools for build process"
+		if type(tool) is types.ListType:
+			for i in tool: self.setup(i)
+			return
+
+		if not tooldir: tooldir = Params.g_tooldir
+
+		file,name,desc = imp.find_module(tool, tooldir)
+		module = imp.load_module(tool,file,name,desc)
+		if hasattr(module, "setup"): module.setup(self)
+		if file: file.close()
 
 
 	def _initialize_variants(self):

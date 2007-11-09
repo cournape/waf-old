@@ -1289,7 +1289,7 @@ class Configure:
 		bld.load_dirs(dir, bdir, isconfigure=1)
 
 
-		for t in env['tools']: env.setup(**t)
+		for t in env['tools']: bld.setup(**t)
 
 		os.chdir(dir)
 

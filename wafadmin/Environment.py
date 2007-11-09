@@ -4,7 +4,7 @@
 
 "Environment representation"
 
-import os, sys, string, types, imp, copy
+import os, sys, string, types, copy
 import Params, Utils
 from Params import debug, error, fatal, warning
 from copy import deepcopy
@@ -39,19 +39,6 @@ class Environment:
 		newenv = Environment()
 		newenv.m_table = copy.deepcopy(self.m_table)
 		return newenv
-
-	def setup(self, tool, tooldir=None):
-		"setup tools for build process"
-		if type(tool) is types.ListType:
-			for i in tool: self.setup(i)
-			return
-
-		if not tooldir: tooldir = Params.g_tooldir
-
-		file,name,desc = imp.find_module(tool, tooldir)
-		module = imp.load_module(tool,file,name,desc)
-		if hasattr(module, "setup"): module.setup(self)
-		if file: file.close()
 
 	def __str__(self):
 		return "environment table\n"+str(self.m_table)
