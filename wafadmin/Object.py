@@ -159,6 +159,7 @@ class genobj(object):
 
 	def install_results(self, var, subdir, task, chmod=0644):
 		debug('install results called', 'object')
+		if not task: return
 		current = Params.g_build.m_curdirnode
 		lst = [a.relpath_gen(current) for a in task.m_outputs]
 		Common.install_files(var, subdir, lst, chmod=chmod)
