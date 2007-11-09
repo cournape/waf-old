@@ -13,7 +13,7 @@ import shutil, re, os, types, md5
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-import Object, Action, Node, Params, Utils, Task
+import Object, Action, Node, Params, Utils, Task, Common
 import pproc as subprocess
 from Params import fatal, debug
 
@@ -46,7 +46,16 @@ class cmdobj(Object.genobj):
 		# create a task
 		if not self.fun: fatal('cmdobj needs a function!')
 		import Task
-		Task.TaskCmd(self.fun, self.env, self.prio)
+		self.tasks.append(Task.TaskCmd(self.fun, self.env, self.prio))
+
+	def install(self):
+		if not self.destvar:
+			return
+		current = Params.g_build.m_curdirnode
+		for task in self.m_tasks:
+			out = task.m_outputs[0]
+			Common.install_files(self.destvar, self.subdir, out.abspath(self.env), self.env)
+
 
 class copyobj(Object.genobj):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
@@ -124,6 +133,14 @@ class substobj(Object.genobj):
 		self.destvar = ''
 		self.subdir = ''
 
+	def install(self):
+		if not self.destvar:
+			return
+		current = Params.g_build.m_curdirnode
+		for task in self.m_tasks:
+			out = task.m_outputs[0]
+			Common.install_files(self.destvar, self.subdir, out.abspath(self.env), self.env)
+
 	def apply(self):
 
 		lst = self.to_list(self.source)
@@ -149,14 +166,6 @@ class substobj(Object.genobj):
 			if not task.m_env:
 				task.debug()
 				fatal('task witout an environment')
-
-	def install(self):
-		if not self.destvar:
-			return
-		current = Params.g_build.m_curdirnode
-		for task in self.m_tasks:
-			out = task.m_outputs[0]
-			Common.install_files(self.destvar, self.subdir, out.abspath(self.env), self.env)
 
 class CommandOutputTask(Task.Task):
 
