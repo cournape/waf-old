@@ -4,7 +4,7 @@
 
 "Demo: this hook is called when the class cppobj encounters a '.coin' file: X{.coin -> .cpp -> .o}"
 
-import Action
+import Action, Object
 
 dang_str = '${DANG} ${SRC} > ${TGT}'
 "our action"
@@ -33,7 +33,7 @@ def setup(env):
 	Action.simple_action('dang', dang_str, color='BLUE')
 
 	# register the hook for use with cppobj
-	env.hook('cpp', 'DANG_EXT', coin_file)
+	Object.hook('cpp', 'DANG_EXT', coin_file)
 
 def detect(conf):
 	dang = conf.find_program('cat', var='DANG')

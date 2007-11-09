@@ -5,7 +5,7 @@
 "This hook is called when the class cppobj/ccobj encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
 
 import os, sys
-import Action
+import Action, Object
 from Params import set_globals
 from Utils import quote_whitespace
 
@@ -26,10 +26,10 @@ def setup(env):
 	Action.simple_action('winrc', winrc_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	try: env.hook('cpp', 'WINRC_EXT', rc_file)
+	try: Object.hook('cpp', 'WINRC_EXT', rc_file)
 	except: pass
 
-	try: env.hook('cc', 'WINRC_EXT', rc_file)
+	try: Object.hook('cc', 'WINRC_EXT', rc_file)
 	except: pass
 
 def detect(conf):

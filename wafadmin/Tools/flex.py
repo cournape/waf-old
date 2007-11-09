@@ -4,7 +4,7 @@
 
 "Flex processing"
 
-import Action
+import Action, Object
 from Params import fatal
 from Params import set_globals
 
@@ -38,9 +38,9 @@ def setup(env):
 	Action.simple_action('flex', flex_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	try: env.hook('cpp', 'FLEX_EXT', l_file)
+	try: Object.hook('cpp', 'FLEX_EXT', l_file)
 	except: pass
-	try: env.hook('cc', 'FLEX_EXT', l_file)
+	try: Object.hook('cc', 'FLEX_EXT', l_file)
 	except: pass
 
 def detect(conf):

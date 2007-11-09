@@ -1,8 +1,9 @@
-import os
-import pproc
-import Action
-import Node
-import Params
+#! /usr/bin/env python
+# encoding: utf-8
+# andersg at 0x63.nu 2007
+
+import os, pproc
+import Action, Object, Node, Params
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 
@@ -17,7 +18,7 @@ def xsubpp_file(self, node):
 
 def setup(env):
     Action.simple_action('xsubpp', xsubpp_str, color='BLUE')
-    env.hook('cc', 'PERLXS_EXT', xsubpp_file)
+    Object.hook('cc', 'PERLXS_EXT', xsubpp_file)
 
 def check_perl_version(conf, minver=None):
     """
@@ -26,10 +27,10 @@ def check_perl_version(conf, minver=None):
     If installed the variable PERL will be set in environment.
 
     Perl binary can be overridden by --with-perl-binary config variable
-    
+
     """
     res = True
-    
+
     if not getattr(Params.g_options, 'perlbinary', None):
         perl = conf.find_program("perl", var="PERL")
         if not perl:
@@ -83,7 +84,7 @@ def check_perl_ext_devel(conf):
         return False
 
     perl = conf.env['PERL']
-    
+
     conf.env["LINKFLAGS_PERLEXT"] = os.popen(perl + " -MConfig -e'print $Config{lddlflags}'").read()
     conf.env["CPPPATH_PERLEXT"] = os.popen(perl + " -MConfig -e'print \"$Config{archlib}/CORE\"'").read()
     conf.env["CCFLAGS_PERLEXT"] = os.popen(perl + " -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'").read()
@@ -109,9 +110,10 @@ def detect(conf):
     conf.hook(check_perl_version)
     conf.hook(check_perl_ext_devel)
     conf.hook(check_perl_module)
-    
+
     return True
 
 def set_options(opt):
     opt.add_option("--with-perl-binary", type="string", dest="perlbinary", help = 'Specify alternate perl binary', default=None)
     opt.add_option("--with-perl-archdir", type="string", dest="perlarchdir", help = 'Specify directory where to install arch specific files', default=None)
+

@@ -126,11 +126,6 @@ class Environment:
 		except: pass
 		return dst
 
-	def hook(self, classname, ext, func):
-		"silly wrapper"
-		import Object
-		Object.hook(classname, ext, func)
-
 	def set_dependency(self, infile, outfile):
 		"TODO: future: set manual dependencies"
 		pass

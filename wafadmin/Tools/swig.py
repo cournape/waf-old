@@ -4,7 +4,7 @@
 # Thomas Nagy
 
 import re
-import Action, Scan, Params
+import Action, Scan, Params, Object
 from Params import fatal, set_globals
 
 swig_str = '${SWIG} ${SWIGFLAGS} -o ${TGT[0].bldpath(env)} ${SRC}'
@@ -103,9 +103,9 @@ def setup(env):
 	Action.simple_action('swig', swig_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj
-	try: env.hook('cpp', 'SWIG_EXT', i_file)
+	try: Object.hook('cpp', 'SWIG_EXT', i_file)
 	except: pass
-	try: env.hook('cc', 'SWIG_EXT', i_file)
+	try: Object.hook('cc', 'SWIG_EXT', i_file)
 	except: pass
 
 def check_swig_version(conf, minver=None):
