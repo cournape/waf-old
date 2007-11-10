@@ -284,6 +284,7 @@ def detect(conf):
 	datadir = getstr('datadir')
 	libdir  = getstr('libdir')
 	sysconfdir  = getstr('sysconfdir')
+	localstatedir  = getstr('localstatedir')
 	if not datadir: datadir = os.path.join(prefix,'share')
 	if not libdir:  libdir  = os.path.join(prefix,'lib')
 	if not sysconfdir:
@@ -291,12 +292,18 @@ def detect(conf):
 			sysconfdir = '/etc'
 		else:
 			sysconfdir  = os.path.join(prefix, 'etc')
+	if not localstatedir:
+		if os.path.normpath(prefix) ==  '/usr':
+			localstatedir = '/var'
+		else:
+			localstatedir  = os.path.join(prefix, 'var')
 
 	# addefine also sets the variable to the env
 	conf.add_define('GNOMELOCALEDIR', os.path.join(datadir, 'locale'))
 	conf.add_define('DATADIR', datadir)
 	conf.add_define('LIBDIR', libdir)
 	conf.add_define('SYSCONFDIR', sysconfdir)
+	conf.add_define('LOCALSTATEDIR', localstatedir)
 
 	# TODO: maybe the following checks should be in a more generic module.
 
@@ -359,6 +366,6 @@ def set_options(opt):
 	except:
 		pass
 
-	for i in "execprefix datadir libdir sysconfdir".split():
+	for i in "execprefix datadir libdir sysconfdir localstatedir".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 
