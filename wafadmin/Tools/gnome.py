@@ -278,22 +278,25 @@ def detect(conf):
 	conf.env['DBT'] = dbus_binding_tool
 
 	def getstr(varname):
-		#if env.has_key('ARGS'): return env['ARGS'].get(varname, '')
-		v=''
-		try: v = getattr(Params.g_options, varname)
-		except: return ''
-		return v
+		return getattr(Params.g_options, varname, '')
 
 	prefix  = conf.env['PREFIX']
 	datadir = getstr('datadir')
 	libdir  = getstr('libdir')
+	sysconfdir  = getstr('sysconfdir')
 	if not datadir: datadir = os.path.join(prefix,'share')
 	if not libdir:  libdir  = os.path.join(prefix,'lib')
+	if not sysconfdir:
+		if os.path.normpath(prefix) ==  '/usr':
+			sysconfdir = '/etc'
+		else:
+			sysconfdir  = os.path.join(prefix, 'etc')
 
 	# addefine also sets the variable to the env
 	conf.add_define('GNOMELOCALEDIR', os.path.join(datadir, 'locale'))
 	conf.add_define('DATADIR', datadir)
 	conf.add_define('LIBDIR', libdir)
+	conf.add_define('SYSCONFDIR', sysconfdir)
 
 	# TODO: maybe the following checks should be in a more generic module.
 
@@ -356,6 +359,6 @@ def set_options(opt):
 	except:
 		pass
 
-	for i in "execprefix datadir libdir".split():
+	for i in "execprefix datadir libdir sysconfdir".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 
