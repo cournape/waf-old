@@ -171,12 +171,14 @@ class substobj(Object.genobj):
 
 class CommandOutputTask(Task.Task):
 
-	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout):
+	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd):
 		Task.Task.__init__(self, 'command-output', env, priority, normal=1)
+		assert isinstance(command, (str, Node.Node))
 		self.command = command
 		self.command_args = command_args
 		self.stdin = stdin
 		self.stdout = stdout
+		self.cwd = cwd
 
                 if command_node is not None:
                         self.dep_nodes = [command_node]
@@ -202,7 +204,7 @@ class CommandOutput(Object.genobj):
 		self.command = None
 
 		## whether it is an external command; otherwise it is assumed
-		## to be an excutable binary or script that lives in the
+		## to be an executable binary or script that lives in the
 		## source or build tree.
 		self.command_is_external = False
 
@@ -227,6 +229,9 @@ class CommandOutput(Object.genobj):
 		## stdout, nor are they mentioned explicitly in argv
 		self.hidden_outputs = []
 
+		## change the subprocess to this cwd (must use obj.input_dir() or output_dir() here)
+		self.cwd = None
+
 	# FIXME can you make it more complicated than that ???
 	# FIXME make all methods private please, we will never need to override anything ?????????? (ita)
 
@@ -243,35 +248,48 @@ class CommandOutput(Object.genobj):
 
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
-		inputs = [inp.bldpath(task.m_env) for inp in task.m_inputs]
-		outputs = [out.bldpath(task.m_env) for out in task.m_outputs]
 
-		argv = [task.command]
+		def input_path(node):
+			if task.cwd is None:
+				return node.bldpath(task.m_env)
+			else:
+				return node.abspath()
+		def output_path(node):
+			if task.cwd is None:
+				return node.bldpath(task.m_env)
+			else:
+				return node.abspath(task.m_env)
+
+		if isinstance(task.command, Node.Node):
+			argv = [input_path(task.command)]
+		else:
+			argv = [task.command]
+
 		for arg in task.command_args:
 			if isinstance(arg, str):
 				argv.append(arg)
 			else:
 				role, node = arg
 				if role in (CommandOutput.CMD_ARGV_INPUT, CommandOutput.CMD_ARGV_INPUT_DIR):
-					argv.append(node.srcpath(task.m_env))
+					argv.append(input_path(node))
 				elif role in (CommandOutput.CMD_ARGV_OUTPUT, CommandOutput.CMD_ARGV_OUTPUT_DIR):
-					argv.append(node.bldpath(task.m_env))
+					argv.append(output_path(node))
 				else:
 					raise AssertionError
 
 		if task.stdin:
-			stdin = file(task.stdin.srcpath(task.m_env))
+			stdin = file(input_path(task.stdin))
 		else:
 			stdin = None
 
 		if task.stdout:
-			stdout = file(task.stdout.bldpath(task.m_env), "w")
+			stdout = file(output_path(task.stdout), "w")
 		else:
 			stdout = None
 
-		Params.debug("command-output: stdin=%r, stdout=%r, argv=%r" %
-					 (stdin, stdout, argv))
-		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout)
+		Params.debug("command-output: cwd=%r stdin=%r, stdout=%r, argv=%r" %
+					 (task.cwd, stdin, stdout, argv))
+		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd)
 		return command.wait()
 
 	_command_output_func = staticmethod(_command_output_func)
@@ -287,8 +305,31 @@ class CommandOutput(Object.genobj):
 			assert cmd_node is not None, ('''Could not find command '%s' in source tree.
 Hint: if this is an external command,
 use command_is_external=True''') % (self.command,)
-			cmd = cmd_node.bldpath(self.env)
+			cmd = cmd_node
 
+		if self.cwd is None:
+			cwd = None
+		else:
+			role, file_name = self.cwd
+			if role == CommandOutput.CMD_ARGV_INPUT_DIR:
+				if isinstance(file_name, Node.Node):
+					input_node = file_name
+				else:
+					input_node = self.path.find_dir(file_name)
+					if input_node is None:
+						Params.fatal("File %s not found" % (file_name,))
+				cwd = input_node.abspath()
+			elif role == CommandOutput.CMD_ARGV_OUTPUT_DIR:
+				if isinstance(file_name, Node.Node):
+					output_node = file_name
+				else:
+					output_node = self.path.find_dir(file_name)
+					if output_node is None:
+						Params.fatal("File %s not found" % (file_name,))
+				cwd = output_node.abspath(self.env)
+			else:
+				raise AssertionError
+		
 		args = []
 		inputs = []
 		outputs = []
@@ -369,13 +410,14 @@ use command_is_external=True''') % (self.command,)
 			Params.fatal("command-output objects must have at least one output file")
 
 		task = CommandOutputTask(self.env, self.prio,
-								 cmd, cmd_node, args,
-								 stdin, stdout)
+					 cmd, cmd_node, args,
+					 stdin, stdout, cwd)
 		self.m_tasks.append(task)
 
 		task.set_inputs(inputs)
 		task.set_outputs(outputs)
 		task.dep_vars = self.to_list(self.dep_vars)
+
 
 		for dep in self.dependencies:
 			assert dep is not self
