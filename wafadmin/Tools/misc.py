@@ -219,6 +219,14 @@ class CommandOutput(Object.genobj):
 
 		self.dep_vars = []
 
+		## input files that are implicit, i.e. they are not
+		## stdin, nor are they mentioned explicitly in argv
+		self.hidden_inputs = []
+
+		## output files that are implicit, i.e. they are not
+		## stdout, nor are they mentioned explicitly in argv
+		self.hidden_outputs = []
+
 	# FIXME can you make it more complicated than that ???
 	# FIXME make all methods private please, we will never need to override anything ?????????? (ita)
 
@@ -321,8 +329,22 @@ use command_is_external=True''') % (self.command,)
 				Params.fatal("File %s not found" % (self.stdin,))
 			inputs.append(stdin)
 
+		for hidden_input in self.to_list(self.hidden_inputs):
+			node = self.path.find_build(hidden_input)
+			if node is None:
+				Params.fatal("File %s not found in dir %s" % (hidden_input, self.path))
+			inputs.append(node)
+
+		for hidden_output in self.to_list(self.hidden_outputs):
+			node = self.path.find_build(hidden_output)
+			if node is None:
+				Params.fatal("File %s not found in dir %s" % (hidden_output, self.path))
+			outputs.append(node)
+
 		if not inputs:
 			Params.fatal("command-output objects must have at least one input file")
+		if not outputs:
+			Params.fatal("command-output objects must have at least one output file")
 
 		task = CommandOutputTask(self.env, self.prio,
 								 cmd, cmd_node, args,
