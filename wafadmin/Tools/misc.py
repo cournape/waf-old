@@ -184,7 +184,7 @@ class CommandOutputTask(Task.Task):
 
 class CommandOutput(Object.genobj):
 
-	CMD_ARGV_INPUT, CMD_ARGV_OUTPUT = range(2)
+	CMD_ARGV_INPUT, CMD_ARGV_OUTPUT, CMD_ARGV_INPUT_DIR, CMD_ARGV_OUTPUT_DIR = range(4)
 
 	def __init__(self, env=None):
 		Object.genobj.__init__(self, 'other')
@@ -252,9 +252,9 @@ class CommandOutput(Object.genobj):
 				argv.append(arg)
 			else:
 				role, node = arg
-				if role == CommandOutput.CMD_ARGV_INPUT:
+				if role in (CommandOutput.CMD_ARGV_INPUT, CommandOutput.CMD_ARGV_INPUT_DIR):
 					argv.append(node.srcpath(task.m_env))
-				elif role == CommandOutput.CMD_ARGV_OUTPUT:
+				elif role in (CommandOutput.CMD_ARGV_OUTPUT, CommandOutput.CMD_ARGV_OUTPUT_DIR):
 					argv.append(node.bldpath(task.m_env))
 				else:
 					raise AssertionError
@@ -299,16 +299,38 @@ use command_is_external=True''') % (self.command,)
 			else:
 				role, file_name = arg
 				if role == CommandOutput.CMD_ARGV_INPUT:
-					input_node = self.path.find_build(file_name)
-					if input_node is None:
-						Params.fatal("File %s not found" % (file_name,))
+					if isinstance(file_name, Node.Node):
+						input_node = file_name
+					else:
+						input_node = self.path.find_build(file_name)
+						if input_node is None:
+							Params.fatal("File %s not found" % (file_name,))
 					inputs.append(input_node)
 					args.append((role, input_node))
 				elif role == CommandOutput.CMD_ARGV_OUTPUT:
-					output_node = self.path.find_build(file_name)
-					if output_node is None:
-						Params.fatal("File %s not found" % (file_name,))
+					if isinstance(file_name, Node.Node):
+						output_node = file_name
+					else:
+						output_node = self.path.find_build(file_name)
+						if output_node is None:
+							Params.fatal("File %s not found" % (file_name,))
 					outputs.append(output_node)
+					args.append((role, output_node))
+				elif role == CommandOutput.CMD_ARGV_INPUT_DIR:
+					if isinstance(file_name, Node.Node):
+						input_node = file_name
+					else:
+						input_node = self.path.find_dir(file_name)
+						if input_node is None:
+							Params.fatal("File %s not found" % (file_name,))
+					args.append((role, input_node))
+				elif role == CommandOutput.CMD_ARGV_OUTPUT_DIR:
+					if isinstance(file_name, Node.Node):
+						output_node = file_name
+					else:
+						output_node = self.path.find_dir(file_name)
+						if output_node is None:
+							Params.fatal("File %s not found" % (file_name,))
 					args.append((role, output_node))
 				else:
 					raise AssertionError
@@ -373,6 +395,18 @@ use command_is_external=True''') % (self.command,)
 		the task to use a file from the output vector at the given
 		position as argv element."""
 		return (CommandOutput.CMD_ARGV_OUTPUT, file_name)
+
+	def input_dir(self, file_name):
+		"""Returns an object to be used as argv element that instructs
+		the task to use a directory path from the input vector at the given
+		position as argv element."""
+		return (CommandOutput.CMD_ARGV_INPUT_DIR, file_name)
+
+	def output_dir(self, file_name):
+		"""Returns an object to be used as argv element that instructs
+		the task to use a directory path from the output vector at the given
+		position as argv element."""
+		return (CommandOutput.CMD_ARGV_OUTPUT_DIR, file_name)
 
 	def install(self):
 		pass
