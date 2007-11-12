@@ -1134,6 +1134,13 @@ class Configure:
 		self.env['defines'] = tbl
 		self.env[define] = value
 
+	def define_cond(self, name, value):
+		"""Conditionally define a name.
+		Formally equivalent to: if value: define(name, 1) else: undefine(name)"""
+		if value:
+			self.define(name, 1)
+		else:
+			self.undefine(name)
 
 	def is_defined(self, define):
 		defines = self.env['defines']
