@@ -3,7 +3,7 @@
 
 "Configuration system"
 
-import os, types, imp, cPickle, sys, re, inspect, shlex
+import os, types, imp, cPickle, sys, shlex, warnings
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
@@ -1042,26 +1042,35 @@ class Configure:
 
 	class IntDefine(int):
 		"""Special int subclass to denote a literal integer being defined"""
+		pass # FIXME: deprecated
+
+	class Undefined(object):
+		"""Special value to denote an explicitly undefined name"""
 		pass
 
 	def add_define(self, define, value, quote=-1, comment=''):
 		"""store a single define and its state into an internal list
-		   for later writing to a config header file"""
-
+		   for later writing to a config header file.
+		   DEPRECATED, do not use.  See define() and undefine() instead."""
+		warnings.warn("use conf.define() / conf.undefine() instead",
+			      DeprecationWarning, stacklevel=2)
 		tbl = self.env['defines']
 		if not tbl: tbl = {}
+
+		if isinstance(value, bool):
+			value = int(value)
 
 		# the user forgot to tell if the value is quoted or not
 		if quote < 0:
 			if type(value) is types.StringType:
 				tbl[define] = '"%s"' % str(value)
 			else:
-				tbl[define] = value
+				if value:
+					tbl[define] = self.Undefined
+				else:
+					tbl[define] = value
 		elif not quote:
-			if isinstance(value, int):
-				tbl[define] = self.IntDefine(value)
-			else:
-				tbl[define] = value
+			tbl[define] = value
 		else:
 			tbl[define] = '"%s"' % str(value)
 
@@ -1071,14 +1080,60 @@ class Configure:
 		self.env['defines'] = tbl
 		self.env[define] = value
 
+	def define(self, define, value):
+		"""store a single define and its state into an internal list for later
+		   writing to a config header file.  Value can only be
+		   a string or int; other types not supported.  String
+		   values will appear properly quoted in the generated
+		   header file."""
+		assert define and isinstance(define, str)
+
+		tbl = self.env['defines']
+		if not tbl: tbl = {}
+
+		# the user forgot to tell if the value is quoted or not
+		if isinstance(value, str):
+			tbl[define] = '"%s"' % str(value)
+		elif isinstance(value, int):
+			tbl[define] = value
+		else:
+			raise TypeError
+
+		# add later to make reconfiguring faster
+		self.env['defines'] = tbl
+		self.env[define] = value
+
+	def undefine(self, define):
+		"""store a single define and its state into an internal list
+		   for later writing to a config header file"""
+		assert define and isinstance(define, str)
+
+		tbl = self.env['defines']
+		if not tbl: tbl = {}
+
+		value = self.Undefined
+		tbl[define] = value
+
+		# add later to make reconfiguring faster
+		self.env['defines'] = tbl
+		self.env[define] = value
+
+
 	def is_defined(self, define):
-		try: return self.env['defines'].has_key(define)
-		except: return None
+		defines = self.env['defines']
+		if not defines:
+			return False
+		try:
+			value = defines[define]
+		except KeyError:
+			return False
+		else:
+			return (value is not self.Undefined)
 
 	def get_define(self, define):
 		"get the value of a previously stored define"
 		try: return self.env['defines'][define]
-		except: return 0
+		except KeyError: return None
 
 	def write_config_header(self, configfile='config.h', env=''):
 		"save the defines into a file"
@@ -1113,14 +1168,10 @@ class Configure:
 		for key, value in env['defines'].iteritems():
 			if value is None:
 				dest.write('#define %s\n' % key)
-			elif isinstance(value, self.IntDefine):
-				dest.write('#define %s %i\n' % (key, value))
-			elif value:
-				dest.write('#define %s %s\n' % (key, value))
-				#if addcontent:
-				#	dest.write(addcontent);
-			else:
+			elif value is self.Undefined:
 				dest.write('/* #undef %s */\n' % key)
+			else:
+				dest.write('#define %s %s\n' % (key, value))
 		dest.write('\n#endif /* %s */\n' % (inclusion_guard_name,))
 		dest.close()
 
