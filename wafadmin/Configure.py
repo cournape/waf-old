@@ -1068,7 +1068,7 @@ class Configure:
 		"""store a single define and its state into an internal list
 		   for later writing to a config header file.
 		   DEPRECATED, do not use.  See define() and undefine() instead."""
-		warnings.warn("use conf.define() / conf.undefine() instead",
+		warnings.warn("use conf.define() / conf.undefine() / conf.define_cond() instead",
 			      DeprecationWarning, stacklevel=2)
 		tbl = self.env['defines']
 		if not tbl: tbl = {}
