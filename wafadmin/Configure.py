@@ -9,6 +9,7 @@ except ImportError: from md5 import md5
 
 import Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
+from Utils import Undefined
 
 test_ok = True
 
@@ -26,6 +27,7 @@ g_stdincpath = ['/usr/include/', '/usr/local/include/']
 
 g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
 """standard library search paths"""
+
 
 #####################
 ## Helper functions
@@ -1044,10 +1046,6 @@ class Configure:
 		"""Special int subclass to denote a literal integer being defined"""
 		pass # FIXME: deprecated
 
-	class Undefined(object):
-		"""Special value to denote an explicitly undefined name"""
-		pass
-
 	def add_define(self, define, value, quote=-1, comment=''):
 		"""store a single define and its state into an internal list
 		   for later writing to a config header file.
@@ -1066,7 +1064,7 @@ class Configure:
 				tbl[define] = '"%s"' % str(value)
 			else:
 				if value:
-					tbl[define] = self.Undefined
+					tbl[define] = Undefined
 				else:
 					tbl[define] = value
 		elif not quote:
@@ -1111,7 +1109,7 @@ class Configure:
 		tbl = self.env['defines']
 		if not tbl: tbl = {}
 
-		value = self.Undefined
+		value = Undefined
 		tbl[define] = value
 
 		# add later to make reconfiguring faster
@@ -1128,7 +1126,7 @@ class Configure:
 		except KeyError:
 			return False
 		else:
-			return (value is not self.Undefined)
+			return (value is not Undefined)
 
 	def get_define(self, define):
 		"get the value of a previously stored define"
@@ -1168,7 +1166,7 @@ class Configure:
 		for key, value in env['defines'].iteritems():
 			if value is None:
 				dest.write('#define %s\n' % key)
-			elif value is self.Undefined:
+			elif value is Undefined:
 				dest.write('/* #undef %s */\n' % key)
 			else:
 				dest.write('#define %s %s\n' % (key, value))

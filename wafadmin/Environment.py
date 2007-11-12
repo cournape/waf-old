@@ -6,6 +6,7 @@
 
 import os, sys, string, types, copy
 import Params, Utils
+from Utils import Undefined
 from Params import debug, error, fatal, warning
 from copy import deepcopy
 
@@ -120,5 +121,4 @@ class Environment:
 	def set_var_dependency(self, infile, text):
 		"TODO: future: add manual dependencies on env variables"
 		pass
-
 

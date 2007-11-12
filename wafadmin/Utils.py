@@ -176,3 +176,11 @@ def quote_define_name(path):
 def quote_whitespace(path):
 	return (path.strip().find(' ') > 0 and '"%s"' % path or path).replace('""', '"')
 
+
+class UndefinedType(object):
+	def __repr__(self):
+		return 'Undefined'
+
+Undefined = UndefinedType()
+"""Special value to denote an explicitly undefined name"""
+
