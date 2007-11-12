@@ -1060,10 +1060,6 @@ class Configure:
 			raise
 			pass
 
-	class IntDefine(int):
-		"""Special int subclass to denote a literal integer being defined"""
-		pass # FIXME: deprecated
-
 	def add_define(self, define, value, quote=-1, comment=''):
 		"""store a single define and its state into an internal list
 		   for later writing to a config header file.
