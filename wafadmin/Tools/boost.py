@@ -127,7 +127,7 @@ def detect_boost(conf):
                                 if max_version and asio_version>max_version:
                                         asio_version=0
                         if asio_version:
-                                conf.add_define('BOOST_ASIO',1)
+                                conf.define('BOOST_ASIO',1)
                                 version="%d.%d.%d" % (asio_version/100000,asio_version/100%1000,asio_version%100)
                                 conf.check_message('header','boost/asio/version.hpp',1,'Version '+version)
                                 if want_asio==1:
@@ -176,7 +176,7 @@ def detect_boost(conf):
                         conf.check_message('header','asio/version.hpp',1,'Version '+asio_includes+' ('+version+')')
                         env['CPPPATH_ASIO']=asio_includes
                         env['CPPPATH_ASIO_MT']=asio_includes
-                        conf.add_define('BOOST_ASIO',0)
+                        conf.undefine('BOOST_ASIO')
         #well now we've found our includes - let's search for the precompiled libs
         if want_libs:
                 def check_boost_libs(libs,lib_path):

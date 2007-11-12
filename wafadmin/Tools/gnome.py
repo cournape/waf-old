@@ -299,31 +299,31 @@ def detect(conf):
 			localstatedir  = os.path.join(prefix, 'var')
 
 	# addefine also sets the variable to the env
-	conf.add_define('GNOMELOCALEDIR', os.path.join(datadir, 'locale'))
-	conf.add_define('DATADIR', datadir)
-	conf.add_define('LIBDIR', libdir)
-	conf.add_define('SYSCONFDIR', sysconfdir)
-	conf.add_define('LOCALSTATEDIR', localstatedir)
+	conf.define('GNOMELOCALEDIR', os.path.join(datadir, 'locale'))
+	conf.define('DATADIR', datadir)
+	conf.define('LIBDIR', libdir)
+	conf.define('SYSCONFDIR', sysconfdir)
+	conf.define('LOCALSTATEDIR', localstatedir)
 
 	# TODO: maybe the following checks should be in a more generic module.
 
 	#always defined to indicate that i18n is enabled */
-	conf.add_define('ENABLE_NLS', '1')
+	conf.define('ENABLE_NLS', 1)
 
 	# TODO
 	#Define to 1 if you have the `bind_textdomain_codeset' function.
-	conf.add_define('HAVE_BIND_TEXTDOMAIN_CODESET', '1')
+	conf.define('HAVE_BIND_TEXTDOMAIN_CODESET', 1)
 
 	# TODO
 	#Define to 1 if you have the `dcgettext' function.
-	conf.add_define('HAVE_DCGETTEXT', '1')
+	conf.define('HAVE_DCGETTEXT', 1)
 
 	#Define to 1 if you have the <dlfcn.h> header file.
 	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
 
 	# TODO
 	#Define if the GNU gettext() function is already present or preinstalled.
-	conf.add_define('HAVE_GETTEXT', '1')
+	conf.define('HAVE_GETTEXT', 1)
 
 	#Define to 1 if you have the <inttypes.h> header file.
 	conf.check_header('inttypes.h', 'HAVE_INTTYPES_H')

@@ -227,7 +227,7 @@ def check_python_version(conf, minver=None):
 				python_LIBDEST = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver)
 			dir = os.path.join(python_LIBDEST, "site-packages")
 
-		conf.add_define('PYTHONDIR', dir)
+		conf.define('PYTHONDIR', dir)
 		conf.env['PYTHONDIR'] = dir
 
 	## Feedback
