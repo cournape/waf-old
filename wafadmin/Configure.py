@@ -1064,9 +1064,9 @@ class Configure:
 				tbl[define] = '"%s"' % str(value)
 			else:
 				if value:
-					tbl[define] = Undefined
-				else:
 					tbl[define] = value
+				else:
+					tbl[define] = Undefined
 		elif not quote:
 			tbl[define] = value
 		else:
