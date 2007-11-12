@@ -215,7 +215,10 @@ class function_enumerator(enumerator_base):
 
 	def run_cache(self, retval):
 		self.conf.check_message('function %s (cached)' % self.function, '', retval, option='')
-		self.conf.add_define(self.define, retval)
+		if retval:
+			self.conf.define(self.define, retval)
+		else:
+			self.conf.undefine(self.define)
 
 	def run_test(self):
 		ret = not test_ok
@@ -245,7 +248,10 @@ class function_enumerator(enumerator_base):
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('function %s' % self.function, '', ret, option='')
 
-		self.conf.add_define(self.define, ret)
+		if ret:
+			self.conf.define(self.define, ret)
+		else:
+			self.conf.undefine(self.define)
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
@@ -377,9 +383,9 @@ class cfgtool_configurator(configurator_base):
 	def run_cache(self, retval):
 		if retval:
 			self.update_env(retval)
-			self.conf.add_define(self.define, 1)
+			self.conf.define(self.define, 1)
 		else:
-			self.conf.add_define(self.define, 0)
+			self.conf.undefine(self.define)
 		self.conf.check_message('config-tool %s (cached)' % self.binary, '', retval, option='')
 
 	def run_test(self):
@@ -402,7 +408,10 @@ class cfgtool_configurator(configurator_base):
 			retval = {}
 			found = not test_ok
 
-		self.conf.add_define(self.define, found)
+		if found:
+			self.conf.define(self.define, found)
+		else:
+			self.conf.undefine(self.define)
 		self.conf.check_message('config-tool ' + self.binary, '', found, option = '')
 		return retval
 
@@ -455,9 +464,9 @@ class pkgconfig_configurator(configurator_base):
 		else:
 			self.conf.check_message('package %s (cached)' % self.name, '', retval, option='')
 		if retval:
-			self.conf.add_define(self.define, 1)
+			self.conf.define(self.define, 1)
 		else:
-			self.conf.add_define(self.define, 0)
+			self.conf.undefine(self.define)
 		self.update_env(retval)
 
 	def run_test(self):
@@ -558,11 +567,11 @@ class pkgconfig_configurator(configurator_base):
 
 				retval[var_defname] = os.popen('%s --variable=%s \"%s\"' % (pkgcom, variable, self.name)).read().strip()
 
-			self.conf.add_define(self.define, 1)
+			self.conf.define(self.define, 1)
 			self.update_env(retval)
 		except ValueError:
 			retval = {}
-			self.conf.add_define(self.define, 0)
+			self.conf.undefine(self.define)
 
 		return retval
 
@@ -625,9 +634,9 @@ class library_configurator(configurator_base):
 		self.conf.check_message('library %s (cached)' % self.name, '', retval)
 		if retval:
 			self.update_env(retval)
-			self.conf.add_define(self.define, 1)
+			self.conf.define(self.define, 1)
 		else:
-			self.conf.add_define(self.define, 0)
+			self.conf.undefine(self.define)
 
 	def validate(self):
 		if not self.path:
@@ -676,7 +685,10 @@ class library_configurator(configurator_base):
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('library %s' % self.name, '', ret)
 
-		self.conf.add_define(self.define, ret)
+		if ret:
+			self.conf.define(self.define, ret)
+		else:
+			self.conf.undefine(self.define)
 
 		val = {}
 		if ret:
@@ -725,9 +737,9 @@ class framework_configurator(configurator_base):
 		self.conf.check_message('framework %s (cached)' % self.name, '', retval)
 		self.update_env(retval)
 		if retval:
-			self.conf.add_define(self.define, 1)
+			self.conf.define(self.define, 1)
 		else:
-			self.conf.add_define(self.define, 0)
+			self.conf.undefine(self.define)
 
 	def run_test(self):
 		oldlkflags = []
@@ -762,7 +774,10 @@ class framework_configurator(configurator_base):
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('framework %s' % self.name, '', ret, option='')
-		self.conf.add_define(self.define, ret)
+		if ret:
+			self.conf.define(self.define, ret)
+		else:
+			self.conf.undefine(self.define)
 
 		val = {}
 		if ret:
@@ -816,9 +831,9 @@ class header_configurator(configurator_base):
 		self.conf.check_message('header %s (cached)' % self.name, '', retvalue)
 		if retvalue:
 			self.update_env(retvalue)
-			self.conf.add_define(self.define, 1)
+			self.conf.define(self.define, 1)
 		else:
-			self.conf.add_define(self.define, 0)
+			self.conf.undefine(self.define)
 
 	def run_test(self):
 		ret = {} # not found
@@ -857,7 +872,10 @@ class header_configurator(configurator_base):
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('header %s' % self.name, '', ret, option='')
 
-		self.conf.add_define(self.define, ret)
+		if ret:
+			self.conf.define(self.define, ret)
+		else:
+			self.conf.undefine(self.define)
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
