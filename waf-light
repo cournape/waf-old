@@ -50,32 +50,26 @@ def decodeAscii85(s):
 	p1,p2=divmod(len(s), 5)
 	stop=5*p1
 	p3,p4=s[0:stop],s[stop:]
+
+	def u(v, o):
+		return ord(v[o])-33
+
 	for i in range(p1):
-		off=i*5
-		a=ord(p3[off])-33
-		b=ord(p3[off+1])-33
-		c=ord(p3[off+2])-33
-		d=ord(p3[off+3])-33
-		e=ord(p3[off+4])-33
-		num=(52200625L*a)+(614125*b)+(7225*c)+(85*d)+e
-		x,p=divmod(num,256)
+		o=i*5 # offset
+		x=52200625L*u(p3, o)+614125*u(p3, o+1)+7225*u(p3, o+2)+85*u(p3, o+3)+u(p3, o+4)
+		x,p=divmod(x,256)
 		x,o=divmod(x,256)
 		m,n=divmod(x,256)
 		app(chr(m)+chr(n)+chr(o)+chr(p))
 	if p2:
 		while len(p4)<5: p4=p4+'!'
-		a=ord(p4[0])-33
-		b=ord(p4[1])-33
-		c=ord(p4[2])-33
-		d=ord(p4[3])-33
-		e=ord(p4[4])-33
-		num=(52200625L*a)+(614125*b)+(7225*c)+(85*d)+e
-		x,p=divmod(num,256)
+		x=52200625L*u(p4, 0)+614125*u(p4, 1)+7225*u(p4, 2)+85*u(p4, 3)+u(p4, 4)
+		x,p=divmod(x,256)
 		x,o=divmod(x,256)
-		m,n=divmod(x, 256)
-		if p2==2: app(chr(m))
-		elif p2==3: app(chr(m)+chr(n))
-		elif p2==4: app(chr(m)+chr(n)+chr(o))
+		m,n=divmod(x,256)
+		app(chr(m))
+		if p2>2: app(chr(n))
+		if p2>3: app(chr(o))
 	return ''.join(out)
 
 # wafdir is needed to parse the command-line arguments or print the version number
@@ -88,7 +82,7 @@ def uncompress_wafdir(newdir):
 		if not line:
 			print "This is a stripped-down waf, there is no wafadmin directory available"
 			print "Please set WAFDIR to a directory containing a directory named wafadmin"
-			print "Or use the full waf version available freely at http://freehackers.org/~tnagy/bksys.html"
+			print "Or use the full waf version available freely at http://freehackers.org/~tnagy/waf.html"
 			print "\033[91mNo wafadmin: cannot execute anything (error)\033[0m"
 			sys.exit(1)
 		line=line.rstrip()
