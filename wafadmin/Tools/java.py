@@ -57,7 +57,13 @@ def setup(env):
 	Action.simple_action('jar_create', '${JAR} cvf ${TGT} ${JAROPTS}', color='GREEN')
 
 def detect(conf):
-	conf.find_program('javac', var='JAVAC')
-	conf.find_program('jar', var='JAR')
+	# If JAVA_PATH is set, we prepend it to the path list
+	java_path = os.environ['PATH'].split(os.pathsep)
+	if os.environ.has_key('JAVA_HOME'):
+		java_path = [os.path.join(os.environ['JAVA_HOME'], 'bin')] + java_path
+		conf.env['JAVA_HOME'] = os.environ['JAVA_HOME']
+
+	conf.find_program('javac', var='JAVAC', path_list=java_path)
+	conf.find_program('jar', var='JAR', path_list=java_path)
 	conf.env['JAVA_EXT'] = ['.java']
 
