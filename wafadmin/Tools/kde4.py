@@ -8,23 +8,23 @@ class langobj(Object.genobj):
 	s_default_ext = ['.java']
 	def __init__(self):
 		Object.genobj.__init__(self, 'other')
-		self.langs = ''
+		self.langs = '' # for example "foo/fr foo/br"
 		self.chmod = 0644
-		self.inst_dir = 'semantik'
 		self.inst_var = 'KDE4_LOCALE_INSTALL_DIR'
 
 	def apply(self):
-		for filename in self.to_list(self.langs):
-			node = self.path.find_source_lst(Utils.split_path(filename+'.po'))
+		for lang in self.to_list(self.langs):
+			node = self.path.find_source_lst(Utils.split_path(lang+'.po'))
 			task = self.create_task('msgfmt', self.env, 10)
 			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.gmo'))
+			task.set_outputs(node.change_ext('.mo'))
 
 	def install(self):
-		for i in self.m_tasks:
-			# only one output file for each task but well
-			lst=[a.relpath_gen(self.path) for a in i.m_outputs]
-			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod)
+		for lang in self.to_list(self.langs):
+			langname = lang.split('/')
+			langname = langname[-1]
+			inst_dir = langname+os.sep+'LC_MESSAGES'
+			Common.install_files(self.inst_var, inst_dir, lang+'.mo', chmod=self.chmod)
 
 def detect(conf):
 	kdeconfig = conf.find_program('kde4-config')
