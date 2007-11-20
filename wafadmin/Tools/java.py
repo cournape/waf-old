@@ -14,7 +14,7 @@ class javaobj(Object.genobj):
 
 		self.jarname = ''
 		self.jaropts = ''
-		self.classpath = '..:.'
+		self.classpath = '..' + os.pathsep + '.'
 
 	def apply(self):
 		nodes_lst = []
