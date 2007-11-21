@@ -20,10 +20,35 @@ g_distclean_exts = '~ .pyc .wafpickle'.split()
 
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
-	node = bld.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
-	if node is None:
+	try: bld.rescan(bld.m_curdirnode)
+	except OSError: fatal("No such directory "+bld.m_curdirnode.abspath())
+
+	old = bld.m_curdirnode
+	new = bld.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
+	if new is None:
 		fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
-	bld.m_subdirs = [[node, bld.m_curdirnode]] + bld.m_subdirs
+
+	bld.m_curdirnode=new
+	# try to open 'wscript_build' for execution
+	# if unavailable, open the module wscript and call the build function from it
+	try:
+		file_path = os.path.join(new.abspath(), 'wscript_build')
+		file = open(file_path, 'r')
+		exec file
+		if file: file.close()
+	except IOError:
+		file_path = os.path.join(new.abspath(), 'wscript')
+		module = Utils.load_module(file_path)
+		module.build(bld)
+
+	# restore the old node position
+	bld.m_curdirnode=old
+
+	#
+	#node = bld.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
+	#if node is None:
+	#	fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
+	#bld.m_subdirs = [[node, bld.m_curdirnode]] + bld.m_subdirs
 
 def call_back(idxName, pathName, event):
 	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
@@ -174,6 +199,7 @@ def Main():
 	#bld.dump()
 	Utils.g_module.build(bld)
 
+	"""
 	# bld.m_subdirs can be modified *within* the loop, so do not touch this piece of code
 	while bld.m_subdirs:
 		# read scripts, saving the context everytime (bld.m_curdirnode)
@@ -205,7 +231,7 @@ def Main():
 
 		# restore the old node position
 		bld.m_curdirnode=old
-
+	"""
 	#bld.dump()
 
 	# TODO undocumented hook

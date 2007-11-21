@@ -226,7 +226,7 @@ class Build:
 
 	def add_subdirs(self, dirs):
 		lst = Utils.to_list(dirs)
-		lst.reverse()
+		#lst.reverse() # FIXME old behaviour, remove when finished
 		for d in lst:
 			if not d: continue
 			Scripting.add_subdir(d, self)
@@ -380,7 +380,7 @@ class Build:
 		"""
 
 		# do not rescan over and over again
-		if src_dir_node in self.m_scanned_folders: return
+		#if src_dir_node in self.m_scanned_folders: return
 
 		# do not rescan the nodes above srcnode
 		#if src_dir_node.height() < self.m_srcnode.height(): return
