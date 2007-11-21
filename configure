@@ -4,7 +4,7 @@
 
 # Fancy colors used to beautify the output a bit.
 #
-if [ $NOCOLOR ] ; then
+if [ "$NOCOLOR" ] ; then
     NORMAL=""
     BOLD=""
     RED=""
@@ -61,13 +61,13 @@ checkWAF()
 	if [ -z "$WAF" ] ; then
 	    if [ -f "${WORKINGDIR}/waf" ] ; then
 		WAF="${WORKINGDIR}/waf"
-		if [ ! -x $WAF ] ; then
+		if [ ! -x "$WAF" ] ; then
 		    chmod +x $WAF
 		fi
 	    fi
 	fi
 	#global installed waf with waf->waf.py link
-	if [ -z $WAF ] ; then
+	if [ -z "$WAF" ] ; then
 	    WAF=`which waf 2>/dev/null`
 	fi
 	# neither waf nor miniwaf could be found
