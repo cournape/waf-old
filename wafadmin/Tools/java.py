@@ -14,13 +14,16 @@ class javaobj(Object.genobj):
 
 		self.jarname = ''
 		self.jaropts = ''
-		self.classpath = '..' + os.pathsep + '.'
+		self.classpath = ''
 
 	def apply(self):
 		nodes_lst = []
 
-		if self.classpath:
+		if not self.classpath:
+			self.classpath = self.env['CLASSPATH'] =  '..' + os.pathsep + '.'
+		else:
 			self.env['CLASSPATH'] = self.classpath
+
 
 		find_source_lst = self.path.find_source_lst
 
@@ -64,6 +67,53 @@ def detect(conf):
 		conf.env['JAVA_HOME'] = os.environ['JAVA_HOME']
 
 	conf.find_program('javac', var='JAVAC', path_list=java_path)
+	conf.find_program('java', var='JAVA', path_list=java_path)
 	conf.find_program('jar', var='JAR', path_list=java_path)
 	conf.env['JAVA_EXT'] = ['.java']
 
+	conf.hook(check_java_class)
+
+def check_java_class(conf, classname):
+	"""
+	Check if specified java class is installed.
+	"""
+
+	class_check_source = """
+public class Test
+{
+        public static void main( String[] argv ) {
+                Class lib;
+                if (argv.length < 1) {
+                        System.err.println ("Missing argument");
+                        System.exit (77);
+                } try {
+                        lib = Class.forName (argv[0]);
+                } catch (ClassNotFoundException e) {
+			System.err.println ("ClassNotFoundException");
+                        System.exit (1);
+                }
+                lib = null;
+                System.exit (0);
+        }
+}"""
+	#FIXME: Check if it already exists and remove
+	javatestdir = '.waf-javatest'
+	os.mkdir(javatestdir)
+
+	java_file = open(os.path.join(javatestdir, 'Test.java'), 'w')
+	java_file.write(class_check_source)
+	java_file.close()
+
+	#FIXME: Append global CLASSPATH
+	classpath = javatestdir
+
+	os.popen(conf.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
+	(jstdin, jstdout, jstderr) = os.popen3(conf.env['JAVA'] + ' -cp ' + classpath + ' Test ' + classname)
+
+	found = not bool(jstderr.read())
+	conf.check_message('Java class %s' % classname, "", found)
+
+	#FIXME: No rm -rf like function?	
+	os.remove(os.path.join(javatestdir, 'Test.java'))
+	os.remove(os.path.join(javatestdir, 'Test.class'))
+	os.rmdir(javatestdir)
