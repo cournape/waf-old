@@ -62,6 +62,7 @@ def setup(env):
 def detect(conf):
 	# If JAVA_PATH is set, we prepend it to the path list
 	java_path = os.environ['PATH'].split(os.pathsep)
+
 	if os.environ.has_key('JAVA_HOME'):
 		java_path = [os.path.join(os.environ['JAVA_HOME'], 'bin')] + java_path
 		conf.env['JAVA_HOME'] = os.environ['JAVA_HOME']
@@ -70,6 +71,9 @@ def detect(conf):
 	conf.find_program('java', var='JAVA', path_list=java_path)
 	conf.find_program('jar', var='JAR', path_list=java_path)
 	conf.env['JAVA_EXT'] = ['.java']
+
+	if os.environ.has_key('CLASSPATH'):
+		conf.env['CLASSPATH'] = os.environ['CLASSPATH']
 
 	conf.hook(check_java_class)
 
