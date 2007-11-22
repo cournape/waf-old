@@ -83,7 +83,7 @@ def detect(conf):
 
 	conf.hook(check_java_class)
 
-def check_java_class(conf, classname):
+def check_java_class(conf, classname, with_classpath=None):
 	"""
 	Check if specified java class is installed.
 	"""
@@ -111,21 +111,27 @@ def check_java_class(conf, classname):
 
 	javatestdir = '.waf-javatest'
 
+	classpath = javatestdir
+	if conf.env['CLASSPATH']:
+		classpath += os.pathsep + conf.env['CLASSPATH']
+	if isinstance(with_classpath, str):
+		classpath += os.pathsep + with_classpath
+
 	shutil.rmtree(javatestdir, True)
 	os.mkdir(javatestdir)
 
 	java_file = open(os.path.join(javatestdir, 'Test.java'), 'w')
 	java_file.write(class_check_source)
 	java_file.close()
-
-	classpath = javatestdir
-	if conf.env['CLASSPATH']:
-		classpath += os.pathsep + conf.env['CLASSPATH']
-
+	
+	# Compile the source
 	os.popen(conf.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
+
 	(jstdin, jstdout, jstderr) = os.popen3(conf.env['JAVA'] + ' -cp ' + classpath + ' Test ' + classname)
 
 	found = not bool(jstderr.read())
 	conf.check_message('Java class %s' % classname, "", found)
 
 	shutil.rmtree(javatestdir, True)
+
+	return found
