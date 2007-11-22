@@ -96,16 +96,20 @@ public class Test
                 System.exit (0);
         }
 }"""
-	#FIXME: Check if it already exists and remove
+	import shutil
+
 	javatestdir = '.waf-javatest'
+
+	shutil.rmtree(javatestdir, True)
 	os.mkdir(javatestdir)
 
 	java_file = open(os.path.join(javatestdir, 'Test.java'), 'w')
 	java_file.write(class_check_source)
 	java_file.close()
 
-	#FIXME: Append global CLASSPATH
 	classpath = javatestdir
+	if conf.env['CLASSPATH']:
+		classpath += os.pathsep + conf.env['CLASSPATH']
 
 	os.popen(conf.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
 	(jstdin, jstdout, jstderr) = os.popen3(conf.env['JAVA'] + ' -cp ' + classpath + ' Test ' + classname)
@@ -113,7 +117,4 @@ public class Test
 	found = not bool(jstderr.read())
 	conf.check_message('Java class %s' % classname, "", found)
 
-	#FIXME: No rm -rf like function?	
-	os.remove(os.path.join(javatestdir, 'Test.java'))
-	os.remove(os.path.join(javatestdir, 'Test.class'))
-	os.rmdir(javatestdir)
+	shutil.rmtree(javatestdir, True)
