@@ -5,7 +5,7 @@
 "Java support"
 
 import os
-import Object, Action, Utils
+import Object, Action, Utils, Params
 
 class javaobj(Object.genobj):
 	s_default_ext = ['.java']
@@ -16,14 +16,20 @@ class javaobj(Object.genobj):
 		self.jaropts = ''
 		self.classpath = ''
 
+		# Jar manifest attributes
+		# TODO: Add manifest creation
+		self.jar_mf_attributes = {}
+		self.jar_mf_classpath = []
+
+
 	def apply(self):
 		nodes_lst = []
 
 		if not self.classpath:
-			self.classpath = self.env['CLASSPATH'] =  '..' + os.pathsep + '.'
+			if not self.env['CLASSPATH']:
+				self.env['CLASSPATH'] = '..' + os.pathsep + '.'
 		else:
 			self.env['CLASSPATH'] = self.classpath
-
 
 		find_source_lst = self.path.find_source_lst
 
@@ -83,23 +89,24 @@ def check_java_class(conf, classname):
 	"""
 
 	class_check_source = """
-public class Test
-{
-        public static void main( String[] argv ) {
-                Class lib;
-                if (argv.length < 1) {
-                        System.err.println ("Missing argument");
-                        System.exit (77);
-                } try {
-                        lib = Class.forName (argv[0]);
-                } catch (ClassNotFoundException e) {
-			System.err.println ("ClassNotFoundException");
-                        System.exit (1);
-                }
-                lib = null;
-                System.exit (0);
-        }
-}"""
+	public class Test
+	{
+        	public static void main( String[] argv ) {
+	                Class lib;
+       		        if (argv.length < 1) {
+                	        System.err.println ("Missing argument");
+                       	 System.exit (77);
+	                } try {
+        	                lib = Class.forName (argv[0]);
+                	} catch (ClassNotFoundException e) {
+				System.err.println ("ClassNotFoundException");
+	                        System.exit (1);
+        	        }
+                	lib = null;
+	                System.exit (0);
+        	}
+	}
+"""
 	import shutil
 
 	javatestdir = '.waf-javatest'
