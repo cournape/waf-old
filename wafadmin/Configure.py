@@ -1008,7 +1008,7 @@ class Configure:
 			tmpenv.store(os.path.join(Params.g_cachedir, key+'.cache.py'))
 
 	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin='',
-	              pkgvars=[], pkgdefs={}):
+	              pkgvars=[], pkgdefs={}, mandatory=False):
 		"wrapper provided for convenience"
 		pkgconf = self.create_pkgconfig_configurator()
 
@@ -1021,6 +1021,7 @@ class Configure:
 		pkgconf.binary = pkgbin
 		pkgconf.variables = pkgvars
 		pkgconf.defines = pkgdefs
+		pkgconf.mandatory = mandatory
 		return pkgconf.run()
 
 	def sub_config(self, dir):
