@@ -41,8 +41,9 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
 # give specs
-class xml_to(Object):
+class xml_to(Object.genobj):
 	def __init__(self):
+		Object.genobj(self, 'other')
 		self.source = 'xmlfile'
 		self.xslt = 'xlsltfile'
 		self.target = 'hey'
