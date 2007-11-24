@@ -5,7 +5,7 @@
 "Gnome support"
 
 import os, re
-import Object, Action, Params, Common, Scan, Utils
+import Object, Action, Params, Common, Scan, Utils, Runner
 import cc
 from Params import fatal, error
 
@@ -14,8 +14,6 @@ n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 
 def postinstall_schemas(prog_name):
 	if Params.g_commands['install']:
-		import Runner, Common
-
 		# add the gconf schema
 		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/%s.schemas' % prog_name)
 		command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
