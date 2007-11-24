@@ -36,7 +36,7 @@ def postinstall_scrollkeeper(prog_name):
 			ret = Runner.exec_command(command)
 
 def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
-	if schemas: postinstall_shemas(prog_name)
+	if schemas: postinstall_schemas(prog_name)
 	if icons: postinstall_icons()
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
