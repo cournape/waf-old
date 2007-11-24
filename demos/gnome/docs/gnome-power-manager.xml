@@ -3,8 +3,8 @@
 
 <book id="index">
   <bookinfo>
-    <title>GNOME Test @VERSION@ Developer Documentation</title>
-    <releaseinfo>Version @VERSION@</releaseinfo>
+    <title>GNOME Test 1.0 Developer Documentation</title>
+    <releaseinfo>Version 1.0</releaseinfo>
     <date>June 2nd, 2006</date>
     <authorgroup>
       <author>
