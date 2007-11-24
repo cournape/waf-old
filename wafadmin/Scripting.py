@@ -31,6 +31,7 @@ def add_subdir(dir, bld):
 	bld.m_curdirnode=new
 	# try to open 'wscript_build' for execution
 	# if unavailable, open the module wscript and call the build function from it
+	from Common import install_files, install_as, symlink_as # do not remove
 	try:
 		file_path = os.path.join(new.abspath(), 'wscript_build')
 		file = open(file_path, 'r')
@@ -133,7 +134,6 @@ def read_cache_file(filename):
 	return proj
 
 def Main():
-	from Common import install_files, install_as, symlink_as # do not remove
 	import inspect
 	if Params.g_commands['configure']:
 		configure()
