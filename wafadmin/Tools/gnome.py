@@ -28,19 +28,19 @@ def postinstall_icons():
 		command = 'gtk-update-icon-cache -q -f -t %s' % dir
 		ret = Runner.exec_command(command)
 
-def postinstall_scrollkeeper():
+def postinstall_scrollkeeper(prog_name):
 	if Params.g_commands['install']:
 		# now the scrollkeeper update if we can write to the log file
 		if os.path.iswriteable('/var/log/scrollkeeper.log'):
 			dir1 = Common.path_install('PREFIX', 'var/scrollkeeper')
-			dir2 = Common.path_install('DATADIR', 'omf/gnome-hello')
+			dir2 = Common.path_install('DATADIR', 'omf/%s' % prog_name)
 			command = 'scrollkeeper-update -q -p %s -o %s' % (dir1, dir2)
 			ret = Runner.exec_command(command)
 
-def postinstall(name='myapp', schemas=1, icons=1, scrollkeeper=1):
-	if schemas: postinstall_shemas(myapp)
+def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
+	if schemas: postinstall_shemas(prog_name)
 	if icons: postinstall_icons()
-	if scrollkeeper: postinstall_scrollkeeper()
+	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
 class sgml_man_scanner(Scan.scanner):
 	def __init__(self):

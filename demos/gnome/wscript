@@ -54,9 +54,8 @@ def build(bld):
 		bld.add_subdirs('shrap')
 
 def shutdown():
+	# maybe comments to say why they do ... i do not know i do not make gnome sw usually (ita)
 	gnome.postinstall_schemas('gnome-test')
 	gnome.postinstall_icons()
-	gnome.postinstall_scrollkeeper()
-
-
+	gnome.postinstall_scrollkeeper('gnome-hello')
 
