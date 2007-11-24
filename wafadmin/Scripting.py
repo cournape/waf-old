@@ -9,6 +9,7 @@ import Params, Utils, Configure, Environment, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
 import pproc as subprocess
 
+g_gz='bz2'
 g_dirwatch   = None
 g_daemonlock = 0
 g_excludes = '.svn CVS wafadmin .arch-ids {arch}'.split()
@@ -339,13 +340,13 @@ def DistTarball(appname, version):
 	import tarfile, shutil
 
 	TMPFOLDER = DistDir(appname, version)
-	tar = tarfile.open(TMPFOLDER+'.tar.bz2','w:bz2')
+	tar = tarfile.open(TMPFOLDER+'.tar.'+g_gz,'w:'+g_gz)
 	tar.add(TMPFOLDER)
 	tar.close()
-	Params.pprint('GREEN', 'Your archive is ready -> %s.tar.bz2' % TMPFOLDER)
+	Params.pprint('GREEN', 'Your archive is ready -> %s.tar.%s' % (TMPFOLDER, g_gz))
 
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
-	return (TMPFOLDER, TMPFOLDER+'.tar.bz2')
+	return (TMPFOLDER, TMPFOLDER+'.tar.'+g_gz)
 
 def Dist(appname, version):
 	"""make a tarball with all the sources in it"""
