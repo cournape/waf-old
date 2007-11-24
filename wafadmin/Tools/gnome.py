@@ -13,12 +13,12 @@ n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 
 
-def postinstall():
+def postinstall(prog_name):
 	if Params.g_commands['install']:
 		import Runner, Common
 
 		# add the gconf schema
-		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/gnome_test.schemas')
+		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/%s.schemas' % prog_name)
 		command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
 		ret = Runner.exec_command(command)
 

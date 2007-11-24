@@ -54,5 +54,5 @@ def build(bld):
 		bld.add_subdirs('shrap')
 
 def shutdown():
-	gnome.postinstall()
+	gnome.postinstall('gnome-test')
 
