@@ -158,8 +158,9 @@ def symlink_as(var, src, dest, env=None):
 
 	if Params.g_commands['install']:
 		try:
-			print "* symlink %s (-> %s)" % (tgt, src)
-			os.symlink(src, tgt)
+			if not os.path.islink(tgt) or os.readlink(tgt) != src:
+				print "* symlink %s (-> %s)" % (tgt, src)
+				os.symlink(src, tgt)
 			return 0
 		except OSError:
 			return 1
