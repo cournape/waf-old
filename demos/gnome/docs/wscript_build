@@ -6,6 +6,6 @@ obj=bld.create_obj('xmlto')
 obj.source = 'gnome-power-manager.xml'
 obj.target = 'gnome-power-manager.html'
 obj.xslt = 'config.xsl'
-obj.install_var = 'PREFIX'
-obj.install_subdir = 'usr/doc/PackageKit/docs'
+obj.inst_var = 'PREFIX'
+obj.inst_subdir = 'usr/doc/PackageKit/docs'
 

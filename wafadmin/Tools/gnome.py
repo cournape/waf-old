@@ -40,6 +40,29 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if icons: postinstall_icons()
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
+# give specs
+class xml_to(Object):
+	def __init__(self):
+		self.source = 'xmlfile'
+		self.xslt = 'xlsltfile'
+		self.target = 'hey'
+		self.inst_var = 'PREFIX'
+		self.inst_subdir = ''
+		self.task_created = None
+	def apply(self):
+		self.env = self.env.copy()
+		tree = Params.g_build
+		current = tree.m_curdirnode
+		xmlfile = self.path.find_source(self.source)
+		xsltfile = self.path.find_source(self.xslt)
+		task = self.create_task('xmlto', self.env, 6)
+		task.set_inputs([xmlfile, xsltfile])
+		task.set_outputs(xmlfile.change_ext('html'))
+	def install(self):
+		current = Params.g_build.m_curdirnode
+		for node in task.m_outputs:
+			Common.install_files(self.inst_var, self.inst_subdir, node.abspath(self.env))
+
 class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
@@ -232,9 +255,8 @@ class gnomeobj(cc.ccobj):
 def setup(env):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
-	Action.simple_action( \
-		'intltool', \
-		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', \
+	Action.simple_action('intltool',
+		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
 		color='BLUE')
 
 	Action.simple_action('glib_genmarshal',
@@ -244,6 +266,8 @@ def setup(env):
 	Action.simple_action('dbus_binding_tool',
 		'${DBT} --prefix=${DBT_PREFIX} --mode=${DBT_MODE} --output=${TGT} ${SRC}',
 		color='BLUE')
+
+	Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1]} ${SRC[0]}')
 
 	Object.register('gnome_translations', gnome_translations)
 	Object.register('gnome_sgml2man', gnome_sgml2man)
