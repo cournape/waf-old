@@ -13,7 +13,7 @@ n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 
 
-def postinstall(prog_name):
+def postinstall_schemas(prog_name):
 	if Params.g_commands['install']:
 		import Runner, Common
 
@@ -22,11 +22,15 @@ def postinstall(prog_name):
 		command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
 		ret = Runner.exec_command(command)
 
+def postinstall_icons():
+	if Params.g_commands['install']:
 		# update the pixmap cache directory
 		dir = Common.path_install('DATADIR', 'icons/hicolor')
 		command = 'gtk-update-icon-cache -q -f -t %s' % dir
 		ret = Runner.exec_command(command)
 
+def postinstall_scrollkeeper():
+	if Params.g_commands['install']:
 		# now the scrollkeeper update if we can write to the log file
 		if os.path.iswriteable('/var/log/scrollkeeper.log'):
 			dir1 = Common.path_install('PREFIX', 'var/scrollkeeper')
