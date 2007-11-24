@@ -13,14 +13,14 @@ n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 
 def postinstall_schemas(prog_name):
-	if Params.g_commands['install']:
+	if Params.g_commands['install'] and not Params.g_options.destdir:
 		# add the gconf schema
 		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/%s.schemas' % prog_name)
 		command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
 		ret = Runner.exec_command(command)
 
 def postinstall_icons():
-	if Params.g_commands['install']:
+	if Params.g_commands['install'] and not Params.g_options.destdir:
 		# update the pixmap cache directory
 		dir = Common.path_install('DATADIR', 'icons/hicolor')
 		command = 'gtk-update-icon-cache -q -f -t %s' % dir
