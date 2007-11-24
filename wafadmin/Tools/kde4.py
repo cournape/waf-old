@@ -5,12 +5,12 @@
 import os, sys, re, Object, Action, Utils, Common
 
 class langobj(Object.genobj):
-	s_default_ext = ['.java']
-	def __init__(self):
+	def __init__(self, appname='set_your_app_name'):
 		Object.genobj.__init__(self, 'other')
 		self.langs = '' # for example "foo/fr foo/br"
 		self.chmod = 0644
 		self.inst_var = 'KDE4_LOCALE_INSTALL_DIR'
+		self.appname = appname
 
 	def apply(self):
 		for lang in self.to_list(self.langs):
@@ -24,7 +24,7 @@ class langobj(Object.genobj):
 			langname = lang.split('/')
 			langname = langname[-1]
 			inst_dir = langname+os.sep+'LC_MESSAGES'
-			Common.install_files(self.inst_var, inst_dir, lang+'.mo', chmod=self.chmod)
+			Common.install_as(self.inst_var, inst_dir+'/semantik.mo', lang+'.mo', chmod=self.chmod)
 
 def detect(conf):
 	kdeconfig = conf.find_program('kde4-config')
