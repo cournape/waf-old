@@ -12,7 +12,6 @@ from Params import fatal, error
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 
-
 def postinstall_schemas(prog_name):
 	if Params.g_commands['install']:
 		import Runner, Common
@@ -37,6 +36,11 @@ def postinstall_scrollkeeper():
 			dir2 = Common.path_install('DATADIR', 'omf/gnome-hello')
 			command = 'scrollkeeper-update -q -p %s -o %s' % (dir1, dir2)
 			ret = Runner.exec_command(command)
+
+def postinstall(name='myapp', schemas=1, icons=1, scrollkeeper=1):
+	if schemas: postinstall_shemas(myapp)
+	if icons: postinstall_icons()
+	if scrollkeeper: postinstall_scrollkeeper()
 
 class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
