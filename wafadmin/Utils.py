@@ -72,7 +72,7 @@ def load_module(file_path, name='wscript'):
 
 	try:
 		file = open(file_path, 'r')
-	except OSError:
+	except (IOError, OSError):
 		Params.fatal('The file %s could not be opened!' % file_path)
 
 	import Common
