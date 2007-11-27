@@ -31,7 +31,7 @@ def detect(conf):
 	if not kdeconfig:
 		conf.fatal('we need kde4-config')
 	prefix = os.popen('%s --prefix' % kdeconfig).read().strip()
-	file = '%s/lib/kde4/cmake/KDE4Config.cmake' % prefix
+	file = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
 	try: os.stat(file)
 	except: conf.fatal('could not open %s' % file)
 
