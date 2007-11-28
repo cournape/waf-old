@@ -30,7 +30,7 @@ def try_build_file(conf, fileName, msgPrefix="HAVE"):
 	try:
 		__msg = msgPrefix + "_" + ((fileName.split(os.sep)[-1]).split('.')[0]).upper()
 		if conf.try_build(code, msg = __msg, force_compiler = "cc"):
-			conf.add_define(__msg, 1)
+			conf.define(__msg, 1)
 			return True
 		else:
 			return False
