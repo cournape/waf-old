@@ -117,7 +117,8 @@ class gnome_intltool(Object.genobj):
 
 			podirnode = self.path.find_source(self.podir)
 
-			self.env['INTLCACHE'] = os.path.join(Params.g_build.m_curdirnode.bldpath(self.env),".intlcache")
+			self.env['INTLCACHE'] =
+			os.path.join(Params.g_build.m_curdirnode.bldpath(self.env),"po/.intlcache")
 			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
 			self.env['INTLFLAGS'] = self.flags
 
