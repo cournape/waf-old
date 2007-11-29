@@ -30,7 +30,7 @@ class intltool_in(Object.genobj):
 
 			podirnode = self.path.find_source(self.podir)
 
-			self.env['INTLCACHE'] = os.path.join(self.path.blddir(self.env), self.podir, self.intlcache)
+			self.env['INTLCACHE'] = os.path.join(self.podir, self.intlcache)
 			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
 			self.env['INTLFLAGS'] = self.flags
 
