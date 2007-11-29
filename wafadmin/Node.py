@@ -501,7 +501,6 @@ class Node:
 	def bldpath(self, env=None):
 		"path seen from the build dir default/src/foo.cpp"
 		x = self.m_parent.get_file(self.m_name)
-		if not x: x = self.m_parent.get_dir(self.m_name)
 
 		if x: return self.relpath_gen(Params.g_build.m_bldnode)
 		if self.relpath(Params.g_build.m_srcnode) is not '':
