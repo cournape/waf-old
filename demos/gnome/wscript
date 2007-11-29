@@ -54,7 +54,7 @@ def build(bld):
 	# FIXME: man subdir is not included due to some bugs in the sgml utils
 	bld.add_subdirs('src pixmaps po help data')
 	if bld.env_of_name('default')['HAVE_GTKSHARP'] and bld.env_of_name('default')['MCS']:
-		bld.add_subdirs('shrap')
+		bld.add_subdirs('sharp')
 
 def shutdown():
 	# maybe comments to say why they do ... i do not know i do not make gnome sw usually (ita)
