@@ -26,6 +26,8 @@ def configure(conf):
 	conf.check_pkg('gtk+-2.0',            destvar='GTK',      vnum='2.6.0', mandatory=True)
 	conf.check_pkg('dbus-glib-1',         destvar='DBUSGLIB', vnum='0.60', mandatory=True)
 
+	conf.check_pkg('gtk-sharp-2.0',	      destvar='GTKSHARP',  mandatory=False)
+	
 	# here is how to add more libraries (look in src/wscript_build too)
 	#conf.check_pkg('glib-2.0',            destvar='GLIB',     vnum='2.6.0')
 	#conf.check_pkg('libbonobo-2.0',       destvar='BONOBO',   vnum='2.0.0')
@@ -49,8 +51,9 @@ def configure(conf):
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdirs('src pixmaps po help man data')
-	if bld.env_of_name('default')['MCS']:
+	# FIXME: man subdir is not included due to some bugs in the sgml utils
+	bld.add_subdirs('src pixmaps po help data')
+	if bld.env_of_name('default')['HAVE_GTKSHARP'] and bld.env_of_name('default')['MCS']:
 		bld.add_subdirs('shrap')
 
 def shutdown():

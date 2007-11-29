@@ -7,7 +7,7 @@ obj.source='''
 Simple.cs
 '''
 obj.includes='.'
-obj.flags  = '-pkg:gtk-sharp'
+obj.flags  = '-pkg:gtk-sharp-2.0'
 #obj.uselib = 'GTK GNOME GNOMEUI'
 obj.target = 'mono-hello.exe'
 
