@@ -97,40 +97,6 @@ class sgml_man_scanner(Scan.scanner):
 
 sgml_scanner = sgml_man_scanner()
 
-# intltool
-class gnome_intltool(Object.genobj):
-	def __init__(self):
-		Object.genobj.__init__(self, 'other')
-		self.source  = ''
-		self.destvar = ''
-		self.subdir  = ''
-		self.flags   = ''
-
-		self.m_tasks = []
-
-	def apply(self):
-		self.env = self.env.copy()
-		tree = Params.g_build
-		current = tree.m_curdirnode
-		for i in self.to_list(self.source):
-			node = self.path.find_source(i)
-
-			podirnode = self.path.find_source(self.podir)
-
-			self.env['INTLCACHE'] = os.path.join(Params.g_build.m_curdirnode.bldpath(self.env),"po/.intlcache")
-			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
-			self.env['INTLFLAGS'] = self.flags
-
-			task = self.create_task('intltool', self.env, 2)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext(''))
-
-	def install(self):
-		current = Params.g_build.m_curdirnode
-		for task in self.m_tasks:
-			out = task.m_outputs[0]
-			Common.install_files(self.destvar, self.subdir, out.abspath(self.env), self.env)
-
 # sgml2man
 class gnome_sgml2man(Object.genobj):
 	def __init__(self, appname):
@@ -171,31 +137,6 @@ class gnome_sgml2man(Object.genobj):
 			# and install the file
 
 			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)
-
-class gnome_translations(Object.genobj):
-	def __init__(self, appname='set_your_app_name'):
-		Object.genobj.__init__(self, 'other')
-		self.chmod = 0644
-		self.inst_var = 'GNOMELOCALEDIR'
-		self.appname = appname
-		self.m_tasks=[]
-
-	def apply(self):
-		for file in self.path.files():
-			(base, ext) = os.path.splitext(file.m_name)
-			if ext == '.po':
-				node = self.path.find_source(file.m_name)
-				task = self.create_task('po', self.env, 10)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.mo'))
-							
-	def install(self):
-		for task in self.m_tasks:
-			out = task.m_outputs[0]
-			filename = out.m_name
-			(langname, ext) = os.path.splitext(filename)
-			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
-			Common.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
 
 class gnomeobj(cc.ccobj):
 	def __init__(self, type='program'):
@@ -267,11 +208,7 @@ class gnomeobj(cc.ccobj):
 		cc.ccobj.apply_core(self)
 
 def setup(env):
-	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
-	Action.simple_action('intltool',
-		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
-		color='BLUE')
 
 	Action.simple_action('glib_genmarshal',
 		'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
@@ -283,29 +220,17 @@ def setup(env):
 
 	Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1]} ${SRC[0]}')
 
-	Object.register('gnome_translations', gnome_translations)
 	Object.register('gnome_sgml2man', gnome_sgml2man)
-	Object.register('gnome_intltool', gnome_intltool)
 	Object.register('gnome', gnomeobj)
 
 def detect(conf):
 
 	conf.check_tool('checks')
 
-	pocom = conf.find_program('msgfmt')
-	#if not pocom:
-	#	fatal('The program msgfmt (gettext) is mandatory!')
-	conf.env['POCOM'] = pocom
-
 	sgml2man = conf.find_program('docbook2man')
 	#if not sgml2man:
 	#	fatal('The program docbook2man is mandatory!')
 	conf.env['SGML2MAN'] = sgml2man
-
-	intltool = conf.find_program('intltool-merge')
-	#if not intltool:
-	#	fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
-	conf.env['INTLTOOL'] = intltool
 
 	glib_genmarshal = conf.find_program('glib-genmarshal')
 	conf.env['GGM'] = glib_genmarshal
