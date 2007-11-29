@@ -28,6 +28,9 @@ reg_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
 reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
 
+g_findall = 1
+'search harder for project includes'
+
 def repl(m):
 	s = m.group(1)
 	if s is not None: return ' '
@@ -375,6 +378,19 @@ def eval_macro(lst, adefs):
 			debug("could not evaluate %s to true or false (not a number/boolean)" % str(lst), 'preproc')
 	return ret
 
+def try_exists(node, list):
+	lst = []+list
+	while lst:
+		name = lst.pop(0)
+		# it is not a build node, else we would already got it
+		path = os.path.join(node.abspath(), name)
+		try: os.stat(path)
+		except OSError:
+			#traceback.print_exc()
+			return None
+		node = node.find_dir_lst([name])
+	return node
+
 class cparse:
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
 		#self.lines = txt.split('\n')
@@ -413,15 +429,28 @@ class cparse:
 			self.parse_cache = Params.g_build.parse_cache
 
 	def tryfind(self, filename):
+		global g_findall
 		if self.m_nodepaths:
 			found = 0
 			for n in self.m_nodepaths:
 				found = n.find_source(filename, create=0)
 				if found:
-					self.m_nodes.append(found)
-					# screw Qt
-					if filename[-4:] != '.moc': self.addlines(found.abspath(self.env))
 					break
+			# second pass for unreachable folders
+			if not found and g_findall:
+				lst = filename.split('/')
+				if len(lst)>1:
+					lst=lst[:-1] # take the head
+					for n in self.m_nodepaths:
+						# TODO add a cache here (ita)
+						node = try_exists(n, lst)
+						if node:
+							found = n.find_source(filename, create=0)
+							if found: break
+			if found:
+				self.m_nodes.append(found)
+				# Qt
+				if filename[-4:] != '.moc': self.addlines(found.abspath(self.env))
 			if not found:
 				if not filename in self.m_names:
 					self.m_names.append(filename)
