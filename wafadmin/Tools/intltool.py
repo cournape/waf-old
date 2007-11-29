@@ -17,7 +17,8 @@ class intltool_in(Object.genobj):
 		self.destvar = ''
 		self.subdir  = ''
 		self.flags   = ''
-
+		self.podir   = 'po'
+		self.intlcache = '.intlcache'
 		self.m_tasks = []
 
 	def apply(self):
@@ -29,7 +30,7 @@ class intltool_in(Object.genobj):
 
 			podirnode = self.path.find_source(self.podir)
 
-			self.env['INTLCACHE'] = os.path.join(Params.g_build.m_curdirnode.bldpath(self.env),"po/.intlcache")
+			self.env['INTLCACHE'] = os.path.join(self.path.blddir(self.env), self.podir, self.intlcache)
 			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
 			self.env['INTLFLAGS'] = self.flags
 
