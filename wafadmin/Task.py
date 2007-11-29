@@ -126,12 +126,12 @@ class Task(TaskBase):
 		#self.m_scanner = some_scanner_object
 
 	def set_inputs(self, inp):
-		if type(inp) is types.ListType: self.m_inputs = inp
-		else: self.m_inputs = [inp]
+		if type(inp) is types.ListType: self.m_inputs += inp
+		else: self.m_inputs.append(inp)
 
 	def set_outputs(self, out):
-		if type(out) is types.ListType: self.m_outputs = out
-		else: self.m_outputs = [out]
+		if type(out) is types.ListType: self.m_outputs += out
+		else: self.m_outputs.append(out)
 
 	def set_run_after(self, task):
 		"set (scheduler) dependency on another task"
