@@ -175,25 +175,27 @@ class gnome_sgml2man(Object.genobj):
 class gnome_translations(Object.genobj):
 	def __init__(self, appname='set_your_app_name'):
 		Object.genobj.__init__(self, 'other')
-		self.langs = '' # for example "foo/fr foo/br"
 		self.chmod = 0644
 		self.inst_var = 'GNOMELOCALEDIR'
 		self.appname = appname
+		self.m_tasks=[]
 
 	def apply(self):
-		for lang in self.to_list(self.langs):
-			node = self.path.find_source_lst(Utils.split_path(lang+'.po'))
-			task = self.create_task('po', self.env, 10)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.mo'))
-
+		for file in self.path.files():
+			(base, ext) = os.path.splitext(file.m_name)
+			if ext == '.po':
+				node = self.path.find_source(file.m_name)
+				task = self.create_task('po', self.env, 10)
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.mo'))
+							
 	def install(self):
-		for lang in self.to_list(self.langs):
-			langname = lang.split('/')
-			langname = langname[-1]
-			inst_dir = langname+os.sep+'LC_MESSAGES'
-			Common.install_as(self.inst_var, inst_dir+'/semantik.mo', lang+'.mo', chmod=self.chmod)
-
+		for task in self.m_tasks:
+			out = task.m_outputs[0]
+			filename = out.m_name
+			(langname, ext) = os.path.splitext(filename)
+			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
+			Common.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
 
 class gnomeobj(cc.ccobj):
 	def __init__(self, type='program'):
