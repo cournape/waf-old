@@ -440,13 +440,19 @@ class cparse:
 			if not found and g_findall:
 				lst = filename.split('/')
 				if len(lst)>1:
-					lst=lst[:-1] # take the head
-					for n in self.m_nodepaths:
-						# TODO add a cache here (ita)
-						node = try_exists(n, lst)
-						if node:
-							found = n.find_source(filename, create=0)
-							if found: break
+					lst=lst[:-1] # take the folders only
+					try: cache = Params.g_build.preproc_cache
+					except AttributeError:
+						cache = {}
+						setattr(Params.g_build, 'preproc_cache', cache)
+					key = hash(str(self.m_nodepaths), str(lst))
+					if not cache.get(key, None):
+						cache[key] = 1
+						for n in self.m_nodepaths:
+							node = try_exists(n, lst)
+							if node:
+								found = n.find_source(filename, create=0)
+								if found: break
 			if found:
 				self.m_nodes.append(found)
 				# Qt
