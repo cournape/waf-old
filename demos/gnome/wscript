@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import os
-import Params, gnome
+import Params, intltool, gnome
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.2'
@@ -19,7 +19,7 @@ def set_options(opt):
 	pass
 
 def configure(conf):
-	conf.check_tool('gcc gnome cs')
+	conf.check_tool('gcc gnome cs intltool')
 
 	conf.check_pkg('libgnome-2.0',        destvar='GNOME',    vnum='2.10.0', mandatory=True)
 	conf.check_pkg('libgnomeui-2.0',      destvar='GNOMEUI',  vnum='2.10.0', mandatory=True)
