@@ -77,14 +77,6 @@ class intltoolobj(cc.ccobj):
 		self.want_libtool = -1 # fake libtool here
 
 	def apply_core(self):
-		for i in self._marshal_lst:
-			node = self.path.find_source(i[0])
-
-			if not node:
-				fatal('file not found on intltool obj '+i[0])
-
-			env = self.env.copy()
-
 		# after our targets are created, process the .c files, etc
 		cc.ccobj.apply_core(self)
 
