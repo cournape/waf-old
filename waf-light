@@ -74,9 +74,9 @@ def decodeAscii85(s):
 wafdir=None # SPECIAL LINE
 
 def uncompress_wafdir(newdir):
-	file = open(sys.argv[0], 'rb')
+	f = open(sys.argv[0], 'rb')
 	while 1:
-		line = file.readline()
+		line = f.readline()
 		if not line:
 			print "This is a stripped-down waf, there is no wafadmin directory available"
 			print "Please set WAFDIR to a directory containing a directory named wafadmin"
@@ -85,12 +85,12 @@ def uncompress_wafdir(newdir):
 			sys.exit(1)
 		line=line.rstrip()
 		if line=='# ===>BEGIN WOOF<===':
-			cnt = file.readline()
+			cnt = f.readline()
 			if not cnt:
 				print "Corrupted waf (1)"
 				sys.exit(1)
 
-			line = file.readline().rstrip()
+			line = f.readline().rstrip()
 			if line!='# ===>END WOOF<===':
 				print "Corrupted waf (2)"
 				sys.exit(1)
@@ -102,31 +102,24 @@ def uncompress_wafdir(newdir):
 	cnt = decodeAscii85(cnt[1:])
 
 	# create wafadmin
-	import shutil
+	import shutil, tarfile
 	try: shutil.rmtree(newdir)
 	except OSError: pass
 	try: os.makedirs(newdir)
 	except OSError:
 		print "Could uncompress waf-local into %s"%newdir
-		print "Please install waf system-wide or move waf in a writeable directory"
+		print "Please install waf system-wide or move waf into a writeable directory"
 		sys.exit(1)
-
 	os.chdir(newdir)
-	file = open('wafadmin.tar.bz2', 'wb')
-	file.write(cnt)
-	file.close()
 
-	# now we have the tar file to open
-	import tarfile
-	tar = tarfile.open('wafadmin.tar.bz2')
-	for tarinfo in tar:
-		tar.extract(tarinfo)
+	from cStringIO import StringIO
+	tar = tarfile.open(mode='r|*', fileobj=StringIO(cnt))
+	for x in tar: tar.extract(x)
 	tar.close()
 
-	# cleanup the tarfile and chdir to the previous directory
+	# chdir to the previous directory
 	os.chmod('wafadmin', 0755)
 	os.chmod('wafadmin'+os.sep+'Tools', 0755)
-	os.unlink('wafadmin.tar.bz2')
 	os.chdir(cwd)
 
 	global wafdir
