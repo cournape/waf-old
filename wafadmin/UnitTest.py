@@ -20,7 +20,7 @@ Each object to use as a unit test must be a program and must have X{obj.unit_tes
 import os
 import Params, Object, pproc, Utils
 
-class unit_test:
+class unit_test(object):
 	"Unit test representation"
 	def __init__(self):
 		self.returncode_ok = 0		# Unit test returncode considered OK. All returncodes differing from this one

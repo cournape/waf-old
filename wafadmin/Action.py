@@ -10,7 +10,7 @@ from Params import debug, fatal
 g_actions={}
 "global actions"
 
-class Action:
+class Action(object):
 	"Base class for all Actions, an action takes a task and produces its outputs"
 	def __init__(self, name, vars=[], func=None, color='GREEN'):
 		"""If the action is simple, func is not defined, else a function can be attached
@@ -42,7 +42,7 @@ class Action:
 		if not self.m_function_to_run: fatal(self.m_name+" action has no function !")
 		return self.m_function_to_run(task)
 
-class alex:
+class alex(object):
 	"""
 	Actions declared using a string are compiled before use:
 

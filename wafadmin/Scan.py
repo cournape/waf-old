@@ -13,7 +13,7 @@ g_all_scanners={}
 "all instances of scanners"
 
 # TODO double check for threading issues
-class scanner:
+class scanner(object):
 	"TODO: call this a dependency manager (not a scanner), as it does scan and compute the signatures"
 
 	def __init__(self):

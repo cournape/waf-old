@@ -391,7 +391,7 @@ def try_exists(node, list):
 		node = node.find_dir_lst([name])
 	return node
 
-class cparse:
+class cparse(object):
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
 		#self.lines = txt.split('\n')
 		self.lines = []

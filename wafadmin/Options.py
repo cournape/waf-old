@@ -138,7 +138,7 @@ def parse_args_impl(parser, _args=None):
 	if Params.g_verbose>1: Params.set_trace(1,1,1)
 	else: Params.set_trace(0,0,1)
 
-class Handler:
+class Handler(object):
 	"loads wscript modules in folders for adding options"
 	def __init__(self):
 		self.parser = create_parser()

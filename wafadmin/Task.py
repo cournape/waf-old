@@ -14,7 +14,7 @@ from Params import debug, error, warning
 g_tasks_done    = []
 "tasks that have been run, this is used in tests to check which tasks were actually launched"
 
-class TaskManager:
+class TaskManager(object):
 	"""There is a single instance of TaskManager held by Task.py:g_tasks
 	The manager holds a list of TaskGroup
 	Each TaskGroup contains a map(priority, list of tasks)"""
@@ -54,7 +54,7 @@ class TaskManager:
 "the container of all tasks (instance of TaskManager)"
 g_tasks = TaskManager()
 
-class TaskGroup:
+class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"
 	def __init__(self, name):
 		self.name = name
@@ -64,7 +64,7 @@ class TaskGroup:
 		try: self.prio[prio].append(task)
 		except: self.prio[prio] = [task]
 
-class TaskBase:
+class TaskBase(object):
 	"TaskBase is the base class for task objects"
 	def __init__(self, priority, normal=1):
 		self.m_display = ''

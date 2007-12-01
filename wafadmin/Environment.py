@@ -11,7 +11,7 @@ from Params import debug, error, fatal, warning
 from copy import deepcopy
 
 g_idx = 0
-class Environment:
+class Environment(object):
 	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
 	An environment instance can be stored into a file and loaded easily
 	"""

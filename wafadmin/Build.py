@@ -8,12 +8,10 @@ import os, sys, cPickle, types, imp
 import Params, Runner, Object, Node, Task, Scripting, Utils, Environment
 from Params import debug, error, fatal, warning
 
-
-
 SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_raw_deps m_sig_cache'.split()
 "Build class members to save"
 
-class BuildDTO:
+class BuildDTO(object):
 	"holds the data to store using cPickle"
 	def __init__(self):
 		pass
@@ -26,7 +24,7 @@ class BuildDTO:
 		for a in SAVED_ATTRS:
 			setattr(bdobj, a, getattr(self, a))
 
-class Build:
+class Build(object):
 	"holds the dependency tree"
 	def __init__(self):
 
@@ -278,6 +276,7 @@ class Build:
 			return
 
 		if not tooldir: tooldir = Params.g_tooldir
+		#print "setting up ", tool, self
 
 		file,name,desc = imp.find_module(tool, tooldir)
 		module = imp.load_module(tool,file,name,desc)

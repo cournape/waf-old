@@ -8,10 +8,10 @@ except ImportError: from md5 import md5
 import Utils, Configure, Action, Task, Params
 from Params import error, fatal
 
-class sconpat_error:
+class sconpat_error(Exception):
 	pass
 
-class Builder_class:
+class Builder_class(object):
 	def __init__(self):
 		self.action = None
 		self.generator = None

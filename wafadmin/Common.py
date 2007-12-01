@@ -8,7 +8,7 @@ import os, types, shutil, glob
 import Params, Utils
 from Params import error, fatal
 
-class InstallError:
+class InstallError(Exception):
 	pass
 
 def check_dir(dir):

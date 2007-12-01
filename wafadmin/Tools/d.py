@@ -102,7 +102,7 @@ def filter_comments(filename):
 		i += 1
 	return buf
 
-class parser:
+class parser(object):
 	def __init__(self, env, incpaths):
 		#self.code = ''
 		#self.module = ''
