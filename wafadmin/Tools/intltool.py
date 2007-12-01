@@ -53,13 +53,20 @@ class intltool_po(Object.genobj):
 		self.m_tasks=[]
 
 	def apply(self):
-		for file in self.path.files():
-			(base, ext) = os.path.splitext(file.m_name)
-			if ext == '.po':
-				node = self.path.find_source(file.m_name)
-				task = self.create_task('po', self.env, 10)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.mo'))
+		linguas = self.path.find_source ('LINGUAS')
+		if linguas:
+			# scan LINGUAS file for locales to process
+			f = open (linguas.abspath())
+			re_linguas = re.compile('[-a-zA-Z_@.]+')
+			for line in f.readlines():
+				# Make sure that we only process lines which contain locales
+				if re_linguas.match(line):
+					node = self.path.find_source(re_linguas.match(line).group() + '.po')
+					task = self.create_task('po', self.env, 10)
+					task.set_inputs(node)
+					task.set_outputs(node.change_ext('.mo'))
+		else:
+			Params.pprint('RED', "Error no LINGUAS file found in po directory")
 							
 	def install(self):
 		for task in self.m_tasks:
@@ -104,8 +111,26 @@ def detect(conf):
 	#	fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 	conf.env['INTLTOOL'] = intltool
 
-	conf.define('LOCALEDIR', os.path.join(datadir, 'locale'))
-
 	def getstr(varname):
 		return getattr(Params.g_options, varname, '')
+
+	prefix  = conf.env['PREFIX']
+	datadir = getstr('datadir')
+	if not datadir: datadir = os.path.join(prefix,'share')
+
+	conf.define('LOCALEDIR', os.path.join(datadir, 'locale'))
+	conf.define('DATADIR', datadir)
+
+	#Define to 1 if you have the <locale.h> header file.
+	conf.check_header('locale.h', 'HAVE_LOCALE_H')
+
+def set_options(opt):
+	try:
+		# we do not know yet
+		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
+	except:
+		pass
+
+	for i in "datadir".split():
+		opt.add_option('--'+i, type='string', default='', dest=i)
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-07-30 20:10+0100\n"
+"POT-Creation-Date: 2007-12-01 11:19+0100\n"
 "PO-Revision-Date: 2006-04-13 12:01+0200\n"
 "Last-Translator: Francisco Javier F. Serrador <serrador@cvs.gnome.org>\n"
 "Language-Team: Spanish <traductores@es.gnome.org>\n"
@@ -21,11 +21,19 @@ msgstr ""
 "X-Generator: KBabel 1.9.1\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
-#: ../data/gnome_test.schemas.in.h:1
+#: ../data/gnome-test.desktop.in.h:1
+msgid "Gnome test"
+msgstr "Gnome test"
+
+#: ../data/gnome-test.desktop.in.h:2
+msgid "Test Program"
+msgstr "Programma de test"
+
+#: ../data/gnome-test.schemas.in.h:1
 msgid "GNOME Hello Demo"
 msgstr "Demostración de GNOME Hola"
 
-#: ../data/gnome_test.schemas.in.h:2
+#: ../data/gnome-test.schemas.in.h:2
 msgid "Sample application using GNOME technologies"
 msgstr "Aplicación de ejemplo del uso de las tencnologías de GNOME"
 
@@ -46,35 +54,37 @@ msgstr "No pude analizar la cadena de texto de geometría «%s»"
 msgid "Special Greetings to:\n"
 msgstr "Saludos especiales a:\n"
 
-#: ../src/hello.c:50
+#: ../src/hello.c:58
 msgid "Say hello to specific people listed on the command line"
 msgstr "Mandar un saludo a la lista de personas dada en la línea de comando"
 
-#: ../src/hello.c:59
+#: ../src/hello.c:67
 msgid "Specify a message other than \"Hello, World!\""
 msgstr "Especificar un mensaje distinto de «¡Hola, Mundo!»"
 
-#: ../src/hello.c:60
+#: ../src/hello.c:68
 msgid "MESSAGE"
 msgstr "MENSAJE"
 
-#: ../src/hello.c:68
+#: ../src/hello.c:76
 msgid "Specify the geometry of the main window"
 msgstr "Especificar la geometría de la ventana principal"
 
-#: ../src/hello.c:69
+#: ../src/hello.c:77
 msgid "GEOMETRY"
 msgstr "GEOMETRIA"
 
-#: ../src/hello.c:96
+#: ../src/hello.c:113
 msgid "- GNOME Hello"
 msgstr "- GNOME Hola"
 
-#: ../src/hello.c:120
+#: ../src/hello.c:143
+#, c-format
 msgid "You must specify someone to greet.\n"
 msgstr "Debe especificar una persona a quien saludar.\n"
 
-#: ../src/hello.c:125
+#: ../src/hello.c:148
+#, c-format
 msgid "Command line arguments are only allowed with --greet.\n"
 msgstr "Los argumentos en la línea de comando sólo son válidos con --greet.\n"
 
@@ -181,9 +191,6 @@ msgstr "Esto no hace nada; es solo una muestra."
 #: ../src/menus.c:161
 msgid "translator-credits"
 msgstr "Francisco Javier F. Serrador <serrador@gnome.org>"
-
-#~ msgid "Gnome Hello"
-#~ msgstr "Gnome Hola"
 
 #~ msgid "_New Hello"
 #~ msgstr "_Nuevo Saludo"
