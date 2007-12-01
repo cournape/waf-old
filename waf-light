@@ -101,25 +101,30 @@ def uncompress_wafdir(newdir):
 
 	cnt = decodeAscii85(cnt[1:])
 
-	# create wafadmin
+	# uncompress wafadmin
 	import shutil, tarfile
 	try: shutil.rmtree(newdir)
 	except OSError: pass
 	try: os.makedirs(newdir)
 	except OSError:
-		print "Could uncompress waf-local into %s"%newdir
+		print "Could not uncompress waf-local into %s"%newdir
 		print "Please install waf system-wide or move waf into a writeable directory"
 		sys.exit(1)
-	os.chdir(newdir)
 
-	from cStringIO import StringIO
-	tar = tarfile.open(mode='r|*', fileobj=StringIO(cnt))
-	for x in tar: tar.extract(x)
+	os.chdir(newdir)
+	f = open('wafadmin.tar.bz2', 'wb')
+	f.write(cnt)
+	f.close()
+
+	tar = tarfile.open('wafadmin.tar.bz2')
+	for tarinfo in tar:
+		tar.extract(tarinfo)
 	tar.close()
 
-	# chdir to the previous directory
+	# cleanup the tarfile and chdir to the previous directory
 	os.chmod('wafadmin', 0755)
 	os.chmod('wafadmin'+os.sep+'Tools', 0755)
+	os.unlink('wafadmin.tar.bz2')
 	os.chdir(cwd)
 
 	global wafdir
