@@ -4,6 +4,7 @@
 
 import sys
 from Params import fatal
+import Configure
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
@@ -22,6 +23,12 @@ def configure(conf):
 	conf.check_tool('python')
 	conf.check_python_version((2,4,2))
 	conf.check_python_headers()
+
+	try:
+		conf.check_python_module('pygccxml')
+	except Configure.ConfigurationError:
+		print "(module not found, but we ignore it)"
+		pass
 
 def build(bld):
 	# first compile a few pyc and pyo files

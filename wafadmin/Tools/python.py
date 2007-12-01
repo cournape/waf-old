@@ -6,8 +6,8 @@
 "Python support"
 
 import os, sys
-import Object, Action, Utils, Runner, Params, Common
-from pproc import *
+import Object, Action, Utils, Params, Common
+from pproc import Popen, PIPE
 
 class pyobj(Object.genobj):
 	s_default_ext = ['.py']
@@ -241,6 +241,17 @@ def check_python_version(conf, minver=None):
 		conf.fatal("Python too old.")
 
 
+def check_python_module(conf, module_name):
+	"""
+	Check if the selected python interpreter can import the given python module.
+	"""
+	result = not Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
+			   stderr=PIPE, stdout=PIPE).wait()
+	conf.check_message('Python module', module_name, result)
+	if not result:
+		conf.fatal("Python module not found.")
+
+
 def detect(conf):
 	python = conf.find_program('python', var='PYTHON')
 	if not python: return
@@ -271,6 +282,7 @@ def detect(conf):
 
 	conf.hook(check_python_version)
 	conf.hook(check_python_headers)
+	conf.hook(check_python_module)
 
 def set_options(opt):
 	opt.add_option('--nopyc', action = 'store_false', default = 1, help = 'no pyc files (configuration)', dest = 'pyc')
