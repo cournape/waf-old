@@ -24,7 +24,7 @@ from Params import debug, error, fatal
 
 g_launch_node=None
 
-class Node:
+class Node(object):
 	def __init__(self, name, parent):
 		self.m_name = name
 		self.m_parent = parent

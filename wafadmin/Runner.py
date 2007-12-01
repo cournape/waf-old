@@ -89,7 +89,7 @@ def set_exec(mode):
 	elif mode == 'noredir': exec_command = exec_command_interact
 	else: error('set_runner_mode')
 
-class JobGenerator:
+class JobGenerator(object):
 	"kind of iterator - the data structure is a bit complicated (price to pay for flexibility)"
 	def __init__(self, tree):
 		self.m_tree = tree
@@ -173,7 +173,7 @@ class JobGenerator:
 		try: Task.g_tasks.groups[self.curgroup].prio.sort()
 		except: pass
 
-class Serial:
+class Serial(object):
 	def __init__(self, generator):
 		self.m_generator = generator
 	def start(self):
@@ -338,7 +338,7 @@ class TaskConsumer(threading.Thread):
 			lock.release()
 			self.notify()
 
-class Parallel:
+class Parallel(object):
 	"""
 	The following is a small scheduler, using an agressive scheme
 	for making as many tasks available to the consumer threads

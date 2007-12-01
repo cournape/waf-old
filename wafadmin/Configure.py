@@ -98,7 +98,7 @@ def find_program_impl(lenv, filename, path_list=None, var=None):
 ###############
 ## ENUMERATORS
 
-class enumerator_base:
+class enumerator_base(object):
 	def __init__(self, conf):
 		self.conf        = conf
 		self.env         = conf.env
@@ -891,7 +891,7 @@ class header_configurator(configurator_base):
 # CONFIGURATORS END
 ####################
 
-class check_data:
+class check_data(object):
 	def __init__(self):
 
 		self.env           = '' # environment to use
@@ -918,7 +918,7 @@ class check_data:
 		self.force_compiler= None
 		self.build_type    = 'program'
 
-class Configure:
+class Configure(object):
 	def __init__(self, env=None, blddir='', srcdir=''):
 
 		self.env       = None
