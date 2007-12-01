@@ -399,7 +399,7 @@ class msvccpp(msvcobj):
 		msvcobj.apply_obj_vars(self)
 
 
-def setup(env):
+def setup(bld):
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 	cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
 	cpp_str = '${CL} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
@@ -417,7 +417,7 @@ def setup(env):
 	Object.register('cc', msvccc)
 	Object.register('cpp', msvccpp)
 	import winres
-	winres.setup(env)
+	winres.setup(bld)
 
 def detect(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.

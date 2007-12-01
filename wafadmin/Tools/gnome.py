@@ -207,7 +207,7 @@ class gnomeobj(cc.ccobj):
 		# after our targets are created, process the .c files, etc
 		cc.ccobj.apply_core(self)
 
-def setup(env):
+def setup(bld):
 	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 
 	Action.simple_action('glib_genmarshal',

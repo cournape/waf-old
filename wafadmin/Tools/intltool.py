@@ -87,7 +87,7 @@ class intltoolobj(cc.ccobj):
 		# after our targets are created, process the .c files, etc
 		cc.ccobj.apply_core(self)
 
-def setup(env):
+def setup(bld):
 	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 	Action.simple_action('intltool',
 		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',

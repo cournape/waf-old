@@ -33,7 +33,7 @@ def l_file(self, node):
 	task.set_inputs(ltask.m_outputs)
 	task.set_outputs(node.change_ext(obj_ext))
 
-def setup(env):
+def setup(bld):
 	# create our action here
 	Action.simple_action('flex', flex_str, color='BLUE')
 

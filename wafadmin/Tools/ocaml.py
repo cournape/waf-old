@@ -346,7 +346,7 @@ class ocamlobj(Object.genobj):
 			else:
 				return self.target
 
-def setup(env):
+def setup(bld):
 	Object.register('ocaml', ocamlobj)
 	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
 	Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW')

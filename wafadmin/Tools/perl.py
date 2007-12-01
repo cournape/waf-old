@@ -16,7 +16,7 @@ def xsubpp_file(self, node):
     cctask.set_inputs(gentask.m_outputs)
     cctask.set_outputs(node.change_ext('.o'))
 
-def setup(env):
+def setup(bld):
     Action.simple_action('xsubpp', xsubpp_str, color='BLUE')
     Object.hook('cc', 'PERLXS_EXT', xsubpp_file)
 

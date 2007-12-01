@@ -99,7 +99,7 @@ def i_file(self, node):
 	task.set_inputs(ltask.m_outputs[0])
 	task.set_outputs(node.change_ext(self.env['EXT_SWIG_OUT']))
 
-def setup(env):
+def setup(bld):
 	Action.simple_action('swig', swig_str, color='BLUE')
 
 	# register the hook for use with cppobj and ccobj

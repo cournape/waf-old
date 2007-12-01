@@ -453,7 +453,7 @@ use command_is_external=True''') % (self.command,)
 	def install(self):
 		pass
 
-def setup(env):
+def setup(bld):
 	Object.register('cmd', cmdobj)
 	Object.register('copy', copyobj)
 	Object.register('subst', substobj)

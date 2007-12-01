@@ -37,7 +37,7 @@ def yc_file(self, node):
 	task.set_inputs(yctask.m_outputs[0])
 	task.set_outputs(node.change_ext(o_ext))
 
-def setup(env):
+def setup(bld):
 	# create our action here
 	Action.simple_action('bison', bison_str, color='BLUE')
 

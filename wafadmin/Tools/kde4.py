@@ -66,7 +66,7 @@ def detect(conf):
 
 	conf.env['MSGFMT'] = conf.find_program('msgfmt')
 
-def setup(env):
+def setup(bld):
 	Object.register('msgfmt', langobj)
 	Action.simple_action('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE')
 

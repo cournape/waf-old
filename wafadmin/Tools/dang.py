@@ -28,7 +28,7 @@ def coin_file(self, node):
 	# for debugging a task, use the following code:
 	#cointask.debug(1)
 
-def setup(env):
+def setup(bld):
 	# create our action, for use with coin_file
 	Action.simple_action('dang', dang_str, color='BLUE')
 

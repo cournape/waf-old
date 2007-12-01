@@ -59,7 +59,7 @@ class javaobj(Object.genobj):
 				else:
 					self.env.append_unique('JAROPTS', '-C %s .' % self.path.bldpath(self.env))
 
-def setup(env):
+def setup(bld):
 	Object.register('java', javaobj)
 	Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE')
 	Action.simple_action('jar_create', '${JAR} cvf ${TGT} ${JAROPTS}', color='GREEN')

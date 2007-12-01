@@ -72,7 +72,7 @@ def app_build(task):
 
 	return 0
 
-def setup(env):
+def setup(bld):
 	ccroot.ccroot.apply_core_o = ccroot.ccroot.apply_core
 	ccroot.ccroot.apply_core = apply_core_osx
 	Action.Action('macapp', vars=[], func=app_build)

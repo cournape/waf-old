@@ -21,7 +21,7 @@ def rc_file(self, node):
 	# make linker can find compiled resource files
 	self.p_compiletasks.append(rctask)
 
-def setup(env):
+def setup(bld):
 	# create our action, for use with rc file
 	Action.simple_action('winrc', winrc_str, color='BLUE')
 

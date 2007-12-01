@@ -68,7 +68,7 @@ class pyobj(Object.genobj):
 			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod)
 			#self.install_results(self.inst_var, self.inst_dir, i)
 
-def setup(env):
+def setup(bld):
 	Object.register('py', pyobj)
 	Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
 	Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')

@@ -69,7 +69,7 @@ class csobj(Object.genobj):
 				except: pass
 				if val: self.env.append_value(v, val)
 
-def setup(env):
+def setup(bld):
 	Object.register('cs', csobj)
 	Action.simple_action('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 

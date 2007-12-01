@@ -9,7 +9,7 @@ import Action, sys
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 
-def setup(env):
+def setup(bld):
 	global ar_str
 	if sys.platform == "win32":
 		ar_str = '${AR} s${ARFLAGS} ${TGT} ${SRC}'

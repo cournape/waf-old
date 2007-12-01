@@ -226,6 +226,6 @@ def set_options(opt):
         opt.add_option('--boost', type='string', default='', dest='boostfolder', help='path to the directory where the boost lives are e.g. /usr/local')
         opt.add_option('--asio-includes', type='string', default='', dest='asioincludes', help='path to asio e.g. /usr/local/include/asio')
 
-def setup(env):
+def setup(bld):
         pass
 

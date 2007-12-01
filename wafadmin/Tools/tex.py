@@ -262,7 +262,7 @@ def detect(conf):
 		v[p.upper()+'FLAGS'] = ''
 	v['DVIPSFLAGS'] = '-Ppdf'
 
-def setup(env):
+def setup(bld):
 	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE')
 	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE')
 	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE')
