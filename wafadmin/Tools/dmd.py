@@ -10,7 +10,7 @@ def detect(conf):
 		d_compiler = conf.env['D_COMPILER']
 	if not d_compiler: d_compiler = conf.find_program('dmd', var='D_COMPILER')
 	if not d_compiler:
-		return 0;
+		return 0
 
 	conf.check_tool('d')
 

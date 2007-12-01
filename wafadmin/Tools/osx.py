@@ -43,7 +43,7 @@ def app_build(task):
 	global app_dirs
 	env = task.m_env
 
-	i = 0;
+	i = 0
 	for p in task.m_outputs:
 		srcfile = p.srcpath(env)
 

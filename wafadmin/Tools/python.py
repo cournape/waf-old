@@ -185,7 +185,6 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		if os.path.basename(conf.env['CXX']).startswith('g++'):
 			conf.env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
 			conf.env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
-	
 
 def check_python_version(conf, minver=None):
 	"""

@@ -15,7 +15,7 @@ def detect(conf):
 		cc = os.environ['CC']
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc:
-		return 0;
+		return 0
 	#TODO: Has anyone a better ida to check if this is a sun cc?
 	ret = os.popen("%s -flags" %cc).close()
 	if ret:

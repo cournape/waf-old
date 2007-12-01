@@ -21,7 +21,6 @@ class javaobj(Object.genobj):
 		self.jar_mf_attributes = {}
 		self.jar_mf_classpath = []
 
-
 	def apply(self):
 		nodes_lst = []
 
@@ -89,23 +88,23 @@ def check_java_class(conf, classname, with_classpath=None):
 	"""
 
 	class_check_source = """
-	public class Test
-	{
-        	public static void main( String[] argv ) {
-	                Class lib;
-       		        if (argv.length < 1) {
-                	        System.err.println ("Missing argument");
-                       	 System.exit (77);
-	                } try {
-        	                lib = Class.forName (argv[0]);
-                	} catch (ClassNotFoundException e) {
-				System.err.println ("ClassNotFoundException");
-	                        System.exit (1);
-        	        }
-                	lib = null;
-	                System.exit (0);
-        	}
+public class Test {
+	public static void main(String[] argv) {
+		Class lib;
+		if (argv.length < 1) {
+			System.err.println("Missing argument");
+			System.exit(77);
+		}
+		try {
+			lib = Class.forName(argv[0]);
+		} catch (ClassNotFoundException e) {
+			System.err.println("ClassNotFoundException");
+			System.exit(1);
+		}
+		lib = null;
+		System.exit(0);
 	}
+}
 """
 	import shutil
 
@@ -123,7 +122,7 @@ def check_java_class(conf, classname, with_classpath=None):
 	java_file = open(os.path.join(javatestdir, 'Test.java'), 'w')
 	java_file.write(class_check_source)
 	java_file.close()
-	
+
 	# Compile the source
 	os.popen(conf.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
 
@@ -135,3 +134,4 @@ def check_java_class(conf, classname, with_classpath=None):
 	shutil.rmtree(javatestdir, True)
 
 	return found
+

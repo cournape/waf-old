@@ -316,7 +316,7 @@ def detect_qt4(conf):
 						qtincludes = os.popen(qmake+" -query QT_INSTALL_HEADERS").read().strip()
 						qtdir = os.popen(qmake + " -query QT_INSTALL_PREFIX").read().strip()+"/"
 						qtbin = os.popen(qmake + " -query QT_INSTALL_BINS").read().strip()+"/"
-						break;
+						break
 		except OSError:
 			pass
 
