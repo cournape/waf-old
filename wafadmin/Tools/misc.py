@@ -232,20 +232,6 @@ class CommandOutput(Object.genobj):
 		## change the subprocess to this cwd (must use obj.input_dir() or output_dir() here)
 		self.cwd = None
 
-	# FIXME can you make it more complicated than that ???
-	# FIXME make all methods private please, we will never need to override anything ?????????? (ita)
-
-	## 'priority' backward compatibility
-	def __compat_get_prio(self):
-		warnings.warn("command-output 'priority' is deprecated; use 'prio'", DeprecationWarning, stacklevel=2)
-		return self.prio
-	def __compat_set_prio(self, prio):
-		warnings.warn("command-output 'priority' is deprecated; use 'prio'", DeprecationWarning, stacklevel=2)
-		self.prio = prio
-
-	# FIXME what is doing this in the middle of the class ?????? (ita)
-	priority = property(__compat_get_prio, __compat_set_prio, None, "deprecated alias to the 'prio' atttribute")
-
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
 
