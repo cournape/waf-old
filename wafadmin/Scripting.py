@@ -61,7 +61,7 @@ def call_back(idxName, pathName, event):
 
 	# clean up existing variables, and start a new instance
 	Utils.reset()
-	Main()
+	main()
 	g_daemonlock = 0
 
 def start_daemon():
@@ -134,7 +134,7 @@ def read_cache_file(filename):
 	file.close()
 	return proj
 
-def Main():
+def main():
 	import inspect
 	if Params.g_commands['configure']:
 		configure()
@@ -199,40 +199,6 @@ def Main():
 
 	#bld.dump()
 	Utils.g_module.build(bld)
-
-	"""
-	# bld.m_subdirs can be modified *within* the loop, so do not touch this piece of code
-	while bld.m_subdirs:
-		# read scripts, saving the context everytime (bld.m_curdirnode)
-
-		# cheap queue
-		lst=bld.m_subdirs[0]
-		bld.m_subdirs=bld.m_subdirs[1:]
-
-		new=lst[0]
-		old=lst[1]
-
-		# take the new node position
-		bld.m_curdirnode=new
-
-		try: bld.rescan(bld.m_curdirnode)
-		except OSError: fatal("No such directory "+bld.m_curdirnode.abspath())
-
-		# try to open 'wscript_build' for execution
-		# if unavailable, open the module wscript and call the build function from it
-		try:
-			file_path = os.path.join(new.abspath(), 'wscript_build')
-			file = open(file_path, 'r')
-			exec file
-			if file: file.close()
-		except IOError:
-			file_path = os.path.join(new.abspath(), 'wscript')
-			module = Utils.load_module(file_path)
-			module.build(bld)
-
-		# restore the old node position
-		bld.m_curdirnode=old
-	"""
 	#bld.dump()
 
 	# TODO undocumented hook
