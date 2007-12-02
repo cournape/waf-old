@@ -69,41 +69,32 @@ def decodeAscii85(s):
 		if p2>3: app(chr(o))
 	return ''.join(out)
 
-def uncompress_wafdir(newdir):
+def unpack_wafdir(newdir):
 	f = open(sys.argv[0], 'rb')
+	err = """This is a stripped-down Waf, there is no wafadmin directory available
+Please set WAFDIR to a directory containing a directory named wafadmin
+Or use the full waf version available freely at http://freehackers.org/~tnagy/waf.html
+\033[91mNo wafadmin: cannot execute anything (error)\033[0m"""
 	while 1:
 		line = f.readline()
 		if not line:
-			print "This is a stripped-down waf, there is no wafadmin directory available"
-			print "Please set WAFDIR to a directory containing a directory named wafadmin"
-			print "Or use the full waf version available freely at http://freehackers.org/~tnagy/waf.html"
-			print "\033[91mNo wafadmin: cannot execute anything (error)\033[0m"
-			sys.exit(1)
-		line=line.rstrip()
-		if line=='# ===>BEGIN WOOF<===':
+			print err; sys.exit(1)
+		if line=='# ===>BEGIN WOOF<===\n':
 			cnt = f.readline()
-			if not cnt:
-				print "Corrupted waf (1)"
-				sys.exit(1)
-
-			line = f.readline().rstrip()
-			if line!='# ===>END WOOF<===':
-				print "Corrupted waf (2)"
-				sys.exit(1)
+			if not cnt: print "Corrupted waf (1)"; sys.exit(1)
+			if f.readline()!='# ===>END WOOF<===\n': print "Corrupted waf (2)"; sys.exit(1)
 			break
-	if not cnt:
-		print "Corrupted waf (3)"
-		sys.exit(1)
+	if not cnt: print "Corrupted waf (3)"; sys.exit(1)
 
 	cnt = decodeAscii85(cnt[1:])
 
-	# uncompress wafadmin
+	# unpack wafadmin
 	import shutil, tarfile
 	try: shutil.rmtree(newdir)
 	except OSError: pass
 	try: os.makedirs(newdir)
 	except OSError:
-		print "Could not uncompress waf-local into %s"%newdir
+		print "Could not unpack waf-local into %s"%newdir
 		print "Please install waf system-wide or move waf into a writeable directory"
 		sys.exit(1)
 
@@ -114,16 +105,15 @@ def uncompress_wafdir(newdir):
 	f.close()
 
 	tar = tarfile.open(tmp)
-	for tarinfo in tar:
-		tar.extract(tarinfo)
+	for x in tar: tar.extract(x)
 	tar.close()
 
 	os.chmod('wafadmin', 0755) #FIXME
-	os.chmod('wafadmin'+os.sep+'Tools', 0755)
+	os.chmod('wafadmin%sTools'%os.sep, 0755)
 	os.unlink(tmp)
 	os.chdir(cwd)
 
-def try_wafdir(dir):
+def wfind(dir):
 	try:
 		os.stat(os.path.join(dir, 'wafadmin'))
 		return os.path.abspath(dir)
@@ -132,32 +122,33 @@ def try_wafdir(dir):
 
 def find_wafadmin():
 	name = sys.argv[0]
+	base = os.path.dirname(os.path.abspath(name))
 
 	# developers use $WAFDIR
-	w = try_wafdir(os.environ.get('WAFDIR', ''))
+	w = wfind(os.environ.get('WAFDIR', ''))
 	if w: return w
 
 	# waf-light
 	if name[-5:] == 'light':
-		w = try_wafdir(os.path.dirname(os.path.abspath(name)))
+		w = wfind(base)
 		if w: return w
 		print "\033[91mwaf-light in use, wafadmin not found -> export WAFDIR=/folder\033[0m"
 		sys.exit(1)
 
 	dir = "/lib/waf-%s-%s/" % (VERSION, REVISION)
 	for i in [INSTALL, '/usr', '/usr/local', '/opt']:
-		w = try_wafdir(i+dir)
+		w = wfind(i+dir)
 		if w: return w
 
-	# look in the directory containing waf
-	if sys.platform == 'win32': s='waf-%s-%s'
+	# waf-local
+	if sys.platform=='win32': s='waf-%s-%s'
 	else: s='.waf-%s-%s'
-	dir = os.path.join(os.path.dirname(os.path.abspath(name)), s % (VERSION, REVISION))
-	w = try_wafdir(dir)
+	dir = os.path.join(base, s % (VERSION, REVISION))
+	w = wfind(dir)
 	if w: return w
 
-	# not found, uncompress
-	uncompress_wafdir(dir)
+	# unpack
+	unpack_wafdir(dir)
 	return dir
 
 wafdir = find_wafadmin()
@@ -168,7 +159,6 @@ t = os.path.join(w, 'Tools')
 sys.path = [w, t] + sys.path
 
 import Params, Scripting
-
 Params.g_tooldir = [t]
 Params.g_cwd_launch = cwd
 
