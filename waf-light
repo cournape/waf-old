@@ -43,7 +43,7 @@ cwd = os.getcwd()
 def decodeAscii85(s):
 	out=[]
 	app=out.append
-	s=''.join(s.split()).replace('z','!!!!!')
+	s='!!!!!'.join(s.split('z'))
 	p1,p2=divmod(len(s), 5)
 	stop=5*p1
 	p3,p4=s[0:stop],s[stop:]
@@ -68,9 +68,6 @@ def decodeAscii85(s):
 		if p2>2: app(chr(n))
 		if p2>3: app(chr(o))
 	return ''.join(out)
-
-# wafdir is needed to parse the command-line arguments or print the version number
-wafdir=None # SPECIAL LINE
 
 def uncompress_wafdir(newdir):
 	f = open(sys.argv[0], 'rb')
@@ -120,60 +117,50 @@ def uncompress_wafdir(newdir):
 		tar.extract(tarinfo)
 	tar.close()
 
-	# cleanup the tarfile and chdir to the previous directory
-	os.chmod('wafadmin', 0755)
+	os.chmod('wafadmin', 0755) # FIXME
 	os.chmod('wafadmin'+os.sep+'Tools', 0755)
 	os.unlink('wafadmin.tar.bz2')
 	os.chdir(cwd)
 
-	global wafdir
-	wafdir = newdir
-
 def try_wafdir(dir):
-	global wafdir
-	if wafdir: return
 	try:
 		os.stat(os.path.join(dir, 'wafadmin'))
-		wafdir = os.path.abspath(dir)
+		return os.path.abspath(dir)
 	except OSError:
 		pass
 
 def find_wafadmin():
-	global wafdir
 	name = sys.argv[0]
 
 	# wafadmin may be in $WAFDIR (developers)
 	if 'WAFDIR' in os.environ:
-		try_wafdir(os.environ['WAFDIR'])
-		if wafdir: return
+		w = try_wafdir(os.environ['WAFDIR'])
+		if w: return w
 
 	# waf-light is a special beast
 	if name[-5:] == 'light':
-		try_wafdir(os.path.dirname(os.path.abspath(name)))
-		if wafdir: return
+		w = try_wafdir(os.path.dirname(os.path.abspath(name)))
+		if w: return w
 		print "\033[91mwaf-light in use, wafadmin not found -> export WAFDIR=/folder\033[0m"
 		sys.exit(1)
 
-	if not wafdir:
-		dir = "/lib/waf-%s-%s/" % (VERSION, REVISION)
-		for i in [INSTALL, '/usr', '/usr/local', '/opt']:
-			try_wafdir(i+dir)
-			if wafdir: return
-
-	if wafdir: return
+	dir = "/lib/waf-%s-%s/" % (VERSION, REVISION)
+	for i in [INSTALL, '/usr', '/usr/local', '/opt']:
+		w = try_wafdir(i+dir)
+		if w: return w
 
 	# look in the directory containing waf
 	if sys.platform == 'win32': s='waf-%s-%s'
 	else: s='.waf-%s-%s'
 	dir = os.path.join(os.path.dirname(os.path.abspath(name)), s % (VERSION, REVISION))
-	try_wafdir(dir)
-	if wafdir: return
+	w = try_wafdir(dir)
+	if w: return w
 
 	# not found, uncompress
-	wafdir = dir
 	uncompress_wafdir(dir)
+	return dir
 
-find_wafadmin()
+wafdir = find_wafadmin()
 if "-vv" in sys.argv: print "wafdir is ", wafdir
 
 w = os.path.join(wafdir, 'wafadmin')
