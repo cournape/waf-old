@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005, 2006, 2007 (ita)
+# Thomas Nagy, 2005-2008
 
 """
 Redistribution and use in source and binary forms, with or without
@@ -69,37 +69,34 @@ def decodeAscii85(s):
 		if p2>3: app(chr(o))
 	return ''.join(out)
 
-def unpack_wafdir(newdir):
+def err(m):
+	print m; sys.exit(1)
+
+def unpack_wafdir(dir):
 	f = open(sys.argv[0], 'rb')
-	err = """This is a stripped-down Waf, there is no wafadmin directory available
-Please set WAFDIR to a directory containing a directory named wafadmin
-Or use the full waf version available freely at http://freehackers.org/~tnagy/waf.html
-\033[91mNo wafadmin: cannot execute anything (error)\033[0m"""
+	c = "Error: corrupted (%d)"
 	while 1:
 		line = f.readline()
-		if not line:
-			print err; sys.exit(1)
+		if not line: err("\033[91mError: waf-light must be run from a folder containing wafadmin\033[0m")
 		if line=='# ===>BEGIN WOOF<===\n':
 			cnt = f.readline()
-			if not cnt: print "Corrupted waf (1)"; sys.exit(1)
-			if f.readline()!='# ===>END WOOF<===\n': print "Corrupted waf (2)"; sys.exit(1)
+			if not cnt: err(c%1)
+			if f.readline()!='# ===>END WOOF<===\n': err(c%2)
 			break
-	if not cnt: print "Corrupted waf (3)"; sys.exit(1)
+	if not cnt: err(c%3)
 
 	cnt = decodeAscii85(cnt[1:])
 
 	# unpack wafadmin
 	import shutil, tarfile
-	try: shutil.rmtree(newdir)
+	try: shutil.rmtree(dir)
 	except OSError: pass
-	try: os.makedirs(newdir)
-	except OSError:
-		print "Could not unpack waf-local into %s"%newdir
-		print "Please install waf system-wide or move waf into a writeable directory"
-		sys.exit(1)
+	try: os.makedirs(dir)
+	except OSError: err("Error: could not unpack waf-local into %s\
+Install waf system-wide or move waf into a writeable directory"%dir)
 
-	os.chdir(newdir)
-	tmp='tmp.tar.bz2'
+	os.chdir(dir)
+	tmp='tmp.tbz2'
 	f = open(tmp, 'wb')
 	f.write(cnt)
 	f.close()
@@ -114,11 +111,8 @@ Or use the full waf version available freely at http://freehackers.org/~tnagy/wa
 	os.chdir(cwd)
 
 def wfind(dir):
-	try:
-		os.stat(os.path.join(dir, 'wafadmin'))
-		return os.path.abspath(dir)
-	except OSError:
-		pass
+	try: os.stat(os.path.join(dir, 'wafadmin')); return os.path.abspath(dir)
+	except OSError: pass
 
 def find_wafadmin():
 	name = sys.argv[0]
@@ -129,11 +123,10 @@ def find_wafadmin():
 	if w: return w
 
 	# waf-light
-	if name[-5:] == 'light':
+	if name=='waf-light':
 		w = wfind(base)
 		if w: return w
-		print "\033[91mwaf-light in use, wafadmin not found -> export WAFDIR=/folder\033[0m"
-		sys.exit(1)
+		err("\033[91mwaf-light in use, wafadmin not found -> export WAFDIR=/folder\033[0m")
 
 	dir = "/lib/waf-%s-%s/" % (VERSION, REVISION)
 	for i in [INSTALL, '/usr', '/usr/local', '/opt']:
@@ -152,7 +145,7 @@ def find_wafadmin():
 	return dir
 
 wafdir = find_wafadmin()
-if "-vv" in sys.argv: print "wafdir is ", wafdir
+if "-vv" in sys.argv: print "wafdir is %s"%wafdir
 
 w = os.path.join(wafdir, 'wafadmin')
 t = os.path.join(w, 'Tools')
@@ -163,7 +156,7 @@ Params.g_tooldir = [t]
 Params.g_cwd_launch = cwd
 
 if Params.g_version != VERSION:
-	Params.fatal('Version mismatch waf %s <-> wafadmin %s (wafdir %s)' % (VERSION, Params.g_version, wafdir))
+	err('Version mismatch waf %s <-> wafadmin %s (wafdir %s)'%(VERSION, Params.g_version, wafdir))
 
 Scripting.prepare()
 
