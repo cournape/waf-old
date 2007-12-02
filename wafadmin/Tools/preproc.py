@@ -13,7 +13,8 @@
 """
 
 import re, sys, os, string
-sys.path = ['.', '..'] + sys.path
+if __name__ == '__main__':
+	sys.path = ['.', '..'] + sys.path
 import Params
 from Params import debug, error, warning
 import traceback
