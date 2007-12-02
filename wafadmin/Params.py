@@ -232,6 +232,15 @@ def h_list(lst):
 	m.update(str(lst))
 	return m.digest()
 
+_hash_blacklist_types = (
+	types.BuiltinFunctionType,
+	types.ModuleType,
+	types.FunctionType,
+	types.ClassType,
+	types.TypeType,
+	types.NoneType,
+	)
+
 def hash_function_with_globals(prevhash, func):
 	"""
 	hash a function (object) and the global vars needed from outside
@@ -244,11 +253,13 @@ def hash_function_with_globals(prevhash, func):
 	"""
 	assert type(func) is types.FunctionType
 	for name, value in func.func_globals.iteritems():
-		if type(value) in (types.BuiltinFunctionType, types.ModuleType, types.FunctionType, types.ClassType, types.TypeType):
+		if type(value) in _hash_blacklist_types:
 			continue
 		try:
 			prevhash = hash( (prevhash, name, value) )
 		except TypeError: # raised for unhashable elements
 			pass
+		#else:
+		#	print "hashed: ", name, " => ", value, " => ", hash(value)
 	return hash( (prevhash, inspect.getsource(func)) )
 
