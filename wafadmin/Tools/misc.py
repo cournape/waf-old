@@ -287,7 +287,7 @@ class CommandOutput(Object.genobj):
 			cmd = self.command
 			cmd_node = None
 		else:
-			cmd_node = self.path.find_build(self.command)
+			cmd_node = self.path.find_build(self.command, create=True)
 			assert cmd_node is not None, ('''Could not find command '%s' in source tree.
 Hint: if this is an external command,
 use command_is_external=True''') % (self.command,)
@@ -329,7 +329,7 @@ use command_is_external=True''') % (self.command,)
 					if isinstance(file_name, Node.Node):
 						input_node = file_name
 					else:
-						input_node = self.path.find_build(file_name)
+						input_node = self.path.find_build(file_name, create=True)
 						if input_node is None:
 							Params.fatal("File %s not found" % (file_name,))
 					inputs.append(input_node)
@@ -338,7 +338,7 @@ use command_is_external=True''') % (self.command,)
 					if isinstance(file_name, Node.Node):
 						output_node = file_name
 					else:
-						output_node = self.path.find_build(file_name)
+						output_node = self.path.find_build(file_name, create=True)
 						if output_node is None:
 							Params.fatal("File %s not found" % (file_name,))
 					outputs.append(output_node)
@@ -365,7 +365,7 @@ use command_is_external=True''') % (self.command,)
 		if self.stdout is None:
 			stdout = None
 		else:
-			stdout = self.path.find_build(self.stdout)
+			stdout = self.path.find_build(self.stdout, create=True)
 			if stdout is None:
 				Params.fatal("File %s not found" % (self.stdout,))
 			outputs.append(stdout)
@@ -373,19 +373,19 @@ use command_is_external=True''') % (self.command,)
 		if self.stdin is None:
 			stdin = None
 		else:
-			stdin = self.path.find_build(self.stdin)
+			stdin = self.path.find_build(self.stdin, create=True)
 			if stdin is None:
 				Params.fatal("File %s not found" % (self.stdin,))
 			inputs.append(stdin)
 
 		for hidden_input in self.to_list(self.hidden_inputs):
-			node = self.path.find_build(hidden_input)
+			node = self.path.find_build(hidden_input, create=True)
 			if node is None:
 				Params.fatal("File %s not found in dir %s" % (hidden_input, self.path))
 			inputs.append(node)
 
 		for hidden_output in self.to_list(self.hidden_outputs):
-			node = self.path.find_build(hidden_output)
+			node = self.path.find_build(hidden_output, create=True)
 			if node is None:
 				Params.fatal("File %s not found in dir %s" % (hidden_output, self.path))
 			outputs.append(node)
