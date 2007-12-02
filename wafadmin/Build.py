@@ -11,6 +11,8 @@ from Params import debug, error, fatal, warning
 SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_raw_deps m_sig_cache'.split()
 "Build class members to save"
 
+g_modcache = {}
+
 class BuildDTO(object):
 	"holds the data to store using cPickle"
 	def __init__(self):
@@ -278,8 +280,13 @@ class Build(object):
 		if not tooldir: tooldir = Params.g_tooldir
 		#print "setting up ", tool, self
 
-		file,name,desc = imp.find_module(tool, tooldir)
-		module = imp.load_module(tool,file,name,desc)
+		file = None
+		key = str((tool, tooldir))
+		module = g_modcache.get(key, None)
+		if not module:
+			file,name,desc = imp.find_module(tool, tooldir)
+			module = imp.load_module(tool,file,name,desc)
+			g_modcache[key] = module
 		if hasattr(module, "setup"): module.setup(self)
 		if file: file.close()
 
