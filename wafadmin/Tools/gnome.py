@@ -110,9 +110,6 @@ class gnome_sgml2man(Object.genobj):
 				base, ext = os.path.splitext(node.m_name)
 				if ext != '.sgml': continue
 
-				if tree.needs_rescan(node, self.env):
-					sgml_scanner.do_scan(node, self.env, hashparams={})
-
 				variant = node.variant(self.env)
 
 				try: tmp_lst = tree.m_raw_deps[variant][node]
@@ -122,6 +119,8 @@ class gnome_sgml2man(Object.genobj):
 				task = self.create_task('sgml2man', self.env, 2)
 				task.set_inputs(node)
 				task.set_outputs(self.path.find_build(name))
+				# the scanner adds the dependencies so the task is re-run when something changes
+				task.m_scanner = sgml_scanner
 			except:
 				raise
 				pass
