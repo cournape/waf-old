@@ -269,7 +269,7 @@ class CommandOutput(Object.genobj):
 			stdin = None
 
 		if task.stdout:
-			stdout = file(output_path(task.stdout), "w")
+			stdout = file(output_path(task.stdout, '%s'), "w")
 		else:
 			stdout = None
 
