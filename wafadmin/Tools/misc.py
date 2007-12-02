@@ -273,8 +273,12 @@ class CommandOutput(Object.genobj):
 		else:
 			stdout = None
 
-		Params.debug("command-output: cwd=%r stdin=%r, stdout=%r, argv=%r" %
-					 (task.cwd, stdin, stdout, argv))
+		if task.cwd is None:
+			cwd = ('None (actually %r)' % os.getcwd())
+		else:
+			cwd = repr(task.cwd)
+		Params.debug("command-output: cwd=%s, stdin=%r, stdout=%r, argv=%r" %
+			     (cwd, stdin, stdout, argv))
 		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd)
 		return command.wait()
 
