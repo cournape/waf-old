@@ -141,8 +141,7 @@ class Node(object):
 		current = self
 		while lst:
 			rescan(current)
-			name= lst[0]
-			lst = lst[1:]
+			name = lst.pop(0)
 			prev = current
 
 			if name == '.':
