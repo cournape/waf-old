@@ -104,6 +104,47 @@ def check_python_headers(conf):
 	python = conf.env['PYTHON']
 	assert python, ("python is %r !" % (python,))
 
+	## We check that pythonX.Y-config exists, and if it exists we
+	## use it, else fall back to distutils.
+	python_config = conf.find_program(
+		'python%s-config' % ('.'.join(conf.env['PYTHON_VERSION'].split('.')[:2])),
+		var='PYTHON_CONFIG')
+	if python_config:
+		ldflags = os.popen(python_config + " --ldflags").readline().strip()
+		libs = os.popen(python_config + " --ldflags").readline().strip()
+		exec_prefix = os.popen(python_config + " --exec-prefix").readline().strip()
+		libpath = os.path.join(exec_prefix, 'lib')
+		## if libs != ldflags, it means Py_ENABLE_SHARED is not set
+		if ldflags == libs:
+			conf.env['LIBPATH_PYEXT'] = libpath
+			conf.env['LINKFLAGS_PYEXT'] = ldflags
+		conf.env['LINKFLAGS_PYEMBED'] = ldflags
+		conf.env['LIBPATH_PYEMBED'] = libpath
+
+		cflags = os.popen(python_config + " --cflags").readline().strip()
+		conf.env['CCFLAGS_PYEMBED'] = cflags
+		conf.env['CCFLAGS_PYEXT'] = cflags
+		conf.env['CXXFLAGS_PYEMBED'] = cflags
+		conf.env['CXXFLAGS_PYEXT']  = cflags
+
+		## Just in case, check that Python headers compile
+		header = conf.create_header_configurator()
+		header.name = 'Python.h'
+		header.define = 'HAVE_PYTHON_H'
+		header.uselib = 'PYEXT'
+		header.code = '''
+#include <Python.h>
+int main(int argc, char *argv[])
+{ Py_Initialize(); Py_Finalize(); return 0; }
+'''
+		result = header.run()
+		if not result:
+			conf.fatal("Python development headers not found.")
+
+		return
+
+	## Fallback code, for when python-config does not exist...
+
 	v = 'prefix CC SYSLIBS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
 	(python_prefix, python_CC, python_SYSLIBS, python_SHLIBS,
 	 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED) = \
