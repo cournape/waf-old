@@ -108,18 +108,19 @@ def uncompress_wafdir(newdir):
 		sys.exit(1)
 
 	os.chdir(newdir)
-	f = open('wafadmin.tar.bz2', 'wb')
+	tmp='tmp.tar.bz2'
+	f = open(tmp, 'wb')
 	f.write(cnt)
 	f.close()
 
-	tar = tarfile.open('wafadmin.tar.bz2')
+	tar = tarfile.open(tmp)
 	for tarinfo in tar:
 		tar.extract(tarinfo)
 	tar.close()
 
-	os.chmod('wafadmin', 0755) # FIXME
+	os.chmod('wafadmin', 0755) #FIXME
 	os.chmod('wafadmin'+os.sep+'Tools', 0755)
-	os.unlink('wafadmin.tar.bz2')
+	os.unlink(tmp)
 	os.chdir(cwd)
 
 def try_wafdir(dir):
@@ -132,12 +133,11 @@ def try_wafdir(dir):
 def find_wafadmin():
 	name = sys.argv[0]
 
-	# wafadmin may be in $WAFDIR (developers)
-	if 'WAFDIR' in os.environ:
-		w = try_wafdir(os.environ['WAFDIR'])
-		if w: return w
+	# developers use $WAFDIR
+	w = try_wafdir(os.environ.get('WAFDIR', ''))
+	if w: return w
 
-	# waf-light is a special beast
+	# waf-light
 	if name[-5:] == 'light':
 		w = try_wafdir(os.path.dirname(os.path.abspath(name)))
 		if w: return w
@@ -173,7 +173,7 @@ Params.g_tooldir = [t]
 Params.g_cwd_launch = cwd
 
 if Params.g_version != VERSION:
-	Params.fatal('version mismatch waf %s <-> wafadmin %s (wafdir %s)' % (VERSION, Params.g_version, wafdir))
+	Params.fatal('Version mismatch waf %s <-> wafadmin %s (wafdir %s)' % (VERSION, Params.g_version, wafdir))
 
 Scripting.prepare()
 
