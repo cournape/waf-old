@@ -167,6 +167,11 @@ class ccroot(Object.genobj):
 		"adding some kind of genericity is tricky subclass this method if it does not suit your needs"
 		debug("apply called for "+self.m_type_initials, 'ccroot')
 
+		if not self.source and not getattr(self, 'nochecks'):
+			fatal('no source files specified for %s' % self)
+		if not self.target and not getattr(self, 'nochecks'):
+			fatal('no target for %s' % self)
+
 		self.apply_type_vars()
 		self.apply_incpaths()
 		self.apply_dependencies()
