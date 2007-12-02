@@ -235,16 +235,16 @@ class CommandOutput(Object.genobj):
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
 
-		def input_path(node):
+		def input_path(node, template):
 			if task.cwd is None:
-				return node.bldpath(task.m_env)
+				return template % node.bldpath(task.m_env)
 			else:
-				return node.abspath()
-		def output_path(node):
+				return template % node.abspath()
+		def output_path(node, template):
 			if task.cwd is None:
-				return node.bldpath(task.m_env)
+				return template % node.bldpath(task.m_env)
 			else:
-				return node.abspath(task.m_env)
+				return template % node.abspath(task.m_env)
 
 		if isinstance(task.command, Node.Node):
 			argv = [input_path(task.command)]
@@ -255,11 +255,11 @@ class CommandOutput(Object.genobj):
 			if isinstance(arg, str):
 				argv.append(arg)
 			else:
-				role, node = arg
+				role, node, template = arg
 				if role in (CommandOutput.CMD_ARGV_INPUT, CommandOutput.CMD_ARGV_INPUT_DIR):
-					argv.append(input_path(node))
+					argv.append(input_path(node, template))
 				elif role in (CommandOutput.CMD_ARGV_OUTPUT, CommandOutput.CMD_ARGV_OUTPUT_DIR):
-					argv.append(output_path(node))
+					argv.append(output_path(node, template))
 				else:
 					raise AssertionError
 
@@ -300,7 +300,7 @@ use command_is_external=True''') % (self.command,)
 		if self.cwd is None:
 			cwd = None
 		else:
-			role, file_name = self.cwd
+			role, file_name, template = self.cwd
 			if role == CommandOutput.CMD_ARGV_INPUT_DIR:
 				if isinstance(file_name, Node.Node):
 					input_node = file_name
@@ -328,7 +328,7 @@ use command_is_external=True''') % (self.command,)
 			if isinstance(arg, str):
 				args.append(arg)
 			else:
-				role, file_name = arg
+				role, file_name, template = arg
 				if role == CommandOutput.CMD_ARGV_INPUT:
 					if isinstance(file_name, Node.Node):
 						input_node = file_name
@@ -337,7 +337,7 @@ use command_is_external=True''') % (self.command,)
 						if input_node is None:
 							Params.fatal("File %s not found" % (file_name,))
 					inputs.append(input_node)
-					args.append((role, input_node))
+					args.append((role, input_node, template))
 				elif role == CommandOutput.CMD_ARGV_OUTPUT:
 					if isinstance(file_name, Node.Node):
 						output_node = file_name
@@ -346,7 +346,7 @@ use command_is_external=True''') % (self.command,)
 						if output_node is None:
 							Params.fatal("File %s not found" % (file_name,))
 					outputs.append(output_node)
-					args.append((role, output_node))
+					args.append((role, output_node, template))
 				elif role == CommandOutput.CMD_ARGV_INPUT_DIR:
 					if isinstance(file_name, Node.Node):
 						input_node = file_name
@@ -354,7 +354,7 @@ use command_is_external=True''') % (self.command,)
 						input_node = self.path.find_dir(file_name)
 						if input_node is None:
 							Params.fatal("File %s not found" % (file_name,))
-					args.append((role, input_node))
+					args.append((role, input_node, template))
 				elif role == CommandOutput.CMD_ARGV_OUTPUT_DIR:
 					if isinstance(file_name, Node.Node):
 						output_node = file_name
@@ -362,7 +362,7 @@ use command_is_external=True''') % (self.command,)
 						output_node = self.path.find_dir(file_name)
 						if output_node is None:
 							Params.fatal("File %s not found" % (file_name,))
-					args.append((role, output_node))
+					args.append((role, output_node, template))
 				else:
 					raise AssertionError
 
@@ -416,29 +416,29 @@ use command_is_external=True''') % (self.command,)
 			for dep_task in dep.m_tasks:
 				task.set_run_after(dep_task)
 
-	def input_file(self, file_name):
+	def input_file(self, file_name, template='%s'):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a file from the input vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_INPUT, file_name)
+		return (CommandOutput.CMD_ARGV_INPUT, file_name, template)
 
-	def output_file(self, file_name):
+	def output_file(self, file_name, template='%s'):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a file from the output vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_OUTPUT, file_name)
+		return (CommandOutput.CMD_ARGV_OUTPUT, file_name, template)
 
-	def input_dir(self, file_name):
+	def input_dir(self, file_name, template='%s'):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a directory path from the input vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_INPUT_DIR, file_name)
+		return (CommandOutput.CMD_ARGV_INPUT_DIR, file_name, template)
 
-	def output_dir(self, file_name):
+	def output_dir(self, file_name, template='%s'):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a directory path from the output vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_OUTPUT_DIR, file_name)
+		return (CommandOutput.CMD_ARGV_OUTPUT_DIR, file_name, template)
 
 	def install(self):
 		pass
