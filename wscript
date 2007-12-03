@@ -158,11 +158,11 @@ def create_waf():
 	code2 = encodeAscii85(cnt)
 	f = open('waf', 'wb')
 	f.write(code1)
-	f.write('# ===>BEGIN WOOF<===\n')
+	f.write('#==>\n')
 	f.write('#')
 	f.write(code2)
 	f.write('\n')
-	f.write('# ===>END WOOF<===\n')
+	f.write('#<==\n')
 	f.close()
 
 	if sys.platform == 'win32' or Params.g_options.make_batch:
