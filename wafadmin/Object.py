@@ -162,7 +162,7 @@ class genobj(object):
 		if not task: return
 		current = Params.g_build.m_curdirnode
 		lst = [a.relpath_gen(current) for a in task.m_outputs]
-		Common.install_files(var, subdir, lst, chmod=chmod)
+		Common.install_files(var, subdir, lst, chmod=chmod, env=self.env)
 
 	def clone(self, env):
 		newobj = copy.deepcopy(self)
