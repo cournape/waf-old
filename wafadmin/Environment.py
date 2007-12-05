@@ -25,6 +25,9 @@ class Environment(object):
 		# set the prefix once and for everybody on creation (configuration)
 		self.m_table['PREFIX'] = Params.g_options.prefix
 
+	def __contains__(self, key):
+		return key in self.m_table
+
 	def set_variant(self, name):
 		self.m_table['_VARIANT_'] = name
 
