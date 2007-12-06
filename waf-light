@@ -44,7 +44,6 @@ j=os.path.join
 def decode(s):
 	out=[]
 	app=out.append
-	s='!!!!!'.join(s.split('z'))
 	d=divmod
 	p1,p2=d(len(s),5)
 	stop=5*p1
@@ -75,7 +74,7 @@ def err(m):
 
 def unpack_wafdir(dir):
 	f=open(sys.argv[0],'rb')
-	c="Error: corrupted (%d)"
+	c="Error: corrupted waf (%d)"
 	while 1:
 		line=f.readline()
 		if not line: err("\033[91mError: waf-light must be run from a folder containing wafadmin\033[0m")
@@ -85,7 +84,8 @@ def unpack_wafdir(dir):
 			if f.readline()!='#<==\n': err(c%2)
 			break
 	if not txt: err(c%3)
-	txt=decode(txt[1:])
+	try: txt=decode(txt[1:-1].replace('z', '!!!!!'))
+	except: err(c%4)
 
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
