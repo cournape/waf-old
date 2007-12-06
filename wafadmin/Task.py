@@ -171,24 +171,38 @@ class Task(TaskBase):
 		else:
 			# compute the signature from the inputs (no scanner)
 			for x in self.m_inputs:
-				variant = x.variant(self.m_env)
-				v = tree.m_tstamp_variants[variant][x]
+				v = tree.m_tstamp_variants[x.variant(self.m_env)][x]
 				dep_sig = hash( (dep_sig, v) )
 				m.update(v)
 
+		# manual dependencies, they can slow down the builds
+		# TODO instead of strings we could make it execute functions
+		try:
+			additional_deps = tree.deps_man
+			for x in self.m_inputs + self.m_outputs:
+				try:
+					d = additional_deps[x]
+					dep_sig = hash( (dep_sig, d) )
+					m.update(d)
+				except KeyError:
+					pass
+		except AttributeError:
+			pass
+
+		# dependencies on the environment vars
 		fun = getattr(self.m_action, 'signature', None)
 		if fun: act_sig = self.m_action.signature(self)
 		else: act_sig = Object.sign_env_vars(self.m_env, self.m_action.m_vars)
 		m.update(act_sig)
 
-		# variable dependencies, if provided
+		# additional variable dependencies, if provided
 		var_sig = None
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
 			var_sig = Object.sign_env_vars(self.m_env, dep_vars)
 			m.update(var_sig)
 
-		# node dependencies, if provided
+		# additional nodes to depend on, if provided
 		node_sig = Params.sig_nil
 		dep_nodes = getattr(self, 'dep_nodes', [])
 		for x in dep_nodes:

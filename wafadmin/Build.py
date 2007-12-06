@@ -605,6 +605,14 @@ class Build(object):
 		Object.flush()
 		Task.g_tasks.add_group(name)
 
+	def add_manual_dependency(self, path, value):
+		h = getattr(self, 'deps_man', {})
+		node = self.m_curdirnode.find_source(path)
+		if not node: node = self.m_curdirnode.find_build(path, create=1)
+
+		print "node is ", node
+		h[node] = value
+		self.deps_man = h
 
 	def set_sig_cache(self, key, val):
 		self.m_sig_cache[key] = val
