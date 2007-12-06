@@ -90,7 +90,7 @@ def unpack_wafdir(dir):
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
 	except OSError: pass
-	try: os.makedirs(dir)
+	try: os.makedirs(j(dir, 'wafadmin', 'Tools'))
 	except OSError: err("Error: could not unpack waf-local into %s\
 Install waf system-wide or move waf into a writeable directory"%dir)
 
@@ -104,8 +104,6 @@ Install waf system-wide or move waf into a writeable directory"%dir)
 	for x in t: t.extract(x)
 	t.close()
 
-	os.chmod('wafadmin',0755)#TODO
-	os.chmod('wafadmin%sTools'%os.sep,0755)
 	os.unlink(tmp)
 	os.chdir(cwd)
 
