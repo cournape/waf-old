@@ -6,7 +6,7 @@
 "Python support"
 
 import os, sys
-import Object, Action, Utils, Params, Common
+import Object, Action, Utils, Params, Common, Utils
 from pproc import Popen, PIPE
 
 class pyobj(Object.genobj):
@@ -122,6 +122,7 @@ def check_python_headers(conf):
 		conf.env['LIBPATH_PYEMBED'] = libpath
 
 		cflags = os.popen(python_config + " --cflags").readline().strip()
+		cflags = Utils.to_list(cflags)
 		conf.env['CCFLAGS_PYEMBED'] = cflags
 		conf.env['CCFLAGS_PYEXT'] = cflags
 		conf.env['CXXFLAGS_PYEMBED'] = cflags
