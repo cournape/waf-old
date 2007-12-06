@@ -610,7 +610,6 @@ class Build(object):
 		node = self.m_curdirnode.find_source(path)
 		if not node: node = self.m_curdirnode.find_build(path, create=1)
 
-		print "node is ", node
 		h[node] = value
 		self.deps_man = h
 
