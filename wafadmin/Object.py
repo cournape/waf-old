@@ -106,6 +106,11 @@ class genobj(object):
 		# used at install time too
 		g_allobjs.append(self)
 
+	def __str__(self):
+		return ("<genobj '%s' of type %s defined in %s>"
+			% (self.name or self.target,
+			   self.__class__.__name__, str(self.path)))
+
 	def get_valid_types(self):
 		return ['program', 'shlib', 'staticlib', 'other']
 
