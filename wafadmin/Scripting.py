@@ -283,8 +283,13 @@ def prepare():
 	except KeyboardInterrupt: Params.fatal('build interrupted')
 	#import hotshot
 	#prof=hotshot.Profile("/tmp/proftest.txt")
-	#prof.runcall(Scripting.main)
+	#prof.runcall(main)
 	#prof.close()
+	# the program to display the results:
+	# #! /usr/bin/python
+	#from hotshot import stats
+	#s = stats.load("/tmp/proftest.txt")
+	#print s.sort_stats("time").print_stats()
 
 def main():
 	import inspect
