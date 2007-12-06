@@ -63,9 +63,9 @@ class pyobj(Object.genobj):
 		for i in self.m_tasks:
 			current = Params.g_build.m_curdirnode
 			lst=[a.relpath_gen(current) for a in i.m_outputs]
-			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod)
+			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)
 			lst=[a.relpath_gen(current) for a in i.m_inputs]
-			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod)
+			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)
 			#self.install_results(self.inst_var, self.inst_dir, i)
 
 def setup(bld):
@@ -101,32 +101,33 @@ def check_python_headers(conf):
 	try: import distutils
 	except: return 0
 
-	python = conf.env['PYTHON']
+	env = conf.env
+	python = env['PYTHON']
 	assert python, ("python is %r !" % (python,))
 
 	## We check that pythonX.Y-config exists, and if it exists we
 	## use it, else fall back to distutils.
 	python_config = conf.find_program(
-		'python%s-config' % ('.'.join(conf.env['PYTHON_VERSION'].split('.')[:2])),
+		'python%s-config' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
 		var='PYTHON_CONFIG')
 	if python_config:
 		ldflags = os.popen(python_config + " --ldflags").readline().strip()
-		libs = os.popen(python_config + " --ldflags").readline().strip()
+		libs    = os.popen(python_config + " --ldflags").readline().strip()
 		exec_prefix = os.popen(python_config + " --exec-prefix").readline().strip()
 		libpath = os.path.join(exec_prefix, 'lib')
 		## if libs != ldflags, it means Py_ENABLE_SHARED is not set
 		if ldflags == libs:
-			conf.env['LIBPATH_PYEXT'] = libpath
-			conf.env['LINKFLAGS_PYEXT'] = ldflags
-		conf.env['LINKFLAGS_PYEMBED'] = ldflags
-		conf.env['LIBPATH_PYEMBED'] = libpath
+			env['LIBPATH_PYEXT'] = libpath
+			env['LINKFLAGS_PYEXT'] = ldflags
+		env['LINKFLAGS_PYEMBED'] = ldflags
+		env['LIBPATH_PYEMBED'] = libpath
 
 		cflags = os.popen(python_config + " --cflags").readline().strip()
 		cflags = Utils.to_list(cflags)
-		conf.env['CCFLAGS_PYEMBED'] = cflags
-		conf.env['CCFLAGS_PYEXT'] = cflags
-		conf.env['CXXFLAGS_PYEMBED'] = cflags
-		conf.env['CXXFLAGS_PYEXT']  = cflags
+		env['CCFLAGS_PYEMBED'] = cflags
+		env['CCFLAGS_PYEXT'] = cflags
+		env['CXXFLAGS_PYEMBED'] = cflags
+		env['CXXFLAGS_PYEXT']  = cflags
 
 		## Just in case, check that Python headers compile
 		header = conf.create_header_configurator()
@@ -156,13 +157,13 @@ int main(int argc, char *argv[])
 	if python_SYSLIBS is not None:
 		for lib in python_SYSLIBS.split():
 			libname = lib[2:] # strip '-l'
-			conf.env.append_value('LIB_PYEMBED', libname)
+			env.append_value('LIB_PYEMBED', libname)
 	if python_SHLIBS is not None:
 		for lib in python_SHLIBS.split():
 			libname = lib[2:] # strip '-l'
-			conf.env.append_value('LIB_PYEMBED', libname)
+			env.append_value('LIB_PYEMBED', libname)
 	lib = conf.create_library_configurator()
-	lib.name = 'python' + conf.env['PYTHON_VERSION']
+	lib.name = 'python' + env['PYTHON_VERSION']
 	lib.uselib = 'PYTHON'
 	lib.code = '''
 #ifdef __cplusplus
@@ -192,17 +193,17 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	## try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)
 	if not result:
 		lib.path = [os.path.join(python_prefix, "libs")]
-		lib.name = 'python' + conf.env['PYTHON_VERSION'].replace('.', '')
+		lib.name = 'python' + env['PYTHON_VERSION'].replace('.', '')
 		result = lib.run()
 
 	if result:
-		conf.env['LIBPATH_PYEMBED'] = lib.path
-		conf.env.append_value('LIB_PYEMBED', lib.name)
+		env['LIBPATH_PYEMBED'] = lib.path
+		env.append_value('LIB_PYEMBED', lib.name)
 
 	if sys.platform == 'win32' or (Py_ENABLE_SHARED is not None
 					and sys.platform != 'darwin'):
-		conf.env['LIBPATH_PYEXT'] = conf.env['LIBPATH_PYEMBED']
-		conf.env['LIB_PYEXT'] = conf.env['LIB_PYEMBED']
+		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
+		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
 	## Check for Python headers
 	header = conf.create_header_configurator()
@@ -215,20 +216,20 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	if not result:
 		conf.fatal("Python development headers not found.")
 
-	conf.env['CPPPATH_PYEXT'] = python_includes
-	conf.env['CPPPATH_PYEMBED'] = python_includes
+	env['CPPPATH_PYEXT'] = python_includes
+	env['CPPPATH_PYEMBED'] = python_includes
 
 	## Code using the Python API needs to be compiled with -fno-strict-aliasing
-	if conf.env['CC']:
-		version = os.popen("%s --version" % conf.env['CC']).readline()
+	if env['CC']:
+		version = os.popen("%s --version" % env['CC']).readline()
 		if '(GCC)' in version:
-			conf.env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
-			conf.env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
-	if conf.env['CXX']:
-		version = os.popen("%s --version" % conf.env['CXX']).readline()
+			env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
+			env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
+	if env['CXX']:
+		version = os.popen("%s --version" % env['CXX']).readline()
 		if '(GCC)' in version:
-			conf.env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
-			conf.env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
+			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
+			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
 def check_python_version(conf, minver=None):
 	"""
