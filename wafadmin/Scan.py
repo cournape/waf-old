@@ -115,8 +115,7 @@ class scanner(object):
 
 		# add the hashes of all files entering into the dependency system
 		while len(queue) > 0:
-			node = queue[0]
-			queue = queue[1:]
+			node = queue.pop(0)
 
 			if node in seen: continue
 			seen.append(node)
