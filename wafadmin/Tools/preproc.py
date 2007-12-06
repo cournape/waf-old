@@ -446,7 +446,7 @@ class cparse(object):
 					except AttributeError:
 						cache = {}
 						setattr(Params.g_build, 'preproc_cache', cache)
-					key = hash(str(self.m_nodepaths), str(lst))
+					key = hash( (str(self.m_nodepaths), str(lst)) )
 					if not cache.get(key, None):
 						cache[key] = 1
 						for n in self.m_nodepaths:
