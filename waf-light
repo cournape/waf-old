@@ -120,7 +120,7 @@ def find_lib():
 	if w:return w
 
 	#waf-light
-	if name=='waf-light':
+	if os.path.basename(name)=='waf-light':
 		w=test(base)
 		if w:return w
 		err("\033[91mwaf-light in use, wafadmin not found -> export WAFDIR=/folder\033[0m")
