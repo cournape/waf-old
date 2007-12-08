@@ -245,14 +245,14 @@ int main()
 	# pkg-config variable substitution, might be nice when crosscompiling
 	conf.env['PKG_CONFIG_DEFINES'] = {'prefix':'/tmp'}
 	conf.check_pkg('mad', destvar='somedest')
-	print conf.env['CPPPATH_somedest']
+	#print conf.env['CPPPATH_somedest']
 
 	# Per check_pkg defines
 	conf.check_pkg('alsa', destvar='somedest',
 	               pkgdefs={'prefix':'/temp',
 	                        'exec_prefix':'/temp'})
-	print conf.env['CPPPATH_somedest']
-	print conf.env['LIBPATH_somedest']
+	#print conf.env['CPPPATH_somedest']
+	#print conf.env['LIBPATH_somedest']
 
 
 
