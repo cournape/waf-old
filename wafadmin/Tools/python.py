@@ -105,54 +105,12 @@ def check_python_headers(conf):
 	python = env['PYTHON']
 	assert python, ("python is %r !" % (python,))
 
-	## We check that pythonX.Y-config exists, and if it exists we
-	## use it, else fall back to distutils.
-	python_config = conf.find_program(
-		'python%s-config' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
-		var='PYTHON_CONFIG')
-	if python_config:
-		ldflags = os.popen(python_config + " --ldflags").readline().strip()
-		libs    = os.popen(python_config + " --libs").readline().strip()
-		exec_prefix = os.popen(python_config + " --exec-prefix").readline().strip()
-		libpath = os.path.join(exec_prefix, 'lib')
-		## if libs != ldflags, it means Py_ENABLE_SHARED is not set
-		if ldflags == libs:
-			env['LIBPATH_PYEXT'] = libpath
-			env['LINKFLAGS_PYEXT'] = ldflags
-		env['LINKFLAGS_PYEMBED'] = ldflags
-		env['LIBPATH_PYEMBED'] = libpath
-
-		cflags = os.popen(python_config + " --cflags").readline().strip()
-		cflags = Utils.to_list(cflags)
-		env['CCFLAGS_PYEMBED'] = cflags
-		env['CCFLAGS_PYEXT'] = cflags
-		env['CXXFLAGS_PYEMBED'] = cflags
-		env['CXXFLAGS_PYEXT']  = cflags
-
-		## Just in case, check that Python headers compile
-		header = conf.create_header_configurator()
-		header.name = 'Python.h'
-		header.define = 'HAVE_PYTHON_H'
-		header.uselib = 'PYEXT'
-		header.code = '''
-#include <Python.h>
-int main(int argc, char *argv[])
-{ Py_Initialize(); Py_Finalize(); return 0; }
-'''
-		result = header.run()
-		if not result:
-			conf.fatal("Python development headers not found.")
-
-		return
-
-	## Fallback code, for when python-config does not exist...
-
+	## Get some python configuration variables using distutils
 	v = 'prefix CC SYSLIBS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
 	(python_prefix, python_CC, python_SYSLIBS, python_SHLIBS,
 	 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED) = \
-		_get_python_variables(python, ["get_config_var('%s')" % x for x in v], ['from distutils.sysconfig import get_config_var'])
-	python_includes = [INCLUDEPY]
-
+		_get_python_variables(python, ["get_config_var('%s')" % x for x in v],
+				      ['from distutils.sysconfig import get_config_var'])
 	## Check for python libraries for embedding
 	if python_SYSLIBS is not None:
 		for lib in python_SYSLIBS.split():
@@ -205,9 +163,36 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
-	## Check for Python headers
+	## -- Get cflags --
+	## We check that pythonX.Y-config exists, and if it exists we
+	## use it to get only the cflags, else fall back to distutils.
+	python_config = conf.find_program(
+		'python%s-config' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
+		var='PYTHON_CONFIG')
+	if python_config:
+		cflags = os.popen(python_config + " --cflags").readline().strip()
+		env.append_value('CCFLAGS_PYEMBED', Utils.to_list(cflags))
+		env.append_value('CCFLAGS_PYEXT', Utils.to_list(cflags))
+		env.append_value('CXXFLAGS_PYEMBED', Utils.to_list(cflags))
+		env.append_value('CXXFLAGS_PYEXT', Utils.to_list(cflags))
+	else:
+		env['CPPPATH_PYEXT'] = [INCLUDEPY]
+		env['CPPPATH_PYEMBED'] = [INCLUDEPY]
+
+		## Code using the Python API needs to be compiled with -fno-strict-aliasing
+		if env['CC']:
+			version = os.popen("%s --version" % env['CC']).readline()
+			if '(GCC)' in version:
+				env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
+				env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
+		if env['CXX']:
+			version = os.popen("%s --version" % env['CXX']).readline()
+			if '(GCC)' in version:
+				env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
+				env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
+
+	## Test to see if it compiles
 	header = conf.create_header_configurator()
-	header.path = python_includes
 	header.name = 'Python.h'
 	header.define = 'HAVE_PYTHON_H'
 	header.uselib = 'PYEXT'
@@ -216,20 +201,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	if not result:
 		conf.fatal("Python development headers not found.")
 
-	env['CPPPATH_PYEXT'] = python_includes
-	env['CPPPATH_PYEMBED'] = python_includes
 
-	## Code using the Python API needs to be compiled with -fno-strict-aliasing
-	if env['CC']:
-		version = os.popen("%s --version" % env['CC']).readline()
-		if '(GCC)' in version:
-			env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
-			env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
-	if env['CXX']:
-		version = os.popen("%s --version" % env['CXX']).readline()
-		if '(GCC)' in version:
-			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
-			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
 def check_python_version(conf, minver=None):
 	"""
