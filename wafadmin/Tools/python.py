@@ -163,39 +163,38 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
-	## -- Get cflags --
 	## We check that pythonX.Y-config exists, and if it exists we
-	## use it to get only the cflags, else fall back to distutils.
+	## use it to get only the includes, else fall back to distutils.
 	python_config = conf.find_program(
 		'python%s-config' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
 		var='PYTHON_CONFIG')
 	if python_config:
-		cflags = os.popen(python_config + " --cflags").readline().strip()
-		env.append_value('CCFLAGS_PYEMBED', Utils.to_list(cflags))
-		env.append_value('CCFLAGS_PYEXT', Utils.to_list(cflags))
-		cxx_flags = Utils.to_list(cflags)
-		## -Wstrict-prototypes is not valid for C++
-		try:
-			cxx_flags.remove('-Wstrict-prototypes')
-		except ValueError:
-			pass
-		env.append_value('CXXFLAGS_PYEMBED', cxx_flags)
-		env.append_value('CXXFLAGS_PYEXT', cxx_flags)
+		includes = []
+		for incstr in os.popen(python_config + " --includes").readline().strip().split():
+			## strip the -I or /I
+			if (incstr.startswith('-I')
+			    or incstr.startswith('/I')):
+				incstr = incstr[2:]
+			## append include path, unless already given
+			if incstr not in includes:
+				includes.append(incstr)
+		env['CPPPATH_PYEXT'] = list(includes)
+		env['CPPPATH_PYEMBED'] = list(includes)
 	else:
 		env['CPPPATH_PYEXT'] = [INCLUDEPY]
 		env['CPPPATH_PYEMBED'] = [INCLUDEPY]
 
-		## Code using the Python API needs to be compiled with -fno-strict-aliasing
-		if env['CC']:
-			version = os.popen("%s --version" % env['CC']).readline()
-			if '(GCC)' in version:
-				env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
-				env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
-		if env['CXX']:
-			version = os.popen("%s --version" % env['CXX']).readline()
-			if '(GCC)' in version:
-				env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
-				env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
+	## Code using the Python API needs to be compiled with -fno-strict-aliasing
+	if env['CC']:
+		version = os.popen("%s --version" % env['CC']).readline()
+		if '(GCC)' in version:
+			env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
+			env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
+	if env['CXX']:
+		version = os.popen("%s --version" % env['CXX']).readline()
+		if '(GCC)' in version:
+			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
+			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
 	## Test to see if it compiles
 	header = conf.create_header_configurator()
