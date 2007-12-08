@@ -173,8 +173,14 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		cflags = os.popen(python_config + " --cflags").readline().strip()
 		env.append_value('CCFLAGS_PYEMBED', Utils.to_list(cflags))
 		env.append_value('CCFLAGS_PYEXT', Utils.to_list(cflags))
-		env.append_value('CXXFLAGS_PYEMBED', Utils.to_list(cflags))
-		env.append_value('CXXFLAGS_PYEXT', Utils.to_list(cflags))
+		cxx_flags = Utils.to_list(cflags)
+		## -Wstrict-prototypes is not valid for C++
+		try:
+			cxx_flags.remove('-Wstrict-prototypes')
+		except ValueError:
+			pass
+		env.append_value('CXXFLAGS_PYEMBED', cxx_flags)
+		env.append_value('CXXFLAGS_PYEXT', cxx_flags)
 	else:
 		env['CPPPATH_PYEXT'] = [INCLUDEPY]
 		env['CPPPATH_PYEMBED'] = [INCLUDEPY]
