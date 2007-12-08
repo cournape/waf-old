@@ -112,11 +112,11 @@ def check_python_headers(conf):
 		var='PYTHON_CONFIG')
 	if python_config:
 		ldflags = os.popen(python_config + " --ldflags").readline().strip()
-		libs    = os.popen(python_config + " --ldflags").readline().strip()
+		libs    = os.popen(python_config + " --libs").readline().strip()
 		exec_prefix = os.popen(python_config + " --exec-prefix").readline().strip()
 		libpath = os.path.join(exec_prefix, 'lib')
 		## if libs != ldflags, it means Py_ENABLE_SHARED is not set
-		if ldflags == libs: # TODO gjc: this is always true ?
+		if ldflags == libs:
 			env['LIBPATH_PYEXT'] = libpath
 			env['LINKFLAGS_PYEXT'] = ldflags
 		env['LINKFLAGS_PYEMBED'] = ldflags
