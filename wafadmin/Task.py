@@ -176,16 +176,16 @@ class Task(TaskBase):
 				m.update(v)
 
 		# manual dependencies, they can slow down the builds
-		# TODO instead of strings we could make it execute functions
 		try:
 			additional_deps = tree.deps_man
 			for x in self.m_inputs + self.m_outputs:
 				try:
 					d = additional_deps[x]
-					dep_sig = hash( (dep_sig, d) )
-					m.update(d)
 				except KeyError:
-					pass
+					continue
+				if callable(d): d = d() # dependency is a function, call it
+				dep_sig = hash( (dep_sig, d) )
+				m.update(d)
 		except AttributeError:
 			pass
 
