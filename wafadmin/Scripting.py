@@ -111,6 +111,10 @@ def configure():
 	except Configure.ConfigurationError, e:
 		Params.pprint('RED', str(e))
 		sys.exit(2)
+	except:
+		Utils.test_full()
+		raise
+
 	conf.store(tree)
 	conf.cleanup()
 

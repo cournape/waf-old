@@ -186,6 +186,7 @@ class Build(object):
 			raise
 		except Runner.CompilationError:
 			dw()
+			Utils.test_full()
 			fatal("Compilation failed")
 		dw()
 
