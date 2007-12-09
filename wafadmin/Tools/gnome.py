@@ -78,26 +78,32 @@ class xml_to(Object.genobj):
 class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
-	def scan(self, node, env):
-		variant = node.variant(env)
+	def scan(self, task, node):
+		variant = node.variant(task.m_env)
 
-		fi = open(node.abspath(env), 'r')
+		fi = open(node.abspath(task.m_env), 'r')
 		content = fi.read()
 		fi.close()
 
-		names = n1_regexp.findall(content)
-		nums = n2_regexp.findall(content)
-
-		name = names[0]
-		num  = nums[0]
+		name = n1_regexp.findall(content)[0]
+		num = n2_regexp.findall(content)[0]
 
 		doc_name = name+'.'+num
-
 		return ([], [doc_name])
+
+	def do_scan(self, task, node):
+		Scan.scanner.do_scan(self, task, node)
+
+		variant = node.variant(task.m_env)
+		try: tmp_lst = Params.g_build.m_raw_deps[variant][node]
+		except:
+			raise
+			tmp_lst = []
+		name = tmp_lst[0]
+		task.set_outputs(Params.g_build.m_curdirnode.find_build(name))
 
 sgml_scanner = sgml_man_scanner()
 
-# sgml2man
 class gnome_sgml2man(Object.genobj):
 	def __init__(self, appname):
 		Object.genobj.__init__(self, 'other')
@@ -105,25 +111,17 @@ class gnome_sgml2man(Object.genobj):
 		self.m_appname = appname
 	def apply(self):
 		tree = Params.g_build
+		tree.rescan(self.path)
 		for node in self.path.files():
-			try:
-				base, ext = os.path.splitext(node.m_name)
-				if ext != '.sgml': continue
+			base, ext = os.path.splitext(node.m_name)
+			if ext != '.sgml': continue
 
-				variant = node.variant(self.env)
-
-				try: tmp_lst = tree.m_raw_deps[variant][node]
-				except: tmp_lst = []
-				name = tmp_lst[0]
-
-				task = self.create_task('sgml2man', self.env, 2)
-				task.set_inputs(node)
-				task.set_outputs(self.path.find_build(name))
-				# the scanner adds the dependencies so the task is re-run when something changes
-				task.m_scanner = sgml_scanner
-			except:
-				raise
-				pass
+			task = self.create_task('sgml2man', self.env, 2)
+			task.set_inputs(node)
+			# no outputs, the scanner does it
+			# no caching for now, this is not a time-critical feature
+			# in the future the scanner can be used to do more things (find dependencies, etc)
+			sgml_scanner.do_scan(task, node)
 
 	def install(self):
 		current = Params.g_build.m_curdirnode
