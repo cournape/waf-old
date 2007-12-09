@@ -247,7 +247,7 @@ class CommandOutput(Object.genobj):
 				return template % node.abspath(task.m_env)
 
 		if isinstance(task.command, Node.Node):
-			argv = [input_path(task.command)]
+			argv = [input_path(task.command, '%s')]
 		else:
 			argv = [task.command]
 
@@ -264,7 +264,7 @@ class CommandOutput(Object.genobj):
 					raise AssertionError
 
 		if task.stdin:
-			stdin = file(input_path(task.stdin))
+			stdin = file(input_path(task.stdin, '%s'))
 		else:
 			stdin = None
 
