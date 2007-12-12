@@ -50,7 +50,7 @@ def setup(bld):
 
 def detect(conf):
 	bison = conf.find_program('bison', var='BISON')
-	if not bison: return
+	if not bison: conf.fatal("bison was not found")
 	v = conf.env
 	v['BISON']      = bison
 	v['BISONFLAGS'] = '-d'

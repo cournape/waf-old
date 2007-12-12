@@ -45,7 +45,7 @@ def setup(bld):
 
 def detect(conf):
 	flex = conf.find_program('flex', var='FLEX')
-	if not flex: return
+	if not flex: conf.fatal("flex was not found")
 	v = conf.env
 	v['FLEX']      = flex
 	v['FLEXFLAGS'] = ''
