@@ -4,18 +4,17 @@
 
 def build(bld):
 	# 1. A simple program
-	obj = bld.create_obj('cc', 'program')
-	obj.source='''
-	main.c
-	'''
-	obj.includes='. /usr/include'
-#	obj.ccflags='-Wmain'
-	obj.target='test_c_program'
-	obj.uselib_local='teststaticlib'
+	main = bld.create_obj('cc', 'program')
+	main.source='main.c'
+	main.target='test_c_program'
+	main.uselib_local='teststaticlib'
+#	main.includes='. /usr/include'
+#	main.ccflags='-Wmain'
 
-	obj = bld.create_obj('cc', 'staticlib')
-	obj.source = 'test.c'
-	obj.target='teststaticlib'
+	# 2. A simple static lib
+	staticlib = bld.create_obj('cc', 'staticlib')
+	staticlib.source = 'test_staticlib.c'
+	staticlib.target='teststaticlib'
 	
 #def set_options(opt):
 #	# options defined if src/ was to be compiled as a standalone module
