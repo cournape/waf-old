@@ -593,7 +593,8 @@ class cparse(object):
 				#print "undef %s" % name
 		elif token == 'pragma':
 			if reg_pragma_once.search(line.lower()):
-				print "found a pragma once"
+				pass
+				#print "found a pragma once"
 
 re_function = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
 def tokenize_define(txt):
