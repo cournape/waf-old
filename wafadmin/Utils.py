@@ -19,12 +19,14 @@ g_ind = ['\\', '|', '/', '-']
 "the rotation thing"
 
 def test_full():
-	f=open('full','w')
-	f.write('test')
-	f.close()
-	os.unlink('full')
-	Params.pprint('RED', 'filesystem full')
-	sys.exit(3)
+	try:
+		f=open('full','w')
+		f.write('test')
+		f.close()
+		os.unlink('full')
+	except:
+		Params.pprint('RED', 'filesystem full')
+		sys.exit(3)
 
 def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 	"throws an exception if the waf version is wrong"
