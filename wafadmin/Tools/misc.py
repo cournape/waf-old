@@ -43,12 +43,11 @@ class cmdobj(Object.genobj):
 		self.fun    = None
 		self.install_var = ''
 		self.install_subdir = ''
-		self.tasks = []
 
 	def apply(self):
 		# create a task
 		if not self.fun: fatal('cmdobj needs a function!')
-		self.tasks.append(Task.TaskCmd(self.fun, self.env, self.prio))
+		self.m_tasks.append(Task.TaskCmd(self.fun, self.env, self.prio))
 
 	def install(self):
 		if not self.install_var:
