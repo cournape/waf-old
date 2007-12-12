@@ -43,7 +43,10 @@ def configure(conf):
 	conf.check_tool('g++')
 	if conf.env['g++']: fatal('g++ not found')
 
-	conf.check_tool('dang flex bison misc')
+	try: conf.check_tool('flex bison')
+	except: pass
+
+	conf.check_tool('dang misc')
 
 	# checkFeatures is only available when 'checks' is in conf.check_tool()
 	# look in wafadmin/Tools/checks.py for the other tests available
