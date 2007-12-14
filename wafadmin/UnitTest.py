@@ -90,7 +90,7 @@ class unit_test(object):
 		for label, filename in self.unit_tests.iteritems():
 			count += 1
 			line = Utils.progress_line(count, self.total_num_tests, col1, col2)
-			if if Params.g_options.progress_bar and line:
+			if Params.g_options.progress_bar and line:
 				sys.stdout.write(line)
 				sys.stdout.flush()
 			try:
