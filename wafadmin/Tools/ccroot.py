@@ -392,8 +392,10 @@ class ccroot(Object.genobj):
 
 		if self.env['STATICLIB']:
 			app('LINKFLAGS', self.env['STATICLIB_MARKER'])
-			for i in self.env['STATICLIB']:
-				app('LINKFLAGS', staticlib_st % i)
+			# WARNING: ld wants the static libs in reverse order
+			k = [(staticlib_st % i) for i in self.env['STATICLIB']]
+			k.reverse()
+			app('LINKFLAGS', k)
 
 		# fully static binaries ?
 		if not self.env['FULLSTATIC']:
