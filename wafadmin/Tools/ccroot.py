@@ -169,7 +169,7 @@ class ccroot(Object.genobj):
 
 		if not (self.source or self.add_objects) and not hasattr(self, 'nochecks'):
 			fatal('no source files specified for %s' % self)
-		if not self.target and not hasattr(self, 'nochecks'):
+		if not self.target and self.m_type != 'objects' and not hasattr(self, 'nochecks'):
 			fatal('no target for %s' % self)
 
 		self.apply_type_vars()
