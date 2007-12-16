@@ -391,7 +391,7 @@ class ccroot(Object.genobj):
 			app('LINKFLAGS', staticlibpath_st % i)
 
 		if self.env['STATICLIB']:
-			app('LINKFLAGS', self.env['STATICLIB_MARKER'])
+			self.env.append('LINKFLAGS', self.env['STATICLIB_MARKER'])
 			# WARNING: ld wants the static libs in reverse order
 			k = [(staticlib_st % i) for i in self.env['STATICLIB']]
 			k.reverse()
@@ -400,11 +400,9 @@ class ccroot(Object.genobj):
 		# fully static binaries ?
 		if not self.env['FULLSTATIC']:
 			if self.env['STATICLIB'] or self.env['LIB']:
-				app('LINKFLAGS', self.env['SHLIB_MARKER'])
+				self.env.append('LINKFLAGS', self.env['SHLIB_MARKER'])
 
-		if self.env['LIB']:
-			for i in self.env['LIB']:
-				app('LINKFLAGS', lib_st % i)
+		app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
 
 	def install(self):
 		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
