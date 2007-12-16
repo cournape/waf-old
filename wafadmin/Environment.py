@@ -76,11 +76,18 @@ class Environment(object):
 		try: self.m_table[var] = val + self[var]
 		except TypeError: self.m_table[var] = val + [self[var]]
 
+	# prepend unique would be ambiguous
 	def append_unique(self, var, value):
-		if not self[var]:
-			self[var]=value
-		if value in self[var]: return
-		self.append_value(var, value)
+		# first make certain we have a list
+		v = self[var]
+		if not type(v) is types.ListType: v = [v]
+
+		# maybe we should use a set, but the order matters
+		if type(value) is types.ListType:
+			v += [x for x in value if not x in v]
+		elif not value in v:
+			v.append(value)
+		self[var] = v
 
 	def store(self, filename):
 		"Write the variables into a file"
