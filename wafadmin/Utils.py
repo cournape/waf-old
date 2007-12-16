@@ -20,10 +20,10 @@ g_ind = ['\\', '|', '/', '-']
 
 def test_full():
 	try:
-		f=open('full','w')
+		f=open('.waf-full','w')
 		f.write('test')
 		f.close()
-		os.unlink('full')
+		os.unlink('.waf-full')
 	except:
 		Params.pprint('RED', 'filesystem full')
 		sys.exit(3)
