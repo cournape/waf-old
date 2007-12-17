@@ -9,7 +9,7 @@ Custom objects:
 """
 import warnings # <- thank you for adding this :-/
 
-import shutil, re, os, types, md5
+import shutil, re, os, types
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
