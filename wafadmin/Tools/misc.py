@@ -7,13 +7,10 @@ Custom objects:
  - execute a function everytime
  - copy a file somewhere else
 """
-import warnings # <- thank you for adding this :-/
 
 import shutil, re, os, types
-try: from hashlib import md5
-except ImportError: from md5 import md5
 
-import Object, Action, Node, Params, Utils, Task, Common
+import Object, Action, Node, Params, Task, Common
 import pproc as subprocess
 from Params import fatal, debug
 
