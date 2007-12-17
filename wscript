@@ -23,6 +23,8 @@ zip_types = ['bz2', 'gz']
 forbidden = [x+'.py' for x in 'Test Weak'.split()]
 
 import Params, Utils, Options, os, sys, base64, shutil, re, random, StringIO
+try: from hashlib import md5
+except ImportError: from md5 import md5
 
 print "------> Executing code from the top-level wscript <-----"
 
@@ -78,6 +80,30 @@ def encodeAscii85(s):
 		app(end[0:1+r])
 	return ''.join(out)
 
+def compute_revision():
+	global REVISION
+
+	def visit(arg, dirname, names):
+		for pos, name in enumerate(names):
+			if name[0] == '.' or name in ['_build_', 'build']:
+				del names[pos]
+			elif name.endswith('.py'):
+				arg.append(os.path.join(dirname, name))
+	sources = []
+	os.path.walk('wafadmin', visit, sources)
+	sources.sort()
+	m = md5()
+	for source in sources:
+		f = file(source,'rb')
+		readBytes = 1024 # read 1024 bytes per time
+		while (readBytes):
+			readString = f.read(readBytes)
+			m.update(readString)
+			readBytes = len(readString)
+		f.close()
+	REVISION = m.hexdigest()
+
+
 def create_waf():
 	print "-> preparing waf"
 	mw = 'tmp-waf-'+VERSION
@@ -132,11 +158,9 @@ def create_waf():
 	f.close()
 
 	# now store the revision unique number in waf
-	v = 1000000000
-	global REVISION
-	REVISION = random.randint(v, 2*v)
+	compute_revision()
 	reg = re.compile('^REVISION=(.*)', re.M)
-	code1 = reg.sub(r'REVISION="%d"' % REVISION, code1)
+	code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
 	prefix = Params.g_options.prefix
 	# if the prefix is the default, let's be nice and be platform-independent
