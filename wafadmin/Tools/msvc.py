@@ -525,11 +525,9 @@ def detect(conf):
 	v['LINKFLAGS_ULTRADEBUG'] = ['/DEBUG', '/INCREMENTAL','msvcrtd.lib']
 
 	try:
-		debuglevel = Params.g_options.debug_level
+		debuglevel = Params.g_options.debug_level.upper()
 	except AttributeError:
 		debuglevel = 'DEBUG'
-	else:
-		debuglevel = debuglevel.upper()
 	v['CCFLAGS']   += v['CCFLAGS_'+debuglevel]
 	v['CXXFLAGS']  += v['CXXFLAGS_'+debuglevel]
 	v['LINKFLAGS'] += v['LINKFLAGS_'+debuglevel]
