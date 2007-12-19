@@ -7,9 +7,10 @@ import optparse
 import Utils, Action, Params, checks, Configure
 
 def detect(conf):
-	if Params.g_options.check_dmd_first:
-		test_for_compiler = ['dmd', 'gdc']
-	else:
+	try:
+		if Params.g_options.check_dmd_first: test_for_compiler = ['dmd', 'gdc']
+		else: raise
+	except:
 		test_for_compiler = ['gdc', 'dmd']
 
 	for d_compiler in test_for_compiler:
