@@ -63,16 +63,18 @@ class MTask(Task.Task):
 			# process that base.moc only once
 			mocfiles.append(d)
 
-			# find the extension - this search is done only once - TODO the parent was already scanned
+			# find the extension - this search is done only once
 			ext = ''
-			if Params.g_options.qt_header_ext:
-				ext = Params.g_options.qt_header_ext
-			else:
+			try: ext = Params.g_options.qt_header_ext
+			except AttributeError: pass
+
+			if not ext:
 				base2 = d[:-4]
 				path = node.m_parent.srcpath(parn.env)
 				for i in globals('MOC_H'):
 					try:
-						os.stat(os.path.join(path,base2+i))
+						# TODO we could use find_source
+						os.stat(os.path.join(path, base2+i))
 						ext = i
 						break
 					except:
