@@ -45,7 +45,6 @@ def set_options(opt):
 								(detected_plattform, test_for_compiler),
 			dest="check_cxx_compiler")
 	except optparse.OptionConflictError:
-		# the g++ tool might have added that option already
 		pass
 	for cxx_compiler in test_for_compiler.split():
 		opt.tool_options('%s' % cxx_compiler, option_group=cxx_compiler_opts)
