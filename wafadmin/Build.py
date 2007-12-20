@@ -233,7 +233,8 @@ class Build(object):
 			Scripting.add_subdir(d, self)
 
 	def create_obj(self, objname, *k, **kw):
-		return Object.g_allclasses[objname](*k, **kw)
+		try: return Object.g_allclasses[objname](*k, **kw)
+		except KeyError: fatal("'%s' is not a valid build tool." % objname)
 
 	def load_envs(self):
 		cachedir = Params.g_cachedir
