@@ -234,7 +234,7 @@ class Build(object):
 
 	def create_obj(self, objname, *k, **kw):
 		try: return Object.g_allclasses[objname](*k, **kw)
-		except KeyError: fatal("'%s' is not a valid build tool -> %s" % (objname, [x for x in Object.g_allclasses]))
+		except KeyError: raise KeyError("'%s' is not a valid build tool -> %s" % (objname, [x for x in Object.g_allclasses]))
 
 	def load_envs(self):
 		cachedir = Params.g_cachedir
