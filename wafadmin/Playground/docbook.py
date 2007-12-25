@@ -99,7 +99,7 @@ def docb_file(obj, node):
 # docbook objects
 class docbookobj(Object.genobj):
 	def __init__(self, type='html'):
-		Object.genobj.__init__(self, type)
+		Object.genobj.__init__(self, 'other')
 		self.stylesheet = None
 
 		self.ext = ['html', 'pdf', 'txt', 'ps']

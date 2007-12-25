@@ -85,6 +85,9 @@ def hook(objname, var, func):
 
 class genobj(object):
 	def __init__(self, type):
+		if not type in self.get_valid_types():
+			fatal("'%s' is not a valid type" % type )
+		
 		self.m_type  = type
 		self.m_posted = 0
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
@@ -112,7 +115,7 @@ class genobj(object):
 			   self.__class__.__name__, str(self.path)))
 
 	def get_valid_types(self):
-		return ['program', 'shlib', 'staticlib', 'other']
+		return ['program', 'shlib', 'staticlib', 'plugin', 'objects', 'other']
 
 	def get_hook(self, ext):
 		env=self.env
