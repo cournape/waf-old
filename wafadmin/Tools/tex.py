@@ -28,7 +28,7 @@ class tex_scanner(Scan.scanner):
 		if not node: return (nodes, names)
 
 		abs = curdirnode.abspath()
-		for (nada, path) in found:
+		for path in found:
 			#print 'boo', name
 
 			filepath = os.path.join(abs, path)

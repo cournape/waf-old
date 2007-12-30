@@ -5,8 +5,8 @@
 def build ( bld ) :
 
 	# we can modify the way tex files are scanned
-	import re, Tex
-	Tex.tex_regexp = re.compile('^\\\\bringin{(.*)}', re.M)
+	import re, tex
+	tex.tex_regexp = re.compile('^\\\\bringin{(.*)}', re.M)
 
 	# now create your tex object for compiling the files
         obj = bld.create_obj('tex' , type='latex') # type could be pdflatex
