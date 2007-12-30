@@ -17,7 +17,7 @@ int yyerror (char const *);
 stmtlist: statement '\n' stmtlist {
 	printf("done with statement equal to [%g]\n", $1);
 	} | // EMPTY RULE i.e. stmtlist -> nil
-	{ printf("DONE\n") ;}
+	{ printf("DONE\n") ;};
 
 statement:	expression { printf("VALUE=%g\n",$1); };
 
@@ -28,6 +28,6 @@ expression:	expression '+' expression { $$ = $1 + $3; } |
 			if($3 !=0) { $$ = $1 / $3; } else 
 			{ printf("div by zero\n"); $$=0;} } |
 		'(' expression ')' { $$ = $2; } |
-		NUMBER { $$ = $1; } |
+		NUMBER { $$ = $1; } ;
 
 %%
