@@ -103,7 +103,7 @@ def create_parser():
 	p('--targets',
 		action  = 'store',
 		default = '',
-		help    = 'compile the targets given only',
+		help    = 'compile the targets given only [targets in CSV format, e.g. "target1,target2"]',
 		dest    = 'compile_targets')
 
 	return parser

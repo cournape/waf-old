@@ -1332,14 +1332,14 @@ class Configure(object):
 				os.remove(os.path.join(root, f))
 
 		bdir = os.path.join( dir, '_testbuild_')
-		try:
+
+		# FIXME: by default the following lines are called more than once
+		#			we have to make sure they get called only once 
+		if not os.path.exists(dir):
 			os.makedirs(dir)
-		except OSError:
-			pass
-		try:
+
+		if not os.path.exists(bdir):
 			os.makedirs(bdir)
-		except OSError:
-			pass
 
 		dest=open(os.path.join(dir, 'test.c'), 'w')
 		dest.write(obj.code)

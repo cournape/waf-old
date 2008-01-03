@@ -42,7 +42,7 @@ def set_options(opt):
 	cxx_compiler_opts = opt.add_option_group("C++ Compiler Options")
 	try:
 		cxx_compiler_opts.add_option('--check-cxx-compiler', default="%s" % test_for_compiler,
-			help='On this platform (%s) following C++ Compiler will be checked default: "%s"' % 
+			help='On this platform (%s) the following C++ Compiler will be checked by default: "%s"' % 
 								(detected_plattform, test_for_compiler),
 			dest="check_cxx_compiler")
 	except optparse.OptionConflictError:

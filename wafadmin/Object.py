@@ -22,7 +22,7 @@ hooks
 """
 
 import copy
-import os, types, time
+import os, types
 import Params, Task, Common, Node, Utils
 from Params import debug, error, fatal
 
@@ -62,19 +62,27 @@ def flush():
 
 	if Params.g_options.compile_targets: # well this feature is not used too much
 		debug('posting objects listed in compile_targets', 'object')
-		for x in Params.g_options.compile_targets.split(','):
-			y = name_to_obj(x)
-			if not y: continue
-			if y.m_posted: continue
-			y.post()
-			if Params.g_options.verbose == 3: print "flushed at ", time.asctime(time.localtime())
+
+		# first scan all target names and make sure they exist,
+		# because we want to fail before any post()
+		targets_objects = {}
+		for target_name in Params.g_options.compile_targets.split(','):
+			# trim target_name (handle cases when the user added spaces to targets)
+			target_name = target_name.strip()
+			targets_objects[target_name] = name_to_obj(target_name)
+			if not targets_objects[target_name]: fatal( "target '%s' doesn't exist" % target_name)  
+
+		for target_obj in targets_objects.values():
+			if not target_obj.m_posted: 
+				target_obj.post()
+				debug( "flushed. ", 'object')
 	else:
 		debug('posting objects (normal)', 'object')
 		for obj in g_allobjs:
-			if obj.m_posted: continue
 			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
-			obj.post()
-			if Params.g_options.verbose == 3: print "flushed at ", time.asctime(time.localtime())
+			if not obj.m_posted: 
+				obj.post()
+			debug( "flushed. ", 'object')
 
 def hook(objname, var, func):
 	"Attach a new method to an object class (objname is the name of the class)"

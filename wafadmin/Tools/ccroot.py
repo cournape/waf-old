@@ -5,6 +5,8 @@
 "base for all c/c++ programs and libraries"
 
 import sys, re, os
+
+# since Python 2.5, hashlib replaces deprecated md5, see: http://docs.python.org/lib/module-md5.html
 try: from hashlib import md5
 except ImportError: from md5 import md5
 

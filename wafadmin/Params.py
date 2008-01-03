@@ -4,7 +4,7 @@
 
 "Main parameters"
 
-import os, sys, types, inspect, base64, stat
+import os, sys, types, inspect, base64, stat, time
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
@@ -173,6 +173,9 @@ def debug(msg, zone=None):
 	elif not g_verbose>2:
 		return
 	module = __get_module()
+	
+	# Add time stamp to message
+	msg = time.asctime(time.localtime()) + ": " + str(msg)
 	niceprint(msg, 'DEBUG', module)
 
 def warning(msg, zone=0):
