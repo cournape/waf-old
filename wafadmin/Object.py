@@ -19,6 +19,8 @@ hooks
   - several extensions are mapped to a single method
   - they do not work with all objects (work with ccroot)
   - cf bison.py and flex.py for more details on this scheme
+
+WARNING subclasses must reimplement the clone method to avoid problems with 'deepcopy'
 """
 
 import copy
@@ -73,14 +75,14 @@ def flush():
 			if not targets_objects[target_name]: fatal( "target '%s' doesn't exist" % target_name)  
 
 		for target_obj in targets_objects.values():
-			if not target_obj.m_posted: 
+			if not target_obj.m_posted:
 				target_obj.post()
 				debug( "flushed. ", 'object')
 	else:
 		debug('posting objects (normal)', 'object')
 		for obj in g_allobjs:
 			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
-			if not obj.m_posted: 
+			if not obj.m_posted:
 				obj.post()
 			debug( "flushed. ", 'object')
 
@@ -95,7 +97,7 @@ class genobj(object):
 	def __init__(self, type):
 		if not type in self.get_valid_types():
 			fatal("'%s' is not a valid type" % type )
-		
+
 		self.m_type  = type
 		self.m_posted = 0
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
@@ -182,6 +184,7 @@ class genobj(object):
 
 	def clone(self, env):
 		newobj = copy.deepcopy(self)
+		newobj.path = self.path
 
 		if type(env) is types.StringType:
 			newobj.env = Params.g_build.m_allenvs[env]
