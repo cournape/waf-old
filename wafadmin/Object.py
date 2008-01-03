@@ -72,7 +72,7 @@ def flush():
 			# trim target_name (handle cases when the user added spaces to targets)
 			target_name = target_name.strip()
 			targets_objects[target_name] = name_to_obj(target_name)
-			if not targets_objects[target_name]: fatal( "target '%s' doesn't exist" % target_name)  
+			if not targets_objects[target_name]: fatal("target '%s' does not exist" % target_name)
 
 		for target_obj in targets_objects.values():
 			if not target_obj.m_posted:
@@ -96,7 +96,7 @@ def hook(objname, var, func):
 class genobj(object):
 	def __init__(self, type):
 		if not type in self.get_valid_types():
-			fatal("'%s' is not a valid type" % type )
+			error("'%s' is not a valid type" % type)
 
 		self.m_type  = type
 		self.m_posted = 0
