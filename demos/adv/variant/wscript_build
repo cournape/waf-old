@@ -25,6 +25,6 @@ prog_in_variant1.uselib_local = 'lib1'
 prog2 = prog_in_variant1.clone('debug')
 prog2.uselib_local = ''
 
-# until a better clone scheme is provided
+# TODO implement the clone method in ccroot
 prog2.p_compiletasks = []
 
