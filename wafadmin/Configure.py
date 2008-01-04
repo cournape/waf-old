@@ -81,13 +81,22 @@ def find_program_impl(lenv, filename, path_list=[], var=None):
 		if var in os.environ: lenv[var] = os.environ[var]
 		if lenv[var]: return lenv[var]
 
-	if Params.g_platform=='win32': filename += '.exe'
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
-	for directory in path_list:
-		x = os.path.join(directory, filename)
-		if os.path.isfile(x):
-			if var: lenv[var] = x
-			return x
+
+	if Params.g_platform=='win32':
+		names = [filename+'.'+x for x in ' exe bat com cmd'.split()]
+		for directory in path_list:
+			for y in names:
+				x = os.path.join(directory, y)
+				if os.path.isfile(x):
+					if var: lenv[var] = x
+					return x
+	else:
+		for directory in path_list:
+			x = os.path.join(directory, filename)
+			if os.access(x, os.X_OK):
+				if var: lenv[var] = x
+				return x
 	return ''
 
 ###############
