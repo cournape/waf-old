@@ -44,40 +44,40 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 	stdout_eof = stderr_eof = 0
 	while not (stdout_eof and stderr_eof):
 		if not stdout_eof:
-			str = cmd_stdout.read()
-			if not str: stdout_eof = 1
+			s = cmd_stdout.read()
+			if not s: stdout_eof = 1
 			elif not g_quiet:
-				sys.stdout.write(str)
+				sys.stdout.write(s)
 				sys.stdout.flush()
 		if not stderr_eof:
-			str = cmd_stderr.read()
-			if not str: stderr_eof = 1
+			s = cmd_stderr.read()
+			if not s: stderr_eof = 1
 			elif not g_quiet:
 				sys.stderr.write('\n')
-				sys.stderr.write(str)
+				sys.stderr.write(s)
 		#time.sleep(0.1)
 
-def exec_command_normal(str):
+def exec_command_normal(s):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
-	debug("system command -> "+ str, 'runner')
-	if Params.g_verbose>=1: print str
+	debug("system command -> "+ s, 'runner')
+	if Params.g_verbose>=1: print s
 	# encase the command in double-quotes in windows
-	if sys.platform == 'win32' and not str.startswith('""'):
-		str = '"%s"' % str
-	proc = exetor.Popen(str, shell=1, stdout=exetor.PIPE, stderr=exetor.PIPE)
+	if sys.platform == 'win32' and not s.startswith('""'):
+		s = '"%s"' % s
+	proc = exetor.Popen(s, shell=1, stdout=exetor.PIPE, stderr=exetor.PIPE)
 	process_cmd_output(proc.stdout, proc.stderr)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
-def exec_command_interact(str):
+def exec_command_interact(s):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
-	debug("system command (interact) -> "+ str, 'runner')
-	if Params.g_verbose>=1: print str
+	debug("system command (interact) -> "+ s, 'runner')
+	if Params.g_verbose>=1: print s
 	# encase the command in double-quotes in windows
-	if sys.platform == 'win32' and not str.startswith('""'):
-		str = '"%s"' % str
-	proc = exetor.Popen(str, shell=1)
+	if sys.platform == 'win32' and not s.startswith('""'):
+		s = '"%s"' % s
+	proc = exetor.Popen(s, shell=1)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
