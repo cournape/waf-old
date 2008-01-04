@@ -664,6 +664,24 @@ def tokenize_include(txt, defs):
 	# if we come here, parsing failed
 	raise PreprocError, "include parsing failed %s" % txt
 
+def parse_literal_escape(txt):
+	# txt is inside '' or ""
+	# return (len, char)
+	c = txt[0]
+	if c in "ntbrf\\'":
+		return (1, eval('"\\%s"' % c))
+	elif c == 'x':
+		if len(txt) >= 3 and txt[2] in string.hexdigits:
+			return (3, chr(int(txt[1:3], 16)))
+		return (2, chr(int(txt[1:2], 16)))
+	elif c.isdigit():
+		for i in 3, 2:
+			if txt[1:1+i].isdigit():
+				return (1+i, chr(int(txt[1:1+i], 8)))
+		return (1, chr(int(c, 8)))
+	else:	# unknown
+		return (1, c)
+
 def tokenize(txt):
 	i = 0
 	max = len(txt)
@@ -697,37 +715,51 @@ def tokenize(txt):
 				else:
 					buf.append(c)
 			abuf.append((STRING, ''.join(buf)))
-			i += 1
+			if c != '"': error('uh-oh, missing terminating " char')
 		elif c == '\'':
 			# char
 			buf = []
 			i += 1
 			c = txt[i]
 			i += 1
-			buf.append(c)
-			# skip one more character if there is a backslash '\''
+			# skip more characters if there is a backslash '\''
 			if c == '\\':
-				c = txt[i]
-				i += 1
-				buf.append(c)
+				s, ch = parse_literal_escape(txt[i:])
+				i += s
+			else:
+				ch = c
+
 			c = txt[i]
 			i += 1
-			if c != '\'': error("uh-oh, invalid character"+str(c)) # TODO special chars
-			abuf.append((CHAR, ''.join(buf)))
+			if c != '\'': error("uh-oh, invalid character"+str(c))
+			#abuf.append((CHAR, ch))
+			abuf.append((NUM, ord(ch)))	# CHAR is kind of NUM
 			i += 1
 
 		elif c in string.digits:
 			# number
 			buf =[]
-			while 1:
-				c = txt[i]
-				if c in string.digits: # TODO floats
-					buf.append(c)
-					i += 1
-					if c >= max: break
-				else:
-					break
-			abuf.append((NUM, ''.join(buf)))
+			if c == '0' and txt[i:].startswith('0x'):
+				i += 2
+				while 1:
+					c = txt[i]
+					if c in string.hexdigits:
+						buf.append(c)
+						i += 1
+						if i >= max: break
+					else:
+						break
+				abuf.append((NUM, int(''.join(buf), 16)))
+			else:
+				while 1:
+					c = txt[i]
+					if c in string.digits: # TODO floats
+						buf.append(c)
+						i += 1
+						if i >= max: break
+					else:
+						break
+				abuf.append((NUM, ''.join(buf)))
 		elif c in alpha:
 			# identifier (except for the boolean operators 'and', 'or' and 'not')
 			buf = []
