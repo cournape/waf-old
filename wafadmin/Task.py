@@ -77,10 +77,10 @@ class TaskBase(object):
 			self.m_idx = g_tasks.idx
 			g_tasks.idx += 1
 	def may_start(self):
-		"return non-zero if the task may is ready"
+		"non-zero if the task is ready"
 		return 1
 	def must_run(self):
-		"return 0 if the task does not need to run"
+		"0 if the task does not need to run"
 		return 1
 	def prepare(self):
 		"prepare the task for further processing"
@@ -98,7 +98,7 @@ class TaskBase(object):
 		"process the task"
 		pass
 	def color(self):
-		"return the color to use for the console messages"
+		"color to use for the console messages"
 		return 'BLUE'
 	def set_display(self, v):
 		self.m_display = v
@@ -106,7 +106,7 @@ class TaskBase(object):
 		return self.m_display
 
 class Task(TaskBase):
-	"Task is the more common task. It has input nodes and output nodes"
+	"The most common task, it has input and output nodes"
 	def __init__(self, action_name, env, priority=5, normal=1):
 		TaskBase.__init__(self, priority, normal)
 
@@ -281,7 +281,7 @@ class Task(TaskBase):
 		return 0
 
 	def update_stat(self):
-		"this is called after a sucessful task run"
+		"called after a sucessful task run"
 		tree = Params.g_build
 		env  = self.m_env
 		sig = self.signature()
@@ -403,7 +403,7 @@ class Task(TaskBase):
 			debug(' -> A user-given environment variable has changed %s %s' % (v(old_sigs[4]), v(new_sigs[4])), 'task')
 
 class TaskCmd(TaskBase):
-	"TaskCmd executes commands. Instances always execute their function."
+	"TaskCmd executes commands. Instances always execute their function"
 	def __init__(self, fun, env, priority):
 		TaskBase.__init__(self, priority)
 		self.fun = fun
