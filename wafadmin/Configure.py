@@ -65,7 +65,7 @@ def find_file_ext(filename, path_list):
 					return path
 	return ''
 
-def find_program_impl(lenv, filename, path_list=None, var=None):
+def find_program_impl(lenv, filename, path_list=[], var=None):
 	"""find a program in folders path_lst, and sets lenv[var]
 @param lenv: environment
 @param filename: name of the program to search for
@@ -74,17 +74,12 @@ def find_program_impl(lenv, filename, path_list=None, var=None):
 @return: either the value that is referenced with [var] in lenv or os.environ
          or the first  occurrence filename or '' if filename could not be found
 """
-	if not path_list:
-		path_list = []
-	elif type(path_list) is types.StringType:
-		path_list = path_list.split()
+	try: path_list = path_list.split()
+	except AttributeError: pass
 
 	if var:
-		if lenv[var]:
-			return lenv[var]
-		elif var in os.environ:
-			lenv[var] = os.environ[var]
-			return os.environ[var]
+		if var in os.environ: lenv[var] = os.environ[var]
+		if lenv[var]: return lenv[var]
 
 	if Params.g_platform=='win32': filename += '.exe'
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
