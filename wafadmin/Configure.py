@@ -65,37 +65,36 @@ def find_file_ext(filename, path_list):
 					return path
 	return ''
 
-def find_program_impl(lenv, filename, path_list=[], var=None):
-	"""find a program in folders path_lst, and sets lenv[var]
-@param lenv: environment
+def find_program_impl(env, filename, path_list=[], var=None):
+	"""find a program in folders path_lst, and sets env[var]
+@param env: environment
 @param filename: name of the program to search for
 @param path_list: list of directories to search for filename
-@param var: environment value to be checked for in lenv or os.environ
-@return: either the value that is referenced with [var] in lenv or os.environ
-         or the first  occurrence filename or '' if filename could not be found
+@param var: environment value to be checked for in env or os.environ
+@return: either the value that is referenced with [var] in env or os.environ
+         or the first occurrence filename or '' if filename could not be found
 """
 	try: path_list = path_list.split()
 	except AttributeError: pass
 
 	if var:
-		if var in os.environ: lenv[var] = os.environ[var]
-		if lenv[var]: return lenv[var]
+		if var in os.environ: env[var] = os.environ[var]
+		if env[var]: return env[var]
 
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
 
 	if Params.g_platform=='win32':
-		names = [filename+'.'+x for x in ' exe bat com cmd'.split()]
-		for directory in path_list:
-			for y in names:
+		for y in [filename+x for x in '.exe,,.bat,.com,.cmd'.split(',')]:
+			for directory in path_list:
 				x = os.path.join(directory, y)
 				if os.path.isfile(x):
-					if var: lenv[var] = x
+					if var: env[var] = x
 					return x
 	else:
 		for directory in path_list:
 			x = os.path.join(directory, filename)
 			if os.access(x, os.X_OK):
-				if var: lenv[var] = x
+				if var: env[var] = x
 				return x
 	return ''
 
