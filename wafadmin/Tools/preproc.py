@@ -65,11 +65,11 @@ CHAR = 'c'
 tok_types = [OP, STR, IDENT, NUM, CHAR]
 
 op_defs = [
-(OP    , r'and|or|not|%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]'),
-(STR   , r'"([^"\\]|\\.)*"'),
+(OP    , r'\band\b|\bor\b|\bnot\b|%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]'),
+(STR   , r'L?"([^"\\]|\\.)*"'),
 (IDENT , r'[A-Za-z_]\w*'),
 (NUM   , r'0x[0-9a-fA-F]+|\d+'),
-(CHAR  , r"'(\w|\\')'"),
+(CHAR  , r"L?'([^'\\]|\\.)*'"),
 ]
 
 reg_clexer = re.compile('|'.join("(?P<%s>%s)" % (name, part) for name, part in op_defs), re.M)
@@ -167,7 +167,7 @@ def get_expr(tokens):
 					elif val == '(':
 						count_par += 1
 				accu.append( (tok, val) )
-			(tok_tmp, val_tmp) = reduce_tokens(accu)
+			(tok_tmp, val_tmp) = reduce_tokens(accu)[0]
 			return (tok_tmp, val_tmp, lst)
 	else:
 		pass
@@ -667,23 +667,24 @@ def tokenize_include(txt, defs):
 	# if we come here, parsing failed
 	raise PreprocError, "include parsing failed %s" % txt
 
-def parse_literal_escape(txt):
+def parse_literal(txt):
 	# txt is inside '' or ""
-	# return (len, char)
-	c = txt[0]
+	# return (len, ord(char))
+	if txt[0] != '\\':
+		return (1, ord(txt[0]))
+	c = txt[1]
 	if c in "ntbrf\\'":
-		return (1, eval('"\\%s"' % c))
+		return (2, ord(eval('"\\%s"' % c)))
 	elif c == 'x':
-		if len(txt) >= 3 and txt[2] in string.hexdigits:
-			return (3, chr(int(txt[1:3], 16)))
-		return (2, chr(int(txt[1:2], 16)))
+		if len(txt) >= 4 and txt[3] in string.hexdigits:
+			return (4, int(txt[2:4], 16))
+		return (3, int(txt[2:3], 16))
 	elif c.isdigit():
-		for i in 3, 2:
-			if txt[1:1+i].isdigit():
-				return (1+i, chr(int(txt[1:1+i], 8)))
-		return (1, chr(int(c, 8)))
+		for i in 3, 2, 1:
+			if len(txt) > i and txt[1:1+i].isdigit():
+				return (1+i, int(txt[1:1+i], 8))
 	else:	# unknown
-		return (1, c)
+		return (2, ord(c))
 
 # TODO the case of floating numbers may be missing
 def tokenize(s):
@@ -698,10 +699,14 @@ def tokenize(s):
 					elif v == 'not': v = '!'
 				elif name == CHAR:
 					name = NUM
-					if v.startswith('\\'): v = parse_literal_escape(v[1:])
-					elif len(v) == 1: v = ord(v)
+					if v[0] == 'L': v = v[1:]
+					r = parse_literal(v[1:-1])
+					if r[0]+2 != len(v):
+						raise PreprocError, "could not parse char literal %s" % v
+					v = r[1]
 				elif name == NUM:
-					if v.startswith('0x'): v = int(v, 16)
+					if v[:2] == '0x': v = int(v, 16)
+					elif v[0] == '0': v = int(v, 8)
 				ret.append((name, v))
 				break
 	return ret
