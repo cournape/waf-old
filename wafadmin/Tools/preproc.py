@@ -16,7 +16,7 @@ import re, sys, os, string
 if __name__ == '__main__':
 	sys.path = ['.', '..'] + sys.path
 import Params
-from Params import debug, error, warning
+from Params import debug, error
 import traceback
 
 class PreprocError(Exception):
@@ -65,7 +65,7 @@ CHAR = 'c'
 tok_types = [OP, STR, IDENT, NUM, CHAR]
 
 op_defs = [
-(OP    , r'and|or|not|%:%:|%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\?\+\*\|\^\.\(\)\[\]{}&=:!#;,%/<>-~]'),
+(OP    , r'and|or|not|%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|\+|\*|\||\^|\.|[&=:!#;,%/-<>]|\[|\]|\(|\)|\{|\}|\~|\?'),
 (STR   , r'"([^"\\]|\\.)*"'),
 (IDENT , r'[A-Za-z_]+[A-Za-z_0-9]*'),
 (NUM   , r'0x[0-9a-fA-F]+|[0-9]*[0-9]'),
