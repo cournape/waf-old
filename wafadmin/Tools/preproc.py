@@ -51,18 +51,28 @@ def filter_comments(filename):
 strict_quotes = 0
 "Keep <> for system includes (do not search for those includes)"
 
-alpha = string.letters + '_' + string.digits
-
 accepted  = 'a'
 ignored   = 'i'
 undefined = 'u'
 skipped   = 's'
 
-NUM = 'i' # number
-OP = '@' # operator
-IDENT = 'T' # identifier
-STRING = 's' # string
-CHAR = 'c' # char
+NUM = 'i'
+OP = 'O'
+IDENT = 'T'
+STR = 's'
+CHAR = 'c'
+
+tok_types = [OP, STR, IDENT, NUM, CHAR]
+
+op_defs = [
+(OP    , r'and|or|not|%:%:|%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\?\+\*\|\^\.\(\)\[\]{}&=:!#;,%/<>-~]'),
+(STR   , r'"([^"\\]|\\.)*"'),
+(IDENT , r'[A-Za-z_]+[A-Za-z_0-9]*'),
+(NUM   , r'0x[0-9a-fA-F]+|[0-9]*[0-9]'),
+(CHAR  , r"'([A-Za-z_0-9]|\\')'"),
+]
+
+reg_clexer = re.compile('|'.join("(?P<%s>%s)" % (name, part) for name, part in op_defs), re.M)
 
 # TODO handle the trigraphs too
 trigs = {
@@ -76,13 +86,6 @@ trigs = {
 '<' : '{',
 '>' : '}',
 }
-
-puncs = []
-p = puncs.append
-p('< > + - * / % = & | ^ . : ! # [ ] ( ) { } ~ ? ; ,'.split())
-p('<< <% <: <= >> >= ++ += -- -> -= *= /= %: %= %> == && &= || |= ^= :> != ##'.split())
-p('<<= >>= ...'.split())
-p('%:%: '.split())
 
 prec = {}
 # op -> number, needed for such expressions:   #if 1 && 2 != 0
@@ -125,7 +128,7 @@ def reduce_nums(val_1, val_2, val_op):
 	elif d=='^':  c = int(a^b)
 	elif d=='<<': c = a<<b
 	elif d=='>>': c = a>>b
-	elif d=='.': c = a+b/100. # cast to float
+	elif d=='.': c = a+b/100. # FIXME cast to float
 	else: c = 0
 	return c
 
@@ -192,7 +195,7 @@ def reduce_recurse(val_a, op_1, val_b, op_2, val_c, tokens):
 			return (NUM, val_a)
 
 def reduce_tokens(tokens):
-	if not tokens: return [(STRING, '')]
+	if not tokens: return [(STR, '')]
 	if len(tokens) == 1: return tokens
 
 	lst = []+tokens
@@ -246,7 +249,7 @@ def eval_fun(name, params, defs, ban=[]):
 				tokens = params[param_index[val_next]]
 				# macro parameter evaluation is postponed
 				ret = eval_tokens(tokens, defs, ban+[name])
-				ret = (STRING, "".join([str(y) for (x,y) in ret]))
+				ret = (STR, "".join(str(y) for (x,y) in ret))
 				accu.append(ret)
 
 			elif val == '##' or val == '%:%:':
@@ -647,12 +650,12 @@ def tokenize_include(txt, defs):
 	tokens = tokenize(txt)
 	ret = eval_tokens(tokens, defs)
 	(tok, val) = ret[0]
-	if len(ret) == 1 and tok == STRING:
+	if len(ret) == 1 and tok == STR:
 		# a string token, quote it
 		txt = '"%s"' % val
 	elif tok == OP:
 		# a list of tokens, such as <,iostream,.,h,>, concatenate
-		txt = "".join(y for (x,y) in ret)
+		txt = "".join(y for (x, y) in ret)
 		# TODO if we discard whitespaces, we could test for val == "<"
 	else:
 		raise PreprocError, "could not parse %s" % str(ret)
@@ -682,116 +685,26 @@ def parse_literal_escape(txt):
 	else:	# unknown
 		return (1, c)
 
-def tokenize(txt):
-	i = 0
-	max = len(txt)
-
-	abuf = []
-	while i<max:
-		c = txt[i]
-
-		if c == ' ' or c == '\t':
-			i += 1
-			# white space
-			continue
-		elif c == '"':
-			# string
-			i += 1
-			c=''
-			buf = []
-			while i<max:
-				p = c
-				c = txt[i]
-				i += 1
-				if c == '"':
-					cnt = 0
-					while 1:
-						#print "cntcnt = ", str(cnt), txt[i-2-cnt]
-						if txt[i-2-cnt] == '\\': cnt+=1
-						else: break
-					#print "cnt is ", str(cnt)
-					if (cnt%2)==0: break
-					else: buf.append(c)
-				else:
-					buf.append(c)
-			abuf.append((STRING, ''.join(buf)))
-			if c != '"': error('uh-oh, missing terminating " char')
-		elif c == '\'':
-			# char
-			buf = []
-			i += 1
-			c = txt[i]
-			i += 1
-			# skip more characters if there is a backslash '\''
-			if c == '\\':
-				s, ch = parse_literal_escape(txt[i:])
-				i += s
-			else:
-				ch = c
-
-			c = txt[i]
-			i += 1
-			if c != '\'': error("uh-oh, invalid character"+str(c))
-			#abuf.append((CHAR, ch))
-			abuf.append((NUM, ord(ch)))	# CHAR is kind of NUM
-			i += 1
-
-		elif c in string.digits:
-			# number
-			buf =[]
-			if c == '0' and txt[i:].startswith('0x'):
-				i += 2
-				while 1:
-					c = txt[i]
-					if c in string.hexdigits:
-						buf.append(c)
-						i += 1
-						if i >= max: break
-					else:
-						break
-				abuf.append((NUM, int(''.join(buf), 16)))
-			else:
-				while 1:
-					c = txt[i]
-					if c in string.digits: # TODO floats
-						buf.append(c)
-						i += 1
-						if i >= max: break
-					else:
-						break
-				abuf.append((NUM, ''.join(buf)))
-		elif c in alpha:
-			# identifier (except for the boolean operators 'and', 'or' and 'not')
-			buf = []
-			while 1:
-				c = txt[i]
-				if c in alpha:
-					buf.append(c)
-					i += 1
-					if i>= max: break
-				else:
-					break
-			name = ''.join(buf).lower()
-			if name == 'not':
-				abuf.append((OP, '!'))
-			elif name == 'or':
-				abuf.append((OP, '||'))
-			elif name == 'and':
-				abuf.append((OP, '&&'))
-			else:
-				abuf.append((IDENT, ''.join(buf)))
-		else:
-			# operator
-			for x in [3, 2, 1, 0]:
-				if i < max - x:
-					s = txt[i:i+x+1]
-					if s in puncs[x]:
-						break
-			else:
-				raise PreprocError, "unknown op %s" % txt[i-1:]
-			abuf.append((OP, s))
-			i += x+1
-	return abuf
+# TODO the case of floating numbers may be missing
+def tokenize(s):
+	ret = []
+	for match in reg_clexer.finditer(s):
+		for name in tok_types:
+			v = match.group(name)
+			if v:
+				if name == OP:
+					if v == 'or': v = '||'
+					elif v == 'and': v = '&&'
+					elif v == 'not': v = '!'
+				elif name == CHAR:
+					name = NUM
+					if v.startswith('\\'): v = parse_literal_escape(v[1:])
+					elif len(v) == 1: v = ord(v)
+				elif name == NUM:
+					if v.startswith('0x'): v = int(v, 16)
+				ret.append((name, v))
+				break
+	return ret
 
 # quick test #
 if __name__ == "__main__":
