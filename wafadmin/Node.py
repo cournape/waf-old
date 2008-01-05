@@ -177,8 +177,7 @@ class Node(object):
 		current = self
 		while lst:
 			rescan(current)
-			name= lst[0]
-			lst = lst[1:]
+			name= lst.pop(0)
 			prev = current
 
 			if name == '.':
@@ -250,8 +249,7 @@ class Node(object):
 		"search a folder in the filesystem, do not scan, create if necessary"
 		current = self
 		while lst:
-			name= lst[0]
-			lst = lst[1:]
+			name= lst.pop(0)
 			prev = current
 
 			if name == '.':
