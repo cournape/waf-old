@@ -57,17 +57,19 @@ undefined = 'u'
 skipped   = 's'
 
 NUM = 'i'
+FNUM = 'f'
 OP = 'O'
 IDENT = 'T'
 STR = 's'
 CHAR = 'c'
 
-tok_types = [OP, STR, IDENT, NUM, CHAR]
+tok_types = [OP, STR, IDENT, NUM, CHAR, FNUM]
 
 op_defs = [
 (OP    , r'\band\b|\bor\b|\bnot\b|%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]'),
 (STR   , r'L?"([^"\\]|\\.)*"'),
 (IDENT , r'[A-Za-z_]\w*'),
+(FNUM  , r'\d+%(E)s%(FS)s?|\d*\.\d+%(E)s?%(FS)s?|\d+\.\d*%(E)s?%(FS)s?' % dict(E=r'(?:[eE][+-]?\d+)', FS=r'[fFlL]')),
 (NUM   , r'0x[0-9a-fA-F]+|\d+'),
 (CHAR  , r"L?'([^'\\]|\\.)*'"),
 ]
@@ -99,10 +101,6 @@ def reduce_nums(val_1, val_2, val_op):
 	#print val_1, val_2, val_op
 	# pass two values, return a value
 
-	# TODO: what if users are really mad and use in #if blocks
-	# floating-point arithmetic ???
-	# strings ???
-
 	# now perform the operation, make certain a and b are numeric
 	try:    a = 0 + val_1
 	except: a = int(val_1)
@@ -128,7 +126,6 @@ def reduce_nums(val_1, val_2, val_op):
 	elif d=='^':  c = int(a^b)
 	elif d=='<<': c = a<<b
 	elif d=='>>': c = a>>b
-	elif d=='.': c = a+b/100. # FIXME cast to float
 	else: c = 0
 	return c
 
@@ -136,14 +133,14 @@ def reduce_nums(val_1, val_2, val_op):
 # result := top
 # top    := expr | expr op expr
 # expr   := val | ( top ) | !expr | -expr
-# The following rule should be taken into account:
-# val    := NUM | NUM . NUM | NUM "e" NUM ...
 def get_expr(tokens):
 	if len(tokens) == 0: return (None, None, tokens)
 	lst = []+tokens
 	(tok, val) = lst.pop(0)
 	if tok == NUM:
 		return (tok, val, lst)
+	elif tok == FNUM:
+		raise PreprocError, 'floating constant in preprocessor expression: %s' % tokens
 	elif tok == OP:
 		if val == '!' or val == '~': # TODO handle bitwise complement
 			(tok2, val2, lst2) = get_expr(lst)
@@ -308,7 +305,7 @@ def eval_tokens(lst, adefs, ban=[]):
 			if val_x in adefs: accu.append((NUM, 1))
 			else: accu.append((NUM, 0))
 
-		elif tok == IDENT and val.lower() == 'sizeof':
+		elif tok == IDENT and val == 'sizeof':
 			raise PreprocError, "you must be fucking kidding"
 		elif tok == IDENT and val in adefs:
 			# the identifier is a macro
@@ -378,6 +375,8 @@ def eval_macro(lst, adefs):
 			if val.lower() == 'true': return True
 			elif val.lower() == 'false': return False
 			else: "could not evaluate %s to true or false (not a boolean)" % str(lst)
+		elif tok == FNUM:
+			raise PreprocError, 'floating constant in preprocessor expression: %s' % str(lst)
 		else:
 			debug("could not evaluate %s to true or false (not a number/boolean)" % str(lst), 'preproc')
 	return ret
@@ -686,7 +685,6 @@ def parse_literal(txt):
 	else:	# unknown
 		return (2, ord(c))
 
-# TODO the case of floating numbers may be missing
 def tokenize(s):
 	ret = []
 	for match in reg_clexer.finditer(s):
