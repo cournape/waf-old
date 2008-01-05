@@ -472,6 +472,28 @@ class pkgconfig_configurator(configurator_base):
 			self.conf.undefine(self.define)
 		self.update_env(retval)
 
+	def _setup_pkg_config_path(self):
+		pkgpath = self.pkgpath
+		if not pkgpath:
+			return ""
+
+		if sys.platform == 'win32':
+			if hasattr(self, 'pkgpath_win32_setup'):
+				return ""
+			pkgpath_env=os.getenv('PKG_CONFIG_PATH')
+			
+			if pkgpath_env:
+				pkgpath_env = pkgpath_env + ';' +pkgpath
+			else:
+				pkgpath_env = pkgpath
+			
+			os.putenv('PKG_CONFIG_PATH',pkgpath_env)
+			setattr(self,'pkgpath_win32_setup',True)
+			return ""
+			
+		pkgpath = 'PKG_CONFIG_PATH=$PKG_CONFIG_PATH:' + pkgpath
+		return pkgpath
+
 	def run_test(self):
 		pkgpath = self.pkgpath
 		pkgbin = self.binary
@@ -485,8 +507,7 @@ class pkgconfig_configurator(configurator_base):
 
 		if not pkgbin:
 			pkgbin = 'pkg-config'
-		if pkgpath:
-			pkgpath = 'PKG_CONFIG_PATH=$PKG_CONFIG_PATH:' + pkgpath
+		pkgpath = self._setup_pkg_config_path()
 		pkgcom = '%s %s' % (pkgpath, pkgbin)
 
 		for key, val in self.defines.items():
