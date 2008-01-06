@@ -5,7 +5,7 @@
 "Actions are used to build the nodes of most tasks"
 
 import re
-import Object, Runner, Params
+import Object, Params, Runner
 from Params import debug, fatal
 
 g_actions={}
@@ -27,7 +27,7 @@ class Action(object):
 		self.m_color = color
 
 		global g_actions
-		if name in g_actions: debug('overriding action '+name, 'action')
+		if name in g_actions: debug('overriding action: %s' % name, 'action')
 		g_actions[name] = self
 		debug("action added: %s" % name, 'action')
 
@@ -42,70 +42,64 @@ class Action(object):
 
 	def run(self, task):
 		"run the compilation"
-		if not self.m_function_to_run: fatal(self.m_name+" action has no function !")
-		return self.m_function_to_run(task)
+		f = self.m_function_to_run
+		if not f: fatal("Action %s has no function!" % self.m_name)
+		return f(task)
 
-class alex(object):
-	"""
-	Actions declared using a string (simple_action) are compiled before use:
+def funex(c):
+	exec(c)
+	return f
 
-	A class with the necessary functions is created (the string is parsed only once)
-	The env variables (CXX, ..) can be strings or lists of strings (only)
+def simple_action(name, line, color='GREEN', vars=[]):
+	"""Compiles a string (once) into an Action instance, eg:
+	simple_action('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].m_parent.bldpath()}')
+
+	The env variables (CXX, ..) on the task can be strings or lists of strings (only)
 	The keywords TGT and SRC represent the task input and output nodes (reserved keywords)
-
-	Example:
-	    code = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'
-	    act = simple_action('name', code)
 	"""
-	def __init__(self, s):
-		self.str = s
-		self.out = []
-		self.params = []
-		self.m_vars = []
 
-	def repl(self, match):
+	extr = []
+	def repl(match):
 		g = match.group
 		v = g('dollar')
 		if v: return "$"
 		elif g('subst'):
-			self.params.append((g('var'), g('code')))
+			extr.append((g('var'), g('code')))
 			return "%s"
 		return None
 
-	def get_fun(self):
-		if not self.out: self.out = reg_act.sub(self.repl, self.str)
+	line = reg_act.sub(repl, line)
 
-		alst=[]
-		for (var, meth) in self.params:
-			if var == 'SRC':
-				if meth: alst.append('task.m_inputs%s' % meth)
-				else: alst.append('" ".join([a.srcpath(env) for a in task.m_inputs])')
-			elif var == 'TGT':
-				if meth: alst.append('task.m_outputs%s' % meth)
-				else: alst.append('" ".join([a.bldpath(env) for a in task.m_outputs])')
-			else:
-				self.m_vars.append(var)
-				alst.append("p('%s')" % var)
-		if alst: alst = " %% (%s) " % (',\n\t\t'.join(alst))
+	parm = []
+	dvars = []
+	app = parm.append
+	for (var, meth) in extr:
+		if var == 'SRC':
+			if meth: app('task.m_inputs%s' % meth)
+			else: app('" ".join([a.srcpath(env) for a in task.m_inputs])')
+		elif var == 'TGT':
+			if meth: app('task.m_outputs%s' % meth)
+			else: app('" ".join([a.bldpath(env) for a in task.m_outputs])')
+		else:
+			if not var in dvars: dvars.append(var)
+			app("p('%s')" % var)
+	if parm: parm = "%% (%s) " % (',\n\t\t'.join(parm))
+	else: parm = ''
 
-		c = '''
+	c = '''
 def f(task):
 	env=task.m_env
 	p=env.get_flat
-	try: cmd = "%s"%s
+	try: cmd = "%s" %s
 	except: task.debug(); raise
 	return Runner.exec_command(cmd)
-''' % (self.out, alst)
+''' % (line, parm)
 
-		debug(c, 'action')
-		exec(c)
-		return f
+	debug(c, 'action')
 
-def simple_action(name, line, color='GREEN', vars=[]):
-	"helper provided for convenience"
-	obj = alex(line)
 	act = Action(name, color=color)
-	act.m_function_to_run = obj.get_fun()
-	act.m_vars = obj.m_vars
-	if vars: act.m_vars = vars
+	act.m_function_to_run = funex(c)
+	act.m_vars = vars or dvars
+
+	return act
 
