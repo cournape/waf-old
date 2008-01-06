@@ -146,7 +146,7 @@ class JobGenerator(object):
 	# TODO FIXME
 	def debug(self):
 		debug("debugging a task: something went wrong:", 'runner')
-		s = " ".join(str(t.m_idx) for t in Task.g_tasks)
+		s = " ".join([str(t.m_idx) for t in Task.g_tasks])
 		debug(s, 'runner')
 
 	# skip a group and report the failure
