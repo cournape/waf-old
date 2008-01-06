@@ -64,17 +64,15 @@ STR = 's'
 CHAR = 'c'
 
 tok_types = [OP, STR, IDENT, NUM, CHAR, FNUM]
-
-op_defs = [
-(OP    , r'\band\b|\bor\b|\bnot\b|%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]'),
-(STR   , r'L?"([^"\\]|\\.)*"'),
-(IDENT , r'[A-Za-z_]\w*'),
-(FNUM  , r'\d+%(E)s%(FS)s?|\d*\.\d+%(E)s?%(FS)s?|\d+\.\d*%(E)s?%(FS)s?' % dict(E=r'(?:[eE][+-]?\d+)', FS=r'[fFlL]')),
-(NUM   , r'0x[0-9a-fA-F]+|\d+'),
-(CHAR  , r"L?'([^'\\]|\\.)*'"),
+exp_types = [
+	r'\band\b|\bor\b|\bnot\b|%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]',
+	r'L?"([^"\\]|\\.)*"',
+	r'[A-Za-z_]\w*',
+	r'\d+%(E)s%(FS)s?|\d*\.\d+%(E)s?%(FS)s?|\d+\.\d*%(E)s?%(FS)s?' % dict(E=r'(?:[eE][+-]?\d+)', FS=r'[fFlL]'),
+	r'0x[0-9a-fA-F]+|\d+',
+	r"L?'([^'\\]|\\.)*'",
 ]
-
-reg_clexer = re.compile('|'.join("(?P<%s>%s)" % (name, part) for name, part in op_defs), re.M)
+reg_clexer = re.compile('|'.join("(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types)), re.M)
 
 # TODO handle the trigraphs too
 trigs = {
