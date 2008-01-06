@@ -268,11 +268,8 @@ def setup(bld):
 
 	Object.register('qt4', qt4obj)
 
-	try: Object.hook('qt4', 'UI_EXT', create_uic_task)
-	except: pass
-
-	try: Object.hook('qt4', 'RCC_EXT', create_rcc_task)
-	except: pass
+	Object.hook('qt4', 'UI_EXT', create_uic_task)
+	Object.hook('qt4', 'RCC_EXT', create_rcc_task)
 
 def detect_qt4(conf):
 	env = conf.env

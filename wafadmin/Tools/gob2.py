@@ -18,10 +18,7 @@ def gob2_file(self, node):
 def setup(bld):
 	# create our action here
 	Action.simple_action('gob2', gob2_str, color='BLUE')
-
-	# register the hook for use with ccobj
-	try: Object.hook('cc', 'GOB2_EXT', gob2_file)
-	except: pass
+	Object.hook('cc', 'GOB2_EXT', gob2_file)
 
 def detect(conf):
 	gob2 = conf.find_program('gob2', var='GOB2')

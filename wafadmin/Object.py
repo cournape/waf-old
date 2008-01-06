@@ -82,9 +82,9 @@ def flush():
 			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
 			if not obj.m_posted: obj.post()
 
-def hook(objname, var, func):
-	"Attach a new method to an object class (objname is the name of the class)"
-	klass = g_allclasses[objname]
+def hook(clsname, var, func):
+	"Attach a new method to a genobj class"
+	klass = g_allclasses[clsname]
 	setattr(klass, var, func)
 	try: klass.all_hooks.append(var)
 	except AttributeError: klass.all_hooks = [var]
