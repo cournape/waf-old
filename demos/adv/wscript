@@ -260,6 +260,11 @@ int main()
 
 
 def build(bld):
+
+	# build empty files, useful for debugging
+	#import Action
+	#[Action.simple_action(x, 'touch ${TGT}', color='CYAN') for x in []+Action.g_actions.keys()]
+
 	# process subfolders from here
 	bld.add_subdirs('src complex variant tests')
 
