@@ -189,10 +189,7 @@ class CommandOutput(Object.genobj):
 		if not self.env:
 			self.env = Params.g_build.m_allenvs['default']
 
-		# file to use as stdin
 		self.stdin = None
-
-		# file to use as stdout
 		self.stdout = None
 
 		# the command to execute
@@ -214,6 +211,7 @@ class CommandOutput(Object.genobj):
 		# values must be 'genobj' instances (not names!)
 		self.dependencies = []
 
+		# dependencies on env variable contents
 		self.dep_vars = []
 
 		# input files that are implicit, i.e. they are not
