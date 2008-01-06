@@ -4,11 +4,14 @@
 
 "Actions are used to build the nodes of most tasks"
 
+import re
 import Object, Runner, Params
 from Params import debug, fatal
 
 g_actions={}
 "global actions"
+
+reg_act = re.compile(r"(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 
 class Action(object):
 	"Base class for all Actions, an action takes a task and produces its outputs"
@@ -60,53 +63,18 @@ class alex(object):
 		self.params = []
 		self.m_vars = []
 
-		self.i = 0
-		self.size = len(self.str)
-
-	def compile(self):
-		while self.i < self.size:
-			# quoted '$'
-			c = self.str[self.i]
-			if c == '\\':
-				if self.i < self.size - 1 and self.str[self.i+1]=='$':
-					self.out.append('$')
-					self.i += 1
-				else:
-					self.out.append(c)
-			elif c == '$':
-				if self.str[self.i+1]=='{':
-					self.i += 2
-					self.varmatch()
-				else:
-					self.out.append(c)
-			else:
-				self.out.append(c)
-			self.i += 1
-	def varmatch(self):
-		name = []
-		meth = []
-
-		cur = self.i
-		while cur < self.size:
-			if self.str[cur] == '}':
-				s = ''.join(name)
-				self.params.append( (''.join(name), ''.join(meth)) )
-				self.out.append('%s')
-
-				self.i = cur
-				break
-			else:
-				c = self.str[cur]
-				if meth:
-					meth.append(c)
-				else:
-					if c=='.' or c =='[':
-						meth.append(c)
-					else:
-						name.append(c)
-			cur += 1
+	def repl(self, match):
+		g = match.group
+		v = g('dollar')
+		if v: return "$"
+		elif g('subst'):
+			self.params.append((g('var'), g('code')))
+			return "%s"
+		return None
 
 	def code(self):
+		if not self.out: self.out = reg_act.sub(self.repl, self.str)
+
 		lst = ['def f(task):\n\tenv=task.m_env\n\tp=env.get_flat\n\t']
 		ap = lst.append
 		#ap('print task.m_inputs\n\t')
@@ -117,16 +85,16 @@ class alex(object):
 		ap('"')
 
 		alst=[]
-		for (name, meth) in self.params:
-			if name == 'SRC':
+		for (var, meth) in self.params:
+			if var == 'SRC':
 				if meth: alst.append('task.m_inputs%s' % meth)
 				else: alst.append('" ".join([a.srcpath(env) for a in task.m_inputs])')
-			elif name == 'TGT':
+			elif var == 'TGT':
 				if meth: alst.append('task.m_outputs%s' % meth)
 				else: alst.append('" ".join([a.bldpath(env) for a in task.m_outputs])')
 			else:
-				self.m_vars.append(name)
-				alst.append("p('%s')" % name)
+				self.m_vars.append(var)
+				alst.append("p('%s')" % var)
 		if alst:
 			ap(' % (\\\n\t\t')
 			ap(' \\\n\t\t, '.join(alst))
@@ -149,7 +117,6 @@ class alex(object):
 def simple_action(name, line, color='GREEN', vars=[]):
 	"helper provided for convenience"
 	obj = alex(line)
-	obj.compile()
 	act = Action(name, color=color)
 	act.m_function_to_run = obj.get_fun()
 	act.m_vars = obj.m_vars
