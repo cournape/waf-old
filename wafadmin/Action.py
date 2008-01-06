@@ -144,7 +144,7 @@ class alex(object):
 		c = self.code()
 		debug(c, 'action')
 		exec(c)
-		return eval('f')
+		return f
 
 def simple_action(name, line, color='GREEN', vars=[]):
 	"helper provided for convenience"
