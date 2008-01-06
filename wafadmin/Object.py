@@ -65,8 +65,7 @@ def flush():
 	if Params.g_options.compile_targets: # this feature is not used too much
 		debug('posting objects listed in compile_targets', 'object')
 
-		# first scan all target names and make sure they exist,
-		# because we want to fail before any post()
+		# ensure the target names exist, fail before any post()
 		targets_objects = {}
 		for target_name in Params.g_options.compile_targets.split(','):
 			# trim target_name (handle cases when the user added spaces to targets)
@@ -133,15 +132,14 @@ class genobj(object):
 		except KeyError:
 			return None
 
+	def __setattr__(self, name, attr):
+		if name == 'sources': raise AttributeError, 'typo: self.sources -> self.source'
+		object.__setattr__(self, name, attr)
+
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
 		if not self.env: self.env = Params.g_build.m_allenvs['default']
 		if not self.name: self.name = self.target
-		try:
-			self.sources
-			error("typo: self.sources -> self.source")
-		except AttributeError:
-			pass
 
 		if self.m_posted:
 			error("OBJECT ALREADY POSTED")
