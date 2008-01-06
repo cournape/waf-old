@@ -125,6 +125,9 @@ class Task(TaskBase):
 		#self.dep_vars  = 'PREFIX DATADIR'
 		#self.m_scanner = some_scanner_object
 
+	def __repr__(self):
+		return "".join(['\n\t{task: ', self.m_action.m_name, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
+
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs += inp
 		else: self.m_inputs.append(inp)
