@@ -47,7 +47,7 @@ class libtool_la_file:
 			ln = line.strip()
 			if not ln: continue
 			if ln[0]=='#': continue
-			(key,value) = str(ln).split('=', 1)
+			(key, value) = str(ln).split('=', 1)
 			value = value.strip()
 			if value == "no": value = False
 			if value == "yes": value = True
@@ -65,23 +65,21 @@ class libtool_la_file:
 			libs = []
 		# add la lib and libdir
 		libs.insert(0, "-l%s" % self.linkname.strip())
-		libs.insert(0,"-L%s" % self.libdir.strip())
+		libs.insert(0, "-L%s" % self.libdir.strip())
 		return libs
 
 	def __str__(self):
-		r = [
-		'dlname = "%s"' % self.dlname,
-		'library_names = "%s"' % self.library_names,
-		'old_library = "%s"' % self.old_library,
-		'dependency_libs = "%s"' % self.dependency_libs,
-		'version = %s.%s.%s' %(self.current, self.age, self.revision),
-		'installed = "%s"' % self.installed,
-		'shouldnotlink = "%s"' % self.shouldnotlink,
-		'dlopen = "%s"' % self.dlopen,
-		'dlpreopen = "%s"' % self.dlpreopen,
-		'libdir = "%s"' % self.libdir,
-		]
-		return "\n".join(r)
+		return '''\
+dlname = "%(dlname)s"
+library_names = "%(library_names)s"
+old_library = "%(old_library)s"
+dependency_libs = "%(dependency_libs)s"
+version = %(current)s.%(age)s.%(revision)s
+installed = "%(installed)s"
+shouldnotlink = "%(shouldnotlink)s"
+dlopen = "%(dlopen)s"
+dlpreopen = "%(dlpreopen)s"
+libdir = "%(libdir)s"''' % self.__dict__
 
 class libtool_config:
 	def __init__ (self, la_filename):
@@ -93,8 +91,7 @@ class libtool_config:
 		self.__libs = None
 
 	def __cmp__(self, other):
-		"""make it compareable with X.Y.Z versions
-		(Y and Z are optional)"""
+		"""make it compareable with X.Y.Z versions (Y and Z are optional)"""
 		if not other:
 			return 1
 		othervers = [int(s) for s in str(other).split(".")]
