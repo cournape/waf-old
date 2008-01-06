@@ -55,17 +55,14 @@ def simple_action(name, line, color='GREEN', vars=[]):
 	simple_action('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].m_parent.bldpath()}')
 
 	The env variables (CXX, ..) on the task can be strings or lists of strings (only)
-	The keywords TGT and SRC represent the task input and output nodes (reserved keywords)
+	The reserved keywords TGT and SRC represent the task input and output nodes
 	"""
 
 	extr = []
 	def repl(match):
 		g = match.group
-		v = g('dollar')
-		if v: return "$"
-		elif g('subst'):
-			extr.append((g('var'), g('code')))
-			return "%s"
+		if g('dollar'): return "$"
+		elif g('subst'): extr.append((g('var'), g('code'))); return "%s"
 		return None
 
 	line = reg_act.sub(repl, line)
