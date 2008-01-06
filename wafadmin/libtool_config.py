@@ -51,9 +51,11 @@ class libtool_la_file:
 			key = key.strip()
 			value = value.strip()
 			if value == "no": value = False
-			if value == "yes": value = True
-			# FIXME i do not like eval
-			setattr(self, key, eval(value))
+			elif value == "yes": value = True
+			else:
+				try: value = int(value)
+				except ValueError: value = value.strip("'")
+			setattr(self, key, value)
 		la_file.close()
 		return 1
 
@@ -105,11 +107,12 @@ class libtool_config:
 		return 0
 
 	def __str__(self):
-		tmp = str(self.__libtool_la_file)
-		tmp += " ".join(self.__libtool_la_file.get_libs())
-		tmp += "\nNew getlibs:\n"
-		tmp += " ".join(self.get_libs())
-		return tmp
+		return "\n".join([
+			str(self.__libtool_la_file),
+			" ".join(self.__libtool_la_file.get_libs()),
+			"* New getlibs:",
+			" ".join(self.get_libs())
+		])
 
 	def __get_la_libs(self, la_filename):
 		return libtool_la_file(la_filename).get_libs()
