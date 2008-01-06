@@ -62,7 +62,7 @@ def flush():
 	if launch_dir_node.is_child_of(tree.m_bldnode):
 		launch_dir_node=tree.m_srcnode
 
-	if Params.g_options.compile_targets: # well this feature is not used too much
+	if Params.g_options.compile_targets: # this feature is not used too much
 		debug('posting objects listed in compile_targets', 'object')
 
 		# first scan all target names and make sure they exist,
@@ -77,14 +77,11 @@ def flush():
 		for target_obj in targets_objects.values():
 			if not target_obj.m_posted:
 				target_obj.post()
-				debug( "flushed. ", 'object')
 	else:
 		debug('posting objects (normal)', 'object')
 		for obj in g_allobjs:
 			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
-			if not obj.m_posted:
-				obj.post()
-			debug( "flushed. ", 'object')
+			if not obj.m_posted: obj.post()
 
 def hook(objname, var, func):
 	"Attach a new method to an object class (objname is the name of the class)"
@@ -150,6 +147,7 @@ class genobj(object):
 			error("OBJECT ALREADY POSTED")
 			return
 		self.apply()
+		debug("posted %s" % self.name, 'object')
 		self.m_posted=1
 
 	def create_task(self, type, env=None, nice=10):
