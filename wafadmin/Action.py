@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005 (ita)
+# Thomas Nagy, 2005-2008 (ita)
 
 "Actions are used to build the nodes of most tasks"
 
@@ -72,17 +72,8 @@ class alex(object):
 			return "%s"
 		return None
 
-	def code(self):
+	def get_fun(self):
 		if not self.out: self.out = reg_act.sub(self.repl, self.str)
-
-		lst = ['def f(task):\n\tenv=task.m_env\n\tp=env.get_flat\n\t']
-		ap = lst.append
-		#ap('print task.m_inputs\n\t')
-		#ap('print task.m_outputs\n\t')
-
-		ap('try: cmd = "')
-		lst += self.out
-		ap('"')
 
 		alst=[]
 		for (var, meth) in self.params:
@@ -95,21 +86,17 @@ class alex(object):
 			else:
 				self.m_vars.append(var)
 				alst.append("p('%s')" % var)
-		if alst:
-			ap(' % (\\\n\t\t')
-			ap(' \\\n\t\t, '.join(alst))
-			ap(')\n')
+		if alst: alst = " %% (%s) " % (',\n\t\t'.join(alst))
 
-		ap('\texcept:\n')
-		ap('\t\ttask.debug()\n')
-		ap('\t\traise\n')
+		c = '''
+def f(task):
+	env=task.m_env
+	p=env.get_flat
+	try: cmd = "%s"%s
+	except: task.debug(); raise
+	return Runner.exec_command(cmd)
+''' % (self.out, alst)
 
-		ap('\treturn Runner.exec_command(cmd)\n')
-
-		return "".join(lst)
-
-	def get_fun(self):
-		c = self.code()
 		debug(c, 'action')
 		exec(c)
 		return f
