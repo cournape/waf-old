@@ -237,10 +237,9 @@ class CommandOutput(Object.genobj):
 			else:
 				return template % node.abspath()
 		def output_path(node, template):
-			if task.cwd is None:
-				return template % node.bldpath(task.m_env)
-			else:
-				return template % node.abspath(task.m_env)
+			fun = node.abspath
+			if task.cwd is None: fun = node.bldpath
+			return template % fun(task.m_env)
 
 		if isinstance(task.command, Node.Node):
 			argv = [input_path(task.command, '%s')]
