@@ -48,11 +48,12 @@ class libtool_la_file:
 			if not ln: continue
 			if ln[0]=='#': continue
 			(key, value) = str(ln).split('=', 1)
+			key = key.strip()
 			value = value.strip()
 			if value == "no": value = False
 			if value == "yes": value = True
-			line = 'self.%s = %s'%(key.strip(), value)
-			exec line
+			# FIXME i do not like eval
+			setattr(self, key, eval(value))
 		la_file.close()
 		return 1
 
