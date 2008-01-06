@@ -21,7 +21,7 @@ class Action(object):
 		for when this is used - a parameter is given, it is the task. Each action must name"""
 
 		self.m_name = name
-		# variables for triggering a rebuild
+		# variables triggering a rebuild
 		self.m_vars = vars
 		self.m_function_to_run = func
 		self.m_color = color
@@ -54,10 +54,9 @@ def simple_action(name, line, color='GREEN', vars=[]):
 	"""Compiles a string (once) into an Action instance, eg:
 	simple_action('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].m_parent.bldpath()}')
 
-	The env variables (CXX, ..) on the task can be strings or lists of strings (only)
+	The env variables (CXX, ..) on the task must not hold dicts (order)
 	The reserved keywords TGT and SRC represent the task input and output nodes
 	"""
-
 	extr = []
 	def repl(match):
 		g = match.group
