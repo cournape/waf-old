@@ -92,11 +92,10 @@ class Environment(object):
 	def store(self, filename):
 		"Write the variables into a file"
 		file=open(filename, 'w')
+		file.write('#VERSION=%s\n' % Params.g_version)
 		keys=self.m_table.keys()
 		keys.sort()
-		file.write('#VERSION=%s\n' % Params.g_version)
-		for key in keys:
-			file.write('%s = %r\n'%(key,self.m_table[key]))
+		for k in keys: file.write('%s = %r\n' % (k, self.m_table[k]))
 		file.close()
 
 	def load(self, filename):
@@ -109,9 +108,8 @@ class Environment(object):
 			if ln[:9]=='#VERSION=':
 				if ln[9:] != Params.g_version: warning('waf upgrade? you should perhaps reconfigure')
 			if ln[0]=='#': continue
-			(key,value) = string.split(ln, '=', 1)
-			line = 'self.m_table["%s"] = %s'%(key.strip(), value.strip())
-			exec line
+			(key, value) = ln.split(' = ', 1)
+			self.m_table[key] = eval(value)
 		file.close()
 		debug(self.m_table, 'env')
 		return 1
