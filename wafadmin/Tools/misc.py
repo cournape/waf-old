@@ -176,8 +176,7 @@ class CommandOutputTask(Task.Task):
 		self.stdout = stdout
 		self.cwd = cwd
 
-                if command_node is not None:
-                        self.dep_nodes = [command_node]
+		if command_node is not None: self.dep_nodes = [command_node]
 		self.dep_vars = [] # additional environment variables to look
 
 class CommandOutput(Object.genobj):
@@ -190,42 +189,42 @@ class CommandOutput(Object.genobj):
 		if not self.env:
 			self.env = Params.g_build.m_allenvs['default']
 
-		## file to use as stdin
+		# file to use as stdin
 		self.stdin = None
 
-		## file to use as stdout
+		# file to use as stdout
 		self.stdout = None
 
-		## the command to execute
+		# the command to execute
 		self.command = None
 
-		## whether it is an external command; otherwise it is assumed
-		## to be an executable binary or script that lives in the
-		## source or build tree.
+		# whether it is an external command; otherwise it is assumed
+		# to be an executable binary or script that lives in the
+		# source or build tree.
 		self.command_is_external = False
 
-		## extra parameters (argv) to pass to the command (excluding
-		## the command itself)
+		# extra parameters (argv) to pass to the command (excluding
+		# the command itself)
 		self.argv = []
 
-		## task priority
+		# task priority
 		self.prio = 100
 
-		## dependencies to other objects -> this is probably not what you want (ita)
-		## values must be 'genobj' instances (not names!)
+		# dependencies to other objects -> this is probably not what you want (ita)
+		# values must be 'genobj' instances (not names!)
 		self.dependencies = []
 
 		self.dep_vars = []
 
-		## input files that are implicit, i.e. they are not
-		## stdin, nor are they mentioned explicitly in argv
+		# input files that are implicit, i.e. they are not
+		# stdin, nor are they mentioned explicitly in argv
 		self.hidden_inputs = []
 
-		## output files that are implicit, i.e. they are not
-		## stdout, nor are they mentioned explicitly in argv
+		# output files that are implicit, i.e. they are not
+		# stdout, nor are they mentioned explicitly in argv
 		self.hidden_outputs = []
 
-		## change the subprocess to this cwd (must use obj.input_dir() or output_dir() here)
+		# change the subprocess to this cwd (must use obj.input_dir() or output_dir() here)
 		self.cwd = None
 
 	def _command_output_func(task):
@@ -314,7 +313,7 @@ use command_is_external=True''') % (self.command,)
 				cwd = output_node.abspath(self.env)
 			else:
 				raise AssertionError
-		
+
 		args = []
 		inputs = []
 		outputs = []
