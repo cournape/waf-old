@@ -164,12 +164,12 @@ class Build(object):
 		if Params.g_verbose>2: self.dump()
 
 		if Params.g_options.jobs <=1:
-			generator = Runner.JobGenerator(self)
+			generator = Runner.JobGenerator()
 			executor = Runner.Serial(generator)
 		else:
-			executor = Runner.Parallel(self, Params.g_options.jobs)
+			executor = Runner.Parallel(Params.g_options.jobs)
 
-		self.m_generator = executor.m_generator
+		self.generator = executor.generator
 
 		def dw():
 			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_on)
