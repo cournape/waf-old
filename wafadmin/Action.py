@@ -44,15 +44,15 @@ class Action(object):
 
 class alex(object):
 	"""
-	Actions declared using a string are compiled before use:
+	Actions declared using a string (simple_action) are compiled before use:
 
-	A class with the necessary functions is created (so the string is parsed only once)
-	All variables (CXX, ..) can be strings or lists of strings (only)
-	The keywords TGT and SRC are reserved (they represent the task input and output nodes)
+	A class with the necessary functions is created (the string is parsed only once)
+	The env variables (CXX, ..) can be strings or lists of strings (only)
+	The keywords TGT and SRC represent the task input and output nodes (reserved keywords)
 
 	Example:
-	    - str = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'
-	    - act = simple_action('name', str)
+	    code = '${CXX} -o ${TGT[0]} ${SRC[0]} -I ${SRC[0].m_parent.bldpath()}'
+	    act = simple_action('name', code)
 	"""
 	def __init__(self, s):
 		self.str = s
