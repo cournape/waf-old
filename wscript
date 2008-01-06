@@ -12,7 +12,7 @@ For configuration examples: demos/adv/wscript
 For a project without subdirectory: demos/python/wscript
 """
 
-VERSION="1.3.0"
+VERSION="1.3.1"
 APPNAME='waf'
 REVISION=''
 
