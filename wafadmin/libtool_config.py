@@ -215,17 +215,12 @@ nor: %prog --libs /usr/lib/libamarok.la'''
 		if ltf <= options.max_version: return 0
 		sys.exit(1)
 
-	if options.libs:
-		print " ".join(ltf.get_libs())
-	elif options.libs_only_l:
-		libs = ltf.get_libs_only_l()
-		print " ".join(libs)
-	elif options.libs_only_L:
-		libs = ltf.get_libs_only_L()
-		print " ".join(libs)
-	elif options.libs_only_other:
-		libs = ltf.get_libs_only_other()
-		print " ".join(libs)
+	def p(x):
+		print " ".join(x)
+	if options.libs: p(ltf.get_libs())
+	elif options.libs_only_l: p(ltf.get_libs_only_l())
+	elif options.libs_only_L: p(ltf.get_libs_only_L())
+	elif options.libs_only_other: p(ltf.get_libs_only_other())
 	return 0
 
 if __name__ == "__main__":
