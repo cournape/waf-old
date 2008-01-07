@@ -22,39 +22,25 @@ import traceback
 class PreprocError(Exception):
 	pass
 
-# ignore #warning and #error
-s = '^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$'
-reg_define = re.compile(s, re.IGNORECASE | re.MULTILINE)
-reg_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
-reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
-reg_cpp = re.compile(r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""", re.MULTILINE)
-
 g_findall = 1
 'search harder for project includes'
 
-def repl(m):
-	s = m.group(1)
-	if s is not None: return ' '
-	s = m.group(3)
-	if s is None: return ''
-	return s
-
-def filter_comments(filename):
-	# return a list of tuples : keyword, line
-	f = open(filename, "r")
-	code = f.read()
-	f.close()
-	code = reg_nl.sub('', code)
-	code = reg_cpp.sub(repl, code)
-	return [(m.group(2), m.group(3)) for m in re.finditer(reg_define, code)]
+use_trigraphs = 0
+'apply the trigraph rules first'
 
 strict_quotes = 0
 "Keep <> for system includes (do not search for those includes)"
 
-accepted  = 'a'
-ignored   = 'i'
-undefined = 'u'
-skipped   = 's'
+# ignore #warning and #error
+reg_define = re.compile(\
+	'^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$',
+	re.IGNORECASE | re.MULTILINE)
+reg_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
+reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
+reg_cpp = re.compile(\
+	r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""",
+	re.MULTILINE)
+trig_def = [('??'+a, b) for a, b in zip("=-/!'()<>", r'#~\|^[]{}')]
 
 NUM = 'i'
 FNUM = 'f'
@@ -72,20 +58,31 @@ exp_types = [
 	r'0x[0-9a-fA-F]+|\d+',
 	r"L?'([^'\\]|\\.)*'",
 ]
-reg_clexer = re.compile('|'.join([ "(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types) ]), re.M)
+reg_clexer = re.compile('|'.join(["(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types)]), re.M)
 
-# TODO handle the trigraphs too
-trigs = {
-'=' : '#',
-'-' : '~',
-'/' : '\\',
-'!' : '|',
-'\'': '^',
-'(' : '[',
-')' : ']',
-'<' : '{',
-'>' : '}',
-}
+accepted  = 'a'
+ignored   = 'i'
+undefined = 'u'
+skipped   = 's'
+
+
+def repl(m):
+	s = m.group(1)
+	if s is not None: return ' '
+	s = m.group(3)
+	if s is None: return ''
+	return s
+
+def filter_comments(filename):
+	# return a list of tuples : keyword, line
+	f = open(filename, "r")
+	code = f.read()
+	f.close()
+	if use_trigraphs:
+		for (a, b) in trig_def: code = code.split(a).join(b)
+	code = reg_nl.sub('', code)
+	code = reg_cpp.sub(repl, code)
+	return [(m.group(2), m.group(3)) for m in re.finditer(reg_define, code)]
 
 prec = {}
 # op -> number, needed for such expressions:   #if 1 && 2 != 0
