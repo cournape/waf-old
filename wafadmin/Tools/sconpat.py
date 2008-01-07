@@ -2,6 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
+# since Python 2.5, hashlib replaces deprecated md5, see: http://docs.python.org/lib/module-md5.html
 try: from hashlib import md5
 except ImportError: from md5 import md5
 

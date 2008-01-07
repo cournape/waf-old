@@ -5,6 +5,8 @@
 "Atomic operations that create nodes or execute commands"
 
 import os, types, shutil
+
+# since Python 2.5, hashlib replaces deprecated md5, see: http://docs.python.org/lib/module-md5.html
 try: from hashlib import md5
 except ImportError: from md5 import md5
 

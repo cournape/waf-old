@@ -72,7 +72,7 @@ exp_types = [
 	r'0x[0-9a-fA-F]+|\d+',
 	r"L?'([^'\\]|\\.)*'",
 ]
-reg_clexer = re.compile('|'.join("(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types)), re.M)
+reg_clexer = re.compile('|'.join([ "(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types) ]), re.M)
 
 # TODO handle the trigraphs too
 trigs = {
@@ -244,7 +244,7 @@ def eval_fun(name, params, defs, ban=[]):
 				tokens = params[param_index[val_next]]
 				# macro parameter evaluation is postponed
 				ret = eval_tokens(tokens, defs, ban+[name])
-				ret = (STR, "".join(str(y) for (x,y) in ret))
+				ret = (STR, "".join([str(y) for (x,y) in ret]))
 				accu.append(ret)
 
 			elif val == '##' or val == '%:%:':
@@ -652,7 +652,7 @@ def extract_include(txt, defs):
 		txt = '"%s"' % val
 	elif tok == OP:
 		# a list of tokens, such as <,iostream,.,h,>, concatenate
-		txt = "".join(y for (x, y) in ret)
+		txt = "".join([y for (x, y) in ret])
 		# TODO if we discard whitespaces, we could test for val == "<"
 	else:
 		raise PreprocError, "could not parse %s" % str(ret)

@@ -4,8 +4,10 @@
 
 "Scan for dependencies, compute task signatures"
 
+# since Python 2.5, hashlib replaces deprecated md5, see: http://docs.python.org/lib/module-md5.html
 try: from hashlib import md5
 except ImportError: from md5 import md5
+
 import Params
 from Params import debug, error
 
