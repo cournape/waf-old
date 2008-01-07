@@ -438,4 +438,4 @@ class Parallel(object):
 					self.lock.release()
 
 					self.ready.put(tsk)
-
+		time.sleep(0.2)
