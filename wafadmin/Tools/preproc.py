@@ -513,6 +513,7 @@ class cparse(object):
 			except Exception, ex:
 				if Params.g_verbose:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
+                                        traceback.print_exc()
 
 	# debug only
 	def start_local(self, filename):
@@ -525,6 +526,7 @@ class cparse(object):
 			except Exception, ex:
 				if Params.g_verbose:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
+                                        traceback.print_exc()
 				raise
 	def isok(self):
 		if not self.state: return 1
