@@ -42,12 +42,12 @@ reg_cpp = re.compile(\
 	re.MULTILINE)
 trig_def = [('??'+a, b) for a, b in zip("=-/!'()<>", r'#~\|^[]{}')]
 
-NUM = 'i'
-FNUM = 'f'
-OP = 'O'
+NUM   = 'i'
+FNUM  = 'f'
+OP    = 'O'
 IDENT = 'T'
-STR = 's'
-CHAR = 'c'
+STR   = 's'
+CHAR  = 'c'
 
 tok_types = [OP, STR, IDENT, NUM, CHAR, FNUM]
 exp_types = [
@@ -64,7 +64,6 @@ accepted  = 'a'
 ignored   = 'i'
 undefined = 'u'
 skipped   = 's'
-
 
 def repl(m):
 	s = m.group(1)
