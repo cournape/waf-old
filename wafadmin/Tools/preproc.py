@@ -475,6 +475,7 @@ class cparse(object):
 
 	def addlines(self, filepath):
 		pc = self.parse_cache
+                debug("reading file %r" % filepath, 'preproc')
 		if filepath in pc.keys():
 			self.lines = pc[filepath] + self.lines
 			return
