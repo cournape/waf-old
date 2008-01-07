@@ -564,7 +564,7 @@ class cparse(object):
 			if name in self.defs.keys(): self.state[0] = ignored
 			else: self.state[0] = accepted
 		elif token == 'include' or token == 'import':
-			(type, inc) = tokenize_include(line, self.defs)
+			(type, inc) = extract_include(line, self.defs)
 			debug("include found %s    (%s) " % (inc, type), 'preproc')
 			if type == '"' or not strict_quotes:
 				if not inc in self.deps:
@@ -583,7 +583,7 @@ class cparse(object):
 		elif token == 'endif':
 			self.state.pop(0)
 		elif token == 'define':
-			(name, val) = tokenize_define(line)
+			(name, val) = extract_define(line)
 			debug("define %s   %s" % (name, str(val)), 'preproc')
 			self.defs[name] = val
 		elif token == 'undef':
@@ -597,7 +597,7 @@ class cparse(object):
 				#print "found a pragma once"
 
 re_function = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
-def tokenize_define(txt):
+def extract_define(txt):
 	t = tokenize(txt)
 	if re_function.search(txt):
 		# this means we have a function
@@ -635,7 +635,7 @@ def tokenize_define(txt):
 		return (val, [None, t])
 
 re_include = re.compile('^\s*(<(.*)>|"(.*)")\s*')
-def tokenize_include(txt, defs):
+def extract_include(txt, defs):
 	def replace_v(m):
 		return m.group(1)
 
