@@ -49,14 +49,12 @@ IDENT = 'T'
 STR   = 's'
 CHAR  = 'c'
 
-tok_types = [OP, STR, IDENT, NUM, CHAR, FNUM]
+tok_types = [NUM, STR, IDENT, OP]
 exp_types = [
-	r'\band\b|\bor\b|\bnot\b|%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]',
+	r"""0[xX](?P<hex>[a-fA-F0-9]+)(?P<qual1>[uUlL]*)|(?P<oct>0*)(?P<n0>\d+)(?P<qual2>[uUlL]*)|L*?'(?P<char>(\\.|[^\\'])+)'|(?P<n1>\d+)[Ee](?P<exp0>[+-]*?\d+)(?P<float0>[fFlL]*)|(?P<n2>\d+)*\.(?P<n3>\d+)([Ee](?P<exp1>[+-]*?\d+))?(?P<float1>[fFlL]*)|(?P<n4>\d+)+\.(?P<n5>\d*)([Ee](?P<exp2>[+-]*?\d+))?(?P<float2>[fFlL]*)""",
 	r'L?"([^"\\]|\\.)*"',
-	r'[A-Za-z_]\w*',
-	r'\d+%(E)s%(FS)s?|\d*\.\d+%(E)s?%(FS)s?|\d+\.\d*%(E)s?%(FS)s?' % dict(E=r'(?:[eE][+-]?\d+)', FS=r'[fFlL]'),
-	r'0x[0-9a-fA-F]+|\d+',
-	r"L?'([^'\\]|\\.)*'",
+	r'[a-zA-Z_]\w*',
+	r'%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]',
 ]
 reg_clexer = re.compile('|'.join(["(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types)]), re.M)
 
@@ -234,7 +232,7 @@ def eval_fun(name, params, defs, ban=[]):
 	while fun_code:
 		(tok, val) = fun_code.pop(0)
 		if tok == OP:
-			if val == '#' or val == '%:':
+			if val == '#':
 				# the next token is one of the args
 				(tok_next, val_next) = fun_code.pop(0)
 				tokens = params[param_index[val_next]]
@@ -243,7 +241,7 @@ def eval_fun(name, params, defs, ban=[]):
 				ret = (STR, "".join([str(y) for (x,y) in ret]))
 				accu.append(ret)
 
-			elif val == '##' or val == '%:%:':
+			elif val == '##':
 				# the next token is an identifier (token pasting)
 				(tok_next, val_next) = fun_code.pop(0)
 				(tok_back, val_back) = accu[-1]
@@ -663,45 +661,66 @@ def extract_include(txt, defs):
 	# if we come here, parsing failed
 	raise PreprocError, "include parsing failed %s" % txt
 
-def parse_literal(txt):
-	# txt is inside '' or ""
-	# return (len, ord(char))
-	if txt[0] != '\\':
-		return (1, ord(txt[0]))
-	c = txt[1]
-	if c in "ntbrf\\'":
-		return (2, ord(eval('"\\%s"' % c)))
-	elif c == 'x':
-		if len(txt) >= 4 and txt[3] in string.hexdigits:
-			return (4, int(txt[2:4], 16))
-		return (3, int(txt[2:3], 16))
-	elif c.isdigit():
-		for i in 3, 2, 1:
-			if len(txt) > i and txt[1:1+i].isdigit():
-				return (1+i, int(txt[1:1+i], 8))
-	else:	# unknown
-		return (2, ord(c))
+optrans = {
+'or': '||',
+'and': '&&',
+'not': '!',
+'<%':'{',
+'%>':'}',
+'<:':'[',
+':>':']',
+'%:':'#',
+'%:%:':'##',
+}
+
+def parse_char(txt):
+	# TODO way too complicated!
+	try:
+		if not txt: raise PreprocError
+		if txt[0] != '\\': return ord(txt)
+		c = txt[1]
+		if c in "ntbrf\\'": return ord(eval('"\\%s"' % c)) # FIXME eval is slow and  ugly
+		elif c == 'x':
+			if len(txt) == 4 and txt[3] in string.hexdigits: return int(txt[2:], 16)
+			return int(txt[2:], 16)
+		elif c.isdigit():
+			for i in 3, 2, 1:
+				if len(txt) > i and txt[1:1+i].isdigit():
+					return (1+i, int(txt[1:1+i], 8))
+		else:
+			raise PreprocError
+	except:
+		raise PreprocError, "could not parse char literal '%s'" % v
 
 def tokenize(s):
 	ret = []
 	for match in reg_clexer.finditer(s):
+		m = match.group
 		for name in tok_types:
-			v = match.group(name)
+			v = m(name)
 			if v:
-				if name == OP:
-					if v == 'or': v = '||'
-					elif v == 'and': v = '&&'
-					elif v == 'not': v = '!'
-				elif name == CHAR:
-					name = NUM
-					if v[0] == 'L': v = v[1:]
-					r = parse_literal(v[1:-1])
-					if r[0]+2 != len(v):
-						raise PreprocError, "could not parse char literal %s" % v
-					v = r[1]
+				if name == IDENT:
+					try: v = optrans[v]; name = OP
+					except KeyError: pass
 				elif name == NUM:
-					if v[:2] == '0x': v = int(v, 16)
-					elif v[0] == '0': v = int(v, 8)
+					if m('oct'): v = int(v, 8)
+					elif m('hex'): v = int(m('hex'), 16)
+					elif m('n0'): v = m('n0')
+					else:
+						v = m('char')
+						if v: v = parse_char(v)
+						else:
+							raise "we are not supposed to manipulate floats here!"
+# till i manage to understand what it does exactly (ita)
+#					#if v[0] == 'L': v = v[1:]
+#					r = parse_literal(v[1:-1])
+#					if r[0]+2 != len(v):
+#						raise PreprocError, "could not parse char literal %s" % v
+#					v = r[1]
+				elif name == OP:
+					try: v = optrans[v]
+					except KeyError: pass
+
 				ret.append((name, v))
 				break
 	return ret
@@ -724,4 +743,9 @@ if __name__ == "__main__":
 	print "we have found the following dependencies"
 	print gruik.deps
 	print gruik.deps_paths
+
+	#f = open(arg, "r")
+	#txt = f.read()
+	#f.close()
+	#print tokenize(txt)
 
