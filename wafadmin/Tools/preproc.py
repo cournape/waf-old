@@ -31,6 +31,20 @@ use_trigraphs = 0
 strict_quotes = 0
 "Keep <> for system includes (do not search for those includes)"
 
+g_optrans = {
+'not':'!',
+'and':'&&',
+'bitand':'&',
+'and_eq':'&=',
+'or':'||',
+'bitor':'|',
+'or_eq':'|=',
+'xor':'^',
+'xor_eq':'^=',
+'compl':'~',
+}
+"these ops are for c++, to reset, set an empty dict"
+
 # ignore #warning and #error
 reg_define = re.compile(\
 	'^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$',
@@ -50,7 +64,7 @@ CHAR  = 'c'
 
 tok_types = [NUM, STR, IDENT, OP]
 exp_types = [
-	r"""0[xX](?P<hex>[a-fA-F0-9]+)(?P<qual1>[uUlL]*)|(?P<oct>0*)(?P<n0>\d+)(?P<qual2>[uUlL]*)|L*?'(?P<char>(\\.|[^\\'])+)'|(?P<n1>\d+)[Ee](?P<exp0>[+-]*?\d+)(?P<float0>[fFlL]*)|(?P<n2>\d+)*\.(?P<n3>\d+)([Ee](?P<exp1>[+-]*?\d+))?(?P<float1>[fFlL]*)|(?P<n4>\d+)+\.(?P<n5>\d*)([Ee](?P<exp2>[+-]*?\d+))?(?P<float2>[fFlL]*)""",
+	r"""0[xX](?P<hex>[a-fA-F0-9]+)(?P<qual1>[uUlL]*)|L*?'(?P<char>(\\.|[^\\'])+)'|(?P<n1>\d+)[Ee](?P<exp0>[+-]*?\d+)(?P<float0>[fFlL]*)|(?P<n2>\d*\.\d+)([Ee](?P<exp1>[+-]*?\d+))?(?P<float1>[fFlL]*)|(?P<n4>\d+\.\d*)([Ee](?P<exp2>[+-]*?\d+))?(?P<float2>[fFlL]*)|(?P<oct>0*)(?P<n0>\d+)(?P<qual2>[uUlL]*)""",
 	r'L?"([^"\\]|\\.)*"',
 	r'[a-zA-Z_]\w*',
 	r'%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]',
@@ -675,7 +689,6 @@ def parse_char(txt):
 	except:
 		raise PreprocError, "could not parse char literal '%s'" % v
 
-optrans = {'or': '||', 'and': '&&', 'not': '!'}
 def tokenize(s):
 	ret = []
 	for match in reg_clexer.finditer(s):
@@ -684,7 +697,7 @@ def tokenize(s):
 			v = m(name)
 			if v:
 				if name == IDENT:
-					try: v = optrans[v]; name = OP
+					try: v = g_optrans[v]; name = OP
 					except KeyError: pass
 				elif name == NUM:
 					if m('oct'): v = int(v, 8)
@@ -693,8 +706,7 @@ def tokenize(s):
 					else:
 						v = m('char')
 						if v: v = parse_char(v)
-						else:
-							raise "we are not supposed to manipulate floats here!"
+						else: v = m('n2') or m('n4')
 # till i manage to understand what it does exactly (ita)
 #					#if v[0] == 'L': v = v[1:]
 #					r = parse_literal(v[1:-1])
