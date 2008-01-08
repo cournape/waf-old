@@ -125,7 +125,7 @@ def parse_args_impl(parser, _args=None):
 			Params.g_commands[arg]=True
 		else:
 			print 'Error: Invalid command specified ',arg
-			print parser.print_help()
+			parser.print_help()
 			sys.exit(1)
 	if Params.g_commands['check']:
 		Params.g_commands['build'] = True
