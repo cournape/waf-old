@@ -43,7 +43,6 @@ reg_cpp = re.compile(\
 trig_def = [('??'+a, b) for a, b in zip("=-/!'()<>", r'#~\|^[]{}')]
 
 NUM   = 'i'
-FNUM  = 'f'
 OP    = 'O'
 IDENT = 'T'
 STR   = 's'
@@ -131,8 +130,6 @@ def get_expr(tokens):
 	(tok, val) = lst.pop(0)
 	if tok == NUM:
 		return (tok, val, lst)
-	elif tok == FNUM:
-		raise PreprocError, 'floating constant in preprocessor expression: %s' % tokens
 	elif tok == OP:
 		if val == '!' or val == '~': # TODO handle bitwise complement
 			(tok2, val2, lst2) = get_expr(lst)
@@ -367,8 +364,6 @@ def eval_macro(lst, adefs):
 			if val.lower() == 'true': return True
 			elif val.lower() == 'false': return False
 			else: "could not evaluate %s to true or false (not a boolean)" % str(lst)
-		elif tok == FNUM:
-			raise PreprocError, 'floating constant in preprocessor expression: %s' % str(lst)
 		else:
 			debug("could not evaluate %s to true or false (not a number/boolean)" % str(lst), 'preproc')
 	return ret
