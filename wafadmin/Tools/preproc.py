@@ -656,18 +656,6 @@ def extract_include(txt, defs):
 	# if we come here, parsing failed
 	raise PreprocError, "include parsing failed %s" % txt
 
-optrans = {
-'or': '||',
-'and': '&&',
-'not': '!',
-'<%':'{',
-'%>':'}',
-'<:':'[',
-':>':']',
-'%:':'#',
-'%:%:':'##',
-}
-
 def parse_char(txt):
 	# TODO way too complicated!
 	try:
@@ -687,6 +675,7 @@ def parse_char(txt):
 	except:
 		raise PreprocError, "could not parse char literal '%s'" % v
 
+optrans = {'or': '||', 'and': '&&', 'not': '!'}
 def tokenize(s):
 	ret = []
 	for match in reg_clexer.finditer(s):
@@ -713,8 +702,8 @@ def tokenize(s):
 #						raise PreprocError, "could not parse char literal %s" % v
 #					v = r[1]
 				elif name == OP:
-					try: v = optrans[v]
-					except KeyError: pass
+					if v == '%:': v='#'
+					elif v == '%:%:': v='##'
 
 				ret.append((name, v))
 				break
