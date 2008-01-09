@@ -134,10 +134,98 @@ def reduce_nums(val_1, val_2, val_op):
 	else: c = 0
 	return c
 
-# Here is the small grammar we try to follow:
-# result := top
-# top    := expr | expr op expr
-# expr   := val | ( top ) | !expr | -expr
+def get_expr(lst, defs, ban):
+	if not lst: return ([], [], [])
+
+	(p, v) = lst[0]
+	if p == NUM:
+		return (p, v, lst)
+	elif p == STR:
+		try:
+			(p2, v2) = lst[1]
+			if p2 == STR: return (p, v+v2, lst[2:])
+		except IndexError: pass
+		return (p, v, lst)
+	elif p == OP:
+		if v in ['+', '-', '~', '!']:
+			(p2, v2, lst2) = get_expr(lst[1:])
+			if p2 != NUM: raise PreprocError, "num expected %s" % str(lst)
+			if v == '+': return (p2, v2, lst2)
+			# TODO other cases are be complicated
+			return (p2, v2, lst2)
+		elif v == '#':
+			(p2, v2) = lst[1]
+			if p2 != IDENT: raise PreprocError, "ident expected %s" % str(lst)
+			return get_expr([(STR, v2)]+lst[2:], defs, ban)
+		elif v == '(':
+			count_par = 0
+			i = 0
+			for _, v in lst:
+				if v == ')':
+					count_par -= 1
+					if count_par == 0: break
+				elif v == '(': count_par += 1
+				i += 1
+			else:
+				raise PreprocError, "rparen expected %s" % str(lst)
+
+			ret = process_tokens(lst[1:i], defs, ban)
+			if len(ret) == 1:
+				(p, v) = lst1[0]
+				return (p, v, lst[i+1:])
+			else:
+				raise PreprocError, "cannot reduce %s" % str(lst)
+				#return (None, lst1, lst[i+1:])
+	elif p == IDENT:
+		if len(lst)>1:
+			(p2, v2) = lst[1]
+			if v2 != "##": return (p, v, lst)
+			# token pasting
+			(p3, v3) = lst[2]
+			if p3 != IDENT: raise PreprocError, "expected ident after ## %s" % str(lst)
+			return get_expr([(p, v+v3)]+lst[3:], defs, ban)
+		return (p, v, lst)
+
+def process_tokens(lst, defs, ban):
+	accu = []
+	while lst:
+		p, v, nlst = get_expr(lst)
+		if p == NUM:
+			if not nlst: return [(p, v)] # finished
+
+			op1, ov1 = nlst[0]
+			if op1 != OP: raise PreprocError, "op expected %s" % str(lst)
+			p2, v2, nlst = get_expr(nlst[1:])
+			if p2 != NUM: raise PreprocError, "num expected after op %s" % str(lst)
+			if nlst:
+				#use op precedence
+				op3, ov3 = nlst[0]
+				if prec[ov3] < prec[ov1]:
+					print "ov3", ov3, ov1
+					# as needed
+					p4, v4, nlst2 = get_expr(nlst[1:])
+					v5 = reduce_nums(v2, v4, ov3)
+					lst = [(p, v), (op1, ov1), (NUM, v5)] + nlst2
+					continue
+			# no op precedence or empty list, reduce the first tokens
+			lst = [(NUM, reduce_nums(v, v2, ov1))] + nlst
+			continue
+		elif p == STR:
+			if nlst: raise PreprocError, "sequence must terminate with a string %s" % str(lst)
+			return [(p, v)]
+		elif p == IDEN:
+			pass
+		"""
+		sinon si 0 est ident:
+			si 0 est defined:
+				si 1 est parenthese:
+						lst = defined(2) :: lst[4:]
+				sinon:
+						lst = defined(1) :: lst[2:]
+			si 1 est token_pasting:
+				lst = red(0, %:%:, 2) :: lst[3:]
+		"""
+
 def get_expr(tokens):
 	if len(tokens) == 0: return (None, None, tokens)
 	lst = []+tokens
@@ -698,7 +786,14 @@ def tokenize(s):
 			if v:
 				if name == IDENT:
 					try: v = g_optrans[v]; name = OP
-					except KeyError: pass
+					except KeyError:
+						# c++ specific
+						if v.lower() == "true":
+							v = 1
+							name = NUM
+						elif v.lower() == "false":
+							v = 0
+							name = NUM
 				elif name == NUM:
 					if m('oct'): v = int(v, 8)
 					elif m('hex'): v = int(m('hex'), 16)
@@ -734,12 +829,24 @@ if __name__ == "__main__":
 	except: arg = "file.c"
 
 	paths = ['.']
+	f = open(arg, "r"); txt = f.read(); f.close()
+
+	def test(x):
+		y = process_tokens(tokenize(x), [], [])
+		print x, y
+
+	test("0&&2<3")
+	test("(5>1)*6")
+	test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1")
+
+	"""
 	gruik = cparse(strpaths = paths)
 	gruik.start_local(arg)
 	print "we have found the following dependencies"
 	print gruik.deps
 	print gruik.deps_paths
 
+	"""
 	#f = open(arg, "r")
 	#txt = f.read()
 	#f.close()
