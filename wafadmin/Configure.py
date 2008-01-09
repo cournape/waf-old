@@ -9,7 +9,7 @@ import os, types, imp, cPickle, sys, shlex, warnings
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-import Params, Environment, Runner, Build, Utils, libtool_config
+import Action, Params, Environment, Runner, Build, Utils, libtool_config
 from Params import error, fatal, warning
 from Utils import Undefined
 
@@ -1393,12 +1393,11 @@ class Configure(object):
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
 
-		if (not obj.force_compiler and env['CXX']) or obj.force_compiler == "cpp":
-			import cpp
-			o=cpp.cppobj(obj.build_type)
+		if (not obj.force_compiler and Action.g_actions.get('cpp', None)) or obj.force_compiler == "cpp":
+			import cpp; f=cpp.cppobj
 		else:
-			import cc
-			o=cc.ccobj(obj.build_type)
+			import cc; f=cc.ccobj
+		o = f(obj.build_type)
 		o.source   = 'test.c'
 		o.target   = 'testprog'
 		o.uselib   = obj.uselib
