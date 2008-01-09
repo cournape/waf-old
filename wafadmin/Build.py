@@ -178,7 +178,6 @@ class Build(object):
 		try:
 			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
 			ret = executor.start()
-			#ret = 0
 		except KeyboardInterrupt:
 			dw()
 			os.chdir(self.m_srcnode.abspath())

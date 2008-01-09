@@ -19,14 +19,20 @@ g_ind = ['\\', '|', '/', '-']
 "the rotation thing"
 
 def test_full():
+	
+	# FIXME: need to rewrite all exception-handling mechanism...
+	
 	try:
 		f=open('.waf-full','w')
 		f.write('test')
 		f.close()
 		os.unlink('.waf-full')
-	except:
-		Params.pprint('RED', 'filesystem full')
-		sys.exit(3)
+	except IOError, e:
+		import errno
+		if e.errno == errno.ENOSPC:
+			Params.fatal('filesystem full', e.errno)
+		else:
+			Params.fatal(str(e), e.errno)
 
 def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 	"throws an exception if the waf version is wrong"

@@ -114,14 +114,15 @@ def configure():
 	try:
 		conf.sub_config('')
 	except Configure.ConfigurationError, e:
-		Params.pprint('RED', str(e))
-		sys.exit(2)
+		fatal(str(e), 2)
 	except:
 		Utils.test_full()
 		raise
 
 	conf.store(tree)
 	conf.cleanup()
+	
+	
 
 	# this will write a configure lock so that subsequent run will
 	# consider the current path as the root directory, to remove: use 'waf distclean'
