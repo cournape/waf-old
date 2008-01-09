@@ -8,9 +8,11 @@ import optparse
 import Utils, Action, Params, checks, Configure
 
 def detect(conf):
+	v = conf.env
+
 	cc = None
-	if conf.env['CC']:
-		cc = conf.env['CC']
+	if v['CC']:
+		cc = v['CC']
 	elif 'CC' in os.environ:
 		cc = os.environ['CC']
 	if not cc: cc = conf.find_program('gcc', var='CC')
@@ -24,16 +26,15 @@ def detect(conf):
 
 	# gcc requires ar for static libs
 	conf.check_tool('ar')
-	if not conf.env['AR']:
+	if not v['AR']:
 		conf.fatal('gcc needs ar - not found')
 
-	v = conf.env
-
-        cpp = conf.find_program('cpp', var='CPP')
-        if not cpp: cpp = cc
+	if not v['CPP']:
+		cpp = conf.find_program('cpp', var='CPP')
+		if not cpp: cpp = cc
+		v['CPP'] = cpp
 
 	v['CC']  = cc
-	v['CPP'] = cpp
 
 	v['CPPFLAGS']             = []
 	v['CCDEFINES']            = []

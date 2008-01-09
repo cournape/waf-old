@@ -11,30 +11,30 @@ import Utils, Action, Params, checks, Configure
 # is called when a configure process is started,
 # the values are cached for further build processes
 def detect(conf):
+	v = conf.env
 	cxx = None
-	if conf.env['CXX']:
-		cxx = conf.env['CXX']
+	if v['CXX']:
+		cxx = v['CXX']
 	elif 'CXX' in os.environ:
 		cxx = os.environ['CXX']
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
-	if not cxx:
-		conf.fatal("g++ was not found")
+	if not cxx: conf.fatal("g++ was not found")
 
-	cpp = conf.find_program('cpp', var='CPP')
-	if not cpp: cpp = cxx
+	if not v['CPP']:
+		cpp = conf.find_program('cpp', var='CPP')
+		if not cpp: cpp = cxx
+		v['CPP'] = cpp
 
 	# load the cpp builders
 	conf.check_tool('cpp')
 
 	# g++ requires ar for static libs
 	conf.check_tool('ar')
-	if not conf.env['AR']:
+	if not v['AR']:
 		conf.fatal('g++ needs ar - not found')
 
-	v = conf.env
 	v['CXX'] = cxx
-	v['CPP'] = cpp
 
 	v['CPPFLAGS']            = []
 	v['CXXDEFINES']          = [] # command-line defines
