@@ -95,7 +95,7 @@ def find_program_impl(env, filename, path_list=[], var=None):
 	else:
 		for directory in path_list:
 			x = os.path.join(directory, filename)
-			if os.access(x, os.X_OK):
+			if os.access(x, os.X_OK) and os.path.isfile(x):
 				if var: env[var] = x
 				return x
 	return ''
