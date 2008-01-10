@@ -366,7 +366,7 @@ class Parallel(object):
 			while not self.out.empty(): self.out.get(); self.count -= 1
 
 			if not self.outstanding:
-				if self.count > 0: self.out.get() self.count -= 1
+				if self.count > 0: self.out.get(); self.count -= 1
 				self.outstanding = self.frozen
 				self.frozen = []
 			if not self.outstanding:
