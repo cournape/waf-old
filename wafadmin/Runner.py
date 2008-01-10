@@ -243,67 +243,48 @@ class TaskConsumer(threading.Thread):
 		self.setDaemon(1)
 		self.id     = i
 		self.master = m
-
 		self.start()
 
 	def run(self):
 		do_stat = getattr(self, 'do_stat', None)
 		m = self.master
-		lock = m.lock
-
-		def end():
-			m.count -= 1
-			try: m.prod_turn.get(block=0)
-			except: pass
-			m.prod_turn.put(1)
 
 		while 1:
-			if m.stop:
-				while 1:
-					# force the scheduler to check for failure
-					if m.failed > 0: m.count = 0
-					time.sleep(1)
+			if m.failed and not m.running:
+				while 1: time.sleep(9)
 
-			# block here
+			# --> block here 1 <--
 			tsk = m.ready.get()
 
 			if do_stat: do_stat(1)
 
+			# execute the task
 			sys.stdout.write(tsk.get_display())
 			sys.stdout.flush()
 			try:
 				ret = tsk.run()
 			except:
+				print "task failed"
+				sys.stdout.flush()
 				ret = -1
 
 			if do_stat: do_stat(-1)
 
+			msg = ''
 			if ret:
-				lock.acquire()
-				if Params.g_verbose:
-					error("task failed! (return code %s and task id %s)"%(str(ret), str(tsk.m_idx)))
-					tsk.debug(1)
-				m.stop   = 1
+				msg = "task failed! (return code %s and task id %s)"%(str(ret), str(tsk.m_idx))
+			else:
+				try:
+					tsk.update_stat()
+					tsk.m_hasrun = 1 # FIXME hasrun is ambiguous
+				except:
+					msg = 'the nodes have not been produced !'
+			if msg:
 				m.failed = 1
-				end()
-				lock.release()
-				continue
-
-			try:
-				tsk.update_stat()
-			except:
-				lock.acquire()
-				if Params.g_verbose: error('the nodes have not been produced !')
-				m.stop   = 1
-				m.failed = 1
-				end()
-				lock.release()
-				continue
-
-			tsk.m_hasrun = 1
-			lock.acquire()
-			end()
-			lock.release()
+				sys.stdout.write(msg)
+				sys.stdout.flush()
+			# --> block here 2 <--
+			m.out.put(tsk)
 
 class Parallel(object):
 	"""
@@ -317,27 +298,25 @@ class Parallel(object):
 
 		# progress bar
 		self.total = Task.g_tasks.total()
-		self.processed = 1
+		self.processed = 0
 
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
-		# tasks waiting to be run by the consumers
-		self.ready = Queue.Queue(0)
 		# tasks that are awaiting for another task to complete
 		self.frozen = []
-		# time to unblock the producer
-		self.prod_turn = Queue.Queue(0)
 
-		self.count = 0 # amount of active tasks
-		self.stop = 0
-		self.failed = 0
-		self.running = 0
+		# tasks waiting to be run by the consumers
+		self.ready = Queue.Queue(0)
+		self.out = Queue.Queue(0)
+
+		self.count = 0 # tasks not in the producer area
+		self.failed = 0 # some task has failed
+		self.running = 0 # keep running ?
+		self.progress = 0 # progress indicator
 
 		self.curgroup = 0
 		self.curprio = -1
 		self.priolst = []
-
-		self.lock = threading.Lock()
 
 		# for consistency
 		self.generator = self
@@ -365,77 +344,62 @@ class Parallel(object):
 		id = self.priolst[self.curprio]
 		return (id, group.prio[id])
 
-	def wait_all_finished(self):
-		while self.count > 0: self.prod_turn.get()
-		if self.failed:
-			while 1:
-				if self.running == 0: raise CompilationError()
-				time.sleep(0.5)
-
 	def start(self):
-
 		for i in range(self.numjobs): TaskConsumer(i, self)
 
 		# the current group
 		#group = None
 
+		lastfailput = 0
+
+		# iterate over all tasks at most one time for each task run
+		penalty = 0
 		currentprio = 0
-		loop=0
-
-		# add the tasks to the queue
+		#loop=0
 		while 1:
-			if self.stop:
-				self.wait_all_finished()
-				break
+			#loop += 1
+			if self.failed and not self.running:
+				while self.count > 0: self.out.get(); self.count -= 1
+				if self.failed: # TODO
+					raise CompilationError()
 
-			# if there are no tasks to run, wait for the consumers to eat all of them
-			# and then skip to the next priority group
-			if not (self.frozen or self.outstanding):
-				self.wait_all_finished()
-				(currentprio, self.outstanding) = self.get_next_prio()
-				if currentprio is None: break
-
-			# for tasks that must run sequentially
-			# (linking object files uses a lot of memory for example)
 			if 1 == currentprio % 2:
-				# make sure there is no more than one task in the queue
-				if self.count > 0: self.prod_turn.get()
+				# allow only one process at a time in priority 'even'
+				while self.count > 0: self.out.get(); self.count -= 1
 			else:
-				# wait a little bit if there are enough jobs for the consumer threads
-				while self.count > self.numjobs + 10: # FIXME why 10 once again ?
-					self.prod_turn.get()
+				# not too many jobs in the queue
+				while self.count > self.numjobs + 10: self.out.get(); self.count -= 1
 
-			loop += 1
+			# empty the returned tasks as much as possible
+			while not self.out.empty():
+				self.out.get(); self.count -= 1
 
-			# no task to give, unfreeze the previous ones
 			if not self.outstanding:
+				if self.count > 0:
+					self.out.get()
+					self.count -= 1
 				self.outstanding = self.frozen
 				self.frozen = []
+			if not self.outstanding:
+				while self.count > 0: self.out.get(); self.count -= 1
+				(currentprio, self.outstanding) = self.get_next_prio()
+				if currentprio is None:
+					break
 
-			# now we are certain that there are outstanding or frozen threads
-			if self.outstanding:
-				tsk = self.outstanding.pop(0)
-				if not tsk.may_start():
-					if random.randint(0,1): self.frozen.append(tsk) #;print "shuf1"
-					else: self.frozen = [tsk]+self.frozen #;print "shuf2"
-					if not self.outstanding:
-						# if all frozen, wait one to finish
-						self.prod_turn.get()
-				else:
-					tsk.prepare()
-					if not tsk.must_run():
-						tsk.m_hasrun=2
-						self.processed += 1
-						continue
+			# consider the next task
+			tsk = self.outstanding.pop(0)
+			if tsk.may_start():
+				tsk.prepare()
+				self.progress += 1
+				if not tsk.must_run():
+					tsk.m_hasrun = 2
+					continue
+				cl = Params.g_colors
+				tsk.set_display(progress_line(self.progress, self.total, cl[tsk.color()], tsk, cl['NORMAL']))
+				self.count += 1
+				self.ready.put(tsk)
+			else:
+				if random.randint(0,1): self.frozen = [tsk]+self.frozen
+				else: self.frozen.append(tsk)
+		#print loop
 
-					# display the command that we are about to run
-					cl = Params.g_colors
-					tsk.set_display(progress_line(self.processed, self.total, cl[tsk.color()], tsk, cl['NORMAL']))
-
-					self.lock.acquire()
-					self.count += 1
-					self.processed += 1
-					self.lock.release()
-
-					self.ready.put(tsk)
-		time.sleep(0.2)
