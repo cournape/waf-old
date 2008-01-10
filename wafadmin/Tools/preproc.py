@@ -195,6 +195,17 @@ def process_tokens(lst, defs, ban):
 
 			op1, ov1 = nlst[0]
 			if op1 != OP: raise PreprocError, "op expected %s" % str(lst)
+
+			if ov1 == '?':
+				# evil ternary operator section
+				if reduce_nums(v, 0, '+'):
+					pass
+				else:
+					pass
+			elif ov1 == ',': # TODO the ,## case
+				lst = nlst[1:]
+				continue
+
 			p2, v2, nlst = get_expr(nlst[1:])
 			if p2 != NUM: raise PreprocError, "num expected after op %s" % str(lst)
 			if nlst:
@@ -838,6 +849,7 @@ if __name__ == "__main__":
 	test("0&&2<3")
 	test("(5>1)*6")
 	test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1")
+	test("1,2,3")
 
 	"""
 	gruik = cparse(strpaths = paths)
