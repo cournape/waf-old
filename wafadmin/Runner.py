@@ -14,6 +14,9 @@ g_quiet = 0
 class CompilationError(Exception):
 	pass
 
+def printout(s):
+	sys.stdout.write(s); sys.stdout.flush()
+
 def progress_line(state, total, col1, task, col2):
 	"do not print anything if there is nothing to display"
 	if Params.g_options.progress_bar == 1:
@@ -36,9 +39,7 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 		if not stdout_eof:
 			s = cmd_stdout.read()
 			if not s: stdout_eof = 1
-			elif not g_quiet:
-				sys.stdout.write(s)
-				sys.stdout.flush()
+			elif not g_quiet: printout(s)
 		if not stderr_eof:
 			s = cmd_stderr.read()
 			if not s: stderr_eof = 1
@@ -203,8 +204,7 @@ class Serial(object):
 				(s, t) = self.generator.progress()
 				col1=Params.g_colors[tsk.color()]
 				col2=Params.g_colors['NORMAL']
-				sys.stdout.write(progress_line(s, t, col1, tsk, col2))
-				sys.stdout.flush()
+				printout(progress_line(s, t, col1, tsk, col2))
 
 			# run the command
 			ret = tsk.run()
@@ -216,7 +216,7 @@ class Serial(object):
 					continue
 				else:
 					if Params.g_verbose:
-						error("task failed! (return code %s for #%s)"%(str(ret), str(tsk.m_idx)))
+						error("task failed! (return code %s for #%s)\n" % (str(ret), str(tsk.m_idx)))
 						tsk.debug(1)
 					return ret
 
@@ -250,40 +250,32 @@ class TaskConsumer(threading.Thread):
 		m = self.master
 
 		while 1:
-			if m.failed and not m.running:
-				while 1: time.sleep(9)
-
-			# --> block here 1 <--
 			tsk = m.ready.get()
+			if m.failed and not m.running:
+				m.out.put(tsk)
+				continue
 
 			if do_stat: do_stat(1)
 
-			# execute the task
-			sys.stdout.write(tsk.get_display())
-			sys.stdout.flush()
-			try:
-				ret = tsk.run()
-			except:
-				print "task failed"
-				sys.stdout.flush()
-				ret = -1
+			printout(tsk.get_display())
+			try: ret = tsk.run()
+			except: ret = -1
 
 			if do_stat: do_stat(-1)
 
 			msg = ''
 			if ret:
-				msg = "task failed! (return code %s and task id %s)"%(str(ret), str(tsk.m_idx))
+				msg = "task failed! (return code %s and task id %s)\n" % (str(ret), str(tsk.m_idx))
 			else:
 				try:
 					tsk.update_stat()
 					tsk.m_hasrun = 1 # FIXME hasrun is ambiguous
 				except:
-					msg = 'the nodes have not been produced !'
+					msg = 'the nodes have not been produced !\n'
 			if msg:
 				m.failed = 1
-				sys.stdout.write(msg)
-				sys.stdout.flush()
-			# --> block here 2 <--
+				printout(msg)
+
 			m.out.put(tsk)
 
 class Parallel(object):
@@ -371,20 +363,17 @@ class Parallel(object):
 				while self.count > self.numjobs + 10: self.out.get(); self.count -= 1
 
 			# empty the returned tasks as much as possible
-			while not self.out.empty():
-				self.out.get(); self.count -= 1
+			while not self.out.empty(): self.out.get(); self.count -= 1
 
 			if not self.outstanding:
-				if self.count > 0:
-					self.out.get()
-					self.count -= 1
+				if self.count > 0: self.out.get() self.count -= 1
 				self.outstanding = self.frozen
 				self.frozen = []
 			if not self.outstanding:
 				while self.count > 0: self.out.get(); self.count -= 1
 				(currentprio, self.outstanding) = self.get_next_prio()
-				if currentprio is None:
-					break
+				#if self.outstanding: random.shuffle(self.outstanding)
+				if currentprio is None: break
 
 			# consider the next task
 			tsk = self.outstanding.pop(0)
