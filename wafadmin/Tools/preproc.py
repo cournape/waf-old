@@ -96,7 +96,7 @@ def filter_comments(filename):
 
 prec = {}
 # op -> number, needed for such expressions:   #if 1 && 2 != 0
-ops = ['. * / %', '+ -', '<< >>', '< <= >= >', '== !=', '& | ^', '&& ||']
+ops = ['. * / %', '+ -', '<< >>', '< <= >= >', '== !=', '& | ^', '&& ||', ',']
 for x in range(len(ops)):
 	syms = ops[x]
 	for u in syms.split():
@@ -197,25 +197,20 @@ def process_tokens(lst, defs, ban):
 			if op1 != OP: raise PreprocError, "op expected %s" % str(lst)
 
 			if ov1 == '?':
-				# evil ternary operator section
-				count_par = 0
 				i = 0
+				count_par = 0
 				for _, k in nlst:
-					if k == ')': count_par -= 1
+					if   k == ')': count_par -= 1
 					elif k == '(': count_par += 1
 					elif k == ':' and count_par == 0: break
 					i += 1
-				else:
-					raise PreprocError, "ending ':' expected %s" % str(lst)
+				else: raise PreprocError, "ending ':' expected %s" % str(lst)
 
 				if reduce_nums(v, 0, '+'): lst = nlst[1:i]
 				else: lst = nlst[i+1:]
-
-				#uuu = "".join([b for a, b in lst])
-				#print "@@@list is now ", uuu, lst
 				continue
 
-			elif ov1 == ',': # TODO the ,## case
+			elif ov1 == ',':
 				lst = nlst[1:]
 				continue
 
@@ -237,21 +232,28 @@ def process_tokens(lst, defs, ban):
 		elif p == STR:
 			if nlst: raise PreprocError, "sequence must terminate with a string %s" % str(lst)
 			return [(p, v)]
-		elif p == IDEN:
-			pass
+		elif p == IDENT:
+			if v.lower() == 'defined':
+				(p2, v2) = lst[1]
+				off = 2
+				if v2 == '(':
+					(p3, v3) = lst[2]
+					if p3 != IDENT: raise PreprocError, 'expected an identifier after a "defined("'
+					(p2, v2) = lst[3]
+					if v2 != ')': raise PreprocError, 'expected a ")" after a "defined(x"'
+					off = 4
+				elif p2 != IDENT:
+					raise PreprocError, 'expected a "(" or an identifier after a defined'
+
+				x = 0
+				if v2 in defs: x = 1
+				lst = [(NUM, x)]+lst[off:]
+				print "lst is ", lst
+				continue
+
+			# TODO macros and functions remain
 
 		return (None, None, [])
-
-		"""
-		sinon si 0 est ident:
-			si 0 est defined:
-				si 1 est parenthese:
-						lst = defined(2) :: lst[4:]
-				sinon:
-						lst = defined(1) :: lst[2:]
-			si 1 est token_pasting:
-				lst = red(0, %:%:, 2) :: lst[3:]
-		"""
 
 def get_expr(tokens):
 	if len(tokens) == 0: return (None, None, tokens)
@@ -865,10 +867,13 @@ if __name__ == "__main__":
 	test("0&&2<3")
 	test("(5>1)*6")
 	test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1")
-	test("1,2,3")
+	test("1,2,3*9,9")
 	test("1?77:88")
 	test("0?77:88")
 	test("1?1,(0?5:9):3,4")
+	test("defined inex")
+	test("defined(inex)")
+
 
 	"""
 	gruik = cparse(strpaths = paths)
