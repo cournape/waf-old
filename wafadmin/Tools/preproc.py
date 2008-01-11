@@ -11,7 +11,7 @@
   - substitute the code in the functions and the defines (and use the # and ## operators)
   - reduce the expression obtained (apply the arithmetic and boolean rules)
 
-TODO: varargs, variadic macros, parse more numbers
+TODO: varargs, parse more numbers
 """
 
 import re, sys, os, string, types
@@ -469,8 +469,6 @@ class cparse(object):
 			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
 
 		while self.lines:
-			# TODO we can skip evaluating conditions (#if) only when we are
-			# certain they contain no define, undef or include
 			(type, line) = self.lines.pop(0)
 			try:
 				self.process_line(type, line)
