@@ -242,12 +242,12 @@ def process_tokens(lst, defs, ban):
 
 		elif p == IDENT:
 			if v.lower() == 'defined':
-				(p2, v2) = lst[1]
+				(p2, v2) = nlst[1]
 				off = 2
 				if v2 == '(':
-					(p3, v3) = lst[2]
+					(p3, v3) = nlst[2]
 					if p3 != IDENT: raise PreprocError, 'expected an identifier after a "defined("'
-					(p2, v2) = lst[3]
+					(p2, v2) = nlst[3]
 					if v2 != ')': raise PreprocError, 'expected a ")" after a "defined(x"'
 					off = 4
 				elif p2 != IDENT:
@@ -255,16 +255,22 @@ def process_tokens(lst, defs, ban):
 
 				x = 0
 				if v2 in defs: x = 1
-				lst = [(NUM, x)]+lst[off:]
+				lst = [(NUM, x)] + nlst[off:]
 				continue
 
 			elif not v in defs:
 				raise PreprocError, 'undefined macro or function "%s"' % v
 
-			
+			macro_def = defs[v]
+			if not macro_def[0]:
+				# simple macro, substitute
+				lst = macro_def[1] + nlst[1:]
+				continue
+			else:
+				# TODO function calls
+				pass
 
 		return (None, None, [])
-
 
 
 
@@ -871,8 +877,10 @@ if __name__ == "__main__":
 	paths = ['.']
 	f = open(arg, "r"); txt = f.read(); f.close()
 
+	d1 = [[], [(NUM, 1), (OP, '+'), (NUM, 2)]]
+
 	def test(x):
-		y = process_tokens(tokenize(x), [], [])
+		y = process_tokens(tokenize(x), {'d1':d1}, [])
 		print x, y
 
 	test("0&&2<3")
@@ -886,6 +894,7 @@ if __name__ == "__main__":
 	test("defined(inex)")
 	try: test("inex")
 	except: print "inex is not defined"
+	test("d1*3")
 
 
 	"""
