@@ -494,17 +494,17 @@ class cparse(object):
 
 		debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
 
-		# make certain we define the state if we are about to enter in an if block
-		if token in ['ifdef', 'ifndef', 'if']:
-			self.state = [undefined] + self.state
-
 		# skip lines when in a dead 'if' branch, wait for the endif
 		if not token in ['else', 'elif', 'endif']:
 			if self.state:
-				print self.state
+			#	print self.state
 				if self.state[0] in [skipped, ignored]:
 					#print "return in process line"
 					return
+
+		# make certain we define the state if we are about to enter in an if block
+		if token in ['ifdef', 'ifndef', 'if']:
+			self.state = [undefined] + self.state
 
 		if token == 'if':
 			ret = eval_macro(tokenize(line), self.defs)
@@ -536,7 +536,7 @@ class cparse(object):
 			if self.state[0] == accepted: self.state[0] = skipped
 			elif self.state[0] == ignored: self.state[0] = accepted
 		elif token == 'endif':
-			self.state.pop(0)
+			if self.state: self.state.pop(0)
 		elif token == 'define':
 			m = re_mac.search(line)
 			if m:
