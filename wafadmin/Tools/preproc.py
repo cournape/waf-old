@@ -382,6 +382,8 @@ class cparse(object):
 		self.m_nodes = []
 		self.m_names = []
 
+		# file added
+		self.curfile = ''
 		self.ban_includes = []
 
 		# dynamic cache
@@ -392,6 +394,7 @@ class cparse(object):
 			self.parse_cache = Params.g_build.parse_cache
 
 	def tryfind(self, filename):
+		self.curfile = filename
 		global g_findall
 		if self.m_nodepaths:
 			found = 0
@@ -405,9 +408,7 @@ class cparse(object):
 				if len(lst)>1:
 					lst=lst[:-1] # take the folders only
 					try: cache = Params.g_build.preproc_cache
-					except AttributeError:
-						cache = {}
-						setattr(Params.g_build, 'preproc_cache', cache)
+					except AttributeError: Params.g_build.preproc_cache = cache = {}
 					key = hash( (str(self.m_nodepaths), str(lst)) )
 					if not cache.get(key, None):
 						cache[key] = 1
@@ -494,32 +495,33 @@ class cparse(object):
 
 	def process_line(self, token, line):
 
-		debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
+		if Params.g_verbose: debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
+		state = self.state
 
 		# skip lines when in a dead 'if' branch, wait for the endif
 		if not token in ['else', 'elif', 'endif']:
 			if self.state:
 			#	print self.state
-				if self.state[0] in [skipped, ignored]:
+				if self.state[-1] in [skipped, ignored]:
 					#print "return in process line"
 					return
 
 		# make certain we define the state if we are about to enter in an if block
 		if token in ['ifdef', 'ifndef', 'if']:
-			self.state = [undefined] + self.state
+			state.append(undefined)
 
 		if token == 'if':
 			ret = eval_macro(tokenize(line), self.defs)
-			if ret: self.state[0] = accepted
-			else: self.state[0] = ignored
+			if ret: state[-1] = accepted
+			else: state[-1] = ignored
 		elif token == 'ifdef':
 			m = re_mac.search(line)
-			if m and m.group(0) in self.defs: self.state[0] = accepted
-			else: self.state[0] = ignored
+			if m and m.group(0) in self.defs: state[-1] = accepted
+			else: state[-1] = ignored
 		elif token == 'ifndef':
 			m = re_mac.search(line)
-			if m and m.group(0) in self.defs: self.state[0] = ignored
-			else: self.state[0] = accepted
+			if m and m.group(0) in self.defs: state[-1] = ignored
+			else: state[-1] = accepted
 		elif token == 'include' or token == 'import':
 			(type, inc) = extract_include(line, self.defs)
 			if inc in self.ban_includes: return
@@ -531,16 +533,16 @@ class cparse(object):
 				# allow double inclusion
 				self.tryfind(inc)
 		elif token == 'elif':
-			if self.state[0] == accepted:
-				self.state[0] = skipped
-			elif self.state[0] == ignored:
+			if state[-1] == accepted:
+				state[-1] = skipped
+			elif state[-1] == ignored:
 				if eval_macro(tokenize(line), self.defs):
-					self.state[0] = accepted
+					state[-1] = accepted
 		elif token == 'else':
-			if self.state[0] == accepted: self.state[0] = skipped
-			elif self.state[0] == ignored: self.state[0] = accepted
+			if state[-1] == accepted: state[-1] = skipped
+			elif state[-1] == ignored: state[-1] = accepted
 		elif token == 'endif':
-			if self.state: self.state.pop(0)
+			if state: state.pop()
 		elif token == 'define':
 			m = re_mac.search(line)
 			if m:
@@ -556,8 +558,7 @@ class cparse(object):
 				#print "undef %s" % name
 		elif token == 'pragma':
 			if re_pragma_once.search(line.lower()):
-				pass
-				#print "found a pragma once"
+				self.ban_includes.append(self.curfile)
 
 def extract_macro(txt):
 	t = tokenize(txt)
