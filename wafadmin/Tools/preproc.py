@@ -134,12 +134,12 @@ def reduce_nums(val_1, val_2, val_op):
 	else: c = 0
 	return c
 
-def get_expr(lst, defs, ban):
+def get_expri(lst, defs, ban):
 	if not lst: return ([], [], [])
 
 	(p, v) = lst[0]
 	if p == NUM:
-		return (p, v, lst)
+		return (p, v, lst[1:])
 	elif p == STR:
 		try:
 			(p2, v2) = lst[1]
@@ -148,7 +148,7 @@ def get_expr(lst, defs, ban):
 		return (p, v, lst)
 	elif p == OP:
 		if v in ['+', '-', '~', '!']:
-			(p2, v2, lst2) = get_expr(lst[1:])
+			(p2, v2, lst2) = get_expri(lst[1:], defs, ban)
 			if p2 != NUM: raise PreprocError, "num expected %s" % str(lst)
 			if v == '+': return (p2, v2, lst2)
 			# TODO other cases are be complicated
@@ -156,7 +156,7 @@ def get_expr(lst, defs, ban):
 		elif v == '#':
 			(p2, v2) = lst[1]
 			if p2 != IDENT: raise PreprocError, "ident expected %s" % str(lst)
-			return get_expr([(STR, v2)]+lst[2:], defs, ban)
+			return get_expri([(STR, v2)]+lst[2:], defs, ban)
 		elif v == '(':
 			count_par = 0
 			i = 0
@@ -171,7 +171,7 @@ def get_expr(lst, defs, ban):
 
 			ret = process_tokens(lst[1:i], defs, ban)
 			if len(ret) == 1:
-				(p, v) = lst1[0]
+				(p, v) = ret[0]
 				return (p, v, lst[i+1:])
 			else:
 				raise PreprocError, "cannot reduce %s" % str(lst)
@@ -183,13 +183,13 @@ def get_expr(lst, defs, ban):
 			# token pasting
 			(p3, v3) = lst[2]
 			if p3 != IDENT: raise PreprocError, "expected ident after ## %s" % str(lst)
-			return get_expr([(p, v+v3)]+lst[3:], defs, ban)
+			return get_expri([(p, v+v3)]+lst[3:], defs, ban)
 		return (p, v, lst)
 
 def process_tokens(lst, defs, ban):
 	accu = []
 	while lst:
-		p, v, nlst = get_expr(lst)
+		p, v, nlst = get_expri(lst, defs, ban)
 		if p == NUM:
 			if not nlst: return [(p, v)] # finished
 
@@ -198,23 +198,36 @@ def process_tokens(lst, defs, ban):
 
 			if ov1 == '?':
 				# evil ternary operator section
-				if reduce_nums(v, 0, '+'):
-					pass
+				count_par = 0
+				i = 0
+				for _, k in nlst:
+					if k == ')': count_par -= 1
+					elif k == '(': count_par += 1
+					elif k == ':' and count_par == 0: break
+					i += 1
 				else:
-					pass
+					raise PreprocError, "ending ':' expected %s" % str(lst)
+
+				if reduce_nums(v, 0, '+'): lst = nlst[1:i]
+				else: lst = nlst[i+1:]
+
+				#uuu = "".join([b for a, b in lst])
+				#print "@@@list is now ", uuu, lst
+				continue
+
 			elif ov1 == ',': # TODO the ,## case
 				lst = nlst[1:]
 				continue
 
-			p2, v2, nlst = get_expr(nlst[1:])
+			p2, v2, nlst = get_expri(nlst[1:], defs, ban)
 			if p2 != NUM: raise PreprocError, "num expected after op %s" % str(lst)
 			if nlst:
 				#use op precedence
 				op3, ov3 = nlst[0]
 				if prec[ov3] < prec[ov1]:
-					print "ov3", ov3, ov1
+					#print "ov3", ov3, ov1
 					# as needed
-					p4, v4, nlst2 = get_expr(nlst[1:])
+					p4, v4, nlst2 = get_expri(nlst[1:], defs, ban)
 					v5 = reduce_nums(v2, v4, ov3)
 					lst = [(p, v), (op1, ov1), (NUM, v5)] + nlst2
 					continue
@@ -226,6 +239,9 @@ def process_tokens(lst, defs, ban):
 			return [(p, v)]
 		elif p == IDEN:
 			pass
+
+		return (None, None, [])
+
 		"""
 		sinon si 0 est ident:
 			si 0 est defined:
@@ -850,6 +866,9 @@ if __name__ == "__main__":
 	test("(5>1)*6")
 	test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1")
 	test("1,2,3")
+	test("1?77:88")
+	test("0?77:88")
+	test("1?1,(0?5:9):3,4")
 
 	"""
 	gruik = cparse(strpaths = paths)
