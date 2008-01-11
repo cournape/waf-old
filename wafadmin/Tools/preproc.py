@@ -10,6 +10,8 @@
   In the preprocessing line step, the following actions are performed:
   - substitute the code in the functions and the defines (and use the # and ## operators)
   - reduce the expression obtained (apply the arithmetic and boolean rules)
+
+TODO: varargs
 """
 
 import re, sys, os, string
@@ -135,6 +137,7 @@ def reduce_nums(val_1, val_2, val_op):
 	return c
 
 def get_expri(lst, defs, ban):
+
 	if not lst: return ([], [], [])
 
 	(p, v) = lst[0]
@@ -146,7 +149,8 @@ def get_expri(lst, defs, ban):
 			(p2, v2) = lst[1]
 			if p2 == STR: return (p, v+v2, lst[2:])
 		except IndexError: pass
-		return (p, v, lst)
+
+		return (p, v, lst[1:])
 
 	elif p == OP:
 		if v in ['+', '-', '~', '!']:
@@ -157,9 +161,9 @@ def get_expri(lst, defs, ban):
 			return (p2, v2, lst2)
 
 		elif v == '#':
-			(p2, v2) = lst[1]
+			(p2, v2, lst2) = get_expri(lst[1:], defs, ban)
 			if p2 != IDENT: raise PreprocError, "ident expected %s" % str(lst)
-			return get_expri([(STR, v2)]+lst[2:], defs, ban)
+			return get_expri([(STR, v2)]+lst2, defs, ban)
 
 		elif v == '(':
 			count_par = 0
@@ -187,7 +191,7 @@ def get_expri(lst, defs, ban):
 			if v2 == "##":
 				# token pasting, reevaluate the identifier obtained
 				(p3, v3) = lst[2]
-				if p3 != IDENT and p3 != NUM:
+				if p3 != IDENT and p3 != NUM and p3 != OP:
 					raise PreprocError, "%s: ident expected after '##'" % str(lst)
 				return get_expri([(p, v+v3)]+lst[3:], defs, ban)
 
@@ -209,7 +213,7 @@ def get_expri(lst, defs, ban):
 			return (NUM, x, lst[off:])
 
 		elif not v in defs:
-			raise PreprocError, 'undefined macro or function "%s"' % v
+			return (p, v, lst[1:])
 
 		macro_def = defs[v]
 		if not macro_def[0]:
@@ -242,7 +246,8 @@ def get_expri(lst, defs, ban):
 							if not one_param: raise PreprocError, "empty param in funcall %s" % p
 							params.append(one_param)
 							one_param = []
-							continue
+						else:
+							one_param.append((p2, v2))
 					else:
 						one_param.append((p2, v2))
 						if   v2 == '(': count_paren += 1
@@ -276,7 +281,8 @@ def process_tokens(lst, defs, ban):
 			if not nlst: return [(p, v)] # finished
 
 			op1, ov1 = nlst[0]
-			if op1 != OP: raise PreprocError, "op expected %s" % str(lst)
+			if op1 != OP:
+				raise PreprocError, "op expected %s" % str(lst)
 
 			if ov1 == '?':
 				i = 0
@@ -314,254 +320,19 @@ def process_tokens(lst, defs, ban):
 			continue
 
 		elif p == STR:
-			if nlst: raise PreprocError, "sequence must terminate with a string %s" % str(lst)
+			if nlst: raise PreprocError, "sequence must terminate with a string %s" % str(nlst)
 			return [(p, v)]
 
 		return (None, None, [])
 
-
-
-def get_expr(tokens):
-	if len(tokens) == 0: return (None, None, tokens)
-	lst = []+tokens
-	(tok, val) = lst.pop(0)
-	if tok == NUM:
-		return (tok, val, lst)
-	elif tok == OP:
-		if val == '!' or val == '~': # TODO handle bitwise complement
-			(tok2, val2, lst2) = get_expr(lst)
-			v = int(val2)
-			if v == 0: v = 1
-			else:      v = 0
-			return (NUM, v, lst2)
-		elif val == '-' or val == '+':
-			(tok2, val2, lst2) = get_expr(lst)
-			if val == '-': v = - int(val2)
-			return (NUM, val2, lst2)
-		elif val == '(':
-			count_par = 0
-			accu = []
-			while 1:
-				(tok, val) = lst.pop(0)
-				if tok == OP:
-					if val == ')':
-						if count_par == 0: break
-						else: count_par -= 1
-					elif val == '(':
-						count_par += 1
-				accu.append( (tok, val) )
-			(tok_tmp, val_tmp) = reduce_tokens(accu)[0]
-			return (tok_tmp, val_tmp, lst)
-	else:
-		pass
-	raise PreprocError, "could not get an expression from %s" % tokens
-
-def reduce_recurse(val_a, op_1, val_b, op_2, val_c, tokens):
-	if prec[op_1] < prec[op_2]:
-		val_a = reduce_nums(val_a, val_b, op_1)
-		if tokens:
-			(tok_new, op_new) = tokens.pop(0)
-			(tok_d, val_d, new_list) = get_expr(tokens)
-			return reduce_recurse(val_a, op_2, val_c, op_new, val_d, new_list)
-		else:
-			val_a = reduce_nums(val_a, val_c, op_2)
-			return (NUM, val_a)
-	else:
-		val_b = reduce_nums(val_b, val_c, op_2)
-		if tokens:
-			# now the annoying case
-			(tok_new, op_new) = tokens.pop(0)
-			(tok_d, val_d, new_list) = get_expr(tokens)
-			return reduce_recurse(val_a, op_1, val_b, op_new, val_d, new_list)
-		else:
-			val_a = reduce_nums(val_a, val_b, op_1)
-			return (NUM, val_a)
-
-def reduce_tokens(tokens):
-	if not tokens: return [(STR, '')]
-	if len(tokens) == 1: return tokens
-
-	lst = []+tokens
-	# if the expression cannot be reduced, just return the tokens
-
-	try:
-		(tok_a, val_a, lst1) = get_expr(lst)
-		if (not tok_a) or tok_a == IDENT: return tokens
-		if not lst1:
-			return [(tok_a, val_a)]
-		(tok_1, val_1) = lst1.pop(0)
-		if tok_1 != OP: return tokens
-
-		(tok_b, val_b, lst2) = get_expr(lst1)
-		if (not tok_b) or tok_b == IDENT: return tokens
-		if not lst2:
-			val_a = reduce_nums(val_a, val_b, val_1)
-			return [(tok_a, val_a)]
-		(tok_2, val_2) = lst2.pop(0)
-		if tok_2 != OP: return tokens
-
-		(tok_c, val_c, lst3) = get_expr(lst2)
-		if (not tok_c) or tok_c == IDENT: return tokens
-
-		(tok, val) = reduce_recurse(val_a, val_1, val_b, val_2, val_c, lst3)
-		return [(tok, val)]
-	except PreprocError:
-		return tokens
-
-def eval_fun(name, params, defs, ban=[]):
-
-	fun_def = defs[name]
-	fun_code = []+fun_def[1]
-	fun_args = fun_def[0]
-
-	# a map  x->1st param, y->2nd param, etc
-	param_index = {}
-	i = 0
-	for u in fun_args:
-		param_index[u[1]] = i
-		i += 1
-
-	# substitute the arguments within the define expression
-	accu = []
-	while fun_code:
-		(tok, val) = fun_code.pop(0)
-		if tok == OP:
-			if val == '#':
-				# the next token is one of the args
-				(tok_next, val_next) = fun_code.pop(0)
-				tokens = params[param_index[val_next]]
-				# macro parameter evaluation is postponed
-				ret = eval_tokens(tokens, defs, ban+[name])
-				ret = (STR, "".join([str(y) for (x,y) in ret]))
-				accu.append(ret)
-
-			elif val == '##':
-				# the next token is an identifier (token pasting)
-				(tok_next, val_next) = fun_code.pop(0)
-				(tok_back, val_back) = accu[-1]
-				accu = accu[:-1]
-				new_token = (IDENT, val_back+val_next)
-				accu.append(new_token)
-				# FIXME this supposes that "a##b(foo)" evaluates as "ab(foo)"
-			else:
-				accu.append((tok, val))
-
-		elif tok == IDENT:
-			if val in param_index:
-				code = params[param_index[val]]
-				accu += eval_tokens(code, defs, ban+[name])
-			else:
-				accu.append((tok, val))
-		else:
-			accu.append((tok, val))
-
-	ret = eval_tokens(accu, defs, ban+[name])
-	return ret
-
-def eval_tokens(lst, adefs, ban=[]):
-	#print "lst is ", lst
-	lst = []+lst # lists are mutable
-
-	#print "\n\n\n\n"
-	#print "---eval---> ", lst
-	#print "-------- eval macro --------"
-	#for x in adefs:
-	#	print x, "\t\t", adefs[x]
-	#print "------ end eval macro ------"
-	#print "the huge lst is ", lst
-
-	# substitute the defines (functions and simple macros)
-	accu = []
-	while lst:
-		(tok, val) = lst.pop(0)
-
-		if tok == IDENT and val.lower() == 'defined':
-			# "defined(identifier)" or "defined identifier"
-			(tok, val) = lst.pop(0)
-			if val == '(':
-				(tok, val_x) = lst.pop(0)
-				if tok != IDENT: raise PreprocError, 'expected an identifier after a defined'
-				(tok, val) = lst.pop(0)
-				if val != ')': raise PreprocError, 'expected a ")" after a defined'
-			elif tok == IDENT:
-				val_x = val
-			else:
-				raise PreprocError, 'expected a "(" or an identifier after a defined'
-
-			if val_x in adefs: accu.append((NUM, 1))
-			else: accu.append((NUM, 0))
-
-		elif tok == IDENT and val in adefs:
-			# the identifier is a macro
-			name = val
-
-			fun_def = adefs[val]
-			fun_args=[]
-			if fun_def: fun_args = fun_def[0]
-			if fun_args == None:
-				# simple macro
-				# make the substitution
-				lst = fun_def[1] + lst
-			else:
-				# function call, collect the arguments
-				params = []
-				tmp = []
-				(tok, val) = lst.pop(0)
-				if tok != OP or val != '(': raise PreprocError, "invalid function call "+name
-				count_paren = 0
-				while 1:
-					(tok, val) = lst.pop(0)
-					# stop condition
-					if count_paren == 0 and tok == OP:
-						if val == ')':
-							if tmp: params.append(tmp)
-							break
-						elif val == ',':
-							if not tmp: raise PreprocError, "invalid function call "+name
-							params.append(tmp)
-							tmp = []
-							continue
-
-					# all other cases we just append the tokens to tmp
-					tmp.append((tok, val))
-
-					# but watch out for the matching parenthesis
-					if tok == OP:
-						if val == '(':
-							count_paren += 1
-						elif val == ')':
-							count_paren -= 1
-
-				accu += eval_fun(name, params, adefs)
-		else:
-			accu.append((tok, val))
-
-	# now reduce the expressions if possible, like 1+1->2, no more evaluation should take place
-	accu = reduce_tokens(accu)
-	return accu
-
 def eval_macro(lst, adefs):
 	# look at the result, and try to return a 0/1 result
-	ret = eval_tokens(lst, adefs, [])
+	ret = process_tokens(lst, adefs, [])
+	if len(ret) != 1:
+		raise IndexError, "error!!!"
 
-	if len(ret) == 0:
-		debug("could not evaluate %s to true or false (empty list)" % str(ret), 'preproc')
-		return False
-	if len(ret) > 1:
-		debug("could not evaluate %s to true or false (could not reduce the expression)" % str(ret), 'preproc')
-		return False
-	if len(ret) == 1:
-		(tok, val) = ret[0]
-		if tok == NUM:
-			r = int(val)
-			return r != 0
-		elif tok == IDENT:
-			if val.lower() == 'true': return True
-			elif val.lower() == 'false': return False
-			else: "could not evaluate %s to true or false (not a boolean)" % str(lst)
-		else:
-			debug("could not evaluate %s to true or false (not a number/boolean)" % str(lst), 'preproc')
-	return ret
+	p, v = ret[0]
+	return int(v) != 0
 
 def try_exists(node, list):
 	lst = []+list
@@ -663,7 +434,7 @@ class cparse(object):
 
 	def addlines(self, filepath):
 		pc = self.parse_cache
-                debug("reading file %r" % filepath, 'preproc')
+		debug("reading file %r" % filepath, 'preproc')
 		if filepath in pc.keys():
 			self.lines = pc[filepath] + self.lines
 			return
@@ -698,7 +469,7 @@ class cparse(object):
 			except Exception, ex:
 				if Params.g_verbose:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
-                                        traceback.print_exc()
+					traceback.print_exc()
 
 	# debug only
 	def start_local(self, filename):
@@ -711,7 +482,7 @@ class cparse(object):
 			except Exception, ex:
 				if Params.g_verbose:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
-                                        traceback.print_exc()
+					traceback.print_exc()
 				raise
 	def isok(self):
 		if not self.state: return 1
@@ -832,18 +603,19 @@ def extract_include(txt, defs):
 
 	# perform preprocessing and look at the result, it must match an include
 	tokens = tokenize(txt)
-	ret = eval_tokens(tokens, defs)
-	(tok, val) = ret[0]
-	if len(ret) == 1 and tok == STR:
-		# a string token, quote it
-		txt = '"%s"' % val
-	elif tok == OP:
-		# a list of tokens, such as <,iostream,.,h,>, concatenate
+	p, v = tokens[0]
+	if v == '<':
 		txt = "".join([y for (x, y) in ret])
-		# TODO if we discard whitespaces, we could test for val == "<"
+	elif p == STR:
+		txt = '"%s"' % val
 	else:
-		raise PreprocError, "could not parse %s" % str(ret)
+		tokens = process_tokens(tokens, defs, [])
+		p, v = tokens[0]
+		if p != STR:
+			raise PreprocError, "could not parse includes %s" % str(tokens)
+		txt = '"%s"' % v
 
+	# TODO eliminate this regexp
 	if re_include.search(txt):
 		t = re_include.sub(replace_v, txt)
 		return (t[0], t[1:-1])
@@ -930,7 +702,7 @@ if __name__ == "__main__":
 
 	def test(x):
 		y = process_tokens(tokenize(x), {'m1':m1, 'fun1':fun1, 'fun2':fun2}, [])
-		print x, y
+		#print x, y
 
 	test("0&&2<3")
 	test("(5>1)*6")
@@ -947,8 +719,8 @@ if __name__ == "__main__":
 	test("7*m1*3")
 	test("fun1(m,1)")
 	test("fun2(2, fun1(m, 1))")
+	#test("foo##.##h")
 
-	"""
 	gruik = cparse(strpaths = paths)
 	gruik.start_local(arg)
 	print "we have found the following dependencies"
@@ -959,4 +731,4 @@ if __name__ == "__main__":
 	#txt = f.read()
 	#f.close()
 	#print tokenize(txt)
-	"""
+
