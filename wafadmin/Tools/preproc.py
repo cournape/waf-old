@@ -382,6 +382,8 @@ class cparse(object):
 		self.m_nodes = []
 		self.m_names = []
 
+		self.ban_includes = []
+
 		# dynamic cache
 		try:
 			self.parse_cache = Params.g_build.parse_cache
@@ -520,6 +522,8 @@ class cparse(object):
 			else: self.state[0] = accepted
 		elif token == 'include' or token == 'import':
 			(type, inc) = extract_include(line, self.defs)
+			if inc in self.ban_includes: return
+			if token == 'import': self.ban_includes.append(inc)
 			debug("include found %s    (%s) " % (inc, type), 'preproc')
 			if type == '"' or not strict_quotes:
 				if not inc in self.deps:
