@@ -184,12 +184,39 @@ def get_expri(lst, defs, ban):
 	elif p == IDENT:
 		if len(lst)>1:
 			(p2, v2) = lst[1]
-			if v2 != "##": return (p, v, lst)
-			# token pasting
-			(p3, v3) = lst[2]
-			if p3 != IDENT: raise PreprocError, "expected ident after ## %s" % str(lst)
-			return get_expri([(p, v+v3)]+lst[3:], defs, ban)
-		return (p, v, lst)
+			if v2 == "##":
+				# token pasting
+				(p3, v3) = lst[2]
+				if p3 != IDENT: raise PreprocError, "expected ident after ## %s" % str(lst)
+				return get_expri([(p, v+v3)]+lst[3:], defs, ban)
+
+		if v.lower() == 'defined':
+			(p2, v2) = lst[1]
+			off = 2
+			if v2 == '(':
+				(p3, v3) = lst[2]
+				if p3 != IDENT: raise PreprocError, 'expected an identifier after a "defined("'
+				(p2, v2) = lst[3]
+				if v2 != ')': raise PreprocError, 'expected a ")" after a "defined(x"'
+				off = 4
+			elif p2 != IDENT:
+				raise PreprocError, 'expected a "(" or an identifier after a defined'
+
+			x = 0
+			if v2 in defs: x = 1
+			#return get_expri([(NUM, x)] + lst[off:], defs, ban)
+			return (NUM, x, lst[off:])
+
+		elif not v in defs:
+			raise PreprocError, 'undefined macro or function "%s"' % v
+
+		macro_def = defs[v]
+		if not macro_def[0]:
+			# simple macro, substitute
+			lst = macro_def[1] + lst[1:]
+			return get_expri(lst, defs, ban)
+		else:
+			raise PreprocError, "function calls: implement me"
 
 def process_tokens(lst, defs, ban):
 	accu = []
@@ -239,36 +266,6 @@ def process_tokens(lst, defs, ban):
 		elif p == STR:
 			if nlst: raise PreprocError, "sequence must terminate with a string %s" % str(lst)
 			return [(p, v)]
-
-		elif p == IDENT:
-			if v.lower() == 'defined':
-				(p2, v2) = nlst[1]
-				off = 2
-				if v2 == '(':
-					(p3, v3) = nlst[2]
-					if p3 != IDENT: raise PreprocError, 'expected an identifier after a "defined("'
-					(p2, v2) = nlst[3]
-					if v2 != ')': raise PreprocError, 'expected a ")" after a "defined(x"'
-					off = 4
-				elif p2 != IDENT:
-					raise PreprocError, 'expected a "(" or an identifier after a defined'
-
-				x = 0
-				if v2 in defs: x = 1
-				lst = [(NUM, x)] + nlst[off:]
-				continue
-
-			elif not v in defs:
-				raise PreprocError, 'undefined macro or function "%s"' % v
-
-			macro_def = defs[v]
-			if not macro_def[0]:
-				# simple macro, substitute
-				lst = macro_def[1] + nlst[1:]
-				continue
-			else:
-				# TODO function calls
-				pass
 
 		return (None, None, [])
 
@@ -895,7 +892,7 @@ if __name__ == "__main__":
 	try: test("inex")
 	except: print "inex is not defined"
 	test("d1*3")
-
+	test("7*d1*3")
 
 	"""
 	gruik = cparse(strpaths = paths)
