@@ -216,7 +216,8 @@ def get_expr(lst, defs, ban):
 			return (NUM, x, lst[off:])
 
 		elif not v in defs:
-			return (p, v, lst[1:])
+			if "waf_include" in ban: return (p, v, lst[1:])
+			else: return (NUM, 0, lst[1:])
 
 		# tokenize on demand
 		if type(defs[v]) is types.StringType:
@@ -615,7 +616,7 @@ def extract_include(txt, defs):
 	elif p == STR:
 		txt = '"%s"' % val
 	else:
-		tokens = process_tokens(tokens, defs, [])
+		tokens = process_tokens(tokens, defs, ['waf_include'])
 		p, v = tokens[0]
 		if p != STR:
 			raise PreprocError, "could not parse includes %s" % str(tokens)
