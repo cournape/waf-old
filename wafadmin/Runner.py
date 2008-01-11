@@ -388,7 +388,7 @@ class Parallel(object):
 				self.count += 1
 				self.ready.put(tsk)
 			else:
-				if random.randint(0,1): self.frozen = [tsk]+self.frozen
+				if random.randint(0,1): self.frozen.insert(0, tsk)
 				else: self.frozen.append(tsk)
 		#print loop
 
