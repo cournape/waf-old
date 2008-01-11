@@ -48,14 +48,14 @@ g_optrans = {
 "these ops are for c++, to reset, set an empty dict"
 
 # ignore #warning and #error
-reg_define = re.compile(\
+re_lines = re.compile(\
 	'^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$',
 	re.IGNORECASE | re.MULTILINE)
 re_mac = re.compile("^[a-zA-Z_]\w*")
 re_fun = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
 re_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
-reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
-reg_cpp = re.compile(\
+re_nl = re.compile('\\\\\r*\n', re.MULTILINE)
+re_cpp = re.compile(\
 	r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""",
 	re.MULTILINE)
 trig_def = [('??'+a, b) for a, b in zip("=-/!'()<>", r'#~\|^[]{}')]
@@ -73,7 +73,7 @@ exp_types = [
 	r'[a-zA-Z_]\w*',
 	r'%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]',
 ]
-reg_clexer = re.compile('|'.join(["(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types)]), re.M)
+re_clexer = re.compile('|'.join(["(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types)]), re.M)
 
 accepted  = 'a'
 ignored   = 'i'
@@ -94,9 +94,9 @@ def filter_comments(filename):
 	f.close()
 	if use_trigraphs:
 		for (a, b) in trig_def: code = code.split(a).join(b)
-	code = reg_nl.sub('', code)
-	code = reg_cpp.sub(repl, code)
-	return [(m.group(2), m.group(3)) for m in re.finditer(reg_define, code)]
+	code = re_nl.sub('', code)
+	code = re_cpp.sub(repl, code)
+	return [(m.group(2), m.group(3)) for m in re.finditer(re_lines, code)]
 
 prec = {}
 # op -> number, needed for such expressions:   #if 1 && 2 != 0
@@ -646,7 +646,7 @@ def parse_char(txt):
 
 def tokenize(s):
 	ret = []
-	for match in reg_clexer.finditer(s):
+	for match in re_clexer.finditer(s):
 		m = match.group
 		for name in tok_types:
 			v = m(name)
