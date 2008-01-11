@@ -547,7 +547,7 @@ class cparse(object):
 				raise PreprocError, "invalid define line %s" % line
 		elif token == 'undef':
 			m = re_mac.search(line)
-			if m and m.group(0) in self.defs
+			if m and m.group(0) in self.defs:
 				self.defs.__delitem__(m.group(0))
 				#print "undef %s" % name
 		elif token == 'pragma':
