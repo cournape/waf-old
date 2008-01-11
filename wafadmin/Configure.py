@@ -964,12 +964,12 @@ class Configure(object):
 
 		self.lastprog = ''
 
-		try:
-			file = open(os.path.join(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'rb')
-			self.m_cache_table = cPickle.load(file)
-			file.close()
-		except:
-			pass
+		#try:
+		#	file = open(os.path.join(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'rb')
+		#	self.m_cache_table = cPickle.load(file)
+		#	file.close()
+		#except:
+		#	pass
 
 		self._a=0
 		self._b=0
@@ -1075,7 +1075,7 @@ class Configure(object):
 
 	def cleanup(self):
 		"called on shutdown"
-		try:
+		"""try:
 			dir = os.path.join(Params.g_homedir, '.wafcache')
 			try: os.makedirs(dir)
 			except: pass
@@ -1085,7 +1085,7 @@ class Configure(object):
 			file.close()
 		except:
 			raise
-			pass
+			pass"""
 
 	def add_define(self, define, value, quote=-1, comment=''):
 		"""store a single define and its state into an internal list
