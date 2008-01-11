@@ -10,7 +10,7 @@ import sys, re, os
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-import Action, Object, Params, Scan, Common, Utils
+import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 
 g_prio_link=101
@@ -34,7 +34,6 @@ class c_scanner(Scan.scanner):
 	def scan(self, task, node):
 		"look for .h the .cpp need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		import preproc
 		gruik = preproc.cparse(nodepaths = task.path_lst, defines = task.defines)
 		gruik.start(node, task.m_env)
 		if Params.g_verbose:
