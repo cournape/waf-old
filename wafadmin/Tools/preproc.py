@@ -492,8 +492,8 @@ class cparse(object):
 				raise
 
 	def process_line(self, token, line):
-
-		if Params.g_verbose: debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
+		ve = Params.g_verbose
+		if ve: debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
 		state = self.state
 
 		# skip lines when in a dead 'if' branch, wait for the endif
@@ -524,7 +524,7 @@ class cparse(object):
 			(type, inc) = extract_include(line, self.defs)
 			if inc in self.ban_includes: return
 			if token == 'import': self.ban_includes.append(inc)
-			debug("include found %s    (%s) " % (inc, type), 'preproc')
+			if ve: debug("include found %s    (%s) " % (inc, type), 'preproc')
 			if type == '"' or not strict_quotes:
 				if not inc in self.deps:
 					self.deps.append(inc)
@@ -545,7 +545,7 @@ class cparse(object):
 			m = re_mac.search(line)
 			if m:
 				name = m.group(0)
-				debug("define %s   %s" % (name, line), 'preproc')
+				if ve: debug("define %s   %s" % (name, line), 'preproc')
 				self.defs[name] = line
 			else:
 				raise PreprocError, "invalid define line %s" % line
