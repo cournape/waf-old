@@ -14,7 +14,7 @@
 TODO: varargs
 """
 
-import re, sys, os, string
+import re, sys, os, string, types
 if __name__ == '__main__':
 	sys.path = ['.', '..'] + sys.path
 import Params
@@ -51,7 +51,9 @@ g_optrans = {
 reg_define = re.compile(\
 	'^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$',
 	re.IGNORECASE | re.MULTILINE)
-reg_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
+re_mac = re.compile("^[a-zA-Z_]\w*")
+re_fun = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
+re_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
 reg_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 reg_cpp = re.compile(\
 	r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""",
@@ -216,7 +218,12 @@ def get_expr(lst, defs, ban):
 		elif not v in defs:
 			return (p, v, lst[1:])
 
+		# tokenize on demand
+		if type(defs[v]) is types.StringType:
+			v, k = extract_macro(defs[v])
+			defs[v] = k
 		macro_def = defs[v]
+
 		if not macro_def[0]:
 			# simple macro, substitute, and reevaluate
 			lst = macro_def[1] + lst[1:]
@@ -258,18 +265,11 @@ def get_expr(lst, defs, ban):
 				#raise PreprocError, 'invalid function call %s: missing ")"' % p
 				raise
 
-			# TODO try to cache this translation table
-			# a map  x->1st param, y->2nd param, etc
-			p_index = {}
-			i = 0
-			for u in macro_def[0]:
-				p_index[u[1]] = i
-				i += 1
-
 			# substitute the arguments within the define expression
 			accu = []
+			table = macro_def[0]
 			for p, v in macro_def[1]:
-				if p == IDENT and v in p_index: accu += params[p_index[v]]
+				if p == IDENT and v in table: accu += params[table[v]]
 				else: accu.append((p, v))
 
 			return get_expr(accu + lst, defs, ban)
@@ -542,57 +542,61 @@ class cparse(object):
 		elif token == 'endif':
 			self.state.pop(0)
 		elif token == 'define':
-			(name, val) = extract_define(line)
-			debug("define %s   %s" % (name, str(val)), 'preproc')
-			self.defs[name] = val
+			match = re_mac.search(line)
+			if match:
+				name = match.group(0)
+				debug("define %s   %s" % (name, line), 'preproc')
+				self.defs[name] = line
+			else:
+				raise PreprocError, "invalid define line %s" % line
 		elif token == 'undef':
 			name = get_name(line)
 			if name and name in self.defs:
 				self.defs.__delitem__(name)
 				#print "undef %s" % name
 		elif token == 'pragma':
-			if reg_pragma_once.search(line.lower()):
+			if re_pragma_once.search(line.lower()):
 				pass
 				#print "found a pragma once"
 
-re_function = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
-def extract_define(txt):
-	# TODO do *not* tokenize the defines until absolutely needed
+def extract_macro(txt):
 	t = tokenize(txt)
-	if re_function.search(txt):
-		# this means we have a function
-		params = []
-		(tok, val) = t.pop(0)
-		name = val
+	if re_fun.search(txt):
+		p, name = t[0]
 
-		(tok, val) = t.pop(0)
-		if tok != OP: raise PreprocError, "expected open parenthesis"
+		p, v = t[1]
+		if p != OP: raise PreprocError, "expected open parenthesis"
+
+		i = 1
+		pindex = 0
+		params = {}
+		wantident = 1
+
 		while 1:
-			(tok, val) = t.pop(0)
+			i += 1
+			p, v = t[i]
 
-			if tok == OP and val == ')':
-				break
-			if tok != IDENT and (tok != OP and val != '...'):
-				raise PreprocError, "expected ident"
-
-			(tok2, val2) = t.pop(0)
-			if tok2 == OP and val2 == '...':
-				params.append((IDENT, val+val2)) # to get the varargs "z..."
-			elif tok2 == OP and val2 == ')':
-				if tok == IDENT:
-					params.append((tok, val))
+			if wantident:
+				if p == IDENT:
+					params[v] = pindex
+					pindex += 1
+				elif v == '...':
+					pass
 				else:
-					params.append((IDENT, val))
-				break
-			elif tok2 == OP and val2 == ',':
-				params.append((tok, val))
+					raise PreprocError, "expected ident"
 			else:
-				raise PreprocError, "unexpected token "+str((tok2, val2))
+				if v == ',':
+					pass
+				elif v == ')':
+					break
+				elif v == '...':
+					raise PreprocError, "not implemented"
+			wantident = not wantident
 
-		return (name, [params, t])
+		return (name, [params, t[i+1:]])
 	else:
-		(tok, val) = t.pop(0)
-		return (val, [None, t])
+		(p, v) = t[0]
+		return (v, [[], t[1:]])
 
 re_include = re.compile('^\s*(<(.*)>|"(.*)")\s*')
 def extract_include(txt, defs):
