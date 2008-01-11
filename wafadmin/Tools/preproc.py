@@ -489,10 +489,6 @@ class cparse(object):
 					warning("line parsing failed (%s): %s" % (str(ex), line))
 					traceback.print_exc()
 				raise
-	def isok(self):
-		if not self.state: return 1
-		if self.state[0] in [skipped, ignored]: return None
-		return 1
 
 	def process_line(self, token, line):
 
@@ -504,27 +500,23 @@ class cparse(object):
 
 		# skip lines when in a dead 'if' branch, wait for the endif
 		if not token in ['else', 'elif', 'endif']:
-			if not self.isok():
-				#print "return in process line"
-				return
-
-		def get_name(line):
-			ret = tokenize(line)
-			for (x, y) in ret:
-				if x == IDENT: return y
-			return ''
+			if self.state:
+				print self.state
+				if self.state[0] in [skipped, ignored]:
+					#print "return in process line"
+					return
 
 		if token == 'if':
 			ret = eval_macro(tokenize(line), self.defs)
 			if ret: self.state[0] = accepted
 			else: self.state[0] = ignored
 		elif token == 'ifdef':
-			name = get_name(line)
-			if name in self.defs.keys(): self.state[0] = accepted
+			m = re_mac.search(line)
+			if m and m.group(0) in self.defs: self.state[0] = accepted
 			else: self.state[0] = ignored
 		elif token == 'ifndef':
-			name = get_name(line)
-			if name in self.defs.keys(): self.state[0] = ignored
+			m = re_mac.search(line)
+			if m and m.group(0) in self.defs: self.state[0] = ignored
 			else: self.state[0] = accepted
 		elif token == 'include' or token == 'import':
 			(type, inc) = extract_include(line, self.defs)
@@ -546,9 +538,9 @@ class cparse(object):
 		elif token == 'endif':
 			self.state.pop(0)
 		elif token == 'define':
-			match = re_mac.search(line)
-			if match:
-				name = match.group(0)
+			m = re_mac.search(line)
+			if m:
+				name = m.group(0)
 				debug("define %s   %s" % (name, line), 'preproc')
 				self.defs[name] = line
 			else:
