@@ -215,7 +215,7 @@ def get_expr(lst, defs, ban):
 			#return get_expr([(NUM, x)] + lst[off:], defs, ban)
 			return (NUM, x, lst[off:])
 
-		elif not v in defs:
+		elif not v in defs or v in ban:
 			if "waf_include" in ban: return (p, v, lst[1:])
 			else: return (NUM, 0, lst[1:])
 
@@ -269,11 +269,11 @@ def get_expr(lst, defs, ban):
 			# substitute the arguments within the define expression
 			accu = []
 			table = macro_def[0]
-			for p, v in macro_def[1]:
-				if p == IDENT and v in table: accu += params[table[v]]
-				else: accu.append((p, v))
+			for p2, v2 in macro_def[1]:
+				if p2 == IDENT and v2 in table: accu += params[table[v2]]
+				else: accu.append((p2, v2))
 
-			return get_expr(accu + lst, defs, ban)
+			return get_expr(accu + lst, defs, ban+[v])
 
 def process_tokens(lst, defs, ban):
 	accu = []
