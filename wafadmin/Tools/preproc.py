@@ -185,9 +185,10 @@ def get_expri(lst, defs, ban):
 		if len(lst)>1:
 			(p2, v2) = lst[1]
 			if v2 == "##":
-				# token pasting
+				# token pasting, reevaluate the identifier obtained
 				(p3, v3) = lst[2]
-				if p3 != IDENT: raise PreprocError, "expected ident after ## %s" % str(lst)
+				if p3 != IDENT and p3 != NUM:
+					raise PreprocError, "%s: ident expected after '##'" % str(lst)
 				return get_expri([(p, v+v3)]+lst[3:], defs, ban)
 
 		if v.lower() == 'defined':
@@ -212,11 +213,60 @@ def get_expri(lst, defs, ban):
 
 		macro_def = defs[v]
 		if not macro_def[0]:
-			# simple macro, substitute
+			# simple macro, substitute, and reevaluate
 			lst = macro_def[1] + lst[1:]
 			return get_expri(lst, defs, ban)
 		else:
-			raise PreprocError, "function calls: implement me"
+			# collect the arguments for the funcall
+			params = []
+			i = 1
+			p2, v2 = lst[i]
+			if p2 != OP or v2 != '(': raise PreprocError, "invalid function call '%s'" % v
+
+			one_param = []
+			count_paren = 0
+			try:
+				while 1:
+					i += 1
+					p2, v2 = lst[i]
+
+					if p2 == OP and count_paren == 0:
+						if v2 == '(':
+							one_param.append((p2, v2))
+							count_paren += 1
+						elif v2 == ')':
+							if one_param: params.append(one_param)
+							lst = lst[i+1:]
+							break
+						elif v2 == ',':
+							if not one_param: raise PreprocError, "empty param in funcall %s" % p
+							params.append(one_param)
+							one_param = []
+							continue
+					else:
+						one_param.append((p2, v2))
+						if   v2 == '(': count_paren += 1
+						elif v2 == ')': count_paren -= 1
+
+			except IndexError, e:
+				#raise PreprocError, 'invalid function call %s: missing ")"' % p
+				raise
+
+			# TODO try to prepare such a table somewhere else
+			# a map  x->1st param, y->2nd param, etc
+			p_index = {}
+			i = 0
+			for u in macro_def[0]:
+				p_index[u[1]] = i
+				i += 1
+
+			# substitute the arguments within the define expression
+			accu = []
+			for p, v in macro_def[1]:
+				if p == IDENT and v in p_index: accu += params[p_index[v]]
+				else: accu.append((p, v))
+
+			return get_expri(accu + lst, defs, ban)
 
 def process_tokens(lst, defs, ban):
 	accu = []
@@ -287,7 +337,7 @@ def get_expr(tokens):
 		elif val == '-' or val == '+':
 			(tok2, val2, lst2) = get_expr(lst)
 			if val == '-': v = - int(val2)
-			return (NUM, v, lst2)
+			return (NUM, val2, lst2)
 		elif val == '(':
 			count_par = 0
 			accu = []
@@ -457,7 +507,7 @@ def eval_tokens(lst, adefs, ban=[]):
 				params = []
 				tmp = []
 				(tok, val) = lst.pop(0)
-				if tok != OP or val != '(': raise ParseError, "invalid function call "+name
+				if tok != OP or val != '(': raise PreprocError, "invalid function call "+name
 				count_paren = 0
 				while 1:
 					(tok, val) = lst.pop(0)
@@ -467,7 +517,7 @@ def eval_tokens(lst, adefs, ban=[]):
 							if tmp: params.append(tmp)
 							break
 						elif val == ',':
-							if not tmp: raise ParseError, "invalid function call "+name
+							if not tmp: raise PreprocError, "invalid function call "+name
 							params.append(tmp)
 							tmp = []
 							continue
@@ -874,10 +924,12 @@ if __name__ == "__main__":
 	paths = ['.']
 	f = open(arg, "r"); txt = f.read(); f.close()
 
-	d1 = [[], [(NUM, 1), (OP, '+'), (NUM, 2)]]
+	m1   = [[], [(NUM, 1), (OP, '+'), (NUM, 2)]]
+	fun1 = [[(IDENT, 'x'), (IDENT, 'y')], [(IDENT, 'x'), (OP, '##'), (IDENT, 'y')]]
+	fun2 = [[(IDENT, 'x'), (IDENT, 'y')], [(IDENT, 'x'), (OP, '*'), (IDENT, 'y')]]
 
 	def test(x):
-		y = process_tokens(tokenize(x), {'d1':d1}, [])
+		y = process_tokens(tokenize(x), {'m1':m1, 'fun1':fun1, 'fun2':fun2}, [])
 		print x, y
 
 	test("0&&2<3")
@@ -891,8 +943,10 @@ if __name__ == "__main__":
 	test("defined(inex)")
 	try: test("inex")
 	except: print "inex is not defined"
-	test("d1*3")
-	test("7*d1*3")
+	test("m1*3")
+	test("7*m1*3")
+	test("fun1(m,1)")
+	test("fun2(2, fun1(m, 1))")
 
 	"""
 	gruik = cparse(strpaths = paths)
@@ -901,9 +955,8 @@ if __name__ == "__main__":
 	print gruik.deps
 	print gruik.deps_paths
 
-	"""
 	#f = open(arg, "r")
 	#txt = f.read()
 	#f.close()
 	#print tokenize(txt)
-
+	"""
