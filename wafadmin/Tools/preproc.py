@@ -136,7 +136,7 @@ def reduce_nums(val_1, val_2, val_op):
 	else: c = 0
 	return c
 
-def get_expri(lst, defs, ban):
+def get_expr(lst, defs, ban):
 
 	if not lst: return ([], [], [])
 
@@ -154,16 +154,17 @@ def get_expri(lst, defs, ban):
 
 	elif p == OP:
 		if v in ['+', '-', '~', '!']:
-			(p2, v2, lst2) = get_expri(lst[1:], defs, ban)
+			(p2, v2, lst2) = get_expr(lst[1:], defs, ban)
 			if p2 != NUM: raise PreprocError, "num expected %s" % str(lst)
 			if v == '+': return (p2, v2, lst2)
+
 			# TODO other cases are be complicated
 			return (p2, v2, lst2)
 
 		elif v == '#':
-			(p2, v2, lst2) = get_expri(lst[1:], defs, ban)
+			(p2, v2, lst2) = get_expr(lst[1:], defs, ban)
 			if p2 != IDENT: raise PreprocError, "ident expected %s" % str(lst)
-			return get_expri([(STR, v2)]+lst2, defs, ban)
+			return get_expr([(STR, v2)]+lst2, defs, ban)
 
 		elif v == '(':
 			count_par = 0
@@ -193,7 +194,7 @@ def get_expri(lst, defs, ban):
 				(p3, v3) = lst[2]
 				if p3 != IDENT and p3 != NUM and p3 != OP:
 					raise PreprocError, "%s: ident expected after '##'" % str(lst)
-				return get_expri([(p, v+v3)]+lst[3:], defs, ban)
+				return get_expr([(p, v+v3)]+lst[3:], defs, ban)
 
 		if v.lower() == 'defined':
 			(p2, v2) = lst[1]
@@ -209,7 +210,7 @@ def get_expri(lst, defs, ban):
 
 			x = 0
 			if v2 in defs: x = 1
-			#return get_expri([(NUM, x)] + lst[off:], defs, ban)
+			#return get_expr([(NUM, x)] + lst[off:], defs, ban)
 			return (NUM, x, lst[off:])
 
 		elif not v in defs:
@@ -219,7 +220,7 @@ def get_expri(lst, defs, ban):
 		if not macro_def[0]:
 			# simple macro, substitute, and reevaluate
 			lst = macro_def[1] + lst[1:]
-			return get_expri(lst, defs, ban)
+			return get_expr(lst, defs, ban)
 		else:
 			# collect the arguments for the funcall
 			params = []
@@ -257,7 +258,7 @@ def get_expri(lst, defs, ban):
 				#raise PreprocError, 'invalid function call %s: missing ")"' % p
 				raise
 
-			# TODO try to prepare such a table somewhere else
+			# TODO try to cache this translation table
 			# a map  x->1st param, y->2nd param, etc
 			p_index = {}
 			i = 0
@@ -271,12 +272,12 @@ def get_expri(lst, defs, ban):
 				if p == IDENT and v in p_index: accu += params[p_index[v]]
 				else: accu.append((p, v))
 
-			return get_expri(accu + lst, defs, ban)
+			return get_expr(accu + lst, defs, ban)
 
 def process_tokens(lst, defs, ban):
 	accu = []
 	while lst:
-		p, v, nlst = get_expri(lst, defs, ban)
+		p, v, nlst = get_expr(lst, defs, ban)
 		if p == NUM:
 			if not nlst: return [(p, v)] # finished
 
@@ -302,7 +303,7 @@ def process_tokens(lst, defs, ban):
 				lst = nlst[1:]
 				continue
 
-			p2, v2, nlst = get_expri(nlst[1:], defs, ban)
+			p2, v2, nlst = get_expr(nlst[1:], defs, ban)
 			if p2 != NUM: raise PreprocError, "num expected after op %s" % str(lst)
 			if nlst:
 				# op precedence
@@ -310,7 +311,7 @@ def process_tokens(lst, defs, ban):
 				if prec[ov3] < prec[ov1]:
 					#print "ov3", ov3, ov1
 					# as needed
-					p4, v4, nlst2 = get_expri(nlst[1:], defs, ban)
+					p4, v4, nlst2 = get_expr(nlst[1:], defs, ban)
 					v5 = reduce_nums(v2, v4, ov3)
 					lst = [(p, v), (op1, ov1), (NUM, v5)] + nlst2
 					continue
@@ -556,6 +557,7 @@ class cparse(object):
 
 re_function = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
 def extract_define(txt):
+	# TODO do *not* tokenize the defines until absolutely needed
 	t = tokenize(txt)
 	if re_function.search(txt):
 		# this means we have a function
