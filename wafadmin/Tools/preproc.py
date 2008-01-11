@@ -155,18 +155,21 @@ def get_expr(lst, defs, ban):
 		return (p, v, lst[1:])
 
 	elif p == OP:
-		if v in ['+', '-', '~', '!']:
+		if v in ['+', '-', '!', '~', '#']:
 			(p2, v2, lst2) = get_expr(lst[1:], defs, ban)
+
+			if v == '#':
+				if p2 != IDENT: raise PreprocError, "ident expected %s" % str(lst)
+				return get_expr([(STR, v2)]+lst2, defs, ban)
+
 			if p2 != NUM: raise PreprocError, "num expected %s" % str(lst)
-			if v == '+': return (p2, v2, lst2)
 
-			# TODO other cases are be complicated
+			if   v == '+': return (p2, v2, lst2)
+			elif v == '-': return (p2, - int(v2), lst2)
+			elif v == '!': return (p2, int(not int(v2)), lst2)
+			elif v == '~': return (p2, ~ int(v2), lst2)
+
 			return (p2, v2, lst2)
-
-		elif v == '#':
-			(p2, v2, lst2) = get_expr(lst[1:], defs, ban)
-			if p2 != IDENT: raise PreprocError, "ident expected %s" % str(lst)
-			return get_expr([(STR, v2)]+lst2, defs, ban)
 
 		elif v == '(':
 			count_par = 0
