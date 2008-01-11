@@ -11,7 +11,7 @@
   - substitute the code in the functions and the defines (and use the # and ## operators)
   - reduce the expression obtained (apply the arithmetic and boolean rules)
 
-TODO: varargs
+TODO: varargs, variadic macros, parse more numbers
 """
 
 import re, sys, os, string, types
@@ -546,9 +546,9 @@ class cparse(object):
 			else:
 				raise PreprocError, "invalid define line %s" % line
 		elif token == 'undef':
-			name = get_name(line)
-			if name and name in self.defs:
-				self.defs.__delitem__(name)
+			m = re_mac.search(line)
+			if m and m.group(0) in self.defs
+				self.defs.__delitem__(m.group(0))
 				#print "undef %s" % name
 		elif token == 'pragma':
 			if re_pragma_once.search(line.lower()):
