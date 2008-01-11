@@ -140,12 +140,14 @@ def get_expri(lst, defs, ban):
 	(p, v) = lst[0]
 	if p == NUM:
 		return (p, v, lst[1:])
+
 	elif p == STR:
 		try:
 			(p2, v2) = lst[1]
 			if p2 == STR: return (p, v+v2, lst[2:])
 		except IndexError: pass
 		return (p, v, lst)
+
 	elif p == OP:
 		if v in ['+', '-', '~', '!']:
 			(p2, v2, lst2) = get_expri(lst[1:], defs, ban)
@@ -153,10 +155,12 @@ def get_expri(lst, defs, ban):
 			if v == '+': return (p2, v2, lst2)
 			# TODO other cases are be complicated
 			return (p2, v2, lst2)
+
 		elif v == '#':
 			(p2, v2) = lst[1]
 			if p2 != IDENT: raise PreprocError, "ident expected %s" % str(lst)
 			return get_expri([(STR, v2)]+lst[2:], defs, ban)
+
 		elif v == '(':
 			count_par = 0
 			i = 0
@@ -174,8 +178,9 @@ def get_expri(lst, defs, ban):
 				(p, v) = ret[0]
 				return (p, v, lst[i+1:])
 			else:
-				raise PreprocError, "cannot reduce %s" % str(lst)
 				#return (None, lst1, lst[i+1:])
+				raise PreprocError, "cannot reduce %s" % str(lst)
+
 	elif p == IDENT:
 		if len(lst)>1:
 			(p2, v2) = lst[1]
@@ -217,7 +222,7 @@ def process_tokens(lst, defs, ban):
 			p2, v2, nlst = get_expri(nlst[1:], defs, ban)
 			if p2 != NUM: raise PreprocError, "num expected after op %s" % str(lst)
 			if nlst:
-				#use op precedence
+				# op precedence
 				op3, ov3 = nlst[0]
 				if prec[ov3] < prec[ov1]:
 					#print "ov3", ov3, ov1
@@ -226,12 +231,15 @@ def process_tokens(lst, defs, ban):
 					v5 = reduce_nums(v2, v4, ov3)
 					lst = [(p, v), (op1, ov1), (NUM, v5)] + nlst2
 					continue
+
 			# no op precedence or empty list, reduce the first tokens
 			lst = [(NUM, reduce_nums(v, v2, ov1))] + nlst
 			continue
+
 		elif p == STR:
 			if nlst: raise PreprocError, "sequence must terminate with a string %s" % str(lst)
 			return [(p, v)]
+
 		elif p == IDENT:
 			if v.lower() == 'defined':
 				(p2, v2) = lst[1]
@@ -248,12 +256,17 @@ def process_tokens(lst, defs, ban):
 				x = 0
 				if v2 in defs: x = 1
 				lst = [(NUM, x)]+lst[off:]
-				print "lst is ", lst
 				continue
 
-			# TODO macros and functions remain
+			elif not v in defs:
+				raise PreprocError, 'undefined macro or function "%s"' % v
+
+			
 
 		return (None, None, [])
+
+
+
 
 def get_expr(tokens):
 	if len(tokens) == 0: return (None, None, tokens)
@@ -425,8 +438,6 @@ def eval_tokens(lst, adefs, ban=[]):
 			if val_x in adefs: accu.append((NUM, 1))
 			else: accu.append((NUM, 0))
 
-		elif tok == IDENT and val == 'sizeof':
-			raise PreprocError, "you must be fucking kidding"
 		elif tok == IDENT and val in adefs:
 			# the identifier is a macro
 			name = val
@@ -436,7 +447,7 @@ def eval_tokens(lst, adefs, ban=[]):
 			if fun_def: fun_args = fun_def[0]
 			if fun_args == None:
 				# simple macro
-				# make the substitution, TODO make certain to disallow recursion
+				# make the substitution
 				lst = fun_def[1] + lst
 			else:
 				# function call, collect the arguments
@@ -873,6 +884,8 @@ if __name__ == "__main__":
 	test("1?1,(0?5:9):3,4")
 	test("defined inex")
 	test("defined(inex)")
+	try: test("inex")
+	except: print "inex is not defined"
 
 
 	"""
