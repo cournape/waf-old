@@ -91,10 +91,6 @@ def hook(clsname, var, func):
 
 class genobj(object):
 	def __init__(self, type):
-		if not type in self.get_valid_types():
-			error("'%s' is not a valid type" % type)
-
-		self.m_type  = type
 		self.m_posted = 0
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
@@ -108,6 +104,10 @@ class genobj(object):
 
 		# no default environment - in case if
 		self.env = None
+
+		if not type in self.get_valid_types():
+			error("'%s' is not a valid type (error in %s)" % (type, self))
+		self.m_type  = type
 
 		# allow delayed operations on objects created (declarative style)
 		# an object is then posted when another one is added
