@@ -64,16 +64,10 @@ class Node(object):
 		return "<%s%s>" % (isbld, self.abspath())
 
 	def __eq__(self, other):
-		try:
-			if self.equals(other): return True
-		except: pass #evil bare except
-		return False
+		return self.hash_value == other.hash_value
 
 	def __ne__(self, other):
-		try:
-			if not self.equals(other): return True
-		except: pass #evil bare except
-		return False
+		return self.hash_value != other.hash_value
 
 	def __hash__(self):
 		'return hash value based on the abs path'
@@ -90,6 +84,10 @@ class Node(object):
 			debug("[%s]" %val, 'node')
 			self.hash_value = hash(val)
 		return self.hash_value
+
+	# TODO deprecated, remove this function
+	def equals(self, node):
+		return self.hash_value == node.hash_value
 
 	def dirs(self):
 		return self.m_dirs_lookup.values()
@@ -273,7 +271,7 @@ class Node(object):
 	# same as pathlist3, but do not append './' at the beginning
 	def pathlist4(self, node):
 		#print "pathlist4 called"
-		if self.m_parent.equals(node): return [self.m_name]
+		if self.m_parent == node: return [self.m_name]
 		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
 
 	def relpath(self, parent):
@@ -302,18 +300,18 @@ class Node(object):
 		while dist>0:
 			cand=cand.m_parent
 			dist=dist-1
-		if cand.equals(node): return cand
+		if cand == node: return cand
 		cursor=node
 		while cand.m_parent:
 			cand   = cand.m_parent
 			cursor = cursor.m_parent
-			if cand.equals(cursor): return cand
+			if cand == cursor: return cand
 
 	# prints the amount of "../" between two nodes
 	def invrelpath(self, parent):
 		lst=[]
 		cand=self
-		while not cand.equals(parent):
+		while not cand == parent:
 			cand=cand.m_parent
 			lst+=['..',os.sep] #TODO: fix this
 		return lst
@@ -321,8 +319,8 @@ class Node(object):
 	# TODO: do this in a single function (this one uses invrelpath, find_ancestor and pathlist4)
 	# string representing a relative path between two nodes, we are at relative_to
 	def relpath_gen(self, going_to):
-		if self.equals(going_to): return '.'
-		if going_to.m_parent.equals(self): return '..'
+		if self == going_to: return '.'
+		if going_to.m_parent == self: return '..'
 
 		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
 		ancestor  = self.find_ancestor(going_to)
@@ -406,18 +404,7 @@ class Node(object):
 		while diff>0:
 			diff-=1
 			p=p.m_parent
-		return p.equals(node)
-
-	def equals(self, node):
-		"is one node equal to another one"
-		p1 = self
-		p2 = node
-		while p1 and p2:
-			if p1.m_name != p2.m_name:
-				return 0
-			p1=p1.m_parent
-			p2=p2.m_parent
-		return not (p1 or p2)
+		return p == node
 
 	def variant(self, env):
 		"variant, or output directory for this node, a source has for variant 0"
