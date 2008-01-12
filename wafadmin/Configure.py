@@ -1074,6 +1074,7 @@ class Configure(object):
 		return ret
 
 	def cleanup(self):
+		pass
 		"called on shutdown"
 		"""try:
 			dir = os.path.join(Params.g_homedir, '.wafcache')
