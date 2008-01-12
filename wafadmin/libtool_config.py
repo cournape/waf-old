@@ -109,9 +109,9 @@ class libtool_config:
 	def __str__(self):
 		return "\n".join([
 			str(self.__libtool_la_file),
-			" ".join(self.__libtool_la_file.get_libs()),
-			"* New getlibs:",
-			" ".join(self.get_libs())
+			' '.join(self.__libtool_la_file.get_libs()),
+			'* New getlibs:',
+			' '.join(self.get_libs())
 		])
 
 	def __get_la_libs(self, la_filename):
