@@ -417,8 +417,7 @@ class Node(object):
 				return 0
 			p1=p1.m_parent
 			p2=p2.m_parent
-		if p1 or p2: return 0
-		return 1
+		return not (p1 or p2)
 
 	def variant(self, env):
 		"variant, or output directory for this node, a source has for variant 0"
