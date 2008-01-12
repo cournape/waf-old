@@ -30,7 +30,7 @@ class Node(object):
 		self.m_parent = parent
 		self.m_cached_path = ""
 
-		self.__hash_value=None #value should chache the hash value
+		self.hash_value=None #value should chache the hash value
 
 		# Lookup dictionaries for O(1) access
 		self.m_dirs_lookup = {}
@@ -77,7 +77,7 @@ class Node(object):
 
 	def __hash__(self):
 		'return hash value based on the abs path'
-		if not self.__hash_value:
+		if not self.hash_value:
 			cur=self
 			lst=[]
 			while cur:
@@ -88,8 +88,8 @@ class Node(object):
 			lst.reverse()
 			val=os.path.join(*lst)
 			debug("[%s]" %val, 'node')
-			self.__hash_value = hash(val)
-		return self.__hash_value
+			self.hash_value = hash(val)
+		return self.hash_value
 
 	def dirs(self):
 		return self.m_dirs_lookup.values()
