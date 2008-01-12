@@ -1,12 +1,12 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005 (ita)
+# Thomas Nagy, 2005-2008 (ita)
 
 "Main parameters"
 
 import os, sys, types, inspect, base64, stat, time
 
-# since Python 2.5, hashlib replaces deprecated md5, see: http://docs.python.org/lib/module-md5.html
+# see: http://docs.python.org/lib/module-md5.html
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
