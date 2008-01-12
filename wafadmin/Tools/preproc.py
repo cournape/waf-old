@@ -496,17 +496,16 @@ class cparse(object):
 		if ve: debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
 		state = self.state
 
-		# skip lines when in a dead 'if' branch, wait for the endif
-		if not token in ['else', 'elif', 'endif']:
-			if self.state:
-			#	print self.state
-				if self.state[-1] in [skipped, ignored]:
-					#print "return in process line"
-					return
-
 		# make certain we define the state if we are about to enter in an if block
 		if token in ['ifdef', 'ifndef', 'if']:
 			state.append(undefined)
+		elif token == 'endif':
+			if state: state.pop() # TODO the condition is useless
+
+		# skip lines when in a dead 'if' branch, wait for the endif
+		if not token in ['else', 'elif', 'endif']:
+			if skipped in self.state or ignored in self.state:
+				return
 
 		if token == 'if':
 			ret = eval_macro(tokenize(line), self.defs)
@@ -528,7 +527,6 @@ class cparse(object):
 			if type == '"' or not strict_quotes:
 				if not inc in self.deps:
 					self.deps.append(inc)
-				# allow double inclusion
 				self.tryfind(inc)
 		elif token == 'elif':
 			if state[-1] == accepted:
@@ -539,8 +537,6 @@ class cparse(object):
 		elif token == 'else':
 			if state[-1] == accepted: state[-1] = skipped
 			elif state[-1] == ignored: state[-1] = accepted
-		elif token == 'endif':
-			if state: state.pop()
 		elif token == 'define':
 			m = re_mac.search(line)
 			if m:
