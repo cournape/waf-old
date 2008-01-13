@@ -20,6 +20,7 @@ def build(bld):
 	'''
 	obj.includes='.'
 	obj.target='testprogram'
+	obj.defines='LINUX=1 BIDULE'
 
 	# 2. A shared library
 	# The extension (.so) is added automatically
