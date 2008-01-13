@@ -333,9 +333,7 @@ def process_tokens(lst, defs, ban):
 def eval_macro(lst, adefs):
 	# look at the result, and try to return a 0/1 result
 	ret = process_tokens(lst, adefs, [])
-	if len(ret) != 1:
-		raise IndexError, "error!!!"
-
+	if not ret: raise PreprocError, "missing tokens to evaluate %s" % str(lst)
 	p, v = ret[0]
 	return int(v) != 0
 
