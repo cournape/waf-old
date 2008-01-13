@@ -205,8 +205,7 @@ class Node(object):
 		"just find a node in the tree, do not rescan folders"
 		current = self
 		while lst:
-			name=lst[0]
-			lst=lst[1:]
+			name=lst.pop(0)
 			prev = current
 			if name == '.':
 				continue
