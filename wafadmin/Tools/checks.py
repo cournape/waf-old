@@ -9,14 +9,14 @@ from Params import error, fatal
 
 endian_str = '''
 #include <stdio.h>
-int am_big_endian()
+int is_big_endian()
 {
 	long one = 1;
 	return !(*((char *)(&one)));
 }
 int main()
 {
-	if (am_big_endian()) printf("bigendian=1\\n");
+	if (is_big_endian()) printf("bigendian=1\\n");
 	else printf("bigendian=0\\n");
 	return 0;
 }
@@ -93,14 +93,14 @@ def checkEndian(self, define='', pathlst=[]):
 
 features_str = '''
 #include <stdio.h>
-int am_big_endian()
+int is_big_endian()
 {
 	long one = 1;
 	return !(*((char *)(&one)));
 }
 int main()
 {
-	if (am_big_endian()) printf("bigendian=1\\n");
+	if (is_big_endian()) printf("bigendian=1\\n");
 	else printf("bigendian=0\\n");
 	printf("int_size=%d\\n", sizeof(int));
 	printf("long_int_size=%d\\n", sizeof(long int));
