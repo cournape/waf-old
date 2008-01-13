@@ -163,10 +163,14 @@ def progress_line(state, total, col1, col2):
 
 def split_path(path):
 	"Split path into components. Supports UNC paths on Windows"
-	if 'win' == sys.platform[:3] :
-		h,t = os.path.splitunc(path)
-		if not h: return __split_dirs(t)
-		return [h] + __split_dirs(t)[1:]
+	if sys.platform != 'win32':
+		if not path: return ['']
+		x = path.split('/')
+		if path[0] == '/': x = ['/']+x[1:]
+		return x
+	h,t = os.path.splitunc(path)
+	if not h: return __split_dirs(t)
+	return [h] + __split_dirs(t)[1:]
 	return __split_dirs(path)
 
 def __split_dirs(path):
