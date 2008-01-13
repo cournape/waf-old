@@ -261,9 +261,13 @@ int main()
 
 def build(bld):
 
-	# build empty files, useful for debugging
+	# build empty files (for debugging or profiling)
 	#import Action
-	#[Action.simple_action(x, 'touch ${TGT}', color='CYAN') for x in []+Action.g_actions.keys()]
+	#def touch_func(task):
+	#	for x in task.m_outputs:
+	#		open(x.abspath(task.m_env), 'w').close()
+	#for x in []+Action.g_actions.keys():
+	#	Action.Action(x, vars=[], func=touch_func, color='CYAN')
 
 	# process subfolders from here
 	bld.add_subdirs('src complex variant tests')
