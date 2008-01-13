@@ -593,36 +593,18 @@ def extract_macro(txt):
 		(p, v) = t[0]
 		return (v, [[], t[1:]])
 
-re_include = re.compile('^\s*(<(.*)>|"(.*)")\s*')
+re_include = re.compile('^\s*(<(?P<a>.*)>|"(?P<b>.*)")')
 def extract_include(txt, defs):
-	def replace_v(m):
-		return m.group(1)
-
-	if re_include.search(txt):
-		t = re_include.sub(replace_v, txt)
-		return (t[0], t[1:-1])
+	m = re_include.search(txt)
+	if m:
+		if m.group('a'): return '<', m.group('a')
+		if m.group('b'): return '"', m.group('b')
 
 	# perform preprocessing and look at the result, it must match an include
-	tokens = tokenize(txt)
+	tokens = process_tokens(tokens, defs, ['waf_include'])
 	p, v = tokens[0]
-	if v == '<':
-		txt = "".join([y for (x, y) in ret])
-	elif p == STR:
-		txt = '"%s"' % val
-	else:
-		tokens = process_tokens(tokens, defs, ['waf_include'])
-		p, v = tokens[0]
-		if p != STR:
-			raise PreprocError, "could not parse includes %s" % str(tokens)
-		txt = '"%s"' % v
-
-	# TODO eliminate this regexp
-	if re_include.search(txt):
-		t = re_include.sub(replace_v, txt)
-		return (t[0], t[1:-1])
-
-	# if we come here, parsing failed
-	raise PreprocError, "include parsing failed %s" % txt
+	if p != STR: raise PreprocError, "could not parse include %s" % txt
+	return ('"', v)
 
 def parse_char(txt):
 	# TODO way too complicated!
