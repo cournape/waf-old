@@ -387,7 +387,7 @@ class Build(object):
 		"""
 
 		# do not rescan over and over again
-		if src_dir_node in self.m_scanned_folders: return
+		if src_dir_node.hash_value in self.m_scanned_folders: return
 
 		# do not rescan the nodes above srcnode
 		if src_dir_node.height() < self.m_srcnode.height(): return
@@ -432,7 +432,7 @@ class Build(object):
 						dict.__delitem__(node)
 				os.makedirs(sub_path)
 				src_dir_node.m_build_lookup={}
-		self.m_scanned_folders.append(src_dir_node)
+		self.m_scanned_folders.append(src_dir_node.hash_value)
 
 	# ======================================= #
 	def scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
