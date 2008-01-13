@@ -294,15 +294,6 @@ def prepare():
 
 	try: main()
 	except KeyboardInterrupt: Params.fatal('build interrupted')
-	#import hotshot
-	#prof=hotshot.Profile("/tmp/proftest.txt")
-	#prof.runcall(main)
-	#prof.close()
-	# the program to display the results:
-	# #! /usr/bin/python
-	#from hotshot import stats
-	#s = stats.load("/tmp/proftest.txt")
-	#print s.sort_stats("time").print_stats()
 
 def main():
 	import inspect
@@ -379,6 +370,12 @@ def main():
 	if Params.g_commands['build'] or Params.g_commands['install']:
 		try:
 			ret = bld.compile()
+			#ret = 0
+			#import cProfile, pstats
+			#cProfile.run("Params.g_build.compile()", 'profi.txt')
+			#p = pstats.Stats('profi.txt')
+			#p.sort_stats('time').print_stats(20)
+
 			if Params.g_options.progress_bar: print ''
 			if not ret: Params.pprint('GREEN', 'Compilation finished successfully')
 		finally:
