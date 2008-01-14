@@ -199,6 +199,7 @@ class Serial(object):
 			#continue
 			if not tsk.must_run():
 				tsk.m_hasrun = skipped
+				Task.g_tasks_done.append(tsk)
 				#debug("task is up-to_date "+str(tsk.m_idx), 'runner')
 				continue
 
@@ -387,6 +388,7 @@ class Parallel(object):
 				self.progress += 1
 				if not tsk.must_run():
 					tsk.m_hasrun = skipped
+					Task.g_tasks_done.append(tsk)
 					continue
 				cl = Params.g_colors
 				tsk.set_display(progress_line(self.progress, self.total, cl[tsk.color()], tsk, cl['NORMAL']))

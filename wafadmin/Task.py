@@ -241,7 +241,7 @@ class Task(TaskBase):
 
 		# this is a dependency using the scheduler, as opposed to hash-based ones
 		for t in self.get_run_after():
-			if t.m_hasrun >= Runner.skipped:
+			if not t.m_hasrun:
 				return 0
 		return 1
 
@@ -272,6 +272,7 @@ class Task(TaskBase):
 			try:
 				ret = self.can_retrieve_cache(self.signature())
 			except KeyError:
+				# TODO incomplete
 				return 0
 			return not ret
 

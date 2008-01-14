@@ -30,7 +30,7 @@ class Node(object):
 		self.m_parent = parent
 		self.m_cached_path = ""
 
-		self.hash_value=None #value should chache the hash value
+		self.hash_value = None
 
 		# Lookup dictionaries for O(1) access
 		self.m_dirs_lookup = {}
