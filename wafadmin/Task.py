@@ -14,7 +14,7 @@ import Params, Scan, Action, Runner, Object
 from Params import debug, error, warning
 
 g_tasks_done    = []
-"tasks that have been run, this is used in tests to check which tasks were actually launched"
+"tasks that have been processed"
 
 class TaskManager(object):
 	"""There is a single instance of TaskManager held by Task.py:g_tasks
@@ -241,7 +241,7 @@ class Task(TaskBase):
 
 		# this is a dependency using the scheduler, as opposed to hash-based ones
 		for t in self.get_run_after():
-			if not t.m_hasrun:
+			if t.m_hasrun >= Runner.skipped:
 				return 0
 		return 1
 
@@ -269,7 +269,10 @@ class Task(TaskBase):
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
 
 			# maybe we can just retrieve the object files from the cache then
-			ret = self.can_retrieve_cache(self.signature())
+			try:
+				ret = self.can_retrieve_cache(self.signature())
+			except KeyError:
+				return 0
 			return not ret
 
 		new_sig = self.signature()
@@ -299,11 +302,11 @@ class Task(TaskBase):
 			#	print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
 
 			# check if the node exists ..
-			try:
-				os.stat(node.abspath(env))
-			except:
-				error('a node was not produced for task %s %s' % (str(self.m_idx), node.abspath(env)))
-				raise
+			#try:
+			os.stat(node.abspath(env))
+			#except:
+			#	#error('failed to produce %s' % (str(self.m_idx), node.abspath(env)))
+			#	raise
 
 			# important, store the signature for the next run
 			tree.m_tstamp_variants[variant][node] = sig

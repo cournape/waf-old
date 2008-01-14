@@ -292,8 +292,7 @@ def prepare():
 	fun=getattr(Utils.g_module, 'init', None)
 	if fun: fun()
 
-	try: main()
-	except KeyboardInterrupt: Params.fatal('build interrupted')
+	main()
 
 def main():
 	import inspect

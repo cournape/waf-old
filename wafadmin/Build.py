@@ -178,15 +178,31 @@ class Build(object):
 		try:
 			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
 			ret = executor.start()
-		except KeyboardInterrupt:
+		except KeyboardInterrupt, e:
 			dw()
 			os.chdir(self.m_srcnode.abspath())
 			self._store()
-			raise
+			Params.pprint('RED', 'Build interrupted')
+			if Params.g_verbose > 1: raise
+			else: sys.exit(68)
 		except Runner.CompilationError:
 			dw()
 			Utils.test_full()
-			fatal("Compilation failed")
+
+			ret = 0
+			for tsk in Task.g_tasks_done:
+				if tsk.m_hasrun == Runner.crashed:
+					try: ret = tsk.err_code
+					except AttributeError: pass
+					print " * task failed:", tsk.m_outputs
+				elif tsk.m_hasrun == Runner.missing:
+					print " * missing files:", tsk.m_outputs
+
+			fatal
+
+			x = "Compilation errors: %s"
+			if ret: fatal(x % "task failure (errno: %d)" % ret, ret)
+			else: fatal(x % "missing output files", 69)
 		dw()
 
 		if Params.g_verbose>2: self.dump()

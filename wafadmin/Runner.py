@@ -11,6 +11,11 @@ from Params import debug, error
 g_quiet = 0
 "do not output anything"
 
+missing = 1
+crashed = 2
+skipped = 8
+success = 9
+
 class CompilationError(Exception):
 	pass
 
@@ -51,7 +56,7 @@ def process_cmd_output(cmd_stdout, cmd_stderr):
 def exec_command_normal(s):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
 	debug("system command -> "+ s, 'runner')
-	if Params.g_verbose>=1: print s
+	if Params.g_verbose: print s
 	# encase the command in double-quotes in windows
 	if sys.platform == 'win32' and not s.startswith('""'):
 		s = '"%s"' % s
@@ -64,7 +69,7 @@ def exec_command_normal(s):
 def exec_command_interact(s):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
 	debug("system command (interact) -> "+ s, 'runner')
-	if Params.g_verbose>=1: print s
+	if Params.g_verbose: print s
 	# encase the command in double-quotes in windows
 	if sys.platform == 'win32' and not s.startswith('""'):
 		s = '"%s"' % s
@@ -151,8 +156,7 @@ class JobGenerator(object):
 		debug(s, 'runner')
 
 	# skip a group and report the failure
-	def skip_group(self, reason):
-		Task.g_tasks.groups[self.curgroup].info = reason
+	def skip_group(self):
 		self.curgroup += 1
 		self.curprio = -1
 		self.outstanding = []
@@ -193,7 +197,7 @@ class Serial(object):
 
 			#continue
 			if not tsk.must_run():
-				tsk.m_hasrun=2
+				tsk.m_hasrun = skipped
 				#debug("task is up-to_date "+str(tsk.m_idx), 'runner')
 				continue
 
@@ -208,34 +212,22 @@ class Serial(object):
 
 			# run the command
 			ret = tsk.run()
+			Task.g_tasks_done.append(tsk)
 
 			# non-zero means something went wrong
 			if ret:
-				if Params.g_options.keep:
-					self.generator.skip_group('non-zero return code\n' + tsk.debug_info())
-					continue
-				else:
-					if Params.g_verbose:
-						error("task failed! (return code %s for #%s)\n" % (str(ret), str(tsk.m_idx)))
-						tsk.debug(1)
-					return ret
+				tsk.m_hasrun = crashed
+				tsk.err_code = ret
+				if Params.g_options.keep: continue
+				else: raise CompilationError()
 
 			try:
 				tsk.update_stat()
+				tsk.m_hasrun = success
 			except:
-				if Params.g_options.keep:
-					self.generator.skip_group('missing nodes\n' + tsk.debug_info())
-					continue
-				else:
-					if Params.g_verbose: error('the nodes have not been produced !')
-					raise CompilationError()
-			tsk.m_hasrun=1
-
-			# register the task to the ones that have run - useful for debugging purposes
-			Task.g_tasks_done.append(tsk)
-
-		debug("Serial end", 'runner')
-		return 0
+				tsk.m_hasrun = missing
+				if Params.g_options.keep: continue
+				else: raise CompilationError()
 
 class TaskConsumer(threading.Thread):
 	def __init__(self, i, m):
@@ -263,18 +255,17 @@ class TaskConsumer(threading.Thread):
 
 			if do_stat: do_stat(-1)
 
-			msg = ''
 			if ret:
-				msg = "task failed! (return code %s and task id %s)\n" % (str(ret), str(tsk.m_idx))
+				tsk.err_code = ret
+				tsk.m_hasrun = crashed
 			else:
 				try:
 					tsk.update_stat()
-					tsk.m_hasrun = 1 # FIXME hasrun is ambiguous
+					tsk.m_hasrun = success
 				except:
-					msg = 'the nodes have not been produced !\n'
-			if msg:
+					tsk.m_hasrun = missing
+			if tsk.m_hasrun != success and not Params.g_options.keep:
 				m.failed = 1
-				printout(msg)
 
 			m.out.put(tsk)
 
@@ -342,6 +333,10 @@ class Parallel(object):
 		# the current group
 		#group = None
 
+		def get_out():
+			Task.g_tasks_done.append(self.out.get())
+			self.count -= 1
+
 		lastfailput = 0
 
 		# iterate over all tasks at most one time for each task run
@@ -351,26 +346,26 @@ class Parallel(object):
 		while 1:
 			#loop += 1
 			if self.failed and not self.running:
-				while self.count > 0: self.out.get(); self.count -= 1
-				if self.failed: # TODO
+				while self.count > 0: get_out()
+				if self.failed:
 					raise CompilationError()
 
 			if 1 == currentprio % 2:
 				# allow only one process at a time in priority 'even'
-				while self.count > 0: self.out.get(); self.count -= 1
+				while self.count > 0: get_out()
 			else:
 				# not too many jobs in the queue
-				while self.count > self.numjobs + 10: self.out.get(); self.count -= 1
+				while self.count > self.numjobs + 10: get_out()
 
 			# empty the returned tasks as much as possible
-			while not self.out.empty(): self.out.get(); self.count -= 1
+			while not self.out.empty(): get_out()
 
 			if not self.outstanding:
-				if self.count > 0: self.out.get(); self.count -= 1
+				if self.count > 0: get_out()
 				self.outstanding = self.frozen
 				self.frozen = []
 			if not self.outstanding:
-				while self.count > 0: self.out.get(); self.count -= 1
+				while self.count > 0: get_out()
 				(currentprio, self.outstanding) = self.get_next_prio()
 				#if self.outstanding: random.shuffle(self.outstanding)
 				if currentprio is None: break
@@ -381,7 +376,7 @@ class Parallel(object):
 				tsk.prepare()
 				self.progress += 1
 				if not tsk.must_run():
-					tsk.m_hasrun = 2
+					tsk.m_hasrun = skipped
 					continue
 				cl = Params.g_colors
 				tsk.set_display(progress_line(self.progress, self.total, cl[tsk.color()], tsk, cl['NORMAL']))
