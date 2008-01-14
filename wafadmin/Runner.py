@@ -166,6 +166,7 @@ class JobGenerator(object):
 class Serial(object):
 	def __init__(self, gen):
 		self.generator = gen
+		self.error = 0
 	def start(self):
 		global g_quiet
 		debug("Serial start called", 'runner')
@@ -216,18 +217,27 @@ class Serial(object):
 
 			# non-zero means something went wrong
 			if ret:
+				self.error = 1
 				tsk.m_hasrun = crashed
 				tsk.err_code = ret
-				if Params.g_options.keep: continue
+				if Params.g_options.keep:
+					self.generator.skip_group()
+					continue
 				else: raise CompilationError()
 
 			try:
 				tsk.update_stat()
 				tsk.m_hasrun = success
 			except:
+				self.error = 1
 				tsk.m_hasrun = missing
-				if Params.g_options.keep: continue
+				if Params.g_options.keep:
+					self.generator.skip_group()
+					continue
 				else: raise CompilationError()
+
+		if self.error:
+			raise CompilationError()
 
 class TaskConsumer(threading.Thread):
 	def __init__(self, i, m):
@@ -264,7 +274,7 @@ class TaskConsumer(threading.Thread):
 					tsk.m_hasrun = success
 				except:
 					tsk.m_hasrun = missing
-			if tsk.m_hasrun != success and not Params.g_options.keep:
+			if tsk.m_hasrun != success: # TODO for now, do no keep running in parallel  and not Params.g_options.keep:
 				m.failed = 1
 
 			m.out.put(tsk)
