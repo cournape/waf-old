@@ -13,9 +13,6 @@ except ImportError: from md5 import md5
 import Params, Scan, Action, Runner, Object
 from Params import debug, error, warning
 
-g_tasks_done    = []
-"tasks that have been processed"
-
 class TaskManager(object):
 	"""There is a single instance of TaskManager held by Task.py:g_tasks
 	The manager holds a list of TaskGroup
