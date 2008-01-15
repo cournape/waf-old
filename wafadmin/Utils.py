@@ -19,9 +19,6 @@ g_ind = ['\\', '|', '/', '-']
 "the rotation thing"
 
 def test_full():
-	
-	# FIXME: need to rewrite all exception-handling mechanism...
-	
 	try:
 		f=open('.waf-full','w')
 		f.write('test')
@@ -57,9 +54,7 @@ def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 def reset():
 	import Params, Task, Scripting, Object
 	Params.g_build = None
-	Task.g_tasks_done = []
 	Task.g_tasks = Task.TaskManager()
-	Scripting.g_inroot = 1
 	Object.g_allobjs = []
 
 def to_list(sth):
