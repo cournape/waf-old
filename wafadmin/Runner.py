@@ -16,9 +16,6 @@ crashed = 2
 skipped = 8
 success = 9
 
-class CompilationError(Exception):
-	pass
-
 def printout(s):
 	sys.stdout.write(s); sys.stdout.flush()
 
@@ -102,8 +99,6 @@ class JobGenerator(object):
 		self.switchflag = 1 # postpone
 		#Task.g_tasks.debug()
 
-		self.tasks_done = []
-
 	# warning, this one is recursive ..
 	def get_next(self):
 		if self.outstanding:
@@ -169,6 +164,7 @@ class Serial(object):
 	def __init__(self, gen):
 		self.generator = gen
 		self.error = 0
+		self.tasks_done = []
 	def start(self):
 		global g_quiet
 		debug("Serial start called", 'runner')
@@ -225,7 +221,7 @@ class Serial(object):
 				if Params.g_options.keep:
 					self.generator.skip_group()
 					continue
-				else: raise CompilationError()
+				else: return -1
 
 			try:
 				tsk.update_stat()
@@ -236,10 +232,10 @@ class Serial(object):
 				if Params.g_options.keep:
 					self.generator.skip_group()
 					continue
-				else: raise CompilationError()
+				else: return -1
 
 		if self.error:
-			raise CompilationError()
+			return -1
 
 class TaskConsumer(threading.Thread):
 	def __init__(self, i, m):
@@ -360,8 +356,7 @@ class Parallel(object):
 			#loop += 1
 			if self.failed and not self.running:
 				while self.count > 0: get_out()
-				if self.failed:
-					raise CompilationError()
+				if self.failed: return -1
 
 			if 1 == currentprio % 2:
 				# allow only one process at a time in priority 'even'

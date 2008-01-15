@@ -484,16 +484,16 @@ class pkgconfig_configurator(configurator_base):
 			if hasattr(self, 'pkgpath_win32_setup'):
 				return ""
 			pkgpath_env=os.getenv('PKG_CONFIG_PATH')
-			
+
 			if pkgpath_env:
 				pkgpath_env = pkgpath_env + ';' +pkgpath
 			else:
 				pkgpath_env = pkgpath
-			
+
 			os.putenv('PKG_CONFIG_PATH',pkgpath_env)
 			setattr(self,'pkgpath_win32_setup',True)
 			return ""
-			
+
 		pkgpath = 'PKG_CONFIG_PATH=$PKG_CONFIG_PATH:' + pkgpath
 		return pkgpath
 
@@ -1348,8 +1348,7 @@ class Configure(object):
 """
 		# first make sure the code to execute is defined
 		if not obj.code:
-			error('run_check: no code to process in check')
-			raise
+			raise ConfigurationError('run_check: no code to process in check')
 
 		# create a small folder for testing
 		dir = os.path.join(self.m_blddir, '.wscript-trybuild')
@@ -1362,7 +1361,7 @@ class Configure(object):
 		bdir = os.path.join( dir, '_testbuild_')
 
 		# FIXME: by default the following lines are called more than once
-		#			we have to make sure they get called only once 
+		#			we have to make sure they get called only once
 		if not os.path.exists(dir):
 			os.makedirs(dir)
 
@@ -1408,7 +1407,10 @@ class Configure(object):
 
 		# compile the program
 		self.mute_logging()
-		ret = bld.compile()
+		try:
+			ret = bld.compile()
+		except Build.BuildError, e:
+			ret = 1
 		self.restore_logging()
 
 		# keep the name of the program to execute

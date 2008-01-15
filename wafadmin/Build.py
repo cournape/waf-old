@@ -12,6 +12,24 @@ SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_raw_d
 "Build class members to save"
 
 g_modcache = {}
+"Cache for the tools (modules), re-importing raises errors"
+
+class BuildError(Exception):
+	def __init__(self, b=None, t=[]):
+		self.bld = b
+		self.tasks = t
+		self.ret = 1
+	def get_message(self):
+		lst = ['Build failed']
+		for tsk in self.tasks:
+			if tsk.m_hasrun == Runner.crashed:
+				try:
+					lst.append(" -> task failed (err #%d): %s" % (tsk.err_code, str(tsk.m_outputs)))
+				except AttributeError:
+					lst.append(" -> task failed:" % str(tsk.m_outputs))
+			elif tsk.m_hasrun == Runner.missing:
+				lst.append(" -> missing files: %s" % str(tsk.m_outputs))
+		return '\n'.join(lst)
 
 class BuildDTO(object):
 	"holds the data to store using cPickle"
@@ -155,15 +173,15 @@ class Build(object):
 
 	def compile(self):
 		debug("compile called", 'build')
-		ret = 0
 
 		os.chdir(self.m_bdir)
 
 		Object.flush()
+		Task.g_tasks_done = []
 
 		if Params.g_verbose>2: self.dump()
 
-		if Params.g_options.jobs <=1:
+		if Params.g_options.jobs <= 1:
 			generator = Runner.JobGenerator()
 			executor = Runner.Serial(generator)
 		else:
@@ -185,30 +203,17 @@ class Build(object):
 			Params.pprint('RED', 'Build interrupted')
 			if Params.g_verbose > 1: raise
 			else: sys.exit(68)
-		except Runner.CompilationError:
+		except Exception, e:
 			dw()
-			Utils.test_full()
+			raise e
 
-			ret = 0
-			for tsk in Task.g_tasks_done:
-				if tsk.m_hasrun == Runner.crashed:
-					try: ret = tsk.err_code
-					except AttributeError: pass
-					print " * task failed:", tsk.m_outputs
-				elif tsk.m_hasrun == Runner.missing:
-					print " * missing files:", tsk.m_outputs
-
-			fatal
-
-			x = "Compilation errors: %s"
-			if ret: fatal(x % "task failure (errno: %d)" % ret, ret)
-			else: fatal(x % "missing output files", 69)
 		dw()
+		if ret:
+			Utils.test_full()
+			raise BuildError(self, executor.tasks_done)
 
 		if Params.g_verbose>2: self.dump()
-
 		os.chdir(self.m_srcnode.abspath())
-		return ret
 
 	def install(self):
 		"this function is called for both install and uninstall"
@@ -242,7 +247,6 @@ class Build(object):
 
 	def add_subdirs(self, dirs):
 		lst = Utils.to_list(dirs)
-		#lst.reverse() # FIXME old behaviour, remove when finished
 		for d in lst:
 			if not d: continue
 			Scripting.add_subdir(d, self)

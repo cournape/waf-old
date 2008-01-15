@@ -121,8 +121,6 @@ def configure():
 
 	conf.store(tree)
 	conf.cleanup()
-	
-	
 
 	# this will write a configure lock so that subsequent run will
 	# consider the current path as the root directory, to remove: use 'waf distclean'
@@ -377,12 +375,9 @@ def main():
 
 			if Params.g_options.progress_bar: print ''
 			if not ret: Params.pprint('GREEN', 'Compilation finished successfully')
-		finally:
-			bld.save()
-		if ret:
-			msg='Compilation failed'
-			if not Params.g_options.daemon: fatal(msg)
-			else: error(msg)
+		except Build.BuildError, e:
+			if not Params.g_options.daemon: fatal(e.get_message(), 1)
+			else: error(e.get_message())
 
 	# install
 	if Params.g_commands['install'] or Params.g_commands['uninstall']:
