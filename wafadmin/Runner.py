@@ -208,9 +208,8 @@ class Serial(object):
 			# display the command that we are about to run
 			if not g_quiet:
 				(s, t) = self.generator.progress()
-				col1=Params.g_colors[tsk.color()]
-				col2=Params.g_colors['NORMAL']
-				printout(progress_line(s, t, col1, tsk, col2))
+				cl = Params.g_colors
+				printout(progress_line(s, t, cl[tsk.color()], tsk, cl['NORMAL']))
 
 			# run the command
 			ret = tsk.run()
