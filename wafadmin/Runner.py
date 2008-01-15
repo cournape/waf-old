@@ -82,9 +82,10 @@ def set_exec(mode):
 	elif mode == 'noredir': exec_command = exec_command_interact
 	else: error('set_runner_mode')
 
-class JobGenerator(object):
-	"kind of iterator - the data structure is a bit complicated (price to pay for flexibility)"
+class Serial(object):
 	def __init__(self):
+		self.error = 0
+		self.tasks_done = []
 
 		self.curgroup = 0
 		self.curprio = -1
@@ -139,12 +140,12 @@ class JobGenerator(object):
 	def progress(self):
 		return (self.processed, self.total)
 
-	def postpone(self, task):
+	def postpone(self, tsk):
 		self.processed -= 1
-		# shuffle the list
+		# shuffle the list - why it does work is left as an exercise for the reader
 		self.switchflag *= -1
-		if self.switchflag>0: self.outstanding = [task]+self.outstanding
-		else:                 self.outstanding.append(task)
+		if self.switchflag>0: self.outstanding.insert(0, tsk)
+		else:                 self.outstanding.append(tsk)
 
 	# TODO FIXME
 	def debug(self):
@@ -160,18 +161,13 @@ class JobGenerator(object):
 		try: Task.g_tasks.groups[self.curgroup].prio.sort()
 		except: pass
 
-class Serial(object):
-	def __init__(self, gen):
-		self.generator = gen
-		self.error = 0
-		self.tasks_done = []
 	def start(self):
 		global g_quiet
 		debug("Serial start called", 'runner')
-		#self.generator.debug()
+		#self.debug()
 		while 1:
 			# get next Task
-			tsk = self.generator.get_next()
+			tsk = self.get_next()
 			if tsk is None: break
 
 			debug("retrieving #"+str(tsk.m_idx), 'runner')
@@ -182,8 +178,8 @@ class Serial(object):
 
 			if not tsk.may_start():
 				debug("delaying   #"+str(tsk.m_idx), 'runner')
-				self.generator.postpone(tsk)
-				#self.generator.debug()
+				self.postpone(tsk)
+				#self.debug()
 				#tsk = None
 				continue
 			# # =======================
@@ -205,7 +201,7 @@ class Serial(object):
 
 			# display the command that we are about to run
 			if not g_quiet:
-				(s, t) = self.generator.progress()
+				(s, t) = self.progress()
 				cl = Params.g_colors
 				printout(progress_line(s, t, cl[tsk.color()], tsk, cl['NORMAL']))
 
@@ -218,9 +214,7 @@ class Serial(object):
 				self.error = 1
 				tsk.m_hasrun = crashed
 				tsk.err_code = ret
-				if Params.g_options.keep:
-					self.generator.skip_group()
-					continue
+				if Params.g_options.keep: continue
 				else: return -1
 
 			try:
@@ -229,9 +223,7 @@ class Serial(object):
 			except:
 				self.error = 1
 				tsk.m_hasrun = missing
-				if Params.g_options.keep:
-					self.generator.skip_group()
-					continue
+				if Params.g_options.keep: continue
 				else: return -1
 
 		if self.error:
@@ -309,8 +301,6 @@ class Parallel(object):
 		self.curprio = -1
 		self.priolst = []
 
-		# for consistency
-		self.generator = self
 		self.tasks_done = []
 
 	def get_next_prio(self):
