@@ -16,7 +16,7 @@ def coin_file(self, node):
 	 - lower number means high priority
 	 - odd means the task can be run in parallel with others of the same priority number
 	"""
-	cointask = self.create_task('dang', nice=40)
+	cointask = self.create_task('dang')
 	cointask.set_inputs(node)
 	cointask.set_outputs(node.change_ext('.cpp'))
 
@@ -30,7 +30,7 @@ def coin_file(self, node):
 
 def setup(bld):
 	# create our action, for use with coin_file
-	Action.simple_action('dang', dang_str, color='BLUE')
+	Action.simple_action('dang', dang_str, color='BLUE', prio=40)
 
 	# register the hook for use with cppobj
 	Object.hook('cpp', 'DANG_EXT', coin_file)

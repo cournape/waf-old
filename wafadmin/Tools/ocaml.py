@@ -89,8 +89,8 @@ class ocaml_link(Task.Task):
 	"""link tasks in ocaml are special, the command line calculation must be postponed
 	until having the dependencies on the compilation tasks, this means that we must
 	produce the .ml files (lex, ..) to decide the order on which to link the files"""
-	def __init__(self, action_name, env, priority=5, normal=1):
-		Task.Task.__init__(self, action_name, env, priority, normal)
+	def __init__(self, action_name, env, normal=1):
+		Task.Task.__init__(self, action_name, env, normal)
 	def may_start(self):
 		if not getattr(self, 'order', ''):
 
@@ -266,7 +266,7 @@ class ocamlobj(Object.genobj):
 			#	print "??? ", filename
 
 			if ext == '.mll':
-				mll_task = self.create_task('ocamllex', self.native_env, 10)
+				mll_task = self.create_task('ocamllex', self.native_env)
 				mll_task.set_inputs(node)
 				mll_task.set_outputs(node.change_ext('.ml'))
 				self._mlltasks.append(mll_task)
@@ -274,24 +274,24 @@ class ocamlobj(Object.genobj):
 				node = mll_task.m_outputs[0]
 
 			elif ext == '.mly':
-				mly_task = self.create_task('ocamlyacc', self.native_env, 10)
+				mly_task = self.create_task('ocamlyacc', self.native_env)
 				mly_task.set_inputs(node)
 				mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
 				self._mlytasks.append(mly_task)
 
-				task = self.create_task('ocamlcmi', self.native_env, 40)
+				task = self.create_task('ocamlcmi', self.native_env)
 				task.set_inputs(mly_task.m_outputs[1])
 				task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
 
 				node = mly_task.m_outputs[0]
 			elif ext == '.mli':
-				task = self.create_task('ocamlcmi', self.native_env, 40)
+				task = self.create_task('ocamlcmi', self.native_env)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmi'))
 				self.mlitasks.append(task)
 				continue
 			elif ext == '.c':
-				task = self.create_task('ocamlcc', self.native_env, 60)
+				task = self.create_task('ocamlcc', self.native_env)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.o'))
 
@@ -301,7 +301,7 @@ class ocamlobj(Object.genobj):
 				pass
 
 			if self.native_env:
-				task = self.create_task('ocaml', self.native_env, 60)
+				task = self.create_task('ocaml', self.native_env)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.cmx'))
 				task.m_scanner = g_caml_scanner
@@ -309,7 +309,7 @@ class ocamlobj(Object.genobj):
 				task.incpaths = self._bld_incpaths_lst
 				self.native_tasks.append(task)
 			if self.bytecode_env:
-				task = self.create_task('ocaml', self.bytecode_env, 60)
+				task = self.create_task('ocaml', self.bytecode_env)
 				task.set_inputs(node)
 				task.m_scanner = g_caml_scanner
 				task.obj = self
@@ -319,13 +319,13 @@ class ocamlobj(Object.genobj):
 				self.bytecode_tasks.append(task)
 
 		if self.bytecode_env:
-			linktask = ocaml_link('ocalink', self.bytecode_env, 101)
+			linktask = ocaml_link('ocalink', self.bytecode_env)
 			linktask.bytecode = 1
 			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=1)))
 			linktask.obj = self
 			self.linktasks.append(linktask)
 		if self.native_env:
-			linktask = ocaml_link('ocalinkopt', self.native_env, 101)
+			linktask = ocaml_link('ocalinkopt', self.native_env)
 			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=0)))
 			linktask.obj = self
 			self.linktasks.append(linktask)
@@ -348,13 +348,13 @@ class ocamlobj(Object.genobj):
 
 def setup(bld):
 	Object.register('ocaml', ocamlobj)
-	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
-	Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW')
-	Action.simple_action('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW')
-	Action.simple_action('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE')
-	Action.simple_action('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
-	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE')
-	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE')
+	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN', prio=60)
+	Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', prio=101)
+	Action.simple_action('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', prio=101)
+	Action.simple_action('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE', prio=40)
+	Action.simple_action('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN', prio=60)
+	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', prio=10)
+	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', prio=10)
 
 def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')

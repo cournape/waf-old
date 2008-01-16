@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006-2008 (ita)
 
 #C/C++ preprocessor for finding dependencies
-#TODO: varargs
+#TODO: varargs, pragma once
 
 import re, sys, os, string, types
 if __name__ == '__main__':
