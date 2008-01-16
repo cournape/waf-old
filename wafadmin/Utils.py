@@ -11,9 +11,6 @@ g_trace = 0
 g_debug = 0
 g_error = 0
 
-g_initial = time.time()
-"time since the start of the build"
-
 g_ind_idx = 0
 g_ind = ['\\', '|', '/', '-']
 "the rotation thing"
@@ -140,8 +137,11 @@ def progress_line(state, total, col1, col2):
 	g_ind_idx += 1
 	ind = g_ind[g_ind_idx % 4]
 
+	try: ini = Params.g_build.ini
+	except: ini = Params.g_build.ini = time.time()
+
 	pc = (100.*state)/total
-	eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
+	eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
 	fs = "[%%%dd/%%%dd][%%s%%2d%%%%%%s][%s][" % (n, n, ind)
 	left = fs % (state, total, col1, pc, col2)
 	right = '][%s%s%s]' % (col1, eta, col2)

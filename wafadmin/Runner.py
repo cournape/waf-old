@@ -25,11 +25,12 @@ def progress_line(state, total, col1, task, col2):
 		return Utils.progress_line(state, total, col1, col2)
 
 	if Params.g_options.progress_bar == 2:
-		global g_initial
-		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - g_initial))
+		try: ini = Params.g_build.ini
+		except: ini = Params.g_build.ini = time.time()
+		ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
 		ins  = ','.join([n.m_name for n in task.m_inputs])
 		outs = ','.join([n.m_name for n in task.m_outputs])
-		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (total, state, ins, outs, eta)
+		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (total, state, ins, outs, ela)
 
 	n = len(str(total))
 	fs = "[%%%dd/%%%dd] %%s%%s%%s\n" % (n, n)

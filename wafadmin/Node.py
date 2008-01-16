@@ -77,8 +77,8 @@ class Node(object):
 			while cur:
 				lst.append(cur.m_name)
 				cur=cur.m_parent
-			if lst[-1] =='' : lst = lst[:-1]
-			if lst[0] == '/': lst = lst[1:]
+			if lst[-1] == '': lst = lst[:-1]
+			if lst[0]  =='/': lst = lst[1:]
 			lst.reverse()
 			val=os.path.join(*lst)
 			debug("[%s]" %val, 'node')
