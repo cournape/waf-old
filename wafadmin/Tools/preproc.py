@@ -1,18 +1,9 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2008 (ita)
 
-"""Waf preprocessor for finding dependencies
-  because of the includes system, it is necessary to do the preprocessing in at least two steps:
-  - filter the comments and output the preprocessing lines
-  - interpret the preprocessing lines, jumping on the headers during the process
-
-  In the preprocessing line step, the following actions are performed:
-  - substitute the code in the functions and the defines (and use the # and ## operators)
-  - reduce the expression obtained (apply the arithmetic and boolean rules)
-
-TODO: varargs
-"""
+#C/C++ preprocessor for finding dependencies
+#TODO: varargs
 
 import re, sys, os, string, types
 if __name__ == '__main__':
@@ -101,7 +92,7 @@ def filter_comments(filename):
 
 prec = {}
 # op -> number, needed for such expressions:   #if 1 && 2 != 0
-ops = ['. * / %', '+ -', '<< >>', '< <= >= >', '== !=', '& | ^', '&& ||', ',']
+ops = ['* / %', '+ -', '<< >>', '< <= >= >', '== !=', '& | ^', '&& ||', ',']
 for x in range(len(ops)):
 	syms = ops[x]
 	for u in syms.split():
@@ -123,6 +114,7 @@ def reduce_nums(val_1, val_2, val_op):
 	elif d=='-':  c = a-b
 	elif d=='*':  c = a*b
 	elif d=='/':  c = a/b
+	elif d=='^':  c = a^b
 	elif d=='|':  c = a|b
 	elif d=='||': c = int(a or b)
 	elif d=='&':  c = a&b
