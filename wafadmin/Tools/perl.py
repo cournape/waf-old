@@ -8,7 +8,7 @@ import Action, Object, Node, Params
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 
 def xsubpp_file(self, node):
-    gentask = self.create_task('xsubpp', nice=1)
+    gentask = self.create_task('xsubpp')
     gentask.set_inputs(node)
     gentask.set_outputs(node.change_ext('.c'))
 
@@ -17,7 +17,7 @@ def xsubpp_file(self, node):
     cctask.set_outputs(node.change_ext('.o'))
 
 def setup(bld):
-    Action.simple_action('xsubpp', xsubpp_str, color='BLUE')
+    Action.simple_action('xsubpp', xsubpp_str, color='BLUE', prio=10)
     Object.hook('cc', 'PERLXS_EXT', xsubpp_file)
 
 def check_perl_version(conf, minver=None):

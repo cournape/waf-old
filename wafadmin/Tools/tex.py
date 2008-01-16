@@ -214,11 +214,11 @@ class texobj(Object.genobj):
 			if not node: fatal('cannot find %s' % filename)
 
 			if self.m_type == 'latex':
-				task = self.create_task('latex', self.env, 20)
+				task = self.create_task('latex', self.env)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.dvi'))
 			elif self.m_type == 'pdflatex':
-				task = self.create_task('pdflatex', self.env, 20)
+				task = self.create_task('pdflatex', self.env)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.pdf'))
 			else:
@@ -242,16 +242,16 @@ class texobj(Object.genobj):
 
 			if self.m_type == 'latex':
 				if 'ps' in outs:
-					pstask = self.create_task('dvips', self.env, 40)
+					pstask = self.create_task('dvips', self.env)
 					pstask.set_inputs(task.m_outputs)
 					pstask.set_outputs(node.change_ext('.ps'))
 				if 'pdf' in outs:
-					pdftask = self.create_task('dvipdf', self.env, 40)
+					pdftask = self.create_task('dvipdf', self.env)
 					pdftask.set_inputs(task.m_outputs)
 					pdftask.set_outputs(node.change_ext('.pdf'))
 			elif self.m_type == 'pdflatex':
 				if 'ps' in outs:
-					pstask = self.create_task('pdf2ps', self.env, 40)
+					pstask = self.create_task('pdf2ps', self.env)
 					pstask.set_inputs(task.m_outputs)
 					pstask.set_outputs(node.change_ext('.ps'))
 
@@ -263,14 +263,14 @@ def detect(conf):
 	v['DVIPSFLAGS'] = '-Ppdf'
 
 def setup(bld):
-	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE')
-	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE')
-	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE')
-	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE')
-	Action.simple_action('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE')
+	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE', prio=-0)
+	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE', prio=60)
+	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', prio=60)
+	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
+	Action.simple_action('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
 
-	Action.Action('latex', vars=latex_vardeps, func=latex_build)
-	Action.Action('pdflatex', vars=pdflatex_vardeps, func=pdflatex_build)
+	Action.Action('latex', vars=latex_vardeps, func=latex_build, priority=40)
+	Action.Action('pdflatex', vars=pdflatex_vardeps, func=pdflatex_build, priority=40)
 
 	Object.register('tex', texobj)
 

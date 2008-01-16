@@ -15,7 +15,7 @@ class langobj(Object.genobj):
 	def apply(self):
 		for lang in self.to_list(self.langs):
 			node = self.path.find_source_lst(Utils.split_path(lang+'.po'))
-			task = self.create_task('msgfmt', self.env, 10)
+			task = self.create_task('msgfmt', self.env)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.mo'))
 
@@ -68,5 +68,5 @@ def detect(conf):
 
 def setup(bld):
 	Object.register('msgfmt', langobj)
-	Action.simple_action('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE')
+	Action.simple_action('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE', prio=10)
 

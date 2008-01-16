@@ -90,7 +90,7 @@ def i_file(self, node):
 		outs.append(node.m_parent.find_build(modname+'.mli'))
 
 	# create the swig task
-	ltask = self.create_task('swig', nice=40)
+	ltask = self.create_task('swig')
 	ltask.set_inputs(node)
 	ltask.set_outputs(outs)
 
@@ -100,7 +100,7 @@ def i_file(self, node):
 	task.set_outputs(node.change_ext(self.env['EXT_SWIG_OUT']))
 
 def setup(bld):
-	Action.simple_action('swig', swig_str, color='BLUE')
+	Action.simple_action('swig', swig_str, color='BLUE', prio=40)
 
 	# register the hook for use with cppobj and ccobj
 	try: Object.hook('cpp', 'SWIG_EXT', i_file)

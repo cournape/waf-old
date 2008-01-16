@@ -406,13 +406,13 @@ def setup(bld):
 
 	rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 
-	Action.simple_action('cc', cc_str, color='GREEN')
-	Action.simple_action('cpp', cpp_str, color='GREEN')
-	Action.simple_action('ar_link_static', static_link_str, color='YELLOW')
+	Action.simple_action('cc', cc_str, color='GREEN', prio=100)
+	Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
+	Action.simple_action('ar_link_static', static_link_str, color='YELLOW', prio=101)
 
-	Action.Action('cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker)
-	Action.Action('cpp_link', vars=[ 'LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker)
-	Action.simple_action('rc', rc_str, color='GREEN')
+	Action.Action('cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
+	Action.Action('cpp_link', vars=[ 'LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker, prio=101)
+	Action.simple_action('rc', rc_str, color='GREEN', prio=50)
 
 	Object.register('cc', msvccc)
 	Object.register('cpp', msvccpp)
@@ -509,7 +509,7 @@ def detect(conf):
 
 	conf.check_tool('winres')
 
-	if not conf.env['WINRC']: 
+	if not conf.env['WINRC']:
 		warning('Resource compiler not found. Compiling resource file is disabled','msvc')
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later

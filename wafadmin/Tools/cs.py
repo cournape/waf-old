@@ -55,7 +55,7 @@ class csobj(Object.genobj):
 			nodes.append(curnode.find_source(i))
 
 		# create the task
-		task = self.create_task('mcs', self.env, 101)
+		task = self.create_task('mcs', self.env)
 		task.m_inputs  = nodes
 		task.set_outputs(self.path.find_build(self.target))
 
@@ -71,7 +71,7 @@ class csobj(Object.genobj):
 
 def setup(bld):
 	Object.register('cs', csobj)
-	Action.simple_action('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
+	Action.simple_action('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW', prio=101)
 
 def detect(conf):
 	mcs = conf.find_program('mcs', var='MCS')

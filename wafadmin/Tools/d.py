@@ -247,9 +247,9 @@ class dobj(Object.genobj):
 		libs = []
 
 		if type == 'staticlib':
-			linktask = self.create_task('ar_link_static', env, 101)
+			linktask = self.create_task('ar_link_static', env)
 		else:
-			linktask = self.create_task('d_link', env, 101)
+			linktask = self.create_task('d_link', env)
 
 
 		uselib = self.to_list(self.uselib)
@@ -410,7 +410,7 @@ class dobj(Object.genobj):
 			if not ext in self.s_default_ext:
 				fatal("unknown file " + filename)
 
-			task = self.create_task('d', env, 10)
+			task = self.create_task('d', env)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(obj_ext))
 			task.m_scanner = g_d_scanner
@@ -446,8 +446,8 @@ def setup(bld):
 	d_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
 	link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${_DLIBDIRFLAGS} ${_DLIBFLAGS}'
 
-	Action.simple_action('d', d_str, 'GREEN')
-	Action.simple_action('d_link', link_str, color='YELLOW')
+	Action.simple_action('d', d_str, 'GREEN', 100)
+	Action.simple_action('d_link', link_str, color='YELLOW', prio=101)
 
 	Object.register('d', dobj)
 

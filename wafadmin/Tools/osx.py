@@ -13,7 +13,7 @@ from Params import error, debug, fatal, warning
 def apply_core_osx(self):
 	ccroot.ccroot.apply_core_o(self)
 	if self.m_type == 'program':
-		apptask = self.create_task('macapp', self.env, 300)
+		apptask = self.create_task('macapp', self.env)
 		apptask.set_inputs(self.m_linktask.m_outputs)
 		apptask.set_outputs(self.m_linktask.m_outputs[0].change_ext('.app'))
 		self.m_apptask = apptask
@@ -75,5 +75,6 @@ def app_build(task):
 def setup(bld):
 	ccroot.ccroot.apply_core_o = ccroot.ccroot.apply_core
 	ccroot.ccroot.apply_core = apply_core_osx
-	Action.Action('macapp', vars=[], func=app_build)
+	x = Action.Action('macapp', vars=[], func=app_build)
+	x.prio = 300
 

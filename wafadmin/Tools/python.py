@@ -17,7 +17,6 @@ class pyobj(Object.genobj):
 
 		self.inst_var = 'PYTHONDIR'
 		self.inst_dir = ''
-		self.prio = 50
 		self.chmod = 0644
 
 		self.env = env
@@ -51,11 +50,11 @@ class pyobj(Object.genobj):
 				pass
 
 			if self.pyc:
-				task = self.create_task('pyc', self.env, self.prio)
+				task = self.create_task('pyc', self.env)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.pyc'))
 			if self.pyo:
-				task = self.create_task('pyo', self.env, self.prio)
+				task = self.create_task('pyo', self.env)
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.pyo'))
 
@@ -70,8 +69,8 @@ class pyobj(Object.genobj):
 
 def setup(bld):
 	Object.register('py', pyobj)
-	Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
-	Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE')
+	Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
+	Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""

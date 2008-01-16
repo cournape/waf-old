@@ -34,7 +34,7 @@ class intltool_in(Object.genobj):
 			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
 			self.env['INTLFLAGS'] = self.flags
 
-			task = self.create_task('intltool', self.env, 2)
+			task = self.create_task('intltool', self.env)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(''))
 
@@ -62,12 +62,12 @@ class intltool_po(Object.genobj):
 				# Make sure that we only process lines which contain locales
 				if re_linguas.match(line):
 					node = self.path.find_source(re_linguas.match(line).group() + '.po')
-					task = self.create_task('po', self.env, 10)
+					task = self.create_task('po', self.env)
 					task.set_inputs(node)
 					task.set_outputs(node.change_ext('.mo'))
 		else:
 			Params.pprint('RED', "Error no LINGUAS file found in po directory")
-							
+
 	def install(self):
 		for task in self.m_tasks:
 			out = task.m_outputs[0]
@@ -88,10 +88,10 @@ class intltoolobj(cc.ccobj):
 		cc.ccobj.apply_core(self)
 
 def setup(bld):
-	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
+	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', prio=10)
 	Action.simple_action('intltool',
 		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
-		color='BLUE')
+		color='BLUE', prio=2)
 
 	Object.register('intltool_po', intltool_po)
 	Object.register('intltool_in', intltool_in)

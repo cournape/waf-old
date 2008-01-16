@@ -25,7 +25,7 @@ def l_file(self, node):
 
 	obj_ext = self.env['EXT_FLEX_OUT']
 
-	ltask = self.create_task('flex', nice=40)
+	ltask = self.create_task('flex')
 	ltask.set_inputs(node)
 	ltask.set_outputs(node.change_ext(ext))
 
@@ -35,7 +35,7 @@ def l_file(self, node):
 
 def setup(bld):
 	# create our action here
-	Action.simple_action('flex', flex_str, color='BLUE')
+	Action.simple_action('flex', flex_str, color='BLUE', prio=40)
 
 	# register the hook for use with cppobj and ccobj
 	try: Object.hook('cpp', 'FLEX_EXT', l_file)

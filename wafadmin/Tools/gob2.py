@@ -7,7 +7,7 @@ import Action, Object
 gob2_str = '${GOB2} -o ${TGT[0].bld_dir(env)} ${GOB2FLAGS} ${SRC}'
 
 def gob2_file(self, node):
-	gob2task = self.create_task('gob2', nice=40)
+	gob2task = self.create_task('gob2')
 	gob2task.set_inputs(node)
 	gob2task.set_outputs(node.change_ext('.c'))
 
@@ -17,7 +17,7 @@ def gob2_file(self, node):
 
 def setup(bld):
 	# create our action here
-	Action.simple_action('gob2', gob2_str, color='BLUE')
+	Action.simple_action('gob2', gob2_str, color='BLUE', prio=40)
 	Object.hook('cc', 'GOB2_EXT', gob2_file)
 
 def detect(conf):

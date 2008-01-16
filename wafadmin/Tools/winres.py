@@ -14,7 +14,7 @@ set_globals('EXT_WINRC_C','.rc')
 winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CXXDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CXXINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F}${TGT} ${WINRC_SRC_F}${SRC}'
 
 def rc_file(self, node):
-	rctask = self.create_task('winrc', nice=40)
+	rctask = self.create_task('winrc')
 	rctask.set_inputs(node)
 	rctask.set_outputs(node.change_ext(self.env['winrc_obj_ext']))
 
@@ -23,7 +23,7 @@ def rc_file(self, node):
 
 def setup(bld):
 	# create our action, for use with rc file
-	Action.simple_action('winrc', winrc_str, color='BLUE')
+	Action.simple_action('winrc', winrc_str, color='BLUE', prio=40)
 
 	# register the hook for use with cppobj and ccobj
 	try: Object.hook('cpp', 'WINRC_EXT', rc_file)

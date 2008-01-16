@@ -42,14 +42,14 @@ class javaobj(Object.genobj):
 			if not ext in self.s_default_ext:
 				fatal("unknown file "+filename)
 
-			task = self.create_task('javac', self.env, 10)
+			task = self.create_task('javac', self.env)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.class'))
 
 			nodes_lst.append(task.m_outputs[0])
 
 		if self.jarname:
-			task = self.create_task('jar_create', self.env, 50)
+			task = self.create_task('jar_create', self.env)
 			task.set_inputs(nodes_lst)
 			task.set_outputs(self.path.find_build_lst(Utils.split_path(self.jarname)))
 
@@ -61,8 +61,8 @@ class javaobj(Object.genobj):
 
 def setup(bld):
 	Object.register('java', javaobj)
-	Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE')
-	Action.simple_action('jar_create', '${JAR} cvf ${TGT} ${JAROPTS}', color='GREEN')
+	Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE', prio=10)
+	Action.simple_action('jar_create', '${JAR} cvf ${TGT} ${JAROPTS}', color='GREEN', prio=50)
 
 def detect(conf):
 	# If JAVA_PATH is set, we prepend it to the path list

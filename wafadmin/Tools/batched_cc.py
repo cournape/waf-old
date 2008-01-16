@@ -23,8 +23,8 @@ import shutil, os
 import Action, Object, Task, ccroot, Params
 
 class TaskMaster(Task.Task):
-	def __init__(self, action_name, env, priority=5, normal=1, master=None):
-		Task.Task.__init__(self, action_name, env, priority, normal)
+	def __init__(self, action_name, env, priority=None, normal=1, master=None):
+		Task.Task.__init__(self, action_name, env, prio=p, normal=normal)
 		self.slaves=[]
 		self.m_inputs2=[]
 		self.m_outputs2=[]
