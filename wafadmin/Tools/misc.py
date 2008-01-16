@@ -44,7 +44,7 @@ class cmdobj(Object.genobj):
 	def apply(self):
 		# create a task
 		if not self.fun: fatal('cmdobj needs a function!')
-		self.m_tasks.append(Task.TaskCmd(self.fun, self.env, self.prio))
+		self.m_tasks.append(Task.TaskCmd(self.fun, self.env))
 
 	def install(self):
 		if not self.install_var:
@@ -168,7 +168,7 @@ class substobj(Object.genobj):
 class CommandOutputTask(Task.Task):
 
 	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd):
-		Task.Task.__init__(self, 'command-output', env, priority, normal=1)
+		Task.Task.__init__(self, 'command-output', env, prio=priority, normal=1)
 		assert isinstance(command, (str, Node.Node))
 		self.command = command
 		self.command_args = command_args
