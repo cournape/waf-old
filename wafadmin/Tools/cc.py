@@ -112,10 +112,10 @@ def setup(bld):
 	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-	Action.simple_action('cc', cc_str, 'GREEN')
+	Action.simple_action('cc', cc_str, 'GREEN', prio=100)
 
 	# on windows libraries must be defined after the object files
-	Action.simple_action('cc_link', link_str, color='YELLOW')
+	Action.simple_action('cc_link', link_str, color='YELLOW', prio=101)
 
 	Object.register('cc', ccobj)
 

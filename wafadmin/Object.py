@@ -150,14 +150,15 @@ class genobj(object):
 		debug("posted %s" % self.name, 'object')
 		self.m_posted=1
 
-	def create_task(self, type, env=None, nice=10):
+	def create_task(self, type, env=None, nice=None):
 		"""the lower the nice is, the higher priority tasks will run at
 		groups are sorted in ascending order [2, 3, 4], the tasks with lower nice will run first
 		if tasks have an odd priority number, they will be run only sequentially
 		if tasks have an even priority number, they will be allowed to be run in parallel
 		"""
 		if env is None: env=self.env
-		task = Task.Task(type, env, nice)
+		task = Task.Task(type, env)
+		if not (nice is None): task.prio = nice
 		self.m_tasks.append(task)
 		return task
 

@@ -5,7 +5,7 @@
 "Dependency tree holder"
 
 import os, sys, cPickle, types, imp
-import Params, Runner, Object, Node, Task, Scripting, Utils, Environment
+import Params, Runner, Object, Node, Task, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
 
 SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_raw_deps m_sig_cache'.split()
@@ -130,6 +130,8 @@ class Build(object):
 
 		self.m_sig_cache       = {}
 
+		self.task_manager      = Task.TaskManager()
+
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
 		try:
@@ -177,12 +179,12 @@ class Build(object):
 		os.chdir(self.m_bdir)
 
 		Object.flush()
-		Task.g_tasks_done = []
 
 		if Params.g_verbose>2: self.dump()
 
-		if Params.g_options.jobs <= 1: executor = Runner.Serial()
-		else: executor = Runner.Parallel(Params.g_options.jobs)
+		self.task_manager.flush()
+		if Params.g_options.jobs <= 1: executor = Runner.Serial(self)
+		else: executor = Runner.Parallel(self, Params.g_options.jobs)
 
 		def dw():
 			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_on)
@@ -205,7 +207,9 @@ class Build(object):
 		dw()
 		if ret:
 			Utils.test_full()
-			raise BuildError(self, executor.tasks_done)
+			raise BuildError(self, self.task_manager.tasks_done)
+
+		self._store()
 
 		if Params.g_verbose>2: self.dump()
 		os.chdir(self.m_srcnode.abspath())

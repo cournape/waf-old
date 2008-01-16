@@ -5,7 +5,7 @@
 "Execute the tasks"
 
 import sys, random, time, threading, Queue
-import Params, Task, Utils, pproc
+import Params, Utils, pproc
 from Params import debug, error
 
 g_quiet = 0
@@ -84,9 +84,11 @@ def set_exec(mode):
 	else: error('set_runner_mode')
 
 class Serial(object):
-	def __init__(self):
+	def __init__(self, bld):
 		self.error = 0
 		self.tasks_done = []
+
+		self.manager = bld.task_manager
 
 		self.curgroup = 0
 		self.curprio = -1
@@ -95,11 +97,11 @@ class Serial(object):
 		self.priolst = []
 
 		# progress bar
-		self.total = Task.g_tasks.total()
+		self.total = self.manager.total()
 		self.processed = 0
 
 		self.switchflag = 1 # postpone
-		#Task.g_tasks.debug()
+		# self.manager.debug()
 
 	# warning, this one is recursive ..
 	def get_next(self):
@@ -110,18 +112,18 @@ class Serial(object):
 
 		# handle case where only one wscript exist
 		# that only install files
-		if not Task.g_tasks.groups:
+		if not self.manager.groups:
 			return None
 
 		# stop condition
-		if self.curgroup >= len(Task.g_tasks.groups):
+		if self.curgroup >= len(self.manager.groups):
 			return None
 
 		# increase the priority value
 		self.curprio += 1
 
 		# there is no current list
-		group = Task.g_tasks.groups[self.curgroup]
+		group = self.manager.groups[self.curgroup]
 		if self.curprio >= len(group.prio.keys()):
 			self.curprio = -1
 			self.curgroup += 1
@@ -151,7 +153,7 @@ class Serial(object):
 	# TODO FIXME
 	def debug(self):
 		debug("debugging a task: something went wrong:", 'runner')
-		s = " ".join([str(t.m_idx) for t in Task.g_tasks])
+		s = " ".join([str(t.m_idx) for t in self.manager])
 		debug(s, 'runner')
 
 	# skip a group and report the failure
@@ -159,8 +161,8 @@ class Serial(object):
 		self.curgroup += 1
 		self.curprio = -1
 		self.outstanding = []
-		try: Task.g_tasks.groups[self.curgroup].prio.sort()
-		except: pass
+		try: self.manager.groups[self.curgroup].prio.sort()
+		except KeyError: pass
 
 	def start(self):
 		global g_quiet
@@ -194,7 +196,7 @@ class Serial(object):
 			#continue
 			if not tsk.must_run():
 				tsk.m_hasrun = skipped
-				self.tasks_done.append(tsk)
+				self.manager.tasks_done.append(tsk)
 				#debug("task is up-to_date "+str(tsk.m_idx), 'runner')
 				continue
 
@@ -208,7 +210,7 @@ class Serial(object):
 
 			# run the command
 			ret = tsk.run()
-			self.tasks_done.append(tsk)
+			self.manager.tasks_done.append(tsk)
 
 			# non-zero means something went wrong
 			if ret:
@@ -275,13 +277,15 @@ class Parallel(object):
 	The following is a small scheduler for making as many tasks available to the consumer threads
 	It uses the serial shuffling system
 	"""
-	def __init__(self, j=2):
+	def __init__(self, bld, j=2):
 
 		# number of consumers
 		self.numjobs = j
 
+		self.manager = bld.task_manager
+
 		# progress bar
-		self.total = Task.g_tasks.total()
+		self.total = self.manager.total()
 		self.processed = 0
 
 		# tasks waiting to be processed - IMPORTANT
@@ -302,18 +306,18 @@ class Parallel(object):
 		self.curprio = -1
 		self.priolst = []
 
-		self.tasks_done = []
+		self.manager.tasks_done = []
 
 	def get_next_prio(self):
 		# stop condition
-		if self.curgroup >= len(Task.g_tasks.groups):
+		if self.curgroup >= len(self.manager.groups):
 			return (None, None)
 
 		# increase the priority value
 		self.curprio += 1
 
 		# there is no current list
-		group = Task.g_tasks.groups[self.curgroup]
+		group = self.manager.groups[self.curgroup]
 		if self.curprio >= len(group.prio.keys()):
 			self.curprio = -1
 			self.curgroup += 1

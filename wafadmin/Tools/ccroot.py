@@ -13,10 +13,6 @@ except ImportError: from md5 import md5
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 
-g_prio_link=101
-"""default priority for link tasks:
-an odd number means one link at a time (no parallelization)"""
-
 g_src_file_ext = ['.c', '.cpp', '.cc']
 "default extensions for source files"
 
@@ -89,7 +85,7 @@ def fakelibtool_build(task):
 	dest.close()
 	return 0
 # TODO move this line out
-Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE')
+Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', prio=200)
 
 class ccroot(Object.genobj):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
@@ -163,9 +159,9 @@ class ccroot(Object.genobj):
 			else:
 				self.subtype = 'shlib'
 
-	def create_task(self, type, env=None, nice=100):
+	def create_task(self, type, env=None):
 		"overrides Object.create_task to catch the creation of cpp tasks"
-		task = Object.genobj.create_task(self, type, env, nice)
+		task = Object.genobj.create_task(self, type, env)
 		if type == self.m_type_initials:
 			self.p_compiletasks.append(task)
 		return task
@@ -238,13 +234,10 @@ class ccroot(Object.genobj):
 			self.out_nodes = outputs
 			return
 
-		# and after the objects, the remaining is the link step
-		# link in a lower priority (101) so it runs alone (default is 10)
-		global g_prio_link
 		if self.m_type=='staticlib':
-			linktask = self.create_task('ar_link_static', self.env, g_prio_link)
+			linktask = self.create_task('ar_link_static', self.env)
 		else:
-			linktask = self.create_task(pre+'_link', self.env, g_prio_link)
+			linktask = self.create_task(pre+'_link', self.env)
 		outputs = []
 		app = outputs.append
 		for t in self.p_compiletasks: app(t.m_outputs[0])
@@ -254,7 +247,7 @@ class ccroot(Object.genobj):
 		self.m_linktask = linktask
 
 		if self.m_type != 'program' and self.want_libtool:
-			latask = self.create_task('fakelibtool', self.env, 200)
+			latask = self.create_task('fakelibtool', self.env)
 			latask.set_inputs(linktask.m_outputs)
 			latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
 			self.m_latask = latask

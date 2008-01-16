@@ -14,12 +14,15 @@ import Params, Scan, Action, Runner, Object
 from Params import debug, error, warning
 
 class TaskManager(object):
-	"""There is a single instance of TaskManager held by Task.py:g_tasks
-	The manager holds a list of TaskGroup
+	"""The manager is attached to the build object, it holds a list of TaskGroup
 	Each TaskGroup contains a map(priority, list of tasks)"""
 	def __init__(self):
 		self.groups = []
 		self.idx    = 0
+		self.tasks_done = []
+	def flush(self):
+		for k in self.groups:
+			k.flush()
 	def add_group(self, name=''):
 		if not name:
 			try: size = len(self.groups)
@@ -28,21 +31,22 @@ class TaskManager(object):
 		if not self.groups:
 			self.groups = [TaskGroup(name)]
 			return
-		if not self.groups[0].prio:
+		if not self.groups[0].tasks:
 			warning('add_group: an empty group is already present')
 			return
 		self.groups = self.groups + [TaskGroup(name)]
-	def add_task(self, task, prio):
+	def add_task(self, task):
 		if not self.groups: self.add_group('group-0')
 		task.m_idx = self.idx
 		self.idx += 1
-		self.groups[-1].add_task(task, prio)
+		self.groups[-1].add_task(task)
 	def total(self):
 		total = 0
 		if not self.groups: return 0
 		for group in self.groups:
-			for p in group.prio:
-				total += len(group.prio[p])
+			total += len(group.tasks)
+			#for p in group.prio:
+			#	total += len(group.prio[p])
 		return total
 	def debug(self):
 		for i in self.groups:
@@ -50,31 +54,35 @@ class TaskManager(object):
 			for j in i.prio:
 				print "prio: ", j, str(i.prio[j])
 
-"the container of all tasks (instance of TaskManager)"
-g_tasks = TaskManager()
-
 class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"
 	def __init__(self, name):
 		self.name = name
 		self.info = ''
-		self.prio = {} # map priority numbers to tasks
-	def add_task(self, task, prio):
-		try: self.prio[prio].append(task)
-		except: self.prio[prio] = [task]
+		self.tasks = []
+		self.prio = {}
+	def add_task(self, task):
+		try: self.tasks.append(task)
+		except KeyError: self.tasks = [task]
+	def flush(self):
+		for x in self.tasks:
+			try: p = getattr(x, 'prio')
+			except AttributeError: p = x.m_action.prio
+			try: self.prio[p].append(x)
+			except KeyError: self.prio[p] = [x]
 
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
-	def __init__(self, priority, normal=1):
+	def __init__(self, normal=1):
 		self.m_display = ''
 		self.m_hasrun=0
-		global g_tasks
+
+		manager = Params.g_build.task_manager
 		if normal:
-			# add to the list of tasks
-			g_tasks.add_task(self, priority)
+			manager.add_task(self)
 		else:
-			self.m_idx = g_tasks.idx
-			g_tasks.idx += 1
+			self.m_idx = manager.idx
+			manager.idx += 1
 	def may_start(self):
 		"non-zero if the task is ready"
 		return 1
@@ -106,8 +114,8 @@ class TaskBase(object):
 
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
-	def __init__(self, action_name, env, priority=5, normal=1):
-		TaskBase.__init__(self, priority, normal)
+	def __init__(self, action_name, env, normal=1):
+		TaskBase.__init__(self, normal=normal)
 
 		# name of the action associated to this task type
 		self.m_action = Action.g_actions[action_name]
@@ -410,8 +418,8 @@ class Task(TaskBase):
 
 class TaskCmd(TaskBase):
 	"TaskCmd executes commands. Instances always execute their function"
-	def __init__(self, fun, env, priority):
-		TaskBase.__init__(self, priority)
+	def __init__(self, fun, env):
+		TaskBase.__init__(self)
 		self.fun = fun
 		self.env = env
 	def prepare(self):
