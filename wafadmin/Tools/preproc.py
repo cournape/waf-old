@@ -59,6 +59,7 @@ re_cpp = re.compile(\
 	r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""",
 	re.MULTILINE)
 trig_def = [('??'+a, b) for a, b in zip("=-/!'()<>", r'#~\|^[]{}')]
+chr_esc = {'0':0, 'a':7, 'b':8, 't':9, 'n':10, 'f':11, 'v':12, 'r':13, '\\':92, "'":39}
 
 NUM   = 'i'
 OP    = 'O'
@@ -605,23 +606,24 @@ def extract_include(txt, defs):
 	return ('"', v)
 
 def parse_char(txt):
-	# TODO way too complicated!
 	try:
 		if not txt: raise PreprocError
 		if txt[0] != '\\': return ord(txt)
 		c = txt[1]
-		if c in "ntbrf\\'": return ord(eval('"\\%s"' % c)) # FIXME eval is slow and  ugly
-		elif c == 'x':
+		if c == 'x':
 			if len(txt) == 4 and txt[3] in string.hexdigits: return int(txt[2:], 16)
 			return int(txt[2:], 16)
 		elif c.isdigit():
+			if c == '0' and len(txt)==2: return 0
 			for i in 3, 2, 1:
 				if len(txt) > i and txt[1:1+i].isdigit():
 					return (1+i, int(txt[1:1+i], 8))
 		else:
-			raise PreprocError
+			#print chr_esc[c]
+			print chr_esc.get(c, 'k')
+			return chr_esc[c]
 	except:
-		raise PreprocError, "could not parse char literal '%s'" % v
+		raise PreprocError, "could not parse char literal '%s'" % txt
 
 def tokenize(s):
 	ret = []
