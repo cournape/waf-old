@@ -11,7 +11,7 @@
   - substitute the code in the functions and the defines (and use the # and ## operators)
   - reduce the expression obtained (apply the arithmetic and boolean rules)
 
-TODO: varargs, parse more numbers
+TODO: varargs
 """
 
 import re, sys, os, string, types
@@ -619,8 +619,6 @@ def parse_char(txt):
 				if len(txt) > i and txt[1:1+i].isdigit():
 					return (1+i, int(txt[1:1+i], 8))
 		else:
-			#print chr_esc[c]
-			print chr_esc.get(c, 'k')
 			return chr_esc[c]
 	except:
 		raise PreprocError, "could not parse char literal '%s'" % txt
@@ -650,12 +648,6 @@ def tokenize(s):
 						v = m('char')
 						if v: v = parse_char(v)
 						else: v = m('n2') or m('n4')
-# till i manage to understand what it does exactly (ita)
-#					#if v[0] == 'L': v = v[1:]
-#					r = parse_literal(v[1:-1])
-#					if r[0]+2 != len(v):
-#						raise PreprocError, "could not parse char literal %s" % v
-#					v = r[1]
 				elif name == OP:
 					if v == '%:': v='#'
 					elif v == '%:%:': v='##'
