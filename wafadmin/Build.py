@@ -185,6 +185,8 @@ class Build(object):
 		self.task_manager.flush()
 		if Params.g_options.jobs <= 1: executor = Runner.Serial(self)
 		else: executor = Runner.Parallel(self, Params.g_options.jobs)
+		# TODO clean
+		self.generator = executor
 
 		def dw():
 			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_on)

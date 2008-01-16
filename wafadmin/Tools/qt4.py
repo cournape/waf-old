@@ -128,7 +128,7 @@ def create_rcc_task(self, node):
 	# TODO add the dependency on the files listed in .qrc
 	rcnode = node.change_ext('_rc.cpp')
 
-	rcctask = self.create_task('rcc', self.env, 60)
+	rcctask = self.create_task('rcc', self.env)
 	rcctask.m_inputs = [node]
 	rcctask.m_outputs = [rcnode]
 
@@ -140,7 +140,7 @@ def create_rcc_task(self, node):
 
 def create_uic_task(self, node):
 	"hook for uic tasks"
-	uictask = self.create_task('ui4', self.env, 60)
+	uictask = self.create_task('ui4', self.env)
 	uictask.m_inputs    = [node]
 	uictask.m_outputs   = [node.change_ext('.h')]
 
@@ -155,21 +155,21 @@ class qt4obj(cpp.cppobj):
 
 		# valid types are ['program', 'shlib', 'staticlib']
 
-	def create_task(self, type, env=None, nice=100):
+	def create_task(self, type, env=None):
 		"overrides Object.create_task to catch the creation of cpp tasks"
 
 		if env is None: env=self.env
 		if type == 'cpp':
-			task = MTask(type, env, self, nice)
+			task = MTask(type, env, self)
 		elif type == 'cpp_ui':
-			task = Task.Task('cpp', env, nice)
+			task = Task.Task('cpp', env)
 		elif type == 'moc_hack': # add a task while the build has started
-			task = Task.Task('moc', env, nice, normal=0)
+			task = Task.Task('moc', env, normal=0)
 			generator = Params.g_build.generator
 			generator.outstanding = [task] + generator.outstanding
 			generator.total += 1
 		else:
-			task = Task.Task(type, env, nice)
+			task = Task.Task(type, env)
 
 		self.m_tasks.append(task)
 		if type == 'cpp': self.p_compiletasks.append(task)
@@ -259,12 +259,12 @@ def process_qm2rcc(task):
 	f.close()
 
 def setup(bld):
-	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
-	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE')
-	Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE')
-	Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE')
+	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'], prio=100)
+	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE', prio=60)
+	Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', prio=60)
+	Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
 
-	Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE')
+	Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=60)
 
 	Object.register('qt4', qt4obj)
 
