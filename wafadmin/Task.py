@@ -65,9 +65,12 @@ class TaskGroup(object):
 		try: self.tasks.append(task)
 		except KeyError: self.tasks = [task]
 	def flush(self):
+		# FIXME TODO in the future we will allow to go back in the past
 		for x in self.tasks:
 			try: p = getattr(x, 'prio')
-			except AttributeError: p = x.m_action.prio
+			except AttributeError:
+				try: p = x.m_action.prio
+				except AttributeError: p = 100
 			try: self.prio[p].append(x)
 			except KeyError: self.prio[p] = [x]
 
@@ -114,11 +117,12 @@ class TaskBase(object):
 
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
-	def __init__(self, action_name, env, normal=1):
+	def __init__(self, action_name, env, normal=1, prio=None):
 		TaskBase.__init__(self, normal=normal)
 
 		# name of the action associated to this task type
 		self.m_action = Action.g_actions[action_name]
+		if not (prio is None): self.prio = prio
 
 		# environment in use
 		self.m_env = env
