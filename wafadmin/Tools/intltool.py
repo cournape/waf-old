@@ -53,15 +53,15 @@ class intltool_po(Object.genobj):
 		self.m_tasks=[]
 
 	def apply(self):
-		linguas = self.path.find_source ('LINGUAS')
+		linguas = self.path.find_source('LINGUAS')
 		if linguas:
 			# scan LINGUAS file for locales to process
-			f = open (linguas.abspath())
+			f = open(linguas.abspath())
 			re_linguas = re.compile('[-a-zA-Z_@.]+')
 			for line in f.readlines():
 				# Make sure that we only process lines which contain locales
 				if re_linguas.match(line):
-					node = self.path.find_source(re_linguas.match(line).group() + '.po')
+					node = self.path.find_build(re_linguas.match(line).group() + '.po')
 					task = self.create_task('po', self.env)
 					task.set_inputs(node)
 					task.set_outputs(node.change_ext('.mo'))
