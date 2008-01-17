@@ -267,7 +267,30 @@ def get_expr(lst, defs, ban):
 			table = macro_def[0]
 			for p2, v2 in macro_def[1]:
 				if p2 == IDENT and v2 in table: accu += params[table[v2]]
-				else: accu.append((p2, v2))
+				else:
+					if v2 == '__VA_ARGS__':
+						# first collect the tokens
+						va_toks = []
+
+						#if len(params)>0:
+						#	#px, vx = params[-1][0]
+						#	#print px, vx
+						#print len(macro_def[0]), macro_def[0]
+						#print len(params), params
+
+						# TODO
+						if len(accu)>1:
+							(p3, v3) = accu[-1]
+							(p4, v4) = accu[-2]
+							# do we remove the comma or not ?
+							if v3 == '##' and v4 == ',':
+								accu = accu[:-2]+va_toks
+							else:
+								accu += va_toks
+						else:
+							accu += va_toks
+					else:
+						accu.append((p2, v2))
 
 			return get_expr(accu + lst, defs, ban+[v])
 
