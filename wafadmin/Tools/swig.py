@@ -111,9 +111,9 @@ def setup(bld):
 def check_swig_version(conf, minver=None):
 	"""Check for a minimum swig version  like conf.check_swig_version("1.3.28")
 	or conf.check_swig_version((1,3,28)) """
-	from pproc import Popen, PIPE
+	import pproc as subprocess
 	reg_swig = re.compile(r'SWIG Version\s(.*)', re.M)
-	proc = Popen([conf.env['SWIG'], "-version"], stdout=PIPE)
+	proc = subprocess.Popen([conf.env['SWIG'], "-version"], stdout=subprocess.PIPE)
 	swig_out = proc.communicate()[0]
 	swigver = [int(s) for s in reg_swig.findall(swig_out)[0].split(".")]
 	if isinstance(minver, basestring):

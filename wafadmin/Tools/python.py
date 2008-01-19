@@ -7,7 +7,7 @@
 
 import os, sys
 import Object, Action, Utils, Params, Common, Utils
-from pproc import Popen, PIPE
+import pproc as subprocess
 
 class pyobj(Object.genobj):
 	s_default_ext = ['.py']
@@ -78,7 +78,8 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	program.append('')
 	for v in variables:
 		program.append("print repr(%s)" % v)
-	output = Popen([python_exe, "-c", '\n'.join(program)], stdout=PIPE).communicate()[0].split("\n")
+	output = subprocess.Popen([python_exe, "-c", '\n'.join(program)],
+			stdout=subprocess.PIPE).communicate()[0].split("\n")
 	return_values = []
 	for s in output:
 		# print repr(value) in the spawned python, use eval() to parse back
@@ -223,7 +224,7 @@ def check_python_version(conf, minver=None):
 	assert python, ("python is %r !" % (python,))
 
 	## Get python version string
-	proc = Popen([python, "-c", "import sys; print repr(sys.version_info)"], stdout=PIPE)
+	proc = subprocess.Popen([python, "-c", "import sys; print repr(sys.version_info)"], stdout=subprocess.PIPE)
 	pyver_tuple = eval(proc.communicate()[0].rstrip())
 
 	## compare python version with the minimum required
@@ -266,8 +267,8 @@ def check_python_module(conf, module_name):
 	"""
 	Check if the selected python interpreter can import the given python module.
 	"""
-	result = not Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
-			   stderr=PIPE, stdout=PIPE).wait()
+	result = not subprocess.Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
+			   stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
 	conf.check_message('Python module', module_name, result)
 	if not result:
 		conf.fatal("Python module not found.")

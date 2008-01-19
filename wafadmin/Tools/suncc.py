@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 # Ralf Habacker, 2006 (rh)
 
-import os, sys, pproc, Object
+import os, sys, Object
 import optparse
 import Utils, Action, Params, checks, Configure
 
