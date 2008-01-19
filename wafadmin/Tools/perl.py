@@ -2,7 +2,8 @@
 # encoding: utf-8
 # andersg at 0x63.nu 2007
 
-import os, pproc
+import os
+import pproc as subprocess
 import Action, Object, Node, Params
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
@@ -65,9 +66,8 @@ def check_perl_module(conf, module):
     conf.check_perl_module("Some::Module 2.92")
     """
     cmd = [conf.env['PERL'], '-e', 'use %s' % module]
-    r = pproc.call(cmd,
-                   stdout=pproc.PIPE,
-                   stderr=pproc.PIPE) == 0
+	# TODO are you certain ?
+    r = subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
     conf.check_message("perl module %s" % module, "", r)
     return r
 
