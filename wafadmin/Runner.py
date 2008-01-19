@@ -5,7 +5,8 @@
 "Execute the tasks"
 
 import sys, random, time, threading, Queue
-import Params, Utils, pproc
+import Params, Utils
+import pproc as subprocess
 from Params import debug, error
 
 g_quiet = 0
@@ -58,7 +59,7 @@ def exec_command_normal(s):
 	# encase the command in double-quotes in windows
 	if sys.platform == 'win32' and not s.startswith('""'):
 		s = '"%s"' % s
-	proc = pproc.Popen(s, shell=1, stdout=pproc.PIPE, stderr=pproc.PIPE)
+	proc = subprocess.Popen(s, shell=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	process_cmd_output(proc.stdout, proc.stderr)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
@@ -71,7 +72,7 @@ def exec_command_interact(s):
 	# encase the command in double-quotes in windows
 	if sys.platform == 'win32' and not s.startswith('""'):
 		s = '"%s"' % s
-	proc = pproc.Popen(s, shell=1)
+	proc = subprocess.Popen(s, shell=1)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8

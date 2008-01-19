@@ -18,7 +18,8 @@ In the shutdown method, add the following code:
 Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
 """
 import os
-import Params, Object, pproc, Utils
+import Params, Object, Utils
+import pproc as subprocess
 
 class unit_test(object):
 	"Unit test representation"
@@ -99,10 +100,10 @@ class unit_test(object):
 
 				kwargs = dict()
 				if not self.want_to_see_test_output:
-					kwargs['stdout'] = pproc.PIPE  # PIPE for ignoring output
+					kwargs['stdout'] = subprocess.PIPE  # PIPE for ignoring output
 				if not self.want_to_see_test_error:
-					kwargs['stderr'] = pproc.PIPE  # PIPE for ignoring output
-				pp = pproc.Popen(filename, **kwargs)
+					kwargs['stderr'] = subprocess.PIPE  # PIPE for ignoring output
+				pp = subprocess.Popen(filename, **kwargs)
 				pp.wait()
 
 				if self.change_to_testfile_dir:
