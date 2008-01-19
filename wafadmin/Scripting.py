@@ -7,7 +7,6 @@
 import os, sys, cPickle
 import Params, Utils, Configure, Environment, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
-import pproc as subprocess
 
 g_gz='bz2'
 g_dirwatch   = None
