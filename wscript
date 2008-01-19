@@ -12,7 +12,7 @@ For configuration examples: demos/adv/wscript
 For a project without subdirectory: demos/python/wscript
 """
 
-VERSION="1.3.1"
+VERSION="1.3.2"
 APPNAME='waf'
 REVISION=''
 
@@ -276,9 +276,11 @@ def uninstall_waf():
 def init():
 	if Params.g_options.setver: # maintainer only (ita)
 		ver = Params.g_options.setver
+		hexver = '0x0'+ver.replace('.','0')
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
+		os.popen("""perl -pi -e 's/^hexversion(.*)?$/hexversion="%s"/' wafadmin/Params.py""" % hexver).close()
 		sys.exit(0)
 	elif Params.g_commands['install']:
 		create_waf()
