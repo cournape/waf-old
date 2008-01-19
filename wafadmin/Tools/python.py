@@ -77,13 +77,12 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	program = list(imports)
 	program.append('')
 	for v in variables:
-		program.append("print repr(%s)" % v)
+		program.append("print str(%s)" % v)
 	output = subprocess.Popen([python_exe, "-c", '\n'.join(program)],
-			stdout=subprocess.PIPE).communicate()[0].split("\n")
+				  stdout=subprocess.PIPE).communicate()[0].split("\n")
 	return_values = []
 	for s in output:
-		# print repr(value) in the spawned python, use eval() to parse back
-		if s: return_values.append(eval(s.rstrip()))
+		if s: return_values.append(s.rstrip())
 		else: break
 	return return_values
 
@@ -224,19 +223,23 @@ def check_python_version(conf, minver=None):
 	assert python, ("python is %r !" % (python,))
 
 	## Get python version string
-	proc = subprocess.Popen([python, "-c", "import sys; print repr(sys.version_info)"], stdout=subprocess.PIPE)
-	pyver_tuple = eval(proc.communicate()[0].rstrip())
+	proc = subprocess.Popen([python, "-c",
+				 "import sys; print '\\n'.join(map(str, sys.version_info))"],
+				stdout=subprocess.PIPE)
+	lines = proc.communicate()[0].split()
+	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
+	pyver_tuple = (int(lines[0]), int(lines[1]), int(lines[2]), lines[3], int(lines[4]))
 
 	## compare python version with the minimum required
 	result = (minver is None) or (pyver_tuple >= minver)
 
 	if result:
 		## define useful environment variables
-		pyver = '.'.join(map(str, pyver_tuple[:2]))
+		pyver = '.'.join([str(x) for x in pyver_tuple[:2]])
 		conf.env['PYTHON_VERSION'] = pyver
 
 		if 'PYTHONDIR' in os.environ:
-			dir = os.environ['PYTHONDIR']
+			pydir = os.environ['PYTHONDIR']
 		else:
 			if sys.platform == 'win32':
 				(python_LIBDEST,) = \
@@ -246,10 +249,10 @@ def check_python_version(conf, minver=None):
 				python_LIBDEST = None
 			if python_LIBDEST is None:
 				python_LIBDEST = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver)
-			dir = os.path.join(python_LIBDEST, "site-packages")
+			pydir = os.path.join(python_LIBDEST, "site-packages")
 
-		conf.define('PYTHONDIR', dir)
-		conf.env['PYTHONDIR'] = dir
+		conf.define('PYTHONDIR', pydir)
+		conf.env['PYTHONDIR'] = pydir
 
 	## Feedback
 	pyver_full = '.'.join(map(str, pyver_tuple[:3]))
