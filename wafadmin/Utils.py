@@ -28,6 +28,7 @@ def test_full():
 		else:
 			Params.fatal(str(e), e.errno)
 
+# TODO DEPRECATED: to be removed in waf 1.4
 def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 	"throws an exception if the waf version is wrong"
 	min_lst = map(int, mini.split('.'))

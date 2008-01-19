@@ -15,7 +15,8 @@ import Utils
 # =================================== #
 # Fixed constants, change with care
 
-g_version="1.3.1"
+g_version="1.3.2"
+hexversion="0x010302"
 g_rootname = ''
 g_progress = '\x1b[K%s%s%s\r'
 if sys.platform=='win32':
