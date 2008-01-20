@@ -5,7 +5,7 @@
 "Module called for configuring, compiling and installing targets"
 
 import os, sys, cPickle
-import Params, Utils, Configure, Environment, Build, Runner, Options
+import Params, Utils, Configure, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
 
 g_gz='bz2'

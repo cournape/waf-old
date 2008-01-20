@@ -4,7 +4,7 @@
 
 "Utility functions"
 
-import os, sys, imp, types, string, re, time
+import os, sys, imp, types, string, time
 import Params
 
 g_trace = 0
@@ -50,9 +50,8 @@ def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 			Params.fatal("waf version should be at most %s (%s found)" % (maxi, Params.g_version))
 
 def reset():
-	import Params, Task, Scripting, Object
+	import Params, Object
 	Params.g_build = None
-	Task.g_tasks = Task.TaskManager()
 	Object.g_allobjs = []
 
 def to_list(sth):
@@ -180,7 +179,7 @@ _quote_define_name_translation = None
 "lazily construct a translation table for mapping invalid characters to valid ones"
 
 def quote_define_name(path):
-	"Converts a string like foo/zbr-xpto.h to a C preprocessor name like FOO_ZBR_XPTO_H"
+	"Converts a string to a constant name, foo/zbr-xpto.h -> FOO_ZBR_XPTO_H"
 	global _quote_define_name_translation
 	if _quote_define_name_translation is None:
 		invalid_chars = [chr(x) for x in xrange(256)]
