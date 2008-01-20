@@ -204,7 +204,7 @@ class Build(object):
 			else: sys.exit(68)
 		except Exception, e:
 			dw()
-			raise e
+			raise
 
 		dw()
 		if ret:
