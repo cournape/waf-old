@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, cPickle
+import os, sys, cPickle, traceback
 import Params, Utils, Configure, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
 
@@ -31,7 +31,6 @@ def add_subdir(dir, bld):
 	bld.m_curdirnode=new
 	# try to open 'wscript_build' for execution
 	# if unavailable, open the module wscript and call the build function from it
-	from Common import install_files, install_as, symlink_as # do not remove
 	try:
 		file_path = os.path.join(new.abspath(), 'wscript_build')
 		file = open(file_path, 'r')
@@ -211,7 +210,8 @@ def prepare():
 			if Params.g_lockfile in dirlst:
 				break
 			cwd = cwd[:cwd.rfind(os.sep)] # climb up
-	except:
+	except Exception:
+		traceback.print_stack()
 		fatal(msg1)
 
 	if not candidate:
@@ -326,6 +326,8 @@ def main():
 				hash = Params.hash_function_with_globals(hash, mod.configure)
 			reconf = (hash != proj['hash'])
 		except Exception, ex:
+			if Params.g_verbose:
+				traceback.print_exc()
 			warning("Reconfiguring the project as an exception occured: %s" % (str(ex),))
 			reconf=1
 
@@ -365,7 +367,7 @@ def main():
 	# compile
 	if Params.g_commands['build'] or Params.g_commands['install']:
 		try:
-			ret = bld.compile()
+			bld.compile()
 			#ret = 0
 			#import cProfile, pstats
 			#cProfile.run("Params.g_build.compile()", 'profi.txt')
@@ -373,7 +375,7 @@ def main():
 			#p.sort_stats('time').print_stats(20)
 
 			if Params.g_options.progress_bar: print ''
-			if not ret: Params.pprint('GREEN', 'Compilation finished successfully')
+			Params.pprint('GREEN', 'Compilation finished successfully')
 		except Build.BuildError, e:
 			if not Params.g_options.daemon: fatal(e.get_message(), 1)
 			else: error(e.get_message())
@@ -381,22 +383,22 @@ def main():
 	# install
 	if Params.g_commands['install'] or Params.g_commands['uninstall']:
 		try:
-			ret = bld.install()
-			if not ret: Params.pprint('GREEN', 'Installation finished successfully')
+			bld.install()
+			Params.pprint('GREEN', 'Installation finished successfully')
 		finally:
 			bld.save()
-		if ret: fatal('Compilation failed')
+		#if ret: fatal('Compilation failed')
 
 	# clean
 	if Params.g_commands['clean']:
 		try:
-			ret = bld.clean()
-			if not ret: Params.pprint('GREEN', 'Project cleaned successfully')
+			bld.clean()
+			Params.pprint('GREEN', 'Project cleaned successfully')
 		finally:
 			bld.save()
-		if ret:
-			msg='Cleanup failed for a mysterious reason'
-			error(msg)
+		#if ret:
+		#	msg='Cleanup failed for a mysterious reason'
+		#	error(msg)
 
 	# daemon look here
 	if Params.g_options.daemon and Params.g_commands['build']:
@@ -509,13 +511,13 @@ def DistClean():
 	lst = os.listdir('.')
 	for f in lst:
 		if f.startswith('.waf-'):
-			try: shutil.rmtree(f)
-			except: pass
+			shutil.rmtree(f, ignore_errors=True)
 	sys.exit(0)
 
 def DistCheck(appname, version):
 	"""Makes some sanity checks on the waf dist generated tarball"""
 	import shutil, tempfile
+	import pproc as subprocess
 
 	waf = os.path.abspath(sys.argv[0])
 	distdir, tarball = DistTarball(appname, version)

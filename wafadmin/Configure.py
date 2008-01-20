@@ -134,8 +134,7 @@ class enumerator_base(object):
 				self.env[name] = hashtable[name]
 
 	def validate(self):
-		try: self.names = self.names.split()
-		except: pass
+		pass
 
 	def hash(self):
 		m = md5()
@@ -1003,7 +1002,7 @@ class Configure(object):
 		for i in lst:
 			try:
 				file,name,desc = imp.find_module(i, tooldir)
-			except Exception, ex:
+			except ImportError, ex:
 				raise ConfigurationError("no tool named '%s' found (%s)" % (i, str(ex)))
 			module = imp.load_module(i,file,name,desc)
 			func = getattr(module, 'detect', None)

@@ -25,8 +25,7 @@ class TaskManager(object):
 			k.flush()
 	def add_group(self, name=''):
 		if not name:
-			try: size = len(self.groups)
-			except: size = 0
+			size = len(self.groups)
 			name = 'group-%d' % size
 		if not self.groups:
 			self.groups = [TaskGroup(name)]
@@ -132,6 +131,9 @@ class Task(TaskBase):
 		self.m_inputs  = []
 		self.m_outputs = []
 
+		self.m_deps_nodes = []
+		self.m_run_after = []
+
 		# Additionally, you may define the following
 		#self.dep_vars  = 'PREFIX DATADIR'
 		#self.m_scanner = some_scanner_object
@@ -151,8 +153,7 @@ class Task(TaskBase):
 		"set (scheduler) dependency on another task"
 		# TODO: handle list or object
 		assert isinstance(task, TaskBase)
-		try: self.m_run_after.append(task)
-		except AttributeError: self.m_run_after = [task]
+		self.m_run_after.append(task)
 
 	def get_run_after(self):
 		try: return self.m_run_after
@@ -161,8 +162,7 @@ class Task(TaskBase):
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
 		node = Params.g_build.m_current.find_build(filename)
-		try: self.m_deps_nodes.append(node)
-		except: self.m_deps_nodes = [node]
+		self.m_deps_nodes.append(node)
 
 	#------------ users are probably less interested in the following methods --------------#
 

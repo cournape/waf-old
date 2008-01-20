@@ -38,7 +38,7 @@ def do_install(src, tgt, chmod=0644):
 			try:
 				srclbl = src.replace(Params.g_build.m_bldnode.abspath(None)+os.sep, '')
 				srclbl = src.replace(Params.g_build.m_srcnode.abspath(None)+os.sep, '')
-			except:
+			except OSError:
 				pass
 			print "* installing %s as %s" % (srclbl, tgt)
 

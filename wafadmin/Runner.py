@@ -4,7 +4,7 @@
 
 "Execute the tasks"
 
-import sys, random, time, threading, Queue
+import sys, random, time, threading, Queue, traceback
 import Params, Utils
 import pproc as subprocess
 from Params import debug, error
@@ -27,7 +27,7 @@ def progress_line(state, total, col1, task, col2):
 
 	if Params.g_options.progress_bar == 2:
 		try: ini = Params.g_build.ini
-		except: ini = Params.g_build.ini = time.time()
+		except AttributeError: ini = Params.g_build.ini = time.time()
 		ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
 		ins  = ','.join([n.m_name for n in task.m_inputs])
 		outs = ','.join([n.m_name for n in task.m_outputs])
@@ -224,7 +224,8 @@ class Serial(object):
 			try:
 				tsk.update_stat()
 				tsk.m_hasrun = success
-			except:
+			except Exception:
+				traceback.print_stack()
 				self.error = 1
 				tsk.m_hasrun = missing
 				if Params.g_options.keep: continue

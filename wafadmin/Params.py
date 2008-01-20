@@ -83,7 +83,7 @@ except KeyError: pass
 
 # allow different names for lockfile
 try: g_lockfile = os.environ['WAFLOCK']
-except: g_lockfile = '.lock-wscript'
+except KeyError: g_lockfile = '.lock-wscript'
 
 # =================================== #
 # HELPERS
@@ -122,7 +122,7 @@ if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
 
 def pprint(col, str, label=''):
 	try: mycol=g_colors[col]
-	except: mycol=''
+	except KeyError: mycol=''
 	print "%s%s%s %s" % (mycol, str, g_colors['NORMAL'], label)
 
 g_levels={
@@ -166,7 +166,7 @@ def niceprint(msg, type='', module=''):
 
 def __get_module():
 	try: return inspect.stack()[2][0].f_globals['__name__']
-	except: return "unknown"
+	except (IndexError, KeyError): return "unknown"
 
 def debug(msg, zone=None):
 	global g_zones, g_verbose

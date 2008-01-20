@@ -119,7 +119,7 @@ class Environment(object):
 		if self.m_table.has_key('NOINSTALL'): return ''
 		dst = Params.g_options.destdir
 		try: dst = os.path.join(dst, os.sep, self.m_table['SUBDEST'])
-		except: pass
+		except KeyError: pass
 		return dst
 
 	def set_dependency(self, infile, outfile):

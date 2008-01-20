@@ -72,8 +72,6 @@ class scanner(object):
 			prev_sig = tree.get_sig_cache(key)[1]
 		except KeyError:
 			prev_sig = Params.sig_nil
-		except:
-			raise
 
 		# we can compute and return the signature if
 		#   * the source files have not changed (rescan is 0)
@@ -125,10 +123,10 @@ class scanner(object):
 			# TODO: look at the case of stale nodes and dependencies types
 			variant = node.variant(task.m_env)
 			try: queue += tree.m_depends_on[variant][node]
-			except: pass
+			except KeyError: pass
 
 			try: m.update(tree.m_tstamp_variants[variant][node])
-			except: return Params.sig_nil
+			except KeyError: return Params.sig_nil
 
 		return m.digest()
 

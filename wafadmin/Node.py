@@ -116,14 +116,14 @@ class Node(object):
 	def get_tstamp_variant(self, variant):
 		vars = Params.g_build.m_tstamp_variants[variant]
 		try: return vars[variant]
-		except: return None
+		except KeyError: return None
 
 	def set_tstamp_variant(self, variant, value):
 		Params.g_build.m_tstamp_variants[variant][self] = value
 
 	def get_tstamp_node(self):
 		try: return Params.g_build.m_tstamp_variants[0][self]
-		except: return None
+		except KeyError: return None
 
 	def set_tstamp_node(self, value):
 		Params.g_build.m_tstamp_variants[0][self] = value

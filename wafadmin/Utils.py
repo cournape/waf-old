@@ -116,19 +116,18 @@ def to_hashtable(s):
 		tbl[mems[0]] = mems[1]
 	return tbl
 
-def get_term_cols():
-	return 55
-
 try:
 	import struct, fcntl, termios
-	def machin():
-		lines, cols = struct.unpack("HHHH", \
+except ImportError:
+	def get_term_cols():
+		return 55
+else:
+	def get_term_cols():
+		dummy_lines, cols = struct.unpack("HHHH", \
 		fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
 		struct.pack("HHHH", 0, 0, 0, 0)))[:2]
 		return cols
-	get_term_cols = machin
-except:
-	pass
+
 
 def progress_line(state, total, col1, col2):
 	n = len(str(total))
@@ -137,8 +136,10 @@ def progress_line(state, total, col1, col2):
 	g_ind_idx += 1
 	ind = g_ind[g_ind_idx % 4]
 
-	try: ini = Params.g_build.ini
-	except: ini = Params.g_build.ini = time.time()
+	if hasattr(Params.g_build, 'ini'):
+		ini = Params.g_build.ini
+	else:
+		ini = Params.g_build.ini = time.time()
 
 	pc = (100.*state)/total
 	eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
