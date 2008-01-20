@@ -340,7 +340,7 @@ class Parallel(object):
 		#group = None
 
 		def get_out():
-			self.tasks_done.append(self.out.get())
+			self.manager.tasks_done.append(self.out.get())
 			self.count -= 1
 
 		lastfailput = 0
@@ -382,7 +382,7 @@ class Parallel(object):
 				self.progress += 1
 				if not tsk.must_run():
 					tsk.m_hasrun = skipped
-					self.tasks_done.append(tsk)
+					self.manager.tasks_done.append(tsk)
 					continue
 				cl = Params.g_colors
 				tsk.set_display(progress_line(self.progress, self.total, cl[tsk.color()], tsk, cl['NORMAL']))
