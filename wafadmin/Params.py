@@ -4,7 +4,7 @@
 
 "Main parameters"
 
-import os, sys, types, inspect, base64, stat, time
+import os, sys, types, inspect, base64, time
 
 # see: http://docs.python.org/lib/module-md5.html
 try: from hashlib import md5
