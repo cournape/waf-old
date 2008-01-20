@@ -192,6 +192,11 @@ def quote_define_name(path):
 def quote_whitespace(path):
 	return (path.strip().find(' ') > 0 and '"%s"' % path or path).replace('""', '"')
 
+def trimquotes(s):
+	if not s: return ''
+	s = s.rstrip()
+	if s[0] == "'" and s[-1] == "'": return s[1:-1]
+	return s
 
 class UndefinedType(object):
 	def __repr__(self):

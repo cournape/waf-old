@@ -16,12 +16,6 @@ from Params import error, debug, fatal, warning
 g_src_file_ext = ['.c', '.cpp', '.cc']
 "default extensions for source files"
 
-def trimquotes(s):
-	if not s: return ''
-	s = s.rstrip()
-	if s[0] == "'" and s[-1] == "'": return s[1:-1]
-	return s
-
 class c_scanner(Scan.scanner):
 	"scanner for c/c++ files"
 	def __init__(self):

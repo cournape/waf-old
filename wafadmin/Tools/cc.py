@@ -4,9 +4,9 @@
 
 "Base for c programs/libraries"
 
-import ccroot
-import Object, Params, Action
+import Object, Params, Action, Utils
 from Params import debug
+import ccroot
 
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -104,7 +104,7 @@ class ccobj(ccroot.ccroot):
 		for l in libs:
 			val = self.env['CCDEFINES_'+l]
 			if val: milst += val
-		self.env['DEFLINES'] = ["%s %s" % (x[0], ccroot.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
+		self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 		y = self.env['CCDEFINES_ST']
 		self.env['_CCDEFFLAGS'] = [y%x for x in milst]
 

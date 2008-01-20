@@ -5,7 +5,7 @@
 "Base for c++ programs and libraries"
 
 import ccroot
-import Object, Params, Action
+import Object, Params, Action, Utils
 
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -53,7 +53,7 @@ class cppobj(ccroot.ccroot):
 			val = self.env['CXXDEFINES_'+l]
 			if val: milst += self.to_list(val)
 
-		self.env['DEFLINES'] = ["%s %s" % (x[0], ccroot.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
+		self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 		y = self.env['CXXDEFINES_ST']
 		self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
 
