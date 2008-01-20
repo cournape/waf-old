@@ -166,7 +166,7 @@ class qt4obj(cpp.cppobj):
 		elif type == 'moc_hack': # add a task while the build has started
 			task = Task.Task('moc', env, normal=0)
 			generator = Params.g_build.generator
-			generator.outstanding = [task] + generator.outstanding
+			generator.outstanding.insert(0, task)
 			generator.total += 1
 		else:
 			task = Task.Task(type, env)
