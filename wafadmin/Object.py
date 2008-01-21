@@ -135,6 +135,7 @@ class genobj(object):
 	def __setattr__(self, name, attr):
 		if   name == 'sources': raise AttributeError, 'typo: self.sources -> self.source'
 		elif name == 'targets': raise AttributeError, 'typo: self.targets -> self.target'
+		elif name == 'include': raise AttributeError, 'typo: self.include -> self.includes'
 		elif name == 'define':  raise AttributeError, 'typo: self.define -> self.defines'
 		object.__setattr__(self, name, attr)
 
