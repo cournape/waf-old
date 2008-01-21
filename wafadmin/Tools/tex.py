@@ -263,14 +263,14 @@ def detect(conf):
 	v['DVIPSFLAGS'] = '-Ppdf'
 
 def setup(bld):
-	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE', prio=-0)
+	Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE', prio=60)
 	Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE', prio=60)
 	Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', prio=60)
 	Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
 	Action.simple_action('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
 
-	Action.Action('latex', vars=latex_vardeps, func=latex_build, priority=40)
-	Action.Action('pdflatex', vars=pdflatex_vardeps, func=pdflatex_build, priority=40)
+	Action.Action('latex', vars=latex_vardeps, func=latex_build, prio=40)
+	Action.Action('pdflatex', vars=pdflatex_vardeps, func=pdflatex_build, prio=40)
 
 	Object.register('tex', texobj)
 
