@@ -265,16 +265,11 @@ class Build(object):
 		if not lst:
 			fatal('The cache directory is empty: reconfigure the project')
 		for file in lst:
-			if len(file) < 3: continue
-			if file[-3:] != '.py': continue
-
+			if not file.endswith('.cache.py'): continue
 			env = Environment.Environment()
-			ret = env.load(os.path.join(cachedir, file))
+			env.load(os.path.join(cachedir, file))
 			name = file.split('.')[0]
 
-			if not ret:
-				error("could not load env "+name)
-				continue
 			self.m_allenvs[name] = env
 			for t in env['tools']: self.setup(**t)
 
