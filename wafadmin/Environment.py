@@ -8,7 +8,6 @@ import os, sys, string, types, copy
 import Params, Utils
 from Utils import Undefined
 from Params import debug, error, fatal, warning
-from copy import deepcopy
 
 g_idx = 0
 class Environment(object):
@@ -35,9 +34,10 @@ class Environment(object):
 		return self.m_table.get('_VARIANT_', 'default')
 
 	def copy(self):
-		newenv = Environment()
-		newenv.m_table = self.m_table.copy()
-		return newenv
+		return self.deepcopy()
+		#newenv = Environment()
+		#newenv.m_table = self.m_table.copy() # TODO how to avoid deep copies ? see issue #86
+		#return newenv
 
 	def deepcopy(self):
 		newenv = Environment()
@@ -102,6 +102,7 @@ class Environment(object):
 		"Retrieve the variables from a file"
 		if not os.path.isfile(filename): return 0
 		file=open(filename, 'r')
+		tbl = self.m_table
 		for line in file:
 			ln = line.strip()
 			if not ln: continue
@@ -109,7 +110,7 @@ class Environment(object):
 				if ln[9:] != Params.g_version: warning('waf upgrade? you should perhaps reconfigure')
 			if ln[0]=='#': continue
 			(key, value) = ln.split(' = ', 1)
-			self.m_table[key] = eval(value)
+			tbl[key] = eval(value)
 		file.close()
 		debug(self.m_table, 'env')
 		return 1

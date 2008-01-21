@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Jaap Haitsma, 2008 
+# Jaap Haitsma, 2008
 
 "Vala support"
 
@@ -17,7 +17,7 @@ class valaobj(Object.genobj):
 		self.packages     = ''
 		self.ccoptions    = ''
 
-		if not self.env: self.env = Params.g_build.m_allenvs['default']
+		if not self.env: self.env = Params.g_build.env().copy()
 
 		if not type in g_types_lst:
 			error('type for valaobj is undefined '+type)
@@ -38,7 +38,7 @@ class valaobj(Object.genobj):
 		nodes = []
 		for i in self.to_list(self.source):
 			nodes.append(curnode.find_source(i))
-		
+
 		# create the task
 		task = self.create_task('valac', self.env, 101)
 		task.m_inputs  = nodes

@@ -195,7 +195,7 @@ class ocamlobj(Object.genobj):
 
 		self.are_deps_set = 0
 
-		if not self.env: self.env = Params.g_build.m_allenvs['default']
+		if not self.env: self.env = Params.g_build.env()
 
 		if not type in ['bytecode','native','all','c_object']:
 			print 'type for camlobj is undefined '+type

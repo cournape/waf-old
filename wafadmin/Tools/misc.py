@@ -65,7 +65,7 @@ class copyobj(Object.genobj):
 		self.chmod  = ''
 		self.fun = copy_func
 
-		self.env = Params.g_build.m_allenvs['default'].copy()
+		self.env = Params.g_build.env().copy()
 
 	def apply(self):
 
@@ -187,7 +187,7 @@ class CommandOutput(Object.genobj):
 		Object.genobj.__init__(self, 'other')
 		self.env = env
 		if not self.env:
-			self.env = Params.g_build.m_allenvs['default']
+			self.env = Params.g_build.env().copy()
 
 		self.stdin = None
 		self.stdout = None

@@ -25,7 +25,7 @@ class csobj(Object.genobj):
 
 		self._flag_vars = ['FLAGS', 'ASSEMBLIES']
 
-		if not self.env: self.env = Params.g_build.m_allenvs['default']
+		if not self.env: self.env = Params.g_build.env().copy()
 
 		if not type in g_types_lst:
 			error('type for csobj is undefined '+type)

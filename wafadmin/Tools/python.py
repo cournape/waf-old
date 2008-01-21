@@ -20,7 +20,7 @@ class pyobj(Object.genobj):
 		self.chmod = 0644
 
 		self.env = env
-		if not self.env: self.env = Params.g_build.m_allenvs['default']
+		if not self.env: self.env = Params.g_build.env().copy()
 		self.pyc = self.env['PYC']
 		self.pyo = self.env['PYO']
 
