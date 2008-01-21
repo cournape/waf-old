@@ -497,13 +497,11 @@ class Build(object):
 		l_path = i_path + os.sep
 		for name in l_names:
 			try:
-				# will throw an exception if not a file or if not readable
-				# we assume that this is better than performing a stat() first
-				# TODO is it possible to distinguish the cases ?
+				# throws IOError if not a file or if not readable
 				st = Params.h_file(l_path + name)
-				l_child = Node.Node(name, i_parent_node)
 			except IOError:
 				continue
+			l_child = Node.Node(name, i_parent_node)
 			self.m_tstamp_variants[0][l_child] = st
 			l_kept.append(l_child)
 		return l_kept
