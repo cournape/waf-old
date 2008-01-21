@@ -4,10 +4,12 @@
 
 "Environment representation"
 
-import os, sys, string, types, copy
+import os, sys, string, types, copy, re
 import Params, Utils
 from Utils import Undefined
 from Params import debug, error, fatal, warning
+
+re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
 g_idx = 0
 class Environment(object):
@@ -91,9 +93,9 @@ class Environment(object):
 
 	def store(self, filename):
 		"Write the variables into a file"
-		file=open(filename, 'w')
-		file.write('#VERSION=%s\n' % Params.g_version)
-		keys=self.m_table.keys()
+		file = open(filename, 'w')
+		file.write('#VERSION = %s\n' % Params.g_version)
+		keys = self.m_table.keys()
 		keys.sort()
 		for k in keys: file.write('%s = %r\n' % (k, self.m_table[k]))
 		file.close()
@@ -101,19 +103,18 @@ class Environment(object):
 	def load(self, filename):
 		"Retrieve the variables from a file"
 		if not os.path.isfile(filename): return 0
-		file=open(filename, 'r')
 		tbl = self.m_table
-		for line in file:
-			ln = line.strip()
-			if not ln: continue
-			if ln[:9]=='#VERSION=':
-				if ln[9:] != Params.g_version: warning('waf upgrade? you should perhaps reconfigure')
-			if ln[0]=='#': continue
-			(key, value) = ln.split(' = ', 1)
-			tbl[key] = eval(value)
+		file = open(filename, 'r')
+		code = file.read()
 		file.close()
+		for m in re_imp.finditer(code):
+			g = m.group
+			if g(1):
+				if g(2) == 'VERSION' and g(3) != Params.g_version:
+					warning('waf upgrade? you should perhaps reconfigure')
+			else:
+				tbl[g(2)] = eval(g(3))
 		debug(self.m_table, 'env')
-		return 1
 
 	def get_destdir(self):
 		"return the destdir, useful for installing"
