@@ -236,6 +236,16 @@ class genobj(object):
 		if not self.source: self.source = lst
 		else: self.source += lst
 
+class task_gen(object):
+	"this class is not used yet - it is part of the ccroot class reorganization"
+
+	def __init__(self):
+		hook_table = {}
+		"maps integers to function names to call"
+
+	def apply(self):
+		pass
+
 g_cache_max={}
 def sign_env_vars(env, vars_list):
 	" ['CXX', ..] -> [env['CXX'], ..]"
