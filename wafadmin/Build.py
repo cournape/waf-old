@@ -204,14 +204,15 @@ class Build(object):
 			else: sys.exit(68)
 		except Exception, e:
 			dw()
+			# do not store anything, for something bad happened
 			raise
+		else:
+			dw()
+			self._store()
 
-		dw()
 		if ret:
 			Utils.test_full()
 			raise BuildError(self, self.task_manager.tasks_done)
-
-		self._store()
 
 		if Params.g_verbose>2: self.dump()
 		os.chdir(self.m_srcnode.abspath())
