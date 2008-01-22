@@ -50,9 +50,10 @@ def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 			Params.fatal("waf version should be at most %s (%s found)" % (maxi, Params.g_version))
 
 def reset():
-	import Params, Object
+	import Params, Object, Node
 	Params.g_build = None
 	Object.g_allobjs = []
+	Node.g_launch_node = None
 
 def to_list(sth):
 	if type(sth) is types.ListType:
