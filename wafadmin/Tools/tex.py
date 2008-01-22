@@ -8,60 +8,49 @@ import os, re
 import Utils, Params, Action, Object, Runner, Scan
 from Params import error, warning, debug, fatal
 
-tex_regexp = re.compile('^\\\\(include|import){(.*)}', re.M)
-#tex_regexp = re.compile('^[^%]*\\\\bringin{(.*)}', re.M)
+re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
 class tex_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
+
 	def scan(self, task, node):
 		env = task.m_env
-		curdirnode = task.curdirnode
-		variant = node.variant(env)
-		fi = open(node.abspath(env), 'r')
-		content = fi.read()
-		fi.close()
-
-		found = tex_regexp.findall(content)
 
 		nodes = []
 		names = []
 		if not node: return (nodes, names)
 
+		curdirnode = task.curdirnode
+		variant = node.variant(env)
+
+		fi = open(node.abspath(env), 'r')
+		code = fi.read()
+		fi.close()
+
 		abs = curdirnode.abspath()
-		for path in found:
-			#print 'boo', name
+		for match in re_tex.finditer(code):
+			path = match.group('file')
+			if not path: continue
 
 			filepath = os.path.join(abs, path)
-
-			ok = 0
-			try:
-				os.stat(filepath)
-				ok = filepath
-			except:
-				pass
-
-			if not ok:
-				for k in ['.tex', '.ltx']:
-					try:
-						debug("trying %s%s" % (filepath, k), 'tex')
-						os.stat(filepath+k)
-						ok = filepath+k
-						path = path+k
-					except:
-						pass
-
-			if ok:
-				node = curdirnode.find_source(path)
+			for k in ['', '.tex', '.ltx']:
+				# add another loop for the tex include paths?
+				debug("trying %s%s" % (path, k), 'tex')
+				try:
+					os.stat(path+k)
+				except OSError:
+					continue
+				found = path+k
+				node = curdirnode.find_source(found)
 				nodes.append(node)
 			else:
-				print 'could not find', filepath
+				debug('could not find'+path, 'tex')
 				names.append(path)
 
 		debug("found the following : %s and names %s" % (nodes, names), 'tex')
 		return (nodes, names)
 
 g_tex_scanner = tex_scanner()
-
 
 g_bibtex_re = re.compile('bibdata', re.M)
 def tex_build(task, command='LATEX'):
