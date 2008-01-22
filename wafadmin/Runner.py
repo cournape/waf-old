@@ -139,6 +139,11 @@ class Serial(object):
 		id = self.priolst[self.curprio]
 		self.outstanding = group.prio[id]
 
+		if Params.g_verbose:
+			debug("Preparing to run prio %i tasks: [\n%s\n\t]" %
+			      (id, ',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
+					       for tsk in self.outstanding])),
+			      'runner')
 		return self.get_next()
 
 	def progress(self):
@@ -174,7 +179,7 @@ class Serial(object):
 			tsk = self.get_next()
 			if tsk is None: break
 
-			debug("retrieving #"+str(tsk.m_idx), 'runner')
+			debug("retrieving #%i (%r)" % (tsk.m_idx, tsk), 'runner')
 
 			# # =======================
 			#if tsk.m_hasrun:
