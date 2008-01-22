@@ -149,10 +149,7 @@ def checkFeatures(self, lst=[], pathlst=[]):
 def detect_platform(self):
 	"""adapted from scons"""
 	import os, sys
-	osname = os.name
-	if osname == 'java':
-		osname = os._osType
-	if osname == 'posix':
+	if os.name == 'posix':
 		if sys.platform == 'cygwin':
 			return 'cygwin'
 		if str.find(sys.platform, 'linux') != -1:
@@ -170,6 +167,8 @@ def detect_platform(self):
 		return 'posix'
 	elif os.name == 'os2':
 		return 'os2'
+	elif os.name == 'java':
+		return 'java'
 	else:
 		return sys.platform
 
