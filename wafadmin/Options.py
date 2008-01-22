@@ -71,14 +71,14 @@ def create_parser():
 		dest    = 'prefix')
 
 	p('--destdir',
-		help    = "installation root   [Default: '%s']" % default_destdir,
+		help    = "installation root [Default: '%s']" % default_destdir,
 		default = default_destdir,
 		dest    = 'destdir')
 
 	p('--nocache',
 		action  = 'store_true',
 		default = False,
-		help    = 're-run all compilation tests',
+		help    = 'compile everything, even if WAFCACHE is set',
 		dest    = 'nocache')
 
 	if 'configure' in sys.argv:
