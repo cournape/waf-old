@@ -246,8 +246,7 @@ def install_waf():
 		print "->>> installation failed: cannot write to %s <<<-" % prefix
 		sys.exit(1)
 	print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
-
-	Params.warning("make sure to set PATH to %s/bin:$PATH" % prefix)
+	print "make sure the PATH contains %s/bin:$PATH" % prefix
 
 def uninstall_waf():
 	print "uninstalling waf from the system"
