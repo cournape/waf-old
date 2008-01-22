@@ -65,13 +65,14 @@ class TaskGroup(object):
 		except KeyError: self.tasks = [task]
 	def flush(self):
 		# FIXME TODO in the future we will allow to go back in the past
-		for x in self.tasks:
-			try: p = getattr(x, 'prio')
-			except AttributeError:
-				try: p = x.m_action.prio
-				except AttributeError: p = 100
-			try: self.prio[p].append(x)
-			except KeyError: self.prio[p] = [x]
+		for task in self.tasks:
+			prio = task.prio
+			try:
+				task_list = self.prio[prio]
+			except KeyError:
+				task_list = []
+				self.prio[prio] = task_list
+			task_list.append(task)
 
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
@@ -121,7 +122,7 @@ class Task(TaskBase):
 
 		# name of the action associated to this task type
 		self.m_action = Action.g_actions[action_name]
-		if not (prio is None): self.prio = prio
+		self._prio = prio
 
 		# environment in use
 		self.m_env = env
@@ -137,6 +138,17 @@ class Task(TaskBase):
 		# Additionally, you may define the following
 		#self.dep_vars  = 'PREFIX DATADIR'
 		#self.m_scanner = some_scanner_object
+
+
+	def _set_prio(self, prio):
+		self._prio = prio
+	def _get_prio(self):
+		prio = self._prio
+		if prio is None:
+			prio = self.m_action.prio
+		return prio
+	prio = property(_get_prio, _set_prio, None, "task priority")
+	
 
 	def __repr__(self):
 		return "".join(['\n\t{task: ', self.m_action.m_name, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
