@@ -281,8 +281,8 @@ class Task(TaskBase):
 			try:
 				ret = self.can_retrieve_cache(self.signature())
 			except KeyError:
-				# TODO incomplete
-				return 0
+				# TODO incomplete - no exception should occur here except in -k
+				ret = 0
 			return not ret
 
 		new_sig = self.signature()
