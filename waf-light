@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 import os, sys
-if sys.hexversion<0x0203000f: raise "Waf needs Python >= 2.3"
+if sys.hexversion<0x203000f: raise "Waf needs Python >= 2.3"
 
 if 'PSYCOWAF' in os.environ:
 	try:import psyco;psyco.full()
