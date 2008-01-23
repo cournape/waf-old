@@ -312,11 +312,7 @@ class Task(TaskBase):
 			#	print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
 
 			# check if the node exists ..
-			#try:
 			os.stat(node.abspath(env))
-			#except:
-			#	#error('failed to produce %s' % (str(self.m_idx), node.abspath(env)))
-			#	raise
 
 			# important, store the signature for the next run
 			tree.m_tstamp_variants[variant][node] = sig
@@ -324,7 +320,6 @@ class Task(TaskBase):
 			# We could re-create the signature of the task with the signature of the outputs
 			# in practice, this means hashing the output files
 			# this is unnecessary
-
 			if Params.g_cache_global:
 				ssig = sig.encode('hex')
 				dest = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
