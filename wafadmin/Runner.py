@@ -228,13 +228,14 @@ class Serial(object):
 
 			try:
 				tsk.update_stat()
-				tsk.m_hasrun = success
-			except Exception:
+			except OSError:
 				traceback.print_stack()
 				self.error = 1
 				tsk.m_hasrun = missing
 				if Params.g_options.keep: continue
 				else: return -1
+			else:
+				tsk.m_hasrun = success
 
 		if self.error:
 			return -1
@@ -271,9 +272,10 @@ class TaskConsumer(threading.Thread):
 			else:
 				try:
 					tsk.update_stat()
-					tsk.m_hasrun = success
-				except:
+				except OSError:
 					tsk.m_hasrun = missing
+				else:
+					tsk.m_hasrun = success
 			if tsk.m_hasrun != success: # TODO for now, do no keep running in parallel  and not Params.g_options.keep:
 				m.failed = 1
 
