@@ -163,7 +163,7 @@ class enumerator_base(object):
 		ret = self.run_test()
 		if self.mandatory and not ret: self.error()
 
-		if Params.g_cache_global and not Params.g_options.nocache:
+		if Params.g_cache_global:
 			self.conf.m_cache_table[newhash] = ret
 		return ret
 
