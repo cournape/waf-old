@@ -67,16 +67,6 @@ g_platform = sys.platform
 g_cachedir = ''
 "config cache directory"
 
-g_homedir=''
-for var in ['WAF_HOME', 'HOME', 'HOMEPATH']:
-	if var in os.environ:
-		#In windows, the home path is split into HOMEDRIVE and HOMEPATH
-		if var == 'HOMEPATH' and 'HOMEDRIVE' in os.environ:
-			g_homedir='%s%s' % (os.environ['HOMEDRIVE'], os.environ['HOMEPATH'])
-		else:
-			g_homedir=os.environ[var]
-		break
-g_homedir=os.path.abspath(g_homedir)
 g_usecache = ''
 try: g_usecache = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: pass
@@ -99,6 +89,7 @@ g_colors = {
 'REDP'  :'\033[01;33m',
 'GREEN' :'\033[01;92m',
 'YELLOW':'\033[00;33m',
+'PINK'  :'\033[00;36m',
 'BLUE'  :'\033[01;94m',
 'CYAN'  :'\033[01;96m',
 'NORMAL':'\033[0m'
