@@ -7,7 +7,7 @@
 import os, sys, cPickle, traceback
 import Params, Utils, Configure, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
-from constants import *
+from Constants import *
 
 g_gz='bz2'
 g_dirwatch   = None

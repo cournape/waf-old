@@ -7,7 +7,7 @@
 import os, sys, cPickle, types, imp
 import Params, Runner, Object, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
-from constants import *
+from Constants import *
 
 SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_raw_deps m_sig_cache'.split()
 "Build class members to save"

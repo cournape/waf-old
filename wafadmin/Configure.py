@@ -13,7 +13,7 @@ except ImportError: from md5 import md5
 import Action, Params, Environment, Runner, Build, Utils, libtool_config
 from Params import fatal, warning
 from Utils import Undefined
-from constants import *
+from Constants import *
 
 test_ok = True
 
