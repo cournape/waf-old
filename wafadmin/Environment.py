@@ -4,11 +4,10 @@
 
 "Environment representation"
 
-import os, sys, string, types, copy, re
-import Params, Utils
+import os,types, copy, re
+import Params
+from Params import debug, warning
 from Utils import Undefined
-from Params import debug, error, fatal, warning
-
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
 g_idx = 0
