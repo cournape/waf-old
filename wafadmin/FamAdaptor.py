@@ -7,7 +7,7 @@
 import select, errno
 try:
 	import _fam
-	# check if fam or gamin runs and accepts connenction
+	# check if fam or gamin runs and accepts connection
 	test = _fam.open()
 	test.close()
 	test = None

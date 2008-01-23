@@ -261,8 +261,7 @@ class TaskConsumer(threading.Thread):
 			if do_stat: do_stat(1)
 
 			printout(tsk.get_display())
-			try: ret = tsk.run()
-			except: ret = -1
+			ret = tsk.run()
 
 			if do_stat: do_stat(-1)
 

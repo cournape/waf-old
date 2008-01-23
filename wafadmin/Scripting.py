@@ -115,7 +115,7 @@ def configure():
 		conf.sub_config('')
 	except Configure.ConfigurationError, e:
 		fatal(str(e), 2)
-	except:
+	except Exception:
 		Utils.test_full()
 		raise
 
