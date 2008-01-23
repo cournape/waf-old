@@ -979,8 +979,6 @@ class Configure(object):
 			else:
 				try:
 					self.m_cache_table = cPickle.load(file)
-				except:
-					pass # TODO
 				finally:
 					file.close()
 
