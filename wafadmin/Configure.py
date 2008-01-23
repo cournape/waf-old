@@ -1000,12 +1000,12 @@ class Configure(object):
 		"retrieve an environment called name"
 		try:
 			env = self.m_allenvs[name]
-			if fromenv: warning("The environment %s may have been configured already" % name)
-			return env
-		except:
+		except KeyError:
 			env = Environment.Environment()
 			self.m_allenvs[name] = env
-			return env
+		else:
+			if fromenv: warning("The environment %s may have been configured already" % name)
+		return env
 
 	def check_tool(self, input, tooldir=None):
 		"load a waf tool"
