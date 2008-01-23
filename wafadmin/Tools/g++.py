@@ -5,12 +5,19 @@
 
 import os, sys
 import optparse
-import Utils, Action, Params, checks, Configure
+import Utils, Action, Params, Configure
+
+import ccroot
 
 # tool detection and initial setup
 # is called when a configure process is started,
 # the values are cached for further build processes
 def detect(conf):
+	try:
+		debug_level = Params.g_options.debug_level
+	except AttributeError:
+		raise Configure.ConfigurationError("""Add 'opt.tool_options("g++")' to set_options()""")
+
 	v = conf.env
 	cxx = None
 	if v['CXX']:
@@ -242,12 +249,8 @@ def detect(conf):
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
-	# see the option below
-	try:
-		v.append_value('CXXFLAGS', v['CXXFLAGS_'+Params.g_options.debug_level.upper()])
-	except AttributeError:
-		pass
-
+	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
+	
 	ron = os.environ
 	def addflags(orig, dest=None):
 		if not dest: dest=orig
@@ -270,8 +273,9 @@ def set_options(opt):
 	try:
 		opt.add_option('-d', '--debug-level',
 		action = 'store',
-		default = 'release',
-		help = 'Specify the debug level, does nothing if CXXFLAGS is set in the environment. [Allowed Values: ultradebug, debug, release, optimized]',
+		default = ccroot.DEBUG_LEVELS.RELEASE,
+		help = "Specify the debug level, does nothing if CXXFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
+		choices = ccroot.DEBUG_LEVELS.ALL,
 		dest = 'debug_level')
 	except optparse.OptionConflictError:
 		# the gcc tool might have added that option already

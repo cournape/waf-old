@@ -5,9 +5,16 @@
 
 import os, sys
 import optparse
-import Utils, Action, Params, checks, Configure
+import Utils, Action, Params, Configure
+
+import ccroot
 
 def detect(conf):
+	try: 
+		debug_level = Params.g_options.debug_level
+	except AttributeError:
+		raise Configure.ConfigurationError("""Add 'opt.tool_options("gcc")' to set_options()""")
+
 	v = conf.env
 
 	cc = None
@@ -235,11 +242,7 @@ def detect(conf):
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
-	# see the option below
-	try:
-		v.append_value('CCFLAGS', v['CCFLAGS_'+Params.g_options.debug_level.upper()])
-	except AttributeError:
-		pass
+	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
 	ron = os.environ
 	def addflags(orig, dest=None):
@@ -263,8 +266,9 @@ def set_options(opt):
 	try:
 		opt.add_option('-d', '--debug-level',
 		action = 'store',
-		default = '',
-		help = 'Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: ultradebug, debug, release, optimized]',
+		default = ccroot.DEBUG_LEVELS.RELEASE,
+		help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
+		choices = ccroot.DEBUG_LEVELS.ALL,
 		dest = 'debug_level')
 	except optparse.OptionConflictError:
 		# the g++ tool might have added that option already

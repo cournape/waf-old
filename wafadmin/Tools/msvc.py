@@ -5,9 +5,9 @@
 # Visual C support - beta, needs more testing
 
 import os, sys
-import re, os.path, string
+import re, string
 import optparse
-import Utils, Action, Params, Object, Runner
+import Utils, Action, Params, Object, Runner, Configure
 from Params import debug, error, fatal, warning, set_globals
 from Utils import quote_whitespace
 
@@ -426,6 +426,11 @@ def detect(conf):
 		return 0
 	# TODO raise ConfigurationError instead of just bailing out
 
+	try: 
+		debug_level = Params.g_options.debug_level
+	except AttributeError:
+		raise Configure.ConfigurationError("""Add 'opt.tool_options("sunc++")' to set_options()""")
+
 	comp = conf.find_program('CL', var='CXX')
 	if not comp: return
 
@@ -524,13 +529,9 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']     = ['/DEBUG', '/INCREMENTAL','msvcrtd.lib']
 	v['LINKFLAGS_ULTRADEBUG'] = ['/DEBUG', '/INCREMENTAL','msvcrtd.lib']
 
-	try:
-		debuglevel = Params.g_options.debug_level.upper()
-	except AttributeError:
-		debuglevel = 'DEBUG'
-	v['CCFLAGS']   += v['CCFLAGS_'+debuglevel]
-	v['CXXFLAGS']  += v['CXXFLAGS_'+debuglevel]
-	v['LINKFLAGS'] += v['LINKFLAGS_'+debuglevel]
+	v['CCFLAGS']   += v['CCFLAGS_'+debug_level]
+	v['CXXFLAGS']  += v['CXXFLAGS_'+debug_level]
+	v['LINKFLAGS'] += v['LINKFLAGS_'+debug_level]
 
 	def addflags(var):
 		try:
@@ -580,9 +581,10 @@ def set_options(opt):
 	try:
 		opt.add_option('-d', '--debug-level',
 		action = 'store',
-		default = 'debug',
-		help = 'Specify the debug level. [Allowed values: ultradebug, debug, release, optimized]',
+		default = ccroot.DEBUG_LEVELS.DEBUG,
+		help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
+		choices = ccroot.DEBUG_LEVELS.ALL,
 		dest = 'debug_level')
 	except optparse.OptionConflictError:
-		pass
+		pass # maybe already defined by another C-compiler
 

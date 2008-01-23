@@ -16,6 +16,14 @@ from Params import error, debug, fatal, warning
 g_src_file_ext = ['.c', '.cpp', '.cc']
 "default extensions for source files"
 
+class DEBUG_LEVELS:
+	ULTRADEBUG 	= "ULTRADEBUG"
+	DEBUG		= "DEBUG"
+	RELEASE		= "RELEASE"
+	OPTIMIZED	= "OPTIMIZED"
+	
+	ALL = [ULTRADEBUG, DEBUG, RELEASE, OPTIMIZED]
+
 class c_scanner(Scan.scanner):
 	"scanner for c/c++ files"
 	def __init__(self):
