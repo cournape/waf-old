@@ -7,6 +7,7 @@
 import os, sys, cPickle, traceback
 import Params, Utils, Configure, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
+from constants import *
 
 g_gz='bz2'
 g_dirwatch   = None
@@ -33,12 +34,12 @@ def add_subdir(dir, bld):
 	# if unavailable, open the module wscript and call the build function from it
 	from Common import install_files, install_as, symlink_as # do not remove 
 	try:
-		file_path = os.path.join(new.abspath(), 'wscript_build')
+		file_path = os.path.join(new.abspath(), WSCRIPT_BUILD_FILE)
 		file = open(file_path, 'r')
 		exec file
 		if file: file.close()
 	except IOError:
-		file_path = os.path.join(new.abspath(), 'wscript')
+		file_path = os.path.join(new.abspath(), WSCRIPT_FILE)
 		module = Utils.load_module(file_path)
 		module.build(bld)
 
@@ -98,15 +99,15 @@ def configure():
 
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
 
-	src = getattr(Params.g_options, 'srcdir', None)
-	if not src: src = getattr(Utils.g_module, 'srcdir', None)
-	if not src: fatal(err % ('srcdir', os.path.abspath('.'), 'srcdir', 'srcdir'))
+	src = getattr(Params.g_options, SRCDIR, None)
+	if not src: src = getattr(Utils.g_module, SRCDIR, None)
+	if not src: fatal(err % (SRCDIR, os.path.abspath('.'), SRCDIR, SRCDIR))
 
-	bld = getattr(Params.g_options, 'blddir', None)
-	if not bld: bld = getattr(Utils.g_module, 'blddir', None)
-	if not bld: fatal(err % ('blddir', os.path.abspath('.'), 'blddir', 'blddir'))
+	bld = getattr(Params.g_options, BLDDIR, None)
+	if not bld: bld = getattr(Utils.g_module, BLDDIR, None)
+	if not bld: fatal(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
 
-	Params.g_cachedir = os.path.join(bld, '_cache_')
+	Params.g_cachedir = os.path.join(bld, CACHE_DIR)
 	tree.load_dirs(src, bld)
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
@@ -127,8 +128,8 @@ def configure():
 	w = file.write
 
 	proj={}
-	proj['blddir']=bld
-	proj['srcdir']=src
+	proj[BLDDIR]=bld
+	proj[SRCDIR]=src
 	proj['argv']=sys.argv[1:]
 	proj['hash']=conf.hash
 	proj['files']=conf.files
@@ -237,7 +238,7 @@ def prepare():
 		Utils.set_main_module(os.path.join(candidate, 'wscript'))
 
 	if build_dir_override:
-		d = getattr(Utils.g_module, 'blddir', None)
+		d = getattr(Utils.g_module, BLDDIR, None)
 		if d:
 			# test if user has set the blddir in wscript.
 			msg = 'Overriding build directory %s with %s' % (d, build_dir_override)
@@ -255,11 +256,11 @@ def prepare():
 		fun = getattr(Utils.g_module, 'dist', None)
 		if fun: fun(); sys.exit(0)
 
-		appname = getattr(Utils.g_module, 'APPNAME', 'noname')
+		appname = getattr(Utils.g_module, APPNAME, 'noname')
 
 		get_version = getattr(Utils.g_module, 'get_version', None)
 		if get_version: version = get_version()
-		else: version = getattr(Utils.g_module, 'VERSION', None)
+		else: version = getattr(Utils.g_module, VERSION, None)
 		if not version: version = '1.0'
 
 		from Scripting import Dist
@@ -277,11 +278,11 @@ def prepare():
 		fun = getattr(Utils.g_module, 'dist', None)
 		if fun: fun(); sys.exit(0)
 
-		appname = getattr(Utils.g_module, 'APPNAME', 'noname')
+		appname = getattr(Utils.g_module, APPNAME, 'noname')
 
 		get_version = getattr(Utils.g_module, 'get_version', None)
 		if get_version: version = get_version()
-		else: version = getattr(Utils.g_module, 'VERSION', None)
+		else: version = getattr(Utils.g_module, VERSION, None)
 		if not version: version = '1.0'
 
 		DistCheck(appname, version)
@@ -352,9 +353,9 @@ def main():
 			bld = Build.Build()
 			proj = read_cache_file(g_lockfile)
 
-	Params.g_cachedir = os.path.join(proj['blddir'], '_cache_')
+	Params.g_cachedir = os.path.join(proj[BLDDIR], CACHE_DIR)
 
-	bld.load_dirs(proj['srcdir'], proj['blddir'])
+	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
 	#bld.dump()
@@ -424,7 +425,7 @@ def DistDir(appname, version):
 	shutil.copytree('.', TMPFOLDER)
 
 	# Remove the Build dir
-	dir = getattr(Utils.g_module, 'blddir', None)
+	dir = getattr(Utils.g_module, BLDDIR, None)
 	if dir: shutil.rmtree(os.path.join(TMPFOLDER, dir), True)
 
 	# additional exclude files and dirs
@@ -484,8 +485,7 @@ def Dist(appname, version):
 
 def DistClean():
 	"""clean the project"""
-	import os, shutil, types
-	import Build
+	import shutil
 
 	# remove the temporary files
 	# the builddir is given by lock-wscript only
@@ -498,7 +498,7 @@ def DistClean():
 				to_remove = True
 				try:
 					proj = read_cache_file(os.path.join(root, f))
-					shutil.rmtree(os.path.join(root, proj['blddir']))
+					shutil.rmtree(os.path.join(root, proj[BLDDIR]))
 				except OSError: pass
 				except IOError: pass
 			else:

@@ -5,8 +5,9 @@
 "Dependency tree holder"
 
 import os, sys, cPickle, types, imp
-import Params, Runner, Object, Node, Task, Scripting, Utils, Environment, Task
+import Params, Runner, Object, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
+from constants import *
 
 SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_raw_deps m_sig_cache'.split()
 "Build class members to save"
@@ -266,10 +267,10 @@ class Build(object):
 		if not lst:
 			fatal('The cache directory is empty: reconfigure the project')
 		for file in lst:
-			if not file.endswith('.cache.py'): continue
-			env = Environment.Environment()
-			env.load(os.path.join(cachedir, file))
-			name = file.split('.')[0]
+			if file.endswith(CACHE_SUFFIX):
+				env = Environment.Environment()
+				env.load(os.path.join(cachedir, file))
+				name = file.split('.')[0]
 
 			self.m_allenvs[name] = env
 			for t in env['tools']: self.setup(**t)

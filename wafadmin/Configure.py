@@ -11,8 +11,9 @@ try: from hashlib import md5
 except ImportError: from md5 import md5
 
 import Action, Params, Environment, Runner, Build, Utils, libtool_config
-from Params import error, fatal, warning
+from Params import fatal, warning
 from Utils import Undefined
+from constants import *
 
 test_ok = True
 
@@ -1043,7 +1044,7 @@ class Configure(object):
 			fatal("nothing to store in Configure !")
 		for key in self.m_allenvs:
 			tmpenv = self.m_allenvs[key]
-			tmpenv.store(os.path.join(Params.g_cachedir, key+'.cache.py'))
+			tmpenv.store(os.path.join(Params.g_cachedir, key+CACHE_SUFFIX))
 
 	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin='',
 	              pkgvars=[], pkgdefs={}, mandatory=False):

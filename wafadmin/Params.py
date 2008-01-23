@@ -12,11 +12,9 @@ except ImportError: from md5 import md5
 
 import Utils
 
-# =================================== #
-# Fixed constants, change with care
+# TODO: fixed constant, should be moved to 'constants' module, and changed in main 'waf' script. 
+g_version			= "1.3.2"
 
-g_version="1.3.2"
-hexversion="0x010302"
 g_rootname = ''
 g_progress = '\x1b[K%s%s%s\r'
 if sys.platform=='win32':
