@@ -5,15 +5,14 @@
 "Main parameters"
 
 import os, sys, types, inspect, base64, time
+import Utils
 
 # see: http://docs.python.org/lib/module-md5.html
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-import Utils
-
-# TODO: fixed constant, should be moved to 'constants' module, and changed in main 'waf' script. 
-g_version			= "1.3.2"
+# updated from the top-level wscript
+g_version="1.3.2"
 
 g_rootname = ''
 g_progress = '\x1b[K%s%s%s\r'
@@ -167,7 +166,7 @@ def debug(msg, zone=None):
 	elif not g_verbose>2:
 		return
 	module = __get_module()
-	
+
 	# Add time stamp to message
 	msg = time.asctime(time.localtime()) + ": " + str(msg)
 	niceprint(msg, 'DEBUG', module)

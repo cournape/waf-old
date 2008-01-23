@@ -4,7 +4,8 @@
 
 "Waf constants"
 
-HEXVERSION			= "0x010302"
+# the version number is updated from the top-level wscript file
+HEXVERSION = 0x10302
 
 CACHE_DIR			=	'_cache_'
 CACHE_SUFFIX		=	'.cache.py'
