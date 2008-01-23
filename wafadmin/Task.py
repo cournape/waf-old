@@ -351,27 +351,23 @@ class Task(TaskBase):
 		env  = self.m_env
 		sig = self.signature()
 
-		try:
-			cnt = 0
-			for node in self.m_outputs:
-				variant = node.variant(env)
+		cnt = 0
+		for node in self.m_outputs:
+			variant = node.variant(env)
 
-				ssig = sig.encode('hex')
-				orig = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
+			ssig = sig.encode('hex')
+			orig = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
+			try:
 				shutil.copy2(orig, node.abspath(env))
-
-				# touch the file
-				# what i would like to do is to limit the max size of the cache, using either
-				# df (file system full) or a fixed size (like say no more than 400Mb of cache)
-				# removing the files would be done by order of timestamps (TODO ITA)
 				os.utime(orig, None)
+				# mark the cache file as used recently (modified)
+			except (OSError, IOError):
+				debug("failed retrieving file", 'task')
+				return None
+			else:
 				cnt += 1
-
 				Params.g_build.m_tstamp_variants[variant][node] = sig
 				if not Runner.g_quiet: Params.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
-		except:
-			debug("failed retrieving file", 'task')
-			return None
 		return 1
 
 	def prepare(self):
