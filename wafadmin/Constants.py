@@ -7,13 +7,14 @@
 # the version number is updated from the top-level wscript file
 HEXVERSION = 0x10302
 
-CACHE_DIR			=	'_cache_'
-CACHE_SUFFIX		=	'.cache.py'
-WSCRIPT_FILE		=	'wscript'
-WSCRIPT_BUILD_FILE	=	'wscript_build'
+CACHE_DIR          = '_cache_'
+CACHE_SUFFIX       = '.cache.py'
+DBFILE             = '.wafpickle'
+WSCRIPT_FILE       = 'wscript'
+WSCRIPT_BUILD_FILE = 'wscript_build'
 
-SRCDIR				=	'srcdir'
-BLDDIR				=	'blddir'
-APPNAME				=	'APPNAME'
-VERSION				=	'VERSION'
+SRCDIR  = 'srcdir'
+BLDDIR  = 'blddir'
+APPNAME = 'APPNAME'
+VERSION = 'VERSION'
 

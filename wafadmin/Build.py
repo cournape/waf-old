@@ -136,7 +136,7 @@ class Build(object):
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
 		try:
-			file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'rb')
+			file = open(os.path.join(self.m_bdir, DBFILE), 'rb')
 			dto = cPickle.load(file)
 			dto.update_build(self)
 			file.close()
@@ -147,7 +147,7 @@ class Build(object):
 
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
-		file = open(os.path.join(self.m_bdir, Params.g_dbfile), 'wb')
+		file = open(os.path.join(self.m_bdir, DBFILE), 'wb')
 		dto = BuildDTO()
 		dto.init(self)
 		cPickle.dump(dto, file, -1) # remove the '-1' for unoptimized version
