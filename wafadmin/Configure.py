@@ -847,8 +847,7 @@ class header_configurator(configurator_base):
 		fatal(errmsg)
 
 	def validate(self):
-		#try: self.names = self.names.split()
-		#except: pass
+		# self.names = self.names.split()
 		if not self.define:
 			if self.name: self.define = 'HAVE_'+ Utils.quote_define_name(self.name)
 			elif self.uselib: self.define = 'HAVE_'+self.uselib
@@ -1315,13 +1314,10 @@ class Configure(object):
 		if (enumerator and configurator) or (not enumerator and not configurator):
 			raise KeyError, "either enumerator or configurator has to be set (not both)"
 
-		try:
-			if enumerator:
-				return globals()["%s_enumerator" % enumerator](self)
-			elif configurator:
-				return globals()["%s_configurator" % configurator](self)
-		except:
-			pass
+		if enumerator:
+			return globals()["%s_enumerator" % enumerator](self)
+		elif configurator:
+			return globals()["%s_configurator" % configurator](self)
 
 	def __getattr__(self,attr):
 		def creator():
@@ -1437,13 +1433,9 @@ class Configure(object):
 		# if we need to run the program, try to get its result
 		if obj.execute:
 			if ret: return not ret
-			try:
-				data = os.popen('"%s"' %lastprog).read().strip()
-				ret = {'result': data}
-				return ret
-			except:
-				raise
-				pass
+			data = os.popen('"%s"' %lastprog).read().strip()
+			ret = {'result': data}
+			return ret
 
 		return not ret
 
