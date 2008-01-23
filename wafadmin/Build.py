@@ -264,7 +264,7 @@ class Build(object):
 		lst = os.listdir(cachedir)
 		if not lst:
 			fatal('The cache directory is empty: reconfigure the project')
-		
+
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
 				env = Environment.Environment()

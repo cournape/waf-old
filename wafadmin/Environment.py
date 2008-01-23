@@ -101,7 +101,6 @@ class Environment(object):
 
 	def load(self, filename):
 		"Retrieve the variables from a file"
-		if not os.path.isfile(filename): return 0
 		tbl = self.m_table
 		file = open(filename, 'r')
 		code = file.read()
