@@ -249,10 +249,8 @@ class Build(object):
 				except OSError: pass
 
 	def add_subdirs(self, dirs):
-		lst = Utils.to_list(dirs)
-		for d in lst:
-			if not d: continue
-			Scripting.add_subdir(d, self)
+		for dir in Utils.to_list(dirs):
+			if dir: Scripting.add_subdir(dir, self)
 
 	def create_obj(self, objname, *k, **kw):
 		try: return Object.g_allclasses[objname](*k, **kw)
@@ -260,12 +258,13 @@ class Build(object):
 
 	def load_envs(self):
 		cachedir = Params.g_cachedir
-		try:
-			lst = os.listdir(cachedir)
-		except OSError:
+		if not os.path.isdir(cachedir):
 			fatal('The project was not configured: run "waf configure" first!')
+
+		lst = os.listdir(cachedir)
 		if not lst:
 			fatal('The cache directory is empty: reconfigure the project')
+		
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
 				env = Environment.Environment()
