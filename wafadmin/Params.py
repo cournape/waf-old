@@ -67,13 +67,15 @@ g_platform = sys.platform
 g_cachedir = ''
 "config cache directory"
 
-g_usecache = ''
-try: g_usecache = os.path.abspath(os.environ['WAFCACHE'])
+g_lockfile = '.lock-wscript'
+"allow different names for the lockfile"
+
+
+try: g_cachedir = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: pass
 
-# allow different names for lockfile
 try: g_lockfile = os.environ['WAFLOCK']
-except KeyError: g_lockfile = '.lock-wscript'
+except KeyError: pass
 
 # =================================== #
 # HELPERS
