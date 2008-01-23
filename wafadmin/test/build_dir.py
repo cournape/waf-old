@@ -1,117 +1,143 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Matthias Jahn, 2007 (pmarat)
+# Yinon Ehrlich, 2008
 
-import os, sys, shutil, pproc
-import unittest
+import os, sys, shutil, unittest
+import common_test
 
-waf_dir=None
-build_dir_root=None
-demos_dir=None
-root_dir=None
+# allow importing from wafadmin dir when ran from sub-directory 
+sys.path.append(os.path.abspath(os.path.pardir))
 
-def copy(source, target):
-	if str.find(sys.platform, 'linux') != -1:
-		_call(["cp", "-la", source, target])
-	elif os.name=="posix":
-		_call(["cp", "-a", source, target])
-	else:
-		if os.path.isfile(source):
-			shutil.copy2(source, "%s\\" %target)
-		else:
-			shutil.copytree(source, os.path.join(target, os.path.split(source)[-1]))
+try:
+	import Params, Test
+except ImportError:
+	(curr_dir, curr_file) = os.path.split(__file__)
+	print "Failed to import wafadmin modules."
+	print "Either run 'waf check' from root waf directory, or run '%s' from '%s'" % (curr_file, curr_dir) 
+	sys.exit(1)
 
+class TestBuildDir(common_test.CommonTester):
 
-def _call(*option):
-	"subprocess call method with silent stdout"
-	kwargs = dict()
-	kwargs['stdout'] = pproc.PIPE
-	return pproc.call( *option, **kwargs)
+	def __init__(self, methodName):
+		''' initializes class attributes and run the base __init__'''
 
-class build_dir(unittest.TestCase):
+		# define directories
+		# ------------------
+		# waf						_waf_root_dir (defined by common_test)
+		#		demos				__orig_demos_dir
+		#		test_dir			__test_dir_root
+		#				waf			__test_waf_dir
+		#				demos		__test_demos_dir
+		
+		common_test.CommonTester.__init__(self, methodName)
+
+		self.__orig_demos_dir=os.path.join(self._waf_root_dir, Test.DIRS.DEMOS)
+		self.__test_dir_root = os.path.join(self._waf_root_dir, "test_dir") 
+		self.__test_waf_dir = os.path.join(self.__test_dir_root, "waf")
+		self.__test_demos_dir = os.path.join(self.__test_dir_root, Test.DIRS.DEMOS )
+		
+		# by default, original waf scripts is used by common_tester.
+		# Here we override the default and use 'waf' from test directory.
+		self._waf_exe = os.path.join(self.__test_waf_dir, "waf")
+		
 	def setUp(self):
-		global waf_dir, build_dir_root, demos_dir, root_dir
-		if not waf_dir:
-			self.assert_(os.path.isfile("waf-light"), "please run test with 'waf-light check'")
-			self.assert_(os.path.isdir("demos"), "you need also demos dir from waf distribution")
-			root_dir=os.getcwd()
-			#print "current dir is", root_dir
-			demos_dir=os.path.abspath("demos")
-			#print "demos_dir is", demos_dir
-			build_dir_root=os.path.abspath(os.path.join("tests", "test_build_dir"))
-			if os.path.isdir(build_dir_root):
-				shutil.rmtree(build_dir_root)
-			os.makedirs(build_dir_root)
-			#print "build_dir_root is", build_dir_root
-			waf_dir=os.path.join(build_dir_root, "waf")
-			os.mkdir(waf_dir)
-			#print "waf_dir is", waf_dir
-			copy("wafadmin", "%s"%waf_dir)
-			copy("waf-light", "%s"%waf_dir)
-			copy("wscript", "%s"%waf_dir)
-			os.chdir(waf_dir)
-			self.assert_(not _call(["python", "waf-light", "--make-waf"]), "waf could not be created")
-			self.assert_(os.path.isfile("waf"), "waf is not created in current dir")
+		self.assert_(self.__test_waf_dir)
+		
+		# create test directories
+		if os.path.isdir(self.__test_dir_root):
+			shutil.rmtree(self.__test_dir_root)
+		os.makedirs(self.__test_dir_root)
+
+		os.mkdir(self.__test_waf_dir)
+
+		os.chdir(self._waf_root_dir)
+		self._copy("wafadmin", self.__test_waf_dir)
+		self._copy("waf-light", self.__test_waf_dir)
+		self._copy("wscript", self.__test_waf_dir)
+		self._copy(self.__orig_demos_dir, self.__test_demos_dir )
+
+		os.chdir(self.__test_waf_dir)
+
+		# make sure 'waf' file is being created by waf-light
+		self.assertEqual(0, self.call(["python", "waf-light", "--make-waf"]), "waf could not be created")
+		self.assert_(os.path.isfile(self._waf_exe), "waf was not created")
+		
+		os.chdir(self.__test_demos_dir)
+
+
+	def tearDown(self):
+		'''tearDown - deletes the directories and files created by the tests ran '''
+		if os.path.isdir(self.__test_dir_root):
+			shutil.rmtree(self.__test_dir_root)
+		if os.path.isdir(self.__test_waf_dir):
+			shutil.rmtree(self.__test_waf_dir)
+			
+		os.chdir(self._waf_root_dir)
+
 	def test_build1(self):
-		self.assert_(waf_dir)
-		print "\n**standard build without overided builddir:"
-		copy("%s" % os.path.join(demos_dir,"cc"), "%s"%build_dir_root)
-		copy("%s" % os.path.join(waf_dir,"waf"), "%s"%os.path.join(build_dir_root,"cc"))
-		os.chdir(os.path.join(build_dir_root,"cc/"))
-		self.assert_(not _call(["python", "waf", "configure"]))
-		self.assert_(not _call(["python", "waf", "build"]))
-		self.assert_(not _call(["build/default/src/test_c_program"]))
-		self.assert_(not _call(["python", "waf", "distclean"]))
+		# standard build without override build-dir
+		os.chdir("cc")
+
+		self._test_configure()
+		self._test_build()
+		self._test_run("build/default/src/test_c_program")
+		self._test_distclean()
 
 	def test_build2(self):
-		self.assert_(waf_dir)
-		print "\n**build with build_dir overide within the project root \
-		\nwith commandline -blddir option:"
-		os.chdir(os.path.join(build_dir_root,"cc/"))
-		self.assert_(not _call(["python", "waf", "configure", "--blddir=test_build2"]))
-		self.assert_(not _call(["python", "waf", "build"]))
-		self.assert_(not _call(["test_build2/default/src/test_c_program"]))
-		self.assert_(not _call(["python", "waf", "distclean"]))
+		# build with TestBuildDir override within the project root with command-line -blddir option
+		os.chdir("cc")
+
+		self._test_configure(True, ["--blddir=test_build2"])
+		self._test_build()
+		self._test_run("test_build2/default/src/test_c_program")
+		self._test_distclean()
 
 	def test_build3(self):
-		self.assert_(waf_dir)
-		print "\n**build with build_dir overide within the project root \
-		\nby configure within the self created buidldir:"
-		os.chdir(os.path.join(build_dir_root,"cc"))
+		# build with TestBuildDir override within the project root by configure within the self created buidldir 
+		self._copy(os.path.join(self.__test_waf_dir,"waf"), os.path.join(self.__test_demos_dir,"cc"))
+		os.chdir("cc")
+
 		os.mkdir("test_build2")
 		os.chdir("test_build2")
-		self.assert_(not _call(["python", "../waf", "configure"]))
-		self.assert_(not _call(["python", "../waf", "build"]))
-		self.assert_(not _call(["default/src/test_c_program"]))
-		_call(["touch", "test_file"]) #create a file to check the distclean
-		#attention current dir will be completly removed including the  "test_file" file
-		self.assert_(not _call(["python", "../waf", "distclean"]))
-		os.chdir(os.path.join(build_dir_root,"cc"))
+#		
+		self.assertEqual(0, self.call(["python", "../waf", "configure"]), "build failed")
+		self.assertEqual(0, self.call(["python", "../waf", "build"]), "configure failed")
+		self._test_run("default/src/test_c_program")
+		self.call(["touch", "test_file"]) #create a file to check the distclean
+		#attention current dir will be completely removed including the  "test_file" file
+		self.assertEqual(0, self.call(["python", "../waf", "distclean"]), "distclean failed")
 
 	def test_build4(self):
-		self.assert_(waf_dir)
-		print "\n**build with build_dir overide outside the project root \
-		\nby configure within the self created buidldir:"
-		os.chdir("..")
+		# build with TestBuildDir override outside the project root by configure within the self created buidldir
+		self._copy(os.path.join(self.__test_waf_dir,"waf"), os.path.join(self.__test_demos_dir,"cc"))
+
 		os.mkdir("test_build2")
 		os.chdir("test_build2")
 		file = open("test_file", 'wb')
-		file.close() #this file must be accesable after distclean
-		test_dir=os.getcwd()
-		os.mkdir("test_build2")
-		os.chdir("test_build2")
-		self.assert_(not _call(["python", "%s"%os.path.join(build_dir_root,"cc","waf"), "configure"]))
-		self.assert_(not _call(["python", "%s"%os.path.join(build_dir_root,"cc","waf"), "build"]))
-		self.assert_(not _call(["default/src/test_c_program"]))
-		self.assert_(not _call(["python", "%s"%os.path.join(build_dir_root,"cc","waf"), "distclean"]))
-		os.chdir(test_dir)
-		self.assert_(os.path.isfile("test_file"), "test_file did not exists distclean did not work")
-		os.chdir(os.path.join(build_dir_root,"cc"))
+		file.close() #this file must be accessible after distclean
 
-def run_tests():
-	suite = unittest.TestLoader().loadTestsFromTestCase(build_dir)
-	unittest.TextTestRunner(verbosity=2).run(suite)
-	os.chdir(root_dir)
+		test_dir=os.getcwd()
+		
+		self.assertEqual(0, self.call(["python", 
+			os.path.join(self.__test_demos_dir,"cc","waf"), "configure"]))
+		self.assertEqual(0, self.call(["python", 
+			"%s"%os.path.join(self.__test_demos_dir,"cc","waf"), "build"]))
+		self._test_run("default/src/test_c_program")
+		self.assertEqual(0, self.call(["python",
+			"%s"%os.path.join(self.__test_demos_dir,"cc","waf"), "distclean"]))
+		self.failIf(os.path.exists(test_dir), 
+			"'%s' should not exists distclean did not work" % test_dir)
+
+def run_tests(verbose=2):
+	try:
+		suite = unittest.TestLoader().loadTestsFromTestCase(TestBuildDir)
+		unittest.TextTestRunner(verbosity=verbose).run(suite)
+	except common_test.StartupError, e:
+		Params.error( e.message )
 
 if __name__ == '__main__':
+	# test must be ran from waf's root directory
+	os.chdir(os.path.pardir)
+	os.chdir(os.path.pardir)
 	run_tests()

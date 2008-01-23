@@ -153,7 +153,7 @@ def measure():
 	import Scripting
 
 	t1=time.clock()
-	Scripting.Main()
+	Scripting.main()
 	t2=time.clock()
 
 	os.chdir('..')

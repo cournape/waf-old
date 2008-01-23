@@ -29,7 +29,9 @@ def init():
 
 def set_options(opt):
 	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
-#	opt.sub_options('tests')
+	opt.tool_options('gcc')
+	opt.tool_options('g++')
+#opt.sub_options('tests')
 	# the following is to use after the command-line is parsed:
 	# import Params
 	# print Params.g_options.someopt
