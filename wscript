@@ -279,7 +279,7 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
-		os.popen("""perl -pi -e 's/^hexversion(.*)?$/hexversion="%s"/' wafadmin/Params.py""" % hexver).close()
+		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION="%s"/' wafadmin/Constants.py""" % hexver).close()
 		sys.exit(0)
 	elif Params.g_commands['install']:
 		create_waf()
