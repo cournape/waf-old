@@ -275,11 +275,11 @@ def uninstall_waf():
 def init():
 	if Params.g_options.setver: # maintainer only (ita)
 		ver = Params.g_options.setver
-		hexver = '0x0'+ver.replace('.','0')
+		hexver = '0x'+ver.replace('.','0')
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
-		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION="%s"/' wafadmin/Constants.py""" % hexver).close()
+		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
 		sys.exit(0)
 	elif Params.g_commands['install']:
 		create_waf()
