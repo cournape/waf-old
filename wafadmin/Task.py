@@ -325,9 +325,9 @@ class Task(TaskBase):
 			# in practice, this means hashing the output files
 			# this is unnecessary
 
-			if Params.g_usecache:
+			if Params.g_cache_global:
 				ssig = sig.encode('hex')
-				dest = os.path.join(Params.g_usecache, ssig+'-'+str(cnt))
+				dest = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
 				try: shutil.copy2(node.abspath(env), dest)
 				except IOError: warning('could not write the file to the cache')
 				cnt += 1
@@ -345,7 +345,7 @@ class Task(TaskBase):
 	def can_retrieve_cache(self, sig):
 		"""Retrieve build nodes from the cache - the file time stamps are updated
 		for cleaning the least used files from the cache dir - be careful when overriding"""
-		if not Params.g_usecache: return None
+		if not Params.g_cache_global: return None
 		if Params.g_options.nocache: return None
 
 		env  = self.m_env
@@ -357,7 +357,7 @@ class Task(TaskBase):
 				variant = node.variant(env)
 
 				ssig = sig.encode('hex')
-				orig = os.path.join(Params.g_usecache, ssig+'-'+str(cnt))
+				orig = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
 				shutil.copy2(orig, node.abspath(env))
 
 				# touch the file

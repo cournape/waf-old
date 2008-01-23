@@ -142,24 +142,28 @@ class enumerator_base(object):
 		return m.digest()
 
 	def run_cache(self, retvalue):
+		# interface, do not remove
 		pass
 
 	def run(self):
 		self.validate()
-		#if not Params.g_options.nocache:
-		#	newhash = self.hash()
-		#	try:
-		#		ret = self.conf.m_cache_table[newhash]
-		#		self.run_cache(ret)
-		#		return ret
-		#	except KeyError:
-		#		pass
+		if Params.g_cache_global and not Params.g_options.nocache:
+			newhash = self.hash()
+			try:
+				ret = self.conf.m_cache_table[newhash]
+			except KeyError:
+				pass # go to A1 just below
+			else:
+				self.run_cache(ret)
+				if self.mandatory and not ret: self.error()
+				return ret
 
+		# A1 - no cache or new test
 		ret = self.run_test()
 		if self.mandatory and not ret: self.error()
 
-		#if not Params.g_options.nocache:
-		#	self.conf.m_cache_table[newhash] = ret
+		if Params.g_cache_global and not Params.g_options.nocache:
+			self.conf.m_cache_table[newhash] = ret
 		return ret
 
 	# Override this method, not run()!
@@ -964,12 +968,20 @@ class Configure(object):
 
 		self.lastprog = ''
 
-		#try:
-		#	file = open(os.path.join(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'rb')
-		#	self.m_cache_table = cPickle.load(file)
-		#	file.close()
-		#except:
-		#	pass
+		# load the cache
+		if Params.g_cache_global and not Params.g_options.nocache:
+			fic = os.path.join(Params.g_cache_global, 'runs-%s.txt' % self._cache_platform())
+			try:
+				file = open(fic, 'rb')
+			except (OSError, IOError):
+				pass
+			else:
+				try:
+					self.m_cache_table = cPickle.load(file)
+				except:
+					pass # TODO
+				finally:
+					file.close()
 
 		self._a=0
 		self._b=0
@@ -1074,19 +1086,19 @@ class Configure(object):
 		return ret
 
 	def cleanup(self):
-		pass
-		"called on shutdown"
-		"""try:
-			dir = os.path.join(Params.g_homedir, '.wafcache')
-			try: os.makedirs(dir)
-			except: pass
+		"when there is a cache directory store the config results (shutdown)"
+		if not Params.g_cache_global: return
 
-			file = open(os.path.join(Params.g_homedir, '.wafcache', 'runs-%s.txt' % self._cache_platform()), 'wb')
+		# not during the build
+		try: os.makedirs(Params.g_cache_global)
+		except OSError: return
+
+		fic = os.path.join(Params.g_cache_global, 'runs-%s.txt' % self._cache_platform())
+		file = open(fic, 'wb')
+		try:
 			cPickle.dump(self.m_cache_table, file)
+		finally:
 			file.close()
-		except:
-			raise
-			pass"""
 
 	def add_define(self, define, value, quote=-1, comment=''):
 		"""store a single define and its state into an internal list
