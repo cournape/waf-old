@@ -243,9 +243,9 @@ def check_python_version(conf, minver=None):
 	assert python, ("python is %r !" % (python,))
 
 	## Get python version string
-	proc = subprocess.Popen([python, "-c",
-				 "import sys\nfor x in sys.version_info: print str(x)"],
-				stdout=subprocess.PIPE)
+	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print str(x)"]
+	Params.debug("Running python command %r" % cmd, 'python')
+	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 	lines = proc.communicate()[0].split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
 	pyver_tuple = (int(lines[0]), int(lines[1]), int(lines[2]), lines[3], int(lines[4]))
