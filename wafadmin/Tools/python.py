@@ -169,7 +169,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		var='PYTHON_CONFIG')
 	if python_config:
 		includes = []
-		for incstr in os.popen(python_config + " --includes").readline().strip().split():
+		for incstr in os.popen("%s %s --includes" % (python, python_config)).readline().strip().split():
 			## strip the -I or /I
 			if (incstr.startswith('-I')
 			    or incstr.startswith('/I')):
