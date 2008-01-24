@@ -244,7 +244,7 @@ def check_python_version(conf, minver=None):
 
 	## Get python version string
 	proc = subprocess.Popen([python, "-c",
-				 "import sys; print '\\n'.join(map(str, sys.version_info))"],
+				 "import sys\nfor x in sys.version_info: print str(x)"],
 				stdout=subprocess.PIPE)
 	lines = proc.communicate()[0].split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
