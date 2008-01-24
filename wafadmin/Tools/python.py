@@ -77,12 +77,26 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	program = list(imports)
 	program.append('')
 	for v in variables:
-		program.append("print str(%s)" % v)
-	output = subprocess.Popen([python_exe, "-c", '\n'.join(program)],
-				  stdout=subprocess.PIPE).communicate()[0].split("\n")
+		program.append("print repr(%s)" % v)
+	proc = subprocess.Popen([python_exe, "-c", '\n'.join(program)],
+				stdout=subprocess.PIPE)
+	output = proc.communicate()[0].split("\n")
+	if proc.returncode:
+		if Params.g_verbose:
+			Params.warning("Python program to extract python configuration variables failed:\n%s"
+				       % '\n'.join(["line %03i: %s" % (lineno+1, line) for lineno, line in enumerate(program)]))
+		raise ValueError
 	return_values = []
 	for s in output:
-		if s: return_values.append(s.rstrip())
+		s = s.strip()
+		if not s:
+			continue
+		if s == 'None':
+			return_values.append(None)
+		elif s[0] == "'" and s[-1] == "'":
+			return_values.append(s[1:-1])
+		elif s[0].isdigit():
+			return_values.append(int(s))
 		else: break
 	return return_values
 
@@ -104,21 +118,26 @@ def check_python_headers(conf):
 	python = env['PYTHON']
 	assert python, ("python is %r !" % (python,))
 
-	## Get some python configuration variables using distutils
-	v = 'prefix CC SYSLIBS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
-	(python_prefix, python_CC, python_SYSLIBS, python_SHLIBS,
-	 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED) = \
-		_get_python_variables(python, ["get_config_var('%s')" % x for x in v],
-				      ['from distutils.sysconfig import get_config_var'])
+	try:
+		## Get some python configuration variables using distutils
+		v = 'prefix CC SYSLIBS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
+		(python_prefix, python_CC, python_SYSLIBS, python_SHLIBS,
+		 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED) = \
+			_get_python_variables(python, ["get_config_var('%s')" % x for x in v],
+					      ['from distutils.sysconfig import get_config_var'])
+	except ValueError:
+		conf.fatal("Python development headers not found (-v for details).")
 	## Check for python libraries for embedding
 	if python_SYSLIBS is not None:
 		for lib in python_SYSLIBS.split():
-			libname = lib[2:] # strip '-l'
-			env.append_value('LIB_PYEMBED', libname)
+			if lib.startswith('-l'):
+				lib = lib[2:] # strip '-l'
+			env.append_value('LIB_PYEMBED', lib)
 	if python_SHLIBS is not None:
 		for lib in python_SHLIBS.split():
-			libname = lib[2:] # strip '-l'
-			env.append_value('LIB_PYEMBED', libname)
+			if lib.startswith('-l'):
+				lib = lib[2:] # strip '-l'
+			env.append_value('LIB_PYEMBED', lib)
 	lib = conf.create_library_configurator()
 	lib.name = 'python' + env['PYTHON_VERSION']
 	lib.uselib = 'PYTHON'
@@ -156,6 +175,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	if result:
 		env['LIBPATH_PYEMBED'] = lib.path
 		env.append_value('LIB_PYEMBED', lib.name)
+
 
 	if sys.platform == 'win32' or (Py_ENABLE_SHARED is not None
 					and sys.platform != 'darwin'):
