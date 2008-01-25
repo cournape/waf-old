@@ -8,13 +8,14 @@
 import select, errno
 try:
 	import gamin
-	# check if gamin runs and accepts connenction
+except ImportError:
+	support = False
+else:
+	# check if gamin runs and accepts connections
 	test = gamin.WatchMonitor()
 	test.disconnect()
 	test = None
 	support = True
-except:
-	support = False
 
 class GaminAdaptor:
 	"""gamin helper class for use with DirWatcher"""
@@ -53,7 +54,7 @@ class GaminAdaptor:
 		}
 		try:
 			return gaminCodes[event]
-		except:
+		except KeyError:
 			return "unknown"
 
 	def __eventhandler_helper(self, pathName, event, idxName):

@@ -7,13 +7,14 @@
 import select, errno
 try:
 	import _fam
-	# check if fam or gamin runs and accepts connection
+except ImportError:
+	support = False
+else:
+	# check if fam runs and accepts connections
 	test = _fam.open()
 	test.close()
 	test = None
 	support = True
-except:
-	support = False
 
 class FamAdaptor:
 	"""fam helper class for use with DirWatcher"""

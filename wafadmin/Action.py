@@ -89,7 +89,7 @@ def f(task):
 	env=task.m_env
 	p=env.get_flat
 	try: cmd = "%s" %s
-	except: task.debug(); raise
+	except Exception: task.debug(); raise
 	return Runner.exec_command(cmd)
 ''' % (line, parm)
 

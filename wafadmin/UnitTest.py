@@ -77,7 +77,7 @@ class unit_test(object):
 					label = obj.m_linktask.m_outputs[0].bldpath(obj.env)
 					self.max_label_length = max(self.max_label_length, len(label))
 					self.unit_tests[label] = filename
-			except:
+			except KeyError:
 				pass
 		self.total_num_tests = len(self.unit_tests)
 		# Now run the unit tests
