@@ -122,10 +122,10 @@ class enumerator_base(object):
 	def update_hash(self, md5hash):
 		classvars = vars(self)
 		for (var, value) in classvars.iteritems():
-			if callable(var):          continue
-			if value == self:          continue
-			if value == self.env:      continue
-			if value == self.conf:     continue
+			if callable(var):      continue
+			if value == self:      continue
+			if value == self.env:  continue
+			if value == self.conf: continue
 			md5hash.update(str(value))
 
 	def update_env(self, hashtable):
@@ -1369,9 +1369,9 @@ class Configure(object):
 		#bld.rescan(bld.m_srcnode)
 
 		if (not obj.force_compiler and Action.g_actions.get('cpp', None)) or obj.force_compiler == "cpp":
-                        f = Object.g_allclasses['cpp']
+			f = Object.g_allclasses['cpp']
 		else:
-                        f = Object.g_allclasses['cc']
+			f = Object.g_allclasses['cc']
 		o = f(obj.build_type)
 		o.source   = 'test.c'
 		o.target   = 'testprog'
