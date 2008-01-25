@@ -246,6 +246,9 @@ class task_gen(object):
 	def apply(self):
 		pass
 
+def gen_hook(name, meth):
+	setattr(task_gen, name, meth)
+
 g_cache_max={}
 def sign_env_vars(env, vars_list):
 	" ['CXX', ..] -> [env['CXX'], ..]"

@@ -57,6 +57,8 @@ class cppobj(ccroot.ccroot):
 		y = self.env['CXXDEFINES_ST']
 		self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
 
+Object.gen_hook('apply_defines_cxx', cppobj.apply_defines)
+
 def setup(bld):
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'

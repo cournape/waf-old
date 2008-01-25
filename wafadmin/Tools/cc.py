@@ -108,6 +108,9 @@ class ccobj(ccroot.ccroot):
 		y = self.env['CCDEFINES_ST']
 		self.env['_CCDEFFLAGS'] = [y%x for x in milst]
 
+
+Object.gen_hook('apply_defines_cc', ccobj.apply_defines)
+
 def setup(bld):
 	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
