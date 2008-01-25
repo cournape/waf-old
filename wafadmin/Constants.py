@@ -6,8 +6,9 @@
 
 # the version number is updated from the top-level wscript file
 HEXVERSION = 0x10302
+ABI = 2
 
-CACHE_DIR          = '_cache_'
+CACHE_DIR          = 'c4che'
 CACHE_SUFFIX       = '.cache.py'
 DBFILE             = '.wafpickle'
 WSCRIPT_FILE       = 'wscript'

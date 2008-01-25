@@ -970,7 +970,7 @@ class Configure(object):
 
 		# load the cache
 		if Params.g_cache_global and not Params.g_options.nocache:
-			fic = os.path.join(Params.g_cache_global, 'runs-%s.txt' % self._cache_platform())
+			fic = os.path.join(Params.g_cache_global, Params.g_conf_name)
 			try:
 				file = open(fic, 'rb')
 			except (OSError, IOError):
@@ -978,7 +978,6 @@ class Configure(object):
 			else:
 				try:
 					self.m_cache_table = cPickle.load(file)
-					# TODO: handle exceptions
 				finally:
 					file.close()
 
@@ -1090,9 +1089,9 @@ class Configure(object):
 
 		# not during the build
 		try: os.makedirs(Params.g_cache_global)
-		except OSError: return
+		except OSError: pass
 
-		fic = os.path.join(Params.g_cache_global, 'runs-%s.txt' % self._cache_platform())
+		fic = os.path.join(Params.g_cache_global, Params.g_conf_name)
 		file = open(fic, 'wb')
 		try:
 			cPickle.dump(self.m_cache_table, file)
@@ -1438,11 +1437,6 @@ class Configure(object):
 			return ret
 
 		return not ret
-
-	def _cache_platform(self):
-		m = md5()
-		m.update(Params.g_platform)
-		return m.hexdigest()
 
 	def errormsg(self, msg):
 		Params.niceprint(msg, 'ERROR', 'Configuration')

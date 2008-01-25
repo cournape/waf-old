@@ -5,7 +5,7 @@
 "Main parameters"
 
 import os, sys, types, inspect, base64, time
-import Utils
+import Constants, Utils
 
 # see: http://docs.python.org/lib/module-md5.html
 try: from hashlib import md5
@@ -64,6 +64,7 @@ g_cache_global = ''
 g_lockfile = '.lock-wscript'
 "allow different names for the lockfile"
 
+g_conf_name = 'conf-runs-%s-%d.pickle' % (sys.platform, Constants.ABI)
 
 try: g_cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: pass
