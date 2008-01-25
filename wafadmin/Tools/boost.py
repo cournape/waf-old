@@ -32,17 +32,10 @@ def detect_boost(conf):
         else:
                 want_libs = 0
 
-        try: boostlibs = opt.boostlibs
-        except: boostlibs=''
-
-        try: boostincludes = opt.boostincludes
-        except: boostincludes=''
-
-        try: asioincludes = opt.asioincludes
-        except: asioincludes=''
-
-        try: boostfolder = opt.boostfolder
-        except: boostfolder=''
+		boostlibs = getattr(opt, 'boostlibs', '')
+		boostincludes = getattr(opt, 'boostincludes', '')
+		asioincludes = getattr(opt, 'asioincludes', '')
+		boostfolder = getattr(opt, 'boostfolder', '')
 
         if boostfolder:
                 boostincludes=boostfolder+'/include'
@@ -61,7 +54,7 @@ def detect_boost(conf):
                                 # which put boost directly into a boost subdir (eg. gentoo)
                                 if subdir=='boost': guess.append(dir)
                                 elif subdir.startswith('boost-'): guess.append(dir+'/'+subdir)
-                except: pass
+                except OSError: pass
         if not guess:
                 fatal('boost headers not found')
                 return 0
