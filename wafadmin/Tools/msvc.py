@@ -327,12 +327,9 @@ class msvccc(msvcobj):
 		# this is usually a good idea
 		app('_CCINCFLAGS', cpppath_st % '.')
 		app('_CCINCFLAGS', cpppath_st % env.variant())
-		try:
-			tmpnode = Params.g_build.m_curdirnode
-			app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-			app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-		except:
-			pass
+		tmpnode = self.path
+		app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
+		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
 
 		msvcobj.apply_obj_vars(self)
 
@@ -387,17 +384,13 @@ class msvccpp(msvcobj):
 		# this is usually a good idea
 		app('_CXXINCFLAGS', cpppath_st % '.')
 		app('_CXXINCFLAGS', cpppath_st % self.env.variant())
-		try:
-			tmpnode = Params.g_build.m_curdirnode
-			app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-			app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
-		except:
-			pass
-			app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-			app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
+		tmpnode = self.path
+		app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
+		app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
+		app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
+		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
 
 		msvcobj.apply_obj_vars(self)
-
 
 def setup(bld):
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
@@ -536,13 +529,14 @@ def detect(conf):
 	def addflags(var):
 		try:
 			c = os.environ[var]
+		except KeyError:
+			pass
+		else:
 			if c:
-				# stripping leading and trailing and whitespace and ", Windows cmd is a bit stupid ...
-				c=c.strip('" ')
+				# strip leading and trailing and whitespace and "
+				c = c.strip('" ')
 				for cv in c.split():
 					v[var].append(cv)
-		except:
-			pass
 
 	addflags('CXXFLAGS')
 	addflags('CPPFLAGS')
