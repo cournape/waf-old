@@ -104,9 +104,9 @@ def reduce_nums(val_1, val_2, val_op):
 
 	# now perform the operation, make certain a and b are numeric
 	try:    a = 0 + val_1
-	except: a = int(val_1)
+	except TypeError: a = int(val_1)
 	try:    b = 0 + val_2
-	except: b = int(val_2)
+	except TypeError: b = int(val_2)
 
 	d = val_op
 	if d == '%':  c = a%b
@@ -679,7 +679,7 @@ if __name__ == "__main__":
 	Params.g_build = dum()
 
 	try: arg = sys.argv[1]
-	except: arg = "file.c"
+	except IndexError: arg = "file.c"
 
 	paths = ['.']
 	f = open(arg, "r"); txt = f.read(); f.close()
@@ -701,8 +701,6 @@ if __name__ == "__main__":
 	test("1?1,(0?5:9):3,4")
 	test("defined inex")
 	test("defined(inex)")
-	try: test("inex")
-	except: print "inex is not defined"
 	test("m1*3")
 	test("7*m1*3")
 	test("fun1(m,1)")

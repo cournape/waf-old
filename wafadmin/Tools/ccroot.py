@@ -21,7 +21,7 @@ class DEBUG_LEVELS:
 	DEBUG		= "DEBUG"
 	RELEASE		= "RELEASE"
 	OPTIMIZED	= "OPTIMIZED"
-	
+
 	ALL = [ULTRADEBUG, DEBUG, RELEASE, OPTIMIZED]
 
 class c_scanner(Scan.scanner):
@@ -569,7 +569,7 @@ class ccroot(Object.genobj):
 			nums=self.vnum.split('.')
 			# this is very unix-specific
 			try: name3 = self.soname
-			except: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
+			except AttributeError: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 			self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
 
 	def apply_objdeps(self):
