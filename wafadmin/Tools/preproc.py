@@ -286,7 +286,6 @@ def get_expr(lst, defs, ban):
 								if v4 == ',' and pt < st:
 									# remove the comma
 									accu.pop()
-						print accu
 						accu += va_toks
 					else:
 						accu.append((p2, v2))
