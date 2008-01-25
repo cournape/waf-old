@@ -10,7 +10,7 @@ ABI = 2
 
 CACHE_DIR          = 'c4che'
 CACHE_SUFFIX       = '.cache.py'
-DBFILE             = '.wafpickle'
+DBFILE             = '.wafpickle-%d' % ABI
 WSCRIPT_FILE       = 'wscript'
 WSCRIPT_BUILD_FILE = 'wscript_build'
 
