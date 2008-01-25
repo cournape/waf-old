@@ -273,7 +273,7 @@ def get_expr(lst, defs, ban):
 						va_toks = []
 						st = len(macro_def[0])
 						pt = len(params)
-						for x in params[pt-st+1]:
+						for x in params[pt-st+1:]:
 							va_toks.extend(x)
 							va_toks.append((OP, ','))
 						if va_toks: va_toks.pop() # extra comma
@@ -283,9 +283,10 @@ def get_expr(lst, defs, ban):
 							if v3 == '##':
 								# remove the token paste
 								accu.pop()
-								if v4 == ',' and pt <= st:
+								if v4 == ',' and pt < st:
 									# remove the comma
 									accu.pop()
+						print accu
 						accu += va_toks
 					else:
 						accu.append((p2, v2))
