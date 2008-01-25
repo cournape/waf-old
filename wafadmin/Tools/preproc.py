@@ -619,22 +619,21 @@ def extract_include(txt, defs):
 	return ('"', v)
 
 def parse_char(txt):
-	try:
-		if not txt: raise PreprocError
-		if txt[0] != '\\': return ord(txt)
-		c = txt[1]
-		if c == 'x':
-			if len(txt) == 4 and txt[3] in string.hexdigits: return int(txt[2:], 16)
-			return int(txt[2:], 16)
-		elif c.isdigit():
-			if c == '0' and len(txt)==2: return 0
-			for i in 3, 2, 1:
-				if len(txt) > i and txt[1:1+i].isdigit():
-					return (1+i, int(txt[1:1+i], 8))
-		else:
-			return chr_esc[c]
-	except:
-		raise PreprocError, "could not parse char literal '%s'" % txt
+	if not txt: raise PreprocError, "attempted to parse a null char"
+	if txt[0] != '\\':
+		return ord(txt)
+	c = txt[1]
+	if c == 'x':
+		if len(txt) == 4 and txt[3] in string.hexdigits: return int(txt[2:], 16)
+		return int(txt[2:], 16)
+	elif c.isdigit():
+		if c == '0' and len(txt)==2: return 0
+		for i in 3, 2, 1:
+			if len(txt) > i and txt[1:1+i].isdigit():
+				return (1+i, int(txt[1:1+i], 8))
+	else:
+		try: return chr_esc[c]
+		except KeyError: raise PreprocError, "could not parse char literal '%s'" % txt
 
 def tokenize(s):
 	ret = []
