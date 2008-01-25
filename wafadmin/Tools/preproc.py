@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006-2008 (ita)
 
 #C/C++ preprocessor for finding dependencies
-#TODO: varargs, pragma once
+#TODO: more varargs, pragma once
 
 import re, sys, os, string, types
 if __name__ == '__main__':
@@ -271,24 +271,22 @@ def get_expr(lst, defs, ban):
 					if v2 == '__VA_ARGS__':
 						# first collect the tokens
 						va_toks = []
-
-						#if len(params)>0:
-						#	#px, vx = params[-1][0]
-						#	#print px, vx
-						#print len(macro_def[0]), macro_def[0]
-						#print len(params), params
-
-						# TODO
+						st = len(macro_def[0])
+						pt = len(params)
+						for x in params[pt-st+1]:
+							va_toks.extend(x)
+							va_toks.append((OP, ','))
+						if va_toks: va_toks.pop() # extra comma
 						if len(accu)>1:
 							(p3, v3) = accu[-1]
 							(p4, v4) = accu[-2]
-							# do we remove the comma or not ?
-							if v3 == '##' and v4 == ',':
-								accu = accu[:-2]+va_toks
-							else:
-								accu += va_toks
-						else:
-							accu += va_toks
+							if v3 == '##':
+								# remove the token paste
+								accu.pop()
+								if v4 == ',' and pt <= st:
+									# remove the comma
+									accu.pop()
+						accu += va_toks
 					else:
 						accu.append((p2, v2))
 
