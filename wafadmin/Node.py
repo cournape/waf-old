@@ -64,13 +64,20 @@ class Node(object):
 		return "<%s%s>" % (isbld, self.abspath())
 
 	def __eq__(self, other):
-		return self.hash_value == other.hash_value
+		# avoid collisions by looking at the parents
+		if not self.m_parent:
+			if other.m_parent:
+				return 0
+		else:
+			if self.m_parent.hash_value != other.m_parent.hash_value:
+				return 0
+		return self.m_name == other.m_name
 
 	def __ne__(self, other):
-		return self.hash_value != other.hash_value
+		return not self.__eq__(other)
 
 	def __hash__(self):
-		'return hash value based on the abs path'
+		'hash value based on the abs path'
 		if not self.hash_value:
 			cur=self
 			lst=[]
