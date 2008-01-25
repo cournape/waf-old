@@ -22,8 +22,6 @@ import os
 import Params, Utils
 from Params import debug, error, fatal
 
-g_launch_node=None
-
 class Node(object):
 	def __init__(self, name, parent):
 		self.m_name = name
@@ -335,21 +333,14 @@ class Node(object):
 		down_path.reverse()
 		return "".join( up_path+down_path )
 
-
-
-
-
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
 		tree = Params.g_build
-		global g_launch_node
-		if not g_launch_node:
-			g_launch_node = tree.m_root.find_dir(Params.g_cwd_launch)
-
+		ln = tree.launch_node()
 		name = self.m_name
 		x = self.m_parent.get_file(name)
-		if x: return self.relative_path(g_launch_node)
-		else: return os.path.join(tree.m_bldnode.relative_path(g_launch_node), env.variant(), self.relative_path(tree.m_srcnode))
+		if x: return self.relative_path(ln)
+		else: return os.path.join(tree.m_bldnode.relative_path(ln), env.variant(), self.relative_path(tree.m_srcnode))
 
 	def relative_path(self, folder):
 		"relative path between a node and a directory node"

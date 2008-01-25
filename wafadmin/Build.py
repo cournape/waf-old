@@ -639,3 +639,10 @@ class Build(object):
 			s = Params.sig_nil
 			return [s, s, s, s, s]
 
+	def launch_node(self):
+		try:
+			return self._launch_node
+		except AttributeError:
+			self._launch_node = self.m_root.find_dir(Params.g_cwd_launch)
+			return self._launch_node
+
