@@ -75,10 +75,11 @@ class MTask(Task.Task):
 					try:
 						# TODO we could use find_source
 						os.stat(os.path.join(path, base2+i))
+					except OSError:
+						pass
+					else:
 						ext = i
 						break
-					except:
-						pass
 				if not ext: fatal("no header found for %s which is a moc file" % str(d))
 
 			# next time we will not search for the extension (look at the 'for' loop below)
@@ -275,21 +276,11 @@ def detect_qt4(conf):
 	env = conf.env
 	opt = Params.g_options
 
-	try: qtlibs = opt.qtlibs
-	except: qtlibs=''
-
-	try: qtincludes = opt.qtincludes
-	except: qtincludes=''
-
-	try: qtbin = opt.qtbin
-	except: qtbin=''
-
-	try: useframework = opt.use_qt4_osxframework
-	except: useframework = True
-
-	# if qtdir is given - helper for finding qtlibs, qtincludes and qtbin
-	try: qtdir = opt.qtdir
-	except: qtdir=''
+	qtlibs = getattr(opt, 'qtlibs', '')
+	qtincludes = getattr(opt, 'qtincludes', '')
+	qtbin = getattr(opt, 'qtbin', '')
+	useframework = getattr(opt, 'use_qt4_osxframework', True)
+	qtdir = getattr(opt, 'qtdir', '')
 
 	if not qtdir: qtdir = os.environ.get('QT4_ROOT', '')
 
@@ -458,7 +449,7 @@ def detect(conf):
 
 def set_options(opt):
 	try: opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
-	except: pass
+	except Exception: pass
 
 	opt.add_option('--header-ext',
 		type='string',
