@@ -21,10 +21,11 @@ def copy_func(task):
 	outfile = task.m_outputs[0].abspath(env)
 	try:
 		shutil.copy2(infile, outfile)
+	except OSError, IOError:
+		return 1
+	else:
 		if task.chmod: os.chmod(outfile, task.chmod)
 		return 0
-	except:
-		return 1
 
 def action_process_file_func(task):
 	"Ask the function attached to the task to process it"

@@ -33,13 +33,13 @@ def detect(conf):
 	prefix = os.popen('%s --prefix' % kdeconfig).read().strip()
 	file = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
 	try: os.stat(file)
-	except: conf.fatal('could not open %s' % file)
+	except OSError: conf.fatal('could not open %s' % file)
 
 	try:
 		f = open(file, 'r')
 		txt = f.read()
 		f.close()
-	except:
+	except (OSError, IOError):
 		conf.fatal('could not read %s' % file)
 
 	txt = txt.replace('\\\n', '\n')
