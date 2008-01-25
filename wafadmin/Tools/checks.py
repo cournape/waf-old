@@ -74,20 +74,16 @@ def checkEndian(self, define='', pathlst=[]):
 	test.code = endian_str
 	code = test.run()['result']
 
-	#code = self.TryRun(endian_str, pathlst=pathlst)
-
+	t = Utils.to_hashtable(code)
 	try:
-		t = Utils.to_hashtable(code)
 		is_big = int(t['bigendian'])
-	except:
-		error('endian test failed '+code)
-		is_big = 0
-		raise
+	except KeyError:
+		raise ConfigurationError('endian test failed '+code)
 
 	if is_big: strbig = 'big endian'
-	else:      strbig = 'little endian'
-
+	else: strbig = 'little endian'
 	self.check_message_custom('endianness', '', strbig)
+
 	self.define_cond(define, is_big)
 	return is_big
 
@@ -117,20 +113,15 @@ def checkFeatures(self, lst=[], pathlst=[]):
 	test = self.create_test_configurator()
 	test.code = features_str
 	code = test.run()['result']
-	#code = self.TryRun(features_str, pathlst=pathlst)
 
+	t = Utils.to_hashtable(code)
 	try:
-		t = Utils.to_hashtable(code)
 		is_big = int(t['bigendian'])
-	except:
-		error('endian test failed '+code)
-		is_big = 0
-		raise
+	except KeyError:
+		raise ConfigurationError('endian test failed '+code)
 
 	if is_big: strbig = 'big endian'
-	else:      strbig = 'little endian'
-
-
+	else: strbig = 'little endian'
 	self.check_message_custom('endianness', '', strbig)
 
 	self.check_message_custom('int size', '', t['int_size'])
