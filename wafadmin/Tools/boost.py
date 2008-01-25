@@ -125,14 +125,14 @@ def detect_boost(conf):
 				if want_asio==1:
 					if want_libs:
 						try: want_libs.remove('BOOST_SYSTEM')
-						except: pass
+						except ValueError: pass
 						want_libs.append('BOOST_SYSTEM')
 					else:
 						want_libs=['BOOST_SYSTEM']
 				else:
 					if want_libs:
 						try: want_libs.remove('BOOST_SYSTEM_MT')
-						except: pass
+						except ValueError: pass
 						want_libs.append('BOOST_SYSTEM_MT')
 					else:
 						want_libs=['BOOST_SYSTEM_MT']

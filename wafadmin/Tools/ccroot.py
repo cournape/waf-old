@@ -42,7 +42,6 @@ class c_scanner(Scan.scanner):
 g_c_scanner = c_scanner()
 "scanner for c programs"
 
-
 def read_la_file(path):
 	sp = re.compile(r'^([^=]+)=\'(.*)\'$')
 	dc={}
@@ -52,7 +51,7 @@ def read_la_file(path):
 			#print sp.split(line.strip())
 			_, left, right, _ = sp.split(line.strip())
 			dc[left]=right
-		except:
+		except ValueError:
 			pass
 	file.close()
 	return dc
@@ -461,18 +460,15 @@ class ccroot(Object.genobj):
 
 		for l in libs:
 			for p in paths:
-				try:
-					dict = read_la_file(p+'/lib'+l+'.la')
-					linkflags2 = dict['dependency_libs']
-					for v in linkflags2.split():
-						if v[-3:] == '.la':
-							libtool_files.append(v)
-							libtool_vars.append(v)
-							continue
-						self.env.append_unique('LINKFLAGS', v)
+				dict = read_la_file(p+'/lib'+l+'.la')
+				linkflags2 = dict.get('dependency_libs', '')
+				for v in linkflags2.split():
+					if v.endswith('.la'):
+						libtool_files.append(v)
+						libtool_vars.append(v)
+						continue
+					self.env.append_unique('LINKFLAGS', v)
 					break
-				except:
-					pass
 
 		self.env['libtoolvars']=libtool_vars
 
