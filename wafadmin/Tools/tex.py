@@ -93,11 +93,11 @@ def tex_build(task, command='LATEX'):
 	# look in the .aux file if there is a bibfile to process
 	try:
 		file = open(aux_node.abspath(env), 'r')
-
 		ct = file.read()
 		file.close()
-		#print '---------------------------', ct, '---------------------------'
-
+	except (OSError, IOError)
+		error('erreur bibtex scan')
+	else:
 		fo = g_bibtex_re.findall(ct)
 
 		# yes, there is a .aux file to process
@@ -110,24 +110,19 @@ def tex_build(task, command='LATEX'):
 				error('error when calling bibtex %s' % bibtex_compile_cmd)
 				return ret
 
-	except:
-		error('erreur bibtex scan')
-		pass
-
 	# look on the filesystem if there is a .idx file to process
 	try:
 		idx_path = idx_node.abspath(env)
 		os.stat(idx_path)
-
+	except OSError:
+		error('erreur file.idx scan')
+	else:
 		makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
 		warning('calling makeindex')
 		ret = exec_cmd(makeindex_compile_cmd)
 		if ret:
 			error('error when calling makeindex %s' % makeindex_compile_cmd)
 			return ret
-	except:
-		error('erreur file.idx scan')
-		pass
 
 	i = 0
 	while i < 10:
@@ -138,7 +133,7 @@ def tex_build(task, command='LATEX'):
 		old_hash = hash
 		try:
 			hash = Params.h_file(aux_node.abspath(env))
-		except:
+		except KeyError:
 			error('could not read aux.h -> %s' % aux_node.abspath(env))
 			pass
 
@@ -226,7 +221,7 @@ class texobj(Object.genobj):
 					for n in deps_lst:
 						if not n in lst:
 							lst.append(n)
-				except:
+				except KeyError:
 					tree.m_depends_on[variant][node] = deps_lst
 
 			if self.m_type == 'latex':

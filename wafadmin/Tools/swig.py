@@ -78,7 +78,7 @@ def i_file(self, node):
 
 	# get the name of the swig module to process
 	try: modname = Params.g_build.m_raw_deps[variant][node][0]
-	except: return
+	except KeyError: return
 
 	# set the output files
 	outs = [node.change_ext(ext)]
