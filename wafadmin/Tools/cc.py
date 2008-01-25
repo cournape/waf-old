@@ -66,12 +66,9 @@ class ccobj(ccroot.ccroot):
 		# this is usually a good idea
 		app('_CCINCFLAGS', cpppath_st % '.')
 		app('_CCINCFLAGS', cpppath_st % env.variant())
-		try:
-			tmpnode = Params.g_build.m_curdirnode
-			app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-			app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-		except:
-			pass
+		tmpnode = self.path
+		app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
+		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
 
 		for i in env['RPATH']:   app('LINKFLAGS', i)
 		for i in env['LIBPATH']: app('LINKFLAGS', libpath_st % i)
