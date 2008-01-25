@@ -43,10 +43,10 @@ def setup(bld):
 
 	# register the hook for use with cppobj and ccobj
 	try: Object.hook('cpp', 'BISON_EXT', yc_file)
-	except: pass
+	except KeyError: pass
 
 	try: Object.hook('cc', 'BISON_EXT', yc_file)
-	except: pass
+	except KeyError: pass
 
 def detect(conf):
 	bison = conf.find_program('bison', var='BISON')

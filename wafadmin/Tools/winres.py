@@ -27,10 +27,10 @@ def setup(bld):
 
 	# register the hook for use with cppobj and ccobj
 	try: Object.hook('cpp', 'WINRC_EXT', rc_file)
-	except: pass
+	except KeyError: pass
 
 	try: Object.hook('cc', 'WINRC_EXT', rc_file)
-	except: pass
+	except KeyError: pass
 
 def detect(conf):
 	v = conf.env

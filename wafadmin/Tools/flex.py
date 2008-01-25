@@ -39,9 +39,9 @@ def setup(bld):
 
 	# register the hook for use with cppobj and ccobj
 	try: Object.hook('cpp', 'FLEX_EXT', l_file)
-	except: pass
+	except KeyError: pass
 	try: Object.hook('cc', 'FLEX_EXT', l_file)
-	except: pass
+	except KeyError: pass
 
 def detect(conf):
 	flex = conf.find_program('flex', var='FLEX')

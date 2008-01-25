@@ -104,9 +104,9 @@ def setup(bld):
 
 	# register the hook for use with cppobj and ccobj
 	try: Object.hook('cpp', 'SWIG_EXT', i_file)
-	except: pass
+	except KeyError: pass
 	try: Object.hook('cc', 'SWIG_EXT', i_file)
-	except: pass
+	except KeyError: pass
 
 def check_swig_version(conf, minver=None):
 	"""Check for a minimum swig version  like conf.check_swig_version("1.3.28")
