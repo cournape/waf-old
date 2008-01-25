@@ -272,8 +272,9 @@ class msvcobj(ccroot.ccroot):
 
 	def apply_core (self):
 		ccroot.ccroot.apply_core(self)
-		self.m_linktask.m_type=self.m_type
-		self.m_linktask.m_subsystem=self.subsystem
+		if self.m_linktask is not None:
+			self.m_linktask.m_type = self.m_type
+			self.m_linktask.m_subsystem = self.subsystem
 
 class msvccc(msvcobj):
 	def __init__(self, type='program', subtype=None):
