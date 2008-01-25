@@ -126,9 +126,8 @@ def detect(conf):
 
 def set_options(opt):
 	try:
-		# we do not know yet
 		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
-	except:
+	except Exception:
 		pass
 
 	for i in "datadir".split():
