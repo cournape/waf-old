@@ -32,7 +32,7 @@ def add_subdir(dir, bld):
 	bld.m_curdirnode=new
 	# try to open 'wscript_build' for execution
 	# if unavailable, open the module wscript and call the build function from it
-	from Common import install_files, install_as, symlink_as # do not remove 
+	from Common import install_files, install_as, symlink_as # do not remove
 	try:
 		file_path = os.path.join(new.abspath(), WSCRIPT_BUILD_FILE)
 		file = open(file_path, 'r')

@@ -9,7 +9,7 @@ import Utils, Action, Params, Configure
 import ccroot
 
 def detect(conf):
-	try: 
+	try:
 		debug_level = Params.g_options.debug_level
 	except AttributeError:
 		raise Configure.ConfigurationError("""Add 'opt.tool_options("suncc")' to set_options()""")

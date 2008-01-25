@@ -5,14 +5,13 @@
 "Some waf tests - most are obsolete"
 
 import os
-import Params 
+import Params
 
 class DIRS:
 	WAFADMIN 	= "wafadmin"
 	WAF			= "waf"
 	DEMOS		= "demos"
 	TOOLS		= "Tools"
-	
 
 def info(msg):
 	Params.pprint('CYAN', msg)
@@ -32,20 +31,20 @@ def run_tests():
 		import wafadmin.test.build_dir as test_build_dir
 		import wafadmin.test.gpp_test as test_gpp
 		import wafadmin.test.gcc_test as test_gcc
-		
+
 	info("******** build dir tests ********")
 	test_build_dir.run_tests(Params.g_options.verbose)
 	info("******** g++ tests ********")
 	test_gpp.run_tests(Params.g_options.verbose)
 	info("******** gcc tests ********")
 	test_gcc.run_tests(Params.g_options.verbose)
-	
+
 	for i in ['dist','configure','clean','distclean','make','install','doc']:
 		Params.g_commands[i]=0
-	
+
 #	info("******** node path tests ********")
 #	exec testname('paths.tst', os.path.join('wafadmin', 'test'))
-	
+
 	# FIXME: fail... :(
 #	info("******** scheduler and task tests ********")
 #	exec testname('scheduler.tst', os.path.join('wafadmin', 'test'))

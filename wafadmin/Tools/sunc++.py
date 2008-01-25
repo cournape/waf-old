@@ -12,7 +12,7 @@ import ccroot
 # is called when a configure process is started,
 # the values are cached for further build processes
 def detect(conf):
-	try: 
+	try:
 		debug_level = Params.g_options.debug_level
 	except AttributeError:
 		raise Configure.ConfigurationError("""Add 'opt.tool_options("sunc++")' to set_options()""")
