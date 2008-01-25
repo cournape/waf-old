@@ -51,7 +51,7 @@ def app_build(task):
 		try:
 			os.mkdir(srcfile)
 			[os.makedirs(os.path.join(srcfile, d)) for d in app_dirs]
-		except:
+		except (OSError, IOError):
 			pass
 
 		# copy the program to the contents dir

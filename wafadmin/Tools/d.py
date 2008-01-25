@@ -464,7 +464,7 @@ if __name__ == "__main__":
 	#Params.g_build = dum()
 
 	try: arg = sys.argv[1]
-	except: arg = "file.d"
+	except IndexError: arg = "file.d"
 
 	print "".join(filter_comments(arg))
 	# TODO

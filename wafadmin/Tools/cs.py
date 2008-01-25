@@ -64,9 +64,7 @@ class csobj(Object.genobj):
 			return
 		for var in self.to_list(self.uselib):
 			for v in self._flag_vars:
-				val=''
-				try:    val = self.env[v+'_'+var]
-				except: pass
+				val = self.env[v+'_'+var]
 				if val: self.env.append_value(v, val)
 
 def setup(bld):
