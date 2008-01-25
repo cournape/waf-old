@@ -112,7 +112,7 @@ def check_python_headers(conf):
 	executed and successful."""
 
 	try: import distutils
-	except: return 0
+	except ImportError: return 0
 
 	env = conf.env
 	python = env['PYTHON']
