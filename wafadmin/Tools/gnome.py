@@ -95,10 +95,7 @@ class sgml_man_scanner(Scan.scanner):
 		Scan.scanner.do_scan(self, task, node)
 
 		variant = node.variant(task.m_env)
-		try: tmp_lst = Params.g_build.m_raw_deps[variant][node]
-		except:
-			raise
-			tmp_lst = []
+		tmp_lst = Params.g_build.m_raw_deps[variant][node]
 		name = tmp_lst[0]
 		task.set_outputs(Params.g_build.m_curdirnode.find_build(name))
 
@@ -321,7 +318,7 @@ def set_options(opt):
 	try:
 		# we do not know yet
 		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
-	except:
+	except Exception:
 		pass
 
 	for i in "execprefix datadir libdir sysconfdir localstatedir".split():
