@@ -246,6 +246,12 @@ class task_gen(object):
 	def apply(self):
 		pass
 
+	# FIXME TODO IDEAS
+	# we would like to have:
+	# task.get_env():
+	# try: return task.env
+	# except: return task.obj.env
+
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
 
