@@ -2,9 +2,7 @@
 # encoding: utf-8
 # Yinon dot me gmail 2008
 
-"Waf constants"
-
-# the version number is updated from the top-level wscript file
+# maintainer the version number is updated from the top-level wscript file
 HEXVERSION = 0x10302
 ABI = 2
 
