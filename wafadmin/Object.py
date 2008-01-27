@@ -241,19 +241,22 @@ class task_gen(object):
 
 	def __init__(self):
 		self.hook_table = {}
-		"maps integers to function names to call"
+		"maps integers to list of function names to call: 'def meth(self):'"
+
+	def add_method(self, idx, name):
+		"add a method to execute"
+		try: self.hook_table[idx].append(name)
+		except: self.hook_table[idx] = [name]
 
 	def apply(self):
 		"use hook_table to create the tasks"
-
+		dct = self.__class__.__dict__
 		keys = self.hook_table.keys()
 		keys.sort()
 		for x in keys:
 			v = self.hook_table[x]
-			if type(v) is types.ListType:
-				for i in v: i(self)
-			else:
-				v(self)
+			if type(v) is types.ListType: for i in v: dct[i](self)
+			else: dct[v](self)
 
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
