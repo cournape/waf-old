@@ -11,7 +11,7 @@ import ccroot
 
 def detect(conf):
 	try:
-		debug_level = Params.g_options.debug_level
+		debug_level = Params.g_options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 

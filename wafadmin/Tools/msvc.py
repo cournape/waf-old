@@ -419,7 +419,7 @@ def detect(conf):
 		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
 
 	try:
-		debug_level = Params.g_options.debug_level
+		debug_level = Params.g_options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 

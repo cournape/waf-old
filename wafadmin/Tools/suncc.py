@@ -10,7 +10,7 @@ import ccroot
 
 def detect(conf):
 	try:
-		debug_level = Params.g_options.debug_level
+		debug_level = Params.g_options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 
@@ -22,7 +22,7 @@ def detect(conf):
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc:
 		return 0
-	#TODO: Has anyone a better ida to check if this is a sun cc?
+	#TODO: Has anyone a better idea to check if this is a sun cc?
 	ret = os.popen("%s -flags" %cc).close()
 	if ret:
 		conf.check_message('suncc', '', not ret)
