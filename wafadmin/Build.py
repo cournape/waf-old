@@ -4,7 +4,7 @@
 
 "Dependency tree holder"
 
-import os, sys, cPickle, types, imp
+import os, sys, cPickle, types, imp, errno
 import Params, Runner, Object, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
 from Constants import *
@@ -258,10 +258,14 @@ class Build(object):
 
 	def load_envs(self):
 		cachedir = Params.g_cachedir
-		if not os.path.isdir(cachedir):
-			fatal('The project was not configured: run "waf configure" first!')
+		try:
+			lst = os.listdir(cachedir)
+		except OSError, e:
+			if e.errno == errno.ENOENT:
+				fatal('The project was not configured: run "waf configure" first!')
+			else:
+				raise
 
-		lst = os.listdir(cachedir)
 		if not lst:
 			fatal('The cache directory is empty: reconfigure the project')
 
