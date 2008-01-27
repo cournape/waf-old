@@ -255,7 +255,8 @@ class task_gen(object):
 		keys.sort()
 		for x in keys:
 			v = self.hook_table[x]
-			if type(v) is types.ListType: for i in v: dct[i](self)
+			if type(v) is types.ListType:
+				for i in v: dct[i](self)
 			else: dct[v](self)
 
 def gen_hook(name, meth):
