@@ -316,8 +316,8 @@ class Node(object):
 		lst=[]
 		cand=self
 		while not cand == parent:
-			cand=cand.m_parent
-			lst+=['..',os.sep] #TODO: fix this
+			cand = cand.m_parent
+			lst += ['..',os.sep]
 		return lst
 
 	# TODO: do this in a single function (this one uses invrelpath, find_ancestor and pathlist4)
