@@ -15,7 +15,7 @@ def detect(conf):
 	try:
 		debug_level = Params.g_options.debug_level
 	except AttributeError:
-		raise Configure.ConfigurationError("""Add 'opt.tool_options("sunc++")' to set_options()""")
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 
 	cxx = None
 	if conf.env['CXX']:

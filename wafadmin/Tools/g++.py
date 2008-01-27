@@ -16,7 +16,7 @@ def detect(conf):
 	try:
 		debug_level = Params.g_options.debug_level
 	except AttributeError:
-		raise Configure.ConfigurationError("""Add 'opt.tool_options("g++")' to set_options()""")
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 
 	v = conf.env
 	cxx = None
@@ -250,7 +250,7 @@ def detect(conf):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
-	
+
 	ron = os.environ
 	def addflags(orig, dest=None):
 		if not dest: dest=orig

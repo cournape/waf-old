@@ -421,7 +421,7 @@ def detect(conf):
 	try:
 		debug_level = Params.g_options.debug_level
 	except AttributeError:
-		raise Configure.ConfigurationError("""Add 'opt.tool_options("msvc")' to set_options()""")
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 
 	comp = conf.find_program('CL', var='CXX')
 	if not comp: return

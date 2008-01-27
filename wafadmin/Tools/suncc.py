@@ -12,7 +12,7 @@ def detect(conf):
 	try:
 		debug_level = Params.g_options.debug_level
 	except AttributeError:
-		raise Configure.ConfigurationError("""Add 'opt.tool_options("suncc")' to set_options()""")
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 
 	cc = None
 	if conf.env['CC']:

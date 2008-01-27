@@ -17,12 +17,13 @@ g_src_file_ext = ['.c', '.cpp', '.cc']
 "default extensions for source files"
 
 class DEBUG_LEVELS:
-	ULTRADEBUG 	= "ultradebug"
-	DEBUG		= "debug"
-	RELEASE		= "release"
-	OPTIMIZED	= "optimized"
+	ULTRADEBUG = "ultradebug"
+	DEBUG = "debug"
+	RELEASE = "release"
+	OPTIMIZED = "optimized"
+	CUSTOM = "custom"
 
-	ALL = [ULTRADEBUG, DEBUG, RELEASE, OPTIMIZED]
+	ALL = [ULTRADEBUG, DEBUG, RELEASE, OPTIMIZED, CUSTOM]
 
 class c_scanner(Scan.scanner):
 	"scanner for c/c++ files"
