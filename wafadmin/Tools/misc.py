@@ -16,7 +16,7 @@ from Params import fatal, debug
 
 def copy_func(task):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
-	env = task.m_env
+	env = task.env()
 	infile = task.m_inputs[0].abspath(env)
 	outfile = task.m_outputs[0].abspath(env)
 	try:
@@ -89,7 +89,7 @@ class copyobj(Object.genobj):
 			task.fun = self.fun
 			task.chmod = self.chmod
 
-			if not task.m_env:
+			if not task.env():
 				task.debug()
 				fatal('task witout an environment')
 
@@ -231,13 +231,13 @@ class CommandOutput(Object.genobj):
 
 		def input_path(node, template):
 			if task.cwd is None:
-				return template % node.bldpath(task.m_env)
+				return template % node.bldpath(task.env())
 			else:
 				return template % node.abspath()
 		def output_path(node, template):
 			fun = node.abspath
 			if task.cwd is None: fun = node.bldpath
-			return template % fun(task.m_env)
+			return template % fun(task.env())
 
 		if isinstance(task.command, Node.Node):
 			argv = [input_path(task.command, '%s')]

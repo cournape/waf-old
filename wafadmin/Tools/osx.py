@@ -41,7 +41,7 @@ app_info_foot = '''
 
 def app_build(task):
 	global app_dirs
-	env = task.m_env
+	env = task.env()
 
 	i = 0
 	for p in task.m_outputs:

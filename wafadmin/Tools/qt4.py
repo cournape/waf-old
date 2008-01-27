@@ -248,7 +248,7 @@ class qt4obj(cpp.cppobj):
 		self.source = self.source+' '+(" ".join(lst))
 
 def process_qm2rcc(task):
-	outfile = task.m_outputs[0].abspath(task.m_env)
+	outfile = task.m_outputs[0].abspath(task.env())
 	f = open(outfile, 'w')
 	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
 	for k in task.m_inputs:

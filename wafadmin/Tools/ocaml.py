@@ -128,8 +128,9 @@ class ocaml_scanner(Scan.scanner):
 
 		task.signature() # ensure that files are scanned - unfortunately
 		tree = Params.g_build
+		env = task.env()
 		for node in task.m_inputs:
-			lst = tree.m_depends_on[node.variant(task.m_env)][node]
+			lst = tree.m_depends_on[node.variant(env)][node]
 			for depnode in lst:
 				for t in alltasks:
 					if t == task: continue
@@ -140,7 +141,7 @@ class ocaml_scanner(Scan.scanner):
 
 	def scan(self, task, node):
 		#print "scan is called"
-		code = "".join(filter_comments(node.abspath(task.m_env)))
+		code = "".join(filter_comments(node.abspath(env)))
 
 		global open_re
 		names=[]

@@ -21,13 +21,13 @@ def msvc_linker(task):
 	the manifest file, the binaries are unusable.
 	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
 	Problems with this tool: it is always called whether MSVC creates manifests or not."""
-	e=task.m_env
-	linker=e['LINK']
-	srcf=e['LINK_SRC_F']
-	trgtf=e['LINK_TGT_F']
-	linkflags=e.get_flat('LINKFLAGS')
-	libdirs=e.get_flat('_LIBDIRFLAGS')
-	libs=e.get_flat('_LIBFLAGS')
+	e = task.env()
+	linker = e['LINK']
+	srcf = e['LINK_SRC_F']
+	trgtf = e['LINK_TGT_F']
+	linkflags = e.get_flat('LINKFLAGS')
+	libdirs = e.get_flat('_LIBDIRFLAGS')
+	libs = e.get_flat('_LIBFLAGS')
 
 	subsystem=''
 	if task.m_subsystem:
@@ -50,7 +50,7 @@ def msvc_linker(task):
 
 	if os.path.exists(manifest):
 		debug('manifesttool', 'msvc')
-		mtool=task.m_env['MT']
+		mtool = e['MT']
 		if not mtool:
 			return 0
 		mode=''
@@ -62,7 +62,7 @@ def msvc_linker(task):
 			mode='2'
 
 		debug('embedding manifest','msvcobj')
-		flags=task.m_env['MTFLAGS']
+		flags = e['MTFLAGS']
 		if flags:
 			flags=string.join(flags,' ')
 		else:

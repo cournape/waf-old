@@ -79,9 +79,10 @@ class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def scan(self, task, node):
-		variant = node.variant(task.m_env)
+		env = task.env()
+		variant = node.variant(env)
 
-		fi = open(node.abspath(task.m_env), 'r')
+		fi = open(node.abspath(env), 'r')
 		content = fi.read()
 		fi.close()
 
@@ -94,7 +95,7 @@ class sgml_man_scanner(Scan.scanner):
 	def do_scan(self, task, node):
 		Scan.scanner.do_scan(self, task, node)
 
-		variant = node.variant(task.m_env)
+		variant = node.variant(task.env())
 		tmp_lst = Params.g_build.m_raw_deps[variant][node]
 		name = tmp_lst[0]
 		task.set_outputs(Params.g_build.m_curdirnode.find_build(name))
