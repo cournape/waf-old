@@ -52,7 +52,7 @@ class TaskMaster(Task.Task):
 		self.m_outputs = self.m_outputs2
 
 		ret = self.m_action.run(self)
-		env = self.m_env
+		env = self.env()
 
 		rootdir = Params.g_build.m_bldnode.abspath()
 

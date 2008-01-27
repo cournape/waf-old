@@ -38,8 +38,9 @@ class Action(object):
 
 	def get_str(self, task):
 		"string to display to the user"
-		src_str = " ".join([a.nice_path(task.m_env) for a in task.m_inputs])
-		tgt_str = " ".join([a.nice_path(task.m_env) for a in task.m_outputs])
+		env = task.env()
+		src_str = " ".join([a.nice_path(env) for a in task.m_inputs])
+		tgt_str = " ".join([a.nice_path(env) for a in task.m_outputs])
 		return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
 
 	def run(self, task):
@@ -86,8 +87,8 @@ def simple_action(name, line, color='GREEN', vars=[], prio=100):
 
 	c = '''
 def f(task):
-	env=task.m_env
-	p=env.get_flat
+	env = task.env()
+	p = env.get_flat
 	try: cmd = "%s" %s
 	except Exception: task.debug(); raise
 	return Runner.exec_command(cmd)

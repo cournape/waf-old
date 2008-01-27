@@ -14,7 +14,6 @@ from Params import debug, error
 g_all_scanners={}
 "all instances of scanners"
 
-# TODO double check for threading issues
 class scanner(object):
 	"TODO: call this a dependency manager (not a scanner), as it does scan and compute the signatures"
 
@@ -32,23 +31,23 @@ class scanner(object):
 	# * a list of nodes corresponding to real files
 	# * a list of names for files not found in path_lst
 	# the input parameters may have more parameters that the ones used below
-	def scan(self, task, node):
+	def scan(self, tsk, node):
 		"usually reimplemented"
 		return ([], [])
 
 	# scans a node, the task may have additional parameters such as include paths, etc
-	def do_scan(self, task, node):
+	def do_scan(self, tsk, node):
 		"more rarely reimplemented"
 		debug("do_scan(self, node, env, hashparams)", 'ccroot')
 
-		variant = node.variant(task.m_env)
+		variant = node.variant(tsk.env())
 
 		if not node:
 			error("BUG rescanning a null node")
 			return
 
-		# we delegate the work to "def scan(self, task, node)" to avoid duplicate code
-		(nodes, names) = self.scan(task, node)
+		# we delegate the work to "def scan(self, tsk, node)" to avoid duplicate code
+		(nodes, names) = self.scan(tsk, node)
 		if Params.g_verbose:
 			if Params.g_zones:
 				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
@@ -58,15 +57,15 @@ class scanner(object):
 		tree.m_raw_deps[variant][node] = names
 
 	# compute the signature, recompute it if there is no match in the cache
-	def get_signature(self, task):
+	def get_signature(self, tsk):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
 		tree = Params.g_build
-		env = task.m_env
+		env = tsk.env()
 
 		# assumption: we assume that we can still get the old signature from the signature cache
 		try:
-			node = task.m_outputs[0]
-			variant = node.variant(task.m_env)
+			node = tsk.m_outputs[0]
+			variant = node.variant(tsk.env())
 			time = tree.m_tstamp_variants[variant][node]
 			key = hash( (variant, node, time, self.__class__.__name__) )
 			prev_sig = tree.get_sig_cache(key)[1]
@@ -76,22 +75,22 @@ class scanner(object):
 		# we can compute and return the signature if
 		#   * the source files have not changed (rescan is 0)
 		#   * the computed signature has not changed
-		sig = self.get_signature_queue(task)
+		sig = self.get_signature_queue(tsk)
 
 		# if the previous signature is the same
 		if sig == prev_sig: return sig
 
-		#print "scanning the file", task.m_inputs[0].abspath()
+		#print "scanning the file", tsk.m_inputs[0].abspath()
 
 		# therefore some source or some header is dirty, rescan the source files
-		for node in task.m_inputs:
-			self.do_scan(task, node)
+		for node in tsk.m_inputs:
+			self.do_scan(tsk, node)
 
 		# recompute the signature and return it
-		sig = self.get_signature_queue(task)
+		sig = self.get_signature_queue(tsk)
 
 		# DEBUG
-		#print "rescan for ", task.m_inputs[0], " is ", rescan,  " and deps ", \
+		#print "rescan for ", tsk.m_inputs[0], " is ", rescan,  " and deps ", \
 		#	tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
 
 		return sig
@@ -100,18 +99,19 @@ class scanner(object):
 	# protected methods - override if you know what you are doing
 
 	# FIXME used by the c and d tools
-	def get_signature_queue(self, task):
+	def get_signature_queue(self, tsk):
 		"the basic scheme for computing signatures from .cpp and inferred .h files"
 		tree = Params.g_build
 
 		rescan = 0
 		seen = []
-		queue = []+task.m_inputs
+		queue = []+tsk.m_inputs
 		m = md5()
 
 		# add the defines - TODO make this specific for c/c++/d
-		m.update(str(task.m_env['CXXDEFINES']))
-		m.update(str(task.m_env['CCDEFINES']))
+		env = tsk.env()
+		m.update(str(env['CXXDEFINES']))
+		m.update(str(env['CCDEFINES']))
 
 		# add the hashes of all files entering into the dependency system
 		while len(queue) > 0:
@@ -121,7 +121,7 @@ class scanner(object):
 			seen.append(node)
 
 			# TODO: look at the case of stale nodes and dependencies types
-			variant = node.variant(task.m_env)
+			variant = node.variant(env)
 			try: queue += tree.m_depends_on[variant][node]
 			except KeyError: pass
 

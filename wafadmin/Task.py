@@ -138,6 +138,9 @@ class Task(TaskBase):
 		#self.dep_vars  = 'PREFIX DATADIR'
 		#self.m_scanner = some_scanner_object
 
+	def env(self):
+		return self.m_env
+
 	def __repr__(self):
 		return "".join(['\n\t{task: ', self.m_action.m_name, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
 
@@ -171,6 +174,7 @@ class Task(TaskBase):
 		try: return self.sign_all
 		except AttributeError: pass
 
+		env = self.env()
 		tree = Params.g_build
 
 		m = md5()
@@ -185,7 +189,7 @@ class Task(TaskBase):
 		else:
 			# compute the signature from the inputs (no scanner)
 			for x in self.m_inputs:
-				v = tree.m_tstamp_variants[x.variant(self.m_env)][x]
+				v = tree.m_tstamp_variants[x.variant(env)][x]
 				dep_sig = hash( (dep_sig, v) )
 				m.update(v)
 
@@ -206,21 +210,21 @@ class Task(TaskBase):
 		# dependencies on the environment vars
 		fun = getattr(self.m_action, 'signature', None)
 		if fun: act_sig = self.m_action.signature(self)
-		else: act_sig = Object.sign_env_vars(self.m_env, self.m_action.m_vars)
+		else: act_sig = Object.sign_env_vars(env, self.m_action.m_vars)
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
 		var_sig = None
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
-			var_sig = Object.sign_env_vars(self.m_env, dep_vars)
+			var_sig = Object.sign_env_vars(env, dep_vars)
 			m.update(var_sig)
 
 		# additional nodes to depend on, if provided
 		node_sig = Params.sig_nil
 		dep_nodes = getattr(self, 'dep_nodes', [])
 		for x in dep_nodes:
-			variant = x.variant(self.m_env)
+			variant = x.variant(env)
 			v = tree.m_tstamp_variants[variant][x]
 			node_sig = hash( (node_sig, v) )
 			m.update(v)
@@ -258,6 +262,7 @@ class Task(TaskBase):
 		"see if the task must be run or not"
 		#return 0 # benchmarking
 
+		env = self.env()
 		tree = Params.g_build
 		ret = 0
 
@@ -269,7 +274,7 @@ class Task(TaskBase):
 		# look at the previous signature first
 		try:
 			node = self.m_outputs[0]
-			variant = node.variant(self.m_env)
+			variant = node.variant(env)
 			time = tree.m_tstamp_variants[variant][node]
 			key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
 			prev_sig = tree.m_sig_cache[key][0]
@@ -301,7 +306,7 @@ class Task(TaskBase):
 	def update_stat(self):
 		"called after a sucessful task run"
 		tree = Params.g_build
-		env  = self.m_env
+		env  = self.env()
 		sig = self.signature()
 
 		cnt = 0
@@ -329,7 +334,7 @@ class Task(TaskBase):
 
 		# keep the signatures in the first node
 		node = self.m_outputs[0]
-		variant = node.variant(self.m_env)
+		variant = node.variant(env)
 		time = tree.m_tstamp_variants[variant][node]
 		key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
 		val = self.cache_sig
@@ -343,7 +348,7 @@ class Task(TaskBase):
 		if not Params.g_cache_global: return None
 		if Params.g_options.nocache: return None
 
-		env  = self.m_env
+		env  = self.env()
 		sig = self.signature()
 
 		cnt = 0
