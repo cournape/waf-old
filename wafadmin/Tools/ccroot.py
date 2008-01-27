@@ -17,10 +17,10 @@ g_src_file_ext = ['.c', '.cpp', '.cc']
 "default extensions for source files"
 
 class DEBUG_LEVELS:
-	ULTRADEBUG 	= "ULTRADEBUG"
-	DEBUG		= "DEBUG"
-	RELEASE		= "RELEASE"
-	OPTIMIZED	= "OPTIMIZED"
+	ULTRADEBUG 	= "ultradebug"
+	DEBUG		= "debug"
+	RELEASE		= "release"
+	OPTIMIZED	= "optimized"
 
 	ALL = [ULTRADEBUG, DEBUG, RELEASE, OPTIMIZED]
 
