@@ -141,7 +141,7 @@ class ocaml_scanner(Scan.scanner):
 
 	def scan(self, task, node):
 		#print "scan is called"
-		code = "".join(filter_comments(node.abspath(env)))
+		code = "".join(filter_comments(node.abspath(task.env())))
 
 		global open_re
 		names=[]

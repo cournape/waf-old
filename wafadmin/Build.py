@@ -618,7 +618,7 @@ class Build(object):
 
 	def add_group(self, name=''):
 		Object.flush()
-		Task.g_tasks.add_group(name)
+		self.task_manager.add_group(name)
 
 	def add_manual_dependency(self, path, value):
 		h = getattr(self, 'deps_man', {})
