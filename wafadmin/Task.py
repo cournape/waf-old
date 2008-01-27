@@ -306,7 +306,7 @@ class Task(TaskBase):
 	def update_stat(self):
 		"called after a sucessful task run"
 		tree = Params.g_build
-		env  = self.env()
+		env = self.env()
 		sig = self.signature()
 
 		cnt = 0
@@ -348,7 +348,7 @@ class Task(TaskBase):
 		if not Params.g_cache_global: return None
 		if Params.g_options.nocache: return None
 
-		env  = self.env()
+		env = self.env()
 		sig = self.signature()
 
 		cnt = 0
@@ -396,8 +396,8 @@ class Task(TaskBase):
 		return '\n'.join(ret)
 
 	def debug(self, level=0):
-		fun=Params.debug
-		if level>0: fun=Params.error
+		fun = Params.debug
+		if level>0: fun = Params.error
 		fun(self.debug_info())
 
 	def debug_why(self, old_sigs):
@@ -421,13 +421,15 @@ class TaskCmd(TaskBase):
 	def __init__(self, fun, env):
 		TaskBase.__init__(self)
 		self.fun = fun
-		self.env = env
+		self.m_env = env
 	def prepare(self):
-		self.m_display = "* executing: "+self.fun.__name__
+		self.m_display = "* executing: %s" % self.fun.__name__
 	def debug_info(self):
 		return 'TaskCmd:fun %s' % self.fun.__name__
 	def debug(self):
 		return 'TaskCmd:fun %s' % self.fun.__name__
 	def run(self):
 		self.fun(self)
+	def env(self):
+		return self.m_env
 
