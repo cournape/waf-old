@@ -13,7 +13,7 @@ import common_test
 # allow importing from wafadmin dir when ran from sub-directory 
 sys.path.append(os.path.abspath(os.path.pardir))
 import Params, Environment, Options
-from constants import *
+from Constants import *
 
 wscript_contents = """
 blddir = 'build'
