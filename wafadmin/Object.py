@@ -240,17 +240,12 @@ class task_gen(object):
 	"this class is not used yet - it is part of the ccroot class reorganization"
 
 	def __init__(self):
-		hook_table = {}
+		self.hook_table = {}
 		"maps integers to function names to call"
 
 	def apply(self):
+		"use hook_table to create the tasks"
 		pass
-
-	# FIXME TODO IDEAS
-	# we would like to have:
-	# task.get_env():
-	# try: return task.env
-	# except: return task.obj.env
 
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
