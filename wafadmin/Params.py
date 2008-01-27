@@ -139,18 +139,18 @@ def niceprint(msg, type='', module=''):
 	#	print '%s: %s'% (type, msg)
 	#	return
 	if type=='ERROR':
-		print '%s: %s == %s == %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
+		print '%s %s <%s> %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
 		return
 	if type=='WARNING':
-		print '%s: %s == %s == %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
+		print '%s %s <%s> %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
 		return
 	if type=='DEBUG':
-		print '%s: %s == %s == %s %s'% (type, g_colors['CYAN'], module, g_colors['NORMAL'], msg)
+		print '%s %s <%s> %s %s'% (type, g_colors['CYAN'], module, g_colors['NORMAL'], msg)
 		return
 	if module in g_levels:
-		print '%s: %s == %s == %s %s'% (type, g_colors[g_levels[module]], module, g_colors['NORMAL'], msg)
+		print '%s %s <%s> %s %s'% (type, g_colors[g_levels[module]], module, g_colors['NORMAL'], msg)
 		return
-	print 'TRACE: == %s == %s'% (module, msg)
+	print 'TRACE <%s> %s'% (module, msg)
 
 def __get_module():
 	try: return inspect.stack()[2][0].f_globals['__name__']
@@ -165,8 +165,7 @@ def debug(msg, zone=None):
 		return
 	module = __get_module()
 
-	# Add time stamp to message
-	msg = time.asctime(time.localtime()) + ": " + str(msg)
+	msg = time.strftime('%%X %s' % msg)
 	niceprint(msg, 'DEBUG', module)
 
 def warning(msg, zone=0):
