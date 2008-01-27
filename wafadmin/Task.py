@@ -139,6 +139,7 @@ class Task(TaskBase):
 		#self.m_scanner = some_scanner_object
 
 	def env(self):
+		# TODO IDEA in the future, attach the task generator instead of the env
 		return self.m_env
 
 	def __repr__(self):
