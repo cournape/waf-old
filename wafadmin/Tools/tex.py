@@ -14,7 +14,7 @@ class tex_scanner(Scan.scanner):
 		Scan.scanner.__init__(self)
 
 	def scan(self, task, node):
-		env = task.m_env
+		env = task.env()
 
 		nodes = []
 		names = []
@@ -54,7 +54,7 @@ g_tex_scanner = tex_scanner()
 
 g_bibtex_re = re.compile('bibdata', re.M)
 def tex_build(task, command='LATEX'):
-	env = task.m_env
+	env = task.env()
 
 	if env['PROMPT_LATEX']:
 		exec_cmd = Runner.exec_command_interact
@@ -169,13 +169,11 @@ class texobj(Object.genobj):
 
 		global g_texobjs
 		if not type in g_texobjs:
-			Params.niceprint('type %s not supported for texobj' % type, 'ERROR', 'texobj')
-			import sys
-			sys.exit(1)
-		self.m_type   = type
-		self.outs     = '' # example: "ps pdf"
-		self.prompt   = 1  # prompt for incomplete files (else the batchmode is used)
-		self.deps     = ''
+			fatal('type %s not supported for texobj' % type)
+		self.m_type = type
+		self.outs = '' # example: "ps pdf"
+		self.prompt = 1  # prompt for incomplete files (else the batchmode is used)
+		self.deps = ''
 	def apply(self):
 
 		tree = Params.g_build
@@ -209,7 +207,7 @@ class texobj(Object.genobj):
 				fatal('no type or invalid type given in tex object (should be latex or pdflatex)')
 
 			task.m_scanner = g_tex_scanner
-			task.m_env     = self.env
+			task.m_env = self.env
 			task.curdirnode = self.path
 
 			# add the manual dependencies

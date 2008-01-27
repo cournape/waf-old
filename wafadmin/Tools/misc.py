@@ -98,7 +98,7 @@ def subst_func(task):
 
 	m4_re = re.compile('@(\w+)@', re.M)
 
-	env = task.m_env
+	env = task.env()
 	infile = task.m_inputs[0].abspath(env)
 	outfile = task.m_outputs[0].abspath(env)
 
@@ -112,9 +112,9 @@ def subst_func(task):
 	if not dict:
 		names = m4_re.findall(code)
 		for i in names:
-			if task.m_env[i] and type(task.m_env[i]) is types.ListType :
-				dict[i] = " ".join( task.m_env[i] )
-			else: dict[i] = task.m_env[i]
+			if env[i] and type(env[i]) is types.ListType :
+				dict[i] = " ".join(env[i])
+			else: dict[i] = env[i]
 
 	file = open(outfile, 'w')
 	file.write(s % dict)
@@ -162,7 +162,7 @@ class substobj(Object.genobj):
 			task.dict = self.dict
 			task.dep_vars = ['DICT_HASH']
 
-			if not task.m_env:
+			if not task.env():
 				task.debug()
 				fatal('task witout an environment')
 
