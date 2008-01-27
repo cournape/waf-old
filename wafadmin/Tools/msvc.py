@@ -270,7 +270,7 @@ class msvcobj(ccroot.ccroot):
 				if libname != None:
 					app('LINKFLAGS', libname)
 
-	def apply_core (self):
+	def apply_core(self):
 		ccroot.ccroot.apply_core(self)
 		if self.m_linktask is not None:
 			self.m_linktask.m_type = self.m_type
@@ -416,11 +416,9 @@ def setup(bld):
 def detect(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
 	if sys.platform != 'win32':
-		conf.fatal('MSVC module only works under native Win32 Python! Operating under Cygwin currently not supported.')
-		return 0
-	# TODO raise ConfigurationError instead of just bailing out
+		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
 
-	try: 
+	try:
 		debug_level = Params.g_options.debug_level
 	except AttributeError:
 		raise Configure.ConfigurationError("""Add 'opt.tool_options("sunc++")' to set_options()""")
