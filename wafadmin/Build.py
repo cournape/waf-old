@@ -72,7 +72,7 @@ class Build(object):
 		self.m_curdirnode = None
 
 		# temporary holding the subdirectories containing scripts - look in Scripting.py
-		self.m_subdirs=[]
+		self.m_subdirs = []
 
 		# ======================================= #
 		# cache variables
@@ -86,7 +86,7 @@ class Build(object):
 
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
-		self.m_scanned_folders  = []
+		self.m_scanned_folders = []
 
 		# file contents
 		self._cache_node_content = {}
@@ -110,12 +110,12 @@ class Build(object):
 		debug("init data called", 'build')
 
 		# filesystem root - root name is Params.g_rootname
-		self.m_root            = Node.Node('', None)
+		self.m_root = Node.Node('', None)
 
 		# source directory
-		self.m_srcnode         = None
+		self.m_srcnode = None
 		# build directory
-		self.m_bldnode         = None
+		self.m_bldnode = None
 
 		# TODO: this code does not look too good
 		# nodes signatures: self.m_tstamp_variants[variant_name][node] = signature_value
@@ -123,15 +123,15 @@ class Build(object):
 
 		# one node has nodes it depends on, tasks cannot be stored
 		# self.m_depends_on[variant][node] = [node1, node2, ..]
-		self.m_depends_on      = {}
+		self.m_depends_on = {}
 
 		# results of a scan: self.m_raw_deps[variant][node] = [filename1, filename2, filename3]
 		# for example, find headers in c files
-		self.m_raw_deps        = {}
+		self.m_raw_deps = {}
 
-		self.m_sig_cache       = {}
+		self.m_sig_cache = {}
 
-		self.task_manager      = Task.TaskManager()
+		self.task_manager = Task.TaskManager()
 
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
@@ -192,7 +192,7 @@ class Build(object):
 		def dw():
 			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_on)
 
-		debug("executor starting", 'build')
+		debug('executor starting', 'build')
 		try:
 			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
 			ret = executor.start()
@@ -220,7 +220,7 @@ class Build(object):
 
 	def install(self):
 		"this function is called for both install and uninstall"
-		debug("install called", 'build')
+		debug('install called', 'build')
 
 		Object.flush()
 		for obj in Object.g_allobjs:
@@ -281,10 +281,7 @@ class Build(object):
 				newnode = self.m_srcnode.find_build(f, create=1)
 				try:
 					hash = Params.h_file(newnode.abspath(env))
-				except IOError:
-					error("cannot find "+f)
-					hash = Params.sig_nil
-				except AttributeError:
+				except (IOError, AttributeError):
 					error("cannot find "+f)
 					hash = Params.sig_nil
 				self.m_tstamp_variants[env.variant()][newnode] = hash
@@ -307,7 +304,6 @@ class Build(object):
 			g_modcache[key] = module
 		if hasattr(module, "setup"): module.setup(self)
 		if file: file.close()
-
 
 	def _initialize_variants(self):
 		debug("init variants", 'build')
@@ -335,7 +331,7 @@ class Build(object):
 
 		# there is no reason to bypass this check
 		try:
-			if srcdir == blddir or os.path.abspath(srcdir)==os.path.abspath(blddir):
+			if srcdir == blddir or os.path.abspath(srcdir) == os.path.abspath(blddir):
 				fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
 		except OSError:
 			pass
@@ -355,7 +351,6 @@ class Build(object):
 			if self.m_srcnode:
 				self.m_curdirnode = self.m_srcnode
 				return
-
 
 		self.m_srcnode = self.ensure_dir_node_from_path(srcdir)
 		debug("srcnode is %s and srcdir %s" % (str(self.m_srcnode), srcdir), 'build')
@@ -414,8 +409,8 @@ class Build(object):
 		# list the files in the src directory, adding the signatures
 		files = self.scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.files())
 		#debug("files found in folder are "+str(files), 'build')
-		src_dir_node.m_files_lookup={}
-		for i in files:	src_dir_node.m_files_lookup[i.m_name]=i
+		src_dir_node.m_files_lookup = {}
+		for i in files:	src_dir_node.m_files_lookup[i.m_name] = i
 
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
@@ -425,20 +420,20 @@ class Build(object):
 		h1 = self.m_srcnode.height()
 		h2 = src_dir_node.height()
 
-		lst=[]
+		lst = []
 		child = src_dir_node
 		while h2 > h1:
 			lst.append(child.m_name)
-			child=child.m_parent
-			h2-=1
+			child = child.m_parent
+			h2 -= 1
 		lst.reverse()
 
 		for variant in self._variants:
 			sub_path = os.path.join(self.m_bldnode.abspath(), variant , *lst)
 			try:
 				files = self.scan_path(src_dir_node, sub_path, src_dir_node.m_build_lookup.values(), variant)
-				src_dir_node.m_build_lookup={}
-				for i in files: src_dir_node.m_build_lookup[i.m_name]=i
+				src_dir_node.m_build_lookup = {}
+				for i in files: src_dir_node.m_build_lookup[i.m_name] = i
 			except OSError:
 				#debug("osError on " + sub_path, 'build')
 
@@ -448,7 +443,7 @@ class Build(object):
 					if node in dict:
 						dict.__delitem__(node)
 				os.makedirs(sub_path)
-				src_dir_node.m_build_lookup={}
+				src_dir_node.m_build_lookup = {}
 		self.m_scanned_folders.append(src_dir_node.hash_value)
 
 	# ======================================= #
@@ -472,8 +467,8 @@ class Build(object):
 		l_kept  = []
 
 		for node in l_nodes:
-			i     = 0
-			name  = node.m_name
+			i = 0
+			name = node.m_name
 			l_len = len(l_names)
 			while i < l_len:
 				if l_names[i] == name:
@@ -520,11 +515,11 @@ class Build(object):
 
 		l_names = l_names_read
 		l_nodes = i_existing_nodes
-		l_rm    = []
+		l_rm = []
 
 		for node in l_nodes:
-			i     = 0
-			name  = node.m_name
+			i = 0
+			name = node.m_name
 			l_len = len(l_names)
 			while i < l_len:
 				if l_names[i] == name:
@@ -550,14 +545,14 @@ class Build(object):
 	def dump(self):
 		"for debugging"
 		def printspaces(count):
-			if count>0: return printspaces(count-1)+"-"
+			if count > 0: return printspaces(count - 1) + "-"
 			return ""
 		def recu(node, count):
 			accu = printspaces(count)
-			accu+= "> "+node.m_name+" (d)\n"
+			accu += "> "+node.m_name+" (d)\n"
 			for child in node.files():
-				accu+= printspaces(count)
-				accu+= '-> '+child.m_name+' '
+				accu += printspaces(count)
+				accu += '-> '+child.m_name+' '
 
 				for variant in self.m_tstamp_variants:
 					#print "variant %s"%variant
