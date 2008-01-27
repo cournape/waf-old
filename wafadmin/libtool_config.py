@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-
-# Copyright (C) 2006  Matthias Jahn <jahn.matthias@freenet.de>
+# Copyright (C) 2006  Matthias Jahn jahn matthias ath freenet punto de
 
 import os, sys
 from optparse import OptionParser
