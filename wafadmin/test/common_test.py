@@ -32,17 +32,18 @@ class CommonTester(unittest.TestCase):
 		if not os.path.exists(file_or_directory):
 			raise StartupError("cannot find '%s', please run tests from waf root directory." % file_or_directory)
 
-	def call(self, *option):
+	def call(self, commands):
 		"""
-		_call: subprocess call method with silent stdout,
+		call: subprocess call method with (by default) silent stdout and stderr,
 				test its return value to make sure it succeeded"
-		@param option [tuple] list the commands to run. 
+		@param commands [list] commands to run.
 		@return: return code that was returned by child process. 
 		"""
 		kwargs = dict()
-		kwargs['stdout'] = pproc.PIPE
-		kwargs['stderr'] = pproc.PIPE
-		return pproc.call( *option, **kwargs)
+		
+		# Don't show output, comment-out this line when need to check-out what went wrong...
+		kwargs['stdout'] = kwargs['stderr'] = pproc.PIPE
+		return pproc.call( commands, **kwargs)
 	
 	def _copy(self, source, target):
 		# XXX: why use shell for copy ?
