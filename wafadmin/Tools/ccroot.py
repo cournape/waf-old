@@ -115,6 +115,10 @@ class ccroot(Object.genobj):
 			else:
 				self.subtype = 'shlib'
 
+	def addflags(self, var, value):
+		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
+		self.env.append_value(var, self.to_list(value))
+
 	def create_task(self, type, env=None, nice=None):
 		"overrides Object.create_task to catch the creation of cpp tasks"
 		task = Object.genobj.create_task(self, type, env)
@@ -124,7 +128,7 @@ class ccroot(Object.genobj):
 		return task
 
 	def apply(self):
-		"adding some kind of genericity is tricky subclass this method if it does not suit your needs"
+		"entry point"
 		debug("apply called for "+self.m_type_initials, 'ccroot')
 
 		if not (self.source or self.add_objects) and not hasattr(self, 'nochecks'):
@@ -142,72 +146,6 @@ class ccroot(Object.genobj):
 		self.apply_lib_vars()
 		self.apply_obj_vars()
 		if self.m_type != 'objects': self.apply_objdeps()
-
-	def apply_core(self):
-		if self.want_libtool and self.want_libtool>0:
-			self.apply_libtool()
-
-		if self.m_type == 'objects':
-			type = 'program' # TODO: incorrect for shlibs
-		else:
-			type = self.m_type
-
-		obj_ext = self.env[type+'_obj_ext'][0]
-		pre = self.m_type_initials
-
-		# get the list of folders to use by the scanners
-		# all our objects share the same include paths anyway
-		tree = Params.g_build
-
-		lst = self.to_list(self.source)
-		find_source_lst = self.path.find_source_lst
-		for filename in lst:
-			node = find_source_lst(Utils.split_path(filename))
-			if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
-
-			# Extract the extension and look for a handler hook.
-			k = max(0, filename.rfind('.'))
-			try:
-				self.get_hook(filename[k:])(self, node)
-				continue
-			except TypeError:
-				pass
-
-			# create the compilation task: cpp or cc
-			task = self.create_task(self.m_type_initials, self.env)
-
-			task.m_scanner        = g_c_scanner
-			task.path_lst = self.inc_paths
-			task.defines  = self.scanner_defines
-
-			task.m_inputs = [node]
-			task.m_outputs = [node.change_ext(obj_ext)]
-
-		# if we are only building .o files, tell which ones we built
-		if self.m_type=='objects':
-			outputs = []
-			app = outputs.append
-			for t in self.p_compiletasks: app(t.m_outputs[0])
-			self.out_nodes = outputs
-			return
-
-		if self.m_type=='staticlib':
-			linktask = self.create_task('ar_link_static', self.env)
-		else:
-			linktask = self.create_task(pre+'_link', self.env)
-		outputs = []
-		app = outputs.append
-		for t in self.p_compiletasks: app(t.m_outputs[0])
-		linktask.set_inputs(outputs)
-		linktask.set_outputs(self.path.find_build(self.get_target_name()))
-
-		self.m_linktask = linktask
-
-		if self.m_type != 'program' and self.want_libtool:
-			latask = self.create_task('fakelibtool', self.env)
-			latask.set_inputs(linktask.m_outputs)
-			latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
-			self.m_latask = latask
 
 	def get_target_name(self, ext=None):
 		return self.get_library_name(self.target, ext)
@@ -233,133 +171,6 @@ class ccroot(Object.genobj):
 			return ''.join([prefix, name, suffix])
 		else:
 			return name[0:k+1] + ''.join([prefix, name[k+1:], suffix])
-
-	def apply_defines(self):
-		"subclass me"
-		pass
-
-	def apply_incpaths(self):
-		lst = []
-		for i in self.to_list(self.uselib):
-			if self.env['CPPPATH_'+i]:
-				lst += self.to_list(self.env['CPPPATH_'+i])
-		inc_lst = self.to_list(self.includes) + lst
-		lst = self._incpaths_lst
-
-		# add the build directory
-		self._incpaths_lst.append(Params.g_build.m_bldnode)
-		self._incpaths_lst.append(Params.g_build.m_srcnode)
-
-		# now process the include paths
-		tree = Params.g_build
-		for dir in inc_lst:
-			if os.path.isabs(dir):
-				self.env.append_value('CPPPATH', dir)
-				continue
-
-			node = self.path.find_dir_lst(Utils.split_path(dir))
-			if not node:
-				debug("node not found in ccroot:apply_incpaths "+str(dir), 'ccroot')
-				continue
-			if not node in lst: lst.append(node)
-			Params.g_build.rescan(node)
-			self._bld_incpaths_lst.append(node)
-		# now the nodes are added to self._incpaths_lst
-
-	def apply_dependencies(self):
-		if self.dependencies:
-			dep_lst = (self.to_list(self.dependencies)
-				   + self.to_list(self.includes))
-			self.inc_paths = []
-			for directory in dep_lst:
-				if os.path.isabs(directory):
-					Params.fatal("Absolute paths not allowed in obj.dependencies")
-					return
-
-				node = self.path.find_dir_lst(Utils.split_path(directory))
-				if not node:
-					Params.fatal("node not found in ccroot:apply_dependencies "
-						     + str(directory), 'ccroot')
-					return
-				if node not in self.inc_paths:
-					self.inc_paths.append(node)
-		else:
-			## by default, we include the whole project tree
-			lst = [self.path]
-			for obj in Object.g_allobjs:
-				if obj.path not in lst:
-					lst.append(obj.path)
-			self.inc_paths = lst + self._incpaths_lst
-
-	def apply_type_vars(self):
-		debug('apply_type_vars called', 'ccroot')
-		# if the subtype defines uselib to add, add them
-		st = self.env[self.subtype+'_USELIB']
-		if st: self.uselib = self.uselib + ' ' + st
-
-		# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
-		# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
-		for var in self.p_type_vars:
-			compvar = '_'.join([self.m_type, var])
-			#print compvar
-			value = self.env[compvar]
-			if value: self.env.append_value(var, value)
-
-	def apply_obj_vars(self):
-		debug('apply_obj_vars called for cppobj', 'ccroot')
-		cpppath_st       = self.env['CPPPATH_ST']
-		lib_st           = self.env['LIB_ST']
-		staticlib_st     = self.env['STATICLIB_ST']
-		libpath_st       = self.env['LIBPATH_ST']
-		staticlibpath_st = self.env['STATICLIBPATH_ST']
-
-		self.addflags('CXXFLAGS', self.cxxflags)
-		self.addflags('CPPFLAGS', self.cppflags)
-
-		app = self.env.append_unique
-
-		# local flags come first
-		# set the user-defined includes paths
-		if not self._incpaths_lst: self.apply_incpaths()
-		for i in self._bld_incpaths_lst:
-			app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
-			app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
-
-		# set the library include paths
-		for i in self.env['CPPPATH']:
-			app('_CXXINCFLAGS', cpppath_st % i)
-			#print self.env['_CXXINCFLAGS']
-			#print " appending include ",i
-
-		# this is usually a good idea
-		app('_CXXINCFLAGS', cpppath_st % '.')
-		app('_CXXINCFLAGS', cpppath_st % self.env.variant())
-		tmpnode = Params.g_build.m_curdirnode
-		app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-		app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
-
-		for i in self.env['RPATH']:
-			app('LINKFLAGS', i)
-
-		for i in self.env['LIBPATH']:
-			app('LINKFLAGS', libpath_st % i)
-
-		for i in self.env['LIBPATH']:
-			app('LINKFLAGS', staticlibpath_st % i)
-
-		if self.env['STATICLIB']:
-			self.env.append_value('LINKFLAGS', self.env['STATICLIB_MARKER'])
-			# WARNING: ld wants the static libs in reverse order
-			k = [(staticlib_st % i) for i in self.env['STATICLIB']]
-			k.reverse()
-			app('LINKFLAGS', k)
-
-		# fully static binaries ?
-		if not self.env['FULLSTATIC']:
-			if self.env['STATICLIB'] or self.env['LIB']:
-				self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
-
-		app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
 
 	def install(self):
 		if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
@@ -398,132 +209,328 @@ class ccroot(Object.genobj):
 		else:
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=0644)
 
-	def apply_lib_vars(self):
-		debug('apply_lib_vars called', 'ccroot')
-		env=self.env
+	def apply_defines(self):
+		"subclass me"
+		pass
 
-		# 1. override if necessary
-		self.process_vnum()
+def apply_dependencies(self):
+	if self.dependencies:
+		dep_lst = (self.to_list(self.dependencies) + self.to_list(self.includes))
+		self.inc_paths = []
+		for directory in dep_lst:
+			if os.path.isabs(directory):
+				Params.fatal("Absolute paths not allowed in obj.dependencies")
+				return
 
-		# 2. the case of the libs defined in the project (visit ancestors first)
-		# the ancestors external libraries (uselib) will be prepended
-		uselib = self.to_list(self.uselib)
-		seen = []
-		names = self.to_list(self.uselib_local) # consume the list of names
-		while names:
-			x = names[0]
+			node = self.path.find_dir_lst(Utils.split_path(directory))
+			if not node:
+				Params.fatal("node not found in ccroot:apply_dependencies " + str(directory), 'ccroot')
+				return
+			if node not in self.inc_paths:
+				self.inc_paths.append(node)
+	else:
+		# by default, we include the whole project tree
+		lst = [self.path]
+		for obj in Object.g_allobjs:
+			if obj.path not in lst:
+				lst.append(obj.path)
+		self.inc_paths = lst + self._incpaths_lst
+setattr(ccroot, 'apply_dependencies', apply_dependencies)
 
-			# visit dependencies only once
-			if x in seen:
-				names = names[1:]
-				continue
+def apply_incpaths(self):
+	lst = []
+	for i in self.to_list(self.uselib):
+		if self.env['CPPPATH_'+i]:
+			lst += self.to_list(self.env['CPPPATH_'+i])
+	inc_lst = self.to_list(self.includes) + lst
+	lst = self._incpaths_lst
 
-			# object does not exist ?
-			y = Object.name_to_obj(x)
-			if not y:
-				fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
-				names = names[1:]
-				continue
+	# add the build directory
+	self._incpaths_lst.append(Params.g_build.m_bldnode)
+	self._incpaths_lst.append(Params.g_build.m_srcnode)
 
-			# object has ancestors to process first ? update the list of names
-			if y.uselib_local:
-				added = 0
-				lst = y.to_list(y.uselib_local)
-				lst.reverse()
-				for u in lst:
-					if u in seen: continue
-					added = 1
-					names = [u]+names
-				if added: continue # list of names modified, loop
+	# now process the include paths
+	tree = Params.g_build
+	for dir in inc_lst:
+		if os.path.isabs(dir):
+			self.env.append_value('CPPPATH', dir)
+			continue
 
-			# safe to process the current object
-			if not y.m_posted: y.post()
-			seen.append(x)
+		node = self.path.find_dir_lst(Utils.split_path(dir))
+		if not node:
+			debug("node not found in ccroot:apply_incpaths "+str(dir), 'ccroot')
+		continue
+		if not node in lst: lst.append(node)
+		Params.g_build.rescan(node)
+		self._bld_incpaths_lst.append(node)
+	# now the nodes are added to self._incpaths_lst
+setattr(ccroot, 'apply_incpaths', apply_incpaths)
 
-			if y.m_type == 'shlib':
-				env.append_value('LIB', y.target)
-			elif y.m_type == 'plugin':
-				if sys.platform == 'darwin': env.append_value('PLUGIN', y.target)
-				else: env.append_value('LIB', y.target)
-			elif y.m_type == 'staticlib':
-				env.append_value('STATICLIB', y.target)
-			elif y.m_type == 'objects':
-				pass
-			else:
-				error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
-				      % (y.name, y.m_type))
+def apply_type_vars(self):
+	debug('apply_type_vars called', 'ccroot')
+	# if the subtype defines uselib to add, add them
+	st = self.env[self.subtype+'_USELIB']
+	if st: self.uselib = self.uselib + ' ' + st
 
-			# add the link path too
-			tmp_path = y.path.bldpath(self.env)
-			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
+	# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
+	# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
+	for var in self.p_type_vars:
+		compvar = '_'.join([self.m_type, var])
+		#print compvar
+		value = self.env[compvar]
+		if value: self.env.append_value(var, value)
+setattr(ccroot, 'apply_type_vars', apply_type_vars)
 
-			# set the dependency over the link task
-			if y.m_linktask is not None:
-				self.m_linktask.set_run_after(y.m_linktask)
-				dep_nodes = getattr(self.m_linktask, 'dep_nodes', [])
-				dep_nodes += y.m_linktask.m_outputs
-				self.m_linktask.dep_nodes = dep_nodes
+def apply_obj_vars(self):
+	debug('apply_obj_vars called for cppobj', 'ccroot')
+	cpppath_st       = self.env['CPPPATH_ST']
+	lib_st           = self.env['LIB_ST']
+	staticlib_st     = self.env['STATICLIB_ST']
+	libpath_st       = self.env['LIBPATH_ST']
+	staticlibpath_st = self.env['STATICLIBPATH_ST']
 
-			# add ancestors uselib too
-			# TODO potential problems with static libraries ?
-			morelibs = y.to_list(y.uselib)
-			for v in morelibs:
-				if v in uselib: continue
-				uselib = [v]+uselib
+	self.addflags('CXXFLAGS', self.cxxflags)
+	self.addflags('CPPFLAGS', self.cppflags)
+
+	app = self.env.append_unique
+
+	# local flags come first
+	# set the user-defined includes paths
+	if not self._incpaths_lst: self.apply_incpaths()
+	for i in self._bld_incpaths_lst:
+		app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
+		app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
+
+	# set the library include paths
+	for i in self.env['CPPPATH']:
+		app('_CXXINCFLAGS', cpppath_st % i)
+		#print self.env['_CXXINCFLAGS']
+		#print " appending include ",i
+
+	# this is usually a good idea
+	app('_CXXINCFLAGS', cpppath_st % '.')
+	app('_CXXINCFLAGS', cpppath_st % self.env.variant())
+	tmpnode = Params.g_build.m_curdirnode
+	app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
+	app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
+
+	for i in self.env['RPATH']:
+		app('LINKFLAGS', i)
+
+	for i in self.env['LIBPATH']:
+		app('LINKFLAGS', libpath_st % i)
+
+	for i in self.env['LIBPATH']:
+		app('LINKFLAGS', staticlibpath_st % i)
+
+	if self.env['STATICLIB']:
+		self.env.append_value('LINKFLAGS', self.env['STATICLIB_MARKER'])
+		# WARNING: ld wants the static libs in reverse order
+		k = [(staticlib_st % i) for i in self.env['STATICLIB']]
+		k.reverse()
+		app('LINKFLAGS', k)
+
+	# fully static binaries ?
+	if not self.env['FULLSTATIC']:
+		if self.env['STATICLIB'] or self.env['LIB']:
+			self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
+
+	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
+setattr(ccroot, 'apply_obj_vars', apply_obj_vars)
+
+def apply_core(self):
+	if self.want_libtool and self.want_libtool>0:
+		self.apply_libtool()
+
+	if self.m_type == 'objects':
+		type = 'program' # TODO: incorrect for shlibs
+	else:
+		type = self.m_type
+
+	obj_ext = self.env[type+'_obj_ext'][0]
+	pre = self.m_type_initials
+
+	# get the list of folders to use by the scanners
+	# all our objects share the same include paths anyway
+	tree = Params.g_build
+
+	lst = self.to_list(self.source)
+	find_source_lst = self.path.find_source_lst
+	for filename in lst:
+		node = find_source_lst(Utils.split_path(filename))
+		if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
+
+		# Extract the extension and look for a handler hook.
+		k = max(0, filename.rfind('.'))
+		try:
+			self.get_hook(filename[k:])(self, node)
+			continue
+		except TypeError:
+			pass
+
+		# create the compilation task: cpp or cc
+		task = self.create_task(self.m_type_initials, self.env)
+
+		task.m_scanner        = g_c_scanner
+		task.path_lst = self.inc_paths
+		task.defines  = self.scanner_defines
+
+		task.m_inputs = [node]
+		task.m_outputs = [node.change_ext(obj_ext)]
+
+	# if we are only building .o files, tell which ones we built
+	if self.m_type=='objects':
+		outputs = []
+		app = outputs.append
+		for t in self.p_compiletasks: app(t.m_outputs[0])
+		self.out_nodes = outputs
+		return
+
+	if self.m_type=='staticlib':
+		linktask = self.create_task('ar_link_static', self.env)
+	else:
+		linktask = self.create_task(pre+'_link', self.env)
+	outputs = []
+	app = outputs.append
+	for t in self.p_compiletasks: app(t.m_outputs[0])
+	linktask.set_inputs(outputs)
+	linktask.set_outputs(self.path.find_build(self.get_target_name()))
+
+	self.m_linktask = linktask
+
+	if self.m_type != 'program' and self.want_libtool:
+		latask = self.create_task('fakelibtool', self.env)
+		latask.set_inputs(linktask.m_outputs)
+		latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
+		self.m_latask = latask
+setattr(ccroot, 'apply_core', apply_core)
+
+def apply_lib_vars(self):
+	debug('apply_lib_vars called', 'ccroot')
+	env=self.env
+
+	# 1. override if necessary
+	self.process_vnum()
+
+	# 2. the case of the libs defined in the project (visit ancestors first)
+	# the ancestors external libraries (uselib) will be prepended
+	uselib = self.to_list(self.uselib)
+	seen = []
+	names = self.to_list(self.uselib_local) # consume the list of names
+	while names:
+		x = names[0]
+
+		# visit dependencies only once
+		if x in seen:
 			names = names[1:]
+			continue
 
-		# 3. the case of the libs defined outside
-		for x in uselib:
-			for v in self.p_flag_vars:
-				val = self.env[v+'_'+x]
-				if val: self.env.append_value(v, val)
-	def process_vnum(self):
-		if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
-			nums=self.vnum.split('.')
-			# this is very unix-specific
-			try: name3 = self.soname
-			except AttributeError: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
-			self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
+		# object does not exist ?
+		y = Object.name_to_obj(x)
+		if not y:
+			fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
+			names = names[1:]
+			continue
 
-	def apply_objdeps(self):
-		"add the .o files produced by some other object files in the same manner as uselib_local"
-		seen = []
-		names = self.to_list(self.add_objects)
-		while names:
-			x = names[0]
+		# object has ancestors to process first ? update the list of names
+		if y.uselib_local:
+			added = 0
+			lst = y.to_list(y.uselib_local)
+			lst.reverse()
+			for u in lst:
+				if u in seen: continue
+				added = 1
+				names = [u]+names
+			if added: continue # list of names modified, loop
 
-			# visit dependencies only once
-			if x in seen:
-				names = names[1:]
-				continue
+		# safe to process the current object
+		if not y.m_posted: y.post()
+		seen.append(x)
 
-			# object does not exist ?
-			y = Object.name_to_obj(x)
-			if not y:
-				error('object not found in add_objects: obj %s add_objects %s' % (self.name, x))
-				names = names[1:]
-				continue
+		if y.m_type == 'shlib':
+			env.append_value('LIB', y.target)
+		elif y.m_type == 'plugin':
+			if sys.platform == 'darwin': env.append_value('PLUGIN', y.target)
+			else: env.append_value('LIB', y.target)
+		elif y.m_type == 'staticlib':
+			env.append_value('STATICLIB', y.target)
+		elif y.m_type == 'objects':
+			pass
+		else:
+			error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
+			      % (y.name, y.m_type))
 
-			# object has ancestors to process first ? update the list of names
-			if y.add_objects:
-				added = 0
-				lst = y.to_list(y.add_objects)
-				lst.reverse()
-				for u in lst:
-					if u in seen: continue
-					added = 1
-					names = [u]+names
-				if added: continue # list of names modified, loop
+		# add the link path too
+		tmp_path = y.path.bldpath(self.env)
+		if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
-			# safe to process the current object
-			if not y.m_posted: y.post()
-			seen.append(x)
+		# set the dependency over the link task
+		if y.m_linktask is not None:
+			self.m_linktask.set_run_after(y.m_linktask)
+			dep_nodes = getattr(self.m_linktask, 'dep_nodes', [])
+			dep_nodes += y.m_linktask.m_outputs
+			self.m_linktask.dep_nodes = dep_nodes
 
-			self.m_linktask.m_inputs += y.out_nodes
+		# add ancestors uselib too
+		# TODO potential problems with static libraries ?
+		morelibs = y.to_list(y.uselib)
+		for v in morelibs:
+			if v in uselib: continue
+			uselib = [v]+uselib
+		names = names[1:]
 
-	def addflags(self, var, value):
-		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
-		self.env.append_value(var, self.to_list(value))
+	# 3. the case of the libs defined outside
+	for x in uselib:
+		for v in self.p_flag_vars:
+			val = self.env[v+'_'+x]
+			if val: self.env.append_value(v, val)
+setattr(ccroot, 'apply_lib_vars', apply_lib_vars)
+
+def apply_objdeps(self):
+	"add the .o files produced by some other object files in the same manner as uselib_local"
+	seen = []
+	names = self.to_list(self.add_objects)
+	while names:
+		x = names[0]
+
+		# visit dependencies only once
+		if x in seen:
+			names = names[1:]
+			continue
+
+		# object does not exist ?
+		y = Object.name_to_obj(x)
+		if not y:
+			error('object not found in add_objects: obj %s add_objects %s' % (self.name, x))
+			names = names[1:]
+			continue
+
+		# object has ancestors to process first ? update the list of names
+		if y.add_objects:
+			added = 0
+			lst = y.to_list(y.add_objects)
+			lst.reverse()
+			for u in lst:
+				if u in seen: continue
+				added = 1
+				names = [u]+names
+			if added: continue # list of names modified, loop
+
+		# safe to process the current object
+		if not y.m_posted: y.post()
+		seen.append(x)
+
+		self.m_linktask.m_inputs += y.out_nodes
+setattr(ccroot, 'apply_objdeps', apply_objdeps)
+
+def process_vnum(self):
+	if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
+		nums=self.vnum.split('.')
+		# this is very unix-specific
+		try: name3 = self.soname
+		except AttributeError: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
+		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
+setattr(ccroot, 'process_vnum', process_vnum)
 
 # TODO the code below is about libtool, we will move into another file when possible
 
@@ -609,7 +616,6 @@ def apply_libtool(self):
 				libtool_files.append(v)
 				continue
 			self.env.append_unique('LINKFLAGS', v)
-
 setattr(ccroot, 'apply_libtool', apply_libtool)
 
 # TODO move this line out
