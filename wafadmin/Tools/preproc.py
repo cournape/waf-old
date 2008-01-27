@@ -512,7 +512,7 @@ class cparse(object):
 		if token in ['ifdef', 'ifndef', 'if']:
 			state.append(undefined)
 		elif token == 'endif':
-			if state: state.pop() # TODO the condition is useless
+			state.pop()
 
 		# skip lines when in a dead 'if' branch, wait for the endif
 		if not token in ['else', 'elif', 'endif']:
