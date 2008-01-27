@@ -245,7 +245,15 @@ class task_gen(object):
 
 	def apply(self):
 		"use hook_table to create the tasks"
-		pass
+
+		keys = self.hook_table.keys()
+		keys.sort()
+		for x in keys:
+			v = self.hook_table[x]
+			if type(v) is types.ListType:
+				for i in v: i(self)
+			else:
+				v(self)
 
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
