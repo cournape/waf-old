@@ -70,6 +70,13 @@ class CcFamilyTester(CcRootTester):
 		self._test_configure()
 		self._same_env(dict(CCFLAGS=['-Wall', '-O2']))
 
+	def test_customized_debug_level(self):
+		# make sure that user can control the custom debug level
+		# by setting the CCFLAGS_CUSTOM.
+		self._setup_c_program_with_env("conf.env['CCFLAGS_CUSTOM'] = '-O9'")
+		self._test_configure(True, ["--debug-level=custom"])
+		self._same_env(dict(CCFLAGS=['-Wall', '-O9']))
+
 	def test_cc_by_environ(self):
 		
 		try:

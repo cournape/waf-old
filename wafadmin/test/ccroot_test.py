@@ -20,6 +20,7 @@ blddir = 'build'
 srcdir = '.'
 
 def configure(conf):
+	%(set_env)s
 	conf.check_tool('%(tool)s')
 
 def build(bld):
@@ -61,12 +62,13 @@ class CcRootTester(common_test.CommonTester):
 
 	# utilities functions:
 	
-	def _populate_dictionary(self, build_type, code):
+	def _populate_dictionary(self, build_type, code, set_env='pass'):
 		"""
 		standard template for functions below - single (write) access point to dictionary. 
 		"""
-		self._test_dic['build_type'] = build_type
-		self._test_dic['code'] = code
+		self._test_dic['build_type'] 	= build_type
+		self._test_dic['code'] 			= code
+		self._test_dic['set_env'] 		= set_env
 		
 	def _setup_cpp_program(self):
 		self._populate_dictionary('program', cpp_program_code)
@@ -96,6 +98,14 @@ class CcRootTester(common_test.CommonTester):
 		self._populate_dictionary('objects', lib_code)
 		self._write_files()
 		
+	def _setup_cpp_program_with_env(self, env_line):
+		self._populate_dictionary('program', cpp_program_code, env_line)
+		self._write_files()
+		
+	def _setup_c_program_with_env(self, env_line):
+		self._populate_dictionary('program', c_program_code, env_line)
+		self._write_files()
+
 	def __write_wscript(self):
 		wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
 		try:
