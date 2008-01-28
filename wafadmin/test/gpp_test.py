@@ -8,7 +8,7 @@ from cpp_family_test import CppFamilyTester
 
 # allow importing from wafadmin dir when ran from sub-directory 
 sys.path.append(os.path.abspath(os.path.pardir))
-import Test, Params
+import Params
 
 
 class CppTester(CppFamilyTester):
@@ -19,6 +19,8 @@ class CppTester(CppFamilyTester):
 def run_tests(verbose=2):
 	try:
 		suite = unittest.TestLoader().loadTestsFromTestCase(CppTester)
+		# use the next line to run only specific tests 
+#		suite = unittest.TestLoader().loadTestsFromName("test_custom_level_by_environ", CppTester)
 		unittest.TextTestRunner(verbosity=verbose).run(suite)
 	except common_test.StartupError, e:
 		Params.error( e.message )

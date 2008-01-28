@@ -43,25 +43,25 @@ class CcFamilyTester(CcRootTester):
 	def test_debug_flags(self):
 		# simple debug cpp program, checks defined FLAGS
 		self._setup_c_program()
-		self._test_configure(True,["--debug-level=DEBUG"])
+		self._test_configure(True,["--debug-level=debug"])
 		self._same_env(dict(CCFLAGS=['-Wall', '-g', '-DDEBUG']))
 
 	def test_ultradebug_flags(self):
 		# simple ultradebug cpp program, checks defined FLAGS
 		self._setup_c_program()
-		self._test_configure(True,["--debug-level=ULTRADEBUG"])
+		self._test_configure(True,["--debug-level=ultradebug"])
 		self._same_env(dict(CCFLAGS=['-Wall', '-g3', '-O0', '-DDEBUG']))
 
 	def test_optimized_flags(self):
 		# simple optimized cpp program, checks defined FLAGS (should be the same as release)
 		self._setup_c_program()
-		self._test_configure(True,["--debug-level=OPTIMIZED"])
+		self._test_configure(True,["--debug-level=optimized"])
 		self._same_env(dict(CCFLAGS=['-Wall', '-O2']))
 
 	def test_release_flags(self):
 		# simple release cpp program, checks defined FLAGS
 		self._setup_c_program()
-		self._test_configure(True,["--debug-level=RELEASE"])
+		self._test_configure(True,["--debug-level=release"])
 		self._same_env(dict(CCFLAGS=['-Wall', '-O2']))
 
 	def test_default_flags(self):

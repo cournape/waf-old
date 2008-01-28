@@ -44,25 +44,25 @@ class CppFamilyTester(CcRootTester):
 	def test_debug_flags(self):
 		# simple debug cpp program, checks defined FLAGS
 		self._setup_cpp_program()
-		self._test_configure(True, ["--debug-level=DEBUG"])
+		self._test_configure(True, ["--debug-level=debug"])
 		self._same_env(dict(CXXFLAGS=['-Wall', '-g', '-DDEBUG']))
 
 	def test_ultradebug_flags(self):
 		# simple ultradebug cpp program, checks defined FLAGS
 		self._setup_cpp_program()
-		self._test_configure(True, ["--debug-level=ULTRADEBUG"])
+		self._test_configure(True, ["--debug-level=ultradebug"])
 		self._same_env(dict(CXXFLAGS=['-Wall', '-g3', '-O0', '-DDEBUG']))
 
 	def test_optimized_flags(self):
 		# simple optimized cpp program, checks defined FLAGS (should be the same as release)
 		self._setup_cpp_program()
-		self._test_configure(True, ["--debug-level=OPTIMIZED"])
+		self._test_configure(True, ["--debug-level=optimized"])
 		self._same_env(dict(CXXFLAGS=['-Wall', '-O2']))
 
 	def test_release_flags(self):
 		# simple release cpp program, checks defined FLAGS
 		self._setup_cpp_program()
-		self._test_configure(True, ["--debug-level=RELEASE"])
+		self._test_configure(True, ["--debug-level=release"])
 		self._same_env(dict(CXXFLAGS=['-Wall', '-O2']))
 
 	def test_default_flags(self):
@@ -71,7 +71,16 @@ class CppFamilyTester(CcRootTester):
 		self._test_configure()
 		self._same_env(dict(CXXFLAGS=['-Wall', '-O2']))
 		
+	def test_custom_flags(self):
+		# simple default cpp program, checks defined FLAGS
+		# (should be just the default -Wall, since CXXFLAGS_CUSTOM is not defined)
+		self._setup_cpp_program()
+		self._test_configure(True, ["--debug-level=custom"])
+		self._same_env(dict(CXXFLAGS=['-Wall']))
+		
 	def test_cxx_by_environ(self):
+		# change the CXX environment variable, to something really stupid.
+		# then make sure that configure failed (since cxx cannot be found...)
 		
 		try:
 			original_cxx = os.environ.get('CXX')
