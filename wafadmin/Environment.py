@@ -35,10 +35,9 @@ class Environment(object):
 		return self.m_table.get('_VARIANT_', 'default')
 
 	def copy(self):
-		return self.deepcopy()
-		#newenv = Environment()
-		#newenv.m_table = self.m_table.copy() # TODO how to avoid deep copies ? see issue #86
-		#return newenv
+		newenv = Environment()
+		newenv.m_table = self.m_table.copy()
+		return newenv
 
 	def deepcopy(self):
 		newenv = Environment()
@@ -87,7 +86,7 @@ class Environment(object):
 		if type(value) is types.ListType:
 			v += [x for x in value if not x in v]
 		elif not value in v:
-			v.append(value)
+			v = v + [value]
 		self[var] = v
 
 	def store(self, filename):
