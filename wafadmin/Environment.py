@@ -20,7 +20,6 @@ class Environment(object):
 		self.m_idx = g_idx
 		g_idx += 1
 		self.m_table={}
-		self.m_var_cache={}
 
 		# set the prefix once and for everybody on creation (configuration)
 		self.m_table['PREFIX'] = Params.g_options.prefix
