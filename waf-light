@@ -146,7 +146,7 @@ if "-vv" in sys.argv: print "wafdir is %s"%wafdir
 
 w=j(wafdir,'wafadmin')
 t=j(w,'Tools')
-sys.path.extend([w,t])
+sys.path=[w,t]+sys.path
 
 import Params, Scripting
 Params.g_tooldir=[t]
