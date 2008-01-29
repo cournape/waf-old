@@ -102,7 +102,7 @@ def filter_comments(filename):
 		i += 1
 	return buf
 
-class parser(object):
+class d_parser(object):
 	def __init__(self, env, incpaths):
 		#self.code = ''
 		#self.module = ''
@@ -201,7 +201,7 @@ class d_scanner(Scan.scanner):
 	def scan(self, task, node):
 		"look for .d/.di the .d source need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = parser(task.env(), task.inc_paths)
+		gruik = d_parser(task.env(), task.inc_paths)
 		gruik.start(node)
 
 		if Params.g_verbose:
@@ -481,7 +481,7 @@ if __name__ == "__main__":
 	#print "now parsing"
 	#print "-------------------------------------------"
 	'''
-	parser_ = parser()
+	parser_ = d_parser()
 	parser_.start(arg)
 
 	print "module: %s" % parser_.module
