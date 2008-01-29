@@ -105,7 +105,6 @@ class ccobj(ccroot.ccroot):
 		y = self.env['CCDEFINES_ST']
 		self.env['_CCDEFFLAGS'] = [y%x for x in milst]
 
-
 Object.gen_hook('apply_defines_cc', ccobj.apply_defines)
 
 def setup(bld):

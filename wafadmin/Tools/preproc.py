@@ -364,7 +364,7 @@ def try_exists(node, list):
 		node = node.find_dir_lst([name])
 	return node
 
-class cparse(object):
+class c_parser(object):
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
 		#self.lines = txt.split('\n')
 		self.lines = []
@@ -706,7 +706,7 @@ if __name__ == "__main__":
 	test("fun2(2, fun1(m, 1))")
 	#test("foo##.##h")
 
-	gruik = cparse(strpaths = paths)
+	gruik = c_parser(strpaths = paths)
 	gruik.start_local(arg)
 	print "we have found the following dependencies"
 	print gruik.deps

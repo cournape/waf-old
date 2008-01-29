@@ -57,6 +57,7 @@ class cppobj(ccroot.ccroot):
 		y = self.env['CXXDEFINES_ST']
 		self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
 
+# used by task_gen
 Object.gen_hook('apply_defines_cxx', cppobj.apply_defines)
 
 def setup(bld):

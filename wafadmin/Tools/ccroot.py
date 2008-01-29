@@ -33,7 +33,7 @@ class c_scanner(Scan.scanner):
 	def scan(self, task, node):
 		"look for .h the .cpp need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = preproc.cparse(nodepaths = task.path_lst, defines = task.defines)
+		gruik = preproc.c_parser(nodepaths = task.path_lst, defines = task.defines)
 		gruik.start(node, task.env())
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
