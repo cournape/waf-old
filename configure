@@ -79,7 +79,7 @@ checkWAF()
 	# neither waf nor miniwaf could be found
 	if [ ! -x "$WAF" ] ; then
 	    printf $RED"not found"$NORMAL"\n"
-	    echo "Goto http://www.freehackers.org/~tnagy/bksys.html"
+	    echo "Go to http://code.google.com/p/waf/"
 	    echo "and download a waf version"
 	    exit $EXIT_FAILURE
 	else
@@ -93,32 +93,37 @@ generateMakefile()
 {
 	cat > Makefile << EOF
 #!/usr/bin/make -f
-
 # Waf Makefile wrapper
-# http://www.freehackers.org/~tnagy/waf.html
 WAF_HOME=$CUR_DIR
 
 all:
 	@$WAF build
 
-all_debug:
+all-debug:
 	@$WAF -v build
 
-all_progress:
+all-progress:
 	@$WAF -p build
 
 install:
-	@$WAF install
+	@if test -n "\$(DESTDIR)"; then \\
+	    $WAF install --destdir="\$(DESTDIR)"; \\
+	else \\
+	    $WAF install; \\
+	fi;
 
 uninstall:
-	@$WAF uninstall
+	@if test -n "\$(DESTDIR)"; then \\
+	    $WAF uninstall --destdir="\$(DESTDIR)"; \\
+	else \\
+	    $WAF uninstall; \\
+	fi;
 
 clean:
 	@$WAF clean
 
 distclean:
 	@$WAF distclean
-	@-rm -rf cache/
 	@-rm -rf _build_
 	@-rm -f Makefile
 
