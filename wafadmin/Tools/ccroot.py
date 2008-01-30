@@ -259,7 +259,7 @@ def apply_incpaths(self):
 		node = self.path.find_dir_lst(Utils.split_path(dir))
 		if not node:
 			debug("node not found in ccroot:apply_incpaths "+str(dir), 'ccroot')
-		continue
+			continue
 		if not node in lst: lst.append(node)
 		Params.g_build.rescan(node)
 		self._bld_incpaths_lst.append(node)
