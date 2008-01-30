@@ -80,7 +80,7 @@ def unpack_wafdir(dir):
 	c="corrupted waf (%d)"
 	while 1:
 		line=f.readline()
-		if not line: err("waf-light must be run from a folder containing wafadmin")
+		if not line: err("run waf-light from a folder containing wafadmin")
 		if line=='#==>\n':
 			txt=f.readline()
 			if not txt: err(c%1)
@@ -94,7 +94,7 @@ def unpack_wafdir(dir):
 	try: shutil.rmtree(dir)
 	except OSError: pass
 	try: os.makedirs(j(dir, 'wafadmin', 'Tools'))
-	except OSError: err("cannot unpack waf-local into %s Install waf system-wide or move waf into a writeable directory"%dir)
+	except OSError: err("Cannot unpack waf-local into %s Install waf system-wide or move waf into a writeable directory"%dir)
 
 	os.chdir(dir)
 	tmp='t.tbz2'
@@ -120,10 +120,10 @@ def find_lib():
 	if w: return w
 
 	#waf-light
-	if os.path.basename(name)=='waf-light':
+	if name.endswith('waf-light'):
 		w=test(base)
 		if w:return w
-		err("waf-light in use, wafadmin not found -> export WAFDIR=/folder")
+		err("waf-light requires wafadmin -> export WAFDIR=/folder")
 
 	dir="/lib/waf-%s-%s/" % (VERSION, REVISION)
 	for i in [INSTALL,'/usr','/usr/local','/opt']:
@@ -131,8 +131,8 @@ def find_lib():
 		if w:return w
 
 	#waf-local
-	if sys.platform=='win32': s='waf-%s-%s'
-	else: s='.waf-%s-%s'
+	s='.waf-%s-%s'
+	if sys.platform == 'win32': s=s[1:]
 	dir=j(base,s%(VERSION,REVISION))
 	w=test(dir)
 	if w:return w
