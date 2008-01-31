@@ -24,9 +24,6 @@ class scanner(object):
 	# ======================================= #
 	# interface definition
 
-	"TODO: add the manually added dependencies"
-	"TODO: add the environment variables dependencies"
-
 	# this method returns a tuple containing:
 	# * a list of nodes corresponding to real files
 	# * a list of names for files not found in path_lst

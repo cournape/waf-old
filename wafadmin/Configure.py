@@ -1360,7 +1360,6 @@ class Configure(object):
 		bld._variants=bld.m_allenvs.keys()
 		bld.load_dirs(dir, bdir, isconfigure=1)
 
-
 		for t in env['tools']: bld.setup(**t)
 
 		os.chdir(dir)

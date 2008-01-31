@@ -238,26 +238,43 @@ class genobj(object):
 
 class task_gen(object):
 	"this class is not used yet - it is part of the ccroot class reorganization"
+	"def meth(self):"
 
 	def __init__(self):
-		self.hook_table = {}
-		"maps integers to list of function names to call: 'def meth(self):'"
+		self.prec = {}
+		"map precedence of function names to call"
+		# so we will have to play with directed acyclic graphs
+		# detect cycles, etc
 
-	def add_method(self, idx, name):
+		# list of methods to execute
+		self.meths = []
+
+	def add_method(self, name):
 		"add a method to execute"
-		try: self.hook_table[idx].append(name)
-		except: self.hook_table[idx] = [name]
+		# TODO adding functions ?
+		self.meths.append(name)
+
+	def set_order(self, f1, f2):
+		try: self.prec[f2].append(f1)
+		except: self.prec[f2] = [f1]
+		if not f1 in self.meths: self.meths.append(f1)
+		if not f2 in self.meths: self.meths.append(f2)
 
 	def apply(self):
 		"use hook_table to create the tasks"
 		dct = self.__class__.__dict__
-		keys = self.hook_table.keys()
-		keys.sort()
+		keys = self.meths
+		# TODO sort the methods using the precedence rules
+		# TODO detect cycles
 		for x in keys:
-			v = self.hook_table[x]
-			if type(v) is types.ListType:
-				for i in v: dct[i](self)
-			else: dct[v](self)
+			v = self.get_meth(self, x)
+			v(self)
+
+	def get_meth(self, name):
+		try:
+			return getattr(task_gen, name)
+		except AttributeError:
+			raise AttributeError, "tried to retrieve %s which is not a valid method" % name
 
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
