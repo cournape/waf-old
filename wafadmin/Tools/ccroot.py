@@ -325,9 +325,7 @@ def apply_obj_vars(self):
 
 	if self.env['STATICLIB']:
 		self.env.append_value('LINKFLAGS', self.env['STATICLIB_MARKER'])
-		# WARNING: ld wants the static libs in reverse order
 		k = [(staticlib_st % i) for i in self.env['STATICLIB']]
-		k.reverse()
 		app('LINKFLAGS', k)
 
 	# fully static binaries ?
@@ -432,16 +430,12 @@ def apply_lib_vars(self):
 			names = names[1:]
 			continue
 
-		# object has ancestors to process first ? update the list of names
+		# object has ancestors to process: add them to the end of the list
 		if y.uselib_local:
-			added = 0
 			lst = y.to_list(y.uselib_local)
-			lst.reverse()
 			for u in lst:
 				if u in seen: continue
-				added = 1
-				names = [u]+names
-			if added: continue # list of names modified, loop
+				names.append(u)
 
 		# safe to process the current object
 		if not y.m_posted: y.post()
