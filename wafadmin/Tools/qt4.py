@@ -39,10 +39,6 @@ class MTask(Task.Task):
 		parn = self.parent
 		node = self.m_inputs[0]
 
-		# scan the .cpp files and find if there is a moc file to run
-		#if tree.needs_rescan(node, parn.env):
-		#	ccroot.g_c_scanner.do_scan(node, parn.env, hashparams = self.m_scanner_params)
-
 		# make sure the dependencies are computed to know if there is a moc file to create
 		self.signature()
 
