@@ -249,6 +249,13 @@ class task_gen(object):
 		# list of methods to execute
 		self.meths = []
 
+
+		self.env = None
+		self.m_posted = 0
+		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
+		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
+		g_allobjs.append(self)
+
 	def add_method(self, name):
 		"add a method to execute"
 		# TODO adding functions ?
@@ -269,6 +276,18 @@ class task_gen(object):
 		for x in keys:
 			v = self.get_meth(self, x)
 			v(self)
+
+	def post(self):
+		"runs the code to create the tasks, do not subclass"
+		if not self.env: self.env = Params.g_build.m_allenvs['default']
+		if not self.name: self.name = self.target
+
+		if self.m_posted:
+			error("OBJECT ALREADY POSTED")
+			return
+		self.apply()
+		debug("posted %s" % self.name, 'object')
+		self.m_posted=1
 
 	def get_meth(self, name):
 		try:
