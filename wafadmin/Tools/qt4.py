@@ -28,7 +28,12 @@ class MTask(Task.Task):
 		self.parent = parent
 
 	def may_start(self):
+
 		if self.moc_done:
+			# if there is a moc task, delay the computation of the file signature
+			for t in self.get_run_after():
+				if not t.m_hasrun:
+					return 0
 			# we need to recompute the signature as the moc task has finally run
 			# unfortunately, the moc file enters in the dependency calculation TODO
 			delattr(self, 'sign_all')
@@ -39,7 +44,7 @@ class MTask(Task.Task):
 		parn = self.parent
 		node = self.m_inputs[0]
 
-		# make sure the dependencies are computed to know if there is a moc file to create
+		# to know if there is a moc file to create
 		self.signature()
 
 		moctasks=[]
