@@ -279,15 +279,7 @@ class Task(TaskBase):
 			time = tree.m_tstamp_variants[variant][node]
 		except KeyError:
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
-
-			# maybe we can just retrieve the object files from the cache then
-			try:
-				ret = self.can_retrieve_cache(self.signature())
-			except KeyError:
-				# TODO incomplete - no exception should occur here except in -k
-				ret = 0
-			return not ret
-
+			return 1
 		key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
 		prev_sig = tree.m_sig_cache[key][0]
 		new_sig = self.signature()
@@ -297,7 +289,7 @@ class Task(TaskBase):
 			self.debug_why(tree.m_sig_cache[key])
 
 		if new_sig != prev_sig:
-			# if the node has not changed, try to use the cache
+			# try to retrieve the file from the cache
 			ret = self.can_retrieve_cache(new_sig)
 			return not ret
 
