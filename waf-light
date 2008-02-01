@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 import os, sys
-if sys.hexversion<0x203000f: raise "Waf needs Python >= 2.3"
+if sys.hexversion<0x203000f: raise "Waf requires Python >= 2.3"
 
 if 'PSYCOWAF' in os.environ:
 	try:import psyco;psyco.full()
@@ -40,67 +40,58 @@ if 'PSYCOWAF' in os.environ:
 VERSION="1.3.2"
 REVISION="x"
 INSTALL="x"
-cwd=os.getcwd()
-j=os.path.join
+cwd = os.getcwd()
+join = os.path.join
+
+def exp(v):
+	x = sum([(ord(v[4-x])-33) * (85**x) for x in xrange(5)])
+	x,p = divmod(x, 256)
+	x,o = divmod(x, 256)
+	m,n = divmod(x, 256)
+	return [m,n,o,p]
 
 def decode(s):
-	out=[]
-	a=out.append
-	d=divmod
-	p1,p2=d(len(s),5)
-	stop=5*p1
-	p3,p4=s[0:stop],s[stop:]
+	#ascii85
+	out = []
+	p1,p2 = divmod(len(s), 5)
+	s += (5 - p2) * '!'
+	for i in xrange(1+p1):
+		[out.append(chr(x)) for x in exp(s[5*i:5*i+5]) if i < p1 or x != 0]
 
-	def u(v, o):
-		return ord(v[o])-33
-	for i in range(p1):
-		o=i*5
-		x=52200625L*u(p3,o)+614125*u(p3,o+1)+7225*u(p3,o+2)+85*u(p3,o+3)+u(p3,o+4)
-		x,p=d(x,256)
-		x,o=d(x,256)
-		m,n=d(x,256)
-		a(chr(m)+chr(n)+chr(o)+chr(p))
-	if p2:
-		p4+=(5-len(p4))*'!'
-		x=52200625L*u(p4,0)+614125*u(p4,1)+7225*u(p4,2)+85*u(p4,3)+u(p4,4)
-		x,p=d(x,256)
-		x,o=d(x,256)
-		m,n=d(x,256)
-		a(chr(m))
-		if p2>2:a(chr(n))
-		if p2>3:a(chr(o))
 	return ''.join(out)
 
 def err(m):
-	print '\033[91mError: %s\033[0m'%m
+	print '\033[91mError: %s\033[0m' % m
 	sys.exit(1)
 
 def unpack_wafdir(dir):
-	f=open(sys.argv[0],'rb')
-	c="corrupted waf (%d)"
+	f = open(sys.argv[0],'rb')
+	c = "corrupted waf (%d)"
 	while 1:
-		line=f.readline()
+		line = f.readline()
 		if not line: err("run waf-light from a folder containing wafadmin")
-		if line=='#==>\n':
-			txt=f.readline()
-			if not txt: err(c%1)
-			if f.readline()!='#<==\n': err(c%2)
+		if line == '#==>\n':
+			txt = f.readline()
+			if not txt: err(c % 1)
+			if f.readline()!='#<==\n': err(c % 2)
 			break
-	if not txt: err(c%3)
-	try: txt=decode(txt[1:-1].replace('z', '!!!!!'))
-	except: err(c%4)
+	if not txt: err(c % 3)
+	try: txt = decode(txt[1:-1].replace('z', '!!!!!'))
+	except: err(c % 4)
 
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
 	except OSError: pass
-	try: os.makedirs(j(dir, 'wafadmin', 'Tools'))
+	try: os.makedirs(join(dir, 'wafadmin', 'Tools'))
 	except OSError: err("Cannot unpack waf-local into %s Install waf system-wide or move waf into a writeable directory"%dir)
 
 	os.chdir(dir)
-	tmp='t.tbz2'
-	t=open(tmp,'wb');t.write(txt);t.close()
+	tmp = 't.tbz2'
+	t = open(tmp,'wb')
+	t.write(txt)
+	t.close()
 
-	t=tarfile.open(tmp)
+	t = tarfile.open(tmp)
 	for x in t: t.extract(x)
 	t.close()
 
@@ -108,51 +99,51 @@ def unpack_wafdir(dir):
 	os.chdir(cwd)
 
 def test(dir):
-	try: os.stat(j(dir,'wafadmin')); return os.path.abspath(dir)
+	try: os.stat(join(dir, 'wafadmin')); return os.path.abspath(dir)
 	except OSError: pass
 
 def find_lib():
-	name=sys.argv[0]
-	base=os.path.dirname(os.path.abspath(name))
+	name = sys.argv[0]
+	base = os.path.dirname(os.path.abspath(name))
 
 	#devs use $WAFDIR
-	w=test(os.environ.get('WAFDIR',''))
+	w=test(os.environ.get('WAFDIR', ''))
 	if w: return w
 
 	#waf-light
 	if name.endswith('waf-light'):
-		w=test(base)
-		if w:return w
+		w = test(base)
+		if w: return w
 		err("waf-light requires wafadmin -> export WAFDIR=/folder")
 
-	dir="/lib/waf-%s-%s/" % (VERSION, REVISION)
+	dir = "/lib/waf-%s-%s/" % (VERSION, REVISION)
 	for i in [INSTALL,'/usr','/usr/local','/opt']:
-		w=test(i+dir)
-		if w:return w
+		w = test(i+dir)
+		if w: return w
 
 	#waf-local
-	s='.waf-%s-%s'
-	if sys.platform == 'win32': s=s[1:]
-	dir=j(base,s%(VERSION,REVISION))
-	w=test(dir)
-	if w:return w
+	s = '.waf-%s-%s'
+	if sys.platform == 'win32': s = s[1:]
+	dir = join(base, s % (VERSION, REVISION))
+	w = test(dir)
+	if w: return w
 
 	#unpack
 	unpack_wafdir(dir)
 	return dir
 
-wafdir=find_lib()
-if "-vv" in sys.argv: print "wafdir is %s"%wafdir
+wafdir = find_lib()
+if "-vv" in sys.argv: print "wafdir is %s" % wafdir
 
-w=j(wafdir,'wafadmin')
-t=j(w,'Tools')
-sys.path=[w,t]+sys.path
+w = join(wafdir, 'wafadmin')
+t = join(w, 'Tools')
+sys.path = [w, t] + sys.path
 
 import Params, Scripting
-Params.g_tooldir=[t]
-Params.g_cwd_launch=cwd
+Params.g_tooldir = [t]
+Params.g_cwd_launch = cwd
 
-if Params.g_version!=VERSION:
-	err('Version mismatch: waf %s <> wafadmin %s (wafdir %s)'%(VERSION,Params.g_version,wafdir))
+if Params.g_version != VERSION:
+	err('Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (VERSION, Params.g_version, wafdir))
 Scripting.prepare()
 
