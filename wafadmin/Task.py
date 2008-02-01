@@ -287,7 +287,7 @@ class Task(TaskBase):
 			return not ret
 
 		key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
-		prev_sig = tree.m_sig_cache[key].get(0, None)
+		prev_sig = tree.m_sig_cache[key][0]
 		#print "prev_sig is ", prev_sig
 		new_sig = self.signature()
 
