@@ -111,7 +111,7 @@ class MTask(Task.Task):
 		# simple scheduler dependency: run the moc task before others
 		self.m_run_after = moctasks
 		self.moc_done = 1
-		return Task.Task.may_start(self)
+		return 0
 
 def translation_update(task):
 	outs=[a.abspath(task.env) for a in task.m_outputs]
