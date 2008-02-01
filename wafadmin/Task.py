@@ -267,20 +267,17 @@ class Task(TaskBase):
 		tree = Params.g_build
 		ret = 0
 
-		# for tasks that have no inputs or outputs and are run all the time
+		# tasks that have no inputs or outputs are run each time
 		if not self.m_inputs and not self.m_outputs:
 			self.m_dep_sig = Params.sig_nil
 			return 1
 
 		# look at the previous signature first
+		node = self.m_outputs[0]
+		variant = node.variant(env)
 		try:
-			node = self.m_outputs[0]
-			variant = node.variant(env)
 			time = tree.m_tstamp_variants[variant][node]
-			key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
-			prev_sig = tree.m_sig_cache[key][0]
 		except KeyError:
-			# an exception here means the object files do not exist
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
 
 			# maybe we can just retrieve the object files from the cache then
@@ -291,6 +288,8 @@ class Task(TaskBase):
 				ret = 0
 			return not ret
 
+		key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
+		prev_sig = tree.m_sig_cache[key][0]
 		new_sig = self.signature()
 
 		# debug if asked to
