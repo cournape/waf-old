@@ -58,13 +58,13 @@ class ccroot(Object.genobj):
 		# includes, seen from the current directory
 		self.includes=''
 
-		## list of directories to enable when scanning
-		## #include directives in source files for automatic
-		## dependency tracking.  If left empty, scanning the
-		## whole project tree is enabled.  If non-empty, only
-		## the indicated directories (which must be relative
-		## paths), plus the directories in obj.includes, are
-		## scanned for #includes.
+		# list of directories to enable when scanning
+		# #include directives in source files for automatic
+		# dependency tracking.  If left empty, scanning the
+		# whole project tree is enabled.  If non-empty, only
+		# the indicated directories (which must be relative
+		# paths), plus the directories in obj.includes, are
+		# scanned for #includes.
 		self.dependencies = ''
 
 		self.defines=''

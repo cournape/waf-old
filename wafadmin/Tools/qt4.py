@@ -56,7 +56,7 @@ class MTask(Task.Task):
 		except KeyError:
 			tmp_lst = []
 		for d in tmp_lst:
-			if not d[-4:] == '.moc': continue
+			if not d.endswith('.moc'): continue
 			# paranoid check
 			if d in mocfiles:
 				error("paranoia owns")
