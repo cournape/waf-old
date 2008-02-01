@@ -265,7 +265,6 @@ class Task(TaskBase):
 
 		env = self.env()
 		tree = Params.g_build
-		ret = 0
 
 		# tasks that have no inputs or outputs are run each time
 		if not self.m_inputs and not self.m_outputs:
@@ -279,14 +278,21 @@ class Task(TaskBase):
 			time = tree.m_tstamp_variants[variant][node]
 		except KeyError:
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
-			return 1
+			try: new_sig = self.signature()
+			except KeyError:
+				print "TODO - computing the signature failed"
+				return 1
+
+			ret = self.can_retrieve_cache(new_sig)
+			return not ret
+
 		key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
-		prev_sig = tree.m_sig_cache[key][0]
+		prev_sig = tree.m_sig_cache[key].get(0, None)
+		#print "prev_sig is ", prev_sig
 		new_sig = self.signature()
 
 		# debug if asked to
-		if Params.g_zones:
-			self.debug_why(tree.m_sig_cache[key])
+		if Params.g_zones: self.debug_why(tree.m_sig_cache[key])
 
 		if new_sig != prev_sig:
 			# try to retrieve the file from the cache
