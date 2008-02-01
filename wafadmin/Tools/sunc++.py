@@ -117,7 +117,7 @@ def detect(conf):
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
 	lib_obj.build_type = "shlib"
-	lib_obj.orce_compiler = "cpp"
+	lib_obj.force_compiler = "cpp"
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'shared libs', not (ret is False))
 	if not ret:
@@ -127,7 +127,7 @@ def detect(conf):
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
 	lib_obj.build_type = "staticlib"
-	lib_obj.orce_compiler = "cpp"
+	lib_obj.force_compiler = "cpp"
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret:
