@@ -314,7 +314,7 @@ def apply_core(self):
 		# create the compilation task: cpp or cc
 		task = self.create_task(self.m_type_initials, self.env)
 
-		task.m_scanner        = g_c_scanner
+		task.m_scanner = g_c_scanner
 		task.path_lst = self.inc_paths
 		task.defines  = self.scanner_defines
 
@@ -527,7 +527,6 @@ def link_libtool(self):
 	self.install_results(dest_var, dest_subdir, self.m_latask)
 setattr(ccroot, 'link_libtool', link_libtool)
 
-# This piece of code must suck, no one uses it
 def apply_libtool(self):
 	if getattr(self, 'want_libtool', 0) <= 0: return
 
@@ -568,7 +567,6 @@ def apply_libtool(self):
 			self.env.append_unique('LINKFLAGS', v)
 setattr(ccroot, 'apply_libtool', apply_libtool)
 
-# TODO move this line out
 Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', prio=200)
 
 
