@@ -83,7 +83,7 @@ class ccroot(Object.genobj):
 		self.m_linktask=None
 
 		# libtool emulation
-		self.want_libtool=0 # -1: fake; 1: real
+		#self.want_libtool=0 # -1: fake; 1: real
 		self.vnum=''
 
 		self.p_compiletasks=[]
@@ -143,6 +143,8 @@ class ccroot(Object.genobj):
 
 		self.apply_core()
 
+		self.link_libtool()
+
 		self.apply_lib_vars()
 		self.apply_obj_vars() # in the subclasses
 		if self.m_type != 'objects': self.apply_objdeps()
@@ -186,8 +188,6 @@ class ccroot(Object.genobj):
 		if self.m_type == 'program':
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
 		elif self.m_type == 'shlib' or self.m_type == 'plugin':
-			if self.want_libtool:
-				self.install_results(dest_var, dest_subdir, self.m_latask)
 			if sys.platform=='win32' or not self.vnum:
 				self.install_results(dest_var, dest_subdir, self.m_linktask)
 			else:
@@ -282,8 +282,7 @@ def apply_type_vars(self):
 setattr(ccroot, 'apply_type_vars', apply_type_vars)
 
 def apply_core(self):
-	if self.want_libtool and self.want_libtool>0:
-		self.apply_libtool()
+	self.apply_libtool()
 
 	if self.m_type == 'objects':
 		type = 'program' # TODO: incorrect for shlibs
@@ -341,11 +340,6 @@ def apply_core(self):
 
 	self.m_linktask = linktask
 
-	if self.m_type != 'program' and self.want_libtool:
-		latask = self.create_task('fakelibtool', self.env)
-		latask.set_inputs(linktask.m_outputs)
-		latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
-		self.m_latask = latask
 setattr(ccroot, 'apply_core', apply_core)
 
 def apply_lib_vars(self):
@@ -518,8 +512,24 @@ def read_la_file(path):
 	file.close()
 	return dc
 
+def link_libtool(self):
+	if not getattr(self, 'want_libtool', 0): return
+
+	if self.m_type != 'program':
+		linktask = self.m_linktask
+		latask = self.create_task('fakelibtool', self.env)
+		latask.set_inputs(linktask.m_outputs)
+		latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
+		self.m_latask = latask
+
+	if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
+	self.install_results(dest_var, dest_subdir, self.m_latask)
+setattr(ccroot, 'link_libtool', link_libtool)
+
 # This piece of code must suck, no one uses it
 def apply_libtool(self):
+	if getattr(self, 'want_libtool', 0) <= 0: return
+
 	self.env['vnum']=self.vnum
 
 	paths=[]
