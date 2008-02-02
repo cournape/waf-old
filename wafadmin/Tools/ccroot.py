@@ -141,6 +141,8 @@ class ccroot(Object.genobj):
 		self.apply_dependencies()
 		self.apply_defines()
 
+		self.apply_libtool()
+
 		self.apply_core()
 
 		self.link_libtool()
@@ -282,7 +284,6 @@ def apply_type_vars(self):
 setattr(ccroot, 'apply_type_vars', apply_type_vars)
 
 def apply_core(self):
-	self.apply_libtool()
 
 	if self.m_type == 'objects':
 		type = 'program' # TODO: incorrect for shlibs
