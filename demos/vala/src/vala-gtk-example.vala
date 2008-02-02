@@ -20,7 +20,7 @@ public class Sample : Window {
         }
 
         static int main (string[] args) {
-                Gtk.init (out args);
+                Gtk.init (ref args);
 
                 var sample = new Sample ();
                 sample.show_all ();
