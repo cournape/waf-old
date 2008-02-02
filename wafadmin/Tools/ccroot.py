@@ -144,7 +144,7 @@ class ccroot(Object.genobj):
 		self.apply_core()
 
 		self.apply_lib_vars()
-		self.apply_obj_vars()
+		self.apply_obj_vars() # in the subclasses
 		if self.m_type != 'objects': self.apply_objdeps()
 
 	def get_target_name(self, ext=None):
@@ -280,61 +280,6 @@ def apply_type_vars(self):
 		value = self.env[compvar]
 		if value: self.env.append_value(var, value)
 setattr(ccroot, 'apply_type_vars', apply_type_vars)
-
-def apply_obj_vars(self):
-	debug('apply_obj_vars called for cppobj', 'ccroot')
-	cpppath_st       = self.env['CPPPATH_ST']
-	lib_st           = self.env['LIB_ST']
-	staticlib_st     = self.env['STATICLIB_ST']
-	libpath_st       = self.env['LIBPATH_ST']
-	staticlibpath_st = self.env['STATICLIBPATH_ST']
-
-	self.addflags('CXXFLAGS', self.cxxflags)
-	self.addflags('CPPFLAGS', self.cppflags)
-
-	app = self.env.append_unique
-
-	# local flags come first
-	# set the user-defined includes paths
-	if not self._incpaths_lst: self.apply_incpaths()
-	for i in self._bld_incpaths_lst:
-		app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
-		app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
-
-	# set the library include paths
-	for i in self.env['CPPPATH']:
-		app('_CXXINCFLAGS', cpppath_st % i)
-		#print self.env['_CXXINCFLAGS']
-		#print " appending include ",i
-
-	# this is usually a good idea
-	app('_CXXINCFLAGS', cpppath_st % '.')
-	app('_CXXINCFLAGS', cpppath_st % self.env.variant())
-	tmpnode = Params.g_build.m_curdirnode
-	app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-	app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
-
-	for i in self.env['RPATH']:
-		app('LINKFLAGS', i)
-
-	for i in self.env['LIBPATH']:
-		app('LINKFLAGS', libpath_st % i)
-
-	for i in self.env['LIBPATH']:
-		app('LINKFLAGS', staticlibpath_st % i)
-
-	if self.env['STATICLIB']:
-		self.env.append_value('LINKFLAGS', self.env['STATICLIB_MARKER'])
-		k = [(staticlib_st % i) for i in self.env['STATICLIB']]
-		app('LINKFLAGS', k)
-
-	# fully static binaries ?
-	if not self.env['FULLSTATIC']:
-		if self.env['STATICLIB'] or self.env['LIB']:
-			self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
-
-	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
-setattr(ccroot, 'apply_obj_vars', apply_obj_vars)
 
 def apply_core(self):
 	if self.want_libtool and self.want_libtool>0:
