@@ -375,8 +375,8 @@ setattr(msvccpp, 'getlibname', getlibname)
 setattr(msvccpp, 'apply_link_msvc', apply_link_msvc)
 
 def setup(bld):
-	cpp.setup(bld)
-	cc.setup(bld)
+	#cpp.setup(bld)
+	#cc.setup(bld)
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 	cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
 	cpp_str = '${CL} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
