@@ -103,17 +103,7 @@ class ccroot(Object.genobj):
 		self.scanner_defines = {}
 		self._bld_incpaths_lst=[]
 
-		# the subtype, used for all sorts of things
 		self.subtype = subtype
-		if not self.subtype:
-			if self.m_type == 'program':
-				self.subtype = 'program'
-			elif self.m_type == 'staticlib':
-				self.subtype = 'staticlib'
-			elif self.m_type == 'plugin':
-				self.subtype = 'plugin'
-			else:
-				self.subtype = 'shlib'
 
 	def addflags(self, var, value):
 		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
@@ -273,6 +263,14 @@ setattr(ccroot, 'apply_incpaths', apply_incpaths)
 
 def apply_type_vars(self):
 	debug('apply_type_vars called', 'ccroot')
+
+	# the subtype, used for all sorts of evil things
+	if not self.subtype:
+		if self.m_type in 'program staticlib plugin'.split():
+			self.subtype = self.m_type
+		else:
+			self.subtype = 'shlib'
+
 	# if the subtype defines uselib to add, add them
 	st = self.env[self.subtype+'_USELIB']
 	if st: self.uselib = self.uselib + ' ' + st
