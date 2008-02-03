@@ -345,12 +345,8 @@ def sign_env_vars(env, vars_list):
 	g_cache_max[s] = ret
 	return ret
 
-# TODO there is probably a way to make this more simple
 g_allclasses = {}
 def register(name, classval):
 	global g_allclasses
-	if name in g_allclasses:
-		debug('class exists in g_allclasses '+name, 'object')
-		return
 	g_allclasses[name] = classval
 
