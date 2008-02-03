@@ -102,6 +102,51 @@ g_msvc_flag_vars = [
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CXXDEFINES']
 "main msvc variables"
 
+def apply_msvc_obj_vars(self):
+	debug('apply_msvc_obj_vars called for msvcobj', 'msvc')
+	env = self.env
+	app = env.append_unique
+
+	cpppath_st       = env['CPPPATH_ST']
+	lib_st           = env['LIB_ST']
+	staticlib_st     = env['STATICLIB_ST']
+	libpath_st       = env['LIBPATH_ST']
+	staticlibpath_st = env['STATICLIBPATH_ST']
+
+	self.addflags('CPPFLAGS', self.cppflags)
+
+	for i in env['RPATH']:   app('LINKFLAGS', i)
+	for i in env['LIBPATH']:
+		app('LINKFLAGS', libpath_st % i)
+		if not self.libpaths.count(i):
+			self.libpaths.append(i)
+	for i in env['LIBPATH']:
+		app('LINKFLAGS', staticlibpath_st % i)
+		if not self.libpaths.count(i):
+			self.libpaths.append(i)
+
+	# i doubt that anyone will make a fully static binary anyway
+	if not env['FULLSTATIC']:
+		if env['STATICLIB'] or env['LIB']:
+			app('LINKFLAGS', env['SHLIB_MARKER'])
+
+	if env['STATICLIB']:
+		app('LINKFLAGS', env['STATICLIB_MARKER'])
+		for i in env['STATICLIB']:
+			debug('libname: %s' % i,'msvc')
+			libname=self.getlibname(i,True)
+			debug('libnamefixed: %s' % libname,'msvc')
+			if libname != None:
+				app('LINKFLAGS', libname)
+
+	if self.env['LIB']:
+		for i in env['LIB']:
+			debug('libname: %s' % i,'msvc')
+			libname=self.getlibname(i)
+			debug('libnamefixed: %s' % libname,'msvc')
+			if libname != None:
+				app('LINKFLAGS', libname)
+
 def is_syslib(self,libname):
 	global g_msvc_systemlibs
 	if g_msvc_systemlibs.has_key(libname):
@@ -201,7 +246,7 @@ def apply_link_msvc(self):
 
 class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):
-		msvcobj.__init__(self, type, subtype)
+		cc.ccobj.__init__(self, type, subtype)
 		self.m_type_initials = 'cc'
 
 		self.ccflags=''
@@ -275,11 +320,11 @@ class msvccc(cc.ccobj):
 		app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
 		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
 
-		msvcobj.apply_obj_vars(self)
+		self.apply_msvc_obj_vars()
 
 class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
-		msvcobj.__init__(self, type, subtype)
+		cc.ccobj.__init__(self, type, subtype)
 		self.m_type_initials = 'cpp'
 
 		self.ccflags=''
@@ -353,12 +398,15 @@ class msvccpp(cpp.cppobj):
 		app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
 		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
 
-		msvcobj.apply_obj_vars(self)
+		self.apply_msvc_obj_vars()
 
+setattr(msvccc, 'apply_msvc_obj_vars', apply_msvc_obj_vars)
 setattr(msvccc, 'is_syslib', is_syslib)
 setattr(msvccc, 'find_lt_names', find_lt_names)
 setattr(msvccc, 'getlibname', getlibname)
 setattr(msvccc, 'apply_link_msvc', apply_link_msvc)
+
+setattr(msvccpp, 'apply_msvc_obj_vars', apply_msvc_obj_vars)
 setattr(msvccpp, 'is_syslib', is_syslib)
 setattr(msvccpp, 'find_lt_names', find_lt_names)
 setattr(msvccpp, 'getlibname', getlibname)
