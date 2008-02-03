@@ -97,11 +97,6 @@ wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xol
 g_msvc_systemlibs={}
 for x in nm.split(): g_msvc_systemlibs[x] = 1
 
-g_msvc_flag_vars = [
-'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH', 'INCLUDE',
-'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CXXDEFINES']
-"main msvc variables"
-
 def apply_msvc_obj_vars(self):
 	debug('apply_msvc_obj_vars called for msvcobj', 'msvc')
 	env = self.env
@@ -247,26 +242,15 @@ def apply_link_msvc(self):
 class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):
 		cc.ccobj.__init__(self, type, subtype)
-		self.m_type_initials = 'cc'
-
-		self.ccflags=''
-		self.cppflags=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
 
-		self.m_linktask=None
-		self.m_deps_linktask=[]
-
 		self.subsystem = ''
-
-		global g_msvc_flag_vars
-		self.p_flag_vars = g_msvc_flag_vars
 
 		global g_msvc_type_vars
 		self.p_type_vars = g_msvc_type_vars
 		self.libpaths=[]
-
 
 	def apply_defines(self):
 		tree = Params.g_build
@@ -323,21 +307,11 @@ class msvccc(cc.ccobj):
 class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
 		cpp.cppobj.__init__(self, type, subtype)
-		self.m_type_initials = 'cpp'
-
-		self.cxxflags=''
-		self.cppflags=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
 
-		self.m_linktask=None
-		self.m_deps_linktask=[]
-
 		self.subsystem = ''
-
-		global g_msvc_flag_vars
-		self.p_flag_vars = g_msvc_flag_vars
 
 		global g_msvc_type_vars
 		self.p_type_vars = g_msvc_type_vars

@@ -21,17 +21,13 @@ g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 class cppobj(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
+		self.m_type_initials = 'cpp'
 
 		self.cxxflags=''
 		self.cppflags=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
-
-		self.m_linktask=None
-		self.m_deps_linktask=[]
-
-		self.m_type_initials = 'cpp'
 
 		global g_cpp_flag_vars
 		self.p_flag_vars = g_cpp_flag_vars

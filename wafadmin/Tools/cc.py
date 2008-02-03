@@ -20,18 +20,13 @@ g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
+		self.m_type_initials = 'cc'
 
 		self.ccflags=''
 		self.cppflags=''
-		self.defines=''
 
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
-
-		self.m_linktask=None
-		self.m_deps_linktask=[]
-
-		self.m_type_initials = 'cc'
 
 		global g_cc_flag_vars
 		self.p_flag_vars = g_cc_flag_vars
