@@ -271,7 +271,10 @@ def check_python_version(conf, minver=None):
 			else:
 				python_LIBDEST = None
 			if python_LIBDEST is None:
-				python_LIBDEST = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver)
+				if conf.env['LIBDIR']:
+					python_LIBDEST = os.path.join(conf.env['LIBDIR'], "python" + pyver)
+				else:
+					python_LIBDEST = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver)
 			pydir = os.path.join(python_LIBDEST, "site-packages")
 
 		conf.define('PYTHONDIR', pydir)
