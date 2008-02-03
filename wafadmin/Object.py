@@ -300,9 +300,26 @@ class task_gen(object):
 		"use hook_table to create the tasks"
 		dct = self.__class__.__dict__
 		keys = self.meths
-		# TODO sort the methods using the precedence rules
-		# TODO detect cycles
-		for x in keys:
+
+		prec = self.prec
+		post = {}
+		for x in prec:
+			for y in prec[x]:
+				try: post[y].append(x)
+				except: post[y] = [x]
+
+		def mord(x, y):
+			if x in post:
+				if y in post[x]:
+					return 1
+			if x in prec:
+				if y in prec[x]:
+					return -1
+			return 0
+		keys.sort(mord)
+
+		# TODO detect cycles ?
+		for x in y:
 			v = self.get_meth(self, x)
 			v(self)
 
