@@ -250,7 +250,6 @@ class msvccc(cc.ccobj):
 		self.m_type_initials = 'cc'
 
 		self.ccflags=''
-		self.cxxflags=''
 		self.cppflags=''
 
 		self._incpaths_lst=[]
@@ -326,7 +325,6 @@ class msvccpp(cpp.cppobj):
 		cpp.cppobj.__init__(self, type, subtype)
 		self.m_type_initials = 'cpp'
 
-		self.ccflags=''
 		self.cxxflags=''
 		self.cppflags=''
 
