@@ -299,7 +299,7 @@ class msvccc(msvcobj):
 		self.env['DEFLINES'] = [' '.join(x.split('=', 1)) for x in milst]
 
 		y = self.env['CCDEFINES_ST']
-		self.env['_CCDEFFLAGS'] = [y%x for x in cmilst]
+		self.env['_CCDEFFLAGS'] = [y%x for x in milst]
 
 	def apply_obj_vars(self):
 		debug('apply_obj_vars called for msvcccobj', 'msvc')
@@ -424,7 +424,8 @@ def detect(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 
 	comp = conf.find_program('CL', var='CXX')
-	if not comp: return
+	if comp: conf.env['CC'] = conf.env['CXX']
+	else: return
 
 	link = conf.find_program('LINK')
 	if not link: return
