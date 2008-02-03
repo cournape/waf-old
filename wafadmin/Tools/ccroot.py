@@ -399,7 +399,7 @@ setattr(ccroot, 'apply_lib_vars', apply_lib_vars)
 
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
-	if self.m_type != 'objects': return
+	if not self.m_linktask: return
  	seen = []
 	names = self.to_list(self.add_objects)
 	while names:
