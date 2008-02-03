@@ -137,6 +137,8 @@ class ccroot(Object.genobj):
 		self.apply_core()
 
 		self.apply_link()
+		if hasattr(self, 'apply_link_msvc'): getattr(self, 'apply_link_msvc', 0)(self)
+
 		self.apply_link_libtool()
 		self.apply_vnum()
 

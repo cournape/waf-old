@@ -9,7 +9,7 @@ import Utils, Action, Params, Object, Runner, Configure
 from Params import debug, error, fatal, warning, set_globals
 from Utils import quote_whitespace
 
-import ccroot
+import cc, cpp
 from ccroot import read_la_file
 from os.path import exists
 
@@ -102,10 +102,107 @@ g_msvc_flag_vars = [
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPLAGS', 'CXXDEFINES']
 "main msvc variables"
 
-# ezzel meg szopni fogsz
-class msvcobj(ccroot.ccroot):
+def is_syslib(self,libname):
+	global g_msvc_systemlibs
+	if g_msvc_systemlibs.has_key(libname):
+		return True
+	return False
+
+def find_lt_names(self,libname,is_static=False):
+	"Win32/MSVC specific code to glean out information from libtool la files."
+	lt_names=[
+		'lib%s.la' % libname,
+		'%s.la' % libname,
+	]
+
+	for path in self.libpaths:
+		for la in lt_names:
+			laf=os.path.join(path,la)
+			dll=None
+			if exists(laf):
+				ltdict=read_la_file(laf)
+				lt_libdir=None
+				if ltdict.has_key('libdir') and ltdict['libdir'] != '':
+					lt_libdir=ltdict['libdir']
+				if not is_static and ltdict.has_key('library_names') and ltdict['library_names'] != '':
+					dllnames=ltdict['library_names'].split()
+					dll=dllnames[0].lower()
+					dll=re.sub('\.dll$', '', dll)
+					return [lt_libdir,dll,False]
+				elif ltdict.has_key('old_library') and ltdict['old_library'] != '':
+					olib=ltdict['old_library']
+					if exists(os.path.join(path,olib)):
+						return [path,olib,True]
+					elif lt_libdir != '' and exists(os.path.join(lt_libdir,olib)):
+						return [lt_libdir,olib,True]
+					else:
+						return [None,olib,True]
+				else:
+					fatal('invalid libtool object file: %s' % laf)
+	return [None,None,None]
+
+def getlibname(self,libname,is_static=False):
+	lib=libname.lower()
+	lib=re.sub('\.lib$','',lib)
+
+	if self.is_syslib(lib):
+		return lib+'.lib'
+
+	lib=re.sub('^lib','',lib)
+
+	if lib == 'm':
+		return None
+
+	[lt_path,lt_libname,lt_static]=self.find_lt_names(lib,is_static)
+
+	if lt_path != None and lt_libname != None:
+		if lt_static == True:
+			# file existance check has been made by find_lt_names
+			return os.path.join(lt_path,lt_libname)
+
+	if lt_path != None:
+		_libpaths=[lt_path] + self.libpaths
+	else:
+		_libpaths=self.libpaths
+
+	static_libs=[
+		'%ss.lib' % lib,
+		'lib%ss.lib' % lib,
+		'%s.lib' %lib,
+		'lib%s.lib' % lib,
+		]
+
+	dynamic_libs=[
+		'lib%s.dll.lib' % lib,
+		'lib%s.dll.a' % lib,
+		'%s.dll.lib' % lib,
+		'%s.dll.a' % lib,
+		'lib%s_d.lib' % lib,
+		'%s_d.lib' % lib,
+		'%s.lib' %lib,
+		]
+
+	libnames=static_libs
+	if not is_static:
+		libnames=dynamic_libs + static_libs
+
+	for path in _libpaths:
+		for libn in libnames:
+			if os.path.exists(os.path.join(path,libn)):
+				debug('lib found: %s' % os.path.join(path,libn), 'msvc')
+				return libn
+
+	return None
+
+def apply_link_msvc(self):
+	if self.m_linktask is not None:
+		self.m_linktask.m_type = self.m_type
+		self.m_linktask.m_subsystem = self.subsystem
+
+class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):
-		ccroot.ccroot.__init__(self, type, subtype)
+		msvcobj.__init__(self, type, subtype)
+		self.m_type_initials = 'cc'
 
 		self.ccflags=''
 		self.cxxflags=''
@@ -127,157 +224,6 @@ class msvcobj(ccroot.ccroot):
 		self.p_type_vars = g_msvc_type_vars
 		self.libpaths=[]
 
-	def apply(self):
-		ccroot.ccroot.apply(self)
-		# FIXME: /Wc, and /Wl, handling came here...
-
-	def is_syslib(self,libname):
-		global g_msvc_systemlibs
-		if g_msvc_systemlibs.has_key(libname):
-			return True
-		return False
-
-	def find_lt_names(self,libname,is_static=False):
-		"Win32/MSVC specific code to glean out information from libtool la files."
-		lt_names=[
-			'lib%s.la' % libname,
-			'%s.la' % libname,
-		]
-
-		for path in self.libpaths:
-			for la in lt_names:
-				laf=os.path.join(path,la)
-				dll=None
-				if exists(laf):
-					ltdict=read_la_file(laf)
-					lt_libdir=None
-					if ltdict.has_key('libdir') and ltdict['libdir'] != '':
-						lt_libdir=ltdict['libdir']
-					if not is_static and ltdict.has_key('library_names') and ltdict['library_names'] != '':
-						dllnames=ltdict['library_names'].split()
-						dll=dllnames[0].lower()
-						dll=re.sub('\.dll$', '', dll)
-						return [lt_libdir,dll,False]
-					elif ltdict.has_key('old_library') and ltdict['old_library'] != '':
-						olib=ltdict['old_library']
-						if exists(os.path.join(path,olib)):
-							return [path,olib,True]
-						elif lt_libdir != '' and exists(os.path.join(lt_libdir,olib)):
-							return [lt_libdir,olib,True]
-						else:
-							return [None,olib,True]
-					else:
-						fatal('invalid libtool object file: %s' % laf)
-		return [None,None,None]
-
-	def getlibname(self,libname,is_static=False):
-		lib=libname.lower()
-		lib=re.sub('\.lib$','',lib)
-
-		if self.is_syslib(lib):
-			return lib+'.lib'
-
-		lib=re.sub('^lib','',lib)
-
-		if lib == 'm':
-			return None
-
-		[lt_path,lt_libname,lt_static]=self.find_lt_names(lib,is_static)
-
-		if lt_path != None and lt_libname != None:
-			if lt_static == True:
-				# file existance check has been made by find_lt_names
-				return os.path.join(lt_path,lt_libname)
-
-		if lt_path != None:
-			_libpaths=[lt_path] + self.libpaths
-		else:
-			_libpaths=self.libpaths
-
-		static_libs=[
-			'%ss.lib' % lib,
-			'lib%ss.lib' % lib,
-			'%s.lib' %lib,
-			'lib%s.lib' % lib,
-			]
-
-		dynamic_libs=[
-			'lib%s.dll.lib' % lib,
-			'lib%s.dll.a' % lib,
-			'%s.dll.lib' % lib,
-			'%s.dll.a' % lib,
-			'lib%s_d.lib' % lib,
-			'%s_d.lib' % lib,
-			'%s.lib' %lib,
-			]
-
-		libnames=static_libs
-		if not is_static:
-			libnames=dynamic_libs + static_libs
-
-		for path in _libpaths:
-			for libn in libnames:
-				if os.path.exists(os.path.join(path,libn)):
-					debug('lib found: %s' % os.path.join(path,libn), 'msvc')
-					return libn
-
-		return None
-
-	def apply_obj_vars(self):
-		debug('apply_obj_vars called for msvcobj', 'msvc')
-		env = self.env
-		app = env.append_unique
-
-		cpppath_st       = env['CPPPATH_ST']
-		lib_st           = env['LIB_ST']
-		staticlib_st     = env['STATICLIB_ST']
-		libpath_st       = env['LIBPATH_ST']
-		staticlibpath_st = env['STATICLIBPATH_ST']
-
-		self.addflags('CPPFLAGS', self.cppflags)
-
-		for i in env['RPATH']:   app('LINKFLAGS', i)
-		for i in env['LIBPATH']:
-			app('LINKFLAGS', libpath_st % i)
-			if not self.libpaths.count(i):
-				self.libpaths.append(i)
-		for i in env['LIBPATH']:
-			app('LINKFLAGS', staticlibpath_st % i)
-			if not self.libpaths.count(i):
-				self.libpaths.append(i)
-
-		# i doubt that anyone will make a fully static binary anyway
-		if not env['FULLSTATIC']:
-			if env['STATICLIB'] or env['LIB']:
-				app('LINKFLAGS', env['SHLIB_MARKER'])
-
-		if env['STATICLIB']:
-			app('LINKFLAGS', env['STATICLIB_MARKER'])
-			for i in env['STATICLIB']:
-				debug('libname: %s' % i,'msvc')
-				libname=self.getlibname(i,True)
-				debug('libnamefixed: %s' % libname,'msvc')
-				if libname != None:
-					app('LINKFLAGS', libname)
-
-		if self.env['LIB']:
-			for i in env['LIB']:
-				debug('libname: %s' % i,'msvc')
-				libname=self.getlibname(i)
-				debug('libnamefixed: %s' % libname,'msvc')
-				if libname != None:
-					app('LINKFLAGS', libname)
-
-	def apply_core(self):
-		ccroot.ccroot.apply_core(self)
-		if self.m_linktask is not None:
-			self.m_linktask.m_type = self.m_type
-			self.m_linktask.m_subsystem = self.subsystem
-
-class msvccc(msvcobj):
-	def __init__(self, type='program', subtype=None):
-		msvcobj.__init__(self, type, subtype)
-		self.m_type_initials = 'cc'
 
 	def apply_defines(self):
 		tree = Params.g_build
@@ -331,10 +277,30 @@ class msvccc(msvcobj):
 
 		msvcobj.apply_obj_vars(self)
 
-class msvccpp(msvcobj):
+class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
 		msvcobj.__init__(self, type, subtype)
 		self.m_type_initials = 'cpp'
+
+		self.ccflags=''
+		self.cxxflags=''
+		self.cppflags=''
+
+		self._incpaths_lst=[]
+		self._bld_incpaths_lst=[]
+
+		self.m_linktask=None
+		self.m_deps_linktask=[]
+
+		self.m_type_initials = 'cc'
+		self.subsystem = ''
+
+		global g_msvc_flag_vars
+		self.p_flag_vars = g_msvc_flag_vars
+
+		global g_msvc_type_vars
+		self.p_type_vars = g_msvc_type_vars
+		self.libpaths=[]
 
 	def apply_defines(self):
 		tree = Params.g_build
@@ -388,6 +354,15 @@ class msvccpp(msvcobj):
 		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
 
 		msvcobj.apply_obj_vars(self)
+
+setattr(msvccc, 'is_syslib', is_syslib)
+setattr(msvccc, 'find_lt_names', find_lt_names)
+setattr(msvccc, 'getlibname', getlibname)
+setattr(msvccc, 'apply_link_msvc', apply_link_msvc)
+setattr(msvccpp, 'is_syslib', is_syslib)
+setattr(msvccpp, 'find_lt_names', find_lt_names)
+setattr(msvccpp, 'getlibname', getlibname)
+setattr(msvccpp, 'apply_link_msvc', apply_link_msvc)
 
 def setup(bld):
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
