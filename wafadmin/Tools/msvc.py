@@ -4,9 +4,7 @@
 # Tamas Pal, 2007 (folti)
 # Visual C support - beta, needs more testing
 
-import os, sys
-import re, string
-import optparse
+import os, sys, re, string, optparse
 import Utils, Action, Params, Object, Runner, Configure
 from Params import debug, error, fatal, warning, set_globals
 from Utils import quote_whitespace
@@ -279,7 +277,6 @@ class msvcobj(ccroot.ccroot):
 class msvccc(msvcobj):
 	def __init__(self, type='program', subtype=None):
 		msvcobj.__init__(self, type, subtype)
-		self.s_default_ext = self.s_default_ext + ['.c']
 		self.m_type_initials = 'cc'
 
 	def apply_defines(self):
@@ -338,7 +335,6 @@ class msvccpp(msvcobj):
 	def __init__(self, type='program', subtype=None):
 		msvcobj.__init__(self, type, subtype)
 		self.m_type_initials = 'cpp'
-		self.s_default_ext = self.s_default_ext + ['.cpp', '.cc', '.cxx','.C']
 
 	def apply_defines(self):
 		tree = Params.g_build

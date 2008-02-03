@@ -14,7 +14,7 @@ g_cc_flag_vars = [
 'INCLUDE',
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
-Params.set_globals('EXT_CC', ['.c', '.cc', '.C'])
+Params.set_globals('EXT_CC', ['.c', '.cc'])
 
 g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):

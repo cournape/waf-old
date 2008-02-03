@@ -15,7 +15,7 @@ g_cpp_flag_vars = [
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CXXDEFINES']
 "main cpp variables"
 
-Params.set_globals('EXT_CXX', ['.c', '.cpp', '.cc', '.cxx'])
+Params.set_globals('EXT_CXX', ['.cpp', '.cc', '.cxx', '.C'])
 
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 class cppobj(ccroot.ccroot):
