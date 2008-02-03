@@ -137,7 +137,7 @@ class ccroot(Object.genobj):
 		self.apply_core()
 
 		self.apply_link()
-		self.link_libtool()
+		self.apply_link_libtool()
 		self.apply_vnum()
 
 		self.apply_lib_vars()
@@ -491,7 +491,7 @@ def read_la_file(path):
 	file.close()
 	return dc
 
-def link_libtool(self):
+def apply_link_libtool(self):
 	if not getattr(self, 'want_libtool', 0): return
 
 	if self.m_type != 'program':
@@ -503,7 +503,7 @@ def link_libtool(self):
 
 	if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 	self.install_results(dest_var, dest_subdir, self.m_latask)
-setattr(ccroot, 'link_libtool', link_libtool)
+setattr(ccroot, 'apply_link_libtool', apply_link_libtool)
 
 def apply_libtool(self):
 	if getattr(self, 'want_libtool', 0) <= 0: return
