@@ -131,7 +131,8 @@ class genobj(object):
 			try:
 				cls.all_hooks
 			except AttributeError:
-				cls = cls.__bases__[0]
+				try: cls = cls.__bases__[0]
+				except IndexError: return None
 			else:
 				for i in cls.all_hooks:
 					if ext in env[i]:
@@ -139,7 +140,8 @@ class genobj(object):
 							return cls.__dict__[i]
 						except KeyError:
 							break
-				cls = cls.__bases__[0]
+				try: cls = cls.__bases__[0]
+				except IndexError: return None
 		return None
 
 	def __setattr__(self, name, attr):
