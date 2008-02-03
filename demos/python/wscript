@@ -37,7 +37,7 @@ def build(bld):
 	obj.find_sources_in_dirs('.')
 
 	# then a c extension module
-	obj = bld.create_obj('cc', 'shlib', 'pyext')
+	obj = bld.create_obj('cc', 'plugin', 'pyext')
 	obj.source = 'spammodule.c'
 	obj.target = 'spam'
 

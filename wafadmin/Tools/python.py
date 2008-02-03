@@ -120,13 +120,17 @@ def check_python_headers(conf):
 
 	try:
 		## Get some python configuration variables using distutils
-		v = 'prefix CC SYSLIBS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
-		(python_prefix, python_CC, python_SYSLIBS, python_SHLIBS,
+		v = 'prefix SO SYSLIBS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
+		(python_prefix, python_SO, python_SYSLIBS, python_SHLIBS,
 		 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED) = \
 			_get_python_variables(python, ["get_config_var('%s')" % x for x in v],
 					      ['from distutils.sysconfig import get_config_var'])
 	except ValueError:
 		conf.fatal("Python development headers not found (-v for details).")
+
+	env['pyext_PREFIX'] = ''
+	env['pyext_SUFFIX'] = python_SO
+
 	## Check for python libraries for embedding
 	if python_SYSLIBS is not None:
 		for lib in python_SYSLIBS.split():
@@ -321,11 +325,6 @@ def detect(conf):
 
 	v['pyembed_INST_VAR'] = v['program_INST_VAR']
 	v['pyembed_INST_DIR'] = v['program_INST_DIR']
-
-	v['pyext_PREFIX'] = ''
-
-	if sys.platform == 'win32':
-		v['pyext_SUFFIX'] = '.pyd'
 
 	# now a small difference
 	v['pyext_USELIB'] = 'PYEXT'
