@@ -407,8 +407,7 @@ def detect(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 
 	comp = conf.find_program('CL', var='CXX')
-	if comp: conf.env['CC'] = conf.env['CXX']
-	else: return
+	if not comp: return
 
 	link = conf.find_program('LINK')
 	if not link: return
@@ -422,6 +421,8 @@ def detect(conf):
 
 	# c/c++ compiler - check for whitespace, and if so, add quotes
 	v['CL']                 = quote_whitespace(comp)
+	conf.env['CXX'] = v['CL']
+	conf.env['CC'] = conf.env['CXX']
 
 	v['CPPFLAGS']            = ['/W3', '/nologo', '/EHsc', '/errorReport:prompt']
 	v['CCDEFINES']          = ['WIN32'] # command-line defines
