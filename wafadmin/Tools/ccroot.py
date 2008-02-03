@@ -286,10 +286,9 @@ setattr(ccroot, 'apply_type_vars', apply_type_vars)
 
 def apply_core(self):
 
-	if self.m_type == 'objects':
+	type = self.m_type
+	if type == 'objects':
 		type = 'program' # TODO: incorrect for shlibs
-	else:
-		type = self.m_type
 
 	obj_ext = self.env[type+'_obj_ext'][0]
 	pre = self.m_type_initials
@@ -312,6 +311,7 @@ def apply_core(self):
 		except TypeError:
 			pass
 
+		# TODO move this part
 		# create the compilation task: cpp or cc
 		task = self.create_task(self.m_type_initials, self.env)
 
@@ -324,12 +324,12 @@ def apply_core(self):
 
 	# if we are only building .o files, tell which ones we built
 	if self.m_type=='objects':
-		outputs = []
-		app = outputs.append
+		self.out_nodes = []
+		app = self.out_nodes.append
 		for t in self.p_compiletasks: app(t.m_outputs[0])
-		self.out_nodes = outputs
 		return
 
+	# TODO move this part
 	if self.m_type=='staticlib':
 		linktask = self.create_task('ar_link_static', self.env)
 	else:
