@@ -54,7 +54,7 @@ class TaskMaster(Task.Task):
 		ret = self.m_action.run(self)
 		env = self.env()
 
-		rootdir = Params.g_build.m_bldnode.abspath()
+		rootdir = Params.g_build.m_srcnode.abspath(env)
 
 		# unfortunately building the files in batch mode outputs them in the current folder (the build dir)
 		# now move the files from the top of the builddir to the correct location
