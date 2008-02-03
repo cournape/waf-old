@@ -237,8 +237,26 @@ class genobj(object):
 		else: self.source += lst
 
 class task_gen(object):
-	"this class is not used yet - it is part of the ccroot class reorganization"
-	"def meth(self):"
+	"""
+	TODO: This class is not used yet - it is part of the ccroot class reorganization
+
+	Most methods are of the form 'def meth(self):' without any parameters
+	there are many of them, and they do many different things:
+	* task creation
+	* task results installation
+	* environment modification
+	* attribute addition/removal
+
+	The inheritance approach is complicated
+	* mixing several languages at once
+	* subclassing is needed even for small changes
+	* inserting new methods is complicated
+
+	This new class uses a configuration table:
+	* adding new methods easily
+	* obtaining the order in which to call the methods
+	* postponing the method calls (post() -> apply)
+	"""
 
 	def __init__(self):
 		self.prec = {}
