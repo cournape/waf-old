@@ -137,9 +137,7 @@ class ccroot(Object.genobj):
 		self.apply_core()
 
 		self.apply_link()
-		try:
-			print "apply link msvc?"
-			self.apply_link_msvc()
+		try: self.apply_link_msvc()
 		except AttributeError: pass
 
 		self.apply_link_libtool()
