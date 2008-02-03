@@ -323,7 +323,7 @@ class msvccc(cc.ccobj):
 
 class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
-		cc.ccobj.__init__(self, type, subtype)
+		cpp.cppobj.__init__(self, type, subtype)
 		self.m_type_initials = 'cpp'
 
 		self.ccflags=''
