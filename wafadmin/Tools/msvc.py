@@ -555,6 +555,14 @@ def detect(conf):
 	v['shlib_INST_VAR'] = 'PREFIX'
 	v['shlib_INST_DIR'] = 'lib'
 
+        # plugins. We handle them exactly as shlibs
+        # everywhere except on osx, where we do bundles
+	v['plugin_CCFLAGS']	 = v['shlib_CCFLAGS']
+	v['plugin_LINKFLAGS']	 = v['shlib_LINKFLAGS']
+	v['plugin_obj_ext']	 = v['shlib_obj_ext']
+	v['plugin_PREFIX']	 = v['shlib_PREFIX']
+	v['plugin_SUFFIX']	 = v['shlib_SUFFIX']
+
 	# static library
 	v['staticlib_LINKFLAGS'] = ['']
 	v['staticlib_obj_ext'] = ['.obj']
