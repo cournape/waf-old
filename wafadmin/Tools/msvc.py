@@ -375,8 +375,6 @@ setattr(msvccpp, 'getlibname', getlibname)
 setattr(msvccpp, 'apply_link_msvc', apply_link_msvc)
 
 def setup(bld):
-	#cpp.setup(bld)
-	#cc.setup(bld)
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 	cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
 	cpp_str = '${CL} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
@@ -395,6 +393,8 @@ def setup(bld):
 	Object.register('cpp', msvccpp)
 	import winres
 	winres.setup(bld)
+	Object.hook('cpp', 'EXT_CXX', cpp.cxx_hook)
+	Object.hook('cc', 'EXT_CXX', cc.cxx_hook)
 
 def detect(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
