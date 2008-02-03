@@ -132,10 +132,11 @@ class ccroot(Object.genobj):
 
 		debug("apply called for "+self.m_type_initials, 'ccroot')
 
-		if not (self.source or self.add_objects) and not hasattr(self, 'nochecks'):
-			fatal('no source files specified for %s' % self)
-		if not self.target and self.m_type != 'objects' and not hasattr(self, 'nochecks'):
-			fatal('no target for %s' % self)
+		if not hasattr(self, 'nochecks'):
+			if not (self.source or self.add_objects):
+				fatal('no source files specified for %s' % self)
+			if not self.target and self.m_type != 'objects':
+				fatal('no target for %s' % self)
 
 		self.apply_type_vars()
 		self.apply_incpaths()
@@ -151,7 +152,7 @@ class ccroot(Object.genobj):
 
 		self.apply_lib_vars()
 		self.apply_obj_vars() # in the subclasses
-		if self.m_type != 'objects': self.apply_objdeps()
+		self.apply_objdeps()
 
 	def get_target_name(self, ext=None):
 		return self.get_library_name(self.target, ext)
@@ -421,7 +422,8 @@ setattr(ccroot, 'apply_lib_vars', apply_lib_vars)
 
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
-	seen = []
+	if self.m_type != 'objects': return
+ 	seen = []
 	names = self.to_list(self.add_objects)
 	while names:
 		x = names[0]
