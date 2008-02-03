@@ -102,7 +102,7 @@ class MTask(Task.Task):
 		except KeyError: lst=[]
 		for d in lst:
 			name = d.m_name
-			if name[-4:]=='.moc':
+			if name.endswith('.moc'):
 				task = parn.create_task('moc_hack', parn.env)
 				task.set_inputs(tree.m_depends_on[variant][d])
 				task.set_outputs(d)
