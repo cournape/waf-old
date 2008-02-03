@@ -259,7 +259,6 @@ class msvccc(cc.ccobj):
 		self.m_linktask=None
 		self.m_deps_linktask=[]
 
-		self.m_type_initials = 'cc'
 		self.subsystem = ''
 
 		global g_msvc_flag_vars
@@ -337,7 +336,6 @@ class msvccpp(cpp.cppobj):
 		self.m_linktask=None
 		self.m_deps_linktask=[]
 
-		self.m_type_initials = 'cc'
 		self.subsystem = ''
 
 		global g_msvc_flag_vars
