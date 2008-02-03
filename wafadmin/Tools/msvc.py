@@ -429,6 +429,8 @@ def setup(bld):
 	Object.register('cpp', msvccpp)
 	import winres
 	winres.setup(bld)
+	cpp.setup(bld)
+	cc.setup(bld)
 
 def detect(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
