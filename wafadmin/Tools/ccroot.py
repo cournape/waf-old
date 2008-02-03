@@ -130,7 +130,7 @@ class ccroot(Object.genobj):
 		self.apply_type_vars()
 		self.apply_incpaths()
 		self.apply_dependencies()
-		self.apply_defines()
+		self.apply_defines() # in subclasses
 
 		self.apply_libtool()
 
@@ -141,7 +141,7 @@ class ccroot(Object.genobj):
 		self.apply_vnum()
 
 		self.apply_lib_vars()
-		self.apply_obj_vars() # in the subclasses
+		self.apply_obj_vars() # in subclasses
 		self.apply_objdeps()
 
 	def get_target_name(self, ext=None):
@@ -203,10 +203,6 @@ class ccroot(Object.genobj):
 				Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
 		else:
 			self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=0644)
-
-	def apply_defines(self):
-		"subclass me"
-		pass
 
 def apply_dependencies(self):
 	if self.dependencies:
