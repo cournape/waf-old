@@ -14,9 +14,10 @@ g_cc_flag_vars = [
 'INCLUDE',
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
+Params.set_globals('EXT_CC', ['.c', '.cc', '.C'])
+
 g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):
-	s_default_ext = ['.c', '.cc', '.C']
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
 
@@ -107,6 +108,20 @@ class ccobj(ccroot.ccroot):
 
 Object.gen_hook('apply_defines_cc', ccobj.apply_defines)
 
+def c_hook(self, node):
+	# create the compilation task: cpp or cc
+	task = self.create_task('cc', self.env)
+	obj_ext = self.env[self.m_type+'_obj_ext']
+	if not obj_ext: obj_ext = '.os'
+	else: obj_ext = obj_ext[0]
+
+	task.m_scanner = ccroot.g_c_scanner
+	task.path_lst = self.inc_paths
+	task.defines  = self.scanner_defines
+
+	task.m_inputs = [node]
+	task.m_outputs = [node.change_ext(obj_ext)]
+
 def setup(bld):
 	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
@@ -115,6 +130,6 @@ def setup(bld):
 
 	# on windows libraries must be defined after the object files
 	Action.simple_action('cc_link', link_str, color='YELLOW', prio=101)
-
 	Object.register('cc', ccobj)
+	Object.hook('cc', 'EXT_CC', c_hook)
 

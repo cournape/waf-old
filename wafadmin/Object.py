@@ -208,7 +208,6 @@ class genobj(object):
 		dirnames = self.to_list(dirnames)
 
 		ext_lst = []
-		ext_lst += self.s_default_ext
 		try:
 			for var in self.__class__.__dict__['all_hooks']:
 				ext_lst += self.env[var]

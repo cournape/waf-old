@@ -15,9 +15,10 @@ g_cpp_flag_vars = [
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CXXDEFINES']
 "main cpp variables"
 
+Params.set_globals('EXT_CXX', ['.c', '.cpp', '.cc', '.cxx'])
+
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 class cppobj(ccroot.ccroot):
-	s_default_ext = ['.c', '.cpp', '.cc', '.cxx']
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
 
@@ -115,6 +116,20 @@ class cppobj(ccroot.ccroot):
 # used by task_gen
 Object.gen_hook('apply_defines_cxx', cppobj.apply_defines)
 
+def cxx_hook(self, node):
+	# create the compilation task: cpp or cc
+	task = self.create_task('cpp', self.env)
+	obj_ext = self.env[self.m_type+'_obj_ext']
+	if not obj_ext: obj_ext = '.os'
+	else: obj_ext = obj_ext[0]
+
+	task.m_scanner = ccroot.g_c_scanner
+	task.path_lst = self.inc_paths
+	task.defines  = self.scanner_defines
+
+	task.m_inputs = [node]
+	task.m_outputs = [node.change_ext(obj_ext)]
+
 def setup(bld):
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
@@ -125,4 +140,5 @@ def setup(bld):
 	Action.simple_action('cpp_link', link_str, color='YELLOW', prio=101)
 
 	Object.register('cpp', cppobj)
+	Object.hook('cpp', 'EXT_CXX', cxx_hook)
 

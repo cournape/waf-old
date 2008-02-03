@@ -45,7 +45,6 @@ g_c_scanner = c_scanner()
 
 class ccroot(Object.genobj):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
-	s_default_ext = []
 	def __init__(self, type='program', subtype=None):
 		Object.genobj.__init__(self, type)
 
@@ -290,7 +289,6 @@ def apply_core(self):
 	if type == 'objects':
 		type = 'program' # TODO: incorrect for shlibs
 
-	obj_ext = self.env[type+'_obj_ext'][0]
 	pre = self.m_type_initials
 
 	# get the list of folders to use by the scanners
@@ -305,25 +303,12 @@ def apply_core(self):
 
 		# Extract the extension and look for a handler hook.
 		k = max(0, filename.rfind('.'))
-		try:
-			self.get_hook(filename[k:])(self, node)
-			continue
-		except TypeError:
-			pass
-
-		# TODO move this part
-		# create the compilation task: cpp or cc
-		task = self.create_task(self.m_type_initials, self.env)
-
-		task.m_scanner = g_c_scanner
-		task.path_lst = self.inc_paths
-		task.defines  = self.scanner_defines
-
-		task.m_inputs = [node]
-		task.m_outputs = [node.change_ext(obj_ext)]
+		x = self.get_hook(filename[k:])
+		if not x: raise TypeError, "Do not know how to process %s" % str(node)
+		x(self, node)
 
 	# if we are only building .o files, tell which ones we built
-	if self.m_type=='objects':
+	if self.m_type == 'objects':
 		self.out_nodes = []
 		app = self.out_nodes.append
 		for t in self.p_compiletasks: app(t.m_outputs[0])
