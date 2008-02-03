@@ -128,7 +128,8 @@ class ccroot(Object.genobj):
 		return task
 
 	def apply(self):
-		"entry point"
+		"TODO this method will use a configuration table"
+
 		debug("apply called for "+self.m_type_initials, 'ccroot')
 
 		if not (self.source or self.add_objects) and not hasattr(self, 'nochecks'):
@@ -146,6 +147,7 @@ class ccroot(Object.genobj):
 		self.apply_core()
 
 		self.link_libtool()
+		self.apply_vnum()
 
 		self.apply_lib_vars()
 		self.apply_obj_vars() # in the subclasses
@@ -347,10 +349,7 @@ def apply_lib_vars(self):
 	debug('apply_lib_vars called', 'ccroot')
 	env=self.env
 
-	# 1. override if necessary
-	self.process_vnum()
-
-	# 2. the case of the libs defined in the project (visit ancestors first)
+	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
 	uselib = self.to_list(self.uselib)
 	seen = []
@@ -413,7 +412,7 @@ def apply_lib_vars(self):
 			uselib = [v]+uselib
 		names = names[1:]
 
-	# 3. the case of the libs defined outside
+	# 2. the case of the libs defined outside
 	for x in uselib:
 		for v in self.p_flag_vars:
 			val = self.env[v+'_'+x]
@@ -457,14 +456,14 @@ def apply_objdeps(self):
 		self.m_linktask.m_inputs += y.out_nodes
 setattr(ccroot, 'apply_objdeps', apply_objdeps)
 
-def process_vnum(self):
+def apply_vnum(self):
 	if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
 		nums=self.vnum.split('.')
 		# this is very unix-specific
 		try: name3 = self.soname
 		except AttributeError: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
-setattr(ccroot, 'process_vnum', process_vnum)
+setattr(ccroot, 'apply_vnum', apply_vnum)
 
 # TODO the code below is about libtool, we will move into another file when possible
 
