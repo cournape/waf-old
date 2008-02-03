@@ -124,13 +124,23 @@ class genobj(object):
 		return ['program', 'shlib', 'staticlib', 'plugin', 'objects', 'other']
 
 	def get_hook(self, ext):
-		env=self.env
-		try:
-			for i in self.__class__.__dict__['all_hooks']:
-				if ext in env[i]:
-					return self.__class__.__dict__[i]
-		except KeyError:
-			return None
+		env = self.env
+		cls = self.__class__
+		x = []
+		while 1:
+			try:
+				cls.all_hooks
+			except AttributeError:
+				cls = cls.__bases__[0]
+			else:
+				for i in cls.all_hooks:
+					if ext in env[i]:
+						try:
+							return cls.__dict__[i]
+						except KeyError:
+							break
+				cls = cls.__bases__[0]
+		return None
 
 	def __setattr__(self, name, attr):
 		if   name == 'sources': raise AttributeError, 'typo: self.sources -> self.source'
