@@ -1287,8 +1287,10 @@ class Configure(object):
 			return globals()["%s_configurator" % configurator](self)
 
 	def __getattr__(self, meth):
-		if meth.startswith("create_"):
+		def creator():
 			return globals()[meth.replace('create_', '')](self)
+		if meth.startswith("create_"):
+			return creator
 		else:
 			raise AttributeError, attr
 
