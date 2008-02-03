@@ -71,8 +71,6 @@ def msvc_linker(task):
 		ret=Runner.exec_command(cmd)
 	return ret
 
-g_msvc_type_vars=['CCFLAGS', 'CXXFLAGS', 'LINKFLAGS', 'obj_ext']
-
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
 nm = """
 aclui activeds ad1 adptif adsiid advapi32 asycfilt authz bhsupp bits bufferoverflowu cabinet
@@ -247,10 +245,7 @@ class msvccc(cc.ccobj):
 		self._bld_incpaths_lst=[]
 
 		self.subsystem = ''
-
-		global g_msvc_type_vars
-		self.p_type_vars = g_msvc_type_vars
-		self.libpaths=[]
+		self.libpaths = []
 
 	def apply_defines(self):
 		tree = Params.g_build
@@ -312,9 +307,6 @@ class msvccpp(cpp.cppobj):
 		self._bld_incpaths_lst=[]
 
 		self.subsystem = ''
-
-		global g_msvc_type_vars
-		self.p_type_vars = g_msvc_type_vars
 		self.libpaths=[]
 
 	def apply_defines(self):
