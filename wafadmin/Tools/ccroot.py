@@ -137,7 +137,7 @@ class ccroot(Object.genobj):
 		self.apply_core()
 
 		self.apply_link()
-		if hasattr(self, 'apply_link_msvc'): getattr(self, 'apply_link_msvc', 0)(self)
+		if hasattr(self, 'apply_link_msvc'): self.apply_link_msvc()
 
 		self.apply_link_libtool()
 		self.apply_vnum()
@@ -296,6 +296,7 @@ def apply_core(self):
 		# Extract the extension and look for a handler hook.
 		k = max(0, filename.rfind('.'))
 		x = self.get_hook(filename[k:])
+
 		if not x: raise TypeError, "Do not know how to process %s" % str(node)
 		x(self, node)
 setattr(ccroot, 'apply_core', apply_core)
