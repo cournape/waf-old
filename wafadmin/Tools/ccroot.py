@@ -136,6 +136,7 @@ class ccroot(Object.genobj):
 
 		self.apply_core()
 
+		self.apply_link()
 		self.link_libtool()
 		self.apply_vnum()
 
@@ -284,13 +285,6 @@ def apply_type_vars(self):
 setattr(ccroot, 'apply_type_vars', apply_type_vars)
 
 def apply_core(self):
-
-	type = self.m_type
-	if type == 'objects':
-		type = 'program' # TODO: incorrect for shlibs
-
-	pre = self.m_type_initials
-
 	# get the list of folders to use by the scanners
 	# all our objects share the same include paths anyway
 	tree = Params.g_build
@@ -306,7 +300,9 @@ def apply_core(self):
 		x = self.get_hook(filename[k:])
 		if not x: raise TypeError, "Do not know how to process %s" % str(node)
 		x(self, node)
+setattr(ccroot, 'apply_core', apply_core)
 
+def apply_link(self):
 	# if we are only building .o files, tell which ones we built
 	if self.m_type == 'objects':
 		self.out_nodes = []
@@ -314,11 +310,10 @@ def apply_core(self):
 		for t in self.p_compiletasks: app(t.m_outputs[0])
 		return
 
-	# TODO move this part
 	if self.m_type=='staticlib':
 		linktask = self.create_task('ar_link_static', self.env)
 	else:
-		linktask = self.create_task(pre+'_link', self.env)
+		linktask = self.create_task(self.m_type_initials+'_link', self.env)
 	outputs = []
 	app = outputs.append
 	for t in self.p_compiletasks: app(t.m_outputs[0])
@@ -326,8 +321,7 @@ def apply_core(self):
 	linktask.set_outputs(self.path.find_build(self.get_target_name()))
 
 	self.m_linktask = linktask
-
-setattr(ccroot, 'apply_core', apply_core)
+setattr(ccroot, 'apply_link', apply_link)
 
 def apply_lib_vars(self):
 	debug('apply_lib_vars called', 'ccroot')
