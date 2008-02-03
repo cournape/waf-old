@@ -394,7 +394,7 @@ def setup(bld):
 	import winres
 	winres.setup(bld)
 	Object.hook('cpp', 'EXT_CXX', cpp.cxx_hook)
-	Object.hook('cc', 'EXT_CXX', cc.c_hook)
+	Object.hook('cc', 'EXT_CC', cc.c_hook)
 
 def detect(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
