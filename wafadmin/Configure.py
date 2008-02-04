@@ -1292,7 +1292,7 @@ class Configure(object):
 		if meth.startswith("create_"):
 			return creator
 		else:
-			raise AttributeError, attr
+			raise AttributeError, meth
 
 	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
 		if not env: env=self.env
