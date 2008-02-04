@@ -78,7 +78,7 @@ def checkEndian(self, define='', pathlst=[]):
 	try:
 		is_big = int(t['bigendian'])
 	except KeyError:
-		raise ConfigurationError('endian test failed '+code)
+		raise Configure.ConfigurationError('endian test failed '+code)
 
 	if is_big: strbig = 'big endian'
 	else: strbig = 'little endian'
@@ -118,7 +118,7 @@ def checkFeatures(self, lst=[], pathlst=[]):
 	try:
 		is_big = int(t['bigendian'])
 	except KeyError:
-		raise ConfigurationError('endian test failed '+code)
+		raise Configure.ConfigurationError('endian test failed '+code)
 
 	if is_big: strbig = 'big endian'
 	else: strbig = 'little endian'
