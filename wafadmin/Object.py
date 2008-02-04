@@ -44,7 +44,7 @@ def name_to_obj(name):
 				g_name_to_obj[x.target] = x
 	return g_name_to_obj.get(name, None)
 
-def flush():
+def flush(all=1):
 	"object instances under the launch directory create the tasks now"
 	global g_allobjs
 	global g_name_to_obj
@@ -62,7 +62,7 @@ def flush():
 	if launch_dir_node.is_child_of(tree.m_bldnode):
 		launch_dir_node=tree.m_srcnode
 
-	if Params.g_options.compile_targets: # this feature is not used too much
+	if Params.g_options.compile_targets:
 		debug('posting objects listed in compile_targets', 'object')
 
 		# ensure the target names exist, fail before any post()
@@ -71,7 +71,7 @@ def flush():
 			# trim target_name (handle cases when the user added spaces to targets)
 			target_name = target_name.strip()
 			targets_objects[target_name] = name_to_obj(target_name)
-			if not targets_objects[target_name]: fatal("target '%s' does not exist" % target_name)
+			if all and not targets_objects[target_name]: fatal("target '%s' does not exist" % target_name)
 
 		for target_obj in targets_objects.values():
 			if not target_obj.m_posted:

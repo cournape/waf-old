@@ -617,7 +617,7 @@ class Build(object):
 		return self.env_of_name(name)
 
 	def add_group(self, name=''):
-		Object.flush()
+		Object.flush(all=0)
 		self.task_manager.add_group(name)
 
 	def add_manual_dependency(self, path, value):
