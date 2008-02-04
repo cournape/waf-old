@@ -15,6 +15,8 @@ sys.path.append(os.path.abspath(os.path.pardir))
 import Params, Environment, Options
 from Constants import *
 
+# The following string is as wscript for tests.
+# Note the embedded strings that changed by self._test_dic: set_env, tool, objname, build_type
 wscript_contents = """
 blddir = 'build'
 srcdir = '.'

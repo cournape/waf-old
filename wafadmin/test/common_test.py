@@ -46,17 +46,20 @@ class CommonTester(unittest.TestCase):
 		return pproc.call( commands, **kwargs)
 	
 	def _copy(self, source, target):
-		# XXX: why use shell for copy ?
-		if str.find(sys.platform, 'linux') != -1:
-			self.assertEqual(0, self.call(["cp", "-la", source, target]))
-		elif os.name=="posix":
-			self.assertEqual(0, self.call(["cp", "-a", source, target]))
+		"""
+		"generic" way to copy files/directories. Target must not already exist.
+		"""
+		if os.path.isfile(source):
+			shutil.copy2(source, target)
 		else:
-			if os.path.isfile(source):
-				shutil.copy2(source, "%s\\" %target)
-			else:
-				shutil.copytree(source, os.path.join(target, os.path.split(source)[-1]))
-
+			# When copying directory to another directory using shutil.copytree, the directory 
+			# name of the source is NOT created in the target 
+			src_dirname = os.path.split(source)[-1]
+			target_dirname = os.path.split(target)[-1] 
+			if src_dirname != target_dirname:
+				target = os.path.join(target, src_dirname)
+				
+			shutil.copytree(source, target)
 
 	def _test_configure(self, test_for_success=True, additionalArgs=[]):
 		"""
@@ -78,7 +81,7 @@ class CommonTester(unittest.TestCase):
 			test_func = self.assert_ # ret val of NON-Zero is True...
 			err_msg = "configure should fail"
 			
-		args_list = [self._waf_exe, "configure"]
+		args_list = ["python", self._waf_exe, "configure"]
 		if additionalArgs: args_list.extend(list(additionalArgs))
 		test_func(self.call(args_list), err_msg)
 
@@ -99,7 +102,7 @@ class CommonTester(unittest.TestCase):
 			test_func = self.assert_ # ret val of NON-Zero is True...
 			err_msg = "build should fail"
 			
-		args_list = [self._waf_exe, "build"]
+		args_list = ["python", self._waf_exe, "build"]
 		if additionalArgs: args_list.extend(list(additionalArgs))
 		test_func(self.call(args_list), err_msg)
 
@@ -117,7 +120,6 @@ class CommonTester(unittest.TestCase):
 		test distclean
 		@param additionalArgs [tuple]: optional additional arguments
 		"""
-		args_list = [self._waf_exe, "distclean"]
+		args_list = ["python", self._waf_exe, "distclean"]
 		if additionalArgs: args_list.extend(list(additionalArgs))
 		self.assertEqual(0, self.call(args_list), "distclean failed" )
-		
