@@ -30,22 +30,20 @@ class tex_scanner(Scan.scanner):
 		abs = curdirnode.abspath()
 		for match in re_tex.finditer(code):
 			path = match.group('file')
-			if not path: continue
-
-			filepath = os.path.join(abs, path)
-			for k in ['', '.tex', '.ltx']:
-				# add another loop for the tex include paths?
-				debug("trying %s%s" % (path, k), 'tex')
-				try:
-					os.stat(path+k)
-				except OSError:
-					continue
-				found = path+k
-				node = curdirnode.find_source(found)
-				nodes.append(node)
-			else:
-				debug('could not find'+path, 'tex')
-				names.append(path)
+			if path:
+				for k in ['', '.tex', '.ltx']:
+					# add another loop for the tex include paths?
+					debug("trying %s%s" % (path, k), 'tex')
+					try:
+						os.stat(path+k)
+					except OSError:
+						continue
+					found = path+k
+					node = curdirnode.find_source(found)
+					nodes.append(node)
+				else:
+					debug('could not find'+path, 'tex')
+					names.append(path)
 
 		debug("found the following : %s and names %s" % (nodes, names), 'tex')
 		return (nodes, names)
