@@ -132,7 +132,7 @@ class enumerator_base(object):
 		# skip this if hashtable is only a string
 		if not type(hashtable) is types.StringType:
 			for name in hashtable.keys():
-				self.env[name] += hashtable[name]
+				self.env[name].append_value(hashtable[name])
 
 	def validate(self):
 		pass
