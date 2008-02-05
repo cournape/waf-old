@@ -220,6 +220,23 @@ class genobj(object):
 		dirnames = self.to_list(dirnames)
 
 		ext_lst = []
+
+		# FIXME temporary
+		cls = self.__class__
+		x = []
+		while 1:
+			try:
+				cls.all_hooks
+			except AttributeError:
+				try: cls = cls.__bases__[0]
+				except IndexError: break
+			else:
+				for i in cls.all_hooks:
+					if not i in ext_lst:
+						ext_lst.append(i)
+				try: cls = cls.__bases__[0]
+				except IndexError: break
+
 		try:
 			ext_lst += self.s_default_ext
 		except AttributeError:

@@ -219,12 +219,21 @@ class qt4obj(cpp.cppobj):
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
+		# FIXME temporary
 		ext_lst = []
-		try:
-			for var in self.__class__.__dict__['all_hooks']:
-				ext_lst += self.env[var]
-		except KeyError:
-			pass
+		cls = self.__class__
+		x = []
+		while 1:
+			try:
+				cls.all_hooks
+			except AttributeError:
+				try: cls = cls.__bases__[0]
+				except IndexError: break
+			else:
+				for i in cls.all_hooks:
+					ext_lst += self.env[i]
+				try: cls = cls.__bases__[0]
+				except IndexError: break
 
 		for name in dirnames:
 			#print "name is ", name
