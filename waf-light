@@ -43,22 +43,13 @@ INSTALL="x"
 cwd = os.getcwd()
 join = os.path.join
 
-def exp(v):
-	x = sum([(ord(v[4-x])-33) * (85**x) for x in xrange(5)])
-	x,p = divmod(x, 256)
-	x,o = divmod(x, 256)
-	m,n = divmod(x, 256)
-	return [m,n,o,p]
-
 def decode(s):
-	#ascii85
-	out = []
-	p1,p2 = divmod(len(s), 5)
-	s += (5 - p2) * '!'
-	for i in xrange(1+p1):
-		[out.append(chr(x)) for x in exp(s[5*i:5*i+5]) if i < p1 or x != 0]
-
-	return ''.join(out)
+	p1 = len(s)
+	s += '!!!!!'
+	w1 = [256**(3-u) for u in xrange(4)]
+	w2 = [(u, 85**(4-u)) for u in xrange(5)]
+	tot = [sum([(ord(s[i+m])-33) * n for (m, n) in w2]) for i in xrange(0, p1, 5)]
+	return ''.join([chr((y/x) & 255) for y in tot for x in w1])
 
 def err(m):
 	print '\033[91mError: %s\033[0m' % m
