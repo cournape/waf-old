@@ -28,7 +28,7 @@ class TestBuildDir(common_test.CommonTester):
 		#		demos				__orig_demos_dir
 		#
 		# temp_dir
-		#	waf_testing			__test_dir_root
+		#	waf_testing		__test_dir_root
 		#		waf			__test_waf_dir
 		#		demos		__test_demos_dir
 
@@ -49,6 +49,9 @@ class TestBuildDir(common_test.CommonTester):
 		# create test directories
 		if os.path.isdir(self.__test_dir_root):
 			shutil.rmtree(self.__test_dir_root)
+
+		# backward compatible python 2.3 - where copytree not creates the target
+		os.makedirs(self.__test_waf_dir)
 
 		os.chdir(self._waf_root_dir)
 		self._copy("wafadmin", self.__test_waf_dir)
