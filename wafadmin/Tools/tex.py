@@ -209,7 +209,6 @@ class texobj(Object.genobj):
 			# add the manual dependencies
 			if deps_lst:
 				variant = node.variant(self.env)
-				outnode = task.m_outputs[0]
 				try:
 					lst = tree.m_depends_on[variant][node]
 					for n in deps_lst:
