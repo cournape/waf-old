@@ -221,6 +221,10 @@ class genobj(object):
 
 		ext_lst = []
 		try:
+			ext_lst += self.s_default_ext
+		except AttributeError:
+			pass
+		try:
 			for var in self.__class__.__dict__['all_hooks']:
 				ext_lst += self.env[var]
 		except KeyError:
