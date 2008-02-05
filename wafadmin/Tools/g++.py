@@ -5,7 +5,7 @@
 
 import os, sys
 import optparse
-import Utils, Action, Params, Configure
+import Params, Configure
 
 import ccroot
 
