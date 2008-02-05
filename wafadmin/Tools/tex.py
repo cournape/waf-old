@@ -95,7 +95,7 @@ def tex_build(task, command='LATEX'):
 		file = open(aux_node.abspath(env), 'r')
 		ct = file.read()
 		file.close()
-	except (OSError, IOError)
+	except (OSError, IOError):
 		error('erreur bibtex scan')
 	else:
 		fo = g_bibtex_re.findall(ct)
