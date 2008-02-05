@@ -14,10 +14,10 @@ srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-	pass
+	opt.tool_options('compiler_cc')
 
 def configure(conf):
-	conf.check_tool('vala')
+	conf.check_tool('compiler_cc vala')
 	conf.check_pkg('glib-2.0', destvar='GLIB', vnum='2.10.0', mandatory=True)
 	conf.check_pkg('gtk+-2.0', destvar='GTK', vnum='2.10.0', mandatory=True)
 
