@@ -132,7 +132,7 @@ class enumerator_base(object):
 		# skip this if hashtable is only a string
 		if not type(hashtable) is types.StringType:
 			for name in hashtable.keys():
-				self.env[name] = hashtable[name]
+				self.env[name] += hashtable[name]
 
 	def validate(self):
 		pass
@@ -316,8 +316,8 @@ class library_enumerator(enumerator_base):
 		if self.want_message:
 			self.conf.check_message('library '+self.name, '', ret, option=ret)
 		if self.uselib:
-			self.env['LIB_'+self.uselib] = self.name
-			self.env['LIBPATH_'+self.uselib] = ret
+			self.env['LIB_'+self.uselib] += [ self.name ]
+			self.env['LIBPATH_'+self.uselib] += [ ret ]
 
 		return ret
 
@@ -699,9 +699,9 @@ class library_configurator(configurator_base):
 		ret = test.run()
 
 		if ret:
-			self.env['LIBPATH_'+self.uselib] = ret
+			self.env['LIBPATH_'+self.uselib] += [ ret ]
 
-		self.env['LIB_'+self.uselib] = self.name
+		self.env['LIB_'+self.uselib] += [ self.name ]
 
 
 		#self.env['LIB'] = self.name
