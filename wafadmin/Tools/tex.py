@@ -20,13 +20,11 @@ class tex_scanner(Scan.scanner):
 		names = []
 		if not node: return (nodes, names)
 
-		curdirnode = task.curdirnode
-		variant = node.variant(env)
-
 		fi = open(node.abspath(env), 'r')
 		code = fi.read()
 		fi.close()
 
+		curdirnode = task.curdirnode
 		abs = curdirnode.abspath()
 		for match in re_tex.finditer(code):
 			path = match.group('file')
