@@ -201,7 +201,7 @@ class CcRootTester(common_test.CommonTester):
 		
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''
+		os.chdir(self._waf_root_dir)
+		
 		if os.path.isdir(self._test_dir_root):
 			shutil.rmtree(self._test_dir_root)
-			
-		os.chdir(self._waf_root_dir)
