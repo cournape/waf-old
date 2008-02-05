@@ -74,7 +74,7 @@ def flush(all=1):
 			if all and not targets_objects[target_name]: fatal("target '%s' does not exist" % target_name)
 
 		for target_obj in targets_objects.values():
-			if not target_obj.m_posted:
+			if target_obj and not target_obj.m_posted:
 				target_obj.post()
 	else:
 		debug('posting objects (normal)', 'object')
