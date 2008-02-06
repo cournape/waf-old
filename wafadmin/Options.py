@@ -145,14 +145,20 @@ class Handler(object):
 		self.cwd = os.getcwd()
 		global g_parser
 		g_parser = self
+
 	def add_option(self, *kw, **kwargs):
 		self.parser.add_option(*kw, **kwargs)
+
 	def add_option_group(self, *args, **kwargs):
 		return self.parser.add_option_group(*args, **kwargs)
+
 	def get_option_group(self, opt_str):
 		return self.parser.get_option_group(opt_str)
 
 	def sub_options(self, dir, option_group=None):
+		"""set options defined by wscripts:
+		- run by Scripting to set the options defined by main wscript.
+		- run by wscripts to set options in sub directories."""	
 		try:
 			current = self.cwd
 	
