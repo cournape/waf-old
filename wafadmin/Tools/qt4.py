@@ -219,10 +219,9 @@ class qt4obj(cpp.cppobj):
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
-		# FIXME temporary
+		# FIXME temporary - see Object.py
 		ext_lst = []
 		cls = self.__class__
-		x = []
 		while 1:
 			try:
 				cls.all_hooks

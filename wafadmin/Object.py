@@ -219,10 +219,9 @@ class genobj(object):
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
-		# FIXME temporary
+		# FIXME temporary - see also qt4.py
 		ext_lst = []
 		cls = self.__class__
-		x = []
 		while 1:
 			try:
 				cls.all_hooks
@@ -234,7 +233,6 @@ class genobj(object):
 					ext_lst += self.env[i]
 				try: cls = cls.__bases__[0]
 				except IndexError: break
-
 		try:
 			ext_lst += self.s_default_ext
 		except AttributeError:
