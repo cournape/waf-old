@@ -196,7 +196,6 @@ class Handler(object):
 				module.set_options(self)
 		except AttributeError:
 			warning("tool %s has no function set_options or set_options failed" % tool)
-			pass
 
 	def parse_args(self, args=None):
 		parse_args_impl(self.parser, args)
