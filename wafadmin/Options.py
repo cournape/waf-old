@@ -9,6 +9,7 @@ import os, sys, imp, types
 from optparse import OptionParser
 import Params, Utils
 from Params import debug, fatal, warning, error
+from Constants import *
 
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 try:
@@ -156,7 +157,7 @@ class Handler(object):
 		current = self.cwd
 
 		self.cwd = os.path.join(self.cwd, dir)
-		cur = os.path.join(self.cwd, 'wscript')
+		cur = os.path.join(self.cwd, WSCRIPT_FILE)
 
 		debug("cur is "+str(cur), 'options')
 
