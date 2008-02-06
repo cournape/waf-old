@@ -224,8 +224,11 @@ class genobj(object):
 		# FIXME temporary
 		cls = self.__class__
 
-		for var in cls.all_hooks:
-			ext_lst += self.env[var]
+		try:
+			for var in cls.all_hooks:
+				ext_lst += self.env[var]
+		except AttributeError:
+			debug('no hooks were defined.', 'object')
 
 		x = []
 		while 1:
