@@ -5,7 +5,7 @@
 
 "Custom command-line options"
 
-import os, sys, imp, types
+import os, sys, imp, types, tempfile
 from optparse import OptionParser
 import Params, Utils
 from Params import debug, fatal, warning, error
@@ -14,7 +14,7 @@ from Constants import *
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')
 if not default_prefix:
-	if sys.platform == 'win32': default_prefix='c:\\temp\\'
+	if sys.platform == 'win32': default_prefix=tempfile.gettempdir()
 	else: default_prefix = '/usr/local/'
 
 default_destdir = os.environ.get('DESTDIR', '')
