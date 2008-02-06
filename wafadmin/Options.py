@@ -153,28 +153,30 @@ class Handler(object):
 		return self.parser.get_option_group(opt_str)
 
 	def sub_options(self, dir, option_group=None):
-		current = self.cwd
-
-		self.cwd = os.path.join(self.cwd, dir)
-		cur = os.path.join(self.cwd, WSCRIPT_FILE)
-
-		debug("cur is "+str(cur), 'options')
-
 		try:
-			mod = Utils.load_module(cur)
-		except AttributeError:
-			msg = "no module was found for wscript (sub_options)\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-			fatal(msg % self.cwd)
-		try:
-			if option_group:
-				mod.set_options(option_group)
-			else:
-				mod.set_options(self)
-		except AttributeError:
-			msg = "no set_options function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-			fatal(msg % self.cwd)
+			current = self.cwd
+	
+			self.cwd = os.path.join(self.cwd, dir)
+			cur = os.path.join(self.cwd, WSCRIPT_FILE)
+	
+			debug("cur is "+str(cur), 'options')
+	
+			try:
+				mod = Utils.load_module(cur)
+			except AttributeError:
+				msg = "no module was found for wscript (sub_options)\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+				fatal(msg % self.cwd)
+			try:
+				if option_group:
+					mod.set_options(option_group)
+				else:
+					mod.set_options(self)
+			except AttributeError:
+				msg = "no set_options function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
+				fatal(msg % self.cwd)
 
-		self.cwd = current
+		finally:
+			self.cwd = current
 
 	def tool_options(self, tool, tooldir=None, option_group=None):
 		if type(tool) is types.ListType:
