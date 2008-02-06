@@ -223,6 +223,10 @@ class genobj(object):
 
 		# FIXME temporary
 		cls = self.__class__
+
+		for var in cls.all_hooks:
+			ext_lst += self.env[var]
+
 		x = []
 		while 1:
 			try:
@@ -237,20 +241,11 @@ class genobj(object):
 				try: cls = cls.__bases__[0]
 				except IndexError: break
 
-		try:
-			ext_lst += self.s_default_ext
-		except AttributeError:
-			pass
-
 		for name in dirnames:
-			#print "name is ", name
 			anode = self.path.ensure_node_from_lst(Utils.split_path(name))
-			#print "anode ", anode.m_name, " ", anode.files()
 			Params.g_build.rescan(anode)
-			#print "anode ", anode.m_name, " ", anode.files()
 
 			for file in anode.files():
-				#print "file found ->", file
 				(base, ext) = os.path.splitext(file.m_name)
 				if ext in ext_lst:
 					s = file.relpath(self.path)
