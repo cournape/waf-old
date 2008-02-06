@@ -12,9 +12,8 @@ from Params import debug, fatal, warning, error
 from Constants import *
 
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
-try:
-	default_prefix = os.environ['PREFIX']
-except KeyError:
+default_prefix = os.environ.get('PREFIX')
+if not default_prefix:
 	if sys.platform == 'win32': default_prefix='c:\\temp\\'
 	else: default_prefix = '/usr/local/'
 
