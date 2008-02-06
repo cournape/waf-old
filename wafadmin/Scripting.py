@@ -359,7 +359,12 @@ def main():
 	bld.load_envs()
 
 	#bld.dump()
-	Utils.g_module.build(bld)
+	try:
+		f = Utils.g_module.build
+	except AttributeError:
+		fatal("Could not find the function 'def build(bld):' in wscript")
+	else:
+		f(bld)
 	#bld.dump()
 
 	# TODO undocumented hook

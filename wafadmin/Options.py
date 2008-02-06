@@ -164,9 +164,9 @@ class Handler(object):
 	
 			self.cwd = os.path.join(self.cwd, dir)
 			cur = os.path.join(self.cwd, WSCRIPT_FILE)
-	
+
 			debug("cur is "+str(cur), 'options')
-	
+
 			try:
 				mod = Utils.load_module(cur)
 			except AttributeError:
