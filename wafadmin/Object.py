@@ -219,17 +219,9 @@ class genobj(object):
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
-		ext_lst = []
-
 		# FIXME temporary
+		ext_lst = []
 		cls = self.__class__
-
-		try:
-			for var in cls.all_hooks:
-				ext_lst += self.env[var]
-		except AttributeError:
-			debug('no hooks were defined.', 'object')
-
 		x = []
 		while 1:
 			try:
@@ -239,10 +231,14 @@ class genobj(object):
 				except IndexError: break
 			else:
 				for i in cls.all_hooks:
-					if not i in ext_lst:
-						ext_lst.append(i)
+					ext_lst += self.env[i]
 				try: cls = cls.__bases__[0]
 				except IndexError: break
+
+		try:
+			ext_lst += self.s_default_ext
+		except AttributeError:
+			pass
 
 		for name in dirnames:
 			anode = self.path.ensure_node_from_lst(Utils.split_path(name))
