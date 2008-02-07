@@ -71,7 +71,6 @@ def i_file(self, node):
 
 	tree = Params.g_build
 	def check_rec(task, node_):
-		print swig_scanner.do_scan(task, node_)
 		for j in tree.m_depends_on[0][node_]:
 			if j.m_name.endswith('.i'):
 				check_rec(task, j)
