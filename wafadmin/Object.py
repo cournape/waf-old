@@ -309,24 +309,41 @@ class task_gen(object):
 		dct = self.__class__.__dict__
 		keys = self.meths
 
-		prec = self.prec
-		post = {}
-		for x in prec:
-			for y in prec[x]:
-				try: post[y].append(x)
-				except: post[y] = [x]
+		# copy the precence table with the keys in self.meths
+		prec = {}
+		for x in self.prec:
+			if x in keys:
+				prec[x] = self.prec[x]
 
-		def mord(x, y):
-			if x in post:
-				if y in post[x]:
-					return 1
-			if x in prec:
-				if y in prec[x]:
-					return -1
-			return 0
-		keys.sort(mord)
+		# list of elements coming first (without dependency)
+		tmp = []
+		for a in prec:
+			for x in precs.values():
+				if a in x: break
+			else:
+				tmp.append(a)
 
-		# TODO detect cycles ?
+		# then the topological sort
+		out = []
+		while tmp:
+			e = tmp.pop()
+			if e in keys: out.append(e)
+			try:
+				nlst = precs[e]
+			except KeyError:
+				pass
+			else:
+				del precs[e]
+				for x in nlst:
+					for y in precs:
+						if x in precs[y]:
+							break
+					else:
+						tmp.append(x)
+
+		if precs: fatal("graph has a cycle" % str(precs))
+
+		# then we run the methods in order
 		for x in y:
 			v = self.get_meth(self, x)
 			v(self)
