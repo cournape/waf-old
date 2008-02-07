@@ -21,7 +21,7 @@ def configure(conf):
 	conf.check_tool('g++ swig python')
 	conf.check_swig_version("1.3.27")
 	#conf.check_swig_version((1,3,30))
-	
+
 	conf.env['SWIGFLAGS']='-c++ -python -dump_classes'
 	conf.env['CXXFLAGS']='-Wall -g -O0 -pipe'
 	conf.check_python_version((2,4,2))
@@ -31,7 +31,7 @@ def build(bld):
 	obj = bld.create_obj('cpp','program','pyembed')
 	obj.source = 'swigtooldemo.cpp swigtooldemo.swig'
 	obj.target = 'swigdemo'
-	obj.include = '.'
+	obj.includes = '.'
 
 def shutdown():
 	import os, stat
