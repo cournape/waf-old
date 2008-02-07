@@ -36,7 +36,7 @@ def set_options(opt):
 	opt.tool_options('compiler_cxx')
 
 	# custom options
-	opt.add_option('--exe', action='store_true', default=False, help='exe')
+	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 def configure(conf):
 	# conf.env['CXX'] = Params.g_options.meow
