@@ -185,10 +185,10 @@ def prepare():
 			#for example: /usr/src/configure the calldir would be /usr/src
 			calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
 			lst_calldir = os.listdir(calldir)
-			if 'wscript'       in lst_calldir:
+			if 'wscript' in lst_calldir:
 				candidate = calldir
 				search_for_candidate = False
-			if 'wscript_xml'   in lst_calldir:
+			if 'wscript_xml' in lst_calldir:
 				candidate = calldir
 				xml = 1
 				search_for_candidate = False
@@ -310,7 +310,7 @@ def main():
 		if Params.g_commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=0)
 		else:
-			warning("Run waf configure first...")
+			warning("Run waf configure first (project not configured)")
 			if Params.g_autoconfig:
 				configure()
 				bld = Build.Build()
@@ -320,9 +320,8 @@ def main():
 
 	if Params.g_autoconfig:
 		reconf = 0
-
+		hash = 0
 		try:
-			hash = 0
 			for file in proj['files']:
 				mod = Utils.load_module(file)
 				hash = Params.hash_function_with_globals(hash, mod.configure)
@@ -330,12 +329,11 @@ def main():
 		except Exception, ex:
 			if Params.g_verbose:
 				traceback.print_exc()
-			warning("Reconfiguring the project as an exception occured: %s" % (str(ex),))
-			reconf=1
+			warning("Reconfiguring the project (an exception occured: %s)" % (str(ex),))
+			reconf = 1
 
 		if reconf:
-			warning("Reconfiguring the project as the configuration changed")
-
+			warning("Reconfiguring the project (the configuration has changed)")
 
 			a1 = Params.g_commands
 			a2 = Params.g_options
@@ -400,7 +398,7 @@ def main():
 	if Params.g_commands['clean']:
 		try:
 			bld.clean()
-			Params.pprint('GREEN', 'Project cleaned successfully')
+			Params.pprint('GREEN', 'Cleaning finished successfully')
 		finally:
 			bld.save()
 		#if ret:
@@ -504,8 +502,7 @@ def DistClean():
 				try:
 					proj = read_cache_file(os.path.join(root, f))
 					shutil.rmtree(os.path.join(root, proj[BLDDIR]))
-				except OSError: pass
-				except IOError: pass
+				except (OSError, IOError): pass
 			else:
 				ends = f.endswith
 				for x in g_distclean_exts:
