@@ -20,7 +20,8 @@ re_3 = re.compile('#include "(.*)"', re.M)
 class swig_class_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
-	def scan(self, node, env):
+	def scan(self, task, node):
+		env = task.m_env
 		variant = node.variant(env)
 		tree = Params.g_build
 
@@ -55,29 +56,29 @@ class swig_class_scanner(Scan.scanner):
 swig_scanner = swig_class_scanner()
 
 def i_file(self, node):
+	# TODO for subclasses
 	if self.__class__.__name__ == 'ccobj':
 		ext = self.env['EXT_SWIG_C']
 	elif self.__class__.__name__ == 'cppobj':
 		ext = self.env['EXT_SWIG_CC']
 	else:
 		ext = self.env['EXT_SWIG_C']
-		# the extension does not matter so much, does it ? (ita)
 
 	variant = node.variant(self.env)
 
-	# check if rescanning is needed
-	# the swig include system makes a small tree
-	def check_rec(nn, env, variant, tree):
-		if tree.needs_rescan(nn, env):
-			swig_scanner.do_scan(nn, env, hashparams={})
-		nodes = tree.m_depends_on[variant][nn]
-		for kk in nodes:
-			if kk.m_name[-2:] != '.i': return # avoid others than .i files
-			check_rec(kk, env, variant, tree)
-	check_rec(node, self.env, variant, Params.g_build)
+	ltask = self.create_task('swig')
+	ltask.set_inputs(node)
+
+	tree = Params.g_build
+	def check_rec(task, node_):
+		print swig_scanner.do_scan(task, node_)
+		for j in tree.m_depends_on[0][node_]:
+			if j.m_name.endswith('.i'):
+				check_rec(task, j)
+	check_rec(ltask, node)
 
 	# get the name of the swig module to process
-	try: modname = Params.g_build.m_raw_deps[variant][node][0]
+	try: modname = Params.g_build.m_raw_deps[0][node][0]
 	except KeyError: return
 
 	# set the output files
@@ -89,9 +90,6 @@ def i_file(self, node):
 		outs.append(node.m_parent.find_build(modname+'.ml'))
 		outs.append(node.m_parent.find_build(modname+'.mli'))
 
-	# create the swig task
-	ltask = self.create_task('swig')
-	ltask.set_inputs(node)
 	ltask.set_outputs(outs)
 
 	# create the build task (c or cpp)
