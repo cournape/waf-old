@@ -446,7 +446,7 @@ def setup(bld):
 	d_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
 	link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${_DLIBDIRFLAGS} ${_DLIBFLAGS}'
 
-	Action.simple_action('d', d_str, 'GREEN', 100)
+	Action.simple_action('d', d_str, 'GREEN', prio=100)
 	Action.simple_action('d_link', link_str, color='YELLOW', prio=101)
 
 	Object.register('d', dobj)
