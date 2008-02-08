@@ -288,6 +288,11 @@ class task_gen(object):
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 		g_allobjs.append(self)
 
+	def __str__(self):
+		return ("<genobj '%s' of type %s defined in %s>"
+			% (self.name or self.target,
+			   self.__class__.__name__, str(self.path)))
+
 	def to_list(self, value):
 		"helper: returns a list"
 		if type(value) is types.StringType: return value.split()
@@ -394,6 +399,49 @@ class task_gen(object):
 		if not (nice is None): task.prio = nice
 		self.m_tasks.append(task)
 		return task
+
+	def find_sources_in_dirs(self, dirnames, excludes=[]):
+		"subclass if necessary"
+		lst=[]
+		excludes = self.to_list(excludes)
+		#make sure dirnames is a list helps with dirnames with spaces
+		dirnames = self.to_list(dirnames)
+
+		# FIXME temporary - see also qt4.py
+		ext_lst = []
+		cls = self.__class__
+		while 1:
+			try:
+				cls.all_hooks
+			except AttributeError:
+				try: cls = cls.__bases__[0]
+				except IndexError: break
+			else:
+				for i in cls.all_hooks:
+					ext_lst += self.env[i]
+				try: cls = cls.__bases__[0]
+				except IndexError: break
+		try:
+			ext_lst += self.s_default_ext
+		except AttributeError:
+			pass
+
+		for name in dirnames:
+			anode = self.path.ensure_node_from_lst(Utils.split_path(name))
+			Params.g_build.rescan(anode)
+
+			for file in anode.files():
+				(base, ext) = os.path.splitext(file.m_name)
+				if ext in ext_lst:
+					s = file.relpath(self.path)
+					if not s in lst:
+						if s in excludes: continue
+						lst.append(s)
+
+		lst.sort()
+		self.source = self.to_list(self.source)
+		if not self.source: self.source = lst
+		else: self.source += lst
 
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
