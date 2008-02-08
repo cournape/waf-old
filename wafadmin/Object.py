@@ -455,7 +455,7 @@ def hook(clsname, var, func):
 
 	setattr(task_gen, var, func)
 	try: task_gen.all_hooks.append(var)
-	except: klass.all_hooks = [var]
+	except: task_gen.all_hooks = [var]
 
 g_cache_max={}
 def sign_env_vars(env, vars_list):
