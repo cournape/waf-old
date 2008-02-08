@@ -276,6 +276,9 @@ class task_gen(object):
 		# so we will have to play with directed acyclic graphs
 		# detect cycles, etc
 
+		self.source = ''
+		self.target = ''
+
 		# list of methods to execute
 		self.meths = []
 
@@ -442,6 +445,19 @@ class task_gen(object):
 		self.source = self.to_list(self.source)
 		if not self.source: self.source = lst
 		else: self.source += lst
+
+	def clone(self, env):
+		newobj = copy.deepcopy(self)
+		newobj.path = self.path
+
+		if type(env) is types.StringType:
+			newobj.env = Params.g_build.m_allenvs[env]
+		else:
+			newobj.env = env
+
+		g_allobjs.append(newobj)
+
+		return newobj
 
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
