@@ -293,6 +293,11 @@ class task_gen(object):
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 		g_allobjs.append(self)
 
+	def to_list(self, value):
+		"helper: returns a list"
+		if type(value) is types.StringType: return value.split()
+		else: return value
+
 	def add_method(self, name):
 		"add a method to execute"
 		# TODO adding functions ?
