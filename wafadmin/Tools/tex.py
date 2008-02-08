@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"LaTeX/PDFLaTeX support"
+"TeX/LaTeX/PDFLaTeX support"
 
 import os, re
 import Utils, Params, Action, Object, Runner, Scan
@@ -33,14 +33,14 @@ class tex_scanner(Scan.scanner):
 					# add another loop for the tex include paths?
 					debug("trying %s%s" % (path, k), 'tex')
 					try:
-						os.stat(path+k)
+						os.stat(abs+os.sep+path+k)
 					except OSError:
 						continue
 					found = path+k
 					node = curdirnode.find_source(found)
 					nodes.append(node)
 				else:
-					debug('could not find'+path, 'tex')
+					debug('could not find %s' % path, 'tex')
 					names.append(path)
 
 		debug("found the following : %s and names %s" % (nodes, names), 'tex')
@@ -59,11 +59,8 @@ def tex_build(task, command='LATEX'):
 		exec_cmd = Runner.exec_command
 		com = '%s %s %s' % (env[command], env.get_flat(command+'FLAGS'), '-interaction=batchmode')
 
-
 	node = task.m_inputs[0]
 	reldir  = node.bld_dir(env)
-
-
 	srcfile = node.srcpath(env)
 
 	lst = []
