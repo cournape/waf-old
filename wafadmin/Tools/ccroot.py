@@ -39,13 +39,16 @@ class c_scanner(Scan.scanner):
 g_c_scanner = c_scanner()
 "scanner for c programs"
 
-class ccroot(Object.genobj):
+class ccroot(Object.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	def __init__(self, type='program', subtype=None):
-		Object.genobj.__init__(self, type)
+		Object.task_gen.__init__(self)
 
 		self.env = Params.g_build.env().copy()
 		if not self.env['tools']: fatal('no tool selected')
+
+		# TODO obsolete
+		self.m_type = type
 
 		self.install_var = ''
 		self.install_subdir = ''
@@ -100,48 +103,63 @@ class ccroot(Object.genobj):
 
 		self.subtype = subtype
 
+		# link mode: program, shlib or staticlib - nothing else
+		self.link_mode = 'program'
+
+		self.set_order('apply_type_vars', 'apply_incpaths')
+		self.set_order('apply_incpaths', 'apply_dependencies')
+		self.set_order('apply_dependencies', 'apply_defines')
+		self.set_order('apply_defines', 'apply_core')
+
+		# TODO move these out
+		self.set_order('apply_defines', 'apply_libtool')
+		self.set_order('apply_libtool', 'apply_core')
+
+		self.set_order('apply_core', 'apply_link')
+
+		# TODO move these out
+		self.set_order('apply_link', 'apply_link_msvc')
+		self.set_order('apply_link', 'apply_link_libtool')
+
+		self.set_order('apply_link', 'apply_vnum')
+		self.set_order('apply_vnum', 'apply_lib_vars')
+		self.set_order('apply_lib_vars', 'apply_obj_vars')
+		self.set_order('apply_obj_vars', 'apply_objdeps')
+
+		self.meths = '''
+apply_dependencies
+apply_incpaths
+apply_type_vars
+apply_core
+apply_link
+apply_lib_vars
+apply_objdeps
+apply_vnum
+apply_defines
+install'''.split()
+
+
 	def addflags(self, var, value):
 		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
 		self.env.append_value(var, self.to_list(value))
 
 	def create_task(self, type, env=None, nice=None):
 		"overrides Object.create_task to catch the creation of cpp tasks"
-		task = Object.genobj.create_task(self, type, env)
+		task = Object.task_gen.create_task(self, type, env)
 		if nice: task.prio = nice
-		if type == self.m_type_initials:
+		# TODO
+		if type in ['cc', 'cpp']:
 			self.p_compiletasks.append(task)
 		return task
 
-	def apply(self):
-		"TODO this method will use a configuration table"
-
+	# TODO
+	def apply_verif(self):
 		debug("apply called for "+self.m_type_initials, 'ccroot')
-
 		if not hasattr(self, 'nochecks'):
 			if not (self.source or self.add_objects):
 				fatal('no source files specified for %s' % self)
 			if not self.target and self.m_type != 'objects':
 				fatal('no target for %s' % self)
-
-		self.apply_type_vars()
-		self.apply_incpaths()
-		self.apply_dependencies()
-		self.apply_defines() # in subclasses
-
-		if hasattr(self, 'apply_libtool'): self.apply_libtool()
-
-		self.apply_core()
-
-		self.apply_link()
-		try: self.apply_link_msvc()
-		except AttributeError: pass
-
-		if hasattr(self, 'apply_link_libtool'): self.apply_link_libtool()
-		self.apply_vnum()
-
-		self.apply_lib_vars()
-		self.apply_obj_vars() # in subclasses
-		self.apply_objdeps()
 
 	def get_target_name(self, ext=None):
 		return self.get_library_name(self.target, ext)
@@ -296,7 +314,10 @@ def apply_core(self):
 		k = max(0, filename.rfind('.'))
 		x = self.get_hook(filename[k:])
 
-		if not x: raise TypeError, "Do not know how to process %s" % str(node)
+		if not x:
+			print str(self.__class__)
+			print self.__class__.all_hooks
+			raise TypeError, "Do not know how to process %s in %s" % (str(node), str(self.__class__))
 		x(self, node)
 setattr(ccroot, 'apply_core', apply_core)
 
