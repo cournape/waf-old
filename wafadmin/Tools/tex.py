@@ -38,7 +38,8 @@ class tex_scanner(Scan.scanner):
 						continue
 					found = path+k
 					node = curdirnode.find_source(found)
-					nodes.append(node)
+					if node:
+						nodes.append(node)
 				else:
 					debug('could not find %s' % path, 'tex')
 					names.append(path)
