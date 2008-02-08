@@ -82,13 +82,6 @@ def flush(all=1):
 			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
 			if not obj.m_posted: obj.post()
 
-def hook(clsname, var, func):
-	"Attach a new method to a genobj class"
-	klass = g_allclasses[clsname]
-	setattr(klass, var, func)
-	try: klass.all_hooks.append(var)
-	except AttributeError: klass.all_hooks = [var]
-
 class genobj(object):
 	def __init__(self, type):
 		self.m_posted = 0
@@ -286,6 +279,8 @@ class task_gen(object):
 		# list of methods to execute
 		self.meths = []
 
+		# not always a good idea
+		self.m_tasks = []
 
 		self.env = None
 		self.m_posted = 0
@@ -366,14 +361,53 @@ class task_gen(object):
 		debug("posted %s" % self.name, 'object')
 		self.m_posted=1
 
+	def get_hook(self, ext):
+		env = self.env
+		cls = self.__class__
+		x = []
+		while 1:
+			try:
+				cls.all_hooks
+			except AttributeError:
+				try: cls = cls.__bases__[0]
+				except IndexError: return None
+			else:
+				for i in cls.all_hooks:
+					if ext in env[i]:
+						try:
+							return cls.__dict__[i]
+						except KeyError:
+							break
+				try: cls = cls.__bases__[0]
+				except IndexError: return None
+		return None
+
 	def get_meth(self, name):
 		try:
 			return getattr(self, name)
 		except AttributeError:
 			raise AttributeError, "tried to retrieve %s which is not a valid method" % name
 
+	def create_task(self, type, env=None, nice=None):
+		if env is None: env=self.env
+		task = Task.Task(type, env)
+		if not (nice is None): task.prio = nice
+		self.m_tasks.append(task)
+		return task
+
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
+
+def hook(clsname, var, func):
+	"Attach a new method to a genobj class"
+	klass = g_allclasses[clsname]
+	setattr(klass, var, func)
+	try: klass.all_hooks.append(var)
+	except AttributeError: klass.all_hooks = [var]
+
+	setattr(task_gen, var, func)
+	try: task_gen.all_hooks.append(var)
+	except: klass.all_hooks = [var]
 
 g_cache_max={}
 def sign_env_vars(env, vars_list):
