@@ -347,7 +347,7 @@ class task_gen(object):
 		# then we run the methods in order
 		for x in out:
 			v = self.get_meth(x)
-			v(self)
+			v()
 
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
@@ -363,7 +363,7 @@ class task_gen(object):
 
 	def get_meth(self, name):
 		try:
-			return getattr(task_gen, name)
+			return getattr(self, name)
 		except AttributeError:
 			raise AttributeError, "tried to retrieve %s which is not a valid method" % name
 
