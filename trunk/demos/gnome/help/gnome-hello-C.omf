@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="no"?>
+<omf>
+  <resource>
+    <creator>
+     hp@pobox.com (Havoc Pennington)
+    </creator>
+    <creator>
+     jfleck@inkstain.net (John Fleck)
+    </creator>
+    <title>
+     GNOME Hello Users Guide
+    </title>
+    <date>
+     2002-09-02
+    </date>
+    <version identifier="0.0.2" date="2002-09-02" description="Second Release"/>
+    <subject category="GNOME|Tutorials"/>
+    <description>
+      This document describes the GNOME Hello application, which is a
+      demonstration of basic GNOME program functionality.  	
+    </description>
+    <type>
+     manual
+    </type>
+    <format mime="text/xml" dtd="-//OASIS//DTD DocBook XML V4.1.2//EN"/>
+    <identifier url=""/>
+    <language code="C"/>
+    <relation seriesid="b57e7e48-be78-11d6-85a3-d094906a987c"/>
+    <rights type="GNU FDL" license.version="1.1"
+      license="http://www.gnu.org/licenses/fdl.html" holder="Havoc
+      Pennington, John Fleck"/>
+  </resource>
+</omf>

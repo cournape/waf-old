@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+def build(bld):
+	# 1. A simple program
+	main = bld.create_obj('cc', 'program')
+	main.source='main.c'
+	main.target='test_c_program'
+	main.uselib_local='teststaticlib'
+#	main.includes='. /usr/include'
+#	main.ccflags='-Wmain'
+
+	# 2. A simple static lib
+	staticlib = bld.create_obj('cc', 'staticlib')
+	staticlib.source = 'test_staticlib.c'
+	staticlib.target='teststaticlib'
+	
+#def set_options(opt):
+#	# options defined if src/ was to be compiled as a standalone module
+#	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')
+
+#def configure(conf):
+#	print "sub-configuration file called (demo)"
+

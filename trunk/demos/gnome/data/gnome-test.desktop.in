@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+_Name=Gnome test
+_Comment=Test Program
+Icon=gpm-primary-charged
+Exec=gnome_test
+Terminal=false
+Type=Application
+Categories=
+OnlyShowIn=GNOME;XFCE;
+X-GNOME-Bugzilla-Bugzilla=GNOME
+X-GNOME-Bugzilla-Product=gnome_test
+X-GNOME-Bugzilla-Component=gnome_test

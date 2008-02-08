@@ -1,0 +1,281 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+from Params import fatal
+# advanced tests
+# look in src/ for an example of a new compiler that creates cpp files
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='adv_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = 'build'
+
+# make sure waf has the version we want
+import Utils
+Utils.waf_version(mini="0.8.8", maxi="9.9.9")
+
+def init():
+	pass
+	# disable the Waf preprocessor for finding dependencies
+	#import Params
+	#Params.g_preprocess=0
+
+	# redefine the cpp source extensions
+	#import cpp
+	#cpp.cppobj.s_default_ext = ['.cxx', '.cxy', '.cxyz']
+
+def set_options(opt):
+	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
+	opt.tool_options('gcc')
+	opt.tool_options('g++')
+#opt.sub_options('tests')
+	# the following is to use after the command-line is parsed:
+	# import Params
+	# print Params.g_options.someopt
+
+def configure(conf):
+	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
+	conf.check_tool('checks')
+	conf.check_tool('gcc')
+	if conf.env['gcc']: fatal('gcc not found')
+
+	conf.check_tool('g++')
+	if conf.env['g++']: fatal('g++ not found')
+
+	try: conf.check_tool('flex bison')
+	except: pass
+
+	conf.check_tool('dang misc')
+
+	# checkFeatures is only available when 'checks' is in conf.check_tool()
+	# look in wafadmin/Tools/checks.py for the other tests available
+	conf.checkEndian()
+
+	e = conf.create_header_configurator()
+	e.mandatory = 1
+	e.name = 'stdio.h'
+	e.define = 'HAVE_STDIO'
+	e.run()
+
+	e = conf.create_library_configurator()
+	#e.mandatory = 1
+	e.name = 'kdecore'
+	e.path = ['/opt/kde3/lib']
+	e.message = "Make sure the kdecore development package is installed"
+	e.run()
+
+	e = conf.create_function_enumerator()
+	e.mandatory = 1
+	e.headers = ['time.h']
+	e.include_paths = ['/usr/include']
+	e.function = 'mktime'
+	e.define = 'MKTIME'
+	e.run()
+
+	e = conf.create_program_enumerator()
+	e.mandatory = 1
+	e.name = 'cat'
+	e.run()
+
+	e = conf.create_header_enumerator()
+	e.mandatory = 1
+	e.name = 'stdio.h'
+	e.run()
+
+	e = conf.create_library_enumerator()
+	e.mandatory = 1
+	e.name = 'png'
+	e.run()
+
+	e = conf.create_test_configurator()
+	e.mandatory = 1
+	e.code = '#include <stdio.h>\nint main() {printf("hello world"); return 0; }\n'
+	e.want_message = 1
+	e.run()
+
+	conf.check_pkg('libgnome-2.0',        destvar='GNOME',    vnum='32.10.0')
+
+	# pkg-config example - look in src/wscript_build, obj.uselib ..
+	conf.check_pkg('glib-2.0', destvar='GLIB', vnum='2.6.0')
+
+
+	# TODO
+	"""
+	conf.check_header('GL/gl.h', '', '', ['/usr/X11R6/include','/usr/include'])
+	"""
+
+	conf.define('HAVE_SOMETHING', 1)
+	conf.define('TEST_DEFINE', 345)
+
+
+	# command-line defines
+	conf.env['CXXDEFINES_DEFTEST'] = ['truc=blah', 'boo']
+
+	conf.env['LIB_CALC']='fl'
+
+
+	# a more complicated check, anything can be put in the following code:
+	code = """
+#include <stdio.h>
+int main()
+{
+        printf("ahoy");
+        return 0;
+}"""
+	ret = conf.try_build_and_exec(code)
+	conf.check_message('ahoj', '', 'ahoy'==ret) # boolean needed
+	conf.define('AHOJ', ret)
+
+
+	pc = conf.create_program_enumerator()
+	pc.name  = 'cat'
+	pc.paths = ['/usr/bin', '/bin']
+	pc.run()
+
+	#conf.check_header('stdio.h')
+	#conf.check_header('stdarg.h', 'HAVE_STDARG_H')
+	#conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
+	#conf.check_function('printf("a")', define_name="PRINTF_FUN", headers_code='#include <stdio.h>')
+
+	#conf.find_library('X11', ['/usr/lib','/usr/X11R6/lib'], define_name='X11_DIR')
+
+	le = conf.create_library_enumerator()
+	le.name = 'X11'
+	le.path = ['/usr/lib','/usr/X11R6/lib']
+	#le.define = 'X11_DIR'
+	le.run()
+
+
+	test = conf.create_header_enumerator()
+	test.name = 'klocale.h'
+	test.path = ['/usr/local/include', '/usr/include', '/opt/kde3/include/']
+	test.run()
+
+	conf.sub_config('tests')
+
+	# This demonstrates that after testing the specified paths, the compiler is given a chance
+	# to see if it can find the header by itself
+	headerconf=conf.create_header_configurator()
+	headerconf.define='STDL'
+	headerconf.name='stdlib.h'
+	headerconf.path=['/zapp/brannigan']
+	headerconf.run()
+
+	# Finds GL/gl.h
+	headerconf.define='HAVE_GL_GL_H'
+	headerconf.name='GL/gl.h'
+	headerconf.path=['/usr/X11R6/include','/usr/include']
+	headerconf.run()
+
+
+
+	# Looks for pkg-config package "blah5000" (should fail unless you really have such a package)
+	pkgconf = conf.create_pkgconfig_configurator()
+	pkgconf.define = 'BLAH5000'
+	pkgconf.name = 'blah5000'
+	pkgconf.run()
+
+	# Looks for pkg-config packages "gtkmm-2.4" and sets the uselib variables with name "GTKMM"
+	pkgconf.uselib = 'GTKMM'
+	pkgconf.name = 'gtkmm-2.4'
+	pkgconf.run()
+
+	pkgconf.uselib = 'BLUETOOTH'
+	pkgconf.name = 'bluez'
+	pkgconf.define = 'HAVE_BLUETOOTH_BLUEZ'
+	pkgconf.run()
+
+	#variables example
+	pkgconf.uselib = 'GLIB'
+	pkgconf.name = 'glib-2.0'
+	pkgconf.variables = "prefix includedir"
+	pkgconf.run()
+
+
+
+	# Tries to use the "unobtainium-config" tool
+	toolconf = conf.create_cfgtool_configurator()
+	toolconf.uselib = 'UNOBTAINIUM'
+	toolconf.define = 'HAVE_UNO'
+	toolconf.binary = 'unobtainium-config'
+	toolconf.run()
+
+	# Tries to use the "wx-config" tool and passes the resulting libs, cppflags etc. to the WX uselib
+	# variables
+	toolconf.uselib = 'WX'
+	toolconf.define = 'HAVE_WX'
+	toolconf.uselib = 'WX'
+	toolconf.binary = 'wx-config'
+	toolconf.run()
+
+
+	# Looks for the GL lib in the specified directories
+	libconf = conf.create_library_configurator()
+	libconf.uselib = 'GL'
+	libconf.name   = 'GL'
+	libconf.paths = ['/usr/X11R6/lib','/usr/lib','/usr/local/lib']
+	libconf.run()
+
+	libconf = conf.create_library_configurator()
+	libconf.uselib = 'GLAS'
+	libconf.name   = 'GL'
+	libconf.paths = ['/usr/X11R6/lib','/usr/lib','/usr/local/lib']
+	libconf.run()
+
+	# Looks for one of the specified libs in the directories
+	# The first match will be used
+	libconf = conf.create_library_configurator()
+	libconf.uselib = 'WX_GL'
+	libconf.name = 'wx_gtk_gl'
+	libconf.paths = ['/usr/lib']
+	libconf.run()
+
+
+	# finally, write the configuration header
+	conf.write_config_header('config.h')
+
+	# set a variant called "default", with another config.h
+	env_variant2 = conf.env.copy()
+	conf.set_env_name('debug', env_variant2)
+	env_variant2.set_variant('debug')
+
+	conf.setenv('debug')
+	#conf.env['defines'] = [] # use this to remove the defines copied
+	conf.define('DEBUG', 1)
+	conf.write_config_header('config.h', env=env_variant2)
+
+	# pkg-config variable substitution, might be nice when crosscompiling
+	conf.env['PKG_CONFIG_DEFINES'] = {'prefix':'/tmp'}
+	conf.check_pkg('mad', destvar='somedest')
+	#print conf.env['CPPPATH_somedest']
+
+	# Per check_pkg defines
+	conf.check_pkg('alsa', destvar='somedest',
+	               pkgdefs={'prefix':'/temp',
+	                        'exec_prefix':'/temp'})
+	#print conf.env['CPPPATH_somedest']
+	#print conf.env['LIBPATH_somedest']
+
+
+
+def build(bld):
+
+	# build empty files (for debugging or profiling)
+	#import Action
+	#def touch_func(task):
+	#	for x in task.m_outputs:
+	#		open(x.abspath(task.m_env), 'w').close()
+	#for x in []+Action.g_actions.keys():
+	#	Action.Action(x, vars=[], func=touch_func, color='CYAN')
+
+	# process subfolders from here
+	bld.add_subdirs('src complex variant tests')
+
+	# compile the flex+bison test if available
+	if bld.env_of_name('default')['FLEX']:
+		bld.add_subdirs('bisonflex')
+
+

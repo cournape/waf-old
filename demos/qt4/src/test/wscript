@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2005 (ita)
+
+"""
+obj = kdeobj()
+obj.source = 'window.cpp'
+obj.target = 'window'
+obj.uselib = 'QT QTCORE QTGUI QTOPENGL'
+obj.include = '.. .'
+"""
+
+def build(bld):
+	pass
+

@@ -1,0 +1,77 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# Creates a simple program with a custom compiler:
+# ih.coin -> ih.cpp -> ih.o
+
+
+# This file is not a module, and all the code
+# from it will be executed upon compile step
+#
+# This is really the content of a "def build(bld):" function definition
+#
+# By contrast, only functions can be defined in a wscript
+#
+
+# a program that links using the GLIB library, defined in the configuration
+# it also processes coin files, defined in the dang.py module (coin hook)
+obj = bld.create_obj('cpp', 'program')
+obj.find_sources_in_dirs('. gui')
+obj.includes='.'
+obj.uselib='GLIB'
+obj.target='shlib3'
+obj.want_libtool=1
+obj.vnum='1.2.3'
+
+# process file.pc.in -> file.pc
+obj = bld.create_obj('subst')
+obj.source = 'test.pc.in'
+obj.target = 'test.pc'
+obj.dict   = {'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm', 'VERSION': '1.0', 'XPM_LIBS': '-lxpm'}
+
+# a function to execute in the middle of the build
+def print_hello(task):
+	print "ahoy"
+	return 0
+
+# execute arbitrary code in the middle of the build
+obj = bld.create_obj('cmd')
+obj.fun = print_hello
+obj.prio = 1 # execute this task first
+
+# build dir traversal
+bld.add_subdirs('gui gui2')
+
+## generate files from a command
+out1 = bld.create_obj('command-output')
+out1.stdout = 'test1'
+out1.stdin = 'wscript_build'
+out1.command = 'some-script'
+out1.argv = ['--output-md5', out1.output_file('test1.md5')]
+out1.vars='COINCOIN'
+out1.env['COINCOIN']='Some string to trigger rebuilds'
+#obj.command_is_external = False
+
+out2 = bld.create_obj('command-output')
+out2.stdout = 'test2'
+out2.command = 'some-script'
+out2.argv = ['--input', out2.input_file('test1')]
+out2.vars='MIAOU'
+out2.env['MIAOU']='Another string to trigger rebuilds'
+out2.dependencies = [out1]
+
+out3 = bld.create_obj('command-output')
+out3.stdin = 'test2'
+out3.stdout = 'test3'
+out3.command = 'cat'
+out3.command_is_external = True
+out3.dependencies = [out2]
+
+out4 = bld.create_obj('command-output')
+out4.stdin = 'test3'
+out4.stdout = 'test4'
+out4.command = 'cat'
+out4.command_is_external = True
+out4.dependencies = [out3]
+

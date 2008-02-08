@@ -1,0 +1,17 @@
+<gconfschemafile>
+  <schemalist>
+
+    <schema>
+      <key>/schemas/apps/gnome_test/enable_pcskr_beeping</key>
+      <applyto>/apps/gnome_test/enable_pcskr_beeping</applyto>
+      <owner>gnome_test</owner>
+      <type>bool</type>
+      <default>true</default>
+      <locale name="C">
+        <short>GNOME Hello Demo</short>
+        <long>Sample application using GNOME technologies</long>
+      </locale>
+    </schema>
+
+  </schemalist>
+</gconfschemafile>
