@@ -318,7 +318,7 @@ class task_gen(object):
 		# list of elements coming first (without dependency)
 		tmp = []
 		for a in prec:
-			for x in precs.values():
+			for x in prec.values():
 				if a in x: break
 			else:
 				tmp.append(a)
@@ -329,23 +329,24 @@ class task_gen(object):
 			e = tmp.pop()
 			if e in keys: out.append(e)
 			try:
-				nlst = precs[e]
+				nlst = prec[e]
 			except KeyError:
 				pass
 			else:
-				del precs[e]
+				del prec[e]
 				for x in nlst:
-					for y in precs:
-						if x in precs[y]:
+					for y in prec:
+						if x in prec[y]:
 							break
 					else:
 						tmp.append(x)
 
-		if precs: fatal("graph has a cycle" % str(precs))
+		if prec: fatal("graph has a cycle" % str(precs))
+		out.reverse()
 
 		# then we run the methods in order
-		for x in y:
-			v = self.get_meth(self, x)
+		for x in out:
+			v = self.get_meth(x)
 			v(self)
 
 	def post(self):
