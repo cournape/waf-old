@@ -12,18 +12,18 @@ dang_str = '${DANG} ${SRC} > ${TGT}'
 def coin_file(self, node):
 	"""Create the task for the coin file
 	the action 'dang' above is called for this
-	the number '4' in the parameters is the priority of the task
+	the number '4' in the parameters is the priority of the task (optional)
 	 - lower number means high priority
 	 - odd means the task can be run in parallel with others of the same priority number
 	"""
+	out_source = node.change_ext('.cpp')
+
 	cointask = self.create_task('dang')
 	cointask.set_inputs(node)
-	cointask.set_outputs(node.change_ext('.cpp'))
+	cointask.set_outputs(out_source)
 
-	# now we also add the task that creates the object file ('.o' file)
-	cpptask = self.create_task('cpp')
-	cpptask.set_inputs(cointask.m_outputs)
-	cpptask.set_outputs(node.change_ext('.o'))
+	# the out file is to be processed elsewhere
+	self.allnodes.append(out_source)
 
 	# for debugging a task, use the following code:
 	#cointask.debug(1)

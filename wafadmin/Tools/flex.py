@@ -25,13 +25,14 @@ def l_file(self, node):
 
 	obj_ext = self.env['EXT_FLEX_OUT']
 
+	out_source = node.change_ext(ext)
+
 	ltask = self.create_task('flex')
 	ltask.set_inputs(node)
-	ltask.set_outputs(node.change_ext(ext))
+	ltask.set_outputs(out_source)
 
-	task = self.create_task(self.m_type_initials)
-	task.set_inputs(ltask.m_outputs)
-	task.set_outputs(node.change_ext(obj_ext))
+	# make the source produced as 'to be processed'
+	self.allnodes.append(out_source)
 
 def setup(bld):
 	# create our action here

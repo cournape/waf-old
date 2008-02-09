@@ -13,29 +13,29 @@ bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspat
 set_globals('EXT_BISON_C', '.tab.c')
 
 def yc_file(self, node):
-	yctask = self.create_task('bison')
-	yctask.set_inputs(node)
-
 	c_ext = self.env['EXT_BISON_C']
 	h_ext = c_ext.replace('.c', '.h')
-	o_ext = c_ext.replace('.c', '.o')
 
-	# figure out what nodes bison will build
-	sep=node.m_name.rfind(os.extsep)
+	# figure out what nodes bison will build TODO simplify
+	sep = node.m_name.rfind(os.extsep)
 	endstr = node.m_name[sep+1:]
 	if len(endstr) > 1:
 		endstr = endstr[1:]
 	else:
 		endstr = ""
+
 	# set up the nodes
-	newnodes = [node.change_ext(c_ext + endstr)]
-	if "-d" in self.env['BISONFLAGS']:
-		newnodes.append(node.change_ext(h_ext+endstr))
+	c_node = node.change_ext(c_ext + endstr)
+	if '-d' in self.env['BISONFLAGS']:
+		newnodes = [c_node, node.change_ext(h_ext+endstr)]
+	else:
+		newnodes = [c_node]
+
+	yctask = self.create_task('bison')
+	yctask.set_inputs(node)
 	yctask.set_outputs(newnodes)
 
-	task = self.create_task(self.m_type_initials)
-	task.set_inputs(yctask.m_outputs[0])
-	task.set_outputs(node.change_ext(o_ext))
+	self.allnodes.append(newnodes[0])
 
 def setup(bld):
 	# create our action here
