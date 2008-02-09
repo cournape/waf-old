@@ -312,6 +312,31 @@ class task_gen(object):
 		if not f1 in self.meths: self.meths.append(f1)
 		if not f2 in self.meths: self.meths.append(f2)
 
+	def apply_core(self):
+		# get the list of folders to use by the scanners
+		# all our objects share the same include paths anyway
+		tree = Params.g_build
+		self.allnodes = []
+		lst = self.to_list(self.source)
+		find_source_lst = self.path.find_source_lst
+		for filename in lst:
+			node = find_source_lst(Utils.split_path(filename))
+			if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
+			self.allnodes.append(node)
+
+		while self.allnodes:
+			node = self.allnodes.pop()
+			# Extract the extension and look for a handler hook.
+			filename = node.m_name
+			k = max(0, filename.rfind('.'))
+			x = self.get_hook(filename[k:])
+
+			if not x:
+				print str(self.__class__)
+				print self.__class__.all_hooks
+				raise TypeError, "Do not know how to process %s in %s" % (str(node), str(self.__class__))
+			x(self, node)
+
 	def apply(self):
 		"use hook_table to create the tasks"
 		dct = self.__class__.__dict__

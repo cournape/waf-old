@@ -299,28 +299,6 @@ def apply_type_vars(self):
 		if value: self.env.append_value(var, value)
 setattr(ccroot, 'apply_type_vars', apply_type_vars)
 
-def apply_core(self):
-	# get the list of folders to use by the scanners
-	# all our objects share the same include paths anyway
-	tree = Params.g_build
-
-	lst = self.to_list(self.source)
-	find_source_lst = self.path.find_source_lst
-	for filename in lst:
-		node = find_source_lst(Utils.split_path(filename))
-		if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
-
-		# Extract the extension and look for a handler hook.
-		k = max(0, filename.rfind('.'))
-		x = self.get_hook(filename[k:])
-
-		if not x:
-			print str(self.__class__)
-			print self.__class__.all_hooks
-			raise TypeError, "Do not know how to process %s in %s" % (str(node), str(self.__class__))
-		x(self, node)
-setattr(ccroot, 'apply_core', apply_core)
-
 def apply_link(self):
 	# if we are only building .o files, tell which ones we built
 	if self.m_type == 'objects':
