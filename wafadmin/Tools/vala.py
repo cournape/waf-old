@@ -6,7 +6,6 @@ import Action, Object, Runner, Utils, Params, Node
 import os.path
 import shutil
 
-
 class ValacAction(Action.Action):
 	def __init__(self):
 		Action.Action.__init__(self, 'valac', color='GREEN')
@@ -67,7 +66,6 @@ class ValacAction(Action.Action):
 			except IOError:
 				pass
 		return result
-
 
 def vala_file(self, node):
 	valatask = self.create_task('valac')

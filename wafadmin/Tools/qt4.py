@@ -193,6 +193,7 @@ class qt4obj(cpp.cppobj):
 					trans.append(t.m_inputs[0])
 
 			if self.update and Params.g_options.trans_qt4:
+				# we need the cpp files given, except the rcc task we create after
 				u = Task.TaskCmd(translation_update, self.env, 2)
 				u.m_inputs = [a.m_inputs[0] for a in self.p_compiletasks]
 				u.m_outputs=trans

@@ -7,13 +7,13 @@ import Action, Object
 gob2_str = '${GOB2} -o ${TGT[0].bld_dir(env)} ${GOB2FLAGS} ${SRC}'
 
 def gob2_file(self, node):
+	out_source = node.change_ext('.c')
+
 	gob2task = self.create_task('gob2')
 	gob2task.set_inputs(node)
-	gob2task.set_outputs(node.change_ext('.c'))
+	gob2task.set_outputs(out_source)
 
-	task = self.create_task('cc')
-	task.set_inputs(gob2task.m_outputs)
-	task.set_outputs(node.change_ext('.o'))
+	self.allnodes.append(out_source)
 
 def setup(bld):
 	# create our action here
