@@ -35,82 +35,83 @@ class cppobj(ccroot.ccroot):
 		global g_cpp_type_vars
 		self.p_type_vars = g_cpp_type_vars
 
-	def apply_obj_vars(self):
-		debug('apply_obj_vars called for cppobj', 'ccroot')
-		cpppath_st       = self.env['CPPPATH_ST']
-		lib_st           = self.env['LIB_ST']
-		staticlib_st     = self.env['STATICLIB_ST']
-		libpath_st       = self.env['LIBPATH_ST']
-		staticlibpath_st = self.env['STATICLIBPATH_ST']
+def apply_obj_vars(self):
+	debug('apply_obj_vars called for cppobj', 'ccroot')
+	cpppath_st       = self.env['CPPPATH_ST']
+	lib_st           = self.env['LIB_ST']
+	staticlib_st     = self.env['STATICLIB_ST']
+	libpath_st       = self.env['LIBPATH_ST']
+	staticlibpath_st = self.env['STATICLIBPATH_ST']
 
-		self.addflags('CXXFLAGS', self.cxxflags)
-		self.addflags('CPPFLAGS', self.cppflags)
+	self.addflags('CXXFLAGS', self.cxxflags)
+	self.addflags('CPPFLAGS', self.cppflags)
 
-		app = self.env.append_unique
+	app = self.env.append_unique
 
-		# local flags come first
-		# set the user-defined includes paths
-		if not self._incpaths_lst: self.apply_incpaths()
-		for i in self._bld_incpaths_lst:
-			app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
-			app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
+	# local flags come first
+	# set the user-defined includes paths
+	if not self._incpaths_lst: self.apply_incpaths()
+	for i in self._bld_incpaths_lst:
+		app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
+		app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
 
-		# set the library include paths
-		for i in self.env['CPPPATH']:
-			app('_CXXINCFLAGS', cpppath_st % i)
-			#print self.env['_CXXINCFLAGS']
-			#print " appending include ",i
+	# set the library include paths
+	for i in self.env['CPPPATH']:
+		app('_CXXINCFLAGS', cpppath_st % i)
+		#print self.env['_CXXINCFLAGS']
+		#print " appending include ",i
 
-		# this is usually a good idea
-		app('_CXXINCFLAGS', cpppath_st % '.')
-		app('_CXXINCFLAGS', cpppath_st % self.env.variant())
-		tmpnode = Params.g_build.m_curdirnode
-		app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-		app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
+	# this is usually a good idea
+	app('_CXXINCFLAGS', cpppath_st % '.')
+	app('_CXXINCFLAGS', cpppath_st % self.env.variant())
+	tmpnode = Params.g_build.m_curdirnode
+	app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
+	app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
 
-		for i in self.env['RPATH']:
-			app('LINKFLAGS', i)
+	for i in self.env['RPATH']:
+		app('LINKFLAGS', i)
 
-		for i in self.env['LIBPATH']:
-			app('LINKFLAGS', libpath_st % i)
+	for i in self.env['LIBPATH']:
+		app('LINKFLAGS', libpath_st % i)
 
-		for i in self.env['LIBPATH']:
-			app('LINKFLAGS', staticlibpath_st % i)
+	for i in self.env['LIBPATH']:
+		app('LINKFLAGS', staticlibpath_st % i)
 
-		if self.env['STATICLIB']:
-			self.env.append_value('LINKFLAGS', self.env['STATICLIB_MARKER'])
-			k = [(staticlib_st % i) for i in self.env['STATICLIB']]
-			app('LINKFLAGS', k)
+	if self.env['STATICLIB']:
+		self.env.append_value('LINKFLAGS', self.env['STATICLIB_MARKER'])
+		k = [(staticlib_st % i) for i in self.env['STATICLIB']]
+		app('LINKFLAGS', k)
 
-		# fully static binaries ?
-		if not self.env['FULLSTATIC']:
-			if self.env['STATICLIB'] or self.env['LIB']:
-				self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
+	# fully static binaries ?
+	if not self.env['FULLSTATIC']:
+		if self.env['STATICLIB'] or self.env['LIB']:
+			self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
 
-		app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
+	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
+setattr(cppobj, 'apply_obj_vars', apply_obj_vars) # TODO remove
+Object.gen_hook('apply_obj_vars', apply_obj_vars)
 
-	def apply_defines(self):
-		tree = Params.g_build
-		lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
-		milst = []
+def apply_defines(self):
+	tree = Params.g_build
+	lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
+	milst = []
 
-		# now process the local defines
-		for defi in lst:
-			if not defi in milst:
-				milst.append(defi)
+	# now process the local defines
+	for defi in lst:
+		if not defi in milst:
+			milst.append(defi)
 
-		# CXXDEFINES_USELIB
-		libs = self.to_list(self.uselib)
-		for l in libs:
-			val = self.env['CXXDEFINES_'+l]
-			if val: milst += self.to_list(val)
+	# CXXDEFINES_USELIB
+	libs = self.to_list(self.uselib)
+	for l in libs:
+		val = self.env['CXXDEFINES_'+l]
+		if val: milst += self.to_list(val)
 
-		self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
-		y = self.env['CXXDEFINES_ST']
-		self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
-
-# used by task_gen
-Object.gen_hook('apply_defines_cxx', cppobj.apply_defines)
+	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
+	y = self.env['CXXDEFINES_ST']
+	self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
+setattr(cppobj, 'apply_defines', apply_defines) # TODO remove
+Object.gen_hook('apply_defines', cppobj.apply_defines)
 
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
