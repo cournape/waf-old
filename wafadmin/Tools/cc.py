@@ -34,73 +34,74 @@ class ccobj(ccroot.ccroot):
 		global g_cc_type_vars
 		self.p_type_vars = g_cc_type_vars
 
-	def apply_obj_vars(self):
-		debug('apply_obj_vars called for ccobj', 'cc')
-		env = self.env
-		app = env.append_unique
+def apply_obj_vars(self):
+	debug('apply_obj_vars called for ccobj', 'cc')
+	env = self.env
+	app = env.append_unique
 
-		cpppath_st       = env['CPPPATH_ST']
-		lib_st           = env['LIB_ST']
-		staticlib_st     = env['STATICLIB_ST']
-		libpath_st       = env['LIBPATH_ST']
-		staticlibpath_st = env['STATICLIBPATH_ST']
+	cpppath_st       = env['CPPPATH_ST']
+	lib_st           = env['LIB_ST']
+	staticlib_st     = env['STATICLIB_ST']
+	libpath_st       = env['LIBPATH_ST']
+	staticlibpath_st = env['STATICLIBPATH_ST']
 
-		self.addflags('CCFLAGS', self.ccflags)
-		self.addflags('CPPFLAGS', self.cppflags)
+	self.addflags('CCFLAGS', self.ccflags)
+	self.addflags('CPPFLAGS', self.cppflags)
 
-		# local flags come first
-		# set the user-defined includes paths
-		if not self._incpaths_lst: self.apply_incpaths()
-		for i in self._bld_incpaths_lst:
-			app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
-			app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
+	# local flags come first
+	# set the user-defined includes paths
+	if not self._incpaths_lst: self.apply_incpaths()
+	for i in self._bld_incpaths_lst:
+		app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
+		app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
 
-		# set the library include paths
-		for i in env['CPPPATH']:
-			app('_CCINCFLAGS', cpppath_st % i)
+	# set the library include paths
+	for i in env['CPPPATH']:
+		app('_CCINCFLAGS', cpppath_st % i)
 
-		# this is usually a good idea
-		app('_CCINCFLAGS', cpppath_st % '.')
-		app('_CCINCFLAGS', cpppath_st % env.variant())
-		tmpnode = self.path
-		app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
+	# this is usually a good idea
+	app('_CCINCFLAGS', cpppath_st % '.')
+	app('_CCINCFLAGS', cpppath_st % env.variant())
+	tmpnode = self.path
+	app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
+	app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
 
-		for i in env['RPATH']:   app('LINKFLAGS', i)
-		for i in env['LIBPATH']: app('LINKFLAGS', libpath_st % i)
-		for i in env['LIBPATH']: app('LINKFLAGS', staticlibpath_st % i)
+	for i in env['RPATH']:   app('LINKFLAGS', i)
+	for i in env['LIBPATH']: app('LINKFLAGS', libpath_st % i)
+	for i in env['LIBPATH']: app('LINKFLAGS', staticlibpath_st % i)
 
-		if env['STATICLIB']:
-			self.env.append_value('LINKFLAGS', env['STATICLIB_MARKER'])
-			for i in env['STATICLIB']:
-				app('LINKFLAGS', staticlib_st % i)
+	if env['STATICLIB']:
+		self.env.append_value('LINKFLAGS', env['STATICLIB_MARKER'])
+		for i in env['STATICLIB']:
+			app('LINKFLAGS', staticlib_st % i)
 
-		# i doubt that anyone will make a fully static binary anyway
-		if not env['FULLSTATIC']:
-			if env['STATICLIB'] or env['LIB']:
-				self.env.append_value('LINKFLAGS', env['SHLIB_MARKER'])
+	# i doubt that anyone will make a fully static binary anyway
+	if not env['FULLSTATIC']:
+		if env['STATICLIB'] or env['LIB']:
+			self.env.append_value('LINKFLAGS', env['SHLIB_MARKER'])
 
-		for i in env['LIB']: app('LINKFLAGS', lib_st % i)
+	for i in env['LIB']: app('LINKFLAGS', lib_st % i)
 
-	def apply_defines(self):
-		tree = Params.g_build
-		lst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
-		milst = []
+def apply_defines(self):
+	tree = Params.g_build
+	lst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
+	milst = []
 
-		# now process the local defines
-		for defi in lst:
-			if not defi in milst:
-				milst.append(defi)
+	# now process the local defines
+	for defi in lst:
+		if not defi in milst:
+			milst.append(defi)
 
-		# CCDEFINES_
-		libs = self.to_list(self.uselib)
-		for l in libs:
-			val = self.env['CCDEFINES_'+l]
-			if val: milst += val
-		self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
-		y = self.env['CCDEFINES_ST']
-		self.env['_CCDEFFLAGS'] = [y%x for x in milst]
+	# CCDEFINES_
+	libs = self.to_list(self.uselib)
+	for l in libs:
+		val = self.env['CCDEFINES_'+l]
+		if val: milst += val
+	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
+	y = self.env['CCDEFINES_ST']
+	self.env['_CCDEFFLAGS'] = [y%x for x in milst]
 
+setattr(ccobj, 'apply_defines', apply_defines) # TODO remove
 Object.gen_hook('apply_defines_cc', ccobj.apply_defines)
 
 def c_hook(self, node):
