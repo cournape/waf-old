@@ -346,6 +346,7 @@ class dobj(Object.genobj):
 		importpaths = self.to_list(self.importpaths) + importpaths
 
 		# now process the import paths
+		# FIXME TODO add the import paths in the build dir too in case .d files are generated
 		for path in importpaths:
 			if os.path.isabs(path):
 				imppath = path
