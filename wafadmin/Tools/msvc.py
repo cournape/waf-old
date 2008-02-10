@@ -140,7 +140,7 @@ def apply_msvc_obj_vars(self):
 			if libname != None:
 				app('LINKFLAGS', libname)
 
-def is_syslib(self,libname):
+def is_syslib(self, libname):
 	global g_msvc_systemlibs
 	if g_msvc_systemlibs.has_key(libname):
 		return True
@@ -241,11 +241,10 @@ class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):
 		cc.ccobj.__init__(self, type, subtype)
 
-		self._incpaths_lst=[]
-		self._bld_incpaths_lst=[]
-
 		self.subsystem = ''
 		self.libpaths = []
+
+		self.set_order('apply_link', 'apply_link_msvc')
 
 	def apply_obj_vars(self):
 		debug('apply_obj_vars called for msvcccobj', 'msvc')
@@ -263,7 +262,7 @@ class msvccc(cc.ccobj):
 		# local flags come first
 		# set the user-defined includes paths
 		if not self._incpaths_lst: self.apply_incpaths()
-		for i in self._bld_incpaths_lst:
+		for i in self.bld_incpaths_lst:
 			app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
 			app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
 
@@ -284,11 +283,10 @@ class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
 		cpp.cppobj.__init__(self, type, subtype)
 
-		self._incpaths_lst=[]
-		self._bld_incpaths_lst=[]
-
 		self.subsystem = ''
-		self.libpaths=[]
+		self.libpaths = []
+
+		self.set_order('apply_link', 'apply_link_msvc')
 
 	def apply_obj_vars(self):
 		debug('apply_obj_vars called for msvccpp', 'msvc')
@@ -305,8 +303,8 @@ class msvccpp(cpp.cppobj):
 
 		# local flags come first
 		# set the user-defined includes paths
-		if not self._incpaths_lst: self.apply_incpaths()
-		for i in self._bld_incpaths_lst:
+		if not self.incpaths_lst: self.apply_incpaths()
+		for i in self.bld_incpaths_lst:
 			app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
 			app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
 
@@ -325,17 +323,17 @@ class msvccpp(cpp.cppobj):
 
 		self.apply_msvc_obj_vars()
 
+Object.gen_hook('apply_link_msvc', apply_link_msvc)
+
 setattr(msvccc, 'apply_msvc_obj_vars', apply_msvc_obj_vars)
 setattr(msvccc, 'is_syslib', is_syslib)
 setattr(msvccc, 'find_lt_names', find_lt_names)
 setattr(msvccc, 'getlibname', getlibname)
-setattr(msvccc, 'apply_link_msvc', apply_link_msvc)
 
 setattr(msvccpp, 'apply_msvc_obj_vars', apply_msvc_obj_vars)
 setattr(msvccpp, 'is_syslib', is_syslib)
 setattr(msvccpp, 'find_lt_names', find_lt_names)
 setattr(msvccpp, 'getlibname', getlibname)
-setattr(msvccpp, 'apply_link_msvc', apply_link_msvc)
 
 def setup(bld):
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'

@@ -25,9 +25,6 @@ class ccobj(ccroot.ccroot):
 		self.ccflags=''
 		self.cppflags=''
 
-		self._incpaths_lst=[]
-		self.bld_incpaths_lst=[]
-
 		#self.meths.append('apply_defines_cc')
 		self.set_order('apply_defines_cc', 'apply_core')
 		self.set_order('apply_lib_vars', 'apply_obj_vars_cc')

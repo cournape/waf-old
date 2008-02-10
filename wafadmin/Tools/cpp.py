@@ -26,9 +26,6 @@ class cppobj(ccroot.ccroot):
 		self.cxxflags=''
 		self.cppflags=''
 
-		self._incpaths_lst=[]
-		self.bld_incpaths_lst=[]
-
 		#self.meths.append('apply_defines_cpp')
 		self.set_order('apply_defines_cxx', 'apply_core')
 		self.set_order('apply_lib_vars', 'apply_obj_vars_cxx')

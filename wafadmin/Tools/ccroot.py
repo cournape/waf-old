@@ -89,7 +89,7 @@ class ccroot(Object.task_gen):
 		self.chmod = 0755
 
 		# these are kind of private, do not touch
-		self._incpaths_lst=[]
+		self.incpaths_lst=[]
 		self.inc_paths = []
 		self.scanner_defines = {}
 		self.bld_incpaths_lst=[]
@@ -112,7 +112,6 @@ class ccroot(Object.task_gen):
 		self.set_order('apply_core', 'apply_link')
 
 		# TODO move these out
-		self.set_order('apply_link', 'apply_link_msvc')
 		self.set_order('apply_link', 'apply_link_libtool')
 
 		self.set_order('apply_link', 'apply_vnum')
@@ -223,7 +222,7 @@ def apply_dependencies(self):
 		for obj in Object.g_allobjs:
 			if obj.path not in lst:
 				lst.append(obj.path)
-		self.inc_paths = lst + self._incpaths_lst
+		self.inc_paths = lst + self.incpaths_lst
 Object.gen_hook('apply_dependencies', apply_dependencies)
 
 def apply_incpaths(self):
@@ -232,11 +231,11 @@ def apply_incpaths(self):
 		if self.env['CPPPATH_'+i]:
 			lst += self.to_list(self.env['CPPPATH_'+i])
 	inc_lst = self.to_list(self.includes) + lst
-	lst = self._incpaths_lst
+	lst = self.incpaths_lst
 
 	# add the build directory
-	self._incpaths_lst.append(Params.g_build.m_bldnode)
-	self._incpaths_lst.append(Params.g_build.m_srcnode)
+	self.incpaths_lst.append(Params.g_build.m_bldnode)
+	self.incpaths_lst.append(Params.g_build.m_srcnode)
 
 	# now process the include paths
 	tree = Params.g_build
@@ -252,7 +251,7 @@ def apply_incpaths(self):
 		if not node in lst: lst.append(node)
 		Params.g_build.rescan(node)
 		self.bld_incpaths_lst.append(node)
-	# now the nodes are added to self._incpaths_lst
+	# now the nodes are added to self.incpaths_lst
 Object.gen_hook('apply_incpaths', apply_incpaths)
 
 def apply_type_vars(self):
@@ -426,7 +425,7 @@ def apply_obj_vars(self):
 
 	# local flags come first
 	# set the user-defined includes paths
-	#if not self._incpaths_lst: self.apply_incpaths()
+	#if not self.incpaths_lst: self.apply_incpaths()
 	#for i in self._bld_incpaths_lst:
 	#	app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
 	#	app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
