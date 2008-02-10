@@ -167,10 +167,10 @@ g_caml_scanner = ocaml_scanner()
 
 native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
-class ocamlobj(Object.genobj):
+class ocamlobj(Object.task_gen):
 	s_default_ext = ['.mli', '.mll', '.mly', '.ml']
 	def __init__(self, type='all', library=0):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 
 		self.m_type       = type
 		self.m_source     = ''
@@ -333,6 +333,9 @@ class ocamlobj(Object.genobj):
 
 			self.out_nodes += linktask.m_outputs
 
+			# we produce a .o file to be used by gcc
+			if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
+
 	def get_target_name(self, bytecode):
 		if bytecode:
 			if self.islibrary:
@@ -350,12 +353,12 @@ class ocamlobj(Object.genobj):
 def setup(bld):
 	Object.register('ocaml', ocamlobj)
 	Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN', prio=60)
-	Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', prio=101)
-	Action.simple_action('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', prio=101)
+	Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', prio=99)
+	Action.simple_action('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', prio=99)
 	Action.simple_action('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE', prio=40)
 	Action.simple_action('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN', prio=60)
-	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', prio=10)
-	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', prio=10)
+	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', prio=20)
+	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', prio=20)
 
 def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
