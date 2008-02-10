@@ -390,6 +390,7 @@ class task_gen(object):
 		# then we run the methods in order
 		for x in out:
 			v = self.get_meth(x)
+			debug("apply "+x, 'task_gen')
 			v()
 
 	def post(self):

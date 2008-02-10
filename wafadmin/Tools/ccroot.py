@@ -147,7 +147,6 @@ install'''.split()
 			return name[0:k+1] + ''.join([prefix, name[k+1:], suffix])
 
 def apply_verif(self):
-	debug("apply called for "+self.m_type_initials, 'ccroot')
 	if not hasattr(self, 'nochecks'):
 		if not (self.source or self.add_objects):
 			fatal('no source files specified for %s' % self)
@@ -247,7 +246,6 @@ def apply_incpaths(self):
 Object.gen_hook('apply_incpaths', apply_incpaths)
 
 def apply_type_vars(self):
-	debug('apply_type_vars called', 'ccroot')
 
 	# the subtype, used for all sorts of evil things
 	if not self.subtype:
@@ -291,7 +289,6 @@ def apply_link(self):
 Object.gen_hook('apply_link', apply_link)
 
 def apply_lib_vars(self):
-	debug('apply_lib_vars called', 'ccroot')
 	env=self.env
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
@@ -403,7 +400,6 @@ def apply_objdeps(self):
 Object.gen_hook('apply_objdeps', apply_objdeps)
 
 def apply_obj_vars(self):
-	debug('apply_obj_vars called for cppobj', 'ccroot')
 	lib_st           = self.env['LIB_ST']
 	staticlib_st     = self.env['STATICLIB_ST']
 	libpath_st       = self.env['LIBPATH_ST']
