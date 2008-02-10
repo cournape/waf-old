@@ -246,6 +246,7 @@ class msvccc(cc.ccobj):
 
 		self.subsystem = ''
 		self.libpaths = []
+		self.msvc = 1
 
 	def apply_defines(self):
 		tree = Params.g_build
@@ -308,6 +309,7 @@ class msvccpp(cpp.cppobj):
 
 		self.subsystem = ''
 		self.libpaths=[]
+		self.msvc = 1
 
 	def apply_defines(self):
 		tree = Params.g_build
