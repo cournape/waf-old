@@ -176,7 +176,7 @@ def install(self):
 		try: nums = self.vnum.split('.')
 		except AttributeError: nums = []
 
-		if nums and sys.platform != 'win32'
+		if nums and sys.platform != 'win32':
 			libname = self.link_task.m_outputs[0].m_name
 
 			name3 = libname+'.'+self.vnum
