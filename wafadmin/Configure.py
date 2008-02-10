@@ -1287,12 +1287,14 @@ class Configure(object):
 			return globals()["%s_configurator" % configurator](self)
 
 	def __getattr__(self, meth):
+		"""help create instances of the classes that are in this very module
+		and which name begin by 'create_'"""
 		def creator():
 			return globals()[meth.replace('create_', '')](self)
 		if meth.startswith("create_"):
 			return creator
 		else:
-			raise AttributeError, meth
+			raise AttributeError, 'Configure instance has no such method: %s' % meth
 
 	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
 		if not env: env=self.env
