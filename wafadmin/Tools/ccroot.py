@@ -121,30 +121,29 @@ apply_objdeps
 apply_vnum
 install'''.split()
 
-	def get_target_name(self, ext=None):
-		return self.get_library_name(self.target, ext)
+# helper used only here
+def get_target_name(self, ext=None):
+	name = self.target
+	v = self.env
 
-	def get_library_name(self, name, ext=None):
-		v = self.env
+	prefix = v[self.m_type+'_PREFIX']
+	if self.subtype+'_PREFIX' in v.m_table:
+		prefix = v[self.subtype+'_PREFIX']
 
-		prefix = v[self.m_type+'_PREFIX']
-		if self.subtype+'_PREFIX' in v.m_table:
-			prefix = v[self.subtype+'_PREFIX']
+	suffix = v[self.m_type+'_SUFFIX']
+	if self.subtype+'_SUFFIX' in v.m_table:
+		suffix = v[self.subtype+'_SUFFIX']
 
-		suffix = v[self.m_type+'_SUFFIX']
-		if self.subtype+'_SUFFIX' in v.m_table:
-			suffix = v[self.subtype+'_SUFFIX']
+	if ext: suffix = ext
+	if not prefix: prefix=''
+	if not suffix: suffix=''
 
-		if ext: suffix = ext
-		if not prefix: prefix=''
-		if not suffix: suffix=''
-
-		# Handle the case where the name contains a directory src/mylib
-		k=name.rfind('/')
-		if k == -1:
-			return ''.join([prefix, name, suffix])
-		else:
-			return name[0:k+1] + ''.join([prefix, name[k+1:], suffix])
+	# Handle the case where the name contains a directory src/mylib
+	k=name.rfind('/')
+	if k == -1:
+		return ''.join([prefix, name, suffix])
+	else:
+		return name[0:k+1] + ''.join([prefix, name[k+1:], suffix])
 
 def apply_verif(self):
 	if not hasattr(self, 'nochecks'):
@@ -283,7 +282,7 @@ def apply_link(self):
 	app = outputs.append
 	for t in self.compiled_tasks: app(t.m_outputs[0])
 	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_build(self.get_target_name()))
+	linktask.set_outputs(self.path.find_build(get_target_name(self)))
 
 	self.link_task = linktask
 Object.gen_hook('apply_link', apply_link)
