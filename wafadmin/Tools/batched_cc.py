@@ -105,13 +105,13 @@ def create_task_new(self, type, env=None, nice=100):
 		mm.add_slave(task)
 
 		if type == self.m_type_initials:
-			self.p_compiletasks.append(task)
+			self.compiled_tasks.append(task)
 
 		return task
 
 	task = Object.genobj.create_task(self, type, env, nice)
 	if type == self.m_type_initials:
-		self.p_compiletasks.append(task)
+		self.compiled_tasks.append(task)
 	return task
 
 def setup(bld):

@@ -19,7 +19,7 @@ def rc_file(self, node):
 	rctask.set_outputs(node.change_ext(self.env['winrc_obj_ext']))
 
 	# make linker can find compiled resource files
-	self.p_compiletasks.append(rctask)
+	self.compiled_tasks.append(rctask)
 
 def setup(bld):
 	# create our action, for use with rc file

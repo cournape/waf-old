@@ -126,7 +126,7 @@ def cxx_hook(self, node):
 
 	task.m_inputs = [node]
 	task.m_outputs = [node.change_ext(obj_ext)]
-	self.p_compiletasks.append(task)
+	self.compiled_tasks.append(task)
 
 def setup(bld):
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'

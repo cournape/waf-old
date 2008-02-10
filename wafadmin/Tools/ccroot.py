@@ -84,7 +84,7 @@ class ccroot(Object.task_gen):
 		#self.want_libtool=0 # -1: fake; 1: real
 		self.vnum=''
 
-		self.p_compiletasks=[]
+		self.compiled_tasks = []
 
 		# do not forget to set the following variables in a subclass
 		self.p_flag_vars = []
@@ -290,7 +290,7 @@ def apply_link(self):
 	if self.m_type == 'objects':
 		self.out_nodes = []
 		app = self.out_nodes.append
-		for t in self.p_compiletasks: app(t.m_outputs[0])
+		for t in self.compiled_tasks: app(t.m_outputs[0])
 		return
 
 	if self.m_type=='staticlib':
@@ -299,7 +299,7 @@ def apply_link(self):
 		linktask = self.create_task(self.m_type_initials+'_link', self.env)
 	outputs = []
 	app = outputs.append
-	for t in self.p_compiletasks: app(t.m_outputs[0])
+	for t in self.compiled_tasks: app(t.m_outputs[0])
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_build(self.get_target_name()))
 

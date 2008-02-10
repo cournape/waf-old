@@ -174,7 +174,7 @@ class qt4obj(cpp.cppobj):
 			task = Task.Task(type, env)
 
 		self.m_tasks.append(task)
-		if type == 'cpp': self.p_compiletasks.append(task)
+		if type == 'cpp': self.compiled_tasks.append(task)
 		return task
 
 	def apply(self):
@@ -195,7 +195,7 @@ class qt4obj(cpp.cppobj):
 			if self.update and Params.g_options.trans_qt4:
 				# we need the cpp files given, except the rcc task we create after
 				u = Task.TaskCmd(translation_update, self.env, 2)
-				u.m_inputs = [a.m_inputs[0] for a in self.p_compiletasks]
+				u.m_inputs = [a.m_inputs[0] for a in self.compiled_tasks]
 				u.m_outputs=trans
 
 			if self.langname:
