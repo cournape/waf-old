@@ -1,7 +1,0 @@
-#! /usr/bin/env python
-# encoding: utf-8
-# Richard Hughes, 2006 (hughsie)
-
-# we should glob for *.xml here
-install_files('DATADIR', 'gnome/help/gnome-hello/C', 'gnome-hello.xml')
-install_files('DATADIR', 'gnome/help/gnome-hello/C', 'legal.xml')
