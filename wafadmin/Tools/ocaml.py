@@ -272,69 +272,6 @@ def apply_vars_ml(self):
 				if self.native_env: self.native_env.append_value(vname, cnt)
 Object.gen_hook('apply_vars_ml', apply_vars_ml)
 
-def apply_core_ml(self):
-	# first create the nodes corresponding to the sources
-	source_lst = self.to_list(self.source)
-	for filename in source_lst:
-		base, ext = os.path.splitext(filename)
-		node = self.path.find_build(filename)
-		#if not ext in self.s_default_ext:
-		#	print "??? ", filename
-
-		if ext == '.mll':
-			mll_task = self.create_task('ocamllex', self.native_env)
-			mll_task.set_inputs(node)
-			mll_task.set_outputs(node.change_ext('.ml'))
-			self._mlltasks.append(mll_task)
-
-			node = mll_task.m_outputs[0]
-
-		elif ext == '.mly':
-			mly_task = self.create_task('ocamlyacc', self.native_env)
-			mly_task.set_inputs(node)
-			mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
-			self._mlytasks.append(mly_task)
-
-			task = self.create_task('ocamlcmi', self.native_env)
-			task.set_inputs(mly_task.m_outputs[1])
-			task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
-
-			node = mly_task.m_outputs[0]
-		elif ext == '.mli':
-			task = self.create_task('ocamlcmi', self.native_env)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.cmi'))
-			self.mlitasks.append(task)
-			continue
-		elif ext == '.c':
-			task = self.create_task('ocamlcc', self.native_env)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.o'))
-
-			self.out_nodes += task.m_outputs
-			continue
-		else:
-			pass
-
-		if self.native_env:
-			task = self.create_task('ocaml', self.native_env)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.cmx'))
-			task.m_scanner = g_caml_scanner
-			task.obj = self
-			task.incpaths = self._bld_incpaths_lst
-			self.native_tasks.append(task)
-		if self.bytecode_env:
-			task = self.create_task('ocaml', self.bytecode_env)
-			task.set_inputs(node)
-			task.m_scanner = g_caml_scanner
-			task.obj = self
-			task.bytecode = 1
-			task.incpaths = self._bld_incpaths_lst
-			task.set_outputs(node.change_ext('.cmo'))
-			self.bytecode_tasks.append(task)
-Object.gen_hook('apply_core_ml', apply_core_ml)
-
 def apply_link_ml(self):
 
 	if self.bytecode_env:
@@ -354,6 +291,57 @@ def apply_link_ml(self):
 		# we produce a .o file to be used by gcc
 		if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
 Object.gen_hook('apply_link_ml', apply_link_ml)
+
+def mll_hook(self, node):
+	mll_task = self.create_task('ocamllex', self.native_env)
+	mll_task.set_inputs(node)
+	mll_task.set_outputs(node.change_ext('.ml'))
+	self.mlltasks.append(mll_task)
+
+	self.allnodes.append(mll_task.m_outputs[0])
+
+def mly_hook(self, node):
+	mly_task = self.create_task('ocamlyacc', self.native_env)
+	mly_task.set_inputs(node)
+	mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
+	self._mlytasks.append(mly_task)
+	self.allnodes.append(mly_task.m_outputs[0])
+
+	task = self.create_task('ocamlcmi', self.native_env)
+	task.set_inputs(mly_task.m_outputs[1])
+	task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
+
+def mli_hook(self, node):
+	task = self.create_task('ocamlcmi', self.native_env)
+	task.set_inputs(node)
+	task.set_outputs(node.change_ext('.cmi'))
+	self.mlitasks.append(task)
+
+def mlc_hook(self, node):
+	task = self.create_task('ocamlcc', self.native_env)
+	task.set_inputs(node)
+	task.set_outputs(node.change_ext('.o'))
+
+	self.out_nodes += task.m_outputs
+
+def ml_hook(self, node):
+	if self.native_env:
+		task = self.create_task('ocaml', self.native_env)
+		task.set_inputs(node)
+		task.set_outputs(node.change_ext('.cmx'))
+		task.m_scanner = g_caml_scanner
+		task.obj = self
+		task.incpaths = self._bld_incpaths_lst
+		self.native_tasks.append(task)
+	if self.bytecode_env:
+		task = self.create_task('ocaml', self.bytecode_env)
+		task.set_inputs(node)
+		task.m_scanner = g_caml_scanner
+		task.obj = self
+		task.bytecode = 1
+		task.incpaths = self._bld_incpaths_lst
+		task.set_outputs(node.change_ext('.cmo'))
+		self.bytecode_tasks.append(task)
 
 def setup(bld):
 	Object.register('ocaml', ocamlobj)
