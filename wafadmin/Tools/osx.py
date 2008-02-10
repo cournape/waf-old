@@ -14,8 +14,8 @@ def apply_core_osx(self):
 	ccroot.ccroot.apply_core_o(self)
 	if self.m_type == 'program':
 		apptask = self.create_task('macapp', self.env)
-		apptask.set_inputs(self.m_linktask.m_outputs)
-		apptask.set_outputs(self.m_linktask.m_outputs[0].change_ext('.app'))
+		apptask.set_inputs(self.link_task.m_outputs)
+		apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
 		self.m_apptask = apptask
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]

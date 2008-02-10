@@ -75,16 +75,14 @@ class ccroot(Object.task_gen):
 		self.uselib_local=''
 
 
-		# add .o files produced by another Object subclass
+		# add .o files produced by another task_gen class
 		self.add_objects = ''
 
-		self.m_linktask=None
+		self.link_task = None
 
 		# libtool emulation
 		#self.want_libtool=0 # -1: fake; 1: real
 		self.vnum=''
-
-		self.compiled_tasks = []
 
 		# do not forget to set the following variables in a subclass
 		self.p_flag_vars = []
@@ -102,6 +100,8 @@ class ccroot(Object.task_gen):
 		self._bld_incpaths_lst=[]
 
 		self.subtype = subtype
+		self.compiled_tasks = []
+
 
 		# link mode: program, shlib or staticlib - nothing else
 		self.link_mode = 'program'
@@ -173,7 +173,7 @@ def apply_verif(self):
 setattr(ccroot, 'apply_verif', apply_verif)
 
 def install(self):
-	if not hasattr(self, 'm_linktask'): return
+	if not hasattr(self, 'link_task'): return
 	if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 
 	dest_var    = self.install_var
@@ -185,19 +185,19 @@ def install(self):
 		dest_subdir = self.env[self.subtype+'_INST_DIR']
 
 	if self.m_type == 'program':
-		self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=self.chmod)
+		self.install_results(dest_var, dest_subdir, self.link_task, chmod=self.chmod)
 	elif self.m_type == 'shlib' or self.m_type == 'plugin':
 		if sys.platform=='win32' or not self.vnum:
-			self.install_results(dest_var, dest_subdir, self.m_linktask)
+			self.install_results(dest_var, dest_subdir, self.link_task)
 		else:
-			libname = self.m_linktask.m_outputs[0].m_name
+			libname = self.link_task.m_outputs[0].m_name
 
 			nums=self.vnum.split('.')
 			name3 = libname+'.'+self.vnum
 			name2 = libname+'.'+nums[0]
 			name1 = libname
 
-			filename = self.m_linktask.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
+			filename = self.link_task.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
 			Common.install_as(dest_var, dest_subdir+'/'+name3, filename, env=self.env)
 
 			#print 'lib/'+name2, '->', name3
@@ -206,7 +206,7 @@ def install(self):
 			Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
 			Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
 	else:
-		self.install_results(dest_var, dest_subdir, self.m_linktask, chmod=0644)
+		self.install_results(dest_var, dest_subdir, self.link_task, chmod=0644)
 setattr(ccroot, 'install', install)
 
 def apply_dependencies(self):
@@ -303,7 +303,7 @@ def apply_link(self):
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_build(self.get_target_name()))
 
-	self.m_linktask = linktask
+	self.link_task = linktask
 setattr(ccroot, 'apply_link', apply_link)
 
 def apply_lib_vars(self):
@@ -359,11 +359,11 @@ def apply_lib_vars(self):
 		if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
 		# set the dependency over the link task
-		if y.m_linktask is not None:
-			self.m_linktask.set_run_after(y.m_linktask)
-			dep_nodes = getattr(self.m_linktask, 'dep_nodes', [])
-			dep_nodes += y.m_linktask.m_outputs
-			self.m_linktask.dep_nodes = dep_nodes
+		if y.link_task is not None:
+			self.link_task.set_run_after(y.link_task)
+			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
+			dep_nodes += y.link_task.m_outputs
+			self.link_task.dep_nodes = dep_nodes
 
 		# add ancestors uselib too
 		# TODO potential problems with static libraries ?
@@ -382,7 +382,7 @@ setattr(ccroot, 'apply_lib_vars', apply_lib_vars)
 
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
-	if not self.m_linktask: return
+	if not self.link_task: return
  	seen = []
 	names = self.to_list(self.add_objects)
 	while names:
@@ -415,7 +415,7 @@ def apply_objdeps(self):
 		if not y.m_posted: y.post()
 		seen.append(x)
 
-		self.m_linktask.m_inputs += y.out_nodes
+		self.link_task.m_inputs += y.out_nodes
 setattr(ccroot, 'apply_objdeps', apply_objdeps)
 
 def apply_vnum(self):
@@ -423,7 +423,7 @@ def apply_vnum(self):
 		nums=self.vnum.split('.')
 		# this is very unix-specific
 		try: name3 = self.soname
-		except AttributeError: name3 = self.m_linktask.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
+		except AttributeError: name3 = self.link_task.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
 setattr(ccroot, 'apply_vnum', apply_vnum)
 

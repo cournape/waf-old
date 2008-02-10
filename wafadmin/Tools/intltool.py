@@ -79,7 +79,7 @@ class intltool_po(Object.genobj):
 class intltoolobj(cc.ccobj):
 	def __init__(self, type='program'):
 		cc.ccobj.__init__(self, type)
-		self.m_linktask = None
+		self.link_task = None
 		self.m_latask   = None
 		self.want_libtool = -1 # fake libtool here
 

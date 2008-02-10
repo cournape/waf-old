@@ -57,7 +57,7 @@ def apply_link_libtool(self):
 	if not getattr(self, 'want_libtool', 0): return
 
 	if self.m_type != 'program':
-		linktask = self.m_linktask
+		linktask = self.link_task
 		latask = self.create_task('fakelibtool', self.env)
 		latask.set_inputs(linktask.m_outputs)
 		latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))

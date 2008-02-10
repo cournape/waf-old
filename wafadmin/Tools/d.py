@@ -300,10 +300,10 @@ class dobj(Object.genobj):
 			if not tmp_path in libpaths: libpaths = [tmp_path] + libpaths
 
 			# set the dependency over the link task
-			if y.m_linktask is not None:
-				linktask.set_run_after(y.m_linktask)
+			if y.link_task is not None:
+				linktask.set_run_after(y.link_task)
 				dep_nodes = getattr(linktask, 'dep_nodes', [])
-				dep_nodes += y.m_linktask.m_outputs
+				dep_nodes += y.link_task.m_outputs
 				linktask.dep_nodes = dep_nodes
 
 			# add ancestors uselib too
@@ -428,7 +428,7 @@ class dobj(Object.genobj):
 		linktask.set_inputs(outputs)
 		linktask.set_outputs(self.path.find_build(self.get_target_name()))
 
-		self.m_linktask = linktask
+		self.link_task = linktask
 
 	def get_target_name(self):
 		v = self.env

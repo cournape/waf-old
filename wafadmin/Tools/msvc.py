@@ -233,9 +233,9 @@ def getlibname(self,libname,is_static=False):
 	return None
 
 def apply_link_msvc(self):
-	if self.m_linktask is not None:
-		self.m_linktask.m_type = self.m_type
-		self.m_linktask.m_subsystem = self.subsystem
+	if self.link_task is not None:
+		self.link_task.m_type = self.m_type
+		self.link_task.m_subsystem = self.subsystem
 
 class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):

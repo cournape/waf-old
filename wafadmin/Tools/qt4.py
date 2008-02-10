@@ -149,7 +149,7 @@ def create_uic_task(self, node):
 class qt4obj(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
 		cpp.cppobj.__init__(self, type, subtype)
-		self.m_linktask = None
+		self.link_task = None
 		self.m_latask = None
 		self.lang=''
 		self.langname=''
@@ -204,7 +204,7 @@ class qt4obj(cpp.cppobj):
 				t.set_outputs(self.path.find_build(self.langname+'.qrc'))
 				t.path = self.path
 				k = create_rcc_task(self, t.m_outputs[0])
-				self.m_linktask.m_inputs.append(k.m_outputs[0])
+				self.link_task.m_inputs.append(k.m_outputs[0])
 
 		lst = []
 		for flag in self.to_list(self.env['CXXFLAGS']):
