@@ -229,8 +229,8 @@ def prepare():
 	# We have found wscript, but there is no guarantee that it is valid
 	os.chdir(candidate)
 
-	# xml -> jump to the parser
 	if xml:
+		# the xml module is not provided by default, you will have to import it yourself
 		from XMLScripting import compile
 		compile(candidate+os.sep+'wscript_xml')
 	else:
