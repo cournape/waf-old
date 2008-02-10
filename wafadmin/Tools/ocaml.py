@@ -236,6 +236,7 @@ class ocamlobj(Object.task_gen):
 		self.set_order('apply_vars_ml', 'apply_core_ml')
 		self.set_order('apply_core_ml', 'apply_link_ml')
 		self.set_order('apply_link_ml', 'apply_link') # for c/c++
+		self.meths.remove('apply_link')
 
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
