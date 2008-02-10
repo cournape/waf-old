@@ -138,20 +138,6 @@ apply_vnum
 apply_defines
 install'''.split()
 
-
-	def addflags(self, var, value):
-		"utility function for cc.py and ccroot.py: add self.cxxflags to CXXFLAGS"
-		self.env.append_value(var, self.to_list(value))
-
-	def create_task(self, type, env=None, nice=None):
-		"overrides Object.create_task to catch the creation of cpp tasks"
-		task = Object.task_gen.create_task(self, type, env)
-		if nice: task.prio = nice
-		# TODO
-		if type in ['cc', 'cpp']:
-			self.p_compiletasks.append(task)
-		return task
-
 	# TODO
 	def apply_verif(self):
 		debug("apply called for "+self.m_type_initials, 'ccroot')

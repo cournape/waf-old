@@ -117,6 +117,7 @@ def c_hook(self, node):
 
 	task.m_inputs = [node]
 	task.m_outputs = [node.change_ext(obj_ext)]
+	self.p_compiletasks.append(task)
 
 def setup(bld):
 	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'

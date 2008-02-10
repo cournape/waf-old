@@ -301,6 +301,10 @@ class task_gen(object):
 		if type(value) is types.StringType: return value.split()
 		else: return value
 
+	def addflags(self, var, value):
+		"utility function add self.cxxflags -> env['CXXFLAGS']"
+		self.env.append_value(var, self.to_list(value))
+
 	def add_method(self, name):
 		"add a method to execute"
 		# TODO adding functions ?
