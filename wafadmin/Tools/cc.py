@@ -28,6 +28,9 @@ class ccobj(ccroot.ccroot):
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
 
+		#self.meths.append('apply_defines_cc')
+		self.set_order('apply_defines_cc', 'apply_core')
+
 		global g_cc_flag_vars
 		self.p_flag_vars = g_cc_flag_vars
 
@@ -82,7 +85,7 @@ def apply_obj_vars(self):
 
 	for i in env['LIB']: app('LINKFLAGS', lib_st % i)
 
-def apply_defines(self):
+def apply_defines_cc(self):
 	tree = Params.g_build
 	lst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
 	milst = []
@@ -100,9 +103,7 @@ def apply_defines(self):
 	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 	y = self.env['CCDEFINES_ST']
 	self.env['_CCDEFFLAGS'] = [y%x for x in milst]
-
-setattr(ccobj, 'apply_defines', apply_defines) # TODO remove
-Object.gen_hook('apply_defines_cc', ccobj.apply_defines)
+Object.gen_hook('apply_defines_cc', apply_defines_cc)
 
 def c_hook(self, node):
 	# create the compilation task: cpp or cc

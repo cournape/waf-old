@@ -104,11 +104,9 @@ class ccroot(Object.task_gen):
 
 		self.set_order('apply_type_vars', 'apply_incpaths')
 		self.set_order('apply_incpaths', 'apply_dependencies')
-		self.set_order('apply_dependencies', 'apply_defines')
-		self.set_order('apply_defines', 'apply_core')
+		self.set_order('apply_dependencies', 'apply_core')
 
 		# TODO move these out
-		self.set_order('apply_defines', 'apply_libtool')
 		self.set_order('apply_libtool', 'apply_core')
 
 		self.set_order('apply_core', 'apply_link')
@@ -131,7 +129,6 @@ apply_link
 apply_lib_vars
 apply_objdeps
 apply_vnum
-apply_defines
 install'''.split()
 
 	def get_target_name(self, ext=None):

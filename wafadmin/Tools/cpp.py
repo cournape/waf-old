@@ -29,6 +29,9 @@ class cppobj(ccroot.ccroot):
 		self._incpaths_lst=[]
 		self._bld_incpaths_lst=[]
 
+		#self.meths.append('apply_defines_cpp')
+		self.set_order('apply_defines_cxx', 'apply_core')
+
 		global g_cpp_flag_vars
 		self.p_flag_vars = g_cpp_flag_vars
 
@@ -91,7 +94,7 @@ def apply_obj_vars(self):
 setattr(cppobj, 'apply_obj_vars', apply_obj_vars) # TODO remove
 Object.gen_hook('apply_obj_vars', apply_obj_vars)
 
-def apply_defines(self):
+def apply_defines_cxx(self):
 	tree = Params.g_build
 	lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
 	milst = []
@@ -110,8 +113,7 @@ def apply_defines(self):
 	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 	y = self.env['CXXDEFINES_ST']
 	self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
-setattr(cppobj, 'apply_defines', apply_defines) # TODO remove
-Object.gen_hook('apply_defines', cppobj.apply_defines)
+Object.gen_hook('apply_defines_cxx', apply_defines_cxx)
 
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
