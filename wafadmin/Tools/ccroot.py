@@ -76,6 +76,8 @@ class ccroot(Object.task_gen):
 		#self.vnum='1.2.3' #
 		#self.soname='.so.3' # else soname is computed from vnum
 
+		#self.program_chmod = 0755 # by default: 0755
+
 		# do not forget to set the following variables in a subclass
 		self.p_flag_vars = []
 		self.p_type_vars = []
