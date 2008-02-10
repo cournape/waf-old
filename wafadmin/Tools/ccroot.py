@@ -138,15 +138,6 @@ apply_vnum
 apply_defines
 install'''.split()
 
-	# TODO
-	def apply_verif(self):
-		debug("apply called for "+self.m_type_initials, 'ccroot')
-		if not hasattr(self, 'nochecks'):
-			if not (self.source or self.add_objects):
-				fatal('no source files specified for %s' % self)
-			if not self.target and self.m_type != 'objects':
-				fatal('no target for %s' % self)
-
 	def get_target_name(self, ext=None):
 		return self.get_library_name(self.target, ext)
 
@@ -171,6 +162,15 @@ install'''.split()
 			return ''.join([prefix, name, suffix])
 		else:
 			return name[0:k+1] + ''.join([prefix, name[k+1:], suffix])
+
+def apply_verif(self):
+	debug("apply called for "+self.m_type_initials, 'ccroot')
+	if not hasattr(self, 'nochecks'):
+		if not (self.source or self.add_objects):
+			fatal('no source files specified for %s' % self)
+		if not self.target and self.m_type != 'objects':
+			fatal('no target for %s' % self)
+setattr(ccroot, 'apply_verif', apply_verif)
 
 def install(self):
 	if not hasattr(self, 'm_linktask'): return
