@@ -85,8 +85,6 @@ class ccroot(Object.task_gen):
 		# TODO ???
 		self.m_type_initials = ''
 
-		self.chmod = 0755
-
 		# these are kind of private, do not touch
 		self.incpaths_lst=[]
 		self.inc_paths = []
@@ -170,7 +168,9 @@ def install(self):
 		dest_subdir = self.env[self.subtype+'_INST_DIR']
 
 	if self.m_type == 'program':
-		self.install_results(dest_var, dest_subdir, self.link_task, chmod=self.chmod)
+		try: mode = self.program_chmod
+		except AttributeError: mode = 0755
+		self.install_results(dest_var, dest_subdir, self.link_task, chmod=mode)
 	elif self.m_type == 'shlib' or self.m_type == 'plugin':
 		if sys.platform=='win32' or not self.vnum:
 			self.install_results(dest_var, dest_subdir, self.link_task)
@@ -191,7 +191,7 @@ def install(self):
 			Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
 			Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
 	else:
-		self.install_results(dest_var, dest_subdir, self.link_task, chmod=0644)
+		self.install_results(dest_var, dest_subdir, self.link_task, chmod=self.chmod)
 Object.gen_hook('install', install)
 
 def apply_dependencies(self):
