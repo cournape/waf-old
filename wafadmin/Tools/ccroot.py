@@ -163,7 +163,7 @@ def apply_verif(self):
 			fatal('no source files specified for %s' % self)
 		if not self.target and self.m_type != 'objects':
 			fatal('no target for %s' % self)
-setattr(ccroot, 'apply_verif', apply_verif)
+Object.gen_hook('apply_verif', apply_verif)
 
 def install(self):
 	if not hasattr(self, 'link_task'): return
@@ -200,7 +200,7 @@ def install(self):
 			Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
 	else:
 		self.install_results(dest_var, dest_subdir, self.link_task, chmod=0644)
-setattr(ccroot, 'install', install)
+Object.gen_hook('install', install)
 
 def apply_dependencies(self):
 	if self.dependencies:
@@ -224,7 +224,7 @@ def apply_dependencies(self):
 			if obj.path not in lst:
 				lst.append(obj.path)
 		self.inc_paths = lst + self._incpaths_lst
-setattr(ccroot, 'apply_dependencies', apply_dependencies)
+Object.gen_hook('apply_dependencies', apply_dependencies)
 
 def apply_incpaths(self):
 	lst = []
@@ -253,7 +253,7 @@ def apply_incpaths(self):
 		Params.g_build.rescan(node)
 		self.bld_incpaths_lst.append(node)
 	# now the nodes are added to self._incpaths_lst
-setattr(ccroot, 'apply_incpaths', apply_incpaths)
+Object.gen_hook('apply_incpaths', apply_incpaths)
 
 def apply_type_vars(self):
 	debug('apply_type_vars called', 'ccroot')
@@ -276,7 +276,7 @@ def apply_type_vars(self):
 		#print compvar
 		value = self.env[compvar]
 		if value: self.env.append_value(var, value)
-setattr(ccroot, 'apply_type_vars', apply_type_vars)
+Object.gen_hook('apply_type_vars', apply_type_vars)
 
 def apply_link(self):
 	# if we are only building .o files, tell which ones we built
@@ -297,7 +297,7 @@ def apply_link(self):
 	linktask.set_outputs(self.path.find_build(self.get_target_name()))
 
 	self.link_task = linktask
-setattr(ccroot, 'apply_link', apply_link)
+Object.gen_hook('apply_link', apply_link)
 
 def apply_lib_vars(self):
 	debug('apply_lib_vars called', 'ccroot')
@@ -371,7 +371,7 @@ def apply_lib_vars(self):
 		for v in self.p_flag_vars:
 			val = self.env[v+'_'+x]
 			if val: self.env.append_value(v, val)
-setattr(ccroot, 'apply_lib_vars', apply_lib_vars)
+Object.gen_hook('apply_lib_vars', apply_lib_vars)
 
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
@@ -409,7 +409,7 @@ def apply_objdeps(self):
 		seen.append(x)
 
 		self.link_task.m_inputs += y.out_nodes
-setattr(ccroot, 'apply_objdeps', apply_objdeps)
+Object.gen_hook('apply_objdeps', apply_objdeps)
 
 def apply_obj_vars(self):
 	debug('apply_obj_vars called for cppobj', 'ccroot')
@@ -464,7 +464,7 @@ def apply_obj_vars(self):
 			self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
 
 	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
-setattr(ccroot, 'apply_obj_vars', apply_obj_vars)
+Object.gen_hook('apply_obj_vars', apply_obj_vars)
 
 def apply_vnum(self):
 	if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
@@ -473,5 +473,5 @@ def apply_vnum(self):
 		try: name3 = self.soname
 		except AttributeError: name3 = self.link_task.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
-setattr(ccroot, 'apply_vnum', apply_vnum)
+Object.gen_hook('apply_vnum', apply_vnum)
 
