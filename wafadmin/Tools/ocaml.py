@@ -221,7 +221,7 @@ class ocamlobj(Object.task_gen):
 	def lastlinktask(self):
 		return self.linktasks[0]
 
-	def apply_incpaths(self):
+	def apply_incpaths_ml(self):
 		inc_lst = self.includes.split()
 		lst = self._incpaths_lst
 		tree = Params.g_build
@@ -235,9 +235,7 @@ class ocamlobj(Object.task_gen):
 			self._bld_incpaths_lst.append(node)
 		# now the nodes are added to self._incpaths_lst
 
-	def apply(self):
-		self.apply_incpaths()
-
+	def apply_vars_ml(self):
 		for i in self._incpaths_lst:
 			if self.bytecode_env:
 				self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
@@ -255,11 +253,15 @@ class ocamlobj(Object.task_gen):
 					if self.bytecode_env: self.bytecode_env.append_value(vname, cnt)
 					if self.native_env: self.native_env.append_value(vname, cnt)
 
-		source_lst = self.to_list(self.source)
-		source_lst.sort() # IMPORTANT make certain the list has the same order
-		nodes_lst = []
+	def apply(self):
+		self.apply_incpaths_ml()
+		self.apply_vars_ml()
+		self.apply_core_ml()
+		self.apply_link_ml()
 
+	def apply_core_ml(self):
 		# first create the nodes corresponding to the sources
+		source_lst = self.to_list(self.source)
 		for filename in source_lst:
 			base, ext = os.path.splitext(filename)
 			node = self.path.find_build(filename)
@@ -318,6 +320,8 @@ class ocamlobj(Object.task_gen):
 				task.incpaths = self._bld_incpaths_lst
 				task.set_outputs(node.change_ext('.cmo'))
 				self.bytecode_tasks.append(task)
+
+	def apply_link_ml(self):
 
 		if self.bytecode_env:
 			linktask = ocaml_link('ocalink', self.bytecode_env)
