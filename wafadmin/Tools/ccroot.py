@@ -47,9 +47,6 @@ class ccroot(Object.task_gen):
 		# TODO obsolete
 		self.m_type = type
 
-		self.inst_var = ''
-		self.inst_dir = ''
-
 		# includes, seen from the current directory
 		self.includes=''
 
@@ -76,7 +73,8 @@ class ccroot(Object.task_gen):
 		self.add_objects = ''
 
 		# version number for shared libraries
-		self.vnum=''
+		#self.vnum='1.2.3' #
+		#self.soname='.so.3' # else soname is computed from vnum
 
 		# do not forget to set the following variables in a subclass
 		self.p_flag_vars = []
@@ -172,24 +170,23 @@ def install(self):
 		except AttributeError: mode = 0755
 		self.install_results(dest_var, dest_subdir, self.link_task, chmod=mode)
 	elif self.m_type == 'shlib' or self.m_type == 'plugin':
-		if sys.platform=='win32' or not self.vnum:
-			self.install_results(dest_var, dest_subdir, self.link_task)
-		else:
+
+		try: nums = self.vnum.split('.')
+		except AttributeError: nums = []
+
+		if nums and sys.platform != 'win32'
 			libname = self.link_task.m_outputs[0].m_name
 
-			nums=self.vnum.split('.')
 			name3 = libname+'.'+self.vnum
 			name2 = libname+'.'+nums[0]
 			name1 = libname
 
 			filename = self.link_task.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
 			Common.install_as(dest_var, dest_subdir+'/'+name3, filename, env=self.env)
-
-			#print 'lib/'+name2, '->', name3
-			#print 'lib/'+name1, '->', name2
-
 			Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
 			Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
+		else:
+			self.install_results(dest_var, dest_subdir, self.link_task)
 	else:
 		self.install_results(dest_var, dest_subdir, self.link_task, chmod=self.chmod)
 Object.gen_hook('install', install)
@@ -437,9 +434,12 @@ def apply_obj_vars(self):
 Object.gen_hook('apply_obj_vars', apply_obj_vars)
 
 def apply_vnum(self):
-	if self.vnum and sys.platform != 'darwin' and sys.platform != 'win32':
-		nums=self.vnum.split('.')
-		# this is very unix-specific
+	"use self.vnum and self.soname to modify the command line (un*x)"
+	try: vnum = self.vnum
+	except AttributeError: return
+	# this is very unix-specific
+	if sys.platform != 'darwin' and sys.platform != 'win32':
+		nums = self.vnum.split('.')
 		try: name3 = self.soname
 		except AttributeError: name3 = self.link_task.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
