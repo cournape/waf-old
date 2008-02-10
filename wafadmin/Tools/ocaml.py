@@ -165,6 +165,20 @@ class ocaml_scanner(Scan.scanner):
 
 g_caml_scanner = ocaml_scanner()
 
+def get_target_name(self, bytecode):
+	if bytecode:
+		if self.islibrary:
+			return self.target+'.cma'
+		else:
+			return self.target+'.run'
+	else:
+		if self.m_type == 'c_object': return self.target+'.o'
+
+		if self.islibrary:
+			return self.target+'.cmxa'
+		else:
+			return self.target
+
 native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
 class ocamlobj(Object.task_gen):
@@ -218,141 +232,128 @@ class ocamlobj(Object.task_gen):
 		if self.m_type == 'c_object':
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
-	def lastlinktask(self):
-		return self.linktasks[0]
-
-	def apply_incpaths_ml(self):
-		inc_lst = self.includes.split()
-		lst = self._incpaths_lst
-		tree = Params.g_build
-		for dir in inc_lst:
-			node = self.path.find_source(dir)
-			if not node:
-				error("node not found dammit")
-				continue
-			Params.g_build.rescan(node)
-			if not node in lst: lst.append( node )
-			self._bld_incpaths_lst.append(node)
-		# now the nodes are added to self._incpaths_lst
-
-	def apply_vars_ml(self):
-		for i in self._incpaths_lst:
-			if self.bytecode_env:
-				self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
-				self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
-
-			if self.native_env:
-				self.native_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
-				self.native_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
-
-		varnames = ['INCLUDES', 'OCAMLFLAGS', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
-		for name in self.uselib.split():
-			for vname in varnames:
-				cnt = self.env[vname+'_'+name]
-				if cnt:
-					if self.bytecode_env: self.bytecode_env.append_value(vname, cnt)
-					if self.native_env: self.native_env.append_value(vname, cnt)
-
 	def apply(self):
 		self.apply_incpaths_ml()
 		self.apply_vars_ml()
 		self.apply_core_ml()
 		self.apply_link_ml()
 
-	def apply_core_ml(self):
-		# first create the nodes corresponding to the sources
-		source_lst = self.to_list(self.source)
-		for filename in source_lst:
-			base, ext = os.path.splitext(filename)
-			node = self.path.find_build(filename)
-			#if not ext in self.s_default_ext:
-			#	print "??? ", filename
+def apply_incpaths_ml(self):
+	inc_lst = self.includes.split()
+	lst = self._incpaths_lst
+	tree = Params.g_build
+	for dir in inc_lst:
+		node = self.path.find_source(dir)
+		if not node:
+			error("node not found dammit")
+			continue
+		Params.g_build.rescan(node)
+		if not node in lst: lst.append( node )
+		self._bld_incpaths_lst.append(node)
+	# now the nodes are added to self._incpaths_lst
+Object.gen_hook('apply_incpaths_ml', apply_incpaths_ml)
 
-			if ext == '.mll':
-				mll_task = self.create_task('ocamllex', self.native_env)
-				mll_task.set_inputs(node)
-				mll_task.set_outputs(node.change_ext('.ml'))
-				self._mlltasks.append(mll_task)
-
-				node = mll_task.m_outputs[0]
-
-			elif ext == '.mly':
-				mly_task = self.create_task('ocamlyacc', self.native_env)
-				mly_task.set_inputs(node)
-				mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
-				self._mlytasks.append(mly_task)
-
-				task = self.create_task('ocamlcmi', self.native_env)
-				task.set_inputs(mly_task.m_outputs[1])
-				task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
-
-				node = mly_task.m_outputs[0]
-			elif ext == '.mli':
-				task = self.create_task('ocamlcmi', self.native_env)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.cmi'))
-				self.mlitasks.append(task)
-				continue
-			elif ext == '.c':
-				task = self.create_task('ocamlcc', self.native_env)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.o'))
-
-				self.out_nodes += task.m_outputs
-				continue
-			else:
-				pass
-
-			if self.native_env:
-				task = self.create_task('ocaml', self.native_env)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.cmx'))
-				task.m_scanner = g_caml_scanner
-				task.obj = self
-				task.incpaths = self._bld_incpaths_lst
-				self.native_tasks.append(task)
-			if self.bytecode_env:
-				task = self.create_task('ocaml', self.bytecode_env)
-				task.set_inputs(node)
-				task.m_scanner = g_caml_scanner
-				task.obj = self
-				task.bytecode = 1
-				task.incpaths = self._bld_incpaths_lst
-				task.set_outputs(node.change_ext('.cmo'))
-				self.bytecode_tasks.append(task)
-
-	def apply_link_ml(self):
-
+def apply_vars_ml(self):
+	for i in self._incpaths_lst:
 		if self.bytecode_env:
-			linktask = ocaml_link('ocalink', self.bytecode_env)
-			linktask.bytecode = 1
-			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=1)))
-			linktask.obj = self
-			self.linktasks.append(linktask)
+			self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
+			self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+
 		if self.native_env:
-			linktask = ocaml_link('ocalinkopt', self.native_env)
-			linktask.set_outputs(self.path.find_build(self.get_target_name(bytecode=0)))
-			linktask.obj = self
-			self.linktasks.append(linktask)
+			self.native_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+			self.native_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
 
-			self.out_nodes += linktask.m_outputs
+	varnames = ['INCLUDES', 'OCAMLFLAGS', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
+	for name in self.uselib.split():
+		for vname in varnames:
+			cnt = self.env[vname+'_'+name]
+			if cnt:
+				if self.bytecode_env: self.bytecode_env.append_value(vname, cnt)
+				if self.native_env: self.native_env.append_value(vname, cnt)
+Object.gen_hook('apply_vars_ml', apply_vars_ml)
 
-			# we produce a .o file to be used by gcc
-			if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
+def apply_core_ml(self):
+	# first create the nodes corresponding to the sources
+	source_lst = self.to_list(self.source)
+	for filename in source_lst:
+		base, ext = os.path.splitext(filename)
+		node = self.path.find_build(filename)
+		#if not ext in self.s_default_ext:
+		#	print "??? ", filename
 
-	def get_target_name(self, bytecode):
-		if bytecode:
-			if self.islibrary:
-				return self.target+'.cma'
-			else:
-				return self.target+'.run'
+		if ext == '.mll':
+			mll_task = self.create_task('ocamllex', self.native_env)
+			mll_task.set_inputs(node)
+			mll_task.set_outputs(node.change_ext('.ml'))
+			self._mlltasks.append(mll_task)
+
+			node = mll_task.m_outputs[0]
+
+		elif ext == '.mly':
+			mly_task = self.create_task('ocamlyacc', self.native_env)
+			mly_task.set_inputs(node)
+			mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
+			self._mlytasks.append(mly_task)
+
+			task = self.create_task('ocamlcmi', self.native_env)
+			task.set_inputs(mly_task.m_outputs[1])
+			task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
+
+			node = mly_task.m_outputs[0]
+		elif ext == '.mli':
+			task = self.create_task('ocamlcmi', self.native_env)
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext('.cmi'))
+			self.mlitasks.append(task)
+			continue
+		elif ext == '.c':
+			task = self.create_task('ocamlcc', self.native_env)
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext('.o'))
+
+			self.out_nodes += task.m_outputs
+			continue
 		else:
-			if self.m_type == 'c_object': return self.target+'.o'
+			pass
 
-			if self.islibrary:
-				return self.target+'.cmxa'
-			else:
-				return self.target
+		if self.native_env:
+			task = self.create_task('ocaml', self.native_env)
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext('.cmx'))
+			task.m_scanner = g_caml_scanner
+			task.obj = self
+			task.incpaths = self._bld_incpaths_lst
+			self.native_tasks.append(task)
+		if self.bytecode_env:
+			task = self.create_task('ocaml', self.bytecode_env)
+			task.set_inputs(node)
+			task.m_scanner = g_caml_scanner
+			task.obj = self
+			task.bytecode = 1
+			task.incpaths = self._bld_incpaths_lst
+			task.set_outputs(node.change_ext('.cmo'))
+			self.bytecode_tasks.append(task)
+Object.gen_hook('apply_core_ml', apply_core_ml)
+
+def apply_link_ml(self):
+
+	if self.bytecode_env:
+		linktask = ocaml_link('ocalink', self.bytecode_env)
+		linktask.bytecode = 1
+		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=1)))
+		linktask.obj = self
+		self.linktasks.append(linktask)
+	if self.native_env:
+		linktask = ocaml_link('ocalinkopt', self.native_env)
+		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=0)))
+		linktask.obj = self
+		self.linktasks.append(linktask)
+
+		self.out_nodes += linktask.m_outputs
+
+		# we produce a .o file to be used by gcc
+		if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
+Object.gen_hook('apply_link_ml', apply_link_ml)
 
 def setup(bld):
 	Object.register('ocaml', ocamlobj)
