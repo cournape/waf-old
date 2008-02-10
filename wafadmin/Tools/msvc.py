@@ -127,7 +127,7 @@ def apply_msvc_obj_vars(self):
 		app('LINKFLAGS', env['STATICLIB_MARKER'])
 		for i in env['STATICLIB']:
 			debug('libname: %s' % i,'msvc')
-			libname=self.getlibname(i,True)
+			libname=self.libname_msvc(i,True)
 			debug('libnamefixed: %s' % libname,'msvc')
 			if libname != None:
 				app('LINKFLAGS', libname)
@@ -135,19 +135,16 @@ def apply_msvc_obj_vars(self):
 	if self.env['LIB']:
 		for i in env['LIB']:
 			debug('libname: %s' % i,'msvc')
-			libname=self.getlibname(i)
+			libname=self.libname_msvc(i)
 			debug('libnamefixed: %s' % libname,'msvc')
 			if libname != None:
 				app('LINKFLAGS', libname)
 
-def is_syslib(self, libname):
-	global g_msvc_systemlibs
-	if g_msvc_systemlibs.has_key(libname):
-		return True
-	return False
-
-def find_lt_names(self,libname,is_static=False):
-	"Win32/MSVC specific code to glean out information from libtool la files."
+def find_lt_names_msvc(self, libname, is_static=False):
+	"""
+	Win32/MSVC specific code to glean out information from libtool la files.
+	this function is not attached to the task_gen class
+	"""
 	lt_names=[
 		'lib%s.la' % libname,
 		'%s.la' % libname,
@@ -166,24 +163,24 @@ def find_lt_names(self,libname,is_static=False):
 					dllnames=ltdict['library_names'].split()
 					dll=dllnames[0].lower()
 					dll=re.sub('\.dll$', '', dll)
-					return [lt_libdir,dll,False]
+					return (lt_libdir, dll, False)
 				elif ltdict.has_key('old_library') and ltdict['old_library'] != '':
 					olib=ltdict['old_library']
 					if exists(os.path.join(path,olib)):
-						return [path,olib,True]
+						return (path, olib, True)
 					elif lt_libdir != '' and exists(os.path.join(lt_libdir,olib)):
-						return [lt_libdir,olib,True]
+						return (lt_libdir, olib, True)
 					else:
-						return [None,olib,True]
+						return (None, olib, True)
 				else:
 					fatal('invalid libtool object file: %s' % laf)
-	return [None,None,None]
+	return (None, None, None)
 
-def getlibname(self,libname,is_static=False):
+def libname_msvc(self,libname,is_static=False):
 	lib=libname.lower()
 	lib=re.sub('\.lib$','',lib)
 
-	if self.is_syslib(lib):
+	if g_msvc_systemlibs.has_key(lib):
 		return lib+'.lib'
 
 	lib=re.sub('^lib','',lib)
@@ -191,7 +188,7 @@ def getlibname(self,libname,is_static=False):
 	if lib == 'm':
 		return None
 
-	[lt_path,lt_libname,lt_static]=self.find_lt_names(lib,is_static)
+	(lt_path, lt_libname, lt_static) = find_lt_names_msvc(self, lib, is_static)
 
 	if lt_path != None and lt_libname != None:
 		if lt_static == True:
@@ -246,6 +243,7 @@ class msvccc(cc.ccobj):
 
 		self.set_order('apply_link', 'apply_link_msvc')
 		self.set_order('apply_obj_vars_cc', 'apply_msvc_obj_vars')
+		self.meths.remove('apply_obj_vars')
 
 class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
@@ -256,18 +254,11 @@ class msvccpp(cpp.cppobj):
 
 		self.set_order('apply_link', 'apply_link_msvc')
 		self.set_order('apply_obj_vars_cxx', 'apply_msvc_obj_vars')
+		self.meths.remove('apply_obj_vars')
 
 Object.gen_hook('apply_link_msvc', apply_link_msvc)
-
-setattr(msvccc, 'apply_msvc_obj_vars', apply_msvc_obj_vars)
-setattr(msvccc, 'is_syslib', is_syslib)
-setattr(msvccc, 'find_lt_names', find_lt_names)
-setattr(msvccc, 'getlibname', getlibname)
-
-setattr(msvccpp, 'apply_msvc_obj_vars', apply_msvc_obj_vars)
-setattr(msvccpp, 'is_syslib', is_syslib)
-setattr(msvccpp, 'find_lt_names', find_lt_names)
-setattr(msvccpp, 'getlibname', getlibname)
+Object.gen_hook('apply_msvc_obj_vars', apply_msvc_obj_vars)
+Object.gen_hook('libname_msvc', libname_msvc)
 
 def setup(bld):
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
