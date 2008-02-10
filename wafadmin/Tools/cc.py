@@ -26,10 +26,12 @@ class ccobj(ccroot.ccroot):
 		self.cppflags=''
 
 		self._incpaths_lst=[]
-		self._bld_incpaths_lst=[]
+		self.bld_incpaths_lst=[]
 
 		#self.meths.append('apply_defines_cc')
 		self.set_order('apply_defines_cc', 'apply_core')
+		self.set_order('apply_lib_vars', 'apply_obj_vars_cc')
+		self.set_order('apply_obj_vars_cc', 'apply_obj_vars')
 
 		global g_cc_flag_vars
 		self.p_flag_vars = g_cc_flag_vars
@@ -37,24 +39,17 @@ class ccobj(ccroot.ccroot):
 		global g_cc_type_vars
 		self.p_type_vars = g_cc_type_vars
 
-def apply_obj_vars(self):
-	debug('apply_obj_vars called for ccobj', 'cc')
+def apply_obj_vars_cc(self):
+	debug('apply_obj_vars_cc', 'cc')
 	env = self.env
 	app = env.append_unique
-
-	cpppath_st       = env['CPPPATH_ST']
-	lib_st           = env['LIB_ST']
-	staticlib_st     = env['STATICLIB_ST']
-	libpath_st       = env['LIBPATH_ST']
-	staticlibpath_st = env['STATICLIBPATH_ST']
+	cpppath_st = self.env['CPPPATH_ST']
 
 	self.addflags('CCFLAGS', self.ccflags)
-	self.addflags('CPPFLAGS', self.cppflags)
 
 	# local flags come first
 	# set the user-defined includes paths
-	if not self._incpaths_lst: self.apply_incpaths()
-	for i in self._bld_incpaths_lst:
+	for i in self.bld_incpaths_lst:
 		app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
 		app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
 
@@ -68,22 +63,7 @@ def apply_obj_vars(self):
 	tmpnode = self.path
 	app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
 	app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-
-	for i in env['RPATH']:   app('LINKFLAGS', i)
-	for i in env['LIBPATH']: app('LINKFLAGS', libpath_st % i)
-	for i in env['LIBPATH']: app('LINKFLAGS', staticlibpath_st % i)
-
-	if env['STATICLIB']:
-		self.env.append_value('LINKFLAGS', env['STATICLIB_MARKER'])
-		for i in env['STATICLIB']:
-			app('LINKFLAGS', staticlib_st % i)
-
-	# i doubt that anyone will make a fully static binary anyway
-	if not env['FULLSTATIC']:
-		if env['STATICLIB'] or env['LIB']:
-			self.env.append_value('LINKFLAGS', env['SHLIB_MARKER'])
-
-	for i in env['LIB']: app('LINKFLAGS', lib_st % i)
+Object.gen_hook('apply_obj_vars_cc', apply_obj_vars_cc)
 
 def apply_defines_cc(self):
 	tree = Params.g_build

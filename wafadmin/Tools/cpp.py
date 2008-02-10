@@ -27,10 +27,12 @@ class cppobj(ccroot.ccroot):
 		self.cppflags=''
 
 		self._incpaths_lst=[]
-		self._bld_incpaths_lst=[]
+		self.bld_incpaths_lst=[]
 
 		#self.meths.append('apply_defines_cpp')
 		self.set_order('apply_defines_cxx', 'apply_core')
+		self.set_order('apply_lib_vars', 'apply_obj_vars_cxx')
+		self.set_order('apply_obj_vars_cxx', 'apply_obj_vars')
 
 		global g_cpp_flag_vars
 		self.p_flag_vars = g_cpp_flag_vars
@@ -38,25 +40,19 @@ class cppobj(ccroot.ccroot):
 		global g_cpp_type_vars
 		self.p_type_vars = g_cpp_type_vars
 
-def apply_obj_vars(self):
-	debug('apply_obj_vars called for cppobj', 'ccroot')
-	cpppath_st       = self.env['CPPPATH_ST']
-	lib_st           = self.env['LIB_ST']
-	staticlib_st     = self.env['STATICLIB_ST']
-	libpath_st       = self.env['LIBPATH_ST']
-	staticlibpath_st = self.env['STATICLIBPATH_ST']
+def apply_obj_vars_cxx(self):
+	debug('apply_obj_vars_cxx', 'ccroot')
+	env = self.env
+	app = self.env.append_unique
+	cpppath_st = self.env['CPPPATH_ST']
 
 	self.addflags('CXXFLAGS', self.cxxflags)
-	self.addflags('CPPFLAGS', self.cppflags)
-
-	app = self.env.append_unique
 
 	# local flags come first
 	# set the user-defined includes paths
-	if not self._incpaths_lst: self.apply_incpaths()
-	for i in self._bld_incpaths_lst:
-		app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
-		app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
+	for i in self.bld_incpaths_lst:
+		app('_CXXINCFLAGS', cpppath_st % i.bldpath(env))
+		app('_CXXINCFLAGS', cpppath_st % i.srcpath(env))
 
 	# set the library include paths
 	for i in self.env['CPPPATH']:
@@ -68,31 +64,9 @@ def apply_obj_vars(self):
 	app('_CXXINCFLAGS', cpppath_st % '.')
 	app('_CXXINCFLAGS', cpppath_st % self.env.variant())
 	tmpnode = Params.g_build.m_curdirnode
-	app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-	app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
-
-	for i in self.env['RPATH']:
-		app('LINKFLAGS', i)
-
-	for i in self.env['LIBPATH']:
-		app('LINKFLAGS', libpath_st % i)
-
-	for i in self.env['LIBPATH']:
-		app('LINKFLAGS', staticlibpath_st % i)
-
-	if self.env['STATICLIB']:
-		self.env.append_value('LINKFLAGS', self.env['STATICLIB_MARKER'])
-		k = [(staticlib_st % i) for i in self.env['STATICLIB']]
-		app('LINKFLAGS', k)
-
-	# fully static binaries ?
-	if not self.env['FULLSTATIC']:
-		if self.env['STATICLIB'] or self.env['LIB']:
-			self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
-
-	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
-setattr(cppobj, 'apply_obj_vars', apply_obj_vars) # TODO remove
-Object.gen_hook('apply_obj_vars', apply_obj_vars)
+	app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(env))
+	app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(env))
+Object.gen_hook('apply_obj_vars_cxx', apply_obj_vars_cxx)
 
 def apply_defines_cxx(self):
 	tree = Params.g_build
