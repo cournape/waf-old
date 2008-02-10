@@ -59,7 +59,7 @@ class xml_to(Object.genobj):
 		self.xslt = 'xlsltfile'
 		self.target = 'hey'
 		self.inst_var = 'PREFIX'
-		self.inst_subdir = ''
+		self.inst_dir = ''
 		self.task_created = None
 	def apply(self):
 		self.env = self.env.copy()
@@ -73,7 +73,7 @@ class xml_to(Object.genobj):
 	def install(self):
 		current = Params.g_build.m_curdirnode
 		for node in task.m_outputs:
-			Common.install_files(self.inst_var, self.inst_subdir, node.abspath(self.env))
+			Common.install_files(self.inst_var, self.inst_dir, node.abspath(self.env))
 
 class sgml_man_scanner(Scan.scanner):
 	def __init__(self):

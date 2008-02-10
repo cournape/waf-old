@@ -39,8 +39,8 @@ class cmdobj(Object.genobj):
 		self.m_type = type
 		self.prio   = 1
 		self.fun    = None
-		self.install_var = ''
-		self.install_subdir = ''
+		self.inst_var = ''
+		self.inst_dir = ''
 
 	def apply(self):
 		# create a task
@@ -48,12 +48,12 @@ class cmdobj(Object.genobj):
 		self.m_tasks.append(Task.TaskCmd(self.fun, self.env))
 
 	def install(self):
-		if not self.install_var:
+		if not self.inst_var:
 			return
 		current = Params.g_build.m_curdirnode
 		for task in self.m_tasks:
 			out = task.m_outputs[0]
-			Common.install_files(self.install_var, self.install_subdir, out.abspath(self.env), self.env)
+			Common.install_files(self.inst_var, self.inst_dir, out.abspath(self.env), self.env)
 
 
 class copyobj(Object.genobj):
@@ -129,16 +129,16 @@ class substobj(Object.genobj):
 		self.dict = {}
 		self.prio = 8
 
-		self.install_var = ''
-		self.install_subdir = ''
+		self.inst_var = ''
+		self.inst_dir = ''
 
 	def install(self):
-		if not self.install_var:
+		if not self.inst_var:
 			return
 		current = Params.g_build.m_curdirnode
 		for task in self.m_tasks:
 			out = task.m_outputs[0]
-			Common.install_files(self.install_var, self.install_subdir, out.abspath(self.env), self.env)
+			Common.install_files(self.inst_var, self.inst_dir, out.abspath(self.env), self.env)
 
 	def apply(self):
 

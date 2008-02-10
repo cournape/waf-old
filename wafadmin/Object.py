@@ -142,6 +142,8 @@ class genobj(object):
 		elif name == 'targets': raise AttributeError, 'typo: self.targets -> self.target'
 		elif name == 'include': raise AttributeError, 'typo: self.include -> self.includes'
 		elif name == 'define':  raise AttributeError, 'typo: self.define -> self.defines'
+		elif name == 'install_var':  raise AttributeError, 'typo: self.install_var -> self.inst_var'
+		elif name == 'install_subdir':  raise AttributeError, 'typo: self.install_subdir -> self.inst_dir'
 		object.__setattr__(self, name, attr)
 
 	def post(self):
@@ -284,6 +286,10 @@ class task_gen(object):
 
 		# not always a good idea
 		self.m_tasks = []
+
+		self.chmod = 0644
+		self.inst_var = '' # 0 to prevent installation
+		self.inst_dir = ''
 
 		self.env = None
 		self.m_posted = 0

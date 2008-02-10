@@ -47,8 +47,8 @@ class ccroot(Object.task_gen):
 		# TODO obsolete
 		self.m_type = type
 
-		self.install_var = ''
-		self.install_subdir = ''
+		self.inst_var = ''
+		self.inst_dir = ''
 
 		# includes, seen from the current directory
 		self.includes=''
@@ -159,8 +159,8 @@ def install(self):
 	if not hasattr(self, 'link_task'): return
 	if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 
-	dest_var    = self.install_var
-	dest_subdir = self.install_subdir
+	dest_var    = self.inst_var
+	dest_subdir = self.inst_dir
 	if dest_var == 0: return
 
 	if not dest_var:
