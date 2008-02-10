@@ -93,50 +93,6 @@ version vfw32 wbemuuid  webpost wiaguid wininet winmm winscard winspool winstrm
 wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xolehlp
 """.split()
 
-def apply_msvc_obj_vars(self):
-	debug('apply_msvc_obj_vars called for msvcobj', 'msvc')
-	env = self.env
-	app = env.append_unique
-
-	cpppath_st       = env['CPPPATH_ST']
-	lib_st           = env['LIB_ST']
-	staticlib_st     = env['STATICLIB_ST']
-	libpath_st       = env['LIBPATH_ST']
-	staticlibpath_st = env['STATICLIBPATH_ST']
-
-	self.addflags('CPPFLAGS', self.cppflags)
-
-	for i in env['RPATH']: app('LINKFLAGS', i)
-	for i in env['LIBPATH']:
-		app('LINKFLAGS', libpath_st % i)
-		if not self.libpaths.count(i):
-			self.libpaths.append(i)
-	for i in env['LIBPATH']:
-		app('LINKFLAGS', staticlibpath_st % i)
-		if not self.libpaths.count(i):
-			self.libpaths.append(i)
-
-	# i doubt that anyone will make a fully static binary anyway
-	if not env['FULLSTATIC']:
-		if env['STATICLIB'] or env['LIB']:
-			app('LINKFLAGS', env['SHLIB_MARKER'])
-
-	if env['STATICLIB']:
-		app('LINKFLAGS', env['STATICLIB_MARKER'])
-		for i in env['STATICLIB']:
-			debug('libname: %s' % i,'msvc')
-			libname=self.libname_msvc(i,True)
-			debug('libnamefixed: %s' % libname,'msvc')
-			if libname != None:
-				app('LINKFLAGS', libname)
-
-	if self.env['LIB']:
-		for i in env['LIB']:
-			debug('libname: %s' % i,'msvc')
-			libname=self.libname_msvc(i)
-			debug('libnamefixed: %s' % libname,'msvc')
-			if libname != None:
-				app('LINKFLAGS', libname)
 
 def find_lt_names_msvc(self, libname, is_static=False):
 	"""
@@ -174,7 +130,7 @@ def find_lt_names_msvc(self, libname, is_static=False):
 					fatal('invalid libtool object file: %s' % laf)
 	return (None, None, None)
 
-def libname_msvc(self,libname,is_static=False):
+def libname_msvc(self, libname, is_static=False):
 	lib=libname.lower()
 	lib=re.sub('\.lib$','',lib)
 
@@ -227,10 +183,57 @@ def libname_msvc(self,libname,is_static=False):
 
 	return None
 
+def apply_msvc_obj_vars(self):
+	debug('apply_msvc_obj_vars called for msvcobj', 'msvc')
+	env = self.env
+	app = env.append_unique
+
+	cpppath_st       = env['CPPPATH_ST']
+	lib_st           = env['LIB_ST']
+	staticlib_st     = env['STATICLIB_ST']
+	libpath_st       = env['LIBPATH_ST']
+	staticlibpath_st = env['STATICLIBPATH_ST']
+
+	self.addflags('CPPFLAGS', self.cppflags)
+
+	for i in env['RPATH']: app('LINKFLAGS', i)
+	for i in env['LIBPATH']:
+		app('LINKFLAGS', libpath_st % i)
+		if not self.libpaths.count(i):
+			self.libpaths.append(i)
+	for i in env['LIBPATH']:
+		app('LINKFLAGS', staticlibpath_st % i)
+		if not self.libpaths.count(i):
+			self.libpaths.append(i)
+
+	# i doubt that anyone will make a fully static binary anyway
+	if not env['FULLSTATIC']:
+		if env['STATICLIB'] or env['LIB']:
+			app('LINKFLAGS', env['SHLIB_MARKER'])
+
+	if env['STATICLIB']:
+		app('LINKFLAGS', env['STATICLIB_MARKER'])
+		for i in env['STATICLIB']:
+			debug('libname: %s' % i,'msvc')
+			libname = libname_msvc(self, i, True)
+			debug('libnamefixed: %s' % libname,'msvc')
+			if libname != None:
+				app('LINKFLAGS', libname)
+
+	if self.env['LIB']:
+		for i in env['LIB']:
+			debug('libname: %s' % i,'msvc')
+			libname = libname_msvc(self, i)
+			debug('libnamefixed: %s' % libname,'msvc')
+			if libname != None:
+				app('LINKFLAGS', libname)
+Object.gen_hook('apply_msvc_obj_vars', apply_msvc_obj_vars)
+
 def apply_link_msvc(self):
 	if self.link_task is not None:
 		self.link_task.m_type = self.m_type
 		self.link_task.m_subsystem = self.subsystem
+Object.gen_hook('apply_link_msvc', apply_link_msvc)
 
 class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):
@@ -254,10 +257,6 @@ class msvccpp(cpp.cppobj):
 		self.set_order('apply_obj_vars_cxx', 'apply_msvc_obj_vars')
 		self.meths.remove('apply_obj_vars')
 
-Object.gen_hook('apply_link_msvc', apply_link_msvc)
-Object.gen_hook('apply_msvc_obj_vars', apply_msvc_obj_vars)
-Object.gen_hook('libname_msvc', libname_msvc)
-
 def setup(bld):
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 	cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
@@ -275,6 +274,7 @@ def setup(bld):
 
 	Object.register('cc', msvccc)
 	Object.register('cpp', msvccpp)
+
 	import winres
 	winres.setup(bld)
 	Object.hook('cpp', 'EXT_CXX', cpp.cxx_hook)
