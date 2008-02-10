@@ -245,39 +245,7 @@ class msvccc(cc.ccobj):
 		self.libpaths = []
 
 		self.set_order('apply_link', 'apply_link_msvc')
-
-	def apply_obj_vars(self):
-		debug('apply_obj_vars called for msvcccobj', 'msvc')
-		env = self.env
-		app = env.append_unique
-
-		cpppath_st       = env['CPPPATH_ST']
-		lib_st           = env['LIB_ST']
-		staticlib_st     = env['STATICLIB_ST']
-		libpath_st       = env['LIBPATH_ST']
-		staticlibpath_st = env['STATICLIBPATH_ST']
-
-		self.addflags('CCFLAGS', self.ccflags)
-
-		# local flags come first
-		# set the user-defined includes paths
-		if not self._incpaths_lst: self.apply_incpaths()
-		for i in self.bld_incpaths_lst:
-			app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
-			app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
-
-		# set the library include paths
-		for i in env['CPPPATH']:
-			app('_CCINCFLAGS', cpppath_st % i)
-
-		# this is usually a good idea
-		app('_CCINCFLAGS', cpppath_st % '.')
-		app('_CCINCFLAGS', cpppath_st % env.variant())
-		tmpnode = self.path
-		app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-
-		self.apply_msvc_obj_vars()
+		self.set_order('apply_obj_vars_cc', 'apply_msvc_obj_vars')
 
 class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
@@ -287,41 +255,7 @@ class msvccpp(cpp.cppobj):
 		self.libpaths = []
 
 		self.set_order('apply_link', 'apply_link_msvc')
-
-	def apply_obj_vars(self):
-		debug('apply_obj_vars called for msvccpp', 'msvc')
-		env = self.env
-		app = env.append_unique
-
-		cpppath_st       = env['CPPPATH_ST']
-		lib_st           = env['LIB_ST']
-		staticlib_st     = env['STATICLIB_ST']
-		libpath_st       = env['LIBPATH_ST']
-		staticlibpath_st = env['STATICLIBPATH_ST']
-
-		self.addflags('CXXFLAGS', self.cxxflags)
-
-		# local flags come first
-		# set the user-defined includes paths
-		if not self.incpaths_lst: self.apply_incpaths()
-		for i in self.bld_incpaths_lst:
-			app('_CXXINCFLAGS', cpppath_st % i.bldpath(self.env))
-			app('_CXXINCFLAGS', cpppath_st % i.srcpath(self.env))
-
-		# set the library include paths
-		for i in env['CPPPATH']:
-			app('_CXXINCFLAGS', cpppath_st % i)
-
-		# this is usually a good idea
-		app('_CXXINCFLAGS', cpppath_st % '.')
-		app('_CXXINCFLAGS', cpppath_st % self.env.variant())
-		tmpnode = self.path
-		app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(self.env))
-		app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(self.env))
-		app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-		app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-
-		self.apply_msvc_obj_vars()
+		self.set_order('apply_obj_vars_cxx', 'apply_msvc_obj_vars')
 
 Object.gen_hook('apply_link_msvc', apply_link_msvc)
 
