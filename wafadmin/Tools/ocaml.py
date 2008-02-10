@@ -8,6 +8,12 @@ import os, re
 import Params, Action, Object, Scan, Utils, Task
 from Params import error, fatal
 
+Params.set_globals('EXT_MLL', ['.mll'])
+Params.set_globals('EXT_MLY', ['.mly'])
+Params.set_globals('EXT_MLI', ['.mli'])
+Params.set_globals('EXT_MLC', ['.c'])
+Params.set_globals('EXT_ML', ['.ml'])
+
 open_re = re.compile('open ([a-zA-Z]+);;', re.M)
 
 def filter_comments(filename):
@@ -233,8 +239,8 @@ class ocamlobj(Object.task_gen):
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
 		self.set_order('apply_incpaths_ml', 'apply_vars_ml')
-		self.set_order('apply_vars_ml', 'apply_core_ml')
-		self.set_order('apply_core_ml', 'apply_link_ml')
+		self.set_order('apply_vars_ml', 'apply_core')
+		self.set_order('apply_core', 'apply_link_ml')
 		self.set_order('apply_link_ml', 'apply_link') # for c/c++
 		self.meths.remove('apply_link')
 
@@ -352,6 +358,12 @@ def setup(bld):
 	Action.simple_action('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN', prio=60)
 	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', prio=20)
 	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', prio=20)
+
+	Object.hook('ocaml', 'EXT_MLL', mll_hook)
+	Object.hook('ocaml', 'EXT_MLY', mly_hook)
+	Object.hook('ocaml', 'EXT_MLI', mli_hook)
+	Object.hook('ocaml', 'EXT_MLC', mlc_hook)
+	Object.hook('ocaml', 'EXT_ML', ml_hook)
 
 def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
