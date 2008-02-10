@@ -232,11 +232,10 @@ class ocamlobj(Object.task_gen):
 		if self.m_type == 'c_object':
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
-	def apply(self):
-		self.apply_incpaths_ml()
-		self.apply_vars_ml()
-		self.apply_core_ml()
-		self.apply_link_ml()
+		self.set_order('apply_incpaths_ml', 'apply_vars_ml')
+		self.set_order('apply_vars_ml', 'apply_core_ml')
+		self.set_order('apply_core_ml', 'apply_link_ml')
+		self.set_order('apply_link_ml', 'apply_link') # for c/c++
 
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
