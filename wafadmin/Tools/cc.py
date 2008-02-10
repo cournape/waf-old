@@ -25,7 +25,6 @@ class ccobj(ccroot.ccroot):
 		self.ccflags=''
 		self.cppflags=''
 
-		#self.meths.append('apply_defines_cc')
 		self.set_order('apply_defines_cc', 'apply_core')
 		self.set_order('apply_lib_vars', 'apply_obj_vars_cc')
 		self.set_order('apply_obj_vars_cc', 'apply_obj_vars')
@@ -37,7 +36,7 @@ class ccobj(ccroot.ccroot):
 		self.p_type_vars = g_cc_type_vars
 
 def apply_obj_vars_cc(self):
-	debug('apply_obj_vars_cc', 'cc')
+	debug('apply_obj_vars_cc', 'ccroot')
 	env = self.env
 	app = env.append_unique
 	cpppath_st = self.env['CPPPATH_ST']
