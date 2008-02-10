@@ -384,15 +384,6 @@ class Build(object):
 			curnode = found
 		return curnode
 
-	def prescan(self):
-		self.rescan_recursively(self.m_srcnode)
-
-	def rescan_recursively(self, src_dir_node):
-		self.rescan(src_dir_node)
-		tbl = src_dir_node.m_dirs_lookup
-		for x in tbl:
-			self.rescan_recursively(tbl[x])
-
 	def rescan(self, src_dir_node):
 		""" first list the files in the src dir and update the nodes
 		    - for each variant build dir (multiple build dirs):
