@@ -3,8 +3,8 @@
 
 def build(bld):
 	# to compile in c or cpp mode, uncomment the appropriate line below:
-	mode = 'cpp'
-	#mode = 'cc'
+	#mode = 'cpp'
+	mode = 'cc'
 
 	obj = bld.create_obj(mode, 'program')
 	#obj.source='''
