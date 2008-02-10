@@ -247,25 +247,6 @@ class msvccc(cc.ccobj):
 		self.subsystem = ''
 		self.libpaths = []
 
-	def apply_defines(self):
-		tree = Params.g_build
-		lst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
-		milst = []
-
-		# now process the local defines
-		for defi in lst:
-			if not defi in milst:
-				milst.append(defi)
-
-		libs = self.to_list(self.uselib)
-		for l in libs:
-			val = self.env['CCDEFINES_'+l]
-			if val: milst += self.to_list(val)
-		self.env['DEFLINES'] = [' '.join(x.split('=', 1)) for x in milst]
-
-		y = self.env['CCDEFINES_ST']
-		self.env['_CCDEFFLAGS'] = [y%x for x in milst]
-
 	def apply_obj_vars(self):
 		debug('apply_obj_vars called for msvcccobj', 'msvc')
 		env = self.env
@@ -308,24 +289,6 @@ class msvccpp(cpp.cppobj):
 
 		self.subsystem = ''
 		self.libpaths=[]
-
-	def apply_defines(self):
-		tree = Params.g_build
-		lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
-		milst = []
-
-		# now process the local defines
-		for defi in lst:
-			if not defi in milst:
-				milst.append(defi)
-
-		libs = self.to_list(self.uselib)
-		for l in libs:
-			val = self.env['CXXDEFINES_'+l]
-			if val: milst += val
-		self.env['DEFLINES'] = self.env['DEFLINES'] + [' '.join(x.split('=', 1)) for x in milst]
-		y = self.env['CXXDEFINES_ST']
-		self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
 
 	def apply_obj_vars(self):
 		debug('apply_obj_vars called for msvccpp', 'msvc')
