@@ -9,9 +9,6 @@ import sys, re, os
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 
-g_src_file_ext = ['.c', '.cpp', '.cc']
-"default extensions for source files"
-
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"
 	DEBUG = "debug"
