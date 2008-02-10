@@ -384,7 +384,7 @@ class task_gen(object):
 					else:
 						tmp.append(x)
 
-		if prec: fatal("graph has a cycle" % str(precs))
+		if prec: fatal("graph has a cycle" % str(prec))
 		out.reverse()
 
 		# then we run the methods in order
