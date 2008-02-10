@@ -78,8 +78,6 @@ class ccroot(Object.task_gen):
 		# add .o files produced by another task_gen class
 		self.add_objects = ''
 
-		self.link_task = None
-
 		# libtool emulation
 		#self.want_libtool=0 # -1: fake; 1: real
 		self.vnum=''
@@ -100,11 +98,12 @@ class ccroot(Object.task_gen):
 		self._bld_incpaths_lst=[]
 
 		self.subtype = subtype
+
 		self.compiled_tasks = []
+		self.link_task = None
 
-
-		# link mode: program, shlib or staticlib - nothing else
-		self.link_mode = 'program'
+		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
+		self.features = ['program']
 
 		self.set_order('apply_type_vars', 'apply_incpaths')
 		self.set_order('apply_incpaths', 'apply_dependencies')
