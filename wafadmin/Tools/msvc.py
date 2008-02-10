@@ -72,7 +72,7 @@ def msvc_linker(task):
 	return ret
 
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
-nm = """
+g_msvc_systemlibs = """
 aclui activeds ad1 adptif adsiid advapi32 asycfilt authz bhsupp bits bufferoverflowu cabinet
 cap certadm certidl ciuuid clusapi comctl32 comdlg32 comsupp comsuppd comsuppw comsuppwd comsvcs
 credui crypt32 cryptnet cryptui d3d8thk daouuid dbgeng dbghelp dciman32 ddao35 ddao35d
@@ -91,9 +91,7 @@ shfolder shlwapi sisbkup snmpapi sporder srclient sti strsafe svcguid tapi32 thu
 traffic unicows url urlmon user32 userenv usp10 uuid uxtheme vcomp vcompd vdmdbg
 version vfw32 wbemuuid  webpost wiaguid wininet winmm winscard winspool winstrm
 wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xolehlp
-"""
-g_msvc_systemlibs={}
-for x in nm.split(): g_msvc_systemlibs[x] = 1
+""".split()
 
 def apply_msvc_obj_vars(self):
 	debug('apply_msvc_obj_vars called for msvcobj', 'msvc')
@@ -108,7 +106,7 @@ def apply_msvc_obj_vars(self):
 
 	self.addflags('CPPFLAGS', self.cppflags)
 
-	for i in env['RPATH']:   app('LINKFLAGS', i)
+	for i in env['RPATH']: app('LINKFLAGS', i)
 	for i in env['LIBPATH']:
 		app('LINKFLAGS', libpath_st % i)
 		if not self.libpaths.count(i):
@@ -180,7 +178,7 @@ def libname_msvc(self,libname,is_static=False):
 	lib=libname.lower()
 	lib=re.sub('\.lib$','',lib)
 
-	if g_msvc_systemlibs.has_key(lib):
+	if lib in g_msvc_systemlibs:
 		return lib+'.lib'
 
 	lib=re.sub('^lib','',lib)
