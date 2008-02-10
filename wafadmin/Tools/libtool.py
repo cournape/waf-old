@@ -8,6 +8,18 @@ import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 from ccroot import ccroot
 
+"""
+if you want to use the code here, you must add the following two methods:
+* apply_libtool
+* apply_link_libtool
+
+To do so, use a code similar to the following:
+obj = obj.create(...)
+obj.want_libtool = 1
+obj.set_order('apply_libtool', 'apply_core')
+obj.set_order('apply_link', 'apply_link_libtool')
+"""
+
 # fake libtool files
 fakelibtool_vardeps = ['CXX', 'PREFIX']
 def fakelibtool_build(task):

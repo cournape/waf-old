@@ -75,8 +75,7 @@ class ccroot(Object.task_gen):
 		# add .o files produced by another task_gen class
 		self.add_objects = ''
 
-		# libtool emulation
-		#self.want_libtool=0 # -1: fake; 1: real
+		# version number for shared libraries
 		self.vnum=''
 
 		# do not forget to set the following variables in a subclass
@@ -106,13 +105,7 @@ class ccroot(Object.task_gen):
 		self.set_order('apply_incpaths', 'apply_dependencies')
 		self.set_order('apply_dependencies', 'apply_core')
 
-		# TODO move these out
-		self.set_order('apply_libtool', 'apply_core')
-
 		self.set_order('apply_core', 'apply_link')
-
-		# TODO move these out
-		self.set_order('apply_link', 'apply_link_libtool')
 
 		self.set_order('apply_link', 'apply_vnum')
 		self.set_order('apply_vnum', 'apply_lib_vars')
