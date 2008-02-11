@@ -401,6 +401,9 @@ class Build(object):
 
 		#debug("rescanning "+str(src_dir_node), 'build')
 
+		# TODO undocumented hook
+		if self.hasattr('repository'): self.repository()
+
 		# list the files in the src directory, adding the signatures
 		files = self.scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.files())
 		#debug("files found in folder are "+str(files), 'build')
