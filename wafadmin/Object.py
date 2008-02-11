@@ -330,6 +330,7 @@ class task_gen(object):
 		lst = self.to_list(self.source)
 		find_source_lst = self.path.find_source_lst
 		for filename in lst:
+			# FIXME TODO allow hooks by name or partial match, like for mixing ocaml + c or other things
 			node = find_source_lst(Utils.split_path(filename))
 			if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
 			self.allnodes.append(node)
