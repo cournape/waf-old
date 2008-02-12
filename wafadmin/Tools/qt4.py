@@ -209,20 +209,7 @@ def find_sources_in_dirs(self, dirnames, excludes=[]):
 	#make sure dirnames is a list helps with dirnames with spaces
 	dirnames = self.to_list(dirnames)
 
-	# FIXME temporary - see Object.py
-	ext_lst = []
-	cls = self.__class__
-	while 1:
-		try:
-			cls.all_hooks
-		except AttributeError:
-			try: cls = cls.__bases__[0]
-			except IndexError: break
-		else:
-			for i in cls.all_hooks:
-				ext_lst += self.env[i]
-			try: cls = cls.__bases__[0]
-			except IndexError: break
+	ext_lst = self.mappings or Object.task_gen.mappings
 
 	for name in dirnames:
 		#print "name is ", name
