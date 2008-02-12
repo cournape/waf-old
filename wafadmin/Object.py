@@ -273,6 +273,7 @@ class task_gen(object):
 	"""
 
 	mappings = {}
+	mapped = {}
 
 	def __init__(self):
 		self.prec = {}
@@ -497,6 +498,7 @@ def declare_extension(var, func):
 		task_gen.mappings[var] = func
 	else:
 		raise TypeError('declare extension takes either a list or a string %s' % str(var))
+	task_gen.mapped[func.__name__] = func
 
 g_cache_max={}
 def sign_env_vars(env, vars_list):
