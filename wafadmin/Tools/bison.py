@@ -9,11 +9,13 @@ from Params import set_globals
 
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].m_name}'
 
+EXT_BISON = ['.y', '.yc']
+
 # we register our extensions to global variables
-EXT_BISON_C = ['.tab.c']
+EXT_BISON_C = '.tab.c'
 
 def yc_file(self, node):
-	c_ext = self.env['EXT_BISON_C']
+	c_ext = EXT_BISON_C
 	if self.__class__.__name__ == 'cppobj':
 		c_ext += 'pp'
 	h_ext = c_ext.replace('.c', '.h')
@@ -43,7 +45,7 @@ def setup(bld):
 	# create our action here
 	Action.simple_action('bison', bison_str, color='BLUE', prio=40)
 	# register the hook
-	Object.declare_extension(BISON_EXT, yc_file)
+	Object.declare_extension(EXT_BISON, yc_file)
 
 def detect(conf):
 	bison = conf.find_program('bison', var='BISON')
@@ -51,5 +53,4 @@ def detect(conf):
 	v = conf.env
 	v['BISON']      = bison
 	v['BISONFLAGS'] = '-d'
-	v['BISON_EXT']  = ['.y', '.yc']
 

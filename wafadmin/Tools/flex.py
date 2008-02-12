@@ -9,7 +9,7 @@ from Params import fatal
 from Params import set_globals
 
 flex_str = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}'
-FLEX_EXT = ['.l']
+EXT_FLEX = ['.l']
 
 # we register our extensions to global variables
 set_globals('EXT_FLEX_C', '.lex.c')
