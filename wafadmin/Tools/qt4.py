@@ -161,7 +161,6 @@ class qt4obj(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
 		cpp.cppobj.__init__(self, type, subtype)
 		self.link_task = None
-		self.m_latask = None
 		self.lang = ''
 		self.langname = ''
 		self.update = 0
@@ -249,7 +248,7 @@ setattr(qt4obj, 'find_sources_in_dirs', find_sources_in_dirs)
 
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = MTask(type, env, self)
+	task = MTask('cpp', self.env, self)
 	self.m_tasks.append(task)
 	obj_ext = self.env[self.m_type+'_obj_ext']
 	if not obj_ext: obj_ext = '.os'
@@ -287,6 +286,7 @@ def setup(bld):
 
 	Object.hook('qt4', 'UI_EXT', create_uic_task)
 	Object.hook('qt4', 'RCC_EXT', create_rcc_task)
+	cpp.cppobj.all_hooks.remove('EXT_CXX')
 	Object.hook('cpp', 'EXT_QT4', cxx_hook)
 
 def detect_qt4(conf):
