@@ -443,7 +443,7 @@ class task_gen(object):
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
-		ext_lst = self.mappings or task_gen.mappings
+		ext_lst = self.mappings.keys() or task_gen.mappings.keys()
 
 		# FIXME the following two lines should be removed
 		try: ext_lst += self.s_default_ext
