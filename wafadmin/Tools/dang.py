@@ -35,7 +35,7 @@ def setup(bld):
 	Action.simple_action('dang', dang_str, color='BLUE', prio=40)
 
 	# register the hook
-	Object.declare_extension('EXT_DANG', coin_file)
+	Object.declare_extension(EXT_DANG, coin_file)
 
 def detect(conf):
 	dang = conf.find_program('cat', var='DANG')
