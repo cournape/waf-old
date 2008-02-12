@@ -19,6 +19,7 @@ from Params import set_globals, globals
 set_globals('MOC_H', ['.h', '.hpp', '.hxx', '.hh'])
 set_globals('RCC_EXT', ['.qrc'])
 set_globals('UI_EXT', ['.ui'])
+set_globals('EXT_QT4', ['.cpp', '.cc', '.cxx', '.C', '.c'])
 
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
@@ -89,9 +90,14 @@ class MTask(Task.Task):
 			tree.m_depends_on[variant][m_node] = h_node
 
 			# create the task
-			task = parn.create_task('moc_hack', parn.env)
+			task = Task.Task('moc', parn.env, normal=0)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
+
+			generator = Params.g_build.generator
+			generator.outstanding.insert(0, task)
+			generator.total += 1
+
 			moctasks.append(task)
 
 		# remove raw deps except the moc files to save space (optimization)
@@ -103,9 +109,14 @@ class MTask(Task.Task):
 		for d in lst:
 			name = d.m_name
 			if name.endswith('.moc'):
-				task = parn.create_task('moc_hack', parn.env)
+				task = Task.Task('moc', parn.env, normal=0)
 				task.set_inputs(tree.m_depends_on[variant][d])
 				task.set_outputs(d)
+
+				generator = Params.g_build.generator
+				generator.outstanding.insert(0, task)
+				generator.total += 1
+
 				moctasks.append(task)
 				break
 		# simple scheduler dependency: run the moc task before others
@@ -151,110 +162,107 @@ class qt4obj(cpp.cppobj):
 		cpp.cppobj.__init__(self, type, subtype)
 		self.link_task = None
 		self.m_latask = None
-		self.lang=''
-		self.langname=''
-		self.update=0
+		self.lang = ''
+		self.langname = ''
+		self.update = 0
 
-		# valid types are ['program', 'shlib', 'staticlib']
+		self.set_order('apply_core', 'apply_qt4')
+		self.set_order('apply_qt4', 'apply_link')
 
-	def create_task(self, type, env=None):
-		"overrides Object.create_task to catch the creation of cpp tasks"
-
-		if env is None: env=self.env
-		if type == 'cpp':
-			task = MTask(type, env, self)
-		elif type == 'cpp_ui':
-			task = Task.Task('cpp', env)
-		elif type == 'moc_hack': # add a task while the build has started
-			task = Task.Task('moc', env, normal=0)
-			generator = Params.g_build.generator
-			generator.outstanding.insert(0, task)
-			generator.total += 1
-		else:
-			task = Task.Task(type, env)
-
-		self.m_tasks.append(task)
-		if type == 'cpp': self.compiled_tasks.append(task)
-		return task
-
-	def apply(self):
-		cpp.cppobj.apply(self)
-
-		if self.lang:
-			lst=[]
-			trans=[]
-			for l in self.to_list(self.lang):
-				t = Task.Task('ts2qm', self.env, 4)
-				t.set_inputs(self.path.find_build(l+'.ts'))
-				t.set_outputs(t.m_inputs[0].change_ext('.qm'))
-				lst.append(t.m_outputs[0])
-
-				if self.update:
-					trans.append(t.m_inputs[0])
-
-			if self.update and Params.g_options.trans_qt4:
-				# we need the cpp files given, except the rcc task we create after
-				u = Task.TaskCmd(translation_update, self.env, 2)
-				u.m_inputs = [a.m_inputs[0] for a in self.compiled_tasks]
-				u.m_outputs=trans
-
-			if self.langname:
-				t = Task.Task('qm2rcc', self.env, 40)
-				t.set_inputs(lst)
-				t.set_outputs(self.path.find_build(self.langname+'.qrc'))
-				t.path = self.path
-				k = create_rcc_task(self, t.m_outputs[0])
-				self.link_task.m_inputs.append(k.m_outputs[0])
-
-		lst = []
-		for flag in self.to_list(self.env['CXXFLAGS']):
-			if len(flag) < 2: continue
-			if flag[0:2] == '-D' or flag[0:2] == '-I':
-				lst.append(flag)
-		self.env['MOC_FLAGS'] = lst
-
-	def find_sources_in_dirs(self, dirnames, excludes=[]):
-		"the .ts files are added to self.lang"
+def apply_qt4(self):
+	if self.lang:
 		lst=[]
-		excludes = self.to_list(excludes)
-		#make sure dirnames is a list helps with dirnames with spaces
-		dirnames = self.to_list(dirnames)
+		trans=[]
+		for l in self.to_list(self.lang):
+			t = Task.Task('ts2qm', self.env, 4)
+			t.set_inputs(self.path.find_build(l+'.ts'))
+			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
+			lst.append(t.m_outputs[0])
 
-		# FIXME temporary - see Object.py
-		ext_lst = []
-		cls = self.__class__
-		while 1:
-			try:
-				cls.all_hooks
-			except AttributeError:
-				try: cls = cls.__bases__[0]
-				except IndexError: break
-			else:
-				for i in cls.all_hooks:
-					ext_lst += self.env[i]
-				try: cls = cls.__bases__[0]
-				except IndexError: break
+			if self.update:
+				trans.append(t.m_inputs[0])
 
-		for name in dirnames:
-			#print "name is ", name
-			anode = self.path.ensure_node_from_lst(Utils.split_path(name))
-			#print "anode ", anode.m_name, " ", anode.files()
-			Params.g_build.rescan(anode)
-			#print "anode ", anode.m_name, " ", anode.files()
+		if self.update and Params.g_options.trans_qt4:
+			# we need the cpp files given, except the rcc task we create after
+			u = Task.TaskCmd(translation_update, self.env, 2)
+			u.m_inputs = [a.m_inputs[0] for a in self.compiled_tasks]
+			u.m_outputs=trans
 
-			for file in anode.files():
-				#print "file found ->", file
-				(base, ext) = os.path.splitext(file.m_name)
-				if ext in ext_lst:
-					s = file.relpath(self.path)
-					if not s in lst:
-						if s in excludes: continue
-						lst.append(s)
-				elif ext == '.ts':
-					self.lang += ' '+base
+		if self.langname:
+			t = Task.Task('qm2rcc', self.env, 40)
+			t.set_inputs(lst)
+			t.set_outputs(self.path.find_build(self.langname+'.qrc'))
+			t.path = self.path
+			k = create_rcc_task(self, t.m_outputs[0])
+			self.link_task.m_inputs.append(k.m_outputs[0])
 
-		lst.sort()
-		self.source = self.source+' '+(" ".join(lst))
+	lst = []
+	for flag in self.to_list(self.env['CXXFLAGS']):
+		if len(flag) < 2: continue
+		if flag[0:2] == '-D' or flag[0:2] == '-I':
+			lst.append(flag)
+	self.env['MOC_FLAGS'] = lst
+Object.gen_hook('apply_qt4')
+
+def find_sources_in_dirs(self, dirnames, excludes=[]):
+	"the .ts files are added to self.lang"
+	lst=[]
+	excludes = self.to_list(excludes)
+	#make sure dirnames is a list helps with dirnames with spaces
+	dirnames = self.to_list(dirnames)
+
+	# FIXME temporary - see Object.py
+	ext_lst = []
+	cls = self.__class__
+	while 1:
+		try:
+			cls.all_hooks
+		except AttributeError:
+			try: cls = cls.__bases__[0]
+			except IndexError: break
+		else:
+			for i in cls.all_hooks:
+				ext_lst += self.env[i]
+			try: cls = cls.__bases__[0]
+			except IndexError: break
+
+	for name in dirnames:
+		#print "name is ", name
+		anode = self.path.ensure_node_from_lst(Utils.split_path(name))
+		#print "anode ", anode.m_name, " ", anode.files()
+		Params.g_build.rescan(anode)
+		#print "anode ", anode.m_name, " ", anode.files()
+
+		for file in anode.files():
+			#print "file found ->", file
+			(base, ext) = os.path.splitext(file.m_name)
+			if ext in ext_lst:
+				s = file.relpath(self.path)
+				if not s in lst:
+					if s in excludes: continue
+					lst.append(s)
+			elif ext == '.ts':
+				self.lang += ' '+base
+
+	lst.sort()
+	self.source = self.source+' '+(" ".join(lst))
+setattr(qt4obj, 'find_sources_in_dirs', find_sources_in_dirs)
+
+def cxx_hook(self, node):
+	# create the compilation task: cpp or cc
+	task = MTask(type, env, self)
+	self.m_tasks.append(task)
+	obj_ext = self.env[self.m_type+'_obj_ext']
+	if not obj_ext: obj_ext = '.os'
+	else: obj_ext = obj_ext[0]
+
+	task.m_scanner = ccroot.g_c_scanner
+	task.path_lst = self.inc_paths
+	task.defines  = self.scanner_defines
+
+	task.m_inputs = [node]
+	task.m_outputs = [node.change_ext(obj_ext)]
+	self.compiled_tasks.append(task)
 
 def process_qm2rcc(task):
 	outfile = task.m_outputs[0].abspath(task.env())
@@ -280,6 +288,7 @@ def setup(bld):
 
 	Object.hook('qt4', 'UI_EXT', create_uic_task)
 	Object.hook('qt4', 'RCC_EXT', create_rcc_task)
+	Object.hook('cpp', 'EXT_QT4', cxx_hook)
 
 def detect_qt4(conf):
 	env = conf.env
