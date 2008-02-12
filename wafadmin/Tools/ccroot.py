@@ -68,7 +68,6 @@ class ccroot(Object.task_gen):
 		# the objects found will be post()-ed
 		self.uselib_local=''
 
-
 		# add .o files produced by another task_gen class
 		self.add_objects = ''
 
