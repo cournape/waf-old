@@ -166,8 +166,7 @@ class qt4obj(cpp.cppobj):
 		self.langname = ''
 		self.update = 0
 
-		self.set_order('apply_core', 'apply_qt4')
-		self.set_order('apply_qt4', 'apply_link')
+		self.set_order('apply_link', 'apply_qt4')
 
 def apply_qt4(self):
 	if self.lang:
@@ -202,7 +201,7 @@ def apply_qt4(self):
 		if flag[0:2] == '-D' or flag[0:2] == '-I':
 			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
-Object.gen_hook('apply_qt4')
+Object.gen_hook('apply_qt4', apply_qt4)
 
 def find_sources_in_dirs(self, dirnames, excludes=[]):
 	"the .ts files are added to self.lang"
