@@ -8,11 +8,11 @@ import os, re
 import Params, Action, Object, Scan, Utils, Task
 from Params import error, fatal
 
-Params.set_globals('EXT_MLL', ['.mll'])
-Params.set_globals('EXT_MLY', ['.mly'])
-Params.set_globals('EXT_MLI', ['.mli'])
-Params.set_globals('EXT_MLC', ['.c'])
-Params.set_globals('EXT_ML', ['.ml'])
+EXT_MLL = ['.mll']
+EXT_MLY = ['.mly']
+EXT_MLI = ['.mli']
+EXT_MLC = ['.c']
+EXT_ML  = ['.ml']
 
 open_re = re.compile('open ([a-zA-Z]+);;', re.M)
 
@@ -359,11 +359,11 @@ def setup(bld):
 	Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', prio=20)
 	Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', prio=20)
 
-	Object.hook('ocaml', 'EXT_MLL', mll_hook)
-	Object.hook('ocaml', 'EXT_MLY', mly_hook)
-	Object.hook('ocaml', 'EXT_MLI', mli_hook)
-	Object.hook('ocaml', 'EXT_MLC', mlc_hook)
-	Object.hook('ocaml', 'EXT_ML', ml_hook)
+	Object.declare_extension(EXT_MLL, mll_hook)
+	Object.declare_extension(EXT_MLY, mly_hook)
+	Object.declare_extension(EXT_MLI, mli_hook)
+	Object.declare_extension(EXT_MLC, mlc_hook)
+	Object.declare_extension(EXT_ML, ml_hook)
 
 def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')

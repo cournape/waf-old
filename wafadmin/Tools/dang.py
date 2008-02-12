@@ -9,6 +9,8 @@ import Action, Object
 dang_str = '${DANG} ${SRC} > ${TGT}'
 "our action"
 
+EXT_DANG = ['.coin']
+
 def coin_file(self, node):
 	"""Create the task for the coin file
 	the action 'dang' above is called for this
@@ -32,11 +34,10 @@ def setup(bld):
 	# create our action, for use with coin_file
 	Action.simple_action('dang', dang_str, color='BLUE', prio=40)
 
-	# register the hook for use with cppobj
-	Object.hook('cpp', 'DANG_EXT', coin_file)
+	# register the hook
+	Object.declare_extension('EXT_DANG', coin_file)
 
 def detect(conf):
 	dang = conf.find_program('cat', var='DANG')
 	if not dang: return
-	conf.env['DANG_EXT'] = ['.coin']
 

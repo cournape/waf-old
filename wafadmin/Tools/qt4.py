@@ -17,9 +17,9 @@ from Params import error, fatal
 from Params import set_globals, globals
 
 set_globals('MOC_H', ['.h', '.hpp', '.hxx', '.hh'])
-set_globals('RCC_EXT', ['.qrc'])
-set_globals('UI_EXT', ['.ui'])
-set_globals('EXT_QT4', ['.cpp', '.cc', '.cxx', '.C', '.c'])
+EXT_RCC = ['.qrc']
+EXT_UI  = ['.ui']
+EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C', '.c']
 
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
@@ -284,10 +284,9 @@ def setup(bld):
 
 	Object.register('qt4', qt4obj)
 
-	Object.hook('qt4', 'UI_EXT', create_uic_task)
-	Object.hook('qt4', 'RCC_EXT', create_rcc_task)
-	cpp.cppobj.all_hooks.remove('EXT_CXX')
-	Object.hook('cpp', 'EXT_QT4', cxx_hook)
+	Object.declare_extension(EXT_UI, create_uic_task)
+	Object.declare_extension(EXT_RCC, create_rcc_task)
+	Object.declare_extension(EXT_QT4, cxx_hook)
 
 def detect_qt4(conf):
 	env = conf.env

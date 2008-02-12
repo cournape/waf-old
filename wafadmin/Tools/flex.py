@@ -9,6 +9,7 @@ from Params import fatal
 from Params import set_globals
 
 flex_str = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}'
+FLEX_EXT = ['.l']
 
 # we register our extensions to global variables
 set_globals('EXT_FLEX_C', '.lex.c')
@@ -37,12 +38,8 @@ def l_file(self, node):
 def setup(bld):
 	# create our action here
 	Action.simple_action('flex', flex_str, color='BLUE', prio=40)
-
-	# register the hook for use with cppobj and ccobj
-	try: Object.hook('cpp', 'FLEX_EXT', l_file)
-	except KeyError: pass
-	try: Object.hook('cc', 'FLEX_EXT', l_file)
-	except KeyError: pass
+	# register the hook
+	Object.declare_extension(EXT_FLEX, l_file)
 
 def detect(conf):
 	flex = conf.find_program('flex', var='FLEX')
@@ -50,5 +47,4 @@ def detect(conf):
 	v = conf.env
 	v['FLEX']      = flex
 	v['FLEXFLAGS'] = ''
-	v['FLEX_EXT']  = ['.l']
 

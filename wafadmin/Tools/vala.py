@@ -6,6 +6,8 @@ import Action, Object, Runner, Utils, Params, Node
 import os.path
 import shutil
 
+EXT_VALA = ['.vala']
+
 class ValacAction(Action.Action):
 	def __init__(self):
 		Action.Action.__init__(self, 'valac', color='GREEN')
@@ -114,7 +116,7 @@ def vala_file(self, node):
 def setup(bld):
 	# create our action here
 	ValacAction()
-	Object.hook('cc', 'VALA_EXT', vala_file)
+	Object.declare_extension(EXT_VALA, vala_file)
 
 def detect(conf):
 	valac = conf.find_program('valac', var='VALAC')
@@ -122,5 +124,4 @@ def detect(conf):
 		return
 	conf.env['VALAC'] = valac
 	conf.env['VALAFLAGS'] = ''
-	conf.env['VALA_EXT'] = ['.vala']
 

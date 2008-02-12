@@ -7,6 +7,7 @@ import pproc as subprocess
 import Action, Object, Node, Params
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
+EXT_PERLXS = '.pl'
 
 def xsubpp_file(self, node):
     gentask = self.create_task('xsubpp')
@@ -19,7 +20,7 @@ def xsubpp_file(self, node):
 
 def setup(bld):
     Action.simple_action('xsubpp', xsubpp_str, color='BLUE', prio=10)
-    Object.hook('cc', 'PERLXS_EXT', xsubpp_file)
+    Object.declare_extension(EXT_PERLXS, xsubpp_file)
 
 def check_perl_version(conf, minver=None):
     """
@@ -105,8 +106,6 @@ def check_perl_ext_devel(conf):
     return True
 
 def detect(conf):
-    conf.env['PERLXS_EXT'] = ['.xs']
-
     conf.hook(check_perl_version)
     conf.hook(check_perl_ext_devel)
     conf.hook(check_perl_module)
