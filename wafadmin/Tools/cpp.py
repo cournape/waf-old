@@ -15,6 +15,7 @@ g_cpp_flag_vars = [
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CXXDEFINES']
 "main cpp variables"
 
+EXT_CXX = ['.cpp', '.cc', '.cxx', '.C', '.c']
 Params.set_globals('EXT_CXX', ['.cpp', '.cc', '.cxx', '.C', '.c'])
 
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
@@ -109,5 +110,5 @@ def setup(bld):
 	Action.simple_action('cpp_link', link_str, color='YELLOW', prio=111)
 
 	Object.register('cpp', cppobj)
-	Object.hook('cpp', 'EXT_CXX', cxx_hook)
+	Object.declare_extension(EXT_CXX, cxx_hook)
 

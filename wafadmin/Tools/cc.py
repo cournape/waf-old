@@ -14,7 +14,7 @@ g_cc_flag_vars = [
 'INCLUDE',
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
-Params.set_globals('EXT_CC', ['.c', '.cc'])
+EXT_CC = ['.c', '.cc']
 
 g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):
@@ -104,5 +104,5 @@ def setup(bld):
 	Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
 
 	Object.register('cc', ccobj)
-	Object.hook('cc', 'EXT_CC', c_hook)
+	Object.declare_extension(EXT_CC, c_hook)
 

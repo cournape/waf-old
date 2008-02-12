@@ -272,6 +272,8 @@ class task_gen(object):
 	* postponing the method calls (post() -> apply)
 	"""
 
+	mappings = {}
+
 	def __init__(self):
 		self.prec = {}
 		"map precedence of function names to call"
@@ -290,6 +292,8 @@ class task_gen(object):
 		self.chmod = 0644
 		self.inst_var = '' # 0 to prevent installation
 		self.inst_dir = ''
+
+		self.mappings = {}
 
 		self.env = None
 		self.m_posted = 0
@@ -343,8 +347,7 @@ class task_gen(object):
 			x = self.get_hook(filename[k:])
 
 			if not x:
-				print str(self.__class__)
-				print self.__class__.all_hooks
+				print self.__class__.mappings
 				raise TypeError, "Do not know how to process %s in %s" % (str(node), str(self.__class__))
 			x(self, node)
 
@@ -407,24 +410,16 @@ class task_gen(object):
 		self.m_posted=1
 
 	def get_hook(self, ext):
-		env = self.env
-		cls = self.__class__
-		x = []
-		while 1:
-			try:
-				cls.all_hooks
-			except AttributeError:
-				try: cls = cls.__bases__[0]
-				except IndexError: return None
-			else:
-				for i in cls.all_hooks:
-					if ext in env[i]:
-						try:
-							return cls.__dict__[i]
-						except KeyError:
-							break
-				try: cls = cls.__bases__[0]
-				except IndexError: return None
+		map = self.mappings
+		for x in self.mappings:
+			if x == ext:
+				return map[x]
+
+		map = task_gen.mappings
+		for x in map:
+			if x == ext:
+				return map[x]
+
 		return None
 
 	def get_meth(self, name):
@@ -499,6 +494,7 @@ class task_gen(object):
 def gen_hook(name, meth):
 	setattr(task_gen, name, meth)
 
+# OBSOLETE
 def hook(clsname, var, func):
 	"Attach a new method to a genobj class"
 	klass = g_allclasses[clsname]
@@ -506,9 +502,14 @@ def hook(clsname, var, func):
 	try: klass.all_hooks.append(var)
 	except AttributeError: klass.all_hooks = [var]
 
-	setattr(task_gen, var, func)
-	try: task_gen.all_hooks.append(var)
-	except: task_gen.all_hooks = [var]
+def declare_extension(var, func):
+	if type(var) is types.ListType:
+		for x in var:
+			task_gen.mappings[x] = func
+	elif type(var) is types.StringType:
+		task_gen.mappings[var] = func
+	else:
+		raise TypeError('declare extension takes either a list or a string %s' % str(var))
 
 g_cache_max={}
 def sign_env_vars(env, vars_list):
