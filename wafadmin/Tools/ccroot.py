@@ -98,16 +98,9 @@ class ccroot(Object.task_gen):
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
 		self.features = ['program']
 
-		self.set_order('apply_type_vars', 'apply_incpaths')
-		self.set_order('apply_incpaths', 'apply_dependencies')
-		self.set_order('apply_dependencies', 'apply_core')
-
-		self.set_order('apply_core', 'apply_link')
-
-		self.set_order('apply_link', 'apply_vnum')
-		self.set_order('apply_vnum', 'apply_lib_vars')
-		self.set_order('apply_lib_vars', 'apply_obj_vars')
-		self.set_order('apply_obj_vars', 'apply_objdeps')
+		self.set_order(\
+			'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
+			'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps')
 
 		self.meths = '''
 apply_dependencies

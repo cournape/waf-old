@@ -321,11 +321,31 @@ class task_gen(object):
 		# TODO adding functions ?
 		self.meths.append(name)
 
-	def set_order(self, f1, f2):
-		try: self.prec[f2].append(f1)
-		except: self.prec[f2] = [f1]
-		if not f1 in self.meths: self.meths.append(f1)
-		if not f2 in self.meths: self.meths.append(f2)
+	def set_order(self, *k):
+		assert(len(k) > 1)
+		n = len(k)
+		for i in xrange(n):
+			for j in xrange(n):
+				if j>i:
+					f1 = k[i]
+					f2 = k[j]
+					try: self.prec[f2].append(f1)
+					except: self.prec[f2] = [f1]
+					if not f1 in self.meths: self.meths.append(f1)
+					if not f2 in self.meths: self.meths.append(f2)
+
+	def add_order(self, *k):
+		assert(len(k) > 1)
+		n = len(k)
+		for i in xrange(n):
+			for j in xrange(n):
+				if j>i:
+					f1 = k[i]
+					f2 = k[j]
+					try: self.prec[f2].append(f1)
+					except: self.prec[f2] = [f1]
+					if not f1 in self.meths: self.meths.append(f1)
+					if not f2 in self.meths: self.meths.append(f2)
 
 	def apply_core(self):
 		# get the list of folders to use by the scanners

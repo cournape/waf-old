@@ -246,26 +246,7 @@ class dobj(Object.task_gen):
 
 		self.add_objects = []
 
-		self.set_order('apply_type_vars', 'apply_incpaths')
-		self.set_order('apply_incpaths', 'apply_dependencies')
-		self.set_order('apply_dependencies', 'apply_core')
-
-		self.set_order('apply_core', 'apply_d_link')
-
-		self.set_order('apply_d_link', 'apply_vnum')
-		self.set_order('apply_vnum', 'apply_lib_vars')
-		self.set_order('apply_lib_vars', 'apply_obj_vars')
-		self.set_order('apply_obj_vars', 'apply_objdeps')
-
-		self.set_order('apply_d_vars', 'apply_core')
-
-		self.meths = '''
-apply_d_vars
-apply_core
-apply_d_link
-apply_objdeps
-apply_vnum
-install'''.split()
+		self.set_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install')
 
 	def applik(self):
 
