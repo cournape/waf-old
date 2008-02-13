@@ -1205,23 +1205,9 @@ class Configure(object):
 	def check_message(self,type,msg,state,option=''):
 		"print an checking message. This function is used by other checking functions"
 		sr = 'Checking for ' + type + ' ' + msg
-
-		lst = []
-		lst.append(sr)
-
 		global g_maxlen
-		dist = len(sr)
-		if dist > g_maxlen:
-			g_maxlen = dist+1
-
-		if dist < g_maxlen:
-			diff = g_maxlen - dist
-			while diff > 0:
-				lst.append(' ')
-				diff -= 1
-
-		lst.append(':')
-		print ''.join(lst),
+		g_maxlen = max(g_maxlen, len(sr))
+		print "%s :" % sr.ljust(g_maxlen),
 
 		p = Params.pprint
 		if state: p('GREEN', 'ok ' + option)
@@ -1230,26 +1216,10 @@ class Configure(object):
 	def check_message_custom(self,type,msg,custom,option=''):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for ' + type + ' ' + msg
-
-		lst = []
-		lst.append(sr)
-
 		global g_maxlen
-		dist = len(sr)
-		if dist > g_maxlen:
-			g_maxlen = dist+1
-
-		if dist < g_maxlen:
-			diff = g_maxlen - dist
-			while diff > 0:
-				lst.append(' ')
-				diff -= 1
-
-		lst.append(':')
-		print ''.join(lst),
-
-		p = Params.pprint
-		p('CYAN', custom)
+		g_maxlen = max(g_maxlen, len(sr))
+		print "%s :" % sr.ljust(g_maxlen),
+		Params.pprint('CYAN', custom)
 
 	def hook(self, func):
 		"attach the function given as input as new method"
