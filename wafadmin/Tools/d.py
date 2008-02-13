@@ -227,7 +227,6 @@ class dobj(Object.genobj):
 		self.inc_paths = []
 
 	def apply(self):
-
 		global g_d_scanner
 
 		#initialization
@@ -246,10 +245,6 @@ class dobj(Object.genobj):
 		libpaths = []
 		libs = []
 
-		if type == 'staticlib':
-			linktask = self.create_task('ar_link_static', env)
-		else:
-			linktask = self.create_task('d_link', env)
 
 
 		uselib = self.to_list(self.uselib)
@@ -315,87 +310,6 @@ class dobj(Object.genobj):
 			names = names[1:]
 
 
-
-		# add compiler flags
-		for i in uselib:
-			if env['DFLAGS_' + i]:
-				for dflag in self.to_list(env['DFLAGS_' + i][env['COMPILER_D']]):
-					if not dflag in dflags[env['COMPILER_D']]:
-						dflags[env['COMPILER_D']] += [dflag]
-		dflags[env['COMPILER_D']] = self.to_list(self.dflags[env['COMPILER_D']]) + dflags[env['COMPILER_D']]
-
-		for dflag in dflags[env['COMPILER_D']]:
-			if not dflag in env['DFLAGS'][env['COMPILER_D']]:
-				env['DFLAGS'][env['COMPILER_D']] += [dflag]
-
-		d_shlib_dflags = env['D_' + type + '_DFLAGS']
-		if d_shlib_dflags:
-			for dflag in d_shlib_dflags:
-				if not dflag in env['DFLAGS'][env['COMPILER_D']]:
-					env['DFLAGS'][env['COMPILER_D']] += [dflag]
-
-		env['_DFLAGS'] = env['DFLAGS'][env['COMPILER_D']]
-
-
-		# add import paths
-		for i in uselib:
-			if env['DPATH_' + i]:
-				for entry in self.to_list(env['DPATH_' + i]):
-					if not entry in importpaths:
-						importpaths += [entry]
-		importpaths = self.to_list(self.importpaths) + importpaths
-
-		# now process the import paths
-		# FIXME TODO add the import paths in the build dir too in case .d files are generated
-		for path in importpaths:
-			if os.path.isabs(path):
-				imppath = path
-			else:
-				node = self.path.find_source_lst(Utils.split_path(path))
-				self.inc_paths.append(node)
-				imppath = node.srcpath(env)
-			env.append_unique('_DIMPORTFLAGS', dpath_st % imppath)
-
-
-		# add library paths
-		for i in uselib:
-			if env['LIBPATH_' + i]:
-				for entry in self.to_list(env['LIBPATH_' + i]):
-					if not entry in libpaths:
-						libpaths += [entry]
-		libpaths = self.to_list(self.libpaths) + libpaths
-
-		# now process the library paths
-		for path in libpaths:
-			env.append_unique('_DLIBDIRFLAGS', libpath_st % path)
-
-
-		# add libraries
-		for i in uselib:
-			if env['LIB_' + i]:
-				for entry in self.to_list(env['LIB_' + i]):
-					if not entry in libs:
-						libs += [entry]
-		libs = libs + self.to_list(self.libs)
-
-		# now process the libraries
-		for lib in libs:
-			env.append_unique('_DLIBFLAGS', lib_st % lib)
-
-
-		# add linker flags
-		for i in uselib:
-			dlinkflags = env['DLINKFLAGS_' + i]
-			if dlinkflags:
-				for linkflag in dlinkflags:
-					env.append_unique('DLINKFLAGS', linkflag)
-
-		d_shlib_linkflags = env['D_' + type + '_LINKFLAGS']
-		if d_shlib_linkflags:
-			for linkflag in d_shlib_linkflags:
-				env.append_unique('DLINKFLAGS', linkflag)
-
-
 		# create compile tasks
 
 		compiletasks = []
@@ -442,6 +356,107 @@ class dobj(Object.genobj):
 
 	def install(self):
 		pass
+
+def apply_link_d(self):
+	# if we are only building .o files, tell which ones we built
+	if self.m_type == 'objects':
+		self.out_nodes = []
+		app = self.out_nodes.append
+		for t in self.compiled_tasks: app(t.m_outputs[0])
+		return
+
+	if self.m_type=='staticlib':
+		linktask = self.create_task('ar_link_static', self.env)
+	else:
+		linktask = self.create_task('d_link', self.env)
+	outputs = []
+	app = outputs.append
+	for t in self.compiled_tasks: app(t.m_outputs[0])
+	linktask.set_inputs(outputs)
+	linktask.set_outputs(self.path.find_build(get_target_name(self)))
+
+	self.link_task = linktask
+Object.gen_hook(apply_link_d)
+
+def apply_d_vars(self):
+	# add compiler flags
+	for i in uselib:
+		if env['DFLAGS_' + i]:
+			for dflag in self.to_list(env['DFLAGS_' + i][env['COMPILER_D']]):
+				if not dflag in dflags[env['COMPILER_D']]:
+					dflags[env['COMPILER_D']] += [dflag]
+	dflags[env['COMPILER_D']] = self.to_list(self.dflags[env['COMPILER_D']]) + dflags[env['COMPILER_D']]
+
+	for dflag in dflags[env['COMPILER_D']]:
+		if not dflag in env['DFLAGS'][env['COMPILER_D']]:
+			env['DFLAGS'][env['COMPILER_D']] += [dflag]
+
+	d_shlib_dflags = env['D_' + type + '_DFLAGS']
+	if d_shlib_dflags:
+		for dflag in d_shlib_dflags:
+			if not dflag in env['DFLAGS'][env['COMPILER_D']]:
+				env['DFLAGS'][env['COMPILER_D']] += [dflag]
+
+	env['_DFLAGS'] = env['DFLAGS'][env['COMPILER_D']]
+
+	# add import paths
+	for i in uselib:
+		if env['DPATH_' + i]:
+			for entry in self.to_list(env['DPATH_' + i]):
+				if not entry in importpaths:
+					importpaths += [entry]
+	importpaths = self.to_list(self.importpaths) + importpaths
+
+	# now process the import paths
+	# FIXME TODO add the import paths in the build dir too in case .d files are generated
+	for path in importpaths:
+		if os.path.isabs(path):
+			imppath = path
+		else:
+			node = self.path.find_source_lst(Utils.split_path(path))
+			self.inc_paths.append(node)
+			imppath = node.srcpath(env)
+		env.append_unique('_DIMPORTFLAGS', dpath_st % imppath)
+
+
+	# add library paths
+	for i in uselib:
+		if env['LIBPATH_' + i]:
+			for entry in self.to_list(env['LIBPATH_' + i]):
+				if not entry in libpaths:
+					libpaths += [entry]
+	libpaths = self.to_list(self.libpaths) + libpaths
+
+	# now process the library paths
+	for path in libpaths:
+		env.append_unique('_DLIBDIRFLAGS', libpath_st % path)
+
+
+	# add libraries
+	for i in uselib:
+		if env['LIB_' + i]:
+			for entry in self.to_list(env['LIB_' + i]):
+				if not entry in libs:
+					libs += [entry]
+	libs = libs + self.to_list(self.libs)
+
+	# now process the libraries
+	for lib in libs:
+		env.append_unique('_DLIBFLAGS', lib_st % lib)
+
+
+	# add linker flags
+	for i in uselib:
+		dlinkflags = env['DLINKFLAGS_' + i]
+		if dlinkflags:
+			for linkflag in dlinkflags:
+				env.append_unique('DLINKFLAGS', linkflag)
+
+	d_shlib_linkflags = env['D_' + type + '_LINKFLAGS']
+	if d_shlib_linkflags:
+		for linkflag in d_shlib_linkflags:
+			env.append_unique('DLINKFLAGS', linkflag)
+Object.gen_hook(apply_d_vars)
 
 def setup(bld):
 	d_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
