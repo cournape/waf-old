@@ -1032,7 +1032,7 @@ class Configure(object):
 
 	def store(self, file=''):
 		"save the config results into the cache file"
-		if not os.path.isdir(Params.g_cachedir)
+		if not os.path.isdir(Params.g_cachedir):
 			os.makedirs(Params.g_cachedir)
 
 		if not self.m_allenvs:
@@ -1086,7 +1086,7 @@ class Configure(object):
 		if not Params.g_cache_global: return
 
 		# not during the build
-		if not os.path.isdir(Params.g_cache_global)
+		if not os.path.isdir(Params.g_cache_global):
 			os.makedirs(Params.g_cache_global)
 
 		fic = os.path.join(Params.g_cache_global, Params.g_conf_name)
