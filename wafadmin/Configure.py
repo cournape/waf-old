@@ -1032,10 +1032,8 @@ class Configure(object):
 
 	def store(self, file=''):
 		"save the config results into the cache file"
-		try:
+		if not os.path.isdir(Params.g_cachedir)
 			os.makedirs(Params.g_cachedir)
-		except OSError:
-			pass
 
 		if not self.m_allenvs:
 			fatal("nothing to store in Configure !")
@@ -1088,8 +1086,8 @@ class Configure(object):
 		if not Params.g_cache_global: return
 
 		# not during the build
-		try: os.makedirs(Params.g_cache_global)
-		except OSError: pass
+		if not os.path.isdir(Params.g_cache_global)
+			os.makedirs(Params.g_cache_global)
 
 		fic = os.path.join(Params.g_cache_global, Params.g_conf_name)
 		file = open(fic, 'wb')
