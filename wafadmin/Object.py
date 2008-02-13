@@ -479,8 +479,11 @@ class task_gen(object):
 
 		return newobj
 
-def gen_hook(name, meth):
-	setattr(task_gen, name, meth)
+def gen_hook(name_or_meth, meth=None):
+	try:
+		setattr(task_gen, name_or_meth.__name__, name_or_meth)
+	except AttributeError:
+		setattr(task_gen, name_or_meth, meth)
 
 # OBSOLETE
 def hook(clsname, var, func):
