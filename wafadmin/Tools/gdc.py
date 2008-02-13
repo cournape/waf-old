@@ -90,9 +90,7 @@ def detect(conf):
 		v['D_program_PREFIX']      = ''
 		v['D_program_SUFFIX']      = ''
 
-
 	return 1
-
 
 def set_options(opt):
 	pass

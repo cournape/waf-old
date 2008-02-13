@@ -1,11 +1,14 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Carlos Rafael Giani, 2007 (dv)
-# Thomas Nagy, 2007 (ita)
+# Thomas Nagy, 2007-2008 (ita)
 
 import os, sys, re, optparse
+import ccroot # <- leave this
 import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
+
+EXT_D = ['.d', '.di', '.D']
 
 def filter_comments(filename):
 	f = open(filename, 'r')
@@ -201,7 +204,7 @@ class d_scanner(Scan.scanner):
 	def scan(self, task, node):
 		"look for .d/.di the .d source need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = d_parser(task.env(), task.inc_paths)
+		gruik = d_parser(task.env(), task.path_lst)
 		gruik.start(node)
 
 		if Params.g_verbose:
@@ -212,11 +215,24 @@ class d_scanner(Scan.scanner):
 g_d_scanner = d_scanner()
 "scanner for d programs"
 
-class dobj(Object.genobj):
+def get_target_name(self):
+	"for d programs and libs"
+	v = self.env
 
-	s_default_ext = ['.d', '.di', '.D']
+	prefix = v['D_' + self.m_type + '_PREFIX']
+	suffix = v['D_' + self.m_type + '_SUFFIX']
+
+	if not prefix: prefix=''
+	if not suffix: suffix=''
+	return ''.join([prefix, self.target, suffix])
+
+class dobj(Object.task_gen):
+
 	def __init__(self, type='program'):
-		Object.genobj.__init__(self, type)
+		Object.task_gen.__init__(self)
+
+		self.m_type = type
+		self.subtype = type
 
 		self.dflags = {'gdc':'', 'dmd':''}
 		self.importpaths = ''
@@ -226,26 +242,32 @@ class dobj(Object.genobj):
 		self.uselib_local = ''
 		self.inc_paths = []
 
-	def apply(self):
-		global g_d_scanner
+		self.compiled_tasks = []
 
-		#initialization
-		if self.m_type == 'objects':
-			type = 'program'
-		else:
-			type = self.m_type
+		self.add_objects = []
 
-		env = self.env.copy()
-		dpath_st         = env['DPATH_ST']
-		lib_st           = env['DLIB_ST']
-		libpath_st       = env['DLIBPATH_ST']
+		self.set_order('apply_type_vars', 'apply_incpaths')
+		self.set_order('apply_incpaths', 'apply_dependencies')
+		self.set_order('apply_dependencies', 'apply_core')
 
-		dflags = {'gdc':[], 'dmd':[]}
-		importpaths = []
-		libpaths = []
-		libs = []
+		self.set_order('apply_core', 'apply_d_link')
 
+		self.set_order('apply_d_link', 'apply_vnum')
+		self.set_order('apply_vnum', 'apply_lib_vars')
+		self.set_order('apply_lib_vars', 'apply_obj_vars')
+		self.set_order('apply_obj_vars', 'apply_objdeps')
 
+		self.set_order('apply_d_vars', 'apply_core')
+
+		self.meths = '''
+apply_d_vars
+apply_core
+apply_d_link
+apply_objdeps
+apply_vnum
+install'''.split()
+
+	def applik(self):
 
 		uselib = self.to_list(self.uselib)
 		seen = []
@@ -309,56 +331,8 @@ class dobj(Object.genobj):
 				uselib = [v]+uselib
 			names = names[1:]
 
-
-		# create compile tasks
-
-		compiletasks = []
-
-		obj_ext = env['D_' + type + '_obj_ext'][0]
-
-		find_source_lst = self.path.find_source_lst
-
-		for filename in self.to_list(self.source):
-			node = find_source_lst(Utils.split_path(filename))
-			base, ext = os.path.splitext(filename)
-
-			if not ext in self.s_default_ext:
-				fatal("unknown file " + filename)
-
-			task = self.create_task('d', env)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext(obj_ext))
-			task.m_scanner = g_d_scanner
-			task.inc_paths = self.inc_paths
-
-			compiletasks.append(task)
-
-		# and after the objects, the remaining is the link step
-		# link in a lower priority (101) so it runs alone (default is 10)
-		global g_prio_link
-
-		outputs = []
-		for t in compiletasks: outputs.append(t.m_outputs[0])
-		linktask.set_inputs(outputs)
-		linktask.set_outputs(self.path.find_build(self.get_target_name()))
-
-		self.link_task = linktask
-
-	def get_target_name(self):
-		v = self.env
-
-		prefix = v['D_' + self.m_type + '_PREFIX']
-		suffix = v['D_' + self.m_type + '_SUFFIX']
-
-		if not prefix: prefix=''
-		if not suffix: suffix=''
-		return ''.join([prefix, self.target, suffix])
-
-	def install(self):
-		pass
-
-def apply_link_d(self):
-	# if we are only building .o files, tell which ones we built
+def apply_d_link(self):
+	# if we are only building .o files, tell which ones we build
 	if self.m_type == 'objects':
 		self.out_nodes = []
 		app = self.out_nodes.append
@@ -376,9 +350,20 @@ def apply_link_d(self):
 	linktask.set_outputs(self.path.find_build(get_target_name(self)))
 
 	self.link_task = linktask
-Object.gen_hook(apply_link_d)
+Object.gen_hook(apply_d_link)
 
 def apply_d_vars(self):
+	env = self.env
+	dpath_st   = env['DPATH_ST']
+	lib_st     = env['DLIB_ST']
+	libpath_st = env['DLIBPATH_ST']
+
+	dflags = {'gdc':[], 'dmd':[]}
+	importpaths = []
+	libpaths = []
+	libs = []
+	uselib = self.to_list(self.uselib)
+
 	# add compiler flags
 	for i in uselib:
 		if env['DFLAGS_' + i]:
@@ -391,7 +376,7 @@ def apply_d_vars(self):
 		if not dflag in env['DFLAGS'][env['COMPILER_D']]:
 			env['DFLAGS'][env['COMPILER_D']] += [dflag]
 
-	d_shlib_dflags = env['D_' + type + '_DFLAGS']
+	d_shlib_dflags = env['D_' + self.m_type + '_DFLAGS']
 	if d_shlib_dflags:
 		for dflag in d_shlib_dflags:
 			if not dflag in env['DFLAGS'][env['COMPILER_D']]:
@@ -431,7 +416,6 @@ def apply_d_vars(self):
 	for path in libpaths:
 		env.append_unique('_DLIBDIRFLAGS', libpath_st % path)
 
-
 	# add libraries
 	for i in uselib:
 		if env['LIB_' + i]:
@@ -452,11 +436,27 @@ def apply_d_vars(self):
 			for linkflag in dlinkflags:
 				env.append_unique('DLINKFLAGS', linkflag)
 
-	d_shlib_linkflags = env['D_' + type + '_LINKFLAGS']
+	d_shlib_linkflags = env['D_' + self.m_type + '_LINKFLAGS']
 	if d_shlib_linkflags:
 		for linkflag in d_shlib_linkflags:
 			env.append_unique('DLINKFLAGS', linkflag)
 Object.gen_hook(apply_d_vars)
+
+def d_hook(self, node):
+	# create the compilation task: cpp or cc
+	task = self.create_task('d', self.env)
+	obj_ext = self.env[self.m_type+'_obj_ext']
+	if not obj_ext: obj_ext = '.o'
+	else: obj_ext = obj_ext[0]
+
+	global g_d_scanner
+	task.m_scanner = g_d_scanner
+	task.path_lst = self.inc_paths
+	#task.defines  = self.scanner_defines
+
+	task.m_inputs = [node]
+	task.m_outputs = [node.change_ext(obj_ext)]
+	self.compiled_tasks.append(task)
 
 def setup(bld):
 	d_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
@@ -466,6 +466,7 @@ def setup(bld):
 	Action.simple_action('d_link', link_str, color='YELLOW', prio=101)
 
 	Object.register('d', dobj)
+	Object.declare_extension(EXT_D, d_hook)
 
 def detect(conf):
 	return 1
