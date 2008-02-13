@@ -227,13 +227,13 @@ def apply_msvc_obj_vars(self):
 			debug('libnamefixed: %s' % libname,'msvc')
 			if libname != None:
 				app('LINKFLAGS', libname)
-Object.gen_hook('apply_msvc_obj_vars', apply_msvc_obj_vars)
+Object.gen_hook(apply_msvc_obj_vars)
 
 def apply_link_msvc(self):
 	if self.link_task is not None:
 		self.link_task.m_type = self.m_type
 		self.link_task.m_subsystem = self.subsystem
-Object.gen_hook('apply_link_msvc', apply_link_msvc)
+Object.gen_hook(apply_link_msvc)
 
 class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):

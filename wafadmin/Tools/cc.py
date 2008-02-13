@@ -59,7 +59,7 @@ def apply_obj_vars_cc(self):
 	tmpnode = self.path
 	app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
 	app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-Object.gen_hook('apply_obj_vars_cc', apply_obj_vars_cc)
+Object.gen_hook(apply_obj_vars_cc)
 
 def apply_defines_cc(self):
 	tree = Params.g_build
@@ -79,7 +79,7 @@ def apply_defines_cc(self):
 	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 	y = self.env['CCDEFINES_ST']
 	self.env['_CCDEFFLAGS'] = [y%x for x in milst]
-Object.gen_hook('apply_defines_cc', apply_defines_cc)
+Object.gen_hook(apply_defines_cc)
 
 def c_hook(self, node):
 	# create the compilation task: cpp or cc

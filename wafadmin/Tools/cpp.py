@@ -63,7 +63,7 @@ def apply_obj_vars_cxx(self):
 	tmpnode = Params.g_build.m_curdirnode
 	app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(env))
 	app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-Object.gen_hook('apply_obj_vars_cxx', apply_obj_vars_cxx)
+Object.gen_hook(apply_obj_vars_cxx)
 
 def apply_defines_cxx(self):
 	tree = Params.g_build
@@ -84,7 +84,7 @@ def apply_defines_cxx(self):
 	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 	y = self.env['CXXDEFINES_ST']
 	self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
-Object.gen_hook('apply_defines_cxx', apply_defines_cxx)
+Object.gen_hook(apply_defines_cxx)
 
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc

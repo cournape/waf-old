@@ -257,7 +257,7 @@ def apply_incpaths_ml(self):
 		if not node in lst: lst.append( node )
 		self._bld_incpaths_lst.append(node)
 	# now the nodes are added to self._incpaths_lst
-Object.gen_hook('apply_incpaths_ml', apply_incpaths_ml)
+Object.gen_hook(apply_incpaths_ml)
 
 def apply_vars_ml(self):
 	for i in self._incpaths_lst:
@@ -276,7 +276,7 @@ def apply_vars_ml(self):
 			if cnt:
 				if self.bytecode_env: self.bytecode_env.append_value(vname, cnt)
 				if self.native_env: self.native_env.append_value(vname, cnt)
-Object.gen_hook('apply_vars_ml', apply_vars_ml)
+Object.gen_hook(apply_vars_ml)
 
 def apply_link_ml(self):
 
@@ -296,7 +296,7 @@ def apply_link_ml(self):
 
 		# we produce a .o file to be used by gcc
 		if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
-Object.gen_hook('apply_link_ml', apply_link_ml)
+Object.gen_hook(apply_link_ml)
 
 def mll_hook(self, node):
 	mll_task = self.create_task('ocamllex', self.native_env)

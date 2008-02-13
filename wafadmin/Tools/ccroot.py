@@ -150,7 +150,7 @@ def apply_verif(self):
 			fatal('no source files specified for %s' % self)
 		if not self.target and self.m_type != 'objects':
 			fatal('no target for %s' % self)
-Object.gen_hook('apply_verif', apply_verif)
+Object.gen_hook(apply_verif)
 
 def install(self):
 	if not hasattr(self, 'link_task'): return
@@ -188,7 +188,7 @@ def install(self):
 			self.install_results(dest_var, dest_subdir, self.link_task)
 	else:
 		self.install_results(dest_var, dest_subdir, self.link_task, chmod=self.chmod)
-Object.gen_hook('install', install)
+Object.gen_hook(install)
 
 def apply_dependencies(self):
 	if self.dependencies:
@@ -212,7 +212,7 @@ def apply_dependencies(self):
 			if obj.path not in lst:
 				lst.append(obj.path)
 		self.inc_paths = lst + self.incpaths_lst
-Object.gen_hook('apply_dependencies', apply_dependencies)
+Object.gen_hook(apply_dependencies)
 
 def apply_incpaths(self):
 	lst = []
@@ -241,7 +241,7 @@ def apply_incpaths(self):
 		Params.g_build.rescan(node)
 		self.bld_incpaths_lst.append(node)
 	# now the nodes are added to self.incpaths_lst
-Object.gen_hook('apply_incpaths', apply_incpaths)
+Object.gen_hook(apply_incpaths)
 
 def apply_type_vars(self):
 
@@ -263,7 +263,7 @@ def apply_type_vars(self):
 		#print compvar
 		value = self.env[compvar]
 		if value: self.env.append_value(var, value)
-Object.gen_hook('apply_type_vars', apply_type_vars)
+Object.gen_hook(apply_type_vars)
 
 def apply_link(self):
 	# if we are only building .o files, tell which ones we built
@@ -284,7 +284,7 @@ def apply_link(self):
 	linktask.set_outputs(self.path.find_build(get_target_name(self)))
 
 	self.link_task = linktask
-Object.gen_hook('apply_link', apply_link)
+Object.gen_hook(apply_link)
 
 def apply_lib_vars(self):
 	env=self.env
@@ -357,7 +357,7 @@ def apply_lib_vars(self):
 		for v in self.p_flag_vars:
 			val = self.env[v+'_'+x]
 			if val: self.env.append_value(v, val)
-Object.gen_hook('apply_lib_vars', apply_lib_vars)
+Object.gen_hook(apply_lib_vars)
 
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
@@ -395,7 +395,7 @@ def apply_objdeps(self):
 		seen.append(x)
 
 		self.link_task.m_inputs += y.out_nodes
-Object.gen_hook('apply_objdeps', apply_objdeps)
+Object.gen_hook(apply_objdeps)
 
 def apply_obj_vars(self):
 	lib_st           = self.env['LIB_ST']
@@ -427,7 +427,7 @@ def apply_obj_vars(self):
 			self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
 
 	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
-Object.gen_hook('apply_obj_vars', apply_obj_vars)
+Object.gen_hook(apply_obj_vars)
 
 def apply_vnum(self):
 	"use self.vnum and self.soname to modify the command line (un*x)"
@@ -439,5 +439,5 @@ def apply_vnum(self):
 		try: name3 = self.soname
 		except AttributeError: name3 = self.link_task.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
-Object.gen_hook('apply_vnum', apply_vnum)
+Object.gen_hook(apply_vnum)
 
