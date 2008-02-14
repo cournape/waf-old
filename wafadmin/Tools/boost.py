@@ -64,6 +64,7 @@ def detect_boost(conf):
 		test_obj.env = v
 		test_obj.env['CPPPATH']=[dir]
 		test_obj.execute = 1
+		test_obj.force_compiler='cpp'
 		ret=conf.run_check(test_obj)
 		if ret:
 			versions[int(ret['result'])]=dir
@@ -111,6 +112,7 @@ def detect_boost(conf):
 			test_obj.env = v
 			test_obj.env['CPPPATH']=[boost_includes]
 			test_obj.execute = 1
+			test_obj.force_compiler='cpp'
 			ret=conf.run_check(test_obj)
 			if ret:
 				asio_version=int(ret['result'])
@@ -149,6 +151,7 @@ def detect_boost(conf):
 				test_obj.env = v
 				test_obj.env['CPPPATH']=[dir]
 				test_obj.execute = 1
+				test_obj.force_compiler='cpp'
 				ret=conf.run_check(test_obj)
 				if ret:
 					versions[int(ret['result'])]=dir

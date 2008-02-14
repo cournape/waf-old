@@ -215,6 +215,7 @@ def detect(conf):
 	test.code = 'int main() {return 0;}\n'
 	test.env = v
 	test.execute = 1
+	test.force_compiler = 'cpp'
 	ret = conf.run_check(test)
 	conf.check_message('compiler could create', 'programs', not (ret is False))
 	if not ret:
@@ -224,6 +225,7 @@ def detect(conf):
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
 	lib_obj.build_type = "shlib"
+	lib_obj.force_compiler = 'cpp'
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'shared libs', not (ret is False))
 	if not ret:
@@ -233,6 +235,7 @@ def detect(conf):
 	lib_obj.code = "int k = 3;\n"
 	lib_obj.env = v
 	lib_obj.build_type = "staticlib"
+	lib_obj.force_compiler = 'cpp'
 	ret = conf.run_check(lib_obj)
 	conf.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret:

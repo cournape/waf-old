@@ -1304,6 +1304,17 @@ class Configure(object):
 
 		bdir = os.path.join( dir, '_testbuild_')
 
+		if (not obj.force_compiler and Action.g_actions.get('cpp', None)) or obj.force_compiler == "cpp":
+			tp = 'cpp'
+		else:
+			tp = 'cc'
+
+		test_f_name = 'test.'+tp
+		dest=open(os.path.join(dir, test_f_name), 'w')
+		dest.write(obj.code)
+		dest.close()
+
+
 		# FIXME: by default the following lines are called more than once
 		#			we have to make sure they get called only once
 		if not os.path.exists(dir):
@@ -1311,10 +1322,6 @@ class Configure(object):
 
 		if not os.path.exists(bdir):
 			os.makedirs(bdir)
-
-		dest=open(os.path.join(dir, 'test.c'), 'w')
-		dest.write(obj.code)
-		dest.close()
 
 		if obj.env: env = obj.env
 		else: env = self.env.copy()
@@ -1337,12 +1344,8 @@ class Configure(object):
 		# not sure yet when to call this:
 		#bld.rescan(bld.m_srcnode)
 
-		if (not obj.force_compiler and Action.g_actions.get('cpp', None)) or obj.force_compiler == "cpp":
-			f = Object.g_allclasses['cpp']
-		else:
-			f = Object.g_allclasses['cc']
-		o = f(obj.build_type)
-		o.source   = 'test.c'
+		o = Object.g_allclasses[tp](obj.build_type)
+		o.source   = test_f_name
 		o.target   = 'testprog'
 		o.uselib   = obj.uselib
 		o.cppflags = obj.flags

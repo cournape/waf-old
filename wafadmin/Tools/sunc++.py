@@ -102,6 +102,8 @@ def detect(conf):
 	v['program_obj_ext']     = ['.o']
 	v['program_SUFFIX']      = ''
 
+	# FIXME same code in g++.py :-/
+
 	#test if the compiler could build a prog
 	test = Configure.check_data()
 	test.code = 'int main() {return 0;}\n'
@@ -174,7 +176,7 @@ def set_options(opt):
 		help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
 		choices = ccroot.DEBUG_LEVELS.ALL,
 		dest = 'debug_level')
-		
+
 	except optparse.OptionConflictError:
 		# the suncc tool might have added that option already
 		pass
