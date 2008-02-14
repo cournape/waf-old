@@ -99,6 +99,7 @@ def filter_comments(filename):
 				c = txt[i]
 				while i < max and c != '\n':
 					i += 1
+					c = txt[i]
 		# a valid char, add it to the buffer
 		else:
 			buf.append(c)
