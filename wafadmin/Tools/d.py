@@ -339,7 +339,7 @@ def apply_d_vars(self):
 	libpath_st = env['DLIBPATH_ST']
 
 	dflags = {'gdc':[], 'dmd':[]}
-	importpaths = []
+	importpaths = self.to_list(self.importpaths)
 	libpaths = []
 	libs = []
 	uselib = self.to_list(self.uselib)
@@ -369,11 +369,9 @@ def apply_d_vars(self):
 		if env['DPATH_' + i]:
 			for entry in self.to_list(env['DPATH_' + i]):
 				if not entry in importpaths:
-					importpaths += [entry]
-	importpaths = self.to_list(self.importpaths) + importpaths
+					importpaths.append(entry)
 
 	# now process the import paths
-	# FIXME TODO add the import paths in the build dir too in case .d files are generated
 	for path in importpaths:
 		if os.path.isabs(path):
 			env.append_unique('_DIMPORTFLAGS', dpath_st % path)
