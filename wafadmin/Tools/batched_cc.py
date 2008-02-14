@@ -114,6 +114,5 @@ def setup(bld):
 	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
 	Action.simple_action('all_cpp', cpp_str, color='GREEN')
 
-	ccroot.ccroot.create_task = create_task_new
-	Object.hook('cc', EXT_CC, create_task_cxx_new)
+	Object.declare_extension(EXT_C, create_task_cxx_new)
 
