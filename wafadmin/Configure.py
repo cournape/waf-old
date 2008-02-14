@@ -1309,12 +1309,6 @@ class Configure(object):
 		else:
 			tp = 'cc'
 
-		test_f_name = 'test.'+tp
-		dest=open(os.path.join(dir, test_f_name), 'w')
-		dest.write(obj.code)
-		dest.close()
-
-
 		# FIXME: by default the following lines are called more than once
 		#			we have to make sure they get called only once
 		if not os.path.exists(dir):
@@ -1325,6 +1319,11 @@ class Configure(object):
 
 		if obj.env: env = obj.env
 		else: env = self.env.copy()
+
+		test_f_name = 'test.'+tp
+		dest=open(os.path.join(dir, test_f_name), 'w')
+		dest.write(obj.code)
+		dest.close()
 
 		# very important
 		Utils.reset()
