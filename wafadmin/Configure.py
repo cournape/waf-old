@@ -1306,8 +1306,10 @@ class Configure(object):
 
 		if (not obj.force_compiler and Action.g_actions.get('cpp', None)) or obj.force_compiler == "cpp":
 			tp = 'cpp'
+			test_f_name = 'test.cpp'
 		else:
 			tp = 'cc'
+			test_f_name = 'test.c'
 
 		# FIXME: by default the following lines are called more than once
 		#			we have to make sure they get called only once
@@ -1320,7 +1322,6 @@ class Configure(object):
 		if obj.env: env = obj.env
 		else: env = self.env.copy()
 
-		test_f_name = 'test.'+tp
 		dest=open(os.path.join(dir, test_f_name), 'w')
 		dest.write(obj.code)
 		dest.close()
