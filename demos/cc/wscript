@@ -19,6 +19,7 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('compiler_cc')
+	#conf.check_tool('batched_cc') # <- faster compilations but a few constraints
 
 def build(bld):
 	# process subfolders from here
