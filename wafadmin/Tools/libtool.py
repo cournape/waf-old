@@ -16,8 +16,8 @@ if you want to use the code here, you must add the following two methods:
 To do so, use a code similar to the following:
 obj = obj.create(...)
 obj.want_libtool = 1
-obj.set_order('apply_libtool', 'apply_core')
-obj.set_order('apply_link', 'apply_link_libtool')
+obj.meth_order('apply_libtool', 'apply_core')
+obj.meth_order('apply_link', 'apply_link_libtool')
 """
 
 # fake libtool files

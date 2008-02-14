@@ -246,7 +246,7 @@ class dobj(Object.task_gen):
 
 		self.add_objects = []
 
-		self.set_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install')
+		self.meth_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install')
 
 	def applik(self):
 

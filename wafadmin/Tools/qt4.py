@@ -165,7 +165,7 @@ class qt4obj(cpp.cppobj):
 		self.langname = ''
 		self.update = 0
 
-		self.set_order('apply_link', 'apply_qt4')
+		self.meth_order('apply_link', 'apply_qt4')
 
 def apply_qt4(self):
 	if self.lang:

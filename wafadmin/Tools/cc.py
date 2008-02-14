@@ -25,9 +25,7 @@ class ccobj(ccroot.ccroot):
 		self.ccflags=''
 		self.cppflags=''
 
-		self.set_order('apply_defines_cc', 'apply_core')
-		self.set_order('apply_lib_vars', 'apply_obj_vars_cc')
-		self.set_order('apply_obj_vars_cc', 'apply_obj_vars')
+		self.meth_order('apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 
 		global g_cc_flag_vars
 		self.p_flag_vars = g_cc_flag_vars

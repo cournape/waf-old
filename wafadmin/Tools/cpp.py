@@ -26,10 +26,7 @@ class cppobj(ccroot.ccroot):
 		self.cxxflags=''
 		self.cppflags=''
 
-		#self.meths.append('apply_defines_cpp')
-		self.set_order('apply_defines_cxx', 'apply_core')
-		self.set_order('apply_lib_vars', 'apply_obj_vars_cxx')
-		self.set_order('apply_obj_vars_cxx', 'apply_obj_vars')
+		self.meth_order('apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 
 		global g_cpp_flag_vars
 		self.p_flag_vars = g_cpp_flag_vars

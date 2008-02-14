@@ -242,8 +242,7 @@ class msvccc(cc.ccobj):
 		self.subsystem = ''
 		self.libpaths = []
 
-		self.set_order('apply_link', 'apply_link_msvc')
-		self.set_order('apply_obj_vars_cc', 'apply_msvc_obj_vars')
+		self.meth_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
 		self.meths.remove('apply_obj_vars')
 
 class msvccpp(cpp.cppobj):
@@ -253,8 +252,7 @@ class msvccpp(cpp.cppobj):
 		self.subsystem = ''
 		self.libpaths = []
 
-		self.set_order('apply_link', 'apply_link_msvc')
-		self.set_order('apply_obj_vars_cxx', 'apply_msvc_obj_vars')
+		self.meth_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
 		self.meths.remove('apply_obj_vars')
 
 def setup(bld):

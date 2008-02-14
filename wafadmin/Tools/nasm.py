@@ -7,7 +7,7 @@ Nasm processing
 
 obj = bld.create_obj('cc', 'program')
 #do not forget to call:
-obj.set_order('apply_nasm_vars', 'apply_link')
+obj.meth_order('apply_nasm_vars', 'apply_link')
 
 """
 

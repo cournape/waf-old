@@ -98,20 +98,8 @@ class ccroot(Object.task_gen):
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
 		self.features = ['program']
 
-		self.set_order(\
-			'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
-			'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps')
-
-		self.meths = '''
-apply_dependencies
-apply_incpaths
-apply_type_vars
-apply_core
-apply_link
-apply_lib_vars
-apply_objdeps
-apply_vnum
-install'''.split()
+		self.meth_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
+			'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install')
 
 # helper used only here
 def get_target_name(self, ext=None):

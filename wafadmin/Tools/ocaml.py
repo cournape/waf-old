@@ -238,7 +238,7 @@ class ocamlobj(Object.task_gen):
 		if self.m_type == 'c_object':
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
-		self.set_order('apply_incpaths_ml', 'apply_vars_ml', 'apply_core', 'apply_link_ml', 'apply_link')
+		self.meth_order('apply_incpaths_ml', 'apply_vars_ml', 'apply_core', 'apply_link_ml', 'apply_link')
 		self.meths.remove('apply_link')
 
 def apply_incpaths_ml(self):
