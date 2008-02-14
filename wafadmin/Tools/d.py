@@ -376,13 +376,12 @@ def apply_d_vars(self):
 	# FIXME TODO add the import paths in the build dir too in case .d files are generated
 	for path in importpaths:
 		if os.path.isabs(path):
-			imppath = path
+			env.append_unique('_DIMPORTFLAGS', dpath_st % path)
 		else:
 			node = self.path.find_source_lst(Utils.split_path(path))
 			self.inc_paths.append(node)
-			imppath = node.srcpath(env)
-		env.append_unique('_DIMPORTFLAGS', dpath_st % imppath)
-
+			env.append_unique('_DIMPORTFLAGS', dpath_st % node.srcpath(env))
+			env.append_unique('_DIMPORTFLAGS', dpath_st % node.bldpath(env))
 
 	# add library paths
 	for i in uselib:
