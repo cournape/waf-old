@@ -245,71 +245,69 @@ class dobj(Object.task_gen):
 
 		self.add_objects = []
 
-		self.meth_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install')
+		self.meth_order('apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install')
 
-	def applik(self):
-		# FIXME this code is disabled - for now
-		uselib = self.to_list(self.uselib)
-		seen = []
-		names = self.to_list(self.uselib_local)
-		while names:
-			x = names[0]
+def apply_d_libs(self):
+	uselib = self.to_list(self.uselib)
+	seen = []
+	names = self.to_list(self.uselib_local)
+	while ames:
+		x = names.pop()
 
-			# visit dependencies only once
-			if x in seen:
-				names = names[1:]
-				continue
-
-			# object does not exist ?
-			y = Object.name_to_obj(x)
-			if not y:
-				fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
-				names = names[1:]
-				continue
-
-			# object has ancestors to process first ? update the list of names
-			if y.uselib_local:
-				added = 0
-				lst = y.to_list(y.uselib_local)
-				lst.reverse()
-				for u in lst:
-					if u in seen: continue
-					added = 1
-					names = [u]+names
-				if added: continue # list of names modified, loop
-
-			# safe to process the current object
-			if not y.m_posted: y.post()
+		# visit dependencies only once
+		if x in seen:
+			continue
+		else:
 			seen.append(x)
 
-			if y.m_type == 'shlib':
-				libs = libs + [y.target]
-			elif y.m_type == 'staticlib':
-				libs = libs + [y.target]
-			elif y.m_type == 'objects':
-				pass
-			else:
-				error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
-				      % (y.name, y.m_type))
+		# object does not exist ?
+		y = Object.name_to_obj(x)
+		if not y:
+			fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
 
-			# add the link path too
-			tmp_path = y.path.bldpath(env)
-			if not tmp_path in libpaths: libpaths = [tmp_path] + libpaths
+		# object has ancestors to process first ? update the list of names
+		if y.uselib_local:
+			added = 0
+			lst = y.to_list(y.uselib_local)
+			lst.reverse()
+			for u in lst:
+				if u in seen: continue
+				added = 1
+				names = [u]+names
+			if added: continue # list of names modified, loop
 
-			# set the dependency over the link task
-			if y.link_task is not None:
-				linktask.set_run_after(y.link_task)
-				dep_nodes = getattr(linktask, 'dep_nodes', [])
-				dep_nodes += y.link_task.m_outputs
-				linktask.dep_nodes = dep_nodes
+		# safe to process the current object
+		if not y.m_posted: y.post()
+		seen.append(x)
 
-			# add ancestors uselib too
-			# TODO potential problems with static libraries ?
-			morelibs = y.to_list(y.uselib)
-			for v in morelibs:
-				if v in uselib: continue
-				uselib = [v]+uselib
-			names = names[1:]
+		if y.m_type == 'shlib' or y.m_type == 'staticlib':
+			libs.append(y.target)
+		elif y.m_type == 'objects':
+			pass
+		else:
+			error('%s has unknown object type %s, in apply_lib_vars, uselib_local.' % (y.name, y.m_type))
+
+		# add the link path too
+		tmp_path = y.path.bldpath(env)
+		if not tmp_path in libpaths: libpaths = [tmp_path] + libpaths
+
+		## set the dependency over the link task
+		#if y.link_task is not None:
+		#	linktask.set_run_after(y.link_task)
+		#	dep_nodes = getattr(linktask, 'dep_nodes', [])
+		#	dep_nodes += y.link_task.m_outputs
+		#	#linktask.dep_nodes = dep_nodes
+
+		# add ancestors uselib too
+		# TODO potential problems with static libraries ?
+		morelibs = y.to_list(y.uselib)
+		for v in morelibs:
+			if v in uselib: continue
+			uselib = [v]+uselib
+		names = names[1:]
+	self.uselib = uselib
+
+Object.gen_hook(apply_d_libs)
 
 def apply_d_link(self):
 	# if we are only building .o files, tell which ones we build
