@@ -296,6 +296,9 @@ class task_gen(object):
 
 		self.mappings = {}
 
+		# kind of private, beware of what you put in it, also, the contents are consumed
+		self.allnodes = []
+
 		self.env = None
 		self.m_posted = 0
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
@@ -346,7 +349,6 @@ class task_gen(object):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
 		tree = Params.g_build
-		self.allnodes = []
 		lst = self.to_list(self.source)
 		find_source_lst = self.path.find_source_lst
 		for filename in lst:
