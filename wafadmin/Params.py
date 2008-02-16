@@ -86,9 +86,9 @@ g_colors = {
 'REDP'  :'\033[01;33m',
 'GREEN' :'\033[01;92m',
 'YELLOW':'\033[00;33m',
-'PINK'  :'\033[00;36m',
-'BLUE'  :'\033[01;94m',
-'CYAN'  :'\033[01;96m',
+'PINK'  :'\033[00;35m',
+'BLUE'  :'\033[01;34m',
+'CYAN'  :'\033[01;36m',
 'NORMAL':'\033[0m'
 }
 "colors used for printing messages"
