@@ -16,8 +16,7 @@ if you want to use the code here, you must add the following two methods:
 To do so, use a code similar to the following:
 obj = obj.create(...)
 obj.want_libtool = 1
-obj.meth_order('apply_libtool', 'apply_core')
-obj.meth_order('apply_link', 'apply_link_libtool')
+obj.meths += ['apply_libtool', 'apply_link_libtool']
 """
 
 # fake libtool files
@@ -118,6 +117,7 @@ def apply_libtool(self):
 				continue
 			self.env.append_unique('LINKFLAGS', v)
 setattr(ccroot, 'apply_libtool', apply_libtool)
+Object.declare_order('apply_libtool', 'apply_core','apply_link', 'apply_link_libtool')
 
 Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', prio=200)
 

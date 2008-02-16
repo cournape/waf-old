@@ -7,7 +7,7 @@ Nasm processing
 
 obj = bld.create_obj('cc', 'program')
 #do not forget to call:
-obj.meth_order('apply_nasm_vars', 'apply_link')
+obj.meths += ['apply_nasm_vars']
 
 """
 
@@ -48,4 +48,6 @@ def setup(bld):
 def detect(conf):
 	nasm = conf.find_program('nasm', var='NASM')
 	if not nasm: conf.fatal("could not find nasm, install it or set PATH env var.")
+
+Object.declare_order('apply_nasm_vars', 'apply_link')
 
