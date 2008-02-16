@@ -235,6 +235,9 @@ def apply_link_msvc(self):
 		self.link_task.m_subsystem = self.subsystem
 Object.gen_hook(apply_link_msvc)
 
+Object.declare_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
+Object.declare_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
+
 class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):
 		cc.ccobj.__init__(self, type, subtype)
@@ -242,8 +245,9 @@ class msvccc(cc.ccobj):
 		self.subsystem = ''
 		self.libpaths = []
 
-		self.meth_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
-		self.meths.remove('apply_obj_vars')
+		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
+            'apply_link', 'apply_link_msvc', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc',
+			'apply_msvc_obj_vars', 'apply_objdeps', 'install',]
 
 class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
@@ -252,8 +256,9 @@ class msvccpp(cpp.cppobj):
 		self.subsystem = ''
 		self.libpaths = []
 
-		self.meth_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
-		self.meths.remove('apply_obj_vars')
+		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx', 'apply_core',
+            'apply_link', 'apply_link_msvc', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx',
+			'apply_msvc_obj_vars', 'apply_objdeps', 'install',]
 
 def setup(bld):
 	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
