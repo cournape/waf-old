@@ -97,10 +97,6 @@ class ccroot(Object.task_gen):
 
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
 		self.features = ['program']
-
-		self.meth_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
-			'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install')
-
 # helper used only here
 def get_target_name(self, ext=None):
 	name = self.target
@@ -421,4 +417,7 @@ def apply_vnum(self):
 		except AttributeError: name3 = self.link_task.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
 Object.gen_hook(apply_vnum)
+
+Object.declare_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
+	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install')
 

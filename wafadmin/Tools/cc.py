@@ -6,7 +6,7 @@
 
 import Object, Params, Action, Utils
 from Params import debug
-import ccroot
+import ccroot # <- do not remove
 
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -25,7 +25,8 @@ class ccobj(ccroot.ccroot):
 		self.ccflags=''
 		self.cppflags=''
 
-		self.meth_order('apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
+		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
+            'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars', 'apply_objdeps', 'install',]
 
 		global g_cc_flag_vars
 		self.p_flag_vars = g_cc_flag_vars
@@ -103,4 +104,6 @@ def setup(bld):
 
 	Object.register('cc', ccobj)
 	Object.declare_extension(EXT_CC, c_hook)
+
+Object.declare_order('apply_dependencies', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 

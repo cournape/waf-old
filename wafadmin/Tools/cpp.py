@@ -4,7 +4,7 @@
 
 "Base for c++ programs and libraries"
 
-import ccroot
+import ccroot # <- do not remove
 from Params import debug
 import Object, Params, Action, Utils
 
@@ -26,7 +26,8 @@ class cppobj(ccroot.ccroot):
 		self.cxxflags=''
 		self.cppflags=''
 
-		self.meth_order('apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
+		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx', 'apply_core',
+            'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars', 'apply_objdeps', 'install',]
 
 		global g_cpp_flag_vars
 		self.p_flag_vars = g_cpp_flag_vars
@@ -107,4 +108,7 @@ def setup(bld):
 
 	Object.register('cpp', cppobj)
 	Object.declare_extension(EXT_CXX, cxx_hook)
+
+Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
+
 
