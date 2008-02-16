@@ -3,7 +3,8 @@
 # Thomas Nagy, 2006 (ita)
 
 # A c program that links using the GLIB library, defined in the configuration
-obj = bld.create_obj('gnome', 'program')
+# the only change is that gnome is replaced by cc or cpp (as usual)
+obj = bld.create_obj('cc', 'program')
 #obj.source='''
 #manager.xml.h. menus.c app.c hello.c icon.c
 #'''
