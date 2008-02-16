@@ -4,11 +4,6 @@
 
 """
 Nasm processing
-
-obj = bld.create_obj('cc', 'program')
-#do not forget to call:
-obj.meths += ['apply_nasm_vars']
-
 """
 
 import os
@@ -38,6 +33,9 @@ def nasm_file(self, node):
 	task.set_outputs(o_node)
 
 	self.compiled_tasks.append(task)
+
+	if not 'apply_nasm_vars' in self.meths:
+		self.meths = ['apply_nasm_vars'] + self.meths
 
 def setup(bld):
 	# create our action here
