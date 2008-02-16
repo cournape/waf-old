@@ -251,7 +251,10 @@ def apply_d_libs(self):
 	uselib = self.to_list(self.uselib)
 	seen = []
 	names = self.to_list(self.uselib_local)
-	while ames:
+	libs = []
+	libpaths = []
+	env = self.env
+	while names:
 		x = names.pop()
 
 		# visit dependencies only once
