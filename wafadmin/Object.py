@@ -83,6 +83,7 @@ def flush(all=1):
 			if not obj.m_posted: obj.post()
 
 class genobj(object):
+	"""Obsolete, do not use anymore"""
 	def __init__(self, type):
 		self.m_posted = 0
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
@@ -252,8 +253,6 @@ class genobj(object):
 
 class task_gen(object):
 	"""
-	TODO: This class is not used yet - it is part of the ccroot class reorganization
-
 	Most methods are of the form 'def meth(self):' without any parameters
 	there are many of them, and they do many different things:
 	* task creation
@@ -274,6 +273,7 @@ class task_gen(object):
 
 	mappings = {}
 	mapped = {}
+	prec = {}
 
 	def __init__(self):
 		self.prec = {}
@@ -306,6 +306,15 @@ class task_gen(object):
 		return ("<genobj '%s' of type %s defined in %s>"
 			% (self.name or self.target,
 			   self.__class__.__name__, str(self.path)))
+
+	def __setattr__(self, name, attr):
+		if   name == 'sources': raise AttributeError, 'typo: self.sources -> self.source'
+		elif name == 'targets': raise AttributeError, 'typo: self.targets -> self.target'
+		elif name == 'include': raise AttributeError, 'typo: self.include -> self.includes'
+		elif name == 'define':  raise AttributeError, 'typo: self.define -> self.defines'
+		elif name == 'install_var':  raise AttributeError, 'typo: self.install_var -> self.inst_var'
+		elif name == 'install_subdir':  raise AttributeError, 'typo: self.install_subdir -> self.inst_dir'
+		object.__setattr__(self, name, attr)
 
 	def to_list(self, value):
 		"helper: returns a list"
@@ -359,17 +368,19 @@ class task_gen(object):
 			x(self, node)
 
 	def apply(self):
-		"use hook_table to create the tasks"
+		"order the methods to execute using self.prec or task_gen.prec"
 		dct = self.__class__.__dict__
 		keys = self.meths
 
-		# copy the precence table with the keys in self.meths
-		prec = {}
-		for x in self.prec:
-			if x in keys:
-				prec[x] = self.prec[x]
+		prec_tbl = self.prec or task_gen.prec
 
-		# list of elements coming first (without dependency)
+		# copy the precedence table with the keys in self.meths
+		prec = {}
+		for x in prec_tbl:
+			if x in keys:
+				prec[x] = prec_tbl[x]
+
+		# elements disconnected
 		tmp = []
 		for a in prec:
 			for x in prec.values():
@@ -377,7 +388,7 @@ class task_gen(object):
 			else:
 				tmp.append(a)
 
-		# then the topological sort
+		# topological sort
 		out = []
 		while tmp:
 			e = tmp.pop()
@@ -509,17 +520,16 @@ def declare_extension(var, func):
 		raise TypeError('declare extension takes either a list or a string %s' % str(var))
 	task_gen.mapped[func.__name__] = func
 
-# TODO
-def declare_order(self, *k):
+def declare_order(*k):
 	assert(len(k) > 1)
 	n = len(k) - 1
 	for i in xrange(n):
 		f1 = k[i]
 		f2 = k[i+1]
-		try: self.prec[f2].append(f1)
-		except: self.prec[f2] = [f1]
-		if not f1 in self.meths: self.meths.append(f1)
-		if not f2 in self.meths: self.meths.append(f2)
+		try:
+			if not f1 in task_gen.prec[f2]: task_gen.prec[f2].append(f1)
+		except:
+			task_gen.prec[f2] = [f1]
 
 g_cache_max={}
 def sign_env_vars(env, vars_list):
