@@ -133,74 +133,67 @@ class gnome_sgml2man(Object.genobj):
 
 			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)
 
-class gnomeobj(cc.ccobj):
-	def __init__(self, type='program'):
-		cc.ccobj.__init__(self, type)
-		self.link_task = None
-		self.m_latask   = None
-		self.want_libtool = -1 # fake libtool here
+def add_dbus_file(self, filename, prefix, mode):
+	if not hasattr(self, 'dbus_lst'): self.dbus_lst = []
+	self.dbus_lst.append([filename, prefix, mode])
+Object.gen_hook(add_dbus_file)
 
-		self._dbus_lst    = []
-		self._marshal_lst = []
+def add_marshal_file(self, filename, prefix, mode):
+	if not hasattr(self, 'marshal_lst'): self.marshal_lst = []
+	self.marshal_lst.append([filename, prefix, mode])
+Object.gen_hook(add_marshal_file)
 
-	def add_dbus_file(self, filename, prefix, mode):
-		self._dbus_lst.append([filename, prefix, mode])
+def process_marshal(self):
+	for i in getattr(self, 'marshal_lst', []):
+		node = self.path.find_source(i[0])
 
-	def add_marshal_file(self, filename, prefix, mode):
-		self._marshal_lst.append([filename, prefix, mode])
+		if not node:
+			fatal('file not found on gnome obj '+i[0])
 
-	def apply_core(self):
-		for i in self._marshal_lst:
-			node = self.path.find_source(i[0])
+		env = self.env.copy()
 
-			if not node:
-				fatal('file not found on gnome obj '+i[0])
+		if i[2] == '--header':
 
-			env = self.env.copy()
+			env['GGM_PREFIX'] = i[1]
+			env['GGM_MODE']   = i[2]
 
-			if i[2] == '--header':
-
-				env['GGM_PREFIX'] = i[1]
-				env['GGM_MODE']   = i[2]
-
-				task = self.create_task('glib_genmarshal', env, 2)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.h'))
-
-			elif i[2] == '--body':
-				env['GGM_PREFIX'] = i[1]
-				env['GGM_MODE']   = i[2]
-
-				task = self.create_task('glib_genmarshal', env, 2)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.c'))
-
-				# this task is really created with self.env
-				ctask = self.create_task('cc', self.env)
-				ctask.m_inputs = task.m_outputs
-				ctask.set_outputs(node.change_ext('.o'))
-
-			else:
-				error("unknown type for marshal "+i[2])
-
-
-		for i in self._dbus_lst:
-			node = self.path.find_source(i[0])
-
-			if not node:
-				fatal('file not found on gnome obj '+i[0])
-
-			env = self.env.copy()
-
-			env['DBT_PREFIX'] = i[1]
-			env['DBT_MODE']   = i[2]
-
-			task = self.create_task('dbus_binding_tool', env, 2)
+			task = self.create_task('glib_genmarshal', env, 2)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.h'))
 
-		# after our targets are created, process the .c files, etc
-		cc.ccobj.apply_core(self)
+		elif i[2] == '--body':
+			env['GGM_PREFIX'] = i[1]
+			env['GGM_MODE']   = i[2]
+
+			# the c file generated will be processed too
+			outnode = node.change_ext('.c')
+			self.allnodes.append(outnode)
+
+			task = self.create_task('glib_genmarshal', env, 2)
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext('.c'))
+		else:
+			error("unknown type for marshal "+i[2])
+Object.gen_hook(process_marshal)
+Object.declare_order('process_dbus', 'apply_core')
+
+def process_dbus(self):
+	for i in getattr(self, 'dbus_lst', []):
+		node = self.path.find_source(i[0])
+
+		if not node:
+			fatal('file not found on gnome obj '+i[0])
+
+		env = self.env.copy()
+
+		env['DBT_PREFIX'] = i[1]
+		env['DBT_MODE']   = i[2]
+
+		task = self.create_task('dbus_binding_tool', env, 2)
+		task.set_inputs(node)
+		task.set_outputs(node.change_ext('.h'))
+Object.gen_hook(process_dbus)
+Object.declare_order('process_marshal', 'apply_core')
 
 def setup(bld):
 	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
@@ -216,7 +209,6 @@ def setup(bld):
 	Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1]} ${SRC[0]}')
 
 	Object.register('gnome_sgml2man', gnome_sgml2man)
-	Object.register('gnome', gnomeobj)
 
 def detect(conf):
 
