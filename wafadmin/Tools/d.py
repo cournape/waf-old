@@ -245,7 +245,7 @@ class dobj(Object.task_gen):
 
 		self.add_objects = []
 
-		self.meth_order('apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install')
+		self.meths = ['apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install']
 
 def apply_d_libs(self):
 	uselib = self.to_list(self.uselib)
@@ -419,6 +419,8 @@ def apply_d_vars(self):
 		for linkflag in d_shlib_linkflags:
 			env.append_unique('DLINKFLAGS', linkflag)
 Object.gen_hook(apply_d_vars)
+
+Object.declare_order('apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install')
 
 def d_hook(self, node):
 	# create the compilation task: cpp or cc
