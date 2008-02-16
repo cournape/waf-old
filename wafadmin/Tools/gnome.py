@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2008 (ita)
 
 "Gnome support"
 
@@ -23,7 +23,6 @@ def postinstall_schemas(prog_name):
 		else:
 			Params.pprint('YELLOW', "GConf schema not installed. After install, run this:")
 			Params.pprint('YELLOW', "gconftool-2 --install-schema-file=%s" % dir)
-
 
 def postinstall_icons():
 	dir = Common.path_install('DATADIR', 'icons/hicolor')
@@ -133,13 +132,13 @@ class gnome_sgml2man(Object.genobj):
 
 			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)
 
-def add_dbus_file(self, filename, prefix, mode):
-	if not hasattr(self, 'dbus_lst'): self.dbus_lst = []
-	self.dbus_lst.append([filename, prefix, mode])
-Object.gen_hook(add_dbus_file)
+# Unlike the sgml and doc processing, the dbus and marshal beast
+# generate c/c++ code that we want to mix
+# here we attach new methods to Object.task_gen
 
 def add_marshal_file(self, filename, prefix, mode):
 	if not hasattr(self, 'marshal_lst'): self.marshal_lst = []
+	if not 'process_marshal' in self.meths: self.meths = ['process_marshal']+self.meths
 	self.marshal_lst.append([filename, prefix, mode])
 Object.gen_hook(add_marshal_file)
 
@@ -176,6 +175,13 @@ def process_marshal(self):
 			error("unknown type for marshal "+i[2])
 Object.gen_hook(process_marshal)
 Object.declare_order('process_dbus', 'apply_core')
+
+
+def add_dbus_file(self, filename, prefix, mode):
+	if not hasattr(self, 'dbus_lst'): self.dbus_lst = []
+	if not 'process_dbus' in self.meths: self.meths = ['process_dbus']+self.meths
+	self.dbus_lst.append([filename, prefix, mode])
+Object.gen_hook(add_dbus_file)
 
 def process_dbus(self):
 	for i in getattr(self, 'dbus_lst', []):
