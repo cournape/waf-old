@@ -35,6 +35,7 @@ typos = {
 'define':'defines',
 'install_var':'inst_var',
 'install_subdir':'inst_dir',
+'m_linktask','link_task',
 }
 
 g_allobjs=[]
