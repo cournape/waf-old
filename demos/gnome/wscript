@@ -66,8 +66,7 @@ def build(bld):
 		bld.add_subdirs('man')
 
 def shutdown():
-	# maybe comments to say why they do ... i do not know i do not make gnome sw usually (ita)
-	gnome.postinstall_schemas('gnome-test')
-	gnome.postinstall_icons()
-	gnome.postinstall_scrollkeeper('gnome-hello')
-
+	# Postinstall tasks:
+	gnome.postinstall_scrollkeeper('gnome-hello') # Installing the user docs
+	gnome.postinstall_schemas('gnome-test') # Installing GConf schemas
+	gnome.postinstall_icons() # Updating the icon cache
