@@ -120,6 +120,7 @@ def get_target_name(self, ext=None):
 		return ''.join([prefix, name, suffix])
 	else:
 		return name[0:k+1] + ''.join([prefix, name[k+1:], suffix])
+Object.gen_hook(get_target_name)
 
 def apply_verif(self):
 	if not hasattr(self, 'nochecks'):
