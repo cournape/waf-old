@@ -24,7 +24,7 @@ WARNING subclasses must reimplement the clone method to avoid problems with 'dee
 """
 
 import copy
-import os, types
+import os, types, traceback
 import Params, Task, Common, Node, Utils
 from Params import debug, error, fatal
 
@@ -150,7 +150,10 @@ class genobj(object):
 	def __setattr__(self, name, attr):
 		try: real = typos[name]
 		except KeyError: real = name
-		if real != name: Params.warning('typo %s -> %s' % (name, real))
+		if real != name:
+			Params.warning('typo %s -> %s' % (name, real))
+			if Params.g_verbose > 0:
+				traceback.print_stack()
 		object.__setattr__(self, real, attr)
 
 	def post(self):
@@ -319,7 +322,10 @@ class task_gen(object):
 	def __setattr__(self, name, attr):
 		try: real = typos[name]
 		except KeyError: real = name
-		if real != name: Params.warning('typo %s -> %s' % (name, real))
+		if real != name:
+			Params.warning('typo %s -> %s' % (name, real))
+			if Params.g_verbose > 0:
+				traceback.print_stack()
 		object.__setattr__(self, real, attr)
 
 	def to_list(self, value):
