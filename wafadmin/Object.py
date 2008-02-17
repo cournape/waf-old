@@ -28,6 +28,15 @@ import os, types
 import Params, Task, Common, Node, Utils
 from Params import debug, error, fatal
 
+typos = {
+'sources':'source',
+'targets':'target',
+'include':'includes',
+'define':'defines',
+'install_var':'inst_var',
+'install_subdir':'inst_dir',
+}
+
 g_allobjs=[]
 "contains all objects, provided they are created (not in distclean or in dist)"
 #TODO part of the refactoring to eliminate the static stuff (Utils.reset)
@@ -139,13 +148,10 @@ class genobj(object):
 		return None
 
 	def __setattr__(self, name, attr):
-		if   name == 'sources': raise AttributeError, 'typo: self.sources -> self.source'
-		elif name == 'targets': raise AttributeError, 'typo: self.targets -> self.target'
-		elif name == 'include': raise AttributeError, 'typo: self.include -> self.includes'
-		elif name == 'define':  raise AttributeError, 'typo: self.define -> self.defines'
-		elif name == 'install_var':  raise AttributeError, 'typo: self.install_var -> self.inst_var'
-		elif name == 'install_subdir':  raise AttributeError, 'typo: self.install_subdir -> self.inst_dir'
-		object.__setattr__(self, name, attr)
+		try: real = typos[name]
+		except KeyError: real = name
+		if real != name: Params.warning('typo %s -> %s' % (name, real))
+		object.__setattr__(self, real, attr)
 
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
@@ -311,13 +317,10 @@ class task_gen(object):
 			   self.__class__.__name__, str(self.path)))
 
 	def __setattr__(self, name, attr):
-		if   name == 'sources': raise AttributeError, 'typo: self.sources -> self.source'
-		elif name == 'targets': raise AttributeError, 'typo: self.targets -> self.target'
-		elif name == 'include': raise AttributeError, 'typo: self.include -> self.includes'
-		elif name == 'define':  raise AttributeError, 'typo: self.define -> self.defines'
-		elif name == 'install_var':  raise AttributeError, 'typo: self.install_var -> self.inst_var'
-		elif name == 'install_subdir':  raise AttributeError, 'typo: self.install_subdir -> self.inst_dir'
-		object.__setattr__(self, name, attr)
+		try: real = typos[name]
+		except KeyError: real = name
+		if real != name: Params.warning('typo %s -> %s' % (name, real))
+		object.__setattr__(self, real, attr)
 
 	def to_list(self, value):
 		"helper: returns a list"
