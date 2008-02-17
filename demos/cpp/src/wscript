@@ -21,6 +21,7 @@ def build(bld):
 	obj.includes='.'
 	obj.target='testprogram'
 	obj.defines='LINUX=1 BIDULE'
+	# obj.add_obj_file('kk.o') # <- example on how to add custom object files considered source
 
 	# 2. A shared library
 	# The extension (.so) is added automatically
