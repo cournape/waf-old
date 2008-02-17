@@ -20,81 +20,103 @@ class Environment(object):
 		self.m_idx = g_idx
 		g_idx += 1
 		self.m_table={}
+		#self.m_parent = None <- set only if necessary
 
 		# set the prefix once and for everybody on creation (configuration)
 		self.m_table['PREFIX'] = Params.g_options.prefix
 
 	def __contains__(self, key):
-		return key in self.m_table
+		if key in self.m_table: return True
+		try: return self.m_parent.__contains__(key)
+		except AttributeError: return False # m_parent may not exist
 
 	def set_variant(self, name):
 		self.m_table['_VARIANT_'] = name
 
 	def variant(self):
-		return self.m_table.get('_VARIANT_', 'default')
+		env = self
+		while 1:
+			try:
+				return env.m_table['_VARIANT_']
+			except KeyError:
+				try: env = env.m_parent
+				except AttributeError: return 'default'
 
 	def copy(self):
 		newenv = Environment()
-		newenv.m_table = self.m_table.copy()
-		return newenv
-
-	def deepcopy(self):
-		newenv = Environment()
-		newenv.m_table = copy.deepcopy(self.m_table)
+		newenv.m_parent = self
 		return newenv
 
 	def __str__(self):
 		return "environment table\n"+str(self.m_table)
 
 	def __getitem__(self, key):
-		r = self.m_table.get(key, None)
-		if r is not None:
-			return r
-		return Params.g_globals.get(key, [])
+		try:
+			return self.m_table[key]
+		except KeyError:
+			try: return self.m_parent[key]
+			except AttributeError: return Params.g_globals.get(key, [])
 
 	def __setitem__(self, key, value):
 		self.m_table[key] = value
 
 	def get_flat(self, key):
-		s = self.m_table.get(key, '')
+		s = self[key]
 		if not s: return ''
-		if type(s) is types.ListType: return ' '.join(s)
+		elif isinstance(s, list): return ' '.join(s)
 		else: return s
 
 	def append_value(self, var, value):
-		if type(value) is types.ListType: val = value
-		else: val = [value]
-		#print var, self[var]
-		try: self.m_table[var] = self[var] + val
-		except TypeError: self.m_table[var] = [self[var]] + val
+		current_value = list(self[var])
+		self.m_table[var] = current_value
+
+		if isinstance(value, list):
+			current_value.extend(value)
+		else:
+			current_value.append(value)
 
 	def prepend_value(self, var, value):
-		if type(value) is types.ListType: val = value
-		else: val = [value]
-		#print var, self[var]
-		try: self.m_table[var] = val + self[var]
-		except TypeError: self.m_table[var] = val + [self[var]]
+		current_value = list(self[var])
+
+		if isinstance(value, list):
+			current_value = value + current_value
+		else:
+			current_value.insert(0, value)
+
+		self.m_table[var] = current_value
 
 	# prepend unique would be ambiguous
 	def append_unique(self, var, value):
-		# first make certain we have a list
-		v = self[var]
-		if not type(v) is types.ListType: v = [v]
-
-		# maybe we should use a set, but the order matters
-		if type(value) is types.ListType:
-			v += [x for x in value if not x in v]
-		elif not value in v:
-			v = v + [value]
-		self[var] = v
+		current_value = list(self[var])
+		self.m_table[var] = current_value
+		
+		if isinstance(value, list):
+			for value_item in value:
+				if value_item not in current_value:
+					current_value.append(value_item)
+		else:
+			if value not in current_value:
+				current_value.append(value)
 
 	def store(self, filename):
 		"Write the variables into a file"
 		file = open(filename, 'w')
 		file.write('#VERSION = %s\n' % Params.g_version)
-		keys = self.m_table.keys()
+		
+		## compute a merged table
+		table_list = []
+		env = self
+		while 1:
+			table_list.insert(0, env.m_table)
+			try: env = env.m_parent
+			except AttributeError: break
+		merged_table = dict()
+		for table in table_list:
+			merged_table.update(table)
+		
+		keys = merged_table.keys()
 		keys.sort()
-		for k in keys: file.write('%s = %r\n' % (k, self.m_table[k]))
+		for k in keys: file.write('%s = %r\n' % (k, merged_table[k]))
 		file.close()
 
 	def load(self, filename):
@@ -114,7 +136,7 @@ class Environment(object):
 
 	def get_destdir(self):
 		"return the destdir, useful for installing"
-		if self.m_table.has_key('NOINSTALL'): return ''
+		if self.__getitem__('NOINSTALL'): return ''
 		dst = Params.g_options.destdir
 		try: dst = os.path.join(dst, os.sep, self.m_table['SUBDEST'])
 		except KeyError: pass
