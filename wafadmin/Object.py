@@ -35,7 +35,6 @@ typos = {
 'define':'defines',
 'install_var':'inst_var',
 'install_subdir':'inst_dir',
-'m_linktask','link_task',
 }
 
 g_allobjs=[]
@@ -149,8 +148,7 @@ class genobj(object):
 		return None
 
 	def __setattr__(self, name, attr):
-		try: real = typos[name]
-		except KeyError: real = name
+		real = typos.get(name, name)
 		if real != name:
 			Params.warning('typo %s -> %s' % (name, real))
 			if Params.g_verbose > 0:
@@ -321,8 +319,7 @@ class task_gen(object):
 			   self.__class__.__name__, str(self.path)))
 
 	def __setattr__(self, name, attr):
-		try: real = typos[name]
-		except KeyError: real = name
+		real = typos.get(name, name)
 		if real != name:
 			Params.warning('typo %s -> %s' % (name, real))
 			if Params.g_verbose > 0:
