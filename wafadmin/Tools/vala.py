@@ -112,6 +112,7 @@ def vala_file(self, node):
 		task = self.create_task('cc')
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.o'))
+		self.compiled_tasks.append(task)
 
 def setup(bld):
 	# create our action here
