@@ -422,3 +422,23 @@ Object.gen_hook(apply_vnum)
 Object.declare_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
 	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install')
 
+
+# Small example on how to link object files as if they were source
+# obj = bld.create_obj('cc')
+# obj.add_obj_file('foo.o')
+#
+def process_obj_files(self):
+	if not hasattr(self, 'obj_files'): return
+	for x in self.obj_files:
+		node = self.path.find_source(x)
+		self.link_task.m_inputs.append(node)
+
+def add_obj_file(self, file):
+	if not hasattr(self, 'obj_files'): self.obj_files = []
+	if not 'process_obj_files' in self.meths: self.meths.append('process_obj_files')
+	self.obj_files.append(file)
+
+Object.gen_hook(add_obj_file)
+Object.gen_hook(process_obj_files)
+Object.declare_order('apply_link', 'process_obj_files')
+
