@@ -51,11 +51,7 @@ def configure(conf):
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdirs('pixmaps po help data')
-
-	#bld.add_subdirs('src') # <- compatibility is currently broken
-	#bld.add_subdirs('mkenums') # <- an example
-	#bld.add_subdirs('marshal') # <- another example
+	bld.add_subdirs('src mkenums marshal pixmaps po help data')
 
 	env = bld.env_of_name('default')
 

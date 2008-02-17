@@ -7,5 +7,5 @@ obj.find_sources_in_dirs('.') # take the sources in the current folder
 #obj.source='vala-gtk-example.vala'
 obj.packages = 'gtk+-2.0'
 obj.target = 'vala-gtk-example'
-obj.uselib = 'GTK'
+obj.uselib = 'GTK GLIB'
 
