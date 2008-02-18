@@ -50,7 +50,7 @@ g_commands = {}
 "build, configure, .."
 
 g_verbose = 0
-"-v: warnings, -vv: developer info"
+"-v: warnings, -vv: developer info, -vvv: all info"
 
 g_build = None
 "only one build object is active at a time"
