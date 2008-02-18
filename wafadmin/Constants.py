@@ -17,3 +17,5 @@ BLDDIR  = 'blddir'
 APPNAME = 'APPNAME'
 VERSION = 'VERSION'
 
+TOOLS	= 'tools'
+
