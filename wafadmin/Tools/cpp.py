@@ -29,36 +29,13 @@ class cppobj(ccroot.ccroot):
 		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx', 'apply_core',
             'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars', 'apply_objdeps', 'install',]
 
+		self.mappings['.c'] = Object.task_gen.mappings['.cpp']
+
 		global g_cpp_flag_vars
 		self.p_flag_vars = g_cpp_flag_vars
 
 		global g_cpp_type_vars
 		self.p_type_vars = g_cpp_type_vars
-
-	def apply_core(self):
-		"provided for backward compatibility"
-		tree = Params.g_build
-		lst = self.to_list(self.source)
-		find_source_lst = self.path.find_source_lst
-		for filename in lst:
-			# FIXME TODO allow hooks by name or partial match, like for mixing ocaml + c or other things
-			node = find_source_lst(Utils.split_path(filename))
-			if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
-			self.allnodes.append(node)
-
-		while self.allnodes:
-			node = self.allnodes.pop()
-			# Extract the extension and look for a handler hook.
-			filename = node.m_name
-			k = max(0, filename.rfind('.'))
-			x = self.get_hook(filename[k:])
-			if not x and filename[k:] == '.c':
-				x = self.get_hook('.cpp')
-
-			if not x:
-				print self.__class__.mappings
-				raise TypeError, "Do not know how to process %s in %s" % (str(node), str(self.__class__))
-			x(self, node)
 
 def apply_obj_vars_cxx(self):
 	debug('apply_obj_vars_cxx', 'ccroot')
