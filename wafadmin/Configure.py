@@ -88,7 +88,7 @@ def find_program_impl(env, filename, path_list=[], var=None):
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
 
 	if Params.g_platform=='win32':
-		for y in [filename+x for x in '.exe,,.bat,.com,.cmd'.split(',')]:
+		for y in [filename+x for x in '.exe,.com,.bat,.cmd'.split(',')]:
 			for directory in path_list:
 				x = os.path.join(directory, y)
 				if os.path.isfile(x):
