@@ -1,26 +1,25 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005 (ita)
+# Thomas Nagy, 2005-2008 (ita)
 
 """
-genobj is an abstract class for declaring targets:
-  - creates tasks (consisting of a task, an environment, a list of source and list of target)
-  - sets environment on the tasks (which are copies most of the time)
-  - modifies environments as needed
-  - genobj cannot be used as it is, so you must create a subclass
+The class task_gen encapsulates the creation of task objects (low-level code)
+The instances can have various parameters, but the creation of task nodes
+is delayed. To achieve this, various methods are called from the method "apply"
 
-subclassing
-  - makes it possible to share environment copies for several objects at once (efficiency)
-  - be careful to call Object.genobj.__init__(...) in the __init__ of your subclass
-  - examples are ccroot, ocamlobj, ..
+The class task_gen contains lots of methods, and a configuration table:
+* the methods to call (self.meths) can be specified dynamically (removing, adding, ..)
+* the order of the methods (self.prec or by default task_gen.prec) is configurable
+* new methods can be inserted dynamically without pasting old code
 
-hooks
-  - declare new kind of targets quickly (give a pattern ? and the action name)
-  - several extensions are mapped to a single method
-  - they do not work with all objects (work with ccroot)
-  - cf bison.py and flex.py for more details on this scheme
+Additionally, task_gen provides the method apply_core
+* file extensions are mapped to methods: def meth(self, name_or_node)
+* if a mapping is not found in self.mappings, it is searched in task_gen.mappings
+* when called, the functions may modify self.allnodes to re-add source to process
+* the mappings can map an extension or a filename (see the code below)
 
-WARNING subclasses must reimplement the clone method to avoid problems with 'deepcopy'
+WARNING 1 genobj is now obsolete, it will disappear
+WARNING 2 subclasses must reimplement the clone method to avoid problems with 'deepcopy'
 """
 
 import copy
@@ -92,7 +91,7 @@ def flush(all=1):
 			if not obj.m_posted: obj.post()
 
 class genobj(object):
-	"""Obsolete, do not use anymore"""
+	"""OBSOLETE, DO NOT USE THIS CLASS ANYMORE"""
 	def __init__(self, type):
 		self.m_posted = 0
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
@@ -358,22 +357,26 @@ class task_gen(object):
 		tree = Params.g_build
 		lst = self.to_list(self.source)
 		find_source_lst = self.path.find_source_lst
+
 		for filename in lst:
-			# FIXME TODO allow hooks by name or partial match, like for mixing ocaml + c or other things
+			# if self.mappings or task_gen.mappings contains a file of the same name
+			x = self.get_hook(filename)
+			if x: x(self, filename)
+
 			node = find_source_lst(Utils.split_path(filename))
 			if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
 			self.allnodes.append(node)
 
 		while self.allnodes:
 			node = self.allnodes.pop()
-			# Extract the extension and look for a handler hook.
+			# self.mappings or task_gen.mappings map the file extension to a function
 			filename = node.m_name
 			k = max(0, filename.rfind('.'))
 			x = self.get_hook(filename[k:])
 
 			if not x:
-				print self.__class__.mappings
-				raise TypeError, "Do not know how to process %s in %s" % (str(node), str(self.__class__))
+				raise TypeError, "Do not know how to process %s in %s, mappings are %s" % \
+					(str(node), str(self.__class__), str(self.__class__.mappings))
 			x(self, node)
 
 	def apply(self):
