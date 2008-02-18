@@ -53,6 +53,7 @@ def reset():
 	import Params, Object
 	Params.g_build = None
 	Object.g_allobjs = []
+	Object.g_cache_max = {}
 	Object.task_gen.mappings = {}
 	Object.task_gen.mapped = {}
 
