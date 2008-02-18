@@ -89,7 +89,7 @@ class Environment(object):
 	def append_unique(self, var, value):
 		current_value = list(self[var])
 		self.m_table[var] = current_value
-		
+
 		if isinstance(value, list):
 			for value_item in value:
 				if value_item not in current_value:
@@ -102,7 +102,7 @@ class Environment(object):
 		"Write the variables into a file"
 		file = open(filename, 'w')
 		file.write('#VERSION = %s\n' % Params.g_version)
-		
+
 		## compute a merged table
 		table_list = []
 		env = self
@@ -113,7 +113,7 @@ class Environment(object):
 		merged_table = dict()
 		for table in table_list:
 			merged_table.update(table)
-		
+
 		keys = merged_table.keys()
 		keys.sort()
 		for k in keys: file.write('%s = %r\n' % (k, merged_table[k]))
@@ -141,12 +141,4 @@ class Environment(object):
 		try: dst = os.path.join(dst, os.sep, self.m_table['SUBDEST'])
 		except KeyError: pass
 		return dst
-
-	def set_dependency(self, infile, outfile):
-		"TODO: future: set manual dependencies"
-		pass
-
-	def set_var_dependency(self, infile, text):
-		"TODO: future: add manual dependencies on env variables"
-		pass
 
