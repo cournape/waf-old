@@ -250,12 +250,12 @@ class dobj(Object.task_gen):
 def apply_d_libs(self):
 	uselib = self.to_list(self.uselib)
 	seen = []
-	names = self.to_list(self.uselib_local)
+	local_libs = self.to_list(self.uselib_local)
 	libs = []
 	libpaths = []
 	env = self.env
-	while names:
-		x = names.pop()
+	while local_libs:
+		x = local_libs.pop()
 
 		# visit dependencies only once
 		if x in seen:
@@ -276,7 +276,7 @@ def apply_d_libs(self):
 			for u in lst:
 				if u in seen: continue
 				added = 1
-				names = [u]+names
+				local_libs = [u]+local_libs
 			if added: continue # list of names modified, loop
 
 		# safe to process the current object
@@ -288,18 +288,17 @@ def apply_d_libs(self):
 		elif y.m_type == 'objects':
 			pass
 		else:
-			error('%s has unknown object type %s, in apply_lib_vars, uselib_local.' % (y.name, y.m_type))
+			error('%s has unknown object type %s, in apply_d_lib_vars, uselib_local.' % (y.name, y.m_type))
 
 		# add the link path too
 		tmp_path = y.path.bldpath(env)
 		if not tmp_path in libpaths: libpaths = [tmp_path] + libpaths
 
-		## set the dependency over the link task
-		#if y.link_task is not None:
-		#	linktask.set_run_after(y.link_task)
-		#	dep_nodes = getattr(linktask, 'dep_nodes', [])
-		#	dep_nodes += y.link_task.m_outputs
-		#	#linktask.dep_nodes = dep_nodes
+		# set the dependency over the link task
+		if y.link_task is not None:
+			self.link_task.set_run_after(y.link_task)
+			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
+			self.link_task.dep_nodes = dep_nodes + y.link_task.m_outputs
 
 		# add ancestors uselib too
 		# TODO potential problems with static libraries ?
@@ -307,7 +306,6 @@ def apply_d_libs(self):
 		for v in morelibs:
 			if v in uselib: continue
 			uselib = [v]+uselib
-		names = names[1:]
 	self.uselib = uselib
 
 Object.gen_hook(apply_d_libs)
@@ -420,7 +418,7 @@ def apply_d_vars(self):
 			env.append_unique('DLINKFLAGS', linkflag)
 Object.gen_hook(apply_d_vars)
 
-Object.declare_order('apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install')
+Object.declare_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_d_libs', 'apply_vnum', 'apply_objdeps', 'install')
 
 def d_hook(self, node):
 	# create the compilation task: cpp or cc

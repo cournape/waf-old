@@ -319,8 +319,7 @@ def apply_lib_vars(self):
 		if y.link_task is not None:
 			self.link_task.set_run_after(y.link_task)
 			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
-			dep_nodes += y.link_task.m_outputs
-			self.link_task.dep_nodes = dep_nodes
+			self.link_task.dep_nodes = dep_nodes + y.link_task.m_outputs
 
 		# add ancestors uselib too
 		# TODO potential problems with static libraries ?
