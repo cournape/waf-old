@@ -5,7 +5,7 @@
 "Base for c++ programs and libraries"
 
 import ccroot # <- do not remove
-from Params import debug
+from Params import debug, fatal
 import Object, Params, Action, Utils
 
 g_cpp_flag_vars = [
