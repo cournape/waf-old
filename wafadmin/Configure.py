@@ -1007,17 +1007,17 @@ class Configure(object):
 
 	def check_tool(self, input, tooldir=None):
 		"load a waf tool"
-		lst = Utils.to_list(input)
+		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
-		for i in lst:
+		for tool in tools:
 			try:
-				file,name,desc = imp.find_module(i, tooldir)
+				file,name,desc = imp.find_module(tool, tooldir)
 			except ImportError, ex:
-				raise ConfigurationError("no tool named '%s' found (%s)" % (i, str(ex)))
-			module = imp.load_module(i,file,name,desc)
+				raise ConfigurationError("no tool named '%s' found (%s)" % (tool, str(ex)))
+			module = imp.load_module(tool,file,name,desc)
 			func = getattr(module, 'detect', None)
 			if func: func(self)
-			self.env.append_value('tools', {'tool':i, 'tooldir':tooldir})
+			self.env.append_value(TOOLS, {'tool':tool, 'tooldir':tooldir})
 
 	def setenv(self, name):
 		"enable the environment called name"
