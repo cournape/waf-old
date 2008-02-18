@@ -293,7 +293,7 @@ class Build(object):
 	def setup(self, tool, tooldir=None):
 		"setup tools for build process"
 		if type(tool) is types.ListType:
-			for i in tool: self.setup(i)
+			for i in tool: self.setup(i, tooldir)
 			return
 
 		if not tooldir: tooldir = Params.g_tooldir
