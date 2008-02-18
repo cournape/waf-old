@@ -90,174 +90,6 @@ def flush(all=1):
 			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
 			if not obj.m_posted: obj.post()
 
-class genobj(object):
-	"""OBSOLETE, DO NOT USE THIS CLASS ANYMORE"""
-	def __init__(self, type):
-		self.m_posted = 0
-		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
-		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
-
-		# targets / sources
-		self.source = ''
-		self.target = ''
-
-		# collect all tasks in a list - a few subclasses need it
-		self.m_tasks = []
-
-		# no default environment - in case if
-		self.env = None
-
-		if not type in self.get_valid_types():
-			error("'%s' is not a valid type (error in %s)" % (type, self))
-		self.m_type  = type
-
-		# allow delayed operations on objects created (declarative style)
-		# an object is then posted when another one is added
-		# Objects can be posted manually, but this can break a few things, use with care
-		# used at install time too
-		g_allobjs.append(self)
-
-	def __str__(self):
-		return ("<genobj '%s' of type %s defined in %s>"
-			% (self.name or self.target,
-			   self.__class__.__name__, str(self.path)))
-
-	def get_valid_types(self):
-		return ['program', 'shlib', 'staticlib', 'plugin', 'objects', 'other']
-
-	def get_hook(self, ext):
-		env = self.env
-		cls = self.__class__
-		x = []
-		while 1:
-			try:
-				cls.all_hooks
-			except AttributeError:
-				try: cls = cls.__bases__[0]
-				except IndexError: return None
-			else:
-				for i in cls.all_hooks:
-					if ext in env[i]:
-						try:
-							return cls.__dict__[i]
-						except KeyError:
-							break
-				try: cls = cls.__bases__[0]
-				except IndexError: return None
-		return None
-
-	def __setattr__(self, name, attr):
-		real = typos.get(name, name)
-		if real != name:
-			Params.warning('typo %s -> %s' % (name, real))
-			if Params.g_verbose > 0:
-				traceback.print_stack()
-		object.__setattr__(self, real, attr)
-
-	def post(self):
-		"runs the code to create the tasks, do not subclass"
-		if not self.env: self.env = Params.g_build.m_allenvs['default']
-		if not self.name: self.name = self.target
-
-		if self.m_posted:
-			error("OBJECT ALREADY POSTED")
-			return
-		self.apply()
-		debug("posted %s" % self.name, 'object')
-		self.m_posted=1
-
-	def create_task(self, type, env=None, nice=None):
-		"""the lower the nice is, the higher priority tasks will run at
-		groups are sorted in ascending order [2, 3, 4], the tasks with lower nice will run first
-		if tasks have an odd priority number, they will be run only sequentially
-		if tasks have an even priority number, they will be allowed to be run in parallel
-		"""
-		if env is None: env=self.env
-		task = Task.Task(type, env)
-		if not (nice is None): task.prio = nice
-		self.m_tasks.append(task)
-		return task
-
-	def apply(self):
-		"Subclass me"
-		fatal("subclass me!")
-
-	def install(self):
-		"subclass me"
-		pass
-
-	def cleanup(self):
-		"subclass me if necessary"
-		pass
-
-	def install_results(self, var, subdir, task, chmod=0644):
-		debug('install results called', 'object')
-		if not task: return
-		current = Params.g_build.m_curdirnode
-		lst = [a.relpath_gen(current) for a in task.m_outputs]
-		Common.install_files(var, subdir, lst, chmod=chmod, env=self.env)
-
-	def clone(self, env):
-		newobj = copy.deepcopy(self)
-		newobj.path = self.path
-
-		if type(env) is types.StringType:
-			newobj.env = Params.g_build.m_allenvs[env]
-		else:
-			newobj.env = env
-
-		g_allobjs.append(newobj)
-
-		return newobj
-
-	def to_list(self, value):
-		"helper: returns a list"
-		if type(value) is types.StringType: return value.split()
-		else: return value
-
-	def find_sources_in_dirs(self, dirnames, excludes=[]):
-		"subclass if necessary"
-		lst=[]
-		excludes = self.to_list(excludes)
-		#make sure dirnames is a list helps with dirnames with spaces
-		dirnames = self.to_list(dirnames)
-
-		# FIXME temporary - see also qt4.py
-		ext_lst = []
-		cls = self.__class__
-		while 1:
-			try:
-				cls.all_hooks
-			except AttributeError:
-				try: cls = cls.__bases__[0]
-				except IndexError: break
-			else:
-				for i in cls.all_hooks:
-					ext_lst += self.env[i]
-				try: cls = cls.__bases__[0]
-				except IndexError: break
-		try:
-			ext_lst += self.s_default_ext
-		except AttributeError:
-			pass
-
-		for name in dirnames:
-			anode = self.path.ensure_node_from_lst(Utils.split_path(name))
-			Params.g_build.rescan(anode)
-
-			for file in anode.files():
-				(base, ext) = os.path.splitext(file.m_name)
-				if ext in ext_lst:
-					s = file.relpath(self.path)
-					if not s in lst:
-						if s in excludes: continue
-						lst.append(s)
-
-		lst.sort()
-		self.source = self.to_list(self.source)
-		if not self.source: self.source = lst
-		else: self.source += lst
-
 class task_gen(object):
 	"""
 	Most methods are of the form 'def meth(self):' without any parameters
@@ -514,14 +346,6 @@ def gen_hook(name_or_meth, meth=None):
 	except AttributeError:
 		setattr(task_gen, name_or_meth, meth)
 
-# OBSOLETE
-def hook(clsname, var, func):
-	"Attach a new method to a genobj class"
-	klass = g_allclasses[clsname]
-	setattr(klass, var, func)
-	try: klass.all_hooks.append(var)
-	except AttributeError: klass.all_hooks = [var]
-
 def declare_extension(var, func):
 	if type(var) is types.ListType:
 		for x in var:
@@ -565,4 +389,183 @@ g_allclasses = {}
 def register(name, classval):
 	global g_allclasses
 	g_allclasses[name] = classval
+
+# OBSOLETE
+class genobj(object):
+	"""OBSOLETE, DO NOT USE THIS CLASS ANYMORE"""
+	def __init__(self, type):
+		self.m_posted = 0
+		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
+		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
+
+		# targets / sources
+		self.source = ''
+		self.target = ''
+
+		# collect all tasks in a list - a few subclasses need it
+		self.m_tasks = []
+
+		# no default environment - in case if
+		self.env = None
+
+		if not type in self.get_valid_types():
+			error("'%s' is not a valid type (error in %s)" % (type, self))
+		self.m_type  = type
+
+		# allow delayed operations on objects created (declarative style)
+		# an object is then posted when another one is added
+		# Objects can be posted manually, but this can break a few things, use with care
+		# used at install time too
+		g_allobjs.append(self)
+
+	def __str__(self):
+		return ("<genobj '%s' of type %s defined in %s>"
+			% (self.name or self.target,
+			   self.__class__.__name__, str(self.path)))
+
+	def get_valid_types(self):
+		return ['program', 'shlib', 'staticlib', 'plugin', 'objects', 'other']
+
+	def get_hook(self, ext):
+		env = self.env
+		cls = self.__class__
+		x = []
+		while 1:
+			try:
+				cls.all_hooks
+			except AttributeError:
+				try: cls = cls.__bases__[0]
+				except IndexError: return None
+			else:
+				for i in cls.all_hooks:
+					if ext in env[i]:
+						try:
+							return cls.__dict__[i]
+						except KeyError:
+							break
+				try: cls = cls.__bases__[0]
+				except IndexError: return None
+		return None
+
+	def __setattr__(self, name, attr):
+		real = typos.get(name, name)
+		if real != name:
+			Params.warning('typo %s -> %s' % (name, real))
+			if Params.g_verbose > 0:
+				traceback.print_stack()
+		object.__setattr__(self, real, attr)
+
+	def post(self):
+		"runs the code to create the tasks, do not subclass"
+		if not self.env: self.env = Params.g_build.m_allenvs['default']
+		if not self.name: self.name = self.target
+
+		if self.m_posted:
+			error("OBJECT ALREADY POSTED")
+			return
+		self.apply()
+		debug("posted %s" % self.name, 'object')
+		self.m_posted=1
+
+	def create_task(self, type, env=None, nice=None):
+		"""the lower the nice is, the higher priority tasks will run at
+		groups are sorted in ascending order [2, 3, 4], the tasks with lower nice will run first
+		if tasks have an odd priority number, they will be run only sequentially
+		if tasks have an even priority number, they will be allowed to be run in parallel
+		"""
+		if env is None: env=self.env
+		task = Task.Task(type, env)
+		if not (nice is None): task.prio = nice
+		self.m_tasks.append(task)
+		return task
+
+	def apply(self):
+		"Subclass me"
+		fatal("subclass me!")
+
+	def install(self):
+		"subclass me"
+		pass
+
+	def cleanup(self):
+		"subclass me if necessary"
+		pass
+
+	def install_results(self, var, subdir, task, chmod=0644):
+		debug('install results called', 'object')
+		if not task: return
+		current = Params.g_build.m_curdirnode
+		lst = [a.relpath_gen(current) for a in task.m_outputs]
+		Common.install_files(var, subdir, lst, chmod=chmod, env=self.env)
+
+	def clone(self, env):
+		newobj = copy.deepcopy(self)
+		newobj.path = self.path
+
+		if type(env) is types.StringType:
+			newobj.env = Params.g_build.m_allenvs[env]
+		else:
+			newobj.env = env
+
+		g_allobjs.append(newobj)
+
+		return newobj
+
+	def to_list(self, value):
+		"helper: returns a list"
+		if type(value) is types.StringType: return value.split()
+		else: return value
+
+	def find_sources_in_dirs(self, dirnames, excludes=[]):
+		"subclass if necessary"
+		lst=[]
+		excludes = self.to_list(excludes)
+		#make sure dirnames is a list helps with dirnames with spaces
+		dirnames = self.to_list(dirnames)
+
+		# FIXME temporary - see also qt4.py
+		ext_lst = []
+		cls = self.__class__
+		while 1:
+			try:
+				cls.all_hooks
+			except AttributeError:
+				try: cls = cls.__bases__[0]
+				except IndexError: break
+			else:
+				for i in cls.all_hooks:
+					ext_lst += self.env[i]
+				try: cls = cls.__bases__[0]
+				except IndexError: break
+		try:
+			ext_lst += self.s_default_ext
+		except AttributeError:
+			pass
+
+		for name in dirnames:
+			anode = self.path.ensure_node_from_lst(Utils.split_path(name))
+			Params.g_build.rescan(anode)
+
+			for file in anode.files():
+				(base, ext) = os.path.splitext(file.m_name)
+				if ext in ext_lst:
+					s = file.relpath(self.path)
+					if not s in lst:
+						if s in excludes: continue
+						lst.append(s)
+
+		lst.sort()
+		self.source = self.to_list(self.source)
+		if not self.source: self.source = lst
+		else: self.source += lst
+
+
+# OBSOLETE
+def hook(clsname, var, func):
+	"Attach a new method to a genobj class"
+	klass = g_allclasses[clsname]
+	setattr(klass, var, func)
+	try: klass.all_hooks.append(var)
+	except AttributeError: klass.all_hooks = [var]
+
 
