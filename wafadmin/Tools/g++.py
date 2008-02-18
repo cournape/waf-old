@@ -74,7 +74,7 @@ def detect(conf):
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
 	# linker debug levels
-	v['LINKFLAGS']           = []
+	v['LINKFLAGS']           = v['LINKFLAGS'] or []
 	v['LINKFLAGS_OPTIMIZED'] = ['-s']
 	v['LINKFLAGS_RELEASE']   = ['-s']
 	v['LINKFLAGS_DEBUG']     = ['-g']
