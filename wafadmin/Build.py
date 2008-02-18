@@ -297,7 +297,6 @@ class Build(object):
 			return
 
 		if not tooldir: tooldir = Params.g_tooldir
-		#print "setting up ", tool, self
 
 		file = None
 		key = str((tool, tooldir))
