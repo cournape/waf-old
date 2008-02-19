@@ -5,7 +5,8 @@
 "Environment representation"
 
 import os,types, copy, re
-import Params, Utils
+import Params
+from Utils import Undefined # needed for Environment.load
 from Params import debug, warning
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
@@ -65,9 +66,32 @@ class Environment(object):
 		elif isinstance(s, list): return ' '.join(s)
 		else: return s
 
+	def _get_list_value_for_modification(self, key):
+		"""Gets a value that must be a list for further modification.  The
+		list may be modified inplace and there is no need to
+		"self.m_table[var] = value" afterwards.
+		"""
+		try:
+			value = self.m_table[key]
+		except KeyError:
+			try: value = self.m_parent[key]
+			except AttributeError: value = Params.g_globals.get(key, [])
+			if isinstance(value, list):
+				value = copy.copy(value)
+			else:
+				value = [value]
+			self.m_table[key] = value
+			return value
+		else:
+			if isinstance(value, list):
+				return value # no need to copy the list, it is not borrowed
+			else:
+				value = [value]
+				self.m_table[key] = value
+				return value
+			
 	def append_value(self, var, value):
-		current_value = Utils.to_list(self[var])
-		self.m_table[var] = current_value
+		current_value = self._get_list_value_for_modification(var)
 
 		if isinstance(value, list):
 			current_value.extend(value)
@@ -75,19 +99,18 @@ class Environment(object):
 			current_value.append(value)
 
 	def prepend_value(self, var, value):
-		current_value = Utils.to_list(self[var])
+		current_value = self._get_list_value_for_modification(var)
 
 		if isinstance(value, list):
 			current_value = value + current_value
+			## this is a new list; need to update the dictionary entry
+			self.m_table[var] = current_value
 		else:
 			current_value.insert(0, value)
 
-		self.m_table[var] = current_value
-
 	# prepend unique would be ambiguous
 	def append_unique(self, var, value):
-		current_value = Utils.to_list(self[var])
-		self.m_table[var] = current_value
+		current_value = self._get_list_value_for_modification(var)
 
 		if isinstance(value, list):
 			for value_item in value:
