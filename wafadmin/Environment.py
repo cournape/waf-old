@@ -5,9 +5,8 @@
 "Environment representation"
 
 import os,types, copy, re
-import Params
+import Params, Utils
 from Params import debug, warning
-from Utils import Undefined
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
 g_idx = 0
@@ -67,7 +66,7 @@ class Environment(object):
 		else: return s
 
 	def append_value(self, var, value):
-		current_value = list(self[var])
+		current_value = Utils.to_list(self[var])
 		self.m_table[var] = current_value
 
 		if isinstance(value, list):
@@ -76,7 +75,7 @@ class Environment(object):
 			current_value.append(value)
 
 	def prepend_value(self, var, value):
-		current_value = list(self[var])
+		current_value = Utils.to_list(self[var])
 
 		if isinstance(value, list):
 			current_value = value + current_value
@@ -87,7 +86,7 @@ class Environment(object):
 
 	# prepend unique would be ambiguous
 	def append_unique(self, var, value):
-		current_value = list(self[var])
+		current_value = Utils.to_list(self[var])
 		self.m_table[var] = current_value
 
 		if isinstance(value, list):
