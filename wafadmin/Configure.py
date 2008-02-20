@@ -1168,10 +1168,8 @@ class Configure(object):
 		if not env: env = self.env
 		base = [self.m_blddir, env.variant()]+base
 		dir = os.path.join(*base)
-		try:
+		if not os.path.exists(dir):
 			os.makedirs(dir)
-		except OSError:
-			pass
 
 		dir = os.path.join(dir, lst[-1])
 
