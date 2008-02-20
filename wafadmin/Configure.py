@@ -275,7 +275,7 @@ class library_enumerator(enumerator_base):
 
 		self.name = ''
 		self.path = []
-		self.code = 'int main() {return 0;}'
+		self.code = 'int main() {return 0;}\n'
 		self.uselib = '' # to set the LIB_NAME and LIBPATH_NAME
 		self.nosystem = 0 # do not use standard lib paths
 		self.want_message = 1
@@ -654,7 +654,7 @@ class library_configurator(configurator_base):
 		self.define = ''
 		self.uselib = ''
 
-		self.code = 'int main(){return 0;}'
+		self.code = 'int main(){return 0;}\n'
 
 	def error(self):
 		errmsg = 'library %s cannot be linked' % self.name
@@ -741,7 +741,7 @@ class framework_configurator(configurator_base):
 
 		self.name = ''
 		self.custom_code = ''
-		self.code = 'int main(){return 0;}'
+		self.code = 'int main(){return 0;}\n'
 
 		self.define = '' # HAVE_something
 
@@ -833,7 +833,7 @@ class header_configurator(configurator_base):
 		self.path = []
 		self.header_code = ''
 		self.custom_code = ''
-		self.code = 'int main() {return 0;}'
+		self.code = 'int main() {return 0;}\n'
 
 		self.define = '' # HAVE_something
 
