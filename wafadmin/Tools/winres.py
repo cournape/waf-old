@@ -6,7 +6,6 @@
 
 import os, sys
 import Action, Object
-from Params import set_globals
 from Utils import quote_whitespace
 
 EXT_WINRC = ['.rc']
