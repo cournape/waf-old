@@ -14,9 +14,8 @@ import os, sys
 import ccroot, cpp
 import Action, Params, Object, Task, Utils, Runner
 from Params import error, fatal
-from Params import set_globals, globals
 
-set_globals('MOC_H', ['.h', '.hpp', '.hxx', '.hh'])
+MOC_H = ['.h', '.hpp', '.hxx', '.hh']
 EXT_RCC = ['.qrc']
 EXT_UI  = ['.ui']
 EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C', '.c']
@@ -73,7 +72,7 @@ class MTask(Task.Task):
 			if not ext:
 				base2 = d[:-4]
 				path = node.m_parent.srcpath(parn.env)
-				for i in globals('MOC_H'):
+				for i in MOC_H:
 					try:
 						# TODO we could use find_source
 						os.stat(os.path.join(path, base2+i))
