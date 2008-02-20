@@ -5,13 +5,9 @@
 
 import re
 import Action, Scan, Params, Object
-from Params import fatal, set_globals
+from Params import fatal
 
 swig_str = '${SWIG} ${SWIGFLAGS} -o ${TGT[0].bldpath(env)} ${SRC}'
-
-set_globals('EXT_SWIG_C','.swigwrap.c')
-set_globals('EXT_SWIG_CC','.swigwrap.cc')
-set_globals('EXT_SWIG_OUT','.swigwrap.os')
 
 re_1 = re.compile(r'^%module.*?\s+([\w]+)\s*?$', re.M)
 re_2 = re.compile('%include "(.*)"', re.M)
@@ -56,13 +52,9 @@ class swig_class_scanner(Scan.scanner):
 swig_scanner = swig_class_scanner()
 
 def i_file(self, node):
-	# TODO for subclasses
-	if self.__class__.__name__ == 'ccobj':
-		ext = self.env['EXT_SWIG_C']
-	elif self.__class__.__name__ == 'cppobj':
-		ext = self.env['EXT_SWIG_CC']
-	else:
-		ext = self.env['EXT_SWIG_C']
+	ext = '.swigwrap.c'
+	if self.__class__.__name__ == 'cppobj':
+		ext = '.swigwrap.cc'
 
 	variant = node.variant(self.env)
 
@@ -94,7 +86,7 @@ def i_file(self, node):
 	# create the build task (c or cpp)
 	task = self.create_task(self.m_type_initials)
 	task.set_inputs(ltask.m_outputs[0])
-	task.set_outputs(node.change_ext(self.env['EXT_SWIG_OUT']))
+	task.set_outputs(node.change_ext('.swigwrap.os'))
 
 def setup(bld):
 	Action.simple_action('swig', swig_str, color='BLUE', prio=40)
