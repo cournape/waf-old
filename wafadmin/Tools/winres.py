@@ -9,7 +9,7 @@ import Action, Object
 from Params import set_globals
 from Utils import quote_whitespace
 
-set_globals('EXT_WINRC_C','.rc')
+EXT_WINRC = ['.rc']
 
 winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CXXDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CXXINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F}${TGT} ${WINRC_SRC_F}${SRC}'
 
@@ -26,11 +26,7 @@ def setup(bld):
 	Action.simple_action('winrc', winrc_str, color='BLUE', prio=40)
 
 	# register the hook for use with cppobj and ccobj
-	try: Object.hook('cpp', 'WINRC_EXT', rc_file)
-	except KeyError: pass
-
-	try: Object.hook('cc', 'WINRC_EXT', rc_file)
-	except KeyError: pass
+	Object.declare_extension(EXT_WINRC, rc_file)
 
 def detect(conf):
 	v = conf.env
@@ -58,7 +54,6 @@ def detect(conf):
 	else:
 		v['WINRC']=quote_whitespace(winrc)
 
-	v['WINRC_EXT'] = ['.rc']
 	v['WINRCFLAGS'] = ''
 	return 1
 
