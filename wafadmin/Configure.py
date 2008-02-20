@@ -1006,18 +1006,26 @@ class Configure(object):
 		return env
 
 	def check_tool(self, input, tooldir=None):
+		def add_tool(env, tool, tooldir):
+			if not env[TOOLS]: env[TOOLS] = {}
+			env[TOOLS][tool] = tooldir
+
+		def tool_defined(env, tool):
+			return env[TOOLS] and env[TOOLS].has_key(tool)
+
 		"load a waf tool"
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
 		for tool in tools:
-			try:
-				file,name,desc = imp.find_module(tool, tooldir)
-			except ImportError, ex:
-				raise ConfigurationError("no tool named '%s' found (%s)" % (tool, str(ex)))
-			module = imp.load_module(tool,file,name,desc)
-			func = getattr(module, 'detect', None)
-			if func: func(self)
-			self.env.append_value(TOOLS, {'tool':tool, 'tooldir':tooldir})
+			if not tool_defined(self.env, tool):
+				try:
+					file,name,desc = imp.find_module(tool, tooldir)
+				except ImportError, ex:
+					raise ConfigurationError("no tool named '%s' found (%s)" % (tool, str(ex)))
+				module = imp.load_module(tool,file,name,desc)
+				func = getattr(module, 'detect', None)
+				if func: func(self)
+				add_tool(self.env, tool, tooldir)
 
 	def setenv(self, name):
 		"enable the environment called name"
@@ -1335,7 +1343,7 @@ class Configure(object):
 		bld._variants=bld.m_allenvs.keys()
 		bld.load_dirs(dir, bdir, isconfigure=1)
 
-		for t in env[TOOLS]: bld.setup(**t)
+		for t in env[TOOLS].items(): bld.setup(t[0], t[1])
 
 		os.chdir(dir)
 

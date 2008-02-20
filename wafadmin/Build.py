@@ -276,7 +276,7 @@ class Build(object):
 				name = file.split('.')[0]
 
 			self.m_allenvs[name] = env
-			for t in env[TOOLS]: self.setup(**t)
+			for t in env[TOOLS].items(): self.setup(t[0], t[1])
 
 		self._initialize_variants()
 
