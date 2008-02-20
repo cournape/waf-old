@@ -52,6 +52,7 @@ def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 def reset():
 	import Params, Object
 	Params.g_build = None
+	Params.g_globals = {}
 	Object.g_allobjs = []
 	Object.g_cache_max = {}
 	Object.task_gen.mappings = {}
