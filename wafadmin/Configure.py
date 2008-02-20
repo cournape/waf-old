@@ -1355,7 +1355,7 @@ class Configure(object):
 		self.mute_logging()
 		try:
 			ret = bld.compile()
-		except Build.BuildError, e:
+		except Build.BuildError:
 			ret = 1
 		self.restore_logging()
 
