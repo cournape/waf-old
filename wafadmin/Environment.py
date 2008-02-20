@@ -55,7 +55,7 @@ class Environment(object):
 			return self.m_table[key]
 		except KeyError:
 			try: return self.m_parent[key]
-			except AttributeError: return Params.g_globals.get(key, [])
+			except: return []
 
 	def __setitem__(self, key, value):
 		self.m_table[key] = value
@@ -75,7 +75,7 @@ class Environment(object):
 			value = self.m_table[key]
 		except KeyError:
 			try: value = self.m_parent[key]
-			except AttributeError: value = Params.g_globals.get(key, [])
+			except AttributeError: value = []
 			if isinstance(value, list):
 				value = copy.copy(value)
 			else:

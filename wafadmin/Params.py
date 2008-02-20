@@ -29,14 +29,6 @@ sig_nil = 'iluvcuteoverload'
 # =================================== #
 # Constants set on runtime
 
-g_globals = {}
-"global vars"
-
-def set_globals(name, value):
-	g_globals[name] = value
-def globals(name):
-	return g_globals.get(name, [])
-
 g_cwd_launch = None
 "directory from which waf was called"
 
