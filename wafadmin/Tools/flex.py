@@ -6,25 +6,13 @@
 
 import Action, Object
 from Params import fatal
-from Params import set_globals
 
 flex_str = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}'
 EXT_FLEX = ['.l']
 
-# we register our extensions to global variables
-set_globals('EXT_FLEX_C', '.lex.c')
-set_globals('EXT_FLEX_CC', '.lex.cc')
-set_globals('EXT_FLEX_OUT', '.lex.o')
-
 def l_file(self, node):
-	if self.__class__.__name__ == 'ccobj':
-		ext = self.env['EXT_FLEX_C']
-	elif self.__class__.__name__ == 'cppobj':
-		ext = self.env['EXT_FLEX_CC']
-	else:
-		fatal('neither c nor c++ for flex.py')
-
-	obj_ext = self.env['EXT_FLEX_OUT']
+	if self.__class__.__name__ == 'cppobj': ext = '.lex.cc'
+	else: ext = '.lex.c'
 
 	out_source = node.change_ext(ext)
 

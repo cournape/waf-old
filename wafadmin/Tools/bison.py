@@ -5,7 +5,6 @@
 "Bison processing"
 
 import Action, Object, os
-from Params import set_globals
 
 bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].m_name}'
 

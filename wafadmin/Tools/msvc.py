@@ -6,7 +6,7 @@
 
 import os, sys, re, string, optparse
 import Utils, Action, Params, Object, Runner, Configure
-from Params import debug, error, fatal, warning, set_globals
+from Params import debug, error, fatal, warning
 from Utils import quote_whitespace
 
 import ccroot, cc, cpp
