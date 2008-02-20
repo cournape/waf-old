@@ -202,14 +202,14 @@ def apply_qt4(self):
 Object.gen_hook(apply_qt4)
 Object.declare_order('apply_link', 'apply_qt4')
 
-def find_sources_in_dirs(self, dirnames, excludes=[]):
+def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	"the .ts files are added to self.lang"
 	lst=[]
 	excludes = self.to_list(excludes)
 	#make sure dirnames is a list helps with dirnames with spaces
 	dirnames = self.to_list(dirnames)
 
-	ext_lst = self.mappings or Object.task_gen.mappings
+	ext_lst = exts or self.mappings.keys() + Object.task_gen.mappings.keys()
 
 	for name in dirnames:
 		#print "name is ", name

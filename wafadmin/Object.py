@@ -297,14 +297,14 @@ class task_gen(object):
 		self.m_tasks.append(task)
 		return task
 
-	def find_sources_in_dirs(self, dirnames, excludes=[]):
+	def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 		"subclass if necessary"
 		lst=[]
 		excludes = self.to_list(excludes)
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
-		ext_lst = self.mappings.keys() or task_gen.mappings.keys()
+		ext_lst = exts or self.mappings.keys() + task_gen.mappings.keys()
 
 		# FIXME the following two lines should be removed
 		try: ext_lst += self.s_default_ext
@@ -523,7 +523,6 @@ class genobj(object):
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
-		# FIXME temporary - see also qt4.py
 		ext_lst = []
 		cls = self.__class__
 		while 1:
