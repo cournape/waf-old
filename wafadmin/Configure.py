@@ -1027,13 +1027,6 @@ class Configure(object):
 		return env
 
 	def check_tool(self, input, tooldir=None):
-		def add_tool(env, tool, tooldir):
-			if not env[TOOLS]: env[TOOLS] = {}
-			env[TOOLS][tool] = tooldir
-
-		def tool_defined(env, tool):
-			return env[TOOLS] and env[TOOLS].has_key(tool)
-
 		"load a waf tool"
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
@@ -1367,8 +1360,6 @@ class Configure(object):
 		bld.m_allenvs['default'] = env
 		bld._variants=bld.m_allenvs.keys()
 		bld.load_dirs(dir, bdir, isconfigure=1)
-
-		for t in env[TOOLS]: bld.setup(t[0], t[1])
 
 		os.chdir(dir)
 
