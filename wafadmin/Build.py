@@ -419,6 +419,8 @@ class Build(object):
 		so we might want to do it in parallel in some future
 		"""
 
+		# FIXME use sets with intersection and union
+
 		# do not rescan over and over again
 		if src_dir_node.hash_value in self.m_scanned_folders: return
 
