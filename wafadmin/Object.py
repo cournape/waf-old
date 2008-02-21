@@ -108,11 +108,21 @@ class task_gen(object):
 	* adding new methods easily
 	* obtaining the order in which to call the methods
 	* postponing the method calls (post() -> apply)
+
+	Additionally, a 'traits' static attribute is provided:
+	* this list contains methods
+	* the methods can remove or add methods from self.meths
+	Example1: the attribute 'staticlib' is set on an instance
+	a method set in the list of traits is executed when the
+	instance is posted, it finds that flag and adds another method for execution
+	Example2: a method set in the list of traits finds the msvc
+	compiler in use (set in the environment), and modifies the methods to add
 	"""
 
 	mappings = {}
 	mapped = {}
 	prec = {}
+	traits = []
 
 	def __init__(self):
 		self.prec = {}
@@ -216,10 +226,12 @@ class task_gen(object):
 		dct = self.__class__.__dict__
 		keys = self.meths
 
-		prec_tbl = self.prec or task_gen.prec
+		# last minute modification of self.meths
+		for x in task_gen.traits: x()
 
 		# copy the precedence table with the keys in self.meths
 		prec = {}
+		prec_tbl = self.prec or task_gen.prec
 		for x in prec_tbl:
 			if x in keys:
 				prec[x] = prec_tbl[x]
