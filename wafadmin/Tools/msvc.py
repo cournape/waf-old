@@ -268,10 +268,10 @@ def detect(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 
 	comp = conf.find_program('CL', var='CXX')
-	if not comp: return
+	if not comp: conf.fatal('CL was not found (compiler)')
 
 	link = conf.find_program('LINK')
-	if not link: return
+	if not link: conf.fatal('LINK was not found (linker)')
 
 	stliblink = conf.find_program('LIB')
 	if not stliblink: return
