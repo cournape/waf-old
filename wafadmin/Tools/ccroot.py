@@ -42,7 +42,6 @@ class ccroot(Object.task_gen):
 		Object.task_gen.__init__(self)
 
 		self.env = Params.g_build.env().copy()
-		if not self.env['tools']: fatal('no tool selected')
 
 		# TODO obsolete
 		self.m_type = type
