@@ -148,10 +148,6 @@ class Environment(object):
 		file.close()
 		for m in re_imp.finditer(code):
 			g = m.group
-		#	if g(1):
-		#		if g(2) == 'VERSION' and g(3) != Params.g_version:
-		#			warning('waf upgrade? you should perhaps reconfigure')
-		#	else:
 			tbl[g(2)] = eval(g(3))
 		debug(self.m_table, 'env')
 
