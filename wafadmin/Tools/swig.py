@@ -101,7 +101,7 @@ def check_swig_version(conf, minver=None):
 	or conf.check_swig_version((1,3,28)) """
 	import pproc as subprocess
 	reg_swig = re.compile(r'SWIG Version\s(.*)', re.M)
-	proc = subprocess.Popen([conf.env['SWIG'], "-version"], stdout=subprocess.PIPE)
+	proc = subprocess.Popen([conf.env['SWIG'], "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	swig_out = proc.communicate()[0]
 	swigver = [int(s) for s in reg_swig.findall(swig_out)[0].split(".")]
 	if isinstance(minver, basestring):
