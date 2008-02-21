@@ -260,14 +260,9 @@ class msvccpp(cpp.cppobj):
             'apply_link', 'apply_link_msvc', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx',
 			'apply_msvc_obj_vars', 'apply_objdeps', 'install',]
 
-static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
-cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
-cpp_str = '${CL} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
-
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 
-Action.simple_action('cc', cc_str, color='GREEN', prio=100)
-Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
+static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Action.simple_action('ar_link_static', static_link_str, color='YELLOW', prio=101)
 
 Action.Action('cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
@@ -303,29 +298,30 @@ def detect(conf):
 	v = conf.env
 
 	# c/c++ compiler - check for whitespace, and if so, add quotes
-	v['CL']                 = quote_whitespace(comp)
-	conf.env['CXX'] = v['CL']
-	conf.env['CC'] = conf.env['CXX']
+	v['CC']         = quote_whitespace(comp)
+	conf.env['CXX'] = v['CC']
 
-	v['CPPFLAGS']            = ['/W3', '/nologo', '/EHsc', '/errorReport:prompt']
-	v['CCDEFINES']          = ['WIN32'] # command-line defines
-	v['CXXDEFINES']          = ['WIN32'] # command-line defines
+	v['CPPFLAGS']     = ['/W3', '/nologo', '/EHsc', '/errorReport:prompt']
+	v['CCDEFINES']    = ['WIN32'] # command-line defines
+	v['CXXDEFINES']   = ['WIN32'] # command-line defines
 
-	v['_CCINCFLAGS']        = []
-	v['_CCDEFFLAGS']        = []
-	v['_CXXINCFLAGS']        = []
-	v['_CXXDEFFLAGS']        = []
+	v['_CCINCFLAGS']  = []
+	v['_CCDEFFLAGS']  = []
+	v['_CXXINCFLAGS'] = []
+	v['_CXXDEFFLAGS'] = []
 
-	v['CL_SRC_F']           = ''
-	v['CL_TGT_F']           = '/c /Fo'
+	v['CC_SRC_F']     = ''
+	v['CC_TGT_F']     = '/c /Fo'
+	v['CXX_SRC_F']    = ''
+	v['CXX_TGT_F']    = '/c /Fo'
 
-	v['CPPPATH_ST']          = '/I%s' # template for adding include paths
+	v['CPPPATH_ST']   = '/I%s' # template for adding include paths
 
 	# Subsystem specific flags
-	v['CPPFLAGS_CONSOLE']		= ['/SUBSYSTEM:CONSOLE']
-	v['CPPFLAGS_NATIVE']		= ['/SUBSYSTEM:NATIVE']
-	v['CPPFLAGS_POSIX']			= ['/SUBSYSTEM:POSIX']
-	v['CPPFLAGS_WINDOWS']		= ['/SUBSYSTEM:WINDOWS']
+	v['CPPFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
+	v['CPPFLAGS_NATIVE']    = ['/SUBSYSTEM:NATIVE']
+	v['CPPFLAGS_POSIX']     = ['/SUBSYSTEM:POSIX']
+	v['CPPFLAGS_WINDOWS']   = ['/SUBSYSTEM:WINDOWS']
 	v['CPPFLAGS_WINDOWSCE']	= ['/SUBSYSTEM:WINDOWSCE']
 
 	# CRT specific flags
