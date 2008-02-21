@@ -232,7 +232,7 @@ Object.gen_hook(apply_msvc_obj_vars)
 def apply_link_msvc(self):
 	if self.link_task is not None:
 		self.link_task.m_type = self.m_type
-		self.link_task.m_subsystem = self.subsystem
+		self.link_task.m_subsystem = getattr(self, 'subsystem', '')
 Object.gen_hook(apply_link_msvc)
 
 Object.declare_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
@@ -242,9 +242,7 @@ class msvccc(cc.ccobj):
 	def __init__(self, type='program', subtype=None):
 		cc.ccobj.__init__(self, type, subtype)
 
-		self.subsystem = ''
-		self.libpaths = []
-
+		self.libpaths = ''
 		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
             'apply_link', 'apply_link_msvc', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc',
 			'apply_msvc_obj_vars', 'apply_objdeps', 'install',]
@@ -253,20 +251,18 @@ class msvccpp(cpp.cppobj):
 	def __init__(self, type='program', subtype=None):
 		cpp.cppobj.__init__(self, type, subtype)
 
-		self.subsystem = ''
-		self.libpaths = []
-
+		self.libpaths = ''
 		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx', 'apply_core',
             'apply_link', 'apply_link_msvc', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx',
 			'apply_msvc_obj_vars', 'apply_objdeps', 'install',]
-
-rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Action.simple_action('ar_link_static', static_link_str, color='YELLOW', prio=101)
 
 Action.Action('cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
-Action.Action('cpp_link', vars=[ 'LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker, prio=101)
+Action.Action('cpp_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker, prio=101)
+
+rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 Action.simple_action('rc', rc_str, color='GREEN', prio=50)
 
 Object.register('cc', msvccc)
