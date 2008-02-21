@@ -114,10 +114,9 @@ def vala_file(self, node):
 		task.set_outputs(node.change_ext('.o'))
 		self.compiled_tasks.append(task)
 
-def setup(bld):
-	# create our action here
-	ValacAction()
-	Object.declare_extension(EXT_VALA, vala_file)
+# create our action here
+ValacAction()
+Object.declare_extension(EXT_VALA, vala_file)
 
 def detect(conf):
 	valac = conf.find_program('valac', var='VALAC')

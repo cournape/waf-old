@@ -2,7 +2,25 @@
 # encoding: utf-8
 # Thomas Nagy, 2005-2008 (ita)
 
-"Configuration system"
+"""
+Configuration system
+
+A configuration instance is created when "waf configure" is called, it is used to:
+* create data dictionaries (Environment instances)
+* store the list of modules to import
+
+The old model (copied from Scons) was to store logic (mapping file extensions to functions)
+along with the data. In Waf a way was found to separate that logic by adding an indirection
+layer (storing the names in the Environment instances)
+
+In the new model, the logic is more object-oriented, and the user scripts provide the
+logic. The data files (Environments) must contain configuration data only (flags, ..).
+
+TODO:
+This file is too big
+Move all the c/c++ related code into the Tools directory
+Get rid of libtool_config
+"""
 
 import os, types, imp, cPickle, sys, shlex, warnings
 
@@ -107,11 +125,11 @@ def find_program_impl(env, filename, path_list=[], var=None):
 
 class enumerator_base(object):
 	def __init__(self, conf):
-		self.conf        = conf
-		self.env         = conf.env
-		self.define      = ''
-		self.mandatory   = 0
-		self.message     = ''
+		self.conf      = conf
+		self.env       = conf.env
+		self.define    = ''
+		self.mandatory = 0
+		self.message   = ''
 
 	def error(self):
 		if self.message:
@@ -122,6 +140,7 @@ class enumerator_base(object):
 	def update_hash(self, md5hash):
 		classvars = vars(self)
 		for (var, value) in classvars.iteritems():
+			# TODO comparing value to env is fast or slow ?
 			if callable(var):      continue
 			if value == self:      continue
 			if value == self.env:  continue
@@ -962,6 +981,8 @@ class Configure(object):
 		self.configheader = 'config.h'
 		self.cwd = os.getcwd()
 
+		self.tools = [] # tools loaded in the configuration, and that will be loaded when building
+
 		self.setenv('default')
 
 		self.m_cache_table = {}
@@ -1017,19 +1038,18 @@ class Configure(object):
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
 		for tool in tools:
-			if not tool_defined(self.env, tool):
-				try:
-					file,name,desc = imp.find_module(tool, tooldir)
-				except ImportError, ex:
-					raise ConfigurationError("no tool named '%s' found (%s)" % (tool, str(ex)))
-				module = imp.load_module(tool,file,name,desc)
-				func = getattr(module, 'detect', None)
-				if func: func(self)
-				add_tool(self.env, tool, tooldir)
+			try:
+				file,name,desc = imp.find_module(tool, tooldir)
+			except ImportError, ex:
+				raise ConfigurationError("no tool named '%s' found (%s)" % (tool, str(ex)))
+			module = imp.load_module(tool, file, name, desc)
+			func = getattr(module, 'detect', None)
+			if func: func(self)
+			self.tools.append({'tool':tool, 'tooldir':tooldir})
 
 	def setenv(self, name):
 		"enable the environment called name"
-		self.env     = self.retrieve(name)
+		self.env = self.retrieve(name)
 		self.envname = name
 
 	def find_program(self, program_name, path_list=[], var=None):
@@ -1042,6 +1062,11 @@ class Configure(object):
 		"save the config results into the cache file"
 		if not os.path.isdir(Params.g_cachedir):
 			os.makedirs(Params.g_cachedir)
+
+		file = open(os.path.join(Params.g_cachedir, 'build.config.py'), 'w')
+		file.write('version = %s\n' % HEXVERSION)
+		file.write('tools = %r\n' % self.tools)
+		file.close()
 
 		if not self.m_allenvs:
 			fatal("nothing to store in Configure !")

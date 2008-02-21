@@ -20,12 +20,11 @@ def rc_file(self, node):
 	# make linker can find compiled resource files
 	self.compiled_tasks.append(rctask)
 
-def setup(bld):
-	# create our action, for use with rc file
-	Action.simple_action('winrc', winrc_str, color='BLUE', prio=40)
+# create our action, for use with rc file
+Action.simple_action('winrc', winrc_str, color='BLUE', prio=40)
 
-	# register the hook for use with cppobj and ccobj
-	Object.declare_extension(EXT_WINRC, rc_file)
+# register the hook for use with cppobj and ccobj
+Object.declare_extension(EXT_WINRC, rc_file)
 
 def detect(conf):
 	v = conf.env

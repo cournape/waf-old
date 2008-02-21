@@ -88,14 +88,13 @@ def i_file(self, node):
 	task.set_inputs(ltask.m_outputs[0])
 	task.set_outputs(node.change_ext('.swigwrap.os'))
 
-def setup(bld):
-	Action.simple_action('swig', swig_str, color='BLUE', prio=40)
+Action.simple_action('swig', swig_str, color='BLUE', prio=40)
 
-	# register the hook for use with cppobj and ccobj
-	try: Object.hook('cpp', 'SWIG_EXT', i_file)
-	except KeyError: pass
-	try: Object.hook('cc', 'SWIG_EXT', i_file)
-	except KeyError: pass
+# register the hook for use with cppobj and ccobj
+try: Object.hook('cpp', 'SWIG_EXT', i_file)
+except KeyError: pass
+try: Object.hook('cc', 'SWIG_EXT', i_file)
+except KeyError: pass
 
 def check_swig_version(conf, minver=None):
 	"""Check for a minimum swig version  like conf.check_swig_version("1.3.28")

@@ -95,15 +95,14 @@ def c_hook(self, node):
 	task.m_outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
-def setup(bld):
-	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-	link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
+cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
+link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-	Action.simple_action('cc', cc_str, 'GREEN', prio=100)
-	Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
+Action.simple_action('cc', cc_str, 'GREEN', prio=100)
+Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
 
-	Object.register('cc', ccobj)
-	Object.declare_extension(EXT_CC, c_hook)
+Object.register('cc', ccobj)
+Object.declare_extension(EXT_CC, c_hook)
 
 Object.declare_order('apply_dependencies', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 

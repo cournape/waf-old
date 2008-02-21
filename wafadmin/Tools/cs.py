@@ -67,9 +67,8 @@ class csobj(Object.genobj):
 				val = self.env[v+'_'+var]
 				if val: self.env.append_value(v, val)
 
-def setup(bld):
-	Object.register('cs', csobj)
-	Action.simple_action('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW', prio=101)
+Object.register('cs', csobj)
+Action.simple_action('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW', prio=101)
 
 def detect(conf):
 	mcs = conf.find_program('mcs', var='MCS')

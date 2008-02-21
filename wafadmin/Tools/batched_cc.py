@@ -107,12 +107,11 @@ def create_task_cxx_new(self, node):
 
 	self.compiled_tasks.append(task)
 
-def setup(bld):
-	cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC}'
-	Action.simple_action('all_cc', cc_str, 'GREEN')
+cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC}'
+Action.simple_action('all_cc', cc_str, 'GREEN')
 
-	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
-	Action.simple_action('all_cpp', cpp_str, color='GREEN')
+cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
+Action.simple_action('all_cpp', cpp_str, color='GREEN')
 
-	Object.declare_extension(EXT_C, create_task_cxx_new)
+Object.declare_extension(EXT_C, create_task_cxx_new)
 

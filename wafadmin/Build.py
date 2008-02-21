@@ -2,9 +2,17 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"Dependency tree holder"
+"""
+Dependency tree holder
 
-import os, sys, cPickle, types, imp, errno
+The class Build holds all the info related to a build:
+* file system representation (tree of Node instances)
+* various cached objects (task signatures, file scan results, ..)
+
+There is only one Build object at a time (Params.g_build singleton)
+"""
+
+import os, sys, cPickle, types, imp, errno, re
 import Params, Runner, Object, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
 from Constants import *
@@ -135,6 +143,26 @@ class Build(object):
 
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
+		cachedir = Params.g_cachedir
+		code = ''
+		try:
+			file = open(os.path.join(cachedir, 'build.config.py'), 'r')
+			code = file.read()
+			file.close()
+		except (IOError, OSError):
+			# TODO load the pickled file and the environments better
+			pass
+		else:
+			re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
+			for m in re_imp.finditer(code):
+				g = m.group
+				if g(2) == 'version':
+					if eval(g(3)) < HEXVERSION:
+						Params.fatal('Version mismatch! reconfigure the project')
+				elif g(2) == 'tools':
+					lst = eval(g(3))
+					for t in lst: self.setup(**t)
+
 		try:
 			file = open(os.path.join(self.m_bdir, DBFILE), 'rb')
 			dto = cPickle.load(file)
@@ -275,8 +303,7 @@ class Build(object):
 				env.load(os.path.join(cachedir, file))
 				name = file.split('.')[0]
 
-			self.m_allenvs[name] = env
-			for t in env[TOOLS].items(): self.setup(t[0], t[1])
+				self.m_allenvs[name] = env
 
 		self._initialize_variants()
 

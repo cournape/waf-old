@@ -52,10 +52,10 @@ def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 def reset():
 	import Params, Object
 	Params.g_build = None
-	Object.g_allobjs = []
+	#Object.g_allobjs = []
 	Object.g_cache_max = {}
-	Object.task_gen.mappings = {}
-	Object.task_gen.mapped = {}
+	#Object.task_gen.mappings = {}
+	#Object.task_gen.mapped = {}
 
 def to_list(sth):
 	if type(sth) is types.ListType:

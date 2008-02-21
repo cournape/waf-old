@@ -101,15 +101,14 @@ def cxx_hook(self, node):
 	task.m_outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
-def setup(bld):
-	cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-	link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
+cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+link_str = '${LINK_CXX} ${CPPLNK_SRC_F}${SRC} ${CPPLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-	Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
-	Action.simple_action('cpp_link', link_str, color='YELLOW', prio=111)
+Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
+Action.simple_action('cpp_link', link_str, color='YELLOW', prio=111)
 
-	Object.register('cpp', cppobj)
-	Object.declare_extension(EXT_CXX, cxx_hook)
+Object.register('cpp', cppobj)
+Object.declare_extension(EXT_CXX, cxx_hook)
 
 Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 

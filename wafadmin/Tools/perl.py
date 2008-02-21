@@ -18,9 +18,8 @@ def xsubpp_file(self, node):
     cctask.set_inputs(gentask.m_outputs)
     cctask.set_outputs(node.change_ext('.o'))
 
-def setup(bld):
-    Action.simple_action('xsubpp', xsubpp_str, color='BLUE', prio=10)
-    Object.declare_extension(EXT_PERLXS, xsubpp_file)
+Action.simple_action('xsubpp', xsubpp_str, color='BLUE', prio=10)
+Object.declare_extension(EXT_PERLXS, xsubpp_file)
 
 def check_perl_version(conf, minver=None):
     """

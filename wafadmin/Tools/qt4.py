@@ -261,19 +261,18 @@ def process_qm2rcc(task):
 	f.write('</qresource>\n</RCC>')
 	f.close()
 
-def setup(bld):
-	Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'], prio=100)
-	Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE', prio=60)
-	Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', prio=60)
-	Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
+Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'], prio=100)
+Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE', prio=60)
+Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', prio=60)
+Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
 
-	Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=60)
+Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=60)
 
-	Object.register('qt4', qt4obj)
+Object.register('qt4', qt4obj)
 
-	Object.declare_extension(EXT_UI, create_uic_task)
-	Object.declare_extension(EXT_RCC, create_rcc_task)
-	Object.declare_extension(EXT_QT4, cxx_hook)
+Object.declare_extension(EXT_UI, create_uic_task)
+Object.declare_extension(EXT_RCC, create_rcc_task)
+Object.declare_extension(EXT_QT4, cxx_hook)
 
 def detect_qt4(conf):
 	env = conf.env

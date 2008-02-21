@@ -17,10 +17,9 @@ def gob2_file(self, node):
 
 	self.allnodes.append(out_source)
 
-def setup(bld):
-	# create our action here
-	Action.simple_action('gob2', gob2_str, color='BLUE', prio=40)
-	Object.declare_extension(EXT_GOB2, gob2_file)
+# create our action here
+Action.simple_action('gob2', gob2_str, color='BLUE', prio=40)
+Object.declare_extension(EXT_GOB2, gob2_file)
 
 def detect(conf):
 	gob2 = conf.find_program('gob2', var='GOB2')

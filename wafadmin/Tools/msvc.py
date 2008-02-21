@@ -260,26 +260,24 @@ class msvccpp(cpp.cppobj):
             'apply_link', 'apply_link_msvc', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx',
 			'apply_msvc_obj_vars', 'apply_objdeps', 'install',]
 
-def setup(bld):
-	static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
-	cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
-	cpp_str = '${CL} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
+static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
+cc_str = '${CL} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
+cpp_str = '${CL} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CL_SRC_F}${SRC} ${CL_TGT_F}${TGT}'
 
-	rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
+rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 
-	Action.simple_action('cc', cc_str, color='GREEN', prio=100)
-	Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
-	Action.simple_action('ar_link_static', static_link_str, color='YELLOW', prio=101)
+Action.simple_action('cc', cc_str, color='GREEN', prio=100)
+Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
+Action.simple_action('ar_link_static', static_link_str, color='YELLOW', prio=101)
 
-	Action.Action('cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
-	Action.Action('cpp_link', vars=[ 'LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker, prio=101)
-	Action.simple_action('rc', rc_str, color='GREEN', prio=50)
+Action.Action('cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
+Action.Action('cpp_link', vars=[ 'LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker, prio=101)
+Action.simple_action('rc', rc_str, color='GREEN', prio=50)
 
-	Object.register('cc', msvccc)
-	Object.register('cpp', msvccpp)
+Object.register('cc', msvccc)
+Object.register('cpp', msvccpp)
 
-	import winres
-	winres.setup(bld)
+import winres
 
 def detect(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.

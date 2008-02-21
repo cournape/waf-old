@@ -387,6 +387,7 @@ def sign_env_vars(env, vars_list):
 
 g_allclasses = {}
 def register(name, classval):
+	"Not obsolete yet (but in a few months yes)"
 	global g_allclasses
 	g_allclasses[name] = classval
 

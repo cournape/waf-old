@@ -87,15 +87,14 @@ class intltoolobj(cc.ccobj):
 		# after our targets are created, process the .c files, etc
 		cc.ccobj.apply_core(self)
 
-def setup(bld):
-	Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', prio=10)
-	Action.simple_action('intltool',
-		'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
-		color='BLUE', prio=200)
+Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', prio=10)
+Action.simple_action('intltool',
+	'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
+	color='BLUE', prio=200)
 
-	Object.register('intltool_po', intltool_po)
-	Object.register('intltool_in', intltool_in)
-	Object.register('intltool', intltoolobj)
+Object.register('intltool_po', intltool_po)
+Object.register('intltool_in', intltool_in)
+Object.register('intltool', intltoolobj)
 
 def detect(conf):
 

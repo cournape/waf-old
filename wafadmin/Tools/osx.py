@@ -72,9 +72,9 @@ def app_build(task):
 
 	return 0
 
-def setup(bld):
-	ccroot.ccroot.apply_core_o = ccroot.ccroot.apply_core
-	ccroot.ccroot.apply_core = apply_core_osx
-	x = Action.Action('macapp', vars=[], func=app_build)
-	x.prio = 300
+# FIXME this thing has changed
+ccroot.ccroot.apply_core_o = ccroot.ccroot.apply_core
+ccroot.ccroot.apply_core = apply_core_osx
+x = Action.Action('macapp', vars=[], func=app_build)
+x.prio = 300
 

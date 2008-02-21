@@ -89,7 +89,7 @@ class Environment(object):
 				value = [value]
 				self.m_table[key] = value
 				return value
-			
+
 	def append_value(self, var, value):
 		current_value = self._get_list_value_for_modification(var)
 
@@ -123,9 +123,8 @@ class Environment(object):
 	def store(self, filename):
 		"Write the variables into a file"
 		file = open(filename, 'w')
-		file.write('#VERSION = %s\n' % Params.g_version)
 
-		## compute a merged table
+		# compute a merged table
 		table_list = []
 		env = self
 		while 1:
@@ -149,11 +148,11 @@ class Environment(object):
 		file.close()
 		for m in re_imp.finditer(code):
 			g = m.group
-			if g(1):
-				if g(2) == 'VERSION' and g(3) != Params.g_version:
-					warning('waf upgrade? you should perhaps reconfigure')
-			else:
-				tbl[g(2)] = eval(g(3))
+		#	if g(1):
+		#		if g(2) == 'VERSION' and g(3) != Params.g_version:
+		#			warning('waf upgrade? you should perhaps reconfigure')
+		#	else:
+			tbl[g(2)] = eval(g(3))
 		debug(self.m_table, 'env')
 
 	def get_destdir(self):

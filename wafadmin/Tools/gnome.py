@@ -201,20 +201,19 @@ def process_dbus(self):
 Object.gen_hook(process_dbus)
 Object.declare_order('process_marshal', 'apply_core')
 
-def setup(bld):
-	Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
+Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 
-	Action.simple_action('glib_genmarshal',
-		'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
-		color='BLUE')
+Action.simple_action('glib_genmarshal',
+	'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
+	color='BLUE')
 
-	Action.simple_action('dbus_binding_tool',
-		'${DBT} --prefix=${DBT_PREFIX} --mode=${DBT_MODE} --output=${TGT} ${SRC}',
-		color='BLUE')
+Action.simple_action('dbus_binding_tool',
+	'${DBT} --prefix=${DBT_PREFIX} --mode=${DBT_MODE} --output=${TGT} ${SRC}',
+	color='BLUE')
 
-	Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1]} ${SRC[0]}')
+Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1]} ${SRC[0]}')
 
-	Object.register('gnome_sgml2man', gnome_sgml2man)
+Object.register('gnome_sgml2man', gnome_sgml2man)
 
 def detect(conf):
 

@@ -40,11 +40,10 @@ def yc_file(self, node):
 
 	self.allnodes.append(newnodes[0])
 
-def setup(bld):
-	# create our action here
-	Action.simple_action('bison', bison_str, color='BLUE', prio=40)
-	# register the hook
-	Object.declare_extension(EXT_BISON, yc_file)
+# create our action here
+Action.simple_action('bison', bison_str, color='BLUE', prio=40)
+# register the hook
+Object.declare_extension(EXT_BISON, yc_file)
 
 def detect(conf):
 	bison = conf.find_program('bison', var='BISON')

@@ -67,10 +67,9 @@ class pyobj(Object.genobj):
 			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)
 			#self.install_results(self.inst_var, self.inst_dir, i)
 
-def setup(bld):
-	Object.register('py', pyobj)
-	Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
-	Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
+Object.register('py', pyobj)
+Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
+Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""

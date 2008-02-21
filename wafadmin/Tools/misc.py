@@ -436,11 +436,10 @@ use command_is_external=True''') % (self.command,)
 	def install(self):
 		pass
 
-def setup(bld):
-	Object.register('cmd', cmdobj)
-	Object.register('copy', copyobj)
-	Object.register('subst', substobj)
-	Action.Action('copy', vars=[], func=action_process_file_func)
-	Action.Action('command-output', func=CommandOutput._command_output_func, color='BLUE')
-	Object.register('command-output', CommandOutput)
+Object.register('cmd', cmdobj)
+Object.register('copy', copyobj)
+Object.register('subst', substobj)
+Action.Action('copy', vars=[], func=action_process_file_func)
+Action.Action('command-output', func=CommandOutput._command_output_func, color='BLUE')
+Object.register('command-output', CommandOutput)
 

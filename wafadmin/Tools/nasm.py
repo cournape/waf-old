@@ -37,11 +37,10 @@ def nasm_file(self, node):
 	if not 'apply_nasm_vars' in self.meths:
 		self.meths = ['apply_nasm_vars'] + self.meths
 
-def setup(bld):
-	# create our action here
-	Action.simple_action('nasm', nasm_str, color='BLUE', prio=40)
-	# register the hook
-	Object.declare_extension(EXT_NASM, nasm_file)
+# create our action here
+Action.simple_action('nasm', nasm_str, color='BLUE', prio=40)
+# register the hook
+Object.declare_extension(EXT_NASM, nasm_file)
 
 def detect(conf):
 	nasm = conf.find_program('nasm', var='NASM')

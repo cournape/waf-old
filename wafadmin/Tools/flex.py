@@ -23,11 +23,10 @@ def l_file(self, node):
 	# make the source produced as 'to be processed'
 	self.allnodes.append(out_source)
 
-def setup(bld):
-	# create our action here
-	Action.simple_action('flex', flex_str, color='BLUE', prio=40)
-	# register the hook
-	Object.declare_extension(EXT_FLEX, l_file)
+# create our action here
+Action.simple_action('flex', flex_str, color='BLUE', prio=40)
+# register the hook
+Object.declare_extension(EXT_FLEX, l_file)
 
 def detect(conf):
 	flex = conf.find_program('flex', var='FLEX')
