@@ -116,7 +116,7 @@ class task_gen(object):
 	a method set in the list of traits is executed when the
 	instance is posted, it finds that flag and adds another method for execution
 	Example2: a method set in the list of traits finds the msvc
-	compiler in use (set in the environment), and modifies the methods to add
+	compiler (from self.env['MSVC']==1); more methods are added to self.meths
 	"""
 
 	mappings = {}

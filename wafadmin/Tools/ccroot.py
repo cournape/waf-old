@@ -244,6 +244,8 @@ Object.gen_hook(apply_type_vars)
 
 def apply_link(self):
 	# if we are only building .o files, tell which ones we built
+	# FIXME see msvc.py
+	# FIXME remove the "type" thing
 	if self.m_type == 'objects':
 		self.out_nodes = []
 		app = self.out_nodes.append
