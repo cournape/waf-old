@@ -14,6 +14,8 @@ EXT_MLI = ['.mli']
 EXT_MLC = ['.c']
 EXT_ML  = ['.ml']
 
+OCAML_METHS = ['apply_incpaths_ml', 'apply_vars_ml', 'apply_core', 'apply_link_ml']
+
 open_re = re.compile('open ([a-zA-Z]+);;', re.M)
 
 def filter_comments(filename):
@@ -238,7 +240,9 @@ class ocamlobj(Object.task_gen):
 		if self.m_type == 'c_object':
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
-		self.meths = ['apply_incpaths_ml', 'apply_vars_ml', 'apply_core', 'apply_link_ml']
+def trait_ocaml(self):
+	self.meths.update(OCAML_METHS)
+if not trait_ocaml in Object.task_gen.traits: Object.task_gen.traits.append(trait_ocaml)
 
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
