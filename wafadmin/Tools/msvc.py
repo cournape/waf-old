@@ -262,8 +262,7 @@ def trait_msvc(self):
 	"if linking is done with msvc, add two more methods, and remove apply_link"
 	if not self.env['MSVC']: return
 	self.meths.update(MSVC_METHS)
-	try: self.meths.remove('apply_link')
-	except KeyError: pass
+	self.meths.discard('apply_link')
 	self.libpaths = getattr(self, 'libpaths', '')
 if not trait_msvc in Object.task_gen.traits: Object.task_gen.traits.append(trait_msvc)
 
