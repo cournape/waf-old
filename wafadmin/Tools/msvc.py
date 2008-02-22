@@ -230,27 +230,45 @@ def apply_msvc_obj_vars(self):
 Object.gen_hook(apply_msvc_obj_vars)
 
 def apply_link_msvc(self):
-	if self.link_task is not None:
-		self.link_task.m_type = self.m_type
-		self.link_task.m_subsystem = getattr(self, 'subsystem', '')
+	# if we are only building .o files, tell which ones we built
+	# FIXME remove the "type" thing
+	# FIXME simplify this piece of code (about the same is in ccroot.py)
+	if self.m_type == 'objects':
+		self.out_nodes = []
+		app = self.out_nodes.append
+		for t in self.compiled_tasks: app(t.m_outputs[0])
+		return
+
+	if self.m_type=='staticlib':
+		linktask = self.create_task('msvc_ar_link_static', self.env)
+	else:
+		linktask = self.create_task('msvc_%s_link' % self.m_type_initials, self.env)
+	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
+	linktask.set_inputs(outputs)
+	linktask.set_outputs(self.path.find_build(get_target_name(self)))
+
+	link_task.m_type = self.m_type
+	link_task.m_subsystem = getattr(self, 'subsystem', '')
+	self.link_task = linktask
+
 Object.gen_hook(apply_link_msvc)
 
-Object.declare_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
-Object.declare_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
+Object.declare_order('apply_core', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
+Object.declare_order('apply_core', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
 
 def trait_msvc(self):
-	"if linking is done with msvc, add two more methods"
+	"if linking is done with msvc, add two more methods, and remove apply_link"
 	if not self.env['MSVC']: return
 	self.meths += ['apply_link_msvc', 'apply_msvc_obj_vars']
+	try: self.meths.remove('apply_link')
+	except ValueError: pass
 	self.libpaths = getattr(self, 'libpaths', '')
 if not trait_msvc in Object.task_gen.traits: Object.task_gen.traits.append(trait_msvc)
 
-# TODO the following part needs more love
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
-Action.simple_action('ar_link_static', static_link_str, color='YELLOW', prio=101)
-
-Action.Action('cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS','MT','MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
-Action.Action('cpp_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS' ] , color='YELLOW', func=msvc_linker, prio=101)
+Action.simple_action('msvc_ar_link_static', static_link_str, color='YELLOW', prio=101)
+Action.Action('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
+Action.Action('msvc_cpp_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
 
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 Action.simple_action('rc', rc_str, color='GREEN', prio=50)
