@@ -241,7 +241,8 @@ class ocamlobj(Object.task_gen):
 			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
 def trait_ocaml(self):
-	self.meths.update(OCAML_METHS)
+	if 'ocaml' in self.features or self.__class__.__name__ == 'ocamlobj':
+		self.meths.update(OCAML_METHS)
 if not trait_ocaml in Object.task_gen.traits: Object.task_gen.traits.append(trait_ocaml)
 
 def apply_incpaths_ml(self):
