@@ -34,8 +34,7 @@ def nasm_file(self, node):
 
 	self.compiled_tasks.append(task)
 
-	if not 'apply_nasm_vars' in self.meths:
-		self.meths = ['apply_nasm_vars'] + self.meths
+	self.meths.add('apply_nasm_vars')
 
 # create our action here
 Action.simple_action('nasm', nasm_str, color='BLUE', prio=40)

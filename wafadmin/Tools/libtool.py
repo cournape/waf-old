@@ -16,7 +16,7 @@ if you want to use the code here, you must add the following two methods:
 To do so, use a code similar to the following:
 obj = obj.create(...)
 obj.want_libtool = 1
-obj.meths += ['apply_libtool', 'apply_link_libtool']
+obj.meths.update(['apply_libtool', 'apply_link_libtool'])
 """
 
 # fake libtool files

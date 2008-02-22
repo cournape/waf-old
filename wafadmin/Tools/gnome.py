@@ -138,7 +138,7 @@ class gnome_sgml2man(Object.genobj):
 
 def add_marshal_file(self, filename, prefix, mode):
 	if not hasattr(self, 'marshal_lst'): self.marshal_lst = []
-	if not 'process_marshal' in self.meths: self.meths = ['process_marshal']+self.meths
+	self.meths.add('process_marshal')
 	self.marshal_lst.append([filename, prefix, mode])
 Object.gen_hook(add_marshal_file)
 
@@ -179,7 +179,7 @@ Object.declare_order('process_dbus', 'apply_core')
 
 def add_dbus_file(self, filename, prefix, mode):
 	if not hasattr(self, 'dbus_lst'): self.dbus_lst = []
-	if not 'process_dbus' in self.meths: self.meths = ['process_dbus']+self.meths
+	self.meths.add('process_dbus')
 	self.dbus_lst.append([filename, prefix, mode])
 Object.gen_hook(add_dbus_file)
 
