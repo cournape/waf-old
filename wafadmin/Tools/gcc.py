@@ -9,6 +9,35 @@ import Params, Configure
 
 import ccroot
 
+"""
+An alternate way of organizing the code (avoid the if/else trees):
+
+@provides PLATFORM
+def detect_platform():
+	if not conf.env['PLATFORM']:
+		conf.env['PLATFORM'] = sys.platform
+
+@provides CC
+def program_gcc():
+	conf.env['CC'] = 'cc'
+
+@requires PLATFORM
+def flags_aix5_gcc():
+	if PLATFORM == aix5:
+		conf.env['shlib_ext'] = '_sh.o'
+
+checks_c = [detect_platform, program_gcc, flags_aix5_gcc]
+
+And to use:
+env.detect_tests(checks_c)
+
+The annotations would be checked automatically for
+the various constraints (missing variable, ..)
+
+
+"""
+
+
 def detect(conf):
 	try:
 		debug_level = Params.g_options.debug_level.upper()
@@ -231,6 +260,8 @@ def detect(conf):
 	if not ret:
 		conf.fatal("no static libs")
 
+
+	# FIXME make these checks totally optional
 	# compiler debug levels
 	if conf.check_flags('-Wall'):
 		v['CCFLAGS'] = ['-Wall']
