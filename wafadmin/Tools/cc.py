@@ -28,9 +28,6 @@ class ccobj(ccroot.ccroot):
 		self.ccflags=''
 		self.cppflags=''
 
-		global g_cc_flag_vars
-		self.p_flag_vars = g_cc_flag_vars
-
 		global g_cc_type_vars
 		self.p_type_vars = g_cc_type_vars
 
@@ -38,6 +35,8 @@ def trait_cc(obj):
 	if 'cc' in obj.features or obj.__class__.__name__ == 'ccobj':
 		meths = obj.meths
 		obj.meths += [y for y in CC_METHS if not y in meths]
+		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars += [x for x in g_cc_flag_vars if not x in obj.p_flag_vars]
+		else: obj.p_flag_vars = g_cc_flag_vars
 if not trait_cc in Object.task_gen.traits: Object.task_gen.traits.append(trait_cc)
 
 def apply_obj_vars_cc(self):

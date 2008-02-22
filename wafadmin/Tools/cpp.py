@@ -29,9 +29,6 @@ class cppobj(ccroot.ccroot):
 		self.cxxflags=''
 		self.cppflags=''
 
-		global g_cpp_flag_vars
-		self.p_flag_vars = g_cpp_flag_vars
-
 		global g_cpp_type_vars
 		self.p_type_vars = g_cpp_type_vars
 
@@ -40,6 +37,8 @@ def trait_cxx(obj):
 		meths = obj.meths
 		obj.meths += [y for y in CXX_METHS if not y in meths]
 		obj.mappings['.c'] = Object.task_gen.mappings['.cxx']
+		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars += [x for x in g_cpp_flag_vars if not x in obj.p_flag_vars]
+		else: obj.p_flag_vars = g_cpp_flag_vars
 if not trait_cxx in Object.task_gen.traits: Object.task_gen.traits.append(trait_cxx)
 
 def apply_obj_vars_cxx(self):
