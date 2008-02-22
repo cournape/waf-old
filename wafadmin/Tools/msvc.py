@@ -13,6 +13,8 @@ import ccroot, cc, cpp
 from ccroot import read_la_file
 from os.path import exists
 
+MSVC_METHS = ['apply_link_msvc', 'apply_msvc_obj_vars']
+
 def msvc_linker(task):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
 	and executables compiled by Visual Studio 2005 or probably later. Without
@@ -259,9 +261,9 @@ Object.declare_order('apply_core', 'apply_link_msvc', 'apply_obj_vars_cxx', 'app
 def trait_msvc(self):
 	"if linking is done with msvc, add two more methods, and remove apply_link"
 	if not self.env['MSVC']: return
-	self.meths += ['apply_link_msvc', 'apply_msvc_obj_vars']
+	self.meths.update(MSVC_METHS)
 	try: self.meths.remove('apply_link')
-	except ValueError: pass
+	except KeyError: pass
 	self.libpaths = getattr(self, 'libpaths', '')
 if not trait_msvc in Object.task_gen.traits: Object.task_gen.traits.append(trait_msvc)
 
