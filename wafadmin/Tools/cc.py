@@ -15,7 +15,10 @@ g_cc_flag_vars = [
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
 EXT_CC = ['.c', '.cc']
+CC_METHS = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
+	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars', 'apply_objdeps', 'install',]
 
+# TODO get rid of that class
 g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 class ccobj(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
@@ -25,14 +28,17 @@ class ccobj(ccroot.ccroot):
 		self.ccflags=''
 		self.cppflags=''
 
-		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
-            'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars', 'apply_objdeps', 'install',]
-
 		global g_cc_flag_vars
 		self.p_flag_vars = g_cc_flag_vars
 
 		global g_cc_type_vars
 		self.p_type_vars = g_cc_type_vars
+
+def trait_cc(obj):
+	if 'cc' in obj.features or obj.__class__.__name__ == 'ccobj':
+		meths = obj.meths
+		obj.meths += [y for y in CC_METHS if not y in meths]
+if not trait_cc in Object.task_gen.traits: Object.task_gen.traits.append(trait_cc)
 
 def apply_obj_vars_cc(self):
 	debug('apply_obj_vars_cc', 'ccroot')

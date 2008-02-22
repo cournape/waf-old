@@ -16,7 +16,10 @@ g_cpp_flag_vars = [
 "main cpp variables"
 
 EXT_CXX = ['.cpp', '.cc', '.cxx', '.C']
+CXX_METHS = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx', 'apply_core',
+	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars', 'apply_objdeps', 'install',]
 
+# TODO get rid of that class
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
 class cppobj(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
@@ -26,16 +29,18 @@ class cppobj(ccroot.ccroot):
 		self.cxxflags=''
 		self.cppflags=''
 
-		self.meths = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx', 'apply_core',
-            'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars', 'apply_objdeps', 'install',]
-
-		self.mappings['.c'] = Object.task_gen.mappings['.cpp']
-
 		global g_cpp_flag_vars
 		self.p_flag_vars = g_cpp_flag_vars
 
 		global g_cpp_type_vars
 		self.p_type_vars = g_cpp_type_vars
+
+def trait_cxx(obj):
+	if 'cxx' in obj.features or obj.__class__.__name__ == 'cppobj':
+		meths = obj.meths
+		obj.meths += [y for y in CXX_METHS if not y in meths]
+		obj.mappings['.c'] = Object.task_gen.mappings['.cxx']
+if not trait_cxx in Object.task_gen.traits: Object.task_gen.traits.append(trait_cxx)
 
 def apply_obj_vars_cxx(self):
 	debug('apply_obj_vars_cxx', 'ccroot')

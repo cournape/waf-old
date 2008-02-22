@@ -41,8 +41,6 @@ class ccroot(Object.task_gen):
 	def __init__(self, type='program', subtype=None):
 		Object.task_gen.__init__(self)
 
-		self.env = Params.g_build.env().copy()
-
 		# TODO obsolete
 		self.m_type = type
 
