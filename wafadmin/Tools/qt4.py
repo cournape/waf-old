@@ -20,6 +20,8 @@ EXT_RCC = ['.qrc']
 EXT_UI  = ['.ui']
 EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C', '.c']
 
+QT4_METHS = ['apply_qt4']
+
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
 	def __init__(self, action_name, env, parent, priority=10):
@@ -163,8 +165,12 @@ class qt4obj(cpp.cppobj):
 		self.lang = ''
 		self.langname = ''
 		self.update = 0
+		self.features.append('cxx')
 
-		self.meths += ['apply_qt4']
+def trait_qt4(self):
+	if 'qt4' in self.features or self.__class__.__name__ == 'qt4obj':
+		self.meths.update(QT4_METHS)
+if not trait_qt4 in Object.task_gen.traits: Object.task_gen.traits.append(trait_qt4)
 
 def apply_qt4(self):
 	if self.lang:
