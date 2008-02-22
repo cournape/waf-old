@@ -35,7 +35,7 @@ def trait_cc(obj):
 	if 'cc' in obj.features or obj.__class__.__name__ == 'ccobj':
 		meths = obj.meths
 		obj.meths += [y for y in CC_METHS if not y in meths]
-		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars += [x for x in g_cc_flag_vars if not x in obj.p_flag_vars]
+		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars = set(obj.p_flag_vars).union(g_cc_flag_vars)
 		else: obj.p_flag_vars = g_cc_flag_vars
 if not trait_cc in Object.task_gen.traits: Object.task_gen.traits.append(trait_cc)
 
