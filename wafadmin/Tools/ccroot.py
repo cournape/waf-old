@@ -431,7 +431,7 @@ def process_obj_files(self):
 
 def add_obj_file(self, file):
 	if not hasattr(self, 'obj_files'): self.obj_files = []
-	if not 'process_obj_files' in self.meths: self.meths.append('process_obj_files')
+	if not 'process_obj_files' in self.meths: self.meths.add('process_obj_files')
 	self.obj_files.append(file)
 
 Object.gen_hook(add_obj_file)
