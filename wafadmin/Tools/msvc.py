@@ -238,12 +238,12 @@ Object.gen_hook(apply_link_msvc)
 Object.declare_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
 Object.declare_order('apply_link', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
 
-def feature_msvc(self):
+def trait_msvc(self):
 	"if linking is done with msvc, add two more methods"
 	if not self.env['MSVC']: return
 	self.meths += ['apply_link_msvc', 'apply_msvc_obj_vars']
 	self.libpaths = getattr(self, 'libpaths', '')
-Object.task_gen.traits.append(feature_msvc)
+if not trait_msvc in Object.task_gen.traits: Object.task_gen.traits.append(trait_msvc)
 
 # TODO the following part needs more love
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
