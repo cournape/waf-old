@@ -34,8 +34,7 @@ class cppobj(ccroot.ccroot):
 
 def trait_cxx(obj):
 	if 'cxx' in obj.features or obj.__class__.__name__ == 'cppobj':
-		meths = obj.meths
-		obj.meths += [y for y in CXX_METHS if not y in meths]
+		obj.meths.update(CXX_METHS)
 		obj.mappings['.c'] = Object.task_gen.mappings['.cxx']
 		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars = set(obj.p_flag_vars).union(g_cpp_flag_vars)
 		else: obj.p_flag_vars = g_cpp_flag_vars

@@ -134,7 +134,7 @@ class task_gen(object):
 		self.target = ''
 
 		# list of methods to execute
-		self.meths = []
+		self.meths = set()
 
 		# list of mappings extension -> function
 		self.mappings = {}
