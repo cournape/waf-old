@@ -254,9 +254,7 @@ def apply_link(self):
 		linktask = self.create_task('ar_link_static', self.env)
 	else:
 		linktask = self.create_task(self.m_type_initials+'_link', self.env)
-	outputs = []
-	app = outputs.append
-	for t in self.compiled_tasks: app(t.m_outputs[0])
+	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_build(get_target_name(self)))
 
