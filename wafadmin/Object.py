@@ -26,6 +26,8 @@ import copy
 import os, types, traceback
 import Params, Task, Common, Node, Utils
 from Params import debug, error, fatal
+# TODO compatibility with python 2.3?
+#if sys.hexversion < 0x020400f: from sets import Set as set
 
 typos = {
 'sources':'source',
