@@ -9,6 +9,7 @@ import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
 
 EXT_D = ['.d', '.di', '.D']
+D_METHS = ['apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install']
 
 def filter_comments(filename):
 	f = open(filename, 'r')
@@ -245,7 +246,10 @@ class dobj(Object.task_gen):
 
 		self.add_objects = []
 
-		self.meths = ['apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install']
+def trait_d(obj):
+	if 'd' in obj.features or obj.__class__.__name__ == 'dobj':
+		obj.meths.update(D_METHS)
+if not trait_d in Object.task_gen.traits: Object.task_gen.traits.append(trait_d)
 
 def apply_d_libs(self):
 	uselib = self.to_list(self.uselib)
