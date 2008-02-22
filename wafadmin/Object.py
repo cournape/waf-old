@@ -136,6 +136,12 @@ class task_gen(object):
 		# list of methods to execute
 		self.meths = []
 
+		# list of mappings extension -> function
+		self.mappings = {}
+
+		# list of features (see the documentation on traits)
+		self.features = []
+
 		# not always a good idea
 		self.m_tasks = []
 
@@ -143,7 +149,6 @@ class task_gen(object):
 		self.inst_var = '' # 0 to prevent installation
 		self.inst_dir = ''
 
-		self.mappings = {}
 
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
@@ -227,7 +232,10 @@ class task_gen(object):
 		keys = self.meths
 
 		# last minute modification of self.meths
-		for x in task_gen.traits: x()
+		#print task_gen.traits
+		for x in task_gen.traits:
+			#print "running", x.__name__
+			x(self)
 
 		# copy the precedence table with the keys in self.meths
 		prec = {}
@@ -273,7 +281,7 @@ class task_gen(object):
 
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
-		if not self.env: self.env = Params.g_build.m_allenvs['default']
+		if not self.env: self.env = Params.g_build.m_allenvs['default'].copy()
 		if not self.name: self.name = self.target
 
 		if self.m_posted:
