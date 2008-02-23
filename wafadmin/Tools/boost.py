@@ -15,7 +15,6 @@ def detect_boost(conf):
 	opt = Params.g_options
 
 	want_asio = 0
-	v=conf.env.copy()
 
 	if env['WANT_BOOST']:
 		if type(env['WANT_BOOST']) is types.StringType:
