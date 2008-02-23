@@ -149,8 +149,6 @@ def process_marshal(self):
 		if not node:
 			fatal('file not found on gnome obj '+i[0])
 
-		env = self.env.copy()
-
 		if i[2] == '--header':
 
 			env['GGM_PREFIX'] = i[1]
@@ -189,8 +187,6 @@ def process_dbus(self):
 
 		if not node:
 			fatal('file not found on gnome obj '+i[0])
-
-		env = self.env.copy()
 
 		env['DBT_PREFIX'] = i[1]
 		env['DBT_MODE']   = i[2]
