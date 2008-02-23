@@ -107,12 +107,8 @@ def vala_file(self, node):
 	valatask.set_outputs(output_nodes)
 
 	for node in valatask.m_outputs:
-		if not node.m_name.endswith('.c'):
-			continue
-		task = self.create_task('cc')
-		task.set_inputs(node)
-		task.set_outputs(node.change_ext('.o'))
-		self.compiled_tasks.append(task)
+		if node.m_name.endswith('.c'):
+			self.allnodes.append(node)
 
 # create our action here
 ValacAction()
