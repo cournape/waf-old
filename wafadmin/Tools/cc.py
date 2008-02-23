@@ -18,8 +18,9 @@ EXT_CC = ['.c', '.cc']
 CC_METHS = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
 	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars', 'apply_objdeps', 'install',]
 
-# TODO get rid of that class
-g_cc_type_vars=['CCFLAGS', 'LINKFLAGS', 'obj_ext']
+g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS', 'obj_ext']
+
+# TODO get rid of this
 class ccobj(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
@@ -36,6 +37,9 @@ def trait_cc(obj):
 		obj.meths.update(CC_METHS)
 		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars = set(obj.p_flag_vars).union(g_cc_flag_vars)
 		else: obj.p_flag_vars = g_cc_flag_vars
+
+		if hasattr(obj, 'p_type_vars'):	obj.p_type_vars = set(obj.p_type_vars).union(g_cc_type_vars)
+		else: obj.p_type_vars = g_cc_type_vars
 if not trait_cc in Object.task_gen.traits: Object.task_gen.traits.append(trait_cc)
 
 def apply_obj_vars_cc(self):

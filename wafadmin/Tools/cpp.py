@@ -29,15 +29,15 @@ class cppobj(ccroot.ccroot):
 		self.cxxflags=''
 		self.cppflags=''
 
-		global g_cpp_type_vars
-		self.p_type_vars = g_cpp_type_vars
-
 def trait_cxx(obj):
 	if 'cxx' in obj.features or obj.__class__.__name__ == 'cppobj':
 		obj.meths.update(CXX_METHS)
 		obj.mappings['.c'] = Object.task_gen.mappings['.cxx']
 		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars = set(obj.p_flag_vars).union(g_cpp_flag_vars)
 		else: obj.p_flag_vars = g_cpp_flag_vars
+
+		if hasattr(obj, 'p_type_vars'):	obj.p_type_vars = set(obj.p_type_vars).union(g_cpp_type_vars)
+		else: obj.p_type_vars = g_cpp_type_vars
 if not trait_cxx in Object.task_gen.traits: Object.task_gen.traits.append(trait_cxx)
 
 def apply_obj_vars_cxx(self):
