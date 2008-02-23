@@ -15,8 +15,6 @@ EXT_BISON_C = '.tab.c'
 
 def yc_file(self, node):
 	c_ext = EXT_BISON_C
-	if 'cxx' in self.features: c_ext += 'pp'
-	h_ext = c_ext.replace('.c', '.h')
 
 	# figure out what nodes bison will build TODO simplify
 	sep = node.m_name.rfind(os.extsep)
@@ -26,10 +24,13 @@ def yc_file(self, node):
 	else:
 		endstr = ""
 
+	c_ext = c_ext + endstr
+	h_ext = c_ext.replace('c', 'h')
+
 	# set up the nodes
-	c_node = node.change_ext(c_ext + endstr)
+	c_node = node.change_ext(c_ext)
 	if '-d' in self.env['BISONFLAGS']:
-		newnodes = [c_node, node.change_ext(h_ext+endstr)]
+		newnodes = [c_node, node.change_ext(h_ext)]
 	else:
 		newnodes = [c_node]
 
