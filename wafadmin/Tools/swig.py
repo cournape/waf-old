@@ -3,6 +3,14 @@
 # Petar Forai
 # Thomas Nagy
 
+print """
+WARNING: You are using the swig tool!
+         This tool is marked as beeing deprecated! use with caution! It 
+         may be removed from waf in te future and it's not supported.
+         Swig is known to produce broken code!                     
+ 
+"""
+
 import re
 import Action, Scan, Params, Object
 from Params import fatal
