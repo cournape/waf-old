@@ -11,7 +11,7 @@ flex_str = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}'
 EXT_FLEX = ['.l']
 
 def l_file(self, node):
-	if self.__class__.__name__ == 'cppobj': ext = '.lex.cc'
+	if 'cxx' in self.features: ext = '.lex.cc'
 	else: ext = '.lex.c'
 
 	out_source = node.change_ext(ext)

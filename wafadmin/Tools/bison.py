@@ -15,8 +15,7 @@ EXT_BISON_C = '.tab.c'
 
 def yc_file(self, node):
 	c_ext = EXT_BISON_C
-	if self.__class__.__name__ == 'cppobj':
-		c_ext += 'pp'
+	if 'cxx' in self.features: c_ext += 'pp'
 	h_ext = c_ext.replace('.c', '.h')
 
 	# figure out what nodes bison will build TODO simplify
