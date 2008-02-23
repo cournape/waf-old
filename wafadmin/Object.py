@@ -24,7 +24,7 @@ WARNING 2 subclasses must reimplement the clone method to avoid problems with 'd
 
 import copy
 import os, types, traceback
-import Params, Task, Common, Node, Utils
+import Params, Task, Common, Node, Utils, Action
 from Params import debug, error, fatal
 # TODO compatibility with python 2.3?
 #if sys.hexversion < 0x020400f: from sets import Set as set
@@ -388,6 +388,47 @@ def declare_order(*k):
 			if not f1 in task_gen.prec[f2]: task_gen.prec[f2].append(f1)
 		except:
 			task_gen.prec[f2] = [f1]
+
+
+
+def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40):
+	"""
+	something like this might be used (could be useful for the modules: flex, dang, nasm)
+
+def decide_ext(self):
+    if 'cxx' in self.features: return '.lex.cc'
+    else: return '.lex.c'
+
+Object.declare_chain(
+    name = 'flex',
+    action = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}',
+    ext_in = ['.l'],
+    ext_out = decide_ext,
+    prio=40
+)"""
+
+	if type(action) == types.StringType:
+		Action.simple_action(name, action, color=color, prio=prio)
+	else:
+		name = action.name
+
+	def x_file(self, node):
+		if type(ext_out) == types.StringType:
+			ext = ext_out
+		else:
+			ext = ext_out(self)
+
+		out_source = node.change_ext(ext)
+
+		ltask = self.create_task(name)
+		ltask.set_inputs(node)
+		ltask.set_outputs(out_source)
+
+		# mark the file produced as a source
+		if reentrant:
+			self.allnodes.append(out_source)
+
+	declare_extension(ext_in, x_file)
 
 g_cache_max={}
 def sign_env_vars(env, vars_list):
