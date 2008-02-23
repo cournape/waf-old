@@ -10,35 +10,21 @@ bison_str = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspat
 
 EXT_BISON = ['.y', '.yc']
 
-# we register our extensions to global variables
-EXT_BISON_C = '.tab.c'
-
 def yc_file(self, node):
-	c_ext = EXT_BISON_C
-
-	# figure out what nodes bison will build TODO simplify
-	sep = node.m_name.rfind(os.extsep)
-	endstr = node.m_name[sep+1:]
-	if len(endstr) > 1:
-		endstr = endstr[1:]
-	else:
-		endstr = ""
-
-	c_ext = c_ext + endstr
+	c_ext = '.tab.c'
+	if node.m_name.endswith('.yc'): c_ext = '.tab.cc'
 	h_ext = c_ext.replace('c', 'h')
 
 	# set up the nodes
 	c_node = node.change_ext(c_ext)
-	if '-d' in self.env['BISONFLAGS']:
-		newnodes = [c_node, node.change_ext(h_ext)]
-	else:
-		newnodes = [c_node]
+	if '-d' in self.env['BISONFLAGS']: newnodes = [c_node, node.change_ext(h_ext)]
+	else: newnodes = [c_node]
 
 	yctask = self.create_task('bison')
 	yctask.set_inputs(node)
 	yctask.set_outputs(newnodes)
 
-	self.allnodes.append(newnodes[0])
+	self.allnodes.append(c_node)
 
 # create our action here
 Action.simple_action('bison', bison_str, color='BLUE', prio=40)
