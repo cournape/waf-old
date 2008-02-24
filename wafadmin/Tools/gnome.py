@@ -51,9 +51,9 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
 # give specs
-class xml_to(Object.genobj):
+class xml_to(Object.task_gen):
 	def __init__(self):
-		Object.genobj(self, 'other')
+		Object.task_gen(self)
 		self.source = 'xmlfile'
 		self.xslt = 'xlsltfile'
 		self.target = 'hey'
@@ -101,9 +101,9 @@ class sgml_man_scanner(Scan.scanner):
 
 sgml_scanner = sgml_man_scanner()
 
-class gnome_sgml2man(Object.genobj):
+class gnome_sgml2man(Object.task_gen):
 	def __init__(self, appname):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 		self.m_tasks=[]
 		self.m_appname = appname
 	def apply(self):
