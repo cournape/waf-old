@@ -156,10 +156,10 @@ def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
 
 g_texobjs = ['latex','pdflatex']
-class texobj(Object.genobj):
+class texobj(Object.task_gen):
 	s_default_ext = ['.tex', '.ltx']
 	def __init__(self, type='latex'):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 
 		global g_texobjs
 		if not type in g_texobjs:
