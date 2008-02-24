@@ -16,7 +16,7 @@ g_cc_flag_vars = [
 
 EXT_CC = ['.c', '.cc']
 CC_METHS = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
-	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars', 'apply_objdeps', 'install',]
+	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars', 'apply_objdeps']
 
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS', 'obj_ext']
 
