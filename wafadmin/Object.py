@@ -155,7 +155,8 @@ class task_gen(object):
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
 
-		self.env = None
+		self.env = Params.g_build.m_allenvs['default'].copy()
+
 		self.m_posted = 0
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
@@ -289,7 +290,6 @@ class task_gen(object):
 
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
-		if not self.env: self.env = Params.g_build.m_allenvs['default'].copy()
 		if not self.name: self.name = self.target
 
 		if self.m_posted:
