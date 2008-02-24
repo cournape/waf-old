@@ -313,8 +313,7 @@ class task_gen(object):
 			raise AttributeError, "tried to retrieve %s which is not a valid method" % name
 
 	def create_task(self, type, env=None, nice=None):
-		if env is None: env=self.env
-		task = Task.Task(type, env)
+		task = Task.Task(type, env or self.env)
 		if not (nice is None): task.prio = nice
 		self.m_tasks.append(task)
 		return task
