@@ -9,54 +9,25 @@ import os, sys
 import Object, Action, Utils, Params, Common, Utils
 import pproc as subprocess
 
-class pyobj(Object.genobj):
-	s_default_ext = ['.py']
+def process_py(self, node):
+	if self.env['PYC']:
+		task = self.create_task('pyc', self.env)
+		task.set_inputs(node)
+		task.set_outputs(node.change_ext('.pyc'))
+	if self.env['PYO']:
+		task = self.create_task('pyo', self.env)
+		task.set_inputs(node)
+		task.set_outputs(node.change_ext('.pyo'))
+
+Object.declare_extension('.py', process_py)
+
+class pyobj(Object.task_gen):
 	def __init__(self, env=None):
-		Object.genobj.__init__(self, 'other')
-		self.pyopts = ''
+		Object.task_gen.__init__(self)
 
 		self.inst_var = 'PYTHONDIR'
 		self.inst_dir = ''
 		self.chmod = 0644
-
-		self.env = env
-		if not self.env: self.env = Params.g_build.env().copy()
-		self.pyc = self.env['PYC']
-		self.pyo = self.env['PYO']
-
-	def apply(self):
-		find_source_lst = self.path.find_source_lst
-
-		envpyo = self.env.copy()
-		envpyo['PYCMD']
-
-		# first create the nodes corresponding to the sources
-		for filename in self.to_list(self.source):
-			node = find_source_lst(Utils.split_path(filename))
-			if node is None:
-				Params.fatal("Python source '%s' not found" % filename)
-
-			base, ext = os.path.splitext(filename)
-			#node = self.path.find_build(filename)
-			if not ext in self.s_default_ext:
-				fatal("unknown file "+filename)
-
-			# Extract the extension and look for a handler hook.
-			k = max(0, filename.rfind('.'))
-			try:
-				self.get_hook(filename[k:])(self, node)
-				continue
-			except TypeError:
-				pass
-
-			if self.pyc:
-				task = self.create_task('pyc', self.env)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.pyc'))
-			if self.pyo:
-				task = self.create_task('pyo', self.env)
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.pyo'))
 
 	def install(self):
 		for i in self.m_tasks:
@@ -65,7 +36,6 @@ class pyobj(Object.genobj):
 			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)
 			lst=[a.relpath_gen(current) for a in i.m_inputs]
 			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)
-			#self.install_results(self.inst_var, self.inst_dir, i)
 
 Object.register('py', pyobj)
 Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
@@ -118,7 +88,7 @@ def check_python_headers(conf):
 	assert python, ("python is %r !" % (python,))
 
 	try:
-		## Get some python configuration variables using distutils
+		# Get some python configuration variables using distutils
 		v = 'prefix SO SYSLIBS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
 		(python_prefix, python_SO, python_SYSLIBS, python_SHLIBS,
 		 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED) = \
@@ -130,7 +100,7 @@ def check_python_headers(conf):
 	env['pyext_PREFIX'] = ''
 	env['pyext_SUFFIX'] = python_SO
 
-	## Check for python libraries for embedding
+	# Check for python libraries for embedding
 	if python_SYSLIBS is not None:
 		for lib in python_SYSLIBS.split():
 			if lib.startswith('-l'):
@@ -180,27 +150,27 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		env.append_value('LIB_PYEMBED', lib.name)
 
 
-	# according to 
+	# according to
 	# distutils.command.build_ext.build_ext.get_libraries.__doc__
 	# this might want to be OS/2 aswell.
 	if sys.platform == 'win32' or (Py_ENABLE_SHARED is not None
-					and sys.platform != 'darwin'):
+			and sys.platform != 'darwin'):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
-	## We check that pythonX.Y-config exists, and if it exists we
-	## use it to get only the includes, else fall back to distutils.
+	# We check that pythonX.Y-config exists, and if it exists we
+	# use it to get only the includes, else fall back to distutils.
 	python_config = conf.find_program(
 		'python%s-config' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
 		var='PYTHON_CONFIG')
 	if python_config:
 		includes = []
 		for incstr in os.popen("%s %s --includes" % (python, python_config)).readline().strip().split():
-			## strip the -I or /I
+			# strip the -I or /I
 			if (incstr.startswith('-I')
 			    or incstr.startswith('/I')):
 				incstr = incstr[2:]
-			## append include path, unless already given
+			# append include path, unless already given
 			if incstr not in includes:
 				includes.append(incstr)
 		env['CPPPATH_PYEXT'] = list(includes)
@@ -209,7 +179,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		env['CPPPATH_PYEXT'] = [INCLUDEPY]
 		env['CPPPATH_PYEMBED'] = [INCLUDEPY]
 
-	## Code using the Python API needs to be compiled with -fno-strict-aliasing
+	# Code using the Python API needs to be compiled with -fno-strict-aliasing
 	if env['CC']:
 		version = os.popen("%s --version" % env['CC']).readline()
 		if '(GCC)' in version:
@@ -221,7 +191,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
 			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
-	## Test to see if it compiles
+	# Test to see if it compiles
 	header = conf.create_header_configurator()
 	header.name = 'Python.h'
 	header.define = 'HAVE_PYTHON_H'
@@ -230,8 +200,6 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	result = header.run()
 	if not result:
 		conf.fatal("Python development headers not found.")
-
-
 
 def check_python_version(conf, minver=None):
 	"""
@@ -248,7 +216,7 @@ def check_python_version(conf, minver=None):
 	python = conf.env['PYTHON']
 	assert python, ("python is %r !" % (python,))
 
-	## Get python version string
+	# Get python version string
 	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print str(x)"]
 	Params.debug("Running python command %r" % cmd, 'python')
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -256,11 +224,11 @@ def check_python_version(conf, minver=None):
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
 	pyver_tuple = (int(lines[0]), int(lines[1]), int(lines[2]), lines[3], int(lines[4]))
 
-	## compare python version with the minimum required
+	# compare python version with the minimum required
 	result = (minver is None) or (pyver_tuple >= minver)
 
 	if result:
-		## define useful environment variables
+		# define useful environment variables
 		pyver = '.'.join([str(x) for x in pyver_tuple[:2]])
 		conf.env['PYTHON_VERSION'] = pyver
 
@@ -283,7 +251,7 @@ def check_python_version(conf, minver=None):
 		conf.define('PYTHONDIR', pydir)
 		conf.env['PYTHONDIR'] = pydir
 
-	## Feedback
+	# Feedback
 	pyver_full = '.'.join(map(str, pyver_tuple[:3]))
 	if minver is None:
 		conf.check_message_custom('Python version', '', pyver_full)
@@ -294,7 +262,6 @@ def check_python_version(conf, minver=None):
 	if not result:
 		conf.fatal("Python too old.")
 
-
 def check_python_module(conf, module_name):
 	"""
 	Check if the selected python interpreter can import the given python module.
@@ -304,7 +271,6 @@ def check_python_module(conf, module_name):
 	conf.check_message('Python module', module_name, result)
 	if not result:
 		conf.fatal("Python module not found.")
-
 
 def detect(conf):
 	python = conf.find_program('python', var='PYTHON')
