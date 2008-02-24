@@ -9,7 +9,7 @@ import Object
 Object.declare_chain(
 	name = 'dang',
 	action = '${DANG} ${SRC} > ${TGT}',
-	ext_in = ['.coin'],
+	ext_in = '.coin',
 	ext_out = '.cpp'
 )
 

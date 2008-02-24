@@ -14,7 +14,7 @@ def decide_ext(self, node):
 Object.declare_chain(
 	name = 'flex',
 	action = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}',
-	ext_in = ['.l'],
+	ext_in = '.l',
 	ext_out = decide_ext
 )
 

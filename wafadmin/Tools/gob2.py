@@ -2,24 +2,14 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
-import Action, Object
+import Object
 
-gob2_str = '${GOB2} -o ${TGT[0].bld_dir(env)} ${GOB2FLAGS} ${SRC}'
-
-EXT_GOB2 = ['.gob']
-
-def gob2_file(self, node):
-	out_source = node.change_ext('.c')
-
-	gob2task = self.create_task('gob2')
-	gob2task.set_inputs(node)
-	gob2task.set_outputs(out_source)
-
-	self.allnodes.append(out_source)
-
-# create our action here
-Action.simple_action('gob2', gob2_str, color='BLUE', prio=40)
-Object.declare_extension(EXT_GOB2, gob2_file)
+Object.declare_chain(
+	name = 'gob2',
+	action = '${GOB2} -o ${TGT[0].bld_dir(env)} ${GOB2FLAGS} ${SRC}',
+	ext_in = '.gob',
+	ext_out = '.c'
+)
 
 def detect(conf):
 	gob2 = conf.find_program('gob2', var='GOB2')
