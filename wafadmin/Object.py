@@ -392,20 +392,7 @@ def declare_order(*k):
 
 
 def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40):
-	"""
-	something like this might be used (could be useful for the modules: flex, dang, nasm)
-
-def decide_ext(self):
-    if 'cxx' in self.features: return '.lex.cc'
-    else: return '.lex.c'
-
-Object.declare_chain(
-    name = 'flex',
-    action = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}',
-    ext_in = ['.l'],
-    ext_out = decide_ext,
-    prio=40
-)"""
+	"""see Tools/flex.py for an example"""
 
 	if type(action) == types.StringType:
 		Action.simple_action(name, action, color=color, prio=prio)
@@ -416,17 +403,23 @@ Object.declare_chain(
 		if type(ext_out) == types.StringType:
 			ext = ext_out
 		else:
-			ext = ext_out(self)
+			ext = ext_out(self, node)
 
-		out_source = node.change_ext(ext)
+		if type(ext) == types.StringType:
+			out_source = node.change_ext(ext)
+			if reentrant:
+				self.allnodes.append(out_source)
+		elif type(ext) == types.ListType:
+			out_source = [node.change_ext(x) for x in ext]
+			if reentrant:
+				for i in xrange(reentrant):
+					self.allnodes.append(out_source[i])
+		else:
+			fatal("do not know how to process %s" % str(ext))
 
 		ltask = self.create_task(name)
 		ltask.set_inputs(node)
 		ltask.set_outputs(out_source)
-
-		# mark the file produced as a source
-		if reentrant:
-			self.allnodes.append(out_source)
 
 	declare_extension(ext_in, x_file)
 
