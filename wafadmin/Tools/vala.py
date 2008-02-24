@@ -116,8 +116,7 @@ Object.declare_extension(EXT_VALA, vala_file)
 
 def detect(conf):
 	valac = conf.find_program('valac', var='VALAC')
-	if not valac:
-		return
+	if not valac: conf.fatal('Could not find the valac compiler anywhere')
 	conf.env['VALAC'] = valac
 	conf.env['VALAFLAGS'] = ''
 
