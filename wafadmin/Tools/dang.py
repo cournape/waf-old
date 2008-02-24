@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"Demo: this hook is called when the class cppobj encounters a '.coin' file: X{.coin -> .cpp -> .o}"
+"Demo: '.coin' files are converted into cpp files using 'cat': {.coin -> .cpp -> .o}"
 
 import Object
 
