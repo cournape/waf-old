@@ -77,6 +77,7 @@ def path_install(var, subdir, env=None):
 
 def install_files(var, subdir, files, env=None, chmod=0644):
 	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
+	if var == 0: return
 
 	bld = Params.g_build
 	if not env: env=Params.g_build.m_allenvs['default']
@@ -118,6 +119,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 
 def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
+	if var == 0: return
 
 	bld = Params.g_build
 	if not env: env=Params.g_build.m_allenvs['default']
@@ -143,6 +145,7 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 
 def symlink_as(var, src, dest, env=None):
 	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
+	if var == 0: return
 
 	bld = Params.g_build
 	if not env: env=Params.g_build.m_allenvs['default']
