@@ -270,6 +270,9 @@ def detect(conf):
 	dbus_binding_tool = conf.find_program('dbus-binding-tool')
 	conf.env['DBT'] = dbus_binding_tool
 
+	mk_enums_tool = conf.find_program('glib-mkenums')
+	conf.env['GLIB_MKENUM'] = mk_enums_tool
+
 	def getstr(varname):
 		return getattr(Params.g_options, varname, '')
 
