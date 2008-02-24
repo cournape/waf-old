@@ -10,9 +10,9 @@ import cc
 from Params import fatal, error
 
 # intltool
-class intltool_in(Object.genobj):
+class intltool_in(Object.task_gen):
 	def __init__(self):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 		self.source  = ''
 		self.destvar = ''
 		self.subdir  = ''
@@ -44,9 +44,9 @@ class intltool_in(Object.genobj):
 			out = task.m_outputs[0]
 			Common.install_files(self.destvar, self.subdir, out.abspath(self.env), self.env)
 
-class intltool_po(Object.genobj):
+class intltool_po(Object.task_gen):
 	def __init__(self, appname='set_your_app_name'):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 		self.chmod = 0644
 		self.inst_var = 'LOCALEDIR'
 		self.appname = appname
