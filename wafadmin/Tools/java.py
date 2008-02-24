@@ -7,10 +7,10 @@
 import os
 import Object, Action, Utils, Params
 
-class javaobj(Object.genobj):
+class javaobj(Object.task_gen):
 	s_default_ext = ['.java']
 	def __init__(self):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 
 		self.jarname = ''
 		self.jaropts = ''
