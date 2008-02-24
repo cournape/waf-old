@@ -391,7 +391,7 @@ def declare_order(*k):
 
 
 
-def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40):
+def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40, install=0):
 	"""see Tools/flex.py for an example"""
 
 	if type(action) == types.StringType:
@@ -420,6 +420,12 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 		ltask = self.create_task(name)
 		ltask.set_inputs(node)
 		ltask.set_outputs(out_source)
+
+		if install:
+			if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
+			if self.inst_var == 0: return
+			lst = [a.relpath_gen(self.path) for a in ltask.m_outputs]
+			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)
 
 	declare_extension(ext_in, x_file)
 
