@@ -4,9 +4,9 @@
 
 import os, sys, re, Object, Action, Utils, Common
 
-class langobj(Object.genobj):
+class langobj(Object.task_gen):
 	def __init__(self, appname='set_your_app_name'):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 		self.langs = '' # for example "foo/fr foo/br"
 		self.chmod = 0644
 		self.inst_var = 'KDE4_LOCALE_INSTALL_DIR'
