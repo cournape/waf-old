@@ -7,7 +7,7 @@ import pproc as subprocess
 import Action, Object, Node, Params
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
-EXT_PERLXS = '.pl'
+EXT_PERLXS = '.xs'
 
 def xsubpp_file(self, node):
     gentask = self.create_task('xsubpp')
