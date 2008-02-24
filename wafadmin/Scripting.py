@@ -12,7 +12,7 @@ from Constants import *
 g_gz='bz2'
 g_dirwatch   = None
 g_daemonlock = 0
-g_excludes = '.svn CVS .arch-ids {arch}'.split()
+g_excludes = '.svn CVS .arch-ids {arch} SCCS BitKeeper'.split()
 "exclude folders from dist"
 g_dist_exts  = '.rej .orig ~ .pyc .pyo .bak config.log .tar.bz2 .zip Makefile'.split()
 "exclude files from dist"
