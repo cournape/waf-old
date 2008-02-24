@@ -112,6 +112,7 @@ def configure():
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
 	try:
+		# calling to main wscript's configure()
 		conf.sub_config('')
 	except Configure.ConfigurationError, e:
 		fatal(str(e), 2)
@@ -247,7 +248,8 @@ def prepare():
 
 	# fetch the custom command-line options recursively and in a procedural way
 	opt_obj = Options.Handler()
-	opt_obj.sub_options('') # will look in wscript
+	# will call to main wscript's set_options()
+	opt_obj.sub_options('') 
 	opt_obj.parse_args()
 
 	# use the parser results
@@ -355,14 +357,13 @@ def main():
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
-	#bld.dump()
 	try:
+		# calling to main wscript's build()
 		f = Utils.g_module.build
 	except AttributeError:
 		fatal("Could not find the function 'def build(bld):' in wscript")
 	else:
 		f(bld)
-	#bld.dump()
 
 	# TODO undocumented hook
 	pre_build = getattr(Utils.g_module, 'pre_build', None)
@@ -501,7 +502,9 @@ def DistClean():
 				try:
 					proj = read_cache_file(os.path.join(root, f))
 					shutil.rmtree(os.path.join(root, proj[BLDDIR]))
-				except (OSError, IOError): pass
+				except (OSError, IOError):
+					# ignore errors if the lockfile or the builddir not exist.  
+					pass
 			else:
 				ends = f.endswith
 				for x in g_distclean_exts:
