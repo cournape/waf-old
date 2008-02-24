@@ -143,6 +143,7 @@ def add_marshal_file(self, filename, prefix, mode):
 Object.gen_hook(add_marshal_file)
 
 def process_marshal(self):
+	env = self.env
 	for i in getattr(self, 'marshal_lst', []):
 		node = self.path.find_source(i[0])
 
@@ -182,6 +183,7 @@ def add_dbus_file(self, filename, prefix, mode):
 Object.gen_hook(add_dbus_file)
 
 def process_dbus(self):
+	env = self.env
 	for i in getattr(self, 'dbus_lst', []):
 		node = self.path.find_source(i[0])
 
@@ -198,8 +200,8 @@ Object.gen_hook(process_dbus)
 Object.declare_order('process_marshal', 'apply_core')
 
 def process_enums(self):
+	env = self.env
 	for x in getattr(self, 'mk_enums', []):
-		env = self.env.copy()
 		task = self.create_task('mk_enums', env)
 		inputs = []
 
