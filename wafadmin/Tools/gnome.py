@@ -233,7 +233,7 @@ Object.gen_hook(process_enums)
 def add_glib_mkenum(self, source='', template='', target=''):
 	"just a helper"
 	if not hasattr(self, 'mk_enums'): self.mk_enums = []
-	if self.meths.add('process_enums')
+	self.meths.add('process_enums')
 	self.mk_enums.append({'source':source, 'template':template, 'target':target})
 Object.gen_hook(add_glib_mkenum)
 Object.declare_order('process_enums', 'apply_core')
