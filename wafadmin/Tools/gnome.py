@@ -197,6 +197,50 @@ def process_dbus(self):
 Object.gen_hook(process_dbus)
 Object.declare_order('process_marshal', 'apply_core')
 
+def process_enums(self):
+	for x in getattr(self, 'mk_enums', []):
+		env = self.env.copy()
+		task = self.create_task('mk_enums', env)
+		inputs = []
+
+		# process the source
+		src_lst = self.to_list(x['source'])
+		if not src_lst:
+			Params.fatal('missing source '+str(x))
+		src_lst = [self.path.find_source(k) for k in src_lst]
+		inputs += src_lst
+		env['MK_SOURCE'] = [k.abspath(env) for k in src_lst]
+
+		# find the target
+		if not x['target']:
+			Params.fatal('missing target '+str(x))
+		tgt_node = self.path.find_build(x['target'], create=1)
+		if tgt_node.m_name.endswith('.c'):
+			self.allnodes.append(tgt_node)
+		env['MK_TARGET'] = tgt_node.abspath(env)
+
+		# template, if provided
+		if x['template']:
+			template_node = self.path.find_source(x['template'])
+			env['MK_TEMPLATE'] = '--template %s' % (template_node.abspath(env))
+			inputs.append(template_node)
+
+		# update the task instance
+		task.set_inputs(inputs)
+		task.set_outputs(tgt_node)
+Object.gen_hook(process_enums)
+
+def add_glib_mkenum(self, source='', template='', target=''):
+	"just a helper"
+	if not hasattr(self, 'mk_enums'): self.mk_enums = []
+	if self.meths.add('process_enums')
+	self.mk_enums.append({'source':source, 'template':template, 'target':target})
+Object.gen_hook(add_glib_mkenum)
+Object.declare_order('process_enums', 'apply_core')
+
+
+Action.simple_action('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK', prio=30)
+
 Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 
 Action.simple_action('glib_genmarshal',
