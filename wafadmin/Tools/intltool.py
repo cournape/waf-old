@@ -76,17 +76,6 @@ class intltool_po(Object.task_gen):
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
 			Common.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
 
-class intltoolobj(cc.ccobj):
-	def __init__(self, type='program'):
-		cc.ccobj.__init__(self, type)
-		self.link_task = None
-		self.m_latask   = None
-		self.want_libtool = -1 # fake libtool here
-
-	def apply_core(self):
-		# after our targets are created, process the .c files, etc
-		cc.ccobj.apply_core(self)
-
 Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', prio=10)
 Action.simple_action('intltool',
 	'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
@@ -94,7 +83,6 @@ Action.simple_action('intltool',
 
 Object.register('intltool_po', intltool_po)
 Object.register('intltool_in', intltool_in)
-Object.register('intltool', intltoolobj)
 
 def detect(conf):
 
