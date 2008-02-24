@@ -8,9 +8,9 @@ import Params, Action, Object, Utils
 from Params import error
 
 g_types_lst = ['program', 'library']
-class csobj(Object.genobj):
-	def __init__(self, type='program'):
-		Object.genobj.__init__(self, 'other')
+class csobj(Object.task_gen):
+	def __init__(self, type):
+		Object.task_gen.__init__(self)
 
 		self.m_type       = type
 
