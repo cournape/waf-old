@@ -269,9 +269,8 @@ def prepare():
 	elif Params.g_commands['distclean']:
 		# try to use the user-defined distclean first, fallback to the waf scheme
 		fun = getattr(Utils.g_module, 'distclean', None)
-		if fun: fun(); sys.exit(0)
-
-		DistClean()
+		if fun:	fun()
+		else:	DistClean()
 		sys.exit(0)
 	elif Params.g_commands['distcheck']:
 		# try to use the user-defined dist function first, fallback to the waf scheme
