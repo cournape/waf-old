@@ -32,10 +32,10 @@ def action_process_file_func(task):
 	if not task.fun: fatal('task must have a function attached to it for copy_func to work!')
 	return task.fun(task)
 
-class cmdobj(Object.genobj):
+class cmdobj(Object.task_gen):
 	"This object will call a command everytime"
 	def __init__(self, type='none'):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 		self.m_type = type
 		self.prio   = 1
 		self.fun    = None
@@ -56,10 +56,10 @@ class cmdobj(Object.genobj):
 			Common.install_files(self.inst_var, self.inst_dir, out.abspath(self.env), self.env)
 
 
-class copyobj(Object.genobj):
+class copyobj(Object.task_gen):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
 	def __init__(self, type='none'):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 
 		self.source = ''
 		self.target = ''
@@ -122,9 +122,9 @@ def subst_func(task):
 
 	return 0
 
-class substobj(Object.genobj):
+class substobj(Object.task_gen):
 	def __init__(self, type='none'):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 		self.fun = subst_func
 		self.dict = {}
 		self.prio = 8
@@ -180,12 +180,12 @@ class CommandOutputTask(Task.Task):
 		if command_node is not None: self.dep_nodes = [command_node]
 		self.dep_vars = [] # additional environment variables to look
 
-class CommandOutput(Object.genobj):
+class CommandOutput(Object.task_gen):
 
 	CMD_ARGV_INPUT, CMD_ARGV_OUTPUT, CMD_ARGV_INPUT_DIR, CMD_ARGV_OUTPUT_DIR = range(4)
 
 	def __init__(self, env=None):
-		Object.genobj.__init__(self, 'other')
+		Object.task_gen.__init__(self)
 		self.env = env
 		if not self.env:
 			self.env = Params.g_build.env().copy()
@@ -209,7 +209,7 @@ class CommandOutput(Object.genobj):
 		self.prio = 100
 
 		# dependencies to other objects -> this is probably not what you want (ita)
-		# values must be 'genobj' instances (not names!)
+		# values must be 'task_gen' instances (not names!)
 		self.dependencies = []
 
 		# dependencies on env variable contents
