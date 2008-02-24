@@ -12,7 +12,7 @@ try: from hashlib import md5
 except ImportError: from md5 import md5
 
 # updated from the top-level wscript
-g_version="1.3.2"
+g_version="1.3.3"
 
 g_rootname = ''
 g_progress = '\x1b[K%s%s%s\r'

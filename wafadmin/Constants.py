@@ -3,7 +3,7 @@
 # Yinon dot me gmail 2008
 
 # maintainer the version number is updated from the top-level wscript file
-HEXVERSION = 0x10302
+HEXVERSION = 0x10303
 ABI = 2
 
 CACHE_DIR          = 'c4che'
