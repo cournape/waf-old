@@ -5,10 +5,8 @@
 
 print """
 WARNING: You are using the swig tool!
-         This tool is marked as beeing deprecated! use with caution! It 
-         may be removed from waf in the future and it's not supported.
-         Swig is known to produce broken code!                     
- 
+  This tool is marked as beeing deprecated! use with caution!
+  it is not maintained actively
 """
 
 import re
