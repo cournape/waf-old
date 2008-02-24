@@ -136,7 +136,7 @@ class task_gen(object):
 		self.target = ''
 
 		# list of methods to execute
-		self.meths = set()
+		self.meths = set(['apply_core'])
 
 		# list of mappings extension -> function
 		self.mappings = {}
@@ -388,8 +388,6 @@ def declare_order(*k):
 			if not f1 in task_gen.prec[f2]: task_gen.prec[f2].append(f1)
 		except:
 			task_gen.prec[f2] = [f1]
-
-
 
 def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40, install=0):
 	"""see Tools/flex.py for an example"""
