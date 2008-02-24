@@ -625,13 +625,3 @@ class genobj(object):
 		if not self.source: self.source = lst
 		else: self.source += lst
 
-
-# OBSOLETE
-def hook(clsname, var, func):
-	"Attach a new method to a genobj class"
-	klass = g_allclasses[clsname]
-	setattr(klass, var, func)
-	try: klass.all_hooks.append(var)
-	except AttributeError: klass.all_hooks = [var]
-
-
