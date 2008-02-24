@@ -137,18 +137,14 @@ class Popen(object):
 
         if mswindows:
             if preexec_fn is not None:
-                raise ValueError("preexec_fn is not supported on Windows "
-                                 "platforms")
+                raise ValueError("preexec_fn is not supported on Windows platforms")
             if close_fds:
-                raise ValueError("close_fds is not supported on Windows "
-                                 "platforms")
+                raise ValueError("close_fds is not supported on Windows platforms")
         else:
             if startupinfo is not None:
-                raise ValueError("startupinfo is only supported on Windows "
-                                 "platforms")
+                raise ValueError("startupinfo is only supported on Windows platforms")
             if creationflags != 0:
-                raise ValueError("creationflags is only supported on Windows "
-                                 "platforms")
+                raise ValueError("creationflags is only supported on Windows platforms")
 
         self.stdin = None
         self.stdout = None
@@ -282,22 +278,15 @@ class Popen(object):
                     c2pread, c2pwrite,
                     errread, errwrite)
         def _make_inheritable(self, handle):
-            return DuplicateHandle(GetCurrentProcess(), handle,
-                                   GetCurrentProcess(), 0, 1,
-                                   DUPLICATE_SAME_ACCESS)
+            return DuplicateHandle(GetCurrentProcess(), handle, GetCurrentProcess(), 0, 1, DUPLICATE_SAME_ACCESS)
 
         def _find_w9xpopen(self):
-            w9xpopen = os.path.join(os.path.dirname(GetModuleFileName(0)),
-                                    "w9xpopen.exe")
+            w9xpopen = os.path.join(os.path.dirname(GetModuleFileName(0)), "w9xpopen.exe")
             if not os.path.exists(w9xpopen):
-                w9xpopen = os.path.join(os.path.dirname(sys.exec_prefix),
-                                        "w9xpopen.exe")
+                w9xpopen = os.path.join(os.path.dirname(sys.exec_prefix), "w9xpopen.exe")
                 if not os.path.exists(w9xpopen):
-                    raise RuntimeError("Cannot locate w9xpopen.exe, which is "
-                                       "needed for Popen to work with your "
-                                       "shell or platform.")
+                    raise RuntimeError("Cannot locate w9xpopen.exe, which is needed for Popen to work with your shell or platform.")
             return w9xpopen
-
 
         def _execute_child(self, args, executable, preexec_fn, close_fds,
                            cwd, env, universal_newlines,
@@ -329,13 +318,7 @@ class Popen(object):
                     creationflags |= CREATE_NEW_CONSOLE
 
             try:
-                hp, ht, pid, tid = CreateProcess(executable, args,
-                                         None, None,
-                                         1,
-                                         creationflags,
-                                         env,
-                                         cwd,
-                                         startupinfo)
+                hp, ht, pid, tid = CreateProcess(executable, args, None, None, 1, creationflags, env, cwd, startupinfo)
             except pywintypes.error, e:
                 raise WindowsError(*e.args)
 
@@ -374,14 +357,12 @@ class Popen(object):
 
             if self.stdout:
                 stdout = []
-                stdout_thread = threading.Thread(target=self._readerthread,
-                                                 args=(self.stdout, stdout))
+                stdout_thread = threading.Thread(target=self._readerthread, args=(self.stdout, stdout))
                 stdout_thread.setDaemon(True)
                 stdout_thread.start()
             if self.stderr:
                 stderr = []
-                stderr_thread = threading.Thread(target=self._readerthread,
-                                                 args=(self.stderr, stderr))
+                stderr_thread = threading.Thread(target=self._readerthread, args=(self.stderr, stderr))
                 stderr_thread.setDaemon(True)
                 stderr_thread.start()
 
@@ -444,10 +425,7 @@ class Popen(object):
             else:
                 errwrite = stderr.fileno()
 
-            return (p2cread, p2cwrite,
-                    c2pread, c2pwrite,
-                    errread, errwrite)
-
+            return (p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite)
 
         def _set_cloexec_flag(self, fd):
             try:
@@ -458,7 +436,6 @@ class Popen(object):
             old = fcntl.fcntl(fd, fcntl.F_GETFD)
             fcntl.fcntl(fd, fcntl.F_SETFD, old | cloexec_flag)
 
-
         def _close_fds(self, but):
             for i in xrange(3, MAXFD):
                 if i == but:
@@ -468,13 +445,9 @@ class Popen(object):
                 except:
                     pass
 
-
         def _execute_child(self, args, executable, preexec_fn, close_fds,
-                           cwd, env, universal_newlines,
-                           startupinfo, creationflags, shell,
-                           p2cread, p2cwrite,
-                           c2pread, c2pwrite,
-                           errread, errwrite):
+                           cwd, env, universal_newlines, startupinfo, creationflags, shell,
+                           p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite):
 
             if isinstance(args, types.StringTypes):
                 args = [args]
@@ -539,9 +512,7 @@ class Popen(object):
 
                 except:
                     exc_type, exc_value, tb = sys.exc_info()
-                    exc_lines = traceback.format_exception(exc_type,
-                                                           exc_value,
-                                                           tb)
+                    exc_lines = traceback.format_exception(exc_type, exc_value, tb)
                     exc_value.child_traceback = ''.join(exc_lines)
                     os.write(errpipe_write, pickle.dumps(exc_value))
 
@@ -557,7 +528,7 @@ class Popen(object):
             if errwrite and errread:
                 os.close(errwrite)
 
-            data = os.read(errpipe_read, 1048576) # Exceptions limited to 1 MB
+            data = os.read(errpipe_read, 1048576)
             os.close(errpipe_read)
             if data != "":
                 os.waitpid(self.pid, 0)
