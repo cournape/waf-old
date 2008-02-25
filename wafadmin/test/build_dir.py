@@ -66,6 +66,12 @@ class TestBuildDir(common_test.CommonTester):
 		self.assert_(os.path.isfile(self._waf_exe), "waf was not created")
 
 		os.chdir(self.__test_demos_dir)
+		
+		# If build dir already exists and configured, if version has changed
+		# waf will issue "Version mismatch" warning on configure.
+		cc_build_dir = os.path.join(self.__test_dir_root, "demos", "cc", "build")
+		if os.path.isdir(cc_build_dir):
+			shutil.rmtree(cc_build_dir)
 
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''
