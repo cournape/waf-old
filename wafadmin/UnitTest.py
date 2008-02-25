@@ -17,7 +17,7 @@ In the shutdown method, add the following code:
 
 Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
 """
-import os
+import os, sys
 import Params, Object, Utils
 import pproc as subprocess
 
@@ -121,7 +121,7 @@ class unit_test(object):
 			except OSError:
 				self.unit_test_erroneous[label] = 1
 				self.num_tests_err += 1
-			except KeyBoardInterrupt:
+			except KeyboardInterrupt:
 				if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
 		if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
 
