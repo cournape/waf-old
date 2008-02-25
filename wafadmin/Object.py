@@ -23,11 +23,12 @@ WARNING 2 subclasses must reimplement the clone method to avoid problems with 'd
 """
 
 import copy
-import os, types, traceback
+import os, types, traceback, sys
 import Params, Task, Common, Node, Utils, Action
 from Params import debug, error, fatal
-# TODO compatibility with python 2.3?
-#if sys.hexversion < 0x020400f: from sets import Set as set
+
+# backwards compatibility for python 2.3
+if sys.hexversion < 0x020400f0: from sets import Set as set
 
 typos = {
 'sources':'source',

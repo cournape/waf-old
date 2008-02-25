@@ -8,6 +8,10 @@ import Object, Params, Action, Utils
 from Params import debug
 import ccroot # <- do not remove
 
+import sys
+# backwards compatibility for python 2.3
+if sys.hexversion < 0x020400f0: from sets import Set as set
+
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
