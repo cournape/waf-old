@@ -1130,7 +1130,7 @@ class Configure(object):
 		   header file."""
 		assert define and isinstance(define, str)
 
-		tbl = self.env['defines']
+		tbl = self.env[DEFINES]
 		if not tbl: tbl = {}
 
 		# the user forgot to tell if the value is quoted or not
@@ -1142,7 +1142,7 @@ class Configure(object):
 			raise TypeError
 
 		# add later to make reconfiguring faster
-		self.env['defines'] = tbl
+		self.env[DEFINES] = tbl
 		self.env[define] = value
 
 	def undefine(self, define):
@@ -1150,14 +1150,14 @@ class Configure(object):
 		   for later writing to a config header file"""
 		assert define and isinstance(define, str)
 
-		tbl = self.env['defines']
+		tbl = self.env[DEFINES]
 		if not tbl: tbl = {}
 
 		value = Undefined
 		tbl[define] = value
 
 		# add later to make reconfiguring faster
-		self.env['defines'] = tbl
+		self.env[DEFINES] = tbl
 		self.env[define] = value
 
 	def define_cond(self, name, value):
@@ -1169,7 +1169,7 @@ class Configure(object):
 			self.undefine(name)
 
 	def is_defined(self, define):
-		defines = self.env['defines']
+		defines = self.env[DEFINES]
 		if not defines:
 			return False
 		try:
@@ -1181,7 +1181,7 @@ class Configure(object):
 
 	def get_define(self, define):
 		"get the value of a previously stored define"
-		try: return self.env['defines'][define]
+		try: return self.env[DEFINES][define]
 		except KeyError: return None
 
 	def write_config_header(self, configfile='config.h', env=''):
@@ -1211,8 +1211,8 @@ class Configure(object):
 		# yes, this is special
 		if not configfile in self.env['dep_files']:
 			self.env['dep_files'] += [configfile]
-		if not env['defines']: env['defines']={'missing':'"code"'}
-		for key, value in env['defines'].iteritems():
+		if not env[DEFINES]: env[DEFINES]={'missing':'"code"'}
+		for key, value in env[DEFINES].iteritems():
 			if value is None:
 				dest.write('#define %s\n' % key)
 			elif value is Undefined:
@@ -1413,7 +1413,7 @@ class Configure(object):
 		   DEPRECATED, do not use.  See define() and undefine() instead."""
 		warnings.warn("use conf.define() / conf.undefine() / conf.define_cond() instead",
 			      DeprecationWarning, stacklevel=2)
-		tbl = self.env['defines']
+		tbl = self.env[DEFINES]
 		if not tbl: tbl = {}
 
 		if isinstance(value, bool):
@@ -1436,7 +1436,7 @@ class Configure(object):
 		if not define: raise "define must be .. defined"
 
 		# add later to make reconfiguring faster
-		self.env['defines'] = tbl
+		self.env[DEFINES] = tbl
 		self.env[define] = value
 
 
