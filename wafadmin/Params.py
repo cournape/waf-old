@@ -207,6 +207,15 @@ def h_file(filename):
 	f.close()
 	return m.digest()
 
+# Another possibility, faster but less accurate
+# based on the path, md5 hashing can be used for some files and timestamp for others
+#def h_file(filename):
+#	st = os.stat(filename)
+#	m = md5()
+#	m.update(st.st_mtime)
+#	m.update(st.st_size)
+#	return m.digest()
+
 def h_string(str):
 	m = md5()
 	m.update(str)
