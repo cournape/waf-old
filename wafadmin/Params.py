@@ -199,7 +199,7 @@ def hash_sig(o1, o2):
 def h_file(filename):
 	f = file(filename,'rb')
 	m = md5()
-	readBytes = 1024 # read 1024 bytes per time
+	readBytes = 100000
 	while (readBytes):
 		readString = f.read(readBytes)
 		m.update(readString)
