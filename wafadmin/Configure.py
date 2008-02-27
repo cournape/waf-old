@@ -30,7 +30,6 @@ except ImportError: from md5 import md5
 
 import Action, Params, Environment, Runner, Build, Utils, libtool_config, Object
 from Params import fatal, warning
-from Utils import Undefined
 from Constants import *
 
 test_ok = True
@@ -1178,7 +1177,7 @@ class Configure(object):
 		tbl = self.env[DEFINES]
 		if not tbl: tbl = {}
 
-		value = Undefined
+		value = UNDEFINED
 		tbl[define] = value
 
 		# add later to make reconfiguring faster
@@ -1202,7 +1201,7 @@ class Configure(object):
 		except KeyError:
 			return False
 		else:
-			return (value is not Undefined)
+			return (value is not UNDEFINED)
 
 	def get_define(self, define):
 		"get the value of a previously stored define"
@@ -1240,7 +1239,7 @@ class Configure(object):
 		for key, value in env[DEFINES].iteritems():
 			if value is None:
 				dest.write('#define %s\n' % key)
-			elif value is Undefined:
+			elif value is UNDEFINED:
 				dest.write('/* #undef %s */\n' % key)
 			else:
 				dest.write('#define %s %s\n' % (key, value))

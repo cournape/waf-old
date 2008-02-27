@@ -202,10 +202,3 @@ def trimquotes(s):
 	if s[0] == "'" and s[-1] == "'": return s[1:-1]
 	return s
 
-class UndefinedType(object):
-	def __repr__(self):
-		return 'Undefined'
-
-Undefined = UndefinedType()
-"""Special value to denote an explicitly undefined name"""
-

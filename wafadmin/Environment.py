@@ -6,7 +6,6 @@
 
 import os,types, copy, re
 import Params
-from Utils import Undefined # needed for Environment.load
 from Params import debug, warning
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
