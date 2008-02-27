@@ -20,6 +20,7 @@ class scanner(object):
 	def __init__(self):
 		global g_all_scanners
 		g_all_scanners[self.__class__.__name__] = self
+		self.vars = [] # additional vars to add in the scanning process
 
 	# ======================================= #
 	# interface definition
@@ -95,7 +96,6 @@ class scanner(object):
 	# ======================================= #
 	# protected methods - override if you know what you are doing
 
-	# FIXME used by the c and d tools
 	def get_signature_queue(self, tsk):
 		"the basic scheme for computing signatures from .cpp and inferred .h files"
 		tree = Params.g_build
@@ -105,13 +105,13 @@ class scanner(object):
 		queue = []+tsk.m_inputs
 		m = md5()
 
-		# add the defines - TODO make this specific for c/c++/d
+		# additional variables to hash (command-line defines for example)
 		env = tsk.env()
-		m.update(str(env['CXXDEFINES']))
-		m.update(str(env['CCDEFINES']))
+		for x in self.vars:
+			m.update(str(env[x]))
 
 		# add the hashes of all files entering into the dependency system
-		while len(queue) > 0:
+		while queue:
 			node = queue.pop(0)
 
 			if node in seen: continue

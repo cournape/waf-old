@@ -22,6 +22,7 @@ class c_scanner(Scan.scanner):
 	"scanner for c/c++ files"
 	def __init__(self):
 		Scan.scanner.__init__(self)
+		self.vars = ('CCDEFINES', 'CXXDEFINES')
 
 	def scan(self, task, node):
 		"look for .h the .cpp need"
