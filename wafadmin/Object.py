@@ -20,10 +20,10 @@ Additionally, task_gen provides the method apply_core
 
 WARNING 1 genobj is now obsolete, it will disappear
 WARNING 2 subclasses must reimplement the clone method to avoid problems with 'deepcopy'
+WARNING 3 find a new name for this file (naming it 'Object' was never a good idea)
 """
 
-import copy
-import os, types, traceback, sys
+import os, types, traceback, sys, copy
 import Params, Task, Common, Node, Utils, Action
 from Params import debug, error, fatal
 
