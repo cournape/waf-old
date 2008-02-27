@@ -16,10 +16,7 @@ layer (storing the names in the Environment instances)
 In the new model, the logic is more object-oriented, and the user scripts provide the
 logic. The data files (Environments) must contain configuration data only (flags, ..).
 
-TODO:
-This file is too big
-Move all the c/c++ related code into the Tools directory
-Get rid of libtool
+Note: the c/c++ related code is in the module config_c
 """
 
 import os, types, imp, cPickle, sys, shlex, warnings
@@ -161,6 +158,12 @@ class Configure(object):
 
 		self.hash = 0
 		self.files = []
+
+	def errormsg(self, msg):
+		Params.niceprint(msg, 'ERROR', 'Configuration')
+
+	def fatal(self, msg):
+		raise ConfigurationError(msg)
 
 	def set_env_name(self, name, env):
 		"add a new environment called name"
@@ -335,9 +338,6 @@ class Configure(object):
 
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
-	def errormsg(self, msg):
-		Params.niceprint(msg, 'ERROR', 'Configuration')
-
-	def fatal(self, msg):
-		raise ConfigurationError(msg)
+# do not touch
+import c_config
 
