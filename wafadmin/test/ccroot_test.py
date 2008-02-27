@@ -108,7 +108,7 @@ class CcRootTester(common_test.CommonTester):
 		self._populate_dictionary('program', c_program_code, env_line)
 		self._write_files()
 
-	def __write_wscript(self):
+	def _write_wscript(self):
 		wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
 		try:
 			wscript_file = open( wscript_file_path, 'w' )
@@ -116,7 +116,7 @@ class CcRootTester(common_test.CommonTester):
 		finally:
 			wscript_file.close()
 			
-	def __write_source(self):
+	def _write_source(self):
 		try:
 			source_file = open( self._source_file_path, 'w' )
 			source_file.write( self._test_dic['code'] )
@@ -124,8 +124,8 @@ class CcRootTester(common_test.CommonTester):
 			source_file.close()
 			
 	def _write_files(self):
-		self.__write_wscript()
-		self.__write_source()
+		self._write_wscript()
+		self._write_source()
 
 	def __init__(self, methodName):
 		common_test.CommonTester.__init__(self, methodName)
