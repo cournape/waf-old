@@ -19,7 +19,7 @@ logic. The data files (Environments) must contain configuration data only (flags
 TODO:
 This file is too big
 Move all the c/c++ related code into the Tools directory
-Get rid of libtool_config
+Get rid of libtool
 """
 
 import os, types, imp, cPickle, sys, shlex, warnings
@@ -28,7 +28,7 @@ import os, types, imp, cPickle, sys, shlex, warnings
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-import Action, Params, Environment, Runner, Build, Utils, libtool_config, Object
+import Action, Params, Environment, Runner, Build, Utils, Object
 from Params import fatal, warning
 from Constants import *
 
@@ -589,7 +589,8 @@ class pkgconfig_configurator(configurator_base):
 			retval['LINKFLAGS_'+uselib] = []
 			for item in modother:
 				if str(item).endswith(".la"):
-					la_config = libtool_config.libtool_config(item)
+					import libtool
+					la_config = libtool.libtool_config(item)
 					libs_only_L = la_config.get_libs_only_L()
 					libs_only_l = la_config.get_libs_only_l()
 					for entry in libs_only_l:
