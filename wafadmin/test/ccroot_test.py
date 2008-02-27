@@ -12,7 +12,7 @@ import common_test
 
 # allow importing from wafadmin dir when ran from sub-directory 
 sys.path.append(os.path.abspath(os.path.pardir))
-import Params, Environment, Options
+import Params
 from Constants import *
 
 # The following string is as wscript for tests.
@@ -126,31 +126,7 @@ class CcRootTester(common_test.CommonTester):
 	def _write_files(self):
 		self.__write_wscript()
 		self.__write_source()
-		
-	def _same_env(self, expected_env, env_name='default'):
-		"""
-		All parameters decided upon configure are written to cache, then read on build. 
-		This function checks that the written environment has the same values for keys given by expected_env
-		@param expected_env [dictionary]: a dictionary that contains
-					one or more key-value pairs to compare to stored environment
-		@return: True if values the same,
-				False otherwise
-		"""
-		if expected_env is None or not expected_env:
-			raise ValueError("env must contains at least one key-value pair")
-		else:
-#			# Environment uses arguments defined by Options 
-			opt_obj = Options.Handler()
-			opt_obj.parse_args()
-			
-			stored_env = Environment.Environment()
-			stored_env_path = os.path.join(self._blddir, CACHE_DIR, env_name+CACHE_SUFFIX)
-			stored_env.load( stored_env_path )
-			for key in expected_env:
-				self.assertEqual( stored_env[key], expected_env[key], 
-								"values of '%s' differ: expected = '%s', stored = '%s'" 
-								% (key,expected_env[key], stored_env[key]))
-	
+
 	def __init__(self, methodName):
 		common_test.CommonTester.__init__(self, methodName)
 
