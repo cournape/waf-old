@@ -1439,35 +1439,5 @@ class Configure(object):
 
 	# TODO OBSOLETE remove for waf 1.4
 	def add_define(self, define, value, quote=-1, comment=''):
-		"""store a single define and its state into an internal list
-		   for later writing to a config header file.
-		   DEPRECATED, do not use.  See define() and undefine() instead."""
-		warnings.warn("use conf.define() / conf.undefine() / conf.define_cond() instead",
-			      DeprecationWarning, stacklevel=2)
-		tbl = self.env[DEFINES]
-		if not tbl: tbl = {}
-
-		if isinstance(value, bool):
-			value = int(value)
-
-		# the user forgot to tell if the value is quoted or not
-		if quote < 0:
-			if type(value) is types.StringType:
-				tbl[define] = '"%s"' % str(value)
-			else:
-				if value:
-					tbl[define] = value
-				else:
-					tbl[define] = Undefined
-		elif not quote:
-			tbl[define] = value
-		else:
-			tbl[define] = '"%s"' % str(value)
-
-		if not define: raise "define must be .. defined"
-
-		# add later to make reconfiguring faster
-		self.env[DEFINES] = tbl
-		self.env[define] = value
-
+		fatal("DEPRECATED use conf.define() / conf.undefine() / conf.define_cond() instead")
 
