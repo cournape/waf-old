@@ -455,12 +455,12 @@ class pkgconfig_configurator(configurator_base):
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
 
-		self.name        = '' # name of the .pc file
-		self.version     = '' # version to check
-		self.pkgpath     = os.path.join(Params.g_options.prefix, 'lib', 'pkgconfig') # pkg config path
-		self.uselib = '' # can be set automatically
-		self.define = '' # can be set automatically
-		self.binary      = '' # name and path for pkg-config
+		self.name    = '' # name of the .pc file
+		self.version = '' # version to check
+		self.pkgpath = os.path.join(Params.g_options.prefix, 'lib', 'pkgconfig') # pkg config path
+		self.uselib  = '' # can be set automatically
+		self.define  = '' # can be set automatically
+		self.binary  = '' # name and path for pkg-config
 
 		# You could also check for extra values in a pkg-config file.
 		# Use this value to define which values should be checked
@@ -468,7 +468,7 @@ class pkgconfig_configurator(configurator_base):
 		# - string with spaces to separate a list
 		# - list of values to check (define name will be upper(uselib"_"value_name))
 		# - a list of [value_name, override define_name]
-		self.variables   = []
+		self.variables = []
 		self.defines = {}
 
 	def error(self):
@@ -650,7 +650,7 @@ class test_configurator(configurator_base):
 	def run_test(self):
 		obj = check_data()
 		obj.code = self.code
-		obj.env  = self.env
+		obj.env = self.env
 		obj.uselib = self.uselib
 		obj.flags = self.flags
 		obj.execute = 1
@@ -725,11 +725,11 @@ class library_configurator(configurator_base):
 		#self.env['LIB'] = self.name
 		#self.env['LIBPATH'] = self.lib_paths
 
-		obj               = check_data()
-		obj.code          = self.code
-		obj.env           = self.env
-		obj.uselib        = self.uselib
-		obj.libpath       = self.path
+		obj         = check_data()
+		obj.code    = self.code
+		obj.env     = self.env
+		obj.uselib  = self.uselib
+		obj.libpath = self.path
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('library %s' % self.name, '', ret)
@@ -815,11 +815,12 @@ class framework_configurator(configurator_base):
 		myenv = self.env.copy()
 		myenv['LINKFLAGS'] += linkflags
 
-		obj               = check_data()
-		obj.code          = "\n".join(code)
-		obj.env           = myenv
-		obj.uselib        = self.uselib
-		obj.flags         += " ".join (cflags)
+		obj        = check_data()
+		obj.code   = "\n".join(code)
+		obj.env    = myenv
+		obj.uselib = self.uselib
+
+		obj.flags += " ".join (cflags)
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('framework %s' % self.name, '', ret, option='')
@@ -911,11 +912,11 @@ class header_configurator(configurator_base):
 		self.env['LIB'] = self.libs
 		self.env['LIBPATH'] = self.lib_paths
 
-		obj               = check_data()
-		obj.code          = "\n".join(code)
-		obj.includes      = self.path
-		obj.env           = self.env
-		obj.uselib        = self.uselib
+		obj          = check_data()
+		obj.code     = "\n".join(code)
+		obj.includes = self.path
+		obj.env      = self.env
+		obj.uselib   = self.uselib
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('header %s' % self.name, '', ret, option='')
@@ -997,8 +998,8 @@ class Configure(object):
 		self.env       = None
 		self.m_envname = ''
 
-		self.m_blddir = blddir
-		self.m_srcdir = srcdir
+		self.m_blddir  = blddir
+		self.m_srcdir  = srcdir
 
 		self.m_allenvs = {}
 		self.defines = {}
@@ -1026,13 +1027,13 @@ class Configure(object):
 				finally:
 					file.close()
 
-		self._a=0
-		self._b=0
-		self._c=0
-		self._quiet=0
+		self._a = 0
+		self._b = 0
+		self._c = 0
+		self._quiet = 0
 
-		self.hash=0
-		self.files=[]
+		self.hash = 0
+		self.files = []
 
 	def set_env_name(self, name, env):
 		"add a new environment called name"
