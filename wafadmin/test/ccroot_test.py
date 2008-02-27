@@ -164,7 +164,7 @@ class CcRootTester(common_test.CommonTester):
 		except AttributeError:
 			Params.fatal("Testers that inherited ccroot have to define 'self.tool_name' and 'self.object_name'")
 
-		# define & create temporary testing directpries
+		# define & create temporary testing directories
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")
 		self._srcdir = self._test_dir_root
 		self._blddir = os.path.join( self._test_dir_root, "build" )
