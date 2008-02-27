@@ -74,7 +74,7 @@ def find_file_ext(filename, path_list):
 @param path_list: list of directories to search
 @return: the first occurrence filename or '' if filename could not be found
 """
-	import fnmatch;
+	import fnmatch
 	if type(path_list) is types.StringType:
 		lst = path_list.split()
 	else:
