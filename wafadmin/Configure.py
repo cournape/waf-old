@@ -339,5 +339,5 @@ class Configure(object):
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
 # do not touch
-import c_config
+import config_c
 
