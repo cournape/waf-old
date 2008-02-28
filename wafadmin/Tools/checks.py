@@ -4,7 +4,7 @@
 
 "Additional configuration checks hooked on the configuration class"
 
-import Utils, Configure
+import Utils, Configure, config_c
 from Params import error, fatal
 
 endian_str = '''
@@ -22,10 +22,10 @@ int main()
 }
 '''
 
-class compile_configurator(Configure.configurator_base):
+class compile_configurator(config_c.configurator_base):
 	"inheritance demo"
 	def __init__(self, conf):
-		Configure.configurator_base.__init__(self, conf)
+		config_c.configurator_base.__init__(self, conf)
 		self.name = ''
 		self.code = ''
 		self.flags = ''
@@ -47,7 +47,7 @@ class compile_configurator(Configure.configurator_base):
 			fatal('test configurator needs code to compile and run!')
 
 	def run_test(self):
-		obj = Configure.check_data()
+		obj = config_c.check_data()
 		obj.code = self.code
 		obj.env  = self.env
 		obj.uselib = self.uselib
