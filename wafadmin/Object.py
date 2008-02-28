@@ -397,7 +397,10 @@ def declare_order(*k):
 			task_gen.prec[f2] = [f1]
 
 def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40, install=0):
-	"""see Tools/flex.py for an example"""
+	"""
+	see Tools/flex.py for an example
+	while i do not like such wrappers, some people really do
+	"""
 
 	if type(action) == types.StringType:
 		Action.simple_action(name, action, color=color, prio=prio)
@@ -454,7 +457,6 @@ def sign_env_vars(env, vars_list):
 
 g_allclasses = {}
 def register(name, classval):
-	"Not obsolete yet (but in a few months yes)"
 	global g_allclasses
 	g_allclasses[name] = classval
 
