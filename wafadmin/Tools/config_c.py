@@ -12,11 +12,16 @@ import os, types, imp, cPickle, sys, shlex, warnings
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-import Action, Params, Environment, Runner, Build, Utils, Object
+import Action, Params, Environment, Runner, Build, Utils, Object, Configure
 from Params import fatal, warning
 from Constants import *
 
-from Configure import * # temporary
+def wrap(cls):
+	def foo(self):
+		x = globals()[cls.__name__](self)
+		#print x
+		return x
+	setattr(Configure.Configure, 'create_'+cls.__name__, foo)
 
 class enumerator_base(object):
 	def __init__(self, conf):
@@ -112,6 +117,7 @@ class program_enumerator(enumerator_base):
 		self.conf.check_message('program', self.name, ret, ret)
 		if self.var: self.env[self.var] = ret
 		return ret
+wrap(program_enumerator)
 
 class function_enumerator(enumerator_base):
 	def __init__(self,conf):
@@ -181,6 +187,7 @@ class function_enumerator(enumerator_base):
 		self.env['LIBPATH'] = oldlibpath
 
 		return ret
+wrap(function_enumerator)
 
 class library_enumerator(enumerator_base):
 	"find a library in a list of paths"
@@ -234,6 +241,7 @@ class library_enumerator(enumerator_base):
 			self.env['LIBPATH_'+self.uselib] += [ ret ]
 
 		return ret
+wrap(library_enumerator)
 
 class header_enumerator(enumerator_base):
 	"find a header in a list of paths"
@@ -269,6 +277,7 @@ class header_enumerator(enumerator_base):
 			self.conf.check_message('header', self.name, ret, ret)
 		if self.define: self.env[self.define] = ret
 		return ret
+wrap(header_enumerator)
 
 ## ENUMERATORS END
 ###################
@@ -338,6 +347,7 @@ class cfgtool_configurator(configurator_base):
 			self.conf.undefine(self.define)
 		self.conf.check_message('config-tool ' + self.binary, '', found, option = '')
 		return retval
+wrap(cfgtool_configurator)
 
 class pkgconfig_configurator(configurator_base):
 	""" pkgconfig_configurator is a frontend to pkg-config variables:
@@ -520,6 +530,7 @@ class pkgconfig_configurator(configurator_base):
 			self.conf.undefine(self.define)
 
 		return retval
+wrap(pkgconfig_configurator)
 
 class test_configurator(configurator_base):
 	def __init__(self, conf):
@@ -559,6 +570,7 @@ class test_configurator(configurator_base):
 			self.conf.check_message('custom code', '', ret, option=data)
 
 		return ret
+wrap(test_configurator)
 
 class library_configurator(configurator_base):
 	def __init__(self,conf):
@@ -649,6 +661,7 @@ class library_configurator(configurator_base):
 		self.env['LIBPATH'] = oldlibpath
 
 		return val
+wrap(library_configurator)
 
 class framework_configurator(configurator_base):
 	def __init__(self,conf):
@@ -740,9 +753,10 @@ class framework_configurator(configurator_base):
 		self.update_env(val)
 
 		return val
+wrap(framework_configurator)
 
 class header_configurator(configurator_base):
-	def __init__(self,conf):
+	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
 
 		self.name = ''
@@ -833,6 +847,7 @@ class header_configurator(configurator_base):
 
 		if not ret: return {}
 		return val
+wrap(header_configurator)
 
 class common_include_configurator(header_enumerator):
 	"""Looks for a given header. If found, it will be written later by write_config_header()
@@ -858,6 +873,7 @@ class common_include_configurator(header_enumerator):
 
 		# the return value of all enumerators is checked by enumerator_base.run()
 		return header_dir
+wrap(common_include_configurator)
 
 # CONFIGURATORS END
 ####################
@@ -888,6 +904,7 @@ class check_data(object):
 
 		self.force_compiler= None
 		self.build_type    = 'program'
+setattr(Configure, 'check_data', check_data) # warning, attached to the module
 
 def define(self, define, value):
 	"""store a single define and its state into an internal list for later
@@ -911,7 +928,7 @@ def define(self, define, value):
 	# add later to make reconfiguring faster
 	self.env[DEFINES] = tbl
 	self.env[define] = value
-setattr(Configure, "define", define)
+setattr(Configure.Configure, "define", define)
 
 def undefine(self, define):
 	"""store a single define and its state into an internal list
@@ -927,7 +944,7 @@ def undefine(self, define):
 	# add later to make reconfiguring faster
 	self.env[DEFINES] = tbl
 	self.env[define] = value
-setattr(Configure, "undefine", undefine)
+setattr(Configure.Configure, "undefine", undefine)
 
 def define_cond(self, name, value):
 	"""Conditionally define a name.
@@ -936,7 +953,7 @@ def define_cond(self, name, value):
 		self.define(name, 1)
 	else:
 		self.undefine(name)
-setattr(Configure, "define_cond", define_cond)
+setattr(Configure.Configure, "define_cond", define_cond)
 
 def is_defined(self, define):
 	defines = self.env[DEFINES]
@@ -948,13 +965,13 @@ def is_defined(self, define):
 		return False
 	else:
 		return (value is not UNDEFINED)
-setattr(Configure, "is_defined", is_defined)
+setattr(Configure.Configure, "is_defined", is_defined)
 
 def get_define(self, define):
 	"get the value of a previously stored define"
 	try: return self.env[DEFINES][define]
 	except KeyError: return None
-setattr(Configure, "get_define", get_define)
+setattr(Configure.Configure, "get_define", get_define)
 
 def write_config_header(self, configfile='config.h', env=''):
 	"save the defines into a file"
@@ -999,30 +1016,12 @@ def write_config_header(self, configfile='config.h', env=''):
 
 	dest.write('\n#endif /* %s */\n' % (inclusion_guard_name,))
 	dest.close()
-setattr(Configure, "write_config_header", write_config_header)
+setattr(Configure.Configure, "write_config_header", write_config_header)
 
 def set_config_header(self, header):
 	"set a config header file"
 	self.configheader = header
-setattr(Configure, "set_config_header", set_config_header)
-
-def create(self, enumerator = None, configurator = None):
-	# Only one of these can be set (xor)
-	if (enumerator and configurator) or (not enumerator and not configurator):
-		raise KeyError, "either enumerator or configurator has to be set (not both)"
-
-	if enumerator:
-		return globals()["%s_enumerator" % enumerator](self)
-	elif configurator:
-		return globals()["%s_configurator" % configurator](self)
-
-def __getattr__(self, meth):
-	def creator():
-		return globals()[meth.replace('create_', '')](self)
-	if meth.startswith("create_"):
-		return creator
-	else:
-		raise AttributeError, 'Configure instance has no such method: %s' % meth
+setattr(Configure.Configure, "set_config_header", set_config_header)
 
 def run_check(self, obj):
 	"""compile, link and run if necessary
@@ -1115,10 +1114,10 @@ def run_check(self, obj):
 		return ret
 
 	return not ret
-setattr(Configure, "run_check", run_check)
+setattr(Configure.Configure, "run_check", run_check)
 
 # TODO OBSOLETE remove for waf 1.4
 def add_define(self, define, value, quote=-1, comment=''):
 	fatal("DEPRECATED use conf.define() / conf.undefine() / conf.define_cond() instead")
-setattr(Configure, "add_define", add_define)
+setattr(Configure.Configure, "add_define", add_define)
 
