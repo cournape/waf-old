@@ -228,38 +228,7 @@ def detect(conf):
 		v['program_obj_ext']     = ['.o']
 		v['program_SUFFIX']      = ''
 
-
-	# check for compiler features: programs, shared and static libraries
-	test = Configure.check_data()
-	test.code = 'int main() {return 0;}\n'
-	test.env = v
-	test.execute = 1
-	test.force_compiler="cc"
-	ret = conf.run_check(test)
-	conf.check_message('compiler could create', 'programs', not (ret is False))
-	if not ret:
-		conf.fatal("no programs")
-
-	lib_obj = Configure.check_data()
-	lib_obj.code = "int k = 3;\n"
-	lib_obj.env = v
-	lib_obj.build_type = "shlib"
-	lib_obj.force_compiler = "cc"
-	ret = conf.run_check(lib_obj)
-	conf.check_message('compiler could create', 'shared libs', not (ret is False))
-	if not ret:
-		conf.fatal("no shared libs")
-
-	lib_obj = Configure.check_data()
-	lib_obj.code = "int k = 3;\n"
-	lib_obj.env = v
-	lib_obj.build_type = "staticlib"
-	lib_obj.force_compiler = "cc"
-	ret = conf.run_check(lib_obj)
-	conf.check_message('compiler could create', 'static libs', not (ret is False))
-	if not ret:
-		conf.fatal("no static libs")
-
+	conf.check_features()
 
 	# FIXME make these checks totally optional
 	# compiler debug levels

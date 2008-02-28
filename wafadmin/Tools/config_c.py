@@ -1121,3 +1121,34 @@ def add_define(self, define, value, quote=-1, comment=''):
 	fatal("DEPRECATED use conf.define() / conf.undefine() / conf.define_cond() instead")
 setattr(Configure.Configure, "add_define", add_define)
 
+def check_features(self, kind='cc'):
+	v = self.env
+	# check for compiler features: programs, shared and static libraries
+	test = Configure.check_data()
+	test.code = 'int main() {return 0;}\n'
+	test.env = v
+	test.execute = 1
+	test.force_compiler = kind
+	ret = self.run_check(test)
+	self.check_message('compiler could create', 'programs', not (ret is False))
+	if not ret: self.fatal("no programs")
+
+	lib_obj = Configure.check_data()
+	lib_obj.code = "int k = 3;\n"
+	lib_obj.env = v
+	lib_obj.build_type = "shlib"
+	lib_obj.force_compiler = kind
+	ret = self.run_check(lib_obj)
+	self.check_message('compiler could create', 'shared libs', not (ret is False))
+	if not ret: self.fatal("no shared libs")
+
+	lib_obj = Configure.check_data()
+	lib_obj.code = "int k = 3;\n"
+	lib_obj.env = v
+	lib_obj.build_type = "staticlib"
+	lib_obj.force_compiler = kind
+	ret = self.run_check(lib_obj)
+	self.check_message('compiler could create', 'static libs', not (ret is False))
+	if not ret: self.fatal("no static libs")
+setattr(Configure.Configure, "check_features", check_features)
+
