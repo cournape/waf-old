@@ -165,12 +165,13 @@ class unit_test(object):
 		percentage_failed = float(self.num_tests_failed) / float(self.total_num_tests) * 100.0
 		percentage_erroneous = float(self.num_tests_err) / float(self.total_num_tests) * 100.0
 
-		print
-		print "Successful tests:      %i (%.1f%%)" % (self.num_tests_ok, percentage_ok)
-		print "Failed tests:          %i (%.1f%%)" % (self.num_tests_failed, percentage_failed)
-		print "Erroneous tests:       %i (%.1f%%)" % (self.num_tests_err, percentage_erroneous)
-		print
-		print "Total number of tests: %i" % self.total_num_tests
-		print
+		print '''
+Successful tests:      %i (%.1f%%)
+Failed tests:          %i (%.1f%%)
+Erroneous tests:       %i (%.1f%%)
+
+Total number of tests: %i
+''' % (self.num_tests_ok, percentage_ok, self.num_tests_failed, percentage_failed,
+		self.num_tests_err, percentage_erroneous, self.total_num_tests)
 		p('GREEN', 'Unit tests finished')
 
