@@ -312,7 +312,7 @@ class Task(TaskBase):
 			variant = node.variant(env)
 			#if node in tree.m_tstamp_variants[variant]:
 			#	print "variant is ", variant
-			#	print "self sig is ", Params.vsig(tree.m_tstamp_variants[variant][node])
+			#	print "self sig is ", Params.view_sig(tree.m_tstamp_variants[variant][node])
 
 			# check if the node exists ..
 			os.stat(node.abspath(env))
@@ -402,7 +402,7 @@ class Task(TaskBase):
 		"explains why a task is run"
 
 		new_sigs = self.cache_sig
-		v = Params.vsig
+		v = Params.view_sig
 
 		debug("Task %s must run: %s" % (self.m_idx, old_sigs[0] != new_sigs[0]), 'task')
 		if (new_sigs[1] != old_sigs[1]):

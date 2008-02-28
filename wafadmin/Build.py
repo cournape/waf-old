@@ -585,7 +585,7 @@ class Build(object):
 					var = self.m_tstamp_variants[variant]
 					#print var
 					if child in var:
-						accu+=' [%s,%s] ' % (str(variant), Params.vsig(var[child]))
+						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child]))
 
 				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'
@@ -600,7 +600,7 @@ class Build(object):
 					var = self.m_tstamp_variants[variant]
 					#print var
 					if child in var:
-						accu+=' [%s,%s] ' % (str(variant), Params.vsig(var[child]))
+						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child]))
 
 				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'

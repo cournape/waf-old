@@ -446,7 +446,7 @@ def sign_env_vars(env, vars_list):
 
 	lst = [env.get_flat(a) for a in vars_list]
 	ret = Params.h_list(lst)
-	if Params.g_zones: debug("%s %s" % (Params.vsig(ret), str(lst)), 'envhash')
+	if Params.g_zones: debug("%s %s" % (Params.view_sig(ret), str(lst)), 'envhash')
 
 	# next time
 	g_cache_max[s] = ret

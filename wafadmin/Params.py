@@ -180,8 +180,7 @@ def fatal(msg, ret=1):
 		traceback.print_stack()
 	sys.exit(ret)
 
-# TODO rename vsig in view_sig
-def vsig(s):
+def view_sig(s):
 	"used for displaying signatures"
 	if type(s) is types.StringType:
 		n = base64.encodestring(s)
