@@ -285,15 +285,18 @@ def build(bld):
 def shutdown():
 	# display the graph of header dependencies
 #	if 1: return
-	import Params, os
+	import Params, os, types
 
 	f = open('foo.dot', 'w')
 	f.write("digraph G {\n")
 	table = Params.g_build.m_depends_on
 	for a in table:
 		for x in table[a]:
-			for y in table[a][x]:
-				f.write('"%s" -> "%s";\n' % (x, y))
+			if type(table[a][x]) is types.ListType:
+				for y in table[a][x]:
+					f.write('"%s" -> "%s";\n' % (x, y))
+			else:
+				f.write('"%s" -> "%s";\n' % (x, table[a][x]))
 	f.write('}\n')
 	f.close()
 
