@@ -282,4 +282,26 @@ def build(bld):
 	if bld.env_of_name('default')['FLEX']:
 		bld.add_subdirs('bisonflex')
 
+def shutdown():
+	# display the graph of header dependencies
+	if 1: return
+	import Params, os
+
+	f = open('foo.dot', 'w')
+	f.write("digraph G {\n")
+	table = Params.g_build.m_depends_on
+	for a in table:
+		for x in table[a]:
+			for y in table[a][x]:
+				f.write('"%s" -> "%s";\n' % (x, y))
+	f.write('}\n')
+	f.close()
+
+	try:
+		os.popen('dot -Tpng me.dot -ofoo.png').read()
+	except:
+		print "the dot program was not found - install graphviz?"
+	else:
+		print "generated foo.png"
+
 
