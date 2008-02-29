@@ -29,7 +29,7 @@ import Action, Params, Environment, Runner, Build, Utils, Object
 from Params import fatal, warning
 from Constants import *
 
-test_ok = True
+TEST_OK = True
 
 class ConfigurationError(Exception):
 	pass

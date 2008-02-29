@@ -88,7 +88,7 @@ class enumerator_base(object):
 
 	# Override this method, not run()!
 	def run_test(self):
-		return not test_ok
+		return not Configure.TEST_OK
 
 class configurator_base(enumerator_base):
 	def __init__(self, conf):
@@ -113,7 +113,7 @@ class program_enumerator(enumerator_base):
 		if self.var: self.env[self.var] = retval
 
 	def run_test(self):
-		ret = find_program_impl(self.env, self.name, self.path, self.var)
+		ret = Configure.find_program_impl(self.env, self.name, self.path, self.var)
 		self.conf.check_message('program', self.name, ret, ret)
 		if self.var: self.env[self.var] = ret
 		return ret
@@ -151,7 +151,7 @@ class function_enumerator(enumerator_base):
 			self.conf.undefine(self.define)
 
 	def run_test(self):
-		ret = not test_ok
+		ret = not Configure.TEST_OK
 
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
@@ -213,26 +213,26 @@ class library_enumerator(enumerator_base):
 
 	def validate(self):
 		if not self.path:
-			self.path = g_stdlibpath
+			self.path = Configure.g_stdlibpath
 		else:
 			if not self.nosystem:
-				self.path += g_stdlibpath
+				self.path += Configure.g_stdlibpath
 
 	def run_test(self):
 		ret = '' # returns a string
 
 		name = self.env['shlib_PREFIX']+self.name+self.env['shlib_SUFFIX']
-		ret  = find_file(name, self.path)
+		ret  = Configure.find_file(name, self.path)
 
 		if not ret:
 			for implib_suffix in self.env['shlib_IMPLIB_SUFFIX']:
 				name = self.env['shlib_PREFIX'] + self.name + implib_suffix
-				ret  = find_file(name, self.path)
+				ret  = Configure.find_file(name, self.path)
 				if ret: break
 
 		if not ret:
 			name = self.env['staticlib_PREFIX']+self.name+self.env['staticlib_SUFFIX']
-			ret  = find_file(name, self.path)
+			ret  = Configure.find_file(name, self.path)
 
 		if self.want_message:
 			self.conf.check_message('library '+self.name, '', ret, option=ret)
@@ -256,10 +256,10 @@ class header_enumerator(enumerator_base):
 
 	def validate(self):
 		if not self.path:
-			self.path = g_stdincpath
+			self.path = Configure.g_stdincpath
 		else:
 			if not self.nosystem:
-				self.path += g_stdincpath
+				self.path += Configure.g_stdincpath
 
 	def error(self):
 		errmsg = 'cannot find %s in %s' % (self.name, str(self.path))
@@ -272,7 +272,7 @@ class header_enumerator(enumerator_base):
 		if self.define: self.env[self.define] = retval
 
 	def run_test(self):
-		ret = find_file(self.name, self.path)
+		ret = Configure.find_file(self.name, self.path)
 		if self.want_message:
 			self.conf.check_message('header', self.name, ret, ret)
 		if self.define: self.env[self.define] = ret
@@ -323,7 +323,7 @@ class cfgtool_configurator(configurator_base):
 
 	def run_test(self):
 		retval = {}
-		found = test_ok
+		found = Configure.TEST_OK
 
 		null='2>/dev/null'
 		if sys.platform == "win32": null='2>nul'
@@ -339,7 +339,7 @@ class cfgtool_configurator(configurator_base):
 			self.update_env(retval)
 		except ValueError:
 			retval = {}
-			found = not test_ok
+			found = not Configure.TEST_OK
 
 		if found:
 			self.conf.define(self.define, found)
