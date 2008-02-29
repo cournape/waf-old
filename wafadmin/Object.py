@@ -125,7 +125,7 @@ class task_gen(object):
 	mappings = {}
 	mapped = {}
 	prec = {}
-	traits = []
+	traits = {}
 
 	def __init__(self):
 		self.prec = {}
@@ -244,9 +244,9 @@ class task_gen(object):
 
 		# last minute modification of self.meths
 		#print task_gen.traits
-		for x in task_gen.traits:
+		for x in self.features:
 			#print "running", x.__name__
-			x(self)
+			task_gen.traits[x](self)
 
 		# copy the precedence table with the keys in self.meths
 		prec = {}

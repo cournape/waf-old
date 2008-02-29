@@ -165,12 +165,12 @@ class qt4obj(cpp.cppobj):
 		self.lang = ''
 		self.langname = ''
 		self.update = 0
-		self.features.append('cxx')
+		self.features.append('qt4')
 
 def trait_qt4(self):
 	if 'qt4' in self.features or self.__class__.__name__ == 'qt4obj':
 		self.meths.update(QT4_METHS)
-if not trait_qt4 in Object.task_gen.traits: Object.task_gen.traits.append(trait_qt4)
+if not trait_qt4 in Object.task_gen.traits: Object.task_gen.traits['qt4'] = trait_qt4
 
 def apply_qt4(self):
 	if self.lang:

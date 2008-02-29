@@ -94,7 +94,7 @@ class ccroot(Object.task_gen):
 		self.link_task = None
 
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
-		self.features = ['program']
+		#self.features = ['program']
 # helper used only here
 def get_target_name(self, ext=None):
 	name = self.target
