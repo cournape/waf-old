@@ -83,7 +83,7 @@ class Environment(object):
 			return value
 		else:
 			if isinstance(value, list):
-				return value # no need to copy the list, it is not borrowed
+				return value # no need to copy the list, it is not borrowed <- TODO ??
 			else:
 				value = [value]
 				self.m_table[key] = value
@@ -102,7 +102,7 @@ class Environment(object):
 
 		if isinstance(value, list):
 			current_value = value + current_value
-			## this is a new list; need to update the dictionary entry
+			# a new list: update the dictionary entry
 			self.m_table[var] = current_value
 		else:
 			current_value.insert(0, value)
