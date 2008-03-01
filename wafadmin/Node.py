@@ -66,8 +66,7 @@ class Node(object):
 		if not self.m_parent:
 			if other.m_parent:
 				return 0
-		else:
-			if self.m_parent.hash_value != other.m_parent.hash_value:
+		elif self.m_parent.hash_value != other.m_parent.hash_value:
 				return 0
 		return self.m_name == other.m_name
 

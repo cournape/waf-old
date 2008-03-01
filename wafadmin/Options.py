@@ -158,10 +158,10 @@ class Handler(object):
 	def sub_options(self, dir, option_group=None):
 		"""set options defined by wscripts:
 		- run by Scripting to set the options defined by main wscript.
-		- run by wscripts to set options in sub directories."""	
+		- run by wscripts to set options in sub directories."""
 		try:
 			current = self.cwd
-	
+
 			self.cwd = os.path.join(self.cwd, dir)
 			cur = os.path.join(self.cwd, WSCRIPT_FILE)
 
