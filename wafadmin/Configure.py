@@ -166,22 +166,6 @@ class Configure(object):
 	def fatal(self, msg):
 		raise ConfigurationError(msg)
 
-	def set_env_name(self, name, env):
-		"add a new environment called name"
-		self.m_allenvs[name] = env
-		return env
-
-	def retrieve(self, name, fromenv=None):
-		"retrieve an environment called name"
-		try:
-			env = self.m_allenvs[name]
-		except KeyError:
-			env = Environment.Environment()
-			self.m_allenvs[name] = env
-		else:
-			if fromenv: warning("The environment %s may have been configured already" % name)
-		return env
-
 	def check_tool(self, input, tooldir=None):
 		"load a waf tool"
 		tools = Utils.to_list(input)
@@ -196,21 +180,26 @@ class Configure(object):
 			if func: func(self)
 			self.tools.append({'tool':tool, 'tooldir':tooldir})
 
-	def setenv(self, name):
-		"enable the environment called name"
-		self.env = self.retrieve(name)
-		self.envname = name
+	def sub_config(self, dir):
+		"executes the configure function of a wscript module"
+		current = self.cwd
 
-	def add_os_flags(self, var, dest=None):
-		if not dest: dest = var
-		# do not use 'get' to make certain the variable is not defined
-		try: self.env[dest] = os.environ[var]
-		except KeyError: pass
+		self.cwd = os.path.join(self.cwd, dir)
+		cur = os.path.join(self.cwd, 'wscript')
 
-	def find_program(self, program_name, path_list=[], var=None):
-		"wrapper provided for convenience"
-		ret = find_program_impl(self.env, program_name, path_list, var)
-		self.check_message('program', program_name, ret, ret)
+		try:
+			mod = Utils.load_module(cur)
+		except IOError:
+			fatal("the wscript file %s was not found." % cur)
+
+		if not hasattr(mod, 'configure'):
+			fatal('the module %s has no configure function; make sure such a function is defined' % cur)
+
+		ret = mod.configure(self)
+		if Params.g_autoconfig:
+			self.hash = Params.hash_function_with_globals(self.hash, mod.configure)
+			self.files.append(os.path.abspath(cur))
+		self.cwd = current
 		return ret
 
 	def store(self, file=''):
@@ -229,46 +218,6 @@ class Configure(object):
 			tmpenv = self.m_allenvs[key]
 			tmpenv.store(os.path.join(Params.g_cachedir, key+CACHE_SUFFIX))
 
-	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin='',
-	              pkgvars=[], pkgdefs={}, mandatory=False):
-		"wrapper provided for convenience"
-		pkgconf = self.create_pkgconfig_configurator()
-
-		if not destvar: destvar = modname.upper()
-
-		pkgconf.uselib = destvar
-		pkgconf.name = modname
-		pkgconf.version = vnum
-		if pkgpath: pkgconf.pkgpath = pkgpath
-		pkgconf.binary = pkgbin
-		pkgconf.variables = pkgvars
-		pkgconf.defines = pkgdefs
-		pkgconf.mandatory = mandatory
-		return pkgconf.run()
-
-	def sub_config(self, dir):
-		"executes the configure function of a wscript module"
-		current = self.cwd
-
-		self.cwd = os.path.join(self.cwd, dir)
-		cur = os.path.join(self.cwd, 'wscript')
-
-		try:
-			mod = Utils.load_module(cur)
-		except IOError:
-			fatal("the wscript file %s was not found." % cur)
-
-		if not hasattr(mod, 'configure'):
-			fatal('the module %s has no configure function; '
-			      'make sure such a function is defined' % cur)
-
-		ret = mod.configure(self)
-		if Params.g_autoconfig:
-			self.hash = Params.hash_function_with_globals(self.hash, mod.configure)
-			self.files.append(os.path.abspath(cur))
-		self.cwd = current
-		return ret
-
 	def cleanup(self):
 		"when there is a cache directory store the config results (shutdown)"
 		if not Params.g_cache_global: return
@@ -283,6 +232,33 @@ class Configure(object):
 			cPickle.dump(self.m_cache_table, file)
 		finally:
 			file.close()
+
+	def set_env_name(self, name, env):
+		"add a new environment called name"
+		self.m_allenvs[name] = env
+		return env
+
+	def retrieve(self, name, fromenv=None):
+		"retrieve an environment called name"
+		try:
+			env = self.m_allenvs[name]
+		except KeyError:
+			env = Environment.Environment()
+			self.m_allenvs[name] = env
+		else:
+			if fromenv: warning("The environment %s may have been configured already" % name)
+		return env
+
+	def setenv(self, name):
+		"enable the environment called name"
+		self.env = self.retrieve(name)
+		self.envname = name
+
+	def add_os_flags(self, var, dest=None):
+		if not dest: dest = var
+		# do not use 'get' to make certain the variable is not defined
+		try: self.env[dest] = os.environ[var]
+		except KeyError: pass
 
 	def check_message(self,type,msg,state,option=''):
 		"print an checking message. This function is used by other checking functions"
@@ -311,11 +287,11 @@ class Configure(object):
 		"mutes the output temporarily"
 		if Params.g_options.verbose: return
 		# store the settings
-		(self._a,self._b,self._c) = Params.get_trace()
+		(self._a, self._b, self._c) = Params.get_trace()
 		self._quiet = Runner.g_quiet
 		# then mute
 		if not g_debug:
-			Params.set_trace(0,0,0)
+			Params.set_trace(0, 0, 0)
 			Runner.g_quiet = 1
 
 	def restore_logging(self):
@@ -323,8 +299,31 @@ class Configure(object):
 		if Params.g_options.verbose: return
 		# restore the settings
 		if not g_debug:
-			Params.set_trace(self._a,self._b,self._c)
+			Params.set_trace(self._a, self._b, self._c)
 			Runner.g_quiet = self._quiet
+
+	def find_program(self, program_name, path_list=[], var=None):
+		"wrapper provided for convenience"
+		ret = find_program_impl(self.env, program_name, path_list, var)
+		self.check_message('program', program_name, ret, ret)
+		return ret
+
+	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin='',
+	              pkgvars=[], pkgdefs={}, mandatory=False):
+		"wrapper provided for convenience"
+		pkgconf = self.create_pkgconfig_configurator()
+
+		if not destvar: destvar = modname.upper()
+
+		pkgconf.uselib = destvar
+		pkgconf.name = modname
+		pkgconf.version = vnum
+		if pkgpath: pkgconf.pkgpath = pkgpath
+		pkgconf.binary = pkgbin
+		pkgconf.variables = pkgvars
+		pkgconf.defines = pkgdefs
+		pkgconf.mandatory = mandatory
+		return pkgconf.run()
 
 	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
 		if not env: env=self.env
