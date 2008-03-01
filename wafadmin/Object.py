@@ -35,6 +35,7 @@ typos = {
 'targets':'target',
 'include':'includes',
 'define':'defines',
+'importpath':'importpaths',
 'install_var':'inst_var',
 'install_subdir':'inst_dir',
 }
