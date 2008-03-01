@@ -201,6 +201,12 @@ class Configure(object):
 		self.env = self.retrieve(name)
 		self.envname = name
 
+	def add_os_flags(self, var, dest=None):
+		if not dest: dest = var
+		# do not use 'get' to make certain the variable is not defined
+		try: self.env[dest] = os.environ[var]
+		except KeyError: pass
+
 	def find_program(self, program_name, path_list=[], var=None):
 		"wrapper provided for convenience"
 		ret = find_program_impl(self.env, program_name, path_list, var)
