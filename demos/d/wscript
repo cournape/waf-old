@@ -27,7 +27,7 @@ def build(bld):
 	obj.source = '''
 	testlib/code.d
 	'''
-	obj.importpath = '.'
+	obj.importpaths = '.'
 	obj.name = 'testlib'
 	obj.target = 'testlib'
 
