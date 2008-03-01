@@ -150,7 +150,7 @@ class task_gen(object):
 		self.m_tasks = []
 
 		self.chmod = 0644
-		self.inst_var = '' # 0 to prevent installation
+		self.inst_var = 0 # 0 to prevent installation
 		self.inst_dir = ''
 
 
