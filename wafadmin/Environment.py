@@ -9,6 +9,8 @@ import Params
 from Params import debug, warning
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
+g_cache_max = {}
+
 g_idx = 0
 class Environment(object):
 	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
@@ -157,4 +159,21 @@ class Environment(object):
 		try: dst = os.path.join(dst, os.sep, self.m_table['SUBDEST'])
 		except KeyError: pass
 		return dst
+
+	def sign_vars(env, vars_list):
+		" ['CXX', ..] -> [env['CXX'], ..]"
+
+		# ccroot objects use the same environment for building the .o at once
+		# the same environment and the same variables are used
+		s = str([env.m_idx]+vars_list)
+		try: return g_cache_max[s]
+		except KeyError: pass
+
+		lst = [env.get_flat(a) for a in vars_list]
+		ret = Params.h_list(lst)
+		if Params.g_zones: debug("%s %s" % (Params.view_sig(ret), str(lst)), 'envhash')
+
+		# next time
+		g_cache_max[s] = ret
+		return ret
 

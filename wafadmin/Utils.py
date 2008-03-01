@@ -50,10 +50,10 @@ def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 			Params.fatal("waf version should be at most %s (%s found)" % (maxi, Params.g_version))
 
 def reset():
-	import Params, Object
+	import Params, Object, Environment
 	Params.g_build = None
-	#Object.g_allobjs = []
-	Object.g_cache_max = {}
+	Object.g_allobjs = []
+	Environment.g_cache_max = {}
 	#Object.task_gen.mappings = {}
 	#Object.task_gen.mapped = {}
 

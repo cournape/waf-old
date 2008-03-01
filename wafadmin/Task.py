@@ -10,7 +10,7 @@ import os, types, shutil
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-import Params, Scan, Action, Runner, Object
+import Params, Scan, Action, Runner
 from Params import debug, error, warning
 
 class TaskManager(object):
@@ -211,14 +211,14 @@ class Task(TaskBase):
 		# dependencies on the environment vars
 		fun = getattr(self.m_action, 'signature', None)
 		if fun: act_sig = self.m_action.signature(self)
-		else: act_sig = Object.sign_env_vars(env, self.m_action.m_vars)
+		else: act_sig = env.sign_vars(self.m_action.m_vars)
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
 		var_sig = None
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
-			var_sig = Object.sign_env_vars(env, dep_vars)
+			var_sig = env.sign_vars(dep_vars)
 			m.update(var_sig)
 
 		# additional nodes to depend on, if provided

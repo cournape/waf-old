@@ -436,24 +436,6 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 
 	declare_extension(ext_in, x_file)
 
-g_cache_max = {}
-def sign_env_vars(env, vars_list):
-	" ['CXX', ..] -> [env['CXX'], ..]"
-
-	# ccroot objects use the same environment for building the .o at once
-	# the same environment and the same variables are used
-	s = str([env.m_idx]+vars_list)
-	try: return g_cache_max[s]
-	except KeyError: pass
-
-	lst = [env.get_flat(a) for a in vars_list]
-	ret = Params.h_list(lst)
-	if Params.g_zones: debug("%s %s" % (Params.view_sig(ret), str(lst)), 'envhash')
-
-	# next time
-	g_cache_max[s] = ret
-	return ret
-
 g_allclasses = {}
 def register(name, classval):
 	global g_allclasses
