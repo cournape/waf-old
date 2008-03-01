@@ -18,9 +18,8 @@ Additionally, task_gen provides the method apply_core
 * when called, the functions may modify self.allnodes to re-add source to process
 * the mappings can map an extension or a filename (see the code below)
 
-WARNING 1 genobj is now obsolete, it will disappear
-WARNING 2 subclasses must reimplement the clone method to avoid problems with 'deepcopy'
-WARNING 3 find a new name for this file (naming it 'Object' was never a good idea)
+WARNING 1 subclasses must reimplement the clone method to avoid problems with 'deepcopy'
+WARNING 2 find a new name for this file (naming it 'Object' was never a good idea)
 """
 
 import os, types, traceback, sys, copy
@@ -40,7 +39,7 @@ typos = {
 'install_subdir':'inst_dir',
 }
 
-g_allobjs=[]
+g_allobjs = []
 "contains all objects, provided they are created (not in distclean or in dist)"
 #TODO part of the refactoring to eliminate the static stuff (Utils.reset)
 
@@ -72,7 +71,7 @@ def flush(all=1):
 	# post only objects below a particular folder (recursive make behaviour)
 	launch_dir_node = tree.m_root.find_dir(Params.g_cwd_launch)
 	if launch_dir_node.is_child_of(tree.m_bldnode):
-		launch_dir_node=tree.m_srcnode
+		launch_dir_node = tree.m_srcnode
 
 	if Params.g_options.compile_targets:
 		debug('posting objects listed in compile_targets', 'object')
@@ -166,8 +165,7 @@ class task_gen(object):
 
 	def __str__(self):
 		return ("<genobj '%s' of type %s defined in %s>"
-			% (self.name or self.target,
-			   self.__class__.__name__, str(self.path)))
+			% (self.name or self.target, self.__class__.__name__, str(self.path)))
 
 	def __setattr__(self, name, attr):
 		real = typos.get(name, name)
@@ -300,7 +298,7 @@ class task_gen(object):
 			return
 		self.apply()
 		debug("posted %s" % self.name, 'object')
-		self.m_posted=1
+		self.m_posted = 1
 
 	def get_hook(self, ext):
 		map = self.mappings
@@ -329,7 +327,7 @@ class task_gen(object):
 
 	def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 		"subclass if necessary"
-		lst=[]
+		lst = []
 		excludes = self.to_list(excludes)
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
@@ -438,7 +436,7 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 
 	declare_extension(ext_in, x_file)
 
-g_cache_max={}
+g_cache_max = {}
 def sign_env_vars(env, vars_list):
 	" ['CXX', ..] -> [env['CXX'], ..]"
 
