@@ -225,14 +225,9 @@ def detect(conf):
 
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
 
-	ron = os.environ
-	def addflags(orig, dest=None):
-		if not dest: dest=orig
-		try: conf.env[dest] = ron[orig]
-		except KeyError: pass
-	addflags('CXXFLAGS')
-	addflags('CPPFLAGS')
-	addflags('LINKFLAGS')
+	conf.add_os_flags('CXXFLAGS')
+	conf.add_os_flags('CPPFLAGS')
+	conf.add_os_flags('LINKFLAGS')
 
 	if not v['DESTDIR']: v['DESTDIR']=''
 

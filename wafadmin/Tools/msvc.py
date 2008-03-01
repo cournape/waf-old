@@ -392,21 +392,10 @@ def detect(conf):
 	v['CXXFLAGS']  += v['CXXFLAGS_'+debug_level]
 	v['LINKFLAGS'] += v['LINKFLAGS_'+debug_level]
 
-	def addflags(var):
-		try:
-			c = os.environ[var]
-		except KeyError:
-			pass
-		else:
-			if c:
-				# strip leading and trailing and whitespace and "
-				c = c.strip('" ')
-				for cv in c.split():
-					v[var].append(cv)
-
-	addflags('CXXFLAGS')
-	addflags('CPPFLAGS')
-	addflags('LINKFLAGS')
+	conf.add_os_flags('CFLAGS', 'CCFLAGS')
+	conf.add_os_flags('CPPFLAGS')
+	conf.add_os_flags('CXXFLAGS')
+	conf.add_os_flags('LINKFLAGS')
 
 	if not v['DESTDIR']: v['DESTDIR']=''
 
