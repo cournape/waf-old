@@ -89,8 +89,7 @@ def start_daemon():
 		g_dirwatch.add_watch("tmp Test", call_back, m_dirs)
 
 def configure():
-	## while configuring we should temporarily disable all
-	## parallelism, else weird things will happen...
+	# disable parallelization while configuring
 	jobs_save = Params.g_options.jobs
 	Params.g_options.jobs = 1
 
@@ -108,7 +107,7 @@ def configure():
 	if not bld: fatal(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
 
 	Params.g_cachedir = os.path.join(bld, CACHE_DIR)
-	tree.load_dirs(src, bld)
+	tree.load_dirs(src, bld, isconfigure=1)
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
 	try:
@@ -136,9 +135,9 @@ def configure():
 	proj['files']=conf.files
 	cPickle.dump(proj, file)
 	file.close()
-	## restore -j option
-	Params.g_options.jobs = jobs_save
 
+	# restore -j option
+	Params.g_options.jobs = jobs_save
 
 def read_cache_file(filename):
 	file = open(g_lockfile, 'r')
