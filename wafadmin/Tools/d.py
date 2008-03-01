@@ -9,7 +9,7 @@ import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
 
 EXT_D = ['.d', '.di', '.D']
-D_METHS = ['apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install']
+D_METHS = ['apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps']
 
 def filter_comments(filename):
 	f = open(filename, 'r')
@@ -247,6 +247,9 @@ class dobj(Object.task_gen):
 		self.add_objects = []
 		self.features.append('d')
 
+		self.inst_var = '' # mark as installable TODO
+		self.vnum = '1.0.0'
+
 def trait_d(obj):
 	if 'd' in obj.features or obj.__class__.__name__ == 'dobj':
 		obj.meths.update(D_METHS)
@@ -423,7 +426,7 @@ def apply_d_vars(self):
 			env.append_unique('DLINKFLAGS', linkflag)
 Object.gen_hook(apply_d_vars)
 
-Object.declare_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_d_libs', 'apply_vnum', 'apply_objdeps', 'install')
+Object.declare_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_d_libs', 'apply_vnum', 'apply_objdeps')
 
 def d_hook(self, node):
 	# create the compilation task: cpp or cc

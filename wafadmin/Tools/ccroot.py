@@ -93,6 +93,8 @@ class ccroot(Object.task_gen):
 		self.compiled_tasks = []
 		self.link_task = None
 
+		self.inst_var = '' # mark as installable TODO
+
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
 		#self.features = ['program']
 # helper used only here

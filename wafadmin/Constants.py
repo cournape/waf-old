@@ -6,12 +6,12 @@
 HEXVERSION = 0x10303
 ABI = 2
 
-CACHE_DIR			= 'c4che'
-CACHE_SUFFIX		= '.cache.py'
-DBFILE				= '.wafpickle-%d' % ABI
-WSCRIPT_FILE		= 'wscript'
-WSCRIPT_BUILD_FILE	= 'wscript_build'
-COMMON_INCLUDES		= 'COMMON_INCLUDES'
+CACHE_DIR          = 'c4che'
+CACHE_SUFFIX       = '.cache.py'
+DBFILE             = '.wafpickle-%d' % ABI
+WSCRIPT_FILE       = 'wscript'
+WSCRIPT_BUILD_FILE = 'wscript_build'
+COMMON_INCLUDES    = 'COMMON_INCLUDES'
 
 SRCDIR  = 'srcdir'
 BLDDIR  = 'blddir'
