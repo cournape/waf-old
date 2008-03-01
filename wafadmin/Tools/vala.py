@@ -60,8 +60,8 @@ class ValacAction(Action.Action):
 				deps.close()
 
 			# handle vala 0.1.6 who doesn't honor --directory for the generated .vapi
+			# waf is always run from the build directory
 			try:
-				#FIXME: how do we get the dir where waf is running from ?
 				src_vapi = os.path.join(top_bld, "..", "%s.vapi" % task.target)
 				dst_vapi = task.m_outputs[0].bld_dir(env)
 				shutil.move(src_vapi, dst_vapi)
