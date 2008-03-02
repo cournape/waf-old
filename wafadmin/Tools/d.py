@@ -453,6 +453,33 @@ Action.simple_action('d_link', link_str, color='YELLOW', prio=101)
 Object.register('d', dobj)
 Object.declare_extension(EXT_D, d_hook)
 
+
+# for feature request #104
+def generate_header(self, filename, inst_var, inst_dir):
+	if not hasattr(self, 'header_lst'): self.header_lst = []
+	self.meths.add('process_header')
+	self.header_lst.append([filename, inst_var, inst_dir])
+Object.gen_hook(generate_header)
+
+def process_header(self):
+	env = self.env
+	for i in getattr(self, 'header_lst', []):
+		node = self.path.find_source(i[0])
+
+		if not node:
+			fatal('file not found on d obj '+i[0])
+
+		task = self.create_task('d_header', env, 2)
+		task.set_inputs(node)
+		task.set_outputs(node.change_ext('.di'))
+Object.gen_hook(process_header)
+Object.declare_order('process_header', 'apply_core')
+
+d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
+Action.simple_action('d_header', d_header_str, color='BLUE', prio=80)
+
+
+
 def detect(conf):
 	return 1
 
