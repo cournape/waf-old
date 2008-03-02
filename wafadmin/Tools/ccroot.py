@@ -130,10 +130,10 @@ def apply_verif(self):
 			fatal('no target for %s' % self)
 Object.gen_hook(apply_verif)
 
-def install(self):
+def install_target(self):
 	# FIXME too complicated
 	if not hasattr(self, 'link_task'): return
-	if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
+	if not Params.g_install: return
 
 	dest_var    = self.inst_var
 	dest_subdir = self.inst_dir
@@ -167,7 +167,7 @@ def install(self):
 			self.install_results(dest_var, dest_subdir, self.link_task)
 	else:
 		self.install_results(dest_var, dest_subdir, self.link_task, chmod=self.chmod)
-Object.gen_hook(install)
+Object.gen_hook(install_target)
 
 def apply_dependencies(self):
 	if self.dependencies:
@@ -420,7 +420,7 @@ def apply_vnum(self):
 Object.gen_hook(apply_vnum)
 
 Object.declare_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
-	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install')
+	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install_target')
 
 
 # Small example on how to link object files as if they were source

@@ -9,7 +9,7 @@ import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
 
 EXT_D = ['.d', '.di', '.D']
-D_METHS = ['apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps']
+D_METHS = ['apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install_target']
 
 def filter_comments(filename):
 	f = open(filename, 'r')
@@ -426,7 +426,7 @@ def apply_d_vars(self):
 			env.append_unique('DLINKFLAGS', linkflag)
 Object.gen_hook(apply_d_vars)
 
-Object.declare_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_d_libs', 'apply_vnum', 'apply_objdeps')
+Object.declare_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_d_libs', 'apply_vnum', 'apply_objdeps', 'install_target')
 
 def d_hook(self, node):
 	# create the compilation task: cpp or cc

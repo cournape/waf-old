@@ -152,6 +152,9 @@ class task_gen(object):
 		self.inst_var = 0 # 0 to prevent installation
 		self.inst_dir = ''
 
+		if Params.g_install:
+			self.inst_files = [] # lazy list of tuples representing the files to install
+
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
 
@@ -188,6 +191,12 @@ class task_gen(object):
 		# TODO adding functions ?
 		self.meths.append(name)
 
+	def install(self):
+		if not Params.g_install: return
+		for (name, var, dir, chmod) in self.inst_files:
+			print name, var, dir, chmod
+
+	# TODO ugly code
 	def install_results(self, var, subdir, task, chmod=0644):
 		debug('install results called', 'object')
 		if not task: return
