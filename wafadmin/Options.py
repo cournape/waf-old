@@ -114,7 +114,7 @@ def parse_args_impl(parser, _args=None):
 
 	# By default, 'waf' is equivalent to 'waf build'
 	lst='dist configure clean distclean build install uninstall check distcheck'.split()
-	Params.g_commands={}
+	Params.g_commands = {}
 	for var in lst:    Params.g_commands[var] = 0
 	if len(args) == 0: Params.g_commands['build'] = 1
 
@@ -129,6 +129,9 @@ def parse_args_impl(parser, _args=None):
 			sys.exit(1)
 	if Params.g_commands['check']:
 		Params.g_commands['build'] = True
+
+	if Params.g_commands['install'] or Params.g_commands['uninstall']:
+		Params.g_install = 1
 
 	# TODO -k => -j0
 	if Params.g_options.keep: Params.g_options.jobs = 1

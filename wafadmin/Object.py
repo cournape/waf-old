@@ -428,7 +428,7 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 		ltask.set_outputs(out_source)
 
 		if install:
-			if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
+			if not Params.g_install: return
 			if self.inst_var == 0: return
 			lst = [a.relpath_gen(self.path) for a in ltask.m_outputs]
 			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)

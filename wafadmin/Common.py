@@ -76,7 +76,7 @@ def path_install(var, subdir, env=None):
 	return destpath
 
 def install_files(var, subdir, files, env=None, chmod=0644):
-	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
+	if not Params.g_install: return
 	if var == 0: return
 
 	bld = Params.g_build
@@ -118,7 +118,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 		do_install(file, destfile, chmod=chmod)
 
 def install_as(var, destfile, srcfile, env=None, chmod=0644):
-	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
+	if not Params.g_install: return
 	if var == 0: return
 
 	bld = Params.g_build
@@ -144,7 +144,7 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	do_install(src, tgt, chmod=chmod)
 
 def symlink_as(var, src, dest, env=None):
-	if (not Params.g_commands['install']) and (not Params.g_commands['uninstall']): return
+	if not Params.g_install: return
 	if var == 0: return
 
 	bld = Params.g_build

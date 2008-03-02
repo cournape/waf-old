@@ -131,6 +131,7 @@ def apply_verif(self):
 Object.gen_hook(apply_verif)
 
 def install(self):
+	# FIXME too complicated
 	if not hasattr(self, 'link_task'): return
 	if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 
