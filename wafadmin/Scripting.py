@@ -385,10 +385,13 @@ def main():
 			else: error(e.get_message())
 
 	# install
-	if Params.g_commands['install'] or Params.g_commands['uninstall']:
+	if Params.g_install:
 		try:
 			bld.install()
-			Params.pprint('GREEN', 'Installation finished successfully')
+			if Params.g_commands['install']:
+				Params.pprint('GREEN', 'Installation finished successfully')
+			else:
+				Params.pprint('GREEN', 'Uninstallation finished successfully')
 		finally:
 			bld.save()
 		#if ret: fatal('Compilation failed')
