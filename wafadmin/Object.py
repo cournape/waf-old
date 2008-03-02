@@ -192,6 +192,10 @@ class task_gen(object):
 		self.meths.append(name)
 
 	def install(self):
+		# FIXME
+		# ambiguity with the install functions
+		# it is often better to install the targets right after they are up-to_date
+		# but this means attaching the install to the task objects
 		if not Params.g_install: return
 		for (name, var, dir, chmod) in self.inst_files:
 			print name, var, dir, chmod
