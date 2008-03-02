@@ -136,7 +136,7 @@ class task_gen(object):
 		self.source = ''
 		self.target = ''
 
-		# list of methods to execute
+		# list of methods to execute - in general one does not touch it by hand
 		self.meths = set(['apply_core'])
 
 		# list of mappings extension -> function
@@ -151,7 +151,6 @@ class task_gen(object):
 		self.chmod = 0644
 		self.inst_var = 0 # 0 to prevent installation
 		self.inst_dir = ''
-
 
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
@@ -321,7 +320,7 @@ class task_gen(object):
 
 	def create_task(self, type, env=None, nice=None):
 		task = Task.Task(type, env or self.env)
-		if not (nice is None): task.prio = nice
+		if nice: task.prio = nice
 		self.m_tasks.append(task)
 		return task
 
