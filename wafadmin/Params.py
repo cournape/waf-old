@@ -53,16 +53,16 @@ g_platform = sys.platform
 g_cache_global = ''
 "config cache directory"
 
-g_lockfile = '.lock-wscript'
-"allow different names for the lockfile"
-
 g_conf_name = 'conf-runs-%s-%d.pickle' % (sys.platform, Constants.ABI)
+
+g_install = 0
+"true if install or uninstall is set"
 
 try: g_cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: pass
 
 try: g_lockfile = os.environ['WAFLOCK']
-except KeyError: pass
+except KeyError: g_lockfile = '.lock-wscript'
 
 # =================================== #
 # HELPERS
