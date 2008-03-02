@@ -10,33 +10,36 @@ import Params, Configure
 import ccroot
 
 """
-An alternate way of organizing the code (avoid the if/else trees):
+# divide the code into units of change
+# continue the processing after an error occured
 
-@provides PLATFORM
-def detect_platform():
-	if not conf.env['PLATFORM']:
-		conf.env['PLATFORM'] = sys.platform
+def on_error(func_name, exc):
+	if func_name == 'not_critical':
+		env['foo'] = 'blah'
+		return CONTINUE
+	return STOP
 
-@provides CC
-def program_gcc():
-	conf.env['CC'] = 'cc'
+def eval_rules(env, rules, err_handler):
+	for x in rules:
+		try:
+			# check precondition
+			x(env)
+			# check postcondition
+		except Exception, e:
+			if err_handler(x.__name__, e) == STOP:
+				break
+			else:
+				raise
 
-@requires PLATFORM
-def flags_aix5_gcc():
-	if PLATFORM == aix5:
-		conf.env['shlib_ext'] = '_sh.o'
-
-checks_c = [detect_platform, program_gcc, flags_aix5_gcc]
-
-And to use:
-env.detect_tests(checks_c)
-
-The annotations would be checked automatically for
-the various constraints (missing variable, ..)
-
-
+def find_program_c():
+	'''
+	provides = CC
+	requires = None
+	precondition = None
+	postcondition = None
+	'''
+	pass
 """
-
 
 def detect(conf):
 	try:
