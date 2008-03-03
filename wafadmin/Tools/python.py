@@ -10,14 +10,25 @@ import Object, Action, Utils, Params, Common, Utils
 import pproc as subprocess
 
 def process_py(self, node):
+
 	if self.env['PYC']:
-		task = self.create_task('pyc', self.env)
-		task.set_inputs(node)
-		task.set_outputs(node.change_ext('.pyc'))
+		t1 = self.create_task('pyc', self.env)
+		t1.set_inputs(node)
+		t1.set_outputs(node.change_ext('.pyc'))
+
 	if self.env['PYO']:
-		task = self.create_task('pyo', self.env)
-		task.set_inputs(node)
-		task.set_outputs(node.change_ext('.pyo'))
+		t2 = self.create_task('pyo', self.env)
+		t2.set_inputs(node)
+		t2.set_outputs(node.change_ext('.pyo'))
+
+	if Params.g_install:
+		inst_src = not self.env['NOPY']
+		install = {'var': self.inst_var, 'dir': self.inst_dir, 'chmod': self.chmod, 'src': inst_src}
+
+		try: t2.install = install
+		except: pass
+		try: t1.install = install
+		except: pass
 
 Object.declare_extension('.py', process_py)
 
@@ -28,14 +39,6 @@ class pyobj(Object.task_gen):
 		self.inst_var = 'PYTHONDIR'
 		self.inst_dir = ''
 		self.chmod = 0644
-
-	def install(self):
-		for i in self.m_tasks:
-			current = Params.g_build.m_curdirnode
-			lst=[a.relpath_gen(current) for a in i.m_outputs]
-			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)
-			lst=[a.relpath_gen(current) for a in i.m_inputs]
-			Common.install_files(self.inst_var, self.inst_dir, lst, chmod=self.chmod, env=self.env)
 
 Object.register('py', pyobj)
 Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)

@@ -369,7 +369,7 @@ def main():
 	if pre_build: pre_build()
 
 	# compile
-	if Params.g_commands['build'] or Params.g_commands['install']:
+	if Params.g_commands['build'] or Params.g_install:
 		try:
 			bld.compile()
 			#ret = 0
@@ -378,23 +378,16 @@ def main():
 			#p = pstats.Stats('profi.txt')
 			#p.sort_stats('time').print_stats(20)
 
-			if Params.g_options.progress_bar: print ''
-			Params.pprint('GREEN', 'Compilation finished successfully')
 		except Build.BuildError, e:
 			if not Params.g_options.daemon: fatal(e.get_message(), 1)
 			else: error(e.get_message())
+		else:
+			if Params.g_options.progress_bar: print ''
 
-	# install
-	if Params.g_install:
-		try:
-			bld.install()
-			if Params.g_commands['install']:
-				Params.pprint('GREEN', 'Installation finished successfully')
-			else:
-				Params.pprint('GREEN', 'Uninstallation finished successfully')
-		finally:
-			bld.save()
-		#if ret: fatal('Compilation failed')
+			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully'
+			elif Params.g_commands['uninstall']: msg = 'Uninstallation finished successfully'
+			else: msg = 'Compilation finished successfully'
+			Params.pprint('GREEN', msg)
 
 	# clean
 	if Params.g_commands['clean']:

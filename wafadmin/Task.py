@@ -10,7 +10,7 @@ import os, types, shutil
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-import Params, Scan, Action, Runner
+import Params, Scan, Action, Runner, Common
 from Params import debug, error, warning
 
 class TaskManager(object):
@@ -54,7 +54,12 @@ class TaskManager(object):
 				print "prio: ", j, str(i.prio[j])
 	def add_finished(self, tsk):
 		self.tasks_done.append(tsk)
-		#print tsk
+		# TODO we could install using threads here
+		if Params.g_install and hasattr(tsk, 'install'):
+			d = tsk.install
+			lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
+			if d['src']: lst += [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_inputs]
+			Common.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=tsk.env())
 
 class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"
