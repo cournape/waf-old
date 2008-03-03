@@ -146,7 +146,9 @@ def install_target(self):
 	if self.m_type == 'program':
 		try: mode = self.program_chmod
 		except AttributeError: mode = 0755
-		self.install_results(dest_var, dest_subdir, self.link_task, chmod=mode)
+		if Params.g_install:
+			install = {'var':dest_var,'dir':dest_subdir,'chmod':mode}
+			self.link_task.install = install
 	elif self.m_type == 'shlib' or self.m_type == 'plugin':
 
 		try: nums = self.vnum.split('.')
