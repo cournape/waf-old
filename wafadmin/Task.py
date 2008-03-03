@@ -52,6 +52,9 @@ class TaskManager(object):
 			print "-----group-------", i.name
 			for j in i.prio:
 				print "prio: ", j, str(i.prio[j])
+	def add_finished(self, tsk):
+		self.tasks_done.append(tsk)
+		#print tsk
 
 class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"

@@ -87,7 +87,6 @@ def set_exec(mode):
 class Serial(object):
 	def __init__(self, bld):
 		self.error = 0
-		self.tasks_done = []
 
 		self.manager = bld.task_manager
 
@@ -202,7 +201,7 @@ class Serial(object):
 			#continue
 			if not tsk.must_run():
 				tsk.m_hasrun = skipped
-				self.manager.tasks_done.append(tsk)
+				self.manager.add_finished(tsk)
 				#debug("task is up-to_date "+str(tsk.m_idx), 'runner')
 				continue
 
@@ -216,7 +215,7 @@ class Serial(object):
 
 			# run the command
 			ret = tsk.run()
-			self.manager.tasks_done.append(tsk)
+			self.manager.add_finished(tsk)
 
 			# non-zero means something went wrong
 			if ret:
@@ -314,8 +313,6 @@ class Parallel(object):
 		self.curprio = -1
 		self.priolst = []
 
-		self.manager.tasks_done = []
-
 	def get_next_prio(self):
 		# stop condition
 		if self.curgroup >= len(self.manager.groups):
@@ -346,7 +343,7 @@ class Parallel(object):
 		#group = None
 
 		def get_out():
-			self.manager.tasks_done.append(self.out.get())
+			self.manager.add_finished(self.out.get())
 			self.count -= 1
 
 		lastfailput = 0
@@ -388,7 +385,7 @@ class Parallel(object):
 				self.progress += 1
 				if not tsk.must_run():
 					tsk.m_hasrun = skipped
-					self.manager.tasks_done.append(tsk)
+					self.manager.add_finished(tsk)
 					continue
 				cl = Params.g_colors
 				tsk.set_display(progress_line(self.progress, self.total, cl[tsk.color()], tsk, cl['NORMAL']))
