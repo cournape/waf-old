@@ -10,6 +10,7 @@ Object.declare_chain(
 	action = '${LUAC} -s -o ${TGT} ${SRC}',
 	ext_in = '.lua',
 	ext_out = '.luac',
+	reentrant = 0,
 	install = 1,
 )
 
