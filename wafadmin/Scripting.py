@@ -371,6 +371,14 @@ def main():
 	# compile
 	if Params.g_commands['build'] or Params.g_install:
 		try:
+
+			# TODO quite ugly, no?
+			if not Params.g_commands['build'] and not Params.g_commands['install']:
+				import Task
+				def must_run(self):
+					return 0
+				setattr(Task.Task, 'must_run', must_run)
+
 			bld.compile()
 			#ret = 0
 			#import cProfile, pstats
