@@ -13,18 +13,18 @@ class langobj(Object.task_gen):
 		self.appname = appname
 
 	def apply(self):
+
 		for lang in self.to_list(self.langs):
 			node = self.path.find_source_lst(Utils.split_path(lang+'.po'))
 			task = self.create_task('msgfmt', self.env)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.mo'))
 
-	def install(self):
-		for lang in self.to_list(self.langs):
+			if not Params.g_install: continue
 			langname = lang.split('/')
 			langname = langname[-1]
 			inst_dir = langname+os.sep+'LC_MESSAGES'
-			Common.install_as(self.inst_var, inst_dir+'/semantik.mo', lang+'.mo', chmod=self.chmod)
+			task.install = {'var':self.inst_var,'dir':inst_dir+'/'+appname+'.mo','chmod':self.chmod}
 
 def detect(conf):
 	kdeconfig = conf.find_program('kde4-config')
