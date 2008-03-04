@@ -127,12 +127,12 @@ def configure():
 	file = open(g_lockfile, 'w')
 	file.write
 
-	proj={}
-	proj[BLDDIR]=bld
-	proj[SRCDIR]=src
-	proj['argv']=sys.argv[1:]
-	proj['hash']=conf.hash
-	proj['files']=conf.files
+	proj = {}
+	proj[BLDDIR] = bld
+	proj[SRCDIR] = src
+	proj['argv'] = sys.argv[1:]
+	proj['hash'] = conf.hash
+	proj['files'] = conf.files
 	cPickle.dump(proj, file)
 	file.close()
 
@@ -248,7 +248,7 @@ def prepare():
 	# fetch the custom command-line options recursively and in a procedural way
 	opt_obj = Options.Handler()
 	# will call to main wscript's set_options()
-	opt_obj.sub_options('') 
+	opt_obj.sub_options('')
 	opt_obj.parse_args()
 
 	# use the parser results
