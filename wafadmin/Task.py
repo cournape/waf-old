@@ -57,9 +57,13 @@ class TaskManager(object):
 		# TODO we could install using threads here
 		if Params.g_install and hasattr(tsk, 'install'):
 			d = tsk.install
-			lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
-			if d.get('src', 0): lst += [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_inputs]
-			Common.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=tsk.env())
+
+			if type(d) is types.FunctionType:
+				d(tsk)
+			else:
+				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
+				if d.get('src', 0): lst += [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_inputs]
+				Common.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=tsk.env())
 
 class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"

@@ -130,6 +130,24 @@ def apply_verif(self):
 			fatal('no target for %s' % self)
 Object.gen_hook(apply_verif)
 
+def install_shlib(task):
+	try: nums = task.vnum.split('.')
+	except AttributeError: nums = [1, 0, 0]
+
+	dest_var = task.dest_var
+	dest_subdir = task.dest_subdir
+
+	libname = task.m_outputs[0].m_name
+
+	name3 = libname+'.'+task.vnum
+	name2 = libname+'.'+nums[0]
+	name1 = libname
+
+	filename = task.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
+	Common.install_as(dest_var, dest_subdir+'/'+name3, filename, env=task.env())
+	Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
+	Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
+
 def install_target(self):
 	# FIXME too complicated
 	if not hasattr(self, 'link_task'): return
@@ -143,23 +161,13 @@ def install_target(self):
 		dest_var = self.env[self.subtype+'_INST_VAR']
 		dest_subdir = self.env[self.subtype+'_INST_DIR']
 
-	if self.m_type == 'shlib' or self.m_type == 'plugin':
-		try: nums = self.vnum.split('.')
-		except AttributeError: nums = []
-
-		if nums and sys.platform != 'win32':
-			libname = self.link_task.m_outputs[0].m_name
-
-			name3 = libname+'.'+self.vnum
-			name2 = libname+'.'+nums[0]
-			name1 = libname
-
-			filename = self.link_task.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
-			Common.install_as(dest_var, dest_subdir+'/'+name3, filename, env=self.env)
-			Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
-			Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
-		else:
-			self.install_results(dest_var, dest_subdir, self.link_task)
+	if (self.m_type == 'shlib' or self.m_type == 'plugin') and getattr(self, 'vnum', '') and sys.platform != 'win32':
+		# shared libraries on linux
+		tsk = self.link_task
+		tsk.vnum = self.vnum
+		tsk.dest_var = dest_var
+		tsk.dest_subdir = dest_subdir
+		tsk.install = install_shlib
 	else:
 		# program or staticlib
 		try: mode = self.program_chmod
