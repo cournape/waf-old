@@ -49,6 +49,13 @@ class intltool_po(Object.task_gen):
 		self.m_tasks=[]
 
 	def apply(self):
+		def install_translation(task):
+			out = task.m_outputs[0]
+			filename = out.m_name
+			(langname, ext) = os.path.splitext(filename)
+			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
+			Common.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
+
 		linguas = self.path.find_source('LINGUAS')
 		if linguas:
 			# scan LINGUAS file for locales to process
@@ -61,16 +68,9 @@ class intltool_po(Object.task_gen):
 					task = self.create_task('po', self.env)
 					task.set_inputs(node)
 					task.set_outputs(node.change_ext('.mo'))
+					if Params.g_install: task.install = install_translation
 		else:
 			Params.pprint('RED', "Error no LINGUAS file found in po directory")
-
-	def install(self):
-		for task in self.m_tasks:
-			out = task.m_outputs[0]
-			filename = out.m_name
-			(langname, ext) = os.path.splitext(filename)
-			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
-			Common.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
 
 Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', prio=10)
 Action.simple_action('intltool',
