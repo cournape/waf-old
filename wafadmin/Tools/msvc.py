@@ -10,7 +10,7 @@ from Params import debug, error, fatal, warning
 from Utils import quote_whitespace
 
 import ccroot, cc, cpp
-from ccroot import read_la_file
+from libtool import read_la_file
 from os.path import exists
 
 MSVC_METHS = ['apply_link_msvc', 'apply_msvc_obj_vars']
