@@ -30,10 +30,10 @@ def detect_boost(conf):
 	else:
 		want_libs = 0
 
-		boostlibs = getattr(opt, 'boostlibs', '')
-		boostincludes = getattr(opt, 'boostincludes', '')
-		asioincludes = getattr(opt, 'asioincludes', '')
-		boostfolder = getattr(opt, 'boostfolder', '')
+	boostlibs = getattr(opt, 'boostlibs', '')
+	boostincludes = getattr(opt, 'boostincludes', '')
+	asioincludes = getattr(opt, 'asioincludes', '')
+	boostfolder = getattr(opt, 'boostfolder', '')
 
 	if boostfolder:
 		boostincludes=boostfolder+'/include'
@@ -60,7 +60,7 @@ def detect_boost(conf):
 	for dir in guess:
 		test_obj = Configure.check_data()
 		test_obj.code = '#include <iostream>\n#include <boost/version.hpp>\nint main() { std::cout << BOOST_VERSION << std::endl; return 0; }\n'
-		test_obj.env = v
+		test_obj.env = env
 		test_obj.env['CPPPATH']=[dir]
 		test_obj.execute = 1
 		test_obj.force_compiler='cpp'
@@ -108,7 +108,7 @@ def detect_boost(conf):
 		if not asioincludes:
 			test_obj = Configure.check_data()
 			test_obj.code = '#include <iostream>\n#include <boost/asio/version.hpp>\nint main() { std::cout << BOOST_ASIO_VERSION << std::endl; return 0; }\n'
-			test_obj.env = v
+			test_obj.env = env
 			test_obj.env['CPPPATH']=[boost_includes]
 			test_obj.execute = 1
 			test_obj.force_compiler='cpp'
@@ -147,7 +147,7 @@ def detect_boost(conf):
 			for dir in asioincludes:
 				test_obj = Configure.check_data()
 				test_obj.code = '#include <iostream>\n#include <asio/version.hpp>\nint main() { std::cout << ASIO_VERSION << std::endl; return 0; }\n'
-				test_obj.env = v
+				test_obj.env = env
 				test_obj.env['CPPPATH']=[dir]
 				test_obj.execute = 1
 				test_obj.force_compiler='cpp'
