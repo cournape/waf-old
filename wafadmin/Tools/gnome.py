@@ -69,10 +69,10 @@ class xml_to(Object.task_gen):
 		task = self.create_task('xmlto', self.env, 6)
 		task.set_inputs([xmlfile, xsltfile])
 		task.set_outputs(xmlfile.change_ext('html'))
-	def install(self):
-		current = Params.g_build.m_curdirnode
-		for node in task.m_outputs:
-			Common.install_files(self.inst_var, self.inst_dir, node.abspath(self.env))
+	#def install(self):
+	#	current = Params.g_build.m_curdirnode
+	#	for node in task.m_outputs:
+	#		Common.install_files(self.inst_var, self.inst_dir, node.abspath(self.env))
 
 class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
@@ -107,6 +107,14 @@ class gnome_sgml2man(Object.task_gen):
 		self.m_tasks=[]
 		self.m_appname = appname
 	def apply(self):
+
+		def install_result(task):
+			out = task.m_outputs[0]
+			name = out.m_name
+			ext = name[-1]
+			env = task.env()
+			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
+
 		tree = Params.g_build
 		tree.rescan(self.path)
 		for node in self.path.files():
@@ -115,22 +123,11 @@ class gnome_sgml2man(Object.task_gen):
 
 			task = self.create_task('sgml2man', self.env, 2)
 			task.set_inputs(node)
+			if Params.g_install: task.install = install_results
 			# no outputs, the scanner does it
 			# no caching for now, this is not a time-critical feature
 			# in the future the scanner can be used to do more things (find dependencies, etc)
 			sgml_scanner.do_scan(task, node)
-
-	def install(self):
-		current = Params.g_build.m_curdirnode
-
-		for task in self.m_tasks:
-			out = task.m_outputs[0]
-			# get the number 1..9
-			name = out.m_name
-			ext = name[-1]
-			# and install the file
-
-			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(self.env), self.env)
 
 # Unlike the sgml and doc processing, the dbus and marshal beast
 # generate c/c++ code that we want to mix
