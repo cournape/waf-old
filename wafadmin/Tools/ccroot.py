@@ -143,14 +143,7 @@ def install_target(self):
 		dest_var = self.env[self.subtype+'_INST_VAR']
 		dest_subdir = self.env[self.subtype+'_INST_DIR']
 
-	if self.m_type == 'program':
-		try: mode = self.program_chmod
-		except AttributeError: mode = 0755
-		if Params.g_install:
-			install = {'var':dest_var,'dir':dest_subdir,'chmod':mode}
-			self.link_task.install = install
-	elif self.m_type == 'shlib' or self.m_type == 'plugin':
-
+	if self.m_type == 'shlib' or self.m_type == 'plugin':
 		try: nums = self.vnum.split('.')
 		except AttributeError: nums = []
 
@@ -168,7 +161,13 @@ def install_target(self):
 		else:
 			self.install_results(dest_var, dest_subdir, self.link_task)
 	else:
-		self.install_results(dest_var, dest_subdir, self.link_task, chmod=self.chmod)
+		# program or staticlib
+		try: mode = self.program_chmod
+		except AttributeError:
+			if self.m_type == 'program': mode = 0755
+			else: mode = 0644
+		install = {'var':dest_var,'dir':dest_subdir,'chmod':mode}
+		self.link_task.install = install
 Object.gen_hook(install_target)
 
 def apply_dependencies(self):
