@@ -14,8 +14,8 @@ class intltool_in(Object.task_gen):
 	def __init__(self):
 		Object.task_gen.__init__(self)
 		self.source  = ''
-		self.destvar = ''
-		self.subdir  = ''
+		self.inst_var = ''
+		self.inst_dir = ''
 		self.flags   = ''
 		self.podir   = 'po'
 		self.intlcache = '.intlcache'
@@ -38,11 +38,7 @@ class intltool_in(Object.task_gen):
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(''))
 
-	def install(self):
-		current = Params.g_build.m_curdirnode
-		for task in self.m_tasks:
-			out = task.m_outputs[0]
-			Common.install_files(self.destvar, self.subdir, out.abspath(self.env), self.env)
+			task.install = {'var': self.inst_var, 'dir': self.inst_dir, 'chmod': 0644}
 
 class intltool_po(Object.task_gen):
 	def __init__(self, appname='set_your_app_name'):
