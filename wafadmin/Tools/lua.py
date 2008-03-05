@@ -11,7 +11,7 @@ Object.declare_chain(
 	ext_in = '.lua',
 	ext_out = '.luac',
 	reentrant = 0,
-	install = "Object.install_results('PREFIX', 'luac/', 0644)", # TODO predefined functions ?
+	install = 'LUADIR', # env variable
 )
 
 class luaobj(Object.task_gen):
