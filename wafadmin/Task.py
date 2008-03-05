@@ -60,6 +60,9 @@ class TaskManager(object):
 
 			if type(d) is types.FunctionType:
 				d(tsk)
+			elif type(d) is types.StringType:
+				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
+				Common.install_files(tsk.env()['d'], '', lst, chmod=0644, env=tsk.env())
 			else:
 				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
 				if d.get('src', 0): lst += [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_inputs]
