@@ -9,9 +9,8 @@ import Params, Configure
 
 import ccroot
 
-"""
-# divide the code into units of change
-# continue the processing after an error occured
+STOP = "stop"
+CONTINUE = "continue"
 
 def on_error(func_name, exc):
 	if func_name == 'not_critical':
@@ -19,29 +18,89 @@ def on_error(func_name, exc):
 		return CONTINUE
 	return STOP
 
-def eval_rules(env, rules, err_handler):
+def eval_rules(conf, rules, err_handler):
 	for x in rules:
 		try:
-			# check precondition
-			x(env)
-			# check postcondition
+			# TODO check pre/post conditions
+			x(conf)
 		except Exception, e:
+			raise
 			if err_handler(x.__name__, e) == STOP:
 				break
 			else:
 				raise
 
-def find_program_c():
-	'''
-	provides = CC
-	requires = None
-	precondition = None
-	postcondition = None
-	'''
-	pass
-"""
+def find_program_c(conf):
+	env = conf.env
+	cc = None
+	if env['CC']: cc = env['CC']
+	elif 'CC' in os.environ: cc = os.environ['CC']
+	if not cc: cc = conf.find_program('gcc', var='CC')
+	if not cc: cc = conf.find_program('cc', var='CC')
+	if not cc: conf.fatal('gcc was not found')
+	env['CC']  = cc
+
+
+def find_ar(conf):
+	env = conf.env
+	conf.check_tool('ar')
+	if not env['AR']: conf.fatal('gcc needs ar - not found')
+
+def find_cpp(conf):
+	env = conf.env
+	if not env['CPP']:
+		cpp = conf.find_program('cpp', var='CPP')
+		if not cpp: cpp = cc
+		env['CPP'] = cpp
+
+def common_flags(conf):
+	v = conf.env
+	v['CC_TGT_F'] = '-c -o '
+	v['CPPPATH_ST'] = '-I%s'
+
+	v['LINK_CC'] = v['CC']
+	v['LIB'] = []
+	v['CCLNK_SRC_F'] = ''
+	v['CCLNK_TGT_F'] = '-o '
+
+	v['LIB_ST'] = '-l%s' # template for adding libs
+	v['LIBPATH_ST'] = '-L%s' # template for adding libpaths
+
+	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
+	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
+
+def modifier_win32(conf):
+	# shared library
+	v = conf.env
+	v.append_unique('shlib_LINKFLAGS', '-shared')
+	v['shlib_obj_ext'] = ['.os']
+	v['shlib_PREFIX'] = 'lib'
+	v['shlib_SUFFIX'] = '.dll'
+	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
+
+	# static library
+	v['staticlib_LINKFLAGS'] = ['']
+	v['staticlib_obj_ext'] = ['.o']
+	v['staticlib_PREFIX'] = 'lib'
+	v['staticlib_SUFFIX'] = '.a'
+
+	# program
+	v['program_obj_ext'] = ['.o']
+	v['program_SUFFIX'] = '.exe'
+
+	# plugins, loadable modules.
+	v['plugin_CCFLAGS'] = v['shlib_CCFLAGS']
+	v['plugin_obj_ext'] = v['shlib_obj_ext']
+	v['plugin_PREFIX'] = v['shlib_PREFIX']
+	v['plugin_SUFFIX'] = v['shlib_SUFFIX']
+
+funcs = [find_program_c, find_ar, find_cpp, common_flags, modifier_win32]
 
 def detect(conf):
+
+	# TODO FIXME later it will all start from eval_rules
+	#eval_rules(conf, funcs, on_error)
+
 	try:
 		debug_level = Params.g_options.debug_level.upper()
 	except AttributeError:
