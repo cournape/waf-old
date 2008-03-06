@@ -45,8 +45,12 @@ class cmdobj(Object.task_gen):
 	def apply(self):
 		# create a task
 		if not self.fun: fatal('cmdobj needs a function!')
-		self.m_tasks.append(Task.TaskCmd(self.fun, self.env))
+		#self.m_tasks.append(Task.TaskCmd(self.fun, self.env))
+		task = Task.TaskCmd(self.fun, self.env)
+		task.prio = self.prio
+		self.m_tasks.append(task)
 
+	# TODO FIXME install
 	def install(self):
 		if not self.inst_var:
 			return
