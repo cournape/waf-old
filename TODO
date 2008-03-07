@@ -1,7 +1,10 @@
 roadmap:
 --------
 
-* improvement of the configuration system -> rule-based system
+* configuration system improvements (cross-compilation helpers)
+* improve the custom compilation rules (pc file creation, etc)
+* more gnome support
+* provide installation threads
 
 ideas to watch:
 ---------------
@@ -10,6 +13,6 @@ ideas to watch:
 * packaging (rpms, debs)
 
 --------------------------------------
-Last update: 01/03/2008
+Last update: 07/03/2008
 Contact -> tnagyemail-mail at yahoo.fr (ita)
 
