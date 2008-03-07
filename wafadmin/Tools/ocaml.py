@@ -145,6 +145,11 @@ class ocaml_scanner(Scan.scanner):
 					if depnode in t.m_inputs:
 						task.set_run_after(t)
 		task.obj.flag_deps = 'ok'
+
+		# TODO necessary to get the signature right - for now
+		delattr(task, 'sign_all')
+		task.signature()
+
 		return 1
 
 	def scan(self, task, node):
