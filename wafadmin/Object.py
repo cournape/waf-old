@@ -436,12 +436,12 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 		else:
 			fatal("do not know how to process %s" % str(ext))
 
-		ltask = self.create_task(name)
-		ltask.set_inputs(node)
-		ltask.set_outputs(out_source)
+		tsk = self.create_task(name)
+		tsk.set_inputs(node)
+		tsk.set_outputs(out_source)
 
 		if Params.g_install and install:
-			ltask.install = install
+			tsk.install = install
 
 	declare_extension(ext_in, x_file)
 
