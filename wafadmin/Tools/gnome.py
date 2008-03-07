@@ -66,13 +66,10 @@ class xml_to(Object.task_gen):
 		current = tree.m_curdirnode
 		xmlfile = self.path.find_source(self.source)
 		xsltfile = self.path.find_source(self.xslt)
-		task = self.create_task('xmlto', self.env, 6)
-		task.set_inputs([xmlfile, xsltfile])
-		task.set_outputs(xmlfile.change_ext('html'))
-	#def install(self):
-	#	current = Params.g_build.m_curdirnode
-	#	for node in task.m_outputs:
-	#		Common.install_files(self.inst_var, self.inst_dir, node.abspath(self.env))
+		tsk = self.create_task('xmlto', self.env, 6)
+		tsk.set_inputs([xmlfile, xsltfile])
+		tsk.set_outputs(xmlfile.change_ext('html'))
+		tsk.install = {'var':self.inst_var, 'dir':self.inst_dir}
 
 class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
