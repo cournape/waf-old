@@ -14,23 +14,23 @@ import Object, Action, Node, Params, Task, Common
 import pproc as subprocess
 from Params import fatal, debug
 
-def copy_func(task):
+def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
-	env = task.env()
-	infile = task.m_inputs[0].abspath(env)
-	outfile = task.m_outputs[0].abspath(env)
+	env = tsk.env()
+	infile = tsk.m_inputs[0].abspath(env)
+	outfile = tsk.m_outputs[0].abspath(env)
 	try:
 		shutil.copy2(infile, outfile)
 	except OSError, IOError:
 		return 1
 	else:
-		if task.chmod: os.chmod(outfile, task.chmod)
+		if tsk.chmod: os.chmod(outfile, tsk.chmod)
 		return 0
 
-def action_process_file_func(task):
+def action_process_file_func(tsk):
 	"Ask the function attached to the task to process it"
-	if not task.fun: fatal('task must have a function attached to it for copy_func to work!')
-	return task.fun(task)
+	if not tsk.fun: fatal('task must have a function attached to it for copy_func to work!')
+	return tsk.fun(tsk)
 
 class cmdobj(Object.task_gen):
 	"This object will call a command everytime"
@@ -45,20 +45,10 @@ class cmdobj(Object.task_gen):
 	def apply(self):
 		# create a task
 		if not self.fun: fatal('cmdobj needs a function!')
-		#self.m_tasks.append(Task.TaskCmd(self.fun, self.env))
-		task = Task.TaskCmd(self.fun, self.env)
-		task.prio = self.prio
-		self.m_tasks.append(task)
-
-	# TODO FIXME install
-	def install(self):
-		if not self.inst_var:
-			return
-		current = Params.g_build.m_curdirnode
-		for task in self.m_tasks:
-			out = task.m_outputs[0]
-			Common.install_files(self.inst_var, self.inst_dir, out.abspath(self.env), self.env)
-
+		tsk = Task.TaskCmd(self.fun, self.env)
+		tsk.prio = self.prio
+		self.m_tasks.append(tsk)
+		tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
 
 class copyobj(Object.task_gen):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
@@ -86,15 +76,15 @@ class copyobj(Object.task_gen):
 			# TODO the file path may be incorrect
 			newnode = self.path.find_build(target)
 
-			task = self.create_task('copy', self.env, 10)
-			task.set_inputs(node)
-			task.set_outputs(newnode)
-			task.m_env = self.env
-			task.fun = self.fun
-			task.chmod = self.chmod
+			tsk = self.create_task('copy', self.env, 10)
+			tsk.set_inputs(node)
+			tsk.set_outputs(newnode)
+			tsk.m_env = self.env
+			tsk.fun = self.fun
+			tsk.chmod = self.chmod
 
-			if not task.env():
-				task.debug()
+			if not tsk.env():
+				tsk.debug()
 				fatal('task witout an environment')
 
 def subst_func(task):
@@ -102,9 +92,9 @@ def subst_func(task):
 
 	m4_re = re.compile('@(\w+)@', re.M)
 
-	env = task.env()
-	infile = task.m_inputs[0].abspath(env)
-	outfile = task.m_outputs[0].abspath(env)
+	env = tsk.env()
+	infile = tsk.m_inputs[0].abspath(env)
+	outfile = tsk.m_outputs[0].abspath(env)
 
 	file = open(infile, 'r')
 	code = file.read()
@@ -112,7 +102,7 @@ def subst_func(task):
 
 	s = m4_re.sub(r'%(\1)s', code)
 
-	dict = task.dict
+	dict = tsk.dict
 	if not dict:
 		names = m4_re.findall(code)
 		for i in names:
@@ -136,14 +126,6 @@ class substobj(Object.task_gen):
 		self.inst_var = ''
 		self.inst_dir = ''
 
-	def install(self):
-		if not self.inst_var:
-			return
-		current = Params.g_build.m_curdirnode
-		for task in self.m_tasks:
-			out = task.m_outputs[0]
-			Common.install_files(self.inst_var, self.inst_dir, out.abspath(self.env), self.env)
-
 	def apply(self):
 
 		lst = self.to_list(self.source)
@@ -158,16 +140,17 @@ class substobj(Object.task_gen):
 				self.env = self.env.copy()
 				self.env['DICT_HASH'] = hash(str(self.dict)) # <- pretty sure it wont work (ita)
 
-			task = self.create_task('copy', self.env, self.prio)
-			task.set_inputs(node)
-			task.set_outputs(newnode)
-			task.m_env = self.env
-			task.fun = self.fun
-			task.dict = self.dict
-			task.dep_vars = ['DICT_HASH']
+			tsk = self.create_task('copy', self.env, self.prio)
+			tsk.set_inputs(node)
+			tsk.set_outputs(newnode)
+			tsk.m_env = self.env
+			tsk.fun = self.fun
+			tsk.dict = self.dict
+			tsk.dep_vars = ['DICT_HASH']
+			tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
 
-			if not task.env():
-				task.debug()
+			if not tsk.env():
+				tsk.debug()
 				fatal('task witout an environment')
 
 class CommandOutputTask(Task.Task):
@@ -436,9 +419,6 @@ use command_is_external=True''') % (self.command,)
 		the task to use a directory path from the output vector at the given
 		position as argv element."""
 		return (CommandOutput.CMD_ARGV_OUTPUT_DIR, file_name, template)
-
-	def install(self):
-		pass
 
 Object.register('cmd', cmdobj)
 Object.register('copy', copyobj)
