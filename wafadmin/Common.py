@@ -77,10 +77,16 @@ def path_install(var, subdir, env=None):
 
 def install_files(var, subdir, files, env=None, chmod=0644):
 	if not Params.g_install: return
-	if var == 0: return
+	if not var: return
 
 	bld = Params.g_build
-	if not env: env=Params.g_build.m_allenvs['default']
+
+	if not env: env = bld.m_allenvs['default']
+	destpath = env[var]
+
+	# the variable can be an empty string and the subdir an absolute path
+	if destpath is [] and subdir: return
+
 	node = bld.m_curdirnode
 
 	if type(files) is types.StringType:
@@ -90,11 +96,6 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 		else:
 			lst = files.split()
 	else: lst=files
-
-	destpath = env[var]
-	if not destpath:
-		error("Installing: to set a destination folder use env['%s']" % (var))
-		destpath = var
 
 	destdir = env.get_destdir()
 	if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
