@@ -24,7 +24,7 @@ class langobj(Object.task_gen):
 			langname = lang.split('/')
 			langname = langname[-1]
 			inst_dir = langname+os.sep+'LC_MESSAGES'
-			task.install = {'var':self.inst_var,'dir':inst_dir+'/'+self.appname+'.mo','chmod':self.chmod}
+			task.install = {'var':self.inst_var,'dir':inst_dir+'/','as':self.appname+'.mo','chmod':self.chmod}
 
 def detect(conf):
 	kdeconfig = conf.find_program('kde4-config')

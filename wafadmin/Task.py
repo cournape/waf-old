@@ -68,7 +68,11 @@ class TaskManager(object):
 				if not d['var']: return
 				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
 				if d.get('src', 0): lst += [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_inputs]
-				Common.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=tsk.env())
+				# TODO ugly hack
+				if d.get('as', ''):
+					Common.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env())
+				else:
+					Common.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=tsk.env())
 
 class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"
