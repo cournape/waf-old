@@ -274,6 +274,7 @@ class Node(object):
 	# same as pathlist3, but do not append './' at the beginning
 	def pathlist4(self, node):
 		#print "pathlist4 called"
+		if self == node: return []
 		if self.m_parent == node: return [self.m_name]
 		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
 
