@@ -87,7 +87,7 @@ class copyobj(Object.task_gen):
 				tsk.debug()
 				fatal('task witout an environment')
 
-def subst_func(task):
+def subst_func(tsk):
 	"Substitutes variables in a .in file"
 
 	m4_re = re.compile('@(\w+)@', re.M)
