@@ -39,7 +39,7 @@ def find_program_c(conf):
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc: conf.fatal('gcc was not found')
 	env['CC']  = cc
-
+	conf.check_tool('cc')
 
 def find_ar(conf):
 	env = conf.env
