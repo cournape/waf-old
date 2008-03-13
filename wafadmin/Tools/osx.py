@@ -1,22 +1,42 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-"MacOSX related tools"
+"""MacOSX related tools
 
-import ccroot
-import Action
+To compile an executable into a Mac application bundle, set its 'mac_app' attribute
+to a True value:
+
+obj.mac_app = True
+"""
+
+import ccroot, cc, cpp
+import Object, Action
 import os
 import shutil
 
 from Params import error, debug, fatal, warning
 
-def apply_core_osx(self):
-	ccroot.ccroot.apply_core_o(self)
+def create_task_macapp(self):
 	if self.m_type == 'program':
-		apptask = self.create_task('macapp', self.env)
-		apptask.set_inputs(self.link_task.m_outputs)
-		apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
-		self.m_apptask = apptask
+	    if self.link_task is not None:
+    		apptask = self.create_task('macapp', self.env)
+    		apptask.set_inputs(self.link_task.m_outputs)
+    		apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
+    		self.m_apptask = apptask
+    
+def apply_link_osx(self):
+	# Use env['MACAPP'] to force *all* executables to be transformed into
+	# Mac applications, per Thomas Nagy.
+	# Or use obj.mac_app = True to build specific targets as Mac apps.
+	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
+	    create_task_macapp(self)
+Object.gen_hook(apply_link_osx)
+Object.declare_order("apply_link", "apply_link_osx")
+if "apply_link_osx" not in cc.CC_METHS:
+    cc.CC_METHS.append("apply_link_osx")
+if "apply_link_osx" not in cpp.CXX_METHS:
+    cpp.CXX_METHS.append("apply_link_osx")
+
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
 
@@ -62,6 +82,8 @@ def app_build(task):
 
 		# create info.plist
 		debug("generate Info.plist")
+		# TODO:  Support custom info.plist contents.
+		
 		f = file(os.path.join(srcfile, "Contents", "Info.plist"), "w")
 		f.write(app_info)
 		f.write("\t<key>CFBundleExecutable</key>\n\t<string>%s</string>\n" % os.path.basename(srcprg))
@@ -72,9 +94,6 @@ def app_build(task):
 
 	return 0
 
-# FIXME this thing has changed
-ccroot.ccroot.apply_core_o = ccroot.ccroot.apply_core
-ccroot.ccroot.apply_core = apply_core_osx
 x = Action.Action('macapp', vars=[], func=app_build)
 x.prio = 300
 
