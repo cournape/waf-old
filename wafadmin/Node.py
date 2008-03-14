@@ -454,7 +454,10 @@ class Node(object):
 		"node of the same path, but with a different extension"
 		name = self.m_name
 		k = name.rfind('.')
-		newname = name[:k]+ext
+		if k >= 0:
+			newname = name[:k]+ext
+		else:
+			newname = name+ext
 
 		p = self.m_parent
 		n = p.m_files_lookup.get(newname, None)
@@ -462,7 +465,7 @@ class Node(object):
 		if n: return n
 
 		newnode = Node(newname, p)
-		p.m_build_lookup[newnode.m_name]=newnode
+		p.m_build_lookup[newnode.m_name] = newnode
 
 		return newnode
 
