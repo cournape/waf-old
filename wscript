@@ -119,7 +119,7 @@ def create_waf():
 	tarFiles=[]
 	#regexpr for python files
 	pyFileExp = re.compile(".*\.py$")
-	re_doc_1 = re.compile('^\s*"""([^"]+)"""', re.M)
+	re_doc_1 = re.compile('^\s*""".*?"""', re.M)
 	re_doc_2 = re.compile('^\s*"([^"]+)"', re.M)
 	re_doc_3 = re.compile("^\s*#")
 
