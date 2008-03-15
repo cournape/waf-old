@@ -132,7 +132,7 @@ def process_tokens(tokens):
 			if prev == NAME or prev == NUMBER: line_buf.append(' ')
 			line_buf.append(token)
 		elif type == NUMBER:
-			if prev == NAME or prev == NUMBER or prev == OP: line_buf.append(' ')
+			if prev == NAME or prev == NUMBER: line_buf.append(' ')
 			line_buf.append(token)
 		elif type == STRING:
 			if not line_buf and token.startswith('"'): pass
