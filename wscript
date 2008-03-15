@@ -123,6 +123,7 @@ def process_tokens(tokens):
 				accu.append(ln)
 				accu.append('\n')
 				line_buf = []
+				prev = NEWLINE
 		elif type == INDENT:
 			indent += 1
 		elif type == DEDENT:
@@ -135,9 +136,7 @@ def process_tokens(tokens):
 			line_buf.append(token)
 		elif type == STRING:
 			if not line_buf and token.startswith('"'): pass
-			else:
-				if token.rfind('def f(task)')>0: print ">",token,"<"
-				line_buf.append(token)
+			else: line_buf.append(token)
 		elif type == COMMENT:
 			# comments line at the beginning of the files
 			(line_number, _) = start
@@ -146,7 +145,8 @@ def process_tokens(tokens):
 		else:
 			if token != "\n": line_buf.append(token)
 
-		prev = type
+		if token != '\n':
+			prev = type
 
 	return "".join(accu)
 
