@@ -166,16 +166,12 @@ def prepare():
 	xml = 0
 
 	#check if a wscript or a wscript_xml file is in current directory
-	if (not 'wscript' in lst) and (not 'wscript_xml' in lst):
-		if 'configure' in sys.argv:
-			#set the build directory with the current directory
-			build_dir_override = cwd
-		if 'wscript_build' in lst:
-			#try to find the wscript root
-			candidate = cwd
-	else:
-		#wscript or wscript_xml is in current directory, use this directory as candidate
+	if 'wscript' in lst or 'wscript_build' in lst or 'wscript_xml' in lst:
+		# if a script is in current directory, use this directory as candidate (and prevent gcc-like configuration)
 		candidate = cwd
+	elif 'configure' in sys.argv:
+		# gcc-like configuration
+		build_dir_override = cwd
 
 	try:
 		#check the following dirs for wscript or wscript_xml
