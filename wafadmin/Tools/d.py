@@ -412,7 +412,6 @@ def apply_d_vars(self):
 	for lib in libs:
 		env.append_unique('_DLIBFLAGS', lib_st % lib)
 
-
 	# add linker flags
 	for i in uselib:
 		dlinkflags = env['DLINKFLAGS_' + i]
@@ -479,10 +478,6 @@ d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
 Action.simple_action('d_header', d_header_str, color='BLUE', prio=80)
 
 
-
-def detect(conf):
-	return 1
-
 # quick test #
 if __name__ == "__main__":
 	#Params.g_verbose = 2
@@ -509,7 +504,7 @@ if __name__ == "__main__":
 
 	#print "now parsing"
 	#print "-------------------------------------------"
-	'''
+	"""
 	parser_ = d_parser()
 	parser_.start(arg)
 
@@ -518,4 +513,5 @@ if __name__ == "__main__":
 	for imp in parser_.imports:
 		print imp + " ",
 	print
-'''
+"""
+
