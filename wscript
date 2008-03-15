@@ -22,9 +22,13 @@ zip_types = ['bz2', 'gz']
 # exclude these modules
 forbidden = [x+'.py' for x in 'Test Weak'.split()]
 
+from tokenize import *
+
 import Params, Utils, Options, os, sys, base64, shutil, re, random, StringIO
 try: from hashlib import md5
 except ImportError: from md5 import md5
+
+pyFileExp = re.compile(".*\.py$")
 
 print "------> Executing code from the top-level wscript <-----"
 
@@ -103,6 +107,48 @@ def compute_revision():
 		f.close()
 	REVISION = m.hexdigest()
 
+def process_tokens(tokens):
+	accu = []
+	prev = NEWLINE
+
+	indent = 0
+	line_buf = []
+
+	for (type, token, start, end, line) in tokens:
+		if type == NEWLINE:
+			if line_buf:
+				accu.append(indent * '\t')
+				ln = "".join(line_buf)
+				#ln = ln.replace('\n', '')
+				accu.append(ln)
+				accu.append('\n')
+				line_buf = []
+		elif type == INDENT:
+			indent += 1
+		elif type == DEDENT:
+			indent -= 1
+		elif type == NAME:
+			if prev == NAME or prev == NUMBER: line_buf.append(' ')
+			line_buf.append(token)
+		elif type == NUMBER:
+			if prev == NAME or prev == NUMBER or prev == OP: line_buf.append(' ')
+			line_buf.append(token)
+		elif type == STRING:
+			if not line_buf and token.startswith('"'): pass
+			else:
+				if token.rfind('def f(task)')>0: print ">",token,"<"
+				line_buf.append(token)
+		elif type == COMMENT:
+			# comments line at the beginning of the files
+			(line_number, _) = start
+			if line_number < 3:
+				accu.append(token)
+		else:
+			if token != "\n": line_buf.append(token)
+
+		prev = type
+
+	return "".join(accu)
 
 def create_waf():
 	print "-> preparing waf"
@@ -117,26 +163,15 @@ def create_waf():
 	#open a file as tar.[extension] for writing
 	tar = tarfile.open('%s.tar.%s' % (mw, zipType), "w:%s" % zipType)
 	tarFiles=[]
-	#regexpr for python files
-	pyFileExp = re.compile(".*\.py$")
-	re_doc_1 = re.compile('^\s*""".*?"""', re.M)
-	re_doc_2 = re.compile('^\s*"([^"]+)"', re.M)
-	re_doc_3 = re.compile("^\s*#")
 
 	def sfilter(path):
+
 		f = open(path, "r")
-		cnt = f.read()
+		if Params.g_options.strip_comments:
+			cnt = process_tokens(generate_tokens(f.readline))
+		else:
+			cnt = f.read()
 		f.close()
-		if not Params.g_options.strip_comments: return (StringIO.StringIO(cnt), len(cnt))
-		cnt = re_doc_1.sub('', cnt)
-		cnt = re_doc_2.sub('', cnt)
-		lst = cnt.split("\n")
-		cnt = []
-		for x in lst:
-			if x=='# quick test #': break
-			cnt.append(x)
-		cnt = [x for x in cnt if x and not re_doc_3.match(x)]
-		cnt = "\n".join(cnt)
 		return (StringIO.StringIO(cnt), len(cnt))
 
 	lst = os.listdir('wafadmin')
@@ -196,7 +231,7 @@ def create_waf():
 
 	if sys.platform != 'win32':
 		os.chmod('waf', 0755)
-	os.unlink('%s.tar.%s' % (mw, zipType))
+	#os.unlink('%s.tar.%s' % (mw, zipType))
 
 def install_waf():
 	print "installing waf on the system"
@@ -228,7 +263,6 @@ def install_waf():
 	except: pass
 
 	try:
-		pyFileExp = re.compile(".*\.py$")
 		wafadminFiles = os.listdir('wafadmin')
 		wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
 		for pyFile in wafadminFiles:
