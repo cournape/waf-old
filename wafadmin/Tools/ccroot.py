@@ -146,7 +146,7 @@ def install_shlib(task):
 	filename = task.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
 	Common.install_as(dest_var, dest_subdir+'/'+name3, filename, env=task.env())
 	Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
-	Common.symlink_as(dest_var, name2, dest_subdir+'/'+name1)
+	Common.symlink_as(dest_var, name3, dest_subdir+'/'+name1)
 
 def install_target(self):
 	# FIXME too complicated
