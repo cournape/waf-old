@@ -364,7 +364,7 @@ def detect_qt4(conf):
 	# check for the qt libraries
 	if not qtlibs: qtlibs = qtdir + 'lib'
 
-	vars = "Qt3Support QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml".split()
+	vars = "Qt3Support QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit".split()
 
 	framework_ok = False
 	if sys.platform == "darwin" and useframework:
