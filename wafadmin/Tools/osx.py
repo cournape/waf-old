@@ -18,12 +18,12 @@ from Params import error, debug, fatal, warning
 
 def create_task_macapp(self):
 	if self.m_type == 'program':
-	    if self.link_task is not None:
-    		apptask = self.create_task('macapp', self.env)
-    		apptask.set_inputs(self.link_task.m_outputs)
-    		apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
-    		self.m_apptask = apptask
-    
+		if self.link_task is not None:
+			apptask = self.create_task('macapp', self.env)
+			apptask.set_inputs(self.link_task.m_outputs)
+			apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
+			self.m_apptask = apptask
+
 def apply_link_osx(self):
 	# Use env['MACAPP'] to force *all* executables to be transformed into
 	# Mac applications, per Thomas Nagy.
@@ -33,9 +33,9 @@ def apply_link_osx(self):
 Object.gen_hook(apply_link_osx)
 Object.declare_order("apply_link", "apply_link_osx")
 if "apply_link_osx" not in cc.CC_METHS:
-    cc.CC_METHS.append("apply_link_osx")
+	cc.CC_METHS.append("apply_link_osx")
 if "apply_link_osx" not in cpp.CXX_METHS:
-    cpp.CXX_METHS.append("apply_link_osx")
+	cpp.CXX_METHS.append("apply_link_osx")
 
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
