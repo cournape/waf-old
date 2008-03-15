@@ -51,7 +51,7 @@ def set_options(opt):
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
 
 	opt.add_option('--strip', action='store_true', default=False,
-		help='Shrink waf (saves 25kb)',
+		help='Shrink waf (saves 33kb)',
 		dest='strip_comments')
 
 def encodeAscii85(s):
