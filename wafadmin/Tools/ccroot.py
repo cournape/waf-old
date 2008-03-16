@@ -158,8 +158,9 @@ def install_target(self):
 	if dest_var == 0: return
 
 	if not dest_var:
-		dest_var = self.env[self.subtype+'_INST_VAR']
-		dest_subdir = self.env[self.subtype+'_INST_DIR']
+		dest_var = self.env['PREFIX']
+		if self.m_type == 'program': dest_subdir = 'bin'
+		else: dest_subdir = 'lib'
 
 	if (self.m_type == 'shlib' or self.m_type == 'plugin') and getattr(self, 'vnum', '') and sys.platform != 'win32':
 		# shared libraries on linux

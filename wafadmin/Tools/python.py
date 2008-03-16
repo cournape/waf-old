@@ -288,11 +288,11 @@ def detect(conf):
 	v['PYC'] = getattr(Params.g_options, 'pyc', 1)
 	v['PYO'] = getattr(Params.g_options, 'pyo', 1)
 
-	v['pyext_INST_VAR'] = 'PYTHONDIR'
-	v['pyext_INST_DIR'] = ''
+	# FIXME - this thing must be updated
+	#v['pyext_INST_VAR'] = 'PYTHONDIR'
+	#v['pyext_INST_DIR'] = ''
 
-	v['pyembed_INST_VAR'] = v['program_INST_VAR']
-	v['pyembed_INST_DIR'] = v['program_INST_DIR']
+	#v['pyembed_INST_DIR'] = v['program_INST_DIR']
 
 	# now a small difference
 	v['pyext_USELIB'] = 'PYEXT'

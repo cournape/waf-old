@@ -406,11 +406,9 @@ def detect(conf):
 	v['shlib_PREFIX']   = ''
 	v['shlib_SUFFIX']   = '.dll'
 	v['shlib_IMPLIB_SUFFIX'] = ['.lib']
-	v['shlib_INST_VAR'] = 'PREFIX'
-	v['shlib_INST_DIR'] = 'lib'
 
-        # plugins. We handle them exactly as shlibs
-        # everywhere except on osx, where we do bundles
+	# plugins. We handle them exactly as shlibs
+	# everywhere except on osx, where we do bundles
 	v['plugin_CCFLAGS']	 = v['shlib_CCFLAGS']
 	v['plugin_LINKFLAGS']	 = v['shlib_LINKFLAGS']
 	v['plugin_obj_ext']	 = v['shlib_obj_ext']
@@ -422,16 +420,10 @@ def detect(conf):
 	v['staticlib_obj_ext'] = '.obj'
 	v['staticlib_PREFIX']  = ''
 	v['staticlib_SUFFIX']  = '.lib'
-	v['staticlib_INST_VAR'] = 'PREFIX'
-	v['staticlib_INST_DIR'] = 'lib'
 
 	# program
 	v['program_obj_ext']  = '.obj'
 	v['program_SUFFIX']   = '.exe'
-	v['program_INST_VAR'] = 'PREFIX'
-	v['program_INST_DIR'] = 'bin'
-
-	return 1
 
 def set_options(opt):
 	try:
