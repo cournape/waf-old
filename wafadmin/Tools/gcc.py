@@ -31,14 +31,22 @@ def eval_rules(conf, rules, err_handler):
 				raise
 
 def find_program_c(conf):
-	env = conf.env
+	v = conf.env
 	cc = None
-	if env['CC']: cc = env['CC']
+	if v['CC']: cc = v['CC']
 	elif 'CC' in os.environ: cc = os.environ['CC']
 	if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc: conf.fatal('gcc was not found')
-	env['CC']  = cc
+	v['CC']  = cc
+
+	cpp = None
+	if v['CPP']: cpp = v['CPP']
+	elif 'CPP' in os.environ: cpp = os.environ['CPP']
+	if not cpp: cpp = conf.find_program('cpp', var='CPP')
+	if not cpp: cpp = cc
+	v['CPP'] = cpp
+
 	conf.check_tool('cc')
 
 def find_ar(conf):
@@ -188,32 +196,8 @@ def detect(conf):
 	#eval_rules(conf, funcs, on_error)
 
 	v = conf.env
-
-	cc = None
-	if v['CC']:
-		cc = v['CC']
-	elif 'CC' in os.environ:
-		cc = os.environ['CC']
-	if not cc: cc = conf.find_program('gcc', var='CC')
-	if not cc: cc = conf.find_program('cc', var='CC')
-	if not cc:
-		conf.fatal('gcc was not found')
-
-	conf.check_tool('checks')
-	# load the cc builders
-	conf.check_tool('cc')
-
-	# gcc requires ar for static libs
-	conf.check_tool('ar')
-	if not v['AR']:
-		conf.fatal('gcc needs ar - not found')
-
-	if not v['CPP']:
-		cpp = conf.find_program('cpp', var='CPP')
-		if not cpp: cpp = cc
-		v['CPP'] = cpp
-
-	v['CC']  = cc
+	find_program_c(conf)
+	find_ar(conf)
 
 	#v['CPPFLAGS']             = []
 	#v['CCDEFINES']            = []
@@ -266,12 +250,13 @@ def detect(conf):
 	v['staticlib_PREFIX']    = 'lib'
 	v['staticlib_SUFFIX']    = '.a'
 
-	if sys.platform == "win32": modifier_win32(conf)
+	if sys.platform == 'win32': modifier_win32(conf)
 	elif sys.platform == 'cygwin': modifier_cygwin(conf)
-	elif sys.platform == "darwin": modifier_darwin(conf)
+	elif sys.platform == 'darwin': modifier_darwin(conf)
 	elif sys.platform == 'aix5': modifier_aix5(conf)
 	modifier_plugin(conf)
 
+	conf.check_tool('checks')
 	conf.check_features()
 
 	modifier_debug(conf)
