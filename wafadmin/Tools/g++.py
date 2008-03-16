@@ -38,8 +38,8 @@ def detect(conf):
 
 	v['CXX'] = cxx
 
-	v['CPPFLAGS']            = []
-	v['CXXDEFINES']          = [] # command-line defines
+	#v['CPPFLAGS']            = []
+	#v['CXXDEFINES']          = [] # command-line defines
 
 	v['_CXXINCFLAGS']        = []
 	v['_CXXDEFFLAGS']        = []
@@ -51,8 +51,8 @@ def detect(conf):
 
 
 	# linker
-	v['LINK_CXX']            = v['CXX']
-	v['LIB']                 = []
+	v['LINK_CXX']            = v['LINK_CXX'] or v['CXX']
+	#v['LIB']                 = []
 
 	v['CPPLNK_TGT_F']        = '-o '
 	v['CPPLNK_SRC_F']        = ''
@@ -69,7 +69,7 @@ def detect(conf):
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
 	# linker debug levels
-	v['LINKFLAGS']           = v['LINKFLAGS'] or []
+	#v['LINKFLAGS']           = v['LINKFLAGS'] or []
 	v['LINKFLAGS_OPTIMIZED'] = ['-s']
 	v['LINKFLAGS_RELEASE']   = ['-s']
 	v['LINKFLAGS_DEBUG']     = ['-g']

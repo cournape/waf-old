@@ -129,8 +129,8 @@ def detect(conf):
 
 	v['CC']  = cc
 
-	v['CPPFLAGS']             = []
-	v['CCDEFINES']            = []
+	#v['CPPFLAGS']             = []
+	#v['CCDEFINES']            = []
 	v['_CCINCFLAGS']          = []
 	v['_CCDEFFLAGS']          = []
 
@@ -139,8 +139,8 @@ def detect(conf):
 	v['CPPPATH_ST']           = '-I%s' # template for adding include paths
 
 	# linker
-	v['LINK_CC']              = v['CC']
-	v['LIB']                  = []
+	v['LINK_CC']              = v['LINK_CC'] or v['CC']
+	#v['LIB']                  = []
 	v['CCLNK_SRC_F']          = ''
 	v['CCLNK_TGT_F']          = '-o '
 
@@ -153,7 +153,7 @@ def detect(conf):
 	v['CCDEFINES_ST']         = '-D%s'
 
 	# linker debug levels
-	v['LINKFLAGS']            = v['LINKFLAGS'] or []
+	#v['LINKFLAGS']            = v['LINKFLAGS'] or []
 	v['LINKFLAGS_OPTIMIZED']  = ['-s']
 	v['LINKFLAGS_RELEASE']    = ['-s']
 	v['LINKFLAGS_DEBUG']      = ['-g']
