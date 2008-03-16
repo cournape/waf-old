@@ -155,10 +155,7 @@ class Environment(object):
 	def get_destdir(self):
 		"return the destdir, useful for installing"
 		if self.__getitem__('NOINSTALL'): return ''
-		dst = Params.g_options.destdir
-		try: dst = os.path.join(dst, os.sep, self.m_table['SUBDEST'])
-		except KeyError: pass
-		return dst
+		return Params.g_options.destdir
 
 	def sign_vars(env, vars_list):
 		" ['CXX', ..] -> [env['CXX'], ..]"
