@@ -396,8 +396,6 @@ def detect(conf):
 	conf.add_os_flags('CXXFLAGS')
 	conf.add_os_flags('LINKFLAGS')
 
-	if not v['DESTDIR']: v['DESTDIR']=''
-
 	# shared library
 	v['shlib_CCFLAGS']  = ['']
 	v['shlib_CXXFLAGS'] = ['']

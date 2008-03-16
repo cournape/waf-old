@@ -225,12 +225,9 @@ def detect(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
 
-
 	conf.add_os_flags('CXXFLAGS')
 	conf.add_os_flags('CPPFLAGS')
 	conf.add_os_flags('LINKFLAGS')
-
-	if not v['DESTDIR']: v['DESTDIR']=''
 
 def set_options(opt):
 	try:

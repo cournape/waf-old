@@ -119,8 +119,6 @@ def detect(conf):
 	conf.add_os_flags('CPPFLAGS')
 	conf.add_os_flags('LINKFLAGS')
 
-	if not v['DESTDIR']: v['DESTDIR']=''
-
 def set_options(opt):
 	try:
 		opt.add_option('-d', '--debug-level',
