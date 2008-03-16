@@ -6,6 +6,7 @@
 
 import os, sys, cPickle, traceback
 import Params, Utils, Configure, Build, Runner, Options
+import shutil
 from Params import error, fatal, warning, g_lockfile
 from Constants import *
 
@@ -413,9 +414,65 @@ def main():
 	fun = getattr(Utils.g_module, 'shutdown', None)
 	if fun: fun()
 
+
+## Note: this is a modified version of shutil.copytree from python
+## 2.5.2 library; modified for WAF purposes to exclude dot dirs and
+## another list of files.
+def copytree(src, dst, symlinks=False, excludes=(), build_dir=None):
+	names = os.listdir(src)
+	os.makedirs(dst)
+	errors = []
+	for name in names:
+		srcname = os.path.join(src, name)
+		dstname = os.path.join(dst, name)
+		try:
+			if symlinks and os.path.islink(srcname):
+				linkto = os.readlink(srcname)
+				os.symlink(linkto, dstname)
+			elif os.path.isdir(srcname):
+				if name in excludes:
+					continue
+				elif name.startswith('.') or name.startswith(',,') or name.startswith('++'):
+					continue
+				elif name == build_dir:
+					continue
+				else:
+					## build_dir is not passed into the recursive
+					## copytree, but that is intentional; it is a
+					## directory name valid only at the top level.
+					copytree(srcname, dstname, symlinks, excludes)
+			else:
+				ends = name.endswith
+				to_remove = False
+				if name.startswith('.') or name.startswith('++'):
+					to_remove = True
+				else:
+					for x in g_dist_exts:
+						if ends(x):
+							to_remove = True
+							break
+				if not to_remove:
+					shutil.copy2(srcname, dstname)
+			# XXX What about devices, sockets etc.?
+		except (IOError, os.error), why:
+			errors.append((srcname, dstname, str(why)))
+		# catch the Error from the recursive copytree so that we can
+		# continue with other files
+		except shutil.Error, err:
+			errors.extend(err.args[0])
+	try:
+		shutil.copystat(src, dst)
+	except WindowsError:
+		# can't copy file access times on Windows
+		pass
+	except OSError, why:
+		errors.extend((src, dst, str(why)))
+	if errors:
+		raise shutil.Error, errors
+
+
 def DistDir(appname, version):
 	"make a distribution directory with all the sources in it"
-	import shutil
 
 	# Our temporary folder where to put our files
 	TMPFOLDER=appname+'-'+version
@@ -423,53 +480,28 @@ def DistDir(appname, version):
 	# Remove an old package directory
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
 
-	# Copy everything into the new folder
-	shutil.copytree('.', TMPFOLDER)
-
-	# Remove the Build dir
-	dir = getattr(Utils.g_module, BLDDIR, None)
-	if dir: shutil.rmtree(os.path.join(TMPFOLDER, dir), True)
-
-	# additional exclude files and dirs
 	global g_dist_exts, g_excludes
 
-	# Enter into it and remove unnecessary files
-	os.chdir(TMPFOLDER)
-	for (root, dirs, filenames) in os.walk('.'):
-		clean_dirs = []
-		for d in dirs:
-			if d in g_excludes:
-				shutil.rmtree(os.path.join(root,d))
-			elif d.startswith('.') or d.startswith(',,') or d.startswith('++'):
-				shutil.rmtree(os.path.join(root,d))
-			else:
-				clean_dirs += d
-		dirs = clean_dirs
+	# Remove the Build dir
+	build_dir = getattr(Utils.g_module, BLDDIR, None)
 
-		for f in list(filenames):
-			to_remove = 0
-			ends = f.endswith
-			if f.startswith('.') or f.startswith('++'):
-				to_remove = 1
-			else:
-				for x in g_dist_exts:
-					if ends(x):
-						to_remove = True
-						break
-			if to_remove:
-				os.remove(os.path.join(root, f))
+	# Copy everything into the new folder
+	copytree('.', TMPFOLDER, excludes=g_excludes, build_dir=build_dir)
 
 	# TODO undocumented hook
 	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
-	if dist_hook: dist_hook()
-
-	# go back to the root directory
-	os.chdir('..')
+	if dist_hook:
+		os.chdir(TMPFOLDER)
+		try:
+			dist_hook()
+		finally:
+			# go back to the root directory
+			os.chdir('..')
 	return TMPFOLDER
 
 def DistTarball(appname, version):
 	"""make a tarball with all the sources in it; return (distdirname, tarballname)"""
-	import tarfile, shutil
+	import tarfile
 
 	TMPFOLDER = DistDir(appname, version)
 	tar = tarfile.open(TMPFOLDER+'.tar.'+g_gz,'w:'+g_gz)
@@ -487,7 +519,6 @@ def Dist(appname, version):
 
 def DistClean():
 	"""clean the project"""
-	import shutil
 
 	# remove the temporary files
 	# the builddir is given by lock-wscript only
@@ -520,7 +551,7 @@ def DistClean():
 
 def DistCheck(appname, version):
 	"""Makes some sanity checks on the waf dist generated tarball"""
-	import shutil, tempfile
+	import tempfile
 	import pproc as subprocess
 
 	waf = os.path.abspath(sys.argv[0])
