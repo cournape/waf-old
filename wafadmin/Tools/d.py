@@ -432,7 +432,6 @@ def d_hook(self, node):
 	task = self.create_task('d', self.env)
 	obj_ext = self.env[self.m_type+'_obj_ext']
 	if not obj_ext: obj_ext = '.o'
-	else: obj_ext = obj_ext[0]
 
 	global g_d_scanner
 	task.m_scanner = g_d_scanner

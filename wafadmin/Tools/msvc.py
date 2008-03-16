@@ -402,7 +402,7 @@ def detect(conf):
 	v['shlib_CCFLAGS']  = ['']
 	v['shlib_CXXFLAGS'] = ['']
 	v['shlib_LINKFLAGS']= ['/DLL']
-	v['shlib_obj_ext']  = ['.obj']
+	v['shlib_obj_ext']  = '.obj'
 	v['shlib_PREFIX']   = ''
 	v['shlib_SUFFIX']   = '.dll'
 	v['shlib_IMPLIB_SUFFIX'] = ['.lib']
@@ -419,14 +419,14 @@ def detect(conf):
 
 	# static library
 	v['staticlib_LINKFLAGS'] = ['']
-	v['staticlib_obj_ext'] = ['.obj']
+	v['staticlib_obj_ext'] = '.obj'
 	v['staticlib_PREFIX']  = ''
 	v['staticlib_SUFFIX']  = '.lib'
 	v['staticlib_INST_VAR'] = 'PREFIX'
 	v['staticlib_INST_DIR'] = 'lib'
 
 	# program
-	v['program_obj_ext']  = ['.obj']
+	v['program_obj_ext']  = '.obj'
 	v['program_SUFFIX']   = '.exe'
 	v['program_INST_VAR'] = 'PREFIX'
 	v['program_INST_DIR'] = 'bin'

@@ -99,7 +99,6 @@ def c_hook(self, node):
 	task = self.create_task('cc', self.env)
 	obj_ext = self.env[self.m_type+'_obj_ext']
 	if not obj_ext: obj_ext = '.os'
-	else: obj_ext = obj_ext[0]
 
 	task.m_scanner = ccroot.g_c_scanner
 	task.path_lst = self.inc_paths

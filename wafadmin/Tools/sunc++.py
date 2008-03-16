@@ -75,7 +75,7 @@ def detect(conf):
 	# shared library
 	v['shlib_CXXFLAGS']       = ['-Kpic', '-DPIC']
 	v['shlib_LINKFLAGS']     = ['-G']
-	v['shlib_obj_ext']       = ['.o']
+	v['shlib_obj_ext']       = '.o'
 	v['shlib_PREFIX']        = 'lib'
 	v['shlib_SUFFIX']        = '.so'
 
@@ -89,12 +89,12 @@ def detect(conf):
 
 	# static lib
 	v['staticlib_LINKFLAGS'] = ['-Bstatic']
-	v['staticlib_obj_ext']   = ['.o']
+	v['staticlib_obj_ext']   = '.o'
 	v['staticlib_PREFIX']    = 'lib'
 	v['staticlib_SUFFIX']    = '.a'
 
 	# program
-	v['program_obj_ext']     = ['.o']
+	v['program_obj_ext']     = '.o'
 	v['program_SUFFIX']      = ''
 
 	conf.check_features(kind='cpp')

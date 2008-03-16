@@ -73,19 +73,19 @@ def modifier_win32(conf):
 	# shared library
 	v = conf.env
 	v.append_unique('shlib_LINKFLAGS', '-shared')
-	v['shlib_obj_ext'] = ['.os']
+	v['shlib_obj_ext'] = '.os'
 	v['shlib_PREFIX'] = 'lib'
 	v['shlib_SUFFIX'] = '.dll'
 	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
 	# static library
 	v['staticlib_LINKFLAGS'] = ['']
-	v['staticlib_obj_ext'] = ['.o']
+	v['staticlib_obj_ext'] = '.o'
 	v['staticlib_PREFIX'] = 'lib'
 	v['staticlib_SUFFIX'] = '.a'
 
 	# program
-	v['program_obj_ext'] = ['.o']
+	v['program_obj_ext'] = '.o'
 	v['program_SUFFIX'] = '.exe'
 
 	# plugins, loadable modules.
@@ -166,19 +166,19 @@ def detect(conf):
 		# shared library
 		v['shlib_CCFLAGS']       = ['']
 		v['shlib_LINKFLAGS']     = ['-shared']
-		v['shlib_obj_ext']       = ['.os']
+		v['shlib_obj_ext']       = '.os'
 		v['shlib_PREFIX']        = 'lib'
 		v['shlib_SUFFIX']        = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext']   = ['.o']
+		v['staticlib_obj_ext']   = '.o'
 		v['staticlib_PREFIX']    = 'lib'
 		v['staticlib_SUFFIX']    = '.a'
 
 		# program
-		v['program_obj_ext']     = ['.o']
+		v['program_obj_ext']     = '.o'
 		v['program_SUFFIX']      = '.exe'
 
 		# plugins, loadable modules.
@@ -191,41 +191,41 @@ def detect(conf):
 		# shared library
 		v['shlib_CCFLAGS']    = ['']
 		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_obj_ext']     = ['.os']
+		v['shlib_obj_ext']     = '.os'
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext'] = ['.o']
+		v['staticlib_obj_ext'] = '.o'
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
 		# program
-		v['program_obj_ext']   = ['.o']
+		v['program_obj_ext']   = '.o'
 		v['program_SUFFIX']    = '.exe'
 
 	elif sys.platform == "darwin":
 		v['shlib_CCFLAGS']       = ['-fPIC']
 		v['shlib_LINKFLAGS']     = ['-dynamiclib']
-		v['shlib_obj_ext']       = ['.os']
+		v['shlib_obj_ext']       = '.os'
 		v['shlib_PREFIX']        = 'lib'
 		v['shlib_SUFFIX']        = '.dylib'
 
 		# static lib
 		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext']   = ['.o']
+		v['staticlib_obj_ext']   = '.o'
 		v['staticlib_PREFIX']    = 'lib'
 		v['staticlib_SUFFIX']    = '.a'
 
 		# program
-		v['program_obj_ext']     = ['.o']
+		v['program_obj_ext']     = '.o'
 		v['program_SUFFIX']      = ''
 
 		# bundles
 		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
-		v['plugin_obj_ext']      = ['.os']
+		v['plugin_obj_ext']      = '.os'
 		v['plugin_CCFLAGS']      = ['-fPIC']
 		v['plugin_PREFIX']       = ''
 		v['plugin_SUFFIX']       = '.bundle'
@@ -237,7 +237,7 @@ def detect(conf):
 		# shared library
 		v['shlib_CCFLAGS']     = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS']   = ['-shared','-Wl,-brtl,-bexpfull']
-		v['shlib_obj_ext']     = ['_sh.o']
+		v['shlib_obj_ext']     = '_sh.o'
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.so'
 
@@ -249,13 +249,13 @@ def detect(conf):
 		v['plugin_SUFFIX']     = v['shlib_SUFFIX']
 
 		# static lib
-		v['staticlib_obj_ext'] = ['.o']
+		v['staticlib_obj_ext'] = '.o'
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
 		# program
 		v['program_LINKFLAGS'] = ['-Wl,-brtl']
-		v['program_obj_ext']   = ['.o']
+		v['program_obj_ext']   = '.o'
 		v['program_SUFFIX']    = ''
 
 		v['SHLIB_MARKER']      = ''
@@ -263,7 +263,7 @@ def detect(conf):
 		# shared library
 		v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS']     = ['-shared']
-		v['shlib_obj_ext']       = ['.os']
+		v['shlib_obj_ext']       = '.os'
 		v['shlib_PREFIX']        = 'lib'
 		v['shlib_SUFFIX']        = '.so'
 
@@ -277,12 +277,12 @@ def detect(conf):
 
 		# static lib
 		v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-		v['staticlib_obj_ext']   = ['.o']
+		v['staticlib_obj_ext']   = '.o'
 		v['staticlib_PREFIX']    = 'lib'
 		v['staticlib_SUFFIX']    = '.a'
 
 		# program
-		v['program_obj_ext']     = ['.o']
+		v['program_obj_ext']     = '.o'
 		v['program_SUFFIX']      = ''
 
 	conf.check_features()
