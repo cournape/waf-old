@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2008 (ita)
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
@@ -192,63 +192,13 @@ funcs = [find_program_c, find_ar, find_cpp, common_flags, modifier_win32]
 
 def detect(conf):
 
-	# TODO FIXME later it will all start from eval_rules
+	# TODO FIXME later it will start from eval_rules
 	#eval_rules(conf, funcs, on_error)
 
-	v = conf.env
 	find_program_c(conf)
 	find_ar(conf)
 
-	#v['CPPFLAGS']             = []
-	#v['CCDEFINES']            = []
-	v['_CCINCFLAGS']          = []
-	v['_CCDEFFLAGS']          = []
-
-	v['CC_SRC_F']             = ''
-	v['CC_TGT_F']             = '-c -o '
-	v['CPPPATH_ST']           = '-I%s' # template for adding include paths
-
-	# linker
-	v['LINK_CC']              = v['LINK_CC'] or v['CC']
-	#v['LIB']                  = []
-	v['CCLNK_SRC_F']          = ''
-	v['CCLNK_TGT_F']          = '-o '
-
-	v['LIB_ST']               = '-l%s' # template for adding libs
-	v['LIBPATH_ST']           = '-L%s' # template for adding libpaths
-	v['STATICLIB_ST']         = '-l%s'
-	v['STATICLIBPATH_ST']     = '-L%s'
-	v['_LIBDIRFLAGS']         = ''
-	v['_LIBFLAGS']            = ''
-	v['CCDEFINES_ST']         = '-D%s'
-
-	# linker debug levels
-	#v['LINKFLAGS']            = v['LINKFLAGS'] or []
-	v['LINKFLAGS_OPTIMIZED']  = ['-s']
-	v['LINKFLAGS_RELEASE']    = ['-s']
-	v['LINKFLAGS_DEBUG']      = ['-g']
-	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
-
-	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
-	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
-
-
-	# program
-	v['program_obj_ext']     = '.o'
-	v['program_SUFFIX']      = ''
-
-	# shared library
-	v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
-	v['shlib_LINKFLAGS']     = ['-shared']
-	v['shlib_obj_ext']       = '.os'
-	v['shlib_PREFIX']        = 'lib'
-	v['shlib_SUFFIX']        = '.so'
-
-	# static lib
-	v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-	v['staticlib_obj_ext']   = '.o'
-	v['staticlib_PREFIX']    = 'lib'
-	v['staticlib_SUFFIX']    = '.a'
+	common_flags(conf)
 
 	if sys.platform == 'win32': modifier_win32(conf)
 	elif sys.platform == 'cygwin': modifier_cygwin(conf)
