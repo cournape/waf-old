@@ -55,44 +55,130 @@ def find_cpp(conf):
 
 def common_flags(conf):
 	v = conf.env
-	v['CC_TGT_F'] = '-c -o '
-	v['CPPPATH_ST'] = '-I%s'
 
-	v['LINK_CC'] = v['CC']
-	v['LIB'] = []
-	v['CCLNK_SRC_F'] = ''
-	v['CCLNK_TGT_F'] = '-o '
+	#v['CPPFLAGS']             = []
+	#v['CCDEFINES']            = []
+	#v['_CCINCFLAGS']          = []
+	#v['_CCDEFFLAGS']          = []
 
-	v['LIB_ST'] = '-l%s' # template for adding libs
-	v['LIBPATH_ST'] = '-L%s' # template for adding libpaths
+	v['CC_SRC_F']             = ''
+	v['CC_TGT_F']             = '-c -o '
+	v['CPPPATH_ST']           = '-I%s' # template for adding include paths
+
+	# linker
+	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
+	v['CCLNK_SRC_F']          = ''
+	v['CCLNK_TGT_F']          = '-o '
+
+	v['LIB_ST']               = '-l%s' # template for adding libs
+	v['LIBPATH_ST']           = '-L%s' # template for adding libpaths
+	v['STATICLIB_ST']         = '-l%s'
+	v['STATICLIBPATH_ST']     = '-L%s'
+	v['_LIBDIRFLAGS']         = ''
+	v['_LIBFLAGS']            = ''
+	v['CCDEFINES_ST']         = '-D%s'
+
+	# linker debug levels
+	v['LINKFLAGS_OPTIMIZED']  = ['-s']
+	v['LINKFLAGS_RELEASE']    = ['-s']
+	v['LINKFLAGS_DEBUG']      = ['-g']
+	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
 
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
-def modifier_win32(conf):
+	# program
+	v['program_obj_ext']     = '.o'
+	v['program_SUFFIX']      = ''
+
 	# shared library
+	v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
+	v['shlib_LINKFLAGS']     = ['-shared']
+	v['shlib_obj_ext']       = '.os'
+	v['shlib_PREFIX']        = 'lib'
+	v['shlib_SUFFIX']        = '.so'
+
+	# static lib
+	v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+	v['staticlib_obj_ext']   = '.o'
+	v['staticlib_PREFIX']    = 'lib'
+	v['staticlib_SUFFIX']    = '.a'
+
+def modifier_win32(conf):
 	v = conf.env
-	v.append_unique('shlib_LINKFLAGS', '-shared')
-	v['shlib_obj_ext'] = '.os'
-	v['shlib_PREFIX'] = 'lib'
-	v['shlib_SUFFIX'] = '.dll'
+	v['program_SUFFIX']      = '.exe'
+
+	v['shlib_SUFFIX']        = '.dll'
+	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
+	v['shlib_CCFLAGS']       = ['']
+
+	v['staticlib_LINKFLAGS'] = ['']
+
+def modifier_cygwin(conf):
+	v = conf.env
+	v['program_SUFFIX']      = '.exe'
+
+	v['shlib_CCFLAGS']       = ['']
+	v['shlib_SUFFIX']        = '.dll'
 	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
-	# static library
 	v['staticlib_LINKFLAGS'] = ['']
-	v['staticlib_obj_ext'] = '.o'
-	v['staticlib_PREFIX'] = 'lib'
-	v['staticlib_SUFFIX'] = '.a'
 
-	# program
-	v['program_obj_ext'] = '.o'
-	v['program_SUFFIX'] = '.exe'
+def modifier_darwin(conf):
+	v = conf.env
+	v['shlib_CCFLAGS']       = ['-fPIC']
+	v['shlib_LINKFLAGS']     = ['-dynamiclib']
+	v['shlib_SUFFIX']        = '.dylib'
 
-	# plugins, loadable modules.
-	v['plugin_CCFLAGS'] = v['shlib_CCFLAGS']
-	v['plugin_obj_ext'] = v['shlib_obj_ext']
-	v['plugin_PREFIX'] = v['shlib_PREFIX']
-	v['plugin_SUFFIX'] = v['shlib_SUFFIX']
+	v['staticlib_LINKFLAGS'] = ['']
+
+	v['SHLIB_MARKER']        = ''
+	v['STATICLIB_MARKER']    = ''
+
+def modifier_aix5(conf):
+	v = conf.env
+	v['program_LINKFLAGS']   = ['-Wl,-brtl']
+
+	v['shlib_LINKFLAGS']     = ['-shared','-Wl,-brtl,-bexpfull']
+	v['shlib_obj_ext']       = '_sh.o'
+
+	v['SHLIB_MARKER']        = ''
+
+def modifier_plugin(conf):
+	v = conf.env
+	# TODO this will disappear somehow
+	# plugins. We handle them exactly as shlibs
+	# everywhere except on osx, where we do bundles
+	if sys.platform == 'darwin':
+		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
+		v['plugin_obj_ext']      = '.os'
+		v['plugin_CCFLAGS']      = ['-fPIC']
+		v['plugin_PREFIX']       = ''
+		v['plugin_SUFFIX']       = '.bundle'
+	else:
+		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
+		v['plugin_obj_ext']      = v['shlib_obj_ext']
+		v['plugin_PREFIX']       = v['shlib_PREFIX']
+		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
+
+def modifier_debug(conf):
+	v = conf.env
+	# compiler debug levels
+	if conf.check_flags('-O2'):
+		v['CCFLAGS_OPTIMIZED'] = ['-O2']
+		v['CCFLAGS_RELEASE'] = ['-O2']
+	if conf.check_flags('-g -DDEBUG'):
+		v['CCFLAGS_DEBUG'] = ['-g', '-DDEBUG']
+	if conf.check_flags('-g3 -O0 -DDEBUG'):
+		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
+	if conf.check_flags('-Wall'):
+		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CCFLAGS_'+x, '-Wall')
+	try:
+		debug_level = Params.g_options.debug_level.upper()
+	except AttributeError:
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
+	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
 funcs = [find_program_c, find_ar, find_cpp, common_flags, modifier_win32]
 
@@ -162,148 +248,33 @@ def detect(conf):
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
-	if sys.platform == "win32":
-		# shared library
-		v['shlib_CCFLAGS']       = ['']
-		v['shlib_LINKFLAGS']     = ['-shared']
-		v['shlib_obj_ext']       = '.os'
-		v['shlib_PREFIX']        = 'lib'
-		v['shlib_SUFFIX']        = '.dll'
-		v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
-		# static library
-		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext']   = '.o'
-		v['staticlib_PREFIX']    = 'lib'
-		v['staticlib_SUFFIX']    = '.a'
+	# program
+	v['program_obj_ext']     = '.o'
+	v['program_SUFFIX']      = ''
 
-		# program
-		v['program_obj_ext']     = '.o'
-		v['program_SUFFIX']      = '.exe'
+	# shared library
+	v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
+	v['shlib_LINKFLAGS']     = ['-shared']
+	v['shlib_obj_ext']       = '.os'
+	v['shlib_PREFIX']        = 'lib'
+	v['shlib_SUFFIX']        = '.so'
 
-		# plugins, loadable modules.
-		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
-		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_obj_ext']      = v['shlib_obj_ext']
-		v['plugin_PREFIX']       = v['shlib_PREFIX']
-		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
-	elif sys.platform == 'cygwin':
-		# shared library
-		v['shlib_CCFLAGS']    = ['']
-		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_obj_ext']     = '.os'
-		v['shlib_PREFIX']      = 'lib'
-		v['shlib_SUFFIX']      = '.dll'
-		v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
+	# static lib
+	v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+	v['staticlib_obj_ext']   = '.o'
+	v['staticlib_PREFIX']    = 'lib'
+	v['staticlib_SUFFIX']    = '.a'
 
-		# static library
-		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext'] = '.o'
-		v['staticlib_PREFIX']  = 'lib'
-		v['staticlib_SUFFIX']  = '.a'
-
-		# program
-		v['program_obj_ext']   = '.o'
-		v['program_SUFFIX']    = '.exe'
-
-	elif sys.platform == "darwin":
-		v['shlib_CCFLAGS']       = ['-fPIC']
-		v['shlib_LINKFLAGS']     = ['-dynamiclib']
-		v['shlib_obj_ext']       = '.os'
-		v['shlib_PREFIX']        = 'lib'
-		v['shlib_SUFFIX']        = '.dylib'
-
-		# static lib
-		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext']   = '.o'
-		v['staticlib_PREFIX']    = 'lib'
-		v['staticlib_SUFFIX']    = '.a'
-
-		# program
-		v['program_obj_ext']     = '.o'
-		v['program_SUFFIX']      = ''
-
-		# bundles
-		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
-		v['plugin_obj_ext']      = '.os'
-		v['plugin_CCFLAGS']      = ['-fPIC']
-		v['plugin_PREFIX']       = ''
-		v['plugin_SUFFIX']       = '.bundle'
-
-		v['SHLIB_MARKER']        = ''
-		v['STATICLIB_MARKER']    = ''
-
-	elif sys.platform == 'aix5':
-		# shared library
-		v['shlib_CCFLAGS']     = ['-fPIC', '-DPIC']
-		v['shlib_LINKFLAGS']   = ['-shared','-Wl,-brtl,-bexpfull']
-		v['shlib_obj_ext']     = '_sh.o'
-		v['shlib_PREFIX']      = 'lib'
-		v['shlib_SUFFIX']      = '.so'
-
-		# plugins, loadable modules.
-		v['plugin_CCFLAGS']    = v['shlib_CCFLAGS']
-		v['plugin_LINKFLAGS']  = v['shlib_LINKFLAGS']
-		v['plugin_obj_ext']    = v['shlib_obj_ext']
-		v['plugin_PREFIX']     = v['shlib_PREFIX']
-		v['plugin_SUFFIX']     = v['shlib_SUFFIX']
-
-		# static lib
-		v['staticlib_obj_ext'] = '.o'
-		v['staticlib_PREFIX']  = 'lib'
-		v['staticlib_SUFFIX']  = '.a'
-
-		# program
-		v['program_LINKFLAGS'] = ['-Wl,-brtl']
-		v['program_obj_ext']   = '.o'
-		v['program_SUFFIX']    = ''
-
-		v['SHLIB_MARKER']      = ''
-	else:
-		# shared library
-		v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
-		v['shlib_LINKFLAGS']     = ['-shared']
-		v['shlib_obj_ext']       = '.os'
-		v['shlib_PREFIX']        = 'lib'
-		v['shlib_SUFFIX']        = '.so'
-
-		# plugins. We handle them exactly as shlibs
-		# everywhere except on osx, where we do bundles
-		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
-		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_obj_ext']      = v['shlib_obj_ext']
-		v['plugin_PREFIX']       = v['shlib_PREFIX']
-		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
-
-		# static lib
-		v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-		v['staticlib_obj_ext']   = '.o'
-		v['staticlib_PREFIX']    = 'lib'
-		v['staticlib_SUFFIX']    = '.a'
-
-		# program
-		v['program_obj_ext']     = '.o'
-		v['program_SUFFIX']      = ''
+	if sys.platform == "win32": modifier_win32(conf)
+	elif sys.platform == 'cygwin': modifier_cygwin(conf)
+	elif sys.platform == "darwin": modifier_darwin(conf)
+	elif sys.platform == 'aix5': modifier_aix5(conf)
+	modifier_plugin(conf)
 
 	conf.check_features()
 
-
-	# compiler debug levels
-	if conf.check_flags('-O2'):
-		v['CCFLAGS_OPTIMIZED'] = ['-O2']
-		v['CCFLAGS_RELEASE'] = ['-O2']
-	if conf.check_flags('-g -DDEBUG'):
-		v['CCFLAGS_DEBUG'] = ['-g', '-DDEBUG']
-	if conf.check_flags('-g3 -O0 -DDEBUG'):
-		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
-	if conf.check_flags('-Wall'):
-		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CCFLAGS_'+x, '-Wall')
-	try:
-		debug_level = Params.g_options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
-
+	modifier_debug(conf)
 
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')
 	conf.add_os_flags('CPPFLAGS')
