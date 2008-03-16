@@ -50,16 +50,16 @@ class Node(object):
 				fatal('node %s exists in the parent build %s already' % (name, str(parent)))
 
 	def __str__(self):
-		if self.m_name in self.m_parent.m_build_lookup: isbld = "b:"
-		elif self.m_name in self.m_parent.m_dirs_lookup: isbld = "d:"
-		else: isbld = "s:"
-		return "<%s%s>" % (isbld, self.abspath())
+		if self.m_name in self.m_parent.m_build_lookup: isbld = "bld"
+		elif self.m_name in self.m_parent.m_dirs_lookup: isbld = "dir"
+		else: isbld = "src"
+		return "%s://%s" % (isbld, self.abspath())
 
 	def __repr__(self):
-		if self.m_name in self.m_parent.m_build_lookup: isbld = "b:"
-		elif self.m_name in self.m_parent.m_dirs_lookup: isbld = "d:"
-		else: isbld = "s:"
-		return "<%s%s>" % (isbld, self.abspath())
+		if self.m_name in self.m_parent.m_build_lookup: isbld = "bld"
+		elif self.m_name in self.m_parent.m_dirs_lookup: isbld = "dir"
+		else: isbld = "src"
+		return "%s://%s" % (isbld, self.abspath())
 
 	def __eq__(self, other):
 		# avoid collisions by looking at the parents
