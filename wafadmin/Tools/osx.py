@@ -9,25 +9,22 @@ to a True value:
 obj.mac_app = True
 """
 
-import ccroot, cc, cpp
+import os, shutil
 import Object, Action
-import os
-import shutil
+import ccroot, cc, cpp
 
 from Params import error, debug, fatal, warning
 
 def create_task_macapp(self):
-	if self.m_type == 'program':
-		if self.link_task is not None:
-			apptask = self.create_task('macapp', self.env)
-			apptask.set_inputs(self.link_task.m_outputs)
-			apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
-			self.m_apptask = apptask
+	if self.m_type == 'program' and self.link_task:
+		apptask = self.create_task('macapp', self.env)
+		apptask.set_inputs(self.link_task.m_outputs)
+		apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
+		self.m_apptask = apptask
 
 def apply_link_osx(self):
-	# Use env['MACAPP'] to force *all* executables to be transformed into
-	# Mac applications, per Thomas Nagy.
-	# Or use obj.mac_app = True to build specific targets as Mac apps.
+	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
+	or use obj.mac_app = True to build specific targets as Mac apps"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 	    create_task_macapp(self)
 Object.gen_hook(apply_link_osx)
@@ -48,13 +45,13 @@ app_info = '''
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Created by waf</string>
+	<string>Created by Waf</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>NOTE</key>
-	<string>Do not change this file, it will be overwritten by waf.</string>
-'''
-app_info_foot = '''
+	<string>THIS IS A GENERATED FILE, DO NOT MODIFY</string>
+	<key>CFBundleExecutable</key>
+	<string>%s</string>
 </dict>
 </plist>
 '''
@@ -83,11 +80,9 @@ def app_build(task):
 		# create info.plist
 		debug("generate Info.plist")
 		# TODO:  Support custom info.plist contents.
-		
+
 		f = file(os.path.join(srcfile, "Contents", "Info.plist"), "w")
-		f.write(app_info)
-		f.write("\t<key>CFBundleExecutable</key>\n\t<string>%s</string>\n" % os.path.basename(srcprg))
-		f.write(app_info_foot)
+		f.write(app_info % os.path.basename(srcprg))
 		f.close()
 
 		i += 1
