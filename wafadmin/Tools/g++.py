@@ -217,12 +217,14 @@ def detect(conf):
 		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
-
+	if conf.check_flags('-Wall'):
+		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CXXFLAGS_'+x, '-Wall')
 	try:
 		debug_level = Params.g_options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
+
 
 	conf.add_os_flags('CXXFLAGS')
 	conf.add_os_flags('CPPFLAGS')

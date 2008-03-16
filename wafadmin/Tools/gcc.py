@@ -287,10 +287,8 @@ def detect(conf):
 
 	conf.check_features()
 
-	# FIXME make these checks totally optional
+
 	# compiler debug levels
-	if conf.check_flags('-Wall'):
-		v['CCFLAGS'] = ['-Wall']
 	if conf.check_flags('-O2'):
 		v['CCFLAGS_OPTIMIZED'] = ['-O2']
 		v['CCFLAGS_RELEASE'] = ['-O2']
@@ -298,12 +296,14 @@ def detect(conf):
 		v['CCFLAGS_DEBUG'] = ['-g', '-DDEBUG']
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
-
+	if conf.check_flags('-Wall'):
+		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CCFLAGS_'+x, '-Wall')
 	try:
 		debug_level = Params.g_options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
+
 
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')
 	conf.add_os_flags('CPPFLAGS')
