@@ -9,11 +9,6 @@ import Utils, Action, Params, Configure
 import ccroot
 
 def detect(conf):
-	try:
-		debug_level = Params.g_options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-
 	cc = None
 	if conf.env['CC']:
 		cc = conf.env['CC']
@@ -114,6 +109,10 @@ def detect(conf):
 		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
 	# see the option below
+	try:
+		debug_level = Params.g_options.debug_level.upper()
+	except AttributeError:
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')

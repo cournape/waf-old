@@ -12,11 +12,6 @@ import ccroot
 # is called when a configure process is started,
 # the values are cached for further build processes
 def detect(conf):
-	try:
-		debug_level = Params.g_options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-
 	cxx = None
 	if conf.env['CXX']:
 		cxx = conf.env['CXX']
@@ -114,7 +109,10 @@ def detect(conf):
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
-	# see the option below
+	try:
+		debug_level = Params.g_options.debug_level.upper()
+	except AttributeError:
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
 
 	conf.add_os_flags('CXXFLAGS')

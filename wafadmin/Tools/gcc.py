@@ -101,11 +101,6 @@ def detect(conf):
 	# TODO FIXME later it will all start from eval_rules
 	#eval_rules(conf, funcs, on_error)
 
-	try:
-		debug_level = Params.g_options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-
 	v = conf.env
 
 	cc = None
@@ -304,6 +299,10 @@ def detect(conf):
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
+	try:
+		debug_level = Params.g_options.debug_level.upper()
+	except AttributeError:
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')

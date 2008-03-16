@@ -281,11 +281,6 @@ def detect(conf):
 	if sys.platform != 'win32':
 		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
 
-	try:
-		debug_level = Params.g_options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-
 	comp = conf.find_program('CL', var='CXX')
 	if not comp: conf.fatal('CL was not found (compiler)')
 
@@ -388,6 +383,10 @@ def detect(conf):
 	v['LINKFLAGS_DEBUG']     = ['/DEBUG', '/INCREMENTAL','msvcrtd.lib']
 	v['LINKFLAGS_ULTRADEBUG'] = ['/DEBUG', '/INCREMENTAL','msvcrtd.lib']
 
+	try:
+		debug_level = Params.g_options.debug_level.upper()
+	except AttributeError:
+		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v['CCFLAGS']   += v['CCFLAGS_'+debug_level]
 	v['CXXFLAGS']  += v['CXXFLAGS_'+debug_level]
 	v['LINKFLAGS'] += v['LINKFLAGS_'+debug_level]
