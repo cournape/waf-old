@@ -8,84 +8,68 @@ import optparse
 import Utils, Action, Params, Configure
 import ccroot
 
-# tool detection and initial setup
-# is called when a configure process is started,
-# the values are cached for further build processes
-def detect(conf):
-	cxx = None
-	if conf.env['CXX']:
-		cxx = conf.env['CXX']
-	elif 'CXX' in os.environ:
-		cxx = os.environ['CXX']
-	if not cxx: cxx = conf.find_program('CC', var='CXX')
-	if not cxx:
-		conf.check_message('sunc++', '', False)
-		return
-	conf.check_tool('checks')
 
-	cpp = cxx
-
-	# load the cpp builders
-	conf.check_tool('cpp')
-
-	# for static libs
-	conf.check_tool('ar')
-
+def find_cxx(conf):
 	v = conf.env
-	v['CXX'] = cxx
+	cc = None
+	if v['CXX']: cc = v['CXX']
+	elif 'CXX' in os.environ: cc = os.environ['CXX']
+	#if not cc: cc = conf.find_program('g++', var='CXX')
+	if not cc: cc = conf.find_program('c++', var='CXX')
+	if not cc: conf.fatal('sunc++ was not found')
+	v['CXX']  = cc
+
+def find_cpp(conf):
+	v = conf.env
+	cpp = None
+	if v['CPP']: cpp = v['CPP']
+	elif 'CPP' in os.environ: cpp = os.environ['CPP']
+	if not cpp: cpp = conf.find_program('cpp', var='CPP')
+	if not cpp: cpp = v['CXX']
 	v['CPP'] = cpp
 
-	v['CPPFLAGS']            = []
-	v['CXXDEFINES']          = [] # command-line defines
+def find_ar(conf):
+	env = conf.env
+	conf.check_tool('ar')
+	if not env['AR']: conf.fatal('sunc++ requires ar - not found')
 
-	v['_CXXINCFLAGS']        = []
-	v['_CXXDEFFLAGS']        = []
+def common_flags(conf):
+	v = conf.env
 
-	v['CXX_SRC_F']           = ''
-	v['CXX_TGT_F']           = '-c -o '
+	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
 
-	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
-
+	v['CXX_SRC_F']             = ''
+	v['CXX_TGT_F']             = '-c -o '
+	v['CPPPATH_ST']           = '-I%s' # template for adding include paths
 
 	# linker
-	v['LINK_CXX']            = v['CXX']
-	v['LIB']                 = []
+	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
+	v['CXXLNK_SRC_F']          = ''
+	v['CXXLNK_TGT_F']          = '-o '
 
-	v['CPPLNK_TGT_F']        = '-o '
-	v['CPPLNK_SRC_F']        = ''
-
-	v['LIB_ST']              = '-l%s' # template for adding libs
-	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
-	v['STATICLIB_ST']        = '-l%s'
-	v['STATICLIBPATH_ST']    = '-L%s'
-	v['CXXDEFINES_ST']       = '-D%s'
-	v['_LIBDIRFLAGS']        = ''
-	v['_LIBFLAGS']           = ''
+	v['LIB_ST']               = '-l%s' # template for adding libs
+	v['LIBPATH_ST']           = '-L%s' # template for adding libpaths
+	v['STATICLIB_ST']         = '-l%s'
+	v['STATICLIBPATH_ST']     = '-L%s'
+	v['CXXDEFINES_ST']         = '-D%s'
 
 	v['SHLIB_MARKER']        = '-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Bstatic'
+
+	# program
+	v['program_PATTERN']     = '%s'
 
 	# shared library
 	v['shlib_CXXFLAGS']       = ['-Kpic', '-DPIC']
 	v['shlib_LINKFLAGS']     = ['-G']
 	v['shlib_PATTERN']       = 'lib%s.so'
 
-	# plugins. We handle them exactly as shlibs
-	# everywhere except on osx, where we do bundles
-	v['plugin_CCCFLAGS']     = v['shlib_CCFLAGS']
-	v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-	v['plugin_PATTERN']      = v['shlib_PATTERN']
-
 	# static lib
 	v['staticlib_LINKFLAGS'] = ['-Bstatic']
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
-	# program
-	v['program_PATTERN']     = '%s'
-
-	conf.check_features(kind='cpp')
-
-	# compiler debug levels
+def modifier_debug(conf):
+	v = conf.env
 	v['CXXFLAGS'] = ['']
 	if conf.check_flags('-O2'):
 		v['CXXFLAGS_OPTIMIZED'] = ['-O2']
@@ -100,6 +84,21 @@ def detect(conf):
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
+
+def detect(conf):
+
+	find_cxx(conf)
+	find_cpp(conf)
+	find_ar(conf)
+
+	conf.check_tool('cpp')
+
+	common_flags(conf)
+
+	conf.check_tool('checks')
+	conf.check_features(kind='cpp')
+
+	modifier_debug(conf)
 
 	conf.add_os_flags('CXXFLAGS')
 	conf.add_os_flags('CPPFLAGS')
