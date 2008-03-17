@@ -400,7 +400,6 @@ def detect(conf):
 	v['shlib_CCFLAGS']  = ['']
 	v['shlib_CXXFLAGS'] = ['']
 	v['shlib_LINKFLAGS']= ['/DLL']
-	v['shlib_obj_ext']  = '.obj'
 	v['shlib_PREFIX']   = ''
 	v['shlib_SUFFIX']   = '.dll'
 	v['shlib_IMPLIB_SUFFIX'] = ['.lib']
@@ -409,18 +408,15 @@ def detect(conf):
 	# everywhere except on osx, where we do bundles
 	v['plugin_CCFLAGS']	 = v['shlib_CCFLAGS']
 	v['plugin_LINKFLAGS']	 = v['shlib_LINKFLAGS']
-	v['plugin_obj_ext']	 = v['shlib_obj_ext']
 	v['plugin_PREFIX']	 = v['shlib_PREFIX']
 	v['plugin_SUFFIX']	 = v['shlib_SUFFIX']
 
 	# static library
 	v['staticlib_LINKFLAGS'] = ['']
-	v['staticlib_obj_ext'] = '.obj'
 	v['staticlib_PREFIX']  = ''
 	v['staticlib_SUFFIX']  = '.lib'
 
 	# program
-	v['program_obj_ext']  = '.obj'
 	v['program_SUFFIX']   = '.exe'
 
 def set_options(opt):

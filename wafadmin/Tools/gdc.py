@@ -57,18 +57,15 @@ def detect(conf):
 		# shared library
 		v['D_shlib_DFLAGS']        = ['']
 		v['D_shlib_LINKFLAGS']     = ['-shared']
-		v['D_shlib_obj_ext']       = '.os'
 		v['D_shlib_PREFIX']        = 'lib'
 		v['D_shlib_SUFFIX']        = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
 
 		# static library
-		v['D_staticlib_obj_ext']   = '.o'
 		v['D_staticlib_PREFIX']    = 'lib'
 		v['D_staticlib_SUFFIX']    = '.a'
 
 		# program
-		v['D_program_obj_ext']     = '.o'
 		v['D_program_PREFIX']      = ''
 		v['D_program_SUFFIX']      = '.exe'
 
@@ -76,17 +73,14 @@ def detect(conf):
 		# shared library
 		v['D_shlib_DFLAGS']        = ['']
 		v['D_shlib_LINKFLAGS']     = ['-shared']
-		v['D_shlib_obj_ext']       = '.os'
 		v['D_shlib_PREFIX']        = 'lib'
 		v['D_shlib_SUFFIX']        = '.so'
 
 		# static lib
-		v['D_staticlib_obj_ext']   = '.o'
 		v['D_staticlib_PREFIX']    = 'lib'
 		v['D_staticlib_SUFFIX']    = '.a'
 
 		# program
-		v['D_program_obj_ext']     = '.o'
 		v['D_program_PREFIX']      = ''
 		v['D_program_SUFFIX']      = ''
 

@@ -79,44 +79,37 @@ def detect(conf):
 		# shared library
 		v['shlib_CXXFLAGS']    = ['']
 		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_obj_ext']     = '.os'
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
 
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext'] = '.o'
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
 		# program
-		v['program_obj_ext']   = '.o'
 		v['program_SUFFIX']    = '.exe'
 
 		# plugins, loadable modules.
 		v['plugin_CXXFLAGS']     = v['shlib_CXXFLAGS']
 		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_obj_ext']      = v['shlib_obj_ext']
 		v['plugin_PREFIX']       = v['shlib_PREFIX']
 		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
 	elif sys.platform == 'cygwin':
 		# shared library
 		v['shlib_CXXFLAGS']    = ['']
 		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_obj_ext']     = '.os'
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dll'
 		v['shlib_IMPLIB_SUFFIX'] = ['.a']
 
 		# static library
 		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext'] = '.o'
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
 		# program
-		v['program_obj_ext']   = '.o'
 		v['program_SUFFIX']    = '.exe'
 	elif sys.platform == 'darwin':
 		v['SHLIB_MARKER']      = ' '
@@ -126,26 +119,22 @@ def detect(conf):
 		v['shlib_MARKER']      = ''
 		v['shlib_CXXFLAGS']    = ['-fPIC']
 		v['shlib_LINKFLAGS']   = ['-dynamiclib']
-		v['shlib_obj_ext']     = '.os'
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.dylib'
 
 		# static lib
 		v['staticlib_MARKER']  = ''
 		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_obj_ext'] = '.o'
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
 		# bundles
 		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
-		v['plugin_obj_ext']      = '.os'
 		v['plugin_CXXFLAGS']     = ['-fPIC']
 		v['plugin_PREFIX']       = ''
 		v['plugin_SUFFIX']       = '.bundle'
 
 		# program
-		v['program_obj_ext']   = '.o'
 		v['program_SUFFIX']    = ''
 
 		v['SHLIB_MARKER']        = ''
@@ -155,26 +144,22 @@ def detect(conf):
 		# shared library
 		v['shlib_CXXFLAGS']    = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS']   = ['-shared','-Wl,-brtl,-bexpfull']
-		v['shlib_obj_ext']     = '_sh.o'
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.so'
 
 		# plugins, loadable modules.
 		v['plugin_CXXFLAGS']   = v['shlib_CXXFLAGS']
 		v['plugin_LINKFLAGS']  = v['shlib_LINKFLAGS']
-		v['plugin_obj_ext']    = v['shlib_obj_ext']
 		v['plugin_PREFIX']     = v['shlib_PREFIX']
 		v['plugin_SUFFIX']     = v['shlib_SUFFIX']
 
 		# static lib
 		#v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-		v['staticlib_obj_ext'] = '.o'
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
 		# program
 		v['program_LINKFLAGS'] = ['-Wl,-brtl']
-		v['program_obj_ext']   = '.o'
 		v['program_SUFFIX']    = ''
 
 		v['SHLIB_MARKER']      = ''
@@ -182,25 +167,21 @@ def detect(conf):
 		# shared library
 		v['shlib_CXXFLAGS']    = ['-fPIC', '-DPIC']
 		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_obj_ext']     = '.os'
 		v['shlib_PREFIX']      = 'lib'
 		v['shlib_SUFFIX']      = '.so'
 
 		# plugins, loadable modules.
 		v['plugin_CXXFLAGS']     = v['shlib_CXXFLAGS']
 		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_obj_ext']      = v['shlib_obj_ext']
 		v['plugin_PREFIX']       = v['shlib_PREFIX']
 		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
 
 		# static lib
 		#v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-		v['staticlib_obj_ext'] = '.o'
 		v['staticlib_PREFIX']  = 'lib'
 		v['staticlib_SUFFIX']  = '.a'
 
 		# program
-		v['program_obj_ext']   = '.o'
 		v['program_SUFFIX']    = ''
 
 	conf.check_tool('checks')

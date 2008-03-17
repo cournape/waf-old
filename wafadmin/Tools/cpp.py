@@ -24,7 +24,7 @@ CXX_METHS = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_d
 	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars', 'apply_objdeps', 'install_target']
 
 # TODO get rid of that class
-g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS', 'obj_ext']
+g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cppobj(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
@@ -98,8 +98,7 @@ Object.gen_hook(apply_defines_cxx)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task('cpp', self.env)
-	obj_ext = self.env[self.m_type+'_obj_ext']
-	if not obj_ext: obj_ext = '.os'
+	obj_ext = '_%s.o' % self.m_type[:2]
 
 	task.m_scanner = ccroot.g_c_scanner
 	task.path_lst = self.inc_paths

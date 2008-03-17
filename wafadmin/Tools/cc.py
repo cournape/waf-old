@@ -22,7 +22,7 @@ EXT_CC = ['.c', '.cc']
 CC_METHS = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
 	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars', 'apply_objdeps', 'install_target']
 
-g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS', 'obj_ext']
+g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
 # TODO get rid of this
 class ccobj(ccroot.ccroot):
@@ -97,8 +97,7 @@ Object.gen_hook(apply_defines_cc)
 def c_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task('cc', self.env)
-	obj_ext = self.env[self.m_type+'_obj_ext']
-	if not obj_ext: obj_ext = '.os'
+	obj_ext = '_%s.o' % self.m_type[:2]
 
 	task.m_scanner = ccroot.g_c_scanner
 	task.path_lst = self.inc_paths

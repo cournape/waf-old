@@ -100,7 +100,6 @@ def check_perl_ext_devel(conf):
     conf.env["perlext_PREFIX"] = ''
     conf.env["perlext_SUFFIX"] = '.' + os.popen(perl + " -MConfig -e'print $Config{dlext}'").read()
     conf.env["perlext_USELIB"] = "PERL PERLEXT"
-    conf.env["perlext_obj_ext"] = conf.env["shlib_obj_ext"]
 
     return True
 
@@ -108,8 +107,6 @@ def detect(conf):
     conf.hook(check_perl_version)
     conf.hook(check_perl_ext_devel)
     conf.hook(check_perl_module)
-
-    return True
 
 def set_options(opt):
     opt.add_option("--with-perl-binary", type="string", dest="perlbinary", help = 'Specify alternate perl binary', default=None)
