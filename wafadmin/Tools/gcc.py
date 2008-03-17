@@ -83,10 +83,7 @@ def find_ar(conf):
 def common_flags(conf):
 	v = conf.env
 
-	#v['CPPFLAGS']             = []
-	#v['CCDEFINES']            = []
-	#v['_CCINCFLAGS']          = []
-	#v['_CCDEFFLAGS']          = []
+	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
 
 	v['CC_SRC_F']             = ''
 	v['CC_TGT_F']             = '-c -o '
@@ -101,8 +98,6 @@ def common_flags(conf):
 	v['LIBPATH_ST']           = '-L%s' # template for adding libpaths
 	v['STATICLIB_ST']         = '-l%s'
 	v['STATICLIBPATH_ST']     = '-L%s'
-	v['_LIBDIRFLAGS']         = ''
-	v['_LIBFLAGS']            = ''
 	v['CCDEFINES_ST']         = '-D%s'
 
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
