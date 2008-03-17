@@ -67,23 +67,20 @@ def detect(conf):
 	# shared library
 	v['shlib_CCFLAGS']       = ['-Kpic', '-DPIC']
 	v['shlib_LINKFLAGS']     = ['-G']
-	v['shlib_PREFIX']        = 'lib'
-	v['shlib_SUFFIX']        = '.so'
+	v['shlib_PATTERN']       = 'lib%s.so'
 
 	# plugins. We handle them exactly as shlibs
 	# everywhere except on osx, where we do bundles
 	v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
 	v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-	v['plugin_PREFIX']       = v['shlib_PREFIX']
-	v['plugin_SUFFIX']       = v['shlib_SUFFIX']
+	v['plugin_PATTERN']      = v['shlib_PATTERN']
 
 	# static lib
 	v['staticlib_LINKFLAGS'] = ['-Bstatic']
-	v['staticlib_PREFIX']    = 'lib'
-	v['staticlib_SUFFIX']    = '.a'
+	v['staticlib_PATTERN']   = 'lib%s.a'
 
 	# program
-	v['program_SUFFIX']      = ''
+	v['program_PATTERN']     = '%s'
 
 	conf.check_features(kind='cpp')
 

@@ -221,7 +221,7 @@ class library_enumerator(enumerator_base):
 	def run_test(self):
 		ret = '' # returns a string
 
-		name = self.env['shlib_PREFIX']+self.name+self.env['shlib_SUFFIX']
+		name = self.env['shlib_PATTERN'] % self.name
 		ret  = Configure.find_file(name, self.path)
 
 		if not ret:
@@ -231,7 +231,7 @@ class library_enumerator(enumerator_base):
 				if ret: break
 
 		if not ret:
-			name = self.env['staticlib_PREFIX']+self.name+self.env['staticlib_SUFFIX']
+			name = self.env['staticlib_PATTERN'] % self.name
 			ret  = Configure.find_file(name, self.path)
 
 		if self.want_message:

@@ -97,8 +97,7 @@ def check_perl_ext_devel(conf):
     else:
         conf.env["ARCHDIR_PERL"] = getattr(Params.g_options, 'perlarchdir')
 
-    conf.env["perlext_PREFIX"] = ''
-    conf.env["perlext_SUFFIX"] = '.' + os.popen(perl + " -MConfig -e'print $Config{dlext}'").read()
+    conf.env["perlext_PATTERN"] = '%s.' + os.popen(perl + " -MConfig -e'print $Config{dlext}'").read()
     conf.env["perlext_USELIB"] = "PERL PERLEXT"
 
     return True

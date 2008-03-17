@@ -100,8 +100,7 @@ def check_python_headers(conf):
 	except ValueError:
 		conf.fatal("Python development headers not found (-v for details).")
 
-	env['pyext_PREFIX'] = ''
-	env['pyext_SUFFIX'] = python_SO
+	env['pyext_PATTERN'] = '%s'+python_SO
 
 	# Check for python libraries for embedding
 	if python_SYSLIBS is not None:

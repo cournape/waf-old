@@ -104,35 +104,33 @@ def common_flags(conf):
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
 	# program
-	v['program_SUFFIX']      = ''
+	v['program_PATTERN']     = '%s'
 
 	# shared library
 	v['shlib_CCFLAGS']       = ['-fPIC', '-DPIC']
 	v['shlib_LINKFLAGS']     = ['-shared']
-	v['shlib_PREFIX']        = 'lib'
-	v['shlib_SUFFIX']        = '.so'
+	v['shlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
 	v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-	v['staticlib_PREFIX']    = 'lib'
-	v['staticlib_SUFFIX']    = '.a'
+	v['staticlib_PATTERN']   = 'lib%s.a'
 
 def modifier_win32(conf):
 	v = conf.env
-	v['program_SUFFIX']      = '.exe'
+	v['program_PATTERN']     = '%s.exe'
 
-	v['shlib_SUFFIX']        = '.dll'
-	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
+	v['shlib_PATTERN']       = 'lib%s.dll'
+	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a'] # FIXME what the fuck is IMPLIB?
 	v['shlib_CCFLAGS']       = ['']
 
 	v['staticlib_LINKFLAGS'] = ['']
 
 def modifier_cygwin(conf):
 	v = conf.env
-	v['program_SUFFIX']      = '.exe'
+	v['program_PATTERN']     = '%s.exe'
 
+	v['shlib_PATTERN']       = 'lib%s.dll'
 	v['shlib_CCFLAGS']       = ['']
-	v['shlib_SUFFIX']        = '.dll'
 	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
 	v['staticlib_LINKFLAGS'] = ['']
@@ -141,7 +139,7 @@ def modifier_darwin(conf):
 	v = conf.env
 	v['shlib_CCFLAGS']       = ['-fPIC']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
-	v['shlib_SUFFIX']        = '.dylib'
+	v['shlib_PATTERN']       = 'lib%s.dylib'
 
 	v['staticlib_LINKFLAGS'] = ['']
 
@@ -164,13 +162,11 @@ def modifier_plugin(conf):
 	if sys.platform == 'darwin':
 		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
 		v['plugin_CCFLAGS']      = ['-fPIC']
-		v['plugin_PREFIX']       = ''
-		v['plugin_SUFFIX']       = '.bundle'
+		v['plugin_PATTERN']      = '%s.bundle'
 	else:
 		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
 		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_PREFIX']       = v['shlib_PREFIX']
-		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
+		v['plugin_PATTERN']      = v['shlib_PATTERN']
 
 def modifier_debug(conf):
 	v = conf.env

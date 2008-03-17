@@ -98,28 +98,14 @@ class ccroot(Object.task_gen):
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
 		#self.features = ['program']
 # helper used only here
-def get_target_name(self, ext=None):
+def get_target_name(self):
 	name = self.target
-	v = self.env
+	pattern = self.env[self.m_type+'_PATTERN']
+	if not pattern: pattern = '%s'
 
-	prefix = v[self.m_type+'_PREFIX']
-	if self.subtype+'_PREFIX' in v.m_table:
-		prefix = v[self.subtype+'_PREFIX']
-
-	suffix = v[self.m_type+'_SUFFIX']
-	if self.subtype+'_SUFFIX' in v.m_table:
-		suffix = v[self.subtype+'_SUFFIX']
-
-	if ext: suffix = ext
-	if not prefix: prefix=''
-	if not suffix: suffix=''
-
-	# Handle the case where the name contains a directory src/mylib
-	k=name.rfind('/')
-	if k == -1:
-		return ''.join([prefix, name, suffix])
-	else:
-		return name[0:k+1] + ''.join([prefix, name[k+1:], suffix])
+	# name can be src/mylib
+	k = name.rfind('/')
+	return name[0:k+1] + pattern % name[k+1:]
 Object.gen_hook(get_target_name)
 
 def apply_verif(self):
