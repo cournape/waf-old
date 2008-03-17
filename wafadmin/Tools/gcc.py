@@ -72,7 +72,7 @@ def find_cpp(conf):
 	if v['CPP']: cpp = v['CPP']
 	elif 'CPP' in os.environ: cpp = os.environ['CPP']
 	if not cpp: cpp = conf.find_program('cpp', var='CPP')
-	if not cpp: cpp = cc
+	if not cpp: cpp = v['CC']
 	v['CPP'] = cpp
 
 def find_ar(conf):
