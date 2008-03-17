@@ -30,7 +30,7 @@ def eval_rules(conf, rules, err_handler):
 			else:
 				raise
 
-def find_program_c(conf):
+def find_cc(conf):
 	v = conf.env
 	cc = None
 	if v['CC']: cc = v['CC']
@@ -40,6 +40,8 @@ def find_program_c(conf):
 	if not cc: conf.fatal('gcc was not found')
 	v['CC']  = cc
 
+def find_cpp(conf):
+	v = conf.env
 	cpp = None
 	if v['CPP']: cpp = v['CPP']
 	elif 'CPP' in os.environ: cpp = os.environ['CPP']
@@ -47,19 +49,10 @@ def find_program_c(conf):
 	if not cpp: cpp = cc
 	v['CPP'] = cpp
 
-	conf.check_tool('cc')
-
 def find_ar(conf):
 	env = conf.env
 	conf.check_tool('ar')
-	if not env['AR']: conf.fatal('gcc needs ar - not found')
-
-def find_cpp(conf):
-	env = conf.env
-	if not env['CPP']:
-		cpp = conf.find_program('cpp', var='CPP')
-		if not cpp: cpp = cc
-		env['CPP'] = cpp
+	if not env['AR']: conf.fatal('gcc requires ar - not found')
 
 def common_flags(conf):
 	v = conf.env
@@ -188,18 +181,20 @@ def modifier_debug(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
-funcs = [find_program_c, find_ar, find_cpp, common_flags, modifier_win32]
+funcs = [find_cc, find_cpp, find_ar, common_flags, modifier_win32]
 
 def detect(conf):
 
 	# TODO FIXME later it will start from eval_rules
 	#eval_rules(conf, funcs, on_error)
 
-	find_program_c(conf)
+	find_cc(conf)
+	find_cpp(conf)
 	find_ar(conf)
 
-	common_flags(conf)
+	conf.check_tool('cc')
 
+	common_flags(conf)
 	if sys.platform == 'win32': modifier_win32(conf)
 	elif sys.platform == 'cygwin': modifier_cygwin(conf)
 	elif sys.platform == 'darwin': modifier_darwin(conf)
