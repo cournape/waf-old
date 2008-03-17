@@ -9,178 +9,120 @@ import Params, Configure
 
 import ccroot
 
-# tool detection and initial setup
-# is called when a configure process is started,
-# the values are cached for further build processes
-def detect(conf):
+def find_cxx(conf):
 	v = conf.env
-	cxx = None
-	if v['CXX']:
-		cxx = v['CXX']
-	elif 'CXX' in os.environ:
-		cxx = os.environ['CXX']
-	if not cxx: cxx = conf.find_program('g++', var='CXX')
-	if not cxx: cxx = conf.find_program('c++', var='CXX')
-	if not cxx: conf.fatal("g++ was not found")
+	cc = None
+	if v['CXX']: cc = v['CXX']
+	elif 'CXX' in os.environ: cc = os.environ['CXX']
+	if not cc: cc = conf.find_program('g++', var='CXX')
+	if not cc: cc = conf.find_program('c++', var='CXX')
+	if not cc: conf.fatal('g++ was not found')
+	v['CXX']  = cc
 
-	if not v['CPP']:
-		cpp = conf.find_program('cpp', var='CPP')
-		if not cpp: cpp = cxx
-		v['CPP'] = cpp
+def find_cpp(conf):
+	v = conf.env
+	cpp = None
+	if v['CPP']: cpp = v['CPP']
+	elif 'CPP' in os.environ: cpp = os.environ['CPP']
+	if not cpp: cpp = conf.find_program('cpp', var='CPP')
+	if not cpp: cpp = v['CXX']
+	v['CPP'] = cpp
 
-	# load the cpp builders
-	conf.check_tool('cpp')
-
-	# g++ requires ar for static libs
+def find_ar(conf):
+	env = conf.env
 	conf.check_tool('ar')
-	if not v['AR']:
-		conf.fatal('g++ needs ar - not found')
+	if not env['AR']: conf.fatal('g++ requires ar - not found')
 
-	v['CXX'] = cxx
+def common_flags(conf):
+	v = conf.env
 
-	#v['CPPFLAGS']            = []
-	#v['CXXDEFINES']          = [] # command-line defines
+	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
 
-	v['_CXXINCFLAGS']        = []
-	v['_CXXDEFFLAGS']        = []
-
-	v['CXX_SRC_F']           = ''
-	v['CXX_TGT_F']           = '-c -o '
-
-	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
-
+	v['CXX_SRC_F']             = ''
+	v['CXX_TGT_F']             = '-c -o '
+	v['CPPPATH_ST']           = '-I%s' # template for adding include paths
 
 	# linker
-	v['LINK_CXX']            = v['LINK_CXX'] or v['CXX']
-	#v['LIB']                 = []
+	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
+	v['CXXLNK_SRC_F']          = ''
+	v['CXXLNK_TGT_F']          = '-o '
 
-	v['CPPLNK_TGT_F']        = '-o '
-	v['CPPLNK_SRC_F']        = ''
-
-	v['LIB_ST']              = '-l%s' # template for adding libs
-	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
-	v['STATICLIB_ST']        = '-l%s'
-	v['STATICLIBPATH_ST']    = '-L%s'
-	v['CXXDEFINES_ST']       = '-D%s'
-	v['_LIBDIRFLAGS']        = ''
-	v['_LIBFLAGS']           = ''
+	v['LIB_ST']               = '-l%s' # template for adding libs
+	v['LIBPATH_ST']           = '-L%s' # template for adding libpaths
+	v['STATICLIB_ST']         = '-l%s'
+	v['STATICLIBPATH_ST']     = '-L%s'
+	v['CXXDEFINES_ST']         = '-D%s'
 
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
-	if sys.platform == "win32":
-		# shared library
-		v['shlib_CXXFLAGS']    = ['']
-		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_PREFIX']      = 'lib'
-		v['shlib_SUFFIX']      = '.dll'
-		v['shlib_IMPLIB_SUFFIX'] = ['.a']
+	# program
+	v['program_PATTERN']     = '%s'
 
-		# static library
-		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_PREFIX']  = 'lib'
-		v['staticlib_SUFFIX']  = '.a'
+	# shared library
+	v['shlib_CXXFLAGS']       = ['-fPIC', '-DPIC']
+	v['shlib_LINKFLAGS']     = ['-shared']
+	v['shlib_PATTERN']       = 'lib%s.so'
 
-		# program
-		v['program_SUFFIX']    = '.exe'
+	# static lib
+	v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
+	v['staticlib_PATTERN']   = 'lib%s.a'
 
-		# plugins, loadable modules.
-		v['plugin_CXXFLAGS']     = v['shlib_CXXFLAGS']
-		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_PREFIX']       = v['shlib_PREFIX']
-		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
-	elif sys.platform == 'cygwin':
-		# shared library
-		v['shlib_CXXFLAGS']    = ['']
-		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_PREFIX']      = 'lib'
-		v['shlib_SUFFIX']      = '.dll'
-		v['shlib_IMPLIB_SUFFIX'] = ['.a']
+def modifier_win32(conf):
+	v = conf.env
+	v['program_PATTERN']     = '%s.exe'
 
-		# static library
-		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_PREFIX']  = 'lib'
-		v['staticlib_SUFFIX']  = '.a'
+	v['shlib_PATTERN']       = 'lib%s.dll'
+	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a'] # FIXME what the fuck is IMPLIB?
+	v['shlib_CXXFLAGS']       = ['']
 
-		# program
-		v['program_SUFFIX']    = '.exe'
-	elif sys.platform == 'darwin':
-		v['SHLIB_MARKER']      = ' '
-		v['STATICLIB_MARKER']  = ' '
+	v['staticlib_LINKFLAGS'] = ['']
 
-		# shared library
-		v['shlib_MARKER']      = ''
-		v['shlib_CXXFLAGS']    = ['-fPIC']
-		v['shlib_LINKFLAGS']   = ['-dynamiclib']
-		v['shlib_PREFIX']      = 'lib'
-		v['shlib_SUFFIX']      = '.dylib'
+def modifier_cygwin(conf):
+	v = conf.env
+	v['program_PATTERN']     = '%s.exe'
 
-		# static lib
-		v['staticlib_MARKER']  = ''
-		v['staticlib_LINKFLAGS'] = ['']
-		v['staticlib_PREFIX']  = 'lib'
-		v['staticlib_SUFFIX']  = '.a'
+	v['shlib_PATTERN']       = 'lib%s.dll'
+	v['shlib_CXXFLAGS']       = ['']
+	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
-		# bundles
+	v['staticlib_LINKFLAGS'] = ['']
+
+def modifier_darwin(conf):
+	v = conf.env
+	v['shlib_CXXFLAGS']       = ['-fPIC']
+	v['shlib_LINKFLAGS']     = ['-dynamiclib']
+	v['shlib_PATTERN']       = 'lib%s.dylib'
+
+	v['staticlib_LINKFLAGS'] = ['']
+
+	v['SHLIB_MARKER']        = ''
+	v['STATICLIB_MARKER']    = ''
+
+def modifier_aix5(conf):
+	v = conf.env
+	v['program_LINKFLAGS']   = ['-Wl,-brtl']
+
+	v['shlib_LINKFLAGS']     = ['-shared','-Wl,-brtl,-bexpfull']
+
+	v['SHLIB_MARKER']        = ''
+
+def modifier_plugin(conf):
+	v = conf.env
+	# TODO this will disappear somehow
+	# plugins. We handle them exactly as shlibs
+	# everywhere except on osx, where we do bundles
+	if sys.platform == 'darwin':
 		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
-		v['plugin_CXXFLAGS']     = ['-fPIC']
-		v['plugin_PREFIX']       = ''
-		v['plugin_SUFFIX']       = '.bundle'
-
-		# program
-		v['program_SUFFIX']    = ''
-
-		v['SHLIB_MARKER']        = ''
-		v['STATICLIB_MARKER']    = ''
-
-	elif sys.platform == 'aix5':
-		# shared library
-		v['shlib_CXXFLAGS']    = ['-fPIC', '-DPIC']
-		v['shlib_LINKFLAGS']   = ['-shared','-Wl,-brtl,-bexpfull']
-		v['shlib_PREFIX']      = 'lib'
-		v['shlib_SUFFIX']      = '.so'
-
-		# plugins, loadable modules.
-		v['plugin_CXXFLAGS']   = v['shlib_CXXFLAGS']
-		v['plugin_LINKFLAGS']  = v['shlib_LINKFLAGS']
-		v['plugin_PREFIX']     = v['shlib_PREFIX']
-		v['plugin_SUFFIX']     = v['shlib_SUFFIX']
-
-		# static lib
-		#v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-		v['staticlib_PREFIX']  = 'lib'
-		v['staticlib_SUFFIX']  = '.a'
-
-		# program
-		v['program_LINKFLAGS'] = ['-Wl,-brtl']
-		v['program_SUFFIX']    = ''
-
-		v['SHLIB_MARKER']      = ''
+		v['plugin_CXXFLAGS']      = ['-fPIC']
+		v['plugin_PATTERN']      = '%s.bundle'
 	else:
-		# shared library
-		v['shlib_CXXFLAGS']    = ['-fPIC', '-DPIC']
-		v['shlib_LINKFLAGS']   = ['-shared']
-		v['shlib_PREFIX']      = 'lib'
-		v['shlib_SUFFIX']      = '.so'
-
-		# plugins, loadable modules.
-		v['plugin_CXXFLAGS']     = v['shlib_CXXFLAGS']
+		v['plugin_CXXFLAGS']      = v['shlib_CXXFLAGS']
 		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_PREFIX']       = v['shlib_PREFIX']
-		v['plugin_SUFFIX']       = v['shlib_SUFFIX']
+		v['plugin_PATTERN']      = v['shlib_PATTERN']
 
-		# static lib
-		#v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
-		v['staticlib_PREFIX']  = 'lib'
-		v['staticlib_SUFFIX']  = '.a'
-
-		# program
-		v['program_SUFFIX']    = ''
-
-	conf.check_tool('checks')
-
-	conf.check_features(kind='cpp')
-
+def modifier_debug(conf):
+	v = conf.env
 	# compiler debug levels
 	if conf.check_flags('-O2'):
 		v['CXXFLAGS_OPTIMIZED'] = ['-O2']
@@ -196,6 +138,26 @@ def detect(conf):
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
+
+def detect(conf):
+
+	find_cxx(conf)
+	find_cpp(conf)
+	find_ar(conf)
+
+	conf.check_tool('cpp')
+
+	common_flags(conf)
+	if sys.platform == 'win32': modifier_win32(conf)
+	elif sys.platform == 'cygwin': modifier_cygwin(conf)
+	elif sys.platform == 'darwin': modifier_darwin(conf)
+	elif sys.platform == 'aix5': modifier_aix5(conf)
+	modifier_plugin(conf)
+
+	conf.check_tool('checks')
+	conf.check_features(kind='cpp')
+
+	modifier_debug(conf)
 
 	conf.add_os_flags('CXXFLAGS')
 	conf.add_os_flags('CPPFLAGS')
