@@ -12,6 +12,32 @@ import ccroot
 STOP = "stop"
 CONTINUE = "continue"
 
+
+"""
+Configuration issues:
+
+The first problem is that some exceptions are critical
+(compiler not found, ..) while others are not (the ar
+program is only needed for static libraries)
+
+The second problem is about the branching: how to extend
+the configuration functions without hard-coding the names
+and calling the functions
+
+A third problem is to reuse the code and not copy-paste
+everything each time a new compiler is added
+
+The refactoring will be performed in three steps:
+1 the code will be split into small functions
+2 the irrelevant variables will be eliminated
+3 a stack-based system will be used for calling the configuration functions
+4 the user logic will go into the error recovery (for example, making some errors non-fatal)
+
+Another solution to avoid an excessive amount of configuration variables is
+to create platform-specific methods, in this case the following problems must be solved first:
+attach functions dynamically to the c/c++ classes (without importing cpp.py or cc.py)
+"""
+
 def on_error(func_name, exc):
 	if func_name == 'not_critical':
 		env['foo'] = 'blah'
@@ -169,11 +195,10 @@ def modifier_debug(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
-funcs = [find_cc, find_cpp, find_ar, common_flags, modifier_win32]
-
 def detect(conf):
 
 	# TODO FIXME later it will start from eval_rules
+	# funcs = [find_cc, find_cpp, find_ar, common_flags, modifier_win32]
 	#eval_rules(conf, funcs, on_error)
 
 	find_cc(conf)
