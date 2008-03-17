@@ -148,6 +148,12 @@ class CommonTester(unittest.TestCase):
 			stored_env_path = os.path.join(self._blddir, CACHE_DIR, env_name+CACHE_SUFFIX)
 			stored_env.load( stored_env_path )
 			for key in expected_env:
-				self.assertEqual( stored_env[key], expected_env[key], 
+				# using sort() to ignore differences in order.
+				# Not using sets.Set in order to identify redundant flags.
+				stored_items = stored_env[key]
+				expected_items = expected_env[key]
+				stored_items.sort()
+				expected_items.sort()
+				self.assertEqual( stored_items, expected_items, 
 								"values of '%s' differ: expected = '%s', stored = '%s'" 
-								% (key,expected_env[key], stored_env[key]))
+								% (key,expected_items, stored_items))

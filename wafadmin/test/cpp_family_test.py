@@ -73,17 +73,16 @@ class CppFamilyTester(CcRootTester):
 		
 	def test_empty_custom_flags(self):
 		# simple default cpp program, checks defined FLAGS
-		# (should be just the default -Wall, since CXXFLAGS_CUSTOM is not defined)
 		self._setup_cpp_program()
 		self._test_configure(True, ["--debug-level=custom"])
-		self._same_env(dict(CXXFLAGS=['-Wall']))
+		self._same_env(dict(CXXFLAGS=[]))
 		
 	def test_customized_debug_level(self):
 		# make sure that user can control the custom debug level
 		# by setting the CXXFLAGS_CUSTOM.
 		self._setup_cpp_program_with_env("conf.env['CXXFLAGS_CUSTOM'] = '-O9'")
 		self._test_configure(True, ["--debug-level=custom"])
-		self._same_env(dict(CXXFLAGS=['-Wall', '-O9']))
+		self._same_env(dict(CXXFLAGS=['-O9']))
 		
 	def test_cxx_by_environ(self):
 		# change the CXX environment variable, to something really stupid.
