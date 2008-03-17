@@ -61,13 +61,6 @@ def detect(conf):
 	v['_LIBFLAGS']            = ''
 	v['CCDEFINES_ST']         = '-D%s'
 
-	# linker debug levels
-	v['LINKFLAGS']            = []
-	v['LINKFLAGS_OPTIMIZED']  = ['-s']
-	v['LINKFLAGS_RELEASE']    = ['-s']
-	v['LINKFLAGS_DEBUG']      = ['-g']
-	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
-
 	v['SHLIB_MARKER']        = '-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Bstatic'
 

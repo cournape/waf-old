@@ -47,11 +47,6 @@ def detect(conf):
 	v['DFLAGS_OPTIMIZED']      = ['-O3']
 	v['DFLAGS_DEBUG']          = ['-O0']
 	v['DFLAGS_ULTRADEBUG']     = ['-O0']
-	v['DLINKFLAGS_OPTIMIZED']  = ['-s']
-	v['DLINKFLAGS_RELEASE']    = ['-s']
-	v['DLINKFLAGS_DEBUG']      = ['-g']
-	v['DLINKFLAGS_ULTRADEBUG'] = ['-g3']
-
 
 	if sys.platform == "win32":
 		# shared library

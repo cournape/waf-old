@@ -68,13 +68,6 @@ def detect(conf):
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
-	# linker debug levels
-	#v['LINKFLAGS']           = v['LINKFLAGS'] or []
-	v['LINKFLAGS_OPTIMIZED'] = ['-s']
-	v['LINKFLAGS_RELEASE']   = ['-s']
-	v['LINKFLAGS_DEBUG']     = ['-g']
-	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
-
 	if sys.platform == "win32":
 		# shared library
 		v['shlib_CXXFLAGS']    = ['']

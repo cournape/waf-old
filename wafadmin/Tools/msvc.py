@@ -376,12 +376,7 @@ def detect(conf):
 		v['MT'] = quote_whitespace (manifesttool)
 		v['MTFLAGS']=['/NOLOGO']
 
-	# linker debug levels
 	v['LINKFLAGS']           = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
-	v['LINKFLAGS_OPTIMIZED'] = ['']
-	v['LINKFLAGS_RELEASE']   = ['/OPT:REF', '/OPT:ICF', '/INCREMENTAL:NO']
-	v['LINKFLAGS_DEBUG']     = ['/DEBUG', '/INCREMENTAL','msvcrtd.lib']
-	v['LINKFLAGS_ULTRADEBUG'] = ['/DEBUG', '/INCREMENTAL','msvcrtd.lib']
 
 	try:
 		debug_level = Params.g_options.debug_level.upper()

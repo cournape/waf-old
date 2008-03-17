@@ -79,12 +79,6 @@ def common_flags(conf):
 	v['_LIBFLAGS']            = ''
 	v['CCDEFINES_ST']         = '-D%s'
 
-	# linker debug levels
-	v['LINKFLAGS_OPTIMIZED']  = ['-s']
-	v['LINKFLAGS_RELEASE']    = ['-s']
-	v['LINKFLAGS_DEBUG']      = ['-g']
-	v['LINKFLAGS_ULTRADEBUG'] = ['-g3']
-
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 
