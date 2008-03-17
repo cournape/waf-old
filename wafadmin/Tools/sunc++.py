@@ -29,9 +29,9 @@ def find_cpp(conf):
 	v['CPP'] = cpp
 
 def find_ar(conf):
-	env = conf.env
+	v = conf.env
 	conf.check_tool('ar')
-	if not env['AR']: conf.fatal('sunc++ requires ar - not found')
+	if not v['AR']: conf.fatal('sunc++ requires ar - not found')
 
 def common_flags(conf):
 	v = conf.env

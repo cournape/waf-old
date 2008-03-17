@@ -15,7 +15,7 @@ def find_cc(conf):
 	elif 'CC' in os.environ: cc = os.environ['CC']
 	#if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
-	if not cc: conf.fatal('gcc was not found')
+	if not cc: conf.fatal('suncc was not found')
 	v['CC']  = cc
 
 	#TODO: Has anyone a better idea to check if this is a sun cc?
@@ -34,9 +34,9 @@ def find_cpp(conf):
 	v['CPP'] = cpp
 
 def find_ar(conf):
-	env = conf.env
+	v = conf.env
 	conf.check_tool('ar')
-	if not env['AR']: conf.fatal('gcc requires ar - not found')
+	if not v['AR']: conf.fatal('suncc requires ar - not found')
 
 def common_flags(conf):
 	v = conf.env
