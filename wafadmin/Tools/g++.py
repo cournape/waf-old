@@ -182,8 +182,6 @@ def detect(conf):
 	conf.check_features(kind='cpp')
 
 	# compiler debug levels
-	if conf.check_flags('-Wall'):
-		v['CXXFLAGS'] = ['-Wall']
 	if conf.check_flags('-O2'):
 		v['CXXFLAGS_OPTIMIZED'] = ['-O2']
 		v['CXXFLAGS_RELEASE'] = ['-O2']
