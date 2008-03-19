@@ -394,13 +394,12 @@ class Node(object):
 
 	def is_child_of(self, node):
 		"does this node belong to the subtree node"
-		p=self
-		h1=self.height()
-		h2=node.height()
-		diff=h1-h2
-		while diff>0:
+		p = self
+		diff = self.height() - node.height()
+		while diff > 0:
 			diff-=1
-			p=p.m_parent
+			p = p.m_parent
+		print self, node
 		return p == node
 
 	def variant(self, env):
