@@ -262,26 +262,24 @@ def apply_link(self):
 Object.gen_hook(apply_link)
 
 def apply_lib_vars(self):
-	env=self.env
+	env = self.env
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
 	uselib = self.to_list(self.uselib)
 	seen = []
-	names = self.to_list(self.uselib_local) # consume the list of names
+	names = [] + self.to_list(self.uselib_local) # consume a copy of the list of names
 	while names:
-		x = names[0]
+		x = names.pop(0)
 
 		# visit dependencies only once
 		if x in seen:
-			names = names[1:]
 			continue
 
 		# object does not exist ?
 		y = Object.name_to_obj(x)
 		if not y:
 			fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
-			names = names[1:]
 			continue
 
 		# object has ancestors to process: add them to the end of the list
@@ -324,7 +322,6 @@ def apply_lib_vars(self):
 		for v in morelibs:
 			if v in uselib: continue
 			uselib = [v]+uselib
-		names = names[1:]
 
 	# 2. the case of the libs defined outside
 	for x in uselib:
