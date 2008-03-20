@@ -296,6 +296,7 @@ class task_gen(object):
 
 		if prec: fatal("graph has a cycle" % str(prec))
 		out.reverse()
+		self.meths = out
 
 		# then we run the methods in order
 		for x in out:
