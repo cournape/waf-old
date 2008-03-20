@@ -168,7 +168,7 @@ class task_gen(object):
 		g_allobjs.append(self)
 
 	def __str__(self):
-		return ("<genobj '%s' of type %s defined in %s>"
+		return ("<task_gen '%s' of type %s defined in %s>"
 			% (self.name or self.target, self.__class__.__name__, str(self.path)))
 
 	def __setattr__(self, name, attr):
