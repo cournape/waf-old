@@ -250,10 +250,7 @@ class dobj(Object.task_gen):
 		self.inst_var = '' # mark as installable TODO
 		self.vnum = '1.0.0'
 
-def trait_d(obj):
-	if 'd' in obj.features or obj.__class__.__name__ == 'dobj':
-		obj.meths.update(D_METHS)
-if not trait_d in Object.task_gen.traits: Object.task_gen.traits['d'] = trait_d
+Object.add_trait('d', D_METHS)
 
 def apply_d_libs(self):
 	uselib = self.to_list(self.uselib)

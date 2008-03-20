@@ -249,10 +249,7 @@ class ocamlobj(Object.task_gen):
 
 		self.features.append('ocaml')
 
-def trait_ocaml(self):
-	if 'ocaml' in self.features or self.__class__.__name__ == 'ocamlobj':
-		self.meths.update(OCAML_METHS)
-if not trait_ocaml in Object.task_gen.traits: Object.task_gen.traits['ocaml'] = trait_ocaml
+Object.add_trait('ocaml', OCAML_METHS)
 
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()

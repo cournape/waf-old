@@ -20,8 +20,11 @@ g_cpp_flag_vars = [
 "main cpp variables"
 
 EXT_CXX = ['.cpp', '.cc', '.cxx', '.C']
-CXX_METHS = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx', 'apply_core',
-	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars', 'apply_objdeps', 'install_target']
+CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx',
+'apply_core', 'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars',
+'apply_objdeps', 'install_target']
+
+Object.add_trait('cxx', CXX_METHS)
 
 # TODO get rid of that class
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
@@ -35,16 +38,14 @@ class cppobj(ccroot.ccroot):
 
 		self.features.append('cxx')
 
-def trait_cxx(obj):
-	if 'cxx' in obj.features or obj.__class__.__name__ == 'cppobj':
-		obj.meths.update(CXX_METHS)
-		obj.mappings['.c'] = Object.task_gen.mappings['.cxx']
-		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars = set(obj.p_flag_vars).union(g_cpp_flag_vars)
-		else: obj.p_flag_vars = g_cpp_flag_vars
+def init_cxx(self):
+	self.mappings['.c'] = Object.task_gen.mappings['.cxx']
+	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cpp_flag_vars)
+	else: self.p_flag_vars = g_cpp_flag_vars
 
-		if hasattr(obj, 'p_type_vars'):	obj.p_type_vars = set(obj.p_type_vars).union(g_cpp_type_vars)
-		else: obj.p_type_vars = g_cpp_type_vars
-if not trait_cxx in Object.task_gen.traits: Object.task_gen.traits['cxx'] = trait_cxx
+	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cpp_type_vars)
+	else: self.p_type_vars = g_cpp_type_vars
+Object.gen_hook(init_cxx)
 
 def apply_obj_vars_cxx(self):
 	debug('apply_obj_vars_cxx', 'ccroot')
@@ -117,6 +118,7 @@ Action.simple_action('cpp_link', link_str, color='YELLOW', prio=111)
 Object.register('cpp', cppobj)
 Object.declare_extension(EXT_CXX, cxx_hook)
 
+Object.declare_order('init_cxx', 'apply_type_vars')
 Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 
 

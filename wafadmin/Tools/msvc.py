@@ -255,16 +255,21 @@ def apply_link_msvc(self):
 
 Object.gen_hook(apply_link_msvc)
 
-Object.declare_order('apply_core', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
-Object.declare_order('apply_core', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
+def init_msvc(self):
+	"all methods (msvc and non-msvc) are to be executed, but we remove the ones we do not want"
+	if self.env['MSVC']:
+		self.meths.remove('apply_link')
+	else:
+		for x in ['apply_link_msvc', 'apply_msvc_obj_vars']
+			self.meths.remove(x)
+		self.libpaths = getattr(self, 'libpaths', '')
+Object.gen_hook(init_msvc)
 
-def trait_msvc(self):
-	"if linking is done with msvc, add two more methods, and remove apply_link"
-	if not self.env['MSVC']: return
-	self.meths.update(MSVC_METHS)
-	self.meths.discard('apply_link')
-	self.libpaths = getattr(self, 'libpaths', '')
-if not trait_msvc in Object.task_gen.traits: Object.task_gen.traits.append(trait_msvc)
+Object.add_trait('cc', ['init_msvc', 'apply_link_msvc', 'apply_msvc_obj_vars'])
+Object.add_trait('cxx', ['init_msvc', 'apply_link_msvc', 'apply_msvc_obj_vars'])
+
+Object.declare_order('init_msvc', 'apply_core', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
+Object.declare_order('init_msvc', 'apply_core', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
 
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Action.simple_action('msvc_ar_link_static', static_link_str, color='YELLOW', prio=101)

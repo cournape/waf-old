@@ -19,8 +19,11 @@ g_cc_flag_vars = [
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
 EXT_CC = ['.c', '.cc']
-CC_METHS = ['apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc', 'apply_core',
-	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars', 'apply_objdeps', 'install_target']
+CC_METHS = ['init_cc', 'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc',
+'apply_core', 'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars',
+'apply_objdeps', 'install_target']
+
+Object.add_trait('cc', CC_METHS)
 
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
@@ -38,15 +41,13 @@ class ccobj(ccroot.ccroot):
 		global g_cc_type_vars
 		self.p_type_vars = g_cc_type_vars
 
-def trait_cc(obj):
-	if 'cc' in obj.features or obj.__class__.__name__ == 'ccobj':
-		obj.meths.update(CC_METHS)
-		if hasattr(obj, 'p_flag_vars'): obj.p_flag_vars = set(obj.p_flag_vars).union(g_cc_flag_vars)
-		else: obj.p_flag_vars = g_cc_flag_vars
+def init_cc(self):
+	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cc_flag_vars)
+	else: self.p_flag_vars = g_cc_flag_vars
 
-		if hasattr(obj, 'p_type_vars'):	obj.p_type_vars = set(obj.p_type_vars).union(g_cc_type_vars)
-		else: obj.p_type_vars = g_cc_type_vars
-if not trait_cc in Object.task_gen.traits: Object.task_gen.traits['cc'] = trait_cc
+	if hasattr(self, 'p_type_vars'):	self.p_type_vars = set(self.p_type_vars).union(g_cc_type_vars)
+	else: self.p_type_vars = g_cc_type_vars
+Object.gen_hook(init_cc)
 
 def apply_obj_vars_cc(self):
 	debug('apply_obj_vars_cc', 'ccroot')
@@ -116,5 +117,6 @@ Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
 Object.register('cc', ccobj)
 Object.declare_extension(EXT_CC, c_hook)
 
+Object.declare_order('init_cc', 'apply_type_vars')
 Object.declare_order('apply_dependencies', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 

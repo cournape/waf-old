@@ -255,11 +255,9 @@ class task_gen(object):
 		dct = self.__class__.__dict__
 		keys = self.meths
 
-		# last minute modification of self.meths
-		#print task_gen.traits
+		# add the methods listed in the features
 		for x in self.features:
-			#print "running", x.__name__
-			task_gen.traits[x](self)
+			keys.update(task_gen.traits[x])
 
 		# copy the precedence table with the keys in self.meths
 		prec = {}
@@ -447,6 +445,15 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 			tsk.install = install
 
 	declare_extension(ext_in, x_file)
+
+def add_trait(name, methods):
+	lst = Utils.to_list(methods)
+	try:
+		l = task_gen.traits[name]
+	except KeyError:
+		l = set()
+		task_gen.traits[name] = l
+	l.update(lst)
 
 g_allclasses = {}
 def register(name, classval):

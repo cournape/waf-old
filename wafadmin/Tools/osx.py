@@ -11,7 +11,6 @@ obj.mac_app = True
 
 import os, shutil
 import Object, Action
-import ccroot, cc, cpp
 
 from Params import error, debug, fatal, warning
 
@@ -21,19 +20,17 @@ def create_task_macapp(self):
 		apptask.set_inputs(self.link_task.m_outputs)
 		apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
 		self.m_apptask = apptask
+Object.gen_hook(create_task_macapp)
 
 def apply_link_osx(self):
 	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
 	or use obj.mac_app = True to build specific targets as Mac apps"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
-	    create_task_macapp(self)
+	    self.create_task_macapp()
 Object.gen_hook(apply_link_osx)
-Object.declare_order("apply_link", "apply_link_osx")
-if "apply_link_osx" not in cc.CC_METHS:
-	cc.CC_METHS.append("apply_link_osx")
-if "apply_link_osx" not in cpp.CXX_METHS:
-	cpp.CXX_METHS.append("apply_link_osx")
-
+Object.declare_order('apply_link', 'apply_link_osx')
+Object.add_trait('cc', 'apply_link_osx')
+Object.add_trait('cpp', 'apply_link_osx')
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
 
