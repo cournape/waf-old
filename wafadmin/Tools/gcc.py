@@ -35,7 +35,7 @@ The refactoring will be performed in three steps:
 
 Another solution to avoid an excessive amount of configuration variables is
 to create platform-specific methods, in this case the following problems must be solved first:
-attach functions dynamically to the c/c++ classes (without importing cpp.py or cc.py)
+attach functions dynamically to the c/c++ classes (without importing cxx.py or cc.py)
 """
 
 def on_error(func_name, exc):

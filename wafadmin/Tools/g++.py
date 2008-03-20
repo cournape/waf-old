@@ -145,7 +145,7 @@ def detect(conf):
 	find_cpp(conf)
 	find_ar(conf)
 
-	conf.check_tool('cpp')
+	conf.check_tool('cxx')
 
 	common_flags(conf)
 	if sys.platform == 'win32': modifier_win32(conf)

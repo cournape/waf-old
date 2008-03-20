@@ -11,7 +11,7 @@ This module also demonstrates how to add tasks dynamically (when the build has s
 """
 
 import os, sys
-import ccroot, cpp
+import ccroot, cxx
 import Action, Params, Object, Task, Utils, Runner
 from Params import error, fatal
 
@@ -158,9 +158,9 @@ def create_uic_task(self, node):
 	uictask.m_inputs    = [node]
 	uictask.m_outputs   = [node.change_ext('.h')]
 
-class qt4obj(cpp.cppobj):
+class qt4obj(cxx.cppobj):
 	def __init__(self, type='program', subtype=None):
-		cpp.cppobj.__init__(self, type, subtype)
+		cxx.cppobj.__init__(self, type, subtype)
 		self.link_task = None
 		self.lang = ''
 		self.langname = ''

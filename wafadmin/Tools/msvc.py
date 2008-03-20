@@ -9,7 +9,7 @@ import Utils, Action, Params, Object, Runner, Configure
 from Params import debug, error, fatal, warning
 from Utils import quote_whitespace
 
-import ccroot, cc, cpp
+import ccroot
 from libtool import read_la_file
 from os.path import exists
 
