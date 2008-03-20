@@ -397,9 +397,8 @@ class Node(object):
 		p = self
 		diff = self.height() - node.height()
 		while diff > 0:
-			diff-=1
+			diff -= 1
 			p = p.m_parent
-		print self, node
 		return p == node
 
 	def variant(self, env):
