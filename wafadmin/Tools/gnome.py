@@ -194,8 +194,9 @@ Object.gen_hook(process_dbus)
 Object.declare_order('process_marshal', 'apply_core')
 
 def process_enums(self):
-	env = self.env
 	for x in getattr(self, 'mk_enums', []):
+		# temporary
+		env = self.env.copy()
 		task = self.create_task('mk_enums', env)
 		inputs = []
 
