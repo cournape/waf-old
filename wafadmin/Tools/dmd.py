@@ -1,28 +1,27 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Carlos Rafael Giani, 2007 (dv)
+# Thomas Nagy, 2008 (ita)
 
 import sys
 
-def detect(conf):
+def find_dmd(conf):
+	v = conf.env
 	d_compiler = None
-	if conf.env['D_COMPILER']:
-		d_compiler = conf.env['D_COMPILER']
+	if v['D_COMPILER']:
+		d_compiler = v['D_COMPILER']
 	if not d_compiler: d_compiler = conf.find_program('dmd', var='D_COMPILER')
 	if not d_compiler:
 		return 0
+	v['D_COMPILER'] = d_compiler
 
-	conf.check_tool('d')
-
-	conf.check_tool('ar')
-	if not conf.env['AR']:
-		conf.fatal('ar is needed for static libraries - not found')
-
+def find_ar(conf):
 	v = conf.env
+	conf.check_tool('ar')
+	if not v['AR']: conf.fatal('ar is required for shared libraries - not found')
 
-	#compiler
-	v['D_COMPILER']           = d_compiler
-
+def common_flags(conf):
+	v = conf.env
 	# Compiler is dmd so 'gdc' part will be ignored, just
 	# ensure key is there, so wscript can append flags to it
 	v['DFLAGS']               = {'gdc': [], 'dmd': ['-version=Posix']}
@@ -80,6 +79,13 @@ def detect(conf):
 		# program
 		v['D_program_PREFIX']      = ''
 		v['D_program_SUFFIX']      = ''
+
+def detect(conf):
+	v = conf.env
+	find_dmd(conf)
+	find_ar(conf)
+	conf.check_tool('d')
+	common_flags(conf)
 
 def set_options(opt):
 	pass

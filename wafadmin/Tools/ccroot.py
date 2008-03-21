@@ -420,7 +420,6 @@ def process_obj_files(self):
 		node = self.path.find_source(x)
 		self.link_task.m_inputs.append(node)
 
-@toto
 def add_obj_file(self, file):
 	if not hasattr(self, 'obj_files'): self.obj_files = []
 	if not 'process_obj_files' in self.meths: self.meths.add('process_obj_files')
@@ -432,7 +431,6 @@ Object.declare_order('apply_link', 'process_obj_files')
 
 # do not link but make .o files available
 
-@feature('objects')
 def make_objects_available(self):
 	# if we are only building .o files, tell which ones we built
 	self.out_nodes = []
