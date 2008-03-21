@@ -4,8 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import sys, re, os
-
+import os, sys, re
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 

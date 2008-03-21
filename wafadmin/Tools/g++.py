@@ -3,10 +3,8 @@
 # Thomas Nagy, 2006 (ita)
 # Ralf Habacker, 2006 (rh)
 
-import os, sys
-import optparse
+import os, optparse, sys
 import Params, Configure
-
 import ccroot
 
 def find_cxx(conf):

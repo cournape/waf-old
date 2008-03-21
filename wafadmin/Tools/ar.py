@@ -5,7 +5,7 @@
 
 "ar and ranlib"
 
-import Action, sys
+import sys, Action
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 

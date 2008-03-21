@@ -4,11 +4,11 @@
 
 "Base for c++ programs and libraries"
 
-import ccroot # <- do not remove
-from Params import debug, fatal
-import Object, Params, Action, Utils
-
 import sys
+import Object, Params, Action, Utils
+from Params import debug, fatal
+import ccroot # <- do not remove
+
 # backwards compatibility for python 2.3
 if sys.hexversion < 0x020400f0: from sets import Set as set
 

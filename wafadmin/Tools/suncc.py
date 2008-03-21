@@ -3,8 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 # Ralf Habacker, 2006 (rh)
 
-import os, Object
-import optparse
+import os, optparse
 import Utils, Action, Params, Configure
 import ccroot
 
