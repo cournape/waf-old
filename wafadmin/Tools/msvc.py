@@ -401,7 +401,6 @@ def detect(conf):
 	v['shlib_CXXFLAGS'] = ['']
 	v['shlib_LINKFLAGS']= ['/DLL']
 	v['shlib_PATTERN']  = '%s.dll'
-	v['shlib_IMPLIB_SUFFIX'] = ['.lib']
 
 	# plugins. We handle them exactly as shlibs
 	# everywhere except on osx, where we do bundles

@@ -217,21 +217,15 @@ class library_enumerator(enumerator_base):
 	def run_test(self):
 		ret = '' # returns a string
 
-		name = self.env['shlib_PATTERN'] % self.name
-		ret  = Configure.find_file(name, self.path)
-
-		if not ret:
-			for implib_suffix in self.env['shlib_IMPLIB_SUFFIX']:
-				name = self.env['shlib_PREFIX'] + self.name + implib_suffix
-				ret  = Configure.find_file(name, self.path)
-				if ret: break
-
-		if not ret:
-			name = self.env['staticlib_PATTERN'] % self.name
-			ret  = Configure.find_file(name, self.path)
+		patterns = [self.env['shlib_PATTERN'], 'lib%s.dll.a', 'lib%s.lib', self.env['staticlib_PATTERN']]
+		for x in patterns:
+			name = x % self.name
+			ret = Configure.find_file(name, self.path)
+			if ret: break
 
 		if self.want_message:
 			self.conf.check_message('library '+self.name, '', ret, option=ret)
+
 		if self.uselib:
 			self.env['LIB_'+self.uselib] += [ self.name ]
 			self.env['LIBPATH_'+self.uselib] += [ ret ]

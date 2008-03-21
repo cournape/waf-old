@@ -54,7 +54,6 @@ def detect(conf):
 		v['D_shlib_LINKFLAGS']     = ['-shared']
 		v['D_shlib_PREFIX']        = 'lib'
 		v['D_shlib_SUFFIX']        = '.dll'
-		v['shlib_IMPLIB_SUFFIX'] = ['.a']
 
 		# static library
 		v['D_staticlib_PREFIX']    = 'lib'

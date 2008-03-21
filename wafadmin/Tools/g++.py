@@ -71,7 +71,6 @@ def modifier_win32(conf):
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = 'lib%s.dll'
-	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a'] # FIXME what the fuck is IMPLIB?
 	v['shlib_CXXFLAGS']       = ['']
 
 	v['staticlib_LINKFLAGS'] = ['']
@@ -82,7 +81,6 @@ def modifier_cygwin(conf):
 
 	v['shlib_PATTERN']       = 'lib%s.dll'
 	v['shlib_CXXFLAGS']       = ['']
-	v['shlib_IMPLIB_SUFFIX'] = ['.dll.a']
 
 	v['staticlib_LINKFLAGS'] = ['']
 
