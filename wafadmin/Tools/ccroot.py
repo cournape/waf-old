@@ -327,7 +327,6 @@ Object.gen_hook(apply_lib_vars)
 
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
-	if not self.link_task: return
  	seen = []
 	names = self.to_list(self.add_objects)
 	while names:
