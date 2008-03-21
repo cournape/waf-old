@@ -240,7 +240,8 @@ def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = MTask('cpp', self.env, self)
 	self.m_tasks.append(task)
-	obj_ext = '_%s.o' % self.m_type[:2]
+	try: obj_ext = self.obj_ext
+	except AttributeError: obj_ext = '_%s.o' % self.m_type[:2]
 
 	task.m_scanner = ccroot.g_c_scanner
 	task.path_lst = self.inc_paths

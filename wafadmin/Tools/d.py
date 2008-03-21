@@ -427,7 +427,8 @@ Object.declare_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_d_libs
 def d_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task('d', self.env)
-	obj_ext = '_%s.o' % self.m_type[:2]
+	try: obj_ext = self.obj_ext
+	except AttributeError: obj_ext = '_%s.o' % self.m_type[:2]
 
 	global g_d_scanner
 	task.m_scanner = g_d_scanner
