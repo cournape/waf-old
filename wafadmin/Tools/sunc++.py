@@ -30,7 +30,7 @@ def find_cpp(conf):
 def find_ar(conf):
 	v = conf.env
 	conf.check_tool('ar')
-	if not v['AR']: conf.fatal('sunc++ requires ar - not found')
+	if not v['AR']: conf.fatal('ar is required for shared libraries - not found')
 
 def common_flags(conf):
 	v = conf.env
