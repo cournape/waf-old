@@ -76,16 +76,16 @@ class Node(object):
 	def __hash__(self):
 		'hash value based on the abs path'
 		if not self.hash_value:
-			cur=self
-			lst=[]
+			cur = self
+			lst = []
 			while cur:
 				lst.append(cur.m_name)
-				cur=cur.m_parent
+				cur = cur.m_parent
 			if lst[-1] == '': lst = lst[:-1]
-			if lst[0]  =='/': lst = lst[1:]
+			if lst[0] =='/': lst = lst[1:]
 			lst.reverse()
-			val=os.path.join(*lst)
-			debug("[%s]" %val, 'node')
+			val = os.path.join(*lst)
+			debug("[%s]" % val, 'node')
 			self.hash_value = hash(val)
 		return self.hash_value
 
@@ -96,23 +96,23 @@ class Node(object):
 	def dirs(self):
 		return self.m_dirs_lookup.values()
 
-	def get_dir(self,name,default=None):
-		return self.m_dirs_lookup.get(name,default)
+	def get_dir(self, name, default=None):
+		return self.m_dirs_lookup.get(name, default)
 
 	def append_dir(self, dir):
-		self.m_dirs_lookup[dir.m_name]=dir
+		self.m_dirs_lookup[dir.m_name] = dir
 
 	def files(self):
 		return self.m_files_lookup.values()
 
-	def get_file(self,name,default=None):
-		return self.m_files_lookup.get(name,default)
+	def get_file(self, name, default=None):
+		return self.m_files_lookup.get(name, default)
 
 	def append_file(self, dir):
-		self.m_files_lookup[dir.m_name]=dir
+		self.m_files_lookup[dir.m_name] = dir
 
-	def get_build(self,name,default=None):
-		return self.m_build_lookup.get(name,default)
+	def get_build(self, name, default=None):
+		return self.m_build_lookup.get(name, default)
 
 	# for the build variants, the same nodes are used to save memory
 	# the timestamps/signatures are accessed using the following methods
@@ -179,7 +179,7 @@ class Node(object):
 		current = self
 		while lst:
 			rescan(current)
-			name= lst.pop(0)
+			name = lst.pop(0)
 			prev = current
 
 			if name == '.':
@@ -209,7 +209,7 @@ class Node(object):
 		"just find a node in the tree, do not rescan folders"
 		current = self
 		while lst:
-			name=lst.pop(0)
+			name = lst.pop(0)
 			prev = current
 			if name == '.':
 				continue
@@ -223,7 +223,7 @@ class Node(object):
 		return current
 
 	def ensure_node_from_lst(self, plst):
-		curnode=self
+		curnode = self
 		for dirname in plst:
 			if not dirname: continue
 			if dirname == '.': continue
@@ -231,7 +231,7 @@ class Node(object):
 				curnode = curnode.m_parent
 				continue
 			#found=None
-			found=curnode.get_dir(dirname, None)
+			found = curnode.get_dir(dirname, None)
 			#for cand in curnode.m_dirs:
 			#	if cand.m_name == dirname:
 			#		found = cand
@@ -250,7 +250,7 @@ class Node(object):
 		"search a folder in the filesystem, do not scan, create if necessary"
 		current = self
 		while lst:
-			name= lst.pop(0)
+			name = lst.pop(0)
 			prev = current
 
 			if name == '.':
@@ -276,48 +276,48 @@ class Node(object):
 		#print "pathlist4 called"
 		if self == node: return []
 		if self.m_parent == node: return [self.m_name]
-		return [self.m_name, os.sep]+self.m_parent.pathlist4(node)
+		return [self.m_name, os.sep] + self.m_parent.pathlist4(node)
 
 	def relpath(self, parent):
 		"path relative to a direct parent, as string"
-		lst=[]
-		p=self
-		h1=parent.height()
-		h2=p.height()
-		while h2>h1:
-			h2-=1
+		lst = []
+		p = self
+		h1 = parent.height()
+		h2 = p.height()
+		while h2 > h1:
+			h2 -= 1
 			lst.append(p.m_name)
-			p=p.m_parent
+			p = p.m_parent
 		if lst:
 			lst.reverse()
-			ret=os.path.join(*lst)
+			ret = os.path.join(*lst)
 		else:
-			ret=''
+			ret = ''
 		return ret
 
 	# find a common ancestor for two nodes - for the shortest path in hierarchy
 	def find_ancestor(self, node):
-		dist=self.height()-node.height()
-		if dist<0: return node.find_ancestor(self)
+		dist = self.height() - node.height()
+		if dist < 0: return node.find_ancestor(self)
 		# now the real code
-		cand=self
-		while dist>0:
-			cand=cand.m_parent
-			dist=dist-1
+		cand = self
+		while dist > 0:
+			cand = cand.m_parent
+			dist -= 1
 		if cand == node: return cand
-		cursor=node
+		cursor = node
 		while cand.m_parent:
-			cand   = cand.m_parent
+			cand = cand.m_parent
 			cursor = cursor.m_parent
 			if cand == cursor: return cand
 
 	# prints the amount of "../" between two nodes
 	def invrelpath(self, parent):
-		lst=[]
-		cand=self
+		lst = []
+		cand = self
 		while not cand == parent:
 			cand = cand.m_parent
-			lst += ['..',os.sep]
+			lst += ['..', os.sep]
 		return lst
 
 	# TODO: do this in a single function (this one uses invrelpath, find_ancestor and pathlist4)
@@ -331,7 +331,7 @@ class Node(object):
 		up_path   = going_to.invrelpath(ancestor)
 		down_path = self.pathlist4(ancestor)
 		down_path.reverse()
-		return "".join( up_path+down_path )
+		return "".join(up_path + down_path)
 
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
@@ -346,22 +346,22 @@ class Node(object):
 		"relative path between a node and a directory node"
 		hh1 = h1 = self.height()
 		hh2 = h2 = folder.height()
-		p1=self
-		p2=folder
-		while h1>h2:
-			p1=p1.m_parent
-			h1-=1
-		while h2>h1:
-			p2=p2.m_parent
-			h2-=1
+		p1 = self
+		p2 = folder
+		while h1 > h2:
+			p1 = p1.m_parent
+			h1 -= 1
+		while h2 > h1:
+			p2 = p2.m_parent
+			h2 -= 1
 
 		# now we have two nodes of the same height
 		ancestor = None
 		if p1.m_name == p2.m_name:
 			ancestor = p1
 		while p1.m_parent:
-			p1=p1.m_parent
-			p2=p2.m_parent
+			p1 = p1.m_parent
+			p2 = p2.m_parent
 			if p1.m_name != p2.m_name:
 				ancestor = None
 			elif not ancestor:
@@ -371,7 +371,7 @@ class Node(object):
 		n1 = hh1-anh
 		n2 = hh2-anh
 
-		lst=[]
+		lst = []
 		tmp = self
 		while n1:
 			n1 -= 1
@@ -379,10 +379,10 @@ class Node(object):
 			tmp = tmp.m_parent
 
 		lst.reverse()
-		up_path=os.sep.join(lst)
+		up_path = os.sep.join(lst)
 		down_path = (".."+os.sep) * n2
 
-		return "".join(down_path+up_path)
+		return "".join(down_path + up_path)
 
 	## ===== END relpath-related methods  ===== ##
 
@@ -410,7 +410,7 @@ class Node(object):
 
 	def size_subtree(self):
 		"for debugging, returns the amount of subnodes"
-		l_size=1
+		l_size = 1
 		for i in self.dirs(): l_size += i.size_subtree()
 		l_size += len(self.files())
 		return l_size
@@ -421,7 +421,7 @@ class Node(object):
 		d = self
 		val = 0
 		while d.m_parent:
-			d=d.m_parent
+			d = d.m_parent
 			val += 1
 		return val
 
@@ -431,19 +431,19 @@ class Node(object):
 		"absolute path"
 		variant = self.variant(env)
 		try:
-			ret= Params.g_build.m_abspath_cache[variant][self]
+			ret = Params.g_build.m_abspath_cache[variant][self]
 			return ret
 		except KeyError:
 			if not variant:
-				cur=self
-				lst=[]
+				cur = self
+				lst = []
 				while cur:
 					lst.append(cur.m_name)
-					cur=cur.m_parent
+					cur = cur.m_parent
 				lst.reverse()
-				val=os.path.join(*lst)
+				val = os.path.join(*lst)
 			else:
-				val=os.path.join(Params.g_build.m_bldnode.abspath(),env.variant(),
+				val = os.path.join(Params.g_build.m_bldnode.abspath(), env.variant(),
 					self.relpath(Params.g_build.m_srcnode))
 			Params.g_build.m_abspath_cache[variant][self]=val
 			return val
@@ -453,9 +453,9 @@ class Node(object):
 		name = self.m_name
 		k = name.rfind('.')
 		if k >= 0:
-			newname = name[:k]+ext
+			newname = name[:k] + ext
 		else:
-			newname = name+ext
+			newname = name + ext
 
 		p = self.m_parent
 		n = p.m_files_lookup.get(newname, None)
@@ -475,11 +475,11 @@ class Node(object):
 		"build path without the extension: src/dir/foo(.cpp)"
 		l = len(self.m_name)
 		n = self.m_name
-		while l>0:
+		while l > 0:
 			l -= 1
-			if n[l]=='.': break
+			if n[l] == '.': break
 		s = n[:l]
-		return os.path.join(self.bld_dir(env),s)
+		return os.path.join(self.bld_dir(env), s)
 
 	def bldpath(self, env=None):
 		"path seen from the build dir default/src/foo.cpp"
@@ -495,5 +495,4 @@ class Node(object):
 		x = self.m_parent.get_build(self.m_name)
 		if x: return self.bldpath(env)
 		return self.relpath_gen(Params.g_build.m_bldnode)
-
 
