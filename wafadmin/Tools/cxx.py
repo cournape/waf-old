@@ -21,8 +21,7 @@ g_cpp_flag_vars = [
 
 EXT_CXX = ['.cpp', '.cc', '.cxx', '.C']
 CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx',
-'apply_core', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars',
-'apply_objdeps']
+'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx']
 
 Object.add_trait('cxx', CXX_METHS)
 

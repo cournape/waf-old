@@ -368,6 +368,7 @@ def apply_obj_vars(self):
 	libpath_st       = self.env['LIBPATH_ST']
 	staticlibpath_st = self.env['STATICLIBPATH_ST']
 
+	# FIXME
 	self.addflags('CPPFLAGS', self.cppflags)
 
 	app = self.env.append_unique
@@ -408,7 +409,7 @@ Object.gen_hook(apply_vnum)
 
 Object.declare_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
 	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install_target')
-Object.add_trait('normal', ['apply_link', 'install_target'])
+Object.add_trait('normal', ['apply_link', 'install_target', 'apply_objdeps', 'apply_vnum', 'apply_obj_vars'])
 
 # Small example on how to link object files as if they were source
 # obj = bld.create_obj('cc')
