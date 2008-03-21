@@ -137,8 +137,8 @@ def add_marshal_file(self, filename, prefix, mode):
 Object.gen_hook(add_marshal_file)
 
 def process_marshal(self):
-	env = self.env
 	for i in getattr(self, 'marshal_lst', []):
+		env = self.env.copy()
 		node = self.path.find_source(i[0])
 
 		if not node:
@@ -177,8 +177,8 @@ def add_dbus_file(self, filename, prefix, mode):
 Object.gen_hook(add_dbus_file)
 
 def process_dbus(self):
-	env = self.env
 	for i in getattr(self, 'dbus_lst', []):
+		env = self.env.copy()
 		node = self.path.find_source(i[0])
 
 		if not node:
