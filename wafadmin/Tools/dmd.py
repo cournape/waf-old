@@ -11,8 +11,7 @@ def find_dmd(conf):
 	if v['D_COMPILER']:
 		d_compiler = v['D_COMPILER']
 	if not d_compiler: d_compiler = conf.find_program('dmd', var='D_COMPILER')
-	if not d_compiler:
-		return 0
+	if not d_compiler: return 0
 	v['D_COMPILER'] = d_compiler
 
 def find_ar(conf):
