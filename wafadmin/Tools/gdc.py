@@ -21,42 +21,40 @@ def find_ar(conf):
 def common_flags(conf):
 	v = conf.env
 
-	# _DFLAGS _DIMPORTFLAGS
+	# _DFLAGS _DIMPORTFLAGS _DLIBDIRFLAGS _DLIBFLAGS
 
 	# for mory info about the meaning of this dict see dmd.py
-	v['DFLAGS']               = {'gdc':[], 'dmd':[]}
+	v['DFLAGS']            = {'gdc':[], 'dmd':[]}
 
-	v['D_SRC_F']              = ''
-	v['D_TGT_F']              = '-c -o '
-	v['DPATH_ST']             = '-I%s' # template for adding import paths
+	v['D_SRC_F']           = ''
+	v['D_TGT_F']           = '-c -o '
+	v['DPATH_ST']          = '-I%s' # template for adding import paths
 
 	# linker
-	v['D_LINKER']             = v['D_COMPILER']
-	v['DLNK_SRC_F']           = ''
-	v['DLNK_TGT_F']           = '-o '
+	v['D_LINKER']          = v['D_COMPILER']
+	v['DLNK_SRC_F']        = ''
+	v['DLNK_TGT_F']        = '-o '
 
-	v['DLIB_ST']              = '-l%s' # template for adding libs
-	v['DLIBPATH_ST']          = '-L%s' # template for adding libpaths
-	v['_DLIBDIRFLAGS']        = ''
-	v['_DLIBFLAGS']           = ''
+	v['DLIB_ST']           = '-l%s' # template for adding libs
+	v['DLIBPATH_ST']       = '-L%s' # template for adding libpaths
 
 	# debug levels
-	v['DLINKFLAGS']           = []
-	v['DFLAGS_OPTIMIZED']     = ['-O3']
-	v['DFLAGS_DEBUG']         = ['-O0']
-	v['DFLAGS_ULTRADEBUG']    = ['-O0']
+	v['DLINKFLAGS']        = []
+	v['DFLAGS_OPTIMIZED']  = ['-O3']
+	v['DFLAGS_DEBUG']      = ['-O0']
+	v['DFLAGS_ULTRADEBUG'] = ['-O0']
 
-	v['D_shlib_DFLAGS']       = []
-	v['D_shlib_LINKFLAGS']    = ['-shared']
+	v['D_shlib_DFLAGS']    = []
+	v['D_shlib_LINKFLAGS'] = ['-shared']
 
 	if sys.platform == "win32":
-		v['D_program_PATTERN']     = '%s.exe'
-		v['D_shlib_PATTERN']       = 'lib%s.dll'
-		v['D_staticlib_PATTERN']   = 'lib%s.a'
+		v['D_program_PATTERN']   = '%s.exe'
+		v['D_shlib_PATTERN']     = 'lib%s.dll'
+		v['D_staticlib_PATTERN'] = 'lib%s.a'
 	else:
-		v['D_program_PATTERN']     = '%s'
-		v['D_shlib_PATTERN']       = 'lib%s.so'
-		v['D_staticlib_PATTERN']   = 'lib%s.a'
+		v['D_program_PATTERN']   = '%s'
+		v['D_shlib_PATTERN']     = 'lib%s.so'
+		v['D_staticlib_PATTERN'] = 'lib%s.a'
 
 def detect(conf):
 	v = conf.env
