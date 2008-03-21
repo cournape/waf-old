@@ -5,7 +5,7 @@
 
 import os, optparse, sys
 import Params, Configure
-import ccroot
+import ccroot, ar
 
 def find_cxx(conf):
 	v = conf.env
@@ -25,11 +25,6 @@ def find_cpp(conf):
 	if not cpp: cpp = conf.find_program('cpp', var='CPP')
 	if not cpp: cpp = v['CXX']
 	v['CPP'] = cpp
-
-def find_ar(conf):
-	v = conf.env
-	conf.check_tool('ar')
-	if not v['AR']: conf.fatal('ar is required for shared libraries - not found')
 
 def common_flags(conf):
 	v = conf.env
@@ -139,7 +134,7 @@ def detect(conf):
 
 	find_cxx(conf)
 	find_cpp(conf)
-	find_ar(conf)
+	ar.find_ar(conf)
 
 	conf.check_tool('cxx')
 

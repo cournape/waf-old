@@ -4,6 +4,7 @@
 # Thomas Nagy, 2008 (ita)
 
 import sys
+import ar
 
 def find_dmd(conf):
 	v = conf.env
@@ -13,11 +14,6 @@ def find_dmd(conf):
 	if not d_compiler: d_compiler = conf.find_program('dmd', var='D_COMPILER')
 	if not d_compiler: return 0
 	v['D_COMPILER'] = d_compiler
-
-def find_ar(conf):
-	v = conf.env
-	conf.check_tool('ar')
-	if not v['AR']: conf.fatal('ar is required for shared libraries - not found')
 
 def common_flags(conf):
 	v = conf.env
@@ -61,7 +57,7 @@ def common_flags(conf):
 def detect(conf):
 	v = conf.env
 	find_dmd(conf)
-	find_ar(conf)
+	ar.find_ar(conf)
 	conf.check_tool('d')
 	common_flags(conf)
 

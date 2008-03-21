@@ -27,3 +27,8 @@ def detect(conf):
 	v['RANLIB']      = ranlib
 	v['RANLIBFLAGS'] = ''
 
+def find_ar(conf):
+	v = conf.env
+	conf.check_tool('ar')
+	if not v['AR']: conf.fatal('ar is required for static libraries - not found')
+
