@@ -21,13 +21,12 @@ def find_ar(conf):
 
 def common_flags(conf):
 	v = conf.env
+
+	# _DFLAGS _DIMPORTFLAGS
+
 	# Compiler is dmd so 'gdc' part will be ignored, just
 	# ensure key is there, so wscript can append flags to it
 	v['DFLAGS']               = {'gdc': [], 'dmd': ['-version=Posix']}
-	# Compiler-specific flags, are set to either v['DFLAGS']['gdc'] or ..['dmd']
-	# during dobj.apply()
-	v['_DFLAGS']              = []
-	v['_DIMPORTFLAGS']        = []
 
 	v['D_SRC_F']              = ''
 	v['D_TGT_F']              = '-c -of'
@@ -49,35 +48,17 @@ def common_flags(conf):
 	v['DFLAGS_ULTRADEBUG']     = ['-g', '-debug']
 	v['DLINKFLAGS']            = ['-quiet']
 
+	v['D_shlib_DFLAGS']        = []
+	v['D_shlib_LINKFLAGS']     = []
+
 	if sys.platform == "win32":
-		# shared library
-		v['D_shlib_DFLAGS']        = []
-		v['D_shlib_LINKFLAGS']     = []
-		v['D_shlib_PREFIX']        = 'lib'
-		v['D_shlib_SUFFIX']        = '.dll'
-
-		# static library
-		v['D_staticlib_PREFIX']    = 'lib'
-		v['D_staticlib_SUFFIX']    = '.a'
-
-		# program
-		v['D_program_PREFIX']      = ''
-		v['D_program_SUFFIX']      = '.exe'
-
+		v['D_program_PATTERN']     = '%s.exe'
+		v['D_shlib_PATTERN']       = 'lib%s.dll'
+		v['D_staticlib_PATTERN']   = 'lib%s.a'
 	else:
-		# shared library
-		v['D_shlib_DFLAGS']        = []
-		v['D_shlib_LINKFLAGS']     = []
-		v['D_shlib_PREFIX']        = 'lib'
-		v['D_shlib_SUFFIX']        = '.so'
-
-		# static lib
-		v['D_staticlib_PREFIX']    = 'lib'
-		v['D_staticlib_SUFFIX']    = '.a'
-
-		# program
-		v['D_program_PREFIX']      = ''
-		v['D_program_SUFFIX']      = ''
+		v['D_program_PATTERN']     = '%s'
+		v['D_shlib_PATTERN']       = 'lib%s.so'
+		v['D_staticlib_PATTERN']   = 'lib%s.a'
 
 def detect(conf):
 	v = conf.env

@@ -218,16 +218,9 @@ g_d_scanner = d_scanner()
 def get_target_name(self):
 	"for d programs and libs"
 	v = self.env
-
-	prefix = v['D_' + self.m_type + '_PREFIX']
-	suffix = v['D_' + self.m_type + '_SUFFIX']
-
-	if not prefix: prefix=''
-	if not suffix: suffix=''
-	return ''.join([prefix, self.target, suffix])
+	return v['D_%s_PATTERN' % self.m_type] % self.target
 
 class dobj(Object.task_gen):
-
 	def __init__(self, type='program'):
 		Object.task_gen.__init__(self)
 

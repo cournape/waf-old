@@ -21,14 +21,10 @@ def find_ar(conf):
 def common_flags(conf):
 	v = conf.env
 
-	#compiler
-	v['D_COMPILER']           = d_compiler
+	# _DFLAGS _DIMPORTFLAGS
 
 	# for mory info about the meaning of this dict see dmd.py
 	v['DFLAGS']               = {'gdc':[], 'dmd':[]}
-	v['_DFLAGS']              = []
-
-	v['_DIMPORTFLAGS']        = []
 
 	v['D_SRC_F']              = ''
 	v['D_TGT_F']              = '-c -o '
@@ -45,40 +41,22 @@ def common_flags(conf):
 	v['_DLIBFLAGS']           = ''
 
 	# debug levels
-	v['DLINKFLAGS']            = []
-	v['DFLAGS_OPTIMIZED']      = ['-O3']
-	v['DFLAGS_DEBUG']          = ['-O0']
-	v['DFLAGS_ULTRADEBUG']     = ['-O0']
+	v['DLINKFLAGS']           = []
+	v['DFLAGS_OPTIMIZED']     = ['-O3']
+	v['DFLAGS_DEBUG']         = ['-O0']
+	v['DFLAGS_ULTRADEBUG']    = ['-O0']
+
+	v['D_shlib_DFLAGS']       = []
+	v['D_shlib_LINKFLAGS']    = ['-shared']
 
 	if sys.platform == "win32":
-		# shared library
-		v['D_shlib_DFLAGS']        = ['']
-		v['D_shlib_LINKFLAGS']     = ['-shared']
-		v['D_shlib_PREFIX']        = 'lib'
-		v['D_shlib_SUFFIX']        = '.dll'
-
-		# static library
-		v['D_staticlib_PREFIX']    = 'lib'
-		v['D_staticlib_SUFFIX']    = '.a'
-
-		# program
-		v['D_program_PREFIX']      = ''
-		v['D_program_SUFFIX']      = '.exe'
-
+		v['D_program_PATTERN']     = '%s.exe'
+		v['D_shlib_PATTERN']       = 'lib%s.dll'
+		v['D_staticlib_PATTERN']   = 'lib%s.a'
 	else:
-		# shared library
-		v['D_shlib_DFLAGS']        = ['']
-		v['D_shlib_LINKFLAGS']     = ['-shared']
-		v['D_shlib_PREFIX']        = 'lib'
-		v['D_shlib_SUFFIX']        = '.so'
-
-		# static lib
-		v['D_staticlib_PREFIX']    = 'lib'
-		v['D_staticlib_SUFFIX']    = '.a'
-
-		# program
-		v['D_program_PREFIX']      = ''
-		v['D_program_SUFFIX']      = ''
+		v['D_program_PATTERN']     = '%s'
+		v['D_shlib_PATTERN']       = 'lib%s.so'
+		v['D_staticlib_PATTERN']   = 'lib%s.a'
 
 def detect(conf):
 	v = conf.env
