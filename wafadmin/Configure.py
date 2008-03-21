@@ -20,11 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, types, imp, cPickle, sys, shlex, warnings
-
-# see: http://docs.python.org/lib/module-md5.html
-try: from hashlib import md5
-except ImportError: from md5 import md5
-
+from hashlib import md5
 import Action, Params, Environment, Runner, Build, Utils, Object
 from Params import fatal, warning
 from Constants import *

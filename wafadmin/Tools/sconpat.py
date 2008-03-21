@@ -2,10 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2008 (ita)
 
-# see: http://docs.python.org/lib/module-md5.html
-try: from hashlib import md5
-except ImportError: from md5 import md5
-
+from hashlib import md5
 import Utils, Configure, Action, Task, Params
 from Params import error, fatal
 

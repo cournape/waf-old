@@ -5,11 +5,7 @@
 "Atomic operations that create nodes or execute commands"
 
 import os, types, shutil
-
-# see: http://docs.python.org/lib/module-md5.html
-try: from hashlib import md5
-except ImportError: from md5 import md5
-
+from hashlib import md5
 import Params, Scan, Action, Runner, Common
 from Params import debug, error, warning
 

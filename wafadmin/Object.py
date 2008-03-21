@@ -26,9 +26,6 @@ import os, types, traceback, sys, copy
 import Params, Task, Common, Node, Utils, Action
 from Params import debug, error, fatal
 
-# backwards compatibility for python 2.3
-if sys.hexversion < 0x020400f0: from sets import Set as set
-
 typos = {
 'sources':'source',
 'targets':'target',
@@ -459,4 +456,10 @@ g_allclasses = {}
 def register(name, classval):
 	global g_allclasses
 	g_allclasses[name] = classval
+
+def trait(name):
+	def deco(f):
+		print name, f
+		return f
+	return deco
 
