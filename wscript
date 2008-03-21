@@ -137,6 +137,7 @@ def process_tokens(tokens):
 			if line_buf:
 				accu.append(indent * '\t')
 				ln = "".join(line_buf)
+				if ln == 'if __name__=="__main__":': break
 				#ln = ln.replace('\n', '')
 				accu.append(ln)
 				accu.append('\n')

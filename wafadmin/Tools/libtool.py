@@ -341,6 +341,6 @@ nor: %prog --libs /usr/lib/libamarok.la'''
 	elif options.libs_only_other: p(ltf.get_libs_only_other())
 	return 0
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	useCmdLine()
 
