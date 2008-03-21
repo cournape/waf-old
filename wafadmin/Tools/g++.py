@@ -109,13 +109,13 @@ def modifier_plugin(conf):
 	# plugins. We handle them exactly as shlibs
 	# everywhere except on osx, where we do bundles
 	if sys.platform == 'darwin':
-		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
-		v['plugin_CXXFLAGS']      = ['-fPIC']
-		v['plugin_PATTERN']      = '%s.bundle'
+		v['plugin_LINKFLAGS'] = ['-bundle', '-undefined dynamic_lookup']
+		v['plugin_CXXFLAGS']  = ['-fPIC']
+		v['plugin_PATTERN']   = '%s.bundle'
 	else:
-		v['plugin_CXXFLAGS']      = v['shlib_CXXFLAGS']
-		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_PATTERN']      = v['shlib_PATTERN']
+		v['plugin_CXXFLAGS']  = v['shlib_CXXFLAGS']
+		v['plugin_LINKFLAGS'] = v['shlib_LINKFLAGS']
+		v['plugin_PATTERN']   = v['shlib_PATTERN']
 
 def modifier_debug(conf):
 	v = conf.env

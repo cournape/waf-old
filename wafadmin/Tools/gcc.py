@@ -83,20 +83,20 @@ def common_flags(conf):
 
 	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
 
-	v['CC_SRC_F']             = ''
-	v['CC_TGT_F']             = '-c -o '
-	v['CPPPATH_ST']           = '-I%s' # template for adding include paths
+	v['CC_SRC_F']            = ''
+	v['CC_TGT_F']            = '-c -o '
+	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# linker
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
-	v['CCLNK_SRC_F']          = ''
-	v['CCLNK_TGT_F']          = '-o '
+	v['CCLNK_SRC_F']         = ''
+	v['CCLNK_TGT_F']         = '-o '
 
-	v['LIB_ST']               = '-l%s' # template for adding libs
-	v['LIBPATH_ST']           = '-L%s' # template for adding libpaths
-	v['STATICLIB_ST']         = '-l%s'
-	v['STATICLIBPATH_ST']     = '-L%s'
-	v['CCDEFINES_ST']         = '-D%s'
+	v['LIB_ST']              = '-l%s' # template for adding libs
+	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
+	v['STATICLIB_ST']        = '-l%s'
+	v['STATICLIBPATH_ST']    = '-L%s'
+	v['CCDEFINES_ST']        = '-D%s'
 
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
@@ -118,18 +118,18 @@ def modifier_win32(conf):
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = 'lib%s.dll'
-	v['shlib_CCFLAGS']       = ['']
+	v['shlib_CCFLAGS']       = []
 
-	v['staticlib_LINKFLAGS'] = ['']
+	v['staticlib_LINKFLAGS'] = []
 
 def modifier_cygwin(conf):
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = 'lib%s.dll'
-	v['shlib_CCFLAGS']       = ['']
+	v['shlib_CCFLAGS']       = []
 
-	v['staticlib_LINKFLAGS'] = ['']
+	v['staticlib_LINKFLAGS'] = []
 
 def modifier_darwin(conf):
 	v = conf.env
@@ -137,7 +137,7 @@ def modifier_darwin(conf):
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
 
-	v['staticlib_LINKFLAGS'] = ['']
+	v['staticlib_LINKFLAGS'] = []
 
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
@@ -156,13 +156,13 @@ def modifier_plugin(conf):
 	# plugins. We handle them exactly as shlibs
 	# everywhere except on osx, where we do bundles
 	if sys.platform == 'darwin':
-		v['plugin_LINKFLAGS']    = ['-bundle', '-undefined dynamic_lookup']
-		v['plugin_CCFLAGS']      = ['-fPIC']
-		v['plugin_PATTERN']      = '%s.bundle'
+		v['plugin_LINKFLAGS'] = ['-bundle', '-undefined dynamic_lookup']
+		v['plugin_CCFLAGS']   = ['-fPIC']
+		v['plugin_PATTERN']   = '%s.bundle'
 	else:
-		v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
-		v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-		v['plugin_PATTERN']      = v['shlib_PATTERN']
+		v['plugin_CCFLAGS']   = v['shlib_CCFLAGS']
+		v['plugin_LINKFLAGS'] = v['shlib_LINKFLAGS']
+		v['plugin_PATTERN']   = v['shlib_PATTERN']
 
 def modifier_debug(conf):
 	v = conf.env
@@ -221,3 +221,4 @@ def set_options(opt):
 	except optparse.OptionConflictError:
 		# the g++ tool might have added that option already
 		pass
+

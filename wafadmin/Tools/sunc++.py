@@ -37,20 +37,20 @@ def common_flags(conf):
 
 	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
 
-	v['CXX_SRC_F']             = ''
-	v['CXX_TGT_F']             = '-c -o '
-	v['CPPPATH_ST']           = '-I%s' # template for adding include paths
+	v['CXX_SRC_F']           = ''
+	v['CXX_TGT_F']           = '-c -o '
+	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# linker
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
-	v['CXXLNK_SRC_F']          = ''
-	v['CXXLNK_TGT_F']          = '-o '
+	v['CXXLNK_SRC_F']        = ''
+	v['CXXLNK_TGT_F']        = '-o '
 
-	v['LIB_ST']               = '-l%s' # template for adding libs
-	v['LIBPATH_ST']           = '-L%s' # template for adding libpaths
-	v['STATICLIB_ST']         = '-l%s'
-	v['STATICLIBPATH_ST']     = '-L%s'
-	v['CXXDEFINES_ST']         = '-D%s'
+	v['LIB_ST']              = '-l%s' # template for adding libs
+	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
+	v['STATICLIB_ST']        = '-l%s'
+	v['STATICLIBPATH_ST']    = '-L%s'
+	v['CXXDEFINES_ST']       = '-D%s'
 
 	v['SHLIB_MARKER']        = '-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Bstatic'
@@ -59,7 +59,7 @@ def common_flags(conf):
 	v['program_PATTERN']     = '%s'
 
 	# shared library
-	v['shlib_CXXFLAGS']       = ['-Kpic', '-DPIC']
+	v['shlib_CXXFLAGS']      = ['-Kpic', '-DPIC']
 	v['shlib_LINKFLAGS']     = ['-G']
 	v['shlib_PATTERN']       = 'lib%s.so'
 
