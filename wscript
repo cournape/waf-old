@@ -111,10 +111,28 @@ def process_tokens(tokens):
 	accu = []
 	prev = NEWLINE
 
+	header = '#! /usr/bin/env python\n# encoding: utf-8'
+	impo = ''
+	deco = ''
+	body = ''
+
+	accu_deco = []
+	eat_decorator = 0
 	indent = 0
 	line_buf = []
 
 	for (type, token, start, end, line) in tokens:
+
+		if eat_decorator:
+			if type == NEWLINE:
+				eat_decorator = 0
+				accu_deco.append('\n')
+				deco += ''.join(accu_deco)
+				accu_deco = []
+			else:
+				accu_deco.append(token)
+				continue
+
 		if type == NEWLINE:
 			if line_buf:
 				accu.append(indent * '\t')
@@ -139,15 +157,17 @@ def process_tokens(tokens):
 			else: line_buf.append(token)
 		elif type == COMMENT:
 			pass
+		elif type == OP:
+			if token == '@':
+				eat_decorator = 1
+			else:
+				line_buf.append(token)
 		else:
 			if token != "\n": line_buf.append(token)
 
 		if token != '\n':
 			prev = type
 
-	header = '#! /usr/bin/env python\n# encoding: utf-8'
-	impo = ''
-	deco = ''
 	body = "".join(accu)
 
 	if body.find('set(') > -1:
