@@ -138,17 +138,25 @@ def process_tokens(tokens):
 			if not line_buf and token.startswith('"'): pass
 			else: line_buf.append(token)
 		elif type == COMMENT:
-			# comments line at the beginning of the files
-			(line_number, _) = start
-			if line_number < 3:
-				accu.append(token)
+			pass
 		else:
 			if token != "\n": line_buf.append(token)
 
 		if token != '\n':
 			prev = type
 
-	return "".join(accu)
+	header = '#! /usr/bin/env python\n# encoding: utf-8'
+	impo = ''
+	deco = ''
+	body = "".join(accu)
+
+	if body.find('set(') > -1:
+		impo += 'if sys.hexversion < 0x020400f0: from sets import Set as set'
+
+	if body.rfind('md5') > -1:
+		body = body.replace('from hashlib import md5', 'try: from hashlib import md5\nexcept ImportError: from md5 import md5')
+
+	return "\n".join([header, impo, body, deco])
 
 def create_waf():
 	print "-> preparing waf"
@@ -231,7 +239,7 @@ def create_waf():
 
 	if sys.platform != 'win32':
 		os.chmod('waf', 0755)
-	#os.unlink('%s.tar.%s' % (mw, zipType))
+	os.unlink('%s.tar.%s' % (mw, zipType))
 
 def install_waf():
 	print "installing waf on the system"
