@@ -45,6 +45,11 @@ class ccroot(Object.task_gen):
 		# TODO obsolete
 		self.m_type = type
 
+		if self.m_type == 'objects':
+			self.features.append(type)
+		else:
+			self.features.append('normal')
+
 		# includes, seen from the current directory
 		self.includes=''
 
@@ -136,7 +141,6 @@ def install_shlib(task):
 
 def install_target(self):
 	# FIXME too complicated
-	if not hasattr(self, 'link_task'): return
 	if not Params.g_install: return
 
 	dest_var    = self.inst_var
@@ -144,7 +148,7 @@ def install_target(self):
 	if dest_var == 0: return
 
 	if not dest_var:
-		dest_var = self.env['PREFIX']
+		dest_var = 'PREFIX'
 		if self.m_type == 'program': dest_subdir = 'bin'
 		else: dest_subdir = 'lib'
 
@@ -241,15 +245,6 @@ def apply_type_vars(self):
 Object.gen_hook(apply_type_vars)
 
 def apply_link(self):
-	# if we are only building .o files, tell which ones we built
-	# FIXME see msvc.py
-	# FIXME remove the "type" thing
-	if self.m_type == 'objects':
-		self.out_nodes = []
-		app = self.out_nodes.append
-		for t in self.compiled_tasks: app(t.m_outputs[0])
-		return
-
 	if self.m_type=='staticlib':
 		linktask = self.create_task('ar_link_static', self.env)
 	else:
@@ -414,7 +409,7 @@ Object.gen_hook(apply_vnum)
 
 Object.declare_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
 	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install_target')
-
+Object.add_trait('normal', ['apply_link', 'install_target'])
 
 # Small example on how to link object files as if they were source
 # obj = bld.create_obj('cc')
@@ -434,4 +429,16 @@ def add_obj_file(self, file):
 Object.gen_hook(add_obj_file)
 Object.gen_hook(process_obj_files)
 Object.declare_order('apply_link', 'process_obj_files')
+
+# do not link but make .o files available
+def make_objects_available(self):
+	# if we are only building .o files, tell which ones we built
+	self.out_nodes = []
+	app = self.out_nodes.append
+	for t in self.compiled_tasks: app(t.m_outputs[0])
+Object.gen_hook(make_objects_available)
+
+Object.add_trait('objects', 'make_objects_available')
+Object.declare_order('apply_core', 'make_objects_available')
+
 

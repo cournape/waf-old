@@ -95,7 +95,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 			lst = glob.glob(gl)
 		else:
 			lst = files.split()
-	else: lst=files
+	else: lst = files
 
 	destdir = env.get_destdir()
 	if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
