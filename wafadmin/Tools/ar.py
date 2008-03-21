@@ -5,7 +5,8 @@
 
 "ar and ranlib"
 
-import sys, Action
+import os, sys
+import Action
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 
@@ -31,4 +32,14 @@ def find_ar(conf):
 	v = conf.env
 	conf.check_tool('ar')
 	if not v['AR']: conf.fatal('ar is required for static libraries - not found')
+
+def find_cpp(conf):
+	v = conf.env
+	cpp = None
+	if v['CPP']: cpp = v['CPP']
+	elif 'CPP' in os.environ: cpp = os.environ['CPP']
+	if not cpp: cpp = conf.find_program('cpp', var='CPP')
+	if not cpp: cpp = v['CC']
+	if not cpp: cpp = v['CXX']
+	v['CPP'] = cpp
 

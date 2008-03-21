@@ -23,15 +23,6 @@ def find_cc(conf):
 		conf.check_message('suncc', '', not ret)
 		return
 
-def find_cpp(conf):
-	v = conf.env
-	cpp = None
-	if v['CPP']: cpp = v['CPP']
-	elif 'CPP' in os.environ: cpp = os.environ['CPP']
-	if not cpp: cpp = conf.find_program('cpp', var='CPP')
-	if not cpp: cpp = v['CC']
-	v['CPP'] = cpp
-
 def common_flags(conf):
 	v = conf.env
 
@@ -99,7 +90,7 @@ def detect(conf):
 	#eval_rules(conf, funcs, on_error)
 
 	find_cc(conf)
-	find_cpp(conf)
+	ar.find_cpp(conf)
 	ar.find_ar(conf)
 
 	conf.check_tool('cc')
