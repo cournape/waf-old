@@ -8,13 +8,11 @@ import os, sys, re, string, optparse
 import Utils, Action, Params, Object, Runner, Configure
 from Params import debug, error, fatal, warning
 from Utils import quote_whitespace
-from Object import taskgen
+from Object import taskgen, after, before, feature
 
 import ccroot
 from libtool import read_la_file
 from os.path import exists
-
-MSVC_METHS = ['apply_link_msvc', 'apply_msvc_obj_vars']
 
 def msvc_linker(task):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
@@ -187,6 +185,10 @@ def libname_msvc(self, libname, is_static=False):
 	return None
 
 @taskgen
+@feature('cc')
+@feature('cxx')
+@after('apply_obj_vars_cc')
+@after('apply_obj_vars_cxx')
 def apply_msvc_obj_vars(self):
 	debug('apply_msvc_obj_vars called for msvcobj', 'msvc')
 	env = self.env
@@ -233,6 +235,11 @@ def apply_msvc_obj_vars(self):
 				app('LINKFLAGS', libname)
 
 @taskgen
+@feature('cc')
+@feature('cxx')
+@after('apply_core')
+@before('apply_obj_vars_cc')
+@before('apply_obj_vars_cxx')
 def apply_link_msvc(self):
 	# if we are only building .o files, tell which ones we built
 	# FIXME remove the "type" thing
@@ -256,6 +263,9 @@ def apply_link_msvc(self):
 	self.link_task = linktask
 
 @taskgen
+@feature('cc')
+@feature('cxx')
+@before('apply_core')
 def init_msvc(self):
 	"all methods (msvc and non-msvc) are to be executed, but we remove the ones we do not want"
 	if self.env['MSVC']:
@@ -264,12 +274,6 @@ def init_msvc(self):
 		for x in ['apply_link_msvc', 'apply_msvc_obj_vars']
 			self.meths.remove(x)
 		self.libpaths = getattr(self, 'libpaths', '')
-
-Object.add_trait('cc', ['init_msvc', 'apply_link_msvc', 'apply_msvc_obj_vars'])
-Object.add_trait('cxx', ['init_msvc', 'apply_link_msvc', 'apply_msvc_obj_vars'])
-
-Object.declare_order('init_msvc', 'apply_core', 'apply_link_msvc', 'apply_obj_vars_cc', 'apply_msvc_obj_vars')
-Object.declare_order('init_msvc', 'apply_core', 'apply_link_msvc', 'apply_obj_vars_cxx', 'apply_msvc_obj_vars')
 
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Action.simple_action('msvc_ar_link_static', static_link_str, color='YELLOW', prio=101)
