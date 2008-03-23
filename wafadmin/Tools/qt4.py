@@ -13,15 +13,13 @@ This module also demonstrates how to add tasks dynamically (when the build has s
 import os, sys
 import ccroot, cxx
 import Action, Params, Object, Task, Utils, Runner
-from Object import taskgen
+from Object import taskgen, feature
 from Params import error, fatal
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
 EXT_RCC = ['.qrc']
 EXT_UI  = ['.ui']
 EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C', '.c']
-
-QT4_METHS = ['apply_qt4']
 
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
@@ -168,9 +166,8 @@ class qt4obj(cxx.cppobj):
 		self.update = 0
 		self.features.append('qt4')
 
-Object.add_trait('qt4', QT4_METHS)
-
 @taskgen
+@feature('qt4')
 def apply_qt4(self):
 	if self.lang:
 		lst=[]
