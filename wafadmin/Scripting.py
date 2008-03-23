@@ -564,9 +564,9 @@ def DistCheck(appname, version):
 	os.chdir(distdir)
 	try:
 		retval = subprocess.Popen(
-			'%(waf)s configure --prefix %(instdir)s && %(waf)s '
-			'&& %(waf)s check && %(waf)s install'
-			' && %(waf)s uninstall' % vars(),
+			'%(waf)s configure && %(waf)s '
+			'&& %(waf)s check && %(waf)s install --destdir=%(instdir)s'
+			' && %(waf)s uninstall --destdir=%(instdir)s' % vars(),
 			shell=True).wait()
 		if retval:
 			Params.fatal('distcheck failed with code %i' % (retval))
