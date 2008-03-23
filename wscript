@@ -108,7 +108,7 @@ def compute_revision():
 	REVISION = m.hexdigest()
 
 #deco_re = re.compile('def\\s+([a-zA-Z_]+)\\(')
-deco_re = re.compile('def\\s+(\w+)\\(.*')
+deco_re = re.compile('(def|class)\\s+(\w+)\\(.*')
 def process_decorators(body):
 	"modify the python 2.4 decorators"
 	lst = body.split('\n')
@@ -119,7 +119,7 @@ def process_decorators(body):
 		if line.startswith('@'):
 			buf.append(line[1:])
 		elif buf:
-			name = deco_re.sub('\\1', line)
+			name = deco_re.sub('\\2', line)
 			if not name:
 				raise IOError, "decorator not followed by a function!"+line
 			for x in buf:
