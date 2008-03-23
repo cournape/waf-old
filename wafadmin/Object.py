@@ -457,9 +457,27 @@ def register(name, classval):
 	global g_allclasses
 	g_allclasses[name] = classval
 
-def trait(name):
+def taskgen(f):
+	setattr(task_gen, f.__name__, f)
+
+def feature(name):
 	def deco(f):
-		print name, f
+		#print name, f
+		try:
+			l = task_gen.traits[name]
+		except KeyError:
+			l = set()
+			task_gen.traits[name] = l
+		l.update(f.__name__)
+		return f
+	return deco
+
+def after(fun_name):
+	def deco(f):
+		try:
+			if not f.__name__ in task_gen.prec[fun_name]: task_gen.prec[fun_name].append(f.__name__)
+		except KeyError:
+			task_gen.prec[fun_name] = [f.__name__]
 		return f
 	return deco
 
