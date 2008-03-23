@@ -577,4 +577,7 @@ def DistCheck(appname, version):
 		os.chdir(cwd_before)
 	shutil.rmtree(distdir)
 	if os.path.exists(instdir):
-		Params.fatal("uninstall left files in %s" % (instdir))
+		Params.fatal("distcheck succeeded, but files were left in %s" % (instdir))
+	else:
+		Params.pprint('GREEN', "distcheck finished successfully")
+
