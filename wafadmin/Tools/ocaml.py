@@ -7,6 +7,7 @@
 import os, re
 import Params, Action, Object, Scan, Utils, Task
 from Params import error, fatal
+from Object import taskgen
 
 EXT_MLL = ['.mll']
 EXT_MLY = ['.mly']
@@ -251,6 +252,7 @@ class ocamlobj(Object.task_gen):
 
 Object.add_trait('ocaml', OCAML_METHS)
 
+@taskgen
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
 	lst = self._incpaths_lst
@@ -264,8 +266,8 @@ def apply_incpaths_ml(self):
 		if not node in lst: lst.append( node )
 		self._bld_incpaths_lst.append(node)
 	# now the nodes are added to self._incpaths_lst
-Object.gen_hook(apply_incpaths_ml)
 
+@taskgen
 def apply_vars_ml(self):
 	for i in self._incpaths_lst:
 		if self.bytecode_env:
@@ -283,8 +285,8 @@ def apply_vars_ml(self):
 			if cnt:
 				if self.bytecode_env: self.bytecode_env.append_value(vname, cnt)
 				if self.native_env: self.native_env.append_value(vname, cnt)
-Object.gen_hook(apply_vars_ml)
 
+@taskgen
 def apply_link_ml(self):
 
 	if self.bytecode_env:
@@ -303,7 +305,6 @@ def apply_link_ml(self):
 
 		# we produce a .o file to be used by gcc
 		if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
-Object.gen_hook(apply_link_ml)
 
 Object.declare_order('apply_incpaths_ml', 'apply_vars_ml', 'apply_core', 'apply_link_ml', 'apply_link')
 

@@ -7,6 +7,7 @@ import os, sys, re, optparse
 import ccroot # <- leave this
 import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
+from Object import taskgen
 
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['apply_d_libs', 'apply_d_vars', 'apply_core', 'apply_d_link', 'apply_vnum', 'apply_objdeps', 'install_target']
@@ -245,6 +246,7 @@ class dobj(Object.task_gen):
 
 Object.add_trait('d', D_METHS)
 
+@taskgen
 def apply_d_libs(self):
 	uselib = self.to_list(self.uselib)
 	seen = []
@@ -306,8 +308,7 @@ def apply_d_libs(self):
 			uselib = [v]+uselib
 	self.uselib = uselib
 
-Object.gen_hook(apply_d_libs)
-
+@taskgen
 def apply_d_link(self):
 	# if we are only building .o files, tell which ones we build
 	if self.m_type == 'objects':
@@ -327,8 +328,8 @@ def apply_d_link(self):
 	linktask.set_outputs(self.path.find_build(get_target_name(self)))
 
 	self.link_task = linktask
-Object.gen_hook(apply_d_link)
 
+@taskgen
 def apply_d_vars(self):
 	env = self.env
 	dpath_st   = env['DPATH_ST']
@@ -413,7 +414,6 @@ def apply_d_vars(self):
 	if d_shlib_linkflags:
 		for linkflag in d_shlib_linkflags:
 			env.append_unique('DLINKFLAGS', linkflag)
-Object.gen_hook(apply_d_vars)
 
 Object.declare_order('apply_d_vars', 'apply_core', 'apply_d_link', 'apply_d_libs', 'apply_vnum', 'apply_objdeps', 'install_target')
 
@@ -443,12 +443,13 @@ Object.declare_extension(EXT_D, d_hook)
 
 
 # for feature request #104
+@taskgen
 def generate_header(self, filename, inst_var, inst_dir):
 	if not hasattr(self, 'header_lst'): self.header_lst = []
 	self.meths.add('process_header')
 	self.header_lst.append([filename, inst_var, inst_dir])
-Object.gen_hook(generate_header)
 
+@taskgen
 def process_header(self):
 	env = self.env
 	for i in getattr(self, 'header_lst', []):
@@ -460,7 +461,6 @@ def process_header(self):
 		task = self.create_task('d_header', env, 2)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.di'))
-Object.gen_hook(process_header)
 Object.declare_order('process_header', 'apply_core')
 
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
