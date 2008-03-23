@@ -8,7 +8,7 @@ import sys
 import Object, Params, Action, Utils
 from Params import debug
 import ccroot # <- do not remove
-from Object import taskgen
+from Object import taskgen, before
 
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -39,6 +39,7 @@ class ccobj(ccroot.ccroot):
 		self.p_type_vars = g_cc_type_vars
 
 @taskgen
+@before('apply_type_vars')
 def init_cc(self):
 	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cc_flag_vars)
 	else: self.p_flag_vars = g_cc_flag_vars
@@ -115,6 +116,5 @@ Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
 Object.register('cc', ccobj)
 Object.declare_extension(EXT_CC, c_hook)
 
-Object.declare_order('init_cc', 'apply_type_vars')
 Object.declare_order('apply_dependencies', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 

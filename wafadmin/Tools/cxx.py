@@ -8,7 +8,7 @@ import sys
 import Object, Params, Action, Utils
 from Params import debug, fatal
 import ccroot # <- do not remove
-from Object import taskgen
+from Object import taskgen, before
 
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -36,6 +36,7 @@ class cppobj(ccroot.ccroot):
 		self.features.append('cxx')
 
 @taskgen
+@before('apply_type_vars')
 def init_cxx(self):
 	self.mappings['.c'] = Object.task_gen.mappings['.cxx']
 	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cpp_flag_vars)
@@ -116,6 +117,5 @@ Action.simple_action('cpp_link', link_str, color='YELLOW', prio=111)
 Object.register('cpp', cppobj)
 Object.declare_extension(EXT_CXX, cxx_hook)
 
-Object.declare_order('init_cxx', 'apply_type_vars')
 Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 
