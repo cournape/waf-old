@@ -1015,10 +1015,9 @@ setattr(Configure.Configure, "set_config_header", set_config_header)
 
 def run_check(self, obj):
 	"""compile, link and run if necessary
-@param obj: data of type check_data
-@return: (False if a error during build happens) or ( (True if build ok) or
-(a {'result': ''} if execute was set))
-"""
+	@param obj: data of type check_data
+	@return: (False if a error during build happens) or ( (True if build ok) or (a {'result': ''} if execute was set))
+	"""
 	# first make sure the code to execute is defined
 	if not obj.code:
 		raise ConfigurationError('run_check: no code to process in check')
