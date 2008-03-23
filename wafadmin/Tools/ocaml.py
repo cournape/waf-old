@@ -7,15 +7,13 @@
 import os, re
 import Params, Action, Object, Scan, Utils, Task
 from Params import error, fatal
-from Object import taskgen
+from Object import taskgen, feature, before, after
 
 EXT_MLL = ['.mll']
 EXT_MLY = ['.mly']
 EXT_MLI = ['.mli']
 EXT_MLC = ['.c']
 EXT_ML  = ['.ml']
-
-OCAML_METHS = ['apply_incpaths_ml', 'apply_vars_ml', 'apply_core', 'apply_link_ml']
 
 open_re = re.compile('open ([a-zA-Z]+);;', re.M)
 
@@ -250,9 +248,11 @@ class ocamlobj(Object.task_gen):
 
 		self.features.append('ocaml')
 
-Object.add_trait('ocaml', OCAML_METHS)
+Object.add_trait('ocaml', ['apply_core'])
 
 @taskgen
+@feature('ocaml')
+@before('apply_vars_ml')
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
 	lst = self._incpaths_lst
@@ -268,6 +268,8 @@ def apply_incpaths_ml(self):
 	# now the nodes are added to self._incpaths_lst
 
 @taskgen
+@feature('ocaml')
+@before('apply_core')
 def apply_vars_ml(self):
 	for i in self._incpaths_lst:
 		if self.bytecode_env:
@@ -287,6 +289,8 @@ def apply_vars_ml(self):
 				if self.native_env: self.native_env.append_value(vname, cnt)
 
 @taskgen
+@feature('ocaml')
+@after('apply_core')
 def apply_link_ml(self):
 
 	if self.bytecode_env:
@@ -305,8 +309,6 @@ def apply_link_ml(self):
 
 		# we produce a .o file to be used by gcc
 		if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
-
-Object.declare_order('apply_incpaths_ml', 'apply_vars_ml', 'apply_core', 'apply_link_ml', 'apply_link')
 
 def mll_hook(self, node):
 	mll_task = self.create_task('ocamllex', self.native_env)
