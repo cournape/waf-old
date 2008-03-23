@@ -13,8 +13,13 @@ GENERATE WAF
 ------------
 
 Run './waf-light --make-waf' to generate waf or look at './waf-light --help'
-
 Then try 'waf --help', there are predefined targets for waf itself.
+
+The waf script generated can be redistributed freely along with
+your projects. This saves time looking for the right waf version.
+
+If you want to install waf system-wide (discouraged), use:
+./waf-light install --prefix=/some/install/dir
 
 ENVIRONMENT VARIABLES
 ---------------------
