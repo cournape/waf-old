@@ -8,7 +8,7 @@ import sys
 import Object, Params, Action, Utils
 from Params import debug
 import ccroot # <- do not remove
-from Object import taskgen, before
+from Object import taskgen, before, extension
 
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -93,6 +93,7 @@ def apply_defines_cc(self):
 	y = self.env['CCDEFINES_ST']
 	self.env['_CCDEFFLAGS'] = [y%x for x in milst]
 
+@extension(EXT_CC)
 def c_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task('cc', self.env)
@@ -114,7 +115,6 @@ Action.simple_action('cc', cc_str, 'GREEN', prio=100)
 Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
 
 Object.register('cc', ccobj)
-Object.declare_extension(EXT_CC, c_hook)
 
 Object.declare_order('apply_dependencies', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 

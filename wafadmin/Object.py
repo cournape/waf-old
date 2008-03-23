@@ -489,3 +489,19 @@ def after(fun_name):
 			task_gen.prec[f.__name__] = [fun_name]
 		return f
 	return deco
+
+def extension(var):
+	if type(var) is types.ListType:
+		pass
+	elif type(var) is types.StringType:
+		var = [var]
+	else:
+		raise TypeError('declare extension takes either a list or a string %s' % str(var))
+
+	def deco(f):
+		for x in var:
+			task_gen.mappings[x] = f
+		task_gen.mapped[f.__name__] = f
+		return f
+	return deco
+

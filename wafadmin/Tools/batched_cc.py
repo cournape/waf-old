@@ -23,6 +23,7 @@ EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
 import shutil, os
 import Action, Object, Task, ccroot, Params
+from Object import extension
 
 class TaskMaster(Task.Task):
 	def __init__(self, action_name, env, priority=92, normal=1, master=None):
@@ -91,6 +92,7 @@ class TaskSlave(Task.Task):
 	def can_retrieve_cache(self, sig):
 		return None
 
+@extension(EXT_C)
 def create_task_cxx_new(self, node):
 	try:
 		mm = self.mastertask
@@ -112,6 +114,4 @@ Action.simple_action('all_cc', cc_str, 'GREEN')
 
 cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
 Action.simple_action('all_cpp', cpp_str, color='GREEN')
-
-Object.declare_extension(EXT_C, create_task_cxx_new)
 

@@ -7,7 +7,7 @@ import os, sys, re, optparse
 import ccroot # <- leave this
 import Object, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
-from Object import taskgen, feature, after, before
+from Object import taskgen, feature, after, before, extension
 
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps', 'install_target'] # additional d methods
@@ -422,6 +422,7 @@ def apply_d_vars(self):
 		for linkflag in d_shlib_linkflags:
 			env.append_unique('DLINKFLAGS', linkflag)
 
+@extension(EXT_D)
 def d_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task('d', self.env)
@@ -444,7 +445,6 @@ Action.simple_action('d', d_str, 'GREEN', prio=100)
 Action.simple_action('d_link', link_str, color='YELLOW', prio=101)
 
 Object.register('d', dobj)
-Object.declare_extension(EXT_D, d_hook)
 
 
 # for feature request #104

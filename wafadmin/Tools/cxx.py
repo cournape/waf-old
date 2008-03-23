@@ -8,7 +8,7 @@ import sys
 import Object, Params, Action, Utils
 from Params import debug, fatal
 import ccroot # <- do not remove
-from Object import taskgen, before
+from Object import taskgen, before, extension
 
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -94,6 +94,7 @@ def apply_defines_cxx(self):
 	y = self.env['CXXDEFINES_ST']
 	self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
 
+@extension(EXT_CXX)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task('cpp', self.env)
@@ -115,7 +116,5 @@ Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
 Action.simple_action('cpp_link', link_str, color='YELLOW', prio=111)
 
 Object.register('cpp', cppobj)
-Object.declare_extension(EXT_CXX, cxx_hook)
-
 Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 
