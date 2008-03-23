@@ -388,6 +388,9 @@ def main():
 		else:
 			if Params.g_options.progress_bar: print ''
 
+			if Params.g_commands['install'] or Params.g_commands['uninstall']:
+				bld.install()
+
 			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully'
 			elif Params.g_commands['uninstall']: msg = 'Uninstallation finished successfully'
 			else: msg = 'Compilation finished successfully'
@@ -573,5 +576,5 @@ def DistCheck(appname, version):
 	finally:
 		os.chdir(cwd_before)
 	shutil.rmtree(distdir)
-	#if os.path.exists(instdir):
-	#	Params.fatal("uninstall left files in %s" % (instdir))
+	if os.path.exists(instdir):
+		Params.fatal("uninstall left files in %s" % (instdir))
