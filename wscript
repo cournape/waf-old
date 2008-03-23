@@ -107,6 +107,29 @@ def compute_revision():
 		f.close()
 	REVISION = m.hexdigest()
 
+#deco_re = re.compile('def\\s+([a-zA-Z_]+)\\(')
+deco_re = re.compile('def\\s+(\w+)\\(.*')
+def process_decorators(body):
+	"modify the python 2.4 decorators"
+	lst = body.split('\n')
+	accu = []
+	all_deco = []
+	buf = [] # put the decorator lines
+	for line in lst:
+		if line.startswith('@'):
+			buf.append(line[1:])
+		elif buf:
+			name = deco_re.sub('\\1', line)
+			if not name:
+				raise IOError, "decorator not followed by a function!"+line
+			for x in buf:
+				all_deco.append("%s(%s)" % (x, name))
+			accu.append(line)
+			buf = []
+		else:
+			accu.append(line)
+	return "\n".join(accu+all_deco)
+
 def process_imports(body):
 	"add the python 2.3 fixes to the redistributable waf"
 	header = '#! /usr/bin/env python\n# encoding: utf-8'
@@ -126,22 +149,10 @@ def process_tokens(tokens):
 	prev = NEWLINE
 
 	accu_deco = []
-	eat_decorator = 0
 	indent = 0
 	line_buf = []
 
 	for (type, token, start, end, line) in tokens:
-
-		if eat_decorator:
-			if type == NEWLINE:
-				eat_decorator = 0
-				accu_deco.append('\n')
-				deco += ''.join(accu_deco)
-				accu_deco = []
-			else:
-				accu_deco.append(token)
-				continue
-
 		if type == NEWLINE:
 			if line_buf:
 				accu.append(indent * '\t')
@@ -168,10 +179,7 @@ def process_tokens(tokens):
 		elif type == COMMENT:
 			pass
 		elif type == OP:
-			if token == '@':
-				eat_decorator = 1
-			else:
-				line_buf.append(token)
+			line_buf.append(token)
 		else:
 			if token != "\n": line_buf.append(token)
 
@@ -202,6 +210,7 @@ def create_waf():
 			cnt = process_tokens(generate_tokens(f.readline))
 		else:
 			cnt = f.read()
+		cnt = process_decorators(cnt)
 		cnt = process_imports(cnt)
 		f.close()
 		return (StringIO.StringIO(cnt), len(cnt))
