@@ -8,11 +8,14 @@ Nasm processing
 
 import os
 import Action, Object
+from Object import taskgen, before
 
 nasm_str = '${NASM} ${NASM_FLAGS} ${NASM_INCLUDES} ${SRC} -o ${TGT}'
 
 EXT_NASM = ['.s']
 
+@taskgen
+@before('apply_link')
 def apply_nasm_vars(self):
 
 	# flags
@@ -44,6 +47,4 @@ Object.declare_extension(EXT_NASM, nasm_file)
 def detect(conf):
 	nasm = conf.find_program('nasm', var='NASM')
 	if not nasm: conf.fatal("could not find nasm, install it or set PATH env var.")
-
-Object.declare_order('apply_nasm_vars', 'apply_link')
 

@@ -8,7 +8,7 @@ import os, re
 import Object, Action, Params, Common, Scan, Utils, Runner
 import cc
 from Params import fatal, error
-from Object import taskgen
+from Object import taskgen, before, after
 
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
@@ -138,6 +138,7 @@ def add_marshal_file(self, filename, prefix, mode):
 	self.marshal_lst.append([filename, prefix, mode])
 
 @taskgen
+@before('apply_core')
 def process_marshal(self):
 	for i in getattr(self, 'marshal_lst', []):
 		env = self.env.copy()
@@ -168,7 +169,6 @@ def process_marshal(self):
 			task.set_outputs(node.change_ext('.c'))
 		else:
 			error("unknown type for marshal "+i[2])
-Object.declare_order('process_dbus', 'apply_core')
 
 @taskgen
 def add_dbus_file(self, filename, prefix, mode):
@@ -177,6 +177,7 @@ def add_dbus_file(self, filename, prefix, mode):
 	self.dbus_lst.append([filename, prefix, mode])
 
 @taskgen
+@before('apply_core')
 def process_dbus(self):
 	for i in getattr(self, 'dbus_lst', []):
 		env = self.env.copy()
@@ -191,9 +192,9 @@ def process_dbus(self):
 		task = self.create_task('dbus_binding_tool', env, 2)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.h'))
-Object.declare_order('process_marshal', 'apply_core')
 
 @taskgen
+@before('apply_core')
 def process_enums(self):
 	for x in getattr(self, 'mk_enums', []):
 		# temporary
@@ -233,7 +234,6 @@ def add_glib_mkenum(self, source='', template='', target=''):
 	if not hasattr(self, 'mk_enums'): self.mk_enums = []
 	self.meths.add('process_enums')
 	self.mk_enums.append({'source':source, 'template':template, 'target':target})
-Object.declare_order('process_enums', 'apply_core')
 
 
 Action.simple_action('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK', prio=30)

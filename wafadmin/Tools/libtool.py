@@ -8,6 +8,7 @@ import sys, re, os, optparse
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 from ccroot import ccroot
+from Object import taskgen, after, before
 
 REVISION="0.1.3"
 
@@ -67,6 +68,8 @@ def read_la_file(path):
 	file.close()
 	return dc
 
+@taskgen
+@after('apply_link')
 def apply_link_libtool(self):
 	if not getattr(self, 'want_libtool', 0): return
 
@@ -79,8 +82,9 @@ def apply_link_libtool(self):
 
 	if not (Params.g_commands['install'] or Params.g_commands['uninstall']): return
 	self.install_results(dest_var, dest_subdir, self.m_latask)
-setattr(ccroot, 'apply_link_libtool', apply_link_libtool)
 
+@taskgen
+@before('apply_core')
 def apply_libtool(self):
 	if getattr(self, 'want_libtool', 0) <= 0: return
 
@@ -119,11 +123,8 @@ def apply_libtool(self):
 				libtool_files.append(v)
 				continue
 			self.env.append_unique('LINKFLAGS', v)
-setattr(ccroot, 'apply_libtool', apply_libtool)
-Object.declare_order('apply_libtool', 'apply_core','apply_link', 'apply_link_libtool')
 
 Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', prio=200)
-
 
 class libtool_la_file:
 	def __init__ (self, la_filename):

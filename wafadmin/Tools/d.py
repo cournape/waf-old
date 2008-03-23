@@ -455,6 +455,7 @@ def generate_header(self, filename, inst_var, inst_dir):
 	self.header_lst.append([filename, inst_var, inst_dir])
 
 @taskgen
+@before('apply_core')
 def process_header(self):
 	env = self.env
 	for i in getattr(self, 'header_lst', []):
@@ -466,7 +467,6 @@ def process_header(self):
 		task = self.create_task('d_header', env, 2)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.di'))
-Object.declare_order('process_header', 'apply_core')
 
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
 Action.simple_action('d_header', d_header_str, color='BLUE', prio=80)
