@@ -7,8 +7,12 @@
 
 import os, sys
 import Object, Action, Utils, Params, Common, Utils
+from Object import extension
 import pproc as subprocess
 
+EXT_PY = ['.py']
+
+@extension(EXT_PY)
 def process_py(self, node):
 
 	if self.env['PYC']:
@@ -29,8 +33,6 @@ def process_py(self, node):
 		except: pass
 		try: t1.install = install
 		except: pass
-
-Object.declare_extension('.py', process_py)
 
 class pyobj(Object.task_gen):
 	def __init__(self, env=None):

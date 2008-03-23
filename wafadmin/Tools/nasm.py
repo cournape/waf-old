@@ -8,7 +8,7 @@ Nasm processing
 
 import os
 import Action, Object
-from Object import taskgen, before
+from Object import taskgen, before, extension
 
 nasm_str = '${NASM} ${NASM_FLAGS} ${NASM_INCLUDES} ${SRC} -o ${TGT}'
 
@@ -28,6 +28,7 @@ def apply_nasm_vars(self):
 		for inc in self.to_list(self.includes):
 			self.env.append_value('NASM_INCLUDES', '-I %s' % inc.srcpath(self.env))
 
+@extension(EXT_NASM)
 def nasm_file(self, node):
 	o_node = node.change_ext('.o')
 
@@ -41,8 +42,6 @@ def nasm_file(self, node):
 
 # create our action here
 Action.simple_action('nasm', nasm_str, color='BLUE', prio=40)
-# register the hook
-Object.declare_extension(EXT_NASM, nasm_file)
 
 def detect(conf):
 	nasm = conf.find_program('nasm', var='NASM')

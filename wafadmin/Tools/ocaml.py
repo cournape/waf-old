@@ -7,7 +7,7 @@
 import os, re
 import Params, Action, Object, Scan, Utils, Task
 from Params import error, fatal
-from Object import taskgen, feature, before, after
+from Object import taskgen, feature, before, after, extension
 
 EXT_MLL = ['.mll']
 EXT_MLY = ['.mly']
@@ -310,6 +310,7 @@ def apply_link_ml(self):
 		# we produce a .o file to be used by gcc
 		if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
 
+@extension(EXT_MLL)
 def mll_hook(self, node):
 	mll_task = self.create_task('ocamllex', self.native_env)
 	mll_task.set_inputs(node)
@@ -318,6 +319,7 @@ def mll_hook(self, node):
 
 	self.allnodes.append(mll_task.m_outputs[0])
 
+@extension(EXT_MLY)
 def mly_hook(self, node):
 	mly_task = self.create_task('ocamlyacc', self.native_env)
 	mly_task.set_inputs(node)
@@ -329,12 +331,14 @@ def mly_hook(self, node):
 	task.set_inputs(mly_task.m_outputs[1])
 	task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
 
+@extension(EXT_MLI)
 def mli_hook(self, node):
 	task = self.create_task('ocamlcmi', self.native_env)
 	task.set_inputs(node)
 	task.set_outputs(node.change_ext('.cmi'))
 	self.mlitasks.append(task)
 
+@extension(EXT_MLC)
 def mlc_hook(self, node):
 	task = self.create_task('ocamlcc', self.native_env)
 	task.set_inputs(node)
@@ -342,6 +346,7 @@ def mlc_hook(self, node):
 
 	self.out_nodes += task.m_outputs
 
+@extension(EXT_ML)
 def ml_hook(self, node):
 	if self.native_env:
 		task = self.create_task('ocaml', self.native_env)
@@ -369,12 +374,6 @@ Action.simple_action('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -
 Action.simple_action('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN', prio=60)
 Action.simple_action('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', prio=20)
 Action.simple_action('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', prio=20)
-
-Object.declare_extension(EXT_MLL, mll_hook)
-Object.declare_extension(EXT_MLY, mly_hook)
-Object.declare_extension(EXT_MLI, mli_hook)
-Object.declare_extension(EXT_MLC, mlc_hook)
-Object.declare_extension(EXT_ML, ml_hook)
 
 def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')

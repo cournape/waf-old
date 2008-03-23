@@ -7,11 +7,13 @@
 import os, sys
 import Action, Object
 from Utils import quote_whitespace
+from Object import extension
 
 EXT_WINRC = ['.rc']
 
 winrc_str = '${WINRC} ${_CPPDEFFLAGS} ${_CXXDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CXXINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F}${TGT} ${WINRC_SRC_F}${SRC}'
 
+@extension(EXT_WINRC)
 def rc_file(self, node):
 	obj_ext = '.rc.o'
 	if self.env['WINRC_TGT_F'] == '/fo ': obj_ext = '.res'
@@ -25,9 +27,6 @@ def rc_file(self, node):
 
 # create our action, for use with rc file
 Action.simple_action('winrc', winrc_str, color='BLUE', prio=40)
-
-# register the hook for use with cppobj and ccobj
-Object.declare_extension(EXT_WINRC, rc_file)
 
 def detect(conf):
 	v = conf.env

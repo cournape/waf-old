@@ -2,9 +2,9 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
+import os.path, shutil
 import Action, Object, Runner, Utils, Params, Node
-import os.path
-import shutil
+from Object import extension
 
 EXT_VALA = ['.vala']
 
@@ -69,6 +69,7 @@ class ValacAction(Action.Action):
 				pass
 		return result
 
+@extension(EXT_VALA)
 def vala_file(self, node):
 	valatask = self.create_task('valac')
 	valatask.output_type = self.m_type
@@ -112,7 +113,6 @@ def vala_file(self, node):
 
 # create our action here
 ValacAction()
-Object.declare_extension(EXT_VALA, vala_file)
 
 def detect(conf):
 	valac = conf.find_program('valac', var='VALAC')

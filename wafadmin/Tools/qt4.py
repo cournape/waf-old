@@ -13,7 +13,7 @@ This module also demonstrates how to add tasks dynamically (when the build has s
 import os, sys
 import ccroot, cxx
 import Action, Params, Object, Task, Utils, Runner
-from Object import taskgen, feature, after
+from Object import taskgen, feature, after, extension
 from Params import error, fatal
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
@@ -135,6 +135,7 @@ def translation_update(task):
 		Params.pprint('BLUE', cmd)
 		Runner.exec_command(cmd)
 
+@extension(EXT_RCC)
 def create_rcc_task(self, node):
 	"hook for rcc files"
 	# run rcctask with one of the highest priority
@@ -151,6 +152,7 @@ def create_rcc_task(self, node):
 
 	return cpptask
 
+@extension(EXT_UI)
 def create_uic_task(self, node):
 	"hook for uic tasks"
 	uictask = self.create_task('ui4', self.env)
@@ -234,6 +236,7 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	self.source = self.source+' '+(" ".join(lst))
 setattr(qt4obj, 'find_sources_in_dirs', find_sources_in_dirs)
 
+@extension(EXT_QT4)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = MTask('cpp', self.env, self)
@@ -269,10 +272,6 @@ Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', 
 Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=60)
 
 Object.register('qt4', qt4obj)
-
-Object.declare_extension(EXT_UI, create_uic_task)
-Object.declare_extension(EXT_RCC, create_rcc_task)
-Object.declare_extension(EXT_QT4, cxx_hook)
 
 def detect_qt4(conf):
 	env = conf.env
