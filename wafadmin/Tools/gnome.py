@@ -8,6 +8,7 @@ import os, re
 import Object, Action, Params, Common, Scan, Utils, Runner
 import cc
 from Params import fatal, error
+from Object import taskgen
 
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
@@ -130,12 +131,13 @@ class gnome_sgml2man(Object.task_gen):
 # generate c/c++ code that we want to mix
 # here we attach new methods to Object.task_gen
 
+@taskgen
 def add_marshal_file(self, filename, prefix, mode):
 	if not hasattr(self, 'marshal_lst'): self.marshal_lst = []
 	self.meths.add('process_marshal')
 	self.marshal_lst.append([filename, prefix, mode])
-Object.gen_hook(add_marshal_file)
 
+@taskgen
 def process_marshal(self):
 	for i in getattr(self, 'marshal_lst', []):
 		env = self.env.copy()
@@ -166,16 +168,15 @@ def process_marshal(self):
 			task.set_outputs(node.change_ext('.c'))
 		else:
 			error("unknown type for marshal "+i[2])
-Object.gen_hook(process_marshal)
 Object.declare_order('process_dbus', 'apply_core')
 
-
+@taskgen
 def add_dbus_file(self, filename, prefix, mode):
 	if not hasattr(self, 'dbus_lst'): self.dbus_lst = []
 	self.meths.add('process_dbus')
 	self.dbus_lst.append([filename, prefix, mode])
-Object.gen_hook(add_dbus_file)
 
+@taskgen
 def process_dbus(self):
 	for i in getattr(self, 'dbus_lst', []):
 		env = self.env.copy()
@@ -190,9 +191,9 @@ def process_dbus(self):
 		task = self.create_task('dbus_binding_tool', env, 2)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.h'))
-Object.gen_hook(process_dbus)
 Object.declare_order('process_marshal', 'apply_core')
 
+@taskgen
 def process_enums(self):
 	for x in getattr(self, 'mk_enums', []):
 		# temporary
@@ -225,14 +226,13 @@ def process_enums(self):
 		# update the task instance
 		task.set_inputs(inputs)
 		task.set_outputs(tgt_node)
-Object.gen_hook(process_enums)
 
+@taskgen
 def add_glib_mkenum(self, source='', template='', target=''):
 	"just a helper"
 	if not hasattr(self, 'mk_enums'): self.mk_enums = []
 	self.meths.add('process_enums')
 	self.mk_enums.append({'source':source, 'template':template, 'target':target})
-Object.gen_hook(add_glib_mkenum)
 Object.declare_order('process_enums', 'apply_core')
 
 

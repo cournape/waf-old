@@ -13,6 +13,7 @@ This module also demonstrates how to add tasks dynamically (when the build has s
 import os, sys
 import ccroot, cxx
 import Action, Params, Object, Task, Utils, Runner
+from Object import taskgen
 from Params import error, fatal
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
@@ -169,6 +170,7 @@ class qt4obj(cxx.cppobj):
 
 Object.add_trait('qt4', QT4_METHS)
 
+@taskgen
 def apply_qt4(self):
 	if self.lang:
 		lst=[]
@@ -202,7 +204,6 @@ def apply_qt4(self):
 		if flag[0:2] == '-D' or flag[0:2] == '-I':
 			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
-Object.gen_hook(apply_qt4)
 Object.declare_order('apply_link', 'apply_qt4')
 
 def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):

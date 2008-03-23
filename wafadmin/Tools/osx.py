@@ -11,23 +11,23 @@ obj.mac_app = True
 
 import os, shutil
 import Object, Action
-
+from Object import taskgen
 from Params import error, debug, fatal, warning
 
+@taskgen
 def create_task_macapp(self):
 	if self.m_type == 'program' and self.link_task:
 		apptask = self.create_task('macapp', self.env)
 		apptask.set_inputs(self.link_task.m_outputs)
 		apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
 		self.m_apptask = apptask
-Object.gen_hook(create_task_macapp)
 
+@taskgen
 def apply_link_osx(self):
 	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
 	or use obj.mac_app = True to build specific targets as Mac apps"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 	    self.create_task_macapp()
-Object.gen_hook(apply_link_osx)
 Object.declare_order('apply_link', 'apply_link_osx')
 Object.add_trait('cc', 'apply_link_osx')
 Object.add_trait('cpp', 'apply_link_osx')
