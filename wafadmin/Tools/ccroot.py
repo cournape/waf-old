@@ -7,7 +7,7 @@
 import os, sys, re
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
-from Object import taskgen, after, feature
+from Object import taskgen, after, before, feature
 
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"
@@ -140,6 +140,7 @@ def install_shlib(task):
 
 @taskgen
 @feature('normal')
+@after('apply_objdeps')
 def install_target(self):
 	# FIXME too complicated
 	if not Params.g_install: return
@@ -170,6 +171,8 @@ def install_target(self):
 		self.link_task.install = install
 
 @taskgen
+@after('apply_incpaths')
+@before('apply_core')
 def apply_dependencies(self):
 	if self.dependencies:
 		dep_lst = (self.to_list(self.dependencies) + self.to_list(self.includes))
@@ -194,6 +197,7 @@ def apply_dependencies(self):
 		self.inc_paths = lst + self.incpaths_lst
 
 @taskgen
+@after('apply_type_vars')
 def apply_incpaths(self):
 	lst = []
 	for i in self.to_list(self.uselib):
@@ -246,6 +250,7 @@ def apply_type_vars(self):
 
 @taskgen
 @feature('normal')
+@after('apply_core')
 def apply_link(self):
 	if self.m_type=='staticlib':
 		linktask = self.create_task('ar_link_static', self.env)
@@ -258,6 +263,7 @@ def apply_link(self):
 	self.link_task = linktask
 
 @taskgen
+@after('apply_vnum')
 def apply_lib_vars(self):
 	env = self.env
 
@@ -328,6 +334,7 @@ def apply_lib_vars(self):
 
 @taskgen
 @feature('normal')
+@after('apply_obj_vars')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
  	seen = []
@@ -366,6 +373,7 @@ def apply_objdeps(self):
 
 @taskgen
 @feature('normal')
+@after('apply_lib_vars')
 def apply_obj_vars(self):
 	lib_st           = self.env['LIB_ST']
 	staticlib_st     = self.env['STATICLIB_ST']
@@ -400,6 +408,7 @@ def apply_obj_vars(self):
 
 @taskgen
 @feature('normal')
+@after('apply_link')
 def apply_vnum(self):
 	"use self.vnum and self.soname to modify the command line (un*x)"
 	try: vnum = self.vnum
@@ -410,9 +419,6 @@ def apply_vnum(self):
 		try: name3 = self.soname
 		except AttributeError: name3 = self.link_task.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
-
-Object.declare_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
-	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install_target')
 
 @taskgen
 @after('apply_link')
