@@ -335,6 +335,7 @@ def apply_lib_vars(self):
 @taskgen
 @feature('normal')
 @after('apply_obj_vars')
+@after('apply_vnum')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
  	seen = []
