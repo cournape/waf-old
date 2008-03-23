@@ -468,11 +468,11 @@ def feature(name):
 		except KeyError:
 			l = set()
 			task_gen.traits[name] = l
-		l.update(f.__name__)
+		l.update([f.__name__])
 		return f
 	return deco
 
-def after(fun_name):
+def before(fun_name):
 	def deco(f):
 		try:
 			if not f.__name__ in task_gen.prec[fun_name]: task_gen.prec[fun_name].append(f.__name__)
@@ -481,3 +481,11 @@ def after(fun_name):
 		return f
 	return deco
 
+def after(fun_name):
+	def deco(f):
+		try:
+			if not fun_name in task_gen.prec[f.__name__]: task_gen.prec[f.__name__].append(fun_name)
+		except KeyError:
+			task_gen.prec[f.__name__] = [fun_name]
+		return f
+	return deco
