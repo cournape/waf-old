@@ -377,7 +377,6 @@ def main():
 				setattr(Task.Task, 'must_run', must_run)
 
 			bld.compile()
-			#ret = 0
 			#import cProfile, pstats
 			#cProfile.run("Params.g_build.compile()", 'profi.txt')
 			#p = pstats.Stats('profi.txt')
@@ -533,7 +532,7 @@ def DistClean():
 					proj = read_cache_file(os.path.join(root, f))
 					shutil.rmtree(os.path.join(root, proj[BLDDIR]))
 				except (OSError, IOError):
-					# ignore errors if the lockfile or the builddir not exist.  
+					# ignore errors if the lockfile or the builddir not exist.
 					pass
 			else:
 				ends = f.endswith
