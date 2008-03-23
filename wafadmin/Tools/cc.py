@@ -8,6 +8,7 @@ import sys
 import Object, Params, Action, Utils
 from Params import debug
 import ccroot # <- do not remove
+from Object import taskgen
 
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -37,14 +38,15 @@ class ccobj(ccroot.ccroot):
 		global g_cc_type_vars
 		self.p_type_vars = g_cc_type_vars
 
+@taskgen
 def init_cc(self):
 	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cc_flag_vars)
 	else: self.p_flag_vars = g_cc_flag_vars
 
 	if hasattr(self, 'p_type_vars'):	self.p_type_vars = set(self.p_type_vars).union(g_cc_type_vars)
 	else: self.p_type_vars = g_cc_type_vars
-Object.gen_hook(init_cc)
 
+@taskgen
 def apply_obj_vars_cc(self):
 	debug('apply_obj_vars_cc', 'ccroot')
 	env = self.env
@@ -69,8 +71,8 @@ def apply_obj_vars_cc(self):
 	tmpnode = self.path
 	app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
 	app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-Object.gen_hook(apply_obj_vars_cc)
 
+@taskgen
 def apply_defines_cc(self):
 	tree = Params.g_build
 	lst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
@@ -89,7 +91,6 @@ def apply_defines_cc(self):
 	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 	y = self.env['CCDEFINES_ST']
 	self.env['_CCDEFFLAGS'] = [y%x for x in milst]
-Object.gen_hook(apply_defines_cc)
 
 def c_hook(self, node):
 	# create the compilation task: cpp or cc

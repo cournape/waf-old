@@ -7,6 +7,7 @@
 import os, sys, re
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
+from Object import taskgen, after, feature
 
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"
@@ -101,7 +102,7 @@ class ccroot(Object.task_gen):
 
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
 		#self.features = ['program']
-# helper used only here
+
 def get_target_name(self):
 	name = self.target
 	pattern = self.env[self.m_type+'_PATTERN']
@@ -110,15 +111,14 @@ def get_target_name(self):
 	# name can be src/mylib
 	k = name.rfind('/')
 	return name[0:k+1] + pattern % name[k+1:]
-Object.gen_hook(get_target_name)
 
+@taskgen
 def apply_verif(self):
 	if not hasattr(self, 'nochecks'):
 		if not (self.source or self.add_objects):
 			fatal('no source files specified for %s' % self)
 		if not self.target and self.m_type != 'objects':
 			fatal('no target for %s' % self)
-Object.gen_hook(apply_verif)
 
 def install_shlib(task):
 	try: nums = task.vnum.split('.')
@@ -138,6 +138,7 @@ def install_shlib(task):
 	Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
 	Common.symlink_as(dest_var, name3, dest_subdir+'/'+name1)
 
+@taskgen
 def install_target(self):
 	# FIXME too complicated
 	if not Params.g_install: return
@@ -166,8 +167,8 @@ def install_target(self):
 			else: mode = 0644
 		install = {'var':dest_var,'dir':dest_subdir,'chmod':mode}
 		self.link_task.install = install
-Object.gen_hook(install_target)
 
+@taskgen
 def apply_dependencies(self):
 	if self.dependencies:
 		dep_lst = (self.to_list(self.dependencies) + self.to_list(self.includes))
@@ -190,8 +191,8 @@ def apply_dependencies(self):
 			if obj.path not in lst:
 				lst.append(obj.path)
 		self.inc_paths = lst + self.incpaths_lst
-Object.gen_hook(apply_dependencies)
 
+@taskgen
 def apply_incpaths(self):
 	lst = []
 	for i in self.to_list(self.uselib):
@@ -219,8 +220,8 @@ def apply_incpaths(self):
 		Params.g_build.rescan(node)
 		self.bld_incpaths_lst.append(node)
 	# now the nodes are added to self.incpaths_lst
-Object.gen_hook(apply_incpaths)
 
+@taskgen
 def apply_type_vars(self):
 
 	# the subtype, used for all sorts of evil things
@@ -241,8 +242,8 @@ def apply_type_vars(self):
 		#print compvar
 		value = self.env[compvar]
 		if value: self.env.append_value(var, value)
-Object.gen_hook(apply_type_vars)
 
+@taskgen
 def apply_link(self):
 	if self.m_type=='staticlib':
 		linktask = self.create_task('ar_link_static', self.env)
@@ -253,8 +254,8 @@ def apply_link(self):
 	linktask.set_outputs(self.path.find_build(get_target_name(self)))
 
 	self.link_task = linktask
-Object.gen_hook(apply_link)
 
+@taskgen
 def apply_lib_vars(self):
 	env = self.env
 
@@ -322,8 +323,8 @@ def apply_lib_vars(self):
 		for v in self.p_flag_vars:
 			val = self.env[v+'_'+x]
 			if val: self.env.append_value(v, val)
-Object.gen_hook(apply_lib_vars)
 
+@taskgen
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
  	seen = []
@@ -359,8 +360,8 @@ def apply_objdeps(self):
 		seen.append(x)
 
 		self.link_task.m_inputs += y.out_nodes
-Object.gen_hook(apply_objdeps)
 
+@taskgen
 def apply_obj_vars(self):
 	lib_st           = self.env['LIB_ST']
 	staticlib_st     = self.env['STATICLIB_ST']
@@ -392,8 +393,8 @@ def apply_obj_vars(self):
 			self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
 
 	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
-Object.gen_hook(apply_obj_vars)
 
+@taskgen
 def apply_vnum(self):
 	"use self.vnum and self.soname to modify the command line (un*x)"
 	try: vnum = self.vnum
@@ -404,41 +405,35 @@ def apply_vnum(self):
 		try: name3 = self.soname
 		except AttributeError: name3 = self.link_task.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
-Object.gen_hook(apply_vnum)
 
 Object.declare_order('apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_core',
 	'apply_link', 'apply_vnum', 'apply_lib_vars', 'apply_obj_vars', 'apply_objdeps', 'install_target')
 Object.add_trait('normal', ['apply_link', 'install_target', 'apply_objdeps', 'apply_vnum', 'apply_obj_vars'])
 
-# Small example on how to link object files as if they were source
-# obj = bld.create_obj('cc')
-# obj.add_obj_file('foo.o')
-#
+@taskgen
+@after('apply_link')
 def process_obj_files(self):
 	if not hasattr(self, 'obj_files'): return
 	for x in self.obj_files:
 		node = self.path.find_source(x)
 		self.link_task.m_inputs.append(node)
 
+@taskgen
 def add_obj_file(self, file):
+	"""Small example on how to link object files as if they were source
+	obj = bld.create_obj('cc')
+	obj.add_obj_file('foo.o')"""
 	if not hasattr(self, 'obj_files'): self.obj_files = []
 	if not 'process_obj_files' in self.meths: self.meths.add('process_obj_files')
 	self.obj_files.append(file)
 
-Object.gen_hook(add_obj_file)
-Object.gen_hook(process_obj_files)
-Object.declare_order('apply_link', 'process_obj_files')
-
-# do not link but make .o files available
-
+@taskgen
+@feature('objects')
+@after('apply_core')
 def make_objects_available(self):
-	# if we are only building .o files, tell which ones we built
+	"""when we do not link; make the .o files available
+	if we are only building .o files, tell which ones we built"""
 	self.out_nodes = []
 	app = self.out_nodes.append
 	for t in self.compiled_tasks: app(t.m_outputs[0])
-Object.gen_hook(make_objects_available)
-
-Object.add_trait('objects', 'make_objects_available')
-Object.declare_order('apply_core', 'make_objects_available')
-
 

@@ -8,6 +8,7 @@ import sys
 import Object, Params, Action, Utils
 from Params import debug, fatal
 import ccroot # <- do not remove
+from Object import taskgen
 
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -34,6 +35,7 @@ class cppobj(ccroot.ccroot):
 
 		self.features.append('cxx')
 
+@taskgen
 def init_cxx(self):
 	self.mappings['.c'] = Object.task_gen.mappings['.cxx']
 	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cpp_flag_vars)
@@ -41,8 +43,8 @@ def init_cxx(self):
 
 	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cpp_type_vars)
 	else: self.p_type_vars = g_cpp_type_vars
-Object.gen_hook(init_cxx)
 
+@taskgen
 def apply_obj_vars_cxx(self):
 	debug('apply_obj_vars_cxx', 'ccroot')
 	env = self.env
@@ -69,8 +71,8 @@ def apply_obj_vars_cxx(self):
 	tmpnode = Params.g_build.m_curdirnode
 	app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(env))
 	app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-Object.gen_hook(apply_obj_vars_cxx)
 
+@taskgen
 def apply_defines_cxx(self):
 	tree = Params.g_build
 	lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
@@ -90,7 +92,6 @@ def apply_defines_cxx(self):
 	self.env['DEFLINES'] = ["%s %s" % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in milst]]
 	y = self.env['CXXDEFINES_ST']
 	self.env['_CXXDEFFLAGS'] = [y%x for x in milst]
-Object.gen_hook(apply_defines_cxx)
 
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
@@ -117,5 +118,4 @@ Object.declare_extension(EXT_CXX, cxx_hook)
 
 Object.declare_order('init_cxx', 'apply_type_vars')
 Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
-
 
