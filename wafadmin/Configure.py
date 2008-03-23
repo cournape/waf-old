@@ -48,9 +48,9 @@ g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
 
 def find_file(filename, path_list):
 	"""find a file in a list of paths
-@param filename: name of the file to search for
-@param path_list: list of directories to search
-@return: the first occurrence filename or '' if filename could not be found
+	@param filename: name of the file to search for
+	@param path_list: list of directories to search
+	@return: the first occurrence filename or '' if filename could not be found
 """
 	if type(path_list) is types.StringType:
 		lst = path_list.split()
@@ -63,9 +63,9 @@ def find_file(filename, path_list):
 
 def find_file_ext(filename, path_list):
 	"""find a file in a list of paths using fnmatch
-@param filename: name of the file to search for
-@param path_list: list of directories to search
-@return: the first occurrence filename or '' if filename could not be found
+	@param filename: name of the file to search for
+	@param path_list: list of directories to search
+	@return: the first occurrence filename or '' if filename could not be found
 """
 	import fnmatch
 	if type(path_list) is types.StringType:
@@ -81,11 +81,11 @@ def find_file_ext(filename, path_list):
 
 def find_program_impl(env, filename, path_list=[], var=None):
 	"""find a program in folders path_lst, and sets env[var]
-@param env: environment
-@param filename: name of the program to search for
-@param path_list: list of directories to search for filename
-@param var: environment value to be checked for in env or os.environ
-@return: either the value that is referenced with [var] in env or os.environ
+	@param env: environment
+	@param filename: name of the program to search for
+	@param path_list: list of directories to search for filename
+	@param var: environment value to be checked for in env or os.environ
+	@return: either the value that is referenced with [var] in env or os.environ
          or the first occurrence filename or '' if filename could not be found
 """
 	try: path_list = path_list.split()
