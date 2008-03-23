@@ -107,14 +107,23 @@ def compute_revision():
 		f.close()
 	REVISION = m.hexdigest()
 
-def process_tokens(tokens):
-	accu = []
-	prev = NEWLINE
-
+def process_imports(body):
+	"add the python 2.3 fixes to the redistributable waf"
 	header = '#! /usr/bin/env python\n# encoding: utf-8'
 	impo = ''
 	deco = ''
-	body = ''
+
+	if body.find('set(') > -1:
+		impo += 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set'
+
+	if body.rfind('md5') > -1:
+		body = body.replace('from hashlib import md5', 'try: from hashlib import md5\nexcept ImportError: from md5 import md5')
+
+	return "\n".join([header, impo, body, deco])
+
+def process_tokens(tokens):
+	accu = []
+	prev = NEWLINE
 
 	accu_deco = []
 	eat_decorator = 0
@@ -170,14 +179,7 @@ def process_tokens(tokens):
 			prev = type
 
 	body = "".join(accu)
-
-	if body.find('set(') > -1:
-		impo += 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set'
-
-	if body.rfind('md5') > -1:
-		body = body.replace('from hashlib import md5', 'try: from hashlib import md5\nexcept ImportError: from md5 import md5')
-
-	return "\n".join([header, impo, body, deco])
+	return body
 
 def create_waf():
 	print "-> preparing waf"
@@ -200,6 +202,7 @@ def create_waf():
 			cnt = process_tokens(generate_tokens(f.readline))
 		else:
 			cnt = f.read()
+		cnt = process_imports(cnt)
 		f.close()
 		return (StringIO.StringIO(cnt), len(cnt))
 
