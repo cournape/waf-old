@@ -60,7 +60,7 @@ class javaobj(Object.task_gen):
 					self.env.append_unique('JAROPTS', '-C %s .' % self.path.bldpath(self.env))
 
 Object.register('java', javaobj)
-Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].bld_dir(env)} ${SRC}', color='BLUE', prio=10)
+Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].variant(env)} ${SRC}', color='BLUE', prio=10)
 Action.simple_action('jar_create', '${JAR} cvf ${TGT} ${JAROPTS}', color='GREEN', prio=50)
 
 def detect(conf):
