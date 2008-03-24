@@ -39,6 +39,7 @@ def filter_comments(filename):
 						else: break
 					#print "cnt is ", str(cnt)
 					if (cnt%2)==0: break
+		# i -= 1 # <- useless in practice
 		# skip a char
 		elif c == "'":
 			i += 1
