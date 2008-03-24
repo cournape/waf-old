@@ -245,7 +245,7 @@ class dobj(Object.task_gen):
 		self.inst_var = '' # mark as installable TODO
 		self.vnum = '1.0.0'
 
-Object.add_trait('d', D_METHS)
+Object.add_feature('d', D_METHS)
 
 @taskgen
 @feature('d')

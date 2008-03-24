@@ -248,7 +248,7 @@ class ocamlobj(Object.task_gen):
 
 		self.features.append('ocaml')
 
-Object.add_trait('ocaml', ['apply_core'])
+Object.add_feature('ocaml', ['apply_core'])
 
 @taskgen
 @feature('ocaml')

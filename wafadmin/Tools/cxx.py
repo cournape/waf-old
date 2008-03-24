@@ -21,7 +21,7 @@ EXT_CXX = ['.cpp', '.cc', '.cxx', '.C']
 CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx',
 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx']
 
-Object.add_trait('cxx', CXX_METHS)
+Object.add_feature('cxx', CXX_METHS)
 
 # TODO get rid of that class
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']

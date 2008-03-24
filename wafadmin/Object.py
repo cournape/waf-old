@@ -378,12 +378,6 @@ class task_gen(object):
 
 		return newobj
 
-def gen_hook(name_or_meth, meth=None):
-	try:
-		setattr(task_gen, name_or_meth.__name__, name_or_meth)
-	except AttributeError:
-		setattr(task_gen, name_or_meth, meth)
-
 def declare_extension(var, func):
 	if type(var) is types.ListType:
 		for x in var:
@@ -443,7 +437,7 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 
 	declare_extension(ext_in, x_file)
 
-def add_trait(name, methods):
+def add_feature(name, methods):
 	lst = Utils.to_list(methods)
 	try:
 		l = task_gen.traits[name]
