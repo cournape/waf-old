@@ -1,4 +1,4 @@
-
+package src; // obligatory
 
 public class Hello
 {
