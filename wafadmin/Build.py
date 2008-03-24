@@ -281,7 +281,7 @@ class Build(object):
 			if dir: Scripting.add_subdir(dir, self)
 
 	def create_obj(self, objname, *k, **kw):
-		try: return Object.g_allclasses[objname](*k, **kw)
+		try: return Object.task_gen.classes[objname](*k, **kw)
 		except KeyError: raise KeyError("'%s' is not a valid build tool -> %s" % (objname, [x for x in Object.g_allclasses]))
 
 	def load_envs(self):

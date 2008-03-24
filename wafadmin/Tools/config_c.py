@@ -1070,7 +1070,7 @@ def run_check(self, obj):
 	# not sure yet when to call this:
 	#bld.rescan(bld.m_srcnode)
 
-	o = Object.g_allclasses[tp](obj.build_type)
+	o = Object.task_gen.classes[tp](obj.build_type)
 	o.source   = test_f_name
 	o.target   = 'testprog'
 	o.uselib   = obj.uselib

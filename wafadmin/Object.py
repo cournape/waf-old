@@ -125,6 +125,7 @@ class task_gen(object):
 	mapped = {}
 	prec = {}
 	traits = {}
+	classes = {}
 
 	def __init__(self):
 		self.prec = {}
@@ -446,10 +447,10 @@ def add_feature(name, methods):
 		task_gen.traits[name] = l
 	l.update(lst)
 
-g_allclasses = {}
 def register(name, classval):
-	global g_allclasses
-	g_allclasses[name] = classval
+	task_gen.classes[name] = classval
+
+# decorators follow
 
 def taskgen(f):
 	setattr(task_gen, f.__name__, f)
