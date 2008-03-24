@@ -150,6 +150,8 @@ def create_rcc_task(self, node):
 	cpptask.m_inputs  = [rcnode]
 	cpptask.m_outputs = [rcnode.change_ext('.o')]
 
+	self.compiled_tasks.append(cpptask)
+
 	return cpptask
 
 @extension(EXT_UI)
@@ -188,7 +190,7 @@ def apply_qt4(self):
 			# we need the cpp files given, except the rcc task we create after
 			u = Task.TaskCmd(translation_update, self.env, 2)
 			u.m_inputs = [a.m_inputs[0] for a in self.compiled_tasks]
-			u.m_outputs=trans
+			u.m_outputs = trans
 
 		if self.langname:
 			t = Task.Task('qm2rcc', self.env, 40)
