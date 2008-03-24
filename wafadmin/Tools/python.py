@@ -42,7 +42,6 @@ class pyobj(Object.task_gen):
 		self.inst_dir = ''
 		self.chmod = 0644
 
-Object.register('py', pyobj)
 Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
 Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
 

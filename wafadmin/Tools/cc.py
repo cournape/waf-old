@@ -114,7 +114,5 @@ link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${
 Action.simple_action('cc', cc_str, 'GREEN', prio=100)
 Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
 
-Object.register('cc', ccobj)
-
 Object.declare_order('apply_dependencies', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 

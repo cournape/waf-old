@@ -246,6 +246,3 @@ Action.simple_action('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='
 Action.Action('latex', vars=latex_vardeps, func=latex_build, prio=40)
 Action.Action('pdflatex', vars=pdflatex_vardeps, func=pdflatex_build, prio=40)
 
-Object.register('tex', texobj)
-
-

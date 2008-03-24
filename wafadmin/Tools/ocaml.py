@@ -366,7 +366,6 @@ def ml_hook(self, node):
 		task.set_outputs(node.change_ext('.cmo'))
 		self.bytecode_tasks.append(task)
 
-Object.register('ocaml', ocamlobj)
 Action.simple_action('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN', prio=60)
 Action.simple_action('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', prio=99)
 Action.simple_action('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', prio=99)

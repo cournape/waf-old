@@ -445,9 +445,6 @@ link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${
 Action.simple_action('d', d_str, 'GREEN', prio=100)
 Action.simple_action('d_link', link_str, color='YELLOW', prio=101)
 
-Object.register('d', dobj)
-
-
 # for feature request #104
 @taskgen
 def generate_header(self, filename, inst_var, inst_dir):

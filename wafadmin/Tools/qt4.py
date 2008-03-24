@@ -273,8 +273,6 @@ Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', 
 
 Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=60)
 
-Object.register('qt4', qt4obj)
-
 def detect_qt4(conf):
 	env = conf.env
 	opt = Params.g_options

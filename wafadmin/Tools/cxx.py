@@ -115,6 +115,5 @@ link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS}
 Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
 Action.simple_action('cpp_link', link_str, color='YELLOW', prio=111)
 
-Object.register('cpp', cppobj)
 Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 

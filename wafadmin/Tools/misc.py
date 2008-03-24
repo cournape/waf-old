@@ -420,10 +420,7 @@ use command_is_external=True''') % (self.command,)
 		position as argv element."""
 		return (CommandOutput.CMD_ARGV_OUTPUT_DIR, file_name, template)
 
-Object.register('cmd', cmdobj)
-Object.register('copy', copyobj)
-Object.register('subst', substobj)
 Action.Action('copy', vars=[], func=action_process_file_func)
 Action.Action('command-output', func=CommandOutput._command_output_func, color='BLUE')
-Object.register('command-output', CommandOutput)
+Object.task_gen.classes['command-output'] = CommandOutput
 

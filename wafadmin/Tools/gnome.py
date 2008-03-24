@@ -99,7 +99,7 @@ class sgml_man_scanner(Scan.scanner):
 
 sgml_scanner = sgml_man_scanner()
 
-class gnome_sgml2man(Object.task_gen):
+class gnome_sgml2manobj(Object.task_gen):
 	def __init__(self, appname):
 		Object.task_gen.__init__(self)
 		self.m_tasks=[]
@@ -249,8 +249,6 @@ Action.simple_action('dbus_binding_tool',
 	color='BLUE')
 
 Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1]} ${SRC[0]}')
-
-Object.register('gnome_sgml2man', gnome_sgml2man)
 
 def detect(conf):
 

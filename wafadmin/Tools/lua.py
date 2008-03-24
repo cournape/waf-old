@@ -20,7 +20,6 @@ class luaobj(Object.task_gen):
 		self.chmod = 0755
 		self.inst_var = ''
 		self.inst_dir = ''
-Object.register('lua', luaobj)
 
 def detect(conf):
 	luac = conf.find_program('luac', var='LUAC')

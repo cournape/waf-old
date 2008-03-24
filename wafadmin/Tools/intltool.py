@@ -10,7 +10,7 @@ import cc
 from Params import fatal, error
 
 # intltool
-class intltool_in(Object.task_gen):
+class intltool_inobj(Object.task_gen):
 	def __init__(self):
 		Object.task_gen.__init__(self)
 		self.source  = ''
@@ -40,7 +40,7 @@ class intltool_in(Object.task_gen):
 
 			task.install = {'var': self.inst_var, 'dir': self.inst_dir, 'chmod': 0644}
 
-class intltool_po(Object.task_gen):
+class intltool_poobj(Object.task_gen):
 	def __init__(self, appname='set_your_app_name'):
 		Object.task_gen.__init__(self)
 		self.chmod = 0644
@@ -76,9 +76,6 @@ Action.simple_action('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', prio=10)
 Action.simple_action('intltool',
 	'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
 	color='BLUE', prio=200)
-
-Object.register('intltool_po', intltool_po)
-Object.register('intltool_in', intltool_in)
 
 def detect(conf):
 

@@ -4,7 +4,7 @@
 
 import os, sys, re, Object, Action, Utils, Common
 
-class langobj(Object.task_gen):
+class msgfmtobj(Object.task_gen):
 	def __init__(self, appname='set_your_app_name'):
 		Object.task_gen.__init__(self)
 		self.langs = '' # for example "foo/fr foo/br"
@@ -69,6 +69,5 @@ def detect(conf):
 
 	conf.env['MSGFMT'] = conf.find_program('msgfmt')
 
-Object.register('msgfmt', langobj)
 Action.simple_action('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE', prio=10)
 

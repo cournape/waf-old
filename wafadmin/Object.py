@@ -92,6 +92,16 @@ def flush(all=1):
 			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
 			if not obj.m_posted: obj.post()
 
+class register_obj(type):
+	"""no decorators for classes, so we use a metaclass
+	we store into task_gen.classes the classes that inherit task_gen
+	and whose names end in 'obj'
+	"""
+	def __init__(cls, name, bases, dict):
+		super(register_obj, cls).__init__(name, bases, dict)
+		if cls.__name__.endswith('obj'):
+			task_gen.classes[cls.__name__[:-3]] = cls
+
 class task_gen(object):
 	"""
 	Most methods are of the form 'def meth(self):' without any parameters
@@ -121,6 +131,7 @@ class task_gen(object):
 	compiler (from self.env['MSVC']==1); more methods are added to self.meths
 	"""
 
+	__metaclass__ = register_obj
 	mappings = {}
 	mapped = {}
 	prec = {}
@@ -446,9 +457,6 @@ def add_feature(name, methods):
 		l = set()
 		task_gen.traits[name] = l
 	l.update(lst)
-
-def register(name, classval):
-	task_gen.classes[name] = classval
 
 # decorators follow
 
