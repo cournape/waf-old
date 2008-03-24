@@ -121,8 +121,7 @@ def apply_verif(self):
 			fatal('no target for %s' % self)
 
 def install_shlib(task):
-	try: nums = task.vnum.split('.')
-	except AttributeError: nums = [1, 0, 0]
+	nums = task.vnum.split('.')
 
 	dest_var = task.dest_var
 	dest_subdir = task.dest_subdir
