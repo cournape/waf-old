@@ -236,7 +236,7 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 
 	lst.sort()
 	self.source = self.source+' '+(" ".join(lst))
-setattr(qt4obj, 'find_sources_in_dirs', find_sources_in_dirs)
+setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
 
 @extension(EXT_QT4)
 def cxx_hook(self, node):
