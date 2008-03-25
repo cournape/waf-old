@@ -59,7 +59,7 @@ swig_scanner = swig_class_scanner()
 
 def i_file(self, node):
 	ext = '.swigwrap.c'
-	if self.__class__.__name__ == 'cppobj':
+	if self.__class__.__name__ == 'cpp_taskgen':
 		ext = '.swigwrap.cc'
 
 	variant = node.variant(self.env)
@@ -96,7 +96,7 @@ def i_file(self, node):
 
 Action.simple_action('swig', swig_str, color='BLUE', prio=40)
 
-# register the hook for use with cppobj and ccobj
+# register the hook for use with cpp and cc task generators
 try: Object.hook('cpp', 'SWIG_EXT', i_file)
 except KeyError: pass
 try: Object.hook('cc', 'SWIG_EXT', i_file)

@@ -161,9 +161,9 @@ def create_uic_task(self, node):
 	uictask.m_inputs    = [node]
 	uictask.m_outputs   = [node.change_ext('.h')]
 
-class qt4obj(cxx.cppobj):
+class qt4obj(cxx.cpp_taskgen):
 	def __init__(self, type='program', subtype=None):
-		cxx.cppobj.__init__(self, type, subtype)
+		cxx.cpp_taskgen.__init__(self, type, subtype)
 		self.link_task = None
 		self.lang = ''
 		self.langname = ''
