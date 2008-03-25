@@ -176,13 +176,12 @@ class Handler(object):
 				msg = "no module was found for wscript (sub_options)\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
 				fatal(msg % self.cwd)
 			try:
-				if option_group:
-					mod.set_options(option_group)
-				else:
-					mod.set_options(self)
+				fun = mod.set_options
 			except AttributeError:
 				msg = "no set_options function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
 				fatal(msg % self.cwd)
+			else:
+				fun.set_options(option_group or self)
 
 		finally:
 			self.cwd = current
@@ -202,7 +201,7 @@ class Handler(object):
 		try:
 			fun = module.set_options
 		except AttributeError:
-			warning("tool %s has no function set_options or set_options failed" % tool)
+			warning("tool %s has no function set_options" % tool)
 		else:
 			fun(option_group or self)
 
