@@ -37,7 +37,7 @@ class c_scanner(Scan.scanner):
 g_c_scanner = c_scanner()
 "scanner for c programs"
 
-class ccroot(Object.task_gen):
+class ccroot_abstract(Object.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	def __init__(self, type='program', subtype=None):
 		Object.task_gen.__init__(self)

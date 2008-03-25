@@ -25,9 +25,9 @@ Object.add_feature('cc', CC_METHS)
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
 # TODO get rid of this
-class cc_taskgen(ccroot.ccroot):
+class cc_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, type='program', subtype=None):
-		ccroot.ccroot.__init__(self, type, subtype)
+		ccroot.ccroot_abstract.__init__(self, type, subtype)
 		self.m_type_initials = 'cc'
 
 		self.ccflags=''
