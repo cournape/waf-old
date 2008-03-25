@@ -6,6 +6,7 @@
 
 import os, sys, imp, types, string, time
 import Params
+from Constants import *
 
 g_trace = 0
 g_debug = 0
@@ -72,7 +73,7 @@ g_loaded_modules = {}
 g_module=None
 "the main module is special"
 
-def load_module(file_path, name='wscript'):
+def load_module(file_path, name=WSCRIPT_FILE):
 	"this function requires an absolute path"
 	try:
 		return g_loaded_modules[file_path]

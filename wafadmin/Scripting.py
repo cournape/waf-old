@@ -154,7 +154,7 @@ def prepare():
 		sys.exit(0)
 
 	# now find the wscript file
-	msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "wscript"'
+	msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "%s"' % WSCRIPT_FILE
 
 	# Some people want to configure their projects gcc-style:
 	# mkdir build && cd build && ../waf configure && ../waf
@@ -167,7 +167,7 @@ def prepare():
 	xml = 0
 
 	#check if a wscript or a wscript_xml file is in current directory
-	if 'wscript' in lst or 'wscript_build' in lst or 'wscript_xml' in lst:
+	if WSCRIPT_FILE in lst or WSCRIPT_BUILD_FILE in lst or 'wscript_xml' in lst:
 		# if a script is in current directory, use this directory as candidate (and prevent gcc-like configuration)
 		candidate = cwd
 	elif 'configure' in sys.argv:
@@ -182,7 +182,7 @@ def prepare():
 			#for example: /usr/src/configure the calldir would be /usr/src
 			calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
 			lst_calldir = os.listdir(calldir)
-			if 'wscript' in lst_calldir:
+			if WSCRIPT_FILE in lst_calldir:
 				candidate = calldir
 				search_for_candidate = False
 			if 'wscript_xml' in lst_calldir:
@@ -197,7 +197,7 @@ def prepare():
 			if len(cwd) <= 3:
 				break # stop at / or c:
 			dirlst = os.listdir(cwd)
-			if 'wscript' in dirlst:
+			if WSCRIPT_FILE in dirlst:
 				candidate = cwd
 				xml = 0
 			if 'wscript_xml' in dirlst:
@@ -232,7 +232,7 @@ def prepare():
 		compile(candidate+os.sep+'wscript_xml')
 	else:
 		# define the main module containing the functions init, shutdown, ..
-		Utils.set_main_module(os.path.join(candidate, 'wscript'))
+		Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
 
 	if build_dir_override:
 		d = getattr(Utils.g_module, BLDDIR, None)

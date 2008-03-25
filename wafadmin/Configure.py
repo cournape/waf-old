@@ -181,7 +181,7 @@ class Configure(object):
 		current = self.cwd
 
 		self.cwd = os.path.join(self.cwd, dir)
-		cur = os.path.join(self.cwd, 'wscript')
+		cur = os.path.join(self.cwd, WSCRIPT_FILE)
 
 		try:
 			mod = Utils.load_module(cur)
