@@ -197,8 +197,7 @@ class Handler(object):
 		try:
 			file,name,desc = imp.find_module(tool, tooldir)
 		except ImportError:
-			error("no tool named '%s' found" % tool)
-			return
+			fatal("no tool named '%s' found" % tool)
 		module = imp.load_module(tool,file,name,desc)
 		try:
 			if option_group:
