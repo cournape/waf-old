@@ -200,12 +200,11 @@ class Handler(object):
 			fatal("no tool named '%s' found" % tool)
 		module = imp.load_module(tool,file,name,desc)
 		try:
-			if option_group:
-				module.set_options(option_group)
-			else:
-				module.set_options(self)
+			fun = module.set_options
 		except AttributeError:
 			warning("tool %s has no function set_options or set_options failed" % tool)
+		else:
+			fun(option_group or self)
 
 	def parse_args(self, args=None):
 		parse_args_impl(self.parser, args)
