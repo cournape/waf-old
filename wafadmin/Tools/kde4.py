@@ -4,7 +4,7 @@
 
 import os, sys, re, Object, Action, Utils, Common
 
-class msgfmtobj(Object.task_gen):
+class msgfmt_taskgen(Object.task_gen):
 	def __init__(self, appname='set_your_app_name'):
 		Object.task_gen.__init__(self)
 		self.langs = '' # for example "foo/fr foo/br"

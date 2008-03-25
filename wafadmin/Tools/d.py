@@ -222,7 +222,7 @@ def get_target_name(self):
 	v = self.env
 	return v['D_%s_PATTERN' % self.m_type] % self.target
 
-class dobj(Object.task_gen):
+class d_taskgen(Object.task_gen):
 	def __init__(self, type='program'):
 		Object.task_gen.__init__(self)
 

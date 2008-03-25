@@ -14,7 +14,7 @@ Object.declare_chain(
 	install = 'LUADIR', # env variable
 )
 
-class luaobj(Object.task_gen):
+class lua_taskgen(Object.task_gen):
 	def __init__(self):
 		Object.task_gen.__init__(self)
 		self.chmod = 0755

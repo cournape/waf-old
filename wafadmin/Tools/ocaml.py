@@ -193,7 +193,7 @@ def get_target_name(self, bytecode):
 
 native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
-class ocamlobj(Object.task_gen):
+class ocaml_taskgen(Object.task_gen):
 	s_default_ext = ['.mli', '.mll', '.mly', '.ml']
 	def __init__(self, type='all', library=0):
 		Object.task_gen.__init__(self)

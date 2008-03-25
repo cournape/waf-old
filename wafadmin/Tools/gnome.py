@@ -52,7 +52,7 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
 # give specs
-class xml_to(Object.task_gen):
+class xml_to_taskgen(Object.task_gen):
 	def __init__(self):
 		Object.task_gen(self)
 		self.source = 'xmlfile'

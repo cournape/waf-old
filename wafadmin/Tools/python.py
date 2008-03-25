@@ -34,7 +34,7 @@ def process_py(self, node):
 		try: t1.install = install
 		except: pass
 
-class pyobj(Object.task_gen):
+class py_taskgen(Object.task_gen):
 	def __init__(self, env=None):
 		Object.task_gen.__init__(self)
 

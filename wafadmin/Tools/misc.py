@@ -32,7 +32,7 @@ def action_process_file_func(tsk):
 	if not tsk.fun: fatal('task must have a function attached to it for copy_func to work!')
 	return tsk.fun(tsk)
 
-class cmdobj(Object.task_gen):
+class cmd_taskgen(Object.task_gen):
 	"This object will call a command everytime"
 	def __init__(self, type='none'):
 		Object.task_gen.__init__(self)
@@ -50,7 +50,7 @@ class cmdobj(Object.task_gen):
 		self.m_tasks.append(tsk)
 		tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
 
-class copyobj(Object.task_gen):
+class copy_taskgen(Object.task_gen):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
 	def __init__(self, type='none'):
 		Object.task_gen.__init__(self)
@@ -116,7 +116,7 @@ def subst_func(tsk):
 
 	return 0
 
-class substobj(Object.task_gen):
+class subst_taskgen(Object.task_gen):
 	def __init__(self, type='none'):
 		Object.task_gen.__init__(self)
 		self.fun = subst_func

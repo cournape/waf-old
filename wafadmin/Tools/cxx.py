@@ -25,7 +25,7 @@ Object.add_feature('cxx', CXX_METHS)
 
 # TODO get rid of that class
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
-class cppobj(ccroot.ccroot):
+class cpp_taskgen(ccroot.ccroot):
 	def __init__(self, type='program', subtype=None):
 		ccroot.ccroot.__init__(self, type, subtype)
 		self.m_type_initials = 'cpp'

@@ -7,7 +7,7 @@
 import os
 import Object, Action, Utils, Params
 
-class javaobj(Object.task_gen):
+class java_taskgen(Object.task_gen):
 	s_default_ext = ['.java']
 	def __init__(self):
 		Object.task_gen.__init__(self)

@@ -156,7 +156,7 @@ def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
 
 g_texobjs = ['latex','pdflatex']
-class texobj(Object.task_gen):
+class tex_taskgen(Object.task_gen):
 	s_default_ext = ['.tex', '.ltx']
 	def __init__(self, type='latex'):
 		Object.task_gen.__init__(self)
