@@ -99,8 +99,9 @@ class register_obj(type):
 	"""
 	def __init__(cls, name, bases, dict):
 		super(register_obj, cls).__init__(name, bases, dict)
-		if cls.__name__.endswith('_taskgen'):
-			task_gen.classes[cls.__name__[:-8]] = cls
+		name = cls.__name__
+		if name != 'task_gen' and not name.endswith('_abstract'):
+			task_gen.classes[name.replace('_taskgen', '')] = cls
 
 class task_gen(object):
 	"""
