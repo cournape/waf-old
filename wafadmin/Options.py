@@ -181,7 +181,7 @@ class Handler(object):
 				msg = "no set_options function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
 				fatal(msg % self.cwd)
 			else:
-				fun.set_options(option_group or self)
+				fun(option_group or self)
 
 		finally:
 			self.cwd = current
