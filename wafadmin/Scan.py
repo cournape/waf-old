@@ -97,27 +97,27 @@ class scanner(object):
 		"the basic scheme for computing signatures from .cpp and inferred .h files"
 		tree = Params.g_build
 
-		rescan = 0
-		seen = []
+		seen = set()
 		lst = []+tsk.m_inputs
 		m = md5()
+		upd = m.update
 
 		# additional variables to hash (command-line defines for example)
 		env = tsk.env()
 		for x in self.vars:
-			m.update(str(env[x]))
+			upd(str(env[x]))
 
 		# add the build hashes of all files entering into the dependency system
 		for node in lst:
 			if node.hash_value in seen: continue
-			else: seen.append(node.hash_value)
+			else: seen.add(node.hash_value)
 
 			# TODO: look at the case of stale nodes and dependencies types
 			variant = node.variant(env)
 			try: lst.extend(tree.m_depends_on[variant][node])
 			except KeyError: pass
 
-			try: m.update(tree.m_tstamp_variants[variant][node])
+			try: upd(tree.m_tstamp_variants[variant][node])
 			except KeyError: return Params.sig_nil
 
 		return m.digest()
