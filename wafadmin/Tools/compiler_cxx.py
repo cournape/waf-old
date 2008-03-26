@@ -30,7 +30,7 @@ def detect(conf):
 		conf.check_tool(cxx_compiler)
 		if conf.env['CXX']:
 			conf.check_message("%s" %cxx_compiler, '', True)
-			conf.env["COMPILER_CXX"] = "%s" %cxx_compiler #store the choosen c++ compiler
+			conf.env["COMPILER_CXX"] = "%s" %cxx_compiler #store the chosen c++ compiler
 			return
 		conf.check_message("%s" %cxx_compiler, '', False)
 	conf.env["COMPILER_CXX"] = None
