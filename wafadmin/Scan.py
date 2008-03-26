@@ -99,7 +99,7 @@ class scanner(object):
 
 		rescan = 0
 		seen = []
-		queue = []+tsk.m_inputs
+		lst = []+tsk.m_inputs
 		m = md5()
 
 		# additional variables to hash (command-line defines for example)
@@ -107,16 +107,14 @@ class scanner(object):
 		for x in self.vars:
 			m.update(str(env[x]))
 
-		# add the hashes of all files entering into the dependency system
-		while queue:
-			node = queue.pop(0)
-
-			if node in seen: continue
-			seen.append(node)
+		# add the build hashes of all files entering into the dependency system
+		for node in lst:
+			if node.hash_value in seen: continue
+			else: seen.append(node.hash_value)
 
 			# TODO: look at the case of stale nodes and dependencies types
 			variant = node.variant(env)
-			try: queue += tree.m_depends_on[variant][node]
+			try: lst.extend(tree.m_depends_on[variant][node])
 			except KeyError: pass
 
 			try: m.update(tree.m_tstamp_variants[variant][node])
