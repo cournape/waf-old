@@ -242,11 +242,12 @@ class task_gen(object):
 		for filename in lst:
 			# if self.mappings or task_gen.mappings contains a file of the same name
 			x = self.get_hook(filename)
-			if x: x(self, filename)
-
-			node = find_source_lst(Utils.split_path(filename))
-			if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
-			self.allnodes.append(node)
+			if x:
+				x(self, filename)
+			else:
+				node = find_source_lst(Utils.split_path(filename))
+				if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
+				self.allnodes.append(node)
 
 		while self.allnodes:
 			node = self.allnodes.pop()
