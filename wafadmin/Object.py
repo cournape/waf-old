@@ -324,17 +324,10 @@ class task_gen(object):
 		self.m_posted = 1
 
 	def get_hook(self, ext):
-		map = self.mappings
-		for x in self.mappings:
-			if x == ext:
-				return map[x]
-
-		map = task_gen.mappings
-		for x in map:
-			if x == ext:
-				return map[x]
-
-		return None
+		try: return self.mappings[ext]
+		except KeyError:
+			try: return task_gen.mappings[ext]
+			except KeyError: return None
 
 	def get_meth(self, name):
 		try:
