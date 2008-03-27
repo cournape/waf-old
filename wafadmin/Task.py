@@ -249,7 +249,7 @@ class Task(TaskBase):
 
 		# we now have the array of signatures
 		ret = m.digest()
-		self.cache_sig = [ret, dep_sig, act_sig, var_sig, node_sig]
+		self.cache_sig = (ret, dep_sig, act_sig, var_sig, node_sig)
 
 		# TODO can be dangerous
 		self.sign_all = ret
