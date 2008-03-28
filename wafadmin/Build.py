@@ -17,7 +17,7 @@ import Params, Runner, Object, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
 from Constants import *
 
-SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps m_sig_cache'.split()
+SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps bld_sigs'.split()
 "Build class members to save"
 
 g_modcache = {}
@@ -107,7 +107,7 @@ class Build(object):
 
 		# build dir variants (release, debug, ..)
 		for name in ['default', 0]:
-			for v in 'm_tstamp_variants node_deps m_sig_cache raw_deps m_abspath_cache'.split():
+			for v in 'm_tstamp_variants node_deps bld_sigs raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var: var[name] = {}
 
@@ -135,9 +135,9 @@ class Build(object):
 
 		# results of a scan: self.raw_deps[variant][node.id] = [filename1, filename2, filename3]
 		# for example, find headers in c files
-		self.m_raw_deps = {}
+		self.raw_deps = {}
 
-		self.m_sig_cache = {}
+		self.bld_sigs = {}
 
 		self.task_manager = Task.TaskManager()
 
@@ -653,11 +653,11 @@ class Build(object):
 		self.deps_man = h
 
 	def set_sig_cache(self, key, val):
-		self.m_sig_cache[key] = val
+		self.bld_sigs[key] = val
 
 	def get_sig_cache(self, key):
 		try:
-			return self.m_sig_cache[key]
+			return self.bld_sigs[key]
 		except KeyError:
 			s = Params.sig_nil
 			return [s, s, s, s, s]

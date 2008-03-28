@@ -304,12 +304,12 @@ class Task(TaskBase):
 			return not ret
 
 		key = hash( (variant, node.m_name, time, getattr(self, 'm_scanner', self).__class__.__name__) )
-		prev_sig = tree.m_sig_cache[key][0]
+		prev_sig = tree.bld_sigs[key][0]
 		#print "prev_sig is ", prev_sig
 		new_sig = self.signature()
 
 		# debug if asked to
-		if Params.g_zones: self.debug_why(tree.m_sig_cache[key])
+		if Params.g_zones: self.debug_why(tree.bld_sigs[key])
 
 		if new_sig != prev_sig:
 			# try to retrieve the file from the cache
