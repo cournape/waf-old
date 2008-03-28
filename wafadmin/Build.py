@@ -660,7 +660,7 @@ class Build(object):
 			return self.bld_sigs[key]
 		except KeyError:
 			s = SIG_NIL
-			return [s, s, s, s, s]
+			return (s, s, s, s, s)
 
 	def launch_node(self):
 		try:
