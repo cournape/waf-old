@@ -24,10 +24,10 @@ from Params import debug, error, fatal
 
 class Node(object):
 	node_id = 0
+	__slots__ = ("m_name", "m_parent", "id", "m_dirs_lookup", "m_files_lookup", "m_build_lookup")
 	def __init__(self, name, parent):
 		self.m_name = name
 		self.m_parent = parent
-		self.m_cached_path = ""
 
 		self.id = Node.node_id # this id is not to be used in hashes of any kind
 		Node.node_id += 1
