@@ -69,13 +69,13 @@ def i_file(self, node):
 
 	tree = Params.g_build
 	def check_rec(task, node_):
-		for j in tree.m_depends_on[0][node_]:
+		for j in tree.node_deps[0][node_]:
 			if j.m_name.endswith('.i'):
 				check_rec(task, j)
 	check_rec(ltask, node)
 
 	# get the name of the swig module to process
-	try: modname = Params.g_build.m_raw_deps[0][node][0]
+	try: modname = Params.g_build.raw_deps[0][node.id][0]
 	except KeyError: return
 
 	# set the output files

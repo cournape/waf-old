@@ -52,8 +52,8 @@ class MTask(Task.Task):
 		mocfiles=[]
 		variant = node.variant(parn.env)
 		try:
-			tmp_lst = tree.m_raw_deps[variant][node.id]
-			tree.m_raw_deps[variant][node.id] = []
+			tmp_lst = tree.raw_deps[variant][node.id]
+			tree.raw_deps[variant][node.id] = []
 		except KeyError:
 			tmp_lst = []
 		for d in tmp_lst:
@@ -87,7 +87,7 @@ class MTask(Task.Task):
 			# next time we will not search for the extension (look at the 'for' loop below)
 			h_node = node.m_parent.find_source(base2+i)
 			m_node = h_node.change_ext('.moc')
-			tree.m_depends_on[variant][m_node.id] = h_node
+			tree.node_deps[variant][m_node.id] = h_node
 
 			# create the task
 			task = Task.Task('moc', parn.env, normal=0)
@@ -101,16 +101,16 @@ class MTask(Task.Task):
 			moctasks.append(task)
 
 		# remove raw deps except the moc files to save space (optimization)
-		tmp_lst = tree.m_raw_deps[variant][node.id] = mocfiles
+		tmp_lst = tree.raw_deps[variant][node.id] = mocfiles
 
 		# look at the file inputs, it is set right above
-		try: lst = tree.m_depends_on[variant][node.id]
+		try: lst = tree.node_deps[variant][node.id]
 		except KeyError: lst=[]
 		for d in lst:
 			name = d.m_name
 			if name.endswith('.moc'):
 				task = Task.Task('moc', parn.env, normal=0)
-				task.set_inputs(tree.m_depends_on[variant][d])
+				task.set_inputs(tree.node_deps[variant][d])
 				task.set_outputs(d)
 
 				generator = Params.g_build.generator

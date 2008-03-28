@@ -208,12 +208,12 @@ class tex_taskgen(Object.task_gen):
 			if deps_lst:
 				variant = node.variant(self.env)
 				try:
-					lst = tree.m_depends_on[variant][node]
+					lst = tree.node_deps[variant][node]
 					for n in deps_lst:
 						if not n in lst:
 							lst.append(n)
 				except KeyError:
-					tree.m_depends_on[variant][node] = deps_lst
+					tree.node_deps[variant][node] = deps_lst
 
 			if self.m_type == 'latex':
 				if 'ps' in outs:

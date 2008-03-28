@@ -93,7 +93,7 @@ class sgml_man_scanner(Scan.scanner):
 		Scan.scanner.do_scan(self, task, node)
 
 		variant = node.variant(task.env())
-		tmp_lst = Params.g_build.m_raw_deps[variant][node]
+		tmp_lst = Params.g_build.raw_deps[variant][node]
 		name = tmp_lst[0]
 		task.set_outputs(Params.g_build.m_curdirnode.find_build(name))
 

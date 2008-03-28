@@ -48,8 +48,8 @@ class scanner(object):
 				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
 
 		tree = Params.g_build
-		tree.m_depends_on[variant][node.id] = nodes
-		tree.m_raw_deps[variant][node.id] = names
+		tree.node_deps[variant][node.id] = nodes
+		tree.raw_deps[variant][node.id] = names
 
 	# compute the signature, recompute it if there is no match in the cache
 	def get_signature(self, tsk):
@@ -86,7 +86,7 @@ class scanner(object):
 
 		# DEBUG
 		#print "rescan for ", tsk.m_inputs[0], " is ", rescan,  " and deps ", \
-		#	tree.m_depends_on[variant][node], tree.m_raw_deps[variant][node]
+		#	tree.node_deps[variant][node.id], tree.raw_deps[variant][node.id]
 
 		return sig
 
@@ -114,7 +114,7 @@ class scanner(object):
 
 			# TODO: look at the case of stale nodes and dependencies types
 			variant = node.variant(env)
-			try: lst.extend(tree.m_depends_on[variant][node.id])
+			try: lst.extend(tree.node_deps[variant][node.id])
 			except KeyError: pass
 
 			try: upd(tree.m_tstamp_variants[variant][node.id])

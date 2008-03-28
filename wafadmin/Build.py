@@ -17,7 +17,7 @@ import Params, Runner, Object, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
 from Constants import *
 
-SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants m_depends_on m_raw_deps m_sig_cache'.split()
+SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps m_sig_cache'.split()
 "Build class members to save"
 
 g_modcache = {}
@@ -107,7 +107,7 @@ class Build(object):
 
 		# build dir variants (release, debug, ..)
 		for name in ['default', 0]:
-			for v in 'm_tstamp_variants m_depends_on m_sig_cache m_raw_deps m_abspath_cache'.split():
+			for v in 'm_tstamp_variants node_deps m_sig_cache raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var: var[name] = {}
 
@@ -130,10 +130,10 @@ class Build(object):
 		self.m_tstamp_variants = {}
 
 		# one node has nodes it depends on, tasks cannot be stored
-		# self.m_depends_on[variant][node] = [node1, node2, ..]
-		self.m_depends_on = {}
+		# self.node_deps[variant][node] = [node1, node2, ..]
+		self.node_deps = {}
 
-		# results of a scan: self.m_raw_deps[variant][node] = [filename1, filename2, filename3]
+		# results of a scan: self.raw_deps[variant][node.id] = [filename1, filename2, filename3]
 		# for example, find headers in c files
 		self.m_raw_deps = {}
 
@@ -347,7 +347,7 @@ class Build(object):
 		debug("list of variants is "+str(lstvariants), 'build')
 
 		for name in lstvariants+[0]:
-			for v in 'm_tstamp_variants m_depends_on m_raw_deps m_abspath_cache'.split():
+			for v in 'm_tstamp_variants node_deps raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var:
 					var[name] = {}
