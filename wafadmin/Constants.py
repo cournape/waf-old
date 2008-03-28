@@ -13,6 +13,9 @@ WSCRIPT_FILE       = 'wscript'
 WSCRIPT_BUILD_FILE = 'wscript_build'
 COMMON_INCLUDES    = 'COMMON_INCLUDES'
 
+VARIANT = '_VARIANT_'
+DEFAULT = 'default'
+
 SRCDIR  = 'srcdir'
 BLDDIR  = 'blddir'
 APPNAME = 'APPNAME'

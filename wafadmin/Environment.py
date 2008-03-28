@@ -7,6 +7,7 @@
 import os,types, copy, re
 import Params
 from Params import debug, warning
+from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
 g_cache_max = {}
@@ -32,16 +33,16 @@ class Environment(object):
 		except AttributeError: return False # m_parent may not exist
 
 	def set_variant(self, name):
-		self.m_table['_VARIANT_'] = name
+		self.m_table[VARIANT] = name
 
 	def variant(self):
 		env = self
 		while 1:
 			try:
-				return env.m_table['_VARIANT_']
+				return env.m_table[VARIANT]
 			except KeyError:
 				try: env = env.m_parent
-				except AttributeError: return 'default'
+				except AttributeError: return DEFAULT
 
 	def copy(self):
 		newenv = Environment()

@@ -7,6 +7,7 @@
 import os, types, shutil, glob
 import Params, Utils
 from Params import error, fatal
+from Constants import *
 
 class InstallError(Exception):
 	pass
@@ -64,7 +65,7 @@ def do_install(src, tgt, chmod=0644):
 
 def path_install(var, subdir, env=None):
 	bld = Params.g_build
-	if not env: env=Params.g_build.m_allenvs['default']
+	if not env: env=Params.g_build.m_allenvs[DEFAULT]
 	destpath = env[var]
 	if not destpath:
 		error("Installing: to set a destination folder use env['%s']" % (var))
@@ -81,7 +82,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 
 	bld = Params.g_build
 
-	if not env: env = bld.m_allenvs['default']
+	if not env: env = bld.m_allenvs[DEFAULT]
 	destpath = env[var]
 
 	# the variable can be an empty string and the subdir an absolute path
@@ -123,7 +124,7 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	if var == 0: return
 
 	bld = Params.g_build
-	if not env: env=Params.g_build.m_allenvs['default']
+	if not env: env=Params.g_build.m_allenvs[DEFAULT]
 	node = bld.m_curdirnode
 
 	tgt = env[var]
@@ -149,7 +150,7 @@ def symlink_as(var, src, dest, env=None):
 	if var == 0: return
 
 	bld = Params.g_build
-	if not env: env=Params.g_build.m_allenvs['default']
+	if not env: env=Params.g_build.m_allenvs[DEFAULT]
 	node = bld.m_curdirnode
 
 	tgt = env[var]
