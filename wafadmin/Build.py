@@ -314,7 +314,7 @@ class Build(object):
 					hash = Params.h_file(newnode.abspath(env))
 				except (IOError, AttributeError):
 					error("cannot find "+f)
-					hash = Params.sig_nil
+					hash = SIG_NIL
 				self.m_tstamp_variants[env.variant()][newnode.id] = hash
 
 	def setup(self, tool, tooldir=None):
@@ -659,7 +659,7 @@ class Build(object):
 		try:
 			return self.bld_sigs[key]
 		except KeyError:
-			s = Params.sig_nil
+			s = SIG_NIL
 			return [s, s, s, s, s]
 
 	def launch_node(self):

@@ -7,6 +7,7 @@
 from hashlib import md5
 import Params
 from Params import debug, error
+from Constants import *
 
 g_all_scanners={}
 "all instances of scanners"
@@ -65,7 +66,7 @@ class scanner(object):
 			key = hash( (variant, node.m_name, time, self.__class__.__name__) )
 			prev_sig = tree.get_sig_cache(key)[1]
 		except KeyError:
-			prev_sig = Params.sig_nil
+			prev_sig = SIG_NIL
 
 		# we can compute and return the signature if
 		#   * the source files have not changed (rescan is 0)
@@ -118,7 +119,7 @@ class scanner(object):
 			except KeyError: pass
 
 			try: upd(tree.m_tstamp_variants[variant][node.id])
-			except KeyError: return Params.sig_nil
+			except KeyError: return SIG_NIL
 
 		return m.digest()
 

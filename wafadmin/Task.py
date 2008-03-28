@@ -8,6 +8,7 @@ import os, types, shutil
 from hashlib import md5
 import Params, Scan, Action, Runner, Common
 from Params import debug, error, warning
+from Constants import *
 
 class TaskManager(object):
 	"""The manager is attached to the build object, it holds a list of TaskGroup
@@ -199,7 +200,7 @@ class Task(TaskBase):
 
 		# TODO maybe we could split this dep sig into two parts (nodes, dependencies)
 		# this would only help for debugging though
-		dep_sig = Params.sig_nil
+		dep_sig = SIG_NIL
 		scan = getattr(self, 'm_scanner', None)
 		if scan:
 			dep_sig = scan.get_signature(self)
@@ -239,7 +240,7 @@ class Task(TaskBase):
 			m.update(var_sig)
 
 		# additional nodes to depend on, if provided
-		node_sig = Params.sig_nil
+		node_sig = SIG_NIL
 		dep_nodes = getattr(self, 'dep_nodes', [])
 		for x in dep_nodes:
 			variant = x.variant(env)
@@ -285,7 +286,7 @@ class Task(TaskBase):
 
 		# tasks that have no inputs or outputs are run each time
 		if not self.m_inputs and not self.m_outputs:
-			self.m_dep_sig = Params.sig_nil
+			self.m_dep_sig = SIG_NIL
 			return 1
 
 		# look at the previous signature first

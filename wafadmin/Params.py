@@ -21,8 +21,6 @@ if sys.platform=='win32':
 g_autoconfig = 0
 "reconfigure the project automatically"
 
-sig_nil = 'iluvcuteoverload'
-
 # =================================== #
 # Constants set on runtime
 
