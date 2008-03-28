@@ -17,6 +17,7 @@ class Environment(object):
 	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
 	An environment instance can be stored into a file and loaded easily
 	"""
+	__slots__ = ("m_idx", "m_table", "m_parent")
 	def __init__(self):
 		global g_idx
 		self.m_idx = g_idx
