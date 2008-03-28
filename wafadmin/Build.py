@@ -315,7 +315,7 @@ class Build(object):
 				except (IOError, AttributeError):
 					error("cannot find "+f)
 					hash = Params.sig_nil
-				self.m_tstamp_variants[env.variant()][newnode] = hash
+				self.m_tstamp_variants[env.variant()][newnode.id] = hash
 
 	def setup(self, tool, tooldir=None):
 		"setup tools for build process"
@@ -422,7 +422,8 @@ class Build(object):
 		# FIXME use sets with intersection and union
 
 		# do not rescan over and over again
-		if src_dir_node.hash_value in self.m_scanned_folders: return
+		if src_dir_node.id in self.m_scanned_folders: return
+		self.m_scanned_folders.append(src_dir_node.id)
 
 		# do not rescan the nodes above srcnode
 		if src_dir_node.height() < self.m_srcnode.height(): return
@@ -467,10 +468,9 @@ class Build(object):
 				dict = self.m_tstamp_variants[variant]
 				for node in src_dir_node.m_build_lookup.values():
 					if node in dict:
-						dict.__delitem__(node)
+						dict.__delitem__(node.id)
 				os.makedirs(sub_path)
 				src_dir_node.m_build_lookup = {}
-		self.m_scanned_folders.append(src_dir_node.hash_value)
 
 	# ======================================= #
 	def scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
@@ -510,7 +510,7 @@ class Build(object):
 		for node in l_kept:
 			try:
 				# update the time stamp
-				self.m_tstamp_variants[0][node] = Params.h_file(node.abspath())
+				self.m_tstamp_variants[0][node.id] = Params.h_file(node.abspath())
 			except IOError:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
@@ -524,7 +524,7 @@ class Build(object):
 			except IOError:
 				continue
 			l_child = Node.Node(name, i_parent_node)
-			self.m_tstamp_variants[0][l_child] = st
+			self.m_tstamp_variants[0][l_child.id] = st
 			l_kept.append(l_child)
 		return l_kept
 
@@ -565,10 +565,12 @@ class Build(object):
 				#print l_names
 
 			if node in self.m_tstamp_variants[i_variant]:
-				self.m_tstamp_variants[i_variant].__delitem__(node)
+				self.m_tstamp_variants[i_variant].__delitem__(node.id)
 		return l_nodes
 
 	def dump(self):
+		print "not impl"
+		return
 		"for debugging"
 		def printspaces(count):
 			if count > 0: return printspaces(count - 1) + "-"

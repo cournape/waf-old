@@ -207,7 +207,7 @@ class Task(TaskBase):
 		else:
 			# compute the signature from the inputs (no scanner)
 			for x in self.m_inputs:
-				v = tree.m_tstamp_variants[x.variant(env)][x]
+				v = tree.m_tstamp_variants[x.variant(env)][x.id]
 				dep_sig = hash( (dep_sig, v) )
 				m.update(v)
 
@@ -243,7 +243,7 @@ class Task(TaskBase):
 		dep_nodes = getattr(self, 'dep_nodes', [])
 		for x in dep_nodes:
 			variant = x.variant(env)
-			v = tree.m_tstamp_variants[variant][x]
+			v = tree.m_tstamp_variants[variant][x.id]
 			node_sig = hash( (node_sig, v) )
 			m.update(v)
 
@@ -292,7 +292,7 @@ class Task(TaskBase):
 		node = self.m_outputs[0]
 		variant = node.variant(env)
 		try:
-			time = tree.m_tstamp_variants[variant][node]
+			time = tree.m_tstamp_variants[variant][node.id]
 		except KeyError:
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
 			try: new_sig = self.signature()
@@ -303,7 +303,7 @@ class Task(TaskBase):
 			ret = self.can_retrieve_cache(new_sig)
 			return not ret
 
-		key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
+		key = hash( (variant, node.m_name, time, getattr(self, 'm_scanner', self).__class__.__name__) )
 		prev_sig = tree.m_sig_cache[key][0]
 		#print "prev_sig is ", prev_sig
 		new_sig = self.signature()
@@ -335,7 +335,7 @@ class Task(TaskBase):
 			os.stat(node.abspath(env))
 
 			# important, store the signature for the next run
-			tree.m_tstamp_variants[variant][node] = sig
+			tree.m_tstamp_variants[variant][node.id] = sig
 
 			# We could re-create the signature of the task with the signature of the outputs
 			# in practice, this means hashing the output files
@@ -350,8 +350,8 @@ class Task(TaskBase):
 		# keep the signatures in the first node
 		node = self.m_outputs[0]
 		variant = node.variant(env)
-		time = tree.m_tstamp_variants[variant][node]
-		key = hash( (variant, node, time, getattr(self, 'm_scanner', self).__class__.__name__) )
+		time = tree.m_tstamp_variants[variant][node.id]
+		key = hash( (variant, node.m_name, time, getattr(self, 'm_scanner', self).__class__.__name__) )
 		val = self.cache_sig
 		tree.set_sig_cache(key, val)
 
@@ -381,7 +381,7 @@ class Task(TaskBase):
 				return None
 			else:
 				cnt += 1
-				Params.g_build.m_tstamp_variants[variant][node] = sig
+				Params.g_build.m_tstamp_variants[variant][node.id] = sig
 				if not Runner.g_quiet: Params.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
 		return 1
 

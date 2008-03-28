@@ -48,8 +48,8 @@ class scanner(object):
 				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
 
 		tree = Params.g_build
-		tree.m_depends_on[variant][node] = nodes
-		tree.m_raw_deps[variant][node] = names
+		tree.m_depends_on[variant][node.id] = nodes
+		tree.m_raw_deps[variant][node.id] = names
 
 	# compute the signature, recompute it if there is no match in the cache
 	def get_signature(self, tsk):
@@ -61,8 +61,8 @@ class scanner(object):
 		try:
 			node = tsk.m_outputs[0]
 			variant = node.variant(tsk.env())
-			time = tree.m_tstamp_variants[variant][node]
-			key = hash( (variant, node, time, self.__class__.__name__) )
+			time = tree.m_tstamp_variants[variant][node.id]
+			key = hash( (variant, node.m_name, time, self.__class__.__name__) )
 			prev_sig = tree.get_sig_cache(key)[1]
 		except KeyError:
 			prev_sig = Params.sig_nil
@@ -109,15 +109,15 @@ class scanner(object):
 
 		# add the build hashes of all files entering into the dependency system
 		for node in lst:
-			if node.hash_value in seen: continue
-			else: seen.add(node.hash_value)
+			if id(node) in seen: continue
+			else: seen.add(id(node))
 
 			# TODO: look at the case of stale nodes and dependencies types
 			variant = node.variant(env)
-			try: lst.extend(tree.m_depends_on[variant][node])
+			try: lst.extend(tree.m_depends_on[variant][node.id])
 			except KeyError: pass
 
-			try: upd(tree.m_tstamp_variants[variant][node])
+			try: upd(tree.m_tstamp_variants[variant][node.id])
 			except KeyError: return Params.sig_nil
 
 		return m.digest()

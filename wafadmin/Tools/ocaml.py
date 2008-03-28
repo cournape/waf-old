@@ -137,7 +137,7 @@ class ocaml_scanner(Scan.scanner):
 		tree = Params.g_build
 		env = task.env()
 		for node in task.m_inputs:
-			lst = tree.m_depends_on[node.variant(env)][node]
+			lst = tree.m_depends_on[node.variant(env)][node.id]
 			for depnode in lst:
 				for t in alltasks:
 					if t == task: continue

@@ -23,12 +23,14 @@ import Params, Utils
 from Params import debug, error, fatal
 
 class Node(object):
+	node_id = 0
 	def __init__(self, name, parent):
 		self.m_name = name
 		self.m_parent = parent
 		self.m_cached_path = ""
 
-		self.hash_value = None
+		self.id = Node.node_id # this id is not to be used in hashes of any kind
+		Node.node_id += 1
 
 		# Lookup dictionaries for O(1) access
 		self.m_dirs_lookup = {}
@@ -61,33 +63,14 @@ class Node(object):
 		else: isbld = "src"
 		return "%s://%s" % (isbld, self.abspath())
 
-	def __eq__(self, other):
-		# avoid collisions by looking at the parents
-		if not self.m_parent:
-			if other.m_parent:
-				return 0
-		elif self.m_parent.hash_value != other.m_parent.hash_value:
-				return 0
-		return self.m_name == other.m_name
+	#def __eq__(self, other):
+	#	return self.id == other.id
 
-	def __ne__(self, other):
-		return not self.__eq__(other)
+	#def __ne__(self, other):
+	#	return self.id != other.id
 
 	def __hash__(self):
-		'hash value based on the abs path'
-		if not self.hash_value:
-			cur = self
-			lst = []
-			while cur:
-				lst.append(cur.m_name)
-				cur = cur.m_parent
-			if lst[-1] == '': lst = lst[:-1]
-			if lst[0] =='/': lst = lst[1:]
-			lst.reverse()
-			val = os.path.join(*lst)
-			debug("[%s]" % val, 'node')
-			self.hash_value = hash(val)
-		return self.hash_value
+		raise
 
 	# TODO deprecated, remove this function
 	def equals(self, node):
@@ -119,18 +102,18 @@ class Node(object):
 
 	def get_tstamp_variant(self, variant):
 		vars = Params.g_build.m_tstamp_variants[variant]
-		try: return vars[variant]
+		try: return vars[self.id]
 		except KeyError: return None
 
 	def set_tstamp_variant(self, variant, value):
-		Params.g_build.m_tstamp_variants[variant][self] = value
+		Params.g_build.m_tstamp_variants[variant][self.id] = value
 
 	def get_tstamp_node(self):
-		try: return Params.g_build.m_tstamp_variants[0][self]
+		try: return Params.g_build.m_tstamp_variants[0][self.id]
 		except KeyError: return None
 
 	def set_tstamp_node(self, value):
-		Params.g_build.m_tstamp_variants[0][self] = value
+		Params.g_build.m_tstamp_variants[0][self.id] = value
 
 	## ===== BEGIN find methods	===== ##
 
@@ -429,9 +412,10 @@ class Node(object):
 
 	def abspath(self, env=None):
 		"absolute path"
+
 		variant = self.variant(env)
 		try:
-			ret = Params.g_build.m_abspath_cache[variant][self]
+			ret = Params.g_build.m_abspath_cache[variant][self.id]
 			return ret
 		except KeyError:
 			if not variant:
@@ -445,7 +429,7 @@ class Node(object):
 			else:
 				val = os.path.join(Params.g_build.m_bldnode.abspath(), env.variant(),
 					self.relpath(Params.g_build.m_srcnode))
-			Params.g_build.m_abspath_cache[variant][self]=val
+			Params.g_build.m_abspath_cache[variant][self.id] = val
 			return val
 
 	def change_ext(self, ext):
