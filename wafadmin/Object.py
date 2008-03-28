@@ -249,8 +249,7 @@ class task_gen(object):
 				if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
 				self.allnodes.append(node)
 
-		while self.allnodes:
-			node = self.allnodes.pop()
+		for node in self.allnodes:
 			# self.mappings or task_gen.mappings map the file extension to a function
 			filename = node.m_name
 			k = max(0, filename.rfind('.'))
