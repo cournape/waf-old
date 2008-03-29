@@ -288,9 +288,10 @@ class Build(object):
 		for dir in Utils.to_list(dirs):
 			if dir: Scripting.add_subdir(dir, self)
 
-	def create_obj(self, objname, *k, **kw):
-		try: return Object.task_gen.classes[objname](*k, **kw)
-		except KeyError: raise KeyError("'%s' is not a valid build tool -> %s" % (objname, [x for x in Object.task_gen.classes]))
+	def create_obj(self, *k, **kw):
+		cls_name = k[0]
+		try: return Object.task_gen.classes[cls_name](*k, **kw)
+		except KeyError: raise KeyError("'%s' is not a valid build tool -> %s" % (cls_name, [x for x in Object.task_gen.classes]))
 
 	def load_envs(self):
 		cachedir = Params.g_cachedir

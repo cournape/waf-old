@@ -162,8 +162,8 @@ def create_uic_task(self, node):
 	uictask.m_outputs   = [node.change_ext('.h')]
 
 class qt4_taskgen(cxx.cpp_taskgen):
-	def __init__(self, type='program', subtype=None):
-		cxx.cpp_taskgen.__init__(self, type, subtype)
+	def __init__(self, *kw):
+		cxx.cpp_taskgen.__init__(self, *kw)
 		self.link_task = None
 		self.lang = ''
 		self.langname = ''
