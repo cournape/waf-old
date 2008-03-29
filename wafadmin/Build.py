@@ -207,7 +207,15 @@ class Build(object):
 
 		os.chdir(self.m_bdir)
 
+
+		#"""
+		import cProfile, pstats
+		cProfile.run("import Object; Object.flush()", 'profi.txt')
+		p = pstats.Stats('profi.txt')
+		p.sort_stats('cumulative').print_stats(80)
+		"""
 		Object.flush()
+		#"""
 
 		if Params.g_verbose>2: self.dump()
 
@@ -477,56 +485,40 @@ class Build(object):
 
 		try:
 			# read the dir contents, ignore the folders in it
-			l_names_read = os.listdir(i_path)
+			listed_files = set(os.listdir(i_path))
 		except OSError:
 			warning("OSError exception in scan_src_path()  i_path=%s" % str(i_path) )
 			return None
 
-		debug("folder contents "+str(l_names_read), 'build')
+		debug("folder contents "+str(listed_files), 'build')
 
-		# there are two ways to obtain the partitions:
-		# 1 run the comparisons two times (not very smart)
-		# 2 reduce the sizes of the list while looping
+		node_names = set([x.m_name for x in i_existing_nodes])
+		cache = self.m_tstamp_variants[0]
 
-		l_names = l_names_read
-		l_nodes = i_existing_nodes
-		l_kept  = []
+		# nodes to keep
+		to_keep = listed_files & node_names
+		existing_nodes = [node for node in i_existing_nodes if node.m_name in to_keep]
 
-		for node in l_nodes:
-			i = 0
-			name = node.m_name
-			l_len = len(l_names)
-			while i < l_len:
-				if l_names[i] == name:
-					l_kept.append(node)
-					break
-				i += 1
-			if i < l_len:
-				del l_names[i]
-
-		# Now:
-		# l_names contains the new nodes (or files)
-		# l_kept contains only nodes that actually exist on the filesystem
-		for node in l_kept:
+		for node in existing_nodes:
 			try:
-				# update the time stamp
-				self.m_tstamp_variants[0][node.id] = Params.h_file(node.abspath())
+				cache[node.id] = Params.h_file(node.abspath())
 			except IOError:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
-		debug("new files found "+str(l_names), 'build')
-
+		# nodes to create
+		to_add = listed_files - node_names
+		debug("new files found "+str(to_add), 'build')
 		l_path = i_path + os.sep
-		for name in l_names:
+		for name in to_add:
 			try:
 				# throws IOError if not a file or if not readable
 				st = Params.h_file(l_path + name)
 			except IOError:
 				continue
 			l_child = Node.Node(name, i_parent_node)
-			self.m_tstamp_variants[0][l_child.id] = st
-			l_kept.append(l_child)
-		return l_kept
+			existing_nodes.append(l_child)
+			cache[l_child.id] = st
+		return existing_nodes
 
 	def scan_path(self, i_parent_node, i_path, i_existing_nodes, i_variant):
 		"""in this function we do not add timestamps but we remove them
