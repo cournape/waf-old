@@ -7,10 +7,17 @@
 
 import os, sys
 import Object, Action, Utils, Params, Common, Utils
-from Object import extension
+from Object import extension, taskgen, before, feature
 import pproc as subprocess
 
 EXT_PY = ['.py']
+
+@taskgen
+@before('apply_incpaths')
+@feature('pyext')
+def init_pyext(self):
+	self.inst_var = 'PYTHONDIR'
+	self.inst_dir = ''
 
 @extension(EXT_PY)
 def process_py(self, node):
@@ -287,12 +294,6 @@ def detect(conf):
 
 	v['PYC'] = getattr(Params.g_options, 'pyc', 1)
 	v['PYO'] = getattr(Params.g_options, 'pyo', 1)
-
-	# FIXME - this thing must be updated
-	#v['pyext_INST_VAR'] = 'PYTHONDIR'
-	#v['pyext_INST_DIR'] = ''
-
-	#v['pyembed_INST_DIR'] = v['program_INST_DIR']
 
 	# now a small difference
 	v['pyext_USELIB'] = 'PYEXT'

@@ -139,7 +139,7 @@ class task_gen(object):
 	traits = {}
 	classes = {}
 
-	def __init__(self):
+	def __init__(self, *kw):
 		self.prec = {}
 		"map precedence of function names to call"
 		# so we will have to play with directed acyclic graphs
@@ -155,7 +155,7 @@ class task_gen(object):
 		self.mappings = {}
 
 		# list of features (see the documentation on traits)
-		self.features = []
+		self.features = list(kw)
 
 		# not always a good idea
 		self.m_tasks = []
@@ -267,7 +267,7 @@ class task_gen(object):
 
 		# add the methods listed in the features
 		for x in self.features:
-			keys.update(task_gen.traits[x])
+			keys.update(task_gen.traits.get(x, ()))
 
 		# copy the precedence table with the keys in self.meths
 		prec = {}

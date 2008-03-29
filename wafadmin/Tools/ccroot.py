@@ -39,15 +39,13 @@ g_c_scanner = c_scanner()
 
 class ccroot_abstract(Object.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
-	def __init__(self, type='program', subtype=None):
-		Object.task_gen.__init__(self)
+	def __init__(self, *kw, **kwargs):
+		Object.task_gen.__init__(self, *kw)
 
-		# TODO obsolete
-		self.m_type = type
-
-		if self.m_type == 'objects':
-			self.features.append(type)
-		else:
+		# TODO m_type is obsolete
+		self.m_type = kw[1]
+		self.subtype = self.m_type
+		if not 'objects' in kw:
 			self.features.append('normal')
 
 		# includes, seen from the current directory
@@ -92,8 +90,6 @@ class ccroot_abstract(Object.task_gen):
 		self.inc_paths = []
 		self.scanner_defines = {}
 		self.bld_incpaths_lst=[]
-
-		self.subtype = subtype
 
 		self.compiled_tasks = []
 		self.link_task = None

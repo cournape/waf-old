@@ -26,14 +26,13 @@ Object.add_feature('cxx', CXX_METHS)
 # TODO get rid of that class
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cpp_taskgen(ccroot.ccroot_abstract):
-	def __init__(self, type='program', subtype=None):
-		ccroot.ccroot_abstract.__init__(self, type, subtype)
+	def __init__(self, *k):
+		ccroot.ccroot_abstract.__init__(self, *k)
 		self.m_type_initials = 'cpp'
 
 		self.cxxflags=''
 		self.cppflags=''
-
-		self.features.append('cxx')
+		self.features[0] = 'cxx'
 
 @taskgen
 @before('apply_type_vars')

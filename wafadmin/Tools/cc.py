@@ -26,14 +26,12 @@ g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
 # TODO get rid of this
 class cc_taskgen(ccroot.ccroot_abstract):
-	def __init__(self, type='program', subtype=None):
-		ccroot.ccroot_abstract.__init__(self, type, subtype)
+	def __init__(self, *kw):
+		ccroot.ccroot_abstract.__init__(self, *kw)
 		self.m_type_initials = 'cc'
 
 		self.ccflags=''
 		self.cppflags=''
-
-		self.features.append('cc')
 
 		global g_cc_type_vars
 		self.p_type_vars = g_cc_type_vars
