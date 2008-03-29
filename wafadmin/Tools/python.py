@@ -18,6 +18,17 @@ EXT_PY = ['.py']
 def init_pyext(self):
 	self.inst_var = 'PYTHONDIR'
 	self.inst_dir = ''
+	self.uselib = self.to_list(self.uselib)
+	if not 'PYEXT' in self.uselib:
+		self.uselib.append('PYEXT')
+
+@taskgen
+@before('apply_incpaths')
+@feature('pyembed')
+def init_pyext(self):
+	self.uselib = self.to_list(self.uselib)
+	if not 'PYEMBED' in self.uselib:
+		self.uselib.append('PYEMBED')
 
 @extension(EXT_PY)
 def process_py(self, node):
@@ -294,10 +305,6 @@ def detect(conf):
 
 	v['PYC'] = getattr(Params.g_options, 'pyc', 1)
 	v['PYO'] = getattr(Params.g_options, 'pyo', 1)
-
-	# now a small difference
-	v['pyext_USELIB'] = 'PYEXT'
-	v['pyembed_USELIB'] = 'PYEMBED'
 
 	conf.hook(check_python_version)
 	conf.hook(check_python_headers)
