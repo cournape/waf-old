@@ -121,9 +121,10 @@ class scanner(object):
 			else: seen.add(id)
 
 			# TODO: look at the case of stale nodes and dependencies types
-			try: lst.extend(node_deps[id])
-			except KeyError: pass
+			k = node_deps.get(id, [])
+			if k: lst.extend(k)
 
+			# the exception should not happen
 			try: upd(tstamp_variants[id])
 			except KeyError: return SIG_NIL
 
