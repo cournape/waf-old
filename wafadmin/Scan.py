@@ -108,7 +108,8 @@ class scanner(object):
 		for x in self.vars:
 			upd(str(env[x]))
 
-		# cross-variant builds are disabled, if you want to do that, put the variant var in the loop
+		# cross-variant builds are disabled for performance reasons (and for little usage)
+		# if you want to do that, put the variant var in the loop
 		if lst:
 			variant = lst[0].variant(env)
 			node_deps = tree.node_deps[variant]
