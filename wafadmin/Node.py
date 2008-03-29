@@ -387,9 +387,8 @@ class Node(object):
 	def variant(self, env):
 		"variant, or output directory for this node, a source has for variant 0"
 		if not env: return 0
-		i = self.m_parent.get_file(self.m_name)
-		if i: return 0
-		return env.variant()
+		elif self.m_name in self.m_parent.m_files_lookup: return 0
+		else: return env.variant()
 
 	def size_subtree(self):
 		"for debugging, returns the amount of subnodes"
