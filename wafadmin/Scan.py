@@ -108,17 +108,23 @@ class scanner(object):
 		for x in self.vars:
 			upd(str(env[x]))
 
+		# cross-variant builds are disabled, if you want to do that, put the variant var in the loop
+		if lst:
+			variant = lst[0].variant(env)
+			node_deps = tree.node_deps[variant]
+			tstamp_variants = tree.m_tstamp_variants[variant]
+
 		# add the build hashes of all files entering into the dependency system
 		for node in lst:
-			if id(node) in seen: continue
-			else: seen.add(id(node))
+			id = node.id
+			if id in seen: continue
+			else: seen.add(id)
 
 			# TODO: look at the case of stale nodes and dependencies types
-			variant = node.variant(env)
-			try: lst.extend(tree.node_deps[variant][node.id])
+			try: lst.extend(node_deps[id])
 			except KeyError: pass
 
-			try: upd(tree.m_tstamp_variants[variant][node.id])
+			try: upd(tstamp_variants[id])
 			except KeyError: return SIG_NIL
 
 		return m.digest()
