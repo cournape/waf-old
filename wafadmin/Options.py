@@ -110,6 +110,7 @@ def create_parser():
 
 def parse_args_impl(parser, _args=None):
 	(Params.g_options, args) = parser.parse_args(args=_args)
+	opts = Params.g_options
 	#print Params.g_options, " ", args
 
 	# By default, 'waf' is equivalent to 'waf build'
@@ -134,10 +135,10 @@ def parse_args_impl(parser, _args=None):
 		Params.g_install = 1
 
 	# TODO -k => -j0
-	if Params.g_options.keep: Params.g_options.jobs = 1
+	if opts.keep: opts.jobs = 1
 
-	Params.g_verbose = Params.g_options.verbose
-	Params.g_zones = Params.g_options.zones.split(',')
+	Params.g_verbose = opts.verbose
+	if opts.zones: Params.g_zones = opts.zones.split(',')
 	if Params.g_verbose>1: Params.set_trace(1,1,1)
 	else: Params.set_trace(0,0,1)
 
