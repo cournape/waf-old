@@ -54,6 +54,16 @@ class Environment(object):
 		return "environment table\n"+str(self.m_table)
 
 	def __getitem__(self, key):
+		x = self.m_table.get(key, None)
+		if x: return x
+		try:
+			u = self.m_parent
+		except AttributeError:
+			return []
+		else:
+			return u[key]
+
+
 		try:
 			return self.m_table[key]
 		except KeyError:
