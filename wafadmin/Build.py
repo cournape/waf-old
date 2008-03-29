@@ -208,7 +208,7 @@ class Build(object):
 		os.chdir(self.m_bdir)
 
 
-		#"""
+		"""
 		import cProfile, pstats
 		cProfile.run("import Object; Object.flush()", 'profi.txt')
 		p = pstats.Stats('profi.txt')
@@ -475,7 +475,7 @@ class Build(object):
 				# listdir failed, remove all sigs of nodes
 				dict = self.m_tstamp_variants[variant]
 				for node in src_dir_node.m_build_lookup.values():
-					if node in dict:
+					if node.id in dict:
 						dict.__delitem__(node.id)
 				os.makedirs(sub_path)
 				src_dir_node.m_build_lookup = {}
@@ -524,41 +524,19 @@ class Build(object):
 		"""in this function we do not add timestamps but we remove them
 		when the files no longer exist (file removed in the build dir)"""
 
-		# read the dir contents, ignore the folders in it
-		l_names_read = os.listdir(i_path)
+		listed_files = set(os.listdir(i_path))
+		node_names = set([x.m_name for x in i_existing_nodes])
+		remove_names = node_names - listed_files
 
-		# there are two ways to obtain the partitions:
-		# 1 run the comparisons two times (not very smart)
-		# 2 reduce the sizes of the list while looping
+		# remove the stamps of the build nodes that no longer exist on the filesystem
+		ids_to_remove = [x.id for x in i_existing_nodes if x.m_name in remove_names]
+		cache = self.m_tstamp_variants[i_variant]
+		for nid in ids_to_remove:
 
-		l_names = l_names_read
-		l_nodes = i_existing_nodes
-		l_rm = []
+			# TODO there must be a better syntax for this
+			if nid in cache: cache.__delitem__(nid)
 
-		for node in l_nodes:
-			i = 0
-			name = node.m_name
-			l_len = len(l_names)
-			while i < l_len:
-				if l_names[i] == name:
-					break
-				i += 1
-			if i < l_len:
-				del l_names[i]
-			else:
-				l_rm.append(node)
-
-		# remove the stamps of the nodes that no longer exist in the build dir
-		for node in l_rm:
-
-			#print "\nremoving the timestamp of ", node, node.m_name
-			#print node.m_parent.m_build
-			#print l_names_read
-				#print l_names
-
-			if node in self.m_tstamp_variants[i_variant]:
-				self.m_tstamp_variants[i_variant].__delitem__(node.id)
-		return l_nodes
+		return i_existing_nodes
 
 	def dump(self):
 		print "not impl"
