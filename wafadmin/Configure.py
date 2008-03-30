@@ -340,6 +340,10 @@ class Configure(object):
 
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
+def conf(f):
+	setattr(Configure, f.__name__, f)
+	return f
+
 # do not touch
 import config_c
 

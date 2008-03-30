@@ -11,6 +11,7 @@ from hashlib import md5
 import Action, Params, Environment, Runner, Build, Utils, Object, Configure
 from Params import fatal, warning
 from Constants import *
+from Configure import conf
 
 def wrap(cls):
 	def foo(self):
@@ -897,6 +898,7 @@ class check_data(object):
 		self.build_type    = 'program'
 setattr(Configure, 'check_data', check_data) # warning, attached to the module
 
+@conf
 def define(self, define, value):
 	"""store a single define and its state into an internal list for later
 	   writing to a config header file.  Value can only be
@@ -919,8 +921,8 @@ def define(self, define, value):
 	# add later to make reconfiguring faster
 	self.env[DEFINES] = tbl
 	self.env[define] = value
-setattr(Configure.Configure, "define", define)
 
+@conf
 def undefine(self, define):
 	"""store a single define and its state into an internal list
 	   for later writing to a config header file"""
@@ -935,8 +937,8 @@ def undefine(self, define):
 	# add later to make reconfiguring faster
 	self.env[DEFINES] = tbl
 	self.env[define] = value
-setattr(Configure.Configure, "undefine", undefine)
 
+@conf
 def define_cond(self, name, value):
 	"""Conditionally define a name.
 	Formally equivalent to: if value: define(name, 1) else: undefine(name)"""
@@ -944,8 +946,8 @@ def define_cond(self, name, value):
 		self.define(name, 1)
 	else:
 		self.undefine(name)
-setattr(Configure.Configure, "define_cond", define_cond)
 
+@conf
 def is_defined(self, define):
 	defines = self.env[DEFINES]
 	if not defines:
@@ -956,14 +958,14 @@ def is_defined(self, define):
 		return False
 	else:
 		return (value is not UNDEFINED)
-setattr(Configure.Configure, "is_defined", is_defined)
 
+@conf
 def get_define(self, define):
 	"get the value of a previously stored define"
 	try: return self.env[DEFINES][define]
 	except KeyError: return None
-setattr(Configure.Configure, "get_define", get_define)
 
+@conf
 def write_config_header(self, configfile='config.h', env=''):
 	"save the defines into a file"
 	if configfile == '': configfile = self.configheader
@@ -1007,13 +1009,13 @@ def write_config_header(self, configfile='config.h', env=''):
 
 	dest.write('\n#endif /* %s */\n' % (inclusion_guard_name,))
 	dest.close()
-setattr(Configure.Configure, "write_config_header", write_config_header)
 
+@conf
 def set_config_header(self, header):
 	"set a config header file"
 	self.configheader = header
-setattr(Configure.Configure, "set_config_header", set_config_header)
 
+@conf
 def run_check(self, obj):
 	"""compile, link and run if necessary
 	@param obj: data of type check_data
@@ -1105,13 +1107,13 @@ def run_check(self, obj):
 		return ret
 
 	return not ret
-setattr(Configure.Configure, "run_check", run_check)
 
 # TODO OBSOLETE remove for waf 1.4
+@conf
 def add_define(self, define, value, quote=-1, comment=''):
 	fatal("DEPRECATED use conf.define() / conf.undefine() / conf.define_cond() instead")
-setattr(Configure.Configure, "add_define", add_define)
 
+@conf
 def check_features(self, kind='cc'):
 	v = self.env
 	# check for compiler features: programs, shared and static libraries
@@ -1141,5 +1143,4 @@ def check_features(self, kind='cc'):
 	ret = self.run_check(lib_obj)
 	self.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret: self.fatal("no static libs")
-setattr(Configure.Configure, "check_features", check_features)
 
