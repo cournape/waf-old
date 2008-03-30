@@ -99,7 +99,7 @@ class sgml_man_scanner(Scan.scanner):
 
 sgml_scanner = sgml_man_scanner()
 
-class gnome_sgml2manobj(Object.task_gen):
+class gnome_sgml2man_taskgen(Object.task_gen):
 	def __init__(self, appname):
 		Object.task_gen.__init__(self)
 		self.m_tasks=[]
