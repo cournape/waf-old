@@ -158,13 +158,13 @@ def pdflatex_build(task):
 g_texobjs = ['latex','pdflatex']
 class tex_taskgen(Object.task_gen):
 	s_default_ext = ['.tex', '.ltx']
-	def __init__(self, type='latex'):
-		Object.task_gen.__init__(self)
+	def __init__(self, *k, **kw):
+		Object.task_gen.__init__(self, *k)
 
 		global g_texobjs
-		if not type in g_texobjs:
+		self.m_type = kw['type']
+		if not self.m_type in g_texobjs:
 			fatal('type %s not supported for texobj' % type)
-		self.m_type = type
 		self.outs = '' # example: "ps pdf"
 		self.prompt = 1  # prompt for incomplete files (else the batchmode is used)
 		self.deps = ''
@@ -208,12 +208,12 @@ class tex_taskgen(Object.task_gen):
 			if deps_lst:
 				variant = node.variant(self.env)
 				try:
-					lst = tree.node_deps[variant][node]
+					lst = tree.node_deps[variant][node.id]
 					for n in deps_lst:
 						if not n in lst:
 							lst.append(n)
 				except KeyError:
-					tree.node_deps[variant][node] = deps_lst
+					tree.node_deps[variant][node.id] = deps_lst
 
 			if self.m_type == 'latex':
 				if 'ps' in outs:
