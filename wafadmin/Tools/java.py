@@ -9,8 +9,8 @@ import Object, Action, Utils, Params
 
 class java_taskgen(Object.task_gen):
 	s_default_ext = ['.java']
-	def __init__(self):
-		Object.task_gen.__init__(self)
+	def __init__(self, *k):
+		Object.task_gen.__init__(self, *k)
 
 		self.jarname = ''
 		self.jaropts = ''

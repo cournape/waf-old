@@ -9,25 +9,23 @@ from Params import error
 
 g_types_lst = ['program', 'library']
 class cs_taskgen(Object.task_gen):
-	def __init__(self, type):
-		Object.task_gen.__init__(self)
+	def __init__(self, *k):
+		Object.task_gen.__init__(self, *k)
 
-		self.m_type       = type
+		self.m_type     = k[1]
 
-		self.source       = ''
-		self.target       = ''
+		self.source     = ''
+		self.target     = ''
 
-		self.flags        = ''
-		self.assemblies   = ''
-		self.resources    = ''
+		self.flags      = ''
+		self.assemblies = ''
+		self.resources  = ''
 
-		self.uselib       = ''
+		self.uselib     = ''
 
 		self._flag_vars = ['FLAGS', 'ASSEMBLIES']
 
-		if not self.env: self.env = Params.g_build.env().copy()
-
-		if not type in g_types_lst:
+		if not self.m_type in g_types_lst:
 			error('type for csobj is undefined '+type)
 			type='program'
 
