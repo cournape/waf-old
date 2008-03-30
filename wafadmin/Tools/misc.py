@@ -171,11 +171,8 @@ class CommandOutput(Object.task_gen):
 
 	CMD_ARGV_INPUT, CMD_ARGV_OUTPUT, CMD_ARGV_INPUT_DIR, CMD_ARGV_OUTPUT_DIR = range(4)
 
-	def __init__(self, env=None):
-		Object.task_gen.__init__(self)
-		self.env = env
-		if not self.env:
-			self.env = Params.g_build.env().copy()
+	def __init__(self, *k):
+		Object.task_gen.__init__(self, *k)
 
 		self.stdin = None
 		self.stdout = None
