@@ -203,10 +203,11 @@ def try_build(self, code, uselib='', msg='', force_compiler = ''):
 	ret = test.run()
 	return ret
 
-def check_flags(self, flags, uselib='', options='', msg=1):
+def check_flags(self, flags, uselib='', options='', kind='cc', msg=1):
 	test = self.create_test_configurator()
 	test.uselib = uselib
 	test.code = 'int main() {return 0;}\n'
+	test.force_compiler = kind
 	test.flags = flags
 	ret = test.run()
 

@@ -28,7 +28,6 @@ g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 class cc_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *kw):
 		ccroot.ccroot_abstract.__init__(self, *kw)
-		self.m_type_initials = 'cc'
 
 		self.ccflags=''
 		self.cppflags=''

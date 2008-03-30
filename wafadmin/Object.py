@@ -34,6 +34,7 @@ typos = {
 'importpath':'importpaths',
 'install_var':'inst_var',
 'install_subdir':'inst_dir',
+'m_type_initials':'link',
 }
 
 g_allobjs = []

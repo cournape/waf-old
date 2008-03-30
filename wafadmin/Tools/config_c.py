@@ -551,6 +551,7 @@ class test_configurator(configurator_base):
 		obj.env = self.env
 		obj.uselib = self.uselib
 		obj.flags = self.flags
+		obj.force_compiler = self.force_compiler
 		obj.execute = 1
 		ret = self.conf.run_check(obj)
 
@@ -1030,7 +1031,7 @@ def run_check(self, obj):
 		for f in list(filenames):
 			os.remove(os.path.join(root, f))
 
-	bdir = os.path.join( dir, '_testbuild_')
+	bdir = os.path.join(dir, '_testbuild_')
 
 	if (not obj.force_compiler and Action.g_actions.get('cpp', None)) or obj.force_compiler == "cpp":
 		tp = 'cpp'

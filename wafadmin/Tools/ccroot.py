@@ -82,8 +82,7 @@ class ccroot_abstract(Object.task_gen):
 		self.p_flag_vars = []
 		self.p_type_vars = []
 
-		# TODO ???
-		self.m_type_initials = ''
+		self.link = ''
 
 		# these are kind of private, do not touch
 		self.incpaths_lst=[]
@@ -247,10 +246,13 @@ def apply_type_vars(self):
 @feature('normal')
 @after('apply_core')
 def apply_link(self):
-	if self.m_type=='staticlib':
-		linktask = self.create_task('ar_link_static', self.env)
-	else:
-		linktask = self.create_task(self.m_type_initials+'_link', self.env)
+	# use a custom linker is specified (self.link)
+	link = getattr(self, 'link', None)
+	if not link:
+		if self.m_type == 'staticlib': link = 'ar_link_static'
+		elif 'cxx' in self.features: link = 'cxx_link'
+		else: link = 'cc_link'
+	linktask = self.create_task(link, self.env)
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_build(get_target_name(self)))

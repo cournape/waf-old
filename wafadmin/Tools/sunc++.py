@@ -52,15 +52,15 @@ def common_flags(conf):
 	v['staticlib_LINKFLAGS'] = ['-Bstatic']
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
-def modifier_debug(conf):
+def modifier_debug(conf, kind='cpp'):
 	v = conf.env
 	v['CXXFLAGS'] = ['']
-	if conf.check_flags('-O2'):
+	if conf.check_flags('-O2', kind=kind):
 		v['CXXFLAGS_OPTIMIZED'] = ['-O2']
 		v['CXXFLAGS_RELEASE'] = ['-O2']
-	if conf.check_flags('-g -DDEBUG'):
+	if conf.check_flags('-g -DDEBUG', kind=kind):
 		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
-	if conf.check_flags('-g3 -O0 -DDEBUG'):
+	if conf.check_flags('-g3 -O0 -DDEBUG', kind=kind):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
 	try:

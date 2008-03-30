@@ -28,10 +28,11 @@ g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cpp_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *k):
 		ccroot.ccroot_abstract.__init__(self, *k)
-		self.m_type_initials = 'cpp'
 
 		self.cxxflags=''
 		self.cppflags=''
+
+		# it is called cpp for backward compatibility, in fact it is cxx
 		self.features[0] = 'cxx'
 
 @taskgen
@@ -49,28 +50,28 @@ def apply_obj_vars_cxx(self):
 	debug('apply_obj_vars_cxx', 'ccroot')
 	env = self.env
 	app = self.env.append_unique
-	cpppath_st = self.env['CPPPATH_ST']
+	cxxpath_st = self.env['CPPPATH_ST']
 
 	self.addflags('CXXFLAGS', self.cxxflags)
 
 	# local flags come first
 	# set the user-defined includes paths
 	for i in self.bld_incpaths_lst:
-		app('_CXXINCFLAGS', cpppath_st % i.bldpath(env))
-		app('_CXXINCFLAGS', cpppath_st % i.srcpath(env))
+		app('_CXXINCFLAGS', cxxpath_st % i.bldpath(env))
+		app('_CXXINCFLAGS', cxxpath_st % i.srcpath(env))
 
 	# set the library include paths
 	for i in self.env['CPPPATH']:
-		app('_CXXINCFLAGS', cpppath_st % i)
+		app('_CXXINCFLAGS', cxxpath_st % i)
 		#print self.env['_CXXINCFLAGS']
 		#print " appending include ",i
 
 	# this is usually a good idea
-	app('_CXXINCFLAGS', cpppath_st % '.')
-	app('_CXXINCFLAGS', cpppath_st % self.env.variant())
+	app('_CXXINCFLAGS', cxxpath_st % '.')
+	app('_CXXINCFLAGS', cxxpath_st % self.env.variant())
 	tmpnode = Params.g_build.m_curdirnode
-	app('_CXXINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-	app('_CXXINCFLAGS', cpppath_st % tmpnode.srcpath(env))
+	app('_CXXINCFLAGS', cxxpath_st % tmpnode.bldpath(env))
+	app('_CXXINCFLAGS', cxxpath_st % tmpnode.srcpath(env))
 
 @taskgen
 def apply_defines_cxx(self):
@@ -96,7 +97,7 @@ def apply_defines_cxx(self):
 @extension(EXT_CXX)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = self.create_task('cpp', self.env)
+	task = self.create_task('cxx', self.env)
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%s.o' % self.m_type[:2]
 
@@ -108,11 +109,11 @@ def cxx_hook(self, node):
 	task.m_outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
-cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-Action.simple_action('cpp', cpp_str, color='GREEN', prio=100)
-Action.simple_action('cpp_link', link_str, color='YELLOW', prio=111)
+Action.simple_action('cxx', cxx_str, color='GREEN', prio=100)
+Action.simple_action('cxx_link', link_str, color='YELLOW', prio=111)
 
 Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 

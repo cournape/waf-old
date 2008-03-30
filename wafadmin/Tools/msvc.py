@@ -250,10 +250,14 @@ def apply_link_msvc(self):
 		for t in self.compiled_tasks: app(t.m_outputs[0])
 		return
 
-	if self.m_type=='staticlib':
-		linktask = self.create_task('msvc_ar_link_static', self.env)
-	else:
-		linktask = self.create_task('msvc_%s_link' % self.m_type_initials, self.env)
+	# use a custom linker is specified (self.link)
+	link = getattr(self, 'link', None)
+	if not link:
+		if self.m_type == 'staticlib': link = 'msvc_ar_link_static'
+		elif 'cxx' in self.features: link = 'msvc_cxx_link'
+		else: link = 'msvc_cc_link'
+	linktask = self.create_task(link, self.env)
+
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_build(get_target_name(self)))
@@ -278,7 +282,7 @@ def init_msvc(self):
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Action.simple_action('msvc_ar_link_static', static_link_str, color='YELLOW', prio=101)
 Action.Action('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
-Action.Action('msvc_cpp_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
+Action.Action('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
 
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 Action.simple_action('rc', rc_str, color='GREEN', prio=50)
