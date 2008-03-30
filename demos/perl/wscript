@@ -1,3 +1,7 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# anonymous coward, 2007
+
 import Common
 import sys
 import os
@@ -21,7 +25,7 @@ def configure(conf):
 	# check for perl
 	if not conf.check_perl_version((5,6,0)):
 		return False
-	
+
 	conf.check_perl_ext_devel()
 
 	# check for some perl module...
@@ -29,18 +33,18 @@ def configure(conf):
 	# ...and a specific version
 	conf.check_perl_module("Devel::PPPort 4.89")
 
-        conf.env['INSTALLDIR_PERL_AUTO'] = os.path.join(conf.env['ARCHDIR_PERL'], "auto")
-        conf.env['INSTALLDIR_PERL_LIB'] = conf.env['ARCHDIR_PERL']
+	conf.env['INSTALLDIR_PERL_AUTO'] = os.path.join(conf.env['ARCHDIR_PERL'], "auto")
+	conf.env['INSTALLDIR_PERL_LIB'] = conf.env['ARCHDIR_PERL']
 
 def build(bld):
 	# Build a perl extension module
 	obj = bld.create_obj('cc', 'perlext', 'perlext')
 	obj.source = 'Mytest.xs'
 	obj.target = 'Mytest'
-        obj.install_var = 'INSTALLDIR_PERL_AUTO'
+	obj.inst_var = 'INSTALLDIR_PERL_AUTO'
 
-        Common.install_files('INSTALLDIR_PERL_LIB', '', 'Mytest.pm')
-
+	Common.install_files('INSTALLDIR_PERL_LIB', '', 'Mytest.pm')
 
 def shutdown():
 	pass
+
