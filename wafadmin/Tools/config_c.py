@@ -551,7 +551,7 @@ class test_configurator(configurator_base):
 		obj.env = self.env
 		obj.uselib = self.uselib
 		obj.flags = self.flags
-		obj.force_compiler = self.force_compiler
+		obj.force_compiler = getattr(self, 'force_compiler', None)
 		obj.execute = 1
 		ret = self.conf.run_check(obj)
 
