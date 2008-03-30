@@ -12,6 +12,10 @@ For configuration examples: demos/adv/wscript
 For a project without subdirectory: demos/python/wscript
 """
 
+import sys
+if sys.hexversion<0x20400f0:
+	raise "Waf requires Python >= 2.3 but this script requires Python 2.4"
+
 VERSION="1.3.3"
 APPNAME='waf'
 REVISION=''
