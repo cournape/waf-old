@@ -40,10 +40,13 @@ def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
 	conf.check_tool('checks')
 	conf.check_tool('gcc')
-	if conf.env['gcc']: fatal('gcc not found')
+	if not conf.env['CC']: fatal('gcc not found')
+
+	conf.check_tool('gas')
+	if not conf.env['AS']: conf.env['AS'] = conf.env['CC']
 
 	conf.check_tool('g++')
-	if conf.env['g++']: fatal('g++ not found')
+	if not conf.env['CXX']: fatal('g++ not found')
 
 	try: conf.check_tool('flex bison')
 	except: pass
@@ -281,6 +284,8 @@ def build(bld):
 	# compile the flex+bison test if available
 	if bld.env_of_name('default')['FLEX']:
 		bld.add_subdirs('bisonflex')
+	if bld.env()['AS']:
+		bld.add_subdirs('asm')
 
 def shutdown():
 	# display the graph of header dependencies
