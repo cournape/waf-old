@@ -87,7 +87,7 @@ class MTask(Task.Task):
 			# next time we will not search for the extension (look at the 'for' loop below)
 			h_node = node.m_parent.find_source(base2+i)
 			m_node = h_node.change_ext('.moc')
-			tree.node_deps[variant][m_node.id] = h_node
+			tree.node_deps[variant][m_node.id] = (h_node,)
 
 			# create the task
 			task = Task.Task('moc', parn.env, normal=0)
@@ -104,8 +104,7 @@ class MTask(Task.Task):
 		tmp_lst = tree.raw_deps[variant][node.id] = mocfiles
 
 		# look at the file inputs, it is set right above
-		try: lst = tree.node_deps[variant][node.id]
-		except KeyError: lst=[]
+		lst = tree.node_deps[variant].get(node.id, ())
 		for d in lst:
 			name = d.m_name
 			if name.endswith('.moc'):
