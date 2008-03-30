@@ -12,7 +12,7 @@ from Object import taskgen, before, extension
 
 nasm_str = '${NASM} ${NASM_FLAGS} ${NASM_INCLUDES} ${SRC} -o ${TGT}'
 
-EXT_NASM = ['.s']
+EXT_NASM = ['.s', '.S', '.asm', '.ASM', '.spp', '.SPP']
 
 @taskgen
 @before('apply_link')

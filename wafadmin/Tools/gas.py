@@ -27,6 +27,7 @@ def asm_hook(self, node):
 @taskgen
 @after('apply_obj_vars_cc')
 @after('apply_obj_vars_cxx')
+@before('apply_link')
 def asm_incflags(self):
 	if self.env['ASINCFLAGS']: self.env['_ASINCFLAGS'] = self.env['ASINCFLAGS']
 	if 'cxx' in self.features: self.env['_ASINCFLAGS'] = self.env['_CCINCFLAGS']
