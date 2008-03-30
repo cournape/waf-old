@@ -6,7 +6,7 @@
 
 import os, sys
 import Action
-from Object import extension, taskgen, after
+from Object import extension, taskgen, after, before
 
 EXT_ASM = ['.s', '.S', '.asm', '.ASM', '.spp', '.SPP']
 
