@@ -276,7 +276,7 @@ def build(bld):
 	#	Action.Action(x, vars=[], func=touch_func, color='CYAN')
 
 	# process subfolders from here
-	bld.add_subdirs('src complex variant tests')
+	bld.add_subdirs('src complex variant tests hybrid')
 
 	# compile the flex+bison test if available
 	if bld.env_of_name('default')['FLEX']:
