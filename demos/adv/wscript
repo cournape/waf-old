@@ -289,7 +289,7 @@ def shutdown():
 
 	f = open('foo.dot', 'w')
 	f.write("digraph G {\n")
-	table = Params.g_build.m_depends_on
+	table = Params.g_build.node_deps
 	for a in table:
 		for x in table[a]:
 			if type(table[a][x]) is types.ListType:
