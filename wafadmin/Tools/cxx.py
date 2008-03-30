@@ -23,14 +23,10 @@ CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_dependencie
 
 Object.add_feature('cxx', CXX_METHS)
 
-# TODO get rid of that class
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cpp_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *k):
 		ccroot.ccroot_abstract.__init__(self, *k)
-
-		self.cxxflags=''
-		self.cppflags=''
 
 		# it is called cpp for backward compatibility, in fact it is cxx
 		self.features[0] = 'cxx'
@@ -38,7 +34,12 @@ class cpp_taskgen(ccroot.ccroot_abstract):
 @taskgen
 @before('apply_type_vars')
 def init_cxx(self):
-	self.mappings['.c'] = Object.task_gen.mappings['.cxx']
+	self.cppflags = getattr(self, 'cppflags', '')
+	self.cxxflags = getattr(self, 'cxxflags', '')
+
+	if not 'cc' in self.features:
+		self.mappings['.c'] = Object.task_gen.mappings['.cxx']
+
 	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cpp_flag_vars)
 	else: self.p_flag_vars = g_cpp_flag_vars
 

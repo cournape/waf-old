@@ -24,24 +24,20 @@ Object.add_feature('cc', CC_METHS)
 
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
-# TODO get rid of this
 class cc_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *kw):
 		ccroot.ccroot_abstract.__init__(self, *kw)
 
-		self.ccflags=''
-		self.cppflags=''
-
-		global g_cc_type_vars
-		self.p_type_vars = g_cc_type_vars
-
 @taskgen
 @before('apply_type_vars')
 def init_cc(self):
+	self.ccflags = getattr(self, 'ccflags', '')
+	self.cppflags = getattr(self, 'cppflags', '')
+
 	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cc_flag_vars)
 	else: self.p_flag_vars = g_cc_flag_vars
 
-	if hasattr(self, 'p_type_vars'):	self.p_type_vars = set(self.p_type_vars).union(g_cc_type_vars)
+	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cc_type_vars)
 	else: self.p_type_vars = g_cc_type_vars
 
 @taskgen
