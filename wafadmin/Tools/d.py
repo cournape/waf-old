@@ -223,11 +223,11 @@ def get_target_name(self):
 	return v['D_%s_PATTERN' % self.m_type] % self.target
 
 class d_taskgen(Object.task_gen):
-	def __init__(self, type='program'):
-		Object.task_gen.__init__(self)
+	def __init__(self, *k):
+		Object.task_gen.__init__(self, *k)
 
-		self.m_type = type
-		self.subtype = type
+		self.m_type = k[1]
+		self.subtype = k[1]
 
 		self.dflags = {'gdc':'', 'dmd':''}
 		self.importpaths = ''
@@ -240,7 +240,6 @@ class d_taskgen(Object.task_gen):
 		self.compiled_tasks = []
 
 		self.add_objects = []
-		self.features.append('d')
 
 		self.inst_var = '' # mark as installable TODO
 		self.vnum = '1.0.0'
