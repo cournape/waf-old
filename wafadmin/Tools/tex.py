@@ -54,10 +54,9 @@ def tex_build(task, command='LATEX'):
 	env = task.env()
 
 	if env['PROMPT_LATEX']:
-		exec_cmd = Runner.exec_command_interact
+		Runner.set_exec('noredir')
 		com = '%s %s' % (env[command], env.get_flat(command+'FLAGS'))
 	else:
-		exec_cmd = Runner.exec_command
 		com = '%s %s %s' % (env[command], env.get_flat(command+'FLAGS'), '-interaction=batchmode')
 
 	node = task.m_inputs[0]
@@ -81,7 +80,7 @@ def tex_build(task, command='LATEX'):
 
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
 	warning('first pass on %s' % command)
-	ret = exec_cmd(latex_compile_cmd)
+	ret = Runner.exec_command(latex_compile_cmd)
 	if ret: return ret
 
 	# look in the .aux file if there is a bibfile to process
@@ -99,7 +98,7 @@ def tex_build(task, command='LATEX'):
 			bibtex_compile_cmd = 'cd %s && BIBINPUTS=%s:$BIBINPUTS %s %s' % (reldir, sr2, env['BIBTEX'], docuname)
 
 			warning('calling bibtex')
-			ret = exec_cmd(bibtex_compile_cmd)
+			ret = Runner.exec_command(bibtex_compile_cmd)
 			if ret:
 				error('error when calling bibtex %s' % bibtex_compile_cmd)
 				return ret

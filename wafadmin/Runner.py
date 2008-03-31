@@ -37,22 +37,17 @@ def progress_line(state, total, col1, task, col2):
 	fs = "[%%%dd/%%%dd] %%s%%s%%s\n" % (n, n)
 	return fs % (state, total, col1, task.get_display(), col2)
 
-def process_cmd_output(cmd_stdout, cmd_stderr):
-	stdout_eof = stderr_eof = 0
-	while not (stdout_eof and stderr_eof):
-		if not stdout_eof:
-			s = cmd_stdout.read()
-			if not s: stdout_eof = 1
-			elif not g_quiet: printout(s)
-		if not stderr_eof:
-			s = cmd_stderr.read()
-			if not s: stderr_eof = 1
-			elif not g_quiet:
-				sys.stderr.write('\n')
-				sys.stderr.write(s)
-		#time.sleep(0.1)
+def process_cmd_output(proc):
+	"""calling communicate to avoid race-condition between stdout and stderr"""
+	(cmd_stdout, cmd_stderr)=proc.communicate()
+	if not g_quiet:
+		if cmd_stdout:
+			printout(cmd_stdout)
+		if cmd_stderr:
+			sys.stderr.write(cmd_stderr)
+			sys.stderr.flush()
 
-def exec_command_normal(s):
+def _exec_command_normal(s):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
 	debug("system command -> "+ s, 'runner')
 	if Params.g_verbose: print s
@@ -60,12 +55,12 @@ def exec_command_normal(s):
 	if sys.platform == 'win32' and not s.startswith('""'):
 		s = '"%s"' % s
 	proc = subprocess.Popen(s, shell=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	process_cmd_output(proc.stdout, proc.stderr)
+	process_cmd_output(proc)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
-def exec_command_interact(s):
+def _exec_command_interact(s):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
 	debug("system command (interact) -> "+ s, 'runner')
 	if Params.g_verbose: print s
@@ -77,11 +72,11 @@ def exec_command_interact(s):
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
-exec_command = exec_command_interact # python bug on stdout overload
+exec_command = _exec_command_interact # python bug on stdout overload
 def set_exec(mode):
 	global exec_command
-	if mode == 'normal': exec_command = exec_command_normal
-	elif mode == 'noredir': exec_command = exec_command_interact
+	if mode == 'normal': exec_command = _exec_command_normal
+	elif mode == 'noredir': exec_command = _exec_command_interact
 	else: error('set_runner_mode')
 
 class Serial(object):
