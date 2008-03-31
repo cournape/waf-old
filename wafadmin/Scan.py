@@ -95,18 +95,20 @@ class scanner(object):
 	# protected methods - override if you know what you are doing
 
 	def get_signature_queue(self, tsk):
-		"the basic scheme for computing signatures from .cpp and inferred .h files"
+		"""the basic scheme for computing signatures from .cpp and inferred .h files
+		hot spot so do not touch"""
 		tree = Params.g_build
 
 		seen = set()
-		lst = []+tsk.m_inputs
+		lst = tsk.m_inputs
 		m = md5()
 		upd = m.update
 
 		# additional variables to hash (command-line defines for example)
 		env = tsk.env()
 		for x in self.vars:
-			upd(str(env[x]))
+			k = env[x]
+			if k: upd(k)
 
 		# cross-variant builds are disabled for performance reasons (and for little usage)
 		# if you want to do that, put the variant var in the loop
@@ -122,7 +124,7 @@ class scanner(object):
 			else: seen.add(id)
 
 			# TODO: look at the case of stale nodes and dependencies types
-			k = node_deps.get(id, [])
+			k = node_deps.get(id, ())
 			if k: lst.extend(k)
 
 			# the exception should not happen
