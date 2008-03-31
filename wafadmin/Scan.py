@@ -100,7 +100,7 @@ class scanner(object):
 		tree = Params.g_build
 
 		seen = set()
-		lst = tsk.m_inputs
+		lst = []+tsk.m_inputs
 		m = md5()
 		upd = m.update
 
