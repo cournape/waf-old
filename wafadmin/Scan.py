@@ -108,7 +108,7 @@ class scanner(object):
 		env = tsk.env()
 		for x in self.vars:
 			k = env[x]
-			if k: upd(k)
+			if k: upd(str(k))
 
 		# cross-variant builds are disabled for performance reasons (and for little usage)
 		# if you want to do that, put the variant var in the loop
