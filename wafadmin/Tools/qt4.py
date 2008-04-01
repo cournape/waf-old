@@ -109,7 +109,7 @@ class MTask(Task.Task):
 			name = d.m_name
 			if name.endswith('.moc'):
 				task = Task.Task('moc', parn.env, normal=0)
-				task.set_inputs(tree.node_deps[variant][d.id])
+				task.set_inputs(tree.node_deps[variant][d.id][0]) # 1st element in a tuple
 				task.set_outputs(d)
 
 				generator = Params.g_build.generator
