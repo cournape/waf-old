@@ -5,6 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
+from md5 import md5
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 from Object import taskgen, after, before, feature
@@ -33,6 +34,29 @@ class c_scanner(Scan.scanner):
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
 			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
 		return (gruik.m_nodes, gruik.m_names)
+
+	def get_signature_queue(self, tsk):
+		"""compute signatures from .cpp and inferred .h files
+		there is a single list (no tree traversal)
+		hot spot so do not touch"""
+		m = md5()
+		upd = m.update
+
+		# additional variables to hash (command-line defines for example)
+		env = tsk.env()
+		for x in self.vars:
+			k = env[x]
+			if k: upd(str(k))
+
+		# headers to hash
+		idx = tsk.m_inputs[0].id
+		variant = tsk.m_inputs[0].variant(env)
+		file_hashes = Params.g_build.m_tstamp_variants[variant]
+		upd(file_hashes[idx])
+		for k in Params.g_build.node_deps[variant][idx]:
+			upd(file_hashes[k.id])
+
+		return m.digest()
 
 g_c_scanner = c_scanner()
 "scanner for c programs"
