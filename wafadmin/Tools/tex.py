@@ -112,7 +112,7 @@ def tex_build(task, command='LATEX'):
 	else:
 		makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
 		warning('calling makeindex')
-		ret = exec_cmd(makeindex_compile_cmd)
+		ret = Runner.exec_command(makeindex_compile_cmd)
 		if ret:
 			error('error when calling makeindex %s' % makeindex_compile_cmd)
 			return ret
@@ -138,7 +138,7 @@ def tex_build(task, command='LATEX'):
 
 		# run the command
 		warning('calling %s' % command)
-		ret = exec_cmd(latex_compile_cmd)
+		ret = Runner.exec_command(latex_compile_cmd)
 		if ret:
 			error('error when calling %s %s' % (command, latex_compile_cmd))
 			return ret
