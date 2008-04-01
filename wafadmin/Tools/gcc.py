@@ -100,9 +100,9 @@ def common_flags(conf):
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
 	# osx stuff
-	v['OSX_LINKFLAGS']       = ['-bundle', '-undefined dynamic_lookup']
-	v['OSX_CCFLAGS']         = ['-fPIC']
-	v['OSX_PATTERN']         = '%s.bundle'
+	v['MACBUNDLE_LINKFLAGS'] = ['-bundle', '-undefined dynamic_lookup']
+	v['MACBUNDLE_CCFLAGS']   = ['-fPIC']
+	v['MACBUNDLE_PATTERN']   = '%s.bundle'
 
 def modifier_win32(conf):
 	v = conf.env

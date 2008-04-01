@@ -1,12 +1,14 @@
 #! /usr/bin/env python
 # encoding: utf-8
+# Thomas Nagy 2008
 
 """MacOSX related tools
 
-To compile an executable into a Mac application bundle, set its 'mac_app' attribute
-to a True value:
+To compile an executable into a Mac application bundle (a .app), set its 'mac_app' attribute
+  obj.mac_app = True
 
-obj.mac_app = True
+To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
+  obj.mac_bundle = True
 """
 
 import os, shutil
@@ -34,12 +36,16 @@ def apply_link_osx(self):
 
 @taskgen
 @before('apply_link')
-@feature('osx_bundle')
+@before('apply_lib_vars')
+@feature('cc')
+@feature('cxx')
 def apply_bundle(self):
-	"the uselib system cannot modify a few things"
-	self.env['shlib_PATTERN'] = '%s.bundle'
-	uselib = self.to_list(self.uselib)
-	if not 'OSX' in uselib: uselib.append('OSX')
+	"""the uselib system cannot modify a few things, use env['MACBUNDLE'] to force all shlibs into mac bundles
+	or use obj.mac_bundle = True for specific targets only"""
+	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
+		self.env['shlib_PATTERN'] = '%s.bundle'
+		uselib = self.to_list(self.uselib)
+		if not 'MACBUNDLE' in uselib: uselib.append('MACBUNDLE')
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
 
