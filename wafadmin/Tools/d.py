@@ -237,11 +237,13 @@ class d_taskgen(Object.task_gen):
 		self.uselib_local = ''
 		self.inc_paths = []
 
+		self.generate_headers = False # set to true if you want .di files as well as .o
+
 		self.compiled_tasks = []
 
 		self.add_objects = []
 
-		self.inst_var = '' # mark as installable TODO
+		self.inst_var = '' # mark as installable
 		self.vnum = '1.0.0'
 
 Object.add_feature('d', D_METHS)
@@ -438,10 +440,20 @@ def d_hook(self, node):
 	task.m_outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
+	if self.generate_headers:
+		task.m_action = Action.g_actions['d_with_header']
+		header_node = node.change_ext(self.env['DHEADER_ext'])
+		task.m_outputs += [header_node]
+
 d_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
+d_with_header_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} \
+${D_HDR_F}${TGT[1].bldpath(env)} \
+${D_SRC_F}${SRC} \
+${D_TGT_F}${TGT[0].bldpath(env)}'
 link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${_DLIBDIRFLAGS} ${_DLIBFLAGS}'
 
 Action.simple_action('d', d_str, 'GREEN', prio=100)
+Action.simple_action('d_with_header', d_with_header_str, 'GREEN', prio=100)
 Action.simple_action('d_link', link_str, color='YELLOW', prio=101)
 
 # for feature request #104

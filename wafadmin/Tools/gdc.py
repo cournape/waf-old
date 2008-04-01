@@ -43,6 +43,9 @@ def common_flags(conf):
 	v['D_shlib_DFLAGS']    = []
 	v['D_shlib_LINKFLAGS'] = ['-shared']
 
+	v['DHEADER_ext']       = '.di'
+	v['D_HDR_F']           = '-fintfc -fintfc-file='
+
 	if sys.platform == "win32":
 		v['D_program_PATTERN']   = '%s.exe'
 		v['D_shlib_PATTERN']     = 'lib%s.dll'
