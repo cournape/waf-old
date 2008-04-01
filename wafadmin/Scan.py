@@ -75,8 +75,7 @@ class scanner(object):
 
 		# if the previous signature is the same
 		# FIXME the sig cannot be NIL
-		#if sig != SIG_NIL and sig == prev_sig: return sig
-		if sig == prev_sig: return sig
+		if sig != SIG_NIL and sig == prev_sig: return sig
 
 		#print "scanning the file", tsk.m_inputs[0].abspath()
 
