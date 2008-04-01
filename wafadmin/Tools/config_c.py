@@ -1035,7 +1035,7 @@ def run_check(self, obj):
 
 	bdir = os.path.join(dir, '_testbuild_')
 
-	if (not obj.force_compiler and Action.g_actions.get('cpp', None)) or obj.force_compiler == "cpp":
+	if (not obj.force_compiler and Action.g_actions.get('cxx', None)) or obj.force_compiler == "cpp":
 		tp = 'cpp'
 		test_f_name = 'test.cpp'
 	else:
