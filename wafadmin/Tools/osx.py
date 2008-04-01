@@ -42,6 +42,7 @@ def apply_link_osx(self):
 def apply_bundle(self):
 	"""the uselib system cannot modify a few things, use env['MACBUNDLE'] to force all shlibs into mac bundles
 	or use obj.mac_bundle = True for specific targets only"""
+	if not 'shlib' in self.features: return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
 		self.env['shlib_PATTERN'] = '%s.bundle'
 		uselib = self.to_list(self.uselib)
