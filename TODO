@@ -2,6 +2,7 @@ roadmap:
 --------
 
 * configuration system improvements (cross-compilation helpers)
+* improve the filesystem representation (btw, node.abspath is a bottleneck)
 * improve the custom compilation rules (pc file creation, etc)
 * more gnome support
 * provide installation threads
