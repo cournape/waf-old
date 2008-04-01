@@ -169,16 +169,16 @@ class Environment(object):
 		if self.__getitem__('NOINSTALL'): return ''
 		return Params.g_options.destdir
 
-	def sign_vars(env, vars_list):
+	def sign_vars(self, vars_list):
 		" ['CXX', ..] -> [env['CXX'], ..]"
 
 		# ccroot objects use the same environment for building the .o at once
 		# the same environment and the same variables are used
-		s = str([env.m_idx]+vars_list)
+		s = str([self.m_idx]+vars_list)
 		try: return g_cache_max[s]
 		except KeyError: pass
 
-		lst = [env.get_flat(a) for a in vars_list]
+		lst = [self.get_flat(a) for a in vars_list]
 		ret = Params.h_list(lst)
 		if Params.g_zones: debug("%s %s" % (Params.view_sig(ret), str(lst)), 'envhash')
 
