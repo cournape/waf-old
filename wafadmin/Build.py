@@ -290,8 +290,9 @@ class Build(object):
 
 	def create_obj(self, *k, **kw):
 		cls_name = k[0]
-		try: return Object.task_gen.classes[cls_name](*k, **kw)
-		except KeyError: raise KeyError("'%s' is not a valid build tool -> %s" % (cls_name, [x for x in Object.task_gen.classes]))
+		try: cls = Object.task_gen.classes[cls_name]
+		except KeyError: raise KeyError('%s is not a valid build tool -> %s' % (cls_name, [x for x in Object.task_gen.classes]))
+		else: return cls(*k, **kw)
 
 	def load_envs(self):
 		cachedir = Params.g_cachedir
