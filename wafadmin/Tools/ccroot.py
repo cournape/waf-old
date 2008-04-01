@@ -9,6 +9,7 @@ from md5 import md5
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 from Object import taskgen, after, before, feature
+from Constants import *
 
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"
@@ -49,12 +50,15 @@ class c_scanner(Scan.scanner):
 			if k: upd(str(k))
 
 		# headers to hash
-		idx = tsk.m_inputs[0].id
-		variant = tsk.m_inputs[0].variant(env)
-		file_hashes = Params.g_build.m_tstamp_variants[variant]
-		upd(file_hashes[idx])
-		for k in Params.g_build.node_deps[variant][idx]:
-			upd(file_hashes[k.id])
+		try:
+			idx = tsk.m_inputs[0].id
+			variant = tsk.m_inputs[0].variant(env)
+			file_hashes = Params.g_build.m_tstamp_variants[variant]
+			upd(file_hashes[idx])
+			for k in Params.g_build.node_deps[variant][idx]:
+				upd(file_hashes[k.id])
+		except KeyError:
+			return SIG_NIL
 
 		return m.digest()
 
