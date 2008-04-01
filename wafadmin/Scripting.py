@@ -376,11 +376,14 @@ def main():
 					return 0
 				setattr(Task.Task, 'must_run', must_run)
 
+			#"""
 			bld.compile()
-			#import cProfile, pstats
-			#cProfile.run("Params.g_build.compile()", 'profi.txt')
-			#p = pstats.Stats('profi.txt')
-			#p.sort_stats('time').print_stats(20)
+			"""
+			import cProfile, pstats
+			cProfile.run("Params.g_build.compile()", 'profi.txt')
+			p = pstats.Stats('profi.txt')
+			p.sort_stats('time').print_stats(20)
+			#"""
 
 		except Build.BuildError, e:
 			if not Params.g_options.daemon: fatal(e.get_message(), 1)
