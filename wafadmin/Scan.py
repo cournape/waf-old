@@ -74,12 +74,15 @@ class scanner(object):
 		sig = self.get_signature_queue(tsk)
 
 		# if the previous signature is the same
+		# FIXME the sig cannot be NIL
+		#if sig != SIG_NIL and sig == prev_sig: return sig
 		if sig == prev_sig: return sig
 
 		#print "scanning the file", tsk.m_inputs[0].abspath()
 
 		# therefore some source or some header is dirty, rescan the source files
 		for node in tsk.m_inputs:
+			#print "do scan!"
 			self.do_scan(tsk, node)
 
 		# recompute the signature and return it
@@ -117,11 +120,11 @@ class scanner(object):
 
 			# TODO: look at the case of stale nodes and dependencies types
 			variant = node.variant(env)
-			try: queue += tree.m_depends_on[variant][node]
+			try: queue += tree.node_deps[variant][node]
 			except KeyError: pass
 
 			try: m.update(tree.m_tstamp_variants[variant][node])
-			except KeyError: return Params.sig_nil
+			except KeyError: return SIG_NIL
 
 		return m.digest()
 
