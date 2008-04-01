@@ -145,7 +145,7 @@ def create_rcc_task(self, node):
 	rcctask.m_inputs = [node]
 	rcctask.m_outputs = [rcnode]
 
-	cpptask = self.create_task('cpp', self.env)
+	cpptask = self.create_task('cxx', self.env)
 	cpptask.m_inputs  = [rcnode]
 	cpptask.m_outputs = [rcnode.change_ext('.o')]
 
@@ -240,7 +240,7 @@ setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
 @extension(EXT_QT4)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = MTask('cpp', self.env, self)
+	task = MTask('cxx', self.env, self)
 	self.m_tasks.append(task)
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%s.o' % self.m_type[:2]
