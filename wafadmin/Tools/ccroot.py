@@ -53,10 +53,10 @@ class c_scanner(Scan.scanner):
 		try:
 			idx = tsk.m_inputs[0].id
 			variant = tsk.m_inputs[0].variant(env)
-			file_hashes = Params.g_build.m_tstamp_variants[variant]
-			upd(file_hashes[idx])
+			upd(Params.g_build.m_tstamp_variants[variant][idx])
 			for k in Params.g_build.node_deps[variant][idx]:
-				upd(file_hashes[k.id])
+				variant = k.variant(env)
+				upd(Params.g_build.m_tstamp_variants[variant][k.id])
 		except KeyError:
 			return SIG_NIL
 
