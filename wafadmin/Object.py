@@ -460,7 +460,6 @@ def taskgen(f):
 
 def feature(*k):
 	def deco(f):
-		#print name, f
 		for name in k:
 			try:
 				l = task_gen.traits[name]

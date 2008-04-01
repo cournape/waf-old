@@ -4,18 +4,21 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, cPickle, traceback
+import os, sys, shutil, cPickle, traceback
+
+# this line is removed
+if sys.hexversion<0x20600f0: raise ImportError, "Waf requires Python >= 2.3 but the raw source requires Python 2.4"
+
 import Params, Utils, Configure, Build, Runner, Options
-import shutil
 from Params import error, fatal, warning, g_lockfile
 from Constants import *
 
-g_gz='bz2'
-g_dirwatch   = None
+g_gz = 'bz2'
+g_dirwatch = None
 g_daemonlock = 0
 g_excludes = '.svn CVS .arch-ids {arch} SCCS BitKeeper .hg'.split()
 "exclude folders from dist"
-g_dist_exts  = '~ .rej .orig .pyc .pyo .bak config.log .tar.bz2 .zip Makefile Makefile.in'.split()
+g_dist_exts = '~ .rej .orig .pyc .pyo .bak config.log .tar.bz2 .zip Makefile Makefile.in'.split()
 "exclude files from dist"
 
 g_distclean_exts = '~ .pyc .wafpickle'.split()
@@ -45,13 +48,7 @@ def add_subdir(dir, bld):
 		module.build(bld)
 
 	# restore the old node position
-	bld.m_curdirnode=old
-
-	#
-	#node = bld.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
-	#if node is None:
-	#	fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
-	#bld.m_subdirs = [[node, bld.m_curdirnode]] + bld.m_subdirs
+	bld.m_curdirnode = old
 
 def call_back(idxName, pathName, event):
 	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
@@ -84,8 +81,8 @@ def start_daemon():
 		g_dirwatch.suspend_all_watch()
 		m_dirs=[]
 		for nodeDir in Params.g_build.m_srcnode.dirs():
-			tmpstr = "%s" %nodeDir
-			tmpstr = "%s" %(tmpstr[3:])[:-1]
+			tmpstr = "%s" % nodeDir
+			tmpstr = "%s" % (tmpstr[3:])[:-1]
 			m_dirs.append(tmpstr)
 		g_dirwatch.add_watch("tmp Test", call_back, m_dirs)
 
@@ -285,7 +282,7 @@ def prepare():
 		DistCheck(appname, version)
 		sys.exit(0)
 
-	fun=getattr(Utils.g_module, 'init', None)
+	fun = getattr(Utils.g_module, 'init', None)
 	if fun: fun()
 
 	main()
