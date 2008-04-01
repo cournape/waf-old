@@ -26,8 +26,7 @@ def create_task_macapp(self):
 
 @taskgen
 @after('apply_link')
-@feature('cc')
-@feature('cxx')
+@feature('cc', 'cxx')
 def apply_link_osx(self):
 	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
 	or use obj.mac_app = True to build specific targets as Mac apps"""
@@ -37,8 +36,7 @@ def apply_link_osx(self):
 @taskgen
 @before('apply_link')
 @before('apply_lib_vars')
-@feature('cc')
-@feature('cxx')
+@feature('cc', 'cxx')
 def apply_bundle(self):
 	"""the uselib system cannot modify a few things, use env['MACBUNDLE'] to force all shlibs into mac bundles
 	or use obj.mac_bundle = True for specific targets only"""

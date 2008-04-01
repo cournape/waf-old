@@ -185,8 +185,7 @@ def libname_msvc(self, libname, is_static=False):
 	return None
 
 @taskgen
-@feature('cc')
-@feature('cxx')
+@feature('cc', 'cxx')
 @after('apply_obj_vars_cc')
 @after('apply_obj_vars_cxx')
 def apply_msvc_obj_vars(self):
@@ -235,8 +234,7 @@ def apply_msvc_obj_vars(self):
 				app('LINKFLAGS', libname)
 
 @taskgen
-@feature('cc')
-@feature('cxx')
+@feature('cc', 'cxx')
 @after('apply_core')
 @before('apply_obj_vars_cc')
 @before('apply_obj_vars_cxx')
@@ -267,8 +265,7 @@ def apply_link_msvc(self):
 	self.link_task = linktask
 
 @taskgen
-@feature('cc')
-@feature('cxx')
+@feature('cc', 'cxx')
 @before('apply_core')
 def init_msvc(self):
 	"all methods (msvc and non-msvc) are to be executed, but we remove the ones we do not want"

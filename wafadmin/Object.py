@@ -458,15 +458,16 @@ def add_feature(name, methods):
 def taskgen(f):
 	setattr(task_gen, f.__name__, f)
 
-def feature(name):
+def feature(*k):
 	def deco(f):
 		#print name, f
-		try:
-			l = task_gen.traits[name]
-		except KeyError:
-			l = set()
-			task_gen.traits[name] = l
-		l.update([f.__name__])
+		for name in k:
+			try:
+				l = task_gen.traits[name]
+			except KeyError:
+				l = set()
+				task_gen.traits[name] = l
+			l.update([f.__name__])
 		return f
 	return deco
 
