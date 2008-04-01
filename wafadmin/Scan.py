@@ -29,7 +29,7 @@ class scanner(object):
 	# the input parameters may have more parameters that the ones used below
 	def scan(self, tsk, node):
 		"usually reimplemented"
-		return ([], [])
+		return ((), ())
 
 	# scans a node, the task may have additional parameters such as include paths, etc
 	def do_scan(self, tsk, node):
