@@ -210,9 +210,13 @@ def create_waf():
 			cnt = process_tokens(generate_tokens(f.readline))
 		else:
 			cnt = f.read()
+		f.close()
+
 		cnt = process_decorators(cnt)
 		cnt = process_imports(cnt)
-		f.close()
+		if path.endswith('Scripting.py'):
+			cnt = cnt.replace('if sys.hexversion<0x20400f0:raise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"', '')
+
 		return (StringIO.StringIO(cnt), len(cnt))
 
 	lst = os.listdir('wafadmin')
