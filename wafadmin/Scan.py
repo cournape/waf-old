@@ -95,42 +95,33 @@ class scanner(object):
 	# protected methods - override if you know what you are doing
 
 	def get_signature_queue(self, tsk):
-		"""the basic scheme for computing signatures from .cpp and inferred .h files
-		this is recursive, and a faster implementation is in ccroot.py
-		it is also a hot spot so do not touch"""
+		"the basic scheme for computing signatures from .cpp and inferred .h files"
 		tree = Params.g_build
 
-		seen = set()
-		lst = []+tsk.m_inputs
+		rescan = 0
+		seen = []
+		queue = []+tsk.m_inputs
 		m = md5()
-		upd = m.update
 
 		# additional variables to hash (command-line defines for example)
 		env = tsk.env()
 		for x in self.vars:
-			k = env[x]
-			if k: upd(str(k))
+			m.update(str(env[x]))
 
-		# cross-variant builds are disabled for performance reasons (and for little usage)
-		# if you want to do that, put the variant var in the loop
-		if lst:
-			variant = lst[0].variant(env)
-			node_deps = tree.node_deps[variant]
-			tstamp_variants = tree.m_tstamp_variants[variant]
+		# add the hashes of all files entering into the dependency system
+		while queue:
+			node = queue.pop(0)
 
-		# add the build hashes of all files entering into the dependency system
-		for node in lst:
-			id = node.id
-			if id in seen: continue
-			else: seen.add(id)
+			if node in seen: continue
+			seen.append(node)
 
 			# TODO: look at the case of stale nodes and dependencies types
-			k = node_deps.get(id, ())
-			if k: lst.extend(k)
+			variant = node.variant(env)
+			try: queue += tree.m_depends_on[variant][node]
+			except KeyError: pass
 
-			# the exception should not happen
-			try: upd(tstamp_variants[id])
-			except KeyError: return SIG_NIL
+			try: m.update(tree.m_tstamp_variants[variant][node])
+			except KeyError: return Params.sig_nil
 
 		return m.digest()
 
