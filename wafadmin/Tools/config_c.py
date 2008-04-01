@@ -3,7 +3,15 @@
 # Thomas Nagy, 2005-2008 (ita)
 
 """
-the c/c++ configuration routines
+c/c++ configuration routines
+
+classes such as program_enumerator are attached to the Configure class,
+avoiding lots of imports in user scripts
+
+Usage example (see demos/adv/wscript):
+program_enumerator -> conf.create_program_enumerator
+
+The functions preceded by "@conf" are attached in the same manner
 """
 
 import os, types, imp, cPickle, sys, shlex, warnings
@@ -13,12 +21,15 @@ from Params import fatal, warning
 from Constants import *
 from Configure import conf
 
-def wrap(cls):
-	def foo(self):
-		x = globals()[cls.__name__](self)
-		#print x
-		return x
-	setattr(Configure.Configure, 'create_'+cls.__name__, foo)
+class attached_conf(type):
+	"""no decorators for classes, so we use a metaclass
+	map 'conf.create_classname()' to 'classname()'"""
+	def __init__(cls, name, bases, dict):
+		super(attached_conf, cls).__init__(name, bases, dict)
+		def fun_create(self):
+			inst = cls(self)
+			return inst
+		setattr(Configure.Configure, 'create_' + cls.__name__, fun_create)
 
 class enumerator_base(object):
 	def __init__(self, conf):
@@ -93,6 +104,7 @@ class configurator_base(enumerator_base):
 		self.uselib = ''
 
 class program_enumerator(enumerator_base):
+	__metaclass__ = attached_conf
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
 
@@ -114,9 +126,9 @@ class program_enumerator(enumerator_base):
 		self.conf.check_message('program', self.name, ret, ret)
 		if self.var: self.env[self.var] = ret
 		return ret
-wrap(program_enumerator)
 
 class function_enumerator(enumerator_base):
+	__metaclass__ = attached_conf
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
 
@@ -184,10 +196,10 @@ class function_enumerator(enumerator_base):
 		self.env['LIBPATH'] = oldlibpath
 
 		return ret
-wrap(function_enumerator)
 
 class library_enumerator(enumerator_base):
 	"find a library in a list of paths"
+	__metaclass__ = attached_conf
 	def __init__(self, conf):
 		enumerator_base.__init__(self, conf)
 
@@ -232,10 +244,10 @@ class library_enumerator(enumerator_base):
 			self.env['LIBPATH_'+self.uselib] += [ ret ]
 
 		return ret
-wrap(library_enumerator)
 
 class header_enumerator(enumerator_base):
 	"find a header in a list of paths"
+	__metaclass__ = attached_conf
 	def __init__(self,conf):
 		enumerator_base.__init__(self, conf)
 
@@ -268,7 +280,6 @@ class header_enumerator(enumerator_base):
 			self.conf.check_message('header', self.name, ret, ret)
 		if self.define: self.env[self.define] = ret
 		return ret
-wrap(header_enumerator)
 
 ## ENUMERATORS END
 ###################
@@ -277,6 +288,7 @@ wrap(header_enumerator)
 ## CONFIGURATORS
 
 class cfgtool_configurator(configurator_base):
+	__metaclass__ = attached_conf
 	def __init__(self,conf):
 		configurator_base.__init__(self, conf)
 
@@ -338,7 +350,6 @@ class cfgtool_configurator(configurator_base):
 			self.conf.undefine(self.define)
 		self.conf.check_message('config-tool ' + self.binary, '', found, option = '')
 		return retval
-wrap(cfgtool_configurator)
 
 class pkgconfig_configurator(configurator_base):
 	""" pkgconfig_configurator is a frontend to pkg-config variables:
@@ -349,6 +360,7 @@ class pkgconfig_configurator(configurator_base):
 	- define: name that will be used in config.h if not set define = HAVE_+uselib
 	- variables: list of addional variables to be checked for, for example variables='prefix libdir'
 	"""
+	__metaclass__ = attached_conf
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
 
@@ -375,7 +387,6 @@ class pkgconfig_configurator(configurator_base):
 			errmsg = 'pkg-config cannot find %s' % self.name
 		if self.message: errmsg += '\n%s' % self.message
 		fatal(errmsg)
-
 
 	def validate(self):
 		if not self.uselib:
@@ -521,9 +532,9 @@ class pkgconfig_configurator(configurator_base):
 			self.conf.undefine(self.define)
 
 		return retval
-wrap(pkgconfig_configurator)
 
 class test_configurator(configurator_base):
+	__metaclass__ = attached_conf
 	def __init__(self, conf):
 		configurator_base.__init__(self, conf)
 		self.name = ''
@@ -562,9 +573,9 @@ class test_configurator(configurator_base):
 			self.conf.check_message('custom code', '', ret, option=data)
 
 		return ret
-wrap(test_configurator)
 
 class library_configurator(configurator_base):
+	__metaclass__ = attached_conf
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
 
@@ -653,9 +664,9 @@ class library_configurator(configurator_base):
 		self.env['LIBPATH'] = oldlibpath
 
 		return val
-wrap(library_configurator)
 
 class framework_configurator(configurator_base):
+	__metaclass__ = attached_conf
 	def __init__(self,conf):
 		configurator_base.__init__(self,conf)
 
@@ -745,9 +756,9 @@ class framework_configurator(configurator_base):
 		self.update_env(val)
 
 		return val
-wrap(framework_configurator)
 
 class header_configurator(configurator_base):
+	__metaclass__ = attached_conf
 	def __init__(self, conf):
 		configurator_base.__init__(self,conf)
 
@@ -839,7 +850,6 @@ class header_configurator(configurator_base):
 
 		if not ret: return {}
 		return val
-wrap(header_configurator)
 
 class common_include_configurator(header_enumerator):
 	"""Looks for a given header. If found, it will be written later by write_config_header()
@@ -851,6 +861,7 @@ class common_include_configurator(header_enumerator):
 	config.h (good for compilers that don't have have this feature and
 	for further flexibility).
 	"""
+	__metaclass__ = attached_conf
 	def run_test(self):
 		# if a header was found, header_enumerator returns its directory.
 		header_dir = header_enumerator.run_test(self)
@@ -865,7 +876,6 @@ class common_include_configurator(header_enumerator):
 
 		# the return value of all enumerators is checked by enumerator_base.run()
 		return header_dir
-wrap(common_include_configurator)
 
 # CONFIGURATORS END
 ####################
@@ -873,29 +883,29 @@ wrap(common_include_configurator)
 class check_data(object):
 	def __init__(self):
 
-		self.env           = '' # environment to use
+		self.env            = '' # environment to use
 
-		self.code          = '' # the code to execute
+		self.code           = '' # the code to execute
 
-		self.flags         = '' # the flags to give to the compiler
+		self.flags          = '' # the flags to give to the compiler
 
-		self.uselib        = '' # uselib
-		self.includes      = '' # include paths
+		self.uselib         = '' # uselib
+		self.includes       = '' # include paths
 
-		self.function_name = '' # function to check for
+		self.function_name  = '' # function to check for
 
-		self.lib           = []
-		self.libpath       = [] # libpath for linking
+		self.lib            = []
+		self.libpath        = [] # libpath for linking
 
-		self.define   = '' # define to add if run is successful
+		self.define         = '' # define to add if run is successful
 
-		self.header_name   = '' # header name to check for
+		self.header_name    = '' # header name to check for
 
-		self.execute       = 0  # execute the program produced and return its output
-		self.options       = '' # command-line options
+		self.execute        = 0  # execute the program produced and return its output
+		self.options        = '' # command-line options
 
-		self.force_compiler= None
-		self.build_type    = 'program'
+		self.force_compiler = None
+		self.build_type     = 'program'
 setattr(Configure, 'check_data', check_data) # warning, attached to the module
 
 @conf
