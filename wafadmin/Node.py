@@ -23,14 +23,12 @@ import Params, Utils
 from Params import debug, error, fatal
 
 class Node(object):
-	node_id = 0
 	__slots__ = ("m_name", "m_parent", "id", "m_dirs_lookup", "m_files_lookup", "m_build_lookup")
 	def __init__(self, name, parent):
 		self.m_name = name
 		self.m_parent = parent
 
-		self.id = Node.node_id # this id is not to be used in hashes of any kind
-		Node.node_id += 1
+		self.id = hash((name, parent and parent.m_name))
 
 		# Lookup dictionaries for O(1) access
 		self.m_dirs_lookup = {}
