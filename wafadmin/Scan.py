@@ -99,7 +99,7 @@ class scanner(object):
 		tree = Params.g_build
 
 		rescan = 0
-		seen = []
+		seen = set()
 		queue = []+tsk.m_inputs
 		m = md5()
 
@@ -112,16 +112,16 @@ class scanner(object):
 		while queue:
 			node = queue.pop(0)
 
-			if node in seen: continue
-			seen.append(node)
+			if node.id in seen: continue
+			seen.add(node.id)
 
 			# TODO: look at the case of stale nodes and dependencies types
 			variant = node.variant(env)
-			try: queue += tree.node_deps[variant][node]
+			try: queue += tree.node_deps[variant][node.id]
 			except KeyError: pass
 
-			try: m.update(tree.m_tstamp_variants[variant][node])
-			except KeyError: return SIG_NIL
+			try: m.update(tree.m_tstamp_variants[variant][node.id])
+			except KeyError: return None
 
 		return m.digest()
 
