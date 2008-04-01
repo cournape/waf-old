@@ -32,6 +32,15 @@ def apply_link_osx(self):
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 	    self.create_task_macapp()
 
+@taskgen
+@before('apply_link')
+@feature('osx_bundle')
+def apply_bundle(self):
+	"the uselib system cannot modify a few things"
+	self.env['shlib_PATTERN'] = '%s.bundle'
+	uselib = self.to_list(self.uselib)
+	if not 'OSX' in uselib: uselib.append('OSX')
+
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
 
 app_info = '''

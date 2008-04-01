@@ -410,16 +410,11 @@ def detect(conf):
 	v['shlib_LINKFLAGS']= ['/DLL']
 	v['shlib_PATTERN']  = '%s.dll'
 
-	# plugins. We handle them exactly as shlibs
-	# everywhere except on osx, where we do bundles
-	v['plugin_CCFLAGS']	 = v['shlib_CCFLAGS']
-	v['plugin_LINKFLAGS'] = v['shlib_LINKFLAGS']
-	v['plugin_PATTERN']  = v['shlib_PATTERN']
-
 	# static library
 	v['staticlib_LINKFLAGS'] = ['']
 	v['staticlib_PATTERN']   = '%s.lib'
 
+	# program
 	v['program_PATTERN']     = '%s.exe'
 
 def set_options(opt):

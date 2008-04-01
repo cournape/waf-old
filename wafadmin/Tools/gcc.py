@@ -99,6 +99,11 @@ def common_flags(conf):
 	v['staticlib_LINKFLAGS'] = ['-Wl,-Bstatic']
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
+	# osx stuff
+	v['OSX_LINKFLAGS']       = ['-bundle', '-undefined dynamic_lookup']
+	v['OSX_CCFLAGS']         = ['-fPIC']
+	v['OSX_PATTERN']         = '%s.bundle'
+
 def modifier_win32(conf):
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
@@ -136,20 +141,6 @@ def modifier_aix5(conf):
 
 	v['SHLIB_MARKER']        = ''
 
-def modifier_plugin(conf):
-	v = conf.env
-	# TODO this will disappear somehow
-	# plugins. We handle them exactly as shlibs
-	# everywhere except on osx, where we do bundles
-	if sys.platform == 'darwin':
-		v['plugin_LINKFLAGS'] = ['-bundle', '-undefined dynamic_lookup']
-		v['plugin_CCFLAGS']   = ['-fPIC']
-		v['plugin_PATTERN']   = '%s.bundle'
-	else:
-		v['plugin_CCFLAGS']   = v['shlib_CCFLAGS']
-		v['plugin_LINKFLAGS'] = v['shlib_LINKFLAGS']
-		v['plugin_PATTERN']   = v['shlib_PATTERN']
-
 def modifier_debug(conf):
 	v = conf.env
 	# compiler debug levels
@@ -185,7 +176,6 @@ def detect(conf):
 	elif sys.platform == 'cygwin': modifier_cygwin(conf)
 	elif sys.platform == 'darwin': modifier_darwin(conf)
 	elif sys.platform == 'aix5': modifier_aix5(conf)
-	modifier_plugin(conf)
 
 	conf.check_tool('checks')
 	conf.check_features()

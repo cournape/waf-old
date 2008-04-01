@@ -176,7 +176,7 @@ def install_target(self):
 		if self.m_type == 'program': dest_subdir = 'bin'
 		else: dest_subdir = 'lib'
 
-	if (self.m_type == 'shlib' or self.m_type == 'plugin') and getattr(self, 'vnum', '') and sys.platform != 'win32':
+	if self.m_type == 'shlib' and getattr(self, 'vnum', '') and sys.platform != 'win32':
 		# shared libraries on linux
 		tsk = self.link_task
 		tsk.vnum = self.vnum
@@ -253,7 +253,7 @@ def apply_type_vars(self):
 
 	# the subtype, used for all sorts of evil things
 	if not self.subtype:
-		if self.m_type in 'program staticlib plugin'.split():
+		if self.m_type in 'program staticlib'.split():
 			self.subtype = self.m_type
 		else:
 			self.subtype = 'shlib'
@@ -323,9 +323,6 @@ def apply_lib_vars(self):
 
 		if y.m_type == 'shlib':
 			env.append_value('LIB', y.target)
-		elif y.m_type == 'plugin':
-			if sys.platform == 'darwin': env.append_value('PLUGIN', y.target)
-			else: env.append_value('LIB', y.target)
 		elif y.m_type == 'staticlib':
 			env.append_value('STATICLIB', y.target)
 		elif y.m_type == 'objects':

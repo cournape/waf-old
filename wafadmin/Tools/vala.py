@@ -31,7 +31,7 @@ class ValacAction(Action.Action):
 		if task.threading:
 			cmd.append('--thread')
 
-		if task.output_type in ('shlib', 'staticlib', 'plugin'):
+		if task.output_type in ('shlib', 'staticlib'):
 			cmd.append('--library ' + task.target)
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
@@ -50,7 +50,7 @@ class ValacAction(Action.Action):
 		cmd.append(" ".join(inputs))
 		result = Runner.exec_command(" ".join(cmd))
 
-		if task.output_type in ('shlib', 'staticlib', 'plugin'):
+		if task.output_type in ('shlib', 'staticlib'):
 			# generate the .deps file
 			if task.packages:
 				filename = os.path.join(task.m_outputs[0].bld_dir(env), "%s.deps" % task.target)

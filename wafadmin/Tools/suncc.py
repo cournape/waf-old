@@ -59,10 +59,6 @@ def common_flags(conf):
 	v['staticlib_LINKFLAGS'] = ['-Bstatic']
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
-	v['plugin_CCFLAGS']      = v['shlib_CCFLAGS']
-	v['plugin_LINKFLAGS']    = v['shlib_LINKFLAGS']
-	v['plugin_PATTERN']      = v['shlib_PATTERN']
-
 def modifier_debug(conf):
 	v = conf.env
 
@@ -96,7 +92,6 @@ def detect(conf):
 	conf.check_tool('cc')
 
 	common_flags(conf)
-	#modifier_plugin(conf)
 
 	conf.check_tool('checks')
 	conf.check_features()
