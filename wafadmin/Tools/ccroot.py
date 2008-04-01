@@ -58,7 +58,7 @@ class c_scanner(Scan.scanner):
 				variant = k.variant(env)
 				upd(Params.g_build.m_tstamp_variants[variant][k.id])
 		except KeyError:
-			return SIG_NIL
+			return None
 
 		return m.digest()
 

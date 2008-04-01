@@ -58,30 +58,28 @@ class scanner(object):
 		tree = Params.g_build
 		env = tsk.env()
 
-		# assumption: we assume that we can still get the old signature from the signature cache
-		try:
-			node = tsk.m_outputs[0]
-			variant = node.variant(tsk.env())
-			time = tree.m_tstamp_variants[variant][node.id]
+		# get the task signature from the signature cache
+		node = tsk.m_outputs[0]
+		variant = node.variant(tsk.env())
+		tstamps = tree.m_tstamp_variants[variant]
+		prev_sig = None
+
+		time = tstamps.get(node.id, None)
+		if not time is None:
 			key = hash( (variant, node.m_name, time, self.__class__.__name__) )
-			prev_sig = tree.get_sig_cache(key)[1]
-		except KeyError:
-			prev_sig = SIG_NIL
-
-		# we can compute and return the signature if
-		#   * the source files have not changed (rescan is 0)
-		#   * the computed signature has not changed
-		sig = self.get_signature_queue(tsk)
-
-		# if the previous signature is the same
-		# FIXME the sig cannot be NIL
-		if sig != SIG_NIL and sig == prev_sig: return sig
+			# a tuple contains the task signatures from previous runs
+			tup = tree.bld_sigs.get(key, ())
+			if tup:
+				prev_sig = tup[1]
+				if prev_sig != None:
+					sig = self.get_signature_queue(tsk)
+					if sig == prev_sig:
+						return sig
 
 		#print "scanning the file", tsk.m_inputs[0].abspath()
 
-		# therefore some source or some header is dirty, rescan the source files
+		# some source or some header is dirty, rescan the source files
 		for node in tsk.m_inputs:
-			#print "do scan!"
 			self.do_scan(tsk, node)
 
 		# recompute the signature and return it
