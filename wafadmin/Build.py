@@ -541,8 +541,6 @@ class Build(object):
 		return i_existing_nodes
 
 	def dump(self):
-		print "not impl"
-		return
 		"for debugging"
 		def printspaces(count):
 			if count > 0: return printspaces(count - 1) + "-"
@@ -558,8 +556,8 @@ class Build(object):
 					#print "variant %s"%variant
 					var = self.m_tstamp_variants[variant]
 					#print var
-					if child in var:
-						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child]))
+					if child.id in var:
+						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
 
 				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'
@@ -573,8 +571,8 @@ class Build(object):
 					#print "variant %s"%variant
 					var = self.m_tstamp_variants[variant]
 					#print var
-					if child in var:
-						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child]))
+					if child.id in var:
+						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
 
 				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'
