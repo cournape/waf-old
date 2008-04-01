@@ -410,26 +410,26 @@ class Node(object):
 	# helpers for building things
 
 	def abspath(self, env=None):
-		"absolute path"
+		"absolute path - hot zone, so do not touch"
 
 		variant = self.variant(env)
-		try:
-			ret = Params.g_build.m_abspath_cache[variant][self.id]
-			return ret
-		except KeyError:
-			if not variant:
-				cur = self
-				lst = []
-				while cur:
-					lst.append(cur.m_name)
-					cur = cur.m_parent
-				lst.reverse()
-				val = os.path.join(*lst)
-			else:
-				val = os.path.join(Params.g_build.m_bldnode.abspath(), env.variant(),
-					self.relpath(Params.g_build.m_srcnode))
-			Params.g_build.m_abspath_cache[variant][self.id] = val
-			return val
+		ret = Params.g_build.m_abspath_cache[variant].get(self.id, None)
+		if ret: return ret
+
+		if not variant:
+			cur = self
+			lst = []
+			while cur:
+				lst.append(cur.m_name)
+				cur = cur.m_parent
+			lst.reverse()
+			# the real hot zone is the os path join
+			val = os.path.join(*lst)
+		else:
+			val = os.path.join(Params.g_build.m_bldnode.abspath(), env.variant(),
+				self.relpath(Params.g_build.m_srcnode))
+		Params.g_build.m_abspath_cache[variant][self.id] = val
+		return val
 
 	def change_ext(self, ext):
 		"node of the same path, but with a different extension"
