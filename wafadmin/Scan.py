@@ -96,7 +96,8 @@ class scanner(object):
 
 	def get_signature_queue(self, tsk):
 		"""the basic scheme for computing signatures from .cpp and inferred .h files
-		hot spot so do not touch"""
+		this is recursive, and a faster implementation is in ccroot.py
+		it is also a hot spot so do not touch"""
 		tree = Params.g_build
 
 		seen = set()
