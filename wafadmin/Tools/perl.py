@@ -76,7 +76,6 @@ def check_perl_module(conf, module):
 	conf.check_perl_module("Some::Module 2.92")
 	"""
 	cmd = [conf.env['PERL'], '-e', 'use %s' % module]
-	# TODO are you certain ?
 	r = subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
 	conf.check_message("perl module %s" % module, "", r)
 	return r

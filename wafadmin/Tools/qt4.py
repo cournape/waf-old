@@ -35,8 +35,8 @@ class MTask(Task.Task):
 			for t in self.get_run_after():
 				if not t.m_hasrun:
 					return 0
-			# we need to recompute the signature as the moc task has finally run
-			# unfortunately, the moc file enters in the dependency calculation TODO
+			# the moc file enters in the dependency calculation
+			# so we need to recompute the signature when the moc file is present
 			delattr(self, 'sign_all')
 			self.signature()
 			return Task.Task.may_start(self)
