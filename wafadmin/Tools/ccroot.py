@@ -342,11 +342,23 @@ def apply_lib_vars(self):
 			self.link_task.dep_nodes = dep_nodes + y.link_task.m_outputs
 
 		# add ancestors uselib too
-		# TODO potential problems with static libraries ?
 		morelibs = y.to_list(y.uselib)
 		for v in morelibs:
 			if v in uselib: continue
 			uselib = [v]+uselib
+
+		# if the library task generator provides 'export_incdirs', add to the include path
+		# if no one uses this feature, it will be removed
+		if getattr(y, 'export_incdirs', None):
+			cpppath_st = self.env['CPPPATH_ST']
+			app = self.env.append_unique
+			for x in self.to_list(y.export_incdirs):
+				node = y.path.find_source(x)
+				if not node: fatal('object %s: invalid folder %s in export_incdirs' % (y.target, x))
+				app('_CCINCFLAGS', cpppath_st % node.bldpath(env))
+				app('_CCINCFLAGS', cpppath_st % node.srcpath(env))
+				app('_CXXINCFLAGS', cpppath_st % node.bldpath(env))
+				app('_CXXINCFLAGS', cpppath_st % node.srcpath(env))
 
 	# 2. the case of the libs defined outside
 	for x in uselib:
