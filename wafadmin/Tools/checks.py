@@ -178,7 +178,7 @@ def detect_platform(self):
 @conf
 def find_header(self, header, define='', paths=''):
 	if not define:
-		define = 'HAVE_' + header.upper().replace('/', '_').replace('.', '_')
+		define = self.have_define(header)
 	test = self.create_header_enumerator()
 	test.mandatory = 1
 	test.name = header
@@ -189,7 +189,7 @@ def find_header(self, header, define='', paths=''):
 @conf
 def check_header(self, header, define='', mandatory=0):
 	if not define:
-		define = 'HAVE_' + header.upper().replace('/', '_').replace('.', '_')
+		define = self.have_define(header)
 
 	test = self.create_header_configurator()
 	test.name = header
@@ -240,7 +240,7 @@ def check_header2(self, name, mandatory=1, define=''):
 	ck_hdr = self.create_header_configurator()
 	if define: ck_hdr.define = define
 	# header provides no fallback for define:
-	else: ck_hdr.define = 'HAVE_' + os.path.basename(name).replace('.','_').upper()
+	else: ck_hdr.define = self.have_define(os.path.basename(name))
 	ck_hdr.mandatory = mandatory
 	ck_hdr.name = name
 	return ck_hdr.run()

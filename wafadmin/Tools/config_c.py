@@ -309,7 +309,7 @@ class cfgtool_configurator(configurator_base):
 		if not self.uselib:
 			raise ValueError, "no uselib given in cfgtool!"
 		if not self.define and self.uselib:
-			self.define = 'HAVE_'+self.uselib
+			self.define = self.conf.have_define(self.uselib)
 
 		if not self.tests:
 			self.tests['--cflags'] = 'CCFLAGS'
@@ -392,7 +392,7 @@ class pkgconfig_configurator(configurator_base):
 		if not self.uselib:
 			self.uselib = self.name.upper()
 		if not self.define:
-			self.define = 'HAVE_'+self.uselib
+			self.define = self.conf.have_define(self.uselib)
 
 	def run_cache(self, retval):
 		if self.version:
@@ -606,7 +606,7 @@ class library_configurator(configurator_base):
 		if not self.uselib:
 			self.uselib = self.name.upper()
 		if not self.define:
-			self.define = 'HAVE_'+self.uselib
+			self.define = self.conf.have_define(self.uselib)
 
 		if not self.uselib:
 			fatal('uselib is not defined')
@@ -689,7 +689,7 @@ class framework_configurator(configurator_base):
 		if not self.uselib:
 			self.uselib = self.name.upper()
 		if not self.define:
-			self.define = 'HAVE_'+self.uselib
+			self.define = self.conf.have_define(self.uselib)
 		if not self.code:
 			self.code = "#include <%s>\nint main(){return 0;}\n"
 		if not self.uselib:
@@ -782,8 +782,8 @@ class header_configurator(configurator_base):
 	def validate(self):
 		# self.names = self.names.split()
 		if not self.define:
-			if self.name: self.define = 'HAVE_'+ Utils.quote_define_name(self.name)
-			elif self.uselib: self.define = 'HAVE_'+self.uselib
+			if self.name: self.define = self.conf.have_define(self.name)
+			elif self.uselib: self.define = self.conf.have_define(self.uselib)
 
 		if not self.code:
 			self.code = "#include <%s>\nint main(){return 0;}\n"
@@ -974,6 +974,11 @@ def get_define(self, define):
 	"get the value of a previously stored define"
 	try: return self.env[DEFINES][define]
 	except KeyError: return None
+
+@conf
+def have_define(self, name):
+	"prefix the define with 'HAVE_' and make sure it has valid characters."
+	return "HAVE_%s" % Utils.quote_define_name(name)
 
 @conf
 def write_config_header(self, configfile='', env=''):
