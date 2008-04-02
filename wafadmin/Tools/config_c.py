@@ -1118,11 +1118,6 @@ def run_check(self, obj):
 
 	return not ret
 
-# TODO OBSOLETE remove for waf 1.4
-@conf
-def add_define(self, define, value, quote=-1, comment=''):
-	fatal("DEPRECATED use conf.define() / conf.undefine() / conf.define_cond() instead")
-
 @conf
 def check_features(self, kind='cc'):
 	v = self.env
