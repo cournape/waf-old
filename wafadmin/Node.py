@@ -28,7 +28,9 @@ class Node(object):
 		self.m_name = name
 		self.m_parent = parent
 
-		self.id = hash((name, parent and parent.m_name))
+		# assumption: one build object at a time
+		Params.g_build.id_nodes += 1
+		self.id = Params.g_build.id_nodes
 
 		# Lookup dictionaries for O(1) access
 		self.m_dirs_lookup = {}

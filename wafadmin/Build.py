@@ -17,7 +17,7 @@ import Params, Runner, Object, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
 from Constants import *
 
-SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps bld_sigs'.split()
+SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps bld_sigs id_nodes'.split()
 "Build class members to save"
 
 g_modcache = {}
@@ -57,17 +57,17 @@ class Build(object):
 	"holds the dependency tree"
 	def __init__(self):
 
-		# dependency tree
-		self._init_data()
-
-		# ======================================= #
-		# globals
-
-		# map a name to an environment, the 'default' must be defined
-		self.m_allenvs = {}
-
 		# there should be only one build dir in use at a time
 		Params.g_build = self
+
+		# instead of hashing the nodes, we assign them a unique id when they are created
+		self.id_nodes = 0
+
+		# initialize the filesystem representation
+		self._init_data()
+
+		# map names to environments, the 'default' must be defined
+		self.m_allenvs = {}
 
 		# ======================================= #
 		# code for reading the scripts
@@ -88,16 +88,9 @@ class Build(object):
 		# local cache for absolute paths - m_abspath_cache[variant][node]
 		self.m_abspath_cache = {}
 
-		# local cache for relative paths
-		# two nodes - hashtable of hashtables - g_relpath_cache[child][parent])
-		self._relpath_cache = {}
-
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
 		self.m_scanned_folders = []
-
-		# file contents
-		self._cache_node_content = {}
 
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.m_uninstall = []
@@ -108,11 +101,10 @@ class Build(object):
 		# build dir variants (release, debug, ..)
 		for name in ['default', 0]:
 			for v in 'm_tstamp_variants node_deps bld_sigs raw_deps m_abspath_cache'.split():
-				var = getattr(self, v)
-				if not name in var: var[name] = {}
-
-		# TODO used by xmlwaf
-		self.pushed = []
+				var = {}
+				setattr(self, v, var)
+				if not name in var:
+					var[name] = {}
 
 	def _init_data(self):
 		debug("init data called", 'build')
@@ -120,24 +112,8 @@ class Build(object):
 		# filesystem root - root name is Params.g_rootname
 		self.m_root = Node.Node('', None)
 
-		# source directory
-		self.m_srcnode = None
-		# build directory
-		self.m_bldnode = None
-
-		# TODO: this code does not look too good
-		# nodes signatures: self.m_tstamp_variants[variant_name][node] = signature_value
-		self.m_tstamp_variants = {}
-
-		# one node has nodes it depends on, tasks cannot be stored
-		# self.node_deps[variant][node] = [node1, node2, ..]
-		self.node_deps = {}
-
-		# results of a scan: self.raw_deps[variant][node.id] = [filename1, filename2, filename3]
-		# for example, find headers in c files
-		self.raw_deps = {}
-
-		self.bld_sigs = {}
+		self.m_srcnode = None # src directory
+		self.m_bldnode = None # bld directory
 
 		self.task_manager = Task.TaskManager()
 
@@ -557,7 +533,8 @@ class Build(object):
 					var = self.m_tstamp_variants[variant]
 					#print var
 					if child.id in var:
-						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
+						accu += ' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
+						accu += str(child.id)
 
 				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'
@@ -573,6 +550,7 @@ class Build(object):
 					#print var
 					if child.id in var:
 						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
+						accu += str(child.id)
 
 				accu+='\n'
 				#accu+= ' '+str(child.m_tstamp)+'\n'
