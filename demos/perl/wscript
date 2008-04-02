@@ -2,9 +2,8 @@
 # encoding: utf-8
 # anonymous coward, 2007
 
+import sys, os
 import Common
-import sys
-import os
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
@@ -38,7 +37,7 @@ def configure(conf):
 
 def build(bld):
 	# Build a perl extension module
-	obj = bld.create_obj('cc', 'perlext', 'perlext')
+	obj = bld.create_obj('cc', 'shlib', 'perlext')
 	obj.source = 'Mytest.xs'
 	obj.target = 'Mytest'
 	obj.inst_var = 'INSTALLDIR_PERL_AUTO'
