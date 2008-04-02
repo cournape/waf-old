@@ -198,7 +198,6 @@ class Build(object):
 		self.task_manager.flush()
 		if Params.g_options.jobs <= 1: executor = Runner.Serial(self)
 		else: executor = Runner.Parallel(self, Params.g_options.jobs)
-		# TODO clean
 		self.generator = executor
 
 		def dw():
@@ -510,8 +509,6 @@ class Build(object):
 		ids_to_remove = [x.id for x in i_existing_nodes if x.m_name in remove_names]
 		cache = self.m_tstamp_variants[i_variant]
 		for nid in ids_to_remove:
-
-			# TODO there must be a better syntax for this
 			if nid in cache: cache.__delitem__(nid)
 
 		return i_existing_nodes

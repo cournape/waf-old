@@ -115,7 +115,6 @@ class scanner(object):
 			if node.id in seen: continue
 			seen.add(node.id)
 
-			# TODO: look at the case of stale nodes and dependencies types
 			variant = node.variant(env)
 			try: queue += tree.node_deps[variant][node.id]
 			except KeyError: pass
