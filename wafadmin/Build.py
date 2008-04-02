@@ -518,54 +518,36 @@ class Build(object):
 
 	def dump(self):
 		"for debugging"
-		def printspaces(count):
-			if count > 0: return printspaces(count - 1) + "-"
-			return ""
 		def recu(node, count):
-			accu = printspaces(count)
-			accu += "> "+node.m_name+" (d)\n"
+			accu = count * '-'
+			accu += "> %s (d) %d \n" % (node.m_name, node.id)
 			for child in node.files():
-				accu += printspaces(count)
+				accu += count * '-'
 				accu += '-> '+child.m_name+' '
 
 				for variant in self.m_tstamp_variants:
-					#print "variant %s"%variant
 					var = self.m_tstamp_variants[variant]
-					#print var
 					if child.id in var:
 						accu += ' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
 						accu += str(child.id)
 
 				accu+='\n'
-				#accu+= ' '+str(child.m_tstamp)+'\n'
-				# TODO #if node.files()[file].m_newstamp != node.files()[file].m_oldstamp: accu += "\t\t\t(modified)"
-				#accu+= node.files()[file].m_newstamp + "< >" + node.files()[file].m_oldstamp + "\n"
 			for child in node.m_build_lookup.values():
-				accu+= printspaces(count)
+				accu+= count * '-'
 				accu+= '-> '+child.m_name+' (b) '
 
 				for variant in self.m_tstamp_variants:
-					#print "variant %s"%variant
 					var = self.m_tstamp_variants[variant]
-					#print var
 					if child.id in var:
 						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
 						accu += str(child.id)
 
 				accu+='\n'
-				#accu+= ' '+str(child.m_tstamp)+'\n'
-				# TODO #if node.files()[file].m_newstamp != node.files()[file].m_oldstamp: accu += "\t\t\t(modified)"
-				#accu+= node.files()[file].m_newstamp + "< >" + node.files()[file].m_oldstamp + "\n"
 			for dir in node.dirs(): accu += recu(dir, count+1)
 			return accu
 
 		Params.pprint('CYAN', recu(self.m_root, 0) )
 		Params.pprint('CYAN', 'size is '+str(self.m_root.size_subtree()))
-
-		#keys = self.m_name2nodes.keys()
-		#for k in keys:
-		#	print k, '\t\t', self.m_name2nodes[k]
-
 
 	def pushdir(self, dir):
 		node = self.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
