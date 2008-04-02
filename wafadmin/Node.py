@@ -236,7 +236,9 @@ class Node(object):
 			name = lst.pop(0)
 			prev = current
 
-			if name == '.':
+			if not name:
+				continue
+			elif name == '.':
 				continue
 			elif name == '..':
 				current = current.m_parent
