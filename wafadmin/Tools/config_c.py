@@ -1033,7 +1033,7 @@ def run_check(self, obj):
 	"""
 	# first make sure the code to execute is defined
 	if not obj.code:
-		raise ConfigurationError('run_check: no code to process in check')
+		raise Configure.ConfigurationError('run_check: no code to process in check')
 
 	# create a small folder for testing
 	dir = os.path.join(self.m_blddir, '.wscript-trybuild')
