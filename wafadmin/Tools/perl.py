@@ -5,10 +5,20 @@
 import os
 import pproc as subprocess
 import Action, Object, Node, Params
-from Object import extension
+from Object import extension, taskgen, feature, before
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 EXT_XS = ['.xs']
+
+@taskgen
+@before('apply_incpaths')
+@feature('perlext')
+def init_pyext(self):
+	self.uselib = self.to_list(self.uselib)
+	if not 'PERL' in self.uselib: self.uselib.append('PERL')
+	if not 'PERLEXT' in self.uselib: self.uselib.append('PERLEXT')
+	self.env['shlib_PATTERN'] = self.env['perlext_PATTERN']
+
 
 @extension(EXT_XS)
 def xsubpp_file(self, node):
@@ -97,8 +107,7 @@ def check_perl_ext_devel(conf):
 	else:
 		conf.env["ARCHDIR_PERL"] = getattr(Params.g_options, 'perlarchdir')
 
-	conf.env["perlext_PATTERN"] = '%s.' + os.popen(perl + " -MConfig -e'print $Config{dlext}'").read()
-	conf.env["perlext_USELIB"] = "PERL PERLEXT"
+	conf.env['perlext_PATTERN'] = '%s.' + os.popen(perl + " -MConfig -e'print $Config{dlext}'").read()
 
 	return True
 
