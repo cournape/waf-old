@@ -6,7 +6,7 @@ import os, sys, string
 
 # Specify the demos you want to build below in case you don't have all necessary 
 # build tools installed
-ALL_DEMOS="adv cc compat cpp d docbook gnome java ocaml perl python qt4 swig tex vala"
+ALL_DEMOS="adv cc compat cpp d docbook gnome java ocaml perl python qt4 swig tex vala unit_test"
 
 if len(sys.argv) != 2:
   print 'Usage %s <demodir> | [--all]' % sys.argv[0]

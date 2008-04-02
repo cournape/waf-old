@@ -73,10 +73,12 @@ class unit_test(object):
 			if not unit_test: continue
 			try:
 				if obj.m_type == 'program':
-					filename = obj.link_task.m_outputs[0].abspath(obj.env)
-					label = obj.link_task.m_outputs[0].bldpath(obj.env)
+					output = obj.link_task.m_outputs[0]
+					filename = output.abspath(obj.env)
+					srcdir = os.path.join(*output.bld_dir(obj.env).split(os.path.sep)[1:])
+					label = output.bldpath(obj.env)
 					self.max_label_length = max(self.max_label_length, len(label))
-					self.unit_tests[label] = filename
+					self.unit_tests[label] = (filename, srcdir)
 			except KeyError:
 				pass
 		self.total_num_tests = len(self.unit_tests)
@@ -88,7 +90,9 @@ class unit_test(object):
 		result = 1
 
 		curdir = os.getcwd() # store the current dir (only if self.change_to_testfile_dir)
-		for label, filename in self.unit_tests.iteritems():
+		for label, file_and_src in self.unit_tests.iteritems():
+			filename = file_and_src[0]
+			srcdir = file_and_src[1]
 			count += 1
 			line = Utils.progress_line(count, self.total_num_tests, col1, col2)
 			if Params.g_options.progress_bar and line:
@@ -96,7 +100,7 @@ class unit_test(object):
 				sys.stdout.flush()
 			try:
 				if self.change_to_testfile_dir:
-					os.chdir(os.path.dirname(filename))
+					os.chdir(srcdir)
 
 				kwargs = dict()
 				if not self.want_to_see_test_output:
@@ -122,8 +126,8 @@ class unit_test(object):
 				self.unit_test_erroneous[label] = 1
 				self.num_tests_err += 1
 			except KeyboardInterrupt:
-				if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
-		if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
+				pass
+		if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_on)
 
 	def print_results(self):
 		"Pretty-prints a summary of all unit tests, along with some statistics"
