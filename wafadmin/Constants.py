@@ -4,7 +4,7 @@
 
 # maintainer the version number is updated from the top-level wscript file
 HEXVERSION = 0x10303
-ABI = 4
+ABI = 5
 
 CACHE_DIR          = 'c4che'
 CACHE_SUFFIX       = '.cache.py'
