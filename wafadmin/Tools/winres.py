@@ -34,14 +34,12 @@ def detect(conf):
 	cc = os.path.basename(''.join(v['CC']).lower())
 	cxx = os.path.basename(''.join(v['CXX']).lower())
 
-	# TODO ugly
-	if cc.find('gcc')>-1 or cc.find('cc')>-1 or cxx.find('g++')>-1 or cxx.find('c++')>-1:
-		# find windres while use gcc toolchain
+	# find rc.exe
+	if cc in ['gcc', 'cc', 'g++', 'c++']:
 		winrc = conf.find_program('windres', var='WINRC')
 		v['WINRC_TGT_F'] = '-o '
 		v['WINRC_SRC_F'] = '-i '
-	elif cc.find('cl.exe')>-1 or cxx.find('cl.exe')>-1 :
-		# find rc.exe while use msvc
+	elif cc == 'cl.exe' or cxx == 'cl.exe':
 		winrc = conf.find_program('RC', var='WINRC')
 		v['WINRC_TGT_F'] = '/fo '
 		v['WINRC_SRC_F'] = ' '
