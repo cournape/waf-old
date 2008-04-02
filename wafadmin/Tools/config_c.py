@@ -976,9 +976,9 @@ def get_define(self, define):
 	except KeyError: return None
 
 @conf
-def write_config_header(self, configfile='config.h', env=''):
+def write_config_header(self, configfile='', env=''):
 	"save the defines into a file"
-	if configfile == '': configfile = self.configheader
+	if not configfile: configfile = self.configheader
 
 	lst=Utils.split_path(configfile)
 	base = lst[:-1]
