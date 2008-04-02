@@ -388,7 +388,7 @@ def main():
 		else:
 			if Params.g_options.progress_bar: print ''
 
-			if Params.g_commands['install'] or Params.g_commands['uninstall']:
+			if Params.g_install:
 				bld.install()
 
 			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully'
