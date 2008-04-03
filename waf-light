@@ -130,7 +130,7 @@ w = join(wafdir, 'wafadmin')
 t = join(w, 'Tools')
 sys.path = [w, t] + sys.path
 
-import Params, Scripting
+import Scripting, Params
 Params.g_tooldir = [t]
 Params.g_cwd_launch = cwd
 
