@@ -478,7 +478,8 @@ class Build(object):
 
 		for node in existing_nodes:
 			try:
-				cache[node.id] = Params.h_file(node.abspath())
+				# do not call node.abspath here
+				cache[node.id] = Params.h_file(i_path + os.sep + node.m_name)
 			except IOError:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
