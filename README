@@ -84,6 +84,16 @@ A few assumptions are used over the user projects, for some they are features an
     (waf should work anyway, but this is not a priority)
   * waf does not constantly watch if source files have changed (they are considered once when the build starts)
 
+NEW IN WAF 1.4
+--------------
+
+* various optimizations
+* bugfixes
+* new feature system for adding methods dynamically
+* export_incdirs will add the folders when linking against libraries given in uselib_local
+* the type 'plugin' disappears, the c/c++ types are staticlib,program,shlib
+* simplification of the configuration modules (gcc, g++, ..)
+
 ---------------------------
 Thomas Nagy, 2006-2008 (ita)
 
