@@ -201,7 +201,7 @@ def h_file(filename):
 	f.close()
 	return m.digest()
 
-# Another possibility, faster but less accurate
+# Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
 # based on the path, md5 hashing can be used for some files and timestamp for others
 #def h_file(filename):
 #	st = os.stat(filename)
