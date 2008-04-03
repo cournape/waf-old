@@ -8,6 +8,13 @@ import os, sys, imp, types, string, time
 import Params
 from Constants import *
 
+try:
+	import hashlib
+	md5 = hashlib.md5
+except ImportError:
+	import md5
+	md5 = md5.md5
+
 g_trace = 0
 g_debug = 0
 g_error = 0

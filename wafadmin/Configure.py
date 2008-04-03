@@ -20,7 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, types, imp, cPickle, sys, shlex, warnings
-from hashlib import md5
+from Utils import md5
 import Action, Params, Environment, Runner, Build, Utils, Object
 from Params import fatal, warning
 from Constants import *

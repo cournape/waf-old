@@ -5,7 +5,7 @@
 "Atomic operations that create nodes or execute commands"
 
 import os, types, shutil
-from hashlib import md5
+from Utils import md5
 import Params, Scan, Action, Runner, Common
 from Params import debug, error, warning
 from Constants import *

@@ -5,7 +5,7 @@
 "Main parameters"
 
 import os, sys, types, inspect, base64, time
-from hashlib import md5
+from Utils import md5
 import Constants, Utils
 
 # updated from the top-level wscript

@@ -5,9 +5,9 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-from md5 import md5
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
+from Utils import md5
 from Object import taskgen, after, before, feature
 from Constants import *
 

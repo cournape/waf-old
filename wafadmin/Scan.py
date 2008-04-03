@@ -4,7 +4,7 @@
 
 "Scan for dependencies, compute task signatures"
 
-from hashlib import md5
+from Utils import md5
 import Params
 from Params import debug, error
 from Constants import *

@@ -139,9 +139,6 @@ def process_imports(body):
 	if body.find('set(') > -1:
 		impo += 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set'
 
-	if body.rfind('md5') > -1:
-		body = body.replace('from hashlib import md5', 'try: from hashlib import md5\nexcept ImportError: from md5 import md5')
-
 	return "\n".join([header, impo, body, deco])
 
 def process_tokens(tokens):
