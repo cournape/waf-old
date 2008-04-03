@@ -4,7 +4,7 @@
 
 def build(bld):
 	# The first example is a simple program
-	obj = bld.create_obj('ocaml', 'all')
+	obj = bld.create_obj('ocaml', type='all')
 	obj.find_sources_in_dirs('.')
 	#obj.source='''
 	#somemodule.ml main.ml
