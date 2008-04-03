@@ -195,13 +195,13 @@ native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
 class ocaml_taskgen(Object.task_gen):
 	s_default_ext = ['.mli', '.mll', '.mly', '.ml']
-	def __init__(self, type='all', library=0):
+	def __init__(self, *k, **kw):
 		Object.task_gen.__init__(self)
 
-		self.m_type       = type
+		self.m_type       = kw.get('type', 'native')
 		self.m_source     = ''
 		self.m_target     = ''
-		self.islibrary    = library
+		self.islibrary    = kw.get('library', 0)
 		self._incpaths_lst = []
 		self._bld_incpaths_lst = []
 		self._mlltasks    = []
@@ -226,15 +226,15 @@ class ocaml_taskgen(Object.task_gen):
 
 		if not self.env: self.env = Params.g_build.env()
 
-		if not type in ['bytecode','native','all','c_object']:
-			print 'type for camlobj is undefined '+type
-			type='all'
+		if not self.m_type in ['bytecode','native','all','c_object']:
+			print 'type for camlobj is undefined '+self.m_type
+			self.m_type='all'
 
-		if type in native_lst:
+		if self.m_type in native_lst:
 			self.native_env                = self.env.copy()
 			self.native_env['OCAMLCOMP']   = self.native_env['OCAMLOPT']
 			self.native_env['OCALINK']     = self.native_env['OCAMLOPT']
-		if type in bytecode_lst:
+		if self.m_type in bytecode_lst:
 			self.bytecode_env              = self.env.copy()
 			self.bytecode_env['OCAMLCOMP'] = self.bytecode_env['OCAMLC']
 			self.bytecode_env['OCALINK']   = self.bytecode_env['OCAMLC']
