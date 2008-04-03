@@ -2,7 +2,7 @@ roadmap:
 --------
 
 * configuration system improvements (cross-compilation helpers)
-* improve the filesystem representation (btw, node.abspath is a bottleneck)
+* improve the filesystem representation (the pickle file is too big)
 * improve the custom compilation rules (pc file creation, etc)
 * more gnome support
 * provide installation threads
@@ -14,6 +14,6 @@ ideas to watch:
 * packaging (rpms, debs)
 
 --------------------------------------
-Last update: 07/03/2008
+Last update: 03/04/2008
 Contact -> tnagyemail-mail at yahoo.fr (ita)
 
