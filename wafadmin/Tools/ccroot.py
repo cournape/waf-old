@@ -53,10 +53,13 @@ class c_scanner(Scan.scanner):
 		try:
 			idx = tsk.m_inputs[0].id
 			variant = tsk.m_inputs[0].variant(env)
-			upd(Params.g_build.m_tstamp_variants[variant][idx])
+			tstamp = Params.g_build.m_tstamp_variants
+			upd(tstamp[variant][idx])
 			for k in Params.g_build.node_deps[variant][idx]:
-				variant = k.variant(env)
-				upd(Params.g_build.m_tstamp_variants[variant][k.id])
+				if k.m_name in k.m_parent.m_files_lookup:
+					upd(tstamp[0][k.id])
+				else:
+					upd(tstamp[env.variant()][k.id])
 		except KeyError:
 			return None
 
@@ -353,7 +356,7 @@ def apply_lib_vars(self):
 			cpppath_st = self.env['CPPPATH_ST']
 			app = self.env.append_unique
 			for x in self.to_list(y.export_incdirs):
-				node = y.path.find_source(x)
+				node = y.path.find_dir(x)
 				if not node: fatal('object %s: invalid folder %s in export_incdirs' % (y.target, x))
 				app('_CCINCFLAGS', cpppath_st % node.bldpath(env))
 				app('_CCINCFLAGS', cpppath_st % node.srcpath(env))
