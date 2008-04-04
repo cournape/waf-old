@@ -8,7 +8,7 @@ import os, re
 import Object, Action, Params, Common, Scan, Utils, Runner
 import cc
 from Params import fatal, error
-from Object import taskgen, before, after
+from Object import taskgen, before, after, feature
 
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
@@ -50,6 +50,20 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if schemas: postinstall_schemas(prog_name)
 	if icons: postinstall_icons()
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
+
+class xml2po_taskgen(Object.task_gen):
+	def __init__(self, *k):
+		Object.task_gen.__init__(self, *k)
+
+	def apply(self):
+		lst = self.to_list(self.doc_linguas)
+		for x in lst:
+			tsk = self.create_task('xml2po', self.env)
+			node = self.path.find_source(x+'/'+x+'.po')
+			src = self.path.find_source('C/%s.xml' % self.doc_module)
+			out = self.path.find_build('%s/%s.xml' % (x, self.doc_module))
+			tsk.set_inputs([node, src])
+			tsk.set_outputs(out)
 
 # give specs
 class xml_to_taskgen(Object.task_gen):
@@ -299,7 +313,7 @@ def detect(conf):
 	conf.define('LOCALSTATEDIR', localstatedir)
 
 	xml2po = conf.find_program('xml2po', 'XML2PO')
-	v['XML2POFLAGS'] = '-e -p'
+	conf.env['XML2POFLAGS'] = '-e -p'
 
 	# TODO: maybe the following checks should be in a more generic module.
 
