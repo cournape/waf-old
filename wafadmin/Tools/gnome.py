@@ -295,8 +295,8 @@ xslt_magic = """${XSLTPROC2PO} -o ${TGT[0].abspath(env)} \
 --stringparam db2omf.format docbook \
 --stringparam db2omf.lang C \
 --stringparam db2omf.dtd '-//OASIS//DTD DocBook XML V4.3//EN' \
---stringparam db2omf.omf_dir /opt/gnome2/share/omf \
---stringparam db2omf.help_dir /opt/gnome2/share/gnome/help \
+--stringparam db2omf.omf_dir ${PREFIX}/share/omf \
+--stringparam db2omf.help_dir ${PREFIX}/share/gnome/help \
 --stringparam db2omf.omf_in ${SRC[0].abspath(env)} \
 --stringparam db2omf.scrollkeeper_cl ${SCROLLKEEPER_DATADIR}/Templates/C/scrollkeeper_cl.xml \
 ${DB2OMF} ${SRC[1].abspath(env)}"""
