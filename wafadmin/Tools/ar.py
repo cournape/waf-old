@@ -24,7 +24,7 @@ def detect(conf):
 
 	v = conf.env
 	v['AR']          = comp
-	v['ARFLAGS']     = 'r'
+	v['ARFLAGS']     = 'rc'
 	v['RANLIB']      = ranlib
 	v['RANLIBFLAGS'] = ''
 
