@@ -270,19 +270,10 @@ def detect(conf):
 
 	conf.check_tool('checks')
 
-	sgml2man = conf.find_program('docbook2man')
-	#if not sgml2man:
-	#	fatal('The program docbook2man is mandatory!')
-	conf.env['SGML2MAN'] = sgml2man
-
-	glib_genmarshal = conf.find_program('glib-genmarshal')
-	conf.env['GGM'] = glib_genmarshal
-
-	dbus_binding_tool = conf.find_program('dbus-binding-tool')
-	conf.env['DBT'] = dbus_binding_tool
-
-	mk_enums_tool = conf.find_program('glib-mkenums')
-	conf.env['GLIB_MKENUM'] = mk_enums_tool
+	sgml2man = conf.find_program('docbook2man', var='SGML2MAN')
+	glib_genmarshal = conf.find_program('glib-genmarshal', var='GGM')
+	dbus_binding_tool = conf.find_program('dbus-binding-tool', var='DBT')
+	mk_enums_tool = conf.find_program('glib-mkenums', var='GLIB_MKENUM')
 
 	def getstr(varname):
 		return getattr(Params.g_options, varname, '')
@@ -312,7 +303,7 @@ def detect(conf):
 	conf.define('SYSCONFDIR', sysconfdir)
 	conf.define('LOCALSTATEDIR', localstatedir)
 
-	xml2po = conf.find_program('xml2po', 'XML2PO')
+	xml2po = conf.find_program('xml2po', var='XML2PO')
 	conf.env['XML2POFLAGS'] = '-e -p'
 
 	# TODO: maybe the following checks should be in a more generic module.
