@@ -93,6 +93,7 @@ NEW IN WAF 1.4
 * export_incdirs will add the folders when linking against libraries given in uselib_local
 * the type 'plugin' disappears, the c/c++ types are staticlib,program,shlib
 * simplification of the configuration modules (gcc, g++, ..)
+* the configuration details are written to config.log
 
 ---------------------------
 Thomas Nagy, 2006-2008 (ita)
