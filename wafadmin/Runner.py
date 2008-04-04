@@ -46,7 +46,7 @@ def progress_line(state, total, col1, task, col2):
 		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (total, state, ins, outs, ela)
 
 	n = len(str(total))
-	fs = '[%%%dd/%%%dd] %%s%%s%%s\n' % (n, n)
+	fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
 	return fs % (state, total, col1, task.get_display(), col2)
 
 def process_cmd_output(proc):
