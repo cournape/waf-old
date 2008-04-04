@@ -54,6 +54,8 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 class xml2po_taskgen(Object.task_gen):
 	def __init__(self, *k):
 		Object.task_gen.__init__(self, *k)
+		self.inst_var = 'PREFIX'
+		self.inst_dir = 'share/'
 
 	def apply(self):
 		self.env['APPNAME'] = self.doc_module
@@ -73,6 +75,18 @@ class xml2po_taskgen(Object.task_gen):
 			tsk2.m_inputs = [node, out]
 
 			tsk2.m_run_after.append(tsk)
+
+
+			if Params.g_install:
+
+				Common.install_files(self.inst_var, self.inst_dir+"omf", out2.abspath(self.env))
+				for y in self.to_list(self.doc_figures):
+					# source directory
+					Common.install_files(self.inst_var, self.inst_dir, self.path.abspath()+'/'+x+'/'+y)
+
+				Common.install_as(self.inst_var, 
+					self.inst_dir+'gnome/help/%s/%s/%s.xml' % (self.doc_module, x, self.doc_module),
+					out.abspath(self.env))
 
 # give specs
 class xml_to_taskgen(Object.task_gen):
