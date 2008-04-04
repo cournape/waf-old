@@ -6,6 +6,6 @@ obj = bld.create_obj("xml2po")
 obj.doc_module = "cheese"
 obj.doc_entities = "legal.xml"
 obj.doc_includes = ""
-obj.doc_figures = "figures/cheese-screenshot.jpg figures/cheese-effects-screenshot.jpg"
+obj.doc_figures = "figures/cheese-screenshot.png figures/cheese-effects-screenshot.png"
 obj.doc_linguas = "es"
 
