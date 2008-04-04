@@ -3,24 +3,9 @@
 # Thomas Nagy 2008
 
 obj = bld.create_obj("xml2po")
-obj.source = ""
-obj.doc_module = "gnome-power-manager"
+obj.doc_module = "cheese"
 obj.doc_entities = "legal.xml"
-obj.DOC_INCLUDES = ""
-obj.DOC_FIGURES = "\
-	figures/applet-brightness.png \
-	figures/applet-inhibit.png \
-	figures/gpm-cell-capacity.png \
-	figures/gpm-charged.png \
-	figures/gpm-critical.png \
-	figures/gpm-low.png \
-	figures/gpm-prefs-ac.png \
-	figures/gpm-prefs-battery.png \
-	figures/gpm-prefs-general.png \
-	figures/gpm-stats-graph.png \
-	figures/gpm-suspend-problem.png \
-	figures/gpm-unplugged.png \
-	figures/gs-prefs.png"
-
-obj.doc_linguas = "ca es fr hu it oc pa ru sv"
+obj.doc_includes = ""
+obj.doc_figures = "figures/cheese-screenshot.jpg figures/cheese-effects-screenshot.jpg"
+obj.doc_linguas = "es"
 
