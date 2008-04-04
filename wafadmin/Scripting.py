@@ -108,6 +108,12 @@ def configure():
 	tree.load_dirs(src, bld, isconfigure=1)
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
+
+	# first remove the log file if it exists
+	try: os.unlink(os.path.join(bld, Configure.Configure.log_file))
+	except (OSError, IOError): pass
+
+	conf.mute_logging()
 	try:
 		# calling to main wscript's configure()
 		conf.sub_config('')
@@ -116,6 +122,7 @@ def configure():
 	except Exception:
 		Utils.test_full()
 		raise
+	conf.restore_logging()
 
 	conf.store(tree)
 	conf.cleanup()

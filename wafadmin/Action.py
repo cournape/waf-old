@@ -39,9 +39,9 @@ class Action(object):
 	def get_str(self, task):
 		"string to display to the user"
 		env = task.env()
-		src_str = " ".join([a.nice_path(env) for a in task.m_inputs])
-		tgt_str = " ".join([a.nice_path(env) for a in task.m_outputs])
-		return "* %s : %s -> %s" % (self.m_name, src_str, tgt_str)
+		src_str = ' '.join([a.nice_path(env) for a in task.m_inputs])
+		tgt_str = ' '.join([a.nice_path(env) for a in task.m_outputs])
+		return '* %s : %s -> %s\n' % (self.m_name, src_str, tgt_str)
 
 	def run(self, task):
 		"run the compilation"

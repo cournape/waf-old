@@ -114,6 +114,7 @@ def find_program_impl(env, filename, path_list=[], var=None):
 	return ''
 
 class Configure(object):
+	log_file = 'config.log'
 	def __init__(self, env=None, blddir='', srcdir=''):
 
 		self.env       = None
@@ -148,9 +149,6 @@ class Configure(object):
 				finally:
 					file.close()
 
-		self._a = 0
-		self._b = 0
-		self._c = 0
 		self._quiet = 0
 
 		self.hash = 0
@@ -178,6 +176,7 @@ class Configure(object):
 
 	def sub_config(self, dir):
 		"executes the configure function of a wscript module"
+
 		current = self.cwd
 
 		self.cwd = os.path.join(self.cwd, dir)
@@ -258,7 +257,7 @@ class Configure(object):
 
 	def check_message(self,type,msg,state,option=''):
 		"print an checking message. This function is used by other checking functions"
-		sr = 'Checking for ' + type + ' ' + msg
+		sr = 'Checking for %s %s' % (type, msg)
 		global g_maxlen
 		g_maxlen = max(g_maxlen, len(sr))
 		print "%s :" % sr.ljust(g_maxlen),
@@ -266,6 +265,7 @@ class Configure(object):
 		p = Params.pprint
 		if state: p('GREEN', 'ok ' + option)
 		else: p('YELLOW', 'not found')
+		Runner.print_log(sr, '\n\n')
 
 	def check_message_custom(self,type,msg,custom,option=''):
 		"""print an checking message. This function is used by other checking functions"""
@@ -274,6 +274,7 @@ class Configure(object):
 		g_maxlen = max(g_maxlen, len(sr))
 		print "%s :" % sr.ljust(g_maxlen),
 		Params.pprint('CYAN', custom)
+		Runner.print_log(sr, '\n\n')
 
 	def hook(self, func):
 		"attach the function given as input as new method"
@@ -281,22 +282,17 @@ class Configure(object):
 
 	def mute_logging(self):
 		"mutes the output temporarily"
-		if Params.g_options.verbose: return
-		# store the settings
-		(self._a, self._b, self._c) = Params.get_trace()
 		self._quiet = Runner.g_quiet
-		# then mute
-		if not g_debug:
-			Params.set_trace(0, 0, 0)
-			Runner.g_quiet = 1
+		Runner.g_quiet = 1
+		if not Runner.log_file:
+			Runner.log_file = open(os.path.join(self.m_blddir, Configure.log_file), 'a')
 
 	def restore_logging(self):
 		"see mute_logging"
-		if Params.g_options.verbose: return
-		# restore the settings
-		if not g_debug:
-			Params.set_trace(self._a, self._b, self._c)
-			Runner.g_quiet = self._quiet
+		Runner.g_quiet = self._quiet
+		if Runner.log_file:
+			Runner.log_file.close()
+			Runner.log_file = None
 
 	def find_program(self, program_name, path_list=[], var=None):
 		"wrapper provided for convenience"
@@ -341,6 +337,7 @@ class Configure(object):
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
 def conf(f):
+	"used as a decorator to attach new configuration functions"
 	setattr(Configure, f.__name__, f)
 	return f
 

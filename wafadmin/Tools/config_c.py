@@ -1097,12 +1097,10 @@ def run_check(self, obj):
 	o.includes = obj.includes
 
 	# compile the program
-	self.mute_logging()
 	try:
 		ret = bld.compile()
 	except Build.BuildError:
 		ret = 1
-	self.restore_logging()
 
 	# keep the name of the program to execute
 	if obj.execute:

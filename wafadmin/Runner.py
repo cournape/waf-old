@@ -12,13 +12,25 @@ from Params import debug, error
 g_quiet = 0
 "do not output anything"
 
+log_file = None
+"output to a config.log file, see Configure.py {mute,restore}_logging"
+
 missing = 1
 crashed = 2
 skipped = 8
 success = 9
 
+def print_log(msg, nl='\n'):
+	if log_file:
+		log_file.write(msg)
+		log_file.write(nl)
+		log_file.flush()
+
 def printout(s):
-	sys.stdout.write(s); sys.stdout.flush()
+	if not g_quiet:
+		sys.stdout.write(s)
+		sys.stdout.flush()
+	print_log(s, nl='')
 
 def progress_line(state, total, col1, task, col2):
 	"do not print anything if there is nothing to display"
@@ -34,23 +46,25 @@ def progress_line(state, total, col1, task, col2):
 		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (total, state, ins, outs, ela)
 
 	n = len(str(total))
-	fs = "[%%%dd/%%%dd] %%s%%s%%s\n" % (n, n)
+	fs = '[%%%dd/%%%dd] %%s%%s%%s\n' % (n, n)
 	return fs % (state, total, col1, task.get_display(), col2)
 
 def process_cmd_output(proc):
 	"""calling communicate to avoid race-condition between stdout and stderr"""
-	(cmd_stdout, cmd_stderr)=proc.communicate()
-	if not g_quiet:
-		if cmd_stdout:
-			printout(cmd_stdout)
-		if cmd_stderr:
+	(cmd_stdout, cmd_stderr) = proc.communicate()
+	if cmd_stdout:
+		printout(cmd_stdout)
+	if cmd_stderr:
+		if g_quiet:
+			printout(cmd_stderr)
+		else:
 			sys.stderr.write(cmd_stderr)
 			sys.stderr.flush()
 
 def _exec_command_normal(s):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
 	debug("system command -> "+ s, 'runner')
-	if Params.g_verbose: print s
+	if Params.g_verbose or g_quiet: printout(s+'\n')
 	# encase the command in double-quotes in windows
 	if sys.platform == 'win32' and not s.startswith('""'):
 		s = '"%s"' % s
@@ -63,7 +77,7 @@ def _exec_command_normal(s):
 def _exec_command_interact(s):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
 	debug("system command (interact) -> "+ s, 'runner')
-	if Params.g_verbose: print s
+	if Params.g_verbose or g_quiet: printout(s+'\n')
 	# encase the command in double-quotes in windows
 	if sys.platform == 'win32' and not s.startswith('""'):
 		s = '"%s"' % s

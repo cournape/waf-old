@@ -394,7 +394,7 @@ class Task(TaskBase):
 
 	def get_display(self):
 		if self.m_display: return self.m_display
-		self.m_display=self.m_action.get_str(self)
+		self.m_display = self.m_action.get_str(self)
 		return self.m_display
 
 	def color(self):
