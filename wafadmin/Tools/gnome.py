@@ -248,7 +248,9 @@ Action.simple_action('dbus_binding_tool',
 	'${DBT} --prefix=${DBT_PREFIX} --mode=${DBT_MODE} --output=${TGT} ${SRC}',
 	color='BLUE')
 
-Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1]} ${SRC[0]}')
+Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].abspath(env)}')
+
+Action.simple_action('xml2po', '${XML2PO} ${XML2POFLAGS} ${SRC} > ${TGT}')
 
 def detect(conf):
 
@@ -295,6 +297,9 @@ def detect(conf):
 	conf.define('LIBDIR', libdir)
 	conf.define('SYSCONFDIR', sysconfdir)
 	conf.define('LOCALSTATEDIR', localstatedir)
+
+	xml2po = conf.find_program('xml2po', 'XML2PO')
+	v['XML2POFLAGS'] = '-e -p'
 
 	# TODO: maybe the following checks should be in a more generic module.
 
