@@ -56,6 +56,7 @@ class xml2po_taskgen(Object.task_gen):
 		Object.task_gen.__init__(self, *k)
 
 	def apply(self):
+		self.env['APPNAME'] = self.doc_module
 		lst = self.to_list(self.doc_linguas)
 		for x in lst:
 			tsk = self.create_task('xml2po', self.env)
@@ -64,6 +65,14 @@ class xml2po_taskgen(Object.task_gen):
 			out = self.path.find_build('%s/%s.xml' % (x, self.doc_module))
 			tsk.set_inputs([node, src])
 			tsk.set_outputs(out)
+
+			tsk2 = self.create_task('xsltproc2po', self.env)
+			out2 = self.path.find_build('%s/%s-%s.omf' % (x, self.doc_module, x))
+			tsk2.set_outputs(out2)
+			node = self.path.find_source(self.doc_module+".omf.in")
+			tsk2.m_inputs = [node, out]
+
+			tsk2.m_run_after.append(tsk)
 
 # give specs
 class xml_to_taskgen(Object.task_gen):
@@ -266,6 +275,21 @@ Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].
 
 Action.simple_action('xml2po', '${XML2PO} ${XML2POFLAGS} ${SRC} > ${TGT}')
 
+# how do you expect someone to understand this?!
+xslt_magic = """${XSLTPROC2PO} -o ${TGT[0].abspath(env)} \
+--stringparam db2omf.basename ${APPNAME} \
+--stringparam db2omf.format docbook \
+--stringparam db2omf.lang C \
+--stringparam db2omf.dtd '-//OASIS//DTD DocBook XML V4.3//EN' \
+--stringparam db2omf.omf_dir /opt/gnome2/share/omf \
+--stringparam db2omf.help_dir /opt/gnome2/share/gnome/help \
+--stringparam db2omf.omf_in ${SRC[0].abspath(env)} \
+--stringparam db2omf.scrollkeeper_cl ${SCROLLKEEPER_DATADIR}/Templates/C/scrollkeeper_cl.xml \
+${DB2OMF} ${SRC[1].abspath(env)}"""
+
+#--stringparam db2omf.dtd '-//OASIS//DTD DocBook XML V4.3//EN' \
+Action.simple_action('xsltproc2po', xslt_magic)
+
 def detect(conf):
 
 	conf.check_tool('checks')
@@ -304,7 +328,10 @@ def detect(conf):
 	conf.define('LOCALSTATEDIR', localstatedir)
 
 	xml2po = conf.find_program('xml2po', var='XML2PO')
+	xsltproc2po = conf.find_program('xsltproc', var='XSLTPROC2PO')
 	conf.env['XML2POFLAGS'] = '-e -p'
+	conf.env['SCROLLKEEPER_DATADIR'] = os.popen("scrollkeeper-config --pkgdatadir").read().strip()
+	conf.env['DB2OMF'] = os.popen("/usr/bin/pkg-config --variable db2omf gnome-doc-utils").read().strip()
 
 	# TODO: maybe the following checks should be in a more generic module.
 
