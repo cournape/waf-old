@@ -130,17 +130,17 @@ class sgml_man_scanner(Scan.scanner):
 		Scan.scanner.do_scan(self, task, node)
 
 		variant = node.variant(task.env())
-		tmp_lst = Params.g_build.raw_deps[variant][node]
+		tmp_lst = Params.g_build.raw_deps[variant][node.id]
 		name = tmp_lst[0]
 		task.set_outputs(Params.g_build.m_curdirnode.find_build(name))
 
 sgml_scanner = sgml_man_scanner()
 
 class gnome_sgml2man_taskgen(Object.task_gen):
-	def __init__(self, appname):
+	def __init__(self, *k, **kw):
 		Object.task_gen.__init__(self)
-		self.m_tasks=[]
-		self.m_appname = appname
+		self.m_tasks = []
+		self.m_appname = k[0] # the first argument is the appname - will disappear
 	def apply(self):
 
 		def install_result(task):
