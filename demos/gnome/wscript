@@ -51,9 +51,14 @@ def configure(conf):
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdirs('src mkenums marshal pixmaps po help data')
+	bld.add_subdirs('src mkenums marshal pixmaps')
 
-	env = bld.env_of_name('default')
+	env = bld.env()
+	if env['XML2PO'] and env['XSLTPROC2PO']:
+		bld.add_subdirs('help')
+
+	if env['INTLTOOL']:
+		bld.add_subdirs('po data')
 
 	if env['HAVE_GTKSHARP'] and env['MCS']:
 		bld.add_subdirs('sharp')
