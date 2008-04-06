@@ -24,7 +24,7 @@ from Params import debug, error, fatal
 
 class Node(object):
 	__slots__ = ("m_name", "m_parent", "id", "m_dirs_lookup", "m_files_lookup", "m_build_lookup")
-	def __init__(self, name, parent):
+	def __init__(self, name, parent, isdir=0):
 		self.m_name = name
 		self.m_parent = parent
 
@@ -32,10 +32,10 @@ class Node(object):
 		Params.g_build.id_nodes += 1
 		self.id = Params.g_build.id_nodes
 
-		# Lookup dictionaries for O(1) access
-		self.m_dirs_lookup = {}
-		self.m_files_lookup = {}
-		self.m_build_lookup = {}
+		if isdir:
+			self.m_dirs_lookup = {}
+			self.m_files_lookup = {}
+			self.m_build_lookup = {}
 
 		# The checks below could be disabled for speed, if necessary
 		# TODO check for . .. / \ in name
@@ -52,12 +52,14 @@ class Node(object):
 				fatal('node %s exists in the parent build %s already' % (name, str(parent)))
 
 	def __str__(self):
+		if not self.m_parent: return ''
 		if self.m_name in self.m_parent.m_build_lookup: isbld = "bld"
 		elif self.m_name in self.m_parent.m_dirs_lookup: isbld = "dir"
 		else: isbld = "src"
 		return "%s://%s" % (isbld, self.abspath())
 
 	def __repr__(self):
+		if not self.m_parent: return ''
 		if self.m_name in self.m_parent.m_build_lookup: isbld = "bld"
 		elif self.m_name in self.m_parent.m_dirs_lookup: isbld = "dir"
 		else: isbld = "src"
@@ -139,7 +141,7 @@ class Node(object):
 			if lst:
 				current = prev.m_dirs_lookup.get(name, None)
 				if not current and create:
-					current = Node(name, prev)
+					current = Node(name, prev, isdir=1)
 					prev.m_dirs_lookup[name] = current
 			else:
 				current = prev.m_build_lookup.get(name, None)
@@ -174,7 +176,7 @@ class Node(object):
 				current = prev.m_dirs_lookup.get(name, None)
 				if not current and create:
 					# create a directory
-					current = Node(name, prev)
+					current = Node(name, prev, isdir=1)
 					prev.m_dirs_lookup[name] = current
 			else:
 				current = prev.m_files_lookup.get(name, None)
@@ -220,7 +222,7 @@ class Node(object):
 			#		found = cand
 			#		break
 			if not found:
-				found = Node(dirname, curnode)
+				found = Node(dirname, curnode, isdir=1)
 				curnode.append_dir(found)
 			curnode = found
 		return curnode
@@ -245,7 +247,7 @@ class Node(object):
 			else:
 				current = prev.m_dirs_lookup.get(name, None)
 				if not current:
-					current = Node(name, prev)
+					current = Node(name, prev, isdir=1)
 					# create a directory
 					prev.m_dirs_lookup[name] = current
 		return current

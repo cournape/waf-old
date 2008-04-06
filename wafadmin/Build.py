@@ -110,7 +110,7 @@ class Build(object):
 		debug("init data called", 'build')
 
 		# filesystem root - root name is Params.g_rootname
-		self.m_root = Node.Node('', None)
+		self.m_root = Node.Node('', None, isdir=1)
 
 		self.m_srcnode = None # src directory
 		self.m_bldnode = None # bld directory
@@ -390,7 +390,7 @@ class Build(object):
 			if dirname == '.': continue
 			found = curnode.get_dir(dirname, None)
 			if not found:
-				found = Node.Node(dirname, curnode)
+				found = Node.Node(dirname, curnode, isdir=1)
 				curnode.append_dir(found)
 			curnode = found
 		return curnode
