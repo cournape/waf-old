@@ -909,7 +909,7 @@ class check_data(object):
 setattr(Configure, 'check_data', check_data) # warning, attached to the module
 
 @conf
-def define(self, define, value):
+def define(self, define, value, quote=1):
 	"""store a single define and its state into an internal list for later
 	   writing to a config header file.  Value can only be
 	   a string or int; other types not supported.  String
@@ -922,7 +922,10 @@ def define(self, define, value):
 
 	# the user forgot to tell if the value is quoted or not
 	if isinstance(value, str):
-		tbl[define] = '"%s"' % str(value)
+		if quote == 1:
+			tbl[define] = '"%s"' % str(value)
+		else:
+			tbl[define] = value
 	elif isinstance(value, int):
 		tbl[define] = value
 	else:
