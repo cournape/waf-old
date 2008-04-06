@@ -2,7 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"Environment representation"
+"""Environment representation
+
+There is one gotcha: getitem returns [] if the contents evals to False
+This means env['foo'] = {}; print env['foo'] will print [] not {}
+"""
 
 import os,types, copy, re
 import Params

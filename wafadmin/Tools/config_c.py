@@ -917,8 +917,7 @@ def define(self, define, value, quote=1):
 	   header file."""
 	assert define and isinstance(define, str)
 
-	tbl = self.env[DEFINES]
-	if not tbl: tbl = {}
+	tbl = self.env[DEFINES] or Utils.ordered_dict()
 
 	# the user forgot to tell if the value is quoted or not
 	if isinstance(value, str):
@@ -933,7 +932,7 @@ def define(self, define, value, quote=1):
 
 	# add later to make reconfiguring faster
 	self.env[DEFINES] = tbl
-	self.env[define] = value
+	self.env[define] = value # <- not certain this is necessary
 
 @conf
 def undefine(self, define):
@@ -941,8 +940,7 @@ def undefine(self, define):
 	   for later writing to a config header file"""
 	assert define and isinstance(define, str)
 
-	tbl = self.env[DEFINES]
-	if not tbl: tbl = {}
+	tbl = self.env[DEFINES] or Utils.ordered_dict()
 
 	value = UNDEFINED
 	tbl[define] = value
@@ -961,16 +959,16 @@ def define_cond(self, name, value):
 		self.undefine(name)
 
 @conf
-def is_defined(self, define):
+def is_defined(self, key):
 	defines = self.env[DEFINES]
 	if not defines:
 		return False
 	try:
-		value = defines[define]
+		value = defines[key]
 	except KeyError:
 		return False
 	else:
-		return (value is not UNDEFINED)
+		return value != UNDEFINED
 
 @conf
 def get_define(self, define):
@@ -988,7 +986,7 @@ def write_config_header(self, configfile='', env=''):
 	"save the defines into a file"
 	if not configfile: configfile = self.configheader
 
-	lst=Utils.split_path(configfile)
+	lst = Utils.split_path(configfile)
 	base = lst[:-1]
 
 	if not env: env = self.env
@@ -1011,8 +1009,10 @@ def write_config_header(self, configfile='', env=''):
 	# yes, this is special
 	if not configfile in self.env['dep_files']:
 		self.env['dep_files'] += [configfile]
-	if not env[DEFINES]: env[DEFINES]={'missing':'"code"'}
-	for key, value in env[DEFINES].iteritems():
+
+	tbl = env[DEFINES] or Utils.ordered_dict()
+	for key in tbl.allkeys:
+		value = tbl[key]
 		if value is None:
 			dest.write('#define %s\n' % key)
 		elif value is UNDEFINED:

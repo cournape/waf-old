@@ -5,6 +5,7 @@
 "Utility functions"
 
 import os, sys, imp, types, string, time
+from UserDict import UserDict
 import Params
 from Constants import *
 
@@ -56,6 +57,19 @@ def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 			break
 		if a < b:
 			Params.fatal("waf version should be at most %s (%s found)" % (maxi, Params.g_version))
+
+class ordered_dict(UserDict):
+	def __init__(self, dict = None):
+		self.allkeys = []
+		UserDict.__init__(self, dict)
+
+	def __delitem__(self, key):
+		self.allkeys.remove(key)
+		UserDict.__delitem__(self, key)
+
+	def __setitem__(self, key, item):
+		if key not in self.allkeys: self.allkeys.append(key)
+		UserDict.__setitem__(self, key, item)
 
 def reset():
 	import Params, Object, Environment
