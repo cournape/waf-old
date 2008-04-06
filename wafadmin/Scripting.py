@@ -6,9 +6,6 @@
 
 import os, sys, shutil, cPickle, traceback
 
-# this line is removed when enabling python 2.3 compatibility, do not touch!
-if sys.hexversion<0x20400f0:raise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"
-
 import Params, Utils, Configure, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
 from Constants import *
@@ -291,6 +288,10 @@ def prepare():
 
 	fun = getattr(Utils.g_module, 'init', None)
 	if fun: fun()
+
+	# this line is removed when enabling python 2.3 compatibility, do not touch!
+	if sys.hexversion<0x20400f0:
+		raise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"
 
 	main()
 

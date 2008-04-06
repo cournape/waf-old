@@ -212,7 +212,7 @@ def create_waf():
 		cnt = process_decorators(cnt)
 		cnt = process_imports(cnt)
 		if path.endswith('Scripting.py'):
-			cnt = cnt.replace('if sys.hexversion<0x20400f0:raise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"', '')
+			cnt = cnt.replace('\tif sys.hexversion<0x20400f0:\n\t\traise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"', '')
 
 		return (StringIO.StringIO(cnt), len(cnt))
 
