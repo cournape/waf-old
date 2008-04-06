@@ -338,6 +338,18 @@ class Configure(object):
 
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
+	def eval_rules(self, names):
+		for x in rules:
+			try:
+				# TODO check pre/post conditions
+				x(conf)
+			except Exception, e:
+				raise
+				if err_handler(x.__name__, e) == STOP:
+					break
+				else:
+					raise
+
 def conf(f):
 	"decorator: attach new configuration functions"
 	setattr(Configure, f.__name__, f)

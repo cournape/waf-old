@@ -26,3 +26,6 @@ VERSION = 'VERSION'
 DEFINES = 'defines'
 UNDEFINED = '#undefined#variable#for#defines#'
 
+STOP = "stop"
+CONTINUE = "continue"
+

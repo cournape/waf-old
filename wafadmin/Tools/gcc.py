@@ -8,46 +8,6 @@ import Params, Configure
 import ccroot, ar
 from Configure import conftest
 
-STOP = "stop"
-CONTINUE = "continue"
-
-"""
-Configuration issues:
-
-The first problem is that some exceptions are critical
-(compiler not found, ..) while others are not (the ar
-program is only needed for static libraries)
-
-The second problem is about the branching: how to extend
-the configuration functions without hard-coding the names
-and calling the functions
-
-A third problem is to reuse the code and not copy-paste
-everything each time a new compiler is added
-
-The refactoring will be performed in three steps:
-1 the code will be split into small functions
-2 the irrelevant variables will be eliminated
-3 a stack-based system will be used for calling the configuration functions
-4 the user logic will go into the error recovery (for example, making some errors non-fatal)
-
-Another solution to avoid an excessive amount of configuration variables is
-to create platform-specific methods, in this case the following problems must be solved first:
-attach functions dynamically to the c/c++ classes (without importing cxx.py or cc.py)
-"""
-
-def eval_rules(conf, rules, err_handler):
-	for x in rules:
-		try:
-			# TODO check pre/post conditions
-			x(conf)
-		except Exception, e:
-			raise
-			if err_handler(x.__name__, e) == STOP:
-				break
-			else:
-				raise
-
 @conftest
 def find_cc(conf):
 	v = conf.env
