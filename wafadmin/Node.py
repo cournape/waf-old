@@ -65,13 +65,8 @@ class Node(object):
 		else: isbld = "src"
 		return "%s://%s" % (isbld, self.abspath())
 
-	#def __eq__(self, other):
-	#	return self.id == other.id
-
-	#def __ne__(self, other):
-	#	return self.id != other.id
-
 	def __hash__(self):
+		"expensive, make certain it is not used"
 		raise
 
 	def dirs(self):
@@ -92,25 +87,7 @@ class Node(object):
 	def get_build(self, name, default=None):
 		return self.m_build_lookup.get(name, default)
 
-	# for the build variants, the same nodes are used to save memory
-	# the timestamps/signatures are accessed using the following methods
-
-	def get_tstamp_variant(self, variant):
-		vars = Params.g_build.m_tstamp_variants[variant]
-		try: return vars[self.id]
-		except KeyError: return None
-
-	def set_tstamp_variant(self, variant, value):
-		Params.g_build.m_tstamp_variants[variant][self.id] = value
-
-	def get_tstamp_node(self):
-		try: return Params.g_build.m_tstamp_variants[0][self.id]
-		except KeyError: return None
-
-	def set_tstamp_node(self, value):
-		Params.g_build.m_tstamp_variants[0][self.id] = value
-
-	## ===== BEGIN find methods	===== ##
+	# ===== BEGIN find methods ===== #
 
 	def find_build(self, path, create=0):
 		#print "find build", path
