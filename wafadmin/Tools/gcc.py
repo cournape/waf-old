@@ -36,12 +36,6 @@ to create platform-specific methods, in this case the following problems must be
 attach functions dynamically to the c/c++ classes (without importing cxx.py or cc.py)
 """
 
-def on_error(func_name, exc):
-	if func_name == 'not_critical':
-		env['foo'] = 'blah'
-		return CONTINUE
-	return STOP
-
 def eval_rules(conf, rules, err_handler):
 	for x in rules:
 		try:
@@ -54,6 +48,7 @@ def eval_rules(conf, rules, err_handler):
 			else:
 				raise
 
+@conftest
 def find_cc(conf):
 	v = conf.env
 	cc = None
@@ -64,6 +59,7 @@ def find_cc(conf):
 	if not cc: conf.fatal('gcc was not found')
 	v['CC']  = cc
 
+@conftest
 def common_flags(conf):
 	v = conf.env
 
@@ -104,6 +100,7 @@ def common_flags(conf):
 	v['MACBUNDLE_CCFLAGS']   = ['-fPIC']
 	v['MACBUNDLE_PATTERN']   = '%s.bundle'
 
+@conftest
 def modifier_win32(conf):
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
@@ -113,6 +110,7 @@ def modifier_win32(conf):
 
 	v['staticlib_LINKFLAGS'] = []
 
+@conftest
 def modifier_cygwin(conf):
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
@@ -122,6 +120,7 @@ def modifier_cygwin(conf):
 
 	v['staticlib_LINKFLAGS'] = []
 
+@conftest
 def modifier_darwin(conf):
 	v = conf.env
 	v['shlib_CCFLAGS']       = ['-fPIC']
@@ -133,6 +132,7 @@ def modifier_darwin(conf):
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
 
+@conftest
 def modifier_aix5(conf):
 	v = conf.env
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
