@@ -41,7 +41,7 @@ class Action(object):
 		env = task.env()
 		src_str = ' '.join([a.nice_path(env) for a in task.m_inputs])
 		tgt_str = ' '.join([a.nice_path(env) for a in task.m_outputs])
-		return '* %s : %s -> %s\n' % (self.m_name, src_str, tgt_str)
+		return '%s: %s -> %s\n' % (self.m_name, src_str, tgt_str)
 
 	def run(self, task):
 		"run the compilation"
