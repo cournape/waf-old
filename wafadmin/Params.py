@@ -206,7 +206,7 @@ def h_file(filename):
 #def h_file(filename):
 #	st = os.stat(filename)
 #	import stat
-#	if stat.S_ISDIR(st): raise OSError, 'not a file'
+#	if stat.S_ISDIR(st): raise IOError, 'not a file'
 #	m = md5()
 #	m.update(st.st_mtime)
 #	m.update(st.st_size)
