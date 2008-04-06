@@ -319,7 +319,7 @@ class Task(TaskBase):
 		return 0
 
 	def update_stat(self):
-		"called after a sucessful task run"
+		"called after a successful task run"
 		tree = Params.g_build
 		env = self.env()
 		sig = self.signature()
