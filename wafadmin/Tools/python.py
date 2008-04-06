@@ -96,7 +96,7 @@ def check_python_headers(conf):
 	"""Check for headers and libraries necessary to extend or embed python.
 
 	If successful, xxx_PYEXT and xxx_PYEMBED variables are defined in the
-    enviroment (for uselib).  PYEXT should be used for compiling
+    environment (for uselib).  PYEXT should be used for compiling
     python extensions, while PYEMBED should be used by programs that
     need to embed a python interpreter.
 
