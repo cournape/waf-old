@@ -74,10 +74,6 @@ class Node(object):
 	def __hash__(self):
 		raise
 
-	# TODO deprecated, remove this function
-	def equals(self, node):
-		return self.hash_value == node.hash_value
-
 	def dirs(self):
 		return self.m_dirs_lookup.values()
 
@@ -92,9 +88,6 @@ class Node(object):
 
 	def get_file(self, name, default=None):
 		return self.m_files_lookup.get(name, default)
-
-	def append_file(self, dir):
-		self.m_files_lookup[dir.m_name] = dir
 
 	def get_build(self, name, default=None):
 		return self.m_build_lookup.get(name, default)
