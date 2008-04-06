@@ -205,6 +205,8 @@ def h_file(filename):
 # based on the path, md5 hashing can be used for some files and timestamp for others
 #def h_file(filename):
 #	st = os.stat(filename)
+#	import stat
+#	if stat.S_ISDIR(st): raise OSError, 'not a file'
 #	m = md5()
 #	m.update(st.st_mtime)
 #	m.update(st.st_size)
