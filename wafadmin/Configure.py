@@ -115,6 +115,7 @@ def find_program_impl(env, filename, path_list=[], var=None):
 
 class Configure(object):
 	log_file = 'config.log'
+	tests = {}
 	def __init__(self, env=None, blddir='', srcdir=''):
 
 		self.env       = None
@@ -337,8 +338,14 @@ class Configure(object):
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
 def conf(f):
-	"used as a decorator to attach new configuration functions"
+	"decorator: attach new configuration functions"
 	setattr(Configure, f.__name__, f)
+	return f
+
+def conftest(f):
+	"decorator: attach new configuration tests (registered as strings)"
+	setattr(Configure, f.__name__, f)
+	Configure.tests[f.__name__] = f
 	return f
 
 # do not touch

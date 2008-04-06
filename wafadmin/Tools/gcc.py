@@ -6,10 +6,10 @@
 import os, optparse, sys
 import Params, Configure
 import ccroot, ar
+from Configure import conftest
 
 STOP = "stop"
 CONTINUE = "continue"
-
 
 """
 Configuration issues:
@@ -141,6 +141,7 @@ def modifier_aix5(conf):
 
 	v['SHLIB_MARKER']        = ''
 
+@conftest
 def modifier_debug(conf):
 	v = conf.env
 	# compiler debug levels
