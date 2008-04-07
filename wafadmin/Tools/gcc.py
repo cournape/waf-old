@@ -9,7 +9,7 @@ import ccroot, ar
 from Configure import conftest
 
 @conftest
-def find_cc(conf):
+def find_gcc(conf):
 	v = conf.env
 	cc = None
 	if v['CC']: cc = v['CC']
@@ -20,7 +20,7 @@ def find_cc(conf):
 	v['CC']  = cc
 
 @conftest
-def common_flags(conf):
+def gcc_common_flags(conf):
 	v = conf.env
 
 	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
@@ -61,8 +61,9 @@ def common_flags(conf):
 	v['MACBUNDLE_PATTERN']   = '%s.bundle'
 
 @conftest
-def modifier_win32(conf):
+def gcc_modifier_win32(conf):
 	v = conf.env
+	if sys.platform != 'win32': return
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = 'lib%s.dll'
@@ -71,8 +72,9 @@ def modifier_win32(conf):
 	v['staticlib_LINKFLAGS'] = []
 
 @conftest
-def modifier_cygwin(conf):
+def gcc_modifier_cygwin(conf):
 	v = conf.env
+	if sys.platform != 'cygwin': return
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = 'lib%s.dll'
@@ -81,8 +83,9 @@ def modifier_cygwin(conf):
 	v['staticlib_LINKFLAGS'] = []
 
 @conftest
-def modifier_darwin(conf):
+def gcc_modifier_darwin(conf):
 	v = conf.env
+	if sys.platform != 'darwin': return
 	v['shlib_CCFLAGS']       = ['-fPIC']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
@@ -93,8 +96,9 @@ def modifier_darwin(conf):
 	v['STATICLIB_MARKER']    = ''
 
 @conftest
-def modifier_aix5(conf):
+def gcc_modifier_aix5(conf):
 	v = conf.env
+	if sys.platform != 'aix5': return
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
 
 	v['shlib_LINKFLAGS']     = ['-shared','-Wl,-brtl,-bexpfull']
@@ -102,7 +106,7 @@ def modifier_aix5(conf):
 	v['SHLIB_MARKER']        = ''
 
 @conftest
-def modifier_debug(conf):
+def gcc_modifier_debug(conf):
 	v = conf.env
 	# compiler debug levels
 	if conf.check_flags('-O2'):
@@ -120,32 +124,48 @@ def modifier_debug(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
-def detect(conf):
-
-	# TODO FIXME later it will start from eval_rules
-	# funcs = [find_cc, find_cpp, find_ar, common_flags, modifier_win32]
-	#eval_rules(conf, funcs, on_error)
-
-	find_cc(conf)
-	ar.find_cpp(conf)
-	ar.find_ar(conf)
-
-	conf.check_tool('cc')
-
-	common_flags(conf)
-	if sys.platform == 'win32': modifier_win32(conf)
-	elif sys.platform == 'cygwin': modifier_cygwin(conf)
-	elif sys.platform == 'darwin': modifier_darwin(conf)
-	elif sys.platform == 'aix5': modifier_aix5(conf)
-
-	conf.check_tool('checks')
-	conf.check_features()
-
-	modifier_debug(conf)
-
+@conftest
+def gcc_add_flags(conf):
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')
 	conf.add_os_flags('CPPFLAGS')
 	conf.add_os_flags('LINKFLAGS')
+
+@conftest
+def gcc_load_tools(conf):
+	conf.check_tool('cc')
+	conf.check_tool('checks')
+
+detect = '''
+find_gcc
+find_cpp
+find_ar
+gcc_common_flags
+gcc_modifier_win32
+gcc_modifier_cygwin
+gcc_modifier_darwin
+gcc_modifier_aix5
+gcc_load_tools
+check_features
+gcc_modifier_debug
+gcc_add_flags
+'''.split()
+
+"""
+If you want to remove the tests you do not want, use something like this:
+
+conf.check_tool('gcc', funs='''
+find_gcc
+find_cpp
+find_ar
+gcc_common_flags
+gcc_modifier_win32
+gcc_modifier_cygwin
+gcc_modifier_darwin
+gcc_modifier_aix5
+gcc_add_flags
+'''.split()
+)
+"""
 
 def set_options(opt):
 	try:

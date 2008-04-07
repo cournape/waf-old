@@ -342,14 +342,15 @@ class Configure(object):
 
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
-	def eval_rules(self, names):
+	def eval_rules(self, rules):
 		for x in rules:
+			f = getattr(self, x)
 			try:
 				# TODO check pre/post conditions
-				x(conf)
+				f()
 			except Exception, e:
 				raise
-				if err_handler(x.__name__, e) == STOP:
+				if err_handler(x, e) == STOP:
 					break
 				else:
 					raise

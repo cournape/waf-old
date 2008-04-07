@@ -137,7 +137,8 @@ class Build(object):
 						Params.fatal('Version mismatch! reconfigure the project')
 				elif g(2) == 'tools':
 					lst = eval(g(3))
-					for t in lst: self.setup(**t)
+					for t in lst:
+						self.setup(**t)
 
 		try:
 			file = open(os.path.join(self.m_bdir, DBFILE), 'rb')
@@ -302,7 +303,7 @@ class Build(object):
 					hash = SIG_NIL
 				self.m_tstamp_variants[env.variant()][newnode.id] = hash
 
-	def setup(self, tool, tooldir=None):
+	def setup(self, tool, tooldir=None, funs=None):
 		"setup tools for build process"
 		if type(tool) is types.ListType:
 			for i in tool: self.setup(i, tooldir)

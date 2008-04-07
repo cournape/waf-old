@@ -7,6 +7,7 @@
 
 import os, sys
 import Action
+from Configure import conftest
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 
@@ -28,11 +29,13 @@ def detect(conf):
 	v['RANLIB']      = ranlib
 	v['RANLIBFLAGS'] = ''
 
+@conftest
 def find_ar(conf):
 	v = conf.env
 	conf.check_tool('ar')
 	if not v['AR']: conf.fatal('ar is required for static libraries - not found')
 
+@conftest
 def find_cpp(conf):
 	v = conf.env
 	cpp = None
