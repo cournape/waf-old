@@ -343,7 +343,8 @@ class Configure(object):
 		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
 
 	def eval_rules(self, rules):
-		for x in rules:
+		self.rules = Utils.to_list(rules)
+		for x in self.rules:
 			f = getattr(self, x)
 			try:
 				# TODO check pre/post conditions

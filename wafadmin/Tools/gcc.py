@@ -148,7 +148,7 @@ gcc_load_tools
 check_features
 gcc_modifier_debug
 gcc_add_flags
-'''.split()
+'''
 
 """
 If you want to remove the tests you do not want, use something like this:
@@ -163,9 +163,8 @@ gcc_modifier_cygwin
 gcc_modifier_darwin
 gcc_modifier_aix5
 gcc_add_flags
-'''.split()
-)
-"""
+'''
+)"""
 
 def set_options(opt):
 	try:
