@@ -87,13 +87,16 @@ A few assumptions are used over the user projects, for some they are features an
 NEW IN WAF 1.4
 --------------
 
-* various optimizations
+* various optimizations - see http://freehackers.org/~tnagy/bench.txt
 * bugfixes
 * new feature system for adding methods dynamically
 * export_incdirs will add the folders when linking against libraries given in uselib_local
 * the type 'plugin' disappears, the c/c++ types are staticlib,program,shlib
-* simplification of the configuration modules (gcc, g++, ..)
+* configuration modules simplification (gcc, g++, ..)
 * the configuration details are written to config.log
+* the configuration defines are written in order of declaration
+* the configuration process can be altered dynamically
+* (cross-compilation settings gcc,linux->win32)
 
 ---------------------------
 Thomas Nagy, 2006-2008 (ita)
