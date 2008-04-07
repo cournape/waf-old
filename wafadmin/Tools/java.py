@@ -40,7 +40,7 @@ class java_taskgen(Object.task_gen):
 			base, ext = os.path.splitext(filename)
 			#node = self.path.find_build(filename)
 			if not ext in self.s_default_ext:
-				fatal("unknown file "+filename)
+				Params.fatal("unknown file "+filename)
 
 			task = self.create_task('javac', self.env)
 			task.set_inputs(node)
