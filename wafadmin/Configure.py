@@ -162,7 +162,7 @@ class Configure(object):
 	def fatal(self, msg):
 		raise ConfigurationError(msg)
 
-	def check_tool(self, input, tooldir=None):
+	def check_tool(self, input, tooldir=None, funs=None):
 		"load a waf tool"
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
@@ -172,9 +172,13 @@ class Configure(object):
 			except ImportError, ex:
 				raise ConfigurationError("no tool named '%s' found (%s)" % (tool, str(ex)))
 			module = imp.load_module(tool, file, name, desc)
+
 			func = getattr(module, 'detect', None)
-			if func: func(self)
-			self.tools.append({'tool':tool, 'tooldir':tooldir})
+			if func:
+				if type(func) is types.FunctionType: func(self)
+				else: self.eval_rules(funs or func)
+
+			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
 	def sub_config(self, dir):
 		"executes the configure function of a wscript module"
