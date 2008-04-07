@@ -6,8 +6,10 @@
 import os, optparse
 import Utils, Action, Params, Configure
 import ccroot, ar
+from Configure import conftest
 
-def find_cxx(conf):
+@conftest
+def find_sxx(conf):
 	v = conf.env
 	cc = None
 	if v['CXX']: cc = v['CXX']
@@ -17,7 +19,8 @@ def find_cxx(conf):
 	if not cc: conf.fatal('sunc++ was not found')
 	v['CXX']  = cc
 
-def common_flags(conf):
+@conftest
+def sxx_common_flags(conf):
 	v = conf.env
 
 	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
@@ -52,7 +55,8 @@ def common_flags(conf):
 	v['staticlib_LINKFLAGS'] = ['-Bstatic']
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
-def modifier_debug(conf, kind='cpp'):
+@conftest
+def sxx_modifier_debug(conf):
 	v = conf.env
 	v['CXXFLAGS'] = ['']
 	if conf.check_flags('-O2', kind=kind):
@@ -69,24 +73,16 @@ def modifier_debug(conf, kind='cpp'):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
 
-def detect(conf):
-
-	find_cxx(conf)
-	ar.find_cpp(conf)
-	ar.find_ar(conf)
-
-	conf.check_tool('cxx')
-
-	common_flags(conf)
-
-	conf.check_tool('checks')
-	conf.check_features(kind='cpp')
-
-	modifier_debug(conf)
-
-	conf.add_os_flags('CXXFLAGS')
-	conf.add_os_flags('CPPFLAGS')
-	conf.add_os_flags('LINKFLAGS')
+detect = '''
+find_sxx
+find_cpp
+find_ar
+sxx_common_flags
+cxx_load_tools
+cxx_check_features
+sxx_modifier_debug
+cxx_add_flags
+'''
 
 def set_options(opt):
 	try:
