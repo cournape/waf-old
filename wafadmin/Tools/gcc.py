@@ -124,17 +124,6 @@ def gcc_modifier_debug(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
-@conftest
-def gcc_add_flags(conf):
-	conf.add_os_flags('CFLAGS', 'CCFLAGS')
-	conf.add_os_flags('CPPFLAGS')
-	conf.add_os_flags('LINKFLAGS')
-
-@conftest
-def gcc_load_tools(conf):
-	conf.check_tool('cc')
-	conf.check_tool('checks')
-
 detect = '''
 find_gcc
 find_cpp
@@ -144,10 +133,10 @@ gcc_modifier_win32
 gcc_modifier_cygwin
 gcc_modifier_darwin
 gcc_modifier_aix5
-gcc_load_tools
+cc_load_tools
 cc_check_features
 gcc_modifier_debug
-gcc_add_flags
+cc_add_flags
 '''
 
 """
@@ -162,8 +151,8 @@ gcc_modifier_win32
 gcc_modifier_cygwin
 gcc_modifier_darwin
 gcc_modifier_aix5
-gcc_add_flags
-gcc_load_tools
+cc_add_flags
+cc_load_tools
 '''
 )"""
 
@@ -176,6 +165,5 @@ def set_options(opt):
 		choices = ccroot.DEBUG_LEVELS.ALL,
 		dest = 'debug_level')
 	except optparse.OptionConflictError:
-		# the g++ tool might have added that option already
 		pass
 

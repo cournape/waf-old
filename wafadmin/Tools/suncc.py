@@ -6,8 +6,10 @@
 import os, optparse
 import Utils, Action, Params, Configure
 import ccroot, ar
+from Configure import conftest
 
-def find_cc(conf):
+@conftest
+def find_scc(conf):
 	v = conf.env
 	cc = None
 	if v['CC']: cc = v['CC']
@@ -23,7 +25,8 @@ def find_cc(conf):
 		conf.check_message('suncc', '', not ret)
 		return
 
-def common_flags(conf):
+@conftest
+def scc_common_flags(conf):
 	v = conf.env
 
 	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
@@ -59,7 +62,8 @@ def common_flags(conf):
 	v['staticlib_LINKFLAGS'] = ['-Bstatic']
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
-def modifier_debug(conf):
+@conftest
+def scc_modifier_debug(conf):
 	v = conf.env
 
 	# compiler debug levels
@@ -79,28 +83,16 @@ def modifier_debug(conf):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
 
-def detect(conf):
-
-	# TODO FIXME later it will start from eval_rules
-	# funcs = [find_cc, find_cpp, find_ar, common_flags, modifier_win32]
-	#eval_rules(conf, funcs, on_error)
-
-	find_cc(conf)
-	ar.find_cpp(conf)
-	ar.find_ar(conf)
-
-	conf.check_tool('cc')
-
-	common_flags(conf)
-
-	conf.check_tool('checks')
-	conf.check_features()
-
-	modifier_debug(conf)
-
-	conf.add_os_flags('CFLAGS', 'CCFLAGS')
-	conf.add_os_flags('CPPFLAGS')
-	conf.add_os_flags('LINKFLAGS')
+detect = '''
+find_scc
+find_cpp
+find_ar
+scc_common_flags
+cc_load_tools
+cc_check_features
+gcc_modifier_debug
+cc_add_flags
+'''
 
 def set_options(opt):
 	try:
@@ -111,6 +103,5 @@ def set_options(opt):
 		choices = ccroot.DEBUG_LEVELS.ALL,
 		dest = 'debug_level')
 	except optparse.OptionConflictError:
-		# the sunc++ tool might have added that option already
 		pass
 
