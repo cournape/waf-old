@@ -277,7 +277,7 @@ def apply_type_vars(self):
 @feature('normal')
 @after('apply_core')
 def apply_link(self):
-	# use a custom linker is specified (self.link)
+	# use a custom linker if specified (self.link)
 	link = getattr(self, 'link', None)
 	if not link:
 		if self.m_type == 'staticlib': link = 'ar_link_static'
