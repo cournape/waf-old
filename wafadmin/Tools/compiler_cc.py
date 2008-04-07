@@ -1,23 +1,24 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Matthias Jahn <jahn.matthias@freenet.de>, 2007 (pmarat)
+# Matthias Jahn jahn dôt matthias ât freenet dôt de, 2007 (pmarat)
 
 import os, sys, imp, types
 import optparse
 import Utils, Action, Params, checks, Configure
 
+c_compiler = {
+	'win32':  ['msvc', 'gcc'],
+	'cygwin': ['gcc'],
+	'darwin': ['gcc'],
+	'aix5':   ['gcc'],
+	'linux':  ['gcc', 'suncc'],
+	'sunos':  ['suncc', 'gcc'],
+	'irix':   ['gcc'],
+	'hpux':   ['gcc'],
+	'default': ['gcc']
+}
+
 def __list_possible_compiler(platform):
-	c_compiler = {
-'win32':  ['msvc', 'gcc'],
-'cygwin': ['gcc'],
-'darwin': ['gcc'],
-'aix5':   ['gcc'],
-'linux':  ['gcc', 'suncc'],
-'sunos':  ['suncc', 'gcc'],
-'irix':   ['gcc'],
-'hpux':   ['gcc'],
-'default': ['gcc']
-	}
 	try:
 		return c_compiler[platform]
 	except KeyError:
@@ -30,7 +31,7 @@ def detect(conf):
 		conf.check_tool(c_compiler)
 		if conf.env['CC']:
 			conf.check_message("%s" %c_compiler, '', True)
-			conf.env["COMPILER_CC"] = "%s" % c_compiler #store the choosed c compiler
+			conf.env["COMPILER_CC"] = "%s" % c_compiler #store the selected c compiler
 			return
 		conf.check_message("%s" %c_compiler, '', False)
 	conf.env["COMPILER_CC"] = None
