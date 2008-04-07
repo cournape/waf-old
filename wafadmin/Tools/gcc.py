@@ -163,6 +163,7 @@ gcc_modifier_cygwin
 gcc_modifier_darwin
 gcc_modifier_aix5
 gcc_add_flags
+gcc_load_tools
 '''
 )"""
 

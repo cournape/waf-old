@@ -11,15 +11,29 @@ APPNAME='cc_test'
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
-blddir = 'build'
+blddir = '/tmp/build'
 
 def set_options(opt):
 	# the gcc module provides a --debug-level option
-	opt.tool_options('compiler_cc')
+	#opt.tool_options('compiler_cc')
+	pass
 
 def configure(conf):
-	conf.check_tool('compiler_cc')
+	#conf.check_tool('compiler_cc')
+	conf.check_tool('gcc')
 	#conf.check_tool('batched_cc') # <- faster compilations but a few constraints
+	"""conf.check_tool('gcc', funs='''
+find_gcc
+find_cpp
+find_ar
+gcc_common_flags
+gcc_modifier_win32
+gcc_modifier_cygwin
+gcc_modifier_darwin
+gcc_modifier_aix5
+gcc_add_flags
+gcc_load_tools
+''')"""
 
 def build(bld):
 	# process subfolders from here
