@@ -6,8 +6,10 @@
 import os, optparse, sys
 import Params, Configure
 import ccroot, ar
+from Configure import conftest
 
-def find_cxx(conf):
+@conftest
+def find_gxx(conf):
 	v = conf.env
 	cc = None
 	if v['CXX']: cc = v['CXX']
@@ -17,7 +19,8 @@ def find_cxx(conf):
 	if not cc: conf.fatal('g++ was not found')
 	v['CXX']  = cc
 
-def common_flags(conf):
+@conftest
+def gxx_common_flags(conf):
 	v = conf.env
 
 	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
@@ -57,7 +60,9 @@ def common_flags(conf):
 	v['MACBUNDLE_CCFLAGS']   = ['-fPIC']
 	v['MACBUNDLE_PATTERN']   = '%s.bundle'
 
-def modifier_win32(conf):
+@conftest
+def gxx_modifier_win32(conf):
+	if sys.platform != 'win32': return
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
 
@@ -66,7 +71,9 @@ def modifier_win32(conf):
 
 	v['staticlib_LINKFLAGS'] = ['']
 
-def modifier_cygwin(conf):
+@conftest
+def gxx_modifier_cygwin(conf):
+	if sys.platform != 'cygwin': return
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
 
@@ -75,7 +82,9 @@ def modifier_cygwin(conf):
 
 	v['staticlib_LINKFLAGS'] = ['']
 
-def modifier_darwin(conf):
+@conftest
+def gxx_modifier_darwin(conf):
+	if sys.platform != 'darwin': return
 	v = conf.env
 	v['shlib_CXXFLAGS']      = ['-fPIC']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
@@ -86,7 +95,9 @@ def modifier_darwin(conf):
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
 
-def modifier_aix5(conf):
+@conftest
+def gxx_modifier_aix5(conf):
+	if sys.platform != 'aix5': return
 	v = conf.env
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
 
@@ -94,7 +105,8 @@ def modifier_aix5(conf):
 
 	v['SHLIB_MARKER']        = ''
 
-def modifier_debug(conf, kind='cpp'):
+@conftest
+def gxx_modifier_debug(conf, kind='cpp'):
 	v = conf.env
 	# compiler debug levels
 	if conf.check_flags('-O2', kind=kind):
@@ -112,28 +124,31 @@ def modifier_debug(conf, kind='cpp'):
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
 
-def detect(conf):
-
-	find_cxx(conf)
-	ar.find_cpp(conf)
-	ar.find_ar(conf)
-
-	conf.check_tool('cxx')
-
-	common_flags(conf)
-	if sys.platform == 'win32': modifier_win32(conf)
-	elif sys.platform == 'cygwin': modifier_cygwin(conf)
-	elif sys.platform == 'darwin': modifier_darwin(conf)
-	elif sys.platform == 'aix5': modifier_aix5(conf)
-
-	conf.check_tool('checks')
-	conf.check_features(kind='cpp')
-
-	modifier_debug(conf)
-
+@conftest
+def gxx_add_flags(conf):
 	conf.add_os_flags('CXXFLAGS')
 	conf.add_os_flags('CPPFLAGS')
 	conf.add_os_flags('LINKFLAGS')
+
+@conftest
+def gxx_load_tools(conf):
+	conf.check_tool('cxx')
+	conf.check_tool('checks')
+
+detect = '''
+find_gxx
+find_cpp
+find_ar
+gxx_common_flags
+gxx_modifier_win32
+gxx_modifier_cygwin
+gxx_modifier_darwin
+gxx_modifier_aix5
+gxx_load_tools
+cxx_check_features
+gxx_modifier_debug
+gxx_add_flags
+'''
 
 def set_options(opt):
 	try:

@@ -145,7 +145,7 @@ gcc_modifier_cygwin
 gcc_modifier_darwin
 gcc_modifier_aix5
 gcc_load_tools
-check_features
+cc_check_features
 gcc_modifier_debug
 gcc_add_flags
 '''

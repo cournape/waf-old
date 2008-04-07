@@ -19,7 +19,7 @@ from Utils import md5
 import Action, Params, Environment, Runner, Build, Utils, Object, Configure
 from Params import fatal, warning
 from Constants import *
-from Configure import conf
+from Configure import conf, conftest
 
 class attached_conf(type):
 	"""no decorators for classes, so we use a metaclass
@@ -1125,8 +1125,8 @@ def run_check(self, obj):
 
 	return not ret
 
-@conf
-def check_features(self, kind='cc'):
+@conftest
+def cc_check_features(self, kind='cc'):
 	v = self.env
 	# check for compiler features: programs, shared and static libraries
 	test = Configure.check_data()
@@ -1155,4 +1155,8 @@ def check_features(self, kind='cc'):
 	ret = self.run_check(lib_obj)
 	self.check_message('compiler could create', 'static libs', not (ret is False))
 	if not ret: self.fatal("no static libs")
+
+@conftest
+def cxx_check_features(self):
+	return cc_check_features(self, kind='cpp')
 
