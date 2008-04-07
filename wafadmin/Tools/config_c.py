@@ -91,6 +91,7 @@ class enumerator_base(object):
 		if self.mandatory and not ret: self.error()
 
 		if Params.g_cache_global:
+			newhash = self.hash()
 			self.conf.m_cache_table[newhash] = ret
 		return ret
 
