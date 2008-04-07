@@ -6,7 +6,7 @@ import os, sys, imp, types
 import optparse
 import Utils, Action, Params, checks, Configure
 
-def __list_possible_compiler(plattform):
+def __list_possible_compiler(platform):
 	c_compiler = {
 'win32':  ['msvc', 'g++'],
 'cygwin': ['g++'],
@@ -19,7 +19,7 @@ def __list_possible_compiler(plattform):
 'default': ['g++']
 	}
 	try:
-		return(c_compiler[plattform])
+		return(c_compiler[platform])
 	except KeyError:
 		return(c_compiler["default"])
 
@@ -36,14 +36,14 @@ def detect(conf):
 	conf.env["COMPILER_CXX"] = None
 
 def set_options(opt):
-	detected_plattform = checks.detect_platform(None)
-	possible_compiler_list = __list_possible_compiler(detected_plattform)
+	detected_platform = checks.detect_platform(None)
+	possible_compiler_list = __list_possible_compiler(detected_platform)
 	test_for_compiler = str(" ").join(possible_compiler_list)
 	cxx_compiler_opts = opt.add_option_group("C++ Compiler Options")
 	try:
 		cxx_compiler_opts.add_option('--check-cxx-compiler', default="%s" % test_for_compiler,
 			help='On this platform (%s) the following C++ Compiler will be checked by default: "%s"' %
-								(detected_plattform, test_for_compiler),
+								(detected_platform, test_for_compiler),
 			dest="check_cxx_compiler")
 	except optparse.OptionConflictError:
 		pass
