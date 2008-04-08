@@ -14,7 +14,6 @@ class ValacAction(Action.Action):
 
 	def get_str(self, task):
 		"string to display to the user"
-		env = task.env()
 		src_str = " ".join([a.m_name for a in task.m_inputs])
 		return "* %s : %s" % (self.m_name, src_str)
 
