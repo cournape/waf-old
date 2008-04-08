@@ -132,7 +132,7 @@ def configure():
 	proj = {}
 	proj[BLDDIR] = bld
 	proj[SRCDIR] = src
-	proj['argv'] = sys.argv[1:]
+	proj['argv'] = sys.argv
 	proj['hash'] = conf.hash
 	proj['files'] = conf.files
 	cPickle.dump(proj, file)
@@ -342,8 +342,11 @@ def main():
 			a3 = Params.g_zones
 			a4 = Params.g_verbose
 
-			Options.g_parser.parse_args(args=proj['argv'])
+			oldargs = sys.argv
+			sys.argv = proj['argv']
+			Options.g_parser.parse_args(args=sys.argv[1:])
 			configure()
+			sys.argv = oldargs
 
 			Params.g_commands = a1
 			Params.g_options = a2
