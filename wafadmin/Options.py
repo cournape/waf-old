@@ -171,11 +171,7 @@ class Handler(object):
 
 			debug("cur is "+str(cur), 'options')
 
-			try:
-				mod = Utils.load_module(cur)
-			except AttributeError:
-				msg = "no module was found for wscript (sub_options)\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-				fatal(msg % self.cwd)
+			mod = Utils.load_module(cur)
 			try:
 				fun = mod.set_options
 			except AttributeError:
