@@ -174,8 +174,9 @@ def detect_boost(conf):
 	#well now we've found our includes - let's search for the precompiled libs
 	if want_libs:
 		def check_boost_libs(libs,lib_path):
-			files=glob.glob(lib_path+'/libboost_*'+env['shlib_SUFFIX'])
-			files=map(lambda x:x[len(lib_path)+4:-len(env['shlib_SUFFIX'])] ,filter(lambda x: x.find('-d')==-1 ,files))
+			ext = env['shlib_PATTERN'].split('%s')[1]
+			files=glob.glob(lib_path+'/libboost_*'+ext)
+			files=map(lambda x:x[len(lib_path)+4:-len(ext)] ,filter(lambda x: x.find('-d')==-1 ,files))
 			for lib in libs:
 				libname=lib.lower()
 				if libname.endswith('_mt'):
