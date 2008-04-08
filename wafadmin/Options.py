@@ -169,8 +169,6 @@ class Handler(object):
 			self.cwd = os.path.join(self.cwd, dir)
 			cur = os.path.join(self.cwd, WSCRIPT_FILE)
 
-			debug("cur is "+str(cur), 'options')
-
 			mod = Utils.load_module(cur)
 			try:
 				fun = mod.set_options
