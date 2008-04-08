@@ -224,6 +224,7 @@ class Build(object):
 			self._store()
 
 		if ret:
+			os.chdir(self.m_srcnode.abspath())
 			Utils.test_full()
 			raise BuildError(self, self.task_manager.tasks_done)
 
