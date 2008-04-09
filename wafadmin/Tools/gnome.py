@@ -51,7 +51,7 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if icons: postinstall_icons()
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
-class xml2po_taskgen(Object.task_gen):
+class gnomedoc_taskgen(Object.task_gen):
 	def __init__(self, *k):
 		Object.task_gen.__init__(self, *k)
 		self.inst_var = 'PREFIX'
@@ -84,7 +84,7 @@ class xml2po_taskgen(Object.task_gen):
 					# source directory
 					Common.install_files(self.inst_var, self.inst_dir, self.path.abspath()+'/'+x+'/'+y)
 
-				Common.install_as(self.inst_var, 
+				Common.install_as(self.inst_var,
 					self.inst_dir+'gnome/help/%s/%s/%s.xml' % (self.doc_module, x, self.doc_module),
 					out.abspath(self.env))
 
