@@ -24,10 +24,6 @@ def init():
 	#import Params
 	#Params.g_preprocess=0
 
-	# redefine the cpp source extensions
-	#import cpp
-	#cpp.cppobj.s_default_ext = ['.cxx', '.cxy', '.cxyz']
-
 def set_options(opt):
 	# options provided in a script in a subdirectory named "src"
 	opt.sub_options('src')
