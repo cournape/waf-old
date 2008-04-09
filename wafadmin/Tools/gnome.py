@@ -81,9 +81,11 @@ class gnomedoc_taskgen(Object.task_gen):
 
 				Common.install_files(self.inst_var, self.inst_dir+"omf", out2.abspath(self.env))
 				for y in self.to_list(self.doc_figures):
-					# source directory
-					Common.install_files(self.inst_var, self.inst_dir, self.path.abspath()+'/'+x+'/'+y)
-
+					try:
+						os.stat(self.path.abspath()+'/'+x+'/'+y)
+						Common.install_files(self.inst_var, self.inst_dir+'/'+x, self.path.abspath()+'/'+x+'/'+y)
+					except:
+						Common.install_files(self.inst_var, self.inst_dir+'/'+x, self.path.abspath()+'/C/'+y)
 				Common.install_as(self.inst_var,
 					self.inst_dir+'gnome/help/%s/%s/%s.xml' % (self.doc_module, x, self.doc_module),
 					out.abspath(self.env))
