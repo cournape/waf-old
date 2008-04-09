@@ -53,17 +53,17 @@ class Node(object):
 
 	def __str__(self):
 		if not self.m_parent: return ''
-		if self.m_name in self.m_parent.m_build_lookup: isbld = "bld"
-		elif self.m_name in self.m_parent.m_dirs_lookup: isbld = "dir"
-		else: isbld = "src"
-		return "%s://%s" % (isbld, self.abspath())
+
+		if self.m_name in self.m_parent.m_build_lookup:
+			location = "bld"
+		elif self.m_name in self.m_parent.m_dirs_lookup:
+			location = "dir"
+		else:
+			location = "src"
+		return "%s://%s" % (location, self.abspath())
 
 	def __repr__(self):
-		if not self.m_parent: return ''
-		if self.m_name in self.m_parent.m_build_lookup: isbld = "bld"
-		elif self.m_name in self.m_parent.m_dirs_lookup: isbld = "dir"
-		else: isbld = "src"
-		return "%s://%s" % (isbld, self.abspath())
+		return self.__str__()
 
 	def __hash__(self):
 		"expensive, make certain it is not used"
