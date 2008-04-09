@@ -222,11 +222,8 @@ class library_enumerator(enumerator_base):
 		self.update_env(retval)
 
 	def validate(self):
-		if not self.path:
-			self.path = Configure.g_stdlibpath
-		else:
-			if not self.nosystem:
-				self.path += Configure.g_stdlibpath
+		if not self.nosystem:
+			self.path += Configure.g_stdlibpath
 
 	def run_test(self):
 		ret = '' # returns a string
@@ -259,11 +256,8 @@ class header_enumerator(enumerator_base):
 		self.want_message = 1
 
 	def validate(self):
-		if not self.path:
+		if not self.nosystem:
 			self.path = Configure.g_stdincpath
-		else:
-			if not self.nosystem:
-				self.path += Configure.g_stdincpath
 
 	def error(self):
 		errmsg = 'cannot find %s in %s' % (self.name, str(self.path))
@@ -583,6 +577,7 @@ class library_configurator(configurator_base):
 		self.name = ''
 		self.path = []
 		self.define = ''
+		self.nosystem = 0
 		self.uselib = ''
 
 		self.code = 'int main(){return 0;}\n'
@@ -601,9 +596,6 @@ class library_configurator(configurator_base):
 			self.conf.undefine(self.define)
 
 	def validate(self):
-		if not self.path:
-			self.path = ['/usr/lib/', '/usr/local/lib', '/lib']
-
 		if not self.uselib:
 			self.uselib = self.name.upper()
 		if not self.define:
@@ -623,6 +615,7 @@ class library_configurator(configurator_base):
 
 		# try the enumerator to find the correct libpath
 		test = self.conf.create_library_enumerator()
+		test.nosystem = self.nosystem
 		test.name = self.name
 		test.want_message = 0
 		test.path = self.path
@@ -770,6 +763,7 @@ class header_configurator(configurator_base):
 		self.code = 'int main() {return 0;}\n'
 
 		self.define = '' # HAVE_something
+		self.nosystem = 0
 
 		self.libs = []
 		self.lib_paths = []
@@ -808,6 +802,7 @@ class header_configurator(configurator_base):
 		# try the enumerator to find the correct includepath
 		if self.uselib:
 			test = self.conf.create_header_enumerator()
+			test.nosystem = self.nosystem
 			test.name = self.name
 			test.want_message = 0
 			test.path = self.path
