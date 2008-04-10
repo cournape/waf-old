@@ -161,7 +161,7 @@
     <screenshot>
       <mediaobject>
         <imageobject>
-          <imagedata fileref="figures/cheese-screenshot.jpg" format="JPG"/>
+          <imagedata fileref="figures/cheese-screenshot.png" format="PNG"/>
         </imageobject>
       </mediaobject>
     </screenshot>
@@ -183,7 +183,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/cheese-effects-screenshot.jpg" format="JPG"/>
+              <imagedata fileref="figures/cheese-effects-screenshot.png" format="PNG"/>
             </imageobject>
           </mediaobject>
        </screenshot>
