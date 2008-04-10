@@ -222,7 +222,7 @@ class library_enumerator(enumerator_base):
 		self.update_env(retval)
 
 	def validate(self):
-		if not self.nosystem:
+		if not self.nosystem and not self.path:
 			self.path += Configure.g_stdlibpath
 
 	def run_test(self):
@@ -256,7 +256,7 @@ class header_enumerator(enumerator_base):
 		self.want_message = 1
 
 	def validate(self):
-		if not self.nosystem:
+		if not self.nosystem and not self.path:
 			self.path = Configure.g_stdincpath
 
 	def error(self):
