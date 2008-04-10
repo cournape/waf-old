@@ -6,7 +6,7 @@
 
 import os, types, shutil
 from Utils import md5
-import Params, Scan, Action, Runner, Common
+import Params, Scan, Action, Runner, Common, Scan
 from Params import debug, error, warning
 from Constants import *
 
@@ -15,7 +15,7 @@ class TaskManager(object):
 	Each TaskGroup contains a map(priority, list of tasks)"""
 	def __init__(self):
 		self.groups = []
-		self.idx    = 0
+		self.idx = 0
 		self.tasks_done = []
 	def flush(self):
 		for k in self.groups:
@@ -204,7 +204,8 @@ class Task(TaskBase):
 		scan = getattr(self, 'm_scanner', None)
 		if scan:
 			dep_sig = scan.get_signature(self)
-			m.update(dep_sig)
+			try: m.update(dep_sig)
+			except TypeError: raise Scan.ScannerError, "failure to compute the signature"
 		else:
 			# compute the signature from the inputs (no scanner)
 			for x in self.m_inputs:

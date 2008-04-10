@@ -12,7 +12,7 @@ This module also demonstrates how to add tasks dynamically (when the build has s
 
 import os, sys
 import ccroot, cxx
-import Action, Params, Object, Task, Utils, Runner
+import Action, Params, Object, Task, Utils, Runner, Scan
 from Object import taskgen, feature, after, extension
 from Params import error, fatal
 
@@ -37,16 +37,26 @@ class MTask(Task.Task):
 					return 0
 			# the moc file enters in the dependency calculation
 			# so we need to recompute the signature when the moc file is present
-			delattr(self, 'sign_all')
 			self.signature()
 			return Task.Task.may_start(self)
+		else:
+			self.add_moc_tasks()
+			return 0
+
+	def add_moc_tasks(self):
 
 		tree = Params.g_build
 		parn = self.parent
 		node = self.m_inputs[0]
 
 		# to know if there is a moc file to create
-		self.signature()
+		try:
+			self.signature()
+		except Scan.ScannerError:
+			pass
+		else:
+			# remove the signature, it must be recomputed
+			delattr(self, 'sign_all')
 
 		moctasks=[]
 		mocfiles=[]
@@ -117,11 +127,10 @@ class MTask(Task.Task):
 				generator.total += 1
 
 				moctasks.append(task)
-				break
+
 		# simple scheduler dependency: run the moc task before others
 		self.m_run_after = moctasks
 		self.moc_done = 1
-		return 0
 
 def translation_update(task):
 	outs=[a.abspath(task.env) for a in task.m_outputs]

@@ -12,6 +12,9 @@ from Constants import *
 g_all_scanners={}
 "all instances of scanners"
 
+class ScannerError(Exception):
+	pass
+
 class scanner(object):
 	"TODO: call this a dependency manager (not a scanner), as it does scan and compute the signatures"
 
