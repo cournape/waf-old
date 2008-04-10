@@ -96,7 +96,6 @@ NEW IN WAF 1.4
 * the configuration details are written to config.log
 * the configuration defines are written in order of declaration
 * the configuration process can be altered dynamically
-* (cross-compilation settings gcc,linux->win32)
 
 ---------------------------
 Thomas Nagy, 2006-2008 (ita)

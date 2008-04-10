@@ -1,17 +1,19 @@
 roadmap:
 --------
 
-* configuration system improvements (cross-compilation helpers)
 * improve the filesystem representation (the pickle file is too big)
+* the find_dir/find_source/find_build apis are doing too many things at the same time
 * improve the custom compilation rules (pc file creation, etc)
 * more gnome support
-* provide installation threads
+* more java support
+* cross-compilation settings gcc,linux->win32
 
 ideas to watch:
 ---------------
 
 * precompiled headers support (pch)
 * packaging (rpms, debs)
+* provide installation threads
 
 --------------------------------------
 Last update: 03/04/2008
