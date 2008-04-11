@@ -129,6 +129,15 @@ class ccroot_abstract(Object.task_gen):
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
 		#self.features = ['program']
 
+	def clone(self, env):
+		new_obj = Object.task_gen.clone(self, env)
+		variant = '_' + self.env.variant()
+
+		if self.name: new_obj.name = self.name + variant
+		else: new_obj.name = self.target + variant
+		new_obj.uselib_local = [x + variant for x in Utils.to_list(self.uselib_local) ]
+		return new_obj
+
 def get_target_name(self):
 	name = self.target
 	pattern = self.env[self.m_type+'_PATTERN']
