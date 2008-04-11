@@ -51,6 +51,14 @@ def configure(conf):
 	# works in a procedural way, so the order of calls does matter
 	#conf.check_tool(['KDE3'])
 
+	return
+	# testcase for variants, look below
+	env = conf.env.copy()
+	env.set_variant('debug')
+	conf.set_env_name('debug', env)
+	conf.setenv('debug')
+	conf.env['CXXFLAGS'] = '-D_REENTRANT -DDBG_ENABLED -Wall -O0 -ggdb3 -ftemplate-depth-128'
+
 def build(bld):
 	# process subfolders from here
 	bld.add_subdirs('src src2')
@@ -61,6 +69,11 @@ def build(bld):
 	#install_files('PREFIX', '', 'src/a2.h src/a1.h')
 	install_files('PREFIX', 'subfolder/subsubfolder', 'src/*.h')
 	#install_as('PREFIX', 'dir/bar.png', 'foo.png')
+
+	return
+	# testcase for variants
+	for obj in copy.copy(Object.g_allobjs):
+		new_obj = obj.clone('debug')
 
 def shutdown():
 	# command to execute
