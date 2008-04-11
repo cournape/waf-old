@@ -1,0 +1,13 @@
+NEW IN WAF 1.4
+--------------
+
+* various optimizations - see http://freehackers.org/~tnagy/bench.txt
+* new system for adding methods dynamically (extend c/c++ builders)
+* export_incdirs will add the folders when linking against libraries given in uselib_local
+* the type 'plugin' disappears, the c/c++ types are staticlib,program,shlib
+* configuration modules simplification (gcc, g++, ..)
+* the configuration details are written to config.log
+* the configuration defines are written in order of declaration
+* the configuration process can be modified dynamically
+* autoconfiguration no longer loses the command-line options
+* clone no longer clashes with uselib_local
