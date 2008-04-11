@@ -377,9 +377,9 @@ class task_gen(object):
 		newobj.path = self.path
 
 		if type(env) is types.StringType:
-			newobj.env = Params.g_build.m_allenvs[env]
+			newobj.env = Params.g_build.m_allenvs[env].copy()
 		else:
-			newobj.env = env
+			newobj.env = env.copy()
 
 		g_allobjs.append(newobj)
 
