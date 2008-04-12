@@ -78,18 +78,15 @@ class gnomedoc_taskgen(Object.task_gen):
 
 
 			if Params.g_install:
-
-				Common.install_files(self.inst_var, self.inst_dir+"omf", out2.abspath(self.env))
+				inst_dir = self.inst_dir + 'gnome/help/%s/%s' % (self.doc_module, x)
+				Common.install_files(self.inst_var, self.inst_dir + "omf", out2.abspath(self.env))
 				for y in self.to_list(self.doc_figures):
-					inst_dir = self.inst_dir + 'gnome/help/%s/%s' % (self.doc_module, x)
 					try:
 						os.stat(self.path.abspath()+'/'+x+'/'+y)
 						Common.install_files(self.inst_var, inst_dir, self.path.abspath()+'/'+x+'/'+y)
 					except:
 						Common.install_files(self.inst_var, inst_dir, self.path.abspath()+'/C/'+y)
-				Common.install_as(self.inst_var,
-					self.inst_dir+'gnome/help/%s/%s/%s.xml' % (self.doc_module, x, self.doc_module),
-					out.abspath(self.env))
+				Common.install_as(self.inst_var, inst_dir + '/%s.xml' % self.doc_module, out.abspath(self.env))
 
 # give specs
 class xml_to_taskgen(Object.task_gen):
