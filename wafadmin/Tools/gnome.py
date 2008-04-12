@@ -83,9 +83,9 @@ class gnomedoc_taskgen(Object.task_gen):
 				for y in self.to_list(self.doc_figures):
 					try:
 						os.stat(self.path.abspath()+'/'+x+'/'+y)
-						Common.install_files(self.inst_var, inst_dir, self.path.abspath()+'/'+x+'/'+y)
+						Common.install_as(self.inst_var, inst_dir+'/'+y, self.path.abspath()+'/'+x+'/'+y)
 					except:
-						Common.install_files(self.inst_var, inst_dir, self.path.abspath()+'/C/'+y)
+						Common.install_as(self.inst_var, inst_dir+'/'+y, self.path.abspath()+'/C/'+y)
 				Common.install_as(self.inst_var, inst_dir + '/%s.xml' % self.doc_module, out.abspath(self.env))
 
 # give specs
