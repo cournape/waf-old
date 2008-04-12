@@ -560,6 +560,7 @@ def DistClean():
 	for f in lst:
 		if f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
+	Params.pprint('GREEN', "distclean finished successfully")
 	sys.exit(0)
 
 def DistCheck(appname, version):
