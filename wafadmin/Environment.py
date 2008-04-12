@@ -51,6 +51,8 @@ class Environment(object):
 
 	def copy(self):
 		newenv = Environment()
+		# FIXME prefix is set each time
+		if self['PREFIX']: del newenv.m_table['PREFIX']
 		newenv.m_parent = self
 		return newenv
 
