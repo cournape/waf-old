@@ -287,7 +287,7 @@ Action.simple_action('dbus_binding_tool',
 
 Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].abspath(env)}')
 
-Action.simple_action('xml2po', '${XML2PO} ${XML2POFLAGS} ${SRC} > ${TGT}')
+Action.simple_action('xml2po', '${XML2PO} ${XML2POFLAGS} ${SRC} > ${TGT}', color='BLUE')
 
 # how do you expect someone to understand this?!
 xslt_magic = """${XSLTPROC2PO} -o ${TGT[0].abspath(env)} \
@@ -302,7 +302,7 @@ xslt_magic = """${XSLTPROC2PO} -o ${TGT[0].abspath(env)} \
 ${DB2OMF} ${SRC[1].abspath(env)}"""
 
 #--stringparam db2omf.dtd '-//OASIS//DTD DocBook XML V4.3//EN' \
-Action.simple_action('xsltproc2po', xslt_magic)
+Action.simple_action('xsltproc2po', xslt_magic, color='BLUE')
 
 def detect(conf):
 
