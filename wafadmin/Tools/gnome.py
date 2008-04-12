@@ -51,7 +51,7 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if icons: postinstall_icons()
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
-class gnomedoc_taskgen(Object.task_gen):
+class gnome_doc_taskgen(Object.task_gen):
 	def __init__(self, *k):
 		Object.task_gen.__init__(self, *k)
 		self.inst_var = 'PREFIX'
