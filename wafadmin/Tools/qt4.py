@@ -183,6 +183,7 @@ class rcc_scanner(Scan.scanner):
 		names = []
 		root = task.m_inputs[0].m_parent
 		for x in curHandler.files:
+			x = x.encode('utf8')
 			nd = root.find_source(x)
 			if nd: nodes.append(nd)
 			else: names.append(x)
