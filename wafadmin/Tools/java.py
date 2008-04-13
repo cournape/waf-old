@@ -94,6 +94,16 @@ class java_taskgen(Object.task_gen):
 					node2 = exclusive_build_node(source_root_node, path)
 					bld_nodes.append(node2)
 
+					# TODO better use a global rescan instead of stat on all the files
+					try:
+						os.stat(node2.abspath(self.env))
+					except OSError:
+						try:
+							del Params.g_build.m_tstamp_variants[self.env.variant()][node2.id]
+						except:
+							raise
+
+
 		self.env['OUTDIR'] = source_root_node.abspath(self.env)
 
 		tsk = self.create_task('javac', self.env)
