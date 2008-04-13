@@ -1,8 +1,25 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2008 (ita)
 
-"Java support"
+"""
+Java support
+
+Javac is one of the few compilers that behaves very badly:
+* it outputs files where it wants to (-d is only for the package root)
+* it recompiles files silently behind your back
+* it outputs an undefined amount of files (inner classes)
+
+The most annoying problem is the following: the package structure
+created only exists in the build directory, which leads to custom
+file system management (com.foo.bar.test -> com/foo/bar/test)
+
+The second problem is the inner classes: inner classes must be located
+and cleaned when a problem arise.
+
+Adding all the files to a task and executing it if any of the input files
+change is only annoying for the compilation times
+"""
 
 import os
 import Object, Action, Utils, Params
@@ -15,6 +32,8 @@ class java_taskgen(Object.task_gen):
 		self.jarname = ''
 		self.jaropts = ''
 		self.classpath = ''
+		self.source_root = '.'
+		self.package_root = ''
 
 		# Jar manifest attributes
 		# TODO: Add manifest creation
@@ -32,26 +51,41 @@ class java_taskgen(Object.task_gen):
 
 		find_source_lst = self.path.find_source_lst
 
-		# first create the nodes corresponding to the sources
-		for filename in self.to_list(self.source):
+		import re
+		re_foo = re.compile(self.source)
 
-			node = find_source_lst(Utils.split_path(filename))
+		source_root_node = self.path.find_dir(self.source_root)
 
-			base, ext = os.path.splitext(filename)
-			#node = self.path.find_build(filename)
-			if not ext in self.s_default_ext:
-				Params.fatal("unknown file "+filename)
+		src_nodes = []
+		bld_nodes = []
 
-			task = self.create_task('javac', self.env)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.class'))
+		prefix_path = source_root_node.abspath()
+		prefix_package = self.package_root.replace('.', '/')
+		for (root, dirs, filenames) in os.walk(source_root_node.abspath()):
+			for x in filenames:
+				file = root + '/' + x
+				file = file.replace(prefix_path, '')
+				if file.startswith('/'): file = file[1:]
+				if re_foo.search(file) > -1:
+					node = source_root_node.find_source(file)
+					src_nodes.append(node)
 
-			nodes_lst.append(task.m_outputs[0])
+					#print prefix_package + '/' + file
+					#node2 = source_root_node.find_build(prefix_package + '/' + file, create=1)
+					#bld_nodes.append(node2)
+
+		print src_nodes
+		print [x.abspath(self.env) for x in bld_nodes]
+
+		return
+		tsk = self.create_task('javac', self.env)
+		tsk.set_inputs(src_nodes)
+		tsk.set_outputs(bld_nodes)
 
 		if self.jarname:
-			task = self.create_task('jar_create', self.env)
-			task.set_inputs(nodes_lst)
-			task.set_outputs(self.path.find_build_lst(Utils.split_path(self.jarname)))
+			tsk = self.create_task('jar_create', self.env)
+			tsk.set_inputs(bld_nodes)
+			tsk.set_outputs(self.path.find_build_lst(Utils.split_path(self.jarname)))
 
 			if not self.env['JAROPTS']:
 				if self.jaropts:

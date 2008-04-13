@@ -1,4 +1,4 @@
-package com.meow; // obligatory
+package com.meow.truc.foo; // obligatory
 
 public class Hello
 {
