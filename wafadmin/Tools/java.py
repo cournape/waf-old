@@ -100,8 +100,8 @@ class java_taskgen(Object.task_gen):
 					except OSError:
 						try:
 							del Params.g_build.m_tstamp_variants[self.env.variant()][node2.id]
-						except:
-							raise
+						except KeyError:
+							pass
 
 
 		self.env['OUTDIR'] = source_root_node.abspath(self.env)
@@ -119,10 +119,11 @@ class java_taskgen(Object.task_gen):
 				if self.jaropts:
 					self.env['JAROPTS'] = self.jaropts
 				else:
-					self.env.append_unique('JAROPTS', '-C %s .' % self.path.bldpath(self.env))
+					dirs = self.package_root.replace('.', '/')
+					self.env['JAROPTS'] = '-C %s %s' % (self.env['OUTDIR'], dirs)
 
 Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', prio=10)
-Action.simple_action('jar_create', '${JAR} cvf ${TGT} ${JAROPTS}', color='GREEN', prio=50)
+Action.simple_action('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN', prio=50)
 
 def detect(conf):
 	# If JAVA_PATH is set, we prepend it to the path list
@@ -143,6 +144,7 @@ def detect(conf):
 
 	if not v['JAR']: conf.fatal('jar is required for making java packages')
 	if not v['JAVAC']: conf.fatal('javac is required for compiling java classes')
+	v['JARCREATE'] = 'cf' # can use cvf
 
 	conf.hook(check_java_class)
 
