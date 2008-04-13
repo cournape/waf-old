@@ -119,6 +119,7 @@ class scanner(object):
 			seen.add(node.id)
 
 			variant = node.variant(env)
+			tree.rescan(node.m_parent)
 			try: queue += tree.node_deps[variant][node.id]
 			except KeyError: pass
 
