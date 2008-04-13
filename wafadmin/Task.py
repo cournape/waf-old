@@ -6,7 +6,7 @@
 
 import os, types, shutil
 from Utils import md5
-import Params, Scan, Action, Runner, Common, Scan
+import Params, Action, Runner, Common, Scan
 from Params import debug, error, warning
 from Constants import *
 

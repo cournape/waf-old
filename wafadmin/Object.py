@@ -22,8 +22,8 @@ WARNING 1 subclasses must reimplement the clone method to avoid problems with 'd
 WARNING 2 find a new name for this file (naming it 'Object' was never a good idea)
 """
 
-import os, types, traceback, sys, copy
-import Params, Task, Common, Node, Utils, Action
+import os, types, traceback, copy
+import Params, Task, Common, Utils, Action
 from Params import debug, error, fatal
 
 typos = {

@@ -3,7 +3,7 @@
 # Ali Sabil, 2007
 
 import os.path, shutil
-import Action, Object, Runner, Utils, Params, Node
+import Action, Runner, Utils, Params
 from Object import extension
 
 EXT_VALA = ['.vala']
