@@ -11,7 +11,7 @@ APPNAME='cc_test'
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
-blddir = '/tmp/build'
+blddir = 'build'
 
 def set_options(opt):
 	# the gcc module provides a --debug-level option
