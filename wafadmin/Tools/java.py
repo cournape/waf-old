@@ -21,8 +21,27 @@ Adding all the files to a task and executing it if any of the input files
 change is only annoying for the compilation times
 """
 
-import os
-import Object, Action, Utils, Params
+import os, re
+import Object, Action, Utils, Params, Node
+
+def exclusive_build_node(parent, path):
+	lst = path.split('/')
+	java_file = lst[-1]
+	lst = lst[:-1]
+	for x in lst:
+		node = parent.m_dirs_lookup.get(x, None)
+		if not node:
+			node = Node.Node(x, parent, isdir=1)
+			parent.m_dirs_lookup[x] = node
+		parent = node
+
+	# the java file at the end
+	node = parent.m_build_lookup.get(java_file, None)
+	if not node:
+		node = Node.Node(java_file, parent)
+		parent.m_build_lookup[x] = node
+
+	return node
 
 class java_taskgen(Object.task_gen):
 	s_default_ext = ['.java']
@@ -51,7 +70,6 @@ class java_taskgen(Object.task_gen):
 
 		find_source_lst = self.path.find_source_lst
 
-		import re
 		re_foo = re.compile(self.source)
 
 		source_root_node = self.path.find_dir(self.source_root)
@@ -65,19 +83,19 @@ class java_taskgen(Object.task_gen):
 			for x in filenames:
 				file = root + '/' + x
 				file = file.replace(prefix_path, '')
-				if file.startswith('/'): file = file[1:]
+				if file.startswith('/'):
+					file = file[1:]
+
 				if re_foo.search(file) > -1:
 					node = source_root_node.find_source(file)
 					src_nodes.append(node)
 
-					#print prefix_package + '/' + file
-					#node2 = source_root_node.find_build(prefix_package + '/' + file, create=1)
-					#bld_nodes.append(node2)
+					path = prefix_package + '/' + file.replace('.java', '.class')
+					node2 = exclusive_build_node(source_root_node, path)
+					bld_nodes.append(node2)
 
-		print src_nodes
-		print [x.abspath(self.env) for x in bld_nodes]
+		self.env['OUTDIR'] = source_root_node.abspath(self.env)
 
-		return
 		tsk = self.create_task('javac', self.env)
 		tsk.set_inputs(src_nodes)
 		tsk.set_outputs(bld_nodes)
@@ -93,7 +111,7 @@ class java_taskgen(Object.task_gen):
 				else:
 					self.env.append_unique('JAROPTS', '-C %s .' % self.path.bldpath(self.env))
 
-Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${TGT[0].variant(env)} ${SRC}', color='BLUE', prio=10)
+Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', prio=10)
 Action.simple_action('jar_create', '${JAR} cvf ${TGT} ${JAROPTS}', color='GREEN', prio=50)
 
 def detect(conf):
