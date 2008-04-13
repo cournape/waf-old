@@ -39,7 +39,7 @@ def exclusive_build_node(parent, path):
 	node = parent.m_build_lookup.get(java_file, None)
 	if not node:
 		node = Node.Node(java_file, parent)
-		parent.m_build_lookup[x] = node
+		parent.m_build_lookup[java_file] = node
 
 	return node
 
