@@ -10,6 +10,15 @@ If QT4_ROOT is given (absolute path), the configuration will look in it first
 This module also demonstrates how to add tasks dynamically (when the build has started)
 """
 
+try:
+	from xml.sax import make_parser
+	from xml.sax.handler import ContentHandler
+except ImportError:
+	has_xml = False
+	ContentHandler = object
+else:
+	has_xml = True
+
 import os, sys
 import ccroot, cxx
 import Action, Params, Object, Task, Utils, Runner, Scan
@@ -143,16 +152,58 @@ def translation_update(task):
 		Params.pprint('BLUE', cmd)
 		Runner.exec_command(cmd)
 
+class XMLHandler(ContentHandler):
+	def __init__(self):
+		self.buf = []
+		self.files = []
+	def startElement(self, name, attrs):
+		if name == 'file':
+			self.buf = []
+	def endElement(self, name):
+		if name == 'file':
+			self.files.append(''.join(self.buf))
+	def characters(self, cars):
+		self.buf.append(cars)
+
+class rcc_scanner(Scan.scanner):
+	"scanner for d files"
+	def __init__(self):
+		Scan.scanner.__init__(self)
+
+	def scan(self, task, node):
+		"add the dependency on the files referenced in the qrc"
+		parser = make_parser()
+		curHandler = XMLHandler()
+		parser.setContentHandler(curHandler)
+		fi = open(task.m_inputs[0].abspath(task.env()))
+		parser.parse(fi)
+		fi.close()
+
+		nodes = []
+		names = []
+		root = task.m_inputs[0].m_parent
+		for x in curHandler.files:
+			nd = root.find_source(x)
+			if nd: nodes.append(nd)
+			else: names.append(x)
+
+		return (nodes, names)
+
+if has_xml:
+	g_rcc_scanner = rcc_scanner()
+
 @extension(EXT_RCC)
 def create_rcc_task(self, node):
 	"hook for rcc files"
-	# run rcctask with one of the highest priority
-	# TODO add the dependency on the files listed in .qrc
+
 	rcnode = node.change_ext('_rc.cpp')
 
 	rcctask = self.create_task('rcc', self.env)
 	rcctask.m_inputs = [node]
 	rcctask.m_outputs = [rcnode]
+
+	if has_xml:
+		rcctask.m_scanner = g_rcc_scanner
 
 	cpptask = self.create_task('cxx', self.env)
 	cpptask.m_inputs  = [rcnode]
@@ -275,7 +326,7 @@ def process_qm2rcc(task):
 	f.close()
 
 Action.simple_action('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'], prio=100)
-Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC} ${RCC_ST} -o ${TGT}', color='BLUE', prio=60)
+Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', prio=60)
 Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', prio=60)
 Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
 
