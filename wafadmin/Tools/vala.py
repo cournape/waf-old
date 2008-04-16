@@ -6,6 +6,8 @@ import os.path, shutil
 import Action, Runner, Utils, Params
 from Object import extension
 
+from pproc import Popen, PIPE
+
 EXT_VALA = ['.vala']
 
 class ValacAction(Action.Action):
@@ -15,7 +17,7 @@ class ValacAction(Action.Action):
 	def get_str(self, task):
 		"string to display to the user"
 		src_str = " ".join([a.m_name for a in task.m_inputs])
-		return "* %s : %s" % (self.m_name, src_str)
+		return "%s: %s\n" % (self.m_name, src_str)
 
 	def run(self, task):
 		env = task.env()
@@ -25,7 +27,10 @@ class ValacAction(Action.Action):
 		top_src = Params.g_build.m_srcnode.abspath()
 		top_bld = Params.g_build.m_srcnode.abspath(env)
 
-		cmd = [valac, '-C', vala_flags]
+		if env['VALAC_VERSION'] > (0, 1, 6):
+			cmd = [valac, '-C', '--quiet', vala_flags]
+		else:
+			cmd = [valac, '-C', vala_flags]
 
 		if task.threading:
 			cmd.append('--thread')
@@ -65,11 +70,19 @@ class ValacAction(Action.Action):
 				shutil.move(src_vapi, dst_vapi)
 			except IOError:
 				pass
-			# handle vala 0.1.7 who has a weid definition for --directory
+			# handle vala >= 0.1.7 who has a weid definition for --directory
 			try:
 				src_vapi = os.path.join(top_bld, "%s.vapi" % task.target)
 				dst_vapi = task.m_outputs[0].bld_dir(env)
 				shutil.move(src_vapi, dst_vapi)
+			except IOError:
+				pass
+
+			# handle vala >= 0.2.0 who doesn't honor --directory for the generated .gidl
+			try:
+				src_gidl = os.path.join(top_bld, "%s.gidl" % task.target)
+				dst_gidl = task.m_outputs[0].bld_dir(env)
+				shutil.move(src_gidl, dst_gidl)
 			except IOError:
 				pass
 		return result
@@ -77,6 +90,7 @@ class ValacAction(Action.Action):
 @extension(EXT_VALA)
 def vala_file(self, node):
 	valatask = self.create_task('valac')
+	env = valatask.env()
 	valatask.output_type = self.m_type
 	valatask.packages = []
 	valatask.vapi_dirs = []
@@ -108,6 +122,8 @@ def vala_file(self, node):
 
 	if self.m_type != 'program':
 		output_nodes.append(self.path.find_build('%s.vapi' % self.target))
+		if env['VALAC_VERSION'] > (0, 1, 7):
+			output_nodes.append(self.path.find_build('%s.gidl' % self.target))
 		if valatask.packages:
 			output_nodes.append(self.path.find_build('%s.deps' % self.target))
 	valatask.set_outputs(output_nodes)
@@ -120,7 +136,30 @@ def vala_file(self, node):
 ValacAction()
 
 def detect(conf):
-	valac = conf.find_program('valac', var='VALAC')
-	if not valac: conf.fatal('Could not find the valac compiler anywhere')
-	conf.env['VALAFLAGS'] = ''
+	min_version = (0, 1, 6)
+	min_version_str = "%d.%d.%d" % min_version
 
+	valac = conf.find_program('valac', var='VALAC')
+	if not valac:
+		conf.fatal("valac not found")
+		return
+
+	try:
+		output = Popen([valac, "--version"], stdout=PIPE).communicate()[0]
+		version = output.split(' ', 1)[-1].strip().split(".")
+		version = [int(atom) for atom in version]
+		valac_version = tuple(version)
+	except Exception:
+		valac_version = (0, 0, 0)
+
+	conf.check_message('program version',
+			'valac >= ' + min_version_str,
+			valac_version >= min_version,
+			"%d.%d.%d" % valac_version)
+
+	if valac_version < min_version:
+		conf.fatal("valac version too old to be used with this tool")
+		return
+
+	conf.env['VALAC_VERSION'] = valac_version
+	conf.env['VALAFLAGS'] = ''
