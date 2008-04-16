@@ -86,6 +86,8 @@ def unpack_wafdir(dir):
 	for x in t: t.extract(x)
 	t.close()
 
+	os.chmod(join('wafadmin','Tools'), 0755)
+
 	os.unlink(tmp)
 	os.chdir(cwd)
 
