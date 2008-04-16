@@ -71,7 +71,7 @@ g_c_scanner = c_scanner()
 class ccroot_abstract(Object.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	def __init__(self, *kw, **kwargs):
-		Object.task_gen.__init__(self, ())
+		Object.task_gen.__init__(self, *kw)
 
 		# TODO m_type is obsolete
 		self.m_type = kw[1]
@@ -303,7 +303,6 @@ def apply_lib_vars(self):
 	names = [] + self.to_list(self.uselib_local) # consume a copy of the list of names
 	while names:
 		x = names.pop(0)
-		print x
 		# visit dependencies only once
 		if x in seen:
 			continue
