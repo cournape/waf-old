@@ -227,7 +227,6 @@ class d_taskgen(Object.task_gen):
 		Object.task_gen.__init__(self, *k)
 
 		self.m_type = k[1]
-		self.subtype = k[1]
 
 		self.dflags = {'gdc':'', 'dmd':''}
 		self.importpaths = ''

@@ -78,8 +78,6 @@ class ccroot_abstract(Object.task_gen):
 		if self.m_type:
 			self.features.append('c'+self.m_type)
 
-		self.subtype = self.m_type
-
 		# includes, seen from the current directory
 		self.includes=''
 
@@ -264,15 +262,8 @@ def apply_incpaths(self):
 @taskgen
 def apply_type_vars(self):
 
-	# the subtype, used for all sorts of evil things
-	if not self.subtype:
-		if self.m_type in 'program staticlib'.split():
-			self.subtype = self.m_type
-		else:
-			self.subtype = 'shlib'
-
-	# if the subtype defines uselib to add, add them
-	st = self.env[self.subtype+'_USELIB']
+	# if the type defines uselib to add, add them
+	st = self.env[self.m_type+'_USELIB']
 	if st: self.uselib = self.uselib + ' ' + st
 
 	# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
