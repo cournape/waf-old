@@ -71,7 +71,7 @@ g_c_scanner = c_scanner()
 class ccroot_abstract(Object.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	def __init__(self, *kw, **kwargs):
-		Object.task_gen.__init__(self, *kw)
+		Object.task_gen.__init__(self, ())
 
 		# TODO m_type is obsolete
 		self.m_type = kw[1]
