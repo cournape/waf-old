@@ -79,8 +79,6 @@ class ccroot_abstract(Object.task_gen):
 			self.features.append('c'+self.m_type)
 
 		self.subtype = self.m_type
-		if not 'objects' in kw:
-			self.features.append('normal')
 
 		# includes, seen from the current directory
 		self.includes=''
@@ -176,7 +174,7 @@ def install_shlib(task):
 	Common.symlink_as(dest_var, name3, dest_subdir+'/'+name1)
 
 @taskgen
-@feature('normal')
+@feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_objdeps')
 def install_target(self):
 	# FIXME too complicated
@@ -286,7 +284,7 @@ def apply_type_vars(self):
 		if value: self.env.append_value(var, value)
 
 @taskgen
-@feature('normal')
+@feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_core')
 def apply_link(self):
 	# use a custom linker if specified (self.link)
@@ -377,7 +375,7 @@ def apply_lib_vars(self):
 			if val: self.env.append_value(v, val)
 
 @taskgen
-@feature('normal')
+@feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_obj_vars')
 @after('apply_vnum')
 def apply_objdeps(self):
@@ -417,7 +415,7 @@ def apply_objdeps(self):
 		self.link_task.m_inputs += y.out_nodes
 
 @taskgen
-@feature('normal')
+@feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
 def apply_obj_vars(self):
 	lib_st           = self.env['LIB_ST']
@@ -452,7 +450,7 @@ def apply_obj_vars(self):
 	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
 
 @taskgen
-@feature('normal')
+@feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_link')
 def apply_vnum(self):
 	"use self.vnum and self.soname to modify the command line (un*x)"
