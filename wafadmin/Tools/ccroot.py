@@ -303,7 +303,7 @@ def apply_lib_vars(self):
 	names = [] + self.to_list(self.uselib_local) # consume a copy of the list of names
 	while names:
 		x = names.pop(0)
-
+		print x
 		# visit dependencies only once
 		if x in seen:
 			continue
@@ -325,9 +325,9 @@ def apply_lib_vars(self):
 		if not y.m_posted: y.post()
 		seen.append(x)
 
-		if 'cshlib' in self.features:
+		if 'cshlib' in y.features:
 			env.append_value('LIB', y.target)
-		elif 'cstaticlib' in self.features:
+		elif 'cstaticlib' in y.features:
 			env.append_value('STATICLIB', y.target)
 
 		# add the link path too
