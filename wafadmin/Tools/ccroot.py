@@ -75,6 +75,9 @@ class ccroot_abstract(Object.task_gen):
 
 		# TODO m_type is obsolete
 		self.m_type = kw[1]
+		if self.m_type:
+			self.features.append('c'+self.m_type)
+
 		self.subtype = self.m_type
 		if not 'objects' in kw:
 			self.features.append('normal')
@@ -185,10 +188,10 @@ def install_target(self):
 
 	if not dest_var:
 		dest_var = 'PREFIX'
-		if self.m_type == 'program': dest_subdir = 'bin'
+		if 'cprogram' in self.features: dest_subdir = 'bin'
 		else: dest_subdir = 'lib'
 
-	if self.m_type == 'shlib' and getattr(self, 'vnum', '') and sys.platform != 'win32':
+	if 'cshlib' in self.features and getattr(self, 'vnum', '') and sys.platform != 'win32':
 		# shared libraries on linux
 		tsk = self.link_task
 		tsk.vnum = self.vnum
@@ -289,7 +292,7 @@ def apply_link(self):
 	# use a custom linker if specified (self.link)
 	link = getattr(self, 'link', None)
 	if not link:
-		if self.m_type == 'staticlib': link = 'ar_link_static'
+		if 'cstaticlib' in self.features: link = 'ar_link_static'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 	linktask = self.create_task(link, self.env)
@@ -333,15 +336,10 @@ def apply_lib_vars(self):
 		if not y.m_posted: y.post()
 		seen.append(x)
 
-		if y.m_type == 'shlib':
+		if 'cshlib' in self.features:
 			env.append_value('LIB', y.target)
-		elif y.m_type == 'staticlib':
+		elif 'cstaticlib' in self.features:
 			env.append_value('STATICLIB', y.target)
-		elif y.m_type == 'objects':
-			pass
-		else:
-			error('%s has unknown object type %s, in apply_lib_vars, uselib_local.'
-			      % (y.name, y.m_type))
 
 		# add the link path too
 		tmp_path = y.path.bldpath(self.env)
