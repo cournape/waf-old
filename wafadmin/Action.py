@@ -44,7 +44,7 @@ class Action(object):
 		return '%s: %s -> %s\n' % (self.m_name, src_str, tgt_str)
 
 	def run(self, task):
-		"run the compilation"
+		"run the compilation, non-zero means there is an error"
 		f = self.m_function_to_run
 		if not f: fatal("Action %s has no function!" % self.m_name)
 		return f(task)
