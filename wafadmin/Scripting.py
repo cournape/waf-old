@@ -103,6 +103,7 @@ def configure():
 
 	Params.g_cachedir = os.path.join(bld, CACHE_DIR)
 	tree.load_dirs(src, bld, isconfigure=1)
+	tree.init_variants()
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
 

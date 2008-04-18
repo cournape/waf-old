@@ -99,12 +99,11 @@ class Build(object):
 		# tasks and objects
 
 		# build dir variants (release, debug, ..)
-		for name in ['default', 0]:
-			for v in 'm_tstamp_variants node_deps bld_sigs raw_deps m_abspath_cache'.split():
-				var = {}
-				setattr(self, v, var)
-				if not name in var:
-					var[name] = {}
+		for v in 'm_tstamp_variants node_deps bld_sigs raw_deps m_abspath_cache'.split():
+			var = {}
+			setattr(self, v, var)
+
+		self.cache_dir_contents = {}
 
 	def _init_data(self):
 		debug("init data called", 'build')
@@ -178,6 +177,7 @@ class Build(object):
 				nd = node.m_dirs_lookup[x]
 				clean_rec(nd)
 		clean_rec(self.m_srcnode)
+		
 
 	def compile(self):
 		debug("compile called", 'build')
@@ -292,7 +292,7 @@ class Build(object):
 
 				self.m_allenvs[name] = env
 
-		self._initialize_variants()
+		self.init_variants()
 
 		for env in self.m_allenvs.values():
 			for f in env['dep_files']:
@@ -322,7 +322,7 @@ class Build(object):
 		if hasattr(module, "setup"): module.setup(self)
 		if file: file.close()
 
-	def _initialize_variants(self):
+	def init_variants(self):
 		debug("init variants", 'build')
 
 		lstvariants = []
@@ -370,7 +370,7 @@ class Build(object):
 				return
 
 		self.m_srcnode = self.ensure_dir_node_from_path(srcdir)
-		debug("srcnode is %s and srcdir %s" % (str(self.m_srcnode), srcdir), 'build')
+		debug("srcnode is %s and srcdir %s" % (str(self.m_srcnode.m_name), srcdir), 'build')
 
 		self.m_curdirnode = self.m_srcnode
 
@@ -380,7 +380,7 @@ class Build(object):
 		try: os.makedirs(blddir)
 		except OSError: pass
 
-		self._initialize_variants()
+		self.init_variants()
 
 	def ensure_dir_node_from_path(self, abspath):
 		"return a node corresponding to an absolute path, creates nodes if necessary"
@@ -412,9 +412,6 @@ class Build(object):
 		if src_dir_node.id in self.m_scanned_folders: return
 		self.m_scanned_folders.append(src_dir_node.id)
 
-		# do not rescan the nodes above srcnode
-		if src_dir_node.height() < self.m_srcnode.height(): return
-
 		#debug("rescanning "+str(src_dir_node), 'build')
 
 		# TODO undocumented hook
@@ -424,7 +421,8 @@ class Build(object):
 		files = self.scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.files())
 		#debug("files found in folder are "+str(files), 'build')
 		src_dir_node.m_files_lookup = {}
-		for i in files:	src_dir_node.m_files_lookup[i.m_name] = i
+		for i in files:
+			src_dir_node.m_files_lookup[i.m_name] = i
 
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
@@ -469,6 +467,8 @@ class Build(object):
 			warning("OSError exception in scan_src_path()  i_path=%s" % str(i_path) )
 			return None
 
+		self.cache_dir_contents[i_parent_node.id] = listed_files
+
 		debug("folder contents "+str(listed_files), 'build')
 
 		node_names = set([x.m_name for x in i_existing_nodes])
@@ -486,18 +486,19 @@ class Build(object):
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
 		# nodes to create
-		to_add = listed_files - node_names
-		debug("new files found "+str(to_add), 'build')
-		l_path = i_path + os.sep
-		for name in to_add:
-			try:
-				# throws IOError if not a file or if not readable
-				st = Params.h_file(l_path + name)
-			except IOError:
-				continue
-			l_child = Node.Node(name, i_parent_node)
-			existing_nodes.append(l_child)
-			cache[l_child.id] = st
+		#to_add = listed_files - node_names
+		#debug("new files found "+str(to_add), 'build')
+		#l_path = i_path + os.sep
+		#for name in to_add:
+		#	try:
+		#		# throws IOError if not a file or if not readable
+		#		st = Params.h_file(l_path + name)
+		#	except IOError:
+		#		continue
+		#
+		#	l_child = Node.Node(name, i_parent_node)
+		#	existing_nodes.append(l_child)
+		#	cache[l_child.id] = st
 		return existing_nodes
 
 	def scan_path(self, i_parent_node, i_path, i_existing_nodes, i_variant):
@@ -548,14 +549,6 @@ class Build(object):
 
 		Params.pprint('CYAN', recu(self.m_root, 0) )
 		Params.pprint('CYAN', 'size is '+str(self.m_root.size_subtree()))
-
-	def pushdir(self, dir):
-		node = self.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
-		self.pushed = [self.m_curdirnode]+self.pushed
-		self.m_curdirnode = node
-
-	def popdir(self):
-		self.m_curdirnode = self.pushed.pop(0)
 
 	def env_of_name(self, name):
 		if not name:

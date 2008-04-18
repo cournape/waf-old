@@ -124,6 +124,31 @@ class Node(object):
 					prev.m_build_lookup[name] = current
 		return current
 
+	def find_one_source(self, name):
+		tree = Params.g_build
+		tree.rescan(self)
+
+		x = self.m_files_lookup.get(name, None)
+		if x:
+			return x
+
+		#print tree.cache_dir_contents[self.id]
+		if not name in tree.cache_dir_contents[self.id]:
+			return None
+
+		path = self.abspath() + os.sep + name
+		#print path
+		try:
+			st = Params.h_file(path)
+		except IOError:
+			print "not a file"
+			return None
+
+		child = Node(name, self)
+		tree.m_tstamp_variants[0][child.id] = st
+		self.m_files_lookup[name] = child
+		return child
+
 	def find_source(self, path, create=1):
 		lst = Utils.split_path(path)
 		return self.find_source_lst(lst, create)
@@ -132,29 +157,9 @@ class Node(object):
 		"search a source in the filesystem, rescan intermediate folders, create intermediate folders if necessary"
 		rescan = Params.g_build.rescan
 		current = self
-		while lst:
-			rescan(current)
-			name = lst.pop(0)
-			prev = current
 
-			if name == '.':
-				continue
-			elif name == '..':
-				current = current.m_parent
-				continue
-			if lst:
-				current = prev.m_dirs_lookup.get(name, None)
-				if not current and create:
-					# create a directory
-					current = Node(name, prev, isdir=1)
-					prev.m_dirs_lookup[name] = current
-			else:
-				current = prev.m_files_lookup.get(name, None)
-				# try hard to find something
-				if not current: current = prev.m_dirs_lookup.get(name, None)
-				if not current: current = prev.m_build_lookup.get(name, None)
-			if not current: return None
-		return current
+		parent = self.find_dir_lst(lst[:-1])
+		return parent.find_one_source(lst[-1])
 
 	def find_raw(self, path):
 		lst = Utils.split_path(path)
@@ -201,11 +206,13 @@ class Node(object):
 		lst = Utils.split_path(path)
 		return self.find_dir_lst(lst)
 
-	def find_dir_lst(self, lst):
+	def find_dir_lst(self, lst, scan=0):
 		"search a folder in the filesystem, do not scan, create if necessary"
 		current = self
 		while lst:
 			name = lst.pop(0)
+			if scan:
+				Params.g_build.rescan(self)
 			prev = current
 
 			if not name:
