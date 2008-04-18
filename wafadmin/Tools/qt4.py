@@ -285,7 +285,7 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 			if ext in ext_lst:
 				if not name in lst:
 					if name in excludes: continue
-					lst.append(anode.relpath(self.path) + '/' + name)
+					lst.append((anode.relpath(self.path) or '.') + '/' + name)
 			elif ext == '.ts':
 				self.lang += ' '+base
 

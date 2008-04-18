@@ -364,7 +364,7 @@ class task_gen(object):
 				if ext in ext_lst:
 					if not name in lst:
 						if name in excludes: continue
-						lst.append(anode.relpath(self.path) + '/' + name)
+						lst.append((anode.relpath(self.path) or '.') + '/' + name)
 
 		lst.sort()
 		self.source = self.to_list(self.source)
