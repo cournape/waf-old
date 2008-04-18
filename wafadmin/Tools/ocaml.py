@@ -260,7 +260,7 @@ def apply_incpaths_ml(self):
 	for dir in inc_lst:
 		node = self.path.find_source(dir)
 		if not node:
-			error("node not found dammit")
+			error("node not found: " + str(dir))
 			continue
 		Params.g_build.rescan(node)
 		if not node in lst: lst.append( node )

@@ -277,20 +277,15 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	ext_lst = exts or self.mappings.keys() + Object.task_gen.mappings.keys()
 
 	for name in dirnames:
-		#print "name is ", name
 		anode = self.path.ensure_node_from_lst(Utils.split_path(name))
-		#print "anode ", anode.m_name, " ", anode.files()
 		Params.g_build.rescan(anode)
-		#print "anode ", anode.m_name, " ", anode.files()
 
-		for file in anode.files():
-			#print "file found ->", file
-			(base, ext) = os.path.splitext(file.m_name)
+		for name in Params.g_build.cache_dir_contents[anode.id]:
+			(base, ext) = os.path.splitext(name)
 			if ext in ext_lst:
-				s = file.relpath(self.path)
-				if not s in lst:
-					if s in excludes: continue
-					lst.append(s)
+				if not name in lst:
+					if name in excludes: continue
+					lst.append(anode.relpath(self.path) + '/' + name)
 			elif ext == '.ts':
 				self.lang += ' '+base
 

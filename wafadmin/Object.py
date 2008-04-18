@@ -359,13 +359,12 @@ class task_gen(object):
 			anode = self.path.ensure_node_from_lst(Utils.split_path(name))
 			Params.g_build.rescan(anode)
 
-			for file in anode.files():
-				(base, ext) = os.path.splitext(file.m_name)
+			for name in Params.g_build.cache_dir_contents[anode.id]:
+				(base, ext) = os.path.splitext(name)
 				if ext in ext_lst:
-					s = file.relpath(self.path)
-					if not s in lst:
-						if s in excludes: continue
-						lst.append(s)
+					if not name in lst:
+						if name in excludes: continue
+						lst.append(anode.relpath(self.path) + '/' + name)
 
 		lst.sort()
 		self.source = self.to_list(self.source)
