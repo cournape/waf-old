@@ -159,6 +159,7 @@ class Node(object):
 		current = self
 
 		parent = self.find_dir_lst(lst[:-1])
+		if not parent: return None
 		return parent.find_one_source(lst[-1])
 
 	def find_raw(self, path):
