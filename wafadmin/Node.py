@@ -94,8 +94,12 @@ class Node(object):
 		lst = Utils.split_path(path)
 		return self.find_build_lst(lst, create)
 
+	# TODO: split find_build into find_build_or_source and find_build
 	def find_build_lst(self, lst, create=0):
 		"search a source or a build node in the filesystem, rescan intermediate folders, create if necessary"
+		current = self.find_source_lst(lst)
+		if current: return current
+
 		rescan = Params.g_build.rescan
 		current = self
 		while lst:
@@ -115,8 +119,6 @@ class Node(object):
 					prev.m_dirs_lookup[name] = current
 			else:
 				current = prev.m_build_lookup.get(name, None)
-				# next line for finding source files too
-				if not current: current = prev.m_files_lookup.get(name, None)
 				# TODO do not use this for finding folders
 				if not current:
 					current = Node(name, prev)
