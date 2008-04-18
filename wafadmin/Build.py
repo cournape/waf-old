@@ -407,7 +407,6 @@ class Build(object):
 		"""
 
 		# FIXME use sets with intersection and union
-
 		# do not rescan over and over again
 		if src_dir_node.id in self.m_scanned_folders: return
 		self.m_scanned_folders.append(src_dir_node.id)

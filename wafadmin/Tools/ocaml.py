@@ -258,12 +258,12 @@ def apply_incpaths_ml(self):
 	lst = self._incpaths_lst
 	tree = Params.g_build
 	for dir in inc_lst:
-		node = self.path.find_source(dir)
+		node = self.path.find_dir(dir)
 		if not node:
 			error("node not found: " + str(dir))
 			continue
 		Params.g_build.rescan(node)
-		if not node in lst: lst.append( node )
+		if not node in lst: lst.append(node)
 		self._bld_incpaths_lst.append(node)
 	# now the nodes are added to self._incpaths_lst
 

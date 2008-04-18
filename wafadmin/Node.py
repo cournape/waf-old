@@ -206,13 +206,11 @@ class Node(object):
 		lst = Utils.split_path(path)
 		return self.find_dir_lst(lst)
 
-	def find_dir_lst(self, lst, scan=0):
-		"search a folder in the filesystem, do not scan, create if necessary"
+	def find_dir_lst(self, lst):
+		"search a folder in the filesystem"
 		current = self
-		while lst:
-			name = lst.pop(0)
-			if scan:
-				Params.g_build.rescan(self)
+		for name in lst:
+			Params.g_build.rescan(current)
 			prev = current
 
 			if not name:
@@ -220,12 +218,11 @@ class Node(object):
 			elif name == '.':
 				continue
 			elif name == '..':
-				current = current.m_parent
+				current = current.m_parent or current
 			else:
 				current = prev.m_dirs_lookup.get(name, None)
-				if not current:
+				if not current and name in Params.g_build.cache_dir_contents[prev.id]:
 					current = Node(name, prev, isdir=1)
-					# create a directory
 					prev.m_dirs_lookup[name] = current
 		return current
 
@@ -392,6 +389,9 @@ class Node(object):
 
 	def abspath(self, env=None):
 		"absolute path - hot zone, so do not touch"
+
+		if not self.m_name:
+			return '/'
 
 		variant = self.variant(env)
 		ret = Params.g_build.m_abspath_cache[variant].get(self.id, None)
