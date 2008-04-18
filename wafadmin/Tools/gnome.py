@@ -152,12 +152,12 @@ class gnome_sgml2man_taskgen(Object.task_gen):
 
 		tree = Params.g_build
 		tree.rescan(self.path)
-		for node in self.path.files():
-			base, ext = os.path.splitext(node.m_name)
+		for name in Params.g_build.cache_dir_contents[self.path.id]:
+			base, ext = os.path.splitext(name)
 			if ext != '.sgml': continue
 
 			task = self.create_task('sgml2man', self.env, 2)
-			task.set_inputs(node)
+			task.set_inputs(self.path.find_source(name))
 			if Params.g_install: task.install = install_results
 			# no outputs, the scanner does it
 			# no caching for now, this is not a time-critical feature
