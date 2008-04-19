@@ -97,34 +97,24 @@ class Node(object):
 	# TODO: split find_build into find_build_or_source and find_build
 	def find_build_lst(self, lst, create=0):
 		"search a source or a build node in the filesystem, rescan intermediate folders, create if necessary"
-		current = self.find_source_lst(lst)
-		if current: return current
 
-		rescan = Params.g_build.rescan
-		current = self
-		while lst:
-			rescan(current)
-			name = lst.pop(0)
-			prev = current
+		parent = self.find_dir_lst(lst[:-1])
+		if not parent: return None
+		Params.g_build.rescan(parent)
 
-			if name == '.':
-				continue
-			elif name == '..':
-				current = current.m_parent
-				continue
-			if lst:
-				current = prev.m_dirs_lookup.get(name, None)
-				if not current and create:
-					current = Node(name, prev, isdir=1)
-					prev.m_dirs_lookup[name] = current
-			else:
-				current = prev.m_build_lookup.get(name, None)
-				# TODO do not use this for finding folders
-				if not current:
-					current = Node(name, prev)
-					# last item is the build file (rescan would have found the source)
-					prev.m_build_lookup[name] = current
-		return current
+		# TODO: rename this find_input or something like that
+		name = lst[-1]
+
+		# locate a source if necessary # TODO ill-defined
+		node = parent.find_source_lst(lst[-1:])
+		if node: return node
+
+		node = parent.m_build_lookup.get(name, None)
+		if node: return node
+
+		node = Node(name, parent)
+		parent.m_build_lookup[name] = node
+		return node
 
 	def find_one_source(self, name):
 		tree = Params.g_build
