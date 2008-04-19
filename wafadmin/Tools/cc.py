@@ -16,7 +16,7 @@ g_cc_flag_vars = [
 'INCLUDE',
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
-EXT_CC = ['.c', '.cc']
+EXT_CC = ['.c']
 CC_METHS = ['init_cc', 'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc',
 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc']
 
