@@ -346,6 +346,7 @@ use command_is_external=True''') % (self.command,)
 		if self.stdout is None:
 			stdout = None
 		else:
+                        assert isinstance(self.stdout, basestring)
 			stdout = self.path.find_build(self.stdout, create=True)
 			if stdout is None:
 				Params.fatal("File %s not found" % (self.stdout,))
@@ -354,6 +355,7 @@ use command_is_external=True''') % (self.command,)
 		if self.stdin is None:
 			stdin = None
 		else:
+                        assert isinstance(self.stdin, basestring)
 			stdin = self.path.find_build(self.stdin, create=True)
 			if stdin is None:
 				Params.fatal("File %s not found" % (self.stdin,))
