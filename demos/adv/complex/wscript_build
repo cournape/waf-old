@@ -75,3 +75,15 @@ out4.command = 'cat'
 out4.command_is_external = True
 out4.dependencies = [out3]
 
+## --- compile a generated program ---
+genmain = bld.create_obj('command-output')
+genmain.stdout = "main1.cpp"
+genmain.command = 'cat'
+genmain.command_is_external = True
+genmain.argv = [genmain.input_file('main.cpp')]
+genmain.prio = 90 # run before compilation
+
+obj = bld.create_obj('cpp', 'program')
+obj.source = 'main1.cpp'
+obj.target = 'main1'
+
