@@ -26,7 +26,7 @@ def init_pyext(self):
 @taskgen
 @before('apply_incpaths')
 @feature('pyembed')
-def init_pyext(self):
+def init_pyembed(self):
 	self.uselib = self.to_list(self.uselib)
 	if not 'PYEMBED' in self.uselib:
 		self.uselib.append('PYEMBED')
