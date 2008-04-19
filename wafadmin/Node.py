@@ -128,7 +128,6 @@ class Node(object):
 
 	def find_one_source(self, name):
 		tree = Params.g_build
-		tree.rescan(self)
 
 		#print tree.cache_dir_contents[self.id]
 		if not name in tree.cache_dir_contents[self.id]:
@@ -158,20 +157,21 @@ class Node(object):
 
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
+		rescan(parent)
 
 		# TODO: rename this find_input or something like that
 		name = lst[-1]
+
+		# look if it is really a file, not a folder
+		node = parent.m_dirs_lookup.get(name, None)
+		if node: raise RuntimeError(name + ' is a folder')
 
 		# try to return a build node first
 		node = parent.m_build_lookup.get(name, None)
 		if node: return node
 
-		# then look if it is really a file, not a folder
-		node = parent.m_dirs_lookup.get(name, None)
-		if node: raise RuntimeError(name + ' is a folder')
-
 		# then look if the node already exists
-		node = self.m_files_lookup.get(name, None)
+		node = parent.m_files_lookup.get(name, None)
 		if node: return node
 
 		# then create a file if necessary
