@@ -227,9 +227,12 @@ class Node(object):
 				current = current.m_parent or current
 			else:
 				current = prev.m_dirs_lookup.get(name, None)
-				if not current and name in Params.g_build.cache_dir_contents[prev.id]:
-					current = Node(name, prev, isdir=1)
-					prev.m_dirs_lookup[name] = current
+				if current is None:
+					if name in Params.g_build.cache_dir_contents[prev.id]:
+						current = Node(name, prev, isdir=1)
+						prev.m_dirs_lookup[name] = current
+					else:
+						raise ValueError("directory %r not found from %r" % (lst, self.abspath()))
 		return current
 
 
