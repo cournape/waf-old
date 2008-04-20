@@ -6,7 +6,7 @@
 "Python support"
 
 import os, sys
-import Object, Action, Utils, Params, Common, Utils
+import Object, Action, Utils, Params, Common, Utils, Runner
 from Object import extension, taskgen, before, feature
 import pproc as subprocess
 
@@ -103,9 +103,6 @@ def check_python_headers(conf):
 	Note: this test requires that check_python_version was previously
 	executed and successful."""
 
-	try: import distutils
-	except ImportError: return 0
-
 	env = conf.env
 	python = env['PYTHON']
 	assert python, ("python is %r !" % (python,))
@@ -119,6 +116,18 @@ def check_python_headers(conf):
 					      ['from distutils.sysconfig import get_config_var'])
 	except ValueError:
 		conf.fatal("Python development headers not found (-v for details).")
+
+	Runner.print_log("""Configuration returned from %r:
+python_prefix = %r
+python_SO = %r
+python_SYSLIBS = %r
+python_SHLIBS = %r
+python_LIBDIR = %r
+python_LIBPL = %r
+INCLUDEPY = %r
+Py_ENABLE_SHARED = %r
+""" % (python, python_prefix, python_SO, python_SYSLIBS, python_SHLIBS,
+       python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED))
 
 	env['pyext_PATTERN'] = '%s'+python_SO
 
@@ -135,7 +144,7 @@ def check_python_headers(conf):
 			env.append_value('LIB_PYEMBED', lib)
 	lib = conf.create_library_configurator()
 	lib.name = 'python' + env['PYTHON_VERSION']
-	lib.uselib = 'PYTHON'
+	lib.uselib = 'PYEMBED'
 	lib.code = '''
 #ifdef __cplusplus
 extern "C" {
@@ -171,12 +180,10 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		env['LIBPATH_PYEMBED'] = lib.path
 		env.append_value('LIB_PYEMBED', lib.name)
 
-
-	# according to
-	# distutils.command.build_ext.build_ext.get_libraries.__doc__
-	# this might want to be OS/2 aswell.
-	if sys.platform == 'win32' or (Py_ENABLE_SHARED is not None
-			and sys.platform != 'darwin'):
+	## under certain conditions, python extensions must link to
+	## python libraries, not just python embedding programs.
+	if ((sys.platform == 'win32' or sys.platform.startswith('os2')
+	     or Py_ENABLE_SHARED) and sys.platform != 'darwin'):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
