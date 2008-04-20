@@ -38,20 +38,24 @@ def process_py(self, node):
 		t1 = self.create_task('pyc', self.env)
 		t1.set_inputs(node)
 		t1.set_outputs(node.change_ext('.pyc'))
+	else:
+		t1 = None
 
 	if self.env['PYO']:
 		t2 = self.create_task('pyo', self.env)
 		t2.set_inputs(node)
 		t2.set_outputs(node.change_ext('.pyo'))
+	else:
+		t2 = None
 
 	if Params.g_install:
 		inst_src = not self.env['NOPY']
 		install = {'var': self.inst_var, 'dir': self.inst_dir, 'chmod': self.chmod, 'src': inst_src}
 
-		try: t2.install = install
-		except: pass
-		try: t1.install = install
-		except: pass
+		if t2 is not None:
+			t2.install = install
+		if  t1 is not None:
+			t1.install = install
 
 class py_taskgen(Object.task_gen):
 	def __init__(self, env=None):
