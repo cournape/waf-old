@@ -272,7 +272,7 @@ def init_msvc(self):
 	if self.env['MSVC']:
 		self.meths.remove('apply_link')
 	else:
-		for x in ['apply_link_msvc', 'apply_msvc_obj_vars']
+		for x in ['apply_link_msvc', 'apply_msvc_obj_vars']:
 			self.meths.remove(x)
 		self.libpaths = getattr(self, 'libpaths', '')
 
