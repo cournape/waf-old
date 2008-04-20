@@ -7,7 +7,6 @@ import sys, re, os, optparse
 
 import Action, Object, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
-from ccroot import ccroot
 from Object import taskgen, after, before
 
 REVISION="0.1.3"
