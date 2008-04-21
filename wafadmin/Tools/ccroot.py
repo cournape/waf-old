@@ -5,7 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-import Action, Object, Params, Scan, Common, Utils, preproc
+import Action, Object, Params, Scan, Common, Utils, Node, preproc
 from Params import error, debug, fatal, warning
 from Utils import md5
 from Object import taskgen, after, before, feature
@@ -56,7 +56,7 @@ class c_scanner(Scan.scanner):
 			tstamp = Params.g_build.m_tstamp_variants
 			upd(tstamp[variant][idx])
 			for k in Params.g_build.node_deps[variant][idx]:
-				if k.m_name in k.m_parent.m_files_lookup:
+				if k.id & 3 == Node.FILE:
 					upd(tstamp[0][k.id])
 				else:
 					upd(tstamp[env.variant()][k.id])
@@ -458,7 +458,7 @@ def apply_vnum(self):
 def process_obj_files(self):
 	if not hasattr(self, 'obj_files'): return
 	for x in self.obj_files:
-		node = self.path.find_source(x)
+		node = self.path.find_resource(x)
 		self.link_task.m_inputs.append(node)
 
 @taskgen

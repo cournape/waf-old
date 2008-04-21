@@ -26,9 +26,9 @@ class intltool_in_taskgen(Object.task_gen):
 		tree = Params.g_build
 		current = tree.m_curdirnode
 		for i in self.to_list(self.source):
-			node = self.path.find_source(i)
+			node = self.path.find_resource(i)
 
-			podirnode = self.path.find_source(self.podir)
+			podirnode = self.path.find_resource(self.podir)
 
 			self.env['INTLCACHE'] = os.path.join(self.path.bldpath(self.env), self.podir, self.intlcache)
 			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
@@ -56,7 +56,7 @@ class intltool_po_taskgen(Object.task_gen):
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
 			Common.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
 
-		linguas = self.path.find_source('LINGUAS')
+		linguas = self.path.find_resource('LINGUAS')
 		if linguas:
 			# scan LINGUAS file for locales to process
 			f = open(linguas.abspath())

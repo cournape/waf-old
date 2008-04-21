@@ -411,7 +411,7 @@ class c_parser(object):
 		if self.m_nodepaths:
 			found = 0
 			for n in self.m_nodepaths:
-				found = n.find_source(filename, create=0)
+				found = n.find_resource(filename, create=0)
 				if found:
 					break
 			# second pass for unreachable folders
@@ -427,7 +427,7 @@ class c_parser(object):
 						for n in self.m_nodepaths:
 							node = try_exists(n, lst)
 							if node:
-								found = n.find_source(filename, create=0)
+								found = n.find_resource(filename, create=0)
 								if found: break
 			if found:
 				self.m_nodes.append(found)

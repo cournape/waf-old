@@ -94,7 +94,7 @@ class MTask(Task.Task):
 				path = node.m_parent.srcpath(parn.env)
 				for i in MOC_H:
 					try:
-						# TODO we could use find_source
+						# TODO we could use find_resource
 						os.stat(os.path.join(path, base2+i))
 					except OSError:
 						pass
@@ -104,7 +104,7 @@ class MTask(Task.Task):
 				if not ext: fatal("no header found for %s which is a moc file" % str(d))
 
 			# next time we will not search for the extension (look at the 'for' loop below)
-			h_node = node.m_parent.find_source(base2+i)
+			h_node = node.m_parent.find_resource(base2+i)
 			m_node = h_node.change_ext('.moc')
 			tree.node_deps[variant][m_node.id] = (h_node,)
 
@@ -184,7 +184,7 @@ class rcc_scanner(Scan.scanner):
 		root = task.m_inputs[0].m_parent
 		for x in curHandler.files:
 			x = x.encode('utf8')
-			nd = root.find_source(x)
+			nd = root.find_resource(x)
 			if nd: nodes.append(nd)
 			else: names.append(x)
 

@@ -67,7 +67,7 @@ class copy_taskgen(Object.task_gen):
 		lst = self.to_list(self.source)
 
 		for filename in lst:
-			node = self.path.find_source(filename)
+			node = self.path.find_resource(filename)
 			if not node: fatal('cannot find input file %s for processing' % filename)
 
 			target = self.target
@@ -131,7 +131,7 @@ class subst_taskgen(Object.task_gen):
 		lst = self.to_list(self.source)
 
 		for filename in lst:
-			node = self.path.find_source(filename)
+			node = self.path.find_resource(filename)
 			if not node: fatal('cannot find input file %s for processing' % filename)
 
 			newnode = node.change_ext('')

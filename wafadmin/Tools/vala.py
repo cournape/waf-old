@@ -112,7 +112,7 @@ def vala_file(self, node):
 	input_nodes = []
 	for source in self.to_list(self.source):
 		if source.endswith(".vala"):
-			input_nodes.append(self.path.find_source(source))
+			input_nodes.append(self.path.find_resource(source))
 	valatask.set_inputs(input_nodes)
 
 	output_nodes = []

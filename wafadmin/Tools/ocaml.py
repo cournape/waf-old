@@ -166,7 +166,7 @@ class ocaml_scanner(Scan.scanner):
 		for name in names:
 			nd = None
 			for x in task.incpaths:
-				nd = x.find_source(name.lower()+'.ml')
+				nd = x.find_resource(name.lower()+'.ml')
 				if nd:
 					found_lst.append(nd)
 					break
