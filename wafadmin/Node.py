@@ -5,7 +5,12 @@
 """
 Node: filesystem structure, contains lists of nodes
 
-A folder is represented by exactly one node
+Each file/folder is represented by exactly one node
+
+we do not want to add another type attribute (memory)
+rather, we will use the id to find out:
+type = id & 3
+setting: new type = type + x - type & 3
 
 IMPORTANT:
 Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
@@ -36,10 +41,6 @@ class Node(object):
 		Params.g_build.id_nodes += 4
 		self.id = Params.g_build.id_nodes + node_type
 
-		# we do not want to add another type attribute (memory)
-		# rather, we will use the id to find out:
-		# type = id & 3
-		# setting: new type = type + x - type & 3
 		if node_type == DIR: self.childs = {}
 
 		# The checks below could be disabled for speed, if necessary
@@ -173,20 +174,11 @@ class Node(object):
 						raise ValueError("directory %r not found from %r" % (lst, self.abspath()))
 		return current
 
-
-
-
-	def find_build(self, path, create=0):
-		raise
-
-	def find_build_lst(self, lst, create=0):
-		raise "search a source or a build node in the filesystem, rescan intermediate folders"
-
-	def find_source(self, path, create=1):
-		raise
-
-	def find_source_lst(self, lst, create=1):
-		raise
+	# compatibility
+	find_build = find_or_declare
+	find_build_lst = find_or_declare_lst
+	find_source = find_resource
+	find_source_lst = find_resource_lst
 
 	## ===== END find methods	===== ##
 
@@ -321,7 +313,7 @@ class Node(object):
 		while diff > 0:
 			diff -= 1
 			p = p.m_parent
-		return p == node
+		return p.id == node.id
 
 	def variant(self, env):
 		"variant, or output directory for this node, a source has for variant 0"
