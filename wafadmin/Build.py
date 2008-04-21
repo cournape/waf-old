@@ -392,9 +392,8 @@ class Build(object):
 			if dirname == '.': continue
 			found = curnode.get_dir(dirname, None)
 			if not found:
-				found = Node.Node(dirname, curnode, isdir=1)
+				found = Node.Node(dirname, curnode, Node.DIR)
 				curnode.childs[dirname] = found
-				found.set_type(Node.DIR)
 			curnode = found
 		return curnode
 

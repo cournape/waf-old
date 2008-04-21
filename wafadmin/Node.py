@@ -22,25 +22,28 @@ import os
 import Params, Utils
 from Params import debug, error, fatal
 
+UNDEFINED = 0
 DIR = 1
 FILE = 2
 BUILD = 3
 
+type_to_string = {UNDEFINED: "unk", DIR: "dir", FILE: "src", BUILD: "bld"}
+
 class Node(object):
 	__slots__ = ("m_name", "m_parent", "id", "childs")
-	def __init__(self, name, parent, isdir=0):
+	def __init__(self, name, parent, node_type = UNDEFINED):
 		self.m_name = name
 		self.m_parent = parent
 
 		# assumption: one build object at a time
 		Params.g_build.id_nodes += 4
-		self.id = Params.g_build.id_nodes
+		self.id = Params.g_build.id_nodes + node_type
 
 		# we do not want to add another type attribute (memory)
 		# rather, we will use the id to find out:
 		# type = id & 3
 		# setting: new type = type + x - type & 3
-		if isdir: self.childs = {}
+		if node_type == DIR: self.childs = {}
 
 		# The checks below could be disabled for speed, if necessary
 		# TODO check for . .. / \ in name
@@ -49,23 +52,12 @@ class Node(object):
 		if Utils.split_path(name)[0] != name:
 			fatal('name forbidden '+name)
 
-		if parent:
-			if parent.get_file(name):
-				fatal('node %s exists in the parent files %s already' % (name, str(parent)))
-
-			if parent.get_build(name):
-				fatal('node %s exists in the parent build %s already' % (name, str(parent)))
+		if parent and name in parent.childs:
+			fatal('node %s exists in the parent files %s already' % (name, str(parent)))
 
 	def __str__(self):
 		if not self.m_parent: return ''
-
-		if self.m_name in self.m_parent.m_build_lookup:
-			location = "bld"
-		elif self.m_name in self.m_parent.m_dirs_lookup:
-			location = "dir"
-		else:
-			location = "src"
-		return "%s://%s" % (location, self.abspath())
+		return "%s://%s" % (type_to_string(self.type), self.abspath())
 
 	def __repr__(self):
 		return self.__str__()
@@ -217,9 +209,8 @@ class Node(object):
 			#		found = cand
 			#		break
 			if not found:
-				found = Node(dirname, curnode, isdir=1)
+				found = Node(dirname, curnode, DIR)
 				curnode.childs[dirname] = found
-				found.set_type(DIR)
 			curnode = found
 		return curnode
 
