@@ -109,7 +109,7 @@ class Build(object):
 		debug("init data called", 'build')
 
 		# filesystem root - root name is Params.g_rootname
-		self.m_root = Node.Node('', None, isdir=1)
+		self.m_root = Node.Node('', None, Node.DIR)
 
 		self.m_srcnode = None # src directory
 		self.m_bldnode = None # bld directory
@@ -446,7 +446,7 @@ class Build(object):
 				for node in src_dir_node.childs.values():
 					if node.id in dict:
 						dict.__delitem__(node.id)
-					src_dir_node.childs.__delitem__(node.id)
+					src_dir_node.childs.__delitem__(node.m_name)
 				os.makedirs(sub_path)
 
 	# ======================================= #
@@ -481,7 +481,7 @@ class Build(object):
 		"""in this function we do not add timestamps but we remove them
 		when the files no longer exist (file removed in the build dir)"""
 
-		i_existing_nodes = i_parent_nodes.get_build_files()
+		i_existing_nodes = [x for x in i_parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
 		listed_files = set(os.listdir(i_path))
 		node_names = set([x.m_name for x in i_existing_nodes])
@@ -491,9 +491,8 @@ class Build(object):
 		ids_to_remove = [x.id for x in i_existing_nodes if x.m_name in remove_names]
 		cache = self.m_tstamp_variants[i_variant]
 		for nid in ids_to_remove:
-			if nid in cache: cache.__delitem__(nid)
-
-		return i_existing_nodes
+			if nid in cache:
+				cache.__delitem__(nid)
 
 	def dump(self):
 		raise "for debugging"
