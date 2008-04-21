@@ -238,27 +238,6 @@ class Node(object):
 						raise ValueError("directory %r not found from %r" % (lst, self.abspath()))
 		return current
 
-	def ensure_node_from_lst(self, plst):
-		curnode = self
-		for dirname in plst:
-			if not dirname: continue
-			if dirname == '.': continue
-			if dirname == '..':
-				curnode = curnode.m_parent
-				continue
-			#found=None
-			found = curnode.get_dir(dirname, None)
-			#for cand in curnode.m_dirs:
-			#	if cand.m_name == dirname:
-			#		found = cand
-			#		break
-			if not found:
-				found = Node(dirname, curnode, DIR)
-				curnode.childs[dirname] = found
-			curnode = found
-		return curnode
-
-
 	## ===== END find methods	===== ##
 
 
