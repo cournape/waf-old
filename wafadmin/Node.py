@@ -4,9 +4,6 @@
 
 """
 Node: filesystem structure, contains lists of nodes
-self.m_dirs  : sub-folders
-self.m_files : files existing in the src dir
-self.m_build : nodes produced in the build dirs
 
 A folder is represented by exactly one node
 
@@ -162,11 +159,11 @@ class Node(object):
 			elif name == '..':
 				current = current.m_parent or current
 			else:
-				current = prev.m_dirs_lookup.get(name, None)
+				current = prev.childs.get(name, None)
 				if current is None:
 					if name in Params.g_build.cache_dir_contents[prev.id]:
-						current = Node(name, prev, isdir=1)
-						prev.m_dirs_lookup[name] = current
+						current = Node(name, prev, DIR)
+						prev.childs[name] = current
 					else:
 						raise ValueError("directory %r not found from %r" % (lst, self.abspath()))
 		return current
@@ -176,85 +173,18 @@ class Node(object):
 
 	def find_build(self, path, create=0):
 		raise
-		#print "find build", path
-		lst = Utils.split_path(path)
-		return self.find_build_lst(lst)
 
-	# TODO: split find_build into find_build_or_source and find_build
 	def find_build_lst(self, lst, create=0):
 		raise "search a source or a build node in the filesystem, rescan intermediate folders"
 
-		parent = self.find_dir_lst(lst[:-1])
-		if not parent: return None
-		Params.g_build.rescan(parent)
-
-		# TODO: rename this find_input or something like that
-		name = lst[-1]
-
-		# locate a source if necessary # TODO ill-defined
-		node = parent.find_source_lst(lst[-1:])
-		if node: return node
-
-		node = parent.m_build_lookup.get(name, None)
-		if node: return node
-
-		node = Node(name, parent)
-		parent.m_build_lookup[name] = node
-		return node
-
 	def find_one_source(self, name):
 		raise
-		tree = Params.g_build
-
-		#print tree.cache_dir_contents[self.id]
-		if not name in tree.cache_dir_contents[self.id]:
-			return None
-
-		path = self.abspath() + os.sep + name
-		#print path
-		try:
-			st = Params.h_file(path)
-		except IOError:
-			print "not a file"
-			return None
-
-		child = Node(name, self)
-		tree.m_tstamp_variants[0][child.id] = st
-		self.m_files_lookup[name] = child
-		return child
 
 	def find_source(self, path, create=1):
 		raise
-		lst = Utils.split_path(path)
-		return self.find_source_lst(lst, create)
 
 	def find_source_lst(self, lst, create=1):
 		raise
-		"search a source in the filesystem, rescan intermediate folders, create intermediate folders if necessary"
-		rescan = Params.g_build.rescan
-		current = self
-
-		parent = self.find_dir_lst(lst[:-1])
-		if not parent: return None
-		rescan(parent)
-
-		# TODO: rename this find_input or something like that
-		name = lst[-1]
-
-		# look if it is really a file, not a folder
-		node = parent.m_dirs_lookup.get(name, None)
-		if node: raise RuntimeError(name + ' is a folder')
-
-		# try to return a build node first
-		node = parent.m_build_lookup.get(name, None)
-		if node: return node
-
-		# then look if the node already exists
-		node = parent.m_files_lookup.get(name, None)
-		if node: return node
-
-		# then create a file if necessary
-		return parent.find_one_source(name)
 
 	## ===== END find methods	===== ##
 
@@ -394,7 +324,7 @@ class Node(object):
 	def variant(self, env):
 		"variant, or output directory for this node, a source has for variant 0"
 		if not env: return 0
-		elif self.m_name in self.m_parent.m_files_lookup: return 0
+		elif self.type & 3 == FILE: return 0
 		else: return env.variant()
 
 	def size_subtree(self):
@@ -451,12 +381,15 @@ class Node(object):
 			newname = name + ext
 
 		p = self.m_parent
-		n = p.m_files_lookup.get(newname, None)
-		if not n: n = p.m_build_lookup.get(newname, None)
-		if n: return n
+		n = p.childs.get(newname, None)
+		if n:
+			tp = n.type & 3
+			if tp != FILE and tp != BUILD:
+				fatal("a folder ?")
+			return n
 
-		newnode = Node(newname, p)
-		p.m_build_lookup[newnode.m_name] = newnode
+		newnode = Node(newname, p, BUILD)
+		p.childs[newname] = newnode
 
 		return newnode
 
