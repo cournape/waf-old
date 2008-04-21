@@ -495,13 +495,14 @@ class Build(object):
 				cache.__delitem__(nid)
 
 	def dump(self):
-		raise "for debugging"
+		"for debugging"
 		def recu(node, count):
+			print node, count
 			accu = count * '-'
 			accu += "> %s (d) %d \n" % (node.m_name, node.id)
 
 			for child in node.childs.values():
-				tp = child.type()
+				tp = child.get_type()
 				if tp == Node.FILE:
 					accu += count * '-'
 					accu += '-> '+child.m_name+' '
@@ -525,7 +526,7 @@ class Build(object):
 
 					accu+='\n'
 				elif tp == Node.DIR:
-					accu += recu(dir, count+1)
+					accu += recu(child, count+1)
 			return accu
 
 		Params.pprint('CYAN', recu(self.m_root, 0) )

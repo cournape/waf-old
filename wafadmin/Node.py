@@ -54,7 +54,7 @@ class Node(object):
 
 	def __str__(self):
 		if not self.m_parent: return ''
-		return "%s://%s" % (type_to_string(self.id), self.abspath())
+		return "%s://%s" % (type_to_string[self.id & 3], self.abspath())
 
 	def __repr__(self):
 		return self.__str__()
