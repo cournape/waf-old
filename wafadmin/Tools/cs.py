@@ -50,7 +50,7 @@ class cs_taskgen(Object.task_gen):
 		# process the sources
 		nodes = []
 		for i in self.to_list(self.source):
-			nodes.append(curnode.find_source(i))
+			nodes.append(curnode.find_resource(i))
 
 		# create the task
 		task = self.create_task('mcs', self.env)

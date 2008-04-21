@@ -62,8 +62,8 @@ class gnome_doc_taskgen(Object.task_gen):
 		lst = self.to_list(self.doc_linguas)
 		for x in lst:
 			tsk = self.create_task('xml2po', self.env)
-			node = self.path.find_source(x+'/'+x+'.po')
-			src = self.path.find_source('C/%s.xml' % self.doc_module)
+			node = self.path.find_resource(x+'/'+x+'.po')
+			src = self.path.find_resource('C/%s.xml' % self.doc_module)
 			out = self.path.find_build('%s/%s.xml' % (x, self.doc_module))
 			tsk.set_inputs([node, src])
 			tsk.set_outputs(out)
@@ -71,7 +71,7 @@ class gnome_doc_taskgen(Object.task_gen):
 			tsk2 = self.create_task('xsltproc2po', self.env)
 			out2 = self.path.find_build('%s/%s-%s.omf' % (x, self.doc_module, x))
 			tsk2.set_outputs(out2)
-			node = self.path.find_source(self.doc_module+".omf.in")
+			node = self.path.find_resource(self.doc_module+".omf.in")
 			tsk2.m_inputs = [node, out]
 
 			tsk2.m_run_after.append(tsk)
@@ -102,8 +102,8 @@ class xml_to_taskgen(Object.task_gen):
 		self.env = self.env.copy()
 		tree = Params.g_build
 		current = tree.m_curdirnode
-		xmlfile = self.path.find_source(self.source)
-		xsltfile = self.path.find_source(self.xslt)
+		xmlfile = self.path.find_resource(self.source)
+		xsltfile = self.path.find_resource(self.xslt)
 		tsk = self.create_task('xmlto', self.env, 6)
 		tsk.set_inputs([xmlfile, xsltfile])
 		tsk.set_outputs(xmlfile.change_ext('html'))
@@ -157,7 +157,7 @@ class gnome_sgml2man_taskgen(Object.task_gen):
 			if ext != '.sgml': continue
 
 			task = self.create_task('sgml2man', self.env, 2)
-			task.set_inputs(self.path.find_source(name))
+			task.set_inputs(self.path.find_resource(name))
 			if Params.g_install: task.install = install_results
 			# no outputs, the scanner does it
 			# no caching for now, this is not a time-critical feature
@@ -179,7 +179,7 @@ def add_marshal_file(self, filename, prefix, mode):
 def process_marshal(self):
 	for i in getattr(self, 'marshal_lst', []):
 		env = self.env.copy()
-		node = self.path.find_source(i[0])
+		node = self.path.find_resource(i[0])
 
 		if not node:
 			fatal('file not found on gnome obj '+i[0])
@@ -218,7 +218,7 @@ def add_dbus_file(self, filename, prefix, mode):
 def process_dbus(self):
 	for i in getattr(self, 'dbus_lst', []):
 		env = self.env.copy()
-		node = self.path.find_source(i[0])
+		node = self.path.find_resource(i[0])
 
 		if not node:
 			fatal('file not found on gnome obj '+i[0])
@@ -243,7 +243,7 @@ def process_enums(self):
 		src_lst = self.to_list(x['source'])
 		if not src_lst:
 			Params.fatal('missing source '+str(x))
-		src_lst = [self.path.find_source(k) for k in src_lst]
+		src_lst = [self.path.find_resource(k) for k in src_lst]
 		inputs += src_lst
 		env['MK_SOURCE'] = [k.abspath(env) for k in src_lst]
 
@@ -257,7 +257,7 @@ def process_enums(self):
 
 		# template, if provided
 		if x['template']:
-			template_node = self.path.find_source(x['template'])
+			template_node = self.path.find_resource(x['template'])
 			env['MK_TEMPLATE'] = '--template %s' % (template_node.abspath(env))
 			inputs.append(template_node)
 

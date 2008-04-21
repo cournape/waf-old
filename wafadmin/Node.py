@@ -4,11 +4,13 @@
 
 """
 Node: filesystem structure, contains lists of nodes
-self.m_dirs  : sub-folders
-self.m_files : files existing in the src dir
-self.m_build : nodes produced in the build dirs
 
-A folder is represented by exactly one node
+Each file/folder is represented by exactly one node
+
+we do not want to add another type attribute (memory)
+rather, we will use the id to find out:
+type = id & 3
+setting: new type = type + x - type & 3
 
 IMPORTANT:
 Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
@@ -22,20 +24,24 @@ import os
 import Params, Utils
 from Params import debug, error, fatal
 
+UNDEFINED = 0
+DIR = 1
+FILE = 2
+BUILD = 3
+
+type_to_string = {UNDEFINED: "unk", DIR: "dir", FILE: "src", BUILD: "bld"}
+
 class Node(object):
-	__slots__ = ("m_name", "m_parent", "id", "m_dirs_lookup", "m_files_lookup", "m_build_lookup")
-	def __init__(self, name, parent, isdir=0):
+	__slots__ = ("m_name", "m_parent", "id", "childs")
+	def __init__(self, name, parent, node_type = UNDEFINED):
 		self.m_name = name
 		self.m_parent = parent
 
 		# assumption: one build object at a time
-		Params.g_build.id_nodes += 1
-		self.id = Params.g_build.id_nodes
+		Params.g_build.id_nodes += 4
+		self.id = Params.g_build.id_nodes + node_type
 
-		if isdir:
-			self.m_dirs_lookup = {}
-			self.m_files_lookup = {}
-			self.m_build_lookup = {}
+		if node_type == DIR: self.childs = {}
 
 		# The checks below could be disabled for speed, if necessary
 		# TODO check for . .. / \ in name
@@ -44,23 +50,12 @@ class Node(object):
 		if Utils.split_path(name)[0] != name:
 			fatal('name forbidden '+name)
 
-		if parent:
-			if parent.get_file(name):
-				fatal('node %s exists in the parent files %s already' % (name, str(parent)))
-
-			if parent.get_build(name):
-				fatal('node %s exists in the parent build %s already' % (name, str(parent)))
+		if parent and name in parent.childs:
+			fatal('node %s exists in the parent files %s already' % (name, str(parent)))
 
 	def __str__(self):
 		if not self.m_parent: return ''
-
-		if self.m_name in self.m_parent.m_build_lookup:
-			location = "bld"
-		elif self.m_name in self.m_parent.m_dirs_lookup:
-			location = "dir"
-		else:
-			location = "src"
-		return "%s://%s" % (location, self.abspath())
+		return "%s://%s" % (type_to_string[self.id & 3], self.abspath())
 
 	def __repr__(self):
 		return self.__str__()
@@ -69,144 +64,86 @@ class Node(object):
 		"expensive, make certain it is not used"
 		raise
 
+	def get_type(self):
+		return self.id & 3
+
+	def set_type(self, t):
+		self.id = self.id + t - self.id & 3
+
 	def dirs(self):
-		return self.m_dirs_lookup.values()
+		return [x for x in self.childs.values() if x.id & 3 == DIR]
 
 	def get_dir(self, name, default=None):
-		return self.m_dirs_lookup.get(name, default)
-
-	def append_dir(self, dir):
-		self.m_dirs_lookup[dir.m_name] = dir
+		node = self.childs.get(name, None)
+		if not node or node.id & 3 != DIR: return default
+		return  node
 
 	def files(self):
-		return self.m_files_lookup.values()
+		return [x for x in self.childs.values() if x.id & 3 == FILE]
 
 	def get_file(self, name, default=None):
-		return self.m_files_lookup.get(name, default)
+		node = self.childs.get(name, None)
+		if not node or node.id & 3 != FILE: return default
+		return node
 
 	def get_build(self, name, default=None):
-		return self.m_build_lookup.get(name, default)
+		node = self.childs.get(name, None)
+		if not node or node.id & 3 != BUILD: return default
+		return node
 
 	# ===== BEGIN find methods ===== #
 
-	def find_build(self, path, create=0):
-		#print "find build", path
+	def find_resource(self, path):
 		lst = Utils.split_path(path)
-		return self.find_build_lst(lst, create)
+		return self.find_resource_lst(lst)
 
-	# TODO: split find_build into find_build_or_source and find_build
-	def find_build_lst(self, lst, create=0):
-		"search a source or a build node in the filesystem, rescan intermediate folders, create if necessary"
-
+	def find_resource_lst(self, lst):
+		"find an existing input file: either a build node declared previously or a source node"
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
 		Params.g_build.rescan(parent)
 
-		# TODO: rename this find_input or something like that
 		name = lst[-1]
+		node = parent.childs.get(name, None)
+		if node:
+			tp = node.id & 3
+			if tp == FILE or tp == BUILD:
+				return node
 
-		# locate a source if necessary # TODO ill-defined
-		node = parent.find_source_lst(lst[-1:])
-		if node: return node
-
-		node = parent.m_build_lookup.get(name, None)
-		if node: return node
-
-		node = Node(name, parent)
-		parent.m_build_lookup[name] = node
-		return node
-
-	def find_one_source(self, name):
 		tree = Params.g_build
-
-		#print tree.cache_dir_contents[self.id]
-		if not name in tree.cache_dir_contents[self.id]:
+		if not name in tree.cache_dir_contents[parent.id]:
 			return None
 
-		path = self.abspath() + os.sep + name
-		#print path
+		path = parent.abspath() + os.sep + name
 		try:
 			st = Params.h_file(path)
 		except IOError:
 			print "not a file"
 			return None
 
-		child = Node(name, self)
+		child = Node(name, parent, FILE)
+		parent.childs[name] = child
 		tree.m_tstamp_variants[0][child.id] = st
-		self.m_files_lookup[name] = child
 		return child
 
-	def find_source(self, path, create=1):
+	def find_or_declare(self, path):
 		lst = Utils.split_path(path)
-		return self.find_source_lst(lst, create)
+		return self.find_or_declare_lst(lst)
 
-	def find_source_lst(self, lst, create=1):
-		"search a source in the filesystem, rescan intermediate folders, create intermediate folders if necessary"
-		rescan = Params.g_build.rescan
-		current = self
-
+	def find_or_declare_lst(self, lst):
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
-		rescan(parent)
-
-		# TODO: rename this find_input or something like that
+		Params.g_build.rescan(parent)
 		name = lst[-1]
-
-		# look if it is really a file, not a folder
-		node = parent.m_dirs_lookup.get(name, None)
-		if node: raise RuntimeError(name + ' is a folder')
-
-		# try to return a build node first
-		node = parent.m_build_lookup.get(name, None)
-		if node: return node
-
-		# then look if the node already exists
-		node = parent.m_files_lookup.get(name, None)
-		if node: return node
-
-		# then create a file if necessary
-		return parent.find_one_source(name)
-
-	def find_raw(self, path):
-		lst = Utils.split_path(path)
-		return self.find_raw_lst(lst)
-
-	def find_raw_lst(self, lst):
-		"just find a node in the tree, do not rescan folders"
-		current = self
-		while lst:
-			name = lst.pop(0)
-			prev = current
-			if name == '.':
-				continue
-			elif name == '..':
-				current = current.m_parent
-				continue
-			current = prev.m_dirs_lookup[name]
-			if not current: current=prev.m_files_lookup[name]
-			if not current: current=prev.m_build_lookup[name]
-			if not current: return None
-		return current
-
-	def ensure_node_from_lst(self, plst):
-		curnode = self
-		for dirname in plst:
-			if not dirname: continue
-			if dirname == '.': continue
-			if dirname == '..':
-				curnode = curnode.m_parent
-				continue
-			#found=None
-			found = curnode.get_dir(dirname, None)
-			#for cand in curnode.m_dirs:
-			#	if cand.m_name == dirname:
-			#		found = cand
-			#		break
-			if not found:
-				found = Node(dirname, curnode, isdir=1)
-				curnode.append_dir(found)
-			curnode = found
-		return curnode
+		node = parent.childs.get(name, None)
+		if node:
+			tp = node.id & 3
+			if tp != BUILD and tp != FILE:
+				fatal("find or declare is to return a build node, but the node is a source file or a directory")
+			return node
+		node = Node(name, parent, BUILD)
+		parent.childs[name] = node
+		return node
 
 	def find_dir(self, path):
 		lst = Utils.split_path(path)
@@ -219,22 +156,29 @@ class Node(object):
 			Params.g_build.rescan(current)
 			prev = current
 
-			if not name:
+			if not current.m_parent and name == current.m_name:
+				continue
+			elif not name:
 				continue
 			elif name == '.':
 				continue
 			elif name == '..':
 				current = current.m_parent or current
 			else:
-				current = prev.m_dirs_lookup.get(name, None)
+				current = prev.childs.get(name, None)
 				if current is None:
 					if name in Params.g_build.cache_dir_contents[prev.id]:
-						current = Node(name, prev, isdir=1)
-						prev.m_dirs_lookup[name] = current
+						current = Node(name, prev, DIR)
+						prev.childs[name] = current
 					else:
 						raise ValueError("directory %r not found from %r" % (lst, self.abspath()))
 		return current
 
+	# compatibility
+	find_build = find_or_declare
+	find_build_lst = find_or_declare_lst
+	find_source = find_resource
+	find_source_lst = find_resource_lst
 
 	## ===== END find methods	===== ##
 
@@ -369,12 +313,12 @@ class Node(object):
 		while diff > 0:
 			diff -= 1
 			p = p.m_parent
-		return p == node
+		return p.id == node.id
 
 	def variant(self, env):
 		"variant, or output directory for this node, a source has for variant 0"
 		if not env: return 0
-		elif self.m_name in self.m_parent.m_files_lookup: return 0
+		elif self.id & 3 == FILE: return 0
 		else: return env.variant()
 
 	def size_subtree(self):
@@ -414,10 +358,9 @@ class Node(object):
 				cur = cur.m_parent
 			lst.reverse()
 			# the real hot zone is the os path join
-			val = os.path.join(*lst)
+			val = os.sep.join(lst)
 		else:
-			val = os.path.join(Params.g_build.m_bldnode.abspath(), env.variant(),
-				self.relpath(Params.g_build.m_srcnode))
+			val = os.sep.join((Params.g_build.m_bldnode.abspath(), env.variant(), self.relpath(Params.g_build.m_srcnode)))
 		Params.g_build.m_abspath_cache[variant][self.id] = val
 		return val
 
@@ -431,12 +374,15 @@ class Node(object):
 			newname = name + ext
 
 		p = self.m_parent
-		n = p.m_files_lookup.get(newname, None)
-		if not n: n = p.m_build_lookup.get(newname, None)
-		if n: return n
+		n = p.childs.get(newname, None)
+		if n:
+			tp = n.id & 3
+			if tp != FILE and tp != BUILD:
+				fatal("a folder ?")
+			return n
 
-		newnode = Node(newname, p)
-		p.m_build_lookup[newnode.m_name] = newnode
+		newnode = Node(newname, p, BUILD)
+		p.childs[newname] = newnode
 
 		return newnode
 

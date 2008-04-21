@@ -132,7 +132,7 @@ class d_parser(object):
 	def tryfind(self, filename):
 		found = 0
 		for n in self.incpaths:
-			found = n.find_source(filename.replace('.', '/')+'.d', create=0)
+			found = n.find_resource(filename.replace('.', '/') + '.d')
 			if found:
 				self.m_nodes.append(found)
 				self.waiting.append(found)
@@ -467,7 +467,7 @@ def generate_header(self, filename, inst_var, inst_dir):
 def process_header(self):
 	env = self.env
 	for i in getattr(self, 'header_lst', []):
-		node = self.path.find_source(i[0])
+		node = self.path.find_resource(i[0])
 
 		if not node:
 			fatal('file not found on d obj '+i[0])

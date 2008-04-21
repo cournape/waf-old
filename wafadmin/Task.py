@@ -183,7 +183,7 @@ class Task(TaskBase):
 
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
-		node = Params.g_build.m_current.find_build(filename)
+		node = Params.g_build.m_current.find_resource(filename)
 		self.m_deps_nodes.append(node)
 
 	#------------ users are probably less interested in the following methods --------------#

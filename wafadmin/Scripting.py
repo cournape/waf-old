@@ -26,7 +26,7 @@ def add_subdir(dir, bld):
 	except OSError: fatal("No such directory "+bld.m_curdirnode.abspath())
 
 	old = bld.m_curdirnode
-	new = bld.m_curdirnode.ensure_node_from_lst(Utils.split_path(dir))
+	new = bld.m_curdirnode.find_dir(dir)
 	if new is None:
 		fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
 

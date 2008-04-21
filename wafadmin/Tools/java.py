@@ -29,17 +29,17 @@ def exclusive_build_node(parent, path):
 	java_file = lst[-1]
 	lst = lst[:-1]
 	for x in lst:
-		node = parent.m_dirs_lookup.get(x, None)
+		node = parent.childs.get(x, None)
 		if not node:
-			node = Node.Node(x, parent, isdir=1)
-			parent.m_dirs_lookup[x] = node
+			node = Node.Node(x, parent, Node.DIR)
+			parent.childs[x] = node
 		parent = node
 
 	# the java file at the end
-	node = parent.m_build_lookup.get(java_file, None)
+	node = parent.childs.get(java_file, None)
 	if not node:
-		node = Node.Node(java_file, parent)
-		parent.m_build_lookup[java_file] = node
+		node = Node.Node(java_file, parent, Node.BUILD)
+		parent.childs[java_file] = node
 
 	return node
 
@@ -68,7 +68,7 @@ class java_taskgen(Object.task_gen):
 		else:
 			self.env['CLASSPATH'] = self.classpath
 
-		find_source_lst = self.path.find_source_lst
+		find_resource_lst = self.path.find_resource_lst
 
 		re_foo = re.compile(self.source)
 
@@ -87,7 +87,7 @@ class java_taskgen(Object.task_gen):
 					file = file[1:]
 
 				if re_foo.search(file) > -1:
-					node = source_root_node.find_source(file)
+					node = source_root_node.find_resource(file)
 					src_nodes.append(node)
 
 					path = prefix_package + '/' + file.replace('.java', '.class')

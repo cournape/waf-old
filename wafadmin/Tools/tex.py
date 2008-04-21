@@ -37,7 +37,7 @@ class tex_scanner(Scan.scanner):
 					except OSError:
 						continue
 					found = path+k
-					node = curdirnode.find_source(found)
+					node = curdirnode.find_resource(found)
 					if node:
 						nodes.append(node)
 				else:
@@ -178,14 +178,14 @@ class tex_taskgen(Object.task_gen):
 		if self.deps:
 			deps = self.to_list(self.deps)
 			for filename in deps:
-				n = self.path.find_source(filename)
+				n = self.path.find_resource(filename)
 				if not n in deps_lst: deps_lst.append(n)
 
 		for filename in self.source.split():
 			base, ext = os.path.splitext(filename)
 			if not ext in self.s_default_ext: continue
 
-			node = self.path.find_source(filename)
+			node = self.path.find_resource(filename)
 			if not node: fatal('cannot find %s' % filename)
 
 			if self.m_type == 'latex':

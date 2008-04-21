@@ -67,7 +67,7 @@ class copy_taskgen(Object.task_gen):
 		lst = self.to_list(self.source)
 
 		for filename in lst:
-			node = self.path.find_source(filename)
+			node = self.path.find_resource(filename)
 			if not node: fatal('cannot find input file %s for processing' % filename)
 
 			target = self.target
@@ -131,7 +131,7 @@ class subst_taskgen(Object.task_gen):
 		lst = self.to_list(self.source)
 
 		for filename in lst:
-			node = self.path.find_source(filename)
+			node = self.path.find_resource(filename)
 			if not node: fatal('cannot find input file %s for processing' % filename)
 
 			newnode = node.change_ext('')
@@ -268,7 +268,7 @@ class CommandOutput(Object.task_gen):
 			cmd = self.command
 			cmd_node = None
 		else:
-			cmd_node = self.path.find_build(self.command, create=True)
+			cmd_node = self.path.find_or_declare(self.command)
 			assert cmd_node is not None, ('''Could not find command '%s' in source tree.
 Hint: if this is an external command,
 use command_is_external=True''') % (self.command,)
@@ -310,7 +310,7 @@ use command_is_external=True''') % (self.command,)
 					if isinstance(file_name, Node.Node):
 						input_node = file_name
 					else:
-						input_node = self.path.find_build(file_name, create=True)
+						input_node = self.path.find_or_declare(file_name)
 						if input_node is None:
 							Params.fatal("File %s not found" % (file_name,))
 					inputs.append(input_node)
@@ -319,7 +319,7 @@ use command_is_external=True''') % (self.command,)
 					if isinstance(file_name, Node.Node):
 						output_node = file_name
 					else:
-						output_node = self.path.find_build(file_name, create=True)
+						output_node = self.path.find_or_declare(file_name)
 						if output_node is None:
 							Params.fatal("File %s not found" % (file_name,))
 					outputs.append(output_node)
@@ -347,7 +347,7 @@ use command_is_external=True''') % (self.command,)
 			stdout = None
 		else:
                         assert isinstance(self.stdout, basestring)
-			stdout = self.path.find_build(self.stdout, create=True)
+			stdout = self.path.find_build(self.stdout)
 			if stdout is None:
 				Params.fatal("File %s not found" % (self.stdout,))
 			outputs.append(stdout)
@@ -356,19 +356,19 @@ use command_is_external=True''') % (self.command,)
 			stdin = None
 		else:
                         assert isinstance(self.stdin, basestring)
-			stdin = self.path.find_build(self.stdin, create=True)
+			stdin = self.path.find_build(self.stdin)
 			if stdin is None:
 				Params.fatal("File %s not found" % (self.stdin,))
 			inputs.append(stdin)
 
 		for hidden_input in self.to_list(self.hidden_inputs):
-			node = self.path.find_build(hidden_input, create=True)
+			node = self.path.find_build(hidden_input)
 			if node is None:
 				Params.fatal("File %s not found in dir %s" % (hidden_input, self.path))
 			inputs.append(node)
 
 		for hidden_output in self.to_list(self.hidden_outputs):
-			node = self.path.find_build(hidden_output, create=True)
+			node = self.path.find_build(hidden_output)
 			if node is None:
 				Params.fatal("File %s not found in dir %s" % (hidden_output, self.path))
 			outputs.append(node)
