@@ -22,20 +22,25 @@ import os
 import Params, Utils
 from Params import debug, error, fatal
 
+DIR = 1
+FILE = 2
+BUILD = 3
+
 class Node(object):
-	__slots__ = ("m_name", "m_parent", "id", "m_dirs_lookup", "m_files_lookup", "m_build_lookup")
+	__slots__ = ("m_name", "m_parent", "id", "childs")
 	def __init__(self, name, parent, isdir=0):
 		self.m_name = name
 		self.m_parent = parent
 
 		# assumption: one build object at a time
-		Params.g_build.id_nodes += 1
+		Params.g_build.id_nodes += 4
 		self.id = Params.g_build.id_nodes
 
-		if isdir:
-			self.m_dirs_lookup = {}
-			self.m_files_lookup = {}
-			self.m_build_lookup = {}
+		# we do not want to add another type attribute (memory)
+		# rather, we will use the id to find out:
+		# type = id & 3
+		# setting: new type = type + x - type & 3
+		if isdir: self.childs = {}
 
 		# The checks below could be disabled for speed, if necessary
 		# TODO check for . .. / \ in name
@@ -68,6 +73,12 @@ class Node(object):
 	def __hash__(self):
 		"expensive, make certain it is not used"
 		raise
+
+	def get_type(self):
+		return self.id & 3
+
+	def set_type(self, t):
+		self.id = self.id + t - self.id & 3
 
 	def dirs(self):
 		return self.m_dirs_lookup.values()
