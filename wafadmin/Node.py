@@ -95,11 +95,11 @@ class Node(object):
 
 	# ===== BEGIN find methods ===== #
 
-	def find_input(self, path):
+	def find_resource(self, path):
 		lst = Utils.split_path(path)
-		return self.find_input_lst(lst)
+		return self.find_resource_lst(lst)
 
-	def find_input_lst(self, path):
+	def find_resource_lst(self, path):
 		"find an existing input file: either a build node declared previously or a source node"
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
@@ -110,7 +110,21 @@ class Node(object):
 			tp = node.id & 3
 			if tp == FILE or tp == BUILD:
 				return node
-		return None
+
+		if not name in tree.cache_dir_contents[self.id]:
+			return None
+
+		path = self.abspath() + os.sep + name
+		#print path
+		try:
+			st = Params.h_file(path)
+		except IOError:
+			print "not a file"
+			return None
+
+		child = Node(name, self, FILE)
+		tree.m_tstamp_variants[0][child.id] = st
+		return child
 
 	def find_or_declare(self, path):
 		lst = Utils.split_path(path)
@@ -129,87 +143,6 @@ class Node(object):
 		node = Node(name, parent)
 		parent.childs[name] = node
 		return node
-
-
-
-
-	def find_build(self, path, create=0):
-		#print "find build", path
-		lst = Utils.split_path(path)
-		return self.find_build_lst(lst)
-
-	# TODO: split find_build into find_build_or_source and find_build
-	def find_build_lst(self, lst, create=0):
-		"search a source or a build node in the filesystem, rescan intermediate folders"
-
-		parent = self.find_dir_lst(lst[:-1])
-		if not parent: return None
-		Params.g_build.rescan(parent)
-
-		# TODO: rename this find_input or something like that
-		name = lst[-1]
-
-		# locate a source if necessary # TODO ill-defined
-		node = parent.find_source_lst(lst[-1:])
-		if node: return node
-
-		node = parent.m_build_lookup.get(name, None)
-		if node: return node
-
-		node = Node(name, parent)
-		parent.m_build_lookup[name] = node
-		return node
-
-	def find_one_source(self, name):
-		tree = Params.g_build
-
-		#print tree.cache_dir_contents[self.id]
-		if not name in tree.cache_dir_contents[self.id]:
-			return None
-
-		path = self.abspath() + os.sep + name
-		#print path
-		try:
-			st = Params.h_file(path)
-		except IOError:
-			print "not a file"
-			return None
-
-		child = Node(name, self)
-		tree.m_tstamp_variants[0][child.id] = st
-		self.m_files_lookup[name] = child
-		return child
-
-	def find_source(self, path, create=1):
-		lst = Utils.split_path(path)
-		return self.find_source_lst(lst, create)
-
-	def find_source_lst(self, lst, create=1):
-		"search a source in the filesystem, rescan intermediate folders, create intermediate folders if necessary"
-		rescan = Params.g_build.rescan
-		current = self
-
-		parent = self.find_dir_lst(lst[:-1])
-		if not parent: return None
-		rescan(parent)
-
-		# TODO: rename this find_input or something like that
-		name = lst[-1]
-
-		# look if it is really a file, not a folder
-		node = parent.m_dirs_lookup.get(name, None)
-		if node: raise RuntimeError(name + ' is a folder')
-
-		# try to return a build node first
-		node = parent.m_build_lookup.get(name, None)
-		if node: return node
-
-		# then look if the node already exists
-		node = parent.m_files_lookup.get(name, None)
-		if node: return node
-
-		# then create a file if necessary
-		return parent.find_one_source(name)
 
 	def find_dir(self, path):
 		lst = Utils.split_path(path)
@@ -237,6 +170,91 @@ class Node(object):
 					else:
 						raise ValueError("directory %r not found from %r" % (lst, self.abspath()))
 		return current
+
+
+
+
+	def find_build(self, path, create=0):
+		raise
+		#print "find build", path
+		lst = Utils.split_path(path)
+		return self.find_build_lst(lst)
+
+	# TODO: split find_build into find_build_or_source and find_build
+	def find_build_lst(self, lst, create=0):
+		raise "search a source or a build node in the filesystem, rescan intermediate folders"
+
+		parent = self.find_dir_lst(lst[:-1])
+		if not parent: return None
+		Params.g_build.rescan(parent)
+
+		# TODO: rename this find_input or something like that
+		name = lst[-1]
+
+		# locate a source if necessary # TODO ill-defined
+		node = parent.find_source_lst(lst[-1:])
+		if node: return node
+
+		node = parent.m_build_lookup.get(name, None)
+		if node: return node
+
+		node = Node(name, parent)
+		parent.m_build_lookup[name] = node
+		return node
+
+	def find_one_source(self, name):
+		raise
+		tree = Params.g_build
+
+		#print tree.cache_dir_contents[self.id]
+		if not name in tree.cache_dir_contents[self.id]:
+			return None
+
+		path = self.abspath() + os.sep + name
+		#print path
+		try:
+			st = Params.h_file(path)
+		except IOError:
+			print "not a file"
+			return None
+
+		child = Node(name, self)
+		tree.m_tstamp_variants[0][child.id] = st
+		self.m_files_lookup[name] = child
+		return child
+
+	def find_source(self, path, create=1):
+		raise
+		lst = Utils.split_path(path)
+		return self.find_source_lst(lst, create)
+
+	def find_source_lst(self, lst, create=1):
+		raise
+		"search a source in the filesystem, rescan intermediate folders, create intermediate folders if necessary"
+		rescan = Params.g_build.rescan
+		current = self
+
+		parent = self.find_dir_lst(lst[:-1])
+		if not parent: return None
+		rescan(parent)
+
+		# TODO: rename this find_input or something like that
+		name = lst[-1]
+
+		# look if it is really a file, not a folder
+		node = parent.m_dirs_lookup.get(name, None)
+		if node: raise RuntimeError(name + ' is a folder')
+
+		# try to return a build node first
+		node = parent.m_build_lookup.get(name, None)
+		if node: return node
+
+		# then look if the node already exists
+		node = parent.m_files_lookup.get(name, None)
+		if node: return node
+
+		# then create a file if necessary
+		return parent.find_one_source(name)
 
 	## ===== END find methods	===== ##
 
