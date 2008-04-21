@@ -22,6 +22,7 @@ def init_pyext(self):
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
 	self.env['shlib_PATTERN'] = self.env['pyext_PATTERN']
+	self.env['MACBUNDLE'] = True
 
 @taskgen
 @before('apply_incpaths')
@@ -110,6 +111,11 @@ def check_python_headers(conf):
 	env = conf.env
 	python = env['PYTHON']
 	assert python, ("python is %r !" % (python,))
+
+	## On Mac OSX we need to use mac bundles for python plugins
+	import checks
+	if checks.detect_platform(None) == 'darwin':
+		conf.check_tool('osx')
 
 	try:
 		# Get some python configuration variables using distutils
