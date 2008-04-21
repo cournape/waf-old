@@ -110,18 +110,18 @@ class Node(object):
 				return node
 
 		tree = Params.g_build
-		if not name in tree.cache_dir_contents[self.id]:
+		if not name in tree.cache_dir_contents[parent.id]:
 			return None
 
-		path = self.abspath() + os.sep + name
-		#print path
+		path = parent.abspath() + os.sep + name
 		try:
 			st = Params.h_file(path)
 		except IOError:
 			print "not a file"
 			return None
 
-		child = Node(name, self, FILE)
+		child = Node(name, parent, FILE)
+		parent.childs[name] = child
 		tree.m_tstamp_variants[0][child.id] = st
 		return child
 
