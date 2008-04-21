@@ -171,7 +171,7 @@ class Node(object):
 						current = Node(name, prev, DIR)
 						prev.childs[name] = current
 					else:
-						raise ValueError("directory %r not found from %r" % (lst, self.abspath()))
+						return None
 		return current
 
 	# compatibility
