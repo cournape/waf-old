@@ -287,7 +287,7 @@ def apply_link(self):
 	linktask = self.create_task(link, self.env)
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_build(get_target_name(self)))
+	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
 
 	self.link_task = linktask
 

@@ -238,7 +238,7 @@ class task_gen(object):
 		# all our objects share the same include paths anyway
 		tree = Params.g_build
 		lst = self.to_list(self.source)
-		find_source_lst = self.path.find_source_lst
+		find_resource_lst = self.path.find_resource_lst
 
 		for filename in lst:
 			# if self.mappings or task_gen.mappings contains a file of the same name
@@ -246,7 +246,7 @@ class task_gen(object):
 			if x:
 				x(self, filename)
 			else:
-				node = find_source_lst(Utils.split_path(filename))
+				node = find_resource_lst(Utils.split_path(filename))
 				if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
 				self.allnodes.append(node)
 

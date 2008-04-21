@@ -296,7 +296,7 @@ class Build(object):
 
 		for env in self.m_allenvs.values():
 			for f in env['dep_files']:
-				newnode = self.m_srcnode.find_build(f, create=1)
+				newnode = self.m_srcnode.find_or_declare(f)
 				try:
 					hash = Params.h_file(newnode.abspath(env))
 				except (IOError, AttributeError):
@@ -550,9 +550,7 @@ class Build(object):
 
 	def add_manual_dependency(self, path, value):
 		h = getattr(self, 'deps_man', {})
-		node = self.m_curdirnode.find_source(path)
-		if not node: node = self.m_curdirnode.find_build(path, create=1)
-
+		node = self.m_curdirnode.find_resource(path)
 		h[node] = value
 		self.deps_man = h
 

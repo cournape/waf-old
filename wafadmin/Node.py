@@ -54,7 +54,7 @@ class Node(object):
 
 	def __str__(self):
 		if not self.m_parent: return ''
-		return "%s://%s" % (type_to_string(self.type), self.abspath())
+		return "%s://%s" % (type_to_string(self.id), self.abspath())
 
 	def __repr__(self):
 		return self.__str__()
@@ -96,18 +96,20 @@ class Node(object):
 		lst = Utils.split_path(path)
 		return self.find_resource_lst(lst)
 
-	def find_resource_lst(self, path):
+	def find_resource_lst(self, lst):
 		"find an existing input file: either a build node declared previously or a source node"
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
 		Params.g_build.rescan(parent)
 
-		node = parent.childs.get(lst[-1], None)
+		name = lst[-1]
+		node = parent.childs.get(name, None)
 		if node:
 			tp = node.id & 3
 			if tp == FILE or tp == BUILD:
 				return node
 
+		tree = Params.g_build
 		if not name in tree.cache_dir_contents[self.id]:
 			return None
 
@@ -127,17 +129,18 @@ class Node(object):
 		lst = Utils.split_path(path)
 		return self.find_or_declare_lst(lst)
 
-	def find_or_declare_lst(self, path):
+	def find_or_declare_lst(self, lst):
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
 		Params.g_build.rescan(parent)
-		node = parent.childs.get(lst[-1], None)
+		name = lst[-1]
+		node = parent.childs.get(name, None)
 		if node:
 			tp = node.id & 3
 			if tp != BUILD:
 				fatal("find or declare is to return a build node, but the node is a source file or a directory")
 			return node
-		node = Node(name, parent)
+		node = Node(name, parent, BUILD)
 		parent.childs[name] = node
 		return node
 
@@ -176,9 +179,6 @@ class Node(object):
 
 	def find_build_lst(self, lst, create=0):
 		raise "search a source or a build node in the filesystem, rescan intermediate folders"
-
-	def find_one_source(self, name):
-		raise
 
 	def find_source(self, path, create=1):
 		raise
@@ -324,7 +324,7 @@ class Node(object):
 	def variant(self, env):
 		"variant, or output directory for this node, a source has for variant 0"
 		if not env: return 0
-		elif self.type & 3 == FILE: return 0
+		elif self.id & 3 == FILE: return 0
 		else: return env.variant()
 
 	def size_subtree(self):
@@ -383,7 +383,7 @@ class Node(object):
 		p = self.m_parent
 		n = p.childs.get(newname, None)
 		if n:
-			tp = n.type & 3
+			tp = n.id & 3
 			if tp != FILE and tp != BUILD:
 				fatal("a folder ?")
 			return n
