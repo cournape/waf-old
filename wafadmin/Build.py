@@ -417,12 +417,7 @@ class Build(object):
 		if hasattr(self, 'repository'): self.repository(src_dir_node)
 
 		# list the files in the src directory, adding the signatures
-		files = self.scan_src_path(src_dir_node, src_dir_node.abspath(), src_dir_node.files())
-		#debug("files found in folder are "+str(files), 'build')
-		src_dir_node.m_files_lookup = {}
-		for i in files:
-			src_dir_node.m_files_lookup[i.m_name] = i
-
+		self.scan_src_path(src_dir_node, src_dir_node.abspath())
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
 
@@ -442,22 +437,20 @@ class Build(object):
 		for variant in self._variants:
 			sub_path = os.path.join(self.m_bldnode.abspath(), variant , *lst)
 			try:
-				files = self.scan_path(src_dir_node, sub_path, src_dir_node.m_build_lookup.values(), variant)
-				src_dir_node.m_build_lookup = {}
-				for i in files: src_dir_node.m_build_lookup[i.m_name] = i
+				self.scan_path(src_dir_node, sub_path, variant)
 			except OSError:
 				#debug("osError on " + sub_path, 'build')
-
 				# listdir failed, remove all sigs of nodes
+				# TODO more things to remove?
 				dict = self.m_tstamp_variants[variant]
-				for node in src_dir_node.m_build_lookup.values():
+				for node in src_dir_node.childs.values():
 					if node.id in dict:
 						dict.__delitem__(node.id)
+					src_dir_node.childs.__delitem__(node.id)
 				os.makedirs(sub_path)
-				src_dir_node.m_build_lookup = {}
 
 	# ======================================= #
-	def scan_src_path(self, i_parent_node, i_path, i_existing_nodes):
+	def scan_src_path(self, i_parent_node, i_path):
 
 		try:
 			# read the dir contents, ignore the folders in it
@@ -467,42 +460,28 @@ class Build(object):
 			return None
 
 		self.cache_dir_contents[i_parent_node.id] = listed_files
-
 		debug("folder contents "+str(listed_files), 'build')
 
-		node_names = set([x.m_name for x in i_existing_nodes])
+		node_names = set([x.m_name for x in i_parent_node.childs.values() if x.id & 3 == Node.FILE])
 		cache = self.m_tstamp_variants[0]
 
 		# nodes to keep
 		to_keep = listed_files & node_names
-		existing_nodes = [node for node in i_existing_nodes if node.m_name in to_keep]
-
-		for node in existing_nodes:
+		for x in to_keep:
+			node = i_parent_node.childs[x]
 			try:
 				# do not call node.abspath here
 				cache[node.id] = Params.h_file(i_path + os.sep + node.m_name)
 			except IOError:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
-		# nodes to create
-		#to_add = listed_files - node_names
-		#debug("new files found "+str(to_add), 'build')
-		#l_path = i_path + os.sep
-		#for name in to_add:
-		#	try:
-		#		# throws IOError if not a file or if not readable
-		#		st = Params.h_file(l_path + name)
-		#	except IOError:
-		#		continue
-		#
-		#	l_child = Node.Node(name, i_parent_node)
-		#	existing_nodes.append(l_child)
-		#	cache[l_child.id] = st
-		return existing_nodes
+		# TODO remove the src nodes of deleted files
 
-	def scan_path(self, i_parent_node, i_path, i_existing_nodes, i_variant):
+	def scan_path(self, i_parent_node, i_path, i_variant):
 		"""in this function we do not add timestamps but we remove them
 		when the files no longer exist (file removed in the build dir)"""
+
+		i_existing_nodes = i_parent_nodes.get_build_files()
 
 		listed_files = set(os.listdir(i_path))
 		node_names = set([x.m_name for x in i_existing_nodes])
@@ -521,29 +500,33 @@ class Build(object):
 		def recu(node, count):
 			accu = count * '-'
 			accu += "> %s (d) %d \n" % (node.m_name, node.id)
-			for child in node.files():
-				accu += count * '-'
-				accu += '-> '+child.m_name+' '
 
-				for variant in self.m_tstamp_variants:
-					var = self.m_tstamp_variants[variant]
-					if child.id in var:
-						accu += ' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
-						accu += str(child.id)
+			for child in node.childs.values():
+				tp = child.type()
+				if tp == Node.FILE:
+					accu += count * '-'
+					accu += '-> '+child.m_name+' '
 
-				accu+='\n'
-			for child in node.m_build_lookup.values():
-				accu+= count * '-'
-				accu+= '-> '+child.m_name+' (b) '
+					for variant in self.m_tstamp_variants:
+						var = self.m_tstamp_variants[variant]
+						if child.id in var:
+							accu += ' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
+							accu += str(child.id)
 
-				for variant in self.m_tstamp_variants:
-					var = self.m_tstamp_variants[variant]
-					if child.id in var:
-						accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
-						accu += str(child.id)
+					accu+='\n'
+				elif tp == Node.BUILD:
+					accu+= count * '-'
+					accu+= '-> '+child.m_name+' (b) '
 
-				accu+='\n'
-			for dir in node.dirs(): accu += recu(dir, count+1)
+					for variant in self.m_tstamp_variants:
+						var = self.m_tstamp_variants[variant]
+						if child.id in var:
+							accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
+							accu += str(child.id)
+
+					accu+='\n'
+				elif tp == Node.DIR:
+					accu += recu(dir, count+1)
 			return accu
 
 		Params.pprint('CYAN', recu(self.m_root, 0) )
