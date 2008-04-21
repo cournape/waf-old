@@ -81,22 +81,25 @@ class Node(object):
 		self.id = self.id + t - self.id & 3
 
 	def dirs(self):
-		return self.m_dirs_lookup.values()
+		return [x for x in self.childs.values() if x.id & 3 == DIR]
 
 	def get_dir(self, name, default=None):
-		return self.m_dirs_lookup.get(name, default)
-
-	def append_dir(self, dir):
-		self.m_dirs_lookup[dir.m_name] = dir
+		node = self.childs.get(name, None)
+		if not node or node.id & 3 != DIR: return default
+		return  node
 
 	def files(self):
-		return self.m_files_lookup.values()
+		return [x for x in self.childs.values() if x.id & 3 == FILE]
 
 	def get_file(self, name, default=None):
-		return self.m_files_lookup.get(name, default)
+		node = self.childs.get(name, None)
+		if not node or node.id & 3 != FILE: return default
+		return node
 
 	def get_build(self, name, default=None):
-		return self.m_build_lookup.get(name, default)
+		node = self.childs.get(name, None)
+		if not node or node.id & 3 != BUILD: return default
+		return node
 
 	# ===== BEGIN find methods ===== #
 
@@ -215,7 +218,8 @@ class Node(object):
 			#		break
 			if not found:
 				found = Node(dirname, curnode, isdir=1)
-				curnode.append_dir(found)
+				curnode.childs[dirname] = found
+				found.set_type(DIR)
 			curnode = found
 		return curnode
 
