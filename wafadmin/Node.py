@@ -95,14 +95,52 @@ class Node(object):
 
 	# ===== BEGIN find methods ===== #
 
+	def find_input(self, path):
+		lst = Utils.split_path(path)
+		return self.find_input_lst(lst)
+
+	def find_input_lst(self, path):
+		"find an existing input file: either a build node declared previously or a source node"
+		parent = self.find_dir_lst(lst[:-1])
+		if not parent: return None
+		Params.g_build.rescan(parent)
+
+		node = parent.childs.get(lst[-1], None)
+		if node:
+			tp = node.id & 3
+			if tp == FILE or tp == BUILD:
+				return node
+		return None
+
+	def find_or_declare(self, path):
+		lst = Utils.split_path(path)
+		return self.find_or_declare_lst(lst)
+
+	def find_or_declare_lst(self, path):
+		parent = self.find_dir_lst(lst[:-1])
+		if not parent: return None
+		Params.g_build.rescan(parent)
+		node = parent.childs.get(lst[-1], None)
+		if node:
+			tp = node.id & 3
+			if tp != BUILD:
+				fatal("find or declare is to return a build node, but the node is a source file or a directory")
+			return node
+		node = Node(name, parent)
+		parent.childs[name] = node
+		return node
+
+
+
+
 	def find_build(self, path, create=0):
 		#print "find build", path
 		lst = Utils.split_path(path)
-		return self.find_build_lst(lst, create)
+		return self.find_build_lst(lst)
 
 	# TODO: split find_build into find_build_or_source and find_build
 	def find_build_lst(self, lst, create=0):
-		"search a source or a build node in the filesystem, rescan intermediate folders, create if necessary"
+		"search a source or a build node in the filesystem, rescan intermediate folders"
 
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
@@ -173,47 +211,6 @@ class Node(object):
 		# then create a file if necessary
 		return parent.find_one_source(name)
 
-	def find_raw(self, path):
-		lst = Utils.split_path(path)
-		return self.find_raw_lst(lst)
-
-	def find_raw_lst(self, lst):
-		"just find a node in the tree, do not rescan folders"
-		current = self
-		while lst:
-			name = lst.pop(0)
-			prev = current
-			if name == '.':
-				continue
-			elif name == '..':
-				current = current.m_parent
-				continue
-			current = prev.m_dirs_lookup[name]
-			if not current: current=prev.m_files_lookup[name]
-			if not current: current=prev.m_build_lookup[name]
-			if not current: return None
-		return current
-
-	def ensure_node_from_lst(self, plst):
-		curnode = self
-		for dirname in plst:
-			if not dirname: continue
-			if dirname == '.': continue
-			if dirname == '..':
-				curnode = curnode.m_parent
-				continue
-			#found=None
-			found = curnode.get_dir(dirname, None)
-			#for cand in curnode.m_dirs:
-			#	if cand.m_name == dirname:
-			#		found = cand
-			#		break
-			if not found:
-				found = Node(dirname, curnode, DIR)
-				curnode.childs[dirname] = found
-			curnode = found
-		return curnode
-
 	def find_dir(self, path):
 		lst = Utils.split_path(path)
 		return self.find_dir_lst(lst)
@@ -240,6 +237,26 @@ class Node(object):
 					else:
 						raise ValueError("directory %r not found from %r" % (lst, self.abspath()))
 		return current
+
+	def ensure_node_from_lst(self, plst):
+		curnode = self
+		for dirname in plst:
+			if not dirname: continue
+			if dirname == '.': continue
+			if dirname == '..':
+				curnode = curnode.m_parent
+				continue
+			#found=None
+			found = curnode.get_dir(dirname, None)
+			#for cand in curnode.m_dirs:
+			#	if cand.m_name == dirname:
+			#		found = cand
+			#		break
+			if not found:
+				found = Node(dirname, curnode, DIR)
+				curnode.childs[dirname] = found
+			curnode = found
+		return curnode
 
 
 	## ===== END find methods	===== ##
