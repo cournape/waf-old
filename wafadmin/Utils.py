@@ -191,9 +191,7 @@ def split_path(path):
 		return [h] + __split_dirs(t)[1:]
 	else:
 		if not path: return ['']
-		x = path.split('/')
-		if path[0] == '/': x = ['/']+x[1:]
-		return x
+		return path.split('/')
 
 def __split_dirs(path):
 	h,t = os.path.split(path)
