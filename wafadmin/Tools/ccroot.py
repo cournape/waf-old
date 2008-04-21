@@ -59,7 +59,7 @@ class c_scanner(Scan.scanner):
 				if k.id & 3 == Node.FILE:
 					upd(tstamp[0][k.id])
 				else:
-					upd(tstamp[env.variant()][k.id])
+					upd(tstamp[variant][k.id])
 		except KeyError:
 			return None
 
