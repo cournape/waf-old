@@ -165,19 +165,19 @@ class Build(object):
 	def clean(self):
 		debug("clean called", 'build')
 		def clean_rec(node):
-			for x in node.m_build_lookup:
-				nd = node.m_build_lookup[x]
-				for env in self.m_allenvs.values():
-					pt = nd.abspath(env)
-					# do not remove config files
-					if pt in env['waf_config_files']: continue
-					try: os.remove(pt)
-					except OSError: pass
-			for x in node.m_dirs_lookup:
-				nd = node.m_dirs_lookup[x]
-				clean_rec(nd)
+			for x in node.childs:
+				nd = node.childs[x]
+
+				tp = nd.id & 3
+				if tp == Node.DIR:
+					clean_rec(nd)
+				elif tp == Node.BUILD:
+					for env in self.m_allenvs.values():
+						pt = nd.abspath(env)
+						if pt in env['waf_config_files']: continue
+						try: os.remove(pt)
+						except OSError: pass
 		clean_rec(self.m_srcnode)
-		
 
 	def compile(self):
 		debug("compile called", 'build')
@@ -517,7 +517,7 @@ class Build(object):
 		return i_existing_nodes
 
 	def dump(self):
-		"for debugging"
+		raise "for debugging"
 		def recu(node, count):
 			accu = count * '-'
 			accu += "> %s (d) %d \n" % (node.m_name, node.id)
