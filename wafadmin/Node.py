@@ -155,7 +155,9 @@ class Node(object):
 			Params.g_build.rescan(current)
 			prev = current
 
-			if not name:
+			if not current.m_parent and name == current.m_name:
+				continue
+			elif not name:
 				continue
 			elif name == '.':
 				continue
@@ -364,10 +366,9 @@ class Node(object):
 				cur = cur.m_parent
 			lst.reverse()
 			# the real hot zone is the os path join
-			val = os.path.join(*lst)
+			val = os.sep.join(lst)
 		else:
-			val = os.path.join(Params.g_build.m_bldnode.abspath(), env.variant(),
-				self.relpath(Params.g_build.m_srcnode))
+			val = os.sep.join((Params.g_build.m_bldnode.abspath(), env.variant(), self.relpath(Params.g_build.m_srcnode)))
 		Params.g_build.m_abspath_cache[variant][self.id] = val
 		return val
 
