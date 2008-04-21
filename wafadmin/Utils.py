@@ -183,22 +183,21 @@ def progress_line(state, total, col1, col2):
 	return msg
 
 def split_path(path):
-	"Split path into components. Supports UNC paths on Windows"
-	if sys.platform == 'win32':
-		# splitunc is defined by os.path for Windows only
+	if not path: return ['']
+	return path.split('/')
+
+if sys.platform == 'win32':
+	def split_path(path):
 		h,t = os.path.splitunc(path)
 		if not h: return __split_dirs(t)
 		return [h] + __split_dirs(t)[1:]
-	else:
-		if not path: return ['']
-		return path.split('/')
 
-def __split_dirs(path):
-	h,t = os.path.split(path)
-	if not h: return [t]
-	if h == path: return [h]
-	if not t: return __split_dirs(h)
-	else: return __split_dirs(h) + [t]
+	def __split_dirs(path):
+		h,t = os.path.split(path)
+		if not h: return [t]
+		if h == path: return [h]
+		if not t: return __split_dirs(h)
+		else: return __split_dirs(h) + [t]
 
 _quote_define_name_translation = None
 "lazily construct a translation table for mapping invalid characters to valid ones"
