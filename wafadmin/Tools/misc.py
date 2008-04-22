@@ -268,7 +268,7 @@ class CommandOutput(Object.task_gen):
 			cmd = self.command
 			cmd_node = None
 		else:
-			cmd_node = self.path.find_or_declare(self.command)
+			cmd_node = self.path.find_resource(self.command)
 			assert cmd_node is not None, ('''Could not find command '%s' in source tree.
 Hint: if this is an external command,
 use command_is_external=True''') % (self.command,)
