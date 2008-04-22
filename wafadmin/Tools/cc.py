@@ -69,7 +69,8 @@ def apply_obj_vars_cc(self):
 @taskgen
 def apply_defines_cc(self):
 	tree = Params.g_build
-	lst = self.to_list(self.defines)+self.to_list(self.env['CCDEFINES'])
+	self.defines = getattr(self, 'defines', [])
+	lst = self.to_list(self.defines) + self.to_list(self.env['CCDEFINES'])
 	milst = []
 
 	# now process the local defines

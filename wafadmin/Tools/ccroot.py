@@ -91,10 +91,10 @@ class ccroot_abstract(Object.task_gen):
 		# scanned for #includes.
 		self.dependencies = ''
 
-		self.defines=''
-		self.rpaths=''
+		self.defines = ''
+		self.rpaths = ''
 
-		self.uselib=''
+		self.uselib = ''
 
 		# new scheme: provide the names of the local libraries to link with
 		# the objects found will be post()-ed
@@ -208,8 +208,9 @@ def install_target(self):
 @after('apply_incpaths')
 @before('apply_core')
 def apply_dependencies(self):
-	if self.dependencies:
-		dep_lst = (self.to_list(self.dependencies) + self.to_list(self.includes))
+	deps = getattr(self, 'dependencies', '')
+	if deps:
+		dep_lst = self.to_list(deps) + self.to_list(self.includes)
 		self.inc_paths = []
 		for directory in dep_lst:
 			if os.path.isabs(directory):
@@ -233,10 +234,14 @@ def apply_dependencies(self):
 @taskgen
 @after('apply_type_vars')
 def apply_incpaths(self):
+	self.bld_incpaths_lst = getattr(self, 'bld_incpaths_lst', [])
+	self.incpaths_lst = getattr(self, 'incpaths_lst', [])
+
 	lst = []
 	for i in self.to_list(self.uselib):
 		if self.env['CPPPATH_'+i]:
 			lst += self.to_list(self.env['CPPPATH_'+i])
+	self.includes = getattr(self, 'includes', [])
 	inc_lst = self.to_list(self.includes) + lst
 	lst = self.incpaths_lst
 

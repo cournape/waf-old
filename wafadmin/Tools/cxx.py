@@ -77,7 +77,8 @@ def apply_obj_vars_cxx(self):
 @taskgen
 def apply_defines_cxx(self):
 	tree = Params.g_build
-	lst = self.to_list(self.defines)+self.to_list(self.env['CXXDEFINES'])
+	self.defines = getattr(self, 'defines', [])
+	lst = self.to_list(self.defines) + self.to_list(self.env['CXXDEFINES'])
 	milst = []
 
 	# now process the local defines
