@@ -425,10 +425,12 @@ def apply_d_vars(self):
 			for linkflag in dlinkflags:
 				env.append_unique('DLINKFLAGS', linkflag)
 
-	d_shlib_linkflags = env['D_' + self.m_type + '_LINKFLAGS']
-	if d_shlib_linkflags:
-		for linkflag in d_shlib_linkflags:
-			env.append_unique('DLINKFLAGS', linkflag)
+@taskgen
+@after('apply_d_vars')
+@feature('dshlib')
+def add_shlib_d_flags(self):
+	for linkflag in env['D_shlib_LINKFLAGS']:
+		env.append_unique('DLINKFLAGS', linkflag)
 
 @extension(EXT_D)
 def d_hook(self, node):

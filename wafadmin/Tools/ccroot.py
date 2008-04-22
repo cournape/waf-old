@@ -149,10 +149,10 @@ def get_target_name(self):
 
 @taskgen
 def apply_verif(self):
-	if not hasattr(self, 'nochecks'):
-		if not (self.source or self.add_objects):
+	if not 'objects' in self.features:
+		if not self.source:
 			fatal('no source files specified for %s' % self)
-		if not self.target and self.m_type != 'objects':
+		if not self.target:
 			fatal('no target for %s' % self)
 
 def install_shlib(task):
@@ -199,7 +199,7 @@ def install_target(self):
 		# program or staticlib
 		try: mode = self.program_chmod
 		except AttributeError:
-			if self.m_type == 'program': mode = 0755
+			if 'cprogram' in self.features: mode = 0755
 			else: mode = 0644
 		install = {'var':dest_var,'dir':dest_subdir,'chmod':mode}
 		self.link_task.install = install
