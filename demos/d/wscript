@@ -30,6 +30,22 @@ def build(bld):
 	obj.name = 'testlib'
 	obj.target = 'testlib'
 
+	"""
+	compiling with d, linking with gcc:
+	* in the configuration, add conf.check_tool('gcc')
+	* in the object creation, add 3 lines
+
+	obj = bld.create_obj('d')
+	obj.source = '''
+	testlib/code.d
+	'''
+	obj.features.append('cc')
+	obj.features.append('cshlib')
+	obj.name = 'testlib'
+	obj.target = 'testlib'
+	obj.m_type = 'shlib'
+	"""
+
 	obj = bld.create_obj('d', 'program')
 	obj.source = '''
 	example.d
