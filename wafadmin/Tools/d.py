@@ -242,7 +242,8 @@ class d_taskgen(Object.task_gen):
 		Object.task_gen.__init__(self, *k)
 
 		# TODO m_type is obsolete
-		self.m_type = k[1]
+		if len(k)>1: self.m_type = k[1]
+		else: self.m_type = ''
 		if self.m_type:
 			self.features.append('d' + self.m_type)
 

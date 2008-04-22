@@ -70,13 +70,14 @@ g_c_scanner = c_scanner()
 
 class ccroot_abstract(Object.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
-	def __init__(self, *kw, **kwargs):
-		Object.task_gen.__init__(self, *kw)
+	def __init__(self, *k, **kw):
+		Object.task_gen.__init__(self, *k)
 
 		# TODO m_type is obsolete
-		self.m_type = kw[1]
+		if len(k)>1: self.m_type = k[1]
+		else: self.m_type = ''
 		if self.m_type:
-			self.features.append('c'+self.m_type)
+			self.features.append('c' + self.m_type)
 
 		# includes, seen from the current directory
 		self.includes=''
@@ -115,10 +116,10 @@ class ccroot_abstract(Object.task_gen):
 		self.link = ''
 
 		# these are kind of private, do not touch
-		self.incpaths_lst=[]
+		self.incpaths_lst = []
 		self.inc_paths = []
 		self.scanner_defines = {}
-		self.bld_incpaths_lst=[]
+		self.bld_incpaths_lst = []
 
 		self.compiled_tasks = []
 		self.link_task = None
@@ -261,7 +262,6 @@ def apply_incpaths(self):
 
 @taskgen
 def apply_type_vars(self):
-
 	# if the type defines uselib to add, add them
 	st = self.env[self.m_type+'_USELIB']
 	if st: self.uselib = self.uselib + ' ' + st
