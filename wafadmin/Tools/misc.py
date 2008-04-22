@@ -74,7 +74,7 @@ class copy_taskgen(Object.task_gen):
 			if not target or len(lst)>1: target = node.m_name
 
 			# TODO the file path may be incorrect
-			newnode = self.path.find_build(target)
+			newnode = self.path.find_or_declare(target)
 
 			tsk = self.create_task('copy', self.env, 10)
 			tsk.set_inputs(node)
@@ -310,7 +310,7 @@ use command_is_external=True''') % (self.command,)
 					if isinstance(file_name, Node.Node):
 						input_node = file_name
 					else:
-						input_node = self.path.find_or_declare(file_name)
+						input_node = self.path.find_resource(file_name)
 						if input_node is None:
 							Params.fatal("File %s not found" % (file_name,))
 					inputs.append(input_node)
@@ -347,7 +347,7 @@ use command_is_external=True''') % (self.command,)
 			stdout = None
 		else:
                         assert isinstance(self.stdout, basestring)
-			stdout = self.path.find_build(self.stdout)
+			stdout = self.path.find_or_declare(self.stdout)
 			if stdout is None:
 				Params.fatal("File %s not found" % (self.stdout,))
 			outputs.append(stdout)
@@ -356,19 +356,19 @@ use command_is_external=True''') % (self.command,)
 			stdin = None
 		else:
                         assert isinstance(self.stdin, basestring)
-			stdin = self.path.find_build(self.stdin)
+			stdin = self.path.find_resource(self.stdin)
 			if stdin is None:
 				Params.fatal("File %s not found" % (self.stdin,))
 			inputs.append(stdin)
 
 		for hidden_input in self.to_list(self.hidden_inputs):
-			node = self.path.find_build(hidden_input)
+			node = self.path.find_resource(hidden_input)
 			if node is None:
 				Params.fatal("File %s not found in dir %s" % (hidden_input, self.path))
 			inputs.append(node)
 
 		for hidden_output in self.to_list(self.hidden_outputs):
-			node = self.path.find_build(hidden_output)
+			node = self.path.find_or_declare(hidden_output)
 			if node is None:
 				Params.fatal("File %s not found in dir %s" % (hidden_output, self.path))
 			outputs.append(node)

@@ -138,8 +138,8 @@ class Node(object):
 		node = parent.childs.get(name, None)
 		if node:
 			tp = node.id & 3
-			if tp != BUILD and tp != FILE:
-				fatal("find or declare is to return a build node, but the node is a source file or a directory")
+			if tp != BUILD:
+				fatal("find or declare is to return a build node, but the node is a source file or a directory"+str(lst))
 			return node
 		node = Node(name, parent, BUILD)
 		parent.childs[name] = node
