@@ -42,8 +42,8 @@ def common_flags(conf):
 	v['DFLAGS_ULTRADEBUG'] = ['-g', '-debug']
 	v['DLINKFLAGS']        = ['-quiet']
 
-	v['D_shlib_DFLAGS']    = []
-	v['D_shlib_LINKFLAGS'] = []
+	v['D_shlib_DFLAGS']    = ['-fPIC']
+	v['D_shlib_LINKFLAGS'] = ['-L-shared']
 
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = '-H -Hf'
