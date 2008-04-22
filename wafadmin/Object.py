@@ -139,6 +139,7 @@ class task_gen(object):
 	prec = {}
 	traits = {}
 	classes = {}
+	idx = {}
 
 	def __init__(self, *kw):
 		self.prec = {}
@@ -177,6 +178,10 @@ class task_gen(object):
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 		g_allobjs.append(self)
+
+
+		# provide a unique id
+		self.idx = task_gen.idx[self.path.id] = task_gen.idx.get(self.path.id, 0) + 1
 
 	def __str__(self):
 		return ("<task_gen '%s' of type %s defined in %s>"

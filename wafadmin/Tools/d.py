@@ -437,7 +437,7 @@ def d_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task('d', self.env)
 	try: obj_ext = self.obj_ext
-	except AttributeError: obj_ext = '_%s.o' % self.m_type[:2]
+	except AttributeError: obj_ext = '_%d.o' % self.idx
 
 	global g_d_scanner
 	task.m_scanner = g_d_scanner
