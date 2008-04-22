@@ -222,11 +222,29 @@ def get_target_name(self):
 	v = self.env
 	return v['D_%s_PATTERN' % self.m_type] % self.target
 
+d_params = {
+'dflags': {'gdc':'', 'dmd':''},
+'importpaths':'',
+'libs':'',
+'libpaths':'',
+'generate_headers':False,
+}
+
+@taskgen
+@before('apply_type_vars')
+@feature('d')
+def init_d(self):
+	for x in d_params:
+		setattr(self, x, getattr(self, x, d_params[x]))
+
 class d_taskgen(Object.task_gen):
 	def __init__(self, *k):
 		Object.task_gen.__init__(self, *k)
 
+		# TODO m_type is obsolete
 		self.m_type = k[1]
+		if self.m_type:
+			self.features.append('d' + self.m_type)
 
 		self.dflags = {'gdc':'', 'dmd':''}
 		self.importpaths = ''
@@ -287,12 +305,8 @@ def apply_d_libs(self):
 		if not y.m_posted: y.post()
 		seen.append(x)
 
-		if y.m_type == 'shlib' or y.m_type == 'staticlib':
+		if 'dshlib' in y.features or 'dstaticlib' in y.features:
 			libs.append(y.target)
-		elif y.m_type == 'objects':
-			pass
-		else:
-			error('%s has unknown object type %s, in apply_d_lib_vars, uselib_local.' % (y.name, y.m_type))
 
 		# add the link path too
 		tmp_path = y.path.bldpath(env)
@@ -313,25 +327,17 @@ def apply_d_libs(self):
 	self.uselib = uselib
 
 @taskgen
-@feature('d')
+@feature('dprogram', 'dshlib', 'dstaticlib')
 @after('apply_core')
 def apply_d_link(self):
-	# if we are only building .o files, tell which ones we build
-	if self.m_type == 'objects':
-		self.out_nodes = []
-		app = self.out_nodes.append
-		for t in self.compiled_tasks: app(t.m_outputs[0])
-		return
-
-	if self.m_type=='staticlib':
-		linktask = self.create_task('ar_link_static', self.env)
-	else:
-		linktask = self.create_task('d_link', self.env)
-	outputs = []
-	app = outputs.append
-	for t in self.compiled_tasks: app(t.m_outputs[0])
+	link = getattr(self, 'link', None)
+	if not link:
+		if 'dstaticlib' in self.features: link = 'ar_link_static'
+		else: link = 'd_link'
+	linktask = self.create_task(link, self.env)
+	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_build(get_target_name(self)))
+	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
 
 	self.link_task = linktask
 
