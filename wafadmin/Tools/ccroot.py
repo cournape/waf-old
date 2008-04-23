@@ -194,7 +194,7 @@ def install_target(self):
 		and getattr(self, 'vnum', '') and sys.platform != 'win32'):
 		# shared libraries on linux
 		tsk = self.link_task
-		tsk.vnum = self.vnum
+		tsk.vnum = getattr(self, 'vnum', '')
 		tsk.dest_var = dest_var
 		tsk.dest_subdir = dest_subdir
 		tsk.install = install_shlib
