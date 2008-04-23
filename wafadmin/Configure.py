@@ -209,7 +209,7 @@ class Configure(object):
 			os.makedirs(Params.g_cachedir)
 
 		file = open(os.path.join(Params.g_cachedir, 'build.config.py'), 'w')
-		file.write('version = %s\n' % HEXVERSION)
+		file.write('version = 0x%x\n' % HEXVERSION)
 		file.write('tools = %r\n' % self.tools)
 		file.close()
 
