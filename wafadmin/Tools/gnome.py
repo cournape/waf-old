@@ -250,7 +250,7 @@ def process_enums(self):
 		# find the target
 		if not x['target']:
 			Params.fatal('missing target '+str(x))
-		tgt_node = self.path.find_build(x['target'], create=1)
+		tgt_node = self.path.find_build(x['target'])
 		if tgt_node.m_name.endswith('.c'):
 			self.allnodes.append(tgt_node)
 		env['MK_TARGET'] = tgt_node.abspath(env)
