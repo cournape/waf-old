@@ -13,10 +13,6 @@ APPNAME='adv_test'
 srcdir = '.'
 blddir = 'build'
 
-# make sure waf has the version we want
-import Utils
-Utils.waf_version(mini="0.8.8", maxi="9.9.9")
-
 def init():
 	pass
 	# disable the Waf preprocessor for finding dependencies
