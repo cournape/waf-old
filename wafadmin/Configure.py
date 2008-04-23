@@ -367,6 +367,3 @@ def conftest(f):
 	Configure.tests[f.__name__] = f
 	return f
 
-# do not touch
-import config_c
-

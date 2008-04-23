@@ -11,6 +11,8 @@ from Utils import md5
 from Object import taskgen, after, before, feature
 from Constants import *
 
+import config_c # <- necessary for the configuration, do not touch
+
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"
 	DEBUG = "debug"
