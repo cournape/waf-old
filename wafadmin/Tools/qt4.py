@@ -277,7 +277,7 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	ext_lst = exts or self.mappings.keys() + Object.task_gen.mappings.keys()
 
 	for name in dirnames:
-		anode = self.path.ensure_node_from_lst(Utils.split_path(name))
+		anode = self.path.find_dir(name)
 		Params.g_build.rescan(anode)
 
 		for name in Params.g_build.cache_dir_contents[anode.id]:
