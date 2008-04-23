@@ -168,7 +168,7 @@ if sys.platform == 'win32':
 	def __split_dirs(path):
 		h,t = os.path.split(path)
 		if not h: return [t]
-		if h == path: return [h]
+		if h == path: return [h.replace('\\', '')]
 		if not t: return __split_dirs(h)
 		else: return __split_dirs(h) + [t]
 

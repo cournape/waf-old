@@ -20,7 +20,7 @@ eg: the m_tstamp is used for every node, while the signature is computed only fo
 the build is launched from the top of the build dir (for example, in _build_/)
 """
 
-import os
+import os, sys
 import Params, Utils
 from Params import debug, error, fatal
 
@@ -414,4 +414,54 @@ class Node(object):
 		x = self.m_parent.get_build(self.m_name)
 		if x: return self.bldpath(env)
 		return self.relpath_gen(Params.g_build.m_bldnode)
+
+if sys.platform == "win32":
+	def find_dir_lst_win32(self, lst):
+		"search a folder in the filesystem"
+		current = self
+		for name in lst:
+			Params.g_build.rescan(current)
+			prev = current
+
+			if not current.m_parent and name == current.m_name:
+				continue
+			elif not name:
+				continue
+			elif name == '.':
+				continue
+			elif name == '..':
+				current = current.m_parent or current
+			else:
+				current = prev.childs.get(name, None)
+				if current is None:
+					if (name in Params.g_build.cache_dir_contents[prev.id]
+						or (not prev.m_parent and name[1] == ":")):
+						current = Node(name, prev, DIR)
+						prev.childs[name] = current
+					else:
+						return None
+		return current
+	Node.find_dir_lst = find_dir_lst_win32
+
+	def abspath_win32(self, env=None):
+		"absolute path - hot zone, so do not touch"
+
+		variant = self.variant(env)
+		ret = Params.g_build.m_abspath_cache[variant].get(self.id, None)
+		if ret: return ret
+
+		if not variant:
+			cur = self
+			lst = []
+			while cur:
+				lst.append(cur.m_name)
+				cur = cur.m_parent
+			lst = lst[:1]
+			lst.reverse()
+			val = os.sep.join(lst)
+		else:
+			val = os.sep.join((Params.g_build.m_bldnode.abspath(), env.variant(), self.relpath(Params.g_build.m_srcnode)))
+		Params.g_build.m_abspath_cache[variant][self.id] = val
+		return val
+	Node.abspath = abspath_win32
 

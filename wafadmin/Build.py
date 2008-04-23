@@ -147,7 +147,6 @@ class Build(object):
 		except IOError:
 			debug("resetting the build object (dto failed)", 'build')
 			self._init_data()
-		if Params.g_verbose>2: self.dump()
 
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
