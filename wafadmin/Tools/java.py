@@ -52,7 +52,7 @@ class java_taskgen(Object.task_gen):
 		self.jaropts = ''
 		self.classpath = ''
 		self.source_root = '.'
-		self.package_root = ''
+		self.package_root = '.'
 
 		# Jar manifest attributes
 		# TODO: Add manifest creation
