@@ -37,27 +37,6 @@ def test_full():
 		else:
 			Params.fatal(str(e), e.errno)
 
-# TODO DEPRECATED: to be removed in waf 1.4
-def waf_version(mini = "0.0.1", maxi = "100.0.0"):
-	"throws an exception if the waf version is wrong"
-	min_lst = map(int, mini.split('.'))
-	max_lst = map(int, maxi.split('.'))
-	waf_lst = map(int, Params.g_version.split('.'))
-
-	mm = min(len(min_lst), len(waf_lst))
-	for (a, b) in zip(min_lst[:mm], waf_lst[:mm]):
-		if a < b:
-			break
-		if a > b:
-			Params.fatal("waf version should be at least %s (%s found)" % (mini, Params.g_version))
-
-	mm = min(len(max_lst), len(waf_lst))
-	for (a, b) in zip(max_lst[:mm], waf_lst[:mm]):
-		if a > b:
-			break
-		if a < b:
-			Params.fatal("waf version should be at most %s (%s found)" % (maxi, Params.g_version))
-
 class ordered_dict(UserDict):
 	def __init__(self, dict = None):
 		self.allkeys = []
@@ -76,8 +55,6 @@ def reset():
 	Params.g_build = None
 	Object.g_allobjs = []
 	Environment.g_cache_max = {}
-	#Object.task_gen.mappings = {}
-	#Object.task_gen.mapped = {}
 
 def to_list(sth):
 	if type(sth) is types.ListType:
@@ -108,8 +85,8 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	except (IOError, OSError):
 		Params.fatal('The file %s could not be opened!' % file_path)
 
-	import Common
 	d = module.__dict__
+	import Common
 	d['install_files'] = Common.install_files
 	d['install_as'] = Common.install_as
 	d['symlink_as'] = Common.symlink_as
@@ -152,7 +129,6 @@ else:
 		fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
 		struct.pack("HHHH", 0, 0, 0, 0)))[:2]
 		return cols
-
 
 def progress_line(state, total, col1, col2):
 	n = len(str(total))
