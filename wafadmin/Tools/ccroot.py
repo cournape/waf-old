@@ -100,7 +100,7 @@ class ccroot_abstract(Object.task_gen):
 		# the objects found will be post()-ed
 		self.uselib_local=''
 
-		# add .o files produced by another task_gen class
+		# add .o files produced by another task_gen class (task generator names)
 		self.add_objects = ''
 
 		# version number for shared libraries
@@ -113,7 +113,7 @@ class ccroot_abstract(Object.task_gen):
 		self.p_flag_vars = []
 		self.p_type_vars = []
 
-		self.link = ''
+		#self.link = '' # optional: kind of link to apply (ar, cc, cxx, ..)
 
 		# these are kind of private, do not touch
 		self.incpaths_lst = []
