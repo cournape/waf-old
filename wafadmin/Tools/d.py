@@ -429,8 +429,8 @@ def apply_d_vars(self):
 @after('apply_d_vars')
 @feature('dshlib')
 def add_shlib_d_flags(self):
-	for linkflag in env['D_shlib_LINKFLAGS']:
-		env.append_unique('DLINKFLAGS', linkflag)
+	for linkflag in self.env['D_shlib_LINKFLAGS']:
+		self.env.append_unique('DLINKFLAGS', linkflag)
 
 @extension(EXT_D)
 def d_hook(self, node):
