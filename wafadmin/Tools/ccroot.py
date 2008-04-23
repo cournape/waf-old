@@ -188,7 +188,8 @@ def install_target(self):
 		if 'cprogram' in self.features: dest_subdir = 'bin'
 		else: dest_subdir = 'lib'
 
-	if 'cshlib' in self.features and getattr(self, 'vnum', '') and sys.platform != 'win32':
+	if ('cshlib' in self.features or 'dshlib' in self.features
+		and getattr(self, 'vnum', '') and sys.platform != 'win32'):
 		# shared libraries on linux
 		tsk = self.link_task
 		tsk.vnum = self.vnum
