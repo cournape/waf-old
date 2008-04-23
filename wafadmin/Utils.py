@@ -62,9 +62,6 @@ def to_list(sth):
 	else:
 		return sth.split()
 
-def options(**kwargs):
-	pass
-
 g_loaded_modules = {}
 "index modules by absolute path"
 
