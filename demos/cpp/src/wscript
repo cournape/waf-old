@@ -7,6 +7,23 @@
 # 2. In practice something like 'libkdegames' might do it better
 # 3. Any coincidence with characters living or dead is purely coincidental
 
+def myfun(self, name):
+
+	import ccroot
+	env2 = self.env.copy()
+	env2['CXXFLAGS'] = "-Dxxxxxxxxxxxxxxxxxxxxxxx"
+
+	node = self.path.find_resource(name)
+	task = self.create_task('cxx', env2)
+
+	task.m_scanner = ccroot.g_c_scanner
+	task.path_lst = self.inc_paths
+	task.defines  = self.scanner_defines
+
+	task.m_inputs = [node]
+	task.m_outputs = [node.change_ext(".o")]
+	self.compiled_tasks.append(task)
+
 def build(bld):
 	import Params
 	print "command-line parameter meow is ", Params.g_options.meow
@@ -23,6 +40,9 @@ def build(bld):
 	obj.defines='LINUX=1 BIDULE'
 	obj.obj_ext = '_1.o'
 	# obj.add_obj_file('kk.o') # <- example on how to add custom object files considered source
+
+	#obj.mappings["a1.cpp"] = myfun <- example of how to modify the environment for one file
+	# of you need to modify more files, add custom object files or use the objects type
 
 	# 2. A shared library
 	# The extension (.so) is added automatically
