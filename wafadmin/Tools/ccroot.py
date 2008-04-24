@@ -265,16 +265,21 @@ def apply_incpaths(self):
 	# now process the include paths
 	tree = Params.g_build
 	for dir in inc_lst:
-		if os.path.isabs(dir) and preproc.go_absolute:
-			node = Params.g_build.m_root.find_dir(dir)
+		node = 0
+		if os.path.isabs(dir):
+			if preproc.go_absolute:
+				node = Params.g_build.m_root.find_dir(dir)
+			else:
+				error('an absolute path was specified, enable preproc.go_absolute')
 		else:
 			node = self.path.find_dir(dir)
-		if not node:
+
+		if node is None:
 			error("node not found in ccroot:apply_incpaths "+str(dir))
-			continue
-		if not node in lst: lst.append(node)
-		Params.g_build.rescan(node)
-		self.bld_incpaths_lst.append(node)
+		elif node:
+			if not node in lst: lst.append(node)
+			Params.g_build.rescan(node)
+			self.bld_incpaths_lst.append(node)
 	# now the nodes are added to self.incpaths_lst
 
 @taskgen
