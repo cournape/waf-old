@@ -15,6 +15,12 @@ import traceback
 class PreprocError(Exception):
 	pass
 
+go_absolute = 1
+
+standard_includes = ['/usr/include']
+if sys.platform == "win32":
+	standard_includes = []
+
 g_findall = 1
 'search harder for project includes'
 
@@ -351,19 +357,6 @@ def eval_macro(lst, adefs):
 	p, v = ret[0]
 	return int(v) != 0
 
-def try_exists(node, list):
-	lst = []+list
-	while lst:
-		name = lst.pop(0)
-		# it is not a build node, else we would already got it
-		path = os.path.join(node.abspath(), name)
-		try: os.stat(path)
-		except OSError:
-			#traceback.print_exc()
-			return None
-		node = node.find_dir_lst([name])
-	return node
-
 class c_parser(object):
 	def __init__(self, nodepaths=None, strpaths=None, defines=None):
 		#self.lines = txt.split('\n')
@@ -391,6 +384,9 @@ class c_parser(object):
 			self.m_nodepaths = []
 		else:
 			self.m_nodepaths = nodepaths
+
+		#self.m_nodepaths.append(Params.g_build.m_root.find_dir('/usr/include'))
+
 		self.m_nodes = []
 		self.m_names = []
 
@@ -425,10 +421,10 @@ class c_parser(object):
 					if not cache.get(key, None):
 						cache[key] = 1
 						for n in self.m_nodepaths:
-							node = try_exists(n, lst)
+							node = n.find_resource(filename)
 							if node:
-								found = n.find_resource(filename)
-								if found: break
+								found = node
+								break
 			if found:
 				self.m_nodes.append(found)
 				# Qt

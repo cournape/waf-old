@@ -58,6 +58,7 @@ class c_scanner(Scan.scanner):
 			tstamp = Params.g_build.m_tstamp_variants
 			upd(tstamp[variant][idx])
 			for k in Params.g_build.node_deps[variant][idx]:
+				Params.g_build.rescan(k.m_parent)
 				if k.id & 3 == Node.FILE:
 					upd(tstamp[0][k.id])
 				else:
@@ -246,22 +247,23 @@ def apply_incpaths(self):
 			lst += self.to_list(self.env['CPPPATH_'+i])
 	self.includes = getattr(self, 'includes', [])
 	inc_lst = self.to_list(self.includes) + lst
+	if preproc.go_absolute:
+		inc_lst.extend(preproc.standard_includes)
 	lst = self.incpaths_lst
 
-	# add the build directory
-	self.incpaths_lst.append(Params.g_build.m_bldnode)
-	self.incpaths_lst.append(Params.g_build.m_srcnode)
+	# we might want to add the build directory
+	#self.incpaths_lst.append(Params.g_build.m_bldnode)
+	#self.incpaths_lst.append(Params.g_build.m_srcnode)
 
 	# now process the include paths
 	tree = Params.g_build
 	for dir in inc_lst:
-		if os.path.isabs(dir):
-			self.env.append_value('CPPPATH', dir)
-			continue
-
-		node = self.path.find_dir_lst(Utils.split_path(dir))
+		if os.path.isabs(dir) and preproc.go_absolute:
+			node = Params.g_build.m_root.find_dir(dir)
+		else:
+			node = self.path.find_dir(dir)
 		if not node:
-			debug("node not found in ccroot:apply_incpaths "+str(dir), 'ccroot')
+			error("node not found in ccroot:apply_incpaths "+str(dir))
 			continue
 		if not node in lst: lst.append(node)
 		Params.g_build.rescan(node)
