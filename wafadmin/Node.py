@@ -37,9 +37,6 @@ class Node(object):
 		self.m_name = name
 		self.m_parent = parent
 
-		if parent:
-			parent.childs[name] = self
-
 		# assumption: one build object at a time
 		Params.g_build.id_nodes += 4
 		self.id = Params.g_build.id_nodes + node_type
@@ -55,6 +52,8 @@ class Node(object):
 
 		if parent and name in parent.childs:
 			fatal('node %s exists in the parent files %s already' % (name, str(parent)))
+
+		if parent: parent.childs[name] = self
 
 	def __str__(self):
 		if not self.m_parent: return ''
