@@ -5,7 +5,8 @@ NEW IN WAF 1.4.1
 * java support improvements
 * in qt4 projects, dependencies are added on files listed in the qrc
 * object extensions uses a new scheme to avoid conflicts
-* fix for bug 132
+* optional dependency tracking on headers out of the build directory (bug:132)
+* set the c language extension to ".c" only
 
 NEW IN WAF 1.4.0
 ----------------
