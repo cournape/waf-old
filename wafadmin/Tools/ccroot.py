@@ -228,7 +228,7 @@ def apply_dependencies(self):
 				Params.fatal("Absolute paths not allowed in obj.dependencies")
 				return
 
-			node = self.path.find_dir_lst(Utils.split_path(directory))
+			node = self.path.find_dir(directory)
 			if not node:
 				Params.fatal("node not found in ccroot:apply_dependencies " + str(directory), 'ccroot')
 				return

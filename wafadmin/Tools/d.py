@@ -389,7 +389,7 @@ def apply_d_vars(self):
 		if os.path.isabs(path):
 			env.append_unique('_DIMPORTFLAGS', dpath_st % path)
 		else:
-			node = self.path.find_dir_lst(Utils.split_path(path))
+			node = self.path.find_dir(path)
 			self.inc_paths.append(node)
 			env.append_unique('_DIMPORTFLAGS', dpath_st % node.srcpath(env))
 			env.append_unique('_DIMPORTFLAGS', dpath_st % node.bldpath(env))
