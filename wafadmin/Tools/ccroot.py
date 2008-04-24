@@ -51,18 +51,25 @@ class c_scanner(Scan.scanner):
 			k = env[x]
 			if k: upd(str(k))
 
+		tree = Params.g_build
+		rescan = tree.rescan
+		tstamp = tree.m_tstamp_variants
+
 		# headers to hash
 		try:
 			idx = tsk.m_inputs[0].id
 			variant = tsk.m_inputs[0].variant(env)
-			tstamp = Params.g_build.m_tstamp_variants
 			upd(tstamp[variant][idx])
+
 			for k in Params.g_build.node_deps[variant][idx]:
-				Params.g_build.rescan(k.m_parent)
-				if k.id & 3 == Node.FILE:
-					upd(tstamp[0][k.id])
-				else:
-					upd(tstamp[k.variant(env)][k.id])
+
+				# unlikely but necessary if it happens
+				try: tree.m_scanned_folders[k.m_parent.id]
+				except KeyError: rescan(k.m_parent)
+
+				if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
+				else: upd(tstamp[env.variant()][k.id])
+
 		except KeyError:
 			return None
 
