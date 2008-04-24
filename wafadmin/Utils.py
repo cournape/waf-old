@@ -50,6 +50,22 @@ class ordered_dict(UserDict):
 		if key not in self.allkeys: self.allkeys.append(key)
 		UserDict.__setitem__(self, key, item)
 
+
+def waf_version(mini = "0.0.1", maxi = "100.0.0"):
+	"throws an exception if the waf version is wrong"
+	ver = HEXVERSION
+	try: min_val = mini + 0
+	except TypeError: min_val = int(mini.replace('.', '0'), 16)
+
+	if min_val > ver:
+		Params.fatal("waf version should be at least %s (%x found)" % (mini, ver))
+
+	try: max_val = maxi + 0
+	except TypeError: max_val = int(maxi.replace('.', '0'), 16)
+
+	if max_val < ver:
+		Params.fatal("waf version should be at most %s (%x found)" % (maxi, ver))
+
 def reset():
 	import Params, Object, Environment
 	Params.g_build = None
