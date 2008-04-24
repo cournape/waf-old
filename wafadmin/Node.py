@@ -37,6 +37,9 @@ class Node(object):
 		self.m_name = name
 		self.m_parent = parent
 
+		if parent:
+			parent.childs[name] = self
+
 		# assumption: one build object at a time
 		Params.g_build.id_nodes += 4
 		self.id = Params.g_build.id_nodes + node_type
@@ -122,7 +125,6 @@ class Node(object):
 			return None
 
 		child = Node(name, parent, FILE)
-		parent.childs[name] = child
 		tree.m_tstamp_variants[0][child.id] = st
 		return child
 
@@ -142,7 +144,6 @@ class Node(object):
 				fatal("find or declare is to return a build node, but the node is a source file or a directory"+str(lst))
 			return node
 		node = Node(name, parent, BUILD)
-		parent.childs[name] = node
 		return node
 
 	def find_dir(self, path):
@@ -169,7 +170,6 @@ class Node(object):
 				if current is None:
 					if name in Params.g_build.cache_dir_contents[prev.id]:
 						current = Node(name, prev, DIR)
-						prev.childs[name] = current
 					else:
 						return None
 		return current
@@ -382,7 +382,6 @@ class Node(object):
 			return n
 
 		newnode = Node(newname, p, BUILD)
-		p.childs[newname] = newnode
 
 		return newnode
 
@@ -437,7 +436,6 @@ if sys.platform == "win32":
 					if (name in Params.g_build.cache_dir_contents[prev.id]
 						or (not prev.m_parent and name[1] == ":")):
 						current = Node(name, prev, DIR)
-						prev.childs[name] = current
 					else:
 						return None
 		return current

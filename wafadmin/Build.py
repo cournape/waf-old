@@ -90,7 +90,7 @@ class Build(object):
 
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
-		self.m_scanned_folders = []
+		self.m_scanned_folders = {}
 
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.m_uninstall = []
@@ -392,7 +392,6 @@ class Build(object):
 			found = curnode.get_dir(dirname, None)
 			if not found:
 				found = Node.Node(dirname, curnode, Node.DIR)
-				curnode.childs[dirname] = found
 			curnode = found
 		return curnode
 
@@ -407,8 +406,8 @@ class Build(object):
 
 		# FIXME use sets with intersection and union
 		# do not rescan over and over again
-		if src_dir_node.id in self.m_scanned_folders: return
-		self.m_scanned_folders.append(src_dir_node.id)
+		if self.m_scanned_folders.get(src_dir_node.id, None): return
+		self.m_scanned_folders[src_dir_node.id] = 1
 
 		#debug("rescanning "+str(src_dir_node), 'build')
 

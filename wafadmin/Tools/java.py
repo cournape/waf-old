@@ -32,14 +32,12 @@ def exclusive_build_node(parent, path):
 		node = parent.childs.get(x, None)
 		if not node:
 			node = Node.Node(x, parent, Node.DIR)
-			parent.childs[x] = node
 		parent = node
 
 	# the java file at the end
 	node = parent.childs.get(java_file, None)
 	if not node:
 		node = Node.Node(java_file, parent, Node.BUILD)
-		parent.childs[java_file] = node
 
 	return node
 
