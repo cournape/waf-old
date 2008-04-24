@@ -15,7 +15,8 @@ import traceback
 class PreprocError(Exception):
 	pass
 
-go_absolute = 1
+go_absolute = 0
+"set to 1 to track headers on files in /usr/include - else absolute paths are ignored"
 
 standard_includes = ['/usr/include']
 if sys.platform == "win32":
