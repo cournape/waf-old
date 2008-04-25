@@ -36,7 +36,13 @@ class c_scanner(Scan.scanner):
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
 			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
-		return (gruik.m_nodes, gruik.m_names)
+		seen = []
+		all = []
+		for x in gruik.m_nodes:
+			if id(x) in seen: continue
+			seen.append(id(x))
+			all.append(x)
+		return (all, gruik.m_names)
 
 	def get_signature_queue(self, tsk):
 		"""compute signatures from .cpp and inferred .h files
@@ -269,8 +275,6 @@ def apply_incpaths(self):
 		if os.path.isabs(dir):
 			if preproc.go_absolute:
 				node = Params.g_build.m_root.find_dir(dir)
-			else:
-				error('an absolute path was specified, enable preproc.go_absolute')
 		else:
 			node = self.path.find_dir(dir)
 
