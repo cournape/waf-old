@@ -423,7 +423,7 @@ if sys.platform == "win32":
 
 			if not current.m_parent and name == current.m_name:
 				continue
-			elif not name:
+			if not name:
 				continue
 			elif name == '.':
 				continue
@@ -453,11 +453,13 @@ if sys.platform == "win32":
 			while cur:
 				lst.append(cur.m_name)
 				cur = cur.m_parent
-			lst = lst[:1]
+			#lst = lst[:1]
 			lst.reverse()
 			val = os.sep.join(lst)
 		else:
 			val = os.sep.join((Params.g_build.m_bldnode.abspath(), env.variant(), self.relpath(Params.g_build.m_srcnode)))
+		if val.startswith("\\"): val = val[1:]
+		if val.startswith("\\"): val = val[1:]
 		Params.g_build.m_abspath_cache[variant][self.id] = val
 		return val
 	Node.abspath = abspath_win32
