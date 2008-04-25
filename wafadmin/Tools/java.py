@@ -10,36 +10,18 @@ Javac is one of the few compilers that behaves very badly:
 * it recompiles files silently behind your back
 * it outputs an undefined amount of files (inner classes)
 
-The most annoying problem is the following: the package structure
-created only exists in the build directory, which leads to custom
-file system management (com.foo.bar.test -> com/foo/bar/test)
+Fortunately, the convention makes it possible to use th build dir without
+too many problems for the moment
 
-The second problem is the inner classes: inner classes must be located
-and cleaned when a problem arise.
+Inner classes must be located and cleaned when a problem arise,
+for the moment waf does not track the production of inner classes.
 
 Adding all the files to a task and executing it if any of the input files
 change is only annoying for the compilation times
 """
 
 import os, re
-import Object, Action, Utils, Params, Node
-
-def exclusive_build_node(parent, path):
-	lst = path.split('/')
-	java_file = lst[-1]
-	lst = lst[:-1]
-	for x in lst:
-		node = parent.childs.get(x, None)
-		if not node:
-			node = Node.Node(x, parent, Node.DIR)
-		parent = node
-
-	# the java file at the end
-	node = parent.childs.get(java_file, None)
-	if not node:
-		node = Node.Node(java_file, parent, Node.BUILD)
-
-	return node
+import Object, Action, Utils, Params
 
 class java_taskgen(Object.task_gen):
 	s_default_ext = ['.java']
@@ -50,7 +32,6 @@ class java_taskgen(Object.task_gen):
 		self.jaropts = ''
 		self.classpath = ''
 		self.source_root = '.'
-		self.package_root = '.'
 
 		# Jar manifest attributes
 		# TODO: Add manifest creation
@@ -76,7 +57,6 @@ class java_taskgen(Object.task_gen):
 		bld_nodes = []
 
 		prefix_path = source_root_node.abspath()
-		prefix_package = self.package_root.replace('.', '/')
 		for (root, dirs, filenames) in os.walk(source_root_node.abspath()):
 			for x in filenames:
 				file = root + '/' + x
@@ -88,19 +68,8 @@ class java_taskgen(Object.task_gen):
 					node = source_root_node.find_resource(file)
 					src_nodes.append(node)
 
-					path = prefix_package + '/' + file.replace('.java', '.class')
-					node2 = exclusive_build_node(source_root_node, path)
+					node2 = node.change_ext(".class")
 					bld_nodes.append(node2)
-
-					# TODO better use a global rescan instead of stat on all the files
-					try:
-						os.stat(node2.abspath(self.env))
-					except OSError:
-						try:
-							del Params.g_build.m_tstamp_variants[self.env.variant()][node2.id]
-						except KeyError:
-							pass
-
 
 		self.env['OUTDIR'] = source_root_node.abspath(self.env)
 
@@ -117,7 +86,7 @@ class java_taskgen(Object.task_gen):
 				if self.jaropts:
 					self.env['JAROPTS'] = self.jaropts
 				else:
-					dirs = self.package_root.replace('.', '/')
+					dirs = '/'
 					self.env['JAROPTS'] = '-C %s %s' % (self.env['OUTDIR'], dirs)
 
 Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', prio=10)
