@@ -418,8 +418,11 @@ class Build(object):
 		# TODO undocumented hook
 		if hasattr(self, 'repository'): self.repository(src_dir_node)
 
-		# list the files in the src directory, adding the signatures
-		self.scan_src_path(src_dir_node, src_dir_node.abspath())
+		## scanning the root node does not work in win32;
+		## additionally it does not seem to be needed.
+		if src_dir_node is not self.m_root:
+			## list the files in the src directory, adding the signatures
+			self.scan_src_path(src_dir_node, src_dir_node.abspath())
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
 
