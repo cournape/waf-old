@@ -1084,8 +1084,7 @@ def run_check(self, obj):
 
 	os.chdir(dir)
 
-	# not sure yet when to call this:
-	#bld.rescan(bld.m_srcnode)
+	bld.rescan(bld.m_srcnode)
 
 	#o = Object.task_gen.classes[tp](obj.build_type)
 	o = bld.create_obj(tp, obj.build_type)
