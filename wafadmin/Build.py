@@ -273,6 +273,10 @@ class Build(object):
 	def load_envs(self):
 		cachedir = Params.g_cachedir
 		try:
+			if not os.path.isdir(cachedir):
+				e = OSError()
+				e.errno = errno.ENOENT
+				raise e
 			lst = os.listdir(cachedir)
 		except OSError, e:
 			if e.errno == errno.ENOENT:
@@ -452,9 +456,13 @@ class Build(object):
 
 		try:
 			# read the dir contents, ignore the folders in it
+			if not os.path.isdir(i_path):
+				e = OSError()
+				e.errno = errno.ENOENT
+				raise e
 			listed_files = set(os.listdir(i_path))
 		except OSError:
-			warning("OSError exception in scan_src_path()  i_path=%s" % str(i_path) )
+			warning("OSError exception in scan_src_path()  i_path=%r" % i_path)
 			return None
 
 		self.cache_dir_contents[i_parent_node.id] = listed_files
@@ -481,6 +489,10 @@ class Build(object):
 
 		i_existing_nodes = [x for x in i_parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
+		if not os.path.isdir(i_path):
+			e = OSError()
+			e.errno = errno.ENOENT
+			raise e
 		listed_files = set(os.listdir(i_path))
 		node_names = set([x.m_name for x in i_existing_nodes])
 		remove_names = node_names - listed_files
