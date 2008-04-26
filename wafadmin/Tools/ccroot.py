@@ -184,9 +184,10 @@ def install_shlib(task):
 	name1 = libname
 
 	filename = task.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
-	Common.install_as(dest_var, dest_subdir+'/'+name3, filename, env=task.env())
-	Common.symlink_as(dest_var, name3, dest_subdir+'/'+name2)
-	Common.symlink_as(dest_var, name3, dest_subdir+'/'+name1)
+	Common.install_as(dest_var, os.path.join(dest_subdir, name3), filename, env=task.env())
+	if hasattr(os, 'symlink'):
+		Common.symlink_as(dest_var, name3, os.path.join(dest_subdir, name2))
+		Common.symlink_as(dest_var, name3, os.path.join(dest_subdir, name1))
 
 @taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
