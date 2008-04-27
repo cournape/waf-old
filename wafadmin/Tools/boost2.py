@@ -56,6 +56,7 @@ class boost_configurator(config_c.configurator_base):
         self.include_path = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
         self.lib = ''
         self.toolsettag = ''
+        self.notoolsetcheck = 0
         self.threadingtag = ''
         self.abitag = ''
         self.versiontag = ''
@@ -125,36 +126,33 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                 include_paths = [self.include_path]
             else:
                 include_paths = self.include_path
-        for dir in include_paths:
-            try:
-                for subdir in os.listdir(dir):
-                    if subdir == 'boost':
-                        guess.append(dir)
-                    elif subdir.startswith('boost-'):
-                        guess.append(dir+'/'+subdir)
-            except OSError: pass
-        if not guess:
-            fatal('boost headers not found')
-            return 0
-        
+
         min_version = 0
         if self.min_version:
             min_version = string_to_version(self.min_version)
         max_version = 0xFFFFFFFFFFFFFFFF
         if self.max_version:
             max_version = string_to_version(self.max_version)
-        
+
         version_to_dir = {}
-        for dir in guess:
-            ret = self.get_boost_version_number(dir)
-            if ret != -1 and ret >= min_version and ret <= max_version:
-                version_to_dir[ret] = dir
+        for include_path in include_paths:
+            boost_dirs = glob.glob(include_path + '/boost*')
+            for dir in boost_dirs:
+                pathname = dir[len(include_path)+1:]
+                ret = -1
+                if pathname == 'boost':
+                    dir = include_path
+                    ret = self.get_boost_version_number(dir)
+                elif pathname.startswith('boost-'):
+                    ret = self.get_boost_version_number(dir)
+                if ret != -1 and ret >= min_version and ret <= max_version:
+                    version_to_dir[ret] = dir
+        if len(version_to_dir) == 0:
+            fatal('boost headers not found! (required version min: %s max: %s)'
+                  % (self.min_version, self.max_version))
+            return 0
 	versions = version_to_dir.keys()
 	versions.sort()
-	if len(versions) is 0:
-            fatal('no compatible boost version found! (%s >= version >= %s)'
-                  % (self.max_version, self.min_version))
-        
         version = versions.pop()
         include_path = version_to_dir[version]
         
@@ -200,7 +198,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
             elif self.is_toolsettag.match(tag):   # toolsettag
                 if self.toolsettag and self.toolsettag != tag:
                     return 0
-                elif not tag.startswith(env['CXX']):
+                elif not self.notoolsetcheck and not tag.startswith(env['CXX']):
                     # todo match version number
                     return 0
         return 1
@@ -234,12 +232,12 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                 libtags = libname.split('-')
                 if self.check_tags(libtags):
                     self.conf.check_message('library', 'boost_'+lib, 1, file)
-                    env['LIBPATH_' + lib] = lib_path
-                    env['LIB_' + lib] = 'boost_'+libname
+                    env['LIBPATH_BOOST_' + lib.upper()] = lib_path
+                    env['LIB_BOOST_' + lib.upper()] = 'boost_'+libname
                     break
-            if env['LIB_' + lib]:
+            if env['LIB_BOOST_' + lib.upper()]:
                 break
-        if not env['LIB_' + lib]:
+        if not env['LIB_BOOST_' + lib.upper()]:
             fatal('lib boost_' + lib + ' not found!')
     
     def find_libraries(self):
