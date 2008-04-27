@@ -418,13 +418,12 @@ class Build(object):
 		# TODO undocumented hook
 		if hasattr(self, 'repository'): self.repository(src_dir_node)
 
-		## scanning the root node does not work in win32;
-		## additionally it does not seem to be needed.
-		if src_dir_node is not self.m_root:
-			## list the files in the src directory, adding the signatures
-			self.scan_src_path(src_dir_node, src_dir_node.abspath())
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
+		if sys.platform == "win32" and src_dir_node.m_name:
+			self.scan_src_path(src_dir_node, src_dir_node.abspath())
+		else:
+			self.scan_src_path(src_dir_node, src_dir_node.abspath())
 
 		# first obtain the differences between srcnode and src_dir_node
 		#lst = self.m_srcnode.difflst(src_dir_node)
