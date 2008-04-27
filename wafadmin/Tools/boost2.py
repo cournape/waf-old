@@ -169,6 +169,13 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         env['BOOST_VERSION'] = versiontag
         self.found_includes = 1
 
+    is_versiontag = re.compile('\d+_\d+_?\d*')
+    is_threadingtag = re.compile('mt')
+    is_abitag = re.compile('[sgydpn]+')
+    is_toolsettag = re.compile('''
+(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*
+''')
+
     def check_tags(self, tags):
         """
         checks library tags
@@ -176,25 +183,25 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         see http://www.boost.org/doc/libs/1_35_0/more/getting_started/unix-variants.html 6.1
         """
         for tag in tags[1:]:
-            if re.compile('\d+_\d+_?\d*').match(tag): # versiontag
+            if self.is_versiontag.match(tag):     # versiontag
                 if self.versiontag and tag != self.versiontag:
                     return 0
-            elif re.compile('mt').match(tag):         # multithreadingtag
+            elif self.is_threadingtag.match(tag): # multithreadingtag
                 if self.threadingtag == 'st':
                     return 0
                 elif self.threadingtag and tag != self.threadingtag:
                     return 0
-            elif re.compile('[sgydpn]+').match(tag):  # abitag
+            elif self.is_abitag.match(tag):        # abitag
                 if self.abitag and tag != self.abitag:
                     return 0
                 elif tag.find('d') != -1 or tag.find('y') != -1:
                     # ignore debug versions (TODO: check -ddebug)
                     return 0
-            elif re.compile('''
-(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*
-''').match(tag):                                      # toolsettag
-                # todo match version according to used toolset
+            elif self.is_toolsettag.match(tag):   # toolsettag
                 if self.toolsettag and self.toolsettag != tag:
+                    return 0
+                elif not tag.startswith(env['CXX']):
+                    # todo match version number
                     return 0
         return 1
 
