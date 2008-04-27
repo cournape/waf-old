@@ -28,7 +28,7 @@ class intltool_in_taskgen(Object.task_gen):
 		for i in self.to_list(self.source):
 			node = self.path.find_resource(i)
 
-			podirnode = self.path.find_resource(self.podir)
+			podirnode = self.path.find_dir(self.podir)
 
 			self.env['INTLCACHE'] = os.path.join(self.path.bldpath(self.env), self.podir, self.intlcache)
 			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
@@ -64,7 +64,7 @@ class intltool_po_taskgen(Object.task_gen):
 			for line in f.readlines():
 				# Make sure that we only process lines which contain locales
 				if re_linguas.match(line):
-					node = self.path.find_build(re_linguas.match(line).group() + '.po')
+					node = self.path.find_resource(re_linguas.match(line).group() + '.po')
 					task = self.create_task('po', self.env)
 					task.set_inputs(node)
 					task.set_outputs(node.change_ext('.mo'))
