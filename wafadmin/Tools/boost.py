@@ -2,6 +2,8 @@
 # encoding: utf-8
 # Gernot Vormayr, 2008
 
+# changes by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008
+
 """
 Quick n dirty boost detections
 """
@@ -184,10 +186,16 @@ def detect_boost(conf):
 			files=map(lambda x:x[len(lib_path)+4:-len(ext)] ,filter(lambda x: x.find('-d')==-1 ,files))
 			for lib in libs:
 				libname=lib.lower()
+                                use_single_threaded = 0
 				if libname.endswith('_mt'):
 					libname=libname[0:-3]+'-mt'
+                                elif libname.endswith('_st'):
+                                        libname=libname[0:-3]
+                                        use_single_threaded = 1
 				for file in files:
 					if file.startswith(libname) and file.endswith(boost_version):
+                                                if use_single_threaded and file.find('-mt') != -1:
+                                                        continue
 						conf.check_message('library',libname,1,file)
 						env['LIBPATH_'+lib]=lib_path
 						env['LIB_'+lib]=file
