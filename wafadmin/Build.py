@@ -273,7 +273,7 @@ class Build(object):
 	def load_envs(self):
 		cachedir = Params.g_cachedir
 		try:
-			if not os.path.isdir(cachedir):
+			if sys.platform == "win32" and not os.path.isdir(cachedir):
 				e = OSError()
 				e.errno = errno.ENOENT
 				raise e
@@ -457,8 +457,7 @@ class Build(object):
 	def scan_src_path(self, i_parent_node, i_path):
 
 		try:
-			# read the dir contents, ignore the folders in it
-			if not os.path.isdir(i_path):
+			if sys.platform == "win32" and not os.path.isdir(i_path):
 				e = OSError()
 				e.errno = errno.ENOENT
 				raise e
@@ -491,7 +490,7 @@ class Build(object):
 
 		i_existing_nodes = [x for x in i_parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
-		if not os.path.isdir(i_path):
+		if sys.platform == "win32" and not os.path.isdir(i_path):
 			e = OSError()
 			e.errno = errno.ENOENT
 			raise e
