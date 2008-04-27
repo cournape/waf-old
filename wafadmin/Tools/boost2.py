@@ -11,6 +11,23 @@ Boost Configurator:
 written by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008
 partially based on boost.py written by Gernot Vormayr
 
+Usage:
+## wscript
+# ...
+
+def set_options(opt):
+    opt.tool_options('boost2')
+    # ...
+
+def configure(conf):
+    # ... (e.g. conf.check_tool('g++'))
+    conf.check_tool('boost2)'
+
+    boostconf = conf.create_boost_configurator()
+    boostconf.lib = ['iostream', 'filesystem']
+    boostconf.threadingtag = 'st' ## only single threaded
+    boostconf.run()
+
 ISSUES:
  * find_includes should be called only once!
 
@@ -37,6 +54,7 @@ class boost_configurator(config_c.configurator_base):
     - lib_path
     - lib
     - toolsettag
+    - notoolsetcheck - do not automaticly check for correct toolset (values: 0, 1. default: 0)
     - threadingtag
     - abitag
     - static         - look for static libs (values:
@@ -134,36 +152,36 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         if self.max_version:
             max_version = string_to_version(self.max_version)
 
-        version_to_dir = {}
+        version = 0
+        boost_path = ''
         for include_path in include_paths:
-            boost_dirs = glob.glob(include_path + '/boost*')
-            for dir in boost_dirs:
-                pathname = dir[len(include_path)+1:]
+            boost_paths = glob.glob(include_path + '/boost*')
+            for path in boost_paths:
+                pathname = path[len(include_path)+1:]
                 ret = -1
                 if pathname == 'boost':
-                    dir = include_path
-                    ret = self.get_boost_version_number(dir)
+                    path = include_path
+                    ret = self.get_boost_version_number(path)
                 elif pathname.startswith('boost-'):
-                    ret = self.get_boost_version_number(dir)
-                if ret != -1 and ret >= min_version and ret <= max_version:
-                    version_to_dir[ret] = dir
-        if len(version_to_dir) == 0:
+                    ret = self.get_boost_version_number(path)
+                    
+                if ret != -1 and ret >= min_version and ret <= max_version and ret > version:
+                    boost_path = path
+                    version = ret
+        
+        if version == 0 or len(boost_path) == 0:
             fatal('boost headers not found! (required version min: %s max: %s)'
                   % (self.min_version, self.max_version))
             return 0
-	versions = version_to_dir.keys()
-	versions.sort()
-        version = versions.pop()
-        include_path = version_to_dir[version]
-        
+
         versiontag = self.version_string(version)
         if not self.versiontag:
             self.versiontag = versiontag
         elif self.versiontag != versiontag:
             warning('boost header version and versiontag do _not_ match!')
         self.conf.check_message('header','boost',1,'Version ' + versiontag +
-                                ' (' + include_path + ')')
-        env['CPPPATH_BOOST'] = include_path
+                                ' (' + boost_path + ')')
+        env['CPPPATH_BOOST'] = boost_path
         env['BOOST_VERSION'] = versiontag
         self.found_includes = 1
 
@@ -248,7 +266,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                 self.find_library(lib)
     
     def run_test(self):
-        if not self.found_includes: # This is a hack
+        if not self.found_includes:
             self.find_includes()
         self.find_libraries()
 
@@ -260,4 +278,4 @@ def detect(conf):
 def set_options(opt):
     opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
     opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
-    #opt.add_option('--boost', type='string', default='', dest='boostfolder', help='path to the directory where the boost lives are e.g. /usr/local')
+
