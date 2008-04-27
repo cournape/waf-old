@@ -245,6 +245,8 @@ def hash_function_with_globals(prevhash, func):
 	for name, value in func.func_globals.iteritems():
 		if type(value) in _hash_blacklist_types:
 			continue
+		if isinstance(value, type):
+			continue
 		try:
 			prevhash = hash( (prevhash, name, value) )
 		except TypeError: # raised for unhashable elements
