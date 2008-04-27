@@ -111,7 +111,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         env = self.conf.env
         guess = []
         include_pathes = [getattr(Params.g_options, 'boostincludes', '')]
-        if not include_pathes:
+        if not include_pathes[0]:
             if self.include_path is types.StringType:
                 include_pathes = [self.include_path]
             else:
@@ -175,6 +175,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 
     def find_library(self, lib):
         """
+        
 
         see http://www.boost.org/doc/libs/1_35_0/more/getting_started/unix-variants.html 6.1
         """
@@ -182,7 +183,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         libname_sh = env['shlib_PATTERN'] % ('boost_' + lib + '*')
         libname_st = env['staticlib_PATTERN'] % ('boost_' + lib + '*')
         lib_pathes = [getattr(Params.g_options, 'boostlibs', '')]
-        if not lib_pathes:
+        if not lib_pathes[0]:
             if self.lib_path is types.StringType:
                 lib_pathes = [self.lib_path]
             else:
