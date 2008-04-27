@@ -96,6 +96,15 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         version = str.split('.')
         return int(version[0])*100000 + int(version[1])*100 + int(version[2])
 
+    def version_string(self, version):
+        major = version / 100000
+        minor = version / 100 % 1000
+        minor_minor = version % 100
+        if minor_minor == 0:
+            return "%d_%d" % (major, minor)
+        else:
+            return "%d_%d_%d" % (major, minor, minor_minor)
+
     def find_includes(self):
         """
         find_includes checks every path in self.include_path for subdir
@@ -135,53 +144,65 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         if self.max_version:
             max_version = string_to_version(self.max_version)
         
-        versions = {}
+        version_to_dir = {}
         for dir in guess:
             ret = self.get_boost_version_number(dir)
             if ret != -1 and ret >= min_version and ret <= max_version:
-                versions[ret] = dir
-	version=versions.keys()
-	version.sort()
-	if len(version) is 0:
+                version_to_dir[ret] = dir
+	versions = version_to_dir.keys()
+	versions.sort()
+	if len(versions) is 0:
             fatal('no compatible boost version found! (%s >= version >= %s)'
                   % (self.max_version, self.min_version))
         
-        version = version.pop()
-        include_path = versions[version]
+        version = versions.pop()
+        include_path = version_to_dir[version]
         
-        ## This Code is ugly:
-        major_version_number = version / 100000
-        minor_version_number = version / 100 % 1000
-        minor_minor_version_number = version % 100
-        if minor_minor_version_number == 0:
-            versiontag = "%d_%d" % (major_version_number,
-                                    minor_version_number)
-        else:
-            versiontag = "%d_%d_%d" % (major_version_number,
-                                       minor_version_number,
-                                       minor_minor_version_number)
+        versiontag = self.version_string(version)
         if not self.versiontag:
             self.versiontag = versiontag
         elif self.versiontag != versiontag:
             warning('boost header version and versiontag do _not_ match!')
-        version_string = "%d.%d.%d" % (major_version_number,
-                                       minor_version_number,
-                                       minor_minor_version_number)
-        self.conf.check_message('header','boost',1,'Version ' + version_string +
+        self.conf.check_message('header','boost',1,'Version ' + versiontag +
                                 ' (' + include_path + ')')
         env['CPPPATH_BOOST'] = include_path
-        env['BOOST_VERSION'] = version_string
+        env['BOOST_VERSION'] = versiontag
         self.found_includes = 1
 
-    def find_library(self, lib):
+    def check_tags(self, tags):
         """
-        
+        checks library tags
 
         see http://www.boost.org/doc/libs/1_35_0/more/getting_started/unix-variants.html 6.1
         """
-        env = self.conf.env
-        libname_sh = env['shlib_PATTERN'] % ('boost_' + lib + '*')
-        libname_st = env['staticlib_PATTERN'] % ('boost_' + lib + '*')
+        for tag in tags[1:]:
+            if re.compile('\d+_\d+_?\d*').match(tag): # versiontag
+                if self.versiontag and tag != self.versiontag:
+                    return 0
+            elif re.compile('mt').match(tag):         # multithreadingtag
+                if self.threadingtag == 'st':
+                    return 0
+                elif self.threadingtag and tag != self.threadingtag:
+                    return 0
+            elif re.compile('[sgydpn]+').match(tag):  # abitag
+                if self.abitag and tag != self.abitag:
+                    return 0
+                elif tag.find('d') != -1 or tag.find('y') != -1:
+                    # ignore debug versions (TODO: check -ddebug)
+                    return 0
+            elif re.compile('''
+(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*
+''').match(tag):                                      # toolsettag
+                # todo match version according to used toolset
+                if self.toolsettag and self.toolsettag != tag:
+                    return 0
+        return 1
+
+    def find_library(self, lib):
+        """
+        searches library paths for lib.
+        """
+        env = self.conf.env        
         lib_paths = [getattr(Params.g_options, 'boostlibs', '')]
         if not lib_paths[0]:
             if self.lib_path is types.StringType:
@@ -191,8 +212,10 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         for lib_path in lib_paths:
             files = []
             if not self.static or self.static == 'nostatic' or self.static == 'both':
+                libname_sh = env['shlib_PATTERN'] % ('boost_' + lib + '*')
                 files += glob.glob(lib_path + '/' + libname_sh)
             if self.static == 'both' or self.static == 'onlystatic':
+                libname_st = env['staticlib_PATTERN'] % ('boost_' + lib + '*')
                 files += glob.glob(lib_path + '/' + libname_st)
             if len(files) == 0:
                 continue
@@ -202,37 +225,17 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                     continue
                 libname = m.group(1)
                 libtags = libname.split('-')
-                ## TODO: this sucks!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                if self.versiontag and libtags[-1] != self.versiontag:
-                    continue
-                if len(libtags) > 2 and not self.abitag and \
-                        libtags[-2].find('d') != -1 and \
-                        libtags[-2].find('y') != -1:
-                    continue # ignore debug versions (TODO: check -ddebug)
-                if len(libtags) > 2 and self.abitag and libtags[-2] != self.abitag:
-                    continue
-                if self.threadingtag == 'st':
-                    if len(libtags) > 3 and self.threadingtag and libtags[-3] == 'mt':
-                        continue
-                    elif len(libtags) > 4 and self.threadingtag and libtags[-4] == 'mt':
-                        continue
-                else:
-                    if len(libtags) > 3 and self.threadingtag and libtags[-3] != self.threadingtag:
-                        continue
-                    if len(libtags) > 4 and self.threadingtag and libtags[-4] != self.threadingtag:
-                        continue
-                if len(libtags) > 5 and self.toolsettag and libtags[-5] != self.toolsettag:
-                    continue
-                self.conf.check_message('library', 'boost_'+lib, 1, file)
-                env['LIBPATH_' + lib] = lib_path
-                env['LIB_' + lib] = 'boost_'+libname
+                if self.check_tags(libtags):
+                    self.conf.check_message('library', 'boost_'+lib, 1, file)
+                    env['LIBPATH_' + lib] = lib_path
+                    env['LIB_' + lib] = 'boost_'+libname
+                    break
+            if env['LIB_' + lib]:
                 break
-            if not env['LIB_' + lib]:
-                fatal('lib boost_' + lib + ' not found!')
+        if not env['LIB_' + lib]:
+            fatal('lib boost_' + lib + ' not found!')
     
     def find_libraries(self):
-        """
-        """
         if self.lib is types.StringType:
             self.find_library(self.lib)
         else:
