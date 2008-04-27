@@ -273,11 +273,7 @@ class Build(object):
 	def load_envs(self):
 		cachedir = Params.g_cachedir
 		try:
-			if sys.platform == "win32" and not os.path.isdir(cachedir):
-				e = OSError()
-				e.errno = errno.ENOENT
-				raise e
-			lst = os.listdir(cachedir)
+			lst = Utils.listdir(cachedir)
 		except OSError, e:
 			if e.errno == errno.ENOENT:
 				fatal('The project was not configured: run "waf configure" first!')
@@ -457,11 +453,7 @@ class Build(object):
 	def scan_src_path(self, i_parent_node, i_path):
 
 		try:
-			if sys.platform == "win32" and not os.path.isdir(i_path):
-				e = OSError()
-				e.errno = errno.ENOENT
-				raise e
-			listed_files = set(os.listdir(i_path))
+			listed_files = set(Utils.listdir(i_path))
 		except OSError:
 			warning("OSError exception in scan_src_path()  i_path=%r" % i_path)
 			return None
@@ -490,11 +482,7 @@ class Build(object):
 
 		i_existing_nodes = [x for x in i_parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
-		if sys.platform == "win32" and not os.path.isdir(i_path):
-			e = OSError()
-			e.errno = errno.ENOENT
-			raise e
-		listed_files = set(os.listdir(i_path))
+		listed_files = set(Utils.listdir(i_path))
 		node_names = set([x.m_name for x in i_existing_nodes])
 		remove_names = node_names - listed_files
 

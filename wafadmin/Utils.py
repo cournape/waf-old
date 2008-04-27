@@ -50,6 +50,18 @@ class ordered_dict(UserDict):
 		if key not in self.allkeys: self.allkeys.append(key)
 		UserDict.__setitem__(self, key, item)
 
+listdir = os.listdir
+if sys.platform == "win32":
+	def listdir_win32(s):
+		if not os.path.isdir(s):
+			e = OSError()
+			e.errno = errno.ENOENT
+			raise e
+		return os.listdir(s)
+	listdir = listdir_win32
+
+def to_int(s):
+	lst = s.split(".")
 
 def waf_version(mini = "0.0.1", maxi = "100.0.0"):
 	"throws an exception if the waf version is wrong"
