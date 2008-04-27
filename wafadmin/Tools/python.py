@@ -34,29 +34,7 @@ def init_pyembed(self):
 
 @extension(EXT_PY)
 def process_py(self, node):
-
-	if self.env['PYC']:
-		t1 = self.create_task('pyc', self.env)
-		t1.set_inputs(node)
-		t1.set_outputs(node.change_ext('.pyc'))
-	else:
-		t1 = None
-
-	if self.env['PYO']:
-		t2 = self.create_task('pyo', self.env)
-		t2.set_inputs(node)
-		t2.set_outputs(node.change_ext('.pyo'))
-	else:
-		t2 = None
-
-	if Params.g_install:
-		inst_src = not self.env['NOPY']
-		install = {'var': self.inst_var, 'dir': self.inst_dir, 'chmod': self.chmod, 'src': inst_src}
-
-		if t2 is not None:
-			t2.install = install
-		if  t1 is not None:
-			t1.install = install
+	pass
 
 class py_taskgen(Object.task_gen):
 	def __init__(self, env=None):
@@ -66,8 +44,67 @@ class py_taskgen(Object.task_gen):
 		self.inst_dir = ''
 		self.chmod = 0644
 
-Action.simple_action('pyc', '${PYTHON} ${PYFLAGS} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
-Action.simple_action('pyo', '${PYTHON} ${PYFLAGS_OPT} -c ${PYCMD} ${SRC} ${TGT}', color='BLUE', prio=50)
+	def install(self):
+		files_to_install = []
+		for filename in self.to_list(self.source):
+			node = self.path.find_source(filename)
+			if node is not None:
+				files_to_install.append(node.abspath())
+			else:
+				node = self.path.find_build(filename)
+				if node is None:
+					Params.fatal("Cannot install file %s: not found in %s"
+						     % (filename, self.path))
+				else:
+					files_to_install.append(node.abspath(self.env))
+
+		installed_files = Common.install_files(
+			self.inst_var, self.inst_dir, files_to_install,
+			self.env, self.chmod)
+
+		if not installed_files:
+			return
+
+		if Params.g_commands['uninstall']:
+			print "* removing byte compiled python files"
+			for fname in installed_files:
+				try:
+					os.remove(fname + 'c')
+				except OSError:
+					pass
+				try:
+					os.remove(fname + 'o')
+				except OSError:
+					pass
+		else:
+			if self.env['PYC'] or self.env['PYO']:
+				print "* byte compiling python files"
+
+			if self.env['PYC']:
+				program = ("""
+import sys, py_compile
+for pyfile in sys.argv[1:]:
+    py_compile.compile(pyfile, pyfile + 'c')
+""")
+				argv = [self.env['PYTHON'], "-c", program ]
+				argv.extend(installed_files)
+				retval = subprocess.Popen(argv).wait()
+				if retval:
+					Params.fatal("bytecode compilation failed")
+
+
+			if self.env['PYO']:
+				program = ("""
+import sys, py_compile
+for pyfile in sys.argv[1:]:
+    py_compile.compile(pyfile, pyfile + 'o')
+""")
+				argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], "-c", program ]
+				argv.extend(installed_files)
+				retval = subprocess.Popen(argv).wait()
+				if retval:
+					Params.fatal("bytecode compilation failed")
+		
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""
