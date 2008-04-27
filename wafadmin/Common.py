@@ -23,16 +23,17 @@ def check_dir(dir):
 			fatal("Cannot create folder " + dir)
 
 def do_install(src, tgt, chmod=0644):
+	"""returns true if the file was effectively installed or uninstalled, false otherwise"""
 	if Params.g_commands['install']:
 		# check if the file is already there to avoid a copy
-		_do_install = 1
+		_do_install = True
 		if not Params.g_options.force:
 			try:
 				t1 = os.stat(tgt).st_mtime
 				t2 = os.stat(src).st_mtime
-				if t1 >= t2: _do_install = 0
+				if t1 >= t2: _do_install = False
 			except OSError:
-				_do_install = 1
+				_do_install = True
 
 		if _do_install:
 			srclbl = src
@@ -55,6 +56,7 @@ def do_install(src, tgt, chmod=0644):
 				except IOError:
 					error('file %s does not exist' % str(src))
 				fatal('Could not install the file %s' % str(tgt))
+		return _do_install
 	elif Params.g_commands['uninstall']:
 		print "* uninstalling %s" % tgt
 
@@ -62,6 +64,7 @@ def do_install(src, tgt, chmod=0644):
 
 		try: os.remove(tgt)
 		except OSError: pass
+		return True
 
 def path_install(var, subdir, env=None):
 	bld = Params.g_build
@@ -77,8 +80,8 @@ def path_install(var, subdir, env=None):
 	return destpath
 
 def install_files(var, subdir, files, env=None, chmod=0644):
-	if not Params.g_install: return
-	if not var: return
+	if not Params.g_install: return []
+	if not var: return []
 
 	bld = Params.g_build
 
@@ -86,7 +89,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 	destpath = env[var]
 
 	# the variable can be an empty string and the subdir an absolute path
-	if destpath is [] and subdir: return
+	if destpath is [] and subdir: return []
 
 	node = bld.m_curdirnode
 
@@ -105,10 +108,13 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 	check_dir(destpath)
 
 	# copy the files to the final destination
+	installed_files = []
 	for filename in lst:
 		if not os.path.isabs(filename):
 			alst = Utils.split_path(filename)
 			filenode = node.find_resource_lst(alst)
+			if filenode is None:
+				Params.fatal("Unable to install the file `%s': not found in %s" % (filename, node))
 
 			file     = filenode.abspath(env)
 			destfile = os.path.join(destpath, filenode.m_name)
@@ -117,11 +123,14 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 			alst     = Utils.split_path(filename)
 			destfile = os.path.join(destpath, alst[-1])
 
-		do_install(file, destfile, chmod=chmod)
+		if do_install(file, destfile, chmod=chmod):
+			installed_files.append(destfile)
+	return installed_files
 
 def install_as(var, destfile, srcfile, env=None, chmod=0644):
-	if not Params.g_install: return
-	if var == 0: return
+	"""returns True if the file was effectively installed, False otherwise"""
+	if not Params.g_install: return False
+	if var == 0: return False
 
 	bld = Params.g_build
 	if not env: env=Params.g_build.m_allenvs[DEFAULT]
@@ -143,7 +152,7 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	else:
 		src = srcfile
 
-	do_install(src, tgt, chmod=chmod)
+	return do_install(src, tgt, chmod=chmod)
 
 def symlink_as(var, src, dest, env=None):
 	if not Params.g_install: return
