@@ -110,13 +110,13 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         """
         env = self.conf.env
         guess = []
-        include_pathes = [getattr(Params.g_options, 'boostincludes', '')]
-        if not include_pathes[0]:
+        include_paths = [getattr(Params.g_options, 'boostincludes', '')]
+        if not include_paths[0]:
             if self.include_path is types.StringType:
-                include_pathes = [self.include_path]
+                include_paths = [self.include_path]
             else:
-                include_pathes = self.include_path
-        for dir in include_pathes:
+                include_paths = self.include_path
+        for dir in include_paths:
             try:
                 for subdir in os.listdir(dir):
                     if subdir == 'boost':
@@ -182,13 +182,13 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         env = self.conf.env
         libname_sh = env['shlib_PATTERN'] % ('boost_' + lib + '*')
         libname_st = env['staticlib_PATTERN'] % ('boost_' + lib + '*')
-        lib_pathes = [getattr(Params.g_options, 'boostlibs', '')]
-        if not lib_pathes[0]:
+        lib_paths = [getattr(Params.g_options, 'boostlibs', '')]
+        if not lib_paths[0]:
             if self.lib_path is types.StringType:
-                lib_pathes = [self.lib_path]
+                lib_paths = [self.lib_path]
             else:
-                lib_pathes = self.lib_path
-        for lib_path in lib_pathes:
+                lib_paths = self.lib_path
+        for lib_path in lib_paths:
             files = []
             if not self.static or self.static == 'nostatic' or self.static == 'both':
                 files += glob.glob(lib_path + '/' + libname_sh)
@@ -211,12 +211,16 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                     continue # ignore debug versions (TODO: check -ddebug)
                 if len(libtags) > 2 and self.abitag and libtags[-2] != self.abitag:
                     continue
-                if len(libtags) > 3 and self.threadingtag and libtags[-3] != self.threadingtag:
-                    continue
-                if len(libtags) > 2 and self.threadingtag and libtags[-2] != self.threadingtag:
-                    continue
-                if len(libtags) > 4 and self.threadingtag and libtags[-4] != self.threadingtag:
-                    continue
+                if self.threadingtag == 'st':
+                    if len(libtags) > 3 and self.threadingtag and libtags[-3] == 'mt':
+                        continue
+                    elif len(libtags) > 4 and self.threadingtag and libtags[-4] == 'mt':
+                        continue
+                else:
+                    if len(libtags) > 3 and self.threadingtag and libtags[-3] != self.threadingtag:
+                        continue
+                    if len(libtags) > 4 and self.threadingtag and libtags[-4] != self.threadingtag:
+                        continue
                 if len(libtags) > 5 and self.toolsettag and libtags[-5] != self.toolsettag:
                     continue
                 self.conf.check_message('library', 'boost_'+lib, 1, file)
