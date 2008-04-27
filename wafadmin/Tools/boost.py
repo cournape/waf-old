@@ -88,6 +88,11 @@ def detect_boost(conf):
 
 	version=version.pop()
 	boost_includes=versions[version]
+        if version%100 == 0:
+                boost_version="%d_%d" % (version/100000, version/100%1000)
+        else:
+                boost_version="%d_%d_%d" % (version/100000, version/100%1000,
+                                            version%100)
 	version="%d.%d.%d" % (version/100000,version/100%1000,version%100)
 	conf.check_message('header','boost/version.hpp',1,'Version '+boost_includes+' ('+version+')')
 	env['CPPPATH_BOOST']=boost_includes
@@ -174,7 +179,7 @@ def detect_boost(conf):
 	#well now we've found our includes - let's search for the precompiled libs
 	if want_libs:
 		def check_boost_libs(libs,lib_path):
-			ext = env['shlib_PATTERN'].split('%s')[1]
+                        ext = env['shlib_PATTERN'].split('%s')[1]
 			files=glob.glob(lib_path+'/libboost_*'+ext)
 			files=map(lambda x:x[len(lib_path)+4:-len(ext)] ,filter(lambda x: x.find('-d')==-1 ,files))
 			for lib in libs:
@@ -182,7 +187,7 @@ def detect_boost(conf):
 				if libname.endswith('_mt'):
 					libname=libname[0:-3]+'-mt'
 				for file in files:
-					if file.startswith(libname):
+					if file.startswith(libname) and file.endswith(boost_version):
 						conf.check_message('library',libname,1,file)
 						env['LIBPATH_'+lib]=lib_path
 						env['LIB_'+lib]=file
@@ -220,4 +225,3 @@ def set_options(opt):
 	opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
 	opt.add_option('--boost', type='string', default='', dest='boostfolder', help='path to the directory where the boost lives are e.g. /usr/local')
 	opt.add_option('--asio-includes', type='string', default='', dest='asioincludes', help='path to asio e.g. /usr/local/include/asio')
-
