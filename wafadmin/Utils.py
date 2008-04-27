@@ -4,7 +4,7 @@
 
 "Utility functions"
 
-import os, sys, imp, types, string, time
+import os, sys, imp, types, string, time, errno
 from UserDict import UserDict
 import Params
 from Constants import *
