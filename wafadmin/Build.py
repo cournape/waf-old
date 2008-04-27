@@ -416,10 +416,9 @@ class Build(object):
 
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
-		if sys.platform == "win32" and src_dir_node.m_name:
-			self.scan_src_path(src_dir_node, src_dir_node.abspath())
-		else:
-			self.scan_src_path(src_dir_node, src_dir_node.abspath())
+		if sys.platform == "win32" and not src_dir_node.m_name:
+			return
+		self.scan_src_path(src_dir_node, src_dir_node.abspath())
 
 		# first obtain the differences between srcnode and src_dir_node
 		#lst = self.m_srcnode.difflst(src_dir_node)
