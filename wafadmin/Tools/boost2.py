@@ -32,8 +32,6 @@ ISSUES:
  * find_includes should be called only once!
 
 TODO:
- * see tag matcher. This code sucks sooo bad!!!!!
- * match toolset accordingly
  * run_cache
  * support mandatory
  * ...
@@ -205,30 +203,50 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         checks library tags
 
         see http://www.boost.org/doc/libs/1_35_0/more/getting_started/unix-variants.html 6.1
+
+        TODO: should support sth like !foo if you _don't_ want a tag to be equal to foo
         """
         found_versiontag = False
+        if not self.versiontag:
+            found_versiontag = True
+        found_threadingtag = False
+        if not self.threadingtag:
+            found_threadingtag = True
+        found_abitag = False
+        if not self.abitag:
+            found_abitag = True
+        found_toolsettag = False
+        if not self.toolsettag:
+            found_toolsettag = True
         for tag in tags[1:]:
             if self.is_versiontag.match(tag):     # versiontag
                 if self.versiontag and tag != self.versiontag:
                     return False
-                found_versiontag = True
+                else:
+                    found_versiontag = True
             elif self.is_threadingtag.match(tag): # multithreadingtag
                 if self.threadingtag == 'st':
                     return False
                 elif self.threadingtag and tag != self.threadingtag:
                     return False
+                else:
+                    found_threadingtag = True
             elif self.is_abitag.match(tag):        # abitag
                 if self.abitag and tag != self.abitag:
                     return False
                 elif tag.find('d') != -1 or tag.find('y') != -1:
                     # ignore debug versions (TODO: check -ddebug)
                     return False
+                else:
+                    found_abitag = True
             elif self.is_toolsettag.match(tag):    # toolsettag
                 if self.toolsettag and self.toolsettag != tag:
                     return False
                 elif not self.notoolsetcheck and tag != self.get_toolset():
                     return False
-        return found_versiontag
+                else:
+                    found_toolsettag = True
+        return found_versiontag and found_threadingtag and found_abitag and found_toolsettag
 
     def find_library(self, lib):
         """
