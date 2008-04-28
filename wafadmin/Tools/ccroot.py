@@ -22,10 +22,9 @@ def get_cc_version(conf, cc, version_var):
                 match = get_version_re.search(lines[0])
                 if match:
                         v[version_var] = match.group(0)
-                        conf.check_message('compiler','version',1,'Version '
-                                           + v[version_var])
+                        conf.check_message('compiler', 'version', 1, 'Version ' + v[version_var])
                         return v[version_var]
-        Params.warning('couldn\'t determine compiler version')
+        Params.warning('could not determine the compiler version')
 
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"
