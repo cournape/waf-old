@@ -549,7 +549,10 @@ class Build(object):
 
 	def add_manual_dependency(self, path, value):
 		h = getattr(self, 'deps_man', {})
-		node = self.m_curdirnode.find_resource(path)
+		if os.path.isabs(path):
+			node = self.m_root.find_resource(path)
+		else:
+			node = self.m_curdirnode.find_resource(path)
 		h[node] = value
 		self.deps_man = h
 
