@@ -206,10 +206,12 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 
         see http://www.boost.org/doc/libs/1_35_0/more/getting_started/unix-variants.html 6.1
         """
+        found_versiontag = False
         for tag in tags[1:]:
             if self.is_versiontag.match(tag):     # versiontag
                 if self.versiontag and tag != self.versiontag:
                     return False
+                found_versiontag = True
             elif self.is_threadingtag.match(tag): # multithreadingtag
                 if self.threadingtag == 'st':
                     return False
@@ -226,7 +228,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                     return False
                 elif not self.notoolsetcheck and tag != self.get_toolset():
                     return False
-        return True
+        return found_versiontag
 
     def find_library(self, lib):
         """
