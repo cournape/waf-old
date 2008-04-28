@@ -189,8 +189,8 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         v = self.conf.env
         if v['CXX'].find('gcc') != -1 or v['CXX'].find('g++') != -1:
             toolset = 'gcc'
-            if v['CXX_VERSION']:
-                version_no = v['CXX_VERSION'].split('.')
+            if v['GXX_VERSION']:
+                version_no = v['GXX_VERSION'].split('.')
                 toolset += version_no[0] + version_no[1]
             return toolset
         return ''

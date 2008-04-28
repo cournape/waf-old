@@ -16,12 +16,12 @@ def get_gxx_version(conf, cc):
                 lines = output.split('\n')
                 match = get_version_re.search(lines[0])
                 if match:
-                        v['CXX_VERSION_STRING'] = lines[0]
-                        v['CXX_VERSION'] = match.group(0)
+                        v['GXX_VERSION_STRING'] = lines[0]
+                        v['GXX_VERSION'] = match.group(0)
                         conf.check_message('compiler','version',1,'Version: '
-                                           + v['CXX_VERSION'] + ' ('
-                                           + v['CXX_VERSION_STRING'] + ')')
-                        return v['CXX_VERSION']
+                                           + v['GXX_VERSION'] + ' ('
+                                           + v['GXX_VERSION_STRING'] + ')')
+                        return v['GXX_VERSION']
         Params.warning('couldn\'t determine compiler version')
 
 @conftest
