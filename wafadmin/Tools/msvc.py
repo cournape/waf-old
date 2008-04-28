@@ -307,7 +307,9 @@ def detect(conf):
 	# c/c++ compiler - check for whitespace, and if so, add quotes
 	v['CC']         = quote_whitespace(comp)
 	v['CXX'] = v['CC']
-	v['MSVC'] = 1
+	v['MSVC'] = 1 # this is deprecated. use CXX_NAME/CC_NAME instead
+        v['CXX_NAME'] = 'msvc'
+        v['CC_NAME'] = 'msvc'
 
 	v['CPPFLAGS']     = ['/W3', '/nologo', '/EHsc', '/errorReport:prompt']
 	v['CCDEFINES']    = ['WIN32'] # command-line defines

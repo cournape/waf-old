@@ -74,7 +74,7 @@ class boost_configurator(config_c.configurator_base):
         self.include_path = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
         self.lib = ''
         self.toolsettag = ''
-        self.notoolsetcheck = 0
+        self.notoolsetcheck = False
         self.threadingtag = ''
         self.abitag = ''
         self.versiontag = ''
@@ -187,13 +187,13 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 
     def get_toolset(self):
         v = self.conf.env
-        if v['CXX'].find('gcc') != -1 or v['CXX'].find('g++') != -1:
-            toolset = 'gcc'
-            if v['GXX_VERSION']:
-                version_no = v['GXX_VERSION'].split('.')
-                toolset += version_no[0] + version_no[1]
-            return toolset
-        return ''
+        toolset = v['CXX_NAME']
+        if v['CXX_VERSION']:
+            version_no = v['CXX_VERSION'].split('.')
+            toolset += version_no[0]
+            if len(version_no) > 1:
+                toolset += version_no[1]
+        return toolset
 
     is_versiontag = re.compile('\d+_\d+_?\d*')
     is_threadingtag = re.compile('mt')
@@ -211,24 +211,24 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         for tag in tags[1:]:
             if self.is_versiontag.match(tag):     # versiontag
                 if self.versiontag and tag != self.versiontag:
-                    return 0
+                    return False
             elif self.is_threadingtag.match(tag): # multithreadingtag
                 if self.threadingtag == 'st':
-                    return 0
+                    return False
                 elif self.threadingtag and tag != self.threadingtag:
-                    return 0
+                    return False
             elif self.is_abitag.match(tag):        # abitag
                 if self.abitag and tag != self.abitag:
-                    return 0
+                    return False
                 elif tag.find('d') != -1 or tag.find('y') != -1:
                     # ignore debug versions (TODO: check -ddebug)
-                    return 0
+                    return False
             elif self.is_toolsettag.match(tag):   # toolsettag
                 if self.toolsettag and self.toolsettag != tag:
-                    return 0
-                elif not self.notoolsetcheck and not tag.startswith(env['CXX']) and tag != self.get_toolset():
-                    return 0
-        return 1
+                    return False
+                elif not self.notoolsetcheck and tag != self.get_toolset():
+                    return False
+        return True
 
     def find_library(self, lib):
         """

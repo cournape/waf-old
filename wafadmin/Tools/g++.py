@@ -8,21 +8,6 @@ import Params, Configure
 import ccroot, ar
 from Configure import conftest
 
-get_version_re = re.compile('\d+\.\d+\.?\d+')
-def get_gxx_version(conf, cc):
-        v = conf.env
-        output = os.popen('%s --version' % cc).read()
-        if output:
-                lines = output.split('\n')
-                match = get_version_re.search(lines[0])
-                if match:
-                        v['GXX_VERSION_STRING'] = lines[0]
-                        v['GXX_VERSION'] = match.group(0)
-                        conf.check_message('compiler','version',1,'Version: '
-                                           + v['GXX_VERSION'] + ' ('
-                                           + v['GXX_VERSION_STRING'] + ')')
-                        return v['GXX_VERSION']
-        Params.warning('couldn\'t determine compiler version')
 
 @conftest
 def find_gxx(conf):
@@ -34,8 +19,8 @@ def find_gxx(conf):
 	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: conf.fatal('g++ was not found')
 	v['CXX']  = cc
-        if not v['CXX_NO_VERSION']:
-                get_gxx_version(conf, cc)
+        v['CXX_NAME'] = 'gcc'
+        ccroot.get_cc_version(conf, cc, 'CXX_VERSION')
 
 @conftest
 def gxx_common_flags(conf):
