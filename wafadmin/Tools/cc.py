@@ -44,8 +44,6 @@ def apply_obj_vars_cc(self):
 	app = env.append_unique
 	cpppath_st = self.env['CPPPATH_ST']
 
-	self.addflags('CCFLAGS', self.ccflags)
-
 	# local flags come first
 	# set the user-defined includes paths
 	for i in self.bld_incpaths_lst:

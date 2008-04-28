@@ -50,8 +50,6 @@ def apply_obj_vars_cxx(self):
 	app = self.env.append_unique
 	cxxpath_st = self.env['CPPPATH_ST']
 
-	self.addflags('CXXFLAGS', self.cxxflags)
-
 	# local flags come first
 	# set the user-defined includes paths
 	for i in self.bld_incpaths_lst:

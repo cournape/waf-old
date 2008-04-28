@@ -452,9 +452,6 @@ def apply_obj_vars(self):
 	libpath_st       = self.env['LIBPATH_ST']
 	staticlibpath_st = self.env['STATICLIBPATH_ST']
 
-	# FIXME
-	self.addflags('CPPFLAGS', self.cppflags)
-
 	app = self.env.append_unique
 
 	for i in self.env['RPATH']:
