@@ -100,7 +100,7 @@ class Node(object):
 		return self.find_resource_lst(lst)
 
 	def find_resource_lst(self, lst):
-		"find an existing input file: either a build node declared previously or a source node"
+		"Find an existing input file: either a build node declared previously or a source node"
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
 		Params.g_build.rescan(parent)
@@ -120,7 +120,6 @@ class Node(object):
 		try:
 			st = Params.h_file(path)
 		except IOError:
-			print "not a file"
 			return None
 
 		child = Node(name, parent, FILE)
@@ -132,6 +131,7 @@ class Node(object):
 		return self.find_or_declare_lst(lst)
 
 	def find_or_declare_lst(self, lst):
+		"Used for declaring a build node representing a file being built"
 		parent = self.find_dir_lst(lst[:-1])
 		if not parent: return None
 		Params.g_build.rescan(parent)
@@ -431,9 +431,9 @@ class Node(object):
 		if x: return self.bldpath(env)
 		return self.relpath_gen(Params.g_build.m_bldnode)
 
+# win32 fixes follow
 if sys.platform == "win32":
 	def find_dir_lst_win32(self, lst):
-		"search a folder in the filesystem"
 		current = self
 		for name in lst:
 			Params.g_build.rescan(current)
@@ -459,8 +459,6 @@ if sys.platform == "win32":
 	Node.find_dir_lst = find_dir_lst_win32
 
 	def abspath_win32(self, env=None):
-		"absolute path - hot zone, so do not touch"
-
 		variant = self.variant(env)
 		ret = Params.g_build.m_abspath_cache[variant].get(self.id, None)
 		if ret: return ret
@@ -471,7 +469,6 @@ if sys.platform == "win32":
 			while cur:
 				lst.append(cur.m_name)
 				cur = cur.m_parent
-			#lst = lst[:1]
 			lst.reverse()
 			val = os.sep.join(lst)
 		else:
