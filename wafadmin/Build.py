@@ -368,32 +368,18 @@ class Build(object):
 				self.m_curdirnode = self.m_srcnode
 				return
 
-		self.m_srcnode = self.ensure_dir_node_from_path(srcdir)
+		self.m_srcnode = self.m_root.ensure_dir_node_from_path(srcdir)
 		debug("srcnode is %s and srcdir %s" % (str(self.m_srcnode.m_name), srcdir), 'build')
 
 		self.m_curdirnode = self.m_srcnode
 
-		self.m_bldnode = self.ensure_dir_node_from_path(self.m_bdir)
+		self.m_bldnode = self.m_root.ensure_dir_node_from_path(self.m_bdir)
 
 		# create this build dir if necessary
 		try: os.makedirs(blddir)
 		except OSError: pass
 
 		self.init_variants()
-
-	def ensure_dir_node_from_path(self, abspath):
-		"return a node corresponding to an absolute path, creates nodes if necessary"
-		debug('ensure_dir_node_from_path %s' % (abspath), 'build')
-		plst = Utils.split_path(abspath)
-		curnode = self.m_root # root of the tree
-		for dirname in plst:
-			if not dirname: continue
-			if dirname == '.': continue
-			found = curnode.get_dir(dirname, None)
-			if not found:
-				found = Node.Node(dirname, curnode, Node.DIR)
-			curnode = found
-		return curnode
 
 	def rescan(self, src_dir_node):
 		""" first list the files in the src dir and update the nodes

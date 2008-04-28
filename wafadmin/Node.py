@@ -179,6 +179,24 @@ class Node(object):
 	find_source = find_resource
 	find_source_lst = find_resource_lst
 
+	def ensure_dir_node_from_path(self, abspath):
+		"used very rarely, force the construction of a branch of node instance for representing folders"
+		plst = Utils.split_path(abspath)
+		current = self
+		for name in plst:
+			if not name:
+				continue
+			elif name == '.':
+				continue
+			elif name == '..':
+				current = current.m_parent or current
+			else:
+				prev = current
+				current = prev.childs.get(name, None)
+				if current is None:
+					current = Node(name, prev, DIR)
+		return current
+
 	## ===== END find methods	===== ##
 
 
