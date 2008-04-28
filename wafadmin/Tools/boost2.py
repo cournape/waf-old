@@ -195,10 +195,10 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                 toolset += version_no[1]
         return toolset
 
-    is_versiontag = re.compile('\d+_\d+_?\d*')
-    is_threadingtag = re.compile('mt')
-    is_abitag = re.compile('[sgydpn]+')
-    is_toolsettag = re.compile('(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*')
+    is_versiontag = re.compile('^\d+_\d+_?\d*$')
+    is_threadingtag = re.compile('^mt$')
+    is_abitag = re.compile('^[sgydpn]+$')
+    is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*$')
 
     def check_tags(self, tags):
         """
