@@ -185,6 +185,16 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         env['BOOST_VERSION'] = versiontag
         self.found_includes = 1
 
+    def get_toolset(self):
+        v = self.conf.env
+        if v['CXX'].find('gcc') != -1 or v['CXX'].find('g++') != -1:
+            toolset = 'gcc'
+            if v['CXX_VERSION']:
+                version_no = v['CXX_VERSION'].split('.')
+                toolset += version_no[0] + version_no[1]
+            return toolset
+        return ''
+
     is_versiontag = re.compile('\d+_\d+_?\d*')
     is_threadingtag = re.compile('mt')
     is_abitag = re.compile('[sgydpn]+')
@@ -216,8 +226,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
             elif self.is_toolsettag.match(tag):   # toolsettag
                 if self.toolsettag and self.toolsettag != tag:
                     return 0
-                elif not self.notoolsetcheck and not tag.startswith(env['CXX']):
-                    # todo match version number
+                elif not self.notoolsetcheck and not tag.startswith(env['CXX']) and tag != self.get_toolset():
                     return 0
         return 1
 
@@ -278,4 +287,3 @@ def detect(conf):
 def set_options(opt):
     opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
     opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
-
