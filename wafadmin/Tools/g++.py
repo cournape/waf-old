@@ -109,9 +109,9 @@ def gxx_modifier_aix5(conf):
 def gxx_modifier_debug(conf, kind='cpp'):
 	v = conf.env
 	# compiler debug levels
-	if conf.check_flags('-O2', kind=kind):
-		v['CXXFLAGS_OPTIMIZED'] = ['-O2']
-		v['CXXFLAGS_RELEASE'] = ['-O2']
+	if conf.check_flags('-O2 -DNDEBUG', kind=kind):
+		v['CXXFLAGS_OPTIMIZED'] = ['-O2', '-DNDEBUG']
+		v['CXXFLAGS_RELEASE'] = ['-O2', '-DNDEBUG']
 	if conf.check_flags('-g -DDEBUG', kind=kind):
 		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
 	if conf.check_flags('-g3 -O0 -DDEBUG', kind=kind):
