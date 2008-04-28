@@ -34,9 +34,6 @@ class cpp_taskgen(ccroot.ccroot_abstract):
 @taskgen
 @before('apply_type_vars')
 def init_cxx(self):
-	self.cppflags = getattr(self, 'cppflags', '')
-	self.cxxflags = getattr(self, 'cxxflags', '')
-
 	if not 'cc' in self.features:
 		self.mappings['.c'] = Object.task_gen.mappings['.cxx']
 

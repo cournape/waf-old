@@ -31,9 +31,6 @@ class cc_taskgen(ccroot.ccroot_abstract):
 @taskgen
 @before('apply_type_vars')
 def init_cc(self):
-	self.ccflags = getattr(self, 'ccflags', '')
-	self.cppflags = getattr(self, 'cppflags', '')
-
 	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cc_flag_vars)
 	else: self.p_flag_vars = g_cc_flag_vars
 
