@@ -57,7 +57,7 @@ def sxx_common_flags(conf):
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
 @conftest
-def sxx_modifier_debug(conf):
+def sxx_modifier_debug(conf, kind='cpp'):
 	v = conf.env
 	v['CXXFLAGS'] = ['']
 	if conf.check_flags('-O2', kind=kind):
