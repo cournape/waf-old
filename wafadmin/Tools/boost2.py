@@ -198,9 +198,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
     is_versiontag = re.compile('\d+_\d+_?\d*')
     is_threadingtag = re.compile('mt')
     is_abitag = re.compile('[sgydpn]+')
-    is_toolsettag = re.compile('''
-(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*
-''')
+    is_toolsettag = re.compile('(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*')
 
     def check_tags(self, tags):
         """
@@ -223,7 +221,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                 elif tag.find('d') != -1 or tag.find('y') != -1:
                     # ignore debug versions (TODO: check -ddebug)
                     return False
-            elif self.is_toolsettag.match(tag):   # toolsettag
+            elif self.is_toolsettag.match(tag):    # toolsettag
                 if self.toolsettag and self.toolsettag != tag:
                     return False
                 elif not self.notoolsetcheck and tag != self.get_toolset():

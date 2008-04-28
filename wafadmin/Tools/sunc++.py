@@ -18,6 +18,7 @@ def find_sxx(conf):
 	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: conf.fatal('sunc++ was not found')
 	v['CXX']  = cc
+        v['CXX_NAME'] = 'sun'
 
 @conftest
 def sxx_common_flags(conf):
