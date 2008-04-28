@@ -7,7 +7,7 @@
 
 import os, sys
 import Object, Action, Utils, Params, Common, Utils, Runner
-from Object import extension, taskgen, before, feature
+from Object import extension, taskgen, before, after, feature
 import pproc as subprocess
 
 EXT_PY = ['.py']
@@ -15,6 +15,7 @@ EXT_PY = ['.py']
 @taskgen
 @before('apply_incpaths')
 @feature('pyext')
+@before('apply_bundle')
 def init_pyext(self):
 	self.inst_var = 'PYTHONDIR'
 	self.inst_dir = ''
@@ -23,6 +24,16 @@ def init_pyext(self):
 		self.uselib.append('PYEXT')
 	self.env['shlib_PATTERN'] = self.env['pyext_PATTERN']
 	self.env['MACBUNDLE'] = True
+
+@taskgen
+@before('apply_link')
+@before('apply_lib_vars')
+@after('apply_bundle')
+@feature('pyext')
+def pyext_shlib_ext(self):
+	## the osx bundle support code modifies shlib_PATTERN; correct it..
+	self.env['shlib_PATTERN'] = self.env['pyext_PATTERN']
+
 
 @taskgen
 @before('apply_incpaths')
@@ -229,8 +240,8 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 
 	## under certain conditions, python extensions must link to
 	## python libraries, not just python embedding programs.
-	if ((sys.platform == 'win32' or sys.platform.startswith('os2')
-	     or Py_ENABLE_SHARED) and sys.platform != 'darwin'):
+	if (sys.platform == 'win32' or sys.platform.startswith('os2')
+            or sys.platform == 'darwin' or Py_ENABLE_SHARED):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
