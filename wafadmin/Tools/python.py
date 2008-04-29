@@ -23,7 +23,6 @@ def init_pyext(self):
 	self.uselib = self.to_list(self.uselib)
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
-	self.env['shlib_PATTERN'] = self.env['pyext_PATTERN']
 	self.env['MACBUNDLE'] = True
 
 @taskgen
