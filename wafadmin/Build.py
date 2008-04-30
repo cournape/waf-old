@@ -481,7 +481,6 @@ class Build(object):
 	def dump(self):
 		"for debugging"
 		def recu(node, count):
-			print node, count
 			accu = count * '-'
 			accu += "> %s (d) %d \n" % (node.m_name, node.id)
 
