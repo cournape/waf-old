@@ -206,8 +206,6 @@ class Node(object):
 		if len(lst) > 1: parent = self.ensure_dir_node_from_path_lst(lst[:-1])
 		else: parent = self
 
-		print parent
-
 		node = parent.childs.get(name, None)
 		if not node:
 			node = Node(name, parent, BUILD)
@@ -363,10 +361,7 @@ class Node(object):
 
 	def size_subtree(self):
 		"for debugging, returns the amount of subnodes"
-		l_size = 1
-		for i in self.dirs(): l_size += i.size_subtree()
-		l_size += len(self.files())
-		return l_size
+		return sum([i.size_subtree() for i in self.dirs()]) + len(self.files())
 
 	def height(self):
 		"amount of parents"
