@@ -179,9 +179,11 @@ class Node(object):
 	find_source = find_resource
 	find_source_lst = find_resource_lst
 
-	def ensure_dir_node_from_path(self, abspath):
+	def ensure_dir_node_from_path(self, path):
+		return self.ensure_dir_node_from_path_lst(Utils.split_path(path))
+
+	def ensure_dir_node_from_path_lst(self, plst):
 		"used very rarely, force the construction of a branch of node instance for representing folders"
-		plst = Utils.split_path(abspath)
 		current = self
 		for name in plst:
 			if not name:
@@ -196,6 +198,27 @@ class Node(object):
 				if current is None:
 					current = Node(name, prev, DIR)
 		return current
+
+	def exclusive_build_node(self, path):
+		"used for builders that create a hierarchy in the build dir (no source folders)"
+		lst = Utils.split_path(path)
+		name = lst[-1]
+		if len(lst) > 1: parent = self.ensure_dir_node_from_path_lst(lst[:-1])
+		else: parent = self
+
+		print parent
+
+		node = parent.childs.get(name, None)
+		if not node:
+			node = Node(name, parent, BUILD)
+
+		# no env, cannot hash the built file
+		#if not self.m_scanned_folders.get(node.id, None):
+		#	self.m_scanned_folders[node.id] = 1
+		#	cache = Params.g_build.m_tstamp_variants[env.variant()]
+		#	cache[node.id] = Params.h_file(i_path + os.sep + node.m_name)
+
+		return node
 
 	## ===== END find methods	===== ##
 
