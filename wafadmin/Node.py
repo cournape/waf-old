@@ -409,21 +409,17 @@ class Node(object):
 		name = self.m_name
 		k = name.rfind('.')
 		if k >= 0:
-			newname = name[:k] + ext
+			name = name[:k] + ext
 		else:
-			newname = name + ext
+			name = name + ext
 
-		p = self.m_parent
-		n = p.childs.get(newname, None)
-		if n:
-			tp = n.id & 3
-			if tp != FILE and tp != BUILD:
-				fatal("a folder ?")
-			return n
-
-		newnode = Node(newname, p, BUILD)
-
-		return newnode
+		node = self.m_parent.childs.get(name, None)
+		if node:
+			tp = node.id & 3
+			if tp != FILE and tp != BUILD: fatal("a folder ?")
+		else:
+			node = Node(name, self.m_parent, BUILD)
+		return node
 
 	def bld_dir(self, env):
 		"build path without the file name"
@@ -431,12 +427,8 @@ class Node(object):
 
 	def bldbase(self, env):
 		"build path without the extension: src/dir/foo(.cpp)"
-		l = len(self.m_name)
-		n = self.m_name
-		while l > 0:
-			l -= 1
-			if n[l] == '.': break
-		s = n[:l]
+		s = self.m_name
+		s = s[:s.rfind('.')]
 		return os.path.join(self.bld_dir(env), s)
 
 	def bldpath(self, env=None):
