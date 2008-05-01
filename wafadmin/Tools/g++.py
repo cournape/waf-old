@@ -45,6 +45,7 @@ def gxx_common_flags(conf):
 
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
+        v['FULLSTATIC_MARKER']   = '-static'
 
 	# program
 	v['program_PATTERN']     = '%s'

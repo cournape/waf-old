@@ -354,6 +354,7 @@ class pkgconfig_configurator(configurator_base):
 	- uselib: name that could be used in tasks with obj.uselib if not set uselib = upper(name)
 	- define: name that will be used in config.h if not set define = HAVE_+uselib
 	- variables: list of addional variables to be checked for, for example variables='prefix libdir'
+        - static
 	"""
 	__metaclass__ = attached_conf
 	def __init__(self, conf):
@@ -365,6 +366,7 @@ class pkgconfig_configurator(configurator_base):
 		self.uselib  = '' # can be set automatically
 		self.define  = '' # can be set automatically
 		self.binary  = '' # name and path for pkg-config
+                self.static  = False
 
 		# You could also check for extra values in a pkg-config file.
 		# Use this value to define which values should be checked
@@ -441,6 +443,9 @@ class pkgconfig_configurator(configurator_base):
 		for key, val in self.defines.items():
 			pkgcom += ' --define-variable=%s=%s' % (key, val)
 
+                if self.static:
+                        pkgcom += ' --static'
+
 		g_defines = self.env['PKG_CONFIG_DEFINES']
 		if type(g_defines) is types.DictType:
 			for key, val in g_defines.items():
@@ -474,12 +479,16 @@ class pkgconfig_configurator(configurator_base):
 				assert incpath[:2] == '-I' or incpath[:2] == '/I'
 				retval['CPPPATH_'+uselib].append(incpath[2:]) # strip '-I' or '/I'
 
+                        static_l = ''
+                        if self.static:
+                                static_l = 'STATIC'
+
 			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
 			# Store the library names:
 			modlibs = os.popen('%s --libs-only-l \"%s\"' % (pkgcom, self.name)).read().strip().split()
-			retval['LIB_'+uselib] = []
+			retval[static_l+'LIB_'+uselib] = []
 			for item in modlibs:
-				retval['LIB_'+uselib].append( item[2:] ) #Strip '-l'
+				retval[static_l+'LIB_'+uselib].append( item[2:] ) #Strip '-l'
 
 			# Store the library paths:
 			modpaths = os.popen('%s --libs-only-L \"%s\"' % (pkgcom, self.name)).read().strip().split()
@@ -497,7 +506,7 @@ class pkgconfig_configurator(configurator_base):
 					libs_only_L = la_config.get_libs_only_L()
 					libs_only_l = la_config.get_libs_only_l()
 					for entry in libs_only_l:
-						retval['LIB_'+uselib].append( entry[2:] ) #Strip '-l'
+						retval[static_l + 'LIB_'+uselib].append( entry[2:] ) #Strip '-l'
 					for entry in libs_only_L:
 						retval['LIBPATH_'+uselib].append( entry[2:] ) #Strip '-L'
 				else:
@@ -579,6 +588,7 @@ class library_configurator(configurator_base):
 		self.define = ''
 		self.nosystem = 0
 		self.uselib = ''
+                self.static = False
 
 		self.code = 'int main(){return 0;}\n'
 
@@ -610,8 +620,12 @@ class library_configurator(configurator_base):
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
 
+                static_l = ''
+                if self.static:
+                        static_l = 'STATIC'
+
 		olduselibpath = self.env['LIBPATH_'+self.uselib]
-		olduselib = self.env['LIB_'+self.uselib]
+		olduselib = self.env[static_l+'LIB_'+self.uselib]
 
 		# try the enumerator to find the correct libpath
 		test = self.conf.create_library_enumerator()
@@ -625,7 +639,7 @@ class library_configurator(configurator_base):
 		if ret:
 			self.env['LIBPATH_'+self.uselib] += [ ret ]
 
-		self.env['LIB_'+self.uselib] += [ self.name ]
+		self.env[static_l+'LIB_'+self.uselib] += [ self.name ]
 
 
 		#self.env['LIB'] = self.name
@@ -648,11 +662,11 @@ class library_configurator(configurator_base):
 		val = {}
 		if ret:
 			val['LIBPATH_'+self.uselib] = self.env['LIBPATH_'+self.uselib]
-			val['LIB_'+self.uselib] = self.env['LIB_'+self.uselib]
+			val[static_l+'LIB_'+self.uselib] = self.env['LIB_'+self.uselib]
 			val[self.define] = ret
 		else:
 			self.env['LIBPATH_'+self.uselib] = olduselibpath
-			self.env['LIB_'+self.uselib] = olduselib
+			self.env[static_l+'LIB_'+self.uselib] = olduselib
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath

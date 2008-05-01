@@ -472,6 +472,9 @@ def apply_obj_vars(self):
 
 	app = self.env.append_unique
 
+        if self.env['FULLSTATIC']:
+                self.env.append_value('LINKFLAGS', self.env['FULLSTATIC_MARKER'])
+
 	for i in self.env['RPATH']:
 		app('LINKFLAGS', i)
 

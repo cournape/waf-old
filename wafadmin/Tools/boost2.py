@@ -210,7 +210,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         if not self.versiontag:
             found_versiontag = True
         found_threadingtag = False
-        if not self.threadingtag:
+        if not self.threadingtag or self.threadingtag == 'st':
             found_threadingtag = True
         found_abitag = False
         if not self.abitag:
@@ -262,13 +262,8 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
         for lib_path in lib_paths:
             files = []
             if not self.static or self.static == 'nostatic' or self.static == 'both':
-                libname_sh = env['shlib_PATTERN'] % ('boost_' + lib + '*')
+                libname_sh = env['shlib_PATTERN'] % ('boost_' + lib + '-*')
                 files += glob.glob(lib_path + '/' + libname_sh)
-            if self.static == 'both' or self.static == 'onlystatic':
-                libname_st = env['staticlib_PATTERN'] % ('boost_' + lib + '*')
-                files += glob.glob(lib_path + '/' + libname_st)
-            if len(files) == 0:
-                continue
             for file in files:
                 m = re.compile('.*boost_(.*?)\..*').search(file, 1)
                 if not m:
@@ -282,7 +277,24 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
                     break
             if env['LIB_BOOST_' + lib.upper()]:
                 break
-        if not env['LIB_BOOST_' + lib.upper()]:
+            files = []
+            if self.static == 'both' or self.static == 'onlystatic':
+                libname_st = env['staticlib_PATTERN'] % ('boost_' + lib + '-*')
+                files += glob.glob(lib_path + '/' + libname_st)
+            for file in files:
+                m = re.compile('.*boost_(.*?)\..*').search(file, 1)
+                if not m:
+                    continue
+                libname = m.group(1)
+                libtags = libname.split('-')
+                if self.check_tags(libtags):
+                    self.conf.check_message('library', 'boost_'+lib, 1, file)
+                    env['LIBPATH_BOOST_' + lib.upper()] = lib_path
+                    env['STATICLIB_BOOST_' + lib.upper()] = 'boost_'+libname
+                    break
+            if env['STATICLIB_BOOST_' + lib.upper()]:
+                break
+        if not env['LIB_BOOST_' + lib.upper()] and not env['STATICLIB_BOOST_' + lib.upper()]:
             fatal('lib boost_' + lib + ' not found!')
     
     def find_libraries(self):
