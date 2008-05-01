@@ -185,8 +185,8 @@ def apply_verif(self):
 def install_shlib(task):
 	nums = task.vnum.split('.')
 
-	dest_var = task.dest_var
-	dest_subdir = task.dest_subdir
+	inst_var = task.inst_var
+	inst_dir = task.inst_dir
 
 	libname = task.m_outputs[0].m_name
 
@@ -195,9 +195,9 @@ def install_shlib(task):
 	name1 = libname
 
 	filename = task.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
-	Common.install_as(dest_var, os.path.join(dest_subdir, name3), filename, env=task.env())
-	Common.symlink_as(dest_var, name3, os.path.join(dest_subdir, name2))
-	Common.symlink_as(dest_var, name3, os.path.join(dest_subdir, name1))
+	Common.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env())
+	Common.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
+	Common.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
 
 # TODO reference the d programs, shlibs in d.py, not here
 
@@ -246,8 +246,8 @@ def install_target_cshlib(self):
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		tsk = self.link_task
 		tsk.vnum = getattr(self, 'vnum', '')
-		tsk.dest_var = dest_var
-		tsk.dest_subdir = dest_subdir
+		tsk.inst_var = self.inst_var
+		tsk.inst_dir = self.inst_dir
 		tsk.install = install_shlib
 	else:
 		self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir}
