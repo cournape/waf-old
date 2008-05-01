@@ -11,25 +11,27 @@ __get_waf()
 {
 	# if the waf used contains a path component, check that it exists
 	# otherwise, check that it is in the path with 'which'
-	if [[ "$1" =~ "/" ]] && test -e $1 ; then
+	if [[ "$@" =~ "/" ]] && test -e "$@" ; then
 		# check path?
-		echo $1
+		echo "$@"
 	else
-		which $1
+		which "$@"
 	fi
 }
 
 _waf ()
 {
 	local cur cmds opts use
-	local waf=$(__get_waf ${COMP_WORDS[0]})
+	# eval expands ~ and $VARS that may be in the waf program name.
+	# Otherwise ~/$MYWAF/waf would not complete.
+	local waf=$(eval __get_waf "${COMP_WORDS[0]}")
 	COMPREPLY=()
-	if test -z $waf ; then
+	if test -z "$waf" ; then
 		return
 	fi
 	cur=${COMP_WORDS[COMP_CWORD]}
-	cmds=$($waf --help | grep '^\* Main commands:' |  cut -d: -f2- )
-	opts=$($waf --help | grep '^[[:blank:]]*-' |  awk '
+	cmds=$("$waf" --help | grep '^\* Main commands:' |  cut -d: -f2- )
+	opts=$("$waf" --help | grep '^[[:blank:]]*-' |  awk '
 	{ for (i = 1; i <= NF; ++i) {
 		if (($i ~ /^-/) && ($i !~ /:$/) && ($i !~ /---/)) {
 			gsub("(,|=.*)","",$i); print $i;
