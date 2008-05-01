@@ -54,8 +54,8 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 class gnome_doc_taskgen(Object.task_gen):
 	def __init__(self, *k):
 		Object.task_gen.__init__(self, *k)
-		self.inst_var = 'PREFIX'
-		self.inst_dir = 'share/'
+		self.inst_var_default = 'PREFIX'
+		self.inst_dir_default = 'share'
 
 	def apply(self):
 		self.env['APPNAME'] = self.doc_module
@@ -95,8 +95,8 @@ class xml_to_taskgen(Object.task_gen):
 		self.source = 'xmlfile'
 		self.xslt = 'xlsltfile'
 		self.target = 'hey'
-		self.inst_var = 'PREFIX'
-		self.inst_dir = ''
+		self.inst_var_default = 'PREFIX'
+		self.inst_dir_default = ''
 		self.task_created = None
 	def apply(self):
 		self.env = self.env.copy()

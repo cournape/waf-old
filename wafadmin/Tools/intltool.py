@@ -44,7 +44,7 @@ class intltool_po_taskgen(Object.task_gen):
 	def __init__(self, *k, **kw):
 		Object.task_gen.__init__(self, *k)
 		self.chmod = 0644
-		self.inst_var = 'LOCALEDIR'
+		self.inst_var_default = 'LOCALEDIR'
 		self.appname = kw.get('appname', 'set_your_app_name')
 		self.m_tasks=[]
 

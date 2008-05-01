@@ -10,7 +10,7 @@ from Params import debug, error
 from Object import taskgen, feature, after, before, extension
 
 EXT_D = ['.d', '.di', '.D']
-D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps', 'install_target'] # additional d methods
+D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps'] # additional d methods
 
 def filter_comments(filename):
 	f = open(filename, 'r')
@@ -261,7 +261,6 @@ class d_taskgen(Object.task_gen):
 
 		self.add_objects = []
 
-		self.inst_var = '' # mark as installable
 		self.vnum = '1.0.0'
 
 Object.add_feature('d', D_METHS)

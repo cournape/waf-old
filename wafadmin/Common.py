@@ -68,7 +68,7 @@ def do_install(src, tgt, chmod=0644):
 
 def path_install(var, subdir, env=None):
 	bld = Params.g_build
-	if not env: env=Params.g_build.m_allenvs[DEFAULT]
+	if not env: env = Params.g_build.env()
 	destpath = env[var]
 	if not destpath:
 		error("Installing: to set a destination folder use env['%s']" % (var))
@@ -85,7 +85,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 
 	bld = Params.g_build
 
-	if not env: env = bld.m_allenvs[DEFAULT]
+	if not env: env = bld.env()
 	destpath = env[var]
 
 	# the variable can be an empty string and the subdir an absolute path
@@ -130,10 +130,10 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	"""returns True if the file was effectively installed, False otherwise"""
 	if not Params.g_install: return False
-	if var == 0: return False
+	if not var: return False
 
 	bld = Params.g_build
-	if not env: env=Params.g_build.m_allenvs[DEFAULT]
+	if not env: env = Params.g_build.env()
 	node = bld.m_curdirnode
 
 	tgt = env[var]
@@ -159,7 +159,7 @@ def symlink_as(var, src, dest, env=None):
 	if var == 0: return
 
 	bld = Params.g_build
-	if not env: env=Params.g_build.m_allenvs[DEFAULT]
+	if not env: env=Params.g_build.env()
 	node = bld.m_curdirnode
 
 	tgt = env[var]

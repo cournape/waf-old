@@ -153,8 +153,6 @@ class ccroot_abstract(Object.task_gen):
 		self.compiled_tasks = []
 		self.link_task = None
 
-		self.inst_var = '' # mark as installable TODO
-
 		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
 		#self.features = ['program']
 
@@ -201,38 +199,58 @@ def install_shlib(task):
 	Common.symlink_as(dest_var, name3, os.path.join(dest_subdir, name2))
 	Common.symlink_as(dest_var, name3, os.path.join(dest_subdir, name1))
 
+# TODO reference the d programs, shlibs in d.py, not here
+
 @taskgen
-@feature('cprogram', 'cshlib', 'cstaticlib')
+@feature('cprogram', 'dprogram')
+@before('apply_core')
+def vars_target_cprogram(self):
+	self.inst_var_default = 'PREFIX'
+	self.inst_dir_default = 'bin'
+
+@taskgen
+@feature('cstaticlib', 'dstaticlib')
+@before('apply_core')
+def vars_target_cstaticlib(self):
+	self.inst_var_default = 'PREFIX'
+	self.inst_dir_default = 'lib'
+
+@taskgen
+@feature('cshlib', 'dshlib')
+@before('apply_core')
+def vars_target_cshlib(self):
+	self.inst_var_default = 'PREFIX'
+	self.inst_dir_default = 'lib'
+
+@taskgen
+@feature('cprogram', 'dprogram')
 @after('apply_objdeps')
-def install_target(self):
-	# FIXME too complicated
+def install_target_cprogram(self):
 	if not Params.g_install: return
+	try: mode = self.program_chmod
+	except AttributeError: mode = 0755
+	self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir,'chmod':mode}
 
-	dest_var    = self.inst_var
-	dest_subdir = self.inst_dir
-	if dest_var == 0: return
+@taskgen
+@feature('cstaticlib', 'dstaticlib')
+@after('apply_objdeps')
+def install_target_cstaticlib(self):
+	if not Params.g_install: return
+	self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir}
 
-	if not dest_var:
-		dest_var = 'PREFIX'
-		if 'cprogram' in self.features: dest_subdir = 'bin'
-		else: dest_subdir = 'lib'
-
-	if (('cshlib' in self.features or 'dshlib' in self.features)
-		and getattr(self, 'vnum', '') and sys.platform != 'win32'):
-		# shared libraries on linux
+@taskgen
+@feature('cshlib', 'dshlib')
+@after('apply_objdeps')
+def install_target_cshlib(self):
+	if not Params.g_install: return
+	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		tsk = self.link_task
 		tsk.vnum = getattr(self, 'vnum', '')
 		tsk.dest_var = dest_var
 		tsk.dest_subdir = dest_subdir
 		tsk.install = install_shlib
 	else:
-		# program or staticlib
-		try: mode = self.program_chmod
-		except AttributeError:
-			if 'cprogram' in self.features: mode = 0755
-			else: mode = 0644
-		install = {'var':dest_var,'dir':dest_subdir,'chmod':mode}
-		self.link_task.install = install
+		self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir}
 
 @taskgen
 @after('apply_incpaths')

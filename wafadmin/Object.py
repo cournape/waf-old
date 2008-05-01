@@ -163,8 +163,8 @@ class task_gen(object):
 		self.m_tasks = []
 
 		self.chmod = 0644
-		self.inst_var = 0 # 0 to prevent installation
-		self.inst_dir = ''
+		self._inst_var = ''
+		self._inst_dir = ''
 
 		if Params.g_install:
 			self.inst_files = [] # lazy list of tuples representing the files to install
@@ -308,7 +308,7 @@ class task_gen(object):
 					else:
 						tmp.append(x)
 
-		if prec: fatal("graph has a cycle" % str(prec))
+		if prec: fatal("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
 
@@ -388,6 +388,28 @@ class task_gen(object):
 		g_allobjs.append(newobj)
 
 		return newobj
+
+	def get_inst_var(self):
+		"return a default parameter if provided"
+		k = self._inst_var
+		if k == 0: return k
+		if not k: return getattr(self, "inst_var_default", k)
+
+	def set_inst_var(self, val):
+		self._inst_var = val
+
+	inst_var = property(get_inst_var, set_inst_var)
+
+	def get_inst_dir(self):
+		"return a default parameter if provided"
+		k = self._inst_dir
+		if k == 0: return k
+		if not k: return getattr(self, "inst_dir_default", k)
+
+	def set_inst_dir(self, val):
+		self._inst_dir = val
+
+	inst_dir = property(get_inst_dir, set_inst_dir)
 
 def declare_extension(var, func):
 	if type(var) is types.ListType:

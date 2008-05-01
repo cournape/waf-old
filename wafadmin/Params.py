@@ -178,6 +178,7 @@ def fatal(msg, ret=1):
 def view_sig(s):
 	"used for displaying signatures"
 	if type(s) is types.StringType:
+		
 		n = base64.encodestring(s)
 		return n[:-2]
 	else:

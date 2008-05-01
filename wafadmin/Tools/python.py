@@ -18,8 +18,8 @@ EXT_PY = ['.py']
 @before('apply_bundle')
 def init_pyext(self):
 	if not self.inst_dir:
-		self.inst_var = 'PYTHONDIR'
-		self.inst_dir = ''
+		self.inst_var_default = 'PYTHONDIR'
+		self.inst_dir_default = ''
 	self.uselib = self.to_list(self.uselib)
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
@@ -31,7 +31,7 @@ def init_pyext(self):
 @after('apply_bundle')
 @feature('pyext')
 def pyext_shlib_ext(self):
-	## the osx bundle support code modifies shlib_PATTERN; correct it..
+	# override shlib_PATTERN set by the osx module
 	self.env['shlib_PATTERN'] = self.env['pyext_PATTERN']
 
 
@@ -47,12 +47,13 @@ def init_pyembed(self):
 def process_py(self, node):
 	pass
 
+# FIXME in theory, we should absolutely avoid subclasses like this
 class py_taskgen(Object.task_gen):
 	def __init__(self, env=None):
 		Object.task_gen.__init__(self)
 
-		self.inst_var = 'PYTHONDIR'
-		self.inst_dir = ''
+		self.inst_var_default = 'PYTHONDIR'
+		self.inst_dir_default = ''
 		self.chmod = 0644
 
 	def install(self):

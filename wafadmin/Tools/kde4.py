@@ -9,7 +9,7 @@ class msgfmt_taskgen(Object.task_gen):
 		Object.task_gen.__init__(self)
 		self.langs = '' # for example "foo/fr foo/br"
 		self.chmod = 0644
-		self.inst_var = 'KDE4_LOCALE_INSTALL_DIR'
+		self.inst_var_default = 'KDE4_LOCALE_INSTALL_DIR'
 		self.appname = appname
 
 	def apply(self):
