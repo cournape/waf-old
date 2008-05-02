@@ -17,9 +17,8 @@ EXT_PY = ['.py']
 @feature('pyext')
 @before('apply_bundle')
 def init_pyext(self):
-	if not self.inst_dir:
-		self.inst_var_default = 'PYTHONDIR'
-		self.inst_dir_default = ''
+	self.inst_var_default = 'PYTHONDIR'
+	self.inst_dir_default = ''
 	self.uselib = self.to_list(self.uselib)
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
