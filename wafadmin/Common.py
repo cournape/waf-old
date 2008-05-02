@@ -1,8 +1,12 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005 (ita)
+# Thomas Nagy, 2005-2008 (ita)
 
-"Important functions: install_files, install_as, symlink_as (destdir is taken into account)"
+"""
+Important functions: install_files, install_as, symlink_as (destdir is taken into account)
+if the variable is not set (eval to false), installation is cancelled
+if the variable is set but it does not exist, it assumes an absolute path was given
+"""
 
 import os, types, shutil, glob
 import Params, Utils
@@ -87,14 +91,12 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 
 	if not env: env = bld.env()
 	destpath = env[var]
-
-	# the variable can be an empty string and the subdir an absolute path
-	if destpath is [] and subdir: return []
-
-	node = bld.m_curdirnode
+	if not destpath: destpath = var # absolute paths
+	destpath = os.path.join(destpath, subdir)
 
 	if type(files) is types.StringType:
 		if '*' in files:
+			node = bld.m_curdirnode
 			gl = node.abspath()+os.sep+files
 			lst = glob.glob(gl)
 		else:
@@ -137,6 +139,8 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	node = bld.m_curdirnode
 
 	tgt = env[var]
+	if not tgt: tgt = var # absolute paths for example
+
 	destdir = env.get_destdir()
 	if destdir: tgt = os.path.join(destdir, tgt.lstrip(os.sep))
 	tgt = os.path.join(tgt, destfile.lstrip(os.sep))
@@ -156,13 +160,15 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 
 def symlink_as(var, src, dest, env=None):
 	if not Params.g_install: return
-	if var == 0: return
+	if not var: return
 
 	bld = Params.g_build
 	if not env: env=Params.g_build.env()
 	node = bld.m_curdirnode
 
 	tgt = env[var]
+	if not tgt: tgt = var
+
 	destdir = env.get_destdir()
 	if destdir: tgt = os.path.join(destdir, tgt.lstrip(os.sep))
 	tgt = os.path.join(tgt, dest.lstrip(os.sep))
