@@ -7,7 +7,8 @@
 """
 Example of a compiler that generates cpp files in arbitrary folders
 It is not possible to know the files in advance, but the compiler
-does not have to run each time
+does not have to run each time, and the cpp tasks must be created to
+compile and link the cpp files produced.
 
 Also, the c++ tasks must be created each time
 
@@ -22,24 +23,46 @@ the directory structure exists in both the build and source folders,
 it is therefore necesary to use the method exclusive_build_node
 """
 
-# the following two variables are used by the target "waf dist"
+## A DEMO ##
+
 VERSION='0.0.5'
 APPNAME='cc_test'
-
-# these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
+
+def set_options(opt):
+	pass
+
+def configure(conf):
+	# used only when configured from the same folder
+	conf.check_tool('gcc')
+	conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
+
+def build(bld):
+	staticlib = bld.create_obj('cc', 'staticlib')
+	staticlib.source = 'x.c'
+	staticlib.target='teststaticlib'
+	staticlib.includes = '.'
+	staticlib.shpip = 'foo'
+
+
+## INTERNAL CODE BELOW ##
 
 import os
 import Object, Params, Action, Task, Utils
 from Object import taskgen, feature, before
 from Params import debug
 
-class special_task(Task.Task):
+class shpip_task(Task.Task):
+	"""
+	A special task, with finds its outputs once it has run
+	It outputs cpp files that must be compiled too
+	"""
 	def __init__(self, env, normal=1, prio=None):
-		Task.Task.__init__(self, 'special', env, normal, prio)
+		Task.Task.__init__(self, 'shpip_action', env, normal, prio)
 
 	def may_start(self):
+		# set a dummy output else the method will not work
 		old = self.m_outputs
 		self.m_outputs = "blah"
 		ret = Task.Task.may_start(self)
@@ -47,12 +70,28 @@ class special_task(Task.Task):
 		return ret
 
 	def must_run(self):
+		# look at the cache, if the shpip task was already run
+		# and if the source has not changed, create the corresponding cpp tasks
+		node = self.m_inputs[0]
+		try:
+			sig = Params.g_build.m_tstamp_variants[node.variant(self.env())][node.id]
+			deps = Params.g_build.raw_deps[node.variant(self.env())][node.id]
+			prevsig = deps[0]
+		except KeyError:
+			pass
+		else:
+			# if the file has not changed, create the cpp tasks
+			if prevsig == sig:
+				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
+				self.set_outputs(lst)
+				self.add_cpp_tasks(lst)
+
 		if not self.m_outputs:
 			return 1
 
 		# this is a part of Task.Task:must_run: first node does not exist -> run
 		# this is necessary after a clean
-		# TODO this disables the cache for this task
+		# TODO cache is disabled
 		env = self.env()
 		tree = Params.g_build
 		node = self.m_outputs[0]
@@ -72,98 +111,56 @@ class special_task(Task.Task):
 
 		return 0
 
-def add_cpp_tasks(tgen, lst, add=0):
-	#TODO FIXME In a perfect world, this should be more simple
-	"""Adds cpp files created by shpip in order (wrong order -> recompiles)"""
-	nk = []
-	for node in lst:
-		Object.task_gen.mapped['c_hook'](tgen, node)
-		task = tgen.compiled_tasks[-1]
-		if add:
-			for x in tgen.link_task.m_inputs:
-				if x.id == task.m_outputs[0].id:
-					break
-			else:
-				nk.insert(0, task.m_outputs[0])
+	def add_cpp_tasks(self, lst):
+		"creates cpp tasks after the build has started"
+		tgen = self.task_gen
+		for node in lst:
+			Object.task_gen.mapped['c_hook'](tgen, node)
+			task = tgen.compiled_tasks[-1]
+
+			tgen.link_task.m_inputs.append(task.m_inputs[0])
 			generator = Params.g_build.generator
 			generator.outstanding.insert(0, task)
 			generator.total += 1
-	if add:
-		#nk.sort(lambda x, y: cmp(x.m_name, y.m_name))
-		# be very careful with the order of the nodes (trigger rebuilds)
-		tgen.link_task.m_inputs = nk + tgen.link_task.m_inputs
+
+	def run_special(self):
+		"runs a program that creates cpp files, capture the output to compile them"
+		node = self.m_inputs[0]
+
+		dir = Params.g_build.m_srcnode.bldpath(self.env())
+		cmd = 'cd %s && %s %s' % (dir, self.env()['SHPIP_COMPILER'], node.abspath(self.env()))
+		try:
+			# read the contents of the file and create cpp files from it
+			files = os.popen(cmd).read().strip()
+		except:
+			raise
+			return 1 # do this when it fails, i have left the raise for debugging
+		else:
+			lst = Utils.to_list(files)
+			# the files exist in the build dir only so we do not use find_or_declare
+			build_nodes = [node.m_parent.exclusive_build_node(x) for x in lst]
+			self.m_outputs = build_nodes
+			# create the cpp tasks
+			self.add_cpp_tasks(build_nodes)
+			# cache the file names and the task signature
+			node = self.m_inputs[0]
+			sig = Params.g_build.m_tstamp_variants[node.variant(self.env())][node.id]
+			Params.g_build.raw_deps[node.variant(self.env())][node.id] = [sig] + lst
+		# 0 for all ok
+		return 0
+
+Action.Action('shpip_action', vars=[], func=shpip_task.run_special, color='BLUE', prio=100)
 
 @taskgen
 @feature('cstaticlib')
 @before('apply_core')
 def process_shpip(self):
-	"posts the shpip tasks, if the shpip attribute is set on the task generator"
+	"creates shpip tasks, if the shpip attribute is set on the task generator"
 	for x in self.to_list(getattr(self, 'shpip', ())):
 		x += '.shpip'
 		node = self.path.find_resource(x)
 
-		tsk = special_task(self.env)
+		tsk = shpip_task(self.env)
 		tsk.task_gen = self
 		tsk.set_inputs(node)
-
-		# look at the cache, if the shpip task was already run
-		# and if the source has not changed, create the corresponding cpp tasks
-		# FIXME: ita -> make it possible to clean the cache
-		try:
-			sig = Params.g_build.m_tstamp_variants[node.variant(self.env)][node.id]
-			deps = Params.g_build.raw_deps[node.variant(self.env)][node.id]
-			prevsig = deps[0]
-		except KeyError:
-			pass
-		else:
-			# if the file has not changed, create the cpp tasks
-			if prevsig == sig:
-				lst = [self.path.exclusive_build_node(y) for y in deps[1:]]
-				tsk.set_outputs(lst)
-				add_cpp_tasks(self, lst)
-
-def run_special(task):
-	"run a program (fictious) that creates cpp files, capture the output to create the cpp tasks"
-	node = task.m_inputs[0]
-
-	dir = Params.g_build.m_srcnode.bldpath(task.env())
-	cmd = 'cd %s && %s %s' % (dir, task.env()['SHPIP_COMPILER'], node.abspath(task.env()))
-	try:
-		# read the contents of the file and create cpp files from it
-		files = os.popen(cmd).read().strip()
-	except:
-		raise
-		return 1 # do this when it fails, i have left the raise for debugging
-	else:
-		lst = Utils.to_list(files)
-		build_nodes = [node.m_parent.exclusive_build_node(x) for x in lst]
-		task.m_outputs = build_nodes
-
-		add_cpp_tasks(task.task_gen, build_nodes, add=True)
-
-		# store the signature of the input node and the list of names for later reuse
-		node = task.m_inputs[0]
-		sig = Params.g_build.m_tstamp_variants[node.variant(task.env())][node.id]
-		Params.g_build.raw_deps[node.variant(task.env())][node.id] = [sig] + lst
-
-	return 0
-
-Action.Action('special', vars=[], func=run_special, color='BLUE', prio=100)
-
-def set_options(opt):
-	# the gcc module provides a --debug-level option
-	#opt.tool_options('compiler_cc')
-	pass
-
-def configure(conf):
-	# used only when configured from the same folder
-	conf.check_tool('gcc')
-	conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
-
-def build(bld):
-	staticlib = bld.create_obj('cc', 'staticlib')
-	staticlib.source = 'x.c'
-	staticlib.target='teststaticlib'
-	staticlib.includes = '.'
-	staticlib.shpip = 'foo'
 
