@@ -101,8 +101,11 @@ class Node(object):
 
 	def find_resource_lst(self, lst):
 		"Find an existing input file: either a build node declared previously or a source node"
-		parent = self.find_dir_lst(lst[:-1])
-		if not parent: return None
+		if not lst[:-1]:
+			parent = self
+		else:
+			parent = self.find_dir_lst(lst[:-1])
+			if not parent: return None
 		Params.g_build.rescan(parent)
 
 		name = lst[-1]
@@ -132,15 +135,19 @@ class Node(object):
 
 	def find_or_declare_lst(self, lst):
 		"Used for declaring a build node representing a file being built"
-		parent = self.find_dir_lst(lst[:-1])
-		if not parent: return None
+		if not lst[:-1]:
+			parent = self
+		else:
+			parent = self.find_dir_lst(lst[:-1])
+			if not parent: return None
 		Params.g_build.rescan(parent)
+
 		name = lst[-1]
 		node = parent.childs.get(name, None)
 		if node:
 			tp = node.id & 3
 			if tp != BUILD:
-				fatal("find or declare is to return a build node, but the node is a source file or a directory"+str(lst))
+				fatal("find_or_declare returns a build node, not a source nor a directory"+str(lst))
 			return node
 		node = Node(name, parent, BUILD)
 		return node
@@ -200,21 +207,31 @@ class Node(object):
 		return current
 
 	def exclusive_build_node(self, path):
-		"used for builders that create a hierarchy in the build dir (no source folders)"
+		"""
+		create a hierarchy in the build dir (no source folders) for ill-behaving compilers
+		the node is not hashed, so you must do it manually
+
+		after declaring such a node, find_dir and find_resource should work as expected
+		"""
 		lst = Utils.split_path(path)
 		name = lst[-1]
-		if len(lst) > 1: parent = self.ensure_dir_node_from_path_lst(lst[:-1])
-		else: parent = self
+		if len(lst) > 1:
+			parent = None
+			try:
+				parent = self.find_dir_lst(lst[:-1])
+			except OSError:
+				pass
+			if not parent:
+				# exclusive build directory -> mark the parent as rescanned
+				# for find_dir and find_resource to work
+				parent = self.ensure_dir_node_from_path_lst(lst[:-1])
+				Params.g_build.m_scanned_folders[parent.id] = 1
+		else:
+			parent = self
 
 		node = parent.childs.get(name, None)
 		if not node:
 			node = Node(name, parent, BUILD)
-
-		# no env, cannot hash the built file
-		#if not self.m_scanned_folders.get(node.id, None):
-		#	self.m_scanned_folders[node.id] = 1
-		#	cache = Params.g_build.m_tstamp_variants[env.variant()]
-		#	cache[node.id] = Params.h_file(i_path + os.sep + node.m_name)
 
 		return node
 
@@ -409,10 +426,7 @@ class Node(object):
 			name = name + ext
 
 		node = self.m_parent.childs.get(name, None)
-		if node:
-			tp = node.id & 3
-			if tp != FILE and tp != BUILD: fatal("a folder ?")
-		else:
+		if not node:
 			node = Node(name, self.m_parent, BUILD)
 		return node
 

@@ -178,6 +178,10 @@ class Build(object):
 						except OSError: pass
 		clean_rec(self.m_srcnode)
 
+		for v in 'm_tstamp_variants node_deps bld_sigs raw_deps m_abspath_cache'.split():
+			var = {}
+			setattr(self, v, var)
+
 	def compile(self):
 		debug("compile called", 'build')
 
@@ -437,11 +441,7 @@ class Build(object):
 	# ======================================= #
 	def scan_src_path(self, i_parent_node, i_path):
 
-		try:
-			listed_files = set(Utils.listdir(i_path))
-		except OSError:
-			warning("OSError exception in scan_src_path()  i_path=%r" % i_path)
-			return None
+		listed_files = set(Utils.listdir(i_path))
 
 		self.cache_dir_contents[i_parent_node.id] = listed_files
 		debug("folder contents "+str(listed_files), 'build')

@@ -172,7 +172,7 @@ class task_gen(object):
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
 
-		self.env = Params.g_build.m_allenvs['default'].copy()
+		self.env = Params.g_build.env().copy()
 
 		self.m_posted = 0
 		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
