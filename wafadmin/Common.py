@@ -92,11 +92,10 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 	if not env: env = bld.env()
 	destpath = env[var]
 	if not destpath: destpath = var # absolute paths
-	destpath = os.path.join(destpath, subdir)
 
+	node = bld.m_curdirnode
 	if type(files) is types.StringType:
 		if '*' in files:
-			node = bld.m_curdirnode
 			gl = node.abspath()+os.sep+files
 			lst = glob.glob(gl)
 		else:
