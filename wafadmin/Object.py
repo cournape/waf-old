@@ -394,6 +394,7 @@ class task_gen(object):
 		k = self._inst_var
 		if k == 0: return k
 		if not k: return getattr(self, "inst_var_default", k)
+		return k
 
 	def set_inst_var(self, val):
 		self._inst_var = val
@@ -405,6 +406,7 @@ class task_gen(object):
 		k = self._inst_dir
 		if k == 0: return k
 		if not k: return getattr(self, "inst_dir_default", k)
+		return k
 
 	def set_inst_dir(self, val):
 		self._inst_dir = val
