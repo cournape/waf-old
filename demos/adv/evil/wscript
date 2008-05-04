@@ -55,7 +55,7 @@ from Params import debug
 
 class shpip_task(Task.Task):
 	"""
-	A special task, with finds its outputs once it has run
+	A special task, which finds its outputs once it has run
 	It outputs cpp files that must be compiled too
 	"""
 	def __init__(self, env, normal=1, prio=None):
