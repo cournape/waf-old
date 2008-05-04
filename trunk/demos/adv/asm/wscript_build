@@ -1,7 +1,0 @@
-#! /usr/bin/env python
-# encoding: utf-8
-
-m = bld.create_obj('cc', 'program')
-m.source = 'main.c test.S'
-m.target = 'asmtest'
-
