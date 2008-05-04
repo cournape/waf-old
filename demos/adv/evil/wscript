@@ -2,8 +2,6 @@
 # encoding: utf-8
 # Thomas Nagy, 2008 (ita)
 
-# TODO encapsulate this logic in a scanner class
-
 """
 Example of a compiler that generates cpp files in arbitrary folders
 It is not possible to know the files in advance, but the compiler
@@ -133,8 +131,9 @@ class shpip_task(Task.Task):
 			# read the contents of the file and create cpp files from it
 			files = os.popen(cmd).read().strip()
 		except:
+			# comment the following line to disable debugging
 			raise
-			return 1 # do this when it fails, i have left the raise for debugging
+			return 1
 		else:
 			lst = Utils.to_list(files)
 			# the files exist in the build dir only so we do not use find_or_declare
