@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<document version='1.0'>
+
+<!--
+  people who prefer an xml file (gui) will find what they need
+-->
+
+	<version>0.0.1</version>
+	<appname>wafxml_test</appname>
+	<srcdir>.</srcdir>
+	<blddir>build</blddir>
+
+
+	<build>
+		<dir name='src'>
+			<group name='testgroup'/>
+			<obj class="cpp" type="shlib">
+				<source type="list">
+					<item value="d1.cpp"/>
+				</source>
+				<includes type="list">
+					<item value="."/>
+				</includes>
+				<target       value="shlib1"/>
+				<name         value="john"/>
+				<want_libtool value="1"/>
+				<vnum         value="1.2.3"/>
+				<cxxflags     value="-Werror"/>
+			</obj>
+
+			<dir name='subsrc'>
+				<obj class="cpp" type="program">
+					<source type="list">
+						<item value="e1.cpp"/>
+					</source>
+					<includes type="list">
+						<item value="."/>
+					</includes>
+					<target       value="prog1"/>
+					<uselib_local value="john"/>
+				</obj>
+			</dir>
+
+		</dir>
+	</build>
+
+
+<!--
+  configuration is a little bit harder to define
+  it would be surprizing if an IDE could handle the rules,
+  so we might want to let some python code here
+-->
+
+	<config>
+		<config-code>
+# conf.env['CXX'] = Params.g_options.meow
+# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
+conf.check_tool('g++')
+
+conf.env['CXXFLAGS_MYPROG']='-O3'
+conf.env['LIB_MYPROG']='m'
+conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
+
+# works in a procedural way, so the order of calls does matter
+#conf.check_tool('KDE3')
+		</config-code>
+	</config>
+
+	<options>
+		<tool_options>
+			<tool_option value="g++"/>
+		</tool_options>
+
+		<!-- mapping the optparse api is a bit silly - we might want to leave python code here too -->
+		<option>
+			<optparam value="--meow"/>
+			<optparam name="type" value="string"/>
+			<optparam name="help" value="some option"/>
+			<optparam name="dest" value="meow"/>
+		</option>
+	</options>
+</document>
+

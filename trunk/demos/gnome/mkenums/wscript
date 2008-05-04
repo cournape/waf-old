@@ -1,0 +1,8 @@
+#! /usr/bin/env python
+
+def build(bld):
+	o = bld.create_obj('cc', 'program')
+	o.source = 'main.c'
+	o.target = 'blah'
+	o.add_glib_mkenum(source='a.h b.h', template='x.in', target='prodi.h')
+

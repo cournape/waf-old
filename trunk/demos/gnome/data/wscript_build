@@ -1,0 +1,19 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# process .in files with intl_tool
+
+obj=bld.create_obj('intltool_in')
+obj.source  = 'gnome-test.schemas.in'
+obj.destvar = 'PREFIX'
+obj.subdir  = 'etc/gconf/schemas'
+obj.podir   = '../po'
+obj.flags   = '-s'
+
+obj=bld.create_obj('intltool_in')
+obj.source  = 'gnome-test.desktop.in'
+obj.destvar = 'PREFIX'
+obj.subdir  = 'usr/share/gnome/autostart'
+obj.podir   = '../po'
+obj.flags   = '-d'
