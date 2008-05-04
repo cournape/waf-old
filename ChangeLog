@@ -7,6 +7,8 @@ NEW IN WAF 1.4.1
 * object extensions uses a new scheme to avoid conflicts
 * optional dependency tracking on headers out of the build directory (bug:132)
 * set the c language extension to ".c" only
+* bash completion
+* installation system fixes
 
 NEW IN WAF 1.4.0
 ----------------
