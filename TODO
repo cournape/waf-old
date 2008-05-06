@@ -9,6 +9,8 @@ roadmap:
 * more gnome support
 * cross-compilation settings gcc,linux->win32
 
+in waf 1.5: change the priority system (will require a specific solver)
+
 ideas to watch:
 ---------------
 
