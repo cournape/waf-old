@@ -38,17 +38,16 @@ def configure(conf):
 
 def build(bld):
 	staticlib = bld.create_obj('cc', 'staticlib')
-	staticlib.source = 'x.c'
+	staticlib.source = 'x.c foo.shpip'
 	staticlib.target='teststaticlib'
 	staticlib.includes = '.'
-	staticlib.shpip = 'foo'
 
 
 ## INTERNAL CODE BELOW ##
 
 import os
 import Object, Params, Action, Task, Utils
-from Object import taskgen, feature, before
+from Object import taskgen, feature, before, extension
 from Params import debug
 
 class shpip_task(Task.Task):
@@ -151,15 +150,9 @@ class shpip_task(Task.Task):
 Action.Action('shpip_action', vars=[], func=shpip_task.run_special, color='BLUE', prio=100)
 
 @taskgen
-@feature('cstaticlib')
-@before('apply_core')
-def process_shpip(self):
-	"creates shpip tasks, if the shpip attribute is set on the task generator"
-	for x in self.to_list(getattr(self, 'shpip', ())):
-		x += '.shpip'
-		node = self.path.find_resource(x)
-
-		tsk = shpip_task(self.env)
-		tsk.task_gen = self
-		tsk.set_inputs(node)
+@extension('.shpip')
+def process_shpip(self, node):
+	tsk = shpip_task(self.env)
+	tsk.task_gen = self
+	tsk.set_inputs(node)
 
