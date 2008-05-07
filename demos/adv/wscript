@@ -47,7 +47,8 @@ def configure(conf):
 	try: conf.check_tool('flex bison')
 	except: pass
 
-	conf.check_tool('dang misc')
+	conf.check_tool('misc')
+	conf.check_tool('dang', tooldir='.')
 
 	# checkFeatures is only available when 'checks' is in conf.check_tool()
 	# look in wafadmin/Tools/checks.py for the other tests available
