@@ -1,0 +1,32 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	pass
+
+def configure(conf):
+	conf.check_tool('gcc')
+
+from Object import after, taskgen, feature
+@taskgen
+@after("apply_core")
+@feature("cc")
+def modify_flags(self):
+	for task in self.compiled_tasks:
+		if task.m_inputs:
+			node = task.m_inputs[0]
+			if node.m_name == "B.c":
+				task.m_env = task.m_env.copy()
+				task.m_env.append_unique("_CCINCFLAGS", "-DMYFLAG")
+
+def build(bld):
+	obj = bld.create_obj('cc', 'program')
+	obj.source = 'A.c B.c'
+	obj.target= 'pimpam'
+
