@@ -275,7 +275,7 @@ class task_gen(object):
 		for x in self.features:
 			keys.update(task_gen.traits.get(x, ()))
 
-		# copy the precedence table with the keys in self.meths
+		# copy the precedence table
 		prec = {}
 		prec_tbl = self.prec or task_gen.prec
 		for x in prec_tbl:
@@ -289,6 +289,10 @@ class task_gen(object):
 				if a in x: break
 			else:
 				tmp.append(a)
+
+		# add the methods listed in self.meths
+		for b in self.meths:
+			tmp.append(b)
 
 		# topological sort
 		out = []
