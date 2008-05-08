@@ -151,7 +151,7 @@ class task_gen(object):
 		self.target = ''
 
 		# list of methods to execute - in general one does not touch it by hand
-		self.meths = set(['apply_core'])
+		self.meths = set()
 
 		# list of mappings extension -> function
 		self.mappings = {}
@@ -293,10 +293,6 @@ class task_gen(object):
 			else:
 				tmp.append(a)
 
-		# add the methods listed in self.meths
-		for b in self.meths:
-			tmp.append(b)
-
 		# topological sort
 		out = []
 		while tmp:
@@ -318,6 +314,8 @@ class task_gen(object):
 		if prec: fatal("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
+
+		if not out: out.append('apply_core')
 
 		# then we run the methods in order
 		for x in out:
