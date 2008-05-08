@@ -1,0 +1,7 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+def set_options(opt):
+	# define an option directly
+	opt.add_option('--uuu', action='store_true', default=False, help='option defined in a subfolder')

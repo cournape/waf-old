@@ -1,0 +1,158 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+"""
+Example of a compiler that generates cpp files in arbitrary folders
+It is not possible to know the files in advance, but the compiler
+does not have to run each time, and the cpp tasks must be created to
+compile and link the cpp files produced.
+
+Also, the c++ tasks must be created each time
+
+This demonstrates:
+* the use of the exclusive_build_node method
+* how to hash files manually and update the node information
+* define a task without output nodes
+* how to manage ill-behaving compilers
+
+The node method find_dir (and find_resource or find_or_declare) assume that
+the directory structure exists in both the build and source folders,
+it is therefore necesary to use the method exclusive_build_node instead
+"""
+
+## A DEMO ##
+
+VERSION='0.0.1'
+APPNAME='unknown_outputs'
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	pass
+
+def configure(conf):
+	# used only when configured from the same folder
+	conf.check_tool('gcc')
+	conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
+
+def build(bld):
+	staticlib = bld.create_obj('cc', 'staticlib')
+	staticlib.source = 'x.c foo.shpip'
+	staticlib.target='teststaticlib'
+	staticlib.includes = '.'
+
+
+## INTERNAL CODE BELOW ##
+
+import os
+import Object, Params, Action, Task, Utils
+from Object import taskgen, feature, before, extension
+from Params import debug
+
+class shpip_task(Task.Task):
+	"""
+	A special task, which finds its outputs once it has run
+	It outputs cpp files that must be compiled too
+	"""
+	def __init__(self, env, normal=1, prio=None):
+		Task.Task.__init__(self, 'shpip_action', env, normal, prio)
+
+	def may_start(self):
+		# set a dummy output else the method will not work
+		old = self.m_outputs
+		self.m_outputs = "blah"
+		ret = Task.Task.may_start(self)
+		self.m_outputs = old
+		return ret
+
+	def must_run(self):
+		# look at the cache, if the shpip task was already run
+		# and if the source has not changed, create the corresponding cpp tasks
+		node = self.m_inputs[0]
+		try:
+			sig = Params.g_build.m_tstamp_variants[node.variant(self.env())][node.id]
+			deps = Params.g_build.raw_deps[node.variant(self.env())][node.id]
+			prevsig = deps[0]
+		except KeyError:
+			pass
+		else:
+			# if the file has not changed, create the cpp tasks
+			if prevsig == sig:
+				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
+				self.set_outputs(lst)
+				self.add_cpp_tasks(lst)
+
+		if not self.m_outputs:
+			return 1
+
+		# this is a part of Task.Task:must_run: first node does not exist -> run
+		# this is necessary after a clean
+		# TODO cache is disabled
+		env = self.env()
+		tree = Params.g_build
+		node = self.m_outputs[0]
+		variant = node.variant(env)
+
+		try:
+			time = tree.m_tstamp_variants[variant][node.id]
+		except KeyError:
+			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
+			try: new_sig = self.signature()
+			except KeyError:
+				print "TODO - computing the signature failed"
+				return 1
+
+			ret = self.can_retrieve_cache(new_sig)
+			return not ret
+
+		return 0
+
+	def add_cpp_tasks(self, lst):
+		"creates cpp tasks after the build has started"
+		tgen = self.task_gen
+		for node in lst:
+			Object.task_gen.mapped['c_hook'](tgen, node)
+			task = tgen.compiled_tasks[-1]
+
+			tgen.link_task.m_inputs.append(task.m_inputs[0])
+			generator = Params.g_build.generator
+			generator.outstanding.insert(0, task)
+			generator.total += 1
+
+	def run_special(self):
+		"runs a program that creates cpp files, capture the output to compile them"
+		node = self.m_inputs[0]
+
+		dir = Params.g_build.m_srcnode.bldpath(self.env())
+		cmd = 'cd %s && %s %s' % (dir, self.env()['SHPIP_COMPILER'], node.abspath(self.env()))
+		try:
+			# read the contents of the file and create cpp files from it
+			files = os.popen(cmd).read().strip()
+		except:
+			# comment the following line to disable debugging
+			raise
+			return 1
+		else:
+			lst = Utils.to_list(files)
+			# the files exist in the build dir only so we do not use find_or_declare
+			build_nodes = [node.m_parent.exclusive_build_node(x) for x in lst]
+			self.m_outputs = build_nodes
+			# create the cpp tasks
+			self.add_cpp_tasks(build_nodes)
+			# cache the file names and the task signature
+			node = self.m_inputs[0]
+			sig = Params.g_build.m_tstamp_variants[node.variant(self.env())][node.id]
+			Params.g_build.raw_deps[node.variant(self.env())][node.id] = [sig] + lst
+		# 0 for all ok
+		return 0
+
+Action.Action('shpip_action', vars=[], func=shpip_task.run_special, color='BLUE', prio=100)
+
+@taskgen
+@extension('.shpip')
+def process_shpip(self, node):
+	tsk = shpip_task(self.env)
+	tsk.task_gen = self
+	tsk.set_inputs(node)
+
