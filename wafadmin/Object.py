@@ -141,7 +141,7 @@ class task_gen(object):
 	classes = {}
 	idx = {}
 
-	def __init__(self, *kw):
+	def __init__(self, *kw, **kwargs):
 		self.prec = {}
 		"map precedence of function names to call"
 		# so we will have to play with directed acyclic graphs
@@ -182,6 +182,9 @@ class task_gen(object):
 
 		# provide a unique id
 		self.idx = task_gen.idx[self.path.id] = task_gen.idx.get(self.path.id, 0) + 1
+
+		for key in kwargs:
+			setattr(self, key, kwargs[key])
 
 	def __str__(self):
 		return ("<task_gen '%s' of type %s defined in %s>"
