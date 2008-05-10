@@ -177,13 +177,13 @@ class function_enumerator(enumerator_base):
 		else:
 			code.append('int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % self.function)
 
-		self.env['LIB'] = self.libs
-		self.env['LIBPATH'] = self.lib_paths
+		self.env['LIB'] = Utils.to_list(self.libs)
+		self.env['LIBPATH'] = Utils.to_list(self.lib_paths)
 
-		obj               = check_data()
-		obj.code          = "\n".join(code)
-		obj.includes      = self.include_paths
-		obj.env           = self.env
+		obj          = check_data()
+		obj.code     = "\n".join(code)
+		obj.includes = self.include_paths
+		obj.env      = self.env
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('function %s' % self.function, '', ret, option='')
@@ -833,8 +833,8 @@ class header_configurator(configurator_base):
 
 		code.append('int main(){%s\nreturn 0;}\n' % self.custom_code)
 
-		self.env['LIB'] = self.libs
-		self.env['LIBPATH'] = self.lib_paths
+		self.env['LIB'] = Utils.to_list(self.libs)
+		self.env['LIBPATH'] = Utils.to_list(self.lib_paths)
 
 		obj          = check_data()
 		obj.code     = "\n".join(code)
