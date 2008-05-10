@@ -1,13 +1,11 @@
-\documentclass[a4,10pt]{article}
+\documentclass[a4paper,10pt]{article}
 
-\usepackage{vmargin, listings}
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.png,.pdf,.jpg,.jpeg}
+%\usepackage[pdftex, bookmarks=true, bookmarksnumbered=true, pdfpagemode=None, pdfstartview=FitH, pdfpagelayout=SinglePage, colorlinks=true, urlcolor=blue, pdfborder={0 0 0}]{hyperref}
 
-\setpapersize{A4}
-\setmargnohfrb{25mm}{25mm}{25mm}{45mm}
-
-\def\doctitle{Waf user's guide}
-\def\authorName{Carlos Rafael Giani}
-\def\authorName{Thomas Nagy}
+\def\doctitle{Waf user's guide - Waf 1.4.1}
+\def\authorName{Carlos Rafael Giani\\Thomas Nagy}
 
 \usepackage[
   breaklinks               % Links »überstehen« Zeilenumbruch
@@ -18,42 +16,71 @@
   ,plainpages=false
   ,pdfpagelabels
   ,pdftitle={\doctitle}
-  ,pdfauthor={\authorName}
+%  ,pdfauthor={\authorName}
   ,pdfstartview=FitH,      % Dokument wird »Fit Width« geöffnet
   ,pdfpagemode=UseOutlines % Bookmarks im Viewer anzeigen
   ,bookmarksopenlevel=2    % Gliederungstiefe der Bookmarks
+  ,pdftex
+  ,colorlinks=true
+  ,urlcolor=blue
+  ,pdfborder={0 0 0}
   ]
   {hyperref}
 
 
+\usepackage{vmargin, listings}
+\usepackage{verbatim}
+
+\usepackage{amsmath}
+\usepackage{lastpage}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage{fancyhdr}
 
 
-\title{\def\doctitle}
+%\lhead{}
+%\chead{}
+%\rhead{}
 
+%\lfoot{}
+\cfoot{\thepage/\pageref{LastPage}}
+\rfoot{Waf 1.4.1}
 
+%\renewcommand{\headrulewidth}{0.4pt}
+%\addtolength{\headwidth}{\marginparsep}
+
+\title{\doctitle}
+\date{May 2008}
+\author{\authorName}
 
 \begin{document}
-\lstset{basicstyle=\small\ttfamily, numberstyle=\footnotesize, captionpos=b}
+%\lstset{basicstyle=\small\ttfamily, numberstyle=\footnotesize, captionpos=b}
 
 
-\begin{titlepage}
-	\vspace*{3cm}
-	\begin{center}
-		{\Huge\textbf{\doctitle}}\\
-		\vspace*{0.5cm}
-		\authorName
-	\end{center}
+%\begin{titlepage}
+%	\vspace*{3cm}
+%	\begin{center}
+%		{\Huge\textbf{\doctitle}}\\
+%		\vspace*{0.5cm}
+%		\authorName
+%	\end{center}
+
+%\tableofcontents
+%\end{titlepage}
+
+\maketitle
 
 \tableofcontents
-\end{titlepage}
 
 \newpage
 
-\pagestyle{plain}
+
+
+\pagestyle{fancy}
 \pagenumbering{arabic}
 
 \section{Getting started}
-In order to understand the basics of waf, let's create a simple hello world project. It has only one source file, main.cpp:
+In order to illustrate the basics of Waf, let's create a simple hello world project with just one source file, main.cpp:
 
 \begin{center}
 	\begin{lstlisting}[caption=\footnotesize the main.cpp hello world code]
@@ -65,7 +92,7 @@ int main()
 	\end{lstlisting}
 \end{center}
 
-To build this, we need a waf build script, called a \emph{wscript}.
+To build this, we need a Waf build script, called a \emph{wscript}.
 Here is the wscript for the hello world program:
 
 \begin{center}
@@ -111,8 +138,8 @@ This script is now able to autodetect the g++ compiler (and additional programs 
 Building with waf always follows these steps:
 
 \begin{enumerate}
-\item Init procedures are called
-\item Custom command-line options are added, then the command-line is parsed
+\item Init procedures are called (\emph{def init()})
+\item Custom command-line options are added (\emph{def set\_options(opt)}), then the command-line is parsed
 \item Configuration is performed (by calling "waf configure"), the configuration is cached
 \item Actual building takes place (command-line call "waf build", or just "waf")
 \item Shutdown procedures are called
@@ -425,7 +452,7 @@ Here is a list of tools included in waf:
 	\item \emph{msvc}
 		A C++ building tool, using Microsoft's Visual C compiler. It adds both a ''cc'' and a ''cpp'' build tool, since it is able to build both C and C++ projects. Like g++, it supports various types of C/C++ projects. These types equal those of g++, as does create\_obj() call.\\
 \\
-		\emph{\textbf{\underline{CAUTION: Do not use msvc and gcc/g++ at the same time.} Doing so results in undefined behaviour, since both msvc and gcc/g++ try to set the cc/cpp build tools. If you want to support multiple compilers, make it possible to select one via a command-line option instead.}}
+		\emph{\textbf{\underline{CAUTION:} msvc and gcc/g++ can be used at the same time but in different environments.}}
 	\item \emph{osx}
 	\item \emph{ocaml}
 	\item \emph{qt4}
