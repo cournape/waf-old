@@ -3,6 +3,8 @@
 # Thomas Nagy, 2005-2008 (ita)
 
 """
+This module should really be named "TaskGen"
+
 The class task_gen encapsulates the creation of task objects (low-level code)
 The instances can have various parameters, but the creation of task nodes
 is delayed. To achieve this, various methods are called from the method "apply"
@@ -320,7 +322,7 @@ class task_gen(object):
 		# then we run the methods in order
 		for x in out:
 			v = self.get_meth(x)
-			debug("apply "+x, 'task_gen')
+			debug("apply %s (%s)" % (x, self), 'task_gen')
 			v()
 
 	def post(self):
