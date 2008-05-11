@@ -436,9 +436,9 @@ class Build(object):
 					if node.id in dict:
 						dict.__delitem__(node.id)
 
-					# avoid deleting the build dir node TODO this is ugly ugly ugly
-					#if node.id != Params.g_build.m_bldnode.id:
-					src_dir_node.childs.__delitem__(node.m_name)
+					# avoid deleting the build dir node
+					if node.id != Params.g_build.m_bldnode.id:
+						src_dir_node.childs.__delitem__(node.m_name)
 				os.makedirs(sub_path)
 
 	# ======================================= #
