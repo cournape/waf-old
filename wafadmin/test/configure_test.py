@@ -17,6 +17,7 @@ sys.path.append(os.path.abspath(os.path.pardir))
 from Constants import *
 import Options
 import Configure
+import Tools.config_c # to make conf.create_* functions work
 
 # The following string is a wscript for tests.
 # Note the embedded string that changed by more_config
