@@ -57,19 +57,19 @@ class CppFamilyTester(CcRootTester):
 		# simple optimized cpp program, checks defined FLAGS (should be the same as release)
 		self._setup_cpp_program()
 		self._test_configure(True, ["--debug-level=optimized"])
-		self._same_env(dict(CXXFLAGS=['-Wall', '-O2']))
+		self._same_env(dict(CXXFLAGS=['-DNDEBUG', '-Wall', '-O2']))
 
 	def test_release_flags(self):
 		# simple release cpp program, checks defined FLAGS
 		self._setup_cpp_program()
 		self._test_configure(True, ["--debug-level=release"])
-		self._same_env(dict(CXXFLAGS=['-Wall', '-O2']))
+		self._same_env(dict(CXXFLAGS=['-DNDEBUG', '-Wall', '-O2']))
 
 	def test_default_flags(self):
 		# simple default cpp program, checks defined FLAGS (should be the same as release)
 		self._setup_cpp_program()
 		self._test_configure()
-		self._same_env(dict(CXXFLAGS=['-Wall', '-O2']))
+		self._same_env(dict(CXXFLAGS=['-DNDEBUG', '-Wall', '-O2']))
 		
 	def test_empty_custom_flags(self):
 		# simple default cpp program, checks defined FLAGS
