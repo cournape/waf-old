@@ -105,9 +105,11 @@ class TestBuildDir(common_test.CommonTester):
 
 		os.mkdir("test_build3")
 		os.chdir("test_build3")
-#		
-		self.assertEqual(0, self.call(["python", "../waf", "configure"]), "build failed")
-		self.assertEqual(0, self.call(["python", "../waf", "build"]), "configure failed")
+		
+		self.assertEqual(0, self.call(["python", "../waf", "configure"]), "configure failed")
+		self.assertEqual(0, self.call(["python", "../waf", "build"]), "build failed")
+		
+		# XXX: the next line fails - since the previous line didn't build files under 'default' directory
 		self._test_run(os.path.join("default", "src", "test_c_program"))
 		self.call(["touch", "test_file"]) #create a file to check the distclean
 		#attention current dir will be completely removed including the  "test_file" file
