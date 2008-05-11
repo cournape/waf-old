@@ -94,7 +94,6 @@ def vala_file(self, node):
 	if not valatask:
 		valatask = self.create_task('valac')
 		self.valatask = valatask
-		env = valatask.env()
 		valatask.output_type = self.m_type
 		valatask.packages = []
 		valatask.vapi_dirs = []
@@ -113,16 +112,20 @@ def vala_file(self, node):
 		if hasattr(self, 'threading'):
 			valatask.threading = self.threading
 
-		if self.m_type != 'program':
-			output_nodes.append(self.path.find_build('%s.vapi' % self.target))
-			if env['VALAC_VERSION'] > (0, 1, 7):
-				output_nodes.append(self.path.find_build('%s.gidl' % self.target))
-			if valatask.packages:
-				output_nodes.append(self.path.find_build('%s.deps' % self.target))
+	env = valatask.env()
+
+	output_nodes = []
+	output_nodes.append(node.change_ext('.c'))
+	output_nodes.append(node.change_ext('.h'))
+	if self.m_type != 'program':
+		output_nodes.append(self.path.find_build('%s.vapi' % self.target))
+		if env['VALAC_VERSION'] > (0, 1, 7):
+			output_nodes.append(self.path.find_build('%s.gidl' % self.target))
+		if valatask.packages:
+			output_nodes.append(self.path.find_build('%s.deps' % self.target))
 
 	valatask.m_inputs.append(node)
-	valatask.m_outputs.append(node.change_ext('.c'))
-	valatask.m_outputs.append(node.change_ext('.h'))
+	valatask.m_outputs.extend(output_nodes)
 	self.allnodes.append(node.change_ext('.c'))
 
 # create our action here
