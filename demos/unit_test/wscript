@@ -14,23 +14,17 @@ def configure(conf):
 	conf.check_tool('compiler_cxx')
 
 	# this one requires cppunit
-	e = conf.create_header_configurator()
-	e.mandatory = 1
-	e.name = 'cppunit/CompilerOutputter.h'
-	e.run()
-
-	# This will create a uselib entry CPPUNIT
-	e = conf.create_library_configurator()
-	e.mandatory = 1
-	e.name = 'cppunit'
-	e.run()
-	e.name = 'dl'
-	e.run()
-
+	pkgconfig = conf.create_pkgconfig_configurator()
+	pkgconfig.name = 'cppunit'
+	pkgconfig.run()
 
 def build(bld):
 	# process subfolders from here
-	bld.add_subdirs('src tests')
+	subdirs = 'src'
+	# if cppunit was found in the config step, build unit tests too
+	if bld.env()['HAVE_CPPUNIT']:
+		subdirs += ' tests'
+	bld.add_subdirs(subdirs)
 
 def shutdown():
 	ut = UnitTest.unit_test()
