@@ -410,6 +410,7 @@ def apply_lib_vars(self):
 			for x in self.to_list(y.export_incdirs):
 				node = y.path.find_dir(x)
 				if not node: fatal('object %s: invalid folder %s in export_incdirs' % (y.target, x))
+				if not node in self.inc_paths: self.inc_paths.append(node)
 				app('_CCINCFLAGS', cpppath_st % node.bldpath(env))
 				app('_CCINCFLAGS', cpppath_st % node.srcpath(env))
 				app('_CXXINCFLAGS', cpppath_st % node.bldpath(env))
