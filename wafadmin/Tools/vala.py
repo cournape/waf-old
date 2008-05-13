@@ -13,6 +13,7 @@ EXT_VALA = ['.vala']
 class ValacAction(Action.Action):
 	def __init__(self):
 		Action.Action.__init__(self, 'valac', color='GREEN')
+		self.prio = 80
 
 	def get_str(self, task):
 		"string to display to the user"
