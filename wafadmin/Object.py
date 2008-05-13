@@ -489,38 +489,47 @@ def add_feature(name, methods):
 	l.update(lst)
 
 # decorators follow
+'''
+       All the following decorators are registration decorators, i.e add an attribute to current class
+       (task_gen and its derivatives), with same name as func, which points to func itself.
+       For example:
+               @taskgen
+               def sayHi(self):
+                       print "hi"
 
-def taskgen(f):
-	setattr(task_gen, f.__name__, f)
+       Now you can call taskgen.sayHi() ...
+'''
+def taskgen(func):
+	setattr(task_gen, func.__name__, func)
 
 def feature(*k):
-	def deco(f):
+	def deco(func):
 		for name in k:
 			try:
 				l = task_gen.traits[name]
 			except KeyError:
 				l = set()
 				task_gen.traits[name] = l
-			l.update([f.__name__])
-		return f
+			l.update([func.__name__])
+		return func
 	return deco
 
 def before(fun_name):
-	def deco(f):
+	def deco(func):
 		try:
-			if not f.__name__ in task_gen.prec[fun_name]: task_gen.prec[fun_name].append(f.__name__)
+			if not func.__name__ in task_gen.prec[fun_name]: task_gen.prec[fun_name].append(func.__name__)
 		except KeyError:
-			task_gen.prec[fun_name] = [f.__name__]
-		return f
+			task_gen.prec[fun_name] = [func.__name__]
+		return func
 	return deco
 
 def after(fun_name):
-	def deco(f):
+	def deco(func):
 		try:
-			if not fun_name in task_gen.prec[f.__name__]: task_gen.prec[f.__name__].append(fun_name)
+			if not fun_name in task_gen.prec[func.__name__]: task_gen.prec[func.__name__].append(fun_name)
 		except KeyError:
-			task_gen.prec[f.__name__] = [fun_name]
-		return f
+			task_gen.prec[func.__name__] = [fun_name]
+		return func
 	return deco
 
 def extension(var):
@@ -531,10 +540,10 @@ def extension(var):
 	else:
 		raise TypeError('declare extension takes either a list or a string %s' % str(var))
 
-	def deco(f):
+	def deco(func):
 		for x in var:
-			task_gen.mappings[x] = f
-		task_gen.mapped[f.__name__] = f
-		return f
+			task_gen.mappings[x] = func
+		task_gen.mapped[func.__name__] = func
+		return func
 	return deco
 
