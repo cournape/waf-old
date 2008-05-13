@@ -73,10 +73,10 @@ class unit_test(object):
 			if not unit_test: continue
 			try:
 				if obj.m_type == 'program':
-					output = obj.link_task.m_outputs[0]
-					filename = output.abspath(obj.env)
-					srcdir = os.path.join(*output.bld_dir(obj.env).split(os.path.sep)[1:])
-					label = output.bldpath(obj.env)
+					output = obj.path
+					filename = os.path.join(output.abspath(obj.env), obj.target)
+					srcdir = output.abspath()
+					label = os.path.join(output.bldpath(obj.env), obj.target)
 					self.max_label_length = max(self.max_label_length, len(label))
 					self.unit_tests[label] = (filename, srcdir)
 			except KeyError:

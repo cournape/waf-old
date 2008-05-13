@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Richard Quirk, 2008
 
-import UnitTest
+import UnitTest, Params
 
 srcdir = '.'
 blddir = 'build'
@@ -17,6 +17,13 @@ def configure(conf):
 	pkgconfig = conf.create_pkgconfig_configurator()
 	pkgconfig.name = 'cppunit'
 	pkgconfig.run()
+	if conf.env['HAVE_CPPUNIT']:
+		if 'dl' not in conf.env['LIB_CPPUNIT']:
+			l = conf.create_library_configurator()
+			l.name = 'dl'
+			l.uselib = 'CPPUNIT'
+			l.run()
+		Params.pprint('CYAN', "To run unit tests use 'waf check'")
 
 def build(bld):
 	# process subfolders from here
@@ -27,9 +34,8 @@ def build(bld):
 	bld.add_subdirs(subdirs)
 
 def shutdown():
+	# Unit tests are run when "check" target is used
 	ut = UnitTest.unit_test()
 	ut.change_to_testfile_dir = True
-	# normally only seen if we run "waf check"
-	ut.run_if_waf_does = 'build'
 	ut.run()
 	ut.print_results()
