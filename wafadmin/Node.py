@@ -174,7 +174,8 @@ class Node(object):
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
-					if name in Params.g_build.cache_dir_contents[prev.id]:
+					dir_cont = Params.g_build.cache_dir_contents
+					if prev.id in dir_cont and name in dir_cont[prev.id]:
 						current = Node(name, prev, DIR)
 					else:
 						return None
