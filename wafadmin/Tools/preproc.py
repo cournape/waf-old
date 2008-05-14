@@ -378,6 +378,7 @@ class c_parser(object):
 			self.strpaths = strpaths
 		self.pathcontents = {}
 
+		self.count_files = 0
 		self.deps  = []
 		self.deps_paths = []
 
@@ -450,6 +451,8 @@ class c_parser(object):
 				#error("could not find %s " % filename)
 
 	def addlines(self, filepath):
+		self.count_files += 1
+		if self.count_files > 30000: raise PreprocError, "recursion limit exceeded, bailing out"
 		pc = self.parse_cache
 		debug("reading file %r" % filepath, 'preproc')
 		if filepath in pc.keys():
