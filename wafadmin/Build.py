@@ -467,7 +467,16 @@ class Build(object):
 			except IOError:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
-		# TODO remove the src nodes of deleted files
+		# remove both nodes and signatures
+		to_remove = node_names - listed_files
+		if to_remove:
+			# infrequent scenario
+			cache = self.m_tstamp_variants[0]
+			for name in to_remove:
+				nd = i_parent_node.childs[name]
+				if nd.id in cache:
+					cache.__delitem__(nd.id)
+				i_parent_node.childs.__delitem__(name)
 
 	def scan_path(self, i_parent_node, i_path, i_variant):
 		"""in this function we do not add timestamps but we remove them
