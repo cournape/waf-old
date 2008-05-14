@@ -55,6 +55,8 @@ class shpip_task(Task.Task):
 	A special task, which finds its outputs once it has run
 	It outputs cpp files that must be compiled too
 	"""
+	
+	# to make the shpip tasks run first, set prio to something smaller than 100 (default C,C++ prio) 
 	def __init__(self, env, normal=1, prio=None):
 		Task.Task.__init__(self, 'shpip_action', env, normal, prio)
 
