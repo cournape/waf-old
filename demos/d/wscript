@@ -17,6 +17,10 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('compiler_d')
+
+	if not conf.env['D_COMPILER']:
+		Params.fatal("either dmd or gdc is required (d compilers)")
+
 	conf.env['LIB_PTHREAD'] = ['pthread']
 
 def build(bld):
