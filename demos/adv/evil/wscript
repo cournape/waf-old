@@ -149,7 +149,7 @@ class shpip_task(Task.Task):
 		# 0 for all ok
 		return 0
 
-Action.Action('shpip_action', vars=[], func=shpip_task.run_special, color='BLUE', prio=100)
+Action.Action('shpip_action', vars=[], func=shpip_task.run_special, color='BLUE')
 
 @taskgen
 @extension('.shpip')
