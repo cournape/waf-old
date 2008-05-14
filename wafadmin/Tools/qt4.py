@@ -239,7 +239,7 @@ def apply_qt4(self):
 		trans=[]
 		for l in self.to_list(self.lang):
 			t = Task.Task('ts2qm', self.env, 4)
-			t.set_inputs(self.path.find_build(l+'.ts'))
+			t.set_inputs(self.path.find_resource(l+'.ts'))
 			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
 			lst.append(t.m_outputs[0])
 
