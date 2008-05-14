@@ -1,0 +1,30 @@
+"""
+This wscript demonstrates the use of bld.add_group to
+separate tasks into groups.
+See also: http://code.google.com/p/waf/wiki/TaskSystem
+"""
+
+srcdir = '.'
+blddir = 'out'
+
+def configure(conf):
+  conf.check_tool('g++')
+
+def build(bld):
+	bld.add_group('kuku')
+	
+	a = bld.create_obj('cpp', 'program')
+	a.source = 'a.cpp'
+	a.target = 'AA'
+
+	# without the following 'add_group' line, both a.cpp and c.cpp were compiled and
+	# then both were linked.
+	# The addition of 'savta' group separates them, so a.cpp is compiled and
+	# linked before c.cpp is compiled.
+	bld.add_group('savta')
+	c = bld.create_obj('cpp', 'program')
+	c.source = 'c.cpp'
+	c.target = 'CC'
+
+def set_options(opt):
+  opt.tool_options('g++')
