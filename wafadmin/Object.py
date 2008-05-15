@@ -273,7 +273,6 @@ class task_gen(object):
 
 	def apply(self):
 		"order the methods to execute using self.prec or task_gen.prec"
-		dct = self.__class__.__dict__
 		keys = self.meths
 
 		# add the methods listed in the features
