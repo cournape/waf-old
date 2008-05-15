@@ -1,6 +1,8 @@
 NEW IN WAF 1.4.2
 ----------------
-* updated documentation
+* updated documentation (waf.pdf)
+* new examples (demos/simple_scenarios/)
+* node system bugfixes
 
 NEW IN WAF 1.4.1
 ----------------
