@@ -3,6 +3,7 @@ NEW IN WAF 1.4.2
 * updated documentation (waf.pdf)
 * new examples (demos/simple_scenarios/)
 * node system bugfixes
+* compile multiple vala files at the same time
 
 NEW IN WAF 1.4.1
 ----------------
