@@ -383,8 +383,15 @@ class task_gen(object):
 		else: self.source += lst
 
 	def clone(self, env):
-		newobj = copy.deepcopy(self)
-		newobj.path = self.path
+		""
+		newobj = task_gen()
+		for x in self.__dict__:
+			if x in ["env"]:
+				continue
+			elif x in ["path", "features"]:
+				setattr(newobj, x, getattr(self, x))
+			else:
+				setattr(newobj, x, copy.copy(getattr(self, x)))
 
 		if type(env) is types.StringType:
 			newobj.env = Params.g_build.m_allenvs[env].copy()
