@@ -66,7 +66,7 @@ def create_parser():
 		dest    = 'verbose')
 
 	p('--prefix',
-		help    = "installation prefix [Default: '%s']" % default_prefix,
+		help    = "installation prefix (configuration only) [Default: '%s']" % default_prefix,
 		default = default_prefix,
 		dest    = 'prefix')
 
