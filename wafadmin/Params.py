@@ -125,17 +125,17 @@ def niceprint(msg, type='', module=''):
 	#if not module:
 	#	print '%s: %s'% (type, msg)
 	#	return
-	if type=='ERROR':
-		print '%s %s <%s> %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
-		return
-	if type=='WARNING':
-		print '%s %s <%s> %s %s'% (type, g_colors['RED'], module, g_colors['NORMAL'], msg)
+	def print_pat(color):
+		print '%s %s<%s>%s %s' % (type, g_colors[color], module, g_colors['NORMAL'], msg)
+
+	if type == 'ERROR' or type == 'WARNING':
+		print_pat('RED')
 		return
 	if type=='DEBUG':
-		print '%s %s <%s> %s %s'% (type, g_colors['CYAN'], module, g_colors['NORMAL'], msg)
+		print_pat('CYAN')
 		return
 	if module in g_levels:
-		print '%s %s <%s> %s %s'% (type, g_colors[g_levels[module]], module, g_colors['NORMAL'], msg)
+		print_pat(g_levels[module])
 		return
 	print 'TRACE <%s> %s'% (module, msg)
 
@@ -178,7 +178,6 @@ def fatal(msg, ret=1):
 def view_sig(s):
 	"used for displaying signatures"
 	if type(s) is types.StringType:
-		
 		n = base64.encodestring(s)
 		return n[:-2]
 	else:
