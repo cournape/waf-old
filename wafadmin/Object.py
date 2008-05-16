@@ -319,9 +319,10 @@ class task_gen(object):
 		if not out: out.append('apply_core')
 
 		# then we run the methods in order
+		debug("posting %s %d" % (self, id(self)), 'task_gen')
 		for x in out:
 			v = self.get_meth(x)
-			debug("apply %s (%s)" % (x, self), 'task_gen')
+			debug("-> %s (%d)" % (x, id(self)), 'task_gen')
 			v()
 
 	def post(self):
