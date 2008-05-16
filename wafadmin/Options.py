@@ -182,6 +182,7 @@ class Handler(object):
 			self.cwd = current
 
 	def tool_options(self, tool, tooldir=None, option_group=None):
+		Utils.python_24_guard()
 		if type(tool) is types.ListType:
 			for i in tool: self.tool_options(i, tooldir, option_group)
 			return

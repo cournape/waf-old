@@ -99,7 +99,7 @@ def compute_revision():
 	m = md5()
 	for source in sources:
 		f = file(source,'rb')
-		readBytes = 1024 # read 1024 bytes per time
+		readBytes = 100000
 		while (readBytes):
 			readString = f.read(readBytes)
 			m.update(readString)
@@ -186,6 +186,21 @@ def process_tokens(tokens):
 	body = "".join(accu)
 	return body
 
+def sfilter(path):
+	f = open(path, "r")
+	if Params.g_options.strip_comments:
+		cnt = process_tokens(generate_tokens(f.readline))
+	else:
+		cnt = f.read()
+	f.close()
+
+	cnt = process_decorators(cnt)
+	cnt = process_imports(cnt)
+	if path.endswith('Scripting.py'):
+		cnt = cnt.replace('Utils.python_24_guard()', '')
+
+	return (StringIO.StringIO(cnt), len(cnt), cnt)
+
 def create_waf():
 	print "-> preparing waf"
 	mw = 'tmp-waf-'+VERSION
@@ -200,22 +215,6 @@ def create_waf():
 	tar = tarfile.open('%s.tar.%s' % (mw, zipType), "w:%s" % zipType)
 	tarFiles=[]
 
-	def sfilter(path):
-
-		f = open(path, "r")
-		if Params.g_options.strip_comments:
-			cnt = process_tokens(generate_tokens(f.readline))
-		else:
-			cnt = f.read()
-		f.close()
-
-		cnt = process_decorators(cnt)
-		cnt = process_imports(cnt)
-		if path.endswith('Scripting.py'):
-			cnt = cnt.replace('\tif sys.hexversion<0x20400f0:\n\t\traise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"', '')
-
-		return (StringIO.StringIO(cnt), len(cnt))
-
 	lst = os.listdir('wafadmin')
 	files = [os.path.join('wafadmin', s) for s in lst if pyFileExp.match(s) and not s in forbidden]
 	tooldir = os.path.join('wafadmin', 'Tools')
@@ -225,7 +224,7 @@ def create_waf():
 		tarinfo = tar.gettarinfo(x, x)
 		tarinfo.uid=tarinfo.gid=1000
 		tarinfo.uname=tarinfo.gname="bozo"
-		(code, size) = sfilter(x)
+		(code, size, cnt) = sfilter(x)
 		tarinfo.size = size
 		tar.addfile(tarinfo, code)
 	tar.close()
@@ -275,13 +274,20 @@ def create_waf():
 		os.chmod('waf', 0755)
 	os.unlink('%s.tar.%s' % (mw, zipType))
 
-def install_waf():
-	print "installing waf on the system"
+def make_copy(inf, outf):
+	(a, b, cnt) = sfilter(inf)
+	f = open(outf, "wb")
+	f.write(cnt)
+	f.close()
 
+def install_waf():
 	import shutil, re
 	if sys.platform == 'win32':
-		print "installing waf on windows is not possible yet"
+		print "Installing Waf on Windows is not possible."
 		sys.exit(0)
+
+	val = raw_input("Installing Waf is discouraged. Proceed? [y/n]")
+	if val != "y": sys.exit(1)
 
 	destdir = None
 	if "DESTDIR" in os.environ:
@@ -309,13 +315,13 @@ def install_waf():
 		wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
 		for pyFile in wafadminFiles:
 			if pyFile == "Test.py": continue
-			shutil.copy2(os.path.join('wafadmin', pyFile), os.path.join(wafadmindir, pyFile))
+			make_copy(os.path.join('wafadmin', pyFile), os.path.join(wafadmindir, pyFile))
 		tooldir = 'wafadmin'+os.sep+'Tools'
 		wafadminFiles = os.listdir(tooldir)
 		wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
 		for pyFile in wafadminFiles:
 			if pyFile == "Test.py": continue
-			shutil.copy2(os.path.join(tooldir, pyFile), os.path.join(toolsdir, pyFile))
+			make_copy(os.path.join(tooldir, pyFile), os.path.join(toolsdir, pyFile))
 
 		shutil.copy2('waf', os.path.join(binpath))
 	except:

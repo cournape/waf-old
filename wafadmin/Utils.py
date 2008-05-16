@@ -78,6 +78,10 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 	if max_val < ver:
 		Params.fatal("waf version should be at most %s (%x found)" % (maxi, ver))
 
+def python_24_guard():
+	if sys.hexversion<0x20400f0:
+		raise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"
+
 def reset():
 	import Params, Object, Environment
 	Params.g_build = None
