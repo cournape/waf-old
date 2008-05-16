@@ -27,24 +27,25 @@ def create_parser():
 * Main commands: configure build install clean dist distclean uninstall distcheck
 * Example: ./waf build -j4""", version = 'waf %s' % Params.g_version)
 
-	p=parser.add_option
+	parser.formatter.width = Utils.get_term_cols()
+	p = parser.add_option
 
 	p('-j', '--jobs',
 		type    = 'int',
 		default = 1,
-		help    = 'specify the number of parallel jobs [Default: 1]',
+		help    = 'amount of parallel jobs [Default: 1]',
 		dest    = 'jobs')
 
 	p('', '--daemon',
 		action  = 'store_true',
 		default = False,
-		help    = 'run as a daemon     [Default: False]',
+		help    = 'run as a daemon [Default: False]',
 		dest    = 'daemon')
 
 	p('-f', '--force',
 		action  = 'store_true',
 		default = False,
-		help    = 'force the files installation',
+		help    = 'force file installation',
 		dest    = 'force')
 
 	p('-k', '--keep',
@@ -62,7 +63,7 @@ def create_parser():
 	p('-v', '--verbose',
 		action  = 'count',
 		default = 0,
-		help    = 'show verbose output [Default: False]',
+		help    = 'verbosity level -v -vv or -vvv [Default: 0]',
 		dest    = 'verbose')
 
 	p('--prefix',
@@ -97,7 +98,7 @@ def create_parser():
 	p('--zones',
 		action  = 'store',
 		default = '',
-		help    = 'debugging zones',
+		help    = 'debugging zones (task_gen, deps, tasks, etc)',
 		dest    = 'zones')
 
 	p('--targets',
@@ -138,8 +139,10 @@ def parse_args_impl(parser, _args=None):
 	if opts.keep: opts.jobs = 1
 
 	Params.g_verbose = opts.verbose
-	if opts.zones: Params.g_zones = opts.zones.split(',')
-	if Params.g_verbose>1: Params.set_trace(1,1,1)
+	if opts.zones:
+		Params.g_zones = opts.zones.split(',')
+		if not Params.g_verbose: Params.g_verbose = 1
+	if Params.g_verbose > 1: Params.set_trace(1,1,1)
 	else: Params.set_trace(0,0,1)
 
 class Handler(object):
