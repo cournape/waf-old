@@ -393,6 +393,7 @@ class task_gen(object):
 			else:
 				setattr(newobj, x, copy.copy(getattr(self, x)))
 
+		newobj.__class__ = self.__class__
 		if type(env) is types.StringType:
 			newobj.env = Params.g_build.m_allenvs[env].copy()
 		else:
