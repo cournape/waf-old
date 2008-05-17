@@ -308,15 +308,15 @@ def main():
 		proj = read_cache_file(g_lockfile)
 	except IOError:
 		if Params.g_commands['clean']:
-			fatal("Nothing to clean (project not configured)", ret=0)
+			fatal("Nothing to clean (project not configured)", ret=2)
 		else:
-			warning("Run waf configure first (project not configured)")
 			if Params.g_autoconfig:
+				warning("Reconfiguring the project")
 				configure()
 				bld = Build.Build()
 				proj = read_cache_file(g_lockfile)
 			else:
-				sys.exit(0)
+				fatal("Project not configured (run 'waf configure' first)", ret=2)
 
 	if Params.g_autoconfig:
 		reconf = 0
