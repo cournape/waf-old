@@ -37,7 +37,7 @@ if 'PSYCOWAF' in os.environ:
 	try:import psyco;psyco.full()
 	except:pass
 
-VERSION="1.4.1"
+VERSION="1.4.2"
 REVISION="x"
 INSTALL="x"
 cwd = os.getcwd()
