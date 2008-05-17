@@ -4,7 +4,7 @@ NEW IN WAF 1.4.2
 * new examples (demos/simple_scenarios/)
 * node system bugfixes
 * compile multiple vala files at the same time
-* minor optimization for variant builds
+* optimization of the method clone()
 
 NEW IN WAF 1.4.1
 ----------------
