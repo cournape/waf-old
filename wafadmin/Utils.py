@@ -148,7 +148,7 @@ def to_hashtable(s):
 	return tbl
 
 def get_term_cols():
-	return 55
+	return 80
 try:
 	import struct, fcntl, termios
 except ImportError:
