@@ -18,8 +18,8 @@ def find_gcc(conf):
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc: conf.fatal('gcc was not found')
 	v['CC']  = cc
-        v['CC_NAME'] = 'gcc'
-        ccroot.get_cc_version(conf, cc, 'CC_VERSION')
+	v['CC_NAME'] = 'gcc'
+	ccroot.get_cc_version(conf, cc, 'CC_VERSION')
 
 @conftest
 def gcc_common_flags(conf):

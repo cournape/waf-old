@@ -19,8 +19,8 @@ def find_gxx(conf):
 	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: conf.fatal('g++ was not found')
 	v['CXX']  = cc
-        v['CXX_NAME'] = 'gcc'
-        ccroot.get_cc_version(conf, cc, 'CXX_VERSION')
+	v['CXX_NAME'] = 'gcc'
+	ccroot.get_cc_version(conf, cc, 'CXX_VERSION')
 
 @conftest
 def gxx_common_flags(conf):
@@ -45,7 +45,7 @@ def gxx_common_flags(conf):
 
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
-        v['FULLSTATIC_MARKER']   = '-static'
+	v['FULLSTATIC_MARKER']   = '-static'
 
 	# program
 	v['program_PATTERN']     = '%s'
