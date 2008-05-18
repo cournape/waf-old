@@ -24,7 +24,8 @@ forbidden = [x+'.py' for x in 'Test Weak'.split()]
 
 from tokenize import *
 
-import Params, Utils, Options, os, sys, base64, shutil, re, random, StringIO
+import os, sys, base64, shutil, re, random, StringIO, optparse
+import Params, Utils, Options
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
@@ -45,6 +46,10 @@ def set_options(opt):
 	opt.add_option('--make-batch', action='store_true', default=False,
 		help='creates a waf.bat file that calls the waf script. (this is done automatically on win32 systems)',
 		dest='make_batch')
+
+	opt.add_option('--yes', action='store_true', default=False,
+		help=optparse.SUPPRESS_HELP,
+		dest='yes')
 
 	# those ones are not too interesting
 	opt.add_option('--set-version', default='',
@@ -286,8 +291,8 @@ def install_waf():
 		print "Installing Waf on Windows is not possible."
 		sys.exit(0)
 
-	val = raw_input("Installing Waf is discouraged. Proceed? [y/n]")
-	if val != "y": sys.exit(1)
+	val = Params.g_options.yes or raw_input("Installing Waf is discouraged. Proceed? [y/n]")
+	if val != True and val != "y": sys.exit(1)
 
 	destdir = None
 	if "DESTDIR" in os.environ:
