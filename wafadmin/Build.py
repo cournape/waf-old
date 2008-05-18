@@ -539,7 +539,7 @@ class Build(object):
 		try:
 			return self.m_allenvs[name]
 		except KeyError:
-			error('no such environment'+name)
+			error('no such environment: '+name)
 			return None
 
 	def env(self, name='default'):
