@@ -147,17 +147,19 @@ def to_hashtable(s):
 		tbl[mems[0]] = mems[1]
 	return tbl
 
+def get_term_cols():
+	return 55
 try:
 	import struct, fcntl, termios
 except ImportError:
-	def get_term_cols():
-		return 55
+	pass
 else:
-	def get_term_cols():
-		dummy_lines, cols = struct.unpack("HHHH", \
-		fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
-		struct.pack("HHHH", 0, 0, 0, 0)))[:2]
-		return cols
+	if sys.stdout.isatty():
+		def get_term_cols():
+			dummy_lines, cols = struct.unpack("HHHH", \
+			fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
+			struct.pack("HHHH", 0, 0, 0, 0)))[:2]
+			return cols
 
 def progress_line(state, total, col1, col2):
 	n = len(str(total))
