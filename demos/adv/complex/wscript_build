@@ -14,6 +14,9 @@
 # By contrast, only functions can be defined in a wscript
 #
 
+# and look in the file misc.py!
+# for now the syntax sucks a little bit but the concepts will remain the same
+
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
 obj = bld.create_obj('cpp', 'shlib')
@@ -86,4 +89,9 @@ genmain.prio = 90 # run before compilation
 obj = bld.create_obj('cpp', 'program')
 obj.source = 'main1.cpp'
 obj.target = 'main1'
+
+foo = bld.create_obj('copy')
+foo.source = 'main.cpp'
+foo.target = 'blah'
+# source != target!
 
