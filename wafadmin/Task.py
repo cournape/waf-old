@@ -91,6 +91,53 @@ class TaskGroup(object):
 			try: self.prio[p].append(x)
 			except KeyError: self.prio[p] = [x]
 
+		"""
+		t2 = self.tasks[:]
+		eq_groups = {}
+		for x in t2:
+			index = getattr(x, 'prio', x.m_action)
+			try: eq_groups[index].append(x)
+			except KeyError: eq_groups[index] = [x]
+
+		# for now we only have the constraint on the order
+		cstrs = {}
+		keys = eq_groups.keys()
+		max = len(keys)
+		for i in range(max):
+			for j in range(i + 1, max):
+				u = keys[i]
+				v = keys[j]
+				a = getattr(u, 'prio', u)
+				b = getattr(v, 'prio', v)
+				#print i, j, u, v, a, b
+				if a < b:
+					try: cstrs[u].append(v)
+					except KeyError: cstrs[u] = [v]
+				elif a > b:
+					try: cstrs[v].append(u)
+					except KeyError: cstrs[v] = [u]
+
+		#print [(a.m_name, cstrs[a].m_name) for a in cstrs]
+		# now we have the constraints, process the unconnected groups
+		keys = eq_groups.keys()[:]
+		while keys:
+			unconnected = []
+			remnant = []
+
+			for u in keys:
+				for k in cstrs.values():
+					if u in k:
+						remnant.append(u)
+						break
+				else:
+					unconnected.append(u)
+			for x in unconnected:
+				try: cstrs.__delitem__(x)
+				except KeyError: pass
+			print "unconnected tasks: ", unconnected, "tasks", [eq_groups[x] for x in unconnected]
+			keys = remnant
+		"""
+
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
 	def __init__(self, normal=1):
