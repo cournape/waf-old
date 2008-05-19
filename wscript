@@ -384,7 +384,7 @@ def init():
 		sys.exit(0)
 	else:
 		print "run 'waf --help' to know more about allowed commands !"
-		sys.exit(0)
+		sys.exit(1)
 
 #def dist():
 #	import Scripting
