@@ -10,7 +10,7 @@ Custom objects:
 
 import shutil, re, os, types
 
-import Object, Action, Node, Params, Task, Common
+import TaskGen, Action, Node, Params, Task, Common
 import pproc as subprocess
 from Params import fatal, debug
 
@@ -32,10 +32,10 @@ def action_process_file_func(tsk):
 	if not tsk.fun: fatal('task must have a function attached to it for copy_func to work!')
 	return tsk.fun(tsk)
 
-class cmd_taskgen(Object.task_gen):
+class cmd_taskgen(TaskGen.task_gen):
 	"This object will call a command everytime"
 	def __init__(self, type='none'):
-		Object.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self)
 		self.m_type = type
 		self.prio   = 1
 		self.fun    = None
@@ -50,10 +50,10 @@ class cmd_taskgen(Object.task_gen):
 		self.m_tasks.append(tsk)
 		tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
 
-class copy_taskgen(Object.task_gen):
+class copy_taskgen(TaskGen.task_gen):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
 	def __init__(self, type='none'):
-		Object.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self)
 
 		self.source = ''
 		self.target = ''
@@ -116,9 +116,9 @@ def subst_func(tsk):
 
 	return 0
 
-class subst_taskgen(Object.task_gen):
+class subst_taskgen(TaskGen.task_gen):
 	def __init__(self, type='none'):
-		Object.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self)
 		self.fun = subst_func
 		self.dict = {}
 		self.prio = 8
@@ -167,12 +167,12 @@ class CommandOutputTask(Task.Task):
 		if command_node is not None: self.dep_nodes = [command_node]
 		self.dep_vars = [] # additional environment variables to look
 
-class CommandOutput(Object.task_gen):
+class CommandOutput(TaskGen.task_gen):
 
 	CMD_ARGV_INPUT, CMD_ARGV_OUTPUT, CMD_ARGV_INPUT_DIR, CMD_ARGV_OUTPUT_DIR = range(4)
 
 	def __init__(self, *k):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 
 		self.stdin = None
 		self.stdout = None
@@ -421,5 +421,5 @@ use command_is_external=True''') % (self.command,)
 
 Action.Action('copy', vars=[], func=action_process_file_func)
 Action.Action('command-output', func=CommandOutput._command_output_func, color='BLUE')
-Object.task_gen.classes['command-output'] = CommandOutput
+TaskGen.task_gen.classes['command-output'] = CommandOutput
 

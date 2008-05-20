@@ -5,13 +5,13 @@
 
 "Flex processing"
 
-import Object
+import TaskGen
 
 def decide_ext(self, node):
 	if 'cxx' in self.features: return '.lex.cc'
 	else: return '.lex.c'
 
-Object.declare_chain(
+TaskGen.declare_chain(
 	name = 'flex',
 	action = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}',
 	ext_in = '.l',

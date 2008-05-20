@@ -5,14 +5,14 @@
 "intltool support"
 
 import os, re
-import Object, Action, Params, Common, Scan, Utils, Runner
+import TaskGen, Action, Params, Common, Scan, Utils, Runner
 import cc
 from Params import fatal, error
 
 # intltool
-class intltool_in_taskgen(Object.task_gen):
+class intltool_in_taskgen(TaskGen.task_gen):
 	def __init__(self, *k):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 		self.source  = ''
 		self.inst_var = ''
 		self.inst_dir = ''
@@ -40,9 +40,9 @@ class intltool_in_taskgen(Object.task_gen):
 
 			task.install = {'var': self.inst_var, 'dir': self.inst_dir, 'chmod': 0644}
 
-class intltool_po_taskgen(Object.task_gen):
+class intltool_po_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 		self.chmod = 0644
 		self.inst_var_default = 'LOCALEDIR'
 		self.appname = kw.get('appname', 'set_your_app_name')

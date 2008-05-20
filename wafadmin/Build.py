@@ -194,7 +194,7 @@ class Build(object):
 		p = pstats.Stats('profi.txt')
 		p.sort_stats('cumulative').print_stats(80)
 		"""
-		Object.flush()
+		TaskGen.flush()
 		#"""
 
 		if Params.g_verbose>2: self.dump()
@@ -237,8 +237,8 @@ class Build(object):
 		"this function is called for both install and uninstall"
 		debug('install called', 'build')
 
-		Object.flush()
-		for obj in Object.g_allobjs:
+		TaskGen.flush()
+		for obj in TaskGen.g_allobjs:
 			if obj.m_posted: obj.install()
 
 		# remove empty folders after uninstalling
@@ -269,8 +269,8 @@ class Build(object):
 
 	def create_obj(self, *k, **kw):
 		cls_name = k[0]
-		try: cls = Object.task_gen.classes[cls_name]
-		except KeyError: raise KeyError('%s is not a valid build tool -> %s' % (cls_name, [x for x in Object.task_gen.classes]))
+		try: cls = TaskGen.task_gen.classes[cls_name]
+		except KeyError: raise KeyError('%s is not a valid build tool -> %s' % (cls_name, [x for x in TaskGen.task_gen.classes]))
 		else: return cls(*k, **kw)
 
 	def load_envs(self):
@@ -545,7 +545,7 @@ class Build(object):
 		return self.env_of_name(name)
 
 	def add_group(self, name=''):
-		Object.flush(all=0)
+		TaskGen.flush(all=0)
 		self.task_manager.add_group(name)
 
 	def add_manual_dependency(self, path, value):

@@ -4,7 +4,7 @@
 
 import os.path, shutil
 import Action, Runner, Utils, Params
-from Object import extension
+from TaskGen import extension
 
 from pproc import Popen, PIPE
 

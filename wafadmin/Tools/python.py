@@ -6,8 +6,8 @@
 "Python support"
 
 import os, sys
-import Object, Action, Utils, Params, Common, Utils, Runner
-from Object import extension, taskgen, before, after, feature
+import TaskGen, Action, Utils, Params, Common, Utils, Runner
+from TaskGen import extension, taskgen, before, after, feature
 import pproc as subprocess
 
 EXT_PY = ['.py']
@@ -47,9 +47,9 @@ def process_py(self, node):
 	pass
 
 # FIXME in theory, we should absolutely avoid subclasses like this
-class py_taskgen(Object.task_gen):
+class py_taskgen(TaskGen.task_gen):
 	def __init__(self, env=None):
-		Object.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self)
 
 		self.inst_var_default = 'PYTHONDIR'
 		self.inst_dir_default = ''

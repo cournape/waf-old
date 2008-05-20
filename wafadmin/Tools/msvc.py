@@ -5,10 +5,10 @@
 # Visual C support - beta, needs more testing
 
 import os, sys, re, string, optparse
-import Utils, Action, Params, Object, Runner, Configure
+import Utils, Action, Params, TaskGen, Runner, Configure
 from Params import debug, error, fatal, warning
 from Utils import quote_whitespace
-from Object import taskgen, after, before, feature
+from TaskGen import taskgen, after, before, feature
 
 import ccroot
 from libtool import read_la_file

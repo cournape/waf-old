@@ -2,11 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, sys, re, Object, Action, Utils, Common
+import os, sys, re, TaskGen, Action, Utils, Common
 
-class msgfmt_taskgen(Object.task_gen):
+class msgfmt_taskgen(TaskGen.task_gen):
 	def __init__(self, appname='set_your_app_name'):
-		Object.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self)
 		self.langs = '' # for example "foo/fr foo/br"
 		self.chmod = 0644
 		self.inst_var_default = 'KDE4_LOCALE_INSTALL_DIR'

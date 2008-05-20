@@ -20,7 +20,7 @@ EXT_CC = ['.c']
 CC_METHS = ['init_cc', 'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cc',
 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc']
 
-Object.add_feature('cc', CC_METHS)
+TaskGen.add_feature('cc', CC_METHS)
 
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
@@ -103,5 +103,5 @@ link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${
 Action.simple_action('cc', cc_str, 'GREEN', prio=100)
 Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
 
-Object.declare_order('apply_dependencies', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
+TaskGen.declare_order('apply_dependencies', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 

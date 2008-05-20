@@ -16,7 +16,7 @@ The functions preceded by "@conf" are attached in the same manner
 
 import os, types, imp, cPickle, sys, shlex, warnings
 from Utils import md5
-import Action, Params, Environment, Runner, Build, Utils, Object, Configure
+import Action, Params, Environment, Runner, Build, Utils, Configure, TaskGen
 from Params import fatal, warning
 from Constants import *
 from Configure import conf, conftest
@@ -1100,7 +1100,7 @@ def run_check(self, obj):
 
 	bld.rescan(bld.m_srcnode)
 
-	#o = Object.task_gen.classes[tp](obj.build_type)
+	#o = TaskGen.task_gen.classes[tp](obj.build_type)
 	o = bld.create_obj(tp, obj.build_type)
 	o.source   = test_f_name
 	o.target   = 'testprog'

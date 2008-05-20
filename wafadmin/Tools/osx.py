@@ -12,8 +12,8 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
 """
 
 import os, shutil
-import Object, Action
-from Object import taskgen, feature, after, before
+import TaskGen, Action
+from TaskGen import taskgen, feature, after, before
 from Params import error, debug, fatal, warning
 
 @taskgen

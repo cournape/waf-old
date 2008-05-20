@@ -7,8 +7,8 @@ Nasm processing
 """
 
 import os
-import Action, Object
-from Object import taskgen, before, extension
+import Action, TaskGen
+from TaskGen import taskgen, before, extension
 
 nasm_str = '${NASM} ${NASM_FLAGS} ${NASM_INCLUDES} ${SRC} -o ${TGT}'
 

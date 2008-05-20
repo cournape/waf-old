@@ -5,7 +5,7 @@
 import os
 import pproc as subprocess
 import Action, Params
-from Object import extension, taskgen, feature, before
+from TaskGen import extension, taskgen, feature, before
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 EXT_XS = ['.xs']

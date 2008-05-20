@@ -21,8 +21,8 @@ else:
 
 import os, sys
 import ccroot, cxx
-import Action, Params, Object, Task, Utils, Runner, Scan
-from Object import taskgen, feature, after, extension
+import Action, Params, TaskGen, Task, Utils, Runner, Scan
+from TaskGen import taskgen, feature, after, extension
 from Params import error, fatal
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
@@ -274,7 +274,7 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	#make sure dirnames is a list helps with dirnames with spaces
 	dirnames = self.to_list(dirnames)
 
-	ext_lst = exts or self.mappings.keys() + Object.task_gen.mappings.keys()
+	ext_lst = exts or self.mappings.keys() + TaskGen.task_gen.mappings.keys()
 
 	for name in dirnames:
 		anode = self.path.find_dir(name)

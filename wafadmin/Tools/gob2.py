@@ -2,9 +2,9 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
-import Object
+import TaskGen
 
-Object.declare_chain(
+TaskGen.declare_chain(
 	name = 'gob2',
 	action = '${GOB2} -o ${TGT[0].bld_dir(env)} ${GOB2FLAGS} ${SRC}',
 	ext_in = '.gob',

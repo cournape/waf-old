@@ -3,9 +3,9 @@
 # Sebastian Schlingmann, 2008
 # Thomas Nagy, 2008 (ita)
 
-import Object
+import TaskGen
 
-Object.declare_chain(
+TaskGen.declare_chain(
 	name = 'luac',
 	action = '${LUAC} -s -o ${TGT} ${SRC}',
 	ext_in = '.lua',
@@ -14,9 +14,9 @@ Object.declare_chain(
 	install = 'LUADIR', # env variable
 )
 
-class lua_taskgen(Object.task_gen):
+class lua_taskgen(TaskGen.task_gen):
 	def __init__(self):
-		Object.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self)
 		self.chmod = 0755
 		self.inst_var = ''
 		self.inst_dir = ''

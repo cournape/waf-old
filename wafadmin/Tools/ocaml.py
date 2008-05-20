@@ -5,9 +5,9 @@
 "ocaml support"
 
 import os, re
-import Params, Action, Object, Scan, Utils, Task
+import Params, Action, TaskGen, Scan, Utils, Task
 from Params import error, fatal
-from Object import taskgen, feature, before, after, extension
+from TaskGen import taskgen, feature, before, after, extension
 
 EXT_MLL = ['.mll']
 EXT_MLY = ['.mly']
@@ -193,10 +193,10 @@ def get_target_name(self, bytecode):
 
 native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
-class ocaml_taskgen(Object.task_gen):
+class ocaml_taskgen(TaskGen.task_gen):
 	s_default_ext = ['.mli', '.mll', '.mly', '.ml']
 	def __init__(self, *k, **kw):
-		Object.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self)
 
 		self.m_type       = kw.get('type', 'native')
 		self.m_source     = ''
@@ -248,7 +248,7 @@ class ocaml_taskgen(Object.task_gen):
 
 		self.features.append('ocaml')
 
-Object.add_feature('ocaml', ['apply_core'])
+TaskGen.add_feature('ocaml', ['apply_core'])
 
 @taskgen
 @feature('ocaml')

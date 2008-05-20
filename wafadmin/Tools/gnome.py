@@ -5,10 +5,10 @@
 "Gnome support"
 
 import os, re
-import Object, Action, Params, Common, Scan, Utils, Runner
+import TaskGen, Action, Params, Common, Scan, Utils, Runner
 import cc
 from Params import fatal, error
-from Object import taskgen, before, after, feature
+from TaskGen import taskgen, before, after, feature
 
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
@@ -51,9 +51,9 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if icons: postinstall_icons()
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
-class gnome_doc_taskgen(Object.task_gen):
+class gnome_doc_taskgen(TaskGen.task_gen):
 	def __init__(self, *k):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 		self.inst_var_default = 'PREFIX'
 		self.inst_dir_default = 'share'
 
@@ -89,9 +89,9 @@ class gnome_doc_taskgen(Object.task_gen):
 				Common.install_as(self.inst_var, inst_dir + '/%s.xml' % self.doc_module, out.abspath(self.env))
 
 # give specs
-class xml_to_taskgen(Object.task_gen):
+class xml_to_taskgen(TaskGen.task_gen):
 	def __init__(self):
-		Object.task_gen(self)
+		TaskGen.task_gen(self)
 		self.source = 'xmlfile'
 		self.xslt = 'xlsltfile'
 		self.target = 'hey'
@@ -136,9 +136,9 @@ class sgml_man_scanner(Scan.scanner):
 
 sgml_scanner = sgml_man_scanner()
 
-class gnome_sgml2man_taskgen(Object.task_gen):
+class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
-		Object.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self)
 		self.m_tasks = []
 		self.m_appname = k[0] # the first argument is the appname - will disappear
 	def apply(self):
@@ -166,7 +166,7 @@ class gnome_sgml2man_taskgen(Object.task_gen):
 
 # Unlike the sgml and doc processing, the dbus and marshal beast
 # generate c/c++ code that we want to mix
-# here we attach new methods to Object.task_gen
+# here we attach new methods to TaskGen.task_gen
 
 @taskgen
 def add_marshal_file(self, filename, prefix, mode):

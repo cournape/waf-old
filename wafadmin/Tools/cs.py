@@ -4,13 +4,13 @@
 
 "C# support"
 
-import Params, Action, Object, Utils
+import Params, Action, TaskGen, Utils
 from Params import error
 
 g_types_lst = ['program', 'library']
-class cs_taskgen(Object.task_gen):
+class cs_taskgen(TaskGen.task_gen):
 	def __init__(self, *k):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 
 		self.m_type     = k[1]
 

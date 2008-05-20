@@ -21,12 +21,12 @@ change is only annoying for the compilation times
 """
 
 import os, re
-import Object, Action, Utils, Params
+import TaskGen, Action, Utils, Params
 
-class java_taskgen(Object.task_gen):
+class java_taskgen(TaskGen.task_gen):
 	s_default_ext = ['.java']
 	def __init__(self, *k):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 
 		self.jarname = ''
 		self.jaropts = ''

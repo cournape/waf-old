@@ -5,7 +5,7 @@
 "TeX/LaTeX/PDFLaTeX support"
 
 import os, re
-import Utils, Params, Action, Object, Runner, Scan
+import Utils, Params, Action, TaskGen, Runner, Scan
 from Params import error, warning, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
@@ -155,10 +155,10 @@ def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
 
 g_texobjs = ['latex','pdflatex']
-class tex_taskgen(Object.task_gen):
+class tex_taskgen(TaskGen.task_gen):
 	s_default_ext = ['.tex', '.ltx']
 	def __init__(self, *k, **kw):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 
 		global g_texobjs
 		self.m_type = kw['type']
