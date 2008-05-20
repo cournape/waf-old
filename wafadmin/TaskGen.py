@@ -3,10 +3,8 @@
 # Thomas Nagy, 2005-2008 (ita)
 
 """
-This module should really be named "TaskGen"
-
 The class task_gen encapsulates the creation of task objects (low-level code)
-The instances can have various parameters, but the creation of task nodes
+The instances can have various parameters, but the creation of task nodes (Task.py)
 is delayed. To achieve this, various methods are called from the method "apply"
 
 The class task_gen contains lots of methods, and a configuration table:
@@ -20,8 +18,7 @@ Additionally, task_gen provides the method apply_core
 * when called, the functions may modify self.allnodes to re-add source to process
 * the mappings can map an extension or a filename (see the code below)
 
-WARNING 1 subclasses must reimplement the clone method to avoid problems with 'deepcopy'
-WARNING 2 find a new name for this file (naming it 'Object' was never a good idea)
+WARNING: subclasses must reimplement the clone method
 """
 
 import os, types, traceback, copy
@@ -66,7 +63,7 @@ def flush(all=1):
 	name_to_obj(None)
 
 	tree = Params.g_build
-	debug("delayed operation Object.flush() called", 'object')
+	debug("delayed operation TaskGen.flush() called", 'object')
 
 	# post only objects below a particular folder (recursive make behaviour)
 	launch_dir_node = tree.m_root.find_dir(Params.g_cwd_launch)
