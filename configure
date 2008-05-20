@@ -97,7 +97,7 @@ generateMakefile()
 WAF_HOME=$CUR_DIR
 
 all:
-	@$WAF build
+#@$WAF build
 
 all-debug:
 	@$WAF -v build
@@ -106,17 +106,17 @@ all-progress:
 	@$WAF -p build
 
 install:
-	@if test -n "\$(DESTDIR)"; then \\
-	    $WAF install --destdir="\$(DESTDIR)"; \\
+	if test -n "\$(DESTDIR)"; then \\
+	    $WAF install --yes --destdir="\$(DESTDIR)" --prefix="$PREFIX"; \\
 	else \\
-	    $WAF install; \\
+	    $WAF install --yes --prefix="$PREFIX"; \\
 	fi;
 
 uninstall:
 	@if test -n "\$(DESTDIR)"; then \\
-	    $WAF uninstall --destdir="\$(DESTDIR)"; \\
+	    $WAF uninstall --destdir="\$(DESTDIR)" --prefix="$PREFIX"; \\
 	else \\
-	    $WAF uninstall; \\
+	    $WAF uninstall --prefix="$PREFIX"; \\
 	fi;
 
 clean:
@@ -139,13 +139,14 @@ EOF
 checkPython
 checkWAF
 
-echo "calling waf configure with parameters"
-$WAF configure $* || exit $EXIT_ERROR
+PREFIX=/usr/local
+case $1 in
+    --prefix)
+        PREFIX=$2
+        ;;
+esac
 
-if [ -f "Makefile" ] ; then
-    echo ""
-else
-    generateMakefile
-fi
+export PREFIX
+generateMakefile
 
 exit $EXIT_SUCCESS
