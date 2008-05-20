@@ -90,10 +90,10 @@ def detect_boost(conf):
 
 	version=version.pop()
 	boost_includes=versions[version]
-		if version%100 == 0:
-				boost_version="%d_%d" % (version/100000, version/100%1000)
-		else:
-				boost_version="%d_%d_%d" % (version/100000, version/100%1000,
+	if version % 100 == 0:
+		boost_version="%d_%d" % (version/100000, version/100%1000)
+	else:
+		boost_version="%d_%d_%d" % (version/100000, version/100%1000,
 											version%100)
 	version="%d.%d.%d" % (version/100000,version/100%1000,version%100)
 	conf.check_message('header','boost/version.hpp',1,'Version '+boost_includes+' ('+version+')')
@@ -181,21 +181,21 @@ def detect_boost(conf):
 	#well now we've found our includes - let's search for the precompiled libs
 	if want_libs:
 		def check_boost_libs(libs,lib_path):
-						ext = env['shlib_PATTERN'].split('%s')[1]
+			ext = env['shlib_PATTERN'].split('%s')[1]
 			files=glob.glob(lib_path+'/libboost_*'+ext)
 			files=map(lambda x:x[len(lib_path)+4:-len(ext)] ,filter(lambda x: x.find('-d')==-1 ,files))
 			for lib in libs:
 				libname=lib.lower()
-								use_single_threaded = 0
+				use_single_threaded = 0
 				if libname.endswith('_mt'):
 					libname=libname[0:-3]+'-mt'
-								elif libname.endswith('_st'):
-										libname=libname[0:-3]
-										use_single_threaded = 1
+				elif libname.endswith('_st'):
+					libname=libname[0:-3]
+					use_single_threaded = 1
 				for file in files:
 					if file.startswith(libname) and file.endswith(boost_version):
-												if use_single_threaded and file.find('-mt') != -1:
-														continue
+						if use_single_threaded and file.find('-mt') != -1:
+							continue
 						conf.check_message('library',libname,1,file)
 						env['LIBPATH_'+lib]=lib_path
 						env['LIB_'+lib]=file
