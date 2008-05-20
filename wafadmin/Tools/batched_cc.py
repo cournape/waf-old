@@ -22,8 +22,8 @@ it is only necessary to import this module in the configuration (no other change
 EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
 import shutil, os
-import Action, Object, Task, ccroot, Params
-from Object import extension
+import Action, TaskGen, Task, ccroot, Params
+from TaskGen import extension
 
 class TaskMaster(Task.Task):
 	def __init__(self, action_name, env, priority=92, normal=1, master=None):

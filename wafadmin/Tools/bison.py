@@ -4,7 +4,7 @@
 
 "Bison processing"
 
-import Object
+import TaskGen
 
 def decide_ext(self, node):
 	c_ext = '.tab.c'
@@ -14,7 +14,7 @@ def decide_ext(self, node):
 	else:
 		return c_ext
 
-Object.declare_chain(
+TaskGen.declare_chain(
 	name = 'bison',
 	action = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].m_name}',
 	ext_in = ['.y', '.yc'],

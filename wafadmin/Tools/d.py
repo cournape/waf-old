@@ -5,9 +5,9 @@
 
 import os, sys, re, optparse
 import ccroot # <- leave this
-import Object, Utils, Action, Params, checks, Configure, Scan
+import TaskGen, Utils, Action, Params, checks, Configure, Scan
 from Params import debug, error
-from Object import taskgen, feature, after, before, extension
+from TaskGen import taskgen, feature, after, before, extension
 
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps'] # additional d methods
@@ -237,9 +237,9 @@ def init_d(self):
 	for x in d_params:
 		setattr(self, x, getattr(self, x, d_params[x]))
 
-class d_taskgen(Object.task_gen):
+class d_taskgen(TaskGen.task_gen):
 	def __init__(self, *k):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 
 		# TODO m_type is obsolete
 		if len(k)>1: self.m_type = k[1]
@@ -263,7 +263,7 @@ class d_taskgen(Object.task_gen):
 
 		self.vnum = '1.0.0'
 
-Object.add_feature('d', D_METHS)
+TaskGen.add_feature('d', D_METHS)
 
 @taskgen
 @feature('d')
@@ -286,7 +286,7 @@ def apply_d_libs(self):
 			seen.append(x)
 
 		# object does not exist ?
-		y = Object.name_to_obj(x)
+		y = TaskGen.name_to_obj(x)
 		if not y:
 			fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
 

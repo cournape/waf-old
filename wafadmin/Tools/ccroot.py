@@ -5,10 +5,10 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-import Action, Object, Params, Scan, Common, Utils, Node, preproc
+import Action, TaskGen, Params, Scan, Common, Utils, Node, preproc
 from Params import error, debug, fatal, warning
 from Utils import md5
-from Object import taskgen, after, before, feature
+from TaskGen import taskgen, after, before, feature
 from Constants import *
 
 import config_c # <- necessary for the configuration, do not touch
@@ -97,10 +97,10 @@ class c_scanner(Scan.scanner):
 g_c_scanner = c_scanner()
 "scanner for c programs"
 
-class ccroot_abstract(Object.task_gen):
+class ccroot_abstract(TaskGen.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	def __init__(self, *k, **kw):
-		Object.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k)
 
 		# TODO m_type is obsolete
 		if len(k)>1: self.m_type = k[1]
@@ -157,7 +157,7 @@ class ccroot_abstract(Object.task_gen):
 		#self.features = ['program']
 
 	def clone(self, env):
-		new_obj = Object.task_gen.clone(self, env)
+		new_obj = TaskGen.task_gen.clone(self, env)
 		variant = '_' + self.env.variant()
 
 		if self.name: new_obj.name = self.name + variant
@@ -274,7 +274,7 @@ def apply_dependencies(self):
 	else:
 		# by default, we include the whole project tree
 		lst = [self.path]
-		for obj in Object.g_allobjs:
+		for obj in TaskGen.g_allobjs:
 			if obj.path not in lst:
 				lst.append(obj.path)
 		self.inc_paths = lst + self.incpaths_lst
@@ -365,7 +365,7 @@ def apply_lib_vars(self):
 			continue
 
 		# object does not exist ?
-		y = Object.name_to_obj(x)
+		y = TaskGen.name_to_obj(x)
 		if not y:
 			fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
 			continue
@@ -439,7 +439,7 @@ def apply_objdeps(self):
 			continue
 
 		# object does not exist ?
-		y = Object.name_to_obj(x)
+		y = TaskGen.name_to_obj(x)
 		if not y:
 			error('object not found in add_objects: obj %s add_objects %s' % (self.name, x))
 			names = names[1:]

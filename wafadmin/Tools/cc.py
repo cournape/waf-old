@@ -5,10 +5,10 @@
 "Base for c programs/libraries"
 
 import sys
-import Object, Params, Action, Utils
+import TaskGen, Params, Action, Utils
 from Params import debug
 import ccroot # <- do not remove
-from Object import taskgen, before, extension
+from TaskGen import taskgen, before, extension
 
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',

@@ -5,10 +5,10 @@
 "Base for c++ programs and libraries"
 
 import sys
-import Object, Params, Action, Utils
+import TaskGen, Params, Action, Utils
 from Params import debug, fatal
 import ccroot # <- do not remove
-from Object import taskgen, before, extension
+from TaskGen import taskgen, before, extension
 
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -21,7 +21,7 @@ EXT_CXX = ['.cpp', '.cc', '.cxx', '.C']
 CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx',
 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx']
 
-Object.add_feature('cxx', CXX_METHS)
+TaskGen.add_feature('cxx', CXX_METHS)
 
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cpp_taskgen(ccroot.ccroot_abstract):
@@ -35,7 +35,7 @@ class cpp_taskgen(ccroot.ccroot_abstract):
 @before('apply_type_vars')
 def init_cxx(self):
 	if not 'cc' in self.features:
-		self.mappings['.c'] = Object.task_gen.mappings['.cxx']
+		self.mappings['.c'] = TaskGen.task_gen.mappings['.cxx']
 
 	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cpp_flag_vars)
 	else: self.p_flag_vars = g_cpp_flag_vars
@@ -112,5 +112,5 @@ link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS}
 Action.simple_action('cxx', cxx_str, color='GREEN', prio=100)
 Action.simple_action('cxx_link', link_str, color='YELLOW', prio=111)
 
-Object.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
+TaskGen.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 
