@@ -1,9 +1,6 @@
 #! /bin/sh
 
-##
-## This script is an autogen.sh-like wrapper for allowing WAF to be installed by jhbuild
-##
-
+# This script is an autogen.sh-like wrapper for allowing WAF to be installed by jhbuild
 
 WAF=./waf-light
 prefix=""
@@ -32,7 +29,7 @@ all_debug:
 all_progress:
 
 install:
-	$WAF install --strip $prefix
+	$WAF install --yes --strip $prefix
 
 uninstall:
 	$WAF uninstall
@@ -42,8 +39,6 @@ clean:
 
 distclean:
 	$WAF distclean
-	-rm -rf cache/
-	-rm -rf _build_
 	-rm -f Makefile
 
 check:
