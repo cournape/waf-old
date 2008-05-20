@@ -105,7 +105,7 @@ g_levels={
 'Build'  : 'CYAN',
 'KDE'    : 'REDP',
 'Node'   : 'GREEN',
-'Object' : 'GREEN',
+'TaskGen': 'GREEN',
 'Runner' : 'REDP',
 'Task'   : 'GREEN',
 'Test'   : 'GREEN',

@@ -5,9 +5,9 @@
 "This hook is called when the class cpp/cc task generator encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
 
 import os, sys
-import Action, Object
+import Action, TaskGen
 from Utils import quote_whitespace
-from Object import extension
+from TaskGen import extension
 
 EXT_WINRC = ['.rc']
 

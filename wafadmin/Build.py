@@ -13,7 +13,7 @@ There is only one Build object at a time (Params.g_build singleton)
 """
 
 import os, sys, cPickle, types, imp, errno, re
-import Params, Runner, Object, Node, Scripting, Utils, Environment, Task
+import Params, Runner, TaskGen, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
 from Constants import *
 
@@ -190,7 +190,7 @@ class Build(object):
 
 		"""
 		import cProfile, pstats
-		cProfile.run("import Object; Object.flush()", 'profi.txt')
+		cProfile.run("import TaskGen; TaskGen.flush()", 'profi.txt')
 		p = pstats.Stats('profi.txt')
 		p.sort_stats('cumulative').print_stats(80)
 		"""

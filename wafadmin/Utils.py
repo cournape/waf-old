@@ -83,9 +83,9 @@ def python_24_guard():
 		raise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"
 
 def reset():
-	import Params, Object, Environment
+	import Params, TaskGen, Environment
 	Params.g_build = None
-	Object.g_allobjs = []
+	TaskGen.g_allobjs = []
 	Environment.g_cache_max = {}
 
 def to_list(sth):

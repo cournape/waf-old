@@ -21,7 +21,7 @@ Note: the c/c++ related code is in the module config_c
 
 import os, types, imp, cPickle, sys, shlex, warnings
 from Utils import md5
-import Action, Params, Environment, Runner, Build, Utils, Object
+import Action, Params, Environment, Runner, Build, Utils
 from Params import fatal, warning
 from Constants import *
 

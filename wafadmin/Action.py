@@ -5,7 +5,7 @@
 "Actions are used to build the nodes of most tasks"
 
 import re
-import Object, Params, Runner
+import TaskGen, Params, Runner
 from Params import debug, fatal
 
 g_actions={}
