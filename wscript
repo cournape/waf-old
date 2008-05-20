@@ -379,7 +379,7 @@ def init():
 		Test.run_tests()
 	else:
 		print "run 'waf --help' to know more about allowed commands !"
-		if not Params.g_options.help:
+		if not "--help" in sys.argv and not "-h" in sys.argv:
 			sys.exit(1)
 	sys.exit(0)
 
