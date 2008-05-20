@@ -253,7 +253,7 @@ def apply_qt4(self):
 			u.m_outputs = trans
 
 		if self.langname:
-			t = Task.Task('qm2rcc', self.env, 40)
+			t = Task.Task('qm2rcc', self.env, 30)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_build(self.langname+'.qrc'))
 			t.path = self.path
