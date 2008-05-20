@@ -199,7 +199,6 @@ class Build(object):
 
 		if Params.g_verbose>2: self.dump()
 
-		self.task_manager.flush()
 		if Params.g_options.jobs <= 1: executor = Runner.Serial(self)
 		else: executor = Runner.Parallel(self, Params.g_options.jobs)
 		self.generator = executor

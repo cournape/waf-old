@@ -124,32 +124,17 @@ class Serial(object):
 		if not self.manager.groups:
 			return None
 
-		# stop condition
-		if self.curgroup >= len(self.manager.groups):
-			return None
-
-		# increase the priority value
-		self.curprio += 1
-
-		# there is no current list
-		group = self.manager.groups[self.curgroup]
-		if self.curprio >= len(group.prio.keys()):
-			self.curprio = -1
-			self.curgroup += 1
-			return self.get_next()
-
-		# sort keys if necessary
-		if self.curprio == 0:
-			self.priolst = group.prio.keys()
-			self.priolst.sort()
-
-		# now fill outstanding
-		id = self.priolst[self.curprio]
-		self.outstanding = group.prio[id]
+		while not self.outstanding:
+			if self.curgroup >= len(self.manager.groups):
+				return None
+			group = self.manager.groups[self.curgroup]
+			(maxjobs, self.outstanding) = group.get_next_set()
+			if not self.outstanding:
+				self.curgroup +=1
 
 		if Params.g_verbose:
 			debug("Preparing to run prio %i tasks: [\n%s\n\t]" %
-			      (id, ',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
+			      (maxjobs, ',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
 					       for tsk in self.outstanding])),
 			      'runner')
 		return self.get_next()
@@ -306,6 +291,8 @@ class Parallel(object):
 
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
+		self.maxjobs = 100
+
 		# tasks that are awaiting for another task to complete
 		self.frozen = []
 
@@ -319,31 +306,21 @@ class Parallel(object):
 		self.progress = 0 # progress indicator
 
 		self.curgroup = 0
-		self.curprio = -1
-		self.priolst = []
 
 	def get_next_prio(self):
-		# stop condition
-		if self.curgroup >= len(self.manager.groups):
+		# handle case where only one wscript exist
+		# that only install files
+		if not self.manager.groups:
 			return (None, None)
 
-		# increase the priority value
-		self.curprio += 1
-
-		# there is no current list
+		if self.curgroup >= len(self.manager.groups):
+			return (None, None)
 		group = self.manager.groups[self.curgroup]
-		if self.curprio >= len(group.prio.keys()):
-			self.curprio = -1
-			self.curgroup += 1
+		(maxjobs, outstanding) = group.get_next_set()
+		if not outstanding:
+			self.curgroup +=1
 			return self.get_next_prio()
-
-		# sort keys if necessary
-		if self.curprio == 0:
-			self.priolst = group.prio.keys()
-			self.priolst.sort()
-
-		id = self.priolst[self.curprio]
-		return (id, group.prio[id])
+		return (maxjobs, outstanding)
 
 	def start(self):
 		for i in range(self.numjobs): TaskConsumer(i, self)

@@ -26,6 +26,7 @@ class Action(object):
 		self.m_function_to_run = func
 		self.m_color = color
 
+		if prio % 2: self.maxjobs = 1
 		self.prio = prio
 
 		global g_actions

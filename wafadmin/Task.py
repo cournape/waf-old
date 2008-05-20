@@ -2,7 +2,26 @@
 # encoding: utf-8
 # Thomas Nagy, 2005-2008 (ita)
 
-"Atomic operations that create nodes or execute commands"
+"""
+Running tasks in parallel is a simple problem, but in practice it is more complicated:
+* dependencies discovered during the build (dynamic task creation)
+* dependencies discovered after files are compiled
+* the amount of tasks and dependencies (graph size) can be huge
+
+This is why the dependency management is split on three different levels:
+1. groups of tasks that run all after another group of tasks
+2. groups of tasks that can be run in parallel
+3. tasks that can run in parallel, but with possible unknown ad-hoc dependencies
+
+The point #1 represents a strict sequential order between groups of tasks,
+whereas #2 and #3 represent partial order constraints where #2 applies to the kind of task
+and #3 applies to the task instances.
+
+#1 is held by the task manager (ordered list of TaskGroups)
+#2 is held by the task groups (constraint extraction and topological sort) and the actions (priorities)
+#3 is held by the tasks individually (attribute m_run_after),
+   and the scheduler (Runner.py) use Task::may_start to reorder the tasks
+"""
 
 import os, types, shutil
 from Utils import md5
@@ -17,9 +36,6 @@ class TaskManager(object):
 		self.groups = []
 		self.idx = 0
 		self.tasks_done = []
-	def flush(self):
-		for k in self.groups:
-			k.flush()
 	def add_group(self, name=''):
 		if not name:
 			size = len(self.groups)
@@ -77,21 +93,73 @@ class TaskGroup(object):
 		self.name = name
 		self.info = ''
 		self.tasks = []
-		self.prio = {}
+
+		self.eq_groups = None
+		self.keys = None
+
+		# instead of returning a set, we return a set for each
+		self.segment_maxjobs = {}
+
+	def segment_by_maxjobs(self, tsk_lst):
+		foo = {}
+		for t in tsk_lst:
+			maxjob = getattr(t, "maxjobs", getattr(t.m_action, "maxjobs", 100000))
+			try: foo[maxjob].append(t)
+			except KeyError: foo[maxjob] = [t]
+		return foo
+
+	def get_next_set(self):
+		if not self.segment_maxjobs:
+			self.segment_maxjobs = self.segment_by_maxjobs(self._internal_get_set())
+		if not self.segment_maxjobs:
+			return (0, 0)
+		k = max(self.segment_maxjobs.keys())
+		ret = self.segment_maxjobs[k]
+		self.segment_maxjobs.__delitem__(k)
+		return (k, ret)
+
+	def _internal_get_set(self):
+		if not self.eq_groups:
+			self.extract_constraints()
+
+		#print [(a.m_name, cstrs[a].m_name) for a in cstrs]
+		keys = self.keys
+
+		unconnected = []
+		remnant = []
+
+		for u in keys:
+			for k in self.cstrs.values():
+				if u in k:
+					remnant.append(u)
+					break
+			else:
+				unconnected.append(u)
+		for x in unconnected:
+			try: self.cstrs.__delitem__(x)
+			except KeyError: pass
+		#print "unconnected tasks: ", unconnected, "tasks", [eq_groups[x] for x in unconnected]
+		self.keys = remnant
+		toreturn = []
+		for y in unconnected:
+			for x in self.eq_groups[y]:
+				toreturn.append(x)
+		if not toreturn and remnant:
+			Params.fatal("circular dependency detected %r" % remnant)
+		#print "returning", toreturn
+		return toreturn
+
 	def add_task(self, task):
 		try: self.tasks.append(task)
 		except KeyError: self.tasks = [task]
-	def flush(self):
-		# FIXME TODO in the future we will allow to go back in the past
-		for x in self.tasks:
-			try: p = getattr(x, 'prio')
-			except AttributeError:
-				try: p = x.m_action.prio
-				except AttributeError: p = 100
-			try: self.prio[p].append(x)
-			except KeyError: self.prio[p] = [x]
 
-		"""
+	def extract_constraints(self):
+		# for now the group extraction does only take the priority into account
+		# we will do the following in the future:
+		# hash the priority and the constraints
+		# extract the priority constraints
+		# extract other constraints
+
 		t2 = self.tasks[:]
 		eq_groups = {}
 		for x in t2:
@@ -116,27 +184,9 @@ class TaskGroup(object):
 				elif a > b:
 					try: cstrs[v].append(u)
 					except KeyError: cstrs[v] = [u]
-
-		#print [(a.m_name, cstrs[a].m_name) for a in cstrs]
-		# now we have the constraints, process the unconnected groups
-		keys = eq_groups.keys()[:]
-		while keys:
-			unconnected = []
-			remnant = []
-
-			for u in keys:
-				for k in cstrs.values():
-					if u in k:
-						remnant.append(u)
-						break
-				else:
-					unconnected.append(u)
-			for x in unconnected:
-				try: cstrs.__delitem__(x)
-				except KeyError: pass
-			print "unconnected tasks: ", unconnected, "tasks", [eq_groups[x] for x in unconnected]
-			keys = remnant
-		"""
+		self.cstrs = cstrs
+		self.eq_groups = eq_groups
+		self.keys = eq_groups.keys()
 
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
