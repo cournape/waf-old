@@ -1,10 +1,8 @@
 #!/usr/bin/python
 
-
 import sys
 import os.path
 import random
-
 
 HELP_USAGE = """Usage: generate_libs.py root libs classes internal external.
     root     - Root directory where to create libs.
@@ -12,7 +10,6 @@ HELP_USAGE = """Usage: generate_libs.py root libs classes internal external.
     classes  - Number of classes per library
     internal - Number of includes per file referring to that same library
     external - Number of includes per file pointing to other libraries
-    usual parameters: 50 100 5 15
 """
 
 def lib_name(i):
@@ -25,20 +22,20 @@ def CreateHeader(name):
     guard = name + '_h_'
     handle.write ('#ifndef ' + guard + '\n');
     handle.write ('#define ' + guard + '\n\n');
-
+    
     handle.write ('class ' + name + ' {\n');
     handle.write ('public:\n');
     handle.write ('    ' + name + '();\n');
     handle.write ('    ~' + name + '();\n');
     handle.write ('};\n\n');
-
+    
     handle.write ('#endif\n');
-
+    
 
 def CreateCPP(name, lib_number, classes_per_lib, internal_includes, external_includes):
     filename = name + ".cpp"
     handle = file(filename, "w" )
-
+    
     header= name + ".h"
     handle.write ('#include "' + header + '"\n');
     
@@ -46,18 +43,18 @@ def CreateCPP(name, lib_number, classes_per_lib, internal_includes, external_inc
     for i in includes:
         handle.write ('#include "class_' + str(i) + '.h"\n')
 
-    if (lib_number > 0):
+    if (lib_number > 0):        
         includes = random.sample(xrange(classes_per_lib), external_includes) 
         lib_list = xrange(lib_number)
         for i in includes:
             libname = 'lib_' + str(random.choice(lib_list))
-            handle.write ('#include <' + libname + '/' + 'class_' + str(i) + '.h>\n')
-
+            handle.write ('#include <' + libname + '/' + 'class_' + str(i) + '.h>\n')    
+    
     handle.write ('\n');
     handle.write (name + '::' + name + '() {}\n');
     handle.write (name + '::~' + name  + '() {}\n');
-
-
+    
+    
 def CreateSConscript(lib_number, classes):
     handle = file("SConscript", "w");
     handle.write("Import('env')\n")
@@ -247,7 +244,7 @@ def CreateWtop(libs):
     handle.write("VERSION='0.0.1'\n")
     handle.write("APPNAME='build-bench'\n")
     handle.write("srcdir = '.'\n")
-    handle.write("blddir = '_build_'\n")
+    handle.write("blddir = 'build'\n")
 
     handle.write("def build(bld):\n")
     handle.write("    bld.add_subdirs('''\n")
@@ -258,7 +255,6 @@ def CreateWtop(libs):
     handle.write("    ''')\n")
 
     handle.write("def configure(conf):\n")
-    handle.write("    conf.check_tool('cpp')\n")
     handle.write("    conf.check_tool('g++')\n")
     handle.write("def set_options(opt):\n")
     handle.write("    pass\n\n")
@@ -298,11 +294,12 @@ def main(argv):
         CreateLibrary(i, classes, internal_includes, external_includes)
 
     CreateSConstruct(libs)
-    #CreateFullMakefile(libs)
+    CreateFullMakefile(libs)
     CreateWtop(libs)
     #CreateFullJamfile(libs)
     #CreateFullSolution(libs)
 
 if __name__ == "__main__":
     main( sys.argv )
+
 
