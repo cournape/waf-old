@@ -14,7 +14,7 @@ def configure(conf):
 	conf.check_tool('local_waf_tool', tooldir='.')
 
 def build(bld):
-	import Object
-	foo = Object.task_gen()
+	import TaskGen
+	foo = TaskGen.task_gen()
 	foo.source = "uh.coin"
 

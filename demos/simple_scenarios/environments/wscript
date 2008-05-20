@@ -7,8 +7,8 @@ APPNAME='simple_tool'
 srcdir = '.'
 blddir = 'build'
 
-import Object
-Object.declare_chain(
+import TaskGen
+TaskGen.declare_chain(
 	name = 'dang',
 	action = '${COPY} ${SRC} ${TGT}',
 	ext_in = '.coin',
@@ -31,7 +31,7 @@ def configure(conf):
 	conf.env['COPY'] = "echo 'the command to execute is ' %s && %s" % (cmd, cmd)
 
 def build(bld):
-	foo = Object.task_gen()
+	foo = TaskGen.task_gen()
 	foo.source = "uh.coin"
 	#foo.env = bld.env_of_name("default")
 	foo.env = bld.env_of_name("debug")

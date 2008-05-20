@@ -13,7 +13,7 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('gcc')
 
-from Object import after, taskgen, feature
+from TaskGen import after, taskgen, feature
 @taskgen
 @after("apply_core")
 @feature("cc")

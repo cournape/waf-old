@@ -46,8 +46,8 @@ def build(bld):
 ## INTERNAL CODE BELOW ##
 
 import os
-import Object, Params, Action, Task, Utils
-from Object import taskgen, feature, before, extension
+import TaskGen, Params, Action, Task, Utils
+from TaskGen import taskgen, feature, before, extension
 from Params import debug
 
 class shpip_task(Task.Task):
@@ -112,7 +112,7 @@ class shpip_task(Task.Task):
 		"creates cpp tasks after the build has started"
 		tgen = self.task_gen
 		for node in lst:
-			Object.task_gen.mapped['c_hook'](tgen, node)
+			TaskGen.task_gen.mapped['c_hook'](tgen, node)
 			task = tgen.compiled_tasks[-1]
 
 			tgen.link_task.m_inputs.append(task.m_inputs[0])

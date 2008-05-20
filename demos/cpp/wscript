@@ -72,7 +72,7 @@ def build(bld):
 
 	return
 	# testcase for variants
-	for obj in copy.copy(Object.g_allobjs):
+	for obj in copy.copy(TaskGen.g_allobjs):
 		new_obj = obj.clone('debug')
 
 def shutdown():

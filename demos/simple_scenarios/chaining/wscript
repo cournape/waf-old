@@ -7,8 +7,8 @@ APPNAME='simple_tool'
 srcdir = '.'
 blddir = 'build'
 
-import Object
-Object.declare_chain(
+import TaskGen 
+TaskGen.declare_chain(
 	name = 'a',
 	action = '${COPY} ${SRC} ${TGT}',
 	ext_in = '.input',
@@ -16,7 +16,7 @@ Object.declare_chain(
 	prio = 40,
 )
 
-Object.declare_chain(
+TaskGen.declare_chain(
 	name = 'b',
 	action = '${COPY} ${SRC} ${TGT}',
 	ext_in = '.a',
@@ -24,7 +24,7 @@ Object.declare_chain(
 	prio = 42,
 )
 
-Object.declare_chain(
+TaskGen.declare_chain(
 	name = 'c',
 	action = '${COPY} ${SRC} ${TGT}',
 	ext_in = '.b',
@@ -41,8 +41,8 @@ def configure(conf):
 	conf.env['COPY'] = os.getcwd() + os.sep + "cp.py"
 
 def build(bld):
-	Object.task_gen(source="uh.input")
+	TaskGen.task_gen(source="uh.input")
 
-	#foo = Object.task_gen()
+	#foo = TaskGen.task_gen()
 	#foo.source = "uh.coin"
 
