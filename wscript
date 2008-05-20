@@ -367,24 +367,21 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
-		sys.exit(0)
 	elif Params.g_commands['install']:
 		create_waf()
 		install_waf()
-		sys.exit(0)
 	elif Params.g_commands['uninstall']:
 		uninstall_waf()
-		sys.exit(0)
 	elif Params.g_options.waf:
 		create_waf()
-		sys.exit(0)
 	elif Params.g_commands['check']:
 		import Test
 		Test.run_tests()
-		sys.exit(0)
 	else:
 		print "run 'waf --help' to know more about allowed commands !"
-		sys.exit(1)
+		if not Params.g_options.help:
+			sys.exit(1)
+	sys.exit(0)
 
 #def dist():
 #	import Scripting
