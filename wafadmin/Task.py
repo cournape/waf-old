@@ -103,7 +103,10 @@ class TaskGroup(object):
 	def segment_by_maxjobs(self, tsk_lst):
 		foo = {}
 		for t in tsk_lst:
-			maxjob = getattr(t, "maxjobs", getattr(t.m_action, "maxjobs", 100000))
+			maxjob = getattr(t, "maxjobs", None)
+			if maxjob is None:
+				try: maxjob = t.m_action.maxjobs
+				except AttributeError: maxjob = 1000000
 			try: foo[maxjob].append(t)
 			except KeyError: foo[maxjob] = [t]
 		return foo
@@ -163,7 +166,7 @@ class TaskGroup(object):
 		t2 = self.tasks[:]
 		eq_groups = {}
 		for x in t2:
-			index = getattr(x, 'prio', x.m_action)
+			index = getattr(x, 'prio', getattr(x, 'm_action', 20))
 			try: eq_groups[index].append(x)
 			except KeyError: eq_groups[index] = [x]
 
