@@ -19,6 +19,8 @@ for num in xrange(15):
 	print str(x.digest())
 */
 
+#define INTSIZE 8
+//(sizeof(u_int64_t))
 #define FNV1_64_INIT ((u_int64_t)14695981039346656037ULL)
 #define FNV1_64_PRIME ((u_int64_t)1099511628211)
 
@@ -51,21 +53,16 @@ static PyObject * fnv_update(fnv_struct *self, PyObject *args)
 
 static PyObject * fnv_digest(fnv_struct *self)
 {
-	// FIXME i do not understand why ..
-	int * newint = malloc(sizeof(u_int64_t));
-	*newint = self->sum;
-	PyObject *foo = PyString_FromStringAndSize((char*) newint, sizeof(u_int64_t));
-	return foo;
+	return PyString_FromStringAndSize((char*) &self->sum, INTSIZE);
 }
 
 static PyObject * fnv_hexdigest(fnv_struct *self)
 {
-	// ¿why does this work in md5module.c and here no?
-    unsigned char hexdigest[2*sizeof(u_int64_t)];
+    unsigned char hexdigest[2*INTSIZE];
     int i;
-    for (i=0; i<sizeof(u_int64_t); ++i)
+    for (i=0; i<INTSIZE; ++i)
     {
-        char u = ((unsigned char*) self->sum)[i];
+        char u = ((unsigned char*) &self->sum)[i];
         char c;
         c = (u >> 4) & 0xf;
         c = (c>9) ? c + 'a' - 10 : c + '0';
@@ -74,7 +71,8 @@ static PyObject * fnv_hexdigest(fnv_struct *self)
         c = c > 9 ? c + 'a' - 10 : c + '0';
         hexdigest[2*i+1] = c;
     }
-    return PyString_FromStringAndSize((char *) hexdigest, 2*sizeof(u_int64_t));
+	PyObject* ret = PyString_FromStringAndSize((char *) hexdigest, 2*INTSIZE);
+	return ret;
 }
 
 static PyMethodDef fnv_methods[] = {
