@@ -443,8 +443,8 @@ class pkgconfig_configurator(configurator_base):
 		for key, val in self.defines.items():
 			pkgcom += ' --define-variable=%s=%s' % (key, val)
 
-                if self.static:
-                        pkgcom += ' --static'
+		if self.static:
+			pkgcom += ' --static'
 
 		g_defines = self.env['PKG_CONFIG_DEFINES']
 		if type(g_defines) is types.DictType:
@@ -479,9 +479,9 @@ class pkgconfig_configurator(configurator_base):
 				assert incpath[:2] == '-I' or incpath[:2] == '/I'
 				retval['CPPPATH_'+uselib].append(incpath[2:]) # strip '-I' or '/I'
 
-                        static_l = ''
-                        if self.static:
-                                static_l = 'STATIC'
+			static_l = ''
+			if self.static:
+				static_l = 'STATIC'
 
 			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
 			# Store the library names:
@@ -588,7 +588,7 @@ class library_configurator(configurator_base):
 		self.define = ''
 		self.nosystem = 0
 		self.uselib = ''
-                self.static = False
+		self.static = False
 
 		self.code = 'int main(){return 0;}\n'
 
@@ -620,9 +620,9 @@ class library_configurator(configurator_base):
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
 
-                static_l = ''
-                if self.static:
-                        static_l = 'STATIC'
+		static_l = ''
+		if self.static:
+			static_l = 'STATIC'
 
 		olduselibpath = self.env['LIBPATH_'+self.uselib]
 		olduselib = self.env[static_l+'LIB_'+self.uselib]
