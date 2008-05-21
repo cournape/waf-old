@@ -1,4 +1,10 @@
-/* Thomas Nagy 2008 */
+/*
+fnv.c implemented from http://isthe.com/chongo/tech/comp/fnv/
+
+¡This is only useful for 64-bit systems! (for now)
+
+Thomas Nagy 2008
+*/
 
 #include <Python.h>
 
