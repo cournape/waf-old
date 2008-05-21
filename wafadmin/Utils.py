@@ -10,11 +10,14 @@ import Params
 from Constants import *
 
 try:
-	import hashlib
-	md5 = hashlib.md5
+	from fnv import new as md5
 except ImportError:
-	import md5
-	md5 = md5.md5
+	try:
+		import hashlib
+		md5 = hashlib.md5
+	except ImportError:
+		import md5
+		md5 = md5.md5
 
 g_trace = 0
 g_debug = 0
