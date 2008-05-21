@@ -1,3 +1,5 @@
+/* Thomas Nagy 2008 */
+
 #include <Python.h>
 
 /*
@@ -58,6 +60,7 @@ static PyObject * fnv_digest(fnv_struct *self)
 
 static PyObject * fnv_hexdigest(fnv_struct *self)
 {
+	// ¿why does this work in md5module.c and here no?
     unsigned char hexdigest[2*sizeof(u_int64_t)];
     int i;
     for (i=0; i<sizeof(u_int64_t); ++i)
