@@ -1,2 +1,6 @@
-print "import TaskGen instead of the old (and evil name) Object.py"
+
+import warnings
+warnings.warn("The WAF module Object has been renamed to TaskGen", DeprecationWarning, stacklevel=2)
+del warnings
+
 from TaskGen import *
