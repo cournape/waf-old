@@ -19,7 +19,7 @@ for num in xrange(15):
 	print str(x.digest())
 */
 
-#define FNV1_64_INIT ((u_int64_t)14695981039346656037)
+#define FNV1_64_INIT ((u_int64_t)14695981039346656037ULL)
 #define FNV1_64_PRIME ((u_int64_t)1099511628211)
 
 #define FNV_64A_OP(hash, octet) \
