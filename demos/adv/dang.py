@@ -4,9 +4,9 @@
 
 "Demo: '.coin' files are converted into cpp files using 'cat': {.coin -> .cpp -> .o}"
 
-import Object
+import TaskGen
 
-Object.declare_chain(
+TaskGen.declare_chain(
 	name = 'dang',
 	action = '${DANG} ${SRC} > ${TGT}',
 	ext_in = '.coin',
