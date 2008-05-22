@@ -201,6 +201,20 @@ def h_file(filename):
 	f.close()
 	return m.digest()
 
+try:
+	from fnv import new
+	def h_file(filename):
+		m = md5()
+		try:
+			m.hfile(filename)
+			x = m.digest()
+			if x is None: raise OSError, "not a file"
+			return x
+		except SystemError:
+			raise OSError, "not a file"+filename
+except ImportError:
+	pass
+
 # Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
 # based on the path, md5 hashing can be used for some files and timestamp for others
 #def h_file(filename):

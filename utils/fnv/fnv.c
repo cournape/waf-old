@@ -57,6 +57,38 @@ static PyObject * fnv_update(fnv_struct *self, PyObject *args)
 	return Py_None;
 }
 
+static PyObject * fnv_hfile(fnv_struct *self, PyObject *args)
+{
+	unsigned char *cp;
+	int len;
+	if (!PyArg_ParseTuple(args, "s#:hfile", &cp, &len))
+		return NULL;
+
+	self->sum = FNV1_64_INIT;
+	FILE *stream;
+	unsigned char buf[8192];
+	int i;
+	int numread;
+	if ((stream = fopen((char*)cp, "r")) != NULL)
+	{
+		do
+		{
+			numread = fread(buf, sizeof(unsigned char), 8192, stream);
+			for (i=0; i<numread; ++i)
+			{
+				self->sum = FNV_64A_OP(self->sum, buf[i]);
+			}
+		}
+		while (numread);
+		fclose(stream);
+	}
+	else
+	{
+		return NULL;
+	}
+	return PyString_FromStringAndSize((char*) &self->sum, INTSIZE);
+}
+
 static PyObject * fnv_digest(fnv_struct *self)
 {
 	return PyString_FromStringAndSize((char*) &self->sum, INTSIZE);
@@ -85,6 +117,7 @@ static PyMethodDef fnv_methods[] = {
 	{"update",    (PyCFunction)fnv_update,    METH_VARARGS, NULL},
 	{"digest",    (PyCFunction)fnv_digest,    METH_NOARGS,  NULL},
 	{"hexdigest", (PyCFunction)fnv_hexdigest, METH_NOARGS,  NULL},
+	{"hfile",     (PyCFunction)fnv_hfile,     METH_VARARGS, NULL},
 	{NULL}
 };
 
