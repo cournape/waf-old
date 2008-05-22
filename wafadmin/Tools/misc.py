@@ -153,6 +153,70 @@ class subst_taskgen(TaskGen.task_gen):
 				tsk.debug()
 				fatal('task witout an environment')
 
+
+
+####################
+## command-output ####
+####################
+
+class CmdArg(object):
+	"""Represents a command-output argument that is based on input or output files or directories"""
+
+class CmdFileArg(CmdArg):
+	def __init__(self, file_name, template=None):
+		CmdArg.__init__(self)
+		self.file_name = file_name
+		if template is None:
+			self.template = '%s'
+		else:
+			self.template = template
+		self.node = None
+
+class CmdInputFileArg(CmdFileArg):
+	def find_node(self, base_path):
+		assert isinstance(base_path, Node.Node)
+		self.node = base_path.find_resource(self.file_name)
+		if self.node is None:
+			Params.fatal("Input file %s not found in " % (self.file_name, base_path))
+
+	def get_path(self, env, absolute):
+		if absolute:
+			return self.template % self.node.abspath(env)
+		else:
+			return self.template % self.node.srcpath(env)
+			
+class CmdOutputFileArg(CmdFileArg):
+	def find_node(self, base_path):
+		assert isinstance(base_path, Node.Node)
+		self.node = base_path.find_or_declare(self.file_name)
+		if self.node is None:
+			Params.fatal("Output file %s not found in " % (self.file_name, base_path))
+	def get_path(self, env, absolute):
+		if absolute:
+			return self.template % self.node.abspath(env)
+		else:
+			return self.template % self.node.bldpath(env)
+
+class CmdDirArg(CmdArg):
+	def __init__(self, dir_name):
+		CmdArg.__init__(self)
+		self.dir_name = dir_name
+		self.node = None
+	def find_node(self, base_path):
+		assert isinstance(base_path, Node.Node)
+		self.node = base_path.find_dir(self.dir_name)
+		if self.node is None:
+			Params.fatal("Directory %s not found in " % (self.dir_name, base_path))
+
+class CmdInputDirArg(CmdDirArg):
+	def get_path(self, dummy_env, dummy_absolute):
+		return self.node.abspath()
+
+class CmdOutputDirArg(CmdFileArg):
+	def get_path(self, env, dummy_absolute):
+		return self.node.abspath(env)
+
+
 class CommandOutputTask(Task.Task):
 
 	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd, os_env):
@@ -168,9 +232,57 @@ class CommandOutputTask(Task.Task):
 		if command_node is not None: self.dep_nodes = [command_node]
 		self.dep_vars = [] # additional environment variables to look
 
-class CommandOutput(TaskGen.task_gen):
 
-	CMD_ARGV_INPUT, CMD_ARGV_OUTPUT, CMD_ARGV_INPUT_DIR, CMD_ARGV_OUTPUT_DIR = range(4)
+def _command_output_action(task):
+	assert len(task.m_inputs) > 0
+
+	def input_path(node, template):
+		if task.cwd is None:
+			return template % node.bldpath(task.env())
+		else:
+			return template % node.abspath()
+	def output_path(node, template):
+		fun = node.abspath
+		if task.cwd is None: fun = node.bldpath
+		return template % fun(task.env())
+
+	if isinstance(task.command, Node.Node):
+		argv = [input_path(task.command, '%s')]
+	else:
+		argv = [task.command]
+
+	for arg in task.command_args:
+		if isinstance(arg, str):
+			argv.append(arg)
+		else:
+			assert isinstance(arg, CmdArg)
+			argv.append(arg.get_path(task.env(), (task.cwd is not None)))
+
+	if task.stdin:
+		stdin = file(input_path(task.stdin, '%s'))
+	else:
+		stdin = None
+
+	if task.stdout:
+		stdout = file(output_path(task.stdout, '%s'), "w")
+	else:
+		stdout = None
+
+	if task.cwd is None:
+		cwd = ('None (actually %r)' % os.getcwd())
+	else:
+		cwd = repr(task.cwd)
+	Params.debug("command-output: cwd=%s, stdin=%r, stdout=%r, argv=%r" %
+		     (cwd, stdin, stdout, argv))
+
+	if task.os_env is None:
+		os_env = os.environ
+	else:
+		os_env = task.os_env
+	command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd, env=os_env)
+	return command.wait()
+
+class CommandOutput(TaskGen.task_gen):
 
 	def __init__(self, *k):
 		TaskGen.task_gen.__init__(self, *k)
@@ -215,61 +327,6 @@ class CommandOutput(TaskGen.task_gen):
 		# if None, use the default environment variables unchanged
 		self.os_env = None
 
-	def _command_output_func(task):
-		assert len(task.m_inputs) > 0
-
-		def input_path(node, template):
-			if task.cwd is None:
-				return template % node.bldpath(task.env())
-			else:
-				return template % node.abspath()
-		def output_path(node, template):
-			fun = node.abspath
-			if task.cwd is None: fun = node.bldpath
-			return template % fun(task.env())
-
-		if isinstance(task.command, Node.Node):
-			argv = [input_path(task.command, '%s')]
-		else:
-			argv = [task.command]
-
-		for arg in task.command_args:
-			if isinstance(arg, str):
-				argv.append(arg)
-			else:
-				role, node, template = arg
-				if role in (CommandOutput.CMD_ARGV_INPUT, CommandOutput.CMD_ARGV_INPUT_DIR):
-					argv.append(input_path(node, template))
-				elif role in (CommandOutput.CMD_ARGV_OUTPUT, CommandOutput.CMD_ARGV_OUTPUT_DIR):
-					argv.append(output_path(node, template))
-				else:
-					raise AssertionError
-
-		if task.stdin:
-			stdin = file(input_path(task.stdin, '%s'))
-		else:
-			stdin = None
-
-		if task.stdout:
-			stdout = file(output_path(task.stdout, '%s'), "w")
-		else:
-			stdout = None
-
-		if task.cwd is None:
-			cwd = ('None (actually %r)' % os.getcwd())
-		else:
-			cwd = repr(task.cwd)
-		Params.debug("command-output: cwd=%s, stdin=%r, stdout=%r, argv=%r" %
-			     (cwd, stdin, stdout, argv))
-
-		if task.os_env is None:
-			os_env = os.environ
-		else:
-			os_env = task.os_env
-		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd, env=os_env)
-		return command.wait()
-
-	_command_output_func = staticmethod(_command_output_func)
 
 	def apply(self):
 		if self.command is None:
@@ -287,71 +344,20 @@ use command_is_external=True''') % (self.command,)
 		if self.cwd is None:
 			cwd = None
 		else:
-			role, file_name, template = self.cwd
-			if role == CommandOutput.CMD_ARGV_INPUT_DIR:
-				if isinstance(file_name, Node.Node):
-					input_node = file_name
-				else:
-					input_node = self.path.find_dir(file_name)
-					if input_node is None:
-						Params.fatal("File %s not found" % (file_name,))
-				cwd = input_node.abspath()
-			elif role == CommandOutput.CMD_ARGV_OUTPUT_DIR:
-				if isinstance(file_name, Node.Node):
-					output_node = file_name
-				else:
-					output_node = self.path.find_dir(file_name)
-					if output_node is None:
-						Params.fatal("File %s not found" % (file_name,))
-				cwd = output_node.abspath(self.env)
-			else:
-				raise AssertionError
+			assert isinstance(cwd, CmdDirArg)
+			self.cwd.find_node(self.path)
 
 		args = []
 		inputs = []
 		outputs = []
 
 		for arg in self.argv:
-			if isinstance(arg, str):
-				args.append(arg)
-			else:
-				role, file_name, template = arg
-				if role == CommandOutput.CMD_ARGV_INPUT:
-					if isinstance(file_name, Node.Node):
-						input_node = file_name
-					else:
-						input_node = self.path.find_resource(file_name)
-						if input_node is None:
-							Params.fatal("File %s not found" % (file_name,))
-					inputs.append(input_node)
-					args.append((role, input_node, template))
-				elif role == CommandOutput.CMD_ARGV_OUTPUT:
-					if isinstance(file_name, Node.Node):
-						output_node = file_name
-					else:
-						output_node = self.path.find_or_declare(file_name)
-						if output_node is None:
-							Params.fatal("File %s not found" % (file_name,))
-					outputs.append(output_node)
-					args.append((role, output_node, template))
-				elif role == CommandOutput.CMD_ARGV_INPUT_DIR:
-					if isinstance(file_name, Node.Node):
-						input_node = file_name
-					else:
-						input_node = self.path.find_dir(file_name)
-						if input_node is None:
-							Params.fatal("File %s not found" % (file_name,))
-					args.append((role, input_node, template))
-				elif role == CommandOutput.CMD_ARGV_OUTPUT_DIR:
-					if isinstance(file_name, Node.Node):
-						output_node = file_name
-					else:
-						output_node = self.path.find_dir(file_name)
-						if output_node is None:
-							Params.fatal("File %s not found" % (file_name,))
-					args.append((role, output_node, template))
-				else:
-					raise AssertionError
+			if isinstance(arg, CmdArg):
+				arg.find_node(self.path)
+				if isinstance(arg, CmdInputFileArg):
+					inputs.append(arg.node)
+				if isinstance(arg, CmdOutputFileArg):
+					outputs.append(arg.node)
 
 		if self.stdout is None:
 			stdout = None
@@ -389,7 +395,7 @@ use command_is_external=True''') % (self.command,)
 			Params.fatal("command-output objects must have at least one output file")
 
 		task = CommandOutputTask(self.env, self.prio,
-					 cmd, cmd_node, args,
+					 cmd, cmd_node, self.argv,
 					 stdin, stdout, cwd, self.os_env)
 		self.m_tasks.append(task)
 
@@ -409,27 +415,27 @@ use command_is_external=True''') % (self.command,)
 		"""Returns an object to be used as argv element that instructs
 		the task to use a file from the input vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_INPUT, file_name, template)
+		return CmdInputFileArg(file_name, template)
 
 	def output_file(self, file_name, template='%s'):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a file from the output vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_OUTPUT, file_name, template)
+		return CmdOutputFileArg(file_name, template)
 
-	def input_dir(self, file_name, template='%s'):
+	def input_dir(self, dir_name):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a directory path from the input vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_INPUT_DIR, file_name, template)
+		return CmdInputDirArg(dir_name)
 
-	def output_dir(self, file_name, template='%s'):
+	def output_dir(self, dir_name):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a directory path from the output vector at the given
 		position as argv element."""
-		return (CommandOutput.CMD_ARGV_OUTPUT_DIR, file_name, template)
+		return CmdOutputDirArg(dir_name)
 
 Action.Action('copy', vars=[], func=action_process_file_func)
-Action.Action('command-output', func=CommandOutput._command_output_func, color='BLUE')
+Action.Action('command-output', func=_command_output_action, color='BLUE')
 TaskGen.task_gen.classes['command-output'] = CommandOutput
 
