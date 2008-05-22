@@ -155,7 +155,7 @@ class subst_taskgen(TaskGen.task_gen):
 
 class CommandOutputTask(Task.Task):
 
-	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd):
+	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd, os_env):
 		Task.Task.__init__(self, 'command-output', env, prio=priority, normal=1)
 		assert isinstance(command, (str, Node.Node))
 		self.command = command
@@ -163,6 +163,7 @@ class CommandOutputTask(Task.Task):
 		self.stdin = stdin
 		self.stdout = stdout
 		self.cwd = cwd
+		self.os_env = os_env
 
 		if command_node is not None: self.dep_nodes = [command_node]
 		self.dep_vars = [] # additional environment variables to look
@@ -210,6 +211,10 @@ class CommandOutput(TaskGen.task_gen):
 		# change the subprocess to this cwd (must use obj.input_dir() or output_dir() here)
 		self.cwd = None
 
+		# OS environment variables to pass to the subprocess
+		# if None, use the default environment variables unchanged
+		self.os_env = None
+
 	def _command_output_func(task):
 		assert len(task.m_inputs) > 0
 
@@ -256,7 +261,12 @@ class CommandOutput(TaskGen.task_gen):
 			cwd = repr(task.cwd)
 		Params.debug("command-output: cwd=%s, stdin=%r, stdout=%r, argv=%r" %
 			     (cwd, stdin, stdout, argv))
-		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd)
+
+		if task.os_env is None:
+			os_env = os.environ
+		else:
+			os_env = task.os_env
+		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd, env=os_env)
 		return command.wait()
 
 	_command_output_func = staticmethod(_command_output_func)
@@ -380,7 +390,7 @@ use command_is_external=True''') % (self.command,)
 
 		task = CommandOutputTask(self.env, self.prio,
 					 cmd, cmd_node, args,
-					 stdin, stdout, cwd)
+					 stdin, stdout, cwd, self.os_env)
 		self.m_tasks.append(task)
 
 		task.set_inputs(inputs)
