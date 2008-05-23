@@ -28,7 +28,7 @@ class FamAdaptor:
 	def __del__(self):
 		if self.__fam:
 			for handle in self.__watchHandler.keys():
-				self.stop_watch( handle )
+				self.stop_watch(handle)
 			self.__fam.close()
 
 	def __check_fam(self):
@@ -37,7 +37,7 @@ class FamAdaptor:
 
 	def watch_directory(self, name, idxName):
 		self.__check_fam()
-		if self.__watchHandler.has_key( name ):
+		if self.__watchHandler.has_key(name):
 			raise "dir already watched"
 		# set famId
 		self.__watchHandler[name] = self.__fam.monitorDirectory(name, idxName)
@@ -45,7 +45,7 @@ class FamAdaptor:
 
 	def watch_file(self, name, idxName):
 		self.__check_fam()
-		if self.__watchHandler.has_key( name ):
+		if self.__watchHandler.has_key(name):
 			raise "file already watched"
 		# set famId
 		self.__watchHandler[name] = self.__fam.monitorFile(name, idxName)

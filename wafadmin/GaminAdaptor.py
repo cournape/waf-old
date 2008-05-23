@@ -19,7 +19,7 @@ else:
 
 class GaminAdaptor:
 	"""gamin helper class for use with DirWatcher"""
-	def __init__( self, eventHandler ):
+	def __init__(self, eventHandler):
 		""" creates the gamin wrapper
 		@param eventHandler: callback method for event handling"""
 		self.__gamin = gamin.WatchMonitor()

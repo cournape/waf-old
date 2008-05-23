@@ -40,7 +40,7 @@ modification times.  We repeatedly crawl through the directory
 tree rooted at 'path', doing a stat() on each file and comparing
 the modification time.
 """
-		files = os.listdir( dirName )
+		files = os.listdir(dirName)
 		firstRun = self.__dirs[dirName].isFirstRun()
 
 		for filename in files:
@@ -71,7 +71,7 @@ the modification time.
 			self.__dirs[dirName].currentFiles[path] = fileStat.st_mtime
 
 	def watch_directory(self, namePath, callBack, idxName):
-		self.__dirs[namePath] = self.Helper( callBack, idxName )
+		self.__dirs[namePath] = self.Helper(callBack, idxName)
 		return self
 
 	def unwatch_directory(self, namePath):
@@ -86,7 +86,7 @@ the modification time.
 			for deletedFile in self.__dirs[dirName].oldFiles.keys():
 				self.__changeLog[deletedFile] = 'deleted'
 				del self.__dirs[dirName].oldFiles[deletedFile]
-		return len( self.__changeLog )
+		return len(self.__changeLog)
 
 	def handle_events(self):
 		pathName = self.__changeLog.keys()[0]
@@ -104,7 +104,7 @@ class FallbackAdaptor:
 	def __del__(self):
 		if self.__fallback:
 			for handle in self.__watchHandler.keys():
-				self.stop_watch( handle )
+				self.stop_watch(handle)
 			self.__fallback = None
 
 	def __check_fallback(self):
@@ -113,7 +113,7 @@ class FallbackAdaptor:
 
 	def watch_directory(self, name, idxName):
 		self.__check_fallback()
-		if self.__watchHandler.has_key( name ):
+		if self.__watchHandler.has_key(name):
 			raise "dir already watched"
 		# set famId
 		self.__watchHandler[name] = self.__fallback.watch_directory(name, self.__eventHandler, idxName)
@@ -121,7 +121,7 @@ class FallbackAdaptor:
 
 	def watch_file(self, name, idxName):
 		self.__check_fallback()
-		if self.__watchHandler.has_key( name ):
+		if self.__watchHandler.has_key(name):
 			raise "file already watched"
 		# set famId
 		self.__watchHandler[name] = self.__fallback.watch_directory(name, self.__eventHandler, idxName)
@@ -129,7 +129,7 @@ class FallbackAdaptor:
 
 	def stop_watch(self, name):
 		self.__check_fallback()
-		if self.__watchHandler.has_key( name ):
+		if self.__watchHandler.has_key(name):
 			self.__fallback.unwatch_directory(name)
 			del self.__watchHandler[name]
 		return None
