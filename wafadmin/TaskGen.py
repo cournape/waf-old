@@ -493,17 +493,15 @@ def add_feature(name, methods):
 		task_gen.traits[name] = l
 	l.update(lst)
 
-# decorators follow
-'''
-       All the following decorators are registration decorators, i.e add an attribute to current class
-       (task_gen and its derivatives), with same name as func, which points to func itself.
-       For example:
-               @taskgen
-               def sayHi(self):
-                       print "hi"
-
-       Now you can call taskgen.sayHi() ...
-'''
+"""
+All the following decorators are registration decorators, i.e add an attribute to current class
+ (task_gen and its derivatives), with same name as func, which points to func itself.
+For example:
+   @taskgen
+   def sayHi(self):
+        print "hi"
+Now taskgen.sayHi() may be called
+"""
 def taskgen(func):
 	setattr(task_gen, func.__name__, func)
 
