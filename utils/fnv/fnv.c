@@ -1,7 +1,9 @@
 /*
 fnv.c implemented from http://isthe.com/chongo/tech/comp/fnv/
 
-¡This is only useful for 64-bit systems! (for now)
+Changing md5 for fnv:
+* brings a 10% speed improvement on hashing files (tried on a fast computer for hashing divx files)
+* reduces the signature size by 2 (128 bits -> 64 bits) pickling the cache is faster
 
 Thomas Nagy 2008
 */
@@ -30,8 +32,9 @@ for num in xrange(15):
 #define FNV1_64_INIT ((u_int64_t)14695981039346656037ULL)
 #define FNV1_64_PRIME ((u_int64_t)1099511628211)
 
-#define FNV_64A_OP(hash, octet) \
-    (((u_int64_t)(hash) ^ (u_int8_t)(octet)) * FNV1_64_PRIME)
+// second line is much faster (37->20) without optimizations of any kind
+//#define FNV_64A_OP(hash, octet) (((u_int64_t)(hash) ^ (u_int8_t)(octet)) * FNV1_64_PRIME)
+#define FNV_64A_OP(hash, octet) ((hash) ^ (octet * FNV1_64_PRIME))
 
 typedef struct fnv_struct
 {
