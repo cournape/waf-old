@@ -253,7 +253,7 @@ def apply_qt4(self):
 			u.m_outputs = trans
 
 		if self.langname:
-			t = Task.Task('qm2rcc', self.env, 30)
+			t = Task.Task('qm2rcc', self.env, 50)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_build(self.langname+'.qrc'))
 			t.path = self.path
@@ -326,7 +326,7 @@ Action.simple_action('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(e
 Action.simple_action('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', prio=60)
 Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
 
-Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=60)
+Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=50)
 
 def detect_qt4(conf):
 	env = conf.env
