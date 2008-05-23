@@ -100,8 +100,7 @@ class Serial(object):
 		self.manager = bld.task_manager
 
 		self.curgroup = 0
-		self.curprio = -1
-		self.outstanding = [] # list of tasks in the current priority
+		self.outstanding = []
 
 		self.priolst = []
 
@@ -158,7 +157,6 @@ class Serial(object):
 	# skip a group and report the failure
 	def skip_group(self):
 		self.curgroup += 1
-		self.curprio = -1
 		self.outstanding = []
 		try: self.manager.groups[self.curgroup].prio.sort()
 		except KeyError: pass
