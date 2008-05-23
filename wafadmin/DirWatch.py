@@ -170,16 +170,17 @@ class DirectoryWatcher:
 		except KeyboardInterrupt:
 			self.request_end_loop()
 
-class Test:
-	def __init__(self):
-		self.fam_test = DirectoryWatcher()
-		self.fam_test.add_watch("tmp Test", self.thisIsCalledBack, ["/tmp"])
-		self.fam_test.loop()
-#		self.fam_test.loop()
-
-	def thisIsCalledBack(self, idxName, pathName, event):
-		print "idxName=%s, Path=%s, Event=%s " % (idxName, pathName, event)
-		self.fam_test.resume_watch(idxName)
-
 if __name__ == "__main__":
+	class Test:
+		def __init__(self):
+			self.fam_test = DirectoryWatcher()
+			self.fam_test.add_watch("tmp Test", self.thisIsCalledBack, ["/tmp"])
+			self.fam_test.loop()
+#			self.fam_test.loop()
+
+		def thisIsCalledBack(self, idxName, pathName, event):
+			print "idxName=%s, Path=%s, Event=%s " % (idxName, pathName, event)
+			self.fam_test.resume_watch(idxName)
+
 	Test()
+
