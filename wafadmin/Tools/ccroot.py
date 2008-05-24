@@ -111,15 +111,6 @@ class ccroot_abstract(TaskGen.task_gen):
 		# includes, seen from the current directory
 		self.includes=''
 
-		# list of directories to enable when scanning
-		# #include directives in source files for automatic
-		# dependency tracking.  If left empty, scanning the
-		# whole project tree is enabled.  If non-empty, only
-		# the indicated directories (which must be relative
-		# paths), plus the directories in obj.includes, are
-		# scanned for #includes.
-		self.dependencies = ''
-
 		self.defines = ''
 		self.rpaths = ''
 
@@ -145,10 +136,10 @@ class ccroot_abstract(TaskGen.task_gen):
 		#self.link = '' # optional: kind of link to apply (ar, cc, cxx, ..)
 
 		# these are kind of private, do not touch
-		self.incpaths_lst = []
 		self.inc_paths = []
-		self.scanner_defines = {}
 		self.bld_incpaths_lst = []
+
+		self.scanner_defines = {}
 
 		self.compiled_tasks = []
 		self.link_task = None
@@ -253,37 +244,9 @@ def install_target_cshlib(self):
 		self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir}
 
 @taskgen
-@after('apply_incpaths')
-@before('apply_core')
-def apply_dependencies(self):
-	deps = getattr(self, 'dependencies', '')
-	if deps:
-		dep_lst = self.to_list(deps) + self.to_list(self.includes)
-		self.inc_paths = []
-		for directory in dep_lst:
-			if os.path.isabs(directory):
-				Params.fatal("Absolute paths not allowed in obj.dependencies")
-				return
-
-			node = self.path.find_dir(directory)
-			if not node:
-				Params.fatal("node not found in ccroot:apply_dependencies " + str(directory), 'ccroot')
-				return
-			if node not in self.inc_paths:
-				self.inc_paths.append(node)
-	else:
-		# by default, we include the whole project tree
-		lst = [self.path]
-		for obj in TaskGen.g_allobjs:
-			if obj.path not in lst:
-				lst.append(obj.path)
-		self.inc_paths = lst + self.incpaths_lst
-
-@taskgen
 @after('apply_type_vars')
 def apply_incpaths(self):
 	self.bld_incpaths_lst = getattr(self, 'bld_incpaths_lst', [])
-	self.incpaths_lst = getattr(self, 'incpaths_lst', [])
 
 	lst = []
 	for i in self.to_list(self.uselib):
@@ -293,13 +256,8 @@ def apply_incpaths(self):
 	inc_lst = self.to_list(self.includes) + lst
 	if preproc.go_absolute:
 		inc_lst.extend(preproc.standard_includes)
-	lst = self.incpaths_lst
+	lst = self.inc_paths
 
-	# we might want to add the build directory
-	#self.incpaths_lst.append(Params.g_build.m_bldnode)
-	#self.incpaths_lst.append(Params.g_build.m_srcnode)
-
-	# now process the include paths
 	tree = Params.g_build
 	for dir in inc_lst:
 		node = 0
