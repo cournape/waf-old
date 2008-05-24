@@ -140,7 +140,14 @@ class shpip_task(Task.Task):
 			raise
 			return 1
 		else:
+
+			# the variable lst should contain a list of paths to the files produced
 			lst = Utils.to_list(files)
+
+			# Waf does not know "magically" what files are produced
+			# In the most general case it may be necessary to run os.listdir() to see them
+			# In this demo the command outputs is giving us this list
+
 			# the files exist in the build dir only so we do not use find_or_declare
 			build_nodes = [node.m_parent.exclusive_build_node(x) for x in lst]
 			self.m_outputs = build_nodes
