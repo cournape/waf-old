@@ -163,6 +163,7 @@ class Build(object):
 
 	def clean(self):
 		debug("clean called", 'build')
+		# FIXME this will not work for files created during the configuration dep_files
 		def clean_rec(node):
 			for x in node.childs:
 				nd = node.childs[x]
