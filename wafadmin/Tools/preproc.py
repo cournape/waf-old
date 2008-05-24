@@ -382,11 +382,7 @@ class c_parser(object):
 		self.deps  = []
 		self.deps_paths = []
 
-		if nodepaths is None:
-			self.m_nodepaths = []
-		else:
-			self.m_nodepaths = nodepaths
-
+		self.m_nodepaths = nodepaths or []
 		#self.m_nodepaths.append(Params.g_build.m_root.find_dir('/usr/include'))
 
 		self.m_nodes = []
