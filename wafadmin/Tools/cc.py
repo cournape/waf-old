@@ -46,7 +46,7 @@ def apply_obj_vars_cc(self):
 
 	# local flags come first
 	# set the user-defined includes paths
-	for i in self.inc_paths:
+	for i in self.env['INC_PATHS']:
 		app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
 		app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
 
@@ -90,7 +90,6 @@ def c_hook(self, node):
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
 	task.m_scanner = ccroot.g_c_scanner
-	task.path_lst = self.inc_paths
 	task.defines  = self.scanner_defines
 
 	task.m_inputs = [node]

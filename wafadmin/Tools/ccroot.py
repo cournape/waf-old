@@ -44,7 +44,7 @@ class c_scanner(Scan.scanner):
 	def scan(self, task, node):
 		"look for .h the .cpp need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = preproc.c_parser(nodepaths = task.path_lst, defines = task.defines)
+		gruik = preproc.c_parser(nodepaths = task.env()['INC_PATHS'], defines = task.defines)
 		gruik.start(node, task.env())
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
@@ -134,9 +134,6 @@ class ccroot_abstract(TaskGen.task_gen):
 		self.p_type_vars = []
 
 		#self.link = '' # optional: kind of link to apply (ar, cc, cxx, ..)
-
-		# these are kind of private, do not touch
-		self.inc_paths = []
 
 		self.scanner_defines = {}
 
@@ -253,7 +250,7 @@ def apply_incpaths(self):
 	inc_lst = self.to_list(self.includes) + lst
 	if preproc.go_absolute:
 		inc_lst.extend(preproc.standard_includes)
-	lst = self.inc_paths
+	lst = []
 
 	tree = Params.g_build
 	for dir in inc_lst:
@@ -269,6 +266,7 @@ def apply_incpaths(self):
 		elif node:
 			if not node in lst: lst.append(node)
 			Params.g_build.rescan(node)
+	self.env['INC_PATHS'] = self.env['INC_PATHS'] + lst
 	# now the nodes are added to self.incpaths_lst
 
 @taskgen
@@ -364,7 +362,7 @@ def apply_lib_vars(self):
 			for x in self.to_list(y.export_incdirs):
 				node = y.path.find_dir(x)
 				if not node: fatal('object %s: invalid folder %s in export_incdirs' % (y.target, x))
-				if not node in self.inc_paths: self.inc_paths.append(node)
+				if not node in self.env['INC_PATHS']: self.env['INC_PATHS'].append(node)
 
 	# 2. the case of the libs defined outside
 	for x in uselib:
