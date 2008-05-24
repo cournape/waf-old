@@ -102,12 +102,10 @@ class Environment(object):
 			self.m_table[key] = value
 			return value
 		else:
-			if isinstance(value, list):
-				return value # no need to copy the list, it is not borrowed <- TODO ??
-			else:
+			if not isinstance(value, list):
 				value = [value]
 				self.m_table[key] = value
-				return value
+			return value
 
 	def append_value(self, var, value):
 		current_value = self._get_list_value_for_modification(var)
