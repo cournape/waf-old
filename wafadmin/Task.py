@@ -13,14 +13,19 @@ This is why the dependency management is split on three different levels:
 2. groups of tasks that can be run in parallel
 3. tasks that can run in parallel, but with possible unknown ad-hoc dependencies
 
-The point #1 represents a strict sequential order between groups of tasks,
-whereas #2 and #3 represent partial order constraints where #2 applies to the kind of task
+The point #1 represents a strict sequential order between groups of tasks, for example a compiler is produced
+and used to compile the rest, whereas #2 and #3 represent partial order constraints where #2 applies to the kind of task
 and #3 applies to the task instances.
 
 #1 is held by the task manager (ordered list of TaskGroups)
 #2 is held by the task groups (constraint extraction and topological sort) and the actions (priorities)
 #3 is held by the tasks individually (attribute m_run_after),
    and the scheduler (Runner.py) use Task::may_start to reorder the tasks
+
+
+To simplify the system a little bit, the part #2 only applies to dependencies between actions,
+and priorities or order constraints can only be applied to actions, not to tasks anymore
+
 """
 
 import os, types, shutil
