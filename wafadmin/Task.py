@@ -99,11 +99,28 @@ class TaskGroup(object):
 		self.info = ''
 		self.tasks = []
 
-		self.eq_groups = None
+		self.eq_groups = None # tasks having equivalent constraints
 		self.keys = None
 
 		# instead of returning a set, we return a set for each
 		self.segment_maxjobs = {}
+
+
+		# future api: make_cstr_groups, ..
+		# ----------------------------------------------------------
+		self.cstr_groups = {} # tasks having equivalent constraints
+		self.cstr_order = {} # partial order between the cstr groups
+
+
+	def make_cstr_groups(self):
+		"unite the tasks that have similar constraints"
+		self.cstr_groups = {}
+		for x in self.tasks:
+			h = x.hash_constraints()
+			try: self.cstr_groups[h].append(x)
+			except KeyError: self.cstr_groups[h] = [x]
+
+
 
 	def segment_by_maxjobs(self, tsk_lst):
 		foo = {}
@@ -208,6 +225,16 @@ class TaskBase(object):
 		else:
 			self.m_idx = manager.idx
 			manager.idx += 1
+	def hash_constraints(self):
+		sum = 0
+		names = ('prio', 'before', 'after')
+		act = getattr(self, "m_action", None)
+		if act:
+			sum = hash(sum, getattr(self, 'm_name', sys.maxint))
+		for x in names:
+			# hash the attribute on the task, and fallback to the one of the action if not present
+			sum = hash(sum, getattr(self, x, getattr(act, x, sys.maxint)))
+		return sum
 	def may_start(self):
 		"non-zero if the task is ready"
 		return 1
