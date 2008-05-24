@@ -137,7 +137,6 @@ class ccroot_abstract(TaskGen.task_gen):
 
 		# these are kind of private, do not touch
 		self.inc_paths = []
-		self.bld_incpaths_lst = []
 
 		self.scanner_defines = {}
 
@@ -246,8 +245,6 @@ def install_target_cshlib(self):
 @taskgen
 @after('apply_type_vars')
 def apply_incpaths(self):
-	self.bld_incpaths_lst = getattr(self, 'bld_incpaths_lst', [])
-
 	lst = []
 	for i in self.to_list(self.uselib):
 		if self.env['CPPPATH_'+i]:
@@ -272,7 +269,6 @@ def apply_incpaths(self):
 		elif node:
 			if not node in lst: lst.append(node)
 			Params.g_build.rescan(node)
-			self.bld_incpaths_lst.append(node)
 	# now the nodes are added to self.incpaths_lst
 
 @taskgen

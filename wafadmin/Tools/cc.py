@@ -46,7 +46,7 @@ def apply_obj_vars_cc(self):
 
 	# local flags come first
 	# set the user-defined includes paths
-	for i in self.bld_incpaths_lst:
+	for i in self.inc_paths:
 		app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
 		app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
 
