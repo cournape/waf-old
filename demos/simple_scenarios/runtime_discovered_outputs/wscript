@@ -120,6 +120,12 @@ class shpip_task(Task.Task):
 			generator.outstanding.insert(0, task)
 			generator.total += 1
 
+			# if headers are produced something like this can be done to add the include paths
+			dir = task.m_inputs[0].m_parent
+			self.env().append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env())) # include paths for c++
+			self.env().append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env())) # include paths for c
+			self.env().append_value('INC_PATHS', dir) # for the waf preprocessor
+
 	def run_special(self):
 		"runs a program that creates cpp files, capture the output to compile them"
 		node = self.m_inputs[0]
@@ -147,7 +153,8 @@ class shpip_task(Task.Task):
 		# 0 for all ok
 		return 0
 
-Action.Action('shpip_action', vars=[], func=shpip_task.run_special, color='BLUE', prio=100)
+# when producing headers, the priority attribute (foo.prio) must be set
+Action.Action('shpip_action', vars=[], func=shpip_task.run_special, color='BLUE')
 
 @taskgen
 @extension('.shpip')
