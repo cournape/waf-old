@@ -142,6 +142,7 @@ def set_main_module(file_path):
 	# sys.modules['wscript_main'] = g_module
 
 def to_hashtable(s):
+	"used for importing env files"
 	tbl = {}
 	lst = s.split('\n')
 	for line in lst:
@@ -151,6 +152,7 @@ def to_hashtable(s):
 	return tbl
 
 def get_term_cols():
+	"console width"
 	return 80
 try:
 	import struct, fcntl, termios
@@ -158,11 +160,18 @@ except ImportError:
 	pass
 else:
 	if sys.stdout.isatty():
-		def get_term_cols():
+		def myfun():
 			dummy_lines, cols = struct.unpack("HHHH", \
 			fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
 			struct.pack("HHHH", 0, 0, 0, 0)))[:2]
 			return cols
+		# we actually try the function once to see if it is suitable
+		try:
+			myfun()
+		except IOError:
+			pass
+		else:
+			get_term_cols = myfun
 
 def progress_line(state, total, col1, col2):
 	n = len(str(total))
