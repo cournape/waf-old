@@ -18,7 +18,7 @@ g_cpp_flag_vars = [
 "main cpp variables"
 
 EXT_CXX = ['.cpp', '.cc', '.cxx', '.C']
-CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_dependencies', 'apply_defines_cxx',
+CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_defines_cxx',
 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx']
 
 TaskGen.add_feature('cxx', CXX_METHS)
@@ -112,5 +112,5 @@ link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS}
 Action.simple_action('cxx', cxx_str, color='GREEN', prio=100)
 Action.simple_action('cxx_link', link_str, color='YELLOW', prio=111)
 
-TaskGen.declare_order('apply_dependencies', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
+TaskGen.declare_order('apply_incpaths', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 
