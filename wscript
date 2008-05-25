@@ -303,7 +303,10 @@ def build(bld):
 	if Params.g_commands['install']:
 		val = Params.g_options.yes or (not sys.stdin.isatty() or raw_input("Installing Waf is discouraged. Proceed? [y/n]"))
 		if val != True and val != "y": sys.exit(1)
+
 		compute_revision()
+
+		create_waf()
 
 	wafadmin = bld.create_obj('py')
 	wafadmin.find_sources_in_dirs('wafadmin', exts=['.py'])
