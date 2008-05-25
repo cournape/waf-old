@@ -302,7 +302,6 @@ def cxx_hook(self, node):
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
 	task.m_scanner = ccroot.g_c_scanner
-	task.path_lst = self.inc_paths
 	task.defines  = self.scanner_defines
 
 	task.m_inputs = [node]
