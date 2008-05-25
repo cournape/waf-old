@@ -28,7 +28,7 @@ from Params import error, fatal
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
 EXT_RCC = ['.qrc']
 EXT_UI  = ['.ui']
-EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C', '.c']
+EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
