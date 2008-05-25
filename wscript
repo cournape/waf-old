@@ -15,6 +15,8 @@ For a project without subdirectory: demos/python/wscript
 VERSION="1.4.2"
 APPNAME='waf'
 REVISION=''
+srcdir='.'
+blddir='build'
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']
@@ -25,7 +27,7 @@ forbidden = [x+'.py' for x in 'Test Weak'.split()]
 from tokenize import *
 
 import os, sys, base64, shutil, re, random, StringIO, optparse
-import Params, Utils, Options
+import Params, Utils, Options, Common
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
@@ -285,76 +287,39 @@ def make_copy(inf, outf):
 	f.write(cnt)
 	f.close()
 
-def install_waf():
+def configure(conf):
+	conf.check_tool('python')
+	conf.check_python_version((2,4))
+
+
+def build(bld):
 	import shutil, re
-	if sys.platform == 'win32':
-		print "Installing Waf on Windows is not possible."
-		sys.exit(0)
 
-	val = Params.g_options.yes or raw_input("Installing Waf is discouraged. Proceed? [y/n]")
-	if val != True and val != "y": sys.exit(1)
+	if Params.g_commands['install']:
+		if sys.platform == 'win32':
+			print "Installing Waf on Windows is not possible."
+			sys.exit(0)
 
-	destdir = None
-	if "DESTDIR" in os.environ:
-		destdir = os.environ["DESTDIR"]
-	elif Params.g_options.destdir:
-		destdir = Params.g_options.destdir
+	if Params.g_commands['install']:
+		val = Params.g_options.yes or (not sys.stdin.isatty() or raw_input("Installing Waf is discouraged. Proceed? [y/n]"))
+		if val != True and val != "y": sys.exit(1)
+		compute_revision()
 
-	if destdir:
-		prefix = "%s%s"%(destdir,Params.g_options.prefix)
-	else:
-		prefix = Params.g_options.prefix
+	wafadmin = bld.create_obj('py')
+	wafadmin.find_sources_in_dirs('wafadmin', exts=['.py'])
+	wafadmin.inst_var = 'PREFIX'
+	wafadmin.inst_dir = os.path.join('lib', 'waf-%s-%s' % (VERSION, REVISION), 'wafadmin')
 
-	binpath     = os.path.join(prefix, 'bin%swaf' % os.sep)
-	wafadmindir = os.path.join(prefix, 'lib%swaf-%s-%s%swafadmin%s' % (os.sep, VERSION, REVISION, os.sep, os.sep))
-	toolsdir    = os.path.join(wafadmindir, 'Tools' + os.sep)
+	tools = bld.create_obj('py')
+	tools.find_sources_in_dirs('wafadmin/Tools', exts=['.py'])
+	tools.inst_var = 'PREFIX'
+	tools.inst_dir = os.path.join(wafadmin.inst_dir, 'Tools')
 
-	try: os.makedirs(os.path.join(prefix, 'bin'))
-	except: pass
+	Common.install_files('PREFIX', 'bin', 'waf', chmod=0755)
 
-	try: os.makedirs(toolsdir)
-	except: pass
+	#print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
+	#print "make sure the PATH contains %s/bin:$PATH" % prefix
 
-	try:
-		wafadminFiles = os.listdir('wafadmin')
-		wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
-		for pyFile in wafadminFiles:
-			if pyFile == "Test.py": continue
-			make_copy(os.path.join('wafadmin', pyFile), os.path.join(wafadmindir, pyFile))
-		tooldir = 'wafadmin'+os.sep+'Tools'
-		wafadminFiles = os.listdir(tooldir)
-		wafadminFiles = filter (lambda s: pyFileExp.match(s), wafadminFiles)
-		for pyFile in wafadminFiles:
-			if pyFile == "Test.py": continue
-			make_copy(os.path.join(tooldir, pyFile), os.path.join(toolsdir, pyFile))
-
-		shutil.copy2('waf', os.path.join(binpath))
-	except:
-		print "->>> installation failed: cannot write to %s <<<-" % prefix
-		sys.exit(1)
-	print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
-	print "make sure the PATH contains %s/bin:$PATH" % prefix
-
-def uninstall_waf():
-	print "uninstalling waf from the system"
-	prefix  = Params.g_options.prefix
-	binpath = os.path.join(prefix, 'bin%swaf' % os.sep)
-
-	libpath = os.path.join(prefix, 'lib')
-	lst = os.listdir(libpath)
-	for f in lst:
-		if f.startswith('waf-'):
-			try: shutil.rmtree(os.path.join(libpath, f))
-			except: pass
-
-	try: os.unlink(binpath)
-	except: pass
-
-	try:
-		os.stat(wafdir)
-		print 'WARNING: the waf directory %s could not be removed' % wafdir
-	except:
-		pass
 
 # the init function is called right after the command-line arguments are parsed
 # it is run before configure(), build() and shutdown()
@@ -367,21 +332,11 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
-	elif Params.g_commands['install']:
-		create_waf()
-		install_waf()
-	elif Params.g_commands['uninstall']:
-		uninstall_waf()
 	elif Params.g_options.waf:
 		create_waf()
 	elif Params.g_commands['check']:
 		import Test
 		Test.run_tests()
-	else:
-		print "run 'waf --help' to know more about allowed commands !"
-		if not "--help" in sys.argv and not "-h" in sys.argv:
-			sys.exit(1)
-	sys.exit(0)
 
 #def dist():
 #	import Scripting
