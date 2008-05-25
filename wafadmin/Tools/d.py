@@ -206,7 +206,7 @@ class d_scanner(Scan.scanner):
 	def scan(self, task, node):
 		"look for .d/.di the .d source need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = d_parser(task.env(), task.path_lst)
+		gruik = d_parser(task.env(), task.env()['INC_PATHS'])
 		gruik.start(node)
 
 		if Params.g_verbose:
@@ -253,7 +253,6 @@ class d_taskgen(TaskGen.task_gen):
 		self.libpaths = ''
 		self.uselib = ''
 		self.uselib_local = ''
-		self.inc_paths = []
 
 		self.generate_headers = False # set to true if you want .di files as well as .o
 
@@ -389,7 +388,7 @@ def apply_d_vars(self):
 			env.append_unique('_DIMPORTFLAGS', dpath_st % path)
 		else:
 			node = self.path.find_dir(path)
-			self.inc_paths.append(node)
+			self.env.append_unique('INC_PATHS', node)
 			env.append_unique('_DIMPORTFLAGS', dpath_st % node.srcpath(env))
 			env.append_unique('_DIMPORTFLAGS', dpath_st % node.bldpath(env))
 
@@ -440,8 +439,6 @@ def d_hook(self, node):
 
 	global g_d_scanner
 	task.m_scanner = g_d_scanner
-	task.path_lst = self.inc_paths
-	#task.defines  = self.scanner_defines
 
 	task.m_inputs = [node]
 	task.m_outputs = [node.change_ext(obj_ext)]
