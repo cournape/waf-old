@@ -332,11 +332,14 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
 		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
+		sys.exit(0)
 	elif Params.g_options.waf:
 		create_waf()
+		sys.exit(0)
 	elif Params.g_commands['check']:
 		import Test
 		Test.run_tests()
+		sys.exit(0)
 
 #def dist():
 #	import Scripting
