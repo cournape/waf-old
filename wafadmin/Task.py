@@ -34,6 +34,17 @@ import Params, Action, Runner, Common, Scan
 from Params import debug, error, warning
 from Constants import *
 
+g_algotype = 0
+"""
+TODO (not implemented)
+Enable different kind of dependency algorithms:
+1 make groups: first compile all cpps and then compile all links
+2 parallelize all (each link task run after its dependencies)
+
+In theory 1. will be faster than 2 for waf, but might be slower for builds
+The scheme 2 will not allow for running tasks one by one so it can cause disk thrashing on huge builds
+"""
+
 class TaskManager(object):
 	"""The manager is attached to the build object, it holds a list of TaskGroup
 	Each TaskGroup contains a map(priority, list of tasks)"""
@@ -97,7 +108,7 @@ class TaskGroup(object):
 	def __init__(self, name):
 		self.name = name
 		self.info = ''
-		self.tasks = []
+		self.tasks = [] # this list will be consumed
 
 		self.eq_groups = None # tasks having equivalent constraints
 		self.keys = None
@@ -110,7 +121,9 @@ class TaskGroup(object):
 		# ----------------------------------------------------------
 		self.cstr_groups = {} # tasks having equivalent constraints
 		self.cstr_order = {} # partial order between the cstr groups
+		self.temp_tasks = [] # tasks put on hold
 
+	## future apis, not ready
 
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
@@ -120,7 +133,21 @@ class TaskGroup(object):
 			try: self.cstr_groups[h].append(x)
 			except KeyError: self.cstr_groups[h] = [x]
 
+	def extract__constraints(self):
+		"TODO"
+		pass
 
+	def prepare(self):
+		self.tasks = self.temp_tasks + self.tasks
+		self.temp_tasks = [] # reset the cache
+		self.make_cstr_groups()
+		self.extract_constraints()
+
+
+
+
+
+	## current apis ##
 
 	def segment_by_maxjobs(self, tsk_lst):
 		foo = {}
