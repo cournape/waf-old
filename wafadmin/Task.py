@@ -50,8 +50,20 @@ class TaskManager(object):
 	Each TaskGroup contains a map(priority, list of tasks)"""
 	def __init__(self):
 		self.groups = []
-		self.idx = 0
+		self.idx = 0 # task counter, for debugging (allocating 5000 integers for nothing is a bad idea but well)
 		self.tasks_done = []
+
+		self.current_group = 0
+
+	def get_next_set(self):
+		"TODO new api"
+		ret = None
+		while not ret and self.current_group < len(self.groups):
+			ret = self.groups[self.current_group].get_next_set()
+			if ret: return ret
+			else: self.current_group += 1
+		return (None, None)
+
 	def add_group(self, name=''):
 		if not name:
 			size = len(self.groups)
@@ -164,7 +176,7 @@ class TaskGroup(object):
 		if not self.segment_maxjobs:
 			self.segment_maxjobs = self.segment_by_maxjobs(self._internal_get_set())
 		if not self.segment_maxjobs:
-			return (0, 0)
+			return None
 		k = max(self.segment_maxjobs.keys())
 		ret = self.segment_maxjobs[k]
 		self.segment_maxjobs.__delitem__(k)

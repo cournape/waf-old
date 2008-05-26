@@ -99,7 +99,6 @@ class Serial(object):
 
 		self.manager = bld.task_manager
 
-		self.curgroup = 0
 		self.outstanding = []
 
 		self.priolst = []
@@ -123,13 +122,8 @@ class Serial(object):
 		if not self.manager.groups:
 			return None
 
-		while not self.outstanding:
-			if self.curgroup >= len(self.manager.groups):
-				return None
-			group = self.manager.groups[self.curgroup]
-			(maxjobs, self.outstanding) = group.get_next_set()
-			if not self.outstanding:
-				self.curgroup +=1
+		(_, self.outstanding) = self.manager.get_next_set()
+		if not self.outstanding: return None
 
 		if Params.g_verbose:
 			debug("Preparing to run prio %i tasks: [\n%s\n\t]" %
@@ -156,10 +150,7 @@ class Serial(object):
 
 	# skip a group and report the failure
 	def skip_group(self):
-		self.curgroup += 1
 		self.outstanding = []
-		try: self.manager.groups[self.curgroup].prio.sort()
-		except KeyError: pass
 
 	def start(self):
 		global g_quiet
@@ -303,23 +294,6 @@ class Parallel(object):
 		self.running = 0 # keep running ?
 		self.progress = 0 # progress indicator
 
-		self.curgroup = 0
-
-	def get_next_prio(self):
-		# handle case where only one wscript exist
-		# that only install files
-		if not self.manager.groups:
-			return (None, None)
-
-		if self.curgroup >= len(self.manager.groups):
-			return (None, None)
-		group = self.manager.groups[self.curgroup]
-		(maxjobs, outstanding) = group.get_next_set()
-		if not outstanding:
-			self.curgroup +=1
-			return self.get_next_prio()
-		return (maxjobs, outstanding)
-
 	def start(self):
 		for i in range(self.numjobs): TaskConsumer(i, self)
 
@@ -358,7 +332,7 @@ class Parallel(object):
 				self.frozen = []
 			if not self.outstanding:
 				while self.count > 0: get_out()
-				(currentprio, self.outstanding) = self.get_next_prio()
+				(currentprio, self.outstanding) = self.manager.get_next_set()
 				#if self.outstanding: random.shuffle(self.outstanding)
 				if currentprio is None: break
 
