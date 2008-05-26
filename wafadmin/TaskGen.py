@@ -372,8 +372,8 @@ class task_gen(object):
 				(base, ext) = os.path.splitext(name)
 				if ext in ext_lst:
 					if not name in lst:
-						if name in excludes: continue
-						lst.append((anode.relpath(self.path) or '.') + os.path.sep + name)
+						if not name in excludes: 
+							lst.append((anode.relpath(self.path) or '.') + os.path.sep + name)
 
 		lst.sort()
 		self.source = self.to_list(self.source)
