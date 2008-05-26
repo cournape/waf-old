@@ -42,11 +42,11 @@ def apply_obj_vars_cc(self):
 	debug('apply_obj_vars_cc', 'ccroot')
 	env = self.env
 	app = env.append_unique
-	cpppath_st = self.env['CPPPATH_ST']
+	cpppath_st = env['CPPPATH_ST']
 
 	# local flags come first
 	# set the user-defined includes paths
-	for i in self.env['INC_PATHS']:
+	for i in env['INC_PATHS']:
 		app('_CCINCFLAGS', cpppath_st % i.bldpath(env))
 		app('_CCINCFLAGS', cpppath_st % i.srcpath(env))
 

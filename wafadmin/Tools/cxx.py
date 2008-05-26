@@ -47,17 +47,17 @@ def init_cxx(self):
 def apply_obj_vars_cxx(self):
 	debug('apply_obj_vars_cxx', 'ccroot')
 	env = self.env
-	app = self.env.append_unique
-	cxxpath_st = self.env['CPPPATH_ST']
+	app = env.append_unique
+	cxxpath_st = env['CPPPATH_ST']
 
 	# local flags come first
 	# set the user-defined includes paths
-	for i in self.env['INC_PATHS']:
+	for i in env['INC_PATHS']:
 		app('_CXXINCFLAGS', cxxpath_st % i.bldpath(env))
 		app('_CXXINCFLAGS', cxxpath_st % i.srcpath(env))
 
 	# set the library include paths
-	for i in self.env['CPPPATH']:
+	for i in env['CPPPATH']:
 		app('_CXXINCFLAGS', cxxpath_st % i)
 		#print self.env['_CXXINCFLAGS']
 		#print " appending include ",i
