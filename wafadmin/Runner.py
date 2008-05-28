@@ -127,7 +127,7 @@ class Serial(object):
 
 		if Params.g_verbose:
 			debug("Preparing to run prio %i tasks: [\n%s\n\t]" %
-			      (maxjobs, ',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
+			      (1, ',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
 					       for tsk in self.outstanding])),
 			      'runner')
 		return self.get_next()
