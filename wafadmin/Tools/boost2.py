@@ -2,6 +2,7 @@
 # encoding: utf-8
 #
 # written by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008
+# modified by Bjoern Michaelsen, 2008
 #
 # partially based on boost.py written by Gernot Vormayr
 
@@ -9,6 +10,7 @@
 Boost Configurator:
 
 written by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008
+modified by Bjoern Michaelsen, 2008
 partially based on boost.py written by Gernot Vormayr
 
 Usage:
@@ -25,7 +27,11 @@ def configure(conf):
 
 	boostconf = conf.create_boost_configurator()
 	boostconf.lib = ['iostream', 'filesystem']
-	boostconf.threadingtag = 'st' ## only single threaded
+	# we dont care about other tags, but version has to be explicitly tagged
+	boostconf.min_score = 1000
+	boostconf.tagscores['version'] = (1000,-1000)
+	# we want a static lib
+	boostconf.static = boostconf.STATIC_ONLYSTATIC
 	boostconf.run()
 
 ISSUES:
@@ -38,7 +44,7 @@ TODO:
 
 """
 
-import os, glob, types, re
+import os, os.path, glob, types, re
 import Params, Configure, config_c
 from Params import fatal, warning
 from Configure import conf
@@ -51,38 +57,45 @@ class boost_configurator(config_c.configurator_base):
 	- include_path
 	- lib_path
 	- lib
-	- toolsettag
-	- notoolsetcheck - do not automaticly check for correct toolset (values: 0, 1. default: 0)
-	- threadingtag
-	- abitag
-	- static		 - look for static libs (values:
-						  'nostatic'  - ignore static libs (default)
-						  'both'	   - find static libs, too
-						  'onlystatic' - find only static libs
+	- toolsettag	 - None or a regexp
+	- threadingtag	 - None or a regexp
+	- abitag		 - None or a regexp
 	- versiontag	 - WARNING: you should rather use version or min_version/max_version
+	- static		 - look for static libs (values:
+						  'nostatic'   or STATIC_NOSTATIC   - ignore static libs (default)
+						  'both'       or STATIC_BOTH       - find static libs, too
+						  'onlystatic' or STATIC_ONLYSTATIC - find only static libs
+	- tagscores['version']
+	- tagscores['abi']
+	- tagscores['threading']
+	- tagscores['toolset']
+					 - the tagscores are tuples (match_score, nomatch_score)
+						  match_score is the added to the score if the tag is matched
+						  nomatch_score is added when a tag is found and does not match
+	- min_score
 	"""
 	## __metaclass__ = config_c.attached_conf ## autohook
+	STATIC_NOSTATIC = 'nostatic'
+	STATIC_BOTH = 'both'
+	STATIC_ONLYSTATIC = 'onlystatic'
 	def __init__(self, conf):
 		config_c.configurator_base.__init__(self, conf)
 
-		self.min_version = ''
-		self.max_version = ''
-		self.version = ''
+		(self.min_version, self.max_version, self.version) = ('','','')
 		self.lib_path = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
 		self.include_path = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
 		self.lib = ''
-		self.toolsettag = ''
-		self.notoolsetcheck = False
-		self.threadingtag = ''
-		self.abitag = ''
-		self.versiontag = ''
-		self.static = 'nostatic'
+		(self.threadingtag, self.abitag, self.versiontag, self.toolsettag) = (None, '^[^d]*$', None, None)
+		self.tagscores = {
+			'threading': (10,-10),
+			'abi': (10,-10),
+			'toolset': (1,-1),
+			'version': (100,-100) }
+		self.min_score = 0
+		self.static = boost_configurator.STATIC_NOSTATIC
 
 		self.conf = conf
 		self.found_includes = 0
-
-	def error(self):
-		fatal('')
 
 	def run_cache(self, retval): pass # todo
 
@@ -172,15 +185,16 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 				  % (self.min_version, self.max_version))
 			return 0
 
-		versiontag = self.version_string(version)
-		if not self.versiontag:
+		found_version = self.version_string(version)
+		versiontag = '^' + found_version + '$'
+		if self.versiontag is None:
 			self.versiontag = versiontag
 		elif self.versiontag != versiontag:
 			warning('boost header version and versiontag do _not_ match!')
-		self.conf.check_message('header','boost',1,'Version ' + versiontag +
+		self.conf.check_message('header', 'boost', 1, 'Version ' + found_version +
 								' (' + boost_path + ')')
 		env['CPPPATH_BOOST'] = boost_path
-		env['BOOST_VERSION'] = versiontag
+		env['BOOST_VERSION'] = found_version
 		self.found_includes = 1
 
 	def get_toolset(self):
@@ -193,116 +207,92 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 				toolset += version_no[1]
 		return toolset
 
-	is_versiontag = re.compile('^\d+_\d+_?\d*$')
-	is_threadingtag = re.compile('^mt$')
-	is_abitag = re.compile('^[sgydpn]+$')
-	is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*$')
-
-	def check_tags(self, tags):
+	def tags_score(self, tags):
 		"""
 		checks library tags
 
 		see http://www.boost.org/doc/libs/1_35_0/more/getting_started/unix-variants.html 6.1
 
-		TODO: should support sth like !foo if you _don't_ want a tag to be equal to foo
 		"""
-		found_versiontag = False
-		if not self.versiontag:
-			found_versiontag = True
-		found_threadingtag = False
-		if not self.threadingtag or self.threadingtag == 'st':
-			found_threadingtag = True
-		found_abitag = False
-		if not self.abitag:
-			found_abitag = True
-		found_toolsettag = False
-		if not self.toolsettag:
-			found_toolsettag = True
-		for tag in tags[1:]:
-			if self.is_versiontag.match(tag):	 # versiontag
-				if self.versiontag and tag != self.versiontag:
-					return False
+		is_versiontag = re.compile('^\d+_\d+_?\d*$')
+		is_threadingtag = re.compile('^mt$')
+		is_abitag = re.compile('^[sgydpn]+$')
+		is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*$')
+		score = 0
+		needed_tags = {
+			'threading': self.threadingtag,
+			'abi': self.abitag,
+			'toolset': self.toolsettag,
+			'version': self.versiontag }
+		if self.toolsettag is None:
+			needed_tags['toolset'] = self.get_toolset()
+		found_tags = {}
+		for tag in tags:
+			if is_versiontag.match(tag): found_tags['version'] = tag
+			if is_threadingtag.match(tag): found_tags['threading'] = tag
+			if is_abitag.match(tag): found_tags['abi'] = tag
+			if is_toolsettag.match(tag): found_tags['toolset'] = tag
+		for tagname in needed_tags.iterkeys():
+			if needed_tags[tagname] is not None and found_tags.has_key(tagname):
+				if re.compile(needed_tags[tagname]).match(found_tags[tagname]):
+					score += self.tagscores[tagname][0]
 				else:
-					found_versiontag = True
-			elif self.is_threadingtag.match(tag): # multithreadingtag
-				if self.threadingtag == 'st':
-					return False
-				elif self.threadingtag and tag != self.threadingtag:
-					return False
-				else:
-					found_threadingtag = True
-			elif self.is_abitag.match(tag):		# abitag
-				if self.abitag and tag != self.abitag:
-					return False
-				elif tag.find('d') != -1 or tag.find('y') != -1:
-					# ignore debug versions (TODO: check -ddebug)
-					return False
-				else:
-					found_abitag = True
-			elif self.is_toolsettag.match(tag):	# toolsettag
-				if self.toolsettag and self.toolsettag != tag:
-					return False
-				elif not self.notoolsetcheck and tag != self.get_toolset():
-					return False
-				else:
-					found_toolsettag = True
-		return found_versiontag and found_threadingtag and found_abitag and found_toolsettag
+					score += self.tagscores[tagname][1]
+		return score
+
+	def libfiles(self, lib, pattern, lib_paths):
+		result = []
+		for lib_path in lib_paths:
+			libname = pattern % ('boost_' + lib + '*')
+			result += glob.glob(lib_path + '/' + libname)
+		return result
+
+	def find_library_from_list(self, lib, files):
+		lib_pattern = re.compile('.*boost_(.*?)\..*')
+		result = (None, None)
+		resultscore = self.min_score-1
+		for file in files:
+			m = lib_pattern.search(file, 1)
+			if m:
+				libname = m.group(1)
+				libtags = libname.split('-')[1:]
+				currentscore = self.tags_score(libtags)
+				if currentscore > resultscore:
+					result = (libname, file)
+					resultscore = currentscore
+		return result
 
 	def find_library(self, lib):
 		"""
 		searches library paths for lib.
 		"""
-		env = self.conf.env	
 		lib_paths = [getattr(Params.g_options, 'boostlibs', '')]
 		if not lib_paths[0]:
 			if self.lib_path is types.StringType:
 				lib_paths = [self.lib_path]
 			else:
 				lib_paths = self.lib_path
-		for lib_path in lib_paths:
-			files = []
-			if not self.static or self.static == 'nostatic' or self.static == 'both':
-				libname_sh = env['shlib_PATTERN'] % ('boost_' + lib + '-*')
-				files += glob.glob(lib_path + '/' + libname_sh)
-			for file in files:
-				m = re.compile('.*boost_(.*?)\..*').search(file, 1)
-				if not m:
-					continue
-				libname = m.group(1)
-				libtags = libname.split('-')
-				if self.check_tags(libtags):
-					self.conf.check_message('library', 'boost_'+lib, 1, file)
-					env['LIBPATH_BOOST_' + lib.upper()] = lib_path
-					env['LIB_BOOST_' + lib.upper()] = 'boost_'+libname
-					break
-			if env['LIB_BOOST_' + lib.upper()]:
-				break
-			files = []
-			if self.static == 'both' or self.static == 'onlystatic':
-				libname_st = env['staticlib_PATTERN'] % ('boost_' + lib + '-*')
-				files += glob.glob(lib_path + '/' + libname_st)
-			for file in files:
-				m = re.compile('.*boost_(.*?)\..*').search(file, 1)
-				if not m:
-					continue
-				libname = m.group(1)
-				libtags = libname.split('-')
-				if self.check_tags(libtags):
-					self.conf.check_message('library', 'boost_'+lib, 1, file)
-					env['LIBPATH_BOOST_' + lib.upper()] = lib_path
-					env['STATICLIB_BOOST_' + lib.upper()] = 'boost_'+libname
-					break
-			if env['STATICLIB_BOOST_' + lib.upper()]:
-				break
-		if not env['LIB_BOOST_' + lib.upper()] and not env['STATICLIB_BOOST_' + lib.upper()]:
-			fatal('lib boost_' + lib + ' not found!')
+		(libname, file) = (None, None)
+		if self.static in [boost_configurator.STATIC_NOSTATIC, boost_configurator.STATIC_BOTH]:
+			st_env_prefix = 'LIB'
+			files = self.libfiles(lib, self.conf.env['shlib_PATTERN'], lib_paths)
+			(libname, file) = self.find_library_from_list(lib, files)
+		if libname is None and self.static in [boost_configurator.STATIC_ONLYSTATIC, boost_configurator.STATIC_BOTH]:
+			st_env_prefix = 'STATICLIB'
+			files = self.libfiles(lib, self.conf.env['staticlib_PATTERN'], lib_paths)
+			(libname, file) = self.find_library_from_list(lib, files)
+		if libname is not None:
+			self.conf.check_message('library', 'boost_'+lib, 1, file)
+			self.conf.env['LIBPATH_BOOST_' + lib.upper()] = os.path.split(file)[0]
+			self.conf.env[st_env_prefix + '_BOOST_' + lib.upper()] = 'boost_'+libname
+			return
+		fatal('lib boost_' + lib + ' not found!')
 
 	def find_libraries(self):
-		if self.lib is types.StringType:
-			self.find_library(self.lib)
-		else:
-			for lib in self.lib:
-				self.find_library(lib)
+		libs_to_find = self.lib
+		if self.lib is types.StringType: libs_to_find = [self.lib]
+		for lib in libs_to_find:
+			self.find_library(lib)
 
 	def run_test(self):
 		if not self.found_includes:
