@@ -56,7 +56,8 @@ class TaskManager(object):
 		self.current_group = 0
 
 	def get_next_set(self):
-		"TODO new api"
+		"""return the next set of tasks to execute
+		the first parameter is the maximum amount of parallelization that may occur"""
 		ret = None
 		while not ret and self.current_group < len(self.groups):
 			ret = self.groups[self.current_group].get_next_set()
@@ -155,7 +156,8 @@ class TaskGroup(object):
 		self.make_cstr_groups()
 		self.extract_constraints()
 
-
+	def get_next_set_(self):
+		pass
 
 
 
