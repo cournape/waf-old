@@ -34,7 +34,7 @@ import Params, Action, Runner, Common, Scan
 from Params import debug, error, warning
 from Constants import *
 
-g_algotype = 0
+g_algotype = JOBCONTROL
 """
 TODO (not implemented)
 Enable different kind of dependency algorithms:
@@ -156,10 +156,20 @@ class TaskGroup(object):
 		self.make_cstr_groups()
 		self.extract_constraints()
 
+
+	def get_next_unconnected(self):
+		"next list of tasks that may be executed in parallel"
+
 	def get_next_set_(self):
-		pass
-
-
+		"next list of tasks to execute using max job settings, returns (priority, task_list)"
+		if g_algotype == MAXPARALLEL:
+			pass
+		elif g_algotype == NORMAL:
+			pass
+		elif g_algotype == JOBCONTROL:
+			pass
+		else:
+			pass
 
 	## current apis ##
 

@@ -29,3 +29,8 @@ UNDEFINED = '#undefined#variable#for#defines#'
 STOP = "stop"
 CONTINUE = "continue"
 
+# task scheduler options
+JOBCONTROL = "JOBCONTROL"
+MAXPARALLEL = "MAXPARALLEL"
+NORMAL = "NORMAL"
+
