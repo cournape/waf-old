@@ -4,6 +4,15 @@
 
 # changes by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008
 
+
+print """WARNING: You are using the deprecated boost tool!
+                  This tool will be removed in the next major version.
+                  Please consider converting you wscripts to use boost2.
+      """
+
+
+
+
 """
 Quick n dirty boost detections
 """
