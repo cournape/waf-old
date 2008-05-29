@@ -370,10 +370,8 @@ class task_gen(object):
 
 			for name in Params.g_build.cache_dir_contents[anode.id]:
 				(base, ext) = os.path.splitext(name)
-				if ext in ext_lst:
-					if not name in lst:
-						if not name in excludes: 
-							lst.append((anode.relpath(self.path) or '.') + os.path.sep + name)
+				if ext in ext_lst and not name in lst and not name in excludes:
+					lst.append((anode.relpath(self.path) or '.') + os.path.sep + name)
 
 		lst.sort()
 		self.source = self.to_list(self.source)
