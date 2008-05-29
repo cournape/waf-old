@@ -156,18 +156,24 @@ class TaskGroup(object):
 		self.make_cstr_groups()
 		self.extract_constraints()
 
-
-	def get_next_unconnected(self):
+	def tasks_in_parallel(self):
 		"next list of tasks that may be executed in parallel"
+
+	def tasks_with_inner_constraints(self):
+		"returns all tasks in this group, but add the constraints on each task instance"
+
+	def tasks_by_max_jobs(self):
+		"returns the tasks that can run in parallel with the max amount of jobs"
 
 	def get_next_set_(self):
 		"next list of tasks to execute using max job settings, returns (priority, task_list)"
+		# TODO without -j, fallback to NORMAL
 		if g_algotype == MAXPARALLEL:
-			pass
+			return (sys.maxint, self.tasks_with_inner_constraints())
 		elif g_algotype == NORMAL:
-			pass
+			return (sys.maxint, self.tasks_in_parallel())
 		elif g_algotype == JOBCONTROL:
-			pass
+			return self.tasks_by_max_jobs()
 		else:
 			pass
 
