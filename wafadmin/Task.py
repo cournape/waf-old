@@ -28,18 +28,19 @@ and priorities or order constraints can only be applied to actions, not to tasks
 
 """
 
-import os, types, shutil
+import os, types, shutil, sys
 from Utils import md5
 import Params, Action, Runner, Common, Scan
 from Params import debug, error, warning
 from Constants import *
 
-g_algotype = JOBCONTROL
+g_algotype = NORMAL
 """
 TODO (not implemented)
 Enable different kind of dependency algorithms:
-1 make groups: first compile all cpps and then compile all links
-2 parallelize all (each link task run after its dependencies)
+1 make groups: first compile all cpps and then compile all links (NORMAL)
+2 parallelize all (each link task run after its dependencies) (MAXPARALLEL)
+3 like 1 but provide additional constraints for the parallelization (MAXJOBS)
 
 In theory 1. will be faster than 2 for waf, but might be slower for builds
 The scheme 2 will not allow for running tasks one by one so it can cause disk thrashing on huge builds
@@ -120,23 +121,46 @@ class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"
 	def __init__(self, name):
 		self.name = name
-		self.info = ''
 		self.tasks = [] # this list will be consumed
 
-		self.eq_groups = None # tasks having equivalent constraints
-		self.keys = None
-
-		# instead of returning a set, we return a set for each
-		self.segment_maxjobs = {}
-
-
-		# future api: make_cstr_groups, ..
-		# ----------------------------------------------------------
 		self.cstr_groups = {} # tasks having equivalent constraints
 		self.cstr_order = {} # partial order between the cstr groups
 		self.temp_tasks = [] # tasks put on hold
+		self.ready = 0
 
-	## future apis, not ready
+	def reset(self):
+		"clears the state of the object (put back the tasks into self.tasks)"
+		for x in self.cstr_groups:
+			self.tasks += self.cstr_groups[x]
+		self.tasks = self.temp_tasks + self.tasks
+		self.temp_tasks = []
+		self.cstr_groups = []
+		self.cstr_order = {}
+		self.ready = 0
+
+	def prepare(self):
+		"prepare the scheduling"
+		self.ready = 1
+		self.make_cstr_groups()
+		self.extract_constraints()
+
+	def get_next_set(self):
+		"next list of tasks to execute using max job settings, returns (priority, task_list)"
+		# TODO without -j, fallback to NORMAL
+		if g_algotype == NORMAL:
+			"this should be ready"
+			tasks = self.tasks_in_parallel()
+			# in parallel mode, look at the parallelization constraint of the first item in the list
+			# TODO this cannot work well, the first task may not be a linking
+			try: maxjobs = tasks[0].m_action.maxjobs
+			except (IndexError, AttributeError): maxjobs = sys.maxint
+			return (maxjobs, tasks)
+		elif g_algotype == JOBCONTROL:
+			return self.tasks_by_max_jobs()
+		elif g_algotype == MAXPARALLEL:
+			return (sys.maxint, self.tasks_with_inner_constraints())
+		else:
+			pass
 
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
@@ -146,129 +170,85 @@ class TaskGroup(object):
 			try: self.cstr_groups[h].append(x)
 			except KeyError: self.cstr_groups[h] = [x]
 
-	def extract__constraints(self):
-		"TODO"
-		pass
-
-	def prepare(self):
-		self.tasks = self.temp_tasks + self.tasks
-		self.temp_tasks = [] # reset the cache
-		self.make_cstr_groups()
-		self.extract_constraints()
-
-	def tasks_in_parallel(self):
-		"next list of tasks that may be executed in parallel"
-
-	def tasks_with_inner_constraints(self):
-		"returns all tasks in this group, but add the constraints on each task instance"
-
-	def tasks_by_max_jobs(self):
-		"returns the tasks that can run in parallel with the max amount of jobs"
-
-	def get_next_set_(self):
-		"next list of tasks to execute using max job settings, returns (priority, task_list)"
-		# TODO without -j, fallback to NORMAL
-		if g_algotype == MAXPARALLEL:
-			return (sys.maxint, self.tasks_with_inner_constraints())
-		elif g_algotype == NORMAL:
-			return (sys.maxint, self.tasks_in_parallel())
-		elif g_algotype == JOBCONTROL:
-			return self.tasks_by_max_jobs()
-		else:
-			pass
-
-	## current apis ##
-
-	def segment_by_maxjobs(self, tsk_lst):
-		foo = {}
-		for t in tsk_lst:
-			maxjob = getattr(t, "maxjobs", None)
-			if maxjob is None:
-				try: maxjob = t.m_action.maxjobs
-				except AttributeError: maxjob = 1000000
-			try: foo[maxjob].append(t)
-			except KeyError: foo[maxjob] = [t]
-		return foo
-
-	def get_next_set(self):
-		if not self.segment_maxjobs:
-			self.segment_maxjobs = self.segment_by_maxjobs(self._internal_get_set())
-		if not self.segment_maxjobs:
-			return None
-		k = max(self.segment_maxjobs.keys())
-		ret = self.segment_maxjobs[k]
-		self.segment_maxjobs.__delitem__(k)
-		return (k, ret)
-
-	def _internal_get_set(self):
-		if not self.eq_groups:
-			self.extract_constraints()
-
-		#print [(a.m_name, cstrs[a].m_name) for a in cstrs]
-		keys = self.keys
-
-		unconnected = []
-		remnant = []
-
-		for u in keys:
-			for k in self.cstrs.values():
-				if u in k:
-					remnant.append(u)
-					break
-			else:
-				unconnected.append(u)
-		for x in unconnected:
-			try: self.cstrs.__delitem__(x)
-			except KeyError: pass
-		#print "unconnected tasks: ", unconnected, "tasks", [eq_groups[x] for x in unconnected]
-		self.keys = remnant
-		toreturn = []
-		for y in unconnected:
-			for x in self.eq_groups[y]:
-				toreturn.append(x)
-		if not toreturn and remnant:
-			Params.fatal("circular dependency detected %r" % remnant)
-		#print "returning", toreturn
-		return toreturn
-
 	def add_task(self, task):
 		try: self.tasks.append(task)
 		except KeyError: self.tasks = [task]
 
+	def set_order(self, a, b):
+		try: self.cstr_order[a].add(b)
+		except KeyError: self.cstr_order[a] = set([b,])
+
 	def extract_constraints(self):
-		# for now the group extraction does only take the priority into account
-		# we will do the following in the future:
-		# hash the priority and the constraints
-		# extract the priority constraints
-		# extract other constraints
-
-		t2 = self.tasks[:]
-		eq_groups = {}
-		for x in t2:
-			index = getattr(x, 'prio', getattr(x, 'm_action', 20))
-			try: eq_groups[index].append(x)
-			except KeyError: eq_groups[index] = [x]
-
-		# for now we only have the constraint on the order
-		cstrs = {}
-		keys = eq_groups.keys()
+		"extract the parallelization constraints from the tasks with different constraints"
+		keys = self.cstr_groups.keys()
 		max = len(keys)
-		for i in range(max):
-			for j in range(i + 1, max):
-				u = keys[i]
-				v = keys[j]
-				a = getattr(u, 'prio', u)
-				b = getattr(v, 'prio', v)
-				#print i, j, u, v, a, b
-				if a < b:
-					try: cstrs[u].append(v)
-					except KeyError: cstrs[u] = [v]
-				elif a > b:
-					try: cstrs[v].append(u)
-					except KeyError: cstrs[v] = [u]
-		self.cstrs = cstrs
-		self.eq_groups = eq_groups
-		self.keys = eq_groups.keys()
+		# hopefully the lenght of this list is short
+		for i in xrange(max):
+			t1 = self.cstr_groups[keys[i]][0]
+			for j in xrange(i + 1, max):
+				t2 = self.cstr_groups[keys[j]][0]
+
+				a = "m_action"
+				a1 = getattr(t1, a, None)
+				a2 = getattr(t2, a, None)
+
+				x = "prio"
+				p1 = getattr(t1, x, getattr(a1, x, None))
+				p2 = getattr(t2, x, getattr(a2, x, None))
+
+				if not p1 is None and not p2 is None:
+					if p1 < p2: self.set_order(keys[i], keys[j])
+					elif p1 > p2: self.set_order(keys[j], keys[i])
+
+		#print "the constraint groups are:", self.cstr_groups, "and the constraints ", self.cstr_order
+		# TODO extract constraints by file extensions on the actions
+
+	def tasks_in_parallel(self):
+		"(NORMAL) next list of tasks that may be executed in parallel"
+
+		if not self.ready: self.prepare()
+
+		#print [(a.m_name, cstrs[a].m_name) for a in cstrs]
+		keys = self.cstr_groups.keys()
+
+		unconnected = []
+		remainder = []
+
+		for u in keys:
+			for k in self.cstr_order.values():
+				if u in k:
+					remainder.append(u)
+					break
+			else:
+				unconnected.append(u)
+
+		#print "unconnected tasks: ", unconnected, "tasks", [eq_groups[x] for x in unconnected]
+
+		toreturn = []
+		for y in unconnected:
+			toreturn.extend(self.cstr_groups[y])
+
+		# remove stuff only after
+		for y in unconnected:
+				try: self.cstr_order.__delitem__(y)
+				except KeyError: pass
+				self.cstr_groups.__delitem__(y)
+
+		if not toreturn and remainder:
+			Params.fatal("circular dependency detected %r" % remainder)
+
+		#print "returning", toreturn
+		return toreturn
+
+	def tasks_by_max_jobs(self):
+		"(JOBCONTROL) returns the tasks that can run in parallel with the max amount of jobs"
+		if not self.ready: self.prepare()
+		# TODO
+		if not self.temp_tasks: self.temp_tasks = []
+
+	def tasks_with_inner_constraints(self):
+		"(MAXPARALLEL) returns all tasks in this group, but add the constraints on each task instance"
+		# TODO
 
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
@@ -287,10 +267,11 @@ class TaskBase(object):
 		names = ('prio', 'before', 'after')
 		act = getattr(self, "m_action", None)
 		if act:
-			sum = hash(sum, getattr(self, 'm_name', sys.maxint))
+			sum = hash((sum, getattr(self, 'm_name', sys.maxint),))
 		for x in names:
 			# hash the attribute on the task, and fallback to the one of the action if not present
-			sum = hash(sum, getattr(self, x, getattr(act, x, sys.maxint)))
+			sum = hash((sum, getattr(self, x, getattr(act, x, sys.maxint)),))
+		sum = hash((sum, getattr(act, 'maxjobs', None)))
 		return sum
 	def may_start(self):
 		"non-zero if the task is ready"
