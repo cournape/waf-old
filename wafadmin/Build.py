@@ -12,7 +12,7 @@ The class Build holds all the info related to a build:
 There is only one Build object at a time (Params.g_build singleton)
 """
 
-import os, sys, cPickle, types, imp, errno, re
+import os, sys, cPickle, types, imp, errno, re, glob
 import Params, Runner, TaskGen, Node, Scripting, Utils, Environment, Task
 from Params import debug, error, fatal, warning
 from Constants import *
@@ -574,6 +574,16 @@ class Build(object):
 		except AttributeError:
 			self._launch_node = self.m_root.find_dir(Params.g_cwd_launch)
 			return self._launch_node
+
+	def glob(self, pattern, relative=True):
+		"files matching the pattern, seen from the current folder"
+		path = Params.g_build.path.abspath()
+		files = [self.m_root.find_resource(x) for x in glob.glob(path+os.sep+pattern)]
+		if relative:
+			files = [x.relpath(self.path) for x in files if x]
+		else:
+			files = [x.abspath() for x in files if x]
+		return files
 
 	# backward compatibility
 	def get_curdir(self):
