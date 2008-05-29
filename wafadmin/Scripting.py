@@ -22,15 +22,15 @@ g_distclean_exts = '~ .pyc .wafpickle'.split()
 
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
-	try: bld.rescan(bld.m_curdirnode)
-	except OSError: fatal("No such directory "+bld.m_curdirnode.abspath())
+	try: bld.rescan(bld.path)
+	except OSError: fatal("No such directory "+bld.path.abspath())
 
-	old = bld.m_curdirnode
-	new = bld.m_curdirnode.find_dir(dir)
+	old = bld.path
+	new = bld.path.find_dir(dir)
 	if new is None:
-		fatal("subdir not found (%s), restore is %s" % (dir, bld.m_curdirnode))
+		fatal("subdir not found (%s), restore is %s" % (dir, bld.path))
 
-	bld.m_curdirnode=new
+	bld.path = new
 	# try to open 'wscript_build' for execution
 	# if unavailable, open the module wscript and call the build function from it
 	from Common import install_files, install_as, symlink_as # do not remove
@@ -45,7 +45,7 @@ def add_subdir(dir, bld):
 		module.build(bld)
 
 	# restore the old node position
-	bld.m_curdirnode = old
+	bld.path = old
 
 def call_back(idxName, pathName, event):
 	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)

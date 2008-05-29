@@ -65,7 +65,7 @@ def apply_obj_vars_cxx(self):
 	# this is usually a good idea
 	app('_CXXINCFLAGS', cxxpath_st % '.')
 	app('_CXXINCFLAGS', cxxpath_st % self.env.variant())
-	tmpnode = Params.g_build.m_curdirnode
+	tmpnode = self.path
 	app('_CXXINCFLAGS', cxxpath_st % tmpnode.bldpath(env))
 	app('_CXXINCFLAGS', cxxpath_st % tmpnode.srcpath(env))
 

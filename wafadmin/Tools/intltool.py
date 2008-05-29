@@ -24,7 +24,6 @@ class intltool_in_taskgen(TaskGen.task_gen):
 	def apply(self):
 		self.env = self.env.copy()
 		tree = Params.g_build
-		current = tree.m_curdirnode
 		for i in self.to_list(self.source):
 			node = self.path.find_resource(i)
 

@@ -93,7 +93,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 	destpath = env[var]
 	if not destpath: destpath = var # absolute paths
 
-	node = bld.m_curdirnode
+	node = bld.path
 	if type(files) is types.StringType:
 		if '*' in files:
 			gl = node.abspath()+os.sep+files
@@ -135,7 +135,7 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 
 	bld = Params.g_build
 	if not env: env = Params.g_build.env()
-	node = bld.m_curdirnode
+	node = bld.path
 
 	tgt = env[var]
 	if not tgt: tgt = var # absolute paths for example
@@ -163,7 +163,7 @@ def symlink_as(var, src, dest, env=None):
 
 	bld = Params.g_build
 	if not env: env=Params.g_build.env()
-	node = bld.m_curdirnode
+	node = bld.path
 
 	tgt = env[var]
 	if not tgt: tgt = var

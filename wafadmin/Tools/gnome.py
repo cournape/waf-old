@@ -101,7 +101,6 @@ class xml_to_taskgen(TaskGen.task_gen):
 	def apply(self):
 		self.env = self.env.copy()
 		tree = Params.g_build
-		current = tree.m_curdirnode
 		xmlfile = self.path.find_resource(self.source)
 		xsltfile = self.path.find_resource(self.xslt)
 		tsk = self.create_task('xmlto', self.env, 6)
@@ -132,7 +131,7 @@ class sgml_man_scanner(Scan.scanner):
 		variant = node.variant(task.env())
 		tmp_lst = Params.g_build.raw_deps[variant][node.id]
 		name = tmp_lst[0]
-		task.set_outputs(Params.g_build.m_curdirnode.find_build(name))
+		task.set_outputs(task.task_generator.path.find_build(name))
 
 sgml_scanner = sgml_man_scanner()
 
@@ -158,6 +157,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 
 			task = self.create_task('sgml2man', self.env, 2)
 			task.set_inputs(self.path.find_resource(name))
+			task.task_generator = self
 			if Params.g_install: task.install = install_results
 			# no outputs, the scanner does it
 			# no caching for now, this is not a time-critical feature

@@ -181,7 +181,7 @@ def install_shlib(task):
 	name2 = libname+'.'+nums[0]
 	name1 = libname
 
-	filename = task.m_outputs[0].relpath_gen(Params.g_build.m_curdirnode)
+	filename = task.m_outputs[0].relpath_gen(self.path)
 	Common.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env())
 	Common.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
 	Common.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))

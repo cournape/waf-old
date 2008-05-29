@@ -77,7 +77,7 @@ class Build(object):
 
 		# the current directory from which the code is run
 		# the folder changes everytime a wscript is read
-		self.m_curdirnode = None
+		self.path = None
 
 		# temporary holding the subdirectories containing scripts - look in Scripting.py
 		self.m_subdirs = []
@@ -370,13 +370,13 @@ class Build(object):
 		if not isconfigure:
 			self._load()
 			if self.m_srcnode:
-				self.m_curdirnode = self.m_srcnode
+				self.path = self.m_srcnode
 				return
 
 		self.m_srcnode = self.m_root.ensure_dir_node_from_path(srcdir)
 		debug("srcnode is %s and srcdir %s" % (str(self.m_srcnode.m_name), srcdir), 'build')
 
-		self.m_curdirnode = self.m_srcnode
+		self.path = self.m_srcnode
 
 		self.m_bldnode = self.m_root.ensure_dir_node_from_path(self.m_bdir)
 
@@ -554,7 +554,7 @@ class Build(object):
 		if os.path.isabs(path):
 			node = self.m_root.find_resource(path)
 		else:
-			node = self.m_curdirnode.find_resource(path)
+			node = self.path.find_resource(path)
 		h[node] = value
 		self.deps_man = h
 
@@ -574,4 +574,12 @@ class Build(object):
 		except AttributeError:
 			self._launch_node = self.m_root.find_dir(Params.g_cwd_launch)
 			return self._launch_node
+
+	# backward compatibility
+	def get_curdir(self):
+		return self.path
+	def set_curdir(self, val):
+		Params.fatal("the current path cannot be set")
+	m_curdirnode = property(get_curdir, set_curdir)
+
 

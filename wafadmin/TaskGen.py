@@ -174,7 +174,7 @@ class task_gen(object):
 		self.env = Params.g_build.env().copy()
 
 		self.m_posted = 0
-		self.path = Params.g_build.m_curdirnode # emulate chdir when reading scripts
+		self.path = Params.g_build.path # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 		g_allobjs.append(self)
 
@@ -224,7 +224,7 @@ class task_gen(object):
 	def install_results(self, var, subdir, task, chmod=0644):
 		debug('install results called', 'object')
 		if not task: return
-		current = Params.g_build.m_curdirnode
+		current = Params.g_build.path
 		lst = [a.relpath_gen(current) for a in task.m_outputs]
 		Common.install_files(var, subdir, lst, chmod=chmod, env=self.env)
 
