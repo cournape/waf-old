@@ -319,15 +319,14 @@ def apply_lib_vars(self):
 		# object does not exist ?
 		y = TaskGen.name_to_obj(x)
 		if not y:
-			fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
-			continue
+			fatal("object '%s' was not found in uselib_local (required by '%s')" % (x, self.name))
 
 		# object has ancestors to process: add them to the end of the list
 		if y.uselib_local:
 			lst = y.to_list(y.uselib_local)
 			for u in lst:
-				if u in seen: continue
-				names.append(u)
+				if not u in seen:
+					names.append(u)
 
 		# safe to process the current object
 		if not y.m_posted: y.post()
