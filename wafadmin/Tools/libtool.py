@@ -7,19 +7,15 @@ import sys, re, os, optparse
 
 import Action, TaskGen, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
-from TaskGen import taskgen, after, before
+from TaskGen import taskgen, after, before, feature
 
 REVISION="0.1.3"
 
 """
-if you want to use the code here, you must add the following two methods:
-* apply_libtool
-* apply_link_libtool
-
-To do so, use a code similar to the following:
+if you want to use the code here, you must use something like this:
 obj = obj.create(...)
-obj.want_libtool = 1
-obj.meths.update(['apply_libtool', 'apply_link_libtool'])
+obj.features.append("libtool")
+obj.vnum = "1.2.3" # optional, but versioned libraries are common
 """
 
 # fake libtool files
@@ -68,10 +64,9 @@ def read_la_file(path):
 	return dc
 
 @taskgen
+@feature("libtool")
 @after('apply_link')
 def apply_link_libtool(self):
-	if not getattr(self, 'want_libtool', 0): return
-
 	if self.m_type != 'program':
 		linktask = self.link_task
 		latask = self.create_task('fakelibtool', self.env)
@@ -83,10 +78,9 @@ def apply_link_libtool(self):
 	self.install_results(dest_var, dest_subdir, self.m_latask)
 
 @taskgen
+@feature("libtool")
 @before('apply_core')
 def apply_libtool(self):
-	if getattr(self, 'want_libtool', 0) <= 0: return
-
 	self.env['vnum']=self.vnum
 
 	paths=[]
