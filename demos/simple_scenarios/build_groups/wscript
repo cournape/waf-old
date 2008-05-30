@@ -12,23 +12,23 @@ srcdir = '.'
 blddir = 'out'
 
 def configure(conf):
-  conf.check_tool('g++')
+	conf.check_tool('g++')
 
 def build(bld):
-	bld.add_group('kuku')
-
 	a = bld.create_obj('cpp', 'program')
 	a.source = 'a.cpp'
 	a.target = 'AA'
 
 	# without the following 'add_group' line, both a.cpp and c.cpp were compiled and
-	# then both were linked.
+	# then both were linked at the same time
 	# The addition of 'savta' group separates them, so a.cpp is compiled and
 	# linked before c.cpp is compiled.
-	bld.add_group('savta')
+
+	bld.add_group('savta') # <- acts like a separator
 	c = bld.create_obj('cpp', 'program')
 	c.source = 'c.cpp'
 	c.target = 'CC'
 
 def set_options(opt):
-  opt.tool_options('g++')
+	opt.tool_options('g++')
+
