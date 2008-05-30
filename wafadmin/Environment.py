@@ -61,20 +61,13 @@ class Environment(object):
 
 	def __getitem__(self, key):
 		x = self.m_table.get(key, None)
-		if x: return x
+		if not x is None: return x
 		try:
 			u = self.m_parent
 		except AttributeError:
 			return []
 		else:
 			return u[key]
-
-
-		try:
-			return self.m_table[key]
-		except KeyError:
-			try: return self.m_parent[key]
-			except: return []
 
 	def __setitem__(self, key, value):
 		self.m_table[key] = value
