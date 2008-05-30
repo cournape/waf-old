@@ -7,13 +7,12 @@ APPNAME='simple_tool'
 srcdir = '.'
 blddir = 'build'
 
-import TaskGen 
+import TaskGen
 TaskGen.declare_chain(
 	name = 'a',
 	action = '${COPY} ${SRC} ${TGT}',
 	ext_in = '.input',
 	ext_out = '.a',
-	prio = 40,
 )
 
 TaskGen.declare_chain(
@@ -21,7 +20,6 @@ TaskGen.declare_chain(
 	action = '${COPY} ${SRC} ${TGT}',
 	ext_in = '.a',
 	ext_out = '.b',
-	prio = 42,
 )
 
 TaskGen.declare_chain(
@@ -29,8 +27,7 @@ TaskGen.declare_chain(
 	action = '${COPY} ${SRC} ${TGT}',
 	ext_in = '.b',
 	ext_out = '.c',
-	reentrant = 0,
-	prio = 44
+	reentrant = 0 # <<- this means the files produced are not reinjected as sources
 )
 
 def set_options(opt):
