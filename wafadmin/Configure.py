@@ -261,7 +261,7 @@ class Configure(object):
 		try: self.env[dest] = os.environ[var]
 		except KeyError: pass
 
-	def check_message(self,type,msg,state,option=''):
+	def check_message(self, type, msg, state, option=''):
 		"print an checking message. This function is used by other checking functions"
 		sr = 'Checking for %s %s' % (type, msg)
 		global g_maxlen
@@ -273,13 +273,13 @@ class Configure(object):
 		else: p('YELLOW', 'not found')
 		Runner.print_log(sr, '\n\n')
 
-	def check_message_custom(self,type,msg,custom,option=''):
+	def check_message_custom(self, type, msg, custom, option='', color='CYAN'):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for ' + type + ' ' + msg
 		global g_maxlen
 		g_maxlen = max(g_maxlen, len(sr))
 		print "%s :" % sr.ljust(g_maxlen),
-		Params.pprint('CYAN', custom)
+		Params.pprint(color, custom)
 		Runner.print_log(sr, '\n\n')
 
 	def hook(self, func):
