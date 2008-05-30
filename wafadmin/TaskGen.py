@@ -451,7 +451,9 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 	"""
 
 	if type(action) == types.StringType:
-		Action.simple_action(name, action, color=color, prio=prio)
+		act = Action.simple_action(name, action, color=color, prio=prio)
+		act.in_exts = tuple(Utils.to_list(ext_in))
+		act.out_exts = tuple(Utils.to_list(ext_out))
 	else:
 		name = action.name
 

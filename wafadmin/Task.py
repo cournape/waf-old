@@ -178,27 +178,78 @@ class TaskGroup(object):
 		try: self.cstr_order[a].add(b)
 		except KeyError: self.cstr_order[a] = set([b,])
 
+
+	def compare_prios(self, t1, t2, a1, a2):
+		x = "priority system (old)"
+		p1 = getattr(t1, x, getattr(a1, x, None))
+		p2 = getattr(t2, x, getattr(a2, x, None))
+
+		if not p1 is None and not p2 is None:
+			if p1 < p2:
+				return 1
+			elif p1 > p2:
+				return -1
+		return 0
+
+	def compare_exts(self, t1, t2, a1, a2):
+		"extension production"
+		x = "in_exts"
+		y = "out_exts"
+		in_exts = getattr(t1, x, getattr(a1, x, ()))
+		out_exts = getattr(t2, y, getattr(a2, y, ()))
+		for k in in_exts:
+			if k in out_exts:
+				return -1
+		else:
+			in_exts = getattr(t2, x, getattr(a2, x, ()))
+			out_exts = getattr(t1, y, getattr(a1, y, ()))
+			for k in in_exts:
+				if k in out_exts:
+					return 1
+			else:
+				pass
+		return 0
+
+	def compare_partial(self, t1, t2, a1, a2):
+		"partial relations after/before"
+		m = "after"
+		n = "before"
+		if a2:
+			if a2.m_name in getattr(t1, m, getattr(a1, m, ())): return -1
+			elif a2.m_name in getattr(t1, n, getattr(a1, n, ())): return 1
+		if a1:
+			#print a1, "after", getattr(t2, m, getattr(a2, m, ()))
+			#print  a1, "before", getattr(t2, n, getattr(a2, n, ()))
+			if a1.m_name in getattr(t2, m, getattr(a2, m, ())): return 1
+			elif a1.m_name in getattr(t2, n, getattr(a2, n, ())): return -1
+		return 0
+
 	def extract_constraints(self):
 		"extract the parallelization constraints from the tasks with different constraints"
 		keys = self.cstr_groups.keys()
 		max = len(keys)
+		a = "m_action"
 		# hopefully the lenght of this list is short
 		for i in xrange(max):
 			t1 = self.cstr_groups[keys[i]][0]
+			a1 = getattr(t1, a, None)
 			for j in xrange(i + 1, max):
 				t2 = self.cstr_groups[keys[j]][0]
-
-				a = "m_action"
-				a1 = getattr(t1, a, None)
 				a2 = getattr(t2, a, None)
 
-				x = "prio"
-				p1 = getattr(t1, x, getattr(a1, x, None))
-				p2 = getattr(t2, x, getattr(a2, x, None))
+				# add the constraints based on the comparisons
 
-				if not p1 is None and not p2 is None:
-					if p1 < p2: self.set_order(keys[i], keys[j])
-					elif p1 > p2: self.set_order(keys[j], keys[i])
+				val = (0
+					or self.compare_prios(t1, t2, a1, a2)
+					or self.compare_exts(t1, t2, a1, a2)
+					or self.compare_partial(t1, t2, a1, a2)
+					)
+				if val > 0:
+					self.set_order(keys[i], keys[j])
+					continue
+				elif val < 0:
+					self.set_order(keys[j], keys[i])
+					continue
 
 		#print "the constraint groups are:", self.cstr_groups, "and the constraints ", self.cstr_order
 		# TODO extract constraints by file extensions on the actions
@@ -264,7 +315,7 @@ class TaskBase(object):
 			manager.idx += 1
 	def hash_constraints(self):
 		sum = 0
-		names = ('prio', 'before', 'after')
+		names = ('prio', 'before', 'after', 'in_exts', 'out_exts')
 		act = getattr(self, "m_action", None)
 		if act:
 			sum = hash((sum, getattr(self, 'm_name', sys.maxint),))
