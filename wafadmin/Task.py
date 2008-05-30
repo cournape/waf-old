@@ -150,6 +150,7 @@ class TaskGroup(object):
 		if g_algotype == NORMAL:
 			"this should be ready"
 			tasks = self.tasks_in_parallel()
+			if not tasks: return ()
 			# in parallel mode, look at the parallelization constraint of the first item in the list
 			# TODO this cannot work well, the first task may not be a linking
 			try: maxjobs = tasks[0].m_action.maxjobs
