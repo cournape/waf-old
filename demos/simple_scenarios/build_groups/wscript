@@ -1,6 +1,10 @@
+#! /usr/bin/env python
+
 """
 This wscript demonstrates the use of bld.add_group to
-separate tasks into groups.
+schedule tasks into totally separate groups.
+
+This is useful when building a compiler later used for building other things
 See also: http://code.google.com/p/waf/wiki/TaskSystem
 """
 
@@ -12,7 +16,7 @@ def configure(conf):
 
 def build(bld):
 	bld.add_group('kuku')
-	
+
 	a = bld.create_obj('cpp', 'program')
 	a.source = 'a.cpp'
 	a.target = 'AA'
