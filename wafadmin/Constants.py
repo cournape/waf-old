@@ -2,7 +2,12 @@
 # encoding: utf-8
 # Yinon dot me gmail 2008
 
-# maintainer the version number is updated from the top-level wscript file
+"""
+these constants are somewhat public, try not to mess them
+
+maintainer: the version number is updated from the top-level wscript file
+"""
+
 HEXVERSION = 0x10402
 ABI = 6
 
@@ -33,4 +38,10 @@ CONTINUE = "continue"
 JOBCONTROL = "JOBCONTROL"
 MAXPARALLEL = "MAXPARALLEL"
 NORMAL = "NORMAL"
+
+# task state
+MISSING = 1
+CRASHED = 2
+SKIPPED = 8
+SUCCESS = 9
 

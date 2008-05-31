@@ -31,12 +31,12 @@ class BuildError(Exception):
 	def get_message(self):
 		lst = ['Build failed']
 		for tsk in self.tasks:
-			if tsk.m_hasrun == Runner.crashed:
+			if tsk.m_hasrun == CRASHED:
 				try:
 					lst.append(" -> task failed (err #%d): %s" % (tsk.err_code, str(tsk.m_outputs)))
 				except AttributeError:
 					lst.append(" -> task failed:" % str(tsk.m_outputs))
-			elif tsk.m_hasrun == Runner.missing:
+			elif tsk.m_hasrun == MISSING:
 				lst.append(" -> missing files: %s" % str(tsk.m_outputs))
 		return '\n'.join(lst)
 
@@ -200,17 +200,17 @@ class Build(object):
 
 		if Params.g_verbose>2: self.dump()
 
-		if Params.g_options.jobs <= 1: executor = Runner.Serial(self)
-		else: executor = Runner.Parallel(self, Params.g_options.jobs)
-		self.generator = executor
+		self.generator = Runner.get_instance(self, Params.g_options.jobs)
 
-		def dw():
-			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_on)
+		def dw(on=True):
+			if Params.g_options.progress_bar:
+				if on: sys.stdout.write(Params.g_cursor_on)
+				else: sys.stdout.write(Params.g_cursor_off)
 
 		debug('executor starting', 'build')
 		try:
-			if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_off)
-			ret = executor.start()
+			dw(on=False)
+			ret = self.generator.start()
 		except KeyboardInterrupt, e:
 			dw()
 			os.chdir(self.m_srcnode.abspath())
@@ -231,7 +231,7 @@ class Build(object):
 			Utils.test_full()
 			raise BuildError(self, self.task_manager.tasks_done)
 
-		if Params.g_verbose>2: self.dump()
+		if Params.g_verbose > 2: self.dump()
 		os.chdir(self.m_srcnode.abspath())
 
 	def install(self):

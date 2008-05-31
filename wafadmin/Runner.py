@@ -8,17 +8,13 @@ import sys, random, time, threading, Queue, traceback
 import Params, Utils
 import pproc as subprocess
 from Params import debug, error
+from Constants import *
 
 g_quiet = 0
 "do not output anything"
 
 log_file = None
 "output to a config.log file, see Configure.py {mute,restore}_logging"
-
-missing = 1
-crashed = 2
-skipped = 8
-success = 9
 
 def print_log(msg, nl='\n'):
 	if log_file:
@@ -183,7 +179,7 @@ class Serial(object):
 
 			#continue
 			if not tsk.must_run():
-				tsk.m_hasrun = skipped
+				tsk.m_hasrun = SKIPPED
 				self.manager.add_finished(tsk)
 				#debug("task is up-to_date "+str(tsk.m_idx), 'runner')
 				continue
@@ -203,7 +199,7 @@ class Serial(object):
 			# non-zero means something went wrong
 			if ret:
 				self.error = 1
-				tsk.m_hasrun = crashed
+				tsk.m_hasrun = CRASHED
 				tsk.err_code = ret
 				if Params.g_options.keep: continue
 				else: return -1
@@ -213,11 +209,11 @@ class Serial(object):
 			except OSError:
 				traceback.print_stack()
 				self.error = 1
-				tsk.m_hasrun = missing
+				tsk.m_hasrun = MISSING
 				if Params.g_options.keep: continue
 				else: return -1
 			else:
-				tsk.m_hasrun = success
+				tsk.m_hasrun = SUCCESS
 
 		if self.error:
 			return -1
@@ -249,15 +245,15 @@ class TaskConsumer(threading.Thread):
 
 			if ret:
 				tsk.err_code = ret
-				tsk.m_hasrun = crashed
+				tsk.m_hasrun = CRASHED
 			else:
 				try:
 					tsk.update_stat()
 				except OSError:
-					tsk.m_hasrun = missing
+					tsk.m_hasrun = MISSING
 				else:
-					tsk.m_hasrun = success
-			if tsk.m_hasrun != success: # TODO for now, do no keep running in parallel  and not Params.g_options.keep:
+					tsk.m_hasrun = SUCCESS
+			if tsk.m_hasrun != SUCCESS: # TODO for now, do no keep running in parallel  and not Params.g_options.keep:
 				m.failed = 1
 
 			m.out.put(tsk)
@@ -342,7 +338,7 @@ class Parallel(object):
 				tsk.prepare()
 				self.progress += 1
 				if not tsk.must_run():
-					tsk.m_hasrun = skipped
+					tsk.m_hasrun = SKIPPED
 					self.manager.add_finished(tsk)
 					continue
 				cl = Params.g_colors
@@ -353,4 +349,9 @@ class Parallel(object):
 				if random.randint(0,1): self.frozen.insert(0, tsk)
 				else: self.frozen.append(tsk)
 		#print loop
+
+def get_instance(bld, njobs):
+	if njobs <= 1: executor = Serial(bld)
+	else: executor = Parallel(bld, njobs)
+	return executor
 
