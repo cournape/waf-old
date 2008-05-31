@@ -141,6 +141,9 @@ def detect(conf):
 		conf.fatal("valac not found")
 		return
 
+	if not conf.env["HAVE_GTHREAD"]:
+		conf.check_pkg('gthread-2.0', destvar='GTHREAD', mandatory=False)
+
 	try:
 		output = Popen([valac, "--version"], stdout=PIPE).communicate()[0]
 		version = output.split(' ', 1)[-1].strip().split(".")
@@ -160,3 +163,4 @@ def detect(conf):
 
 	conf.env['VALAC_VERSION'] = valac_version
 	conf.env['VALAFLAGS'] = ''
+
