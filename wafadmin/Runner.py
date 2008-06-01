@@ -307,7 +307,7 @@ class Parallel(object):
 				while self.count > 0: get_out()
 				if self.failed: return -1
 
-			if 1 == currentprio % 2:
+			if 1 == currentprio:
 				# allow only one process at a time in priority 'even'
 				while self.count > 0: get_out()
 			else:
