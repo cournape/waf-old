@@ -286,7 +286,7 @@ class Parallel(object):
 		self.progress = 0 # progress indicator
 
 	def start(self):
-		for i in range(self.numjobs): TaskConsumer(i, self)
+		self.consumers = [TaskConsumer(i, self) for i in range(self.numjobs)]
 
 		# the current group
 		#group = None
