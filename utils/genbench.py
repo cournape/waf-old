@@ -22,39 +22,39 @@ def CreateHeader(name):
     guard = name + '_h_'
     handle.write ('#ifndef ' + guard + '\n');
     handle.write ('#define ' + guard + '\n\n');
-    
+
     handle.write ('class ' + name + ' {\n');
     handle.write ('public:\n');
     handle.write ('    ' + name + '();\n');
     handle.write ('    ~' + name + '();\n');
     handle.write ('};\n\n');
-    
+
     handle.write ('#endif\n');
-    
+
 
 def CreateCPP(name, lib_number, classes_per_lib, internal_includes, external_includes):
     filename = name + ".cpp"
     handle = file(filename, "w" )
-    
+
     header= name + ".h"
     handle.write ('#include "' + header + '"\n');
-    
-    includes = random.sample(xrange(classes_per_lib), internal_includes)    
+
+    includes = random.sample(xrange(classes_per_lib), internal_includes)
     for i in includes:
         handle.write ('#include "class_' + str(i) + '.h"\n')
 
-    if (lib_number > 0):        
-        includes = random.sample(xrange(classes_per_lib), external_includes) 
+    if (lib_number > 0):
+        includes = random.sample(xrange(classes_per_lib), external_includes)
         lib_list = xrange(lib_number)
         for i in includes:
             libname = 'lib_' + str(random.choice(lib_list))
-            handle.write ('#include <' + libname + '/' + 'class_' + str(i) + '.h>\n')    
-    
+            handle.write ('#include <' + libname + '/' + 'class_' + str(i) + '.h>\n')
+
     handle.write ('\n');
     handle.write (name + '::' + name + '() {}\n');
     handle.write (name + '::~' + name  + '() {}\n');
-    
-    
+
+
 def CreateSConscript(lib_number, classes):
     handle = file("SConscript", "w");
     handle.write("Import('env')\n")
@@ -63,7 +63,6 @@ def CreateSConscript(lib_number, classes):
         handle.write('    class_' + str(i) + '.cpp\n')
     handle.write('    """)\n\n')
     handle.write('env.StaticLibrary("lib_' + str(lib_number) + '", list)\n\n')
-    
 
 def CreateLibMakefile(lib_number, classes):
     handle = file("Makefile", "w");
@@ -80,12 +79,11 @@ DEPEND = makedepend
     for i in xrange(classes):
         handle.write('class_' + str(i) + '.cpp \\\n')
     handle.write ("""
-    
 
 objects = $(patsubst %.cpp, %.o, $(src))
 
 all: depend $(lib)
- 
+
 $(lib): $(objects)
 	$(ARCHIVE) cr $@ $^
 	touch $@
@@ -100,7 +98,6 @@ depend:
 	@$(DEPEND) $(INC) $(src)
 
 """)
-    
 
 def CreateLibJamFile(lib_number, classes):
     handle = file("Jamfile", "w")
@@ -110,7 +107,7 @@ def CreateLibJamFile(lib_number, classes):
     for i in xrange(classes):
         handle.write('    class_' + str(i) + '.cpp\n')
     handle.write ('    ;\n')
-   
+
 def CreateVCProjFile(lib_number, classes):
     handle = file("lib_" + str(lib_number) + ".vcproj", "w")
     handle.write("""<?xml version="1.0" encoding="Windows-1252"?>
@@ -165,10 +162,9 @@ def CreateVCProjFile(lib_number, classes):
 </VisualStudioProject>
 """)
 
-    
 def CreateLibrary(lib_number, classes, internal_includes, external_includes):
     name = "lib_" + str(lib_number)
-    SetDir(name)    
+    SetDir(name)
     for i in xrange(classes):
         classname = "class_" + str(i)
         CreateHeader(classname)
@@ -179,30 +175,28 @@ def CreateLibrary(lib_number, classes, internal_includes, external_includes):
     #CreateVCProjFile(lib_number, classes)
     CreateW(lib_number, classes)
 
-    os.chdir("..")    
-    
-    
+    os.chdir("..")
 
 
 def CreateSConstruct(libs):
-    handle = file("SConstruct", "w"); 
+    handle = file("SConstruct", "w");
     handle.write("""env = Environment(CPPFLAGS=['-Wall'], CPPDEFINES=['LINUX'], CPPPATH=[Dir('#')])\n""")
-    
+
     for i in xrange(libs):
-        handle.write("""env.SConscript("lib_%s/SConscript", exports=['env'])\n""" % str(i))  
-    
+        handle.write("""env.SConscript("lib_%s/SConscript", exports=['env'])\n""" % str(i))
+
 def CreateFullMakefile(libs):
     handle = file("Makefile", "w")
 
     handle.write('subdirs = \\\n')
     for i in xrange(libs):
-        handle.write('lib_' + str(i) + '\\\n')  
+        handle.write('lib_' + str(i) + '\\\n')
     handle.write("""
 
 all: $(subdirs)
 	@for i in $(subdirs); do \
     $(MAKE) -C $$i all; done
-                
+
 clean:
 	@for i in $(subdirs); do \
 	(cd $$i; $(MAKE) clean); done
@@ -211,23 +205,23 @@ depend:
 	@for i in $(subdirs); do \
 	(cd $$i; $(MAKE) depend); done
 """)
-        
 
 def CreateFullJamfile(libs):
     handle = file("Jamfile", "w")
     handle.write ("SubDir TOP ;\n\n")
-    
+
     for i in xrange(libs):
         handle.write('SubInclude TOP ' + lib_name(i) + ' ;\n')
-        
+
     handle = file("Jamrules", "w")
-    handle.write ('INCLUDES = $(TOP) ;\n')    
-    
+    handle.write('INCLUDES = $(TOP) ;\n')
+
 def CreateW(lib_number, classes):
     handle = file("wscript", "w");
     handle.write("def build(bld):\n")
     handle.write('    import Params\n');
     handle.write("    obj = bld.create_obj('cpp', 'staticlib')\n")
+    handle.write("    obj.includes='. ..'\n")
     handle.write("    obj.source='''\n")
 
     for i in xrange(classes):
@@ -236,10 +230,10 @@ def CreateW(lib_number, classes):
     handle.write("    '''\n")
     handle.write("    obj.name = 'lib2'\n")
     handle.write('def set_options(opt): pass\n')
-    handle.write('def configure(conf): pass\n\n')       
+    handle.write('def configure(conf): pass\n\n')
 
 def CreateWtop(libs):
-    handle = file("wscript", "w"); 
+    handle = file("wscript", "w")
 
     handle.write("VERSION='0.0.1'\n")
     handle.write("APPNAME='build-bench'\n")
@@ -259,24 +253,20 @@ def CreateWtop(libs):
     handle.write("def set_options(opt):\n")
     handle.write("    pass\n\n")
 
-
-
 def CreateFullSolution(libs):
     handle = file("solution.sln", "w")
     handle.write("Microsoft Visual Studio Solution File, Format Version 8.00\n")
 
     for i in xrange(libs):
         project_name = lib_name(i) + '\\' + lib_name(i) + '.vcproj'
-        handle.write('Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "' + lib_name(i) + 
+        handle.write('Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "' + lib_name(i) +
                       '", "' + project_name + '", "{CF495178-8865-4D20-939D-AAA' + str(i) + '}"\n')
         handle.write('EndProject\n')
-
 
 def SetDir(dir):
     if (not os.path.exists(dir)):
         os.mkdir(dir)
     os.chdir(dir)
-
 
 def main(argv):
     if len(argv) != 6:
