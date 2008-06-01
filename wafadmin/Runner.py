@@ -227,7 +227,6 @@ class TaskConsumer(threading.Thread):
 		self.start()
 
 	def run(self):
-		do_stat = getattr(self, 'do_stat', None)
 		m = self.master
 
 		while 1:
@@ -236,12 +235,8 @@ class TaskConsumer(threading.Thread):
 				m.out.put(tsk)
 				continue
 
-			if do_stat: do_stat(1)
-
 			printout(tsk.get_display())
 			ret = tsk.run()
-
-			if do_stat: do_stat(-1)
 
 			if ret:
 				tsk.err_code = ret
