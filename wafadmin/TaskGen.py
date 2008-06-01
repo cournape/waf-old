@@ -365,6 +365,14 @@ class task_gen(object):
 
 		for name in dirnames:
 			anode = self.path.find_dir(name)
+
+			# validation:
+			# * don't use absolute path.
+			# * don't use paths outside the source tree.
+			if not anode or not anode.is_child_of(Params.g_build.m_srcnode):
+				fatal("Unable to use '%s' - either because it's not a relative path" \
+					 ", or it's not child of '%s'." % (name, Params.g_build.m_srcnode))
+	
 			Params.g_build.rescan(anode)
 
 			for name in Params.g_build.cache_dir_contents[anode.id]:
