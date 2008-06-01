@@ -243,7 +243,6 @@ class task_gen(object):
 	def apply_core(self):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
-		tree = Params.g_build
 		lst = self.to_list(self.source)
 		find_resource_lst = self.path.find_resource_lst
 
