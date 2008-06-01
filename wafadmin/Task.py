@@ -35,6 +35,7 @@ from Params import debug, error, warning
 from Constants import *
 
 g_algotype = NORMAL
+#g_algotype = JOBCONTROL
 """
 TODO (not implemented)
 Enable different kind of dependency algorithms:
@@ -151,11 +152,7 @@ class TaskGroup(object):
 			"this should be ready"
 			tasks = self.tasks_in_parallel()
 			if not tasks: return ()
-			# in parallel mode, look at the parallelization constraint of the first item in the list
-			# TODO this cannot work well, the first task may not be a linking
-			try: maxjobs = tasks[0].m_action.maxjobs
-			except (IndexError, AttributeError): maxjobs = sys.maxint
-			return (maxjobs, tasks)
+			return (sys.maxint, tasks)
 		elif g_algotype == JOBCONTROL:
 			return self.tasks_by_max_jobs()
 		elif g_algotype == MAXPARALLEL:
@@ -181,7 +178,7 @@ class TaskGroup(object):
 
 
 	def compare_prios(self, t1, t2, a1, a2):
-		x = "priority system (old)"
+		x = "prio"
 		p1 = getattr(t1, x, getattr(a1, x, None))
 		p2 = getattr(t2, x, getattr(a2, x, None))
 
@@ -295,8 +292,25 @@ class TaskGroup(object):
 	def tasks_by_max_jobs(self):
 		"(JOBCONTROL) returns the tasks that can run in parallel with the max amount of jobs"
 		if not self.ready: self.prepare()
-		# TODO
-		if not self.temp_tasks: self.temp_tasks = []
+		if not self.temp_tasks: self.temp_tasks = self.tasks_in_parallel()
+		if not self.temp_tasks: return None
+
+		maxjobs = sys.maxint
+		ret = []
+		remaining = []
+		for t in self.temp_tasks:
+			act = getattr(t, "m_action", None)
+			m = getattr(act, "maxjobs", getattr(t, "maxjobs", sys.maxint))
+			if m > maxjobs:
+				remaining.append(t)
+			elif m < maxjobs:
+				remaining += ret
+				ret = [t]
+				maxjobs = m
+			else:
+				ret.append(t)
+		self.temp_tasks = remaining
+		return (maxjobs, ret)
 
 	def tasks_with_inner_constraints(self):
 		"(MAXPARALLEL) returns all tasks in this group, but add the constraints on each task instance"
