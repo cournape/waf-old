@@ -5,7 +5,7 @@
 "This hook is called when the class cpp/cc task generator encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
 
 import os, sys
-import Action, TaskGen
+import TaskGen, Task
 from Utils import quote_whitespace
 from TaskGen import extension
 
@@ -26,7 +26,7 @@ def rc_file(self, node):
 	self.compiled_tasks.append(rctask)
 
 # create our action, for use with rc file
-Action.simple_action('winrc', winrc_str, color='BLUE', prio=40)
+Task.simple_task_type('winrc', winrc_str, color='BLUE', prio=40)
 
 def detect(conf):
 	v = conf.env
