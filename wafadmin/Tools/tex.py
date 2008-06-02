@@ -5,7 +5,7 @@
 "TeX/LaTeX/PDFLaTeX support"
 
 import os, re
-import Utils, Params, Action, TaskGen, Runner, Scan
+import Utils, Params, TaskGen, Task, Runner, Scan
 from Params import error, warning, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
@@ -236,12 +236,18 @@ def detect(conf):
 		v[p.upper()+'FLAGS'] = ''
 	v['DVIPSFLAGS'] = '-Ppdf'
 
-Action.simple_action('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE', prio=60)
-Action.simple_action('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE', prio=60)
-Action.simple_action('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', prio=60)
-Action.simple_action('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
-Action.simple_action('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
+b = Task.simple_task_type
+b('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE', prio=60)
+b('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE', prio=60)
+b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', prio=60)
+b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
+b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
 
-Action.Action('latex', vars=latex_vardeps, func=latex_build, prio=40)
-Action.Action('pdflatex', vars=pdflatex_vardeps, func=pdflatex_build, prio=40)
+a = b('latex', '${TEX} ${TEXFLAGS} ${SRC}', prio=40)
+a.m_vars = latex_vardeps
+a.run = latex_build
+
+a = b('pdflatex', '${TEX} ${TEXFLAGS} ${SRC}', prio=40)
+a.m_vars = pdflatex_vardeps
+a.run = pdflatex_build
 
