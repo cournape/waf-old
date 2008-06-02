@@ -22,7 +22,7 @@ it is only necessary to import this module in the configuration (no other change
 EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
 import shutil, os
-import Action, TaskGen, Task, ccroot, Params
+import TaskGen, Task, ccroot, Params
 from TaskGen import extension
 
 class TaskMaster(Task.Task):
@@ -110,8 +110,8 @@ def create_task_cxx_new(self, node):
 	self.compiled_tasks.append(task)
 
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC}'
-Action.simple_action('all_cc', cc_str, 'GREEN')
+Task.simple_task_type('all_cc', cc_str, 'GREEN')
 
 cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
-Action.simple_action('all_cpp', cpp_str, color='GREEN')
+Task.simple_task_type('all_cpp', cpp_str, color='GREEN')
 
