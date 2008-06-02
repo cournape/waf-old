@@ -5,7 +5,7 @@
 "Base for c programs/libraries"
 
 import sys
-import TaskGen, Params, Action, Utils
+import TaskGen, Params, Utils, Task
 from Params import debug
 import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
@@ -99,8 +99,8 @@ def c_hook(self, node):
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-Action.simple_action('cc', cc_str, 'GREEN', prio=100)
-Action.simple_action('cc_link', link_str, color='YELLOW', prio=111)
+Task.simple_task_type('cc', cc_str, 'GREEN', prio=100)
+Task.simple_task_type('cc_link', link_str, color='YELLOW', prio=111)
 
 TaskGen.declare_order('apply_incpaths', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 
