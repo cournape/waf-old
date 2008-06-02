@@ -21,7 +21,7 @@ change is only annoying for the compilation times
 """
 
 import os, re
-import TaskGen, Action, Utils, Params
+import TaskGen, Task, Utils, Params
 
 class java_taskgen(TaskGen.task_gen):
 	s_default_ext = ['.java']
@@ -89,8 +89,8 @@ class java_taskgen(TaskGen.task_gen):
 					dirs = '/'
 					self.env['JAROPTS'] = '-C %s %s' % (self.env['OUTDIR'], dirs)
 
-Action.simple_action('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', prio=10)
-Action.simple_action('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN', prio=50)
+Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', prio=10)
+Task.simple_task_type('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN', prio=50)
 
 def detect(conf):
 	# If JAVA_PATH is set, we prepend it to the path list

@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, sys, re, TaskGen, Action, Utils, Common
+import os, sys, re, TaskGen, Task, Utils, Common
 
 class msgfmt_taskgen(TaskGen.task_gen):
 	def __init__(self, appname='set_your_app_name'):
@@ -69,5 +69,5 @@ def detect(conf):
 
 	conf.env['MSGFMT'] = conf.find_program('msgfmt')
 
-Action.simple_action('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE', prio=10)
+Task.simple_task_type('msgfmt', '${MSGFMT} ${SRC} -o ${TGT}', color='BLUE', prio=10)
 
