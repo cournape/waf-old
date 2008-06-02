@@ -394,7 +394,18 @@ class Node(object):
 	# helpers for building things
 
 	def abspath(self, env=None):
-		"absolute path - hot zone, so do not touch"
+	 	"""
+		Returns the absolute file path for this node.  If this
+		node is a build node, the absolute path will be a
+		build path, else it will be a source path.
+
+		@param env: Environment object.  This is used to
+		determine the variant we are interested in.  'env' can
+		be None if we are sure to be working with a source
+		Node, but when in doubt a real Environment object
+		should be provided.
+		"""
+		## absolute path - hot zone, so do not touch
 
 		if not self.m_name:
 			return '/'
