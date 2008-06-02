@@ -6,7 +6,7 @@
 "Python support"
 
 import os, sys
-import TaskGen, Action, Utils, Params, Common, Utils, Runner
+import TaskGen, Utils, Params, Common, Utils, Runner
 from TaskGen import extension, taskgen, before, after, feature
 import pproc as subprocess
 

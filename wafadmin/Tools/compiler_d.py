@@ -3,7 +3,7 @@
 # Carlos Rafael Giani, 2007 (dv)
 
 import os, sys, imp, types
-import Utils, Action, Params, checks, Configure
+import Utils, Params, checks, Configure
 
 def detect(conf):
 	if getattr(Params.g_options, 'check_dmd_first', None):
