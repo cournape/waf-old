@@ -6,7 +6,7 @@
 "ar and ranlib"
 
 import os, sys
-import Action
+import Task
 from Configure import conftest
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
@@ -14,7 +14,7 @@ ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 # FIXME
 if sys.platform == "win32":
 	ar_str = '${AR} s${ARFLAGS} ${TGT} ${SRC}'
-Action.simple_action('ar_link_static', ar_str, color='YELLOW', prio=111)
+Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', prio=111)
 
 def detect(conf):
 	comp = conf.find_program('ar', var='AR')
