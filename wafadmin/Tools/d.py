@@ -5,7 +5,7 @@
 
 import os, sys, re, optparse
 import ccroot # <- leave this
-import TaskGen, Utils, Action, Params, checks, Configure, Scan
+import TaskGen, Utils, Task, Params, checks, Configure, Scan
 from Params import debug, error
 from TaskGen import taskgen, feature, after, before, extension
 
@@ -433,7 +433,7 @@ def add_shlib_d_flags(self):
 @extension(EXT_D)
 def d_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = self.create_task('d', self.env)
+	task = self.create_task('d')
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
@@ -445,7 +445,7 @@ def d_hook(self, node):
 	self.compiled_tasks.append(task)
 
 	if self.generate_headers:
-		task.m_action = Action.g_actions['d_with_header']
+		task.m_action = self.create_task('d_with_header')
 		header_node = node.change_ext(self.env['DHEADER_ext'])
 		task.m_outputs += [header_node]
 
@@ -456,9 +456,9 @@ ${D_SRC_F}${SRC} \
 ${D_TGT_F}${TGT[0].bldpath(env)}'
 link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${_DLIBDIRFLAGS} ${_DLIBFLAGS}'
 
-Action.simple_action('d', d_str, 'GREEN', prio=100)
-Action.simple_action('d_with_header', d_with_header_str, 'GREEN', prio=100)
-Action.simple_action('d_link', link_str, color='YELLOW', prio=101)
+Task.simple_task_type('d', d_str, 'GREEN', prio=100)
+Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', prio=100)
+Task.simple_task_type('d_link', link_str, color='YELLOW', prio=111)
 
 # for feature request #104
 @taskgen
@@ -482,7 +482,7 @@ def process_header(self):
 		task.set_outputs(node.change_ext('.di'))
 
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
-Action.simple_action('d_header', d_header_str, color='BLUE', prio=80)
+Task.simple_task_type('d_header', d_header_str, color='BLUE', prio=80)
 
 
 # quick test #
