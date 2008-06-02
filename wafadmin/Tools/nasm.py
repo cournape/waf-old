@@ -7,7 +7,7 @@ Nasm processing
 """
 
 import os
-import Action, TaskGen
+import TaskGen, Task
 from TaskGen import taskgen, before, extension
 
 nasm_str = '${NASM} ${NASM_FLAGS} ${NASM_INCLUDES} ${SRC} -o ${TGT}'
@@ -41,7 +41,7 @@ def nasm_file(self, node):
 	self.meths.add('apply_nasm_vars')
 
 # create our action here
-Action.simple_action('nasm', nasm_str, color='BLUE', prio=40)
+Task.simple_task_type('nasm', nasm_str, color='BLUE', prio=40)
 
 def detect(conf):
 	nasm = conf.find_program('nasm', var='NASM')

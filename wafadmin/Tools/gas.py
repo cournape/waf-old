@@ -5,13 +5,13 @@
 "as and gas"
 
 import os, sys
-import Action
+import Task
 from TaskGen import extension, taskgen, after, before
 
 EXT_ASM = ['.s', '.S', '.asm', '.ASM', '.spp', '.SPP']
 
 as_str = '${AS} ${ASFLAGS} ${_ASINCFLAGS} ${SRC} -o ${TGT}'
-Action.simple_action('asm', as_str, 'PINK', prio=100)
+Task.simple_task_type('asm', as_str, 'PINK', prio=100)
 
 @extension(EXT_ASM)
 def asm_hook(self, node):
