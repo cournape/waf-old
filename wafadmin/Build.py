@@ -444,10 +444,10 @@ class Build(object):
 
 	# ======================================= #
 	def scan_src_path(self, i_parent_node, i_path):
-		'''
+		"""
 		@param i_parent_node [Node]: parent node of path to scan.
 		@param i_path [string]: path to folder to scan.
-		@param i_existing_nodes: nodes already scanned ?'''
+		@param i_existing_nodes: nodes already scanned ?"""
 
 		listed_files = set(Utils.listdir(i_path))
 
