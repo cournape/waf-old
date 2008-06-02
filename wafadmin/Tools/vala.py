@@ -3,24 +3,25 @@
 # Ali Sabil, 2007
 
 import os.path, shutil
-import Action, Runner, Utils, Params
+import Task, Runner, Utils, Params
 from TaskGen import extension
 
 from pproc import Popen, PIPE
 
 EXT_VALA = ['.vala']
 
-class ValacAction(Action.Action):
+class valac(Task.Task):
 	def __init__(self):
-		Action.Action.__init__(self, 'valac', color='GREEN')
+		Task.Task.__init__(self, 'valac', color='GREEN')
 		self.prio = 80
 
-	def get_str(self, task):
+	def get_str(self):
 		"string to display to the user"
-		src_str = " ".join([a.m_name for a in task.m_inputs])
-		return "%s: %s\n" % (self.m_name, src_str)
+		src_str = " ".join([a.m_name for a in self.m_inputs])
+		return "%s: %s\n" % (self.__class__.__name__, src_str)
 
-	def run(self, task):
+	def run(self):
+		task = self # TODO cleanup
 		env = task.env()
 		inputs = [a.srcpath(env) for a in task.m_inputs]
 		valac = env['VALAC']
@@ -87,6 +88,7 @@ class ValacAction(Action.Action):
 			except IOError:
 				pass
 		return result
+Task.g_actions["valac"] = valac
 
 @extension(EXT_VALA)
 def vala_file(self, node):
@@ -128,9 +130,6 @@ def vala_file(self, node):
 	valatask.m_inputs.append(node)
 	valatask.m_outputs.extend(output_nodes)
 	self.allnodes.append(node.change_ext('.c'))
-
-# create our action here
-ValacAction()
 
 def detect(conf):
 	min_version = (0, 1, 6)
