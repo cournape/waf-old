@@ -345,7 +345,7 @@ class TaskBase(object):
 		sum = hash((sum, self.__class__.maxjobs))
 		return sum
 
-	def get_str(self, task):
+	def get_str(self):
 		"string to display to the user"
 		env = task.env()
 		src_str = ' '.join([a.nice_path(env) for a in task.m_inputs])
@@ -638,7 +638,7 @@ class Task(TaskBase):
 
 	def get_display(self):
 		if self.m_display: return self.m_display
-		self.m_display = self.get_str(self)
+		self.m_display = self.get_str()
 		return self.m_display
 
 	def color(self):
