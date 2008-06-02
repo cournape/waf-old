@@ -14,7 +14,7 @@ from Constants import *
 # Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')
 if not default_prefix:
-	if sys.platform == 'win32': default_prefix=tempfile.gettempdir()
+	if sys.platform == 'win32': default_prefix = tempfile.gettempdir()
 	else: default_prefix = '/usr/local/'
 
 default_destdir = os.environ.get('DESTDIR', '')
@@ -66,11 +66,6 @@ def create_parser():
 		help    = 'verbosity level -v -vv or -vvv [Default: 0]',
 		dest    = 'verbose')
 
-	p('--prefix',
-		help    = "installation prefix (configuration only) [Default: '%s']" % default_prefix,
-		default = default_prefix,
-		dest    = 'prefix')
-
 	p('--destdir',
 		help    = "installation root [Default: '%s']" % default_destdir,
 		default = default_destdir,
@@ -94,6 +89,11 @@ def create_parser():
 			default = '',
 			help    = 'src dir for the project (configuration)',
 			dest    = 'srcdir')
+
+		p('--prefix',
+			help    = "installation prefix (configuration only) [Default: '%s']" % default_prefix,
+			default = default_prefix,
+			dest    = 'prefix')
 
 	p('--zones',
 		action  = 'store',
