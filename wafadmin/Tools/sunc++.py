@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, optparse
-import Utils, Action, Params, Configure
+import Utils, Params, Configure
 import ccroot, ar
 from Configure import conftest
 
