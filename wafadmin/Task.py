@@ -314,6 +314,7 @@ class TaskGroup(object):
 
 	def tasks_with_inner_constraints(self):
 		"(MAXPARALLEL) returns all tasks in this group, but add the constraints on each task instance"
+		pass
 		# TODO
 
 class TaskBase(object):
