@@ -4,7 +4,7 @@
 
 import os
 import pproc as subprocess
-import Action, Params
+import Params, Task
 from TaskGen import extension, taskgen, feature, before
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
@@ -29,7 +29,7 @@ def xsubpp_file(self, node):
 
 	self.allnodes.append(outnode)
 
-Action.simple_action('xsubpp', xsubpp_str, color='BLUE', prio=10)
+Task.simple_task_type('xsubpp', xsubpp_str, color='BLUE', prio=10)
 
 def check_perl_version(conf, minver=None):
 	"""

@@ -16,7 +16,7 @@ The functions preceded by "@conf" are attached in the same manner
 
 import os, types, imp, cPickle, sys, shlex, warnings
 from Utils import md5
-import Action, Params, Environment, Runner, Build, Utils, Configure, TaskGen
+import Params, Environment, Runner, Build, Utils, Configure, TaskGen, Task
 from Params import fatal, warning
 from Constants import *
 from Configure import conf, conftest
@@ -1063,7 +1063,7 @@ def run_check(self, obj):
 
 	bdir = os.path.join(dir, '_testbuild_')
 
-	if (not obj.force_compiler and Action.g_actions.get('cxx', None)) or obj.force_compiler == "cpp":
+	if (not obj.force_compiler and Task.g_actions.get('cxx', None)) or obj.force_compiler == "cpp":
 		tp = 'cpp'
 		test_f_name = 'test.cpp'
 	else:

@@ -5,7 +5,7 @@
 "Gnome support"
 
 import os, re
-import TaskGen, Action, Params, Common, Scan, Utils, Runner
+import TaskGen, Params, Common, Scan, Utils, Runner, Task
 import cc
 from Params import fatal, error
 from TaskGen import taskgen, before, after, feature
@@ -273,21 +273,21 @@ def add_glib_mkenum(self, source='', template='', target=''):
 	self.mk_enums.append({'source':source, 'template':template, 'target':target})
 
 
-Action.simple_action('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK', prio=30)
+Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK', prio=30)
 
-Action.simple_action('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
+Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 
-Action.simple_action('glib_genmarshal',
+Task.simple_task_type('glib_genmarshal',
 	'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
 	color='BLUE')
 
-Action.simple_action('dbus_binding_tool',
+Task.simple_task_type('dbus_binding_tool',
 	'${DBT} --prefix=${DBT_PREFIX} --mode=${DBT_MODE} --output=${TGT} ${SRC}',
 	color='BLUE')
 
-Action.simple_action('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].abspath(env)}')
+Task.simple_task_type('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].abspath(env)}')
 
-Action.simple_action('xml2po', '${XML2PO} ${XML2POFLAGS} ${SRC} > ${TGT}', color='BLUE')
+Task.simple_task_type('xml2po', '${XML2PO} ${XML2POFLAGS} ${SRC} > ${TGT}', color='BLUE')
 
 # how do you expect someone to understand this?!
 xslt_magic = """${XSLTPROC2PO} -o ${TGT[0].abspath(env)} \
@@ -302,7 +302,7 @@ xslt_magic = """${XSLTPROC2PO} -o ${TGT[0].abspath(env)} \
 ${DB2OMF} ${SRC[1].abspath(env)}"""
 
 #--stringparam db2omf.dtd '-//OASIS//DTD DocBook XML V4.3//EN' \
-Action.simple_action('xsltproc2po', xslt_magic, color='BLUE')
+Task.simple_task_type('xsltproc2po', xslt_magic, color='BLUE')
 
 def detect(conf):
 
