@@ -28,7 +28,7 @@ and priorities or order constraints can only be applied to actions, not to tasks
 
 """
 
-import os, types, shutil, sys
+import os, types, shutil, sys, re, new
 from Utils import md5
 import Params, Action, Runner, Common, Scan
 from Params import debug, error, warning
@@ -36,8 +36,11 @@ from Constants import *
 
 g_algotype = NORMAL
 #g_algotype = JOBCONTROL
+
+g_task_types = {}
+
 """
-TODO (not implemented)
+TODO (MAXPARALLEL is missing)
 Enable different kind of dependency algorithms:
 1 make groups: first compile all cpps and then compile all links (NORMAL)
 2 parallelize all (each link task run after its dependencies) (MAXPARALLEL)
@@ -177,10 +180,10 @@ class TaskGroup(object):
 		except KeyError: self.cstr_order[a] = set([b,])
 
 
-	def compare_prios(self, t1, t2, a1, a2):
+	def compare_prios(self, t1, t2):
 		x = "prio"
-		p1 = getattr(t1, x, getattr(a1, x, None))
-		p2 = getattr(t2, x, getattr(a2, x, None))
+		p1 = t1.attr(x, None)
+		p2 = t2.attr(x, None)
 
 		if not p1 is None and not p2 is None:
 			if p1 < p2:
@@ -189,18 +192,18 @@ class TaskGroup(object):
 				return -1
 		return 0
 
-	def compare_exts(self, t1, t2, a1, a2):
+	def compare_exts(self, t1, t2):
 		"extension production"
 		x = "in_exts"
 		y = "out_exts"
-		in_exts = getattr(t1, x, getattr(a1, x, ()))
-		out_exts = getattr(t2, y, getattr(a2, y, ()))
+		in_exts = t1.attr(x, ())
+		out_exts = t2.attr(y, ())
 		for k in in_exts:
 			if k in out_exts:
 				return -1
 		else:
-			in_exts = getattr(t2, x, getattr(a2, x, ()))
-			out_exts = getattr(t1, y, getattr(a1, y, ()))
+			in_exts = t2.attr(x, ())
+			out_exts = t1.attr(y, ())
 			for k in in_exts:
 				if k in out_exts:
 					return 1
@@ -208,18 +211,16 @@ class TaskGroup(object):
 				pass
 		return 0
 
-	def compare_partial(self, t1, t2, a1, a2):
+	def compare_partial(self, t1, t2):
 		"partial relations after/before"
 		m = "after"
 		n = "before"
-		if a2:
-			if a2.m_name in getattr(t1, m, getattr(a1, m, ())): return -1
-			elif a2.m_name in getattr(t1, n, getattr(a1, n, ())): return 1
-		if a1:
-			#print a1, "after", getattr(t2, m, getattr(a2, m, ()))
-			#print  a1, "before", getattr(t2, n, getattr(a2, n, ()))
-			if a1.m_name in getattr(t2, m, getattr(a2, m, ())): return 1
-			elif a1.m_name in getattr(t2, n, getattr(a2, n, ())): return -1
+		name = t2.__class__.__name__
+		if name in t1.attr(m, ()): return -1
+		elif name in t1.attr(n, ()): return 1
+		name = t1.__class__.__name__
+		if name in t2.attr(m, ()): return 1
+		elif name in t2.attr(n, ()): return -1
 		return 0
 
 	def extract_constraints(self):
@@ -230,17 +231,15 @@ class TaskGroup(object):
 		# hopefully the lenght of this list is short
 		for i in xrange(max):
 			t1 = self.cstr_groups[keys[i]][0]
-			a1 = getattr(t1, a, None)
 			for j in xrange(i + 1, max):
 				t2 = self.cstr_groups[keys[j]][0]
-				a2 = getattr(t2, a, None)
 
 				# add the constraints based on the comparisons
 
 				val = (0
-					or self.compare_prios(t1, t2, a1, a2)
-					or self.compare_exts(t1, t2, a1, a2)
-					or self.compare_partial(t1, t2, a1, a2)
+					or self.compare_prios(t1, t2)
+					or self.compare_exts(t1, t2)
+					or self.compare_partial(t1, t2)
 					)
 				if val > 0:
 					self.set_order(keys[i], keys[j])
@@ -319,9 +318,13 @@ class TaskGroup(object):
 
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
+
+	m_vars = []
+	maxjobs = sys.maxint
+
 	def __init__(self, normal=1):
 		self.m_display = ''
-		self.m_hasrun=0
+		self.m_hasrun = 0
 
 		manager = Params.g_build.task_manager
 		if normal:
@@ -329,17 +332,26 @@ class TaskBase(object):
 		else:
 			self.m_idx = manager.idx
 			manager.idx += 1
+
+	def attr(self, att, default=None):
+		return getattr(self, att, getattr(self.__class__, att, default))
+
 	def hash_constraints(self):
 		sum = 0
 		names = ('prio', 'before', 'after', 'in_exts', 'out_exts')
-		act = getattr(self, "m_action", None)
-		if act:
-			sum = hash((sum, getattr(self, 'm_name', sys.maxint),))
+		sum = hash((sum, self.__class__.__name__,))
 		for x in names:
-			# hash the attribute on the task, and fallback to the one of the action if not present
-			sum = hash((sum, getattr(self, x, getattr(act, x, sys.maxint)),))
-		sum = hash((sum, getattr(act, 'maxjobs', None)))
+			sum = hash((sum, self.attr(x, sys.maxint),))
+		sum = hash((sum, self.__class__.maxjobs))
 		return sum
+
+	def get_str(self, task):
+		"string to display to the user"
+		env = task.env()
+		src_str = ' '.join([a.nice_path(env) for a in task.m_inputs])
+		tgt_str = ' '.join([a.nice_path(env) for a in task.m_outputs])
+		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
+
 	def may_start(self):
 		"non-zero if the task is ready"
 		return 1
@@ -358,9 +370,6 @@ class TaskBase(object):
 	def debug(self):
 		"prints the debug info"
 		pass
-	def run(self):
-		"process the task"
-		pass
 	def color(self):
 		"color to use for the console messages"
 		return 'BLUE'
@@ -375,7 +384,6 @@ class Task(TaskBase):
 		TaskBase.__init__(self, normal=normal)
 
 		# name of the action associated to this task type
-		self.m_action = Action.g_actions[action_name]
 		if not (prio is None): self.prio = prio
 
 		# environment in use
@@ -398,7 +406,7 @@ class Task(TaskBase):
 		return self.m_env
 
 	def __repr__(self):
-		return "".join(['\n\t{task: ', self.m_action.m_name, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
+		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs += inp
@@ -465,8 +473,8 @@ class Task(TaskBase):
 			pass
 
 		# dependencies on the environment vars
-		fun = getattr(self.m_action, 'signature', None)
-		if fun: act_sig = self.m_action.signature(self)
+		fun = getattr(self.m_action, 'signature_hook', None)
+		if fun: act_sig = self.m_action.signature_hook(self)
 		else: act_sig = env.sign_vars(self.m_action.m_vars)
 		m.update(act_sig)
 
@@ -624,15 +632,13 @@ class Task(TaskBase):
 		return 1
 
 	def prepare(self):
+		return
 		try: self.m_action.prepare(self)
 		except AttributeError: pass
 
-	def run(self):
-		return self.m_action.run(self)
-
 	def get_display(self):
 		if self.m_display: return self.m_display
-		self.m_display = self.m_action.get_str(self)
+		self.m_display = self.get_str(self)
 		return self.m_display
 
 	def color(self):
@@ -685,4 +691,72 @@ class TaskCmd(TaskBase):
 		self.fun(self)
 	def env(self):
 		return self.m_env
+
+def funex(c):
+	exec(c)
+	return f
+
+reg_act = re.compile(r"(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
+def compile_fun(name, line):
+	"""Compiles a string (once) into an function, eg:
+	simple_action('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].m_parent.bldpath()}')
+
+	The env variables (CXX, ..) on the task must not hold dicts (order)
+	The reserved keywords TGT and SRC represent the task input and output nodes
+	"""
+	extr = []
+	def repl(match):
+		g = match.group
+		if g('dollar'): return "$"
+		elif g('subst'): extr.append((g('var'), g('code'))); return "%s"
+		return None
+
+	line = reg_act.sub(repl, line)
+
+	parm = []
+	dvars = []
+	app = parm.append
+	for (var, meth) in extr:
+		if var == 'SRC':
+			if meth: app('task.m_inputs%s' % meth)
+			else: app('" ".join([a.srcpath(env) for a in task.m_inputs])')
+		elif var == 'TGT':
+			if meth: app('task.m_outputs%s' % meth)
+			else: app('" ".join([a.bldpath(env) for a in task.m_outputs])')
+		else:
+			if not var in dvars: dvars.append(var)
+			app("p('%s')" % var)
+	if parm: parm = "%% (%s) " % (',\n\t\t'.join(parm))
+	else: parm = ''
+
+	c = '''
+def f(task):
+	env = task.env()
+	p = env.get_flat
+	try: cmd = "%s" %s
+	except Exception: task.debug(); raise
+	return Runner.exec_command(cmd)
+''' % (line, parm)
+
+	debug(c, 'action')
+	return (funex(c), dvars)
+
+def simple_task_type(name, line, color='GREEN', vars=[], prio=100):
+	"""return a new Task subclass with the function run compiled from the line given"""
+	(fun, dvars) = compile_fun(name, line)
+	params = {
+		'run': fun,
+		'm_vars': vars or dvars,
+		'm_color': color,
+		'prio': prio,
+		'line': line,
+		'm_name': name,
+	}
+	cls = new.classobj(name, (Task,), params)
+	setattr(cls, 'm_action', cls) # <- compat
+
+	global g_task_types
+	g_task_types[name] = cls
+
+	return cls
 

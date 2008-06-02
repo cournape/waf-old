@@ -22,7 +22,7 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import os, types, traceback, copy
-import Params, Task, Common, Utils, Action
+import Params, Task, Common, Utils
 from Params import debug, error, fatal
 
 typos = {
@@ -344,8 +344,8 @@ class task_gen(object):
 		except AttributeError:
 			raise AttributeError, "tried to retrieve %s which is not a valid method" % name
 
-	def create_task(self, type, env=None, nice=None):
-		task = Task.Task(type, env or self.env)
+	def create_task(self, name, env=None, nice=None):
+		task = Task.g_task_types[name](name, env or self.env)
 		if nice: task.prio = nice
 		self.m_tasks.append(task)
 		return task
@@ -458,7 +458,7 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 	"""
 
 	if type(action) == types.StringType:
-		act = Action.simple_action(name, action, color=color, prio=prio)
+		act = Task.simple_task_type(name, action, color=color, prio=prio)
 		act.in_exts = tuple(Utils.to_list(ext_in))
 		act.out_exts = tuple(Utils.to_list(ext_out))
 	else:
