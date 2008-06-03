@@ -59,12 +59,18 @@ class intltool_po_taskgen(TaskGen.task_gen):
 		linguas = self.path.find_resource(os.path.join(self.podir, 'LINGUAS'))
 		if linguas:
 			# scan LINGUAS file for locales to process
-			f = open(linguas.abspath())
+			file = open(linguas.abspath())
+			langs = []
+			for line in file.readlines():
+				# ignore lines containing comments
+				if not line.startswith('#'):
+					langs += line.split()
+			file.close()
 			re_linguas = re.compile('[-a-zA-Z_@.]+')
-			for line in f.readlines():
+			for lang in langs:
 				# Make sure that we only process lines which contain locales
-				if re_linguas.match(line):
-					node = self.path.find_resource(os.path.join(self.podir, re_linguas.match(line).group() + '.po'))
+				if re_linguas.match(lang):
+					node = self.path.find_resource(os.path.join(self.podir, re_linguas.match(lang).group() + '.po'))
 					task = self.create_task('po', self.env)
 					task.set_inputs(node)
 					task.set_outputs(node.change_ext('.mo'))
