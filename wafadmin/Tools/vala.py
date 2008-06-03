@@ -11,8 +11,8 @@ from pproc import Popen, PIPE
 EXT_VALA = ['.vala']
 
 class valac(Task.Task):
-	def __init__(self):
-		Task.Task.__init__(self, 'valac', color='GREEN')
+	def __init__(self, *args, **kwargs):
+		Task.Task.__init__(self, *args, **kwargs)
 		self.prio = 80
 
 	def get_str(self):
@@ -88,7 +88,7 @@ class valac(Task.Task):
 			except IOError:
 				pass
 		return result
-Task.g_actions["valac"] = valac
+Task.g_task_types["valac"] = valac
 
 @extension(EXT_VALA)
 def vala_file(self, node):
@@ -162,4 +162,3 @@ def detect(conf):
 
 	conf.env['VALAC_VERSION'] = valac_version
 	conf.env['VALAFLAGS'] = ''
-
