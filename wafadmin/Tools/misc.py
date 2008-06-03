@@ -161,6 +161,7 @@ class subst_taskgen(TaskGen.task_gen):
 
 class CmdArg(object):
 	"""Represents a command-output argument that is based on input or output files or directories"""
+	pass
 
 class CmdFileArg(CmdArg):
 	def __init__(self, file_name, template=None):
@@ -184,7 +185,7 @@ class CmdInputFileArg(CmdFileArg):
 			return self.template % self.node.abspath(env)
 		else:
 			return self.template % self.node.srcpath(env)
-			
+
 class CmdOutputFileArg(CmdFileArg):
 	def find_node(self, base_path):
 		assert isinstance(base_path, Node.Node)
