@@ -46,7 +46,7 @@ def build(bld):
 ## INTERNAL CODE BELOW ##
 
 import os
-import TaskGen, Params, Action, Task, Utils
+import TaskGen, Params, Task, Utils
 from TaskGen import taskgen, feature, before, extension
 from Params import debug
 
@@ -55,6 +55,9 @@ class shpip_task(Task.Task):
 	A special task, which finds its outputs once it has run
 	It outputs cpp files that must be compiled too
 	"""
+
+	m_color = 'PINK'
+
 	def __init__(self, env, normal=1, prio=None):
 		Task.Task.__init__(self, 'shpip_action', env, normal, prio)
 
@@ -126,7 +129,7 @@ class shpip_task(Task.Task):
 			self.env().append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env())) # include paths for c
 			self.env().append_value('INC_PATHS', dir) # for the waf preprocessor
 
-	def run_special(self):
+	def run(self):
 		"runs a program that creates cpp files, capture the output to compile them"
 		node = self.m_inputs[0]
 
@@ -159,9 +162,6 @@ class shpip_task(Task.Task):
 			Params.g_build.raw_deps[node.variant(self.env())][node.id] = [sig] + lst
 		# 0 for all ok
 		return 0
-
-# when producing headers, the priority attribute (foo.prio) must be set
-Action.Action('shpip_action', vars=[], func=shpip_task.run_special, color='BLUE')
 
 @taskgen
 @extension('.shpip')
