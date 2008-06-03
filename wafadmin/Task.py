@@ -320,6 +320,7 @@ class TaskBase(object):
 	"TaskBase is the base class for task objects"
 
 	m_vars = []
+	m_color = "GREEN"
 	maxjobs = sys.maxint
 
 	def __init__(self, normal=1):
@@ -642,7 +643,7 @@ class Task(TaskBase):
 		return self.m_display
 
 	def color(self):
-		return self.m_color
+		return self.__class__.m_color
 
 	def debug_info(self):
 		ret = []
@@ -759,4 +760,23 @@ def simple_task_type(name, line, color='GREEN', vars=[], prio=100):
 	g_task_types[name] = cls
 
 	return cls
+
+def task_type_from_func(name, func, vars=[], color='GREEN', prio=100):
+	"""return a new Task subclass with the function run compiled from the line given"""
+	params = {
+		'run': func,
+		'm_vars': vars,
+		'm_color': color,
+		'prio': prio,
+		'm_name': name,
+	}
+	cls = new.classobj(name, (Task,), params)
+	setattr(cls, 'm_action', cls) # <- compat
+
+	global g_task_types
+	g_task_types[name] = cls
+	print g_task_types
+	print cls.run
+	return cls
+
 

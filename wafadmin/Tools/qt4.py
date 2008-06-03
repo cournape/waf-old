@@ -21,7 +21,7 @@ else:
 
 import os, sys
 import ccroot, cxx
-import Action, Params, TaskGen, Task, Utils, Runner, Scan
+import Params, TaskGen, Task, Utils, Runner, Scan
 from TaskGen import taskgen, feature, after, extension
 from Params import error, fatal
 
@@ -326,7 +326,7 @@ b('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(env)} ${RCC_ST} -o $
 b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', prio=60)
 b('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
 
-Action.Action('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=50)
+Task.task_type_from_func('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=50)
 
 def detect_qt4(conf):
 	env = conf.env

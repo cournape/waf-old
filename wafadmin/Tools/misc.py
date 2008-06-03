@@ -10,7 +10,7 @@ Custom objects:
 
 import shutil, re, os, types
 
-import TaskGen, Action, Node, Params, Task, Common
+import TaskGen, Node, Params, Task, Common
 import pproc as subprocess
 from Params import fatal, debug
 
@@ -217,7 +217,7 @@ class CmdOutputDirArg(CmdFileArg):
 		return self.node.abspath(env)
 
 
-class CommandOutputTask(Task.Task):
+class cmd_output_task(Task.Task):
 
 	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd, os_env):
 		Task.Task.__init__(self, 'command-output', env, prio=priority, normal=1)
@@ -232,57 +232,57 @@ class CommandOutputTask(Task.Task):
 		if command_node is not None: self.dep_nodes = [command_node]
 		self.dep_vars = [] # additional environment variables to look
 
+	def run(self):
+		task = self
+		assert len(task.m_inputs) > 0
 
-def _command_output_action(task):
-	assert len(task.m_inputs) > 0
+		def input_path(node, template):
+			if task.cwd is None:
+				return template % node.bldpath(task.env())
+			else:
+				return template % node.abspath()
+		def output_path(node, template):
+			fun = node.abspath
+			if task.cwd is None: fun = node.bldpath
+			return template % fun(task.env())
 
-	def input_path(node, template):
+		if isinstance(task.command, Node.Node):
+			argv = [input_path(task.command, '%s')]
+		else:
+			argv = [task.command]
+
+		for arg in task.command_args:
+			if isinstance(arg, str):
+				argv.append(arg)
+			else:
+				assert isinstance(arg, CmdArg)
+				argv.append(arg.get_path(task.env(), (task.cwd is not None)))
+
+		if task.stdin:
+			stdin = file(input_path(task.stdin, '%s'))
+		else:
+			stdin = None
+
+		if task.stdout:
+			stdout = file(output_path(task.stdout, '%s'), "w")
+		else:
+			stdout = None
+
 		if task.cwd is None:
-			return template % node.bldpath(task.env())
+			cwd = ('None (actually %r)' % os.getcwd())
 		else:
-			return template % node.abspath()
-	def output_path(node, template):
-		fun = node.abspath
-		if task.cwd is None: fun = node.bldpath
-		return template % fun(task.env())
+			cwd = repr(task.cwd)
+		Params.debug("command-output: cwd=%s, stdin=%r, stdout=%r, argv=%r" %
+			     (cwd, stdin, stdout, argv))
 
-	if isinstance(task.command, Node.Node):
-		argv = [input_path(task.command, '%s')]
-	else:
-		argv = [task.command]
-
-	for arg in task.command_args:
-		if isinstance(arg, str):
-			argv.append(arg)
+		if task.os_env is None:
+			os_env = os.environ
 		else:
-			assert isinstance(arg, CmdArg)
-			argv.append(arg.get_path(task.env(), (task.cwd is not None)))
+			os_env = task.os_env
+		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd, env=os_env)
+		return command.wait()
 
-	if task.stdin:
-		stdin = file(input_path(task.stdin, '%s'))
-	else:
-		stdin = None
-
-	if task.stdout:
-		stdout = file(output_path(task.stdout, '%s'), "w")
-	else:
-		stdout = None
-
-	if task.cwd is None:
-		cwd = ('None (actually %r)' % os.getcwd())
-	else:
-		cwd = repr(task.cwd)
-	Params.debug("command-output: cwd=%s, stdin=%r, stdout=%r, argv=%r" %
-		     (cwd, stdin, stdout, argv))
-
-	if task.os_env is None:
-		os_env = os.environ
-	else:
-		os_env = task.os_env
-	command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd, env=os_env)
-	return command.wait()
-
-class CommandOutput(TaskGen.task_gen):
+class cmd_output_taskgen(TaskGen.task_gen):
 
 	def __init__(self, *k):
 		TaskGen.task_gen.__init__(self, *k)
@@ -394,7 +394,7 @@ use command_is_external=True''') % (self.command,)
 		if not outputs:
 			Params.fatal("command-output objects must have at least one output file")
 
-		task = CommandOutputTask(self.env, self.prio,
+		task = cmd_output_task(self.env, self.prio,
 					 cmd, cmd_node, self.argv,
 					 stdin, stdout, cwd, self.os_env)
 		self.m_tasks.append(task)
@@ -435,7 +435,6 @@ use command_is_external=True''') % (self.command,)
 		position as argv element."""
 		return CmdOutputDirArg(dir_name)
 
-Action.Action('copy', vars=[], func=action_process_file_func)
-Action.Action('command-output', func=_command_output_action, color='BLUE')
-TaskGen.task_gen.classes['command-output'] = CommandOutput
+Task.task_type_from_func('copy', vars=[], func=action_process_file_func)
+TaskGen.task_gen.classes['command-output'] = cmd_output_taskgen
 

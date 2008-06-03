@@ -13,6 +13,6 @@ is just fine) and is removed in Waf 1.5
 #del warnings
 
 import Task
-Action = Task.Task
+Action = Task.task_type_from_func
 simple_action = Task.simple_task_type
 

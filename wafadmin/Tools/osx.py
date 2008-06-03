@@ -12,7 +12,7 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
 """
 
 import os, shutil
-import TaskGen, Action
+import TaskGen, Task
 from TaskGen import taskgen, feature, after, before
 from Params import error, debug, fatal, warning
 
@@ -111,6 +111,6 @@ def app_build(task):
 
 	return 0
 
-x = Action.Action('macapp', vars=[], func=app_build)
+x = Task.task_type_from_func('macapp', vars=[], func=app_build)
 x.prio = 300
 

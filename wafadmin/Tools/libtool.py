@@ -5,7 +5,7 @@
 
 import sys, re, os, optparse
 
-import Action, TaskGen, Params, Scan, Common, Utils, preproc
+import TaskGen, Task, Params, Scan, Common, Utils, preproc
 from Params import error, debug, fatal, warning
 from TaskGen import taskgen, after, before, feature
 
@@ -117,7 +117,7 @@ def apply_libtool(self):
 				continue
 			self.env.append_unique('LINKFLAGS', v)
 
-Action.Action('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', prio=200)
+Task.task_type_from_func('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', prio=200)
 
 class libtool_la_file:
 	def __init__ (self, la_filename):

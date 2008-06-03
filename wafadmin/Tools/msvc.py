@@ -5,7 +5,7 @@
 # Visual C support - beta, needs more testing
 
 import os, sys, re, string, optparse
-import Utils, Action, Params, TaskGen, Runner, Configure, Task
+import Utils, Params, TaskGen, Runner, Configure, Task
 from Params import debug, error, fatal, warning
 from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
@@ -278,8 +278,8 @@ def init_msvc(self):
 
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Task.simple_task_type('msvc_ar_link_static', static_link_str, color='YELLOW', prio=101)
-Action.Action('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
-Action.Action('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
+Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
+Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
 
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 Task.simple_task_type('rc', rc_str, color='GREEN', prio=50)
