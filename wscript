@@ -26,7 +26,7 @@ forbidden = [x+'.py' for x in 'Test Weak'.split()]
 
 from tokenize import *
 
-import os, sys, base64, shutil, re, random, StringIO, optparse
+import os, sys, base64, shutil, re, random, StringIO, optparse, tempfile
 import Params, Utils, Options, Common
 try: from hashlib import md5
 except ImportError: from md5 import md5
