@@ -29,8 +29,9 @@ class Environment(object):
 		self.m_table={}
 		#self.m_parent = None <- set only if necessary
 
-		# set the prefix once and for everybody on creation (configuration)
-		self.m_table['PREFIX'] = Params.g_options.prefix
+		if Params.g_commands['configure']:
+			# set the prefix once and for everybody on creation (configuration)
+			self.m_table['PREFIX'] = Params.g_options.prefix
 
 	def __contains__(self, key):
 		if key in self.m_table: return True
@@ -51,8 +52,8 @@ class Environment(object):
 
 	def copy(self):
 		newenv = Environment()
-		# FIXME prefix is set each time
-		if self['PREFIX']: del newenv.m_table['PREFIX']
+		if Params.g_commands['configure']:
+			if self['PREFIX']: del newenv.m_table['PREFIX']
 		newenv.m_parent = self
 		return newenv
 
