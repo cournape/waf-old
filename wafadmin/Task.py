@@ -347,9 +347,9 @@ class TaskBase(object):
 
 	def get_str(self):
 		"string to display to the user"
-		env = task.env()
-		src_str = ' '.join([a.nice_path(env) for a in task.m_inputs])
-		tgt_str = ' '.join([a.nice_path(env) for a in task.m_outputs])
+		env = self.env()
+		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
+		tgt_str = ' '.join([a.nice_path(env) for a in self.m_outputs])
 		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
 
 	def may_start(self):
@@ -473,9 +473,9 @@ class Task(TaskBase):
 			pass
 
 		# dependencies on the environment vars
-		fun = getattr(self.m_action, 'signature_hook', None)
-		if fun: act_sig = self.m_action.signature_hook(self)
-		else: act_sig = env.sign_vars(self.m_action.m_vars)
+		fun = getattr(self.__class__, 'signature_hook', None)
+		if fun: act_sig = self.__class__.signature_hook(self)
+		else: act_sig = env.sign_vars(self.__class__.m_vars)
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
@@ -642,7 +642,7 @@ class Task(TaskBase):
 		return self.m_display
 
 	def color(self):
-		return self.m_action.m_color
+		return self.m_color
 
 	def debug_info(self):
 		ret = []
