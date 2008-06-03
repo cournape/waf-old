@@ -114,6 +114,9 @@ def vala_file(self, node):
 
 		if hasattr(self, 'threading'):
 			valatask.threading = self.threading
+			self.uselib = self.to_list(self.uselib)
+			if not 'GTHREAD' in self.uselib:
+				self.uselib.append('GTHREAD')
 
 	env = valatask.env()
 
