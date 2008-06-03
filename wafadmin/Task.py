@@ -775,8 +775,6 @@ def task_type_from_func(name, func, vars=[], color='GREEN', prio=100):
 
 	global g_task_types
 	g_task_types[name] = cls
-	print g_task_types
-	print cls.run
 	return cls
 
 
