@@ -45,6 +45,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 		self.chmod = 0644
 		self.inst_var_default = 'LOCALEDIR'
 		self.appname = kw.get('appname', 'set_your_app_name')
+		self.podir = ''
 		self.m_tasks=[]
 
 	def apply(self):
@@ -55,7 +56,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
 			Common.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
 
-		linguas = self.path.find_resource('LINGUAS')
+		linguas = self.path.find_resource(os.path.join(self.podir, 'LINGUAS'))
 		if linguas:
 			# scan LINGUAS file for locales to process
 			f = open(linguas.abspath())
@@ -63,7 +64,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 			for line in f.readlines():
 				# Make sure that we only process lines which contain locales
 				if re_linguas.match(line):
-					node = self.path.find_resource(re_linguas.match(line).group() + '.po')
+					node = self.path.find_resource(os.path.join(self.podir, re_linguas.match(line).group() + '.po'))
 					task = self.create_task('po', self.env)
 					task.set_inputs(node)
 					task.set_outputs(node.change_ext('.mo'))
