@@ -218,7 +218,7 @@ class CmdOutputDirArg(CmdFileArg):
 		return self.node.abspath(env)
 
 
-class cmd_output_task(Task.Task):
+class command_output(Task.Task):
 	m_color = "BLUE"
 	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd, os_env):
 		Task.Task.__init__(self, 'command-output', env, prio=priority, normal=1)
@@ -395,7 +395,7 @@ use command_is_external=True''') % (self.command,)
 		if not outputs:
 			Params.fatal("command-output objects must have at least one output file")
 
-		task = cmd_output_task(self.env, self.prio,
+		task = command_output(self.env, self.prio,
 					 cmd, cmd_node, self.argv,
 					 stdin, stdout, cwd, self.os_env)
 		self.m_tasks.append(task)
