@@ -41,7 +41,7 @@ from Constants import *
 
 g_algotype = NORMAL
 #g_algotype = JOBCONTROL
-g_algotype = MAXPARALLEL
+#g_algotype = MAXPARALLEL
 
 g_shuffle = True
 
