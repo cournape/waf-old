@@ -319,8 +319,8 @@ class task_gen(object):
 		if prec: fatal("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
-
-		if not out: out.append('apply_core')
+		
+		if not out: out.append(self.apply_core.__name__)
 
 		# then we run the methods in order
 		debug("posting %s %d" % (self, id(self)), 'task_gen')
