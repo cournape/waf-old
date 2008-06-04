@@ -100,6 +100,9 @@ def subst_func(tsk):
 	code = file.read()
 	file.close()
 
+	# replace all % by %% to prevent errors by % signs in the input file while string formatting
+	code = code.replace('%', '%%')
+
 	s = m4_re.sub(r'%(\1)s', code)
 
 	dict = tsk.dict
@@ -151,7 +154,7 @@ class subst_taskgen(TaskGen.task_gen):
 
 			if not tsk.env():
 				tsk.debug()
-				fatal('task witout an environment')
+				fatal('task without an environment')
 
 
 
