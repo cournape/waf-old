@@ -116,6 +116,5 @@ def set_options(opt):
 	except Exception:
 		pass
 
-	for i in "datadir".split():
-		opt.add_option('--'+i, type='string', default='', dest='read-only application data')
+	opt.add_option('--datadir', type='string', default='', dest='datadir', help='read-only application data')
 
