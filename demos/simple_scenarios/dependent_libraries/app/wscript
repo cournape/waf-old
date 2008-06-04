@@ -9,8 +9,6 @@ blddir = '../out'
 
 def configure(conf):
     conf.check_tool('gcc')
-    conf.check_tool('checks')
-    
     lib_path = os.path.join(Params.g_cwd_launch, '..', 'out', 'default')
 
     # This one is going to fail
@@ -36,4 +34,4 @@ def build(bld):
     pass
 
 def set_options(opt):
-    opt.tool_options('gcc')
+    pass
