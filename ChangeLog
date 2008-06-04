@@ -1,3 +1,11 @@
+NEW IN WAF 1.4.3
+----------------
+* elimination of the Action classes
+* quote '%' characters in subst_obj
+* boost module improvements
+* two new dependency algorithms
+* automatic dependency computation (task chaining)
+
 NEW IN WAF 1.4.2
 ----------------
 * updated documentation (waf.pdf)
