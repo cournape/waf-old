@@ -117,5 +117,5 @@ def set_options(opt):
 		pass
 
 	for i in "datadir".split():
-		opt.add_option('--'+i, type='string', default='', dest=i)
+		opt.add_option('--'+i, type='string', default='', dest='read-only application data')
 
