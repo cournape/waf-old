@@ -28,7 +28,7 @@ and priorities or order constraints can only be applied to actions, not to tasks
 
 """
 
-import os, types, shutil, sys, re, new
+import os, types, shutil, sys, re, new, random
 from Utils import md5
 import Params, Action, Runner, Common, Scan
 from Params import debug, error, warning
@@ -36,11 +36,11 @@ from Constants import *
 
 g_algotype = NORMAL
 #g_algotype = JOBCONTROL
+#g_algotype = MAXPARALLEL
 
 g_task_types = {}
 
 """
-TODO (MAXPARALLEL is missing)
 Enable different kind of dependency algorithms:
 1 make groups: first compile all cpps and then compile all links (NORMAL)
 2 parallelize all (each link task run after its dependencies) (MAXPARALLEL)
@@ -150,18 +150,18 @@ class TaskGroup(object):
 
 	def get_next_set(self):
 		"next list of tasks to execute using max job settings, returns (priority, task_list)"
-		# TODO without -j, fallback to NORMAL
 		if g_algotype == NORMAL:
-			"this should be ready"
 			tasks = self.tasks_in_parallel()
 			if not tasks: return ()
 			return (sys.maxint, tasks)
 		elif g_algotype == JOBCONTROL:
 			return self.tasks_by_max_jobs()
 		elif g_algotype == MAXPARALLEL:
-			return (sys.maxint, self.tasks_with_inner_constraints())
+			tasks = self.tasks_with_inner_constraints()
+			if not tasks: return ()
+			return (sys.maxint, tasks)
 		else:
-			pass
+			Params.fatal("unknown algorithm type %s" % (g_algotype))
 
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
@@ -178,7 +178,6 @@ class TaskGroup(object):
 	def set_order(self, a, b):
 		try: self.cstr_order[a].add(b)
 		except KeyError: self.cstr_order[a] = set([b,])
-
 
 	def compare_prios(self, t1, t2):
 		x = "prio"
@@ -313,8 +312,21 @@ class TaskGroup(object):
 
 	def tasks_with_inner_constraints(self):
 		"(MAXPARALLEL) returns all tasks in this group, but add the constraints on each task instance"
-		pass
-		# TODO
+		if not self.ready: self.prepare()
+
+		if getattr(self, "done", None): return None
+
+		for p in self.cstr_order:
+			for v in self.cstr_order[p]:
+				for m in self.cstr_groups[p]:
+					for n in self.cstr_groups[v]:
+						n.set_run_after(m)
+		self.cstr_order = {}
+		self.cstr_groups = {}
+		self.done = 1
+		ret = self.tasks[:] # make a copy
+		random.shuffle(ret)
+		return ret
 
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
