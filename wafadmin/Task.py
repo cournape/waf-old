@@ -41,9 +41,9 @@ from Constants import *
 
 g_algotype = NORMAL
 #g_algotype = JOBCONTROL
-#g_algotype = MAXPARALLEL
+g_algotype = MAXPARALLEL
 
-g_shuffle = False
+g_shuffle = True
 
 g_task_types = {}
 
@@ -170,8 +170,8 @@ class TaskGroup(object):
 		else:
 			Params.fatal("unknown algorithm type %s" % (g_algotype))
 
-		if g_shuffle: random.shuffle(tasks)
 		if not tasks: return ()
+		if g_shuffle: random.shuffle(tasks)
 		return (maxj, tasks)
 
 	def make_cstr_groups(self):
