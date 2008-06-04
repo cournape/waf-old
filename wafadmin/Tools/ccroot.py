@@ -13,16 +13,15 @@ from Constants import *
 
 import config_c # <- necessary for the configuration, do not touch
 
-get_version_re = re.compile('\d+\.\d+\.?\d+')
+get_version_re = re.compile('\d+\.\d+(\.?\d+)*')
 def get_cc_version(conf, cc, version_var):
 	v = conf.env
-	output = os.popen('%s --version' % cc).read()
+	output = os.popen('%s -dumpversion' % cc).read()
 	if output:
-		lines = output.split('\n')
-		match = get_version_re.search(lines[0])
+		match = get_version_re.search(output)
 		if match:
 			v[version_var] = match.group(0)
-			conf.check_message('compiler', 'version', 1, 'Version ' + v[version_var])
+			conf.check_message('compiler', 'version', 1, v[version_var])
 			return v[version_var]
 	Params.warning('could not determine the compiler version')
 
