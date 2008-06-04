@@ -26,6 +26,11 @@ and #3 applies to the task instances.
 To simplify the system a little bit, the part #2 only applies to dependencies between actions,
 and priorities or order constraints can only be applied to actions, not to tasks anymore
 
+
+To try, use something like this in your code:
+import Constants, Task
+Task.g_algotype = Constants.MAXPARALLEL
+Task.g_shuffle = True
 """
 
 import os, types, shutil, sys, re, new, random
@@ -38,6 +43,8 @@ g_algotype = NORMAL
 #g_algotype = JOBCONTROL
 #g_algotype = MAXPARALLEL
 
+g_shuffle = False
+
 g_task_types = {}
 
 """
@@ -48,6 +55,7 @@ Enable different kind of dependency algorithms:
 
 In theory 1. will be faster than 2 for waf, but might be slower for builds
 The scheme 2 will not allow for running tasks one by one so it can cause disk thrashing on huge builds
+
 """
 
 class TaskManager(object):
@@ -150,18 +158,21 @@ class TaskGroup(object):
 
 	def get_next_set(self):
 		"next list of tasks to execute using max job settings, returns (priority, task_list)"
+		global g_algotype, g_shuffle
 		if g_algotype == NORMAL:
 			tasks = self.tasks_in_parallel()
-			if not tasks: return ()
-			return (sys.maxint, tasks)
+			maxj = sys.maxint
 		elif g_algotype == JOBCONTROL:
-			return self.tasks_by_max_jobs()
+			(maxj, tasks) = self.tasks_by_max_jobs()
 		elif g_algotype == MAXPARALLEL:
 			tasks = self.tasks_with_inner_constraints()
-			if not tasks: return ()
-			return (sys.maxint, tasks)
+			maxj = sys.maxint
 		else:
 			Params.fatal("unknown algorithm type %s" % (g_algotype))
+
+		if g_shuffle: random.shuffle(tasks)
+		if not tasks: return ()
+		return (maxj, tasks)
 
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
@@ -291,7 +302,7 @@ class TaskGroup(object):
 		"(JOBCONTROL) returns the tasks that can run in parallel with the max amount of jobs"
 		if not self.ready: self.prepare()
 		if not self.temp_tasks: self.temp_tasks = self.tasks_in_parallel()
-		if not self.temp_tasks: return None
+		if not self.temp_tasks: return (None, None)
 
 		maxjobs = sys.maxint
 		ret = []
@@ -311,7 +322,8 @@ class TaskGroup(object):
 		return (maxjobs, ret)
 
 	def tasks_with_inner_constraints(self):
-		"(MAXPARALLEL) returns all tasks in this group, but add the constraints on each task instance"
+		"""(MAXPARALLEL) returns all tasks in this group, but add the constraints on each task instance
+		as an optimization, it might be desirable to discard the tasks which do not have to run"""
 		if not self.ready: self.prepare()
 
 		if getattr(self, "done", None): return None
@@ -324,9 +336,7 @@ class TaskGroup(object):
 		self.cstr_order = {}
 		self.cstr_groups = {}
 		self.done = 1
-		ret = self.tasks[:] # make a copy
-		random.shuffle(ret)
-		return ret
+		return self.tasks[:] # make a copy
 
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
