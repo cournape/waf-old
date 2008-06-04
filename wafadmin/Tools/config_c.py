@@ -589,6 +589,8 @@ class library_configurator(configurator_base):
 		self.nosystem = 0
 		self.uselib = ''
 		self.static = False
+		self.libs = []
+		self.lib_paths = []
 
 		self.code = 'int main(){return 0;}\n'
 
@@ -641,9 +643,8 @@ class library_configurator(configurator_base):
 
 		self.env[static_l+'LIB_'+self.uselib] += [ self.name ]
 
-
-		#self.env['LIB'] = self.name
-		#self.env['LIBPATH'] = self.lib_paths
+		self.env['LIB'] = [self.name] + self.libs
+		self.env['LIBPATH'] = self.lib_paths
 
 		obj         = check_data()
 		obj.code    = self.code

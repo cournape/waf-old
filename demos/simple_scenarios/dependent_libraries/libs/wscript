@@ -1,0 +1,22 @@
+"""
+This wscript creates two shared libraies.
+The first (a) is dependent on the second (c).
+"""
+
+srcdir = '.'
+blddir = '../out'
+
+def configure(conf):
+    conf.check_tool('gcc')
+
+def build(bld):
+    a = bld.create_obj('cc', 'shlib')
+    a.source = 'a.c'
+    a.target = 'a'
+
+    b = bld.create_obj('cc', 'shlib')
+    b.source = 'b.c'
+    b.target = 'b'
+
+def set_options(opt):
+    opt.tool_options('gcc')

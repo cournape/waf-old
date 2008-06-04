@@ -66,6 +66,8 @@ def configure(conf):
 	e.define = 'HAVE_STDIO'
 	e.run()
 
+	# Take a look at demos/simple_scenarios/dependent_libraries for two additional attributes:
+	# libs & lib_path - allow configuration of libraries which depend on other libraries.
 	e = conf.create_library_configurator()
 	#e.mandatory = 1
 	e.name = 'kdecore'
