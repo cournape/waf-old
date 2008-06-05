@@ -366,7 +366,7 @@ class pkgconfig_configurator(configurator_base):
 		self.uselib  = '' # can be set automatically
 		self.define  = '' # can be set automatically
 		self.binary  = '' # name and path for pkg-config
-                self.static  = False
+		self.static  = False
 
 		# You could also check for extra values in a pkg-config file.
 		# Use this value to define which values should be checked
@@ -425,7 +425,6 @@ class pkgconfig_configurator(configurator_base):
 		return pkgpath
 
 	def run_test(self):
-		pkgpath = self.pkgpath
 		pkgbin = self.binary
 		uselib = self.uselib
 
