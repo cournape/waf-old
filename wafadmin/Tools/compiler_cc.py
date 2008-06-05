@@ -11,7 +11,7 @@ c_compiler = {
 	'cygwin': ['gcc'],
 	'darwin': ['gcc'],
 	'aix5':   ['gcc'],
-	'linux':  ['gcc', 'suncc'],
+	'linux':  ['gcc', 'icc', 'suncc'],
 	'sunos':  ['suncc', 'gcc'],
 	'irix':   ['gcc'],
 	'hpux':   ['gcc'],
@@ -51,4 +51,3 @@ def set_options(opt):
 
 	for c_compiler in test_for_compiler.split():
 		opt.tool_options('%s' % c_compiler, option_group=cc_compiler_opts)
-
