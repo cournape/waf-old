@@ -102,7 +102,7 @@ class enumerator_base(object):
 class configurator_base(enumerator_base):
 	def __init__(self, conf):
 		enumerator_base.__init__(self, conf)
-		self.uselib = ''
+		self.uselib_store = ''
 
 class program_enumerator(enumerator_base):
 	__metaclass__ = attached_conf
@@ -207,7 +207,7 @@ class library_enumerator(enumerator_base):
 		self.name = ''
 		self.path = []
 		self.code = 'int main() {return 0;}\n'
-		self.uselib = '' # to set the LIB_NAME and LIBPATH_NAME
+		self.uselib_store = '' # to set the LIB_NAME and LIBPATH_NAME
 		self.nosystem = 0 # do not use standard lib paths
 		self.want_message = 1
 
@@ -237,9 +237,9 @@ class library_enumerator(enumerator_base):
 		if self.want_message:
 			self.conf.check_message('library '+self.name, '', ret, option=ret)
 
-		if self.uselib:
-			self.env['LIB_'+self.uselib] += [ self.name ]
-			self.env['LIBPATH_'+self.uselib] += [ ret ]
+		if self.uselib_store:
+			self.env['LIB_'+self.uselib_store] += [ self.name ]
+			self.env['LIBPATH_'+self.uselib_store] += [ ret ]
 
 		return ret
 
@@ -287,7 +287,7 @@ class cfgtool_configurator(configurator_base):
 	def __init__(self,conf):
 		configurator_base.__init__(self, conf)
 
-		self.uselib   = ''
+		self.uselib_store   = ''
 		self.define   = ''
 		self.binary   = ''
 
@@ -301,10 +301,10 @@ class cfgtool_configurator(configurator_base):
 	def validate(self):
 		if not self.binary:
 			raise ValueError, "no binary given in cfgtool!"
-		if not self.uselib:
-			raise ValueError, "no uselib given in cfgtool!"
-		if not self.define and self.uselib:
-			self.define = self.conf.have_define(self.uselib)
+		if not self.uselib_store:
+			raise ValueError, "no uselib_store given in cfgtool!"
+		if not self.define and self.uselib_store:
+			self.define = self.conf.have_define(self.uselib_store)
 
 		if not self.tests:
 			self.tests['--cflags'] = 'CCFLAGS'
@@ -330,7 +330,7 @@ class cfgtool_configurator(configurator_base):
 			if ret: raise ValueError, "error"
 
 			for flag in self.tests:
-				var = self.tests[flag] + '_' + self.uselib
+				var = self.tests[flag] + '_' + self.uselib_store
 				cmd = '%s %s %s' % (self.binary, flag, null)
 				retval[var] = [os.popen(cmd).read().strip()]
 
@@ -351,8 +351,8 @@ class pkgconfig_configurator(configurator_base):
 	- name: name of the .pc file  (has to be set at least)
 	- version: atleast-version to check for
 	- path: override the pkgconfig path (PKG_CONFIG_PATH)
-	- uselib: name that could be used in tasks with obj.uselib if not set uselib = upper(name)
-	- define: name that will be used in config.h if not set define = HAVE_+uselib
+	- uselib_store: name that could be used in tasks with obj.uselib_store if not set uselib_store = upper(name)
+	- define: name that will be used in config.h if not set define = HAVE_+uselib_store
 	- variables: list of addional variables to be checked for, for example variables='prefix libdir'
         - static
 	"""
@@ -363,7 +363,7 @@ class pkgconfig_configurator(configurator_base):
 		self.name    = '' # name of the .pc file
 		self.version = '' # version to check
 		self.pkgpath = os.path.join(Params.g_options.prefix, 'lib', 'pkgconfig') # pkg config path
-		self.uselib  = '' # can be set automatically
+		self.uselib_store  = '' # can be set automatically
 		self.define  = '' # can be set automatically
 		self.binary  = '' # name and path for pkg-config
 		self.static  = False
@@ -372,7 +372,7 @@ class pkgconfig_configurator(configurator_base):
 		# Use this value to define which values should be checked
 		# and defined. Several formats for this value are supported:
 		# - string with spaces to separate a list
-		# - list of values to check (define name will be upper(uselib"_"value_name))
+		# - list of values to check (define name will be upper(uselib_store"_"value_name))
 		# - a list of [value_name, override define_name]
 		self.variables = []
 		self.defines = {}
@@ -386,10 +386,10 @@ class pkgconfig_configurator(configurator_base):
 		fatal(errmsg)
 
 	def validate(self):
-		if not self.uselib:
-			self.uselib = self.name.upper()
+		if not self.uselib_store:
+			self.uselib_store = self.name.upper()
 		if not self.define:
-			self.define = self.conf.have_define(self.uselib)
+			self.define = self.conf.have_define(self.uselib_store)
 
 	def run_cache(self, retval):
 		if self.version:
@@ -426,7 +426,7 @@ class pkgconfig_configurator(configurator_base):
 
 	def run_test(self):
 		pkgbin = self.binary
-		uselib = self.uselib
+		uselib_store = self.uselib_store
 
 		# check if self.variables is a string with spaces
 		# to separate the variables to check for
@@ -471,33 +471,33 @@ class pkgconfig_configurator(configurator_base):
 
 			cflags_I = shlex.split(os.popen('%s --cflags-only-I \"%s\"' % (pkgcom, self.name)).read())
 			cflags_other = shlex.split(os.popen('%s --cflags-only-other \"%s\"' % (pkgcom, self.name)).read())
-			retval['CCFLAGS_'+uselib] = cflags_other
-			retval['CXXFLAGS_'+uselib] = cflags_other
-			retval['CPPPATH_'+uselib] = []
+			retval['CCFLAGS_'+uselib_store] = cflags_other
+			retval['CXXFLAGS_'+uselib_store] = cflags_other
+			retval['CPPPATH_'+uselib_store] = []
 			for incpath in cflags_I:
 				assert incpath[:2] == '-I' or incpath[:2] == '/I'
-				retval['CPPPATH_'+uselib].append(incpath[2:]) # strip '-I' or '/I'
+				retval['CPPPATH_'+uselib_store].append(incpath[2:]) # strip '-I' or '/I'
 
 			static_l = ''
 			if self.static:
 				static_l = 'STATIC'
 
-			#env['LINKFLAGS_'+uselib] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
+			#env['LINKFLAGS_'+uselib_store] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
 			# Store the library names:
 			modlibs = os.popen('%s --libs-only-l \"%s\"' % (pkgcom, self.name)).read().strip().split()
-			retval[static_l+'LIB_'+uselib] = []
+			retval[static_l+'LIB_'+uselib_store] = []
 			for item in modlibs:
-				retval[static_l+'LIB_'+uselib].append( item[2:] ) #Strip '-l'
+				retval[static_l+'LIB_'+uselib_store].append( item[2:] ) #Strip '-l'
 
 			# Store the library paths:
 			modpaths = os.popen('%s --libs-only-L \"%s\"' % (pkgcom, self.name)).read().strip().split()
-			retval['LIBPATH_'+uselib] = []
+			retval['LIBPATH_'+uselib_store] = []
 			for item in modpaths:
-				retval['LIBPATH_'+uselib].append( item[2:] ) #Strip '-l'
+				retval['LIBPATH_'+uselib_store].append( item[2:] ) #Strip '-l'
 
 			# Store only other:
 			modother = os.popen('%s --libs-only-other \"%s\"' % (pkgcom, self.name)).read().strip().split()
-			retval['LINKFLAGS_'+uselib] = []
+			retval['LINKFLAGS_'+uselib_store] = []
 			for item in modother:
 				if str(item).endswith(".la"):
 					import libtool
@@ -505,11 +505,11 @@ class pkgconfig_configurator(configurator_base):
 					libs_only_L = la_config.get_libs_only_L()
 					libs_only_l = la_config.get_libs_only_l()
 					for entry in libs_only_l:
-						retval[static_l + 'LIB_'+uselib].append( entry[2:] ) #Strip '-l'
+						retval[static_l + 'LIB_'+uselib_store].append( entry[2:] ) #Strip '-l'
 					for entry in libs_only_L:
-						retval['LIBPATH_'+uselib].append( entry[2:] ) #Strip '-L'
+						retval['LIBPATH_'+uselib_store].append( entry[2:] ) #Strip '-L'
 				else:
-					retval['LINKFLAGS_'+uselib].append( item ) #do not strip anything
+					retval['LINKFLAGS_'+uselib_store].append( item ) #do not strip anything
 
 			for variable in self.variables:
 				var_defname = ''
@@ -524,7 +524,7 @@ class pkgconfig_configurator(configurator_base):
 
 				# if var_defname was not overrided by the list containing the define_name
 				if not var_defname:
-					var_defname = uselib + '_' + variable.upper()
+					var_defname = uselib_store + '_' + variable.upper()
 
 				retval[var_defname] = os.popen('%s --variable=%s \"%s\"' % (pkgcom, variable, self.name)).read().strip()
 
@@ -587,6 +587,7 @@ class library_configurator(configurator_base):
 		self.define = ''
 		self.nosystem = 0
 		self.uselib = ''
+		self.uselib_store = ''
 		self.static = False
 		self.libs = []
 		self.lib_paths = []
@@ -607,13 +608,13 @@ class library_configurator(configurator_base):
 			self.conf.undefine(self.define)
 
 	def validate(self):
-		if not self.uselib:
-			self.uselib = self.name.upper()
+		if not self.uselib_store:
+			self.uselib_store = self.name.upper()
 		if not self.define:
-			self.define = self.conf.have_define(self.uselib)
+			self.define = self.conf.have_define(self.uselib_store)
 
-		if not self.uselib:
-			fatal('uselib is not defined')
+		if not self.uselib_store:
+			fatal('uselib_store is not defined')
 		if not self.code:
 			fatal('library enumerator must have code to compile')
 
@@ -625,8 +626,8 @@ class library_configurator(configurator_base):
 		if self.static:
 			static_l = 'STATIC'
 
-		olduselibpath = self.env['LIBPATH_'+self.uselib]
-		olduselib = self.env[static_l+'LIB_'+self.uselib]
+		olduselibpath = list(self.env['LIBPATH_'+self.uselib_store])
+		olduselib = list(self.env[static_l+'LIB_'+self.uselib_store])
 
 		# try the enumerator to find the correct libpath
 		test = self.conf.create_library_enumerator()
@@ -638,9 +639,9 @@ class library_configurator(configurator_base):
 		ret = test.run()
 
 		if ret:
-			self.env['LIBPATH_'+self.uselib] += [ ret ]
+			self.env['LIBPATH_'+self.uselib_store] += [ ret ]
 
-		self.env[static_l+'LIB_'+self.uselib] += [ self.name ]
+		self.env[static_l+'LIB_'+self.uselib_store] += [ self.name ]
 
 		self.env['LIB'] = [self.name] + self.libs
 		self.env['LIBPATH'] = self.lib_paths
@@ -648,7 +649,7 @@ class library_configurator(configurator_base):
 		obj         = check_data()
 		obj.code    = self.code
 		obj.env     = self.env
-		obj.uselib  = self.uselib
+		obj.uselib  = self.uselib_store + " " + self.uselib
 		obj.libpath = self.path
 
 		ret = int(self.conf.run_check(obj))
@@ -661,12 +662,12 @@ class library_configurator(configurator_base):
 
 		val = {}
 		if ret:
-			val['LIBPATH_'+self.uselib] = self.env['LIBPATH_'+self.uselib]
-			val[static_l+'LIB_'+self.uselib] = self.env['LIB_'+self.uselib]
+			val['LIBPATH_'+self.uselib_store] = self.env['LIBPATH_'+self.uselib]
+			val[static_l+'LIB_'+self.uselib_store] = self.env['LIB_'+self.uselib]
 			val[self.define] = ret
 		else:
-			self.env['LIBPATH_'+self.uselib] = olduselibpath
-			self.env[static_l+'LIB_'+self.uselib] = olduselib
+			self.env['LIBPATH_'+self.uselib_store] = olduselibpath
+			self.env[static_l+'LIB_'+self.uselib_store] = olduselib
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
@@ -686,6 +687,7 @@ class framework_configurator(configurator_base):
 
 		self.path = []
 		self.uselib = ''
+		self.uselib_store = ''
 		self.remove_dot_h = False
 
 	def error(self):
@@ -694,14 +696,12 @@ class framework_configurator(configurator_base):
 		fatal(errmsg)
 
 	def validate(self):
-		if not self.uselib:
-			self.uselib = self.name.upper()
+		if not self.uselib_store:
+			self.uselib_store = self.name.upper()
 		if not self.define:
-			self.define = self.conf.have_define(self.uselib)
+			self.define = self.conf.have_define(self.uselib_store)
 		if not self.code:
 			self.code = "#include <%s>\nint main(){return 0;}\n"
-		if not self.uselib:
-			self.uselib = self.name.upper()
 
 	def run_cache(self, retval):
 		self.conf.check_message('framework %s (cached)' % self.name, '', retval)
@@ -739,7 +739,7 @@ class framework_configurator(configurator_base):
 		obj        = check_data()
 		obj.code   = "\n".join(code)
 		obj.env    = myenv
-		obj.uselib = self.uselib
+		obj.uselib = self.uselib_store + " " + self.uselib
 
 		obj.flags += " ".join (cflags)
 
@@ -752,9 +752,9 @@ class framework_configurator(configurator_base):
 
 		val = {}
 		if ret:
-			val["LINKFLAGS_" + self.uselib] = linkflags
-			val["CCFLAGS_" + self.uselib] = cflags
-			val["CXXFLAGS_" + self.uselib] = cflags
+			val["LINKFLAGS_" + self.uselib_store] = linkflags
+			val["CCFLAGS_" + self.uselib_store] = cflags
+			val["CXXFLAGS_" + self.uselib_store] = cflags
 			val[self.define] = ret
 
 		self.env['LINKFLAGS'] = oldlkflags
@@ -782,6 +782,7 @@ class header_configurator(configurator_base):
 		self.libs = []
 		self.lib_paths = []
 		self.uselib = ''
+		self.uselib_store = ''
 
 	def error(self):
 		errmsg = 'header %s cannot be found via compiler' % self.name
@@ -792,7 +793,7 @@ class header_configurator(configurator_base):
 		# self.names = self.names.split()
 		if not self.define:
 			if self.name: self.define = self.conf.have_define(self.name)
-			elif self.uselib: self.define = self.conf.have_define(self.uselib)
+			elif self.uselib_store: self.define = self.conf.have_define(self.uselib_store)
 
 		if not self.code:
 			self.code = "#include <%s>\nint main(){return 0;}\n"
@@ -814,7 +815,7 @@ class header_configurator(configurator_base):
 		oldlib = self.env['LIB']
 
 		# try the enumerator to find the correct includepath
-		if self.uselib:
+		if self.uselib_store:
 			test = self.conf.create_header_enumerator()
 			test.nosystem = self.nosystem
 			test.name = self.name
@@ -824,7 +825,7 @@ class header_configurator(configurator_base):
 			ret = test.run()
 
 			if ret:
-				self.env['CPPPATH_'+self.uselib] = ret
+				self.env['CPPPATH_'+self.uselib_store] = ret
 
 		code = []
 		code.append(self.header_code)
@@ -840,7 +841,7 @@ class header_configurator(configurator_base):
 		obj.code     = "\n".join(code)
 		obj.includes = self.path
 		obj.env      = self.env
-		obj.uselib   = self.uselib
+		obj.uselib   = self.uselib_store + " " + self.uselib
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('header %s' % self.name, '', ret, option='')
@@ -855,7 +856,7 @@ class header_configurator(configurator_base):
 
 		val = {}
 		if ret:
-			val['CPPPATH_'+self.uselib] = self.env['CPPPATH_'+self.uselib]
+			val['CPPPATH_'+self.uselib_store] = self.env['CPPPATH_'+self.uselib_store]
 			val[self.define] = ret
 
 		if not ret: return {}

@@ -21,7 +21,7 @@ def configure(conf):
 		if 'dl' not in conf.env['LIB_CPPUNIT']:
 			l = conf.create_library_configurator()
 			l.name = 'dl'
-			l.uselib = 'CPPUNIT'
+			l.uselib_store = 'CPPUNIT'
 			l.run()
 		Params.pprint('CYAN', "To run unit tests use 'waf check'")
 

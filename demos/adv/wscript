@@ -187,17 +187,17 @@ int main()
 	pkgconf.run()
 
 	# Looks for pkg-config packages "gtkmm-2.4" and sets the uselib variables with name "GTKMM"
-	pkgconf.uselib = 'GTKMM'
+	pkgconf.uselib_store = 'GTKMM'
 	pkgconf.name = 'gtkmm-2.4'
 	pkgconf.run()
 
-	pkgconf.uselib = 'BLUETOOTH'
+	pkgconf.uselib_store = 'BLUETOOTH'
 	pkgconf.name = 'bluez'
 	pkgconf.define = 'HAVE_BLUETOOTH_BLUEZ'
 	pkgconf.run()
 
 	#variables example
-	pkgconf.uselib = 'GLIB'
+	pkgconf.uselib_store = 'GLIB'
 	pkgconf.name = 'glib-2.0'
 	pkgconf.variables = "prefix includedir"
 	pkgconf.run()
@@ -206,29 +206,28 @@ int main()
 
 	# Tries to use the "unobtainium-config" tool
 	toolconf = conf.create_cfgtool_configurator()
-	toolconf.uselib = 'UNOBTAINIUM'
+	toolconf.uselib_store = 'UNOBTAINIUM'
 	toolconf.define = 'HAVE_UNO'
 	toolconf.binary = 'unobtainium-config'
 	toolconf.run()
 
 	# Tries to use the "wx-config" tool and passes the resulting libs, cppflags etc. to the WX uselib
 	# variables
-	toolconf.uselib = 'WX'
+	toolconf.uselib_store = 'WX'
 	toolconf.define = 'HAVE_WX'
-	toolconf.uselib = 'WX'
 	toolconf.binary = 'wx-config'
 	toolconf.run()
 
 
 	# Looks for the GL lib in the specified directories
 	libconf = conf.create_library_configurator()
-	libconf.uselib = 'GL'
+	libconf.uselib_store = 'GL'
 	libconf.name   = 'GL'
 	libconf.paths = ['/usr/X11R6/lib','/usr/lib','/usr/local/lib']
 	libconf.run()
 
 	libconf = conf.create_library_configurator()
-	libconf.uselib = 'GLAS'
+	libconf.uselib_store = 'GLAS'
 	libconf.name   = 'GL'
 	libconf.paths = ['/usr/X11R6/lib','/usr/lib','/usr/local/lib']
 	libconf.run()
@@ -236,7 +235,7 @@ int main()
 	# Looks for one of the specified libs in the directories
 	# The first match will be used
 	libconf = conf.create_library_configurator()
-	libconf.uselib = 'WX_GL'
+	libconf.uselib_store = 'WX_GL'
 	libconf.name = 'wx_gtk_gl'
 	libconf.paths = ['/usr/lib']
 	libconf.run()
