@@ -43,7 +43,7 @@ g_algotype = NORMAL
 #g_algotype = JOBCONTROL
 #g_algotype = MAXPARALLEL
 
-g_shuffle = True
+g_shuffle = False
 
 g_task_types = {}
 
