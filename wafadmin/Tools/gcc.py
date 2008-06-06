@@ -136,10 +136,12 @@ gcc_modifier_cygwin
 gcc_modifier_darwin
 gcc_modifier_aix5
 cc_load_tools
-cc_check_features
-gcc_modifier_debug
 cc_add_flags
 '''
+
+# annoying checks
+#cc_check_features
+#gcc_modifier_debug
 
 """
 If you want to remove the tests you do not want, use something like this:

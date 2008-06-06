@@ -138,10 +138,12 @@ gxx_modifier_cygwin
 gxx_modifier_darwin
 gxx_modifier_aix5
 cxx_load_tools
-cxx_check_features
-gxx_modifier_debug
 cxx_add_flags
 '''
+
+# annoying checks
+#cxx_check_features
+#gxx_modifier_debug
 
 def set_options(opt):
 	try:
