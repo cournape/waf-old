@@ -11,11 +11,15 @@ import Params, Utils
 from Params import debug, fatal, warning, error
 from Constants import *
 
-# Such a command-line should work:  PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
+# Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')
 if not default_prefix:
 	if sys.platform == 'win32': default_prefix = tempfile.gettempdir()
 	else: default_prefix = '/usr/local/'
+
+default_jobs = os.environ.get('JOBS')
+if not default_jobs:
+	default_jobs = 1
 
 default_destdir = os.environ.get('DESTDIR', '')
 
@@ -32,8 +36,8 @@ def create_parser():
 
 	p('-j', '--jobs',
 		type    = 'int',
-		default = 1,
-		help    = 'amount of parallel jobs [Default: 1]',
+		default = default_jobs,
+		help    = "amount of parallel jobs [Default: %s]" % default_jobs,
 		dest    = 'jobs')
 
 	p('', '--daemon',
