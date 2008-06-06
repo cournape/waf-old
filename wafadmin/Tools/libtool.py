@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 # Matthias Jahn, 2008, jahn matthias ath freenet punto de
 # Thomas Nagy, 2008 (ita)

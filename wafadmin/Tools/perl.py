@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 # andersg at 0x63.nu 2007
 

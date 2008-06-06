@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 # John O'Meara, 2006
 # Thomas Nagy, 2006-2008

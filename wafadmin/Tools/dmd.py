@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 # Carlos Rafael Giani, 2007 (dv)
 # Thomas Nagy, 2008 (ita)

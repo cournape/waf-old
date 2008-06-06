@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 #
 # written by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008

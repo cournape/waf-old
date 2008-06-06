@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 # Matthias Jahn jahn dôt matthias ât freenet dôt de 2007 (pmarat)
 
