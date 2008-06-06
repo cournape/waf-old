@@ -1,8 +1,8 @@
-#! /usr/bin/env python
-## 
-# @file 
+#!/usr/bin/env python
+##
+# @file
 # waf Makefile.am related tools
-# 
+#
 # a Makefile.am to scons converter
 #
 # (@) 2005 LiuCougar  - published under the GPL license
@@ -22,8 +22,7 @@ import os, re, types, sys, string, shutil, stat, glob, amtool
 #		- DATA files handling
 #
 #
-# @TODO fix installation 
-# @TODO fix sconsript filename case
+# @TODO fix installation
 
 class AM2Waf(amtool.AMFile):
 	def __init__(self):
@@ -39,13 +38,13 @@ class AM2Waf(amtool.AMFile):
 		'kde_module' : 'bld.createObj(\'kde\', \'module\')',
 		'plugin' : 'bld.createObj(\'cpp\', \'shlib\')',
 		}
-		
+
 		self.ProgHandlerMapping = {
 		'bin' : 'bld.createObj(\'\kde\', \'program\')',
 		'check' : 'env.kdeobj(\'program\')\nobj.env = env.Copy()\nobj.env[\'NOAUTOINSTALL\'] = 1',
 		'EXTRA' : 'env.kdeobj(\'program\')\nobj.env = env.Copy()\nobj.env[\'NOAUTOINSTALL\'] = 1',
 		}
-		
+
 		self.DataHandlerMapping = {
 			'kde_htmldir' : '',
 			'kde_appsdir' : 'KDEAPPS',
@@ -70,7 +69,7 @@ class AM2Waf(amtool.AMFile):
 			'xdg_menudir' : '',
 			'xdg_directorydir' : '',
 		}
-		
+
 		self.out_buf_header = """#! /usr/bin/env python
 #generated from %s by am2waf.py
 
@@ -83,7 +82,7 @@ class AM2Waf(amtool.AMFile):
 			out_buf += key + "_sources = \"\"\"\n"
 			sources = self.sources[key].split()
 			sources.sort()
-			
+
 			while len(sources) >= 4:
 				out_buf += ' '.join(sources[:4]) + "\n"
 				del sources[:4]
@@ -100,7 +99,7 @@ class AM2Waf(amtool.AMFile):
 			out_buf += key + "_headers = \"\"\"\n"
 			headers = self.headers[key].split()
 			headers.sort()
-			
+
 			while len(headers) >= 4:
 				out_buf += ' '.join(headers[:4]) + "\n"
 				del headers[:4]
@@ -121,7 +120,7 @@ class AM2Waf(amtool.AMFile):
 				if path.endswith('/'):	path = path[:-1]
 				if path[:2] == "./": path = path[2:]
 				return (path, result.group(2))
-			
+
 			return ('', lib)
 		uselibs = self.defaultUseLibs.split()
 		out_buf = ""
@@ -145,7 +144,7 @@ class AM2Waf(amtool.AMFile):
 			if len(convertedlibs):
 				out_buf += "\tobj.libpaths = '%s '\n" % ' '.join(libpaths)
 				out_buf += "\tobj.libs = '%s '\n" % ' '.join(convertedlibs)
-		
+
 		out_buf += '\tobj.uselib = \'%s \'\n' % ' '.join(uselibs)
 		return out_buf
 
@@ -156,10 +155,10 @@ class AM2Waf(amtool.AMFile):
 			out_buf = "\tobj = %s\n" % self.ProgHandlerMapping[objtype]
 
 		include = ""
-		
+
 		#TARGET
 		out_buf += "\tobj.target = '%s'\n" % name
-		
+
 		#FIXME: other LDFLAGS support
 		#Version number
 		if self.ldflags.has_key(name):
@@ -170,7 +169,7 @@ class AM2Waf(amtool.AMFile):
 					version = flags[index]
 					if version.replace(':','').isdigit():
 						tab = version.split(':')
-						
+
 						if len(tab) == 3:
 							val = eval(tab[0])-eval(tab[2])
 							newVal = str(val) + "." + tab[2]+ "." + tab[1]
@@ -179,24 +178,24 @@ class AM2Waf(amtool.AMFile):
 						out_buf += "\tobj.vnum = '%s'\n" % newVal 
 					else:
 						print "WARNING: version-info format is incorrect"
-		
+
 		#SOURCES
 		out_buf += "\tobj.source = %s_sources\n" % name
-		
+
 		#INCLUDES
 		if self.includes.has_key(name):
 			include = "'" + self.includes[name] + "'"
 		elif self.includes.has_key('_DIR_GLOBAL_'):
 			include = 'includes'
-		
+
 		if include:
 			out_buf += "\tobj.includes = %s\n" % include
-		
+
 		#LIBADD
 		out_buf += self.generateLibadds(name)
-		
+
 		#out_buf += 'obj.execute()\n\n'
-		
+
 		return out_buf
 
 	def generateSubdirs(self):
@@ -221,14 +220,14 @@ class AM2Waf(amtool.AMFile):
 				if result:
 					instype = result.group(1)
 					subdir = result.group(2)
-					
+
 			if not len(instype) or not self.DataHandlerMapping.has_key(instype):
 				instype = ""
 			else:
 				instype = self.DataHandlerMapping[instype]
-				
+
 			return (instype, subdir)
-			
+
 		out_buf = ""
 		if len(files):
 			(insttype, subdir) = getKDEInstType(inst_dir)
@@ -240,27 +239,27 @@ class AM2Waf(amtool.AMFile):
 		out_buf = self.out_buf_header % self.path
 		out_buf +="def build(bld):\n"
 		out_buf +="\t# process subfolders from here\n"
-		
+
 		self.getIncludes()	#fix path
-		
+
 		out_buf += self.generateSources()
-		
+
 		out_buf += self.generateHeaders()
 
 		#find global includes setting for self dir:
 		if self.includes.has_key('_DIR_GLOBAL_'):
 			out_buf += "\tincludes = '%s '\n\n" % self.includes['_DIR_GLOBAL_']
-			
-			
-			
+
+
+
 		#generate library objects
 		for libtypekey in self.libs.keys():
 			if not self.LibHandlerMapping.has_key(libtypekey):
 				print "ERROR: library type %s is not defined in LibHandlerMapping" % libtypekey
-				return 
+				return
 			for key in self.libs[libtypekey].split():
 				out_buf += self.generateObj(1, libtypekey, key)
-			
+
 		#generate program objects
 		for progtypekey in self.progs.keys():
 			if not self.ProgHandlerMapping.has_key(progtypekey):
@@ -271,27 +270,27 @@ class AM2Waf(amtool.AMFile):
 				continue
 			for key in self.progs[progtypekey].split():
 				out_buf += self.generateObj(0, progtypekey, key)
-		
+
 		#generate data files
 		for dataname in self.data.keys():
 			out_buf += self.generateData(self.data[dataname], self.datadirs[dataname])
-		
+
 		out_buf += self.generateSubdirs()
 		if len(self.defines):
 			out_buf += '\n"""Unhandled Defines \n'
 			for key in self.defines.keys():
 				out_buf += key  + ' = ' + self.defines[key] + "\n"
 			out_buf += '"""\n'
-		
+
 		if len(self.targets):
 			out_buf += '\n"""Unhandled Targets \n'
 			for key in self.targets.keys():
 				out_buf += key  + ' = ' + self.targets[key] + "\n"
 			out_buf += '"""\n'
 
-		
+
 		return out_buf
-		
+
 	def getIncludes(self):
 		amtool.AMFile.getIncludes(self)
 		for key in self.includes.keys():
@@ -311,14 +310,14 @@ class AM2Waf(amtool.AMFile):
 			path = path.replace('$(srcdir)/', '')
 			retlist.append(self.convertMakeFileVariable(path))
 		return ' '.join(retlist)
-	
+
 if len(sys.argv) == 1:
 	print "am2waf [options] Makefile.am"
 	print "Convert a Makefile.am to waf wscript"
-	print "options:" 
-	print "    -o file  Write generated wscript to this file" 
-	print "    -w Write generated wscript to the same dir as the Makefile.am" 
-	print "By default, am2waf will output the generated wscript to stdout" 
+	print "options:"
+	print "    -o file  Write generated wscript to this file"
+	print "    -w Write generated wscript to the same dir as the Makefile.am"
+	print "By default, am2waf will output the generated wscript to stdout"
 else:
 	outputfile = ""
 	for a in range(1,len(sys.argv)):
@@ -331,13 +330,13 @@ else:
 	for a in range(1,len(sys.argv)):
 		if sys.argv[a][:1] == '-':
 			continue
-		
+
 		am_file = AM2Waf()
 		inputfile = sys.argv[a];
 		if not am_file.read(inputfile):
 			print "ERROR: can not read file %s" % inputfile
 			continue
-		
+
 		if len(outputfile):
 			try:
 				if outputfile == "#":
@@ -345,11 +344,12 @@ else:
 				dest = open(outputfile, 'w')
 			except:
 				exit
-			
+
 			dest.write(am_file.generateConscript())
 			dest.close()
 			print "File %s is successfully created." % outputfile
 		else:
 			print am_file.generateConscript()
-		
+
 		break
+

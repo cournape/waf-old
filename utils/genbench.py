@@ -4,6 +4,8 @@ import sys
 import os.path
 import random
 
+# for example: ./genbench.py /tmp/build 50 100 15 5
+
 HELP_USAGE = """Usage: generate_libs.py root libs classes internal external.
     root     - Root directory where to create libs.
     libs     - Number of libraries (libraries only depend on those with smaller numbers)
