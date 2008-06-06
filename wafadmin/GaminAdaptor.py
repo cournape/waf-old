@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 # Oscar Blumberg 2006 (nael)
 # Matthias Jahn <jahn.matthias@freenet.de>

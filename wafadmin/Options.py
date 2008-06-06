@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # encoding: utf-8
 # Scott Newton, 2005 (scottn)
 # Thomas Nagy, 2006 (ita)
