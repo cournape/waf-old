@@ -180,9 +180,9 @@ def progress_line(state, total, col1, col2):
 	g_ind_idx += 1
 	ind = g_ind[g_ind_idx % 4]
 
-	if hasattr(Params.g_build, 'ini'):
+	try:
 		ini = Params.g_build.ini
-	else:
+	except AttributeError:
 		ini = Params.g_build.ini = time.time()
 
 	pc = (100.*state)/total
