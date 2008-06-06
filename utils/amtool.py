@@ -1,17 +1,17 @@
 #! /usr/bin/env python
 
-## 
-# @file 
+##
+# @file
 # waf Makefile.am related classed
-# 
-# note: may be a future base of a Makefile.am to scons converter if someone like to write it 
+#
+# note: may be a future base of a Makefile.am to scons converter if someone like to write it
 #
 # (@) 2005 Ralf Habacker  - published under the GPL license
 #
- 
+
 import os, re, types, sys, string, shutil, stat, glob
 
-## print a dictionary 
+## print a dictionary
 def printDict(dict,sep=' = ' ):
 	for key in dict.keys():
 		print key  + sep + dict[key]
@@ -19,14 +19,14 @@ def printDict(dict,sep=' = ' ):
 
 ## Makefile.am support class
 #
-# The class provides methods for the following tasks: 
-#		- parsing Makefile.am's and collecting targets and defines into class members 
+# The class provides methods for the following tasks:
+#		- parsing Makefile.am's and collecting targets and defines into class members
 #		- extracting library dependencies and linker flags keyed by the related targets
 #		- extracting target libraries and programs
 #		- collecting detailled lists of libraries dependencies
 #
 #
-class AMFile: 
+class AMFile:
 	def __init__(self):
 		self.defines = {}
 		self.targets = {}
@@ -41,28 +41,28 @@ class AMFile:
 		self.datadirs= {}
 		self.path    = ''
 		self.subdirs = ''
-		
-	## read and parse a Makefile.am 
+
+	## read and parse a Makefile.am
 	#
 	# The resulting lines are stored in the defines and targets class member.
 	# note: Multiple lines in a target are separated by '###'
 	# @param path - path for Makefile.am
-	# @return 0 if file couldn't be read 
-	# 
+	# @return 0 if file couldn't be read
+	#
 	def read(self,path):
 		try:
 			src=open(path, 'r')
 		except:
 			return 0
 		self.path = path
-		
+
 		file  = src.read()
 		lines = file.replace('\n\t','###')
 		list = lines.replace('\\\n',' ').split('\n')
 		for line in list:
 			if line[:1] == '#' or len(line) == 0:
 				continue
-			
+
 			index = 0
 			while line[index].count('#'):
 				index = line[index].index('#')
@@ -76,7 +76,7 @@ class AMFile:
 				target = line.split(':')
 				if len(target) == 2:
 					single_target = target[1].strip().replace("'",'')
-					# TODO: (rh) split into list 
+					# TODO: (rh) split into list
 					self.targets[str(target[0]).strip()] = single_target
 		self.getLibraries()
 		self.getPrograms()
@@ -89,22 +89,22 @@ class AMFile:
 		self.getData()
 
 		return 1
-		
-	## adds library dependencies from another AMFile instance 
+
+	## adds library dependencies from another AMFile instance
 	#
-	# This method is mainly used for an instance collecting definitions 
-	# from instances from lower levels 
-	# @param src - AMFile instance, from which the dependencies are imported 
+	# This method is mainly used for an instance collecting definitions
+	# from instances from lower levels
+	# @param src - AMFile instance, from which the dependencies are imported
 	#
 	def addLibraryDeps(self,src):
 		for key in src.libadds.keys():
 			self.libadds[key] = src.libadds[key]
-				
-	## adds linker flags from another AMFile instance 
+
+	## adds linker flags from another AMFile instance
 	#
-	# This method is mainly used for an instance collecting definitions 
-	# from instances from lower levels 
-	# @param src - AMFile instance, from which the flags are imported 
+	# This method is mainly used for an instance collecting definitions
+	# from instances from lower levels
+	# @param src - AMFile instance, from which the flags are imported
 	#
 	def addLinkerFlags(self,src):
 		for key in src.ldflags.keys():
@@ -122,15 +122,15 @@ class AMFile:
 		if self.defines.has_key('SUBDIRS'):
 			self.subdirs = self.defines['SUBDIRS']
 			del self.defines['SUBDIRS']
-	## collect all LIBADDS definitions 
+	## collect all LIBADDS definitions
 	#
-	# the function store the definitions in the libadds class member keyed 
+	# the function store the definitions in the libadds class member keyed
 	# by the relating target
-	# @return definition list 
+	# @return definition list
 	#
 	def getLibraryDeps(self):
 		reg = re.compile("(.*?)_(?:l?a_)?LIBADD$")
-		# TODO (rh) fix relative library pathes 
+		# TODO (rh) fix relative library pathes
 		for key in self.defines.keys():
 			result=reg.match(key)
 			if result:
@@ -142,11 +142,11 @@ class AMFile:
 				del self.defines[key]
 		return self.libadds
 
-	## collect all LDFLAGS definitions 
+	## collect all LDFLAGS definitions
 	#
-	# the function store the definitions in the ldflags class member keyed 
-	# by the relating target 
-	# @return definition list 
+	# the function store the definitions in the ldflags class member keyed
+	# by the relating target
+	# @return definition list
 	#
 	def getLinkerFlags(self):
 		reg = re.compile("(.*?)_(?:l?a_)?LDFLAGS$")
@@ -161,11 +161,11 @@ class AMFile:
 				del self.defines[key]
 		return self.ldflags
 
-	## collect all LTLIBRARIES definitions 
+	## collect all LTLIBRARIES definitions
 	#
-	# the function store the definitions in the libraries class member keyed 
-	# by the relating target 
-	# @return definition list 
+	# the function store the definitions in the libraries class member keyed
+	# by the relating target
+	# @return definition list
 	#
 	def getLibraries(self):
 		def stripLibname(val):
@@ -214,25 +214,25 @@ class AMFile:
 				del self.defines[name+"dir"]
 			else:
 				del self.data[name]
-		
+
 		return self.data
 
-	## collect all SOURCES definitions 
+	## collect all SOURCES definitions
 	#
-	# the function store the definitions in the sources class member keyed 
+	# the function store the definitions in the sources class member keyed
 	# by the relating target
 	# this function should be called after getPrograms and getLibraries
-	# @return definition list 
+	# @return definition list
 	#
 	def getSources(self):
 		reg = re.compile("(.*?)METASOURCES$")
 		reg = re.compile("(.*?)_(?:l?a_)?SOURCES$")
-		# TODO (rh) fix relative library pathes 
+		# TODO (rh) fix relative library paths
 		for key in self.defines.keys():
 			if key.endswith('METASOURCES') and self.defines[key] == "AUTO":
 				del self.defines[key]
 				continue
-			
+
 			result=reg.match(key)
 			if result:
 				source = self.findRealTargetname(str(result.group(1)))
@@ -258,14 +258,14 @@ class AMFile:
 			else:
 				target = ""
 		return target
-	
+
 	def getIncludes(self):
 		#if we've got a dir global includes, save it in self.includes['_DIR_GLOBAL_']
 		if self.defines.has_key('INCLUDES'):
 			self.defines['_DIR_GLOBAL__INCLUDES'] = self.defines['INCLUDES']
 			del self.defines['INCLUDES']
 		reg = re.compile("(.*?)_(?:l?a_)?INCLUDES")
-		# TODO (rh) fix relative library pathes 
+		# TODO (rh) fix relative library pathes
 		for key in self.defines.keys():
 			result=reg.match(key)
 			if result:
@@ -289,7 +289,7 @@ class AMFile:
 			self.defines['_DIR_GLOBAL__HEADERS'] = self.defines['HEADERS']
 			del self.defines['HEADERS']
 		reg = re.compile("(.*?)_(?:l?a_)?HEADERS")
-		# TODO (rh) fix relative library pathes 
+		# TODO (rh) fix relative library paths
 		for key in self.defines.keys():
 			result=reg.match(key)
 			if result:
@@ -299,12 +299,12 @@ class AMFile:
 				self.headers[header] = self.defines[key]
 				del self.defines[key]
 		return self.headers
-			
-	## return a reverse usage list of dependencies 
+
+	## return a reverse usage list of dependencies
 	#
 	# The function scannes the recent library definitions and reorganice
 	# the resulting list keyed by the used library
-	# @return dependency list 
+	# @return dependency list
 	#
 	def getReverseLibraryDeps(self):
 		alist = {}
@@ -315,17 +315,17 @@ class AMFile:
 				else:
 					alist[str(lib)] = key
 		return alist
-	
+
 	def printDefines(self):
-		print "### DEFINES:" 
+		print "### DEFINES:"
 		printDict(self.defines,' = ')
-	
+
 	def printTargets(self):
-		print "### TARGETS:" 
+		print "### TARGETS:"
 		printDict(self.targets,' : ')
 
 	def printLibraryDeps(self):
-		print "### LIBADD:" 
+		print "### LIBADD:"
 		printDict(self.libadds,' : ')
 
 	def printLinkerFlags(self):
@@ -351,15 +351,15 @@ def amview():
 	sources = 0
 	if len(sys.argv) == 1:
 		print "amtool [options] Makefile.am [Makefile.am] ..."
-		print "list Makefile.am content" 
-		print "options:" 
-		print "    --uses print where a library is used" 
-		print "    --libadd print all LIBADD depenencies " 
-		print "    --ldflags print all LDFLAGS definitions" 
-		print "    --defines print all Makefile variables" 
-		print "    --targets print all Makefile targets" 
-		print "    --libs print all library definitions" 
-		print "    --sources print all source definitions" 
+		print "list Makefile.am content"
+		print "options:"
+		print "    --uses print where a library is used"
+		print "    --libadd print all LIBADD depenencies "
+		print "    --ldflags print all LDFLAGS definitions"
+		print "    --defines print all Makefile variables"
+		print "    --targets print all Makefile targets"
+		print "    --libs print all library definitions"
+		print "    --sources print all source definitions"
 	else:
 		all_ams = AMFile()
 		for a in range(1,len(sys.argv)):
@@ -370,27 +370,27 @@ def amview():
 			elif sys.argv[a][:9] == '--defines':
 				defines = 1
 			elif sys.argv[a][:9] == '--targets':
-				targets = 1			
+				targets = 1
 			elif sys.argv[a][:9] == '--ldflags':
 				ldflags = 1
 			elif sys.argv[a][:6] == '--libs':
 				libs = 1
 			elif sys.argv[a][:9] == '--sources':
 				sources = 1
-			if  libadds or defines or targets or ldflags or libs or sources:	
+			if  libadds or defines or targets or ldflags or libs or sources:
 				uses = 2
-							
+
 		for a in range(1,len(sys.argv)):
 			if sys.argv[a][:2] == '--':
 				continue
 			am_file = AMFile()
-	
-			if not am_file.read(sys.argv[a]): 
+
+			if not am_file.read(sys.argv[a]):
 				continue
-	
+
 			if uses == 2:
 				print "### " + sys.argv[a]
-	
+
 			if defines:
 				am_file.printDefines()
 			if targets:
@@ -403,14 +403,15 @@ def amview():
 				am_file.printLibraries()
 			if sources:
 				am_file.printSources()
-	
+
 			all_ams.addLibraryDeps(am_file)
 			all_ams.addLinkerFlags(am_file)
 			all_ams.addSources(am_file)
 			all_ams.addLibraries(am_file)
-	
+
 		if uses == 0:
 			all_ams.printLibraryDeps()
 		elif uses == 1:
 			a = all_ams.getReverseLibraryDeps()
 			printDict(a)
+
