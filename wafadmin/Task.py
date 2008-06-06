@@ -35,7 +35,7 @@ Task.g_shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Params, Action, Runner, Common, Scan
+import Params, Runner, Common, Scan
 from Params import debug, error, warning
 from Constants import *
 
