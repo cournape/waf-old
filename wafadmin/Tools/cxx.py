@@ -27,6 +27,7 @@ g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cxx_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *k):
 		ccroot.ccroot_abstract.__init__(self, *k)
+		self.features.append("cxx")
 
 @taskgen
 @before('apply_type_vars')

@@ -32,8 +32,8 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
-	def __init__(self, action_name, env, parent, priority=10):
-		Task.Task.__init__(self, action_name, env, priority)
+	def __init__(self, action_name, env, parent):
+		Task.Task.__init__(self, None, env)
 		self.moc_done = 0
 		self.parent = parent
 
@@ -109,7 +109,7 @@ class MTask(Task.Task):
 			tree.node_deps[variant][m_node.id] = (h_node,)
 
 			# create the task
-			task = Task.Task('moc', parn.env, normal=0)
+			task = Task.g_task_types['moc']('moc', parn.env, normal=0)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
@@ -127,7 +127,7 @@ class MTask(Task.Task):
 		for d in lst:
 			name = d.m_name
 			if name.endswith('.moc'):
-				task = Task.Task('moc', parn.env, normal=0)
+				task = Task.g_task_types['moc']('moc', parn.env, normal=0)
 				task.set_inputs(tree.node_deps[variant][d.id][0]) # 1st element in a tuple
 				task.set_outputs(d)
 
@@ -140,6 +140,8 @@ class MTask(Task.Task):
 		# simple scheduler dependency: run the moc task before others
 		self.m_run_after = moctasks
 		self.moc_done = 1
+
+	run = Task.g_task_types['cxx'].__dict__["run"]
 
 def translation_update(task):
 	outs=[a.abspath(task.env) for a in task.m_outputs]
@@ -221,9 +223,9 @@ def create_uic_task(self, node):
 	uictask.m_inputs    = [node]
 	uictask.m_outputs   = [node.change_ext('.h')]
 
-class qt4_taskgen(cxx.cpp_taskgen):
+class qt4_taskgen(cxx.cxx_taskgen):
 	def __init__(self, *kw):
-		cxx.cpp_taskgen.__init__(self, *kw)
+		cxx.cxx_taskgen.__init__(self, *kw)
 		self.link_task = None
 		self.lang = ''
 		self.langname = ''
@@ -238,7 +240,7 @@ def apply_qt4(self):
 		lst=[]
 		trans=[]
 		for l in self.to_list(self.lang):
-			t = Task.Task('ts2qm', self.env, 4)
+			t = Task.g_task_types['ts2qm']('ts2qm', self.env)
 			t.set_inputs(self.path.find_resource(l+'.ts'))
 			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
 			lst.append(t.m_outputs[0])
@@ -248,12 +250,13 @@ def apply_qt4(self):
 
 		if self.update and Params.g_options.trans_qt4:
 			# we need the cpp files given, except the rcc task we create after
+			# FIXME may be broken
 			u = Task.TaskCmd(translation_update, self.env, 2)
 			u.m_inputs = [a.m_inputs[0] for a in self.compiled_tasks]
 			u.m_outputs = trans
 
 		if self.langname:
-			t = Task.Task('qm2rcc', self.env, 50)
+			t = Task.g_task_types['qm2rcc']('qm2rcc', self.env)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_build(self.langname+'.qrc'))
 			t.path = self.path
@@ -266,6 +269,7 @@ def apply_qt4(self):
 		if flag[0:2] == '-D' or flag[0:2] == '-I':
 			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
+	self.env['QT_LRELEASE_FLAGS'] = ['-silent']
 
 def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	"the .ts files are added to self.lang"
@@ -321,12 +325,12 @@ def process_qm2rcc(task):
 	f.close()
 
 b = Task.simple_task_type
-b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'], prio=100)
-b('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', prio=60)
-b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', prio=60)
-b('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
+b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
+b('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc', after="qm2rcc")
+b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc')
+b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc')
 
-Task.task_type_from_func('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=50)
+Task.task_type_from_func('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', before='rcc', after='ts2qm')
 
 def detect_qt4(conf):
 	env = conf.env
