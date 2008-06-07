@@ -180,7 +180,7 @@ def install_shlib(task):
 	name2 = libname+'.'+nums[0]
 	name1 = libname
 
-	filename = task.m_outputs[0].relpath_gen(self.path)
+	filename = task.m_outputs[0].abspath(task.env())
 	bld = Params.g_build
 	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env())
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))

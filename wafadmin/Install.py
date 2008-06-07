@@ -72,7 +72,7 @@ def do_install(src, tgt, chmod=0644):
 
 def path_install(var, subdir, env=None):
 	bld = Params.g_build
-	if not env: env = Params.g_build.env()
+	if not env: env = Params.g_build.env
 	destpath = env[var]
 	if not destpath:
 		error("Installing: to set a destination folder use env['%s']" % (var))
@@ -133,7 +133,7 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	if not var: return False
 
 	bld = Params.g_build
-	if not env: env = Params.g_build.env()
+	if not env: env = Params.g_build.env
 	node = bld.path
 
 	tgt = env[var]
@@ -161,7 +161,7 @@ def symlink_as(var, src, dest, env=None):
 	if not var: return
 
 	bld = Params.g_build
-	if not env: env=Params.g_build.env()
+	if not env: env=Params.g_build.env
 	node = bld.path
 
 	tgt = env[var]
