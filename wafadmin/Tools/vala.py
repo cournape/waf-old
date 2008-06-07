@@ -43,7 +43,6 @@ class valac(Task.Task):
 			cmd.append('--library ' + task.target)
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
-			#cmd.append('-d %s' % Params.g_build.m_srcnode.abspath(bld.env()))
 			#cmd.append('-d %s' % Params.g_build.m_bldnode.bldpath(env))
 		else:
 			output_dir = task.m_outputs[0].bld_dir(env)
