@@ -201,17 +201,17 @@ class TaskGroup(object):
 
 	def compare_exts(self, t1, t2):
 		"extension production"
-		x = "in_exts"
-		y = "out_exts"
-		in_exts = t1.attr(x, ())
-		out_exts = t2.attr(y, ())
-		for k in in_exts:
-			if k in out_exts:
+		x = "ext_in"
+		y = "ext_out"
+		in_ = t1.attr(x, ())
+		out_ = t2.attr(y, ())
+		for k in in_:
+			if k in out_:
 				return -1
-		in_exts = t2.attr(x, ())
-		out_exts = t1.attr(y, ())
-		for k in in_exts:
-			if k in out_exts:
+		in_ = t2.attr(x, ())
+		out_ = t1.attr(y, ())
+		for k in in_:
+			if k in out_:
 				return 1
 		return 0
 
@@ -351,7 +351,7 @@ class TaskBase(object):
 
 	def hash_constraints(self):
 		sum = 0
-		names = ('prio', 'before', 'after', 'in_exts', 'out_exts')
+		names = ('prio', 'before', 'after', 'ext_in', 'ext_out')
 		sum = hash((sum, self.__class__.__name__,))
 		for x in names:
 			sum = hash((sum, str(self.attr(x, sys.maxint)),))
@@ -754,7 +754,7 @@ def f(task):
 	debug(c, 'action')
 	return (funex(c), dvars)
 
-def simple_task_type(name, line, color='GREEN', vars=[], prio=None, in_exts=[], out_exts=[]):
+def simple_task_type(name, line, color='GREEN', vars=[], prio=None, ext_in=[], ext_out=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line)
 	params = {
@@ -763,8 +763,8 @@ def simple_task_type(name, line, color='GREEN', vars=[], prio=None, in_exts=[], 
 		'm_color': color,
 		'line': line,
 		'm_name': name,
-		'in_exts': Utils.to_list(in_exts),
-		'out_exts': Utils.to_list(out_exts),
+		'ext_in': Utils.to_list(ext_in),
+		'ext_out': Utils.to_list(ext_out),
 	}
 	if prio: params["prio"] = prio
 
@@ -776,15 +776,15 @@ def simple_task_type(name, line, color='GREEN', vars=[], prio=None, in_exts=[], 
 
 	return cls
 
-def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, in_exts=[], out_exts=[]):
+def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, ext_in=[], ext_out=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	params = {
 		'run': func,
 		'm_vars': vars,
 		'm_color': color,
 		'm_name': name,
-		'in_exts': Utils.to_list(in_exts),
-		'in_exts': Utils.to_list(out_exts),
+		'ext_in': Utils.to_list(ext_in),
+		'ext_out': Utils.to_list(ext_out),
 	}
 	if prio: params["prio"] = prio
 

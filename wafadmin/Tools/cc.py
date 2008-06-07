@@ -99,7 +99,7 @@ def c_hook(self, node):
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-Task.simple_task_type('cc', cc_str, 'GREEN', out_exts='.o')
+Task.simple_task_type('cc', cc_str, 'GREEN', out_exts='.o', in_exts='.c')
 Task.simple_task_type('cc_link', link_str, color='YELLOW', in_exts='.o')
 
 TaskGen.declare_order('apply_incpaths', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')

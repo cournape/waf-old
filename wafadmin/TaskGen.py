@@ -471,16 +471,16 @@ def declare_order(*k):
 		except:
 			task_gen.prec[f2] = [f1]
 
-def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40, install=0):
+def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color='BLUE', install=0):
 	"""
 	see Tools/flex.py for an example
 	while i do not like such wrappers, some people really do
 	"""
 
 	if type(action) == types.StringType:
-		act = Task.simple_task_type(name, action, color=color, prio=prio)
-		act.in_exts = tuple(Utils.to_list(ext_in))
-		act.out_exts = tuple(Utils.to_list(ext_out))
+		act = Task.simple_task_type(name, action, color=color)
+		act.ext_in = tuple(Utils.to_list(ext_in))
+		act.ext_out = tuple(Utils.to_list(ext_out))
 	else:
 		name = action.name
 

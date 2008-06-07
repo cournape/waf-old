@@ -108,8 +108,8 @@ def cxx_hook(self, node):
 cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-Task.simple_task_type('cxx', cxx_str, color='GREEN', out_exts='.o')
-Task.simple_task_type('cxx_link', link_str, color='YELLOW', in_exts='.o')
+Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx')
+Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o')
 
 TaskGen.declare_order('apply_incpaths', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 
