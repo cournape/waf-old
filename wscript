@@ -27,7 +27,7 @@ forbidden = [x+'.py' for x in 'Test Weak'.split()]
 from tokenize import *
 
 import os, sys, base64, shutil, re, random, StringIO, optparse, tempfile
-import Params, Utils, Options, Common
+import Params, Utils, Options
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
@@ -331,7 +331,7 @@ def build(bld):
 	tools.inst_var = 'PREFIX'
 	tools.inst_dir = os.path.join(wafadmin.inst_dir, 'Tools')
 
-	Common.install_files('PREFIX', 'bin', 'waf', chmod=0755)
+	bld.install_files('PREFIX', 'bin', 'waf', chmod=0755)
 
 	#print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
 	#print "make sure the PATH contains %s/bin:$PATH" % prefix
