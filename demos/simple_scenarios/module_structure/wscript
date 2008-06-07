@@ -21,6 +21,6 @@ def configure(conf):
 def build(bld):
 	if Params.g_options.fr:
 		bld.add_subdirs("fr")
-	if bld.env()["ES"]:
+	if bld.env["ES"]:
 		bld.add_subdirs("es")
 

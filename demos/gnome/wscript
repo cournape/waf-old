@@ -53,7 +53,7 @@ def build(bld):
 	# process subfolders from here
 	bld.add_subdirs('src mkenums marshal pixmaps')
 
-	env = bld.env()
+	env = bld.env
 	if env['XML2PO'] and env['XSLTPROC2PO']:
 		bld.add_subdirs('help')
 
