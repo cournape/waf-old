@@ -26,7 +26,7 @@ def modify_flags(self):
 				task.m_env.append_unique("_CCINCFLAGS", "-DMYFLAG")
 
 def build(bld):
-	obj = bld.create_obj('cc', 'program')
+	obj = bld.new_task_gen('cc', 'program')
 	obj.source = 'A.c B.c'
 	obj.target= 'pimpam'
 

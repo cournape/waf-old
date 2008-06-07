@@ -15,7 +15,7 @@ def configure(conf):
 	conf.check_tool('g++')
 
 def build(bld):
-	a = bld.create_obj('cxx', 'program')
+	a = bld.new_task_gen('cxx', 'program')
 	a.source = 'a.cpp'
 	a.target = 'AA'
 
@@ -25,7 +25,7 @@ def build(bld):
 	# linked before c.cpp is compiled.
 
 	bld.add_group('savta') # <- acts like a separator
-	c = bld.create_obj('cxx', 'program')
+	c = bld.new_task_gen('cxx', 'program')
 	c.source = 'c.cpp'
 	c.target = 'CC'
 

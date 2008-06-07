@@ -19,7 +19,7 @@
 
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
-obj = bld.create_obj('cxx', 'shlib')
+obj = bld.new_task_gen('cxx', 'shlib')
 obj.find_sources_in_dirs('. gui')
 obj.includes='.'
 obj.uselib='GLIB'
@@ -28,7 +28,7 @@ obj.want_libtool=1
 obj.vnum='1.2.3'
 
 # process file.pc.in -> file.pc
-obj = bld.create_obj('subst')
+obj = bld.new_task_gen('subst')
 obj.source = 'test.pc.in'
 obj.target = 'test.pc'
 obj.dict   = {'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm', 'VERSION': '1.0', 'XPM_LIBS': '-lxpm'}
@@ -39,14 +39,14 @@ def print_hello(task):
 	return 0
 
 # execute arbitrary code in the middle of the build
-obj = bld.create_obj('cmd')
+obj = bld.new_task_gen('cmd')
 obj.fun = print_hello
 
 # build dir traversal
 bld.add_subdirs('gui gui2')
 
 ## generate files from a command
-out1 = bld.create_obj('command-output')
+out1 = bld.new_task_gen('command-output')
 out1.stdout = 'test1'
 out1.stdin = 'wscript_build'
 out1.command = 'some-script'
@@ -55,7 +55,7 @@ out1.vars='COINCOIN'
 out1.env['COINCOIN']='Some string to trigger rebuilds'
 #obj.command_is_external = False
 
-out2 = bld.create_obj('command-output')
+out2 = bld.new_task_gen('command-output')
 out2.stdout = 'test2'
 out2.command = 'some-script'
 out2.argv = ['--input', out2.input_file('test1')]
@@ -63,14 +63,14 @@ out2.vars='MIAOU'
 out2.env['MIAOU']='Another string to trigger rebuilds'
 out2.dependencies = [out1]
 
-out3 = bld.create_obj('command-output')
+out3 = bld.new_task_gen('command-output')
 out3.stdin = 'test2'
 out3.stdout = 'test3'
 out3.command = 'cat'
 out3.command_is_external = True
 out3.dependencies = [out2]
 
-out4 = bld.create_obj('command-output')
+out4 = bld.new_task_gen('command-output')
 out4.stdin = 'test3'
 out4.stdout = 'test4'
 out4.command = 'cat'
@@ -78,18 +78,18 @@ out4.command_is_external = True
 out4.dependencies = [out3]
 
 ## --- compile a generated program ---
-genmain = bld.create_obj('command-output')
+genmain = bld.new_task_gen('command-output')
 genmain.before = 'cxx'
 genmain.stdout = "main1.cpp"
 genmain.command = 'cat'
 genmain.command_is_external = True
 genmain.argv = [genmain.input_file('main.cpp')]
 
-obj = bld.create_obj('cxx', 'program')
+obj = bld.new_task_gen('cxx', 'program')
 obj.source = 'main1.cpp'
 obj.target = 'main1'
 
-foo = bld.create_obj('copy')
+foo = bld.new_task_gen('copy')
 foo.source = 'main.cpp'
 foo.target = 'blah'
 # source != target!

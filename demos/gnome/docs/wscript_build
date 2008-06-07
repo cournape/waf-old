@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2007 (ita)
 
-obj=bld.create_obj('xmlto')
+obj=bld.new_task_gen('xmlto')
 obj.source = 'gnome-power-manager.xml'
 obj.target = 'gnome-power-manager.html'
 obj.xslt = 'config.xsl'

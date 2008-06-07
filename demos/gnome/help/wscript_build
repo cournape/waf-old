@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy 2008
 
-obj = bld.create_obj("gnome_doc")
+obj = bld.new_task_gen("gnome_doc")
 obj.doc_module = "cheese"
 obj.doc_entities = "legal.xml"
 obj.doc_includes = ""

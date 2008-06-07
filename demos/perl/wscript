@@ -36,7 +36,7 @@ def configure(conf):
 
 def build(bld):
 	# Build a perl extension module
-	obj = bld.create_obj('cc', 'shlib', 'perlext')
+	obj = bld.new_task_gen('cc', 'shlib', 'perlext')
 	obj.source = 'Mytest.xs'
 	obj.target = 'Mytest'
 	obj.inst_var = 'INSTALLDIR_PERL_AUTO'

@@ -1,4 +1,4 @@
-obj = bld.create_obj('d', 'program')
+obj = bld.new_task_gen('d', 'program')
 obj.source = 'main.d extra.d'
 obj.target = 'test2'
 obj.importpaths = '.'

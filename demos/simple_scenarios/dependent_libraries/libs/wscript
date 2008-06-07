@@ -10,11 +10,11 @@ def configure(conf):
     conf.check_tool('gcc')
 
 def build(bld):
-    a = bld.create_obj('cc', 'shlib')
+    a = bld.new_task_gen('cc', 'shlib')
     a.source = 'a.c'
     a.target = 'a'
 
-    b = bld.create_obj('cc', 'shlib')
+    b = bld.new_task_gen('cc', 'shlib')
     b.source = 'b.c'
     b.target = 'b'
 

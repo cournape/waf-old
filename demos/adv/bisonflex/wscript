@@ -6,7 +6,7 @@ def build(bld):
 	#mode = 'cxx'
 	mode = 'cc'
 
-	obj = bld.create_obj(mode, 'program')
+	obj = bld.new_task_gen(mode, 'program')
 	#obj.source='''
 	#main.c
 	#calc.l

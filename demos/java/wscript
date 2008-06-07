@@ -25,7 +25,7 @@ def configure(conf):
 	#conf.check_tool('java', tooldir=[os.path.abspath('.')])
 
 def build(bld):
-	obj = bld.create_obj('java')
+	obj = bld.new_task_gen('java')
 	obj.source = '.*java$'
 	obj.jarname = 'nono.jar'
 	obj.source_root = 'src'

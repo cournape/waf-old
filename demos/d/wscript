@@ -26,7 +26,7 @@ def configure(conf):
 def build(bld):
 	bld.add_subdirs('src2')
 
-	obj = bld.create_obj('d', 'staticlib')
+	obj = bld.new_task_gen('d', 'staticlib')
 	obj.source = '''
 	testlib/code.d
 	'''
@@ -39,7 +39,7 @@ def build(bld):
 	* in the configuration, add conf.check_tool('gcc')
 	* in the object creation, add 3 lines
 
-	obj = bld.create_obj('d')
+	obj = bld.new_task_gen('d')
 	obj.source = '''
 	testlib/code.d
 	'''
@@ -50,7 +50,7 @@ def build(bld):
 	obj.m_type = 'shlib'
 	"""
 
-	obj = bld.create_obj('d', 'program')
+	obj = bld.new_task_gen('d', 'program')
 	obj.source = '''
 	example.d
 	'''

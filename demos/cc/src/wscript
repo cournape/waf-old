@@ -4,17 +4,17 @@
 
 def build(bld):
 	# 1. A simple program
-	main = bld.create_obj('cc', 'program')
+	main = bld.new_task_gen('cc', 'program')
 	main.source='main.c'
 	main.target='test_c_program'
 	main.uselib_local='teststaticlib'
 #	main.includes='. /usr/include'
 
 	# 2. A simple static lib
-	staticlib = bld.create_obj('cc', 'staticlib')
+	staticlib = bld.new_task_gen('cc', 'staticlib')
 	staticlib.source = 'test_staticlib.c'
 	staticlib.target='teststaticlib'
-	
+
 #def set_options(opt):
 #	# options defined if src/ was to be compiled as a standalone module
 #	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')

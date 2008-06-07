@@ -28,13 +28,13 @@ def build(bld):
 #	# separate build dirs are necessary
 #
 #	# build a pdf file in the default directory
-#	obj = bld.create_obj('tex','pdflatex')
+#	obj = bld.new_task_gen('tex','pdflatex')
 #	obj.source = 'document.ltx'
 #	obj.outs = 'pdf'
 #
 #	# build a ps file in the variant
 #	psenv = bld.env_of_name('psdir')
-#	obj = bld.create_obj('tex','latex')
+#	obj = bld.new_task_gen('tex','latex')
 #	obj.source = 'document.ltx'
 #	obj.outs = 'ps'
 #	obj.env = psenv

@@ -3,7 +3,7 @@
 import Params
 import os.path
 
-obj = bld.create_obj('cpp', 'program')
+obj = bld.new_task_gen('cxx', 'program')
 obj.find_sources_in_dirs('.')
 obj.uselib = 'CPPUNIT'
 obj.uselib_local = 'unittestmain useless'
