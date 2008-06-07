@@ -237,17 +237,22 @@ def detect(conf):
 	v['DVIPSFLAGS'] = '-Ppdf'
 
 b = Task.simple_task_type
-b('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE', prio=60)
-b('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE', prio=60)
-b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', prio=60)
-b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
-b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', prio=60)
+b('tex', '${TEX} ${TEXFLAGS} ${SRC}', color='BLUE')
+b('bibtex', '${BIBTEX} ${BIBTEXFLAGS} ${SRC}', color='BLUE')
+act = b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE')
+act.after = "latex pdflatex tex bibtex"
 
-a = b('latex', '${TEX} ${TEXFLAGS} ${SRC}', prio=40)
+act = b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE')
+act.after = "latex pdflatex tex bibtex"
+
+act = b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE')
+act.after = "dvipdf pdflatex"
+
+a = b('latex', '${TEX} ${TEXFLAGS} ${SRC}')
 a.m_vars = latex_vardeps
 a.run = latex_build
 
-a = b('pdflatex', '${TEX} ${TEXFLAGS} ${SRC}', prio=40)
+a = b('pdflatex', '${TEX} ${TEXFLAGS} ${SRC}')
 a.m_vars = pdflatex_vardeps
 a.run = pdflatex_build
 
