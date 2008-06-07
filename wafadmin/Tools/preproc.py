@@ -356,7 +356,7 @@ def eval_macro(lst, adefs):
 	return int(v) != 0
 
 class c_parser(object):
-	def __init__(self, nodepaths=None, strpaths=None, defines=None):
+	def __init__(self, nodepaths=None, defines=None):
 		#self.lines = txt.split('\n')
 		self.lines = []
 
@@ -367,13 +367,6 @@ class c_parser(object):
 		self.state = []
 
 		self.env   = None # needed for the variant when searching for files
-
-		# include paths
-		if strpaths is None:
-			self.strpaths = []
-		else:
-			self.strpaths = strpaths
-		self.pathcontents = {}
 
 		self.count_files = 0
 		self.deps  = []
@@ -398,35 +391,18 @@ class c_parser(object):
 
 	def tryfind(self, filename):
 		self.curfile = filename
-		if self.m_nodepaths:
-			found = 0
-			for n in self.m_nodepaths:
-				found = n.find_resource(filename)
-				if found:
-					break
+		found = None
+		for n in self.m_nodepaths:
+			found = n.find_resource(filename)
 			if found:
-				self.m_nodes.append(found)
-				if filename[-4:] != '.moc':
-					self.addlines(found.abspath(self.env))
-			else:
-				if not filename in self.m_names:
-					self.m_names.append(filename)
+				break
 		else:
-			# this is for the command-line test
-			found = 0
-			for p in self.strpaths:
-				if not p in self.pathcontents.keys():
-					self.pathcontents[p] = os.listdir(p)
-				if filename in self.pathcontents[p]:
-					#print "file %s found in path %s" % (filename, p)
-					np = os.path.join(p, filename)
-					# screw Qt two times
-					if filename[-4:] != '.moc': self.addlines(np)
-					self.deps_paths.append(np)
-					found = 1
-			if not found:
-				pass
-				#error("could not find %s " % filename)
+			if not filename in self.m_names:
+				self.m_names.append(filename)
+			return
+		self.m_nodes.append(found)
+		if filename[-4:] != '.moc':
+			self.addlines(found.abspath(self.env))
 
 	def addlines(self, filepath):
 		self.count_files += 1
@@ -648,6 +624,22 @@ def tokenize(s):
 
 # quick test #
 if __name__ == "__main__":
+	# first we need to replace a method for the command-line test - no nodes
+	def tryfind(self):
+		self.curfile = filename
+		found = 0
+		for p in self.strpaths:
+			if not p in self.pathcontents.keys():
+				self.pathcontents[p] = os.listdir(p)
+			if filename in self.pathcontents[p]:
+				#print "file %s found in path %s" % (filename, p)
+				np = os.path.join(p, filename)
+				# screw Qt two times
+				if filename[-4:] != '.moc': self.addlines(np)
+				self.deps_paths.append(np)
+				found = 1
+	c_parser.tryfind = tryfind
+
 	Params.g_verbose = 2
 	Params.g_zones = ['preproc']
 	class dum:
@@ -684,7 +676,10 @@ if __name__ == "__main__":
 	test("fun2(2, fun1(m, 1))")
 	#test("foo##.##h")
 
-	gruik = c_parser(strpaths = paths)
+	gruik = c_parser()
+	gruik.strpaths = paths
+	gruik.pathcontents = {}
+
 	gruik.start_local(arg)
 	print "we have found the following dependencies"
 	print gruik.deps
