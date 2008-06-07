@@ -201,7 +201,8 @@ class Handler(object):
 		try:
 			fun = module.set_options
 		except AttributeError:
-			warning("tool %s has no function set_options" % tool)
+			pass
+			#warning("tool %s has no function set_options" % tool)
 		else:
 			fun(option_group or self)
 
