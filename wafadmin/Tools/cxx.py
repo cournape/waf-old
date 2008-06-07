@@ -24,12 +24,9 @@ CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_defines_cxx
 TaskGen.add_feature('cxx', CXX_METHS)
 
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
-class cpp_taskgen(ccroot.ccroot_abstract):
+class cxx_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *k):
 		ccroot.ccroot_abstract.__init__(self, *k)
-
-		# it is called cpp for backward compatibility, in fact it is cxx
-		self.features[0] = 'cxx'
 
 @taskgen
 @before('apply_type_vars')
