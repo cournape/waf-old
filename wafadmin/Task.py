@@ -754,7 +754,7 @@ def f(task):
 	debug(c, 'action')
 	return (funex(c), dvars)
 
-def simple_task_type(name, line, color='GREEN', vars=[], prio=None, ext_in=[], ext_out=[]):
+def simple_task_type(name, line, color='GREEN', vars=[], prio=None, ext_in=[], ext_out=[], before=[], after=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line)
 	params = {
@@ -765,6 +765,8 @@ def simple_task_type(name, line, color='GREEN', vars=[], prio=None, ext_in=[], e
 		'm_name': name,
 		'ext_in': Utils.to_list(ext_in),
 		'ext_out': Utils.to_list(ext_out),
+		'before': Utils.to_list(before),
+		'after': Utils.to_list(after),
 	}
 	if prio: params["prio"] = prio
 
