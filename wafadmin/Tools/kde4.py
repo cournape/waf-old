@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os, sys, re, TaskGen, Task, Utils, Common
+import os, sys, re, TaskGen, Task, Utils
 
 class msgfmt_taskgen(TaskGen.task_gen):
 	def __init__(self, appname='set_your_app_name'):

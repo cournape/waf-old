@@ -5,10 +5,11 @@
 "Gnome support"
 
 import os, re
-import TaskGen, Params, Common, Scan, Utils, Runner, Task
+import TaskGen, Params, Scan, Utils, Runner, Task
 import cc
 from Params import fatal, error
 from TaskGen import taskgen, before, after, feature
+import Install as Common
 
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)

@@ -118,10 +118,10 @@ def load_module(file_path, name=WSCRIPT_FILE):
 		Params.fatal('The file %s could not be opened!' % file_path)
 
 	d = module.__dict__
-	import Common
-	d['install_files'] = Common.install_files
-	d['install_as'] = Common.install_as
-	d['symlink_as'] = Common.symlink_as
+	import Install
+	d['install_files'] = Install.install_files
+	d['install_as'] = Install.install_as
+	d['symlink_as'] = Install.symlink_as
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)

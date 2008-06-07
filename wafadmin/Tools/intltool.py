@@ -5,7 +5,7 @@
 "intltool support"
 
 import os, re
-import TaskGen, Task, Params, Common, Scan, Utils, Runner
+import TaskGen, Task, Params, Scan, Utils, Runner
 import cc
 from Params import fatal, error
 
@@ -54,7 +54,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 			filename = out.m_name
 			(langname, ext) = os.path.splitext(filename)
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
-			Common.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
+			Params.g_build.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
 
 		linguas = self.path.find_resource(os.path.join(self.podir, 'LINGUAS'))
 		if linguas:

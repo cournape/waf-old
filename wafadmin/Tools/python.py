@@ -6,7 +6,7 @@
 "Python support"
 
 import os, sys
-import TaskGen, Utils, Params, Common, Utils, Runner
+import TaskGen, Utils, Params, Utils, Runner
 from TaskGen import extension, taskgen, before, after, feature
 import pproc as subprocess
 
@@ -69,7 +69,7 @@ class py_taskgen(TaskGen.task_gen):
 				else:
 					files_to_install.append(node.abspath(self.env))
 
-		installed_files = Common.install_files(
+		installed_files = Params.g_build.install_files(
 			self.inst_var, self.inst_dir, files_to_install,
 			self.env, self.chmod)
 

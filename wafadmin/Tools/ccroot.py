@@ -5,7 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-import TaskGen, Params, Scan, Common, Utils, Node, preproc
+import TaskGen, Params, Scan, Utils, Node, preproc
 from Params import error, debug, fatal, warning
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
@@ -181,9 +181,10 @@ def install_shlib(task):
 	name1 = libname
 
 	filename = task.m_outputs[0].relpath_gen(self.path)
-	Common.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env())
-	Common.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
-	Common.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
+	bld = Params.g_build
+	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env())
+	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
+	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
 
 # TODO reference the d programs, shlibs in d.py, not here
 

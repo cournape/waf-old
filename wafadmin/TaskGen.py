@@ -22,7 +22,7 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import os, types, traceback, copy
-import Params, Task, Common, Utils
+import Params, Task, Utils
 from Params import debug, error, fatal
 
 typos = {
@@ -226,7 +226,7 @@ class task_gen(object):
 		if not task: return
 		current = Params.g_build.path
 		lst = [a.relpath_gen(current) for a in task.m_outputs]
-		Common.install_files(var, subdir, lst, chmod=chmod, env=self.env)
+		Params.g_build.install_files(var, subdir, lst, chmod=chmod, env=self.env)
 
 	def meth_order(self, *k):
 		"this one adds the methods to the list of methods"

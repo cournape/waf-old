@@ -10,7 +10,7 @@ Custom objects:
 
 import shutil, re, os, types
 
-import TaskGen, Node, Params, Task, Common
+import TaskGen, Node, Params, Task
 import pproc as subprocess
 from Params import fatal, debug
 

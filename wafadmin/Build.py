@@ -592,4 +592,17 @@ class Build(object):
 		Params.fatal("the current path cannot be set")
 	m_curdirnode = property(get_curdir, set_curdir)
 
+	# these utilities should limit the coupling
+
+	#def install_files(var, subdir, files, env=None, chmod=0644):
+	def install_files(self, *k, **kw):
+		return Install.install_files(*k, **kw)
+
+	#def install_as(var, destfile, srcfile, env=None, chmod=0644):
+	def install_as(self, *k, **kw):
+		return Install.install_as(*k, **kw)
+
+	#def symlink_as(var, src, dest, env=None):
+	def symlink_as(self, *k, **kw):
+		return Install.symlink_as(*k, **kw)
 

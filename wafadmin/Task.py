@@ -35,7 +35,7 @@ Task.g_shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Params, Runner, Common, Scan
+import Params, Runner, Scan
 from Params import debug, error, warning
 from Constants import *
 
@@ -110,6 +110,7 @@ class TaskManager(object):
 	def add_finished(self, tsk):
 		self.tasks_done.append(tsk)
 		# TODO we could install using threads here
+		bld = Params.g_build
 		if Params.g_install and hasattr(tsk, 'install'):
 			d = tsk.install
 
@@ -118,16 +119,16 @@ class TaskManager(object):
 			elif type(d) is types.StringType:
 				if not tsk.env()[d]: return
 				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
-				Common.install_files(tsk.env()[d], '', lst, chmod=0644, env=tsk.env())
+				bld.install_files(tsk.env()[d], '', lst, chmod=0644, env=tsk.env())
 			else:
 				if not d['var']: return
 				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
 				if d.get('src', 0): lst += [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_inputs]
 				# TODO ugly hack
 				if d.get('as', ''):
-					Common.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env())
+					bld.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env())
 				else:
-					Common.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=tsk.env())
+					bld.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=tsk.env())
 
 class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"
