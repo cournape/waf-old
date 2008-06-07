@@ -277,12 +277,12 @@ def init_msvc(self):
 		self.libpaths = getattr(self, 'libpaths', '')
 
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
-Task.simple_task_type('msvc_ar_link_static', static_link_str, color='YELLOW', prio=101)
-Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
-Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, prio=101)
+Task.simple_task_type('msvc_ar_link_static', static_link_str, color='YELLOW', ext_in='.o')
+Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
+Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
 
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
-Task.simple_task_type('rc', rc_str, color='GREEN', prio=50)
+Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx')
 
 import winres
 
