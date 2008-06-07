@@ -217,8 +217,6 @@ class TaskGroup(object):
 			for k in in_exts:
 				if k in out_exts:
 					return 1
-			else:
-				pass
 		return 0
 
 	def compare_partial(self, t1, t2):
