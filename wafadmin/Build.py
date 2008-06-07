@@ -13,7 +13,7 @@ There is only one Build object at a time (Params.g_build singleton)
 """
 
 import os, sys, cPickle, types, imp, errno, re, glob
-import Params, Runner, TaskGen, Node, Scripting, Utils, Environment, Task
+import Params, Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install
 from Params import debug, error, fatal, warning
 from Constants import *
 
