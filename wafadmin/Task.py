@@ -35,7 +35,7 @@ Task.g_shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Params, Runner, Scan
+import Params, Runner, Scan, Utils
 from Params import debug, error, warning
 from Constants import *
 
@@ -354,7 +354,7 @@ class TaskBase(object):
 		names = ('prio', 'before', 'after', 'in_exts', 'out_exts')
 		sum = hash((sum, self.__class__.__name__,))
 		for x in names:
-			sum = hash((sum, self.attr(x, sys.maxint),))
+			sum = hash((sum, str(self.attr(x, sys.maxint)),))
 		sum = hash((sum, self.__class__.maxjobs))
 		return sum
 
@@ -754,17 +754,20 @@ def f(task):
 	debug(c, 'action')
 	return (funex(c), dvars)
 
-def simple_task_type(name, line, color='GREEN', vars=[], prio=100):
+def simple_task_type(name, line, color='GREEN', vars=[], prio=None, in_exts=[], out_exts=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line)
 	params = {
 		'run': fun,
 		'm_vars': vars or dvars,
 		'm_color': color,
-		'prio': prio,
 		'line': line,
 		'm_name': name,
+		'in_exts': Utils.to_list(in_exts),
+		'out_exts': Utils.to_list(out_exts),
 	}
+	if prio: params["prio"] = prio
+
 	cls = new.classobj(name, (Task,), params)
 	setattr(cls, 'm_action', cls) # <- compat
 
@@ -773,15 +776,18 @@ def simple_task_type(name, line, color='GREEN', vars=[], prio=100):
 
 	return cls
 
-def task_type_from_func(name, func, vars=[], color='GREEN', prio=100):
+def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, in_exts=[], out_exts=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	params = {
 		'run': func,
 		'm_vars': vars,
 		'm_color': color,
-		'prio': prio,
 		'm_name': name,
+		'in_exts': Utils.to_list(in_exts),
+		'in_exts': Utils.to_list(out_exts),
 	}
+	if prio: params["prio"] = prio
+
 	cls = new.classobj(name, (Task,), params)
 	setattr(cls, 'm_action', cls) # <- compat
 
