@@ -3,7 +3,6 @@
 # anonymous coward, 2007
 
 import sys, os
-import Common
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
@@ -42,7 +41,7 @@ def build(bld):
 	obj.target = 'Mytest'
 	obj.inst_var = 'INSTALLDIR_PERL_AUTO'
 
-	Common.install_files('INSTALLDIR_PERL_LIB', '', 'Mytest.pm')
+	bld.install_files('INSTALLDIR_PERL_LIB', '', 'Mytest.pm')
 
 def shutdown():
 	pass
