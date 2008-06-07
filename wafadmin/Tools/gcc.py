@@ -160,14 +160,3 @@ cc_load_tools
 '''
 )"""
 
-def set_options(opt):
-	try:
-		opt.add_option('-d', '--debug-level',
-		action = 'store',
-		default = ccroot.DEBUG_LEVELS.RELEASE,
-		help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
-		choices = ccroot.DEBUG_LEVELS.ALL,
-		dest = 'debug_level')
-	except optparse.OptionConflictError:
-		pass
-
