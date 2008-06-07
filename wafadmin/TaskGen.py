@@ -171,7 +171,7 @@ class task_gen(object):
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
 
-		self.env = Params.g_build.env().copy()
+		self.env = Params.g_build.env.copy()
 
 		self.m_posted = 0
 		self.path = Params.g_build.path # emulate chdir when reading scripts
@@ -373,7 +373,7 @@ class task_gen(object):
 			fatal(err_msg % 'excludes')
 		if not_a_list(exts):
 			fatal(err_msg % 'exts')
-		
+
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
@@ -392,7 +392,7 @@ class task_gen(object):
 			if not anode or not anode.is_child_of(Params.g_build.m_srcnode):
 				fatal("Unable to use '%s' - either because it's not a relative path" \
 					 ", or it's not child of '%s'." % (name, Params.g_build.m_srcnode))
-	
+
 			Params.g_build.rescan(anode)
 
 			for name in Params.g_build.cache_dir_contents[anode.id]:
