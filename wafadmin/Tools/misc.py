@@ -10,7 +10,7 @@ Custom objects:
 
 import shutil, re, os, types
 
-import TaskGen, Node, Params, Task
+import TaskGen, Node, Params, Task, Utils
 import pproc as subprocess
 from Params import fatal, debug
 
@@ -396,9 +396,7 @@ use command_is_external=True''') % (self.command,)
 			Params.fatal("command-output objects must have at least one output file")
 
 		task = command_output(self.env, None, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env)
-		for x in 'before after prio ext_in ext_out'.split():
-			u = getattr(self, x, None)
-			if u: setattr(task, x, u)
+		Utils.copy_attrs(self, task, 'before after prio ext_in ext_out', only_if_set=True)
 		self.m_tasks.append(task)
 
 		task.set_inputs(inputs)

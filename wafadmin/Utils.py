@@ -212,6 +212,12 @@ if sys.platform == 'win32':
 		if not t: return __split_dirs(h)
 		else: return __split_dirs(h) + [t]
 
+def copy_attrs(orig, dest, names, only_if_set=False):
+	for a in to_list(names):
+		u = getattr(orig, a, ())
+		if u or not only_if_set:
+			setattr(dest, a, u)
+
 _quote_define_name_translation = None
 "lazily construct a translation table for mapping invalid characters to valid ones"
 
