@@ -362,18 +362,6 @@ class task_gen(object):
 		"subclass if necessary"
 		lst = []
 
-		# validation: excludes and exts must be lists.
-		# the purpose: make sure a confused user didn't wrote
-		#  find_sources_in_dirs('a', 'b', 'c')
-		# instead of find_sources_in_dirs('a b c')
-		err_msg = "'%s' attribute must be a list.\n" \
-		"Directories should be given either as a string separated by spaces, or as a list."
-		not_a_list = lambda x: x and type(x) is not types.ListType
-		if not_a_list(excludes):
-			fatal(err_msg % 'excludes')
-		if not_a_list(exts):
-			fatal(err_msg % 'exts')
-		
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
@@ -391,8 +379,8 @@ class task_gen(object):
 			# * don't use paths outside the source tree.
 			if not anode or not anode.is_child_of(Params.g_build.m_srcnode):
 				fatal("Unable to use '%s' - either because it's not a relative path" \
-					 ", or it's not child of '%s'." % (name, Params.g_build.m_srcnode))
-	
+					 ", or it is not a child of '%s'." % (name, Params.g_build.m_srcnode))
+
 			Params.g_build.rescan(anode)
 
 			for name in Params.g_build.cache_dir_contents[anode.id]:
