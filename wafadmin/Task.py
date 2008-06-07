@@ -207,12 +207,11 @@ class TaskGroup(object):
 		for k in in_exts:
 			if k in out_exts:
 				return -1
-		else:
-			in_exts = t2.attr(x, ())
-			out_exts = t1.attr(y, ())
-			for k in in_exts:
-				if k in out_exts:
-					return 1
+		in_exts = t2.attr(x, ())
+		out_exts = t1.attr(y, ())
+		for k in in_exts:
+			if k in out_exts:
+				return 1
 		return 0
 
 	def compare_partial(self, t1, t2):
