@@ -273,7 +273,7 @@ class Configure(object):
 		else: p('YELLOW', 'not found')
 		Runner.print_log(sr, '\n\n')
 
-	def check_message_custom(self, type, msg, custom, option='', color='CYAN'):
+	def check_message_custom(self, type, msg, custom, option='', color='PINK'):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for ' + type + ' ' + msg
 		global g_maxlen
