@@ -2,8 +2,8 @@
 # encoding: utf-8
 
 def build(bld):
-	# to compile in c or cpp mode, uncomment the appropriate line below:
-	#mode = 'cpp'
+	# to compile in c or c++ mode, uncomment the appropriate line below:
+	#mode = 'cxx'
 	mode = 'cc'
 
 	obj = bld.create_obj(mode, 'program')

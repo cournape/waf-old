@@ -13,7 +13,7 @@ lib_in_variant1.target        = 'lib1'
 lib_in_variant1.name          = 'lib1'
 
 
-prog_in_variant1 = bld.create_obj('cpp', 'program')
+prog_in_variant1 = bld.create_obj('cxx', 'program')
 prog_in_variant1.source='''
 src1.c
 '''

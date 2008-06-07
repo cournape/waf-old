@@ -19,7 +19,7 @@
 
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
-obj = bld.create_obj('cpp', 'shlib')
+obj = bld.create_obj('cxx', 'shlib')
 obj.find_sources_in_dirs('. gui')
 obj.includes='.'
 obj.uselib='GLIB'
@@ -85,7 +85,7 @@ genmain.command = 'cat'
 genmain.command_is_external = True
 genmain.argv = [genmain.input_file('main.cpp')]
 
-obj = bld.create_obj('cpp', 'program')
+obj = bld.create_obj('cxx', 'program')
 obj.source = 'main1.cpp'
 obj.target = 'main1'
 

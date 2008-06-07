@@ -94,7 +94,7 @@ def configure(conf):
 	e.run()
 
 	e = conf.create_library_enumerator()
-	e.mandatory = 1
+	e.mandatory = 0
 	e.name = 'png'
 	e.run()
 
