@@ -41,7 +41,6 @@ def print_hello(task):
 # execute arbitrary code in the middle of the build
 obj = bld.create_obj('cmd')
 obj.fun = print_hello
-obj.prio = 1 # execute this task first
 
 # build dir traversal
 bld.add_subdirs('gui gui2')
@@ -80,11 +79,11 @@ out4.dependencies = [out3]
 
 ## --- compile a generated program ---
 genmain = bld.create_obj('command-output')
+genmain.before = 'cxx'
 genmain.stdout = "main1.cpp"
 genmain.command = 'cat'
 genmain.command_is_external = True
 genmain.argv = [genmain.input_file('main.cpp')]
-genmain.prio = 90 # run before compilation
 
 obj = bld.create_obj('cpp', 'program')
 obj.source = 'main1.cpp'

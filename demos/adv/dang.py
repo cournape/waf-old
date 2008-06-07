@@ -10,7 +10,8 @@ TaskGen.declare_chain(
 	name = 'dang',
 	action = '${DANG} ${SRC} > ${TGT}',
 	ext_in = '.coin',
-	ext_out = '.cpp'
+	ext_out = '.cpp',
+	before = 'cpp',
 )
 
 def detect(conf):
