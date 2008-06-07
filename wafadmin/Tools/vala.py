@@ -8,7 +8,7 @@ from TaskGen import extension
 
 from pproc import Popen, PIPE
 
-EXT_VALA = ['.vala']
+EXT_VALA = ['.vala', '.gs']
 
 class valac(Task.Task):
 	def __init__(self, *args, **kwargs):
