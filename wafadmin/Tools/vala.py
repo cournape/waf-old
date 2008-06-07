@@ -11,9 +11,10 @@ from pproc import Popen, PIPE
 EXT_VALA = ['.vala', '.gs']
 
 class valac(Task.Task):
+
+	self.before = ("cc", "cxx")
 	def __init__(self, *args, **kwargs):
 		Task.Task.__init__(self, *args, **kwargs)
-		self.prio = 80
 
 	def get_str(self):
 		"string to display to the user"
