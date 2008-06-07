@@ -33,7 +33,6 @@ def add_subdir(dir, bld):
 	bld.path = new
 	# try to open 'wscript_build' for execution
 	# if unavailable, open the module wscript and call the build function from it
-	from Install import install_files, install_as, symlink_as # do not remove
 	try:
 		file_path = os.path.join(new.abspath(), WSCRIPT_BUILD_FILE)
 		file = open(file_path, 'r')
