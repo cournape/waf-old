@@ -60,7 +60,7 @@ class copy_taskgen(TaskGen.task_gen):
 		self.chmod  = ''
 		self.fun = copy_func
 
-		self.env = Params.g_build.env().copy()
+		self.env = Params.g_build.env.copy()
 
 	def apply(self):
 
