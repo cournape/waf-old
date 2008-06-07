@@ -22,9 +22,6 @@ standard_includes = ['/usr/include']
 if sys.platform == "win32":
 	standard_includes = []
 
-g_findall = 1
-'search harder for project includes'
-
 use_trigraphs = 0
 'apply the trigraph rules first'
 
@@ -401,36 +398,21 @@ class c_parser(object):
 
 	def tryfind(self, filename):
 		self.curfile = filename
-		global g_findall
 		if self.m_nodepaths:
 			found = 0
 			for n in self.m_nodepaths:
 				found = n.find_resource(filename)
 				if found:
 					break
-			# second pass for unreachable folders
-			if not found and g_findall:
-				lst = filename.split('/')
-				if len(lst)>1:
-					lst=lst[:-1] # take the folders only
-					try: cache = Params.g_build.preproc_cache
-					except AttributeError: Params.g_build.preproc_cache = cache = {}
-					key = hash( (str(self.m_nodepaths), str(lst)) )
-					if not cache.get(key, None):
-						cache[key] = 1
-						for n in self.m_nodepaths:
-							node = n.find_resource(filename)
-							if node:
-								found = node
-								break
 			if found:
 				self.m_nodes.append(found)
-				# Qt
-				if filename[-4:] != '.moc': self.addlines(found.abspath(self.env))
-			if not found:
+				if filename[-4:] != '.moc':
+					self.addlines(found.abspath(self.env))
+			else:
 				if not filename in self.m_names:
 					self.m_names.append(filename)
 		else:
+			# this is for the command-line test
 			found = 0
 			for p in self.strpaths:
 				if not p in self.pathcontents.keys():
