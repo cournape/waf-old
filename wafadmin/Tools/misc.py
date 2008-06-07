@@ -306,9 +306,6 @@ class cmd_output_taskgen(TaskGen.task_gen):
 		# the command itself)
 		self.argv = []
 
-		# task priority
-		self.prio = 100
-
 		# dependencies to other objects -> this is probably not what you want (ita)
 		# values must be 'task_gen' instances (not names!)
 		self.dependencies = []
@@ -398,9 +395,10 @@ use command_is_external=True''') % (self.command,)
 		if not outputs:
 			Params.fatal("command-output objects must have at least one output file")
 
-		task = command_output(self.env, self.prio,
-					 cmd, cmd_node, self.argv,
-					 stdin, stdout, cwd, self.os_env)
+		task = command_output(self.env, None, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env)
+		for x in 'before after prio ext_in ext_out'.split():
+			u = getattr(self, x, None)
+			if u: setattr(task, x, u)
 		self.m_tasks.append(task)
 
 		task.set_inputs(inputs)
