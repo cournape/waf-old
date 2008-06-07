@@ -313,7 +313,7 @@ class Configure(object):
 
 		if not destvar: destvar = modname.upper()
 
-		pkgconf.uselib = destvar
+		pkgconf.uselib_store = destvar
 		pkgconf.name = modname
 		pkgconf.version = vnum
 		if pkgpath: pkgconf.pkgpath = pkgpath
