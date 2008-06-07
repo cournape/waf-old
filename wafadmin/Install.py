@@ -88,7 +88,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 	if not var: return []
 
 	bld = Params.g_build
-	if not env: env = bld.env_of_name("default")
+	if not env: env = bld.env
 	destpath = env[var]
 	if not destpath: destpath = var # absolute paths
 
