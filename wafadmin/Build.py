@@ -296,7 +296,6 @@ class Build(object):
 				name = file.split('.')[0]
 
 				self.m_allenvs[name] = env
-		self.env = self.m_allenvs.get('default', None)
 
 		self.init_variants()
 
@@ -543,6 +542,13 @@ class Build(object):
 		except KeyError:
 			error('no such environment: '+name)
 			return None
+
+	def get_env(self):
+		return self.env_of_name('default')
+	def set_env(self, name, val):
+		self.m_allenvs[name] = val
+
+	env = property(get_env, set_env)
 
 	def add_group(self, name=''):
 		TaskGen.flush(all=0)
