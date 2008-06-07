@@ -304,7 +304,7 @@ class cfgtool_configurator(configurator_base):
 			raise ValueError, "no binary given in cfgtool!"
 		if not self.uselib_store:
 			raise ValueError, "no uselib_store given in cfgtool!"
-		if not self.define and self.uselib_store:
+		if not self.define:
 			self.define = self.conf.have_define(self.uselib_store)
 
 		if not self.tests:
