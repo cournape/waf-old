@@ -194,12 +194,8 @@ class TaskGroup(object):
 		x = "prio"
 		p1 = t1.attr(x, None)
 		p2 = t2.attr(x, None)
-
 		if not p1 is None and not p2 is None:
-			if p1 < p2:
-				return 1
-			elif p1 > p2:
-				return -1
+			return cmp(p2, p1)
 		return 0
 
 	def compare_exts(self, t1, t2):
@@ -243,18 +239,14 @@ class TaskGroup(object):
 				t2 = self.cstr_groups[keys[j]][0]
 
 				# add the constraints based on the comparisons
-
-				val = (0
-					or self.compare_prios(t1, t2)
+				val = (self.compare_prios(t1, t2)
 					or self.compare_exts(t1, t2)
 					or self.compare_partial(t1, t2)
 					)
 				if val > 0:
 					self.set_order(keys[i], keys[j])
-					continue
 				elif val < 0:
 					self.set_order(keys[j], keys[i])
-					continue
 
 		#print "the constraint groups are:", self.cstr_groups, "and the constraints ", self.cstr_order
 		# TODO extract constraints by file extensions on the actions
