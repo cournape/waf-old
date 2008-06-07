@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Matthias Jahn jahn dôt matthias ât freenet dôt de 2007 (pmarat)
 
-import os, sys, imp, types
+import os, sys, imp, types, ccroot
 import optparse
 import Utils, Params, checks, Configure
 
