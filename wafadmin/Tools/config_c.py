@@ -208,6 +208,7 @@ class library_enumerator(enumerator_base):
 		self.path = []
 		self.code = 'int main() {return 0;}\n'
 		self.uselib_store = '' # to set the LIB_NAME and LIBPATH_NAME
+		self.uselib = ''
 		self.nosystem = 0 # do not use standard lib paths
 		self.want_message = 1
 
@@ -238,8 +239,8 @@ class library_enumerator(enumerator_base):
 			self.conf.check_message('library '+self.name, '', ret, option=ret)
 
 		if self.uselib_store:
-			self.env['LIB_'+self.uselib_store] += [ self.name ]
-			self.env['LIBPATH_'+self.uselib_store] += [ ret ]
+			self.env.append_value('LIB_' + self.uselib_store, self.name)
+			self.env.append_value('LIBPATH_' + self.uselib_store, ret)
 
 		return ret
 
