@@ -37,7 +37,6 @@ class cmd_taskgen(TaskGen.task_gen):
 	def __init__(self, type='none'):
 		TaskGen.task_gen.__init__(self)
 		self.m_type = type
-		self.prio   = 1
 		self.fun    = None
 		self.inst_var = ''
 		self.inst_dir = ''
@@ -46,7 +45,6 @@ class cmd_taskgen(TaskGen.task_gen):
 		# create a task
 		if not self.fun: fatal('cmdobj needs a function!')
 		tsk = Task.TaskCmd(self.fun, self.env)
-		tsk.prio = self.prio
 		self.m_tasks.append(tsk)
 		tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
 
@@ -124,7 +122,6 @@ class subst_taskgen(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self)
 		self.fun = subst_func
 		self.dict = {}
-		self.prio = 8
 
 		self.inst_var = ''
 		self.inst_dir = ''
@@ -143,7 +140,7 @@ class subst_taskgen(TaskGen.task_gen):
 				self.env = self.env.copy()
 				self.env['DICT_HASH'] = hash(str(self.dict)) # <- pretty sure it wont work (ita)
 
-			tsk = self.create_task('copy', self.env, self.prio)
+			tsk = self.create_task('copy', self.env, None)
 			tsk.set_inputs(node)
 			tsk.set_outputs(newnode)
 			tsk.m_env = self.env

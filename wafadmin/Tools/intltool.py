@@ -78,10 +78,10 @@ class intltool_po_taskgen(TaskGen.task_gen):
 		else:
 			Params.pprint('RED', "Error no LINGUAS file found in po directory")
 
-Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', prio=10)
+Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 Task.simple_task_type('intltool',
 	'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
-	color='BLUE', prio=200)
+	color='BLUE', after="cc_link cxx_link")
 
 def detect(conf):
 
