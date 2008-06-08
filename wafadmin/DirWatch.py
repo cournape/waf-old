@@ -5,8 +5,37 @@
 "DirWatch chooses a supported backend (fam, gamin or fallback) it is mainly a wrapper script without own methods beside this"
 
 from Params import debug
-import GaminAdaptor, FamAdaptor, FallbackAdaptor
-import os
+import select, errno, os, time
+
+module = None
+def check_support():
+	try:
+		import gamin
+	except ImportError:
+		pass
+	else:
+		try:
+			test = gamin.WatchMonitor()
+			test.disconnect()
+			test = None
+		except:
+			pass
+		else:
+			module = gamin
+
+	try:
+		import _fam
+	except ImportError:
+		support = False
+	else:
+		try:
+			test = _fam.open()
+			test.close()
+			test = None
+		except:
+			pass
+		else:
+			module = _fam
 
 class WatchObject:
 	def __init__(self, idxName, namePath, isDir, callBackThis, handleEvents):
@@ -87,17 +116,15 @@ class DirectoryWatcher:
 	def connect(self):
 		if self._adaptor:
 			self.disconnect()
-		if FamAdaptor.support:
-			debug("using FamAdaptor")
-			self._adaptor = FamAdaptor.FamAdaptor(self._processDirEvents)
-			if self._adaptor == None:
-				raise "something is strange"
-		elif GaminAdaptor.support:
-			debug("using GaminAdaptor")
-			self._adaptor = GaminAdaptor.GaminAdaptor(self._processDirEvents)
+		global module
+		if not module:
+			self.check_support()
+		if module.__name__ == "fam":
+			self._adaptor = FamAdaptor(self._processDirEvents)
+		elif module.__name__ == "gamin":
+			self._adaptor = GaminAdaptor(self._processDirEvents)
 		else:
-			debug("using FallbackAdaptor")
-			self._adaptor = FallbackAdaptor.FallbackAdaptor(self._processDirEvents)
+			self._adaptor = FallbackAdaptor(self._processDirEvents)
 
 	def add_watch(self, idxName, callBackThis, dirList, handleEvents = ['changed', 'deleted', 'created']):
 		"""add dirList to watch.
@@ -173,6 +200,243 @@ class DirectoryWatcher:
 class adaptor(object):
 	def __init__(self, event_handler)
 		self.event_handler = event_handler
+		self.watch_handler = {}
+
+	def __del__(self):
+		if self.data:
+			for handle in self.watch_handler.keys():
+				self.stop_watch(handle)
+
+	def event_pending(self):
+		self.check_init()
+		return self.data.event_pending()
+
+	def watch_directory(self, name, idxName):
+		self.check_init()
+		if self.watch_handler.has_key(name):
+			raise "dir already watched"
+		self.watch_handler[name] = self.do_watch_directory(name, idxName)
+		return self.watch_handler[name]
+
+	def watch_file(self, name, idxName):
+		self.check_init()
+		if self.watch_handler.has_key(name):
+			raise "file already watched"
+		self.watch_handler[name] = self.do_watch_file(name, idxName)
+		return self.watch_handler[name]
+
+	def stop_watch(self, name):
+		self.check_init()
+		if self.watch_handler.has_key(name):
+			self.do_stop_watch(name)
+			del self.watch_handler[name]
+		return None
+
+	def handle_events(self):
+		self.check_init()
+		self.data.handle_events()
+
+	def check_init(self):
+		if not self.data:
+			raise OSError, "Adapter not initialized"
+
+## FAM #############################################################
+
+class FamAdaptor(DirWatch.adaptor):
+	def __init__(self, event_handler):
+		DirWatch.adaptor.__init__(self, event_handler)
+		global module
+		self.data = module.open()
+
+	def __del__(self):
+		DirWatch.adaptor.__del__(self)
+		if self.data: self.data.close()
+
+	def do_add_watch_dir(self, name, idx_name):
+		return self.data.monitorDirectory(name, idxName)
+
+	def do_add_watch_file(self, name, idx_name):
+		return self.data.monitorFile(name, idxName)
+
+	def do_stop_watch(self, name):
+		self.watch_handler[name].cancelMonitor()
+
+	def wait_for_event(self):
+		self.check_init()
+		try:
+			select.select([self.data], [], [])
+		except select.error, er:
+			errnumber, strerr = er
+			if errnumber != errno.EINTR:
+				raise strerr
+
+	def handle_events(self):
+		"override the default"
+		self.check_init()
+		fe = self.data.nextEvent()
+		#pathName, event, idxName
+		self._eventHandler(fe.filename, fe.code2str(), fe.userData)
+
+## GAMIN #############################################################
+
+class GaminAdaptor(adaptor):
+	def __init__(self, eventHandler):
+		adaptor.__init__(self, event_handler)
+		global module
+		self.data = module.WatchMonitor()
+
+	def __del__(self):
+		adaptor.__del__(self)
+		if self.data: self.data.disconnect()
+
+	def check_init(self):
+		"""is gamin connected"""
+		if self._gamin == None:
+			raise "gamin not init"
+
+	def _code2str(self, event):
+		"""convert event numbers to string"""
+		gaminCodes = {
+			1:"changed",
+			2:"deleted",
+			3:"StartExecuting",
+			4:"StopExecuting",
+			5:"created",
+			6:"moved",
+			7:"acknowledge",
+			8:"exists",
+			9:"endExist"
+		}
+		try:
+			return gaminCodes[event]
+		except KeyError:
+			return "unknown"
+
+	def _eventhandler_helper(self, pathName, event, idxName):
+		"""local eventhandler helps to convert event numbers to string"""
+		self._eventHandler(pathName, self._code2str(event), idxName)
+
+	def do_add_watch_dir(self, name, idx_name):
+		return self.data.watch_directory(name, self._eventhandler_helper, idxName)
+
+	def do_add_watch_file(self, name, idx_name):
+		return self.data.watch_directory(name, self._eventhandler_helper, idxName)
+
+	def do_stop_watch(self, name):
+		self.data.stop_watch(name)
+
+	def wait_for_event(self):
+		self.check_init()
+		try:
+			select.select([self._gamin.get_fd()], [], [])
+		except select.error, er:
+			errnumber, strerr = er
+			if errnumber != errno.EINTR:
+				raise strerr
+
+## Fallback #############################################################
+
+class Fallback:
+	class Helper:
+		def __init__(self, callBack, userdata):
+			self.currentFiles = {}
+			self.oldFiles = {}
+			self._firstRun = True
+			self.callBack = callBack
+			self.userdata = userdata
+
+		def isFirstRun(self):
+			if self._firstRun:
+				self._firstRun = False
+				return True
+			else:
+				return False
+
+	def __init__(self):
+		self._dirs = {}
+		#event lists for changed and deleted
+		self._changeLog = {}
+
+	def _traversal(self, dirName):
+		"""Traversal function for directories
+Basic principle: all_files is a dictionary mapping paths to
+modification times.  We repeatedly crawl through the directory
+tree rooted at 'path', doing a stat() on each file and comparing
+the modification time.
+"""
+		files = os.listdir(dirName)
+		firstRun = self._dirs[dirName].isFirstRun()
+
+		for filename in files:
+			path = os.path.join(dirName, filename)
+			try:
+				fileStat = os.stat(path)
+			except os.error:
+				# If a file has been deleted since the lsdir
+				# scanning the directory and now, we'll get an
+				# os.error here.  Just ignore it -- we'll report
+				# the deletion on the next pass through the main loop.
+				continue
+			modifyTime = self._dirs[dirName].oldFiles.get(path)
+			if modifyTime is not None:
+				# Record this file as having been seen
+				del self._dirs[dirName].oldFiles[path]
+				# File's mtime has been changed since we last looked at it.
+				if fileStat.st_mtime > modifyTime:
+					self._changeLog[path] = 'changed'
+			else:
+				if firstRun:
+					self._changeLog[path] = 'exists'
+				else:
+					# No recorded modification time, so it must be
+					# a brand new file
+					self._changeLog[path] = 'created'
+			# Record current mtime of file.
+			self._dirs[dirName].currentFiles[path] = fileStat.st_mtime
+
+	def watch_directory(self, namePath, callBack, idxName):
+		self._dirs[namePath] = self.Helper(callBack, idxName)
+		return self
+
+	def unwatch_directory(self, namePath):
+		if self._dirs.get(namePath):
+			del self._dirs[namePath]
+
+	def event_pending(self):
+		for dirName in self._dirs.keys():
+			self._dirs[dirName].oldFiles = self._dirs[dirName].currentFiles.copy()
+			self._dirs[dirName].currentFiles = {}
+			self._traversal(dirName)
+			for deletedFile in self._dirs[dirName].oldFiles.keys():
+				self._changeLog[deletedFile] = 'deleted'
+				del self._dirs[dirName].oldFiles[deletedFile]
+		return len(self._changeLog)
+
+	def handle_events(self):
+		pathName = self._changeLog.keys()[0]
+		event = self._changeLog[pathName]
+		dirName = os.path.dirname(pathName)
+		self._dirs[dirName].callBack(pathName, event, self._dirs[dirName].userdata)
+		del self._changeLog[pathName]
+
+class FallbackAdaptor(DirWatch.adaptor):
+	def __init__(self, eventHandler):
+		DirWatch.adaptor.__init__(self, event_handler)
+		self.data = Fallback()
+
+	def do_add_watch_dir(self, name, idx_name):
+		return self.data.watch_directory(name, self._eventHandler, idxName)
+
+	def do_add_watch_file(self, name, idx_name):
+		return self.data.watch_directory(name, self._eventHandler, idxName)
+
+	def do_stop_watch(self, name):
+		self.data.unwatch_directory(name)
+
+	def wait_for_event(self):
+		self.check_init()
+		time.sleep(1)
+
 
 if __name__ == "__main__":
 	class Test:
