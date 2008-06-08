@@ -165,7 +165,7 @@ class Build(object):
 		debug("clean called", 'build')
 		# FIXME this will not work for files created during the configuration dep_files
 		def clean_rec(node):
-			for x in node.childs:
+			for x in node.childs.keys():
 				nd = node.childs[x]
 
 				tp = nd.id & 3
@@ -177,6 +177,7 @@ class Build(object):
 						if pt in env['waf_config_files']: continue
 						try: os.remove(pt)
 						except OSError: pass
+					node.childs.__delitem__(x)
 		clean_rec(self.m_srcnode)
 
 		for v in 'm_tstamp_variants node_deps bld_sigs raw_deps m_abspath_cache'.split():

@@ -109,7 +109,7 @@ class MTask(Task.Task):
 			tree.node_deps[variant][m_node.id] = (h_node,)
 
 			# create the task
-			task = Task.Task('moc', parn.env, normal=0)
+			task = Task.g_task_types['moc']('moc', parn.env, normal=0)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
@@ -127,7 +127,7 @@ class MTask(Task.Task):
 		for d in lst:
 			name = d.m_name
 			if name.endswith('.moc'):
-				task = Task.Task('moc', parn.env, normal=0)
+				task = Task.g_task_types['moc']('moc', parn.env, normal=0)
 				task.set_inputs(tree.node_deps[variant][d.id][0]) # 1st element in a tuple
 				task.set_outputs(d)
 
@@ -140,6 +140,8 @@ class MTask(Task.Task):
 		# simple scheduler dependency: run the moc task before others
 		self.m_run_after = moctasks
 		self.moc_done = 1
+
+	run = Task.g_task_types['cxx'].__dict__["run"]
 
 def translation_update(task):
 	outs=[a.abspath(task.env) for a in task.m_outputs]
@@ -238,7 +240,7 @@ def apply_qt4(self):
 		lst=[]
 		trans=[]
 		for l in self.to_list(self.lang):
-			t = Task.Task('ts2qm', self.env, 4)
+			t = Task.g_task_types['ts2qm']('ts2qm', self.env, 4)
 			t.set_inputs(self.path.find_resource(l+'.ts'))
 			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
 			lst.append(t.m_outputs[0])
@@ -253,7 +255,7 @@ def apply_qt4(self):
 			u.m_outputs = trans
 
 		if self.langname:
-			t = Task.Task('qm2rcc', self.env, 50)
+			t = Task.g_task_types['qm2rcc']('qm2rcc', self.env, 50)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_build(self.langname+'.qrc'))
 			t.path = self.path
@@ -324,7 +326,7 @@ b = Task.simple_task_type
 b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'], prio=100)
 b('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', prio=60)
 b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', prio=60)
-b('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
+b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', prio=40)
 
 Task.task_type_from_func('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', prio=50)
 
@@ -407,7 +409,7 @@ def detect_qt4(conf):
 	env['UIC3_ST']= '%s -o %s'
 	env['UIC_ST'] = '%s -o %s'
 	env['MOC_ST'] = '-o'
-
+	env['QT_LRELEASE_FLAGS'] = ['-silent']
 
 	# check for the qt libraries
 	if not qtlibs: qtlibs = qtdir + 'lib'
