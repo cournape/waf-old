@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, shutil, cPickle, traceback
+import os, sys, shutil, cPickle, traceback, time
 
 import Params, Utils, Configure, Build, Runner, Options
 from Params import error, fatal, warning, g_lockfile
@@ -295,8 +295,10 @@ def prepare():
 def main():
 	import inspect
 	if Params.g_commands['configure']:
+		ini = time.time()
 		configure()
-		Params.pprint('GREEN', 'Configuration finished successfully; project is now ready to build.')
+		ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
+		Params.pprint('GREEN', 'Configuration finished successfully (%s); project is now ready to build.' % ela)
 		sys.exit(0)
 
 	Runner.set_exec('noredir')
@@ -381,6 +383,7 @@ def main():
 					return 0
 				setattr(Task.Task, 'must_run', must_run)
 
+			ini = time.time()
 			#"""
 			bld.compile()
 			"""
@@ -399,9 +402,10 @@ def main():
 			if Params.g_install:
 				bld.install()
 
-			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully'
-			elif Params.g_commands['uninstall']: msg = 'Uninstallation finished successfully'
-			else: msg = 'Compilation finished successfully'
+			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
+			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully (%s)' % ela
+			elif Params.g_commands['uninstall']: msg = 'Uninstallation finished successfully (%s)' % ela
+			else: msg = 'Compilation finished successfully (%s)' % ela
 			Params.pprint('GREEN', msg)
 
 	# clean
