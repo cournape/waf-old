@@ -65,7 +65,7 @@ class cs_taskgen(TaskGen.task_gen):
 				val = self.env[v+'_'+var]
 				if val: self.env.append_value(v, val)
 
-Task.simple_task_type('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW', prio=101)
+Task.simple_task_type('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 
 def detect(conf):
 	mcs = conf.find_program('mcs', var='MCS')
