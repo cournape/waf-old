@@ -67,7 +67,7 @@ class GaminAdaptor:
 			raise "dir already watched"
 		# set gaminId
 		self.__watchHandler[name] = self.__gamin.watch_directory(name, self.__eventhandler_helper, idxName)
-		return(self.__watchHandler[name])
+		return self.__watchHandler[name]
 
 	def watch_file(self, name, idxName):
 		self.__check_gamin()
@@ -75,7 +75,7 @@ class GaminAdaptor:
 			raise "file already watched"
 		# set famId
 		self.__watchHandler[name] = self.__gamin.watch_directory(name, self.__eventhandler_helper, idxName)
-		return(self.__watchHandler[name])
+		return self.__watchHandler[name]
 
 	def stop_watch(self, name):
 		self.__check_gamin()

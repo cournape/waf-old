@@ -117,7 +117,7 @@ class FallbackAdaptor:
 			raise "dir already watched"
 		# set famId
 		self.__watchHandler[name] = self.__fallback.watch_directory(name, self.__eventHandler, idxName)
-		return(self.__watchHandler[name])
+		return self.__watchHandler[name]
 
 	def watch_file(self, name, idxName):
 		self.__check_fallback()

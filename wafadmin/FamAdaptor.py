@@ -41,7 +41,7 @@ class FamAdaptor:
 			raise "dir already watched"
 		# set famId
 		self.__watchHandler[name] = self.__fam.monitorDirectory(name, idxName)
-		return(self.__watchHandler[name])
+		return self.__watchHandler[name]
 
 	def watch_file(self, name, idxName):
 		self.__check_fam()
@@ -49,7 +49,7 @@ class FamAdaptor:
 			raise "file already watched"
 		# set famId
 		self.__watchHandler[name] = self.__fam.monitorFile(name, idxName)
-		return(self.__watchHandler[name])
+		return self.__watchHandler[name]
 
 	def stop_watch(self, name):
 		self.__check_fam()
