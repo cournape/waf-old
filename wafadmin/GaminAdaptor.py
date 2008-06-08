@@ -17,13 +17,13 @@ else:
 	test = None
 	support = True
 
-class GaminAdaptor:
-	"""gamin helper class for use with DirWatcher"""
+import DirWatch
+
+class GaminAdaptor(DirWatch.adaptor):
 	def __init__(self, eventHandler):
-		""" creates the gamin wrapper
-		@param eventHandler: callback method for event handling"""
+		DirWatch.adaptor.__init__(self, event_handler)
+
 		self._gamin = gamin.WatchMonitor()
-		self._eventHandler = eventHandler # callBack function
 		self._watchHandler = {} # {name : famId}
 
 	def __del__(self):
@@ -34,7 +34,7 @@ class GaminAdaptor:
 			self._gamin.disconnect()
 			self._gamin = None
 
-	def _check_gamin(self):
+	def check_init(self):
 		"""is gamin connected"""
 		if self._gamin == None:
 			raise "gamin not init"
@@ -62,7 +62,7 @@ class GaminAdaptor:
 		self._eventHandler(pathName, self._code2str(event), idxName)
 
 	def watch_directory(self, name, idxName):
-		self._check_gamin()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			raise "dir already watched"
 		# set gaminId
@@ -70,7 +70,7 @@ class GaminAdaptor:
 		return self._watchHandler[name]
 
 	def watch_file(self, name, idxName):
-		self._check_gamin()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			raise "file already watched"
 		# set famId
@@ -78,14 +78,14 @@ class GaminAdaptor:
 		return self._watchHandler[name]
 
 	def stop_watch(self, name):
-		self._check_gamin()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			self._gamin.stop_watch(name)
 			del self._watchHandler[name]
 		return None
 
 	def wait_for_event(self):
-		self._check_gamin()
+		self.check_init()
 		try:
 			select.select([self._gamin.get_fd()], [], [])
 		except select.error, er:
@@ -94,10 +94,10 @@ class GaminAdaptor:
 				raise strerr
 
 	def event_pending(self):
-		self._check_gamin()
+		self.check_init()
 		return self._gamin.event_pending()
 
 	def handle_events(self):
-		self._check_gamin()
+		self.check_init()
 		self._gamin.handle_events()
 

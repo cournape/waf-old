@@ -170,6 +170,10 @@ class DirectoryWatcher:
 		except KeyboardInterrupt:
 			self.request_end_loop()
 
+class adaptor(object):
+	def __init__(self, event_handler)
+		self.event_handler = event_handler
+
 if __name__ == "__main__":
 	class Test:
 		def __init__(self):

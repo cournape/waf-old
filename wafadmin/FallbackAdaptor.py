@@ -9,6 +9,7 @@ it works at least under linux ... windows or other  *nix are untested
 """
 
 import os, time
+import DirWatch
 
 support = True
 
@@ -95,10 +96,11 @@ the modification time.
 		self._dirs[dirName].callBack(pathName, event, self._dirs[dirName].userdata)
 		del self._changeLog[pathName]
 
-class FallbackAdaptor:
+class FallbackAdaptor(DirWatch.adaptor):
 	def __init__(self, eventHandler):
+		DirWatch.adaptor.__init__(self, event_handler)
+
 		self._fallback = Fallback()
-		self._eventHandler = eventHandler # callBack function
 		self._watchHandler = {} # {name : famId}
 
 	def __del__(self):
@@ -107,12 +109,12 @@ class FallbackAdaptor:
 				self.stop_watch(handle)
 			self._fallback = None
 
-	def _check_fallback(self):
+	def check_init(self):
 		if self._fallback == None:
 			raise "fallback not init"
 
 	def watch_directory(self, name, idxName):
-		self._check_fallback()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			raise "dir already watched"
 		# set famId
@@ -120,7 +122,7 @@ class FallbackAdaptor:
 		return self._watchHandler[name]
 
 	def watch_file(self, name, idxName):
-		self._check_fallback()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			raise "file already watched"
 		# set famId
@@ -128,21 +130,21 @@ class FallbackAdaptor:
 		return self._watchHandler[name]
 
 	def stop_watch(self, name):
-		self._check_fallback()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			self._fallback.unwatch_directory(name)
 			del self._watchHandler[name]
 		return None
 
 	def wait_for_event(self):
-		self._check_fallback()
+		self.check_init()
 		time.sleep(1)
 
 	def event_pending(self):
-		self._check_fallback()
+		self.check_init()
 		return self._fallback.event_pending()
 
 	def handle_events(self):
-		self._check_fallback()
+		self.check_init()
 		self._fallback.handle_events()
 

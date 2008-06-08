@@ -4,6 +4,7 @@
 
 """Fam WatchMonitor depends on python-fam ... it works with fam or gamin demon"""
 
+
 import select, errno
 try:
 	import _fam
@@ -16,13 +17,13 @@ else:
 	test = None
 	support = True
 
-class FamAdaptor:
-	"""fam helper class for use with DirWatcher"""
-	def __init__(self, eventHandler):
-		""" creates the fam adaptor class
-		@param eventHandler: callback method for event handling"""
+import DirWatch
+
+class FamAdaptor(DirWatch.adaptor):
+	def __init__(self, event_handler):
+		DirWatch.adaptor.__init__(self, event_handler)
+
 		self._fam = _fam.open()
-		self._eventHandler = eventHandler # callBack function
 		self._watchHandler = {} # {name : famId}
 
 	def __del__(self):
@@ -31,12 +32,12 @@ class FamAdaptor:
 				self.stop_watch(handle)
 			self._fam.close()
 
-	def _check_fam(self):
+	def check_init(self):
 		if self._fam == None:
 			raise "fam not init"
 
 	def watch_directory(self, name, idxName):
-		self._check_fam()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			raise "dir already watched"
 		# set famId
@@ -44,7 +45,7 @@ class FamAdaptor:
 		return self._watchHandler[name]
 
 	def watch_file(self, name, idxName):
-		self._check_fam()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			raise "file already watched"
 		# set famId
@@ -52,14 +53,14 @@ class FamAdaptor:
 		return self._watchHandler[name]
 
 	def stop_watch(self, name):
-		self._check_fam()
+		self.check_init()
 		if self._watchHandler.has_key(name):
 			self._watchHandler[name].cancelMonitor()
 			del self._watchHandler[name]
 		return None
 
 	def wait_for_event(self):
-		self._check_fam()
+		self.check_init()
 		try:
 			select.select([self._fam], [], [])
 		except select.error, er:
@@ -68,11 +69,11 @@ class FamAdaptor:
 				raise strerr
 
 	def event_pending(self):
-		self._check_fam()
+		self.check_init()
 		return self._fam.pending()
 
 	def handle_events(self):
-		self._check_fam()
+		self.check_init()
 		fe = self._fam.nextEvent()
 		#pathName, event, idxName
 		self._eventHandler(fe.filename, fe.code2str(), fe.userData)
