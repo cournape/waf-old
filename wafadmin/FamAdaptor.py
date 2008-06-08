@@ -21,59 +21,59 @@ class FamAdaptor:
 	def __init__(self, eventHandler):
 		""" creates the fam adaptor class
 		@param eventHandler: callback method for event handling"""
-		self.__fam = _fam.open()
-		self.__eventHandler = eventHandler # callBack function
-		self.__watchHandler = {} # {name : famId}
+		self._fam = _fam.open()
+		self._eventHandler = eventHandler # callBack function
+		self._watchHandler = {} # {name : famId}
 
 	def __del__(self):
-		if self.__fam:
-			for handle in self.__watchHandler.keys():
+		if self._fam:
+			for handle in self._watchHandler.keys():
 				self.stop_watch(handle)
-			self.__fam.close()
+			self._fam.close()
 
-	def __check_fam(self):
-		if self.__fam == None:
+	def _check_fam(self):
+		if self._fam == None:
 			raise "fam not init"
 
 	def watch_directory(self, name, idxName):
-		self.__check_fam()
-		if self.__watchHandler.has_key(name):
+		self._check_fam()
+		if self._watchHandler.has_key(name):
 			raise "dir already watched"
 		# set famId
-		self.__watchHandler[name] = self.__fam.monitorDirectory(name, idxName)
-		return self.__watchHandler[name]
+		self._watchHandler[name] = self._fam.monitorDirectory(name, idxName)
+		return self._watchHandler[name]
 
 	def watch_file(self, name, idxName):
-		self.__check_fam()
-		if self.__watchHandler.has_key(name):
+		self._check_fam()
+		if self._watchHandler.has_key(name):
 			raise "file already watched"
 		# set famId
-		self.__watchHandler[name] = self.__fam.monitorFile(name, idxName)
-		return self.__watchHandler[name]
+		self._watchHandler[name] = self._fam.monitorFile(name, idxName)
+		return self._watchHandler[name]
 
 	def stop_watch(self, name):
-		self.__check_fam()
-		if self.__watchHandler.has_key(name):
-			self.__watchHandler[name].cancelMonitor()
-			del self.__watchHandler[name]
+		self._check_fam()
+		if self._watchHandler.has_key(name):
+			self._watchHandler[name].cancelMonitor()
+			del self._watchHandler[name]
 		return None
 
 	def wait_for_event(self):
-		self.__check_fam()
+		self._check_fam()
 		try:
-			select.select([self.__fam], [], [])
+			select.select([self._fam], [], [])
 		except select.error, er:
 			errnumber, strerr = er
 			if errnumber != errno.EINTR:
 				raise strerr
 
 	def event_pending(self):
-		self.__check_fam()
-		return self.__fam.pending()
+		self._check_fam()
+		return self._fam.pending()
 
 	def handle_events(self):
-		self.__check_fam()
-		fe = self.__fam.nextEvent()
+		self._check_fam()
+		fe = self._fam.nextEvent()
 		#pathName, event, idxName
-		self.__eventHandler(fe.filename, fe.code2str(), fe.userData)
+		self._eventHandler(fe.filename, fe.code2str(), fe.userData)
 

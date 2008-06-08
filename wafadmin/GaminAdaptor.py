@@ -22,24 +22,24 @@ class GaminAdaptor:
 	def __init__(self, eventHandler):
 		""" creates the gamin wrapper
 		@param eventHandler: callback method for event handling"""
-		self.__gamin = gamin.WatchMonitor()
-		self.__eventHandler = eventHandler # callBack function
-		self.__watchHandler = {} # {name : famId}
+		self._gamin = gamin.WatchMonitor()
+		self._eventHandler = eventHandler # callBack function
+		self._watchHandler = {} # {name : famId}
 
 	def __del__(self):
 		"""clean remove"""
-		if self.__gamin:
-			for handle in self.__watchHandler.keys():
+		if self._gamin:
+			for handle in self._watchHandler.keys():
 				self.stop_watch(handle)
-			self.__gamin.disconnect()
-			self.__gamin = None
+			self._gamin.disconnect()
+			self._gamin = None
 
-	def __check_gamin(self):
+	def _check_gamin(self):
 		"""is gamin connected"""
-		if self.__gamin == None:
+		if self._gamin == None:
 			raise "gamin not init"
 
-	def __code2str(self, event):
+	def _code2str(self, event):
 		"""convert event numbers to string"""
 		gaminCodes = {
 			1:"changed",
@@ -57,47 +57,47 @@ class GaminAdaptor:
 		except KeyError:
 			return "unknown"
 
-	def __eventhandler_helper(self, pathName, event, idxName):
+	def _eventhandler_helper(self, pathName, event, idxName):
 		"""local eventhandler helps to convert event numbers to string"""
-		self.__eventHandler(pathName, self.__code2str(event), idxName)
+		self._eventHandler(pathName, self._code2str(event), idxName)
 
 	def watch_directory(self, name, idxName):
-		self.__check_gamin()
-		if self.__watchHandler.has_key(name):
+		self._check_gamin()
+		if self._watchHandler.has_key(name):
 			raise "dir already watched"
 		# set gaminId
-		self.__watchHandler[name] = self.__gamin.watch_directory(name, self.__eventhandler_helper, idxName)
-		return self.__watchHandler[name]
+		self._watchHandler[name] = self._gamin.watch_directory(name, self._eventhandler_helper, idxName)
+		return self._watchHandler[name]
 
 	def watch_file(self, name, idxName):
-		self.__check_gamin()
-		if self.__watchHandler.has_key(name):
+		self._check_gamin()
+		if self._watchHandler.has_key(name):
 			raise "file already watched"
 		# set famId
-		self.__watchHandler[name] = self.__gamin.watch_directory(name, self.__eventhandler_helper, idxName)
-		return self.__watchHandler[name]
+		self._watchHandler[name] = self._gamin.watch_directory(name, self._eventhandler_helper, idxName)
+		return self._watchHandler[name]
 
 	def stop_watch(self, name):
-		self.__check_gamin()
-		if self.__watchHandler.has_key(name):
-			self.__gamin.stop_watch(name)
-			del self.__watchHandler[name]
+		self._check_gamin()
+		if self._watchHandler.has_key(name):
+			self._gamin.stop_watch(name)
+			del self._watchHandler[name]
 		return None
 
 	def wait_for_event(self):
-		self.__check_gamin()
+		self._check_gamin()
 		try:
-			select.select([self.__gamin.get_fd()], [], [])
+			select.select([self._gamin.get_fd()], [], [])
 		except select.error, er:
 			errnumber, strerr = er
 			if errnumber != errno.EINTR:
 				raise strerr
 
 	def event_pending(self):
-		self.__check_gamin()
-		return self.__gamin.event_pending()
+		self._check_gamin()
+		return self._gamin.event_pending()
 
 	def handle_events(self):
-		self.__check_gamin()
-		self.__gamin.handle_events()
+		self._check_gamin()
+		self._gamin.handle_events()
 
