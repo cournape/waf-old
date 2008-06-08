@@ -172,9 +172,7 @@ class TaskGroup(object):
 			Params.fatal("unknown algorithm type %s" % (g_algotype))
 
 		if not tasks: return ()
-		#if g_shuffle: random.shuffle(tasks)
-		# benchmarking
-		if g_shuffle: tasks.reverse()
+		if g_shuffle: random.shuffle(tasks)
 		return (maxj, tasks)
 
 	def make_cstr_groups(self):
