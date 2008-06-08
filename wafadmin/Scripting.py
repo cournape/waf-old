@@ -403,6 +403,7 @@ def main():
 			if Params.g_install:
 				bld.install()
 
+			ela = ''
 			if not Params.g_options.progress_bar:
 				ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
 			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
