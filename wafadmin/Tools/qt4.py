@@ -269,7 +269,6 @@ def apply_qt4(self):
 		if flag[0:2] == '-D' or flag[0:2] == '-I':
 			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
-	self.env['QT_LRELEASE_FLAGS'] = ['-silent']
 
 def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	"the .ts files are added to self.lang"
@@ -411,7 +410,7 @@ def detect_qt4(conf):
 	env['UIC3_ST']= '%s -o %s'
 	env['UIC_ST'] = '%s -o %s'
 	env['MOC_ST'] = '-o'
-
+	env['QT_LRELEASE_FLAGS'] = ['-silent']
 
 	# check for the qt libraries
 	if not qtlibs: qtlibs = qtdir + 'lib'
