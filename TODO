@@ -4,7 +4,6 @@ roadmap:
 * flag conversion simplification (_INCFLAGS)
 * attribute processing improvements (foo.ldflags)
 * gnu_dirs tool integration
-* improve the custom compilation rules (pc file creation, etc)
 * split the gnome module
 
 ideas to watch:
