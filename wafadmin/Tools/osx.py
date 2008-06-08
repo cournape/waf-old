@@ -111,6 +111,5 @@ def app_build(task):
 
 	return 0
 
-x = Task.task_type_from_func('macapp', vars=[], func=app_build)
-x.prio = 300
+Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
 
