@@ -39,11 +39,11 @@ import Params, Runner, Scan, Utils
 from Params import debug, error, warning
 from Constants import *
 
-g_algotype = NORMAL
+#g_algotype = NORMAL
 #g_algotype = JOBCONTROL
-#g_algotype = MAXPARALLEL
+g_algotype = MAXPARALLEL
 
-g_shuffle = False
+g_shuffle = True
 
 g_task_types = {}
 
@@ -172,7 +172,9 @@ class TaskGroup(object):
 			Params.fatal("unknown algorithm type %s" % (g_algotype))
 
 		if not tasks: return ()
-		if g_shuffle: random.shuffle(tasks)
+		#if g_shuffle: random.shuffle(tasks)
+		# benchmarking
+		if g_shuffle: tasks.reverse()
 		return (maxj, tasks)
 
 	def make_cstr_groups(self):
