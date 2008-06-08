@@ -409,8 +409,12 @@ class c_parser(object):
 		if self.count_files > 30000: raise PreprocError, "recursion limit exceeded, bailing out"
 		pc = self.parse_cache
 		debug("reading file %r" % filepath, 'preproc')
-		if filepath in pc.keys():
-			self.lines = pc[filepath] + self.lines
+		try:
+			lns = pc[filepath]
+		except KeyError:
+			pass
+		else:
+			self.lines = lns + self.lines
 			return
 
 		try:
@@ -433,7 +437,9 @@ class c_parser(object):
 		self.addlines(node.abspath(env))
 		if env['DEFLINES']:
 			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
+		self.process_lines()
 
+	def process_lines(self):
 		while self.lines:
 			(type, line) = self.lines.pop(0)
 			try:
