@@ -297,8 +297,9 @@ def main():
 	if Params.g_commands['configure']:
 		ini = time.time()
 		configure()
-		ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
-		Params.pprint('GREEN', 'Configuration finished successfully (%s); project is now ready to build.' % ela)
+		ela = ''
+		if not Params.g_options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+		Params.pprint('GREEN', 'Configuration finished successfully%s; project is now ready to build.' % ela)
 		sys.exit(0)
 
 	Runner.set_exec('noredir')
@@ -402,10 +403,11 @@ def main():
 			if Params.g_install:
 				bld.install()
 
-			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
-			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully (%s)' % ela
-			elif Params.g_commands['uninstall']: msg = 'Uninstallation finished successfully (%s)' % ela
-			else: msg = 'Compilation finished successfully (%s)' % ela
+			if not Params.g_options.progress_bar:
+				ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
+			elif Params.g_commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
+			else: msg = 'Compilation finished successfully%s' % ela
 			Params.pprint('GREEN', msg)
 
 	# clean
