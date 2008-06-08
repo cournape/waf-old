@@ -437,9 +437,7 @@ class c_parser(object):
 		self.addlines(node.abspath(env))
 		if env['DEFLINES']:
 			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
-		self.process_lines()
 
-	def process_lines(self):
 		while self.lines:
 			(type, line) = self.lines.pop(0)
 			try:
@@ -448,20 +446,6 @@ class c_parser(object):
 				if Params.g_verbose:
 					warning("line parsing failed (%s): %s" % (str(ex), line))
 					traceback.print_exc()
-
-	# debug only
-	def start_local(self, filename):
-		self.addlines(filename)
-		#print self.lines
-		while self.lines:
-			(type, line) = self.lines.pop(0)
-			try:
-				self.process_line(type, line)
-			except Exception, ex:
-				if Params.g_verbose:
-					warning("line parsing failed (%s): %s" % (str(ex), line))
-					traceback.print_exc()
-				raise
 
 	def process_line(self, token, line):
 		ve = Params.g_verbose
@@ -645,6 +629,20 @@ if __name__ == "__main__":
 				self.deps_paths.append(np)
 				found = 1
 	c_parser.tryfind = tryfind
+
+	def start_local(self, filename):
+		self.addlines(filename)
+		#print self.lines
+		while self.lines:
+			(type, line) = self.lines.pop(0)
+			try:
+				self.process_line(type, line)
+			except Exception, ex:
+				if Params.g_verbose:
+					warning("line parsing failed (%s): %s" % (str(ex), line))
+					traceback.print_exc()
+				raise
+	c_parser.start_local = start_local
 
 	Params.g_verbose = 2
 	Params.g_zones = ['preproc']
