@@ -89,8 +89,8 @@ class java_taskgen(TaskGen.task_gen):
 					dirs = '/'
 					self.env['JAROPTS'] = '-C %s %s' % (self.env['OUTDIR'], dirs)
 
-Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', prio=10)
-Task.simple_task_type('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN', prio=50)
+Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', before="jar_create")
+Task.simple_task_type('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN')
 
 def detect(conf):
 	# If JAVA_PATH is set, we prepend it to the path list
