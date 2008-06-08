@@ -92,35 +92,29 @@ def filter_comments(filename):
 		i += 1
 	return buf
 
-class ocaml_link(Task.Task):
-	"""link tasks in ocaml are special, the command line calculation must be postponed
-	until having the dependencies on the compilation tasks, this means that we must
-	produce the .ml files (lex, ..) to decide the order on which to link the files"""
-	def __init__(self, action_name, env, normal=1):
-		Task.Task.__init__(self, action_name, env, normal)
-	def may_start(self):
-		if not getattr(self, 'order', ''):
+def new_may_start(self):
+	if not getattr(self, 'order', ''):
 
-			# now reorder the m_inputs given the task dependencies
-			if getattr(self, 'bytecode', 0): alltasks = self.obj.bytecode_tasks
-			else: alltasks = self.obj.native_tasks
+		# now reorder the m_inputs given the task dependencies
+		if getattr(self, 'bytecode', 0): alltasks = self.obj.bytecode_tasks
+		else: alltasks = self.obj.native_tasks
 
-			# this part is difficult, we do not have a total order on the tasks
-			# if the dependencies are wrong, this may not stop
-			seen = []
-			pendant = []+alltasks
-			while pendant:
-				task = pendant.pop(0)
-				if task in seen: continue
-				for x in task.get_run_after():
-					if not x in seen:
-						pendant.append(task)
-						break
-				else:
-					seen.append(task)
-			self.m_inputs = [x.m_outputs[0] for x in seen]
-			self.order=1
-		return Task.Task.may_start(self)
+		# this part is difficult, we do not have a total order on the tasks
+		# if the dependencies are wrong, this may not stop
+		seen = []
+		pendant = []+alltasks
+		while pendant:
+			task = pendant.pop(0)
+			if task in seen: continue
+			for x in task.get_run_after():
+				if not x in seen:
+					pendant.append(task)
+					break
+			else:
+				seen.append(task)
+		self.m_inputs = [x.m_outputs[0] for x in seen]
+		self.order=1
+	return Task.Task.may_start(self)
 
 class ocaml_scanner(Scan.scanner):
 	def __init__(self):
@@ -294,13 +288,13 @@ def apply_vars_ml(self):
 def apply_link_ml(self):
 
 	if self.bytecode_env:
-		linktask = ocaml_link('ocalink', self.bytecode_env)
+		linktask = Task.g_task_types['ocalink']('ocalink', self.bytecode_env)
 		linktask.bytecode = 1
 		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=1)))
 		linktask.obj = self
 		self.linktasks.append(linktask)
 	if self.native_env:
-		linktask = ocaml_link('ocalinkopt', self.native_env)
+		linktask = Task.g_task_types['ocalinkopt']('ocalinkopt', self.native_env)
 		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=0)))
 		linktask.obj = self
 		self.linktasks.append(linktask)
@@ -368,12 +362,16 @@ def ml_hook(self, node):
 
 b = Task.simple_task_type
 b('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN', prio=60)
-b('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', prio=99)
-b('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', prio=99)
 b('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE', prio=40)
 b('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN', prio=60)
 b('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', prio=20)
 b('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', prio=20)
+
+act = b('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', prio=99)
+act.may_start = new_may_start
+act = b('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', prio=99)
+act.may_start = new_may_start
+
 
 def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
