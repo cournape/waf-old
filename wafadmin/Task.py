@@ -757,26 +757,7 @@ def f(task):
 def simple_task_type(name, line, color='GREEN', vars=[], prio=None, ext_in=[], ext_out=[], before=[], after=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line)
-	params = {
-		'run': fun,
-		'm_vars': vars or dvars,
-		'm_color': color,
-		'line': line,
-		'm_name': name,
-		'ext_in': Utils.to_list(ext_in),
-		'ext_out': Utils.to_list(ext_out),
-		'before': Utils.to_list(before),
-		'after': Utils.to_list(after),
-	}
-	if prio: params["prio"] = prio
-
-	cls = new.classobj(name, (Task,), params)
-	setattr(cls, 'm_action', cls) # <- compat
-
-	global g_task_types
-	g_task_types[name] = cls
-
-	return cls
+	return task_type_from_func(name, fun, vars or dvars, color, prio, ext_in, ext_out, before, after)
 
 def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, ext_in=[], ext_out=[], before=[], after=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
