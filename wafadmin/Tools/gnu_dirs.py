@@ -35,96 +35,56 @@ import Params, Utils
 APPNAME = Utils.g_module.APPNAME
 VERSION = Utils.g_module.VERSION
 
-_options = (
-	('bindir', 'user executables', '$(EXEC_PREFIX)/bin'),
-	('sbindir', 'system admin executables', '$(EXEC_PREFIX)/sbin'),
-	('libexecdir', 'program executables', '$(EXEC_PREFIX)/libexec'),
-	('sysconfdir', 'read-only single-machine data', '$(PREFIX)/etc'),
-	('sharedstatedir', 'modifiable architecture-independent data', '$(PREFIX)/com'),
-	('localstatedir', 'modifiable single-machine data', '$(PREFIX)/var'),
-	('libdir', 'object code libraries', '$(EXEC_PREFIX)/lib'),
-	('includedir', 'C header files', '$(PREFIX)/include'),
-	('oldincludedir', 'C header files for non-gcc', '/usr/include'),
-	('datarootdir', 'read-only arch.-independent data root', '$(PREFIX)/share'),
-	('datadir', 'read-only architecture-independent data', '$(DATAROOTDIR)'),
-	('infodir', 'info documentation', '$(DATAROOTDIR)/info'),
-	('localedir', 'locale-dependent data', '$(DATAROOTDIR)/locale'),
-	('mandir', 'man documentation', '$(DATAROOTDIR)/man'),
-	('docdir', 'documentation root', '$(DATAROOTDIR)/doc/$(PACKAGE)'),
-	('htmldir', 'html documentation', '$(DOCDIR)'),
-	('dvidir', 'dvi documentation', '$(DOCDIR)'),
-	('pdfdir', 'pdf documentation', '$(DOCDIR)'),
-	('psdir', 'ps documentation', '$(DOCDIR)'),
-)
+_options = [x.split(", ") for x in '''
+bindir, user executables, $(EXEC_PREFIX)/bin
+sbindir, system admin executables, $(EXEC_PREFIX)/sbin
+libexecdir, program executables, $(EXEC_PREFIX)/libexec
+sysconfdir, read-only single-machine data, $(PREFIX)/etc
+sharedstatedir, modifiable architecture-independent data, $(PREFIX)/com
+localstatedir, modifiable single-machine data, $(PREFIX)/var
+libdir, object code libraries, $(EXEC_PREFIX)/lib
+includedir, C header files, $(PREFIX)/include
+oldincludedir, C header files for non-gcc, /usr/include
+datarootdir, read-only arch.-independent data root, $(PREFIX)/share
+datadir, read-only architecture-independent data, $(DATAROOTDIR)
+infodir, info documentation, $(DATAROOTDIR)/info
+localedir, locale-dependent data, $(DATAROOTDIR)/locale
+mandir, man documentation, $(DATAROOTDIR)/man
+docdir, documentation root, $(DATAROOTDIR)/doc/$(PACKAGE)
+htmldir, html documentation, $(DOCDIR)
+dvidir, dvi documentation, $(DOCDIR)
+pdfdi', pdf documentation, $(DOCDIR)
+psdir, ps documentation, $(DOCDIR)
+'''.split('\n') if x]
 
-_varprog = re.compile(r'\$(\w+|\([^)]*\))')
-def _substitute_vars(path, vars):
-	"""Substitute variables in a path"""
-	if '$' not in path:
-		return path, 0
-
-	i = 0
-	unresolved_count = 0
-	while True:
-		m = _varprog.search(path, i)
-		if m:
-			i, j = m.span(0)
-			name = m.group(1)
-			if name[:1] == '(' and name[-1:] == ')':
-				name = name[1:-1]
-			if name in vars:
-				tail = path[j:]
-				path = path[:i] + vars[name]
-				i = len(path)
-				path = path + tail
-			else:
-				i = j
-				unresolved_count += 1
-		else:
-			break
-	return path, unresolved_count
+re_var = re.compile(r'\$\(([a-zA-Z0-9_]+)\)')
+def subst_vars(foo, vars):
+	def repl(m):
+		s = m.group(1)
+		if s: return vars[s]
+		return ''
+	return re_var.sub(repl, foo)
 
 def detect(conf):
 	global _options, APPNAME, VERSION
 
-	def get_param(varname):
-		return getattr(Params.g_options, varname, '')
+	def get_param(varname, default):
+		return getattr(Params.g_options, varname, default)
 
-	conf.env['PREFIX'] = os.path.abspath(conf.env['PREFIX'])
-	prefix = conf.env['PREFIX']
-
-	eprefix = get_param('EXEC_PREFIX')
-	if not eprefix:
-		eprefix = prefix
-	conf.env['EXEC_PREFIX'] = eprefix
-
-	resolved_dirs_dict = {'PREFIX' : prefix, 'EXEC_PREFIX': eprefix,
-		'APPNAME' : APPNAME, 'PACKAGE': APPNAME, 'VERSION' : VERSION}
-	unresolved_dirs_dict = {}
-	for name, help, default in _options:
-		name = name.upper()
-		value = get_param(name)
-		if value:
-			resolved_dirs_dict[name] = value
-		else:
-			unresolved_dirs_dict[name] = default
-
-	# Resolve cross references between the variables, expanding everything
-	while len(unresolved_dirs_dict) > 0:
-		for name in unresolved_dirs_dict.keys():
-			unresolved_path = unresolved_dirs_dict[name]
-			path, count = _substitute_vars(unresolved_path, resolved_dirs_dict)
-			if count == 0:
-				resolved_dirs_dict[name] = path
-				del unresolved_dirs_dict[name]
-			else:
-				unresolved_dirs_dict[name] = path
-
-	del resolved_dirs_dict['APPNAME']
-	del resolved_dirs_dict['PACKAGE']
-	del resolved_dirs_dict['VERSION']
-	for name, value in resolved_dirs_dict.iteritems():
-		conf.env[name] = value
+	conf.env['EXEC_PREFIX'] = get_param('EXEC_PREFIX', conf.env['PREFIX'])
+	complete = False
+	while keep and iter < len(_options) + 1:
+		iter += 1
+		complete = True
+		for name, help, default in _options:
+			name = name.upper()
+			if conf.env[name]: continue
+			try:
+				conf.env[name] = subst_vars(get_param(name, default), conf.env)
+			except:
+				complete = False
+	if keep:
+		fatal("variables are not substituted properly")
 
 def set_options(opt):
 
