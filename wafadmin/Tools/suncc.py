@@ -22,7 +22,7 @@ def find_scc(conf):
 	#TODO: Has anyone a better idea to check if this is a sun cc?
 	ret = os.popen("%s -flags" % cc).close()
 	if ret:
-                v['CC_NAME'] = 'sun'
+		v['CC_NAME'] = 'sun'
 		conf.check_message('suncc', '', not ret)
 		return
 
