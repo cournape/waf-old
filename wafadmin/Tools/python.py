@@ -95,7 +95,7 @@ class py_taskgen(TaskGen.task_gen):
 				program = ("""
 import sys, py_compile
 for pyfile in sys.argv[1:]:
-    py_compile.compile(pyfile, pyfile + 'c')
+	py_compile.compile(pyfile, pyfile + 'c')
 """)
 				argv = [self.env['PYTHON'], "-c", program ]
 				argv.extend(installed_files)
@@ -108,14 +108,13 @@ for pyfile in sys.argv[1:]:
 				program = ("""
 import sys, py_compile
 for pyfile in sys.argv[1:]:
-    py_compile.compile(pyfile, pyfile + 'o')
+	py_compile.compile(pyfile, pyfile + 'o')
 """)
 				argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], "-c", program ]
 				argv.extend(installed_files)
 				retval = subprocess.Popen(argv).wait()
 				if retval:
 					Params.fatal("bytecode compilation failed")
-		
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""
@@ -149,9 +148,9 @@ def check_python_headers(conf):
 	"""Check for headers and libraries necessary to extend or embed python.
 
 	If successful, xxx_PYEXT and xxx_PYEMBED variables are defined in the
-    environment (for uselib).  PYEXT should be used for compiling
-    python extensions, while PYEMBED should be used by programs that
-    need to embed a python interpreter.
+	environment (for uselib). PYEXT should be used for compiling
+	python extensions, while PYEMBED should be used by programs that
+	need to embed a python interpreter.
 
 	Note: this test requires that check_python_version was previously
 	executed and successful."""
@@ -185,7 +184,7 @@ python_LIBPL = %r
 INCLUDEPY = %r
 Py_ENABLE_SHARED = %r
 """ % (python, python_prefix, python_SO, python_SYSLIBS, python_SHLIBS,
-       python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED))
+	python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED))
 
 	env['pyext_PATTERN'] = '%s'+python_SO
 
@@ -241,7 +240,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	## under certain conditions, python extensions must link to
 	## python libraries, not just python embedding programs.
 	if (sys.platform == 'win32' or sys.platform.startswith('os2')
-            or sys.platform == 'darwin' or Py_ENABLE_SHARED):
+		or sys.platform == 'darwin' or Py_ENABLE_SHARED):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 

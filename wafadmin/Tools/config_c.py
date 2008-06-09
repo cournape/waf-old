@@ -355,7 +355,7 @@ class pkgconfig_configurator(configurator_base):
 	- uselib_store: name that could be used in tasks with obj.uselib_store if not set uselib_store = upper(name)
 	- define: name that will be used in config.h if not set define = HAVE_+uselib_store
 	- variables: list of addional variables to be checked for, for example variables='prefix libdir'
-        - static
+	- static
 	"""
 	__metaclass__ = attached_conf
 	def __init__(self, conf):
