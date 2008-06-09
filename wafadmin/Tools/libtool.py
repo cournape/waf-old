@@ -210,12 +210,7 @@ class libtool_config:
 			return 1
 		othervers = [int(s) for s in str(other).split(".")]
 		selfvers = self.__version
-
-		if selfvers > othervers:
-			return 1
-		if selfvers < othervers:
-			return -1
-		return 0
+		return cmp(selfvers, othervers)
 
 	def __str__(self):
 		return "\n".join([
