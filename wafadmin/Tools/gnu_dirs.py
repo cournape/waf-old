@@ -53,7 +53,7 @@ mandir, man documentation, $(DATAROOTDIR)/man
 docdir, documentation root, $(DATAROOTDIR)/doc/$(PACKAGE)
 htmldir, html documentation, $(DOCDIR)
 dvidir, dvi documentation, $(DOCDIR)
-pdfdi', pdf documentation, $(DOCDIR)
+pdfdir, pdf documentation, $(DOCDIR)
 psdir, ps documentation, $(DOCDIR)
 '''.split('\n') if x]
 
@@ -73,17 +73,19 @@ def detect(conf):
 
 	conf.env['EXEC_PREFIX'] = get_param('EXEC_PREFIX', conf.env['PREFIX'])
 	complete = False
-	while keep and iter < len(_options) + 1:
+	iter = 0
+	while not complete and iter < len(_options) + 1:
 		iter += 1
 		complete = True
 		for name, help, default in _options:
+			print name, help, default
 			name = name.upper()
 			if conf.env[name]: continue
 			try:
 				conf.env[name] = subst_vars(get_param(name, default), conf.env)
 			except:
 				complete = False
-	if keep:
+	if not complete:
 		fatal("variables are not substituted properly")
 
 def set_options(opt):
