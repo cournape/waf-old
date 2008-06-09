@@ -91,17 +91,13 @@ def set_exec(mode):
 
 class Serial(object):
 	def __init__(self, bld):
-		self.error = 0
-
 		self.manager = bld.task_manager
-
 		self.outstanding = []
-
-		self.priolst = []
 
 		# progress bar
 		self.total = self.manager.total()
 		self.processed = 0
+		self.error = 0
 
 		self.switchflag = 1 # postpone
 		# self.manager.debug()
@@ -133,8 +129,8 @@ class Serial(object):
 
 	def postpone(self, tsk):
 		self.processed -= 1
-		# shuffle the list - why it does work is left as an exercise for the reader
 		self.switchflag *= -1
+		# this actually shuffle the list
 		if self.switchflag>0: self.outstanding.insert(0, tsk)
 		else:                 self.outstanding.append(tsk)
 
@@ -143,10 +139,6 @@ class Serial(object):
 		debug("debugging a task: something went wrong:", 'runner')
 		s = " ".join([str(t.m_idx) for t in self.manager])
 		debug(s, 'runner')
-
-	# skip a group and report the failure
-	def skip_group(self):
-		self.outstanding = []
 
 	def start(self):
 		global g_quiet
@@ -267,7 +259,6 @@ class Parallel(object):
 
 		# progress bar
 		self.total = self.manager.total()
-		self.processed = 0
 
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
