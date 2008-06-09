@@ -8,7 +8,7 @@ There is one gotcha: getitem returns [] if the contents evals to False
 This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
-import os,types, copy, re
+import os, types, copy, re
 import Params
 from Params import debug, warning
 from Constants import *
@@ -31,7 +31,7 @@ class Environment(object):
 
 		if Params.g_commands['configure']:
 			# set the prefix once and for everybody on creation (configuration)
-			self.m_table['PREFIX'] = Params.g_options.prefix
+			self.m_table['PREFIX'] = os.path.abspath(Params.g_options.prefix)
 
 	def __contains__(self, key):
 		if key in self.m_table: return True
