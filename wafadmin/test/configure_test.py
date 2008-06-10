@@ -22,27 +22,16 @@ import Tools.config_c # to make conf.create_* functions work
 # The following string is a wscript for tests.
 # Note the embedded string that changed by more_config
 wscript_contents = """
+import Params
 blddir = 'build'
 srcdir = '.'
 
 def configure(conf):
-	conf.check_tool('g++')
+	conf.check_tool('%(tool)s')
 	%(more_config)s
 
-def build(bld):
-	obj = bld.create_obj('cpp', 'program')
-	obj.source = 'test.cpp'
-	obj.target = 'test'
-
 def set_options(opt):
-	opt.tool_options('g++')
-"""
-
-cpp_program_code = """
-int main()
-{
-	return 0;
-}
+	opt.tool_options('%(tool)s')
 """
 
 class ConfigureTester(common_test.CommonTester):
@@ -69,25 +58,21 @@ class ConfigureTester(common_test.CommonTester):
 		standard template for functions below - single (write) access point to dictionary. 
 		"""
 		self._test_dic['more_config'] 	= more_config
+		self._test_dic['tool'] 	= self._tool_name
 
-	def _write_wscript(self):
+	def _write_wscript(self, contents = ''):
 		wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
 		try:
 			wscript_file = open( wscript_file_path, 'w' )
-			wscript_file.write( wscript_contents % self._test_dic )
+			if contents:
+				wscript_file.write( contents % self._test_dic )
+			else:
+				wscript_file.write( wscript_contents % self._test_dic )
 		finally:
 			wscript_file.close()
 
-	def _write_source(self):
-		try:
-			source_file = open( self._source_file_path, 'w' )
-			source_file.write( cpp_program_code )
-		finally:
-			source_file.close()
-
 	def _write_files(self):
 		self._write_wscript()
-		self._write_source()
 		
 	def _setup_configure(self):
 		# Configure uses arguments defined by Options
@@ -121,7 +106,7 @@ class ConfigureTester(common_test.CommonTester):
 		config_file = open('build/default/config.h', 'r')
 		config_file_content = config_file.read()
 		self.assert_(config_file_content.find('#include "/usr/include/stdio.h"') > -1 )
-		
+
 	def test_common_include3(self):
 		# white-box test: make sure it finds standard includes
 		conf = self._setup_configure()
@@ -136,10 +121,61 @@ class ConfigureTester(common_test.CommonTester):
 		com_conf.name = 'kukukukukuk.h'
 		self.failIf(com_conf.run(), "directory was returned for non-exist header." )
 
+class CcConfigureTester(ConfigureTester):
+	def __init__(self, methodName):
+		self._tool_name = 'compiler_cc'
+		self._object_type = 'cc'
+		ConfigureTester.__init__(self, methodName)
+
+	def test_valid_flag(self):
+		# black-box test: valid flag
+		self._populate_dictionary("""conf.check_tool('checks')
+	if not conf.check_flags('-Werror'):
+		Params.fatal("invalid flag")
+		""")
+		self._write_files()
+		self._test_configure()
+
+	def test_invalid_flag(self):
+		# black-box test: invalid flag
+		self._populate_dictionary("""conf.check_tool('checks')
+	if not conf.check_flags('KUKU'):
+		Params.fatal("invalid flag")
+		""")
+		self._write_files()
+		self._test_configure(False)
+
+class CxxConfigureTester(ConfigureTester):
+	def __init__(self, methodName):
+		self._tool_name = 'compiler_cxx'
+		self._object_type = 'cxx'
+		ConfigureTester.__init__(self, methodName)
+
+	def test_valid_flag(self):
+		# black-box test: valid flag
+		self._populate_dictionary("""conf.check_tool('checks')
+	if not conf.check_flags('-Werror', kind='cxx'):
+		Params.fatal("invalid flag")
+		""")
+		self._write_files()
+		self._test_configure()
+
+	def test_invalid_flag(self):
+		# black-box test: invalid flag
+		self._populate_dictionary("""conf.check_tool('checks')
+	if not conf.check_flags('KUKU', kind='cxx'):
+		Params.fatal("invalid flag")
+		""")
+		self._write_files()
+		self._test_configure(False)
+
 def run_tests(verbose=2):
-	suite = unittest.TestLoader().loadTestsFromTestCase(ConfigureTester)
+	suite = unittest.TestLoader().loadTestsFromTestCase(CcConfigureTester)
 	# use the next line to run only specific tests: 
-#	suite = unittest.TestLoader().loadTestsFromNames(["test_common_include2"], ConfigureTester)
+#	suite = unittest.TestLoader().loadTestsFromNames(["test_common_include2"], CcConfigureTester)
+	unittest.TextTestRunner(verbosity=verbose).run(suite)
+
+	suite = unittest.TestLoader().loadTestsFromTestCase(CxxConfigureTester)
 	unittest.TextTestRunner(verbosity=verbose).run(suite)
 
 if __name__ == '__main__':
