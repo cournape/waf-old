@@ -49,7 +49,7 @@ def new_may_start(self):
 			else:
 				seen.append(task)
 		self.m_inputs = [x.m_outputs[0] for x in seen]
-		self.order=1
+		self.order = 1
 	return Task.Task.may_start(self)
 
 class ocaml_scanner(Scan.scanner):
@@ -82,11 +82,10 @@ class ocaml_scanner(Scan.scanner):
 		return 1
 
 	def scan(self, task, node):
-		#print "scan is called"
-		code = "".join(filter_comments(node.abspath(task.env())))
+		code = filter_comments(node.read(task.env()))
 
 		global open_re
-		names=[]
+		names = []
 		import_iterator = open_re.finditer(code)
 		if import_iterator:
 			for import_match in import_iterator:
