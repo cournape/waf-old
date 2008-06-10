@@ -467,6 +467,13 @@ class Node(object):
 		if x: return self.bldpath(env)
 		return self.relpath_gen(Params.g_build.m_bldnode)
 
+	def read(self, env):
+		try:
+			file = open(self.abspath(env), 'rb')
+			return file.read()
+		finally:
+			if file: file.close()
+
 # win32 fixes follow
 if sys.platform == "win32":
 	def find_dir_lst_win32(self, lst):
