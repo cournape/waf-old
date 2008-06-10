@@ -27,7 +27,7 @@ from TaskGen import extension
 
 class TaskMaster(Task.Task):
 	def __init__(self, action_name, env, priority=92, normal=1, master=None):
-		Task.Task.__init__(self, action_name, env, prio=priority, normal=normal)
+		Task.Task.__init__(self, env, prio=priority, normal=normal)
 		self.slaves=[]
 		self.m_inputs2=[]
 		self.m_outputs2=[]
@@ -73,7 +73,7 @@ class TaskMaster(Task.Task):
 
 class TaskSlave(Task.Task):
 	def __init__(self, action_name, env, priority=90, normal=1, master=None):
-		Task.Task.__init__(self, action_name, env, priority, normal)
+		Task.Task.__init__(self, env, priority, normal)
 		self.m_master = master
 
 	def get_display(self):

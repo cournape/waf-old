@@ -10,7 +10,7 @@ from pproc import Popen, PIPE
 
 EXT_VALA = ['.vala', '.gs']
 
-class valac(Task.Task):
+class valac_task(Task.Task):
 
 	before = ("cc", "cxx")
 
@@ -88,7 +88,6 @@ class valac(Task.Task):
 			except IOError:
 				pass
 		return result
-Task.g_task_types["valac"] = valac
 
 @extension(EXT_VALA)
 def vala_file(self, node):

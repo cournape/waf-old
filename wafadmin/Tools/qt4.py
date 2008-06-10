@@ -32,8 +32,8 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
-	def __init__(self, action_name, env, parent):
-		Task.Task.__init__(self, None, env)
+	def __init__(self, env, parent):
+		Task.Task.__init__(self, env)
 		self.moc_done = 0
 		self.parent = parent
 
@@ -109,7 +109,7 @@ class MTask(Task.Task):
 			tree.node_deps[variant][m_node.id] = (h_node,)
 
 			# create the task
-			task = Task.g_task_types['moc']('moc', parn.env, normal=0)
+			task = Task.g_task_types['moc'](parn.env, normal=0)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
@@ -127,7 +127,7 @@ class MTask(Task.Task):
 		for d in lst:
 			name = d.m_name
 			if name.endswith('.moc'):
-				task = Task.g_task_types['moc']('moc', parn.env, normal=0)
+				task = Task.g_task_types['moc'](parn.env, normal=0)
 				task.set_inputs(tree.node_deps[variant][d.id][0]) # 1st element in a tuple
 				task.set_outputs(d)
 

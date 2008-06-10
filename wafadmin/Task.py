@@ -328,8 +328,22 @@ class TaskGroup(object):
 		self.done = 1
 		return self.tasks[:] # make a copy
 
+class store_task_type(type):
+	"""we store into task_gen.classes the classes that inherit task_gen
+	and whose names end in 'obj'
+	"""
+	def __init__(cls, name, bases, dict):
+		super(store_task_type, cls).__init__(name, bases, dict)
+		name = cls.__name__
+
+		if name.endswith('_task'):
+			name = name.replace('_task', '')
+			g_task_types[name] = cls
+
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
+
+	__metaclass__ = store_task_type
 
 	m_vars = []
 	m_color = "GREEN"
@@ -393,7 +407,7 @@ class TaskBase(object):
 
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
-	def __init__(self, action_name, env, normal=1, prio=None):
+	def __init__(self, env, normal=1, prio=None):
 		TaskBase.__init__(self, normal=normal)
 
 		# name of the action associated to this task type
@@ -775,7 +789,6 @@ def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, ext_in=[]
 
 	cls = new.classobj(name, (Task,), params)
 	setattr(cls, 'm_action', cls) # <- compat
-
 	global g_task_types
 	g_task_types[name] = cls
 	return cls

@@ -221,7 +221,7 @@ class CmdOutputDirArg(CmdFileArg):
 class command_output(Task.Task):
 	m_color = "BLUE"
 	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd, os_env):
-		Task.Task.__init__(self, 'command-output', env, prio=priority, normal=1)
+		Task.Task.__init__(self, env, prio=priority, normal=1)
 		assert isinstance(command, (str, Node.Node))
 		self.command = command
 		self.command_args = command_args
