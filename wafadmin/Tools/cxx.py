@@ -4,7 +4,6 @@
 
 "Base for c++ programs and libraries"
 
-import sys
 import TaskGen, Params, Task, Utils
 from Params import debug, fatal
 import ccroot # <- do not remove
@@ -69,7 +68,6 @@ def apply_obj_vars_cxx(self):
 
 @taskgen
 def apply_defines_cxx(self):
-	tree = Params.g_build
 	self.defines = getattr(self, 'defines', [])
 	lst = self.to_list(self.defines) + self.to_list(self.env['CXXDEFINES'])
 	milst = []
