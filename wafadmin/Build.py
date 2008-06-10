@@ -272,7 +272,7 @@ class Build(object):
 	def new_task_gen(self, *k, **kw):
 		cls_name = k[0]
 		try: cls = TaskGen.task_gen.classes[cls_name]
-		except KeyError: raise KeyError('%s is not a valid build tool -> %s' % (cls_name, [x for x in TaskGen.task_gen.classes]))
+		except KeyError: raise KeyError('%s is not a valid task generator -> %s' % (cls_name, [x for x in TaskGen.task_gen.classes]))
 		else: return cls(*k, **kw)
 	create_obj = new_task_gen
 
