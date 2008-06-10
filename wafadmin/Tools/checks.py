@@ -220,7 +220,7 @@ def try_build(self, code, uselib='', msg='', force_compiler = ''):
 	return ret
 
 @conf
-def check_flags(self, flags, uselib='', kind='cc', msg=1):
+def check_flags(self, flags, uselib='', kind='cc', show_msg=1):
 	test = self.create_test_configurator()
 	test.uselib = uselib
 	test.code = 'int main() {return 0;}\n'
@@ -228,7 +228,7 @@ def check_flags(self, flags, uselib='', kind='cc', msg=1):
 	test.flags = flags
 	ret = test.run()
 
-	if msg: self.check_message('flags', flags, not (ret is False))
+	if show_msg: self.check_message('flags', flags, not (ret is False))
 
 	if ret: return 1
 	return None
