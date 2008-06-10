@@ -175,6 +175,8 @@ class ocaml_taskgen(TaskGen.task_gen):
 
 		self.features.append('ocaml')
 
+TaskGen.bind_feature('ocaml', 'apply_core')
+
 @taskgen
 @feature('ocaml')
 @before('apply_vars_ml')
