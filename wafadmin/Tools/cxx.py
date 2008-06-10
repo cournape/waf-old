@@ -20,7 +20,7 @@ EXT_CXX = ['.cpp', '.cc', '.cxx', '.C']
 CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_defines_cxx',
 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx']
 
-TaskGen.add_feature('cxx', CXX_METHS)
+TaskGen.bind_feature('cxx', CXX_METHS)
 
 g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cxx_taskgen(ccroot.ccroot_abstract):

@@ -20,7 +20,7 @@ EXT_CC = ['.c']
 CC_METHS = ['init_cc', 'apply_type_vars', 'apply_incpaths', 'apply_defines_cc',
 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc']
 
-TaskGen.add_feature('cc', CC_METHS)
+TaskGen.bind_feature('cc', CC_METHS)
 
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 

@@ -262,7 +262,7 @@ class d_taskgen(TaskGen.task_gen):
 
 		self.vnum = '1.0.0'
 
-TaskGen.add_feature('d', D_METHS)
+TaskGen.bind_feature('d', D_METHS)
 
 @taskgen
 @feature('d')

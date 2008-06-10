@@ -513,7 +513,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 
 	declare_extension(ext_in, x_file)
 
-def add_feature(name, methods):
+def bind_feature(name, methods):
 	lst = Utils.to_list(methods)
 	try:
 		l = task_gen.traits[name]
