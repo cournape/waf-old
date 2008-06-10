@@ -397,7 +397,7 @@ class Task(TaskBase):
 		TaskBase.__init__(self, normal=normal)
 
 		# name of the action associated to this task type
-		if not (prio is None): self.prio = prio
+		self.prio = prio
 
 		# environment in use
 		self.m_env = env
