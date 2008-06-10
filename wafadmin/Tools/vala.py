@@ -18,7 +18,6 @@ class valac(Task.Task):
 		Task.Task.__init__(self, *args, **kwargs)
 
 	def get_str(self):
-		"string to display to the user"
 		src_str = " ".join([a.m_name for a in self.m_inputs])
 		return "%s: %s\n" % (self.__class__.__name__, src_str)
 

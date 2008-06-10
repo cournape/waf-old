@@ -63,9 +63,6 @@ if sys.platform == "win32":
 		return os.listdir(s)
 	listdir = listdir_win32
 
-def to_int(s):
-	lst = s.split(".")
-
 def waf_version(mini = 0x010000, maxi = 0x100000):
 	"throws an exception if the waf version is wrong"
 	ver = HEXVERSION

@@ -16,81 +16,17 @@ EXT_MLC = ['.c']
 EXT_ML  = ['.ml']
 
 open_re = re.compile('open ([a-zA-Z]+);;', re.M)
-
-def filter_comments(filename):
-	f = open(filename, 'r')
-	txt = f.read()
-	f.close()
-	buf = []
-
-	i = 0
-	max = len(txt)
-	while i < max:
-		c = txt[i]
-		# skip a string
-		if c == '"':
-			i += 1
-			c = ''
-			while i < max:
-				p = c
-				c = txt[i]
-				i += 1
-				if i == max: return buf
-				if c == '"':
-					cnt = 0
-					while i < cnt and i < max:
-						#print "cntcnt = ", str(cnt), self.txt[self.i-2-cnt]
-						if txt[i-2-cnt] == '\\': cnt+=1
-						else: break
-					#print "cnt is ", str(cnt)
-					if (cnt%2)==0: break
-		# skip a char - unfortunately caml is a bit special t'
-		elif c == "'":
-			i += 1
-			if i == max: return buf
-			c = txt[i]
-			if c == '\\':
-				i += 1
-				if i == max: return buf
-				c = txt[i]
-				if c == 'x':
-					i += 2 # skip two chars
-			i += 1
-			if i == max: return buf
-			c = txt[i]
-			#if c != '\'': print "uh-oh, invalid character"
-
-		# skip a comment
-		elif c == '(':
-			if i == max: break
-			c = txt[i+1]
-			# eat (* *) comments
-			if c == '*':
-				i += 1
-				nesting = 1
-				prev = 0
-				while i < max:
-					c = txt[i]
-					if c == '*':
-						prev = 1
-					elif c == ')' and prev:
-						if prev:
-							nesting -= 1
-							if nesting == 0: break
-					elif c == '(':
-						prev = 0
-						if i == max: return buf
-						i += 1
-						c = txt[i]
-						if c == '*': nesting += 1
-					else:
-						prev = 0
-					i += 1
-		# a valid char, add it to the buffer
-		else:
-			buf.append(c)
-		i += 1
-	return buf
+foo = re.compile(r"""(\(\*)|(\*\))|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^()*"'\\]*)""", re.M)
+meh = 0
+def filter_comments(txt):
+        def repl(m):
+                global meh
+                if m.group(1): meh += 1
+                elif m.group(2): meh -= 1
+                elif meh == 0:
+                        return m.group(0)
+                return ''
+        return foo.sub(repl, txt)
 
 def new_may_start(self):
 	if not getattr(self, 'order', ''):
