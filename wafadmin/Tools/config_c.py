@@ -1103,7 +1103,7 @@ def run_check(self, obj):
 	bld.rescan(bld.m_srcnode)
 
 	#o = TaskGen.task_gen.classes[tp](obj.build_type)
-	o = bld.create_obj(tp, obj.build_type)
+	o = bld.new_task_gen(tp, obj.build_type)
 	o.source   = test_f_name
 	o.target   = 'testprog'
 	o.uselib   = obj.uselib
