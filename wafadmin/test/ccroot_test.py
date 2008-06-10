@@ -26,7 +26,7 @@ def configure(conf):
 	conf.check_tool('%(tool)s')
 
 def build(bld):
-	obj = bld.create_obj('%(objname)s', '%(build_type)s')
+	obj = bld.new_task_gen('%(objname)s', '%(build_type)s')
 	obj.code = '''%(code)s'''
 	obj.source = 'test.c'
 	obj.target = 'hello'
