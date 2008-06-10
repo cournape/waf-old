@@ -6,7 +6,7 @@
 
 import sys
 import TaskGen, Params, Utils, Task
-from Params import debug
+from Params import debug, fatal
 import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
 
@@ -36,6 +36,9 @@ def init_cc(self):
 
 	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cc_type_vars)
 	else: self.p_type_vars = g_cc_type_vars
+
+	if not self.env['CC_NAME']:
+		fatal("At least one compiler (gcc, ..) must be selected")
 
 @taskgen
 def apply_obj_vars_cc(self):

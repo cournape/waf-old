@@ -40,6 +40,9 @@ def init_cxx(self):
 	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cpp_type_vars)
 	else: self.p_type_vars = g_cpp_type_vars
 
+	if not self.env['CXX_NAME']:
+		fatal("At least one compiler (g++, ..) must be selected")
+
 @taskgen
 def apply_obj_vars_cxx(self):
 	debug('apply_obj_vars_cxx', 'ccroot')

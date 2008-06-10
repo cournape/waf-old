@@ -269,7 +269,7 @@ def apply_link_msvc(self):
 @before('apply_core')
 def init_msvc(self):
 	"all methods (msvc and non-msvc) are to be executed, but we remove the ones we do not want"
-	if self.env['MSVC']:
+	if self.env['CC_NAME'] == 'msvc' or self.env['CXX_NAME'] == 'msvc':
 		self.meths.remove('apply_link')
 	else:
 		for x in ['apply_link_msvc', 'apply_msvc_obj_vars']:
@@ -307,7 +307,6 @@ def detect(conf):
 	# c/c++ compiler - check for whitespace, and if so, add quotes
 	v['CC']         = quote_whitespace(comp)
 	v['CXX'] = v['CC']
-	v['MSVC'] = 1 # this is deprecated. use CXX_NAME/CC_NAME instead
 	v['CXX_NAME'] = 'msvc'
 	v['CC_NAME'] = 'msvc'
 
