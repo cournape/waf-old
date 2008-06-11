@@ -16,7 +16,7 @@ from Params import fatal, debug
 
 def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
-	env = tsk.env()
+	env = tsk.env
 	infile = tsk.m_inputs[0].abspath(env)
 	outfile = tsk.m_outputs[0].abspath(env)
 	try:
@@ -81,7 +81,7 @@ class copy_taskgen(TaskGen.task_gen):
 			tsk.fun = self.fun
 			tsk.chmod = self.chmod
 
-			if not tsk.env():
+			if not tsk.env:
 				tsk.debug()
 				fatal('task witout an environment')
 
@@ -90,7 +90,7 @@ def subst_func(tsk):
 
 	m4_re = re.compile('@(\w+)@', re.M)
 
-	env = tsk.env()
+	env = tsk.env
 	infile = tsk.m_inputs[0].abspath(env)
 	outfile = tsk.m_outputs[0].abspath(env)
 
@@ -149,7 +149,7 @@ class subst_taskgen(TaskGen.task_gen):
 			tsk.dep_vars = ['DICT_HASH']
 			tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
 
-			if not tsk.env():
+			if not tsk.env:
 				tsk.debug()
 				fatal('task without an environment')
 
@@ -239,13 +239,13 @@ class command_output(Task.Task):
 
 		def input_path(node, template):
 			if task.cwd is None:
-				return template % node.bldpath(task.env())
+				return template % node.bldpath(task.env)
 			else:
 				return template % node.abspath()
 		def output_path(node, template):
 			fun = node.abspath
 			if task.cwd is None: fun = node.bldpath
-			return template % fun(task.env())
+			return template % fun(task.env)
 
 		if isinstance(task.command, Node.Node):
 			argv = [input_path(task.command, '%s')]
@@ -257,7 +257,7 @@ class command_output(Task.Task):
 				argv.append(arg)
 			else:
 				assert isinstance(arg, CmdArg)
-				argv.append(arg.get_path(task.env(), (task.cwd is not None)))
+				argv.append(arg.get_path(task.env, (task.cwd is not None)))
 
 		if task.stdin:
 			stdin = file(input_path(task.stdin, '%s'))
