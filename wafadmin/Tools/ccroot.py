@@ -43,8 +43,8 @@ class c_scanner(Scan.scanner):
 	def scan(self, task, node):
 		"look for .h the .cpp need"
 		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = preproc.c_parser(nodepaths = task.env()['INC_PATHS'], defines = task.defines)
-		gruik.start(node, task.env())
+		gruik = preproc.c_parser(nodepaths = task.env['INC_PATHS'], defines = task.defines)
+		gruik.start(node, task.env)
 		if Params.g_verbose:
 			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
 			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
@@ -64,7 +64,7 @@ class c_scanner(Scan.scanner):
 		upd = m.update
 
 		# additional variables to hash (command-line defines for example)
-		env = tsk.env()
+		env = tsk.env
 		for x in self.vars:
 			k = env[x]
 			if k: upd(str(k))
@@ -180,9 +180,9 @@ def install_shlib(task):
 	name2 = libname+'.'+nums[0]
 	name1 = libname
 
-	filename = task.m_outputs[0].abspath(task.env())
+	filename = task.m_outputs[0].abspath(task.env)
 	bld = Params.g_build
-	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env())
+	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env)
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
 

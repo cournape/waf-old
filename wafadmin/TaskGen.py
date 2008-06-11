@@ -479,18 +479,26 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 
 	if type(action) == types.StringType:
 		act = Task.simple_task_type(name, action, color=color)
-		act.ext_in = tuple(Utils.to_list(ext_in))
-		act.ext_out = tuple(Utils.to_list(ext_out))
-		act.before = Utils.to_list(before)
-		act.after = Utils.to_list(after)
 	else:
+		act = Task.task_type_from_func(name, action, color=color)
 		name = action.name
+	decider = None
+	act.ext_in = tuple(Utils.to_list(ext_in))
+	try:
+		act.ext_out = tuple(Utils.to_list(ext_out))
+	except:
+		# ouch, ugly
+		act.decider = ext_out
+		decider = ext_out
+
+	act.before = Utils.to_list(before)
+	act.after = Utils.to_list(after)
 
 	def x_file(self, node):
-		if type(ext_out) == types.StringType:
+		if decider:
+			 ext = decider(self, node)
+		elif type(ext_out) == types.StringType:
 			ext = ext_out
-		else:
-			ext = ext_out(self, node)
 
 		if type(ext) == types.StringType:
 			out_source = node.change_ext(ext)

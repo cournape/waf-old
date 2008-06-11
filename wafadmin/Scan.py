@@ -39,7 +39,7 @@ class scanner(object):
 		"more rarely reimplemented"
 		debug("do_scan(self, node, env, hashparams)", 'ccroot')
 
-		variant = node.variant(tsk.env())
+		variant = node.variant(tsk.env)
 
 		if not node:
 			error("BUG rescanning a null node")
@@ -59,11 +59,11 @@ class scanner(object):
 	def get_signature(self, tsk):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
 		tree = Params.g_build
-		env = tsk.env()
+		env = tsk.env
 
 		# get the task signature from the signature cache
 		node = tsk.m_outputs[0]
-		variant = node.variant(tsk.env())
+		variant = node.variant(tsk.env)
 		tstamps = tree.m_tstamp_variants[variant]
 		prev_sig = None
 
@@ -107,7 +107,7 @@ class scanner(object):
 		m = md5()
 
 		# additional variables to hash (command-line defines for example)
-		env = tsk.env()
+		env = tsk.env
 		for x in self.vars:
 			m.update(str(env[x]))
 

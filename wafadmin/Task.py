@@ -113,22 +113,22 @@ class TaskManager(object):
 		bld = Params.g_build
 		if Params.g_install and hasattr(tsk, 'install'):
 			d = tsk.install
-
+			env = tsk.env
 			if type(d) is types.FunctionType:
 				d(tsk)
 			elif type(d) is types.StringType:
-				if not tsk.env()[d]: return
+				if not env[d]: return
 				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
-				bld.install_files(tsk.env()[d], '', lst, chmod=0644, env=tsk.env())
+				bld.install_files(env[d], '', lst, chmod=0644, env=env)
 			else:
 				if not d['var']: return
 				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
 				if d.get('src', 0): lst += [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_inputs]
 				# TODO ugly hack
 				if d.get('as', ''):
-					bld.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env())
+					bld.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env)
 				else:
-					bld.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=tsk.env())
+					bld.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=env)
 
 class TaskGroup(object):
 	"A TaskGroup maps priorities (integers) to lists of tasks"
@@ -374,7 +374,7 @@ class TaskBase(object):
 
 	def get_str(self):
 		"string to display to the user"
-		env = self.env()
+		env = self.env
 		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
 		tgt_str = ' '.join([a.nice_path(env) for a in self.m_outputs])
 		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
@@ -428,9 +428,13 @@ class Task(TaskBase):
 		#self.dep_vars  = 'PREFIX DATADIR'
 		#self.m_scanner = some_scanner_object
 
-	def env(self):
-		# TODO IDEA in the future, attach the task generator instead of the env
+	def get_env(self):
 		return self.m_env
+	def set_env(self, val):
+		m_env = val
+
+	# TODO IDEA in the future, attach the task generator instead of the env
+	env = property(get_env, set_env)
 
 	def __repr__(self):
 		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
@@ -465,7 +469,7 @@ class Task(TaskBase):
 		try: return self.sign_all
 		except AttributeError: pass
 
-		env = self.env()
+		env = self.env
 		tree = Params.g_build
 
 		m = md5()
@@ -553,7 +557,7 @@ class Task(TaskBase):
 		"see if the task must be run or not"
 		#return 0 # benchmarking
 
-		env = self.env()
+		env = self.env
 		tree = Params.g_build
 
 		# tasks that have no inputs or outputs are run each time
@@ -594,7 +598,7 @@ class Task(TaskBase):
 	def update_stat(self):
 		"called after a successful task run"
 		tree = Params.g_build
-		env = self.env()
+		env = self.env
 		sig = self.signature()
 
 		cnt = 0
@@ -636,7 +640,7 @@ class Task(TaskBase):
 		if not Params.g_cache_global: return None
 		if Params.g_options.nocache: return None
 
-		env = self.env()
+		env = self.env
 		sig = self.signature()
 
 		cnt = 0
@@ -758,7 +762,7 @@ def compile_fun(name, line):
 
 	c = '''
 def f(task):
-	env = task.env()
+	env = task.env
 	p = env.get_flat
 	try: cmd = "%s" %s
 	except Exception: task.debug(); raise
