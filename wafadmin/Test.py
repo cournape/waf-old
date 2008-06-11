@@ -23,7 +23,7 @@ def testname(file, tests_dir='test'):
 def run_tests():
 	# could be run from main waf dir only !
 	import wafadmin.test.build_dir as test_build_dir
-	import wafadmin.test.gpp_test as test_gpp
+	import wafadmin.test.cxx_test as test_cxx
 	import wafadmin.test.gcc_test as test_gcc
 	import wafadmin.test.configure_test as test_configure
 
@@ -37,7 +37,7 @@ def run_tests():
 	info("******** build dir tests ********")
 	test_build_dir.run_tests(verbose)
 	info("******** g++ tests ********")
-	test_gpp.run_tests(verbose)
+	test_cxx.run_tests(verbose)
 	info("******** gcc tests ********")
 	test_gcc.run_tests(verbose)
 

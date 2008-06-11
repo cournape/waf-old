@@ -3,14 +3,14 @@
 # Yinon Ehrlich, 2008
 
 """
-cpp_family_test:
+cxx_family_test:
 a root tester for all c++ compilers tools, like g++, sunc++, msvc.
 """
 
 import os
 from ccroot_test import CcRootTester
 
-class CppFamilyTester(CcRootTester):
+class CxxFamilyTester(CcRootTester):
 	def __init__(self, methodName):
 		self.object_name	= 'cxx'
 		CcRootTester.__init__(self, methodName)
