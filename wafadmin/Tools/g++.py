@@ -110,7 +110,7 @@ def gxx_modifier_aix5(conf):
 	v['SHLIB_MARKER']        = ''
 
 @conftest
-def gxx_modifier_debug(conf, kind='cpp'):
+def gxx_modifier_debug(conf, kind='cxx'):
 	v = conf.env
 	# compiler debug levels
 	if conf.check_flags('-O2 -DNDEBUG', kind=kind):

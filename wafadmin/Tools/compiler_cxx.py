@@ -6,7 +6,7 @@ import os, sys, imp, types, ccroot
 import optparse
 import Utils, Params, checks, Configure
 
-c_compiler = {
+cxx_compiler = {
 'win32':  ['msvc', 'g++'],
 'cygwin': ['g++'],
 'darwin': ['g++'],
@@ -20,9 +20,9 @@ c_compiler = {
 
 def __list_possible_compiler(platform):
 	try:
-		return(c_compiler[platform])
+		return(cxx_compiler[platform])
 	except KeyError:
-		return(c_compiler["default"])
+		return(cxx_compiler["default"])
 
 def detect(conf):
 	try: test_for_compiler = Params.g_options.check_cxx_compiler
