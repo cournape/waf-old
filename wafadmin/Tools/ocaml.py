@@ -63,7 +63,7 @@ class ocaml_scanner(Scan.scanner):
 
 		task.signature() # ensure that files are scanned - unfortunately
 		tree = Params.g_build
-		env = task.env()
+		env = task.env
 		for node in task.m_inputs:
 			lst = tree.node_deps[node.variant(env)][node.id]
 			for depnode in lst:
@@ -80,7 +80,7 @@ class ocaml_scanner(Scan.scanner):
 		return 1
 
 	def scan(self, task, node):
-		code = filter_comments(node.read(task.env()))
+		code = filter_comments(node.read(task.env))
 
 		global open_re
 		names = []

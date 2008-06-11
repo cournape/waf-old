@@ -14,7 +14,7 @@ class tex_scanner(Scan.scanner):
 		Scan.scanner.__init__(self)
 
 	def scan(self, task, node):
-		env = task.env()
+		env = task.env
 
 		nodes = []
 		names = []
@@ -51,7 +51,7 @@ g_tex_scanner = tex_scanner()
 
 g_bibtex_re = re.compile('bibdata', re.M)
 def tex_build(task, command='LATEX'):
-	env = task.env()
+	env = task.env
 
 	if env['PROMPT_LATEX']:
 		Runner.set_exec('noredir')

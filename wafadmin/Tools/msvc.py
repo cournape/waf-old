@@ -20,7 +20,7 @@ def msvc_linker(task):
 	the manifest file, the binaries are unusable.
 	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
 	Problems with this tool: it is always called whether MSVC creates manifests or not."""
-	e = task.env()
+	e = task.env
 	linker = e['LINK']
 	srcf = e['LINK_SRC_F']
 	trgtf = e['LINK_TGT_F']

@@ -23,7 +23,7 @@ class valac_task(Task.Task):
 
 	def run(self):
 		task = self # TODO cleanup
-		env = task.env()
+		env = task.env
 		inputs = [a.srcpath(env) for a in task.m_inputs]
 		valac = env['VALAC']
 		vala_flags = env.get_flat('VALAFLAGS')
@@ -120,7 +120,7 @@ def vala_file(self, node):
 			if not 'GTHREAD' in self.uselib:
 				self.uselib.append('GTHREAD')
 
-	env = valatask.env()
+	env = valatask.env
 
 	output_nodes = []
 	output_nodes.append(node.change_ext('.c'))

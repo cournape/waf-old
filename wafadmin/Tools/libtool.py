@@ -22,7 +22,7 @@ obj.vnum = "1.2.3" # optional, but versioned libraries are common
 fakelibtool_vardeps = ['CXX', 'PREFIX']
 def fakelibtool_build(task):
 	# Writes a .la file, used by libtool
-	env = task.env()
+	env = task.env
 	dest  = open(task.m_outputs[0].abspath(env), 'w')
 	sname = task.m_inputs[0].m_name
 	fu = dest.write

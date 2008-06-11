@@ -80,7 +80,7 @@ app_info = '''
 
 def app_build(task):
 	global app_dirs
-	env = task.env()
+	env = task.env
 
 	i = 0
 	for p in task.m_outputs:

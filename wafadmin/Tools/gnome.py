@@ -113,7 +113,7 @@ class sgml_man_scanner(Scan.scanner):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def scan(self, task, node):
-		env = task.env()
+		env = task.env
 		variant = node.variant(env)
 
 		fi = open(node.abspath(env), 'r')
@@ -129,7 +129,7 @@ class sgml_man_scanner(Scan.scanner):
 	def do_scan(self, task, node):
 		Scan.scanner.do_scan(self, task, node)
 
-		variant = node.variant(task.env())
+		variant = node.variant(task.env)
 		tmp_lst = Params.g_build.raw_deps[variant][node.id]
 		name = tmp_lst[0]
 		task.set_outputs(task.task_generator.path.find_build(name))
@@ -147,7 +147,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 			out = task.m_outputs[0]
 			name = out.m_name
 			ext = name[-1]
-			env = task.env()
+			env = task.env
 			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
 
 		tree = Params.g_build

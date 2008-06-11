@@ -177,7 +177,7 @@ class rcc_scanner(Scan.scanner):
 		parser = make_parser()
 		curHandler = XMLHandler()
 		parser.setContentHandler(curHandler)
-		fi = open(task.m_inputs[0].abspath(task.env()))
+		fi = open(task.m_inputs[0].abspath(task.env))
 		parser.parse(fi)
 		fi.close()
 
@@ -312,7 +312,7 @@ def cxx_hook(self, node):
 	self.compiled_tasks.append(task)
 
 def process_qm2rcc(task):
-	outfile = task.m_outputs[0].abspath(task.env())
+	outfile = task.m_outputs[0].abspath(task.env)
 	f = open(outfile, 'w')
 	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
 	for k in task.m_inputs:
