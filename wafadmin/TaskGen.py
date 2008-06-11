@@ -451,12 +451,10 @@ class task_gen(object):
 	inst_dir = property(get_inst_dir, set_inst_dir)
 
 def declare_extension(var, func):
-	if type(var) is types.ListType:
+	try:
 		for x in var:
 			task_gen.mappings[x] = func
-	elif type(var) is types.StringType:
-		task_gen.mappings[var] = func
-	else:
+	except:
 		raise TypeError('declare extension takes either a list or a string %s' % str(var))
 	task_gen.mapped[func.__name__] = func
 
@@ -471,7 +469,7 @@ def declare_order(*k):
 		except:
 			task_gen.prec[f2] = [f1]
 
-def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color='BLUE', install=0, before=[], after=[]):
+def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color='BLUE', install=0, before=[], after=[], decider=None):
 	"""
 	see Tools/flex.py for an example
 	while i do not like such wrappers, some people really do
@@ -482,21 +480,14 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 	else:
 		act = Task.task_type_from_func(name, action, color=color)
 		name = action.name
-	decider = None
 	act.ext_in = tuple(Utils.to_list(ext_in))
-	try:
-		act.ext_out = tuple(Utils.to_list(ext_out))
-	except:
-		# ouch, ugly
-		act.decider = ext_out
-		decider = ext_out
-
+	act.ext_out = tuple(Utils.to_list(ext_out))
 	act.before = Utils.to_list(before)
 	act.after = Utils.to_list(after)
 
 	def x_file(self, node):
 		if decider:
-			 ext = decider(self, node)
+			ext = decider(self, node)
 		elif type(ext_out) == types.StringType:
 			ext = ext_out
 
@@ -519,7 +510,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 		if Params.g_install and install:
 			tsk.install = install
 
-	declare_extension(ext_in, x_file)
+	declare_extension(act.ext_in, x_file)
 
 def bind_feature(name, methods):
 	lst = Utils.to_list(methods)

@@ -18,7 +18,7 @@ TaskGen.declare_chain(
 	name = 'bison',
 	action = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].m_name}',
 	ext_in = '.y .yc',
-	ext_out = decide_ext,
+	decider = decide_ext,
 	before = 'cc cxx',
 )
 
