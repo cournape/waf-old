@@ -220,12 +220,12 @@ def try_build(self, code, uselib='', msg='', force_compiler = ''):
 	return ret
 
 @conf
-def check_flags(self, flags, uselib='', kind='cc', show_msg=1):
+def check_flags(self, flags, kind='cc', show_msg=1):
 	test = self.create_test_configurator()
-	test.uselib = uselib
 	test.code = 'int main() {return 0;}\n'
 	test.force_compiler = kind
-	test.flags = flags
+	test.env = self.env.copy()
+	test.env['CPPFLAGS'] = flags
 	ret = test.run()
 
 	if show_msg: self.check_message('flags', flags, not (ret is False))
