@@ -5,7 +5,6 @@
 "Main parameters"
 
 import os, sys, types, inspect, base64, time
-from Utils import md5
 import Constants, Utils
 
 # updated from the top-level wscript
@@ -139,7 +138,7 @@ def niceprint(msg, type='', module=''):
 		return
 	print 'TRACE <%s> %s'% (module, msg)
 
-def __get_module():
+def _get_module():
 	try: return inspect.stack()[2][0].f_globals['__name__']
 	except (IndexError, KeyError): return "unknown"
 
@@ -150,22 +149,22 @@ def debug(msg, zone=None):
 			return
 	elif not g_verbose>2:
 		return
-	module = __get_module()
+	module = _get_module()
 
 	msg = time.strftime('%%X %s' % msg)
 	niceprint(msg, 'DEBUG', module)
 
 def warning(msg, zone=0):
-	module = __get_module()
+	module = _get_module()
 	niceprint(msg, 'WARNING', module)
 
 def error(msg):
 	if not Utils.g_error: return
-	module = __get_module()
+	module = _get_module()
 	niceprint(msg, 'ERROR', module)
 
 def fatal(msg, ret=1):
-	module = __get_module()
+	module = _get_module()
 	if g_verbose > 0:
 		pprint('RED', '%s \n (error raised in module %s)' % (msg, module))
 	else:
