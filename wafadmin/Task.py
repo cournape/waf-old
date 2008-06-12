@@ -627,8 +627,7 @@ class Task(TaskBase):
 		# keep the signatures in the first node
 		node = self.m_outputs[0]
 		variant = node.variant(env)
-		time = tree.m_tstamp_variants[variant][node.id]
-		key = hash( (variant, node.m_name, time, getattr(self, 'm_scanner', self).__class__.__name__) )
+		key = hash( (variant, node.m_name, sig, getattr(self, 'm_scanner', self).__class__.__name__) )
 		val = self.cache_sig
 		tree.set_sig_cache(key, val)
 
