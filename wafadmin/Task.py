@@ -346,7 +346,7 @@ class TaskBase(object):
 	__metaclass__ = store_task_type
 
 	m_vars = []
-	m_color = "GREEN"
+	color = "GREEN"
 	maxjobs = sys.maxint
 
 	def __init__(self, normal=1):
@@ -397,9 +397,6 @@ class TaskBase(object):
 	def debug(self):
 		"prints the debug info"
 		pass
-	def color(self):
-		"color to use for the console messages"
-		return 'BLUE'
 	def set_display(self, v):
 		self.m_display = v
 	def get_display(self):
@@ -671,9 +668,6 @@ class Task(TaskBase):
 		self.m_display = self.get_str()
 		return self.m_display
 
-	def color(self):
-		return self.__class__.m_color
-
 	def debug_info(self):
 		ret = []
 		ret.append('-- task details begin --')
@@ -781,7 +775,7 @@ def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, ext_in=[]
 	params = {
 		'run': func,
 		'm_vars': vars,
-		'm_color': color,
+		'color': color,
 		'm_name': name,
 		'ext_in': Utils.to_list(ext_in),
 		'ext_out': Utils.to_list(ext_out),

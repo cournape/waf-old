@@ -182,7 +182,7 @@ class Serial(object):
 			if not g_quiet:
 				(s, t) = self.progress()
 				cl = Params.g_colors
-				printout(progress_line(s, t, cl[tsk.color()], tsk, cl['NORMAL']))
+				printout(progress_line(s, t, cl[tsk.color], tsk, cl['NORMAL']))
 
 			# run the command
 			ret = tsk.run()
@@ -328,7 +328,7 @@ class Parallel(object):
 					self.manager.add_finished(tsk)
 					continue
 				cl = Params.g_colors
-				tsk.set_display(progress_line(self.progress, self.total, cl[tsk.color()], tsk, cl['NORMAL']))
+				tsk.set_display(progress_line(self.progress, self.total, cl[tsk.color], tsk, cl['NORMAL']))
 				self.count += 1
 				self.ready.put(tsk)
 			else:
