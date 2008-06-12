@@ -245,6 +245,9 @@ def hash_fun(fun):
 			hh = inspect.getsource(fun)
 		except IOError:
 			hh = "nocode"
-		fun.code = hh
+		try:
+			fun.code = hh
+		except AttributeError:
+			pass
 		return hh
 

@@ -379,8 +379,7 @@ class TaskBase(object):
 		for x in self.m_outputs:
 			up(x.variant(self.env))
 			up(x.abspath())
-		name = self.__class__.m_name
-		up(name)
+		up(self.__class__.__name__)
 		up(Utils.hash_fun(self.run))
 		return m.digest()
 
