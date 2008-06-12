@@ -304,7 +304,7 @@ class Build(object):
 			for f in env['dep_files']:
 				newnode = self.m_srcnode.find_or_declare(f)
 				try:
-					hash = Params.h_file(newnode.abspath(env))
+					hash = Utils.h_file(newnode.abspath(env))
 				except (IOError, AttributeError):
 					error("cannot find "+f)
 					hash = SIG_NIL
@@ -465,7 +465,7 @@ class Build(object):
 			node = i_parent_node.childs[x]
 			try:
 				# do not call node.abspath here
-				cache[node.id] = Params.h_file(i_path + os.sep + node.m_name)
+				cache[node.id] = Utils.h_file(i_path + os.sep + node.m_name)
 			except IOError:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 

@@ -20,7 +20,6 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, types, imp, cPickle, sys, shlex, warnings
-from Utils import md5
 import Params, Environment, Runner, Build, Utils
 from Params import fatal, warning
 from Constants import *
@@ -198,7 +197,7 @@ class Configure(object):
 
 		ret = mod.configure(self)
 		if Params.g_autoconfig:
-			self.hash = Params.hash_function_with_globals(self.hash, mod.configure)
+			self.hash = Utils.hash_function_with_globals(self.hash, mod.configure)
 			self.files.append(os.path.abspath(cur))
 		self.cwd = current
 		return ret

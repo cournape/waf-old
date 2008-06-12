@@ -190,42 +190,6 @@ def hash_sig(o1, o2):
 	m.update(o2)
 	return m.digest()
 
-def h_file(filename):
-	f = file(filename,'rb')
-	m = md5()
-	readBytes = 100000
-	while (readBytes):
-		readString = f.read(readBytes)
-		m.update(readString)
-		readBytes = len(readString)
-	f.close()
-	return m.digest()
-
-try:
-	from fnv import new
-	def h_file(filename):
-		m = md5()
-		try:
-			m.hfile(filename)
-			x = m.digest()
-			if x is None: raise OSError, "not a file"
-			return x
-		except SystemError:
-			raise OSError, "not a file"+filename
-except ImportError:
-	pass
-
-# Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
-# based on the path, md5 hashing can be used for some files and timestamp for others
-#def h_file(filename):
-#	st = os.stat(filename)
-#	import stat
-#	if stat.S_ISDIR(st): raise IOError, 'not a file'
-#	m = md5()
-#	m.update(st.st_mtime)
-#	m.update(st.st_size)
-#	return m.digest()
-
 def h_string(str):
 	m = md5()
 	m.update(str)
@@ -236,36 +200,4 @@ def h_list(lst):
 	m.update(str(lst))
 	return m.digest()
 
-_hash_blacklist_types = (
-	types.BuiltinFunctionType,
-	types.ModuleType,
-	types.FunctionType,
-	types.ClassType,
-	types.TypeType,
-	types.NoneType,
-	)
-
-def hash_function_with_globals(prevhash, func):
-	"""
-	hash a function (object) and the global vars needed from outside
-	ignore unhashable global variables (lists)
-
-	prevhash -- previous hash value to be combined with this one;
-	if there is no previous value, zero should be used here
-
-	func -- a Python function object.
-	"""
-	assert type(func) is types.FunctionType
-	for name, value in func.func_globals.iteritems():
-		if type(value) in _hash_blacklist_types:
-			continue
-		if isinstance(value, type):
-			continue
-		try:
-			prevhash = hash( (prevhash, name, value) )
-		except TypeError: # raised for unhashable elements
-			pass
-		#else:
-		#	print "hashed: ", name, " => ", value, " => ", hash(value)
-	return hash( (prevhash, inspect.getsource(func)) )
 

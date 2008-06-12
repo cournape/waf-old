@@ -125,7 +125,7 @@ def tex_build(task, command='LATEX'):
 		# watch the contents of file.aux
 		old_hash = hash
 		try:
-			hash = Params.h_file(aux_node.abspath(env))
+			hash = Utils.h_file(aux_node.abspath(env))
 		except KeyError:
 			error('could not read aux.h -> %s' % aux_node.abspath(env))
 			pass

@@ -326,7 +326,7 @@ def main():
 		try:
 			for file in proj['files']:
 				mod = Utils.load_module(file)
-				hash = Params.hash_function_with_globals(hash, mod.configure)
+				hash = Utils.hash_function_with_globals(hash, mod.configure)
 			reconf = (hash != proj['hash'])
 		except Exception, ex:
 			if Params.g_verbose:
