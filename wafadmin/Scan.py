@@ -26,6 +26,10 @@ class scanner(object):
 	# ======================================= #
 	# interface definition
 
+	def version(self):
+		"return a unique version number, change it to force recompilation"
+		return "1"
+
 	# this method returns a tuple containing:
 	# * a list of nodes corresponding to real files
 	# * a list of names for files not found in path_lst

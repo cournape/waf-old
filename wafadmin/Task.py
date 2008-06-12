@@ -381,6 +381,8 @@ class TaskBase(object):
 			up(x.abspath())
 		up(self.__class__.__name__)
 		up(Utils.hash_fun(self.run))
+		try: up(self.m_scanner.version())
+		except AttributeError: pass
 		return m.digest()
 
 	def get_str(self):
@@ -579,7 +581,7 @@ class Task(TaskBase):
 		try:
 			time = tree.m_tstamp_variants[variant][node.id]
 		except KeyError:
-			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
+			debug("task #%d must run as the first node does not exist" % self.m_idx, 'task')
 			try: new_sig = self.signature()
 			except KeyError:
 				print "TODO - computing the signature failed"
@@ -589,7 +591,12 @@ class Task(TaskBase):
 			return not ret
 
 		key = self.unique_id()
-		prev_sig = tree.bld_sigs[key][0]
+		try:
+			prev_sig = tree.bld_sigs[key][0]
+		except KeyError:
+			debug("task #%d must run as it was never run before" % self.m_idx, 'task')
+			return 1
+
 		#print "prev_sig is ", prev_sig
 		new_sig = self.signature()
 
