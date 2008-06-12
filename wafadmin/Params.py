@@ -4,7 +4,7 @@
 
 "Main parameters"
 
-import os, sys, types, inspect, base64, time
+import os, sys, types, inspect, time
 import Constants, Utils
 
 # updated from the top-level wscript
