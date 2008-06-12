@@ -24,11 +24,9 @@ try:
 
 except ImportError:
 	try:
-		import hashlib
-		md5 = hashlib.md5
+		from hashlib import md5
 	except ImportError:
-		import md5
-		md5 = md5.md5
+		from md5 import md5
 
 	def h_file(filename):
 		f = file(filename,'rb')
