@@ -121,7 +121,7 @@ class Node(object):
 
 		path = parent.abspath() + os.sep + name
 		try:
-			st = Params.h_file(path)
+			st = Utils.h_file(path)
 		except IOError:
 			return None
 
