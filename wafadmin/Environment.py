@@ -10,7 +10,7 @@ This means env['foo'] = {}; print env['foo'] will print [] not {}
 
 import os, types, copy, re
 import Params, Utils
-from Params import debug, warning
+from Params import debug
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
@@ -160,7 +160,7 @@ class Environment(object):
 		for m in re_imp.finditer(code):
 			g = m.group
 			tbl[g(2)] = eval(g(3))
-		debug(self.m_table, 'env')
+		debug(str(self.m_table), 'env')
 
 	def get_destdir(self):
 		"return the destdir, useful for installing"
