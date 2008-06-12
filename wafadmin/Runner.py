@@ -28,8 +28,12 @@ def printout(s):
 		sys.stdout.flush()
 	print_log(s, nl='')
 
-def progress_line(state, total, col1, task, col2):
+def progress_line(state, total, col1, task):
 	"do not print anything if there is nothing to display"
+	cl = Params.g_colors
+	col1 = cl[col1]
+	col2 = cl['NORMAL']
+
 	if Params.g_options.progress_bar == 1:
 		return Utils.progress_line(state, total, col1, col2)
 
@@ -181,8 +185,7 @@ class Serial(object):
 			# display the command that we are about to run
 			if not g_quiet:
 				(s, t) = self.progress()
-				cl = Params.g_colors
-				printout(progress_line(s, t, cl[tsk.color], tsk, cl['NORMAL']))
+				printout(progress_line(s, t, tsk.color, tsk))
 
 			# run the command
 			ret = tsk.run()
@@ -327,8 +330,7 @@ class Parallel(object):
 					tsk.m_hasrun = SKIPPED
 					self.manager.add_finished(tsk)
 					continue
-				cl = Params.g_colors
-				tsk.set_display(progress_line(self.progress, self.total, cl[tsk.color], tsk, cl['NORMAL']))
+				tsk.set_display(progress_line(self.progress, self.total, tsk.color, tsk))
 				self.count += 1
 				self.ready.put(tsk)
 			else:
