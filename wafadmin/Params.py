@@ -183,21 +183,4 @@ def view_sig(s):
 	else:
 		return str(s)
 
-def hash_sig(o1, o2):
-	"hash two signatures"
-	m = md5()
-	m.update(o1)
-	m.update(o2)
-	return m.digest()
-
-def h_string(str):
-	m = md5()
-	m.update(str)
-	return m.digest()
-
-def h_list(lst):
-	m = md5()
-	m.update(str(lst))
-	return m.digest()
-
 

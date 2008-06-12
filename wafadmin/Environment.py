@@ -9,7 +9,7 @@ This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
 import os, types, copy, re
-import Params
+import Params, Utils
 from Params import debug, warning
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
@@ -177,7 +177,7 @@ class Environment(object):
 		except KeyError: pass
 
 		lst = [self.get_flat(a) for a in vars_list]
-		ret = Params.h_list(lst)
+		ret = Utils.h_list(lst)
 		if Params.g_zones: debug("%s %s" % (Params.view_sig(ret), str(lst)), 'envhash')
 
 		# next time

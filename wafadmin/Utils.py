@@ -271,6 +271,11 @@ def trimquotes(s):
 	if s[0] == "'" and s[-1] == "'": return s[1:-1]
 	return s
 
+def h_list(lst):
+	m = md5()
+	m.update(str(lst))
+	return m.digest()
+
 def hash_fun(fun):
 	try:
 		return fun.code
