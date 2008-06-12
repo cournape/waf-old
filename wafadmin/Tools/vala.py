@@ -151,7 +151,7 @@ def detect(conf):
 	try:
 		output = Popen([valac, "--version"], stdout=PIPE).communicate()[0]
 		version = output.split(' ', 1)[-1].strip().split(".")
-		version = [int(atom) for atom in version]
+		version = [int(x) for x in version]
 		valac_version = tuple(version)
 	except Exception:
 		valac_version = (0, 0, 0)
