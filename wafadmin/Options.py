@@ -8,7 +8,7 @@
 import os, sys, imp, types, tempfile
 from optparse import OptionParser
 import Params, Utils
-from Params import debug, fatal, warning, error
+from Params import debug, fatal, error
 from Constants import *
 
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
@@ -202,7 +202,6 @@ class Handler(object):
 			fun = module.set_options
 		except AttributeError:
 			pass
-			#warning("tool %s has no function set_options" % tool)
 		else:
 			fun(option_group or self)
 
