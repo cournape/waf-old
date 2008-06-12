@@ -4,7 +4,7 @@
 
 "Utility functions"
 
-import os, sys, imp, types, string, time, errno
+import os, sys, imp, types, string, time, errno, inspect
 from UserDict import UserDict
 import Params
 from Constants import *
@@ -236,4 +236,15 @@ def trimquotes(s):
 	s = s.rstrip()
 	if s[0] == "'" and s[-1] == "'": return s[1:-1]
 	return s
+
+def hash_fun(fun):
+	try:
+		return fun.code
+	except AttributeError:
+		try:
+			hh = inspect.getsource(fun)
+		except IOError:
+			hh = "nocode"
+		fun.code = hh
+		return hh
 

@@ -381,7 +381,7 @@ class TaskBase(object):
 			up(x.abspath())
 		name = self.__class__.m_name
 		up(name)
-		# TODO hash the method 'run'
+		up(Utils.hash_fun(self.run))
 		return m.digest()
 
 	def get_str(self):
@@ -774,6 +774,7 @@ def f(task):
 def simple_task_type(name, line, color='GREEN', vars=[], prio=None, ext_in=[], ext_out=[], before=[], after=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line)
+	fun.code = line
 	return task_type_from_func(name, fun, vars or dvars, color, prio, ext_in, ext_out, before, after)
 
 def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, ext_in=[], ext_out=[], before=[], after=[]):
