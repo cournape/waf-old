@@ -175,12 +175,4 @@ def fatal(msg, ret=1):
 		traceback.print_stack()
 	sys.exit(ret)
 
-def view_sig(s):
-	"used for displaying signatures"
-	if type(s) is types.StringType:
-		n = base64.encodestring(s)
-		return n[:-2]
-	else:
-		return str(s)
-
 

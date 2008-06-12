@@ -178,7 +178,7 @@ class Environment(object):
 
 		lst = [self.get_flat(a) for a in vars_list]
 		ret = Utils.h_list(lst)
-		if Params.g_zones: debug("%s %s" % (Params.view_sig(ret), str(lst)), 'envhash')
+		if Params.g_zones: debug("%s %s" % (ret.encode('hex'), str(lst)), 'envhash')
 
 		# next time
 		g_cache_max[s] = ret

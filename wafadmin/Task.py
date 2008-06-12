@@ -699,7 +699,8 @@ class Task(TaskBase):
 		"explains why a task is run"
 
 		new_sigs = self.cache_sig
-		v = Params.view_sig
+		def v(x):
+			return x.encode('hex')
 
 		debug("Task %s must run: %s" % (self.m_idx, old_sigs[0] != new_sigs[0]), 'task')
 		if (new_sigs[1] != old_sigs[1]):

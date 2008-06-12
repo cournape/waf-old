@@ -512,7 +512,7 @@ class Build(object):
 					for variant in self.m_tstamp_variants:
 						var = self.m_tstamp_variants[variant]
 						if child.id in var:
-							accu += ' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
+							accu += ' [%s,%s] ' % (str(variant), var[child.id].encode('hex'))
 							accu += str(child.id)
 
 					accu+='\n'
@@ -523,7 +523,7 @@ class Build(object):
 					for variant in self.m_tstamp_variants:
 						var = self.m_tstamp_variants[variant]
 						if child.id in var:
-							accu+=' [%s,%s] ' % (str(variant), Params.view_sig(var[child.id]))
+							accu+=' [%s,%s] ' % (str(variant), var[child.id].encode('hex'))
 							accu += str(child.id)
 
 					accu+='\n'
