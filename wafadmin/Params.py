@@ -99,17 +99,6 @@ def pprint(col, str, label=''):
 	except KeyError: mycol=''
 	print "%s%s%s %s" % (mycol, str, g_colors['NORMAL'], label)
 
-g_levels={
-'Action' : 'GREEN',
-'Build'  : 'CYAN',
-'KDE'    : 'REDP',
-'Node'   : 'GREEN',
-'TaskGen': 'GREEN',
-'Runner' : 'REDP',
-'Task'   : 'GREEN',
-'Test'   : 'GREEN',
-}
-
 g_zones = []
 
 def set_trace(a, b, c):
@@ -132,9 +121,6 @@ def niceprint(msg, type='', module=''):
 		return
 	if type=='DEBUG':
 		print_pat('CYAN')
-		return
-	if module in g_levels:
-		print_pat(g_levels[module])
 		return
 	print 'TRACE <%s> %s'% (module, msg)
 
