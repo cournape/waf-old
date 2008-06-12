@@ -372,6 +372,18 @@ class TaskBase(object):
 		sum = hash((sum, self.__class__.maxjobs))
 		return sum
 
+	def unique_id(self):
+		"get a unique id: hash the node paths, the variant, the class, the function"
+		m = md5()
+		up = m.update
+		for x in self.m_outputs:
+			up(x.variant(self.env))
+			up(x.abspath())
+		name = self.__class__.m_name
+		up(name)
+		# TODO hash the method 'run'
+		return m.digest()
+
 	def get_str(self):
 		"string to display to the user"
 		env = self.env
@@ -483,7 +495,7 @@ class Task(TaskBase):
 			# compute the signature from the inputs (no scanner)
 			for x in self.m_inputs:
 				v = tree.m_tstamp_variants[x.variant(env)][x.id]
-				dep_sig = hash( (dep_sig, v) )
+				dep_sig = hash((dep_sig, v))
 				m.update(v)
 
 		# manual dependencies, they can slow down the builds
@@ -495,7 +507,7 @@ class Task(TaskBase):
 				except KeyError:
 					continue
 				if callable(d): d = d() # dependency is a function, call it
-				dep_sig = hash( (dep_sig, d) )
+				dep_sig = hash((dep_sig, d))
 				m.update(d)
 		except AttributeError:
 			pass
@@ -519,7 +531,7 @@ class Task(TaskBase):
 		for x in dep_nodes:
 			variant = x.variant(env)
 			v = tree.m_tstamp_variants[variant][x.id]
-			node_sig = hash( (node_sig, v) )
+			node_sig = hash((node_sig, v))
 			m.update(v)
 
 		# we now have the array of signatures
@@ -577,7 +589,7 @@ class Task(TaskBase):
 			ret = self.can_retrieve_cache(new_sig)
 			return not ret
 
-		key = hash( (variant, node.m_name, time, getattr(self, 'm_scanner', self).__class__.__name__) )
+		key = self.unique_id()
 		prev_sig = tree.bld_sigs[key][0]
 		#print "prev_sig is ", prev_sig
 		new_sig = self.signature()
@@ -618,16 +630,10 @@ class Task(TaskBase):
 				ssig = sig.encode('hex')
 				dest = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
 				try: shutil.copy2(node.abspath(env), dest)
-				except IOError: warning('could not write the file to the cache')
+				except IOError: warning('Could not write the file to the cache')
 				cnt += 1
 
-		# keep the signatures in the first node
-		node = self.m_outputs[0]
-		variant = node.variant(env)
-		key = hash( (variant, node.m_name, sig, getattr(self, 'm_scanner', self).__class__.__name__) )
-		val = self.cache_sig
-		tree.set_sig_cache(key, val)
-
+		tree.set_sig_cache(self.unique_id(), self.cache_sig)
 		self.m_executed=1
 
 	def can_retrieve_cache(self, sig):
