@@ -73,7 +73,7 @@ class scanner(object):
 
 		time = tstamps.get(node.id, None)
 		if not time is None:
-			key = hash( (variant, node.m_name, time, self.__class__.__name__) )
+			key = tsk.unique_id()
 			# a tuple contains the task signatures from previous runs
 			tup = tree.bld_sigs.get(key, ())
 			if tup:
