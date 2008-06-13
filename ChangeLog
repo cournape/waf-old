@@ -4,6 +4,8 @@ NEW IN WAF 1.5.0
 * bld.create_obj -> bld.new_task_gen
 * bld.create_obj('cpp', 'program') -> bld.new_task_gen('cxx', 'program')
 * bld.env() -> bld.env
+* conf.test.uselib -> conf.test.uselib_store, "uselib" now has the same
+meaning in configuration and build)
 
 NEW IN WAF 1.4.3
 ----------------
