@@ -114,7 +114,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		backup = test_obj.env['CPPPATH']
 		test_obj.env['CPPPATH'] = [dir]
 		test_obj.execute = 1
-		test_obj.force_compiler = 'cpp'
+		test_obj.force_compiler = 'cxx'
 		ret = self.conf.run_check(test_obj)
 		test_obj.env['CPPPATH'] = backup
 		if ret:
