@@ -40,19 +40,6 @@ class BuildError(Exception):
 				lst.append(" -> missing files: %s" % str(tsk.m_outputs))
 		return '\n'.join(lst)
 
-class BuildDTO(object):
-	"holds the data to store using cPickle"
-	def __init__(self):
-		pass
-	def init(self, bdobj):
-		global SAVED_ATTRS
-		for a in SAVED_ATTRS:
-			setattr(self, a, getattr(bdobj, a))
-	def update_build(self, bdobj):
-		global SAVED_ATTRS
-		for a in SAVED_ATTRS:
-			setattr(bdobj, a, getattr(self, a))
-
 class Build(object):
 	"holds the dependency tree"
 	def __init__(self):
@@ -141,19 +128,19 @@ class Build(object):
 
 		try:
 			file = open(os.path.join(self.m_bdir, DBFILE), 'rb')
-			dto = cPickle.load(file)
-			dto.update_build(self)
+			data = cPickle.load(file)
+			for x in SAVED_ATTRS: setattr(self, x, data[x])
 			file.close()
 		except IOError:
-			debug("resetting the build object (dto failed)", 'build')
+			debug("Build cache loading failed (cleaning)", 'build')
 			self._init_data()
 
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
 		file = open(os.path.join(self.m_bdir, DBFILE), 'wb')
-		dto = BuildDTO()
-		dto.init(self)
-		cPickle.dump(dto, file, -1) # remove the '-1' for unoptimized version
+		data = {}
+		for x in SAVED_ATTRS: data[x] = getattr(self, x)
+		cPickle.dump(data, file, -1) # remove the '-1' for unoptimized version
 		file.close()
 
 	# ======================================= #
