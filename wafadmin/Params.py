@@ -4,7 +4,7 @@
 
 "Main parameters"
 
-import os, sys, types, inspect, time
+import os, sys, types, inspect, time, logging
 import Constants, Utils
 
 # updated from the top-level wscript
@@ -64,7 +64,7 @@ except KeyError: g_lockfile = '.lock-wscript'
 #g_col_names = ['BOLD', 'RED', 'REDP', 'GREEN', 'YELLOW', 'BLUE', 'CYAN', 'NORMAL']
 #"color names"
 
-g_col_scheme = [1, 91, 33, 92, 93, 94, 96, 0]
+#g_col_scheme = [1, 91, 33, 92, 93, 94, 96, 0]
 
 g_colors = {
 'BOLD'  :'\033[01;1m',
@@ -101,13 +101,7 @@ def pprint(col, str, label=''):
 
 g_zones = []
 
-def set_trace(a, b, c):
-	Utils.g_trace=a
-	Utils.g_debug=b
-	Utils.g_error=c
 
-def get_trace():
-	return (Utils.g_trace, Utils.g_debug, Utils.g_error)
 
 def niceprint(msg, type='', module=''):
 	#if not module:
@@ -124,30 +118,18 @@ def niceprint(msg, type='', module=''):
 		return
 	print 'TRACE <%s> %s'% (module, msg)
 
+def debug(msg, zone=None):
+	logging.debug(msg)
+
+def warning(msg, zone=None):
+	logging.warn(msg)
+
+def error(msg):
+	logging.error(msg)
+
 def _get_module():
 	try: return inspect.stack()[2][0].f_globals['__name__']
 	except (IndexError, KeyError): return "unknown"
-
-def debug(msg, zone=None):
-	global g_zones, g_verbose
-	if g_zones:
-		if (not zone in g_zones) and (not '*' in g_zones):
-			return
-	elif not g_verbose>2:
-		return
-	module = _get_module()
-
-	msg = time.strftime('%%X %s' % msg)
-	niceprint(msg, 'DEBUG', module)
-
-def warning(msg, zone=0):
-	module = _get_module()
-	niceprint(msg, 'WARNING', module)
-
-def error(msg):
-	if not Utils.g_error: return
-	module = _get_module()
-	niceprint(msg, 'ERROR', module)
 
 def fatal(msg, ret=1):
 	module = _get_module()
@@ -159,5 +141,4 @@ def fatal(msg, ret=1):
 		import traceback
 		traceback.print_stack()
 	sys.exit(ret)
-
 

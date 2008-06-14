@@ -485,7 +485,7 @@ class Build(object):
 				cache.__delitem__(nid)
 
 	def dump(self):
-		"for debugging"
+		return "for debugging"
 		def recu(node, count):
 			accu = count * '-'
 			accu += "> %s (d) %d \n" % (node.m_name, node.id)

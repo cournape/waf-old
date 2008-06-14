@@ -4,7 +4,7 @@
 
 "Utility functions"
 
-import os, sys, imp, types, string, time, errno, inspect
+import os, sys, imp, types, string, time, errno, inspect, logging
 from UserDict import UserDict
 import Params
 from Constants import *
@@ -38,6 +38,44 @@ except ImportError:
 			readBytes = len(readString)
 		f.close()
 		return m.digest()
+
+class log_format(logging.Formatter):
+	def __init__(self):
+		logging.Formatter.__init__(self)
+		#'%(asctime)s %(levelname)s %(module)s %(message)s'
+		#self.datefmt = '%H:%M:%S'
+	def format(self, rec):
+		return "%s%s%s" % (Params.g_colors['PINK'], logging.Formatter.format(self, rec), Params.g_colors['NORMAL'])
+		#return "-----------------------  hey"
+		"""
+        record.message = record.getMessage()
+        if string.find(self._fmt,"%(asctime)") >= 0:
+            record.asctime = self.formatTime(record, self.datefmt)
+        s = self._fmt % record.__dict__
+        if record.exc_info:
+            # Cache the traceback text to avoid converting it multiple times
+            # (it's constant anyway)
+            if not record.exc_text:
+                record.exc_text = self.formatException(record.exc_info)
+        if record.exc_text:
+            if s[-1] != "\n":
+                s = s + "\n"
+            s = s + record.exc_text
+        return s"""
+
+class log_filter(logging.Filter):
+	def __init__(self, name=None):
+		pass
+	def filter(self, rec):
+		#print "zone", getattr(rec, "zone", "")
+		return True
+		g_zones = Params.g_zones
+		if g_zones:
+			if (not zone in g_zones) and (not '*' in g_zones):
+				return False
+		elif not Params.g_verbose>2:
+			return False
+		return True
 
 # Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
 # based on the path, md5 hashing can be used for some files and timestamp for others

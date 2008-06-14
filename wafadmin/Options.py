@@ -140,11 +140,23 @@ def parse_args_impl(parser, _args=None):
 	if opts.keep: opts.jobs = 1
 
 	Params.g_verbose = opts.verbose
+
+	import logging
+	log = logging.getLogger()
+	log.handlers = []
+	hdlr = logging.StreamHandler()
+	hdlr.setFormatter(Utils.log_format())
+	log.addHandler(hdlr)
+	log.addFilter(Utils.log_filter())
+
+	if Params.g_verbose < 1:
+		log.setLevel(logging.WARNING)
+	else:
+		log.setLevel(logging.DEBUG)
+
 	if opts.zones:
 		Params.g_zones = opts.zones.split(',')
 		if not Params.g_verbose: Params.g_verbose = 1
-	if Params.g_verbose > 1: Params.set_trace(1,1,1)
-	else: Params.set_trace(0,0,1)
 
 class Handler(object):
 	"loads wscript modules in folders for adding options"
