@@ -8,7 +8,7 @@
 import os, sys, imp, types, tempfile
 from optparse import OptionParser
 import Params, Utils
-from Params import debug, fatal, error
+from logging import debug, fatal
 from Constants import *
 
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure

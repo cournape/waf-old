@@ -7,6 +7,7 @@
 
 import os, sys
 import TaskGen, Utils, Params, Utils, Runner
+from logging import debug
 from TaskGen import extension, taskgen, before, after, feature
 import pproc as subprocess
 
@@ -304,7 +305,7 @@ def check_python_version(conf, minver=None):
 
 	# Get python version string
 	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print str(x)"]
-	Params.debug("Running python command %r" % cmd, 'python')
+	debug("Running python command %r" % cmd, 'python')
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 	lines = proc.communicate()[0].split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)

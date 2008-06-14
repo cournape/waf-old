@@ -36,7 +36,7 @@ Task.g_shuffle = True
 import os, types, shutil, sys, re, new, random
 from Utils import md5
 import Params, Runner, Scan, Utils
-from Params import debug, error, warning
+from logging import debug, error, warn
 from Constants import *
 
 #g_algotype = NORMAL
@@ -86,7 +86,7 @@ class TaskManager(object):
 			self.groups = [TaskGroup(name)]
 			return
 		if not self.groups[0].tasks:
-			warning('add_group: an empty group is already present')
+			warn('add_group: an empty group is already present')
 			return
 		self.groups = self.groups + [TaskGroup(name)]
 	def add_task(self, task):
@@ -636,7 +636,7 @@ class Task(TaskBase):
 				ssig = sig.encode('hex')
 				dest = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
 				try: shutil.copy2(node.abspath(env), dest)
-				except IOError: warning('Could not write the file to the cache')
+				except IOError: warn('Could not write the file to the cache')
 				cnt += 1
 
 		tree.set_sig_cache(self.unique_id(), self.cache_sig)

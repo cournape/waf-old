@@ -10,7 +10,7 @@ to attach the functions as methods on the Configure class (the conf object)
 
 import Utils, Configure, config_c
 from Configure import conf
-from Params import error, fatal
+from logging import error, fatal
 
 endian_str = '''
 #include <stdio.h>

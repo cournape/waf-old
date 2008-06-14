@@ -6,7 +6,7 @@
 
 import sys
 import TaskGen, Params, Utils, Task
-from Params import debug, fatal
+from logging import debug, fatal
 import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
 

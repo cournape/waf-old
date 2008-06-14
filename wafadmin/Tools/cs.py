@@ -5,7 +5,7 @@
 "C# support"
 
 import Params, TaskGen, Utils, Task
-from Params import error
+from logging import error
 
 g_types_lst = ['program', 'library']
 class cs_taskgen(TaskGen.task_gen):

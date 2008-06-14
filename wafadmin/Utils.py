@@ -41,41 +41,40 @@ except ImportError:
 
 class log_format(logging.Formatter):
 	def __init__(self):
-		logging.Formatter.__init__(self)
-		#'%(asctime)s %(levelname)s %(module)s %(message)s'
-		#self.datefmt = '%H:%M:%S'
+		logging.Formatter.__init__(self, "%(asctime)s %%(c1)s%(zone)s%%(c2)s %(message)s", "%H:%M:%S")
 	def format(self, rec):
-		return "%s%s%s" % (Params.g_colors['PINK'], logging.Formatter.format(self, rec), Params.g_colors['NORMAL'])
-		#return "-----------------------  hey"
-		"""
-        record.message = record.getMessage()
-        if string.find(self._fmt,"%(asctime)") >= 0:
-            record.asctime = self.formatTime(record, self.datefmt)
-        s = self._fmt % record.__dict__
-        if record.exc_info:
-            # Cache the traceback text to avoid converting it multiple times
-            # (it's constant anyway)
-            if not record.exc_text:
-                record.exc_text = self.formatException(record.exc_info)
-        if record.exc_text:
-            if s[-1] != "\n":
-                s = s + "\n"
-            s = s + record.exc_text
-        return s"""
+		ret = logging.Formatter.format(self, rec)
+		col = Params.g_colors
+		try:
+			return ret % {'c1':col[rec.color], 'c2':col['NORMAL']}
+		except TypeError:
+			return ret.replace("%(c1)s", "").replace("%(c2)s", "")
 
 class log_filter(logging.Filter):
 	def __init__(self, name=None):
 		pass
 	def filter(self, rec):
-		#print "zone", getattr(rec, "zone", "")
-		return True
+		rec.color = 'PINK'
+		if rec.levelname == "ERROR":
+			rec.color = 'RED'
+			return True
 		g_zones = Params.g_zones
 		if g_zones:
-			if (not zone in g_zones) and (not '*' in g_zones):
+			if (not getattr(rec, "zone", "") in g_zones) and (not '*' in g_zones):
 				return False
 		elif not Params.g_verbose>2:
 			return False
 		return True
+
+old = logging.debug
+def debug(msg, zone=''):
+	old(msg, extra={'zone':zone})
+logging.debug = debug
+
+def fatal(msg):
+	logging.error(msg)
+	sys.exit(1)
+logging.fatal = fatal
 
 # Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
 # based on the path, md5 hashing can be used for some files and timestamp for others

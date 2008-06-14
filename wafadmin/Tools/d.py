@@ -6,7 +6,7 @@
 import os, sys, re, optparse
 import ccroot # <- leave this
 import TaskGen, Utils, Task, Params, checks, Configure, Scan
-from Params import debug, error
+from logging import debug, error
 from TaskGen import taskgen, feature, after, before, extension
 
 EXT_D = ['.d', '.di', '.D']

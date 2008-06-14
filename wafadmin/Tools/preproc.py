@@ -9,7 +9,7 @@ import re, sys, os, string, types
 if __name__ == '__main__':
 	sys.path = ['.', '..'] + sys.path
 import Params
-from Params import debug, error, warning
+from logging import debug, error
 import traceback
 
 class PreprocError(Exception):
@@ -425,7 +425,7 @@ class c_parser(object):
 			raise PreprocError, "could not read the file %s" % filepath
 		except Exception:
 			if Params.g_verbose > 0:
-				warning("parsing %s failed" % filepath)
+				error("parsing %s failed" % filepath)
 				traceback.print_exc()
 
 	def start(self, node, env):
@@ -444,7 +444,7 @@ class c_parser(object):
 				self.process_line(type, line)
 			except Exception, ex:
 				if Params.g_verbose:
-					warning("line parsing failed (%s): %s" % (str(ex), line))
+					error("line parsing failed (%s): %s" % (str(ex), line))
 					traceback.print_exc()
 
 	def process_line(self, token, line):
@@ -639,7 +639,7 @@ if __name__ == "__main__":
 				self.process_line(type, line)
 			except Exception, ex:
 				if Params.g_verbose:
-					warning("line parsing failed (%s): %s" % (str(ex), line))
+					error("line parsing failed (%s): %s" % (str(ex), line))
 					traceback.print_exc()
 				raise
 	c_parser.start_local = start_local

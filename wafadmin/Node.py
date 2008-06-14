@@ -22,7 +22,7 @@ the build is launched from the top of the build dir (for example, in _build_/)
 
 import os, sys
 import Params, Utils
-from Params import debug, error, fatal
+from logging import debug, fatal
 
 UNDEFINED = 0
 DIR = 1

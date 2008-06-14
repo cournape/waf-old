@@ -7,7 +7,7 @@
 import sys, random, time, threading, Queue, traceback
 import Params, Utils
 import pproc as subprocess
-from Params import debug, error
+from logging import debug, error
 from Constants import *
 
 g_quiet = 0

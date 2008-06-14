@@ -10,7 +10,7 @@ if the variable is set but it does not exist, it assumes an absolute path was gi
 
 import os, types, shutil, glob
 import Params, Utils
-from Params import error, fatal
+from logging import error, fatal
 from Constants import *
 
 class InstallError(Exception):

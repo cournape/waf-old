@@ -6,7 +6,7 @@
 
 import os, re
 import Utils, Params, TaskGen, Task, Runner, Scan
-from Params import error, warning, debug, fatal
+from logging import error, warn, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
 class tex_scanner(Scan.scanner):
@@ -79,7 +79,7 @@ def tex_build(task, command='LATEX'):
 	docuname = nm[ : len(nm) - 4 ] # 4 is the size of ".aux"
 
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
-	warning('first pass on %s' % command)
+	warn('first pass on %s' % command)
 	ret = Runner.exec_command(latex_compile_cmd)
 	if ret: return ret
 
@@ -97,7 +97,7 @@ def tex_build(task, command='LATEX'):
 		if fo:
 			bibtex_compile_cmd = 'cd %s && BIBINPUTS=%s:$BIBINPUTS %s %s' % (reldir, sr2, env['BIBTEX'], docuname)
 
-			warning('calling bibtex')
+			warn('calling bibtex')
 			ret = Runner.exec_command(bibtex_compile_cmd)
 			if ret:
 				error('error when calling bibtex %s' % bibtex_compile_cmd)
@@ -111,7 +111,7 @@ def tex_build(task, command='LATEX'):
 		error('erreur file.idx scan')
 	else:
 		makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
-		warning('calling makeindex')
+		warn('calling makeindex')
 		ret = Runner.exec_command(makeindex_compile_cmd)
 		if ret:
 			error('error when calling makeindex %s' % makeindex_compile_cmd)
@@ -137,7 +137,7 @@ def tex_build(task, command='LATEX'):
 		if hash and hash == old_hash: break
 
 		# run the command
-		warning('calling %s' % command)
+		warn('calling %s' % command)
 		ret = Runner.exec_command(latex_compile_cmd)
 		if ret:
 			error('error when calling %s %s' % (command, latex_compile_cmd))

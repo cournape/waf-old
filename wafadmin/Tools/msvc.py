@@ -6,7 +6,7 @@
 
 import os, sys, re, string, optparse
 import Utils, Params, TaskGen, Runner, Configure, Task
-from Params import debug, error, fatal, warning
+from logging import debug, error, fatal, warn
 from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
 
@@ -380,7 +380,7 @@ def detect(conf):
 	conf.check_tool('winres')
 
 	if not conf.env['WINRC']:
-		warning('Resource compiler not found. Compiling resource file is disabled','msvc')
+		warn('Resource compiler not found. Compiling resource file is disabled','msvc')
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	if manifesttool:

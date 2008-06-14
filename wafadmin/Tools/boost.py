@@ -46,7 +46,7 @@ TODO:
 
 import os, os.path, glob, types, re
 import Params, Configure, config_c
-from Params import fatal, warning
+from logging import fatal, warn
 from Configure import conf
 
 class boost_configurator(config_c.configurator_base):
@@ -190,7 +190,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		if self.versiontag is None:
 			self.versiontag = versiontag
 		elif self.versiontag != versiontag:
-			warning('boost header version and versiontag do _not_ match!')
+			warn('boost header version and versiontag do _not_ match!')
 		self.conf.check_message('header', 'boost', 1, 'Version ' + found_version +
 								' (' + boost_path + ')')
 		env['CPPPATH_BOOST'] = boost_path

@@ -6,7 +6,7 @@
 
 import os, sys, re
 import TaskGen, Params, Scan, Utils, Node, preproc
-from Params import error, debug, fatal, warning
+from logging import error, debug, fatal, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
 from Constants import *
@@ -23,7 +23,7 @@ def get_cc_version(conf, cc, version_var):
 			v[version_var] = match.group(0)
 			conf.check_message('compiler', 'version', 1, v[version_var])
 			return v[version_var]
-	Params.warning('could not determine the compiler version')
+	warn('could not determine the compiler version')
 
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"

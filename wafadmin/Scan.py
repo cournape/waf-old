@@ -6,7 +6,7 @@
 
 from Utils import md5
 import Params
-from Params import debug, error
+from logging import debug
 from Constants import *
 
 g_all_scanners={}
@@ -46,7 +46,7 @@ class scanner(object):
 		variant = node.variant(tsk.env)
 
 		if not node:
-			error("BUG rescanning a null node")
+			debug("BUG rescanning a null node")
 			return
 
 		# we delegate the work to "def scan(self, tsk, node)" to avoid duplicate code

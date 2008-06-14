@@ -6,7 +6,7 @@
 import sys, re, os, optparse
 
 import TaskGen, Task, Params, Scan, Utils, preproc
-from Params import error, debug, fatal, warning
+from logging import error, debug, fatal, warning
 from TaskGen import taskgen, after, before, feature
 
 REVISION="0.1.3"

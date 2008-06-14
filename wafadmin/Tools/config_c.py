@@ -17,7 +17,7 @@ The functions preceded by "@conf" are attached in the same manner
 import os, types, imp, cPickle, sys, shlex, warnings
 from Utils import md5
 import Params, Environment, Runner, Build, Utils, Configure, TaskGen, Task
-from Params import fatal, warning
+from logging import fatal, warning, debug
 from Constants import *
 from Configure import conf, conftest
 
@@ -459,13 +459,13 @@ class pkgconfig_configurator(configurator_base):
 			if self.version:
 				cmd = "%s --atleast-version=%s \"%s\"" % (pkgcom, self.version, self.name)
 				ret = os.popen(cmd).close()
-				Params.debug("pkg-config cmd '%s' returned %s" % (cmd, ret))
+				debug("pkg-config cmd '%s' returned %s" % (cmd, ret))
 				self.conf.check_message('package %s >= %s' % (self.name, self.version), '', not ret)
 				if ret: raise ValueError, "error"
 			else:
 				cmd = "%s \"%s\"" % (pkgcom, self.name)
 				ret = os.popen(cmd).close()
-				Params.debug("pkg-config cmd '%s' returned %s" % (cmd, ret))
+				debug("pkg-config cmd '%s' returned %s" % (cmd, ret))
 				self.conf.check_message('package %s' % (self.name), '', not ret)
 				if ret:
 					raise ValueError, "error"

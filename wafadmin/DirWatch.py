@@ -4,7 +4,6 @@
 
 "DirWatch chooses a supported backend (fam, gamin or fallback) it is mainly a wrapper script without own methods beside this"
 
-from Params import debug
 import select, errno, os, time
 
 module = None

@@ -8,9 +8,8 @@ There is one gotcha: getitem returns [] if the contents evals to False
 This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
-import os, types, copy, re
+import os, types, copy, re, logging
 import Params, Utils
-from Params import debug
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
@@ -160,7 +159,7 @@ class Environment(object):
 		for m in re_imp.finditer(code):
 			g = m.group
 			tbl[g(2)] = eval(g(3))
-		debug(str(self.m_table), 'env')
+		logging.debug(str(self.m_table), 'env')
 
 	def get_destdir(self):
 		"return the destdir, useful for installing"
@@ -178,7 +177,7 @@ class Environment(object):
 
 		lst = [self.get_flat(a) for a in vars_list]
 		ret = Utils.h_list(lst)
-		if Params.g_zones: debug("%s %s" % (ret.encode('hex'), str(lst)), 'envhash')
+		if Params.g_zones: logging.debug("%s %s" % (ret.encode('hex'), str(lst)), 'envhash')
 
 		# next time
 		g_cache_max[s] = ret

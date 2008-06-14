@@ -12,7 +12,7 @@ import shutil, re, os, types
 
 import TaskGen, Node, Params, Task, Utils
 import pproc as subprocess
-from Params import fatal, debug
+from logging import fatal, debug
 
 def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
@@ -273,7 +273,7 @@ class command_output(Task.Task):
 			cwd = ('None (actually %r)' % os.getcwd())
 		else:
 			cwd = repr(task.cwd)
-		Params.debug("command-output: cwd=%s, stdin=%r, stdout=%r, argv=%r" %
+		debug("command-output: cwd=%s, stdin=%r, stdout=%r, argv=%r" %
 			     (cwd, stdin, stdout, argv))
 
 		if task.os_env is None:

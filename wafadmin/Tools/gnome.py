@@ -7,7 +7,7 @@
 import os, re
 import TaskGen, Params, Scan, Utils, Runner, Task
 import cc
-from Params import fatal, error
+from logging import fatal, error
 from TaskGen import taskgen, before, after, feature
 import Install as Common
 

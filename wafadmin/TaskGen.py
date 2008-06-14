@@ -23,7 +23,7 @@ WARNING: subclasses must reimplement the clone method
 
 import os, types, traceback, copy
 import Params, Task, Utils
-from Params import debug, error, fatal
+from logging import debug, error, fatal
 
 typos = {
 'sources':'source',
@@ -192,7 +192,7 @@ class task_gen(object):
 	def __setattr__(self, name, attr):
 		real = typos.get(name, name)
 		if real != name:
-			Params.warning('typo %s -> %s' % (name, real))
+			Params.warn('typo %s -> %s' % (name, real))
 			if Params.g_verbose > 0:
 				traceback.print_stack()
 		object.__setattr__(self, real, attr)
@@ -319,7 +319,7 @@ class task_gen(object):
 		if prec: fatal("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
-		
+
 		if not out: out.append(self.apply_core.__name__)
 
 		# then we run the methods in order

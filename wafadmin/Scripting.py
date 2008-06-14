@@ -7,7 +7,8 @@
 import os, sys, shutil, cPickle, traceback, time
 
 import Params, Utils, Configure, Build, Runner, Options
-from Params import error, fatal, warning, g_lockfile
+from logging import error, fatal, warn
+from Params import g_lockfile
 from Constants import *
 
 g_gz = 'bz2'
@@ -217,7 +218,7 @@ def prepare():
 	if not candidate:
 		# check if the user only wanted to display the help
 		if '-h' in sys.argv or '--help' in sys.argv:
-			warning('No wscript file found: the help message may be incomplete')
+			warn('No wscript file found: the help message may be incomplete')
 			opt_obj = Options.Handler()
 			opt_obj.parse_args()
 			sys.exit(0)
@@ -313,7 +314,7 @@ def main():
 			fatal("Nothing to clean (project not configured)", ret=2)
 		else:
 			if Params.g_autoconfig:
-				warning("Reconfiguring the project")
+				warn("Reconfiguring the project")
 				configure()
 				bld = Build.Build()
 				proj = read_cache_file(g_lockfile)
@@ -331,11 +332,11 @@ def main():
 		except Exception, ex:
 			if Params.g_verbose:
 				traceback.print_exc()
-			warning("Reconfiguring the project (an exception occured: %s)" % (str(ex),))
+			warn("Reconfiguring the project (an exception occured: %s)" % (str(ex),))
 			reconf = 1
 
 		if reconf:
-			warning("Reconfiguring the project (the configuration has changed)")
+			warn("Reconfiguring the project (the configuration has changed)")
 
 			a1 = Params.g_commands
 			a2 = Params.g_options

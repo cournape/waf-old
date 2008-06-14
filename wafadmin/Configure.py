@@ -21,7 +21,7 @@ Note: the c/c++ related code is in the module config_c
 
 import os, types, imp, cPickle, sys, shlex
 import Params, Environment, Runner, Build, Utils
-from Params import fatal, warning
+from logging import fatal, warn
 from Constants import *
 
 TEST_OK = True
@@ -246,7 +246,7 @@ class Configure(object):
 			env = Environment.Environment()
 			self.m_allenvs[name] = env
 		else:
-			if fromenv: warning("The environment %s may have been configured already" % name)
+			if fromenv: warn("The environment %s may have been configured already" % name)
 		return env
 
 	def setenv(self, name):

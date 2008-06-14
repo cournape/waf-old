@@ -14,7 +14,7 @@ There is only one Build object at a time (Params.g_build singleton)
 
 import os, sys, cPickle, types, imp, errno, re, glob
 import Params, Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install
-from Params import debug, error, fatal
+from logging import debug, error, fatal
 from Constants import *
 
 SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps bld_sigs id_nodes'.split()
@@ -485,7 +485,7 @@ class Build(object):
 				cache.__delitem__(nid)
 
 	def dump(self):
-		return "for debugging"
+		"for debugging"
 		def recu(node, count):
 			accu = count * '-'
 			accu += "> %s (d) %d \n" % (node.m_name, node.id)
