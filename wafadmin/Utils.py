@@ -62,6 +62,8 @@ class log_filter(logging.Filter):
 		if g_zones:
 			if (not getattr(rec, "zone", "") in g_zones) and (not '*' in g_zones):
 				return False
+			else:
+				return True
 		elif not Params.g_verbose>2:
 			return False
 		return True

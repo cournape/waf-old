@@ -148,11 +148,7 @@ def parse_args_impl(parser, _args=None):
 	hdlr.setFormatter(Utils.log_format())
 	log.addHandler(hdlr)
 	log.addFilter(Utils.log_filter())
-
-	if Params.g_verbose < 1:
-		log.setLevel(logging.WARNING)
-	else:
-		log.setLevel(logging.DEBUG)
+	log.setLevel(logging.DEBUG)
 
 	if opts.zones:
 		Params.g_zones = opts.zones.split(',')
