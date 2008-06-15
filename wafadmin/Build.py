@@ -578,14 +578,7 @@ class Build(object):
 			files = [x.abspath() for x in files if x]
 		return files
 
-	# backward compatibility
-	def get_curdir(self):
-		return self.path
-	def set_curdir(self, val):
-		Params.fatal("the current path cannot be set")
-	m_curdirnode = property(get_curdir, set_curdir)
-
-	# these utilities should limit the coupling
+	# with this we do not need to import the Install module
 
 	#def install_files(var, subdir, files, env=None, chmod=0644):
 	def install_files(self, *k, **kw):
