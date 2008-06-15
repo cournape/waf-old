@@ -35,7 +35,7 @@ Task.g_shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Params, Runner, Scan, Utils
+import Params, Runner, Utils
 from logging import debug, error, warn
 from Constants import *
 
@@ -415,6 +415,115 @@ class TaskBase(object):
 	def get_display(self):
 		return self.m_display
 
+	def scan(self, node):
+		"""this method returns a tuple containing:
+		* a list of nodes corresponding to real files
+		* a list of names for files not found in path_lst
+		the input parameters may have more parameters that the ones used below
+		"""
+		return ((), ())
+
+	# scans a node, the task may have additional parameters such as include paths, etc
+	def do_scan(self, node):
+		"more rarely reimplemented"
+		debug("do_scan(self, node, env, hashparams)", 'ccroot')
+
+		variant = node.variant(self.env)
+
+		if not node:
+			debug("BUG rescanning a null node")
+			return
+
+		# we delegate the work to "def scan(self, node)" to avoid duplicate code
+		(nodes, names) = self.scan(node)
+		if Params.g_verbose:
+			if Params.g_zones:
+				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
+
+		tree = Params.g_build
+		tree.node_deps[variant][node.id] = nodes
+		tree.raw_deps[variant][node.id] = names
+
+
+# XXX provide a dummy scan_signature
+#			# compute the signature from the inputs (no scanner)
+#			for x in self.m_inputs:
+#				v = tree.m_tstamp_variants[x.variant(env)][x.id]
+#				dep_sig = hash((dep_sig, v))
+#				m.update(v)
+
+	# compute the signature, recompute it if there is no match in the cache
+	def scan_signature(self):
+		"the signature obtained may not be the one if the files have changed, we do it in two steps"
+		tree = Params.g_build
+		env = self.env
+
+		# get the task signature from the signature cache
+		node = self.m_outputs[0]
+		variant = node.variant(self.env)
+		tstamps = tree.m_tstamp_variants[variant]
+		prev_sig = None
+
+		time = tstamps.get(node.id, None)
+		if not time is None:
+			key = self.unique_id()
+			# a tuple contains the task signatures from previous runs
+			tup = tree.bld_sigs.get(key, ())
+			if tup:
+				prev_sig = tup[1]
+				if prev_sig != None:
+					sig = self.scan_signature_queue()
+					if sig == prev_sig:
+						return sig
+
+		#print "scanning the file", self.m_inputs[0].abspath()
+
+		# some source or some header is dirty, rescan the source files
+		for node in self.m_inputs:
+			self.do_scan(node)
+
+		# recompute the signature and return it
+		sig = self.scan_signature_queue()
+
+		# DEBUG
+		#print "rescan for ", self.m_inputs[0], " is ", rescan,  " and deps ", \
+		#	tree.node_deps[variant][node.id], tree.raw_deps[variant][node.id]
+
+		return sig
+
+	# ======================================= #
+	# protected methods - override if you know what you are doing
+
+	def scan_signature_queue(self):
+		"the basic scheme for computing signatures from .cpp and inferred .h files"
+		tree = Params.g_build
+
+		rescan = 0
+		seen = set()
+		queue = []+self.m_inputs
+		m = md5()
+
+		# additional variables to hash (command-line defines for example)
+		env = self.env
+		for x in getattr(self, "vars", ()):
+			m.update(str(env[x]))
+
+		# add the hashes of all files entering into the dependency system
+		while queue:
+			node = queue.pop(0)
+
+			if node.id in seen: continue
+			seen.add(node.id)
+
+			variant = node.variant(env)
+			tree.rescan(node.m_parent)
+			try: queue += tree.node_deps[variant][node.id]
+			except KeyError: pass
+
+			try: m.update(tree.m_tstamp_variants[variant][node.id])
+			except KeyError: return None
+		return m.digest()
+
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
 	def __init__(self, env, normal=1, prio=None):
@@ -436,7 +545,6 @@ class Task(TaskBase):
 
 		# Additionally, you may define the following
 		#self.dep_vars  = 'PREFIX DATADIR'
-		#self.m_scanner = some_scanner_object
 
 	def get_env(self):
 		return self.m_env
@@ -475,7 +583,7 @@ class Task(TaskBase):
 	#------------ users are probably less interested in the following methods --------------#
 
 	def signature(self):
-		# compute the result one time, and suppose the scanner.get_signature will give the good result
+		# compute the result one time, and suppose the scan_signature will give the good result
 		try: return self.sign_all
 		except AttributeError: pass
 
@@ -484,20 +592,10 @@ class Task(TaskBase):
 
 		m = md5()
 
-		# TODO maybe we could split this dep sig into two parts (nodes, dependencies)
-		# this would only help for debugging though
-		dep_sig = SIG_NIL
-		scan = getattr(self, 'm_scanner', None)
-		if scan:
-			dep_sig = scan.get_signature(self)
-			try: m.update(dep_sig)
-			except TypeError: raise Scan.ScannerError, "failure to compute the signature"
-		else:
-			# compute the signature from the inputs (no scanner)
-			for x in self.m_inputs:
-				v = tree.m_tstamp_variants[x.variant(env)][x.id]
-				dep_sig = hash((dep_sig, v))
-				m.update(v)
+		# automatic dependencies
+		dep_sig = self.scan_signature()
+		try: m.update(dep_sig)
+		except TypeError: raise "failure to compute the signature :-/"
 
 		# manual dependencies, they can slow down the builds
 		try:
@@ -520,7 +618,7 @@ class Task(TaskBase):
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
-		var_sig = None
+		var_sig = SIG_NIL
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
 			var_sig = env.sign_vars(dep_vars)

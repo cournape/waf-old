@@ -5,7 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-import TaskGen, Params, Scan, Utils, Node, preproc
+import TaskGen, Params, Utils, Node, preproc
 from logging import error, debug, fatal, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
@@ -34,67 +34,60 @@ class DEBUG_LEVELS:
 
 	ALL = [ULTRADEBUG, DEBUG, RELEASE, OPTIMIZED, CUSTOM]
 
-class c_scanner(Scan.scanner):
-	"scanner for c/c++ files"
-	def __init__(self):
-		Scan.scanner.__init__(self)
-		self.vars = ('CCDEFINES', 'CXXDEFINES')
+def scan(self, node):
+	"look for .h the .cpp need"
+	debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
+	gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'], defines = self.defines)
+	gruik.start(node, self.env)
+	if Params.g_verbose:
+		debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
+		debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
+	seen = []
+	all = []
+	for x in gruik.m_nodes:
+		if id(x) in seen: continue
+		seen.append(id(x))
+		all.append(x)
+	return (all, gruik.m_names)
 
-	def scan(self, task, node):
-		"look for .h the .cpp need"
-		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		gruik = preproc.c_parser(nodepaths = task.env['INC_PATHS'], defines = task.defines)
-		gruik.start(node, task.env)
-		if Params.g_verbose:
-			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
-			debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
-		seen = []
-		all = []
-		for x in gruik.m_nodes:
-			if id(x) in seen: continue
-			seen.append(id(x))
-			all.append(x)
-		return (all, gruik.m_names)
+def scan_signature_queue(tsk):
+	"""compute signatures from .cpp and inferred .h files
+	there is a single list (no tree traversal)
+	hot spot so do not touch"""
+	m = md5()
+	upd = m.update
 
-	def get_signature_queue(self, tsk):
-		"""compute signatures from .cpp and inferred .h files
-		there is a single list (no tree traversal)
-		hot spot so do not touch"""
-		m = md5()
-		upd = m.update
+	# additional variables to hash (command-line defines for example)
+	env = tsk.env
+	for x in ('CCDEFINES', 'CXXDEFINES'):
+		k = env[x]
+		if k: upd(str(k))
 
-		# additional variables to hash (command-line defines for example)
-		env = tsk.env
-		for x in self.vars:
-			k = env[x]
-			if k: upd(str(k))
+	tree = Params.g_build
+	rescan = tree.rescan
+	tstamp = tree.m_tstamp_variants
 
-		tree = Params.g_build
-		rescan = tree.rescan
-		tstamp = tree.m_tstamp_variants
+	# headers to hash
+	try:
+		idx = tsk.m_inputs[0].id
+		variant = tsk.m_inputs[0].variant(env)
+		upd(tstamp[variant][idx])
 
-		# headers to hash
-		try:
-			idx = tsk.m_inputs[0].id
-			variant = tsk.m_inputs[0].variant(env)
-			upd(tstamp[variant][idx])
+		for k in Params.g_build.node_deps[variant][idx]:
 
-			for k in Params.g_build.node_deps[variant][idx]:
+			# unlikely but necessary if it happens
+			try: tree.m_scanned_folders[k.m_parent.id]
+			except KeyError: rescan(k.m_parent)
 
-				# unlikely but necessary if it happens
-				try: tree.m_scanned_folders[k.m_parent.id]
-				except KeyError: rescan(k.m_parent)
+			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
+			else: upd(tstamp[env.variant()][k.id])
 
-				if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
-				else: upd(tstamp[env.variant()][k.id])
+	except KeyError:
+		return None
 
-		except KeyError:
-			return None
+	return m.digest()
 
-		return m.digest()
 
-g_c_scanner = c_scanner()
-"scanner for c programs"
 
 class ccroot_abstract(TaskGen.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"

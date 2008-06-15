@@ -92,7 +92,6 @@ def c_hook(self, node):
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
-	task.m_scanner = ccroot.g_c_scanner
 	task.defines  = self.scanner_defines
 
 	task.m_inputs = [node]
@@ -102,7 +101,9 @@ def c_hook(self, node):
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
 
-Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c')
+cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c')
+cls.scan = ccroot.scan
+cls.scan_signature_queue = ccroot.scan_signature_queue
 Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o')
 
 TaskGen.declare_order('apply_incpaths', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')

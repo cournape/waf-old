@@ -32,6 +32,9 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
+	scan = ccroot.scan
+	get_signature_queue = ccroot.get_signature_queue
+
 	def __init__(self, env, parent):
 		Task.Task.__init__(self, env)
 		self.moc_done = 0
@@ -304,7 +307,6 @@ def cxx_hook(self, node):
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
-	task.m_scanner = ccroot.g_c_scanner
 	task.defines  = self.scanner_defines
 
 	task.m_inputs = [node]
