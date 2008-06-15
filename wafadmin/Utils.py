@@ -43,6 +43,9 @@ class log_format(logging.Formatter):
 	def __init__(self):
 		logging.Formatter.__init__(self, "%(asctime)s %%(c1)s%(zone)s%%(c2)s %(message)s", "%H:%M:%S")
 	def format(self, rec):
+		# XXX: this is a workaround for  KeyError: 'zone' messages.
+		if not 'zone' in rec.__dict__:
+			rec.__dict__['zone'] = ''
 		ret = logging.Formatter.format(self, rec)
 		col = Params.g_colors
 		try:
