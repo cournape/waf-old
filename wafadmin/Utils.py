@@ -107,9 +107,9 @@ def test_full():
 	except IOError, e:
 		import errno
 		if e.errno == errno.ENOSPC:
-			Params.fatal('filesystem full', e.errno)
+			logging.fatal('filesystem full', e.errno)
 		else:
-			Params.fatal(str(e), e.errno)
+			logging.fatal(str(e), e.errno)
 
 class ordered_dict(UserDict):
 	def __init__(self, dict = None):
