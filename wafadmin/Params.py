@@ -61,21 +61,16 @@ except KeyError: g_lockfile = '.lock-wscript'
 # =================================== #
 # HELPERS
 
-#g_col_names = ['BOLD', 'RED', 'REDP', 'GREEN', 'YELLOW', 'BLUE', 'CYAN', 'NORMAL']
-#"color names"
-
-#g_col_scheme = [1, 91, 33, 92, 93, 94, 96, 0]
-
 g_colors = {
-'BOLD'  :'\033[01;1m',
-'RED'   :'\033[01;91m',
-'REDP'  :'\033[01;33m',
-'GREEN' :'\033[01;92m',
-'YELLOW':'\033[00;33m',
-'PINK'  :'\033[00;35m',
-'BLUE'  :'\033[01;34m',
-'CYAN'  :'\033[01;36m',
-'NORMAL':'\033[0m'
+'BOLD'  :'\x1b[01;1m',
+'RED'   :'\x1b[01;91m',
+'REDP'  :'\x1b[01;33m',
+'GREEN' :'\x1b[32m',
+'YELLOW':'\x1b[33m',
+'PINK'  :'\x1b[35m',
+'BLUE'  :'\x1b[01;34m',
+'CYAN'  :'\x1b[36m',
+'NORMAL':'\x1b[0m'
 }
 "colors used for printing messages"
 
