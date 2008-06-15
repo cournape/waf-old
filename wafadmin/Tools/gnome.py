@@ -5,7 +5,7 @@
 "Gnome support"
 
 import os, re
-import TaskGen, Params, Scan, Utils, Runner, Task
+import TaskGen, Params, Utils, Runner, Task
 import cc
 from logging import fatal, error
 from TaskGen import taskgen, before, after, feature
@@ -109,32 +109,27 @@ class xml_to_taskgen(TaskGen.task_gen):
 		tsk.set_outputs(xmlfile.change_ext('html'))
 		tsk.install = {'var':self.inst_var, 'dir':self.inst_dir}
 
-class sgml_man_scanner(Scan.scanner):
-	def __init__(self):
-		Scan.scanner.__init__(self)
-	def scan(self, task, node):
-		env = task.env
-		variant = node.variant(env)
+def sgml_scan(self, node):
+	env = self.env
+	variant = node.variant(env)
 
-		fi = open(node.abspath(env), 'r')
-		content = fi.read()
-		fi.close()
+	fi = open(node.abspath(env), 'r')
+	content = fi.read()
+	fi.close()
 
-		name = n1_regexp.findall(content)[0]
-		num = n2_regexp.findall(content)[0]
+	name = n1_regexp.findall(content)[0]
+	num = n2_regexp.findall(content)[0]
 
-		doc_name = name+'.'+num
-		return ([], [doc_name])
+	doc_name = name+'.'+num
+	return ([], [doc_name])
 
-	def do_scan(self, task, node):
-		Scan.scanner.do_scan(self, task, node)
+def sgml_do_scan(self, node):
+	self.do_scan(self, node)
 
-		variant = node.variant(task.env)
-		tmp_lst = Params.g_build.raw_deps[variant][node.id]
-		name = tmp_lst[0]
-		task.set_outputs(task.task_generator.path.find_build(name))
-
-sgml_scanner = sgml_man_scanner()
+	variant = node.variant(self.env)
+	tmp_lst = Params.g_build.raw_deps[variant][node.id]
+	name = tmp_lst[0]
+	self.set_outputs(self.task_generator.path.find_build(name))
 
 class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
@@ -163,7 +158,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 			# no outputs, the scanner does it
 			# no caching for now, this is not a time-critical feature
 			# in the future the scanner can be used to do more things (find dependencies, etc)
-			sgml_scanner.do_scan(task, task.m_inputs[0])
+			task.do_scan(task.m_inputs[0])
 
 # Unlike the sgml and doc processing, the dbus and marshal beast
 # generate c/c++ code that we want to mix
@@ -276,7 +271,9 @@ def add_glib_mkenum(self, source='', template='', target=''):
 
 Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK', prio=30)
 
-Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
+cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
+cls.do_scan = sgml_do_scan
+cls.scan = sgml_scan
 
 Task.simple_task_type('glib_genmarshal',
 	'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
