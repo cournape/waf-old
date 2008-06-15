@@ -149,10 +149,7 @@ class function_enumerator(enumerator_base):
 
 	def run_cache(self, retval):
 		self.conf.check_message('function %s (cached)' % self.function, '', retval, option='')
-		if retval:
-			self.conf.define(self.define, retval)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, retval)
 
 	def run_test(self):
 		ret = not Configure.TEST_OK
@@ -181,11 +178,7 @@ class function_enumerator(enumerator_base):
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('function %s' % self.function, '', ret, option='')
-
-		if ret:
-			self.conf.define(self.define, ret)
-		else:
-			self.conf.undefine(self.define)
+		self.define_cond(self.define, ret)
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
@@ -262,7 +255,8 @@ class header_enumerator(enumerator_base):
 	def run_cache(self, retval):
 		if self.want_message:
 			self.conf.check_message('header %s (cached)' % self.name, '', retval, option=retval)
-		if self.define: self.env[self.define] = retval
+		if self.define:
+			self.conf.define_cond(self.define, retval)
 
 	def run_test(self):
 		ret = Configure.find_file(self.name, self.path)
@@ -309,9 +303,7 @@ class cfgtool_configurator(configurator_base):
 	def run_cache(self, retval):
 		if retval:
 			self.update_env(retval)
-			self.conf.define(self.define, 1)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, retval)
 		self.conf.check_message('config-tool %s (cached)' % self.binary, '', retval, option='')
 
 	def run_test(self):
@@ -334,10 +326,7 @@ class cfgtool_configurator(configurator_base):
 			retval = {}
 			found = not Configure.TEST_OK
 
-		if found:
-			self.conf.define(self.define, found)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, found)
 		self.conf.check_message('config-tool ' + self.binary, '', found, option = '')
 		return retval
 
@@ -391,10 +380,7 @@ class pkgconfig_configurator(configurator_base):
 			self.conf.check_message('package %s >= %s (cached)' % (self.name, self.version), '', retval, option='')
 		else:
 			self.conf.check_message('package %s (cached)' % self.name, '', retval, option='')
-		if retval:
-			self.conf.define(self.define, 1)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, retval)
 		self.update_env(retval)
 
 	def _setup_pkg_config_path(self):
@@ -598,9 +584,7 @@ class library_configurator(configurator_base):
 		self.conf.check_message('library %s (cached)' % self.name, '', retval)
 		if retval:
 			self.update_env(retval)
-			self.conf.define(self.define, 1)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, 1)
 
 	def validate(self):
 		if not self.uselib_store:
@@ -650,10 +634,7 @@ class library_configurator(configurator_base):
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('library %s' % self.name, '', ret)
 
-		if ret:
-			self.conf.define(self.define, ret)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, ret)
 
 		val = {}
 		if ret:
@@ -701,10 +682,7 @@ class framework_configurator(configurator_base):
 	def run_cache(self, retval):
 		self.conf.check_message('framework %s (cached)' % self.name, '', retval)
 		self.update_env(retval)
-		if retval:
-			self.conf.define(self.define, 1)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, retval)
 
 	def run_test(self):
 		code = []
@@ -730,10 +708,7 @@ class framework_configurator(configurator_base):
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('framework %s' % self.name, '', ret, option='')
-		if ret:
-			self.conf.define(self.define, ret)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, ret)
 
 		val = {}
 		if ret:
@@ -780,13 +755,11 @@ class header_configurator(configurator_base):
 		if not self.define:
 			fatal('no define given')
 
-	def run_cache(self, retvalue):
-		self.conf.check_message('header %s (cached)' % self.name, '', retvalue)
+	def run_cache(self, retval):
+		self.conf.check_message('header %s (cached)' % self.name, '', retval)
 		if retvalue:
 			self.update_env(retvalue)
-			self.conf.define(self.define, 1)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, retval)
 
 	def run_test(self):
 		ret = {} # not found
@@ -821,10 +794,7 @@ class header_configurator(configurator_base):
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('header %s' % self.name, '', ret, option='')
 
-		if ret:
-			self.conf.define(self.define, ret)
-		else:
-			self.conf.undefine(self.define)
+		self.conf.define_cond(self.define, ret)
 
 		val = {}
 		if ret:
