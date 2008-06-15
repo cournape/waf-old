@@ -639,18 +639,9 @@ class Task(TaskBase):
 		"wait for other tasks to complete"
 		if (not self.m_inputs) or (not self.m_outputs):
 			if not (not self.m_inputs) and (not self.m_outputs):
-				error("potentially grave error, task is invalid : no inputs or outputs")
+				error("task is invalid : no inputs or outputs (override in a Task subclass?)")
 				self.debug()
 
-		# the scanner has its word to say
-		scan = getattr(self, 'm_scanner', None)
-		if scan:
-			fun = getattr(scan, 'may_start', None)
-			if fun:
-				if not fun(self):
-					return 0
-
-		# this is a dependency using the scheduler, as opposed to hash-based ones
 		for t in self.get_run_after():
 			if not t.m_hasrun:
 				return 0

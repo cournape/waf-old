@@ -26,7 +26,7 @@ def filter_comments(txt):
 				return ''
 		return foo.sub(repl, txt)
 
-def new_may_start(self):
+def link_may_start(self):
 	if not getattr(self, 'order', ''):
 
 		# now reorder the m_inputs given the task dependencies
@@ -50,7 +50,7 @@ def new_may_start(self):
 		self.order = 1
 	return Task.Task.may_start(self)
 
-def may_start(self):
+def compile_may_start(self):
 	if getattr(self, 'flag_deps', ''): return 1
 
 	# the evil part is that we can only compute the dependencies after the
@@ -288,7 +288,7 @@ def ml_hook(self, node):
 
 b = Task.simple_task_type
 cls = b('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
-cls.may_start = may_start
+cls.may_start = compile_may_start
 cls.scan = scan
 
 b('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE', before="ocaml ocamlcc")
@@ -297,9 +297,9 @@ b('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', before="ocamlcmi oca
 b('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
 
 act = b('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', after="ocamlcc ocaml")
-act.may_start = new_may_start
+act.may_start = link_may_start
 act = b('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', after="ocaml ocamlcc")
-act.may_start = new_may_start
+act.may_start = link_may_start
 
 
 def detect(conf):

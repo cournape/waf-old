@@ -41,7 +41,6 @@ class MTask(Task.Task):
 		self.parent = parent
 
 	def may_start(self):
-
 		if self.moc_done:
 			# if there is a moc task, delay the computation of the file signature
 			for t in self.get_run_after():
