@@ -240,8 +240,8 @@ def prepare():
 		d = getattr(Utils.g_module, BLDDIR, None)
 		if d:
 			# test if user has set the blddir in wscript.
-			msg = 'Overriding build directory %s with %s' % (d, build_dir_override)
-			Params.niceprint(msg, 'WARNING', 'waf')
+			msg = ' Overriding build directory %s with %s' % (d, build_dir_override)
+			warn(msg)
 		Utils.g_module.blddir = build_dir_override
 
 	# fetch the custom command-line options recursively and in a procedural way
