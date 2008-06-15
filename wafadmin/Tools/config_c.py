@@ -707,14 +707,6 @@ class framework_configurator(configurator_base):
 			self.conf.undefine(self.define)
 
 	def run_test(self):
-		oldlkflags = []
-		oldccflags = []
-		oldcxxflags = []
-
-		oldlkflags += self.env['LINKFLAGS']
-		oldccflags += self.env['CCFLAGS']
-		oldcxxflags += self.env['CXXFLAGS']
-
 		code = []
 		if self.remove_dot_h:
 			code.append('#include <%s/%s>\n' % (self.name, self.name))
@@ -726,17 +718,15 @@ class framework_configurator(configurator_base):
 		linkflags = []
 		linkflags += ['-framework', self.name]
 		linkflags += ['-F%s' % p for p in self.path]
-		cflags = ['-F%s' % p for p in self.path]
+		ccflags = ['-F%s' % p for p in self.path]
 
-		myenv = self.env.copy()
 		myenv['LINKFLAGS'] += linkflags
 
 		obj        = check_data()
 		obj.code   = "\n".join(code)
-		obj.env    = myenv
 		obj.uselib = self.uselib_store + " " + self.uselib
-
-		obj.flags += " ".join (cflags)
+		obj.env.append_value('LINKFLAGS', linkflags)
+		obj.env.append_value('CCFLAGS', ccflags)
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('framework %s' % self.name, '', ret, option='')
@@ -747,17 +737,12 @@ class framework_configurator(configurator_base):
 
 		val = {}
 		if ret:
-			val["LINKFLAGS_" + self.uselib_store] = linkflags
-			val["CCFLAGS_" + self.uselib_store] = cflags
-			val["CXXFLAGS_" + self.uselib_store] = cflags
+			val['LINKFLAGS_' + self.uselib_store] = linkflags
+			val['CCFLAGS_' + self.uselib_store] = ccflags
+			val['CXXFLAGS_' + self.uselib_store] = ccflags
 			val[self.define] = ret
 
-		self.env['LINKFLAGS'] = oldlkflags
-		self.env['CCFLAGS'] = oldccflags
-		self.env['CXXFLAGS'] = oldcxxflags
-
 		self.update_env(val)
-
 		return val
 
 class header_configurator(configurator_base):
