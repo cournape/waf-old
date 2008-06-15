@@ -350,7 +350,7 @@ class TaskBase(object):
 	maxjobs = sys.maxint
 
 	def __init__(self, normal=1):
-		self.m_display = ''
+		self.display = ''
 		self.m_hasrun = 0
 
 		manager = Params.g_build.task_manager
@@ -410,10 +410,6 @@ class TaskBase(object):
 	def debug(self):
 		"prints the debug info"
 		pass
-	def set_display(self, v):
-		self.m_display = v
-	def get_display(self):
-		return self.m_display
 
 	def scan(self, node):
 		"""this method returns a tuple containing:
@@ -443,7 +439,6 @@ class TaskBase(object):
 		tree = Params.g_build
 		tree.node_deps[variant][node.id] = nodes
 		tree.raw_deps[variant][node.id] = names
-
 
 # XXX provide a dummy scan_signature
 #			# compute the signature from the inputs (no scanner)
@@ -769,14 +764,8 @@ class Task(TaskBase):
 		return 1
 
 	def prepare(self):
-		return
-		try: self.m_action.prepare(self)
-		except AttributeError: pass
-
-	def get_display(self):
-		if self.m_display: return self.m_display
-		self.m_display = self.get_str()
-		return self.m_display
+		if not self.display: self.display = self.get_str()
+		return self.display
 
 	def debug_info(self):
 		ret = []
@@ -817,7 +806,7 @@ class TaskCmd(TaskBase):
 		self.fun = fun
 		self.m_env = env
 	def prepare(self):
-		self.m_display = "* executing: %s" % self.fun.__name__
+		self.display = "* executing: %s" % self.fun.__name__
 	def debug_info(self):
 		return 'TaskCmd:fun %s' % self.fun.__name__
 	def debug(self):

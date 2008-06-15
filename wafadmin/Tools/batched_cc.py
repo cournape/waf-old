@@ -76,8 +76,8 @@ class TaskSlave(Task.Task):
 		Task.Task.__init__(self, env, priority, normal)
 		self.m_master = master
 
-	def get_display(self):
-		return "* skipping "+ self.m_inputs[0].m_name
+	def prepare(self):
+		self.display = "* skipping "+ self.m_inputs[0].m_name
 
 	def update_stat(self):
 		self.m_executed=1

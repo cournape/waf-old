@@ -47,7 +47,7 @@ def progress_line(state, total, col1, task):
 
 	n = len(str(total))
 	fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
-	return fs % (state, total, col1, task.get_display(), col2)
+	return fs % (state, total, col1, task.display, col2)
 
 def process_cmd_output(proc):
 	"""calling communicate to avoid race-condition between stdout and stderr"""
@@ -230,7 +230,7 @@ class TaskConsumer(threading.Thread):
 				m.out.put(tsk)
 				continue
 
-			printout(tsk.get_display())
+			printout(tsk.display)
 			ret = tsk.run()
 
 			if ret:
@@ -330,7 +330,7 @@ class Parallel(object):
 					tsk.m_hasrun = SKIPPED
 					self.manager.add_finished(tsk)
 					continue
-				tsk.set_display(progress_line(self.progress, self.total, tsk.color, tsk))
+				tsk.display = progress_line(self.progress, self.total, tsk.color, tsk)
 				self.count += 1
 				self.ready.put(tsk)
 			else:
