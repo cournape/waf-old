@@ -257,11 +257,12 @@ class Build(object):
 			if dir: Scripting.add_subdir(dir, self)
 
 	def new_task_gen(self, *k, **kw):
+		if len(k) == 0: return TaskGen.task_gen()
 		cls_name = k[0]
 		try: cls = TaskGen.task_gen.classes[cls_name]
-		except KeyError: raise KeyError('%s is not a valid task generator -> %s' % (cls_name, [x for x in TaskGen.task_gen.classes]))
+		except KeyError: raise KeyError('%s is not a valid task generator -> %s' %
+			(cls_name, [x for x in TaskGen.task_gen.classes]))
 		else: return cls(*k, **kw)
-	create_obj = new_task_gen
 
 	def load_envs(self):
 		cachedir = Params.g_cachedir
