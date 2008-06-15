@@ -4,7 +4,7 @@
 
 "Main parameters"
 
-import os, sys, types, inspect, time, logging
+import os, sys
 import Constants, Utils
 
 # updated from the top-level wscript
