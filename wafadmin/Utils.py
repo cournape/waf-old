@@ -73,9 +73,9 @@ def debug(msg, zone=''):
 	old(msg, extra={'zone':zone})
 logging.debug = debug
 
-def fatal(msg):
+def fatal(msg, exit_code=1):
 	logging.error(msg)
-	sys.exit(1)
+	sys.exit(exit_code)
 logging.fatal = fatal
 
 # Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
