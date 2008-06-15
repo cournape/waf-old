@@ -791,9 +791,6 @@ class header_configurator(configurator_base):
 	def run_test(self):
 		ret = {} # not found
 
-		oldlibpath = self.env['LIBPATH']
-		oldlib = self.env['LIB']
-
 		# try the enumerator to find the correct includepath
 		if self.uselib_store:
 			test = self.conf.create_header_enumerator()
@@ -814,14 +811,12 @@ class header_configurator(configurator_base):
 
 		code.append('int main(){%s\nreturn 0;}\n' % self.custom_code)
 
-		self.env['LIB'] = Utils.to_list(self.libs)
-		self.env['LIBPATH'] = Utils.to_list(self.lib_paths)
-
 		obj          = check_data()
 		obj.code     = "\n".join(code)
 		obj.includes = self.path
-		obj.env      = self.env
 		obj.uselib   = self.uselib_store + " " + self.uselib
+		obj.env['LIB'] = Utils.to_list(self.libs)
+		obj.env['LIBPATH'] = Utils.to_list(self.lib_paths)
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('header %s' % self.name, '', ret, option='')
@@ -830,9 +825,6 @@ class header_configurator(configurator_base):
 			self.conf.define(self.define, ret)
 		else:
 			self.conf.undefine(self.define)
-
-		self.env['LIB'] = oldlib
-		self.env['LIBPATH'] = oldlibpath
 
 		val = {}
 		if ret:
