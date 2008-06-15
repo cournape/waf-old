@@ -938,7 +938,7 @@ def have_define(self, name):
 @conf
 def write_config_header(self, configfile='', env=''):
 	"save the defines into a file"
-	if not configfile: configfile = self.configheader
+	if not configfile: configfile = self.config_header
 
 	lst = Utils.split_path(configfile)
 	base = lst[:-1]
@@ -951,16 +951,15 @@ def write_config_header(self, configfile='', env=''):
 
 	dir = os.path.join(dir, lst[-1])
 
-	# remember config files - do not remove them on "waf clean"
 	self.env.append_value('waf_config_files', os.path.abspath(dir))
 
-	inclusion_guard_name = '_%s_WAF' % Utils.quote_define_name(configfile)
+	waf_guard = '_%s_WAF' % Utils.quote_define_name(configfile)
 
 	dest = open(dir, 'w')
 	dest.write('/* Configuration header created by Waf - do not edit */\n')
-	dest.write('#ifndef %s\n#define %s\n\n' % (inclusion_guard_name, inclusion_guard_name))
+	dest.write('#ifndef %s\n#define %s\n\n' % (waf_guard, waf_guard))
 
-	# yes, this is special
+	# config files are not removed on "waf clean"
 	if not configfile in self.env['dep_files']:
 		self.env['dep_files'] += [configfile]
 
@@ -979,13 +978,8 @@ def write_config_header(self, configfile='', env=''):
 	for include_file in self.env[COMMON_INCLUDES]:
 		dest.write('\n#include "%s"' % include_file)
 
-	dest.write('\n#endif /* %s */\n' % (inclusion_guard_name,))
+	dest.write('\n#endif /* %s */\n' % waf_guard)
 	dest.close()
-
-@conf
-def set_config_header(self, header):
-	"set a config header file"
-	self.configheader = header
 
 @conf
 def run_check(self, obj):
