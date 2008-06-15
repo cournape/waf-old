@@ -32,15 +32,11 @@ class ConfigurationError(Exception):
 g_maxlen = 40
 """initial length of configuration messages"""
 
-g_debug  = 0
-"""enable/disable debug"""
-
 g_stdincpath = ['/usr/include/', '/usr/local/include/']
 """standard include paths"""
 
 g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
 """standard library search paths"""
-
 
 #####################
 ## Helper functions
@@ -342,10 +338,8 @@ class Configure(object):
 		for x in self.rules:
 			f = getattr(self, x)
 			try:
-				# TODO check pre/post conditions
 				f()
 			except Exception, e:
-				raise
 				if err_handler(x, e) == STOP:
 					break
 				else:
