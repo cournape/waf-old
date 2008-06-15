@@ -90,9 +90,7 @@ if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
 	reset_colors()
 
 def pprint(col, str, label=''):
-	try: mycol=g_colors[col]
-	except KeyError: mycol=''
-	print "%s%s%s %s" % (mycol, str, g_colors['NORMAL'], label)
+	print "%s%s%s %s" % (g_colors.get(col, ''), str, g_colors['NORMAL'], label)
 
 g_zones = []
 
