@@ -10,7 +10,7 @@ from logging import error, warn, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
 def scan(self, node):
-	env = task.env
+	env = self.env
 
 	nodes = []
 	names = []
@@ -20,7 +20,7 @@ def scan(self, node):
 	code = fi.read()
 	fi.close()
 
-	curdirnode = task.curdirnode
+	curdirnode = self.curdirnode
 	abs = curdirnode.abspath()
 	for match in re_tex.finditer(code):
 		path = match.group('file')
