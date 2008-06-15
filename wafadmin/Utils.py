@@ -138,13 +138,13 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 	except TypeError: min_val = int(mini.replace('.', '0'), 16)
 
 	if min_val > ver:
-		Params.fatal("waf version should be at least %s (%x found)" % (mini, ver))
+		logging.fatal("waf version should be at least %s (%x found)" % (mini, ver))
 
 	try: max_val = maxi + 0
 	except TypeError: max_val = int(maxi.replace('.', '0'), 16)
 
 	if max_val < ver:
-		Params.fatal("waf version should be at most %s (%x found)" % (maxi, ver))
+		logging.fatal("waf version should be at most %s (%x found)" % (maxi, ver))
 
 def python_24_guard():
 	if sys.hexversion<0x20400f0:
@@ -180,7 +180,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	try:
 		file = open(file_path, 'r')
 	except (IOError, OSError):
-		Params.fatal('The file %s could not be opened!' % file_path)
+		logging.fatal('The file %s could not be opened!' % file_path)
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
