@@ -43,11 +43,11 @@ class log_format(logging.Formatter):
 	def __init__(self):
 		logging.Formatter.__init__(self, "%(asctime)s %%(c1)s%(zone)s%%(c2)s %(message)s", "%H:%M:%S")
 	def format(self, rec):
-		# XXX: this is a workaround for  KeyError: 'zone' messages.
-		if not 'zone' in rec.__dict__:
-			rec.__dict__['zone'] = ''
-		ret = logging.Formatter.format(self, rec)
+		if not 'zone' in rec.__dict__: rec.zone = ''
 		col = Params.g_colors
+		if rec.levelno >= logging.WARNING:
+			return "%s%s%s" % (col['RED'], rec.msg, col['NORMAL'])
+		ret = logging.Formatter.format(self, rec)
 		try:
 			return ret % {'c1':col[rec.color], 'c2':col['NORMAL']}
 		except TypeError:
@@ -57,10 +57,9 @@ class log_filter(logging.Filter):
 	def __init__(self, name=None):
 		pass
 	def filter(self, rec):
-		rec.color = 'PINK'
-		if rec.levelname == "ERROR":
-			rec.color = 'RED'
+		if rec.levelno >= logging.WARNING:
 			return True
+		if not 'zone' in rec.__dict__: rec.zone = ''
 		g_zones = Params.g_zones
 		if g_zones:
 			return getattr(rec, "zone", "") in g_zones or '*' in g_zones
