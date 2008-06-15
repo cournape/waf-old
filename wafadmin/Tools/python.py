@@ -9,6 +9,7 @@ import os, sys
 import TaskGen, Utils, Params, Utils, Runner
 from logging import debug
 from TaskGen import extension, taskgen, before, after, feature
+from Configure import conf
 import pproc as subprocess
 
 EXT_PY = ['.py']
@@ -145,6 +146,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 		else: break
 	return return_values
 
+@conf
 def check_python_headers(conf):
 	"""Check for headers and libraries necessary to extend or embed python.
 
@@ -288,6 +290,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	if not result:
 		conf.fatal("Python development headers not found.")
 
+@conf
 def check_python_version(conf, minver=None):
 	"""
 	Check if the python interpreter is found matching a given minimum version.
@@ -350,6 +353,7 @@ def check_python_version(conf, minver=None):
 	if not result:
 		conf.fatal("Python too old.")
 
+@conf
 def check_python_module(conf, module_name):
 	"""
 	Check if the selected python interpreter can import the given python module.
@@ -372,10 +376,6 @@ def detect(conf):
 
 	v['PYC'] = getattr(Params.g_options, 'pyc', 1)
 	v['PYO'] = getattr(Params.g_options, 'pyo', 1)
-
-	conf.hook(check_python_version)
-	conf.hook(check_python_headers)
-	conf.hook(check_python_module)
 
 def set_options(opt):
 	opt.add_option('--nopyc', action = 'store_false', default = 1, help = 'no pyc files (configuration)', dest = 'pyc')

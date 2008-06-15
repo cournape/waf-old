@@ -299,10 +299,12 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 			self.find_includes()
 		self.find_libraries()
 
+@conf
+def create_boost_configurator(self):
+	return boost_configurator(conf)
+
 def detect(conf):
-	def create_boost_configurator(self):
-		return boost_configurator(conf)
-	conf.hook(create_boost_configurator)
+	pass
 
 def set_options(opt):
 	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')

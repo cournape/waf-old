@@ -281,10 +281,6 @@ class Configure(object):
 		Params.pprint(color, custom)
 		Runner.print_log(sr, '\n\n')
 
-	def hook(self, func):
-		"attach the function given as input as new method"
-		setattr(self.__class__, func.__name__, func)
-
 	def mute_logging(self):
 		"mutes the output temporarily"
 		self._quiet = Runner.g_quiet

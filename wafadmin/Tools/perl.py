@@ -5,6 +5,7 @@
 import os
 import pproc as subprocess
 import Params, Task
+from Configure import conf
 from TaskGen import extension, taskgen, feature, before
 
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
@@ -31,6 +32,7 @@ def xsubpp_file(self, node):
 
 Task.simple_task_type('xsubpp', xsubpp_str, color='BLUE', before="cc cxx")
 
+@conf
 def check_perl_version(conf, minver=None):
 	"""
 	Checks if perl is installed.
@@ -66,6 +68,7 @@ def check_perl_version(conf, minver=None):
 	conf.check_message("perl", cver, res, version)
 	return res
 
+@conf
 def check_perl_module(conf, module):
 	"""
 	Check if specified perlmodule is installed.
@@ -80,6 +83,7 @@ def check_perl_module(conf, module):
 	conf.check_message("perl module %s" % module, "", r)
 	return r
 
+@conf
 def check_perl_ext_devel(conf):
 	"""
 	Check for configuration needed to build perl extensions.
@@ -111,9 +115,7 @@ def check_perl_ext_devel(conf):
 	return True
 
 def detect(conf):
-	conf.hook(check_perl_version)
-	conf.hook(check_perl_ext_devel)
-	conf.hook(check_perl_module)
+	pass
 
 def set_options(opt):
 	opt.add_option("--with-perl-binary", type="string", dest="perlbinary", help = 'Specify alternate perl binary', default=None)

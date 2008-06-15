@@ -21,6 +21,7 @@ change is only annoying for the compilation times
 """
 
 import os, re
+from Configure import conf
 import TaskGen, Task, Utils, Params
 
 class java_taskgen(TaskGen.task_gen):
@@ -113,8 +114,7 @@ def detect(conf):
 	if not v['JAVAC']: conf.fatal('javac is required for compiling java classes')
 	v['JARCREATE'] = 'cf' # can use cvf
 
-	conf.hook(check_java_class)
-
+@conf
 def check_java_class(conf, classname, with_classpath=None):
 	"""
 	Check if specified java class is installed.
