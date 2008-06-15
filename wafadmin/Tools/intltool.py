@@ -5,7 +5,7 @@
 "intltool support"
 
 import os, re
-import TaskGen, Task, Params, Scan, Utils, Runner
+import TaskGen, Task, Params, Utils, Runner
 import cc
 from logging import fatal, error
 

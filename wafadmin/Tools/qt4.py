@@ -170,33 +170,25 @@ class XMLHandler(ContentHandler):
 	def characters(self, cars):
 		self.buf.append(cars)
 
-class rcc_scanner(Scan.scanner):
-	"scanner for d files"
-	def __init__(self):
-		Scan.scanner.__init__(self)
+def scan(self, node):
+	"add the dependency on the files referenced in the qrc"
+	parser = make_parser()
+	curHandler = XMLHandler()
+	parser.setContentHandler(curHandler)
+	fi = open(self.m_inputs[0].abspath(self.env))
+	parser.parse(fi)
+	fi.close()
 
-	def scan(self, task, node):
-		"add the dependency on the files referenced in the qrc"
-		parser = make_parser()
-		curHandler = XMLHandler()
-		parser.setContentHandler(curHandler)
-		fi = open(task.m_inputs[0].abspath(task.env))
-		parser.parse(fi)
-		fi.close()
+	nodes = []
+	names = []
+	root = self.m_inputs[0].m_parent
+	for x in curHandler.files:
+		x = x.encode('utf8')
+		nd = root.find_resource(x)
+		if nd: nodes.append(nd)
+		else: names.append(x)
 
-		nodes = []
-		names = []
-		root = task.m_inputs[0].m_parent
-		for x in curHandler.files:
-			x = x.encode('utf8')
-			nd = root.find_resource(x)
-			if nd: nodes.append(nd)
-			else: names.append(x)
-
-		return (nodes, names)
-
-if has_xml:
-	g_rcc_scanner = rcc_scanner()
+	return (nodes, names)
 
 @extension(EXT_RCC)
 def create_rcc_task(self, node):
@@ -207,9 +199,6 @@ def create_rcc_task(self, node):
 	rcctask = self.create_task('rcc', self.env)
 	rcctask.m_inputs = [node]
 	rcctask.m_outputs = [rcnode]
-
-	if has_xml:
-		rcctask.m_scanner = g_rcc_scanner
 
 	cpptask = self.create_task('cxx', self.env)
 	cpptask.m_inputs  = [rcnode]
@@ -327,7 +316,8 @@ def process_qm2rcc(task):
 
 b = Task.simple_task_type
 b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
-b('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc', after="qm2rcc")
+cls = b('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc', after="qm2rcc")
+cls.scan = scan
 b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc')
 b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc')
 

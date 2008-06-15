@@ -5,7 +5,7 @@
 "ocaml support"
 
 import os, re
-import Params, TaskGen, Scan, Utils, Task
+import Params, TaskGen, Utils, Task
 from logging import error, fatal
 from TaskGen import taskgen, feature, before, after, extension
 
@@ -50,59 +50,54 @@ def new_may_start(self):
 		self.order = 1
 	return Task.Task.may_start(self)
 
-class ocaml_scanner(Scan.scanner):
-	def __init__(self):
-		Scan.scanner.__init__(self)
-	def may_start(self, task):
-		if getattr(task, 'flag_deps', ''): return 1
+def may_start(self):
+	if getattr(self, 'flag_deps', ''): return 1
 
-		# the evil part is that we can only compute the dependencies after the
-		# source files can be read (this means actually producing the source files)
-		if getattr(task, 'bytecode', ''): alltasks = task.obj.bytecode_tasks
-		else: alltasks = task.obj.native_tasks
+	# the evil part is that we can only compute the dependencies after the
+	# source files can be read (this means actually producing the source files)
+	if getattr(self, 'bytecode', ''): alltasks = self.obj.bytecode_tasks
+	else: alltasks = self.obj.native_tasks
 
-		task.signature() # ensure that files are scanned - unfortunately
-		tree = Params.g_build
-		env = task.env
-		for node in task.m_inputs:
-			lst = tree.node_deps[node.variant(env)][node.id]
-			for depnode in lst:
-				for t in alltasks:
-					if t == task: continue
-					if depnode in t.m_inputs:
-						task.set_run_after(t)
-		task.obj.flag_deps = 'ok'
+	self.signature() # ensure that files are scanned - unfortunately
+	tree = Params.g_build
+	env = self.env
+	for node in self.m_inputs:
+		lst = tree.node_deps[node.variant(env)][node.id]
+		for depnode in lst:
+			for t in alltasks:
+				if t == self: continue
+				if depnode in t.m_inputs:
+					self.set_run_after(t)
+	self.obj.flag_deps = 'ok'
 
-		# TODO necessary to get the signature right - for now
-		delattr(task, 'sign_all')
-		task.signature()
+	# TODO necessary to get the signature right - for now
+	delattr(self, 'sign_all')
+	self.signature()
 
-		return 1
+	return 1
 
-	def scan(self, task, node):
-		code = filter_comments(node.read(task.env))
+def scan(self, node):
+	code = filter_comments(node.read(self.env))
 
-		global open_re
-		names = []
-		import_iterator = open_re.finditer(code)
-		if import_iterator:
-			for import_match in import_iterator:
-				names.append(import_match.group(1))
-		found_lst = []
-		raw_lst = []
-		for name in names:
-			nd = None
-			for x in task.incpaths:
-				nd = x.find_resource(name.lower()+'.ml')
-				if nd:
-					found_lst.append(nd)
-					break
-			else:
-				raw_lst.append(name)
+	global open_re
+	names = []
+	import_iterator = open_re.finditer(code)
+	if import_iterator:
+		for import_match in import_iterator:
+			names.append(import_match.group(1))
+	found_lst = []
+	raw_lst = []
+	for name in names:
+		nd = None
+		for x in self.incpaths:
+			nd = x.find_resource(name.lower()+'.ml')
+			if nd:
+				found_lst.append(nd)
+				break
+		else:
+			raw_lst.append(name)
 
-		return (found_lst, raw_lst)
-
-g_caml_scanner = ocaml_scanner()
+	return (found_lst, raw_lst)
 
 def get_target_name(self, bytecode):
 	if bytecode:
@@ -279,14 +274,12 @@ def ml_hook(self, node):
 		task = self.create_task('ocaml', self.native_env)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.cmx'))
-		task.m_scanner = g_caml_scanner
 		task.obj = self
 		task.incpaths = self._bld_incpaths_lst
 		self.native_tasks.append(task)
 	if self.bytecode_env:
 		task = self.create_task('ocaml', self.bytecode_env)
 		task.set_inputs(node)
-		task.m_scanner = g_caml_scanner
 		task.obj = self
 		task.bytecode = 1
 		task.incpaths = self._bld_incpaths_lst
@@ -294,7 +287,10 @@ def ml_hook(self, node):
 		self.bytecode_tasks.append(task)
 
 b = Task.simple_task_type
-b('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
+cls = b('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
+cls.may_start = may_start
+cls.scan = scan
+
 b('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE', before="ocaml ocamlcc")
 b('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
 b('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
