@@ -112,6 +112,7 @@ class ConfigureTester(common_test.CommonTester):
 		conf = self._setup_configure()
 		com_conf = conf.create_common_include_configurator()
 		com_conf.name = 'stdio.h'
+		com_conf.want_message = False
 		self.assert_( com_conf.run(), "directory was not returned." )
 
 	def test_common_include4(self):
@@ -119,6 +120,7 @@ class ConfigureTester(common_test.CommonTester):
 		conf = self._setup_configure()
 		com_conf = conf.create_common_include_configurator()
 		com_conf.name = 'kukukukukuk.h'
+		com_conf.want_message = False
 		self.failIf(com_conf.run(), "directory was returned for non-exist header." )
 
 class CcConfigureTester(ConfigureTester):
@@ -170,13 +172,10 @@ class CxxConfigureTester(ConfigureTester):
 		self._test_configure(False)
 
 def run_tests(verbose=2):
-	suite = unittest.TestLoader().loadTestsFromTestCase(CcConfigureTester)
-	# use the next line to run only specific tests: 
-#	suite = unittest.TestLoader().loadTestsFromNames(["test_common_include2"], CcConfigureTester)
-	unittest.TextTestRunner(verbosity=verbose).run(suite)
-
-	suite = unittest.TestLoader().loadTestsFromTestCase(CxxConfigureTester)
-	unittest.TextTestRunner(verbosity=verbose).run(suite)
+	cc_suite = unittest.TestLoader().loadTestsFromTestCase(CcConfigureTester)
+	cpp_suite = unittest.TestLoader().loadTestsFromTestCase(CxxConfigureTester)
+	all_tests = unittest.TestSuite((cc_suite, cpp_suite))
+	unittest.TextTestRunner(verbosity=verbose).run(all_tests)
 
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
