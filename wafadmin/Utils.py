@@ -43,13 +43,14 @@ class log_format(logging.Formatter):
 	def __init__(self):
 		logging.Formatter.__init__(self, "%(asctime)s %%(c1)s%(zone)s%%(c2)s %(message)s", "%H:%M:%S")
 	def format(self, rec):
-		if not 'zone' in rec.__dict__: rec.zone = ''
+		if not 'zone' in rec.__dict__: rec.zone = rec.module
 		col = Params.g_colors
 		if rec.levelno >= logging.WARNING:
 			return "%s%s%s" % (col['RED'], rec.msg, col['NORMAL'])
+		color = 'PINK'
 		ret = logging.Formatter.format(self, rec)
 		try:
-			return ret % {'c1':col[rec.color], 'c2':col['NORMAL']}
+			return ret % {'c1':col[color], 'c2':col['NORMAL']}
 		except TypeError:
 			return ret.replace("%(c1)s", "").replace("%(c2)s", "")
 
