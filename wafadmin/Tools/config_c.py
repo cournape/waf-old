@@ -45,15 +45,14 @@ class enumerator_base(object):
 		else:
 			fatal('A mandatory check failed. Make sure all dependencies are ok and can be found.')
 
-	def update_hash(self, md5hash):
+	def hash(self):
+		m = md5()
 		classvars = vars(self)
 		for (var, value) in classvars.iteritems():
-			# TODO comparing value to env is fast or slow ?
-			if callable(var):      continue
-			if value == self:      continue
-			if value == self.env:  continue
-			if value == self.conf: continue
-			md5hash.update(str(value))
+			if callable(var) or value == self or value == self.env or value == self.conf:
+				continue
+			m.update(str(value))
+		return m.digest()
 
 	def update_env(self, hashtable):
 		# skip this if hashtable is only a string
@@ -64,13 +63,8 @@ class enumerator_base(object):
 	def validate(self):
 		pass
 
-	def hash(self):
-		m = md5()
-		self.update_hash(m)
-		return m.digest()
-
 	def run_cache(self, retvalue):
-		# interface, do not remove
+		"""interface, do not remove"""
 		pass
 
 	def run(self):
