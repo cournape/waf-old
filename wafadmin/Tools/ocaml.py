@@ -74,7 +74,7 @@ def compile_may_start(self):
 	delattr(self, 'sign_all')
 	self.signature()
 
-	return 1
+	return Task.Task.may_start(self)
 
 def scan(self, node):
 	code = filter_comments(node.read(self.env))
