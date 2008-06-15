@@ -178,7 +178,7 @@ class function_enumerator(enumerator_base):
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('function %s' % self.function, '', ret, option='')
-		self.define_cond(self.define, ret)
+		self.conf.define_cond(self.define, ret)
 
 		self.env['LIB'] = oldlib
 		self.env['LIBPATH'] = oldlibpath
@@ -788,6 +788,7 @@ class header_configurator(configurator_base):
 		obj.code     = "\n".join(code)
 		obj.includes = self.path
 		obj.uselib   = self.uselib_store + " " + self.uselib
+		obj.env = self.conf.env.copy()
 		obj.env['LIB'] = Utils.to_list(self.libs)
 		obj.env['LIBPATH'] = Utils.to_list(self.lib_paths)
 
