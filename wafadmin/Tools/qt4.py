@@ -21,7 +21,7 @@ else:
 
 import os, sys
 import ccroot, cxx
-import Params, TaskGen, Task, Utils, Runner, Scan
+import Params, TaskGen, Task, Utils, Runner
 from TaskGen import taskgen, feature, after, extension
 from logging import error, fatal
 
@@ -64,8 +64,8 @@ class MTask(Task.Task):
 		# to know if there is a moc file to create
 		try:
 			self.signature()
-		except Scan.ScannerError:
-			pass
+		except:
+			print "TODO"
 		else:
 			# remove the signature, it must be recomputed
 			delattr(self, 'sign_all')

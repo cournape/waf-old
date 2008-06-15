@@ -5,7 +5,7 @@
 
 import os, sys, re, optparse
 import ccroot # <- leave this
-import TaskGen, Utils, Task, Params, checks, Configure, Scan
+import TaskGen, Utils, Task, Params, checks, Configure
 from logging import debug, error
 from TaskGen import taskgen, feature, after, before, extension
 
@@ -198,25 +198,17 @@ class d_parser(object):
 			# for each name, see if it is like a node or not
 			self.tryfind(x)
 
-class d_scanner(Scan.scanner):
-	"scanner for d files"
-	def __init__(self):
-		Scan.scanner.__init__(self)
+def scan(self, node):
+	"look for .d/.di the .d source need"
+	debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
+	env = task.env
+	gruik = d_parser(env, env['INC_PATHS'])
+	gruik.start(node)
 
-	def scan(self, task, node):
-		"look for .d/.di the .d source need"
-		debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-		env = task.env
-		gruik = d_parser(env, env['INC_PATHS'])
-		gruik.start(node)
-
-		if Params.g_verbose:
-			debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
-			#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
-		return (gruik.m_nodes, gruik.m_names)
-
-g_d_scanner = d_scanner()
-"scanner for d programs"
+	if Params.g_verbose:
+		debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
+		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
+	return (gruik.m_nodes, gruik.m_names)
 
 def get_target_name(self):
 	"for d programs and libs"
@@ -438,9 +430,6 @@ def d_hook(self, node):
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
-	global g_d_scanner
-	task.m_scanner = g_d_scanner
-
 	task.m_inputs = [node]
 	task.m_outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
@@ -457,7 +446,8 @@ ${D_SRC_F}${SRC} \
 ${D_TGT_F}${TGT[0].bldpath(env)}'
 link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${_DLIBDIRFLAGS} ${_DLIBFLAGS}'
 
-Task.simple_task_type('d', d_str, 'GREEN', prio=100)
+cls = Task.simple_task_type('d', d_str, 'GREEN', prio=100)
+cls.scan = scan
 Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', prio=100)
 Task.simple_task_type('d_link', link_str, color='YELLOW', prio=111)
 

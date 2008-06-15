@@ -5,49 +5,43 @@
 "TeX/LaTeX/PDFLaTeX support"
 
 import os, re
-import Utils, Params, TaskGen, Task, Runner, Scan
+import Utils, Params, TaskGen, Task, Runner
 from logging import error, warn, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
-class tex_scanner(Scan.scanner):
-	def __init__(self):
-		Scan.scanner.__init__(self)
+def scan(self, node):
+	env = task.env
 
-	def scan(self, task, node):
-		env = task.env
+	nodes = []
+	names = []
+	if not node: return (nodes, names)
 
-		nodes = []
-		names = []
-		if not node: return (nodes, names)
+	fi = open(node.abspath(env), 'r')
+	code = fi.read()
+	fi.close()
 
-		fi = open(node.abspath(env), 'r')
-		code = fi.read()
-		fi.close()
+	curdirnode = task.curdirnode
+	abs = curdirnode.abspath()
+	for match in re_tex.finditer(code):
+		path = match.group('file')
+		if path:
+			for k in ['', '.tex', '.ltx']:
+				# add another loop for the tex include paths?
+				debug("trying %s%s" % (path, k), 'tex')
+				try:
+					os.stat(abs+os.sep+path+k)
+				except OSError:
+					continue
+				found = path+k
+				node = curdirnode.find_resource(found)
+				if node:
+					nodes.append(node)
+			else:
+				debug('could not find %s' % path, 'tex')
+				names.append(path)
 
-		curdirnode = task.curdirnode
-		abs = curdirnode.abspath()
-		for match in re_tex.finditer(code):
-			path = match.group('file')
-			if path:
-				for k in ['', '.tex', '.ltx']:
-					# add another loop for the tex include paths?
-					debug("trying %s%s" % (path, k), 'tex')
-					try:
-						os.stat(abs+os.sep+path+k)
-					except OSError:
-						continue
-					found = path+k
-					node = curdirnode.find_resource(found)
-					if node:
-						nodes.append(node)
-				else:
-					debug('could not find %s' % path, 'tex')
-					names.append(path)
-
-		debug("found the following : %s and names %s" % (nodes, names), 'tex')
-		return (nodes, names)
-
-g_tex_scanner = tex_scanner()
+	debug("found the following : %s and names %s" % (nodes, names), 'tex')
+	return (nodes, names)
 
 g_bibtex_re = re.compile('bibdata', re.M)
 def tex_build(task, command='LATEX'):
@@ -167,6 +161,7 @@ class tex_taskgen(TaskGen.task_gen):
 		self.outs = '' # example: "ps pdf"
 		self.prompt = 1  # prompt for incomplete files (else the batchmode is used)
 		self.deps = ''
+
 	def apply(self):
 
 		tree = Params.g_build
@@ -199,7 +194,6 @@ class tex_taskgen(TaskGen.task_gen):
 			else:
 				fatal('no type or invalid type given in tex object (should be latex or pdflatex)')
 
-			task.m_scanner = g_tex_scanner
 			task.m_env = self.env
 			task.curdirnode = self.path
 
@@ -243,6 +237,8 @@ b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after="latex
 b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after="latex pdflatex tex bibtex")
 b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after="dvipdf pdflatex")
 b = Task.task_type_from_func
-b('latex', latex_build, vars=latex_vardeps)
-b('tex', pdflatex_build, vars=pdflatex_vardeps)
+cls = b('latex', latex_build, vars=latex_vardeps)
+cls.scan = scan
+cls = b('pdflatex', pdflatex_build, vars=pdflatex_vardeps)
+cls.scan = scan
 
