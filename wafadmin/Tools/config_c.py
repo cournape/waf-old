@@ -1083,14 +1083,13 @@ def run_check(self, obj):
 	if obj.env: env = obj.env
 	else: env = self.env.copy()
 
-	dest=open(os.path.join(dir, test_f_name), 'w')
+	dest = open(os.path.join(dir, test_f_name), 'w')
 	dest.write(obj.code)
 	dest.close()
-
 	# very important
 	Utils.reset()
 
-	back=os.path.abspath('.')
+	back = os.path.abspath('.')
 
 	bld = Build.Build()
 	bld.m_allenvs.update(self.m_allenvs)
@@ -1115,6 +1114,8 @@ def run_check(self, obj):
 		ret = bld.compile()
 	except Build.BuildError:
 		ret = 1
+
+	Runner.print_log("==>\n%s\n<==" % obj.code)
 
 	# keep the name of the program to execute
 	if obj.execute:
