@@ -19,7 +19,7 @@ logic. The data files (Environments) must contain configuration data only (flags
 Note: the c/c++ related code is in the module config_c
 """
 
-import os, types, imp, cPickle, sys, shlex
+import os, types, imp, cPickle, sys
 import Params, Environment, Runner, Build, Utils
 from logging import fatal, warn
 from Constants import *
