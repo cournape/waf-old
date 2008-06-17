@@ -75,6 +75,9 @@ logging.debug = debug
 
 def fatal(msg, exit_code=1):
 	logging.error(msg)
+	if Params.g_verbose > 1:
+		import traceback
+		traceback.print_stack()
 	sys.exit(exit_code)
 logging.fatal = fatal
 
