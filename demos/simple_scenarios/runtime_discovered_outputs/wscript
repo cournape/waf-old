@@ -56,7 +56,7 @@ class shpip_task(Task.Task):
 	It outputs cpp files that must be compiled too
 	"""
 
-	m_color = 'PINK'
+	color = 'PINK'
 
 	def __init__(self, env, normal=1, prio=None):
 		Task.Task.__init__(self, env, normal, prio)
