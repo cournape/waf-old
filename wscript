@@ -321,12 +321,12 @@ def build(bld):
 
 		create_waf()
 
-	wafadmin = bld.create_obj('py')
+	wafadmin = bld.new_task_gen('py')
 	wafadmin.find_sources_in_dirs('wafadmin', exts=['.py'])
 	wafadmin.inst_var = 'PREFIX'
 	wafadmin.inst_dir = os.path.join('lib', 'waf-%s-%s' % (VERSION, REVISION), 'wafadmin')
 
-	tools = bld.create_obj('py')
+	tools = bld.new_task_gen('py')
 	tools.find_sources_in_dirs('wafadmin/Tools', exts=['.py'])
 	tools.inst_var = 'PREFIX'
 	tools.inst_dir = os.path.join(wafadmin.inst_dir, 'Tools')
