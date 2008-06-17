@@ -48,7 +48,7 @@ def build(bld):
 import os
 import TaskGen, Params, Task, Utils
 from TaskGen import taskgen, feature, before, extension
-from Params import debug
+from logging import debug
 
 class shpip_task(Task.Task):
 	"""
@@ -59,7 +59,7 @@ class shpip_task(Task.Task):
 	m_color = 'PINK'
 
 	def __init__(self, env, normal=1, prio=None):
-		Task.Task.__init__(self, 'shpip_action', env, normal, prio)
+		Task.Task.__init__(self, env, normal, prio)
 
 	def may_start(self):
 		# set a dummy output else the method will not work
@@ -74,9 +74,9 @@ class shpip_task(Task.Task):
 		# and if the source has not changed, create the corresponding cpp tasks
 		node = self.m_inputs[0]
 		try:
-			sig = Params.g_build.m_tstamp_variants[node.variant(self.env())][node.id]
-			deps = Params.g_build.raw_deps[node.variant(self.env())][node.id]
-			prevsig = deps[0]
+			sig = Params.g_build.m_tstamp_variants[node.variant(self.env)][node.id]
+			key = self.unique_id()
+			prev_sig = Params.g_build.bld_sigs[key][0]
 		except KeyError:
 			pass
 		else:
@@ -92,7 +92,7 @@ class shpip_task(Task.Task):
 		# this is a part of Task.Task:must_run: first node does not exist -> run
 		# this is necessary after a clean
 		# TODO cache is disabled
-		env = self.env()
+		env = self.env
 		tree = Params.g_build
 		node = self.m_outputs[0]
 		variant = node.variant(env)
@@ -125,16 +125,16 @@ class shpip_task(Task.Task):
 
 			# if headers are produced something like this can be done to add the include paths
 			dir = task.m_inputs[0].m_parent
-			self.env().append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env())) # include paths for c++
-			self.env().append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env())) # include paths for c
-			self.env().append_value('INC_PATHS', dir) # for the waf preprocessor
+			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c++
+			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c
+			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
 
 	def run(self):
 		"runs a program that creates cpp files, capture the output to compile them"
 		node = self.m_inputs[0]
 
-		dir = Params.g_build.m_srcnode.bldpath(self.env())
-		cmd = 'cd %s && %s %s' % (dir, self.env()['SHPIP_COMPILER'], node.abspath(self.env()))
+		dir = Params.g_build.m_srcnode.bldpath(self.env)
+		cmd = 'cd %s && %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
 		try:
 			# read the contents of the file and create cpp files from it
 			files = os.popen(cmd).read().strip()
@@ -154,12 +154,13 @@ class shpip_task(Task.Task):
 			# the files exist in the build dir only so we do not use find_or_declare
 			build_nodes = [node.m_parent.exclusive_build_node(x) for x in lst]
 			self.m_outputs = build_nodes
+
 			# create the cpp tasks
 			self.add_cpp_tasks(build_nodes)
 			# cache the file names and the task signature
 			node = self.m_inputs[0]
-			sig = Params.g_build.m_tstamp_variants[node.variant(self.env())][node.id]
-			Params.g_build.raw_deps[node.variant(self.env())][node.id] = [sig] + lst
+			sig = Params.g_build.m_tstamp_variants[node.variant(self.env)][node.id]
+			Params.g_build.raw_deps[node.variant(self.env)][node.id] = [sig] + lst
 		# 0 for all ok
 		return 0
 
