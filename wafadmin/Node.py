@@ -227,6 +227,11 @@ class Node(object):
 				# for find_dir and find_resource to work
 				parent = self.ensure_dir_node_from_path_lst(lst[:-1])
 				Params.g_build.m_scanned_folders[parent.id] = 1
+			else:
+				try:
+					Params.g_build.rescan(parent)
+				except OSError:
+					pass
 		else:
 			parent = self
 
