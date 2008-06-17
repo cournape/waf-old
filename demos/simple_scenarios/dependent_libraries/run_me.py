@@ -1,19 +1,19 @@
 #! /usr/bin/env python
 
 # This script runs waf in the libs and app directories...
-# Their purpose is to demonstrate confugring of dependent librarties.
+# Their purpose is to demonstrate confugring of dependent libraries.
 
 import os, sys
 
 def print_it(msg):
     print  "\n", msg, "\n", "=" * 80
 
-# make sure we start in the right place    
+# make sure we start in the right place
 curdir = os.path.abspath(os.path.curdir)
 main_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 os.chdir(main_dir)
 
-# start from clean 
+# start from clean
 os.chdir("libs")
 os.system("waf distclean")
 
