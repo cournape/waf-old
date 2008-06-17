@@ -75,13 +75,13 @@ class shpip_task(Task.Task):
 		node = self.m_inputs[0]
 		try:
 			sig = Params.g_build.m_tstamp_variants[node.variant(self.env)][node.id]
-			deps = Params.g_build.raw_deps[node.variant(self.env())][node.id]
+			deps = Params.g_build.raw_deps[node.variant(self.env)][node.id]
 			prev_sig = deps[0]
 		except KeyError:
 			pass
 		else:
 			# if the file has not changed, create the cpp tasks
-			if prevsig == sig:
+			if prev_sig == sig:
 				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
 				self.set_outputs(lst)
 				self.add_cpp_tasks(lst)
