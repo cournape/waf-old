@@ -65,14 +65,21 @@ def _exec_command_normal(s):
 	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
 	debug("system command -> "+ s, 'runner')
 	if Params.g_verbose or g_quiet: printout(s+'\n')
-	# encase the command in double-quotes in windows
-	if sys.platform == 'win32' and not s.startswith('""'):
-		s = '"%s"' % s
 	proc = subprocess.Popen(s, shell=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	process_cmd_output(proc)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
+
+if sys.platform == "win32":
+	def _exec_command_normal(s):
+		if Params.g_verbose or g_quiet: printout(s+'\n')
+		startupinfo = subprocess.STARTUPINFO()
+		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+		proc = subprocess.Popen(s, shell=False, startupinfo=startupinfo)
+		stat = proc.wait()
+		if stat & 0xff: return stat | 0x80
+		return stat >> 8
 
 def _exec_command_interact(s):
 	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
