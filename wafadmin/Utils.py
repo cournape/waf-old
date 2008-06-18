@@ -73,12 +73,12 @@ def debug(msg, zone=''):
 	old(msg, extra={'zone':zone})
 logging.debug = debug
 
-def fatal(msg, exit_code=1):
+def fatal(msg, ret=1):
 	logging.error(msg)
 	if Params.g_verbose > 1:
 		import traceback
 		traceback.print_stack()
-	sys.exit(exit_code)
+	sys.exit(ret)
 logging.fatal = fatal
 
 # Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
