@@ -459,7 +459,7 @@ def declare_order(*k):
 		except:
 			task_gen.prec[f2] = [f1]
 
-def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40, install=0):
+def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color='BLUE', prio=40, install=0, decider=None):
 	"""
 	see Tools/flex.py for an example
 	while i do not like such wrappers, some people really do
@@ -473,10 +473,10 @@ def declare_chain(name='', action='', ext_in=[], ext_out='', reentrant=1, color=
 		name = action.name
 
 	def x_file(self, node):
-		if type(ext_out) == types.StringType:
-			ext = ext_out
+		if decider:
+			ext = decider(self, node)
 		else:
-			ext = ext_out(self, node)
+			ext = ext_out
 
 		if type(ext) == types.StringType:
 			out_source = node.change_ext(ext)

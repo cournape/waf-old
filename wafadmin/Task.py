@@ -573,7 +573,8 @@ class Task(TaskBase):
 			return not ret
 
 		key = hash( (variant, node.m_name, time, getattr(self, 'm_scanner', self).__class__.__name__) )
-		prev_sig = tree.bld_sigs[key][0]
+		try: prev_sig = tree.bld_sigs[key][0]
+		except KeyError: return 1
 		#print "prev_sig is ", prev_sig
 		new_sig = self.signature()
 

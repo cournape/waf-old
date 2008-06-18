@@ -25,12 +25,19 @@ import shutil, os
 import TaskGen, Task, ccroot, Params
 from TaskGen import extension
 
+cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC}'
+#Task.simple_task_type('all_cc', cc_str, 'GREEN')
+
+cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
+#Task.simple_task_type('all_cxx', cxx_str, color='GREEN')
+
 class TaskMaster(Task.Task):
 	def __init__(self, action_name, env, priority=92, normal=1, master=None):
 		Task.Task.__init__(self, action_name, env, prio=priority, normal=normal)
 		self.slaves=[]
 		self.m_inputs2=[]
 		self.m_outputs2=[]
+		self.act = action_name
 
 	def add_slave(self, slave):
 		self.slaves.append(slave)
@@ -54,7 +61,7 @@ class TaskMaster(Task.Task):
 		tmpoutputs = self.m_outputs
 		self.m_outputs = self.m_outputs2
 
-		ret = self.m_action.run(self)
+		ret = self.__class__.__dict__[self.act](self)
 		env = self.env()
 
 		rootdir = Params.g_build.m_srcnode.abspath(env)
@@ -71,13 +78,22 @@ class TaskMaster(Task.Task):
 
 		return ret
 
+	# ouch, vars are ignored
+	m_vars = []
+	(fun, v) = Task.compile_fun("all_cc", cc_str)
+	all_cc = fun
+	m_vars += v
+	(fun, v) = Task.compile_fun("all_cxx", cxx_str)
+	all_cxx = fun
+	m_vars += v
+
 class TaskSlave(Task.Task):
 	def __init__(self, action_name, env, priority=90, normal=1, master=None):
 		Task.Task.__init__(self, action_name, env, priority, normal)
 		self.m_master = master
 
 	def get_display(self):
-		return "* skipping "+ self.m_inputs[0].m_name
+		return "* skipping %s\n" % self.m_inputs[0].m_name
 
 	def update_stat(self):
 		self.m_executed=1
@@ -94,24 +110,24 @@ class TaskSlave(Task.Task):
 
 @extension(EXT_C)
 def create_task_cxx_new(self, node):
+	comp = 'cxx' in self.features and 'cxx' or 'cc'
+
 	try:
 		mm = self.mastertask
 	except AttributeError:
-		mm = TaskMaster("all_"+self.m_type_initials, self.env)
+		mm = TaskMaster("all_"+comp, self.env)
 		self.mastertask = mm
 
-	task = TaskSlave(self.m_type_initials, self.env, 40, master=mm)
+	task = TaskSlave(comp, self.env, 40, master=mm)
 	self.m_tasks.append(task)
 	mm.add_slave(task)
+
+	task.m_scanner = ccroot.g_c_scanner
+	task.defines  = self.scanner_defines
 
 	task.set_inputs(node)
 	task.set_outputs(node.change_ext('.o'))
 
 	self.compiled_tasks.append(task)
 
-cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC}'
-Task.simple_task_type('all_cc', cc_str, 'GREEN')
-
-cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
-Task.simple_task_type('all_cpp', cpp_str, color='GREEN')
 
