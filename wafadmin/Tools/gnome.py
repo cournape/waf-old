@@ -40,11 +40,13 @@ def postinstall_icons():
 def postinstall_scrollkeeper(prog_name):
 	if Params.g_commands['install']:
 		# now the scrollkeeper update if we can write to the log file
-		if os.path.iswriteable('/var/log/scrollkeeper.log'):
+		try:
 			dir1 = Common.path_install('PREFIX', 'var/scrollkeeper')
 			dir2 = Common.path_install('DATADIR', 'omf/%s' % prog_name)
 			command = 'scrollkeeper-update -q -p %s -o %s' % (dir1, dir2)
 			ret = Runner.exec_command(command)
+		except:
+			pass
 
 def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if schemas: postinstall_schemas(prog_name)
