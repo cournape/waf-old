@@ -426,7 +426,7 @@ def add_shlib_d_flags(self):
 @extension(EXT_D)
 def d_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = self.create_task('d')
+	task = self.create_task(self.generate_headers and 'd_with_header' or 'd')
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
@@ -435,7 +435,6 @@ def d_hook(self, node):
 	self.compiled_tasks.append(task)
 
 	if self.generate_headers:
-		task.m_action = self.create_task('d_with_header')
 		header_node = node.change_ext(self.env['DHEADER_ext'])
 		task.m_outputs += [header_node]
 
