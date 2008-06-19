@@ -17,19 +17,21 @@ def configure(conf):
 	pkgconfig = conf.create_pkgconfig_configurator()
 	pkgconfig.name = 'cppunit'
 	pkgconfig.run()
-	if conf.env['HAVE_CPPUNIT']:
+	if conf.is_defined('HAVE_CPPUNIT'):
 		if 'dl' not in conf.env['LIB_CPPUNIT']:
 			l = conf.create_library_configurator()
 			l.name = 'dl'
-			l.uselib_store = 'CPPUNIT'
+			l.uselib = 'CPPUNIT'
 			l.run()
 		Params.pprint('CYAN', "To run unit tests use 'waf check'")
+	else:
+		conf.fatal('Install cppunit')
 
 def build(bld):
 	# process subfolders from here
 	subdirs = 'src'
 	# if cppunit was found in the config step, build unit tests too
-	if bld.env['HAVE_CPPUNIT']:
+	if bld.env()['HAVE_CPPUNIT']:
 		subdirs += ' tests'
 	bld.add_subdirs(subdirs)
 
