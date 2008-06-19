@@ -17,7 +17,7 @@ g_cpp_flag_vars = [
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CXXDEFINES']
 "main cpp variables"
 
-EXT_CXX = ['.cpp', '.cc', '.cxx', '.C']
+EXT_CXX = ['.cpp', '.cc', '.cxx', '.C', '.c++']
 CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_defines_cxx',
 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx']
 
