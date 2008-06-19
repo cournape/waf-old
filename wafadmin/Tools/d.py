@@ -201,7 +201,7 @@ class d_parser(object):
 def scan(self, node):
 	"look for .d/.di the .d source need"
 	debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
-	env = task.env
+	env = self.env
 	gruik = d_parser(env, env['INC_PATHS'])
 	gruik.start(node)
 
