@@ -82,6 +82,19 @@ def _exec_command_interact(s):
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
+if sys.platform == "win32":
+	old_log = _exec_command_interact
+	def _exec_commandi_interact(s):
+		# TODO very long command-lines are unlikely to be used in the configuration
+		if len(s) < 2000: return old_log(s)
+		if Params.g_verbose or g_quiet: printout(s+'\n')
+		startupinfo = subprocess.STARTUPINFO()
+		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+		proc = subprocess.Popen(s, shell=False, startupinfo=startupinfo)
+		stat = proc.wait()
+		if stat & 0xff: return stat | 0x80
+		return stat >> 8
+
 exec_command = _exec_command_interact # python bug on stdout overload
 def set_exec(mode):
 	global exec_command
