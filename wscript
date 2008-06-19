@@ -74,36 +74,6 @@ def set_options(opt):
 	except:
 		pass
 
-def encodeAscii85(s):
-	out=[]
-	app=out.append
-	v=[(0,16777216L),(1,65536),(2,256),(3,1)]
-	cnt,r = divmod(len(s),4)
-	stop=4*cnt
-	p1,p2=s[0:stop],s[stop:]
-	for i in range(cnt):
-		offset=i*4
-		num=0
-		for (j,mul) in v: num+=mul*ord(p1[offset+j])
-		if num==0: out.append('z')
-		else:
-			x,e=divmod(num,85)
-			x,d=divmod(x,85)
-			x,c=divmod(x,85)
-			a,b=divmod(x,85)
-			app(chr(a+33)+chr(b+33)+chr(c+33)+chr(d+33)+chr(e+33))
-	if r>0:
-		while len(p2)<4: p2=p2+'\x00'
-		num=0
-		for (j,mul) in v: num+=mul*ord(p2[j])
-		x,e=divmod(num,85)
-		x,d=divmod(x,85)
-		x,c=divmod(x,85)
-		a,b=divmod(x,85)
-		end=chr(a+33)+chr(b+33)+chr(c+33)+chr(d+33)+chr(e+33)
-		app(end[0:1+r])
-	return ''.join(out)
-
 def compute_revision():
 	global REVISION
 
@@ -275,7 +245,7 @@ def create_waf():
 	f = open('%s.tar.%s' % (mw, zipType), 'rb')
 	cnt = f.read()
 	f.close()
-	code2 = encodeAscii85(cnt)
+	code2 = cnt.replace('\n', 'itaN').replace('\r', 'itaR')
 	f = open('waf', 'wb')
 	f.write(code1)
 	f.write('#==>\n')

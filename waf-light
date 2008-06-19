@@ -43,14 +43,6 @@ INSTALL="x"
 cwd = os.getcwd()
 join = os.path.join
 
-def decode(s):
-	p1 = len(s)
-	s += '!!!!!'
-	w1 = [256**(3-u) for u in xrange(4)]
-	w2 = [(u, 85**(4-u)) for u in xrange(5)]
-	tot = [sum([(ord(s[i+m])-33) * n for (m, n) in w2]) for i in xrange(0, p1, 5)]
-	return ''.join([chr((y/x) & 255) for y in tot for x in w1])
-
 def err(m):
 	print '\033[91mError: %s\033[0m' % m
 	sys.exit(1)
@@ -67,8 +59,7 @@ def unpack_wafdir(dir):
 			if f.readline()!='#<==\n': err(c % 2)
 			break
 	if not txt: err(c % 3)
-	try: txt = decode(txt[1:-1].replace('z', '!!!!!'))
-	except: err(c % 4)
+	txt = txt[1:-1].replace('itaN', '\n').replace('itaR', '\r')
 
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
