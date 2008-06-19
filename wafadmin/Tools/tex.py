@@ -47,11 +47,8 @@ g_bibtex_re = re.compile('bibdata', re.M)
 def tex_build(task, command='LATEX'):
 	env = task.env
 
-	if env['PROMPT_LATEX']:
-		Runner.set_exec('noredir')
-		com = '%s %s' % (env[command], env.get_flat(command+'FLAGS'))
-	else:
-		com = '%s %s %s' % (env[command], env.get_flat(command+'FLAGS'), '-interaction=batchmode')
+	com = '%s %s' % (env[command], env.get_flat(command+'FLAGS'))
+	if not env['PROMPT_LATEX']: com = "%s %s" % (com, '-interaction=batchmode')
 
 	node = task.m_inputs[0]
 	reldir  = node.bld_dir(env)
