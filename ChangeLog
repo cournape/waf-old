@@ -3,8 +3,10 @@ NEW IN WAF 1.4.3
 * elimination of the Action classes
 * quote '%' characters in subst_obj
 * boost module improvements
-* two new dependency algorithms
+* two new dependency algorithms (task scheduling)
 * automatic dependency computation (task chaining)
+* handle long command-lines on windows
+* fixes for terminal tty problems
 
 NEW IN WAF 1.4.2
 ----------------
