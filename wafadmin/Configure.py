@@ -109,11 +109,10 @@ def find_program_impl(env, filename, path_list=[], var=None):
 	return ''
 
 class Configure(object):
-	log_file = 'config.log'
+	log_file_name = "config.log"
 	tests = {}
 	error_handlers = []
 	def __init__(self, env=None, blddir='', srcdir=''):
-
 		self.env       = None
 		self.m_envname = ''
 
@@ -146,10 +145,13 @@ class Configure(object):
 				finally:
 					file.close()
 
-		self._quiet = 0
-
 		self.hash = 0
 		self.files = []
+
+		path = os.path.join(self.m_blddir, Configure.log_file_name)
+		try: os.unlink(path)
+		except (OSError, IOError): pass
+		self.log = open(path, 'wb')
 
 	def errormsg(self, msg):
 		Params.niceprint(msg, 'ERROR', 'Configuration')
@@ -229,6 +231,10 @@ class Configure(object):
 		finally:
 			file.close()
 
+		if self.log:
+			print "closing the cnfig.log"
+			self.log.close()
+
 	def set_env_name(self, name, env):
 		"add a new environment called name"
 		self.m_allenvs[name] = env
@@ -266,7 +272,7 @@ class Configure(object):
 		p = Params.pprint
 		if state: p('GREEN', 'ok ' + option)
 		else: p('YELLOW', 'not found')
-		Runner.print_log(sr, '\n\n')
+		self.log.write(sr + '\n\n')
 
 	def check_message_custom(self, type, msg, custom, option='', color='PINK'):
 		"""print an checking message. This function is used by other checking functions"""
@@ -275,21 +281,7 @@ class Configure(object):
 		g_maxlen = max(g_maxlen, len(sr))
 		print "%s :" % sr.ljust(g_maxlen),
 		Params.pprint(color, custom)
-		Runner.print_log(sr, '\n\n')
-
-	def mute_logging(self):
-		"mutes the output temporarily"
-		self._quiet = Runner.g_quiet
-		Runner.g_quiet = 1
-		if not Runner.log_file:
-			Runner.log_file = open(os.path.join(self.m_blddir, Configure.log_file), 'a')
-
-	def restore_logging(self):
-		"see mute_logging"
-		Runner.g_quiet = self._quiet
-		if Runner.log_file:
-			Runner.log_file.close()
-			Runner.log_file = None
+		self.log.write(sr + '\n\n')
 
 	def find_program(self, program_name, path_list=[], var=None):
 		"wrapper provided for convenience"
@@ -340,6 +332,7 @@ class Configure(object):
 			try:
 				f()
 			except Exception, e:
+				raise
 				if err_handler(x, e) == STOP:
 					break
 				else:

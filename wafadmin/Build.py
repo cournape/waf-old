@@ -92,6 +92,8 @@ class Build(object):
 
 		self.cache_dir_contents = {}
 
+		self.log = None
+
 	def _init_data(self):
 		debug("init data called", 'build')
 

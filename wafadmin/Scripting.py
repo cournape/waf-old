@@ -88,7 +88,6 @@ def configure():
 	jobs_save = Params.g_options.jobs
 	Params.g_options.jobs = 1
 
-	Runner.set_exec('normal')
 	tree = Build.Build()
 
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
@@ -107,11 +106,6 @@ def configure():
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
 
-	# first remove the log file if it exists
-	try: os.unlink(os.path.join(bld, Configure.Configure.log_file))
-	except (OSError, IOError): pass
-
-	conf.mute_logging()
 	try:
 		# calling to main wscript's configure()
 		conf.sub_config('')
@@ -120,7 +114,6 @@ def configure():
 	except Exception:
 		Utils.test_full()
 		raise
-	conf.restore_logging()
 
 	conf.store(tree)
 	conf.cleanup()
@@ -302,8 +295,6 @@ def main():
 		if not Params.g_options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
 		Params.pprint('GREEN', 'Configuration finished successfully%s; project is now ready to build.' % ela)
 		sys.exit(0)
-
-	Runner.set_exec('noredir')
 
 	# compile the project and/or install the files
 	bld = Build.Build()

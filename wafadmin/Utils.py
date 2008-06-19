@@ -70,7 +70,7 @@ class log_filter(logging.Filter):
 
 old = logging.debug
 def debug(msg, zone=''):
-	old(msg, extra={'zone':zone})
+	old(msg)#, extra={'zone':zone})
 logging.debug = debug
 
 def fatal(msg, ret=1):

@@ -13,17 +13,15 @@ from Constants import *
 g_quiet = 0
 "do not output anything"
 
-log_file = None
-"output to a config.log file, see Configure.py {mute,restore}_logging"
-
 def print_log(msg, nl='\n'):
-	if log_file:
-		log_file.write(msg)
-		log_file.write(nl)
-		log_file.flush()
+	f = Params.g_build.log
+	if f:
+		f.write(msg)
+		f.write(nl)
+		f.flush()
 
 def printout(s):
-	if not g_quiet:
+	if not Params.g_build.log:
 		sys.stdout.write(s)
 		sys.stdout.flush()
 	print_log(s, nl='')
@@ -49,30 +47,20 @@ def progress_line(state, total, col1, task):
 	fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
 	return fs % (state, total, col1, task.display, col2)
 
-def process_cmd_output(proc):
-	"""calling communicate to avoid race-condition between stdout and stderr"""
-	(cmd_stdout, cmd_stderr) = proc.communicate()
-	if cmd_stdout:
-		printout(cmd_stdout)
-	if cmd_stderr:
-		if g_quiet:
-			printout(cmd_stderr)
-		else:
-			sys.stderr.write(cmd_stderr)
-			sys.stderr.flush()
-
-def _exec_command_normal(s):
-	"run commands in a portable way the subprocess module backported from python 2.4 and should work on python >= 2.2"
+def exec_command(s):
 	debug("system command -> "+ s, 'runner')
 	if Params.g_verbose or g_quiet: printout(s+'\n')
-	proc = subprocess.Popen(s, shell=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	process_cmd_output(proc)
+	log = Params.g_build.log
+	proc = subprocess.Popen(s, shell=1, stdout=log, stderr=log)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
 if sys.platform == "win32":
-	def _exec_command_normal(s):
+	old_log = exec_command
+	def exec_command(s):
+		# TODO very long command-lines are unlikely to be used in the configuration
+		if len(s) < 2000: return old_log(s)
 		if Params.g_verbose or g_quiet: printout(s+'\n')
 		startupinfo = subprocess.STARTUPINFO()
 		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -80,25 +68,6 @@ if sys.platform == "win32":
 		stat = proc.wait()
 		if stat & 0xff: return stat | 0x80
 		return stat >> 8
-
-def _exec_command_interact(s):
-	"this one is for the latex output, where we cannot capture the output while the process waits for stdin"
-	debug("system command (interact) -> "+ s, 'runner')
-	if Params.g_verbose or g_quiet: printout(s+'\n')
-	# encase the command in double-quotes in windows
-	if sys.platform == 'win32' and not s.startswith('""'):
-		s = '"%s"' % s
-	proc = subprocess.Popen(s, shell=1)
-	stat = proc.wait()
-	if stat & 0xff: return stat | 0x80
-	return stat >> 8
-
-exec_command = _exec_command_interact # python bug on stdout overload
-def set_exec(mode):
-	global exec_command
-	if mode == 'normal': exec_command = _exec_command_normal
-	elif mode == 'noredir': exec_command = _exec_command_interact
-	else: error('set_runner_mode')
 
 class Serial(object):
 	def __init__(self, bld):

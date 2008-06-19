@@ -1028,6 +1028,7 @@ def run_check(self, obj):
 	back = os.path.abspath('.')
 
 	bld = Build.Build()
+	bld.log = self.log
 	bld.m_allenvs.update(self.m_allenvs)
 	bld.m_allenvs['default'] = env
 	bld._variants=bld.m_allenvs.keys()
@@ -1045,13 +1046,14 @@ def run_check(self, obj):
 	o.cppflags = obj.flags
 	o.includes = obj.includes
 
+	self.log.write("==>\n%s\n<==\n" % obj.code)
+
+
 	# compile the program
 	try:
 		ret = bld.compile()
 	except Build.BuildError:
 		ret = 1
-
-	Runner.print_log("==>\n%s\n<==" % obj.code)
 
 	# keep the name of the program to execute
 	if obj.execute:
