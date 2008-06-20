@@ -527,16 +527,6 @@ class Build(object):
 		Params.pprint('CYAN', recu(self.m_root, 0) )
 		Params.pprint('CYAN', 'size is '+str(self.m_root.size_subtree()))
 
-	def env_of_name(self, name):
-		if not name:
-			error('env_of_name called with no name!')
-			return None
-		try:
-			return self.m_allenvs[name]
-		except KeyError:
-			error('no such environment: '+name)
-			return None
-
 	def get_env(self):
 		return self.env_of_name('default')
 	def set_env(self, name, val):
@@ -584,14 +574,12 @@ class Build(object):
 	def symlink_as(self, *k, **kw):
 		return Install.symlink_as(*k, **kw)
 
-	## the code below are candidates for the stable apis ##
+	## the following methods are candidates for the stable apis ##
 
-	# public
 	def add_group(self, name=''):
 		self.flush(all=0)
 		self.task_manager.add_group(name)
 
-	# public
 	def sign_vars(self, env, vars_lst):
 		" ['CXX', ..] -> [env['CXX'], ..]"
 
@@ -610,7 +598,6 @@ class Build(object):
 		self.sig_vars_cache[idx] = ret
 		return ret
 
-	# public
 	def name_to_obj(self, name):
 		"""retrieve a task generator from its name or its target name
 		remember that names must be unique"""
@@ -624,7 +611,6 @@ class Build(object):
 					cache[x.target] = x
 		return cache.get(name, None)
 
-	# public
 	def flush(self, all=1):
 		"""tell the task generators to create the tasks"""
 
@@ -662,4 +648,14 @@ class Build(object):
 			for obj in self.all_task_gen:
 				if launch_node and not obj.path.is_child_of(launch_node): continue
 				if not obj.m_posted: obj.post()
+
+	def env_of_name(self, name):
+		if not name:
+			error('env_of_name called with no name!')
+			return None
+		try:
+			return self.m_allenvs[name]
+		except KeyError:
+			error('no such environment: '+name)
+			return None
 
