@@ -64,7 +64,7 @@ class Node(object):
 
 	def __hash__(self):
 		"expensive, make certain it is not used"
-		raise
+		fatal('nodes, you are doing it wrong')
 
 	def get_type(self):
 		return self.id & 3

@@ -84,10 +84,9 @@ logging.fatal = fatal
 #	m.update(st.st_size)
 #	return m.digest()
 
-
 def test_full():
 	try:
-		f=open('.waf-full','w')
+		f = open('.waf-full','w')
 		f.write('test')
 		f.close()
 		os.unlink('.waf-full')
