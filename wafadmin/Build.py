@@ -544,10 +544,6 @@ class Build(object):
 
 	env = property(get_env, set_env)
 
-	def add_group(self, name=''):
-		self.flush(all=0)
-		self.task_manager.add_group(name)
-
 	def add_manual_dependency(self, path, value):
 		h = getattr(self, 'deps_man', {})
 		if os.path.isabs(path):
@@ -556,16 +552,6 @@ class Build(object):
 			node = self.path.find_resource(path)
 		h[node] = value
 		self.deps_man = h
-
-	def set_sig_cache(self, key, val):
-		self.bld_sigs[key] = val
-
-	def get_sig_cache(self, key):
-		try:
-			return self.bld_sigs[key]
-		except KeyError:
-			s = SIG_NIL
-			return (s, s, s, s, s)
 
 	def launch_node(self):
 		try:
@@ -597,6 +583,13 @@ class Build(object):
 	#def symlink_as(var, src, dest, env=None):
 	def symlink_as(self, *k, **kw):
 		return Install.symlink_as(*k, **kw)
+
+	## the code below are candidates for the stable apis ##
+
+	# public
+	def add_group(self, name=''):
+		self.flush(all=0)
+		self.task_manager.add_group(name)
 
 	# public
 	def sign_vars(self, env, vars_lst):
@@ -669,5 +662,4 @@ class Build(object):
 			for obj in self.all_task_gen:
 				if launch_node and not obj.path.is_child_of(launch_node): continue
 				if not obj.m_posted: obj.post()
-
 

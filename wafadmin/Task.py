@@ -723,7 +723,7 @@ class Task(TaskBase):
 				except IOError: warn('Could not write the file to the cache')
 				cnt += 1
 
-		tree.set_sig_cache(self.unique_id(), self.cache_sig)
+		tree.bld_sigs[self.unique_id()] = self.cache_sig
 		self.m_executed=1
 
 	def can_retrieve_cache(self, sig):
