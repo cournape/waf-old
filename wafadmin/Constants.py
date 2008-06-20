@@ -45,3 +45,6 @@ CRASHED = 2
 SKIPPED = 8
 SUCCESS = 9
 
+
+LOG_FORMAT = "%(asctime)s %(c1)s%(zone)s%(c2)s %(message)s"
+HOUR_FORMAT = "%H:%M:%S"

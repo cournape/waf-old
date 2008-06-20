@@ -145,7 +145,7 @@ def parse_args_impl(parser, _args=None):
 	log = logging.getLogger()
 	log.handlers = []
 	hdlr = logging.StreamHandler()
-	hdlr.setFormatter(Utils.log_format())
+	hdlr.setFormatter(logging.Formatter(LOG_FORMAT, HOUR_FORMAT))
 	log.addHandler(hdlr)
 	log.addFilter(Utils.log_filter())
 	log.setLevel(logging.DEBUG)

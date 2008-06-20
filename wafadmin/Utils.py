@@ -4,7 +4,7 @@
 
 "Utility functions"
 
-import os, sys, imp, types, string, time, errno, inspect, logging
+import os, sys, imp, types, string, time, errno, inspect, logging, re
 from UserDict import UserDict
 import Params
 from Constants import *
@@ -39,31 +39,28 @@ except ImportError:
 		f.close()
 		return m.digest()
 
-class log_format(logging.Formatter):
-	def __init__(self):
-		logging.Formatter.__init__(self, "%(asctime)s %%(c1)s%(zone)s%%(c2)s %(message)s", "%H:%M:%S")
-	def format(self, rec):
-		if not 'zone' in rec.__dict__: rec.zone = rec.module
-		col = Params.g_colors
-		if rec.levelno >= logging.WARNING:
-			return "%s%s%s" % (col['RED'], rec.msg, col['NORMAL'])
-		color = 'PINK'
-		ret = logging.Formatter.format(self, rec)
-		try:
-			return ret % {'c1':col[color], 'c2':col['NORMAL']}
-		except TypeError:
-			return ret.replace("%(c1)s", "").replace("%(c2)s", "")
-
+re_log = re.compile(r'(\w+): (.*)', re.M)
 class log_filter(logging.Filter):
 	def __init__(self, name=None):
 		pass
+
 	def filter(self, rec):
+		col = Params.g_colors
+		rec.c1 = col['PINK']
+		rec.c2 = col['NORMAL']
 		if rec.levelno >= logging.WARNING:
+			rec.c1 = col['RED']
 			return True
-		if not 'zone' in rec.__dict__: rec.zone = ''
+
+		zone = ''
+		m = re_log.match(rec.msg)
+		if m:
+			zone = rec.zone = m.group(1)
+			rec.msg = m.group(2)
+
 		g_zones = Params.g_zones
 		if g_zones:
-			return getattr(rec, "zone", "") in g_zones or '*' in g_zones
+			return getattr(rec, 'zone', '') in g_zones or '*' in g_zones
 		elif not Params.g_verbose>2:
 			return False
 		return True
