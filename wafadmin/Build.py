@@ -598,6 +598,7 @@ class Build(object):
 	def symlink_as(self, *k, **kw):
 		return Install.symlink_as(*k, **kw)
 
+	# public
 	def sign_vars(self, env, vars_lst):
 		" ['CXX', ..] -> [env['CXX'], ..]"
 
@@ -616,8 +617,10 @@ class Build(object):
 		self.sig_vars_cache[idx] = ret
 		return ret
 
+	# public
 	def name_to_obj(self, name):
-		"""remember that names must be unique"""
+		"""retrieve a task generator from its name or its target name
+		remember that names must be unique"""
 		cache = self.task_gen_cache_names
 		if not cache:
 			# create the index lazily
@@ -628,8 +631,10 @@ class Build(object):
 					cache[x.target] = x
 		return cache.get(name, None)
 
+	# public
 	def flush(self, all=1):
-		"object instances under the launch directory create the tasks now"
+		"""tell the task generators to create the tasks"""
+
 		# force the initialization of the mapping name->object in flush
 		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
