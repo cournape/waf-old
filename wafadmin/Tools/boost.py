@@ -44,7 +44,7 @@ TODO:
 
 """
 
-import os, os.path, glob, types, re
+import os, os.path, glob, types, re, sys
 import Params, Configure, config_c
 from logging import fatal, warn
 from Configure import conf
@@ -122,7 +122,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		else:
 			return -1
 
-	def string_to_version(str):
+	def string_to_version(self, str):
 		version = str.split('.')
 		return int(version[0])*100000 + int(version[1])*100 + int(version[2])
 
@@ -158,10 +158,10 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 
 		min_version = 0
 		if self.min_version:
-			min_version = string_to_version(self.min_version)
-		max_version = 0xFFFFFFFFFFFFFFFF
+			min_version = self.string_to_version(self.min_version)
+		max_version = sys.maxint
 		if self.max_version:
-			max_version = string_to_version(self.max_version)
+			max_version = self.string_to_version(self.max_version)
 
 		version = 0
 		boost_path = ''
@@ -301,7 +301,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 
 @conf
 def create_boost_configurator(self):
-	return boost_configurator(conf)
+	return boost_configurator(self)
 
 def detect(conf):
 	pass
@@ -309,3 +309,4 @@ def detect(conf):
 def set_options(opt):
 	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
 	opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
+
