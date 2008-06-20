@@ -63,7 +63,7 @@ def flush(all=1):
 	name_to_obj(None)
 
 	tree = Params.g_build
-	debug("delayed operation TaskGen.flush() called", 'object')
+	debug('task_gen: delayed operation TaskGen.flush() called')
 
 	# post only objects below a particular folder (recursive make behaviour)
 	launch_dir_node = tree.m_root.find_dir(Params.g_cwd_launch)
@@ -73,7 +73,7 @@ def flush(all=1):
 		launch_dir_node = tree.m_srcnode
 
 	if Params.g_options.compile_targets:
-		debug('posting objects listed in compile_targets', 'object')
+		debug('task_gen: posting objects listed in compile_targets')
 
 		# ensure the target names exist, fail before any post()
 		targets_objects = {}
@@ -87,7 +87,7 @@ def flush(all=1):
 			if target_obj and not target_obj.m_posted:
 				target_obj.post()
 	else:
-		debug('posting objects (normal)', 'object')
+		debug('task_gen: posting objects (normal)')
 		for obj in g_allobjs:
 			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
 			if not obj.m_posted: obj.post()
@@ -222,7 +222,7 @@ class task_gen(object):
 
 	# TODO ugly code
 	def install_results(self, var, subdir, task, chmod=0644):
-		debug('install results called', 'object')
+		debug('task_gen: install results called')
 		if not task: return
 		current = Params.g_build.path
 		lst = [a.relpath_gen(current) for a in task.m_outputs]
@@ -323,10 +323,10 @@ class task_gen(object):
 		if not out: out.append(self.apply_core.__name__)
 
 		# then we run the methods in order
-		debug("posting %s %d" % (self, id(self)), 'task_gen')
+		debug('task_gen: posting %s %d' % (self, id(self)))
 		for x in out:
 			v = self.get_meth(x)
-			debug("-> %s (%d)" % (x, id(self)), 'task_gen')
+			debug('task_gen: -> %s (%d)' % (x, id(self)))
 			v()
 
 	def post(self):
@@ -337,7 +337,7 @@ class task_gen(object):
 			error("OBJECT ALREADY POSTED")
 			return
 		self.apply()
-		debug("posted %s" % self.name, 'object')
+		debug('task_gen: posted %s' % self.name)
 		self.m_posted = 1
 
 	def get_hook(self, ext):

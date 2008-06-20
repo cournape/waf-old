@@ -21,7 +21,7 @@ default_jobs = os.environ.get('JOBS', 1)
 default_destdir = os.environ.get('DESTDIR', '')
 
 def create_parser():
-	debug("create_parser is called", 'options')
+	debug('options: create_parser is called')
 
 	parser = OptionParser(usage = """waf [options] [commands ...]
 

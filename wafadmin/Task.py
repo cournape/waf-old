@@ -422,19 +422,19 @@ class TaskBase(object):
 	# scans a node, the task may have additional parameters such as include paths, etc
 	def do_scan(self, node):
 		"more rarely reimplemented"
-		debug("do_scan(self, node, env, hashparams)", 'ccroot')
+		debug("scan: do_scan(self, node, env, hashparams)")
 
 		variant = node.variant(self.env)
 
 		if not node:
-			debug("BUG rescanning a null node")
+			debug("scan: BUG rescanning a null node")
 			return
 
 		# we delegate the work to "def scan(self, node)" to avoid duplicate code
 		(nodes, names) = self.scan(node)
 		if Params.g_verbose:
 			if Params.g_zones:
-				debug('scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)), 'deps')
+				debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
 
 		tree = Params.g_build
 		tree.node_deps[variant][node.id] = nodes
@@ -665,7 +665,7 @@ class Task(TaskBase):
 		try:
 			time = tree.m_tstamp_variants[variant][node.id]
 		except KeyError:
-			debug("task #%d must run as the first node does not exist" % self.m_idx, 'task')
+			debug("task: task #%d must run as the first node does not exist" % self.m_idx)
 			try: new_sig = self.signature()
 			except KeyError:
 				print "TODO - computing the signature failed"
@@ -678,7 +678,7 @@ class Task(TaskBase):
 		try:
 			prev_sig = tree.bld_sigs[key][0]
 		except KeyError:
-			debug("task #%d must run as it was never run before" % self.m_idx, 'task')
+			debug("task: task #%d must run as it was never run before" % self.m_idx)
 			return 1
 
 		#print "prev_sig is ", prev_sig
@@ -746,7 +746,7 @@ class Task(TaskBase):
 				os.utime(orig, None)
 				# mark the cache file as used recently (modified)
 			except (OSError, IOError):
-				debug("failed retrieving file", 'task')
+				debug('task: failed retrieving file')
 				return None
 			else:
 				cnt += 1
@@ -780,15 +780,15 @@ class Task(TaskBase):
 		def v(x):
 			return x.encode('hex')
 
-		debug("Task %s must run: %s" % (self.m_idx, old_sigs[0] != new_sigs[0]), 'task')
+		debug("task: Task %s must run: %s" % (self.m_idx, old_sigs[0] != new_sigs[0]))
 		if (new_sigs[1] != old_sigs[1]):
-			debug(' -> A source file (or a dependency) has changed %s %s' % (v(old_sigs[1]), v(new_sigs[1])), 'task')
+			debug('task: -> A source file (or a dependency) has changed %s %s' % (v(old_sigs[1]), v(new_sigs[1])))
 		if (new_sigs[2] != old_sigs[2]):
-			debug(' -> An environment variable has changed %s %s' % (v(old_sigs[2]), v(new_sigs[2])), 'task')
+			debug('task: -> An environment variable has changed %s %s' % (v(old_sigs[2]), v(new_sigs[2])))
 		if (new_sigs[3] != old_sigs[3]):
-			debug(' -> A manual dependency has changed %s %s' % (v(old_sigs[3]), v(new_sigs[3])), 'task')
+			debug('task: -> A manual dependency has changed %s %s' % (v(old_sigs[3]), v(new_sigs[3])))
 		if (new_sigs[4] != old_sigs[4]):
-			debug(' -> A user-given environment variable has changed %s %s' % (v(old_sigs[4]), v(new_sigs[4])), 'task')
+			debug('task: -> A user-given environment variable has changed %s %s' % (v(old_sigs[4]), v(new_sigs[4])))
 
 class TaskCmd(TaskBase):
 	"TaskCmd executes commands. Instances always execute their function"
@@ -853,7 +853,7 @@ def f(task):
 	return Runner.exec_command(cmd)
 ''' % (line, parm)
 
-	debug(c, 'action')
+	debug('action: %s' % c)
 	return (funex(c), dvars)
 
 def simple_task_type(name, line, color='GREEN', vars=[], prio=None, ext_in=[], ext_out=[], before=[], after=[]):

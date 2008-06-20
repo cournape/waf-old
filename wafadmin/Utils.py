@@ -68,11 +68,6 @@ class log_filter(logging.Filter):
 			return False
 		return True
 
-old = logging.debug
-def debug(msg, zone=''):
-	old(msg)#, extra={'zone':zone})
-logging.debug = debug
-
 def fatal(msg, ret=1):
 	logging.error(msg)
 	if Params.g_verbose > 1:
