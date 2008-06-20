@@ -159,7 +159,7 @@ class Environment(object):
 		for m in re_imp.finditer(code):
 			g = m.group
 			tbl[g(2)] = eval(g(3))
-		logging.debug(str(self.m_table), 'env')
+		logging.debug('env: %s' % str(self.m_table))
 
 	def get_destdir(self):
 		"return the destdir, useful for installing"

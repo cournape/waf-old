@@ -48,7 +48,7 @@ def progress_line(state, total, col1, task):
 	return fs % (state, total, col1, task.display, col2)
 
 def exec_command(s):
-	debug("system command -> "+ s, 'runner')
+	debug('runner: system command -> %s' % s)
 	if Params.g_verbose or g_quiet: printout(s+'\n')
 	log = Params.g_build.log
 	proc = subprocess.Popen(s, shell=1, stdout=log, stderr=log)
@@ -98,10 +98,9 @@ class Serial(object):
 		if not self.outstanding: return None
 
 		if Params.g_verbose:
-			debug("Preparing to run prio %i tasks: [\n%s\n\t]" %
+			debug('runner: Preparing to run prio %i tasks: [\n%s\n\t]' %
 			      (1, ',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
-					       for tsk in self.outstanding])),
-			      'runner')
+					       for tsk in self.outstanding])))
 		return self.get_next()
 
 	def progress(self):
@@ -116,27 +115,27 @@ class Serial(object):
 
 	# TODO FIXME
 	def debug(self):
-		debug("debugging a task: something went wrong:", 'runner')
+		debug('runner: debugging a task: something went wrong:')
 		s = " ".join([str(t.m_idx) for t in self.manager])
-		debug(s, 'runner')
+		debug('runner: %s' % s)
 
 	def start(self):
 		global g_quiet
-		debug("Serial start called", 'runner')
+		debug('runner: Serial start called')
 		#self.debug()
 		while 1:
 			# get next Task
 			tsk = self.get_next()
 			if tsk is None: break
 
-			debug("retrieving #%i (%r)" % (tsk.m_idx, tsk), 'runner')
+			debug('runner: retrieving #%i (%r)' % (tsk.m_idx, tsk))
 
 			# # =======================
 			#if tsk.m_hasrun:
 			#	error("task has already run! "+str(tsk.m_idx))
 
 			if not tsk.may_start():
-				debug("delaying   #"+str(tsk.m_idx), 'runner')
+				debug('runner: delaying  #%d' % tsk.m_idx)
 				self.postpone(tsk)
 				#self.debug()
 				#tsk = None
@@ -156,7 +155,7 @@ class Serial(object):
 				#debug("task is up-to_date "+str(tsk.m_idx), 'runner')
 				continue
 
-			debug("executing  #"+str(tsk.m_idx), 'runner')
+			debug('runner: executing  #%d' % tsk.m_idx)
 
 			# display the command that we are about to run
 			if not g_quiet:
