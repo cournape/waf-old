@@ -49,8 +49,8 @@ def progress_line(state, total, col1, task):
 
 def exec_command(s):
 	debug('runner: system command -> %s' % s)
-	if Params.g_verbose or g_quiet: printout(s+'\n')
 	log = Params.g_build.log
+	if log or Params.g_verbose: printout(s+'\n')
 	proc = subprocess.Popen(s, shell=1, stdout=log, stderr=log)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
@@ -61,7 +61,8 @@ if sys.platform == "win32":
 	def exec_command(s):
 		# TODO very long command-lines are unlikely to be used in the configuration
 		if len(s) < 2000: return old_log(s)
-		if Params.g_verbose or g_quiet: printout(s+'\n')
+		log = Params.g_build.log
+		if log or Params.g_verbose: printout(s+'\n')
 		startupinfo = subprocess.STARTUPINFO()
 		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 		proc = subprocess.Popen(s, shell=False, startupinfo=startupinfo)
