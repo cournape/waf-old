@@ -310,7 +310,7 @@ def apply_lib_vars(self):
 			continue
 
 		# object does not exist ?
-		y = TaskGen.name_to_obj(x)
+		y = Params.g_build.name_to_obj(x)
 		if not y:
 			fatal("object '%s' was not found in uselib_local (required by '%s')" % (x, self.name))
 
@@ -379,7 +379,7 @@ def apply_objdeps(self):
 			continue
 
 		# object does not exist ?
-		y = TaskGen.name_to_obj(x)
+		y = Params.g_build.name_to_obj(x)
 		if not y:
 			error('object not found in add_objects: obj %s add_objects %s' % (self.name, x))
 			names = names[1:]

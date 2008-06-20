@@ -140,11 +140,6 @@ def python_24_guard():
 	if sys.hexversion<0x20400f0:
 		raise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"
 
-def reset():
-	import Params, TaskGen, Environment
-	Params.g_build = None
-	TaskGen.g_allobjs = []
-
 def to_list(sth):
 	if type(sth) is types.ListType:
 		return sth

@@ -92,6 +92,8 @@ class Build(object):
 
 		self.cache_dir_contents = {}
 
+		self.all_task_gen = []
+		self.task_gen_cache_names = {}
 		self.sig_vars_cache = {}
 		self.log = None
 
@@ -182,11 +184,11 @@ class Build(object):
 
 		"""
 		import cProfile, pstats
-		cProfile.run("import TaskGen; TaskGen.flush()", 'profi.txt')
+		cProfile.run("import self.flush()", 'profi.txt')
 		p = pstats.Stats('profi.txt')
 		p.sort_stats('cumulative').print_stats(80)
 		"""
-		TaskGen.flush()
+		self.flush()
 		#"""
 
 		if Params.g_verbose>2: self.dump()
@@ -229,8 +231,8 @@ class Build(object):
 		"this function is called for both install and uninstall"
 		debug('build: install called')
 
-		TaskGen.flush()
-		for obj in TaskGen.g_allobjs:
+		self.flush()
+		for obj in self.all_task_gen:
 			if obj.m_posted: obj.install()
 
 		# remove empty folders after uninstalling
@@ -543,7 +545,7 @@ class Build(object):
 	env = property(get_env, set_env)
 
 	def add_group(self, name=''):
-		TaskGen.flush(all=0)
+		self.flush(all=0)
 		self.task_manager.add_group(name)
 
 	def add_manual_dependency(self, path, value):
@@ -613,4 +615,54 @@ class Build(object):
 		# next time
 		self.sig_vars_cache[idx] = ret
 		return ret
+
+	def name_to_obj(self, name):
+		"""remember that names must be unique"""
+		cache = self.task_gen_cache_names
+		if not cache:
+			# create the index lazily
+			for x in self.all_task_gen:
+				if x.name:
+					cache[x.name] = x
+				elif not self.task_gen_cache_names.get(x, ''):
+					cache[x.target] = x
+		return cache.get(name, None)
+
+	def flush(self, all=1):
+		"object instances under the launch directory create the tasks now"
+		# force the initialization of the mapping name->object in flush
+		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
+		self.task_gen_cache_names = {}
+		self.name_to_obj('')
+
+		debug('build: delayed operation TaskGen.flush() called')
+
+		# post only objects below a particular folder (recursive make behaviour)
+		#launch_node location from where the build was started
+		launch_node = self.m_root.find_dir(Params.g_cwd_launch)
+		if launch_node.is_child_of(self.m_bldnode):
+			launch_node = self.m_srcnode
+		if not launch_node.is_child_of(self.m_srcnode):
+			launch_node = self.m_srcnode
+
+		if Params.g_options.compile_targets:
+			debug('task_gen: posting objects listed in compile_targets')
+
+			# ensure the target names exist, fail before any post()
+			targets_objects = {}
+			for target_name in Params.g_options.compile_targets.split(','):
+				# trim target_name (handle cases when the user added spaces to targets)
+				target_name = target_name.strip()
+				targets_objects[target_name] = self.name_to_obj(target_name)
+				if all and not targets_objects[target_name]: fatal("target '%s' does not exist" % target_name)
+
+			for target_obj in targets_objects.values():
+				if target_obj and not target_obj.m_posted:
+					target_obj.post()
+		else:
+			debug('task_gen: posting objects (normal)')
+			for obj in self.all_task_gen:
+				if launch_node and not obj.path.is_child_of(launch_node): continue
+				if not obj.m_posted: obj.post()
+
 

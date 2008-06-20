@@ -36,62 +36,6 @@ typos = {
 'm_type_initials':'link',
 }
 
-g_allobjs = []
-"contains all objects, provided they are created (not in distclean or in dist)"
-#TODO part of the refactoring to eliminate the static stuff (Utils.reset)
-
-g_name_to_obj = {}
-
-def name_to_obj(name):
-	global g_name_to_obj
-	if not g_name_to_obj:
-		for x in g_allobjs:
-			if x.name:
-				g_name_to_obj[x.name] = x
-			elif not x.target in g_name_to_obj.keys():
-				g_name_to_obj[x.target] = x
-	return g_name_to_obj.get(name, None)
-
-def flush(all=1):
-	"object instances under the launch directory create the tasks now"
-	global g_allobjs
-	global g_name_to_obj
-
-	# force the initialization of the mapping name->object in flush
-	# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
-	g_name_to_obj = {}
-	name_to_obj(None)
-
-	tree = Params.g_build
-	debug('task_gen: delayed operation TaskGen.flush() called')
-
-	# post only objects below a particular folder (recursive make behaviour)
-	launch_dir_node = tree.m_root.find_dir(Params.g_cwd_launch)
-	if launch_dir_node.is_child_of(tree.m_bldnode):
-		launch_dir_node = tree.m_srcnode
-	if not launch_dir_node.is_child_of(tree.m_srcnode):
-		launch_dir_node = tree.m_srcnode
-
-	if Params.g_options.compile_targets:
-		debug('task_gen: posting objects listed in compile_targets')
-
-		# ensure the target names exist, fail before any post()
-		targets_objects = {}
-		for target_name in Params.g_options.compile_targets.split(','):
-			# trim target_name (handle cases when the user added spaces to targets)
-			target_name = target_name.strip()
-			targets_objects[target_name] = name_to_obj(target_name)
-			if all and not targets_objects[target_name]: fatal("target '%s' does not exist" % target_name)
-
-		for target_obj in targets_objects.values():
-			if target_obj and not target_obj.m_posted:
-				target_obj.post()
-	else:
-		debug('task_gen: posting objects (normal)')
-		for obj in g_allobjs:
-			if launch_dir_node and not obj.path.is_child_of(launch_dir_node): continue
-			if not obj.m_posted: obj.post()
-
 class register_obj(type):
 	"""no decorators for classes, so we use a metaclass
 	we store into task_gen.classes the classes that inherit task_gen
@@ -176,8 +120,7 @@ class task_gen(object):
 		self.m_posted = 0
 		self.path = Params.g_build.path # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
-		g_allobjs.append(self)
-
+		Params.g_build.all_task_gen.append(self)
 
 		# provide a unique id
 		self.idx = task_gen.idx[self.path.id] = task_gen.idx.get(self.path.id, 0) + 1
@@ -422,7 +365,7 @@ class task_gen(object):
 		else:
 			newobj.env = env.copy()
 
-		g_allobjs.append(newobj)
+		Params.g_build.all_task_gen.append(newobj)
 
 		return newobj
 

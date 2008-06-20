@@ -54,8 +54,6 @@ def call_back(idxName, pathName, event):
 	if g_daemonlock: return
 	g_daemonlock = 1
 
-	# clean up existing variables, and start a new instance
-	Utils.reset()
 	main()
 	g_daemonlock = 0
 

@@ -1022,8 +1022,6 @@ def run_check(self, obj):
 	dest = open(os.path.join(dir, test_f_name), 'w')
 	dest.write(obj.code)
 	dest.close()
-	# very important
-	Utils.reset()
 
 	back = os.path.abspath('.')
 
@@ -1063,7 +1061,6 @@ def run_check(self, obj):
 	#	ret = os.popen(obj.link_task.m_outputs[0].abspath(obj.env)).read().strip()
 
 	os.chdir(back)
-	Utils.reset()
 
 	# if we need to run the program, try to get its result
 	if obj.execute:
