@@ -408,7 +408,7 @@ class c_parser(object):
 		self.count_files += 1
 		if self.count_files > 30000: raise PreprocError, "recursion limit exceeded, bailing out"
 		pc = self.parse_cache
-		debug("reading file %r" % filepath, 'preproc')
+		debug('preproc: reading file %r' % filepath)
 		try:
 			lns = pc[filepath]
 		except KeyError:
@@ -429,7 +429,7 @@ class c_parser(object):
 				traceback.print_exc()
 
 	def start(self, node, env):
-		debug("scanning %s (in %s)" % (node.m_name, node.m_parent.m_name), 'preproc')
+		debug('preproc: scanning %s (in %s)' % (node.m_name, node.m_parent.m_name))
 
 		self.env = env
 		variant = node.variant(env)
@@ -449,7 +449,7 @@ class c_parser(object):
 
 	def process_line(self, token, line):
 		ve = Params.g_verbose
-		if ve: debug("line is %s - %s state is %s" % (token, line, self.state), 'preproc')
+		if ve: debug('preproc: line is %s - %s state is %s' % (token, line, self.state))
 		state = self.state
 
 		# make certain we define the state if we are about to enter in an if block
@@ -479,7 +479,7 @@ class c_parser(object):
 			(type, inc) = extract_include(line, self.defs)
 			if inc in self.ban_includes: return
 			if token == 'import': self.ban_includes.append(inc)
-			if ve: debug("include found %s    (%s) " % (inc, type), 'preproc')
+			if ve: debug('preproc: include found %s    (%s) ' % (inc, type))
 			if type == '"' or not strict_quotes:
 				if not inc in self.deps:
 					self.deps.append(inc)
@@ -497,7 +497,7 @@ class c_parser(object):
 			m = re_mac.search(line)
 			if m:
 				name = m.group(0)
-				if ve: debug("define %s   %s" % (name, line), 'preproc')
+				if ve: debug('preproc: define %s   %s' % (name, line))
 				self.defs[name] = line
 			else:
 				raise PreprocError, "invalid define line %s" % line

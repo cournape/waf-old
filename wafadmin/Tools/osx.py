@@ -25,7 +25,7 @@ Index: common/wscript
 +        clientlib.env.append_value("LINKFLAGS", '-current_version 1')
 +        clientlib.env['shlib_PATTERN'] = 'lib%s.' + clientlib.vnum + '.dylib'
 +        del clientlib.vnum
- 
+
      netmanagerlib = bld.create_obj('cpp', 'shlib')
      netmanagerlib.env['shlib_PATTERN'] = '%s.so'
 """
@@ -105,7 +105,7 @@ def app_build(task):
 	for p in task.m_outputs:
 		srcfile = p.srcpath(env)
 
-		debug("creating directories")
+		debug('osx: creating directories')
 		try:
 			os.mkdir(srcfile)
 			[os.makedirs(os.path.join(srcfile, d)) for d in app_dirs]
@@ -115,11 +115,11 @@ def app_build(task):
 		# copy the program to the contents dir
 		srcprg = task.m_inputs[i].srcpath(env)
 		dst = os.path.join(srcfile, 'Contents', 'MacOS')
-		debug("copy %s to %s" % (srcprg, dst))
+		debug('osx: copy %s to %s' % (srcprg, dst))
 		shutil.copy(srcprg, dst)
 
 		# create info.plist
-		debug("generate Info.plist")
+		debug('osx: generate Info.plist')
 		# TODO:  Support custom info.plist contents.
 
 		f = file(os.path.join(srcfile, "Contents", "Info.plist"), "w")

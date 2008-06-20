@@ -27,7 +27,7 @@ def scan(self, node):
 		if path:
 			for k in ['', '.tex', '.ltx']:
 				# add another loop for the tex include paths?
-				debug("trying %s%s" % (path, k), 'tex')
+				debug('tex: trying %s%s' % (path, k))
 				try:
 					os.stat(abs+os.sep+path+k)
 				except OSError:
@@ -37,10 +37,10 @@ def scan(self, node):
 				if node:
 					nodes.append(node)
 			else:
-				debug('could not find %s' % path, 'tex')
+				debug('tex: could not find %s' % path)
 				names.append(path)
 
-	debug("found the following : %s and names %s" % (nodes, names), 'tex')
+	debug("tex: found the following : %s and names %s" % (nodes, names))
 	return (nodes, names)
 
 g_bibtex_re = re.compile('bibdata', re.M)

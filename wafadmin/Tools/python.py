@@ -308,7 +308,7 @@ def check_python_version(conf, minver=None):
 
 	# Get python version string
 	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print str(x)"]
-	debug("Running python command %r" % cmd, 'python')
+	debug('python: Running python command %r' % cmd)
 	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
 	lines = proc.communicate()[0].split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)

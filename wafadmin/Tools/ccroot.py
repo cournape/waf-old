@@ -36,12 +36,12 @@ class DEBUG_LEVELS:
 
 def scan(self, node):
 	"look for .h the .cpp need"
-	debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
+	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
 	gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'], defines = self.defines)
 	gruik.start(node, self.env)
 	if Params.g_verbose:
-		debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
-		debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
+		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))
+		debug('deps: deps found for %s: %s' % (str(node), str(gruik.deps)))
 	seen = []
 	all = []
 	for x in gruik.m_nodes:
