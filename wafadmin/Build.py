@@ -92,6 +92,7 @@ class Build(object):
 
 		self.cache_dir_contents = {}
 
+		self.sig_vars_cache = {}
 		self.log = None
 
 	def _init_data(self):
@@ -594,4 +595,22 @@ class Build(object):
 	#def symlink_as(var, src, dest, env=None):
 	def symlink_as(self, *k, **kw):
 		return Install.symlink_as(*k, **kw)
+
+	def sign_vars(self, env, vars_lst):
+		" ['CXX', ..] -> [env['CXX'], ..]"
+
+		# ccroot objects use the same environment for building the .o at once
+		# the same environment and the same variables are used
+
+		idx = str(id(env)) + str(vars_lst)
+		try: return self.sig_vars_cache[idx]
+		except KeyError: pass
+
+		lst = [env.get_flat(a) for a in vars_lst]
+		ret = Utils.h_list(lst)
+		if Params.g_zones: logging.debug("%s %s" % (ret.encode('hex'), str(lst)), 'envhash')
+
+		# next time
+		self.sig_vars_cache[idx] = ret
+		return ret
 

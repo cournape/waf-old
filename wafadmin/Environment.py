@@ -13,18 +13,12 @@ import Params, Utils
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
-g_cache_max = {}
-
-g_idx = 0
 class Environment(object):
 	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
 	An environment instance can be stored into a file and loaded easily
 	"""
-	__slots__ = ("m_idx", "m_table", "m_parent")
+	__slots__ = ("m_table", "m_parent")
 	def __init__(self):
-		global g_idx
-		self.m_idx = g_idx
-		g_idx += 1
 		self.m_table={}
 		#self.m_parent = None <- set only if necessary
 
@@ -166,20 +160,4 @@ class Environment(object):
 		if self.__getitem__('NOINSTALL'): return ''
 		return Params.g_options.destdir
 
-	def sign_vars(self, vars_list):
-		" ['CXX', ..] -> [env['CXX'], ..]"
-
-		# ccroot objects use the same environment for building the .o at once
-		# the same environment and the same variables are used
-		s = str([self.m_idx]+vars_list)
-		try: return g_cache_max[s]
-		except KeyError: pass
-
-		lst = [self.get_flat(a) for a in vars_list]
-		ret = Utils.h_list(lst)
-		if Params.g_zones: logging.debug("%s %s" % (ret.encode('hex'), str(lst)), 'envhash')
-
-		# next time
-		g_cache_max[s] = ret
-		return ret
 

@@ -144,7 +144,6 @@ def reset():
 	import Params, TaskGen, Environment
 	Params.g_build = None
 	TaskGen.g_allobjs = []
-	Environment.g_cache_max = {}
 
 def to_list(sth):
 	if type(sth) is types.ListType:

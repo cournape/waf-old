@@ -609,14 +609,14 @@ class Task(TaskBase):
 		# dependencies on the environment vars
 		fun = getattr(self.__class__, 'signature_hook', None)
 		if fun: act_sig = self.__class__.signature_hook(self)
-		else: act_sig = env.sign_vars(self.__class__.m_vars)
+		else: act_sig = tree.sign_vars(env, self.__class__.m_vars)
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
 		var_sig = SIG_NIL
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
-			var_sig = env.sign_vars(dep_vars)
+			var_sig = tree.sign_vars(env, dep_vars)
 			m.update(var_sig)
 
 		# additional nodes to depend on, if provided
