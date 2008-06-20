@@ -85,10 +85,6 @@ logging.fatal = fatal
 #	return m.digest()
 
 
-g_trace = 0
-g_debug = 0
-g_error = 0
-
 g_ind_idx = 0
 g_ind = ['\\', '|', '/', '-']
 "the rotation thing"
