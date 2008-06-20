@@ -95,7 +95,7 @@ class Build(object):
 		self.log = None
 
 	def _init_data(self):
-		debug("init data called", 'build')
+		debug('build: init data called')
 
 		# filesystem root - root name is Params.g_rootname
 		self.m_root = Node.Node('', None, Node.DIR)
@@ -134,7 +134,7 @@ class Build(object):
 			for x in SAVED_ATTRS: setattr(self, x, data[x])
 			file.close()
 		except IOError:
-			debug("Build cache loading failed (cleaning)", 'build')
+			debug('build: Build cache loading failed (cleaning)')
 			self._init_data()
 
 	# store the data structures on disk, retrieve with self._load()
@@ -151,7 +151,7 @@ class Build(object):
 		self._store()
 
 	def clean(self):
-		debug("clean called", 'build')
+		debug('build: clean called')
 		# FIXME this will not work for files created during the configuration dep_files
 		def clean_rec(node):
 			for x in node.childs.keys():
@@ -174,7 +174,7 @@ class Build(object):
 			setattr(self, v, var)
 
 	def compile(self):
-		debug("compile called", 'build')
+		debug('build: compile called')
 
 		os.chdir(self.m_bdir)
 
@@ -197,7 +197,7 @@ class Build(object):
 				if on: sys.stdout.write(Params.g_cursor_on)
 				else: sys.stdout.write(Params.g_cursor_off)
 
-		debug('executor starting', 'build')
+		debug('build: executor starting')
 		try:
 			dw(on=False)
 			ret = self.generator.start()
@@ -226,7 +226,7 @@ class Build(object):
 
 	def install(self):
 		"this function is called for both install and uninstall"
-		debug('install called', 'build')
+		debug('build: install called')
 
 		TaskGen.flush()
 		for obj in TaskGen.g_allobjs:
@@ -319,7 +319,7 @@ class Build(object):
 		if file: file.close()
 
 	def init_variants(self):
-		debug("init variants", 'build')
+		debug('build: init variants')
 
 		lstvariants = []
 		for env in self.m_allenvs.values():
@@ -327,7 +327,7 @@ class Build(object):
 				lstvariants.append(env.variant())
 		self._variants = lstvariants
 
-		debug("list of variants is "+str(lstvariants), 'build')
+		debug('build: list of variants is %s' % str(lstvariants))
 
 		for name in lstvariants+[0]:
 			for v in 'm_tstamp_variants node_deps raw_deps m_abspath_cache'.split():
@@ -366,7 +366,7 @@ class Build(object):
 				return
 
 		self.m_srcnode = self.m_root.ensure_dir_node_from_path(srcdir)
-		debug("srcnode is %s and srcdir %s" % (str(self.m_srcnode.m_name), srcdir), 'build')
+		debug('build: srcnode is %s and srcdir %s' % (str(self.m_srcnode.m_name), srcdir))
 
 		self.path = self.m_srcnode
 
@@ -392,7 +392,7 @@ class Build(object):
 		if self.m_scanned_folders.get(src_dir_node.id, None): return
 		self.m_scanned_folders[src_dir_node.id] = 1
 
-		#debug("rescanning "+str(src_dir_node), 'build')
+		#debug('build: rescanning %s' % str(src_dir_node))
 
 		# TODO undocumented hook
 		if hasattr(self, 'repository'): self.repository(src_dir_node)
@@ -421,7 +421,7 @@ class Build(object):
 			try:
 				self.scan_path(src_dir_node, sub_path, variant)
 			except OSError:
-				#debug("osError on " + sub_path, 'build')
+				#debug('build: osError on ' + sub_path)
 				# listdir failed, remove all sigs of nodes
 				# TODO more things to remove?
 				dict = self.m_tstamp_variants[variant]
@@ -444,7 +444,7 @@ class Build(object):
 		listed_files = set(Utils.listdir(i_path))
 
 		self.cache_dir_contents[i_parent_node.id] = listed_files
-		debug("folder contents "+str(listed_files), 'build')
+		debug('build: folder contents '+str(listed_files))
 
 		node_names = set([x.m_name for x in i_parent_node.childs.values() if x.id & 3 == Node.FILE])
 		cache = self.m_tstamp_variants[0]
