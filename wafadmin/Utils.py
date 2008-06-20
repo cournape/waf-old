@@ -85,10 +85,6 @@ logging.fatal = fatal
 #	return m.digest()
 
 
-g_ind_idx = 0
-g_ind = ['\\', '|', '/', '-']
-"the rotation thing"
-
 def test_full():
 	try:
 		f=open('.waf-full','w')
@@ -226,12 +222,17 @@ else:
 		else:
 			get_term_cols = myfun
 
+rot_idx = 0
+rot_chr = ['\\', '|', '/', '-']
+"the rotation thing"
+
 def progress_line(state, total, col1, col2):
 	n = len(str(total))
 
-	global g_ind, g_ind_idx
-	g_ind_idx += 1
-	ind = g_ind[g_ind_idx % 4]
+	# div(X^F) = -rot(F).X
+	global rot_chr, rot_idx
+	rot_idx += 1
+	ind = rot_chr[rot_idx % 4]
 
 	try:
 		ini = Params.g_build.ini
