@@ -48,7 +48,7 @@ def msvc_linker(task):
 		task.m_outputs.append(pdbnode)
 
 	if os.path.exists(manifest):
-		debug('manifesttool', 'msvc')
+		debug('msvc: manifesttool')
 		mtool = e['MT']
 		if not mtool:
 			return 0
@@ -60,7 +60,7 @@ def msvc_linker(task):
 		elif task.m_type == 'shlib':
 			mode='2'
 
-		debug('embedding manifest','msvcobj')
+		debug('msvc: embedding manifest')
 		flags = e['MTFLAGS']
 		if flags:
 			flags=string.join(flags,' ')
@@ -179,7 +179,7 @@ def libname_msvc(self, libname, is_static=False):
 	for path in _libpaths:
 		for libn in libnames:
 			if os.path.exists(os.path.join(path,libn)):
-				debug('lib found: %s' % os.path.join(path,libn), 'msvc')
+				debug('msvc: lib found: %s' % os.path.join(path,libn))
 				return libn
 
 	return None
@@ -189,7 +189,6 @@ def libname_msvc(self, libname, is_static=False):
 @after('apply_obj_vars_cc')
 @after('apply_obj_vars_cxx')
 def apply_msvc_obj_vars(self):
-	debug('apply_msvc_obj_vars called for msvcobj', 'msvc')
 	env = self.env
 	app = env.append_unique
 
@@ -219,17 +218,17 @@ def apply_msvc_obj_vars(self):
 	if env['STATICLIB']:
 		app('LINKFLAGS', env['STATICLIB_MARKER'])
 		for i in env['STATICLIB']:
-			debug('libname: %s' % i,'msvc')
+			debug('msvc: libname: %s' % i)
 			libname = libname_msvc(self, i, True)
-			debug('libnamefixed: %s' % libname,'msvc')
+			debug('msvc: libnamefixed: %s' % libname)
 			if libname != None:
 				app('LINKFLAGS', libname)
 
 	if self.env['LIB']:
 		for i in env['LIB']:
-			debug('libname: %s' % i,'msvc')
+			debug('msvc: libname: %s' % i)
 			libname = libname_msvc(self, i)
-			debug('libnamefixed: %s' % libname,'msvc')
+			debug('msvc: libnamefixed: %s' % libname)
 			if libname != None:
 				app('LINKFLAGS', libname)
 

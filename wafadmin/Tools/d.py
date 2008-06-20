@@ -200,13 +200,12 @@ class d_parser(object):
 
 def scan(self, node):
 	"look for .d/.di the .d source need"
-	debug("_scan_preprocessor(self, node, env, path_lst)", 'ccroot')
 	env = self.env
 	gruik = d_parser(env, env['INC_PATHS'])
 	gruik.start(node)
 
 	if Params.g_verbose:
-		debug("nodes found for %s: %s %s" % (str(node), str(gruik.m_nodes), str(gruik.m_names)), 'deps')
+		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))
 		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
 	return (gruik.m_nodes, gruik.m_names)
 
