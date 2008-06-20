@@ -45,7 +45,6 @@ def init_cxx(self):
 
 @taskgen
 def apply_obj_vars_cxx(self):
-	debug('apply_obj_vars_cxx', 'ccroot')
 	env = self.env
 	app = env.append_unique
 	cxxpath_st = env['CPPPATH_ST']

@@ -439,13 +439,13 @@ class pkgconfig_configurator(configurator_base):
 			if self.version:
 				cmd = "%s --atleast-version=%s \"%s\"" % (pkgcom, self.version, self.name)
 				ret = os.popen(cmd).close()
-				debug("pkg-config cmd '%s' returned %s" % (cmd, ret))
+				debug('conf: pkg-config cmd "%s" returned %s' % (cmd, ret))
 				self.conf.check_message('package %s >= %s' % (self.name, self.version), '', not ret)
 				if ret: raise ValueError, "error"
 			else:
 				cmd = "%s \"%s\"" % (pkgcom, self.name)
 				ret = os.popen(cmd).close()
-				debug("pkg-config cmd '%s' returned %s" % (cmd, ret))
+				debug('conf: pkg-config cmd "%s" returned %s' % (cmd, ret))
 				self.conf.check_message('package %s' % (self.name), '', not ret)
 				if ret:
 					raise ValueError, "error"

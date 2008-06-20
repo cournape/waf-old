@@ -42,7 +42,6 @@ def init_cc(self):
 
 @taskgen
 def apply_obj_vars_cc(self):
-	debug('apply_obj_vars_cc', 'ccroot')
 	env = self.env
 	app = env.append_unique
 	cpppath_st = env['CPPPATH_ST']
