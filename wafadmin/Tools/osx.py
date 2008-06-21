@@ -11,6 +11,7 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
   obj.mac_bundle = True
 """
 
+# TODO if you know how the flags must be set, just do it (tm)
 """
 Index: common/wscript
 ===================================================================
@@ -30,8 +31,8 @@ Index: common/wscript
      netmanagerlib.env['shlib_PATTERN'] = '%s.so'
 """
 
-import os, shutil
-import TaskGen, Task
+import os, shutil, sys
+import TaskGen, Task, Params
 from TaskGen import taskgen, feature, after, before
 from logging import error, debug, fatal
 
@@ -129,6 +130,33 @@ def app_build(task):
 		i += 1
 
 	return 0
+
+def install_shlib(task):
+	"""see http://code.google.com/p/waf/issues/detail?id=173"""
+	nums = task.vnum.split('.')
+
+	inst_var = task.inst_var
+	inst_dir = task.inst_dir
+
+	libname = task.m_outputs[0].m_name
+
+	name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
+	name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
+	name1 = libname
+
+	filename = task.m_outputs[0].abspath(task.env)
+	bld = Params.g_build
+	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env)
+	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
+	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
+
+@taskgen
+@feature('osx')
+@after('install_target_cshlib')
+def install_target_osx_cshlib(self):
+	if not Params.g_install: return
+	if getattr(self, 'vnum', '') and sys.platform != 'win32':
+		self.link_task.install = install_shlib
 
 Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
 
