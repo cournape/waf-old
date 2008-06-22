@@ -8,7 +8,7 @@ import os, sys
 import Constants, Utils
 
 # updated from the top-level wscript
-g_version="1.4.2"
+g_version="1.4.9"
 
 g_rootname = ''
 g_progress = '\x1b[K%s%s%s\r'
