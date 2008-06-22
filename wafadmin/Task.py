@@ -697,7 +697,7 @@ class Task(TaskBase):
 		try:
 			prev_sig = tree.bld_sigs[key][0]
 		except KeyError:
-			debug("task: task #%d must run as it was never run before" % self.m_idx)
+			debug("task: task #%d must run as it was never run before or the task code changed" % self.m_idx)
 			return 1
 
 		#print "prev_sig is ", prev_sig
