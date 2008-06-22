@@ -938,7 +938,7 @@ def have_define(self, name):
 @conf
 def write_config_header(self, configfile='', env=''):
 	"save the defines into a file"
-	if not configfile: configfile = self.config_header
+	if not configfile: configfile = WAF_CONFIG_H
 
 	lst = Utils.split_path(configfile)
 	base = lst[:-1]

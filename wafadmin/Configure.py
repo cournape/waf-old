@@ -109,7 +109,6 @@ def find_program_impl(env, filename, path_list=[], var=None):
 	return ''
 
 class Configure(object):
-	log_file_name = "config.log"
 	tests = {}
 	error_handlers = []
 	def __init__(self, env=None, blddir='', srcdir=''):
@@ -121,7 +120,6 @@ class Configure(object):
 
 		self.m_allenvs = {}
 		self.defines = {}
-		self.configheader = 'config.h'
 		self.cwd = os.getcwd()
 
 		self.tools = [] # tools loaded in the configuration, and that will be loaded when building
@@ -148,7 +146,7 @@ class Configure(object):
 		self.hash = 0
 		self.files = []
 
-		path = os.path.join(self.m_blddir, Configure.log_file_name)
+		path = os.path.join(self.m_blddir, WAF_CONFIG_LOG)
 		try: os.unlink(path)
 		except (OSError, IOError): pass
 		self.log = open(path, 'wb')
