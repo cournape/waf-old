@@ -428,13 +428,14 @@ class TaskBase(object):
 		"prints the debug info"
 		pass
 
-	def scan(self, node):
-		"""this method returns a tuple containing:
-		* a list of nodes corresponding to real files
-		* a list of names for files not found in path_lst
-		the input parameters may have more parameters that the ones used below
-		"""
-		return ((), ())
+	#def scan(self, node):
+	#	"""this method returns a tuple containing:
+	#	* a list of nodes corresponding to real files
+	#	* a list of names for files not found in path_lst
+	#	the input parameters may have more parameters that the ones used below
+	#	"""
+	#	return ((), ())
+	scan = None
 
 	# scans a node, the task may have additional parameters such as include paths, etc
 	def do_scan(self, node):
@@ -601,9 +602,9 @@ class Task(TaskBase):
 		m = md5()
 
 		# automatic dependencies
-		dep_sig = self.scan_signature()
-		try: m.update(dep_sig)
-		except TypeError: raise "failure to compute the signature :-/"
+		dep_sig = SIG_NIL
+		if self.scan:
+			m.update(self.scan_signature())
 
 		# manual dependencies, they can slow down the builds
 		try:
