@@ -125,7 +125,7 @@ class Build(object):
 				g = m.group
 				if g(2) == 'version':
 					if eval(g(3)) < HEXVERSION:
-						Params.fatal('Version mismatch! reconfigure the project')
+						fatal('Version mismatch! reconfigure the project')
 				elif g(2) == 'tools':
 					lst = eval(g(3))
 					for t in lst:
