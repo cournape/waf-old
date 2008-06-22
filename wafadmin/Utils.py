@@ -3,14 +3,14 @@
 # Thomas Nagy, 2005 (ita)
 
 """
-Utilities:
+Utilities, the stable ones are the following:
 
 * h_file: compute a unique value for a file (hash), it uses
   the module fnv if it is installed (see waf/utils/fnv & http://code.google.com/p/waf/wiki/FAQ)
   else, md5 (see the python docs)
 
   For large projects (projects with more than 15000 files) it is possible to use
-  a hashing based on the path and the size, it will not work well with the cache though
+  a hashing based on the path and the size (may give broken cache results)
 
 	import stat
 	def h_file(filename):
@@ -20,12 +20,17 @@ Utilities:
 		m = md5()
 		m.update(st.st_mtime)
 		m.update(st.st_size)
+		m.update(filename)
 		return m.digest()
 
     To replace the function in your project, use something like this:
 	import Utils
 	Utils.h_file = h_file
 
+* h_list
+* h_fun
+* get_term_cols
+* ordered_dict
 
 """
 
