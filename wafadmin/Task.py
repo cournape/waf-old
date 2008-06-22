@@ -359,6 +359,13 @@ class TaskBase(object):
 			self.m_idx = manager.idx
 			manager.idx += 1
 
+	def get_str(self):
+		"string to display to the user"
+		env = self.env
+		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
+		tgt_str = ' '.join([a.nice_path(env) for a in self.m_outputs])
+		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
+
 	def display(self):
 		"do not print anything if there is nothing to display"
 		cl = Params.g_colors
@@ -385,6 +392,7 @@ class TaskBase(object):
 		return getattr(self, att, getattr(self.__class__, att, default))
 
 	def hash_constraints(self):
+		"identify a task type for all the constraints relevant for the scheduler: precedence, file production"
 		sum = 0
 		names = ('prio', 'before', 'after', 'ext_in', 'ext_out')
 		sum = hash((sum, self.__class__.__name__,))
@@ -404,28 +412,22 @@ class TaskBase(object):
 		up(Utils.h_fun(self.run))
 		return m.digest()
 
-	def get_str(self):
-		"string to display to the user"
-		env = self.env
-		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
-		tgt_str = ' '.join([a.nice_path(env) for a in self.m_outputs])
-		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
-
 	def may_start(self):
-		"non-zero if the task is ready"
-		return 1
+		"True if the task is ready"
+		return True
+
 	def must_run(self):
-		"0 if the task does not need to run"
-		return 1
-	def prepare(self):
-		"prepare the task for further processing"
-		pass
+		"False if the task does not need to run"
+		return True
+
 	def update_stat(self):
 		"update the dependency tree (node stats)"
 		pass
+
 	def debug_info(self):
 		"return debug info"
 		return ''
+
 	def debug(self):
 		"prints the debug info"
 		pass
