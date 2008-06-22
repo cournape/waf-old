@@ -2,18 +2,38 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"Utility functions"
+"""
+Utilities:
+
+* h_file: compute a unique value for a file (hash), it uses
+  the module fnv if it is installed (see waf/utils/fnv & http://code.google.com/p/waf/wiki/FAQ)
+  else, md5 (see the python docs)
+
+  For large projects (projects with more than 15000 files) it is possible to use
+  a hashing based on the path and the size, it will not work well with the cache though
+
+	import stat
+	def h_file(filename):
+		st = os.stat(filename)
+		import stat
+		if stat.S_ISDIR(st): raise IOError, 'not a file'
+		m = md5()
+		m.update(st.st_mtime)
+		m.update(st.st_size)
+		return m.digest()
+
+    To replace the function in your project, use something like this:
+	import Utils
+	Utils.h_file = h_file
+
+
+"""
 
 import os, sys, imp, types, string, time, errno, inspect, logging, re
 from UserDict import UserDict
 import Params
 from Constants import *
 
-# h_file: compute hash value for a file.
-#		Follows 4 alternatives for this function:
-#			* fnv-based (see waf/utils/fnv & http://code.google.com/p/waf/wiki/FAQ)
-#			* md5 based (Python 2.5 - hashlib module, md5 module for older Pythons)
-#			* file size & time stamp based (commented out, for large projects)
 try:
 	from fnv import new as md5
 
@@ -43,17 +63,6 @@ except ImportError:
 			readBytes = len(readString)
 		f.close()
 		return m.digest()
-
-# Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
-# based on the path, md5 hashing can be used for some files and timestamp for others
-#def h_file(filename):
-#	st = os.stat(filename)
-#	import stat
-#	if stat.S_ISDIR(st): raise IOError, 'not a file'
-#	m = md5()
-#	m.update(st.st_mtime)
-#	m.update(st.st_size)
-#	return m.digest()
 
 re_log = re.compile(r'(\w+): (.*)', re.M)
 class log_filter(logging.Filter):
@@ -311,7 +320,7 @@ def h_list(lst):
 	m.update(str(lst))
 	return m.digest()
 
-def hash_fun(fun):
+def h_fun(fun):
 	try:
 		return fun.code
 	except AttributeError:

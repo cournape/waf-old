@@ -401,7 +401,7 @@ class TaskBase(object):
 			up(x.variant(self.env))
 			up(x.abspath())
 		up(self.__class__.__name__)
-		up(Utils.hash_fun(self.run))
+		up(Utils.h_fun(self.run))
 		return m.digest()
 
 	def get_str(self):
