@@ -136,7 +136,7 @@ class Serial(object):
 			#	error("task has already run! "+str(tsk.m_idx))
 
 			if not tsk.may_start():
-				debug('runner: delaying  #%d' % tsk.m_idx)
+				debug('runner: postponing  #%d' % tsk.m_idx)
 				self.postpone(tsk)
 				#self.debug()
 				#tsk = None

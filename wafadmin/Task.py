@@ -381,8 +381,6 @@ class TaskBase(object):
 			up(x.abspath())
 		up(self.__class__.__name__)
 		up(Utils.hash_fun(self.run))
-		try: up(self.m_scanner.version())
-		except AttributeError: pass
 		return m.digest()
 
 	def get_str(self):
