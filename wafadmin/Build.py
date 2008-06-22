@@ -592,7 +592,7 @@ class Build(object):
 
 		lst = [env.get_flat(a) for a in vars_lst]
 		ret = Utils.h_list(lst)
-		if Params.g_zones: logging.debug("%s %s" % (ret.encode('hex'), str(lst)), 'envhash')
+		if Params.g_zones: debug("%s %s" % (ret.encode('hex'), str(lst)), 'envhash')
 
 		# next time
 		self.sig_vars_cache[idx] = ret
