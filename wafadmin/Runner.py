@@ -26,27 +26,6 @@ def printout(s):
 		sys.stdout.flush()
 	print_log(s, nl='')
 
-def progress_line(state, total, col1, task):
-	"do not print anything if there is nothing to display"
-	cl = Params.g_colors
-	col1 = cl[col1]
-	col2 = cl['NORMAL']
-
-	if Params.g_options.progress_bar == 1:
-		return Utils.progress_line(state, total, col1, col2)
-
-	if Params.g_options.progress_bar == 2:
-		try: ini = Params.g_build.ini
-		except AttributeError: ini = Params.g_build.ini = time.time()
-		ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
-		ins  = ','.join([n.m_name for n in task.m_inputs])
-		outs = ','.join([n.m_name for n in task.m_outputs])
-		return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (total, state, ins, outs, ela)
-
-	n = len(str(total))
-	fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
-	return fs % (state, total, col1, task.display, col2)
-
 def exec_command(s):
 	debug('runner: system command -> %s' % s)
 	log = Params.g_build.log
@@ -104,9 +83,6 @@ class Serial(object):
 					       for tsk in self.outstanding])))
 		return self.get_next()
 
-	def progress(self):
-		return (self.processed, self.total)
-
 	def postpone(self, tsk):
 		self.processed -= 1
 		self.switchflag *= -1
@@ -143,9 +119,6 @@ class Serial(object):
 				continue
 			# # =======================
 
-			tsk.prepare()
-			#tsk.debug()
-
 			#debug("m_sig is "+str(tsk.m_sig), 'runner')
 			#debug("obj output m_sig is "+str(tsk.m_outputs[0].get_sig()), 'runner')
 
@@ -160,8 +133,8 @@ class Serial(object):
 
 			# display the command that we are about to run
 			if not g_quiet:
-				(s, t) = self.progress()
-				printout(progress_line(s, t, tsk.color, tsk))
+				tsk.position = (self.processed, self.total)
+				printout(tsk.display())
 
 			# run the command
 			ret = tsk.run()
@@ -206,7 +179,7 @@ class TaskConsumer(threading.Thread):
 				m.out.put(tsk)
 				continue
 
-			printout(tsk.display)
+			printout(tsk.display())
 			ret = tsk.run()
 
 			if ret:
@@ -236,7 +209,6 @@ class Parallel(object):
 
 		self.manager = bld.task_manager
 
-		# progress bar
 		self.total = self.manager.total()
 
 		# tasks waiting to be processed - IMPORTANT
@@ -253,7 +225,7 @@ class Parallel(object):
 		self.count = 0 # tasks not in the producer area
 		self.failed = 0 # some task has failed
 		self.running = 0 # keep running ?
-		self.progress = 0 # progress indicator
+		self.processed = 0 # progress indicator
 
 	def start(self):
 		self.consumers = [TaskConsumer(i, self) for i in range(self.numjobs)]
@@ -300,13 +272,12 @@ class Parallel(object):
 			# consider the next task
 			tsk = self.outstanding.pop(0)
 			if tsk.may_start():
-				tsk.prepare()
-				self.progress += 1
+				self.processed += 1
 				if not tsk.must_run():
 					tsk.m_hasrun = SKIPPED
 					self.manager.add_finished(tsk)
 					continue
-				tsk.display = progress_line(self.progress, self.total, tsk.color, tsk)
+				tsk.position = (self.processed, self.total)
 				self.count += 1
 				self.ready.put(tsk)
 			else:

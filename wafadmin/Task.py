@@ -350,7 +350,6 @@ class TaskBase(object):
 	maxjobs = sys.maxint
 
 	def __init__(self, normal=1):
-		self.display = ''
 		self.m_hasrun = 0
 
 		manager = Params.g_build.task_manager
@@ -359,6 +358,28 @@ class TaskBase(object):
 		else:
 			self.m_idx = manager.idx
 			manager.idx += 1
+
+	def display(self):
+		"do not print anything if there is nothing to display"
+		cl = Params.g_colors
+		col1 = cl[self.color]
+		col2 = cl['NORMAL']
+
+		if Params.g_options.progress_bar == 1:
+			return Utils.progress_line(self.position[0], self.position[1], col1, col2)
+
+		if Params.g_options.progress_bar == 2:
+			try: ini = Params.g_build.ini
+			except AttributeError: ini = Params.g_build.ini = time.time()
+			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
+			ins  = ','.join([n.m_name for n in task.m_inputs])
+			outs = ','.join([n.m_name for n in task.m_outputs])
+			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], self.position[0], ins, outs, ela)
+
+		total = self.position[1]
+		n = len(str(total))
+		fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
+		return fs % (self.position[0], self.position[1], col1, self.get_str(), col2)
 
 	def attr(self, att, default=None):
 		return getattr(self, att, getattr(self.__class__, att, default))
@@ -752,10 +773,6 @@ class Task(TaskBase):
 				if not Runner.g_quiet: Params.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
 		return 1
 
-	def prepare(self):
-		if not self.display: self.display = self.get_str()
-		return self.display
-
 	def debug_info(self):
 		ret = []
 		ret.append('-- task details begin --')
@@ -794,8 +811,8 @@ class TaskCmd(TaskBase):
 		TaskBase.__init__(self)
 		self.fun = fun
 		self.m_env = env
-	def prepare(self):
-		self.display = "* executing: %s" % self.fun.__name__
+	def get_str(self):
+		return "executing: %s" % self.fun.__name__
 	def debug_info(self):
 		return 'TaskCmd:fun %s' % self.fun.__name__
 	def debug(self):
