@@ -64,6 +64,7 @@ class log_filter(logging.Filter):
 		col = Params.g_colors
 		rec.c1 = col['PINK']
 		rec.c2 = col['NORMAL']
+		rec.zone = rec.module
 		if rec.levelno >= logging.WARNING:
 			rec.c1 = col['RED']
 			return True
