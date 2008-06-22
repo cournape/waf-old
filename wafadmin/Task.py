@@ -19,7 +19,7 @@ and #3 applies to the task instances.
 
 #1 is held by the task manager (ordered list of TaskGroups)
 #2 is held by the task groups (constraint extraction and topological sort) and the actions (priorities)
-#3 is held by the tasks individually (attribute m_run_after),
+#3 is held by the tasks individually (attribute run_after),
    and the scheduler (Runner.py) use Task::may_start to reorder the tasks
 
 
@@ -557,7 +557,7 @@ class Task(TaskBase):
 		self.m_outputs = []
 
 		self.m_deps_nodes = []
-		self.m_run_after = []
+		self.run_after = []
 
 		# Additionally, you may define the following
 		#self.dep_vars  = 'PREFIX DATADIR'
@@ -585,11 +585,7 @@ class Task(TaskBase):
 		"set (scheduler) dependency on another task"
 		# TODO: handle list or object
 		assert isinstance(task, TaskBase)
-		self.m_run_after.append(task)
-
-	def get_run_after(self):
-		try: return self.m_run_after
-		except AttributeError: return []
+		self.run_after.append(task)
 
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
@@ -663,7 +659,7 @@ class Task(TaskBase):
 				error("task is invalid : no inputs or outputs (override in a Task subclass?)")
 				self.debug()
 
-		for t in self.get_run_after():
+		for t in self.run_after:
 			if not t.m_hasrun:
 				return 0
 		return 1

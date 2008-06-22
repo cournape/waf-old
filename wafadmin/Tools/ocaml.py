@@ -40,7 +40,7 @@ def link_may_start(self):
 		while pendant:
 			task = pendant.pop(0)
 			if task in seen: continue
-			for x in task.get_run_after():
+			for x in task.run_after:
 				if not x in seen:
 					pendant.append(task)
 					break

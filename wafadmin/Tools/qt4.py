@@ -43,7 +43,7 @@ class MTask(Task.Task):
 	def may_start(self):
 		if self.moc_done:
 			# if there is a moc task, delay the computation of the file signature
-			for t in self.get_run_after():
+			for t in self.run_after:
 				if not t.m_hasrun:
 					return 0
 			# the moc file enters in the dependency calculation
