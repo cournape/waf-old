@@ -35,7 +35,7 @@ Task.shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Params, Runner, Utils
+import Params, Runner, Utils, Node
 from logging import debug, error, warn
 from Constants import *
 
@@ -457,13 +457,6 @@ class TaskBase(object):
 		tree.node_deps[variant][node.id] = nodes
 		tree.raw_deps[variant][node.id] = names
 
-# XXX provide a dummy scan_signature
-#			# compute the signature from the inputs (no scanner)
-#			for x in self.m_inputs:
-#				v = tree.m_tstamp_variants[x.variant(env)][x.id]
-#				dep_sig = hash((dep_sig, v))
-#				m.update(v)
-
 	# compute the signature, recompute it if there is no match in the cache
 	def scan_signature(self):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
@@ -507,33 +500,40 @@ class TaskBase(object):
 	# protected methods - override if you know what you are doing
 
 	def scan_signature_queue(self):
-		"the basic scheme for computing signatures from .cpp and inferred .h files"
-		tree = Params.g_build
-
-		rescan = 0
-		seen = set()
-		queue = []+self.m_inputs
+		"""it is intented for .cpp and inferred .h files
+		there is a single list (no tree traversal)
+		this is the hot spot so ... do not touch"""
 		m = md5()
+		upd = m.update
 
 		# additional variables to hash (command-line defines for example)
 		env = self.env
-		for x in getattr(self, "vars", ()):
-			m.update(str(env[x]))
+		for x in getattr(self.__class__, "vars", ()):
+			k = env[x]
+			if k: upd(str(k))
 
-		# add the hashes of all files entering into the dependency system
-		while queue:
-			node = queue.pop(0)
+		tree = Params.g_build
+		rescan = tree.rescan
+		tstamp = tree.m_tstamp_variants
 
-			if node.id in seen: continue
-			seen.add(node.id)
+		# headers to hash
+		try:
+			idx = self.m_inputs[0].id
+			variant = self.m_inputs[0].variant(env)
+			upd(tstamp[variant][idx])
 
-			variant = node.variant(env)
-			tree.rescan(node.m_parent)
-			try: queue += tree.node_deps[variant][node.id]
-			except KeyError: pass
+			for k in Params.g_build.node_deps[variant][idx]:
 
-			try: m.update(tree.m_tstamp_variants[variant][node.id])
-			except KeyError: return None
+				# unlikely but necessary if it happens
+				try: tree.m_scanned_folders[k.m_parent.id]
+				except KeyError: rescan(k.m_parent)
+
+				if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
+				else: upd(tstamp[env.variant()][k.id])
+
+		except KeyError:
+			return None
+
 		return m.digest()
 
 class Task(TaskBase):

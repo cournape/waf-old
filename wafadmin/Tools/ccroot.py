@@ -5,7 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-import TaskGen, Params, Utils, Node, preproc
+import TaskGen, Params, Utils, preproc
 from logging import error, debug, fatal, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
@@ -49,45 +49,6 @@ def scan(self, node):
 		seen.append(id(x))
 		all.append(x)
 	return (all, gruik.m_names)
-
-def scan_signature_queue(tsk):
-	"""compute signatures from .cpp and inferred .h files
-	there is a single list (no tree traversal)
-	hot spot so do not touch"""
-	m = md5()
-	upd = m.update
-
-	# additional variables to hash (command-line defines for example)
-	env = tsk.env
-	for x in ('CCDEFINES', 'CXXDEFINES'):
-		k = env[x]
-		if k: upd(str(k))
-
-	tree = Params.g_build
-	rescan = tree.rescan
-	tstamp = tree.m_tstamp_variants
-
-	# headers to hash
-	try:
-		idx = tsk.m_inputs[0].id
-		variant = tsk.m_inputs[0].variant(env)
-		upd(tstamp[variant][idx])
-
-		for k in Params.g_build.node_deps[variant][idx]:
-
-			# unlikely but necessary if it happens
-			try: tree.m_scanned_folders[k.m_parent.id]
-			except KeyError: rescan(k.m_parent)
-
-			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
-			else: upd(tstamp[env.variant()][k.id])
-
-	except KeyError:
-		return None
-
-	return m.digest()
-
-
 
 class ccroot_abstract(TaskGen.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"

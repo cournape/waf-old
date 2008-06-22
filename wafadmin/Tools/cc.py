@@ -102,7 +102,7 @@ link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${
 
 cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c')
 cls.scan = ccroot.scan
-cls.scan_signature_queue = ccroot.scan_signature_queue
+cls.vars = ('CCDEFINES',)
 Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o')
 
 TaskGen.declare_order('apply_incpaths', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
