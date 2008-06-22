@@ -83,10 +83,17 @@ class log_filter(logging.Filter):
 		return True
 
 def fatal(msg, ret=1):
-	logging.error(msg)
-	if Params.g_verbose > 1:
+	if Params.g_verbose:
 		import traceback
-		traceback.print_stack()
+		st = traceback.extract_stack()
+		if st: st = st[:-1]
+		buf = []
+		for filename, lineno, name, line in st:
+			buf.append('  File "%s", line %d, in %s' % (filename, lineno, name))
+			if line:
+				buf.append('    %s' % line.strip())
+		msg = msg + "\n".join(buf)
+	logging.error(msg)
 	sys.exit(ret)
 logging.fatal = fatal
 
