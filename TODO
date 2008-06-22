@@ -3,13 +3,11 @@ roadmap:
 
 * flag conversion simplification (_INCFLAGS)
 * attribute processing improvements (foo.ldflags)
-* gnu_dirs tool integration
 * split the gnome module
 
 ideas to watch:
 ---------------
 
-* in waf 1.5: change the priority system
 * cross-compilation settings gcc,linux->win32
 * precompiled headers support (pch)
 * packaging (rpms, debs)
