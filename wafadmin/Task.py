@@ -29,8 +29,8 @@ and priorities or order constraints can only be applied to actions, not to tasks
 
 To try, use something like this in your code:
 import Constants, Task
-Task.g_algotype = Constants.MAXPARALLEL
-Task.g_shuffle = True
+Task.algotype = Constants.MAXPARALLEL
+Task.shuffle = True
 """
 
 import os, types, shutil, sys, re, new, random
@@ -39,13 +39,10 @@ import Params, Runner, Utils
 from logging import debug, error, warn
 from Constants import *
 
-#g_algotype = NORMAL
-#g_algotype = JOBCONTROL
-g_algotype = MAXPARALLEL
-
-g_shuffle = False
-
-g_task_types = {}
+#algotype = NORMAL
+#algotype = JOBCONTROL
+algotype = MAXPARALLEL
+shuffle = False
 
 """
 Enable different kind of dependency algorithms:
@@ -159,20 +156,20 @@ class TaskGroup(object):
 
 	def get_next_set(self):
 		"next list of tasks to execute using max job settings, returns (priority, task_list)"
-		global g_algotype, g_shuffle
-		if g_algotype == NORMAL:
+		global algotype, shuffle
+		if algotype == NORMAL:
 			tasks = self.tasks_in_parallel()
 			maxj = sys.maxint
-		elif g_algotype == JOBCONTROL:
+		elif algotype == JOBCONTROL:
 			(maxj, tasks) = self.tasks_by_max_jobs()
-		elif g_algotype == MAXPARALLEL:
+		elif algotype == MAXPARALLEL:
 			tasks = self.tasks_with_inner_constraints()
 			maxj = sys.maxint
 		else:
-			Params.fatal("unknown algorithm type %s" % (g_algotype))
+			Params.fatal("unknown algorithm type %s" % (algotype))
 
 		if not tasks: return ()
-		if g_shuffle: random.shuffle(tasks)
+		if shuffle: random.shuffle(tasks)
 		return (maxj, tasks)
 
 	def make_cstr_groups(self):
@@ -329,16 +326,14 @@ class TaskGroup(object):
 		return self.tasks[:] # make a copy
 
 class store_task_type(type):
-	"""we store into task_gen.classes the classes that inherit task_gen
-	and whose names end in 'obj'
-	"""
+	"store the task types that have a name ending in _task into"
 	def __init__(cls, name, bases, dict):
 		super(store_task_type, cls).__init__(name, bases, dict)
 		name = cls.__name__
 
 		if name.endswith('_task'):
 			name = name.replace('_task', '')
-			g_task_types[name] = cls
+			TaskBase.classes[name] = cls
 
 class TaskBase(object):
 	"TaskBase is the base class for task objects"
@@ -348,6 +343,7 @@ class TaskBase(object):
 	m_vars = []
 	color = "GREEN"
 	maxjobs = sys.maxint
+	classes = {}
 
 	def __init__(self, normal=1):
 		self.m_hasrun = 0
@@ -891,8 +887,7 @@ def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, ext_in=[]
 
 	cls = new.classobj(name, (Task,), params)
 	setattr(cls, 'm_action', cls) # <- compat
-	global g_task_types
-	g_task_types[name] = cls
+	TaskBase.classes[name] = cls
 	return cls
 
 
