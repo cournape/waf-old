@@ -41,6 +41,8 @@ from Constants import *
 
 try:
 	from fnv import new as md5
+	import Constants
+	Constants.SIG_NIL = 'signofnv'
 
 	def h_file(filename):
 		m = md5()
