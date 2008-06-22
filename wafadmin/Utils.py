@@ -9,6 +9,11 @@ from UserDict import UserDict
 import Params
 from Constants import *
 
+# h_file: compute hash value for a file.
+#		Follows 4 alternatives for this function:
+#			* fnv-based (see waf/utils/fnv & http://code.google.com/p/waf/wiki/FAQ)
+#			* md5 based (Python 2.5 - hashlib module, md5 module for older Pythons)
+#			* file size & time stamp based (commented out, for large projects)
 try:
 	from fnv import new as md5
 
@@ -38,6 +43,17 @@ except ImportError:
 			readBytes = len(readString)
 		f.close()
 		return m.digest()
+
+# Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
+# based on the path, md5 hashing can be used for some files and timestamp for others
+#def h_file(filename):
+#	st = os.stat(filename)
+#	import stat
+#	if stat.S_ISDIR(st): raise IOError, 'not a file'
+#	m = md5()
+#	m.update(st.st_mtime)
+#	m.update(st.st_size)
+#	return m.digest()
 
 re_log = re.compile(r'(\w+): (.*)', re.M)
 class log_filter(logging.Filter):
@@ -72,17 +88,6 @@ def fatal(msg, ret=1):
 		traceback.print_stack()
 	sys.exit(ret)
 logging.fatal = fatal
-
-# Another possibility, faster (projects with more than 15000 files) but less accurate (cache)
-# based on the path, md5 hashing can be used for some files and timestamp for others
-#def h_file(filename):
-#	st = os.stat(filename)
-#	import stat
-#	if stat.S_ISDIR(st): raise IOError, 'not a file'
-#	m = md5()
-#	m.update(st.st_mtime)
-#	m.update(st.st_size)
-#	return m.digest()
 
 def test_full():
 	try:
