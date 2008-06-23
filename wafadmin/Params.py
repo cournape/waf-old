@@ -17,9 +17,6 @@ if sys.platform=='win32':
 	g_rootname = os.getcwd()[:2]
 	g_progress = '\x1b[A\x1b[K%s%s%s\r'
 
-g_autoconfig = 0
-"reconfigure the project automatically"
-
 # =================================== #
 # Constants set on runtime
 

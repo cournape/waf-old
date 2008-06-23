@@ -29,6 +29,9 @@ TEST_OK = True
 class ConfigurationError(Exception):
 	pass
 
+autoconfig = False
+"reconfigure the project automatically"
+
 g_maxlen = 40
 """initial length of configuration messages"""
 
@@ -192,7 +195,8 @@ class Configure(object):
 			fatal('the module %s has no configure function; make sure such a function is defined' % cur)
 
 		ret = mod.configure(self)
-		if Params.g_autoconfig:
+		global autoconfig
+		if autoconfig:
 			self.hash = Utils.hash_function_with_globals(self.hash, mod.configure)
 			self.files.append(os.path.abspath(cur))
 		self.cwd = current

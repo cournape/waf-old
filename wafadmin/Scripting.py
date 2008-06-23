@@ -301,7 +301,7 @@ def main():
 		if Params.g_commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=2)
 		else:
-			if Params.g_autoconfig:
+			if Configure.autoconfig:
 				warn("Reconfiguring the project")
 				configure()
 				bld = Build.Build()
@@ -309,7 +309,7 @@ def main():
 			else:
 				fatal("Project not configured (run 'waf configure' first)", ret=2)
 
-	if Params.g_autoconfig:
+	if Configure.autoconfig:
 		reconf = 0
 		hash = 0
 		try:
