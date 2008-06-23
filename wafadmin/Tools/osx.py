@@ -32,6 +32,11 @@ def apply_link_osx(self):
 	or use obj.mac_app = True to build specific targets as Mac apps"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 	    self.create_task_macapp()
+		name = self.link_task.m_outputs[0].m_name
+		if self.vnum: name = name.replace('.dylib', '.%s.dylib' % self.vnum)
+		path = os.path.join(self.env['PREFIX'], lib, name)
+		path = '-install_name %s' % path
+		self.env.append_value('LINKFLAGS', path)
 
 @taskgen
 @before('apply_link')
