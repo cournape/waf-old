@@ -179,8 +179,13 @@ class TaskConsumer(threading.Thread):
 				m.out.put(tsk)
 				continue
 
-			printout(tsk.display())
-			ret = tsk.run()
+			try:
+				printout(tsk.display())
+				ret = tsk.run()
+			except Exception:
+				exc_type, exc_value, tb = sys.exc_info()
+				traceback.print_exception(exc_type, exc_value, tb)
+				ret = CRASHED
 
 			if ret:
 				tsk.err_code = ret
