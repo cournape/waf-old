@@ -323,8 +323,8 @@ def init():
 		create_waf()
 		sys.exit(0)
 	elif Params.g_commands['check']:
-		import Test
-		Test.run_tests()
+		import test.Test
+		test.Test.run_tests()
 		sys.exit(0)
 
 #def dist():

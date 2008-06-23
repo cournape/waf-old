@@ -21,11 +21,11 @@ def testname(file, tests_dir='test'):
 	return open(test_file, 'r')
 
 def run_tests():
-	# could be run from main waf dir only !
-	import wafadmin.test.build_dir as test_build_dir
-	import wafadmin.test.cxx_test as test_cxx
-	import wafadmin.test.gcc_test as test_gcc
-	import wafadmin.test.configure_test as test_configure
+	# could be run from test dir only !
+	import build_dir as test_build_dir
+	import cxx_test as test_cxx
+	import gcc_test as test_gcc
+	import configure_test as test_configure
 
 	if Params.g_options:
 		verbose = Params.g_options.verbose
