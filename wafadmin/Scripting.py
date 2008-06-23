@@ -8,8 +8,9 @@ import os, sys, shutil, cPickle, traceback, time
 
 import Params, Utils, Configure, Build, Runner, Options, Logs
 from Logs import error, fatal, warn
-from Params import g_lockfile
 from Constants import *
+
+LOCKFILE = os.environ.get('WAFLOCK', '.lock-wscript')
 
 g_gz = 'bz2'
 g_dirwatch = None
@@ -117,7 +118,7 @@ def configure():
 
 	# this will write a configure lock so that subsequent run will
 	# consider the current path as the root directory, to remove: use 'waf distclean'
-	file = open(g_lockfile, 'w')
+	file = open(LOCKFILE, 'w')
 	file.write
 
 	proj = {}
@@ -133,7 +134,7 @@ def configure():
 	Params.g_options.jobs = jobs_save
 
 def read_cache_file(filename):
-	file = open(g_lockfile, 'r')
+	file = open(LOCKFILE, 'r')
 	proj = cPickle.load(file)
 	file.close()
 	return proj
@@ -198,7 +199,7 @@ def prepare():
 				break
 			if 'configure' in sys.argv and candidate:
 				break
-			if Params.g_lockfile in dirlst:
+			if LOCKFILE in dirlst:
 				break
 			cwd = cwd[:cwd.rfind(os.sep)] # climb up
 	except Exception:
@@ -296,7 +297,7 @@ def main():
 	# compile the project and/or install the files
 	bld = Build.Build()
 	try:
-		proj = read_cache_file(g_lockfile)
+		proj = read_cache_file(LOCKFILE)
 	except IOError:
 		if Params.g_commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=2)
@@ -305,7 +306,7 @@ def main():
 				warn("Reconfiguring the project")
 				configure()
 				bld = Build.Build()
-				proj = read_cache_file(g_lockfile)
+				proj = read_cache_file(LOCKFILE)
 			else:
 				fatal("Project not configured (run 'waf configure' first)", ret=2)
 
@@ -337,7 +338,7 @@ def main():
 			(Params.g_commands, Params.g_options, Logs.zones, Logs.verbose) = back
 
 			bld = Build.Build()
-			proj = read_cache_file(g_lockfile)
+			proj = read_cache_file(LOCKFILE)
 
 	Params.g_cachedir = os.path.join(proj[BLDDIR], CACHE_DIR)
 
@@ -526,7 +527,7 @@ def DistClean():
 	for (root, dirs, filenames) in os.walk('.'):
 		for f in list(filenames):
 			to_remove = 0
-			if f==g_lockfile:
+			if f == LOCKFILE:
 				# removes a lock, and the builddir indicated
 				to_remove = True
 				try:

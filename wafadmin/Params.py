@@ -32,9 +32,6 @@ g_options = None
 g_commands = {}
 "build, configure, .."
 
-g_verbose = 0
-"-v: warnings, -vv: developer info, -vvv: all info"
-
 g_build = None
 "only one build object is active at a time"
 
@@ -51,9 +48,6 @@ g_install = 0
 
 try: g_cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: pass
-
-try: g_lockfile = os.environ['WAFLOCK']
-except KeyError: g_lockfile = '.lock-wscript'
 
 # =================================== #
 # HELPERS
