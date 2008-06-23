@@ -8,6 +8,7 @@ NEW IN WAF 1.5.0
 meaning in configuration and build)
 * the helper functions have been moved to Utils.py
 * Task_gen.g_allobj -> bld.all_task_gen or Params.g_build.all_task_gen
+* Params.g_autoconfig -> Configure.autoconfig
 
 NEW IN WAF 1.4.3
 ----------------
