@@ -374,3 +374,7 @@ def hash_function_with_globals(prevhash, func):
 		#	print "hashed: ", name, " => ", value, " => ", hash(value)
 	return hash( (prevhash, inspect.getsource(func)) )
 
+def pprint(col, str, label=''):
+	"print messages in color"
+	print "%s%s%s %s" % (Params.g_colors.get(col, ''), str, Params.g_colors['NORMAL'], label)
+

@@ -19,24 +19,24 @@ def postinstall_schemas(prog_name):
 		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/%s.schemas' % prog_name)
 		if not Params.g_options.destdir:
 			# add the gconf schema
-			Params.pprint('YELLOW', "Installing GConf schema.")
+			Utils.pprint('YELLOW', "Installing GConf schema.")
 			command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
 			ret = Runner.exec_command(command)
 		else:
-			Params.pprint('YELLOW', "GConf schema not installed. After install, run this:")
-			Params.pprint('YELLOW', "gconftool-2 --install-schema-file=%s" % dir)
+			Utils.pprint('YELLOW', "GConf schema not installed. After install, run this:")
+			Utils.pprint('YELLOW', "gconftool-2 --install-schema-file=%s" % dir)
 
 def postinstall_icons():
 	dir = Common.path_install('DATADIR', 'icons/hicolor')
 	if Params.g_commands['install']:
 		if not Params.g_options.destdir:
 			# update the pixmap cache directory
-			Params.pprint('YELLOW', "Updating Gtk icon cache.")
+			Utils.pprint('YELLOW', "Updating Gtk icon cache.")
 			command = 'gtk-update-icon-cache -q -f -t %s' % dir
 			ret = Runner.exec_command(command)
 		else:
-			Params.pprint('YELLOW', "Icon cache not updated. After install, run this:")
-			Params.pprint('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
+			Utils.pprint('YELLOW', "Icon cache not updated. After install, run this:")
+			Utils.pprint('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
 
 def postinstall_scrollkeeper(prog_name):
 	if Params.g_commands['install']:

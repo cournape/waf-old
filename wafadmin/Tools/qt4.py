@@ -153,7 +153,7 @@ def translation_update(task):
 	for x in task.m_inputs:
 		file = x.abspath(task.env)
 		cmd = "%s %s -ts %s" % (lupdate, file, outs)
-		Params.pprint('BLUE', cmd)
+		Utils.pprint('BLUE', cmd)
 		Runner.exec_command(cmd)
 
 class XMLHandler(ContentHandler):

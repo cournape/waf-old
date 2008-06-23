@@ -86,8 +86,5 @@ if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
 	or (not sys.stdout.isatty()):
 	reset_colors()
 
-def pprint(col, str, label=''):
-	print "%s%s%s %s" % (g_colors.get(col, ''), str, g_colors['NORMAL'], label)
-
 g_zones = []
 

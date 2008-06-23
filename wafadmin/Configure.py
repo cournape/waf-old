@@ -270,7 +270,7 @@ class Configure(object):
 		g_maxlen = max(g_maxlen, len(sr))
 		print "%s :" % sr.ljust(g_maxlen),
 
-		p = Params.pprint
+		p = Utils.pprint
 		if state: p('GREEN', 'ok ' + option)
 		else: p('YELLOW', 'not found')
 		self.log.write(sr + '\n\n')
@@ -281,7 +281,7 @@ class Configure(object):
 		global g_maxlen
 		g_maxlen = max(g_maxlen, len(sr))
 		print "%s :" % sr.ljust(g_maxlen),
-		Params.pprint(color, custom)
+		Utils.pprint(color, custom)
 		self.log.write(sr + '\n\n')
 
 	def find_program(self, program_name, path_list=[], var=None):

@@ -208,7 +208,7 @@ class Build(object):
 			dw()
 			os.chdir(self.m_srcnode.abspath())
 			self._store()
-			Params.pprint('RED', 'Build interrupted')
+			Utils.pprint('RED', 'Build interrupted')
 			if Params.g_verbose > 1: raise
 			else: sys.exit(68)
 		except Exception, e:
@@ -524,8 +524,8 @@ class Build(object):
 					accu += recu(child, count+1)
 			return accu
 
-		Params.pprint('CYAN', recu(self.m_root, 0) )
-		Params.pprint('CYAN', 'size is '+str(self.m_root.size_subtree()))
+		Utils.pprint('CYAN', recu(self.m_root, 0) )
+		Utils.pprint('CYAN', 'size is '+str(self.m_root.size_subtree()))
 
 	def get_env(self):
 		return self.env_of_name('default')

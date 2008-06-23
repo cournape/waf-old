@@ -76,7 +76,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 					task.set_outputs(node.change_ext('.mo'))
 					if Params.g_install: task.install = install_translation
 		else:
-			Params.pprint('RED', "Error no LINGUAS file found in po directory")
+			Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 
 Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 Task.simple_task_type('intltool',

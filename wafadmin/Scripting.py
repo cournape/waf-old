@@ -290,7 +290,7 @@ def main():
 		configure()
 		ela = ''
 		if not Params.g_options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-		Params.pprint('GREEN', 'Configuration finished successfully%s; project is now ready to build.' % ela)
+		Utils.pprint('GREEN', 'Configuration finished successfully%s; project is now ready to build.' % ela)
 		sys.exit(0)
 
 	# compile the project and/or install the files
@@ -398,13 +398,13 @@ def main():
 			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
 			elif Params.g_commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
 			else: msg = 'Compilation finished successfully%s' % ela
-			Params.pprint('GREEN', msg)
+			Utils.pprint('GREEN', msg)
 
 	# clean
 	if Params.g_commands['clean']:
 		try:
 			bld.clean()
-			Params.pprint('GREEN', 'Cleaning finished successfully')
+			Utils.pprint('GREEN', 'Cleaning finished successfully')
 		finally:
 			bld.save()
 		#if ret:
@@ -513,7 +513,7 @@ def DistTarball(appname, version):
 	tar = tarfile.open(TMPFOLDER+'.tar.'+g_gz,'w:'+g_gz)
 	tar.add(TMPFOLDER)
 	tar.close()
-	Params.pprint('GREEN', 'Your archive is ready -> %s.tar.%s' % (TMPFOLDER, g_gz))
+	Utils.pprint('GREEN', 'Your archive is ready -> %s.tar.%s' % (TMPFOLDER, g_gz))
 
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
 	return (TMPFOLDER, TMPFOLDER+'.tar.'+g_gz)
@@ -553,7 +553,7 @@ def DistClean():
 	for f in lst:
 		if f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
-	Params.pprint('GREEN', "distclean finished successfully")
+	Utils.pprint('GREEN', "distclean finished successfully")
 	sys.exit(0)
 
 def DistCheck(appname, version):
@@ -584,5 +584,5 @@ def DistCheck(appname, version):
 	if os.path.exists(instdir):
 		Params.fatal("distcheck succeeded, but files were left in %s" % (instdir))
 	else:
-		Params.pprint('GREEN', "distcheck finished successfully")
+		Utils.pprint('GREEN', "distcheck finished successfully")
 

@@ -85,7 +85,7 @@ class unit_test(object):
 		# Now run the unit tests
 		col1=Params.g_colors['GREEN']
 		col2=Params.g_colors['NORMAL']
-		Params.pprint('GREEN', 'Running the unit tests')
+		Utils.pprint('GREEN', 'Running the unit tests')
 		count = 0
 		result = 1
 
@@ -135,7 +135,7 @@ class unit_test(object):
 		# If waf is not building, don't output anything
 		if not Params.g_commands[self.run_if_waf_does]: return
 
-		p = Params.pprint
+		p = Utils.pprint
 		# Early quit if no tests were performed
 		if self.total_num_tests == 0:
 			p('YELLOW', 'No unit tests present')

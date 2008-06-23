@@ -765,7 +765,7 @@ class Task(TaskBase):
 			else:
 				cnt += 1
 				Params.g_build.m_tstamp_variants[variant][node.id] = sig
-				if not Runner.g_quiet: Params.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
+				if not Runner.g_quiet: Utils.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
 		return 1
 
 	def debug_info(self):
