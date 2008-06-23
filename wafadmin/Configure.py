@@ -329,11 +329,12 @@ class Configure(object):
 			try:
 				f()
 			except Exception, e:
-				raise
 				if err_handler(x, e) == STOP:
 					break
 				else:
 					raise
+	def err_handler(self, error):
+		pass
 
 def conf(f):
 	"decorator: attach new configuration functions"
