@@ -20,6 +20,8 @@ class GccTester(CcFamilyTester):
 
 def run_tests(verbose=2):
 	try:
+		if verbose > 1: common_test.hide_output = False
+
 		suite = unittest.TestLoader().loadTestsFromTestCase(GccTester)
 		unittest.TextTestRunner(verbosity=verbose).run(suite)
 	except common_test.StartupError, e:

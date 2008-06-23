@@ -14,6 +14,9 @@ import Environment
 import Options
 from Constants import *
 
+# global variable - used to control the output of tests.
+hide_output = True
+
 class StartupError(Exception):
 	pass
 
@@ -44,8 +47,9 @@ class CommonTester(unittest.TestCase):
 		"""
 		kwargs = dict()
 
-		# Don't show output, comment-out this line when need to check-out what went wrong...
-		kwargs['stdout'] = kwargs['stderr'] = pproc.PIPE
+		if hide_output:
+			# Don't show output, run `waf check -vv` when need to check-out what went wrong...
+			kwargs['stdout'] = kwargs['stderr'] = pproc.PIPE
 		return pproc.call( commands, **kwargs)
 
 	def _copy(self, source, target):

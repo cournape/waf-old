@@ -18,6 +18,8 @@ class CxxTester(CxxFamilyTester):
 
 def run_tests(verbose=2):
 	try:
+		if verbose > 1: common_test.hide_output = False
+
 		suite = unittest.TestLoader().loadTestsFromTestCase(CxxTester)
 		# use the next line to run only specific tests: 
 #		suite =

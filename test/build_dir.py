@@ -6,7 +6,7 @@
 import os, sys, shutil, unittest, tempfile
 import common_test
 
-# allow importing from wafadmin dir when ran from sub-directory 
+# allow importing from wafadmin dir.
 sys.path.append(os.path.abspath(os.path.pardir))
 
 try:
@@ -66,7 +66,7 @@ class TestBuildDir(common_test.CommonTester):
 		self.assert_(os.path.isfile(self._waf_exe), "waf was not created")
 
 		os.chdir(self.__test_demos_dir)
-		
+
 		# If build dir already exists and configured, if version has changed
 		# waf will issue "Version mismatch" warning on configure.
 		cc_build_dir = os.path.join(self.__test_dir_root, "demos", "cc", "build")
@@ -105,10 +105,10 @@ class TestBuildDir(common_test.CommonTester):
 
 		os.mkdir("test_build3")
 		os.chdir("test_build3")
-		
+
 		self.assertEqual(0, self.call(["python", "../waf", "configure"]), "configure failed")
 		self.assertEqual(0, self.call(["python", "../waf", "build"]), "build failed")
-		
+
 		# XXX: the next line fails - since the previous line didn't build files under 'default' directory
 		self._test_run(os.path.join("default", "src", "test_c_program"))
 		self.call(["touch", "test_file"]) #create a file to check the distclean
@@ -123,7 +123,7 @@ class TestBuildDir(common_test.CommonTester):
 		os.mkdir("test_build4")
 		os.chdir("test_build4")
 		test_dir=os.getcwd()
-		
+
 		self._test_configure()
 		self._test_build()
 		self._test_run(os.path.join("default", "src", "test_c_program"))
@@ -133,6 +133,8 @@ class TestBuildDir(common_test.CommonTester):
 
 def run_tests(verbose=2):
 	try:
+		if verbose > 1: common_test.hide_output = False
+
 		suite = unittest.TestLoader().loadTestsFromTestCase(TestBuildDir)
 		# use the next line to run only specific tests: 
 #		suite = unittest.TestLoader().loadTestsFromNames(["test_build3", "test_build4"], TestBuildDir)
