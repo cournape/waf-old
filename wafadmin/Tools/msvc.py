@@ -379,7 +379,7 @@ def detect(conf):
 	conf.check_tool('winres')
 
 	if not conf.env['WINRC']:
-		warn('Resource compiler not found. Compiling resource file is disabled','msvc')
+		warn('Resource compiler not found. Compiling resource file is disabled')
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	if manifesttool:
