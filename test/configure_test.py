@@ -11,7 +11,7 @@ Tests Configure.py
 import os, sys, unittest, shutil, tempfile
 import common_test
 
-# allow importing from wafadmin dir when ran from sub-directory 
+# allow importing from wafadmin dir.
 sys.path.append(os.path.abspath(os.path.pardir))
 
 from Constants import *
@@ -133,7 +133,7 @@ class CcConfigureTester(ConfigureTester):
 		# black-box test: valid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('-Werror'):
-		Params.fatal("invalid flag")
+		logging.fatal("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure()
@@ -142,7 +142,7 @@ class CcConfigureTester(ConfigureTester):
 		# black-box test: invalid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('KUKU'):
-		Params.fatal("invalid flag")
+		logging.fatal("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure(False)
@@ -157,7 +157,7 @@ class CxxConfigureTester(ConfigureTester):
 		# black-box test: valid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('-Werror', kind='cxx'):
-		Params.fatal("invalid flag")
+		logging.fatal("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure()
@@ -166,7 +166,7 @@ class CxxConfigureTester(ConfigureTester):
 		# black-box test: invalid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('KUKU', kind='cxx'):
-		Params.fatal("invalid flag")
+		logging.fatal("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure(False)
@@ -181,6 +181,5 @@ def run_tests(verbose=2):
 
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
-	os.chdir(os.path.pardir)
 	os.chdir(os.path.pardir)
 	run_tests()

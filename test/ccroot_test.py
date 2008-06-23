@@ -7,12 +7,11 @@ Should be serve as common tester for all cc derivativers, currently:
 msvc, g++, sunc++, gcc & suncc.
 """
 
-import os, sys, shutil, tempfile
+import os, sys, shutil, tempfile, logging
 import common_test
 
-# allow importing from wafadmin dir when ran from sub-directory 
+# allow importing from wafadmin dir.
 sys.path.append(os.path.abspath(os.path.pardir))
-import Params
 from Constants import *
 
 # The following string is a wscript for tests.
@@ -138,7 +137,7 @@ class CcRootTester(common_test.CommonTester):
 			self._test_dic['tool'] = self.tool_name
 			self._test_dic['objname'] = self.object_name
 		except AttributeError:
-			Params.fatal("Testers that inherited ccroot have to define 'self.tool_name' and 'self.object_name'")
+			logging.fatal("Testers that inherited ccroot have to define 'self.tool_name' and 'self.object_name'")
 
 		# define & create temporary testing directories
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")

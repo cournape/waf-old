@@ -4,8 +4,12 @@
 
 "Some waf tests - most are obsolete"
 
-import os
-import Params
+import os, sys
+
+# allow importing from wafadmin dir.
+sys.path.append(os.path.abspath(os.path.pardir))
+
+import wafadmin.Params as Params
 
 class DIRS:
 	WAFADMIN 	= "wafadmin"

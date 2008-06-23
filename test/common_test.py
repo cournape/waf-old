@@ -7,8 +7,12 @@ Should be serve as common tester for all waf testers.
 """
 import os, sys, unittest, shutil, types
 
-# allow importing from wafadmin dir when ran from sub-directory
-sys.path.append(os.path.abspath(os.path.pardir))
+import Test
+
+# allow importing wafadmin modules
+parentdir = os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) )
+sys.path.append(os.path.join( parentdir, Test.DIRS.WAFADMIN ) )
+
 import pproc
 import Environment
 import Options

@@ -3,7 +3,7 @@
 # Matthias Jahn, 2007 (pmarat)
 # Yinon Ehrlich, 2008
 
-import os, sys, shutil, unittest, tempfile
+import os, sys, shutil, unittest, tempfile, logging
 import common_test
 
 # allow importing from wafadmin dir.
@@ -140,10 +140,9 @@ def run_tests(verbose=2):
 #		suite = unittest.TestLoader().loadTestsFromNames(["test_build3", "test_build4"], TestBuildDir)
 		unittest.TextTestRunner(verbosity=verbose).run(suite)
 	except common_test.StartupError, e:
-		Params.error( e.message )
+		logging.error( e.message )
 
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
-	os.chdir(os.path.pardir)
 	os.chdir(os.path.pardir)
 	run_tests()
