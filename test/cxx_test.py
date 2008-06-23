@@ -11,7 +11,7 @@ class CxxTester(CxxFamilyTester):
 		self.tool_name 		= 'g++'
 		CxxFamilyTester.__init__(self, methodName)
 
-def run_tests(verbose=2):
+def run_tests(verbose=1):
 	try:
 		if verbose > 1: common_test.hide_output = False
 

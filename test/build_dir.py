@@ -131,7 +131,7 @@ class TestBuildDir(common_test.CommonTester):
 		self._test_distclean()
 		self.failIf(os.path.exists(test_dir), "'%s' should not exists distclean did not work" % test_dir)
 
-def run_tests(verbose=2):
+def run_tests(verbose=1):
 	try:
 		if verbose > 1: common_test.hide_output = False
 

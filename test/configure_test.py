@@ -171,7 +171,7 @@ class CxxConfigureTester(ConfigureTester):
 		self._write_files()
 		self._test_configure(False)
 
-def run_tests(verbose=2):
+def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 
 	cc_suite = unittest.TestLoader().loadTestsFromTestCase(CcConfigureTester)
