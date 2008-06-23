@@ -216,13 +216,13 @@ def apply_vars_ml(self):
 def apply_link_ml(self):
 
 	if self.bytecode_env:
-		linktask = Task.g_task_types['ocalink'](self.bytecode_env)
+		linktask = Task.TaskBase.classes['ocalink'](self.bytecode_env)
 		linktask.bytecode = 1
 		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=1)))
 		linktask.obj = self
 		self.linktasks.append(linktask)
 	if self.native_env:
-		linktask = Task.g_task_types['ocalinkopt'](self.native_env)
+		linktask = Task.TaskBase.classes['ocalinkopt'](self.native_env)
 		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=0)))
 		linktask.obj = self
 		self.linktasks.append(linktask)

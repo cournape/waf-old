@@ -111,7 +111,7 @@ class MTask(Task.Task):
 			tree.node_deps[variant][m_node.id] = (h_node,)
 
 			# create the task
-			task = Task.g_task_types['moc'](parn.env, normal=0)
+			task = Task.TaskBase.classes['moc'](parn.env, normal=0)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
@@ -129,7 +129,7 @@ class MTask(Task.Task):
 		for d in lst:
 			name = d.m_name
 			if name.endswith('.moc'):
-				task = Task.g_task_types['moc'](parn.env, normal=0)
+				task = Task.TaskBase.classes['moc'](parn.env, normal=0)
 				task.set_inputs(tree.node_deps[variant][d.id][0]) # 1st element in a tuple
 				task.set_outputs(d)
 
@@ -143,7 +143,7 @@ class MTask(Task.Task):
 		self.m_run_after = moctasks
 		self.moc_done = 1
 
-	run = Task.g_task_types['cxx'].__dict__["run"]
+	run = Task.TaskBase.classes['cxx'].__dict__["run"]
 
 def translation_update(task):
 	outs=[a.abspath(task.env) for a in task.m_outputs]
@@ -231,7 +231,7 @@ def apply_qt4(self):
 		lst=[]
 		trans=[]
 		for l in self.to_list(self.lang):
-			t = Task.g_task_types['ts2qm']('ts2qm', self.env)
+			t = Task.TaskBase.classes['ts2qm']('ts2qm', self.env)
 			t.set_inputs(self.path.find_resource(l+'.ts'))
 			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
 			lst.append(t.m_outputs[0])
@@ -247,7 +247,7 @@ def apply_qt4(self):
 			u.m_outputs = trans
 
 		if self.langname:
-			t = Task.g_task_types['qm2rcc']('qm2rcc', self.env)
+			t = Task.TaskBase.classes['qm2rcc']('qm2rcc', self.env)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_build(self.langname+'.qrc'))
 			t.path = self.path
