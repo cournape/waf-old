@@ -34,9 +34,9 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, types, string, time, errno, inspect, logging, re
+import os, sys, imp, types, string, time, errno, inspect
 from UserDict import UserDict
-import Params
+import Params, Logs
 from Constants import *
 
 try:
@@ -71,48 +71,6 @@ except ImportError:
 		f.close()
 		return m.digest()
 
-re_log = re.compile(r'(\w+): (.*)', re.M)
-class log_filter(logging.Filter):
-	def __init__(self, name=None):
-		pass
-
-	def filter(self, rec):
-		col = Params.g_colors
-		rec.c1 = col['PINK']
-		rec.c2 = col['NORMAL']
-		rec.zone = rec.module
-		if rec.levelno >= logging.WARNING:
-			rec.c1 = col['RED']
-			return True
-
-		zone = ''
-		m = re_log.match(rec.msg)
-		if m:
-			zone = rec.zone = m.group(1)
-			rec.msg = m.group(2)
-
-		g_zones = Params.g_zones
-		if g_zones:
-			return getattr(rec, 'zone', '') in g_zones or '*' in g_zones
-		elif not Params.g_verbose>2:
-			return False
-		return True
-
-def fatal(msg, ret=1):
-	if Params.g_verbose:
-		import traceback
-		st = traceback.extract_stack()
-		if st: st = st[:-1]
-		buf = []
-		for filename, lineno, name, line in st:
-			buf.append('  File "%s", line %d, in %s' % (filename, lineno, name))
-			if line:
-				buf.append('    %s' % line.strip())
-		msg = msg + "\n".join(buf)
-	logging.error(msg)
-	sys.exit(ret)
-logging.fatal = fatal
-
 def test_full():
 	try:
 		f = open('.waf-full','w')
@@ -122,9 +80,9 @@ def test_full():
 	except IOError, e:
 		import errno
 		if e.errno == errno.ENOSPC:
-			logging.fatal('filesystem full', e.errno)
+			Logs.fatal('filesystem full', e.errno)
 		else:
-			logging.fatal(str(e), e.errno)
+			Logs.fatal(str(e), e.errno)
 
 class ordered_dict(UserDict):
 	def __init__(self, dict = None):
@@ -156,13 +114,13 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 	except TypeError: min_val = int(mini.replace('.', '0'), 16)
 
 	if min_val > ver:
-		logging.fatal("waf version should be at least %s (%x found)" % (mini, ver))
+		Logs.fatal("waf version should be at least %s (%x found)" % (mini, ver))
 
 	try: max_val = maxi + 0
 	except TypeError: max_val = int(maxi.replace('.', '0'), 16)
 
 	if max_val < ver:
-		logging.fatal("waf version should be at most %s (%x found)" % (maxi, ver))
+		Logs.fatal("waf version should be at most %s (%x found)" % (maxi, ver))
 
 def python_24_guard():
 	if sys.hexversion<0x20400f0:
@@ -192,7 +150,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	try:
 		file = open(file_path, 'r')
 	except (IOError, OSError):
-		logging.fatal('The file %s could not be opened!' % file_path)
+		Logs.fatal('The file %s could not be opened!' % file_path)
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)

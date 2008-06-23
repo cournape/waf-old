@@ -7,7 +7,7 @@
 
 import os, sys
 import TaskGen, Utils, Params, Utils, Runner
-from logging import debug
+from Logs import debug, warn, fatal
 from TaskGen import extension, taskgen, before, after, feature
 from Configure import conf
 import pproc as subprocess
@@ -66,7 +66,7 @@ class py_taskgen(TaskGen.task_gen):
 			else:
 				node = self.path.find_build(filename)
 				if node is None:
-					Params.fatal("Cannot install file %s: not found in %s"
+					fatal("Cannot install file %s: not found in %s"
 						     % (filename, self.path))
 				else:
 					files_to_install.append(node.abspath(self.env))
@@ -103,7 +103,7 @@ for pyfile in sys.argv[1:]:
 				argv.extend(installed_files)
 				retval = subprocess.Popen(argv).wait()
 				if retval:
-					Params.fatal("bytecode compilation failed")
+					fatal("bytecode compilation failed")
 
 
 			if self.env['PYO']:
@@ -116,7 +116,7 @@ for pyfile in sys.argv[1:]:
 				argv.extend(installed_files)
 				retval = subprocess.Popen(argv).wait()
 				if retval:
-					Params.fatal("bytecode compilation failed")
+					fatal("bytecode compilation failed")
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""
@@ -128,8 +128,8 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 				stdout=subprocess.PIPE)
 	output = proc.communicate()[0].split("\n")
 	if proc.returncode:
-		if Params.g_verbose:
-			Params.warning("Python program to extract python configuration variables failed:\n%s"
+		if Logs.verbose:
+			warn("Python program to extract python configuration variables failed:\n%s"
 				       % '\n'.join(["line %03i: %s" % (lineno+1, line) for lineno, line in enumerate(program)]))
 		raise ValueError
 	return_values = []

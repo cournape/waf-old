@@ -21,7 +21,7 @@ Note: the c/c++ related code is in the module config_c
 
 import os, types, imp, cPickle, sys
 import Params, Environment, Runner, Build, Utils
-from logging import fatal, warn
+from Logs import *
 from Constants import *
 
 TEST_OK = True

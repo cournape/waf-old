@@ -6,8 +6,8 @@
 
 import os, sys, shutil, cPickle, traceback, time
 
-import Params, Utils, Configure, Build, Runner, Options
-from logging import error, fatal, warn
+import Params, Utils, Configure, Build, Runner, Options, Logs
+from Logs import error, fatal, warn
 from Params import g_lockfile
 from Constants import *
 
@@ -318,7 +318,7 @@ def main():
 				hash = Utils.hash_function_with_globals(hash, mod.configure)
 			reconf = (hash != proj['hash'])
 		except Exception, ex:
-			if Params.g_verbose:
+			if Logs.verbose:
 				traceback.print_exc()
 			warn("Reconfiguring the project (an exception occured: %s)" % (str(ex),))
 			reconf = 1
@@ -329,7 +329,7 @@ def main():
 			a1 = Params.g_commands
 			a2 = Params.g_options
 			a3 = Params.g_zones
-			a4 = Params.g_verbose
+			a4 = Logs.verbose
 
 			oldargs = sys.argv
 			sys.argv = proj['argv']
@@ -340,7 +340,7 @@ def main():
 			Params.g_commands = a1
 			Params.g_options = a2
 			Params.g_zones = a3
-			Params.g_verbose = a4
+			Logs.verbose = a4
 
 			bld = Build.Build()
 			proj = read_cache_file(g_lockfile)

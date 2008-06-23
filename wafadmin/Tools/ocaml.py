@@ -6,7 +6,7 @@
 
 import os, re
 import Params, TaskGen, Utils, Task
-from logging import error, fatal
+from Logs import error, fatal
 from TaskGen import taskgen, feature, before, after, extension
 
 EXT_MLL = ['.mll']

@@ -7,7 +7,7 @@
 import os, re
 import TaskGen, Task, Params, Utils, Runner
 import cc
-from logging import fatal, error
+from Logs import fatal, error
 
 # intltool
 class intltool_in_taskgen(TaskGen.task_gen):

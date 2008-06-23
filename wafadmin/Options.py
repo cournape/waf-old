@@ -7,8 +7,7 @@
 
 import os, sys, imp, types, tempfile
 from optparse import OptionParser
-import Params, Utils
-from logging import debug, fatal
+import Params, Logs, Utils
 from Constants import *
 
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
@@ -21,7 +20,7 @@ default_jobs = os.environ.get('JOBS', 1)
 default_destdir = os.environ.get('DESTDIR', '')
 
 def create_parser():
-	debug('options: create_parser is called')
+	Logs.debug('options: create_parser is called')
 
 	parser = OptionParser(usage = """waf [options] [commands ...]
 
@@ -139,20 +138,12 @@ def parse_args_impl(parser, _args=None):
 	# TODO -k => -j0
 	if opts.keep: opts.jobs = 1
 
-	Params.g_verbose = opts.verbose
-
-	import logging
-	log = logging.getLogger()
-	log.handlers = []
-	hdlr = logging.StreamHandler()
-	hdlr.setFormatter(logging.Formatter(LOG_FORMAT, HOUR_FORMAT))
-	log.addHandler(hdlr)
-	log.addFilter(Utils.log_filter())
-	log.setLevel(logging.DEBUG)
+	Logs.verbose = opts.verbose
+	Logs.init_log()
 
 	if opts.zones:
-		Params.g_zones = opts.zones.split(',')
-		if not Params.g_verbose: Params.g_verbose = 1
+		Logs.zones = opts.zones.split(',')
+		if not Logs.verbose: Logs.verbose = 1
 
 class Handler(object):
 	"loads wscript modules in folders for adding options"

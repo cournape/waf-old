@@ -6,7 +6,7 @@
 
 import os, sys, re, string, optparse
 import Utils, Params, TaskGen, Runner, Configure, Task
-from logging import debug, error, fatal, warn
+from Logs import debug, error, fatal, warn
 from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
 

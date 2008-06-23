@@ -46,7 +46,7 @@ TODO:
 
 import os, os.path, glob, types, re, sys
 import Params, Configure, config_c
-from logging import fatal, warn
+from Logs import fatal, warn
 from Configure import conf
 
 class boost_configurator(config_c.configurator_base):

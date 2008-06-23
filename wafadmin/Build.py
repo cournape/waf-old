@@ -13,8 +13,8 @@ There is only one Build object at a time (Params.g_build singleton)
 """
 
 import os, sys, cPickle, types, imp, errno, re, glob
-import Params, Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install
-from logging import debug, error, fatal
+import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs, Params
+from Logs import *
 from Constants import *
 
 SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps bld_sigs id_nodes'.split()
@@ -191,7 +191,7 @@ class Build(object):
 		self.flush()
 		#"""
 
-		if Params.g_verbose>2: self.dump()
+		if Logs.verbose > 2: self.dump()
 
 		self.generator = Runner.get_instance(self, Params.g_options.jobs)
 
@@ -209,7 +209,7 @@ class Build(object):
 			os.chdir(self.m_srcnode.abspath())
 			self._store()
 			Utils.pprint('RED', 'Build interrupted')
-			if Params.g_verbose > 1: raise
+			if Logs.verbose > 1: raise
 			else: sys.exit(68)
 		except Exception, e:
 			dw()
@@ -224,7 +224,7 @@ class Build(object):
 			Utils.test_full()
 			raise BuildError(self, self.task_manager.tasks_done)
 
-		if Params.g_verbose > 2: self.dump()
+		if Logs.verbose > 2: self.dump()
 		os.chdir(self.m_srcnode.abspath())
 
 	def install(self):

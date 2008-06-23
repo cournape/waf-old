@@ -5,8 +5,8 @@
 
 import os, sys, re, optparse
 import ccroot # <- leave this
-import TaskGen, Utils, Task, Params, checks, Configure
-from logging import debug, error
+import TaskGen, Utils, Task, checks, Configure, Logs
+from Logs import debug, error
 from TaskGen import taskgen, feature, after, before, extension
 
 EXT_D = ['.d', '.di', '.D']
@@ -204,7 +204,7 @@ def scan(self, node):
 	gruik = d_parser(env, env['INC_PATHS'])
 	gruik.start(node)
 
-	if Params.g_verbose:
+	if Logs.verbose:
 		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))
 		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
 	return (gruik.m_nodes, gruik.m_names)
@@ -476,7 +476,7 @@ Task.simple_task_type('d_header', d_header_str, color='BLUE', prio=80)
 
 # quick test #
 if __name__ == "__main__":
-	#Params.g_verbose = 2
+	#Logs.verbose = 2
 	#Params.g_zones = ['preproc']
 	#class dum:
 	#	def __init__(self):

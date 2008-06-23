@@ -35,8 +35,8 @@ Task.shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Params, Runner, Utils, Node
-from logging import debug, error, warn
+import Params, Runner, Utils, Node, Logs
+from Logs import debug, error, warn
 from Constants import *
 
 #algotype = NORMAL
@@ -450,7 +450,7 @@ class TaskBase(object):
 
 		# we delegate the work to "def scan(self, node)" to avoid duplicate code
 		(nodes, names) = self.scan(node)
-		if Params.g_verbose:
+		if Logs.verbose:
 			if Params.g_zones:
 				debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
 

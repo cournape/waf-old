@@ -17,7 +17,7 @@ The functions preceded by "@conf" are attached in the same manner
 import os, types, imp, cPickle, sys, shlex, warnings
 from Utils import md5
 import Params, Environment, Runner, Build, Utils, Configure, TaskGen, Task
-from logging import fatal, warn, debug
+from Logs import fatal, warn, debug
 from Constants import *
 from Configure import conf, conftest
 
@@ -41,7 +41,7 @@ class enumerator_base(object):
 
 	def error(self):
 		if not self.message:
-			logging.warn('No message provided')
+			Logs.warn('No message provided')
 		fatal(self.message)
 
 	def hash(self):

@@ -22,8 +22,8 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import os, types, traceback, copy
-import Params, Task, Utils
-from logging import debug, error, fatal
+import Params, Task, Utils, Logs
+from Logs import debug, error, fatal
 
 typos = {
 'sources':'source',
@@ -136,7 +136,7 @@ class task_gen(object):
 		real = typos.get(name, name)
 		if real != name:
 			Params.warn('typo %s -> %s' % (name, real))
-			if Params.g_verbose > 0:
+			if Logs.verbose > 0:
 				traceback.print_stack()
 		object.__setattr__(self, real, attr)
 

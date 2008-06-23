@@ -5,9 +5,9 @@
 "Execute the tasks"
 
 import sys, random, time, threading, Queue, traceback
-import Params, Utils
+import Params, Utils, Logs
 import pproc as subprocess
-from logging import debug, error
+from Logs import debug, error
 from Constants import *
 
 g_quiet = 0
@@ -29,7 +29,7 @@ def printout(s):
 def exec_command(s):
 	debug('runner: system command -> %s' % s)
 	log = Params.g_build.log
-	if log or Params.g_verbose: printout(s+'\n')
+	if log or Logs.verbose: printout(s+'\n')
 	proc = subprocess.Popen(s, shell=1, stdout=log, stderr=log)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
@@ -41,7 +41,7 @@ if sys.platform == "win32":
 		# TODO very long command-lines are unlikely to be used in the configuration
 		if len(s) < 2000: return old_log(s)
 		log = Params.g_build.log
-		if log or Params.g_verbose: printout(s+'\n')
+		if log or Logs.verbose: printout(s+'\n')
 		startupinfo = subprocess.STARTUPINFO()
 		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 		proc = subprocess.Popen(s, shell=False, startupinfo=startupinfo)
@@ -77,7 +77,7 @@ class Serial(object):
 		(_, self.outstanding) = self.manager.get_next_set()
 		if not self.outstanding: return None
 
-		if Params.g_verbose:
+		if Logs.verbose:
 			debug('runner: Preparing to run prio %i tasks: [\n%s\n\t]' %
 			      (1, ',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
 					       for tsk in self.outstanding])))

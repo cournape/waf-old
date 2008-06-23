@@ -5,7 +5,7 @@
 "Base for c++ programs and libraries"
 
 import TaskGen, Params, Task, Utils
-from logging import debug, fatal
+from Logs import debug, fatal
 import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
 

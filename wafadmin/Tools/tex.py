@@ -6,7 +6,7 @@
 
 import os, re
 import Utils, Params, TaskGen, Task, Runner
-from logging import error, warn, debug, fatal
+from Logs import error, warn, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
 def scan(self, node):

@@ -8,8 +8,8 @@
 import re, sys, os, string, types
 if __name__ == '__main__':
 	sys.path = ['.', '..'] + sys.path
-import Params
-from logging import debug, error
+import Params, Logs
+from Logs import debug, error
 import traceback
 
 class PreprocError(Exception):
@@ -424,7 +424,7 @@ class c_parser(object):
 		except IOError:
 			raise PreprocError, "could not read the file %s" % filepath
 		except Exception:
-			if Params.g_verbose > 0:
+			if Logs.verbose > 0:
 				error("parsing %s failed" % filepath)
 				traceback.print_exc()
 
@@ -443,12 +443,12 @@ class c_parser(object):
 			try:
 				self.process_line(type, line)
 			except Exception, ex:
-				if Params.g_verbose:
+				if Logs.verbose:
 					error("line parsing failed (%s): %s" % (str(ex), line))
 					traceback.print_exc()
 
 	def process_line(self, token, line):
-		ve = Params.g_verbose
+		ve = Logs.verbose
 		if ve: debug('preproc: line is %s - %s state is %s' % (token, line, self.state))
 		state = self.state
 
@@ -638,13 +638,13 @@ if __name__ == "__main__":
 			try:
 				self.process_line(type, line)
 			except Exception, ex:
-				if Params.g_verbose:
+				if Logs.verbose:
 					error("line parsing failed (%s): %s" % (str(ex), line))
 					traceback.print_exc()
 				raise
 	c_parser.start_local = start_local
 
-	Params.g_verbose = 2
+	Logs.verbose = 2
 	Params.g_zones = ['preproc']
 	class dum:
 		def __init__(self):

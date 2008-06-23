@@ -14,7 +14,7 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
 import os, shutil, sys
 import TaskGen, Task, Params
 from TaskGen import taskgen, feature, after, before
-from logging import error, debug, fatal
+from Logs import error, debug, fatal
 
 @taskgen
 def create_task_macapp(self):

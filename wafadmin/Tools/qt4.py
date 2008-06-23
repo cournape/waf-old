@@ -23,7 +23,7 @@ import os, sys
 import ccroot, cxx
 import Params, TaskGen, Task, Utils, Runner
 from TaskGen import taskgen, feature, after, extension
-from logging import error, fatal
+from Logs import error, fatal
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
 EXT_RCC = ['.qrc']

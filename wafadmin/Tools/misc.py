@@ -12,7 +12,7 @@ import shutil, re, os, types
 
 import TaskGen, Node, Params, Task, Utils
 import pproc as subprocess
-from logging import fatal, debug
+from Logs import fatal, debug
 
 def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
