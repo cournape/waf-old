@@ -11,26 +11,6 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
   obj.mac_bundle = True
 """
 
-# TODO if you know how the flags must be set, just do it (tm)
-"""
-Index: common/wscript
-===================================================================
---- common/wscript      (revision 2540)
-+++ common/wscript      (working copy)
-@@ -171,6 +171,11 @@
-         clientlib.env.append_value("CPPFLAGS", "-mmacosx-version-min=10.4 -arch i386 -arch ppc")
-         #clientlib.env.append_value("LINKFLAGS", "-framework CoreAudio -framework vecLib -single_module -arch i386 -arch ppc")
-        clientlib.env.append_value("LINKFLAGS", "-framework CoreAudio -framework vecLib -single_module")
-+        clientlib.env.append_value("LINKFLAGS", '-install_name "' + os.path.normpath(bld.env()['PREFIX'] + '/lib/libjack.' + clientlib.vnum + '.dylib') + '"')
-+        clientlib.env.append_value("LINKFLAGS", '-compatibility_version 1')
-+        clientlib.env.append_value("LINKFLAGS", '-current_version 1')
-+        clientlib.env['shlib_PATTERN'] = 'lib%s.' + clientlib.vnum + '.dylib'
-+        del clientlib.vnum
-
-     netmanagerlib = bld.create_obj('cpp', 'shlib')
-     netmanagerlib.env['shlib_PATTERN'] = '%s.so'
-"""
-
 import os, shutil, sys
 import TaskGen, Task, Params
 from TaskGen import taskgen, feature, after, before

@@ -90,7 +90,7 @@ def gxx_modifier_cygwin(conf):
 def gxx_modifier_darwin(conf):
 	if sys.platform != 'darwin': return
 	v = conf.env
-	v['shlib_CXXFLAGS']      = ['-fPIC']
+	v['shlib_CXXFLAGS']      = ['-fPIC', '-compatibility_version 1', '-current_version 1']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
 

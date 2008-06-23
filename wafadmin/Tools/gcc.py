@@ -88,7 +88,7 @@ def gcc_modifier_cygwin(conf):
 def gcc_modifier_darwin(conf):
 	v = conf.env
 	if sys.platform != 'darwin': return
-	v['shlib_CCFLAGS']       = ['-fPIC']
+	v['shlib_CCFLAGS']       = ['-fPIC', '-compatibility_version 1', '-current_version 1']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
 
