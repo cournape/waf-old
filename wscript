@@ -249,6 +249,8 @@ def create_waf():
 		for i in xrange(35, 125):
 			for j in xrange(35, 125):
 				if i==j: continue
+				if i == 39 or j == 39: continue
+				if i == 92 or j == 92: continue
 				s = chr(i) + chr(j)
 				if -1 == kd.find(s):
 					return (kd.replace(ch, s), s)
