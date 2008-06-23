@@ -10,6 +10,9 @@ from optparse import OptionParser
 import Params, Logs, Utils
 from Constants import *
 
+options = {}
+commands = {}
+
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')
 if not default_prefix:
@@ -110,39 +113,38 @@ def create_parser():
 	return parser
 
 def parse_args_impl(parser, _args=None):
-	(Params.g_options, args) = parser.parse_args(args=_args)
-	opts = Params.g_options
-	#print Params.g_options, " ", args
+	global options, commands
+	(options, args) = parser.parse_args(args=_args)
 
 	# By default, 'waf' is equivalent to 'waf build'
-	lst='dist configure clean distclean build install uninstall check distcheck'.split()
-	Params.g_commands = {}
-	for var in lst:    Params.g_commands[var] = 0
-	if len(args) == 0: Params.g_commands['build'] = 1
+	lst = 'dist configure clean distclean build install uninstall check distcheck'.split()
+	commands = {}
+	for var in lst:    commands[var] = 0
+	if len(args) == 0: commands['build'] = 1
 
 	# Parse the command arguments
 	for arg in args:
 		arg = arg.strip()
 		if arg in lst:
-			Params.g_commands[arg]=True
+			commands[arg]=True
 		else:
 			print 'Error: Invalid command specified ',arg
 			parser.print_help()
 			sys.exit(1)
-	if Params.g_commands['check']:
-		Params.g_commands['build'] = True
+	if commands['check']:
+		commands['build'] = True
 
-	if Params.g_commands['install'] or Params.g_commands['uninstall']:
+	if commands['install'] or commands['uninstall']:
 		Params.g_install = 1
 
 	# TODO -k => -j0
-	if opts.keep: opts.jobs = 1
+	if options.keep: options.jobs = 1
 
-	Logs.verbose = opts.verbose
+	Logs.verbose = options.verbose
 	Logs.init_log()
 
-	if opts.zones:
-		Logs.zones = opts.zones.split(',')
+	if options.zones:
+		Logs.zones = options.zones.split(',')
 		if not Logs.verbose: Logs.verbose = 1
 
 class Handler(object):

@@ -18,7 +18,7 @@ In the shutdown method, add the following code:
 Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
 """
 import os, sys
-import Params, TaskGen, Utils
+import Params, TaskGen, Utils, Options
 import pproc as subprocess
 
 class unit_test(object):
@@ -64,7 +64,7 @@ class unit_test(object):
 		self.unit_test_erroneous = {}
 
 		# If waf is not building, don't run anything
-		if not Params.g_commands[self.run_if_waf_does]: return
+		if not Options.commands[self.run_if_waf_does]: return
 
 		# Gather unit tests to call
 		for obj in Params.g_build.all_task_gen:
@@ -95,7 +95,7 @@ class unit_test(object):
 			srcdir = file_and_src[1]
 			count += 1
 			line = Utils.progress_line(count, self.total_num_tests, col1, col2)
-			if Params.g_options.progress_bar and line:
+			if Options.options.progress_bar and line:
 				sys.stdout.write(line)
 				sys.stdout.flush()
 			try:
@@ -127,13 +127,13 @@ class unit_test(object):
 				self.num_tests_err += 1
 			except KeyboardInterrupt:
 				pass
-		if Params.g_options.progress_bar: sys.stdout.write(Params.g_cursor_on)
+		if Options.options.progress_bar: sys.stdout.write(Params.g_cursor_on)
 
 	def print_results(self):
 		"Pretty-prints a summary of all unit tests, along with some statistics"
 
 		# If waf is not building, don't output anything
-		if not Params.g_commands[self.run_if_waf_does]: return
+		if not Options.commands[self.run_if_waf_does]: return
 
 		p = Utils.pprint
 		# Early quit if no tests were performed

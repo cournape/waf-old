@@ -21,7 +21,7 @@ else:
 
 import os, sys
 import ccroot, cxx
-import Params, TaskGen, Task, Utils, Runner
+import Params, TaskGen, Task, Utils, Runner, Options
 from TaskGen import taskgen, feature, after, extension
 from Logs import error, fatal
 
@@ -88,7 +88,7 @@ class MTask(Task.Task):
 
 			# find the extension - this search is done only once
 			ext = ''
-			try: ext = Params.g_options.qt_header_ext
+			try: ext = Options.options.qt_header_ext
 			except AttributeError: pass
 
 			if not ext:
@@ -239,7 +239,7 @@ def apply_qt4(self):
 			if self.update:
 				trans.append(t.m_inputs[0])
 
-		if self.update and Params.g_options.trans_qt4:
+		if self.update and Options.options.trans_qt4:
 			# we need the cpp files given, except the rcc task we create after
 			# FIXME may be broken
 			u = Task.TaskCmd(translation_update, self.env, 2)
@@ -324,7 +324,7 @@ Task.task_type_from_func('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', b
 
 def detect_qt4(conf):
 	env = conf.env
-	opt = Params.g_options
+	opt = Options.options
 
 	qtlibs = getattr(opt, 'qtlibs', '')
 	qtincludes = getattr(opt, 'qtincludes', '')
@@ -474,7 +474,7 @@ def detect_qt4(conf):
 		process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
 		# rpath if wanted
-		if Params.g_options.want_rpath:
+		if Options.options.want_rpath:
 			def process_rpath(vars_, coreval):
 				for d in vars_:
 					var = d.upper()

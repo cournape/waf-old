@@ -9,7 +9,7 @@ if the variable is set but it does not exist, it assumes an absolute path was gi
 """
 
 import os, types, shutil, glob
-import Params, Utils
+import Params, Utils, Options
 from Logs import error, fatal
 from Constants import *
 
@@ -28,10 +28,10 @@ def check_dir(dir):
 
 def do_install(src, tgt, chmod=0644):
 	"""returns true if the file was effectively installed or uninstalled, false otherwise"""
-	if Params.g_commands['install']:
+	if Options.commands['install']:
 		# check if the file is already there to avoid a copy
 		_do_install = True
-		if not Params.g_options.force:
+		if not Options.options.force:
 			try:
 				t1 = os.stat(tgt).st_mtime
 				t2 = os.stat(src).st_mtime
@@ -61,7 +61,7 @@ def do_install(src, tgt, chmod=0644):
 					error('file %s does not exist' % str(src))
 				fatal('Could not install the file %s' % str(tgt))
 		return _do_install
-	elif Params.g_commands['uninstall']:
+	elif Options.commands['uninstall']:
 		print "* uninstalling %s" % tgt
 
 		Params.g_build.m_uninstall.append(tgt)
@@ -174,7 +174,7 @@ def symlink_as(var, src, dest, env=None):
 	dir, name = os.path.split(tgt)
 	check_dir(dir)
 
-	if Params.g_commands['install']:
+	if Options.commands['install']:
 		try:
 			if not os.path.islink(tgt) or os.readlink(tgt) != src:
 				print "* symlink %s (-> %s)" % (tgt, src)
@@ -182,7 +182,7 @@ def symlink_as(var, src, dest, env=None):
 			return 0
 		except OSError:
 			return 1
-	elif Params.g_commands['uninstall']:
+	elif Options.commands['uninstall']:
 		try:
 			print "* removing %s" % (tgt)
 			os.remove(tgt)

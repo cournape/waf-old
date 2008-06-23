@@ -20,7 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, types, imp, cPickle, sys
-import Params, Environment, Runner, Build, Utils
+import Params, Environment, Runner, Build, Utils, Options
 from Logs import *
 from Constants import *
 
@@ -134,7 +134,7 @@ class Configure(object):
 		self.lastprog = ''
 
 		# load the cache
-		if Params.g_cache_global and not Params.g_options.nocache:
+		if Params.g_cache_global and not Options.options.nocache:
 			fic = os.path.join(Params.g_cache_global, Params.g_conf_name)
 			try:
 				file = open(fic, 'rb')

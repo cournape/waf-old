@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, optparse, sys
-import Params, Configure
+import Configure, Options
 import ccroot, ar
 from Configure import conftest
 
@@ -121,7 +121,7 @@ def gcc_modifier_debug(conf):
 	if conf.check_flags('-Wall'):
 		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CCFLAGS_'+x, '-Wall')
 	try:
-		debug_level = Params.g_options.debug_level.upper()
+		debug_level = Options.options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])

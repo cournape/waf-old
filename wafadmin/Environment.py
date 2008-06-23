@@ -9,7 +9,7 @@ This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
 import os, types, copy, re
-import Params, Utils, Logs
+import Params, Utils, Logs, Options
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
@@ -22,9 +22,9 @@ class Environment(object):
 		self.m_table={}
 		#self.m_parent = None <- set only if necessary
 
-		if Params.g_commands['configure']:
+		if Options.commands['configure']:
 			# set the prefix once and for everybody on creation (configuration)
-			self.m_table['PREFIX'] = os.path.abspath(Params.g_options.prefix)
+			self.m_table['PREFIX'] = os.path.abspath(Options.options.prefix)
 
 	def __contains__(self, key):
 		if key in self.m_table: return True
@@ -45,7 +45,7 @@ class Environment(object):
 
 	def copy(self):
 		newenv = Environment()
-		if Params.g_commands['configure']:
+		if Options.commands['configure']:
 			if self['PREFIX']: del newenv.m_table['PREFIX']
 		newenv.m_parent = self
 		return newenv
@@ -158,6 +158,6 @@ class Environment(object):
 	def get_destdir(self):
 		"return the destdir, useful for installing"
 		if self.__getitem__('NOINSTALL'): return ''
-		return Params.g_options.destdir
+		return Options.options.destdir
 
 

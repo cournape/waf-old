@@ -15,7 +15,7 @@ n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 
 def postinstall_schemas(prog_name):
-	if Params.g_commands['install']:
+	if Options.commands['install']:
 		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/%s.schemas' % prog_name)
 		if not Params.g_options.destdir:
 			# add the gconf schema
@@ -28,7 +28,7 @@ def postinstall_schemas(prog_name):
 
 def postinstall_icons():
 	dir = Common.path_install('DATADIR', 'icons/hicolor')
-	if Params.g_commands['install']:
+	if Options.commands['install']:
 		if not Params.g_options.destdir:
 			# update the pixmap cache directory
 			Utils.pprint('YELLOW', "Updating Gtk icon cache.")
@@ -39,7 +39,7 @@ def postinstall_icons():
 			Utils.pprint('YELLOW', "gtk-update-icon-cache -q -f -t %s" % dir)
 
 def postinstall_scrollkeeper(prog_name):
-	if Params.g_commands['install']:
+	if Options.commands['install']:
 		# now the scrollkeeper update if we can write to the log file
 		if os.path.iswriteable('/var/log/scrollkeeper.log'):
 			dir1 = Common.path_install('PREFIX', 'var/scrollkeeper')

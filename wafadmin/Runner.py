@@ -5,7 +5,7 @@
 "Execute the tasks"
 
 import sys, random, time, threading, Queue, traceback
-import Params, Utils, Logs
+import Params, Utils, Logs, Options
 import pproc as subprocess
 from Logs import debug, error
 from Constants import *
@@ -145,7 +145,7 @@ class Serial(object):
 				self.error = 1
 				tsk.m_hasrun = CRASHED
 				tsk.err_code = ret
-				if Params.g_options.keep: continue
+				if Options.options.keep: continue
 				else: return -1
 
 			try:
@@ -154,7 +154,7 @@ class Serial(object):
 				traceback.print_stack()
 				self.error = 1
 				tsk.m_hasrun = MISSING
-				if Params.g_options.keep: continue
+				if Options.options.keep: continue
 				else: return -1
 			else:
 				tsk.m_hasrun = SUCCESS
@@ -197,7 +197,7 @@ class TaskConsumer(threading.Thread):
 					tsk.m_hasrun = MISSING
 				else:
 					tsk.m_hasrun = SUCCESS
-			if tsk.m_hasrun != SUCCESS: # TODO for now, do no keep running in parallel  and not Params.g_options.keep:
+			if tsk.m_hasrun != SUCCESS: # TODO for now, do no keep running in parallel  and not Options.options.keep:
 				m.failed = 1
 
 			m.out.put(tsk)

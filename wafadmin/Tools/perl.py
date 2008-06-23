@@ -4,7 +4,7 @@
 
 import os
 import pproc as subprocess
-import Params, Task
+import Task, Options
 from Configure import conf
 from TaskGen import extension, taskgen, feature, before
 
@@ -44,12 +44,12 @@ def check_perl_version(conf, minver=None):
 	"""
 	res = True
 
-	if not getattr(Params.g_options, 'perlbinary', None):
+	if not getattr(Options.options, 'perlbinary', None):
 		perl = conf.find_program("perl", var="PERL")
 		if not perl:
 			return False
 	else:
-		perl = Params.g_options.perlbinary
+		perl = Options.options.perlbinary
 		conf.env['PERL'] = perl
 
 	version = os.popen(perl + " -e'printf \"%vd\", $^V'").read()
@@ -105,10 +105,10 @@ def check_perl_ext_devel(conf):
 	conf.env["XSUBPP"] = os.popen(perl + " -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'").read()
 	conf.env["EXTUTILS_TYPEMAP"] = os.popen(perl + " -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'").read()
 
-	if not getattr(Params.g_options, 'perlarchdir', None):
+	if not getattr(Options.options, 'perlarchdir', None):
 		conf.env["ARCHDIR_PERL"] = os.popen(perl + " -MConfig -e'print $Config{sitearch}'").read()
 	else:
-		conf.env["ARCHDIR_PERL"] = getattr(Params.g_options, 'perlarchdir')
+		conf.env["ARCHDIR_PERL"] = getattr(Options.options, 'perlarchdir')
 
 	conf.env['perlext_PATTERN'] = '%s.' + os.popen(perl + " -MConfig -e'print $Config{dlext}'").read()
 

@@ -4,7 +4,7 @@
 
 import os, sys, imp, types, ccroot
 import optparse
-import Utils, Params, checks, Configure
+import Utils, Params, checks, Configure, Options
 
 cxx_compiler = {
 'win32':  ['msvc', 'g++'],
@@ -25,7 +25,7 @@ def __list_possible_compiler(platform):
 		return(cxx_compiler["default"])
 
 def detect(conf):
-	try: test_for_compiler = Params.g_options.check_cxx_compiler
+	try: test_for_compiler = Options.options.check_cxx_compiler
 	except AttributeError: raise Configure.ConfigurationError("Add set_options(opt): opt.tool_options('compiler_cxx')")
 	for cxx_compiler in test_for_compiler.split():
 		conf.check_tool(cxx_compiler)

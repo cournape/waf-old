@@ -3,10 +3,10 @@
 # Carlos Rafael Giani, 2007 (dv)
 
 import os, sys, imp, types
-import Utils, Params, checks, Configure
+import Utils, Params, checks, Configure, Options
 
 def detect(conf):
-	if getattr(Params.g_options, 'check_dmd_first', None):
+	if getattr(Options.options, 'check_dmd_first', None):
 		test_for_compiler = ['dmd', 'gdc']
 	else:
 		test_for_compiler = ['gdc', 'dmd']

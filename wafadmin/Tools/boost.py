@@ -45,7 +45,7 @@ TODO:
 """
 
 import os, os.path, glob, types, re, sys
-import Params, Configure, config_c
+import Params, Configure, config_c, Options
 from Logs import fatal, warn
 from Configure import conf
 
@@ -149,7 +149,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		"""
 		env = self.conf.env
 		guess = []
-		include_paths = [getattr(Params.g_options, 'boostincludes', '')]
+		include_paths = [getattr(Options.options, 'boostincludes', '')]
 		if not include_paths[0]:
 			if self.include_path is types.StringType:
 				include_paths = [self.include_path]
@@ -266,7 +266,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		"""
 		searches library paths for lib.
 		"""
-		lib_paths = [getattr(Params.g_options, 'boostlibs', '')]
+		lib_paths = [getattr(Options.options, 'boostlibs', '')]
 		if not lib_paths[0]:
 			if self.lib_path is types.StringType:
 				lib_paths = [self.lib_path]

@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, optparse
-import Utils, Params, Configure
+import Utils, Options, Configure
 import ccroot, ar
 from Configure import conftest
 
@@ -79,7 +79,7 @@ def scc_modifier_debug(conf):
 
 	# see the option below
 	try:
-		debug_level = Params.g_options.debug_level.upper()
+		debug_level = Options.options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])

@@ -13,7 +13,7 @@ There is only one Build object at a time (Params.g_build singleton)
 """
 
 import os, sys, cPickle, types, imp, errno, re, glob
-import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs, Params
+import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs, Params, Options
 from Logs import *
 from Constants import *
 
@@ -193,10 +193,10 @@ class Build(object):
 
 		if Logs.verbose > 2: self.dump()
 
-		self.generator = Runner.get_instance(self, Params.g_options.jobs)
+		self.generator = Runner.get_instance(self, Options.options.jobs)
 
 		def dw(on=True):
-			if Params.g_options.progress_bar:
+			if Options.options.progress_bar:
 				if on: sys.stdout.write(Params.g_cursor_on)
 				else: sys.stdout.write(Params.g_cursor_off)
 
@@ -236,7 +236,7 @@ class Build(object):
 			if obj.m_posted: obj.install()
 
 		# remove empty folders after uninstalling
-		if Params.g_commands['uninstall']:
+		if Options.commands['uninstall']:
 			lst = []
 			for x in self.m_uninstall:
 				dir = os.path.dirname(x)
@@ -629,12 +629,12 @@ class Build(object):
 		if not launch_node.is_child_of(self.m_srcnode):
 			launch_node = self.m_srcnode
 
-		if Params.g_options.compile_targets:
+		if Options.options.compile_targets:
 			debug('task_gen: posting objects listed in compile_targets')
 
 			# ensure the target names exist, fail before any post()
 			targets_objects = {}
-			for target_name in Params.g_options.compile_targets.split(','):
+			for target_name in Options.options.compile_targets.split(','):
 				# trim target_name (handle cases when the user added spaces to targets)
 				target_name = target_name.strip()
 				targets_objects[target_name] = self.name_to_obj(target_name)

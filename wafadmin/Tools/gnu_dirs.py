@@ -30,7 +30,7 @@ installation variables:
 """
 
 import re
-import Params, Utils
+import Logs, Utils, Options
 
 _options = [x.split(', ') for x in '''
 bindir, user executables, $(EXEC_PREFIX)/bin
@@ -63,7 +63,7 @@ def subst_vars(foo, vars):
 
 def detect(conf):
 	def get_param(varname, default):
-		return getattr(Params.g_options, varname, '') or default
+		return getattr(Options.options, varname, '') or default
 
 	env = conf.env
 	env['EXEC_PREFIX'] = get_param('EXEC_PREFIX', env['PREFIX'])
@@ -83,7 +83,7 @@ def detect(conf):
 					complete = False
 	if not complete:
 		lst = [name for name, _, _ in _options if not env[name.upper()]]
-		Params.fatal('Variable substitution failure %r' % lst)
+		Logs.fatal('Variable substitution failure %r' % lst)
 
 def set_options(opt):
 

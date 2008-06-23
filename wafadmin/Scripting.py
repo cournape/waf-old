@@ -6,7 +6,7 @@
 
 import os, sys, shutil, cPickle, traceback, time
 
-import Params, Utils, Configure, Build, Runner, Options, Logs
+import Params, Utils, Configure, Build, Runner, Options, Logs, Options
 from Logs import error, fatal, warn
 from Constants import *
 
@@ -84,18 +84,18 @@ def start_daemon():
 
 def configure():
 	# disable parallelization while configuring
-	jobs_save = Params.g_options.jobs
-	Params.g_options.jobs = 1
+	jobs_save = Options.options.jobs
+	Options.options.jobs = 1
 
 	tree = Build.Build()
 
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
 
-	src = getattr(Params.g_options, SRCDIR, None)
+	src = getattr(Options.options, SRCDIR, None)
 	if not src: src = getattr(Utils.g_module, SRCDIR, None)
 	if not src: fatal(err % (SRCDIR, os.path.abspath('.'), SRCDIR, SRCDIR))
 
-	bld = getattr(Params.g_options, BLDDIR, None)
+	bld = getattr(Options.options, BLDDIR, None)
 	if not bld: bld = getattr(Utils.g_module, BLDDIR, None)
 	if not bld: fatal(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
 
@@ -131,7 +131,7 @@ def configure():
 	file.close()
 
 	# restore -j option
-	Params.g_options.jobs = jobs_save
+	Options.options.jobs = jobs_save
 
 def read_cache_file(filename):
 	file = open(LOCKFILE, 'r')
@@ -242,7 +242,7 @@ def prepare():
 	opt_obj.parse_args()
 
 	# use the parser results
-	if Params.g_commands['dist']:
+	if Options.commands['dist']:
 		# try to use the user-defined dist function first, fallback to the waf scheme
 		fun = getattr(Utils.g_module, 'dist', None)
 		if fun: fun(); sys.exit(0)
@@ -257,13 +257,13 @@ def prepare():
 		from Scripting import Dist
 		Dist(appname, version)
 		sys.exit(0)
-	elif Params.g_commands['distclean']:
+	elif Options.commands['distclean']:
 		# try to use the user-defined distclean first, fallback to the waf scheme
 		fun = getattr(Utils.g_module, 'distclean', None)
 		if fun:	fun()
 		else:	DistClean()
 		sys.exit(0)
-	elif Params.g_commands['distcheck']:
+	elif Options.commands['distcheck']:
 		# try to use the user-defined dist function first, fallback to the waf scheme
 		fun = getattr(Utils.g_module, 'dist', None)
 		if fun: fun(); sys.exit(0)
@@ -286,11 +286,11 @@ def prepare():
 
 def main():
 	import inspect
-	if Params.g_commands['configure']:
+	if Options.commands['configure']:
 		ini = time.time()
 		configure()
 		ela = ''
-		if not Params.g_options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+		if not Options.options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
 		Utils.pprint('GREEN', 'Configuration finished successfully%s; project is now ready to build.' % ela)
 		sys.exit(0)
 
@@ -299,7 +299,7 @@ def main():
 	try:
 		proj = read_cache_file(LOCKFILE)
 	except IOError:
-		if Params.g_commands['clean']:
+		if Options.commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=2)
 		else:
 			if Configure.autoconfig:
@@ -327,7 +327,7 @@ def main():
 		if reconf:
 			warn("Reconfiguring the project (the configuration has changed)")
 
-			back = (Params.g_commands, Params.g_options, Logs.zones, Logs.verbose)
+			back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
 
 			oldargs = sys.argv
 			sys.argv = proj['argv']
@@ -335,7 +335,7 @@ def main():
 			configure()
 			sys.argv = oldargs
 
-			(Params.g_commands, Params.g_options, Logs.zones, Logs.verbose) = back
+			(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
 			bld = Build.Build()
 			proj = read_cache_file(LOCKFILE)
@@ -358,11 +358,11 @@ def main():
 	if pre_build: pre_build()
 
 	# compile
-	if Params.g_commands['build'] or Params.g_install:
+	if Options.commands['build'] or Params.g_install:
 		try:
 
 			# TODO quite ugly, no?
-			if not Params.g_commands['build'] and not Params.g_commands['install']:
+			if not Options.commands['build'] and not Options.commands['install']:
 				import Task
 				def must_run(self):
 					return 0
@@ -379,24 +379,24 @@ def main():
 			#"""
 
 		except Build.BuildError, e:
-			if not Params.g_options.daemon: fatal(e.get_message(), 1)
+			if not Options.options.daemon: fatal(e.get_message(), 1)
 			else: error(e.get_message())
 		else:
-			if Params.g_options.progress_bar: print ''
+			if Options.options.progress_bar: print ''
 
 			if Params.g_install:
 				bld.install()
 
 			ela = ''
-			if not Params.g_options.progress_bar:
+			if not Options.options.progress_bar:
 				ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-			if Params.g_commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
-			elif Params.g_commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
+			if Options.commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
+			elif Options.commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
 			else: msg = 'Compilation finished successfully%s' % ela
 			Utils.pprint('GREEN', msg)
 
 	# clean
-	if Params.g_commands['clean']:
+	if Options.commands['clean']:
 		try:
 			bld.clean()
 			Utils.pprint('GREEN', 'Cleaning finished successfully')
@@ -407,7 +407,7 @@ def main():
 		#	error(msg)
 
 	# daemon look here
-	if Params.g_options.daemon and Params.g_commands['build']:
+	if Options.options.daemon and Options.commands['build']:
 		start_daemon()
 		return
 

@@ -35,7 +35,7 @@ Task.shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Params, Runner, Utils, Node, Logs
+import Params, Runner, Utils, Node, Logs, Options
 from Logs import debug, error, warn
 from Constants import *
 
@@ -368,10 +368,10 @@ class TaskBase(object):
 		col1 = cl[self.color]
 		col2 = cl['NORMAL']
 
-		if Params.g_options.progress_bar == 1:
+		if Options.options.progress_bar == 1:
 			return Utils.progress_line(self.position[0], self.position[1], col1, col2)
 
-		if Params.g_options.progress_bar == 2:
+		if Options.options.progress_bar == 2:
 			try: ini = Params.g_build.ini
 			except AttributeError: ini = Params.g_build.ini = time.time()
 			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
@@ -743,7 +743,7 @@ class Task(TaskBase):
 		"""Retrieve build nodes from the cache - the file time stamps are updated
 		for cleaning the least used files from the cache dir - be careful when overriding"""
 		if not Params.g_cache_global: return None
-		if Params.g_options.nocache: return None
+		if Options.options.nocache: return None
 
 		env = self.env
 		sig = self.signature()

@@ -6,7 +6,7 @@
 "Python support"
 
 import os, sys
-import TaskGen, Utils, Params, Utils, Runner
+import TaskGen, Utils, Params, Utils, Runner, Options
 from Logs import debug, warn, fatal
 from TaskGen import extension, taskgen, before, after, feature
 from Configure import conf
@@ -78,7 +78,7 @@ class py_taskgen(TaskGen.task_gen):
 		if not installed_files:
 			return
 
-		if Params.g_commands['uninstall']:
+		if Options.commands['uninstall']:
 			print "* removing byte compiled python files"
 			for fname in installed_files:
 				try:
@@ -374,8 +374,8 @@ def detect(conf):
 	v['PYFLAGS'] = ''
 	v['PYFLAGS_OPT'] = '-O'
 
-	v['PYC'] = getattr(Params.g_options, 'pyc', 1)
-	v['PYO'] = getattr(Params.g_options, 'pyo', 1)
+	v['PYC'] = getattr(Options.options, 'pyc', 1)
+	v['PYO'] = getattr(Options.options, 'pyo', 1)
 
 def set_options(opt):
 	opt.add_option('--nopyc', action = 'store_false', default = 1, help = 'no pyc files (configuration)', dest = 'pyc')

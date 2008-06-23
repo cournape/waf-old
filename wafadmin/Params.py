@@ -26,12 +26,6 @@ g_cwd_launch = None
 g_tooldir=''
 "Tools directory (used in particular by Environment.py)"
 
-g_options = None
-"Parsed command-line arguments in the options module"
-
-g_commands = {}
-"build, configure, .."
-
 g_build = None
 "only one build object is active at a time"
 

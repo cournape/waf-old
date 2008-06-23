@@ -16,7 +16,7 @@ The functions preceded by "@conf" are attached in the same manner
 
 import os, types, imp, cPickle, sys, shlex, warnings
 from Utils import md5
-import Params, Environment, Runner, Build, Utils, Configure, TaskGen, Task
+import Params, Environment, Runner, Build, Utils, Configure, TaskGen, Task, Options
 from Logs import fatal, warn, debug
 from Constants import *
 from Configure import conf, conftest
@@ -69,7 +69,7 @@ class enumerator_base(object):
 
 	def run(self):
 		self.validate()
-		if Params.g_cache_global and not Params.g_options.nocache:
+		if Params.g_cache_global and not Options.options.nocache:
 			newhash = self.hash()
 			try:
 				ret = self.conf.m_cache_table[newhash]
@@ -346,7 +346,7 @@ class pkgconfig_configurator(configurator_base):
 
 		self.name    = '' # name of the .pc file
 		self.version = '' # version to check
-		self.pkgpath = os.path.join(Params.g_options.prefix, 'lib', 'pkgconfig') # pkg config path
+		self.pkgpath = os.path.join(Options.options.prefix, 'lib', 'pkgconfig') # pkg config path
 		self.uselib_store  = '' # can be set automatically
 		self.define  = '' # can be set automatically
 		self.binary  = '' # name and path for pkg-config

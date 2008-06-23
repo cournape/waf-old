@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, optparse, sys, re
-import Params, Configure
+import Configure, Options
 import ccroot, ar
 from Configure import conftest
 
@@ -123,7 +123,7 @@ def gxx_modifier_debug(conf, kind='cxx'):
 	if conf.check_flags('-Wall', kind=kind):
 		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CXXFLAGS_'+x, '-Wall')
 	try:
-		debug_level = Params.g_options.debug_level.upper()
+		debug_level = Options.options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])

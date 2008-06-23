@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, optparse
-import Utils, Params, Configure
+import Utils, Options, Configure
 import ccroot, ar
 from Configure import conftest
 
@@ -69,7 +69,7 @@ def sxx_modifier_debug(conf, kind='cpp'):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 
 	try:
-		debug_level = Params.g_options.debug_level.upper()
+		debug_level = Options.options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])

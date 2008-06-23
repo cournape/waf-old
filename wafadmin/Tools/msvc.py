@@ -5,7 +5,7 @@
 # Visual C support - beta, needs more testing
 
 import os, sys, re, string, optparse
-import Utils, Params, TaskGen, Runner, Configure, Task
+import Utils, Params, TaskGen, Runner, Configure, Task, Options
 from Logs import debug, error, fatal, warn
 from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
@@ -389,7 +389,7 @@ def detect(conf):
 	v['LINKFLAGS']           = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
 
 	try:
-		debug_level = Params.g_options.debug_level.upper()
+		debug_level = Options.options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v['CCFLAGS']   += v['CCFLAGS_'+debug_level]

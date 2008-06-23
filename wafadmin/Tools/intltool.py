@@ -5,7 +5,7 @@
 "intltool support"
 
 import os, re
-import TaskGen, Task, Params, Utils, Runner
+import TaskGen, Task, Params, Utils, Runner, Options
 import cc
 from Logs import fatal, error
 
@@ -98,7 +98,7 @@ def detect(conf):
 	conf.env['INTLTOOL'] = intltool
 
 	def getstr(varname):
-		return getattr(Params.g_options, varname, '')
+		return getattr(Options.options, varname, '')
 
 	prefix  = conf.env['PREFIX']
 	datadir = getstr('datadir')
