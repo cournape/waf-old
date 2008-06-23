@@ -477,7 +477,6 @@ Task.simple_task_type('d_header', d_header_str, color='BLUE', prio=80)
 # quick test #
 if __name__ == "__main__":
 	#Logs.verbose = 2
-	#Params.g_zones = ['preproc']
 	#class dum:
 	#	def __init__(self):
 	#		self.parse_cache_d = {}

@@ -326,10 +326,7 @@ def main():
 		if reconf:
 			warn("Reconfiguring the project (the configuration has changed)")
 
-			a1 = Params.g_commands
-			a2 = Params.g_options
-			a3 = Params.g_zones
-			a4 = Logs.verbose
+			back = (Params.g_commands, Params.g_options, Logs.zones, Logs.verbose)
 
 			oldargs = sys.argv
 			sys.argv = proj['argv']
@@ -337,10 +334,7 @@ def main():
 			configure()
 			sys.argv = oldargs
 
-			Params.g_commands = a1
-			Params.g_options = a2
-			Params.g_zones = a3
-			Logs.verbose = a4
+			(Params.g_commands, Params.g_options, Logs.zones, Logs.verbose) = back
 
 			bld = Build.Build()
 			proj = read_cache_file(g_lockfile)

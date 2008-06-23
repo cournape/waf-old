@@ -450,9 +450,8 @@ class TaskBase(object):
 
 		# we delegate the work to "def scan(self, node)" to avoid duplicate code
 		(nodes, names) = self.scan(node)
-		if Logs.verbose:
-			if Params.g_zones:
-				debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
+		if Logs.verbose and Logs.zones:
+			debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
 
 		tree = Params.g_build
 		tree.node_deps[variant][node.id] = nodes
@@ -699,7 +698,7 @@ class Task(TaskBase):
 		new_sig = self.signature()
 
 		# debug if asked to
-		if Params.g_zones: self.debug_why(tree.bld_sigs[key])
+		if Logs.zones: self.debug_why(tree.bld_sigs[key])
 
 		if new_sig != prev_sig:
 			# try to retrieve the file from the cache

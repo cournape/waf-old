@@ -645,7 +645,7 @@ if __name__ == "__main__":
 	c_parser.start_local = start_local
 
 	Logs.verbose = 2
-	Params.g_zones = ['preproc']
+	Logs.zones = ['preproc']
 	class dum:
 		def __init__(self):
 			self.parse_cache = {}

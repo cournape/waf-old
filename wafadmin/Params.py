@@ -86,5 +86,3 @@ if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
 	or (not sys.stdout.isatty()):
 	reset_colors()
 
-g_zones = []
-
