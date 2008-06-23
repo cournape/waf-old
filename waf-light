@@ -125,11 +125,11 @@ w = join(wafdir, 'wafadmin')
 t = join(w, 'Tools')
 sys.path = [w, t] + sys.path
 
-import Scripting, Params
-Params.g_tooldir = [t]
-Params.g_cwd_launch = cwd
+import Scripting, Constants
+Scripting.TOOLDIR = [t]
+Scripting.LAUNCH_DIR = cwd
 
-if Params.g_version != VERSION:
-	err('Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (VERSION, Params.g_version, wafdir))
+if Constants.WAFVERSION != VERSION:
+	err('Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (VERSION, Constants.WAFVERSION, wafdir))
 Scripting.prepare()
 

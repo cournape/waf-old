@@ -28,7 +28,7 @@ def create_parser():
 	parser = OptionParser(usage = """waf [options] [commands ...]
 
 * Main commands: configure build install clean dist distclean uninstall distcheck
-* Example: ./waf build -j4""", version = 'waf %s' % Params.g_version)
+* Example: ./waf build -j4""", version = 'waf %s' % WAFVERSION)
 
 	parser.formatter.width = Utils.get_term_cols()
 	p = parser.add_option
@@ -192,7 +192,7 @@ class Handler(object):
 			for i in tool: self.tool_options(i, tooldir, option_group)
 			return
 
-		if not tooldir: tooldir = Params.g_tooldir
+		if not tooldir: tooldir = Scripting.TOOLDIR
 		tooldir = Utils.to_list(tooldir)
 		try:
 			file,name,desc = imp.find_module(tool, tooldir)

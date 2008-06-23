@@ -309,7 +309,7 @@ class Build(object):
 			for i in tool: self.setup(i, tooldir)
 			return
 
-		if not tooldir: tooldir = Params.g_tooldir
+		if not tooldir: tooldir = Scripting.TOOLDIR
 
 		file = None
 		key = str((tool, tooldir))
@@ -547,7 +547,7 @@ class Build(object):
 		try:
 			return self._launch_node
 		except AttributeError:
-			self._launch_node = self.m_root.find_dir(Params.g_cwd_launch)
+			self._launch_node = self.m_root.find_dir(Scripting.LAUNCH_DIR)
 			return self._launch_node
 
 	def glob(self, pattern, relative=True):
@@ -623,7 +623,7 @@ class Build(object):
 
 		# post only objects below a particular folder (recursive make behaviour)
 		#launch_node location from where the build was started
-		launch_node = self.m_root.find_dir(Params.g_cwd_launch)
+		launch_node = self.m_root.find_dir(Scripting.LAUNCH_DIR)
 		if launch_node.is_child_of(self.m_bldnode):
 			launch_node = self.m_srcnode
 		if not launch_node.is_child_of(self.m_srcnode):

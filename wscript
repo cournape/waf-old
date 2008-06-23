@@ -27,7 +27,7 @@ forbidden = [x+'.py' for x in 'Test Weak'.split()]
 from tokenize import *
 
 import os, sys, base64, shutil, re, random, StringIO, optparse, tempfile
-import Params, Utils, Options
+import Utils, Options
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
@@ -178,7 +178,7 @@ def process_tokens(tokens):
 
 def sfilter(path):
 	f = open(path, "r")
-	if Params.g_options.strip_comments:
+	if Options.options.strip_comments:
 		cnt = process_tokens(generate_tokens(f.readline))
 	else:
 		cnt = f.read()
@@ -197,7 +197,7 @@ def create_waf():
 
 	import tarfile, re
 
-	zipType = Params.g_options.zip.strip().lower()
+	zipType = Options.options.zip.strip().lower()
 	if zipType not in zip_types:
 		zipType = zip_types[0]
 
@@ -228,7 +228,7 @@ def create_waf():
 	reg = re.compile('^REVISION=(.*)', re.M)
 	code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
-	prefix = Params.g_options.prefix
+	prefix = Options.options.prefix
 	# if the prefix is the default, let's be nice and be platform-independent
 	# just in case the created waf is used on either windows or unix
 	if prefix == Options.default_prefix:
@@ -268,7 +268,7 @@ def create_waf():
 	f.write('#<==\n')
 	f.close()
 
-	if sys.platform == 'win32' or Params.g_options.make_batch:
+	if sys.platform == 'win32' or Options.options.make_batch:
 		f = open('waf.bat', 'wb')
 		f.write('@python -x waf %* & exit /b\n')
 		f.close()
@@ -291,13 +291,13 @@ def configure(conf):
 def build(bld):
 	import shutil, re
 
-	if Params.g_commands['install']:
+	if Options.commands['install']:
 		if sys.platform == 'win32':
 			print "Installing Waf on Windows is not possible."
 			sys.exit(0)
 
-	if Params.g_commands['install']:
-		val = Params.g_options.yes or (not sys.stdin.isatty() or raw_input("Installing Waf is discouraged. Proceed? [y/n]"))
+	if Options.commands['install']:
+		val = Options.options.yes or (not sys.stdin.isatty() or raw_input("Installing Waf is discouraged. Proceed? [y/n]"))
 		if val != True and val != "y": sys.exit(1)
 
 		compute_revision()
@@ -324,18 +324,18 @@ def build(bld):
 # it is run before configure(), build() and shutdown()
 # in this case it calls sys.exit(0) to terminate the program
 def init():
-	if Params.g_options.setver: # maintainer only (ita)
-		ver = Params.g_options.setver
+	if Options.options.setver: # maintainer only (ita)
+		ver = Options.options.setver
 		hexver = '0x'+ver.replace('.','0')
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
-		os.popen("""perl -pi -e 's/^g_version(.*)?$/g_version="%s"/' wafadmin/Params.py""" % ver).close()
+		os.popen("""perl -pi -e 's/^WAFVERSION=(.*)?$/WAFVERSION="%s"/' wafadmin/Constants.py""" % ver).close()
 		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
 		sys.exit(0)
-	elif Params.g_options.waf:
+	elif Options.options.waf:
 		create_waf()
 		sys.exit(0)
-	elif Params.g_commands['check']:
+	elif Options.commands['check']:
 		import test.Test
 		test.Test.run_tests()
 		sys.exit(0)

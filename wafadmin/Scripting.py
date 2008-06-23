@@ -11,6 +11,9 @@ from Logs import error, fatal, warn
 from Constants import *
 
 LOCKFILE = os.environ.get('WAFLOCK', '.lock-wscript')
+LAUNCH_DIR = ''
+TOOLDIR = ''
+
 
 g_gz = 'bz2'
 g_dirwatch = None
@@ -155,7 +158,7 @@ def prepare():
 	build_dir_override = None
 	candidate = None
 
-	cwd = Params.g_cwd_launch
+	cwd = LAUNCH_DIR
 	lst = os.listdir(cwd)
 	xml = 0
 
