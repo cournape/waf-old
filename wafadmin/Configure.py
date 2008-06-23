@@ -216,21 +216,19 @@ class Configure(object):
 
 	def cleanup(self):
 		"when there is a cache directory store the config results (shutdown)"
-		if not Params.g_cache_global: return
+		if Params.g_cache_global: 
+			# not during the build
+			if not os.path.isdir(Params.g_cache_global):
+				os.makedirs(Params.g_cache_global)
 
-		# not during the build
-		if not os.path.isdir(Params.g_cache_global):
-			os.makedirs(Params.g_cache_global)
-
-		fic = os.path.join(Params.g_cache_global, Params.g_conf_name)
-		file = open(fic, 'wb')
-		try:
-			cPickle.dump(self.m_cache_table, file)
-		finally:
-			file.close()
+			fic = os.path.join(Params.g_cache_global, Params.g_conf_name)
+			file = open(fic, 'wb')
+			try:
+				cPickle.dump(self.m_cache_table, file)
+			finally:
+				if file: file.close()
 
 		if self.log:
-			print "closing the cnfig.log"
 			self.log.close()
 
 	def set_env_name(self, name, env):
