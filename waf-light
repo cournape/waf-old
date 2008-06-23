@@ -40,6 +40,8 @@ if 'PSYCOWAF' in os.environ:
 VERSION="1.4.9"
 REVISION="x"
 INSTALL="x"
+C1='x'
+C2='x'
 cwd = os.getcwd()
 join = os.path.join
 
@@ -59,7 +61,7 @@ def unpack_wafdir(dir):
 			if f.readline()!='#<==\n': err(c % 2)
 			break
 	if not txt: err(c % 3)
-	txt = txt[1:-1].replace('itaN', '\n').replace('itaR', '\r')
+	txt = txt[1:-1].replace(C1, '\n').replace(C2, '\r')
 
 	import shutil, tarfile
 	try: shutil.rmtree(dir)

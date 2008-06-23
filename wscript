@@ -245,12 +245,23 @@ def create_waf():
 	f = open('%s.tar.%s' % (mw, zipType), 'rb')
 	cnt = f.read()
 	f.close()
-	code2 = cnt.replace('\n', 'itaN').replace('\r', 'itaR')
+	def find_unused(kd, ch):
+		for i in xrange(35, 125):
+			for j in xrange(35, 125):
+				if i==j: continue
+				s = chr(i) + chr(j)
+				if -1 == kd.find(s):
+					return (kd.replace(ch, s), s)
+		raise
+
+	# The reverse order prevent collisions
+	(cnt, C2) = find_unused(cnt, '\r')
+	(cnt, C1) = find_unused(cnt, '\n')
 	f = open('waf', 'wb')
-	f.write(code1)
+	f.write(code1.replace("C1='x'", "C1='%s'" % C1).replace("C2='x'", "C2='%s'" % C2))
 	f.write('#==>\n')
 	f.write('#')
-	f.write(code2)
+	f.write(cnt)
 	f.write('\n')
 	f.write('#<==\n')
 	f.close()
