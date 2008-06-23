@@ -12,15 +12,15 @@ from Configure import conftest
 @conftest
 def find_gxx(conf):
 	v = conf.env
-	cc = None
-	if v['CXX']: cc = v['CXX']
-	elif 'CXX' in os.environ: cc = os.environ['CXX']
-	if not cc: cc = conf.find_program('g++', var='CXX')
-	if not cc: cc = conf.find_program('c++', var='CXX')
-	if not cc: conf.fatal('g++ was not found')
-	v['CXX']  = cc
+	cxx = None
+	if v['CXX']: cxx = v['CXX']
+	elif 'CXX' in os.environ: cxx = os.environ['CXX']
+	if not cxx: cxx = conf.find_program('g++', var='CXX')
+	if not cxx: cxx = conf.find_program('c++', var='CXX')
+	if not cxx: conf.fatal('g++ was not found')
+	v['CXX']  = cxx
 	v['CXX_NAME'] = 'gcc'
-	ccroot.get_cc_version(conf, cc, 'CXX_VERSION')
+	ccroot.get_cc_version(conf, cxx, 'CXX_VERSION')
 
 @conftest
 def gxx_common_flags(conf):
