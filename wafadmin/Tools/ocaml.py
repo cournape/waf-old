@@ -18,13 +18,13 @@ EXT_ML  = ['.ml']
 open_re = re.compile('open ([a-zA-Z]+);;', re.M)
 foo = re.compile(r"""(\(\*)|(\*\))|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^()*"'\\]*)""", re.M)
 def filter_comments(txt):
-		meh = [0]
-		def repl(m):
-				if m.group(1): meh[0] += 1
-				elif m.group(2): meh[0] -= 1
-				elif not meh[0]: return m.group(0)
-				return ''
-		return foo.sub(repl, txt)
+	meh = [0]
+	def repl(m):
+		if m.group(1): meh[0] += 1
+		elif m.group(2): meh[0] -= 1
+		elif not meh[0]: return m.group(0)
+		return ''
+	return foo.sub(repl, txt)
 
 def link_may_start(self):
 	if not getattr(self, 'order', ''):
