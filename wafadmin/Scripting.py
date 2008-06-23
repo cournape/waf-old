@@ -114,7 +114,6 @@ def configure():
 		raise
 
 	conf.store(tree)
-	conf.cleanup()
 
 	# this will write a configure lock so that subsequent run will
 	# consider the current path as the root directory, to remove: use 'waf distclean'

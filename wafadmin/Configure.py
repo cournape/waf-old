@@ -214,8 +214,9 @@ class Configure(object):
 			tmpenv = self.m_allenvs[key]
 			tmpenv.store(os.path.join(Params.g_cachedir, key+CACHE_SUFFIX))
 
-	def cleanup(self):
-		"when there is a cache directory store the config results (shutdown)"
+	def __del__(self):
+		"""cleanup function:
+		close config.log, store config results when there is a cache directory"""
 		if Params.g_cache_global: 
 			# not during the build
 			if not os.path.isdir(Params.g_cache_global):
