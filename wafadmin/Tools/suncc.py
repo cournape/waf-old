@@ -11,16 +11,16 @@ from Configure import conftest
 @conftest
 def find_scc(conf):
 	v = conf.env
-	cc = None
-	if v['CC']: cc = v['CC']
-	elif 'CC' in os.environ: cc = os.environ['CC']
+	suncc = None
+	if v['CC']: suncc = v['CC']
+	elif 'CC' in os.environ: suncc = os.environ['CC']
 	#if not cc: cc = conf.find_program('gcc', var='CC')
-	if not cc: cc = conf.find_program('cc', var='CC')
-	if not cc: conf.fatal('suncc was not found')
-	v['CC']  = cc
+	if not suncc: suncc = conf.find_program('cc', var='CC')
+	if not suncc: conf.fatal('suncc was not found')
+	v['CC']  = suncc
 
 	#TODO: Has anyone a better idea to check if this is a sun cc?
-	ret = os.popen("%s -flags" % cc).close()
+	ret = os.popen("%s -flags" % suncc).close()
 	if ret:
 		v['CC_NAME'] = 'sun'
 		conf.check_message('suncc', '', not ret)
