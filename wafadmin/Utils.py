@@ -39,6 +39,8 @@ from UserDict import UserDict
 import Params, Logs
 from Constants import *
 
+indicator = sys.platform=='win32' and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
+
 try:
 	from fnv import new as md5
 	import Constants
@@ -231,7 +233,7 @@ def progress_line(state, total, col1, col2):
 	ratio = int((cols*state)/total) - 1
 
 	bar = ('='*ratio+'>').ljust(cols)
-	msg = Params.g_progress % (left, bar, right)
+	msg = indicator % (left, bar, right)
 
 	return msg
 

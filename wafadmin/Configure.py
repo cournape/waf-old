@@ -95,7 +95,8 @@ def find_program_impl(env, filename, path_list=[], var=None):
 
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
 
-	if Params.g_platform=='win32':
+	# TODO i start to believe this code is broken (ita)
+	if Options.platform == 'win32':
 		# TODO isnt fnmatch for this?
 		for y in [filename+x for x in '.exe,.com,.bat,.cmd'.split(',')]:
 			for directory in path_list:
@@ -135,7 +136,7 @@ class Configure(object):
 
 		# load the cache
 		if Options.cache_global and not Options.options.nocache:
-			fic = os.path.join(Options.cache_global, Params.g_conf_name)
+			fic = os.path.join(Options.cache_global, Options.conf_file)
 			try:
 				file = open(fic, 'rb')
 			except (OSError, IOError):
@@ -226,7 +227,7 @@ class Configure(object):
 			if not os.path.isdir(Options.cache_global):
 				os.makedirs(Options.cache_global)
 
-			fic = os.path.join(Options.cache_global, Params.g_conf_name)
+			fic = os.path.join(Options.cache_global, Options.conf_file)
 			file = open(fic, 'wb')
 			try:
 				cPickle.dump(self.m_cache_table, file)

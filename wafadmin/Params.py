@@ -7,20 +7,11 @@
 import os, sys
 import Constants, Utils
 
-g_progress = '\x1b[K%s%s%s\r'
-if sys.platform=='win32':
-	g_progress = '\x1b[A\x1b[K%s%s%s\r'
-
 # =================================== #
 # Constants set on runtime
 
 g_build = None
 "only one build object is active at a time"
-
-g_platform = sys.platform
-"current platform"
-
-g_conf_name = 'conf-runs-%s-%d.pickle' % (sys.platform, Constants.ABI)
 
 g_install = 0
 "true if install or uninstall is set"
