@@ -7,11 +7,14 @@
 
 import os, sys, imp, types, tempfile
 from optparse import OptionParser
-import Params, Logs, Utils
+import Params, Logs, Utils, Scripting
 from Constants import *
 
 options = {}
 commands = {}
+launch_dir = ''
+tooldir = ''
+lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
 
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')
@@ -186,16 +189,16 @@ class Handler(object):
 		finally:
 			self.cwd = current
 
-	def tool_options(self, tool, tooldir=None, option_group=None):
+	def tool_options(self, tool, tdir=None, option_group=None):
 		Utils.python_24_guard()
 		if type(tool) is types.ListType:
-			for i in tool: self.tool_options(i, tooldir, option_group)
+			for i in tool: self.tool_options(i, tdir, option_group)
 			return
 
-		if not tooldir: tooldir = Scripting.TOOLDIR
-		tooldir = Utils.to_list(tooldir)
+		if not tdir: tdir = tooldir
+		tdir = Utils.to_list(tdir)
 		try:
-			file,name,desc = imp.find_module(tool, tooldir)
+			file,name,desc = imp.find_module(tool, tdir)
 		except ImportError:
 			fatal("no tool named '%s' found" % tool)
 		module = imp.load_module(tool,file,name,desc)

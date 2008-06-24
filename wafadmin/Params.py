@@ -17,12 +17,6 @@ if sys.platform=='win32':
 # =================================== #
 # Constants set on runtime
 
-g_cwd_launch = None
-"directory from which waf was called"
-
-g_tooldir=''
-"Tools directory (used in particular by Environment.py)"
-
 g_build = None
 "only one build object is active at a time"
 

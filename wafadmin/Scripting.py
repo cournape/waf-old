@@ -10,11 +10,6 @@ import Params, Utils, Configure, Build, Runner, Options, Logs, Options
 from Logs import error, fatal, warn
 from Constants import *
 
-LOCKFILE = os.environ.get('WAFLOCK', '.lock-wscript')
-LAUNCH_DIR = ''
-TOOLDIR = ''
-
-
 g_gz = 'bz2'
 g_dirwatch = None
 g_daemonlock = 0
@@ -121,7 +116,7 @@ def configure():
 
 	# this will write a configure lock so that subsequent run will
 	# consider the current path as the root directory, to remove: use 'waf distclean'
-	file = open(LOCKFILE, 'w')
+	file = open(Options.lockfile, 'w')
 	file.write
 
 	proj = {}
@@ -137,12 +132,21 @@ def configure():
 	Options.options.jobs = jobs_save
 
 def read_cache_file(filename):
-	file = open(LOCKFILE, 'r')
+	file = open(Options.lockfile, 'r')
 	proj = cPickle.load(file)
 	file.close()
 	return proj
 
-def prepare():
+def prepare(t, cwd, ver, wafdir):
+
+	if WAFVERSION != ver:
+		msg = 'Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (ver, WAFVERSION, wafdir)
+		print '\033[91mError: %s\033[0m' % msg
+		sys.exit(1)
+
+	Options.tooldir = [t]
+	Options.launch_dir = cwd
+
 	# some command-line options can be processed immediately
 	if '--version' in sys.argv:
 		opt_obj = Options.Handler()
@@ -158,7 +162,7 @@ def prepare():
 	build_dir_override = None
 	candidate = None
 
-	cwd = LAUNCH_DIR
+	cwd = Options.launch_dir
 	lst = os.listdir(cwd)
 	xml = 0
 
@@ -202,7 +206,7 @@ def prepare():
 				break
 			if 'configure' in sys.argv and candidate:
 				break
-			if LOCKFILE in dirlst:
+			if Options.lockfile in dirlst:
 				break
 			cwd = cwd[:cwd.rfind(os.sep)] # climb up
 	except Exception:
@@ -300,7 +304,7 @@ def main():
 	# compile the project and/or install the files
 	bld = Build.Build()
 	try:
-		proj = read_cache_file(LOCKFILE)
+		proj = read_cache_file(Options.lockfile)
 	except IOError:
 		if Options.commands['clean']:
 			fatal("Nothing to clean (project not configured)", ret=2)
@@ -309,7 +313,7 @@ def main():
 				warn("Reconfiguring the project")
 				configure()
 				bld = Build.Build()
-				proj = read_cache_file(LOCKFILE)
+				proj = read_cache_file(Options.lockfile)
 			else:
 				fatal("Project not configured (run 'waf configure' first)", ret=2)
 
@@ -341,7 +345,7 @@ def main():
 			(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
 			bld = Build.Build()
-			proj = read_cache_file(LOCKFILE)
+			proj = read_cache_file(Options.lockfile)
 
 	Params.g_cachedir = os.path.join(proj[BLDDIR], CACHE_DIR)
 
@@ -530,7 +534,7 @@ def DistClean():
 	for (root, dirs, filenames) in os.walk('.'):
 		for f in list(filenames):
 			to_remove = 0
-			if f == LOCKFILE:
+			if f == Options.lockfile:
 				# removes a lock, and the builddir indicated
 				to_remove = True
 				try:

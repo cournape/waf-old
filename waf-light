@@ -119,17 +119,10 @@ def find_lib():
 	return dir
 
 wafdir = find_lib()
-if "-vv" in sys.argv: print "wafdir is %s" % wafdir
-
 w = join(wafdir, 'wafadmin')
 t = join(w, 'Tools')
 sys.path = [w, t] + sys.path
 
-import Scripting, Constants
-Scripting.TOOLDIR = [t]
-Scripting.LAUNCH_DIR = cwd
-
-if Constants.WAFVERSION != VERSION:
-	err('Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (VERSION, Constants.WAFVERSION, wafdir))
-Scripting.prepare()
+import Scripting
+Scripting.prepare(t, cwd, VERSION, wafdir)
 
