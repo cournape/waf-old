@@ -5,7 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-import TaskGen, Utils, preproc, Logs, Build
+import TaskGen, Utils, preproc, Logs, Build, Options
 from Logs import error, debug, fatal, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature

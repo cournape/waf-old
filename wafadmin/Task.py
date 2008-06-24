@@ -35,7 +35,7 @@ Task.shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Build, Runner, Utils, Node, Logs, Options
+import Build, Runner, Utils, Node, Logs, Options, Params
 from Logs import debug, error, warn
 from Constants import *
 

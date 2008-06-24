@@ -339,7 +339,7 @@ class Configure(object):
 					break
 				else:
 					raise
-	def err_handler(self, error):
+	def err_handler(self, fun, error):
 		pass
 
 def conf(f):

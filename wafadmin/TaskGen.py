@@ -22,7 +22,7 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import os, types, traceback, copy
-import Build, Task, Utils, Logs
+import Build, Task, Utils, Logs, Options
 from Logs import debug, error, fatal, warn
 
 typos = {
