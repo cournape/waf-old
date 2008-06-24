@@ -234,8 +234,6 @@ class Build(object):
 		debug('build: install called')
 
 		self.flush()
-		for obj in self.all_task_gen:
-			if obj.m_posted: obj.install()
 
 		# remove empty folders after uninstalling
 		if Options.commands['uninstall']:

@@ -154,7 +154,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 			task = self.create_task('sgml2man', self.env, 2)
 			task.set_inputs(self.path.find_resource(name))
 			task.task_generator = self
-			if Options.is_install: task.install = install_results
+			if Options.is_install: task.install = install_result
 			# no outputs, the scanner does it
 			# no caching for now, this is not a time-critical feature
 			# in the future the scanner can be used to do more things (find dependencies, etc)

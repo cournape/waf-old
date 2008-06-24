@@ -154,23 +154,6 @@ class task_gen(object):
 		# TODO adding functions ?
 		self.meths.append(name)
 
-	def install(self):
-		# FIXME
-		# ambiguity with the install functions
-		# it is often better to install the targets right after they are up-to_date
-		# but this means attaching the install to the task objects
-		if not Options.is_install: return
-		for (name, var, dir, chmod) in self.inst_files:
-			print name, var, dir, chmod
-
-	# TODO ugly code
-	def install_results(self, var, subdir, task, chmod=0644):
-		debug('task_gen: install results called')
-		if not task: return
-		current = Build.bld.path
-		lst = [a.relpath_gen(current) for a in task.m_outputs]
-		Build.bld.install_files(var, subdir, lst, chmod=chmod, env=self.env)
-
 	def meth_order(self, *k):
 		"this one adds the methods to the list of methods"
 		assert(len(k) > 1)

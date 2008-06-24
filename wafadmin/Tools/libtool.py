@@ -74,8 +74,8 @@ def apply_link_libtool(self):
 		latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
 		self.m_latask = latask
 
-	if not (Options.commands['install'] or Options.commands['uninstall']): return
-	self.install_results(dest_var, dest_subdir, self.m_latask)
+	if Options.commands['install'] or Options.commands['uninstall']:
+		Common.install_files('PREFIX', 'lib', linktask.m_outputs[0].abspath(self.env), self.env)
 
 @taskgen
 @feature("libtool")
