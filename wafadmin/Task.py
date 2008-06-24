@@ -35,7 +35,7 @@ Task.shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Params, Runner, Utils, Node, Logs, Options
+import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, error, warn
 from Constants import *
 
@@ -107,7 +107,7 @@ class TaskManager(object):
 	def add_finished(self, tsk):
 		self.tasks_done.append(tsk)
 		# TODO we could install using threads here
-		bld = Params.g_build
+		bld = Build.bld
 		if Options.is_install and hasattr(tsk, 'install'):
 			d = tsk.install
 			env = tsk.env
@@ -115,12 +115,12 @@ class TaskManager(object):
 				d(tsk)
 			elif type(d) is types.StringType:
 				if not env[d]: return
-				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
+				lst = [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.m_outputs]
 				bld.install_files(env[d], '', lst, chmod=0644, env=env)
 			else:
 				if not d['var']: return
-				lst = [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_outputs]
-				if d.get('src', 0): lst += [a.relpath_gen(Params.g_build.m_srcnode) for a in tsk.m_inputs]
+				lst = [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.m_outputs]
+				if d.get('src', 0): lst += [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.m_inputs]
 				# TODO ugly hack
 				if d.get('as', ''):
 					bld.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env)
@@ -348,7 +348,7 @@ class TaskBase(object):
 	def __init__(self, normal=1):
 		self.m_hasrun = 0
 
-		manager = Params.g_build.task_manager
+		manager = Build.bld.task_manager
 		if normal:
 			manager.add_task(self)
 		else:
@@ -372,8 +372,8 @@ class TaskBase(object):
 			return Utils.progress_line(self.position[0], self.position[1], col1, col2)
 
 		if Options.options.progress_bar == 2:
-			try: ini = Params.g_build.ini
-			except AttributeError: ini = Params.g_build.ini = time.time()
+			try: ini = Build.bld.ini
+			except AttributeError: ini = Build.bld.ini = time.time()
 			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
 			ins  = ','.join([n.m_name for n in task.m_inputs])
 			outs = ','.join([n.m_name for n in task.m_outputs])
@@ -453,14 +453,14 @@ class TaskBase(object):
 		if Logs.verbose and Logs.zones:
 			debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
 
-		tree = Params.g_build
+		tree = Build.bld
 		tree.node_deps[variant][node.id] = nodes
 		tree.raw_deps[variant][node.id] = names
 
 	# compute the signature, recompute it if there is no match in the cache
 	def scan_signature(self):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
-		tree = Params.g_build
+		tree = Build.bld
 		env = self.env
 
 		# get the task signature from the signature cache
@@ -512,7 +512,7 @@ class TaskBase(object):
 			k = env[x]
 			if k: upd(str(k))
 
-		tree = Params.g_build
+		tree = Build.bld
 		rescan = tree.rescan
 		tstamp = tree.m_tstamp_variants
 
@@ -522,7 +522,7 @@ class TaskBase(object):
 			variant = self.m_inputs[0].variant(env)
 			upd(tstamp[variant][idx])
 
-			for k in Params.g_build.node_deps[variant][idx]:
+			for k in Build.bld.node_deps[variant][idx]:
 
 				# unlikely but necessary if it happens
 				try: tree.m_scanned_folders[k.m_parent.id]
@@ -585,7 +585,7 @@ class Task(TaskBase):
 
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
-		node = Params.g_build.m_current.find_resource(filename)
+		node = Build.bld.m_current.find_resource(filename)
 		self.m_deps_nodes.append(node)
 
 	#------------ users are probably less interested in the following methods --------------#
@@ -596,7 +596,7 @@ class Task(TaskBase):
 		except AttributeError: pass
 
 		env = self.env
-		tree = Params.g_build
+		tree = Build.bld
 
 		m = md5()
 
@@ -665,7 +665,7 @@ class Task(TaskBase):
 		#return 0 # benchmarking
 
 		env = self.env
-		tree = Params.g_build
+		tree = Build.bld
 
 		# tasks that have no inputs or outputs are run each time
 		if not self.m_inputs and not self.m_outputs:
@@ -709,7 +709,7 @@ class Task(TaskBase):
 
 	def update_stat(self):
 		"called after a successful task run"
-		tree = Params.g_build
+		tree = Build.bld
 		env = self.env
 		sig = self.signature()
 
@@ -763,7 +763,7 @@ class Task(TaskBase):
 				return None
 			else:
 				cnt += 1
-				Params.g_build.m_tstamp_variants[variant][node.id] = sig
+				Build.bld.m_tstamp_variants[variant][node.id] = sig
 				if not Runner.g_quiet: Utils.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
 		return 1
 

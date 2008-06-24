@@ -5,7 +5,7 @@
 "Execute the tasks"
 
 import sys, random, time, threading, Queue, traceback
-import Params, Utils, Logs, Options
+import Build, Utils, Logs, Options
 import pproc as subprocess
 from Logs import debug, error
 from Constants import *
@@ -14,21 +14,21 @@ g_quiet = 0
 "do not output anything"
 
 def print_log(msg, nl='\n'):
-	f = Params.g_build.log
+	f = Build.bld.log
 	if f:
 		f.write(msg)
 		f.write(nl)
 		f.flush()
 
 def printout(s):
-	if not Params.g_build.log:
+	if not Build.bld.log:
 		sys.stdout.write(s)
 		sys.stdout.flush()
 	print_log(s, nl='')
 
 def exec_command(s):
 	debug('runner: system command -> %s' % s)
-	log = Params.g_build.log
+	log = Build.bld.log
 	if log or Logs.verbose: printout(s+'\n')
 	proc = subprocess.Popen(s, shell=1, stdout=log, stderr=log)
 	stat = proc.wait()
@@ -40,7 +40,7 @@ if sys.platform == "win32":
 	def exec_command(s):
 		# TODO very long command-lines are unlikely to be used in the configuration
 		if len(s) < 2000: return old_log(s)
-		log = Params.g_build.log
+		log = Build.bld.log
 		if log or Logs.verbose: printout(s+'\n')
 		startupinfo = subprocess.STARTUPINFO()
 		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW

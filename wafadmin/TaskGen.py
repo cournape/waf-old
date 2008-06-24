@@ -22,7 +22,7 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import os, types, traceback, copy
-import Params, Task, Utils, Logs
+import Build, Task, Utils, Logs
 from Logs import debug, error, fatal
 
 typos = {
@@ -115,12 +115,12 @@ class task_gen(object):
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
 
-		self.env = Params.g_build.env.copy()
+		self.env = Build.bld.env.copy()
 
 		self.m_posted = 0
-		self.path = Params.g_build.path # emulate chdir when reading scripts
+		self.path = Build.bld.path # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
-		Params.g_build.all_task_gen.append(self)
+		Build.bld.all_task_gen.append(self)
 
 		# provide a unique id
 		self.idx = task_gen.idx[self.path.id] = task_gen.idx.get(self.path.id, 0) + 1
@@ -167,9 +167,9 @@ class task_gen(object):
 	def install_results(self, var, subdir, task, chmod=0644):
 		debug('task_gen: install results called')
 		if not task: return
-		current = Params.g_build.path
+		current = Build.bld.path
 		lst = [a.relpath_gen(current) for a in task.m_outputs]
-		Params.g_build.install_files(var, subdir, lst, chmod=chmod, env=self.env)
+		Build.bld.install_files(var, subdir, lst, chmod=chmod, env=self.env)
 
 	def meth_order(self, *k):
 		"this one adds the methods to the list of methods"
@@ -332,13 +332,13 @@ class task_gen(object):
 			# validation:
 			# * don't use absolute path.
 			# * don't use paths outside the source tree.
-			if not anode or not anode.is_child_of(Params.g_build.m_srcnode):
+			if not anode or not anode.is_child_of(Build.bld.m_srcnode):
 				fatal("Unable to use '%s' - either because it's not a relative path" \
-					 ", or it's not child of '%s'." % (name, Params.g_build.m_srcnode))
+					 ", or it's not child of '%s'." % (name, Build.bld.m_srcnode))
 
-			Params.g_build.rescan(anode)
+			Build.bld.rescan(anode)
 
-			for name in Params.g_build.cache_dir_contents[anode.id]:
+			for name in Build.bld.cache_dir_contents[anode.id]:
 				(base, ext) = os.path.splitext(name)
 				if ext in ext_lst and not name in lst and not name in excludes:
 					lst.append((anode.relative_path(self.path) or '.') + os.path.sep + name)
@@ -361,11 +361,11 @@ class task_gen(object):
 
 		newobj.__class__ = self.__class__
 		if type(env) is types.StringType:
-			newobj.env = Params.g_build.m_allenvs[env].copy()
+			newobj.env = Build.bld.m_allenvs[env].copy()
 		else:
 			newobj.env = env.copy()
 
-		Params.g_build.all_task_gen.append(newobj)
+		Build.bld.all_task_gen.append(newobj)
 
 		return newobj
 

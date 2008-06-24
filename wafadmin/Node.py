@@ -21,7 +21,7 @@ the build is launched from the top of the build dir (for example, in _build_/)
 """
 
 import os, sys
-import Params, Utils
+import Utils, Build
 from Logs import *
 
 UNDEFINED = 0
@@ -38,8 +38,8 @@ class Node(object):
 		self.m_parent = parent
 
 		# assumption: one build object at a time
-		Params.g_build.id_nodes += 4
-		self.id = Params.g_build.id_nodes + node_type
+		Build.bld.id_nodes += 4
+		self.id = Build.bld.id_nodes + node_type
 
 		if node_type == DIR: self.childs = {}
 
@@ -106,7 +106,7 @@ class Node(object):
 		else:
 			parent = self.find_dir_lst(lst[:-1])
 			if not parent: return None
-		Params.g_build.rescan(parent)
+		Build.bld.rescan(parent)
 
 		name = lst[-1]
 		node = parent.childs.get(name, None)
@@ -115,7 +115,7 @@ class Node(object):
 			if tp == FILE or tp == BUILD:
 				return node
 
-		tree = Params.g_build
+		tree = Build.bld
 		if not name in tree.cache_dir_contents[parent.id]:
 			return None
 
@@ -140,7 +140,7 @@ class Node(object):
 		else:
 			parent = self.find_dir_lst(lst[:-1])
 			if not parent: return None
-		Params.g_build.rescan(parent)
+		Build.bld.rescan(parent)
 
 		name = lst[-1]
 		node = parent.childs.get(name, None)
@@ -160,7 +160,7 @@ class Node(object):
 		"search a folder in the filesystem"
 		current = self
 		for name in lst:
-			Params.g_build.rescan(current)
+			Build.bld.rescan(current)
 			prev = current
 
 			if not current.m_parent and name == current.m_name:
@@ -174,7 +174,7 @@ class Node(object):
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
-					dir_cont = Params.g_build.cache_dir_contents
+					dir_cont = Build.bld.cache_dir_contents
 					if prev.id in dir_cont and name in dir_cont[prev.id]:
 						current = Node(name, prev, DIR)
 					else:
@@ -226,10 +226,10 @@ class Node(object):
 				# exclusive build directory -> mark the parent as rescanned
 				# for find_dir and find_resource to work
 				parent = self.ensure_dir_node_from_path_lst(lst[:-1])
-				Params.g_build.m_scanned_folders[parent.id] = 1
+				Build.bld.m_scanned_folders[parent.id] = 1
 			else:
 				try:
-					Params.g_build.rescan(parent)
+					Build.bld.rescan(parent)
 				except OSError:
 					pass
 		else:
@@ -310,7 +310,7 @@ class Node(object):
 
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
-		tree = Params.g_build
+		tree = Build.bld
 		ln = tree.launch_node()
 		name = self.m_name
 		x = self.m_parent.get_file(name)
@@ -416,7 +416,7 @@ class Node(object):
 			return '/'
 
 		variant = self.variant(env)
-		ret = Params.g_build.m_abspath_cache[variant].get(self.id, None)
+		ret = Build.bld.m_abspath_cache[variant].get(self.id, None)
 		if ret: return ret
 
 		if not variant:
@@ -429,8 +429,8 @@ class Node(object):
 			# the real hot zone is the os path join
 			val = os.sep.join(lst)
 		else:
-			val = os.sep.join((Params.g_build.m_bldnode.abspath(), env.variant(), self.relpath(Params.g_build.m_srcnode)))
-		Params.g_build.m_abspath_cache[variant][self.id] = val
+			val = os.sep.join((Build.bld.m_bldnode.abspath(), env.variant(), self.relpath(Build.bld.m_srcnode)))
+		Build.bld.m_abspath_cache[variant][self.id] = val
 		return val
 
 	def change_ext(self, ext):
@@ -461,16 +461,16 @@ class Node(object):
 		"path seen from the build dir default/src/foo.cpp"
 		x = self.m_parent.get_file(self.m_name)
 
-		if x: return self.relpath_gen(Params.g_build.m_bldnode)
-		if self.relpath(Params.g_build.m_srcnode) is not '':
-			return os.path.join(env.variant(), self.relpath(Params.g_build.m_srcnode))
+		if x: return self.relpath_gen(Build.bld.m_bldnode)
+		if self.relpath(Build.bld.m_srcnode) is not '':
+			return os.path.join(env.variant(), self.relpath(Build.bld.m_srcnode))
 		return env.variant()
 
 	def srcpath(self, env):
 		"path in the srcdir from the build dir ../src/foo.cpp"
 		x = self.m_parent.get_build(self.m_name)
 		if x: return self.bldpath(env)
-		return self.relpath_gen(Params.g_build.m_bldnode)
+		return self.relpath_gen(Build.bld.m_bldnode)
 
 	def read(self, env):
 		try:
@@ -484,7 +484,7 @@ if sys.platform == "win32":
 	def find_dir_lst_win32(self, lst):
 		current = self
 		for name in lst:
-			Params.g_build.rescan(current)
+			Build.bld.rescan(current)
 			prev = current
 
 			if not current.m_parent and name == current.m_name:
@@ -498,7 +498,7 @@ if sys.platform == "win32":
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
-					if (name in Params.g_build.cache_dir_contents[prev.id]
+					if (name in Build.bld.cache_dir_contents[prev.id]
 						or (not prev.m_parent and name[1] == ":")):
 						current = Node(name, prev, DIR)
 					else:
@@ -508,7 +508,7 @@ if sys.platform == "win32":
 
 	def abspath_win32(self, env=None):
 		variant = self.variant(env)
-		ret = Params.g_build.m_abspath_cache[variant].get(self.id, None)
+		ret = Build.bld.m_abspath_cache[variant].get(self.id, None)
 		if ret: return ret
 
 		if not variant:
@@ -520,10 +520,10 @@ if sys.platform == "win32":
 			lst.reverse()
 			val = os.sep.join(lst)
 		else:
-			val = os.sep.join((Params.g_build.m_bldnode.abspath(), env.variant(), self.relpath(Params.g_build.m_srcnode)))
+			val = os.sep.join((Build.bld.m_bldnode.abspath(), env.variant(), self.relpath(Build.bld.m_srcnode)))
 		if val.startswith("\\"): val = val[1:]
 		if val.startswith("\\"): val = val[1:]
-		Params.g_build.m_abspath_cache[variant][self.id] = val
+		Build.bld.m_abspath_cache[variant][self.id] = val
 		return val
 	Node.abspath = abspath_win32
 

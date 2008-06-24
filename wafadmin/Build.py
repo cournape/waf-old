@@ -9,7 +9,7 @@ The class Build holds all the info related to a build:
 * file system representation (tree of Node instances)
 * various cached objects (task signatures, file scan results, ..)
 
-There is only one Build object at a time (Params.g_build singleton)
+There is only one Build object at a time (bld singleton)
 """
 
 import os, sys, cPickle, types, imp, errno, re, glob
@@ -22,6 +22,9 @@ SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps b
 
 g_modcache = {}
 "Cache for the tools (modules), re-importing raises errors"
+
+bld = None
+"more or less a singleton - only one build object is active at a time"
 
 class BuildError(Exception):
 	def __init__(self, b=None, t=[]):
@@ -45,7 +48,8 @@ class Build(object):
 	def __init__(self):
 
 		# there should be only one build dir in use at a time
-		Params.g_build = self
+		global bld
+		bld = self
 
 		# instead of hashing the nodes, we assign them a unique id when they are created
 		self.id_nodes = 0
@@ -433,7 +437,7 @@ class Build(object):
 						dict.__delitem__(node.id)
 
 					# avoid deleting the build dir node
-					if node.id != Params.g_build.m_bldnode.id:
+					if node.id != self.m_bldnode.id:
 						src_dir_node.childs.__delitem__(node.m_name)
 				os.makedirs(sub_path)
 
@@ -552,7 +556,7 @@ class Build(object):
 
 	def glob(self, pattern, relative=True):
 		"files matching the pattern, seen from the current folder"
-		path = Params.g_build.path.abspath()
+		path = self.path.abspath()
 		files = [self.m_root.find_resource(x) for x in glob.glob(path+os.sep+pattern)]
 		if relative:
 			files = [x.relpath(self.path) for x in files if x]

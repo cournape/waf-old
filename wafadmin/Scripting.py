@@ -6,7 +6,7 @@
 
 import os, sys, shutil, cPickle, traceback, time
 
-import Params, Utils, Configure, Build, Runner, Options, Logs, Options
+import Params, Utils, Configure, Build, Runner, Options, Logs, Options, Build
 from Logs import error, fatal, warn
 from Constants import *
 
@@ -63,7 +63,7 @@ def start_daemon():
 		import DirWatch
 		g_dirwatch = DirWatch.DirectoryWatcher()
 		m_dirs=[]
-		for nodeDir in Params.g_build.m_srcnode.dirs():
+		for nodeDir in Build.bld.m_srcnode.dirs():
 			tmpstr = "%s" %nodeDir
 			tmpstr = "%s" %(tmpstr[6:])
 			m_dirs.append(tmpstr)
@@ -74,7 +74,7 @@ def start_daemon():
 	else:
 		g_dirwatch.suspend_all_watch()
 		m_dirs=[]
-		for nodeDir in Params.g_build.m_srcnode.dirs():
+		for nodeDir in Build.bld.m_srcnode.dirs():
 			tmpstr = "%s" % nodeDir
 			tmpstr = "%s" % (tmpstr[6:])
 			m_dirs.append(tmpstr)
@@ -380,7 +380,7 @@ def main():
 			bld.compile()
 			"""
 			import cProfile, pstats
-			cProfile.run("Params.g_build.compile()", 'profi.txt')
+			cProfile.run("Build.bld.compile()", 'profi.txt')
 			p = pstats.Stats('profi.txt')
 			p.sort_stats('time').print_stats(20)
 			#"""

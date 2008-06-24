@@ -18,7 +18,7 @@ In the shutdown method, add the following code:
 Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
 """
 import os, sys
-import Params, TaskGen, Utils, Options
+import Build, TaskGen, Utils, Options
 import pproc as subprocess
 
 class unit_test(object):
@@ -67,7 +67,7 @@ class unit_test(object):
 		if not Options.commands[self.run_if_waf_does]: return
 
 		# Gather unit tests to call
-		for obj in Params.g_build.all_task_gen:
+		for obj in Build.bld.all_task_gen:
 			if not hasattr(obj,'unit_test'): continue
 			unit_test = getattr(obj,'unit_test')
 			if not unit_test: continue

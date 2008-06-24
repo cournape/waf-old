@@ -9,7 +9,7 @@ if the variable is set but it does not exist, it assumes an absolute path was gi
 """
 
 import os, types, shutil, glob
-import Params, Utils, Options
+import Utils, Options, Build
 from Logs import error, fatal
 from Constants import *
 
@@ -42,8 +42,8 @@ def do_install(src, tgt, chmod=0644):
 		if _do_install:
 			srclbl = src
 			try:
-				srclbl = src.replace(Params.g_build.m_bldnode.abspath(None)+os.sep, '')
-				srclbl = src.replace(Params.g_build.m_srcnode.abspath(None)+os.sep, '')
+				srclbl = src.replace(Build.bld.m_bldnode.abspath(None)+os.sep, '')
+				srclbl = src.replace(Build.bld.m_srcnode.abspath(None)+os.sep, '')
 			except OSError:
 				pass
 			print "* installing %s as %s" % (srclbl, tgt)
@@ -64,15 +64,15 @@ def do_install(src, tgt, chmod=0644):
 	elif Options.commands['uninstall']:
 		print "* uninstalling %s" % tgt
 
-		Params.g_build.m_uninstall.append(tgt)
+		Build.bld.m_uninstall.append(tgt)
 
 		try: os.remove(tgt)
 		except OSError: pass
 		return True
 
 def path_install(var, subdir, env=None):
-	bld = Params.g_build
-	if not env: env = Params.g_build.env
+	bld = Build.bld
+	if not env: env = Build.bld.env
 	destpath = env[var]
 	if not destpath:
 		error("Installing: to set a destination folder use env['%s']" % (var))
@@ -87,7 +87,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 	if not Options.is_install: return []
 	if not var: return []
 
-	bld = Params.g_build
+	bld = Build.bld
 	if not env: env = bld.env
 	destpath = env[var]
 	if not destpath: destpath = var # absolute paths
@@ -132,8 +132,8 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	if not Options.is_install: return False
 	if not var: return False
 
-	bld = Params.g_build
-	if not env: env = Params.g_build.env
+	bld = Build.bld
+	if not env: env = Build.bld.env
 	node = bld.path
 
 	tgt = env[var]
@@ -160,8 +160,8 @@ def symlink_as(var, src, dest, env=None):
 	if not Options.is_install: return
 	if not var: return
 
-	bld = Params.g_build
-	if not env: env=Params.g_build.env
+	bld = Build.bld
+	if not env: env=Build.bld.env
 	node = bld.path
 
 	tgt = env[var]

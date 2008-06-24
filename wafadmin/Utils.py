@@ -36,7 +36,7 @@ Utilities, the stable ones are the following:
 
 import os, sys, imp, types, string, time, errno, inspect
 from UserDict import UserDict
-import Params, Logs
+import Build, Logs
 from Constants import *
 
 indicator = sys.platform=='win32' and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
@@ -217,9 +217,9 @@ def progress_line(state, total, col1, col2):
 	ind = rot_chr[rot_idx % 4]
 
 	try:
-		ini = Params.g_build.ini
+		ini = Build.bld.ini
 	except AttributeError:
-		ini = Params.g_build.ini = time.time()
+		ini = Build.bld.ini = time.time()
 
 	pc = (100.*state)/total
 	eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
