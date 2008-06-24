@@ -179,11 +179,11 @@ class tex_taskgen(TaskGen.task_gen):
 			if not node: fatal('cannot find %s' % filename)
 
 			if self.m_type == 'latex':
-				task = self.create_task('latex', self.env)
+				task = self.create_task('latex')
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.dvi'))
 			elif self.m_type == 'pdflatex':
-				task = self.create_task('pdflatex', self.env)
+				task = self.create_task('pdflatex')
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.pdf'))
 			else:
@@ -205,16 +205,16 @@ class tex_taskgen(TaskGen.task_gen):
 
 			if self.m_type == 'latex':
 				if 'ps' in outs:
-					pstask = self.create_task('dvips', self.env)
+					pstask = self.create_task('dvips')
 					pstask.set_inputs(task.m_outputs)
 					pstask.set_outputs(node.change_ext('.ps'))
 				if 'pdf' in outs:
-					pdftask = self.create_task('dvipdf', self.env)
+					pdftask = self.create_task('dvipdf')
 					pdftask.set_inputs(task.m_outputs)
 					pdftask.set_outputs(node.change_ext('.pdf'))
 			elif self.m_type == 'pdflatex':
 				if 'ps' in outs:
-					pstask = self.create_task('pdf2ps', self.env)
+					pstask = self.create_task('pdf2ps')
 					pstask.set_inputs(task.m_outputs)
 					pstask.set_outputs(node.change_ext('.ps'))
 
