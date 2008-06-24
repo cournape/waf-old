@@ -145,11 +145,6 @@ class task_gen(object):
 		if type(value) is types.StringType: return value.split()
 		else: return value
 
-	def add_method(self, name):
-		"add a method to execute"
-		# TODO adding functions ?
-		self.meths.append(name)
-
 	def meth_order(self, *k):
 		"this one adds the methods to the list of methods"
 		assert(len(k) > 1)
