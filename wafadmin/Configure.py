@@ -156,6 +156,24 @@ class Configure(object):
 		except (OSError, IOError): pass
 		self.log = open(path, 'wb')
 
+	def __del__(self):
+		"""cleanup function:
+		close config.log, store config results when there is a cache directory"""
+		if Options.cache_global:
+			# not during the build
+			if not os.path.isdir(Options.cache_global):
+				os.makedirs(Options.cache_global)
+
+			fic = os.path.join(Options.cache_global, Options.conf_file)
+			file = open(fic, 'wb')
+			try:
+				cPickle.dump(self.m_cache_table, file)
+			finally:
+				if file: file.close()
+
+		if self.log:
+			self.log.close()
+
 	def fatal(self, msg):
 		raise ConfigurationError(msg)
 
@@ -216,24 +234,6 @@ class Configure(object):
 		for key in self.m_allenvs:
 			tmpenv = self.m_allenvs[key]
 			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
-
-	def __del__(self):
-		"""cleanup function:
-		close config.log, store config results when there is a cache directory"""
-		if Options.cache_global:
-			# not during the build
-			if not os.path.isdir(Options.cache_global):
-				os.makedirs(Options.cache_global)
-
-			fic = os.path.join(Options.cache_global, Options.conf_file)
-			file = open(fic, 'wb')
-			try:
-				cPickle.dump(self.m_cache_table, file)
-			finally:
-				if file: file.close()
-
-		if self.log:
-			self.log.close()
 
 	def set_env_name(self, name, env):
 		"add a new environment called name"
