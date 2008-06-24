@@ -390,7 +390,7 @@ use command_is_external=True''') % (self.command,)
 		if not outputs:
 			fatal("command-output objects must have at least one output file")
 
-		task = command_output(self.env, None, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env)
+		task = command_output(self.env, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env)
 		Utils.copy_attrs(self, task, 'before after ext_in ext_out', only_if_set=True)
 		self.m_tasks.append(task)
 

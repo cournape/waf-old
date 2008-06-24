@@ -31,7 +31,7 @@ Task.algotype = Constants.MAXPARALLEL
 Task.shuffle = True
 """
 
-import os, types, shutil, sys, re, new, random
+import os, types, shutil, sys, re, new, random, time
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, error, warn
