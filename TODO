@@ -1,6 +1,10 @@
 roadmap:
 --------
 
+* flag conversion simplification (_INCFLAGS)
+* attribute processing improvements (foo.ldflags)
+* doxygen support
+
 * improve the custom compilation rules (pc file creation, etc)
 * more gnome support
 * cross-compilation settings gcc,linux->win32

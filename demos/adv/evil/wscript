@@ -2,8 +2,6 @@
 # encoding: utf-8
 # Thomas Nagy, 2008 (ita)
 
-# TODO encapsulate this logic in a scanner class
-
 """
 Example of a compiler that generates cpp files in arbitrary folders
 It is not possible to know the files in advance, but the compiler
@@ -13,14 +11,14 @@ compile and link the cpp files produced.
 Also, the c++ tasks must be created each time
 
 This demonstrates:
-* the use of the exclusive_build_node method (find_or_declare assumes cannot be used)
+* the use of the exclusive_build_node method
 * how to hash files manually and update the node information
 * define a task without output nodes
 * how to manage ill-behaving compilers
 
 The node method find_dir (and find_resource or find_or_declare) assume that
 the directory structure exists in both the build and source folders,
-it is therefore necesary to use the method exclusive_build_node
+it is therefore necesary to use the method exclusive_build_node instead
 """
 
 ## A DEMO ##
@@ -55,7 +53,7 @@ from Params import debug
 
 class shpip_task(Task.Task):
 	"""
-	A special task, with finds its outputs once it has run
+	A special task, which finds its outputs once it has run
 	It outputs cpp files that must be compiled too
 	"""
 	def __init__(self, env, normal=1, prio=None):
@@ -133,8 +131,9 @@ class shpip_task(Task.Task):
 			# read the contents of the file and create cpp files from it
 			files = os.popen(cmd).read().strip()
 		except:
+			# comment the following line to disable debugging
 			raise
-			return 1 # do this when it fails, i have left the raise for debugging
+			return 1
 		else:
 			lst = Utils.to_list(files)
 			# the files exist in the build dir only so we do not use find_or_declare
