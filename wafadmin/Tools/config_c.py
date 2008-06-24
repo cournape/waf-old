@@ -21,6 +21,13 @@ from Logs import fatal, warn, debug
 from Constants import *
 from Configure import conf, conftest
 
+stdincpath = ['/usr/include/', '/usr/local/include/']
+"""standard include paths"""
+
+stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
+"""standard library search paths"""
+
+
 class attached_conf(type):
 	"""no decorators for classes, so we use a metaclass
 	map 'conf.create_classname()' to 'classname()'"""
@@ -211,7 +218,7 @@ class library_enumerator(enumerator_base):
 
 	def validate(self):
 		if not self.nosystem and not self.path:
-			self.path += Configure.g_stdlibpath
+			self.path += stdlibpath
 
 	def run_test(self):
 		ret = '' # returns a string
@@ -245,7 +252,7 @@ class header_enumerator(enumerator_base):
 
 	def validate(self):
 		if not self.nosystem and not self.path:
-			self.path = Configure.g_stdincpath
+			self.path = stdincpath
 
 	def error(self):
 		errmsg = 'cannot find %s in %s' % (self.name, str(self.path))

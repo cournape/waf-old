@@ -35,15 +35,6 @@ autoconfig = False
 line_just = 40
 """initial length of configuration messages"""
 
-g_stdincpath = ['/usr/include/', '/usr/local/include/']
-"""standard include paths"""
-
-g_stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
-"""standard library search paths"""
-
-#####################
-## Helper functions
-
 def find_file(filename, path_list):
 	"""find a file in a list of paths
 	@param filename: name of the file to search for
