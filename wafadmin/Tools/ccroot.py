@@ -247,7 +247,7 @@ def apply_link(self):
 		if 'cstaticlib' in self.features: link = 'ar_link_static'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
-	linktask = self.create_task(link, self.env)
+	linktask = self.create_task(link)
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))

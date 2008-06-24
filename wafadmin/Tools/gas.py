@@ -16,7 +16,7 @@ Task.simple_task_type('asm', as_str, 'PINK', ext_out='.o')
 @extension(EXT_ASM)
 def asm_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = self.create_task('asm', self.env)
+	task = self.create_task('asm')
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 

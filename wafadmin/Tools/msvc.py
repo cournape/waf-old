@@ -251,7 +251,7 @@ def apply_link_msvc(self):
 		if self.m_type == 'staticlib': link = 'msvc_ar_link_static'
 		elif 'cxx' in self.features: link = 'msvc_cxx_link'
 		else: link = 'msvc_cc_link'
-	linktask = self.create_task(link, self.env)
+	linktask = self.create_task(link)
 
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)

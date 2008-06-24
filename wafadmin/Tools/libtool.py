@@ -69,7 +69,7 @@ def read_la_file(path):
 def apply_link_libtool(self):
 	if self.m_type != 'program':
 		linktask = self.link_task
-		latask = self.create_task('fakelibtool', self.env)
+		latask = self.create_task('fakelibtool')
 		latask.set_inputs(linktask.m_outputs)
 		latask.set_outputs(linktask.m_outputs[0].change_ext('.la'))
 		self.m_latask = latask

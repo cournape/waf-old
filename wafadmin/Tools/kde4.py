@@ -16,7 +16,7 @@ class msgfmt_taskgen(TaskGen.task_gen):
 
 		for lang in self.to_list(self.langs):
 			node = self.path.find_resource_lst(Utils.split_path(lang+'.po'))
-			task = self.create_task('msgfmt', self.env)
+			task = self.create_task('msgfmt')
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.mo'))
 

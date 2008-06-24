@@ -195,11 +195,11 @@ def create_rcc_task(self, node):
 
 	rcnode = node.change_ext('_rc.cpp')
 
-	rcctask = self.create_task('rcc', self.env)
+	rcctask = self.create_task('rcc')
 	rcctask.m_inputs = [node]
 	rcctask.m_outputs = [rcnode]
 
-	cpptask = self.create_task('cxx', self.env)
+	cpptask = self.create_task('cxx')
 	cpptask.m_inputs  = [rcnode]
 	cpptask.m_outputs = [rcnode.change_ext('.o')]
 
@@ -210,7 +210,7 @@ def create_rcc_task(self, node):
 @extension(EXT_UI)
 def create_uic_task(self, node):
 	"hook for uic tasks"
-	uictask = self.create_task('ui4', self.env)
+	uictask = self.create_task('ui4')
 	uictask.m_inputs    = [node]
 	uictask.m_outputs   = [node.change_ext('.h')]
 

@@ -73,12 +73,12 @@ class java_taskgen(TaskGen.task_gen):
 
 		self.env['OUTDIR'] = source_root_node.abspath(self.env)
 
-		tsk = self.create_task('javac', self.env)
+		tsk = self.create_task('javac')
 		tsk.set_inputs(src_nodes)
 		tsk.set_outputs(bld_nodes)
 
 		if self.jarname:
-			tsk = self.create_task('jar_create', self.env)
+			tsk = self.create_task('jar_create')
 			tsk.set_inputs(bld_nodes)
 			tsk.set_outputs(self.path.find_build_lst(Utils.split_path(self.jarname)))
 

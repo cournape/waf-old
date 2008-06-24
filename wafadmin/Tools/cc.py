@@ -87,7 +87,7 @@ def apply_defines_cc(self):
 @extension(EXT_CC)
 def c_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = self.create_task('cc', self.env)
+	task = self.create_task('cc')
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 

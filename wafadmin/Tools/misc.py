@@ -74,10 +74,9 @@ class copy_taskgen(TaskGen.task_gen):
 			# TODO the file path may be incorrect
 			newnode = self.path.find_or_declare(target)
 
-			tsk = self.create_task('copy', self.env)
+			tsk = self.create_task('copy')
 			tsk.set_inputs(node)
 			tsk.set_outputs(newnode)
-			tsk.m_env = self.env
 			tsk.fun = self.fun
 			tsk.chmod = self.chmod
 
@@ -140,10 +139,9 @@ class subst_taskgen(TaskGen.task_gen):
 				self.env = self.env.copy()
 				self.env['DICT_HASH'] = hash(str(self.dict)) # <- pretty sure it wont work (ita)
 
-			tsk = self.create_task('copy', self.env)
+			tsk = self.create_task('copy')
 			tsk.set_inputs(node)
 			tsk.set_outputs(newnode)
-			tsk.m_env = self.env
 			tsk.fun = self.fun
 			tsk.dict = self.dict
 			tsk.dep_vars = ['DICT_HASH']

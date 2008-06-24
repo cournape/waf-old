@@ -33,7 +33,7 @@ class intltool_in_taskgen(TaskGen.task_gen):
 			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
 			self.env['INTLFLAGS'] = self.flags
 
-			task = self.create_task('intltool', self.env)
+			task = self.create_task('intltool')
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(''))
 
@@ -71,7 +71,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 				# Make sure that we only process lines which contain locales
 				if re_linguas.match(lang):
 					node = self.path.find_resource(os.path.join(self.podir, re_linguas.match(lang).group() + '.po'))
-					task = self.create_task('po', self.env)
+					task = self.create_task('po')
 					task.set_inputs(node)
 					task.set_outputs(node.change_ext('.mo'))
 					if Options.is_install: task.install = install_translation

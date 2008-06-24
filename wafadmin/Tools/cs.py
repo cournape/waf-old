@@ -53,7 +53,7 @@ class cs_taskgen(TaskGen.task_gen):
 			nodes.append(curnode.find_resource(i))
 
 		# create the task
-		task = self.create_task('mcs', self.env)
+		task = self.create_task('mcs')
 		task.m_inputs  = nodes
 		task.set_outputs(self.path.find_build(self.target))
 
