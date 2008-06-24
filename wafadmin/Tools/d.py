@@ -325,7 +325,7 @@ def apply_d_link(self):
 	if not link:
 		if 'dstaticlib' in self.features: link = 'ar_link_static'
 		else: link = 'd_link'
-	linktask = self.create_task(link, self.env)
+	linktask = self.create_task(link)
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
@@ -466,7 +466,7 @@ def process_header(self):
 		if not node:
 			fatal('file not found on d obj '+i[0])
 
-		task = self.create_task('d_header', env, 2)
+		task = self.create_task('d_header')
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.di'))
 
