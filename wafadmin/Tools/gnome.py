@@ -62,14 +62,14 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 		self.env['APPNAME'] = self.doc_module
 		lst = self.to_list(self.doc_linguas)
 		for x in lst:
-			tsk = self.create_task('xml2po', self.env)
+			tsk = self.create_task('xml2po')
 			node = self.path.find_resource(x+'/'+x+'.po')
 			src = self.path.find_resource('C/%s.xml' % self.doc_module)
 			out = self.path.find_build('%s/%s.xml' % (x, self.doc_module))
 			tsk.set_inputs([node, src])
 			tsk.set_outputs(out)
 
-			tsk2 = self.create_task('xsltproc2po', self.env)
+			tsk2 = self.create_task('xsltproc2po')
 			out2 = self.path.find_build('%s/%s-%s.omf' % (x, self.doc_module, x))
 			tsk2.set_outputs(out2)
 			node = self.path.find_resource(self.doc_module+".omf.in")
@@ -99,12 +99,13 @@ class xml_to_taskgen(TaskGen.task_gen):
 		self.inst_var_default = 'PREFIX'
 		self.inst_dir_default = ''
 		self.task_created = None
+
 	def apply(self):
 		self.env = self.env.copy()
 		tree = Build.bld
 		xmlfile = self.path.find_resource(self.source)
 		xsltfile = self.path.find_resource(self.xslt)
-		tsk = self.create_task('xmlto', self.env, 6)
+		tsk = self.create_task('xmlto')
 		tsk.set_inputs([xmlfile, xsltfile])
 		tsk.set_outputs(xmlfile.change_ext('html'))
 		tsk.install = {'var':self.inst_var, 'dir':self.inst_dir}
@@ -151,7 +152,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 			base, ext = os.path.splitext(name)
 			if ext != '.sgml': continue
 
-			task = self.create_task('sgml2man', self.env, 2)
+			task = self.create_task('sgml2man')
 			task.set_inputs(self.path.find_resource(name))
 			task.task_generator = self
 			if Options.is_install: task.install = install_result
@@ -185,7 +186,7 @@ def process_marshal(self):
 			env['GGM_PREFIX'] = i[1]
 			env['GGM_MODE']   = i[2]
 
-			task = self.create_task('glib_genmarshal', env, 2)
+			task = self.create_task('glib_genmarshal', env)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.h'))
 
@@ -197,7 +198,7 @@ def process_marshal(self):
 			outnode = node.change_ext('.c')
 			self.allnodes.append(outnode)
 
-			task = self.create_task('glib_genmarshal', env, 2)
+			task = self.create_task('glib_genmarshal', env)
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.c'))
 		else:
@@ -222,7 +223,7 @@ def process_dbus(self):
 		env['DBT_PREFIX'] = i[1]
 		env['DBT_MODE']   = i[2]
 
-		task = self.create_task('dbus_binding_tool', env, 2)
+		task = self.create_task('dbus_binding_tool', env)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.h'))
 
