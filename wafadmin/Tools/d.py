@@ -444,10 +444,10 @@ ${D_SRC_F}${SRC} \
 ${D_TGT_F}${TGT[0].bldpath(env)}'
 link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${_DLIBDIRFLAGS} ${_DLIBFLAGS}'
 
-cls = Task.simple_task_type('d', d_str, 'GREEN', prio=100)
+cls = Task.simple_task_type('d', d_str, 'GREEN')
 cls.scan = scan
-Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', prio=100)
-Task.simple_task_type('d_link', link_str, color='YELLOW', prio=111)
+Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN')
+Task.simple_task_type('d_link', link_str, color='YELLOW')
 
 # for feature request #104
 @taskgen
@@ -471,7 +471,7 @@ def process_header(self):
 		task.set_outputs(node.change_ext('.di'))
 
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
-Task.simple_task_type('d_header', d_header_str, color='BLUE', prio=80)
+Task.simple_task_type('d_header', d_header_str, color='BLUE')
 
 
 # quick test #

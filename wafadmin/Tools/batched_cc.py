@@ -26,8 +26,8 @@ import TaskGen, Task, ccroot, Build
 from TaskGen import extension
 
 class TaskMaster(Task.Task):
-	def __init__(self, action_name, env, priority=92, normal=1, master=None):
-		Task.Task.__init__(self, env, prio=priority, normal=normal)
+	def __init__(self, action_name, env, normal=1, master=None):
+		Task.Task.__init__(self, env, normal=normal)
 		self.slaves=[]
 		self.m_inputs2=[]
 		self.m_outputs2=[]
@@ -72,8 +72,8 @@ class TaskMaster(Task.Task):
 		return ret
 
 class TaskSlave(Task.Task):
-	def __init__(self, action_name, env, priority=90, normal=1, master=None):
-		Task.Task.__init__(self, env, priority, normal)
+	def __init__(self, action_name, env, normal=1, master=None):
+		Task.Task.__init__(self, env, normal)
 		self.m_master = master
 
 	def prepare(self):

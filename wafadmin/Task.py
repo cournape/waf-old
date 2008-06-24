@@ -17,15 +17,13 @@ The point #1 represents a strict sequential order between groups of tasks, for e
 and used to compile the rest, whereas #2 and #3 represent partial order constraints where #2 applies to the kind of task
 and #3 applies to the task instances.
 
-#1 is held by the task manager (ordered list of TaskGroups)
-#2 is held by the task groups (constraint extraction and topological sort) and the actions (priorities)
+#1 is held by the task manager: ordered list of TaskGroups (see bld.add_group)
+#2 is held by the task groups and the task types: precedence after/before (topological sort),
+   and the constraints extracted from file extensions
 #3 is held by the tasks individually (attribute run_after),
    and the scheduler (Runner.py) use Task::may_start to reorder the tasks
 
-
-To simplify the system a little bit, the part #2 only applies to dependencies between actions,
-and priorities or order constraints can only be applied to actions, not to tasks anymore
-
+--
 
 To try, use something like this in your code:
 import Constants, Task
@@ -56,8 +54,7 @@ The scheme 2 will not allow for running tasks one by one so it can cause disk th
 """
 
 class TaskManager(object):
-	"""The manager is attached to the build object, it holds a list of TaskGroup
-	Each TaskGroup contains a map(priority, list of tasks)"""
+	"""The manager is attached to the build object, it holds a list of TaskGroup"""
 	def __init__(self):
 		self.groups = []
 		self.idx = 0 # task counter, for debugging (allocating 5000 integers for nothing is a bad idea but well)
@@ -86,24 +83,20 @@ class TaskManager(object):
 			warn('add_group: an empty group is already present')
 			return
 		self.groups = self.groups + [TaskGroup(name)]
+
 	def add_task(self, task):
 		if not self.groups: self.add_group('group-0')
 		task.m_idx = self.idx
 		self.idx += 1
 		self.groups[-1].add_task(task)
+
 	def total(self):
 		total = 0
 		if not self.groups: return 0
 		for group in self.groups:
 			total += len(group.tasks)
-			#for p in group.prio:
-			#	total += len(group.prio[p])
 		return total
-	def debug(self):
-		for i in self.groups:
-			print "-----group-------", i.name
-			for j in i.prio:
-				print "prio: ", j, str(i.prio[j])
+
 	def add_finished(self, tsk):
 		self.tasks_done.append(tsk)
 		# TODO we could install using threads here
@@ -128,7 +121,7 @@ class TaskManager(object):
 					bld.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=env)
 
 class TaskGroup(object):
-	"A TaskGroup maps priorities (integers) to lists of tasks"
+	"the compilation of one group does not begin until the previous group has finished (in the manager)"
 	def __init__(self, name):
 		self.name = name
 		self.tasks = [] # this list will be consumed
@@ -155,7 +148,7 @@ class TaskGroup(object):
 		self.extract_constraints()
 
 	def get_next_set(self):
-		"next list of tasks to execute using max job settings, returns (priority, task_list)"
+		"next list of tasks to execute using max job settings, returns (maxjobs, task_list)"
 		global algotype, shuffle
 		if algotype == NORMAL:
 			tasks = self.tasks_in_parallel()
@@ -187,14 +180,6 @@ class TaskGroup(object):
 	def set_order(self, a, b):
 		try: self.cstr_order[a].add(b)
 		except KeyError: self.cstr_order[a] = set([b,])
-
-	def compare_prios(self, t1, t2):
-		x = "prio"
-		p1 = t1.attr(x, None)
-		p2 = t2.attr(x, None)
-		if not p1 is None and not p2 is None:
-			return cmp(p2, p1)
-		return 0
 
 	def compare_exts(self, t1, t2):
 		"extension production"
@@ -236,8 +221,7 @@ class TaskGroup(object):
 				t2 = self.cstr_groups[keys[j]][0]
 
 				# add the constraints based on the comparisons
-				val = (self.compare_prios(t1, t2)
-					or self.compare_exts(t1, t2)
+				val = (self.compare_exts(t1, t2)
 					or self.compare_partial(t1, t2)
 					)
 				if val > 0:
@@ -390,7 +374,7 @@ class TaskBase(object):
 	def hash_constraints(self):
 		"identify a task type for all the constraints relevant for the scheduler: precedence, file production"
 		sum = 0
-		names = ('prio', 'before', 'after', 'ext_in', 'ext_out')
+		names = ('before', 'after', 'ext_in', 'ext_out')
 		sum = hash((sum, self.__class__.__name__,))
 		for x in names:
 			sum = hash((sum, str(self.attr(x, sys.maxint)),))
@@ -538,11 +522,8 @@ class TaskBase(object):
 
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
-	def __init__(self, env, normal=1, prio=None):
+	def __init__(self, env, normal=1):
 		TaskBase.__init__(self, normal=normal)
-
-		# name of the action associated to this task type
-		self.prio = prio
 
 		# environment in use
 		self.m_env = env
@@ -871,13 +852,13 @@ def f(task):
 	debug('action: %s' % c)
 	return (funex(c), dvars)
 
-def simple_task_type(name, line, color='GREEN', vars=[], prio=None, ext_in=[], ext_out=[], before=[], after=[]):
+def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line)
 	fun.code = line
-	return task_type_from_func(name, fun, vars or dvars, color, prio, ext_in, ext_out, before, after)
+	return task_type_from_func(name, fun, vars or dvars, color, ext_in, ext_out, before, after)
 
-def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, ext_in=[], ext_out=[], before=[], after=[]):
+def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	params = {
 		'run': func,
@@ -889,7 +870,6 @@ def task_type_from_func(name, func, vars=[], color='GREEN', prio=None, ext_in=[]
 		'before': Utils.to_list(before),
 		'after': Utils.to_list(after),
 	}
-	if prio: params["prio"] = prio
 
 	cls = new.classobj(name, (Task,), params)
 	setattr(cls, 'm_action', cls) # <- compat

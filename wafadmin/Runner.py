@@ -78,8 +78,8 @@ class Serial(object):
 		if not self.outstanding: return None
 
 		if Logs.verbose:
-			debug('runner: Preparing to run prio %i tasks: [\n%s\n\t]' %
-			      (1, ',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
+			debug('runner: Preparing to run tasks: [\n%s\n\t]' %
+			      (',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
 					       for tsk in self.outstanding])))
 		return self.get_next()
 
@@ -245,7 +245,7 @@ class Parallel(object):
 
 		# iterate over all tasks at most one time for each task run
 		penalty = 0
-		currentprio = 0
+		maxjobs = 0
 		#loop=0
 		while 1:
 			#loop += 1
@@ -253,8 +253,8 @@ class Parallel(object):
 				while self.count > 0: get_out()
 				if self.failed: return -1
 
-			if 1 == currentprio:
-				# allow only one process at a time in priority 'even'
+			if 1 == maxjobs:
+				# TODO
 				while self.count > 0: get_out()
 			else:
 				# not too many jobs in the queue
@@ -269,9 +269,9 @@ class Parallel(object):
 				self.frozen = []
 			if not self.outstanding:
 				while self.count > 0: get_out()
-				(currentprio, self.outstanding) = self.manager.get_next_set()
+				(maxjobs, self.outstanding) = self.manager.get_next_set()
 				#if self.outstanding: random.shuffle(self.outstanding)
-				if currentprio is None: break
+				if maxjobs is None: break
 
 			# consider the next task
 			tsk = self.outstanding.pop(0)

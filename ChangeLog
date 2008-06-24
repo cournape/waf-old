@@ -10,6 +10,7 @@ meaning in configuration and build)
 * Task_gen.g_allobj -> bld.all_task_gen or Params.g_build.all_task_gen
 * Params.g_autoconfig -> Configure.autoconfig
 * Params.pprint -> Utils.pprint
+* The old priority system was removed
 
 NEW IN WAF 1.4.3
 ----------------

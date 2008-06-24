@@ -269,7 +269,7 @@ def add_glib_mkenum(self, source='', template='', target=''):
 	self.mk_enums.append({'source':source, 'template':template, 'target':target})
 
 
-Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK', prio=30)
+Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK')
 
 cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 cls.do_scan = sgml_do_scan
