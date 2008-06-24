@@ -266,9 +266,8 @@ class task_gen(object):
 			try: return task_gen.mappings[ext]
 			except KeyError: return None
 
-	def create_task(self, name, env=None, nice=None):
+	def create_task(self, name, env=None):
 		task = Task.TaskBase.classes[name](env or self.env)
-		if nice: task.prio = nice
 		self.m_tasks.append(task)
 		return task
 
