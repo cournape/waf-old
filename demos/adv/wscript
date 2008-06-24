@@ -3,7 +3,7 @@
 #0;115;0c Thomas Nagy, 2006 (ita)
 from logging import fatal
 
-import Utils
+import Utils, Build
 # advanced tests
 # look in src/ for an example of a new compiler that creates cpp files
 
@@ -298,7 +298,7 @@ def shutdown():
 
 	f = open('foo.dot', 'w')
 	f.write("digraph G {\n")
-	table = Params.g_build.node_deps
+	table = Build.bld.node_deps
 	for a in table:
 		for x in table[a]:
 			if type(table[a][x]) is types.ListType:
