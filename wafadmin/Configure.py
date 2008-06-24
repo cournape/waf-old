@@ -334,7 +334,7 @@ class Configure(object):
 			try:
 				f()
 			except Exception, e:
-				if err_handler(x, e) == STOP:
+				if self.err_handler(x, e) == STOP:
 					break
 				else:
 					raise
