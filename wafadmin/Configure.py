@@ -32,7 +32,7 @@ class ConfigurationError(Exception):
 autoconfig = False
 "reconfigure the project automatically"
 
-g_maxlen = 40
+line_just = 40
 """initial length of configuration messages"""
 
 g_stdincpath = ['/usr/include/', '/usr/local/include/']
@@ -265,9 +265,9 @@ class Configure(object):
 	def check_message(self, type, msg, state, option=''):
 		"print an checking message. This function is used by other checking functions"
 		sr = 'Checking for %s %s' % (type, msg)
-		global g_maxlen
-		g_maxlen = max(g_maxlen, len(sr))
-		print "%s :" % sr.ljust(g_maxlen),
+		global line_just
+		line_just = max(line_just, len(sr))
+		print "%s :" % sr.ljust(line_just),
 
 		p = Utils.pprint
 		if state: p('GREEN', 'ok ' + option)
@@ -277,9 +277,9 @@ class Configure(object):
 	def check_message_custom(self, type, msg, custom, option='', color='PINK'):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for ' + type + ' ' + msg
-		global g_maxlen
-		g_maxlen = max(g_maxlen, len(sr))
-		print "%s :" % sr.ljust(g_maxlen),
+		global line_just
+		line_just = max(line_just, len(sr))
+		print "%s :" % sr.ljust(line_just),
 		Utils.pprint(color, custom)
 		self.log.write(sr + '\n\n')
 
