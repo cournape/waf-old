@@ -7,11 +7,8 @@
 import os, sys
 import Constants, Utils
 
-g_rootname = ''
 g_progress = '\x1b[K%s%s%s\r'
 if sys.platform=='win32':
-	# get the first two letters (c:)
-	g_rootname = os.getcwd()[:2]
 	g_progress = '\x1b[A\x1b[K%s%s%s\r'
 
 # =================================== #
@@ -27,9 +24,6 @@ g_conf_name = 'conf-runs-%s-%d.pickle' % (sys.platform, Constants.ABI)
 
 g_install = 0
 "true if install or uninstall is set"
-
-try: g_cache_global = os.path.abspath(os.environ['WAFCACHE'])
-except KeyError: pass
 
 # =================================== #
 # HELPERS
