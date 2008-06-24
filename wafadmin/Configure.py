@@ -283,10 +283,10 @@ class Configure(object):
 		Utils.pprint(color, custom)
 		self.log.write(sr + '\n\n')
 
-	def find_program(self, program_name, path_list=[], var=None):
-		"wrapper provided for convenience"
-		ret = find_program_impl(self.env, program_name, path_list, var)
-		self.check_message('program', program_name, ret, ret)
+	def find_program(self, filename, path_list=[], var=None):
+		"wrapper that adds a configuration message"
+		ret = find_program_impl(self.env, filename, path_list, var)
+		self.check_message('program', filename, ret, ret)
 		return ret
 
 	def eval_rules(self, rules):
