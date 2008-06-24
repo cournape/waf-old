@@ -147,7 +147,6 @@ def pdflatex_build(task):
 
 g_texobjs = ['latex','pdflatex']
 class tex_taskgen(TaskGen.task_gen):
-	s_default_ext = ['.tex', '.ltx']
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k)
 
@@ -175,7 +174,6 @@ class tex_taskgen(TaskGen.task_gen):
 
 		for filename in self.source.split():
 			base, ext = os.path.splitext(filename)
-			if not ext in self.s_default_ext: continue
 
 			node = self.path.find_resource(filename)
 			if not node: fatal('cannot find %s' % filename)

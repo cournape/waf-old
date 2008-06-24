@@ -322,10 +322,6 @@ class task_gen(object):
 
 		ext_lst = exts or self.mappings.keys() + task_gen.mappings.keys()
 
-		# FIXME the following two lines should be removed
-		try: ext_lst += self.s_default_ext
-		except AttributeError: pass
-
 		for name in dirnames:
 			anode = self.path.find_dir(name)
 

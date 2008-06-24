@@ -25,7 +25,6 @@ from Configure import conf
 import TaskGen, Task, Utils
 
 class java_taskgen(TaskGen.task_gen):
-	s_default_ext = ['.java']
 	def __init__(self, *k):
 		TaskGen.task_gen.__init__(self, *k)
 
