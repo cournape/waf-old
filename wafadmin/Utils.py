@@ -78,7 +78,6 @@ import Build
 colors = {
 'BOLD'  :'\x1b[01;1m',
 'RED'   :'\x1b[01;91m',
-'REDP'  :'\x1b[01;33m',
 'GREEN' :'\x1b[32m',
 'YELLOW':'\x1b[33m',
 'PINK'  :'\x1b[35m',
