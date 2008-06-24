@@ -242,7 +242,10 @@ class task_gen(object):
 		# then we run the methods in order
 		debug('task_gen: posting %s %d' % (self, id(self)))
 		for x in out:
-			v = self.get_meth(x)
+			try:
+				v = getattr(self, x)
+			except AttributeError:
+				raise AttributeError, "tried to retrieve %s which is not a valid method" % name
 			debug('task_gen: -> %s (%d)' % (x, id(self)))
 			v()
 
@@ -262,12 +265,6 @@ class task_gen(object):
 		except KeyError:
 			try: return task_gen.mappings[ext]
 			except KeyError: return None
-
-	def get_meth(self, name):
-		try:
-			return getattr(self, name)
-		except AttributeError:
-			raise AttributeError, "tried to retrieve %s which is not a valid method" % name
 
 	def create_task(self, name, env=None, nice=None):
 		task = Task.TaskBase.classes[name](env or self.env)
