@@ -391,7 +391,6 @@ class Build(object):
 		so we might want to do it in parallel in some future
 		"""
 
-		# FIXME use sets with intersection and union
 		# do not rescan over and over again
 		if self.m_scanned_folders.get(src_dir_node.id, None): return
 		self.m_scanned_folders[src_dir_node.id] = 1
