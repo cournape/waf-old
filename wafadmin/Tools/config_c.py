@@ -69,7 +69,7 @@ class enumerator_base(object):
 
 	def run(self):
 		self.validate()
-		if Params.g_cache_global and not Options.options.nocache:
+		if Options.cache_global and not Options.options.nocache:
 			newhash = self.hash()
 			try:
 				ret = self.conf.m_cache_table[newhash]
@@ -84,7 +84,7 @@ class enumerator_base(object):
 		ret = self.run_test()
 		if self.mandatory and not ret: self.error()
 
-		if Params.g_cache_global:
+		if Options.cache_global:
 			newhash = self.hash()
 			self.conf.m_cache_table[newhash] = ret
 		return ret

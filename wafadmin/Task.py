@@ -729,9 +729,9 @@ class Task(TaskBase):
 			# We could re-create the signature of the task with the signature of the outputs
 			# in practice, this means hashing the output files
 			# this is unnecessary
-			if Params.g_cache_global:
+			if Options.cache_global:
 				ssig = sig.encode('hex')
-				dest = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
+				dest = os.path.join(Options.cache_global, ssig+'-'+str(cnt))
 				try: shutil.copy2(node.abspath(env), dest)
 				except IOError: warn('Could not write the file to the cache')
 				cnt += 1
@@ -742,7 +742,7 @@ class Task(TaskBase):
 	def can_retrieve_cache(self, sig):
 		"""Retrieve build nodes from the cache - the file time stamps are updated
 		for cleaning the least used files from the cache dir - be careful when overriding"""
-		if not Params.g_cache_global: return None
+		if not Options.cache_global: return None
 		if Options.options.nocache: return None
 
 		env = self.env
@@ -753,7 +753,7 @@ class Task(TaskBase):
 			variant = node.variant(env)
 
 			ssig = sig.encode('hex')
-			orig = os.path.join(Params.g_cache_global, ssig+'-'+str(cnt))
+			orig = os.path.join(Options.cache_global, ssig+'-'+str(cnt))
 			try:
 				shutil.copy2(orig, node.abspath(env))
 				os.utime(orig, None)

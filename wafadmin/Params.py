@@ -23,9 +23,6 @@ g_build = None
 g_platform = sys.platform
 "current platform"
 
-g_cache_global = ''
-"config cache directory"
-
 g_conf_name = 'conf-runs-%s-%d.pickle' % (sys.platform, Constants.ABI)
 
 g_install = 0
