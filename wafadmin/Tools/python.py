@@ -6,7 +6,7 @@
 "Python support"
 
 import os, sys
-import TaskGen, Utils, Params, Utils, Runner, Options
+import TaskGen, Utils, Utils, Runner, Options, Build
 from Logs import debug, warn, fatal
 from TaskGen import extension, taskgen, before, after, feature
 from Configure import conf
@@ -71,7 +71,7 @@ class py_taskgen(TaskGen.task_gen):
 				else:
 					files_to_install.append(node.abspath(self.env))
 
-		installed_files = Params.g_build.install_files(
+		installed_files = Build.bld.install_files(
 			self.inst_var, self.inst_dir, files_to_install,
 			self.env, self.chmod)
 

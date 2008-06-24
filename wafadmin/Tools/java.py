@@ -22,7 +22,7 @@ change is only annoying for the compilation times
 
 import os, re
 from Configure import conf
-import TaskGen, Task, Utils, Params
+import TaskGen, Task, Utils
 
 class java_taskgen(TaskGen.task_gen):
 	s_default_ext = ['.java']

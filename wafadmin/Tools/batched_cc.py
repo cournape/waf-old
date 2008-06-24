@@ -22,7 +22,7 @@ it is only necessary to import this module in the configuration (no other change
 EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
 import shutil, os
-import TaskGen, Task, ccroot, Params
+import TaskGen, Task, ccroot, Build
 from TaskGen import extension
 
 class TaskMaster(Task.Task):
@@ -57,7 +57,7 @@ class TaskMaster(Task.Task):
 		ret = self.m_action.run(self)
 		env = self.env
 
-		rootdir = Params.g_build.m_srcnode.abspath(env)
+		rootdir = Build.bld.m_srcnode.abspath(env)
 
 		# unfortunately building the files in batch mode outputs them in the current folder (the build dir)
 		# now move the files from the top of the builddir to the correct location

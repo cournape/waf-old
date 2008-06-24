@@ -5,7 +5,7 @@
 "Gnome support"
 
 import os, re
-import TaskGen, Params, Utils, Runner, Task
+import TaskGen, Utils, Runner, Task, Build, Options
 import cc
 from Logs import fatal, error
 from TaskGen import taskgen, before, after, feature
@@ -17,7 +17,7 @@ n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 def postinstall_schemas(prog_name):
 	if Options.commands['install']:
 		dir = Common.path_install('PREFIX', 'etc/gconf/schemas/%s.schemas' % prog_name)
-		if not Params.g_options.destdir:
+		if not Options.options.destdir:
 			# add the gconf schema
 			Utils.pprint('YELLOW', "Installing GConf schema.")
 			command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
@@ -29,7 +29,7 @@ def postinstall_schemas(prog_name):
 def postinstall_icons():
 	dir = Common.path_install('DATADIR', 'icons/hicolor')
 	if Options.commands['install']:
-		if not Params.g_options.destdir:
+		if not Options.options.destdir:
 			# update the pixmap cache directory
 			Utils.pprint('YELLOW', "Updating Gtk icon cache.")
 			command = 'gtk-update-icon-cache -q -f -t %s' % dir
@@ -101,7 +101,7 @@ class xml_to_taskgen(TaskGen.task_gen):
 		self.task_created = None
 	def apply(self):
 		self.env = self.env.copy()
-		tree = Params.g_build
+		tree = Build.bld
 		xmlfile = self.path.find_resource(self.source)
 		xsltfile = self.path.find_resource(self.xslt)
 		tsk = self.create_task('xmlto', self.env, 6)
@@ -127,7 +127,7 @@ def sgml_do_scan(self, node):
 	self.do_scan(self, node)
 
 	variant = node.variant(self.env)
-	tmp_lst = Params.g_build.raw_deps[variant][node.id]
+	tmp_lst = Build.bld.raw_deps[variant][node.id]
 	name = tmp_lst[0]
 	self.set_outputs(self.task_generator.path.find_build(name))
 
@@ -145,9 +145,9 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 			env = task.env
 			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
 
-		tree = Params.g_build
+		tree = Build.bld
 		tree.rescan(self.path)
-		for name in Params.g_build.cache_dir_contents[self.path.id]:
+		for name in Build.bld.cache_dir_contents[self.path.id]:
 			base, ext = os.path.splitext(name)
 			if ext != '.sgml': continue
 
@@ -238,14 +238,14 @@ def process_enums(self):
 		# process the source
 		src_lst = self.to_list(x['source'])
 		if not src_lst:
-			Params.fatal('missing source '+str(x))
+			Logs.fatal('missing source '+str(x))
 		src_lst = [self.path.find_resource(k) for k in src_lst]
 		inputs += src_lst
 		env['MK_SOURCE'] = [k.abspath(env) for k in src_lst]
 
 		# find the target
 		if not x['target']:
-			Params.fatal('missing target '+str(x))
+			Logs.fatal('missing target '+str(x))
 		tgt_node = self.path.find_build(x['target'])
 		if tgt_node.m_name.endswith('.c'):
 			self.allnodes.append(tgt_node)
@@ -312,7 +312,7 @@ def detect(conf):
 	mk_enums_tool = conf.find_program('glib-mkenums', var='GLIB_MKENUM')
 
 	def getstr(varname):
-		return getattr(Params.g_options, varname, '')
+		return getattr(Options.options, varname, '')
 
 	prefix  = conf.env['PREFIX']
 	datadir = getstr('datadir')

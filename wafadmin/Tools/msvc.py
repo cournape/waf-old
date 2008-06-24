@@ -5,7 +5,7 @@
 # Visual C support - beta, needs more testing
 
 import os, sys, re, string, optparse
-import Utils, Params, TaskGen, Runner, Configure, Task, Options
+import Utils, TaskGen, Runner, Configure, Task, Options
 from Logs import debug, error, fatal, warn
 from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature

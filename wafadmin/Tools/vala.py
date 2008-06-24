@@ -3,7 +3,7 @@
 # Ali Sabil, 2007
 
 import os.path, shutil
-import Task, Runner, Utils, Params
+import Task, Runner, Utils, Logs, Build
 from TaskGen import extension
 
 from pproc import Popen, PIPE
@@ -27,8 +27,8 @@ class valac_task(Task.Task):
 		inputs = [a.srcpath(env) for a in task.m_inputs]
 		valac = env['VALAC']
 		vala_flags = env.get_flat('VALAFLAGS')
-		top_src = Params.g_build.m_srcnode.abspath()
-		top_bld = Params.g_build.m_srcnode.abspath(env)
+		top_src = Build.bld.m_srcnode.abspath()
+		top_bld = Build.bld.m_srcnode.abspath(env)
 
 		if env['VALAC_VERSION'] > (0, 1, 6):
 			cmd = [valac, '-C', '--quiet', vala_flags]
@@ -42,7 +42,7 @@ class valac_task(Task.Task):
 			cmd.append('--library ' + task.target)
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
-			#cmd.append('-d %s' % Params.g_build.m_bldnode.bldpath(env))
+			#cmd.append('-d %s' % Build.bld.m_bldnode.bldpath(env))
 		else:
 			output_dir = task.m_outputs[0].bld_dir(env)
 			cmd.append('-d %s' % output_dir)
@@ -112,7 +112,7 @@ def vala_file(self, node):
 					valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath())
 					valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath(self.env))
 				except AttributeError:
-					Params.warning("Unable to locate Vala API directory: '%s'" % vapi_dir)
+					Logs.warn("Unable to locate Vala API directory: '%s'" % vapi_dir)
 
 		if hasattr(self, 'threading'):
 			valatask.threading = self.threading

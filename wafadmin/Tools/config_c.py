@@ -16,7 +16,7 @@ The functions preceded by "@conf" are attached in the same manner
 
 import os, types, imp, cPickle, sys, shlex, warnings
 from Utils import md5
-import Params, Environment, Runner, Build, Utils, Configure, TaskGen, Task, Options
+import Environment, Runner, Build, Utils, Configure, TaskGen, Task, Options
 from Logs import fatal, warn, debug
 from Constants import *
 from Configure import conf, conftest

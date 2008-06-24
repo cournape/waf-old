@@ -4,7 +4,7 @@
 
 import os, sys, imp, types, ccroot
 import optparse
-import Utils, Params, checks, Configure, Options
+import Utils, checks, Configure, Options
 
 c_compiler = {
 	'win32':  ['msvc', 'gcc'],

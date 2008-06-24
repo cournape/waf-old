@@ -21,7 +21,7 @@ else:
 
 import os, sys
 import ccroot, cxx
-import Params, TaskGen, Task, Utils, Runner, Options
+import Params, TaskGen, Task, Utils, Runner, Options, Build
 from TaskGen import taskgen, feature, after, extension
 from Logs import error, fatal
 
@@ -56,7 +56,7 @@ class MTask(Task.Task):
 
 	def add_moc_tasks(self):
 
-		tree = Params.g_build
+		tree = Build.bld
 		parn = self.parent
 		node = self.m_inputs[0]
 
@@ -115,7 +115,7 @@ class MTask(Task.Task):
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
-			generator = Params.g_build.generator
+			generator = Build.bld.generator
 			generator.outstanding.insert(0, task)
 			generator.total += 1
 
@@ -133,7 +133,7 @@ class MTask(Task.Task):
 				task.set_inputs(tree.node_deps[variant][d.id][0]) # 1st element in a tuple
 				task.set_outputs(d)
 
-				generator = Params.g_build.generator
+				generator = Build.bld.generator
 				generator.outstanding.insert(0, task)
 				generator.total += 1
 
@@ -272,9 +272,9 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 
 	for name in dirnames:
 		anode = self.path.find_dir(name)
-		Params.g_build.rescan(anode)
+		Build.bld.rescan(anode)
 
-		for name in Params.g_build.cache_dir_contents[anode.id]:
+		for name in Build.bld.cache_dir_contents[anode.id]:
 			(base, ext) = os.path.splitext(name)
 			if ext in ext_lst:
 				if not name in lst:

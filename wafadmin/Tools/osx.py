@@ -12,7 +12,7 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
 """
 
 import os, shutil, sys
-import TaskGen, Task, Params
+import TaskGen, Task, Build
 from TaskGen import taskgen, feature, after, before
 from Logs import error, debug, fatal
 
@@ -130,7 +130,7 @@ def install_shlib(task):
 	name1 = libname
 
 	filename = task.m_outputs[0].abspath(task.env)
-	bld = Params.g_build
+	bld = Build.bld
 	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env)
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))

@@ -5,7 +5,7 @@
 "ocaml support"
 
 import os, re
-import Params, TaskGen, Utils, Task
+import TaskGen, Utils, Task, Build
 from Logs import error, fatal
 from TaskGen import taskgen, feature, before, after, extension
 
@@ -59,7 +59,7 @@ def compile_may_start(self):
 	else: alltasks = self.obj.native_tasks
 
 	self.signature() # ensure that files are scanned - unfortunately
-	tree = Params.g_build
+	tree = Build.bld
 	env = self.env
 	for node in self.m_inputs:
 		lst = tree.node_deps[node.variant(env)][node.id]
@@ -146,7 +146,7 @@ class ocaml_taskgen(TaskGen.task_gen):
 
 		self.are_deps_set = 0
 
-		if not self.env: self.env = Params.g_build.env()
+		if not self.env: self.env = Build.bld.env()
 
 		if not self.m_type in ['bytecode','native','all','c_object']:
 			print 'type for camlobj is undefined '+self.m_type
@@ -178,13 +178,13 @@ TaskGen.bind_feature('ocaml', 'apply_core')
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
 	lst = self._incpaths_lst
-	tree = Params.g_build
+	tree = Build.bld
 	for dir in inc_lst:
 		node = self.path.find_dir(dir)
 		if not node:
 			error("node not found: " + str(dir))
 			continue
-		Params.g_build.rescan(node)
+		Build.bld.rescan(node)
 		if not node in lst: lst.append(node)
 		self._bld_incpaths_lst.append(node)
 	# now the nodes are added to self._incpaths_lst

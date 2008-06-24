@@ -5,7 +5,7 @@
 "TeX/LaTeX/PDFLaTeX support"
 
 import os, re
-import Utils, Params, TaskGen, Task, Runner
+import Utils, TaskGen, Task, Runner, Build
 from Logs import error, warn, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
@@ -161,7 +161,7 @@ class tex_taskgen(TaskGen.task_gen):
 
 	def apply(self):
 
-		tree = Params.g_build
+		tree = Build.bld
 		outs = self.outs.split()
 		self.env['PROMPT_LATEX'] = self.prompt
 

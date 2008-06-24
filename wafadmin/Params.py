@@ -8,13 +8,6 @@ import os, sys
 import Constants, Utils
 
 # =================================== #
-# Constants set on runtime
-
-g_build = None
-"only one build object is active at a time"
-
-
-# =================================== #
 # HELPERS
 
 g_colors = {

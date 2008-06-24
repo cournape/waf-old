@@ -5,7 +5,7 @@
 
 import os, sys, re, optparse
 import ccroot # <- leave this
-import TaskGen, Utils, Task, checks, Configure, Logs
+import TaskGen, Utils, Task, checks, Configure, Logs, Build
 from Logs import debug, error
 from TaskGen import taskgen, feature, after, before, extension
 
@@ -480,7 +480,7 @@ if __name__ == "__main__":
 	#class dum:
 	#	def __init__(self):
 	#		self.parse_cache_d = {}
-	#Params.g_build = dum()
+	#Build.bld = dum()
 
 	try: arg = sys.argv[1]
 	except IndexError: arg = "file.d"

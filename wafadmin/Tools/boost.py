@@ -45,7 +45,7 @@ TODO:
 """
 
 import os, os.path, glob, types, re, sys
-import Params, Configure, config_c, Options
+import Configure, config_c, Options
 from Logs import fatal, warn
 from Configure import conf
 

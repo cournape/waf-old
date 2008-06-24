@@ -10,7 +10,7 @@ Custom objects:
 
 import shutil, re, os, types
 
-import TaskGen, Node, Params, Task, Utils
+import TaskGen, Node, Task, Utils, Build
 import pproc as subprocess
 from Logs import fatal, debug
 
@@ -58,7 +58,7 @@ class copy_taskgen(TaskGen.task_gen):
 		self.chmod  = ''
 		self.fun = copy_func
 
-		self.env = Params.g_build.env.copy()
+		self.env = Build.bld.env.copy()
 
 	def apply(self):
 
@@ -178,7 +178,7 @@ class CmdInputFileArg(CmdFileArg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_resource(self.file_name)
 		if self.node is None:
-			Params.fatal("Input file %s not found in " % (self.file_name, base_path))
+			fatal("Input file %s not found in " % (self.file_name, base_path))
 
 	def get_path(self, env, absolute):
 		if absolute:
@@ -191,7 +191,7 @@ class CmdOutputFileArg(CmdFileArg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_or_declare(self.file_name)
 		if self.node is None:
-			Params.fatal("Output file %s not found in " % (self.file_name, base_path))
+			fatal("Output file %s not found in " % (self.file_name, base_path))
 	def get_path(self, env, absolute):
 		if absolute:
 			return self.template % self.node.abspath(env)
@@ -207,7 +207,7 @@ class CmdDirArg(CmdArg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_dir(self.dir_name)
 		if self.node is None:
-			Params.fatal("Directory %s not found in " % (self.dir_name, base_path))
+			fatal("Directory %s not found in " % (self.dir_name, base_path))
 
 class CmdInputDirArg(CmdDirArg):
 	def get_path(self, dummy_env, dummy_absolute):
@@ -328,7 +328,7 @@ class cmd_output_taskgen(TaskGen.task_gen):
 
 	def apply(self):
 		if self.command is None:
-			Params.fatal("command-output missing command")
+			fatal("command-output missing command")
 		if self.command_is_external:
 			cmd = self.command
 			cmd_node = None
@@ -363,7 +363,7 @@ use command_is_external=True''') % (self.command,)
 			assert isinstance(self.stdout, basestring)
 			stdout = self.path.find_or_declare(self.stdout)
 			if stdout is None:
-				Params.fatal("File %s not found" % (self.stdout,))
+				fatal("File %s not found" % (self.stdout,))
 			outputs.append(stdout)
 
 		if self.stdin is None:
@@ -372,25 +372,25 @@ use command_is_external=True''') % (self.command,)
 			assert isinstance(self.stdin, basestring)
 			stdin = self.path.find_resource(self.stdin)
 			if stdin is None:
-				Params.fatal("File %s not found" % (self.stdin,))
+				fatal("File %s not found" % (self.stdin,))
 			inputs.append(stdin)
 
 		for hidden_input in self.to_list(self.hidden_inputs):
 			node = self.path.find_resource(hidden_input)
 			if node is None:
-				Params.fatal("File %s not found in dir %s" % (hidden_input, self.path))
+				fatal("File %s not found in dir %s" % (hidden_input, self.path))
 			inputs.append(node)
 
 		for hidden_output in self.to_list(self.hidden_outputs):
 			node = self.path.find_or_declare(hidden_output)
 			if node is None:
-				Params.fatal("File %s not found in dir %s" % (hidden_output, self.path))
+				fatal("File %s not found in dir %s" % (hidden_output, self.path))
 			outputs.append(node)
 
 		if not inputs:
-			Params.fatal("command-output objects must have at least one input file")
+			fatal("command-output objects must have at least one input file")
 		if not outputs:
-			Params.fatal("command-output objects must have at least one output file")
+			fatal("command-output objects must have at least one output file")
 
 		task = command_output(self.env, None, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env)
 		Utils.copy_attrs(self, task, 'before after prio ext_in ext_out', only_if_set=True)

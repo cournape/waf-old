@@ -5,7 +5,7 @@
 
 import sys, re, os, optparse
 
-import TaskGen, Task, Params, Utils, preproc
+import TaskGen, Task, Utils, preproc
 from Logs import error, debug, fatal, warning
 from TaskGen import taskgen, after, before, feature
 

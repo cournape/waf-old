@@ -5,7 +5,7 @@
 "Base for c programs/libraries"
 
 import sys
-import TaskGen, Params, Utils, Task
+import TaskGen, Build, Utils, Task
 from Logs import debug, fatal
 import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
@@ -65,7 +65,7 @@ def apply_obj_vars_cc(self):
 
 @taskgen
 def apply_defines_cc(self):
-	tree = Params.g_build
+	tree = Build.bld
 	self.defines = getattr(self, 'defines', [])
 	lst = self.to_list(self.defines) + self.to_list(self.env['CCDEFINES'])
 	milst = []

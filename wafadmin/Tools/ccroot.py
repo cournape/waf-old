@@ -5,7 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-import TaskGen, Params, Utils, preproc, Logs
+import TaskGen, Utils, preproc, Logs, Build
 from Logs import error, debug, fatal, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
@@ -135,7 +135,7 @@ def install_shlib(task):
 	name1 = libname
 
 	filename = task.m_outputs[0].abspath(task.env)
-	bld = Params.g_build
+	bld = Build.bld
 	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env)
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
@@ -206,12 +206,12 @@ def apply_incpaths(self):
 		inc_lst.extend(preproc.standard_includes)
 	lst = []
 
-	tree = Params.g_build
+	tree = Build.bld
 	for dir in inc_lst:
 		node = 0
 		if os.path.isabs(dir):
 			if preproc.go_absolute:
-				node = Params.g_build.m_root.find_dir(dir)
+				node = Build.bld.m_root.find_dir(dir)
 		else:
 			node = self.path.find_dir(dir)
 
@@ -219,7 +219,7 @@ def apply_incpaths(self):
 			error("node not found in ccroot:apply_incpaths "+str(dir))
 		elif node:
 			if not node in lst: lst.append(node)
-			Params.g_build.rescan(node)
+			Build.bld.rescan(node)
 	self.env['INC_PATHS'] = self.env['INC_PATHS'] + lst
 	# now the nodes are added to self.incpaths_lst
 
@@ -271,7 +271,7 @@ def apply_lib_vars(self):
 			continue
 
 		# object does not exist ?
-		y = Params.g_build.name_to_obj(x)
+		y = Build.bld.name_to_obj(x)
 		if not y:
 			fatal("object '%s' was not found in uselib_local (required by '%s')" % (x, self.name))
 
@@ -340,7 +340,7 @@ def apply_objdeps(self):
 			continue
 
 		# object does not exist ?
-		y = Params.g_build.name_to_obj(x)
+		y = Build.bld.name_to_obj(x)
 		if not y:
 			error('object not found in add_objects: obj %s add_objects %s' % (self.name, x))
 			names = names[1:]

@@ -5,7 +5,7 @@
 "intltool support"
 
 import os, re
-import TaskGen, Task, Params, Utils, Runner, Options
+import TaskGen, Task, Utils, Runner, Options, Build
 import cc
 from Logs import fatal, error
 
@@ -23,7 +23,7 @@ class intltool_in_taskgen(TaskGen.task_gen):
 
 	def apply(self):
 		self.env = self.env.copy()
-		tree = Params.g_build
+		tree = Build.bld
 		for i in self.to_list(self.source):
 			node = self.path.find_resource(i)
 
@@ -54,7 +54,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 			filename = out.m_name
 			(langname, ext) = os.path.splitext(filename)
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
-			Params.g_build.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
+			Build.bld.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)
 
 		linguas = self.path.find_resource(os.path.join(self.podir, 'LINGUAS'))
 		if linguas:

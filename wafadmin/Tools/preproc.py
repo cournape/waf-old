@@ -8,7 +8,7 @@
 import re, sys, os, string, types
 if __name__ == '__main__':
 	sys.path = ['.', '..'] + sys.path
-import Params, Logs
+import Logs, Build
 from Logs import debug, error
 import traceback
 
@@ -373,7 +373,7 @@ class c_parser(object):
 		self.deps_paths = []
 
 		self.m_nodepaths = nodepaths or []
-		#self.m_nodepaths.append(Params.g_build.m_root.find_dir('/usr/include'))
+		#self.m_nodepaths.append(Build.bld.m_root.find_dir('/usr/include'))
 
 		self.m_nodes = []
 		self.m_names = []
@@ -384,10 +384,10 @@ class c_parser(object):
 
 		# dynamic cache
 		try:
-			self.parse_cache = Params.g_build.parse_cache
+			self.parse_cache = Build.bld.parse_cache
 		except AttributeError:
-			Params.g_build.parse_cache = {}
-			self.parse_cache = Params.g_build.parse_cache
+			Build.bld.parse_cache = {}
+			self.parse_cache = Build.bld.parse_cache
 
 	def tryfind(self, filename):
 		self.curfile = filename
@@ -649,7 +649,7 @@ if __name__ == "__main__":
 	class dum:
 		def __init__(self):
 			self.parse_cache = {}
-	Params.g_build = dum()
+	Build.bld = dum()
 
 	try: arg = sys.argv[1]
 	except IndexError: arg = "file.c"

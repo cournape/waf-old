@@ -4,7 +4,7 @@
 
 "C# support"
 
-import Params, TaskGen, Utils, Task
+import TaskGen, Utils, Task
 from Logs import error
 
 g_types_lst = ['program', 'library']
