@@ -1041,7 +1041,6 @@ def run_check(self, obj):
 	o.source   = test_f_name
 	o.target   = 'testprog'
 	o.uselib   = obj.uselib
-	o.cppflags = obj.flags
 	o.includes = obj.includes
 
 	self.log.write("==>\n%s\n<==\n" % obj.code)
