@@ -193,7 +193,7 @@ class Build(object):
 		self.flush()
 		#"""
 
-		if Logs.verbose > 2: self.dump()
+		if Logs.verbose > 3: self.dump()
 
 		self.generator = Runner.get_instance(self, Options.options.jobs)
 
@@ -226,7 +226,7 @@ class Build(object):
 			Utils.test_full()
 			raise BuildError(self, self.task_manager.tasks_done)
 
-		if Logs.verbose > 2: self.dump()
+		if Logs.verbose > 3: self.dump()
 		os.chdir(self.m_srcnode.abspath())
 
 	def install(self):
@@ -595,7 +595,7 @@ class Build(object):
 
 		lst = [env.get_flat(a) for a in vars_lst]
 		ret = Utils.h_list(lst)
-		if Logs.verbose: debug("%s %s" % (ret.encode('hex'), str(lst)), 'envhash')
+		if Logs.verbose: debug("envhash: %s %s" % (ret.encode('hex'), str(lst)))
 
 		# next time
 		self.sig_vars_cache[idx] = ret
