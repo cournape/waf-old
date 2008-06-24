@@ -13,7 +13,7 @@ There is only one Build object at a time (bld singleton)
 """
 
 import os, sys, cPickle, types, imp, errno, re, glob
-import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs, Params, Options
+import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs, Options
 from Logs import *
 from Constants import *
 
@@ -113,10 +113,9 @@ class Build(object):
 
 	# load existing data structures from the disk (stored using self._store())
 	def _load(self):
-		cachedir = Params.g_cachedir
 		code = ''
 		try:
-			file = open(os.path.join(cachedir, 'build.config.py'), 'r')
+			file = open(os.path.join(self.cachedir, 'build.config.py'), 'r')
 			code = file.read()
 			file.close()
 		except (IOError, OSError):
@@ -273,9 +272,8 @@ class Build(object):
 		else: return cls(*k, **kw)
 
 	def load_envs(self):
-		cachedir = Params.g_cachedir
 		try:
-			lst = Utils.listdir(cachedir)
+			lst = Utils.listdir(self.cachedir)
 		except OSError, e:
 			if e.errno == errno.ENOENT:
 				fatal('The project was not configured: run "waf configure" first!')
@@ -289,7 +287,7 @@ class Build(object):
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
 				env = Environment.Environment()
-				env.load(os.path.join(cachedir, file))
+				env.load(os.path.join(self.cachedir, file))
 				name = file.split('.')[0]
 
 				self.m_allenvs[name] = env
@@ -347,6 +345,8 @@ class Build(object):
 	# this should be the main entry point
 	def load_dirs(self, srcdir, blddir, isconfigure=None):
 		"this functions should be the start of everything"
+
+		self.cachedir = os.path.join(blddir, CACHE_DIR)
 
 		# there is no reason to bypass this check
 		try:

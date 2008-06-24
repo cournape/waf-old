@@ -6,7 +6,7 @@
 
 import os, sys, shutil, cPickle, traceback, time
 
-import Params, Utils, Configure, Build, Runner, Options, Logs, Options, Build
+import Utils, Configure, Build, Runner, Options, Logs, Options, Build
 from Logs import error, fatal, warn
 from Constants import *
 
@@ -96,8 +96,6 @@ def configure():
 	bld = getattr(Options.options, BLDDIR, None)
 	if not bld: bld = getattr(Utils.g_module, BLDDIR, None)
 	if not bld: fatal(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
-
-	Params.g_cachedir = os.path.join(bld, CACHE_DIR)
 	tree.load_dirs(src, bld, isconfigure=1)
 	tree.init_variants()
 
@@ -346,8 +344,6 @@ def main():
 
 			bld = Build.Build()
 			proj = read_cache_file(Options.lockfile)
-
-	Params.g_cachedir = os.path.join(proj[BLDDIR], CACHE_DIR)
 
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()

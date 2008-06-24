@@ -20,7 +20,7 @@ Note: the c/c++ related code is in the module config_c
 """
 
 import os, types, imp, cPickle, sys
-import Params, Environment, Runner, Build, Utils, Options
+import Environment, Runner, Build, Utils, Options
 from Logs import *
 from Constants import *
 
@@ -119,8 +119,9 @@ class Configure(object):
 		self.env       = None
 		self.m_envname = ''
 
-		self.m_blddir  = blddir
-		self.m_srcdir  = srcdir
+		self.m_blddir = blddir
+		self.m_srcdir = srcdir
+		self.cachedir = os.path.join(blddir, CACHE_DIR)
 
 		self.m_allenvs = {}
 		self.defines = {}
@@ -206,10 +207,10 @@ class Configure(object):
 
 	def store(self, file=''):
 		"save the config results into the cache file"
-		if not os.path.isdir(Params.g_cachedir):
-			os.makedirs(Params.g_cachedir)
+		if not os.path.isdir(self.cachedir):
+			os.makedirs(self.cachedir)
 
-		file = open(os.path.join(Params.g_cachedir, 'build.config.py'), 'w')
+		file = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
 		file.write('version = 0x%x\n' % HEXVERSION)
 		file.write('tools = %r\n' % self.tools)
 		file.close()
@@ -218,7 +219,7 @@ class Configure(object):
 			fatal("nothing to store in Configure !")
 		for key in self.m_allenvs:
 			tmpenv = self.m_allenvs[key]
-			tmpenv.store(os.path.join(Params.g_cachedir, key+CACHE_SUFFIX))
+			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
 
 	def __del__(self):
 		"""cleanup function:
