@@ -90,16 +90,9 @@ class Serial(object):
 		if self.switchflag>0: self.outstanding.insert(0, tsk)
 		else:                 self.outstanding.append(tsk)
 
-	# TODO FIXME
-	def debug(self):
-		debug('runner: debugging a task: something went wrong:')
-		s = " ".join([str(t.m_idx) for t in self.manager])
-		debug('runner: %s' % s)
-
 	def start(self):
 		global g_quiet
 		debug('runner: Serial start called')
-		#self.debug()
 		while 1:
 			# get next Task
 			tsk = self.get_next()
@@ -114,7 +107,6 @@ class Serial(object):
 			if not tsk.may_start():
 				debug('runner: postponing  #%d' % tsk.m_idx)
 				self.postpone(tsk)
-				#self.debug()
 				#tsk = None
 				continue
 			# # =======================
