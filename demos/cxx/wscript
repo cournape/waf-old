@@ -80,8 +80,8 @@ def shutdown():
 	cmd = "PATH=plugins:$PATH LD_LIBRARY_PATH=build/default/src/:$LD_LIBRARY_PATH build/default/src/testprogram"
 
 	# if the custom option is set, execute the program
-	import os, Params
-	if Params.g_options.exe:
+	import os, Options
+	if Options.options.exe:
 		os.popen(cmd)
 
 	# in case if more people ask

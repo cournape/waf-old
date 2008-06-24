@@ -18,9 +18,9 @@ def set_options(opt):
 	opt.sub_options('src')
 
 def configure(conf):
-	import Params
-	print "option uuu is", Params.g_options.uuu
-	if not Params.g_options.uuu: print "(try ./waf configure --uuu)"
+	import Options
+	print "option uuu is", Options.options.uuu
+	if not Options.options.uuu: print "(try ./waf configure --uuu)"
 	else: print "uuu uuu uuu uuu uuu"
 def build(bld):
 	pass

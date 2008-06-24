@@ -15,10 +15,10 @@ def configure(conf):
 def build(bld):
 	pass
 def shutdown():
-	import Params
-	print "shutdown called with --exe command-line", Params.g_options.exe
+	import Options
+	print "shutdown called with --exe command-line", Options.options.exe
 
-	if Params.g_install:
+	if Options.is_install:
 		print "shutdown when running install or uninstall!!!"
 
 	# import os

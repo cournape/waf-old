@@ -7,7 +7,7 @@ APPNAME='test'
 srcdir = '.'
 blddir = 'build'
 
-import Params
+import Options
 
 def set_options(opt):
 	# options
@@ -16,10 +16,10 @@ def set_options(opt):
 
 def configure(conf):
 	# persistent
-	conf.env["ES"] = not (not Params.g_options.es)
+	conf.env["ES"] = not (not Options.options.es)
 
 def build(bld):
-	if Params.g_options.fr:
+	if Options.options.fr:
 		bld.add_subdirs("fr")
 	if bld.env["ES"]:
 		bld.add_subdirs("es")

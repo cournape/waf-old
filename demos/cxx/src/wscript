@@ -25,8 +25,8 @@ def myfun(self, name):
 	self.compiled_tasks.append(task)
 
 def build(bld):
-	import Params
-	print "command-line parameter meow is ", Params.g_options.meow
+	import Options
+	print "command-line parameter meow is ", Options.options.meow
 
 	# 1. A simple program
 	obj = bld.new_task_gen('cxx', 'program')
