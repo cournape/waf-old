@@ -156,10 +156,6 @@ class Configure(object):
 		except (OSError, IOError): pass
 		self.log = open(path, 'wb')
 
-	def errormsg(self, msg):
-		# FIXME maybe remove this
-		Utils.niceprint(msg, 'ERROR', 'Configuration')
-
 	def fatal(self, msg):
 		raise ConfigurationError(msg)
 
