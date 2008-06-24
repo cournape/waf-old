@@ -289,42 +289,6 @@ class Configure(object):
 		self.check_message('program', program_name, ret, ret)
 		return ret
 
-	def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin='',
-	              pkgvars=[], pkgdefs={}, mandatory=False):
-		"wrapper provided for convenience"
-		pkgconf = self.create_pkgconfig_configurator()
-
-		if not destvar: destvar = modname.upper()
-
-		pkgconf.uselib_store = destvar
-		pkgconf.name = modname
-		pkgconf.version = vnum
-		if pkgpath: pkgconf.pkgpath = pkgpath
-		pkgconf.binary = pkgbin
-		pkgconf.variables = pkgvars
-		pkgconf.defines = pkgdefs
-		pkgconf.mandatory = mandatory
-		return pkgconf.run()
-
-	def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
-		if not env: env=self.env
-
-		if not pkgbin: pkgbin='pkg-config'
-		if pkgpath: pkgpath='PKG_CONFIG_PATH=$PKG_CONFIG_PATH:'+pkgpath
-		pkgcom = '%s %s' % (pkgpath, pkgbin)
-		if pkgversion:
-			ret = os.popen("%s --atleast-version=%s %s" % (pkgcom, pkgversion, pkgname)).close()
-			self.conf.check_message('package %s >= %s' % (pkgname, pkgversion), '', not ret)
-			if ret:
-				return '' # error
-		else:
-			ret = os.popen("%s %s" % (pkgcom, pkgname)).close()
-			self.check_message('package %s ' % (pkgname), '', not ret)
-			if ret:
-				return '' # error
-
-		return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
-
 	def eval_rules(self, rules):
 		self.rules = Utils.to_list(rules)
 		for x in self.rules:
