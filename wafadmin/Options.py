@@ -158,11 +158,13 @@ def parse_args_impl(parser, _args=None):
 
 class Handler(object):
 	"loads wscript modules in folders for adding options"
+
+	parser = None
+
 	def __init__(self):
 		self.parser = create_parser()
 		self.cwd = os.getcwd()
-		global g_parser
-		g_parser = self
+		Handler.parser = self
 
 	def add_option(self, *kw, **kwargs):
 		self.parser.add_option(*kw, **kwargs)
@@ -217,7 +219,4 @@ class Handler(object):
 
 	def parse_args(self, args=None):
 		parse_args_impl(self.parser, args)
-
-g_parser = None
-"Last Handler instance in use"
 
