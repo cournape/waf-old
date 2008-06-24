@@ -382,10 +382,6 @@ class Node(object):
 		elif self.id & 3 == FILE: return 0
 		else: return env.variant()
 
-	def size_subtree(self):
-		"for debugging, returns the amount of subnodes"
-		return sum([i.size_subtree() for i in self.dirs()]) + len(self.files())
-
 	def height(self):
 		"amount of parents"
 		# README a cache can be added here if necessary
@@ -473,6 +469,7 @@ class Node(object):
 		return self.relpath_gen(Build.bld.m_bldnode)
 
 	def read(self, env):
+		"get the contents of a file, it is not used anywhere for the moment"
 		try:
 			file = open(self.abspath(env), 'rb')
 			return file.read()

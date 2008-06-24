@@ -525,7 +525,6 @@ class Build(object):
 			return accu
 
 		Utils.pprint('CYAN', recu(self.m_root, 0) )
-		Utils.pprint('CYAN', 'size is '+str(self.m_root.size_subtree()))
 
 	def get_env(self):
 		return self.env_of_name('default')
