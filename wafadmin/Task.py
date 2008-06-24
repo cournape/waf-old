@@ -364,7 +364,7 @@ class TaskBase(object):
 
 	def display(self):
 		"do not print anything if there is nothing to display"
-		cl = Params.g_colors
+		cl = Utils.colors
 		col1 = cl[self.color]
 		col2 = cl['NORMAL']
 

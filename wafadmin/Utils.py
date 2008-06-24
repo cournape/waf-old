@@ -75,6 +75,31 @@ except ImportError:
 
 import Build
 
+colors = {
+'BOLD'  :'\x1b[01;1m',
+'RED'   :'\x1b[01;91m',
+'REDP'  :'\x1b[01;33m',
+'GREEN' :'\x1b[32m',
+'YELLOW':'\x1b[33m',
+'PINK'  :'\x1b[35m',
+'BLUE'  :'\x1b[01;34m',
+'CYAN'  :'\x1b[36m',
+'NORMAL':'\x1b[0m'
+}
+cursor_on ='\x1b[?25h'
+cursor_off='\x1b[?25l'
+
+def reset_colors():
+	global colors, cursor_on, cursor_off
+	colors = {}
+	cursor_on = ''
+	cursor_off = ''
+
+if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
+	or (os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']) \
+	or (not sys.stdout.isatty()):
+	reset_colors()
+
 def test_full():
 	try:
 		f = open('.waf-full','w')
@@ -338,5 +363,5 @@ def hash_function_with_globals(prevhash, func):
 
 def pprint(col, str, label=''):
 	"print messages in color"
-	print "%s%s%s %s" % (Params.g_colors.get(col, ''), str, Params.g_colors['NORMAL'], label)
+	print "%s%s%s %s" % (colors.get(col, ''), str, colors['NORMAL'], label)
 

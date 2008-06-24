@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005 (ita)
 
 import re, logging, traceback, sys
-import Params
+import Utils
 from Constants import *
 
 zones = ''
@@ -15,7 +15,7 @@ class log_filter(logging.Filter):
 		pass
 
 	def filter(self, rec):
-		col = Params.g_colors
+		col = Utils.colors
 		rec.c1 = col['PINK']
 		rec.c2 = col['NORMAL']
 		rec.zone = rec.module
