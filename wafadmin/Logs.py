@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import re, logging, traceback
+import re, logging, traceback, sys
 import Params
 from Constants import *
 
