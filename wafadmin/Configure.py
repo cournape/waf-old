@@ -86,19 +86,11 @@ def find_program_impl(env, filename, path_list=[], var=None):
 
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
 
-	# TODO i start to believe this code is broken (ita)
-	if Options.platform == 'win32':
-		# TODO isnt fnmatch for this?
-		for y in [filename+x for x in '.exe,.com,.bat,.cmd'.split(',')]:
-			for directory in path_list:
-				x = os.path.join(directory, y)
-				if os.path.isfile(x):
-					if var: env[var] = x
-					return x
-	else:
+	ext = (Options.platform == 'win32') and '.exe,.com,.bat,.cmd' or ''
+	for y in [filename+x for x in ext.split(',')]:
 		for directory in path_list:
-			x = os.path.join(directory, filename)
-			if os.access(x, os.X_OK) and os.path.isfile(x):
+			x = os.path.join(directory, y)
+			if os.path.isfile(x):
 				if var: env[var] = x
 				return x
 	return ''
