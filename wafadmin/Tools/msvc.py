@@ -198,8 +198,6 @@ def apply_msvc_obj_vars(self):
 	libpath_st       = env['LIBPATH_ST']
 	staticlibpath_st = env['STATICLIBPATH_ST']
 
-	self.addflags('CPPFLAGS', self.cppflags)
-
 	for i in env['RPATH']: app('LINKFLAGS', i)
 	for i in env['LIBPATH']:
 		app('LINKFLAGS', libpath_st % i)
