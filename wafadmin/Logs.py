@@ -16,11 +16,11 @@ class log_filter(logging.Filter):
 
 	def filter(self, rec):
 		col = Utils.colors
-		rec.c1 = col['PINK']
-		rec.c2 = col['NORMAL']
+		rec.c1 = col.get('PINK', '')
+		rec.c2 = col.get('NORMAL','')
 		rec.zone = rec.module
 		if rec.levelno >= logging.WARNING:
-			rec.c1 = col['RED']
+			rec.c1 = col.get('RED','')
 			return True
 
 		zone = ''

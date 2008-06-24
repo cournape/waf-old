@@ -363,5 +363,5 @@ def hash_function_with_globals(prevhash, func):
 
 def pprint(col, str, label=''):
 	"print messages in color"
-	print "%s%s%s %s" % (colors.get(col, ''), str, colors['NORMAL'], label)
+	print "%s%s%s %s" % (colors.get(col, ''), str, colors.get('NORMAL', ''), label)
 
