@@ -50,24 +50,6 @@ def find_file(filename, path_list):
 			return directory
 	return ''
 
-def find_file_ext(filename, path_list):
-	"""find a file in a list of paths using fnmatch
-	@param filename: name of the file to search for
-	@param path_list: list of directories to search
-	@return: the first occurrence filename or '' if filename could not be found
-"""
-	import fnmatch
-	if type(path_list) is types.StringType:
-		lst = path_list.split()
-	else:
-		lst = path_list
-	for directory in lst:
-		for path, subdirs, files in os.walk(directory):
-			for name in files:
-				if fnmatch.fnmatch(name, filename):
-					return path
-	return ''
-
 def find_program_impl(env, filename, path_list=[], var=None):
 	"""find a program in folders path_lst, and sets env[var]
 	@param env: environment
