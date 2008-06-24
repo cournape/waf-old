@@ -673,15 +673,21 @@ class Task(TaskBase):
 			return 1
 
 		# look at the previous signature first
-		node = self.m_outputs[0]
-		variant = node.variant(env)
-		try:
-			time = tree.m_tstamp_variants[variant][node.id]
-		except KeyError:
-			debug("task: task #%d must run as the first node does not exist" % self.m_idx)
-			try: new_sig = self.signature()
+		time = None
+		for node in self.m_outputs:
+			variant = node.variant(env)
+			try:
+				time = tree.m_tstamp_variants[variant][node.id]
 			except KeyError:
-				print "TODO - computing the signature failed"
+				debug("task: task #%d must run as the first node does not exist" % self.m_idx)
+				time = None
+				break
+		# if one of the nodes does not exist, try to retrieve them from the cache
+		if time is None:
+			try:
+				new_sig = self.signature()
+			except KeyError:
+				debug("something is wrong, computing the task signature failed")
 				return 1
 
 			ret = self.can_retrieve_cache(new_sig)
