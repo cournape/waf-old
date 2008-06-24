@@ -747,7 +747,7 @@ class Task(TaskBase):
 
 	def can_retrieve_cache(self, sig):
 		"""Retrieve build nodes from the cache - the file time stamps are updated
-		for cleaning the least used files from the cache dir - be careful when overriding"""
+		for cleaning the least used files from the cache dir - be careful when overridding"""
 		if not Options.cache_global: return None
 		if Options.options.nocache: return None
 
@@ -762,8 +762,8 @@ class Task(TaskBase):
 			orig = os.path.join(Options.cache_global, ssig+'-'+str(cnt))
 			try:
 				shutil.copy2(orig, node.abspath(env))
-				os.utime(orig, None)
 				# mark the cache file as used recently (modified)
+				os.utime(orig, None)
 			except (OSError, IOError):
 				debug('task: failed retrieving file')
 				return None
