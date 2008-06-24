@@ -9,7 +9,7 @@ This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
 import os, types, copy, re
-import Params, Utils, Logs, Options
+import Utils, Logs, Options
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 

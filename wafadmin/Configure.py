@@ -156,7 +156,8 @@ class Configure(object):
 		self.log = open(path, 'wb')
 
 	def errormsg(self, msg):
-		Params.niceprint(msg, 'ERROR', 'Configuration')
+		# FIXME maybe remove this
+		Utils.niceprint(msg, 'ERROR', 'Configuration')
 
 	def fatal(self, msg):
 		raise ConfigurationError(msg)

@@ -114,7 +114,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 			alst = Utils.split_path(filename)
 			filenode = node.find_resource_lst(alst)
 			if filenode is None:
-				Params.fatal("Unable to install the file `%s': not found in %s" % (filename, node))
+				fatal("Unable to install the file `%s': not found in %s" % (filename, node))
 
 			file     = filenode.abspath(env)
 			destfile = os.path.join(destpath, filenode.m_name)

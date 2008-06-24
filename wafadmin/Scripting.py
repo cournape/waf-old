@@ -567,7 +567,7 @@ def DistCheck(appname, version):
 	distdir, tarball = DistTarball(appname, version)
 	retval = subprocess.Popen('bzip2 -dc %s | tar x' % tarball, shell=True).wait()
 	if retval:
-		Params.fatal('uncompressing the tarball failed with code %i' % (retval))
+		fatal('uncompressing the tarball failed with code %i' % (retval))
 
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	cwd_before = os.getcwd()
@@ -579,12 +579,12 @@ def DistCheck(appname, version):
 			' && %(waf)s uninstall --destdir=%(instdir)s' % vars(),
 			shell=True).wait()
 		if retval:
-			Params.fatal('distcheck failed with code %i' % (retval))
+			fatal('distcheck failed with code %i' % (retval))
 	finally:
 		os.chdir(cwd_before)
 	shutil.rmtree(distdir)
 	if os.path.exists(instdir):
-		Params.fatal("distcheck succeeded, but files were left in %s" % (instdir))
+		fatal("distcheck succeeded, but files were left in %s" % (instdir))
 	else:
 		Utils.pprint('GREEN', "distcheck finished successfully")
 

@@ -166,7 +166,7 @@ class TaskGroup(object):
 			tasks = self.tasks_with_inner_constraints()
 			maxj = sys.maxint
 		else:
-			Params.fatal("unknown algorithm type %s" % (algotype))
+			fatal("unknown algorithm type %s" % (algotype))
 
 		if not tasks: return ()
 		if shuffle: random.shuffle(tasks)
@@ -280,7 +280,7 @@ class TaskGroup(object):
 				self.cstr_groups.__delitem__(y)
 
 		if not toreturn and remainder:
-			Params.fatal("circular dependency detected %r" % remainder)
+			fatal("circular dependency detected %r" % remainder)
 
 		#print "returning", toreturn
 		return toreturn
@@ -778,8 +778,8 @@ class Task(TaskBase):
 		return '\n'.join(ret)
 
 	def debug(self, level=0):
-		fun = Params.debug
-		if level>0: fun = Params.error
+		fun = debug
+		if level>0: fun = error
 		fun(self.debug_info())
 
 	def debug_why(self, old_sigs):

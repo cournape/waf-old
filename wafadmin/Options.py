@@ -7,7 +7,7 @@
 
 import os, sys, imp, types, tempfile
 from optparse import OptionParser
-import Params, Logs, Utils, Scripting
+import Logs, Utils, Scripting
 from Constants import *
 
 options = {}

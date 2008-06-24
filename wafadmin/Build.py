@@ -104,7 +104,6 @@ class Build(object):
 	def _init_data(self):
 		debug('build: init data called')
 
-		# filesystem root - root name is Params.g_rootname
 		self.m_root = Node.Node('', None, Node.DIR)
 
 		self.m_srcnode = None # src directory
