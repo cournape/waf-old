@@ -21,10 +21,6 @@ Utils.waf_version(mini="1.4.2", maxi="1.5.0")
 
 def init():
 	pass
-	# disable the Waf preprocessor for finding dependencies
-	#import Params
-	#Params.g_preprocess=0
-
 	# redefine the cpp source extensions
 	#import cpp
 	#cpp.cppobj.s_default_ext = ['.cxx', '.cxy', '.cxyz']
@@ -35,8 +31,8 @@ def set_options(opt):
 	opt.tool_options('g++')
 #opt.sub_options('tests')
 	# the following is to use after the command-line is parsed:
-	# import Params
-	# print Params.g_options.someopt
+	# import Options
+	# print Options.options.someopt
 
 def configure(conf):
 	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
@@ -294,7 +290,7 @@ def build(bld):
 def shutdown():
 	# display the graph of header dependencies
 #	if 1: return
-	import Params, os, types
+	import os, types
 
 	f = open('foo.dot', 'w')
 	f.write("digraph G {\n")

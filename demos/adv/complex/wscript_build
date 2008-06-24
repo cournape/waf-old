@@ -84,6 +84,7 @@ genmain.stdout = "main1.cpp"
 genmain.command = 'cat'
 genmain.command_is_external = True
 genmain.argv = [genmain.input_file('main.cpp')]
+#genmain.hidden_outputs = ['toto']
 
 obj = bld.new_task_gen('cxx', 'program')
 obj.source = 'main1.cpp'
