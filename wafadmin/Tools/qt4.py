@@ -21,7 +21,7 @@ else:
 
 import os, sys
 import ccroot, cxx
-import Params, TaskGen, Task, Utils, Runner, Options, Build
+import TaskGen, Task, Utils, Runner, Options, Build
 from TaskGen import taskgen, feature, after, extension
 from Logs import error, fatal
 

@@ -35,7 +35,7 @@ Task.shuffle = True
 
 import os, types, shutil, sys, re, new, random
 from Utils import md5
-import Build, Runner, Utils, Node, Logs, Options, Params
+import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, error, warn
 from Constants import *
 
@@ -724,7 +724,7 @@ class Task(TaskBase):
 			variant = node.variant(env)
 			#if node in tree.m_tstamp_variants[variant]:
 			#	print "variant is ", variant
-			#	print "self sig is ", Params.view_sig(tree.m_tstamp_variants[variant][node])
+			#	print "self sig is ", Utils.view_sig(tree.m_tstamp_variants[variant][node])
 
 			# check if the node exists ..
 			os.stat(node.abspath(env))
