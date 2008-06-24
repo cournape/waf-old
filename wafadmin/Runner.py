@@ -151,7 +151,6 @@ class Serial(object):
 			try:
 				tsk.update_stat()
 			except OSError:
-				traceback.print_stack()
 				self.error = 1
 				tsk.m_hasrun = MISSING
 				if Options.options.keep: continue
