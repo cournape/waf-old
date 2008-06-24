@@ -20,7 +20,7 @@ class msgfmt_taskgen(TaskGen.task_gen):
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.mo'))
 
-			if not Params.g_install: continue
+			if not Options.is_install: continue
 			langname = lang.split('/')
 			langname = langname[-1]
 			inst_dir = langname+os.sep+'LC_MESSAGES'

@@ -78,7 +78,7 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 			tsk2.m_run_after.append(tsk)
 
 
-			if Params.g_install:
+			if Options.is_install:
 				inst_dir = self.inst_dir + 'gnome/help/%s/%s' % (self.doc_module, x)
 				Common.install_files(self.inst_var, self.inst_dir + "omf", out2.abspath(self.env))
 				for y in self.to_list(self.doc_figures):
@@ -154,7 +154,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 			task = self.create_task('sgml2man', self.env, 2)
 			task.set_inputs(self.path.find_resource(name))
 			task.task_generator = self
-			if Params.g_install: task.install = install_results
+			if Options.is_install: task.install = install_results
 			# no outputs, the scanner does it
 			# no caching for now, this is not a time-critical feature
 			# in the future the scanner can be used to do more things (find dependencies, etc)

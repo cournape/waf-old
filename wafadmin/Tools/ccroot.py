@@ -167,7 +167,7 @@ def vars_target_cshlib(self):
 @feature('cprogram', 'dprogram')
 @after('apply_objdeps')
 def install_target_cprogram(self):
-	if not Params.g_install: return
+	if not Options.is_install: return
 	try: mode = self.program_chmod
 	except AttributeError: mode = 0755
 	self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir,'chmod':mode}
@@ -176,14 +176,14 @@ def install_target_cprogram(self):
 @feature('cstaticlib', 'dstaticlib')
 @after('apply_objdeps')
 def install_target_cstaticlib(self):
-	if not Params.g_install: return
+	if not Options.is_install: return
 	self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir}
 
 @taskgen
 @feature('cshlib', 'dshlib')
 @after('apply_objdeps')
 def install_target_cshlib(self):
-	if not Params.g_install: return
+	if not Options.is_install: return
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		tsk = self.link_task
 		tsk.vnum = getattr(self, 'vnum', '')

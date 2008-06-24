@@ -365,7 +365,7 @@ def main():
 	if pre_build: pre_build()
 
 	# compile
-	if Options.commands['build'] or Params.g_install:
+	if Options.commands['build'] or Options.is_install:
 		try:
 
 			# TODO quite ugly, no?
@@ -391,7 +391,7 @@ def main():
 		else:
 			if Options.options.progress_bar: print ''
 
-			if Params.g_install:
+			if Options.is_install:
 				bld.install()
 
 			ela = ''

@@ -108,7 +108,7 @@ class TaskManager(object):
 		self.tasks_done.append(tsk)
 		# TODO we could install using threads here
 		bld = Params.g_build
-		if Params.g_install and hasattr(tsk, 'install'):
+		if Options.is_install and hasattr(tsk, 'install'):
 			d = tsk.install
 			env = tsk.env
 			if type(d) is types.FunctionType:

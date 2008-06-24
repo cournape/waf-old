@@ -139,7 +139,7 @@ def install_shlib(task):
 @feature('osx')
 @after('install_target_cshlib')
 def install_target_osx_cshlib(self):
-	if not Params.g_install: return
+	if not Options.is_install: return
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		self.link_task.install = install_shlib
 

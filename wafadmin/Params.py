@@ -13,8 +13,6 @@ import Constants, Utils
 g_build = None
 "only one build object is active at a time"
 
-g_install = 0
-"true if install or uninstall is set"
 
 # =================================== #
 # HELPERS

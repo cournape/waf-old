@@ -84,7 +84,7 @@ def path_install(var, subdir, env=None):
 	return destpath
 
 def install_files(var, subdir, files, env=None, chmod=0644):
-	if not Params.g_install: return []
+	if not Options.is_install: return []
 	if not var: return []
 
 	bld = Params.g_build
@@ -129,7 +129,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 
 def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	"""returns True if the file was effectively installed, False otherwise"""
-	if not Params.g_install: return False
+	if not Options.is_install: return False
 	if not var: return False
 
 	bld = Params.g_build
@@ -157,7 +157,7 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 	return do_install(src, tgt, chmod=chmod)
 
 def symlink_as(var, src, dest, env=None):
-	if not Params.g_install: return
+	if not Options.is_install: return
 	if not var: return
 
 	bld = Params.g_build

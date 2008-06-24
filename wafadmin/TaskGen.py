@@ -109,7 +109,7 @@ class task_gen(object):
 		self._inst_var = ''
 		self._inst_dir = ''
 
-		if Params.g_install:
+		if Options.is_install:
 			self.inst_files = [] # lazy list of tuples representing the files to install
 
 		# kind of private, beware of what you put in it, also, the contents are consumed
@@ -159,7 +159,7 @@ class task_gen(object):
 		# ambiguity with the install functions
 		# it is often better to install the targets right after they are up-to_date
 		# but this means attaching the install to the task objects
-		if not Params.g_install: return
+		if not Options.is_install: return
 		for (name, var, dir, chmod) in self.inst_files:
 			print name, var, dir, chmod
 
@@ -450,7 +450,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 		tsk.set_inputs(node)
 		tsk.set_outputs(out_source)
 
-		if Params.g_install and install:
+		if Options.is_install and install:
 			tsk.install = install
 
 	declare_extension(act.ext_in, x_file)

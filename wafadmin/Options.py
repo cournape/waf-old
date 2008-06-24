@@ -19,6 +19,7 @@ try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
 platform = sys.platform
 conf_file = 'conf-runs-%s-%d.pickle' % (sys.platform, ABI)
+is_install = False
 
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')
@@ -142,7 +143,8 @@ def parse_args_impl(parser, _args=None):
 		commands['build'] = True
 
 	if commands['install'] or commands['uninstall']:
-		Params.g_install = 1
+		global is_install
+		is_install = True
 
 	# TODO -k => -j0
 	if options.keep: options.jobs = 1
