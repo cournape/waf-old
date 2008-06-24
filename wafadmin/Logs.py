@@ -19,8 +19,9 @@ class log_filter(logging.Filter):
 		rec.c1 = col.get('PINK', '')
 		rec.c2 = col.get('NORMAL','')
 		rec.zone = rec.module
-		if rec.levelno >= logging.WARNING:
-			rec.c1 = col.get('RED','')
+		if rec.levelno >= logging.INFO:
+			if rec.levelno >= logging.ERROR:
+				rec.c1 = col.get('RED', '')
 			return True
 
 		zone = ''
@@ -35,6 +36,15 @@ class log_filter(logging.Filter):
 			return False
 		return True
 
+class formatter(logging.Formatter):
+	def __init__(self):
+		logging.Formatter.__init__(self, LOG_FORMAT, HOUR_FORMAT)
+
+	def format(self, rec):
+		if rec.levelno >= logging.WARNING:
+			return '%s%s%s' % (rec.c1, rec.msg, rec.c2)
+		return logging.Formatter.format(self, rec)
+
 def fatal(msg, ret=1):
 	if verbose:
 		st = traceback.extract_stack()
@@ -45,7 +55,7 @@ def fatal(msg, ret=1):
 			if line:
 				buf.append('    %s' % line.strip())
 		msg = msg + "\n".join(buf)
-	logging.error(msg)
+	logging.critical(msg)
 	sys.exit(ret)
 #logging.fatal = fatal
 debug = logging.debug
@@ -56,7 +66,7 @@ def init_log():
 	log = logging.getLogger()
 	log.handlers = []
 	hdlr = logging.StreamHandler()
-	hdlr.setFormatter(logging.Formatter(LOG_FORMAT, HOUR_FORMAT))
+	hdlr.setFormatter(formatter())
 	log.addHandler(hdlr)
 	log.addFilter(log_filter())
 	log.setLevel(logging.DEBUG)
