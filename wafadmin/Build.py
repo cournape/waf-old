@@ -138,7 +138,7 @@ class Build(object):
 			data = cPickle.load(file)
 			for x in SAVED_ATTRS: setattr(self, x, data[x])
 			file.close()
-		except IOError:
+		except (IOError, EOFError):
 			debug('build: Build cache loading failed (cleaning)')
 			self._init_data()
 
