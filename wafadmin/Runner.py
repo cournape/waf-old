@@ -99,7 +99,7 @@ class Serial(object):
 			tsk = self.get_next()
 			if tsk is None: break
 
-			debug('runner: retrieving #%i (%r)' % (tsk.m_idx, tsk))
+			if Logs.verbose: debug('runner: retrieving #%i (%r)' % (tsk.m_idx, tsk))
 
 			# # =======================
 			#if tsk.m_hasrun:
