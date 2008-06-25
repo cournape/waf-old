@@ -57,8 +57,11 @@ def fatal(msg, ret=1):
 		msg = msg + "\n".join(buf)
 	logging.critical(msg)
 	sys.exit(ret)
-#logging.fatal = fatal
-debug = logging.debug
+
+def debug(msg):
+	if verbose:
+		logging.debug(msg)
+
 warn = logging.warn
 error = logging.error
 
