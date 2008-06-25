@@ -378,7 +378,7 @@ def main():
 			import cProfile, pstats
 			cProfile.run("import Build; Build.bld.compile()", 'profi.txt')
 			p = pstats.Stats('profi.txt')
-			p.sort_stats('time').print_stats(20)
+			p.sort_stats('time').print_stats(40)
 			#"""
 
 		except Build.BuildError, e:
