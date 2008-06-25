@@ -26,20 +26,21 @@ def printout(s):
 		sys.stdout.flush()
 	print_log(s, nl='')
 
-def exec_command(s):
+def exec_command(s, shell=1):
 	debug('runner: system command -> %s' % s)
 	log = Build.bld.log
 	if log or Logs.verbose: printout(s+'\n')
-	proc = subprocess.Popen(s, shell=1, stdout=log, stderr=log)
+	proc = subprocess.Popen(s, shell=shell, stdout=log, stderr=log)
 	stat = proc.wait()
 	if stat & 0xff: return stat | 0x80
 	return stat >> 8
 
 if sys.platform == "win32":
 	old_log = exec_command
-	def exec_command(s):
+	def exec_command(s, shell=1):
 		# TODO very long command-lines are unlikely to be used in the configuration
-		if len(s) < 2000: return old_log(s)
+		if len(s) < 2000: return old_log(s, shell=shell)
+
 		log = Build.bld.log
 		if log or Logs.verbose: printout(s+'\n')
 		startupinfo = subprocess.STARTUPINFO()

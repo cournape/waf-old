@@ -10,6 +10,7 @@ from Logs import debug, error, fatal, warn
 from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
 
+from Configure import conftest
 import ccroot
 from libtool import read_la_file
 from os.path import exists
@@ -40,9 +41,12 @@ def msvc_linker(task):
 	objs=" ".join(['"%s"' % a.abspath(e) for a in task.m_inputs])
 
 	cmd="%s %s %s%s %s%s %s %s %s" % (linker,subsystem,srcf,objs,trgtf,outfile, linkflags, libdirs,libs)
-	ret=Runner.exec_command(cmd)
-	if ret: return ret
 
+	# workaround: when run with shell=True, got the following error:
+	# 'C:\Program' is not recognized as an internal or external command, operable program or batch file.
+	ret=Runner.exec_command(cmd, shell=False)
+	if ret: return ret
+	
 	# check for the pdb file. if exists, add to the list of outputs
 	if os.path.exists(pdbfile):
 		task.m_outputs.append(pdbnode)
@@ -197,6 +201,7 @@ def apply_msvc_obj_vars(self):
 	staticlib_st     = env['STATICLIB_ST']
 	libpath_st       = env['LIBPATH_ST']
 	staticlibpath_st = env['STATICLIBPATH_ST']
+	self.libpaths = []
 
 	for i in env['RPATH']: app('LINKFLAGS', i)
 	for i in env['LIBPATH']:
@@ -255,10 +260,10 @@ def apply_link_msvc(self):
 
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_build(get_target_name(self)))
+	linktask.set_outputs(self.path.find_build(ccroot.get_target_name(self)))
 
-	link_task.m_type = self.m_type
-	link_task.m_subsystem = getattr(self, 'subsystem', '')
+	linktask.m_type = self.m_type
+	linktask.m_subsystem = getattr(self, 'subsystem', '')
 	self.link_task = linktask
 
 @taskgen
@@ -283,29 +288,65 @@ Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx')
 
 import winres
 
-def detect(conf):
+detect = '''
+find_msvc
+msvc_common_flags
+cc_load_tools
+cxx_load_tools
+cc_add_flags
+cxx_add_flags
+'''
+
+@conftest
+def find_msvc(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
 	if sys.platform != 'win32':
 		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
 
-	comp = conf.find_program('CL', var='CXX')
-	if not comp: conf.fatal('CL was not found (compiler)')
-
-	link = conf.find_program('LINK')
-	if not link: conf.fatal('LINK was not found (linker)')
-
-	stliblink = conf.find_program('LIB')
-	if not stliblink: return
-
-	manifesttool = conf.find_program('MT')
-
 	v = conf.env
 
+	# compiler
+	cxx = None
+	if v['CXX']: cxx = v['CXX']
+	elif 'CXX' in os.environ: cxx = os.environ['CXX']
+	if not cxx: cxx = conf.find_program('CL', var='CXX')
+	if not cxx: conf.fatal('CL was not found (compiler)')
+
 	# c/c++ compiler - check for whitespace, and if so, add quotes
-	v['CC']         = quote_whitespace(comp)
-	v['CXX'] = v['CC']
+	v['CXX']  = quote_whitespace(cxx)
+	v['CC'] = v['CXX']
 	v['CXX_NAME'] = 'msvc'
 	v['CC_NAME'] = 'msvc'
+
+	# linker
+	if not v['LINK_CXX']:
+		link = conf.find_program('LINK')
+		if link: v['LINK_CXX'] = link
+		else: conf.fatal('LINK was not found (linker)')
+	v['LINK']            = '\"%s\"' % link
+
+	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
+
+	# staticlib linker
+	if not v['STLIBLINK']:
+		stliblink = conf.find_program('LIB')
+		if not stliblink: return
+		v['STLIBLINK']       = '\"%s\"' % stliblink
+
+	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
+	manifesttool = conf.find_program('MT')
+	if manifesttool:
+		v['MT'] = quote_whitespace (manifesttool)
+		v['MTFLAGS']=['/NOLOGO']
+
+	conf.check_tool('winres')
+
+	if not conf.env['WINRC']:
+		warn('Resource compiler not found. Compiling resource file is disabled')
+
+@conftest	
+def msvc_common_flags(conf):
+	v = conf.env
 
 	v['CPPFLAGS']     = ['/W3', '/nologo', '/EHsc', '/errorReport:prompt']
 	v['CCDEFINES']    = ['WIN32'] # command-line defines
@@ -355,8 +396,6 @@ def detect(conf):
 	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 
 	# linker
-	v['STLIBLINK']       = '\"%s\"' % stliblink
-	v['LINK']            = '\"%s\"' % link
 	v['LIB']                 = []
 
 	v['LINK_TGT_F']        = '/OUT:'
@@ -374,16 +413,6 @@ def detect(conf):
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
 
-	conf.check_tool('winres')
-
-	if not conf.env['WINRC']:
-		warn('Resource compiler not found. Compiling resource file is disabled')
-
-	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
-	if manifesttool:
-		v['MT'] = quote_whitespace (manifesttool)
-		v['MTFLAGS']=['/NOLOGO']
-
 	v['LINKFLAGS']           = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
 
 	try:
@@ -393,11 +422,6 @@ def detect(conf):
 	v['CCFLAGS']   += v['CCFLAGS_'+debug_level]
 	v['CXXFLAGS']  += v['CXXFLAGS_'+debug_level]
 	v['LINKFLAGS'] += v['LINKFLAGS_'+debug_level]
-
-	conf.add_os_flags('CFLAGS', 'CCFLAGS')
-	conf.add_os_flags('CPPFLAGS')
-	conf.add_os_flags('CXXFLAGS')
-	conf.add_os_flags('LINKFLAGS')
 
 	# shared library
 	v['shlib_CCFLAGS']  = ['']
@@ -411,7 +435,7 @@ def detect(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
-
+	
 def set_options(opt):
 	try:
 		opt.add_option('-d', '--debug-level',
