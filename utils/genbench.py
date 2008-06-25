@@ -221,7 +221,6 @@ def CreateFullJamfile(libs):
 def CreateW(lib_number, classes):
     handle = file("wscript", "w");
     handle.write("def build(bld):\n")
-    handle.write('    import Params\n');
     handle.write("    obj = bld.new_task_gen('cxx', 'staticlib')\n")
     handle.write("    obj.includes='. ..'\n")
     handle.write("    obj.source='''\n")
