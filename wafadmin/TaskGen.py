@@ -178,7 +178,7 @@ class task_gen(object):
 				x(self, filename)
 			else:
 				node = find_resource_lst(Utils.split_path(filename))
-				if not node: fatal("source not found: %s in %s" % (filename, str(self.path)))
+				if not node: fatal("source not found: '%s' in '%s'" % (filename, str(self.path)))
 				self.allnodes.append(node)
 
 		for node in self.allnodes:
