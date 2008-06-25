@@ -246,15 +246,8 @@ class Node(object):
 
 	## ===== BEGIN relpath-related methods	===== ##
 
-	# same as pathlist3, but do not append './' at the beginning
-	def pathlist4(self, node):
-		#print "pathlist4 called"
-		if self == node: return []
-		if self.m_parent == node: return [self.m_name]
-		return [self.m_name, os.sep] + self.m_parent.pathlist4(node)
-
 	def relpath(self, parent):
-		"path relative to a direct parent, as string"
+		"path relative to a direct ancestor, as string"
 		lst = []
 		p = self
 		h1 = parent.height()
@@ -286,27 +279,25 @@ class Node(object):
 			cursor = cursor.m_parent
 			if cand == cursor: return cand
 
-	# prints the amount of "../" between two nodes
-	def invrelpath(self, parent):
-		lst = []
-		cand = self
-		while not cand == parent:
-			cand = cand.m_parent
-			lst += ['..', os.sep]
-		return lst
-
-	# TODO: do this in a single function (this one uses invrelpath, find_ancestor and pathlist4)
-	# string representing a relative path between two nodes, we are at relative_to
 	def relpath_gen(self, going_to):
+		"string representing a relative path between two nodes, we are at relative_to"
+
 		if self == going_to: return '.'
 		if going_to.m_parent == self: return '..'
 
 		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
-		ancestor  = self.find_ancestor(going_to)
-		up_path   = going_to.invrelpath(ancestor)
-		down_path = self.pathlist4(ancestor)
-		down_path.reverse()
-		return "".join(up_path + down_path)
+		ancestor = self.find_ancestor(going_to)
+		lst = []
+		cand = self
+		while not cand.id == ancestor.id:
+			lst.append(cand.m_name)
+			cand = cand.m_parent
+		cand = going_to
+		while not cand.id == ancestor.id:
+			lst.append('..')
+			cand = cand.m_parent
+		lst.reverse()
+		return os.sep.join(lst)
 
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
