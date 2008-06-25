@@ -37,9 +37,9 @@ import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, error, warn
 from Constants import *
 
-#algotype = NORMAL
+algotype = NORMAL
 #algotype = JOBCONTROL
-algotype = MAXPARALLEL
+#algotype = MAXPARALLEL
 shuffle = False
 
 """
@@ -584,7 +584,8 @@ class Task(TaskBase):
 		# automatic dependencies
 		dep_sig = SIG_NIL
 		if self.scan:
-			m.update(self.scan_signature())
+			dep_sig = self.scan_signature()
+			m.update(dep_sig)
 
 		# manual dependencies, they can slow down the builds
 		try:
