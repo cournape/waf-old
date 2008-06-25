@@ -376,7 +376,7 @@ def main():
 			bld.compile()
 			"""
 			import cProfile, pstats
-			cProfile.run("Build.bld.compile()", 'profi.txt')
+			cProfile.run("import Build; Build.bld.compile()", 'profi.txt')
 			p = pstats.Stats('profi.txt')
 			p.sort_stats('time').print_stats(20)
 			#"""

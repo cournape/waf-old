@@ -280,7 +280,7 @@ class Node(object):
 			if cand == cursor: return cand
 
 	def relpath_gen(self, going_to):
-		"string representing a relative path between two nodes, we are at relative_to"
+		"string representing a relative path between self to another node"
 
 		if self == going_to: return '.'
 		if going_to.m_parent == self: return '..'
