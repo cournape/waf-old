@@ -581,7 +581,7 @@ class Task(TaskBase):
 
 		m = md5()
 
-		# automatic dependencies
+		# automatic dependencies - scanner
 		dep_sig = SIG_NIL
 		if self.scan:
 			dep_sig = self.scan_signature()
@@ -593,20 +593,6 @@ class Task(TaskBase):
 				dep_sig = hash((dep_sig, v))
 			dep_sig = str(dep_sig)
 			m.update(dep_sig)
-
-		# manual dependencies, they can slow down the builds
-		try:
-			additional_deps = tree.deps_man
-			for x in self.m_inputs + self.m_outputs:
-				try:
-					d = additional_deps[x]
-				except KeyError:
-					continue
-				if callable(d): d = d() # dependency is a function, call it
-				dep_sig = hash((dep_sig, d))
-				m.update(d)
-		except AttributeError:
-			pass
 
 		# dependencies on the environment vars
 		fun = getattr(self.__class__, 'signature_hook', None)
@@ -629,6 +615,20 @@ class Task(TaskBase):
 			v = tree.node_sigs[variant][x.id]
 			node_sig = hash((node_sig, v))
 			m.update(v)
+
+		# manual dependencies, they can slow down the builds
+		try:
+			additional_deps = tree.deps_man
+			for x in self.m_inputs + self.m_outputs:
+				try:
+					d = additional_deps[x]
+				except KeyError:
+					continue
+				if callable(d): d = d() # dependency is a function, call it
+				node_sig = hash((node_sig, d))
+				m.update(d)
+		except AttributeError:
+			pass
 
 		# we now have the array of signatures
 		ret = m.digest()
