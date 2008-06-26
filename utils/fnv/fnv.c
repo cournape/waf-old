@@ -28,13 +28,13 @@ for num in xrange(15):
 */
 
 #define INTSIZE 8
-//(sizeof(u_int64_t))
+/* (sizeof(u_int64_t)) */
 #define FNV1_64_INIT ((u_int64_t)14695981039346656037ULL)
 #define FNV1_64_PRIME ((u_int64_t)1099511628211)
 
-// second line is much faster (37->20) without optimizations of any kind
-//#define FNV_64A_OP(hash, octet) (((u_int64_t)(hash) ^ (u_int8_t)(octet)) * FNV1_64_PRIME)
-#define FNV_64A_OP(hash, octet) ((hash) ^ (octet * FNV1_64_PRIME))
+/* second line is much faster - why? */
+/*#define FNV_64A_OP(hash, octet) (((u_int64_t)(hash) ^ (u_int8_t)(octet)) * FNV1_64_PRIME) */
+#define FNV_64A_OP(hash, octet) ((hash ^ octet) * FNV1_64_PRIME)
 
 typedef struct fnv_struct
 {
