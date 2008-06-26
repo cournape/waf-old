@@ -34,7 +34,7 @@ for num in xrange(15):
 
 // second line is much faster (37->20) without optimizations of any kind
 //#define FNV_64A_OP(hash, octet) (((u_int64_t)(hash) ^ (u_int8_t)(octet)) * FNV1_64_PRIME)
-#define FNV_64A_OP(hash, octet) ((hash) ^ (octet * FNV1_64_PRIME))
+#define FNV_64A_OP(hash, octet) ((hash ^ octet) * FNV1_64_PRIME)
 
 typedef struct fnv_struct
 {
