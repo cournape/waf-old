@@ -11,6 +11,8 @@ meaning in configuration and build)
 * Params.g_autoconfig -> Configure.autoconfig
 * Params.pprint -> Utils.pprint
 * The old priority system was removed
+* m_tstamp_variants -> node_sigs
+* bld_sigs -> task_sigs
 
 NEW IN WAF 1.4.3
 ----------------
