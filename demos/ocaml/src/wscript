@@ -4,8 +4,9 @@
 
 def build(bld):
 	# The first example is a simple program
-	obj = bld.new_task_gen('ocaml', type='all')
+	obj = bld.new_task_gen('ocaml')
 	obj.find_sources_in_dirs('.')
+	obj.kind = 'all'
 	#obj.source='''
 	#somemodule.ml main.ml
 	#'''
