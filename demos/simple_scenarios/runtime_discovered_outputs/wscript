@@ -46,7 +46,7 @@ def build(bld):
 ## INTERNAL CODE BELOW ##
 
 import os
-import TaskGen, Params, Task, Utils
+import TaskGen, Task, Utils, Build
 from TaskGen import taskgen, feature, before, extension
 from logging import debug
 
@@ -58,8 +58,8 @@ class shpip_task(Task.Task):
 
 	color = 'PINK'
 
-	def __init__(self, env, normal=1, prio=None):
-		Task.Task.__init__(self, env, normal, prio)
+	def __init__(self, env, normal=1):
+		Task.Task.__init__(self, env, normal)
 
 	def may_start(self):
 		# set a dummy output else the method will not work
@@ -74,8 +74,8 @@ class shpip_task(Task.Task):
 		# and if the source has not changed, create the corresponding cpp tasks
 		node = self.m_inputs[0]
 		try:
-			sig = Params.g_build.m_tstamp_variants[node.variant(self.env)][node.id]
-			deps = Params.g_build.raw_deps[node.variant(self.env)][node.id]
+			sig = Build.bld.m_tstamp_variants[node.variant(self.env)][node.id]
+			deps = Build.bld.raw_deps[node.variant(self.env)][node.id]
 			prev_sig = deps[0]
 		except KeyError:
 			pass
@@ -93,7 +93,7 @@ class shpip_task(Task.Task):
 		# this is necessary after a clean
 		# TODO cache is disabled
 		env = self.env
-		tree = Params.g_build
+		tree = Build.bld
 		node = self.m_outputs[0]
 		variant = node.variant(env)
 
@@ -122,7 +122,7 @@ class shpip_task(Task.Task):
 			task = tgen.compiled_tasks[-1]
 
 			tgen.link_task.m_inputs.append(task.m_outputs[0])
-			generator = Params.g_build.generator
+			generator = Build.bld.generator
 			generator.outstanding.insert(0, task)
 			generator.total += 1
 
@@ -136,7 +136,7 @@ class shpip_task(Task.Task):
 		"runs a program that creates cpp files, capture the output to compile them"
 		node = self.m_inputs[0]
 
-		dir = Params.g_build.m_srcnode.bldpath(self.env)
+		dir = Build.bld.m_srcnode.bldpath(self.env)
 		cmd = 'cd %s && %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
 		try:
 			# read the contents of the file and create cpp files from it
@@ -162,8 +162,8 @@ class shpip_task(Task.Task):
 			self.add_cpp_tasks(build_nodes)
 			# cache the file names and the task signature
 			node = self.m_inputs[0]
-			sig = Params.g_build.m_tstamp_variants[node.variant(self.env)][node.id]
-			Params.g_build.raw_deps[node.variant(self.env)][node.id] = [sig] + lst
+			sig = Build.bld.m_tstamp_variants[node.variant(self.env)][node.id]
+			Build.bld.raw_deps[node.variant(self.env)][node.id] = [sig] + lst
 		# 0 for all ok
 		return 0
 
