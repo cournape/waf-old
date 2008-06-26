@@ -17,7 +17,7 @@ import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs
 from Logs import *
 from Constants import *
 
-SAVED_ATTRS = 'm_root m_srcnode m_bldnode node_sigs node_deps raw_deps bld_sigs id_nodes'.split()
+SAVED_ATTRS = 'm_root m_srcnode m_bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
 
 g_modcache = {}
@@ -90,7 +90,7 @@ class Build(object):
 		# tasks and objects
 
 		# build dir variants (release, debug, ..)
-		for v in 'node_sigs node_deps bld_sigs raw_deps m_abspath_cache'.split():
+		for v in 'node_sigs node_deps task_sigs raw_deps m_abspath_cache'.split():
 			var = {}
 			setattr(self, v, var)
 
@@ -174,7 +174,7 @@ class Build(object):
 					node.childs.__delitem__(x)
 		clean_rec(self.m_srcnode)
 
-		for v in 'node_sigs node_deps bld_sigs raw_deps m_abspath_cache'.split():
+		for v in 'node_sigs node_deps task_sigs raw_deps m_abspath_cache'.split():
 			var = {}
 			setattr(self, v, var)
 

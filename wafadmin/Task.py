@@ -457,7 +457,7 @@ class TaskBase(object):
 		if not time is None:
 			key = self.unique_id()
 			# a tuple contains the task signatures from previous runs
-			tup = tree.bld_sigs.get(key, ())
+			tup = tree.task_sigs.get(key, ())
 			if tup:
 				prev_sig = tup[1]
 				if prev_sig != None:
@@ -684,7 +684,7 @@ class Task(TaskBase):
 
 		key = self.unique_id()
 		try:
-			prev_sig = tree.bld_sigs[key][0]
+			prev_sig = tree.task_sigs[key][0]
 		except KeyError:
 			debug("task: task #%d must run as it was never run before or the task code changed" % self.m_idx)
 			return 1
@@ -693,7 +693,7 @@ class Task(TaskBase):
 		new_sig = self.signature()
 
 		# debug if asked to
-		if Logs.zones: self.debug_why(tree.bld_sigs[key])
+		if Logs.zones: self.debug_why(tree.task_sigs[key])
 
 		if new_sig != prev_sig:
 			# try to retrieve the file from the cache
@@ -731,7 +731,7 @@ class Task(TaskBase):
 				except IOError: warn('Could not write the file to the cache')
 				cnt += 1
 
-		tree.bld_sigs[self.unique_id()] = self.cache_sig
+		tree.task_sigs[self.unique_id()] = self.cache_sig
 		self.m_executed=1
 
 	def can_retrieve_cache(self, sig):
