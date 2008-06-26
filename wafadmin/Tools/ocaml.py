@@ -117,12 +117,14 @@ native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
 class ocaml_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self, *k, **kw)
 
-		self.m_type       = kw.get('type', 'native')
+		#self.m_type       = kw.get('type', 'native')
 		self.m_source     = ''
 		self.m_target     = ''
-		self.islibrary    = kw.get('library', 0)
+		#self.islibrary    = kw.get('library', 0)
+		self.islibrary = 0
+		self.m_type = 'all'
 		self._incpaths_lst = []
 		self._bld_incpaths_lst = []
 		self._mlltasks    = []
@@ -153,12 +155,8 @@ class ocaml_taskgen(TaskGen.task_gen):
 
 		if self.m_type in native_lst:
 			self.native_env                = self.env.copy()
-			self.native_env['OCAMLCOMP']   = self.native_env['OCAMLOPT']
-			self.native_env['OCALINK']     = self.native_env['OCAMLOPT']
 		if self.m_type in bytecode_lst:
 			self.bytecode_env              = self.env.copy()
-			self.bytecode_env['OCAMLCOMP'] = self.bytecode_env['OCAMLC']
-			self.bytecode_env['OCALINK']   = self.bytecode_env['OCAMLC']
 
 		if self.islibrary:
 			self.bytecode_env['OCALINKFLAGS'] = '-a'
@@ -215,15 +213,17 @@ def apply_vars_ml(self):
 def apply_link_ml(self):
 
 	if self.bytecode_env:
-		linktask = Task.TaskBase.classes['ocalink'](self.bytecode_env)
+		linktask = self.create_task('ocalink')
 		linktask.bytecode = 1
 		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=1)))
 		linktask.obj = self
+		linktask.env = self.bytecode_env
 		self.linktasks.append(linktask)
 	if self.native_env:
-		linktask = Task.TaskBase.classes['ocalinkopt'](self.native_env)
+		linktask = self.create_task('ocalinkx')
 		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=0)))
 		linktask.obj = self
+		linktask.env = self.native_env
 		self.linktasks.append(linktask)
 
 		self.out_nodes += linktask.m_outputs
@@ -270,7 +270,7 @@ def mlc_hook(self, node):
 @extension(EXT_ML)
 def ml_hook(self, node):
 	if self.native_env:
-		task = self.create_task('ocaml', self.native_env)
+		task = self.create_task('ocamlx', self.native_env)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.cmx'))
 		task.obj = self
@@ -286,18 +286,26 @@ def ml_hook(self, node):
 		self.bytecode_tasks.append(task)
 
 b = Task.simple_task_type
-cls = b('ocaml', '${OCAMLCOMP} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
+cls = b('ocamlx', '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
 cls.may_start = compile_may_start
 cls.scan = scan
 
+b = Task.simple_task_type
+cls = b('ocaml', '${OCAMLC} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
+cls.may_start = compile_may_start
+cls.scan = scan
+
+
+
 b('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE', before="ocaml ocamlcc")
 b('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
+
 b('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
 b('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
 
-act = b('ocalink', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', after="ocamlcc ocaml")
+act = b('ocalink', '${OCAMLC} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', after="ocaml ocamlcc")
 act.may_start = link_may_start
-act = b('ocalinkopt', '${OCALINK} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', after="ocaml ocamlcc")
+act = b('ocalinkx', '${OCAMLOPT} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', after="ocamlx ocamlcc")
 act.may_start = link_may_start
 
 
@@ -312,10 +320,8 @@ def detect(conf):
 	conf.env['OCAMLLEX']     = conf.find_program('ocamllex', var='OCAMLLEX')
 	conf.env['OCAMLYACC']    = conf.find_program('ocamlyacc', var='OCAMLYACC')
 	conf.env['OCAMLFLAGS']   = ''
-	conf.env['OCALINK']      = ''
 	conf.env['OCAMLLIB']     = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep
 	conf.env['LIBPATH_OCAML'] = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep
 	conf.env['CPPPATH_OCAML'] = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep
 	conf.env['LIB_OCAML'] = 'camlrun'
-	conf.env['OCALINKFLAGS'] = ''
 
