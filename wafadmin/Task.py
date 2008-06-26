@@ -586,6 +586,13 @@ class Task(TaskBase):
 		if self.scan:
 			dep_sig = self.scan_signature()
 			m.update(dep_sig)
+		else:
+			for x in self.m_inputs:
+				variant = x.variant(env)
+				v = tree.m_tstamp_variants[variant][x.id]
+				dep_sig = hash((dep_sig, v))
+			dep_sig = str(dep_sig)
+			m.update(dep_sig)
 
 		# manual dependencies, they can slow down the builds
 		try:
