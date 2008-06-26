@@ -126,7 +126,7 @@ class Node(object):
 			return None
 
 		child = Node(name, parent, FILE)
-		tree.m_tstamp_variants[0][child.id] = st
+		tree.node_sigs[0][child.id] = st
 		return child
 
 	def find_or_declare(self, path):

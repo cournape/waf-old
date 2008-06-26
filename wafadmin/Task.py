@@ -450,7 +450,7 @@ class TaskBase(object):
 		# get the task signature from the signature cache
 		node = self.m_outputs[0]
 		variant = node.variant(self.env)
-		tstamps = tree.m_tstamp_variants[variant]
+		tstamps = tree.node_sigs[variant]
 		prev_sig = None
 
 		time = tstamps.get(node.id, None)
@@ -498,7 +498,7 @@ class TaskBase(object):
 
 		tree = Build.bld
 		rescan = tree.rescan
-		tstamp = tree.m_tstamp_variants
+		tstamp = tree.node_sigs
 
 		# headers to hash
 		try:
@@ -589,7 +589,7 @@ class Task(TaskBase):
 		else:
 			for x in self.m_inputs:
 				variant = x.variant(env)
-				v = tree.m_tstamp_variants[variant][x.id]
+				v = tree.node_sigs[variant][x.id]
 				dep_sig = hash((dep_sig, v))
 			dep_sig = str(dep_sig)
 			m.update(dep_sig)
@@ -626,7 +626,7 @@ class Task(TaskBase):
 		dep_nodes = getattr(self, 'dep_nodes', [])
 		for x in dep_nodes:
 			variant = x.variant(env)
-			v = tree.m_tstamp_variants[variant][x.id]
+			v = tree.node_sigs[variant][x.id]
 			node_sig = hash((node_sig, v))
 			m.update(v)
 
@@ -666,7 +666,7 @@ class Task(TaskBase):
 		for node in self.m_outputs:
 			variant = node.variant(env)
 			try:
-				time = tree.m_tstamp_variants[variant][node.id]
+				time = tree.node_sigs[variant][node.id]
 			except KeyError:
 				debug("task: task #%d must run as the first node does not exist" % self.m_idx)
 				time = None
@@ -711,15 +711,15 @@ class Task(TaskBase):
 		cnt = 0
 		for node in self.m_outputs:
 			variant = node.variant(env)
-			#if node in tree.m_tstamp_variants[variant]:
+			#if node in tree.node_sigs[variant]:
 			#	print "variant is ", variant
-			#	print "self sig is ", Utils.view_sig(tree.m_tstamp_variants[variant][node])
+			#	print "self sig is ", Utils.view_sig(tree.node_sigs[variant][node])
 
 			# check if the node exists ..
 			os.stat(node.abspath(env))
 
 			# important, store the signature for the next run
-			tree.m_tstamp_variants[variant][node.id] = sig
+			tree.node_sigs[variant][node.id] = sig
 
 			# We could re-create the signature of the task with the signature of the outputs
 			# in practice, this means hashing the output files
@@ -758,7 +758,7 @@ class Task(TaskBase):
 				return None
 			else:
 				cnt += 1
-				Build.bld.m_tstamp_variants[variant][node.id] = sig
+				Build.bld.node_sigs[variant][node.id] = sig
 				if not Runner.g_quiet: Utils.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
 		return 1
 

@@ -17,7 +17,7 @@ import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs
 from Logs import *
 from Constants import *
 
-SAVED_ATTRS = 'm_root m_srcnode m_bldnode m_tstamp_variants node_deps raw_deps bld_sigs id_nodes'.split()
+SAVED_ATTRS = 'm_root m_srcnode m_bldnode node_sigs node_deps raw_deps bld_sigs id_nodes'.split()
 "Build class members to save"
 
 g_modcache = {}
@@ -90,7 +90,7 @@ class Build(object):
 		# tasks and objects
 
 		# build dir variants (release, debug, ..)
-		for v in 'm_tstamp_variants node_deps bld_sigs raw_deps m_abspath_cache'.split():
+		for v in 'node_sigs node_deps bld_sigs raw_deps m_abspath_cache'.split():
 			var = {}
 			setattr(self, v, var)
 
@@ -174,7 +174,7 @@ class Build(object):
 					node.childs.__delitem__(x)
 		clean_rec(self.m_srcnode)
 
-		for v in 'm_tstamp_variants node_deps bld_sigs raw_deps m_abspath_cache'.split():
+		for v in 'node_sigs node_deps bld_sigs raw_deps m_abspath_cache'.split():
 			var = {}
 			setattr(self, v, var)
 
@@ -300,7 +300,7 @@ class Build(object):
 				except (IOError, AttributeError):
 					error("cannot find "+f)
 					hash = SIG_NIL
-				self.m_tstamp_variants[env.variant()][newnode.id] = hash
+				self.node_sigs[env.variant()][newnode.id] = hash
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"setup tools for build process"
@@ -332,7 +332,7 @@ class Build(object):
 		debug('build: list of variants is %s' % str(lstvariants))
 
 		for name in lstvariants+[0]:
-			for v in 'm_tstamp_variants node_deps raw_deps m_abspath_cache'.split():
+			for v in 'node_sigs node_deps raw_deps m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var:
 					var[name] = {}
@@ -427,7 +427,7 @@ class Build(object):
 				#debug('build: osError on ' + sub_path)
 				# listdir failed, remove all sigs of nodes
 				# TODO more things to remove?
-				dict = self.m_tstamp_variants[variant]
+				dict = self.node_sigs[variant]
 				for node in src_dir_node.childs.values():
 					if node.id in dict:
 						dict.__delitem__(node.id)
@@ -450,7 +450,7 @@ class Build(object):
 		debug('build: folder contents '+str(listed_files))
 
 		node_names = set([x.m_name for x in i_parent_node.childs.values() if x.id & 3 == Node.FILE])
-		cache = self.m_tstamp_variants[0]
+		cache = self.node_sigs[0]
 
 		# nodes to keep
 		to_keep = listed_files & node_names
@@ -466,7 +466,7 @@ class Build(object):
 		to_remove = node_names - listed_files
 		if to_remove:
 			# infrequent scenario
-			cache = self.m_tstamp_variants[0]
+			cache = self.node_sigs[0]
 			for name in to_remove:
 				nd = i_parent_node.childs[name]
 				if nd.id in cache:
@@ -485,7 +485,7 @@ class Build(object):
 
 		# remove the stamps of the build nodes that no longer exist on the filesystem
 		ids_to_remove = [x.id for x in i_existing_nodes if x.m_name in remove_names]
-		cache = self.m_tstamp_variants[i_variant]
+		cache = self.node_sigs[i_variant]
 		for nid in ids_to_remove:
 			if nid in cache:
 				cache.__delitem__(nid)
@@ -502,8 +502,8 @@ class Build(object):
 					accu += count * '-'
 					accu += '-> '+child.m_name+' '
 
-					for variant in self.m_tstamp_variants:
-						var = self.m_tstamp_variants[variant]
+					for variant in self.node_sigs:
+						var = self.node_sigs[variant]
 						if child.id in var:
 							accu += ' [%s,%s] ' % (str(variant), var[child.id].encode('hex'))
 							accu += str(child.id)
@@ -513,8 +513,8 @@ class Build(object):
 					accu+= count * '-'
 					accu+= '-> '+child.m_name+' (b) '
 
-					for variant in self.m_tstamp_variants:
-						var = self.m_tstamp_variants[variant]
+					for variant in self.node_sigs:
+						var = self.node_sigs[variant]
 						if child.id in var:
 							accu+=' [%s,%s] ' % (str(variant), var[child.id].encode('hex'))
 							accu += str(child.id)
