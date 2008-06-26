@@ -385,8 +385,8 @@ class TaskBase(object):
 		"get a unique id: hash the node paths, the variant, the class, the function"
 		m = md5()
 		up = m.update
-		for x in self.m_outputs:
-			up(x.variant(self.env))
+		for x in self.m_inputs:
+			up(str(x.variant(self.env)))
 			up(x.abspath())
 		up(self.__class__.__name__)
 		up(Utils.h_fun(self.run))
