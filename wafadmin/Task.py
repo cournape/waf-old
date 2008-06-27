@@ -747,10 +747,10 @@ class Task(TaskBase):
 		def v(x):
 			return x.encode('hex')
 
-		msgs = ['Task %s must run:', 'Source file or manual dependency', 'Implicit dependency',
-			'Environment variable', 'User-given environment variable']
-		tmp = 'task: -> %s: %s<>%s'
-		for x in len(msgs):
+		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency',
+			'* Environment variable', '* User-given environment variable']
+		tmp = 'task: -> %s: %s %s'
+		for x in xrange(len(msgs)):
 			if (new_sigs[x] != old_sigs[x]):
 				debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
 
