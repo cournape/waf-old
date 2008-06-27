@@ -386,10 +386,7 @@ class Build(object):
 		""" first list the files in the src dir and update the nodes
 		    - for each variant build dir (multiple build dirs):
 		        - list the files in the build dir, update the nodes
-
-		this makes (n bdirs)+srdir to scan (at least 2 folders)
-		so we might want to do it in parallel in some future
-		"""
+		this makes (n variant)+srdir to scan (at least 2 folders)"""
 
 		# do not rescan over and over again
 		if self.m_scanned_folders.get(src_dir_node.id, None): return
@@ -404,7 +401,7 @@ class Build(object):
 		# remove the existing timestamps if the build files are removed
 		if sys.platform == "win32" and not src_dir_node.m_name:
 			return
-		self.scan_src_path(src_dir_node, src_dir_node.abspath())
+		self.listdir_src(src_dir_node, src_dir_node.abspath())
 
 		# first obtain the differences between srcnode and src_dir_node
 		#lst = self.m_srcnode.difflst(src_dir_node)
@@ -422,7 +419,7 @@ class Build(object):
 		for variant in self._variants:
 			sub_path = os.path.join(self.m_bldnode.abspath(), variant , *lst)
 			try:
-				self.scan_path(src_dir_node, sub_path, variant)
+				self.listdir_bld(src_dir_node, sub_path, variant)
 			except OSError:
 				#debug('build: osError on ' + sub_path)
 				# listdir failed, remove all sigs of nodes
@@ -438,7 +435,7 @@ class Build(object):
 				os.makedirs(sub_path)
 
 	# ======================================= #
-	def scan_src_path(self, i_parent_node, i_path):
+	def listdir_src(self, i_parent_node, i_path):
 		"""
 		@param i_parent_node [Node]: parent node of path to scan.
 		@param i_path [string]: path to folder to scan."""
@@ -472,7 +469,7 @@ class Build(object):
 					cache.__delitem__(nd.id)
 				i_parent_node.childs.__delitem__(name)
 
-	def scan_path(self, i_parent_node, i_path, i_variant):
+	def listdir_bld(self, i_parent_node, i_path, i_variant):
 		"""in this function we do not add timestamps but we remove them
 		when the files no longer exist (file removed in the build dir)"""
 
