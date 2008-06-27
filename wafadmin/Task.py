@@ -426,26 +426,24 @@ class TaskBase(object):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
 		tree = Build.bld
 
-		# a tuple contains the task signatures from previous runs
+		# get the task signatures from previous runs
 		key = self.unique_id()
 		prev_sigs = tree.task_sigs.get(key, ())
 		if prev_sigs and prev_sigs[1] == self.scan_signature_queue():
 			return prev_sigs[1]
 
+		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
 		if Logs.verbose and Logs.zones:
 			debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
 
+		# store the dependencies in the cache
 		tree = Build.bld
 		tree.node_deps[self.unique_id()] = nodes
 		tree.raw_deps[self.unique_id()] = names
 
 		# recompute the signature and return it
 		sig = self.scan_signature_queue()
-
-		# DEBUG
-		#print "rescan for ", self.m_inputs[0], " is ", rescan,  " and deps ", \
-		#	tree.node_deps[variant][node.id], tree.raw_deps[variant][node.id]
 
 		return sig
 
@@ -459,15 +457,10 @@ class TaskBase(object):
 		m = md5()
 		upd = m.update
 
-		# additional variables to hash (command-line defines for example)
-		env = self.env
-		for x in getattr(self.__class__, "vars", ()):
-			k = env[x]
-			if k: upd(str(k))
-
 		tree = Build.bld
-		rescan = tree.rescan
 		tstamp = tree.node_sigs
+
+		env = self.env
 
 		# headers to hash
 		try:
@@ -479,7 +472,7 @@ class TaskBase(object):
 
 				# unlikely but necessary if it happens
 				try: tree.m_scanned_folders[k.m_parent.id]
-				except KeyError: rescan(k.m_parent)
+				except KeyError: tree.rescan(k.m_parent)
 
 				if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
 				else: upd(tstamp[env.variant()][k.id])
@@ -575,6 +568,13 @@ class Task(TaskBase):
 		if dep_vars:
 			var_sig = tree.sign_vars(env, dep_vars)
 			m.update(var_sig)
+
+		# additional variables to hash (command-line defines for example)
+		for x in getattr(self.__class__, "vars", ()):
+			k = env[x]
+			if k:
+				upd(str(k))
+				vars_sig = hash((vars_sig, str(k)))
 
 		# additional nodes to depend on, if provided
 		node_sig = SIG_NIL
