@@ -383,6 +383,9 @@ class TaskBase(object):
 
 	def unique_id(self):
 		"get a unique id: hash the node paths, the variant, the class, the function"
+		x = getattr(self, 'uid', None)
+		if x: return x
+
 		m = md5()
 		up = m.update
 		up(self.env.variant())
@@ -390,7 +393,8 @@ class TaskBase(object):
 			up(x.abspath())
 		up(self.__class__.__name__)
 		up(Utils.h_fun(self.run))
-		return m.digest()
+		x = self.uid = m.digest()
+		return x
 
 	def may_start(self):
 		"True if the task is ready"
