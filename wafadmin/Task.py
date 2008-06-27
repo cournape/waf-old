@@ -464,13 +464,13 @@ class TaskBase(object):
 		# get the task signatures from previous runs
 		key = self.unique_id()
 		prev_sigs = tree.task_sigs.get(key, ())
-		if prev_sigs and prev_sigs[1] == self.compute_sig_implicit_deps():
-			return prev_sigs[1]
+		if prev_sigs and prev_sigs[2] == self.compute_sig_implicit_deps():
+			return prev_sigs[2]
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
 		if Logs.verbose and Logs.zones:
-			debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
+			debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
 
 		# store the dependencies in the cache
 		tree = Build.bld
@@ -565,12 +565,12 @@ class Task(TaskBase):
 		m = md5()
 
 		# explicit deps
-		node_sig = self.sig_explicit_deps()
-		m.update(node_sig)
+		exp_sig = self.sig_explicit_deps()
+		m.update(exp_sig)
 
 		# implicit deps
-		dep_sig = self.scan and self.sig_implicit_deps() or SIG_NIL
-		m.update(dep_sig)
+		imp_sig = self.scan and self.sig_implicit_deps() or SIG_NIL
+		m.update(imp_sig)
 
 
 		# dependencies on the environment vars
@@ -595,7 +595,7 @@ class Task(TaskBase):
 
 		# we now have the array of signatures
 		ret = m.digest()
-		self.cache_sig = (ret, dep_sig, act_sig, var_sig, node_sig)
+		self.cache_sig = (ret, exp_sig, imp_sig, act_sig, var_sig)
 
 		self.sign_all = ret
 		return ret
@@ -747,8 +747,8 @@ class Task(TaskBase):
 		def v(x):
 			return x.encode('hex')
 
-		msgs = ['Task %s must run:', 'Implicit dependency', 'Environment variable',
-				'Source file or manual dependency', 'User-given environment variable']
+		msgs = ['Task %s must run:', 'Source file or manual dependency', 'Implicit dependency',
+			'Environment variable', 'User-given environment variable']
 		tmp = 'task: -> %s: %s<>%s'
 		for x in len(msgs):
 			if (new_sigs[x] != old_sigs[x]):
