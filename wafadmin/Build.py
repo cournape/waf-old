@@ -76,8 +76,8 @@ class Build(object):
 		# ======================================= #
 		# cache variables
 
-		# local cache for absolute paths - m_abspath_cache[variant][node]
-		self.m_abspath_cache = {}
+		# local cache for absolute paths - abspath_cache[variant][node]
+		self.abspath_cache = {}
 
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
@@ -90,7 +90,7 @@ class Build(object):
 		# tasks and objects
 
 		# build dir variants (release, debug, ..)
-		for v in 'node_sigs node_deps task_sigs raw_deps m_abspath_cache'.split():
+		for v in 'node_sigs node_deps task_sigs raw_deps abspath_cache'.split():
 			var = {}
 			setattr(self, v, var)
 
@@ -174,7 +174,7 @@ class Build(object):
 					node.childs.__delitem__(x)
 		clean_rec(self.m_srcnode)
 
-		for v in 'node_sigs node_deps task_sigs raw_deps m_abspath_cache'.split():
+		for v in 'node_sigs node_deps task_sigs raw_deps abspath_cache'.split():
 			var = {}
 			setattr(self, v, var)
 
@@ -332,7 +332,7 @@ class Build(object):
 		debug('build: list of variants is %s' % str(lstvariants))
 
 		for name in lstvariants+[0]:
-			for v in 'node_sigs m_abspath_cache'.split():
+			for v in 'node_sigs abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var:
 					var[name] = {}
