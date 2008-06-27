@@ -13,6 +13,8 @@ meaning in configuration and build)
 * The old priority system was removed
 * m_tstamp_variants -> node_sigs
 * bld_sigs -> task_sigs
+* the method for scanning implicit dependencies is Task::scan(self) -> (nodes, text)
+* implicit dependencies are indexed by Task::unique_id(self)
 
 NEW IN WAF 1.4.3
 ----------------

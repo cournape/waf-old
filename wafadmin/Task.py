@@ -425,31 +425,17 @@ class TaskBase(object):
 	def scan_signature(self):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
 		tree = Build.bld
-		env = self.env
 
-		# get the task signature from the signature cache
-		node = self.m_outputs[0]
-		variant = node.variant(self.env)
-		tstamps = tree.node_sigs[variant]
-		prev_sig = None
-
-		time = tstamps.get(node.id, None)
-		if not time is None:
-			key = self.unique_id()
-			# a tuple contains the task signatures from previous runs
-			tup = tree.task_sigs.get(key, ())
-			if tup:
-				prev_sig = tup[1]
-				if prev_sig != None:
-					sig = self.scan_signature_queue()
-					if sig == prev_sig:
-						return sig
-
-		#print "scanning the file", self.m_inputs[0].abspath()
+		# a tuple contains the task signatures from previous runs
+		key = self.unique_id()
+		prev_sigs = tree.task_sigs.get(key, ())
+		if prev_sigs and prev_sigs[1] == self.scan_signature_queue():
+			return prev_sigs[1]
 
 		(nodes, names) = self.scan()
 		if Logs.verbose and Logs.zones:
 			debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
+
 		tree = Build.bld
 		tree.node_deps[self.unique_id()] = nodes
 		tree.raw_deps[self.unique_id()] = names
@@ -499,7 +485,6 @@ class TaskBase(object):
 				else: upd(tstamp[env.variant()][k.id])
 
 		except KeyError:
-			raise
 			return None
 
 		return m.digest()
