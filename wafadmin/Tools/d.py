@@ -198,11 +198,11 @@ class d_parser(object):
 			# for each name, see if it is like a node or not
 			self.tryfind(x)
 
-def scan(self, node):
+def scan(self):
 	"look for .d/.di the .d source need"
 	env = self.env
 	gruik = d_parser(env, env['INC_PATHS'])
-	gruik.start(node)
+	gruik.start(self.m_inputs[0])
 
 	if Logs.verbose:
 		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))

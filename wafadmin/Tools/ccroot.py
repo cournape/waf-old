@@ -34,21 +34,26 @@ class DEBUG_LEVELS:
 
 	ALL = [ULTRADEBUG, DEBUG, RELEASE, OPTIMIZED, CUSTOM]
 
-def scan(self, node):
+def scan(self):
 	"look for .h the .cpp need"
 	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
-	gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'], defines = self.defines)
-	gruik.start(node, self.env)
-	if Logs.verbose:
-		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))
-		debug('deps: deps found for %s: %s' % (str(node), str(gruik.deps)))
+	all_nodes = []
+	all_names = []
 	seen = []
-	all = []
-	for x in gruik.m_nodes:
-		if id(x) in seen: continue
-		seen.append(id(x))
-		all.append(x)
-	return (all, gruik.m_names)
+	for node in self.m_inputs:
+		gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'], defines = self.defines)
+		gruik.start(node, self.env)
+		if Logs.verbose:
+			debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))
+			debug('deps: deps found for %s: %s' % (str(node), str(gruik.deps)))
+		for x in gruik.m_nodes:
+			if id(x) in seen: continue
+			seen.append(id(x))
+			all_nodes.append(x)
+		for x in gruik.m_names:
+			if not x in all_names:
+				all_names.append(x)
+	return (all_nodes, gruik.m_names)
 
 class ccroot_abstract(TaskGen.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"

@@ -169,8 +169,9 @@ class XMLHandler(ContentHandler):
 	def characters(self, cars):
 		self.buf.append(cars)
 
-def scan(self, node):
+def scan(self):
 	"add the dependency on the files referenced in the qrc"
+	node = self.m_inputs[0]
 	parser = make_parser()
 	curHandler = XMLHandler()
 	parser.setContentHandler(curHandler)

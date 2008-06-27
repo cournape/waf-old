@@ -76,7 +76,8 @@ def compile_may_start(self):
 
 	return Task.Task.may_start(self)
 
-def scan(self, node):
+def scan(self):
+	node = self.m_inputs[0]
 	code = filter_comments(node.read(self.env))
 
 	global open_re

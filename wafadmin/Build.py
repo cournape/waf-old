@@ -332,7 +332,7 @@ class Build(object):
 		debug('build: list of variants is %s' % str(lstvariants))
 
 		for name in lstvariants+[0]:
-			for v in 'node_sigs node_deps raw_deps m_abspath_cache'.split():
+			for v in 'node_sigs m_abspath_cache'.split():
 				var = getattr(self, v)
 				if not name in var:
 					var[name] = {}

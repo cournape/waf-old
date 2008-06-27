@@ -9,7 +9,8 @@ import Utils, TaskGen, Task, Runner, Build
 from Logs import error, warn, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
-def scan(self, node):
+def scan(self):
+	node = self.m_inputs[0]
 	env = self.env
 
 	nodes = []

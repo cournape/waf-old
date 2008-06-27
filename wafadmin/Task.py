@@ -421,26 +421,6 @@ class TaskBase(object):
 	#	return ((), ())
 	scan = None
 
-	# scans a node, the task may have additional parameters such as include paths, etc
-	def do_scan(self, node):
-		"more rarely reimplemented"
-		debug("scan: do_scan(self, node, env, hashparams)")
-
-		variant = node.variant(self.env)
-
-		if not node:
-			debug("scan: BUG rescanning a null node")
-			return
-
-		# we delegate the work to "def scan(self, node)" to avoid duplicate code
-		(nodes, names) = self.scan(node)
-		if Logs.verbose and Logs.zones:
-			debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
-
-		tree = Build.bld
-		tree.node_deps[variant][node.id] = nodes
-		tree.raw_deps[variant][node.id] = names
-
 	# compute the signature, recompute it if there is no match in the cache
 	def scan_signature(self):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
@@ -467,9 +447,12 @@ class TaskBase(object):
 
 		#print "scanning the file", self.m_inputs[0].abspath()
 
-		# some source or some header is dirty, rescan the source files
-		for node in self.m_inputs:
-			self.do_scan(node)
+		(nodes, names) = self.scan()
+		if Logs.verbose and Logs.zones:
+			debug('deps: scanner for %s returned %s %s' % (node.m_name, str(nodes), str(names)))
+		tree = Build.bld
+		tree.node_deps[self.unique_id()] = nodes
+		tree.raw_deps[self.unique_id()] = names
 
 		# recompute the signature and return it
 		sig = self.scan_signature_queue()
@@ -506,7 +489,7 @@ class TaskBase(object):
 			variant = self.m_inputs[0].variant(env)
 			upd(tstamp[variant][idx])
 
-			for k in Build.bld.node_deps[variant][idx]:
+			for k in Build.bld.node_deps[self.unique_id()]:
 
 				# unlikely but necessary if it happens
 				try: tree.m_scanned_folders[k.m_parent.id]
@@ -516,6 +499,7 @@ class TaskBase(object):
 				else: upd(tstamp[env.variant()][k.id])
 
 		except KeyError:
+			raise
 			return None
 
 		return m.digest()
