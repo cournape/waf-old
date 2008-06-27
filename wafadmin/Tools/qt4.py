@@ -33,7 +33,6 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
 	scan = ccroot.scan
-	get_signature_queue = ccroot.get_signature_queue
 
 	def __init__(self, env, parent):
 		Task.Task.__init__(self, env)

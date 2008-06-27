@@ -422,14 +422,14 @@ class TaskBase(object):
 	scan = None
 
 	# compute the signature, recompute it if there is no match in the cache
-	def scan_signature(self):
+	def sig_implicit_deps(self):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
 		tree = Build.bld
 
 		# get the task signatures from previous runs
 		key = self.unique_id()
 		prev_sigs = tree.task_sigs.get(key, ())
-		if prev_sigs and prev_sigs[1] == self.scan_signature_queue():
+		if prev_sigs and prev_sigs[1] == self.compute_sig_implicit_deps():
 			return prev_sigs[1]
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
@@ -443,14 +443,11 @@ class TaskBase(object):
 		tree.raw_deps[self.unique_id()] = names
 
 		# recompute the signature and return it
-		sig = self.scan_signature_queue()
+		sig = self.compute_sig_implicit_deps()
 
 		return sig
 
-	# ======================================= #
-	# protected methods - override if you know what you are doing
-
-	def scan_signature_queue(self):
+	def compute_sig_implicit_deps(self):
 		"""it is intented for .cpp and inferred .h files
 		there is a single list (no tree traversal)
 		this is the hot spot so ... do not touch"""
