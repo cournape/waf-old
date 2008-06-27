@@ -543,7 +543,7 @@ class Task(TaskBase):
 		# automatic dependencies - scanner
 		dep_sig = SIG_NIL
 		if self.scan:
-			dep_sig = self.scan_signature()
+			dep_sig = self.sig_implicit_deps()
 			m.update(dep_sig)
 		else:
 			for x in self.m_inputs:
