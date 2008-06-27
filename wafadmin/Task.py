@@ -412,6 +412,37 @@ class TaskBase(object):
 		"prints the debug info"
 		pass
 
+	def sig_explicit_deps(self):
+		tree = Build.bld
+		m = md5()
+
+		# the inputs
+		for x in self.m_inputs:
+			variant = x.variant(self.env)
+			m.update(tree.node_sigs[variant][x.id])
+
+		# additional nodes to depend on, if provided
+		for x in getattr(self, 'dep_nodes', []):
+			variant = x.variant(self.env)
+			v = tree.node_sigs[variant][x.id]
+			m.update(v)
+
+		# manual dependencies, they can slow down the builds
+		try:
+			additional_deps = tree.deps_man
+		except AttributeError:
+			pass
+		else:
+			for x in self.m_inputs + self.m_outputs:
+				try:
+					d = additional_deps[x]
+				except KeyError:
+					continue
+				if callable(d): d = d() # dependency is a function, call it
+				m.update(d)
+
+		return m.digest()
+
 	#def scan(self, node):
 	#	"""this method returns a tuple containing:
 	#	* a list of nodes corresponding to real files
@@ -456,26 +487,15 @@ class TaskBase(object):
 
 		tree = Build.bld
 		tstamp = tree.node_sigs
-
 		env = self.env
 
-		# headers to hash
-		try:
-			idx = self.m_inputs[0].id
-			variant = self.m_inputs[0].variant(env)
-			upd(tstamp[variant][idx])
+		for k in Build.bld.node_deps.get(self.unique_id(), ()):
+			# unlikely but necessary if it happens
+			try: tree.m_scanned_folders[k.m_parent.id]
+			except KeyError: tree.rescan(k.m_parent)
 
-			for k in Build.bld.node_deps[self.unique_id()]:
-
-				# unlikely but necessary if it happens
-				try: tree.m_scanned_folders[k.m_parent.id]
-				except KeyError: tree.rescan(k.m_parent)
-
-				if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
-				else: upd(tstamp[env.variant()][k.id])
-
-		except KeyError:
-			return None
+			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
+			else: upd(tstamp[env.variant()][k.id])
 
 		return m.digest()
 
@@ -540,18 +560,14 @@ class Task(TaskBase):
 
 		m = md5()
 
-		# automatic dependencies - scanner
-		dep_sig = SIG_NIL
-		if self.scan:
-			dep_sig = self.sig_implicit_deps()
-			m.update(dep_sig)
-		else:
-			for x in self.m_inputs:
-				variant = x.variant(env)
-				v = tree.node_sigs[variant][x.id]
-				dep_sig = hash((dep_sig, v))
-			dep_sig = str(dep_sig)
-			m.update(dep_sig)
+		# explicit deps
+		node_sig = self.sig_explicit_deps()
+		m.update(node_sig)
+
+		# implicit deps
+		dep_sig = self.scan and self.sig_implicit_deps() or SIG_NIL
+		m.update(dep_sig)
+
 
 		# dependencies on the environment vars
 		fun = getattr(self.__class__, 'signature_hook', None)
@@ -572,29 +588,6 @@ class Task(TaskBase):
 			if k:
 				upd(str(k))
 				vars_sig = hash((vars_sig, str(k)))
-
-		# additional nodes to depend on, if provided
-		node_sig = SIG_NIL
-		dep_nodes = getattr(self, 'dep_nodes', [])
-		for x in dep_nodes:
-			variant = x.variant(env)
-			v = tree.node_sigs[variant][x.id]
-			node_sig = hash((node_sig, v))
-			m.update(v)
-
-		# manual dependencies, they can slow down the builds
-		try:
-			additional_deps = tree.deps_man
-			for x in self.m_inputs + self.m_outputs:
-				try:
-					d = additional_deps[x]
-				except KeyError:
-					continue
-				if callable(d): d = d() # dependency is a function, call it
-				node_sig = hash((node_sig, d))
-				m.update(d)
-		except AttributeError:
-			pass
 
 		# we now have the array of signatures
 		ret = m.digest()
@@ -750,15 +743,12 @@ class Task(TaskBase):
 		def v(x):
 			return x.encode('hex')
 
-		debug("task: Task %s must run: %s" % (self.m_idx, old_sigs[0] != new_sigs[0]))
-		if (new_sigs[1] != old_sigs[1]):
-			debug('task: -> A source file (or a dependency) has changed %s %s' % (v(old_sigs[1]), v(new_sigs[1])))
-		if (new_sigs[2] != old_sigs[2]):
-			debug('task: -> An environment variable has changed %s %s' % (v(old_sigs[2]), v(new_sigs[2])))
-		if (new_sigs[3] != old_sigs[3]):
-			debug('task: -> A manual dependency has changed %s %s' % (v(old_sigs[3]), v(new_sigs[3])))
-		if (new_sigs[4] != old_sigs[4]):
-			debug('task: -> A user-given environment variable has changed %s %s' % (v(old_sigs[4]), v(new_sigs[4])))
+		msgs = ['Task %s must run:', 'Implicit dependency', 'Environment variable',
+				'Source file or manual dependency', 'User-given environment variable']
+		tmp = 'task: -> %s: %s<>%s'
+		for x in len(msgs):
+			if (new_sigs[x] != old_sigs[x]):
+				debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
 
 class TaskCmd(TaskBase):
 	"TaskCmd executes commands. Instances always execute their function"
