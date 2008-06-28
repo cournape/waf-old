@@ -310,7 +310,7 @@ class TaskGroup(object):
 		return self.tasks[:] # make a copy
 
 class store_task_type(type):
-	"store the task types that have a name ending in _task into"
+	"store the task types that have a name ending in _task into a map (remember the existing task types)"
 	def __init__(cls, name, bases, dict):
 		super(store_task_type, cls).__init__(name, bases, dict)
 		name = cls.__name__
@@ -381,21 +381,6 @@ class TaskBase(object):
 		sum = hash((sum, self.__class__.maxjobs))
 		return sum
 
-	def unique_id(self):
-		"get a unique id: hash the node paths, the variant, the class, the function"
-		x = getattr(self, 'uid', None)
-		if x: return x
-
-		m = md5()
-		up = m.update
-		up(self.env.variant())
-		for x in self.m_inputs + self.m_outputs:
-			up(x.abspath())
-		up(self.__class__.__name__)
-		up(Utils.h_fun(self.run))
-		x = self.uid = m.digest()
-		return x
-
 	def may_start(self):
 		"True if the task is ready"
 		return True
@@ -416,119 +401,22 @@ class TaskBase(object):
 		"prints the debug info"
 		pass
 
-	def sig_explicit_deps(self):
-		tree = Build.bld
-		m = md5()
-
-		# the inputs
-		for x in self.m_inputs:
-			variant = x.variant(self.env)
-			m.update(tree.node_sigs[variant][x.id])
-
-		# additional nodes to depend on, if provided
-		for x in getattr(self, 'dep_nodes', []):
-			variant = x.variant(self.env)
-			v = tree.node_sigs[variant][x.id]
-			m.update(v)
-
-		# manual dependencies, they can slow down the builds
-		try:
-			additional_deps = tree.deps_man
-		except AttributeError:
-			pass
-		else:
-			for x in self.m_inputs + self.m_outputs:
-				try:
-					d = additional_deps[x]
-				except KeyError:
-					continue
-				if callable(d): d = d() # dependency is a function, call it
-				m.update(d)
-
-		return m.digest()
-
-	def sig_vars(self):
-		m = md5()
-		tree = Build.bld
-		env = self.env
-
-		# dependencies on the environment vars
-		fun = getattr(self.__class__, 'signature_hook', None)
-		if fun: act_sig = self.__class__.signature_hook(self)
-		else: act_sig = tree.sign_vars(env, self.__class__.m_vars)
-		m.update(act_sig)
-
-		# additional variable dependencies, if provided
-		var_sig = SIG_NIL
-		dep_vars = getattr(self, 'dep_vars', None)
-		if dep_vars:
-			var_sig = tree.sign_vars(env, dep_vars)
-			m.update(var_sig)
-
-		# additional variables to hash (command-line defines for example)
-		for x in getattr(self.__class__, "vars", ()):
-			k = env[x]
-			if k:
-				upd(str(k))
-				vars_sig = hash((vars_sig, str(k)))
-
-		return m.digest()
-
-	#def scan(self, node):
-	#	"""this method returns a tuple containing:
-	#	* a list of nodes corresponding to real files
-	#	* a list of names for files not found in path_lst
-	#	the input parameters may have more parameters that the ones used below
-	#	"""
-	#	return ((), ())
-	scan = None
-
-	# compute the signature, recompute it if there is no match in the cache
-	def sig_implicit_deps(self):
-		"the signature obtained may not be the one if the files have changed, we do it in two steps"
-		tree = Build.bld
-
-		# get the task signatures from previous runs
-		key = self.unique_id()
-		prev_sigs = tree.task_sigs.get(key, ())
-		if prev_sigs and prev_sigs[2] == self.compute_sig_implicit_deps():
-			return prev_sigs[2]
-
-		# no previous run or the signature of the dependencies has changed, rescan the dependencies
-		(nodes, names) = self.scan()
-		if Logs.verbose and Logs.zones:
-			debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
-
-		# store the dependencies in the cache
-		tree = Build.bld
-		tree.node_deps[self.unique_id()] = nodes
-		tree.raw_deps[self.unique_id()] = names
-
-		# recompute the signature and return it
-		sig = self.compute_sig_implicit_deps()
-
-		return sig
-
-	def compute_sig_implicit_deps(self):
-		"""it is intented for .cpp and inferred .h files
-		there is a single list (no tree traversal)
-		this is the hot spot so ... do not touch"""
-		m = md5()
-		upd = m.update
-
-		tree = Build.bld
-		tstamp = tree.node_sigs
-		env = self.env
-
-		for k in Build.bld.node_deps.get(self.unique_id(), ()):
-			# unlikely but necessary if it happens
-			try: tree.m_scanned_folders[k.m_parent.id]
-			except KeyError: tree.rescan(k.m_parent)
-
-			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
-			else: upd(tstamp[env.variant()][k.id])
-
-		return m.digest()
+class TaskCmd(TaskBase):
+	"TaskCmd executes commands. Instances always execute the method 'run'"
+	def __init__(self, fun, env):
+		TaskBase.__init__(self)
+		self.fun = fun
+		self.m_env = env
+	def get_str(self):
+		return "executing: %s" % self.fun.__name__
+	def debug_info(self):
+		return 'TaskCmd:fun %s' % self.fun.__name__
+	def debug(self):
+		return 'TaskCmd:fun %s' % self.fun.__name__
+	def run(self):
+		self.fun(self)
+	def env(self):
+		return self.m_env
 
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
@@ -560,6 +448,21 @@ class Task(TaskBase):
 	def __repr__(self):
 		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
 
+	def unique_id(self):
+		"get a unique id: hash the node paths, the variant, the class, the function"
+		x = getattr(self, 'uid', None)
+		if x: return x
+
+		m = md5()
+		up = m.update
+		up(self.env.variant())
+		for x in self.m_inputs + self.m_outputs:
+			up(x.abspath())
+		up(self.__class__.__name__)
+		up(Utils.h_fun(self.run))
+		x = self.uid = m.digest()
+		return x
+
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.m_inputs += inp
 		else: self.m_inputs.append(inp)
@@ -579,15 +482,10 @@ class Task(TaskBase):
 		node = Build.bld.m_current.find_resource(filename)
 		self.m_deps_nodes.append(node)
 
-	#------------ users are probably less interested in the following methods --------------#
-
 	def signature(self):
 		# compute the result one time, and suppose the scan_signature will give the good result
 		try: return self.sign_all
 		except AttributeError: pass
-
-		env = self.env
-		tree = Build.bld
 
 		m = md5()
 
@@ -763,22 +661,119 @@ class Task(TaskBase):
 			if (new_sigs[x] != old_sigs[x]):
 				debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
 
-class TaskCmd(TaskBase):
-	"TaskCmd executes commands. Instances always execute their function"
-	def __init__(self, fun, env):
-		TaskBase.__init__(self)
-		self.fun = fun
-		self.m_env = env
-	def get_str(self):
-		return "executing: %s" % self.fun.__name__
-	def debug_info(self):
-		return 'TaskCmd:fun %s' % self.fun.__name__
-	def debug(self):
-		return 'TaskCmd:fun %s' % self.fun.__name__
-	def run(self):
-		self.fun(self)
-	def env(self):
-		return self.m_env
+	def sig_explicit_deps(self):
+		tree = Build.bld
+		m = md5()
+
+		# the inputs
+		for x in self.m_inputs:
+			variant = x.variant(self.env)
+			m.update(tree.node_sigs[variant][x.id])
+
+		# additional nodes to depend on, if provided
+		for x in getattr(self, 'dep_nodes', []):
+			variant = x.variant(self.env)
+			v = tree.node_sigs[variant][x.id]
+			m.update(v)
+
+		# manual dependencies, they can slow down the builds
+		try:
+			additional_deps = tree.deps_man
+		except AttributeError:
+			pass
+		else:
+			for x in self.m_inputs + self.m_outputs:
+				try:
+					d = additional_deps[x]
+				except KeyError:
+					continue
+				if callable(d): d = d() # dependency is a function, call it
+				m.update(d)
+
+		return m.digest()
+
+	def sig_vars(self):
+		m = md5()
+		tree = Build.bld
+		env = self.env
+
+		# dependencies on the environment vars
+		fun = getattr(self.__class__, 'signature_hook', None)
+		if fun: act_sig = self.__class__.signature_hook(self)
+		else: act_sig = tree.sign_vars(env, self.__class__.m_vars)
+		m.update(act_sig)
+
+		# additional variable dependencies, if provided
+		var_sig = SIG_NIL
+		dep_vars = getattr(self, 'dep_vars', None)
+		if dep_vars:
+			var_sig = tree.sign_vars(env, dep_vars)
+			m.update(var_sig)
+
+		# additional variables to hash (command-line defines for example)
+		for x in getattr(self.__class__, "vars", ()):
+			k = env[x]
+			if k:
+				upd(str(k))
+				vars_sig = hash((vars_sig, str(k)))
+
+		return m.digest()
+
+	#def scan(self, node):
+	#	"""this method returns a tuple containing:
+	#	* a list of nodes corresponding to real files
+	#	* a list of names for files not found in path_lst
+	#	the input parameters may have more parameters that the ones used below
+	#	"""
+	#	return ((), ())
+	scan = None
+
+	# compute the signature, recompute it if there is no match in the cache
+	def sig_implicit_deps(self):
+		"the signature obtained may not be the one if the files have changed, we do it in two steps"
+		tree = Build.bld
+
+		# get the task signatures from previous runs
+		key = self.unique_id()
+		prev_sigs = tree.task_sigs.get(key, ())
+		if prev_sigs and prev_sigs[2] == self.compute_sig_implicit_deps():
+			return prev_sigs[2]
+
+		# no previous run or the signature of the dependencies has changed, rescan the dependencies
+		(nodes, names) = self.scan()
+		if Logs.verbose and Logs.zones:
+			debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
+
+		# store the dependencies in the cache
+		tree = Build.bld
+		tree.node_deps[self.unique_id()] = nodes
+		tree.raw_deps[self.unique_id()] = names
+
+		# recompute the signature and return it
+		sig = self.compute_sig_implicit_deps()
+
+		return sig
+
+	def compute_sig_implicit_deps(self):
+		"""it is intented for .cpp and inferred .h files
+		there is a single list (no tree traversal)
+		this is the hot spot so ... do not touch"""
+		m = md5()
+		upd = m.update
+
+		tree = Build.bld
+		tstamp = tree.node_sigs
+		env = self.env
+
+		for k in Build.bld.node_deps.get(self.unique_id(), ()):
+			# unlikely but necessary if it happens
+			try: tree.m_scanned_folders[k.m_parent.id]
+			except KeyError: tree.rescan(k.m_parent)
+
+			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
+			else: upd(tstamp[env.variant()][k.id])
+
+		return m.digest()
 
 def funex(c):
 	exec(c)
