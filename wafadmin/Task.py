@@ -447,6 +447,33 @@ class TaskBase(object):
 
 		return m.digest()
 
+	def sig_vars(self):
+		m = md5()
+		tree = Build.bld
+		env = self.env
+
+		# dependencies on the environment vars
+		fun = getattr(self.__class__, 'signature_hook', None)
+		if fun: act_sig = self.__class__.signature_hook(self)
+		else: act_sig = tree.sign_vars(env, self.__class__.m_vars)
+		m.update(act_sig)
+
+		# additional variable dependencies, if provided
+		var_sig = SIG_NIL
+		dep_vars = getattr(self, 'dep_vars', None)
+		if dep_vars:
+			var_sig = tree.sign_vars(env, dep_vars)
+			m.update(var_sig)
+
+		# additional variables to hash (command-line defines for example)
+		for x in getattr(self.__class__, "vars", ()):
+			k = env[x]
+			if k:
+				upd(str(k))
+				vars_sig = hash((vars_sig, str(k)))
+
+		return m.digest()
+
 	#def scan(self, node):
 	#	"""this method returns a tuple containing:
 	#	* a list of nodes corresponding to real files
@@ -572,30 +599,13 @@ class Task(TaskBase):
 		imp_sig = self.scan and self.sig_implicit_deps() or SIG_NIL
 		m.update(imp_sig)
 
+		# env vars
+		var_sig = self.sig_vars()
+		m.update(var_sig)
 
-		# dependencies on the environment vars
-		fun = getattr(self.__class__, 'signature_hook', None)
-		if fun: act_sig = self.__class__.signature_hook(self)
-		else: act_sig = tree.sign_vars(env, self.__class__.m_vars)
-		m.update(act_sig)
-
-		# additional variable dependencies, if provided
-		var_sig = SIG_NIL
-		dep_vars = getattr(self, 'dep_vars', None)
-		if dep_vars:
-			var_sig = tree.sign_vars(env, dep_vars)
-			m.update(var_sig)
-
-		# additional variables to hash (command-line defines for example)
-		for x in getattr(self.__class__, "vars", ()):
-			k = env[x]
-			if k:
-				upd(str(k))
-				vars_sig = hash((vars_sig, str(k)))
-
-		# we now have the array of signatures
+		# we now have the signature (first element) and the details (for debugging)
 		ret = m.digest()
-		self.cache_sig = (ret, exp_sig, imp_sig, act_sig, var_sig)
+		self.cache_sig = (ret, exp_sig, imp_sig, var_sig)
 
 		self.sign_all = ret
 		return ret
@@ -747,8 +757,7 @@ class Task(TaskBase):
 		def v(x):
 			return x.encode('hex')
 
-		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency',
-			'* Environment variable', '* User-given environment variable']
+		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency', '* Environment variable']
 		tmp = 'task: -> %s: %s %s'
 		for x in xrange(len(msgs)):
 			if (new_sigs[x] != old_sigs[x]):
