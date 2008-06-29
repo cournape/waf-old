@@ -197,12 +197,12 @@ class tex_taskgen(TaskGen.task_gen):
 			if deps_lst:
 				variant = node.variant(self.env)
 				try:
-					lst = tree.node_deps[variant][node.id]
+					lst = tree.node_deps[task.unique_id()]
 					for n in deps_lst:
 						if not n in lst:
 							lst.append(n)
 				except KeyError:
-					tree.node_deps[variant][node.id] = deps_lst
+					tree.node_deps[task.unique_id()] = deps_lst
 
 			if self.m_type == 'latex':
 				if 'ps' in outs:
