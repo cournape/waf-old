@@ -18,6 +18,7 @@ meaning in configuration and build)
 * Params.pprint -> Utils.pprint
 * Params.g_options -> Options.options
 * Params.g_commands -> Options.commands
+* Params.g_build -> Build.bld
 
 NEW IN WAF 1.4.3
 ----------------
