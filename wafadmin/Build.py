@@ -111,7 +111,7 @@ class Build(object):
 
 		self.task_manager = Task.TaskManager()
 
-	# load existing data structures from the disk (stored using self._store())
+	# load existing data structures from the disk (stored using self.save())
 	def _load(self):
 		code = ''
 		try:
@@ -144,8 +144,8 @@ class Build(object):
 			self._init_data()
 		gc.enable()
 
-	# store the data structures on disk, retrieve with self._load()
-	def _store(self):
+	def save(self):
+		"store the cache on disk, see self.load"
 		gc.disable()
 		file = open(os.path.join(self.m_bdir, DBFILE), 'wb')
 		data = {}
@@ -155,9 +155,6 @@ class Build(object):
 		gc.enable()
 
 	# ======================================= #
-
-	def save(self):
-		self._store()
 
 	def clean(self):
 		debug('build: clean called')
@@ -213,7 +210,7 @@ class Build(object):
 		except KeyboardInterrupt, e:
 			dw()
 			os.chdir(self.m_srcnode.abspath())
-			self._store()
+			self.save()
 			Utils.pprint('RED', 'Build interrupted')
 			if Logs.verbose > 1: raise
 			else: sys.exit(68)
@@ -223,7 +220,7 @@ class Build(object):
 			raise
 		else:
 			dw()
-			self._store()
+			self.save()
 
 		if ret:
 			os.chdir(self.m_srcnode.abspath())
