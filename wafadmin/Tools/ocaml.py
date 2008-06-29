@@ -26,56 +26,6 @@ def filter_comments(txt):
 		return ''
 	return foo.sub(repl, txt)
 
-def link_may_start(self):
-	if not getattr(self, 'order', ''):
-
-		# now reorder the m_inputs given the task dependencies
-		if getattr(self, 'bytecode', 0): alltasks = self.obj.bytecode_tasks
-		else: alltasks = self.obj.native_tasks
-
-		# this part is difficult, we do not have a total order on the tasks
-		# if the dependencies are wrong, this may not stop
-		seen = []
-		pendant = []+alltasks
-		while pendant:
-			task = pendant.pop(0)
-			if task in seen: continue
-			for x in task.run_after:
-				if not x in seen:
-					pendant.append(task)
-					break
-			else:
-				seen.append(task)
-		self.m_inputs = [x.m_outputs[0] for x in seen]
-		self.order = 1
-	return Task.Task.may_start(self)
-
-def compile_may_start(self):
-	if getattr(self, 'flag_deps', ''): return 1
-
-	# the evil part is that we can only compute the dependencies after the
-	# source files can be read (this means actually producing the source files)
-	if getattr(self, 'bytecode', ''): alltasks = self.obj.bytecode_tasks
-	else: alltasks = self.obj.native_tasks
-
-	self.signature() # ensure that files are scanned - unfortunately
-	tree = Build.bld
-	env = self.env
-	for node in self.m_inputs:
-		lst = tree.node_deps[node.variant(env)][node.id]
-		for depnode in lst:
-			for t in alltasks:
-				if t == self: continue
-				if depnode in t.m_inputs:
-					self.set_run_after(t)
-	self.obj.flag_deps = 'ok'
-
-	# TODO necessary to get the signature right - for now
-	delattr(self, 'sign_all')
-	self.signature()
-
-	return Task.Task.may_start(self)
-
 def scan(self):
 	node = self.m_inputs[0]
 	code = filter_comments(node.read(self.env))
@@ -286,6 +236,32 @@ def ml_hook(self, node):
 		task.set_outputs(node.change_ext('.cmo'))
 		self.bytecode_tasks.append(task)
 
+def compile_may_start(self):
+	if getattr(self, 'flag_deps', ''): return 1
+
+	# the evil part is that we can only compute the dependencies after the
+	# source files can be read (this means actually producing the source files)
+	if getattr(self, 'bytecode', ''): alltasks = self.obj.bytecode_tasks
+	else: alltasks = self.obj.native_tasks
+
+	self.signature() # ensure that files are scanned - unfortunately
+	tree = Build.bld
+	env = self.env
+	for node in self.m_inputs:
+		lst = tree.node_deps[self.unique_id()]
+		for depnode in lst:
+			for t in alltasks:
+				if t == self: continue
+				if depnode in t.m_inputs:
+					self.set_run_after(t)
+	self.obj.flag_deps = 'ok'
+
+	# TODO necessary to get the signature right - for now
+	delattr(self, 'sign_all')
+	self.signature()
+
+	return Task.Task.may_start(self)
+
 b = Task.simple_task_type
 cls = b('ocamlx', '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
 cls.may_start = compile_may_start
@@ -297,12 +273,36 @@ cls.may_start = compile_may_start
 cls.scan = scan
 
 
-
 b('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='BLUE', before="ocaml ocamlcc")
 b('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
 
 b('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
 b('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
+
+
+def link_may_start(self):
+	if not getattr(self, 'order', ''):
+
+		# now reorder the m_inputs given the task dependencies
+		if getattr(self, 'bytecode', 0): alltasks = self.obj.bytecode_tasks
+		else: alltasks = self.obj.native_tasks
+
+		# this part is difficult, we do not have a total order on the tasks
+		# if the dependencies are wrong, this may not stop
+		seen = []
+		pendant = []+alltasks
+		while pendant:
+			task = pendant.pop(0)
+			if task in seen: continue
+			for x in task.run_after:
+				if not x in seen:
+					pendant.append(task)
+					break
+			else:
+				seen.append(task)
+		self.m_inputs = [x.m_outputs[0] for x in seen]
+		self.order = 1
+	return Task.Task.may_start(self)
 
 act = b('ocalink', '${OCAMLC} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', after="ocaml ocamlcc")
 act.may_start = link_may_start
