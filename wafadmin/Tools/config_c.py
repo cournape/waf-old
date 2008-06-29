@@ -1131,8 +1131,7 @@ def check_pkg(self, modname, destvar='', vnum='', pkgpath='', pkgbin='',
 	return pkgconf.run()
 
 @conf
-def pkgconfig_fetch_variable(self,pkgname,variable,pkgpath='',pkgbin='',pkgversion=0,env=None):
-	if not env: env=self.env
+def pkgconfig_fetch_variable(self, pkgname, variable, pkgpath='', pkgbin='', pkgversion=0):
 
 	if not pkgbin: pkgbin='pkg-config'
 	if pkgpath: pkgpath='PKG_CONFIG_PATH=$PKG_CONFIG_PATH:'+pkgpath
