@@ -50,7 +50,7 @@ class log_filter(logging.Filter):
 		rec.zone = rec.module
 		if rec.levelno >= logging.INFO:
 			if rec.levelno >= logging.ERROR:
-				rec.c1 = color('RED')
+				rec.c1 = colors.RED
 			return True
 
 		zone = ''
