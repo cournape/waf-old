@@ -110,7 +110,9 @@ class xml_to_taskgen(TaskGen.task_gen):
 		tsk.set_outputs(xmlfile.change_ext('html'))
 		tsk.install = {'var':self.inst_var, 'dir':self.inst_dir}
 
-def sgml_scan(self, node):
+def sgml_scan(self):
+	node = self.m_inputs[0]
+
 	env = self.env
 	variant = node.variant(env)
 
@@ -124,11 +126,7 @@ def sgml_scan(self, node):
 	doc_name = name+'.'+num
 	return ([], [doc_name])
 
-def sgml_do_scan(self, node):
-	self.do_scan(self, node)
-
-	variant = node.variant(self.env)
-	tmp_lst = Build.bld.raw_deps[variant][node.id]
+	tmp_lst = Build.bld.raw_deps[self.unique_id()]
 	name = tmp_lst[0]
 	self.set_outputs(self.task_generator.path.find_build(name))
 
@@ -273,7 +271,6 @@ def add_glib_mkenum(self, source='', template='', target=''):
 Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK')
 
 cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
-cls.do_scan = sgml_do_scan
 cls.scan = sgml_scan
 
 Task.simple_task_type('glib_genmarshal',
