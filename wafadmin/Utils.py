@@ -36,7 +36,7 @@ Utilities, the stable ones are the following:
 
 import os, sys, imp, types, string, time, errno, inspect
 from UserDict import UserDict
-import Logs
+import Logs. Build
 from Constants import *
 
 indicator = sys.platform=='win32' and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
@@ -72,8 +72,6 @@ except ImportError:
 			readBytes = len(readString)
 		f.close()
 		return m.digest()
-
-import Build
 
 colors = {
 'BOLD'  :'\x1b[01;1m',
