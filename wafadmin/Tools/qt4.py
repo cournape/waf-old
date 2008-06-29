@@ -32,10 +32,11 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 
 class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
+
 	scan = ccroot.scan
 
-	def __init__(self, env, parent):
-		Task.Task.__init__(self, env)
+	def __init__(self, parent):
+		Task.Task.__init__(self, parent.env)
 		self.moc_done = 0
 		self.parent = parent
 
@@ -72,8 +73,8 @@ class MTask(Task.Task):
 		mocfiles=[]
 		variant = node.variant(parn.env)
 		try:
-			tmp_lst = tree.raw_deps[variant][node.id]
-			tree.raw_deps[variant][node.id] = []
+			tmp_lst = tree.raw_deps[self.unique_id()]
+			tree.raw_deps[self.unique_id()] = []
 		except KeyError:
 			tmp_lst = []
 		for d in tmp_lst:
@@ -107,7 +108,7 @@ class MTask(Task.Task):
 			# next time we will not search for the extension (look at the 'for' loop below)
 			h_node = node.m_parent.find_resource(base2+i)
 			m_node = h_node.change_ext('.moc')
-			tree.node_deps[variant][m_node.id] = (h_node,)
+			tree.node_deps[self.unique_id()] = (h_node,)
 
 			# create the task
 			task = Task.TaskBase.classes['moc'](parn.env, normal=0)
@@ -121,15 +122,15 @@ class MTask(Task.Task):
 			moctasks.append(task)
 
 		# remove raw deps except the moc files to save space (optimization)
-		tmp_lst = tree.raw_deps[variant][node.id] = mocfiles
+		tmp_lst = tree.raw_deps[self.unique_id()] = mocfiles
 
 		# look at the file inputs, it is set right above
-		lst = tree.node_deps[variant].get(node.id, ())
+		lst = tree.node_deps.get(self.unique_id(), ())
 		for d in lst:
 			name = d.m_name
 			if name.endswith('.moc'):
 				task = Task.TaskBase.classes['moc'](parn.env, normal=0)
-				task.set_inputs(tree.node_deps[variant][d.id][0]) # 1st element in a tuple
+				task.set_inputs(tree.node_deps[self.unique_id()][0]) # 1st element in a tuple
 				task.set_outputs(d)
 
 				generator = Build.bld.generator
@@ -142,11 +143,11 @@ class MTask(Task.Task):
 		self.m_run_after = moctasks
 		self.moc_done = 1
 
-	run = Task.TaskBase.classes['cxx'].__dict__["run"]
+	run = Task.TaskBase.classes['cxx'].__dict__['run']
 
 def translation_update(task):
-	outs=[a.abspath(task.env) for a in task.m_outputs]
-	outs=" ".join(outs)
+	outs = [a.abspath(task.env) for a in task.m_outputs]
+	outs = " ".join(outs)
 	lupdate = task.env['QT_LUPDATE']
 
 	for x in task.m_inputs:
@@ -202,7 +203,7 @@ def create_rcc_task(self, node):
 	cpptask = self.create_task('cxx')
 	cpptask.m_inputs  = [rcnode]
 	cpptask.m_outputs = [rcnode.change_ext('.o')]
-
+	cpptask.defines  = self.scanner_defines
 	self.compiled_tasks.append(cpptask)
 
 	return cpptask
@@ -231,7 +232,7 @@ def apply_qt4(self):
 		lst=[]
 		trans=[]
 		for l in self.to_list(self.lang):
-			t = Task.TaskBase.classes['ts2qm']('ts2qm', self.env)
+			t = Task.TaskBase.classes['ts2qm'](self.env)
 			t.set_inputs(self.path.find_resource(l+'.ts'))
 			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
 			lst.append(t.m_outputs[0])
@@ -247,7 +248,7 @@ def apply_qt4(self):
 			u.m_outputs = trans
 
 		if self.langname:
-			t = Task.TaskBase.classes['qm2rcc']('qm2rcc', self.env)
+			t = Task.TaskBase.classes['qm2rcc'](self.env)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_build(self.langname+'.qrc'))
 			t.path = self.path
@@ -290,7 +291,7 @@ setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
 @extension(EXT_QT4)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = MTask('cxx', self.env, self)
+	task = MTask(self)
 	self.m_tasks.append(task)
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
