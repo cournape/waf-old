@@ -12,7 +12,7 @@ The class Build holds all the info related to a build:
 There is only one Build object at a time (bld singleton)
 """
 
-import os, sys, cPickle, types, imp, errno, re, glob
+import os, sys, cPickle, types, imp, errno, re, glob, gc
 import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs, Options
 from Logs import *
 from Constants import *
@@ -133,6 +133,7 @@ class Build(object):
 					for t in lst:
 						self.setup(**t)
 
+		gc.disable()
 		try:
 			file = open(os.path.join(self.m_bdir, DBFILE), 'rb')
 			data = cPickle.load(file)
@@ -141,14 +142,17 @@ class Build(object):
 		except (IOError, EOFError):
 			debug('build: Build cache loading failed (cleaning)')
 			self._init_data()
+		gc.enable()
 
 	# store the data structures on disk, retrieve with self._load()
 	def _store(self):
+		gc.disable()
 		file = open(os.path.join(self.m_bdir, DBFILE), 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
 		cPickle.dump(data, file, -1) # remove the '-1' for unoptimized version
 		file.close()
+		gc.enable()
 
 	# ======================================= #
 
