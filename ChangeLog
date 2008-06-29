@@ -8,13 +8,16 @@ NEW IN WAF 1.5.0
 meaning in configuration and build)
 * the helper functions have been moved to Utils.py
 * Task_gen.g_allobj -> bld.all_task_gen or Params.g_build.all_task_gen
-* Params.g_autoconfig -> Configure.autoconfig
-* Params.pprint -> Utils.pprint
 * The old priority system was removed
 * m_tstamp_variants -> node_sigs
 * bld_sigs -> task_sigs
 * the method for scanning implicit dependencies is Task::scan(self) -> (nodes, text)
 * implicit dependencies are indexed by Task::unique_id(self)
+* The module Params disappears
+* Params.g_autoconfig -> Configure.autoconfig
+* Params.pprint -> Utils.pprint
+* Params.g_options -> Options.options
+* Params.g_commands -> Options.commands
 
 NEW IN WAF 1.4.3
 ----------------
