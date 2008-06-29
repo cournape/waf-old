@@ -74,9 +74,10 @@ class shpip_task(Task.Task):
 		# and if the source has not changed, create the corresponding cpp tasks
 		node = self.m_inputs[0]
 		try:
-			sig = Build.bld.m_tstamp_variants[node.variant(self.env)][node.id]
-			deps = Build.bld.raw_deps[node.variant(self.env)][node.id]
-			prev_sig = deps[0]
+			sig = self.signature()
+			key = self.unique_id()
+			deps = Build.bld.raw_deps[key]
+			prev_sig = Build.bld.task_sigs[key][0]
 		except KeyError:
 			pass
 		else:
@@ -98,7 +99,7 @@ class shpip_task(Task.Task):
 		variant = node.variant(env)
 
 		try:
-			time = tree.m_tstamp_variants[variant][node.id]
+			time = tree.node_sigs[variant][node.id]
 		except KeyError:
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
 			try: new_sig = self.signature()
@@ -146,7 +147,6 @@ class shpip_task(Task.Task):
 			raise
 			return 1
 		else:
-
 			# the variable lst should contain a list of paths to the files produced
 			lst = Utils.to_list(files)
 
@@ -160,10 +160,11 @@ class shpip_task(Task.Task):
 
 			# create the cpp tasks
 			self.add_cpp_tasks(build_nodes)
+
 			# cache the file names and the task signature
 			node = self.m_inputs[0]
-			sig = Build.bld.m_tstamp_variants[node.variant(self.env)][node.id]
-			Build.bld.raw_deps[node.variant(self.env)][node.id] = [sig] + lst
+			sig = self.signature()
+			Build.bld.raw_deps[self.unique_id()] = [sig] + lst
 		# 0 for all ok
 		return 0
 
