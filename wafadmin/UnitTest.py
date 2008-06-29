@@ -83,8 +83,8 @@ class unit_test(object):
 				pass
 		self.total_num_tests = len(self.unit_tests)
 		# Now run the unit tests
-		col1 = Utils.colors.get('GREEN', '')
-		col2 = Utils.colors.get('NORMAL', '')
+		col1 = Logs.colors.GREEN
+		col2 = Logs.colors.NORMAL
 		Utils.pprint('GREEN', 'Running the unit tests')
 		count = 0
 		result = 1

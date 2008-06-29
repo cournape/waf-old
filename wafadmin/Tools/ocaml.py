@@ -100,7 +100,7 @@ class ocaml_taskgen(TaskGen.task_gen):
 
 		if not self.env: self.env = Build.bld.env()
 
-		if not self.m_type in ['bytecode','native','all','c_object']:
+		if not self.m_type in ['bytecode', 'native', 'all', 'c_object']:
 			print 'type for camlobj is undefined '+self.m_type
 			self.m_type='all'
 
@@ -170,6 +170,7 @@ def apply_link_ml(self):
 		linktask.obj = self
 		linktask.env = self.bytecode_env
 		self.linktasks.append(linktask)
+
 	if self.native_env:
 		linktask = self.create_task('ocalinkx')
 		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=0)))
@@ -227,6 +228,7 @@ def ml_hook(self, node):
 		task.obj = self
 		task.incpaths = self._bld_incpaths_lst
 		self.native_tasks.append(task)
+
 	if self.bytecode_env:
 		task = self.create_task('ocaml', self.bytecode_env)
 		task.set_inputs(node)

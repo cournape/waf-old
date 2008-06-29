@@ -2,12 +2,42 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import re, logging, traceback, sys
-import Utils
+import os, re, logging, traceback, sys
 from Constants import *
 
 zones = ''
 verbose = 0
+
+colors_lst = {
+'USE' : True,
+'BOLD'  :'\x1b[01;1m',
+'RED'   :'\x1b[01;91m',
+'GREEN' :'\x1b[32m',
+'YELLOW':'\x1b[33m',
+'PINK'  :'\x1b[35m',
+'BLUE'  :'\x1b[01;34m',
+'CYAN'  :'\x1b[36m',
+'NORMAL':'\x1b[0m',
+'cursor_on'  :'\x1b[?25h',
+'cursor_off' :'\x1b[?25l',
+}
+
+if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
+	or (os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']) \
+	or (not sys.stdout.isatty()):
+		colors_lst['USE'] = False
+
+def get_color(cl):
+	if not colors_lst['USE']: return ''
+	return colors_lst.get(cl, '')
+
+class foo():
+	def __getattr__(self, a):
+		return get_color(a)
+	def __call__(self, a):
+		return get_color(a)
+
+colors = foo()
 
 re_log = re.compile(r'(\w+): (.*)', re.M)
 class log_filter(logging.Filter):
@@ -15,13 +45,12 @@ class log_filter(logging.Filter):
 		pass
 
 	def filter(self, rec):
-		col = Utils.colors
-		rec.c1 = col.get('PINK', '')
-		rec.c2 = col.get('NORMAL','')
+		rec.c1 = colors.PINK
+		rec.c2 = colors.NORMAL
 		rec.zone = rec.module
 		if rec.levelno >= logging.INFO:
 			if rec.levelno >= logging.ERROR:
-				rec.c1 = col.get('RED', '')
+				rec.c1 = color('RED')
 			return True
 
 		zone = ''

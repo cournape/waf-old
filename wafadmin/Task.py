@@ -348,9 +348,8 @@ class TaskBase(object):
 
 	def display(self):
 		"do not print anything if there is nothing to display"
-		cl = Utils.colors
-		col1 = cl.get(self.color, '')
-		col2 = cl.get('NORMAL', '')
+		col1 = Logs.colors(self.color)
+		col2 = Logs.colors.NORMAL
 
 		if Options.options.progress_bar == 1:
 			return Utils.progress_line(self.position[0], self.position[1], col1, col2)
