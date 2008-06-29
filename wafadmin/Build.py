@@ -111,8 +111,8 @@ class Build(object):
 
 		self.task_manager = Task.TaskManager()
 
-	# load existing data structures from the disk (stored using self.save())
-	def _load(self):
+	def load(self):
+		"load the cache from the disk"
 		code = ''
 		try:
 			file = open(os.path.join(self.cachedir, 'build.config.py'), 'r')
@@ -365,7 +365,7 @@ class Build(object):
 			self.m_bdir = blddir
 
 		if not isconfigure:
-			self._load()
+			self.load()
 			if self.m_srcnode:
 				self.path = self.m_srcnode
 				return
