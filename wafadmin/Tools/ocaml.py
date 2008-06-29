@@ -50,20 +50,6 @@ def scan(self):
 
 	return (found_lst, raw_lst)
 
-def get_target_name(self, bytecode):
-	if bytecode:
-		if self.islibrary:
-			return self.target+'.cma'
-		else:
-			return self.target+'.run'
-	else:
-		if self.m_type == 'c_object': return self.target+'.o'
-
-		if self.islibrary:
-			return self.target+'.cmxa'
-		else:
-			return self.target
-
 native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
 class ocaml_taskgen(TaskGen.task_gen):
@@ -71,10 +57,8 @@ class ocaml_taskgen(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
 		#self.m_type       = kw.get('type', 'native')
-		self.m_source     = ''
-		self.m_target     = ''
 		#self.islibrary    = kw.get('library', 0)
-		self.islibrary = 0
+
 		self.m_type = 'all'
 		self._incpaths_lst = []
 		self._bld_incpaths_lst = []
@@ -98,31 +82,37 @@ class ocaml_taskgen(TaskGen.task_gen):
 
 		self.are_deps_set = 0
 
-		if not self.env: self.env = Build.bld.env()
-
 		if not self.m_type in ['bytecode', 'native', 'all', 'c_object']:
 			print 'type for camlobj is undefined '+self.m_type
 			self.m_type='all'
-
-		if self.m_type in native_lst:
-			self.native_env                = self.env.copy()
-		if self.m_type in bytecode_lst:
-			self.bytecode_env              = self.env.copy()
-
-		if self.islibrary:
-			self.bytecode_env['OCALINKFLAGS'] = '-a'
-			self.native_env['OCALINKFLAGS']   = '-a'
-
-		if self.m_type == 'c_object':
-			self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
-
-		self.features.append('ocaml')
 
 TaskGen.bind_feature('ocaml', 'apply_core')
 
 @taskgen
 @feature('ocaml')
+def init_envs_ml(self):
+
+	self.islibrary = getattr(self, 'islibrary', False)
+
+	self.native_env = None
+	if self.m_type in native_lst:
+		self.native_env = self.env.copy()
+
+	self.bytecode_env = None
+	if self.m_type in bytecode_lst:
+		self.bytecode_env = self.env.copy()
+
+	if self.islibrary:
+		self.bytecode_env['OCALINKFLAGS'] = '-a'
+		self.native_env['OCALINKFLAGS']   = '-a'
+
+	if self.m_type == 'c_object':
+		self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
+
+@taskgen
+@feature('ocaml')
 @before('apply_vars_ml')
+@after('init_envs_ml')
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
 	lst = self._incpaths_lst
@@ -164,16 +154,22 @@ def apply_vars_ml(self):
 def apply_link_ml(self):
 
 	if self.bytecode_env:
+		ext = self.islibrary and '.cma' or '.run'
+
 		linktask = self.create_task('ocalink')
 		linktask.bytecode = 1
-		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=1)))
+		linktask.set_outputs(self.path.find_build(self.target + ext))
 		linktask.obj = self
 		linktask.env = self.bytecode_env
 		self.linktasks.append(linktask)
 
 	if self.native_env:
+		if getattr(self, 'c_objects', ''): ext = '.o'
+		elif self.islibrary: ext = '.cmxa'
+		else: ext = ''
+
 		linktask = self.create_task('ocalinkx')
-		linktask.set_outputs(self.path.find_build(get_target_name(self, bytecode=0)))
+		linktask.set_outputs(self.path.find_build(self.target + ext))
 		linktask.obj = self
 		linktask.env = self.native_env
 		self.linktasks.append(linktask)
