@@ -136,7 +136,7 @@ class Configure(object):
 			finally:
 				if file: file.close()
 
-		if self.log:
+		if hasattr(self, 'log') and self.log:
 			self.log.close()
 
 	def fatal(self, msg):
