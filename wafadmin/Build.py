@@ -99,7 +99,7 @@ class Build(object):
 
 		self.all_task_gen = []
 		self.task_gen_cache_names = {}
-		self.sig_vars_cache = {}
+		self.cache_sig_vars = {}
 		self.log = None
 
 	def _init_data(self):
@@ -586,7 +586,7 @@ class Build(object):
 		# the same environment and the same variables are used
 
 		idx = str(id(env)) + str(vars_lst)
-		try: return self.sig_vars_cache[idx]
+		try: return self.cache_sig_vars[idx]
 		except KeyError: pass
 
 		lst = [env.get_flat(a) for a in vars_lst]
@@ -594,7 +594,7 @@ class Build(object):
 		if Logs.verbose: debug("envhash: %s %s" % (ret.encode('hex'), str(lst)))
 
 		# next time
-		self.sig_vars_cache[idx] = ret
+		self.cache_sig_vars[idx] = ret
 		return ret
 
 	def name_to_obj(self, name):
