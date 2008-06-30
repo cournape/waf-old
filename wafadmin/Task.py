@@ -713,8 +713,8 @@ class Task(TaskBase):
 		for x in getattr(self.__class__, "vars", ()):
 			k = env[x]
 			if k:
-				upd(str(k))
-				vars_sig = hash((vars_sig, str(k)))
+				m.update(str(k))
+				vars_sig = hash((var_sig, str(k)))
 
 		return m.digest()
 
