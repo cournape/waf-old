@@ -80,7 +80,7 @@ class Serial(object):
 
 		if Logs.verbose:
 			debug('runner: Preparing to run tasks: [\n%s\n\t]' %
-			      (',\n'.join(["\t#%i: %s" % (tsk.m_idx, repr(tsk).strip())
+			      (',\n'.join(["\t#%s: %s" % (tsk.hex_id(), repr(tsk).strip())
 					       for tsk in self.outstanding])))
 		return self.get_next()
 
@@ -99,14 +99,10 @@ class Serial(object):
 			tsk = self.get_next()
 			if tsk is None: break
 
-			if Logs.verbose: debug('runner: retrieving #%i (%r)' % (tsk.m_idx, tsk))
-
-			# # =======================
-			#if tsk.m_hasrun:
-			#	error("task has already run! "+str(tsk.m_idx))
+			if Logs.verbose: debug('runner: retrieving %r' % tsk)
 
 			if not tsk.may_start():
-				debug('runner: postponing  #%d' % tsk.m_idx)
+				debug('runner: postponing #%s' % tsk.hex_id())
 				self.postpone(tsk)
 				#tsk = None
 				continue
@@ -119,10 +115,7 @@ class Serial(object):
 			if not tsk.must_run():
 				tsk.m_hasrun = SKIPPED
 				self.manager.add_finished(tsk)
-				#debug("task is up-to_date "+str(tsk.m_idx), 'runner')
 				continue
-
-			debug('runner: executing  #%d' % tsk.m_idx)
 
 			# display the command that we are about to run
 			if not g_quiet:

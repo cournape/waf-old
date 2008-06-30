@@ -57,7 +57,6 @@ class TaskManager(object):
 	"""The manager is attached to the build object, it holds a list of TaskGroup"""
 	def __init__(self):
 		self.groups = []
-		self.idx = 0 # task counter, for debugging (allocating 5000 integers for nothing is a bad idea but well)
 		self.tasks_done = []
 
 		self.current_group = 0
@@ -86,8 +85,6 @@ class TaskManager(object):
 
 	def add_task(self, task):
 		if not self.groups: self.add_group('group-0')
-		task.m_idx = self.idx
-		self.idx += 1
 		self.groups[-1].add_task(task)
 
 	def total(self):
@@ -334,9 +331,12 @@ class TaskBase(object):
 		manager = Build.bld.task_manager
 		if normal:
 			manager.add_task(self)
-		else:
-			self.m_idx = manager.idx
-			manager.idx += 1
+
+	def unique_id(self):
+		return str(id(self))
+
+	def hex_id(self):
+		return self.unique_id().encode('hex')
 
 	def get_str(self):
 		"string to display to the user"
@@ -537,7 +537,7 @@ class Task(TaskBase):
 			try:
 				time = tree.node_sigs[variant][node.id]
 			except KeyError:
-				debug("task: task #%d must run as the first node does not exist" % self.m_idx)
+				debug("task: task #%s must run as the first node does not exist" % self.hex_id())
 				time = None
 				break
 		# if one of the nodes does not exist, try to retrieve them from the cache
@@ -555,7 +555,7 @@ class Task(TaskBase):
 		try:
 			prev_sig = tree.task_sigs[key][0]
 		except KeyError:
-			debug("task: task #%d must run as it was never run before or the task code changed" % self.m_idx)
+			debug("task: task #%s must run as it was never run before or the task code changed" % self.hex_id())
 			return 1
 
 		#print "prev_sig is ", prev_sig
@@ -635,7 +635,7 @@ class Task(TaskBase):
 		ret = []
 		ret.append('-- task details begin --')
 		ret.append('type:   %s' % str(self.__class__.__name__))
-		ret.append('idx:    %s' % str(self.m_idx))
+		ret.append('idx:    %s' % str(self.hex_id()))
 		ret.append('source: %s' % str(self.m_inputs))
 		ret.append('target: %s' % str(self.m_outputs))
 		ret.append('-- task details end --')
