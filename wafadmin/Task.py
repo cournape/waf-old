@@ -213,7 +213,7 @@ class TaskGroup(object):
 		"extract the parallelization constraints from the tasks with different constraints"
 		keys = self.cstr_groups.keys()
 		max = len(keys)
-		a = "m_action"
+		#a = self.__class__
 		# hopefully the lenght of this list is short
 		for i in xrange(max):
 			t1 = self.cstr_groups[keys[i]][0]
@@ -279,8 +279,7 @@ class TaskGroup(object):
 		ret = []
 		remaining = []
 		for t in self.temp_tasks:
-			act = getattr(t, "m_action", None)
-			m = getattr(act, "maxjobs", getattr(t, "maxjobs", sys.maxint))
+			m = getattr(t, "maxjobs", getattr(self.__class__, "maxjobs", sys.maxint))
 			if m > maxjobs:
 				remaining.append(t)
 			elif m < maxjobs:
@@ -635,7 +634,7 @@ class Task(TaskBase):
 	def debug_info(self):
 		ret = []
 		ret.append('-- task details begin --')
-		ret.append('action: %s' % str(self.m_action))
+		ret.append('type:   %s' % str(self.__class__.__name__))
 		ret.append('idx:    %s' % str(self.m_idx))
 		ret.append('source: %s' % str(self.m_inputs))
 		ret.append('target: %s' % str(self.m_outputs))
@@ -843,7 +842,6 @@ def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[
 	}
 
 	cls = new.classobj(name, (Task,), params)
-	setattr(cls, 'm_action', cls) # <- compat
 	TaskBase.classes[name] = cls
 	return cls
 
