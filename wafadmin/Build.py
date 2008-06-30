@@ -52,6 +52,8 @@ class Build(object):
 		global bld
 		bld = self
 
+		self.task_manager = Task.TaskManager()
+
 		# instead of hashing the nodes, we assign them a unique id when they are created
 		self.id_nodes = 0
 
@@ -88,7 +90,7 @@ class Build(object):
 		# tasks and objects
 
 		# build dir variants (release, debug, ..)
-		for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
+		for v in 'cache_node_abspath task_sigs node_deps raw_deps node_sigs'.split():
 			var = {}
 			setattr(self, v, var)
 
@@ -106,8 +108,6 @@ class Build(object):
 
 		self.m_srcnode = None # src directory
 		self.m_bldnode = None # bld directory
-
-		self.task_manager = Task.TaskManager()
 
 	def load(self):
 		"load the cache from the disk"

@@ -361,7 +361,7 @@ def main():
 				main_wscript = file_path
 				break
 		raise Utils.WscriptError("Could not find the function 'def build(bld).'", main_wscript)
-	
+
 	# TODO undocumented hook
 	pre_build = getattr(Utils.g_module, 'pre_build', None)
 	if pre_build: pre_build()

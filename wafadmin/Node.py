@@ -386,7 +386,7 @@ class Node(object):
 	# helpers for building things
 
 	def abspath(self, env=None):
-	 	"""
+		"""
 		Returns the absolute file path for this node.  If this
 		node is a build node, the absolute path will be a
 		build path, else it will be a source path.
