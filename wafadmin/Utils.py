@@ -39,6 +39,9 @@ from UserDict import UserDict
 import Logs
 from Constants import *
 
+class WafError(Exception):
+	pass
+
 indicator = sys.platform=='win32' and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 try:

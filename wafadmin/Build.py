@@ -26,7 +26,7 @@ g_modcache = {}
 bld = None
 "more or less a singleton - only one build object is active at a time"
 
-class BuildError(Exception):
+class BuildError(Utils.WafError):
 	def __init__(self, b=None, t=[]):
 		self.bld = b
 		self.tasks = t

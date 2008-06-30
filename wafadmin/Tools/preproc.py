@@ -8,11 +8,11 @@
 import re, sys, os, string, types
 if __name__ == '__main__':
 	sys.path = ['.', '..'] + sys.path
-import Logs, Build
+import Logs, Build, Utils
 from Logs import debug, error
 import traceback
 
-class PreprocError(Exception):
+class PreprocError(Utils.WafError):
 	pass
 
 go_absolute = 0

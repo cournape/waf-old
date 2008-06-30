@@ -13,7 +13,7 @@ import Utils, Options, Build
 from Logs import error, fatal
 from Constants import *
 
-class InstallError(Exception):
+class InstallError(Utils.WafError):
 	pass
 
 def check_dir(dir):

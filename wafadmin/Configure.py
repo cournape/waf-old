@@ -26,7 +26,7 @@ from Constants import *
 
 TEST_OK = True
 
-class ConfigurationError(Exception):
+class ConfigurationError(Utils.WafError):
 	pass
 
 autoconfig = False

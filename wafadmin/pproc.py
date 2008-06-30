@@ -10,7 +10,9 @@ import types
 import traceback
 import gc
 
-class CalledProcessError(Exception):
+import Utils
+
+class CalledProcessError(Utils.WafError):
     def __init__(self, returncode, cmd):
         self.returncode = returncode
         self.cmd = cmd
