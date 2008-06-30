@@ -40,7 +40,29 @@ import Logs
 from Constants import *
 
 class WafError(Exception):
-	pass
+	def __init__(self, message=''):
+		self.message = ''
+		(self.wscript_file, self.wscript_line) = inspect_wscript()
+		if self.wscript_file:
+			self.message += "Error on %s" % self.wscript_file
+			if self.wscript_line:
+				self.message += ", line %s:\n" % self.wscript_line
+			else:
+				self.message += ":\n"
+		self.message += message
+		Exception.__init__(self, self.message)
+
+	def __str__(self):
+		return self.message
+
+def inspect_wscript():
+	stacks = inspect.stack()
+	for stack in stacks:
+		file_name = os.path.basename(stack[1])
+		is_wscript = (file_name == WSCRIPT_FILE or file_name == WSCRIPT_BUILD_FILE)
+		if is_wscript:
+			return (stack[1], stack[2])
+	return (None, None)
 
 indicator = sys.platform=='win32' and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
