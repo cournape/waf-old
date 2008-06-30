@@ -82,7 +82,7 @@ class Build(object):
 
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time
-		self.m_scanned_folders = {}
+		self.cache_scanned_folders = {}
 
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.m_uninstall = []
@@ -391,8 +391,8 @@ class Build(object):
 		this makes (n variant)+srdir to scan (at least 2 folders)"""
 
 		# do not rescan over and over again
-		if self.m_scanned_folders.get(src_dir_node.id, None): return
-		self.m_scanned_folders[src_dir_node.id] = 1
+		if self.cache_scanned_folders.get(src_dir_node.id, None): return
+		self.cache_scanned_folders[src_dir_node.id] = 1
 
 		#debug('build: rescanning %s' % str(src_dir_node))
 

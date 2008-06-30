@@ -765,7 +765,7 @@ class Task(TaskBase):
 
 		for k in Build.bld.node_deps.get(self.unique_id(), ()):
 			# unlikely but necessary if it happens
-			try: tree.m_scanned_folders[k.m_parent.id]
+			try: tree.cache_scanned_folders[k.m_parent.id]
 			except KeyError: tree.rescan(k.m_parent)
 
 			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])

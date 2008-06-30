@@ -226,7 +226,7 @@ class Node(object):
 				# exclusive build directory -> mark the parent as rescanned
 				# for find_dir and find_resource to work
 				parent = self.ensure_dir_node_from_path_lst(lst[:-1])
-				Build.bld.m_scanned_folders[parent.id] = 1
+				Build.bld.cache_scanned_folders[parent.id] = 1
 			else:
 				try:
 					Build.bld.rescan(parent)

@@ -19,6 +19,7 @@ meaning in configuration and build)
 * Params.g_options -> Options.options
 * Params.g_commands -> Options.commands
 * Params.g_build -> Build.bld
+* Build.bld.m_scanned_folders -> Build.bld.cache_scanned_folders
 
 NEW IN WAF 1.4.3
 ----------------
