@@ -108,7 +108,7 @@ class MTask(Task.Task):
 			# next time we will not search for the extension (look at the 'for' loop below)
 			h_node = node.m_parent.find_resource(base2+i)
 			m_node = h_node.change_ext('.moc')
-			tree.node_deps[self.unique_id()] = (h_node,)
+			tree.node_deps[(self.unique_id(), m_node.m_name)] = h_node
 
 			# create the task
 			task = Task.TaskBase.classes['moc'](parn.env, normal=0)
@@ -130,7 +130,7 @@ class MTask(Task.Task):
 			name = d.m_name
 			if name.endswith('.moc'):
 				task = Task.TaskBase.classes['moc'](parn.env, normal=0)
-				task.set_inputs(tree.node_deps[self.unique_id()][0]) # 1st element in a tuple
+				task.set_inputs(tree.node_deps[(self.unique_id(), name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
 				generator = Build.bld.generator
