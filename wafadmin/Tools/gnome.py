@@ -398,11 +398,7 @@ def detect(conf):
 	conf.check_header('unistd.h', 'HAVE_UNISTD_H')
 
 def set_options(opt):
-	try:
-		# we do not know yet
-		opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
-	except Exception:
-		pass
+	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
 
 	for i in "execprefix datadir libdir sysconfdir localstatedir".split():
 		opt.add_option('--'+i, type='string', default='', dest=i)

@@ -46,7 +46,7 @@ def msvc_linker(task):
 	# 'C:\Program' is not recognized as an internal or external command, operable program or batch file.
 	ret=Runner.exec_command(cmd, shell=False)
 	if ret: return ret
-	
+
 	# check for the pdb file. if exists, add to the list of outputs
 	if os.path.exists(pdbfile):
 		task.m_outputs.append(pdbnode)
@@ -344,7 +344,7 @@ def find_msvc(conf):
 	if not conf.env['WINRC']:
 		warn('Resource compiler not found. Compiling resource file is disabled')
 
-@conftest	
+@conftest
 def msvc_common_flags(conf):
 	v = conf.env
 
@@ -435,15 +435,12 @@ def msvc_common_flags(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
-	
+
 def set_options(opt):
-	try:
-		opt.add_option('-d', '--debug-level',
-		action = 'store',
-		default = ccroot.DEBUG_LEVELS.DEBUG,
-		help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
-		choices = ccroot.DEBUG_LEVELS.ALL,
-		dest = 'debug_level')
-	except optparse.OptionConflictError:
-		pass # maybe already defined by another C-compiler
+	opt.add_option('-d', '--debug-level',
+	action = 'store',
+	default = ccroot.DEBUG_LEVELS.DEBUG,
+	help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
+	choices = ccroot.DEBUG_LEVELS.ALL,
+	dest = 'debug_level')
 

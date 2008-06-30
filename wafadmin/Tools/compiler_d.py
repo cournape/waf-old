@@ -21,10 +21,7 @@ def detect(conf):
 
 def set_options(opt):
 	d_compiler_opts = opt.add_option_group("D Compiler Options")
-	try:
-		d_compiler_opts.add_option('--check-dmd-first', action = "store_true", help = 'checks for the gdc compiler before dmd (default is the other way round)', dest = 'check_dmd_first',default = False)
-	except Exception:
-		pass
+	d_compiler_opts.add_option('--check-dmd-first', action = "store_true", help = 'checks for the gdc compiler before dmd (default is the other way round)', dest = 'check_dmd_first',default = False)
 
 	for d_compiler in ['gdc', 'dmd']:
 		opt.tool_options('%s' % d_compiler, option_group=d_compiler_opts)

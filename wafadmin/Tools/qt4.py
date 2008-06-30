@@ -499,8 +499,7 @@ def detect(conf):
 	detect_qt4(conf)
 
 def set_options(opt):
-	try: opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
-	except Exception: pass
+	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
 
 	opt.add_option('--header-ext',
 		type='string',
