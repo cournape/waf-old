@@ -163,16 +163,18 @@ class CcRootTester(common_test.CommonTester):
 		self._setup_static_lib()
 		self._test_configure()
 		self._test_build()
-		
-	def test_invalid_debug_level1(self):
-		# make sure it fails on invalid option
-		self._setup_c_program()
-		self._test_configure( False, ["--debug-level=kuku"])
-
-	def test_invalid_debug_level2(self):
-		# make sure it fails on invalid option (only lower 'debug' works now
-		self._setup_c_program()
-		self._test_configure( False, ["--debug-level=DEBUG"])
+#
+#	--debug-level is unused option now...		   
+#				
+#	def test_invalid_debug_level1(self):
+#		# make sure it fails on invalid option
+#		self._setup_c_program()
+#		self._test_configure( False, ["--debug-level=kuku"])
+#
+#	def test_invalid_debug_level2(self):
+#		# make sure it fails on invalid option (only lower 'debug' works now
+#		self._setup_c_program()
+#		self._test_configure( False, ["--debug-level=DEBUG"])
 		
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''

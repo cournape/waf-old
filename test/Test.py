@@ -6,14 +6,18 @@
 
 import os, sys
 
-import Options
-import Utils
-
 class DIRS:
 	WAFADMIN 	= "wafadmin"
 	WAF			= "waf"
 	DEMOS		= "demos"
 	TOOLS		= "Tools"
+
+# allow importing from wafadmin dir.
+wafadmin = os.path.join(os.path.abspath(os.path.pardir), DIRS.WAFADMIN)
+sys.path.append(wafadmin)
+
+import Options
+import Utils
 
 def info(msg):
 	Utils.pprint('CYAN', msg)
@@ -48,4 +52,5 @@ def run_tests():
 
 if __name__ == "__main__":
 	# XXX: not works !
+	os.chdir(os.path.pardir)
 	run_tests()

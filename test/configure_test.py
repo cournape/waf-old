@@ -11,8 +11,8 @@ Tests Configure.py
 import os, sys, unittest, shutil, tempfile
 import common_test
 
-# allow importing from wafadmin dir.
-sys.path.append(os.path.abspath(os.path.pardir))
+# this will add wafadmin dir to sys.path
+import Test
 
 from Constants import *
 import Options
@@ -22,7 +22,7 @@ import Tools.config_c # to make conf.create_* functions work
 # The following string is a wscript for tests.
 # Note the embedded string that changed by more_config
 wscript_contents = """
-import Params
+import Logs
 blddir = 'build'
 srcdir = '.'
 
@@ -133,7 +133,7 @@ class CcConfigureTester(ConfigureTester):
 		# black-box test: valid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('-Werror'):
-		logging.fatal("invalid flag")
+		Logs.fatal("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure()
@@ -142,7 +142,7 @@ class CcConfigureTester(ConfigureTester):
 		# black-box test: invalid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('KUKU'):
-		logging.fatal("invalid flag")
+		Logs.fatal("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure(False)
@@ -157,7 +157,7 @@ class CxxConfigureTester(ConfigureTester):
 		# black-box test: valid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('-Werror', kind='cxx'):
-		logging.fatal("invalid flag")
+		Logs.fatal("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure()
@@ -166,7 +166,7 @@ class CxxConfigureTester(ConfigureTester):
 		# black-box test: invalid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('KUKU', kind='cxx'):
-		logging.fatal("invalid flag")
+		Logs.fatal("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure(False)
