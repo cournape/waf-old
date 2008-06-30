@@ -10,7 +10,7 @@ import common_test
 sys.path.append(os.path.abspath(os.path.pardir))
 
 try:
-	import Params, Test
+	import Test
 except ImportError:
 	(curr_dir, curr_file) = os.path.split(__file__)
 	print "Failed to import wafadmin modules."
