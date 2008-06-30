@@ -348,7 +348,7 @@ def main():
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
-	f = getattr(Utils.g_module, 'build', '')
+	f = getattr(Utils.g_module, 'build', None)
 	if f:
 		f(bld)
 	else:
