@@ -174,8 +174,6 @@ int main()
 	headerconf.path=['/usr/X11R6/include','/usr/include']
 	headerconf.run()
 
-
-
 	# Looks for pkg-config package "blah5000" (should fail unless you really have such a package)
 	pkgconf = conf.create_pkgconfig_configurator()
 	pkgconf.define = 'BLAH5000'
@@ -197,8 +195,6 @@ int main()
 	pkgconf.name = 'glib-2.0'
 	pkgconf.variables = "prefix includedir"
 	pkgconf.run()
-
-
 
 	# Tries to use the "unobtainium-config" tool
 	toolconf = conf.create_cfgtool_configurator()
@@ -260,13 +256,9 @@ int main()
 	#print conf.env['CPPPATH_somedest']
 
 	# Per check_pkg defines
-	conf.check_pkg('alsa', destvar='somedest',
-	               pkgdefs={'prefix':'/temp',
-	                        'exec_prefix':'/temp'})
+	conf.check_pkg('alsa', destvar='somedest', pkgdefs={'prefix':'/temp', 'exec_prefix':'/temp'})
 	#print conf.env['CPPPATH_somedest']
 	#print conf.env['LIBPATH_somedest']
-
-
 
 def build(bld):
 
@@ -289,27 +281,31 @@ def build(bld):
 
 def shutdown():
 	# display the graph of header dependencies
-#	if 1: return
-	import os, types
+	if 1: return
 
-	f = open('foo.dot', 'w')
-	f.write("digraph G {\n")
-	table = Build.bld.node_deps
-	for a in table:
-		for x in table[a]:
-			if type(table[a][x]) is types.ListType:
-				for y in table[a][x]:
-					f.write('"%s" -> "%s";\n' % (x, y))
-			else:
-				f.write('"%s" -> "%s";\n' % (x, table[a][x]))
-	f.write('}\n')
-	f.close()
+	# XXX: cannot read the table below
+	
+# 	import os, types
 
-	try:
-		os.popen('dot -Tpng foo.dot -ofoo.png').read()
-	except:
-		print "the dot program was not found - install graphviz?"
-	else:
-		print "generated foo.png"
+# 	f = open('foo.dot', 'w')
+# 	f.write("digraph G {\n")
+# 	table = Build.bld.node_deps
+# 	print table
+# 	for a in table:
+# 		for x in table[a]:
+# 			if type(table[a][x]) is types.ListType:
+# 				for y in table[a][x]:
+# 					f.write('"%s" -> "%s";\n' % (x, y))
+# 			else:
+# 				f.write('"%s" -> "%s";\n' % (x, table[a][x]))
+# 	f.write('}\n')
+# 	f.close()
+
+# 	try:
+# 		os.popen('dot -Tpng foo.dot -ofoo.png').read()
+# 	except:
+# 		print "the dot program was not found - install graphviz?"
+# 	else:
+# 		print "generated foo.png"
 
 
