@@ -541,14 +541,13 @@ class Build(object):
 		self.deps_man = h
 
 	def launch_node(self):
+		"""return the launch directory as a node"""
+		# p_ln is kind of private, but public in case if
 		try:
-			return self._launch_node
+			return self.p_ln
 		except AttributeError:
-			ln = self.m_root.find_dir(Options.launch_dir)
-			if ln.is_child_of(self.m_bldnode) or not ln.is_child_of(self.m_srcnode):
-				ln = self.m_srcnode
-			self._launch_node = ln
-			return ln
+			self.p_ln = self.m_root.find_dir(Options.launch_dir)
+			return self.p_ln
 
 	def glob(self, pattern, relative=True):
 		"files matching the pattern, seen from the current folder"
@@ -637,8 +636,13 @@ class Build(object):
 					target_obj.post()
 		else:
 			debug('task_gen: posting objects (normal)')
+			ln = self.launch_node()
+			# if the build is started from the build directory, do as if it was started from the top-level
+			# for the pretty-printing (Node.py), the two lines below cannot be moved to Build::launch_node
+			if ln.is_child_of(self.m_bldnode) or not ln.is_child_of(self.m_srcnode):
+				ln = self.m_srcnode
 			for obj in self.all_task_gen:
-				if not obj.path.is_child_of(self.launch_node()): continue
+				if not obj.path.is_child_of(ln): continue
 				if not obj.m_posted: obj.post()
 
 	def env_of_name(self, name):
