@@ -40,16 +40,23 @@ import Logs
 from Constants import *
 
 class WafError(Exception):
-	def __init__(self, message=''):
+	pass
+
+class WscriptError(WafError):
+	def __init__(self, message, wscript_file=None):
 		self.message = ''
-		(self.wscript_file, self.wscript_line) = inspect_wscript()
+
+		if wscript_file: 
+			self.wscript_file = wscript_file
+			self.wscript_line = None
+		else:
+			(self.wscript_file, self.wscript_line) = inspect_wscript()
+
 		if self.wscript_file:
-			self.message += "Error on %s" % self.wscript_file
+			self.message += "%s:" % self.wscript_file
 			if self.wscript_line:
-				self.message += ", line %s:\n" % self.wscript_line
-			else:
-				self.message += ":\n"
-		self.message += message
+				self.message += "%s:" % self.wscript_line
+		self.message += " error: %s" % message
 		Exception.__init__(self, self.message)
 
 	def __str__(self):

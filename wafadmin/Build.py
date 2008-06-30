@@ -31,6 +31,7 @@ class BuildError(Utils.WafError):
 		self.bld = b
 		self.tasks = t
 		self.ret = 1
+
 	def __str__(self):
 		lst = ['Build failed']
 		for tsk in self.tasks:

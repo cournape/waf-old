@@ -23,12 +23,12 @@ g_distclean_exts = '~ .pyc .wafpickle'.split()
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
 	try: bld.rescan(bld.path)
-	except OSError: raise Utils.WafError("No such directory "+bld.path.abspath())
+	except OSError: raise Utils.WscriptError("No such directory "+bld.path.abspath())
 
 	old = bld.path
 	new = bld.path.find_dir(dir)
 	if new is None:
-		raise Utils.WafError("subdir not found (%s), restore is %s" % (dir, bld.path))
+		raise Utils.WscriptError("subdir not found (%s), restore is %s" % (dir, bld.path))
 
 	bld.path = new
 	# try to open 'wscript_build' for execution
@@ -286,7 +286,11 @@ def prepare(t, cwd, ver, wafdir):
 	if fun: fun()
 
 	Utils.python_24_guard()
-	main()
+	
+	try:
+		main()
+	except Utils.WafError, e:
+		fatal(e)
 
 def main():
 	if Options.commands['configure']:
@@ -348,12 +352,16 @@ def main():
 
 	f = getattr(Utils.g_module, 'build', None)
 	if f:
-		try:
-			f(bld)
-		except Utils.WafError, e:
-			fatal(e)
+		f(bld)
 	else:
-		fatal("Could not find the function 'def build(bld):' in wscript")
+		# find the main wscript
+		main_wscript = None
+		for (file_path, module) in Utils.g_loaded_modules.items():
+			if module.__name__ == 'wscript_main':
+				main_wscript = file_path
+				break
+		raise Utils.WscriptError("Could not find the function 'def build(bld).'", main_wscript)
+	
 	# TODO undocumented hook
 	pre_build = getattr(Utils.g_module, 'pre_build', None)
 	if pre_build: pre_build()
