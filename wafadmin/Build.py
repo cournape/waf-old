@@ -543,8 +543,11 @@ class Build(object):
 		try:
 			return self._launch_node
 		except AttributeError:
-			self._launch_node = self.m_root.find_dir(Options.launch_dir)
-			return self._launch_node
+			ln = self.m_root.find_dir(Options.launch_dir)
+			if ln.is_child_of(self.m_bldnode) or not ln.is_child_of(self.m_srcnode):
+				ln = self.m_srcnode
+			self._launch_node = ln
+			return ln
 
 	def glob(self, pattern, relative=True):
 		"files matching the pattern, seen from the current folder"
@@ -617,14 +620,6 @@ class Build(object):
 
 		debug('build: delayed operation TaskGen.flush() called')
 
-		# post only objects below a particular folder (recursive make behaviour)
-		#launch_node location from where the build was started
-		launch_node = self.m_root.find_dir(Options.launch_dir)
-		if launch_node.is_child_of(self.m_bldnode):
-			launch_node = self.m_srcnode
-		if not launch_node.is_child_of(self.m_srcnode):
-			launch_node = self.m_srcnode
-
 		if Options.options.compile_targets:
 			debug('task_gen: posting objects listed in compile_targets')
 
@@ -642,7 +637,7 @@ class Build(object):
 		else:
 			debug('task_gen: posting objects (normal)')
 			for obj in self.all_task_gen:
-				if launch_node and not obj.path.is_child_of(launch_node): continue
+				if not obj.path.is_child_of(self.launch_node()): continue
 				if not obj.m_posted: obj.post()
 
 	def env_of_name(self, name):
