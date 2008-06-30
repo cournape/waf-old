@@ -31,6 +31,16 @@ class Environment(object):
 		try: return self.m_parent.__contains__(key)
 		except AttributeError: return False # m_parent may not exist
 
+	def __str__(self):
+		keys = set()
+		cur = self
+		while cur:
+			keys.update(cur.m_table.keys())
+			cur = getattr(cur, 'm_parent', None)
+		keys = list(keys)
+		keys.sort()
+		return "\n".join("%r %r" % (x, self.__getitem__(x)) for x in keys)
+
 	def set_variant(self, name):
 		self.m_table[VARIANT] = name
 
@@ -49,9 +59,6 @@ class Environment(object):
 			if self['PREFIX']: del newenv.m_table['PREFIX']
 		newenv.m_parent = self
 		return newenv
-
-	def __str__(self):
-		return "environment table\n"+str(self.m_table)
 
 	def __getitem__(self, key):
 		x = self.m_table.get(key, None)
