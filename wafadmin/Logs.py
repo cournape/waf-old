@@ -31,7 +31,7 @@ def get_color(cl):
 	if not colors_lst['USE']: return ''
 	return colors_lst.get(cl, '')
 
-class foo():
+class foo(object):
 	def __getattr__(self, a):
 		return get_color(a)
 	def __call__(self, a):
