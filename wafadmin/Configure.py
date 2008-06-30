@@ -136,7 +136,8 @@ class Configure(object):
 			finally:
 				if file: file.close()
 
-		if self.log:
+		# may be ran by the gc, not always after initiazliation
+		if hasattr(self, 'log') and self.log:
 			self.log.close()
 
 	def fatal(self, msg):
