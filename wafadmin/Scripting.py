@@ -380,8 +380,8 @@ def main():
 			#"""
 
 		except Build.BuildError, e:
-			if not Options.options.daemon: fatal(str(e), 1)
-			else: error(str(e))
+			if not Options.options.daemon: fatal(e, 1)
+			else: error(e)
 		else:
 			if Options.options.progress_bar: print ''
 
