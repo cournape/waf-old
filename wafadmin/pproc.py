@@ -12,7 +12,7 @@ import gc
 
 import Utils
 
-class CalledProcessError(Utils.WafError):
+class CalledProcessError(Exception):
     def __init__(self, returncode, cmd):
         self.returncode = returncode
         self.cmd = cmd
