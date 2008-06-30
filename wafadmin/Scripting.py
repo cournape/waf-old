@@ -382,8 +382,8 @@ def main():
 			#"""
 
 		except Build.BuildError, e:
-			if not Options.options.daemon: fatal(e.get_message(), 1)
-			else: error(e.get_message())
+			if not Options.options.daemon: fatal(str(e), 1)
+			else: error(str(e))
 		else:
 			if Options.options.progress_bar: print ''
 
