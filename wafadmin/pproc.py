@@ -10,8 +10,6 @@ import types
 import traceback
 import gc
 
-import Utils
-
 class CalledProcessError(Exception):
     def __init__(self, returncode, cmd):
         self.returncode = returncode
