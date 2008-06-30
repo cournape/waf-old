@@ -127,7 +127,7 @@ class unit_test(object):
 				self.num_tests_err += 1
 			except KeyboardInterrupt:
 				pass
-		if Options.options.progress_bar: sys.stdout.write(Utils.cursor_on)
+		if Options.options.progress_bar: sys.stdout.write(Logs.colors.cursor_on)
 
 	def print_results(self):
 		"Pretty-prints a summary of all unit tests, along with some statistics"

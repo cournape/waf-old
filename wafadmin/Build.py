@@ -200,8 +200,8 @@ class Build(object):
 
 		def dw(on=True):
 			if Options.options.progress_bar:
-				if on: sys.stdout.write(Utils.cursor_on)
-				else: sys.stdout.write(Utils.cursor_off)
+				if on: sys.stdout.write(Logs.colors.cursor_on)
+				else: sys.stdout.write(Logs.colors.cursor_off)
 
 		debug('build: executor starting')
 		try:
