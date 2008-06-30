@@ -338,7 +338,7 @@ class TaskBase(object):
 	def hex_id(self):
 		return self.unique_id().encode('hex')
 
-	def get_str(self):
+	def __str__(self):
 		"string to display to the user"
 		env = self.env
 		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
@@ -364,7 +364,7 @@ class TaskBase(object):
 		total = self.position[1]
 		n = len(str(total))
 		fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
-		return fs % (self.position[0], self.position[1], col1, self.get_str(), col2)
+		return fs % (self.position[0], self.position[1], col1, str(self), col2)
 
 	def attr(self, att, default=None):
 		return getattr(self, att, getattr(self.__class__, att, default))
@@ -405,7 +405,7 @@ class TaskCmd(TaskBase):
 		TaskBase.__init__(self)
 		self.fun = fun
 		self.m_env = env
-	def get_str(self):
+	def __str__(self):
 		return "executing: %s" % self.fun.__name__
 	def debug_info(self):
 		return 'TaskCmd:fun %s' % self.fun.__name__
