@@ -136,7 +136,6 @@ def read_cache_file(filename):
 	return proj
 
 def prepare(t, cwd, ver, wafdir):
-
 	if WAFVERSION != ver:
 		msg = 'Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (ver, WAFVERSION, wafdir)
 		print '\033[91mError: %s\033[0m' % msg
@@ -290,7 +289,6 @@ def prepare(t, cwd, ver, wafdir):
 	main()
 
 def main():
-	import inspect
 	if Options.commands['configure']:
 		ini = time.time()
 		configure()
