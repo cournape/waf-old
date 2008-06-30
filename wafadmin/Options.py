@@ -33,7 +33,7 @@ default_destdir = os.environ.get('DESTDIR', '')
 def create_parser():
 	Logs.debug('options: create_parser is called')
 
-	parser = OptionParser(usage = """waf [options] [commands ...]
+	parser = OptionParser(conflict_handler="resolve", usage = """waf [options] [commands ...]
 
 * Main commands: configure build install clean dist distclean uninstall distcheck
 * Example: ./waf build -j4""", version = 'waf %s' % WAFVERSION)
