@@ -403,7 +403,7 @@ class Node(object):
 			return '/'
 
 		variant = self.variant(env)
-		ret = Build.bld.abspath_cache[variant].get(self.id, None)
+		ret = Build.bld.cache_node_abspath[variant].get(self.id, None)
 		if ret: return ret
 
 		if not variant:
@@ -417,7 +417,7 @@ class Node(object):
 			val = os.sep.join(lst)
 		else:
 			val = os.sep.join((Build.bld.m_bldnode.abspath(), env.variant(), self.relpath(Build.bld.m_srcnode)))
-		Build.bld.abspath_cache[variant][self.id] = val
+		Build.bld.cache_node_abspath[variant][self.id] = val
 		return val
 
 	def change_ext(self, ext):
@@ -496,7 +496,7 @@ if sys.platform == "win32":
 
 	def abspath_win32(self, env=None):
 		variant = self.variant(env)
-		ret = Build.bld.abspath_cache[variant].get(self.id, None)
+		ret = Build.bld.cache_node_abspath[variant].get(self.id, None)
 		if ret: return ret
 
 		if not variant:
@@ -511,7 +511,7 @@ if sys.platform == "win32":
 			val = os.sep.join((Build.bld.m_bldnode.abspath(), env.variant(), self.relpath(Build.bld.m_srcnode)))
 		if val.startswith("\\"): val = val[1:]
 		if val.startswith("\\"): val = val[1:]
-		Build.bld.abspath_cache[variant][self.id] = val
+		Build.bld.cache_node_abspath[variant][self.id] = val
 		return val
 	Node.abspath = abspath_win32
 
