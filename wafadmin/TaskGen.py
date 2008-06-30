@@ -327,7 +327,7 @@ class task_gen(object):
 
 		newobj.__class__ = self.__class__
 		if type(env) is types.StringType:
-			newobj.env = Build.bld.m_allenvs[env].copy()
+			newobj.env = Build.bld.all_envs[env].copy()
 		else:
 			newobj.env = env.copy()
 

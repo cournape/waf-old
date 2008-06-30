@@ -1034,9 +1034,9 @@ def run_check(self, obj):
 
 	bld = Build.Build()
 	bld.log = self.log
-	bld.m_allenvs.update(self.m_allenvs)
-	bld.m_allenvs['default'] = env
-	bld._variants=bld.m_allenvs.keys()
+	bld.all_envs.update(self.all_envs)
+	bld.all_envs['default'] = env
+	bld._variants=bld.all_envs.keys()
 	bld.load_dirs(dir, bdir, isconfigure=1)
 
 	os.chdir(dir)

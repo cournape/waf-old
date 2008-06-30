@@ -20,6 +20,7 @@ meaning in configuration and build)
 * Params.g_commands -> Options.commands
 * Params.g_build -> Build.bld
 * Build.bld.m_scanned_folders -> Build.bld.cache_scanned_folders
+* Build.bld.m_allenvs -> Build.bld.all_envs
 
 NEW IN WAF 1.4.3
 ----------------

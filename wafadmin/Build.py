@@ -59,7 +59,7 @@ class Build(object):
 		self._init_data()
 
 		# map names to environments, the 'default' must be defined
-		self.m_allenvs = {}
+		self.all_envs = {}
 
 		# ======================================= #
 		# code for reading the scripts
@@ -70,9 +70,6 @@ class Build(object):
 		# the current directory from which the code is run
 		# the folder changes everytime a wscript is read
 		self.path = None
-
-		# temporary holding the subdirectories containing scripts - look in Scripting.py
-		self.m_subdirs = []
 
 		# ======================================= #
 		# cache variables
@@ -168,7 +165,7 @@ class Build(object):
 				if tp == Node.DIR:
 					clean_rec(nd)
 				elif tp == Node.BUILD:
-					for env in self.m_allenvs.values():
+					for env in self.all_envs.values():
 						pt = nd.abspath(env)
 						if pt in env['waf_config_files']: continue
 						try: os.remove(pt)
@@ -290,11 +287,11 @@ class Build(object):
 				env.load(os.path.join(self.cachedir, file))
 				name = file.split('.')[0]
 
-				self.m_allenvs[name] = env
+				self.all_envs[name] = env
 
 		self.init_variants()
 
-		for env in self.m_allenvs.values():
+		for env in self.all_envs.values():
 			for f in env['dep_files']:
 				newnode = self.m_srcnode.find_or_declare(f)
 				try:
@@ -326,7 +323,7 @@ class Build(object):
 		debug('build: init variants')
 
 		lstvariants = []
-		for env in self.m_allenvs.values():
+		for env in self.all_envs.values():
 			if not env.variant() in lstvariants:
 				lstvariants.append(env.variant())
 		self._variants = lstvariants
@@ -527,7 +524,7 @@ class Build(object):
 	def get_env(self):
 		return self.env_of_name('default')
 	def set_env(self, name, val):
-		self.m_allenvs[name] = val
+		self.all_envs[name] = val
 
 	env = property(get_env, set_env)
 
@@ -650,7 +647,7 @@ class Build(object):
 			error('env_of_name called with no name!')
 			return None
 		try:
-			return self.m_allenvs[name]
+			return self.all_envs[name]
 		except KeyError:
 			error('no such environment: '+name)
 			return None

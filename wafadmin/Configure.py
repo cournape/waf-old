@@ -88,7 +88,7 @@ class Configure(object):
 		self.m_srcdir = srcdir
 		self.cachedir = os.path.join(blddir, CACHE_DIR)
 
-		self.m_allenvs = {}
+		self.all_envs = {}
 		self.defines = {}
 		self.cwd = os.getcwd()
 
@@ -195,24 +195,24 @@ class Configure(object):
 		file.write('tools = %r\n' % self.tools)
 		file.close()
 
-		if not self.m_allenvs:
+		if not self.all_envs:
 			fatal("nothing to store in Configure !")
-		for key in self.m_allenvs:
-			tmpenv = self.m_allenvs[key]
+		for key in self.all_envs:
+			tmpenv = self.all_envs[key]
 			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
 
 	def set_env_name(self, name, env):
 		"add a new environment called name"
-		self.m_allenvs[name] = env
+		self.all_envs[name] = env
 		return env
 
 	def retrieve(self, name, fromenv=None):
 		"retrieve an environment called name"
 		try:
-			env = self.m_allenvs[name]
+			env = self.all_envs[name]
 		except KeyError:
 			env = Environment.Environment()
-			self.m_allenvs[name] = env
+			self.all_envs[name] = env
 		else:
 			if fromenv: warn("The environment %s may have been configured already" % name)
 		return env
