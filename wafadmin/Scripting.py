@@ -348,13 +348,11 @@ def main():
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
-	try:
-		# calling to main wscript's build()
-		f = Utils.g_module.build
-	except AttributeError:
-		fatal("Could not find the function 'def build(bld):' in wscript")
-	else:
+	f = getattr(Utils.g_module, 'build', '')
+	if f:
 		f(bld)
+	else:
+		fatal("Could not find the function 'def build(bld):' in wscript")
 
 	# TODO undocumented hook
 	pre_build = getattr(Utils.g_module, 'pre_build', None)
