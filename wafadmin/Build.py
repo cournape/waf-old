@@ -333,7 +333,7 @@ class Build(object):
 	# node and folder handling
 
 	# this should be the main entry point
-	def load_dirs(self, srcdir, blddir, isconfigure=None):
+	def load_dirs(self, srcdir, blddir):
 		"this functions should be the start of everything"
 
 		assert(os.path.isabs(srcdir))
@@ -346,8 +346,9 @@ class Build(object):
 
 		self.m_bdir = blddir
 
-		if not isconfigure:
-			self.load()
+		# try to load the cache file, if it does not exist, nothing happens
+		self.load()
+
 		if not self.m_root:
 			self.m_root = Node.Node('', None, Node.DIR)
 

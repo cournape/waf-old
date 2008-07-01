@@ -99,7 +99,7 @@ def configure():
 	if not bld: fatal(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
 	bld = os.path.abspath(bld)
 
-	tree.load_dirs(src, bld, isconfigure=1)
+	tree.load_dirs(src, bld)
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
 

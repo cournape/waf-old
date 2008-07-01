@@ -1006,7 +1006,7 @@ def run_check(self, obj):
 		for f in list(filenames):
 			os.remove(os.path.join(root, f))
 
-	bdir = os.path.join(dir, '_testbuild_')
+	bdir = os.path.join(dir, 'testbuild')
 
 	if (not obj.force_compiler and Task.TaskBase.classes.get('cxx', None)) or obj.force_compiler == "cxx":
 		tp = 'cxx'
@@ -1036,8 +1036,8 @@ def run_check(self, obj):
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = env
-	bld._variants=bld.all_envs.keys()
-	bld.load_dirs(dir, bdir, isconfigure=1)
+	bld._variants = bld.all_envs.keys()
+	bld.load_dirs(dir, bdir)
 
 	os.chdir(dir)
 
