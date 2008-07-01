@@ -27,11 +27,7 @@ from Constants import *
 TEST_OK = True
 
 class ConfigurationError(Utils.WafError):
-	def __init__(self, message):
-		self.message = message
-		Utils.WafError.__init__(self, self.message)
-	def __str__(self):
-		return self.message
+	pass
 
 autoconfig = False
 "reconfigure the project automatically"

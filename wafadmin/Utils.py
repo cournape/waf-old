@@ -63,9 +63,6 @@ class WscriptError(WafError):
 		self.message += " error: %s" % message
 		WafError.__init__(self, self.message)
 
-	def __str__(self):
-		return self.message
-
 	def inspect_wscript(self):
 		stacks = inspect.stack()
 		for stack in stacks:
