@@ -546,7 +546,7 @@ class test_configurator(configurator_base):
 
 	def validate(self):
 		if not self.code:
-			fatal('test configurator needs code to compile and run!')
+			raise Configure.ConfigurationError('test configurator needs code to compile and run!')
 
 	def run_test(self):
 		obj = check_data()

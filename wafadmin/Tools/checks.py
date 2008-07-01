@@ -10,7 +10,6 @@ to attach the functions as methods on the Configure class (the conf object)
 
 import Utils, Configure, config_c
 from Configure import conf
-from Logs import error, fatal
 
 endian_str = '''
 #include <stdio.h>
@@ -41,15 +40,11 @@ class compile_configurator(config_c.configurator_base):
 		self.force_compiler = None
 
 	def error(self):
-		fatal('test program would not run')
+		raise Configure.ConfigurationError('test program would not run')
 
 	def run_cache(self, retval):
 		if self.want_message:
 			self.conf.check_message('compile code (cached)', '', not (retval is False), option=self.msg)
-
-	def validate(self):
-		if not self.code:
-			fatal('test configurator needs code to compile and run!')
 
 	def run_test(self):
 		obj = config_c.check_data()

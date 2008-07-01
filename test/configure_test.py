@@ -17,7 +17,8 @@ import Test
 from Constants import *
 import Options
 import Configure
-import Tools.config_c # to make conf.create_* functions work
+import Tools.config_c   # to make conf.create_* functions work
+import Tools.checks 	# to make compile_configurator function work
 import Utils
 import Scripting
 
@@ -212,6 +213,16 @@ def set_options(opt):
 		opt_obj.parse_args()
 		Utils.set_main_module(self._wscript_file_path)
 		self.failUnlessRaises(Configure.ConfigurationError, Scripting.configure)
+		
+	def test_missing_test_conf_code(self):
+		conf = self._setup_configure()
+		com_conf = conf.create_test_configurator()
+		self.failUnlessRaises(Configure.ConfigurationError, com_conf.run)
+
+	def test_missing_compile_conf_code(self):
+		conf = self._setup_configure()
+		com_conf = conf.create_compile_configurator()
+		self.failUnlessRaises(Configure.ConfigurationError, com_conf.run)
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
