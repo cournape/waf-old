@@ -343,6 +343,9 @@ class Build(object):
 	def load_dirs(self, srcdir, blddir, isconfigure=None):
 		"this functions should be the start of everything"
 
+		assert(os.path.isabs(srcdir))
+		assert(os.path.isabs(blddir))
+
 		self.cachedir = os.path.join(blddir, CACHE_DIR)
 
 		# there is no reason to bypass this check
@@ -368,16 +371,18 @@ class Build(object):
 				self.path = self.m_srcnode
 				return
 
-		self.m_srcnode = self.m_root.ensure_dir_node_from_path(srcdir)
+		if not self.m_srcnode:
+			self.m_srcnode = self.m_root.ensure_dir_node_from_path(srcdir)
 		debug('build: srcnode is %s and srcdir %s' % (str(self.m_srcnode.m_name), srcdir))
 
 		self.path = self.m_srcnode
 
-		self.m_bldnode = self.m_root.ensure_dir_node_from_path(self.m_bdir)
-
 		# create this build dir if necessary
 		try: os.makedirs(blddir)
 		except OSError: pass
+
+		if not self.m_bldnode:
+			self.m_bldnode = self.m_root.ensure_dir_node_from_path(self.m_bdir)
 
 		self.init_variants()
 

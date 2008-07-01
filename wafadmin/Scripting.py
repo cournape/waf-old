@@ -92,10 +92,13 @@ def configure():
 	src = getattr(Options.options, SRCDIR, None)
 	if not src: src = getattr(Utils.g_module, SRCDIR, None)
 	if not src: fatal(err % (SRCDIR, os.path.abspath('.'), SRCDIR, SRCDIR))
+	src = os.path.abspath(src)
 
 	bld = getattr(Options.options, BLDDIR, None)
 	if not bld: bld = getattr(Utils.g_module, BLDDIR, None)
 	if not bld: fatal(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
+	bld = os.path.abspath(bld)
+
 	tree.load_dirs(src, bld, isconfigure=1)
 	tree.init_variants()
 
