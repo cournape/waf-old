@@ -106,8 +106,8 @@ def configure():
 	try:
 		# calling to main wscript's configure()
 		conf.sub_config('')
-	except Configure.ConfigurationError, e:
-		fatal(str(e), 2)
+	except Utils.WafError:
+		raise
 	except Exception:
 		Utils.test_full()
 		raise
