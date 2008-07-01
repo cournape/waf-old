@@ -32,6 +32,26 @@ def set_options(opt):
 		bld = Build.Build()
 		self.failUnlessRaises(Utils.WscriptError, bld.new_task_gen, 'cxx')
 
+	def test_invalid_task_generator(self):
+		# white_box test: invalid task generator
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def build(bld):
+	obj = bld.new_task_gen('cxx')
+
+def configure(conf):
+	conf.check_tool('cxx')
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents, use_dic=False)
+		self._test_configure()
+		# TODO: check for WafError
+		self._test_build(False)
+
 def run_tests(verbose=1):
 	try:
 		if verbose > 1: common_test.hide_output = False

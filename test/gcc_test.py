@@ -13,6 +13,26 @@ class GccTester(CcFamilyTester):
 	def __init__(self, methodName):
 		self.tool_name 		= 'gcc'
 		CcFamilyTester.__init__(self, methodName)
+		
+	def test_invalid_task_generator(self):
+		# white_box test: invalid task generator
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def build(bld):
+	obj = bld.new_task_gen('cc')
+
+def configure(conf):
+	conf.check_tool('cc')
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents, use_dic=False)
+		self._test_configure()
+		# TODO: check for WafError
+		self._test_build(False)
 
 def run_tests(verbose=1):
 	try:

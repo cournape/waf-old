@@ -41,7 +41,7 @@ def init_cxx(self):
 	else: self.p_type_vars = g_cpp_type_vars
 
 	if not self.env['CXX_NAME']:
-		fatal("At least one compiler (g++, ..) must be selected")
+		raise Utils.WafError("At least one compiler (g++, ..) must be selected")
 
 @taskgen
 def apply_obj_vars_cxx(self):

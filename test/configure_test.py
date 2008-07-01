@@ -21,6 +21,7 @@ import Tools.config_c   # to make conf.create_* functions work
 import Tools.checks 	# to make compile_configurator function work
 import Utils
 import Scripting
+import Build
 
 # The following string is a wscript for tests.
 # Note the embedded string that changed by more_config

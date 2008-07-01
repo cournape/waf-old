@@ -175,7 +175,7 @@ class Configure(object):
 			fatal("the wscript file %s was not found." % cur)
 
 		if not hasattr(mod, 'configure'):
-			fatal('the module %s has no configure function; make sure such a function is defined' % cur)
+			Utils.WscriptError('the module %s has no configure function; make sure such a function is defined' % cur)
 
 		ret = mod.configure(self)
 		global autoconfig

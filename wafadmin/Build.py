@@ -266,13 +266,13 @@ class Build(object):
 			lst = Utils.listdir(self.cachedir)
 		except OSError, e:
 			if e.errno == errno.ENOENT:
-				fatal('The project was not configured: run "waf configure" first!')
+				raise Utils.WafError('The project was not configured: run "waf configure" first!')
 			else:
 				# TODO: deal with network error and other OS errors.
 				raise
 
 		if not lst:
-			fatal('The cache directory is empty: reconfigure the project')
+			raise Utils.WafError('The cache directory is empty: reconfigure the project')
 
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):

@@ -38,7 +38,7 @@ def init_cc(self):
 	else: self.p_type_vars = g_cc_type_vars
 
 	if not self.env['CC_NAME']:
-		fatal("At least one compiler (gcc, ..) must be selected")
+		raise Utils.WafError("At least one compiler (gcc, ..) must be selected")
 
 @taskgen
 def apply_obj_vars_cc(self):

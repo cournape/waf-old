@@ -71,7 +71,7 @@ class WhiteWscriptTester(WscriptErrorsTester):
 		Options.commands['clean'] = False
 		# TODO: tests for WafError upon change
 		self.failUnlessRaises(SystemExit, Scripting.main)
-
+		
 class BlackWscriptTester(WscriptErrorsTester):
 	"""Black box tests for wscript errors"""
 	def test_missing_build_def(self):
