@@ -39,19 +39,12 @@ def run_tests():
 	else:
 		verbose = 1
 
-	for i in ['dist','configure','clean','distclean','make','install','doc']:
-		Options.commands[i]=0
-		
-	info("******** Configure tests ********")
-	test_configure.run_tests(verbose)
-	info("******** build dir tests ********")
-	test_build_dir.run_tests(verbose)
-	info("******** g++ tests ********")
-	test_cxx.run_tests(verbose)
-	info("******** gcc tests ********")
-	test_gcc.run_tests(verbose)
-	info("******** wscript error handling tests ********")
-	wscript_errors_test.run_tests(verbose)
+	tests_modules = [test_configure, test_build_dir, test_cxx, test_gcc, 
+					wscript_errors_test]
+	
+	for mod in tests_modules:
+		info("******** %s ********" % mod.__name__)
+		mod.run_tests(verbose)
 
 if __name__ == "__main__":
 	# XXX: not works !
