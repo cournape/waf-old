@@ -330,7 +330,7 @@ def main():
 		except Exception, ex:
 			if Logs.verbose:
 				traceback.print_exc()
-			warn("Reconfiguring the project (an exception occured: %s)" % (str(ex),))
+			warn("Reconfiguring the project (an exception occurred: %s)" % (str(ex),))
 			reconf = 1
 
 		if reconf:
