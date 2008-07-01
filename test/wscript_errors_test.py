@@ -6,7 +6,7 @@
 Tests wscript errors handling
 """
 
-import os, unittest, tempfile, shutil
+import os, unittest, tempfile, shutil, imp
 import common_test
 
 import Test
@@ -35,6 +35,7 @@ class WscriptErrorsTester(common_test.CommonTester):
 	def tearDown(self):
 		'''tearDown - cleanup after each test'''
 		del self._bld
+		if hasattr(Utils, 'g_modulede'): del Utils.g_module
 		os.chdir(self._waf_root_dir)
 		
 		if os.path.isdir(self._test_dir_root):
@@ -49,6 +50,22 @@ class WhiteWscriptTester(WscriptErrorsTester):
 	def test_nonexist_subdir(self):
 		self._bld.load_dirs(srcdir=self._test_dir_root, blddir=os.path.join(self._test_dir_root, 'out'))
 		self.failUnlessRaises(Utils.WscriptError, Scripting.add_subdir, non_exist_path, self._bld)
+		
+	def test_missing_blddir(self):
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		Utils.g_module = imp.new_module('main_wscript')
+		Utils.g_module.srcdir = '.'
+		# TODO: tests for WafError upon change
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
+
+	def test_missing_srcdir(self):
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		Utils.g_module = imp.new_module('main_wscript')
+		Utils.g_module.blddir = '.'
+		# TODO: tests for WafError upon change
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
 
 	def test_not_configured(self):
 		Options.commands['configure'] = False

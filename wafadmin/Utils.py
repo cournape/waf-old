@@ -50,7 +50,7 @@ class WscriptError(WafError):
 			self.wscript_file = wscript_file
 			self.wscript_line = None
 		else:
-			(self.wscript_file, self.wscript_line) = self._inspect_wscript()
+			(self.wscript_file, self.wscript_line) = self.inspect_wscript()
 
 		if self.wscript_file:
 			self.message += "%s:" % self.wscript_file
@@ -62,7 +62,7 @@ class WscriptError(WafError):
 	def __str__(self):
 		return self.message
 
-	def _inspect_wscript(self):
+	def inspect_wscript(self):
 		stacks = inspect.stack()
 		for stack in stacks:
 			file_name = os.path.basename(stack[1])
