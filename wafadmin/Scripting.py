@@ -100,7 +100,6 @@ def configure():
 	bld = os.path.abspath(bld)
 
 	tree.load_dirs(src, bld, isconfigure=1)
-	tree.init_variants()
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
 

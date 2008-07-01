@@ -348,22 +348,10 @@ class Build(object):
 
 		self.cachedir = os.path.join(blddir, CACHE_DIR)
 
-		# there is no reason to bypass this check
-		try:
-			if srcdir == blddir or os.path.abspath(srcdir) == os.path.abspath(blddir):
-				fatal("build dir must be different from srcdir ->"+str(srcdir)+" ->"+str(blddir))
-		except OSError:
-			pass
+		if srcdir == blddir:
+			fatal("build dir must be different from srcdir: %s <-> %s " % (srcdir, blddir))
 
-		# set the source directory
-		if not os.path.isabs(srcdir):
-			srcdir = os.path.join(os.path.abspath('.'),srcdir)
-
-		# set the build directory it is a path, not a node (either absolute or relative)
-		if not os.path.isabs(blddir):
-			self.m_bdir = os.path.abspath(blddir)
-		else:
-			self.m_bdir = blddir
+		self.m_bdir = blddir
 
 		if not isconfigure:
 			self.load()
@@ -382,7 +370,7 @@ class Build(object):
 		except OSError: pass
 
 		if not self.m_bldnode:
-			self.m_bldnode = self.m_root.ensure_dir_node_from_path(self.m_bdir)
+			self.m_bldnode = self.m_root.ensure_dir_node_from_path(blddir)
 
 		self.init_variants()
 
