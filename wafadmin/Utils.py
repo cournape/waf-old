@@ -34,7 +34,7 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, types, string, time, errno, inspect
+import os, sys, imp, types, string, errno, inspect
 from UserDict import UserDict
 import Logs
 from Constants import *
@@ -106,7 +106,6 @@ except ImportError:
 		f.close()
 		return m.digest()
 
-import Build
 def test_full():
 	try:
 		f = open('.waf-full','w')
@@ -241,35 +240,6 @@ else:
 rot_idx = 0
 rot_chr = ['\\', '|', '/', '-']
 "the rotation thing"
-
-def progress_line(state, total, col1, col2):
-	n = len(str(total))
-
-	# div(X^F) = -rot(F).X
-	global rot_chr, rot_idx
-	rot_idx += 1
-	ind = rot_chr[rot_idx % 4]
-
-	try:
-		ini = Build.bld.ini
-	except AttributeError:
-		ini = Build.bld.ini = time.time()
-
-	pc = (100.*state)/total
-	eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
-	fs = "[%%%dd/%%%dd][%%s%%2d%%%%%%s][%s][" % (n, n, ind)
-	left = fs % (state, total, col1, pc, col2)
-	right = '][%s%s%s]' % (col1, eta, col2)
-
-	cols = get_term_cols() - len(left) - len(right) + 2*len(col1) + 2*len(col2)
-	if cols < 7: cols = 7
-
-	ratio = int((cols*state)/total) - 1
-
-	bar = ('='*ratio+'>').ljust(cols)
-	msg = indicator % (left, bar, right)
-
-	return msg
 
 def split_path(path):
 	if not path: return ['']

@@ -351,7 +351,7 @@ class TaskBase(object):
 		col2 = Logs.colors.NORMAL
 
 		if Options.options.progress_bar == 1:
-			return Utils.progress_line(self.position[0], self.position[1], col1, col2)
+			return Build.bld.progress_line(self.position[0], self.position[1], col1, col2)
 
 		if Options.options.progress_bar == 2:
 			try: ini = Build.bld.ini

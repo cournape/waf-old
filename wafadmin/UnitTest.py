@@ -94,7 +94,7 @@ class unit_test(object):
 			filename = file_and_src[0]
 			srcdir = file_and_src[1]
 			count += 1
-			line = Utils.progress_line(count, self.total_num_tests, col1, col2)
+			line = Build.bld.progress_line(count, self.total_num_tests, col1, col2)
 			if Options.options.progress_bar and line:
 				sys.stdout.write(line)
 				sys.stdout.flush()

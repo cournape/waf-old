@@ -12,7 +12,7 @@ The class Build holds all the info related to a build:
 There is only one Build object at a time (bld singleton)
 """
 
-import os, sys, cPickle, types, imp, errno, re, glob, gc
+import os, sys, cPickle, types, imp, errno, re, glob, gc, time
 import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs, Options
 from Logs import *
 from Constants import *
@@ -596,6 +596,7 @@ class Build(object):
 	def flush(self, all=1):
 		"""tell the task generators to create the tasks"""
 
+		self.ini = time.time()
 		# force the initialization of the mapping name->object in flush
 		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
@@ -637,4 +638,29 @@ class Build(object):
 		except KeyError:
 			error('no such environment: '+name)
 			return None
+
+	def progress_line(self, state, total, col1, col2):
+		n = len(str(total))
+
+		Utils.rot_idx += 1
+		ind = Utils.rot_chr[Utils.rot_idx % 4]
+
+		ini = self.ini
+
+		pc = (100.*state)/total
+		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
+		fs = "[%%%dd/%%%dd][%%s%%2d%%%%%%s][%s][" % (n, n, ind)
+		left = fs % (state, total, col1, pc, col2)
+		right = '][%s%s%s]' % (col1, eta, col2)
+
+		cols = Utils.get_term_cols() - len(left) - len(right) + 2*len(col1) + 2*len(col2)
+		if cols < 7: cols = 7
+
+		ratio = int((cols*state)/total) - 1
+
+		bar = ('='*ratio+'>').ljust(cols)
+		msg = Utils.indicator % (left, bar, right)
+
+		return msg
+
 
