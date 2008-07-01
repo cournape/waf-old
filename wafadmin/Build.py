@@ -257,7 +257,7 @@ class Build(object):
 		if len(k) == 0: return TaskGen.task_gen()
 		cls_name = k[0]
 		try: cls = TaskGen.task_gen.classes[cls_name]
-		except KeyError: raise KeyError('%s is not a valid task generator -> %s' %
+		except KeyError: raise Utils.WscriptError('%s is not a valid task generator -> %s' %
 			(cls_name, [x for x in TaskGen.task_gen.classes]))
 		else: return cls(*k, **kw)
 

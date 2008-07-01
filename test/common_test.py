@@ -17,11 +17,12 @@ import pproc
 import Environment
 import Options
 from Constants import *
+import Utils
 
 # global variable - used to control the output of tests.
 hide_output = True
 
-class StartupError(Exception):
+class StartupError(Utils.WafError):
 	pass
 
 class CommonTester(unittest.TestCase):
@@ -41,6 +42,20 @@ class CommonTester(unittest.TestCase):
 		"""
 		if not os.path.exists(file_or_directory):
 			raise StartupError("cannot find '%s', please run tests from waf root directory." % file_or_directory)
+
+	def _write_wscript(self, contents = '', use_dic=True):
+		wscript_file_path = self._wscript_file_path
+		try:
+			wscript_file = open( wscript_file_path, 'w' )
+			if contents:
+				if use_dic:
+					wscript_file.write( contents % self._test_dic )
+				else:
+					wscript_file.write(contents)
+			else:
+				wscript_file.write( wscript_contents % self._test_dic )
+		finally:
+			wscript_file.close()
 
 	def call(self, commands):
 		"""

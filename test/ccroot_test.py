@@ -107,14 +107,21 @@ class CcRootTester(common_test.CommonTester):
 		self._populate_dictionary('program', c_program_code, env_line)
 		self._write_files()
 
-	def _write_wscript(self):
+	def _write_wscript(self, contents = '', use_dic=True):
 		wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
 		try:
 			wscript_file = open( wscript_file_path, 'w' )
-			wscript_file.write( wscript_contents % self._test_dic )
+			
+			if contents:
+				if use_dic:
+					wscript_file.write( contents % self._test_dic )
+				else:
+					wscript_file.write(contents)
+			else:
+				wscript_file.write( wscript_contents % self._test_dic )
 		finally:
 			wscript_file.close()
-			
+
 	def _write_source(self):
 		try:
 			source_file = open( self._source_file_path, 'w' )
@@ -144,6 +151,7 @@ class CcRootTester(common_test.CommonTester):
 		self._srcdir = self._test_dir_root
 		self._blddir = os.path.join( self._test_dir_root, "build" )
 		self._source_file_path = os.path.join(self._srcdir, "test.c")
+		self._wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
 		os.chdir(self._test_dir_root)
 
 	def test_common_object(self):
