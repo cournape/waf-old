@@ -57,16 +57,13 @@ class Build(object):
 		# instead of hashing the nodes, we assign them a unique id when they are created
 		self.id_nodes = 0
 
-		# initialize the filesystem representation
-		self._init_data()
-
 		# map names to environments, the 'default' must be defined
 		self.all_envs = {}
 
 		# ======================================= #
 		# code for reading the scripts
 
-		# project build directory - do not reset() from load_dirs() or _init_data()
+		# project build directory - do not reset() from load_dirs()
 		self.m_bdir = ''
 
 		# the current directory from which the code is run
@@ -101,13 +98,9 @@ class Build(object):
 		self.cache_sig_vars = {}
 		self.log = None
 
-	def _init_data(self):
-		debug('build: init data called')
-
-		self.m_root = Node.Node('', None, Node.DIR)
-
-		self.m_srcnode = None # src directory
-		self.m_bldnode = None # bld directory
+		self.m_root = None
+		self.m_srcnode = None
+		self.m_bldnode = None
 
 	def load(self):
 		"load the cache from the disk"
@@ -135,11 +128,11 @@ class Build(object):
 		try:
 			file = open(os.path.join(self.m_bdir, DBFILE), 'rb')
 			data = cPickle.load(file)
-			for x in SAVED_ATTRS: setattr(self, x, data[x])
 			file.close()
 		except (IOError, EOFError):
-			debug('build: Build cache loading failed (cleaning)')
-			self._init_data()
+			debug('build: Build cache loading failed')
+		else:
+			for x in SAVED_ATTRS: setattr(self, x, data[x])
 		gc.enable()
 
 	def save(self):
@@ -355,9 +348,8 @@ class Build(object):
 
 		if not isconfigure:
 			self.load()
-			if self.m_srcnode:
-				self.path = self.m_srcnode
-				return
+		if not self.m_root:
+			self.m_root = Node.Node('', None, Node.DIR)
 
 		if not self.m_srcnode:
 			self.m_srcnode = self.m_root.ensure_dir_node_from_path(srcdir)
