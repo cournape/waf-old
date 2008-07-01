@@ -18,6 +18,8 @@ from Constants import *
 import Options
 import Configure
 import Tools.config_c # to make conf.create_* functions work
+import Utils
+import Scripting
 
 # The following string is a wscript for tests.
 # Note the embedded string that changed by more_config
@@ -43,6 +45,7 @@ class ConfigureTester(common_test.CommonTester):
 	def setUp(self):
 		# define & create temporary testing directories
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")
+		self._wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
 		self._source_file_path = os.path.join(self._test_dir_root, "test.cpp")
 		os.chdir(self._test_dir_root)
 
@@ -60,12 +63,15 @@ class ConfigureTester(common_test.CommonTester):
 		self._test_dic['more_config'] 	= more_config
 		self._test_dic['tool'] 	= self._tool_name
 
-	def _write_wscript(self, contents = ''):
-		wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
+	def _write_wscript(self, contents = '', use_dic=True):
+		wscript_file_path = self._wscript_file_path
 		try:
 			wscript_file = open( wscript_file_path, 'w' )
 			if contents:
-				wscript_file.write( contents % self._test_dic )
+				if use_dic:
+					wscript_file.write( contents % self._test_dic )
+				else:
+					wscript_file.write(contents)
 			else:
 				wscript_file.write( wscript_contents % self._test_dic )
 		finally:
@@ -122,7 +128,7 @@ class ConfigureTester(common_test.CommonTester):
 		com_conf.name = 'kukukukukuk.h'
 		com_conf.want_message = False
 		self.failIf(com_conf.run(), "directory was returned for non-exist header." )
-
+		
 class CcConfigureTester(ConfigureTester):
 	def __init__(self, methodName):
 		self._tool_name = 'compiler_cc'
@@ -170,6 +176,42 @@ class CxxConfigureTester(ConfigureTester):
 		""")
 		self._write_files()
 		self._test_configure(False)
+
+	def test_cxx_is_missing(self):
+		# white_box test: 'compiler_cxx' options are essential for its configuration
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def configure(conf):
+	conf.check_tool('compiler_cxx')
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents, use_dic=False)
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		Utils.set_main_module(self._wscript_file_path)
+		self.failUnlessRaises(Configure.ConfigurationError, Scripting.configure)
+
+	def test_invalid_tool(self):
+		# white_box test: tool not exists
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def configure(conf):
+	conf.check_tool('no_way_such_a_tool_exists_gwerghergjekrhgker')
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents, use_dic=False)
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		Utils.set_main_module(self._wscript_file_path)
+		self.failUnlessRaises(Configure.ConfigurationError, Scripting.configure)
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False

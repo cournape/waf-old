@@ -35,7 +35,6 @@ class WscriptErrorsTester(common_test.CommonTester):
 	def tearDown(self):
 		'''tearDown - cleanup after each test'''
 		del self._bld
-		if hasattr(Utils, 'g_modulede'): del Utils.g_module
 		os.chdir(self._waf_root_dir)
 		
 		if os.path.isdir(self._test_dir_root):
