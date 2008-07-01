@@ -32,6 +32,7 @@ def run_tests():
 	import cxx_test as test_cxx
 	import gcc_test as test_gcc
 	import configure_test as test_configure
+	import wscript_errors_test
 
 	if Options.options:
 		verbose = Options.options.verbose
@@ -49,6 +50,8 @@ def run_tests():
 	test_cxx.run_tests(verbose)
 	info("******** gcc tests ********")
 	test_gcc.run_tests(verbose)
+	info("******** wscript error handling tests ********")
+	wscript_errors_test.run_tests(verbose)
 
 if __name__ == "__main__":
 	# XXX: not works !
