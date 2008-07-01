@@ -6,7 +6,7 @@
 
 import os, sys, shutil, cPickle, traceback, time
 
-import Utils, Configure, Build, Runner, Options, Logs, Options, Build
+import Utils, Configure, Build, Runner, Options, Logs, Options, Build, Environment
 from Logs import error, fatal, warn
 from Constants import *
 
@@ -116,26 +116,21 @@ def configure():
 
 	# this will write a configure lock so that subsequent run will
 	# consider the current path as the root directory, to remove: use 'waf distclean'
-	file = open(Options.lockfile, 'w')
-	file.write
-
-	proj = {}
-	proj[BLDDIR] = bld
-	proj[SRCDIR] = src
-	proj['argv'] = sys.argv
-	proj['hash'] = conf.hash
-	proj['files'] = conf.files
-	cPickle.dump(proj, file)
-	file.close()
+	env = Environment.Environment()
+	env[BLDDIR] = bld
+	env[SRCDIR] = src
+	env['argv'] = sys.argv
+	env['hash'] = conf.hash
+	env['files'] = conf.files
+	env.store(Options.lockfile)
 
 	# restore -j option
 	Options.options.jobs = jobs_save
 
 def read_cache_file(filename):
-	file = open(Options.lockfile, 'r')
-	proj = cPickle.load(file)
-	file.close()
-	return proj
+	env = Environment.Environment()
+	env.load(Options.lockfile)
+	return env
 
 def prepare(t, cwd, ver, wafdir):
 	if WAFVERSION != ver:
@@ -288,7 +283,7 @@ def prepare(t, cwd, ver, wafdir):
 	if fun: fun()
 
 	Utils.python_24_guard()
-	
+
 	try:
 		main()
 	except Utils.WafError, e:
