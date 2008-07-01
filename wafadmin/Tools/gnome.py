@@ -75,7 +75,7 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 			node = self.path.find_resource(self.doc_module+".omf.in")
 			tsk2.m_inputs = [node, out]
 
-			tsk2.m_run_after.append(tsk)
+			tsk2.run_after.append(tsk)
 
 
 			if Options.is_install:
