@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import os
-import Params, intltool, gnome
+import intltool, gnome
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.2'
