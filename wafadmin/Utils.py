@@ -50,7 +50,7 @@ class WscriptError(WafError):
 			self.wscript_file = wscript_file
 			self.wscript_line = None
 		else:
-			(self.wscript_file, self.wscript_line) = inspect_wscript()
+			(self.wscript_file, self.wscript_line) = self._inspect_wscript()
 
 		if self.wscript_file:
 			self.message += "%s:" % self.wscript_file
@@ -62,14 +62,14 @@ class WscriptError(WafError):
 	def __str__(self):
 		return self.message
 
-def inspect_wscript():
-	stacks = inspect.stack()
-	for stack in stacks:
-		file_name = os.path.basename(stack[1])
-		is_wscript = (file_name == WSCRIPT_FILE or file_name == WSCRIPT_BUILD_FILE)
-		if is_wscript:
-			return (stack[1], stack[2])
-	return (None, None)
+	def _inspect_wscript(self):
+		stacks = inspect.stack()
+		for stack in stacks:
+			file_name = os.path.basename(stack[1])
+			is_wscript = (file_name == WSCRIPT_FILE or file_name == WSCRIPT_BUILD_FILE)
+			if is_wscript:
+				return (stack[1], stack[2])
+		return (None, None)
 
 indicator = sys.platform=='win32' and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
@@ -117,7 +117,7 @@ def test_full():
 		if e.errno == errno.ENOSPC:
 			Logs.fatal('filesystem full', e.errno)
 		else:
-			Logs.fatal(str(e), e.errno)
+			Logs.fatal(e, e.errno)
 
 class ordered_dict(UserDict):
 	def __init__(self, dict = None):
