@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006-2008 (ita)
 # Ralf Habacker, 2006 (rh)
 
-import os, optparse, sys
+import os, sys
 import Configure, Options
 import ccroot, ar
 from Configure import conftest
