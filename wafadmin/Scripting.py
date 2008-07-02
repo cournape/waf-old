@@ -132,7 +132,7 @@ def configure():
 
 def read_cache_file(filename):
 	env = Environment.Environment()
-	env.load(Options.lockfile)
+	env.load(filename)
 	return env
 
 def prepare(t, cwd, ver, wafdir):
