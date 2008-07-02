@@ -12,7 +12,7 @@ class CxxTester(CxxFamilyTester):
 		self.tool_name 		= 'g++'
 		CxxFamilyTester.__init__(self, methodName)
 
-	def test_invalid_task_generator(self):
+	def test_no_tool_was_defined(self):
 		# white_box test: invalid task generator
 		wscript_contents = """
 blddir = 'build'

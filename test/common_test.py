@@ -141,6 +141,22 @@ class CommonTester(unittest.TestCase):
 		"""
 		self.assertEqual(0, self.call(args_list), "running '%s' failed" % args_list )
 
+	def _test_clean(self, test_for_success=True, *additionalArgs):
+		"""
+		test clean
+		@param additionalArgs [tuple]: optional additional arguments
+		"""
+		if test_for_success:
+			test_func = self.failIf # ret val of 0 is False...
+			err_msg = "clean failed"
+		else:
+			test_func = self.assert_ # ret val of NON-Zero is True...
+			err_msg = "clean should fail"
+
+		args_list = ["python", self._waf_exe, "clean"]
+		if additionalArgs: args_list.extend(list(additionalArgs))
+		test_func(self.call(args_list), err_msg)
+
 	def _test_distclean(self, *additionalArgs):
 		"""
 		test distclean

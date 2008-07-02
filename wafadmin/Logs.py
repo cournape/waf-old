@@ -76,6 +76,7 @@ class formatter(logging.Formatter):
 
 def fatal(msg, ret=1):
 	if verbose:
+		# TODO: temporary, till the exception-handling re-factoring is done
 		st = traceback.extract_stack()
 		if st: st = st[:-1]
 		buf = []
@@ -83,7 +84,7 @@ def fatal(msg, ret=1):
 			buf.append('  File "%s", line %d, in %s' % (filename, lineno, name))
 			if line:
 				buf.append('    %s' % line.strip())
-		msg = msg + "\n".join(buf)
+		msg = str(msg) + "\n".join(buf)
 	logging.critical(msg)
 	sys.exit(ret)
 

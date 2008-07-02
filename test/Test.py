@@ -29,20 +29,21 @@ def testname(file, tests_dir='test'):
 
 def run_tests():
 	# could be run from test dir only !
-	import build_dir as test_build_dir
-	import cxx_test as test_cxx
-	import gcc_test as test_gcc
-	import configure_test as test_configure
+	import build_dir
+	import cxx_test
+	import gcc_test
+	import configure_test
 	import wscript_errors_test
 	import scripting
+	import build
 
 	if Options.options:
 		verbose = Options.options.verbose
 	else:
 		verbose = 1
 
-	tests_modules = [test_configure, test_build_dir, test_cxx, test_gcc, 
-					wscript_errors_test, scripting]
+	tests_modules = [configure_test, build_dir, cxx_test, gcc_test, 
+					wscript_errors_test, scripting, build]
 	
 	for mod in tests_modules:
 		info("******** %s ********" % mod.__name__)

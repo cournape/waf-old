@@ -53,7 +53,10 @@ def call_back(idxName, pathName, event):
 	if g_daemonlock: return
 	g_daemonlock = 1
 
-	main()
+	try:
+		main()
+	except Utils.WafError, e:
+		error(e)
 	g_daemonlock = 0
 
 def start_daemon():
@@ -385,9 +388,8 @@ def main():
 			p.sort_stats('time').print_stats(40)
 			#"""
 
-		except Build.BuildError, e:
-			if not Options.options.daemon: fatal(e, 1)
-			else: error(e)
+		except Utils.WafError:
+			raise
 		else:
 			if Options.options.progress_bar: print ''
 

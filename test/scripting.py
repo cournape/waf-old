@@ -14,17 +14,14 @@ import Options
 import Utils
 import Scripting
 
-class BuildTester(common_test.CommonTester):
+class ScriptingTester(common_test.CommonTester):
 	def __init__(self, methodName):
 		common_test.CommonTester.__init__(self, methodName)
-		self._test_dic = {}
-		self._blddir = 'build' # has to be the same as in wscript above
 
 	def setUp(self):
 		# define & create temporary testing directories
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")
 		self._wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
-		self._source_file_path = os.path.join(self._test_dir_root, "test.cpp")
 		os.chdir(self._test_dir_root)
 
 	def tearDown(self):
@@ -90,7 +87,7 @@ def set_options(opt):
 		del Options.commands['configure']
 		del Options.commands['clean']
 		
-	def test_no_conf_no_clean(self):
+	def test_white_no_conf_no_clean(self):
 		# white-box test: make sure that waf aborts on build without configure
 		Options.commands['clean'] = True
 		Options.commands['configure'] = False
@@ -99,11 +96,15 @@ def set_options(opt):
 		# cleanup: don't harm other tests
 		del Options.commands['clean']
 		del Options.commands['configure']
+		
+	def test_black_no_conf_no_clean(self):
+		self._write_wscript("def set_options(opt): pass")
+		self._test_clean(False)
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 
-	suite = unittest.TestLoader().loadTestsFromTestCase(BuildTester)
+	suite = unittest.TestLoader().loadTestsFromTestCase(ScriptingTester)
 	unittest.TextTestRunner(verbosity=verbose).run(suite)
 
 if __name__ == '__main__':

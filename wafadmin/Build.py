@@ -31,8 +31,9 @@ class BuildError(Utils.WafError):
 		self.bld = b
 		self.tasks = t
 		self.ret = 1
+		Utils.WafError.__init__(self, self.format_message())
 
-	def __str__(self):
+	def format_message(self):
 		lst = ['Build failed']
 		for tsk in self.tasks:
 			if tsk.m_hasrun == CRASHED:
