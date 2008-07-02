@@ -319,34 +319,36 @@ def main():
 				raise Utils.WafError("Project not configured (run 'waf configure' first)")
 
 	if Configure.autoconfig:
-		reconf = 0
-		hash = 0
-		try:
-			for file in proj['files']:
-				mod = Utils.load_module(file)
-				hash = Utils.hash_function_with_globals(hash, mod.configure)
-			reconf = (hash != proj['hash'])
-		except Exception, ex:
-			if Logs.verbose:
-				traceback.print_exc()
-			warn("Reconfiguring the project (an exception occurred: %s)" % (str(ex),))
-			reconf = 1
-
-		if reconf:
-			warn("Reconfiguring the project (the configuration has changed)")
-
-			back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
-
-			oldargs = sys.argv
-			sys.argv = proj['argv']
-			Options.Handler.parser.parse_args(args=sys.argv[1:])
-			configure()
-			sys.argv = oldargs
-
-			(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
-
-			bld = Build.Build()
-			proj = read_cache_file(Options.lockfile)
+		# TODO: quite ugly, will be re-factored soon
+		if not Options.commands['clean'] and not Options.commands['uninstall']:
+			reconf = 0
+			hash = 0
+			try:
+				for file in proj['files']:
+					mod = Utils.load_module(file)
+					hash = Utils.hash_function_with_globals(hash, mod.configure)
+				reconf = (hash != proj['hash'])
+			except Exception, ex:
+				if Logs.verbose:
+					traceback.print_exc()
+				warn("Reconfiguring the project (an exception occurred: %s)" % (str(ex),))
+				reconf = 1
+	
+			if reconf:
+				warn("Reconfiguring the project (the configuration has changed)")
+	
+				back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
+	
+				oldargs = sys.argv
+				sys.argv = proj['argv']
+				Options.Handler.parser.parse_args(args=sys.argv[1:])
+				configure()
+				sys.argv = oldargs
+	
+				(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
+	
+				bld = Build.Build()
+				proj = read_cache_file(Options.lockfile)
 
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
