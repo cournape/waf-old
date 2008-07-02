@@ -369,40 +369,35 @@ def main():
 
 	# compile
 	if Options.commands['build'] or Options.is_install:
-		try:
+		# TODO quite ugly, no?
+		if not Options.commands['build'] and not Options.commands['install']:
+			import Task
+			def must_run(self):
+				return 0
+			setattr(Task.Task, 'must_run', must_run)
 
-			# TODO quite ugly, no?
-			if not Options.commands['build'] and not Options.commands['install']:
-				import Task
-				def must_run(self):
-					return 0
-				setattr(Task.Task, 'must_run', must_run)
+		ini = time.time()
+		#"""
+		bld.compile()
+		"""
+		import cProfile, pstats
+		cProfile.run("import Build; Build.bld.compile()", 'profi.txt')
+		p = pstats.Stats('profi.txt')
+		p.sort_stats('time').print_stats(40)
+		#"""
 
-			ini = time.time()
-			#"""
-			bld.compile()
-			"""
-			import cProfile, pstats
-			cProfile.run("import Build; Build.bld.compile()", 'profi.txt')
-			p = pstats.Stats('profi.txt')
-			p.sort_stats('time').print_stats(40)
-			#"""
+		if Options.options.progress_bar: print ''
 
-		except Utils.WafError:
-			raise
-		else:
-			if Options.options.progress_bar: print ''
+		if Options.is_install:
+			bld.install()
 
-			if Options.is_install:
-				bld.install()
-
-			ela = ''
-			if not Options.options.progress_bar:
-				ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-			if Options.commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
-			elif Options.commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
-			else: msg = 'Compilation finished successfully%s' % ela
-			Utils.pprint('GREEN', msg)
+		ela = ''
+		if not Options.options.progress_bar:
+			ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+		if Options.commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
+		elif Options.commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
+		else: msg = 'Compilation finished successfully%s' % ela
+		Utils.pprint('GREEN', msg)
 
 	# clean
 	if Options.commands['clean']:
