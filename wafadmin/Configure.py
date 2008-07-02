@@ -169,13 +169,9 @@ class Configure(object):
 		self.cwd = os.path.join(self.cwd, dir)
 		cur = os.path.join(self.cwd, WSCRIPT_FILE)
 
-		try:
-			mod = Utils.load_module(cur)
-		except IOError:
-			fatal("the wscript file %s was not found." % cur)
-
+		mod = Utils.load_module(cur)
 		if not hasattr(mod, 'configure'):
-			Utils.WscriptError('the module %s has no configure function; make sure such a function is defined' % cur)
+			raise Utils.WscriptError('the module %s has no configure function; make sure such a function is defined' % cur)
 
 		ret = mod.configure(self)
 		global autoconfig

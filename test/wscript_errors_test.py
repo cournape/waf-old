@@ -9,8 +9,6 @@ Tests wscript errors handling
 import os, unittest, tempfile, shutil, imp
 import common_test
 
-import Test
-
 from Constants import *
 import Options
 import Scripting
@@ -30,6 +28,7 @@ class WscriptErrorsTester(common_test.CommonTester):
 		# define & create temporary testing directories - 
 		# needed to make sure it will run in same manner always 
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")
+		self._wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
 		os.chdir(self._test_dir_root)
 
 	def tearDown(self):
@@ -71,6 +70,25 @@ class WhiteWscriptTester(WscriptErrorsTester):
 		Options.commands['clean'] = False
 		# TODO: tests for WafError upon change
 		self.failUnlessRaises(SystemExit, Scripting.main)
+		
+	def test_missing_configure(self):
+		# white_box test: missing def configure()
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents, use_dic=False)
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		Utils.set_main_module(self._wscript_file_path)
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
+		
+	def test_no_wscript_for_config(self):
+		conf = Configure.Configure()
+		self.failUnlessRaises(Utils.WscriptError, conf.sub_config, non_exist_path)
 		
 class BlackWscriptTester(WscriptErrorsTester):
 	"""Black box tests for wscript errors"""

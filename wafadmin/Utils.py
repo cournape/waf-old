@@ -185,7 +185,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	try:
 		file = open(file_path, 'r')
 	except (IOError, OSError):
-		Logs.fatal('The file %s could not be opened!' % file_path)
+		raise WscriptError('The file %s could not be opened!' % file_path)
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
