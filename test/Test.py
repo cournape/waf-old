@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
+# Yinon Ehrlich, 2008
 
 "Some waf tests - most are obsolete"
 
@@ -33,6 +34,7 @@ def run_tests():
 	import gcc_test as test_gcc
 	import configure_test as test_configure
 	import wscript_errors_test
+	import scripting
 
 	if Options.options:
 		verbose = Options.options.verbose
@@ -40,7 +42,7 @@ def run_tests():
 		verbose = 1
 
 	tests_modules = [test_configure, test_build_dir, test_cxx, test_gcc, 
-					wscript_errors_test]
+					wscript_errors_test, scripting]
 	
 	for mod in tests_modules:
 		info("******** %s ********" % mod.__name__)

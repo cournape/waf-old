@@ -312,7 +312,7 @@ def main():
 				bld = Build.Build()
 				proj = read_cache_file(Options.lockfile)
 			else:
-				fatal("Project not configured (run 'waf configure' first)", ret=2)
+				raise Utils.WafError("Project not configured (run 'waf configure' first)")
 
 	if Configure.autoconfig:
 		reconf = 0

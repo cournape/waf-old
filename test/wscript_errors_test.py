@@ -65,12 +65,6 @@ class WhiteWscriptTester(WscriptErrorsTester):
 		# TODO: tests for WafError upon change
 		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
 
-	def test_not_configured(self):
-		Options.commands['configure'] = False
-		Options.commands['clean'] = False
-		# TODO: tests for WafError upon change
-		self.failUnlessRaises(SystemExit, Scripting.main)
-		
 	def test_missing_configure(self):
 		# white_box test: missing def configure()
 		wscript_contents = """
