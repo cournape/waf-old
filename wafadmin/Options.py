@@ -9,6 +9,7 @@ import os, sys, imp, types, tempfile
 from optparse import OptionParser
 import Logs, Utils, Scripting
 from Constants import *
+from Logs import fatal
 
 options = {}
 commands = {}
