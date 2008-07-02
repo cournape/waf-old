@@ -143,7 +143,7 @@ def configure():
 	Params.g_options.jobs = jobs_save
 
 def read_cache_file(filename):
-	file = open(g_lockfile, 'r')
+	file = open(filename, 'r')
 	proj = cPickle.load(file)
 	file.close()
 	return proj
