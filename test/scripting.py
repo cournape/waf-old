@@ -89,6 +89,16 @@ def set_options(opt):
 		# cleanup: don't harm other tests
 		del Options.commands['configure']
 		del Options.commands['clean']
+		
+	def test_no_conf_no_clean(self):
+		# white-box test: make sure that waf aborts on build without configure
+		Options.commands['clean'] = True
+		Options.commands['configure'] = False
+		self.failUnlessRaises(Utils.WafError, Scripting.main)
+		
+		# cleanup: don't harm other tests
+		del Options.commands['clean']
+		del Options.commands['configure']
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False

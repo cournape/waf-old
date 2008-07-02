@@ -287,6 +287,7 @@ def prepare(t, cwd, ver, wafdir):
 	try:
 		main()
 	except Utils.WafError, e:
+		# TODO: use error() instead of fatal (no need to call sys.exit, it's the last line...)
 		fatal(e)
 
 def main():
@@ -304,7 +305,7 @@ def main():
 		proj = read_cache_file(Options.lockfile)
 	except IOError:
 		if Options.commands['clean']:
-			fatal("Nothing to clean (project not configured)", ret=2)
+			raise Utils.WafError("Nothing to clean (project not configured)")
 		else:
 			if Configure.autoconfig:
 				warn("Reconfiguring the project")
