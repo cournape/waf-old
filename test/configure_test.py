@@ -8,11 +8,8 @@ Tests Configure.py
 
 # TODO: most of Configure functions and features are not tested here yet...
 
-import os, sys, unittest, shutil, tempfile
+import os, unittest, shutil, tempfile
 import common_test
-
-# this will add wafadmin dir to sys.path
-import Test
 
 from Constants import *
 import Options
