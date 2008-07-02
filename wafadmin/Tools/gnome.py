@@ -157,7 +157,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 			# no outputs, the scanner does it
 			# no caching for now, this is not a time-critical feature
 			# in the future the scanner can be used to do more things (find dependencies, etc)
-			task.do_scan(task.m_inputs[0])
+			task.scan()
 
 # Unlike the sgml and doc processing, the dbus and marshal beast
 # generate c/c++ code that we want to mix
