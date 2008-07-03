@@ -150,8 +150,8 @@ class Configure(object):
 		for tool in tools:
 			try:
 				file,name,desc = imp.find_module(tool, tooldir)
-			except ImportError, ex:
-				raise ConfigurationError("no tool named '%s' found (%s)" % (tool, str(ex)))
+			except ImportError:
+				raise ConfigurationError("no tool named '%s' found." % tool)
 			module = imp.load_module(tool, file, name, desc)
 
 			func = getattr(module, 'detect', None)
