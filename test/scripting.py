@@ -235,7 +235,6 @@ def get_version():
 		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
 		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
 
-	# XXX: this test fails - because uninstall do nothing !
 	def test_user_define_distcheck(self):
 		# black-box test: if user wrote dist() function it will be used
 		wscript_contents = """
@@ -253,7 +252,7 @@ def configure(conf):
 def set_options(opt):
 	opt.tool_options('compiler_cxx')
 
-def dist():
+def distcheck():
 	open('waf_waf_custom_dist.txt', 'w')
 """
 		self._write_wscript(wscript_contents)

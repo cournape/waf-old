@@ -265,7 +265,7 @@ def prepare(t, cwd, ver, wafdir):
 		sys.exit(0)
 	elif Options.commands['distcheck']:
 		# try to use the user-defined dist function first, fallback to the waf scheme
-		fun = getattr(Utils.g_module, 'dist', None)
+		fun = getattr(Utils.g_module, 'distcheck', None)
 		if fun: fun(); sys.exit(0)
 		(appname, version) = get_name_and_version()
 
