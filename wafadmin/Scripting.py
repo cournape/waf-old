@@ -329,7 +329,9 @@ def main():
 
 				oldargs = sys.argv
 				sys.argv = proj['argv']
+				# we cannot recycle the previous options instance
 				opt_obj = Options.Handler()
+				opt_obj.sub_options('')
 				opt_obj.parse_args(args=sys.argv[1:])
 				configure()
 				sys.argv = oldargs
