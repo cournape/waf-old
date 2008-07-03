@@ -444,3 +444,25 @@ def make_objects_available(self):
 	app = self.out_nodes.append
 	for t in self.compiled_tasks: app(t.m_outputs[0])
 
+c_attrs = {
+'cxxflag' : 'CXXFLAGS',
+'cflag' : 'CCFLAGS',
+'ccflag' : 'CCFLAGS',
+'linkflag' : 'LINKFLAGS',
+'ldflag' : 'LINKFLAGS',
+'rpath' : 'RPATH',
+}
+
+@taskgen
+@feature('cc', 'cxx')
+@before('init_cxx')
+@before('init_cc')
+def add_extra_flags(self):
+	"insentive for the case and for the plurals"
+	for x in self.__dict__.keys():
+		y = x.lower()
+		if y[-1] == 's':
+			y = y[:-1]
+		if c_attrs.get(y, None):
+			self.env.append_unique(c_attrs[y], getattr(self, x))
+
