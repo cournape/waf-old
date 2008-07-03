@@ -101,6 +101,24 @@ def set_options(opt):
 		self._write_wscript("def set_options(opt): pass")
 		self._test_clean(False)
 
+	def test_dist(self):
+		# black-box test: dist works
+		appname = 'waf_waf_dist_test'
+		version = '30.4.5768'
+		wscript_contents = """
+%s = '%s'
+%s = '%s'
+
+def set_options(opt):
+	pass
+""" % (APPNAME, appname, VERSION, version)
+
+		self._write_wscript(wscript_contents)
+		self._test_dist()
+		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
+		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
+		
+
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 

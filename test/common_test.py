@@ -166,6 +166,15 @@ class CommonTester(unittest.TestCase):
 		if additionalArgs: args_list.extend(list(additionalArgs))
 		self.assertEqual(0, self.call(args_list), "distclean failed" )
 
+	def _test_dist(self, *additionalArgs):
+		"""
+		test dist
+		@param additionalArgs [tuple]: optional additional arguments
+		"""
+		args_list = ["python", self._waf_exe, "dist"]
+		if additionalArgs: args_list.extend(list(additionalArgs))
+		self.assertEqual(0, self.call(args_list), "dist failed" )
+
 	def _same_env(self, expected_env, env_name='default'):
 		"""
 		All parameters decided upon configure are written to cache, then read on build. 

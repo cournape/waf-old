@@ -258,8 +258,7 @@ def prepare(t, cwd, ver, wafdir):
 		else: version = getattr(Utils.g_module, VERSION, None)
 		if not version: version = '1.0'
 
-		from Scripting import Dist
-		Dist(appname, version)
+		DistTarball(appname, version)
 		sys.exit(0)
 	elif Options.commands['distclean']:
 		# try to use the user-defined distclean first, fallback to the waf scheme
@@ -518,11 +517,6 @@ def DistTarball(appname, version):
 
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
 	return (TMPFOLDER, TMPFOLDER+'.tar.'+g_gz)
-
-def Dist(appname, version):
-	"""make a tarball with all the sources in it"""
-	DistTarball(appname, version)
-	sys.exit(0)
 
 def DistClean():
 	"""clean the project"""
