@@ -58,8 +58,7 @@ def run_tests(verbose=1):
 
 		suite = unittest.TestLoader().loadTestsFromTestCase(CxxTester)
 		# use the next line to run only specific tests: 
-#		suite =
-#		unittest.TestLoader().loadTestsFromName("test_customized_debug_level", CxxTester)
+#		suite = unittest.TestLoader().loadTestsFromName("test_customized_debug_level", CxxTester)
 		unittest.TextTestRunner(verbosity=verbose).run(suite)
 	except common_test.StartupError, e:
 		Logs.error(e)

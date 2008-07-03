@@ -172,13 +172,10 @@ def set_options(opt):
 		self._write_wscript("def set_options(opt):	pass")
 		self._test_distcheck(False)
 
-	# XXX: this test fails - because uninstall do nothing !
 	def test_distcheck(self):
 		# black-box test: distcheck works
 		appname = 'waf_waf_dist_test'
 		version = '30.4.5768'
-		built_code = 'waf_waf_built'
-		conf_code = 'waf_waf_configured'
 
 		wscript_contents = """
 srcdir = '.'
@@ -188,23 +185,25 @@ blddir = 'out'
 %s = '%s'
 
 def build(bld):
-	open('%s', 'w')
+	lib = bld.new_task_gen('cxx', 'shlib')
+	lib.source = 'dd.cpp'
+	lib.target = 'dd'
 
 def configure(conf):
-	open('%s', 'w')
+	conf.check_tool('compiler_cxx')
 
 def set_options(opt):
-	pass
-""" % (APPNAME, appname, VERSION, version, built_code, conf_code)
+	opt.tool_options('compiler_cxx')
+""" % (APPNAME, appname, VERSION, version)
 
 		self._write_wscript(wscript_contents)
+		dd_file = open('dd.cpp', 'w')
+		dd_file.writelines("int k=3;")
+		dd_file.close()
 		self._test_distcheck()
 		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
 		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
-		self.assert_(os.path.isfile(built_code), "build not done")
-		self.assert_(os.path.isfile(conf_code), "configure not done")
 
-	# XXX: this test fails - because uninstall do nothing !
 	def test_distcheck_custom_version(self):
 		# black-box test: distcheck uses custom get_version() function
 		appname = 'waf_waf_dist_test'
@@ -214,19 +213,24 @@ srcdir = '.'
 blddir = 'out'
 %s = '%s'
 def build(bld):
-	pass
+	lib = bld.new_task_gen('cxx', 'shlib')
+	lib.source = 'dd.cpp'
+	lib.target = 'dd'
 
 def configure(conf):
-	pass
+	conf.check_tool('compiler_cxx')
+
+def set_options(opt):
+	opt.tool_options('compiler_cxx')
 
 def get_version():
 	return '%s'
-
-def set_options(opt):
-	pass
 """ % (APPNAME, appname, version)
 
 		self._write_wscript(wscript_contents)
+		dd_file = open('dd.cpp', 'w')
+		dd_file.writelines("int k=3;")
+		dd_file.close()
 		self._test_distcheck()
 		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
 		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
@@ -239,22 +243,26 @@ srcdir = '.'
 blddir = 'out'
 
 def build(bld):
-	pass
+	lib = bld.new_task_gen('cxx', 'shlib')
+	lib.source = 'dd.cpp'
+	lib.target = 'dd'
 
 def configure(conf):
-	pass
+	conf.check_tool('compiler_cxx')
+
+def set_options(opt):
+	opt.tool_options('compiler_cxx')
 
 def dist():
 	open('waf_waf_custom_dist.txt', 'w')
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents)
+		dd_file = open('dd.cpp', 'w')
+		dd_file.writelines("int k=3;")
+		dd_file.close()
 		self._test_distcheck()
 		self.assert_(os.path.isfile('waf_waf_custom_dist.txt'), "custom dist() was not used")
 
-	# XXX: this test fails - because uninstall do nothing !
 	def test_user_distcheck_hook(self):
 		# black-box test: 
 		# if user wrote dist_hook() function it will be used to add something to dist
@@ -264,18 +272,23 @@ srcdir = '.'
 blddir = 'out'
 
 def build(bld):
-	pass
+	lib = bld.new_task_gen('cxx', 'shlib')
+	lib.source = 'dd.cpp'
+	lib.target = 'dd'
 
 def configure(conf):
-	pass
+	conf.check_tool('compiler_cxx')
+
+def set_options(opt):
+	opt.tool_options('compiler_cxx')
 
 def dist_hook():
 	open('waf_waf_custom_dist.txt', 'w')
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents)
+		dd_file = open('dd.cpp', 'w')
+		dd_file.writelines("int k=3;")
+		dd_file.close()
 		self._test_distcheck()
 		dist_file = 'noname-1.0.tar.' + Scripting.g_gz
 		tar = tarfile.open(dist_file)
