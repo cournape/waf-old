@@ -253,13 +253,7 @@ def prepare(t, cwd, ver, wafdir):
 		# try to use the user-defined dist function first, fallback to the waf scheme
 		fun = getattr(Utils.g_module, 'dist', None)
 		if fun: fun(); sys.exit(0)
-
-		appname = getattr(Utils.g_module, APPNAME, 'noname')
-
-		get_version = getattr(Utils.g_module, 'get_version', None)
-		if get_version: version = get_version()
-		else: version = getattr(Utils.g_module, VERSION, None)
-		if not version: version = '1.0'
+		(appname, version) = get_name_and_version()
 
 		DistTarball(appname, version)
 		sys.exit(0)
@@ -273,13 +267,7 @@ def prepare(t, cwd, ver, wafdir):
 		# try to use the user-defined dist function first, fallback to the waf scheme
 		fun = getattr(Utils.g_module, 'dist', None)
 		if fun: fun(); sys.exit(0)
-
-		appname = getattr(Utils.g_module, APPNAME, 'noname')
-
-		get_version = getattr(Utils.g_module, 'get_version', None)
-		if get_version: version = get_version()
-		else: version = getattr(Utils.g_module, VERSION, None)
-		if not version: version = '1.0'
+		(appname, version) = get_name_and_version()
 
 		DistCheck(appname, version)
 		sys.exit(0)
@@ -559,7 +547,7 @@ def DistCheck(appname, version):
 	import tempfile
 	import pproc as subprocess
 
-	waf = os.path.abspath(sys.argv[0])
+	waf = os.path.abspath(sys.argv[0]) # used by vars() below.
 	distdir, tarball = DistTarball(appname, version)
 	retval = subprocess.Popen('bzip2 -dc %s | tar x' % tarball, shell=True).wait()
 	if retval:
@@ -584,3 +572,12 @@ def DistCheck(appname, version):
 	else:
 		Utils.pprint('GREEN', "distcheck finished successfully")
 
+def get_name_and_version():
+	appname = getattr(Utils.g_module, APPNAME, 'noname')
+
+	get_version = getattr(Utils.g_module, 'get_version', None)
+	if get_version: version = get_version()
+	else: version = getattr(Utils.g_module, VERSION, None)
+	if not version: version = '1.0'
+	
+	return (appname, version)
