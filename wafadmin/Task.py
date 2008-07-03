@@ -29,6 +29,18 @@ To try, use something like this in your code:
 import Constants, Task
 Task.algotype = Constants.MAXPARALLEL
 Task.shuffle = True
+
+--
+
+There are two concepts with the tasks (individual units of change):
+* dependency (if 1 is recompiled, recompile 2)
+* order (run 2 after 1)
+
+example 1: if t1 depends on t2 and t2 depends on t3 it is not necessary to make t1 depend on t3 (dependency is transitive)
+example 2: if t1 depends on a node produced by t2, it is not immediately obvious that t1 must run after t2 (order is not obvious)
+
+The role of the Task Manager is to give the tasks in order (groups of task that may be run in parallel one after the other)
+
 """
 
 import os, types, shutil, sys, re, new, random, time
@@ -261,7 +273,7 @@ class TaskGroup(object):
 				self.cstr_groups.__delitem__(y)
 
 		if not toreturn and remainder:
-			fatal("circular dependency detected %r" % remainder)
+			fatal("circular order constraint detected %r" % remainder)
 
 		#print "returning", toreturn
 		return toreturn
@@ -470,7 +482,7 @@ class Task(TaskBase):
 		else: self.m_outputs.append(out)
 
 	def set_run_after(self, task):
-		"set (scheduler) dependency on another task"
+		"set (scheduler) order on another task"
 		# TODO: handle list or object
 		assert isinstance(task, TaskBase)
 		self.run_after.append(task)
