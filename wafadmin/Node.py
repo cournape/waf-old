@@ -20,7 +20,7 @@ eg: the m_tstamp is used for every node, while the signature is computed only fo
 the build is launched from the top of the build dir (for example, in _build_/)
 """
 
-import os, sys
+import os, sys, types
 import Utils, Build
 from Logs import *
 
@@ -95,11 +95,10 @@ class Node(object):
 
 	# ===== BEGIN find methods ===== #
 
-	def find_resource(self, path):
-		lst = Utils.split_path(path)
-		return self.find_resource_lst(lst)
+	def find_resource(self, lst):
+		if type(lst) is not types.ListType:
+			lst = Utils.split_path(lst)
 
-	def find_resource_lst(self, lst):
 		"Find an existing input file: either a build node declared previously or a source node"
 		if not lst[:-1]:
 			parent = self

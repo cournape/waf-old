@@ -111,8 +111,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 	installed_files = []
 	for filename in lst:
 		if not os.path.isabs(filename):
-			alst = Utils.split_path(filename)
-			filenode = node.find_resource_lst(alst)
+			filenode = node.find_resource(filename)
 			if filenode is None:
 				fatal("Unable to install the file `%s': not found in %s" % (filename, node))
 
@@ -148,8 +147,7 @@ def install_as(var, destfile, srcfile, env=None, chmod=0644):
 
 	# the source path
 	if not os.path.isabs(srcfile):
-		alst = Utils.split_path(srcfile)
-		filenode = node.find_resource_lst(alst)
+		filenode = node.find_resource(srcfile)
 		src = filenode.abspath(env)
 	else:
 		src = srcfile

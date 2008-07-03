@@ -169,7 +169,7 @@ class task_gen(object):
 			if len(lst) == 0 and not self.allnodes:
 				fatal("no sources were specified for '%s'" % self.name)
 
-		find_resource_lst = self.path.find_resource_lst
+		find_resource = self.path.find_resource
 
 		for filename in lst:
 			# if self.mappings or task_gen.mappings contains a file of the same name
@@ -177,7 +177,7 @@ class task_gen(object):
 			if x:
 				x(self, filename)
 			else:
-				node = find_resource_lst(Utils.split_path(filename))
+				node = find_resource(filename)
 				if not node: fatal("source not found: '%s' in '%s'" % (filename, str(self.path)))
 				self.allnodes.append(node)
 

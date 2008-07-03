@@ -47,8 +47,6 @@ class java_taskgen(TaskGen.task_gen):
 		else:
 			self.env['CLASSPATH'] = self.classpath
 
-		find_resource_lst = self.path.find_resource_lst
-
 		re_foo = re.compile(self.source)
 
 		source_root_node = self.path.find_dir(self.source_root)
