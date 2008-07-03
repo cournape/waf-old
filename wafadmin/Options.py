@@ -187,13 +187,12 @@ class Handler(object):
 			cur = os.path.join(self.cwd, WSCRIPT_FILE)
 
 			mod = Utils.load_module(cur)
-			try:
-				fun = mod.set_options
-			except AttributeError:
-				msg = "no set_options function was found in wscript\n[%s]:\n * make sure such a function is defined \n * run configure from the root of the project"
-				fatal(msg % self.cwd)
+			if not hasattr(mod, 'set_options'):
+				msg = "the module %s has no set_options function;\n* make sure such a function is defined\n* run configure from the root of the project" % cur
+				raise Utils.WscriptError(msg)
 			else:
-				fun(option_group or self)
+				fun = mod.set_options
+			fun(option_group or self)
 
 		finally:
 			self.cwd = current

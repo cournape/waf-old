@@ -241,9 +241,12 @@ def prepare(t, cwd, ver, wafdir):
 
 	# fetch the custom command-line options recursively and in a procedural way
 	opt_obj = Options.Handler()
-	# will call to main wscript's set_options()
-	opt_obj.sub_options('')
-	opt_obj.parse_args()
+	try:
+			# will call to main wscript's set_options()
+			opt_obj.sub_options('')
+			opt_obj.parse_args()
+	except Utils.WafError, e:
+		fatal(e)
 
 	# use the parser results
 	if Options.commands['dist']:
