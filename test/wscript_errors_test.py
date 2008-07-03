@@ -9,6 +9,7 @@ Tests wscript errors handling
 import os, unittest, tempfile, shutil, imp
 import common_test
 
+import Test
 from Constants import *
 import Options
 import Scripting
@@ -120,7 +121,13 @@ def set_options(opt):
 	def test_no_wscript_for_config(self):
 		conf = Configure.Configure()
 		self.failUnlessRaises(Utils.WscriptError, conf.sub_config, non_exist_path)
-		
+
+	def test_no_tool_to_set_options(self):
+		# white_box test: set_options raise WafError when cannot find a tool
+		Options.tooldir = os.path.join(self._waf_root_dir, Test.DIRS.WAFADMIN, Test.DIRS.TOOLS)
+		opt = Options.Handler()
+		self.failUnlessRaises(Utils.WscriptError, opt.tool_options, 'kk', '.')
+
 class BlackWscriptTester(WscriptErrorsTester):
 	"""Black box tests for wscript errors"""
 	def test_missing_build_def(self):

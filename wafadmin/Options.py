@@ -7,9 +7,8 @@
 
 import os, sys, imp, types, tempfile
 from optparse import OptionParser
-import Logs, Utils, Scripting
+import Logs, Utils
 from Constants import *
-from Logs import fatal
 
 options = {}
 commands = {}
@@ -208,7 +207,7 @@ class Handler(object):
 		try:
 			file,name,desc = imp.find_module(tool, tdir)
 		except ImportError:
-			fatal("no tool named '%s' found" % tool)
+			raise Utils.WscriptError("no tool named '%s' found" % tool)
 		module = imp.load_module(tool,file,name,desc)
 		try:
 			fun = module.set_options
