@@ -510,8 +510,9 @@ class Task(TaskBase):
 		"wait for other tasks to complete"
 		if (not self.m_inputs) or (not self.m_outputs):
 			if not (not self.m_inputs) and (not self.m_outputs):
-				error("task is invalid : no inputs or outputs (override in a Task subclass?)")
-				self.debug()
+				if not getattr(self.__class__, 'quiet', None):
+					error("task is invalid : no inputs or outputs (override in a Task subclass?)")
+					self.debug()
 
 		for t in self.run_after:
 			if not t.m_hasrun:

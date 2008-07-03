@@ -57,17 +57,10 @@ class shpip_task(Task.Task):
 	"""
 
 	color = 'PINK'
+	quiet = 1 # ¿por que no se calla?
 
 	def __init__(self, env, normal=1):
 		Task.Task.__init__(self, env, normal)
-
-	def may_start(self):
-		# set a dummy output else the method will not work
-		old = self.m_outputs
-		self.m_outputs = "blah"
-		ret = Task.Task.may_start(self)
-		self.m_outputs = old
-		return ret
 
 	def must_run(self):
 		# look at the cache, if the shpip task was already run

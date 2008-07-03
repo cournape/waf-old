@@ -303,6 +303,7 @@ Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > 
 cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 cls.scan = sgml_scan
 cls.sig_implicit_deps = sig_implicit_deps
+cls.quiet = 1
 
 Task.simple_task_type('glib_genmarshal',
 	'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
