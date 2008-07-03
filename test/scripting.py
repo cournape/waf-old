@@ -7,6 +7,7 @@ Tests Scripting
 """
 
 import os, unittest, shutil, tempfile
+import tarfile
 import common_test
 
 from Constants import *
@@ -117,7 +118,54 @@ def set_options(opt):
 		self._test_dist()
 		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
 		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
-		
+
+	def test_dist_custom_version(self):
+		# black-box test: dist uses custom get_version() function
+		appname = 'waf_waf_dist_test'
+		version = '365'
+		wscript_contents = """
+%s = '%s'
+def get_version():
+	return '%s'
+
+def set_options(opt):
+	pass
+""" % (APPNAME, appname, version)
+
+		self._write_wscript(wscript_contents)
+		self._test_dist()
+		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
+		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
+
+	def test_user_define_dist(self):
+		# black-box test: if user wrote dist() function it will be used
+		wscript_contents = """
+def dist():
+	open('waf_waf_custom_dist.txt', 'w')
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents)
+		self._test_dist()
+		self.assert_(os.path.isfile('waf_waf_custom_dist.txt'), "custom dist() was not used")
+
+	def test_user_dist_hook(self):
+		# black-box test: 
+		# if user wrote dist_hook() function it will be used to add something to dist
+		# to ease testing the function here creates a file
+		wscript_contents = """
+def dist_hook():
+	open('waf_waf_custom_dist.txt', 'w')
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents)
+		self._test_dist()
+		dist_file = 'noname-1.0.tar.' + Scripting.g_gz
+		tar = tarfile.open(dist_file)
+		self.assert_('noname-1.0/waf_waf_custom_dist.txt' in tar.getnames(), "custom dist_hook() was not used")
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
