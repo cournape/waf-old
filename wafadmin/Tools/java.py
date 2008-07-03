@@ -78,7 +78,7 @@ class java_taskgen(TaskGen.task_gen):
 		if self.jarname:
 			tsk = self.create_task('jar_create')
 			tsk.set_inputs(bld_nodes)
-			tsk.set_outputs(self.path.find_or_declare_lst(Utils.split_path(self.jarname)))
+			tsk.set_outputs(self.path.find_or_declare(self.jarname))
 
 			if not self.env['JAROPTS']:
 				if self.jaropts:

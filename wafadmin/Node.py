@@ -96,10 +96,10 @@ class Node(object):
 	# ===== BEGIN find methods ===== #
 
 	def find_resource(self, lst):
-		if type(lst) is not types.ListType:
+		"Find an existing input file: either a build node declared previously or a source node"
+		if type(lst) is types.StringType:
 			lst = Utils.split_path(lst)
 
-		"Find an existing input file: either a build node declared previously or a source node"
 		if not lst[:-1]:
 			parent = self
 		else:
@@ -128,12 +128,11 @@ class Node(object):
 		tree.node_sigs[0][child.id] = st
 		return child
 
-	def find_or_declare(self, path):
-		lst = Utils.split_path(path)
-		return self.find_or_declare_lst(lst)
-
-	def find_or_declare_lst(self, lst):
+	def find_or_declare(self, lst):
 		"Used for declaring a build node representing a file being built"
+		if type(lst) is types.StringType:
+			lst = Utils.split_path(lst)
+
 		if not lst[:-1]:
 			parent = self
 		else:
