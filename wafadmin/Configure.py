@@ -26,7 +26,7 @@ from Constants import *
 
 TEST_OK = True
 
-class ConfigurationError(Utils.WafError):
+class ConfigurationError(Utils.WscriptError):
 	pass
 
 autoconfig = False
@@ -171,7 +171,7 @@ class Configure(object):
 
 		mod = Utils.load_module(cur)
 		if not hasattr(mod, 'configure'):
-			raise Utils.WscriptError('the module %s has no configure function; make sure such a function is defined' % cur)
+			raise ConfigurationError('the module %s has no configure function; make sure such a function is defined' % cur)
 
 		ret = mod.configure(self)
 		global autoconfig
