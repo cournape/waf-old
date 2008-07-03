@@ -80,11 +80,42 @@ def set_options(opt):
 		Utils.set_main_module(self._wscript_file_path)
 		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
 
+	def test_attr_err_in_configure(self):
+		# white_box test: configure raised AttributeError - don't raise WafError becasue of that
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def configure(conf):
+	raise AttributeError
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents, use_dic=False)
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		Utils.set_main_module(self._wscript_file_path)
+		self.failUnlessRaises(AttributeError, Scripting.configure)
+
 	def test_missing_set_options(self):
 		# white_box test: missing def set_options()
 		self._write_wscript(" ", use_dic=False)
 		opt_obj = Options.Handler()
 		self.failUnlessRaises(Utils.WscriptError, opt_obj.sub_options, '')
+
+	def test_attr_err_in_set_options(self):
+		# white_box test: set_options raised AttributeError - don't raise WafError becasue of that
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def set_options(opt):
+	raise AttributeError
+"""
+		self._write_wscript(wscript_contents, use_dic=False)
+		opt_obj = Options.Handler()
+		self.failUnlessRaises(AttributeError, opt_obj.sub_options, '')
 
 	def test_no_wscript_for_config(self):
 		conf = Configure.Configure()
