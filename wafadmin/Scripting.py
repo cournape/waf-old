@@ -106,13 +106,8 @@ def configure():
 
 	conf = Configure.Configure(srcdir=src, blddir=bld)
 
-	try:
-		# calling to main wscript's configure()
-		conf.sub_config('')
-	except Utils.WafError:
-		raise
-	except Exception:
-		raise
+	# calling to main wscript's configure()
+	conf.sub_config('')
 
 	conf.store(tree)
 
