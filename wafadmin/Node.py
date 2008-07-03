@@ -179,13 +179,14 @@ class Node(object):
 						return None
 		return current
 
-	def ensure_dir_node_from_path(self, path):
-		return self.ensure_dir_node_from_path_lst(Utils.split_path(path))
-
-	def ensure_dir_node_from_path_lst(self, plst):
+	def ensure_dir_node_from_path(self, lst):
 		"used very rarely, force the construction of a branch of node instance for representing folders"
+
+		if type(lst) is types.StringType:
+			lst = Utils.split_path(lst)
+
 		current = self
-		for name in plst:
+		for name in lst:
 			if not name:
 				continue
 			elif name == '.':
@@ -217,7 +218,7 @@ class Node(object):
 			if not parent:
 				# exclusive build directory -> mark the parent as rescanned
 				# for find_dir and find_resource to work
-				parent = self.ensure_dir_node_from_path_lst(lst[:-1])
+				parent = self.ensure_dir_node_from_path(lst[:-1])
 				Build.bld.cache_scanned_folders[parent.id] = 1
 			else:
 				try:
