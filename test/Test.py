@@ -36,6 +36,7 @@ def run_tests():
 	import wscript_errors_test
 	import scripting
 	import build
+	import options
 
 	if Options.options:
 		verbose = Options.options.verbose
@@ -43,7 +44,7 @@ def run_tests():
 		verbose = 1
 
 	tests_modules = [configure_test, build_dir, cxx_test, gcc_test, 
-					wscript_errors_test, scripting, build]
+					wscript_errors_test, scripting, build, options]
 	
 	for mod in tests_modules:
 		info("******** %s ********" % mod.__name__)
