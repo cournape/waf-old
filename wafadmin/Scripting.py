@@ -333,20 +333,20 @@ def main():
 					traceback.print_exc()
 				warn("Reconfiguring the project (an exception occurred: %s)" % (str(ex),))
 				reconf = 1
-	
+
 			if reconf:
 				warn("Reconfiguring the project (the configuration has changed)")
-	
+
 				back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
-	
+
 				oldargs = sys.argv
 				sys.argv = proj['argv']
 				Options.Handler.parser.parse_args(args=sys.argv[1:])
 				configure()
 				sys.argv = oldargs
-	
+
 				(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
-	
+
 				bld = Build.Build()
 				proj = read_cache_file(Options.lockfile)
 
