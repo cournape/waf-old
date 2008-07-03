@@ -293,6 +293,49 @@ def dist_hook():
 		tar = tarfile.open(dist_file)
 		self.assert_('noname-1.0/waf_waf_custom_dist.txt' in tar.getnames(), "custom dist_hook() was not used")
 
+	def test_distcheck_fails_cannot_uninstall(self):
+		# black-box test: distcheck fails if uninstall fails
+		appname = 'waf_waf_dist_test'
+		version = '30.4.5768'
+
+		wscript_contents = """
+srcdir = '.'
+blddir = 'out'
+
+%s = '%s'
+%s = '%s'
+
+def build(bld):
+	open('duh', 'w')
+
+def configure(conf):
+	pass
+
+def set_options(opt):
+	pass
+""" % (APPNAME, appname, VERSION, version)
+
+		self._write_wscript(wscript_contents)
+		self._test_distcheck(False)
+
+	def test_distcheck_fails_conf_err(self):
+		# black-box test: distcheck fails if conf fails
+		appname = 'waf_waf_dist_test'
+		version = '30.4.5768'
+
+		wscript_contents = """
+srcdir = '.'
+blddir = 'out'
+
+%s = '%s'
+%s = '%s'
+
+def set_options(opt):
+	pass
+""" % (APPNAME, appname, VERSION, version)
+
+		self._write_wscript(wscript_contents)
+		self._test_distcheck(False)
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
