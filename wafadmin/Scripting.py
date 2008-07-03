@@ -329,7 +329,8 @@ def main():
 
 				oldargs = sys.argv
 				sys.argv = proj['argv']
-				Options.Handler.parser.parse_args(args=sys.argv[1:])
+				opt_obj = Options.Handler()
+				opt_obj.parse_args(args=sys.argv[1:])
 				configure()
 				sys.argv = oldargs
 
