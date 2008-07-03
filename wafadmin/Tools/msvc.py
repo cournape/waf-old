@@ -260,7 +260,7 @@ def apply_link_msvc(self):
 
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_build(ccroot.get_target_name(self)))
+	linktask.set_outputs(self.path.find_or_declare(ccroot.get_target_name(self)))
 
 	linktask.m_type = self.m_type
 	linktask.m_subsystem = getattr(self, 'subsystem', '')

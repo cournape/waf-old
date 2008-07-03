@@ -158,7 +158,7 @@ def apply_link_ml(self):
 
 		linktask = self.create_task('ocalink')
 		linktask.bytecode = 1
-		linktask.set_outputs(self.path.find_build(self.target + ext))
+		linktask.set_outputs(self.path.find_or_declare(self.target + ext))
 		linktask.obj = self
 		linktask.env = self.bytecode_env
 		self.linktasks.append(linktask)
@@ -169,7 +169,7 @@ def apply_link_ml(self):
 		else: ext = ''
 
 		linktask = self.create_task('ocalinkx')
-		linktask.set_outputs(self.path.find_build(self.target + ext))
+		linktask.set_outputs(self.path.find_or_declare(self.target + ext))
 		linktask.obj = self
 		linktask.env = self.native_env
 		self.linktasks.append(linktask)

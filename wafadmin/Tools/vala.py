@@ -126,11 +126,11 @@ def vala_file(self, node):
 	output_nodes.append(node.change_ext('.c'))
 	output_nodes.append(node.change_ext('.h'))
 	if self.m_type != 'program':
-		output_nodes.append(self.path.find_build('%s.vapi' % self.target))
+		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
 		if env['VALAC_VERSION'] > (0, 1, 7):
-			output_nodes.append(self.path.find_build('%s.gidl' % self.target))
+			output_nodes.append(self.path.find_or_declare('%s.gidl' % self.target))
 		if valatask.packages:
-			output_nodes.append(self.path.find_build('%s.deps' % self.target))
+			output_nodes.append(self.path.find_or_declare('%s.deps' % self.target))
 
 	valatask.m_inputs.append(node)
 	valatask.m_outputs.extend(output_nodes)

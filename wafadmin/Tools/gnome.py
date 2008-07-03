@@ -65,12 +65,12 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 			tsk = self.create_task('xml2po')
 			node = self.path.find_resource(x+'/'+x+'.po')
 			src = self.path.find_resource('C/%s.xml' % self.doc_module)
-			out = self.path.find_build('%s/%s.xml' % (x, self.doc_module))
+			out = self.path.find_or_declare('%s/%s.xml' % (x, self.doc_module))
 			tsk.set_inputs([node, src])
 			tsk.set_outputs(out)
 
 			tsk2 = self.create_task('xsltproc2po')
-			out2 = self.path.find_build('%s/%s-%s.omf' % (x, self.doc_module, x))
+			out2 = self.path.find_or_declare('%s/%s-%s.omf' % (x, self.doc_module, x))
 			tsk2.set_outputs(out2)
 			node = self.path.find_resource(self.doc_module+".omf.in")
 			tsk2.m_inputs = [node, out]
@@ -128,7 +128,7 @@ def sgml_scan(self):
 
 	tmp_lst = Build.bld.raw_deps[self.unique_id()]
 	name = tmp_lst[0]
-	self.set_outputs(self.task_generator.path.find_build(name))
+	self.set_outputs(self.task_generator.path.find_or_declare(name))
 
 class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
@@ -245,7 +245,7 @@ def process_enums(self):
 		# find the target
 		if not x['target']:
 			Logs.fatal('missing target '+str(x))
-		tgt_node = self.path.find_build(x['target'])
+		tgt_node = self.path.find_or_declare(x['target'])
 		if tgt_node.m_name.endswith('.c'):
 			self.allnodes.append(tgt_node)
 		env['MK_TARGET'] = tgt_node.abspath(env)

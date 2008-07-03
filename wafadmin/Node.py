@@ -181,12 +181,6 @@ class Node(object):
 						return None
 		return current
 
-	# compatibility
-	find_build = find_or_declare
-	find_build_lst = find_or_declare_lst
-	find_source = find_resource
-	find_source_lst = find_resource_lst
-
 	def ensure_dir_node_from_path(self, path):
 		return self.ensure_dir_node_from_path_lst(Utils.split_path(path))
 

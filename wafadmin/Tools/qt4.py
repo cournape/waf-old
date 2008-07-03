@@ -250,7 +250,7 @@ def apply_qt4(self):
 		if self.langname:
 			t = Task.TaskBase.classes['qm2rcc'](self.env)
 			t.set_inputs(lst)
-			t.set_outputs(self.path.find_build(self.langname+'.qrc'))
+			t.set_outputs(self.path.find_or_declare(self.langname+'.qrc'))
 			t.path = self.path
 			k = create_rcc_task(self, t.m_outputs[0])
 			self.link_task.m_inputs.append(k.m_outputs[0])

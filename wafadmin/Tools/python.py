@@ -60,11 +60,11 @@ class py_taskgen(TaskGen.task_gen):
 	def install(self):
 		files_to_install = []
 		for filename in self.to_list(self.source):
-			node = self.path.find_source(filename)
+			node = self.path.find_resource(filename)
 			if node is not None:
 				files_to_install.append(node.abspath())
 			else:
-				node = self.path.find_build(filename)
+				node = self.path.find_or_declare(filename)
 				if node is None:
 					fatal("Cannot install file %s: not found in %s"
 						     % (filename, self.path))
