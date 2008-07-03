@@ -151,7 +151,7 @@ class Configure(object):
 			try:
 				file,name,desc = imp.find_module(tool, tooldir)
 			except ImportError:
-				raise ConfigurationError("no tool named '%s' found." % tool)
+				self.fatal("no tool named '%s' found." % tool)
 			module = imp.load_module(tool, file, name, desc)
 
 			func = getattr(module, 'detect', None)
@@ -171,7 +171,7 @@ class Configure(object):
 
 		mod = Utils.load_module(cur)
 		if not hasattr(mod, 'configure'):
-			raise ConfigurationError('the module %s has no configure function; make sure such a function is defined' % cur)
+			self.fatal('the module %s has no configure function; make sure such a function is defined' % cur)
 
 		ret = mod.configure(self)
 		global autoconfig
@@ -192,7 +192,7 @@ class Configure(object):
 		file.close()
 
 		if not self.all_envs:
-			fatal("nothing to store in Configure !")
+			self.fatal("nothing to store in Configure !")
 		for key in self.all_envs:
 			tmpenv = self.all_envs[key]
 			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
