@@ -5,7 +5,7 @@
 "Gnome support"
 
 import os, re
-import TaskGen, Utils, Runner, Task, Build, Options
+import TaskGen, Utils, Runner, Task, Build, Options, Logs
 import cc
 from Logs import fatal, error
 from TaskGen import taskgen, before, after, feature
@@ -120,15 +120,45 @@ def sgml_scan(self):
 	content = fi.read()
 	fi.close()
 
+	# we should use a sgml parser :-/
 	name = n1_regexp.findall(content)[0]
 	num = n2_regexp.findall(content)[0]
 
 	doc_name = name+'.'+num
 	return ([], [doc_name])
 
-	tmp_lst = Build.bld.raw_deps[self.unique_id()]
-	name = tmp_lst[0]
-	self.set_outputs(self.task_generator.path.find_or_declare(name))
+def sig_implicit_deps(self):
+	"override the Task method, see the Task.py"
+
+	def sgml_outputs():
+		dps = Build.bld.raw_deps[self.unique_id()]
+		name = dps[0]
+		self.set_outputs(self.task_generator.path.find_or_declare(name))
+
+	tree = Build.bld
+
+	# get the task signatures from previous runs
+	key = self.unique_id()
+	prev_sigs = tree.task_sigs.get(key, ())
+	if prev_sigs and prev_sigs[2] == self.compute_sig_implicit_deps():
+		sgml_outputs()
+		return prev_sigs[2]
+
+	# no previous run or the signature of the dependencies has changed, rescan the dependencies
+	(nodes, names) = self.scan()
+	if Logs.verbose and Logs.zones:
+		debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
+
+	# store the dependencies in the cache
+	tree = Build.bld
+	tree.node_deps[self.unique_id()] = nodes
+	tree.raw_deps[self.unique_id()] = names
+	sgml_outputs()
+
+	# recompute the signature and return it
+	sig = self.compute_sig_implicit_deps()
+
+	return sig
 
 class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
@@ -272,6 +302,7 @@ Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > 
 
 cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 cls.scan = sgml_scan
+cls.sig_implicit_deps = sig_implicit_deps
 
 Task.simple_task_type('glib_genmarshal',
 	'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
