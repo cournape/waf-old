@@ -167,6 +167,121 @@ def set_options(opt):
 		tar = tarfile.open(dist_file)
 		self.assert_('noname-1.0/waf_waf_custom_dist.txt' in tar.getnames(), "custom dist_hook() was not used")
 
+	def test_distcheck_fails(self):
+		# black-box test: distcheck fails - missing srcdir
+		self._write_wscript("def set_options(opt):	pass")
+		self._test_distcheck(False)
+
+	# XXX: this test fails - because uninstall do nothing !
+	def test_distcheck(self):
+		# black-box test: distcheck works
+		appname = 'waf_waf_dist_test'
+		version = '30.4.5768'
+		built_code = 'waf_waf_built'
+		conf_code = 'waf_waf_configured'
+
+		wscript_contents = """
+srcdir = '.'
+blddir = 'out'
+
+%s = '%s'
+%s = '%s'
+
+def build(bld):
+	open('%s', 'w')
+
+def configure(conf):
+	open('%s', 'w')
+
+def set_options(opt):
+	pass
+""" % (APPNAME, appname, VERSION, version, built_code, conf_code)
+
+		self._write_wscript(wscript_contents)
+		self._test_distcheck()
+		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
+		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
+		self.assert_(os.path.isfile(built_code), "build not done")
+		self.assert_(os.path.isfile(conf_code), "configure not done")
+
+	# XXX: this test fails - because uninstall do nothing !
+	def test_distcheck_custom_version(self):
+		# black-box test: distcheck uses custom get_version() function
+		appname = 'waf_waf_dist_test'
+		version = '365'
+		wscript_contents = """
+srcdir = '.'
+blddir = 'out'
+%s = '%s'
+def build(bld):
+	pass
+
+def configure(conf):
+	pass
+
+def get_version():
+	return '%s'
+
+def set_options(opt):
+	pass
+""" % (APPNAME, appname, version)
+
+		self._write_wscript(wscript_contents)
+		self._test_distcheck()
+		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
+		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
+
+	# XXX: this test fails - because uninstall do nothing !
+	def test_user_define_distcheck(self):
+		# black-box test: if user wrote dist() function it will be used
+		wscript_contents = """
+srcdir = '.'
+blddir = 'out'
+
+def build(bld):
+	pass
+
+def configure(conf):
+	pass
+
+def dist():
+	open('waf_waf_custom_dist.txt', 'w')
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents)
+		self._test_distcheck()
+		self.assert_(os.path.isfile('waf_waf_custom_dist.txt'), "custom dist() was not used")
+
+	# XXX: this test fails - because uninstall do nothing !
+	def test_user_distcheck_hook(self):
+		# black-box test: 
+		# if user wrote dist_hook() function it will be used to add something to dist
+		# to ease testing the function here creates a file
+		wscript_contents = """
+srcdir = '.'
+blddir = 'out'
+
+def build(bld):
+	pass
+
+def configure(conf):
+	pass
+
+def dist_hook():
+	open('waf_waf_custom_dist.txt', 'w')
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(wscript_contents)
+		self._test_distcheck()
+		dist_file = 'noname-1.0.tar.' + Scripting.g_gz
+		tar = tarfile.open(dist_file)
+		self.assert_('noname-1.0/waf_waf_custom_dist.txt' in tar.getnames(), "custom dist_hook() was not used")
+
+
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 

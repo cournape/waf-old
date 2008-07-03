@@ -144,6 +144,8 @@ class CommonTester(unittest.TestCase):
 	def _test_clean(self, test_for_success=True, *additionalArgs):
 		"""
 		test clean
+		@param test_for_success [boolean]: test for success/failure ?
+			for example: to make sure build has failed, pass False.
 		@param additionalArgs [tuple]: optional additional arguments
 		"""
 		if test_for_success:
@@ -174,6 +176,25 @@ class CommonTester(unittest.TestCase):
 		args_list = ["python", self._waf_exe, "dist"]
 		if additionalArgs: args_list.extend(list(additionalArgs))
 		self.assertEqual(0, self.call(args_list), "dist failed" )
+
+	def _test_distcheck(self, test_for_success=True, *additionalArgs):
+		"""
+		test distcheck
+		@param test_for_success [boolean]: test for success/failure ?
+			for example: to make sure build has failed, pass False.
+		@param additionalArgs [tuple]: optional additional arguments
+		"""
+		args_list = ["python", self._waf_exe, "distcheck"]
+		if test_for_success:
+			test_func = self.failIf # ret val of 0 is False...
+			err_msg = "distcheck failed"
+		else:
+			test_func = self.assert_ # ret val of NON-Zero is True...
+			err_msg = "distcheck should fail"
+
+		args_list = ["python", self._waf_exe, "distcheck"]
+		if additionalArgs: args_list.extend(list(additionalArgs))
+		test_func(self.call(args_list), err_msg)
 
 	def _same_env(self, expected_env, env_name='default'):
 		"""
