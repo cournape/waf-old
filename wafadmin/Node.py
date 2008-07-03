@@ -103,7 +103,7 @@ class Node(object):
 		if not lst[:-1]:
 			parent = self
 		else:
-			parent = self.find_dir_lst(lst[:-1])
+			parent = self.find_dir(lst[:-1])
 			if not parent: return None
 		Build.bld.rescan(parent)
 
@@ -136,7 +136,7 @@ class Node(object):
 		if not lst[:-1]:
 			parent = self
 		else:
-			parent = self.find_dir_lst(lst[:-1])
+			parent = self.find_dir(lst[:-1])
 			if not parent: return None
 		Build.bld.rescan(parent)
 
@@ -150,12 +150,12 @@ class Node(object):
 		node = Node(name, parent, BUILD)
 		return node
 
-	def find_dir(self, path):
-		lst = Utils.split_path(path)
-		return self.find_dir_lst(lst)
-
-	def find_dir_lst(self, lst):
+	def find_dir(self, lst):
 		"search a folder in the filesystem"
+
+		if type(lst) is types.StringType:
+			lst = Utils.split_path(lst)
+
 		current = self
 		for name in lst:
 			Build.bld.rescan(current)
@@ -212,7 +212,7 @@ class Node(object):
 		if len(lst) > 1:
 			parent = None
 			try:
-				parent = self.find_dir_lst(lst[:-1])
+				parent = self.find_dir(lst[:-1])
 			except OSError:
 				pass
 			if not parent:
@@ -462,7 +462,11 @@ class Node(object):
 
 # win32 fixes follow
 if sys.platform == "win32":
-	def find_dir_lst_win32(self, lst):
+	def find_dir_win32(self, lst):
+
+		if type(lst) is types.StringType:
+			lst = Utils.split_path(lst)
+
 		current = self
 		for name in lst:
 			Build.bld.rescan(current)
@@ -485,7 +489,7 @@ if sys.platform == "win32":
 					else:
 						return None
 		return current
-	Node.find_dir_lst = find_dir_lst_win32
+	Node.find_dir = find_dir_win32
 
 	def abspath_win32(self, env=None):
 		variant = self.variant(env)
