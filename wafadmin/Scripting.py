@@ -112,7 +112,6 @@ def configure():
 	except Utils.WafError:
 		raise
 	except Exception:
-		Utils.test_full()
 		raise
 
 	conf.store(tree)

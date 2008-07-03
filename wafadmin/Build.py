@@ -216,7 +216,6 @@ class Build(object):
 
 		if ret:
 			os.chdir(self.m_srcnode.abspath())
-			Utils.test_full()
 			raise BuildError(self, self.task_manager.tasks_done)
 
 		if Logs.verbose > 3: self.dump()

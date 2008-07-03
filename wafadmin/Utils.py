@@ -106,19 +106,6 @@ except ImportError:
 		f.close()
 		return m.digest()
 
-def test_full():
-	try:
-		f = open('.waf-full','w')
-		f.write('test')
-		f.close()
-		os.unlink('.waf-full')
-	except IOError, e:
-		import errno
-		if e.errno == errno.ENOSPC:
-			Logs.fatal('filesystem full', e.errno)
-		else:
-			Logs.fatal(e, e.errno)
-
 class ordered_dict(UserDict):
 	def __init__(self, dict = None):
 		self.allkeys = []
