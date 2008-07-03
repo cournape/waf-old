@@ -222,6 +222,12 @@ def set_options(opt):
 		com_conf = conf.create_compile_configurator()
 		self.failUnlessRaises(Configure.ConfigurationError, com_conf.run)
 
+	def test_nothing_to_store(self):
+		# white-box test: fails if all_envs are not defined.
+		conf = self._setup_configure()
+		conf.all_envs = None
+		self.failUnlessRaises(Configure.ConfigurationError, conf.store)
+
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 
