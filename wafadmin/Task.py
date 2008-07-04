@@ -353,6 +353,14 @@ class TaskBase(object):
 	def __str__(self):
 		return self.__class__.__name__ + '\n'
 
+	def get_env(self):
+		return self.m_env
+	def set_env(self, val):
+		self.m_env = val
+
+	# TODO IDEA in the future, attach the task generator instead of the env
+	env = property(get_env, set_env)
+
 	def display(self):
 		"do not print anything if there is nothing to display"
 		col1 = Logs.colors(self.color)
@@ -411,8 +419,8 @@ class TaskCmd(TaskBase):
 	"TaskCmd executes commands. Instances always execute the method 'run'"
 	def __init__(self, fun, env):
 		TaskBase.__init__(self)
-		self.fun = fun
 		self.m_env = env
+		self.fun = fun
 	def __str__(self):
 		return 'executing: %s\n' % self.fun.__name__
 	def debug_info(self):
@@ -421,15 +429,11 @@ class TaskCmd(TaskBase):
 		return 'TaskCmd:fun %s' % self.fun.__name__
 	def run(self):
 		self.fun(self)
-	def env(self):
-		return self.m_env
 
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
 	def __init__(self, env, normal=1):
 		TaskBase.__init__(self, normal=normal)
-
-		# environment in use
 		self.m_env = env
 
 		# inputs and outputs are nodes
@@ -449,14 +453,6 @@ class Task(TaskBase):
 		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
 		tgt_str = ' '.join([a.nice_path(env) for a in self.m_outputs])
 		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
-
-	def get_env(self):
-		return self.m_env
-	def set_env(self, val):
-		self.m_env = val
-
-	# TODO IDEA in the future, attach the task generator instead of the env
-	env = property(get_env, set_env)
 
 	def __repr__(self):
 		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
