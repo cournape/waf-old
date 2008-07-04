@@ -1,0 +1,48 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+"""
+This example illustrates the creation of task instances manually
+It also illustrates the order constraints on the tasks
+"""
+#TODO: illustrate dependencies too and a custom method must_run
+# a more advanced example might illustrate persistency
+
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+import Task, Build
+
+class x(Task.TaskBase):
+	def run(self):
+		print "xxx"
+
+class y(Task.TaskBase):
+	before = "x_task"
+	def run(self):
+		print "yyy"
+
+def set_options(opt):
+	pass
+
+def configure(conf):
+	pass
+
+def build(bld):
+	y()
+	y()
+
+	x()
+	y()
+	x()
+
+	y()
+	y()
+	y()
+
+def shutdown():
+	pass
+
