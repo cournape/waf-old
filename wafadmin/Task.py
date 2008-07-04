@@ -453,7 +453,7 @@ class Task(TaskBase):
 	def get_env(self):
 		return self.m_env
 	def set_env(self, val):
-		m_env = val
+		self.m_env = val
 
 	# TODO IDEA in the future, attach the task generator instead of the env
 	env = property(get_env, set_env)
