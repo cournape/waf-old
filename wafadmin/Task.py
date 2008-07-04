@@ -351,11 +351,7 @@ class TaskBase(object):
 		return self.unique_id().encode('hex')
 
 	def __str__(self):
-		"string to display to the user"
-		env = self.env
-		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
-		tgt_str = ' '.join([a.nice_path(env) for a in self.m_outputs])
-		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
+		return self.__class__.__name__ + '\n'
 
 	def display(self):
 		"do not print anything if there is nothing to display"
@@ -418,7 +414,7 @@ class TaskCmd(TaskBase):
 		self.fun = fun
 		self.m_env = env
 	def __str__(self):
-		return "executing: %s" % self.fun.__name__
+		return 'executing: %s\n' % self.fun.__name__
 	def debug_info(self):
 		return 'TaskCmd:fun %s' % self.fun.__name__
 	def debug(self):
@@ -446,6 +442,13 @@ class Task(TaskBase):
 
 		# Additionally, you may define the following
 		#self.dep_vars  = 'PREFIX DATADIR'
+
+	def __str__(self):
+		"string to display to the user"
+		env = self.env
+		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
+		tgt_str = ' '.join([a.nice_path(env) for a in self.m_outputs])
+		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
 
 	def get_env(self):
 		return self.m_env
