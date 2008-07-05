@@ -422,7 +422,16 @@ class TaskBase(object):
 		pass
 
 class Task(TaskBase):
-	"The most common task, it has input and output nodes"
+	"""The parent class is quite limited, in this version:
+	* file system interaction: input and output nodes
+	* persistence: do not re-execute tasks that have already run
+	* caching: same files can be saved and retrieved from a cache directory
+	* dependencies:
+	   implicit, like .c files depending on .h files
+       explicit, like the input nodes or the dep_nodes
+       environment variables, like the CXXFLAGS in self.env
+	"""
+
 	def __init__(self, env, normal=1):
 		TaskBase.__init__(self, normal=normal)
 		self.env = env
