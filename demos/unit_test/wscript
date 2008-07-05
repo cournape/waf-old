@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Richard Quirk, 2008
 
-import UnitTest, Params
+import UnitTest, Utils
 
 srcdir = '.'
 blddir = 'build'
@@ -23,7 +23,7 @@ def configure(conf):
 			l.name = 'dl'
 			l.uselib = 'CPPUNIT'
 			l.run()
-		Params.pprint('CYAN', "To run unit tests use 'waf check'")
+		Utils.pprint('CYAN', "To run unit tests use 'waf check'")
 	else:
 		conf.fatal('Install cppunit')
 
