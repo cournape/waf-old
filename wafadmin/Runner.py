@@ -135,7 +135,7 @@ class Serial(object):
 				else: return -1
 
 			try:
-				tsk.update_stat()
+				tsk.post_run()
 			except OSError:
 				self.error = 1
 				tsk.m_hasrun = MISSING
@@ -177,7 +177,7 @@ class TaskConsumer(threading.Thread):
 				tsk.m_hasrun = CRASHED
 			else:
 				try:
-					tsk.update_stat()
+					tsk.post_run()
 				except OSError:
 					tsk.m_hasrun = MISSING
 				else:
