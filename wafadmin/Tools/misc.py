@@ -44,7 +44,9 @@ class cmd_taskgen(TaskGen.task_gen):
 	def apply(self):
 		# create a task
 		if not self.fun: fatal('cmdobj needs a function!')
-		tsk = Task.TaskCmd(self.fun, self.env)
+		tsk = Task.TaskBase()
+		tsk.fun = self.fun
+		tsk.env = self.env
 		self.m_tasks.append(tsk)
 		tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
 

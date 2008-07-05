@@ -328,7 +328,10 @@ class store_task_type(type):
 			TaskBase.classes[name] = cls
 
 class TaskBase(object):
-	"TaskBase is the base class for task objects"
+	"""Base class for task objects
+
+	For illustration purposes, TaskBase instances try to execute self.fun (if provided)
+	"""
 
 	__metaclass__ = store_task_type
 
@@ -351,7 +354,9 @@ class TaskBase(object):
 		return self.unique_id().encode('hex')
 
 	def __str__(self):
-		return self.__class__.__name__ + '\n'
+		try: self.fun
+		except AttributeError: return self.__class__.__name__ + '\n'
+		else: return 'executing: %s\n' % self.fun.__name__
 
 	def display(self):
 		"do not print anything if there is nothing to display"
@@ -407,20 +412,10 @@ class TaskBase(object):
 		"prints the debug info"
 		pass
 
-class TaskCmd(TaskBase):
-	"TaskCmd executes commands. Instances always execute the method 'run'"
-	def __init__(self, fun, env):
-		TaskBase.__init__(self)
-		self.env = env
-		self.fun = fun
-	def __str__(self):
-		return 'executing: %s\n' % self.fun.__name__
-	def debug_info(self):
-		return 'TaskCmd:fun %s' % self.fun.__name__
-	def debug(self):
-		return 'TaskCmd:fun %s' % self.fun.__name__
 	def run(self):
-		self.fun(self)
+		try: fun = self.fun
+		except: return 0
+		return self.fun
 
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
