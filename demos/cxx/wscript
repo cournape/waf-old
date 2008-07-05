@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 # look for 'meow' below
-#import Params
+#import Options
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
@@ -13,16 +13,8 @@ APPNAME='cpp_test'
 srcdir = '.'
 blddir = 'build'
 
-
-# if you do not like colors, uncomment the following lines:
-#import Params
-#Params.reset_colors()
-
 def init():
 	pass
-	# disable the Waf preprocessor for finding dependencies
-	#import Params
-	#Params.g_preprocess=0
 
 def set_options(opt):
 	# options provided in a script in a subdirectory named "src"
@@ -35,7 +27,7 @@ def set_options(opt):
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 def configure(conf):
-	# conf.env['CXX'] = Params.g_options.meow
+	# conf.env['CXX'] = Options.options.meow
 	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
 	conf.check_tool('compiler_cxx')
 
@@ -85,7 +77,7 @@ def shutdown():
 		os.popen(cmd)
 
 	# in case if more people ask
-	#if Params.g_commands['install']:
+	#if Options.commands['install']:
 	#	try: os.popen("/sbin/ldconfig")
 	#	except: pass
 
