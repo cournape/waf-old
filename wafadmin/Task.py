@@ -445,7 +445,7 @@ class Task(TaskBase):
 		self.inputs  = []
 		self.outputs = []
 
-		self.m_deps_nodes = []
+		self.deps_nodes = []
 		self.run_after = []
 
 		# Additionally, you may define the following
@@ -493,7 +493,7 @@ class Task(TaskBase):
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
 		node = Build.bld.m_current.find_resource(filename)
-		self.m_deps_nodes.append(node)
+		self.deps_nodes.append(node)
 
 	def signature(self):
 		# compute the result one time, and suppose the scan_signature will give the good result
