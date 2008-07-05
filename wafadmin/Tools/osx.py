@@ -20,8 +20,8 @@ from Logs import error, debug, fatal
 def create_task_macapp(self):
 	if self.m_type == 'program' and self.link_task:
 		apptask = self.create_task('macapp', self.env)
-		apptask.set_inputs(self.link_task.m_outputs)
-		apptask.set_outputs(self.link_task.m_outputs[0].change_ext('.app'))
+		apptask.set_inputs(self.link_task.outputs)
+		apptask.set_outputs(self.link_task.outputs[0].change_ext('.app'))
 		self.m_apptask = apptask
 
 @taskgen
@@ -32,7 +32,7 @@ def apply_link_osx(self):
 	or use obj.mac_app = True to build specific targets as Mac apps"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 	    self.create_task_macapp()
-		name = self.link_task.m_outputs[0].m_name
+		name = self.link_task.outputs[0].m_name
 		if self.vnum: name = name.replace('.dylib', '.%s.dylib' % self.vnum)
 		path = os.path.join(self.env['PREFIX'], lib, name)
 		path = '-install_name %s' % path
@@ -88,7 +88,7 @@ def app_build(task):
 	env = task.env
 
 	i = 0
-	for p in task.m_outputs:
+	for p in task.outputs:
 		srcfile = p.srcpath(env)
 
 		debug('osx: creating directories')
@@ -99,7 +99,7 @@ def app_build(task):
 			pass
 
 		# copy the program to the contents dir
-		srcprg = task.m_inputs[i].srcpath(env)
+		srcprg = task.inputs[i].srcpath(env)
 		dst = os.path.join(srcfile, 'Contents', 'MacOS')
 		debug('osx: copy %s to %s' % (srcprg, dst))
 		shutil.copy(srcprg, dst)
@@ -123,13 +123,13 @@ def install_shlib(task):
 	inst_var = task.inst_var
 	inst_dir = task.inst_dir
 
-	libname = task.m_outputs[0].m_name
+	libname = task.outputs[0].m_name
 
 	name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
 	name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
 	name1 = libname
 
-	filename = task.m_outputs[0].abspath(task.env)
+	filename = task.outputs[0].abspath(task.env)
 	bld = Build.bld
 	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env)
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))

@@ -50,7 +50,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 
 	def apply(self):
 		def install_translation(task):
-			out = task.m_outputs[0]
+			out = task.outputs[0]
 			filename = out.m_name
 			(langname, ext) = os.path.splitext(filename)
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'

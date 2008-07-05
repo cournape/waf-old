@@ -40,7 +40,7 @@ def scan(self):
 	all_nodes = []
 	all_names = []
 	seen = []
-	for node in self.m_inputs:
+	for node in self.inputs:
 		gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'], defines = self.defines)
 		gruik.start(node, self.env)
 		if Logs.verbose:
@@ -133,13 +133,13 @@ def install_shlib(task):
 	inst_var = task.inst_var
 	inst_dir = task.inst_dir
 
-	libname = task.m_outputs[0].m_name
+	libname = task.outputs[0].m_name
 
 	name3 = libname+'.'+task.vnum
 	name2 = libname+'.'+nums[0]
 	name1 = libname
 
-	filename = task.m_outputs[0].abspath(task.env)
+	filename = task.outputs[0].abspath(task.env)
 	bld = Build.bld
 	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env)
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
@@ -253,7 +253,7 @@ def apply_link(self):
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 	linktask = self.create_task(link)
-	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
 
@@ -304,7 +304,7 @@ def apply_lib_vars(self):
 		if y.link_task is not None:
 			self.link_task.set_run_after(y.link_task)
 			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
-			self.link_task.dep_nodes = dep_nodes + y.link_task.m_outputs
+			self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
 
 		# add ancestors uselib too
 		morelibs = y.to_list(y.uselib)
@@ -366,7 +366,7 @@ def apply_objdeps(self):
 		if not y.m_posted: y.post()
 		seen.append(x)
 
-		self.link_task.m_inputs += y.out_nodes
+		self.link_task.inputs += y.out_nodes
 
 @taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
@@ -414,7 +414,7 @@ def apply_vnum(self):
 	if sys.platform != 'darwin' and sys.platform != 'win32':
 		nums = self.vnum.split('.')
 		try: name3 = self.soname
-		except AttributeError: name3 = self.link_task.m_outputs[0].m_name+'.'+self.vnum.split('.')[0]
+		except AttributeError: name3 = self.link_task.outputs[0].m_name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
 
 @taskgen
@@ -423,7 +423,7 @@ def process_obj_files(self):
 	if not hasattr(self, 'obj_files'): return
 	for x in self.obj_files:
 		node = self.path.find_resource(x)
-		self.link_task.m_inputs.append(node)
+		self.link_task.inputs.append(node)
 
 @taskgen
 def add_obj_file(self, file):
@@ -442,7 +442,7 @@ def make_objects_available(self):
 	if we are only building .o files, tell which ones we built"""
 	self.out_nodes = []
 	app = self.out_nodes.append
-	for t in self.compiled_tasks: app(t.m_outputs[0])
+	for t in self.compiled_tasks: app(t.outputs[0])
 
 c_attrs = {
 'cxxflag' : 'CXXFLAGS',

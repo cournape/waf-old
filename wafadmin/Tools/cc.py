@@ -93,8 +93,8 @@ def c_hook(self, node):
 
 	task.defines  = self.scanner_defines
 
-	task.m_inputs = [node]
-	task.m_outputs = [node.change_ext(obj_ext)]
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'

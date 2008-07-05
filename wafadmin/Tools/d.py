@@ -202,7 +202,7 @@ def scan(self):
 	"look for .d/.di the .d source need"
 	env = self.env
 	gruik = d_parser(env, env['INC_PATHS'])
-	gruik.start(self.m_inputs[0])
+	gruik.start(self.inputs[0])
 
 	if Logs.verbose:
 		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))
@@ -307,7 +307,7 @@ def apply_d_libs(self):
 		if y.link_task is not None:
 			self.link_task.set_run_after(y.link_task)
 			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
-			self.link_task.dep_nodes = dep_nodes + y.link_task.m_outputs
+			self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
 
 		# add ancestors uselib too
 		# TODO potential problems with static libraries ?
@@ -326,7 +326,7 @@ def apply_d_link(self):
 		if 'dstaticlib' in self.features: link = 'ar_link_static'
 		else: link = 'd_link'
 	linktask = self.create_task(link)
-	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
 
@@ -429,13 +429,13 @@ def d_hook(self, node):
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
-	task.m_inputs = [node]
-	task.m_outputs = [node.change_ext(obj_ext)]
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
 	if self.generate_headers:
 		header_node = node.change_ext(self.env['DHEADER_ext'])
-		task.m_outputs += [header_node]
+		task.outputs += [header_node]
 
 d_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
 d_with_header_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} \

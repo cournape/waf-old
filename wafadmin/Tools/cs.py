@@ -54,7 +54,7 @@ class cs_taskgen(TaskGen.task_gen):
 
 		# create the task
 		task = self.create_task('mcs')
-		task.m_inputs  = nodes
+		task.inputs  = nodes
 		task.set_outputs(self.path.find_or_declare(self.target))
 
 	def apply_uselib(self):

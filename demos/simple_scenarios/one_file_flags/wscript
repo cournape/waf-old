@@ -19,7 +19,7 @@ from TaskGen import after, taskgen, feature
 @feature("cc")
 def modify_flags(self):
 	for task in self.compiled_tasks:
-		if task.m_inputs:
+		if task.inputs:
 			node = task.m_inputs[0]
 			if node.m_name == "B.c":
 				task.m_env = task.m_env.copy()

@@ -58,7 +58,7 @@ class MTask(Task.Task):
 
 		tree = Build.bld
 		parn = self.parent
-		node = self.m_inputs[0]
+		node = self.inputs[0]
 
 		# to know if there is a moc file to create
 		try:
@@ -146,11 +146,11 @@ class MTask(Task.Task):
 	run = Task.TaskBase.classes['cxx'].__dict__['run']
 
 def translation_update(task):
-	outs = [a.abspath(task.env) for a in task.m_outputs]
+	outs = [a.abspath(task.env) for a in task.outputs]
 	outs = " ".join(outs)
 	lupdate = task.env['QT_LUPDATE']
 
-	for x in task.m_inputs:
+	for x in task.inputs:
 		file = x.abspath(task.env)
 		cmd = "%s %s -ts %s" % (lupdate, file, outs)
 		Utils.pprint('BLUE', cmd)
@@ -171,17 +171,17 @@ class XMLHandler(ContentHandler):
 
 def scan(self):
 	"add the dependency on the files referenced in the qrc"
-	node = self.m_inputs[0]
+	node = self.inputs[0]
 	parser = make_parser()
 	curHandler = XMLHandler()
 	parser.setContentHandler(curHandler)
-	fi = open(self.m_inputs[0].abspath(self.env))
+	fi = open(self.inputs[0].abspath(self.env))
 	parser.parse(fi)
 	fi.close()
 
 	nodes = []
 	names = []
-	root = self.m_inputs[0].m_parent
+	root = self.inputs[0].m_parent
 	for x in curHandler.files:
 		x = x.encode('utf8')
 		nd = root.find_resource(x)
@@ -197,12 +197,12 @@ def create_rcc_task(self, node):
 	rcnode = node.change_ext('_rc.cpp')
 
 	rcctask = self.create_task('rcc')
-	rcctask.m_inputs = [node]
-	rcctask.m_outputs = [rcnode]
+	rcctask.inputs = [node]
+	rcctask.outputs = [rcnode]
 
 	cpptask = self.create_task('cxx')
-	cpptask.m_inputs  = [rcnode]
-	cpptask.m_outputs = [rcnode.change_ext('.o')]
+	cpptask.inputs  = [rcnode]
+	cpptask.outputs = [rcnode.change_ext('.o')]
 	cpptask.defines  = self.scanner_defines
 	self.compiled_tasks.append(cpptask)
 
@@ -212,8 +212,8 @@ def create_rcc_task(self, node):
 def create_uic_task(self, node):
 	"hook for uic tasks"
 	uictask = self.create_task('ui4')
-	uictask.m_inputs    = [node]
-	uictask.m_outputs   = [node.change_ext('.h')]
+	uictask.inputs    = [node]
+	uictask.outputs   = [node.change_ext('.h')]
 
 class qt4_taskgen(cxx.cxx_taskgen):
 	def __init__(self, *kw):
@@ -234,26 +234,26 @@ def apply_qt4(self):
 		for l in self.to_list(self.lang):
 			t = Task.TaskBase.classes['ts2qm'](self.env)
 			t.set_inputs(self.path.find_resource(l+'.ts'))
-			t.set_outputs(t.m_inputs[0].change_ext('.qm'))
-			lst.append(t.m_outputs[0])
+			t.set_outputs(t.inputs[0].change_ext('.qm'))
+			lst.append(t.outputs[0])
 
 			if self.update:
-				trans.append(t.m_inputs[0])
+				trans.append(t.inputs[0])
 
 		if self.update and Options.options.trans_qt4:
 			# we need the cpp files given, except the rcc task we create after
 			# FIXME may be broken
 			u = Task.TaskCmd(translation_update, self.env, 2)
-			u.m_inputs = [a.m_inputs[0] for a in self.compiled_tasks]
-			u.m_outputs = trans
+			u.inputs = [a.inputs[0] for a in self.compiled_tasks]
+			u.outputs = trans
 
 		if self.langname:
 			t = Task.TaskBase.classes['qm2rcc'](self.env)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_or_declare(self.langname+'.qrc'))
 			t.path = self.path
-			k = create_rcc_task(self, t.m_outputs[0])
-			self.link_task.m_inputs.append(k.m_outputs[0])
+			k = create_rcc_task(self, t.outputs[0])
+			self.link_task.inputs.append(k.outputs[0])
 
 	lst = []
 	for flag in self.to_list(self.env['CXXFLAGS']):
@@ -298,15 +298,15 @@ def cxx_hook(self, node):
 
 	task.defines  = self.scanner_defines
 
-	task.m_inputs = [node]
-	task.m_outputs = [node.change_ext(obj_ext)]
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
 def process_qm2rcc(task):
-	outfile = task.m_outputs[0].abspath(task.env)
+	outfile = task.outputs[0].abspath(task.env)
 	f = open(outfile, 'w')
 	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
-	for k in task.m_inputs:
+	for k in task.inputs:
 		f.write(' <file>')
 		#f.write(k.m_name)
 		f.write(k.relpath(task.path))

@@ -20,8 +20,8 @@ def asm_hook(self, node):
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
-	task.m_inputs = [node]
-	task.m_outputs = [node.change_ext(obj_ext)]
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
 @taskgen

@@ -32,13 +32,13 @@ def msvc_linker(task):
 	subsystem=''
 	if task.m_subsystem:
 		subsystem='/subsystem:%s' % task.m_subsystem
-	outfile=task.m_outputs[0].bldpath(e)
+	outfile=task.outputs[0].bldpath(e)
 	manifest=outfile+'.manifest'
 	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
-	pdbnode=task.m_outputs[0].change_ext('.pdb')
+	pdbnode=task.outputs[0].change_ext('.pdb')
 	pdbfile=pdbnode.bldpath(e)
 
-	objs=" ".join(['"%s"' % a.abspath(e) for a in task.m_inputs])
+	objs=" ".join(['"%s"' % a.abspath(e) for a in task.inputs])
 
 	cmd="%s %s %s%s %s%s %s %s %s" % (linker,subsystem,srcf,objs,trgtf,outfile, linkflags, libdirs,libs)
 
@@ -49,7 +49,7 @@ def msvc_linker(task):
 
 	# check for the pdb file. if exists, add to the list of outputs
 	if os.path.exists(pdbfile):
-		task.m_outputs.append(pdbnode)
+		task.outputs.append(pdbnode)
 
 	if os.path.exists(manifest):
 		debug('msvc: manifesttool')
@@ -247,7 +247,7 @@ def apply_link_msvc(self):
 	if self.m_type == 'objects':
 		self.out_nodes = []
 		app = self.out_nodes.append
-		for t in self.compiled_tasks: app(t.m_outputs[0])
+		for t in self.compiled_tasks: app(t.outputs[0])
 		return
 
 	# use a custom linker is specified (self.link)
@@ -258,7 +258,7 @@ def apply_link_msvc(self):
 		else: link = 'msvc_cc_link'
 	linktask = self.create_task(link)
 
-	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_or_declare(ccroot.get_target_name(self)))
 

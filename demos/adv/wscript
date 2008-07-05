@@ -265,7 +265,7 @@ def build(bld):
 	# build empty files (for debugging or profiling)
 	#import Action
 	#def touch_func(task):
-	#	for x in task.m_outputs:
+	#	for x in task.outputs:
 	#		open(x.abspath(task.m_env), 'w').close()
 	#for x in []+Action.g_actions.keys():
 	#	Action.Action(x, vars=[], func=touch_func, color='CYAN')

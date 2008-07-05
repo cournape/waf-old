@@ -1060,10 +1060,10 @@ def run_check(self, obj):
 
 	# keep the name of the program to execute
 	if obj.execute:
-		lastprog = o.link_task.m_outputs[0].abspath(o.env)
+		lastprog = o.link_task.outputs[0].abspath(o.env)
 
 	#if runopts is not None:
-	#	ret = os.popen(obj.link_task.m_outputs[0].abspath(obj.env)).read().strip()
+	#	ret = os.popen(obj.link_task.outputs[0].abspath(obj.env)).read().strip()
 
 	os.chdir(back)
 

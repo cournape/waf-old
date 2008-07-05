@@ -10,7 +10,7 @@ from Logs import error, warn, debug, fatal
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
 def scan(self):
-	node = self.m_inputs[0]
+	node = self.inputs[0]
 	env = self.env
 
 	nodes = []
@@ -51,7 +51,7 @@ def tex_build(task, command='LATEX'):
 	com = '%s %s' % (env[command], env.get_flat(command+'FLAGS'))
 	if not env['PROMPT_LATEX']: com = "%s %s" % (com, '-interaction=batchmode')
 
-	node = task.m_inputs[0]
+	node = task.inputs[0]
 	reldir  = node.bld_dir(env)
 	srcfile = node.srcpath(env)
 
@@ -207,16 +207,16 @@ class tex_taskgen(TaskGen.task_gen):
 			if self.m_type == 'latex':
 				if 'ps' in outs:
 					pstask = self.create_task('dvips')
-					pstask.set_inputs(task.m_outputs)
+					pstask.set_inputs(task.outputs)
 					pstask.set_outputs(node.change_ext('.ps'))
 				if 'pdf' in outs:
 					pdftask = self.create_task('dvipdf')
-					pdftask.set_inputs(task.m_outputs)
+					pdftask.set_inputs(task.outputs)
 					pdftask.set_outputs(node.change_ext('.pdf'))
 			elif self.m_type == 'pdflatex':
 				if 'ps' in outs:
 					pstask = self.create_task('pdf2ps')
-					pstask.set_inputs(task.m_outputs)
+					pstask.set_inputs(task.outputs)
 					pstask.set_outputs(node.change_ext('.ps'))
 
 def detect(conf):

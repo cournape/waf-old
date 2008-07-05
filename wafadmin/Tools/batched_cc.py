@@ -29,8 +29,8 @@ class TaskMaster(Task.Task):
 	def __init__(self, action_name, env, normal=1, master=None):
 		Task.Task.__init__(self, env, normal=normal)
 		self.slaves=[]
-		self.m_inputs2=[]
-		self.m_outputs2=[]
+		self.inputs2=[]
+		self.outputs2=[]
 
 	def add_slave(self, slave):
 		self.slaves.append(slave)
@@ -41,18 +41,18 @@ class TaskMaster(Task.Task):
 			if not t.m_hasrun: return 0
 
 		for t in self.slaves:
-			self.m_inputs.append(t.m_inputs[0])
-			self.m_outputs.append(t.m_outputs[0])
+			self.inputs.append(t.inputs[0])
+			self.outputs.append(t.outputs[0])
 			if t.m_must_run:
-				self.m_inputs2.append(t.m_inputs[0])
-				self.m_outputs2.append(t.m_outputs[0])
+				self.inputs2.append(t.inputs[0])
+				self.outputs2.append(t.outputs[0])
 		return 1
 
 	def run(self):
-		tmpinputs = self.m_inputs
-		self.m_inputs = self.m_inputs2
-		tmpoutputs = self.m_outputs
-		self.m_outputs = self.m_outputs2
+		tmpinputs = self.inputs
+		self.inputs = self.inputs2
+		tmpoutputs = self.outputs
+		self.outputs = self.outputs2
 
 		ret = self.m_action.run(self)
 		env = self.env
@@ -61,13 +61,13 @@ class TaskMaster(Task.Task):
 
 		# unfortunately building the files in batch mode outputs them in the current folder (the build dir)
 		# now move the files from the top of the builddir to the correct location
-		for i in self.m_outputs:
+		for i in self.outputs:
 			name = i.m_name
 			if name[-1] == "s": name = name[:-1] # extension for shlib is .os, remove the s
 			shutil.move(name, i.bldpath(env))
 
-		self.m_inputs = tmpinputs
-		self.m_outputs = tmpoutputs
+		self.inputs = tmpinputs
+		self.outputs = tmpoutputs
 
 		return ret
 
@@ -77,7 +77,7 @@ class TaskSlave(Task.Task):
 		self.m_master = master
 
 	def prepare(self):
-		self.display = "* skipping "+ self.m_inputs[0].m_name
+		self.display = "* skipping "+ self.inputs[0].m_name
 
 	def update_stat(self):
 		self.m_executed=1

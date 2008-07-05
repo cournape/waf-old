@@ -27,7 +27,7 @@ def filter_comments(txt):
 	return foo.sub(repl, txt)
 
 def scan(self):
-	node = self.m_inputs[0]
+	node = self.inputs[0]
 	code = filter_comments(node.read(self.env))
 
 	global open_re
@@ -174,7 +174,7 @@ def apply_link_ml(self):
 		linktask.env = self.native_env
 		self.linktasks.append(linktask)
 
-		self.out_nodes += linktask.m_outputs
+		self.out_nodes += linktask.outputs
 
 		# we produce a .o file to be used by gcc
 		if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
@@ -186,7 +186,7 @@ def mll_hook(self, node):
 	mll_task.set_outputs(node.change_ext('.ml'))
 	self.mlltasks.append(mll_task)
 
-	self.allnodes.append(mll_task.m_outputs[0])
+	self.allnodes.append(mll_task.outputs[0])
 
 @extension(EXT_MLY)
 def mly_hook(self, node):
@@ -194,11 +194,11 @@ def mly_hook(self, node):
 	mly_task.set_inputs(node)
 	mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
 	self._mlytasks.append(mly_task)
-	self.allnodes.append(mly_task.m_outputs[0])
+	self.allnodes.append(mly_task.outputs[0])
 
 	task = self.create_task('ocamlcmi', self.native_env)
-	task.set_inputs(mly_task.m_outputs[1])
-	task.set_outputs(mly_task.m_outputs[1].change_ext('.cmi'))
+	task.set_inputs(mly_task.outputs[1])
+	task.set_outputs(mly_task.outputs[1].change_ext('.cmi'))
 
 @extension(EXT_MLI)
 def mli_hook(self, node):
@@ -213,7 +213,7 @@ def mlc_hook(self, node):
 	task.set_inputs(node)
 	task.set_outputs(node.change_ext('.o'))
 
-	self.out_nodes += task.m_outputs
+	self.out_nodes += task.outputs
 
 @extension(EXT_ML)
 def ml_hook(self, node):
@@ -245,12 +245,12 @@ def compile_may_start(self):
 	self.signature() # ensure that files are scanned - unfortunately
 	tree = Build.bld
 	env = self.env
-	for node in self.m_inputs:
+	for node in self.inputs:
 		lst = tree.node_deps[self.unique_id()]
 		for depnode in lst:
 			for t in alltasks:
 				if t == self: continue
-				if depnode in t.m_inputs:
+				if depnode in t.inputs:
 					self.set_run_after(t)
 	self.obj.flag_deps = 'ok'
 
@@ -281,7 +281,7 @@ b('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', be
 def link_may_start(self):
 	if not getattr(self, 'order', ''):
 
-		# now reorder the m_inputs given the task dependencies
+		# now reorder the inputs given the task dependencies
 		if getattr(self, 'bytecode', 0): alltasks = self.obj.bytecode_tasks
 		else: alltasks = self.obj.native_tasks
 
@@ -298,7 +298,7 @@ def link_may_start(self):
 					break
 			else:
 				seen.append(task)
-		self.m_inputs = [x.m_outputs[0] for x in seen]
+		self.inputs = [x.outputs[0] for x in seen]
 		self.order = 1
 	return Task.Task.may_start(self)
 

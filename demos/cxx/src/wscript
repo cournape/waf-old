@@ -20,8 +20,8 @@ def myfun(self, name):
 	task.path_lst = self.inc_paths
 	task.defines  = self.scanner_defines
 
-	task.m_inputs = [node]
-	task.m_outputs = [node.change_ext(".o")]
+	task.inputs = [node]
+	task.outputs = [node.change_ext(".o")]
 	self.compiled_tasks.append(task)
 
 def build(bld):

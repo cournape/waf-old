@@ -17,8 +17,8 @@ from Logs import fatal, debug
 def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
 	env = tsk.env
-	infile = tsk.m_inputs[0].abspath(env)
-	outfile = tsk.m_outputs[0].abspath(env)
+	infile = tsk.inputs[0].abspath(env)
+	outfile = tsk.outputs[0].abspath(env)
 	try:
 		shutil.copy2(infile, outfile)
 	except OSError, IOError:
@@ -92,8 +92,8 @@ def subst_func(tsk):
 	m4_re = re.compile('@(\w+)@', re.M)
 
 	env = tsk.env
-	infile = tsk.m_inputs[0].abspath(env)
-	outfile = tsk.m_outputs[0].abspath(env)
+	infile = tsk.inputs[0].abspath(env)
+	outfile = tsk.outputs[0].abspath(env)
 
 	file = open(infile, 'r')
 	code = file.read()
@@ -235,7 +235,7 @@ class command_output(Task.Task):
 
 	def run(self):
 		task = self
-		assert len(task.m_inputs) > 0
+		assert len(task.inputs) > 0
 
 		def input_path(node, template):
 			if task.cwd is None:

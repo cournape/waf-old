@@ -98,8 +98,8 @@ def cxx_hook(self, node):
 
 	task.defines  = self.scanner_defines
 
-	task.m_inputs = [node]
-	task.m_outputs = [node.change_ext(obj_ext)]
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
 
 cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'

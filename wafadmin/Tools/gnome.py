@@ -73,7 +73,7 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 			out2 = self.path.find_or_declare('%s/%s-%s.omf' % (x, self.doc_module, x))
 			tsk2.set_outputs(out2)
 			node = self.path.find_resource(self.doc_module+".omf.in")
-			tsk2.m_inputs = [node, out]
+			tsk2.inputs = [node, out]
 
 			tsk2.run_after.append(tsk)
 
@@ -111,7 +111,7 @@ class xml_to_taskgen(TaskGen.task_gen):
 		tsk.install = {'var':self.inst_var, 'dir':self.inst_dir}
 
 def sgml_scan(self):
-	node = self.m_inputs[0]
+	node = self.inputs[0]
 
 	env = self.env
 	variant = node.variant(env)
@@ -168,7 +168,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def apply(self):
 
 		def install_result(task):
-			out = task.m_outputs[0]
+			out = task.outputs[0]
 			name = out.m_name
 			ext = name[-1]
 			env = task.env

@@ -65,7 +65,7 @@ class shpip_task(Task.Task):
 	def must_run(self):
 		# look at the cache, if the shpip task was already run
 		# and if the source has not changed, create the corresponding cpp tasks
-		node = self.m_inputs[0]
+		node = self.inputs[0]
 		try:
 			sig = self.signature()
 			key = self.unique_id()
@@ -80,7 +80,7 @@ class shpip_task(Task.Task):
 				self.set_outputs(lst)
 				self.add_cpp_tasks(lst)
 
-		if not self.m_outputs:
+		if not self.outputs:
 			return 1
 
 		# this is a part of Task.Task:must_run: first node does not exist -> run
@@ -88,7 +88,7 @@ class shpip_task(Task.Task):
 		# TODO cache is disabled
 		env = self.env
 		tree = Build.bld
-		node = self.m_outputs[0]
+		node = self.outputs[0]
 		variant = node.variant(env)
 
 		try:
@@ -115,20 +115,20 @@ class shpip_task(Task.Task):
 			TaskGen.task_gen.mapped['c_hook'](tgen, node)
 			task = tgen.compiled_tasks[-1]
 
-			tgen.link_task.m_inputs.append(task.m_outputs[0])
+			tgen.link_task.inputs.append(task.outputs[0])
 			generator = Build.bld.generator
 			generator.outstanding.insert(0, task)
 			generator.total += 1
 
 			# if headers are produced something like this can be done to add the include paths
-			dir = task.m_inputs[0].m_parent
+			dir = task.inputs[0].m_parent
 			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c++
 			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c
 			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
 
 	def run(self):
 		"runs a program that creates cpp files, capture the output to compile them"
-		node = self.m_inputs[0]
+		node = self.inputs[0]
 
 		dir = Build.bld.m_srcnode.bldpath(self.env)
 		cmd = 'cd %s && %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
@@ -149,13 +149,13 @@ class shpip_task(Task.Task):
 
 			# the files exist in the build dir only so we do not use find_or_declare
 			build_nodes = [node.m_parent.exclusive_build_node(x) for x in lst]
-			self.m_outputs = build_nodes
+			self.outputs = build_nodes
 
 			# create the cpp tasks
 			self.add_cpp_tasks(build_nodes)
 
 			# cache the file names and the task signature
-			node = self.m_inputs[0]
+			node = self.inputs[0]
 			sig = self.signature()
 			Build.bld.raw_deps[self.unique_id()] = [sig] + lst
 		# 0 for all ok

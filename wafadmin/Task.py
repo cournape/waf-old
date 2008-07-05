@@ -117,12 +117,12 @@ class TaskManager(object):
 				d(tsk)
 			elif type(d) is types.StringType:
 				if not env[d]: return
-				lst = [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.m_outputs]
+				lst = [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.outputs]
 				bld.install_files(env[d], '', lst, chmod=0644, env=env)
 			else:
 				if not d['var']: return
-				lst = [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.m_outputs]
-				if d.get('src', 0): lst += [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.m_inputs]
+				lst = [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.outputs]
+				if d.get('src', 0): lst += [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.inputs]
 				# TODO ugly hack
 				if d.get('as', ''):
 					bld.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env)
@@ -402,8 +402,8 @@ class TaskBase(object):
 			try: ini = Build.bld.ini
 			except AttributeError: ini = Build.bld.ini = time.time()
 			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
-			ins  = ','.join([n.m_name for n in task.m_inputs])
-			outs = ','.join([n.m_name for n in task.m_outputs])
+			ins  = ','.join([n.m_name for n in task.inputs])
+			outs = ','.join([n.m_name for n in task.outputs])
 			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], self.position[0], ins, outs, ela)
 
 		total = self.position[1]
@@ -442,8 +442,8 @@ class Task(TaskBase):
 
 		# inputs and outputs are nodes
 		# use setters when possible
-		self.m_inputs  = []
-		self.m_outputs = []
+		self.inputs  = []
+		self.outputs = []
 
 		self.m_deps_nodes = []
 		self.run_after = []
@@ -454,12 +454,12 @@ class Task(TaskBase):
 	def __str__(self):
 		"string to display to the user"
 		env = self.env
-		src_str = ' '.join([a.nice_path(env) for a in self.m_inputs])
-		tgt_str = ' '.join([a.nice_path(env) for a in self.m_outputs])
+		src_str = ' '.join([a.nice_path(env) for a in self.inputs])
+		tgt_str = ' '.join([a.nice_path(env) for a in self.outputs])
 		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
 
 	def __repr__(self):
-		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.m_name for x in self.m_inputs]), " -> ", ",".join([x.m_name for x in self.m_outputs]), '}'])
+		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.m_name for x in self.inputs]), " -> ", ",".join([x.m_name for x in self.outputs]), '}'])
 
 	def unique_id(self):
 		"get a unique id: hash the node paths, the variant, the class, the function"
@@ -469,7 +469,7 @@ class Task(TaskBase):
 		m = md5()
 		up = m.update
 		up(self.env.variant())
-		for x in self.m_inputs + self.m_outputs:
+		for x in self.inputs + self.outputs:
 			up(x.abspath())
 		up(self.__class__.__name__)
 		up(Utils.h_fun(self.run))
@@ -477,12 +477,12 @@ class Task(TaskBase):
 		return x
 
 	def set_inputs(self, inp):
-		if type(inp) is types.ListType: self.m_inputs += inp
-		else: self.m_inputs.append(inp)
+		if type(inp) is types.ListType: self.inputs += inp
+		else: self.inputs.append(inp)
 
 	def set_outputs(self, out):
-		if type(out) is types.ListType: self.m_outputs += out
-		else: self.m_outputs.append(out)
+		if type(out) is types.ListType: self.outputs += out
+		else: self.outputs.append(out)
 
 	def set_run_after(self, task):
 		"set (scheduler) order on another task"
@@ -523,8 +523,8 @@ class Task(TaskBase):
 
 	def may_start(self):
 		"wait for other tasks to complete"
-		if (not self.m_inputs) or (not self.m_outputs):
-			if not (not self.m_inputs) and (not self.m_outputs):
+		if (not self.inputs) or (not self.outputs):
+			if not (not self.inputs) and (not self.outputs):
 				if not getattr(self.__class__, 'quiet', None):
 					error("task is invalid : no inputs or outputs (override in a Task subclass?) %r" % self)
 
@@ -541,13 +541,13 @@ class Task(TaskBase):
 		tree = Build.bld
 
 		# tasks that have no inputs or outputs are run each time
-		if not self.m_inputs and not self.m_outputs:
+		if not self.inputs and not self.outputs:
 			self.m_dep_sig = SIG_NIL
 			return 1
 
 		# look at the previous signature first
 		time = None
-		for node in self.m_outputs:
+		for node in self.outputs:
 			variant = node.variant(env)
 			try:
 				time = tree.node_sigs[variant][node.id]
@@ -593,7 +593,7 @@ class Task(TaskBase):
 		sig = self.signature()
 
 		cnt = 0
-		for node in self.m_outputs:
+		for node in self.outputs:
 			variant = node.variant(env)
 			#if node in tree.node_sigs[variant]:
 			#	print "variant is ", variant
@@ -628,7 +628,7 @@ class Task(TaskBase):
 		sig = self.signature()
 
 		cnt = 0
-		for node in self.m_outputs:
+		for node in self.outputs:
 			variant = node.variant(env)
 
 			ssig = sig.encode('hex')
@@ -664,7 +664,7 @@ class Task(TaskBase):
 		m = md5()
 
 		# the inputs
-		for x in self.m_inputs:
+		for x in self.inputs:
 			variant = x.variant(self.env)
 			m.update(tree.node_sigs[variant][x.id])
 
@@ -680,7 +680,7 @@ class Task(TaskBase):
 		except AttributeError:
 			pass
 		else:
-			for x in self.m_inputs + self.m_outputs:
+			for x in self.inputs + self.outputs:
 				try:
 					d = additional_deps[x]
 				except KeyError:
@@ -799,11 +799,11 @@ def compile_fun(name, line):
 	app = parm.append
 	for (var, meth) in extr:
 		if var == 'SRC':
-			if meth: app('task.m_inputs%s' % meth)
-			else: app('" ".join([a.srcpath(env) for a in task.m_inputs])')
+			if meth: app('task.inputs%s' % meth)
+			else: app('" ".join([a.srcpath(env) for a in task.inputs])')
 		elif var == 'TGT':
-			if meth: app('task.m_outputs%s' % meth)
-			else: app('" ".join([a.bldpath(env) for a in task.m_outputs])')
+			if meth: app('task.outputs%s' % meth)
+			else: app('" ".join([a.bldpath(env) for a in task.outputs])')
 		else:
 			if not var in dvars: dvars.append(var)
 			app("p('%s')" % var)
