@@ -328,8 +328,16 @@ class store_task_type(type):
 			TaskBase.classes[name] = cls
 
 class TaskBase(object):
-	"""Base class for task objects
+	"""Base class for Waf tasks
 
+	The most important methods are (by usual order of call):
+	1 may_start: ignore the task until it is ready (do not ask if it must run, we do not know yet)
+	2 must_run: ask the task if it must be run (do not run the task if it is not necessary)
+	3 __str__: string to display to the user
+	4 run: execute the task
+	5 post_run: after the task is run, update the cache about the task
+
+	This class is an interface, yet interfaces do not exist in python yet
 	For illustration purposes, TaskBase instances try to execute self.fun (if provided)
 	"""
 
@@ -347,16 +355,34 @@ class TaskBase(object):
 		if normal:
 			manager.add_task(self)
 
+	def __str__(self):
+		try: self.fun
+		except AttributeError: return self.__class__.__name__ + '\n'
+		else: return 'executing: %s\n' % self.fun.__name__
+
+	def may_start(self):
+		"True if the task is ready"
+		return True
+
+	def must_run(self):
+		"False if the task does not need to run"
+		return True
+
+	def run(self):
+		"called if the task must run"
+		try: fun = self.fun
+		except: return 0
+		return self.fun
+
+	def post_run(self):
+		"update the dependency tree (node stats)"
+		pass
+
 	def unique_id(self):
 		return str(id(self))
 
 	def hex_id(self):
 		return self.unique_id().encode('hex')
-
-	def __str__(self):
-		try: self.fun
-		except AttributeError: return self.__class__.__name__ + '\n'
-		else: return 'executing: %s\n' % self.fun.__name__
 
 	def display(self):
 		"do not print anything if there is nothing to display"
@@ -392,30 +418,8 @@ class TaskBase(object):
 		sum = hash((sum, self.__class__.maxjobs))
 		return sum
 
-	def may_start(self):
-		"True if the task is ready"
-		return True
-
-	def must_run(self):
-		"False if the task does not need to run"
-		return True
-
-	def update_stat(self):
-		"update the dependency tree (node stats)"
-		pass
-
-	def debug_info(self):
-		"return debug info"
-		return ''
-
 	def debug(self):
-		"prints the debug info"
 		pass
-
-	def run(self):
-		try: fun = self.fun
-		except: return 0
-		return self.fun
 
 class Task(TaskBase):
 	"The most common task, it has input and output nodes"
@@ -570,7 +574,7 @@ class Task(TaskBase):
 
 		return 0
 
-	def update_stat(self):
+	def post_run(self):
 		"called after a successful task run"
 		tree = Build.bld
 		env = self.env
