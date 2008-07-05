@@ -353,14 +353,6 @@ class TaskBase(object):
 	def __str__(self):
 		return self.__class__.__name__ + '\n'
 
-	def get_env(self):
-		return self.m_env
-	def set_env(self, val):
-		self.m_env = val
-
-	# TODO IDEA in the future, attach the task generator instead of the env
-	env = property(get_env, set_env)
-
 	def display(self):
 		"do not print anything if there is nothing to display"
 		col1 = Logs.colors(self.color)
@@ -419,7 +411,7 @@ class TaskCmd(TaskBase):
 	"TaskCmd executes commands. Instances always execute the method 'run'"
 	def __init__(self, fun, env):
 		TaskBase.__init__(self)
-		self.m_env = env
+		self.env = env
 		self.fun = fun
 	def __str__(self):
 		return 'executing: %s\n' % self.fun.__name__
@@ -434,7 +426,7 @@ class Task(TaskBase):
 	"The most common task, it has input and output nodes"
 	def __init__(self, env, normal=1):
 		TaskBase.__init__(self, normal=normal)
-		self.m_env = env
+		self.env = env
 
 		# inputs and outputs are nodes
 		# use setters when possible

@@ -190,7 +190,7 @@ class tex_taskgen(TaskGen.task_gen):
 			else:
 				fatal('no type or invalid type given in tex object (should be latex or pdflatex)')
 
-			task.m_env = self.env
+			task.env = self.env
 			task.curdirnode = self.path
 
 			# add the manual dependencies
