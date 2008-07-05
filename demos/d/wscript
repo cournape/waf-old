@@ -6,7 +6,7 @@
 VERSION='0.0.1'
 APPNAME='d_test'
 
-import Params
+import Logs
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
@@ -19,7 +19,7 @@ def configure(conf):
 	conf.check_tool('compiler_d')
 
 	if not conf.env['D_COMPILER']:
-		Params.fatal("either dmd or gdc is required (d compilers)")
+		Logs.fatal("either dmd or gdc is required (d compilers)")
 
 	conf.env['LIB_PTHREAD'] = ['pthread']
 
