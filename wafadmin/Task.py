@@ -355,6 +355,9 @@ class TaskBase(object):
 		if normal:
 			manager.add_task(self)
 
+	def __repr__(self):
+		return '\n\t{task: %s %s}' % (self.__class__.__name__, str(getattr(self, "fun", "")))
+
 	def __str__(self):
 		try: self.fun
 		except AttributeError: return self.__class__.__name__ + '\n'
@@ -379,13 +382,16 @@ class TaskBase(object):
 		pass
 
 	def unique_id(self):
+		"identify an task in a unique manner, used for caching data, it must be unique)"
+		# TODO, mixing debugging ids with persistence is not a good idea, unique_id and hex_id should go out
 		return str(id(self))
 
 	def hex_id(self):
+		"used for debugging"
 		return self.unique_id().encode('hex')
 
 	def display(self):
-		"do not print anything if there is nothing to display"
+		"print either the description (using __str__) or the progress bar or the ide output"
 		col1 = Logs.colors(self.color)
 		col2 = Logs.colors.NORMAL
 
@@ -406,6 +412,7 @@ class TaskBase(object):
 		return fs % (self.position[0], self.position[1], col1, str(self), col2)
 
 	def attr(self, att, default=None):
+		"retrieve an attribute from the instance or from the class"
 		return getattr(self, att, getattr(self.__class__, att, default))
 
 	def hash_constraints(self):
@@ -417,9 +424,6 @@ class TaskBase(object):
 			sum = hash((sum, str(self.attr(x, sys.maxint)),))
 		sum = hash((sum, self.__class__.maxjobs))
 		return sum
-
-	def debug(self):
-		pass
 
 class Task(TaskBase):
 	"""The parent class is quite limited, in this version:
@@ -522,8 +526,7 @@ class Task(TaskBase):
 		if (not self.m_inputs) or (not self.m_outputs):
 			if not (not self.m_inputs) and (not self.m_outputs):
 				if not getattr(self.__class__, 'quiet', None):
-					error("task is invalid : no inputs or outputs (override in a Task subclass?)")
-					self.debug()
+					error("task is invalid : no inputs or outputs (override in a Task subclass?) %r" % self)
 
 		for t in self.run_after:
 			if not t.m_hasrun:
@@ -642,21 +645,6 @@ class Task(TaskBase):
 				Build.bld.node_sigs[variant][node.id] = sig
 				if not Runner.g_quiet: Utils.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
 		return 1
-
-	def debug_info(self):
-		ret = []
-		ret.append('-- task details begin --')
-		ret.append('type:   %s' % str(self.__class__.__name__))
-		ret.append('idx:    %s' % str(self.hex_id()))
-		ret.append('source: %s' % str(self.m_inputs))
-		ret.append('target: %s' % str(self.m_outputs))
-		ret.append('-- task details end --')
-		return '\n'.join(ret)
-
-	def debug(self, level=0):
-		fun = debug
-		if level>0: fun = error
-		fun(self.debug_info())
 
 	def debug_why(self, old_sigs):
 		"explains why a task is run"
@@ -826,8 +814,7 @@ def compile_fun(name, line):
 def f(task):
 	env = task.env
 	p = env.get_flat
-	try: cmd = "%s" %s
-	except Exception: task.debug(); raise
+	cmd = "%s" %s
 	return Runner.exec_command(cmd)
 ''' % (line, parm)
 
