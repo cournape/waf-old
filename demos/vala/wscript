@@ -2,9 +2,6 @@
 # encoding: utf-8
 # Jaap Haitsma, 2008
 
-import os
-import Params
-
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
 APPNAME='vala-gtk-example'
