@@ -103,7 +103,7 @@ class task_gen(object):
 		self.features = list(kw)
 
 		# not always a good idea
-		self.m_tasks = []
+		self.tasks = []
 
 		self.chmod = 0644
 		self._inst_var = ''
@@ -117,7 +117,7 @@ class task_gen(object):
 
 		self.env = Build.bld.env.copy()
 
-		self.m_posted = 0
+		self.posted = 0
 		self.path = Build.bld.path # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 		Build.bld.all_task_gen.append(self)
@@ -183,7 +183,7 @@ class task_gen(object):
 
 		for node in self.allnodes:
 			# self.mappings or task_gen.mappings map the file extension to a function
-			filename = node.m_name
+			filename = node.name
 			k = max(0, filename.rfind('.'))
 			x = self.get_hook(filename[k:])
 
@@ -253,12 +253,12 @@ class task_gen(object):
 		"runs the code to create the tasks, do not subclass"
 		if not self.name: self.name = self.target
 
-		if self.m_posted:
+		if self.posted:
 			error("OBJECT ALREADY POSTED")
 			return
 		self.apply()
 		debug('task_gen: posted %s' % self.name)
-		self.m_posted = 1
+		self.posted = 1
 
 	def get_hook(self, ext):
 		try: return self.mappings[ext]
@@ -268,7 +268,7 @@ class task_gen(object):
 
 	def create_task(self, name, env=None):
 		task = Task.TaskBase.classes[name](env or self.env)
-		self.m_tasks.append(task)
+		self.tasks.append(task)
 		return task
 
 	def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
@@ -298,9 +298,9 @@ class task_gen(object):
 			# validation:
 			# * don't use absolute path.
 			# * don't use paths outside the source tree.
-			if not anode or not anode.is_child_of(Build.bld.m_srcnode):
+			if not anode or not anode.is_child_of(Build.bld.srcnode):
 				fatal("Unable to use '%s' - either because it's not a relative path" \
-					 ", or it's not child of '%s'." % (name, Build.bld.m_srcnode))
+					 ", or it's not child of '%s'." % (name, Build.bld.srcnode))
 
 			Build.bld.rescan(anode)
 

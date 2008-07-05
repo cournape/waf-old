@@ -17,7 +17,7 @@ import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs
 from Logs import *
 from Constants import *
 
-SAVED_ATTRS = 'm_root m_srcnode m_bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
+SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
 
 g_modcache = {}
@@ -36,12 +36,12 @@ class BuildError(Utils.WafError):
 	def format_message(self):
 		lst = ['Build failed']
 		for tsk in self.tasks:
-			if tsk.m_hasrun == CRASHED:
+			if tsk.hasrun == CRASHED:
 				try:
 					lst.append(" -> task failed (err #%d): %s" % (tsk.err_code, str(tsk.outputs)))
 				except AttributeError:
 					lst.append(" -> task failed:" % str(tsk.outputs))
-			elif tsk.m_hasrun == MISSING:
+			elif tsk.hasrun == MISSING:
 				lst.append(" -> missing files: %s" % str(tsk.outputs))
 		return '\n'.join(lst)
 
@@ -65,7 +65,7 @@ class Build(object):
 		# code for reading the scripts
 
 		# project build directory - do not reset() from load_dirs()
-		self.m_bdir = ''
+		self.bdir = ''
 
 		# the current directory from which the code is run
 		# the folder changes everytime a wscript is read
@@ -82,7 +82,7 @@ class Build(object):
 		self.cache_scanned_folders = {}
 
 		# list of targets to uninstall for removing the empty folders after uninstalling
-		self.m_uninstall = []
+		self.uninstall = []
 
 		# ======================================= #
 		# tasks and objects
@@ -99,9 +99,9 @@ class Build(object):
 		self.cache_sig_vars = {}
 		self.log = None
 
-		self.m_root = None
-		self.m_srcnode = None
-		self.m_bldnode = None
+		self.root = None
+		self.srcnode = None
+		self.bldnode = None
 
 	def load(self):
 		"load the cache from the disk"
@@ -127,7 +127,7 @@ class Build(object):
 
 		gc.disable()
 		try:
-			file = open(os.path.join(self.m_bdir, DBFILE), 'rb')
+			file = open(os.path.join(self.bdir, DBFILE), 'rb')
 			data = cPickle.load(file)
 			file.close()
 		except (IOError, EOFError):
@@ -139,7 +139,7 @@ class Build(object):
 	def save(self):
 		"store the cache on disk, see self.load"
 		gc.disable()
-		file = open(os.path.join(self.m_bdir, DBFILE), 'wb')
+		file = open(os.path.join(self.bdir, DBFILE), 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
 		cPickle.dump(data, file, -1) # remove the '-1' for unoptimized version
@@ -165,7 +165,7 @@ class Build(object):
 						try: os.remove(pt)
 						except OSError: pass
 					node.childs.__delitem__(x)
-		clean_rec(self.m_srcnode)
+		clean_rec(self.srcnode)
 
 		for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
 			var = {}
@@ -174,7 +174,7 @@ class Build(object):
 	def compile(self):
 		debug('build: compile called')
 
-		os.chdir(self.m_bdir)
+		os.chdir(self.bdir)
 
 
 		"""
@@ -201,7 +201,7 @@ class Build(object):
 			ret = self.generator.start()
 		except KeyboardInterrupt, e:
 			dw()
-			os.chdir(self.m_srcnode.abspath())
+			os.chdir(self.srcnode.abspath())
 			self.save()
 			Utils.pprint('RED', 'Build interrupted')
 			if Logs.verbose > 1: raise
@@ -215,11 +215,11 @@ class Build(object):
 			self.save()
 
 		if ret:
-			os.chdir(self.m_srcnode.abspath())
+			os.chdir(self.srcnode.abspath())
 			raise BuildError(self, self.task_manager.tasks_done)
 
 		if Logs.verbose > 3: self.dump()
-		os.chdir(self.m_srcnode.abspath())
+		os.chdir(self.srcnode.abspath())
 
 	def install(self):
 		"this function is called for both install and uninstall"
@@ -230,7 +230,7 @@ class Build(object):
 		# remove empty folders after uninstalling
 		if Options.commands['uninstall']:
 			lst = []
-			for x in self.m_uninstall:
+			for x in self.uninstall:
 				dir = os.path.dirname(x)
 				if not dir in lst: lst.append(dir)
 			lst.sort()
@@ -286,7 +286,7 @@ class Build(object):
 
 		for env in self.all_envs.values():
 			for f in env['dep_files']:
-				newnode = self.m_srcnode.find_or_declare(f)
+				newnode = self.srcnode.find_or_declare(f)
 				try:
 					hash = Utils.h_file(newnode.abspath(env))
 				except (IOError, AttributeError):
@@ -344,26 +344,26 @@ class Build(object):
 		if srcdir == blddir:
 			fatal("build dir must be different from srcdir: %s <-> %s " % (srcdir, blddir))
 
-		self.m_bdir = blddir
+		self.bdir = blddir
 
 		# try to load the cache file, if it does not exist, nothing happens
 		self.load()
 
-		if not self.m_root:
-			self.m_root = Node.Node('', None, Node.DIR)
+		if not self.root:
+			self.root = Node.Node('', None, Node.DIR)
 
-		if not self.m_srcnode:
-			self.m_srcnode = self.m_root.ensure_dir_node_from_path(srcdir)
-		debug('build: srcnode is %s and srcdir %s' % (str(self.m_srcnode.m_name), srcdir))
+		if not self.srcnode:
+			self.srcnode = self.root.ensure_dir_node_from_path(srcdir)
+		debug('build: srcnode is %s and srcdir %s' % (str(self.srcnode.name), srcdir))
 
-		self.path = self.m_srcnode
+		self.path = self.srcnode
 
 		# create this build dir if necessary
 		try: os.makedirs(blddir)
 		except OSError: pass
 
-		if not self.m_bldnode:
-			self.m_bldnode = self.m_root.ensure_dir_node_from_path(blddir)
+		if not self.bldnode:
+			self.bldnode = self.root.ensure_dir_node_from_path(blddir)
 
 		self.init_variants()
 
@@ -384,25 +384,25 @@ class Build(object):
 
 		# list the files in the build dirs
 		# remove the existing timestamps if the build files are removed
-		if sys.platform == "win32" and not src_dir_node.m_name:
+		if sys.platform == "win32" and not src_dir_node.name:
 			return
 		self.listdir_src(src_dir_node, src_dir_node.abspath())
 
 		# first obtain the differences between srcnode and src_dir_node
-		#lst = self.m_srcnode.difflst(src_dir_node)
-		h1 = self.m_srcnode.height()
+		#lst = self.srcnode.difflst(src_dir_node)
+		h1 = self.srcnode.height()
 		h2 = src_dir_node.height()
 
 		lst = []
 		child = src_dir_node
 		while h2 > h1:
-			lst.append(child.m_name)
-			child = child.m_parent
+			lst.append(child.name)
+			child = child.parent
 			h2 -= 1
 		lst.reverse()
 
 		for variant in self._variants:
-			sub_path = os.path.join(self.m_bldnode.abspath(), variant , *lst)
+			sub_path = os.path.join(self.bldnode.abspath(), variant , *lst)
 			try:
 				self.listdir_bld(src_dir_node, sub_path, variant)
 			except OSError:
@@ -415,8 +415,8 @@ class Build(object):
 						dict.__delitem__(node.id)
 
 					# avoid deleting the build dir node
-					if node.id != self.m_bldnode.id:
-						src_dir_node.childs.__delitem__(node.m_name)
+					if node.id != self.bldnode.id:
+						src_dir_node.childs.__delitem__(node.name)
 				os.makedirs(sub_path)
 
 	# ======================================= #
@@ -430,7 +430,7 @@ class Build(object):
 		self.cache_dir_contents[i_parent_node.id] = listed_files
 		debug('build: folder contents '+str(listed_files))
 
-		node_names = set([x.m_name for x in i_parent_node.childs.values() if x.id & 3 == Node.FILE])
+		node_names = set([x.name for x in i_parent_node.childs.values() if x.id & 3 == Node.FILE])
 		cache = self.node_sigs[0]
 
 		# nodes to keep
@@ -439,7 +439,7 @@ class Build(object):
 			node = i_parent_node.childs[x]
 			try:
 				# do not call node.abspath here
-				cache[node.id] = Utils.h_file(i_path + os.sep + node.m_name)
+				cache[node.id] = Utils.h_file(i_path + os.sep + node.name)
 			except IOError:
 				fatal("a file is readonly or has become a dir "+node.abspath())
 
@@ -461,11 +461,11 @@ class Build(object):
 		i_existing_nodes = [x for x in i_parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
 		listed_files = set(Utils.listdir(i_path))
-		node_names = set([x.m_name for x in i_existing_nodes])
+		node_names = set([x.name for x in i_existing_nodes])
 		remove_names = node_names - listed_files
 
 		# remove the stamps of the build nodes that no longer exist on the filesystem
-		ids_to_remove = [x.id for x in i_existing_nodes if x.m_name in remove_names]
+		ids_to_remove = [x.id for x in i_existing_nodes if x.name in remove_names]
 		cache = self.node_sigs[i_variant]
 		for nid in ids_to_remove:
 			if nid in cache:
@@ -475,13 +475,13 @@ class Build(object):
 		"for debugging"
 		def recu(node, count):
 			accu = count * '-'
-			accu += "> %s (d) %d \n" % (node.m_name, node.id)
+			accu += "> %s (d) %d \n" % (node.name, node.id)
 
 			for child in node.childs.values():
 				tp = child.get_type()
 				if tp == Node.FILE:
 					accu += count * '-'
-					accu += '-> '+child.m_name+' '
+					accu += '-> '+child.name+' '
 
 					for variant in self.node_sigs:
 						var = self.node_sigs[variant]
@@ -492,7 +492,7 @@ class Build(object):
 					accu+='\n'
 				elif tp == Node.BUILD:
 					accu+= count * '-'
-					accu+= '-> '+child.m_name+' (b) '
+					accu+= '-> '+child.name+' (b) '
 
 					for variant in self.node_sigs:
 						var = self.node_sigs[variant]
@@ -505,7 +505,7 @@ class Build(object):
 					accu += recu(child, count+1)
 			return accu
 
-		Utils.pprint('CYAN', recu(self.m_root, 0) )
+		Utils.pprint('CYAN', recu(self.root, 0) )
 
 	def get_env(self):
 		return self.env_of_name('default')
@@ -517,7 +517,7 @@ class Build(object):
 	def add_manual_dependency(self, path, value):
 		h = getattr(self, 'deps_man', {})
 		if os.path.isabs(path):
-			node = self.m_root.find_resource(path)
+			node = self.root.find_resource(path)
 		else:
 			node = self.path.find_resource(path)
 		h[node] = value
@@ -529,13 +529,13 @@ class Build(object):
 		try:
 			return self.p_ln
 		except AttributeError:
-			self.p_ln = self.m_root.find_dir(Options.launch_dir)
+			self.p_ln = self.root.find_dir(Options.launch_dir)
 			return self.p_ln
 
 	def glob(self, pattern, relative=True):
 		"files matching the pattern, seen from the current folder"
 		path = self.path.abspath()
-		files = [self.m_root.find_resource(x) for x in glob.glob(path+os.sep+pattern)]
+		files = [self.root.find_resource(x) for x in glob.glob(path+os.sep+pattern)]
 		if relative:
 			files = [x.relpath(self.path) for x in files if x]
 		else:
@@ -616,18 +616,18 @@ class Build(object):
 				if all and not targets_objects[target_name]: fatal("target '%s' does not exist" % target_name)
 
 			for target_obj in targets_objects.values():
-				if target_obj and not target_obj.m_posted:
+				if target_obj and not target_obj.posted:
 					target_obj.post()
 		else:
 			debug('task_gen: posting objects (normal)')
 			ln = self.launch_node()
 			# if the build is started from the build directory, do as if it was started from the top-level
 			# for the pretty-printing (Node.py), the two lines below cannot be moved to Build::launch_node
-			if ln.is_child_of(self.m_bldnode) or not ln.is_child_of(self.m_srcnode):
-				ln = self.m_srcnode
+			if ln.is_child_of(self.bldnode) or not ln.is_child_of(self.srcnode):
+				ln = self.srcnode
 			for obj in self.all_task_gen:
 				if not obj.path.is_child_of(ln): continue
-				if not obj.m_posted: obj.post()
+				if not obj.posted: obj.post()
 
 	def env_of_name(self, name):
 		if not name:

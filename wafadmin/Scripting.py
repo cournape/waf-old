@@ -65,23 +65,23 @@ def start_daemon():
 	if not g_dirwatch:
 		import DirWatch
 		g_dirwatch = DirWatch.DirectoryWatcher()
-		m_dirs=[]
-		for nodeDir in Build.bld.m_srcnode.dirs():
+		dirs=[]
+		for nodeDir in Build.bld.srcnode.dirs():
 			tmpstr = "%s" %nodeDir
 			tmpstr = "%s" %(tmpstr[6:])
-			m_dirs.append(tmpstr)
-		g_dirwatch.add_watch("tmp Test", call_back, m_dirs)
+			dirs.append(tmpstr)
+		g_dirwatch.add_watch("tmp Test", call_back, dirs)
 		# infinite loop, no need to exit except on ctrl+c
 		g_dirwatch.loop()
 		g_dirwatch = None
 	else:
 		g_dirwatch.suspend_all_watch()
-		m_dirs=[]
-		for nodeDir in Build.bld.m_srcnode.dirs():
+		dirs=[]
+		for nodeDir in Build.bld.srcnode.dirs():
 			tmpstr = "%s" % nodeDir
 			tmpstr = "%s" % (tmpstr[6:])
-			m_dirs.append(tmpstr)
-		g_dirwatch.add_watch("tmp Test", call_back, m_dirs)
+			dirs.append(tmpstr)
+		g_dirwatch.add_watch("tmp Test", call_back, dirs)
 
 def configure():
 	# disable parallelization while configuring

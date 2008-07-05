@@ -12,7 +12,7 @@ class cs_taskgen(TaskGen.task_gen):
 	def __init__(self, *k):
 		TaskGen.task_gen.__init__(self, *k)
 
-		self.m_type     = k[1]
+		self.type     = k[1]
 
 		self.source     = ''
 		self.target     = ''
@@ -25,7 +25,7 @@ class cs_taskgen(TaskGen.task_gen):
 
 		self._flag_vars = ['FLAGS', 'ASSEMBLIES']
 
-		if not self.m_type in g_types_lst:
+		if not self.type in g_types_lst:
 			error('type for csobj is undefined '+type)
 			type='program'
 

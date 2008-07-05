@@ -18,7 +18,7 @@ class valac_task(Task.Task):
 		Task.Task.__init__(self, *args, **kwargs)
 
 	def get_str(self):
-		src_str = " ".join([a.m_name for a in self.inputs])
+		src_str = " ".join([a.name for a in self.inputs])
 		return "%s: %s\n" % (self.__class__.__name__, src_str)
 
 	def run(self):
@@ -27,8 +27,8 @@ class valac_task(Task.Task):
 		inputs = [a.srcpath(env) for a in task.inputs]
 		valac = env['VALAC']
 		vala_flags = env.get_flat('VALAFLAGS')
-		top_src = Build.bld.m_srcnode.abspath()
-		top_bld = Build.bld.m_srcnode.abspath(env)
+		top_src = Build.bld.srcnode.abspath()
+		top_bld = Build.bld.srcnode.abspath(env)
 
 		if env['VALAC_VERSION'] > (0, 1, 6):
 			cmd = [valac, '-C', '--quiet', vala_flags]
@@ -42,7 +42,7 @@ class valac_task(Task.Task):
 			cmd.append('--library ' + task.target)
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
-			#cmd.append('-d %s' % Build.bld.m_bldnode.bldpath(env))
+			#cmd.append('-d %s' % Build.bld.bldnode.bldpath(env))
 		else:
 			output_dir = task.outputs[0].bld_dir(env)
 			cmd.append('-d %s' % output_dir)
@@ -96,7 +96,7 @@ def vala_file(self, node):
 	if not valatask:
 		valatask = self.create_task('valac')
 		self.valatask = valatask
-		valatask.output_type = self.m_type
+		valatask.output_type = self.type
 		valatask.packages = []
 		valatask.vapi_dirs = []
 		valatask.target = self.target
@@ -125,7 +125,7 @@ def vala_file(self, node):
 	output_nodes = []
 	output_nodes.append(node.change_ext('.c'))
 	output_nodes.append(node.change_ext('.h'))
-	if self.m_type != 'program':
+	if self.type != 'program':
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
 		if env['VALAC_VERSION'] > (0, 1, 7):
 			output_nodes.append(self.path.find_or_declare('%s.gidl' % self.target))

@@ -44,7 +44,7 @@ class MTask(Task.Task):
 		if self.moc_done:
 			# if there is a moc task, delay the computation of the file signature
 			for t in self.run_after:
-				if not t.m_hasrun:
+				if not t.hasrun:
 					return 0
 			# the moc file enters in the dependency calculation
 			# so we need to recompute the signature when the moc file is present
@@ -93,7 +93,7 @@ class MTask(Task.Task):
 
 			if not ext:
 				base2 = d[:-4]
-				path = node.m_parent.srcpath(parn.env)
+				path = node.parent.srcpath(parn.env)
 				for i in MOC_H:
 					try:
 						# TODO we could use find_resource
@@ -106,9 +106,9 @@ class MTask(Task.Task):
 				if not ext: fatal("no header found for %s which is a moc file" % str(d))
 
 			# next time we will not search for the extension (look at the 'for' loop below)
-			h_node = node.m_parent.find_resource(base2+i)
+			h_node = node.parent.find_resource(base2+i)
 			m_node = h_node.change_ext('.moc')
-			tree.node_deps[(self.unique_id(), m_node.m_name)] = h_node
+			tree.node_deps[(self.unique_id(), m_node.name)] = h_node
 
 			# create the task
 			task = Task.TaskBase.classes['moc'](parn.env, normal=0)
@@ -127,7 +127,7 @@ class MTask(Task.Task):
 		# look at the file inputs, it is set right above
 		lst = tree.node_deps.get(self.unique_id(), ())
 		for d in lst:
-			name = d.m_name
+			name = d.name
 			if name.endswith('.moc'):
 				task = Task.TaskBase.classes['moc'](parn.env, normal=0)
 				task.set_inputs(tree.node_deps[(self.unique_id(), name)]) # 1st element in a tuple
@@ -140,7 +140,7 @@ class MTask(Task.Task):
 				moctasks.append(task)
 
 		# simple scheduler dependency: run the moc task before others
-		self.m_run_after = moctasks
+		self.run_after = moctasks
 		self.moc_done = 1
 
 	run = Task.TaskBase.classes['cxx'].__dict__['run']
@@ -181,7 +181,7 @@ def scan(self):
 
 	nodes = []
 	names = []
-	root = self.inputs[0].m_parent
+	root = self.inputs[0].parent
 	for x in curHandler.files:
 		x = x.encode('utf8')
 		nd = root.find_resource(x)
@@ -292,7 +292,7 @@ setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = MTask(self)
-	self.m_tasks.append(task)
+	self.tasks.append(task)
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
@@ -308,7 +308,7 @@ def process_qm2rcc(task):
 	f.write('<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n')
 	for k in task.inputs:
 		f.write(' <file>')
-		#f.write(k.m_name)
+		#f.write(k.name)
 		f.write(k.relpath(task.path))
 		f.write('</file>\n')
 	f.write('</qresource>\n</RCC>')
@@ -316,7 +316,7 @@ def process_qm2rcc(task):
 
 b = Task.simple_task_type
 b('moc', '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}', color='BLUE', vars=['QT_MOC', 'MOC_FLAGS'])
-cls = b('rcc', '${QT_RCC} -name ${SRC[0].m_name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc', after="qm2rcc")
+cls = b('rcc', '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath(env)} ${RCC_ST} -o ${TGT}', color='BLUE', before='cxx moc', after="qm2rcc")
 cls.scan = scan
 b('ui4', '${QT_UIC} ${SRC} -o ${TGT}', color='BLUE', before='cxx moc')
 b('ts2qm', '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}', color='BLUE', before='qm2rcc')

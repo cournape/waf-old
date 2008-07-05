@@ -117,12 +117,12 @@ class TaskManager(object):
 				d(tsk)
 			elif type(d) is types.StringType:
 				if not env[d]: return
-				lst = [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.outputs]
+				lst = [a.relpath_gen(Build.bld.srcnode) for a in tsk.outputs]
 				bld.install_files(env[d], '', lst, chmod=0644, env=env)
 			else:
 				if not d['var']: return
-				lst = [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.outputs]
-				if d.get('src', 0): lst += [a.relpath_gen(Build.bld.m_srcnode) for a in tsk.inputs]
+				lst = [a.relpath_gen(Build.bld.srcnode) for a in tsk.outputs]
+				if d.get('src', 0): lst += [a.relpath_gen(Build.bld.srcnode) for a in tsk.inputs]
 				# TODO ugly hack
 				if d.get('as', ''):
 					bld.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env)
@@ -246,7 +246,7 @@ class TaskGroup(object):
 
 		if not self.ready: self.prepare()
 
-		#print [(a.m_name, cstrs[a].m_name) for a in cstrs]
+		#print [(a.name, cstrs[a].name) for a in cstrs]
 		keys = self.cstr_groups.keys()
 
 		unconnected = []
@@ -349,7 +349,7 @@ class TaskBase(object):
 	classes = {}
 
 	def __init__(self, normal=1):
-		self.m_hasrun = 0
+		self.hasrun = 0
 
 		manager = Build.bld.task_manager
 		if normal:
@@ -402,8 +402,8 @@ class TaskBase(object):
 			try: ini = Build.bld.ini
 			except AttributeError: ini = Build.bld.ini = time.time()
 			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
-			ins  = ','.join([n.m_name for n in task.inputs])
-			outs = ','.join([n.m_name for n in task.outputs])
+			ins  = ','.join([n.name for n in task.inputs])
+			outs = ','.join([n.name for n in task.outputs])
 			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], self.position[0], ins, outs, ela)
 
 		total = self.position[1]
@@ -459,7 +459,7 @@ class Task(TaskBase):
 		return '%s: %s -> %s\n' % (self.__class__.__name__, src_str, tgt_str)
 
 	def __repr__(self):
-		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.m_name for x in self.inputs]), " -> ", ",".join([x.m_name for x in self.outputs]), '}'])
+		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.name for x in self.inputs]), " -> ", ",".join([x.name for x in self.outputs]), '}'])
 
 	def unique_id(self):
 		"get a unique id: hash the node paths, the variant, the class, the function"
@@ -492,7 +492,7 @@ class Task(TaskBase):
 
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
-		node = Build.bld.m_current.find_resource(filename)
+		node = Build.bld.current.find_resource(filename)
 		self.deps_nodes.append(node)
 
 	def signature(self):
@@ -529,7 +529,7 @@ class Task(TaskBase):
 					error("task is invalid : no inputs or outputs (override in a Task subclass?) %r" % self)
 
 		for t in self.run_after:
-			if not t.m_hasrun:
+			if not t.hasrun:
 				return 0
 		return 1
 
@@ -542,7 +542,7 @@ class Task(TaskBase):
 
 		# tasks that have no inputs or outputs are run each time
 		if not self.inputs and not self.outputs:
-			self.m_dep_sig = SIG_NIL
+			self.dep_sig = SIG_NIL
 			return 1
 
 		# look at the previous signature first
@@ -616,7 +616,7 @@ class Task(TaskBase):
 				cnt += 1
 
 		tree.task_sigs[self.unique_id()] = self.cache_sig
-		self.m_executed=1
+		self.executed=1
 
 	def can_retrieve_cache(self, sig):
 		"""Retrieve build nodes from the cache - the file time stamps are updated
@@ -698,7 +698,7 @@ class Task(TaskBase):
 		# dependencies on the environment vars
 		fun = getattr(self.__class__, 'signature_hook', None)
 		if fun: act_sig = self.__class__.signature_hook(self)
-		else: act_sig = tree.sign_vars(env, self.__class__.m_vars)
+		else: act_sig = tree.sign_vars(env, self.__class__.vars)
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
@@ -765,8 +765,8 @@ class Task(TaskBase):
 
 		for k in Build.bld.node_deps.get(self.unique_id(), ()):
 			# unlikely but necessary if it happens
-			try: tree.cache_scanned_folders[k.m_parent.id]
-			except KeyError: tree.rescan(k.m_parent)
+			try: tree.cache_scanned_folders[k.parent.id]
+			except KeyError: tree.rescan(k.parent)
 
 			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
 			else: upd(tstamp[env.variant()][k.id])
@@ -780,7 +780,7 @@ def funex(c):
 reg_act = re.compile(r"(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 def compile_fun(name, line):
 	"""Compiles a string (once) into an function, eg:
-	simple_action('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].m_parent.bldpath()}')
+	simple_action('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
 
 	The env variables (CXX, ..) on the task must not hold dicts (order)
 	The reserved keywords TGT and SRC represent the task input and output nodes
@@ -831,9 +831,9 @@ def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[
 	"""return a new Task subclass with the function run compiled from the line given"""
 	params = {
 		'run': func,
-		'm_vars': vars,
+		'vars': vars,
 		'color': color,
-		'm_name': name,
+		'name': name,
 		'ext_in': Utils.to_list(ext_in),
 		'ext_out': Utils.to_list(ext_out),
 		'before': Utils.to_list(before),

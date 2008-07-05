@@ -72,7 +72,7 @@ class unit_test(object):
 			unit_test = getattr(obj,'unit_test')
 			if not unit_test: continue
 			try:
-				if obj.m_type == 'program':
+				if obj.type == 'program':
 					output = obj.path
 					filename = os.path.join(output.abspath(obj.env), obj.target)
 					srcdir = output.abspath()

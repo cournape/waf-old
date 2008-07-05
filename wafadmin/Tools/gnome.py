@@ -163,13 +163,13 @@ def sig_implicit_deps(self):
 class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self)
-		self.m_tasks = []
-		self.m_appname = k[0] # the first argument is the appname - will disappear
+		self.tasks = []
+		self.appname = k[0] # the first argument is the appname - will disappear
 	def apply(self):
 
 		def install_result(task):
 			out = task.outputs[0]
-			name = out.m_name
+			name = out.name
 			ext = name[-1]
 			env = task.env
 			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
@@ -276,7 +276,7 @@ def process_enums(self):
 		if not x['target']:
 			Logs.fatal('missing target '+str(x))
 		tgt_node = self.path.find_or_declare(x['target'])
-		if tgt_node.m_name.endswith('.c'):
+		if tgt_node.name.endswith('.c'):
 			self.allnodes.append(tgt_node)
 		env['MK_TARGET'] = tgt_node.abspath(env)
 

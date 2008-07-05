@@ -36,7 +36,7 @@ class cmd_taskgen(TaskGen.task_gen):
 	"This object will call a command everytime"
 	def __init__(self, type='none'):
 		TaskGen.task_gen.__init__(self)
-		self.m_type = type
+		self.type = type
 		self.fun    = None
 		self.inst_var = ''
 		self.inst_dir = ''
@@ -47,7 +47,7 @@ class cmd_taskgen(TaskGen.task_gen):
 		tsk = Task.TaskBase()
 		tsk.fun = self.fun
 		tsk.env = self.env
-		self.m_tasks.append(tsk)
+		self.tasks.append(tsk)
 		tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
 
 class copy_taskgen(TaskGen.task_gen):
@@ -71,7 +71,7 @@ class copy_taskgen(TaskGen.task_gen):
 			if not node: fatal('cannot find input file %s for processing' % filename)
 
 			target = self.target
-			if not target or len(lst)>1: target = node.m_name
+			if not target or len(lst)>1: target = node.name
 
 			# TODO the file path may be incorrect
 			newnode = self.path.find_or_declare(target)
@@ -394,7 +394,7 @@ use command_is_external=True''') % (self.command,)
 
 		task = command_output(self.env, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env)
 		Utils.copy_attrs(self, task, 'before after ext_in ext_out', only_if_set=True)
-		self.m_tasks.append(task)
+		self.tasks.append(task)
 
 		task.set_inputs(inputs)
 		task.set_outputs(outputs)
@@ -403,9 +403,9 @@ use command_is_external=True''') % (self.command,)
 
 		for dep in self.dependencies:
 			assert dep is not self
-			if not dep.m_posted:
+			if not dep.posted:
 				dep.post()
-			for dep_task in dep.m_tasks:
+			for dep_task in dep.tasks:
 				task.set_run_after(dep_task)
 
 	def input_file(self, file_name, template='%s'):

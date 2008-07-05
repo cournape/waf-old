@@ -56,10 +56,10 @@ class ocaml_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-		#self.m_type       = kw.get('type', 'native')
+		#self.type       = kw.get('type', 'native')
 		#self.islibrary    = kw.get('library', 0)
 
-		self.m_type = 'all'
+		self.type = 'all'
 		self._incpaths_lst = []
 		self._bld_incpaths_lst = []
 		self._mlltasks    = []
@@ -82,9 +82,9 @@ class ocaml_taskgen(TaskGen.task_gen):
 
 		self.are_deps_set = 0
 
-		if not self.m_type in ['bytecode', 'native', 'all', 'c_object']:
-			print 'type for camlobj is undefined '+self.m_type
-			self.m_type='all'
+		if not self.type in ['bytecode', 'native', 'all', 'c_object']:
+			print 'type for camlobj is undefined '+self.type
+			self.type='all'
 
 TaskGen.bind_feature('ocaml', 'apply_core')
 
@@ -95,18 +95,18 @@ def init_envs_ml(self):
 	self.islibrary = getattr(self, 'islibrary', False)
 
 	self.native_env = None
-	if self.m_type in native_lst:
+	if self.type in native_lst:
 		self.native_env = self.env.copy()
 
 	self.bytecode_env = None
-	if self.m_type in bytecode_lst:
+	if self.type in bytecode_lst:
 		self.bytecode_env = self.env.copy()
 
 	if self.islibrary:
 		self.bytecode_env['OCALINKFLAGS'] = '-a'
 		self.native_env['OCALINKFLAGS']   = '-a'
 
-	if self.m_type == 'c_object':
+	if self.type == 'c_object':
 		self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
 
 @taskgen
@@ -177,7 +177,7 @@ def apply_link_ml(self):
 		self.out_nodes += linktask.outputs
 
 		# we produce a .o file to be used by gcc
-		if self.m_type == 'c_object': self.compiled_tasks.append(linktask)
+		if self.type == 'c_object': self.compiled_tasks.append(linktask)
 
 @extension(EXT_MLL)
 def mll_hook(self, node):

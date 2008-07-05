@@ -19,7 +19,7 @@ class intltool_in_taskgen(TaskGen.task_gen):
 		self.flags   = ''
 		self.podir   = 'po'
 		self.intlcache = '.intlcache'
-		self.m_tasks = []
+		self.tasks = []
 
 	def apply(self):
 		self.env = self.env.copy()
@@ -46,12 +46,12 @@ class intltool_po_taskgen(TaskGen.task_gen):
 		self.inst_var_default = 'LOCALEDIR'
 		self.appname = kw.get('appname', 'set_your_app_name')
 		self.podir = ''
-		self.m_tasks=[]
+		self.tasks=[]
 
 	def apply(self):
 		def install_translation(task):
 			out = task.outputs[0]
-			filename = out.m_name
+			filename = out.name
 			(langname, ext) = os.path.splitext(filename)
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
 			Build.bld.install_as(self.inst_var, inst_file, out.abspath(self.env), chmod=self.chmod)

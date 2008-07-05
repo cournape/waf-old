@@ -42,8 +42,8 @@ def do_install(src, tgt, chmod=0644):
 		if _do_install:
 			srclbl = src
 			try:
-				srclbl = src.replace(Build.bld.m_bldnode.abspath(None)+os.sep, '')
-				srclbl = src.replace(Build.bld.m_srcnode.abspath(None)+os.sep, '')
+				srclbl = src.replace(Build.bld.bldnode.abspath(None)+os.sep, '')
+				srclbl = src.replace(Build.bld.srcnode.abspath(None)+os.sep, '')
 			except OSError:
 				pass
 			print "* installing %s as %s" % (srclbl, tgt)
@@ -64,7 +64,7 @@ def do_install(src, tgt, chmod=0644):
 	elif Options.commands['uninstall']:
 		print "* uninstalling %s" % tgt
 
-		Build.bld.m_uninstall.append(tgt)
+		Build.bld.uninstall.append(tgt)
 
 		try: os.remove(tgt)
 		except OSError: pass
@@ -116,7 +116,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 				fatal("Unable to install the file `%s': not found in %s" % (filename, node))
 
 			file     = filenode.abspath(env)
-			destfile = os.path.join(destpath, filenode.m_name)
+			destfile = os.path.join(destpath, filenode.name)
 		else:
 			file     = filename
 			alst     = Utils.split_path(filename)

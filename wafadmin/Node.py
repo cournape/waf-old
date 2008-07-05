@@ -15,7 +15,7 @@ setting: new type = type + x - type & 3
 IMPORTANT:
 Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
 In fact, unused class members increase the .wafpickle file size sensibly with lots of objects
-eg: the m_tstamp is used for every node, while the signature is computed only for build files
+eg: the tstamp is used for every node, while the signature is computed only for build files
 
 the build is launched from the top of the build dir (for example, in _build_/)
 """
@@ -32,10 +32,10 @@ BUILD = 3
 type_to_string = {UNDEFINED: "unk", DIR: "dir", FILE: "src", BUILD: "bld"}
 
 class Node(object):
-	__slots__ = ("m_name", "m_parent", "id", "childs")
+	__slots__ = ("name", "parent", "id", "childs")
 	def __init__(self, name, parent, node_type = UNDEFINED):
-		self.m_name = name
-		self.m_parent = parent
+		self.name = name
+		self.parent = parent
 
 		# assumption: one build object at a time
 		Build.bld.id_nodes += 4
@@ -56,7 +56,7 @@ class Node(object):
 		if parent: parent.childs[name] = self
 
 	def __str__(self):
-		if not self.m_parent: return ''
+		if not self.parent: return ''
 		return "%s://%s" % (type_to_string[self.id & 3], self.abspath())
 
 	def __repr__(self):
@@ -161,14 +161,14 @@ class Node(object):
 			Build.bld.rescan(current)
 			prev = current
 
-			if not current.m_parent and name == current.m_name:
+			if not current.parent and name == current.name:
 				continue
 			elif not name:
 				continue
 			elif name == '.':
 				continue
 			elif name == '..':
-				current = current.m_parent or current
+				current = current.parent or current
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
@@ -192,7 +192,7 @@ class Node(object):
 			elif name == '.':
 				continue
 			elif name == '..':
-				current = current.m_parent or current
+				current = current.parent or current
 			else:
 				prev = current
 				current = prev.childs.get(name, None)
@@ -247,8 +247,8 @@ class Node(object):
 		h2 = p.height()
 		while h2 > h1:
 			h2 -= 1
-			lst.append(p.m_name)
-			p = p.m_parent
+			lst.append(p.name)
+			p = p.parent
 		if lst:
 			lst.reverse()
 			ret = os.path.join(*lst)
@@ -263,32 +263,32 @@ class Node(object):
 		# now the real code
 		cand = self
 		while dist > 0:
-			cand = cand.m_parent
+			cand = cand.parent
 			dist -= 1
 		if cand == node: return cand
 		cursor = node
-		while cand.m_parent:
-			cand = cand.m_parent
-			cursor = cursor.m_parent
+		while cand.parent:
+			cand = cand.parent
+			cursor = cursor.parent
 			if cand == cursor: return cand
 
 	def relpath_gen(self, going_to):
 		"string representing a relative path between self to another node"
 
 		if self == going_to: return '.'
-		if going_to.m_parent == self: return '..'
+		if going_to.parent == self: return '..'
 
 		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
 		ancestor = self.find_ancestor(going_to)
 		lst = []
 		cand = self
 		while not cand.id == ancestor.id:
-			lst.append(cand.m_name)
-			cand = cand.m_parent
+			lst.append(cand.name)
+			cand = cand.parent
 		cand = going_to
 		while not cand.id == ancestor.id:
 			lst.append('..')
-			cand = cand.m_parent
+			cand = cand.parent
 		lst.reverse()
 		return os.sep.join(lst)
 
@@ -296,10 +296,10 @@ class Node(object):
 		"printed in the console, open files easily from the launch directory"
 		tree = Build.bld
 		ln = tree.launch_node()
-		name = self.m_name
-		x = self.m_parent.get_file(name)
+		name = self.name
+		x = self.parent.get_file(name)
 		if x: return self.relative_path(ln)
-		else: return os.path.join(tree.m_bldnode.relative_path(ln), env.variant(), self.relative_path(tree.m_srcnode))
+		else: return os.path.join(tree.bldnode.relative_path(ln), env.variant(), self.relative_path(tree.srcnode))
 
 	def relative_path(self, folder):
 		"relative path between a node and a directory node"
@@ -308,20 +308,20 @@ class Node(object):
 		p1 = self
 		p2 = folder
 		while h1 > h2:
-			p1 = p1.m_parent
+			p1 = p1.parent
 			h1 -= 1
 		while h2 > h1:
-			p2 = p2.m_parent
+			p2 = p2.parent
 			h2 -= 1
 
 		# now we have two nodes of the same height
 		ancestor = None
-		if p1.m_name == p2.m_name:
+		if p1.name == p2.name:
 			ancestor = p1
-		while p1.m_parent:
-			p1 = p1.m_parent
-			p2 = p2.m_parent
-			if p1.m_name != p2.m_name:
+		while p1.parent:
+			p1 = p1.parent
+			p2 = p2.parent
+			if p1.name != p2.name:
 				ancestor = None
 			elif not ancestor:
 				ancestor = p1
@@ -334,8 +334,8 @@ class Node(object):
 		tmp = self
 		while n1:
 			n1 -= 1
-			lst.append(tmp.m_name)
-			tmp = tmp.m_parent
+			lst.append(tmp.name)
+			tmp = tmp.parent
 
 		lst.reverse()
 		up_path = os.sep.join(lst)
@@ -357,7 +357,7 @@ class Node(object):
 		diff = self.height() - node.height()
 		while diff > 0:
 			diff -= 1
-			p = p.m_parent
+			p = p.parent
 		return p.id == node.id
 
 	def variant(self, env):
@@ -371,8 +371,8 @@ class Node(object):
 		# README a cache can be added here if necessary
 		d = self
 		val = 0
-		while d.m_parent:
-			d = d.m_parent
+		while d.parent:
+			d = d.parent
 			val += 1
 		return val
 
@@ -392,7 +392,7 @@ class Node(object):
 		"""
 		## absolute path - hot zone, so do not touch
 
-		if not self.m_name:
+		if not self.name:
 			return '/'
 
 		variant = self.variant(env)
@@ -403,54 +403,54 @@ class Node(object):
 			cur = self
 			lst = []
 			while cur:
-				lst.append(cur.m_name)
-				cur = cur.m_parent
+				lst.append(cur.name)
+				cur = cur.parent
 			lst.reverse()
 			# the real hot zone is the os path join
 			val = os.sep.join(lst)
 		else:
-			val = os.sep.join((Build.bld.m_bldnode.abspath(), env.variant(), self.relpath(Build.bld.m_srcnode)))
+			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.relpath(Build.bld.srcnode)))
 		Build.bld.cache_node_abspath[variant][self.id] = val
 		return val
 
 	def change_ext(self, ext):
 		"node of the same path, but with a different extension"
-		name = self.m_name
+		name = self.name
 		k = name.rfind('.')
 		if k >= 0:
 			name = name[:k] + ext
 		else:
 			name = name + ext
 
-		node = self.m_parent.childs.get(name, None)
+		node = self.parent.childs.get(name, None)
 		if not node:
-			node = Node(name, self.m_parent, BUILD)
+			node = Node(name, self.parent, BUILD)
 		return node
 
 	def bld_dir(self, env):
 		"build path without the file name"
-		return self.m_parent.bldpath(env)
+		return self.parent.bldpath(env)
 
 	def bldbase(self, env):
 		"build path without the extension: src/dir/foo(.cpp)"
-		s = self.m_name
+		s = self.name
 		s = s[:s.rfind('.')]
 		return os.path.join(self.bld_dir(env), s)
 
 	def bldpath(self, env=None):
 		"path seen from the build dir default/src/foo.cpp"
-		x = self.m_parent.get_file(self.m_name)
+		x = self.parent.get_file(self.name)
 
-		if x: return self.relpath_gen(Build.bld.m_bldnode)
-		if self.relpath(Build.bld.m_srcnode) is not '':
-			return os.path.join(env.variant(), self.relpath(Build.bld.m_srcnode))
+		if x: return self.relpath_gen(Build.bld.bldnode)
+		if self.relpath(Build.bld.srcnode) is not '':
+			return os.path.join(env.variant(), self.relpath(Build.bld.srcnode))
 		return env.variant()
 
 	def srcpath(self, env):
 		"path in the srcdir from the build dir ../src/foo.cpp"
-		x = self.m_parent.get_build(self.m_name)
+		x = self.parent.get_build(self.name)
 		if x: return self.bldpath(env)
-		return self.relpath_gen(Build.bld.m_bldnode)
+		return self.relpath_gen(Build.bld.bldnode)
 
 	def read(self, env):
 		"get the contents of a file, it is not used anywhere for the moment"
@@ -472,19 +472,19 @@ if sys.platform == "win32":
 			Build.bld.rescan(current)
 			prev = current
 
-			if not current.m_parent and name == current.m_name:
+			if not current.parent and name == current.name:
 				continue
 			if not name:
 				continue
 			elif name == '.':
 				continue
 			elif name == '..':
-				current = current.m_parent or current
+				current = current.parent or current
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
 					if (name in Build.bld.cache_dir_contents[prev.id]
-						or (not prev.m_parent and name[1] == ":")):
+						or (not prev.parent and name[1] == ":")):
 						current = Node(name, prev, DIR)
 					else:
 						return None
@@ -500,12 +500,12 @@ if sys.platform == "win32":
 			cur = self
 			lst = []
 			while cur:
-				lst.append(cur.m_name)
-				cur = cur.m_parent
+				lst.append(cur.name)
+				cur = cur.parent
 			lst.reverse()
 			val = os.sep.join(lst)
 		else:
-			val = os.sep.join((Build.bld.m_bldnode.abspath(), env.variant(), self.relpath(Build.bld.m_srcnode)))
+			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.relpath(Build.bld.srcnode)))
 		if val.startswith("\\"): val = val[1:]
 		if val.startswith("\\"): val = val[1:]
 		Build.bld.cache_node_abspath[variant][self.id] = val

@@ -8,7 +8,7 @@ import TaskGen
 
 def decide_ext(self, node):
 	c_ext = '.tab.c'
-	if node.m_name.endswith('.yc'): c_ext = '.tab.cc'
+	if node.name.endswith('.yc'): c_ext = '.tab.cc'
 	if '-d' in self.env['BISONFLAGS']:
 		return [c_ext, c_ext.replace('c', 'h')]
 	else:
@@ -16,7 +16,7 @@ def decide_ext(self, node):
 
 TaskGen.declare_chain(
 	name = 'bison',
-	action = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].m_name}',
+	action = 'cd ${SRC[0].bld_dir(env)} && ${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}',
 	ext_in = '.y .yc',
 	decider = decide_ext,
 	before = 'cc cxx',

@@ -44,16 +44,16 @@ def scan(self):
 		gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'], defines = self.defines)
 		gruik.start(node, self.env)
 		if Logs.verbose:
-			debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))
+			debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.nodes), str(gruik.names)))
 			debug('deps: deps found for %s: %s' % (str(node), str(gruik.deps)))
-		for x in gruik.m_nodes:
+		for x in gruik.nodes:
 			if id(x) in seen: continue
 			seen.append(id(x))
 			all_nodes.append(x)
-		for x in gruik.m_names:
+		for x in gruik.names:
 			if not x in all_names:
 				all_names.append(x)
-	return (all_nodes, gruik.m_names)
+	return (all_nodes, gruik.names)
 
 class ccroot_abstract(TaskGen.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
@@ -61,10 +61,10 @@ class ccroot_abstract(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self, *k)
 
 		# TODO m_type is obsolete
-		if len(k)>1: self.m_type = k[1]
-		else: self.m_type = ''
-		if self.m_type:
-			self.features.append('c' + self.m_type)
+		if len(k)>1: self.type = k[1]
+		else: self.type = ''
+		if self.type:
+			self.features.append('c' + self.type)
 
 		# includes, seen from the current directory
 		self.includes=''
@@ -112,7 +112,7 @@ class ccroot_abstract(TaskGen.task_gen):
 
 def get_target_name(self):
 	name = self.target
-	pattern = self.env[self.m_type+'_PATTERN']
+	pattern = self.env[self.type+'_PATTERN']
 	if not pattern: pattern = '%s'
 
 	# name can be src/mylib
@@ -133,7 +133,7 @@ def install_shlib(task):
 	inst_var = task.inst_var
 	inst_dir = task.inst_dir
 
-	libname = task.outputs[0].m_name
+	libname = task.outputs[0].name
 
 	name3 = libname+'.'+task.vnum
 	name2 = libname+'.'+nums[0]
@@ -216,7 +216,7 @@ def apply_incpaths(self):
 		node = 0
 		if os.path.isabs(dir):
 			if preproc.go_absolute:
-				node = Build.bld.m_root.find_dir(dir)
+				node = Build.bld.root.find_dir(dir)
 		else:
 			node = self.path.find_dir(dir)
 
@@ -231,13 +231,13 @@ def apply_incpaths(self):
 @taskgen
 def apply_type_vars(self):
 	# if the type defines uselib to add, add them
-	st = self.env[self.m_type+'_USELIB']
+	st = self.env[self.type+'_USELIB']
 	if st: self.uselib = self.uselib + ' ' + st
 
 	# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
 	# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
 	for var in self.p_type_vars:
-		compvar = '_'.join([self.m_type, var])
+		compvar = '_'.join([self.type, var])
 		#print compvar
 		value = self.env[compvar]
 		if value: self.env.append_value(var, value)
@@ -288,7 +288,7 @@ def apply_lib_vars(self):
 					names.append(u)
 
 		# safe to process the current object
-		if not y.m_posted: y.post()
+		if not y.posted: y.post()
 		seen.append(x)
 
 		if 'cshlib' in y.features:
@@ -363,7 +363,7 @@ def apply_objdeps(self):
 			if added: continue # list of names modified, loop
 
 		# safe to process the current object
-		if not y.m_posted: y.post()
+		if not y.posted: y.post()
 		seen.append(x)
 
 		self.link_task.inputs += y.out_nodes
@@ -414,7 +414,7 @@ def apply_vnum(self):
 	if sys.platform != 'darwin' and sys.platform != 'win32':
 		nums = self.vnum.split('.')
 		try: name3 = self.soname
-		except AttributeError: name3 = self.link_task.outputs[0].m_name+'.'+self.vnum.split('.')[0]
+		except AttributeError: name3 = self.link_task.outputs[0].name+'.'+self.vnum.split('.')[0]
 		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
 
 @taskgen

@@ -18,11 +18,11 @@ from Logs import error, debug, fatal
 
 @taskgen
 def create_task_macapp(self):
-	if self.m_type == 'program' and self.link_task:
+	if self.type == 'program' and self.link_task:
 		apptask = self.create_task('macapp', self.env)
 		apptask.set_inputs(self.link_task.outputs)
 		apptask.set_outputs(self.link_task.outputs[0].change_ext('.app'))
-		self.m_apptask = apptask
+		self.apptask = apptask
 
 @taskgen
 @after('apply_link')
@@ -32,7 +32,7 @@ def apply_link_osx(self):
 	or use obj.mac_app = True to build specific targets as Mac apps"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 	    self.create_task_macapp()
-		name = self.link_task.outputs[0].m_name
+		name = self.link_task.outputs[0].name
 		if self.vnum: name = name.replace('.dylib', '.%s.dylib' % self.vnum)
 		path = os.path.join(self.env['PREFIX'], lib, name)
 		path = '-install_name %s' % path
@@ -123,7 +123,7 @@ def install_shlib(task):
 	inst_var = task.inst_var
 	inst_dir = task.inst_dir
 
-	libname = task.outputs[0].m_name
+	libname = task.outputs[0].name
 
 	name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
 	name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])

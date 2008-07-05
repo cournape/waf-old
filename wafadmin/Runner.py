@@ -108,12 +108,12 @@ class Serial(object):
 				continue
 			# # =======================
 
-			#debug("m_sig is "+str(tsk.m_sig), 'runner')
-			#debug("obj output m_sig is "+str(tsk.m_outputs[0].get_sig()), 'runner')
+			#debug("m_sig is "+str(tsk.sig), 'runner')
+			#debug("obj output m_sig is "+str(tsk.outputs[0].get_sig()), 'runner')
 
 			#continue
 			if not tsk.must_run():
-				tsk.m_hasrun = SKIPPED
+				tsk.hasrun = SKIPPED
 				self.manager.add_finished(tsk)
 				continue
 
@@ -129,7 +129,7 @@ class Serial(object):
 			# non-zero means something went wrong
 			if ret:
 				self.error = 1
-				tsk.m_hasrun = CRASHED
+				tsk.hasrun = CRASHED
 				tsk.err_code = ret
 				if Options.options.keep: continue
 				else: return -1
@@ -138,11 +138,11 @@ class Serial(object):
 				tsk.post_run()
 			except OSError:
 				self.error = 1
-				tsk.m_hasrun = MISSING
+				tsk.hasrun = MISSING
 				if Options.options.keep: continue
 				else: return -1
 			else:
-				tsk.m_hasrun = SUCCESS
+				tsk.hasrun = SUCCESS
 
 		if self.error:
 			return -1
@@ -174,15 +174,15 @@ class TaskConsumer(threading.Thread):
 
 			if ret:
 				tsk.err_code = ret
-				tsk.m_hasrun = CRASHED
+				tsk.hasrun = CRASHED
 			else:
 				try:
 					tsk.post_run()
 				except OSError:
-					tsk.m_hasrun = MISSING
+					tsk.hasrun = MISSING
 				else:
-					tsk.m_hasrun = SUCCESS
-			if tsk.m_hasrun != SUCCESS: # TODO for now, do no keep running in parallel  and not Options.options.keep:
+					tsk.hasrun = SUCCESS
+			if tsk.hasrun != SUCCESS: # TODO for now, do no keep running in parallel  and not Options.options.keep:
 				m.failed = 1
 
 			m.out.put(tsk)
@@ -264,7 +264,7 @@ class Parallel(object):
 			if tsk.may_start():
 				self.processed += 1
 				if not tsk.must_run():
-					tsk.m_hasrun = SKIPPED
+					tsk.hasrun = SKIPPED
 					self.manager.add_finished(tsk)
 					continue
 				tsk.position = (self.processed, self.total)

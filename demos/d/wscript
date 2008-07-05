@@ -47,7 +47,7 @@ def build(bld):
 	obj.features.append('cshlib')
 	obj.name = 'testlib'
 	obj.target = 'testlib'
-	obj.m_type = 'shlib'
+	obj.type = 'shlib'
 	"""
 
 	obj = bld.new_task_gen('d', 'program')

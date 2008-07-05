@@ -59,7 +59,7 @@ def tex_build(task, command='LATEX'):
 	for c in Utils.split_path(reldir):
 		if c: lst.append('..')
 	sr = os.path.join(*(lst + [srcfile]))
-	sr2 = os.path.join(*(lst + [node.m_parent.srcpath(env)]))
+	sr2 = os.path.join(*(lst + [node.parent.srcpath(env)]))
 
 	aux_node = node.change_ext('.aux')
 	idx_node = node.change_ext('.idx')
@@ -67,7 +67,7 @@ def tex_build(task, command='LATEX'):
 	hash     = ''
 	old_hash = ''
 
-	nm = aux_node.m_name
+	nm = aux_node.name
 	docuname = nm[ : len(nm) - 4 ] # 4 is the size of ".aux"
 
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
@@ -152,8 +152,8 @@ class tex_taskgen(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self, *k)
 
 		global g_texobjs
-		self.m_type = kw['type']
-		if not self.m_type in g_texobjs:
+		self.type = kw['type']
+		if not self.type in g_texobjs:
 			fatal('type %s not supported for texobj' % type)
 		self.outs = '' # example: "ps pdf"
 		self.prompt = 1  # prompt for incomplete files (else the batchmode is used)
@@ -179,11 +179,11 @@ class tex_taskgen(TaskGen.task_gen):
 			node = self.path.find_resource(filename)
 			if not node: fatal('cannot find %s' % filename)
 
-			if self.m_type == 'latex':
+			if self.type == 'latex':
 				task = self.create_task('latex')
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.dvi'))
-			elif self.m_type == 'pdflatex':
+			elif self.type == 'pdflatex':
 				task = self.create_task('pdflatex')
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.pdf'))
@@ -204,7 +204,7 @@ class tex_taskgen(TaskGen.task_gen):
 				except KeyError:
 					tree.node_deps[task.unique_id()] = deps_lst
 
-			if self.m_type == 'latex':
+			if self.type == 'latex':
 				if 'ps' in outs:
 					pstask = self.create_task('dvips')
 					pstask.set_inputs(task.outputs)
@@ -213,7 +213,7 @@ class tex_taskgen(TaskGen.task_gen):
 					pdftask = self.create_task('dvipdf')
 					pdftask.set_inputs(task.outputs)
 					pdftask.set_outputs(node.change_ext('.pdf'))
-			elif self.m_type == 'pdflatex':
+			elif self.type == 'pdflatex':
 				if 'ps' in outs:
 					pstask = self.create_task('pdf2ps')
 					pstask.set_inputs(task.outputs)

@@ -82,10 +82,10 @@ class Configure(object):
 	error_handlers = []
 	def __init__(self, env=None, blddir='', srcdir=''):
 		self.env       = None
-		self.m_envname = ''
+		self.envname = ''
 
-		self.m_blddir = blddir
-		self.m_srcdir = srcdir
+		self.blddir = blddir
+		self.srcdir = srcdir
 		self.cachedir = os.path.join(blddir, CACHE_DIR)
 
 		self.all_envs = {}
@@ -96,7 +96,7 @@ class Configure(object):
 
 		self.setenv('default')
 
-		self.m_cache_table = {}
+		self.cache_table = {}
 
 		self.lastprog = ''
 
@@ -109,14 +109,14 @@ class Configure(object):
 				pass
 			else:
 				try:
-					self.m_cache_table = cPickle.load(file)
+					self.cache_table = cPickle.load(file)
 				finally:
 					file.close()
 
 		self.hash = 0
 		self.files = []
 
-		path = os.path.join(self.m_blddir, WAF_CONFIG_LOG)
+		path = os.path.join(self.blddir, WAF_CONFIG_LOG)
 		try: os.unlink(path)
 		except (OSError, IOError): pass
 		self.log = open(path, 'wb')
@@ -132,7 +132,7 @@ class Configure(object):
 			fic = os.path.join(Options.cache_global, Options.conf_file)
 			file = open(fic, 'wb')
 			try:
-				cPickle.dump(self.m_cache_table, file)
+				cPickle.dump(self.cache_table, file)
 			finally:
 				if file: file.close()
 

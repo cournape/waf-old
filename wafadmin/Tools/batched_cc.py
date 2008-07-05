@@ -37,13 +37,13 @@ class TaskMaster(Task.Task):
 		self.set_run_after(slave)
 
 	def may_start(self):
-		for t in self.m_run_after:
-			if not t.m_hasrun: return 0
+		for t in self.run_after:
+			if not t.hasrun: return 0
 
 		for t in self.slaves:
 			self.inputs.append(t.inputs[0])
 			self.outputs.append(t.outputs[0])
-			if t.m_must_run:
+			if t.must_run:
 				self.inputs2.append(t.inputs[0])
 				self.outputs2.append(t.outputs[0])
 		return 1
@@ -54,15 +54,15 @@ class TaskMaster(Task.Task):
 		tmpoutputs = self.outputs
 		self.outputs = self.outputs2
 
-		ret = self.m_action.run(self)
+		ret = self.action.run(self)
 		env = self.env
 
-		rootdir = Build.bld.m_srcnode.abspath(env)
+		rootdir = Build.bld.srcnode.abspath(env)
 
 		# unfortunately building the files in batch mode outputs them in the current folder (the build dir)
 		# now move the files from the top of the builddir to the correct location
 		for i in self.outputs:
-			name = i.m_name
+			name = i.name
 			if name[-1] == "s": name = name[:-1] # extension for shlib is .os, remove the s
 			shutil.move(name, i.bldpath(env))
 
@@ -74,17 +74,17 @@ class TaskMaster(Task.Task):
 class TaskSlave(Task.Task):
 	def __init__(self, action_name, env, normal=1, master=None):
 		Task.Task.__init__(self, env, normal)
-		self.m_master = master
+		self.master = master
 
 	def prepare(self):
-		self.display = "* skipping "+ self.inputs[0].m_name
+		self.display = "* skipping "+ self.inputs[0].name
 
 	def update_stat(self):
-		self.m_executed=1
+		self.executed=1
 
 	def must_run(self):
-		self.m_must_run = Task.Task.must_run(self)
-		return self.m_must_run
+		self.must_run = Task.Task.must_run(self)
+		return self.must_run
 
 	def run(self):
 		return 0
@@ -97,11 +97,11 @@ def create_task_cxx_new(self, node):
 	try:
 		mm = self.mastertask
 	except AttributeError:
-		mm = TaskMaster("all_"+self.m_type_initials, self.env)
+		mm = TaskMaster("all_"+self.type_initials, self.env)
 		self.mastertask = mm
 
-	task = TaskSlave(self.m_type_initials, self.env, 40, master=mm)
-	self.m_tasks.append(task)
+	task = TaskSlave(self.type_initials, self.env, 40, master=mm)
+	self.tasks.append(task)
 	mm.add_slave(task)
 
 	task.set_inputs(node)

@@ -124,8 +124,8 @@ class d_parser(object):
 
 		self.env = env
 
-		self.m_nodes = []
-		self.m_names = []
+		self.nodes = []
+		self.names = []
 
 		self.incpaths = incpaths
 
@@ -134,12 +134,12 @@ class d_parser(object):
 		for n in self.incpaths:
 			found = n.find_resource(filename.replace('.', '/') + '.d')
 			if found:
-				self.m_nodes.append(found)
+				self.nodes.append(found)
 				self.waiting.append(found)
 				break
 		if not found:
-			if not filename in self.m_names:
-				self.m_names.append(filename)
+			if not filename in self.names:
+				self.names.append(filename)
 
 	def get_strings(self, code):
 		#self.imports = []
@@ -205,14 +205,14 @@ def scan(self):
 	gruik.start(self.inputs[0])
 
 	if Logs.verbose:
-		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.m_nodes), str(gruik.m_names)))
+		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.nodes), str(gruik.names)))
 		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
-	return (gruik.m_nodes, gruik.m_names)
+	return (gruik.nodes, gruik.names)
 
 def get_target_name(self):
 	"for d programs and libs"
 	v = self.env
-	return v['D_%s_PATTERN' % self.m_type] % self.target
+	return v['D_%s_PATTERN' % self.type] % self.target
 
 d_params = {
 'dflags': {'gdc':'', 'dmd':''},
@@ -234,10 +234,10 @@ class d_taskgen(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self, *k)
 
 		# TODO m_type is obsolete
-		if len(k)>1: self.m_type = k[1]
-		else: self.m_type = ''
-		if self.m_type:
-			self.features.append('d' + self.m_type)
+		if len(k)>1: self.type = k[1]
+		else: self.type = ''
+		if self.type:
+			self.features.append('d' + self.type)
 
 		self.dflags = {'gdc':'', 'dmd':''}
 		self.importpaths = ''
@@ -293,7 +293,7 @@ def apply_d_libs(self):
 			if added: continue # list of names modified, loop
 
 		# safe to process the current object
-		if not y.m_posted: y.post()
+		if not y.posted: y.post()
 		seen.append(x)
 
 		if 'dshlib' in y.features or 'dstaticlib' in y.features:
@@ -359,7 +359,7 @@ def apply_d_vars(self):
 		if not dflag in env['DFLAGS'][env['COMPILER_D']]:
 			env['DFLAGS'][env['COMPILER_D']] += [dflag]
 
-	d_shlib_dflags = env['D_' + self.m_type + '_DFLAGS']
+	d_shlib_dflags = env['D_' + self.type + '_DFLAGS']
 	if d_shlib_dflags:
 		for dflag in d_shlib_dflags:
 			if not dflag in env['DFLAGS'][env['COMPILER_D']]:

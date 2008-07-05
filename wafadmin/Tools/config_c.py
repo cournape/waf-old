@@ -79,7 +79,7 @@ class enumerator_base(object):
 		if Options.cache_global and not Options.options.nocache:
 			newhash = self.hash()
 			try:
-				ret = self.conf.m_cache_table[newhash]
+				ret = self.conf.cache_table[newhash]
 			except KeyError:
 				pass # go to A1 just below
 			else:
@@ -93,7 +93,7 @@ class enumerator_base(object):
 
 		if Options.cache_global:
 			newhash = self.hash()
-			self.conf.m_cache_table[newhash] = ret
+			self.conf.cache_table[newhash] = ret
 		return ret
 
 	# Override this method, not run()!
@@ -951,7 +951,7 @@ def write_config_header(self, configfile='', env=''):
 	base = lst[:-1]
 
 	if not env: env = self.env
-	base = [self.m_blddir, env.variant()]+base
+	base = [self.blddir, env.variant()]+base
 	dir = os.path.join(*base)
 	if not os.path.exists(dir):
 		os.makedirs(dir)
@@ -999,7 +999,7 @@ def run_check(self, obj):
 		raise Configure.ConfigurationError('run_check: no code to process in check')
 
 	# create a small folder for testing
-	dir = os.path.join(self.m_blddir, '.wscript-trybuild')
+	dir = os.path.join(self.blddir, '.wscript-trybuild')
 
 	# if the folder already exists, remove it
 	for (root, dirs, filenames) in os.walk(dir):
@@ -1041,7 +1041,7 @@ def run_check(self, obj):
 
 	os.chdir(dir)
 
-	bld.rescan(bld.m_srcnode)
+	bld.rescan(bld.srcnode)
 
 	o = bld.new_task_gen(tp, obj.build_type)
 	o.source   = test_f_name

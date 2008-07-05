@@ -372,11 +372,11 @@ class c_parser(object):
 		self.deps  = []
 		self.deps_paths = []
 
-		self.m_nodepaths = nodepaths or []
-		#self.m_nodepaths.append(Build.bld.m_root.find_dir('/usr/include'))
+		self.nodepaths = nodepaths or []
+		#self.nodepaths.append(Build.bld.root.find_dir('/usr/include'))
 
-		self.m_nodes = []
-		self.m_names = []
+		self.nodes = []
+		self.names = []
 
 		# file added
 		self.curfile = ''
@@ -392,15 +392,15 @@ class c_parser(object):
 	def tryfind(self, filename):
 		self.curfile = filename
 		found = None
-		for n in self.m_nodepaths:
+		for n in self.nodepaths:
 			found = n.find_resource(filename)
 			if found:
 				break
 		else:
-			if not filename in self.m_names:
-				self.m_names.append(filename)
+			if not filename in self.names:
+				self.names.append(filename)
 			return
-		self.m_nodes.append(found)
+		self.nodes.append(found)
 		if filename[-4:] != '.moc':
 			self.addlines(found.abspath(self.env))
 
@@ -429,7 +429,7 @@ class c_parser(object):
 				traceback.print_exc()
 
 	def start(self, node, env):
-		debug('preproc: scanning %s (in %s)' % (node.m_name, node.m_parent.m_name))
+		debug('preproc: scanning %s (in %s)' % (node.name, node.parent.name))
 
 		self.env = env
 		variant = node.variant(env)
