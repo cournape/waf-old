@@ -22,7 +22,6 @@ the build is launched from the top of the build dir (for example, in _build_/)
 
 import os, sys, types
 import Utils, Build
-from Logs import *
 
 UNDEFINED = 0
 DIR = 1
@@ -48,10 +47,10 @@ class Node(object):
 
 		# Node name must contain only one level
 		if Utils.split_path(name)[0] != name:
-			fatal('name forbidden '+name)
+			raise Utils.WafError('name forbidden '+name)
 
 		if parent and name in parent.childs:
-			fatal('node %s exists in the parent files %s already' % (name, str(parent)))
+			raise Utils.WafError('node %s exists in the parent files %s already' % (name, str(parent)))
 
 		if parent: parent.childs[name] = self
 
@@ -64,7 +63,7 @@ class Node(object):
 
 	def __hash__(self):
 		"expensive, make certain it is not used"
-		fatal('nodes, you are doing it wrong')
+		raise Utils.WafError('nodes, you are doing it wrong')
 
 	def get_type(self):
 		return self.id & 3
@@ -145,7 +144,7 @@ class Node(object):
 		if node:
 			tp = node.id & 3
 			if tp != BUILD:
-				fatal("find_or_declare returns a build node, not a source nor a directory"+str(lst))
+				raise Utils.WafError("find_or_declare returns a build node, not a source nor a directory"+str(lst))
 			return node
 		node = Node(name, parent, BUILD)
 		return node

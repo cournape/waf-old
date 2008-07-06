@@ -10,7 +10,7 @@ if the variable is set but it does not exist, it assumes an absolute path was gi
 
 import os, types, shutil, glob
 import Utils, Options, Build
-from Logs import error, fatal
+from Logs import error
 from Constants import *
 
 class InstallError(Utils.WafError):
@@ -24,7 +24,7 @@ def check_dir(dir):
 		try:
 			os.makedirs(dir)
 		except OSError:
-			fatal("Cannot create folder " + dir)
+			raise Utils.WafError("Cannot create folder " + dir)
 
 def do_install(src, tgt, chmod=0644):
 	"""returns true if the file was effectively installed or uninstalled, false otherwise"""
@@ -59,7 +59,7 @@ def do_install(src, tgt, chmod=0644):
 					os.stat(src)
 				except IOError:
 					error('file %s does not exist' % str(src))
-				fatal('Could not install the file %s' % str(tgt))
+				raise Utils.WafError('Could not install the file %s' % str(tgt))
 		return _do_install
 	elif Options.commands['uninstall']:
 		print "* uninstalling %s" % tgt
@@ -113,7 +113,7 @@ def install_files(var, subdir, files, env=None, chmod=0644):
 		if not os.path.isabs(filename):
 			filenode = node.find_resource(filename)
 			if filenode is None:
-				fatal("Unable to install the file `%s': not found in %s" % (filename, node))
+				raise Utils.WafError("Unable to install the file `%s': not found in %s" % (filename, node))
 
 			file     = filenode.abspath(env)
 			destfile = os.path.join(destpath, filenode.name)

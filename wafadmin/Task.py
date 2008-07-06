@@ -168,7 +168,7 @@ class TaskGroup(object):
 			tasks = self.tasks_with_inner_constraints()
 			maxj = sys.maxint
 		else:
-			fatal("unknown algorithm type %s" % (algotype))
+			raise Utils.WafError("unknown algorithm type %s" % (algotype))
 
 		if not tasks: return ()
 		if shuffle: random.shuffle(tasks)
@@ -273,7 +273,7 @@ class TaskGroup(object):
 				self.cstr_groups.__delitem__(y)
 
 		if not toreturn and remainder:
-			fatal("circular order constraint detected %r" % remainder)
+			raise Utils.WafError("circular order constraint detected %r" % remainder)
 
 		#print "returning", toreturn
 		return toreturn
