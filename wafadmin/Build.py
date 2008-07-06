@@ -38,11 +38,11 @@ class BuildError(Utils.WafError):
 		for tsk in self.tasks:
 			if tsk.hasrun == CRASHED:
 				try:
-					lst.append(" -> task failed (err #%d): %s" % (tsk.err_code, str(tsk.outputs)))
+					lst.append(" -> task failed (err #%d): %s (tsk.err_code, str(tsk.outputs))")
 				except AttributeError:
-					lst.append(" -> task failed:" % str(tsk.outputs))
+					lst.append(" -> task failed: % str(tsk.outputs)")
 			elif tsk.hasrun == MISSING:
-				lst.append(" -> missing files: %s" % str(tsk.outputs))
+				lst.append(" -> missing files: %s str(tsk.outputs)")
 		return '\n'.join(lst)
 
 class Build(object):
