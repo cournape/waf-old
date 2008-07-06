@@ -144,6 +144,30 @@ srcdir = '.'
 
 def build(bld):
 	obj = bld.new_task_gen('cxx')
+	obj.name = 'fsfgws'
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def set_options(opt):
+	pass
+""" 
+
+		self._write_wscript(wscript_contents)
+
+		self._test_configure()
+		self._test_build(False)
+
+	def test_source_not_found(self):
+		# black-box test: fails if source not found
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def build(bld):
+	obj = bld.new_task_gen('cxx')
+	obj.name = 'hh'
+	obj.source = 'fwefwe.cpp'
 
 def configure(conf):
 	conf.check_tool('g++')
