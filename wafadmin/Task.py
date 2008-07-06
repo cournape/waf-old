@@ -375,7 +375,7 @@ class TaskBase(object):
 		"called if the task must run"
 		try: fun = self.fun
 		except: return 0
-		return self.fun
+		return fun(self)
 
 	def post_run(self):
 		"update the dependency tree (node stats)"
@@ -435,7 +435,7 @@ class Task(TaskBase):
        explicit, like the input nodes or the dep_nodes
        environment variables, like the CXXFLAGS in self.env
 	"""
-
+	vars = []
 	def __init__(self, env, normal=1):
 		TaskBase.__init__(self, normal=normal)
 		self.env = env
