@@ -441,7 +441,7 @@ class Build(object):
 				# do not call node.abspath here
 				cache[node.id] = Utils.h_file(i_path + os.sep + node.name)
 			except IOError:
-				fatal("a file is readonly or has become a dir "+node.abspath())
+				raise Utils.WafError("The file %s is not readable or has become a dir" % node.abspath())
 
 		# remove both nodes and signatures
 		to_remove = node_names - listed_files

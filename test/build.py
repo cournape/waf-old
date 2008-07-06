@@ -73,7 +73,7 @@ def set_options(opt):
 		
 		# test that BuildError was raised
 		self._test_build(False)
-		
+
 	def test_white_build_fails_blddir_is_srcdir(self):
 		# white-box test: build fail if blddir == srcdir
 		bld = Build.Build()
@@ -108,6 +108,33 @@ def set_options(opt):
 """
 		self._write_wscript(my_wscript)
 		self._test_configure(False)
+
+	def test_black_rescan_fails_file_not_readable(self):
+		# black-box test: rescan fails if file is not readable
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def build(bld):
+	obj = bld.new_task_gen('cxx', 'program')
+	obj.target = 'kuku'
+	obj.find_sources_in_dirs('.')
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def set_options(opt):
+	pass
+""" 
+
+		self._write_wscript(wscript_contents)
+		self._write_source("int main() {return 0;}")
+
+		self._test_configure()
+		self._test_build()
+		os.remove(self._source_file_path)
+		os.makedirs(self._source_file_path)
+		self._test_build(False)
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
