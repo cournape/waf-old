@@ -199,14 +199,14 @@ class Build(object):
 		try:
 			dw(on=False)
 			ret = self.generator.start()
-		except KeyboardInterrupt, e:
+		except KeyboardInterrupt:
 			dw()
 			os.chdir(self.srcnode.abspath())
 			self.save()
 			Utils.pprint('RED', 'Build interrupted')
 			if Logs.verbose > 1: raise
 			else: sys.exit(68)
-		except Exception, e:
+		except Exception:
 			dw()
 			# do not store anything, for something bad happened
 			raise
@@ -268,7 +268,6 @@ class Build(object):
 			if e.errno == errno.ENOENT:
 				raise Utils.WafError('The project was not configured: run "waf configure" first!')
 			else:
-				# TODO: deal with network error and other OS errors.
 				raise
 
 		if not lst:
@@ -574,7 +573,7 @@ class Build(object):
 
 		lst = [env.get_flat(a) for a in vars_lst]
 		ret = Utils.h_list(lst)
-		if Logs.verbose: debug("envhash: %s %s" % (ret.encode('hex'), str(lst)))
+		debug("envhash: %s %s" % (ret.encode('hex'), str(lst)))
 
 		# next time
 		self.cache_sig_vars[idx] = ret
