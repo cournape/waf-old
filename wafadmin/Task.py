@@ -356,9 +356,11 @@ class TaskBase(object):
 			manager.add_task(self)
 
 	def __repr__(self):
+		"used for debugging"
 		return '\n\t{task: %s %s}' % (self.__class__.__name__, str(getattr(self, "fun", "")))
 
 	def __str__(self):
+		"string to display to the user"
 		try: self.fun
 		except AttributeError: return self.__class__.__name__ + '\n'
 		else: return 'executing: %s\n' % self.fun.__name__
