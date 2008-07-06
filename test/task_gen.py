@@ -141,7 +141,7 @@ def set_options(opt):
 	def test_validate_extension_decorator(self):
 		self.failUnlessRaises(Utils.WafError, TaskGen.extension, 1)
 
-	def test_validate_decalre_extension(self):
+	def test_validate_declare_extension(self):
 		self.failUnlessRaises(Utils.WafError, TaskGen.declare_extension, 1, None)
 
 def run_tests(verbose=1):

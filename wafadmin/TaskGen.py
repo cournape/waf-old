@@ -23,7 +23,7 @@ WARNING: subclasses must reimplement the clone method
 
 import os, types, traceback, copy
 import Build, Task, Utils, Logs, Options
-from Logs import debug, error, fatal, warn
+from Logs import debug, error, warn
 
 typos = {
 'sources':'source',
@@ -233,7 +233,7 @@ class task_gen(object):
 					else:
 						tmp.append(x)
 
-		if prec: fatal("graph has a cycle %s" % str(prec))
+		if prec: raise Utils.WafError("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
 
@@ -245,7 +245,7 @@ class task_gen(object):
 			try:
 				v = getattr(self, x)
 			except AttributeError:
-				raise AttributeError, "tried to retrieve %s which is not a valid method" % name
+				raise Utils.WafError("tried to retrieve %s which is not a valid method" % x)
 			debug('task_gen: -> %s (%d)' % (x, id(self)))
 			v()
 
