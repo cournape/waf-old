@@ -42,6 +42,7 @@ from Constants import *
 class WafError(Exception):
 	def __init__(self, message):
 		self.message = message
+		self.stack = inspect.stack()
 		Exception.__init__(self, self.message)
 	def __str__(self):
 		return self.message
@@ -130,19 +131,24 @@ if sys.platform == "win32":
 	listdir = listdir_win32
 
 def waf_version(mini = 0x010000, maxi = 0x100000):
-	"throws an exception if the waf version is wrong"
+	"Halts if the waf version is wrong"
 	ver = HEXVERSION
 	try: min_val = mini + 0
 	except TypeError: min_val = int(mini.replace('.', '0'), 16)
 
 	if min_val > ver:
-		Logs.fatal("waf version should be at least %s (%x found)" % (mini, ver))
+		halt("waf version should be at least %s (%s found)" % (mini, ver))
 
 	try: max_val = maxi + 0
 	except TypeError: max_val = int(maxi.replace('.', '0'), 16)
 
 	if max_val < ver:
-		Logs.fatal("waf version should be at most %s (%x found)" % (maxi, ver))
+		halt("waf version should be at most %s (%s found)" % (maxi, ver))
+
+def halt(message, ret_code=1):
+	Logs.error(message)
+	# if Logs.verbose: ... will be handled soon
+	sys.exit(ret_code)
 
 def python_24_guard():
 	if sys.hexversion<0x20400f0:
