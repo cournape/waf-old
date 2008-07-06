@@ -343,7 +343,6 @@ class TaskBase(object):
 
 	__metaclass__ = store_task_type
 
-	m_vars = []
 	color = "GREEN"
 	maxjobs = sys.maxint
 	classes = {}
