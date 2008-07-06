@@ -4,9 +4,8 @@
 
 "Base for c programs/libraries"
 
-import sys
 import TaskGen, Build, Utils, Task
-from Logs import debug, fatal
+from Logs import debug
 import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
 
