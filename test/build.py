@@ -74,6 +74,41 @@ def set_options(opt):
 		# test that BuildError was raised
 		self._test_build(False)
 		
+	def test_white_build_fails_blddir_is_srcdir(self):
+		# white-box test: build fail if blddir == srcdir
+		bld = Build.Build()
+		self.failUnlessRaises(Utils.WafError, bld.load_dirs, self._test_dir_root, self._test_dir_root)
+
+	def test_incorrect_version(self):
+		# white-box test: configured with old version
+		bld = Build.Build()
+		bld.blddir = os.path.join(self._test_dir_root, 'b')
+		
+		# this will create the cachedir...
+		self.failUnlessRaises(Utils.WafError, bld.load_dirs, bld.blddir, bld.blddir)
+		os.makedirs(bld.cachedir)
+		
+		# create build cache file with OLD version
+		cachefile = os.path.join(bld.cachedir, 'build.config.py')
+		file = open(cachefile, 'w')
+		file.writelines("version = 0.0")
+		file.close()
+		
+		self.failUnlessRaises(Utils.WafError, bld.load)
+
+	def test_black_build_fails_blddir_is_srcdir(self):
+		# black-box test: build fail if blddir == srcdir
+		my_wscript = """
+blddir = srcdir = '.'
+def configure(conf):
+	pass
+
+def set_options(opt):
+	pass
+"""
+		self._write_wscript(my_wscript)
+		self._test_configure(False)
+
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 

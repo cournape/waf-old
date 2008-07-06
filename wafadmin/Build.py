@@ -119,7 +119,7 @@ class Build(object):
 				g = m.group
 				if g(2) == 'version':
 					if eval(g(3)) < HEXVERSION:
-						fatal('Version mismatch! reconfigure the project')
+						raise Utils.WafError('Version mismatch! reconfigure the project')
 				elif g(2) == 'tools':
 					lst = eval(g(3))
 					for t in lst:
@@ -342,7 +342,7 @@ class Build(object):
 		self.cachedir = os.path.join(blddir, CACHE_DIR)
 
 		if srcdir == blddir:
-			fatal("build dir must be different from srcdir: %s <-> %s " % (srcdir, blddir))
+			raise Utils.WafError("build dir must be different from srcdir: %s <-> %s " % (srcdir, blddir))
 
 		self.bdir = blddir
 
