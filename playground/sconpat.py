@@ -4,7 +4,6 @@
 
 from hashlib import md5
 import Utils, Configure, Action, Task, Params
-from Params import error, fatal
 
 class sconpat_error(Exception):
 	pass

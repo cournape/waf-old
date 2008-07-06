@@ -6,7 +6,7 @@
 
 import os, string
 import Action, Object, Params, Runner, Utils
-from Params import debug, fatal
+from Params import debug
 
 # first, we define an action to build something
 fop_vardeps = ['FOP']
@@ -51,7 +51,7 @@ def docb_file(obj, node):
 	# Input format is XML
 	if ext == '.xml':
 		if not obj.env['XSLTPROC']:
-			fatal("Can not process %s: no xml processor detected." % node.m_name)
+			raise Utils.WafError("Can not process %s: no xml processor detected." % node.m_name)
 	if ext == '.xml' and obj.get_type() == 'pdf':
 		debug("building pdf")
 		xslttask = obj.create_task('xslt', obj.env, 4)
@@ -59,7 +59,7 @@ def docb_file(obj, node):
 		xslttask.m_inputs  = [fi(node.m_name)]
 		xslttask.m_outputs = [fi(base+'.fo')]
 		if not obj.stylesheet:
-			fatal('No stylesheet specified for creating pdf.')
+			raise Utils.WafError('No stylesheet specified for creating pdf.')
 
 		xslttask.m_env['XSLT_SHEET'] = obj.stylesheet
 
@@ -75,13 +75,13 @@ def docb_file(obj, node):
 		xslttask.m_inputs  = [fi(node.m_name)]
 		xslttask.m_outputs = [fi(base+'.html')]
 		if not obj.stylesheet:
-			fatal('No stylesheet specified for creating html.')
+			raise Utils.WafError('No stylesheet specified for creating html.')
 		xslttask.m_env['XSLT_SHEET'] = obj.stylesheet
 
 	# Input format is docbook.
 	if ext == '.sgml' or ext == '.docbook':
 		if not obj.env["DB2%s" % string.upper(obj.get_type()) ]:
-			fatal("Can not process %s: no suitable docbook processor detected." %  node.m_name )
+			raise Utils.WafError("Can not process %s: no suitable docbook processor detected." %  node.m_name )
 	if ext == '.sgml' or ext == '.docbook':
 		debug("building %s" % obj.get_type())
 
@@ -93,7 +93,7 @@ def docb_file(obj, node):
 
 	if ext == '.xml':
 		if obj.get_type() == 'txt' or obj.get_type() == 'ps':
-			fatal("docbook: while processing '%s':\n"
+			raise Utils.WafError("docbook: while processing '%s':\n"
 			      'txt and ps output are currently not supported when input format is XML.' % node.m_name )
 
 # docbook objects
@@ -115,7 +115,7 @@ class docbookobj(Object.genobj):
 		for filename in lst:
 			node = self.path.find_source(filename)
 			if not node:
-				fatal("source not found: "+filename+" in "+str(self.path))
+				raise Utils.WafError("source not found: "+filename+" in "+str(self.path))
 
 			# create a task to process the source file.
 			docb_file(self, node)

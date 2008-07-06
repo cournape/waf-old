@@ -11,7 +11,6 @@ WARNING: You are using the swig tool!
 
 import re
 import Action, Scan, Params, Object
-from Params import fatal
 
 swig_str = '${SWIG} ${SWIGFLAGS} -o ${TGT[0].bldpath(env)} ${SRC}'
 

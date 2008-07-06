@@ -6,13 +6,12 @@
 
 import imp
 import Utils
-from Params import fatal
 
 try:
 	from xml.sax import make_parser
 	from xml.sax.handler import ContentHandler
 except:
-	fatal('wscript_xml requires the Python xml modules (sax)!')
+	raise Utils.WafError('wscript_xml requires the Python xml modules (sax)!')
 
 def compile(file_path):
 	parser = make_parser()
@@ -24,9 +23,6 @@ def compile(file_path):
 
 	res = "".join(curHandler.doc)
 	module = imp.new_module('wscript')
-
-	#print res
-	#fatal('stop now')
 
 	exec res in module.__dict__
 

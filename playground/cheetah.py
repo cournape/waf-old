@@ -4,7 +4,7 @@
 
 import sys, os, os.path
 from TaskGen import taskgen, extension
-import Task
+import Task, Utils
 
 def cheetah_build(task):
 	from Cheetah.Template import Template
@@ -40,7 +40,7 @@ def cheetah_hook(self, node):
 	task = self.create_task('cheetah', self.env)
 	task.set_inputs(node)
 	task.set_outputs(node.change_ext(''))
-	task.cheetah_namespace = getattr(self, 'namespace', '') or Params.fatal('the cheetah transformation require an attribute "namespace"')
+	task.cheetah_namespace = getattr(self, 'namespace', '') or raise Utils.WafError('the cheetah transformation require an attribute "namespace"')
 
 def detect(conf):
 	try:

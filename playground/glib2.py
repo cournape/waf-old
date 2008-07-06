@@ -4,8 +4,7 @@
 
 "GLib2 support"
 
-import Object, Action, Params
-from Params import fatal
+import Object, Action, Params, Utils
 from Object import taskgen, before, after, feature
 
 #
@@ -26,7 +25,7 @@ def process_marshal(self):
 		node = self.path.find_source(filename)
 
 		if not node:
-			fatal('file not found ' + filename)
+			raise Utils.WafError('file not found ' + filename)
 
 		# Generate the header
 		header_env = self.env.copy()
@@ -100,14 +99,14 @@ def process_enums(self):
 		# process the source
 		source_list = self.to_list(enum['source'])
 		if not source_list:
-			fatal('missing source ' + str(enum))
+			raise Utils.WafError('missing source ' + str(enum))
 		source_list = [self.path.find_source(k) for k in source_list]
 		inputs += source_list
 		env['GLIB_MKENUMS_SOURCE'] = [k.abspath(env) for k in source_list]
 
 		# find the target
 		if not enum['target']:
-			fatal('missing target ' + str(enum))
+			raise Utils.WafError('missing target ' + str(enum))
 		tgt_node = self.path.find_build(enum['target'], create=True)
 		if tgt_node.m_name.endswith('.c'):
 			self.allnodes.append(tgt_node)
