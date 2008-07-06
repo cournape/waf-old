@@ -188,8 +188,8 @@ class task_gen(object):
 			x = self.get_hook(filename[k:])
 
 			if not x:
-				raise TypeError, "Do not know how to process %s in %s, mappings are %s" % \
-					(str(node), str(self.__class__), str(self.__class__.mappings))
+				raise Utils.WafError( "Do not know how to process %s in %s, mappings are %s" % \
+					(str(node), str(self.__class__), str(self.__class__.mappings)))
 			x(self, node)
 
 	def apply(self):

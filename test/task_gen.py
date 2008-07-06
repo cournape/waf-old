@@ -10,11 +10,11 @@ import os, unittest, shutil, tempfile
 import common_test
 
 from Constants import *
-import Options
-import Utils
-import Scripting
 import Build
-import Configure
+import Options
+import Environment
+import TaskGen
+import Utils
 
 class TaskGenTester(common_test.CommonTester):
 	def __init__(self, methodName):
@@ -47,7 +47,7 @@ class TaskGenTester(common_test.CommonTester):
 		finally:
 			wscript_file.close()
 
-	def test_no_sources_specified(self):
+	def test_black_no_sources_specified(self):
 		# black-box test: fails if source not specified
 		wscript_contents = """
 blddir = 'build'
@@ -68,6 +68,18 @@ def set_options(opt):
 
 		self._test_configure()
 		self._test_build(False)
+
+	def test_white_no_sources_specified(self):
+		# white-box test: no sources were specified
+		Options.commands['configure'] = False
+		env = Environment.Environment()		
+		bld = Build.bld = Build.Build()
+		bld.set_env('default', env)
+		blddir = os.path.join(self._test_dir_root, 'b')
+		bld.load_dirs(self._test_dir_root, blddir)
+		
+		obj = TaskGen.task_gen()
+		self.failUnlessRaises(Utils.WafError, obj.apply_core)
 
 	def test_source_not_found(self):
 		# black-box test: fails if source not found
@@ -91,6 +103,19 @@ def set_options(opt):
 
 		self._test_configure()
 		self._test_build(False)
+
+	def test_missing_mapping(self):
+		Options.commands['configure'] = False
+		env = Environment.Environment()		
+		bld = Build.bld = Build.Build()
+		bld.set_env('default', env)
+		blddir = os.path.join(self._test_dir_root, 'b')
+		bld.load_dirs(self._test_dir_root, blddir)
+		
+		obj = TaskGen.task_gen()
+		obj.source = self._source_file_path
+		self._write_source("int main() {return 0;}")
+		self.failUnlessRaises(Utils.WafError, obj.apply_core)
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False

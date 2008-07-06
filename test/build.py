@@ -10,11 +10,8 @@ import os, unittest, shutil, tempfile
 import common_test
 
 from Constants import *
-import Options
 import Utils
-import Scripting
 import Build
-import Configure
 
 class BuildTester(common_test.CommonTester):
 	def __init__(self, methodName):
