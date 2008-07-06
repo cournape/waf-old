@@ -364,7 +364,7 @@ def declare_extension(var, func):
 		for x in var:
 			task_gen.mappings[x] = func
 	except:
-		raise TypeError('declare extension takes either a list or a string %s' % str(var))
+		raise Utils.WscriptError('declare extension takes either a list or a string %s' % str(var))
 	task_gen.mapped[func.__name__] = func
 
 def declare_order(*k):
@@ -410,7 +410,8 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 				for i in xrange(reentrant):
 					self.allnodes.append(out_source[i])
 		else:
-			fatal("do not know how to process %s" % str(ext))
+			# XXX: useless: it will fail on Utils.to_list above...
+			raise Utils.WafError("do not know how to process %s" % str(ext))
 
 		tsk = self.create_task(name)
 		tsk.set_inputs(node)
@@ -478,7 +479,7 @@ def extension(var):
 	elif type(var) is types.StringType:
 		var = [var]
 	else:
-		raise TypeError('declare extension takes either a list or a string %s' % str(var))
+		raise Utils.WafError('declare extension takes either a list or a string %s' % str(var))
 
 	def deco(func):
 		for x in var:

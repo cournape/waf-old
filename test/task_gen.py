@@ -115,7 +115,6 @@ def set_options(opt):
 	def test_missing_mapping(self):
 		# no mapping for extension
 		self.make_bld()
-		
 		obj = TaskGen.task_gen()
 		obj.source = self._source_file_path
 		self._write_source("int main() {return 0;}")
@@ -124,23 +123,26 @@ def set_options(opt):
 	def test_validate_find_srcs_excs(self):
 		# find sources in dirs 'excludes' must be a list
 		self.make_bld()
-		
 		obj = TaskGen.task_gen()
 		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, 'a', 'excludes=b')
 
 	def test_validate_find_srcs_exts(self):
 		# find sources in dirs 'exts' must be a list
 		self.make_bld()
-		
 		obj = TaskGen.task_gen()
 		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, 'a', 'exts=b')
 
 	def test_validate_find_srcs_absolute(self):
 		# find sources in dirs cannot get absoulte paths
 		self.make_bld()
-		
 		obj = TaskGen.task_gen()
 		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, self._test_dir_root)
+
+	def test_validate_extension_decorator(self):
+		self.failUnlessRaises(Utils.WafError, TaskGen.extension, 1)
+
+	def test_validate_decalre_extension(self):
+		self.failUnlessRaises(Utils.WafError, TaskGen.declare_extension, 1, None)
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
