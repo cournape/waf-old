@@ -78,10 +78,6 @@ class Serial(object):
 		(_, self.outstanding) = self.manager.get_next_set()
 		if not self.outstanding: return None
 
-		if Logs.verbose:
-			debug('runner: Preparing to run tasks: [\n%s\n\t]' %
-			      (',\n'.join(["\t#%s: %s" % (tsk.hex_id(), repr(tsk).strip())
-					       for tsk in self.outstanding])))
 		return self.get_next()
 
 	def postpone(self, tsk):
@@ -102,7 +98,7 @@ class Serial(object):
 			if Logs.verbose: debug('runner: retrieving %r' % tsk)
 
 			if not tsk.may_start():
-				debug('runner: postponing #%s' % tsk.hex_id())
+				debug('runner: postponing %r' % tsk)
 				self.postpone(tsk)
 				#tsk = None
 				continue

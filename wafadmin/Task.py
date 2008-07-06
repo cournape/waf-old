@@ -383,15 +383,6 @@ class TaskBase(object):
 		"update the dependency tree (node stats)"
 		pass
 
-	def unique_id(self):
-		"identify an task in a unique manner, used for caching data, it must be unique)"
-		# TODO, mixing debugging ids with persistence is not a good idea, unique_id and hex_id should go out
-		return str(id(self))
-
-	def hex_id(self):
-		"used for debugging"
-		return self.unique_id().encode('hex')
-
 	def display(self):
 		"print either the description (using __str__) or the progress bar or the ide output"
 		col1 = Logs.colors(self.color)
@@ -554,7 +545,7 @@ class Task(TaskBase):
 			try:
 				time = tree.node_sigs[variant][node.id]
 			except KeyError:
-				debug("task: task #%s must run as the first node does not exist" % self.hex_id())
+				debug("task: task %r must run as the first node does not exist" % self)
 				time = None
 				break
 		# if one of the nodes does not exist, try to retrieve them from the cache
@@ -572,7 +563,7 @@ class Task(TaskBase):
 		try:
 			prev_sig = tree.task_sigs[key][0]
 		except KeyError:
-			debug("task: task #%s must run as it was never run before or the task code changed" % self.hex_id())
+			debug("task: task %r must run as it was never run before or the task code changed" % self)
 			return 1
 
 		#print "prev_sig is ", prev_sig
