@@ -103,19 +103,44 @@ def set_options(opt):
 
 		self._test_configure()
 		self._test_build(False)
-
-	def test_missing_mapping(self):
+		
+	def make_bld(self):
 		Options.commands['configure'] = False
 		env = Environment.Environment()		
 		bld = Build.bld = Build.Build()
 		bld.set_env('default', env)
 		blddir = os.path.join(self._test_dir_root, 'b')
 		bld.load_dirs(self._test_dir_root, blddir)
+
+	def test_missing_mapping(self):
+		# no mapping for extension
+		self.make_bld()
 		
 		obj = TaskGen.task_gen()
 		obj.source = self._source_file_path
 		self._write_source("int main() {return 0;}")
 		self.failUnlessRaises(Utils.WafError, obj.apply_core)
+
+	def test_validate_find_srcs_excs(self):
+		# find sources in dirs 'excludes' must be a list
+		self.make_bld()
+		
+		obj = TaskGen.task_gen()
+		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, 'a', 'excludes=b')
+
+	def test_validate_find_srcs_exts(self):
+		# find sources in dirs 'exts' must be a list
+		self.make_bld()
+		
+		obj = TaskGen.task_gen()
+		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, 'a', 'exts=b')
+
+	def test_validate_find_srcs_absolute(self):
+		# find sources in dirs cannot get absoulte paths
+		self.make_bld()
+		
+		obj = TaskGen.task_gen()
+		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, self._test_dir_root)
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False

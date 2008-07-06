@@ -283,9 +283,9 @@ class task_gen(object):
 		"Directories should be given either as a string separated by spaces, or as a list."
 		not_a_list = lambda x: x and type(x) is not types.ListType
 		if not_a_list(excludes):
-			fatal(err_msg % 'excludes')
+			raise Utils.WscriptError(err_msg % 'excludes')
 		if not_a_list(exts):
-			fatal(err_msg % 'exts')
+			raise Utils.WscriptError(err_msg % 'exts')
 
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
@@ -299,7 +299,7 @@ class task_gen(object):
 			# * don't use absolute path.
 			# * don't use paths outside the source tree.
 			if not anode or not anode.is_child_of(Build.bld.srcnode):
-				fatal("Unable to use '%s' - either because it's not a relative path" \
+				raise Utils.WscriptError("Unable to use '%s' - either because it's not a relative path" \
 					 ", or it's not child of '%s'." % (name, Build.bld.srcnode))
 
 			Build.bld.rescan(anode)
