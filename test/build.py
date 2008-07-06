@@ -24,7 +24,7 @@ class BuildTester(common_test.CommonTester):
 		# define & create temporary testing directories
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")
 		self._wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
-		self._source_file_path = os.path.join(self._test_dir_root, "test.cpp")
+		self._source_file_path = "test.cpp"
 		os.chdir(self._test_dir_root)
 
 	def tearDown(self):
@@ -55,7 +55,7 @@ srcdir = '.'
 
 def build(bld):
 	obj = bld.new_task_gen('cxx', 'program')
-	obj.source = 'test.cpp'
+	obj.source = '%s'
 	obj.target = 'kuku'
 
 def configure(conf):
@@ -63,7 +63,7 @@ def configure(conf):
 
 def set_options(opt):
 	pass
-"""
+""" % self._source_file_path
 
 		self._write_wscript(wscript_contents)
 		
@@ -136,51 +136,6 @@ def set_options(opt):
 		os.makedirs(self._source_file_path)
 		self._test_build(False)
 
-	def test_no_sources_specified(self):
-		# black-box test: fails if source not specified
-		wscript_contents = """
-blddir = 'build'
-srcdir = '.'
-
-def build(bld):
-	obj = bld.new_task_gen('cxx')
-	obj.name = 'fsfgws'
-
-def configure(conf):
-	conf.check_tool('g++')
-
-def set_options(opt):
-	pass
-""" 
-
-		self._write_wscript(wscript_contents)
-
-		self._test_configure()
-		self._test_build(False)
-
-	def test_source_not_found(self):
-		# black-box test: fails if source not found
-		wscript_contents = """
-blddir = 'build'
-srcdir = '.'
-
-def build(bld):
-	obj = bld.new_task_gen('cxx')
-	obj.name = 'hh'
-	obj.source = 'fwefwe.cpp'
-
-def configure(conf):
-	conf.check_tool('g++')
-
-def set_options(opt):
-	pass
-""" 
-
-		self._write_wscript(wscript_contents)
-
-		self._test_configure()
-		self._test_build(False)
-
 	def test_target_not_found(self):
 		# black-box test: fails if target not found
 		wscript_contents = """
@@ -190,7 +145,7 @@ srcdir = '.'
 def build(bld):
 	obj = bld.new_task_gen('cxx')
 	obj.name = 'hh'
-	obj.source = 'test.cpp'
+	obj.source = '%s'
 	obj.uselib_local = 'ff'
 
 def configure(conf):
@@ -198,7 +153,7 @@ def configure(conf):
 
 def set_options(opt):
 	pass
-""" 
+"""  % self._source_file_path
 
 		self._write_wscript(wscript_contents)
 		self._write_source("int main() {return 0;}")

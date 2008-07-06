@@ -37,6 +37,7 @@ def run_tests():
 	import scripting
 	import build
 	import options
+	import task_gen
 
 	if Options.options:
 		verbose = Options.options.verbose
@@ -44,7 +45,7 @@ def run_tests():
 		verbose = 1
 
 	tests_modules = [configure_test, build_dir, cxx_test, gcc_test, 
-					wscript_errors_test, scripting, build, options]
+					wscript_errors_test, scripting, build, options, task_gen]
 	
 	for mod in tests_modules:
 		info("******** %s ********" % mod.__name__)
