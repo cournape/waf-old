@@ -23,7 +23,7 @@ import Build
 # The following string is a wscript for tests.
 # Note the embedded string that changed by more_config
 wscript_contents = """
-import Logs
+import Utils
 blddir = 'build'
 srcdir = '.'
 
@@ -138,7 +138,7 @@ class CcConfigureTester(ConfigureTester):
 		# black-box test: valid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('-Werror'):
-		Logs.fatal("invalid flag")
+		Utils.halt("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure()
@@ -147,7 +147,7 @@ class CcConfigureTester(ConfigureTester):
 		# black-box test: invalid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('KUKU'):
-		Logs.fatal("invalid flag")
+		Utils.halt("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure(False)
@@ -162,7 +162,7 @@ class CxxConfigureTester(ConfigureTester):
 		# black-box test: valid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('-Werror', kind='cxx'):
-		Logs.fatal("invalid flag")
+		Utils.halt("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure()
@@ -171,7 +171,7 @@ class CxxConfigureTester(ConfigureTester):
 		# black-box test: invalid flag
 		self._populate_dictionary("""conf.check_tool('checks')
 	if not conf.check_flags('KUKU', kind='cxx'):
-		Logs.fatal("invalid flag")
+		Utils.halt("invalid flag")
 		""")
 		self._write_files()
 		self._test_configure(False)

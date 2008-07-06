@@ -6,7 +6,7 @@
 
 import os, sys, re
 import TaskGen, Utils, preproc, Logs, Build, Options
-from Logs import error, debug, fatal, warn
+from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
 from Constants import *
@@ -123,9 +123,9 @@ def get_target_name(self):
 def apply_verif(self):
 	if not 'objects' in self.features:
 		if not self.source:
-			fatal('no source files specified for %s' % self)
+			raise Utils.WafError('no source files specified for %s' % self)
 		if not self.target:
-			fatal('no target for %s' % self)
+			raise Utils.WafError('no target for %s' % self)
 
 def install_shlib(task):
 	nums = task.vnum.split('.')
@@ -278,7 +278,7 @@ def apply_lib_vars(self):
 		# object does not exist ?
 		y = Build.bld.name_to_obj(x)
 		if not y:
-			fatal("object '%s' was not found in uselib_local (required by '%s')" % (x, self.name))
+			raise Utils.WafError("object '%s' was not found in uselib_local (required by '%s')" % (x, self.name))
 
 		# object has ancestors to process: add them to the end of the list
 		if y.uselib_local:
@@ -319,7 +319,7 @@ def apply_lib_vars(self):
 			app = self.env.append_unique
 			for x in self.to_list(y.export_incdirs):
 				node = y.path.find_dir(x)
-				if not node: fatal('object %s: invalid folder %s in export_incdirs' % (y.target, x))
+				if not node: raise Utils.WafError('object %s: invalid folder %s in export_incdirs' % (y.target, x))
 				if not node in self.env['INC_PATHS']: self.env['INC_PATHS'].append(node)
 
 	# 2. the case of the libs defined outside

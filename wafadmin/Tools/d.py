@@ -279,7 +279,7 @@ def apply_d_libs(self):
 		# object does not exist ?
 		y = TaskGen.name_to_obj(x)
 		if not y:
-			fatal('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
+			raise Utils.WafError('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
 
 		# object has ancestors to process first ? update the list of names
 		if y.uselib_local:
@@ -464,7 +464,7 @@ def process_header(self):
 		node = self.path.find_resource(i[0])
 
 		if not node:
-			fatal('file not found on d obj '+i[0])
+			raise Utils.WafError('file not found on d obj '+i[0])
 
 		task = self.create_task('d_header')
 		task.set_inputs(node)

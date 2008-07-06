@@ -7,7 +7,7 @@
 import os, re
 import TaskGen, Task, Utils, Runner, Options, Build
 import cc
-from Logs import fatal, error
+from Logs import error
 
 # intltool
 class intltool_in_taskgen(TaskGen.task_gen):
@@ -89,12 +89,12 @@ def detect(conf):
 
 	pocom = conf.find_program('msgfmt')
 	#if not pocom:
-	#	fatal('The program msgfmt (gettext) is mandatory!')
+	#	conf.fatal('The program msgfmt (gettext) is mandatory!')
 	conf.env['POCOM'] = pocom
 
 	intltool = conf.find_program('intltool-merge')
 	#if not intltool:
-	#	fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
+	#	conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 	conf.env['INTLTOOL'] = intltool
 
 	def getstr(varname):

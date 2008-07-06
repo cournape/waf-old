@@ -44,9 +44,9 @@ TODO:
 
 """
 
-import os, os.path, glob, types, re, sys
-import Configure, config_c, Options
-from Logs import fatal, warn
+import os.path, glob, types, re, sys
+import Configure, config_c, Options, Utils
+from Logs import warn
 from Configure import conf
 
 class boost_configurator(config_c.configurator_base):
@@ -140,7 +140,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		find_includes checks every path in self.include_path for subdir
 		that either starts with boost- or is named boost.
 
-		Than the version is checked and selected accordingly to
+		Then the version is checked and selected accordingly to
 		min_version/max_version. The highest possible version number is
 		selected!
 
@@ -181,7 +181,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 					version = ret
 
 		if version == 0 or len(boost_path) == 0:
-			fatal('boost headers not found! (required version min: %s max: %s)'
+			conf.fatal('boost headers not found! (required version min: %s max: %s)'
 				  % (self.min_version, self.max_version))
 			return 0
 
@@ -286,7 +286,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 			self.conf.env['LIBPATH_BOOST_' + lib.upper()] = os.path.split(file)[0]
 			self.conf.env[st_env_prefix + '_BOOST_' + lib.upper()] = 'boost_'+libname
 			return
-		fatal('lib boost_' + lib + ' not found!')
+		conf.fatal('lib boost_' + lib + ' not found!')
 
 	def find_libraries(self):
 		libs_to_find = self.lib

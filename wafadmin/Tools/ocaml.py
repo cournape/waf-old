@@ -6,7 +6,7 @@
 
 import os, re
 import TaskGen, Utils, Task, Build
-from Logs import error, fatal
+from Logs import error
 from TaskGen import taskgen, feature, before, after, extension
 
 EXT_MLL = ['.mll']
@@ -312,7 +312,7 @@ def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
 	occ = conf.find_program('ocamlc', var='OCAMLC')
 	if (not opt) or (not occ):
-		fatal('The objective caml compiler was not found:\ninstall it or make it available in your PATH')
+		conf.fatal('The objective caml compiler was not found:\ninstall it or make it available in your PATH')
 
 	conf.env['OCAMLC']       = occ
 	conf.env['OCAMLOPT']     = opt

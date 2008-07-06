@@ -7,7 +7,7 @@
 
 import os, sys
 import TaskGen, Utils, Utils, Runner, Options, Build
-from Logs import debug, warn, fatal
+from Logs import debug, warn
 from TaskGen import extension, taskgen, before, after, feature
 from Configure import conf
 import pproc as subprocess
@@ -66,7 +66,7 @@ class py_taskgen(TaskGen.task_gen):
 			else:
 				node = self.path.find_or_declare(filename)
 				if node is None:
-					fatal("Cannot install file %s: not found in %s"
+					raise Utils.WafError("Cannot install file %s: not found in %s"
 						     % (filename, self.path))
 				else:
 					files_to_install.append(node.abspath(self.env))
@@ -103,7 +103,7 @@ for pyfile in sys.argv[1:]:
 				argv.extend(installed_files)
 				retval = subprocess.Popen(argv).wait()
 				if retval:
-					fatal("bytecode compilation failed")
+					raise Utils.WafError("bytecode compilation failed")
 
 
 			if self.env['PYO']:
@@ -116,7 +116,7 @@ for pyfile in sys.argv[1:]:
 				argv.extend(installed_files)
 				retval = subprocess.Popen(argv).wait()
 				if retval:
-					fatal("bytecode compilation failed")
+					raise Utils.WafError("bytecode compilation failed")
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""

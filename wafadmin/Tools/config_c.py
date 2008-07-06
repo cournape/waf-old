@@ -17,7 +17,7 @@ The functions preceded by "@conf" are attached in the same manner
 import os, types, imp, cPickle, sys, shlex, warnings
 from Utils import md5
 import Build, Utils, Configure, Task, Options
-from Logs import fatal, warn, debug
+from Logs import warn, debug
 from Constants import *
 from Configure import conf, conftest
 
@@ -49,7 +49,7 @@ class enumerator_base(object):
 	def error(self):
 		if not self.message:
 			Logs.warn('No message provided')
-		fatal(self.message)
+		self.conf.fatal(self.message)
 
 	def hash(self):
 		m = md5()
@@ -117,7 +117,7 @@ class program_enumerator(enumerator_base):
 	def error(self):
 		errmsg = 'program %s cannot be found' % self.name
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def run_cache(self, retval):
 		self.conf.check_message('program %s (cached)' % self.name, '', retval, option=retval)
@@ -148,7 +148,7 @@ class function_enumerator(enumerator_base):
 	def error(self):
 		errmsg = 'function %s cannot be found' % self.function
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def validate(self):
 		if not self.define:
@@ -209,7 +209,7 @@ class library_enumerator(enumerator_base):
 	def error(self):
 		errmsg = 'library %s cannot be found' % self.name
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def run_cache(self, retval):
 		if self.want_message:
@@ -257,7 +257,7 @@ class header_enumerator(enumerator_base):
 	def error(self):
 		errmsg = 'cannot find %s in %s' % (self.name, str(self.path))
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def run_cache(self, retval):
 		if self.want_message:
@@ -292,7 +292,7 @@ class cfgtool_configurator(configurator_base):
 	def error(self):
 		errmsg = '%s cannot be found' % self.binary
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def validate(self):
 		if not self.binary:
@@ -374,7 +374,7 @@ class pkgconfig_configurator(configurator_base):
 		else:
 			errmsg = 'pkg-config cannot find %s' % self.name
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def validate(self):
 		if not self.uselib_store:
@@ -538,7 +538,7 @@ class test_configurator(configurator_base):
 	def error(self):
 		errmsg = 'test program would not run'
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def run_cache(self, retval):
 		if self.want_message:
@@ -585,7 +585,7 @@ class library_configurator(configurator_base):
 	def error(self):
 		errmsg = 'library %s cannot be linked' % self.name
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def run_cache(self, retval):
 		self.conf.check_message('library %s (cached)' % self.name, '', retval)
@@ -600,9 +600,9 @@ class library_configurator(configurator_base):
 			self.define = self.conf.have_define(self.uselib_store)
 
 		if not self.uselib_store:
-			fatal('uselib_store is not defined')
+			self.conf.fatal('uselib_store is not defined')
 		if not self.code:
-			fatal('library enumerator must have code to compile')
+			self.conf.fatal('library enumerator must have code to compile')
 
 	def run_test(self):
 		oldlibpath = self.env['LIBPATH']
@@ -676,7 +676,7 @@ class framework_configurator(configurator_base):
 	def error(self):
 		errmsg = 'framework %s cannot be found via compiler, try pass -F' % self.name
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def validate(self):
 		if not self.uselib_store:
@@ -749,7 +749,7 @@ class header_configurator(configurator_base):
 	def error(self):
 		errmsg = 'header %s cannot be found via compiler' % self.name
 		if self.message: errmsg += '\n%s' % self.message
-		fatal(errmsg)
+		self.conf.fatal(errmsg)
 
 	def validate(self):
 		# self.names = self.names.split()
@@ -760,7 +760,7 @@ class header_configurator(configurator_base):
 		if not self.code:
 			self.code = "#include <%s>\nint main(){return 0;}\n"
 		if not self.define:
-			fatal('no define given')
+			self.conf.fatal('no define given')
 
 	def run_cache(self, retval):
 		self.conf.check_message('header %s (cached)' % self.name, '', retval)

@@ -30,7 +30,7 @@ installation variables:
 """
 
 import re
-import Logs, Utils, Options
+import Utils, Options
 
 _options = [x.split(', ') for x in '''
 bindir, user executables, $(EXEC_PREFIX)/bin
@@ -83,7 +83,7 @@ def detect(conf):
 					complete = False
 	if not complete:
 		lst = [name for name, _, _ in _options if not env[name.upper()]]
-		Logs.fatal('Variable substitution failure %r' % lst)
+		raise Utils.WafError('Variable substitution failure %r' % lst)
 
 def set_options(opt):
 

@@ -6,7 +6,7 @@
 
 import os, re
 import Utils, TaskGen, Task, Runner, Build
-from Logs import error, warn, debug, fatal
+from Logs import error, warn, debug
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
 def scan(self):
@@ -154,7 +154,7 @@ class tex_taskgen(TaskGen.task_gen):
 		global g_texobjs
 		self.type = kw['type']
 		if not self.type in g_texobjs:
-			fatal('type %s not supported for texobj' % type)
+			raise Utils.WafError('type %s not supported for texobj' % type)
 		self.outs = '' # example: "ps pdf"
 		self.prompt = 1  # prompt for incomplete files (else the batchmode is used)
 		self.deps = ''
@@ -177,7 +177,7 @@ class tex_taskgen(TaskGen.task_gen):
 			base, ext = os.path.splitext(filename)
 
 			node = self.path.find_resource(filename)
-			if not node: fatal('cannot find %s' % filename)
+			if not node: raise Utils.WafError('cannot find %s' % filename)
 
 			if self.type == 'latex':
 				task = self.create_task('latex')
@@ -188,7 +188,7 @@ class tex_taskgen(TaskGen.task_gen):
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.pdf'))
 			else:
-				fatal('no type or invalid type given in tex object (should be latex or pdflatex)')
+				raise Utils.WafError('no type or invalid type given in tex object (should be latex or pdflatex)')
 
 			task.env = self.env
 			task.curdirnode = self.path
