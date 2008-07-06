@@ -7,7 +7,7 @@
 import os, re
 import TaskGen, Utils, Runner, Task, Build, Options, Logs
 import cc
-from Logs import fatal, error
+from Logs import error
 from TaskGen import taskgen, before, after, feature
 import Install as Common
 
@@ -207,7 +207,7 @@ def process_marshal(self):
 		node = self.path.find_resource(i[0])
 
 		if not node:
-			fatal('file not found on gnome obj '+i[0])
+			raise Utils.WafError('file not found on gnome obj '+i[0])
 
 		if i[2] == '--header':
 
@@ -246,7 +246,7 @@ def process_dbus(self):
 		node = self.path.find_resource(i[0])
 
 		if not node:
-			fatal('file not found on gnome obj '+i[0])
+			raise Utils.WafError('file not found on gnome obj '+i[0])
 
 		env['DBT_PREFIX'] = i[1]
 		env['DBT_MODE']   = i[2]
@@ -267,14 +267,14 @@ def process_enums(self):
 		# process the source
 		src_lst = self.to_list(x['source'])
 		if not src_lst:
-			Logs.fatal('missing source '+str(x))
+			raise Utils.WafError('missing source '+str(x))
 		src_lst = [self.path.find_resource(k) for k in src_lst]
 		inputs += src_lst
 		env['MK_SOURCE'] = [k.abspath(env) for k in src_lst]
 
 		# find the target
 		if not x['target']:
-			Logs.fatal('missing target '+str(x))
+			raise Utils.WafError('missing target '+str(x))
 		tgt_node = self.path.find_or_declare(x['target'])
 		if tgt_node.name.endswith('.c'):
 			self.allnodes.append(tgt_node)

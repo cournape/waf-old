@@ -12,7 +12,7 @@ import shutil, re, os, types
 
 import TaskGen, Node, Task, Utils, Build
 import pproc as subprocess
-from Logs import fatal, debug
+from Logs import debug
 
 def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
@@ -29,7 +29,7 @@ def copy_func(tsk):
 
 def action_process_file_func(tsk):
 	"Ask the function attached to the task to process it"
-	if not tsk.fun: fatal('task must have a function attached to it for copy_func to work!')
+	if not tsk.fun: raise Utils.WafError('task must have a function attached to it for copy_func to work!')
 	return tsk.fun(tsk)
 
 class cmd_taskgen(TaskGen.task_gen):
@@ -43,7 +43,7 @@ class cmd_taskgen(TaskGen.task_gen):
 
 	def apply(self):
 		# create a task
-		if not self.fun: fatal('cmdobj needs a function!')
+		if not self.fun: raise Utils.WafError('cmdobj needs a function!')
 		tsk = Task.TaskBase()
 		tsk.fun = self.fun
 		tsk.env = self.env
@@ -68,7 +68,7 @@ class copy_taskgen(TaskGen.task_gen):
 
 		for filename in lst:
 			node = self.path.find_resource(filename)
-			if not node: fatal('cannot find input file %s for processing' % filename)
+			if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
 
 			target = self.target
 			if not target or len(lst)>1: target = node.name
@@ -84,7 +84,7 @@ class copy_taskgen(TaskGen.task_gen):
 
 			if not tsk.env:
 				tsk.debug()
-				fatal('task witout an environment')
+				raise Utils.WafError('task without an environment')
 
 def subst_func(tsk):
 	"Substitutes variables in a .in file"
@@ -133,7 +133,7 @@ class subst_taskgen(TaskGen.task_gen):
 
 		for filename in lst:
 			node = self.path.find_resource(filename)
-			if not node: fatal('cannot find input file %s for processing' % filename)
+			if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
 
 			newnode = node.change_ext('')
 
@@ -151,7 +151,7 @@ class subst_taskgen(TaskGen.task_gen):
 
 			if not tsk.env:
 				tsk.debug()
-				fatal('task without an environment')
+				raise Utils.WafError('task without an environment')
 
 
 
@@ -178,7 +178,7 @@ class CmdInputFileArg(CmdFileArg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_resource(self.file_name)
 		if self.node is None:
-			fatal("Input file %s not found in " % (self.file_name, base_path))
+			raise Utils.WafError("Input file %s not found in " % (self.file_name, base_path))
 
 	def get_path(self, env, absolute):
 		if absolute:
@@ -191,7 +191,7 @@ class CmdOutputFileArg(CmdFileArg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_or_declare(self.file_name)
 		if self.node is None:
-			fatal("Output file %s not found in " % (self.file_name, base_path))
+			raise Utils.WafError("Output file %s not found in " % (self.file_name, base_path))
 	def get_path(self, env, absolute):
 		if absolute:
 			return self.template % self.node.abspath(env)
@@ -207,7 +207,7 @@ class CmdDirArg(CmdArg):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_dir(self.dir_name)
 		if self.node is None:
-			fatal("Directory %s not found in " % (self.dir_name, base_path))
+			raise Utils.WafError("Directory %s not found in " % (self.dir_name, base_path))
 
 class CmdInputDirArg(CmdDirArg):
 	def get_path(self, dummy_env, dummy_absolute):
@@ -328,7 +328,7 @@ class cmd_output_taskgen(TaskGen.task_gen):
 
 	def apply(self):
 		if self.command is None:
-			fatal("command-output missing command")
+			raise Utils.WafError("command-output missing command")
 		if self.command_is_external:
 			cmd = self.command
 			cmd_node = None
@@ -363,7 +363,7 @@ use command_is_external=True''') % (self.command,)
 			assert isinstance(self.stdout, basestring)
 			stdout = self.path.find_or_declare(self.stdout)
 			if stdout is None:
-				fatal("File %s not found" % (self.stdout,))
+				raise Utils.WafError("File %s not found" % (self.stdout,))
 			outputs.append(stdout)
 
 		if self.stdin is None:
@@ -372,25 +372,25 @@ use command_is_external=True''') % (self.command,)
 			assert isinstance(self.stdin, basestring)
 			stdin = self.path.find_resource(self.stdin)
 			if stdin is None:
-				fatal("File %s not found" % (self.stdin,))
+				raise Utils.WafError("File %s not found" % (self.stdin,))
 			inputs.append(stdin)
 
 		for hidden_input in self.to_list(self.hidden_inputs):
 			node = self.path.find_resource(hidden_input)
 			if node is None:
-				fatal("File %s not found in dir %s" % (hidden_input, self.path))
+				raise Utils.WafError("File %s not found in dir %s" % (hidden_input, self.path))
 			inputs.append(node)
 
 		for hidden_output in self.to_list(self.hidden_outputs):
 			node = self.path.find_or_declare(hidden_output)
 			if node is None:
-				fatal("File %s not found in dir %s" % (hidden_output, self.path))
+				raise Utils.WafError("File %s not found in dir %s" % (hidden_output, self.path))
 			outputs.append(node)
 
 		if not inputs:
-			fatal("command-output objects must have at least one input file")
+			raise Utils.WafError("command-output objects must have at least one input file")
 		if not outputs:
-			fatal("command-output objects must have at least one output file")
+			raise Utils.WafError("command-output objects must have at least one output file")
 
 		task = command_output(self.env, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env)
 		Utils.copy_attrs(self, task, 'before after ext_in ext_out', only_if_set=True)

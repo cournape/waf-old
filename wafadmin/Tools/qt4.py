@@ -23,7 +23,7 @@ import os, sys
 import ccroot, cxx
 import TaskGen, Task, Utils, Runner, Options, Build
 from TaskGen import taskgen, feature, after, extension
-from Logs import error, fatal
+from Logs import error
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
 EXT_RCC = ['.qrc']
@@ -103,7 +103,7 @@ class MTask(Task.Task):
 					else:
 						ext = i
 						break
-				if not ext: fatal("no header found for %s which is a moc file" % str(d))
+				if not ext: raise Utils.WafError("no header found for %s which is a moc file" % str(d))
 
 			# next time we will not search for the extension (look at the 'for' loop below)
 			h_node = node.parent.find_resource(base2+i)
@@ -495,7 +495,7 @@ def detect_qt4(conf):
 	env['QTLOCALE'] = str(env['PREFIX'])+'/share/locale'
 
 def detect(conf):
-	if sys.platform=='win32': fatal('Qt4.py will not work on win32 for now - ask the author')
+	if sys.platform=='win32': conf.fatal('Qt4.py will not work on win32 for now - ask the author')
 	detect_qt4(conf)
 
 def set_options(opt):

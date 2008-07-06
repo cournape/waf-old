@@ -6,7 +6,7 @@
 
 import os, sys, re, string, optparse
 import Utils, TaskGen, Runner, Configure, Task, Options
-from Logs import debug, error, fatal, warn
+from Logs import debug, error, warn
 from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
 
@@ -132,7 +132,7 @@ def find_lt_names_msvc(self, libname, is_static=False):
 					else:
 						return (None, olib, True)
 				else:
-					fatal('invalid libtool object file: %s' % laf)
+					raise Utils.WafError('invalid libtool object file: %s' % laf)
 	return (None, None, None)
 
 def libname_msvc(self, libname, is_static=False):
