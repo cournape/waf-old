@@ -24,6 +24,7 @@ meaning in configuration and build)
 * Node: find_build -> find_or_declare
 * Node: find_source -> find_resource
 * Node: find_resource_lst, find_or_declare_lst, ensure_dir_node_from_path_lst, find_dir_lst disappear
+* Remove m_ from all variables 
 
 NEW IN WAF 1.4.3
 ----------------
