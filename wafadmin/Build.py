@@ -14,7 +14,7 @@ There is only one Build object at a time (bld singleton)
 
 import os, sys, cPickle, types, imp, errno, re, glob, gc, time
 import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Install, Logs, Options
-from Logs import *
+from Logs import debug, error
 from Constants import *
 
 SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
@@ -613,7 +613,7 @@ class Build(object):
 				# trim target_name (handle cases when the user added spaces to targets)
 				target_name = target_name.strip()
 				targets_objects[target_name] = self.name_to_obj(target_name)
-				if all and not targets_objects[target_name]: fatal("target '%s' does not exist" % target_name)
+				if all and not targets_objects[target_name]: raise Utils.WafError("target '%s' does not exist" % target_name)
 
 			for target_obj in targets_objects.values():
 				if target_obj and not target_obj.posted:
