@@ -12,9 +12,9 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
 """
 
 import os, shutil, sys
-import TaskGen, Task, Build
+import TaskGen, Task, Build, Options
 from TaskGen import taskgen, feature, after, before
-from Logs import error, debug, fatal
+from Logs import error, debug
 
 @taskgen
 def create_task_macapp(self):
@@ -31,9 +31,11 @@ def apply_link_osx(self):
 	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
 	or use obj.mac_app = True to build specific targets as Mac apps"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
-	    self.create_task_macapp()
+		self.create_task_macapp()
 		name = self.link_task.outputs[0].name
 		if self.vnum: name = name.replace('.dylib', '.%s.dylib' % self.vnum)
+		
+		# XXX: lib is not defined 
 		path = os.path.join(self.env['PREFIX'], lib, name)
 		path = '-install_name %s' % path
 		self.env.append_value('LINKFLAGS', path)
