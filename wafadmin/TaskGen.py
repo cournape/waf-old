@@ -167,7 +167,7 @@ class task_gen(object):
 		if not lst is None:
 			# sources can be supplied either by self.source or self.allnodes
 			if len(lst) == 0 and not self.allnodes:
-				fatal("no sources were specified for '%s'" % self.name)
+				raise Utils.WafError("no sources were specified for '%s'" % self.name)
 
 		find_resource = self.path.find_resource
 

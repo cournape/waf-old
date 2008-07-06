@@ -55,15 +55,15 @@ srcdir = '.'
 
 def build(bld):
 	obj = bld.new_task_gen('cxx', 'program')
-	obj.source = '%s'
-	obj.name = 'kuku'
+	obj.source = 'test.cpp'
+	obj.target = 'kuku'
 
 def configure(conf):
 	conf.check_tool('g++')
 
 def set_options(opt):
 	pass
-""" % self._source_file_path
+"""
 
 		self._write_wscript(wscript_contents)
 		
@@ -109,7 +109,7 @@ def set_options(opt):
 		self._write_wscript(my_wscript)
 		self._test_configure(False)
 
-	def test_black_rescan_fails_file_not_readable(self):
+	def test_rescan_fails_file_not_readable(self):
 		# black-box test: rescan fails if file is not readable
 		wscript_contents = """
 blddir = 'build'
@@ -136,6 +136,27 @@ def set_options(opt):
 		os.makedirs(self._source_file_path)
 		self._test_build(False)
 
+	def test_no_sources_specified(self):
+		# black-box test: fails if source not specified
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def build(bld):
+	obj = bld.new_task_gen('cxx')
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def set_options(opt):
+	pass
+""" 
+
+		self._write_wscript(wscript_contents)
+
+		self._test_configure()
+		self._test_build(False)
+
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 
@@ -145,4 +166,4 @@ def run_tests(verbose=1):
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
 	os.chdir(os.path.pardir)
-	run_tests()
+	run_tests(2)
