@@ -13,7 +13,6 @@ import common_test
 # allow importing from wafadmin dir.
 sys.path.append(os.path.abspath(os.path.pardir))
 from Constants import *
-import Utils
 
 # The following string is a wscript for tests.
 # Note the embedded strings that changed by self._test_dic: set_env, tool, objname, build_type
@@ -145,7 +144,8 @@ class CcRootTester(common_test.CommonTester):
 			self._test_dic['tool'] = self.tool_name
 			self._test_dic['objname'] = self.object_name
 		except AttributeError:
-			Utils.halt("Testers that inherited ccroot have to define 'self.tool_name' and 'self.object_name'")
+			print "Testers that inherited ccroot have to define 'self.tool_name' and 'self.object_name'"
+			sys.exit(1)
 
 		# define & create temporary testing directories
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")

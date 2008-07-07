@@ -346,4 +346,4 @@ def run_tests(verbose=1):
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
 	os.chdir(os.path.pardir)
-	run_tests()
+	run_tests(2)

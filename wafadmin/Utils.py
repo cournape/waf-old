@@ -34,7 +34,7 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, types, string, errno, inspect
+import os, sys, imp, types, string, errno, traceback, inspect
 from UserDict import UserDict
 import Logs
 from Constants import *
@@ -42,7 +42,7 @@ from Constants import *
 class WafError(Exception):
 	def __init__(self, message):
 		self.message = message
-		self.stack = inspect.stack()
+		self.stack = traceback.extract_stack()
 		Exception.__init__(self, self.message)
 	def __str__(self):
 		return self.message
@@ -55,7 +55,7 @@ class WscriptError(WafError):
 			self.wscript_file = wscript_file
 			self.wscript_line = None
 		else:
-			(self.wscript_file, self.wscript_line) = self.inspect_wscript()
+			(self.wscript_file, self.wscript_line) = self.locate_error()
 
 		if self.wscript_file:
 			self.message += "%s:" % self.wscript_file
@@ -64,13 +64,13 @@ class WscriptError(WafError):
 		self.message += " error: %s" % message
 		WafError.__init__(self, self.message)
 
-	def inspect_wscript(self):
-		stacks = inspect.stack()
-		for stack in stacks:
-			file_name = os.path.basename(stack[1])
+	def locate_error(self):
+		stack = traceback.extract_stack()
+		for frame in stack:
+			file_name = os.path.basename(frame[0])
 			is_wscript = (file_name == WSCRIPT_FILE or file_name == WSCRIPT_BUILD_FILE)
 			if is_wscript:
-				return (stack[1], stack[2])
+				return (frame[0], frame[1])
 		return (None, None)
 
 indicator = sys.platform=='win32' and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
@@ -137,18 +137,15 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 	except TypeError: min_val = int(mini.replace('.', '0'), 16)
 
 	if min_val > ver:
-		halt("waf version should be at least %s (%s found)" % (mini, ver))
+		Logs.error("waf version should be at least %s (%s found)" % (mini, ver))
+		sys.exit(0)
 
 	try: max_val = maxi + 0
 	except TypeError: max_val = int(maxi.replace('.', '0'), 16)
 
 	if max_val < ver:
-		halt("waf version should be at most %s (%s found)" % (maxi, ver))
-
-def halt(message, ret_code=1):
-	Logs.error(message)
-	# if Logs.verbose: ... will be handled soon
-	sys.exit(ret_code)
+		Logs.error("waf version should be at most %s (%s found)" % (maxi, ver))
+		sys.exit(0)
 
 def python_24_guard():
 	if sys.hexversion<0x20400f0:
