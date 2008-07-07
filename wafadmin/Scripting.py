@@ -7,7 +7,7 @@
 import os, sys, shutil, cPickle, traceback, time
 
 import Utils, Configure, Build, Runner, Options, Logs, Options, Build, Environment
-from Logs import error, fatal, warn
+from Logs import error, warn
 from Constants import *
 
 g_gz = 'bz2'
@@ -201,8 +201,8 @@ def prepare(t, cwd, ver, wafdir):
 				break
 			cwd = cwd[:cwd.rfind(os.sep)] # climb up
 	except Exception:
-		traceback.print_stack()
-		fatal(msg1)
+		error(msg1)
+		sys.exit(0)
 
 	if not candidate:
 		# check if the user only wanted to display the help
@@ -210,9 +210,9 @@ def prepare(t, cwd, ver, wafdir):
 			warn('No wscript file found: the help message may be incomplete')
 			opt_obj = Options.Handler()
 			opt_obj.parse_args()
-			sys.exit(0)
 		else:
-			fatal(msg1)
+			error(msg1)
+		sys.exit(0)
 
 	# We have found wscript, but there is no guarantee that it is valid
 	os.chdir(candidate)
@@ -240,7 +240,8 @@ def prepare(t, cwd, ver, wafdir):
 			opt_obj.sub_options('')
 			opt_obj.parse_args()
 	except Utils.WafError, e:
-		fatal(e)
+		error(e)
+		sys.exit(0)
 
 	# use the parser results
 	if Options.commands['dist']:
@@ -266,7 +267,9 @@ def prepare(t, cwd, ver, wafdir):
 		try:
 			DistCheck(appname, version)
 		except Utils.WafError, e:
-			fatal(e)
+			error(e)
+			# returning non zero indicates that waf failed
+			sys.exit(1)
 		
 		sys.exit(0)
 
@@ -278,8 +281,9 @@ def prepare(t, cwd, ver, wafdir):
 	try:
 		main()
 	except Utils.WafError, e:
-		# TODO: use error() instead of fatal (no need to call sys.exit, it's the last line...)
-		fatal(e)
+		error(e)
+		# returning non zero indicates that waf failed
+		sys.exit(1)
 
 def main():
 	if Options.commands['configure']:

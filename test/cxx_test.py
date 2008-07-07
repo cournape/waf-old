@@ -13,7 +13,8 @@ class CxxTester(CxxFamilyTester):
 		CxxFamilyTester.__init__(self, methodName)
 
 	def test_no_tool_was_defined(self):
-		# white_box test: invalid task generator
+		# white_box test: cannot create a task gen for type without defining
+		# its tool first.
 		wscript_contents = """
 blddir = 'build'
 srcdir = '.'
@@ -39,10 +40,11 @@ blddir = 'build'
 srcdir = '.'
 
 def build(bld):
-	obj = bld.new_task_gen('cxx')
+	# no taskgen with such name...
+	obj = bld.new_task_gen('gjk.hwer.kg')
 
 def configure(conf):
-	conf.check_tool('cxx')
+	conf.check_tool('g++')
 
 def set_options(opt):
 	pass
@@ -66,4 +68,4 @@ def run_tests(verbose=1):
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
 	os.chdir(os.path.pardir)
-	run_tests()
+	run_tests(2)

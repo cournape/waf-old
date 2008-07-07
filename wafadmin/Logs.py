@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, re, logging, traceback, sys
+import os, re, logging, traceback, sys, Utils
 from Constants import *
 
 zones = ''
@@ -74,26 +74,27 @@ class formatter(logging.Formatter):
 			return '%s%s%s' % (rec.c1, rec.msg, rec.c2)
 		return logging.Formatter.format(self, rec)
 
-def fatal(msg, ret=1):
-	if verbose:
-		# TODO: temporary, till the exception-handling re-factoring is done
-		st = traceback.extract_stack()
-		if st: st = st[:-1]
-		buf = []
-		for filename, lineno, name, line in st:
-			buf.append('  File "%s", line %d, in %s' % (filename, lineno, name))
-			if line:
-				buf.append('    %s' % line.strip())
-		msg = str(msg) + "\n".join(buf)
-	logging.critical(msg)
-	sys.exit(ret)
-
 def debug(msg):
 	if verbose:
 		logging.debug(msg)
 
+def error(msg):
+	logging.error(msg)
+	if verbose:
+		if isinstance(msg, Utils.WafError):
+			st = msg.stack
+		else:
+			st = traceback.extract_stack()
+		if st:
+			st = st[:-1]
+			buf = []
+			for filename, lineno, name, line in st:
+				buf.append('  File "%s", line %d, in %s' % (filename, lineno, name))
+				if line:
+					buf.append('	%s' % line.strip())
+			if buf: logging.error("\n".join(buf))
+
 warn = logging.warn
-error = logging.error
 
 def init_log():
 	log = logging.getLogger()
