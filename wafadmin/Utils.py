@@ -66,6 +66,7 @@ class WscriptError(WafError):
 
 	def locate_error(self):
 		stack = traceback.extract_stack()
+		stack.reverse()
 		for frame in stack:
 			file_name = os.path.basename(frame[0])
 			is_wscript = (file_name == WSCRIPT_FILE or file_name == WSCRIPT_BUILD_FILE)
