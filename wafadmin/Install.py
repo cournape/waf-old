@@ -71,7 +71,6 @@ def do_install(src, tgt, chmod=0644):
 		return True
 
 def path_install(var, subdir, env=None):
-	bld = Build.bld
 	if not env: env = Build.bld.env
 	destpath = env[var]
 	if not destpath:
@@ -158,9 +157,7 @@ def symlink_as(var, src, dest, env=None):
 	if not Options.is_install: return
 	if not var: return
 
-	bld = Build.bld
 	if not env: env=Build.bld.env
-	node = bld.path
 
 	tgt = env[var]
 	if not tgt: tgt = var

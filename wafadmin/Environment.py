@@ -8,8 +8,8 @@ There is one gotcha: getitem returns [] if the contents evals to False
 This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
-import os, types, copy, re
-import Utils, Logs, Options
+import os, copy, re
+import Logs, Options
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
