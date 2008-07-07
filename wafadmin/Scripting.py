@@ -236,49 +236,39 @@ def prepare(t, cwd, ver, wafdir):
 	# fetch the custom command-line options recursively and in a procedural way
 	opt_obj = Options.Handler()
 	try:
-			# will call to main wscript's set_options()
-			opt_obj.sub_options('')
-			opt_obj.parse_args()
-	except Utils.WafError, e:
-		error(e)
-		sys.exit(0)
+		# will call to main wscript's set_options()
+		opt_obj.sub_options('')
+		opt_obj.parse_args()
 
-	# use the parser results
-	if Options.commands['dist']:
-		# try to use the user-defined dist function first, fallback to the waf scheme
-		fun = getattr(Utils.g_module, 'dist', None)
-		if fun: fun(); sys.exit(0)
-		(appname, version) = get_name_and_version()
-
-		DistTarball(appname, version)
-		sys.exit(0)
-	elif Options.commands['distclean']:
-		# try to use the user-defined distclean first, fallback to the waf scheme
-		fun = getattr(Utils.g_module, 'distclean', None)
-		if fun:	fun()
-		else:	DistClean()
-		sys.exit(0)
-	elif Options.commands['distcheck']:
-		# try to use the user-defined dist function first, fallback to the waf scheme
-		fun = getattr(Utils.g_module, 'distcheck', None)
-		if fun: fun(); sys.exit(0)
-		(appname, version) = get_name_and_version()
-
-		try:
+		# use the parser results
+		if Options.commands['dist']:
+			# try to use the user-defined dist function first, fallback to the waf scheme
+			fun = getattr(Utils.g_module, 'dist', None)
+			if fun: fun(); sys.exit(0)
+			(appname, version) = get_name_and_version()
+	
+			DistTarball(appname, version)
+			sys.exit(0)
+		elif Options.commands['distclean']:
+			# try to use the user-defined distclean first, fallback to the waf scheme
+			fun = getattr(Utils.g_module, 'distclean', None)
+			if fun:	fun()
+			else:	DistClean()
+			sys.exit(0)
+		elif Options.commands['distcheck']:
+			# try to use the user-defined dist function first, fallback to the waf scheme
+			fun = getattr(Utils.g_module, 'distcheck', None)
+			if fun: fun(); sys.exit(0)
+			(appname, version) = get_name_and_version()
+	
 			DistCheck(appname, version)
-		except Utils.WafError, e:
-			error(e)
-			# returning non zero indicates that waf failed
-			sys.exit(1)
-		
-		sys.exit(0)
+			sys.exit(0)
+	
+		fun = getattr(Utils.g_module, 'init', None)
+		if fun: fun()
+	
+		Utils.python_24_guard()
 
-	fun = getattr(Utils.g_module, 'init', None)
-	if fun: fun()
-
-	Utils.python_24_guard()
-
-	try:
 		main()
 	except Utils.WafError, e:
 		error(e)
