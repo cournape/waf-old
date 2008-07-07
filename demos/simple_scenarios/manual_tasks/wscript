@@ -24,12 +24,12 @@ import Task, Build, Environment
 class base(Task.TaskBase):
 	def may_start(self):
 		for x in getattr(self, 'run_after', ()):
-			if not x.m_hasrun:
+			if not x.hasrun:
 				return False
 		return True
 	def run(self):
 		print self.__class__.__name__ + " " + getattr(self, "id", "")
-		self.m_hasrun = 1
+		self.hasrun = 1
 
 
 class X(base):
@@ -57,7 +57,7 @@ class I(base):
 class J(base):
 	def may_start(self):
 		for x in getattr(self, 'run_if', ()):
-			if not x.m_hasrun:
+			if not x.hasrun:
 				return False
 		return True
 	def must_run(self):
