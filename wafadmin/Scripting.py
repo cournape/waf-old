@@ -4,9 +4,9 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, shutil, cPickle, traceback, time
+import os, sys, shutil, traceback, time
 
-import Utils, Configure, Build, Runner, Options, Logs, Options, Build, Environment
+import Utils, Configure, Build, Logs, Options, Environment
 from Logs import error, warn
 from Constants import *
 
