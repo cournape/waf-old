@@ -20,13 +20,14 @@ blddir = 'build'
 
 import random
 import Task, Build, Environment
+from Constants import *
 
 class base(Task.TaskBase):
-	def may_start(self):
+	def runnable_status(self):
 		for x in getattr(self, 'run_after', ()):
 			if not x.hasrun:
-				return False
-		return True
+				return ASK_LATER
+		return RUN_ME
 	def run(self):
 		print self.__class__.__name__ + " " + getattr(self, "id", "")
 		self.hasrun = 1
@@ -55,16 +56,13 @@ class I(base):
 		return self.skipped == 0
 
 class J(base):
-	def may_start(self):
+	def runnable_status(self):
 		for x in getattr(self, 'run_if', ()):
 			if not x.hasrun:
-				return False
-		return True
-	def must_run(self):
-		for x in getattr(self, 'run_if', ()):
-			if not x.skipped:
-				return True
-		return False
+				return ASK_LATER
+			elif not x.skipped:
+				return RUN_ME
+		return SKIP_ME
 
 class Persist(base):
 	after = "X Y Z I J A B"
