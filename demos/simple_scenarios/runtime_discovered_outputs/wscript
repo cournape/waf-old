@@ -49,6 +49,7 @@ import os
 import TaskGen, Task, Utils, Build
 from TaskGen import taskgen, feature, before, extension
 from logging import debug
+from Constants import *
 
 class shpip_task(Task.Task):
 	"""
@@ -62,9 +63,13 @@ class shpip_task(Task.Task):
 	def __init__(self, env, normal=1):
 		Task.Task.__init__(self, env, normal)
 
-	def must_run(self):
+	def runnable_status(self):
 		# look at the cache, if the shpip task was already run
 		# and if the source has not changed, create the corresponding cpp tasks
+		for t in self.run_after:
+			if not t.hasrun:
+				return ASK_LATER
+
 		node = self.inputs[0]
 		try:
 			sig = self.signature()
@@ -81,9 +86,9 @@ class shpip_task(Task.Task):
 				self.add_cpp_tasks(lst)
 
 		if not self.outputs:
-			return 1
+			return RUN_ME
 
-		# this is a part of Task.Task:must_run: first node does not exist -> run
+		# this is a part of Task.Task:runnable_status: first node does not exist -> run
 		# this is necessary after a clean
 		# TODO cache is disabled
 		env = self.env
@@ -94,16 +99,16 @@ class shpip_task(Task.Task):
 		try:
 			time = tree.node_sigs[variant][node.id]
 		except KeyError:
-			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
+			debug("task #%d should run as the first node does not exist" % self.idx, 'task')
 			try: new_sig = self.signature()
 			except KeyError:
 				print "TODO - computing the signature failed"
-				return 1
+				return RUN_ME
 
 			ret = self.can_retrieve_cache(new_sig)
-			return not ret
+			return ret and SKIP_ME or RUN_ME
 
-		return 0
+		return SKIP_ME
 
 	def scan_signature(self):
 		return ''
@@ -121,7 +126,7 @@ class shpip_task(Task.Task):
 			generator.total += 1
 
 			# if headers are produced something like this can be done to add the include paths
-			dir = task.inputs[0].m_parent
+			dir = task.inputs[0].parent
 			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c++
 			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c
 			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
@@ -130,7 +135,7 @@ class shpip_task(Task.Task):
 		"runs a program that creates cpp files, capture the output to compile them"
 		node = self.inputs[0]
 
-		dir = Build.bld.m_srcnode.bldpath(self.env)
+		dir = Build.bld.srcnode.bldpath(self.env)
 		cmd = 'cd %s && %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
 		try:
 			# read the contents of the file and create cpp files from it
@@ -148,7 +153,7 @@ class shpip_task(Task.Task):
 			# In this demo the command outputs is giving us this list
 
 			# the files exist in the build dir only so we do not use find_or_declare
-			build_nodes = [node.m_parent.exclusive_build_node(x) for x in lst]
+			build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
 			self.outputs = build_nodes
 
 			# create the cpp tasks
