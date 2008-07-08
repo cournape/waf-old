@@ -328,7 +328,7 @@ class store_task_type(type):
 			TaskBase.classes[name] = cls
 
 class TaskBase(object):
-	"""Base class for Waf tasks
+	"""Base class for all Waf tasks
 
 	The most important methods are (by usual order of call):
 	1 runnable_status: ask the task if it should be run, skipped, or if we have to ask later
@@ -336,7 +336,9 @@ class TaskBase(object):
 	3 run: execute the task
 	4 post_run: after the task is run, update the cache about the task
 
-	This class is an interface, yet interfaces do not exist in python yet
+	This class should be seen as an interface, it provides the very minimum necessary for the scheduler
+	so it does not do much.
+
 	For illustration purposes, TaskBase instances try to execute self.fun (if provided)
 	"""
 
