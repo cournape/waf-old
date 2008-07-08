@@ -246,7 +246,7 @@ def prepare(t, cwd, ver, wafdir):
 			fun = getattr(Utils.g_module, 'dist', None)
 			if fun: fun(); sys.exit(0)
 			(appname, version) = get_name_and_version()
-	
+
 			DistTarball(appname, version)
 			sys.exit(0)
 		elif Options.commands['distclean']:
@@ -260,13 +260,13 @@ def prepare(t, cwd, ver, wafdir):
 			fun = getattr(Utils.g_module, 'distcheck', None)
 			if fun: fun(); sys.exit(0)
 			(appname, version) = get_name_and_version()
-	
+
 			DistCheck(appname, version)
 			sys.exit(0)
-	
+
 		fun = getattr(Utils.g_module, 'init', None)
 		if fun: fun()
-	
+
 		Utils.python_24_guard()
 
 		main()
@@ -574,5 +574,5 @@ def get_name_and_version():
 	if get_version: version = get_version()
 	else: version = getattr(Utils.g_module, VERSION, None)
 	if not version: version = '1.0'
-	
+
 	return (appname, version)
