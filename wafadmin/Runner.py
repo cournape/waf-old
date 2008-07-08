@@ -119,7 +119,8 @@ class Serial(object):
 				printout(tsk.display())
 
 			# run the command
-			ret = tsk.run()
+			if tsk.__class__.stat: tsk.__class__.stat()
+			else: ret = tsk.run()
 			self.manager.add_finished(tsk)
 
 			# non-zero means something went wrong
@@ -162,7 +163,8 @@ class TaskConsumer(threading.Thread):
 
 			try:
 				printout(tsk.display())
-				ret = tsk.run()
+				if tsk.__class__.stat: tsk.__class__.stat()
+				else: ret = tsk.run()
 			except Exception:
 				exc_type, exc_value, tb = sys.exc_info()
 				traceback.print_exception(exc_type, exc_value, tb)

@@ -345,6 +345,7 @@ class TaskBase(object):
 	color = "GREEN"
 	maxjobs = sys.maxint
 	classes = {}
+	stat = None
 
 	def __init__(self, normal=1):
 		self.hasrun = 0
