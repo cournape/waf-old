@@ -419,26 +419,26 @@ class Build(object):
 				os.makedirs(sub_path)
 
 	# ======================================= #
-	def listdir_src(self, i_parent_node, i_path):
+	def listdir_src(self, parent_node, path):
 		"""
-		@param i_parent_node [Node]: parent node of path to scan.
-		@param i_path [string]: path to folder to scan."""
+		@param parent_node [Node]: parent node of path to scan.
+		@param path [string]: path to folder to scan."""
 
-		listed_files = set(Utils.listdir(i_path))
+		listed_files = set(Utils.listdir(path))
 
-		self.cache_dir_contents[i_parent_node.id] = listed_files
+		self.cache_dir_contents[parent_node.id] = listed_files
 		debug('build: folder contents '+str(listed_files))
 
-		node_names = set([x.name for x in i_parent_node.childs.values() if x.id & 3 == Node.FILE])
+		node_names = set([x.name for x in parent_node.childs.values() if x.id & 3 == Node.FILE])
 		cache = self.node_sigs[0]
 
 		# nodes to keep
 		to_keep = listed_files & node_names
 		for x in to_keep:
-			node = i_parent_node.childs[x]
+			node = parent_node.childs[x]
 			try:
 				# do not call node.abspath here
-				cache[node.id] = Utils.h_file(i_path + os.sep + node.name)
+				cache[node.id] = Utils.h_file(path + os.sep + node.name)
 			except IOError:
 				raise Utils.WafError("The file %s is not readable or has become a dir" % node.abspath())
 
@@ -448,24 +448,24 @@ class Build(object):
 			# infrequent scenario
 			cache = self.node_sigs[0]
 			for name in to_remove:
-				nd = i_parent_node.childs[name]
+				nd = parent_node.childs[name]
 				if nd.id in cache:
 					cache.__delitem__(nd.id)
-				i_parent_node.childs.__delitem__(name)
+				parent_node.childs.__delitem__(name)
 
-	def listdir_bld(self, i_parent_node, i_path, i_variant):
+	def listdir_bld(self, parent_node, path, variant):
 		"""in this function we do not add timestamps but we remove them
 		when the files no longer exist (file removed in the build dir)"""
 
-		i_existing_nodes = [x for x in i_parent_node.childs.values() if x.id & 3 == Node.BUILD]
+		i_existing_nodes = [x for x in parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
-		listed_files = set(Utils.listdir(i_path))
+		listed_files = set(Utils.listdir(path))
 		node_names = set([x.name for x in i_existing_nodes])
 		remove_names = node_names - listed_files
 
 		# remove the stamps of the build nodes that no longer exist on the filesystem
 		ids_to_remove = [x.id for x in i_existing_nodes if x.name in remove_names]
-		cache = self.node_sigs[i_variant]
+		cache = self.node_sigs[variant]
 		for nid in ids_to_remove:
 			if nid in cache:
 				cache.__delitem__(nid)
