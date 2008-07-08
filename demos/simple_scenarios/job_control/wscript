@@ -15,14 +15,14 @@ srcdir = '.'
 blddir = 'build'
 
 import time
-import Task, Options
+import Task, Options, Build, Environment
 
 
 # the following code is the useful part
 # try commenting the line that replaces get_next_set to see
 # the compilation time difference (15 secs vs 10 secs)
-
 def cmpi(a, b):
+	"simple heuristic: the longest task runs first"
 	x = getattr(a.__class__, 'duration', 0)
 	y = getattr(b.__class__, 'duration', 0)
 	return cmp(y, x)
@@ -35,8 +35,17 @@ def get_next_set(self):
 Task.TaskGroup.get_next_set = get_next_set
 
 
-# the code below is generic
+# show how to measure the task execution time
+def run_special(self):
+	t1 = time.time()
+	ret = self.run()
+	t2 = time.time()
+	self.duration = t2 - t1
+	return ret
+Task.TaskBase.stat = run_special
 
+
+# the code below is generic
 class base(Task.TaskBase):
 	def run(self):
 		print self.__class__.__name__ + " " + getattr(self, "id", "")
@@ -69,3 +78,4 @@ def configure(conf):
 
 def shutdown():
 	print "jey"
+
