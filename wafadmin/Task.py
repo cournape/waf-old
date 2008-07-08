@@ -515,10 +515,9 @@ class Task(TaskBase):
 
 	def may_start(self):
 		"wait for other tasks to complete"
-		if (not self.inputs) or (not self.outputs):
-			if not (not self.inputs) and (not self.outputs):
-				if not getattr(self.__class__, 'quiet', None):
-					error("task is invalid : no inputs or outputs (override in a Task subclass?) %r" % self)
+		if self.inputs and (not self.outputs):
+			if not getattr(self.__class__, 'quiet', None):
+				error("task is invalid : no inputs or outputs (override in a Task subclass?) %r" % self)
 
 		for t in self.run_after:
 			if not t.hasrun:
