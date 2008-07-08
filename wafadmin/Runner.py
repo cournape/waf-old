@@ -97,7 +97,7 @@ class Serial(object):
 
 			if Logs.verbose: debug('runner: retrieving %r' % tsk)
 
-			if not tsk.may_start():
+			if tsk.runnable_status() == ASK_LATER:
 				debug('runner: postponing %r' % tsk)
 				self.postpone(tsk)
 				#tsk = None
@@ -108,7 +108,7 @@ class Serial(object):
 			#debug("obj output m_sig is "+str(tsk.outputs[0].get_sig()), 'runner')
 
 			#continue
-			if not tsk.must_run():
+			if tsk.runnable_status() == SKIP_ME:
 				tsk.hasrun = SKIPPED
 				self.manager.add_finished(tsk)
 				continue
@@ -257,18 +257,18 @@ class Parallel(object):
 
 			# consider the next task
 			tsk = self.outstanding.pop(0)
-			if tsk.may_start():
+			if tsk.runnable_status() == ASK_LATER:
+				if random.randint(0,1): self.frozen.insert(0, tsk)
+				else: self.frozen.append(tsk)
+			else:
 				self.processed += 1
-				if not tsk.must_run():
+				if tsk.runnable_status() == SKIP_ME:
 					tsk.hasrun = SKIPPED
 					self.manager.add_finished(tsk)
 					continue
 				tsk.position = (self.processed, self.total)
 				self.count += 1
 				self.ready.put(tsk)
-			else:
-				if random.randint(0,1): self.frozen.insert(0, tsk)
-				else: self.frozen.append(tsk)
 		#print loop
 
 def get_instance(bld, njobs):

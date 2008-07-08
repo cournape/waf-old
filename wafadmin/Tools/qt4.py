@@ -24,6 +24,7 @@ import ccroot, cxx
 import TaskGen, Task, Utils, Runner, Options, Build
 from TaskGen import taskgen, feature, after, extension
 from Logs import error
+from Constants import *
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
 EXT_RCC = ['.qrc']
@@ -40,19 +41,19 @@ class MTask(Task.Task):
 		self.moc_done = 0
 		self.parent = parent
 
-	def may_start(self):
+	def runnable_status(self):
 		if self.moc_done:
 			# if there is a moc task, delay the computation of the file signature
 			for t in self.run_after:
 				if not t.hasrun:
-					return 0
+					return ASK_LATER
 			# the moc file enters in the dependency calculation
 			# so we need to recompute the signature when the moc file is present
 			self.signature()
-			return Task.Task.may_start(self)
+			return Task.Task.runnable_status(self)
 		else:
 			self.add_moc_tasks()
-			return 0
+			return ASK_LATER
 
 	def add_moc_tasks(self):
 

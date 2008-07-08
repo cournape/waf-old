@@ -21,7 +21,7 @@ and #3 applies to the task instances.
 #2 is held by the task groups and the task types: precedence after/before (topological sort),
    and the constraints extracted from file extensions
 #3 is held by the tasks individually (attribute run_after),
-   and the scheduler (Runner.py) use Task::may_start to reorder the tasks
+   and the scheduler (Runner.py) use Task::runnable_status to reorder the tasks
 
 --
 
@@ -331,11 +331,10 @@ class TaskBase(object):
 	"""Base class for Waf tasks
 
 	The most important methods are (by usual order of call):
-	1 may_start: ignore the task until it is ready (do not ask if it must run, we do not know yet)
-	2 must_run: ask the task if it must be run (do not run the task if it is not necessary)
-	3 __str__: string to display to the user
-	4 run: execute the task
-	5 post_run: after the task is run, update the cache about the task
+	1 runnable_status: ask the task if it should be run, skipped, or if we have to ask later
+	2 __str__: string to display to the user
+	3 run: execute the task
+	4 post_run: after the task is run, update the cache about the task
 
 	This class is an interface, yet interfaces do not exist in python yet
 	For illustration purposes, TaskBase instances try to execute self.fun (if provided)
@@ -364,13 +363,9 @@ class TaskBase(object):
 		except AttributeError: return self.__class__.__name__ + '\n'
 		else: return 'executing: %s\n' % self.fun.__name__
 
-	def may_start(self):
-		"True if the task is ready"
-		return True
-
-	def must_run(self):
-		"False if the task does not need to run"
-		return True
+	def runnable_status(self):
+		"RUN_ME SKIP_ME or ASK_LATER"
+		return RUN_ME
 
 	def run(self):
 		"called if the task must run"
@@ -513,20 +508,17 @@ class Task(TaskBase):
 		self.sign_all = ret
 		return ret
 
-	def may_start(self):
-		"wait for other tasks to complete"
+	def runnable_status(self):
+		"SKIP_ME RUN_ME or ASK_LATER"
+		#return 0 # benchmarking
+
 		if self.inputs and (not self.outputs):
 			if not getattr(self.__class__, 'quiet', None):
 				error("task is invalid : no inputs or outputs (override in a Task subclass?) %r" % self)
 
 		for t in self.run_after:
 			if not t.hasrun:
-				return 0
-		return 1
-
-	def must_run(self):
-		"see if the task must be run or not"
-		#return 0 # benchmarking
+				return ASK_LATER
 
 		env = self.env
 		tree = Build.bld
@@ -534,7 +526,7 @@ class Task(TaskBase):
 		# tasks that have no inputs or outputs are run each time
 		if not self.inputs and not self.outputs:
 			self.dep_sig = SIG_NIL
-			return 1
+			return RUN_ME
 
 		# look at the previous signature first
 		time = None
@@ -552,17 +544,17 @@ class Task(TaskBase):
 				new_sig = self.signature()
 			except KeyError:
 				debug("something is wrong, computing the task signature failed")
-				return 1
+				return RUN_ME
 
 			ret = self.can_retrieve_cache(new_sig)
-			return not ret
+			return ret and SKIP_ME or RUN_ME
 
 		key = self.unique_id()
 		try:
 			prev_sig = tree.task_sigs[key][0]
 		except KeyError:
 			debug("task: task %r must run as it was never run before or the task code changed" % self)
-			return 1
+			return RUN_ME
 
 		#print "prev_sig is ", prev_sig
 		new_sig = self.signature()
@@ -573,9 +565,9 @@ class Task(TaskBase):
 		if new_sig != prev_sig:
 			# try to retrieve the file from the cache
 			ret = self.can_retrieve_cache(new_sig)
-			return not ret
+			return ret and SKIP_ME or RUN_ME
 
-		return 0
+		return SKIP_ME
 
 	def post_run(self):
 		"called after a successful task run"

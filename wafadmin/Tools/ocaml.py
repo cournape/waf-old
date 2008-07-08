@@ -235,39 +235,39 @@ def ml_hook(self, node):
 		self.bytecode_tasks.append(task)
 
 def compile_may_start(self):
-	if getattr(self, 'flag_deps', ''): return 1
+	if not getattr(self.obj, 'flag_deps', ''):
+		self.obj.flag_deps = 1
 
-	# the evil part is that we can only compute the dependencies after the
-	# source files can be read (this means actually producing the source files)
-	if getattr(self, 'bytecode', ''): alltasks = self.obj.bytecode_tasks
-	else: alltasks = self.obj.native_tasks
+		# the evil part is that we can only compute the dependencies after the
+		# source files can be read (this means actually producing the source files)
+		if getattr(self, 'bytecode', ''): alltasks = self.obj.bytecode_tasks
+		else: alltasks = self.obj.native_tasks
 
-	self.signature() # ensure that files are scanned - unfortunately
-	tree = Build.bld
-	env = self.env
-	for node in self.inputs:
-		lst = tree.node_deps[self.unique_id()]
-		for depnode in lst:
-			for t in alltasks:
-				if t == self: continue
-				if depnode in t.inputs:
-					self.set_run_after(t)
-	self.obj.flag_deps = 'ok'
+		self.signature() # ensure that files are scanned - unfortunately
+		tree = Build.bld
+		env = self.env
+		for node in self.inputs:
+			lst = tree.node_deps[self.unique_id()]
+			for depnode in lst:
+				for t in alltasks:
+					if t == self: continue
+					if depnode in t.inputs:
+						self.set_run_after(t)
 
-	# TODO necessary to get the signature right - for now
-	delattr(self, 'sign_all')
-	self.signature()
+		# TODO necessary to get the signature right - for now
+		delattr(self, 'sign_all')
+		self.signature()
 
-	return Task.Task.may_start(self)
+	return Task.Task.runnable_status(self)
 
 b = Task.simple_task_type
 cls = b('ocamlx', '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
-cls.may_start = compile_may_start
+cls.runnable_status = compile_may_start
 cls.scan = scan
 
 b = Task.simple_task_type
 cls = b('ocaml', '${OCAMLC} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}', color='GREEN')
-cls.may_start = compile_may_start
+cls.runnable_status = compile_may_start
 cls.scan = scan
 
 
@@ -300,12 +300,12 @@ def link_may_start(self):
 				seen.append(task)
 		self.inputs = [x.outputs[0] for x in seen]
 		self.order = 1
-	return Task.Task.may_start(self)
+	return Task.Task.runnable_status(self)
 
 act = b('ocalink', '${OCAMLC} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}', color='YELLOW', after="ocaml ocamlcc")
-act.may_start = link_may_start
+act.runnable_status = link_may_start
 act = b('ocalinkx', '${OCAMLOPT} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', after="ocamlx ocamlcc")
-act.may_start = link_may_start
+act.runnable_status = link_may_start
 
 
 def detect(conf):

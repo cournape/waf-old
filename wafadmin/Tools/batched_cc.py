@@ -24,6 +24,7 @@ EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 import shutil, os
 import TaskGen, Task, ccroot, Build
 from TaskGen import extension
+from Constants import *
 
 class TaskMaster(Task.Task):
 	def __init__(self, action_name, env, normal=1, master=None):
@@ -36,9 +37,9 @@ class TaskMaster(Task.Task):
 		self.slaves.append(slave)
 		self.set_run_after(slave)
 
-	def may_start(self):
+	def runnable_status(self):
 		for t in self.run_after:
-			if not t.hasrun: return 0
+			if not t.hasrun: return ASK_LATER
 
 		for t in self.slaves:
 			self.inputs.append(t.inputs[0])
@@ -46,7 +47,7 @@ class TaskMaster(Task.Task):
 			if t.must_run:
 				self.inputs2.append(t.inputs[0])
 				self.outputs2.append(t.outputs[0])
-		return 1
+		return Task.Task.runnable_status(self)
 
 	def run(self):
 		tmpinputs = self.inputs
@@ -82,7 +83,7 @@ class TaskSlave(Task.Task):
 	def update_stat(self):
 		self.executed=1
 
-	def must_run(self):
+	def runnable_status(self):
 		self.must_run = Task.Task.must_run(self)
 		return self.must_run
 

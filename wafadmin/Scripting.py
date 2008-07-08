@@ -357,11 +357,11 @@ def main():
 	# compile
 	if Options.commands['build'] or Options.is_install:
 		# TODO quite ugly, no?
-		if not Options.commands['build'] and not Options.commands['install']:
+		if Options.commands['uninstall']:
 			import Task
-			def must_run(self):
-				return 0
-			setattr(Task.Task, 'must_run', must_run)
+			def runnable_status(self):
+				return SKIP_ME
+			setattr(Task.Task, 'runnable_status', runnable_status)
 
 		ini = time.time()
 		#"""
