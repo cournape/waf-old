@@ -456,9 +456,9 @@ class Node(object):
 
 	def srcpath(self, env=None):
 		"path in the srcdir from the build dir ../src/foo.cpp"
-		if self.id & 3 == FILE:
-			self.relpath_gen(Build.bld.bldnode)
-		return self.bldpath(env)
+		if self.id & 3 == BUILD:
+			return self.bldpath(env)
+		return self.relpath_gen(Build.bld.bldnode)
 
 	def read(self, env):
 		"get the contents of a file, it is not used anywhere for the moment"
