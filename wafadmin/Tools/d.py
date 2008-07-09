@@ -51,10 +51,12 @@ def filter_comments(filename):
 				c = txt[i]
 				if c == 'x':
 					i += 2 # skip two chars
+				elif c == 'u':
+					i += 4 # skip unicode chars
 			i += 1
 			if i == max: return buf
 			c = txt[i]
-			if c != '\'': print "uh-oh, invalid character"
+			if c != '\'': error("uh-oh, invalid character")
 
 		# skip a comment
 		elif c == '/':
