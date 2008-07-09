@@ -448,18 +448,17 @@ class Node(object):
 
 	def bldpath(self, env=None):
 		"path seen from the build dir default/src/foo.cpp"
-		x = self.parent.get_file(self.name)
-
-		if x: return self.relpath_gen(Build.bld.bldnode)
+		if self.id & 3 == FILE:
+			return self.relpath_gen(Build.bld.bldnode)
 		if self.relpath(Build.bld.srcnode) is not '':
 			return os.path.join(env.variant(), self.relpath(Build.bld.srcnode))
 		return env.variant()
 
-	def srcpath(self, env):
+	def srcpath(self, env=None):
 		"path in the srcdir from the build dir ../src/foo.cpp"
-		x = self.parent.get_build(self.name)
-		if x: return self.bldpath(env)
-		return self.relpath_gen(Build.bld.bldnode)
+		if self.id & 3 == FILE:
+			self.relpath_gen(Build.bld.bldnode)
+		return self.bldpath(env)
 
 	def read(self, env):
 		"get the contents of a file, it is not used anywhere for the moment"
