@@ -155,7 +155,7 @@ class subst_taskgen(Object.task_gen):
 
 class CommandOutputTask(Task.Task):
 
-	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd, os_env):
+	def __init__(self, env, priority, command, command_node, command_args, stdin, stdout, cwd, os_env, stderr):
 		Task.Task.__init__(self, 'command-output', env, prio=priority, normal=1)
 		assert isinstance(command, (str, Node.Node))
 		self.command = command
@@ -164,6 +164,7 @@ class CommandOutputTask(Task.Task):
 		self.stdout = stdout
 		self.cwd = cwd
 		self.os_env = os_env
+                self.stderr = stderr
 
 		if command_node is not None: self.dep_nodes = [command_node]
 		self.dep_vars = [] # additional environment variables to look
@@ -177,6 +178,7 @@ class CommandOutput(Object.task_gen):
 
 		self.stdin = None
 		self.stdout = None
+		self.stderr = None
 
 		# the command to execute
 		self.command = None
@@ -255,6 +257,11 @@ class CommandOutput(Object.task_gen):
 		else:
 			stdout = None
 
+		if task.stderr:
+			stderr = file(output_path(task.stderr, '%s'), "w")
+		else:
+			stderr = None
+
 		if task.cwd is None:
 			cwd = ('None (actually %r)' % os.getcwd())
 		else:
@@ -266,7 +273,7 @@ class CommandOutput(Object.task_gen):
 			os_env = os.environ
 		else:
 			os_env = task.os_env
-		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd, env=os_env)
+		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, stderr=stderr, cwd=task.cwd, env=os_env)
 		return command.wait()
 
 	_command_output_func = staticmethod(_command_output_func)
@@ -362,6 +369,15 @@ use command_is_external=True''') % (self.command,)
 				Params.fatal("File %s not found" % (self.stdout,))
 			outputs.append(stdout)
 
+		if self.stderr is None:
+			stderr = None
+		else:
+                        assert isinstance(self.stderr, basestring)
+			stderr = self.path.find_or_declare(self.stderr)
+			if stderr is None:
+				Params.fatal("File %s not found" % (self.stderr,))
+			outputs.append(stderr)
+
 		if self.stdin is None:
 			stdin = None
 		else:
@@ -390,7 +406,7 @@ use command_is_external=True''') % (self.command,)
 
 		task = CommandOutputTask(self.env, self.prio,
 					 cmd, cmd_node, args,
-					 stdin, stdout, cwd, self.os_env)
+					 stdin, stdout, cwd, self.os_env, stderr)
 		self.m_tasks.append(task)
 
 		task.set_inputs(inputs)
