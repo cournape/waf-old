@@ -5,19 +5,25 @@
 """
 Node: filesystem structure, contains lists of nodes
 
-Each file/folder is represented by exactly one node
-
-we do not want to add another type attribute (memory)
-rather, we will use the id to find out:
-type = id & 3
-setting: new type = type + x - type & 3
-
 IMPORTANT:
-Some would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
-In fact, unused class members increase the .wafpickle file size sensibly with lots of objects
-eg: the tstamp is used for every node, while the signature is computed only for build files
+1. Each file/folder is represented by exactly one node
 
-the build is launched from the top of the build dir (for example, in _build_/)
+2. Most would-be class properties are stored in Build: nodes to depend on, signature, flags, ..
+unused class members increase the .wafpickle file size sensibly with lots of objects
+
+3. The build is launched from the top of the build dir (for example, in _build_/)
+
+
+The public and advertised apis are the following:
+${TGT}                 -> dir/to/file.ext
+${TGT[0].base()}       -> dir/to/file
+${TGT[0].dir(env)}     -> dir/to
+${TGT[0].file()}       -> file.ext
+${TGT[0].filebase()}   -> file
+${TGT[0].suffix()}     -> .ext
+${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
+
+
 """
 
 import os, sys, types
@@ -41,6 +47,10 @@ class Node(object):
 		self.id = Build.bld.id_nodes + node_type
 
 		if node_type == DIR: self.childs = {}
+
+		# We do not want to add another type attribute (memory)
+		# use the id to find out: type = id & 3
+		# for setting: new type = type + x - type & 3
 
 		# The checks below could be disabled for speed, if necessary
 		# TODO check for . .. / \ in name
@@ -458,6 +468,28 @@ class Node(object):
 			return file.read()
 		finally:
 			if file: file.close()
+
+	def dir(self, env):
+		"scons-like"
+		return self.parent.abspath(env)
+
+	def file(self):
+		"scons-like"
+		return self.name
+
+	def filebase(self):
+		"scons-like"
+		s = self.name
+		if s.rfind('.') < 0:
+			return s
+		return s[:s.rfind('.')]
+
+	def suffix(self):
+		"scons-like"
+		s = self.name
+		if s.rfind('.') < 0:
+			return s
+		return s[s.rfind('.'):]
 
 # win32 fixes follow
 if sys.platform == "win32":
