@@ -84,13 +84,13 @@ class Node(object):
 	def dirs(self):
 		return [x for x in self.childs.values() if x.id & 3 == DIR]
 
+	def files(self):
+		return [x for x in self.childs.values() if x.id & 3 == FILE]
+
 	def get_dir(self, name, default=None):
 		node = self.childs.get(name, None)
 		if not node or node.id & 3 != DIR: return default
 		return  node
-
-	def files(self):
-		return [x for x in self.childs.values() if x.id & 3 == FILE]
 
 	def get_file(self, name, default=None):
 		node = self.childs.get(name, None)
@@ -306,8 +306,8 @@ class Node(object):
 		tree = Build.bld
 		ln = tree.launch_node()
 		name = self.name
-		x = self.parent.get_file(name)
-		if x: return self.relative_path(ln)
+
+		if self.id & 3 == FILE: return self.relative_path(ln)
 		else: return os.path.join(tree.bldnode.relative_path(ln), env.variant(), self.relative_path(tree.srcnode))
 
 	def relative_path(self, folder):
