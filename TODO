@@ -1,19 +1,40 @@
 roadmap:
 --------
 
+CORE:
+
+* finish the exception system refactoring
+
+* review the installation system
+* install folders
+
+* make a real plugin system for the scheduler
+* eliminate the serial system, and optimise the parallel one
+* default to 2 jobs?
+
+* win32 support is broken, see Node.py and Utils.py
+
+TOOLS:
+
 * flag conversion simplification (_INCFLAGS)
-* attribute processing improvements (foo.ldflags)
-* split the gnome module
+* rpath system review
+
+* clean the module config_c.py (configuration apis for c/c++)
+
+RELEASE PLAN:
+
+* A preview of Waf 1.5 should be available for September
+* The manual should be updated
 
 ideas to watch:
 ---------------
 
-* cross-compilation settings gcc,linux->win32
+* cross-compilation settings gcc,linux->win32 (the infrastructure is in place)
 * precompiled headers support (pch)
-* packaging (rpms, debs)
-* provide installation threads
+* packaging? (rpms, debs)
+* split the gnome module?
 
 --------------------------------------
-Last update: 24/04/2008
-Contact -> tnagyemail-mail at yahoo.fr (ita)
+Last update: 11/07/2008
+Contact -> http://code.google.com/p/waf
 
