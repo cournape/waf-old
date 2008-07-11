@@ -29,8 +29,7 @@ RELEASE PLAN:
 ideas to watch:
 ---------------
 
-* cross-compilation settings gcc,linux->win32 (the infrastructure is in place)
-* precompiled headers support (pch)
+* cross-compilation settings gcc,linux -> win32 (the infrastructure is in place)
 * packaging? (rpms, debs)
 * split the gnome module?
 
