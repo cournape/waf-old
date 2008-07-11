@@ -415,6 +415,24 @@ class TaskBase(object):
 		sum = hash((sum, self.__class__.maxjobs))
 		return sum
 
+	def format_error(self):
+		if self.attr('error_msg'):
+			# you can leave a message after the ....beep
+			msg = self.attr('error_msg')
+			if type(msg) is types.FunctionType:
+				return msg(self)
+			else:
+				lst.append(msg)
+		elif self.hasrun == CRASHED:
+			try:
+				return " -> task failed (err #%d): %r" % (tsk.err_code, tsk)
+			except AttributeError:
+				return " -> task failed: %r" % tsk
+		elif tsk.hasrun == MISSING:
+			return " -> missing files: %r" % tsk
+		else:
+			return ''
+
 class Task(TaskBase):
 	"""The parent class is quite limited, in this version:
 	* file system interaction: input and output nodes

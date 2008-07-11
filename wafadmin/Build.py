@@ -31,25 +31,13 @@ class BuildError(Utils.WafError):
 		self.bld = b
 		self.tasks = t
 		self.ret = 1
-		Utils.WafError.__init__(self, self.format_message())
+		Utils.WafError.__init__(self, self.format_error())
 
-	def format_message(self):
+	def format_error(self):
 		lst = ['Build failed']
 		for tsk in self.tasks:
-			if tsk.attr('error_msg'):
-				# you can leave a message after the ....beep
-				msg = tsk.attr('error_msg')
-				if type(msg) is types.FunctionType:
-					lst.append(msg(tsk))
-				else:
-					lst.append(msg)
-			elif tsk.hasrun == CRASHED:
-				try:
-					lst.append(" -> task failed (err #%d): %r" % (tsk.err_code, tsk))
-				except AttributeError:
-					lst.append(" -> task failed: %r" % tsk)
-			elif tsk.hasrun == MISSING:
-				lst.append(" -> missing files: %r" % tsk)
+			txt = tsk.format_error()
+			if txt: lst.append(txt)
 		return '\n'.join(lst)
 
 class Build(object):
