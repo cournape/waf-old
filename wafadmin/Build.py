@@ -36,7 +36,10 @@ class BuildError(Utils.WafError):
 	def format_message(self):
 		lst = ['Build failed']
 		for tsk in self.tasks:
-			if tsk.hasrun == CRASHED:
+			if getattr(tsk, 'error_message', None):
+				# you can leave a message after the ....beep
+				lst.append(tsk.error_message)
+			elif tsk.hasrun == CRASHED:
 				try:
 					lst.append(" -> task failed (err #%d): %r" % (tsk.err_code, tsk))
 				except AttributeError:
