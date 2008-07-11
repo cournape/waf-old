@@ -24,7 +24,7 @@ def process_pch(self):
 			return
 		tsk = self.create_task('gchx')
 		tsk.set_inputs(node)
-		tsk.set_outputs(node.change_ext('.h.gch'))
+		tsk.set_outputs(node.parent.find_or_declare(node.name + '.gch'))
 		tsk.defines = self.scanner_defines
 		tsk.env = self.env.copy()
 
