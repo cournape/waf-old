@@ -416,6 +416,7 @@ class TaskBase(object):
 		return sum
 
 	def format_error(self):
+		"error message to display to the user (when a build fails)"
 		if self.attr('error_msg'):
 			# you can leave a message after the ....beep
 			msg = self.attr('error_msg')
