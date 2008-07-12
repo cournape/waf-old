@@ -102,7 +102,7 @@ class unit_test(object):
 				if self.change_to_testfile_dir:
 					os.chdir(srcdir)
 
-				kwargs = dict()
+				kwargs = {}
 				if not self.want_to_see_test_output:
 					kwargs['stdout'] = subprocess.PIPE  # PIPE for ignoring output
 				if not self.want_to_see_test_error:

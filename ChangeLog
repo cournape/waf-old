@@ -26,6 +26,7 @@ meaning in configuration and build)
 * Node: find_resource_lst, find_or_declare_lst, ensure_dir_node_from_path_lst, find_dir_lst disappear
 * Remove m_ from all variables
 * installation api simplification
+* remove the configuration cache
 
 NEW IN WAF 1.4.3
 ----------------

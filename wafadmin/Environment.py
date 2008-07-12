@@ -142,7 +142,7 @@ class Environment(object):
 			table_list.insert(0, env.table)
 			try: env = env.parent
 			except AttributeError: break
-		merged_table = dict()
+		merged_table = {}
 		for table in table_list:
 			merged_table.update(table)
 
