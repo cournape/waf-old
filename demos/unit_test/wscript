@@ -31,7 +31,7 @@ def build(bld):
 	# process subfolders from here
 	subdirs = 'src'
 	# if cppunit was found in the config step, build unit tests too
-	if bld.env()['HAVE_CPPUNIT']:
+	if bld.env['HAVE_CPPUNIT']:
 		subdirs += ' tests'
 	bld.add_subdirs(subdirs)
 
