@@ -70,30 +70,12 @@ class enumerator_base(object):
 		"""interface, do not remove"""
 		pass
 
-	def run_cache(self, retvalue):
-		"""interface, do not remove"""
-		pass
-
 	def run(self):
 		self.validate()
-		if Options.cache_global and not Options.options.nocache:
-			newhash = self.hash()
-			try:
-				ret = self.conf.cache_table[newhash]
-			except KeyError:
-				pass # go to A1 just below
-			else:
-				self.run_cache(ret)
-				if self.mandatory and not ret: self.error()
-				return ret
 
-		# A1 - no cache or new test
 		ret = self.run_test()
 		if self.mandatory and not ret: self.error()
 
-		if Options.cache_global:
-			newhash = self.hash()
-			self.conf.cache_table[newhash] = ret
 		return ret
 
 	# Override this method, not run()!
@@ -118,10 +100,6 @@ class program_enumerator(enumerator_base):
 		errmsg = 'program %s cannot be found' % self.name
 		if self.message: errmsg += '\n%s' % self.message
 		self.conf.fatal(errmsg)
-
-	def run_cache(self, retval):
-		self.conf.check_message('program %s (cached)' % self.name, '', retval, option=retval)
-		if self.var: self.env[self.var] = retval
 
 	def run_test(self):
 		ret = Configure.find_program_impl(self.env, self.name, self.path, self.var)
@@ -153,10 +131,6 @@ class function_enumerator(enumerator_base):
 	def validate(self):
 		if not self.define:
 			self.define = self.function.upper()
-
-	def run_cache(self, retval):
-		self.conf.check_message('function %s (cached)' % self.function, '', retval, option='')
-		self.conf.define_cond(self.define, retval)
 
 	def run_test(self):
 		ret = not Configure.TEST_OK
@@ -211,11 +185,6 @@ class library_enumerator(enumerator_base):
 		if self.message: errmsg += '\n%s' % self.message
 		self.conf.fatal(errmsg)
 
-	def run_cache(self, retval):
-		if self.want_message:
-			self.conf.check_message('library %s (cached)' % self.name, '', retval, option=retval)
-		self.update_env(retval)
-
 	def validate(self):
 		if not self.nosystem and not self.path:
 			self.path += stdlibpath
@@ -259,12 +228,6 @@ class header_enumerator(enumerator_base):
 		if self.message: errmsg += '\n%s' % self.message
 		self.conf.fatal(errmsg)
 
-	def run_cache(self, retval):
-		if self.want_message:
-			self.conf.check_message('header %s (cached)' % self.name, '', retval, option=retval)
-		if self.define:
-			self.conf.define_cond(self.define, retval)
-
 	def run_test(self):
 		ret = Configure.find_file(self.name, self.path)
 		if self.want_message:
@@ -306,12 +269,6 @@ class cfgtool_configurator(configurator_base):
 			self.tests['--cflags'] = 'CCFLAGS'
 			self.tests['--cflags'] = 'CXXFLAGS'
 			self.tests['--libs']   = 'LINKFLAGS'
-
-	def run_cache(self, retval):
-		if retval:
-			self.update_env(retval)
-		self.conf.define_cond(self.define, retval)
-		self.conf.check_message('config-tool %s (cached)' % self.binary, '', retval, option='')
 
 	def run_test(self):
 		retval = {}
@@ -381,14 +338,6 @@ class pkgconfig_configurator(configurator_base):
 			self.uselib_store = self.name.upper()
 		if not self.define:
 			self.define = self.conf.have_define(self.uselib_store)
-
-	def run_cache(self, retval):
-		if self.version:
-			self.conf.check_message('package %s >= %s (cached)' % (self.name, self.version), '', retval, option='')
-		else:
-			self.conf.check_message('package %s (cached)' % self.name, '', retval, option='')
-		self.conf.define_cond(self.define, retval)
-		self.update_env(retval)
 
 	def _setup_pkg_config_path(self):
 		pkgpath = self.pkgpath
@@ -540,10 +489,6 @@ class test_configurator(configurator_base):
 		if self.message: errmsg += '\n%s' % self.message
 		self.conf.fatal(errmsg)
 
-	def run_cache(self, retval):
-		if self.want_message:
-			self.conf.check_message('custom code (cached)', '', 1, option=retval['result'])
-
 	def validate(self):
 		if not self.code:
 			raise Configure.ConfigurationError('test configurator needs code to compile and run!')
@@ -586,12 +531,6 @@ class library_configurator(configurator_base):
 		errmsg = 'library %s cannot be linked' % self.name
 		if self.message: errmsg += '\n%s' % self.message
 		self.conf.fatal(errmsg)
-
-	def run_cache(self, retval):
-		self.conf.check_message('library %s (cached)' % self.name, '', retval)
-		if retval:
-			self.update_env(retval)
-		self.conf.define_cond(self.define, 1)
 
 	def validate(self):
 		if not self.uselib_store:
@@ -686,11 +625,6 @@ class framework_configurator(configurator_base):
 		if not self.code:
 			self.code = "#include <%s>\nint main(){return 0;}\n"
 
-	def run_cache(self, retval):
-		self.conf.check_message('framework %s (cached)' % self.name, '', retval)
-		self.update_env(retval)
-		self.conf.define_cond(self.define, retval)
-
 	def run_test(self):
 		code = []
 		if self.remove_dot_h:
@@ -761,12 +695,6 @@ class header_configurator(configurator_base):
 			self.code = "#include <%s>\nint main(){return 0;}\n"
 		if not self.define:
 			self.conf.fatal('no define given')
-
-	def run_cache(self, retval):
-		self.conf.check_message('header %s (cached)' % self.name, '', retval)
-		if retvalue:
-			self.update_env(retvalue)
-		self.conf.define_cond(self.define, retval)
 
 	def run_test(self):
 		ret = {} # not found

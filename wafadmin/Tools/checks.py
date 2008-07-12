@@ -42,10 +42,6 @@ class compile_configurator(config_c.configurator_base):
 	def error(self):
 		raise Configure.ConfigurationError('test program would not run')
 
-	def run_cache(self, retval):
-		if self.want_message:
-			self.conf.check_message('compile code (cached)', '', not (retval is False), option=self.msg)
-
 	def run_test(self):
 		obj = config_c.check_data()
 		obj.code = self.code

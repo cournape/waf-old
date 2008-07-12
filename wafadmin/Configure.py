@@ -96,22 +96,7 @@ class Configure(object):
 
 		self.setenv('default')
 
-		self.cache_table = {}
-
 		self.lastprog = ''
-
-		# load the cache
-		if Options.cache_global and not Options.options.nocache:
-			fic = os.path.join(Options.cache_global, Options.conf_file)
-			try:
-				file = open(fic, 'rb')
-			except (OSError, IOError):
-				pass
-			else:
-				try:
-					self.cache_table = cPickle.load(file)
-				finally:
-					file.close()
 
 		self.hash = 0
 		self.files = []
@@ -122,19 +107,7 @@ class Configure(object):
 		self.log = open(path, 'wb')
 
 	def __del__(self):
-		"""cleanup function:
-		close config.log, store config results when there is a cache directory"""
-		if Options.cache_global:
-			# not during the build
-			if not os.path.isdir(Options.cache_global):
-				os.makedirs(Options.cache_global)
-
-			fic = os.path.join(Options.cache_global, Options.conf_file)
-			file = open(fic, 'wb')
-			try:
-				cPickle.dump(self.cache_table, file)
-			finally:
-				if file: file.close()
+		"""cleanup function: close config.log"""
 
 		# may be ran by the gc, not always after initiazliation
 		if hasattr(self, 'log') and self.log:
