@@ -417,15 +417,15 @@ class TaskBase(object):
 
 	def format_error(self):
 		"error message to display to the user (when a build fails)"
-		if getattr(self, "error_msg"):
+		if getattr(self, "error_msg", None):
 			return self.error_msg
 		elif self.hasrun == CRASHED:
 			try:
-				return " -> task failed (err #%d): %r" % (tsk.err_code, tsk)
+				return " -> task failed (err #%d): %r" % (self.err_code, self)
 			except AttributeError:
-				return " -> task failed: %r" % tsk
-		elif tsk.hasrun == MISSING:
-			return " -> missing files: %r" % tsk
+				return " -> task failed: %r" % self
+		elif self.hasrun == MISSING:
+			return " -> missing files: %r" % self
 		else:
 			return ''
 
