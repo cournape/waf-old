@@ -436,6 +436,10 @@ class Node(object):
 			node = Node(name, self.parent, BUILD)
 		return node
 
+	def src_dir(self, env):
+		"src path without the file name"
+		return self.parent.srcpath(env)
+
 	def bld_dir(self, env):
 		"build path without the file name"
 		return self.parent.bldpath(env)
