@@ -127,21 +127,21 @@ def apply_verif(self):
 		if not self.target:
 			raise Utils.WafError('no target for %s' % self)
 
-def install_shlib(task):
-	nums = task.vnum.split('.')
+def install_shlib(self):
+	nums = self.vnum.split('.')
 
-	inst_var = task.inst_var
-	inst_dir = task.inst_dir
+	inst_var = self.inst_var
+	inst_dir = self.inst_dir
 
-	libname = task.outputs[0].name
+	libname = self.outputs[0].name
 
-	name3 = libname+'.'+task.vnum
+	name3 = libname+'.'+self.vnum
 	name2 = libname+'.'+nums[0]
 	name1 = libname
 
-	filename = task.outputs[0].abspath(task.env)
+	filename = self.outputs[0].abspath(self.env)
 	bld = Build.bld
-	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env)
+	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=self.env)
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
 	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
 
@@ -175,28 +175,30 @@ def install_target_cprogram(self):
 	if not Options.is_install: return
 	try: mode = self.program_chmod
 	except AttributeError: mode = 0755
-	self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir,'chmod':mode}
+	self.link_task.inst_var = self.inst_var
+	self.link_task.inst_dir = self.inst_dir
+	self.link_task.chmod = mode
 
 @taskgen
 @feature('cstaticlib', 'dstaticlib')
 @after('apply_objdeps')
 def install_target_cstaticlib(self):
 	if not Options.is_install: return
-	self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir}
+	self.link_task.inst_var = self.inst_var
+	self.link_task.inst_dir = self.inst_dir
 
 @taskgen
 @feature('cshlib', 'dshlib')
 @after('apply_objdeps')
 def install_target_cshlib(self):
 	if not Options.is_install: return
+	tsk = self.link_task
+	tsk.inst_var = self.inst_var
+	tsk.inst_dir = self.inst_dir
+
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
-		tsk = self.link_task
-		tsk.vnum = getattr(self, 'vnum', '')
-		tsk.inst_var = self.inst_var
-		tsk.inst_dir = self.inst_dir
+		tsk.vnum = self.vnum
 		tsk.install = install_shlib
-	else:
-		self.link_task.install = {'var':self.inst_var,'dir':self.inst_dir}
 
 @taskgen
 @after('apply_type_vars')

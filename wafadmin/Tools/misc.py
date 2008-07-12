@@ -48,7 +48,8 @@ class cmd_taskgen(TaskGen.task_gen):
 		tsk.fun = self.fun
 		tsk.env = self.env
 		self.tasks.append(tsk)
-		tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
+		tsk.inst_var = self.inst_var
+		tsk.inst_dir = self.inst_dir
 
 class copy_taskgen(TaskGen.task_gen):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
@@ -147,13 +148,12 @@ class subst_taskgen(TaskGen.task_gen):
 			tsk.fun = self.fun
 			tsk.dict = self.dict
 			tsk.dep_vars = ['DICT_HASH']
-			tsk.install = {'var': self.inst_var, 'dir': self.inst_dir}
+			tsk.inst_var = self.inst_var
+			tsk.inst_dir = self.inst_dir
 
 			if not tsk.env:
 				tsk.debug()
 				raise Utils.WafError('task without an environment')
-
-
 
 ####################
 ## command-output ####

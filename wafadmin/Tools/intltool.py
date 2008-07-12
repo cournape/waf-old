@@ -37,7 +37,8 @@ class intltool_in_taskgen(TaskGen.task_gen):
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(''))
 
-			task.install = {'var': self.inst_var, 'dir': self.inst_dir, 'chmod': 0644}
+			task.inst_var = self.inst_var
+			task.inst_dir = self.inst_dir
 
 class intltool_po_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):

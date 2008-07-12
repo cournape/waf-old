@@ -70,7 +70,6 @@ class TaskManager(object):
 	def __init__(self):
 		self.groups = []
 		self.tasks_done = []
-
 		self.current_group = 0
 
 	def get_next_set(self):
@@ -83,20 +82,13 @@ class TaskManager(object):
 			else: self.current_group += 1
 		return (None, None)
 
-	def add_group(self, name=''):
-		if not name:
-			size = len(self.groups)
-			name = 'group-%d' % size
-		if not self.groups:
-			self.groups = [TaskGroup(name)]
-			return
-		if not self.groups[0].tasks:
+	def add_group(self):
+		if self.groups and not self.groups[0].tasks:
 			warn('add_group: an empty group is already present')
-			return
-		self.groups = self.groups + [TaskGroup(name)]
+		self.groups.append(TaskGroup())
 
 	def add_task(self, task):
-		if not self.groups: self.add_group('group-0')
+		if not self.groups: self.add_group()
 		self.groups[-1].add_task(task)
 
 	def total(self):
@@ -108,31 +100,18 @@ class TaskManager(object):
 
 	def add_finished(self, tsk):
 		self.tasks_done.append(tsk)
-		# TODO we could install using threads here
 		bld = Build.bld
-		if Options.is_install and hasattr(tsk, 'install'):
-			d = tsk.install
-			env = tsk.env
-			if type(d) is types.FunctionType:
-				d(tsk)
-			elif type(d) is types.StringType:
-				if not env[d]: return
-				lst = [a.relpath_gen(Build.bld.srcnode) for a in tsk.outputs]
-				bld.install_files(env[d], '', lst, chmod=0644, env=env)
+		if Options.is_install:
+			f = None
+			if 'install' in tsk.__dict__:
+				f = tsk.__dict__['install']
+				f(tsk)
 			else:
-				if not d['var']: return
-				lst = [a.relpath_gen(Build.bld.srcnode) for a in tsk.outputs]
-				if d.get('src', 0): lst += [a.relpath_gen(Build.bld.srcnode) for a in tsk.inputs]
-				# TODO ugly hack
-				if d.get('as', ''):
-					bld.install_as(d['var'], d['dir']+d['as'], lst[0], chmod=d.get('chmod', 0644), env=tsk.env)
-				else:
-					bld.install_files(d['var'], d['dir'], lst, chmod=d.get('chmod', 0644), env=env)
+				tsk.install()
 
 class TaskGroup(object):
 	"the compilation of one group does not begin until the previous group has finished (in the manager)"
-	def __init__(self, name):
-		self.name = name
+	def __init__(self):
 		self.tasks = [] # this list will be consumed
 
 		self.cstr_groups = {} # tasks having equivalent constraints
@@ -428,6 +407,28 @@ class TaskBase(object):
 			return " -> missing files: %r" % self
 		else:
 			return ''
+
+	def install(self):
+		"""
+		installation is performed by looking at the task attributes:
+		* inst_var: installation variable like PREFIX
+		* inst_dir: installation subdirectory
+		* filename: install the first node in the outputs as a file with a particular name, be certain to give os.sep
+		* chmod: permissions
+		"""
+		bld = Build.bld
+		d = self.attr('install')
+
+		if self.attr('inst_var'):
+			lst = [a.relpath_gen(bld.srcnode) for a in self.outputs]
+			if self.attr('src'):
+				# if src is given, install the sources too
+				lst += [a.relpath_gen(bld.srcnode) for a in self.inputs]
+			if self.attr('filename'):
+				dir = self.attr('inst_dir') + self.attr('filename')
+				bld.install_as(self.attr('inst_var'), dir, lst[0], chmod=self.attr('chmod', 0644), env=self.env)
+			else:
+				bld.install_files(self.attr('inst_var'), self.attr('inst_dir'), lst, chmod=self.attr('chmod', 0644), env=self.env)
 
 class Task(TaskBase):
 	"""The parent class is quite limited, in this version:

@@ -108,7 +108,8 @@ class xml_to_taskgen(TaskGen.task_gen):
 		tsk = self.create_task('xmlto')
 		tsk.set_inputs([xmlfile, xsltfile])
 		tsk.set_outputs(xmlfile.change_ext('html'))
-		tsk.install = {'var':self.inst_var, 'dir':self.inst_dir}
+		tsk.inst_var = self.inst_var
+		tsk.inst_dir = self.inst_dir
 
 def sgml_scan(self):
 	node = self.inputs[0]
