@@ -417,13 +417,8 @@ class TaskBase(object):
 
 	def format_error(self):
 		"error message to display to the user (when a build fails)"
-		if self.attr('error_msg'):
-			# you can leave a message after the ....beep
-			msg = self.attr('error_msg')
-			if type(msg) is types.FunctionType:
-				return msg(self)
-			else:
-				lst.append(msg)
+		if getattr(self, "error_msg"):
+			return self.error_msg
 		elif self.hasrun == CRASHED:
 			try:
 				return " -> task failed (err #%d): %r" % (tsk.err_code, tsk)
