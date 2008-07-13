@@ -12,19 +12,10 @@ import os, types, shutil, glob
 import Utils, Options, Build
 from Logs import error
 from Constants import *
+from Utils import check_dir
 
 class InstallError(Utils.WafError):
 	pass
-
-def check_dir(dir):
-	#print "check dir ", dir
-	try:
-		os.stat(dir)
-	except OSError:
-		try:
-			os.makedirs(dir)
-		except OSError:
-			raise Utils.WafError("Cannot create folder " + dir)
 
 def do_install(src, tgt, chmod=0644):
 	"""returns true if the file was effectively installed or uninstalled, false otherwise"""
