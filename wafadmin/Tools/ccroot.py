@@ -203,6 +203,7 @@ def install_target_cshlib(self):
 @taskgen
 @after('apply_type_vars')
 def apply_incpaths(self):
+	"used by the scanner"
 	lst = []
 	for i in self.to_list(self.uselib):
 		if self.env['CPPPATH_'+i]:
@@ -226,9 +227,7 @@ def apply_incpaths(self):
 			error("node not found in ccroot:apply_incpaths "+str(dir))
 		elif node:
 			if not node in lst: lst.append(node)
-			Build.bld.rescan(node)
 	self.env['INC_PATHS'] = self.env['INC_PATHS'] + lst
-	# now the nodes are added to self.incpaths_lst
 
 @taskgen
 def apply_type_vars(self):
