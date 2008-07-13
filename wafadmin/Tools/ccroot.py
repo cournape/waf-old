@@ -205,29 +205,34 @@ def install_target_cshlib(self):
 def apply_incpaths(self):
 	"used by the scanner"
 	lst = []
-	for i in self.to_list(self.uselib):
-		if self.env['CPPPATH_'+i]:
-			lst += self.to_list(self.env['CPPPATH_'+i])
-	self.includes = getattr(self, 'includes', [])
-	inc_lst = self.to_list(self.includes) + lst
+	for lib in self.to_list(self.uselib):
+		for path in self.env['CPPPATH_' + lib]:
+			if not path in lst:
+				lst.append(path)
 	if preproc.go_absolute:
-		inc_lst.extend(preproc.standard_includes)
-	lst = []
+		for path in preproc.standard_includes:
+			if not path in lst:
+				lst.append(path)
+	for path in self.to_list(self.includes):
+		if not path in lst:
+			lst.append(path)
+			if (not preproc.go_absolute) and os.path.isabs(path):
+				self.env.prepend_value('CPPPATH', path)
 
 	tree = Build.bld
-	for dir in inc_lst:
-		node = 0
-		if os.path.isabs(dir):
+	inc_lst = []
+	for path in lst:
+		node = None
+		if os.path.isabs(path):
 			if preproc.go_absolute:
-				node = Build.bld.root.find_dir(dir)
+				node = Build.bld.root.find_dir(path)
 		else:
-			node = self.path.find_dir(dir)
+			node = self.path.find_dir(path)
 
-		if node is None:
-			error("node not found in ccroot:apply_incpaths "+str(dir))
-		elif node:
-			if not node in lst: lst.append(node)
-	self.env['INC_PATHS'] = self.env['INC_PATHS'] + lst
+		if node:
+			inc_lst.append(node)
+
+	self.env['INC_PATHS'] = self.env['INC_PATHS'] + inc_lst
 
 @taskgen
 def apply_type_vars(self):
