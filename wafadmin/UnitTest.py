@@ -18,7 +18,7 @@ In the shutdown method, add the following code:
 Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
 """
 import os, sys
-import Build, TaskGen, Utils, Options
+import Build, TaskGen, Utils, Options, Logs
 import pproc as subprocess
 
 class unit_test(object):
@@ -83,8 +83,6 @@ class unit_test(object):
 				pass
 		self.total_num_tests = len(self.unit_tests)
 		# Now run the unit tests
-		col1 = Logs.colors.GREEN
-		col2 = Logs.colors.NORMAL
 		Utils.pprint('GREEN', 'Running the unit tests')
 		count = 0
 		result = 1
@@ -94,7 +92,7 @@ class unit_test(object):
 			filename = file_and_src[0]
 			srcdir = file_and_src[1]
 			count += 1
-			line = Build.bld.progress_line(count, self.total_num_tests, col1, col2)
+			line = Build.bld.progress_line(count, self.total_num_tests, Logs.colors.GREEN, Logs.colors.NORMAL)
 			if Options.options.progress_bar and line:
 				sys.stdout.write(line)
 				sys.stdout.flush()
