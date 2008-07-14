@@ -7,7 +7,7 @@
 import os, sys, shutil, traceback, time
 
 import Utils, Configure, Build, Logs, Options, Environment
-from Logs import error, warn
+from Logs import error, warn, info
 from Constants import *
 
 g_gz = 'bz2'
@@ -281,7 +281,7 @@ def main():
 		configure()
 		ela = ''
 		if not Options.options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-		Utils.pprint('GREEN', 'Configuration finished successfully%s; project is now ready to build.' % ela)
+		info('Configuration finished successfully%s; project is now ready to build.' % ela)
 		sys.exit(0)
 
 	# compile the project and/or install the files
@@ -384,13 +384,13 @@ def main():
 		if Options.commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
 		elif Options.commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
 		else: msg = 'Compilation finished successfully%s' % ela
-		Utils.pprint('GREEN', msg)
+		info(msg)
 
 	# clean
 	if Options.commands['clean']:
 		try:
 			bld.clean()
-			Utils.pprint('GREEN', 'Cleaning finished successfully')
+			info('Cleaning finished successfully')
 		finally:
 			bld.save()
 		#if ret:
@@ -499,7 +499,7 @@ def DistTarball(appname, version):
 	tar = tarfile.open(TMPFOLDER+'.tar.'+g_gz,'w:'+g_gz)
 	tar.add(TMPFOLDER)
 	tar.close()
-	Utils.pprint('GREEN', 'Your archive is ready -> %s.tar.%s' % (TMPFOLDER, g_gz))
+	info('Your archive is ready -> %s.tar.%s' % (TMPFOLDER, g_gz))
 
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
 	return (TMPFOLDER, TMPFOLDER+'.tar.'+g_gz)
@@ -534,7 +534,7 @@ def DistClean():
 	for f in lst:
 		if f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
-	Utils.pprint('GREEN', "distclean finished successfully")
+	info('distclean finished successfully')
 	sys.exit(0)
 
 def DistCheck(appname, version):
@@ -565,7 +565,7 @@ def DistCheck(appname, version):
 	if os.path.exists(instdir):
 		raise Utils.WafError("distcheck succeeded, but files were left in %s" % (instdir))
 	else:
-		Utils.pprint('GREEN', "distcheck finished successfully")
+		info('distcheck finished successfully')
 
 def get_name_and_version():
 	appname = getattr(Utils.g_module, APPNAME, 'noname')

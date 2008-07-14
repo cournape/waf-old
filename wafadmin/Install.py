@@ -10,7 +10,7 @@ if the variable is set but it does not exist, it assumes an absolute path was gi
 
 import os, types, shutil, glob
 import Utils, Options, Build
-from Logs import error
+from Logs import error, info
 from Constants import *
 from Utils import check_dir
 
@@ -32,7 +32,7 @@ def do_install(src, tgt, chmod=0644):
 					return False
 
 		srclbl = src.replace(Build.bld.srcnode.abspath(None)+os.sep, '')
-		print "* installing %s as %s" % (srclbl, tgt)
+		info("* installing %s as %s" % (srclbl, tgt))
 
 		# following is for shared libs and stale inodes (-_-)
 		try: os.remove(tgt)
@@ -50,7 +50,7 @@ def do_install(src, tgt, chmod=0644):
 		return True
 
 	elif Options.commands['uninstall']:
-		print "* uninstalling %s" % tgt
+		info("* uninstalling %s" % tgt)
 
 		Build.bld.uninstall.append(tgt)
 
@@ -160,14 +160,14 @@ def symlink_as(var, src, dest, env=None):
 	if Options.commands['install']:
 		try:
 			if not os.path.islink(tgt) or os.readlink(tgt) != src:
-				print "* symlink %s (-> %s)" % (tgt, src)
+				info("* symlink %s (-> %s)" % (tgt, src))
 				os.symlink(src, tgt)
 			return 0
 		except OSError:
 			return 1
 	elif Options.commands['uninstall']:
 		try:
-			print "* removing %s" % (tgt)
+			info("* removing %s" % (tgt))
 			os.remove(tgt)
 			return 0
 		except OSError:

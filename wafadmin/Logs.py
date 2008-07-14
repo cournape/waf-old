@@ -51,6 +51,8 @@ class log_filter(logging.Filter):
 		if rec.levelno >= logging.INFO:
 			if rec.levelno >= logging.ERROR:
 				rec.c1 = colors.RED
+			else:
+				rec.c1 = colors.GREEN
 			return True
 
 		zone = ''
@@ -70,7 +72,7 @@ class formatter(logging.Formatter):
 		logging.Formatter.__init__(self, LOG_FORMAT, HOUR_FORMAT)
 
 	def format(self, rec):
-		if rec.levelno >= logging.WARNING:
+		if rec.levelno >= logging.WARNING or rec.levelno == logging.INFO:
 			return '%s%s%s' % (rec.c1, rec.msg, rec.c2)
 		return logging.Formatter.format(self, rec)
 
@@ -95,6 +97,7 @@ def error(msg):
 			if buf: logging.error("\n".join(buf))
 
 warn = logging.warn
+info = logging.info
 
 def init_log():
 	log = logging.getLogger()
