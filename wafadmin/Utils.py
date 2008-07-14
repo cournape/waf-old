@@ -334,12 +334,12 @@ def pprint(col, str, label=''):
 	print "%s%s%s %s" % (Logs.colors(col), str, Logs.colors.NORMAL, label)
 
 def check_dir(dir):
-	"create a folder"
+	"""If a folder doesn't exists, create it."""
 	try:
 		os.stat(dir)
 	except OSError:
 		try:
 			os.makedirs(dir)
-		except OSError:
-			raise Utils.WafError("Cannot create folder " + dir)
+		except OSError, e:
+			raise WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
 
