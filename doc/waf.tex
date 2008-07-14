@@ -417,6 +417,8 @@ Note: uselib\_local must be in the right order, e.g. if a build object uses the 
 
 \item \emph{includes}: a string of whitespace-separated paths where project specific C/C++ header files are kept. This is C/C++ specific and necessary for tracking header dependencies; if one of the headers stored in one of these paths is modified, waf rebuilds the source files using the modified file(s).
 
+\item \emph{defines}: a string of whitespace-separated defines to add for command-line arguments of current compilation (e.g. "obj.defines=''USE_THIS LEVEL=4'' " will add -DUSE_THIS -DLEVEL=4 to the command line arguments).
+
 \item \emph{unit\_test}: if this is set to 1, this build object classifies as a unit test. Default value is 0. Only useful if the result of the build object is an executable. See chapter 3.2, \emph{unit tests} for more.
 
 \end{itemize}
