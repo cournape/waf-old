@@ -31,12 +31,7 @@ def do_install(src, tgt, chmod=0644):
 				_do_install = True
 
 		if _do_install:
-			srclbl = src
-			try:
-				srclbl = src.replace(Build.bld.bldnode.abspath(None)+os.sep, '')
-				srclbl = src.replace(Build.bld.srcnode.abspath(None)+os.sep, '')
-			except OSError:
-				pass
+			srclbl = src.replace(Build.bld.srcnode.abspath(None)+os.sep, '')
 			print "* installing %s as %s" % (srclbl, tgt)
 
 			# followig is for shared libs and stale inodes
