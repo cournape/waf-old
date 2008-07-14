@@ -245,7 +245,6 @@ def conf(f):
 
 def conftest(f):
 	"decorator: attach new configuration tests (registered as strings)"
-	setattr(Configure, f.__name__, f)
 	Configure.tests[f.__name__] = f
-	return f
+	return conf(f)
 
