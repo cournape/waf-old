@@ -20,33 +20,35 @@ class InstallError(Utils.WafError):
 def do_install(src, tgt, chmod=0644):
 	"""returns true if the file was effectively installed or uninstalled, false otherwise"""
 	if Options.commands['install']:
-		# check if the file is already there to avoid a copy
-		_do_install = True
 		if not Options.options.force:
+			# check if the file is already there to avoid a copy
 			try:
 				t1 = os.stat(tgt).st_mtime
 				t2 = os.stat(src).st_mtime
-				if t1 >= t2: _do_install = False
 			except OSError:
-				_do_install = True
+				pass
+			else:
+				if t1 >= t2:
+					return False
 
-		if _do_install:
-			srclbl = src.replace(Build.bld.srcnode.abspath(None)+os.sep, '')
-			print "* installing %s as %s" % (srclbl, tgt)
+		srclbl = src.replace(Build.bld.srcnode.abspath(None)+os.sep, '')
+		print "* installing %s as %s" % (srclbl, tgt)
 
-			# followig is for shared libs and stale inodes
-			try: os.remove(tgt)
-			except OSError: pass
+		# following is for shared libs and stale inodes (-_-)
+		try: os.remove(tgt)
+		except OSError: pass
+
+		try:
+			shutil.copy2(src, tgt)
+			os.chmod(tgt, chmod)
+		except IOError:
 			try:
-				shutil.copy2(src, tgt)
-				os.chmod(tgt, chmod)
+				os.stat(src)
 			except IOError:
-				try:
-					os.stat(src)
-				except IOError:
-					error('file %s does not exist' % str(src))
-				raise Utils.WafError('Could not install the file %s' % str(tgt))
-		return _do_install
+				error('File %r does not exist' % src)
+			raise Utils.WafError('Could not install the file %r' % tgt)
+		return True
+
 	elif Options.commands['uninstall']:
 		print "* uninstalling %s" % tgt
 
