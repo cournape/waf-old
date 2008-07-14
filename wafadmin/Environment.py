@@ -36,7 +36,7 @@ class Environment(object):
 		cur = self
 		while cur:
 			keys.update(cur.table.keys())
-			cur = getattr(cur, 'm_parent', None)
+			cur = getattr(cur, 'parent', None)
 		keys = list(keys)
 		keys.sort()
 		return "\n".join("%r %r" % (x, self.__getitem__(x)) for x in keys)
