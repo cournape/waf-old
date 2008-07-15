@@ -31,9 +31,7 @@ def exec_command(s, shell=1):
 	log = Build.bld.log
 	if log or Logs.verbose: printout(s+'\n')
 	proc = subprocess.Popen(s, shell=shell, stdout=log, stderr=log)
-	stat = proc.wait()
-	if stat & 0xff: return stat | 0x80
-	return stat >> 8
+	return proc.wait()
 
 if sys.platform == "win32":
 	old_log = exec_command
@@ -46,9 +44,7 @@ if sys.platform == "win32":
 		startupinfo = subprocess.STARTUPINFO()
 		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 		proc = subprocess.Popen(s, shell=False, startupinfo=startupinfo)
-		stat = proc.wait()
-		if stat & 0xff: return stat | 0x80
-		return stat >> 8
+		return proc.wait()
 
 class Serial(object):
 	def __init__(self, bld):
