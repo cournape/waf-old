@@ -137,105 +137,106 @@ def prepare(t, cwd, ver, wafdir):
 
 	Options.tooldir = [t]
 	Options.launch_dir = cwd
-
-	# some command-line options can be processed immediately
-	if '--version' in sys.argv:
-		opt_obj = Options.Handler()
-		opt_obj.parse_args()
-		sys.exit(0)
-
-	# now find the wscript file
-	msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "%s"' % WSCRIPT_FILE
-
-	# Some people want to configure their projects gcc-style:
-	# mkdir build && cd build && ../waf configure && ../waf
-	# check that this is really what is wanted
-	build_dir_override = None
-	candidate = None
-
-	cwd = Options.launch_dir
-	lst = os.listdir(cwd)
-	xml = 0
-
-	#check if a wscript or a wscript_xml file is in current directory
-	if WSCRIPT_FILE in lst or WSCRIPT_BUILD_FILE in lst or 'wscript_xml' in lst:
-		# if a script is in current directory, use this directory as candidate (and prevent gcc-like configuration)
-		candidate = cwd
-	elif 'configure' in sys.argv:
-		# gcc-like configuration
-		build_dir_override = cwd
-
+	
 	try:
-		#check the following dirs for wscript or wscript_xml
-		search_for_candidate = True
-		if not candidate:
-			#check first the calldir if there is wscript or wscript_xml
-			#for example: /usr/src/configure the calldir would be /usr/src
-			calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
-			lst_calldir = os.listdir(calldir)
-			if WSCRIPT_FILE in lst_calldir:
-				candidate = calldir
-				search_for_candidate = False
-			if 'wscript_xml' in lst_calldir:
-				candidate = calldir
-				xml = 1
-				search_for_candidate = False
-		if "--make-waf" in sys.argv and candidate:
-			search_for_candidate = False
-
-		#check all directories above current dir for wscript or wscript_xml if still not found
-		while search_for_candidate:
-			if len(cwd) <= 3:
-				break # stop at / or c:
-			dirlst = os.listdir(cwd)
-			if WSCRIPT_FILE in dirlst:
-				candidate = cwd
-				xml = 0
-			if 'wscript_xml' in dirlst:
-				candidate = cwd
-				xml = 1
-				break
-			if 'configure' in sys.argv and candidate:
-				break
-			if Options.lockfile in dirlst:
-				break
-			cwd = cwd[:cwd.rfind(os.sep)] # climb up
-	except Exception:
-		error(msg1)
-		sys.exit(0)
-
-	if not candidate:
-		# check if the user only wanted to display the help
-		if '-h' in sys.argv or '--help' in sys.argv:
-			warn('No wscript file found: the help message may be incomplete')
+		# some command-line options can be processed immediately
+		if '--version' in sys.argv:
 			opt_obj = Options.Handler()
 			opt_obj.parse_args()
-		else:
+			sys.exit(0)
+	
+		# now find the wscript file
+		msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "%s"' % WSCRIPT_FILE
+	
+		# Some people want to configure their projects gcc-style:
+		# mkdir build && cd build && ../waf configure && ../waf
+		# check that this is really what is wanted
+		build_dir_override = None
+		candidate = None
+	
+		cwd = Options.launch_dir
+		lst = os.listdir(cwd)
+		xml = 0
+	
+		#check if a wscript or a wscript_xml file is in current directory
+		if WSCRIPT_FILE in lst or WSCRIPT_BUILD_FILE in lst or 'wscript_xml' in lst:
+			# if a script is in current directory, use this directory as candidate (and prevent gcc-like configuration)
+			candidate = cwd
+		elif 'configure' in sys.argv:
+			# gcc-like configuration
+			build_dir_override = cwd
+	
+		try:
+			#check the following dirs for wscript or wscript_xml
+			search_for_candidate = True
+			if not candidate:
+				#check first the calldir if there is wscript or wscript_xml
+				#for example: /usr/src/configure the calldir would be /usr/src
+				calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
+				lst_calldir = os.listdir(calldir)
+				if WSCRIPT_FILE in lst_calldir:
+					candidate = calldir
+					search_for_candidate = False
+				if 'wscript_xml' in lst_calldir:
+					candidate = calldir
+					xml = 1
+					search_for_candidate = False
+			if "--make-waf" in sys.argv and candidate:
+				search_for_candidate = False
+	
+			#check all directories above current dir for wscript or wscript_xml if still not found
+			while search_for_candidate:
+				if len(cwd) <= 3:
+					break # stop at / or c:
+				dirlst = os.listdir(cwd)
+				if WSCRIPT_FILE in dirlst:
+					candidate = cwd
+					xml = 0
+				if 'wscript_xml' in dirlst:
+					candidate = cwd
+					xml = 1
+					break
+				if 'configure' in sys.argv and candidate:
+					break
+				if Options.lockfile in dirlst:
+					break
+				cwd = cwd[:cwd.rfind(os.sep)] # climb up
+		except Exception:
 			error(msg1)
-		sys.exit(0)
-
-	# We have found wscript, but there is no guarantee that it is valid
-	os.chdir(candidate)
-
-	if xml:
-		# the xml module is not provided by default, you will have to import it yourself
-		from XMLScripting import compile
-		compile(candidate+os.sep+'wscript_xml')
-	else:
-		# define the main module containing the functions init, shutdown, ..
-		Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
-
-	if build_dir_override:
-		d = getattr(Utils.g_module, BLDDIR, None)
-		if d:
-			# test if user has set the blddir in wscript.
-			msg = ' Overriding build directory %s with %s' % (d, build_dir_override)
-			warn(msg)
-		Utils.g_module.blddir = build_dir_override
-
-	# fetch the custom command-line options recursively and in a procedural way
-	opt_obj = Options.Handler()
-	try:
+			sys.exit(0)
+	
+		if not candidate:
+			# check if the user only wanted to display the help
+			if '-h' in sys.argv or '--help' in sys.argv:
+				warn('No wscript file found: the help message may be incomplete')
+				opt_obj = Options.Handler()
+				opt_obj.parse_args()
+			else:
+				error(msg1)
+			sys.exit(0)
+	
+		# We have found wscript, but there is no guarantee that it is valid
+		os.chdir(candidate)
+	
+		if xml:
+			# the xml module is not provided by default, you will have to import it yourself
+			from XMLScripting import compile
+			compile(candidate+os.sep+'wscript_xml')
+		else:
+			# define the main module containing the functions init, shutdown, ..
+			Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
+	
+		if build_dir_override:
+			d = getattr(Utils.g_module, BLDDIR, None)
+			if d:
+				# test if user has set the blddir in wscript.
+				msg = ' Overriding build directory %s with %s' % (d, build_dir_override)
+				warn(msg)
+			Utils.g_module.blddir = build_dir_override
+	
+		# fetch the custom command-line options recursively and in a procedural way
+		opt_obj = Options.Handler()
+		
 		# will call to main wscript's set_options()
 		opt_obj.sub_options('')
 		opt_obj.parse_args()
