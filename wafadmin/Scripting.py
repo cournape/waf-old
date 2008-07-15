@@ -223,7 +223,7 @@ def prepare(t, cwd, ver, wafdir):
 				# define the main module containing the functions init, shutdown, ..
 				Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
 
-		except Exception:
+		except Utils.WafError:
 			error(msg1)
 			sys.exit(0)
 
