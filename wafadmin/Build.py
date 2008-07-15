@@ -160,25 +160,16 @@ class Build(object):
 						try: os.remove(pt)
 						except OSError: pass
 					node.childs.__delitem__(x)
-		node = self.srcnode
-		try:
-			# locate node of launch directory
-			prefix =node.abspath()
-			cwd = Options.launch_dir
-			if cwd.startswith(prefix):
-						# make cwd relative to root directory
-						cwd = cwd[len(prefix):].lstrip(os.path.sep)
-						node = node.find_dir(cwd)
-						# revert to root node if search has failed
-						if not node: node = self.srcnode
-		except:
-			Logs.warn("Cannot find directory '%s', cleaning the whole tree" % cwd)
 
+		# take the node of current dir, or the root node if failed to get the current
+		node = self.launch_node() or self.srcnode
 		clean_rec(node)
 
-		for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
-			var = {}
-			setattr(self, v, var)
+		# when cleaning all, remove cache, depedencies and signatures
+		if node == self.srcnode:
+			for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
+				var = {}
+				setattr(self, v, var)
 
 	def compile(self):
 		debug('build: compile called')
