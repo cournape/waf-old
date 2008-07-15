@@ -12,7 +12,6 @@ from TaskGen import taskgen, before, extension
 g_cc_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
-'INCLUDE',
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
 EXT_CC = ['.c']

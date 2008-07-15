@@ -12,7 +12,6 @@ from TaskGen import taskgen, before, extension
 g_cpp_flag_vars = [
 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
-'INCLUDE',
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CXXDEFINES']
 "main cpp variables"
 
