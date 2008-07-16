@@ -129,135 +129,123 @@ def read_cache_file(filename):
 	env.load(filename)
 	return env
 
+def prepare_impl(t, cwd, ver, wafdir):
+	Options.tooldir = [t]
+	Options.launch_dir = cwd
+
+	# some command-line options can be processed immediately
+	if '--version' in sys.argv:
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		sys.exit(0)
+
+	# now find the wscript file
+	msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "%s"' % WSCRIPT_FILE
+
+	# Some people want to configure their projects gcc-style:
+	# mkdir build && cd build && ../waf configure && ../waf
+	# check that this is really what is wanted
+	build_dir_override = None
+	candidate = None
+
+	cwd = Options.launch_dir
+	lst = os.listdir(cwd)
+
+	if WSCRIPT_FILE in lst:
+		candidate = cwd
+	elif 'configure' in sys.argv and not WSCRIPT_BUILD_FILE in lst:
+		# gcc-style configuration
+		build_dir_override = cwd
+
+	# look in the calling directory for a wscript file "/foo/bar/configure"
+	search_for_candidate = True
+	if not candidate:
+		calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
+		if WSCRIPT_FILE in os.listdir(calldir):
+			candidate = calldir
+			search_for_candidate = False
+
+	# climb up to find a script if it is not found
+	while search_for_candidate:
+		if len(cwd) <= 3:
+			break # stop at / or c:
+		dirlst = os.listdir(cwd)
+		if WSCRIPT_FILE in dirlst:
+			candidate = cwd
+		if 'configure' in sys.argv and candidate:
+			break
+		if Options.lockfile in dirlst:
+			break
+		cwd = cwd[:cwd.rfind(os.sep)] # climb up
+
+	if not candidate:
+		# check if the user only wanted to display the help
+		if '-h' in sys.argv or '--help' in sys.argv:
+			warn('No wscript file found: the help message may be incomplete')
+			opt_obj = Options.Handler()
+			opt_obj.parse_args()
+		else:
+			error(msg1)
+		sys.exit(0)
+
+	# We have found wscript, but there is no guarantee that it is valid
+	os.chdir(candidate)
+
+	# define the main module containing the functions init, shutdown, ..
+	Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
+
+
+	if build_dir_override:
+		d = getattr(Utils.g_module, BLDDIR, None)
+		if d:
+			# test if user has set the blddir in wscript.
+			msg = ' Overriding build directory %s with %s' % (d, build_dir_override)
+			warn(msg)
+		Utils.g_module.blddir = build_dir_override
+
+	fun = getattr(Utils.g_module, 'init', None)
+	if fun: fun()
+
+	# now parse the options from the user wscript file
+	opt_obj = Options.Handler()
+	opt_obj.sub_options('')
+	opt_obj.parse_args()
+
+	# for dist, distclean and distcheck
+	if Options.commands['dist']:
+		fun = getattr(Utils.g_module, 'dist', None)
+		if fun: fun(); sys.exit(0)
+		(appname, version) = get_name_and_version()
+
+		DistTarball(appname, version)
+		sys.exit(0)
+	elif Options.commands['distclean']:
+		fun = getattr(Utils.g_module, 'distclean', None)
+		if fun:	fun()
+		else:	DistClean()
+		sys.exit(0)
+	elif Options.commands['distcheck']:
+		fun = getattr(Utils.g_module, 'distcheck', None)
+		if fun: fun(); sys.exit(0)
+		(appname, version) = get_name_and_version()
+
+		DistCheck(appname, version)
+		sys.exit(0)
+
+	main()
+
 def prepare(t, cwd, ver, wafdir):
 	if WAFVERSION != ver:
 		msg = 'Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (ver, WAFVERSION, wafdir)
 		print '\033[91mError: %s\033[0m' % msg
 		sys.exit(1)
 
-	Options.tooldir = [t]
-	Options.launch_dir = cwd
+	Utils.python_24_guard()
 
 	try:
-		# some command-line options can be processed immediately
-		if '--version' in sys.argv:
-			opt_obj = Options.Handler()
-			opt_obj.parse_args()
-			sys.exit(0)
-
-		# now find the wscript file
-		msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "%s"' % WSCRIPT_FILE
-
-		# Some people want to configure their projects gcc-style:
-		# mkdir build && cd build && ../waf configure && ../waf
-		# check that this is really what is wanted
-		build_dir_override = None
-		candidate = None
-
-		cwd = Options.launch_dir
-		lst = os.listdir(cwd)
-
-		# check if a wscript file is in current directory
-		if WSCRIPT_FILE in lst or WSCRIPT_BUILD_FILE in lst:
-			# if a script is in current directory, use this directory as candidate (and prevent gcc-like configuration)
-			candidate = cwd
-		elif 'configure' in sys.argv:
-			# gcc-like configuration
-			build_dir_override = cwd
-
-		try:
-			#climb up to find a wscript
-			search_for_candidate = True
-			if not candidate:
-				#check first the calldir if there is wscript
-				#for example: /usr/src/configure the calldir would be /usr/src
-				calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
-				lst_calldir = os.listdir(calldir)
-				if WSCRIPT_FILE in lst_calldir:
-					candidate = calldir
-					search_for_candidate = False
-
-			#check all directories above current dir for wscript if still not found
-			while search_for_candidate:
-				if len(cwd) <= 3:
-					break # stop at / or c:
-				dirlst = os.listdir(cwd)
-				if WSCRIPT_FILE in dirlst:
-					candidate = cwd
-				if 'configure' in sys.argv and candidate:
-					break
-				if Options.lockfile in dirlst:
-					break
-				cwd = cwd[:cwd.rfind(os.sep)] # climb up
-
-			if not candidate:
-				# check if the user only wanted to display the help
-				if '-h' in sys.argv or '--help' in sys.argv:
-					warn('No wscript file found: the help message may be incomplete')
-					opt_obj = Options.Handler()
-					opt_obj.parse_args()
-				else:
-					error(msg1)
-				sys.exit(0)
-
-			# We have found wscript, but there is no guarantee that it is valid
-			os.chdir(candidate)
-
-			# define the main module containing the functions init, shutdown, ..
-			Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
-
-		except Utils.WafError:
-			error(msg1)
-			sys.exit(0)
-
-		if build_dir_override:
-			d = getattr(Utils.g_module, BLDDIR, None)
-			if d:
-				# test if user has set the blddir in wscript.
-				msg = ' Overriding build directory %s with %s' % (d, build_dir_override)
-				warn(msg)
-			Utils.g_module.blddir = build_dir_override
-
-		# fetch the custom command-line options recursively and in a procedural way
-		opt_obj = Options.Handler()
-
-		# will call to main wscript's set_options()
-		opt_obj.sub_options('')
-		opt_obj.parse_args()
-
-		# use the parser results
-		if Options.commands['dist']:
-			# try to use the user-defined dist function first, fallback to the waf scheme
-			fun = getattr(Utils.g_module, 'dist', None)
-			if fun: fun(); sys.exit(0)
-			(appname, version) = get_name_and_version()
-
-			DistTarball(appname, version)
-			sys.exit(0)
-		elif Options.commands['distclean']:
-			# try to use the user-defined distclean first, fallback to the waf scheme
-			fun = getattr(Utils.g_module, 'distclean', None)
-			if fun:	fun()
-			else:	DistClean()
-			sys.exit(0)
-		elif Options.commands['distcheck']:
-			# try to use the user-defined dist function first, fallback to the waf scheme
-			fun = getattr(Utils.g_module, 'distcheck', None)
-			if fun: fun(); sys.exit(0)
-			(appname, version) = get_name_and_version()
-
-			DistCheck(appname, version)
-			sys.exit(0)
-
-		fun = getattr(Utils.g_module, 'init', None)
-		if fun: fun()
-
-		Utils.python_24_guard()
-
-		main()
+		prepare_impl(t, cwd, ver, wafdir)
 	except Utils.WafError, e:
 		error(e)
-		# returning non zero indicates that waf failed
 		sys.exit(1)
 
 def main():
