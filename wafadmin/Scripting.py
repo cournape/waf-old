@@ -217,19 +217,19 @@ def prepare_impl(t, cwd, ver, wafdir):
 		if fun: fun(); sys.exit(0)
 		(appname, version) = get_name_and_version()
 
-		DistTarball(appname, version)
+		dist(appname, version)
 		sys.exit(0)
 	elif Options.commands['distclean']:
 		fun = getattr(Utils.g_module, 'distclean', None)
 		if fun:	fun()
-		else:	DistClean()
+		else: distclean()
 		sys.exit(0)
 	elif Options.commands['distcheck']:
 		fun = getattr(Utils.g_module, 'distcheck', None)
 		if fun: fun(); sys.exit(0)
 		(appname, version) = get_name_and_version()
 
-		DistCheck(appname, version)
+		distcheck(appname, version)
 		sys.exit(0)
 
 	main()
@@ -464,7 +464,7 @@ def DistDir(appname, version):
 			os.chdir('..')
 	return TMPFOLDER
 
-def DistTarball(appname, version):
+def dist(appname, version):
 	"""make a tarball with all the sources in it; return (distdirname, tarballname)"""
 	import tarfile
 
@@ -477,7 +477,7 @@ def DistTarball(appname, version):
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
 	return (TMPFOLDER, TMPFOLDER+'.tar.'+g_gz)
 
-def DistClean():
+def distclean():
 	"""clean the project"""
 
 	# remove the temporary files
@@ -510,14 +510,16 @@ def DistClean():
 	info('distclean finished successfully')
 	sys.exit(0)
 
-def DistCheck(appname, version):
+def distcheck(appname, version):
 	"""Makes some sanity checks on the waf dist generated tarball"""
 	import tempfile
-	import pproc as subprocess
+	import pproc
+
+	# FIXME use python, not bzip
 
 	waf = os.path.abspath(sys.argv[0]) # used by vars() below.
-	distdir, tarball = DistTarball(appname, version)
-	retval = subprocess.Popen('bzip2 -dc %s | tar x' % tarball, shell=True).wait()
+	distdir, tarball = dist(appname, version)
+	retval = pproc.Popen('bzip2 -dc %s | tar x' % tarball, shell=True).wait()
 	if retval:
 		raise Utils.WafError('uncompressing the tarball failed with code %i' % (retval))
 
@@ -525,7 +527,7 @@ def DistCheck(appname, version):
 	cwd_before = os.getcwd()
 	os.chdir(distdir)
 	try:
-		retval = subprocess.Popen(
+		retval = pproc.Popen(
 			'%(waf)s configure && %(waf)s '
 			'&& %(waf)s check && %(waf)s install --destdir=%(instdir)s'
 			' && %(waf)s uninstall --destdir=%(instdir)s' % vars(),
