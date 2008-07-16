@@ -176,8 +176,6 @@ def prepare(t, cwd, ver, wafdir):
 				if WSCRIPT_FILE in lst_calldir:
 					candidate = calldir
 					search_for_candidate = False
-			if '--make-waf' in sys.argv and candidate:
-				search_for_candidate = False
 
 			#check all directories above current dir for wscript if still not found
 			while search_for_candidate:
