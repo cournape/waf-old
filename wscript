@@ -289,6 +289,23 @@ def configure(conf):
 
 
 def build(bld):
+
+	if Options.options.setver: # maintainer only (ita)
+		ver = Options.options.setver
+		hexver = '0x'+ver.replace('.','0')
+		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
+		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
+		os.popen("""perl -pi -e 's/^WAFVERSION=(.*)?$/WAFVERSION="%s"/' wafadmin/Constants.py""" % ver).close()
+		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
+		sys.exit(0)
+	elif Options.options.waf:
+		create_waf()
+		sys.exit(0)
+	elif Options.commands['check']:
+		import test.Test
+		test.Test.run_tests()
+		sys.exit(0)
+
 	import shutil, re
 
 	if Options.commands['install']:
@@ -319,26 +336,6 @@ def build(bld):
 	#print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
 	#print "make sure the PATH contains %s/bin:$PATH" % prefix
 
-
-# the init function is called right after the command-line arguments are parsed
-# it is run before configure(), build() and shutdown()
-# in this case it calls sys.exit(0) to terminate the program
-def init():
-	if Options.options.setver: # maintainer only (ita)
-		ver = Options.options.setver
-		hexver = '0x'+ver.replace('.','0')
-		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
-		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
-		os.popen("""perl -pi -e 's/^WAFVERSION=(.*)?$/WAFVERSION="%s"/' wafadmin/Constants.py""" % ver).close()
-		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
-		sys.exit(0)
-	elif Options.options.waf:
-		create_waf()
-		sys.exit(0)
-	elif Options.commands['check']:
-		import test.Test
-		test.Test.run_tests()
-		sys.exit(0)
 
 #def dist():
 #	import Scripting
