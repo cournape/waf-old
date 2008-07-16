@@ -156,10 +156,9 @@ def prepare(t, cwd, ver, wafdir):
 
 		cwd = Options.launch_dir
 		lst = os.listdir(cwd)
-		xml = 0
 
-		#check if a wscript or a wscript_xml file is in current directory
-		if WSCRIPT_FILE in lst or WSCRIPT_BUILD_FILE in lst or 'wscript_xml' in lst:
+		# check if a wscript file is in current directory
+		if WSCRIPT_FILE in lst or WSCRIPT_BUILD_FILE in lst:
 			# if a script is in current directory, use this directory as candidate (and prevent gcc-like configuration)
 			candidate = cwd
 		elif 'configure' in sys.argv:
@@ -167,35 +166,26 @@ def prepare(t, cwd, ver, wafdir):
 			build_dir_override = cwd
 
 		try:
-			#check the following dirs for wscript or wscript_xml
+			#climb up to find a wscript
 			search_for_candidate = True
 			if not candidate:
-				#check first the calldir if there is wscript or wscript_xml
+				#check first the calldir if there is wscript
 				#for example: /usr/src/configure the calldir would be /usr/src
 				calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
 				lst_calldir = os.listdir(calldir)
 				if WSCRIPT_FILE in lst_calldir:
 					candidate = calldir
 					search_for_candidate = False
-				if 'wscript_xml' in lst_calldir:
-					candidate = calldir
-					xml = 1
-					search_for_candidate = False
-			if "--make-waf" in sys.argv and candidate:
+			if '--make-waf' in sys.argv and candidate:
 				search_for_candidate = False
 
-			#check all directories above current dir for wscript or wscript_xml if still not found
+			#check all directories above current dir for wscript if still not found
 			while search_for_candidate:
 				if len(cwd) <= 3:
 					break # stop at / or c:
 				dirlst = os.listdir(cwd)
 				if WSCRIPT_FILE in dirlst:
 					candidate = cwd
-					xml = 0
-				if 'wscript_xml' in dirlst:
-					candidate = cwd
-					xml = 1
-					break
 				if 'configure' in sys.argv and candidate:
 					break
 				if Options.lockfile in dirlst:
@@ -215,13 +205,8 @@ def prepare(t, cwd, ver, wafdir):
 			# We have found wscript, but there is no guarantee that it is valid
 			os.chdir(candidate)
 
-			if xml:
-				# the xml module is not provided by default, you will have to import it yourself
-				from XMLScripting import compile
-				compile(candidate+os.sep+'wscript_xml')
-			else:
-				# define the main module containing the functions init, shutdown, ..
-				Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
+			# define the main module containing the functions init, shutdown, ..
+			Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
 
 		except Utils.WafError:
 			error(msg1)
