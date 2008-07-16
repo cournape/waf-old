@@ -212,26 +212,16 @@ def prepare_impl(t, cwd, ver, wafdir):
 	opt_obj.parse_args()
 
 	# for dist, distclean and distcheck
-	if Options.commands['dist']:
-		fun = getattr(Utils.g_module, 'dist', None)
-		if fun: fun(); sys.exit(0)
-		(appname, version) = get_name_and_version()
-
-		dist(appname, version)
-		sys.exit(0)
-	elif Options.commands['distclean']:
-		fun = getattr(Utils.g_module, 'distclean', None)
-		if fun:	fun()
-		else: distclean()
-		sys.exit(0)
-	elif Options.commands['distcheck']:
-		fun = getattr(Utils.g_module, 'distcheck', None)
-		if fun: fun(); sys.exit(0)
-		(appname, version) = get_name_and_version()
-
-		distcheck(appname, version)
-		sys.exit(0)
-
+	for x in ['dist', 'distclean', 'distcheck']:
+		if Options.commands[x]:
+			fun = getattr(Utils.g_module, x, None)
+			if fun:
+				fun()
+			else:
+				# bad
+				print "oh, an eval is called"
+				eval(x+'()')
+			sys.exit(0)
 	main()
 
 def prepare(t, cwd, ver, wafdir):
@@ -379,7 +369,6 @@ def main():
 	fun = getattr(Utils.g_module, 'shutdown', None)
 	if fun: fun()
 
-
 ## Note: this is a modified version of shutil.copytree from python
 ## 2.5.2 library; modified for WAF purposes to exclude dot dirs and
 ## another list of files.
@@ -435,48 +424,6 @@ def copytree(src, dst, symlinks=False, excludes=(), build_dir=None):
 	if errors:
 		raise shutil.Error, errors
 
-
-def DistDir(appname, version):
-	"make a distribution directory with all the sources in it"
-
-	# Our temporary folder where to put our files
-	TMPFOLDER=appname+'-'+version
-
-	# Remove an old package directory
-	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
-
-	global g_dist_exts, g_excludes
-
-	# Remove the Build dir
-	build_dir = getattr(Utils.g_module, BLDDIR, None)
-
-	# Copy everything into the new folder
-	copytree('.', TMPFOLDER, excludes=g_excludes, build_dir=build_dir)
-
-	# TODO undocumented hook
-	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
-	if dist_hook:
-		os.chdir(TMPFOLDER)
-		try:
-			dist_hook()
-		finally:
-			# go back to the root directory
-			os.chdir('..')
-	return TMPFOLDER
-
-def dist(appname, version):
-	"""make a tarball with all the sources in it; return (distdirname, tarballname)"""
-	import tarfile
-
-	TMPFOLDER = DistDir(appname, version)
-	tar = tarfile.open(TMPFOLDER+'.tar.'+g_gz,'w:'+g_gz)
-	tar.add(TMPFOLDER)
-	tar.close()
-	info('Your archive is ready -> %s.tar.%s' % (TMPFOLDER, g_gz))
-
-	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
-	return (TMPFOLDER, TMPFOLDER+'.tar.'+g_gz)
-
 def distclean():
 	"""clean the project"""
 
@@ -508,12 +455,53 @@ def distclean():
 		if f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
 	info('distclean finished successfully')
-	sys.exit(0)
 
-def distcheck(appname, version):
+def dist(appname='', version=''):
+	"""make a tarball with all the sources in it; return (distdirname, tarballname)"""
+	import tarfile
+
+	if not appname: appname = getattr(Utils.g_module, APPNAME, 'noname')
+	if not version: version = getattr(Utils.g_module, VERSION, '1.0')
+
+	# Our temporary folder where to put our files
+	TMPFOLDER = appname + '-' + version
+
+	# Remove an old package directory
+	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
+
+	global g_dist_exts, g_excludes
+
+	# Remove the Build dir
+	build_dir = getattr(Utils.g_module, BLDDIR, None)
+
+	# Copy everything into the new folder
+	copytree('.', TMPFOLDER, excludes=g_excludes, build_dir=build_dir)
+
+	# undocumented hook for additional cleanup
+	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
+	if dist_hook:
+		os.chdir(TMPFOLDER)
+		try:
+			dist_hook()
+		finally:
+			# go back to the root directory
+			os.chdir('..')
+
+	tar = tarfile.open(TMPFOLDER+'.tar.'+g_gz,'w:'+g_gz)
+	tar.add(TMPFOLDER)
+	tar.close()
+	info('Your archive is ready -> %s.tar.%s' % (TMPFOLDER, g_gz))
+
+	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
+	return (TMPFOLDER, TMPFOLDER+'.tar.'+g_gz)
+
+def distcheck(appname='', version=''):
 	"""Makes some sanity checks on the waf dist generated tarball"""
 	import tempfile
 	import pproc
+
+	if not appname: appname = getattr(Utils.g_module, APPNAME, 'noname')
+	if not version: version = getattr(Utils.g_module, VERSION, '1.0')
 
 	# FIXME use python, not bzip
 
@@ -542,12 +530,3 @@ def distcheck(appname, version):
 	else:
 		info('distcheck finished successfully')
 
-def get_name_and_version():
-	appname = getattr(Utils.g_module, APPNAME, 'noname')
-
-	get_version = getattr(Utils.g_module, 'get_version', None)
-	if get_version: version = get_version()
-	else: version = getattr(Utils.g_module, VERSION, None)
-	if not version: version = '1.0'
-
-	return (appname, version)
