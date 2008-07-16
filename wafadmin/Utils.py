@@ -154,9 +154,12 @@ except ImportError:
 		return 55
 else:
 	def get_term_cols():
-		dummy_lines, cols = struct.unpack("HHHH", \
-		fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
-		struct.pack("HHHH", 0, 0, 0, 0)))[:2]
+		try:
+			dummy_lines, cols = struct.unpack("HHHH",
+							  fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ ,
+								      struct.pack("HHHH", 0, 0, 0, 0)))[:2]
+		except IOError:
+			return 55
 		return cols
 
 def progress_line(state, total, col1, col2):
