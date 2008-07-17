@@ -334,7 +334,7 @@ def main():
 		import cProfile, pstats
 		cProfile.run("import Build; Build.bld.compile()", 'profi.txt')
 		p = pstats.Stats('profi.txt')
-		p.sort_stats('time').print_stats(40)
+		p.sort_stats('time').print_stats(150)
 		#"""
 
 		if Options.options.progress_bar: print ''
@@ -498,19 +498,17 @@ def dist(appname='', version=''):
 
 def distcheck(appname='', version=''):
 	"""Makes some sanity checks on the waf dist generated tarball"""
-	import tempfile
+	import tempfile, tarfile
 	import pproc
 
 	if not appname: appname = getattr(Utils.g_module, APPNAME, 'noname')
 	if not version: version = getattr(Utils.g_module, VERSION, '1.0')
 
-	# FIXME use python, not bzip
-
-	waf = os.path.abspath(sys.argv[0]) # used by vars() below.
+	waf = os.path.abspath(sys.argv[0])
 	distdir, tarball = dist(appname, version)
-	retval = pproc.Popen('bzip2 -dc %s | tar x' % tarball, shell=True).wait()
-	if retval:
-		raise Utils.WafError('uncompressing the tarball failed with code %i' % (retval))
+	t = tarfile.open(tarball)
+	for x in t: t.extract(x)
+	t.close()
 
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	cwd_before = os.getcwd()
