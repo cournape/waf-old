@@ -188,7 +188,7 @@ class Build(object):
 
 		if Logs.verbose > 3: self.dump()
 
-		self.generator = Runner.get_instance(self, Options.options.jobs)
+		self.generator = Runner.Parallel(self, Options.options.jobs)
 
 		def dw(on=True):
 			if Options.options.progress_bar:

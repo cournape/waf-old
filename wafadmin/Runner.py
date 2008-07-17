@@ -175,6 +175,3 @@ class Parallel(object):
 				self.ready.put(tsk)
 		#print loop
 
-def get_instance(bld, njobs):
-	return Parallel(bld, njobs)
-
