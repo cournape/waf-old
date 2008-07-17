@@ -35,6 +35,23 @@ pyFileExp = re.compile(".*\.py$")
 
 print "------> Executing code from the top-level wscript <-----"
 
+def init():
+	if Options.options.setver: # maintainer only (ita)
+		ver = Options.options.setver
+		hexver = '0x'+ver.replace('.','0')
+		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
+		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
+		os.popen("""perl -pi -e 's/^WAFVERSION=(.*)?$/WAFVERSION="%s"/' wafadmin/Constants.py""" % ver).close()
+		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
+	elif Options.options.waf:
+		create_waf()
+	elif Options.commands['check']:
+		import test.Test
+		test.Test.run_tests()
+	else:
+		return
+	sys.exit(0)
+
 # this function is called before any other for parsing the command-line
 def set_options(opt):
 
@@ -289,22 +306,6 @@ def configure(conf):
 
 
 def build(bld):
-
-	if Options.options.setver: # maintainer only (ita)
-		ver = Options.options.setver
-		hexver = '0x'+ver.replace('.','0')
-		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' wscript""" % ver).close()
-		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
-		os.popen("""perl -pi -e 's/^WAFVERSION=(.*)?$/WAFVERSION="%s"/' wafadmin/Constants.py""" % ver).close()
-		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
-		sys.exit(0)
-	elif Options.options.waf:
-		create_waf()
-		sys.exit(0)
-	elif Options.commands['check']:
-		import test.Test
-		test.Test.run_tests()
-		sys.exit(0)
 
 	import shutil, re
 

@@ -151,19 +151,21 @@ def prepare_impl(t, cwd, ver, wafdir):
 	cwd = Options.launch_dir
 	lst = os.listdir(cwd)
 
+	search_for_candidate = True
 	if WSCRIPT_FILE in lst:
 		candidate = cwd
 	elif 'configure' in sys.argv and not WSCRIPT_BUILD_FILE in lst:
 		# gcc-style configuration
-		build_dir_override = cwd
-
-	# look in the calling directory for a wscript file "/foo/bar/configure"
-	search_for_candidate = True
-	if not candidate:
+		# look in the calling directory for a wscript file "/foo/bar/configure"
 		calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
 		if WSCRIPT_FILE in os.listdir(calldir):
 			candidate = calldir
 			search_for_candidate = False
+		else:
+			error("arg[0] directory does not contain a wscript file")
+			sys.exit(1)
+		build_dir_override = cwd
+
 
 	# climb up to find a script if it is not found
 	while search_for_candidate:
@@ -203,13 +205,13 @@ def prepare_impl(t, cwd, ver, wafdir):
 			warn(msg)
 		Utils.g_module.blddir = build_dir_override
 
-	fun = getattr(Utils.g_module, 'init', None)
-	if fun: fun()
-
 	# now parse the options from the user wscript file
 	opt_obj = Options.Handler()
 	opt_obj.sub_options('')
 	opt_obj.parse_args()
+
+	fun = getattr(Utils.g_module, 'init', None)
+	if fun: fun()
 
 	# for dist, distclean and distcheck
 	for x in ['dist', 'distclean', 'distcheck']:
