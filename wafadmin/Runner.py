@@ -63,8 +63,6 @@ class TaskConsumer(threading.Thread):
 				m.out.put(tsk)
 				continue
 
-			print "hihi"
-
 			try:
 				printout(tsk.display())
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
@@ -128,24 +126,24 @@ class Parallel(object):
 	def start(self):
 
 		# iterate over all tasks at most one time for each task run
-		maxjobs = 0
+		maxjobs = sys.maxint
 
 		#loop=0
 		while 1:
 			#loop += 1
 			if self.failed and not self.running:
-				while self.count > 0: self.get_out()
-				if self.failed: return -1
+				while self.count > 0:
+					self.get_out()
+				if self.failed:
+					return -1
 
-			if 1 == maxjobs:
-				# TODO
-				while self.count > 0: self.get_out()
-			else:
-				# not too many jobs in the queue
-				while self.count > self.numjobs + 10: self.get_out()
+			# optional limit on the amount of jobs to run at the same time
+			# for example, link tasks are run one by one
+			while self.count >= maxjobs:
+				self.get_out()
 
 			# empty the returned tasks as much as possible
-			while not self.out.empty(): self.get_out()
+			#while not self.out.empty(): self.get_out()
 
 			if not self.outstanding:
 				if self.count > 0: self.get_out()
