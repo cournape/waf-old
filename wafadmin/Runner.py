@@ -117,21 +117,16 @@ class Parallel(object):
 		self.running = 0 # keep running ?
 		self.processed = 0 # progress indicator
 
+	def get_out(self):
+		self.manager.add_finished(self.out.get())
+		self.count -= 1
+
 	def start(self):
 		self.consumers = [TaskConsumer(i, self) for i in range(self.numjobs)]
 
-		# the current group
-		#group = None
-
-		def get_out():
-			self.manager.add_finished(self.out.get())
-			self.count -= 1
-
-		lastfailput = 0
-
 		# iterate over all tasks at most one time for each task run
-		penalty = 0
 		maxjobs = 0
+
 		#loop=0
 		while 1:
 			#loop += 1
@@ -153,10 +148,10 @@ class Parallel(object):
 				if self.count > 0: get_out()
 				self.outstanding = self.frozen
 				self.frozen = []
-			if not self.outstanding:
-				while self.count > 0: get_out()
-				(maxjobs, self.outstanding) = self.manager.get_next_set()
-				if maxjobs is None: break
+				if not self.outstanding:
+					while self.count > 0: get_out()
+					(maxjobs, self.outstanding) = self.manager.get_next_set()
+					if maxjobs is None: break
 
 			# consider the next task
 			tsk = self.outstanding.pop(0)
@@ -164,14 +159,14 @@ class Parallel(object):
 			if st == ASK_LATER:
 				if random.randint(0,1): self.frozen.insert(0, tsk)
 				else: self.frozen.append(tsk)
-			else:
+			elif st == SKIP_ME:
 				self.processed += 1
-				if st == SKIP_ME:
-					tsk.hasrun = SKIPPED
-					self.manager.add_finished(tsk)
-					continue
+				tsk.hasrun = SKIPPED
+				self.manager.add_finished(tsk)
+			else:
 				tsk.position = (self.processed, self.total)
 				self.count += 1
 				self.ready.put(tsk)
+				self.processed += 1
 		#print loop
 
