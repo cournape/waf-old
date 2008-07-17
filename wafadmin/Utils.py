@@ -15,11 +15,10 @@ Utilities, the stable ones are the following:
 	import stat
 	def h_file(filename):
 		st = os.stat(filename)
-		import stat
-		if stat.S_ISDIR(st): raise IOError, 'not a file'
+		if stat.S_ISDIR(st[stat.ST_MODE]): raise IOError, 'not a file'
 		m = md5()
-		m.update(st.st_mtime)
-		m.update(st.st_size)
+		m.update(str(st.st_mtime))
+		m.update(str(st.st_size))
 		m.update(filename)
 		return m.digest()
 
