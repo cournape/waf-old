@@ -221,7 +221,6 @@ def prepare_impl(t, cwd, ver, wafdir):
 				fun()
 			else:
 				# bad
-				print "oh, an eval is called"
 				eval(x+'()')
 			sys.exit(0)
 	main()

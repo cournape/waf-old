@@ -5,18 +5,17 @@ CORE:
 
 * finish the exception system refactoring
 
-* review the installation system
 * install folders
 
 * make a real plugin system for the scheduler
 * eliminate the serial system, and optimise the parallel one
-* default to 2 jobs?
+* find the right amount of jobs from /proc?
 
 * win32 support is broken, see Node.py and Utils.py
 
 TOOLS:
 
-* flag conversion simplification (_INCFLAGS)
+* flag conversion review (_INCFLAGS)
 * rpath system review
 
 * clean the module config_c.py (configuration apis for c/c++)
