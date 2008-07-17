@@ -63,6 +63,8 @@ class TaskConsumer(threading.Thread):
 				m.out.put(tsk)
 				continue
 
+			print "hihi"
+
 			try:
 				printout(tsk.display())
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
@@ -117,12 +119,13 @@ class Parallel(object):
 		self.running = 0 # keep running ?
 		self.processed = 0 # progress indicator
 
+		self.consumers = None
+
 	def get_out(self):
 		self.manager.add_finished(self.out.get())
 		self.count -= 1
 
 	def start(self):
-		self.consumers = [TaskConsumer(i, self) for i in range(self.numjobs)]
 
 		# iterate over all tasks at most one time for each task run
 		maxjobs = 0
@@ -131,25 +134,25 @@ class Parallel(object):
 		while 1:
 			#loop += 1
 			if self.failed and not self.running:
-				while self.count > 0: get_out()
+				while self.count > 0: self.get_out()
 				if self.failed: return -1
 
 			if 1 == maxjobs:
 				# TODO
-				while self.count > 0: get_out()
+				while self.count > 0: self.get_out()
 			else:
 				# not too many jobs in the queue
-				while self.count > self.numjobs + 10: get_out()
+				while self.count > self.numjobs + 10: self.get_out()
 
 			# empty the returned tasks as much as possible
-			while not self.out.empty(): get_out()
+			while not self.out.empty(): self.get_out()
 
 			if not self.outstanding:
-				if self.count > 0: get_out()
+				if self.count > 0: self.get_out()
 				self.outstanding = self.frozen
 				self.frozen = []
 				if not self.outstanding:
-					while self.count > 0: get_out()
+					while self.count > 0: self.get_out()
 					(maxjobs, self.outstanding) = self.manager.get_next_set()
 					if maxjobs is None: break
 
@@ -168,5 +171,10 @@ class Parallel(object):
 				self.count += 1
 				self.ready.put(tsk)
 				self.processed += 1
+
+				# create the consumer threads only if there is something to consume
+				if not self.consumers:
+					self.consumers = [TaskConsumer(i, self) for i in range(self.numjobs)]
+
 		#print loop
 
