@@ -134,10 +134,12 @@ class Parallel(object):
 
 	def refill_task_list(self):
 		"called to set the next group of tasks"
+		# TODO review for busy loop problems
 		if self.count > 0: self.get_out()
 		self.outstanding = self.frozen
 		self.frozen = []
 		if not self.outstanding:
+			# avoid the busy loop
 			while self.count > 0: self.get_out()
 			(self.maxjobs, self.outstanding) = self.manager.get_next_set()
 
