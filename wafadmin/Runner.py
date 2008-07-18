@@ -150,7 +150,8 @@ class Parallel(object):
 
 	def error_handler(self, tsk):
 		"by default, errors make the build stop (not thread safe so be careful)"
-		self.stop = True
+		if Options.options.keep:
+			self.stop = True
 		self.error = True
 
 	def start(self):
