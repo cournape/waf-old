@@ -116,10 +116,10 @@ class Parallel(object):
 		self.count = 0 # tasks not in the producer area
 		self.processed = 0 # progress indicator
 
-		self.consumers = None
+		self.consumers = None # the consumer threads, created lazily
 
-		self.stop = False
-		self.error = False
+		self.stop = False # error condition to stop the build
+		self.error = False # error flag
 
 	def get_next(self):
 		"override this method to schedule the tasks in a particular order"
@@ -150,16 +150,14 @@ class Parallel(object):
 		self.count -= 1
 
 	def error_handler(self, tsk):
-		print "errors are all fatal"
+		"by default, errors make the build stop (not thread safe so be careful)"
 		self.stop = True
 		self.error = True
 
 	def start(self):
-		#loop=0
-		while 1:
-			#loop += 1
-			if self.stop:
-				break
+		"execute the tasks"
+
+		while not self.stop:
 
 			# optional limit on the amount of jobs to run at the same time
 			# for example, link tasks are run one by one
@@ -200,7 +198,4 @@ class Parallel(object):
 		#print loop
 		while self.count:
 			self.get_out()
-
-		if self.error:
-			return -1
 

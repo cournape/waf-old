@@ -198,7 +198,7 @@ class Build(object):
 		debug('build: executor starting')
 		try:
 			dw(on=False)
-			ret = self.generator.start()
+			self.generator.start()
 		except KeyboardInterrupt:
 			dw()
 			os.chdir(self.srcnode.abspath())
@@ -214,7 +214,7 @@ class Build(object):
 			dw()
 			self.save()
 
-		if ret:
+		if self.generator.error:
 			os.chdir(self.srcnode.abspath())
 			raise BuildError(self, self.task_manager.tasks_done)
 
