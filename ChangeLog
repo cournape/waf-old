@@ -27,6 +27,9 @@ meaning in configuration and build)
 * Remove m_ from all variables
 * installation api simplification
 * remove the configuration cache
+* the -k behaviour was restored (keep running after errors)
+* new interfaces for custom error handling
+* new interfaces for reordering the tasks before executing them (scheduling constraints)
 
 NEW IN WAF 1.4.3
 ----------------
