@@ -104,7 +104,7 @@ class Parallel(object):
 
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
-		self.maxjobs = 10000
+		self.maxjobs = sys.maxint
 
 		# tasks that are awaiting for another task to complete
 		self.frozen = []
@@ -120,15 +120,25 @@ class Parallel(object):
 
 		self.consumers = None
 
+	def get_next(self):
+		"override this method to schedule the tasks in a particular order"
+		return self.outstanding.pop()
+
+	def refill_task_list(self):
+		"called to set the next group of tasks"
+		if self.count > 0: self.get_out()
+		self.outstanding = self.frozen
+		self.frozen = []
+		if not self.outstanding:
+			while self.count > 0: self.get_out()
+			(self.maxjobs, self.outstanding) = self.manager.get_next_set()
+
 	def get_out(self):
+		"the tasks that are put to execute are all collected using get_out"
 		self.manager.add_finished(self.out.get())
 		self.count -= 1
 
 	def start(self):
-
-		# iterate over all tasks at most one time for each task run
-		maxjobs = sys.maxint
-
 		#loop=0
 		while 1:
 			#loop += 1
@@ -140,23 +150,19 @@ class Parallel(object):
 
 			# optional limit on the amount of jobs to run at the same time
 			# for example, link tasks are run one by one
-			while self.count >= maxjobs:
+			while self.count >= self.maxjobs:
 				self.get_out()
 
 			# empty the returned tasks as much as possible
 			#while not self.out.empty(): self.get_out()
 
 			if not self.outstanding:
-				if self.count > 0: self.get_out()
-				self.outstanding = self.frozen
-				self.frozen = []
-				if not self.outstanding:
-					while self.count > 0: self.get_out()
-					(maxjobs, self.outstanding) = self.manager.get_next_set()
-					if maxjobs is None: break
+				self.refill_task_list()
+				if self.maxjobs is None:
+					break
 
 			# consider the next task
-			tsk = self.outstanding.pop(0)
+			tsk = self.get_next()
 
 			try:
 				st = tsk.runnable_status()
@@ -183,4 +189,5 @@ class Parallel(object):
 					self.consumers = [TaskConsumer(i, self) for i in range(self.numjobs)]
 
 		#print loop
+
 
