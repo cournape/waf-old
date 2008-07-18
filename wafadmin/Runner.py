@@ -82,7 +82,7 @@ class TaskConsumer(threading.Thread):
 					tsk.hasrun = MISSING
 				else:
 					tsk.hasrun = SUCCESS
-			if tsk.hasrun != SUCCESS: # TODO for now, do no keep running in parallel  and not Options.options.keep:
+			if tsk.hasrun != SUCCESS:
 				m.error_handler(tsk)
 
 			m.out.put(tsk)

@@ -7,10 +7,6 @@ CORE:
 
 * install folders
 
-* make a real plugin system for the scheduler
-* eliminate the serial system, and optimise the parallel one
-* find the right amount of jobs from /proc?
-
 * win32 support is broken, see Node.py and Utils.py
 
 TOOLS:
@@ -31,6 +27,7 @@ ideas to watch:
 * cross-compilation settings gcc,linux -> win32 (the infrastructure is in place)
 * packaging? (rpms, debs)
 * split the gnome module?
+* find the right amount of jobs from /proc?
 
 --------------------------------------
 Last update: 11/07/2008
