@@ -59,7 +59,7 @@ class TaskConsumer(threading.Thread):
 
 		while 1:
 			tsk = m.ready.get()
-			if m.failed and not m.running:
+			if m.stop:
 				m.out.put(tsk)
 				continue
 
@@ -84,7 +84,7 @@ class TaskConsumer(threading.Thread):
 				else:
 					tsk.hasrun = SUCCESS
 			if tsk.hasrun != SUCCESS: # TODO for now, do no keep running in parallel  and not Options.options.keep:
-				m.failed = 1
+				m.error_handler(tsk)
 
 			m.out.put(tsk)
 
@@ -114,11 +114,12 @@ class Parallel(object):
 		self.out = Queue.Queue(0)
 
 		self.count = 0 # tasks not in the producer area
-		self.failed = 0 # some task has failed
-		self.running = 0 # keep running ?
 		self.processed = 0 # progress indicator
 
 		self.consumers = None
+
+		self.stop = False
+		self.error = False
 
 	def get_next(self):
 		"override this method to schedule the tasks in a particular order"
@@ -148,11 +149,16 @@ class Parallel(object):
 		self.manager.add_finished(self.out.get())
 		self.count -= 1
 
+	def error_handler(self, tsk):
+		print "errors are all fatal"
+		self.stop = True
+		self.error = True
+
 	def start(self):
 		#loop=0
 		while 1:
 			#loop += 1
-			if self.failed and not self.running:
+			if self.stop:
 				break
 
 			# optional limit on the amount of jobs to run at the same time
@@ -173,7 +179,7 @@ class Parallel(object):
 			except Exception, e:
 				tsk.err_msg = "TODO print the exception here"
 				tsk.hasrun = EXCEPTION
-				self.failed = 1
+				self.error_handler(tsk)
 
 			if st == ASK_LATER:
 				self.postpone(tsk)
@@ -195,6 +201,6 @@ class Parallel(object):
 		while self.count:
 			self.get_out()
 
-		if self.failed:
+		if self.error:
 			return -1
 
