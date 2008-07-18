@@ -67,10 +67,11 @@ class TaskConsumer(threading.Thread):
 				printout(tsk.display())
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
 				else: ret = tsk.run()
-			except Exception:
-				exc_type, exc_value, tb = sys.exc_info()
-				traceback.print_exception(exc_type, exc_value, tb)
-				ret = CRASHED
+			except Exception, e:
+				tsk.err_msg = "TODO print the exception here"
+				#exc_type, exc_value, tb = sys.exc_info()
+				#traceback.print_exception(exc_type, exc_value, tb)
+				ret = tsk.hasrun = EXCEPTION
 
 			if ret:
 				tsk.err_code = ret
@@ -156,7 +157,14 @@ class Parallel(object):
 
 			# consider the next task
 			tsk = self.outstanding.pop(0)
-			st = tsk.runnable_status()
+
+			try:
+				st = tsk.runnable_status()
+			except Exception, e:
+				tsk.err_msg = "TODO print the exception here"
+				tsk.hasrun = EXCEPTION
+				self.failed = 1
+
 			if st == ASK_LATER:
 				if random.randint(0,1): self.frozen.insert(0, tsk)
 				else: self.frozen.append(tsk)
