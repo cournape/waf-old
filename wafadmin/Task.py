@@ -28,7 +28,6 @@ and #3 applies to the task instances.
 To try, use something like this in your code:
 import Constants, Task
 Task.algotype = Constants.MAXPARALLEL
-Task.shuffle = True
 
 --
 
@@ -52,7 +51,6 @@ from Constants import *
 algotype = NORMAL
 #algotype = JOBCONTROL
 #algotype = MAXPARALLEL
-shuffle = False
 
 """
 Enable different kind of dependency algorithms:
@@ -137,7 +135,7 @@ class TaskGroup(object):
 
 	def get_next_set(self):
 		"next list of tasks to execute using max job settings, returns (maxjobs, task_list)"
-		global algotype, shuffle
+		global algotype
 		if algotype == NORMAL:
 			tasks = self.tasks_in_parallel()
 			maxj = sys.maxint
@@ -150,7 +148,6 @@ class TaskGroup(object):
 			raise Utils.WafError("unknown algorithm type %s" % (algotype))
 
 		if not tasks: return ()
-		if shuffle: random.shuffle(tasks)
 		return (maxj, tasks)
 
 	def make_cstr_groups(self):
