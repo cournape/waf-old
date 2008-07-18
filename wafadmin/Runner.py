@@ -124,6 +124,14 @@ class Parallel(object):
 		"override this method to schedule the tasks in a particular order"
 		return self.outstanding.pop(0)
 
+	def postpone(self, tsk):
+		"override this method to schedule the tasks in a particular order"
+		# TODO consider using a deque instead
+		if random.randint(0,1):
+			self.frozen.insert(0, tsk)
+		else:
+			self.frozen.append(tsk)
+
 	def refill_task_list(self):
 		"called to set the next group of tasks"
 		if self.count > 0: self.get_out()
@@ -172,8 +180,7 @@ class Parallel(object):
 				self.failed = 1
 
 			if st == ASK_LATER:
-				if random.randint(0,1): self.frozen.insert(0, tsk)
-				else: self.frozen.append(tsk)
+				self.postpone(tsk)
 			elif st == SKIP_ME:
 				self.processed += 1
 				tsk.hasrun = SKIPPED

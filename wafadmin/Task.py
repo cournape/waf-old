@@ -403,6 +403,8 @@ class TaskBase(object):
 				return " -> task failed (err #%d): %r" % (self.err_code, self)
 			except AttributeError:
 				return " -> task failed: %r" % self
+		elif self.hasrun == EXCEPTION:
+			return " -> task got an exception %r" % self.err_msg
 		elif self.hasrun == MISSING:
 			return " -> missing files: %r" % self
 		else:
