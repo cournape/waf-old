@@ -47,10 +47,9 @@ if sys.platform == "win32":
 		return proc.wait()
 
 class TaskConsumer(threading.Thread):
-	def __init__(self, i, m):
+	def __init__(self, m):
 		threading.Thread.__init__(self)
 		self.setDaemon(1)
-		self.id     = i
 		self.master = m
 		self.start()
 
@@ -193,7 +192,7 @@ class Parallel(object):
 
 				# create the consumer threads only if there is something to consume
 				if not self.consumers:
-					self.consumers = [TaskConsumer(i, self) for i in range(self.numjobs)]
+					self.consumers = [TaskConsumer(self) for i in xrange(self.numjobs)]
 
 		#print loop
 		while self.count:
