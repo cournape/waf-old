@@ -153,18 +153,12 @@ class Parallel(object):
 		while 1:
 			#loop += 1
 			if self.failed and not self.running:
-				while self.count > 0:
-					self.get_out()
-				if self.failed:
-					return -1
+				break
 
 			# optional limit on the amount of jobs to run at the same time
 			# for example, link tasks are run one by one
 			while self.count >= self.maxjobs:
 				self.get_out()
-
-			# empty the returned tasks as much as possible
-			#while not self.out.empty(): self.get_out()
 
 			if not self.outstanding:
 				self.refill_task_list()
@@ -200,4 +194,7 @@ class Parallel(object):
 		#print loop
 		while self.count:
 			self.get_out()
+
+		if self.failed:
+			return -1
 
