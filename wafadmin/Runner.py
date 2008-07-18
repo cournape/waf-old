@@ -122,7 +122,7 @@ class Parallel(object):
 
 	def get_next(self):
 		"override this method to schedule the tasks in a particular order"
-		return self.outstanding.pop()
+		return self.outstanding.pop(0)
 
 	def refill_task_list(self):
 		"called to set the next group of tasks"
@@ -189,5 +189,6 @@ class Parallel(object):
 					self.consumers = [TaskConsumer(i, self) for i in range(self.numjobs)]
 
 		#print loop
-
+		while self.count:
+			self.get_out()
 
