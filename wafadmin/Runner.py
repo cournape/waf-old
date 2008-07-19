@@ -171,6 +171,10 @@ class Parallel(object):
 
 			# consider the next task
 			tsk = self.get_next()
+			if tsk.hasrun:
+				# if the task is marked as "run" already, we just skip it
+				self.processed += 1
+				self.manager.add_finished(tsk)
 
 			try:
 				st = tsk.runnable_status()

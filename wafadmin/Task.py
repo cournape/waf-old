@@ -326,7 +326,7 @@ class TaskBase(object):
 	stat = None
 
 	def __init__(self, normal=1):
-		self.hasrun = 0
+		self.hasrun = NOT_RUN
 
 		manager = Build.bld.task_manager
 		if normal:
