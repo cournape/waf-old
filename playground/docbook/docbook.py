@@ -4,35 +4,39 @@
 
 "docbook processing (may be broken)"
 
-import string
+import os, string
 import TaskGen, Runner, Utils, Build, Task
+from Logs import debug
 
 # first, we define an action to build something
 fop_vardeps = ['FOP']
 def fop_build(task):
-	bdir = task.inputs[0].bld_dir()
-	src = task.inputs[0].bldpath()
+	bdir = task.inputs[0].bld_dir(task.env)
+	src = task.inputs[0].bldpath(task.env)
 	tgt = src[:-3]+'.pdf'
-	cmd = '%s %s %s' % (task.m_env['FOP'], src, tgt)
+	cmd = '%s %s %s' % (task.env['FOP'], src, tgt)
+	debug(cmd)
 	return Runner.exec_command(cmd)
 
 xslt_vardeps = ['XSLTPROC', 'XSLTPROC_ST']
 
 # Create .fo or .html from xml file
 def xslt_build(task):
-	bdir = task.inputs[0].bld_dir()
-	src = task.inputs[0].bldpath()
-	srcdir = os.path.dirname(task.inputs[0].bldpath())
-	tgt = task.outputs[0].m_name
-	cmd = task.m_env['XSLTPROC_ST'] % (task.m_env['XSLTPROC'], os.path.join(srcdir,task.m_env['XSLT_SHEET']), src, os.path.join(bdir, tgt))
+	bdir = task.inputs[0].bld_dir(task.env)
+	src = task.inputs[0].bldpath(task.env)
+	srcdir = os.path.dirname(task.inputs[0].bldpath(task.env))
+	tgt = task.outputs[0].name
+	cmd = task.env['XSLTPROC_ST'] % (task.env['XSLTPROC'], os.path.join(srcdir,task.env['XSLT_SHEET']), src, os.path.join(bdir, tgt))
+	debug(cmd)
 	return Runner.exec_command(cmd)
 
 # Create various file formats from a docbook or sgml file.
 db2_vardeps = ['DB2','DB2HTML', 'DB2PDF', 'DB2TXT', 'DB2PS']
 def db2_build(task):
-	bdir = task.inputs[0].bld_dir()
-	src = task.inputs[0].bldpath()
-	cmd = task.m_compiler % (bdir, src)
+	bdir = task.inputs[0].bld_dir(task.env)
+	src = task.inputs[0].bldpath(task.env)
+	cmd = task.compiler % (bdir, src)
+	debug(cmd)
 	return Runner.exec_command(cmd)
 
 xslt_vardeps = ['XSLTPROC']
@@ -41,73 +45,68 @@ xslt_vardeps = ['XSLTPROC']
 # create the tasks to build the node's target.
 def docb_file(obj, node):
 
-	# this function is used several times
-	fi = obj.find
-
-	base, ext = os.path.splitext(node.m_name)
+	base, ext = os.path.splitext(node.name)
 
 	# Input format is XML
 	if ext == '.xml':
 		if not obj.env['XSLTPROC']:
-			raise Utils.WafError("Can not process %s: no xml processor detected." % node.m_name)
-	if ext == '.xml' and obj.get_type() == 'pdf':
-		xslttask = obj.create_task('xslt', obj.env, 4)
+			raise Utils.WafError("Can not process %s: no xml processor detected." % node.name)
+	if ext == '.xml' and obj.type == 'pdf':
+		xslttask = obj.create_task('xslt')
 
-		xslttask.inputs  = [fi(node.m_name)]
-		xslttask.outputs = [fi(base+'.fo')]
+		xslttask.inputs  = [node]
+		xslttask.outputs = [node.change_ext('.fo')]
 		if not obj.stylesheet:
 			raise Utils.WafError('No stylesheet specified for creating pdf.')
 
-		xslttask.m_env['XSLT_SHEET'] = obj.stylesheet
+		xslttask.env['XSLT_SHEET'] = obj.stylesheet
 
 		# now we also add the task that creates the pdf file
-		foptask = obj.create_task('fop', obj.env)
+		foptask = obj.create_task('fop')
 		foptask.inputs  = xslttask.outputs
-		foptask.outputs = [fi(base+'.pdf')]
+		foptask.outputs = [node.change_ext('.pdf')]
 
-	if ext == '.xml' and obj.get_type() == 'html':
-		xslttask = obj.create_task('xslt', obj.env, 4)
+	if ext == '.xml' and obj.type == 'html':
+		xslttask = obj.create_task('xslt')
 
-		xslttask.inputs  = [fi(node.m_name)]
-		xslttask.outputs = [fi(base+'.html')]
+		xslttask.inputs  = [node]
+		xslttask.outputs = [node.change_ext('.html')]
 		if not obj.stylesheet:
 			raise Utils.WafError('No stylesheet specified for creating html.')
-		xslttask.m_env['XSLT_SHEET'] = obj.stylesheet
+		xslttask.env['XSLT_SHEET'] = obj.stylesheet
 
 	# Input format is docbook.
 	if ext == '.sgml' or ext == '.docbook':
-		if not obj.env["DB2%s" % string.upper(obj.get_type()) ]:
-			raise Utils.WafError("Can not process %s: no suitable docbook processor detected." %  node.m_name )
+		if not obj.env["DB2%s" % string.upper(obj.type) ]:
+			raise Utils.WafError("Can not process %s: no suitable docbook processor detected." %  node.name )
 	if ext == '.sgml' or ext == '.docbook':
 
-		xslttask = obj.create_task('db2', obj.env)
+		xslttask = obj.create_task('db2')
 
-		xslttask.inputs  = [fi(node.m_name)]
-		xslttask.outputs = [fi(base+'.'+obj.get_type())]
-		xslttask.m_compiler = obj.env[ "DB2%s" % string.upper(obj.get_type() ) ]
+		xslttask.inputs  = [node]
+		xslttask.outputs = [node.change_ext('.' + obj.type)]
+		xslttask.env = xslttask.env.copy()
+		xslttask.env['DBCOMPILER'] = xslttask.env["DB2%s" % string.upper(obj.type)]
 
 	if ext == '.xml':
-		if obj.get_type() == 'txt' or obj.get_type() == 'ps':
+		if obj.type == 'txt' or obj.type == 'ps':
 			raise Utils.WafError("docbook: while processing '%s':\n"
-			      'txt and ps output are currently not supported when input format is XML.' % node.m_name )
+			      'txt and ps output are currently not supported when input format is XML.' % node.name )
 
 # docbook objects
-class docbookobj(TaskGen.task_gen):
-	def __init__(self, type='html'):
-		TaskGen.task_gen.__init__(self, 'other')
+class docbook_taskgen(TaskGen.task_gen):
+	def __init__(self, *k):
+		TaskGen.task_gen.__init__(self, *k)
 		self.stylesheet = None
 
 		self.ext = ['html', 'pdf', 'txt', 'ps']
-
-	def get_type(self):
-		return self.m_type
 
 	def apply(self):
 
 		# for each source argument, create a task
 		lst = self.source.split()
 		for filename in lst:
-			node = self.path.find_source(filename)
+			node = self.path.find_resource(filename)
 			if not node:
 				raise Utils.WafError("source not found: "+filename+" in "+str(self.path))
 
@@ -124,15 +123,15 @@ class docbookobj(TaskGen.task_gen):
 
 		# Install all generated docs
 		for task in self.m_tasks:
-			base, ext = os.path.splitext(task.outputs[0].m_name)
+			base, ext = os.path.splitext(task.outputs[0].name)
 			if ext[1:] not in self.ext:
 				continue
 			self.install_results('PREFIX', docpath, task )
 
-def setup(env):
-	Task.simple_task_type('fop', vars=fop_vardeps, func=fop_build, color='BLUE')
-	Task.simple_task_type('xslt', vars=xslt_vardeps, func=xslt_build, color='BLUE')
-	Task.simple_task_type('db2', vars=db2_vardeps, func=db2_build, color='BLUE')
+
+Task.simple_task_type('fop', "${FOP} ${SRC[0].bldpath(env)} ${SRC[0].bldpath(env)[:-3]}.pdf")
+Task.simple_task_type('db2', "${DBCOMPILER} ${SRC[0].bld_dir(env)} ${SRC[0].bldpath(env)}")
+Task.task_type_from_func('xslt', vars=xslt_vardeps, func=xslt_build, color='BLUE')
 
 ## Detect the installed programs: fop, xsltproc, xalan, docbook2xyz
 # Favour xsltproc over xalan.
@@ -154,8 +153,8 @@ def detect(conf):
 	# OpenJade conversion tools for converting sgml -> xyz
 	jw = conf.find_program('jw', var='JW')
 	if jw:
-		conf.env['DB2HTML'] = "jw -u -f docbook -b html -o %s %s"
-		conf.env['DB2PDF']  = "jw -f docbook -b pdf -o %s %s"
-		conf.env['DB2PS']   = "jw -f docbook -b ps -o %s %s"
-		conf.env['DB2TXT']  = "jw -f docbook -b txt -o %s %s"
+		conf.env['DB2HTML'] = "jw -u -f docbook -b html -o"
+		conf.env['DB2PDF']  = "jw -f docbook -b pdf -o"
+		conf.env['DB2PS']   = "jw -f docbook -b ps -o"
+		conf.env['DB2TXT']  = "jw -f docbook -b txt -o"
 
