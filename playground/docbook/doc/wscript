@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 def build(bld):
+	"""
 	obj = bld.new_task_gen('docbook')
 	obj.type = 'pdf'
 	obj.source='''
@@ -10,13 +11,14 @@ def build(bld):
 	docbookd.docbook
 	'''
 	obj.stylesheet='docbook-pdf.xsl'
+	"""
 
-	#obj = bld.new_task_gen('docbook')
-	#obj.type = 'html'
-	#obj.source='''
-	#docbook.xml
-	#docbooks.sgml
-	#docbookd.docbook
-	#'''
-	#obj.stylesheet='docbook-html.xsl'
+	obj = bld.new_task_gen('docbook')
+	obj.type = 'html'
+	obj.source='''
+	docbook.xml
+	docbooks.sgml
+	docbookd.docbook
+	'''
+	obj.stylesheet='docbook-html.xsl'
 

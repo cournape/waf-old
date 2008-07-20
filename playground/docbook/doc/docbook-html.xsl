@@ -6,7 +6,7 @@
 
 <!-- Change this to the path to where you have installed Norman
      Walsh's XSL stylesheets.  -->
-<xsl:import href="/usr/share/xml/docbook/stylesheet/nwalsh/xhtml/docbook.xsl"/>
+<xsl:import href="/usr/share/xml/docbook/stylesheet/nwalsh/current/xhtml/docbook.xsl"/>
 
   <xsl:param name="draft.mode" select="'no'"/>
   <xsl:param name="paper.type" select="'A4'"/>
