@@ -70,7 +70,12 @@ class TaskConsumer(threading.Thread):
 				tsk.err_msg = "TODO print the exception here"
 				#exc_type, exc_value, tb = sys.exc_info()
 				#traceback.print_exception(exc_type, exc_value, tb)
-				ret = tsk.hasrun = EXCEPTION
+				tsk.hasrun = EXCEPTION
+
+				# TODO cleanup
+				m.error_handler(tsk)
+				m.out.put(tsk)
+				continue
 
 			if ret:
 				tsk.err_code = ret
