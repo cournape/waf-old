@@ -4,7 +4,7 @@
 
 "docbook processing (may be broken)"
 
-import s, string
+import string
 import TaskGen, Runner, Utils, Build, Task
 
 # first, we define an action to build something
