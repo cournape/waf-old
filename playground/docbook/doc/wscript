@@ -11,6 +11,9 @@ def build(bld):
 	docbookd.docbook
 	'''
 	obj.stylesheet='docbook-pdf.xsl'
+
+	# with pdf, the stylesheet provided will not work, however, using this one will:
+	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
 	"""
 
 	obj = bld.new_task_gen('docbook')
