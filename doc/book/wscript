@@ -15,14 +15,15 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('docbook', tooldir='.')
+	conf.env['XSLTPROC_ST'] = '%s --output default/ --xinclude %s %s > %s'
 
 def build(bld):
 	obj = bld.new_task_gen('docbook')
 	obj.source = 'waf.xml'
 
 	obj.type = 'html'
-	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/xhtml/docbook.xsl'
-	#obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/html/chunk.xsl'
+	#obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/xhtml/docbook.xsl'
+	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/html/chunk.xsl'
 
 	#obj.type = 'pdf'
 	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
