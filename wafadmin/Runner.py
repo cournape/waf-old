@@ -67,9 +67,8 @@ class TaskConsumer(threading.Thread):
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
 				else: ret = tsk.run()
 			except Exception, e:
-				tsk.err_msg = "TODO print the exception here"
-				#exc_type, exc_value, tb = sys.exc_info()
-				#traceback.print_exception(exc_type, exc_value, tb)
+				# TODO add the stack error message
+				tsk.err_msg = e.message
 				tsk.hasrun = EXCEPTION
 
 				# TODO cleanup

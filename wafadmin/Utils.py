@@ -50,7 +50,7 @@ class WscriptError(WafError):
 	def __init__(self, message, wscript_file=None):
 		self.message = ''
 
-		if wscript_file: 
+		if wscript_file:
 			self.wscript_file = wscript_file
 			self.wscript_line = None
 		else:
