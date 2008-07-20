@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='wafdocs'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	return
+
+def configure(conf):
+	conf.check_tool('docbook', tooldir='.')
+
+def build(bld):
+	obj = bld.new_task_gen('docbook')
+	obj.source = 'waf.xml'
+
+	obj.type = 'html'
+	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/xhtml/docbook.xsl'
+
+	#obj.type = 'pdf'
+	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
+

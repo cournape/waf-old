@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<book>
+  <bookinfo>
+    <title>The Waf Build System</title>
+    <author><firstname>Thomas</firstname><surname>Nagy</surname></author>
+  </bookinfo>
+  <preface>
+    <title>preface description</title>
+    <para>This book is about Waf.</para>
+  </preface>
+
+<title>User Guide</title>
+<chapter id="introi">
+<title>Getting Started</title>
+<section id="Installing">
+	<title>Sec 1</title>
+    <para>Para 1</para>
+
+<itemizedlist>
+  <listitem>Primer Elemento</listitem>
+  <listitem>Segundo Elemento</listitem>
+</itemizedlist>
+
+<orderedlist>
+  <listitem>Primer Elemento
+    <orderedlist>
+      <listitem>Primero-Primero Elemento</listitem>
+      <listitem>Primero-Segundo Elemento</listitem>
+    </orderedlist>
+  </listitem>
+  <listitem>Segundo Elemento</listitem>
+</orderedlist>
+
+</section>
+
+</chapter>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
+
+
+
+
+</book>
+
