@@ -3,11 +3,10 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="intro">
-<title>Getting Started</title>
-<section id="Installingd">
-	<title>Sec 1</title>
-      <para>Para 1</para>
-</section>
-
+	<title>Getting Started</title>
+	<section id="Installing">
+		<title>Installing Waf</title>
+		<para>Installing Waf is usually discouraged</para>
+	</section>
 </chapter>
 

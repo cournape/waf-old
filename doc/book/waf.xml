@@ -3,17 +3,35 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <book>
-  <bookinfo>
-    <title>The Waf Build System</title>
-    <author><firstname>Thomas</firstname><surname>Nagy</surname></author>
-  </bookinfo>
-  <preface>
-    <title>preface description</title>
-    <para>This book is about Waf.</para>
-  </preface>
+	<bookinfo>
+		<title>The Waf Book</title>
+		<author><firstname>Thomas</firstname><surname>Nagy</surname> 2008</author>
+	</bookinfo>
 
-<title>User Guide</title>
-<chapter id="introi">
+	<preface>
+		<title>Preface</title>
+		<section>
+			<title>About build systems in general</title>
+			<para>As software is becoming increasingly complex, the process of creating software is becoming more complex too. Today's software uses various languages, requires various compilers, and the input data is spread into many files. Software is now used to express the process of building software, it can take the form of simple scripts (shell scripts, makefiles), of compilers (CMake, qmake), or complete applications (Scons, Waf). The term &quot;build system&quot; is used to design the tools used to build applications.</para>
+<para>The Waf build system is a Python-based build system, it uses the language Python for its code but also for its scripts. Waf interprets the users scripts and uses the parameters and various APIs to build the software.</para>
+		</section>
+		<section>
+			<title>The Waf approach</title>
+			<para>Build systems make assumptions on the business problems they are trying to solve, and are typically limited where it comes to processing other languages (for example, Ant is better than Make for processing Java). The business rules (specific compilers, order of processing) are being reflected in the build process too, increasing the complexity. For this reason, creating the ultimate build system that would process any language out-of-the-box remains an unreachable ideal. It is more interesting to make it easy to extend the existing code for new business rule.</para>
+<para>The Waf approach is to provide a minimalistic framework flexible enough to be extended easily, and with a significant amount of business rules to be usable for any project.</para>
+		</section>
+		<section>
+			<title>Objectives of this book</title>
+			<para>The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and detailed review of the Waf internals.</para>
+		</section>
+	</preface>
+
+<title>The Waf book</title>
+
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
+
+
+<chapter id="intro">
 <title>Getting Started</title>
 <section id="Installing">
 	<title>Sec 1</title>
@@ -71,8 +89,6 @@ def build(bld):
 </section>
 
 </chapter>
-
-<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
 
 
 <chapter>
