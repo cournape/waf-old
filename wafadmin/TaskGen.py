@@ -38,13 +38,14 @@ typos = {
 class register_obj(type):
 	"""no decorators for classes, so we use a metaclass
 	we store into task_gen.classes the classes that inherit task_gen
-	and whose names end in 'obj'
+	and whose names end in '_taskgen'
 	"""
 	def __init__(cls, name, bases, dict):
 		super(register_obj, cls).__init__(name, bases, dict)
 		name = cls.__name__
-		if name != 'task_gen' and not name.endswith('_abstract'):
-			task_gen.classes[name.replace('_taskgen', '')] = cls
+		suffix = '_taskgen'
+		if name.endswith(suffix):
+			task_gen.classes[name.replace(suffix, '')] = cls
 
 class task_gen(object):
 	"""
