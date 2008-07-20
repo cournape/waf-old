@@ -8,16 +8,6 @@ import os, string
 import TaskGen, Runner, Utils, Build, Task
 from Logs import debug
 
-# first, we define an action to build something
-fop_vardeps = ['FOP']
-def fop_build(task):
-	bdir = task.inputs[0].bld_dir(task.env)
-	src = task.inputs[0].bldpath(task.env)
-	tgt = src[:-3]+'.pdf'
-	cmd = '%s %s %s' % (task.env['FOP'], src, tgt)
-	debug(cmd)
-	return Runner.exec_command(cmd)
-
 xslt_vardeps = ['XSLTPROC', 'XSLTPROC_ST']
 
 # Create .fo or .html from xml file
