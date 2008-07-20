@@ -22,6 +22,7 @@ def build(bld):
 
 	obj.type = 'html'
 	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/xhtml/docbook.xsl'
+	#obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/html/chunk.xsl'
 
 	#obj.type = 'pdf'
 	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
