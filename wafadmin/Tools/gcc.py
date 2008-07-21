@@ -116,8 +116,10 @@ def gcc_modifier_debug(conf):
 		v['CCFLAGS_RELEASE'] = ['-O2']
 	if conf.check_flags('-g -DDEBUG'):
 		v['CCFLAGS_DEBUG'] = ['-g', '-DDEBUG']
+		v['LINKFLAGS_DEBUG'] = ['-g']
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
+		v['LINKFLAGS_ULTRADEBUG'] = ['-g']
 	if conf.check_flags('-Wall'):
 		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CCFLAGS_'+x, '-Wall')
 	try:

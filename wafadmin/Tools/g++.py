@@ -118,8 +118,10 @@ def gxx_modifier_debug(conf, kind='cpp'):
 		v['CXXFLAGS_RELEASE'] = ['-O2', '-DNDEBUG']
 	if conf.check_flags('-g -DDEBUG', kind=kind):
 		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
+		v['LINKFLAGS_DEBUG'] = ['-g']
 	if conf.check_flags('-g3 -O0 -DDEBUG', kind=kind):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
+		v['LINKFLAGS_ULTRADEBUG'] = ['-g']
 	if conf.check_flags('-Wall', kind=kind):
 		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CXXFLAGS_'+x, '-Wall')
 	try:
