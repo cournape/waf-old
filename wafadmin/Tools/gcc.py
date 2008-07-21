@@ -127,6 +127,7 @@ def gcc_modifier_debug(conf):
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
+	v.append_value('LINKFLAGS', v['LINKFLAGS_'+debug_level])
 
 detect = '''
 find_gcc

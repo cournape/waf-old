@@ -129,6 +129,7 @@ def gxx_modifier_debug(conf, kind='cpp'):
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
+	v.append_value('LINKFLAGS', v['LINKFLAGS_'+debug_level])
 
 detect = '''
 find_gxx
