@@ -74,8 +74,10 @@ def set_options(opt):
 	opt.add_option('--set-version', default='',
 		help='set the version number for waf releases (for the maintainer)', dest='setver')
 
-	opt.add_option('--strip', action='store_true', default=False,
+	opt.add_option('--strip', action='store_true', default=True,
 		help='Shrink waf (strip docstrings, saves 33kb)',
+		dest='strip_comments')
+	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
 
 	default_prefix = os.environ.get('PREFIX')
