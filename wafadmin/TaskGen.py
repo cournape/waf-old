@@ -307,7 +307,7 @@ class task_gen(object):
 			for name in Build.bld.cache_dir_contents[anode.id]:
 				(base, ext) = os.path.splitext(name)
 				if ext in ext_lst and not name in lst and not name in excludes:
-					lst.append((anode.relative_path(self.path) or '.') + os.path.sep + name)
+					lst.append((anode.relpath_gen(self.path) or '.') + os.path.sep + name)
 
 		lst.sort()
 		self.source = self.to_list(self.source)

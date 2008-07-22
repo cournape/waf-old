@@ -281,7 +281,7 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 			if ext in ext_lst:
 				if not name in lst:
 					if name in excludes: continue
-					lst.append((anode.relpath(self.path) or '.') + '/' + name)
+					lst.append((anode.path_to_parent(self.path) or '.') + '/' + name)
 			elif ext == '.ts':
 				self.lang += ' '+base
 
@@ -310,7 +310,7 @@ def process_qm2rcc(task):
 	for k in task.inputs:
 		f.write(' <file>')
 		#f.write(k.name)
-		f.write(k.relpath(task.path))
+		f.write(k.path_to_parent(task.path))
 		f.write('</file>\n')
 	f.write('</qresource>\n</RCC>')
 	f.close()

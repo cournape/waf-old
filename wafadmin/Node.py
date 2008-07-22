@@ -248,7 +248,7 @@ class Node(object):
 
 	## ===== BEGIN relpath-related methods	===== ##
 
-	def relpath(self, parent):
+	def path_to_parent(self, parent):
 		"path relative to a direct ancestor, as string"
 		lst = []
 		p = self
@@ -376,7 +376,7 @@ class Node(object):
 			# the real hot zone is the os path join
 			val = os.sep.join(lst)
 		else:
-			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.relpath(Build.bld.srcnode)))
+			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.path_to_parent(Build.bld.srcnode)))
 		Build.bld.cache_node_abspath[variant][self.id] = val
 		return val
 
@@ -412,8 +412,8 @@ class Node(object):
 		"path seen from the build dir default/src/foo.cpp"
 		if self.id & 3 == FILE:
 			return self.relpath_gen(Build.bld.bldnode)
-		if self.relpath(Build.bld.srcnode) is not '':
-			return os.path.join(env.variant(), self.relpath(Build.bld.srcnode))
+		if self.path_to_parent(Build.bld.srcnode) is not '':
+			return os.path.join(env.variant(), self.path_to_parent(Build.bld.srcnode))
 		return env.variant()
 
 	def srcpath(self, env=None):
@@ -497,7 +497,7 @@ if sys.platform == "win32":
 			lst.reverse()
 			val = os.sep.join(lst)
 		else:
-			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.relpath(Build.bld.srcnode)))
+			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.path_to_parent(Build.bld.srcnode)))
 		if val.startswith("\\"): val = val[1:]
 		if val.startswith("\\"): val = val[1:]
 		Build.bld.cache_node_abspath[variant][self.id] = val

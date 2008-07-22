@@ -536,7 +536,7 @@ class Build(object):
 		path = self.path.abspath()
 		files = [self.root.find_resource(x) for x in glob.glob(path+os.sep+pattern)]
 		if relative:
-			files = [x.relpath(self.path) for x in files if x]
+			files = [x.path_to_parent(self.path) for x in files if x]
 		else:
 			files = [x.abspath() for x in files if x]
 		return files
