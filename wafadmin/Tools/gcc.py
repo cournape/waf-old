@@ -116,15 +116,19 @@ def gcc_modifier_debug(conf):
 		v['CCFLAGS_RELEASE'] = ['-O2']
 	if conf.check_flags('-g -DDEBUG'):
 		v['CCFLAGS_DEBUG'] = ['-g', '-DDEBUG']
+		v['LINKFLAGS_DEBUG'] = ['-g']
 	if conf.check_flags('-g3 -O0 -DDEBUG'):
 		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
+		v['LINKFLAGS_ULTRADEBUG'] = ['-g']
 	if conf.check_flags('-Wall'):
 		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CCFLAGS_'+x, '-Wall')
 	try:
-		debug_level = Options.options.debug_level.upper()
+		debug_level = Params.g_options.debug_level.upper()
 	except AttributeError:
 		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
 	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
+	v.append_value('LINKFLAGS', v['LINKFLAGS_'+debug_level])
+
 
 detect = '''
 find_gcc
