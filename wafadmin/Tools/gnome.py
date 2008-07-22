@@ -9,7 +9,6 @@ import TaskGen, Utils, Runner, Task, Build, Options, Logs
 import cc
 from Logs import error
 from TaskGen import taskgen, before, after, feature
-import Install as Common
 
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
@@ -80,7 +79,7 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 
 			if Options.is_install:
 				inst_dir = self.inst_dir + 'gnome/help/%s/%s' % (self.doc_module, x)
-				Common.install_files(self.inst_var, self.inst_dir + "omf", out2.abspath(self.env))
+				Build.bld.install_files(self.inst_var, self.inst_dir + "omf", out2.abspath(self.env))
 				for y in self.to_list(self.doc_figures):
 					try:
 						os.stat(self.path.abspath()+'/'+x+'/'+y)
@@ -173,7 +172,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 			name = out.name
 			ext = name[-1]
 			env = task.env
-			Common.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
+			Build.bld.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
 
 		tree = Build.bld
 		tree.rescan(self.path)
