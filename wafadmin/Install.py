@@ -14,9 +14,6 @@ from Logs import error, info
 from Constants import *
 from Utils import check_dir
 
-class InstallError(Utils.WafError):
-	pass
-
 def do_install(src, tgt, chmod=0644):
 	"""returns true if the file was effectively installed or uninstalled, false otherwise"""
 	if Options.commands['install']:
