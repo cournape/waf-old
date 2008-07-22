@@ -653,6 +653,7 @@ class Task(TaskBase):
 		def v(x):
 			return x.encode('hex')
 
+		debug("Task %r" % self)
 		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency', '* Environment variable']
 		tmp = 'task: -> %s: %s %s'
 		for x in xrange(len(msgs)):
