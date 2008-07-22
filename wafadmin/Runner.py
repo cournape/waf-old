@@ -10,9 +10,6 @@ import pproc
 from Logs import debug, error
 from Constants import *
 
-g_quiet = 0
-"do not output anything"
-
 def print_log(msg, nl='\n'):
 	f = Build.bld.log
 	if f:

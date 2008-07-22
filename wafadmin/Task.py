@@ -643,7 +643,7 @@ class Task(TaskBase):
 			else:
 				cnt += 1
 				Build.bld.node_sigs[variant][node.id] = sig
-				if not Runner.g_quiet: Utils.pprint('GREEN', 'restored from cache %s' % node.bldpath(env))
+				Runner.printout('restored from cache %s\n' % node.bldpath(env))
 		return 1
 
 	def debug_why(self, old_sigs):
