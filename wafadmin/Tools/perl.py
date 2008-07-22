@@ -52,7 +52,7 @@ def check_perl_version(conf, minver=None):
 		perl = Options.options.perlbinary
 		conf.env['PERL'] = perl
 
-	version = os.popen(perl + " -e'printf \"%vd\", $^V'").read()
+	version = Utils.cmd_output(perl + " -e'printf \"%vd\", $^V'")
 	if not version:
 		res = False
 		version = "Unknown"
@@ -98,19 +98,19 @@ def check_perl_ext_devel(conf):
 
 	perl = conf.env['PERL']
 
-	conf.env["LINKFLAGS_PERLEXT"] = os.popen(perl + " -MConfig -e'print $Config{lddlflags}'").read()
-	conf.env["CPPPATH_PERLEXT"] = os.popen(perl + " -MConfig -e'print \"$Config{archlib}/CORE\"'").read()
-	conf.env["CCFLAGS_PERLEXT"] = os.popen(perl + " -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'").read()
+	conf.env["LINKFLAGS_PERLEXT"] = Utils.cmd_output(perl + " -MConfig -e'print $Config{lddlflags}'")
+	conf.env["CPPPATH_PERLEXT"] = Utils.cmd_output(perl + " -MConfig -e'print \"$Config{archlib}/CORE\"'")
+	conf.env["CCFLAGS_PERLEXT"] = Utils.cmd_output(perl + " -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'")
 
-	conf.env["XSUBPP"] = os.popen(perl + " -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'").read()
-	conf.env["EXTUTILS_TYPEMAP"] = os.popen(perl + " -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'").read()
+	conf.env["XSUBPP"] = Utils.cmd_output(perl + " -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'")
+	conf.env["EXTUTILS_TYPEMAP"] = Utils.cmd_output(perl + " -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'")
 
 	if not getattr(Options.options, 'perlarchdir', None):
-		conf.env["ARCHDIR_PERL"] = os.popen(perl + " -MConfig -e'print $Config{sitearch}'").read()
+		conf.env["ARCHDIR_PERL"] = Utils.cmd_output(perl + " -MConfig -e'print $Config{sitearch}'")
 	else:
 		conf.env["ARCHDIR_PERL"] = getattr(Options.options, 'perlarchdir')
 
-	conf.env['perlext_PATTERN'] = '%s.' + os.popen(perl + " -MConfig -e'print $Config{dlext}'").read()
+	conf.env['perlext_PATTERN'] = '%s.' + Utils.cmd_output(perl + " -MConfig -e'print $Config{dlext}'")
 
 	return True
 

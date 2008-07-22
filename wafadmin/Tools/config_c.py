@@ -283,7 +283,7 @@ class cfgtool_configurator(configurator_base):
 			for flag in self.tests:
 				var = self.tests[flag] + '_' + self.uselib_store
 				cmd = '%s %s %s' % (self.binary, flag, null)
-				retval[var] = [os.popen(cmd).read().strip()]
+				retval[var] = [Utils.cmd_output(cmd).strip()]
 
 			self.update_env(retval)
 		except ValueError:
@@ -406,8 +406,8 @@ class pkgconfig_configurator(configurator_base):
 				if ret:
 					raise ValueError, "error"
 
-			cflags_I = shlex.split(os.popen('%s --cflags-only-I \"%s\"' % (pkgcom, self.name)).read())
-			cflags_other = shlex.split(os.popen('%s --cflags-only-other \"%s\"' % (pkgcom, self.name)).read())
+			cflags_I = shlex.split(Utils.cmd_output('%s --cflags-only-I \"%s\"' % (pkgcom, self.name)))
+			cflags_other = shlex.split(Utils.cmd_output('%s --cflags-only-other \"%s\"' % (pkgcom, self.name)))
 			retval['CCFLAGS_'+uselib_store] = cflags_other
 			retval['CXXFLAGS_'+uselib_store] = cflags_other
 			retval['CPPPATH_'+uselib_store] = []
@@ -421,19 +421,19 @@ class pkgconfig_configurator(configurator_base):
 
 			#env['LINKFLAGS_'+uselib_store] = os.popen('%s --libs %s' % (pkgcom, self.name)).read().strip()
 			# Store the library names:
-			modlibs = os.popen('%s --libs-only-l \"%s\"' % (pkgcom, self.name)).read().strip().split()
+			modlibs = Utils.cmd_output('%s --libs-only-l \"%s\"' % (pkgcom, self.name)).strip().split()
 			retval[static_l+'LIB_'+uselib_store] = []
 			for item in modlibs:
 				retval[static_l+'LIB_'+uselib_store].append( item[2:] ) #Strip '-l'
 
 			# Store the library paths:
-			modpaths = os.popen('%s --libs-only-L \"%s\"' % (pkgcom, self.name)).read().strip().split()
+			modpaths = Utils.cmd_output('%s --libs-only-L \"%s\"' % (pkgcom, self.name)).split()
 			retval['LIBPATH_'+uselib_store] = []
 			for item in modpaths:
 				retval['LIBPATH_'+uselib_store].append( item[2:] ) #Strip '-l'
 
 			# Store only other:
-			modother = os.popen('%s --libs-only-other \"%s\"' % (pkgcom, self.name)).read().strip().split()
+			modother = Utils.cmd_output('%s --libs-only-other \"%s\"' % (pkgcom, self.name)).strip().split()
 			retval['LINKFLAGS_'+uselib_store] = []
 			for item in modother:
 				if str(item).endswith(".la"):
@@ -463,7 +463,7 @@ class pkgconfig_configurator(configurator_base):
 				if not var_defname:
 					var_defname = uselib_store + '_' + variable.upper()
 
-				retval[var_defname] = os.popen('%s --variable=%s \"%s\"' % (pkgcom, variable, self.name)).read().strip()
+				retval[var_defname] = Utils.cmd_output('%s --variable=%s \"%s\"' % (pkgcom, variable, self.name)).strip()
 
 			self.conf.define(self.define, 1)
 			self.update_env(retval)
@@ -998,7 +998,7 @@ def run_check(self, obj):
 	# if we need to run the program, try to get its result
 	if obj.execute:
 		if ret: return not ret
-		data = os.popen('"%s"' %lastprog).read().strip()
+		data = Utils.cmd_output('"%s"' % lastprog).strip()
 		ret = {'result': data}
 		return ret
 
@@ -1074,6 +1074,6 @@ def pkgconfig_fetch_variable(self, pkgname, variable, pkgpath='', pkgbin='', pkg
 		if ret:
 			return '' # error
 
-	return os.popen('%s --variable=%s %s' % (pkgcom, variable, pkgname)).read().strip()
+	return Utils.cmd_output('%s --variable=%s %s' % (pkgcom, variable, pkgname)).strip()
 
 

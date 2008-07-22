@@ -373,8 +373,8 @@ def detect(conf):
 	xml2po = conf.find_program('xml2po', var='XML2PO')
 	xsltproc2po = conf.find_program('xsltproc', var='XSLTPROC2PO')
 	conf.env['XML2POFLAGS'] = '-e -p'
-	conf.env['SCROLLKEEPER_DATADIR'] = os.popen("scrollkeeper-config --pkgdatadir").read().strip()
-	conf.env['DB2OMF'] = os.popen("/usr/bin/pkg-config --variable db2omf gnome-doc-utils").read().strip()
+	conf.env['SCROLLKEEPER_DATADIR'] = Utils.cmd_output("scrollkeeper-config --pkgdatadir").strip()
+	conf.env['DB2OMF'] = Utils.cmd_output("/usr/bin/pkg-config --variable db2omf gnome-doc-utils").strip()
 
 	# TODO: maybe the following checks should be in a more generic module.
 

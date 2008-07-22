@@ -33,7 +33,7 @@ def detect(conf):
 	kdeconfig = conf.find_program('kde4-config')
 	if not kdeconfig:
 		conf.fatal('we need kde4-config')
-	prefix = os.popen('%s --prefix' % kdeconfig).read().strip()
+	prefix = Utils.cmd_output('%s --prefix' % kdeconfig).strip()
 	file = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
 	try: os.stat(file)
 	except OSError:

@@ -352,11 +352,11 @@ def detect_qt4(conf):
 			for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
 				qmake = conf.find_program(qmk, path)
 				if qmake:
-					version = os.popen(qmake+" -query QT_VERSION").read().strip().split('.')
+					version = Utils.cmd_output(qmake+" -query QT_VERSION").strip().split('.')
 					if version[0] == "4":
-						qtincludes = os.popen(qmake+" -query QT_INSTALL_HEADERS").read().strip()
-						qtdir = os.popen(qmake + " -query QT_INSTALL_PREFIX").read().strip()+"/"
-						qtbin = os.popen(qmake + " -query QT_INSTALL_BINS").read().strip()+"/"
+						qtincludes = Utils.cmd_output(qmake+" -query QT_INSTALL_HEADERS").strip()
+						qtdir = Utils.cmd_output(qmake + " -query QT_INSTALL_PREFIX").strip()+"/"
+						qtbin = Utils.cmd_output(qmake + " -query QT_INSTALL_BINS").strip()+"/"
 						break
 		except OSError:
 			pass
@@ -387,7 +387,7 @@ def detect_qt4(conf):
 	find_bin(['uic-qt3', 'uic3'], 'QT_UIC3')
 
 	find_bin(['uic-qt4', 'uic'], 'QT_UIC')
-	version = os.popen(env['QT_UIC'] + " -version 2>&1").read().strip()
+	version = Utils.cmd_output(env['QT_UIC'] + " -version 2>&1").strip()
 	version = version.replace('Qt User Interface Compiler ','')
 	version = version.replace('User Interface Compiler for Qt', '')
 	if version.find(" 3.") != -1:

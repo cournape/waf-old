@@ -319,8 +319,8 @@ def detect(conf):
 	conf.env['OCAMLLEX']     = conf.find_program('ocamllex', var='OCAMLLEX')
 	conf.env['OCAMLYACC']    = conf.find_program('ocamlyacc', var='OCAMLYACC')
 	conf.env['OCAMLFLAGS']   = ''
-	conf.env['OCAMLLIB']     = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep
-	conf.env['LIBPATH_OCAML'] = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep
-	conf.env['CPPPATH_OCAML'] = os.popen(conf.env['OCAMLC']+' -where').read().strip()+os.sep
+	conf.env['OCAMLLIB']     = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
+	conf.env['LIBPATH_OCAML'] = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
+	conf.env['CPPPATH_OCAML'] = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
 	conf.env['LIB_OCAML'] = 'camlrun'
 

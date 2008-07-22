@@ -16,7 +16,7 @@ import config_c # <- necessary for the configuration, do not touch
 get_version_re = re.compile('\d+\.\d+(\.?\d+)*')
 def get_cc_version(conf, cc, version_var):
 	v = conf.env
-	output = os.popen('%s -dumpversion' % cc).read()
+	output = Utils.cmd_output('%s -dumpversion' % cc)
 	if output:
 		match = get_version_re.search(output)
 		if match:
