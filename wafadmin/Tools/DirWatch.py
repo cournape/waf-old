@@ -2,7 +2,19 @@
 # encoding: utf-8
 # Matthias Jahn <jahn.matthias@freenet.de>, 2006
 
-"DirWatch chooses a supported backend (fam, gamin or fallback) it is mainly a wrapper script without own methods beside this"
+"""DirWatch chooses a supported backend (fam, gamin or fallback)
+it is mainly a wrapper script without own methods beside this
+
+To enable it, call start_daemon in the shutdown method, and
+the following code to the options to enable a switch:
+
+	p('', '--daemon',
+		action  = 'store_true',
+		default = False,
+		help    = 'run as a daemon [Default: False]',
+		dest    = 'daemon')
+"""
+
 
 import select, errno, os, time
 
@@ -35,6 +47,46 @@ def check_support():
 			pass
 		else:
 			module = _fam
+
+g_daemonlock = 0
+
+def call_back(idxName, pathName, event):
+	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
+	# check the daemon lock state
+	global g_daemonlock
+	if g_daemonlock: return
+	g_daemonlock = 1
+
+	try:
+		main()
+	except Utils.WafError, e:
+		error(e)
+	g_daemonlock = 0
+
+def start_daemon():
+	"if it does not exist already:start a new directory watcher; else: return immediately"
+	global g_dirwatch
+	if not g_dirwatch:
+		g_dirwatch = DirectoryWatcher()
+		dirs=[]
+		for nodeDir in Build.bld.srcnode.dirs():
+			tmpstr = "%s" %nodeDir
+			tmpstr = "%s" %(tmpstr[6:])
+			dirs.append(tmpstr)
+		g_dirwatch.add_watch("tmp Test", call_back, dirs)
+		# infinite loop, no need to exit except on ctrl+c
+		g_dirwatch.loop()
+		g_dirwatch = None
+	else:
+		g_dirwatch.suspend_all_watch()
+		dirs=[]
+		for nodeDir in Build.bld.srcnode.dirs():
+			tmpstr = "%s" % nodeDir
+			tmpstr = "%s" % (tmpstr[6:])
+			dirs.append(tmpstr)
+		g_dirwatch.add_watch("tmp Test", call_back, dirs)
+
+
 
 class WatchObject:
 	def __init__(self, idxName, namePath, isDir, callBackThis, handleEvents):

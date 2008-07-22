@@ -47,12 +47,6 @@ def create_parser():
 		help    = "amount of parallel jobs [Default: %s]" % default_jobs,
 		dest    = 'jobs')
 
-	p('', '--daemon',
-		action  = 'store_true',
-		default = False,
-		help    = 'run as a daemon [Default: False]',
-		dest    = 'daemon')
-
 	p('-f', '--force',
 		action  = 'store_true',
 		default = False,

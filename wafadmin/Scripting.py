@@ -12,7 +12,6 @@ from Constants import *
 
 g_gz = 'bz2'
 g_dirwatch = None
-g_daemonlock = 0
 g_excludes = '.svn CVS .arch-ids {arch} SCCS BitKeeper .hg'.split()
 "exclude folders from dist"
 g_dist_exts = '~ .rej .orig .pyc .pyo .bak config.log .tar.bz2 .zip Makefile Makefile.in'.split()
@@ -45,43 +44,6 @@ def add_subdir(dir, bld):
 
 	# restore the old node position
 	bld.path = old
-
-def call_back(idxName, pathName, event):
-	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
-	# check the daemon lock state
-	global g_daemonlock
-	if g_daemonlock: return
-	g_daemonlock = 1
-
-	try:
-		main()
-	except Utils.WafError, e:
-		error(e)
-	g_daemonlock = 0
-
-def start_daemon():
-	"if it does not exist already:start a new directory watcher; else: return immediately"
-	global g_dirwatch
-	if not g_dirwatch:
-		import DirWatch
-		g_dirwatch = DirWatch.DirectoryWatcher()
-		dirs=[]
-		for nodeDir in Build.bld.srcnode.dirs():
-			tmpstr = "%s" %nodeDir
-			tmpstr = "%s" %(tmpstr[6:])
-			dirs.append(tmpstr)
-		g_dirwatch.add_watch("tmp Test", call_back, dirs)
-		# infinite loop, no need to exit except on ctrl+c
-		g_dirwatch.loop()
-		g_dirwatch = None
-	else:
-		g_dirwatch.suspend_all_watch()
-		dirs=[]
-		for nodeDir in Build.bld.srcnode.dirs():
-			tmpstr = "%s" % nodeDir
-			tmpstr = "%s" % (tmpstr[6:])
-			dirs.append(tmpstr)
-		g_dirwatch.add_watch("tmp Test", call_back, dirs)
 
 def configure():
 	# disable parallelization while configuring
@@ -360,11 +322,6 @@ def main():
 		#if ret:
 		#	msg='Cleanup failed for a mysterious reason'
 		#	error(msg)
-
-	# daemon look here
-	if Options.options.daemon and Options.commands['build']:
-		start_daemon()
-		return
 
 	# shutdown
 	fun = getattr(Utils.g_module, 'shutdown', None)
