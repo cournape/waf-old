@@ -35,7 +35,7 @@ Utilities, the stable ones are the following:
 
 import os, sys, imp, types, string, errno, traceback, inspect
 from UserDict import UserDict
-import Logs
+import Logs, pproc
 from Constants import *
 
 class WafError(Exception):
@@ -341,4 +341,12 @@ def check_dir(dir):
 			os.makedirs(dir)
 		except OSError, e:
 			raise WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
+
+def cmd_output(cmd):
+	p = pproc.Popen(to_list(cmd), stdout=pproc.PIPE)
+	output = p.communicate()[0]
+	if p.returncode:
+		msg = "command execution failed: %s -> %r" % (cmd, str(output))
+		raise ValueError, msg
+	return output
 
