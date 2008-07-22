@@ -23,6 +23,7 @@ def asm_hook(self, node):
 	task.inputs = [node]
 	task.outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
+	self.meths.append('asm_incflags')
 
 @taskgen
 @after('apply_obj_vars_cc')
@@ -30,8 +31,8 @@ def asm_hook(self, node):
 @before('apply_link')
 def asm_incflags(self):
 	if self.env['ASINCFLAGS']: self.env['_ASINCFLAGS'] = self.env['ASINCFLAGS']
-	if 'cxx' in self.features: self.env['_ASINCFLAGS'] = self.env['_CCINCFLAGS']
-	else: self.env['_ASINCFLAGS'] = self.env['_CXXINCFLAGS']
+	if 'cxx' in self.features: self.env['_ASINCFLAGS'] = self.env['_CXXINCFLAGS']
+	else: self.env['_ASINCFLAGS'] = self.env['_CCINCFLAGS']
 
 def detect(conf):
 	comp = os.environ.get('AS', '')
