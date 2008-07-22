@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, optparse, sys, re
-import Configure, Options
+import Configure, Options, Utils
 import ccroot, ar
 from Configure import conftest
 
@@ -18,6 +18,11 @@ def find_gxx(conf):
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx: conf.fatal('g++ was not found')
+	try:
+		if Utils.cmd_output('%s --version' % cxx).find('g++') < 0:
+			conf.fatal('g++ was not found, see the result of g++ --version')
+	except ValueError:
+		conf.fatal('g++ --version could not be executed')
 	v['CXX']  = cxx
 	v['CXX_NAME'] = 'gcc'
 	ccroot.get_cc_version(conf, cxx, 'CXX_VERSION')

@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Configure, Options
+import Configure, Options, Utils
 import ccroot, ar
 from Configure import conftest
 
@@ -17,6 +17,11 @@ def find_gcc(conf):
 	if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc: conf.fatal('gcc was not found')
+	try:
+		if Utils.cmd_output('%s --version' % cc).find('gcc') < 0:
+			conf.fatal('gcc was not found, see the result of gcc --version')
+	except ValueError:
+		conf.fatal('gcc --version could not be executed')
 	v['CC']  = cc
 	v['CC_NAME'] = 'gcc'
 	ccroot.get_cc_version(conf, cc, 'CC_VERSION')
