@@ -307,50 +307,8 @@ class Node(object):
 		ln = tree.launch_node()
 		name = self.name
 
-		if self.id & 3 == FILE: return self.relative_path(ln)
-		else: return os.path.join(tree.bldnode.relative_path(ln), env.variant(), self.relative_path(tree.srcnode))
-
-	def relative_path(self, folder):
-		"relative path between a node and a directory node"
-		hh1 = h1 = self.height()
-		hh2 = h2 = folder.height()
-		p1 = self
-		p2 = folder
-		while h1 > h2:
-			p1 = p1.parent
-			h1 -= 1
-		while h2 > h1:
-			p2 = p2.parent
-			h2 -= 1
-
-		# now we have two nodes of the same height
-		ancestor = None
-		if p1.name == p2.name:
-			ancestor = p1
-		while p1.parent:
-			p1 = p1.parent
-			p2 = p2.parent
-			if p1.name != p2.name:
-				ancestor = None
-			elif not ancestor:
-				ancestor = p1
-
-		anh = ancestor.height()
-		n1 = hh1-anh
-		n2 = hh2-anh
-
-		lst = []
-		tmp = self
-		while n1:
-			n1 -= 1
-			lst.append(tmp.name)
-			tmp = tmp.parent
-
-		lst.reverse()
-		up_path = os.sep.join(lst)
-		down_path = (".."+os.sep) * n2
-
-		return "".join(down_path + up_path)
+		if self.id & 3 == FILE: return self.relpath_gen(ln)
+		else: return os.path.join(tree.bldnode.relpath_gen(ln), env.variant(), self.relpath_gen(tree.srcnode))
 
 	## ===== END relpath-related methods  ===== ##
 
