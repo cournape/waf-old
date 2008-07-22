@@ -346,6 +346,9 @@ class TaskBase(object):
 		"RUN_ME SKIP_ME or ASK_LATER"
 		return RUN_ME
 
+	def call_run(self):
+		return self.run()
+
 	def run(self):
 		"called if the task must run"
 		try: fun = self.fun
@@ -480,6 +483,12 @@ class Task(TaskBase):
 		x = self.uid = m.digest()
 		return x
 
+	def call_run(self):
+		print "called if the task must run", self
+		if self.can_retrieve_cache():
+			return 0
+		return self.run()
+
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.inputs += inp
 		else: self.inputs.append(inp)
@@ -563,8 +572,7 @@ class Task(TaskBase):
 				debug("something is wrong, computing the task signature failed")
 				return RUN_ME
 
-			ret = self.can_retrieve_cache(new_sig)
-			return ret and SKIP_ME or RUN_ME
+			return RUN_ME
 
 		key = self.unique_id()
 		try:
@@ -580,10 +588,7 @@ class Task(TaskBase):
 		if Logs.verbose: self.debug_why(tree.task_sigs[key])
 
 		if new_sig != prev_sig:
-			# try to retrieve the file from the cache
-			ret = self.can_retrieve_cache(new_sig)
-			return ret and SKIP_ME or RUN_ME
-
+			return RUN_ME
 		return SKIP_ME
 
 	def post_run(self):
@@ -618,7 +623,7 @@ class Task(TaskBase):
 		tree.task_sigs[self.unique_id()] = self.cache_sig
 		self.executed=1
 
-	def can_retrieve_cache(self, sig):
+	def can_retrieve_cache(self):
 		"""Retrieve build nodes from the cache - the file time stamps are updated
 		for cleaning the least used files from the cache dir - be careful when overridding"""
 		if not Options.cache_global: return None
@@ -643,7 +648,7 @@ class Task(TaskBase):
 			else:
 				cnt += 1
 				Build.bld.node_sigs[variant][node.id] = sig
-				Runner.printout('restored from cache %s\n' % node.bldpath(env))
+				Runner.printout('restoring from cache %r\n' % node.bldpath(env))
 		return 1
 
 	def debug_why(self, old_sigs):

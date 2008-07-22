@@ -62,7 +62,7 @@ class TaskConsumer(threading.Thread):
 			try:
 				printout(tsk.display())
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
-				else: ret = tsk.run()
+				else: ret = tsk.call_run()
 			except Exception, e:
 				# TODO add the stack error message
 				tsk.err_msg = e.message
