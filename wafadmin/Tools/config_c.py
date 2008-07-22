@@ -936,7 +936,7 @@ def run_check(self, obj):
 
 	bdir = os.path.join(dir, 'testbuild')
 
-	if (not obj.force_compiler and Task.TaskBase.classes.get('cxx', None)) or obj.force_compiler == "cxx":
+	if (self.env['CXX_NAME'] and not obj.force_compiler and Task.TaskBase.classes.get('cxx', None)) or obj.force_compiler == "cxx":
 		tp = 'cxx'
 		test_f_name = 'test.cpp'
 	else:
