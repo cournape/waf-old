@@ -11,7 +11,7 @@ Custom objects:
 import shutil, re, os, types
 
 import TaskGen, Node, Task, Utils, Build
-import pproc as subprocess
+import pproc
 from Logs import debug
 
 def copy_func(tsk):
@@ -280,7 +280,7 @@ class command_output(Task.Task):
 			os_env = os.environ
 		else:
 			os_env = task.os_env
-		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd, env=os_env)
+		command = pproc.Popen(argv, stdin=stdin, stdout=stdout, cwd=task.cwd, env=os_env)
 		return command.wait()
 
 class cmd_output_taskgen(TaskGen.task_gen):

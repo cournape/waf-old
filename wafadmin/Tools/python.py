@@ -10,7 +10,7 @@ import TaskGen, Utils, Utils, Runner, Options, Build
 from Logs import debug, warn
 from TaskGen import extension, taskgen, before, after, feature
 from Configure import conf
-import pproc as subprocess
+import pproc
 
 EXT_PY = ['.py']
 
@@ -101,7 +101,7 @@ for pyfile in sys.argv[1:]:
 """)
 				argv = [self.env['PYTHON'], "-c", program ]
 				argv.extend(installed_files)
-				retval = subprocess.Popen(argv).wait()
+				retval = pproc.Popen(argv).wait()
 				if retval:
 					raise Utils.WafError("bytecode compilation failed")
 
@@ -114,7 +114,7 @@ for pyfile in sys.argv[1:]:
 """)
 				argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], "-c", program ]
 				argv.extend(installed_files)
-				retval = subprocess.Popen(argv).wait()
+				retval = pproc.Popen(argv).wait()
 				if retval:
 					raise Utils.WafError("bytecode compilation failed")
 
@@ -124,8 +124,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	program.append('')
 	for v in variables:
 		program.append("print repr(%s)" % v)
-	proc = subprocess.Popen([python_exe, "-c", '\n'.join(program)],
-				stdout=subprocess.PIPE)
+	proc = pproc.Popen([python_exe, "-c", '\n'.join(program)], stdout=pproc.PIPE)
 	output = proc.communicate()[0].split("\n")
 	if proc.returncode:
 		if Logs.verbose:
@@ -309,7 +308,7 @@ def check_python_version(conf, minver=None):
 	# Get python version string
 	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print str(x)"]
 	debug('python: Running python command %r' % cmd)
-	proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+	proc = pproc.Popen(cmd, stdout=pproc.PIPE)
 	lines = proc.communicate()[0].split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
 	pyver_tuple = (int(lines[0]), int(lines[1]), int(lines[2]), lines[3], int(lines[4]))
@@ -358,8 +357,8 @@ def check_python_module(conf, module_name):
 	"""
 	Check if the selected python interpreter can import the given python module.
 	"""
-	result = not subprocess.Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
-			   stderr=subprocess.PIPE, stdout=subprocess.PIPE).wait()
+	result = not pproc.Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
+			   stderr=pproc.PIPE, stdout=pproc.PIPE).wait()
 	conf.check_message('Python module', module_name, result)
 	if not result:
 		conf.fatal("Python module not found.")

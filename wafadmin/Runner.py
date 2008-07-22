@@ -6,7 +6,7 @@
 
 import sys, random, time, threading, Queue, traceback
 import Build, Utils, Logs, Options
-import pproc as subprocess
+import pproc
 from Logs import debug, error
 from Constants import *
 
@@ -30,7 +30,7 @@ def exec_command(s, shell=1):
 	debug('runner: system command -> %s' % s)
 	log = Build.bld.log
 	if log or Logs.verbose: printout(s+'\n')
-	proc = subprocess.Popen(s, shell=shell, stdout=log, stderr=log)
+	proc = pproc.Popen(s, shell=shell, stdout=log, stderr=log)
 	return proc.wait()
 
 if sys.platform == "win32":
@@ -41,9 +41,9 @@ if sys.platform == "win32":
 
 		log = Build.bld.log
 		if log or Logs.verbose: printout(s+'\n')
-		startupinfo = subprocess.STARTUPINFO()
-		startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-		proc = subprocess.Popen(s, shell=False, startupinfo=startupinfo)
+		startupinfo = pproc.STARTUPINFO()
+		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
+		proc = pproc.Popen(s, shell=False, startupinfo=startupinfo)
 		return proc.wait()
 
 class TaskConsumer(threading.Thread):
