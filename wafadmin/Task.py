@@ -577,7 +577,7 @@ class Task(TaskBase):
 		new_sig = self.signature()
 
 		# debug if asked to
-		if Logs.zones: self.debug_why(tree.task_sigs[key])
+		if Logs.verbose: self.debug_why(tree.task_sigs[key])
 
 		if new_sig != prev_sig:
 			# try to retrieve the file from the cache
