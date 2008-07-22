@@ -186,8 +186,6 @@ class Build(object):
 		self.flush()
 		#"""
 
-		if Logs.verbose > 3: self.dump()
-
 		self.generator = Runner.Parallel(self, Options.options.jobs)
 
 		def dw(on=True):
@@ -218,7 +216,6 @@ class Build(object):
 			os.chdir(self.srcnode.abspath())
 			raise BuildError(self, self.task_manager.tasks_done)
 
-		if Logs.verbose > 3: self.dump()
 		os.chdir(self.srcnode.abspath())
 
 	def install(self):
@@ -469,42 +466,6 @@ class Build(object):
 		for nid in ids_to_remove:
 			if nid in cache:
 				cache.__delitem__(nid)
-
-	def dump(self):
-		"for debugging"
-		def recu(node, count):
-			accu = count * '-'
-			accu += "> %s (d) %d \n" % (node.name, node.id)
-
-			for child in node.childs.values():
-				tp = child.get_type()
-				if tp == Node.FILE:
-					accu += count * '-'
-					accu += '-> '+child.name+' '
-
-					for variant in self.node_sigs:
-						var = self.node_sigs[variant]
-						if child.id in var:
-							accu += ' [%s,%s] ' % (str(variant), var[child.id].encode('hex'))
-							accu += str(child.id)
-
-					accu+='\n'
-				elif tp == Node.BUILD:
-					accu+= count * '-'
-					accu+= '-> '+child.name+' (b) '
-
-					for variant in self.node_sigs:
-						var = self.node_sigs[variant]
-						if child.id in var:
-							accu+=' [%s,%s] ' % (str(variant), var[child.id].encode('hex'))
-							accu += str(child.id)
-
-					accu+='\n'
-				elif tp == Node.DIR:
-					accu += recu(child, count+1)
-			return accu
-
-		Utils.pprint('CYAN', recu(self.root, 0) )
 
 	def get_env(self):
 		return self.env_of_name('default')
