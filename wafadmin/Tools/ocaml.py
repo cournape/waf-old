@@ -94,17 +94,16 @@ def init_envs_ml(self):
 
 	self.islibrary = getattr(self, 'islibrary', False)
 
+	global native_lst, bytecode_lst
 	self.native_env = None
 	if self.type in native_lst:
 		self.native_env = self.env.copy()
+		if self.islibrary: self.native_env['OCALINKFLAGS']   = '-a'
 
 	self.bytecode_env = None
 	if self.type in bytecode_lst:
 		self.bytecode_env = self.env.copy()
-
-	if self.islibrary:
-		self.bytecode_env['OCALINKFLAGS'] = '-a'
-		self.native_env['OCALINKFLAGS']   = '-a'
+		if self.islibrary: self.bytecode_env['OCALINKFLAGS'] = '-a'
 
 	if self.type == 'c_object':
 		self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
