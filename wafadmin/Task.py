@@ -484,7 +484,7 @@ class Task(TaskBase):
 		return x
 
 	def call_run(self):
-		print "called if the task must run", self
+		"called if the task must run"
 		if self.can_retrieve_cache():
 			return 0
 		return self.run()
