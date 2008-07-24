@@ -549,11 +549,6 @@ class Task(TaskBase):
 		env = self.env
 		tree = Build.bld
 
-		# tasks that have no inputs or outputs are run each time
-		if not self.inputs and not self.outputs:
-			self.dep_sig = SIG_NIL
-			return RUN_ME
-
 		# look at the previous signature first
 		time = None
 		for node in self.outputs:
@@ -564,6 +559,7 @@ class Task(TaskBase):
 				debug("task: task %r must run as the first node does not exist" % self)
 				time = None
 				break
+
 		# if one of the nodes does not exist, try to retrieve them from the cache
 		if time is None:
 			try:
