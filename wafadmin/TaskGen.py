@@ -145,18 +145,6 @@ class task_gen(object):
 		if type(value) is types.StringType: return value.split()
 		else: return value
 
-	def meth_order(self, *k):
-		"this one adds the methods to the list of methods"
-		assert(len(k) > 1)
-		n = len(k) - 1
-		for i in xrange(n):
-			f1 = k[i]
-			f2 = k[i+1]
-			try: self.prec[f2].append(f1)
-			except: self.prec[f2] = [f1]
-			if not f1 in self.meths: self.meths.append(f1)
-			if not f2 in self.meths: self.meths.append(f2)
-
 	def apply_core(self):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
