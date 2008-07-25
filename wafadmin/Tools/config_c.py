@@ -960,7 +960,7 @@ def run_check(self, obj):
 
 	back = os.path.abspath('.')
 
-	bld = Build.Build()
+	bld = Build.BuildContext()
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = env

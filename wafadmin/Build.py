@@ -40,7 +40,7 @@ class BuildError(Utils.WafError):
 			if txt: lst.append(txt)
 		return '\n'.join(lst)
 
-class Build(object):
+class BuildContext(object):
 	"holds the dependency tree"
 	def __init__(self):
 
@@ -562,7 +562,7 @@ class Build(object):
 				if all and not targets_objects[target_name]: raise Utils.WafError("target '%s' does not exist" % target_name)
 
 			for target_obj in targets_objects.values():
-				if target_obj and not target_obj.posted:
+				if target_obj:
 					target_obj.post()
 		else:
 			debug('task_gen: posting objects (normal)')
@@ -573,7 +573,7 @@ class Build(object):
 				ln = self.srcnode
 			for obj in self.all_task_gen:
 				if not obj.path.is_child_of(ln): continue
-				if not obj.posted: obj.post()
+				obj.post()
 
 	def env_of_name(self, name):
 		if not name:

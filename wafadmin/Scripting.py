@@ -50,7 +50,7 @@ def configure():
 	jobs_save = Options.options.jobs
 	Options.options.jobs = 1
 
-	tree = Build.Build()
+	tree = Build.BuildContext()
 
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
 
@@ -211,7 +211,7 @@ def main():
 		sys.exit(0)
 
 	# compile the project and/or install the files
-	bld = Build.Build()
+	bld = Build.BuildContext()
 	try:
 		proj = read_cache_file(Options.lockfile)
 	except IOError:
@@ -221,7 +221,7 @@ def main():
 			if Configure.autoconfig:
 				warn("Reconfiguring the project")
 				configure()
-				bld = Build.Build()
+				bld = Build.BuildContext()
 				proj = read_cache_file(Options.lockfile)
 			else:
 				raise Utils.WafError("Project not configured (run 'waf configure' first)")
@@ -258,7 +258,7 @@ def main():
 
 				(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
-				bld = Build.Build()
+				bld = Build.BuildContext()
 				proj = read_cache_file(Options.lockfile)
 
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
