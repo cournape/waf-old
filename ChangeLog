@@ -1,6 +1,7 @@
 NEW IN WAF 1.5.0
 ----------------
-* the module Common was renamed into Install
+* the module Common was removed
+* the modules UnitTest and DirWatch have been moved to Tools/
 * bld.create_obj -> bld.new_task_gen
 * bld.create_obj('cpp', 'program') -> bld.new_task_gen('cxx', 'program')
 * bld.env() -> bld.env
