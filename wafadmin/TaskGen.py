@@ -117,7 +117,6 @@ class task_gen(object):
 
 		self.env = Build.bld.env.copy()
 
-		self.posted = 0
 		self.path = Build.bld.path # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
 		Build.bld.all_task_gen.append(self)
@@ -241,12 +240,12 @@ class task_gen(object):
 		"runs the code to create the tasks, do not subclass"
 		if not self.name: self.name = self.target
 
-		if self.posted:
+		if getattr(self, 'posted', None):
 			error("OBJECT ALREADY POSTED")
 			return
 		self.apply()
 		debug('task_gen: posted %s' % self.name)
-		self.posted = 1
+		self.posted = True
 
 	def get_hook(self, ext):
 		try: return self.mappings[ext]
