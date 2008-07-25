@@ -30,7 +30,7 @@ def set_options(opt):
 		opt_obj.parse_args()
 		Utils.set_main_module(self._wscript_file_path)
 		Scripting.configure()
-		bld = Build.Build()
+		bld = Build.BuildContext()
 		self.failUnlessRaises(Utils.WscriptError, bld.new_task_gen, 'cxx')
 
 	def test_invalid_task_generator(self):

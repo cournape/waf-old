@@ -43,7 +43,7 @@ pexec('mkdir -p tst/bleh')
 pexec('mkdir -p tst/bleh2')
 
 info("> 1 check relative srcnode path")
-bld = Build.Build()
+bld = Build.BuildContext()
 bld.load_dirs('.', '_build_')
 srcnode = Params.g_build.m_srcnode
 print srcnode.relpath_gen(srcnode)

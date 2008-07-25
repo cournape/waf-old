@@ -63,24 +63,24 @@ def set_options(opt):
 """ % self._source_file_path
 
 		self._write_wscript(wscript_contents)
-		
+
 		# error in source file...
 		self._write_source("int main() {fafwefwefgwe}")
 		self._test_configure()
-		
+
 		# test that BuildError was raised
 		self._test_build(False)
 
 	def test_white_build_fails_blddir_is_srcdir(self):
 		# white-box test: build fail if blddir == srcdir
-		bld = Build.Build()
+		bld = Build.BuildContext()
 		self.failUnlessRaises(Utils.WafError, bld.load_dirs, self._test_dir_root, self._test_dir_root)
 
 	def test_incorrect_version(self):
 		# white-box test: configured with old version
-		bld = Build.Build()
+		bld = Build.BuildContext()
 		bld.blddir = os.path.join(self._test_dir_root, 'b')
-		
+
 		# this will create the cachedir...
 		self.failUnlessRaises(Utils.WafError, bld.load_dirs, bld.blddir, bld.blddir)
 		os.makedirs(bld.cachedir)

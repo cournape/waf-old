@@ -101,7 +101,7 @@ import Scripting
 #
 # load the build application
 #
-bld = Build.Build()
+bld = Build.BuildContext()
 bld.load()
 bld.set_srcdir('.')
 bld.set_bdir('_build_')

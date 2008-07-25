@@ -25,7 +25,7 @@ class WscriptErrorsTester(common_test.CommonTester):
 
 	def setUp(self):
 		'''setup the foundations needed for tests'''
-		self._bld = Build.Build()
+		self._bld = Build.BuildContext()
 		# define & create temporary testing directories - 
 		# needed to make sure it will run in same manner always 
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")

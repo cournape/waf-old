@@ -72,12 +72,12 @@ def set_options(opt):
 	def test_white_no_sources_specified(self):
 		# white-box test: no sources were specified
 		Options.commands['configure'] = False
-		env = Environment.Environment()		
-		bld = Build.bld = Build.Build()
+		env = Environment.Environment()	
+		bld = Build.bld = Build.BuildContext()
 		bld.set_env('default', env)
 		blddir = os.path.join(self._test_dir_root, 'b')
 		bld.load_dirs(self._test_dir_root, blddir)
-		
+
 		obj = TaskGen.task_gen()
 		self.failUnlessRaises(Utils.WafError, obj.apply_core)
 
@@ -97,17 +97,17 @@ def configure(conf):
 
 def set_options(opt):
 	pass
-""" 
+"""
 
 		self._write_wscript(wscript_contents)
 
 		self._test_configure()
 		self._test_build(False)
-		
+
 	def make_bld(self):
 		Options.commands['configure'] = False
-		env = Environment.Environment()		
-		bld = Build.bld = Build.Build()
+		env = Environment.Environment()
+		bld = Build.bld = Build.BuildContext()
 		bld.set_env('default', env)
 		blddir = os.path.join(self._test_dir_root, 'b')
 		bld.load_dirs(self._test_dir_root, blddir)
