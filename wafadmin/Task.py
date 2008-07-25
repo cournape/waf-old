@@ -765,7 +765,7 @@ class Task(TaskBase):
 		tstamp = tree.node_sigs
 		env = self.env
 
-		for k in Build.bld.node_deps.get(self.unique_id(), ()):
+		for k in tree.node_deps.get(self.unique_id(), ()):
 			# unlikely but necessary if it happens
 			try: tree.cache_scanned_folders[k.parent.id]
 			except KeyError: tree.rescan(k.parent)
