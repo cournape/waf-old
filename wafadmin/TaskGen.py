@@ -31,8 +31,10 @@ typos = {
 'include':'includes',
 'define':'defines',
 'importpath':'importpaths',
-'install_var':'inst_var',
-'install_subdir':'inst_dir',
+'install_var':'install_path',
+'install_subdir':'install_path',
+'inst_var':'install_path',
+'inst_dir':'install_path',
 }
 
 class register_obj(type):
@@ -106,8 +108,7 @@ class task_gen(object):
 		self.tasks = []
 
 		self.chmod = 0644
-		self._inst_var = ''
-		self._inst_dir = ''
+		self._install_path = ''
 
 		if Options.is_install:
 			self.inst_files = [] # lazy list of tuples representing the files to install
@@ -322,29 +323,17 @@ class task_gen(object):
 
 		return newobj
 
-	def get_inst_var(self):
+	def get_inst_path(self):
 		"return a default parameter if provided"
-		k = self._inst_var
+		k = self._install_path
 		if k == 0: return k
-		if not k: return getattr(self, "inst_var_default", k)
+		if not k: return getattr(self, "default_install_path", k)
 		return k
 
-	def set_inst_var(self, val):
-		self._inst_var = val
+	def set_inst_path(self, val):
+		self._inst_path = val
 
-	inst_var = property(get_inst_var, set_inst_var)
-
-	def get_inst_dir(self):
-		"return a default parameter if provided"
-		k = self._inst_dir
-		if k == 0: return k
-		if not k: return getattr(self, "inst_dir_default", k)
-		return k
-
-	def set_inst_dir(self, val):
-		self._inst_dir = val
-
-	inst_dir = property(get_inst_dir, set_inst_dir)
+	install_path = property(get_inst_path, set_inst_path)
 
 def declare_extension(var, func):
 	try:

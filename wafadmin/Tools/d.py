@@ -453,10 +453,10 @@ Task.simple_task_type('d_link', link_str, color='YELLOW')
 
 # for feature request #104
 @taskgen
-def generate_header(self, filename, inst_var, inst_dir):
+def generate_header(self, filename, install_path):
 	if not hasattr(self, 'header_lst'): self.header_lst = []
 	self.meths.add('process_header')
-	self.header_lst.append([filename, inst_var, inst_dir])
+	self.header_lst.append([filename, install_path])
 
 @taskgen
 @before('apply_core')

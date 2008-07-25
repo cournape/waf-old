@@ -18,8 +18,6 @@ class lua_taskgen(TaskGen.task_gen):
 	def __init__(self):
 		TaskGen.task_gen.__init__(self)
 		self.chmod = 0755
-		self.inst_var = ''
-		self.inst_dir = ''
 
 def detect(conf):
 	luac = conf.find_program('luac', var='LUAC')

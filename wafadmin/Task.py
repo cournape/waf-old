@@ -413,24 +413,24 @@ class TaskBase(object):
 	def install(self):
 		"""
 		installation is performed by looking at the task attributes:
-		* inst_var: installation variable like PREFIX
-		* inst_dir: installation subdirectory
+		* install_path: installation path like "${PREFIX}/bin"
 		* filename: install the first node in the outputs as a file with a particular name, be certain to give os.sep
 		* chmod: permissions
 		"""
 		bld = Build.bld
 		d = self.attr('install')
 
-		if self.attr('inst_var'):
+		if self.attr('install_path'):
 			lst = [a.relpath_gen(bld.srcnode) for a in self.outputs]
+			perm = self.attr('chmod', 0644)
 			if self.attr('src'):
 				# if src is given, install the sources too
 				lst += [a.relpath_gen(bld.srcnode) for a in self.inputs]
 			if self.attr('filename'):
-				dir = self.attr('inst_dir') + self.attr('filename')
-				bld.install_as(self.attr('inst_var'), dir, lst[0], chmod=self.attr('chmod', 0644), env=self.env)
+				dir = self.install_path + self.attr('filename')
+				bld.install_as(self.install_path, lst[0], self.env, perm)
 			else:
-				bld.install_files(self.attr('inst_var'), self.attr('inst_dir'), lst, chmod=self.attr('chmod', 0644), env=self.env)
+				bld.install_files(self.install_path, lst, self.env, perm)
 
 class Task(TaskBase):
 	"""The parent class is quite limited, in this version:

@@ -9,7 +9,7 @@ class msgfmt_taskgen(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self)
 		self.langs = '' # for example "foo/fr foo/br"
 		self.chmod = 0644
-		self.inst_var_default = 'KDE4_LOCALE_INSTALL_DIR'
+		self.default_install_path = '${KDE4_LOCALE_INSTALL_DIR}'
 		self.appname = appname
 
 	def apply(self):
@@ -23,9 +23,7 @@ class msgfmt_taskgen(TaskGen.task_gen):
 			if not Options.is_install: continue
 			langname = lang.split('/')
 			langname = langname[-1]
-			inst_dir = langname+os.sep+'LC_MESSAGES'
-			task.inst_var = self.inst_var
-			task.inst_dir = inst_dir+'/'
+			tsk.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'
 			task.filename = self.appname+'.mo'
 			task.chmod = self.chmod
 

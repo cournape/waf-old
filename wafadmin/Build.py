@@ -664,29 +664,26 @@ class BuildContext(object):
 
 		return destpath
 
-	def install_files(self, var, subdir, files, env=None, chmod=0644):
+	def install_files(self, path, files, env=None, chmod=0644):
 		if not Options.is_install: return []
-		if not var: return []
+		if not path: return []
 
 		if not env: env = self.env
-		destpath = env[var]
-		if not destpath: destpath = var # absolute paths
 
 		node = self.path
-		if type(files) is types.StringType:
-			if '*' in files:
-				gl = node.abspath()+os.sep+files
-				lst = glob.glob(gl)
-			else:
-				lst = files.split()
-		else: lst = files
+		if type(files) is types.StringType and '*' in files:
+			gl = node.abspath() + os.sep + files
+			lst = glob.glob(gl)
+		else:
+			lst = Utils.to_list(files)
 
 		destdir = env.get_destdir()
+		destpath = Utils.subst_vars(path, env)
 		if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
-		if subdir: destpath = os.path.join(destpath, subdir.lstrip(os.sep))
 
 		Utils.check_dir(destpath)
 
+		# TODO clean -> do not convert back to nodes
 		# copy the files to the final destination
 		installed_files = []
 		for filename in lst:
@@ -706,22 +703,19 @@ class BuildContext(object):
 				installed_files.append(destfile)
 		return installed_files
 
-	def install_as(self, var, destfile, srcfile, env=None, chmod=0644):
+	def install_as(self, path, srcfile, env=None, chmod=0644):
 		"""returns True if the file was effectively installed, False otherwise"""
 		if not Options.is_install: return False
-		if not var: return False
+		if not path: return False
 
 		if not env: env = self.env
 		node = self.path
 
-		tgt = env[var]
-		if not tgt: tgt = var # absolute paths for example
-
 		destdir = env.get_destdir()
-		if destdir: tgt = os.path.join(destdir, tgt.lstrip(os.sep))
-		tgt = os.path.join(tgt, destfile.lstrip(os.sep))
+		destpath = Utils.subst_vars(path, env)
+		if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 
-		dir, name = os.path.split(tgt)
+		dir, name = os.path.split(destpath)
 		Utils.check_dir(dir)
 
 		# the source path
@@ -731,20 +725,18 @@ class BuildContext(object):
 		else:
 			src = srcfile
 
-		return self.do_install(src, tgt, chmod)
+		return self.do_install(src, destpath, chmod)
 
-	def symlink_as(self, var, src, dest, env=None):
+	def symlink_as(self, path, src, env=None):
 		if not Options.is_install: return
-		if not var: return
+		if not path: return
 
 		if not env: env = self.env
 
-		tgt = env[var]
-		if not tgt: tgt = var
-
 		destdir = env.get_destdir()
-		if destdir: tgt = os.path.join(destdir, tgt.lstrip(os.sep))
-		tgt = os.path.join(tgt, dest.lstrip(os.sep))
+		destpath = Utils.subst_vars(path, env)
+		if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
+		tgt = destpath
 
 		dir, name = os.path.split(tgt)
 		Utils.check_dir(dir)

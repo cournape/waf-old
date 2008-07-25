@@ -38,8 +38,6 @@ class cmd_taskgen(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self)
 		self.type = type
 		self.fun    = None
-		self.inst_var = ''
-		self.inst_dir = ''
 
 	def apply(self):
 		# create a task
@@ -48,8 +46,7 @@ class cmd_taskgen(TaskGen.task_gen):
 		tsk.fun = self.fun
 		tsk.env = self.env
 		self.tasks.append(tsk)
-		tsk.inst_var = self.inst_var
-		tsk.inst_dir = self.inst_dir
+		tsk.install_path = self.install_path
 
 class copy_taskgen(TaskGen.task_gen):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
@@ -125,9 +122,6 @@ class subst_taskgen(TaskGen.task_gen):
 		self.fun = subst_func
 		self.dict = {}
 
-		self.inst_var = ''
-		self.inst_dir = ''
-
 	def apply(self):
 
 		lst = self.to_list(self.source)
@@ -148,8 +142,7 @@ class subst_taskgen(TaskGen.task_gen):
 			tsk.fun = self.fun
 			tsk.dict = self.dict
 			tsk.dep_vars = ['DICT_HASH']
-			tsk.inst_var = self.inst_var
-			tsk.inst_dir = self.inst_dir
+			tsk.install_path = self.install_path
 
 			if not tsk.env:
 				tsk.debug()

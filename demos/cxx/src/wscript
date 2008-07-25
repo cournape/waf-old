@@ -52,9 +52,9 @@ def build(bld):
 	b1.cpp b2.cpp
 	'''
 	obj.includes     = '.'
-	#obj.name         = 'peter'
+	#obj.name        = 'peter'
 	obj.target       = 'testshlib'
-	obj.inst_var  = 'SOME_INSTALL_DIR'
+	obj.install_path = '${SOME_INSTALL_DIR}'
 
 	# 3. A static library
 	# The extension (.a) is added automatically
@@ -92,8 +92,8 @@ def build(bld):
 	# by simplicity, when there is no ambiguity: obj.target == obj.name
 
 	# installing files, headers ..
-	bld.install_files('PREFIX', 'include', 'a1.h')
-	#install_as('PREFIX', 'dir/ahoy.h', 'a1.h')
+	bld.install_files('${PREFIX}/include', 'a1.h')
+	#install_as('${PREFIX}/dir/ahoy.h', 'a1.h')
 
 def set_options(opt):
 	# options defined if src/ was to be compiled as a standalone module

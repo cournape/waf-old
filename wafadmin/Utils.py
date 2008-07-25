@@ -33,7 +33,7 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, types, string, errno, traceback, inspect
+import os, sys, imp, types, string, errno, traceback, inspect, re
 from UserDict import UserDict
 import Logs, pproc
 from Constants import *
@@ -349,4 +349,15 @@ def cmd_output(cmd):
 		msg = "command execution failed: %s -> %r" % (cmd, str(output))
 		raise ValueError, msg
 	return output
+
+reg_subst = re.compile(r"(\\\\)|(\\\$)|\$\{([^}]+)\}")
+def subst_vars(expr, params):
+	"substitute ${PREFIX}/bin in /usr/local/bin"
+	def repl_var(m):
+		if m.group(1):
+			return '\\'
+		if m.group(2):
+			return '$'
+		return params[m.group(3)]
+	return reg_subst.sub(repl_var, expr)
 

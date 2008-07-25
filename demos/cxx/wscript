@@ -58,9 +58,9 @@ def build(bld):
 	## installing resources and files - call them under build(bld) or shutdown()
 	## to trigger the glob, ad a star in the name
 	## the functions are not called if not in install mode
-	#bld.install_files('PREFIX', '', 'src/a2.h src/a1.h')
-	bld.install_files('PREFIX', 'subfolder/subsubfolder', 'src/*.h')
-	#install_as('PREFIX', 'dir/bar.png', 'foo.png')
+	#bld.install_files('${PREFIX}', 'src/a2.h src/a1.h')
+	bld.install_files('${PREFIX}/subfolder/subsubfolder', 'src/*.h')
+	#install_as('${PREFIX}/dir/bar.png', 'foo.png')
 
 	return
 	# testcase for variants

@@ -19,8 +19,7 @@ EXT_PY = ['.py']
 @feature('pyext')
 @before('apply_bundle')
 def init_pyext(self):
-	self.inst_var_default = 'PYTHONDIR'
-	self.inst_dir_default = ''
+	self.default_install_path = '${PYTHONDIR}'
 	self.uselib = self.to_list(self.uselib)
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
@@ -53,8 +52,7 @@ class py_taskgen(TaskGen.task_gen):
 	def __init__(self, env=None):
 		TaskGen.task_gen.__init__(self)
 
-		self.inst_var_default = 'PYTHONDIR'
-		self.inst_dir_default = ''
+		self.default_install_path = '${PYTHONDIR}'
 		self.chmod = 0644
 
 	def install(self):
@@ -71,9 +69,7 @@ class py_taskgen(TaskGen.task_gen):
 				else:
 					files_to_install.append(node.abspath(self.env))
 
-		installed_files = Build.bld.install_files(
-			self.inst_var, self.inst_dir, files_to_install,
-			self.env, self.chmod)
+		installed_files = Build.bld.install_files(self.install_path, files_to_install, self.env, self.chmod)
 
 		if not installed_files:
 			return

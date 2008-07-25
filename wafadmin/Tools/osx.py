@@ -34,8 +34,8 @@ def apply_link_osx(self):
 		self.create_task_macapp()
 		name = self.link_task.outputs[0].name
 		if self.vnum: name = name.replace('.dylib', '.%s.dylib' % self.vnum)
-		
-		# XXX: lib is not defined 
+
+		# XXX: lib is not defined
 		path = os.path.join(self.env['PREFIX'], lib, name)
 		path = '-install_name %s' % path
 		self.env.append_value('LINKFLAGS', path)
@@ -122,8 +122,7 @@ def install_shlib(task):
 	"""see http://code.google.com/p/waf/issues/detail?id=173"""
 	nums = task.vnum.split('.')
 
-	inst_var = task.inst_var
-	inst_dir = task.inst_dir
+	path = self.install_path
 
 	libname = task.outputs[0].name
 
@@ -133,9 +132,9 @@ def install_shlib(task):
 
 	filename = task.outputs[0].abspath(task.env)
 	bld = Build.bld
-	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=task.env)
-	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
-	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
+	bld.install_as(path + name3, filename, env=task.env)
+	bld.symlink_as(path + name2, name3)
+	bld.symlink_as(path + name1, name3)
 
 @taskgen
 @feature('osx')

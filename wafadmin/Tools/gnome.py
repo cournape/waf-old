@@ -54,8 +54,7 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 class gnome_doc_taskgen(TaskGen.task_gen):
 	def __init__(self, *k):
 		TaskGen.task_gen.__init__(self, *k)
-		self.inst_var_default = 'PREFIX'
-		self.inst_dir_default = 'share'
+		self.default_install_path = '${PREFIX}/share'
 
 	def apply(self):
 		self.env['APPNAME'] = self.doc_module
@@ -78,15 +77,15 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 
 
 			if Options.is_install:
-				inst_dir = self.inst_dir + 'gnome/help/%s/%s' % (self.doc_module, x)
-				Build.bld.install_files(self.inst_var, self.inst_dir + "omf", out2.abspath(self.env))
+				path = self.install_path + 'gnome/help/%s/%s' % (self.doc_module, x)
+				Build.bld.install_files(self.install_path + 'omf', out2.abspath(self.env))
 				for y in self.to_list(self.doc_figures):
 					try:
-						os.stat(self.path.abspath()+'/'+x+'/'+y)
-						Common.install_as(self.inst_var, inst_dir+'/'+y, self.path.abspath()+'/'+x+'/'+y)
+						os.stat(self.path.abspath() + '/' + x + '/' + y)
+						Common.install_as(path + '/' + y, self.path.abspath() + '/' + x + '/' + y)
 					except:
-						Common.install_as(self.inst_var, inst_dir+'/'+y, self.path.abspath()+'/C/'+y)
-				Common.install_as(self.inst_var, inst_dir + '/%s.xml' % self.doc_module, out.abspath(self.env))
+						Common.install_as(path + '/' + y, self.path.abspath() + '/C/' + y)
+				Common.install_as(path + '/%s.xml' % self.doc_module, out.abspath(self.env))
 
 # give specs
 class xml_to_taskgen(TaskGen.task_gen):
@@ -95,8 +94,7 @@ class xml_to_taskgen(TaskGen.task_gen):
 		self.source = 'xmlfile'
 		self.xslt = 'xlsltfile'
 		self.target = 'hey'
-		self.inst_var_default = 'PREFIX'
-		self.inst_dir_default = ''
+		self.default_install_path = '${PREFIX}'
 		self.task_created = None
 
 	def apply(self):
@@ -107,8 +105,7 @@ class xml_to_taskgen(TaskGen.task_gen):
 		tsk = self.create_task('xmlto')
 		tsk.set_inputs([xmlfile, xsltfile])
 		tsk.set_outputs(xmlfile.change_ext('html'))
-		tsk.inst_var = self.inst_var
-		tsk.inst_dir = self.inst_dir
+		tsk.install_path = self.install_path
 
 def sgml_scan(self):
 	node = self.inputs[0]

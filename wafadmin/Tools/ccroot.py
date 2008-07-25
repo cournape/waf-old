@@ -130,9 +130,7 @@ def apply_verif(self):
 def install_shlib(self):
 	nums = self.vnum.split('.')
 
-	inst_var = self.inst_var
-	inst_dir = self.inst_dir
-
+	path = self.install_path
 	libname = self.outputs[0].name
 
 	name3 = libname+'.'+self.vnum
@@ -141,9 +139,9 @@ def install_shlib(self):
 
 	filename = self.outputs[0].abspath(self.env)
 	bld = Build.bld
-	bld.install_as(inst_var, os.path.join(inst_dir, name3), filename, env=self.env)
-	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name2))
-	bld.symlink_as(inst_var, name3, os.path.join(inst_dir, name1))
+	bld.install_as(os.path.join(path, name3), filename, env=self.env)
+	bld.symlink_as(os.path.join(path, name2), name3)
+	bld.symlink_as(os.path.join(path, name1), name3)
 
 # TODO reference the d programs, shlibs in d.py, not here
 
@@ -151,22 +149,19 @@ def install_shlib(self):
 @feature('cprogram', 'dprogram')
 @before('apply_core')
 def vars_target_cprogram(self):
-	self.inst_var_default = 'PREFIX'
-	self.inst_dir_default = 'bin'
+	self.default_install_path = '${PREFIX}/bin'
 
 @taskgen
 @feature('cstaticlib', 'dstaticlib')
 @before('apply_core')
 def vars_target_cstaticlib(self):
-	self.inst_var_default = 'PREFIX'
-	self.inst_dir_default = 'lib'
+	self.default_install_path = '${PREFIX}/lib'
 
 @taskgen
 @feature('cshlib', 'dshlib')
 @before('apply_core')
 def vars_target_cshlib(self):
-	self.inst_var_default = 'PREFIX'
-	self.inst_dir_default = 'lib'
+	self.default_install_path = '${PREFIX}/lib'
 
 @taskgen
 @feature('cprogram', 'dprogram')
@@ -175,8 +170,7 @@ def install_target_cprogram(self):
 	if not Options.is_install: return
 	try: mode = self.program_chmod
 	except AttributeError: mode = 0755
-	self.link_task.inst_var = self.inst_var
-	self.link_task.inst_dir = self.inst_dir
+	self.link_task.install_path = self.install_path
 	self.link_task.chmod = mode
 
 @taskgen
@@ -184,8 +178,7 @@ def install_target_cprogram(self):
 @after('apply_objdeps')
 def install_target_cstaticlib(self):
 	if not Options.is_install: return
-	self.link_task.inst_var = self.inst_var
-	self.link_task.inst_dir = self.inst_dir
+	self.link_task.install_path = self.install_path
 
 @taskgen
 @feature('cshlib', 'dshlib')
@@ -193,8 +186,7 @@ def install_target_cstaticlib(self):
 def install_target_cshlib(self):
 	if not Options.is_install: return
 	tsk = self.link_task
-	tsk.inst_var = self.inst_var
-	tsk.inst_dir = self.inst_dir
+	self.link_task.install_path = self.install_path
 
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		tsk.vnum = self.vnum
