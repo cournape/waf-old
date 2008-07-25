@@ -274,7 +274,7 @@ b('ocamlcmi', '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}', color='B
 b('ocamlcc', 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}', color='GREEN')
 
 b('ocamllex', '${OCAMLLEX} ${SRC} -o ${TGT}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
-b('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bldbase(env)} ${SRC}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
+b('ocamlyacc', '${OCAMLYACC} -b ${TGT[0].bld_base(env)} ${SRC}', color='BLUE', before="ocamlcmi ocaml ocamlcc")
 
 
 def link_may_start(self):

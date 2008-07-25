@@ -19,7 +19,7 @@ ${TGT}                 -> dir/to/file.ext
 ${TGT[0].base()}       -> dir/to/file
 ${TGT[0].dir(env)}     -> dir/to
 ${TGT[0].file()}       -> file.ext
-${TGT[0].filebase()}   -> file
+${TGT[0].file_base()}   -> file
 ${TGT[0].suffix()}     -> .ext
 ${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
 
@@ -402,7 +402,7 @@ class Node(object):
 		"build path without the file name"
 		return self.parent.bldpath(env)
 
-	def bldbase(self, env):
+	def bld_base(self, env):
 		"build path without the extension: src/dir/foo(.cpp)"
 		s = self.name
 		s = s[:s.rfind('.')]
@@ -438,7 +438,7 @@ class Node(object):
 		"scons-like"
 		return self.name
 
-	def filebase(self):
+	def file_base(self):
 		"scons-like"
 		s = self.name
 		if s.rfind('.') < 0:
