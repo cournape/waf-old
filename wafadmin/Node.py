@@ -23,7 +23,6 @@ ${TGT[0].file_base()}   -> file
 ${TGT[0].suffix()}     -> .ext
 ${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
 
-
 """
 
 import os, sys, types
@@ -51,9 +50,6 @@ class Node(object):
 		# We do not want to add another type attribute (memory)
 		# use the id to find out: type = id & 3
 		# for setting: new type = type + x - type & 3
-
-		# The checks below could be disabled for speed, if necessary
-		# TODO check for . .. / \ in name
 
 		# Node name must contain only one level
 		if Utils.split_path(name)[0] != name:
@@ -101,8 +97,6 @@ class Node(object):
 		node = self.childs.get(name, None)
 		if not node or node.id & 3 != BUILD: return default
 		return node
-
-	# ===== BEGIN find methods ===== #
 
 	def find_resource(self, lst):
 		"Find an existing input file: either a build node declared previously or a source node"
@@ -243,11 +237,6 @@ class Node(object):
 
 		return node
 
-	## ===== END find methods	===== ##
-
-
-	## ===== BEGIN relpath-related methods	===== ##
-
 	def path_to_parent(self, parent):
 		"path relative to a direct ancestor, as string"
 		lst = []
@@ -309,8 +298,6 @@ class Node(object):
 
 		if self.id & 3 == FILE: return self.relpath_gen(ln)
 		else: return os.path.join(tree.bldnode.relpath_gen(ln), env.variant(), self.relpath_gen(tree.srcnode))
-
-	## ===== END relpath-related methods  ===== ##
 
 	def debug(self):
 		print "========= debug node ============="
