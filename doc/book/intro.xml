@@ -4,38 +4,102 @@
 >
 <chapter id="intro">
 	<title>Getting Started</title>
-	<section id="requirements">
-		<title>Waf requirements</title>
-		<para>Waf requires Python &ge; 2.3</para>
+	<section id="obtaining">
+		<title>Obtaining Waf</title>
+		<para>
+			The Waf project is located on <ulink href="http://code.google.com/p/waf">Google Code</ulink>
+			The current Waf version requires Python &ge; 2.3 and with the bzip2 compression algorithm.
+			Installing Waf is optional, if you want to install Waf on the system, jump to the next section.
+		</para>
+		<sect2>
+			<title>Using the Waf binary</title>
+			<para>
+				The Waf binary is ready to use and can be executed directly. Just rename it into &quot;waf&quot;:
+				<programlisting language="sh">
+wget http://waf.googlecode.com/files/waf-1.5.0
+mv waf-1.5.0 waf &amp;&amp; chmod 755 waf
+				</programlisting>
+			</para>
+		</sect2>
+		<sect2>
+			<title>Generating Waf from source</title>
+			<para>
+				The Waf binary is usually generated from the source distribution:
+				<programlisting language="sh">
+wget http://waf.googlecode.com/files/waf-1.5.0.tar.bz2
+tar xjvf waf-1.5.0.tar.bz2
+cd waf-1.5.0
+./waf-light --make-waf
+				</programlisting>
+			</para>
+		</sect2>
 	</section>
-	<section id="installation">
-		<title>Waf installation</title>
-		<para>Waf does not need to be installed. There are many advantages of not installing Waf, among them:
-			<orderedlist>
-				<listitem>Waf is very small (80kB)</listitem>
-				<listitem>Different projects use different Waf versions, it is better to ship the script for users</listitem>
-				<listitem>The latest Waf version might change and the users would complain</listitem>
-			</orderedlist>
-			To generate the Waf script from the sources, use the following command:
-			<programlisting language="sh" linenumbering="numbered">
-			$ ./waf-light --make-waf --strip
+
+	<section id="using">
+		<title>Running Waf</title>
+		<para>
+			The Waf script can be used directly:
+			<programlisting language="sh">
+$ ./waf
 			</programlisting>
-			Once the waf script is generated, you may redistribute it freely (bsd licence)
+			Or, if the executable permissions are not set properly:
+			<programlisting language="sh">
+$ python waf
+			</programlisting>
+		</para>
+		<para>
+			By default, the Waf script uncompresses its library in the current directory, in a hidden folder. This means the Waf script must reside in a writeable folder. The naming is allow different Waf versions to run from the same folder:
+			<programlisting language="sh">
+$ ls -ld .waf*
+.waf-1.5.0-ec924e3f453eb715118b9cc852291170
+			</programlisting>
 		</para>
 	</section>
-	<section id="development">
-		<title>Waf installation (2)</title>
+	<section id="installation">
+		<title>Installation</title>
+		<para>Waf installation is not only optional, but there are many advantages of not installing Waf, among them:
+			<orderedlist>
+				<listitem>Installation: installation is cumbersome, and requires administrative priviledges</listitem>
+				<listitem>Waf versions: users rarely install the appropriate software version (too old, too new)</listitem>
+				<listitem>Bugs: newer Waf versions may result in broken builds</listitem>
+				<listitem>Size: Waf is extremely small (about 80kB)</listitem>
+				<listitem>Operating systems: Waf cannot be installed on Windows</listitem>
+			</orderedlist>
+		</para>
 		<para>
-			If you really want to install the Waf application on the system (despite the advantages enumerated in the previous section), you may use the following command on unix-like systems such as Linux:
+			If, despite the advantages enumerated previously, you really want to install the Waf application on the system, you may use the following command on unix-like systems such as Linux:
 			<programlisting language="sh" linenumbering="numbered">
-			# ./waf-light install --prefix=/tmp/
+			# ./waf-light install --prefix=/usr/
 			</programlisting>
 			Root priviledges may be required depending on the final location.
 		</para>
-	</section>
-	<section>
-		<title>Common wrappers</title>
-		<para>The wrapper scripts are provided for those used to run ./configure and make on unix-like systems</para>
+		<para>
+			Waf can be uninstalled using:
+			<programlisting language="sh" linenumbering="numbered">
+			# ./waf-light uninstall --prefix=/usr/
+			</programlisting>
+		</para>
 	</section>
 </chapter>
+
+
+<!--
+
+		<sect2>
+			<title>Obtaining Waf from the development source</title>
+			<para>
+				The Waf binary can be generated from the development source, but it is unstable:
+				<programlisting language="sh">
+					svn co https://waf.googlecode.com/svn/trunk waf
+					cd waf
+					./waf-light - -make-waf
+				</programlisting>
+			</para>
+		</sect2>
+
+		<para>
+			If provided, the environment variable WAFDIR can be used to point to a location containing newer Waf sources, such as the latest source from SVN
+		</para>
+-->
+
 
