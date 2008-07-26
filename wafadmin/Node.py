@@ -354,14 +354,12 @@ class Node(object):
 		if ret: return ret
 
 		if not variant:
-			cur = self
-			lst = []
-			while cur:
-				lst.append(cur.name)
-				cur = cur.parent
-			lst.reverse()
-			# the real hot zone is the os path join
-			val = os.sep.join(lst)
+			if not self.parent:
+				val = os.sep
+			elif not self.parent.name:
+				val = os.sep + self.name
+			else:
+				val = self.parent.abspath(env) + os.sep + self.name
 		else:
 			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.path_to_parent(Build.bld.srcnode)))
 		Build.bld.cache_node_abspath[variant][self.id] = val
