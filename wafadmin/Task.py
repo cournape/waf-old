@@ -298,7 +298,7 @@ class Task(TaskBase):
 			debug("task #%d should run as the first node does not exist" % self.m_idx, 'task')
 			try: new_sig = self.signature()
 			except KeyError:
-				print "TODO - computing the signature failed"
+				Params.fatal("Computing the signature failed: %r" % self)
 				return 1
 
 			ret = self.can_retrieve_cache(new_sig)
