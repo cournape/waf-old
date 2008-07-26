@@ -16,10 +16,9 @@
 		</section>
 		<section>
 			<title>The Waf approach</title>
-			<para>Build systems make assumptions on the business problems they are trying to solve, and are typically limited where it comes to processing other languages (for example, Ant is better than Make for processing Java). The business rules (specific compilers, order of processing) are being reflected in the build process too, increasing the complexity.</para>
-			<para>For this reason, creating the ultimate build system that would match any foreign business rule and support any compiler out-of-the-box remains an unreachable ideal. It looks much more interesting to make a flexible system which can be extended easily.</para>
-			<para>The Waf approach is to provide a minimalistic framework flexible enough to be extended easily, and with a significant amount of business rules to be usable for any project. The main goals of waf are: the flexibility, the performance, and the features.</para>
-			<para>The Waf build system uses the Python language for its libraries but also for its scripts. Waf interprets the users scripts and uses the parameters and various APIs to build the software, and the extensions typically use dynamic code substitution (Aspect-Oriented programming in python).</para>
+			<para>Build systems make assumptions on the business problems they are trying to solve, and are typically limited where it comes to processing other languages. For example, Ant is better than Make for processing Java applications, but is more limited than make for processing simple c applications.</para>
+			<para>There are so many different languages that creating a build system to support all the possible business rules out-of-the-box is likely to be difficult. It looks much more interesting to make one which can be extended easily.</para>
+			<para>The Waf approach is to provide a minimalistic and very flexible framework, and packaged with a significant amount of business rules to be usable for most projects, and recipes for the most complex scenarios. The main goals of waf are: the flexibility, the performance, and the features.</para>
 		</section>
 		<section>
 			<title>Objectives of this book</title>
@@ -27,10 +26,13 @@
 		</section>
 	</preface>
 
+
+<!-- para>The Waf build system uses the Python language for its libraries but also for its scripts. Waf interprets the users scripts and uses the parameters and various APIs to build the software, and the extensions typically use dynamic code substitution (Aspect-Oriented programming in python).</para -->
+
 <title>The Waf book</title>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
-
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="execution.xml"/>
 
 <chapter id="intro">
 <title>Getting Started</title>
