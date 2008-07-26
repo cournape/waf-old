@@ -35,29 +35,9 @@ cd waf-1.5.0
 		</sect2>
 	</section>
 
-	<section id="using">
-		<title>Running Waf</title>
-		<para>
-			The Waf script can be used directly:
-			<programlisting language="sh">
-$ ./waf
-			</programlisting>
-			Or, if the executable permissions are not set properly:
-			<programlisting language="sh">
-$ python waf
-			</programlisting>
-		</para>
-		<para>
-			By default, the Waf script uncompresses its library in the current directory, in a hidden folder. This means the Waf script must reside in a writeable folder. The naming is allow different Waf versions to run from the same folder:
-			<programlisting language="sh">
-$ ls -ld .waf*
-.waf-1.5.0-ec924e3f453eb715118b9cc852291170
-			</programlisting>
-		</para>
-	</section>
-	<section id="installation">
-		<title>Installation</title>
-		<para>Waf installation is not only optional, but there are many advantages of not installing Waf, among them:
+	<section id="installing">
+		<title>Installing</title>
+		<para>Waf installation is optional and there are many advantages of not installing Waf, among them:
 			<orderedlist>
 				<listitem>Installation: installation is cumbersome, and requires administrative priviledges</listitem>
 				<listitem>Waf versions: users rarely install the appropriate software version (too old, too new)</listitem>
@@ -80,26 +60,26 @@ $ ls -ld .waf*
 			</programlisting>
 		</para>
 	</section>
-</chapter>
 
-
-<!--
-
-		<sect2>
-			<title>Obtaining Waf from the development source</title>
-			<para>
-				The Waf binary can be generated from the development source, but it is unstable:
-				<programlisting language="sh">
-					svn co https://waf.googlecode.com/svn/trunk waf
-					cd waf
-					./waf-light - -make-waf
-				</programlisting>
-			</para>
-		</sect2>
-
+	<section id="using">
+		<title>Running Waf</title>
 		<para>
-			If provided, the environment variable WAFDIR can be used to point to a location containing newer Waf sources, such as the latest source from SVN
+			The Waf script can be used directly:
+			<programlisting language="sh">
+$ ./waf
+			</programlisting>
+			Or, if the executable permissions are not set properly:
+			<programlisting language="sh">
+$ python waf
+			</programlisting>
 		</para>
--->
-
+		<para>
+			By default, the Waf script uncompresses its library in the current directory, in a hidden folder. This means the Waf script must reside in a writeable folder. The naming is allow different Waf versions to run from the same folder:
+			<programlisting language="sh">
+$ ls -ld .waf*
+.waf-1.5.0-ec924e3f453eb715118b9cc852291170
+			</programlisting>
+		</para>
+	</section>
+</chapter>
 

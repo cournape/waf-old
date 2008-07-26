@@ -28,14 +28,13 @@
 	</preface>
 
 
-<!-- para>The Waf build system uses the Python language for its libraries but also for its scripts. Waf interprets the users scripts and uses the parameters and various APIs to build the software, and the extensions typically use dynamic code substitution (Aspect-Oriented programming in python).</para -->
-
 <title>The Waf book</title>
 
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="intro.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="execution.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="development.xml"/>
 
+<!--
 <chapter id="intro">
 <title>Getting Started</title>
 <section id="Installing">
@@ -106,7 +105,7 @@ def build(bld):
     <sect2>Siete</sect2>
     <sect2>Ocho</sect2>
 </chapter>
-
+-->
 
 </book>
 
