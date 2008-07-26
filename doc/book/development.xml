@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter>
+	<title>Using the development version</title>
+	<section>
+		<title>Obtaining the latest source code</title>
+		<para>Waf is hosted on <ulink href="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To retrieve the development copy, use:
+		<programlisting language="sh">
+svn checkout http://waf.googlecode.com/svn/trunk/ waf-read-only
+cd waf-read-only
+./waf-light --make-waf
+		</programlisting>
+		</para>
+		<para>
+		To avoid regenerating Waf each time, the environment variable WAFCACHE can be used to point to the directory containing wafadmin:
+		<programlisting language="sh">
+export WAFDIR=/path/to/wafadmin
+		</programlisting>
+		</para>
+	</section>
+</chapter>
+
