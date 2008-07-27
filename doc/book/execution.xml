@@ -126,6 +126,10 @@ Your archive is ready -> test-0.0.1.tar.bz2
 			</programlisting>
 			A build directory was created with the name given in the wscript file. It contains a configuration log, and various cache files. The last command produced a tarball of the project (an archive) containing the source files. For now it only contains the wscript file.
 		</para>
+		<para>
+			The execution can be summed up in the following diagram:
+			<graphic format="png" fileref="waf-activity.png" align="center"/>
+		</para>
 	</section>
 	<section>
 		<title>Building a project</title>
