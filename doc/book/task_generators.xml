@@ -19,6 +19,16 @@
 	</section>
 
 	<section>
+		<title>Task execution</title>
+		<para>
+			Executing a task consists in calling the method <emphasis>run</emphasis> on that task, and setting the task execution state.
+			The following diagram is a summary of the process:
+			<graphic format="png" fileref="task_run.png" align="center"/>
+			The method post_run can be used to check if the files have been produced, it must throw and OSError if the task has not completed properly.
+		</para>
+	</section>
+
+	<section>
 		<title>Task execution in parallel</title>
 		<para>
 			Tasks may be executed in parallel to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. By default, only one task is executed at a time, to enable task parallelization, use the option <emphasis>-j</emphasis> with the amount of consumers:
@@ -106,8 +116,11 @@ task1.set_run_after(task2)
 	</section>
 
 	<section>
-		<title>The signature system</title>
-		<para>Tasks that actually build files</para>
+		<title>Executing tasks only when something changes</title>
+		<para>The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class <emphasis>Task</emphasis> provides the necessary features for the most common of builds in which source files are used to produce target files.</para>
+		<para>
+			The following diagram illustrates TODO
+		</para>
 	</section>
 
 </chapter>
