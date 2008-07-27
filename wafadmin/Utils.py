@@ -342,8 +342,8 @@ def check_dir(dir):
 		except OSError, e:
 			raise WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
 
-def cmd_output(cmd):
-	p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True)
+def cmd_output(cmd, e=None):
+	p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True, env=e)
 	output = p.communicate()[0]
 	if p.returncode:
 		msg = "command execution failed: %s -> %r" % (cmd, str(output))
