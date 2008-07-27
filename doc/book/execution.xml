@@ -113,7 +113,7 @@ Your archive is ready -> test-0.0.1.tar.bz2
 		</para>
 		<para>
 			A few files will be produced by Waf, let us look at them now:
-			<programlisting language="shell">
+			<programlisting language="sh">
 .
 |-- build
 |   |-- c4che
@@ -132,12 +132,80 @@ Your archive is ready -> test-0.0.1.tar.bz2
 		<para>
 			The function <emphasis>build</emphasis> is used for two purposes:
 			<itemizedlist>
-				<listitem>Declare the targets to build</listitem>
 				<listitem>Indicate new scripts that provide build functions to call</listitem>
+				<listitem>Declare the targets to build</listitem>
 			</itemizedlist>
-
-
 		</para>
+		<sect2>
+			<title>Providing wscript files in subfolders</title>
+			<para>
+			The function build may reference build functions in wscript present in subfolders, for example:
+			<programlisting language="sh">
+.
+`-- wscript
+|-- src
+|   `-- wscript
+			</programlisting>
+			The top-level wscript may indicate there is a build function to execute in src/wscript using:
+			<programlisting language="python">
+def build(bld):
+	bld.add_subdirs('src')
+			</programlisting>
+			</para>
+		</sect2>
+		<sect2>
+			<title>Declaring Waf tasks</title>
+			<para>
+			We will now introduce the concept of task. In Waf, tasks represent individual units of change. By change, we mean the production of one or several files, by which the process cannot be split in sub-tasks (atomicity). Waf uses objects of the class TaskBase (in the Waf library) to represent the tasks:
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+    pass
+def configure(conf):
+    pass
+
+import Task
+class task_test_a(Task.TaskBase):
+	pass
+class task_test_b(Task.TaskBase):
+	after = 'task_test_a'
+
+def build(bld):
+    tb = task_test_b()
+    ta = task_test_a()
+			</programlisting>
+			The execution trace will be the following:
+			<programlisting language="sh">
+$ waf configure
+Configuration finished successfully (00:00:00); project is now ready to build.
+$ waf
+[0/2] task_test_a
+[1/2] task_test_b
+Compilation finished successfully (00:00:00)
+			</programlisting>
+			</para>
+		</sect2>
+		<sect2>
+			<title>The task generators</title>
+			<para>
+			The tasks provided in the previous example do not do anything useful, and in practice it is desirable to automate their production. For example, if a lot of c files are provided and are to be processed into an application, a task generator will take all the source files and produce the tasks with the appropriate dependencies (compile and then assemble the object files at the end). Waf provides various task generator by default.
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+    conf.check_tool('gcc')
+
+def build(bld):
+    main = bld.new_task_gen('cc', 'program')
+    main.source = 'main.c test.c'
+    main.target = 'test_c_program'
+			</programlisting>
+			This example provides a modified <emphasis>configure</emphasis> function, which is the topic of the next section. The various task generators will be reviewed in another chapter.
+			</para>
+		</sect2>
 	</section>
 
 </chapter>
