@@ -35,7 +35,7 @@ class intltool_in_taskgen(TaskGen.task_gen):
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext(''))
 
-			tsk.install_path = self.install_path
+			task.install_path = self.install_path
 
 class intltool_po_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
