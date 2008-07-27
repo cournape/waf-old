@@ -16,8 +16,8 @@
 			<para>
 				The Waf binary is ready to use and can be executed directly. Just rename it into &quot;waf&quot;:
 				<programlisting language="sh">
-wget http://waf.googlecode.com/files/waf-1.5.0
-mv waf-1.5.0 waf &amp;&amp; chmod 755 waf
+$ wget http://waf.googlecode.com/files/waf-1.5.0
+$ mv waf-1.5.0 waf &amp;&amp; chmod 755 waf
 				</programlisting>
 			</para>
 		</sect2>
@@ -26,10 +26,10 @@ mv waf-1.5.0 waf &amp;&amp; chmod 755 waf
 			<para>
 				The Waf binary is usually generated from the source distribution:
 				<programlisting language="sh">
-wget http://waf.googlecode.com/files/waf-1.5.0.tar.bz2
-tar xjvf waf-1.5.0.tar.bz2
-cd waf-1.5.0
-./waf-light --make-waf
+$ wget http://waf.googlecode.com/files/waf-1.5.0.tar.bz2
+$ tar xjvf waf-1.5.0.tar.bz2
+$ cd waf-1.5.0
+$ ./waf-light --make-waf
 				</programlisting>
 			</para>
 		</sect2>
@@ -49,14 +49,14 @@ cd waf-1.5.0
 		<para>
 			If, despite the advantages enumerated previously, you really want to install the Waf application on the system, you may use the following command on unix-like systems such as Linux:
 			<programlisting language="sh" linenumbering="numbered">
-			# ./waf-light install --prefix=/usr/
+# ./waf-light install --prefix=/usr/
 			</programlisting>
 			Root priviledges may be required depending on the final location.
 		</para>
 		<para>
 			Waf can be uninstalled using:
 			<programlisting language="sh" linenumbering="numbered">
-			# ./waf-light uninstall --prefix=/usr/
+# ./waf-light uninstall --prefix=/usr/
 			</programlisting>
 		</para>
 	</section>

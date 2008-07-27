@@ -2,40 +2,143 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter id="intro">
-	<title>Getting Started</title>
-	<section id="requirements">
-		<title>Waf requirements</title>
-		<para>Waf requires Python &ge; 2.3</para>
-	</section>
-	<section id="installation">
-		<title>Waf installation</title>
-		<para>Waf does not need to be installed. There are many advantages of not installing Waf, among them:
-			<orderedlist>
-				<listitem>Waf is very small (80kB)</listitem>
-				<listitem>Different projects use different Waf versions, it is better to ship the script for users</listitem>
-				<listitem>The latest Waf version might change and the users would complain</listitem>
-			</orderedlist>
-			To generate the Waf script from the sources, use the following command:
-			<programlisting language="sh" linenumbering="numbered">
-			$ ./waf-light --make-waf --strip
-			</programlisting>
-			Once the waf script is generated, you may redistribute it freely (bsd licence)
+<chapter>
+	<title>Introduction to the Waf scripting system</title>
+	<section>
+		<title>Empty project example</title>
+		<para>
+		The Waf scripts are based on the following concepts:
+			<itemizedlist>
+				<listitem>System files: files and folders which do not belong to the project</listitem>
+				<listitem>Source directory: directory containing the source files for an application, it is meant to be ultimately packaged, and redistributed to other developers or to end users.</listitem>
+				<listitem>Build directory: all files produced by Waf will be output in that folder</listitem>
+			</itemizedlist>
+		The Waf philosophy is to avoid the pollution of the source directory by letting all files into the build directory. The build directory can be located on the system, out of the source directory (like in /tmp for example).
+		</para>
+
+		<para>
+		When Waf is launched, it looks for the user-defined Waf scripts which are files written in the Python language. The most important one is the top-level Waf script file in which several functions and attributes must be provided for defining a valid Waf project:
+			<itemizedlist>
+				<listitem>srcdir: string representing the source directory</listitem>
+				<listitem>blddir: string representing the build directory</listitem>
+				<listitem>set_options: function used for adding custom command-line options</listitem>
+				<listitem>configure: function called for configuring the project</listitem>
+				<listitem>build: function used for building the project</listitem>
+			</itemizedlist>
+		The top-level Waf script file name is &quot;wscript&quot;
+		</para>
+
+		<para>
+		A simple empty Waf project can be declared using a wscript file containing the following Python code:
+		<programlisting language="python">
+srcdir = '.'
+blddir = 'output'
+
+def set_options(opt):
+    print '  setting the options'
+def configure(conf):
+    print '  executing the configuration'
+def build(bld):
+    print '  building the project'
+		</programlisting>
+		</para>
+
+		<para>
+		The minimum workflow for any project consists of the following steps:
+			<itemizedlist>
+				<listitem>Configuring the project: searching for system parameters and compilers</listitem>
+				<listitem>Building the project: building the software</listitem>
+			</itemizedlist>
+		To do this, the following shell commands will be:
+		<programlisting>
+$ waf configure
+  setting the options
+  executing the configuration
+$ waf build
+  setting the options
+  building the project
+		</programlisting>
 		</para>
 	</section>
-	<section id="development">
-		<title>Waf installation (2)</title>
+
+	<section>
+		<title>Workflow illustration on a more complicated example</title>
 		<para>
-			If you really want to install the Waf application on the system (despite the advantages enumerated in the previous section), you may use the following command on unix-like systems such as Linux:
-			<programlisting language="sh" linenumbering="numbered">
-			# ./waf-light install --prefix=/tmp/
+			Additional functions are usually provided in the top-level wscript file:
+			<itemizedlist>
+				<listitem>APPNAME: project name</listitem>
+				<listitem>VERSION: project version</listitem>
+				<listitem>init: function called before anything is executed</listitem>
+				<listitem>shutdown: function called after a successful configuration or build</listitem>
+				<listitem>dist: function called for packaging the application</listitem>
+			</itemizedlist>
+			We will now provide a more complicated wscript file, execute the typical commands, and look at the output:
+			<programlisting language="python">
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+def init():
+    print "  init called"
+def set_options(opt):
+    print "  set_options"
+def configure(conf):
+    print "  calling the configuration"
+def build(bld):
+    print "  building"
+def shutdown():
+    print "  shutdown called"
 			</programlisting>
-			Root priviledges may be required depending on the final location.
+The output will be:
+			<programlisting>
+$ waf
+Project not configured (run 'waf configure' first)
+$ waf configure
+  set_options
+  init called
+  calling the configuration
+Configuration finished successfully (00:00:00); project is now ready to build.
+$ waf
+  set_options
+  init called
+  building
+Compilation finished successfully (00:00:00)
+  shutdown called
+$ waf dist
+  set_options
+  init called
+Your archive is ready -> test-0.0.1.tar.bz2
+			</programlisting>
+		</para>
+		<para>
+			A few files will be produced by Waf, let us look at them now:
+			<programlisting language="shell">
+.
+|-- build
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- default
+|-- test-0.0.1.tar.bz2
+`-- wscript
+			</programlisting>
+			A build directory was created with the name given in the wscript file. It contains a configuration log, and various cache files. The last command produced a tarball of the project (an archive) containing the source files. For now it only contains the wscript file.
 		</para>
 	</section>
 	<section>
-		<title>Common wrappers</title>
-		<para>The wrapper scripts are provided for those used to run ./configure and make on unix-like systems</para>
+		<title>Building a project</title>
+		<para>
+			The function <emphasis>build</emphasis> is used for two purposes:
+			<itemizedlist>
+				<listitem>Declare the targets to build</listitem>
+				<listitem>Indicate new scripts that provide build functions to call</listitem>
+			</itemizedlist>
+
+
+		</para>
 	</section>
+
 </chapter>
 
