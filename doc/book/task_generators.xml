@@ -123,6 +123,14 @@ task1.set_run_after(task2)
 			The following diagram illustrates the task processing including the signature, it is only valid for Task and not TaskBase instances:
 			<graphic format="png" fileref="task_signature.png" align="center"/>
 		</para>
+		<para>
+			The signature computation uses the following parameters:
+			<itemizedlist>
+				<listitem>explicit dependencies: input files and dependencies set explicitely using task.deps_man or bld.depends_on</listitem>
+				<listitem>implicit dependencies: dependencies searched by the task itself (like source files included from other source files)</listitem>
+				<listitem>parameters: compilation flags and command-line parameters</listitem>
+			</itemizedlist>
+		</para>
 	</section>
 
 </chapter>
