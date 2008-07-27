@@ -132,8 +132,8 @@ Your archive is ready -> test-0.0.1.tar.bz2
 		<para>
 			The function <emphasis>build</emphasis> is used for two purposes:
 			<itemizedlist>
-				<listitem>Indicate new scripts that provide build functions to call</listitem>
-				<listitem>Declare the targets to build</listitem>
+				<listitem>Indicating new scripts that provide build functions to call</listitem>
+				<listitem>Declaring the targets to build</listitem>
 			</itemizedlist>
 		</para>
 		<sect2>
@@ -151,6 +151,8 @@ Your archive is ready -> test-0.0.1.tar.bz2
 def build(bld):
 	bld.add_subdirs('src')
 			</programlisting>
+
+			The wscript files that are not on the top-level often contain a large <emphasis>build</emphasis> function, with no additional configuration or command-line options. In this case the file only contain one method and the indentation is an annoyance. For this reason, the <emphasis>wscript_build</emphasis> files contain the body of a build function defined in a wscript file. A folder may only contain either a wscript or a wscript_build but not both.
 			</para>
 		</sect2>
 		<sect2>
@@ -203,10 +205,210 @@ def build(bld):
     main.source = 'main.c test.c'
     main.target = 'test_c_program'
 			</programlisting>
-			This example provides a modified <emphasis>configure</emphasis> function, which is the topic of the next section. The various task generators will be reviewed in another chapter.
+			The bld parameter in the function build represents the build context, it enables the creation of task generators.
+			This example provides a modified <emphasis>configure</emphasis> function, which is the topic of the next section. The task generator system and the default generators will be reviewed in detail in another chapter.
 			</para>
 		</sect2>
 	</section>
 
+	<section>
+		<title>Configuring a project</title>
+		<para>
+			The function <emphasis>configure</emphasis> is used for four main purposes:
+			<itemizedlist>
+				<listitem>Indicating new scripts that provide configuration functions to call</listitem>
+				<listitem>Providing configuration contexts to hold persistent data</listitem>
+				<listitem>Providing configuration helpers</listitem>
+				<listitem>Loading various Waf tools</listitem>
+			</itemizedlist>
+		</para>
+		<sect2>
+			<title>Indicating configuration subfolders</title>
+			<para>
+			The function configure may reference configure functions in wscript present in subfolders, for example:
+			<programlisting language="sh">
+.
+`-- wscript
+|-- src
+|   `-- wscript
+			</programlisting>
+			The top-level wscript may indicate there is a build function to execute in src/wscript using:
+			<programlisting language="python">
+def configure(conf):
+	conf.sub_config('src')
+			</programlisting>
+			As a matter of fact, any wscript file may indicate a sub-configuration function to execute.
+			</para>
+		</sect2>
+		<sect2>
+			<title>Storing and loading configuration parameters</title>
+			<para>
+				<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+    pass
+def configure(conf):
+    conf.env['test'] = 'hello'
+def build(bld):
+    print bld.env['test']
+				</programlisting>
+			The execution will result in:
+				<programlisting language="sh">
+$ waf configure
+Configuration finished successfully (00:00:00); project is now ready to build.
+$ waf
+hello
+				</programlisting>
+			This configuration modifications (on conf.env) are persistent, they are reused during the build (using bld.env). Let us look at the files produced:
+				<programlisting language="sh">
+.
+|-- build
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- default
+`-- wscript
+				</programlisting>
+			The contents of the file <emphasis>default.cache.py</emphasis> is reproduced here:
+				<programlisting language="sh">
+$ cat build/c4che/default.cache.py
+PREFIX = '/usr/local'
+test = 'hello'
+				</programlisting>
+			</para>
+		</sect2>
+		<sect2>
+			<title>Using configuration helpers</title>
+			<para>
+				Setting up many parameters manually is a tedious process, and Waf provide configuration helpers to automate the process of finding the settings. For example:
+				<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+    pass
+def configure(conf):
+    conf.find_program('tar', var='TAR')
+def build(bld):
+    print bld.env['TAR']
+				</programlisting>
+				Will produce the following results:
+				<programlisting language="sh">
+$ waf configure
+Checking for program tar                 : ok /bin/tar
+Configuration finished successfully (00:00:00); project is now ready to build.
+$ waf
+/bin/tar
+Compilation finished successfully (00:00:00)
+				</programlisting>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Loading Waf tools</title>
+			<para>
+				The Waf tools are extensions that provide task types (for languages such as c, java, ...), more configuration tests, and command-line options. To make certain that the Waf tools used during the configuration are also available during the build, they are stored during the configuration and loaded automatically afterwards. Here is an example:
+				<programlisting language="python">
+def configure(conf):
+	conf.check_tool('gcc')
+				</programlisting>
+				By default, tools are loaded from the Waf library, but it is possible to load tools from the source directory using the following:
+				<programlisting language="python">
+def configure(conf):
+	conf.check_tool('my_tool', tooldir='.')
+				</programlisting>
+			</para>
+		</sect2>
+
+	</section>
+
+	<section>
+		<title>Adding custom configuration options</title>
+		<para>
+			The function <emphasis>set_options</emphasis> is used for three main purposes:
+			<itemizedlist>
+				<listitem>Declaring custom command-line options</listitem>
+				<listitem>Indicating that scripts provide command-line options</listitem>
+				<listitem>Adding command-line options from Waf tools</listitem>
+			</itemizedlist>
+		</para>
+		<sect2>
+			<title>Adding custom command-line options</title>
+			<para>
+			Waf uses the optparse module from Python for adding command-line options, for example:
+			<programlisting language="python">
+def set_options(opt):
+	opt.add_option('--exe', action='store_true', default=False,
+		help='Execute the program after it is compiled')
+def shutdown():
+	import Options
+	print Options.options.exe
+			</programlisting>
+			The command-line options can be displayed afterwards:
+			<programlisting language="sh">
+$ waf --help
+Usage: waf [options] [commands ...]
+
+* Main commands: configure build install clean dist distclean uninstall distcheck
+* Example: ./waf build -j4
+
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  -j JOBS, --jobs=JOBS  amount of parallel jobs [Default: 1]
+  -f, --force           force file installation
+  -k, --keep            keep running happily on independant task groups
+  -p, --progress        -p: progress bar; -pp: ide output
+  -v, --verbose         verbosity level -v -vv or -vvv [Default: 0]
+  --destdir=DESTDIR     installation root [Default: '']
+  --nocache             compile everything, even if WAFCACHE is set
+  --zones=ZONES         debugging zones (task_gen, deps, tasks, etc)
+  --targets=COMPILE_TARGETS
+                        compile the targets given only [targets in CSV format, e.g. "target1,target2"]
+  --exe                 Execute the program after it is compiled
+			</programlisting>
+			and used like this:
+			<programlisting language="sh">
+$ waf --exe
+True
+$ waf
+False
+			</programlisting>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Adding custom command-line options from other wscript files in subfolders</title>
+			<para>
+			The function set_options may reference build functions in wscript present in subfolders, for example:
+			<programlisting language="sh">
+.
+`-- wscript
+|-- src
+|   `-- wscript
+			</programlisting>
+			The top-level wscript may indicate there is a build function to execute in src/wscript using:
+			<programlisting language="python">
+def set_options(opt):
+	opt.sub_options('src')
+			</programlisting>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Adding custom command-line options from Waf tools</title>
+			<para>
+			Waf tool options are not added by default because the excess of command-line options is annoying.
+			Here is an example for adding the command-line options defined from a Waf tools named compiler_cxx
+			<programlisting language="python">
+def set_options(opt):
+	opt.tool_options('compiler_cxx')
+			</programlisting>
+			</para>
+		</sect2>
+	</section>
 </chapter>
 
