@@ -11,7 +11,7 @@ srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-	return
+	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 def configure(conf):
 	conf.check_tool('docbook', tooldir='.')
@@ -28,3 +28,8 @@ def build(bld):
 	#obj.type = 'pdf'
 	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
 
+def shutdown():
+	import os
+	import Options
+	if Options.options.exe:
+		os.popen('konqueror $PWD/build/default/index.html')

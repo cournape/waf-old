@@ -40,8 +40,69 @@ $ waf -j2
 	</section>
 
 	<section>
-		<title>Task dependencies</title>
-		<para>Tasks that run before/after other tasks</para>
+		<title>Task ordering</title>
+			<para>
+				Running tasks in parallel is a simple problem, but in practice it is more complicated:
+				<itemizedlist>
+					<listitem>Dependencies can be discovered during the build (dynamic task creation)</listitem>
+					<listitem>New ordering constraints can be discovered after files are compiled</listitem>
+					<listitem>The amount of tasks and ordering constraints (graph size) can be huge and performance may be a problem</listitem>
+				</itemizedlist>
+
+				To make the problem more simple, it is divided by the different concerns, and the orderring constraints can be given on three different levels:
+				<orderedlist>
+					<listitem>groups of tasks may run only after another group of tasks has finished to run, this represents a strict sequential order between groups of tasks, for example a compiler is produced and used to compile the tasks in the next group</listitem>
+					<listitem>task types to indicate the instance will run after other task type instances, for example linking object files may only occur after compiling the source files</listitem>
+					<listitem>specific constraints for task instances that can only run after a few other task instances</listitem>
+				</orderedlist>
+			</para>
+			<sect2>
+				<title>Task groups</title>
+				<para>
+					The following is used to declare groups of tasks to run one after the other:
+					<programlisting language="python">
+def build(bld):
+	# create a few tasks
+	bld.add_group()
+	# create new tasks
+					</programlisting>
+				</para>
+			</sect2>
+
+			<sect2>
+				<title>Precedence constraints</title>
+				<para>
+					The attributes <emphasis>before</emphasis> and <emphasis>after</emphasis> are used to declare ordering constraints between tasks:
+					<programlisting language="python">
+import Task
+class task_test_a(Task.TaskBase):
+	before = 'task_test_b'
+class task_test_b(Task.TaskBase):
+	after = 'task_test_a'
+					</programlisting>
+					Another way to declare precedence constraints is to declare a file extension production, for example:
+					<programlisting language="python">
+import Task
+class task_test_a(Task.TaskBase):
+	ext_in = '.c'
+class task_test_b(Task.TaskBase):
+	ext_out = '.c'
+					</programlisting>
+					The extensions have to match to add a valid precedence constraint, but they are only annotations, they do not mean the tasks actually have to produce files of that type.
+				</para>
+			</sect2>
+
+			<sect2>
+				<title>Precedence constraints on task instances</title>
+				<para>
+					The method <emphasis>set_run_after</emphasis> is used to declare ordering constraints between tasks:
+					<programlisting language="python">
+task1.set_run_after(task2)
+					</programlisting>
+					unlike the previous constraints, it is used on the instances of class <emphasis>Task</emphasis> which is a subclass of class <emphasis>TaskBase</emphasis>
+				</para>
+			</sect2>
+
 	</section>
 
 	<section>
