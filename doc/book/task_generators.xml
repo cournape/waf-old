@@ -3,6 +3,51 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="task_generators">
-	<title>Task generators</title>
+	<title>Tasks and task generators</title>
+	<section>
+		<title>Task creation and execution</title>
+		<para>
+			When Waf tasks are created, they are not executed immediately, for example it is not necessary to rebuild an application if the source files have not changed. Some tasks may also depend on other tasks which may not be created yet. For this reasons Waf delays the execution of tasks to the point when all build functions have been executed.
+		</para>
+		<para>
+			Creating all tasks by hand is a tedious process that the task generators may automate. Before starting the build, Waf asks each task generator to produce the corresponding tasks. If Waf is launched from a subfolder inside the source directory, it will try to avoid the creation of the tasks that are not relevant for that particular subfolder (optimization).
+		</para>
+		<para>
+		 	Once the tasks are created, Waf will review each of them one by one to decide whether to execute them or not. A summary can be found on the following diagram:
+			<graphic format="png" fileref="task_execution.png" align="center"/>
+		</para>
+	</section>
+
+	<section>
+		<title>Task execution in parallel</title>
+		<para>
+			Tasks may be executed in parallel to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. By default, only one task is executed at a time, to enable task parallelization, use the option <emphasis>-j</emphasis> with the amount of consumers:
+			<programlisting language="sh">
+$ waf -j2
+			</programlisting>
+		</para>
+		<para>
+			By default, Waf does not allow consumer threads to access the tasks directly:
+			<itemizedlist>
+				<listitem>There is little need for parallelizing the computation of the next task to execute, choosing the next task is fast enough</listitem>
+				<listitem>The thread issues are limited to a very small section of the code</listitem>
+				<listitem>The producer-consumer scheme prevents <emphasis>busy waiting</emphasis> for the next task</listitem>
+				<listitem>A simple global error handler can be used for processing the errors and to decide to stop the build</listitem>
+			</itemizedlist>
+			The following illustrates the relationship producer-consumer performed for the builds:
+			<graphic format="png" fileref="parallel.png" align="center"/>
+		</para>
+	</section>
+
+	<section>
+		<title>Task dependencies</title>
+		<para>Tasks that run before/after other tasks</para>
+	</section>
+
+	<section>
+		<title>The signature system</title>
+		<para>Tasks that actually build files</para>
+	</section>
+
 </chapter>
 
