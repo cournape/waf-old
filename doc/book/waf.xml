@@ -35,8 +35,6 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="c_builds.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="development.xml"/>
 
-
-
 <!--
 <chapter id="intro">
 <title>Getting Started</title>
