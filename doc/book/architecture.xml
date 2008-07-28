@@ -1,0 +1,96 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter>
+	<title>The Waf architecture</title>
+	<section>
+		<title>The core library</title>
+		<para id="corelib">
+			Waf is built on 12 modules which constitute the core library
+
+<table id="broke" class="eh">
+<title>The core library</title>
+<tgroup cols='2' align='left' colsep='1' rowsep='1'>
+
+<colspec colname='c1'/>
+<colspec colname='c2'/>
+
+<thead>
+<row>
+  <entry>Module</entry>
+  <entry>Role</entry>
+</row>
+</thead>
+
+<tbody>
+
+<row>
+  <entry>Build</entry>
+  <entry>Define the Build context class, which holds the data for one build (paths, configuration data)</entry>
+</row>
+
+<row>
+  <entry>Configure</entry>
+  <entry>Contains the configuration context class, which is used for launching configuration tests, and the extension system</entry>
+</row>
+
+<row>
+  <entry>Constants</entry>
+  <entry>The constants used in the project</entry>
+</row>
+
+<row>
+  <entry>Environment</entry>
+  <entry>Contains a dictionary class which support a lightweight copy scheme and offers persistence services</entry>
+</row>
+
+<row>
+  <entry>Logs</entry>
+  <entry>The logging system</entry>
+</row>
+
+<row>
+  <entry>Node</entry>
+  <entry>Filesystem representation</entry>
+</row>
+
+<row>
+  <entry>Options</entry>
+  <entry>Command-line option processing</entry>
+</row>
+
+<row>
+  <entry>Runner.py</entry>
+  <entry>The task execution functions, and the task execution algorithm (producer-consumer)</entry>
+</row>
+
+<row>
+  <entry>Scripting.py</entry>
+  <entry>The entry point of the Waf application</entry>
+</row>
+
+<row>
+  <entry>TaskGen</entry>
+  <entry>The task generator system, with the extension system</entry>
+</row>
+
+<row>
+  <entry>Task</entry>
+  <entry>The task hierarchy, and the task containers</entry>
+</row>
+
+<row>
+  <entry>Utils</entry>
+  <entry>Support library needed by many parts of the code</entry>
+</row>
+
+
+</tbody>
+</tgroup>
+</table>
+
+		</para>
+	</section>
+</chapter>
+

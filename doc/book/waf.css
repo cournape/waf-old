@@ -32,3 +32,19 @@ body
         -moz-border-radius: 2.5px;
         margin: 0.5em 2em;
 }
+
+table
+{
+	border-collapse: collapse;
+}
+
+table.corelib
+{
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+table.corelib thead td
+{
+	background-color: aliceblue;
+}
