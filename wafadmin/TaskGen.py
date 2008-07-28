@@ -242,7 +242,7 @@ class task_gen(object):
 		if not self.name: self.name = self.target
 
 		if getattr(self, 'posted', None):
-			error("OBJECT ALREADY POSTED")
+			#error("OBJECT ALREADY POSTED" + str( self))
 			return
 		self.apply()
 		debug('task_gen: posted %s' % self.name)
