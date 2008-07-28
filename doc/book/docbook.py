@@ -4,7 +4,7 @@
 
 "docbook processing (may be broken)"
 
-import os, string
+import os, string, re
 import TaskGen, Runner, Utils, Build, Task
 from Logs import debug
 
@@ -19,6 +19,24 @@ def xslt_build(task):
 	cmd = task.env['XSLTPROC_ST'] % (task.env['XSLTPROC'], os.path.join(srcdir,task.env['XSLT_SHEET']), src, os.path.join(bdir, tgt))
 	debug(cmd)
 	return Runner.exec_command(cmd)
+
+re_xi = re.compile('''<xi:include[^>]+href=['"]([^'">]+)['"][^>]+>''', re.M)
+def xmlscan(self):
+	p = self.inputs[0].parent
+	node_lst = [self.inputs[0]]
+	seen = []
+	depnodes = []
+	while node_lst:
+		nd = node_lst.pop(0)
+		if nd.id in seen: continue
+		seen.append(nd.id)
+
+		code = nd.read(self.env)
+		for m in re_xi.finditer(code):
+			name = m.group(1)
+			k = p.find_resource(name)
+			if k: depnodes.append(k)
+	return [depnodes, ()]
 
 # Create various file formats from a docbook or sgml file.
 db2_vardeps = ['DB2','DB2HTML', 'DB2PDF', 'DB2TXT', 'DB2PS']
@@ -120,8 +138,10 @@ class docbook_taskgen(TaskGen.task_gen):
 
 
 Task.simple_task_type('fop', "${FOP} ${SRC[0].bldpath(env)} ${SRC[0].bldpath(env)[:-3]}.pdf")
-Task.simple_task_type('db2', "${DBCOMPILER} ${SRC[0].bld_dir(env)} ${SRC[0].bldpath(env)}")
-Task.task_type_from_func('xslt', vars=xslt_vardeps, func=xslt_build, color='BLUE')
+cls = Task.simple_task_type('db2', "${DBCOMPILER} ${SRC[0].bld_dir(env)} ${SRC[0].bldpath(env)}")
+cls.scan = xmlscan
+cls = Task.task_type_from_func('xslt', vars=xslt_vardeps, func=xslt_build, color='BLUE')
+cls.scan = xmlscan
 
 ## Detect the installed programs: fop, xsltproc, xalan, docbook2xyz
 # Favour xsltproc over xalan.
