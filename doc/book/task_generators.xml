@@ -120,16 +120,43 @@ task1.set_run_after(task2)
 		<para>The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class <emphasis>Task</emphasis> provides the necessary features for the most common of builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by adding including them in the signature. A hashing function is used for computing the signature, by default it is md5.
 		</para>
 		<para>
-			The following diagram illustrates the task processing including the signature, it is only valid for Task and not TaskBase instances:
+			The following diagram illustrates the task processing including the signature, it is only valid for Task instance (not TaskBase instances):
 			<graphic format="png" fileref="task_signature.png" align="center"/>
 		</para>
 		<para>
-			The signature computation uses the following parameters:
-			<itemizedlist>
+			The signature computation uses the following data:
+			<orderedlist>
 				<listitem>explicit dependencies: input files and dependencies set explicitely using task.deps_man or bld.depends_on</listitem>
-				<listitem>implicit dependencies: dependencies searched by the task itself (like source files included from other source files)</listitem>
-				<listitem>parameters: compilation flags and command-line parameters</listitem>
-			</itemizedlist>
+				<listitem>implicit dependencies: dependencies searched by the task itself (like source files included from other source files).</listitem>
+				<listitem>parameters: compilation flags and command-line parameters.</listitem>
+			</orderedlist>
+			Here is an example illustrating the different kinds of dependencies:
+			<programlisting language="python">
+import Task
+class task_demo(Task.Task):
+	vars = ['CXXFLAGS', 'LINKFLAGS'] <co id="vars-co" linkends="vars"/>
+	def scan(self): <co id="scan-co" linkends="scan"/>
+		return [[self.inputs[0].parent.find_resource('.svn/entries')], []]
+
+task = task_demo()
+task.inputs = [bld.path.find_resource('test.cxx')] <co id="expl-co" linkends="expl"/>
+task.deps_man = [bld.path.find_resource('wscript')] <co id="expl2-co" linkends="expl2"/>
+			</programlisting>
+			<calloutlist>
+				<callout arearefs="vars-co" id="vars">
+					<para>Environment variable dependencies (compilation flags)</para>
+				</callout>
+				<callout arearefs="scan-co" id="scan">
+					<para>Implicit dependencies (scanner method for finding additional nodes)</para>
+				</callout>
+				<callout arearefs="expl-co" id="expl">
+					<para>Explicit dependencies as input files (nodes)</para>
+				</callout>
+				<callout arearefs="expl2-co" id="expl2">
+					<para>Explicit dependencies as manual dependencies</para>
+				</callout>
+		</calloutlist>
+
 		</para>
 	</section>
 
