@@ -10,7 +10,7 @@ import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
 
 g_cpp_flag_vars = [
-'FRAMEWORK', 'FRAMEWORKPATH',
+'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CXXDEFINES']
 "main cpp variables"

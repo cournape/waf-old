@@ -10,7 +10,7 @@ import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
 
 g_cc_flag_vars = [
-'FRAMEWORK', 'FRAMEWORKPATH',
+'CCDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
