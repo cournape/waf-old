@@ -639,13 +639,14 @@ class framework_configurator(configurator_base):
 		linkflags += ['-F%s' % p for p in self.path]
 		ccflags = ['-F%s' % p for p in self.path]
 
-		myenv['LINKFLAGS'] += linkflags
+#		myenv['LINKFLAGS'] += linkflags
 
 		obj        = check_data()
 		obj.code   = "\n".join(code)
 		obj.uselib = self.uselib_store + " " + self.uselib
-		obj.env.append_value('LINKFLAGS', linkflags)
-		obj.env.append_value('CCFLAGS', ccflags)
+                obj.env = self.env.copy()
+		obj.env['LINKFLAGS'] += linkflags
+		obj.env['CCFLAGS'] += ccflags
 
 		ret = int(self.conf.run_check(obj))
 		self.conf.check_message('framework %s' % self.name, '', ret, option='')
