@@ -359,7 +359,7 @@ class Node(object):
 			elif not self.parent.name:
 				val = os.sep + self.name
 			else:
-				val = self.parent.abspath(env) + os.sep + self.name
+				val = self.parent.abspath() + os.sep + self.name
 		else:
 			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.path_to_parent(Build.bld.srcnode)))
 		Build.bld.cache_node_abspath[variant][self.id] = val
