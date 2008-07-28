@@ -193,8 +193,6 @@ def prepare(t, cwd, ver, wafdir):
 		print '\033[91mError: %s\033[0m' % msg
 		sys.exit(1)
 
-	Utils.python_24_guard()
-
 	try:
 		prepare_impl(t, cwd, ver, wafdir)
 	except Utils.WafError, e:
