@@ -205,7 +205,7 @@ def sfilter(path):
 
 	cnt = process_decorators(cnt)
 	cnt = process_imports(cnt)
-	if path.endswith('Scripting.py'):
+	if path.endswith('Options.py'):
 		cnt = cnt.replace('Utils.python_24_guard()', '')
 
 	return (StringIO.StringIO(cnt), len(cnt), cnt)
