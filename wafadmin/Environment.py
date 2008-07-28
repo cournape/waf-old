@@ -39,7 +39,7 @@ class Environment(object):
 			cur = getattr(cur, 'parent', None)
 		keys = list(keys)
 		keys.sort()
-		return "\n".join("%r %r" % (x, self.__getitem__(x)) for x in keys)
+		return "\n".join(["%r %r" % (x, self.__getitem__(x)) for x in keys])
 
 	def set_variant(self, name):
 		self.table[VARIANT] = name
