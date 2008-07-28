@@ -19,6 +19,15 @@ cd waf-read-only
 export WAFDIR=/path/to/wafadmin
 		</programlisting>
 		</para>
+		<para>
+			Although the Waf binary depends on Python 2.3, the Waf source code depends on Python 2.4. When generating Waf, a parser modifies the source code and performs the following operations:
+			<itemizedlist>
+				<listitem>Move the decorators into simple function calls</listitem>
+				<listitem>Add the imports for the module sets</listitem>
+				<listitem>Comment stripping to reduce the size</listitem>
+				<listitem>Redundant space elimination to reduce the size</listitem>
+			</itemizedlist>
+		</para>
 	</section>
 </chapter>
 
