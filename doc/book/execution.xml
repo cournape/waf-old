@@ -235,7 +235,7 @@ def build(bld):
 |-- src
 |   `-- wscript
 			</programlisting>
-			The top-level wscript may indicate there is a build function to execute in src/wscript using:
+			The top-level wscript may indicate there is a configure function to execute in src/wscript using:
 			<programlisting language="python">
 def configure(conf):
 	conf.sub_config('src')
