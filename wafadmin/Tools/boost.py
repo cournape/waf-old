@@ -3,6 +3,7 @@
 #
 # written by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008
 # modified by Bjoern Michaelsen, 2008
+# modified by Luca Fossati, 2008
 #
 # partially based on boost.py written by Gernot Vormayr
 
@@ -18,12 +19,12 @@ Usage:
 # ...
 
 def set_options(opt):
-	opt.tool_options('boost2')
+	opt.tool_options('boost')
 	# ...
 
 def configure(conf):
 	# ... (e.g. conf.check_tool('g++'))
-	conf.check_tool('boost2)'
+	conf.check_tool('boost')
 
 	boostconf = conf.create_boost_configurator()
 	boostconf.lib = ['iostream', 'filesystem']
@@ -148,12 +149,14 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		"""
 		env = self.conf.env
 		guess = []
-		include_paths = [getattr(Options.options, 'boostincludes', '')]
-		if not include_paths[0]:
+		boostPath = getattr(Options.options, 'boostincludes', '')
+		if not boostPath:
 			if self.include_path is types.StringType:
 				include_paths = [self.include_path]
 			else:
 				include_paths = self.include_path
+		else:
+			include_paths = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
 
 		min_version = 0
 		if self.min_version:
@@ -165,19 +168,21 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		version = 0
 		boost_path = ''
 		for include_path in include_paths:
-			boost_paths = glob.glob(include_path + '/boost*')
+			boost_paths = glob.glob(os.path.join(include_path, 'boost*'))
 			for path in boost_paths:
-				pathname = path[len(include_path)+1:]
+				pathname = os.path.split(path)[-1]
 				ret = -1
 				if pathname == 'boost':
 					path = include_path
 					ret = self.get_boost_version_number(path)
 				elif pathname.startswith('boost-'):
 					ret = self.get_boost_version_number(path)
-
 				if ret != -1 and ret >= min_version and ret <= max_version and ret > version:
 					boost_path = path
 					version = ret
+					break
+			if version and len(boost_path):
+				break
 
 		if version == 0 or len(boost_path) == 0:
 			conf.fatal('boost headers not found! (required version min: %s max: %s)'
@@ -265,12 +270,14 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		"""
 		searches library paths for lib.
 		"""
-		lib_paths = [getattr(Options.options, 'boostlibs', '')]
-		if not lib_paths[0]:
+		boostPath = getattr(Options.options, 'boostlibs', '')
+		if not boostPath:
 			if self.lib_path is types.StringType:
 				lib_paths = [self.lib_path]
 			else:
 				lib_paths = self.lib_path
+		else:
+			lib_paths = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
 		(libname, file) = (None, None)
 		if self.static in [boost_configurator.STATIC_NOSTATIC, boost_configurator.STATIC_BOTH]:
 			st_env_prefix = 'LIB'
@@ -298,7 +305,6 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 			self.find_includes()
 		self.find_libraries()
 
-@conf
 def create_boost_configurator(self):
 	return boost_configurator(self)
 
@@ -309,3 +315,6 @@ def set_options(opt):
 	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
 	opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
 
+
+
+conf(create_boost_configurator)
