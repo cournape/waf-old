@@ -68,6 +68,5 @@ obj.target = 'foo.desktop'
 obj.dict = {'TEST': 'OK', 'not': 'used'}
 obj.fun = misc.subst_func
 
-obj.inst_var    = 'PREFIX'
-obj.inst_dir = 'test'
+obj.install_path = '${PREFIX}/test'
 
