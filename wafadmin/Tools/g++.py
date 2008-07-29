@@ -118,16 +118,17 @@ def gxx_modifier_aix5(conf):
 def gxx_modifier_debug(conf):
 	v = conf.env
 	# compiler debug levels
-	if conf.check_flags('-O2 -DNDEBUG', kind=kind):
+	f = 'cxx'
+	if conf.check_flags('-O2 -DNDEBUG', kind=f):
 		v['CXXFLAGS_OPTIMIZED'] = ['-O2', '-DNDEBUG']
 		v['CXXFLAGS_RELEASE'] = ['-O2', '-DNDEBUG']
-	if conf.check_flags('-g -DDEBUG', kind=kind):
+	if conf.check_flags('-g -DDEBUG', kind=f):
 		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
 		v['LINKFLAGS_DEBUG'] = ['-g']
-	if conf.check_flags('-g3 -O0 -DDEBUG', kind='cxx'):
+	if conf.check_flags('-g3 -O0 -DDEBUG', kind=f):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 		v['LINKFLAGS_ULTRADEBUG'] = ['-g']
-	if conf.check_flags('-Wall', kind=kind):
+	if conf.check_flags('-Wall', kind=f):
 		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CXXFLAGS_'+x, '-Wall')
 	try:
 		debug_level = Params.g_options.debug_level.upper()
