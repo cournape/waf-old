@@ -115,7 +115,7 @@ def gxx_modifier_aix5(conf):
 	v['SHLIB_MARKER']        = ''
 
 @conftest
-def gxx_modifier_debug(conf, kind='cpp'):
+def gxx_modifier_debug(conf):
 	v = conf.env
 	# compiler debug levels
 	if conf.check_flags('-O2 -DNDEBUG', kind=kind):
@@ -124,7 +124,7 @@ def gxx_modifier_debug(conf, kind='cpp'):
 	if conf.check_flags('-g -DDEBUG', kind=kind):
 		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
 		v['LINKFLAGS_DEBUG'] = ['-g']
-	if conf.check_flags('-g3 -O0 -DDEBUG', kind=kind):
+	if conf.check_flags('-g3 -O0 -DDEBUG', kind='cxx'):
 		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
 		v['LINKFLAGS_ULTRADEBUG'] = ['-g']
 	if conf.check_flags('-Wall', kind=kind):
