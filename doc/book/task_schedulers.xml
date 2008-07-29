@@ -6,7 +6,12 @@
 	<title>Tasks scheduling</title>
 	<section>
 		<title>The task execution model</title>
-		<para>Task dependencies and task ordering specify the exact order in which tasks must be executed. When tasks are executed in parallel, different algorithms may be used to improve the compilation times. For example, tasks that are known to last longer may be launched first. Linking tasks that use a lot of ram (in the context of c++ applications) may be launched alone to avoid disk thrashing by saving RAM.</para>
+		<para>
+			Task dependencies and task ordering specify the exact order in which tasks must be executed. When tasks are executed in parallel, different algorithms may be used to improve the compilation times. For example, tasks that are known to last longer may be launched first. Linking tasks that use a lot of ram (in the context of c++ applications) may be launched alone to avoid disk thrashing by saving RAM.</para>
+		<para>
+			To make this possible, the task execution is organized in the following manner:
+			<graphic format="png" fileref="task_grouping.png" align="center"/>
+		</para>
 	</section>
 	<section>
 		<title>Job control</title>
