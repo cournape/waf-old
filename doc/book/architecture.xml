@@ -7,7 +7,7 @@
 	<section>
 		<title>The core library</title>
 		<para id="corelib">
-			Waf is built on 12 modules which constitute the core library
+			Waf is based on 12 modules which constitute the core library
 
 <table id="broke" class="eh">
 <title>The core library</title>

@@ -1,0 +1,50 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter id="task_schedulers">
+	<title>Tasks scheduling</title>
+	<section>
+		<title>The task execution model</title>
+		<para>Task dependencies and task ordering specify the exact order in which tasks must be executed. When tasks are executed in parallel, different algorithms may be used to improve the compilation times. For example, tasks that are known to last longer may be launched first. Linking tasks that use a lot of ram (in the context of c++ applications) may be launched alone to avoid disk thrashing by saving RAM.</para>
+	</section>
+	<section>
+		<title>Job control</title>
+		<para>
+			Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice:
+			<orderedlist>
+				<listitem>Each task holds a list of previous tasks, and a topological sort is performed each time the next group can be fetched</listitem>
+				<listitem>Task groups are created in advance, and the topological sort is performed once</listitem>
+				<listitem>Task groups are created in advance, and a maximum amount of jobs is used when the consumer threads execute the tasks</listitem>
+			</orderedlist>
+			The first algorithm is better for optimizing the resources, but it consumes more resources (memory, operations), and slows down the null builds by about 20%. The second algorithm does not optimizes the jobs as much, but the performance penalty is usually invisible (a few seconds in builds during minutes). The third algorithm is like the second, but prevents resource hungry tasks from being parallelized (slower builds in theory, but much faster builds in practice).
+		</para>
+	</section>
+	<section>
+		<title>Weak ordering constraints</title>
+		<para>
+			Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called <emphasis>Job Shop</emphasis>. This problem can often be reduced to a critical path problem as a useful approximation.
+		</para>
+		<para>
+			Waf provides a function for reordering the tasks before they are launched in the module Runner, the default reordering may be changed by dynamic method replacement in Python:
+			<programlisting language="python">
+import Runner
+def get_next(self):
+	# reorder the task list by a random function
+	self.outstanding.sort()
+	# return the next task
+	return self.outstanding.pop()
+Runner.Prallel.get_next = get_next
+			</programlisting>
+			If the reordering is not to be performed each time a task is retrieved, the list of task may be reordered when the next group is retrieved:
+			<programlisting language="python">
+import Runner
+old_refill = Runner.Parallel.refill_task_list
+def refill_task_list(self):
+	old_refill(self)
+	self.outstanding.sort()
+Runner.Parallel.refill_task_list = refill_task_list
+			</programlisting>
+		</para>
+	</section>
+</chapter>
