@@ -22,7 +22,11 @@
 		</section>
 		<section>
 			<title>Objectives of this book</title>
-			<para>The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and detailed review of the Waf internals. (TODO: give a quick reference on the chapter organization)</para>
+			<para>The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and detailed review of the Waf internals. (TODO: give a quick reference on the chapter organization)
+			</para>
+			<para>
+				This book is being written, and is to be published in September 2008. The license for the work will be the GFDL, do not advertise it or reproduce it until it is written and reviewed.
+			</para>
 		</section>
 	</preface>
 

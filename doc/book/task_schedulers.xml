@@ -18,9 +18,9 @@
 		<para>
 			Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice:
 			<orderedlist>
-				<listitem>Each task holds a list of tasks it must run after, there is only one list of tasks waiting to be executed. This version is better for parallelization, but it consumes more memory and processing, as a result, null builds can be slower by about 20% compared to the next algorithms.</listitem>
-				<listitem>Task groups are created in advance, and the topological sort is performed once. The overall performance penalty for real builds is usually minor (a few seconds on builds during minutes).</listitem>
-				<listitem>Task groups are created in advance, and a maximum amount of jobs is used when the consumer threads execute the tasks. This is like the second algorithm, but it prevents parallelization of critical tasks (slower builds in theory, but much faster builds in practice)</listitem>
+				<listitem>Each task holds a list of tasks it must run after (there is only one list of tasks waiting to be executed). Though this version parallelizes tasks very well, but it consumes more memory and processing. In practice, waf may last 20% more on builds when all tasks are up-to-date.</listitem>
+				<listitem>Task groups are created, and a topological sort is performed in advance. The overall performance penalty for complete builds is usually small (a few seconds on builds during minutes).</listitem>
+				<listitem>Task groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources (for example, linking c++ object files uses a lot of RAM).</listitem>
 			</orderedlist>
 			TODO: provide illustrations of the three algorithms
 		</para>
@@ -39,7 +39,7 @@ def get_next(self):
 	self.outstanding.sort()
 	# return the next task
 	return self.outstanding.pop()
-Runner.Prallel.get_next = get_next
+Runner.Parallel.get_next = get_next
 			</programlisting>
 			If the reordering is not to be performed each time a task is retrieved, the list of task may be reordered when the next group is retrieved:
 			<programlisting language="python">
