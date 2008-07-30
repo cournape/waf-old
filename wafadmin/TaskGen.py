@@ -24,6 +24,7 @@ WARNING: subclasses must reimplement the clone method
 import os, types, traceback, copy
 import Build, Task, Utils, Logs, Options
 from Logs import debug, error, warn
+from Constants import *
 
 typos = {
 'sources':'source',
@@ -108,7 +109,7 @@ class task_gen(object):
 		self.tasks = []
 
 		self.chmod = 0644
-		self._install_path = ''
+		self._install_path = UNDEFINED
 
 		if Options.is_install:
 			self.inst_files = [] # lazy list of tuples representing the files to install
@@ -326,8 +327,8 @@ class task_gen(object):
 	def get_inst_path(self):
 		"return a default parameter if provided"
 		k = self._install_path
-		if k == 0: return k
-		if not k: return getattr(self, 'default_install_path', k)
+		if k == UNDEFINED:
+			return getattr(self, 'default_install_path', k)
 		return k
 
 	def set_inst_path(self, val):
