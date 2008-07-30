@@ -327,11 +327,11 @@ class task_gen(object):
 		"return a default parameter if provided"
 		k = self._install_path
 		if k == 0: return k
-		if not k: return getattr(self, "default_install_path", k)
+		if not k: return getattr(self, 'default_install_path', k)
 		return k
 
 	def set_inst_path(self, val):
-		self._inst_path = val
+		self._install_path = val
 
 	install_path = property(get_inst_path, set_inst_path)
 
