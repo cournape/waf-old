@@ -346,7 +346,12 @@ class TaskBase(object):
 		"RUN_ME SKIP_ME or ASK_LATER"
 		return RUN_ME
 
+	def can_retrieve_cache(self):
+		return False
+
 	def call_run(self):
+		if self.can_retrieve_cache():
+			return 0
 		return self.run()
 
 	def run(self):
@@ -482,12 +487,6 @@ class Task(TaskBase):
 		up(Utils.h_fun(self.run))
 		x = self.uid = m.digest()
 		return x
-
-	def call_run(self):
-		"called if the task must run"
-		if self.can_retrieve_cache():
-			return 0
-		return self.run()
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.inputs += inp
