@@ -29,35 +29,47 @@ def set_running(by):
 	state += by
 	mylock.release()
 
+
 def newrun(self):
 	m = self.master
 
 	while 1:
 		tsk = m.ready.get()
-		if m.failed and not m.running:
+		if m.stop:
 			m.out.put(tsk)
 			continue
 
 		set_running(1)
-		Runner.printout(tsk.get_display())
-		ret = tsk.run()
+		try:
+			Runner.printout(tsk.display())
+			if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
+			else: ret = tsk.call_run()
+		except Exception, e:
+			# TODO add the stack error message
+			tsk.err_msg = e.message
+			tsk.hasrun = EXCEPTION
+
+			# TODO cleanup
+			m.error_handler(tsk)
+			m.out.put(tsk)
+			set_running(-1)
+			continue
 		set_running(-1)
 
 		if ret:
 			tsk.err_code = ret
-			tsk.m_hasrun = CRASHED
+			tsk.hasrun = CRASHED
 		else:
 			try:
-				tsk.update_stat()
+				tsk.post_run()
 			except OSError:
-				tsk.m_hasrun = MISSING
+				tsk.hasrun = MISSING
 			else:
-				tsk.m_hasrun = SUCCESS
-		if tsk.m_hasrun != SUCCESS: # TODO for now, do no keep running in parallel  and not Params.g_options.keep:
-			m.failed = 1
+				tsk.hasrun = SUCCESS
+		if tsk.hasrun != SUCCESS:
+			m.error_handler(tsk)
 
 		m.out.put(tsk)
-		#set_running(-1)
 
 Runner.TaskConsumer.run = newrun
 
@@ -73,9 +85,10 @@ class TaskPrinter(threading.Thread):
 		global state
 		while self.m_master:
 			try:
-				#self.stat.append( (time.time(), self.m_master.progress, state) )
-				self.stat.append( (time.time(), self.m_master.progress, self.m_master.ready.qsize()) )
+				self.stat.append( (time.time(), self.m_master.processed, state) )
+				#self.stat.append( (time.time(), self.m_master.processed, self.m_master.ready.qsize()) )
 			except:
+				raise
 				pass
 
 			try: time.sleep(INTERVAL)
@@ -86,7 +99,6 @@ class TaskPrinter(threading.Thread):
 				time.sleep(60)
 			except:
 				pass
-
 
 old_start = Runner.Parallel.start
 def do_start(self):
