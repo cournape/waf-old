@@ -18,17 +18,17 @@
 		<para>
 			Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice:
 			<orderedlist>
-				<listitem>Each task holds a list of previous tasks, and a topological sort is performed each time the next group can be fetched</listitem>
-				<listitem>Task groups are created in advance, and the topological sort is performed once</listitem>
-				<listitem>Task groups are created in advance, and a maximum amount of jobs is used when the consumer threads execute the tasks</listitem>
+				<listitem>Each task holds a list of tasks it must run after, there is only one list of tasks waiting to be executed. This version is better for parallelization, but it consumes more memory and processing, as a result, null builds can be slower by about 20% compared to the next algorithms.</listitem>
+				<listitem>Task groups are created in advance, and the topological sort is performed once. The overall performance penalty for real builds is usually minor (a few seconds on builds during minutes).</listitem>
+				<listitem>Task groups are created in advance, and a maximum amount of jobs is used when the consumer threads execute the tasks. This is like the second algorithm, but it prevents parallelization of critical tasks (slower builds in theory, but much faster builds in practice)</listitem>
 			</orderedlist>
-			The first algorithm is better for optimizing the resources, but it consumes more resources (memory, operations), and slows down the null builds by about 20%. The second algorithm does not optimizes the jobs as much, but the performance penalty is usually invisible (a few seconds in builds during minutes). The third algorithm is like the second, but prevents resource hungry tasks from being parallelized (slower builds in theory, but much faster builds in practice).
+			TODO: provide illustrations of the three algorithms
 		</para>
 	</section>
 	<section>
 		<title>Weak ordering constraints</title>
 		<para>
-			Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called <emphasis>Job Shop</emphasis>. This problem can often be reduced to a critical path problem as a useful approximation.
+			Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called <emphasis>Job Shop</emphasis>. In practice this problem can often be reduced to a critical path problem (approximation).
 		</para>
 		<para>
 			Waf provides a function for reordering the tasks before they are launched in the module Runner, the default reordering may be changed by dynamic method replacement in Python:
@@ -49,6 +49,19 @@ def refill_task_list(self):
 	old_refill(self)
 	self.outstanding.sort()
 Runner.Parallel.refill_task_list = refill_task_list
+			</programlisting>
+			It is possible to measure the task execution times by intercepting the function calls. The task execution times may be re-used for optimizing the schedule for subsequent builds:
+			<programlisting language="python">
+import time
+import Task
+old_call_run = Task.TaskBase.call_run
+def new_call_run(self):
+	t1 = time.time()
+	ret = old_call_run(self)
+	t2 = time.time()
+	if not ret: print "execution time %r" % (t2 - t1)
+	return ret
+Task.TaskBase.call_run = new_call_run
 			</programlisting>
 		</para>
 	</section>
