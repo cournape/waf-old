@@ -107,7 +107,8 @@ link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS}
 cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx')
 cls.scan = ccroot.scan
 cls.vars = ('CXXDEFINES',)
-Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o')
+cls = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o')
+cls.maxjobs = 1
 
 TaskGen.declare_order('apply_incpaths', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 

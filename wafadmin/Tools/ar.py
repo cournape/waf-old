@@ -14,7 +14,8 @@ ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 # FIXME
 if sys.platform == "win32":
 	ar_str = '${AR} s${ARFLAGS} ${TGT} ${SRC}'
-Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o')
+cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o')
+cls.maxjobs = 1
 
 def detect(conf):
 	comp = conf.find_program('ar', var='AR')
