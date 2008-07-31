@@ -289,19 +289,19 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	self.source = self.source+' '+(" ".join(lst))
 setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
 
-@extension(EXT_QT4)
-def cxx_hook(self, node):
+#@extension(EXT_QT4)
+#def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = MTask(self)
-	self.tasks.append(task)
-	try: obj_ext = self.obj_ext
-	except AttributeError: obj_ext = '_%d.o' % self.idx
-
-	task.defines  = self.scanner_defines
-
-	task.inputs = [node]
-	task.outputs = [node.change_ext(obj_ext)]
-	self.compiled_tasks.append(task)
+#	task = MTask(self)
+#	self.tasks.append(task)
+#	try: obj_ext = self.obj_ext
+#	except AttributeError: obj_ext = '_%d.o' % self.idx
+#
+#	task.defines  = self.scanner_defines
+#
+#	task.inputs = [node]
+#	task.outputs = [node.change_ext(obj_ext)]
+#	self.compiled_tasks.append(task)
 
 def process_qm2rcc(task):
 	outfile = task.outputs[0].abspath(task.env)
@@ -361,20 +361,60 @@ def detect_qt4(conf):
 		except OSError:
 			pass
 
+        	# check for the qt libraries
+	if not qtlibs: qtlibs = os.path.join(qtdir, 'lib')
+
+	vars = "QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support".split()
+
+	framework_ok = False
+	if sys.platform == "darwin" and useframework:
+		for i in vars:
+			e = conf.create_framework_configurator()
+			e.path = [qtlibs, '/Library/Frameworks']
+			e.name = i
+			e.remove_dot_h = True
+			e.run()
+
+			if not i == 'QtCore':
+				# strip -F flag so it don't get reduant
+				for r in env['CCFLAGS_' + i.upper()]:
+					if r.startswith('-F'):
+						env['CCFLAGS_' + i.upper()].remove(r)
+						break
+
+#			incflag = '-I%s' % os.path.join(qtincludes, i)
+#			if not incflag in env["CCFLAGS_" + i.upper ()]:
+#				env['CCFLAGS_' + i.upper ()] += [incflag]
+#			if not incflag in env["CXXFLAGS_" + i.upper ()]:
+#				env['CXXFLAGS_' + i.upper ()] += [incflag]
+
+		# now we add some static depends.
+		if conf.is_defined("HAVE_QTOPENGL") and not '-framework OpenGL' in env["LINKFLAGS_QTOPENGL"]:
+                        env["LINKFLAGS_QTOPENGL"] += ['-framework OpenGL']
+
+		if conf.is_defined("HAVE_QTGUI"):
+			if not '-framework AppKit' in env["LINKFLAGS_QTGUI"]:
+				env["LINKFLAGS_QTGUI"] += ['-framework AppKit']
+			if not '-framework ApplicationServices' in env["LINKFLAGS_QTGUI"]:
+				env["LINKFLAGS_QTGUI"] += ['-framework ApplicationServices']
+
+		framework_ok = True
+
 	# check for the qt includes first
-	if not qtincludes: qtincludes = qtdir + 'include/'
-	env['QTINCLUDEPATH']=qtincludes
+        if not conf.is_defined("HAVE_QTGUI"):
+                if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
+                env['QTINCLUDEPATH']=qtincludes
 
-	lst = [qtincludes, '/usr/share/qt4/include/', '/opt/qt4/include']
-	test = conf.create_header_enumerator()
-	test.name = 'QtGui/QFont'
-	test.path = lst
-	test.mandatory = 1
-	ret = test.run()
-
+                lst = [qtincludes, '/usr/share/qt4/include/',
+                       '/opt/qt4/include']
+                test = conf.create_header_enumerator()
+                test.name = 'QtGui/QFont'
+                test.path = lst
+                test.mandatory = 1
+                ret = test.run()
 
 	# check for the qtbinaries
-	if not qtbin: qtbin = qtdir + 'bin/'
+	if not qtbin: qtbin = os.path.join(qtdir, 'bin')
 
 	binpath = [qtbin, '/usr/share/qt4/bin/'] + os.environ['PATH'].split(':')
 	def find_bin(lst, var):
@@ -404,46 +444,6 @@ def detect_qt4(conf):
 	env['UIC_ST'] = '%s -o %s'
 	env['MOC_ST'] = '-o'
 	env['QT_LRELEASE_FLAGS'] = ['-silent']
-
-	# check for the qt libraries
-	if not qtlibs: qtlibs = qtdir + 'lib'
-
-	vars = "Qt3Support QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit".split()
-
-	framework_ok = False
-	if sys.platform == "darwin" and useframework:
-		for i in vars:
-			e = conf.create_framework_configurator()
-			e.path = [qtlibs]
-			e.name = i
-			e.remove_dot_h = 1
-			e.run()
-
-			if not i == 'QtCore':
-				# strip -F flag so it don't get reduant
-				for r in env['CCFLAGS_' + i.upper()]:
-					if r.startswith('-F'):
-						env['CCFLAGS_' + i.upper()].remove(r)
-						break
-
-			incflag = '-I%s' % os.path.join(qtincludes, i)
-			if not incflag in env["CCFLAGS_" + i.upper ()]:
-				env['CCFLAGS_' + i.upper ()] += [incflag]
-			if not incflag in env["CXXFLAGS_" + i.upper ()]:
-				env['CXXFLAGS_' + i.upper ()] += [incflag]
-
-		# now we add some static depends.
-		if conf.is_defined("HAVE_QTOPENGL"):
-			if not '-framework OpenGL' in env["LINKFLAGS_QTOPENGL"]:
-				env["LINKFLAGS_QTOPENGL"] += ['-framework OpenGL']
-
-		if conf.is_defined("HAVE_QTGUI"):
-			if not '-framework AppKit' in env["LINKFLAGS_QTGUI"]:
-				env["LINKFLAGS_QTGUI"] += ['-framework AppKit']
-			if not '-framework ApplicationServices' in env["LINKFLAGS_QTGUI"]:
-				env["LINKFLAGS_QTGUI"] += ['-framework ApplicationServices']
-
-		framework_ok = True
 
 	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
 		vars_debug = [a+'_debug' for a in vars]

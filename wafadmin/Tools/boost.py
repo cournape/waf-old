@@ -110,13 +110,11 @@ class boost_configurator(config_c.configurator_base):
 #include <boost/version.hpp>
 int main() { std::cout << BOOST_VERSION << std::endl; }
 '''
-		test_obj.env = self.conf.env
-		backup = test_obj.env['CPPPATH']
+		test_obj.env = self.conf.env.copy()
 		test_obj.env['CPPPATH'] = [dir]
 		test_obj.execute = 1
 		test_obj.force_compiler = 'cxx'
 		ret = self.conf.run_check(test_obj)
-		test_obj.env['CPPPATH'] = backup
 		if ret:
 			return int(ret['result'])
 		else:
