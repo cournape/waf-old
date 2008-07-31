@@ -16,9 +16,9 @@
 		</section>
 		<section>
 			<title>The Waf approach</title>
-			<para>Build systems make assumptions on the business problems they are trying to solve, and are typically limited where it comes to processing other languages. For example, Ant is better than Make for processing Java applications, but is more limited than make for processing simple c applications.</para>
-			<para>There are so many different languages that creating a build system to support all the possible business rules out-of-the-box is likely to be difficult. It looks much more interesting to make one which can be extended easily.</para>
-			<para>The Waf approach is to provide a minimalistic and very flexible framework, and packaged with a significant amount of business rules to be usable for most projects, and recipes for the most complex scenarios. The main goals of waf are: flexibility, performance, and the features.</para>
+			<para>Build systems make assumptions on software it is trying to build, and are typically limited where it comes to processing other languages or different projects. For example, Ant is better suited than Make for managing Java projects, but is more limited than Make for managing simple c projects.</para>
+			<para>There are so many different languages that creating a build system to support all the possible kind of projects out-of-the-box is likely to be difficult. It looks much more interesting to create one which can be extended easily.</para>
+			<para>The Waf approach is to provide a minimalistic and very flexible framework, which is packaged it with a significant amount of default build rules to be usable for most projects, and many recipes for the most complicated scenarios.</para>
 		</section>
 		<section>
 			<title>Objectives of this book</title>
