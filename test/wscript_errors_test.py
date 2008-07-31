@@ -36,7 +36,7 @@ class WscriptErrorsTester(common_test.CommonTester):
 		'''tearDown - cleanup after each test'''
 		del self._bld
 		os.chdir(self._waf_root_dir)
-		
+
 		if os.path.isdir(self._test_dir_root):
 			shutil.rmtree(self._test_dir_root)
 
@@ -119,7 +119,7 @@ def set_options(opt):
 		self.failUnlessRaises(AttributeError, opt_obj.sub_options, '')
 
 	def test_no_wscript_for_config(self):
-		conf = Configure.Configure()
+		conf = Configure.ConfigurationContext()
 		self.failUnlessRaises(Utils.WscriptError, conf.sub_config, non_exist_path)
 
 	def test_no_tool_to_set_options(self):

@@ -77,7 +77,7 @@ def find_program_impl(env, filename, path_list=[], var=None):
 				return x
 	return ''
 
-class Configure(object):
+class ConfigurationContext(object):
 	tests = {}
 	error_handlers = []
 	def __init__(self, env=None, blddir='', srcdir=''):
@@ -165,7 +165,7 @@ class Configure(object):
 		file.close()
 
 		if not self.all_envs:
-			self.fatal("nothing to store in Configure !")
+			self.fatal('nothing to store in the configuration context!')
 		for key in self.all_envs:
 			tmpenv = self.all_envs[key]
 			tmpenv.store(os.path.join(self.cachedir, key + CACHE_SUFFIX))
@@ -240,11 +240,11 @@ class Configure(object):
 
 def conf(f):
 	"decorator: attach new configuration functions"
-	setattr(Configure, f.__name__, f)
+	setattr(ConfigurationContext, f.__name__, f)
 	return f
 
 def conftest(f):
 	"decorator: attach new configuration tests (registered as strings)"
-	Configure.tests[f.__name__] = f
+	ConfigurationContext.tests[f.__name__] = f
 	return conf(f)
 

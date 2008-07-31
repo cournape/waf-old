@@ -32,6 +32,8 @@ meaning in configuration and build)
 * new interfaces for custom error handling
 * new interfaces for reordering the tasks before executing them (scheduling constraints)
 * modification of the installation system: use foo.install_path = '${PREFIX}/bin' instead of inst_var and inst_dir
+* Configure.Configure -> Configure.ConfigurationContext
+* Build.Build -> Build.BuildContext
 
 NEW IN WAF 1.4.3
 ----------------

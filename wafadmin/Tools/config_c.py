@@ -36,7 +36,7 @@ class attached_conf(type):
 		def fun_create(self):
 			inst = cls(self)
 			return inst
-		setattr(Configure.Configure, 'create_' + cls.__name__, fun_create)
+		setattr(Configure.ConfigurationContext, 'create_' + cls.__name__, fun_create)
 
 class enumerator_base(object):
 	def __init__(self, conf):

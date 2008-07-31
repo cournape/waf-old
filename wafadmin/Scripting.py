@@ -66,7 +66,7 @@ def configure():
 
 	tree.load_dirs(src, bld)
 
-	conf = Configure.Configure(srcdir=src, blddir=bld)
+	conf = Configure.ConfigurationContext(srcdir=src, blddir=bld)
 
 	# calling to main wscript's configure()
 	conf.sub_config('')

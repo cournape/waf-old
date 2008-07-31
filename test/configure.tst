@@ -27,7 +27,7 @@ dest.write('   return env\n')
 dest.close()
 
 import Configure
-conf=Configure.Configure(config)
+conf = Configure.ConfigurationContext(config)
 import time
 t1=time.clock()
 conf.execute()

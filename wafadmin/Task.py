@@ -49,8 +49,8 @@ from Logs import debug, error, warn
 from Constants import *
 
 algotype = NORMAL
-#algotype = JOBCONTROL
-#algotype = MAXPARALLEL
+algotype = JOBCONTROL
+algotype = MAXPARALLEL
 
 """
 Enable different kind of dependency algorithms:

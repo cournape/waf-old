@@ -77,12 +77,12 @@ class ConfigureTester(common_test.CommonTester):
 
 	def _write_files(self):
 		self._write_wscript()
-		
+
 	def _setup_configure(self):
 		# Configure uses arguments defined by Options
 		opt_obj = Options.Handler()
 		opt_obj.parse_args()
-		return Configure.Configure()
+		return Configure.ConfigurationContext()
 
 	def test_simple_configure(self):
 		# regular configuration
