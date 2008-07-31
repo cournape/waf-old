@@ -361,7 +361,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 	while i do not like such wrappers, some people really do
 	"""
 
-	if type(action) == types.StringType:
+	if type(action) is types.StringType:
 		act = Task.simple_task_type(name, action, color=color)
 	else:
 		act = Task.task_type_from_func(name, action, color=color)
@@ -374,10 +374,10 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 	def x_file(self, node):
 		if decider:
 			ext = decider(self, node)
-		elif type(ext_out) == types.StringType:
+		elif type(ext_out) is types.StringType:
 			ext = ext_out
 
-		if type(ext) == types.StringType:
+		if type(ext) is types.StringType:
 			out_source = node.change_ext(ext)
 			if reentrant:
 				self.allnodes.append(out_source)

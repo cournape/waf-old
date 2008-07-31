@@ -699,14 +699,14 @@ class Task(TaskBase):
 		# dependencies on the environment vars
 		fun = getattr(self.__class__, 'signature_hook', None)
 		if fun: act_sig = self.__class__.signature_hook(self)
-		else: act_sig = tree.sign_vars(env, self.__class__.vars)
+		else: act_sig = tree.hash_env_vars(env, self.__class__.vars)
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
 		var_sig = SIG_NIL
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
-			var_sig = tree.sign_vars(env, dep_vars)
+			var_sig = tree.hash_env_vars(env, dep_vars)
 			m.update(var_sig)
 
 		# additional variables to hash (command-line defines for example)

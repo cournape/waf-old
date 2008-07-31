@@ -508,8 +508,9 @@ class BuildContext(object):
 		self.flush(all=0)
 		self.task_manager.add_group(name)
 
-	def sign_vars(self, env, vars_lst):
-		" ['CXX', ..] -> [env['CXX'], ..]"
+	def hash_env_vars(self, env, vars_lst):
+		"""hash environment variables
+		['CXX', ..] -> [env['CXX'], ..] -> md5()"""
 
 		# ccroot objects use the same environment for building the .o at once
 		# the same environment and the same variables are used
