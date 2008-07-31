@@ -76,6 +76,8 @@ def build(bld):
 	bld.add_group()
 	# create new tasks
 					</programlisting>
+					The effect of task groups when running tasks in parallel is illustrated by the following diagram. Three groups of tasks have been added, and the execution of the next group only starts when the execution of the tasks in the previous group is complete.
+					<graphic format="png" fileref="output-ADDGROUP.png" align="center"/>
 				</para>
 			</sect2>
 
