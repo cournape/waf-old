@@ -18,11 +18,12 @@
 		<para>
 			Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice:
 			<orderedlist>
-				<listitem>Each task holds a list of tasks it must run after (there is only one list of tasks waiting to be executed). Though this version parallelizes tasks very well, but it consumes more memory and processing. In practice, waf may last 20% more on builds when all tasks are up-to-date.</listitem>
-				<listitem>Task groups are created, and a topological sort is performed in advance. The overall performance penalty for complete builds is usually small (a few seconds on builds during minutes).</listitem>
-				<listitem>Task groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources (for example, linking c++ object files uses a lot of RAM).</listitem>
+				<listitem>Each task holds a list of tasks it must run after (there is only one list of tasks waiting to be executed). Though this version parallelizes tasks very well, but it consumes more memory and processing. In practice, waf may last 20% more on builds when all tasks are up-to-date [MAXPARALLEL]</listitem>
+				<listitem>Task groups are created, and a topological sort is performed in advance. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes [NORMAL].</listitem>
+				<listitem>Task groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources. For example, linking c++ object files uses a lot of RAM. [JOBCONTROL]</listitem>
 			</orderedlist>
-			TODO: provide illustrations of the three algorithms
+			<graphic format="png" fileref="output-NORMAL.png" align="center"/>
+			<graphic format="png" fileref="output-JOBCONTROL.png" align="center"/>
 		</para>
 	</section>
 	<section>
