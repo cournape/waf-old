@@ -27,7 +27,7 @@
 
 <row>
   <entry>Build</entry>
-  <entry>Define the build context class, which holds the data for one build (paths, configuration data)</entry>
+  <entry>Defines the build context class, which holds the data for one build (paths, configuration data)</entry>
 </row>
 
 <row>
@@ -37,52 +37,52 @@
 
 <row>
   <entry>Constants</entry>
-  <entry>The constants used in the project</entry>
+  <entry>Provides the constants used in the project</entry>
 </row>
 
 <row>
   <entry>Environment</entry>
-  <entry>Contains a dictionary class which support a lightweight copy scheme and provides persistence services</entry>
+  <entry>Contains a dictionary class which supports a lightweight copy scheme and provides persistence services</entry>
 </row>
 
 <row>
   <entry>Logs</entry>
-  <entry>Logging system</entry>
+  <entry>Provide a logging system</entry>
 </row>
 
 <row>
   <entry>Node</entry>
-  <entry>Filesystem representation</entry>
+  <entry>Contains the filesystem representation class</entry>
 </row>
 
 <row>
   <entry>Options</entry>
-  <entry>Command-line option processing</entry>
+  <entry>Provides a custom command-line option processing system based on optparse</entry>
 </row>
 
 <row>
   <entry>Runner.py</entry>
-  <entry>Functions for executing system programs, and the threaded task execution system (producer-consumer)</entry>
+  <entry>Contains functions for executing system programs, and the threaded task execution system (producer-consumer)</entry>
 </row>
 
 <row>
   <entry>Scripting.py</entry>
-  <entry>The entry point of the Waf application, use the command-line for launching the configuration, the build, etc</entry>
+  <entry>Constitutes the entry point of the Waf application, use the command-line for launching the configuration, the build, etc</entry>
 </row>
 
 <row>
   <entry>TaskGen</entry>
-  <entry>The task generator system, and its extension system based on method addition</entry>
+  <entry>Provide the task generator system, and its extension system based on method addition</entry>
 </row>
 
 <row>
   <entry>Task</entry>
-  <entry>The task classes, and the task containers.</entry>
+  <entry>Contains the task classes, and the task containers.</entry>
 </row>
 
 <row>
   <entry>Utils</entry>
-  <entry>Support library needed by many parts of the code</entry>
+  <entry>Contains the support functions and classes re-used in other Waf modules</entry>
 </row>
 
 
