@@ -27,7 +27,7 @@
 
 <row>
   <entry>Build</entry>
-  <entry>Define the Build context class, which holds the data for one build (paths, configuration data)</entry>
+  <entry>Define the build context class, which holds the data for one build (paths, configuration data)</entry>
 </row>
 
 <row>
@@ -42,12 +42,12 @@
 
 <row>
   <entry>Environment</entry>
-  <entry>Contains a dictionary class which support a lightweight copy scheme and offers persistence services</entry>
+  <entry>Contains a dictionary class which support a lightweight copy scheme and provides persistence services</entry>
 </row>
 
 <row>
   <entry>Logs</entry>
-  <entry>The logging system</entry>
+  <entry>Logging system</entry>
 </row>
 
 <row>
@@ -62,22 +62,22 @@
 
 <row>
   <entry>Runner.py</entry>
-  <entry>The task execution functions, and the task execution algorithm (producer-consumer)</entry>
+  <entry>Functions for executing system programs, and the threaded task execution system (producer-consumer)</entry>
 </row>
 
 <row>
   <entry>Scripting.py</entry>
-  <entry>The entry point of the Waf application</entry>
+  <entry>The entry point of the Waf application, use the command-line for launching the configuration, the build, etc</entry>
 </row>
 
 <row>
   <entry>TaskGen</entry>
-  <entry>The task generator system, with the extension system</entry>
+  <entry>The task generator system, and its extension system based on method addition</entry>
 </row>
 
 <row>
   <entry>Task</entry>
-  <entry>The task hierarchy, and the task containers</entry>
+  <entry>The task classes, and the task containers.</entry>
 </row>
 
 <row>
