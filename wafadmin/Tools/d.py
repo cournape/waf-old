@@ -295,7 +295,7 @@ def apply_d_libs(self):
 			if added: continue # list of names modified, loop
 
 		# safe to process the current object
-		if not y.posted: y.post()
+		y.post()
 		seen.append(x)
 
 		if 'dshlib' in y.features or 'dstaticlib' in y.features:

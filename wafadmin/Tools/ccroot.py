@@ -286,7 +286,7 @@ def apply_lib_vars(self):
 					names.append(u)
 
 		# safe to process the current object
-		if not y.posted: y.post()
+		y.post()
 		seen.append(x)
 
 		if 'cshlib' in y.features:
@@ -361,7 +361,7 @@ def apply_objdeps(self):
 			if added: continue # list of names modified, loop
 
 		# safe to process the current object
-		if not y.posted: y.post()
+		y.post()
 		seen.append(x)
 
 		self.link_task.inputs += y.out_nodes

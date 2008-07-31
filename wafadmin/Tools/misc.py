@@ -396,8 +396,7 @@ use command_is_external=True''') % (self.command,)
 
 		for dep in self.dependencies:
 			assert dep is not self
-			if not dep.posted:
-				dep.post()
+			dep.post()
 			for dep_task in dep.tasks:
 				task.set_run_after(dep_task)
 
