@@ -653,23 +653,20 @@ class BuildContext(object):
 			except OSError: pass
 			return True
 
-	def path_install(self, var, subdir, env=None):
+	def get_install_path(self, path, env=None):
+		"installation path prefixed by the destdir, the variables like in '${PREFIX}/bin' are substituted"
 		if not env: env = self.env
-		destpath = env[var]
-		if not destpath:
-			error("Installing: to set a destination folder use env['%s']" % (var))
-			destpath = var
 		destdir = env.get_destdir()
-		if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
-		if subdir: destpath = os.path.join(destpath, subdir.lstrip(os.sep))
-
+		destpath = Utils.subst_vars(path, env)
+		if destdir:
+			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 		return destpath
 
 	def install_files(self, path, files, env=None, chmod=0644):
 		if not Options.is_install: return []
 		if not path: return []
 
-		if not env: env = self.env
+		#if not env: env = self.env
 
 		node = self.path
 		if type(files) is types.StringType and '*' in files:
@@ -678,9 +675,7 @@ class BuildContext(object):
 		else:
 			lst = Utils.to_list(files)
 
-		destdir = env.get_destdir()
-		destpath = Utils.subst_vars(path, env)
-		if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
+		destpath = self.get_install_path(path, env)
 
 		Utils.check_dir(destpath)
 
@@ -693,14 +688,13 @@ class BuildContext(object):
 				if filenode is None:
 					raise Utils.WafError("Unable to install the file `%s': not found in %s" % (filename, node))
 
-				file     = filenode.abspath(env)
+				file = filenode.abspath(env)
 				destfile = os.path.join(destpath, filenode.name)
 			else:
-				file     = filename
-				alst     = Utils.split_path(filename)
+				alst = Utils.split_path(filename)
 				destfile = os.path.join(destpath, alst[-1])
 
-			if self.do_install(file, destfile, chmod):
+			if self.do_install(filename, destfile, chmod):
 				installed_files.append(destfile)
 		return installed_files
 
@@ -712,9 +706,7 @@ class BuildContext(object):
 		if not env: env = self.env
 		node = self.path
 
-		destdir = env.get_destdir()
-		destpath = Utils.subst_vars(path, env)
-		if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
+		destpath = self.get_install_path(path, env)
 
 		dir, name = os.path.split(destpath)
 		Utils.check_dir(dir)
@@ -732,12 +724,7 @@ class BuildContext(object):
 		if not Options.is_install: return
 		if not path: return
 
-		if not env: env = self.env
-
-		destdir = env.get_destdir()
-		destpath = Utils.subst_vars(path, env)
-		if destdir: destpath = os.path.join(destdir, destpath.lstrip(os.sep))
-		tgt = destpath
+		tgt = self.get_install_path(path, env)
 
 		dir, name = os.path.split(tgt)
 		Utils.check_dir(dir)
