@@ -22,8 +22,38 @@
 				<listitem>Task groups are created, and a topological sort is performed in advance. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes [NORMAL].</listitem>
 				<listitem>Task groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources. For example, linking c++ object files uses a lot of RAM. [JOBCONTROL]</listitem>
 			</orderedlist>
+			<graphic format="png" fileref="output-MAXPARALLEL.png" align="center"/>
 			<graphic format="png" fileref="output-NORMAL.png" align="center"/>
 			<graphic format="png" fileref="output-JOBCONTROL.png" align="center"/>
+		</para>
+		<para>
+			Because most task classes use ordering constraints, the maximum parallelization can only be achieved if the constraints between task classes are relaxed, and if all task instances know their predecessors. In the example graph, this was achieved by removing the ordering constraints between the compilation tasks classes and the link tasks classes:
+			<programlisting language="python">
+# relax the constraints between cxx and cxx_link (in the build section)
+import Task
+Task.TaskBase.classes['cxx'].ext_out = []
+
+# infer the task orderings from input and output nodes
+import Runner
+old_refill = Runner.Parallel.refill_task_list
+def refill_task_list(self):
+    old_refill(self)
+    lst = self.outstanding
+    if lst:
+        for x in lst:
+            for y in lst:
+                for i in x.inputs:
+                    for j in y.outputs:
+                        if i.id == j.id:
+                            x.set_run_after(y)
+Runner.Parallel.refill_task_list = refill_task_list
+			</programlisting>
+			From this, we can immediately notice the following:
+			<itemizedlist>
+				<listitem>An assumption is made that all tasks have input and output nodes, and that ordering constraints can be deduced from them</listitem>
+				<listitem>Deducing the constraints from the input and output nodes has a n^2 behaviour</listitem>
+			</itemizedlist>
+			In practice, the NORMAL algorithm should be used whenever possible, and the maximum parallelization should be used only if a substantial gain is expected.
 		</para>
 	</section>
 	<section>
