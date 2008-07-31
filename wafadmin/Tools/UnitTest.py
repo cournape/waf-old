@@ -87,7 +87,6 @@ class unit_test(object):
 		count = 0
 		result = 1
 
-		curdir = os.getcwd() # store the current dir (only if self.change_to_testfile_dir)
 		for label, file_and_src in self.unit_tests.iteritems():
 			filename = file_and_src[0]
 			srcdir = file_and_src[1]
@@ -97,19 +96,15 @@ class unit_test(object):
 				sys.stdout.write(line)
 				sys.stdout.flush()
 			try:
-				if self.change_to_testfile_dir:
-					os.chdir(srcdir)
-
 				kwargs = {}
+				if self.change_to_testfile_dir:
+					kwargs['cwd'] = srcdir
 				if not self.want_to_see_test_output:
 					kwargs['stdout'] = pproc.PIPE  # PIPE for ignoring output
 				if not self.want_to_see_test_error:
 					kwargs['stderr'] = pproc.PIPE  # PIPE for ignoring output
 				pp = pproc.Popen(filename, **kwargs)
 				pp.wait()
-
-				if self.change_to_testfile_dir:
-					os.chdir(curdir)
 
 				result = int(pp.returncode == self.returncode_ok)
 
