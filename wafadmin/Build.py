@@ -504,9 +504,9 @@ class BuildContext(object):
 
 	## the following methods are candidates for the stable apis ##
 
-	def add_group(self, name=''):
+	def add_group(self):
 		self.flush(all=0)
-		self.task_manager.add_group(name)
+		self.task_manager.add_group()
 
 	def hash_env_vars(self, env, vars_lst):
 		"""hash environment variables
