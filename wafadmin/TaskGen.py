@@ -126,8 +126,8 @@ class task_gen(object):
 		# provide a unique id
 		self.idx = task_gen.idx[self.path.id] = task_gen.idx.get(self.path.id, 0) + 1
 
-		for key in kwargs:
-			setattr(self, key, kwargs[key])
+		for key, val in kwargs.iteritems():
+			setattr(self, key, val)
 
 	def __str__(self):
 		return ("<task_gen '%s' of type %s defined in %s>"
