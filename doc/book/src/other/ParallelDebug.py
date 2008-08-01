@@ -19,17 +19,33 @@ import Runner
 from Constants import *
 
 INTERVAL = 0.009
+BAND = 22
+
+mp = {
+'cxx': 'green',
+'ar_link_static': '#8106ff'
+}
+
+info = {
+'green': 'Compilation task',
+'#8106ff': 'Link task'
+}
+
+def map_to_color(name):
+	if name in mp:
+		return mp[name]
+	return "red"
 
 
 mylock = threading.Lock()
 taskinfo = Queue.Queue()
 state = 0
-def set_running(by, id, taskid):
+def set_running(by, i, tsk):
 	mylock.acquire()
 	global state
 	state += by
 	mylock.release()
-	taskinfo.put(  (id, taskid, time.time(), )  )
+	taskinfo.put(  (i, id(tsk), time.time(), tsk.__class__.__name__)  )
 
 
 def newrun(self):
@@ -41,7 +57,7 @@ def newrun(self):
 			m.out.put(tsk)
 			continue
 
-		set_running(1, id(self), id(tsk))
+		set_running(1, id(self), tsk)
 		try:
 			Runner.printout(tsk.display())
 			if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
@@ -54,7 +70,7 @@ def newrun(self):
 			# TODO cleanup
 			m.error_handler(tsk)
 			m.out.put(tsk)
-			set_running(-1)
+			set_running(-1, id(self), tsk)
 			continue
 
 		time.sleep(1 + 2* random.random())
@@ -71,7 +87,7 @@ def newrun(self):
 				tsk.hasrun = SUCCESS
 		if tsk.hasrun != SUCCESS:
 			m.error_handler(tsk)
-		set_running(-1, id(self), id(tsk))
+		set_running(-1, id(self), tsk)
 		m.out.put(tsk)
 
 Runner.TaskConsumer.run = newrun
@@ -139,12 +155,10 @@ def process_colors(q):
 	tmp = []
 	try:
 		while True:
-			(s, t, tm) = q.get(False)
-			tmp.append([s, t, tm])
+			(s, t, tm, clsname) = q.get(False)
+			tmp.append([s, t, tm, clsname])
 	except:
 		pass
-
-	BAND = 15
 
 #file = open('colors.dat', 'rb')
 #code = file.read()
@@ -153,7 +167,7 @@ def process_colors(q):
 #lst = code.strip().split('\n')
 #tmp = [x.split() for x in lst]
 
-	ini = float(tmp[0][-1])
+	ini = float(tmp[0][2])
 	tmp = [lst[:2] + [float(lst[2]) - ini] + lst[3:] for lst in tmp]
 
 	st = {}
@@ -188,15 +202,14 @@ def process_colors(q):
 				end = line[2]
 				#print id, thread_id, begin, end
 				#acc.append(  ( 10*thread_id, 10*(thread_id+1), 10*begin, 10*end ) )
-				acc.append( (BAND * begin, BAND*thread_id, BAND*end - BAND*begin, BAND) )
-
+				acc.append( (BAND * begin, BAND*thread_id, BAND*end - BAND*begin, BAND, line[3]) )
 				break
 
 	gwidth = 0
 	for x in tmp:
 			m = BAND * x[2]
 			if m > gwidth: gwidth = m
-	gheight = BAND * (THREAD_AMOUNT + 1)
+	gheight = BAND * (THREAD_AMOUNT + len(info.keys()) + 1)
 
 	out = []
 
@@ -208,15 +221,34 @@ def process_colors(q):
    id=\"svg602\" xml:space=\"preserve\">
 <defs id=\"defs604\" />\n""" % (-1, -1, gwidth + 3, gheight + 2))
 
-	out.append("""<text x="%d" y="%d" style=" font-family:Arial; font-size:10; text-anchor:middle">Task execution using waf -j3</text>
-""" % (gwidth/2, BAND * (THREAD_AMOUNT + 0.7)))
+	# main title
+	out.append("""<text x="%d" y="%d" style=" font-family:Arial Black; font-size:15; text-anchor:middle">Task execution using waf -j%d</text>
+""" % (gwidth/2, gheight - 5, THREAD_AMOUNT))
 
-	for (x, y, w, h) in acc:
+	# the rectangles
+	for (x, y, w, h, clsname) in acc:
 		out.append("""<rect
    x='%r' y='%r'
    width='%r' height='%r'
-   style=\"font-size:12;fill:%s;fill-opacity:0.7;fill-rule:evenodd;stroke:#000000;\"
-   id=\"rect%d\" />\n""" % (x, y, w, h, "green", 0))
+   style=\"font-size:10;fill:%s;fill-opacity:0.7;fill-rule:evenodd;stroke:#000000;\"
+   />\n""" % (x, y, w, h, map_to_color(clsname)))
+
+	# output the caption
+	cnt = THREAD_AMOUNT
+	for (color, text) in info.iteritems():
+		# caption box
+		b = BAND/2
+		out.append("""<rect
+		x='%d' y='%r'
+		width='%d' height='%d'
+		style=\"font-size:10;fill:%s;fill-opacity:0.7;fill-rule:evenodd;stroke:#000000;\"
+  />\n""" % (BAND, (cnt + 0.5) * BAND, b, b, color))
+
+		# caption text
+		out.append("""<text
+   style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Arial"
+   x="%r" y="%d">%s</text>\n""" % (2 * BAND, (cnt+1) * BAND, text))
+		cnt += 1
 
 	out.append("\n</svg>")
 
