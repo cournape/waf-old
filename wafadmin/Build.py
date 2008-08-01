@@ -662,11 +662,9 @@ class BuildContext(object):
 			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 		return destpath
 
-	def install_files(self, path, files, env=None, chmod=0644):
+	def install_files(self, path, files, env=None, chmod=0644, relative_trick=False):
 		if not Options.is_install: return []
 		if not path: return []
-
-		#if not env: env = self.env
 
 		node = self.path
 		if type(files) is types.StringType and '*' in files:
@@ -679,17 +677,17 @@ class BuildContext(object):
 
 		Utils.check_dir(destpath)
 
-		# TODO clean -> do not convert back to nodes
-		# copy the files to the final destination
 		installed_files = []
 		for filename in lst:
 			if not os.path.isabs(filename):
-				filenode = node.find_resource(filename)
-				if filenode is None:
+				nd = node.find_resource(filename)
+				if not nd:
 					raise Utils.WafError("Unable to install the file `%s': not found in %s" % (filename, node))
-
-				file = filenode.abspath(env)
-				destfile = os.path.join(destpath, filenode.name)
+				if relative_trick:
+					destfile = os.path.join(destpath, filename)
+					Utils.check_dir(os.path.dirname(destfile))
+				else:
+					destfile = os.path.join(destpath, nd.name)
 			else:
 				alst = Utils.split_path(filename)
 				destfile = os.path.join(destpath, alst[-1])
