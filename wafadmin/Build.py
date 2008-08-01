@@ -673,6 +673,7 @@ class BuildContext(object):
 		else:
 			lst = Utils.to_list(files)
 
+		env = env or self.env
 		destpath = self.get_install_path(path, env)
 
 		Utils.check_dir(destpath)
@@ -688,6 +689,7 @@ class BuildContext(object):
 					Utils.check_dir(os.path.dirname(destfile))
 				else:
 					destfile = os.path.join(destpath, nd.name)
+				filename = nd.abspath(env)
 			else:
 				alst = Utils.split_path(filename)
 				destfile = os.path.join(destpath, alst[-1])
