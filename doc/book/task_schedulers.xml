@@ -63,6 +63,13 @@ Runner.Parallel.refill_task_list = refill_task_list
 		<para>
 			Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called <emphasis>Job Shop</emphasis>. In practice this problem can often be reduced to a critical path problem (approximation).
 		</para>
+
+		<para>
+			The following pictures illustrate the difference in scheduling a build with different independant tasks, in which a slow task is clearly identified, and launched first:
+			<graphic format="png" fileref="duration-1.png" align="center"/>
+			<graphic format="png" fileref="duration-2.png" align="center"/>
+		</para>
+
 		<para>
 			Waf provides a function for reordering the tasks before they are launched in the module Runner, the default reordering may be changed by dynamic method replacement in Python:
 			<programlisting language="python">
