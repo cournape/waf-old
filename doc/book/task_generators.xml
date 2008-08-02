@@ -1,0 +1,35 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter>
+	<title>Task Generators</title>
+	<section>
+		<title>Overview of the task generator system</title>
+		<para>
+			The manual creation of task instances creates strong dependencies between the instances and forces the creation of a lot of inefficient code. A somewhat higher-level technique consist in creating the code using loops, but that does not solve the problem of global variable multiplication (to keep reference between tasks). A more elegant solution is to encapsulate the global variables in classes, and to delegate the creation of task instances to the containers.
+		</para>
+		<para>
+			In the past, Waf used to provide Task generators using a hierarchy of classes. This system was unmaintainable for the following reasons:
+			<itemizedlist>
+				<listitem>Specialization limits code sharing between instances</listitem>
+				<listitem>Each new feature suggests a new class</listitem>
+				<listitem>The order of calls in the class hierarchy is complicated</listitem>
+			</itemizedlist>
+		</para>
+		<para>
+			In real-world scenarios, the amount of task generator attributes is quite small, but the amount of methods is high. Tracing the execution is a very important usecase to understand the execution, and to extend the system. For this reason, and aspect-oriented system has been adopted since about Waf 1.3: methods and attributes are attached dynamically to a very small set of classes. We will detail in the following sections how the task generator execution, and the default processing based on file extensions.
+		</para>
+	</section>
+
+	<section>
+		<title>Task generator methods</title>
+		<para>TODO</para>
+	</section>
+
+	<section>
+		<title>File extension processing</title>
+		<para>TODO</para>
+	</section>
+</chapter>
+
