@@ -9,7 +9,7 @@
 		<para id="corelib">
 			Waf is based on 12 modules which constitute the core library
 
-<table id="broke" class="eh">
+<table>
 <title>The core library</title>
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
 
@@ -91,6 +91,11 @@
 </table>
 
 		</para>
+	</section>
+
+	<section>
+		<title>The tools library</title>
+		<para></para>
 	</section>
 </chapter>
 
