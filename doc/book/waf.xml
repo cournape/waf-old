@@ -6,6 +6,12 @@
 		<title>The Waf Book</title>
 		<author><firstname>Thomas</firstname><surname>Nagy</surname></author>
 		<copyright><year>2008</year><holder>Thomas Nagy</holder></copyright>
+
+	<legalnotice>
+		<para>
+			 Waf book is not ready yet, you may not reproduce it and distribute copies of it (yet). This version is for reviewing the contents and suggesting changes.
+		</para>
+	</legalnotice>
 	</bookinfo>
 
 	<preface>
