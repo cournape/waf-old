@@ -6,9 +6,8 @@
 	<title>The Waf architecture</title>
 	<section>
 		<title>The core library</title>
-		<para id="corelib">
-			Waf is based on 12 modules which constitute the core library
-
+		<para>
+			Waf is based on 12 modules which constitute the core library:
 <table>
 <title>The core library</title>
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
@@ -89,9 +88,12 @@
 </tbody>
 </tgroup>
 </table>
-
+		The essential classes from the core library are represented on the following diagram:
+		<graphic format="png" fileref="classes.png" align="center"/>
 		</para>
+
 	</section>
+
 
 	<section>
 		<title>The tools library</title>
