@@ -3,19 +3,12 @@
 # Thomas Nagy, 2007 (ita)
 
 """
-debugging helpers for parallel compilation
-
-To output a stat file (data for gnuplot) when running tasks in parallel:
-
-#! /usr/bin/gnuplot -persist
-set terminal png
-set output "output.png"
-set yrange [-1:6]
-plot 'test.dat' using 1:3 with linespoints
+debugging helpers for parallel compilation, outputs
+a svg file in the build directory
 """
 
 import time, threading, random, Queue
-import Runner
+import Runner, Options
 from Constants import *
 
 INTERVAL = 0.009
@@ -37,14 +30,9 @@ def map_to_color(name):
 	return "red"
 
 
-mylock = threading.Lock()
 taskinfo = Queue.Queue()
 state = 0
 def set_running(by, i, tsk):
-	mylock.acquire()
-	global state
-	state += by
-	mylock.release()
 	taskinfo.put(  (i, id(tsk), time.time(), tsk.__class__.__name__)  )
 
 
@@ -92,66 +80,13 @@ def newrun(self):
 
 Runner.TaskConsumer.run = newrun
 
-class TaskPrinter(threading.Thread):
-	def __init__(self, master):
-		threading.Thread.__init__(self)
-		self.setDaemon(1)
-		self.m_master = master
-		self.stat = []
-		self.start()
-
-	def run(self):
-		global state, mylock
-		while self.m_master:
-			try:
-				mylock.acquire()
-				self.stat.append( (time.time(), self.m_master.processed, state) )
-				#self.stat.append( (time.time(), self.m_master.processed, self.m_master.ready.qsize()) )
-				mylock.release()
-			except:
-				raise
-				pass
-
-			try: time.sleep(INTERVAL)
-			except: pass
-
-		while 1:
-			try:
-				time.sleep(250)
-			except:
-				pass
-
 old_start = Runner.Parallel.start
 def do_start(self):
-	collector = TaskPrinter(self)
 	old_start(self)
-	collector.m_master = None
-
-	if len(collector.stat) <= 0:
-		print "nothing to display! start from an empty build"
-	else:
-		file = open('/tmp/test.dat', 'w')
-		(t1, queue, run) = collector.stat[0]
-		for (time, queue, run) in collector.stat:
-			#print time, t1, queue, run
-			file.write("%f %f %f\n" % (time-t1, queue, run))
-		file.close()
-
-		global taskinfo
-		process_colors(taskinfo)
-		#file = open('/tmp/colors.dat', 'w')
-		#try:
-		#	while True:
-		#		(s, t, tm) = taskinfo.get(False)
-		#		file.write('%d %d %f\n' % (s, t, tm))
-		#except:
-		#	pass
-		file.close()
+	process_colors(taskinfo)
 Runner.Parallel.start = do_start
 
-
 def process_colors(q):
-
 	tmp = []
 	try:
 		while True:
@@ -209,7 +144,11 @@ def process_colors(q):
 	for x in tmp:
 			m = BAND * x[2]
 			if m > gwidth: gwidth = m
-	gheight = BAND * (THREAD_AMOUNT + len(info.keys()) + 1)
+
+	ratio = 640. /gwidth
+	gwidth = 640
+
+	gheight = BAND * (THREAD_AMOUNT + len(info.keys()) + 1.5)
 
 	out = []
 
@@ -217,13 +156,13 @@ def process_colors(q):
 <!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.0//EN\"
 \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\">
 <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\"
-   x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"
+   x=\"%r\" y=\"%r\" width=\"%r\" height=\"%r\"
    id=\"svg602\" xml:space=\"preserve\">
 <defs id=\"defs604\" />\n""" % (-1, -1, gwidth + 3, gheight + 2))
 
 	# main title
-	out.append("""<text x="%d" y="%d" style=" font-family:Arial Black; font-size:15; text-anchor:middle">Task execution using waf -j%d</text>
-""" % (gwidth/2, gheight - 5, THREAD_AMOUNT))
+	out.append("""<text x="%d" y="%d" style=" font-family:Arial Black; font-size:15; text-anchor:middle">%s</text>
+""" % (gwidth/2, gheight - 5, Options.options.title))
 
 	# the rectangles
 	for (x, y, w, h, clsname) in acc:
@@ -231,7 +170,7 @@ def process_colors(q):
    x='%r' y='%r'
    width='%r' height='%r'
    style=\"font-size:10;fill:%s;fill-opacity:0.7;fill-rule:evenodd;stroke:#000000;\"
-   />\n""" % (x, y, w, h, map_to_color(clsname)))
+   />\n""" % (x*ratio, y, w*ratio, h, map_to_color(clsname)))
 
 	# output the caption
 	cnt = THREAD_AMOUNT
@@ -239,8 +178,8 @@ def process_colors(q):
 		# caption box
 		b = BAND/2
 		out.append("""<rect
-		x='%d' y='%r'
-		width='%d' height='%d'
+		x='%r' y='%r'
+		width='%r' height='%r'
 		style=\"font-size:10;fill:%s;fill-opacity:0.7;fill-rule:evenodd;stroke:#000000;\"
   />\n""" % (BAND, (cnt + 0.5) * BAND, b, b, color))
 
