@@ -334,7 +334,7 @@ def build(bld):
 	tools.find_sources_in_dirs('wafadmin/Tools', exts=['.py'])
 	tools.install_path = os.path.join('${PREFIX}', dir, 'Tools')
 
-	bld.install_files('PREFIX', 'bin', 'waf', chmod=0755)
+	bld.install_files('${PREFIX}/bin', 'waf', chmod=0755)
 
 	#print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
 	#print "make sure the PATH contains %s/bin:$PATH" % prefix
