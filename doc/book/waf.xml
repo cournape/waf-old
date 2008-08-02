@@ -5,6 +5,7 @@
 	<bookinfo>
 		<title>The Waf Book</title>
 		<author><firstname>Thomas</firstname><surname>Nagy</surname></author>
+		<copyright><year>2008</year><holder>Thomas Nagy</holder></copyright>
 	</bookinfo>
 
 	<preface>

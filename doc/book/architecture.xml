@@ -88,6 +88,12 @@
 </tbody>
 </tgroup>
 </table>
+	</para>
+	</section>
+
+	<section>
+		<title>Essential classes from the core library</title>
+		<para>
 		The essential classes from the core library are represented on the following diagram:
 		<graphic format="png" fileref="classes.png" align="center"/>
 		</para>
