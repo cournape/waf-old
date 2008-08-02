@@ -16,13 +16,15 @@
 	<section>
 		<title>Job control</title>
 		<para>
-			Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice:
-			<graphic format="png" fileref="output-NORMAL.png" align="center"/>
+			Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice
+		</para>
+		<para>
 			In the NORMAL ordering, task groups are created, and a topological sort is performed in advance. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes.
-			<graphic format="png" fileref="output-JOBCONTROL.png" align="center"/>
+			<graphic format="png" fileref="output-NORMAL.png" align="center"/>
 			In the JOBCONTROL ordering, groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources. For example, linking c++ object files uses a lot of RAM.
-			<graphic format="png" fileref="output-MAXPARALLEL.png" align="center"/>
+			<graphic format="png" fileref="output-JOBCONTROL.png" align="center"/>
 			In the MAXPARALLEL ordering, Each task holds a list of tasks it must run after (there is only one list of tasks waiting to be executed). Though this version parallelizes tasks very well, it consumes more memory and processing. In practice, waf may last 20% more on builds when all tasks are up-to-date.
+			<graphic format="png" fileref="output-MAXPARALLEL.png" align="center"/>
 		</para>
 		<para>
 			<warning>
@@ -50,7 +52,7 @@ Runner.Parallel.refill_task_list = refill_task_list
 			From this, we can immediately notice the following:
 			<itemizedlist>
 				<listitem>An assumption is made that all tasks have input and output nodes, and that ordering constraints can be deduced from them</listitem>
-				<listitem>Deducing the constraints from the input and output nodes has a n^2 behaviour</listitem>
+				<listitem>Deducing the constraints from the input and output nodes exhibits a n^2 behaviour</listitem>
 			</itemizedlist>
 
 			<note>In practice, the NORMAL algorithm should be used whenever possible, and the MAXPARALLEL should be used if substantial gains are expected and if the ordering is specified between all tasks. The JOBCONTROL system may be useful for tasks that consume a vast amount of resources.</note>
