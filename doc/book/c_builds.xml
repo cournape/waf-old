@@ -5,6 +5,11 @@
 <chapter id="c_builds">
 	<title>C and C++ projects</title>
 	<section>
+		<title>A real-world waf script</title>
+		<para>The previous chapter provides general examples about the Waf scripts. This chapter is about using Waf in practice in C/C++ projects</para>
+	</section>
+
+	<section>
 		<title>The Waf preprocessor</title>
 		<para>
 			Waf uses a preprocessor written in Python for finding the headers on which the source files depend. By default the preprocessing is limited to the files present in the project. To enable the preprocessor to find system headers, use the following code:
