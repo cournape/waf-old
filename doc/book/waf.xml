@@ -4,7 +4,7 @@
 <book>
 	<bookinfo>
 		<title>The Waf Book</title>
-		<author><firstname>Thomas</firstname><surname>Nagy</surname> 2008</author>
+		<author><firstname>Thomas</firstname><surname>Nagy</surname></author>
 	</bookinfo>
 
 	<preface>
@@ -42,76 +42,8 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="architecture.xml"/>
 
 <!--
-<chapter id="intro">
-<title>Getting Started</title>
-<section id="Installing">
-	<title>Sec 1</title>
-    <para>Para 1</para>
-
-<itemizedlist>
-  <listitem>Primer Elemento</listitem>
-  <listitem>Segundo Elemento</listitem>
-</itemizedlist>
-
-<orderedlist>
-  <listitem>Primer Elemento
-    <orderedlist>
-      <listitem>Primero-Primero Elemento</listitem>
-      <listitem>Primero-Segundo Elemento</listitem>
-    </orderedlist>
-  </listitem>
-  <listitem>Segundo Elemento</listitem>
-</orderedlist>
-
 <note>exemple de note</note>
 <warning>exemple de warning</warning>
-
-<table>
-  <title>Ejemplo de metatag warning</title>
-  <tgroup cols="4" >
-    <colspec colnum="1" colname="col1" colwidth="1*"/>
-    <colspec colnum="2" colname="col2" colwidth="2*"/>
-    <colspec colnum="3" colname="col3" colwidth="1.5*"/>
-    <colspec colnum="4" colname="col4" colwidth="1.5*"/>
-    <thead>
-      <row>
-         <entry>Primera Columna</entry>
-         <entry namest="col2" nameend="col3">Segunda Columna</entry>
-         <entry>Tercera column</entry>
-      </row>
-    </thead>
-    <tbody>
-      <row>
-         <entry>Contenido</entry>
-         <entry>Contenido</entry>
-         <entry colname="col4">Contenido</entry>
-      </row>
-    </tbody>
-  </tgroup>
-</table>
-
-
-<programlisting language="python" linenumbering="numbered">
-def build(bld):
-	pass
-</programlisting>
-
-
-</section>
-
-</chapter>
-
-
-<chapter>
-  <sect1>Uno</sect1>
-  <sect1>Dos</sect1>
-    <sect2>Tres</sect2>
-      <sect3>Cuatro</sect3>
-  <sect1>Cinco</sect1>
-    <sect2>Seis</sect2>
-    <sect2>Siete</sect2>
-    <sect2>Ocho</sect2>
-</chapter>
 -->
 
 </book>
