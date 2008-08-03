@@ -16,7 +16,7 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('docbook', tooldir='.')
 	conf.check_tool('misc')
-	conf.env['XSLTPROC_ST'] = '%s --output default/ --stringparam html.stylesheet ../../waf.css --xinclude %s %s > %s'
+	conf.env['XSLTPROC_ST'] = '%s --output default/ --stringparam html.stylesheet waf.css --xinclude %s %s > %s'
 
 def build(bld):
 	obj = bld.new_task_gen('docbook')

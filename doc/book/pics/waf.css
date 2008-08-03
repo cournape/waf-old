@@ -20,17 +20,18 @@ body
 
 .programlisting
 {
-        font-family: monospace;
-        font-size: 1em;
-        display: block;
-        padding: 10px;
-        border: 1px solid #bbb;
-        background-color: #ddd;
-        color: #000;
-        overflow: auto;
-        border-radius: 2.5px;
-        -moz-border-radius: 2.5px;
-        margin: 0.5em 2em;
+	font-family: monospace;
+	font-size: 1em;
+	display: block;
+	padding: 10px;
+	overflow: auto;
+	border-radius: 2.5px;
+	-moz-border-radius: 2.5px;
+	margin: 0.5em 2em;
+
+	background: #e8f0f8;
+	color: #000000;
+	border: 1px solid #708890;
 }
 
 table
