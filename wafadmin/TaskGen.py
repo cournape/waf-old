@@ -189,7 +189,7 @@ class task_gen(object):
 
 		# elements disconnected
 		tmp = []
-		for a in prec:
+		for a in keys:
 			for x in prec.values():
 				if a in x: break
 			else:
