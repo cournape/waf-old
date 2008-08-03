@@ -4,68 +4,163 @@
 >
 <chapter>
 	<title>Task creation automation using task generators</title>
+	<para>
+		Although task instances may be created directly, they act like global variables in the scripts, and they may lead to the creation of spaghetti code. Special containers called task generators are used for creating the tasks and keeping track of them.
+	</para>
+
 	<section>
-		<title>Overview of the task generator system</title>
+		<title>Task generator method example</title>
 		<para>
-			The manual creation of task instances creates strong dependencies between the instances and forces the creation of a lot of code. A somewhat higher-level technique consist in creating the code using loops, but that does not solve the problem of global variable multiplication (to keep reference between tasks). A more elegant solution is to encapsulate the global variables in classes, and to delegate the creation of task instances to the containers.
+			Let us pretend we want to add a new attribute 'tst' to task generators, and call a method to print the contents of that attribute:
+			<programlisting language="python">
+def build(bld):
+	foo = bld.new_task_gen()
+	foo.tst = 'hello, world'
+			</programlisting>
 		</para>
 		<para>
+			To attach a new method to the task_gen class (the type of <emphasis>foo</emphasis>) we use the decorator <emphasis>@taskgen</emphasis>:
+			<programlisting language="python">
+from TaskGen import taskgen
+@taskgen
+def print_tst(self):
+	print 'processing the tst attribute:', self.tst
+			</programlisting>
+		</para>
+
+		<para>
+			At this point, we have attached a new method to the class, but to process the attribute <emphasis>foo.tst</emphasis>,
+ the method has to be called explicitely:
+			<programlisting language="python">
+def build(bld):
+	foo = bld.new_task_gen()
+	foo.tst = 'hello, world'
+	foo.print_tst()
+			</programlisting>
+		</para>
+
+		<para>
+			To schedule a method for automatic execution, it must be mapped to an alias making a reference to it. The aliases are given in the task generator attribute <emphasis>features</emphasis>:
+			<programlisting language="python">
+from TaskGen import taskgen, feature
+@taskgen
+@feature('TEST')
+def print_tst(self):
+    print 'processing the tst attribute:', self.tst
+
+def build(bld):
+    foo = bld.new_task_gen()
+    foo.features = ['TEST']
+    foo.tst = 'hello, world'
+			</programlisting>
+		</para>
+
+		<para>
+			For mapping the method to all task generators, the wildcard <emphasis>*</emphasis> may be used, a complete example is reproduced below:
+			<programlisting language="python">
+srcdir='.'
+blddir='build'
+
+from TaskGen import taskgen, feature
+@taskgen
+@feature('*')
+def print_tst(self):
+    print 'processing the tst attribute:', self.tst
+
+def build(bld):
+    foo = bld.new_task_gen()
+    foo.tst = 'hello, world'
+
+def configure(conf):
+    pass
+
+def set_options(opt):
+    pass
+			</programlisting>
+			Upon execution, this produces the following output:
+			<programlisting language="sh">
+$ waf
+processing the tst attribute: hello, world
+			</programlisting>
+		</para>
+	</section>
+
+	<section>
+		<title>Task generator method call order</title>
+		<para>
+			In practice, the code for generating tasks has to be shared between different task generators. For example, applications containing different programming languages such as c and c++ at the same time will require a way to create the tasks without duplicating the source code, and by calling the methods in the right order.
+			<graphic format="png" fileref="posting.png" align="center"/>
+		</para>
+
+		<para>
+			Two annotations <emphasis>before</emphasis> and <emphasis>after</emphasis> have been created to enforce an order on the method calls (excerpt from the Waf source code):
+			<programlisting language="python">
+from TaskGen import before, after, taskgen
+
+@taskgen
+@after('apply_obj_vars_cc')
+@after('apply_obj_vars_cxx')
+@before('apply_link')
+def asm_incflags(self):
+	if self.env['ASINCFLAGS']: self.env['_ASINCFLAGS'] = self.env['ASINCFLAGS']
+			</programlisting>
+		</para>
+	</section>
+	<section>
+		<title>File extension processing</title>
+		<para>
+			A special method named <emphasis>apply_core</emphasis> provides file extension processing using the attribute <emphasis>source</emphasis>. On the user side, this takes the following form:
+			<programlisting language="python">
+def build(bld):
+	main = bld.new_task_gen()
+	main.features = ['cc', 'program']
+	main.source = 'main.c foo.c bar.c'
+	main.target = 'my_app'
+			</programlisting>
+			The method to process <emphasis>.c</emphasis> files (main.c) is called automatically by <emphasis>apply_core</emphasis>, and is declared in the following manner:
+			<programlisting language="python">
+from TaskGen import extension
+
+@extension('.c')
+def c_hook(self, node):
+    task = self.create_task('cc')
+    try: obj_ext = self.obj_ext
+    except AttributeError: obj_ext = '_%d.o' % self.idx
+
+    task.defines  = self.scanner_defines
+    task.inputs = [node]
+    task.outputs = [node.change_ext(obj_ext)]
+    self.compiled_tasks.append(task)
+			</programlisting>
+		</para>
+		<para>
+			When the method <emphasis>apply_core</emphasis> is called, the following operations are performed:
+			<orderedlist>
+				<listitem>If a method is mapped (<emphasis>@extension</emphasis>) to a name listed in sources, it is called with that name as a parameter</listitem>
+				<listitem>The names that do not have a mapping are supposed to be files and are transformed into Node instances</listitem>
+				<listitem>For each node (temporary variable <emphasis>self.allnodes</emphasis>), a method corresponding to the file extension is applied</listitem>
+			</orderedlist>
+		</para>
+
+		<para>
+			In this system, the list of sources for an application does not have to exactly represent files. Also, methods may re-inject new nodes to process by extension (in the temporary variable <emphasis>self.allnodes</emphasis>), without keeping an exact reference on the method that will be called.
+		</para>
+
+	</section>
+
+		<!--para>
 			In the past, Waf used to provide Task generators using a hierarchy of classes. This system was unmaintainable for the following reasons:
 			<itemizedlist>
 				<listitem>Specialization limits code sharing between instances</listitem>
 				<listitem>Each new feature suggests a new class</listitem>
 				<listitem>The order of calls in the class hierarchy is complicated</listitem>
 			</itemizedlist>
-		</para>
-		<para>
+		</para -->
+		<!--para>
 			In real-world scenarios, the amount of task generator attributes is quite small, but the amount of methods is high. Tracing the execution is a very important usecase to understand the execution, and to extend the system. For this reason, and aspect-oriented system has been adopted since about Waf 1.3: methods and attributes are attached dynamically to a very small set of classes.</para>
 		<para>
 			We will detail in the following sections how the task generator execution, and the default processing based on file extensions. The details of the execution system will be described in the ultimate section of this chapter.
-		</para>
-	</section>
+		</para-->
 
-	<section>
-		<title>Task generator methods</title>
-		<para>
-			Task generator methods are declared using the decorator <emphasis>@taskgen</emphasis>:
-			<programlisting language="python">
-from TaskGen import taskgen
-
-@taskgen
-def process_tst_attribute(self):
-	if not getattr(self, 'tst', None):
-		return
-	print 'processing the tst attribute', self.tst
-
-def build(bld):
-	foo = bld.new_task_gen()
-	foo.tst = 'hello, world'
-	foo.process_tst_attribute()
-			</programlisting>
-			At this point, we have attached a new method to the class, but to process the attribute <emphasis>foo.tst</emphasis>, the method has to be called explicitely.
-		</para>
-		<para>
-			Methods which are meant to be called automatically provide additional decorators, like in the following example:
-			<programlisting language="python">
-from TaskGen import taskgen, feature, before, after
-@taskgen
-@feature('*')
-@before('apply_core')
-def process_tst_attribute(self):
-	if not getattr(self, 'tst', None):
-		return
-	print 'processing the tst attribute', self.tst
-
-def build(bld):
-	foo = bld.new_task_gen()
-	foo.tst = 'hello, world'
-			</programlisting>
-		</para>
-	</section>
-
-	<section>
-		<title>File extension processing</title>
-		<para>TODO</para>
-	</section>
 </chapter>
 
