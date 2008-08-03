@@ -6,10 +6,9 @@
 	<title>C and C++ projects</title>
 	<section>
 		<title>A real-world waf script</title>
-		<para>The previous chapter provides general examples about the Waf scripts. This chapter is about using Waf in practice in C/C++ projects. Building c applications consists to take a list of source files, to obtain intermediate files, and to assemble the intermediate files in the final application. The chain of transformation is represented by the following diagram ..
+		<para>
 
-
-</para>
+		</para>
 	</section>
 
 	<section>

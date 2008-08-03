@@ -7,7 +7,7 @@
 	<section>
 		<title>Overview of the task generator system</title>
 		<para>
-			The manual creation of task instances creates strong dependencies between the instances and forces the creation of a lot of inefficient code. A somewhat higher-level technique consist in creating the code using loops, but that does not solve the problem of global variable multiplication (to keep reference between tasks). A more elegant solution is to encapsulate the global variables in classes, and to delegate the creation of task instances to the containers.
+			The manual creation of task instances creates strong dependencies between the instances and forces the creation of a lot of code. A somewhat higher-level technique consist in creating the code using loops, but that does not solve the problem of global variable multiplication (to keep reference between tasks). A more elegant solution is to encapsulate the global variables in classes, and to delegate the creation of task instances to the containers.
 		</para>
 		<para>
 			In the past, Waf used to provide Task generators using a hierarchy of classes. This system was unmaintainable for the following reasons:
@@ -18,13 +18,49 @@
 			</itemizedlist>
 		</para>
 		<para>
-			In real-world scenarios, the amount of task generator attributes is quite small, but the amount of methods is high. Tracing the execution is a very important usecase to understand the execution, and to extend the system. For this reason, and aspect-oriented system has been adopted since about Waf 1.3: methods and attributes are attached dynamically to a very small set of classes. We will detail in the following sections how the task generator execution, and the default processing based on file extensions.
+			In real-world scenarios, the amount of task generator attributes is quite small, but the amount of methods is high. Tracing the execution is a very important usecase to understand the execution, and to extend the system. For this reason, and aspect-oriented system has been adopted since about Waf 1.3: methods and attributes are attached dynamically to a very small set of classes.</para>
+		<para>
+			We will detail in the following sections how the task generator execution, and the default processing based on file extensions. The details of the execution system will be described in the ultimate section of this chapter.
 		</para>
 	</section>
 
 	<section>
 		<title>Task generator methods</title>
-		<para>TODO</para>
+		<para>
+			Task generator methods are declared using the decorator <emphasis>@taskgen</emphasis>:
+			<programlisting language="python">
+from TaskGen import taskgen
+
+@taskgen
+def process_tst_attribute(self):
+	if not getattr(self, 'tst', None):
+		return
+	print 'processing the tst attribute', self.tst
+
+def build(bld):
+	foo = bld.new_task_gen()
+	foo.tst = 'hello, world'
+	foo.process_tst_attribute()
+			</programlisting>
+			At this point, we have attached a new method to the class, but to process the attribute <emphasis>foo.tst</emphasis>, the method has to be called explicitely.
+		</para>
+		<para>
+			Methods which are meant to be called automatically provide additional decorators, like in the following example:
+			<programlisting language="python">
+from TaskGen import taskgen, feature, before, after
+@taskgen
+@feature('*')
+@before('apply_core')
+def process_tst_attribute(self):
+	if not getattr(self, 'tst', None):
+		return
+	print 'processing the tst attribute', self.tst
+
+def build(bld):
+	foo = bld.new_task_gen()
+	foo.tst = 'hello, world'
+			</programlisting>
+		</para>
 	</section>
 
 	<section>
