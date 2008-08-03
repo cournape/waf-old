@@ -87,6 +87,12 @@ A few assumptions are used over the user projects, for some they are features an
 See the FAQ on the Wiki:
 http://code.google.com/p/waf/wiki/FAQ
 
+API DOCS
+--------
+
+Use this command:
+epydoc -v -o wafdoc --name epydoc --css white wafadmin/
+
 ---------------------------
 Thomas Nagy, 2006-2008 (ita)
 
