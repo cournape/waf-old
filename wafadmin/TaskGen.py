@@ -149,18 +149,9 @@ class task_gen(object):
 	def apply_core(self):
 		# get the list of folders to use by the scanners
 		# all our objects share the same include paths anyway
-		lst = self.to_list(self.source)
-
-		# Validation: sources specified somehow
-		# 	one can set self.source to None to avoid apply_core()
-		if not lst is None:
-			# sources can be supplied either by self.source or self.allnodes
-			if len(lst) == 0 and not self.allnodes:
-				raise Utils.WafError("no sources were specified for '%s'" % self.name)
-
 		find_resource = self.path.find_resource
 
-		for filename in lst:
+		for filename in self.to_list(self.source):
 			# if self.mappings or task_gen.mappings contains a file of the same name
 			x = self.get_hook(filename)
 			if x:
@@ -186,7 +177,7 @@ class task_gen(object):
 		keys = self.meths
 
 		# add the methods listed in the features
-		for x in self.features:
+		for x in self.features + ['*']:
 			keys.update(task_gen.traits.get(x, ()))
 
 		# copy the precedence table
