@@ -249,7 +249,7 @@ class DirectoryWatcher:
 			self.request_end_loop()
 
 class adaptor(object):
-	def __init__(self, event_handler)
+	def __init__(self, event_handler):
 		self.event_handler = event_handler
 		self.watch_handler = {}
 
