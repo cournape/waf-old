@@ -44,7 +44,7 @@ Starting a new project with waf:
   Add sources in a subdirectory (this is how programs are built in real life), and a wscript on the top-level.
 
 Using waf:
-  To begin with, have a look at the cpp demo first (demos/cpp):
+  To begin with, have a look at the cxx demo first (demos/cxx):
   * configure with "waf configure"
   * compile with "waf"
   * install with "waf install"
