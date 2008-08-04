@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter>
+	<title>Project configurations</title>
+
+	<section>
+		<title>Configuring a project</title>
+		<para>
+			Configuring a project consists in finding the parameters used during the build stop.
+			<programlisting language="python">
+$ waf configure
+			</programlisting>
+			The data is then stored under a builddir/c4che, like this:
+			<programlisting language="sh">
+build
+|-- c4che
+|   |-- build.config.py
+|   `-- default.cache.py
+`-- config.log
+			</programlisting>
+			The configuration files are the following:
+			<itemizedlist>
+				<listitem>config.log: details of the configuration output</listitem>
+				<listitem>build.config.py: default parameters such as waf modules used, and build directory information</listitem>
+				<listitem>The files in *.cache.py are Python dictionaries (serialized instance of Environment)</listitem>
+			</itemizedlist>
+		</para>
+	</section>
+
+	<section>
+		<title>The configuration process</title>
+		<para>
+			Activity diagram neded here
+		</para>
+
+	</section>
+
+	<section>
+		<title>Adding new configuration checks</title>
+		<para>
+			Explain the @conf decorator
+		</para>
+	</section>
+</chapter>
+
