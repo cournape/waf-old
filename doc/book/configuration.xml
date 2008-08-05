@@ -8,24 +8,55 @@
 	<section>
 		<title>Configuring a project</title>
 		<para>
-			Configuring a project consists in finding the parameters used during the build stop.
+			Configuring a project consists in finding the parameters that will be used during the build step
 			<programlisting language="python">
+$ cd demos/simple_scenarios/init
+$ cat wscript
+
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+        pass
+def configure(conf):
+        pass
+def build(bld):
+        pass
+def shutdown():
+        pass
+
 $ waf configure
 			</programlisting>
-			The data is then stored in the folder <emphasis>c4che</emphasis> located under the build directory, like this:
+			Several configuration files are produced and the configuration parameters are stored in the folder <emphasis>c4che</emphasis> located under the build directory
 			<programlisting language="sh">
-build
-|-- c4che
-|   |-- build.config.py
-|   `-- default.cache.py
-`-- config.log
+|-- .lock-wscript <co id="lock-co" linkends="lock"/>
+`-- build
+    |-- .wafpickle-6 <co id="pickle-co" linkends="pickle"/>
+    |-- c4che
+    |   |-- build.config.py <co id="bldconf-co" linkends="bldconf"/>
+    |   `-- default.cache.py <co id="env-co" linkends="env"/>
+    `-- config.log <co id="log-co" linkends="log"/>
 			</programlisting>
-			The configuration files are the following:
-			<itemizedlist>
-				<listitem>config.log: details of the configuration output</listitem>
-				<listitem>build.config.py: default parameters such as waf modules used, and build directory information</listitem>
-				<listitem>The files in *.cache.py are Python dictionaries (serialized instance of Environment)</listitem>
-			</itemizedlist>
+			<calloutlist>
+				<callout arearefs="lock-co" id="lock">
+					<para>Contains a reference to the build directory and contains the command-line configuration flags. It is located at the root of the source directory.</para>
+				</callout>
+				<callout arearefs="pickle-co" id="pickle">
+					<para>Contains serialized data corresponding to the build information (cache, filesystem representation, etc)</para>
+				</callout>
+				<callout arearefs="bldconf-co" id="bldconf">
+					<para>Contains the Waf version and the list of Waf modules to open automatically</para>
+				</callout>
+				<callout arearefs="env-co" id="env">
+					<para>Represents a configuration context (parameters such as configuration flags used during the build)</para>
+				</callout>
+				<callout arearefs="log-co" id="log">
+					<para>Contains the configuration test execution details</para>
+				</callout>
+			</calloutlist>
+			The file <emphasis>default.cache.py</emphasis> is called a configuration context, and it may be edited by hand. We will give the details on the following section. The other files are not meant to be modified by hand, even if they are editable.
 		</para>
 	</section>
 
