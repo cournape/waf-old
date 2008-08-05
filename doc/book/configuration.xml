@@ -12,7 +12,7 @@
 			<programlisting language="python">
 $ waf configure
 			</programlisting>
-			The data is then stored under a builddir/c4che, like this:
+			The data is then stored in the folder <emphasis>c4che</emphasis> located under the build directory, like this:
 			<programlisting language="sh">
 build
 |-- c4che
