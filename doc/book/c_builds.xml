@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter id="c_builds">
+<chapter>
 	<title>C and C++ projects</title>
 	<section>
 		<title>Writing a configuration header</title>
@@ -42,9 +42,23 @@ build/
 	</section>
 
 	<section>
+		<title>Task generators for C/C++ builds</title>
+		<para>
+			TODO Detail the main task generator attributes, includes, cxxflags, etc
+		</para>
+	</section>
+
+	<section>
+		<title>The creation of C/C++ tasks</title>
+		<para>
+			TODO activity diagram needed here
+		</para>
+	</section>
+
+	<section>
 		<title>The Waf preprocessor</title>
 		<para>
-			Waf uses a preprocessor written in Python for finding the headers on which the source files depend. By default the preprocessing is limited to the files present in the project. To enable the preprocessor to find system headers, use the following code:
+			Waf uses a preprocessor written in Python for finding the headers on which the source files depend (implicity dependencies). By default the preprocessing is limited to the files present in the project. To enable the preprocessor to find system headers, use the following code:
 			<programlisting language="python">
 import preproc
 preproc.go_absolute = 1
