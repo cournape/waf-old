@@ -195,7 +195,7 @@ Compilation finished successfully (00:00:00)
 		<sect2>
 			<title>The task generators</title>
 			<para>
-			The tasks provided in the previous example do not do anything useful, and in practice it is desirable to automate their production. For example, if a lot of c files are provided and are to be processed into an application, a task generator will take all the source files and produce the tasks with the appropriate dependencies (compile and then assemble the object files at the end). Waf provides various task generator by default.
+			The tasks provided in the previous example do not do anything useful, and in practice it is desirable to automate their production. For example, if a lot of c files are provided and are to be processed into an application, a task generator will take all the source files and produce the tasks with the appropriate dependencies (compile and then assemble the object files at the end). Waf provides various task generators by default.
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
