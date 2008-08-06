@@ -3,10 +3,10 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter>
-	<title>Project configurations</title>
+	<title>The configuration system</title>
 
 	<section>
-		<title>The configuration files</title>
+		<title>Overview of the configuration files</title>
 		<para>
 			Configuring a project consists in finding the parameters that will be used during the build step
 			<programlisting language="python">
@@ -61,11 +61,66 @@ $ waf configure
 	</section>
 
 	<section>
-		<title>The configuration process</title>
+		<title>The configuration contexts</title>
 		<para>
-			Activity diagram neded here
+			The build phase uses configuration contexts created during the configuration phase. The configuration contexts are <emphasis>Python dicts</emphasis> which map keys to values. The configuration context files created take the following form:
+			<programlisting language="python">
+$ cat build/c4che/default.cache.py
+CXXFLAGS = ['-O2', '-Wall']
+			</programlisting>
 		</para>
+		<para>
+			By default, the conf object comes with a default built-in configuration context:
+			<programlisting language="python">
+def configure(conf):
+	conf.env.append_value('CXXFLAGS', '-O2')
+			</programlisting>
+			To replace the default configuration context, a new one must be created and assigned:
+			<programlisting language="python">
+def configure(conf):
+	conf.env.append_value('CXXFLAGS', '-O2')
+	env2 = conf.env.copy() <co id="dup-co" linkends="dup"/>
+	conf.set_env_name('debug', env2) <co id="name-co" linkends="name"/>
+	conf.setenv('debug') <co id="repl-co" linkends="repl"/>
+	conf.env.append_value('CXXFLAGS', '-g') <co id="mod-co" linkends="mod"/>
+			</programlisting>
+			<calloutlist>
+				<callout arearefs="dup-co" id="dup">
+					<para>Duplicates the default configuration context</para>
+				</callout>
+				<callout arearefs="name-co" id="name">
+					<para>Binds the configuration context to the name 'debug'</para>
+				</callout>
+				<callout arearefs="repl-co" id="repl">
+					<para>Replaces the default configuration context by the 'debug' one</para>
+				</callout>
+				<callout arearefs="mod-co" id="mod">
+					<para>Changes the CXXFLAGS entry in the 'debug' configuration context</para>
+				</callout>
+			</calloutlist>
+			In the previous example, the file contents will be:
+			<programlisting language="sh">
+$ tree build
+`-- build
+    |-- c4che
+    |   |-- default.cache.py
+    |   |-- debug.cache.py
 
+$ cat build/c4che/default.cache.py
+CXXFLAGS = ['-O2']
+
+$ cat build/c4che/debug.cache.py
+CXXFLAGS = ['-g']
+			</programlisting>
+		</para>
+		<para>
+			To use the values in the build section, use <emphasis>bld.env_of_name</emphasis>
+			<programlisting language="python">
+def build(bld):
+	print bld.env_of_name('default')['CXXFLAGS']
+	print bld.env_of_name('debug')['CXXFLAGS']
+			</programlisting>
+		</para>
 	</section>
 
 	<section>
