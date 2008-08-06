@@ -167,7 +167,17 @@ def custom_error_handler(fun, exc):
 	<section>
 		<title>Adding new configuration helpers</title>
 		<para>
-			Explain the @conf decorator
+			The configuration tests specific for the different languages belong to the different Waf tools representing the languages supported. For example, The configuration tests for the C language are located in the tool <filename>config_c.py</filename>.
+			To enable this, decorators are used to attach new configuration tests dynamically, for example:
+			<programlisting language="python">
+from Configure import conf
+
+@conf
+def get_define(self, define):
+    "get the value of a previously stored define"
+    try: return self.env[DEFINES][define]
+    except KeyError: return None
+			</programlisting>
 		</para>
 	</section>
 </chapter>
