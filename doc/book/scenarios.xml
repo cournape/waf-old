@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter>
+	<title>Advanced scenarios</title>
+	<para>This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.</para>
+	<section>
+		<title>Building the compiler first</title>
+		<para>
+			A compiler must be build first, the build uses add_group
+		</para>
+	</section>
+	<section>
+		<title>A compiler producing source files with names unknown in advance</title>
+		<para>
+			Describe runtime_discovered_outputs
+		</para>
+	</section>
+
+	<section>
+		<title>A task without any dependency on files</title>
+		<para>
+			The problem is the following:
+			<itemizedlist>
+				<listitem>A task x produces a header</listitem>
+				<listitem>A c task depends on the production of that header</listitem>
+				<listitem>That c task must be executed whenever the header changes</listitem>
+				<listitem>The header may or may not be updated, and the task x must run each time</listitem>
+			</itemizedlist>
+<programlisting>
+import Task, Constants, Build, Utils
+
+cls = Task.simple_task_type('svnversion', 'date > ${TGT}', color='BLUE')
+cls.runnable_status = lambda self: Constants.RUN_ME
+cls.before = 'cxx'
+
+old_post_run = cls.post_run
+def post_run(self):
+    old_post_run(self)
+    Build.bld.node_sigs[self.env.variant()][self.outputs[0].id] = Utils.h_file(self.outputs[0].abspath(self.env))
+cls.post_run = post_run
+
+def build(bld):
+    tsk = cls(bld.env.copy())
+    tsk.inputs = []
+    tsk.outputs = [bld.path.find_or_declare('foo.h')]
+
+def set_options(opt):
+    pass
+
+def configure(conf):
+	pass
+</programlisting>
+		</para>
+	</section>
+</chapter>
+

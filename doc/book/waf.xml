@@ -29,7 +29,10 @@
 		</section>
 		<section>
 			<title>Objectives of this book</title>
-			<para>The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and detailed review of the Waf internals. (TODO: give a quick reference on the chapter organization)
+			<para>The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and detailed review of the Waf internals. Those who are impatient to see Waf in action should open the folder <emphasis>demos/</emphasis> in the Waf distribution, and start looking at the examples.
+			</para>
+			<para>
+				The first chapters contain a detailed description of the basic use of Waf. The chapters on Configuration, Tasks, and Task generators describe the internals. Those who want to extend Waf should read these chapters carefully. The next chapters contain examples for the languages such as C++, and for special scenarios which may occur in the most complicated builds. The last chapters are provided as a reference for those who may need to modify Waf itself.
 			</para>
 			<para>
 				This book is being written, and is to be published in September/October 2008. The license for the work will be either a GFDL or one of the CC licenses. Meanwhile, do not advertise it or reproduce the book until it is written and reviewed. If you modify the book, the copyright of the changes must be attributed to the original author.
@@ -46,6 +49,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="task_generators.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="task_schedulers.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="c_builds.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scenarios.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="development.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="architecture.xml"/>
 
