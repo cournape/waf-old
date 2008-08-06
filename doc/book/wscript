@@ -16,7 +16,7 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('docbook', tooldir='.')
 	conf.check_tool('misc')
-	conf.env['XSLTPROC_ST'] = '%s --output default/ --stringparam html.stylesheet waf.css --xinclude %s %s > %s'
+	conf.env['XSLTPROC_ST'] = '%s --output default/ --stringparam callout.graphics.path "" --stringparam admon.graphics 1  --stringparam html.stylesheet waf.css --xinclude %s %s > %s'
 
 def build(bld):
 	obj = bld.new_task_gen('docbook')
@@ -29,13 +29,14 @@ def build(bld):
 	#obj.type = 'pdf'
 	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
 	import os
-	files = os.listdir('pics')
-	for x in files:
-		if x == '.svn':
-			continue
-		foo = bld.new_task_gen('copy')
-		foo.source = 'pics/'+x
-		foo.target = x
+	for k in ['pics', 'callouts']:
+		files = os.listdir(k)
+		for x in files:
+			if x == '.svn':
+				continue
+			foo = bld.new_task_gen('copy')
+			foo.source = k+'/'+x
+			foo.target = x
 
 def shutdown():
 	import os

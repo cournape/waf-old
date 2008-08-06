@@ -157,7 +157,7 @@ task.deps_man = [bld.path.find_resource('wscript')] <co id="expl2-co" linkends="
 				<callout arearefs="expl2-co" id="expl2">
 					<para>Explicit dependencies as manual dependencies</para>
 				</callout>
-		</calloutlist>
+			</calloutlist>
 
 		</para>
 	</section>
