@@ -329,7 +329,7 @@ def configure(conf):
 	</section>
 
 	<section>
-		<title>Adding custom configuration options</title>
+		<title>Adding custom command-line options</title>
 		<para>
 			The function <emphasis>set_options</emphasis> is used for three main purposes:
 			<itemizedlist>
@@ -339,7 +339,7 @@ def configure(conf):
 			</itemizedlist>
 		</para>
 		<sect2>
-			<title>Adding custom command-line options</title>
+			<title>Adding options directly</title>
 			<para>
 			Waf uses the optparse module from Python for adding command-line options, for example:
 			<programlisting language="python">
@@ -384,7 +384,7 @@ False
 		</sect2>
 
 		<sect2>
-			<title>Adding custom command-line options from other wscript files in subfolders</title>
+			<title>Adding options from wscript files located in subfolders</title>
 			<para>
 			The function set_options may reference build functions in wscript present in subfolders, for example:
 			<programlisting language="sh">
@@ -402,7 +402,7 @@ def set_options(opt):
 		</sect2>
 
 		<sect2>
-			<title>Adding custom command-line options from Waf tools</title>
+			<title>Adding options from Waf tools</title>
 			<para>
 			Waf tool options are not added by default because the excess of command-line options is annoying.
 			Here is an example for adding the command-line options defined from a Waf tools named compiler_cxx

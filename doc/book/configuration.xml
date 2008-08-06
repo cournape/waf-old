@@ -6,7 +6,7 @@
 	<title>Project configurations</title>
 
 	<section>
-		<title>Configuring a project</title>
+		<title>The configuration files</title>
 		<para>
 			Configuring a project consists in finding the parameters that will be used during the build step
 			<programlisting language="python">
