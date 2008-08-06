@@ -50,32 +50,32 @@ $ waf configure
 					<para>Contains the Waf version and the list of Waf modules to open automatically</para>
 				</callout>
 				<callout arearefs="env-co" id="env">
-					<para>Represents a configuration context (parameters such as configuration flags used during the build)</para>
+					<para>Represents a configuration environment (parameters such as configuration flags used during the build)</para>
 				</callout>
 				<callout arearefs="log-co" id="log">
 					<para>Contains the configuration test execution details</para>
 				</callout>
 			</calloutlist>
-			The file <emphasis>default.cache.py</emphasis> is called a configuration context, and it may be edited by hand. We will give the details on the following section. The other files are not meant to be modified by hand, even if they are editable.
+			The file <emphasis>default.cache.py</emphasis> is called a configuration environment, and it may be edited by hand. We will give the details on the following section. The other files are not meant to be modified by hand, even if they are editable.
 		</para>
 	</section>
 
 	<section>
-		<title>The configuration contexts</title>
+		<title>The configuration environments</title>
 		<para>
-			The build phase uses configuration contexts created during the configuration phase. The configuration contexts are <emphasis>Python dicts</emphasis> which map keys to values. The configuration context files created take the following form:
+			The build phase uses configuration environments created during the configuration phase. The configuration environments are <emphasis>Python dicts</emphasis> which map keys to values. The configuration environment files created take the following form:
 			<programlisting language="python">
 $ cat build/c4che/default.cache.py
 CXXFLAGS = ['-O2', '-Wall']
 			</programlisting>
 		</para>
 		<para>
-			By default, the conf object comes with a default built-in configuration context:
+			By default, the conf object comes with a default built-in configuration environment:
 			<programlisting language="python">
 def configure(conf):
 	conf.env.append_value('CXXFLAGS', '-O2')
 			</programlisting>
-			To replace the default configuration context, a new one must be created and assigned:
+			To replace the default configuration environment, a new one must be created and assigned:
 			<programlisting language="python">
 def configure(conf):
 	conf.env.append_value('CXXFLAGS', '-O2')
@@ -86,16 +86,16 @@ def configure(conf):
 			</programlisting>
 			<calloutlist>
 				<callout arearefs="dup-co" id="dup">
-					<para>Duplicates the default configuration context</para>
+					<para>Duplicates the default configuration environment</para>
 				</callout>
 				<callout arearefs="name-co" id="name">
-					<para>Binds the configuration context to the name 'debug'</para>
+					<para>Binds the configuration environment to the name 'debug'</para>
 				</callout>
 				<callout arearefs="repl-co" id="repl">
-					<para>Replaces the default configuration context by the 'debug' one</para>
+					<para>Replaces the default configuration environment by the 'debug' one</para>
 				</callout>
 				<callout arearefs="mod-co" id="mod">
-					<para>Changes the CXXFLAGS entry in the 'debug' configuration context</para>
+					<para>Changes the CXXFLAGS entry in the 'debug' configuration environment</para>
 				</callout>
 			</calloutlist>
 			In the previous example, the file contents will be:
@@ -114,7 +114,7 @@ CXXFLAGS = ['-g']
 			</programlisting>
 		</para>
 		<para>
-			To use the values in the build section, use <emphasis>bld.env_of_name</emphasis>
+			In the build section, the values are retrieved using <emphasis>bld.env_of_name</emphasis>, for example
 			<programlisting language="python">
 def build(bld):
 	print bld.env_of_name('default')['CXXFLAGS']
@@ -124,7 +124,48 @@ def build(bld):
 	</section>
 
 	<section>
-		<title>Adding new configuration checks</title>
+		<title>Configuration helper execution</title>
+		<para>
+			Configuration helpers are methods provided by the conf object to help finding parameters, for example the method <emphasis>conf.find_program</emphasis>
+			<programlisting language="python">
+def configure(conf):
+	conf.find_program('test')
+			</programlisting>
+			When a test fails, the exception <emphasis>Configure.ConfigurationException</emphasis> is raised.
+		</para>
+
+		<para>
+			When calling the configuration from a tool, for example:
+			<programlisting language="python">
+def configure(conf):
+	conf.check_tool('g++')
+			</programlisting>
+			several different configuration helpers may be called: the first one for finding the compiler and the others for finding compiler flags. In some cases, it is interesting to disable some tests (unnecessary, time consuming, etc), to insert new tests, or to modify the existing tests. The <emphasis>check_tool</emphasis> method has a parameter for passing the list of checks to perform:
+			<programlisting language="python">
+def configure(conf):
+	conf.check_tool('g++', funs="find_g++ find_cpp find_ar g++_common_flags")
+			</programlisting>
+			If no check is performed, the configuration helpers are still attached to the conf object, and may be used later:
+			<programlisting language="python">
+def configure(conf):
+	conf.check_tool('g++', funs=[])
+	conf.find_g++()
+			</programlisting>
+		</para>
+
+		<para>
+			An error handler is attached to the conf object, and enables catching the Configuration exceptions. Here is how to replace the configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception
+			<programlisting language="python">
+import Configure, Constants
+def custom_error_handler(fun, exc):
+	print "hello", str(exc)
+	return STOP
+			</programlisting>
+		</para>
+	</section>
+
+	<section>
+		<title>Adding new configuration helpers</title>
 		<para>
 			Explain the @conf decorator
 		</para>
