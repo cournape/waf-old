@@ -27,7 +27,13 @@ if not default_prefix:
 	if sys.platform == 'win32': default_prefix = tempfile.gettempdir()
 	else: default_prefix = '/usr/local/'
 
-default_jobs = os.environ.get('JOBS', 1)
+default_jobs = os.environ.get('JOBS', -1)
+if default_jobs < 1:
+	try:
+		default_jobs = os.sysconf('SC_NPROCESSORS_ONLN')
+	except:
+		default_jobs = 1
+
 default_destdir = os.environ.get('DESTDIR', '')
 
 def create_parser():
