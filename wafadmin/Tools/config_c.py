@@ -80,7 +80,7 @@ class enumerator_base(object):
 
 	# Override this method, not run()!
 	def run_test(self):
-		return not Configure.TEST_OK
+		return not TEST_OK
 
 class configurator_base(enumerator_base):
 	def __init__(self, conf):
@@ -133,7 +133,7 @@ class function_enumerator(enumerator_base):
 			self.define = self.function.upper()
 
 	def run_test(self):
-		ret = not Configure.TEST_OK
+		ret = not TEST_OK
 
 		oldlibpath = self.env['LIBPATH']
 		oldlib = self.env['LIB']
@@ -272,7 +272,7 @@ class cfgtool_configurator(configurator_base):
 
 	def run_test(self):
 		retval = {}
-		found = Configure.TEST_OK
+		found = TEST_OK
 
 		null='2>/dev/null'
 		if sys.platform == "win32": null='2>nul'
@@ -288,7 +288,7 @@ class cfgtool_configurator(configurator_base):
 			self.update_env(retval)
 		except ValueError:
 			retval = {}
-			found = not Configure.TEST_OK
+			found = not TEST_OK
 
 		self.conf.define_cond(self.define, found)
 		self.conf.check_message('config-tool ' + self.binary, '', found, option = '')

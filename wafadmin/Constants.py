@@ -57,3 +57,6 @@ RUN_ME = -3
 
 LOG_FORMAT = "%(asctime)s %(c1)s%(zone)s%(c2)s %(message)s"
 HOUR_FORMAT = "%H:%M:%S"
+
+TEST_OK = True
+

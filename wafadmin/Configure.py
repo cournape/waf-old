@@ -24,16 +24,11 @@ import Environment, Utils, Options
 from Logs import warn
 from Constants import *
 
-TEST_OK = True
-
 class ConfigurationError(Utils.WscriptError):
 	pass
 
 autoconfig = False
 "reconfigure the project automatically"
-
-line_just = 40
-"""initial length of configuration messages"""
 
 def find_file(filename, path_list):
 	"""find a file in a list of paths
@@ -83,6 +78,8 @@ class ConfigurationContext(object):
 	def __init__(self, env=None, blddir='', srcdir=''):
 		self.env       = None
 		self.envname = ''
+
+		self.line_just = 40
 
 		self.blddir = blddir
 		self.srcdir = srcdir
@@ -197,24 +194,22 @@ class ConfigurationContext(object):
 		try: self.env[dest] = os.environ[var]
 		except KeyError: pass
 
-	def check_message(self, type, msg, state, option=''):
+	def check_message(self, th, msg, state, option=''):
 		"print an checking message. This function is used by other checking functions"
-		sr = 'Checking for %s %s' % (type, msg)
-		global line_just
-		line_just = max(line_just, len(sr))
-		print "%s :" % sr.ljust(line_just),
+		sr = 'Checking for %s %s' % (th, msg)
+		self.line_just = max(self.line_just, len(sr))
+		print "%s :" % sr.ljust(self.line_just),
 
 		p = Utils.pprint
 		if state: p('GREEN', 'ok ' + option)
 		else: p('YELLOW', 'not found')
 		self.log.write(sr + '\n\n')
 
-	def check_message_custom(self, type, msg, custom, option='', color='PINK'):
+	def check_message_custom(self, th, msg, custom, option='', color='PINK'):
 		"""print an checking message. This function is used by other checking functions"""
-		sr = 'Checking for ' + type + ' ' + msg
-		global line_just
-		line_just = max(line_just, len(sr))
-		print "%s :" % sr.ljust(line_just),
+		sr = 'Checking for %s %s' % (th, msg)
+		self.line_just = max(self.line_just, len(sr))
+		print "%s :" % sr.ljust(self.line_just),
 		Utils.pprint(color, custom)
 		self.log.write(sr + '\n\n')
 
