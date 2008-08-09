@@ -35,6 +35,8 @@ meaning in configuration and build)
 * Configure.Configure -> Configure.ConfigurationContext
 * Build.Build -> Build.BuildContext
 
+* detect the amount of cpus automatically
+
 NEW IN WAF 1.4.3
 ----------------
 * elimination of the Action classes
