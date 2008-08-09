@@ -226,8 +226,11 @@ class ConfigurationContext(object):
 			try:
 				f()
 			except Exception, e:
-				if self.err_handler(x, e) == STOP:
+				ret = self.err_handler(x, e)
+				if ret == BREAK:
 					break
+				elif ret == CONTINUE:
+					continue
 				else:
 					raise
 	def err_handler(self, fun, error):

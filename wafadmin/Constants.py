@@ -34,7 +34,7 @@ VERSION = 'VERSION'
 DEFINES = 'defines'
 UNDEFINED = '#undefined#variable#for#defines#'
 
-STOP = "stop"
+BREAK = "break"
 CONTINUE = "continue"
 
 # task scheduler options
