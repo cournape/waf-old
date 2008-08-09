@@ -5,13 +5,7 @@
 """
 c/c++ configuration routines
 
-classes such as program_enumerator are attached to the Configure class,
-avoiding lots of imports in user scripts
-
-Usage example (see demos/adv/wscript):
-program_enumerator -> conf.create_program_enumerator
-
-The functions preceded by "@conf" are attached in the same manner
+WARNING: this file is too complicated and will be simplified
 """
 
 import os, types, imp, cPickle, sys, shlex, warnings
@@ -86,26 +80,6 @@ class configurator_base(enumerator_base):
 	def __init__(self, conf):
 		enumerator_base.__init__(self, conf)
 		self.uselib_store = ''
-
-class program_enumerator(enumerator_base):
-	__metaclass__ = attached_conf
-	def __init__(self,conf):
-		enumerator_base.__init__(self, conf)
-
-		self.name = ''
-		self.path = []
-		self.var  = None
-
-	def error(self):
-		errmsg = 'program %s cannot be found' % self.name
-		if self.message: errmsg += '\n%s' % self.message
-		self.conf.fatal(errmsg)
-
-	def run_test(self):
-		ret = Configure.find_program_impl(self.env, self.name, self.path, self.var)
-		self.conf.check_message('program', self.name, ret, ret)
-		if self.var: self.env[self.var] = ret
-		return ret
 
 class function_enumerator(enumerator_base):
 	__metaclass__ = attached_conf

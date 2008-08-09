@@ -79,11 +79,6 @@ def configure(conf):
 	e.define = 'MKTIME'
 	e.run()
 
-	e = conf.create_program_enumerator()
-	e.mandatory = 1
-	e.name = 'cat'
-	e.run()
-
 	e = conf.create_header_enumerator()
 	e.mandatory = 1
 	e.name = 'stdio.h'
@@ -134,11 +129,6 @@ int main()
 	conf.define('AHOJ', ret)
 
 
-	pc = conf.create_program_enumerator()
-	pc.name  = 'cat'
-	pc.paths = ['/usr/bin', '/bin']
-	pc.run()
-
 	#conf.check_header('stdio.h')
 	#conf.check_header('stdarg.h', 'HAVE_STDARG_H')
 	#conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
@@ -152,6 +142,7 @@ int main()
 	#le.define = 'X11_DIR'
 	le.run()
 
+	conf.find_program('cat', var='CAT')
 
 	test = conf.create_header_enumerator()
 	test.name = 'klocale.h'
