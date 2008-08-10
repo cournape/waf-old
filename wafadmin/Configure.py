@@ -91,7 +91,7 @@ class ConfigurationContext(object):
 
 		self.tools = [] # tools loaded in the configuration, and that will be loaded when building
 
-		self.setenv('default')
+		self.setenv(DEFAULT)
 
 		self.lastprog = ''
 
