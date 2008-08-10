@@ -35,6 +35,7 @@ class MTask(Task.Task):
 	"A cpp task that may create a moc task dynamically"
 
 	scan = ccroot.scan
+	before = ['cxx_link', 'ar_link_static']
 
 	def __init__(self, parent):
 		Task.Task.__init__(self, parent.env)
