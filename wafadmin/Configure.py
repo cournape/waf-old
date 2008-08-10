@@ -232,6 +232,7 @@ class ConfigurationContext(object):
 						r = ret(self, *k, **kw)
 						if not r:
 							self.fatal('requirement failure')
+						return r
 					return run
 			raise AttributeError, 'No such method %r' % name
 		return getattr(self, name)
