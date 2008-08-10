@@ -213,11 +213,10 @@ class ConfigurationContext(object):
 		Utils.pprint(color, custom)
 		self.log.write(sr + '\n\n')
 
-	def find_program(self, filename, path_list=[], var=None, mandatory=None):
+	def find_program(self, filename, path_list=[], var=None):
 		"wrapper that adds a configuration message"
 		ret = find_program_impl(self.env, filename, path_list, var)
 		self.check_message('program', filename, ret, ret)
-		if not ret and mandatory: self.fatal('%r was not found (mandatory)' % filename)
 		return ret
 
 	def __getattr__(self, name):
