@@ -220,6 +220,23 @@ class ConfigurationContext(object):
 		if not ret and mandatory: self.fatal('%r was not found (mandatory)' % filename)
 		return ret
 
+	def __getattr__(self, name):
+		if name and name.startswith('require_'):
+			r = self.__class__.__dict__.get(name, None)
+			if r: return r
+
+			for k in ['check_', 'find_']:
+				n = name.replace('require_', k)
+				ret = self.__class__.__dict__.get(n, None)
+				if ret:
+					def run(*k, **kw):
+						r = ret(self, *k, **kw)
+						if not r:
+							self.fatal('requirement failure')
+					return run
+			raise AttributeError, 'No such method %r' % name
+		return getattr(self, name)
+
 	def eval_rules(self, rules):
 		self.rules = Utils.to_list(rules)
 		for x in self.rules:
