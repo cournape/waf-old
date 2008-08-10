@@ -1,3 +1,9 @@
+NEW IN WAF 1.4.4
+----------------
+* Python 2.3 compatibility
+* No more task randomization
+* Vala tool update
+
 NEW IN WAF 1.4.3
 ----------------
 * elimination of the Action classes
