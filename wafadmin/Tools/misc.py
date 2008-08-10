@@ -113,6 +113,7 @@ def subst_func(tsk):
 	file = open(outfile, 'w')
 	file.write(s % dict)
 	file.close()
+	if tsk.chmod: os.chmod(outfile, tsk.chmod)
 
 	return 0
 
@@ -120,6 +121,7 @@ class subst_taskgen(TaskGen.task_gen):
 	def __init__(self, type='none'):
 		TaskGen.task_gen.__init__(self)
 		self.fun = subst_func
+		self.chmod = ''
 		self.dict = {}
 
 	def apply(self):
@@ -143,6 +145,7 @@ class subst_taskgen(TaskGen.task_gen):
 			tsk.dict = self.dict
 			tsk.dep_vars = ['DICT_HASH']
 			tsk.install_path = self.install_path
+			tsk.chmod = self.chmod
 
 			if not tsk.env:
 				tsk.debug()
