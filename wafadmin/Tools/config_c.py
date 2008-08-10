@@ -608,25 +608,24 @@ class framework_configurator(configurator_base):
 
 		code.append('int main(){%s\nreturn 0;}\n' % self.custom_code)
 
-                for p in self.path:
-                        linkflags = ['-framework', self.name, '-F%s' % p]
-                        ccflags = ['-F%s' % p]
+		for p in self.path:
+			linkflags = ['-framework', self.name, '-F%s' % p]
+			ccflags = ['-F%s' % p]
 
-                        obj        = check_data()
-                        obj.code   = "\n".join(code)
-                        obj.uselib = self.uselib_store + " " + self.uselib
-                        obj.env = self.env.copy()
-                        obj.env['LINKFLAGS'] = linkflags
-                        obj.env['CCFLAGS'] = ccflags
-                        obj.env['CXXFLAGS'] = ccflags
+			obj = check_data()
+			obj.code = "\n".join(code)
+			obj.uselib = self.uselib_store + " " + self.uselib
+			obj.env = self.env.copy()
+			obj.env['LINKFLAGS'] = linkflags
+			obj.env['CCFLAGS'] = ccflags
+			obj.env['CXXFLAGS'] = ccflags
 
-                        ret = int(self.conf.run_check(obj))
-                        if ret:
-                                break;
+			ret = int(self.conf.run_check(obj))
+			if ret: break
 
-                #print obj.env
-                self.conf.check_message('framework %s' % self.name, '', ret, option='')
-                self.conf.define_cond(self.define, ret)
+		#print obj.env
+		self.conf.check_message('framework %s' % self.name, '', ret, option='')
+		self.conf.define_cond(self.define, ret)
 
 		val = {}
 		if ret:
