@@ -289,19 +289,19 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	self.source = self.source+' '+(" ".join(lst))
 setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
 
-#@extension(EXT_QT4)
-#def cxx_hook(self, node):
+@extension(EXT_QT4)
+def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
-#	task = MTask(self)
-#	self.tasks.append(task)
-#	try: obj_ext = self.obj_ext
-#	except AttributeError: obj_ext = '_%d.o' % self.idx
-#
-#	task.defines  = self.scanner_defines
-#
-#	task.inputs = [node]
-#	task.outputs = [node.change_ext(obj_ext)]
-#	self.compiled_tasks.append(task)
+	task = MTask(self)
+	self.tasks.append(task)
+	try: obj_ext = self.obj_ext
+	except AttributeError: obj_ext = '_%d.o' % self.idx
+
+	task.defines  = self.scanner_defines
+
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
+	self.compiled_tasks.append(task)
 
 def process_qm2rcc(task):
 	outfile = task.outputs[0].abspath(task.env)
