@@ -295,7 +295,7 @@ def add_glib_mkenum(self, source='', template='', target=''):
 	self.mk_enums.append({'source':source, 'template':template, 'target':target})
 
 
-Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK')
+Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK', before='cc')
 
 cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 cls.scan = sgml_scan
@@ -304,11 +304,11 @@ cls.quiet = 1
 
 Task.simple_task_type('glib_genmarshal',
 	'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
-	color='BLUE')
+	color='BLUE', before='cc')
 
 Task.simple_task_type('dbus_binding_tool',
 	'${DBT} --prefix=${DBT_PREFIX} --mode=${DBT_MODE} --output=${TGT} ${SRC}',
-	color='BLUE')
+	color='BLUE', before='cc')
 
 Task.simple_task_type('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].abspath(env)}')
 
