@@ -14,8 +14,179 @@
 	<section>
 		<title>A compiler producing source files with names unknown in advance</title>
 		<para>
-			Describe runtime_discovered_outputs
+			The example below demonstrates how to tackle the following requirements:
+			<itemizedlist>
+				<listitem>A compiler <emphasis>produces source files</emphasis> (.c files) for which tasks must be created</listitem>
+				<listitem>The source file names are <emphasis>not known in advance</emphasis></listitem>
+				<listitem>The task must be <emphasis>run only if necessary</emphasis></listitem>
+				<listitem>Other tasks <emphasis>may depend on the tasks</emphasis> processing the source produced (compile and link the .c files)</listitem>
+			</itemizedlist>
+			The main difficulty in this scenario is to store the information on the source file produced and to create the corresponding tasks each time.
+
+			<programlisting language="python">
+VERSION='0.0.1'
+APPNAME='unknown_outputs'
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+    pass
+
+def configure(conf):
+    # used only when configured from the same folder
+    conf.check_tool('gcc')
+    conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
+
+def build(bld):
+    staticlib = bld.new_task_gen('cc', 'staticlib')
+    staticlib.source = 'x.c foo.shpip' <co id="exa-co" linkends="exa"/>
+    staticlib.target='teststaticlib'
+    staticlib.includes = '.'
+
+@taskgen
+@extension('.shpip')
+def process_shpip(self, node): <co id="virt-co" linkends="virt"/>
+    tsk = shpip_task(self.env)
+    tsk.task_gen = self
+    tsk.set_inputs(node)
+
+class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
+    color = 'PINK'
+    quiet = 1 <co id="quiet-co" linkends="quiet"/>
+
+    def __init__(self, env, normal=1):
+        Task.Task.__init__(self, env, normal)
+
+    def scan_signature(self):
+        return ''
+
+    def run(self): <co id="run-co" linkends="run"/>
+        "runs a program that creates cpp files, capture the output to compile them"
+        node = self.inputs[0]
+
+        dir = Build.bld.srcnode.bldpath(self.env)
+        cmd = 'cd %s &amp;&amp; %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
+        try:
+            # read the contents of the file and create cpp files from it
+            files = os.popen(cmd).read().strip()
+        except:
+            # comment the following line to disable debugging
+            raise
+            return 1
+        else:
+            # the variable lst should contain a list of paths to the files produced
+            lst = Utils.to_list(files)
+
+            # Waf does not know "magically" what files are produced
+            # In the most general case it may be necessary to run os.listdir() to see them
+            # In this demo the command outputs is giving us this list
+
+            # the files exist in the build dir only so we do not use find_or_declare
+            build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
+            self.outputs = build_nodes
+
+            # create the cpp tasks
+            self.add_cpp_tasks(build_nodes)
+
+            # cache the file names and the task signature
+            node = self.inputs[0]
+            sig = self.signature()
+            Build.bld.raw_deps[self.unique_id()] = [sig] + lst
+        # 0 for all ok
+        return 0
+
+    def runnable_status(self):
+        # look at the cache, if the shpip task was already run
+        # and if the source has not changed, create the corresponding cpp tasks
+        for t in self.run_after:
+            if not t.hasrun:
+                return ASK_LATER
+
+        node = self.inputs[0]
+        try: <co id="persist-co" linkends="persist"/>
+            sig = self.signature()
+            key = self.unique_id()
+            deps = Build.bld.raw_deps[key]
+            prev_sig = Build.bld.task_sigs[key][0]
+        except KeyError:
+            pass
+        else:
+            # if the file has not changed, create the cpp tasks
+            if prev_sig == sig:
+                lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
+                self.set_outputs(lst)
+                self.add_cpp_tasks(lst)
+
+        if not self.outputs:
+            return RUN_ME
+
+        # this is a part of Task.Task:runnable_status: first node does not exist -> run
+        # this is necessary after a clean
+        # TODO cache is disabled
+        env = self.env
+        tree = Build.bld
+        node = self.outputs[0]
+        variant = node.variant(env)
+
+        try:
+            time = tree.node_sigs[variant][node.id]
+        except KeyError:
+            debug("task #%d should run as the first node does not exist" % self.idx, 'task')
+            try: new_sig = self.signature()
+            except KeyError:
+                print "TODO - computing the signature failed"
+                return RUN_ME
+
+            ret = self.can_retrieve_cache(new_sig)
+            return ret and SKIP_ME or RUN_ME
+
+        return SKIP_ME
+
+    def add_cpp_tasks(self, lst): <co id="cpp-co" linkends="cpp"/>
+        "creates cpp tasks after the build has started"
+        tgen = self.task_gen
+        for node in lst:
+            TaskGen.task_gen.mapped['c_hook'](tgen, node)
+            task = tgen.compiled_tasks[-1]
+
+            tgen.link_task.inputs.append(task.outputs[0])
+            generator = Build.bld.generator
+            generator.outstanding.insert(0, task)
+            generator.total += 1
+
+            # if headers are produced something like this can be done to add the include paths
+            dir = task.inputs[0].parent
+            self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c++
+            self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c
+            self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="exa-co" id="exa">
+					<para>An example. The source line contains a directive <emphasis>foo.shpip</emphasis> which triggers the creation of a shpip task (it does not represent a real file)</para>
+				</callout>
+				<callout arearefs="virt-co" id="virt">
+					<para>This method is used to create the shpip task when a file ending in <emphasis>.shpip</emphasis> is found</para>
+				</callout>
+				<callout arearefs="type-co" id="type">
+					<para>Create the new task type</para>
+				</callout>
+				<callout arearefs="quiet-co" id="quiet">
+					<para>Disable the warnings raised because the task has no input and outputs</para>
+				</callout>
+				<callout arearefs="run-co" id="run">
+					<para>Execute the task</para>
+				</callout>
+				<callout arearefs="persist-co" id="persist">
+					<para>Retrieve the information on the source files created</para>
+				</callout>
+				<callout arearefs="cpp-co" id="cpp">
+					<para>Create the c++ tasks used for processing the source files created</para>
+				</callout>
+			</calloutlist>
+
 		</para>
+
 	</section>
 
 	<section>
@@ -29,10 +200,10 @@
 				<listitem>The header may or may not be updated, but the <emphasis>header production task must run each time</emphasis></listitem>
 			</itemizedlist>
 			The following example demonstrates how to create a task type fulfilling the requirements, and how to use it.
-<programlisting>
+<programlisting language="python">
 import Task, Constants, Build, Utils
 
-cls = Task.simple_task_type('svnversion', 'date > ${TGT}', color='BLUE') <co id="type-co" linkends="type"/>
+cls = Task.simple_task_type('svnversion', 'date > ${TGT}', color='BLUE') <co id="itype-co" linkends="itype"/>
 cls.runnable_status = lambda self: Constants.RUN_ME <co id="meth-co" linkends="meth"/>
 cls.before = 'cxx' <co id="prec-co" linkends="prec"/>
 
@@ -55,7 +226,7 @@ def configure(conf):
 	pass
 </programlisting>
 			<calloutlist>
-				<callout arearefs="type-co" id="type">
+				<callout arearefs="itype-co" id="itype">
 					<para>Create a new task type, in this example, we pretend it runs a command to retrieve the svn version and stores it in a header.</para>
 				</callout>
 				<callout arearefs="meth-co" id="meth">
