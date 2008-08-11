@@ -8,8 +8,56 @@
 	<section>
 		<title>Building the compiler first</title>
 		<para>
-			A compiler must be build first, the build uses add_group
+			The example below demonstrates how to build a compiler which is used for building the remaining targets. The requirements are the following:
+			<itemizedlist>
+				<listitem>Compile the compiler with all its intermediate tasks</listitem>
+				<listitem>Re-use the compiler in a second build step</listitem>
+			</itemizedlist>
+			This scenario demonstrates the <emphasis>bld.add_group</emphasis> to segment the build into strictly sequential parts:
 		</para>
+
+		<programlisting language="python">
+def build(bld):
+	env = bld.env_of_name('default')
+
+	import ocaml
+	ocaml.open_re = re.compile('open ([a-zA-Z]+)', re.M)
+
+	import Action
+	Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT} 2> /dev/null', color='RED')
+	Action.Action('py2rcc', vars=[], func=compile_py, color='BLUE')
+
+	ibj = bld.create_obj('ocaml', 'native') <co id="comp-co" linkends="comp"/>
+	ibj.include = 'util'
+	ibj.find_sources_in_dirs('util')
+	ibj.target = 'util/ocaml+twt'
+	ibj.are_deps_set=1
+	ibj.uselib='PP'
+
+	bld.add_group() <co id="divide-co" linkends="divide"/>
+
+	abj = bld.create_obj('ocaml', 'c_object') <co id="rem-co" linkends="rem"/>
+	abj.env = env.copy()
+	abj.source = ['src/armtlkto.c']
+	abj.find_sources_in_dirs('src')
+	abj.includes='. src'
+	abj.target='camlprog'
+	abj.are_deps_set = 1
+	abj.uselib = 'TWT'
+	abj.add_objects=[]
+		</programlisting>
+
+		<calloutlist>
+			<callout arearefs="comp-co" id="comp">
+				<para>Create the compiler.</para>
+			</callout>
+			<callout arearefs="divide-co" id="divide">
+				<para>Create a new group</para>
+			</callout>
+			<callout arearefs="rem-co" id="rem">
+				<para>The rest of the build follows</para>
+			</callout>
+		</calloutlist>
 	</section>
 	<section>
 		<title>A compiler producing source files with names unknown in advance</title>
@@ -190,7 +238,7 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 	</section>
 
 	<section>
-		<title>A task without any dependency on files</title>
+		<title>A task without any file dependency</title>
 		<para>
 			Given the following requirements
 			<itemizedlist>
