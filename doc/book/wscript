@@ -21,20 +21,17 @@ def configure(conf):
 --stringparam callout.graphics.path ""
 --stringparam admon.graphics.path ""
 --stringparam admon.graphics 1
---stringparam html.stylesheet
-waf.css --xinclude %s %s > %s'''.replace('\n', ' ')
+--stringparam html.stylesheet waf.css
+--xinclude %s %s > %s'''.replace('\n', ' ')
+
+	# for pdf
+	#conf.env['XSLTPROC_ST'] = '''
+#%s
+#--xinclude %s %s > %s'''.replace('\n', ' ')
+
 
 
 def build(bld):
-	obj = bld.new_task_gen('docbook')
-	obj.source = 'waf.xml'
-
-	obj.type = 'html'
-	#obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/xhtml/docbook.xsl'
-	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/html/chunk.xsl'
-
-	#obj.type = 'pdf'
-	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
 	import os
 	for k in ['pics', 'callouts']:
 		files = os.listdir(k)
@@ -44,6 +41,17 @@ def build(bld):
 			foo = bld.new_task_gen('copy')
 			foo.source = k+'/'+x
 			foo.target = x
+
+	# now the files are copied ..
+
+	obj = bld.new_task_gen('docbook')
+	obj.source = 'waf.xml'
+
+	obj.type = 'html'
+	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/html/chunk.xsl'
+
+	#obj.type = 'pdf'
+	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
 
 def shutdown():
 	import os
