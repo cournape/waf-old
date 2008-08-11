@@ -225,7 +225,8 @@ def check_flags(self, flags, uselib='', options='', kind='cc', msg=1):
 	test.uselib = uselib
 	test.code = 'int main() {return 0;}\n'
 	test.force_compiler = kind
-	test.flags = flags
+	test.env = self.env.copy()
+	test.env['CPPFLAGS'] = flags
 	ret = test.run()
 
 	if msg: self.check_message('flags', flags, not (ret is False))
