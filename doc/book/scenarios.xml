@@ -21,30 +21,32 @@
 	<section>
 		<title>A task without any dependency on files</title>
 		<para>
-			The problem is the following:
+			Given the following requirements
 			<itemizedlist>
-				<listitem>A task x produces a header</listitem>
-				<listitem>A c task depends on the production of that header</listitem>
-				<listitem>That c task must be executed whenever the header changes</listitem>
-				<listitem>The header may or may not be updated, and the task x must run each time</listitem>
+				<listitem>A <emphasis>task x produces a header</emphasis> used in c/c++ compilations</listitem>
+				<listitem>The <emphasis>c/c++ task depends on the production of that header</emphasis></listitem>
+				<listitem>That c task must be executed <emphasis>whenever the header actually changes</emphasis></listitem>
+				<listitem>The header may or may not be updated, but the <emphasis>header production task must run each time</emphasis></listitem>
 			</itemizedlist>
+			The following example demonstrates how to create a task type fulfilling the requirements, and how to use it.
 <programlisting>
 import Task, Constants, Build, Utils
 
-cls = Task.simple_task_type('svnversion', 'date > ${TGT}', color='BLUE')
-cls.runnable_status = lambda self: Constants.RUN_ME
-cls.before = 'cxx'
+cls = Task.simple_task_type('svnversion', 'date > ${TGT}', color='BLUE') <co id="type-co" linkends="type"/>
+cls.runnable_status = lambda self: Constants.RUN_ME <co id="meth-co" linkends="meth"/>
+cls.before = 'cxx' <co id="prec-co" linkends="prec"/>
 
 old_post_run = cls.post_run
 def post_run(self):
     old_post_run(self)
-    Build.bld.node_sigs[self.env.variant()][self.outputs[0].id] = Utils.h_file(self.outputs[0].abspath(self.env))
-cls.post_run = post_run
+    Build.bld.node_sigs[self.env.variant()][self.outputs[0].id] = \
+		Utils.h_file(self.outputs[0].abspath(self.env))
+cls.post_run = post_run <co id="sig-co" linkends="sig"/>
 
 def build(bld):
-    tsk = cls(bld.env.copy())
+    tsk = cls(bld.env.copy()) <co id="use-co" linkends="use"/>
     tsk.inputs = []
-    tsk.outputs = [bld.path.find_or_declare('foo.h')]
+    tsk.outputs = [bld.path.find_or_declare('foo.h')] <co id="output-co" linkends="output"/>
 
 def set_options(opt):
     pass
@@ -52,6 +54,27 @@ def set_options(opt):
 def configure(conf):
 	pass
 </programlisting>
+			<calloutlist>
+				<callout arearefs="type-co" id="type">
+					<para>Create a new task type, in this example, we pretend it runs a command to retrieve the svn version and stores it in a header.</para>
+				</callout>
+				<callout arearefs="meth-co" id="meth">
+					<para>Replace <emphasis>runnable_status</emphasis> by a new method which indicates the task must be run each time</para>
+				</callout>
+				<callout arearefs="prec-co" id="prec">
+					<para>Indicate that the task must always be run before c++ ones</para>
+				</callout>
+				<callout arearefs="sig-co" id="sig">
+					<para>By default, the task signature is assigned to the node information. In our case the task signature is always the same, and we need a way to indicate to dependant tasks that something has changed. The solution is to compute a hash of the file produced, and to assign it to the node information.</para>
+				</callout>
+				<callout arearefs="use-co" id="use">
+					<para>Demonstrate the manual creation of the task</para>
+				</callout>
+				<callout arearefs="output-co" id="output">
+					<para>The task outputs are <emphasis>Node</emphasis> instances, but there are no inputs.</para>
+				</callout>
+			</calloutlist>
+
 		</para>
 	</section>
 </chapter>
