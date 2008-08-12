@@ -84,7 +84,7 @@ class java_taskgen(TaskGen.task_gen):
 				if self.jaropts:
 					self.env['JAROPTS'] = self.jaropts
 				else:
-					dirs = '/'
+					dirs = '.'
 					self.env['JAROPTS'] = '-C %s %s' % (self.env['OUTDIR'], dirs)
 
 Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', before="jar_create")
