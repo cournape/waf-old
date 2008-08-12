@@ -149,4 +149,5 @@ esac
 export PREFIX
 generateMakefile
 
+$WAF configure $* || exit $EXIT_ERROR 
 exit $EXIT_SUCCESS
