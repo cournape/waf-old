@@ -221,7 +221,7 @@ class tex_taskgen(TaskGen.task_gen):
 
 def detect(conf):
 	v = conf.env
-	for p in 'tex latex pdflatex bibtex dvips dvipdf ps2pdf makeindex'.split():
+	for p in 'tex latex pdflatex bibtex dvips dvipdf ps2pdf makeindex pdf2ps'.split():
 		conf.find_program(p, var=p.upper())
 		v[p.upper()+'FLAGS'] = ''
 	v['DVIPSFLAGS'] = '-Ppdf'
