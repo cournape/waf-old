@@ -133,6 +133,8 @@ check:
 dist:
 	@$WAF dist
 
+.PHONY: clean dist distclean check uninstall install all
+
 EOF
 }
 
