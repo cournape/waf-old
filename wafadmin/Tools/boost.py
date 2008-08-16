@@ -178,9 +178,6 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 				if ret != -1 and ret >= min_version and ret <= max_version and ret > version:
 					boost_path = path
 					version = ret
-					break
-			if version and len(boost_path):
-				break
 
 		if version == 0 or len(boost_path) == 0:
 			conf.fatal('boost headers not found! (required version min: %s max: %s)'
