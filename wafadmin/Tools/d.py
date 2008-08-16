@@ -455,7 +455,7 @@ Task.simple_task_type('d_link', link_str, color='YELLOW')
 @taskgen
 def generate_header(self, filename, install_path):
 	if not hasattr(self, 'header_lst'): self.header_lst = []
-	self.meths.add('process_header')
+	self.meths.append('process_header')
 	self.header_lst.append([filename, install_path])
 
 @taskgen

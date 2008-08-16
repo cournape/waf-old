@@ -38,7 +38,7 @@ def nasm_file(self, node):
 
 	self.compiled_tasks.append(task)
 
-	self.meths.add('apply_nasm_vars')
+	self.meths.append('apply_nasm_vars')
 
 # create our action here
 Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o')
