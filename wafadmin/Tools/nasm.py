@@ -45,5 +45,6 @@ Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o')
 
 def detect(conf):
 	nasm = conf.find_program('nasm', var='NASM')
-	if not nasm: conf.fatal("could not find nasm, install it or set PATH env var.")
+	if not nasm: nasm = conf.find_program('yasm', var='NASM')
+	if not nasm: conf.fatal('could not find nasm (or yasm), install it or set PATH env var')
 
