@@ -471,7 +471,7 @@ def add_obj_file(self, file):
 	obj = bld.create_obj('cc')
 	obj.add_obj_file('foo.o')"""
 	if not hasattr(self, 'obj_files'): self.obj_files = []
-	if not 'process_obj_files' in self.meths: self.meths.add('process_obj_files')
+	if not 'process_obj_files' in self.meths: self.meths.append('process_obj_files')
 	self.obj_files.append(file)
 
 @taskgen

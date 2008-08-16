@@ -26,7 +26,9 @@ def apply_nasm_vars(self):
 	# includes - well, if we suppose it works with c processing
 	if hasattr(self, 'includes'):
 		for inc in self.to_list(self.includes):
-			self.env.append_value('NASM_INCLUDES', '-I %s' % inc.srcpath(self.env))
+			k = self.path.find_source(inc)
+			if k:
+				self.env.append_value('NASM_INCLUDES', '-I %s' % k.srcpath(self.env))
 
 @extension(EXT_NASM)
 def nasm_file(self, node):
@@ -38,7 +40,7 @@ def nasm_file(self, node):
 
 	self.compiled_tasks.append(task)
 
-	self.meths.add('apply_nasm_vars')
+	self.meths.append('apply_nasm_vars')
 
 # create our action here
 Task.simple_task_type('nasm', nasm_str, color='BLUE', prio=40)

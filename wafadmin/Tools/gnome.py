@@ -173,7 +173,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 @taskgen
 def add_marshal_file(self, filename, prefix, mode):
 	if not hasattr(self, 'marshal_lst'): self.marshal_lst = []
-	self.meths.add('process_marshal')
+	self.meths.append('process_marshal')
 	self.marshal_lst.append([filename, prefix, mode])
 
 @taskgen
@@ -212,7 +212,7 @@ def process_marshal(self):
 @taskgen
 def add_dbus_file(self, filename, prefix, mode):
 	if not hasattr(self, 'dbus_lst'): self.dbus_lst = []
-	self.meths.add('process_dbus')
+	self.meths.append('process_dbus')
 	self.dbus_lst.append([filename, prefix, mode])
 
 @taskgen
@@ -271,7 +271,7 @@ def process_enums(self):
 def add_glib_mkenum(self, source='', template='', target=''):
 	"just a helper"
 	if not hasattr(self, 'mk_enums'): self.mk_enums = []
-	self.meths.add('process_enums')
+	self.meths.append('process_enums')
 	self.mk_enums.append({'source':source, 'template':template, 'target':target})
 
 

@@ -149,8 +149,7 @@ class task_gen(object):
 		self.source = ''
 		self.target = ''
 
-		# list of methods to execute - in general one does not touch it by hand
-		self.meths = set()
+		self.meths = []
 
 		# list of mappings extension -> function
 		self.mappings = {}
@@ -277,7 +276,7 @@ class task_gen(object):
 
 	def apply(self):
 		"order the methods to execute using self.prec or task_gen.prec"
-		keys = self.meths
+		keys = set(self.meths)
 
 		# add the methods listed in the features
 		for x in self.features:
@@ -319,7 +318,7 @@ class task_gen(object):
 		if prec: fatal("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
-		
+
 		if not out: out.append(self.apply_core.__name__)
 
 		# then we run the methods in order
