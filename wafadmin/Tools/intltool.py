@@ -52,7 +52,9 @@ class intltool_po_taskgen(TaskGen.task_gen):
 			filename = out.name
 			(langname, ext) = os.path.splitext(filename)
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
-			Build.bld.install_as(self.install_path, out.abspath(self.env), chmod=self.chmod)
+			Build.bld.install_as(
+				os.path.join(self.install_path, inst_file),
+				out.abspath(self.env), chmod=self.chmod)
 
 		linguas = self.path.find_resource(os.path.join(self.podir, 'LINGUAS'))
 		if linguas:
