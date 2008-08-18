@@ -57,6 +57,7 @@ class copy_taskgen(TaskGen.task_gen):
 		self.target = ''
 		self.chmod  = ''
 		self.fun = copy_func
+		self.default_install_path = 0
 
 		self.env = Build.bld.env.copy()
 
@@ -123,6 +124,7 @@ class subst_taskgen(TaskGen.task_gen):
 		self.fun = subst_func
 		self.chmod = ''
 		self.dict = {}
+		self.default_install_path = 0
 
 	def apply(self):
 
