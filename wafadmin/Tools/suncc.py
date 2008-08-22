@@ -11,20 +11,21 @@ from Configure import conftest
 @conftest
 def find_scc(conf):
 	v = conf.env
-	suncc = None
-	if v['CC']: suncc = v['CC']
-	elif 'CC' in os.environ: suncc = os.environ['CC']
+	cc = None
+	if v['CC']: cc = v['CC']
+	elif 'CC' in os.environ: cc = os.environ['CC']
 	#if not cc: cc = conf.find_program('gcc', var='CC')
-	if not suncc: suncc = conf.find_program('cc', var='CC')
-	if not suncc: conf.fatal('suncc was not found')
-	v['CC']  = suncc
+	if not cc: cc = conf.find_program('cc', var='CC')
+	if not cc: conf.fatal('suncc was not found')
 
-	#TODO: Has anyone a better idea to check if this is a sun cc?
-	ret = os.popen("%s -flags" % suncc).close()
-	if ret:
-		v['CC_NAME'] = 'sun'
-		conf.check_message('suncc', '', not ret)
-		return
+	try:
+		if not Utils.cmd_output('%s -flags' % cc):
+			conf.fatal('suncc %r was not found' % cc)
+	except ValueError:
+		conf.fatal('suncc -flags could not be executed')
+
+	v['CC']  = cc
+	v['CC_NAME'] = 'sun'
 
 @conftest
 def scc_common_flags(conf):
