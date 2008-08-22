@@ -95,3 +95,11 @@ foo.source = 'main.cpp'
 foo.target = 'blah'
 # source != target!
 
+# -- run a command and retrive stderr into a file
+ls = bld.new_task_gen('command-output')
+ls.stderr = "ls-error.out"
+ls.command = 'bash'
+ls.argv = ['-c', 'ls --xpto-foo-bar || true;']
+ls.stdin = 'wscript_build'
+ls.command_is_external = True
+
