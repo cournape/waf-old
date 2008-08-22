@@ -197,10 +197,14 @@ class CmdOutputFileArg(CmdFileArg):
 			return self.template % self.node.bldpath(env)
 
 class CmdDirArg(CmdArg):
-	def __init__(self, dir_name):
+	def __init__(self, dir_name, template=None):
 		CmdArg.__init__(self)
 		self.dir_name = dir_name
 		self.node = None
+		if template is None:
+			self.template = '%s'
+		else:
+			self.template = template
 	def find_node(self, base_path):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_dir(self.dir_name)
@@ -209,11 +213,11 @@ class CmdDirArg(CmdArg):
 
 class CmdInputDirArg(CmdDirArg):
 	def get_path(self, dummy_env, dummy_absolute):
-		return self.node.abspath()
+		return self.template % (self.node.abspath(),)
 
-class CmdOutputDirArg(CmdFileArg):
+class CmdOutputDirArg(CmdDirArg):
 	def get_path(self, env, dummy_absolute):
-		return self.node.abspath(env)
+		return self.template % (self.node.abspath(env),)
 
 
 class command_output(Task.Task):
@@ -433,17 +437,17 @@ use command_is_external=True''') % (self.command,)
 		position as argv element."""
 		return CmdOutputFileArg(file_name, template)
 
-	def input_dir(self, dir_name):
+	def input_dir(self, dir_name, template=None):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a directory path from the input vector at the given
 		position as argv element."""
 		return CmdInputDirArg(dir_name)
 
-	def output_dir(self, dir_name):
+	def output_dir(self, dir_name, template=None):
 		"""Returns an object to be used as argv element that instructs
 		the task to use a directory path from the output vector at the given
 		position as argv element."""
-		return CmdOutputDirArg(dir_name)
+		return CmdOutputDirArg(dir_name, template)
 
 Task.task_type_from_func('copy', vars=[], func=action_process_file_func)
 TaskGen.task_gen.classes['command-output'] = cmd_output_taskgen
