@@ -154,12 +154,13 @@ def configure(conf):
 		</para>
 
 		<para>
-			An error handler is attached to the conf object, and enables catching the Configuration exceptions. Here is how to replace the configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception
+			An error handler attached to the conf object is used for catching the Configuration exceptions and processing the errors. Here is how to replace the default configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception:
 			<programlisting language="python">
 import Configure, Constants
-def custom_error_handler(fun, exc):
+@conf
+def error_handler(fun, exc):
 	print "hello", str(exc)
-	return STOP
+	return Constants.STOP
 			</programlisting>
 			The following diagram illustrates the test execution loop performed from conf.check_tool
 			<graphic format="png" fileref="conftest.png" align="center"/>
