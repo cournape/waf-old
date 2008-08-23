@@ -5,6 +5,25 @@
 <chapter>
 	<title>Advanced scenarios</title>
 	<para>This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.</para>
+
+	<section>
+		<title>Same targets, different configurations (variants)</title>
+		<para>
+			In many builds, it is necessary to build the same targets for different purposes: debugging, profiling, optimizations. A system is provided for duplicating the targets easily.
+		</para>
+		<sect2>
+			<title>Variants and environments</title>
+			<para>
+
+			</para>
+		</sect2>
+		<sect2>
+			<title>Cloning targets</title>
+			<para>
+			</para>
+		</sect2>
+	</section>
+
 	<section>
 		<title>Building the compiler first</title>
 		<para>
