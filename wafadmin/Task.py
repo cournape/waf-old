@@ -686,9 +686,17 @@ class Task(TaskBase):
 					d = additional_deps[x]
 				except KeyError:
 					continue
-				if callable(d): d = d() # dependency is a function, call it
-				m.update(d)
+				if callable(d):
+					d = d() # dependency is a function, call it
 
+				if isinstance(d, Node.Node):
+					tree.rescan(d.parent)
+					variant = d.variant(self.env)
+					try:
+						d = tree.node_sigs[variant][d.id]
+					except KeyError:
+						d = ''
+				m.update(d)
 		return m.digest()
 
 	def sig_vars(self):
