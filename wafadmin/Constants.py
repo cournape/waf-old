@@ -8,7 +8,7 @@ these constants are somewhat public, try not to mess them
 maintainer: the version number is updated from the top-level wscript file
 """
 
-HEXVERSION = 0x10403
+HEXVERSION = 0x10404
 ABI = 6
 
 CACHE_DIR          = 'c4che'
