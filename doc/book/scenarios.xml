@@ -14,12 +14,59 @@
 		<sect2>
 			<title>Variants and environments</title>
 			<para>
+			The following code demonstrates how to create a configuration for a new variant named 'debug'
+			<programlisting language="python">
+def configure(conf):
+	# default variant
+	conf.env['foo'] = 'bar'
 
+	# create a new environment for the variant 'debug'
+	env_variant2 = conf.env.copy()
+	conf.set_env_name('debug', env_variant2)
+	env_variant2.set_variant('debug')
+	conf.setenv('debug')
+	conf.env['foo'] = 'bar2'
+			</programlisting>
+			After running <emphasis>waf configure</emphasis>, the build folders corresponding to the <emphasis>default</emphasis> and to the <emphasis>debug</emphasis> variants are produced:
+			<programlisting language="python">
+build/
+|-- c4che
+|   |-- build.config.py
+|   |-- debug.cache.py
+|   `-- default.cache.py
+|-- config.log
+|-- debug
+`-- default
+			</programlisting>
+			To use the <emphasis>debug</emphasis> variant, the environment must be given directly, by default, a copy of the environment named <emphasis>default</emphasis> is set:
+			<programlisting language="python">
+def build(bld):
+	prog = bld.new_task_gen('cxx', 'program')
+	prog.source = 'src1.c'
+	prog.includes = '.'
+	prog.target = 'myprog'
+	prog.env = bld.env_of_name('debug')
+			</programlisting>
 			</para>
 		</sect2>
 		<sect2>
 			<title>Cloning targets</title>
 			<para>
+				Task generators may be copied for different variants easily using the <emphasis>clone</emphasis> method. The parameter is the name of the environment to use (not the variant). The named environments are created during the configuration, as shown i the previous subsection.
+			<programlisting>
+def build(bld):
+	prog_in_default = bld.new_task_gen('cxx', 'program')
+	prog_in_default.source = 'src1.c'
+	prog_in_default.includes = '.'
+	prog_in_default.target = 'myprog'
+
+	prog_in_debug = prog_in_default.clone('debug')
+			</programlisting>
+			It is also possible to clone all task generators from a project using a code similar to the following:
+			<programlisting language="python">
+for obj in copy.copy(TaskGen.all_task_gen):
+    new_obj = obj.clone('debug')
+			</programlisting>
 			</para>
 		</sect2>
 	</section>
