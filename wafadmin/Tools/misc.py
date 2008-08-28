@@ -59,8 +59,6 @@ class copy_taskgen(TaskGen.task_gen):
 		self.fun = copy_func
 		self.default_install_path = 0
 
-		self.env = Build.bld.env.copy()
-
 	def apply(self):
 
 		lst = self.to_list(self.source)
