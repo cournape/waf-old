@@ -42,6 +42,7 @@ def scan(self):
 		nd = None
 		for x in self.incpaths:
 			nd = x.find_resource(name.lower()+'.ml')
+			if not nd: nd = x.find_resource(name+'.ml')
 			if nd:
 				found_lst.append(nd)
 				break
