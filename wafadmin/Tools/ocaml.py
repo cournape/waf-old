@@ -235,8 +235,8 @@ def ml_hook(self, node):
 		self.bytecode_tasks.append(task)
 
 def compile_may_start(self):
-	if not getattr(self.obj, 'flag_deps', ''):
-		self.obj.flag_deps = 1
+	if not getattr(self, 'flag_deps', ''):
+		self.flag_deps = 1
 
 		# the evil part is that we can only compute the dependencies after the
 		# source files can be read (this means actually producing the source files)
