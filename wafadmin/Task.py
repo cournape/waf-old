@@ -683,7 +683,7 @@ class Task(TaskBase):
 		else:
 			for x in self.inputs + self.outputs:
 				try:
-					d = additional_deps[x]
+					d = additional_deps[x.id]
 				except KeyError:
 					continue
 				if callable(d):

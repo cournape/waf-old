@@ -480,7 +480,7 @@ class BuildContext(object):
 			node = self.root.find_resource(path)
 		else:
 			node = self.path.find_resource(path)
-		h[node] = value
+		h[node.id] = value
 		self.deps_man = h
 
 	def launch_node(self):
