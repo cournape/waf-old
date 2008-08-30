@@ -53,7 +53,7 @@ def build(bld):
 			<title>Cloning targets</title>
 			<para>
 				Task generators may be copied for different variants easily using the <emphasis>clone</emphasis> method. The parameter is the name of the environment to use (not the variant). The named environments are created during the configuration, as shown i the previous subsection.
-			<programlisting>
+			<programlisting language="python">
 def build(bld):
 	prog_in_default = bld.new_task_gen('cxx', 'program')
 	prog_in_default.source = 'src1.c'

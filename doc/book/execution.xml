@@ -49,7 +49,7 @@ def build(bld):
 				<listitem>Building the project: building the software</listitem>
 			</itemizedlist>
 		To do this, the following shell commands will be:
-		<programlisting>
+		<programlisting language="sh">
 $ waf configure
   setting the options
   executing the configuration
@@ -90,7 +90,7 @@ def shutdown():
     print "  shutdown called"
 			</programlisting>
 The output will be:
-			<programlisting>
+			<programlisting language="sh">
 $ waf
 Project not configured (run 'waf configure' first)
 $ waf configure

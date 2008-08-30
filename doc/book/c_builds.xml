@@ -27,7 +27,7 @@ build/
     `-- config.h
 			</programlisting>
 			The contents of the config.h for this example are
-			<programlisting language="sh">
+			<programlisting language="c">
 /* Configuration header created by Waf - do not edit */
 #ifndef _CONFIG_H_WAF
 #define _CONFIG_H_WAF

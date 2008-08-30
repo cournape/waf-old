@@ -48,14 +48,14 @@ $ ./waf-light --make-waf
 		</para>
 		<para>
 			If, despite the advantages enumerated previously, you really want to install the Waf application on the system, you may use the following command on unix-like systems such as Linux:
-			<programlisting language="sh" linenumbering="numbered">
+			<programlisting language="sh">
 # ./waf-light install --prefix=/usr/
 			</programlisting>
 			Root priviledges may be required depending on the final location.
 		</para>
 		<para>
 			Waf can be uninstalled using:
-			<programlisting language="sh" linenumbering="numbered">
+			<programlisting language="sh">
 # ./waf-light uninstall --prefix=/usr/
 			</programlisting>
 		</para>
