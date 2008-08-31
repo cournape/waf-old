@@ -73,6 +73,7 @@ def docb_file(obj, node):
 		foptask = obj.create_task('fop')
 		foptask.inputs  = xslttask.outputs
 		foptask.outputs = [node.change_ext('.pdf')]
+		foptask.set_run_after(xslttask)
 
 	if ext == '.xml' and obj.type == 'html':
 		xslttask = obj.create_task('xslt')
