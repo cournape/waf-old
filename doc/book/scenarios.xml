@@ -86,12 +86,11 @@ for obj in copy.copy(TaskGen.all_task_gen):
 def build(bld):
 	env = bld.env_of_name('default')
 
-	import ocaml
+	import Task, ocaml
 	ocaml.open_re = re.compile('open ([a-zA-Z]+)', re.M)
 
-	import Action
-	Action.simple_action('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT} 2> /dev/null', color='RED')
-	Action.Action('py2rcc', vars=[], func=compile_py, color='BLUE')
+	Task.simple_task_type('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT} 2> /dev/null', color='RED')
+	Task.task_type_from_func('py2rcc', vars=[], func=compile_py, color='BLUE')
 
 	ibj = bld.create_obj('ocaml', 'native') <co id="comp-co" linkends="comp"/>
 	ibj.include = 'util'
