@@ -15,8 +15,14 @@ def xslt_build(task):
 	bdir = task.inputs[0].bld_dir(task.env)
 	src = task.inputs[0].bldpath(task.env)
 	srcdir = os.path.dirname(task.inputs[0].bldpath(task.env))
-	tgt = task.outputs[0].name
-	cmd = task.env['XSLTPROC_ST'] % (task.env['XSLTPROC'], os.path.join(srcdir,task.env['XSLT_SHEET']), src, os.path.join(bdir, tgt))
+	tgt = os.path.join(bdir, task.outputs[0].name)
+	stylesheet = os.path.join(srcdir,task.env['XSLT_SHEET'])
+
+	task.env['TGT'] = tgt
+	task.env['SRC'] = src
+	task.env['STYLESHEET'] = stylesheet
+
+	cmd = task.env['XSLTPROC_ST'] % task.env
 	debug(cmd)
 	return Runner.exec_command(cmd)
 
@@ -137,7 +143,7 @@ class docbook_taskgen(TaskGen.task_gen):
 			self.install_results('PREFIX', docpath, task )
 
 
-Task.simple_task_type('fop', "${FOP} ${SRC[0].bldpath(env)} ${SRC[0].bldpath(env)[:-3]}.pdf")
+Task.simple_task_type('fop', '${FOP} ${SRC[0].bldpath(env)} ${SRC[0].bldpath(env)[:-3]}.pdf')
 cls = Task.simple_task_type('db2', "${DBCOMPILER} ${SRC[0].bld_dir(env)} ${SRC[0].bldpath(env)}")
 cls.scan = xmlscan
 cls = Task.task_type_from_func('xslt', vars=xslt_vardeps, func=xslt_build, color='BLUE')
@@ -152,13 +158,18 @@ def detect(conf):
 		conf.env['FOP'] = fop
 	xsltproc = conf.find_program('xsltproc', var='XSLTPROC')
 	if xsltproc:
-		conf.env['XSLTPROC_ST'] = '%s --xinclude %s %s > %s'
+		conf.env['XSLTPROC_ST'] = '%(XSLTPROC)s --xinclude %(STYLESHEET)s %(SRC)s > %(TGT)s'
 		conf.env['XSLTPROC'] = xsltproc
 
 	xalan = conf.find_program('xalan', var='XALAN')
 	if not xsltproc and xalan:
-		conf.env['XSLTPROC_ST'] = '%s -xsl %s -in %s -out %s'
+		conf.env['XSLTPROC_ST'] = '%(XSLTPROC)s -xsl %(STYLESHEET)s -in %(SRC)s -out %(TGT)s'
 		conf.env['XSLTPROC'] = xalan
+
+	saxon = conf.find_program('saxon', var='SAXON')
+	if not xsltproc and not xalan:
+		conf.env['XSLTPROC_ST'] = '%(XSLTPROC)s %(SRC)s %(STYLESHEET)s > %(target)s'
+		conf.env['XSLTPROC'] = saxon
 
 	# OpenJade conversion tools for converting sgml -> xyz
 	jw = conf.find_program('jw', var='JW')

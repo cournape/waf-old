@@ -1,4 +1,4 @@
 To build with saxon (and enable syntax highlighting):
-saxon6-5-5.zip
-xslthl-2.0.0.jar
-docbook-xsl-snapshot.zip
+saxon6-5-5.zip from http://saxon.sourceforge.net/
+xslthl-2.0.0.jar from http://xslthl.wiki.sourceforge.net/
+docbook-xsl-snapshot.zip from http://docbook.sourceforge.net/snapshots/
