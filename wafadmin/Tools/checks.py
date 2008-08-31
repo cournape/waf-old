@@ -237,28 +237,28 @@ def check_header2(self, name, mandatory=1, define=''):
 	return ck_hdr.run()
 
 @conf
-def check_library2(self, name, mandatory=1, uselib=''):
+def check_library2(self, name, mandatory=1, uselib_store=''):
 	ck_lib = self.create_library_configurator()
-	if uselib: ck_lib.uselib = uselib
+	if uselib_store: ck_lib.uselib_store = uselib_store
 	ck_lib.mandatory = mandatory
 	ck_lib.name = name
 	return ck_lib.run()
 
 @conf
-def check_pkg2(self, name, version, mandatory=1, uselib=''):
+def check_pkg2(self, name, version, mandatory=1, uselib_store=''):
 	ck_pkg = self.create_pkgconfig_configurator()
-	if uselib: ck_pkg.uselib = uselib
+	if uselib_store: ck_pkg.uselib_store = uselib_store
 	ck_pkg.mandatory = mandatory
 	ck_pkg.version = version
 	ck_pkg.name = name
 	return ck_pkg.run()
 
 @conf
-def check_cfg2(self, name, mandatory=1, define='', uselib=''):
+def check_cfg2(self, name, mandatory=1, define='', uselib_store=''):
 	ck_cfg = self.create_cfgtool_configurator()
-	if uselib: ck_cfg.uselib = uselib
-	# cfgtool provides no fallback for uselib:
-	else: ck_cfg.uselib = name.upper()
+	if uselib_store: ck_cfg.uselib_store = uselib_store
+	# cfgtool provides no fallback for uselib_store:
+	else: ck_cfg.uselib_store = name.upper()
 	ck_cfg.mandatory = mandatory
 	ck_cfg.binary = name + '-config'
 	return ck_cfg.run()
