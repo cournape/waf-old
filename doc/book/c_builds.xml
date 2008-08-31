@@ -54,7 +54,7 @@ def build(bld):
 	<section>
 		<title>Library interaction (uselib)</title>
 		<para>
-			To link a library against another one created in the same Waf project, the attribute <emphasis>uselib_local</emphasis> may be used:
+			To link a library against another one created in the same Waf project, the attribute <emphasis>uselib_local</emphasis> may be used. The include paths, the link path and the library name are automatically exported, and the dependant binary is recompiled when the library changes:
 			<programlisting language="python">
 def build(bld):
 	staticlib = bld.new_task_gen('cc', 'staticlib') <co id="lib-co" linkends="b1"/>
@@ -80,10 +80,36 @@ def build(bld):
 				</callout>
 			</calloutlist>
 		</para>
+		<para>
+			To link an application against various <emphasis>system libraries</emphasis>, several compilation flags and link flags must be given at once. To reduce the maintainance, a system called <emphasis>uselib</emphasis> can be used to give all the flags at the same time:
+			<programlisting language="python">
+def configure(conf):
+	conf.env['CCFLAGS_TEST'] = '-O2' <co id="uselib-vars-co" linkends="c1"/>
+	conf.env['LINKFLAGS_TEST'] = '-g'
+
+def build(bld):
+	staticlib = bld.new_task_gen('cc', 'staticlib')
+	staticlib.source = 'test_staticlib.c'
+	staticlib.target = 'teststaticlib'
+	staticlib.uselib = 'TEST' <co id="uselib-use-co" linkends="c2"/>
+			</programlisting>
+			<calloutlist>
+				<callout arearefs="uselib-vars-co" id="c1">
+					<para>Declare a few variables during the configuration, the variables follow the convention VAR_NAME</para>
+				</callout>
+				<callout arearefs="uselib-use-co" id="c2">
+					<para>Add all the VAR_NAME corresponding to the uselib NAME, which is 'TEST' in this example</para>
+				</callout>
+			</calloutlist>
+			The variables used for c/c++ are the following: STATICLIB, LIB, LIBPATH, LINKFLAGS, RPATH, CXXFLAGS, CCFLAGS, CPPPATH, CPPFLAGS, CXXDEFINES, FRAMEWORK, FRAMEWORKPATH, CXXDEPS. The uselib is similar to the cascading style sheet (CSS) principle.
+		</para>
 	</section>
 
 	<section>
-		<title>Writing a configuration header</title>
+		<title>Using configuration headers</title>
+		<para>
+			Adding lots of command-line define values increases the size of the command-line and conceals the useful information (differences). Some projects use headers which are generated during the configuration, they are not modified during the build and they are not installed or redistributed. This system is useful for huge projects, and has been made popular by autoconf-based projects.
+		</para>
 		<para>
 			Writing configuration headers can be performed using the following methods:
 			<programlisting language="python">
