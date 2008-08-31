@@ -62,8 +62,7 @@ def docb_file(obj, node):
 	base, ext = os.path.splitext(node.name)
 
 	# Input format is XML
-	if ext == '.xml':
-		if not obj.env['XSLTPROC']:
+	if ext == '.xml' and not obj.env['XSLTPROC']:
 			raise Utils.WafError("Can not process %s: no xml processor detected." % node.name)
 	if ext == '.xml' and obj.type == 'pdf':
 		xslttask = obj.create_task('xslt')
@@ -79,6 +78,8 @@ def docb_file(obj, node):
 		foptask = obj.create_task('fop')
 		foptask.inputs  = xslttask.outputs
 		foptask.outputs = [node.change_ext('.pdf')]
+
+		foptask.set_run_after(xslttask)
 
 	if ext == '.xml' and obj.type == 'html':
 		xslttask = obj.create_task('xslt')
