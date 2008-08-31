@@ -146,28 +146,19 @@ build/
 	</section>
 
 	<section>
-		<title>Task generators for C/C++ builds</title>
+		<title>The include system</title>
 		<para>
-			TODO Detail the main task generator attributes, includes, cxxflags, etc
+			Include paths are used by the c/c++ compilers for finding the headers. Though some compilers (gcc) can use the folder of the source file for finding other includes implicitely, Waf requires the explicit list of the include paths. When one header changes, the files are recompiled automatically.
 		</para>
-	</section>
 
-	<section>
-		<title>The creation of C/C++ tasks</title>
 		<para>
-			TODO activity diagram needed here
-		</para>
-	</section>
-
-	<section>
-		<title>The Waf preprocessor</title>
-		<para>
-			Waf uses a preprocessor written in Python for finding the headers on which the source files depend (implicity dependencies). By default the preprocessing is limited to the files present in the project. To enable the preprocessor to find system headers, use the following code:
+			Waf uses a preprocessor written in Python for finding the headers. By default the preprocessing is limited to the paths within the project. To enable the preprocessor to find system headers, use the following code:
 			<programlisting language="python">
 import preproc
 preproc.go_absolute = 1
 			</programlisting>
 		</para>
 	</section>
+
 </chapter>
 
