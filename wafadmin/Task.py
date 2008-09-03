@@ -376,8 +376,8 @@ class TaskBase(object):
 			try: ini = Build.bld.ini
 			except AttributeError: ini = Build.bld.ini = time.time()
 			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
-			ins  = ','.join([n.name for n in task.inputs])
-			outs = ','.join([n.name for n in task.outputs])
+			ins  = ','.join([n.name for n in self.inputs])
+			outs = ','.join([n.name for n in self.outputs])
 			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], self.position[0], ins, outs, ela)
 
 		total = self.position[1]
