@@ -27,7 +27,7 @@ forbidden = [x+'.py' for x in 'Test Weak'.split()]
 from tokenize import *
 
 import os, sys, base64, shutil, re, random, StringIO, optparse, tempfile
-import Utils, Options
+import Utils, Options, Build
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
@@ -79,6 +79,7 @@ def set_options(opt):
 		dest='strip_comments')
 	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
+	opt.tool_options('python')
 
 	default_prefix = os.environ.get('PREFIX')
 	if not default_prefix:
@@ -247,7 +248,10 @@ def create_waf():
 	reg = re.compile('^REVISION=(.*)', re.M)
 	code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
-	prefix = Options.options.prefix
+	if Build.bld:
+		prefix = Build.bld.env['PREFIX']
+	else:
+		prefix = Options.options.prefix
 	# if the prefix is the default, let's be nice and be platform-independent
 	# just in case the created waf is used on either windows or unix
 	if prefix == Options.default_prefix:
@@ -316,12 +320,12 @@ def build(bld):
 			print "Installing Waf on Windows is not possible."
 			sys.exit(0)
 
+        if Options.is_install:
+		compute_revision()
+
 	if Options.commands['install']:
 		val = Options.options.yes or (not sys.stdin.isatty() or raw_input("Installing Waf is discouraged. Proceed? [y/n]"))
 		if val != True and val != "y": sys.exit(1)
-
-		compute_revision()
-
 		create_waf()
 
 	dir = os.path.join('lib', 'waf-%s-%s' % (VERSION, REVISION), 'wafadmin')

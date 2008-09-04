@@ -45,35 +45,12 @@ def init_pyembed(self):
 
 @extension(EXT_PY)
 def process_py(self, node):
-	pass
-
-# FIXME in theory, we should absolutely avoid subclasses like this
-class py_taskgen(TaskGen.task_gen):
-	def __init__(self, env=None):
-		TaskGen.task_gen.__init__(self)
-
-		self.default_install_path = '${PYTHONDIR}'
-		self.chmod = 0644
-
-	def install(self):
-		files_to_install = []
-		for filename in self.to_list(self.source):
-			node = self.path.find_resource(filename)
-			if node is not None:
-				files_to_install.append(node.abspath())
-			else:
-				node = self.path.find_or_declare(filename)
-				if node is None:
-					raise Utils.WafError("Cannot install file %s: not found in %s"
-						     % (filename, self.path))
-				else:
-					files_to_install.append(node.abspath(self.env))
-
-		installed_files = Build.bld.install_files(self.install_path, files_to_install, self.env, self.chmod)
-
-		if not installed_files:
-			return
-
+	if Options.is_install and self.install_path:
+		installed_files = Build.bld.install_files(
+					self.install_path,
+					node.abspath(self.env),
+					self.env,
+					self.chmod)
 		if Options.commands['uninstall']:
 			print "* removing byte compiled python files"
 			for fname in installed_files:
@@ -85,7 +62,8 @@ class py_taskgen(TaskGen.task_gen):
 					os.remove(fname + 'o')
 				except OSError:
 					pass
-		else:
+
+		if Options.commands['install']:
 			if self.env['PYC'] or self.env['PYO']:
 				print "* byte compiling python files"
 
@@ -113,6 +91,14 @@ for pyfile in sys.argv[1:]:
 				retval = pproc.Popen(argv).wait()
 				if retval:
 					raise Utils.WafError("bytecode compilation failed")
+
+# FIXME in theory, we should absolutely avoid subclasses like this
+class py_taskgen(TaskGen.task_gen):
+	def __init__(self, env=None):
+		TaskGen.task_gen.__init__(self)
+
+		self.default_install_path = '${PYTHONDIR}'
+		self.chmod = 0644
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""
@@ -373,6 +359,14 @@ def detect(conf):
 	v['PYO'] = getattr(Options.options, 'pyo', 1)
 
 def set_options(opt):
-	opt.add_option('--nopyc', action = 'store_false', default = 1, help = 'no pyc files (configuration)', dest = 'pyc')
-	opt.add_option('--nopyo', action = 'store_false', default = 1, help = 'no pyo files (configuration)', dest = 'pyo')
+	opt.add_option('--nopyc',
+			action='store_false',
+			default=1,
+			help = 'Do not install bytecode compiled .pyc files (configuration) [Default:install]',
+			dest = 'pyc')
+	opt.add_option('--nopyo',
+			action='store_false',
+			default=1,
+			help='Do not install optimised compiled .pyo files (configuration) [Default:install]',
+			dest='pyo')
 

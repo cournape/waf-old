@@ -19,7 +19,8 @@ The waf script generated can be redistributed freely along with
 your projects. This saves time looking for the right waf version.
 
 If you want to install waf system-wide (discouraged), use:
-./waf-light install --prefix=/some/install/dir
+./waf-light configure --prefix=/some/install/dir
+./waf-light install
 
 Though Waf is maintaining compatibility for Python 2.3, the script used for
 generating Waf requires Python 2.4
