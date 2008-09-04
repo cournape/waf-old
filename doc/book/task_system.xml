@@ -143,19 +143,30 @@ class task_demo(Task.Task):
 task = task_demo()
 task.inputs = [bld.path.find_resource('test.cxx')] <co id="expl-co" linkends="expl"/>
 task.deps_man = [bld.path.find_resource('wscript')] <co id="expl2-co" linkends="expl2"/>
+
+bld.add_manual_dependency('main.c', 'an arbitrary string value') <co id="expl3-co" linkends="expl3"/>
+bld.add_manual_dependency(
+		bld.path.find_or_declare('test_c_program'),
+		bld.path.find_resource('bbb')) <co id="expl4-co" linkends="expl4"/>
 			</programlisting>
 			<calloutlist>
 				<callout arearefs="vars-co" id="vars">
 					<para>Environment variable dependencies (compilation flags)</para>
 				</callout>
 				<callout arearefs="scan-co" id="scan">
-					<para>Implicit dependencies (scanner method for finding additional nodes)</para>
+					<para>Implicit dependencies: a method returns a list containing the list of additional nodes to take into account, and the list of the files that could not be found (cache)</para>
 				</callout>
 				<callout arearefs="expl-co" id="expl">
 					<para>Explicit dependencies as input files (nodes)</para>
 				</callout>
 				<callout arearefs="expl2-co" id="expl2">
 					<para>Explicit dependencies as manual dependencies</para>
+				</callout>
+				<callout arearefs="expl3-co" id="expl3">
+					<para>Manual dependencies on source files, the second parameter can be a string, a node object or a function returning a string</para>
+				</callout>
+				<callout arearefs="expl4-co" id="expl4">
+					<para>Manual dependencies with nodes, the first node represents a target (which may or may not exist in the build), and the second parameter represents a file in the source directory.</para>
 				</callout>
 			</calloutlist>
 
