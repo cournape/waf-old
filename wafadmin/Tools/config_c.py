@@ -716,32 +716,6 @@ class header_configurator(configurator_base):
 		if not ret: return {}
 		return val
 
-class common_include_configurator(header_enumerator):
-	"""Looks for a given header. If found, it will be written later by write_config_header()
-
-	Forced include files are headers that are being used by all source files.
-	One can include files this way using gcc '-include file.h' or msvc '/fi file.h'.
-	The alternative suggested here (common includes) is:
-	Make all files include 'config.h', then add these forced-included headers to
-	config.h (good for compilers that don't have have this feature and
-	for further flexibility).
-	"""
-	__metaclass__ = attached_conf
-	def run_test(self):
-		# if a header was found, header_enumerator returns its directory.
-		header_dir = header_enumerator.run_test(self)
-
-		if header_dir:
-			# if the header was found, add its path to set of forced_include files
-			# to be using later in write_config_header()
-			header_path = os.path.join(header_dir, self.name)
-
-			# if this header was not stored already, add it to the list of common headers.
-			self.env.append_unique(COMMON_INCLUDES, header_path)
-
-		# the return value of all enumerators is checked by enumerator_base.run()
-		return header_dir
-
 # CONFIGURATORS END
 ####################
 
