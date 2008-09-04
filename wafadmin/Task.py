@@ -689,14 +689,15 @@ class Task(TaskBase):
 				if callable(d):
 					d = d() # dependency is a function, call it
 
-				if isinstance(d, Node.Node):
-					tree.rescan(d.parent)
-					variant = d.variant(self.env)
-					try:
-						d = tree.node_sigs[variant][d.id]
-					except KeyError:
-						d = ''
-				m.update(d)
+				for v in d:
+					if isinstance(v, Node.Node):
+						tree.rescan(v.parent)
+						variant = v.variant(self.env)
+						try:
+							v = tree.node_sigs[variant][v.id]
+						except KeyError: # make it fatal?
+							v = ''
+					m.update(v)
 		return m.digest()
 
 	def sig_vars(self):

@@ -476,11 +476,13 @@ class BuildContext(object):
 
 	def add_manual_dependency(self, path, value):
 		h = getattr(self, 'deps_man', {})
+
 		if os.path.isabs(path):
 			node = self.root.find_resource(path)
 		else:
 			node = self.path.find_resource(path)
-		h[node.id] = value
+		try: h[node.id].append(value)
+		except KeyError: h[node.id] = [value]
 		self.deps_man = h
 
 	def launch_node(self):
