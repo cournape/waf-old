@@ -100,7 +100,7 @@ link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${
 
 cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c')
 cls.scan = ccroot.scan
-cls.vars = ('CCDEFINES',)
+cls.vars.append('CCDEPS')
 
 cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o')
 cls.maxjobs = 1
