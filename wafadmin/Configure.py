@@ -220,9 +220,9 @@ class ConfigurationContext(object):
 		return ret
 
 	def __getattr__(self, name):
+		r = self.__class__.__dict__.get(name, None)
+		if r: return r
 		if name and name.startswith('require_'):
-			r = self.__class__.__dict__.get(name, None)
-			if r: return r
 
 			for k in ['check_', 'find_']:
 				n = name.replace('require_', k)
@@ -234,8 +234,7 @@ class ConfigurationContext(object):
 							self.fatal('requirement failure')
 						return r
 					return run
-			raise AttributeError, 'No such method %r' % name
-		return getattr(self, name)
+		raise ConfigurationError, 'No such method %r' % name
 
 	def eval_rules(self, rules):
 		self.rules = Utils.to_list(rules)
