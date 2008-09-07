@@ -858,11 +858,6 @@ def write_config_header(self, configfile='', env=''):
 		else:
 			dest.write('#define %s %s\n' % (key, value))
 
-	# Adds common-includes to config header. Should come after defines,
-	# so they will be defined for the common include files too.
-	for include_file in self.env[COMMON_INCLUDES]:
-		dest.write('\n#include "%s"' % include_file)
-
 	dest.write('\n#endif /* %s */\n' % waf_guard)
 	dest.close()
 
