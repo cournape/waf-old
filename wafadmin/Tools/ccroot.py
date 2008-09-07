@@ -60,7 +60,7 @@ class ccroot_abstract(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k)
 
-		# TODO m_type is obsolete
+		# TODO type is obsolete
 		if len(k)>1: self.type = k[1]
 		else: self.type = ''
 		if self.type:
@@ -224,7 +224,7 @@ def apply_incpaths(self):
 		if node:
 			inc_lst.append(node)
 
-	self.env['INC_PATHS'] = self.env['INC_PATHS'] + inc_lst
+	self.env['INC_PATHS'] += inc_lst
 
 @taskgen
 def apply_type_vars(self):
@@ -314,11 +314,10 @@ def apply_lib_vars(self):
 		# if no one uses this feature, it will be removed
 		if getattr(y, 'export_incdirs', None):
 			cpppath_st = self.env['CPPPATH_ST']
-			app = self.env.append_unique
 			for x in self.to_list(y.export_incdirs):
 				node = y.path.find_dir(x)
 				if not node: raise Utils.WafError('object %s: invalid folder %s in export_incdirs' % (y.target, x))
-				if not node in self.env['INC_PATHS']: self.env['INC_PATHS'].append(node)
+				self.env.append_unique('INC_PATHS', node)
 
 	# 2. the case of the libs defined outside
 	for x in uselib:
