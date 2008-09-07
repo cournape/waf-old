@@ -128,7 +128,7 @@ task1.set_run_after(task2)
 		<para>
 			The signature computation uses the following data:
 			<orderedlist>
-				<listitem>explicit dependencies: input files and dependencies set explicitely using task.deps_man or bld.depends_on</listitem>
+				<listitem>explicit dependencies: input files and dependencies set explicitly using task.deps_man or bld.depends_on</listitem>
 				<listitem>implicit dependencies: dependencies searched by the task itself (like source files included from other source files).</listitem>
 				<listitem>parameters: compilation flags and command-line parameters.</listitem>
 			</orderedlist>

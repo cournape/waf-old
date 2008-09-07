@@ -30,7 +30,7 @@ def print_tst(self):
 
 		<para>
 			At this point, we have attached a new method to the class, but to process the attribute <emphasis>foo.tst</emphasis>,
- the method has to be called explicitely:
+ the method has to be called explicitly:
 			<programlisting language="python">
 def build(bld):
 	foo = bld.new_task_gen()
