@@ -11,11 +11,11 @@ if [ "$NOCOLOR" ] ; then
     YELLOW=""
     GREEN=""
 else
-    NORMAL="\033[0m"
-    BOLD="\033[1m"
-    RED="\033[91m"
-    YELLOW="\033[01;93m"
-    GREEN="\033[92m"
+    NORMAL='\\033[0m'
+    BOLD='\\033[01;1m'
+    RED='\\033[01;91m'
+    YELLOW='\\033[00;33m'
+    GREEN='\\033[01;92m'
 fi
 
 EXIT_SUCCESS=0
@@ -32,24 +32,6 @@ cd $WORKINGDIR
 WORKINGDIR=`pwd`
 cd $CUR_DIR
 
-# Checks for Python interpreter. Honours $PYTHON if set. Stores path to
-# interpreter in $PYTHON.
-#
-checkPython()
-{
-	if [ -z "$PYTHON" ] ; then
-	    PYTHON=`which python 2>/dev/null`
-	fi
-	printf "Checking for Python\t\t\t:  "
-	if [ ! -x "$PYTHON" ] ; then
-	  printf $RED"not found!"$NORMAL"\n"
-	  echo "Please make sure that the Python interpreter is available in your PATH"
-	  echo "or invoke configure using the PYTHON flag, e.g."
-	  echo "$ PYTHON=/usr/local/bin/python configure"
-	  exit $EXIT_FAILURE
-	fi
-	printf $GREEN"$PYTHON"$NORMAL"\n"
-}
 
 # Checks for WAF. Honours $WAF if set. Stores path to 'waf' in $WAF.
 # Requires that $PYTHON is set.
@@ -136,7 +118,6 @@ dist:
 EOF
 }
 
-checkPython
 checkWAF
 
 PREFIX=/usr/local
@@ -149,4 +130,7 @@ esac
 export PREFIX
 generateMakefile
 
-exit $EXIT_SUCCESS
+
+"${WAF}" configure --prefix "${PREFIX}"
+
+exit $?
