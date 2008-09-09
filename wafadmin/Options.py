@@ -18,13 +18,13 @@ lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
 platform = sys.platform
-conf_file = 'conf-runs-%s-%d.pickle' % (sys.platform, ABI)
+conf_file = 'conf-runs-%s-%d.pickle' % (platform, ABI)
 is_install = False
 
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')
 if not default_prefix:
-	if sys.platform == 'win32': default_prefix = tempfile.gettempdir()
+	if platform == 'win32': default_prefix = tempfile.gettempdir()
 	else: default_prefix = '/usr/local/'
 
 default_jobs = os.environ.get('JOBS', -1)
