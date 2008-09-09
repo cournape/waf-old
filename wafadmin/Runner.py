@@ -183,6 +183,7 @@ class Parallel(object):
 				tsk.err_msg = "TODO print the exception here"
 				tsk.hasrun = EXCEPTION
 				self.error_handler(tsk)
+				st = ASK_LATER
 
 			if st == ASK_LATER:
 				self.postpone(tsk)
