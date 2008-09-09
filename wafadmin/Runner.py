@@ -64,8 +64,7 @@ class TaskConsumer(threading.Thread):
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
 				else: ret = tsk.call_run()
 			except Exception, e:
-				# TODO add the stack error message
-				tsk.err_msg = e.message
+				tsk.err_msg = Utils.ex_stack()
 				tsk.hasrun = EXCEPTION
 
 				# TODO cleanup
@@ -180,10 +179,12 @@ class Parallel(object):
 			try:
 				st = tsk.runnable_status()
 			except Exception, e:
-				tsk.err_msg = "TODO print the exception here"
+				tsk.err_msg = Utils.ex_stack()
 				tsk.hasrun = EXCEPTION
+				self.processed += 1
 				self.error_handler(tsk)
-				st = ASK_LATER
+				self.manager.add_finished(tsk)
+				continue
 
 			if st == ASK_LATER:
 				self.postpone(tsk)
