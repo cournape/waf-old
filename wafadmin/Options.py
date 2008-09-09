@@ -32,7 +32,8 @@ if default_jobs < 1:
 	try:
 		default_jobs = os.sysconf('SC_NPROCESSORS_ONLN')
 	except:
-		default_jobs = 1
+		# environment var defined on win32
+		default_jobs = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
 
 default_destdir = os.environ.get('DESTDIR', '')
 
