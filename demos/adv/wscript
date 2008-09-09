@@ -223,11 +223,6 @@ int main()
 	libconf.paths = ['/usr/lib']
 	libconf.run()
 
-	# Looks for the specified header. if found, it will be written later to config.h
-	com_inc_conf = conf.create_common_include_configurator()
-	com_inc_conf.name = 'zlib.h'
-	com_inc_conf.run()
-
 	# finally, write the configuration header
 	conf.write_config_header('config.h')
 
