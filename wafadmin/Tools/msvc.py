@@ -10,7 +10,7 @@ from Params import debug, error, fatal, warning
 from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
 
-import ccroot
+import ccroot, cc, cxx
 from libtool import read_la_file
 from os.path import exists
 
@@ -189,7 +189,7 @@ def libname_msvc(self, libname, is_static=False):
 @after('apply_obj_vars_cc')
 @after('apply_obj_vars_cxx')
 def apply_msvc_obj_vars(self):
-	debug('apply_msvc_obj_vars called for msvcobj', 'msvc')
+	debug('apply_msvc_obj_vars called for msvc', 'msvc')
 	env = self.env
 	app = env.append_unique
 
@@ -199,13 +199,15 @@ def apply_msvc_obj_vars(self):
 	libpath_st       = env['LIBPATH_ST']
 	staticlibpath_st = env['STATICLIBPATH_ST']
 
-	self.addflags('CPPFLAGS', self.cppflags)
+	#self.addflags('CPPFLAGS', self.cppflags)
 
 	for i in env['RPATH']: app('LINKFLAGS', i)
+
 	for i in env['LIBPATH']:
 		app('LINKFLAGS', libpath_st % i)
 		if not self.libpaths.count(i):
 			self.libpaths.append(i)
+
 	for i in env['LIBPATH']:
 		app('LINKFLAGS', staticlibpath_st % i)
 		if not self.libpaths.count(i):
@@ -258,10 +260,10 @@ def apply_link_msvc(self):
 
 	outputs = [t.m_outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_build(get_target_name(self)))
+	linktask.set_outputs(self.path.find_build(ccroot.get_target_name(self)))
 
-	link_task.m_type = self.m_type
-	link_task.m_subsystem = getattr(self, 'subsystem', '')
+	linktask.m_type = self.m_type
+	linktask.m_subsystem = getattr(self, 'subsystem', '')
 	self.link_task = linktask
 
 @taskgen
@@ -271,10 +273,13 @@ def init_msvc(self):
 	"all methods (msvc and non-msvc) are to be executed, but we remove the ones we do not want"
 	if self.env['MSVC']:
 		self.meths.remove('apply_link')
+		# apply_msvc_obj_vars is the msvc specific implementation of apply_obj_vars. 
+		self.meths.remove('apply_obj_vars')
 	else:
 		for x in ['apply_link_msvc', 'apply_msvc_obj_vars']:
 			self.meths.remove(x)
-		self.libpaths = getattr(self, 'libpaths', '')
+	try: _libpaths=getattr(self,'libpaths')
+	except AttributeError: self.libpaths=[]
 
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Task.simple_task_type('msvc_ar_link_static', static_link_str, color='YELLOW', prio=101)
