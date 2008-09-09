@@ -259,18 +259,14 @@ def copy_attrs(orig, dest, names, only_if_set=False):
 		if u or not only_if_set:
 			setattr(dest, a, u)
 
-_quote_define_name_translation = None
-"lazily construct a translation table for mapping invalid characters to valid ones"
-
+quote_define_name_table = None
 def quote_define_name(path):
 	"Converts a string to a constant name, foo/zbr-xpto.h -> FOO_ZBR_XPTO_H"
-	global _quote_define_name_translation
-	if _quote_define_name_translation is None:
-		invalid_chars = [chr(x) for x in xrange(256)]
-		for valid in string.digits + string.uppercase: invalid_chars.remove(valid)
-		_quote_define_name_translation = string.maketrans(''.join(invalid_chars), '_'*len(invalid_chars))
-
-	return string.translate(string.upper(path), _quote_define_name_translation)
+	global quote_define_name_table
+	if not quote_define_name_table:
+		invalid_chars = set([chr(x) for x in xrange(256)]) - set(string.digits + string.uppercase)
+		quote_define_name_table = string.maketrans(''.join(invalid_chars), '_'*len(invalid_chars))
+	return string.translate(string.upper(path), quote_define_name_table)
 
 def quote_whitespace(path):
 	return (path.strip().find(' ') > 0 and '"%s"' % path or path).replace('""', '"')
@@ -291,14 +287,14 @@ def h_fun(fun):
 		return fun.code
 	except AttributeError:
 		try:
-			hh = inspect.getsource(fun)
+			h = inspect.getsource(fun)
 		except IOError:
-			hh = "nocode"
+			h = "nocode"
 		try:
-			fun.code = hh
+			fun.code = h
 		except AttributeError:
 			pass
-		return hh
+		return h
 
 _hash_blacklist_types = (
 	types.BuiltinFunctionType,
