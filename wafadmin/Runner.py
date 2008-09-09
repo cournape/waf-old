@@ -84,7 +84,7 @@ def _exec_command_interact(s):
 
 if sys.platform == "win32":
 	old_log = _exec_command_interact
-	def _exec_command_interact(s):
+	def _exec_commandi_interact(s):
 		# TODO very long command-lines are unlikely to be used in the configuration
 		if len(s) < 2000: return old_log(s)
 		if Params.g_verbose or g_quiet: printout(s+'\n')
