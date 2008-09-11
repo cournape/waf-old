@@ -331,7 +331,7 @@ def apply_lib_vars(self):
 		if not y.m_posted: y.post()
 		seen.append(x)
 
-		if 'cshlib' in y.features:
+		if 'cshlib' in y.features or 'cprogram' in y.features:
 			env.append_value('LIB', y.target)
 		elif 'cstaticlib' in y.features:
 			env.append_value('STATICLIB', y.target)
