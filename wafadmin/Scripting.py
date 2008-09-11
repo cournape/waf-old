@@ -77,6 +77,8 @@ def configure():
 	env['argv'] = sys.argv
 	env['hash'] = conf.hash
 	env['files'] = conf.files
+	env['commands'] = Options.commands
+	env['options'] = Options.options.__dict__
 	env.store(Options.lockfile)
 
 def read_cache_file(filename):
@@ -235,14 +237,9 @@ def main():
 
 				back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
 
-				oldargs = sys.argv
-				sys.argv = proj['argv']
-				# we cannot recycle the previous options instance
-				opt_obj = Options.Handler()
-				opt_obj.sub_options('')
-				opt_obj.parse_args(args=sys.argv[1:])
+				Options.commands = proj['commands']
+				Options.options.__dict__ = proj['options']
 				configure()
-				sys.argv = oldargs
 
 				(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
