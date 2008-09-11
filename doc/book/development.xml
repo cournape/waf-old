@@ -6,7 +6,7 @@
 	<title>Using the development version</title>
 	<section>
 		<title>Obtaining the latest source code</title>
-		<para>Waf is hosted on <ulink href="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To retrieve the development copy, use:
+		<para>Waf is hosted on <ulink url="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To retrieve the development copy, use:
 		<programlisting language="sh">
 svn checkout http://waf.googlecode.com/svn/trunk/ waf-read-only
 cd waf-read-only

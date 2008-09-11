@@ -7,7 +7,7 @@
 	<section id="obtaining">
 		<title>Obtaining Waf</title>
 		<para>
-			The Waf project is located on <ulink href="http://code.google.com/p/waf">Google Code</ulink>
+			The Waf project is located on <ulink url="http://code.google.com/p/waf">Google Code</ulink>
 			The current Waf version requires Python &ge; 2.3 and with the bzip2 compression algorithm.
 			Installing Waf is optional, if you want to install Waf on the system, jump to the next section.
 		</para>
