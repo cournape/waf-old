@@ -289,7 +289,8 @@ def apply_lib_vars(self):
 		y.post()
 		seen.append(x)
 
-		if 'cshlib' in y.features:
+		# some linkers can link against programs
+		if 'cshlib' in y.features or 'cprogram' in y.features:
 			env.append_value('LIB', y.target)
 		elif 'cstaticlib' in y.features:
 			env.append_value('STATICLIB', y.target)
