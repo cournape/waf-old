@@ -46,10 +46,6 @@ def add_subdir(dir, bld):
 	bld.path = old
 
 def configure():
-	# disable parallelization while configuring
-	jobs_save = Options.options.jobs
-	Options.options.jobs = 1
-
 	tree = Build.BuildContext()
 
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
@@ -82,9 +78,6 @@ def configure():
 	env['hash'] = conf.hash
 	env['files'] = conf.files
 	env.store(Options.lockfile)
-
-	# restore -j option
-	Options.options.jobs = jobs_save
 
 def read_cache_file(filename):
 	env = Environment.Environment()
