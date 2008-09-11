@@ -744,8 +744,12 @@ class Task(TaskBase):
 		# get the task signatures from previous runs
 		key = self.unique_id()
 		prev_sigs = tree.task_sigs.get(key, ())
-		if prev_sigs and prev_sigs[2] == self.compute_sig_implicit_deps():
-			return prev_sigs[2]
+		if prev_sigs:
+			try:
+				if prev_sigs[2] == self.compute_sig_implicit_deps():
+					return prev_sigs[2]
+			except KeyError:
+				pass
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
