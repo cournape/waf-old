@@ -218,18 +218,15 @@ def main():
 				raise Utils.WafError("Project not configured (run 'waf configure' first)")
 
 	if Configure.autoconfig:
-		# TODO: quite ugly, will be re-factored soon
 		if not Options.commands['clean'] and not Options.commands['uninstall']:
 			reconf = 0
 			hash = 0
 			try:
 				for file in proj['files']:
 					mod = Utils.load_module(file)
-					hash = Utils.hash_function_with_globals(hash, mod.configure)
-				reconf = (hash != proj['hash'])
+					h = Utils.hash_function_with_globals(hash, mod.configure)
+				reconf = (h != proj['hash'])
 			except Exception, ex:
-				if Logs.verbose:
-					traceback.print_exc()
 				warn("Reconfiguring the project (an exception occurred: %s)" % (str(ex),))
 				reconf = 1
 
