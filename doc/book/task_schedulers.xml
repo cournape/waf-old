@@ -61,7 +61,7 @@ Runner.Parallel.refill_task_list = refill_task_list
 	<section>
 		<title>Weak ordering constraints</title>
 		<para>
-			Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called <ulink url="http://en.wikipedia.org/wiki/Job-shop_problem">Job Shop</ulink>. In practice this problem can often be reduced to a critical path problem (approximation).
+			Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called <ulink url="http://en.wikipedia.org/wiki/Job-shop_problem"><citetitle>Job Shop</citetitle></ulink>. In practice this problem can often be reduced to a critical path problem (approximation).
 		</para>
 
 		<para>
