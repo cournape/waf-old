@@ -320,7 +320,7 @@ class BuildContext(object):
 	# node and folder handling
 
 	# this should be the main entry point
-	def load_dirs(self, srcdir, blddir):
+	def load_dirs(self, srcdir, blddir, load_cache=1):
 		"this functions should be the start of everything"
 
 		assert(os.path.isabs(srcdir))
@@ -334,7 +334,7 @@ class BuildContext(object):
 		self.bdir = blddir
 
 		# try to load the cache file, if it does not exist, nothing happens
-		self.load()
+		if load_cache: self.load()
 
 		if not self.root:
 			self.root = Node.Node('', None, Node.DIR)

@@ -60,7 +60,7 @@ def configure():
 	if not bld: raise Utils.WscriptError(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
 	bld = os.path.abspath(bld)
 
-	tree.load_dirs(src, bld)
+	tree.load_dirs(src, bld, False)
 
 	conf = Configure.ConfigurationContext(srcdir=src, blddir=bld)
 
