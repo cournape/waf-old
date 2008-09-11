@@ -100,25 +100,16 @@ class BuildContext(object):
 
 	def load(self):
 		"load the cache from the disk"
-		code = ''
+		env = Environment.Environment()
 		try:
-			file = open(os.path.join(self.cachedir, 'build.config.py'), 'r')
-			code = file.read()
-			file.close()
+			env.load(os.path.join(self.cachedir, 'build.config.py'))
 		except (IOError, OSError):
-			# TODO load the pickled file and the environments better
 			pass
 		else:
-			re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
-			for m in re_imp.finditer(code):
-				g = m.group
-				if g(2) == 'version':
-					if eval(g(3)) < HEXVERSION:
-						raise Utils.WafError('Version mismatch! reconfigure the project')
-				elif g(2) == 'tools':
-					lst = eval(g(3))
-					for t in lst:
-						self.setup(**t)
+			if env['version'] < HEXVERSION:
+				raise Utils.WafError('Version mismatch! reconfigure the project')
+			for t in env['tools']:
+				self.setup(**t)
 
 		gc.disable()
 		try:
