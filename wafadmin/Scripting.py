@@ -318,6 +318,10 @@ def dont_dist(name, src, build_dir):
 		):
 		return True
 
+	for ext in dist_exts:
+		if name.endswith(ext):
+			return True
+
 	return False
 
 # like shutil.copytree
