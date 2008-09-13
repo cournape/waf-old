@@ -399,7 +399,7 @@ def dist(appname='', version=''):
 	info('Your archive is ready -> %s' % arch_name)
 
 	if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder)
-	return (tmp_folder, arch_name)
+	return arch_name
 
 def distcheck(appname='', version=''):
 	"""Makes some sanity checks on the waf dist generated tarball"""
