@@ -336,11 +336,6 @@ def copytree(src, dst, build_dir):
 			copytree(srcname, dstname, build_dir)
 		else:
 			shutil.copy2(srcname, dstname)
-	try:
-		shutil.copystat(src, dst)
-	except WindowsError:
-		# can't copy file access times on Windows
-		pass
 
 def distclean():
 	"""clean the project"""
