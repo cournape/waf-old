@@ -5,18 +5,15 @@
 <chapter>
 	<title>Packaging and redistributing the source code</title>
 	<section>
-		<title>Tarball creation</title>
-
-		<sect2>
-			<title>Quick creation</title>
-			<para>
+		<title>Quick tarball creation</title>
+		<para>
 			Creating a tarball of the project is as simple as running
-				<programlisting language="sh">
+			<programlisting language="sh">
 $ waf dist
 Your archive is ready -> cpp_test-0.0.1.tar.bz2
-				</programlisting>
+			</programlisting>
 			By default, the archive name uses the version and the project name found in the top-level wscript file
-				<programlisting language="python">
+			<programlisting language="python">
 VERSION = '0.0.1'
 APPNAME = 'cpp_test'
 				</programlisting>
@@ -29,13 +26,13 @@ import Scripting
 Scripting.g_gz = 'gz'
 				</programlisting>
 			</para>
-		</sect2>
+	</section>
 
-		<sect2>
-			<title>Custom archives</title>
-			<para>
+	<section>
+		<title>Custom archives</title>
+		<para>
 				Custom archives can be created by providing a function named "dist" in the top-level script file. The following example prints a checksum immediately after the archive is created:
-				<programlisting language="python">
+			<programlisting language="python">
 VERSION = '0.0.1'
 APPNAME = 'cpp_test'
 
@@ -55,7 +52,6 @@ def dist():
     sys.exit(0)
 				</programlisting>
 			</para>
-		</sect2>
 	</section>
 
 	<section>
