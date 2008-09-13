@@ -748,6 +748,94 @@ class check_data(object):
 setattr(Configure, 'check_data', check_data) # warning, attached to the module
 
 @conf
+def run_check(self, obj):
+	"""compile, link and run if necessary
+	@param obj: data of type check_data
+	@return: (False if a error during build happens) or ( (True if build ok) or (a {'result': ''} if execute was set))
+	"""
+	# first make sure the code to execute is defined
+	if not obj.code:
+		raise Configure.ConfigurationError('run_check: no code to process in check')
+
+	# create a small folder for testing
+	dir = os.path.join(self.blddir, '.wscript-trybuild')
+
+	# if the folder already exists, remove it
+	for (root, dirs, filenames) in os.walk(dir):
+		for f in list(filenames):
+			os.remove(os.path.join(root, f))
+
+	bdir = os.path.join(dir, 'testbuild')
+
+	if (self.env['CXX_NAME'] and not obj.force_compiler and Task.TaskBase.classes.get('cxx', None)) or obj.force_compiler == "cxx":
+		tp = 'cxx'
+		test_f_name = 'test.cpp'
+	else:
+		tp = 'cc'
+		test_f_name = 'test.c'
+
+	# FIXME: by default the following lines are called more than once
+	#			we have to make sure they get called only once
+	if not os.path.exists(dir):
+		os.makedirs(dir)
+
+	if not os.path.exists(bdir):
+		os.makedirs(bdir)
+
+	if obj.env: env = obj.env
+	else: env = self.env.copy()
+
+	dest = open(os.path.join(dir, test_f_name), 'w')
+	dest.write(obj.code)
+	dest.close()
+
+	back = os.path.abspath('.')
+
+	bld = Build.BuildContext()
+	bld.log = self.log
+	bld.all_envs.update(self.all_envs)
+	bld.all_envs['default'] = env
+	bld._variants = bld.all_envs.keys()
+	bld.load_dirs(dir, bdir)
+
+	os.chdir(dir)
+
+	bld.rescan(bld.srcnode)
+
+	o = bld.new_task_gen(tp, obj.build_type)
+	o.source   = test_f_name
+	o.target   = 'testprog'
+	o.uselib   = obj.uselib
+	o.includes = obj.includes
+
+	self.log.write("==>\n%s\n<==\n" % obj.code)
+
+
+	# compile the program
+	try:
+		ret = bld.compile()
+	except Build.BuildError:
+		ret = 1
+
+	# keep the name of the program to execute
+	if obj.execute:
+		lastprog = o.link_task.outputs[0].abspath(o.env)
+
+	#if runopts is not None:
+	#	ret = os.popen(obj.link_task.outputs[0].abspath(obj.env)).read().strip()
+
+	os.chdir(back)
+
+	# if we need to run the program, try to get its result
+	if obj.execute:
+		if ret: return not ret
+		data = Utils.cmd_output('"%s"' % lastprog).strip()
+		ret = {'result': data}
+		return ret
+
+	return not ret
+
+@conf
 def define(self, define, value, quote=1):
 	"""store a single define and its state into an internal list for later
 	   writing to a config header file.  Value can only be
@@ -860,94 +948,6 @@ def write_config_header(self, configfile='', env=''):
 
 	dest.write('\n#endif /* %s */\n' % waf_guard)
 	dest.close()
-
-@conf
-def run_check(self, obj):
-	"""compile, link and run if necessary
-	@param obj: data of type check_data
-	@return: (False if a error during build happens) or ( (True if build ok) or (a {'result': ''} if execute was set))
-	"""
-	# first make sure the code to execute is defined
-	if not obj.code:
-		raise Configure.ConfigurationError('run_check: no code to process in check')
-
-	# create a small folder for testing
-	dir = os.path.join(self.blddir, '.wscript-trybuild')
-
-	# if the folder already exists, remove it
-	for (root, dirs, filenames) in os.walk(dir):
-		for f in list(filenames):
-			os.remove(os.path.join(root, f))
-
-	bdir = os.path.join(dir, 'testbuild')
-
-	if (self.env['CXX_NAME'] and not obj.force_compiler and Task.TaskBase.classes.get('cxx', None)) or obj.force_compiler == "cxx":
-		tp = 'cxx'
-		test_f_name = 'test.cpp'
-	else:
-		tp = 'cc'
-		test_f_name = 'test.c'
-
-	# FIXME: by default the following lines are called more than once
-	#			we have to make sure they get called only once
-	if not os.path.exists(dir):
-		os.makedirs(dir)
-
-	if not os.path.exists(bdir):
-		os.makedirs(bdir)
-
-	if obj.env: env = obj.env
-	else: env = self.env.copy()
-
-	dest = open(os.path.join(dir, test_f_name), 'w')
-	dest.write(obj.code)
-	dest.close()
-
-	back = os.path.abspath('.')
-
-	bld = Build.BuildContext()
-	bld.log = self.log
-	bld.all_envs.update(self.all_envs)
-	bld.all_envs['default'] = env
-	bld._variants = bld.all_envs.keys()
-	bld.load_dirs(dir, bdir)
-
-	os.chdir(dir)
-
-	bld.rescan(bld.srcnode)
-
-	o = bld.new_task_gen(tp, obj.build_type)
-	o.source   = test_f_name
-	o.target   = 'testprog'
-	o.uselib   = obj.uselib
-	o.includes = obj.includes
-
-	self.log.write("==>\n%s\n<==\n" % obj.code)
-
-
-	# compile the program
-	try:
-		ret = bld.compile()
-	except Build.BuildError:
-		ret = 1
-
-	# keep the name of the program to execute
-	if obj.execute:
-		lastprog = o.link_task.outputs[0].abspath(o.env)
-
-	#if runopts is not None:
-	#	ret = os.popen(obj.link_task.outputs[0].abspath(obj.env)).read().strip()
-
-	os.chdir(back)
-
-	# if we need to run the program, try to get its result
-	if obj.execute:
-		if ret: return not ret
-		data = Utils.cmd_output('"%s"' % lastprog).strip()
-		ret = {'result': data}
-		return ret
-
-	return not ret
 
 @conftest
 def cc_check_features(self, kind='cc'):
