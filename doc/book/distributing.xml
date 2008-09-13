@@ -34,15 +34,15 @@ Scripting.g_gz = 'gz'
 		<sect2>
 			<title>Custom archives</title>
 			<para>
-				Custom archives can be created by providing a function named "dist" in the top-level script file. The following example prints a checksum after the archive is created:
+				Custom archives can be created by providing a function named "dist" in the top-level script file. The following example prints a checksum immediately after the archive is created:
 				<programlisting language="python">
 VERSION = '0.0.1'
 APPNAME = 'cpp_test'
 
 def dist():
     import md5
-    from Scripting import DistTarball
-    (f, filename) = DistTarball(APPNAME, VERSION)
+    from Scripting import dist
+    (f, filename) = dist(APPNAME, VERSION)
     f = file(filename,'rb')
     m = md5.md5()
     readBytes = 100000
