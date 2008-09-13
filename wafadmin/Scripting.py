@@ -11,13 +11,6 @@ from Logs import error, warn, info
 from Constants import *
 
 g_gz = 'bz2'
-g_dirwatch = None
-g_excludes = '.svn CVS .arch-ids {arch} SCCS BitKeeper .hg'.split()
-"exclude folders from dist"
-g_dist_exts = '~ .rej .orig .pyc .pyo .bak config.log .tar.bz2 .zip Makefile Makefile.in'.split()
-"exclude files from dist"
-
-g_distclean_exts = '~ .pyc .wafpickle'.split()
 
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
@@ -312,89 +305,64 @@ def main():
 	fun = getattr(Utils.g_module, 'shutdown', None)
 	if fun: fun()
 
-## Note: this is a modified version of shutil.copytree from python
-## 2.5.2 library; modified for WAF purposes to exclude dot dirs and
-## another list of files.
-def copytree(src, dst, symlinks=False, excludes=(), build_dir=None):
+build_dir = None
+excludes = '.svn CVS .arch-ids {arch} SCCS BitKeeper .hg'.split()
+dist_exts = '~ .rej .orig .pyc .pyo .bak config.log .tar.bz2 .zip Makefile Makefile.in'.split()
+def dont_dist(name, src):
+	global build_dir, excludes, dist_exts
+
+	if name.startswith(',,') or name.startswith('++'):
+		return True
+
+	if src == '.' and name == Options.lockfile:
+		return True
+
+	if name in excludes:
+		return True
+
+	if name == build_dir:
+		return True
+	return False
+
+# like shutil.copytree
+# exclude files and to raise exceptions immediately
+def copytree(src, dst, symlinks=False):
 	names = os.listdir(src)
 	os.makedirs(dst)
-	errors = []
 	for name in names:
 		srcname = os.path.join(src, name)
 		dstname = os.path.join(dst, name)
-		try:
-			if symlinks and os.path.islink(srcname):
-				linkto = os.readlink(srcname)
-				os.symlink(linkto, dstname)
-			elif os.path.isdir(srcname):
-				if name in excludes:
-					continue
-				elif name.startswith('.') or name.startswith(',,') or name.startswith('++'):
-					continue
-				elif name == build_dir:
-					continue
-				else:
-					## build_dir is not passed into the recursive
-					## copytree, but that is intentional; it is a
-					## directory name valid only at the top level.
-					copytree(srcname, dstname, symlinks, excludes)
-			else:
-				ends = name.endswith
-				to_remove = False
-				if name.startswith('.') or name.startswith('++'):
-					to_remove = True
-				else:
-					for x in g_dist_exts:
-						if ends(x):
-							to_remove = True
-							break
-				if not to_remove:
-					shutil.copy2(srcname, dstname)
-			# XXX What about devices, sockets etc.?
-		except (IOError, os.error), why:
-			errors.append((srcname, dstname, str(why)))
-		# catch the Error from the recursive copytree so that we can
-		# continue with other files
-		except shutil.Error, err:
-			errors.extend(err.args[0])
+
+		if dont_dist(name, src):
+			continue
+
+		if os.path.isdir(srcname):
+			copytree(srcname, dstname, symlinks)
+		else:
+			shutil.copy2(srcname, dstname)
 	try:
 		shutil.copystat(src, dst)
 	except WindowsError:
 		# can't copy file access times on Windows
 		pass
-	except OSError, why:
-		errors.extend((src, dst, str(why)))
-	if errors:
-		raise shutil.Error, errors
 
 def distclean():
 	"""clean the project"""
-
-	# remove the temporary files
-	# the builddir is given by lock-wscript only
-	# we do no try to remove it if there is no lock file (rmtree)
-	for (root, dirs, filenames) in os.walk('.'):
-		for f in list(filenames):
-			to_remove = 0
-			if f == Options.lockfile:
-				# removes a lock, and the builddir indicated
-				to_remove = True
-				try:
-					proj = read_cache_file(os.path.join(root, f))
-					shutil.rmtree(os.path.join(root, proj[BLDDIR]))
-				except (OSError, IOError):
-					# ignore errors if the lockfile or the builddir not exist.
-					pass
-			else:
-				ends = f.endswith
-				for x in g_distclean_exts:
-					if ends(x):
-						to_remove = 1
-						break
-			if to_remove:
-				os.remove(os.path.join(root, f))
 	lst = os.listdir('.')
 	for f in lst:
+		if f == Options.lockfile:
+			try:
+				proj = read_cache_file(f)
+				shutil.rmtree(proj[BLDDIR])
+			except (OSError, IOError):
+				pass
+
+			try:
+				os.remove(f)
+			except (OSError, IOError):
+				pass
+
+		# remove the local waf
 		if f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
 	info('distclean finished successfully')
@@ -412,13 +380,12 @@ def dist(appname='', version=''):
 	# Remove an old package directory
 	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
 
-	global g_dist_exts, g_excludes
-
 	# Remove the Build dir
+	global build_dir
 	build_dir = getattr(Utils.g_module, BLDDIR, None)
 
 	# Copy everything into the new folder
-	copytree('.', TMPFOLDER, excludes=g_excludes, build_dir=build_dir)
+	copytree('.', TMPFOLDER)
 
 	# undocumented hook for additional cleanup
 	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
