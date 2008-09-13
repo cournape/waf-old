@@ -305,11 +305,10 @@ def main():
 	fun = getattr(Utils.g_module, 'shutdown', None)
 	if fun: fun()
 
-build_dir = None
 excludes = '.svn CVS .arch-ids {arch} SCCS BitKeeper .hg'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak config.log .tar.bz2 .zip Makefile Makefile.in'.split()
-def dont_dist(name, src):
-	global build_dir, excludes, dist_exts
+def dont_dist(name, src, build_dir):
+	global excludes, dist_exts
 
 	if (name.startswith(',,')
 		or name.startswith('++')
@@ -323,18 +322,18 @@ def dont_dist(name, src):
 
 # like shutil.copytree
 # exclude files and to raise exceptions immediately
-def copytree(src, dst, symlinks=False):
+def copytree(src, dst, build_dir):
 	names = os.listdir(src)
 	os.makedirs(dst)
 	for name in names:
 		srcname = os.path.join(src, name)
 		dstname = os.path.join(dst, name)
 
-		if dont_dist(name, src):
+		if dont_dist(name, src, build_dir):
 			continue
 
 		if os.path.isdir(srcname):
-			copytree(srcname, dstname, symlinks)
+			copytree(srcname, dstname, build_dir)
 		else:
 			shutil.copy2(srcname, dstname)
 	try:
@@ -371,36 +370,41 @@ def dist(appname='', version=''):
 	if not appname: appname = getattr(Utils.g_module, APPNAME, 'noname')
 	if not version: version = getattr(Utils.g_module, VERSION, '1.0')
 
-	# Our temporary folder where to put our files
-	TMPFOLDER = appname + '-' + version
+	tmp_folder = appname + '-' + version
+	arch_name = tmp_folder+'.tar.'+g_gz
 
-	# Remove an old package directory
-	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
+	# remove the previous dir
+	try:
+		shutil.rmtree(tmp_folder)
+	except (OSError, IOError):
+		pass
 
-	# Remove the Build dir
-	global build_dir
-	build_dir = getattr(Utils.g_module, BLDDIR, None)
+	# remove the previous archive
+	try:
+		os.remove(arch_name)
+	except (OSError, IOError):
+		pass
 
-	# Copy everything into the new folder
-	copytree('.', TMPFOLDER)
+	# copy the files into the temporary folder
+	copytree('.', tmp_folder, getattr(Utils.g_module, BLDDIR, None))
 
 	# undocumented hook for additional cleanup
 	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
 	if dist_hook:
-		os.chdir(TMPFOLDER)
+		os.chdir(tmp_folder)
 		try:
 			dist_hook()
 		finally:
 			# go back to the root directory
 			os.chdir('..')
 
-	tar = tarfile.open(TMPFOLDER+'.tar.'+g_gz,'w:'+g_gz)
-	tar.add(TMPFOLDER)
+	tar = tarfile.open(arch_name, 'w:' + g_gz)
+	tar.add(tmp_folder)
 	tar.close()
-	info('Your archive is ready -> %s.tar.%s' % (TMPFOLDER, g_gz))
+	info('Your archive is ready -> %s' % arch_name)
 
-	if os.path.exists(TMPFOLDER): shutil.rmtree(TMPFOLDER)
-	return (TMPFOLDER, TMPFOLDER+'.tar.'+g_gz)
+	if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder)
+	return (tmp_folder, arch_name)
 
 def distcheck(appname='', version=''):
 	"""Makes some sanity checks on the waf dist generated tarball"""
