@@ -311,17 +311,14 @@ dist_exts = '~ .rej .orig .pyc .pyo .bak config.log .tar.bz2 .zip Makefile Makef
 def dont_dist(name, src):
 	global build_dir, excludes, dist_exts
 
-	if name.startswith(',,') or name.startswith('++'):
+	if (name.startswith(',,')
+		or name.startswith('++')
+		or (src == '.' and name == Options.lockfile)
+		or name in excludes
+		or name == build_dir
+		):
 		return True
 
-	if src == '.' and name == Options.lockfile:
-		return True
-
-	if name in excludes:
-		return True
-
-	if name == build_dir:
-		return True
 	return False
 
 # like shutil.copytree
