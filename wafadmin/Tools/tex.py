@@ -81,7 +81,7 @@ def tex_build(task, command='LATEX'):
 		ct = file.read()
 		file.close()
 	except (OSError, IOError):
-		error('erreur bibtex scan')
+		error('error bibtex scan')
 	else:
 		fo = g_bibtex_re.findall(ct)
 
@@ -100,7 +100,7 @@ def tex_build(task, command='LATEX'):
 		idx_path = idx_node.abspath(env)
 		os.stat(idx_path)
 	except OSError:
-		error('erreur file.idx scan')
+		error('error file.idx scan')
 	else:
 		makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
 		warn('calling makeindex')
