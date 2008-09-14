@@ -111,7 +111,7 @@ def check(self, *k, **kw):
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = env
-	bld._variants = bld.all_envs.keys()
+	bld.lst_variants = bld.all_envs.keys()
 	bld.load_dirs(dir, bdir)
 
 	os.chdir(dir)
@@ -123,7 +123,6 @@ def check(self, *k, **kw):
 	o.target = 'testprog'
 
 	self.log.write("==>\n%s\n<==\n" % obj['code'])
-
 
 	# compile the program
 	ret = bld.compile()
@@ -146,12 +145,12 @@ def check(self, *k, **kw):
 @conf
 def cxx_check(self, *k, **kw):
 	kw['compiler'] = 'cxx'
-	self.check(*k, **kw)
+	return self.check(*k, **kw)
 
 @conf
 def cc_check(self, *k, **kw):
 	kw['compiler'] = 'cc'
-	self.check(*k, **kw)
+	return self.check(*k, **kw)
 
 @conf
 def define(self, define, value, quote=1):

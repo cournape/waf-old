@@ -292,9 +292,6 @@ def main():
 			info('Cleaning finished successfully')
 		finally:
 			bld.save()
-		#if ret:
-		#	msg='Cleanup failed for a mysterious reason'
-		#	error(msg)
 
 	# shutdown
 	fun = getattr(Utils.g_module, 'shutdown', None)
