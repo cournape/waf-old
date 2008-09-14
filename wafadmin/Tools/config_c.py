@@ -45,7 +45,7 @@ code_with_headers = ''
 # header_name
 
 @conf
-def validate_c(*k, **kw):
+def validate_c(self, kw):
 	"""validate the parameters for the test method"""
 
 	if not 'env' in kw:
@@ -64,7 +64,7 @@ def validate_c(*k, **kw):
 		raise ValueError, 'can only execute programs'
 
 	if not 'code' in kw:
-		code = simple_c_code
+		kw['code'] = simple_c_code
 
 	if not 'execute' in kw:
 		kw['execute'] = False
@@ -77,7 +77,7 @@ def post_check(self, *k, **kw):
 def check(self, *k, **kw):
 	# so this will be the generic function
 	# it will be safer to use cxx_check or cc_check
-	self.validate_c(*k, **kw)
+	self.validate_c(kw)
 
 	if kw['compiler'] == 'cxx':
 		tp = 'cxx'
@@ -99,10 +99,10 @@ def check(self, *k, **kw):
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
-	env = obj['env']
+	env = kw['env']
 
 	dest = open(os.path.join(dir, test_f_name), 'w')
-	dest.write(obj['code'])
+	dest.write(kw['code'])
 	dest.close()
 
 	back = os.path.abspath('.')
@@ -118,24 +118,24 @@ def check(self, *k, **kw):
 
 	bld.rescan(bld.srcnode)
 
-	o = bld.new_task_gen(tp, obj['type'])
+	o = bld.new_task_gen(tp, kw['type'])
 	o.source = test_f_name
 	o.target = 'testprog'
 
-	self.log.write("==>\n%s\n<==\n" % obj['code'])
+	self.log.write("==>\n%s\n<==\n" % kw['code'])
 
 	# compile the program
 	ret = bld.compile()
 	if ret: raise Configure.ConfigurationError, str(ret)
 
 	# keep the name of the program to execute
-	if obj['execute']:
+	if kw['execute']:
 		lastprog = o.link_task.outputs[0].abspath(env)
 
 	os.chdir(back)
 
 	# if we need to run the program, try to get its result
-	if obj['execute']:
+	if kw['execute']:
 		data = Utils.cmd_output('"%s"' % lastprog).strip()
 		ret = {'result': data}
 
