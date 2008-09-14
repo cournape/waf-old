@@ -74,11 +74,6 @@ def configure():
 	env['options'] = Options.options.__dict__
 	env.store(Options.lockfile)
 
-def read_cache_file(filename):
-	env = Environment.Environment()
-	env.load(filename)
-	return env
-
 def prepare_impl(t, cwd, ver, wafdir):
 	Options.tooldir = [t]
 	Options.launch_dir = cwd
@@ -199,7 +194,7 @@ def main():
 	# compile the project and/or install the files
 	bld = Build.BuildContext()
 	try:
-		proj = read_cache_file(Options.lockfile)
+		proj = Environment.Environment(Options.lockfile)
 	except IOError:
 		if Options.commands['clean']:
 			raise Utils.WafError("Nothing to clean (project not configured)")
@@ -208,7 +203,7 @@ def main():
 				warn("Reconfiguring the project")
 				configure()
 				bld = Build.BuildContext()
-				proj = read_cache_file(Options.lockfile)
+				proj = Environment.Environment(Options.lockfile)
 			else:
 				raise Utils.WafError("Project not configured (run 'waf configure' first)")
 
@@ -237,7 +232,7 @@ def main():
 				(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
 				bld = Build.BuildContext()
-				proj = read_cache_file(Options.lockfile)
+				proj = Environment.Environment(Options.lockfile)
 
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
@@ -347,7 +342,7 @@ def distclean():
 	for f in lst:
 		if f == Options.lockfile:
 			try:
-				proj = read_cache_file(f)
+				proj = Environment.Environment(f)
 				shutil.rmtree(proj[BLDDIR])
 			except (OSError, IOError):
 				pass

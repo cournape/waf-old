@@ -18,13 +18,16 @@ class Environment(object):
 	An environment instance can be stored into a file and loaded easily
 	"""
 	__slots__ = ("table", "parent")
-	def __init__(self):
+	def __init__(self, filename=None):
 		self.table={}
 		#self.parent = None <- set only if necessary
 
 		if Options.commands['configure']:
 			# set the prefix once and for everybody on creation (configuration)
 			self.table['PREFIX'] = os.path.abspath(Options.options.prefix)
+
+		if filename:
+			self.load(filename)
 
 	def __contains__(self, key):
 		if key in self.table: return True
@@ -166,5 +169,4 @@ class Environment(object):
 		"return the destdir, useful for installing"
 		if self.__getitem__('NOINSTALL'): return ''
 		return Options.options.destdir
-
 

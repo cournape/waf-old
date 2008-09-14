@@ -100,9 +100,8 @@ class BuildContext(object):
 
 	def load(self):
 		"load the cache from the disk"
-		env = Environment.Environment()
 		try:
-			env.load(os.path.join(self.cachedir, 'build.config.py'))
+			env = Environment.Environment(os.path.join(self.cachedir, 'build.config.py'))
 		except (IOError, OSError):
 			pass
 		else:
@@ -263,8 +262,7 @@ class BuildContext(object):
 
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
-				env = Environment.Environment()
-				env.load(os.path.join(self.cachedir, file))
+				env = Environment.Environment(os.path.join(self.cachedir, file))
 				name = file.split('.')[0]
 
 				self.all_envs[name] = env
