@@ -8,7 +8,7 @@ c/c++ configuration routines
 WARNING: this file is too complicated and will be simplified
 """
 
-import os, types, imp, cPickle, sys, shlex, warnings
+import os, types, imp, cPickle, sys, shlex, warnings, shutil
 from Utils import md5
 import Build, Utils, Configure, Task, Options
 from Logs import warn, debug
@@ -757,16 +757,6 @@ def run_check(self, obj):
 	if not obj.code:
 		raise Configure.ConfigurationError('run_check: no code to process in check')
 
-	# create a small folder for testing
-	dir = os.path.join(self.blddir, '.wscript-trybuild')
-
-	# if the folder already exists, remove it
-	for (root, dirs, filenames) in os.walk(dir):
-		for f in list(filenames):
-			os.remove(os.path.join(root, f))
-
-	bdir = os.path.join(dir, 'testbuild')
-
 	if (self.env['CXX_NAME'] and not obj.force_compiler and Task.TaskBase.classes.get('cxx', None)) or obj.force_compiler == "cxx":
 		tp = 'cxx'
 		test_f_name = 'test.cpp'
@@ -774,10 +764,15 @@ def run_check(self, obj):
 		tp = 'cc'
 		test_f_name = 'test.c'
 
-	# FIXME: by default the following lines are called more than once
-	#			we have to make sure they get called only once
+	# create a small folder for testing
+	dir = os.path.join(self.blddir, '.wscript-trybuild')
+
+	# if the folder already exists, remove it
+	shutil.rmtree(dir)
 	if not os.path.exists(dir):
 		os.makedirs(dir)
+
+	bdir = os.path.join(dir, 'testbuild')
 
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
