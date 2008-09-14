@@ -304,7 +304,7 @@ class BuildContext(object):
 		for env in self.all_envs.values():
 			if not env.variant() in lstvariants:
 				lstvariants.append(env.variant())
-		self._variants = lstvariants
+		self.lst_variants = lstvariants
 
 		debug('build: list of variants is %s' % str(lstvariants))
 
@@ -386,7 +386,7 @@ class BuildContext(object):
 			h2 -= 1
 		lst.reverse()
 
-		for variant in self._variants:
+		for variant in self.lst_variants:
 			sub_path = os.path.join(self.bldnode.abspath(), variant , *lst)
 			try:
 				self.listdir_bld(src_dir_node, sub_path, variant)
