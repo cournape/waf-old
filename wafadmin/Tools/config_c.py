@@ -747,38 +747,61 @@ class check_data(object):
 		self.build_type     = 'program'
 setattr(Configure, 'check_data', check_data) # warning, attached to the module
 
+
 # the idea is the following: now that we are certain
 # that all the code here is only for c or c++, it is
 # easy to put all the logic in one function
 #
-# i am tired of code duplication (ita)
+# this should prevent code duplication (ita)
+
+simple_c_code = 'int main() {return 0;}\n'
+code_with_headers = ''
+
+# env: an optional environment (modified -> provide a copy)
+# compiler: cc or cxx - it tries to guess what is best
+# type: program, shlib, staticlib, objects
+# code: a c code to execute
+# uselib_store: where to add the variables
+# uselib: parameters to use for building
 
 @conf
-def validate(*k, **kw):
+def validate_c(*k, **kw):
+	"""validate the parameters for the test method"""
+
 	if not 'env' in kw:
-		raise ValueError, "missing environment in arguments"
+		kw['env'] = self.env.copy()
 
 	env = kw['env']
 	if not 'compiler' in kw:
-		if env['CXX_NAME'] and not obj.force_compiler and Task.TaskBase.classes.get('cxx', None)):
-			pass
+		kw['compiler'] = 'cc'
+		if env['CXX_NAME'] and Task.TaskBase.classes.get('cxx', None):
+			kw['compiler'] = 'cxx'
+
+	if not 'type' in kw:
+		kw['type'] = 'program'
+
+	if kw['type'] != 'program' and kw.get('execute', 0):
+		raise ValueError, 'can only execute programs'
+
+	if not 'code' in kw:
+		code = simple_c_code
 
 @conf
 def check(self, *k, **kw):
 	# so this will be the generic function
 	# it will be safer to use cxx_check or cc_check
 	self.validate_c(*k, **kw)
-
-	pass
+	print "TODO"
 
 @conf
 def cxx_check(self, *k, **kw):
 	kw['compiler'] = 'cxx'
+	self.check(*k, **kw)
 
 @conf
 def cc_check(self, *k, **kw):
 	kw['compiler'] = 'cc'
-
+	self.check(*k, **kw)
 
 @conf
 def run_check(self, obj):
