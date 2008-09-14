@@ -69,9 +69,21 @@ def validate_c(self, kw):
 	if not 'execute' in kw:
 		kw['execute'] = False
 
-	kw['errmsg'] = 'haha youve got a problem'
-	kw['msg'] = 'checking for ..'
-	kw['okmsg'] = 'okay, you have won this time'
+	kw['errmsg'] = 'Not found'
+	kw['msg'] = 'Checking for ..'
+	kw['okmsg'] = 'Ok'
+
+	msgs = (
+		('function', 'Checking for function %s'),
+		('header_name', 'Checking for header %s'),
+		('fragment', 'Checking for custom code'))
+
+	for (x, y) in msgs:
+		if kw.get(x, ''):
+			if y.find('%s'):
+				kw['msg'] = y % kw[x]
+			else:
+				kw['msg'] = y
 
 @conf
 def post_check(self, *k, **kw):
@@ -153,8 +165,6 @@ def run_c_code(self, *k, **kw):
 	if kw['execute']:
 		data = Utils.cmd_output('"%s"' % lastprog).strip()
 		ret = {'result': data}
-
-	raise Configure.ConfigurationError, "hah"
 
 @conf
 def cxx_check(self, *k, **kw):
