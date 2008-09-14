@@ -194,24 +194,27 @@ class ConfigurationContext(object):
 		try: self.env[dest] = os.environ[var]
 		except KeyError: pass
 
+	def check_message_1(self, sr):
+		self.line_just = max(self.line_just, len(sr))
+		self.log.write(sr + '\n\n')
+		print "%s :" % sr.ljust(self.line_just),
+
+	def check_message_2(self, sr, color='GREEN'):
+		Utils.pprint(color, sr)
+
 	def check_message(self, th, msg, state, option=''):
 		"print an checking message. This function is used by other checking functions"
 		sr = 'Checking for %s %s' % (th, msg)
-		self.line_just = max(self.line_just, len(sr))
-		print "%s :" % sr.ljust(self.line_just),
-
-		p = Utils.pprint
-		if state: p('GREEN', 'ok ' + option)
-		else: p('YELLOW', 'not found')
-		self.log.write(sr + '\n\n')
+		self.check_message_1(sr)
+		p = self.check_message_2
+		if state: p('ok ' + option)
+		else: p('not found', 'YELLOW')
 
 	def check_message_custom(self, th, msg, custom, option='', color='PINK'):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for %s %s' % (th, msg)
-		self.line_just = max(self.line_just, len(sr))
-		print "%s :" % sr.ljust(self.line_just),
-		Utils.pprint(color, custom)
-		self.log.write(sr + '\n\n')
+		self.check_message_1(sr)
+		self.check_message_2(custom, color)
 
 	def find_program(self, filename, path_list=[], var=None):
 		"wrapper that adds a configuration message"
