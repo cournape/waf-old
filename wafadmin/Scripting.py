@@ -210,11 +210,11 @@ def main():
 	if Configure.autoconfig:
 		if not Options.commands['clean'] and not Options.commands['uninstall']:
 			reconf = 0
-			hash = 0
+			h = 0
 			try:
 				for file in proj['files']:
 					mod = Utils.load_module(file)
-					h = Utils.hash_function_with_globals(hash, mod.configure)
+					h = Utils.hash_function_with_globals(h, mod.configure)
 				reconf = (h != proj['hash'])
 			except Exception, ex:
 				warn("Reconfiguring the project (an exception occurred: %s)" % (str(ex),))
