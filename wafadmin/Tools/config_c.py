@@ -741,67 +741,10 @@ class check_data(object):
 		self.header_name    = '' # header name to check for
 
 		self.execute        = 0  # execute the program produced and return its output
-		self.options        = '' # command-line options
 
 		self.force_compiler = None
 		self.build_type     = 'program'
 setattr(Configure, 'check_data', check_data) # warning, attached to the module
-
-
-# the idea is the following: now that we are certain
-# that all the code here is only for c or c++, it is
-# easy to put all the logic in one function
-#
-# this should prevent code duplication (ita)
-
-simple_c_code = 'int main() {return 0;}\n'
-code_with_headers = ''
-
-# env: an optional environment (modified -> provide a copy)
-# compiler: cc or cxx - it tries to guess what is best
-# type: program, shlib, staticlib, objects
-# code: a c code to execute
-# uselib_store: where to add the variables
-# uselib: parameters to use for building
-
-@conf
-def validate_c(*k, **kw):
-	"""validate the parameters for the test method"""
-
-	if not 'env' in kw:
-		kw['env'] = self.env.copy()
-
-	env = kw['env']
-	if not 'compiler' in kw:
-		kw['compiler'] = 'cc'
-		if env['CXX_NAME'] and Task.TaskBase.classes.get('cxx', None):
-			kw['compiler'] = 'cxx'
-
-	if not 'type' in kw:
-		kw['type'] = 'program'
-
-	if kw['type'] != 'program' and kw.get('execute', 0):
-		raise ValueError, 'can only execute programs'
-
-	if not 'code' in kw:
-		code = simple_c_code
-
-@conf
-def check(self, *k, **kw):
-	# so this will be the generic function
-	# it will be safer to use cxx_check or cc_check
-	self.validate_c(*k, **kw)
-	print "TODO"
-
-@conf
-def cxx_check(self, *k, **kw):
-	kw['compiler'] = 'cxx'
-	self.check(*k, **kw)
-
-@conf
-def cc_check(self, *k, **kw):
-	kw['compiler'] = 'cc'
-	self.check(*k, **kw)
 
 @conf
 def run_check(self, obj):
@@ -885,6 +828,144 @@ def run_check(self, obj):
 		return ret
 
 	return not ret
+
+
+
+# the idea is the following: now that we are certain
+# that all the code here is only for c or c++, it is
+# easy to put all the logic in one function
+#
+# this should prevent code duplication (ita)
+
+simple_c_code = 'int main() {return 0;}\n'
+code_with_headers = ''
+
+# env: an optional environment (modified -> provide a copy)
+# compiler: cc or cxx - it tries to guess what is best
+# type: program, shlib, staticlib, objects
+# code: a c code to execute
+# uselib_store: where to add the variables
+# uselib: parameters to use for building
+# define: define to set, like FOO in #define FOO, if not set, add /* #undef FOO */
+# execute: True or False
+
+# function_name: TODO
+# header_name: TODO
+
+@conf
+def validate_c(*k, **kw):
+	"""validate the parameters for the test method"""
+
+	if not 'env' in kw:
+		kw['env'] = self.env.copy()
+
+	env = kw['env']
+	if not 'compiler' in kw:
+		kw['compiler'] = 'cc'
+		if env['CXX_NAME'] and Task.TaskBase.classes.get('cxx', None):
+			kw['compiler'] = 'cxx'
+
+	if not 'type' in kw:
+		kw['type'] = 'program'
+
+	if kw['type'] != 'program' and kw.get('execute', 0):
+		raise ValueError, 'can only execute programs'
+
+	if not 'code' in kw:
+		code = simple_c_code
+
+	if not 'execute' in kw:
+		kw['execute'] = True
+
+@conf
+def check(self, *k, **kw):
+	# so this will be the generic function
+	# it will be safer to use cxx_check or cc_check
+	self.validate_c(*k, **kw)
+
+	if kw['compiler'] == 'cxx':
+		tp = 'cxx'
+		test_f_name = 'test.cpp'
+	else:
+		tp = 'cc'
+		test_f_name = 'test.c'
+
+	# create a small folder for testing
+	dir = os.path.join(self.blddir, '.wscript-trybuild')
+
+	# if the folder already exists, remove it
+	shutil.rmtree(dir)
+	if not os.path.exists(dir):
+		os.makedirs(dir)
+
+	bdir = os.path.join(dir, 'testbuild')
+
+	if not os.path.exists(bdir):
+		os.makedirs(bdir)
+
+	if obj.env: env = obj.env
+	else: env = self.env.copy()
+
+	dest = open(os.path.join(dir, test_f_name), 'w')
+	dest.write(obj.code)
+	dest.close()
+
+	back = os.path.abspath('.')
+
+	bld = Build.BuildContext()
+	bld.log = self.log
+	bld.all_envs.update(self.all_envs)
+	bld.all_envs['default'] = env
+	bld._variants = bld.all_envs.keys()
+	bld.load_dirs(dir, bdir)
+
+	os.chdir(dir)
+
+	bld.rescan(bld.srcnode)
+
+	o = bld.new_task_gen(tp, obj.build_type)
+	o.source   = test_f_name
+	o.target   = 'testprog'
+	o.uselib   = obj.uselib
+	o.includes = obj.includes
+
+	self.log.write("==>\n%s\n<==\n" % obj.code)
+
+
+	# compile the program
+	try:
+		ret = bld.compile()
+	except Build.BuildError:
+		ret = 1
+
+	# keep the name of the program to execute
+	if obj.execute:
+		lastprog = o.link_task.outputs[0].abspath(o.env)
+
+	#if runopts is not None:
+	#	ret = os.popen(obj.link_task.outputs[0].abspath(obj.env)).read().strip()
+
+	os.chdir(back)
+
+	# if we need to run the program, try to get its result
+	if obj.execute:
+		if ret: return not ret
+		data = Utils.cmd_output('"%s"' % lastprog).strip()
+		ret = {'result': data}
+		return ret
+
+	return not ret
+
+
+@conf
+def cxx_check(self, *k, **kw):
+	kw['compiler'] = 'cxx'
+	self.check(*k, **kw)
+
+@conf
+def cc_check(self, *k, **kw):
+	kw['compiler'] = 'cc'
+	self.check(*k, **kw)
 
 @conf
 def define(self, define, value, quote=1):
