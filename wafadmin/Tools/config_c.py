@@ -747,6 +747,39 @@ class check_data(object):
 		self.build_type     = 'program'
 setattr(Configure, 'check_data', check_data) # warning, attached to the module
 
+# the idea is the following: now that we are certain
+# that all the code here is only for c or c++, it is
+# easy to put all the logic in one function
+#
+# i am tired of code duplication (ita)
+
+@conf
+def validate(*k, **kw):
+	if not 'env' in kw:
+		raise ValueError, "missing environment in arguments"
+
+	env = kw['env']
+	if not 'compiler' in kw:
+		if env['CXX_NAME'] and not obj.force_compiler and Task.TaskBase.classes.get('cxx', None)):
+			pass
+
+@conf
+def check(self, *k, **kw):
+	# so this will be the generic function
+	# it will be safer to use cxx_check or cc_check
+	self.validate_c(*k, **kw)
+
+	pass
+
+@conf
+def cxx_check(self, *k, **kw):
+	kw['compiler'] = 'cxx'
+
+@conf
+def cc_check(self, *k, **kw):
+	kw['compiler'] = 'cc'
+
+
 @conf
 def run_check(self, obj):
 	"""compile, link and run if necessary
