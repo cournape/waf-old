@@ -69,6 +69,10 @@ def validate_c(self, kw):
 	if not 'execute' in kw:
 		kw['execute'] = False
 
+	kw['errmsg'] = 'haha youve got a problem'
+	kw['msg'] = 'checking for ..'
+	kw['okmsg'] = 'okay, you have won this time'
+
 @conf
 def post_check(self, *k, **kw):
 	"set the variables after a test was run successfully"
@@ -78,7 +82,18 @@ def check(self, *k, **kw):
 	# so this will be the generic function
 	# it will be safer to use cxx_check or cc_check
 	self.validate_c(kw)
+	self.check_message_1(kw['msg'])
+	try:
+		ret = self.run_c_code(*k, **kw)
+	except Configure.ConfigurationError, e:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+		raise
+	self.check_message_2(kw['okmsg'])
+	self.post_check()
+	return ret
 
+@conf
+def run_c_code(self, *k, **kw):
 	if kw['compiler'] == 'cxx':
 		tp = 'cxx'
 		test_f_name = 'test.cpp'
@@ -139,8 +154,7 @@ def check(self, *k, **kw):
 		data = Utils.cmd_output('"%s"' % lastprog).strip()
 		ret = {'result': data}
 
-	self.post_check()
-	return ret
+	raise Configure.ConfigurationError, "hah"
 
 @conf
 def cxx_check(self, *k, **kw):

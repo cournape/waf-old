@@ -26,40 +26,6 @@ int main()
 }
 '''
 
-class compile_configurator(config_c.configurator_base):
-	"inheritance demo"
-	def __init__(self, conf):
-		config_c.configurator_base.__init__(self, conf)
-		self.name = ''
-		self.code = ''
-		self.flags = ''
-		self.define = ''
-		self.uselib = ''
-		self.want_message = 0
-		self.msg = ''
-		self.force_compiler = None
-
-	def error(self):
-		raise Configure.ConfigurationError('test program would not run')
-
-	def run_test(self):
-		obj = config_c.check_data()
-		obj.code = self.code
-		obj.env  = self.env
-		obj.uselib = self.uselib
-		obj.flags = self.flags
-		if self.force_compiler: obj.force_compiler = self.force_compiler
-		ret = self.conf.run_check(obj)
-
-		if self.want_message:
-			self.conf.check_message('compile code', '', not (ret is False), option=self.msg)
-
-		return ret
-
-@conf
-def create_compile_configurator(self):
-	return compile_configurator(self)
-
 @conf
 def checkEndian(self, define='', pathlst=[]):
 	"""the point of checkEndian is to make an example, the following is better
