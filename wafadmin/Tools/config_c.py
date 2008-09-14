@@ -67,13 +67,11 @@ def validate_c(*k, **kw):
 		code = simple_c_code
 
 	if not 'execute' in kw:
-		kw['execute'] = True
+		kw['execute'] = False
 
 @conf
 def post_check(self, *k, **kw):
 	"set the variables after a test was run successfully"
-
-
 
 @conf
 def check(self, *k, **kw):
@@ -101,11 +99,10 @@ def check(self, *k, **kw):
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
-	if obj.env: env = obj.env
-	else: env = self.env.copy()
+	env = obj['env']
 
 	dest = open(os.path.join(dir, test_f_name), 'w')
-	dest.write(obj.code)
+	dest.write(obj['code'])
 	dest.close()
 
 	back = os.path.abspath('.')
@@ -121,43 +118,30 @@ def check(self, *k, **kw):
 
 	bld.rescan(bld.srcnode)
 
-	o = bld.new_task_gen(tp, obj.build_type)
-	o.source   = test_f_name
-	o.target   = 'testprog'
-	o.uselib   = obj.uselib
-	o.includes = obj.includes
+	o = bld.new_task_gen(tp, obj['type'])
+	o.source = test_f_name
+	o.target = 'testprog'
 
-	self.log.write("==>\n%s\n<==\n" % obj.code)
+	self.log.write("==>\n%s\n<==\n" % obj['code'])
 
 
 	# compile the program
-	try:
-		ret = bld.compile()
-	except Build.BuildError:
-		ret = 1
+	ret = bld.compile()
+	if ret: raise Configure.ConfigurationError, str(ret)
 
 	# keep the name of the program to execute
-	if obj.execute:
-		lastprog = o.link_task.outputs[0].abspath(o.env)
-
-	#if runopts is not None:
-	#	ret = os.popen(obj.link_task.outputs[0].abspath(obj.env)).read().strip()
+	if obj['execute']:
+		lastprog = o.link_task.outputs[0].abspath(env)
 
 	os.chdir(back)
 
 	# if we need to run the program, try to get its result
-	if obj.execute:
-		if ret: return not ret
+	if obj['execute']:
 		data = Utils.cmd_output('"%s"' % lastprog).strip()
 		ret = {'result': data}
 
-	if obj.execute:
-		return ret
-
 	self.post_check()
-
-	# error code
-	return not ret
+	return ret
 
 @conf
 def cxx_check(self, *k, **kw):
