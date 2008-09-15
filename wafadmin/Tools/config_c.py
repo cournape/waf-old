@@ -69,21 +69,29 @@ def validate_c(self, kw):
 	if not 'execute' in kw:
 		kw['execute'] = False
 
-	kw['errmsg'] = 'Not found'
-	kw['msg'] = 'Checking for ..'
-	kw['okmsg'] = 'Ok'
+	if not 'errmsg' in kw:
+		kw['errmsg'] = 'not found'
 
-	msgs = (
-		('function', 'Checking for function %s'),
-		('header_name', 'Checking for header %s'),
-		('fragment', 'Checking for custom code'))
+	if not 'okmsg' in kw:
+		kw['okmsg'] = 'ok'
 
-	for (x, y) in msgs:
-		if kw.get(x, ''):
-			if y.find('%s'):
-				kw['msg'] = y % kw[x]
-			else:
-				kw['msg'] = y
+	def to_header(dct):
+		if 'header_name' in dct:
+			dct = Utils.to_list(dct['header_name'])
+			return ''.join(['#include <%s>\n' % x for x in dct])
+
+	if 'function' in kw:
+		kw['msg'] = 'Checking for function %s' % kw['function']
+		kw['code'] = to_header(kw) + 'int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % kw['function']
+
+	elif 'header_name' in kw:
+		kw['msg'] = 'Checking for header %s' % kw['header_name']
+		kw['code'] = to_header(kw) + 'int main(){return 0;}\n'
+
+	if 'fragment' in kw:
+		kw['code'] = kw['fragment']
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for custom code'
 
 @conf
 def post_check(self, *k, **kw):
