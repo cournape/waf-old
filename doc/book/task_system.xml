@@ -24,7 +24,7 @@
 			Executing a task consists in calling the method <emphasis>run</emphasis> on that task, and setting the task execution state.
 			The following diagram is a summary of the process:
 			<graphic format="png" fileref="task_run.png" align="center"/>
-			The method post_run can be used to check if the files have been produced, it must throw an OSError if the task has not completed properly.
+			The method <emphasis>post_run</emphasis> can be used to check if the files have been produced, it must throw an OSError if the task has not completed properly.
 		</para>
 	</section>
 
