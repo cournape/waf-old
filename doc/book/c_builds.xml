@@ -36,7 +36,7 @@ def build(bld):
 					<para>Target name, it is concerted to the name of the binary <emphasis>name.so</emphasis> or <emphasis>name.exe</emphasis> depending on the platform and the features.</para>
 				</callout>
 				<callout arearefs="incl-co" id="a4">
-					<para>List of include paths, it may be either a python list, or a string containing the paths separated by spaces. The paths are used for both the command-line and for finding the implicit dependencies (headers). In general, include paths must be relative to the wscript file and given explicitly. See the preprocessor section for more information.</para>
+					<para>List of include paths, it may be either a python list, or a string containing the paths separated by spaces. The paths are used for both the command-line and for finding the implicit dependencies (headers). In general, include paths must be relative to the wscript file and given explicitly. See <xref linkend="include_sys"/>.</para>
 				</callout>
 				<callout arearefs="inst-co" id="a5">
 					<para>Installation directory, this is where to install the library or program produced. The <emphasis>${}</emphasis> expression is a reference to a variable to be extracted from <emphasis>tgen.env</emphasis>. By default it is set to ${PREFIX}/bin for programs and ${PREFIX}/lib for libraries. To disable the installation, set it to <emphasis>None</emphasis>.</para>
@@ -145,7 +145,7 @@ build/
 		</para>
 	</section>
 
-	<section>
+	<section id="include_sys">
 		<title>The include system</title>
 		<para>
 			Include paths are used by the c/c++ compilers for finding the headers. Though some compilers (gcc) can use the folder of the source file for finding other includes implicitely, Waf requires the explicit list of the include paths. When one header changes, the files are recompiled automatically.
