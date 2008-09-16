@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="task_gen">
 	<title>Task creation automation using task generators</title>
 	<para>
 		Although task instances may be created directly, they act like global variables in the scripts, and they may lead to the creation of spaghetti code. Special containers called task generators are used for creating the tasks and keeping track of them.

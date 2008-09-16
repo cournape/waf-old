@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
-<chapter>
+<chapter id="execution">
 	<title>Introduction to the Waf scripting system</title>
 	<section>
 		<title>Empty project example</title>
@@ -209,7 +209,7 @@ def build(bld):
     main.target = 'test_c_program'
 			</programlisting>
 			The bld parameter in the function build represents the build context, it enables the creation of task generators.
-			This example provides a modified <emphasis>configure</emphasis> function, which is the topic of the next section. The task generator system and the default generators will be reviewed in detail in another chapter.
+			This example provides a modified <emphasis>configure</emphasis> function, which is the topic of the next section. The task generator system and the default generators will be reviewed in detail in <xref  linkend="task_gen"/>.
 			</para>
 		</sect2>
 	</section>
