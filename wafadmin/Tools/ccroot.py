@@ -244,7 +244,7 @@ def apply_type_vars(self):
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_core')
 def apply_link(self):
-	# use a custom linker if specified (self.link)
+	# use a custom linker if specified (self.link='name-of-custom-link-task')
 	link = getattr(self, 'link', None)
 	if not link:
 		if 'cstaticlib' in self.features: link = 'ar_link_static'
