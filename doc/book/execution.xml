@@ -68,7 +68,7 @@ $ waf build
 				<listitem>APPNAME: project name</listitem>
 				<listitem>VERSION: project version</listitem>
 				<listitem>init: function called before anything is executed</listitem>
-				<listitem>shutdown: function called after a successful configuration or build</listitem>
+				<listitem>shutdown: function called after a successful build</listitem>
 				<listitem>dist: function called for packaging the application</listitem>
 			</itemizedlist>
 			We will now provide a more complicated wscript file, execute the typical commands, and look at the output:
