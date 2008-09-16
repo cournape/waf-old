@@ -182,6 +182,11 @@ def get_define(self, define):
     try: return self.env[DEFINES][define]
     except KeyError: return None
 			</programlisting>
+			Then the new configuration test may be used easily in wscript:
+			<programlisting language="python">
+def configure(conf):
+	print conf.get_define('DEBUG')
+			</programlisting>
 		</para>
 	</section>
 </chapter>
