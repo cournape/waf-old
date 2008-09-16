@@ -119,7 +119,7 @@ task1.set_run_after(task2)
 
 	<section>
 		<title>Executing tasks only when something changes</title>
-		<para>The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class <emphasis>Task</emphasis> provides the necessary features for the most common of builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by including them in the signature. A hashing function is used for computing the signature, by default it is md5.
+		<para>The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class <emphasis>Task</emphasis> provides the necessary features for the most common builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by including them in the signature. A hashing function is used for computing the signature, by default it is md5.
 		</para>
 		<para>
 			The following diagram illustrates the task processing including the signature, it is only valid for Task instance (not TaskBase instances):
