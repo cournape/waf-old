@@ -564,7 +564,7 @@ class Task(TaskBase):
 			try:
 				new_sig = self.signature()
 			except KeyError:
-				debug("something is wrong, computing the task signature failed")
+				debug("task: something is wrong, computing the task signature failed")
 				return RUN_ME
 
 			return RUN_ME
