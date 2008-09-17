@@ -84,8 +84,8 @@ def validate_c(self, kw):
 		kw['code'] = to_header(kw) + 'int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % kw['function']
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = kw['function'].upper()
-		if not 'define' in kw:
-			kw['define'] = self.have_define(kw['function'])
+		if not 'define_name' in kw:
+			kw['define_name'] = self.have_define(kw['function'])
 
 	elif 'header_name' in kw:
 		if not 'msg' in kw:
@@ -108,8 +108,8 @@ def validate_c(self, kw):
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = l[0].upper()
 
-		if not 'define' in kw:
-			kw['define'] = self.have_define(l[0])
+		if not 'define_name' in kw:
+			kw['define_name'] = self.have_define(l[0])
 
 	if 'fragment' in kw:
 		# an additional code fragment may be provided to replace the predefined code
@@ -139,11 +139,11 @@ def post_check(self, *k, **kw):
 	"set the variables after a test was run successfully"
 
 	def define_or_stuff():
-		nm = kw['define']
+		nm = kw['define_name']
 		if not kw['execute'] and not kw.get('define_ret', None):
-			self.define_cond(kw['define'], nm is not None)
+			self.define_cond(kw['define_name'], nm is not None)
 		else:
-			self.define(kw['define'], kw['success'])
+			self.define(kw['define_name'], kw['success'])
 
 	is_define = kw['success'] is not None
 
@@ -156,7 +156,7 @@ def post_check(self, *k, **kw):
 		define_or_stuff()
 
 	elif 'fragment' in kw:
-		if 'define' in kw:
+		if 'define_name' in kw:
 			define_or_stuff()
 
 	if 'uselib_store' in kw:
@@ -231,6 +231,9 @@ def run_c_code(self, *k, **kw):
 	o = bld.new_task_gen(tp, kw['type'])
 	o.source = test_f_name
 	o.target = 'testprog'
+
+	for k, v in kw.iteritems():
+		setattr(o, k, v)
 
 	self.log.write("==>\n%s\n<==\n" % kw['code'])
 
