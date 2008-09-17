@@ -52,6 +52,43 @@ def configure(conf):
 	conf.check_tool('misc')
 	conf.check_tool('dang', tooldir='.')
 
+
+	# NEW APIS
+
+
+	conf.cc_check(function_name='printf', header_name="stdio.h")
+	conf.cc_check(header_name='time.h')
+	conf.cc_check(fragment='int main() {2+2==4;}\n', define_name="boobah")
+
+
+	conf.cc_check(function_name='prontf', header_name='stdio.h')
+	conf.cc_check(header_name='trme.h')
+	conf.cc_check(fragment='in main() {2+2==4;}\n', define_name="boobar")
+
+
+	conf.cc_check(fragment='#include <stdio.h>\nint main() { printf("4"); return 0; }\n', define_name="booeah", execute="1", define_ret="1", msg="Checking for something")
+
+
+	conf.cc_check(framework_name='gruik')
+
+	conf.cc_check(lib='m')
+
+
+
+	# the idea is the following: attributes are copied, but if custom parameters must
+	# be passed, they have to be passed in an environment copy (and they are not saved)
+	#
+	# the attributes such as defines, includes, libs, .. are stored in capital letters in conf.env
+	envi = conf.env.copy()
+	envi['LIB'] = 'm'
+	conf.cc_check(lib='m', env=envi)
+
+
+
+	conf.write_config_header('config.h')
+	return
+
+
 	# checkFeatures is only available when 'checks' is in conf.check_tool()
 	# look in wafadmin/Tools/checks.py for the other tests available
 	conf.checkEndian()
