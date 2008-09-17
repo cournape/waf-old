@@ -113,6 +113,12 @@ def validate_c(self, kw):
 		if not 'define_name' in kw:
 			kw['define_name'] = self.have_define(l[0])
 
+	if 'lib' in kw:
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for library %s' % kw['lib']
+		if not 'uselib_store' in kw:
+			kw['uselib_store'] = kw['lib'].upper()
+
 	if 'fragment' in kw:
 		# an additional code fragment may be provided to replace the predefined code
 		# in custom headers
