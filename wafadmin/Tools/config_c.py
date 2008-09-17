@@ -66,6 +66,34 @@ def validate_c(self, kw):
 	if not 'code' in kw:
 		kw['code'] = simple_c_code
 
+	def to_header(dct):
+		if 'header_name' in dct:
+			dct = Utils.to_list(dct['header_name'])
+			return ''.join(['#include <%s>\n' % x for x in dct])
+
+	if 'function' in kw:
+		kw['msg'] = 'Checking for function %s' % kw['function']
+		kw['code'] = to_header(kw) + 'int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % kw['function']
+		if not 'uselib_store' in kw:
+			kw['uselib_store'] = kw['function'].upper()
+		if not 'define' in kw:
+			kw['define'] = self.have_define(kw['function'])
+
+	elif 'header_name' in kw:
+		kw['msg'] = 'Checking for header %s' % kw['header_name']
+		kw['code'] = to_header(kw) + 'int main(){return 0;}\n'
+		if not 'uselib_store' in kw:
+			kw['uselib_store'] = kw['header_name'].upper()
+		if not 'define' in kw:
+			kw['define'] = self.have_define(kw['header_name'])
+
+	if 'fragment' in kw:
+		kw['code'] = kw['fragment']
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for custom code'
+		if not 'errmsg' in kw:
+			kw['errmsg'] = 'fail'
+
 	if not 'execute' in kw:
 		kw['execute'] = False
 
@@ -75,27 +103,21 @@ def validate_c(self, kw):
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 
-	def to_header(dct):
-		if 'header_name' in dct:
-			dct = Utils.to_list(dct['header_name'])
-			return ''.join(['#include <%s>\n' % x for x in dct])
-
-	if 'function' in kw:
-		kw['msg'] = 'Checking for function %s' % kw['function']
-		kw['code'] = to_header(kw) + 'int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % kw['function']
-
-	elif 'header_name' in kw:
-		kw['msg'] = 'Checking for header %s' % kw['header_name']
-		kw['code'] = to_header(kw) + 'int main(){return 0;}\n'
-
-	if 'fragment' in kw:
-		kw['code'] = kw['fragment']
-		if not 'msg' in kw:
-			kw['msg'] = 'Checking for custom code'
-
 @conf
 def post_check(self, *k, **kw):
 	"set the variables after a test was run successfully"
+
+	if 'header_name' in kw:
+		if kw['success']:
+			self.env['CPPPATH_' + kw['uselib_store']] = kw.get('include', '')
+		self.define_cond(kw['define'], kw['success'] is not None)
+
+	elif 'function' in kw:
+		self.define_cond(kw['define'], kw['success'] is not None)
+
+	elif 'fragment' in kw:
+		if 'define' in kw:
+			self.define_cond(kw['define'], kw['success'] is not None)
 
 @conf
 def check(self, *k, **kw):
@@ -103,13 +125,19 @@ def check(self, *k, **kw):
 	# it will be safer to use cxx_check or cc_check
 	self.validate_c(kw)
 	self.check_message_1(kw['msg'])
+	ret = None
 	try:
 		ret = self.run_c_code(*k, **kw)
 	except Configure.ConfigurationError, e:
 		self.check_message_2(kw['errmsg'], 'YELLOW')
-		raise
-	self.check_message_2(kw['okmsg'])
-	self.post_check()
+		if 'mandatory' in kw:
+			raise
+		else:
+			pass
+	else:
+		self.check_message_2(kw['okmsg'])
+	kw['success'] = ret
+	self.post_check(*k, **kw)
 	return ret
 
 @conf
@@ -160,19 +188,28 @@ def run_c_code(self, *k, **kw):
 	self.log.write("==>\n%s\n<==\n" % kw['code'])
 
 	# compile the program
-	ret = bld.compile()
-	if ret: raise Configure.ConfigurationError, str(ret)
+	try:
+		bld.compile()
+	except:
+		ret = Utils.ex_stack()
+	else:
+		ret = 0
+
+	os.chdir(back)
 
 	# keep the name of the program to execute
 	if kw['execute']:
 		lastprog = o.link_task.outputs[0].abspath(env)
 
-	os.chdir(back)
+	if ret:
+		raise Configure.ConfigurationError, str(ret)
 
 	# if we need to run the program, try to get its result
 	if kw['execute']:
 		data = Utils.cmd_output('"%s"' % lastprog).strip()
 		ret = {'result': data}
+
+	return ret
 
 @conf
 def cxx_check(self, *k, **kw):
