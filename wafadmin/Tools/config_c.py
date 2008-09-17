@@ -73,7 +73,7 @@ def validate_c(self, kw):
 
 
 	#OSX
-	if 'framework' in kw:
+	if 'framework_name' in kw:
 		if not kw.get('header_name'):
 			kw['header_name'] = []
 
@@ -92,15 +92,15 @@ def validate_c(self, kw):
 			kw['msg'] = 'Checking for header %s' % kw['header_name']
 
 		# OSX
-		if 'framework' in kw:
-			fwkname = kw['framework']
+		if 'framework_name' in kw:
+			fwkname = kw['framework_name']
 			fwk = '%s/%s.h' % (fwkname, fwkname)
 			if kw.get('remove_dot_h', None):
 				fwk = fwk[:-2]
 			kw['header_name'] = Utils.to_list(kw['header_name']) + [fwk]
-			kw['msg'] = 'Checking for framework %s' % fwk
+			kw['msg'] = 'Checking for framework %s' % fwkname
 
-		l = Utils.to_list(kw['header_name'])[0]
+		l = Utils.to_list(kw['header_name'])
 		assert len(l)>0, 'list of headers in header_name is empty'
 
 		kw['code'] = to_header(kw) + 'int main(){return 0;}\n'
@@ -158,6 +158,12 @@ def post_check(self, *k, **kw):
 	elif 'fragment' in kw:
 		if 'define' in kw:
 			define_or_stuff()
+
+	if 'uselib_store' in kw:
+		import cc, cxx
+		for k in set(cc.g_cc_flag_vars).union(cxx.g_cxx_flag_vars):
+			if k.lower() in kw:
+				self.env[k + '_' + kw['uselib_store']] = kw[k.lower()]
 
 @conf
 def check(self, *k, **kw):
