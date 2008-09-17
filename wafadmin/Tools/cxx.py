@@ -9,7 +9,7 @@ from Logs import debug
 import ccroot # <- do not remove
 from TaskGen import taskgen, before, extension
 
-g_cpp_flag_vars = [
+g_cxx_flag_vars = [
 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
 'STATICLIB', 'LIB', 'LIBPATH', 'LINKFLAGS', 'RPATH',
 'CXXFLAGS', 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CXXDEFINES']
@@ -21,7 +21,7 @@ CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_defines_cxx
 
 TaskGen.bind_feature('cxx', CXX_METHS)
 
-g_cpp_type_vars=['CXXFLAGS', 'LINKFLAGS']
+g_cxx_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cxx_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *k):
 		ccroot.ccroot_abstract.__init__(self, *k)
@@ -33,11 +33,11 @@ def init_cxx(self):
 	if not 'cc' in self.features:
 		self.mappings['.c'] = TaskGen.task_gen.mappings['.cxx']
 
-	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cpp_flag_vars)
-	else: self.p_flag_vars = g_cpp_flag_vars
+	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cxx_flag_vars)
+	else: self.p_flag_vars = g_cxx_flag_vars
 
-	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cpp_type_vars)
-	else: self.p_type_vars = g_cpp_type_vars
+	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cxx_type_vars)
+	else: self.p_type_vars = g_cxx_type_vars
 
 	if not self.env['CXX_NAME']:
 		raise Utils.WafError("At least one compiler (g++, ..) must be selected")
