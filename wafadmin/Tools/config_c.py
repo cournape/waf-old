@@ -70,6 +70,7 @@ def validate_c(self, kw):
 		if 'header_name' in dct:
 			dct = Utils.to_list(dct['header_name'])
 			return ''.join(['#include <%s>\n' % x for x in dct])
+		return ''
 
 
 	#OSX
@@ -78,14 +79,15 @@ def validate_c(self, kw):
 			kw['header_name'] = []
 
 
-	if 'function' in kw:
+	if 'function_name' in kw:
+		fu = kw['function_name']
 		if not 'msg' in kw:
-			kw['msg'] = 'Checking for function %s' % kw['function']
-		kw['code'] = to_header(kw) + 'int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % kw['function']
+			kw['msg'] = 'Checking for function %s' % fu
+		kw['code'] = to_header(kw) + 'int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % fu
 		if not 'uselib_store' in kw:
-			kw['uselib_store'] = kw['function'].upper()
+			kw['uselib_store'] = fu.upper()
 		if not 'define_name' in kw:
-			kw['define_name'] = self.have_define(kw['function'])
+			kw['define_name'] = self.have_define(fu)
 
 	elif 'header_name' in kw:
 		if not 'msg' in kw:
@@ -141,7 +143,7 @@ def post_check(self, *k, **kw):
 	def define_or_stuff():
 		nm = kw['define_name']
 		if not kw['execute'] and not kw.get('define_ret', None):
-			self.define_cond(kw['define_name'], nm is not None)
+			self.define_cond(kw['define_name'], kw['success'] is not None)
 		else:
 			self.define(kw['define_name'], kw['success'])
 
@@ -152,7 +154,7 @@ def post_check(self, *k, **kw):
 			self.env['CPPPATH_' + kw['uselib_store']] = kw.get('include', '')
 		define_or_stuff()
 
-	elif 'function' in kw:
+	elif 'function_name' in kw:
 		define_or_stuff()
 
 	elif 'fragment' in kw:
