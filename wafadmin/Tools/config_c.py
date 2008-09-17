@@ -60,19 +60,27 @@ def validate_c(self, kw):
 	if not 'type' in kw:
 		kw['type'] = 'program'
 
-	if kw['type'] != 'program' and kw.get('execute', 0):
-		raise ValueError, 'can only execute programs'
+	assert not(kw['type'] != 'program' and kw.get('execute', 0)), 'can only execute programs'
 
-	if not 'code' in kw:
-		kw['code'] = simple_c_code
+
+	#if kw['type'] != 'program' and kw.get('execute', 0):
+	#	raise ValueError, 'can only execute programs'
 
 	def to_header(dct):
 		if 'header_name' in dct:
 			dct = Utils.to_list(dct['header_name'])
 			return ''.join(['#include <%s>\n' % x for x in dct])
 
+
+	#OSX
+	if 'framework' in kw:
+		if not kw.get('header_name'):
+			kw['header_name'] = []
+
+
 	if 'function' in kw:
-		kw['msg'] = 'Checking for function %s' % kw['function']
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for function %s' % kw['function']
 		kw['code'] = to_header(kw) + 'int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % kw['function']
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = kw['function'].upper()
@@ -80,14 +88,32 @@ def validate_c(self, kw):
 			kw['define'] = self.have_define(kw['function'])
 
 	elif 'header_name' in kw:
-		kw['msg'] = 'Checking for header %s' % kw['header_name']
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for header %s' % kw['header_name']
+
+		# OSX
+		if 'framework' in kw:
+			fwkname = kw['framework']
+			fwk = '%s/%s.h' % (fwkname, fwkname)
+			if kw.get('remove_dot_h', None):
+				fwk = fwk[:-2]
+			kw['header_name'] = Utils.to_list(kw['header_name']) + [fwk]
+			kw['msg'] = 'Checking for framework %s' % fwk
+
+		l = Utils.to_list(kw['header_name'])[0]
+		assert len(l)>0, 'list of headers in header_name is empty'
+
 		kw['code'] = to_header(kw) + 'int main(){return 0;}\n'
+
 		if not 'uselib_store' in kw:
-			kw['uselib_store'] = kw['header_name'].upper()
+			kw['uselib_store'] = l[0].upper()
+
 		if not 'define' in kw:
-			kw['define'] = self.have_define(kw['header_name'])
+			kw['define'] = self.have_define(l[0])
 
 	if 'fragment' in kw:
+		# an additional code fragment may be provided to replace the predefined code
+		# in custom headers
 		kw['code'] = kw['fragment']
 		if not 'msg' in kw:
 			kw['msg'] = 'Checking for custom code'
@@ -102,6 +128,11 @@ def validate_c(self, kw):
 
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
+
+	if not 'code' in kw:
+		kw['code'] = simple_c_code
+
+	assert('msg' in kw)
 
 @conf
 def post_check(self, *k, **kw):
