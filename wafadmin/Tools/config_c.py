@@ -107,17 +107,26 @@ def validate_c(self, kw):
 def post_check(self, *k, **kw):
 	"set the variables after a test was run successfully"
 
+	def define_or_stuff():
+		nm = kw['define']
+		if not kw['execute'] and not kw.get('define_ret', None):
+			self.define_cond(kw['define'], nm is not None)
+		else:
+			self.define(kw['define'], kw['success'])
+
+	is_define = kw['success'] is not None
+
 	if 'header_name' in kw:
 		if kw['success']:
 			self.env['CPPPATH_' + kw['uselib_store']] = kw.get('include', '')
-		self.define_cond(kw['define'], kw['success'] is not None)
+		define_or_stuff()
 
 	elif 'function' in kw:
-		self.define_cond(kw['define'], kw['success'] is not None)
+		define_or_stuff()
 
 	elif 'fragment' in kw:
 		if 'define' in kw:
-			self.define_cond(kw['define'], kw['success'] is not None)
+			define_or_stuff()
 
 @conf
 def check(self, *k, **kw):
@@ -136,6 +145,7 @@ def check(self, *k, **kw):
 			pass
 	else:
 		self.check_message_2(kw['okmsg'])
+
 	kw['success'] = ret
 	self.post_check(*k, **kw)
 	return ret
@@ -207,7 +217,7 @@ def run_c_code(self, *k, **kw):
 	# if we need to run the program, try to get its result
 	if kw['execute']:
 		data = Utils.cmd_output('"%s"' % lastprog).strip()
-		ret = {'result': data}
+		ret = data
 
 	return ret
 
