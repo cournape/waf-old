@@ -170,8 +170,11 @@ def post_check(self, *k, **kw):
 	if 'uselib_store' in kw:
 		import cc, cxx
 		for k in set(cc.g_cc_flag_vars).union(cxx.g_cxx_flag_vars):
-			if k.lower() in kw:
-				self.env[k + '_' + kw['uselib_store']] = kw[k.lower()]
+			lk = k.lower()
+			# inconsistency: includes -> CPPPATH
+			if k == 'CPPPATH': lk = 'includes'
+			if lk in kw:
+				self.env[k + '_' + kw['uselib_store']] = kw[lk]
 
 @conf
 def check(self, *k, **kw):
