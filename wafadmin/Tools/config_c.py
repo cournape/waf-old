@@ -174,7 +174,7 @@ def post_check(self, *k, **kw):
 			# inconsistency: includes -> CPPPATH
 			if k == 'CPPPATH': lk = 'includes'
 			if lk in kw:
-				self.env[k + '_' + kw['uselib_store']] = kw[lk]
+				self.env.append_value(k + '_' + kw['uselib_store']], kw[lk])
 
 @conf
 def check(self, *k, **kw):
