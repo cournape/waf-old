@@ -118,6 +118,12 @@ def validate_c(self, kw):
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = kw['lib'].upper()
 
+	if 'staticlib' in kw:
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for static library %s' % kw['staticlib']
+		if not 'uselib_store' in kw:
+			kw['uselib_store'] = kw['staticlib'].upper()
+
 	if 'fragment' in kw:
 		# an additional code fragment may be provided to replace the predefined code
 		# in custom headers
