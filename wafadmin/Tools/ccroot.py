@@ -448,6 +448,8 @@ c_attrs = {
 'ccflag' : 'CCFLAGS',
 'linkflag' : 'LINKFLAGS',
 'ldflag' : 'LINKFLAGS',
+'lib' : 'LIB',
+'staticlib': 'STATICLIB',
 'rpath' : 'RPATH',
 }
 
