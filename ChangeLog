@@ -34,8 +34,10 @@ meaning in configuration and build)
 * modification of the installation system: use foo.install_path = '${PREFIX}/bin' instead of inst_var and inst_dir
 * Configure.Configure -> Configure.ConfigurationContext
 * Build.Build -> Build.BuildContext
-
 * detect the amount of cpus automatically
+
+* refactoring of the configuration apis for c/c++
+* The Waf binary size has been reduced by 25%
 
 NEW IN WAF 1.4.3
 ----------------
