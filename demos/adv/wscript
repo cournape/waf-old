@@ -19,6 +19,55 @@ blddir = 'build'
 # periods (as of 1.5.0 --> NOT 1.5)
 Utils.waf_version(mini="1.4.2", maxi="1.5.0")
 
+features_str = '''
+#include <stdio.h>
+int is_big_endian()
+{
+	long one = 1;
+	return !(*((char *)(&one)));
+}
+int main()
+{
+	if (is_big_endian()) printf("bigendian=1\\n");
+	else printf("bigendian=0\\n");
+	printf("int_size=%d\\n", sizeof(int));
+	printf("long_int_size=%d\\n", sizeof(long int));
+	printf("long_long_int_size=%d\\n", sizeof(long long int));
+	printf("double_size=%d\\n", sizeof(double));
+	return 0;
+}
+'''
+
+from Configure import conf
+
+@conf
+def check_features(self):
+
+	mp = self.check(fragment=features_str, execute=1)
+	t = Utils.to_hashtable(mp)
+
+	try:
+		is_big = int(t['bigendian'])
+	except KeyError:
+		raise Configure.ConfigurationError('endian test failed '+code)
+
+	if is_big: strbig = 'big endian'
+	else: strbig = 'little endian'
+	self.check_message_custom('endianness', '', strbig)
+
+	self.check_message_custom('int size', '', t['int_size'])
+	self.check_message_custom('long int size', '', t['long_int_size'])
+	self.check_message_custom('long long int size', '', t['long_long_int_size'])
+	self.check_message_custom('double size', '', t['double_size'])
+
+	self.define_cond('IS_BIGENDIAN', is_big)
+	self.define_cond('INT_SIZE', int(t['int_size']))
+	self.define_cond('LONG_INT_SIZE', int(t['long_int_size']))
+	self.define_cond('LONG_LONG_INT_SIZE', int(t['long_long_int_size']))
+	self.define_cond('DOUBLE_SIZE', int(t['double_size']))
+
+	return is_big
+
 def init():
 	pass
 	# redefine the cpp source extensions
@@ -52,9 +101,11 @@ def configure(conf):
 	conf.check_tool('misc')
 	conf.check_tool('dang', tooldir='.')
 
+	# the demo code, from above
+	conf.check_features()
 
+	####################################################################
 	# NEW APIS
-
 
 	conf.check(function_name='printf', header_name="stdio.h")
 	conf.check(header_name='time.h')
