@@ -8,10 +8,9 @@ c/c++ configuration routines
 The code is being written, so do not complain about trunk being broken :-)
 """
 
-import os, types, imp, cPickle, sys, shlex, warnings, shutil
+import os, types, imp, cPickle, sys, shlex, shutil
 from Utils import md5
-import Build, Utils, Configure, Task, Options
-from Logs import warn, debug
+import Build, Utils, Configure, Task, Options, Logs
 from Constants import *
 from Configure import conf, conftest
 
@@ -188,7 +187,10 @@ def check(self, *k, **kw):
 	except Configure.ConfigurationError, e:
 		self.check_message_2(kw['errmsg'], 'YELLOW')
 		if 'mandatory' in kw:
-			raise
+			if Logs.verbose > 1:
+				raise
+			else:
+				self.fatal('the configuration failed')
 		else:
 			pass
 	else:
