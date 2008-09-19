@@ -190,7 +190,7 @@ def check(self, *k, **kw):
 			if Logs.verbose > 1:
 				raise
 			else:
-				self.fatal('the configuration failed')
+				self.fatal('the configuration failed (see config.log)')
 		else:
 			pass
 	else:
