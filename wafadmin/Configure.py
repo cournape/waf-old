@@ -253,8 +253,16 @@ class ConfigurationContext(object):
 					continue
 				else:
 					raise
+
 	def err_handler(self, fun, error):
 		pass
+
+	def detect_platform(self):
+		s = sys.platform
+		for x in 'cygwin linux irix sunos hpux aix darwin'.split():
+			if s.find(x) >= 0:
+				return x
+		return s
 
 def conf(f):
 	"decorator: attach new configuration functions"
@@ -265,4 +273,5 @@ def conftest(f):
 	"decorator: attach new configuration tests (registered as strings)"
 	ConfigurationContext.tests[f.__name__] = f
 	return conf(f)
+
 
