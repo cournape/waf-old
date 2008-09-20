@@ -107,6 +107,14 @@ def configure(conf):
 	####################################################################
 	# NEW APIS
 
+	# pkg-config
+	conf.check_cfg(atleast_pkgconfig_version='0.0.0')
+	conf.check_cfg(package='pango', atleast_version='0.0.0')
+	conf.check_cfg(package='pango', exact_version='0.21')
+	conf.check_cfg(package='pango', max_version='9.0.0')
+
+
+	# simple c checks
 	conf.check(function_name='printf', header_name="stdio.h")
 	conf.check(header_name='time.h')
 	conf.check(fragment='int main() {2+2==4;}\n', define_name="boobah")
