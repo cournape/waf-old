@@ -197,7 +197,7 @@ def set_main_module(file_path):
 	global g_module
 	g_module = load_module(file_path, 'wscript_main')
 
-	# remark: to register the module globally, use the following:
+	# note: to register the module globally, use the following:
 	# sys.modules['wscript_main'] = g_module
 
 def to_hashtable(s):
@@ -234,7 +234,7 @@ else:
 
 rot_idx = 0
 rot_chr = ['\\', '|', '/', '-']
-"the rotation thing"
+"the rotation character in the progress bar"
 
 def split_path(path):
 	if not path: return ['']

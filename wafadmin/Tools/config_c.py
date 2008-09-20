@@ -36,12 +36,7 @@ code_with_headers = ''
 # uselib_store: where to add the variables
 # uselib: parameters to use for building
 # define: define to set, like FOO in #define FOO, if not set, add /* #undef FOO */
-# execute: True or False
-
-# TODO
-# fragment
-# function_name
-# header_name
+# execute: True or False - will return the result of the execution
 
 @conf
 def validate_c(self, kw):
