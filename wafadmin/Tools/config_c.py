@@ -229,8 +229,8 @@ def validate_cfg(self, kw):
 				kw['msg'] = 'Checking for %s %s %s' % (kw['package'], ver[x], kw[y])
 			return
 
-	# now, more difficult, the flags and the defines ..
-
+	if not 'msg' in kw:
+		kw['msg'] = 'Checking for %s flags' % kw['package']
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 	if not 'errmsg' in kw:
@@ -264,6 +264,27 @@ def exec_cfg(self, kw):
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'ok'
 			return
+
+	lst = [kw['path']]
+	for key, val in Utils.to_list(kw.get('define_variable', [])):
+		lst.append('--define-variable=%s=%s' % (key, val))
+
+	lst.append(kw.get('args', ''))
+	lst.append(kw['package'])
+
+	# so we assume the command-line will output flags we will parse afterwards
+	cmd = ' '.join(lst)
+	try:
+		ret = Utils.cmd_output(cmd)
+	except:
+		if not 'errmsg' in kw:
+			kw['errmsg'] = 'TODO3'
+		raise
+	if not 'okmsg' in kw:
+		kw['okmsg'] = 'ok'
+
+	# next, parse the flags .. pfff :-/
+	print ret
 
 @conf
 def check_cfg(self, *k, **kw):
