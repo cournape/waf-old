@@ -26,6 +26,37 @@ ver = {
 	'max-version': '<=',
 }
 
+
+def parse_flags(line, uselib, env):
+	"""stupidest thing ever"""
+
+	lst = shlex.split(line)
+	while lst:
+		x = lst.pop(0)
+		st = x[:2]
+		ot = x[2:]
+
+		if st == '-I' or st == '/I':
+			if not ot: ot = lst.pop(0)
+			env.append_unique('CPPPATH_' + uselib, ot)
+		elif st == '-D':
+			if not ot: ot = lst.pop(0)
+			env.append_unique('CXXDEFINES_' + uselib, ot)
+			env.append_unique('CCDEFINES_' + uselib, ot)
+		elif st == '-l':
+			if not ot: ot = lst.pop(0)
+			env.append_unique('LIB_' + uselib, ot)
+		elif st == '-L':
+			if not ot: ot = lst.pop(0)
+			env.append_unique('LIBPATH_' + uselib, ot)
+		elif x == '-pthread' or x.startswith('+'):
+			env.append_unique('CCFLAGS_' + uselib, x)
+			env.append_unique('CXXFLAGS_' + uselib, x)
+			env.append_unique('LINKFLAGS_' + uselib, x)
+		elif x.startswith('-std'):
+			env.append_unique('CCFLAGS_' + uselib, x)
+			env.append_unique('LINKFLAGS_' + uselib, x)
+
 @conf
 def validate_cfg(self, kw):
 	if not 'path' in kw:
@@ -91,7 +122,7 @@ def exec_cfg(self, kw):
 	lst.append(kw.get('args', ''))
 	lst.append(kw['package'])
 
-	# so we assume the command-line will output flags we will parse afterwards
+	# so we assume the command-line will output flags to be parsed afterwards
 	cmd = ' '.join(lst)
 	try:
 		ret = Utils.cmd_output(cmd)
@@ -102,8 +133,7 @@ def exec_cfg(self, kw):
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 
-	# next, parse the flags .. pfff :-/
-	print ret
+	parse_flags(ret, kw.get('uselib_store', kw['package'].upper()), kw.get('env', self.env))
 
 @conf
 def check_cfg(self, *k, **kw):
