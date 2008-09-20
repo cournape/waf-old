@@ -112,6 +112,7 @@ def configure(conf):
 	conf.check_cfg(package='pango', atleast_version='0.0.0')
 	conf.check_cfg(package='pango', exact_version='0.21')
 	conf.check_cfg(package='pango', max_version='9.0.0')
+	conf.check_cfg(package='pango', args='--cflags --libs')
 
 
 	# simple c checks
