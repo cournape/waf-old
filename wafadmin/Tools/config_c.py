@@ -20,6 +20,112 @@ stdincpath = ['/usr/include/', '/usr/local/include/']
 stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
 """standard library search paths"""
 
+ver = {
+	'atleast-version': '>=',
+	'exact-version': '==',
+	'max-version': '<=',
+}
+
+@conf
+def validate_cfg(self, kw):
+	if not 'path' in kw:
+		kw['path'] = 'pkg-config --silence-errors'
+
+	# pkg-config version
+	if 'atleast_pkgconfig_version' in kw:
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for pkg-config version >= %s' % kw['atleast_pkgconfig_version']
+		return
+
+	# checking for the version of a module, for the moment, one thing at a time
+	for x in ver.keys():
+		y = x.replace('-', '_')
+		if y in kw:
+			if not 'package' in kw:
+				raise ValueError, '%s requires a package' % x
+
+			if not 'msg' in kw:
+				kw['msg'] = 'Checking for %s %s %s' % (kw['package'], ver[x], kw[y])
+			return
+
+	if not 'msg' in kw:
+		kw['msg'] = 'Checking for %s flags' % kw['package']
+	if not 'okmsg' in kw:
+		kw['okmsg'] = 'ok'
+	if not 'errmsg' in kw:
+		kw['errmsg'] = 'not found'
+
+@conf
+def exec_cfg(self, kw):
+
+	# pkg-config version
+	if 'atleast_pkgconfig_version' in kw:
+		try:
+			Utils.cmd_output('%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version']))
+		except:
+			if not 'errmsg' in kw:
+				kw['errmsg'] = 'TODO'
+			raise Configure.ConfigurationError, kw['errmsg']
+		if not 'okmsg' in kw:
+			kw['okmsg'] = 'ok'
+		return
+
+	# checking for the version of a module
+	for x in ver:
+		y = x.replace('-', '_')
+		if y in kw:
+			try:
+				Utils.cmd_output('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']))
+			except:
+				if not 'errmsg' in kw:
+					kw['errmsg'] = 'TODO 2'
+				raise Configure.ConfigurationError, kw['errmsg']
+			if not 'okmsg' in kw:
+				kw['okmsg'] = 'ok'
+			return
+
+	lst = [kw['path']]
+	for key, val in Utils.to_list(kw.get('define_variable', [])):
+		lst.append('--define-variable=%s=%s' % (key, val))
+
+	lst.append(kw.get('args', ''))
+	lst.append(kw['package'])
+
+	# so we assume the command-line will output flags we will parse afterwards
+	cmd = ' '.join(lst)
+	try:
+		ret = Utils.cmd_output(cmd)
+	except:
+		if not 'errmsg' in kw:
+			kw['errmsg'] = 'TODO3'
+		raise
+	if not 'okmsg' in kw:
+		kw['okmsg'] = 'ok'
+
+	# next, parse the flags .. pfff :-/
+	print ret
+
+@conf
+def check_cfg(self, *k, **kw):
+	self.validate_cfg(kw)
+	self.check_message_1(kw['msg'])
+	ret = None
+	try:
+		ret = self.exec_cfg(kw)
+	except Configure.ConfigurationError, e:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+		if 'mandatory' in kw:
+			if Logs.verbose > 1:
+				raise
+			else:
+				self.fatal('the configuration failed (see config.log)')
+		else:
+			pass
+	else:
+		self.check_message_2(kw['okmsg'])
+
+	return ret
+
 # the idea is the following: now that we are certain
 # that all the code here is only for c or c++, it is
 # easy to put all the logic in one function
@@ -199,112 +305,6 @@ def check(self, *k, **kw):
 
 	kw['success'] = ret
 	self.post_check(*k, **kw)
-	return ret
-
-ver = {
-	'atleast-version': '>=',
-	'exact-version': '==',
-	'max-version': '<=',
-}
-
-@conf
-def validate_cfg(self, kw):
-	if not 'path' in kw:
-		kw['path'] = 'pkg-config --silence-errors'
-
-	# pkg-config version
-	if 'atleast_pkgconfig_version' in kw:
-		if not 'msg' in kw:
-			kw['msg'] = 'Checking for pkg-config version >= %s' % kw['atleast_pkgconfig_version']
-		return
-
-	# checking for the version of a module, for the moment, one thing at a time
-	for x in ver.keys():
-		y = x.replace('-', '_')
-		if y in kw:
-			if not 'package' in kw:
-				raise ValueError, '%s requires a package' % x
-
-			if not 'msg' in kw:
-				kw['msg'] = 'Checking for %s %s %s' % (kw['package'], ver[x], kw[y])
-			return
-
-	if not 'msg' in kw:
-		kw['msg'] = 'Checking for %s flags' % kw['package']
-	if not 'okmsg' in kw:
-		kw['okmsg'] = 'ok'
-	if not 'errmsg' in kw:
-		kw['errmsg'] = 'not found'
-
-@conf
-def exec_cfg(self, kw):
-
-	# pkg-config version
-	if 'atleast_pkgconfig_version' in kw:
-		try:
-			Utils.cmd_output('%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version']))
-		except:
-			if not 'errmsg' in kw:
-				kw['errmsg'] = 'TODO'
-			raise Configure.ConfigurationError, kw['errmsg']
-		if not 'okmsg' in kw:
-			kw['okmsg'] = 'ok'
-		return
-
-	# checking for the version of a module
-	for x in ver:
-		y = x.replace('-', '_')
-		if y in kw:
-			try:
-				Utils.cmd_output('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']))
-			except:
-				if not 'errmsg' in kw:
-					kw['errmsg'] = 'TODO 2'
-				raise Configure.ConfigurationError, kw['errmsg']
-			if not 'okmsg' in kw:
-				kw['okmsg'] = 'ok'
-			return
-
-	lst = [kw['path']]
-	for key, val in Utils.to_list(kw.get('define_variable', [])):
-		lst.append('--define-variable=%s=%s' % (key, val))
-
-	lst.append(kw.get('args', ''))
-	lst.append(kw['package'])
-
-	# so we assume the command-line will output flags we will parse afterwards
-	cmd = ' '.join(lst)
-	try:
-		ret = Utils.cmd_output(cmd)
-	except:
-		if not 'errmsg' in kw:
-			kw['errmsg'] = 'TODO3'
-		raise
-	if not 'okmsg' in kw:
-		kw['okmsg'] = 'ok'
-
-	# next, parse the flags .. pfff :-/
-	print ret
-
-@conf
-def check_cfg(self, *k, **kw):
-	self.validate_cfg(kw)
-	self.check_message_1(kw['msg'])
-	ret = None
-	try:
-		ret = self.exec_cfg(kw)
-	except Configure.ConfigurationError, e:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
-		if 'mandatory' in kw:
-			if Logs.verbose > 1:
-				raise
-			else:
-				self.fatal('the configuration failed (see config.log)')
-		else:
-			pass
-	else:
-		self.check_message_2(kw['okmsg'])
-
 	return ret
 
 @conf
