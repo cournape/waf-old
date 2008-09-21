@@ -176,13 +176,13 @@ preproc.go_absolute = 1
 			<programlisting language="python">
 def configure(conf):
 
-	conf.check(header_name='time.h') <co id="cc1-co" linkends="ccl"/>
-	conf.check(function_name='printf', header_name="stdio.h", mandatory=1) <co id="cc2-co" linkends="cc2"/>
-	conf.check(fragment='int main() {2+2==4;}\n', define_name="boobah") <co id="cc3-co" linkends="cc3"/>
-	conf.check(lib='m', ccflags='-Wall', defines=['var=foo', 'x=y']) <co id="cc4-co" linkends="cc4"/>
-	conf.check(lib='linux', uselib='M') <co id="cc5-co" linkends="cc5"/>
+	conf.check_cc(header_name='time.h') <co id="cc1-co" linkends="ccl"/>
+	conf.check_cc(function_name='printf', header_name="stdio.h", mandatory=1) <co id="cc2-co" linkends="cc2"/>
+	conf.check_cc(fragment='int main() {2+2==4;}\n', define_name="boobah") <co id="cc3-co" linkends="cc3"/>
+	conf.check_cc(lib='m', ccflags='-Wall', defines=['var=foo', 'x=y']) <co id="cc4-co" linkends="cc4"/>
+	conf.check_cc(lib='linux', uselib='M') <co id="cc5-co" linkends="cc5"/>
 
-	conf.check(fragment='''
+	conf.check_cc(fragment='''
 			#include &lt;stdio.h&gt;
 			int main() { printf("4"); return 0; } ''',
 		define_name="booeah",
