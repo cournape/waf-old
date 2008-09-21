@@ -183,10 +183,8 @@ Py_ENABLE_SHARED = %r
 			if lib.startswith('-l'):
 				lib = lib[2:] # strip '-l'
 			env.append_value('LIB_PYEMBED', lib)
-	lib = conf.create_library_configurator()
-	lib.name = 'python' + env['PYTHON_VERSION']
-	lib.uselib = 'PYEMBED'
-	lib.code = '''
+
+	code = '''
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -197,27 +195,26 @@ extern "C" {
 #endif
 int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 '''
+
+	result = 1
+	name = 'python' + env['PYTHON_VERSION']
+
 	if python_LIBDIR is not None:
-		lib.path = [python_LIBDIR]
-		result = lib.run()
-	else:
-		result = 0
+		path = [python_LIBDIR]
+		result = conf.check_cc(lib=name, uselib='PYEMBED', libpath=path)
 
 	## try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)
-	if not result:
-		if python_LIBPL is not None:
-			lib.path = [python_LIBPL]
-			result = lib.run()
-		else:
-			result = 0
+	if result and python_LIBPL is not None:
+		path = [python_LIBPL]
+		result = conf.check_cc(lib=name, uselib='PYEMBED', libpath=path)
 
 	## try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)
-	if not result:
-		lib.path = [os.path.join(python_prefix, "libs")]
-		lib.name = 'python' + env['PYTHON_VERSION'].replace('.', '')
-		result = lib.run()
-
 	if result:
+		path = [os.path.join(python_prefix, "libs")]
+		name = 'python' + env['PYTHON_VERSION'].replace('.', '')
+		result = conf.check_cc(lib=name, uselib='PYEMBED', libpath=path)
+
+	if not result:
 		env['LIBPATH_PYEMBED'] = lib.path
 		env.append_value('LIB_PYEMBED', lib.name)
 
@@ -261,15 +258,9 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
 			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
-	# Test to see if it compiles
-	header = conf.create_header_configurator()
-	header.name = 'Python.h'
-	header.define = 'HAVE_PYTHON_H'
-	header.uselib = 'PYEXT'
-	header.code = "#include <Python.h>\nint main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }"
-	result = header.run()
-	if not result:
-		conf.fatal("Python development headers not found.")
+	# See if it compiles
+	conf.check_cc(header_name='Python.h', define_name='HAVE_PYTHON_H', uselib_store='PYEXT',
+		fragment='''#include <Python.h>\nint main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }\n''', errmsg='Could not find the python development headers', mandatory=1)
 
 @conf
 def check_python_version(conf, minver=None):
