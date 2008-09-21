@@ -188,9 +188,9 @@ def configure(conf):
 		define_name="booeah",
 		execute="1",
 		define_ret="1",
-		msg="Checking for something")
+		msg="Checking for something") <co id="cc5-co" linkends="cc5"/>
 
-	conf.write_config_header('config.h') <co id="cc5-co" linkends="cc5"/>
+	conf.write_config_header('config.h') <co id="cc6-co" linkends="cc6"/>
 			</programlisting>
 			<calloutlist>
 				<callout arearefs="cc1-co" id="cc1">
@@ -205,7 +205,10 @@ def configure(conf):
 				<callout arearefs="cc4-co" id="cc4">
 					<para>Try to compile a simple c program against a library called 'linux', and reuse the previous parameters for libm (uselib)</para>
 				</callout>
-				<callout arearefs="cc5-co" id="cc5">
+				<callout>
+					<para>Execute a simple program, collect the output, and put it in a define when successful</para>
+				</callout>
+				<callout arearefs="cc6-co" id="cc6">
 					<para>After all the tests are executed, write a configuration header in the build directory (optional). The configuration header is used to limit the size of the command-line.</para>
 				</callout>
 			</calloutlist>
