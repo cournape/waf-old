@@ -412,12 +412,12 @@ def run_c_code(self, *k, **kw):
 	return ret
 
 @conf
-def cxx_check(self, *k, **kw):
+def check_cxx(self, *k, **kw):
 	kw['compiler'] = 'cxx'
 	return self.check(*k, **kw)
 
 @conf
-def cc_check(self, *k, **kw):
+def check_cc(self, *k, **kw):
 	kw['compiler'] = 'cc'
 	return self.check(*k, **kw)
 
