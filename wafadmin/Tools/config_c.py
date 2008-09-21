@@ -309,7 +309,6 @@ def post_check(self, *k, **kw):
 			lk = k.lower()
 			# inconsistency: includes -> CPPPATH
 			if k == 'CPPPATH': lk = 'includes'
-			if k == 'CCFLAGS': lk = 'cflags'
 			if k == 'CXXDEFINES': lk = 'defines'
 			if k == 'CCDEFINES': lk = 'defines'
 			if lk in kw:
