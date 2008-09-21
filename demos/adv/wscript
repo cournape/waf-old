@@ -84,7 +84,7 @@ def set_options(opt):
 	# print Options.options.someopt
 
 def configure(conf):
-	# the 'checks' tool adds new method to the conf object like 'checkEndian' below
+	# the 'checks' tool adds new method to the conf object like 'check_features' below
 	conf.check_tool('checks')
 	conf.check_tool('gcc')
 	if not conf.env['CC']: fatal('gcc not found')
@@ -134,13 +134,29 @@ def configure(conf):
 	conf.check(lib='m')
 	conf.check(lib='linux', uselib='M', fatal=1)
 
+
+
+	conf.define('HAVE_SOMETHING', 1)
+	conf.define('TEST_DEFINE', 345)
+	conf.env['CXXDEFINES_DEFTEST'] = ['truc=blah', 'boo']
+	conf.env['LIB_CALC']='fl'
+
+
+
+	# finally, write the configuration header
 	conf.write_config_header('config.h')
+
+	# set a variant called "default", with another config.h
+	env_variant2 = conf.env.copy()
+	conf.set_env_name('debug', env_variant2)
+	env_variant2.set_variant('debug')
+
+	conf.setenv('debug')
+	#conf.env['defines'] = [] # use this to remove the defines copied
+	conf.define('DEBUG', 1)
+	conf.write_config_header('config.h', env=env_variant2)
+
 	return
-
-
-	# checkFeatures is only available when 'checks' is in conf.check_tool()
-	# look in wafadmin/Tools/checks.py for the other tests available
-	conf.checkEndian()
 
 	e = conf.create_header_configurator()
 	e.mandatory = 1
@@ -191,15 +207,6 @@ def configure(conf):
 	"""
 	conf.check_header('GL/gl.h', '', '', ['/usr/X11R6/include','/usr/include'])
 	"""
-
-	conf.define('HAVE_SOMETHING', 1)
-	conf.define('TEST_DEFINE', 345)
-
-
-	# command-line defines
-	conf.env['CXXDEFINES_DEFTEST'] = ['truc=blah', 'boo']
-
-	conf.env['LIB_CALC']='fl'
 
 
 	# a more complicated check, anything can be put in the following code:
@@ -308,19 +315,6 @@ int main()
 	libconf.name = 'wx_gtk_gl'
 	libconf.paths = ['/usr/lib']
 	libconf.run()
-
-	# finally, write the configuration header
-	conf.write_config_header('config.h')
-
-	# set a variant called "default", with another config.h
-	env_variant2 = conf.env.copy()
-	conf.set_env_name('debug', env_variant2)
-	env_variant2.set_variant('debug')
-
-	conf.setenv('debug')
-	#conf.env['defines'] = [] # use this to remove the defines copied
-	conf.define('DEBUG', 1)
-	conf.write_config_header('config.h', env=env_variant2)
 
 	# pkg-config variable substitution, might be nice when crosscompiling
 	conf.env['PKG_CONFIG_DEFINES'] = {'prefix':'/tmp'}
