@@ -350,9 +350,11 @@ def run_c_code(self, *k, **kw):
 	dir = os.path.join(self.blddir, '.wscript-trybuild')
 
 	# if the folder already exists, remove it
-	shutil.rmtree(dir)
-	if not os.path.exists(dir):
-		os.makedirs(dir)
+	try:
+		shutil.rmtree(dir)
+	except OSError:
+		pass
+	os.makedirs(dir)
 
 	bdir = os.path.join(dir, 'testbuild')
 
