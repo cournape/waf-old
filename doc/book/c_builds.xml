@@ -160,5 +160,46 @@ preproc.go_absolute = 1
 		</para>
 	</section>
 
+	<section>
+		<title>Configuration helpers</title>
+		<para>
+			The methods <emphasis>check_cc</emphasis> and <emphasis>check_cxx</emphasis> are used to detect parameters using a small build project. The main parameters are the following
+			<itemizedlist>
+				<listitem>msg: title of the test to execute</listitem>
+				<listitem>okmsg: message to display when the test succeeds</listitem>
+				<listitem>errmsg: message to display when the test fails</listitem>
+				<listitem>mandatory: when true, raise a configuration exception if the test fails</listitem>
+				<listitem>env: environment to use for the build (conf.env is used by default)</listitem>
+				<listitem>define_name: add a define for the configuration header when the test succeeds (in most cases it is calculated automatically)</listitem>
+			</itemizedlist>
+			Here is a concrete example:
+			<programlisting language="python">
+def configure(conf):
+
+	conf.check(header_name='time.h') <co id="cc1-co" linkends="ccl"/>
+	conf.check(function_name='printf', header_name="stdio.h", mandatory=1) <co id="cc2-co" linkends="cc2"/>
+	conf.check(fragment='int main() {2+2==4;}\n', define_name="boobah") <co id="cc3-co" linkends="cc3"/>
+	conf.check(lib='m')
+	conf.check(lib='linux', uselib='M') <co id="cc4-co" linkends="cc4"/>
+			</programlisting>
+			<calloutlist>
+				<callout arearefs="cc1-co" id="cc1">
+					<para>Try to compile a program using the configuration header time.h, if present on the system, if the test is successful, the define TIME_H will be added</para>
+				</callout>
+				<callout arearefs="cc2-co" id="cc2">
+					<para>Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). The parameter mandatory will make the test raise an exception if it fails.</para>
+				</callout>
+				<callout arearefs="cc3-co" id="cc3">
+					<para>Try to compile a code fragment, and if the test is successful, define the name boobah</para>
+				</callout>
+				<callout arearefs="cc4-co" id="cc4">
+					<para>Try to compile a simple c program against a library called 'linux', and reuse the previous parameters for libm (uselib)</para>
+				</callout>
+			</calloutlist>
+		</para>
+		<para>
+		</para>
+	</section>
+
 </chapter>
 
