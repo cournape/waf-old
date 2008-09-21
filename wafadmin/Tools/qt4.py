@@ -362,7 +362,7 @@ def detect_qt4(conf):
 		except OSError:
 			pass
 
-        	# check for the qt libraries
+	# check for the qt libraries
 	if not qtlibs: qtlibs = os.path.join(qtdir, 'lib')
 
 	vars = "QtCore QtGui QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support".split()
@@ -391,7 +391,7 @@ def detect_qt4(conf):
 
 		# now we add some static depends.
 		if conf.is_defined("HAVE_QTOPENGL") and not '-framework OpenGL' in env["LINKFLAGS_QTOPENGL"]:
-                        env["LINKFLAGS_QTOPENGL"] += ['-framework OpenGL']
+			env["LINKFLAGS_QTOPENGL"] += ['-framework OpenGL']
 
 		if conf.is_defined("HAVE_QTGUI"):
 			if not '-framework AppKit' in env["LINKFLAGS_QTGUI"]:
@@ -401,18 +401,13 @@ def detect_qt4(conf):
 
 		framework_ok = True
 
-	# check for the qt includes first
-        if not conf.is_defined("HAVE_QTGUI"):
-                if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
-                env['QTINCLUDEPATH']=qtincludes
+		# check for the qt includes first
+		if not conf.is_defined("HAVE_QTGUI"):
+			if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
+			env['QTINCLUDEPATH'] = qtincludes
 
-                lst = [qtincludes, '/usr/share/qt4/include/',
-                       '/opt/qt4/include']
-                test = conf.create_header_enumerator()
-                test.name = 'QtGui/QFont'
-                test.path = lst
-                test.mandatory = 1
-                ret = test.run()
+			lst = [qtincludes, '/usr/share/qt4/include/', '/opt/qt4/include']
+			conf.check(header_name='QtGui/QFont', define_name='HAVE_QTGUI', mandatory=1, includes=lst)
 
 	# check for the qtbinaries
 	if not qtbin: qtbin = os.path.join(qtdir, 'bin')
