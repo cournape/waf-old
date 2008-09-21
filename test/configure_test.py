@@ -90,43 +90,6 @@ class ConfigureTester(common_test.CommonTester):
 		self._write_files()
 		self._test_configure()
 
-	def test_common_include1(self):
-		# black-box test: makes sure that a header is added to COMMON_INLCUDES
-		self._populate_dictionary("""com_conf = conf.create_common_include_configurator()
-	com_conf.name = 'stdio.h'
-	com_conf.run()""")
-		self._write_files()
-		self._test_configure()
-		self._same_env(dict(COMMON_INCLUDES=['/usr/include/stdio.h']))
-
-	def test_common_include2(self):
-		# black-box test: makes sure that a header is written to config.h
-		self._populate_dictionary("""com_conf = conf.create_common_include_configurator()
-	com_conf.name = 'stdio.h'
-	com_conf.run()
-	conf.write_config_header()""")
-		self._write_files()
-		self._test_configure()
-		config_file = open('build/default/config.h', 'r')
-		config_file_content = config_file.read()
-		self.assert_(config_file_content.find('#include "/usr/include/stdio.h"') > -1 )
-
-	def test_common_include3(self):
-		# white-box test: make sure it finds standard includes
-		conf = self._setup_configure()
-		com_conf = conf.create_common_include_configurator()
-		com_conf.name = 'stdio.h'
-		com_conf.want_message = False
-		self.assert_( com_conf.run(), "directory was not returned." )
-
-	def test_common_include4(self):
-		# white-box test: make sure it returns False/empty string for non-exist header
-		conf = self._setup_configure()
-		com_conf = conf.create_common_include_configurator()
-		com_conf.name = 'kukukukukuk.h'
-		com_conf.want_message = False
-		self.failIf(com_conf.run(), "directory was returned for non-exist header." )
-		
 class CcConfigureTester(ConfigureTester):
 	def __init__(self, methodName):
 		self._tool_name = 'compiler_cc'
