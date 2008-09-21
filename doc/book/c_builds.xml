@@ -182,6 +182,14 @@ def configure(conf):
 	conf.check(lib='m')
 	conf.check(lib='linux', uselib='M') <co id="cc4-co" linkends="cc4"/>
 
+	conf.check(fragment='''
+			#include &lt;stdio.h&gt;
+			int main() { printf("4"); return 0; } ''',
+		define_name="booeah",
+		execute="1",
+		define_ret="1",
+		msg="Checking for something")
+
 	conf.write_config_header('config.h') <co id="cc5-co" linkends="cc5"/>
 			</programlisting>
 			<calloutlist>
