@@ -146,7 +146,7 @@ def detect(conf):
 		return
 
 	if not conf.env["HAVE_GTHREAD"]:
-		conf.check_pkg('gthread-2.0', destvar='GTHREAD', mandatory=False)
+		conf.check_cfg(package='gthread-2.0', uselib_store='GTHREAD', args='--cflags --libs')
 
 	try:
 		output = Popen([valac, "--version"], stdout=PIPE).communicate()[0]
@@ -167,3 +167,4 @@ def detect(conf):
 
 	conf.env['VALAC_VERSION'] = valac_version
 	conf.env['VALAFLAGS'] = ''
+
