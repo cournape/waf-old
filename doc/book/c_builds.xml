@@ -181,6 +181,8 @@ def configure(conf):
 	conf.check(fragment='int main() {2+2==4;}\n', define_name="boobah") <co id="cc3-co" linkends="cc3"/>
 	conf.check(lib='m')
 	conf.check(lib='linux', uselib='M') <co id="cc4-co" linkends="cc4"/>
+
+	conf.write_config_header('config.h') <co id="cc5-co" linkends="cc5"/>
 			</programlisting>
 			<calloutlist>
 				<callout arearefs="cc1-co" id="cc1">
@@ -195,9 +197,23 @@ def configure(conf):
 				<callout arearefs="cc4-co" id="cc4">
 					<para>Try to compile a simple c program against a library called 'linux', and reuse the previous parameters for libm (uselib)</para>
 				</callout>
+				<callout arearefs="cc5-co" id="cc5">
+					<para>After all the tests are executed, write a configuration header in the build directory (optional). The configuration header is used to limit the size of the command-line.</para>
+				</callout>
 			</calloutlist>
-		</para>
-		<para>
+			Here is an example of a <emphasis>config.h</emphasis> produced with the previous test code:
+			<programlisting language="c">
+/* Configuration header created by Waf - do not edit */
+#ifndef _CONFIG_H_WAF
+#define _CONFIG_H_WAF
+
+#define HAVE_PRINTF 1
+#define HAVE_TIME_H 1
+#define boobah 1
+#define booeah "4"
+
+#endif /* _CONFIG_H_WAF */
+			</programlisting>
 		</para>
 	</section>
 
