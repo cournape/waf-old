@@ -303,7 +303,7 @@ def post_check(self, *k, **kw):
 		if 'define_name' in kw:
 			define_or_stuff()
 
-	if 'uselib_store' in kw:
+	if kw['success'] and 'uselib_store' in kw:
 		import cc, cxx
 		for k in set(cc.g_cc_flag_vars).union(cxx.g_cxx_flag_vars):
 			lk = k.lower()
