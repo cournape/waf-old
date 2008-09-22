@@ -39,7 +39,7 @@ def detect(conf):
 		winrc = conf.find_program('windres', var='WINRC')
 		v['WINRC_TGT_F'] = '-o '
 		v['WINRC_SRC_F'] = '-i '
-	elif cc == 'cl.exe' or cxx == 'cl.exe':
+	elif cc.startswith('cl.exe') or cxx.startswith('cl.exe'):
 		winrc = conf.find_program('RC', var='WINRC')
 		v['WINRC_TGT_F'] = '/fo '
 		v['WINRC_SRC_F'] = ' '
