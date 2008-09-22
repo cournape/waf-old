@@ -44,7 +44,7 @@ def msvc_linker(task):
 
 	# workaround: when run with shell=True, got the following error:
 	# 'C:\Program' is not recognized as an internal or external command, operable program or batch file.
-	ret=Runner.exec_command(cmd, shell=False)
+	ret = Runner.exec_command(cmd, shell=False)
 	if ret: return ret
 
 	# check for the pdb file. if exists, add to the list of outputs
@@ -73,7 +73,7 @@ def msvc_linker(task):
 
 		cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
 			manifest, outfile, mode)
-		ret=Runner.exec_command(cmd)
+		ret = Runner.exec_command(cmd, shell=False)
 	return ret
 
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
