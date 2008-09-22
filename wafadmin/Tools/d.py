@@ -5,7 +5,7 @@
 
 import os, sys, re, optparse
 import ccroot # <- leave this
-import TaskGen, Utils, Task, checks, Configure, Logs, Build
+import TaskGen, Utils, Task, Configure, Logs, Build
 from Logs import debug, error
 from TaskGen import taskgen, feature, after, before, extension
 

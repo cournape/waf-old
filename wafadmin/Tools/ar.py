@@ -62,10 +62,7 @@ def cxx_add_flags(conf):
 @conftest
 def cc_load_tools(conf):
 	conf.check_tool('cc')
-	conf.check_tool('checks')
 
 @conftest
 def cxx_load_tools(conf):
 	conf.check_tool('cxx')
-	conf.check_tool('checks')
-

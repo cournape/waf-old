@@ -330,9 +330,6 @@ ${DB2OMF} ${SRC[1].abspath(env)}"""
 Task.simple_task_type('xsltproc2po', xslt_magic, color='BLUE')
 
 def detect(conf):
-
-	conf.check_tool('checks')
-
 	sgml2man = conf.find_program('docbook2man', var='SGML2MAN')
 	glib_genmarshal = conf.find_program('glib-genmarshal', var='GGM')
 	dbus_binding_tool = conf.find_program('dbus-binding-tool', var='DBT')

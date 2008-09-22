@@ -84,9 +84,6 @@ Task.simple_task_type('intltool',
 	color='BLUE', after="cc_link cxx_link")
 
 def detect(conf):
-
-	conf.check_tool('checks')
-
 	pocom = conf.find_program('msgfmt')
 	#if not pocom:
 	#	conf.fatal('The program msgfmt (gettext) is mandatory!')

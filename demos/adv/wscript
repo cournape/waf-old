@@ -84,8 +84,6 @@ def set_options(opt):
 	# print Options.options.someopt
 
 def configure(conf):
-	# the 'checks' tool adds new method to the conf object like 'check_features' below
-	conf.check_tool('checks')
 	conf.check_tool('gcc')
 	if not conf.env['CC']: fatal('gcc not found')
 
