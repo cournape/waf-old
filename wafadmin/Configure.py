@@ -257,13 +257,6 @@ class ConfigurationContext(object):
 	def err_handler(self, fun, error):
 		pass
 
-	def detect_platform(self):
-		s = sys.platform
-		for x in 'cygwin linux irix sunos hpux aix darwin'.split():
-			if s.find(x) >= 0:
-				return x
-		return s
-
 def conf(f):
 	"decorator: attach new configuration functions"
 	setattr(ConfigurationContext, f.__name__, f)

@@ -362,3 +362,17 @@ def subst_vars(expr, params):
 		return params[m.group(3)]
 	return reg_subst.sub(repl_var, expr)
 
+def detect_platform():
+	s = sys.platform
+	o = os.name
+
+	# known POSIX
+	for x in 'cygwin linux irix sunos hpux aix darwin'.split():
+		# sys.platform may be linux2 
+		if s.find(x) >= 0:
+			return x
+
+	# unknown POSIX and friends
+	if o in 'posix java os2'.split():
+		return o
+	return s
