@@ -17,7 +17,7 @@ tooldir = ''
 lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
-platform = sys.platform
+platform = Utils.detect_platform()
 conf_file = 'conf-runs-%s-%d.pickle' % (platform, ABI)
 is_install = False
 
