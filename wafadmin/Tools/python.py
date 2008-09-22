@@ -144,8 +144,7 @@ def check_python_headers(conf):
 	assert python, ("python is %r !" % (python,))
 
 	## On Mac OSX we need to use mac bundles for python plugins
-	import checks
-	if checks.detect_platform(None) == 'darwin':
+	if Options.platform == 'darwin':
 		conf.check_tool('osx')
 
 	try:

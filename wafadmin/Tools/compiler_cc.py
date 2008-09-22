@@ -4,7 +4,7 @@
 
 import os, sys, imp, types, ccroot
 import optparse
-import Utils, checks, Configure, Options
+import Utils, Configure, Options
 
 c_compiler = {
 	'win32':  ['msvc', 'gcc'],
@@ -37,7 +37,7 @@ def detect(conf):
 	conf.env["COMPILER_CC"] = None
 
 def set_options(opt):
-	detected_platform = checks.detect_platform(None)
+	detected_platform = Options.platform
 	possible_compiler_list = __list_possible_compiler(detected_platform)
 	test_for_compiler = str(" ").join(possible_compiler_list)
 	cc_compiler_opts = opt.add_option_group("C Compiler Options")
