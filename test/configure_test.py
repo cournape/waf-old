@@ -15,7 +15,6 @@ from Constants import *
 import Options
 import Configure
 import Tools.config_c   # to make conf.create_* functions work
-import Tools.checks 	# to make compile_configurator function work
 import Utils
 import Scripting
 import Build
