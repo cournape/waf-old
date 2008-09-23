@@ -16,7 +16,7 @@ Utilities, the stable ones are the following:
 	def h_file(filename):
 		st = os.stat(filename)
 		if stat.S_ISDIR(st[stat.ST_MODE]): raise IOError, 'not a file'
-		m = md5()
+		m = Utils.md5()
 		m.update(str(st.st_mtime))
 		m.update(str(st.st_size))
 		m.update(filename)
