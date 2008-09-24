@@ -406,27 +406,21 @@ def distcheck(appname='', version=''):
 	if not version: version = getattr(Utils.g_module, VERSION, '1.0')
 
 	waf = os.path.abspath(sys.argv[0])
-	distdir, tarball = dist(appname, version)
+	tarball = dist(appname, version)
 	t = tarfile.open(tarball)
 	for x in t: t.extract(x)
 	t.close()
 
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	cwd_before = os.getcwd()
-	os.chdir(distdir)
-	try:
-		retval = pproc.Popen(
-			'%(waf)s configure && %(waf)s '
-			'&& %(waf)s check && %(waf)s install --destdir=%(instdir)s'
-			' && %(waf)s uninstall --destdir=%(instdir)s' % vars(),
-			shell=True).wait()
-		if retval:
-			raise Utils.WafError('distcheck failed with code %i' % (retval))
-	finally:
-		os.chdir(cwd_before)
-	shutil.rmtree(distdir)
+	retval = pproc.Popen(
+		'%(waf)s configure && %(waf)s '
+		'&& %(waf)s check && %(waf)s install --destdir=%(instdir)s'
+		' && %(waf)s uninstall --destdir=%(instdir)s' % vars(),
+		shell=True).wait()
+	if retval:
+		raise Utils.WafError('distcheck failed with code %i' % (retval))
 	if os.path.exists(instdir):
 		raise Utils.WafError("distcheck succeeded, but files were left in %s" % (instdir))
 	else:
 		info('distcheck finished successfully')
-
