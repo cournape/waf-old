@@ -178,11 +178,6 @@ def set_options(opt):
 		com_conf = conf.create_test_configurator()
 		self.failUnlessRaises(Configure.ConfigurationError, com_conf.run)
 
-	def test_missing_compile_conf_code(self):
-		conf = self._setup_configure()
-		com_conf = conf.create_compile_configurator()
-		self.failUnlessRaises(Configure.ConfigurationError, com_conf.run)
-
 	def test_nothing_to_store(self):
 		# white-box test: fails if all_envs are not defined.
 		conf = self._setup_configure()
