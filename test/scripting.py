@@ -119,24 +119,6 @@ def set_options(opt):
 		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
 		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
 
-	def test_dist_custom_version(self):
-		# black-box test: dist uses custom get_version() function
-		appname = 'waf_waf_dist_test'
-		version = '365'
-		wscript_contents = """
-%s = '%s'
-def get_version():
-	return '%s'
-
-def set_options(opt):
-	pass
-""" % (APPNAME, appname, version)
-
-		self._write_wscript(wscript_contents)
-		self._test_dist()
-		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
-		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
-
 	def test_user_define_dist(self):
 		# black-box test: if user wrote dist() function it will be used
 		wscript_contents = """
