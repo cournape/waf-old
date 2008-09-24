@@ -12,6 +12,7 @@ import common_test
 from Constants import *
 import Utils
 import Build
+import Options
 
 class BuildTester(common_test.CommonTester):
 	def __init__(self, methodName):
@@ -78,6 +79,8 @@ def set_options(opt):
 
 	def test_incorrect_version(self):
 		# white-box test: configured with old version
+		Options.commands['configure'] = False
+		
 		bld = Build.BuildContext()
 		bld.blddir = os.path.join(self._test_dir_root, 'b')
 
