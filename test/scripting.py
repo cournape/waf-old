@@ -186,37 +186,6 @@ def set_options(opt):
 		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
 		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
 
-	def test_distcheck_custom_version(self):
-		# black-box test: distcheck uses custom get_version() function
-		appname = 'waf_waf_dist_test'
-		version = '365'
-		wscript_contents = """
-srcdir = '.'
-blddir = 'out'
-%s = '%s'
-def build(bld):
-	lib = bld.new_task_gen('cxx', 'shlib')
-	lib.source = 'dd.cpp'
-	lib.target = 'dd'
-
-def configure(conf):
-	conf.check_tool('compiler_cxx')
-
-def set_options(opt):
-	opt.tool_options('compiler_cxx')
-
-def get_version():
-	return '%s'
-""" % (APPNAME, appname, version)
-
-		self._write_wscript(wscript_contents)
-		dd_file = open('dd.cpp', 'w')
-		dd_file.writelines("int k=3;")
-		dd_file.close()
-		self._test_distcheck()
-		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
-		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
-
 	def test_user_define_distcheck(self):
 		# black-box test: if user wrote dist() function it will be used
 		wscript_contents = """
