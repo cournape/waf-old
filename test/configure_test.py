@@ -173,11 +173,6 @@ def set_options(opt):
 		Utils.set_main_module(self._wscript_file_path)
 		self.failUnlessRaises(Configure.ConfigurationError, Scripting.configure)
 		
-	def test_missing_test_conf_code(self):
-		conf = self._setup_configure()
-		com_conf = conf.create_test_configurator()
-		self.failUnlessRaises(Configure.ConfigurationError, com_conf.run)
-
 	def test_nothing_to_store(self):
 		# white-box test: fails if all_envs are not defined.
 		conf = self._setup_configure()
