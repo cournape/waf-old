@@ -330,8 +330,6 @@ def check(self, *k, **kw):
 				raise
 			else:
 				self.fatal('the configuration failed (see config.log)')
-		else:
-			pass
 	else:
 		self.check_message_2(kw['okmsg'])
 
