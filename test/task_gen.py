@@ -30,7 +30,7 @@ class TaskGenTester(common_test.CommonTester):
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''
 		os.chdir(self._waf_root_dir)
-		
+
 		if os.path.isdir(self._test_dir_root):
 			shutil.rmtree(self._test_dir_root)
 
@@ -62,17 +62,20 @@ def configure(conf):
 
 def set_options(opt):
 	pass
-""" 
+"""
 
 		self._write_wscript(wscript_contents)
+		print "fails, see http://code.google.com/p/waf/issues/detail?id=211"
 
 		self._test_configure()
 		self._test_build(False)
 
 	def test_white_no_sources_specified(self):
 		# white-box test: no sources were specified
+		print "fails, see http://code.google.com/p/waf/issues/detail?id=211"
+
 		Options.commands['configure'] = False
-		env = Environment.Environment()	
+		env = Environment.Environment()
 		bld = Build.bld = Build.BuildContext()
 		bld.set_env('default', env)
 		blddir = os.path.join(self._test_dir_root, 'b')
