@@ -237,7 +237,7 @@ class ConfigurationContext(object):
 							self.fatal('requirement failure')
 						return r
 					return run
-		raise ConfigurationError, 'No such method %r' % name
+		self.fatal('No such method %r' % name)
 
 	def eval_rules(self, rules):
 		self.rules = Utils.to_list(rules)
