@@ -97,19 +97,13 @@ class CcConfigureTester(ConfigureTester):
 
 	def test_valid_flag(self):
 		# black-box test: valid flag
-		self._populate_dictionary("""conf.check_tool('checks')
-	if not conf.check_flags('-Werror'):
-		raise Exception("invalid flag")
-		""")
+		self._populate_dictionary("""conf.check_cc(msg="checking for flag='-Werror'", ccflags='-Werror', mandatory=1)""")
 		self._write_files()
 		self._test_configure()
 
 	def test_invalid_flag(self):
 		# black-box test: invalid flag
-		self._populate_dictionary("""conf.check_tool('checks')
-	if not conf.check_flags('KUKU'):
-		raise Exception("invalid flag")
-		""")
+		self._populate_dictionary("""conf.check_cc(msg="checking for flag='blah'", ccflags='blah', mandatory=1)""")
 		self._write_files()
 		self._test_configure(False)
 
@@ -121,19 +115,13 @@ class CxxConfigureTester(ConfigureTester):
 
 	def test_valid_flag(self):
 		# black-box test: valid flag
-		self._populate_dictionary("""conf.check_tool('checks')
-	if not conf.check_flags('-Werror', kind='cxx'):
-		raise Exception("invalid flag")
-		""")
+		self._populate_dictionary("""conf.check_cxx(msg="checking for flag='-ansi'", cxxflags='-ansi', mandatory=1)""")
 		self._write_files()
 		self._test_configure()
 
 	def test_invalid_flag(self):
 		# black-box test: invalid flag
-		self._populate_dictionary("""conf.check_tool('checks')
-	if not conf.check_flags('KUKU', kind='cxx'):
-		raise Exception("invalid flag")
-		""")
+		self._populate_dictionary("""conf.check_cxx(msg="checking for flag='gkerwvgew'", cxxflags='gkerwvgew', mandatory=1)""")
 		self._write_files()
 		self._test_configure(False)
 
