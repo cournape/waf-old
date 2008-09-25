@@ -120,11 +120,11 @@ def configure(conf):
 
 	# something more complicated
 	conf.check(
-		fragment='#include <stdio.h>\nint main() { printf("4"); return 0; }\n',
-		define_name="booeah",
-		execute="1",
-		define_ret="1",
-		msg="Checking for something")
+		fragment='#include <stdio.h>\nint main() { printf("%d", sizeof(int)); return 0; }\n',
+		define_name='booeah',
+		execute=1,
+		define_ret=1,
+		msg='Checking for sizeof(int)')
 
 	# the demo code, from above
 	conf.check_features()
@@ -158,10 +158,9 @@ def configure(conf):
 	env_variant2.set_variant('debug')
 
 	conf.setenv('debug')
-	#conf.env['defines'] = [] # use this to remove the defines copied
+	#conf.env['defines'] = [] # to remove defines, modify the list held by env['defines']
 	conf.define('DEBUG', 1)
 	conf.write_config_header('config.h', env=env_variant2)
-
 
 def build(bld):
 
