@@ -115,22 +115,6 @@ class TestBuildDir(common_test.CommonTester):
 		#attention current dir will be completely removed including the  "test_file" file
 		self.assertEqual(0, self.call(["python", "../waf", "distclean"]), "distclean failed")
 
-	def test_build4(self):
-		# build with TestBuildDir override outside the project root by configure within the self created buidldir
-		self._copy(os.path.join(self.__test_waf_dir,"waf"), os.path.join(self.__test_demos_dir,"cc"))
-		self._waf_exe = os.path.join(self.__test_demos_dir,"cc","waf")
-
-		os.mkdir("test_build4")
-		os.chdir("test_build4")
-		test_dir=os.getcwd()
-
-		self._test_configure()
-		self._test_build()
-		self._test_run(os.path.join("default", "src", "test_c_program"))
-		os.chdir('..')
-		self._test_distclean()
-		self.failIf(os.path.exists(test_dir), "'%s' should not exists distclean did not work" % test_dir)
-
 def run_tests(verbose=1):
 	try:
 		if verbose > 1: common_test.hide_output = False
