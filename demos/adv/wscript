@@ -99,12 +99,6 @@ def configure(conf):
 	conf.check_tool('misc')
 	conf.check_tool('dang', tooldir='.')
 
-	# the demo code, from above
-	conf.check_features()
-
-	####################################################################
-	# NEW APIS
-
 	# pkg-config
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0')
 	conf.check_cfg(package='pango', atleast_version='0.0.0')
@@ -112,9 +106,8 @@ def configure(conf):
 	conf.check_cfg(package='pango', max_version='9.0.0')
 	conf.check_cfg(package='pango', args='--cflags --libs')
 
-
 	# flags
-	conf.check(cxxflags='meeh', msg='Checking for flags meeh')
+	conf.check_cxx(cxxflags='meeh', msg='Checking for flags meeh', mandatory=1)
 
 	# function
 	conf.check(function_name='printf', header_name='stdio.h')
@@ -128,6 +121,10 @@ def configure(conf):
 	conf.check(fragment='int main() {2+2==4;}\n', define_name='boobah')
 	conf.check(fragment='uncompilable code', define_name='boobar')
 
+	# libraries, and how to reuse the checks
+	conf.check(lib='m')
+	conf.check(lib='linux', uselib='M', fatal=1)
+
 	# something more complicated
 	conf.check(
 		fragment='#include <stdio.h>\nint main() { printf("4"); return 0; }\n',
@@ -136,20 +133,18 @@ def configure(conf):
 		define_ret="1",
 		msg="Checking for something")
 
+	# the demo code, from above
+	conf.check_features()
 
+	# frameworks - for OSX
 	conf.check(framework_name='gruik')
 
-	conf.check(lib='m')
-	conf.check(lib='linux', uselib='M', fatal=1)
 
-
-
+	# c/cxx defines
 	conf.define('HAVE_SOMETHING', 1)
 	conf.define('TEST_DEFINE', 345)
 	conf.env['CXXDEFINES_DEFTEST'] = ['truc=blah', 'boo']
 	conf.env['LIB_CALC']='fl'
-
-
 
 	# finally, write the configuration header
 	conf.write_config_header('config.h')
@@ -346,34 +341,4 @@ def build(bld):
 		bld.add_subdirs('bisonflex')
 	if bld.env['AS']:
 		bld.add_subdirs('asm')
-
-def shutdown():
-	# display the graph of header dependencies
-	if 1: return
-
-	# XXX: cannot read the table below
-	
-# 	import os, types
-
-# 	f = open('foo.dot', 'w')
-# 	f.write("digraph G {\n")
-# 	table = Build.bld.node_deps
-# 	print table
-# 	for a in table:
-# 		for x in table[a]:
-# 			if type(table[a][x]) is types.ListType:
-# 				for y in table[a][x]:
-# 					f.write('"%s" -> "%s";\n' % (x, y))
-# 			else:
-# 				f.write('"%s" -> "%s";\n' % (x, table[a][x]))
-# 	f.write('}\n')
-# 	f.close()
-
-# 	try:
-# 		os.popen('dot -Tpng foo.dot -ofoo.png').read()
-# 	except:
-# 		print "the dot program was not found - install graphviz?"
-# 	else:
-# 		print "generated foo.png"
-
 
