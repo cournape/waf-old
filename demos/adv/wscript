@@ -163,14 +163,18 @@ def configure(conf):
 	conf.write_config_header('config.h', env=env_variant2)
 
 def build(bld):
+	"""
+	#for debugging or profiling: build empty files
 
-	# build empty files (for debugging or profiling)
-	#import Action
-	#def touch_func(task):
-	#	for x in task.outputs:
-	#		open(x.abspath(task.env), 'w').close()
-	#for x in []+Action.g_actions.keys():
-	#	Action.Action(x, vars=[], func=touch_func, color='CYAN')
+	import Task
+	def touch_func(task):
+		for x in task.outputs:
+			open(x.abspath(task.env), 'w').close()
+	for x in Task.TaskBase.classes.keys():
+		cls = Task.TaskBase.classes[x]
+		cls.func = touch_func
+		cls.color = 'CYAN'
+	"""
 
 	# process subfolders from here
 	bld.add_subdirs('src complex variant tests hybrid')
