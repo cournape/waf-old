@@ -124,7 +124,6 @@ def exec_cfg(self, kw):
 
 	# so we assume the command-line will output flags to be parsed afterwards
 	cmd = ' '.join(lst)
-	print cmd
 	try:
 		ret = Utils.cmd_output(cmd)
 	except:
