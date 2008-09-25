@@ -20,7 +20,7 @@ stdincpath = ['/usr/include/', '/usr/local/include/']
 stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
 """standard library search paths"""
 
-ver = {
+cfg_ver = {
 	'atleast-version': '>=',
 	'exact-version': '==',
 	'max-version': '<=',
@@ -69,14 +69,14 @@ def validate_cfg(self, kw):
 		return
 
 	# checking for the version of a module, for the moment, one thing at a time
-	for x in ver.keys():
+	for x in cfg_ver.keys():
 		y = x.replace('-', '_')
 		if y in kw:
 			if not 'package' in kw:
 				raise ValueError, '%s requires a package' % x
 
 			if not 'msg' in kw:
-				kw['msg'] = 'Checking for %s %s %s' % (kw['package'], ver[x], kw[y])
+				kw['msg'] = 'Checking for %s %s %s' % (kw['package'], cfg_ver[x], kw[y])
 			return
 
 	if not 'msg' in kw:
@@ -102,7 +102,7 @@ def exec_cfg(self, kw):
 		return
 
 	# checking for the version of a module
-	for x in ver:
+	for x in cfg_ver:
 		y = x.replace('-', '_')
 		if y in kw:
 			try:
@@ -116,7 +116,7 @@ def exec_cfg(self, kw):
 			return
 
 	lst = [kw['path']]
-	for key, val in Utils.to_list(kw.get('define_variable', [])):
+	for key, val in kw.get('define_variable', {}).iteritems():
 		lst.append('--define-variable=%s=%s' % (key, val))
 
 	lst.append(kw.get('args', ''))
@@ -124,6 +124,7 @@ def exec_cfg(self, kw):
 
 	# so we assume the command-line will output flags to be parsed afterwards
 	cmd = ' '.join(lst)
+	print cmd
 	try:
 		ret = Utils.cmd_output(cmd)
 	except:
@@ -149,8 +150,6 @@ def check_cfg(self, *k, **kw):
 				raise
 			else:
 				self.fatal('the configuration failed (see config.log)')
-		else:
-			pass
 	else:
 		self.check_message_2(kw['okmsg'])
 
