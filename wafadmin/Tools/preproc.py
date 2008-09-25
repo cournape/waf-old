@@ -15,6 +15,8 @@ import traceback
 class PreprocError(Utils.WafError):
 	pass
 
+POPFILE = '-'
+
 go_absolute = 0
 "set to 1 to track headers on files in /usr/include - else absolute paths are ignored"
 
@@ -371,6 +373,7 @@ class c_parser(object):
 		self.count_files = 0
 		self.deps  = []
 		self.deps_paths = []
+		self.currentnode_stack = []
 
 		self.nodepaths = nodepaths or []
 		#self.nodepaths.append(Build.bld.root.find_dir('/usr/include'))
@@ -391,20 +394,28 @@ class c_parser(object):
 
 	def tryfind(self, filename):
 		self.curfile = filename
-		found = None
+
+		# for msvc it should be a for loop on the whole stack
+		found = self.currentnode_stack[-1].find_resource(filename)
+
 		for n in self.nodepaths:
-			found = n.find_resource(filename)
 			if found:
 				break
-		else:
+			found = n.find_resource(filename)
+
+		if not found:
 			if not filename in self.names:
 				self.names.append(filename)
 			return
 		self.nodes.append(found)
 		if filename[-4:] != '.moc':
-			self.addlines(found.abspath(self.env))
+			self.addlines(found)
 
-	def addlines(self, filepath):
+	def addlines(self, node):
+
+		self.currentnode_stack.append(node.parent)
+		filepath = node.abspath(self.env)
+
 		self.count_files += 1
 		if self.count_files > 30000: raise PreprocError, "recursion limit exceeded, bailing out"
 		pc = self.parse_cache
@@ -419,7 +430,8 @@ class c_parser(object):
 
 		try:
 			lines = filter_comments(filepath)
-			pc[filepath] = lines # memorize the lines filtered
+			lines.append((POPFILE, ''))
+			pc[filepath] = lines # cache the lines filtered
 			self.lines = lines + self.lines
 		except IOError:
 			raise PreprocError, "could not read the file %s" % filepath
@@ -434,7 +446,7 @@ class c_parser(object):
 		self.env = env
 		variant = node.variant(env)
 
-		self.addlines(node.abspath(env))
+		self.addlines(node)
 		if env['DEFLINES']:
 			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
 
@@ -635,6 +647,9 @@ if __name__ == "__main__":
 		#print self.lines
 		while self.lines:
 			(type, line) = self.lines.pop(0)
+			if type == POPFILE:
+				self.currentnode_stack.pop()
+				continue
 			try:
 				self.process_line(type, line)
 			except Exception, ex:
