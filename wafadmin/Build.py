@@ -113,6 +113,7 @@ class BuildContext(object):
 		try:
 			gc.disable()
 			f = None
+			data = None
 			try:
 				f = open(os.path.join(self.bdir, DBFILE), 'rb')
 			except (IOError, EOFError):

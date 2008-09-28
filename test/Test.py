@@ -8,7 +8,7 @@
 import os, sys
 
 class DIRS:
-	WAFADMIN 	= "wafadmin"
+	WAFADMIN	= "wafadmin"
 	WAF			= "waf"
 	DEMOS		= "demos"
 	TOOLS		= "Tools"
@@ -29,28 +29,26 @@ def testname(file, tests_dir='test'):
 
 def run_tests():
 	# could be run from test dir only !
-# 	import build_dir
-# 	import cxx_test
-# 	import gcc_test
-# 	import configure_test
-# 	import wscript_errors_test
-# 	import scripting
-# 	import build
-# 	import options
-# 	import task_gen
+	import build_dir
+	import cxx_test
+	import gcc_test
+	import configure_test
+	import wscript_errors_test
+	import scripting
+	import build
+	import options
+	import task_gen
 
 	if Options.options:
 		verbose = Options.options.verbose
 	else:
 		verbose = 1
 
-	tests_modules = """configure_test build_dir cxx_test gcc_test
-						wscript_errors_test scripting build options task_gen""".split()
-	
+	tests_modules = [configure_test, build_dir, cxx_test, gcc_test,
+						wscript_errors_test, scripting, build, options, task_gen]
+
 	for mod in tests_modules:
 		info("******** %s ********" % mod.__name__)
-		
-		
 		mod.run_tests(verbose)
 
 if __name__ == "__main__":
