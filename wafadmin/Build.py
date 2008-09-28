@@ -110,16 +110,31 @@ class BuildContext(object):
 			for t in env['tools']:
 				self.setup(**t)
 
-		gc.disable()
 		try:
-			file = open(os.path.join(self.bdir, DBFILE), 'rb')
-			data = cPickle.load(file)
-			file.close()
-		except (IOError, EOFError):
-			debug('build: Build cache loading failed')
-		else:
-			for x in SAVED_ATTRS: setattr(self, x, data[x])
-		gc.enable()
+			gc.disable()
+			f = None
+			try:
+				f = open(os.path.join(self.bdir, DBFILE), 'rb')
+			except (IOError, EOFError):
+				# handle missing file/empty file
+				pass
+
+			try:
+				if f: data = cPickle.load(f)
+			except AttributeError:
+				# handle file of an old Waf version
+				# that has an attribute which no longer exist
+				# (e.g. AttributeError: 'module' object has no attribute 'BuildDTO')
+				if Logs.verbose > 1: raise
+
+			if data:
+				for x in SAVED_ATTRS: setattr(self, x, data[x])
+			else:
+				debug('build: Build cache loading failed')
+
+		finally:
+			if f: f.close()
+			gc.enable()
 
 	def save(self):
 		"store the cache on disk, see self.load"
