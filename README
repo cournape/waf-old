@@ -25,9 +25,6 @@ If you want to install waf system-wide (discouraged), use:
 Though Waf is maintaining compatibility for Python 2.3, the script used for
 generating Waf requires Python 2.4
 
-The resulting script can be reduced further by using the option --strip
-./waf-light --strip --make-waf
-
 ENVIRONMENT VARIABLES
 ---------------------
 
