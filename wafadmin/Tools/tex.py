@@ -6,6 +6,7 @@
 
 import os, re
 import Utils, TaskGen, Task, Runner, Build
+from TaskGen import taskgen, feature
 from Logs import error, warn, debug
 
 re_tex = re.compile(r'\\(?P<type>include|import|bringin){(?P<file>[^{}]*)}', re.M)
@@ -146,78 +147,75 @@ pdflatex_vardeps  = ['PDFLATEX', 'PDFLATEXFLAGS']
 def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
 
-g_texobjs = ['latex','pdflatex']
 class tex_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k, **kw)
 
-		global g_texobjs
-		self.type = kw['type']
-		if not self.type in g_texobjs:
-			raise Utils.WafError('type %s not supported for texobj' % type)
-		self.outs = '' # example: "ps pdf"
-		self.prompt = 1  # prompt for incomplete files (else the batchmode is used)
-		self.deps = ''
+@taskgen
+@feature('tex')
+def apply_tex(self):
+	if not self.type in ['latex','pdflatex']:
+		raise Utils.WafError('type %s not supported for texobj' % type)
 
-	def apply(self):
+	tree = Build.bld
+	outs = Utils.to_list(getattr(self, 'outs', []))
 
-		tree = Build.bld
-		outs = self.outs.split()
-		self.env['PROMPT_LATEX'] = self.prompt
+	# prompt for incomplete files (else the batchmode is used)
+	self.env['PROMPT_LATEX'] = getattr(self, 'prompt', 1)
 
-		deps_lst = []
+	deps_lst = []
 
-		if self.deps:
-			deps = self.to_list(self.deps)
-			for filename in deps:
-				n = self.path.find_resource(filename)
-				if not n in deps_lst: deps_lst.append(n)
+	if getattr(self, 'deps', None):
+		deps = self.to_list(self.deps)
+		for filename in deps:
+			n = self.path.find_resource(filename)
+			if not n in deps_lst: deps_lst.append(n)
 
-		for filename in self.source.split():
-			base, ext = os.path.splitext(filename)
+	for filename in self.source.split():
+		base, ext = os.path.splitext(filename)
 
-			node = self.path.find_resource(filename)
-			if not node: raise Utils.WafError('cannot find %s' % filename)
+		node = self.path.find_resource(filename)
+		if not node: raise Utils.WafError('cannot find %s' % filename)
 
-			if self.type == 'latex':
-				task = self.create_task('latex')
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.dvi'))
-			elif self.type == 'pdflatex':
-				task = self.create_task('pdflatex')
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.pdf'))
-			else:
-				raise Utils.WafError('no type or invalid type given in tex object (should be latex or pdflatex)')
+		if self.type == 'latex':
+			task = self.create_task('latex')
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext('.dvi'))
+		elif self.type == 'pdflatex':
+			task = self.create_task('pdflatex')
+			task.set_inputs(node)
+			task.set_outputs(node.change_ext('.pdf'))
+		else:
+			raise Utils.WafError('no type or invalid type given in tex object (should be latex or pdflatex)')
 
-			task.env = self.env
-			task.curdirnode = self.path
+		task.env = self.env
+		task.curdirnode = self.path
 
-			# add the manual dependencies
-			if deps_lst:
-				variant = node.variant(self.env)
-				try:
-					lst = tree.node_deps[task.unique_id()]
-					for n in deps_lst:
-						if not n in lst:
-							lst.append(n)
-				except KeyError:
-					tree.node_deps[task.unique_id()] = deps_lst
+		# add the manual dependencies
+		if deps_lst:
+			variant = node.variant(self.env)
+			try:
+				lst = tree.node_deps[task.unique_id()]
+				for n in deps_lst:
+					if not n in lst:
+						lst.append(n)
+			except KeyError:
+				tree.node_deps[task.unique_id()] = deps_lst
 
-			if self.type == 'latex':
-				if 'ps' in outs:
-					pstask = self.create_task('dvips')
-					pstask.set_inputs(task.outputs)
-					pstask.set_outputs(node.change_ext('.ps'))
-				if 'pdf' in outs:
-					pdftask = self.create_task('dvipdf')
-					pdftask.set_inputs(task.outputs)
-					pdftask.set_outputs(node.change_ext('.pdf'))
-			elif self.type == 'pdflatex':
-				if 'ps' in outs:
-					pstask = self.create_task('pdf2ps')
-					pstask.set_inputs(task.outputs)
-					pstask.set_outputs(node.change_ext('.ps'))
+		if self.type == 'latex':
+			if 'ps' in outs:
+				pstask = self.create_task('dvips')
+				pstask.set_inputs(task.outputs)
+				pstask.set_outputs(node.change_ext('.ps'))
+			if 'pdf' in outs:
+				pdftask = self.create_task('dvipdf')
+				pdftask.set_inputs(task.outputs)
+				pdftask.set_outputs(node.change_ext('.pdf'))
+		elif self.type == 'pdflatex':
+			if 'ps' in outs:
+				pstask = self.create_task('pdf2ps')
+				pstask.set_inputs(task.outputs)
+				pstask.set_outputs(node.change_ext('.ps'))
 
 def detect(conf):
 	v = conf.env
