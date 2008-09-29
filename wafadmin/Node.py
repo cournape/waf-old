@@ -254,8 +254,8 @@ class Node(object):
 			ret = ''
 		return ret
 
-	# find a common ancestor for two nodes - for the shortest path in hierarchy
 	def find_ancestor(self, node):
+		"find a common ancestor for two nodes - for the shortest path in hierarchy"
 		dist = self.height() - node.height()
 		if dist < 0: return node.find_ancestor(self)
 		# now the real code
@@ -299,12 +299,6 @@ class Node(object):
 		if self.id & 3 == FILE: return self.relpath_gen(ln)
 		else: return os.path.join(tree.bldnode.relpath_gen(ln), env.variant(), self.relpath_gen(tree.srcnode))
 
-	def debug(self):
-		print "========= debug node ============="
-		print "dirs are ", self.dirs()
-		print "files are", self.files()
-		print "======= end debug node ==========="
-
 	def is_child_of(self, node):
 		"does this node belong to the subtree node"
 		p = self
@@ -324,8 +318,8 @@ class Node(object):
 		"amount of parents"
 		# README a cache can be added here if necessary
 		d = self
-		val = 0
-		while d.parent:
+		val = -1
+		while d:
 			d = d.parent
 			val += 1
 		return val
