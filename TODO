@@ -1,25 +1,10 @@
 roadmap:
 --------
 
-CORE:
-
-* finish the exception system refactoring
-
-* install folders
-
-* win32 support is broken, see Node.py and Utils.py
-
 TOOLS:
 
 * flag conversion review (_INCFLAGS)
 * rpath system review
-
-* clean the module config_c.py (configuration apis for c/c++)
-
-RELEASE PLAN:
-
-* A preview of Waf 1.5 should be available for September
-* The manual should be updated
 
 ideas to watch:
 ---------------
@@ -27,9 +12,8 @@ ideas to watch:
 * cross-compilation settings gcc,linux -> win32 (the infrastructure is in place)
 * packaging? (rpms, debs)
 * split the gnome module?
-* find the right amount of jobs from /proc?
 
 --------------------------------------
-Last update: 11/07/2008
+Last update: 29/09/2008
 Contact -> http://code.google.com/p/waf
 
