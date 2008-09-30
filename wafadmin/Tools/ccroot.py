@@ -135,31 +135,16 @@ def install_shlib(self):
 @before('apply_core')
 def vars_target_cprogram(self):
 	self.default_install_path = '${PREFIX}/bin'
+	self.default_chmod = 0755
 
 @taskgen
-@feature('cstaticlib', 'dstaticlib')
+@feature('cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @before('apply_core')
 def vars_target_cstaticlib(self):
 	self.default_install_path = '${PREFIX}/lib'
 
 @taskgen
-@feature('cshlib', 'dshlib')
-@before('apply_core')
-def vars_target_cshlib(self):
-	self.default_install_path = '${PREFIX}/lib'
-
-@taskgen
-@feature('cprogram', 'dprogram')
-@after('apply_objdeps')
-def install_target_cprogram(self):
-	if not Options.is_install: return
-	try: mode = self.program_chmod
-	except AttributeError: mode = 0755
-	self.link_task.install_path = self.install_path
-	self.link_task.chmod = mode
-
-@taskgen
-@feature('cstaticlib', 'dstaticlib')
+@feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @after('apply_objdeps')
 def install_target_cstaticlib(self):
 	if not Options.is_install: return
@@ -169,11 +154,8 @@ def install_target_cstaticlib(self):
 @feature('cshlib', 'dshlib')
 @after('apply_objdeps')
 def install_target_cshlib(self):
-	if not Options.is_install: return
-	tsk = self.link_task
-	self.link_task.install_path = self.install_path
-
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
+		tsk = self.link_task
 		tsk.vnum = self.vnum
 		tsk.install = install_shlib
 
@@ -244,6 +226,7 @@ def apply_link(self):
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
+	linktask.chmod = self.chmod
 
 	self.link_task = linktask
 
