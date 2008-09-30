@@ -259,6 +259,13 @@ def copy_attrs(orig, dest, names, only_if_set=False):
 		if u or not only_if_set:
 			setattr(dest, a, u)
 
+def def_attrs(self, **kw):
+	for k, v in kw.iteritems():
+		try:
+			getattr(self, k)
+		except AttributeError:
+			setattr(self, k, v)
+
 quote_define_name_table = None
 def quote_define_name(path):
 	"Converts a string to a constant name, foo/zbr-xpto.h -> FOO_ZBR_XPTO_H"
