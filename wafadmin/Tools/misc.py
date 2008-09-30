@@ -55,7 +55,6 @@ class copy_taskgen(TaskGen.task_gen):
 
 		self.source = ''
 		self.target = ''
-		self.chmod  = ''
 		self.fun = copy_func
 		self.default_install_path = 0
 
@@ -120,7 +119,6 @@ class subst_taskgen(TaskGen.task_gen):
 	def __init__(self, type='none'):
 		TaskGen.task_gen.__init__(self)
 		self.fun = subst_func
-		self.chmod = ''
 		self.dict = {}
 		self.default_install_path = 0
 

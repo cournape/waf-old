@@ -8,7 +8,6 @@ class msgfmt_taskgen(TaskGen.task_gen):
 	def __init__(self, appname='set_your_app_name'):
 		TaskGen.task_gen.__init__(self)
 		self.langs = '' # for example "foo/fr foo/br"
-		self.chmod = 0644
 		self.default_install_path = '${KDE4_LOCALE_INSTALL_DIR}'
 		self.appname = appname
 

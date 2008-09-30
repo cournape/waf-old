@@ -92,13 +92,16 @@ for pyfile in sys.argv[1:]:
 				if retval:
 					raise Utils.WafError("bytecode compilation failed")
 
-# FIXME in theory, we should absolutely avoid subclasses like this
+# COMPAT
 class py_taskgen(TaskGen.task_gen):
-	def __init__(self, env=None):
-		TaskGen.task_gen.__init__(self)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 
-		self.default_install_path = '${PYTHONDIR}'
-		self.chmod = 0644
+@taskgen
+@before('apply_core')
+@feature('py')
+def init_py(self):
+	self.default_install_path = '${PYTHONDIR}'
 
 def _get_python_variables(python_exe, variables, imports=['import sys']):
 	"""Run a python interpreter and print some variables"""
