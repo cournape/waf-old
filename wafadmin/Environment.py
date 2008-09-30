@@ -24,7 +24,7 @@ class Environment(object):
 
 		if Options.commands['configure']:
 			# set the prefix once and for everybody on creation (configuration)
-			self.table['PREFIX'] = os.path.abspath(Options.options.prefix)
+			self.table['PREFIX'] = os.path.abspath(os.path.expanduser(Options.options.prefix))
 
 		if filename:
 			self.load(filename)
