@@ -4,6 +4,7 @@
 # Thomas Nagy, 2008 (ita)
 
 import TaskGen
+from TaskGen import taskgen, feature
 
 TaskGen.declare_chain(
 	name = 'luac',
@@ -14,10 +15,10 @@ TaskGen.declare_chain(
 	install = 'LUADIR', # env variable
 )
 
-class lua_taskgen(TaskGen.task_gen):
-	def __init__(self):
-		TaskGen.task_gen.__init__(self)
-		self.chmod = 0755
+@taskgen
+@feature('lua')
+def init_lua(self):
+	self.default_chmod = 0755
 
 def detect(conf):
 	luac = conf.find_program('luac', var='LUAC')
