@@ -108,7 +108,7 @@ class task_gen(object):
 		# not always a good idea
 		self.tasks = []
 
-		self.chmod = 0644
+		self._chmod = 0644
 		self._install_path = UNDEFINED
 
 		if Options.is_install:
@@ -177,7 +177,7 @@ class task_gen(object):
 		keys = set(self.meths)
 
 		# add the methods listed in the features
-		for x in self.features + ['*']:
+		for x in Utils.to_list(self.features) + ['*']:
 			keys.update(task_gen.traits.get(x, ()))
 
 		# copy the precedence table
@@ -326,6 +326,15 @@ class task_gen(object):
 		self._install_path = val
 
 	install_path = property(get_inst_path, set_inst_path)
+
+
+	def get_chmod(self):
+		return getattr(self, '_chmod', getattr(self, 'default_chmod', 0644))
+
+	def set_chmod(self, val):
+		self._chmod = val
+
+	chmod = property(get_chmod, set_chmod)
 
 def declare_extension(var, func):
 	try:
