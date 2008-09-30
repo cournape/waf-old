@@ -113,7 +113,7 @@ class Parallel(object):
 		self.out = Queue.Queue(0)
 
 		self.count = 0 # tasks not in the producer area
-		self.processed = 0 # progress indicator
+		self.processed = 1 # progress indicator
 
 		self.consumers = None # the consumer threads, created lazily
 
