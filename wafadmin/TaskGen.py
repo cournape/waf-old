@@ -108,8 +108,8 @@ class task_gen(object):
 		# not always a good idea
 		self.tasks = []
 
-		self._chmod = 0644
-		self._install_path = UNDEFINED
+		self.default_chmod = 0644
+		self.default_install_path = None
 
 		if Options.is_install:
 			self.inst_files = [] # lazy list of tuples representing the files to install
@@ -316,11 +316,7 @@ class task_gen(object):
 		return newobj
 
 	def get_inst_path(self):
-		"return a default parameter if provided"
-		k = self._install_path
-		if k == UNDEFINED:
-			return getattr(self, 'default_install_path', k)
-		return k
+		return getattr(self, '_install_path', getattr(self, 'default_install_path', ''))
 
 	def set_inst_path(self, val):
 		self._install_path = val
