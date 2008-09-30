@@ -28,12 +28,10 @@ class cc_taskgen(ccroot.ccroot_abstract):
 
 @taskgen
 @before('apply_type_vars')
+@after('default_cc')
 def init_cc(self):
-	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cc_flag_vars)
-	else: self.p_flag_vars = g_cc_flag_vars
-
-	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cc_type_vars)
-	else: self.p_type_vars = g_cc_type_vars
+	self.p_flag_vars = set(self.p_flag_vars).union(g_cc_flag_vars)
+	self.p_type_vars = set(self.p_type_vars).union(g_cc_type_vars)
 
 	if not self.env['CC_NAME']:
 		raise Utils.WafError("At least one compiler (gcc, ..) must be selected")

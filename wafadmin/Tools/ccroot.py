@@ -60,46 +60,9 @@ class ccroot_abstract(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k)
 
-		# TODO type is obsolete
-		if len(k)>1: self.type = k[1]
-		else: self.type = ''
-		if self.type:
-			self.features.append('c' + self.type)
-
-		# includes, seen from the current directory
-		self.includes=''
-
-		self.defines = ''
-		self.rpaths = ''
-
-		self.uselib = ''
-
-		# new scheme: provide the names of the local libraries to link with
-		# the objects found will be post()-ed
-		self.uselib_local=''
-
-		# add .o files produced by another task_gen class (task generator names)
-		self.add_objects = ''
-
-		# version number for shared libraries
-		#self.vnum='1.2.3' #
-		#self.soname='.so.3' # else soname is computed from vnum
-
-		#self.program_chmod = 0755 # by default: 0755
-
-		# do not forget to set the following variables in a subclass
-		self.p_flag_vars = []
-		self.p_type_vars = []
-
-		#self.link = '' # optional: kind of link to apply (ar, cc, cxx, ..)
-
-		self.scanner_defines = {}
-
-		self.compiled_tasks = []
-		self.link_task = None
-
-		# characteristics of what we want to build: cc, cpp, program, staticlib, shlib, etc
-		#self.features = ['program']
+		# COMPAT
+		if len(k) > 1:
+			self.features.append('c' + k[1])
 
 	def clone(self, env):
 		new_obj = TaskGen.task_gen.clone(self, env)
@@ -110,12 +73,34 @@ class ccroot_abstract(TaskGen.task_gen):
 		new_obj.uselib_local = [x + variant for x in Utils.to_list(self.uselib_local) ]
 		return new_obj
 
+@taskgen
+@feature('cc')
+@feature('cxx')
+def default_cc(self):
+	Utils.def_attrs(self,
+		includes='',
+		defines='',
+		rpaths='',
+		uselib='',
+		uselib_local='',
+		add_objects='',
+		p_flag_vars=[],
+		p_type_vars=[],
+		scanner_defines={},
+		compiled_tasks=[],
+		link_task=None)
+
 def get_target_name(self):
-	name = self.target
-	pattern = self.env[self.type+'_PATTERN']
+	tp = 'program'
+	for x in self.features:
+		if x in ['cshlib', 'cstaticlib']:
+			tp = x.lstrip('c')
+
+	pattern = self.env[tp + '_PATTERN']
 	if not pattern: pattern = '%s'
 
 	# name can be src/mylib
+	name = self.target
 	k = name.rfind('/')
 	return name[0:k+1] + pattern % name[k+1:]
 
@@ -133,8 +118,8 @@ def install_shlib(self):
 	path = self.install_path
 	libname = self.outputs[0].name
 
-	name3 = libname+'.'+self.vnum
-	name2 = libname+'.'+nums[0]
+	name3 = libname + '.' + self.vnum
+	name2 = libname + '.' + nums[0]
 	name1 = libname
 
 	filename = self.outputs[0].abspath(self.env)
@@ -228,17 +213,22 @@ def apply_incpaths(self):
 
 @taskgen
 def apply_type_vars(self):
-	# if the type defines uselib to add, add them
-	st = self.env[self.type+'_USELIB']
-	if st: self.uselib = self.uselib + ' ' + st
+	for x in self.features:
+		if not x in ['cprogram', 'cstaticlib', 'cshlib']:
+			continue
+		x = x.lstrip('c')
 
-	# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
-	# so when we make a cppobj of the type shlib, CXXFLAGS are modified accordingly
-	for var in self.p_type_vars:
-		compvar = '_'.join([self.type, var])
-		#print compvar
-		value = self.env[compvar]
-		if value: self.env.append_value(var, value)
+		# if the type defines uselib to add, add them
+		st = self.env[x + '_USELIB']
+		if st: self.uselib = self.uselib + ' ' + st
+
+		# each compiler defines variables like 'shlib_CXXFLAGS', 'shlib_LINKFLAGS', etc
+		# so when we make a task generator of the type shlib, CXXFLAGS are modified accordingly
+		for var in self.p_type_vars:
+			compvar = '%s_%s' % (x, var)
+			#print compvar
+			value = self.env[compvar]
+			if value: self.env.append_value(var, value)
 
 @taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')

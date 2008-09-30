@@ -18,7 +18,7 @@ from Logs import error, debug
 
 @taskgen
 def create_task_macapp(self):
-	if self.type == 'program' and self.link_task:
+	if 'cprogram' in self.features and self.link_task:
 		apptask = self.create_task('macapp', self.env)
 		apptask.set_inputs(self.link_task.outputs)
 		apptask.set_outputs(self.link_task.outputs[0].change_ext('.app'))

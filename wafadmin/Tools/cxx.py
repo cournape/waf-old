@@ -7,7 +7,7 @@
 import TaskGen, Task, Utils
 from Logs import debug
 import ccroot # <- do not remove
-from TaskGen import taskgen, before, extension
+from TaskGen import taskgen, before, extension, after
 
 g_cxx_flag_vars = [
 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -25,19 +25,17 @@ g_cxx_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cxx_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *k):
 		ccroot.ccroot_abstract.__init__(self, *k)
-		self.features.append("cxx")
+		self.features.append('cxx')
 
 @taskgen
 @before('apply_type_vars')
+@after('default_cc')
 def init_cxx(self):
 	if not 'cc' in self.features:
 		self.mappings['.c'] = TaskGen.task_gen.mappings['.cxx']
 
-	if hasattr(self, 'p_flag_vars'): self.p_flag_vars = set(self.p_flag_vars).union(g_cxx_flag_vars)
-	else: self.p_flag_vars = g_cxx_flag_vars
-
-	if hasattr(self, 'p_type_vars'): self.p_type_vars = set(self.p_type_vars).union(g_cxx_type_vars)
-	else: self.p_type_vars = g_cxx_type_vars
+	self.p_flag_vars = set(self.p_flag_vars).union(g_cxx_flag_vars)
+	self.p_type_vars = set(self.p_type_vars).union(g_cxx_type_vars)
 
 	if not self.env['CXX_NAME']:
 		raise Utils.WafError("At least one compiler (g++, ..) must be selected")

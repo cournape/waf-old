@@ -56,20 +56,17 @@ def msvc_linker(task):
 		mtool = e['MT']
 		if not mtool:
 			return 0
-		mode=''
+
+		mode = ''
 		# embedding mode. Different for EXE's and DLL's.
 		# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
-		if task.type == 'program':
-			mode='1'
-		elif task.type == 'shlib':
-			mode='2'
+		if 'cprogram' in task.features:
+			mode = '1'
+		elif 'cshlib' in task.features:
+			mode = '2'
 
 		debug('msvc: embedding manifest')
-		flags = e['MTFLAGS']
-		if flags:
-			flags=string.join(flags,' ')
-		else:
-			flags=''
+		flags = ' '.join(e['MTFLAGS'] or [])
 
 		cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
 			manifest, outfile, mode)
@@ -242,9 +239,7 @@ def apply_msvc_obj_vars(self):
 @before('apply_obj_vars_cxx')
 def apply_link_msvc(self):
 	# if we are only building .o files, tell which ones we built
-	# FIXME remove the "type" thing
-	# FIXME simplify this piece of code (about the same is in ccroot.py)
-	if self.type == 'objects':
+	if 'objects' in self.features:
 		self.out_nodes = []
 		app = self.out_nodes.append
 		for t in self.compiled_tasks: app(t.outputs[0])
@@ -253,7 +248,7 @@ def apply_link_msvc(self):
 	# use a custom linker is specified (self.link)
 	link = getattr(self, 'link', None)
 	if not link:
-		if self.type == 'staticlib': link = 'msvc_ar_link_static'
+		if 'cstaticlib' in self.features: link = 'msvc_ar_link_static'
 		elif 'cxx' in self.features: link = 'msvc_cxx_link'
 		else: link = 'msvc_cc_link'
 	linktask = self.create_task(link)
@@ -262,7 +257,7 @@ def apply_link_msvc(self):
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_or_declare(ccroot.get_target_name(self)))
 
-	linktask.type = self.type
+	linktask.features = self.features
 	linktask.subsystem = getattr(self, 'subsystem', '')
 	self.link_task = linktask
 
