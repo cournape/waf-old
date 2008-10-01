@@ -7,7 +7,7 @@
 import TaskGen, Build, Utils, Task
 from Logs import debug
 import ccroot # <- do not remove
-from TaskGen import taskgen, before, extension
+from TaskGen import taskgen, before, extension, after
 
 g_cc_flag_vars = [
 'CCDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
