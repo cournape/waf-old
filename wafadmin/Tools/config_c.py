@@ -68,6 +68,10 @@ def validate_cfg(self, kw):
 			kw['msg'] = 'Checking for pkg-config version >= %s' % kw['atleast_pkgconfig_version']
 		return
 
+	# pkg-config --modversion
+	if 'modversion' in kw:
+		return
+
 	# checking for the version of a module, for the moment, one thing at a time
 	for x in cfg_ver.keys():
 		y = x.replace('-', '_')
@@ -95,7 +99,7 @@ def exec_cfg(self, kw):
 			Utils.cmd_output('%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version']))
 		except:
 			if not 'errmsg' in kw:
-				kw['errmsg'] = 'TODO'
+				kw['errmsg'] = '"pkg-config" could not be found or the found version is too old.'
 			raise Configure.ConfigurationError, kw['errmsg']
 		if not 'okmsg' in kw:
 			kw['okmsg'] = 'ok'
@@ -109,11 +113,23 @@ def exec_cfg(self, kw):
 				Utils.cmd_output('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']))
 			except:
 				if not 'errmsg' in kw:
-					kw['errmsg'] = 'TODO 2'
+					kw['errmsg'] = 'Package "%s (%s %s)" could not be found or the found version is too old.' % (kw['package'], cfg_ver[x], kw[y])
 				raise Configure.ConfigurationError, kw['errmsg']
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'ok'
+			self.define('HAVE_' + kw.get('uselib_store', kw['package'].upper()), 1, 0)
 			return
+
+	# retrieving the version of a module
+	if 'modversion' in kw:
+		try:
+			version = Utils.cmd_output('%s --modversion %s' % (kw['path'], kw['package'])).strip()
+			self.define(kw.get('uselib_store', kw['package'].upper()) + '_VERSION', version, 1)
+		except:
+			# silently igore all errors and return an empty string instead
+			version = ""
+		return version
+
 
 	lst = [kw['path']]
 	for key, val in kw.get('define_variable', {}).iteritems():
@@ -138,19 +154,22 @@ def exec_cfg(self, kw):
 @conf
 def check_cfg(self, *k, **kw):
 	self.validate_cfg(kw)
-	self.check_message_1(kw['msg'])
+	if 'msg' in kw:
+		self.check_message_1(kw['msg'])
 	ret = None
 	try:
 		ret = self.exec_cfg(kw)
 	except Configure.ConfigurationError, e:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
+		if 'errmsg' in kw:
+			self.check_message_2(kw['errmsg'], 'YELLOW')
 		if 'mandatory' in kw:
 			if Logs.verbose > 1:
 				raise
 			else:
 				self.fatal('the configuration failed (see config.log)')
 	else:
-		self.check_message_2(kw['okmsg'])
+		if 'okmsg' in kw:
+			self.check_message_2(kw['okmsg'])
 
 	return ret
 
