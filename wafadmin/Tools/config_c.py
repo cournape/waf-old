@@ -305,8 +305,6 @@ def post_check(self, *k, **kw):
 		else:
 			self.define(kw['define_name'], kw['success'])
 
-	is_define = kw['success'] is not None
-
 	if 'header_name' in kw:
 		define_or_stuff()
 
@@ -317,7 +315,12 @@ def post_check(self, *k, **kw):
 		if 'define_name' in kw:
 			define_or_stuff()
 
-	if kw['success'] and 'uselib_store' in kw:
+	if kw['execute']:
+		is_success = kw['success'] is not None
+	else:
+		is_success = kw['success'] == 0
+
+	if is_success and 'uselib_store' in kw:
 		import cc, cxx
 		for k in set(cc.g_cc_flag_vars).union(cxx.g_cxx_flag_vars):
 			lk = k.lower()
