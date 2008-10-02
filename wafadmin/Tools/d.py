@@ -235,28 +235,28 @@ class d_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-		# TODO m_type is obsolete
-		if len(k)>1: self.type = k[1]
-		else: self.type = ''
-		if self.type:
-			self.features.append('d' + self.type)
+		# COMPAT
+		if len(k) > 1:
+			self.features.append('c' + k[1])
 
-		self.dflags = {'gdc':'', 'dmd':''}
-		self.importpaths = ''
-		self.libs = ''
-		self.libpaths = ''
-		self.uselib = ''
-		self.uselib_local = ''
-
-		self.generate_headers = False # set to true if you want .di files as well as .o
-
-		self.compiled_tasks = []
-
-		self.add_objects = []
-
-		self.vnum = '1.0.0'
-
+# okay, we borrow a few methods from ccroot
 TaskGen.bind_feature('d', D_METHS)
+
+@taskgen
+@feature('d')
+@before('apply_d_libs')
+def init_d(self):
+	Utils.def_attrs(self,
+		dflags={'gdc':'', 'dmd':''},
+		importpaths='',
+		libs='',
+		libpaths='',
+		uselib='',
+		uselib_local='',
+		generate_headers=False, # set to true if you want .di files as well as .o
+		compiled_tasks=[],
+		add_objects=[],
+		link_task=None)
 
 @taskgen
 @feature('d')
