@@ -232,8 +232,8 @@ def init_d(self):
 		setattr(self, x, getattr(self, x, d_params[x]))
 
 class d_taskgen(TaskGen.task_gen):
-	def __init__(self, *k):
-		TaskGen.task_gen.__init__(self, *k)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 
 		# TODO m_type is obsolete
 		if len(k)>1: self.type = k[1]

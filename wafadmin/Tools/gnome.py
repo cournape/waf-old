@@ -52,8 +52,8 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
 class gnome_doc_taskgen(TaskGen.task_gen):
-	def __init__(self, *k):
-		TaskGen.task_gen.__init__(self, *k)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 		self.default_install_path = '${PREFIX}/share'
 
 	def apply(self):
@@ -159,7 +159,7 @@ def sig_implicit_deps(self):
 
 class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self)
+		TaskGen.task_gen.__init__(self, *k, **kw)
 		self.tasks = []
 		self.appname = k[0] # the first argument is the appname - will disappear
 	def apply(self):

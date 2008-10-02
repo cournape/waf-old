@@ -34,10 +34,10 @@ def action_process_file_func(tsk):
 
 class cmd_taskgen(TaskGen.task_gen):
 	"This object will call a command everytime"
-	def __init__(self, type='none'):
-		TaskGen.task_gen.__init__(self)
-		self.type = type
-		self.fun    = None
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
+		self.type = kw.get('type', None)
+		self.fun  = None
 
 	def apply(self):
 		# create a task
@@ -50,8 +50,8 @@ class cmd_taskgen(TaskGen.task_gen):
 
 class copy_taskgen(TaskGen.task_gen):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
-	def __init__(self, type='none'):
-		TaskGen.task_gen.__init__(self)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 
 		self.source = ''
 		self.target = ''
@@ -116,8 +116,8 @@ def subst_func(tsk):
 	return 0
 
 class subst_taskgen(TaskGen.task_gen):
-	def __init__(self, type='none'):
-		TaskGen.task_gen.__init__(self)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 		self.fun = subst_func
 		self.dict = {}
 		self.default_install_path = 0
@@ -289,8 +289,8 @@ class command_output(Task.Task):
 
 class cmd_output_taskgen(TaskGen.task_gen):
 
-	def __init__(self, *k):
-		TaskGen.task_gen.__init__(self, *k)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 
 		self.stdin = None
 		self.stdout = None

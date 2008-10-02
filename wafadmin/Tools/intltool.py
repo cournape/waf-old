@@ -11,8 +11,8 @@ from Logs import error
 
 # intltool
 class intltool_in_taskgen(TaskGen.task_gen):
-	def __init__(self, *k):
-		TaskGen.task_gen.__init__(self, *k)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 		self.source  = ''
 		self.flags   = ''
 		self.podir   = 'po'
@@ -39,7 +39,7 @@ class intltool_in_taskgen(TaskGen.task_gen):
 
 class intltool_po_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k)
+		TaskGen.task_gen.__init__(self, *k, **kw)
 		self.default_install_path = '${LOCALEDIR}'
 		self.appname = kw.get('appname', 'set_your_app_name')
 		self.podir = ''

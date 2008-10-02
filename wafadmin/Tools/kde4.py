@@ -5,11 +5,11 @@
 import os, sys, re, TaskGen, Task, Utils
 
 class msgfmt_taskgen(TaskGen.task_gen):
-	def __init__(self, appname='set_your_app_name'):
-		TaskGen.task_gen.__init__(self)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 		self.langs = '' # for example "foo/fr foo/br"
 		self.default_install_path = '${KDE4_LOCALE_INSTALL_DIR}'
-		self.appname = appname
+		self.appname = kw.get('appname', 'set_your_app_name')
 
 	def apply(self):
 
