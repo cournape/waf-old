@@ -308,8 +308,6 @@ def post_check(self, *k, **kw):
 	is_define = kw['success'] is not None
 
 	if 'header_name' in kw:
-		if kw['success']:
-			self.env['CPPPATH_' + kw['uselib_store']] = kw.get('include', '')
 		define_or_stuff()
 
 	elif 'function_name' in kw:
