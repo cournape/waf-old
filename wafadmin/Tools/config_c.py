@@ -415,12 +415,13 @@ def run_c_code(self, *k, **kw):
 
 	os.chdir(back)
 
+	# chdir before returning
+	if ret:
+		raise Configure.ConfigurationError, str(ret)
+
 	# keep the name of the program to execute
 	if kw['execute']:
 		lastprog = o.link_task.outputs[0].abspath(env)
-
-	if ret:
-		raise Configure.ConfigurationError, str(ret)
 
 	# if we need to run the program, try to get its result
 	if kw['execute']:
