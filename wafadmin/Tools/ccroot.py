@@ -379,14 +379,16 @@ def apply_obj_vars(self):
 @after('apply_link')
 def apply_vnum(self):
 	"use self.vnum and self.soname to modify the command line (un*x)"
-	try: vnum = self.vnum
-	except AttributeError: return
 	# this is very unix-specific
 	if sys.platform != 'darwin' and sys.platform != 'win32':
-		nums = self.vnum.split('.')
-		try: name3 = self.soname
-		except AttributeError: name3 = self.link_task.outputs[0].name+'.'+self.vnum.split('.')[0]
-		self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
+		try:
+			nums = self.vnum.split('.')
+		except AttributeError:
+			pass
+		else:
+			try: name3 = self.soname
+			except AttributeError: name3 = self.link_task.outputs[0].name + '.' + nums[0]
+			self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
 
 @taskgen
 @after('apply_link')
