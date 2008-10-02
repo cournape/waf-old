@@ -99,7 +99,7 @@ def exec_cfg(self, kw):
 			Utils.cmd_output('%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version']))
 		except:
 			if not 'errmsg' in kw:
-				kw['errmsg'] = '"pkg-config" could not be found or the found version is too old.'
+				kw['errmsg'] = '"pkg-config" could not be found or the version found is too old.'
 			raise Configure.ConfigurationError, kw['errmsg']
 		if not 'okmsg' in kw:
 			kw['okmsg'] = 'ok'
@@ -117,19 +117,18 @@ def exec_cfg(self, kw):
 				raise Configure.ConfigurationError, kw['errmsg']
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'ok'
-			self.define('HAVE_' + kw.get('uselib_store', kw['package'].upper()), 1, 0)
+			self.define('HAVE_%s' % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), 1, 0)
 			return
 
 	# retrieving the version of a module
 	if 'modversion' in kw:
 		try:
-			version = Utils.cmd_output('%s --modversion %s' % (kw['path'], kw['package'])).strip()
-			self.define(kw.get('uselib_store', kw['package'].upper()) + '_VERSION', version, 1)
-		except:
-			# silently igore all errors and return an empty string instead
-			version = ""
+			version = Utils.cmd_output('%s --modversion %s' % (kw['path'], kw['modversion'])).strip()
+		except ValueError:
+			return ''
+			#self.fatal('Package %r could not be found' % kw['modversion'])
+		self.define('%s_VERSION' % Utils.quote_define_name(kw.get('uselib_store', kw['modversion'])), version)
 		return version
-
 
 	lst = [kw['path']]
 	for key, val in kw.get('define_variable', {}).iteritems():
