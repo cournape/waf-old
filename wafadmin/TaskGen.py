@@ -251,6 +251,9 @@ class task_gen(object):
 		self.tasks.append(task)
 		return task
 
+	def name_to_obj(self, name):
+		return Build.bld.name_to_obj(name, self.env)
+
 	def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 		"subclass if necessary"
 		lst = []

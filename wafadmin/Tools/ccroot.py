@@ -63,15 +63,16 @@ class ccroot_abstract(TaskGen.task_gen):
 		# COMPAT
 		if len(k) > 1:
 			self.features.append('c' + k[1])
+		#print "hi there", self.__class__.__dict__.keys()
 
-	def clone(self, env):
-		new_obj = TaskGen.task_gen.clone(self, env)
-		variant = '_' + self.env.variant()
+	#def clone(self, env):
+	#	new_obj = TaskGen.task_gen.clone(self, env)
+	#	variant = '_' + self.env.variant()
 
-		if self.name: new_obj.name = self.name + variant
-		else: new_obj.name = self.target + variant
-		new_obj.uselib_local = [x + variant for x in Utils.to_list(self.uselib_local) ]
-		return new_obj
+	#	if self.name: new_obj.name = self.name + variant
+	#	else: new_obj.name = self.target + variant
+	#	new_obj.uselib_local = [x + variant for x in Utils.to_list(self.uselib_local) ]
+	#	return new_obj
 
 @taskgen
 @feature('cc')
@@ -246,8 +247,7 @@ def apply_lib_vars(self):
 		if x in seen:
 			continue
 
-		# object does not exist ?
-		y = Build.bld.name_to_obj(x)
+		y = self.name_to_obj(x)
 		if not y:
 			raise Utils.WafError("object '%s' was not found in uselib_local (required by '%s')" % (x, self.name))
 
@@ -316,11 +316,9 @@ def apply_objdeps(self):
 			continue
 
 		# object does not exist ?
-		y = Build.bld.name_to_obj(x)
+		y = self.name_to_obj(x)
 		if not y:
-			error('object not found in add_objects: obj %s add_objects %s' % (self.name, x))
-			names = names[1:]
-			continue
+			raise Utils.WafError("object '%s' was not found in uselib_local (required by add_objects '%s')" % (x, self.name))
 
 		# object has ancestors to process first ? update the list of names
 		if y.add_objects:

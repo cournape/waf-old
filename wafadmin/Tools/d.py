@@ -278,8 +278,7 @@ def apply_d_libs(self):
 		else:
 			seen.append(x)
 
-		# object does not exist ?
-		y = TaskGen.name_to_obj(x)
+		y = self.name_to_obj(x)
 		if not y:
 			raise Utils.WafError('object not found in uselib_local: obj %s uselib %s' % (self.name, x))
 

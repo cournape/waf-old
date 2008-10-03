@@ -535,18 +535,21 @@ class BuildContext(object):
 		self.cache_sig_vars[idx] = ret
 		return ret
 
-	def name_to_obj(self, name):
+	def name_to_obj(self, name, env):
 		"""retrieve a task generator from its name or its target name
 		remember that names must be unique"""
 		cache = self.task_gen_cache_names
 		if not cache:
 			# create the index lazily
 			for x in self.all_task_gen:
+				vt = env.variant() + '_'
 				if x.name:
-					cache[x.name] = x
-				elif not self.task_gen_cache_names.get(x, ''):
-					cache[x.target] = x
-		return cache.get(name, None)
+					cache[vt + x.name] = x
+				else:
+					v = vt + x.target
+					if not cache.get(v, None):
+						cache[v] = x
+		return cache.get(env.variant() + '_' + name, None)
 
 	def flush(self, all=1):
 		"""tell the task generators to create the tasks"""
@@ -555,7 +558,7 @@ class BuildContext(object):
 		# force the initialization of the mapping name->object in flush
 		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
-		self.name_to_obj('')
+		self.name_to_obj('', self.env)
 
 		debug('build: delayed operation TaskGen.flush() called')
 
@@ -567,8 +570,15 @@ class BuildContext(object):
 			for target_name in Options.options.compile_targets.split(','):
 				# trim target_name (handle cases when the user added spaces to targets)
 				target_name = target_name.strip()
-				targets_objects[target_name] = self.name_to_obj(target_name)
-				if all and not targets_objects[target_name]: raise Utils.WafError("target '%s' does not exist" % target_name)
+				for env in self.all_envs.values():
+					obj = self.name_to_obj(target_name, env)
+					if obj:
+						try:
+							target_objects[target_name].append(obj)
+						except KeyError:
+							target_objects[target_name] = [obj]
+				if not target_name in target_objects and all:
+					raise Utils.WafError("target '%s' does not exist" % target_name)
 
 			for target_obj in targets_objects.values():
 				if target_obj:
