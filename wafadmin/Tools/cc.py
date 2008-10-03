@@ -23,8 +23,8 @@ TaskGen.bind_feature('cc', CC_METHS)
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
 class cc_taskgen(ccroot.ccroot_abstract):
-	def __init__(self, *kw):
-		ccroot.ccroot_abstract.__init__(self, *kw)
+	def __init__(self, *k, **kw):
+		ccroot.ccroot_abstract.__init__(self, *k, **kw)
 
 @taskgen
 @before('apply_type_vars')
