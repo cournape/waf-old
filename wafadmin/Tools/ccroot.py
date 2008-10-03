@@ -63,16 +63,6 @@ class ccroot_abstract(TaskGen.task_gen):
 		# COMPAT
 		if len(k) > 1:
 			self.features.append('c' + k[1])
-		#print "hi there", self.__class__.__dict__.keys()
-
-	#def clone(self, env):
-	#	new_obj = TaskGen.task_gen.clone(self, env)
-	#	variant = '_' + self.env.variant()
-
-	#	if self.name: new_obj.name = self.name + variant
-	#	else: new_obj.name = self.target + variant
-	#	new_obj.uselib_local = [x + variant for x in Utils.to_list(self.uselib_local) ]
-	#	return new_obj
 
 @taskgen
 @feature('cc')
