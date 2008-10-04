@@ -99,6 +99,8 @@ class py_taskgen(TaskGen.task_gen):
 
 @taskgen
 @before('apply_core')
+@after('vars_target_cprogram')
+@after('vars_target_cstaticlib')
 @feature('py')
 def init_py(self):
 	self.default_install_path = '${PYTHONDIR}'
