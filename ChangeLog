@@ -35,8 +35,8 @@ meaning in configuration and build)
 * Configure.Configure -> Configure.ConfigurationContext
 * Build.Build -> Build.BuildContext
 * detect the amount of cpus automatically
-
-* refactoring of the configuration apis for c/c++
+* preprocessor improvements (implicit include paths)
+* configuration api refactoring (c/c++)
 * The Waf binary size has been reduced by 25%
 
 NEW IN WAF 1.4.3
