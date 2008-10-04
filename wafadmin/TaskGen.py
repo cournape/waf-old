@@ -421,6 +421,7 @@ def taskgen(func):
 
 def feature(*k):
 	def deco(func):
+		setattr(task_gen, func.__name__, func)
 		for name in k:
 			try:
 				l = task_gen.traits[name]
@@ -431,21 +432,23 @@ def feature(*k):
 		return func
 	return deco
 
-def before(fun_name):
+def before(*k):
 	def deco(func):
-		try:
-			if not func.__name__ in task_gen.prec[fun_name]: task_gen.prec[fun_name].append(func.__name__)
-		except KeyError:
-			task_gen.prec[fun_name] = [func.__name__]
+		for fun_name in k:
+			try:
+				if not func.__name__ in task_gen.prec[fun_name]: task_gen.prec[fun_name].append(func.__name__)
+			except KeyError:
+				task_gen.prec[fun_name] = [func.__name__]
 		return func
 	return deco
 
-def after(fun_name):
+def after(*k):
 	def deco(func):
-		try:
-			if not fun_name in task_gen.prec[func.__name__]: task_gen.prec[func.__name__].append(fun_name)
-		except KeyError:
-			task_gen.prec[func.__name__] = [fun_name]
+		for fun_name in k:
+			try:
+				if not fun_name in task_gen.prec[func.__name__]: task_gen.prec[func.__name__].append(fun_name)
+			except KeyError:
+				task_gen.prec[func.__name__] = [fun_name]
 		return func
 	return deco
 
@@ -458,6 +461,7 @@ def extension(var):
 		raise Utils.WafError('declare extension takes either a list or a string %s' % str(var))
 
 	def deco(func):
+		setattr(task_gen, func.__name__, func)
 		for x in var:
 			task_gen.mappings[x] = func
 		task_gen.mapped[func.__name__] = func
