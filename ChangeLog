@@ -38,6 +38,7 @@ meaning in configuration and build)
 * preprocessor improvements (implicit include paths)
 * configuration api refactoring (c/c++)
 * The Waf binary size has been reduced by 25%
+* Functional syntax is enabled for all task generators
 
 NEW IN WAF 1.4.3
 ----------------
