@@ -224,9 +224,8 @@ d_params = {
 'generate_headers':False,
 }
 
-@taskgen
-@before('apply_type_vars')
 @feature('d')
+@before('apply_type_vars')
 def init_d(self):
 	for x in d_params:
 		setattr(self, x, getattr(self, x, d_params[x]))
@@ -242,7 +241,6 @@ class d_taskgen(TaskGen.task_gen):
 # okay, we borrow a few methods from ccroot
 TaskGen.bind_feature('d', D_METHS)
 
-@taskgen
 @feature('d')
 @before('apply_d_libs')
 def init_d(self):
@@ -258,7 +256,6 @@ def init_d(self):
 		add_objects=[],
 		link_task=None)
 
-@taskgen
 @feature('d')
 @after('apply_d_link')
 @before('apply_vnum')
@@ -318,7 +315,6 @@ def apply_d_libs(self):
 			uselib = [v]+uselib
 	self.uselib = uselib
 
-@taskgen
 @feature('dprogram', 'dshlib', 'dstaticlib')
 @after('apply_core')
 def apply_d_link(self):
@@ -333,7 +329,6 @@ def apply_d_link(self):
 
 	self.link_task = linktask
 
-@taskgen
 @feature('d')
 @after('apply_core')
 def apply_d_vars(self):
@@ -416,9 +411,8 @@ def apply_d_vars(self):
 			for linkflag in dlinkflags:
 				env.append_unique('DLINKFLAGS', linkflag)
 
-@taskgen
-@after('apply_d_vars')
 @feature('dshlib')
+@after('apply_d_vars')
 def add_shlib_d_flags(self):
 	for linkflag in self.env['D_shlib_LINKFLAGS']:
 		self.env.append_unique('DLINKFLAGS', linkflag)
@@ -473,7 +467,6 @@ def process_header(self):
 
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
 Task.simple_task_type('d_header', d_header_str, color='BLUE')
-
 
 # quick test #
 if __name__ == "__main__":
