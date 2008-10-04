@@ -542,7 +542,7 @@ class BuildContext(object):
 		if not cache:
 			# create the index lazily
 			for x in self.all_task_gen:
-				vt = env.variant() + '_'
+				vt = x.env.variant() + '_'
 				if x.name:
 					cache[vt + x.name] = x
 				else:
