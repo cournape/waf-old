@@ -21,9 +21,7 @@ TaskGen.bind_feature('cxx', ['apply_core'])
 
 g_cxx_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cxx_taskgen(ccroot.ccroot_abstract):
-	def __init__(self, *k, **kw):
-		ccroot.ccroot_abstract.__init__(self, *k, **kw)
-		self.features.append('cxx')
+	pass
 
 @feature('cxx')
 @before('apply_type_vars')
