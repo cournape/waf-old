@@ -64,11 +64,8 @@ class ccroot_abstract(TaskGen.task_gen):
 		if len(k) > 1:
 			self.features.append('c' + k[1])
 
-@taskgen
-@feature('cc')
-@feature('cxx')
-@before('init_cc')
-@before('init_cxx')
+@feature('cc', 'cxx')
+@before('init_cc', 'init_cxx')
 def default_cc(self):
 	Utils.def_attrs(self,
 		includes='',
@@ -97,7 +94,6 @@ def get_target_name(self):
 	k = name.rfind('/')
 	return name[0:k+1] + pattern % name[k+1:]
 
-@taskgen
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
 	if not 'objects' in self.features:
@@ -124,36 +120,32 @@ def install_shlib(self):
 
 # TODO reference the d programs, shlibs in d.py, not here
 
-@taskgen
 @feature('cprogram', 'dprogram')
 @before('apply_core')
 def vars_target_cprogram(self):
 	self.default_install_path = '${PREFIX}/bin'
 	self.default_chmod = 0755
 
-@taskgen
 @feature('cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @before('apply_core')
 def vars_target_cstaticlib(self):
 	self.default_install_path = '${PREFIX}/lib'
 
-@taskgen
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @after('apply_objdeps')
 def install_target_cstaticlib(self):
 	if not Options.is_install: return
 	self.link_task.install_path = self.install_path
 
-@taskgen
 @feature('cshlib', 'dshlib')
-@after('apply_objdeps')
+@after('apply_objdeps', 'apply_link')
 def install_target_cshlib(self):
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		tsk = self.link_task
 		tsk.vnum = self.vnum
 		tsk.install = install_shlib
 
-@taskgen
+@feature('cc', 'cxx')
 @after('apply_type_vars')
 def apply_incpaths(self):
 	"used by the scanner"
@@ -187,7 +179,7 @@ def apply_incpaths(self):
 
 	self.env['INC_PATHS'] += inc_lst
 
-@taskgen
+@feature('cc', 'cxx')
 def apply_type_vars(self):
 	for x in self.features:
 		if not x in ['cprogram', 'cstaticlib', 'cshlib']:
@@ -292,10 +284,8 @@ def apply_lib_vars(self):
 			val = self.env[v+'_'+x]
 			if val: self.env.append_value(v, val)
 
-@taskgen
-@feature('cprogram', 'cshlib', 'cstaticlib')
-@after('apply_obj_vars')
-@after('apply_vnum')
+@feature('objects')
+@after('apply_obj_vars', 'apply_vnum')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
  	seen = []
@@ -330,7 +320,6 @@ def apply_objdeps(self):
 
 		self.link_task.inputs += y.out_nodes
 
-@taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
 def apply_obj_vars(self):
@@ -365,7 +354,6 @@ def apply_obj_vars(self):
 
 	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
 
-@taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_link')
 def apply_vnum(self):
@@ -398,7 +386,6 @@ def add_obj_file(self, file):
 	if not 'process_obj_files' in self.meths: self.meths.append('process_obj_files')
 	self.obj_files.append(file)
 
-@taskgen
 @feature('objects')
 @after('apply_core')
 def make_objects_available(self):
@@ -423,10 +410,9 @@ c_attrs = {
 
 @taskgen
 @feature('cc', 'cxx')
-@before('init_cxx')
-@before('init_cc')
+@before('init_cxx', 'init_cc')
 def add_extra_flags(self):
-	"insentive for the case and for the plurals"
+	"case and plural insensitive"
 	for x in self.__dict__.keys():
 		y = x.lower()
 		if y[-1] == 's':
