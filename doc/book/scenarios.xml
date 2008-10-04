@@ -24,7 +24,7 @@ def build(bld):
 	obj = bld.new_task_gen('subst')
 	obj.source = 'test.pc.in'
 	obj.target = 'test.pc'
-	obj.dict   = {'LIBS': '-lkdecore', 'CFLAGS': '-lm', 'VERSION': '1.0'}
+	obj.dict   = {'LIBS': '-lm', 'CFLAGS': '-Wall', 'VERSION': '1.0'}
 
 	# any kind of map will work, for example
 	# obj.dict = obj.env
