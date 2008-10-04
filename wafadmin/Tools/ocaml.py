@@ -57,40 +57,32 @@ class ocaml_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-		#self.type       = kw.get('type', 'native')
-		#self.islibrary    = kw.get('library', 0)
-
-		self.type = 'all'
-		self._incpaths_lst = []
-		self._bld_incpaths_lst = []
-		self._mlltasks    = []
-		self._mlytasks    = []
-
-		self.mlitasks    = []
-		self.native_tasks   = []
-		self.bytecode_tasks = []
-		self.linktasks      = []
-
-		self.bytecode_env = None
-		self.native_env   = None
-
-
-		self.compiled_tasks = []
-		self.includes     = ''
-		self.uselib       = ''
-
-		self.out_nodes    = []
-
-		self.are_deps_set = 0
-
-		if not self.type in ['bytecode', 'native', 'all', 'c_object']:
-			print 'type for camlobj is undefined '+self.type
-			self.type='all'
-
 TaskGen.bind_feature('ocaml', 'apply_core')
 
 @taskgen
 @feature('ocaml')
+def init_ml(self):
+	Utils.def_attrs(self,
+		type = 'all',
+		incpaths_lst = [],
+		bld_incpaths_lst = [],
+		mlltasks = [],
+		mlytasks = [],
+		mlitasks = [],
+		native_tasks = [],
+		bytecode_tasks = [],
+		linktasks = [],
+		bytecode_env = None,
+		native_env = None,
+		compiled_tasks = [],
+		includes = '',
+		uselib = '',
+		out_nodes = [],
+		are_deps_set = 0)
+
+@taskgen
+@feature('ocaml')
+@after('init_ml')
 def init_envs_ml(self):
 
 	self.islibrary = getattr(self, 'islibrary', False)
@@ -115,7 +107,7 @@ def init_envs_ml(self):
 @after('init_envs_ml')
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
-	lst = self._incpaths_lst
+	lst = self.incpaths_lst
 	tree = Build.bld
 	for dir in inc_lst:
 		node = self.path.find_dir(dir)
@@ -124,14 +116,14 @@ def apply_incpaths_ml(self):
 			continue
 		Build.bld.rescan(node)
 		if not node in lst: lst.append(node)
-		self._bld_incpaths_lst.append(node)
-	# now the nodes are added to self._incpaths_lst
+		self.bld_incpaths_lst.append(node)
+	# now the nodes are added to self.incpaths_lst
 
 @taskgen
 @feature('ocaml')
 @before('apply_core')
 def apply_vars_ml(self):
-	for i in self._incpaths_lst:
+	for i in self.incpaths_lst:
 		if self.bytecode_env:
 			self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
 			self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
@@ -193,7 +185,7 @@ def mly_hook(self, node):
 	mly_task = self.create_task('ocamlyacc', self.native_env)
 	mly_task.set_inputs(node)
 	mly_task.set_outputs([node.change_ext('.ml'), node.change_ext('.mli')])
-	self._mlytasks.append(mly_task)
+	self.mlytasks.append(mly_task)
 	self.allnodes.append(mly_task.outputs[0])
 
 	task = self.create_task('ocamlcmi', self.native_env)
@@ -222,7 +214,7 @@ def ml_hook(self, node):
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.cmx'))
 		task.obj = self
-		task.incpaths = self._bld_incpaths_lst
+		task.incpaths = self.bld_incpaths_lst
 		self.native_tasks.append(task)
 
 	if self.bytecode_env:
@@ -230,7 +222,7 @@ def ml_hook(self, node):
 		task.set_inputs(node)
 		task.obj = self
 		task.bytecode = 1
-		task.incpaths = self._bld_incpaths_lst
+		task.incpaths = self.bld_incpaths_lst
 		task.set_outputs(node.change_ext('.cmo'))
 		self.bytecode_tasks.append(task)
 
