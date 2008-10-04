@@ -237,7 +237,7 @@ class d_taskgen(TaskGen.task_gen):
 
 		# COMPAT
 		if len(k) > 1:
-			self.features.append('c' + k[1])
+			self.features.append('d' + k[1])
 
 # okay, we borrow a few methods from ccroot
 TaskGen.bind_feature('d', D_METHS)
