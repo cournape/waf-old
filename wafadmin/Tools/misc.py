@@ -9,9 +9,8 @@ Custom objects:
 """
 
 import shutil, re, os, types
-
-import TaskGen, Node, Task, Utils, Build
-import pproc
+import TaskGen, Node, Task, Utils, Build, pproc
+from TaskGen import feature, taskgen
 from Logs import debug
 
 def copy_func(tsk):
@@ -33,20 +32,19 @@ def action_process_file_func(tsk):
 	return tsk.fun(tsk)
 
 class cmd_taskgen(TaskGen.task_gen):
-	"This object will call a command everytime"
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
-		self.type = kw.get('type', None)
-		self.fun  = None
 
-	def apply(self):
-		# create a task
-		if not self.fun: raise Utils.WafError('cmdobj needs a function!')
-		tsk = Task.TaskBase()
-		tsk.fun = self.fun
-		tsk.env = self.env
-		self.tasks.append(tsk)
-		tsk.install_path = self.install_path
+@taskgen
+@feature('cmd')
+def apply_cmd(self):
+	"call a command everytime"
+	if not self.fun: raise Utils.WafError('cmdobj needs a function!')
+	tsk = Task.TaskBase()
+	tsk.fun = self.fun
+	tsk.env = self.env
+	self.tasks.append(tsk)
+	tsk.install_path = self.install_path
 
 class copy_taskgen(TaskGen.task_gen):
 	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
