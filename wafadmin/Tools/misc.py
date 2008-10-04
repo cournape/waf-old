@@ -54,7 +54,7 @@ class copy_taskgen(TaskGen.task_gen):
 @taskgen
 @feature('copy')
 def apply_copy(self):
-	Utils.def_attr(self, fun=copy_func)
+	Utils.def_attrs(self, fun=copy_func)
 	self.default_install_path = 0
 
 	lst = self.to_list(self.source)
@@ -119,11 +119,11 @@ class subst_taskgen(TaskGen.task_gen):
 @taskgen
 @feature('subst')
 def apply_subst(self):
-	Utils.def_attr(self, fun=subst_func)
+	Utils.def_attrs(self, fun=subst_func)
 	self.default_install_path = 0
 	lst = self.to_list(self.source)
 
-	self.dict = getattr(self, 'dict', {}
+	self.dict = getattr(self, 'dict', {})
 
 	for filename in lst:
 		node = self.path.find_resource(filename)
@@ -152,26 +152,19 @@ def apply_subst(self):
 ## command-output ####
 ####################
 
-class CmdArg(object):
-	"""Represents a command-output argument that is based on input or output files or directories"""
-	pass
-
-class CmdFileArg(CmdArg):
-	def __init__(self, file_name, template=None):
-		CmdArg.__init__(self)
-		self.file_name = file_name
-		if template is None:
-			self.template = '%s'
-		else:
-			self.template = template
+class cmd_arg(object):
+	"""command-output arguments for representing files or folders"""
+	def __init__(self, name, template='%s'):
+		self.name = name
+		self.template = template
 		self.node = None
 
-class CmdInputFileArg(CmdFileArg):
+class input_file(cmd_arg):
 	def find_node(self, base_path):
 		assert isinstance(base_path, Node.Node)
-		self.node = base_path.find_resource(self.file_name)
+		self.node = base_path.find_resource(self.name)
 		if self.node is None:
-			raise Utils.WafError("Input file %s not found in " % (self.file_name, base_path))
+			raise Utils.WafError("Input file %s not found in " % (self.name, base_path))
 
 	def get_path(self, env, absolute):
 		if absolute:
@@ -179,40 +172,42 @@ class CmdInputFileArg(CmdFileArg):
 		else:
 			return self.template % self.node.srcpath(env)
 
-class CmdOutputFileArg(CmdFileArg):
+class output_file(cmd_arg):
 	def find_node(self, base_path):
 		assert isinstance(base_path, Node.Node)
-		self.node = base_path.find_or_declare(self.file_name)
+		self.node = base_path.find_or_declare(self.name)
 		if self.node is None:
-			raise Utils.WafError("Output file %s not found in " % (self.file_name, base_path))
+			raise Utils.WafError("Output file %s not found in " % (self.name, base_path))
+
 	def get_path(self, env, absolute):
 		if absolute:
 			return self.template % self.node.abspath(env)
 		else:
 			return self.template % self.node.bldpath(env)
 
-class CmdDirArg(CmdArg):
-	def __init__(self, dir_name, template=None):
-		CmdArg.__init__(self)
-		self.dir_name = dir_name
+class cmd_dir_arg(cmd_arg):
+	def __init__(self, name, template=None):
+		cmd_arg.__init__(self)
+		self.name = name
 		self.node = None
 		if template is None:
 			self.template = '%s'
 		else:
 			self.template = template
+
 	def find_node(self, base_path):
 		assert isinstance(base_path, Node.Node)
-		self.node = base_path.find_dir(self.dir_name)
+		self.node = base_path.find_dir(self.name)
 		if self.node is None:
-			raise Utils.WafError("Directory %s not found in " % (self.dir_name, base_path))
+			raise Utils.WafError("Directory %s not found in " % (self.name, base_path))
 
-class CmdInputDirArg(CmdDirArg):
+class input_dir(cmd_dir_arg):
 	def get_path(self, dummy_env, dummy_absolute):
-		return self.template % (self.node.abspath(),)
+		return self.template % self.node.abspath()
 
-class CmdOutputDirArg(CmdDirArg):
+class output_dir(cmd_dir_arg):
 	def get_path(self, env, dummy_absolute):
-		return self.template % (self.node.abspath(env),)
+		return self.template % self.node.abspath(env)
 
 
 class command_output(Task.Task):
@@ -254,7 +249,7 @@ class command_output(Task.Task):
 			if isinstance(arg, str):
 				argv.append(arg)
 			else:
-				assert isinstance(arg, CmdArg)
+				assert isinstance(arg, cmd_arg)
 				argv.append(arg.get_path(task.env, (task.cwd is not None)))
 
 		if task.stdin:
@@ -353,11 +348,11 @@ use command_is_external=True''') % (self.command,)
 		outputs = []
 
 		for arg in self.argv:
-			if isinstance(arg, CmdArg):
+			if isinstance(arg, cmd_arg):
 				arg.find_node(self.path)
-				if isinstance(arg, CmdInputFileArg):
+				if isinstance(arg, input_file):
 					inputs.append(arg.node)
-				if isinstance(arg, CmdOutputFileArg):
+				if isinstance(arg, output_file):
 					outputs.append(arg.node)
 
 		if self.stdout is None:
@@ -412,36 +407,11 @@ use command_is_external=True''') % (self.command,)
 		task.set_outputs(outputs)
 		task.dep_vars = self.to_list(self.dep_vars)
 
-
 		for dep in self.dependencies:
 			assert dep is not self
 			dep.post()
 			for dep_task in dep.tasks:
 				task.set_run_after(dep_task)
-
-	def input_file(self, file_name, template='%s'):
-		"""Returns an object to be used as argv element that instructs
-		the task to use a file from the input vector at the given
-		position as argv element."""
-		return CmdInputFileArg(file_name, template)
-
-	def output_file(self, file_name, template='%s'):
-		"""Returns an object to be used as argv element that instructs
-		the task to use a file from the output vector at the given
-		position as argv element."""
-		return CmdOutputFileArg(file_name, template)
-
-	def input_dir(self, dir_name, template=None):
-		"""Returns an object to be used as argv element that instructs
-		the task to use a directory path from the input vector at the given
-		position as argv element."""
-		return CmdInputDirArg(dir_name)
-
-	def output_dir(self, dir_name, template=None):
-		"""Returns an object to be used as argv element that instructs
-		the task to use a directory path from the output vector at the given
-		position as argv element."""
-		return CmdOutputDirArg(dir_name, template)
 
 Task.task_type_from_func('copy', vars=[], func=action_process_file_func)
 TaskGen.task_gen.classes['command-output'] = cmd_output_taskgen
