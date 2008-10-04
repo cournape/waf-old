@@ -350,12 +350,14 @@ def check_dir(dir):
 		except OSError, e:
 			raise WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
 
-def cmd_output(cmd, e=None):
+def cmd_output(cmd, e=None, silent=False):
 	p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True, env=e)
 	output = p.communicate()[0]
 	if p.returncode:
-		msg = "command execution failed: %s -> %r" % (cmd, str(output))
-		raise ValueError, msg
+		if not silent:
+			msg = "command execution failed: %s -> %r" % (cmd, str(output))
+			raise ValueError, msg
+		output = ''
 	return output
 
 reg_subst = re.compile(r"(\\\\)|(\\\$)|\$\{([^}]+)\}")
