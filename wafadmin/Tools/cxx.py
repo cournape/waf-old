@@ -7,7 +7,7 @@
 import TaskGen, Task, Utils
 from Logs import debug
 import ccroot # <- do not remove
-from TaskGen import taskgen, before, extension, after
+from TaskGen import feature, before, extension, after
 
 g_cxx_flag_vars = [
 'CXXDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -16,10 +16,8 @@ g_cxx_flag_vars = [
 "main cpp variables"
 
 EXT_CXX = ['.cpp', '.cc', '.cxx', '.C', '.c++']
-CXX_METHS = ['init_cxx', 'apply_type_vars', 'apply_incpaths', 'apply_defines_cxx',
-'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx']
 
-TaskGen.bind_feature('cxx', CXX_METHS)
+TaskGen.bind_feature('cxx', ['apply_core'])
 
 g_cxx_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cxx_taskgen(ccroot.ccroot_abstract):
@@ -27,7 +25,7 @@ class cxx_taskgen(ccroot.ccroot_abstract):
 		ccroot.ccroot_abstract.__init__(self, *k, **kw)
 		self.features.append('cxx')
 
-@taskgen
+@feature('cxx')
 @before('apply_type_vars')
 @after('default_cc')
 def init_cxx(self):
@@ -40,7 +38,7 @@ def init_cxx(self):
 	if not self.env['CXX_NAME']:
 		raise Utils.WafError("At least one compiler (g++, ..) must be selected")
 
-@taskgen
+@feature('cxx')
 def apply_obj_vars_cxx(self):
 	env = self.env
 	app = env.append_unique
@@ -65,7 +63,7 @@ def apply_obj_vars_cxx(self):
 	app('_CXXINCFLAGS', cxxpath_st % tmpnode.bldpath(env))
 	app('_CXXINCFLAGS', cxxpath_st % tmpnode.srcpath(env))
 
-@taskgen
+@feature('cxx')
 def apply_defines_cxx(self):
 	self.defines = getattr(self, 'defines', [])
 	lst = self.to_list(self.defines) + self.to_list(self.env['CXXDEFINES'])

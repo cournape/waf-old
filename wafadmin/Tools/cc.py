@@ -7,7 +7,7 @@
 import TaskGen, Build, Utils, Task
 from Logs import debug
 import ccroot # <- do not remove
-from TaskGen import taskgen, before, extension, after
+from TaskGen import feature, before, extension, after
 
 g_cc_flag_vars = [
 'CCDEPS', 'FRAMEWORK', 'FRAMEWORKPATH',
@@ -15,10 +15,8 @@ g_cc_flag_vars = [
 'CCFLAGS', 'CPPPATH', 'CPPFLAGS', 'CCDEFINES']
 
 EXT_CC = ['.c']
-CC_METHS = ['init_cc', 'apply_type_vars', 'apply_incpaths', 'apply_defines_cc',
-'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc']
 
-TaskGen.bind_feature('cc', CC_METHS)
+TaskGen.bind_feature('cc', ['apply_core'])
 
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
@@ -26,7 +24,7 @@ class cc_taskgen(ccroot.ccroot_abstract):
 	def __init__(self, *k, **kw):
 		ccroot.ccroot_abstract.__init__(self, *k, **kw)
 
-@taskgen
+@feature('cc')
 @before('apply_type_vars')
 @after('default_cc')
 def init_cc(self):
@@ -36,7 +34,7 @@ def init_cc(self):
 	if not self.env['CC_NAME']:
 		raise Utils.WafError("At least one compiler (gcc, ..) must be selected")
 
-@taskgen
+@feature('cc')
 def apply_obj_vars_cc(self):
 	env = self.env
 	app = env.append_unique
@@ -59,7 +57,7 @@ def apply_obj_vars_cc(self):
 	app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
 	app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
 
-@taskgen
+@feature('cc')
 def apply_defines_cc(self):
 	tree = Build.bld
 	self.defines = getattr(self, 'defines', [])

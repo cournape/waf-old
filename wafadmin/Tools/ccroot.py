@@ -216,7 +216,7 @@ def apply_link(self):
 
 	self.link_task = linktask
 
-@taskgen
+@feature('cc', 'cxx')
 @after('apply_vnum')
 def apply_lib_vars(self):
 	env = self.env
