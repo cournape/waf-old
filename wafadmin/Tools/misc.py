@@ -51,34 +51,33 @@ class copy_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-		self.source = ''
-		self.target = ''
-		self.fun = copy_func
-		self.default_install_path = 0
+@taskgen
+@feature('copy')
+def apply_copy(self):
+	Utils.def_attr(self, fun=copy_func)
+	self.default_install_path = 0
 
-	def apply(self):
+	lst = self.to_list(self.source)
 
-		lst = self.to_list(self.source)
+	for filename in lst:
+		node = self.path.find_resource(filename)
+		if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
 
-		for filename in lst:
-			node = self.path.find_resource(filename)
-			if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
+		target = self.target
+		if not target or len(lst)>1: target = node.name
 
-			target = self.target
-			if not target or len(lst)>1: target = node.name
+		# TODO the file path may be incorrect
+		newnode = self.path.find_or_declare(target)
 
-			# TODO the file path may be incorrect
-			newnode = self.path.find_or_declare(target)
+		tsk = self.create_task('copy')
+		tsk.set_inputs(node)
+		tsk.set_outputs(newnode)
+		tsk.fun = self.fun
+		tsk.chmod = self.chmod
 
-			tsk = self.create_task('copy')
-			tsk.set_inputs(node)
-			tsk.set_outputs(newnode)
-			tsk.fun = self.fun
-			tsk.chmod = self.chmod
-
-			if not tsk.env:
-				tsk.debug()
-				raise Utils.WafError('task without an environment')
+		if not tsk.env:
+			tsk.debug()
+			raise Utils.WafError('task without an environment')
 
 def subst_func(tsk):
 	"Substitutes variables in a .in file"
@@ -116,36 +115,38 @@ def subst_func(tsk):
 class subst_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
-		self.fun = subst_func
-		self.dict = {}
-		self.default_install_path = 0
 
-	def apply(self):
+@taskgen
+@feature('subst')
+def apply_subst(self):
+	Utils.def_attr(self, fun=subst_func)
+	self.default_install_path = 0
+	lst = self.to_list(self.source)
 
-		lst = self.to_list(self.source)
+	self.dict = getattr(self, 'dict', {}
 
-		for filename in lst:
-			node = self.path.find_resource(filename)
-			if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
+	for filename in lst:
+		node = self.path.find_resource(filename)
+		if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
 
-			newnode = node.change_ext('')
+		newnode = node.change_ext('')
 
-			if self.dict and not self.env['DICT_HASH']:
-				self.env = self.env.copy()
-				self.env['DICT_HASH'] = hash(str(self.dict)) # <- pretty sure it wont work (ita)
+		if self.dict and not self.env['DICT_HASH']:
+			self.env = self.env.copy()
+			self.env['DICT_HASH'] = hash(str(self.dict)) # <- pretty sure it wont work (ita)
 
-			tsk = self.create_task('copy')
-			tsk.set_inputs(node)
-			tsk.set_outputs(newnode)
-			tsk.fun = self.fun
-			tsk.dict = self.dict
-			tsk.dep_vars = ['DICT_HASH']
-			tsk.install_path = self.install_path
-			tsk.chmod = self.chmod
+		tsk = self.create_task('copy')
+		tsk.set_inputs(node)
+		tsk.set_outputs(newnode)
+		tsk.fun = self.fun
+		tsk.dict = self.dict
+		tsk.dep_vars = ['DICT_HASH']
+		tsk.install_path = self.install_path
+		tsk.chmod = self.chmod
 
-			if not tsk.env:
-				tsk.debug()
-				raise Utils.WafError('task without an environment')
+		if not tsk.env:
+			tsk.debug()
+			raise Utils.WafError('task without an environment')
 
 ####################
 ## command-output ####
@@ -286,7 +287,6 @@ class command_output(Task.Task):
 		return command.wait()
 
 class cmd_output_taskgen(TaskGen.task_gen):
-
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
