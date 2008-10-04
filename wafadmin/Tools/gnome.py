@@ -51,61 +51,75 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if icons: postinstall_icons()
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
+# OBSOLETE
 class gnome_doc_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
-		self.default_install_path = '${PREFIX}/share'
 
-	def apply(self):
-		self.env['APPNAME'] = self.doc_module
-		lst = self.to_list(self.doc_linguas)
-		for x in lst:
-			tsk = self.create_task('xml2po')
-			node = self.path.find_resource(x+'/'+x+'.po')
-			src = self.path.find_resource('C/%s.xml' % self.doc_module)
-			out = self.path.find_or_declare('%s/%s.xml' % (x, self.doc_module))
-			tsk.set_inputs([node, src])
-			tsk.set_outputs(out)
+@taskgen
+@feature('gmome_doc')
+def init_gnome_doc(self):
+	self.default_install_path = '${PREFIX}/share'
 
-			tsk2 = self.create_task('xsltproc2po')
-			out2 = self.path.find_or_declare('%s/%s-%s.omf' % (x, self.doc_module, x))
-			tsk2.set_outputs(out2)
-			node = self.path.find_resource(self.doc_module+".omf.in")
-			tsk2.inputs = [node, out]
+@taskgen
+@feature('gnome_doc')
+@after('init_gnome_doc')
+def apply_gnome_doc(self):
+	self.env['APPNAME'] = self.doc_module
+	lst = self.to_list(self.doc_linguas)
+	for x in lst:
+		tsk = self.create_task('xml2po')
+		node = self.path.find_resource(x+'/'+x+'.po')
+		src = self.path.find_resource('C/%s.xml' % self.doc_module)
+		out = self.path.find_or_declare('%s/%s.xml' % (x, self.doc_module))
+		tsk.set_inputs([node, src])
+		tsk.set_outputs(out)
 
-			tsk2.run_after.append(tsk)
+		tsk2 = self.create_task('xsltproc2po')
+		out2 = self.path.find_or_declare('%s/%s-%s.omf' % (x, self.doc_module, x))
+		tsk2.set_outputs(out2)
+		node = self.path.find_resource(self.doc_module+".omf.in")
+		tsk2.inputs = [node, out]
 
+		tsk2.run_after.append(tsk)
 
-			if Options.is_install:
-				path = self.install_path + 'gnome/help/%s/%s' % (self.doc_module, x)
-				Build.bld.install_files(self.install_path + 'omf', out2.abspath(self.env))
-				for y in self.to_list(self.doc_figures):
-					try:
-						os.stat(self.path.abspath() + '/' + x + '/' + y)
-						Common.install_as(path + '/' + y, self.path.abspath() + '/' + x + '/' + y)
-					except:
-						Common.install_as(path + '/' + y, self.path.abspath() + '/C/' + y)
-				Common.install_as(path + '/%s.xml' % self.doc_module, out.abspath(self.env))
+		if Options.is_install:
+			path = self.install_path + 'gnome/help/%s/%s' % (self.doc_module, x)
+			Build.bld.install_files(self.install_path + 'omf', out2.abspath(self.env))
+			for y in self.to_list(self.doc_figures):
+				try:
+					os.stat(self.path.abspath() + '/' + x + '/' + y)
+					Common.install_as(path + '/' + y, self.path.abspath() + '/' + x + '/' + y)
+				except:
+					Common.install_as(path + '/' + y, self.path.abspath() + '/C/' + y)
+			Common.install_as(path + '/%s.xml' % self.doc_module, out.abspath(self.env))
 
-# give specs
+# OBSOLETE
 class xml_to_taskgen(TaskGen.task_gen):
-	def __init__(self):
-		TaskGen.task_gen(self)
-		self.source = 'xmlfile'
-		self.xslt = 'xlsltfile'
-		self.target = 'hey'
-		self.default_install_path = '${PREFIX}'
-		self.task_created = None
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 
-	def apply(self):
-		self.env = self.env.copy()
-		tree = Build.bld
-		xmlfile = self.path.find_resource(self.source)
-		xsltfile = self.path.find_resource(self.xslt)
-		tsk = self.create_task('xmlto')
-		tsk.set_inputs([xmlfile, xsltfile])
-		tsk.set_outputs(xmlfile.change_ext('html'))
-		tsk.install_path = self.install_path
+@taskgen
+@feature('xml_to')
+def init_xml_to(self):
+	Utils.def_attrs(self,
+		source = 'xmlfile',
+		xslt = 'xlsltfile',
+		target = 'hey',
+		default_install_path = '${PREFIX}',
+		task_created = None)
+
+@taskgen
+@feature('xml_to')
+@after('init_xml_to')
+def apply_xml_to(self):
+	tree = Build.bld
+	xmlfile = self.path.find_resource(self.source)
+	xsltfile = self.path.find_resource(self.xslt)
+	tsk = self.create_task('xmlto')
+	tsk.set_inputs([xmlfile, xsltfile])
+	tsk.set_outputs(xmlfile.change_ext('html'))
+	tsk.install_path = self.install_path
 
 def sgml_scan(self):
 	node = self.inputs[0]
@@ -160,31 +174,33 @@ def sig_implicit_deps(self):
 class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
-		self.tasks = []
-		self.appname = k[0] # the first argument is the appname - will disappear
-	def apply(self):
 
-		def install_result(task):
-			out = task.outputs[0]
-			name = out.name
-			ext = name[-1]
-			env = task.env
-			Build.bld.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
+@taskgen
+@feature('gnome_sgml2man')
+def apply(self):
+	assert(getattr(self, 'appname', None))
 
-		tree = Build.bld
-		tree.rescan(self.path)
-		for name in Build.bld.cache_dir_contents[self.path.id]:
-			base, ext = os.path.splitext(name)
-			if ext != '.sgml': continue
+	def install_result(task):
+		out = task.outputs[0]
+		name = out.name
+		ext = name[-1]
+		env = task.env
+		Build.bld.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
 
-			task = self.create_task('sgml2man')
-			task.set_inputs(self.path.find_resource(name))
-			task.task_generator = self
-			if Options.is_install: task.install = install_result
-			# no outputs, the scanner does it
-			# no caching for now, this is not a time-critical feature
-			# in the future the scanner can be used to do more things (find dependencies, etc)
-			task.scan()
+	tree = Build.bld
+	tree.rescan(self.path)
+	for name in Build.bld.cache_dir_contents[self.path.id]:
+		base, ext = os.path.splitext(name)
+		if ext != '.sgml': continue
+
+		task = self.create_task('sgml2man')
+		task.set_inputs(self.path.find_resource(name))
+		task.task_generator = self
+		if Options.is_install: task.install = install_result
+		# no outputs, the scanner does it
+		# no caching for now, this is not a time-critical feature
+		# in the future the scanner can be used to do more things (find dependencies, etc)
+		task.scan()
 
 # Unlike the sgml and doc processing, the dbus and marshal beast
 # generate c/c++ code that we want to mix
