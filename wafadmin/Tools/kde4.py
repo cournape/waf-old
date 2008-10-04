@@ -7,30 +7,37 @@ import os, sys, re, TaskGen, Task, Utils
 class msgfmt_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
-		self.langs = '' # for example "foo/fr foo/br"
-		self.default_install_path = '${KDE4_LOCALE_INSTALL_DIR}'
-		self.appname = kw.get('appname', 'set_your_app_name')
 
-	def apply(self):
+@taskgen
+@feature('msgfmt')
+def init_msgfmt(self):
+	#langs = '' # for example "foo/fr foo/br"
+	Utils.def_attrs(self,
+		default_install_path = '${KDE4_LOCALE_INSTALL_DIR}',
+		appname = 'set_your_app_name')
 
-		for lang in self.to_list(self.langs):
-			node = self.path.find_resource(lang+'.po')
-			task = self.create_task('msgfmt')
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.mo'))
+@taskgen
+@feature('msgfmt')
+@after('init_msgfmt')
+def apply_msgfmt(self):
+	for lang in self.to_list(self.langs):
+		node = self.path.find_resource(lang+'.po')
+		task = self.create_task('msgfmt')
+		task.set_inputs(node)
+		task.set_outputs(node.change_ext('.mo'))
 
-			if not Options.is_install: continue
-			langname = lang.split('/')
-			langname = langname[-1]
-			tsk.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'
-			task.filename = self.appname+'.mo'
-			task.chmod = self.chmod
+		if not Options.is_install: continue
+		langname = lang.split('/')
+		langname = langname[-1]
+		tsk.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'
+		task.filename = self.appname+'.mo'
+		task.chmod = self.chmod
 
 def detect(conf):
 	kdeconfig = conf.find_program('kde4-config')
 	if not kdeconfig:
 		conf.fatal('we need kde4-config')
-	prefix = Utils.cmd_output('%s --prefix' % kdeconfig).strip()
+	prefix = Utils.cmd_output('%s --prefix' % kdeconfig, silent=True).strip()
 	file = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
 	try: os.stat(file)
 	except OSError:
