@@ -177,7 +177,8 @@ class task_gen(object):
 		keys = set(self.meths)
 
 		# add the methods listed in the features
-		for x in Utils.to_list(self.features) + ['*']:
+		self.features = Utils.to_list(self.features)
+		for x in self.features + ['*']:
 			keys.update(task_gen.traits.get(x, ()))
 
 		# copy the precedence table
