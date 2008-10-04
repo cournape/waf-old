@@ -38,6 +38,52 @@ Version: @VERSION@
 Libs: -L${libdir} @LIBS@
 Cflags: -I${includedir} @CFLAGS@
 				</programlisting>
+
+				The default substitution function may be replaced by changing the attribute <emphasis>func</emphasis> of the task generator.
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Compiler output</title>
+			<para>
+				The <emphasis>command-output</emphasis> system enables execution of system commands without requiring a shell. The following example illustrates how to execute a script present in the source directory each time it is executed.
+				<programlisting language="python">
+import time
+import misc <co id="cop1-co" linkends="cop1"/>
+def build(bld):
+	out1 = bld.new_task_gen('command-output') <co id="cop2-co" linkends="cop2"/>
+	out1.stdout = 'test1' <co id="cop3-co" linkends="cop3"/>
+	out1.stdin = 'wscript_build' <co id="cop4-co" linkends="cop4"/>
+	#out1.command_is_external = False
+	out1.command = 'some-script' <co id="cop5-co" linkends="cop5"/>
+	out1.argv = ['--output-md5', misc.output_file('test1.md5')] <co id="cop6-co" linkends="cop6"/>
+	out1.vars = 'COINCOIN'
+	out1.env['COINCOIN'] = time.time() <co id="cop7-co" linkends="cop7"/>
+				</programlisting>
+
+				<calloutlist>
+					<callout arearefs="cop1-co" id="cop1">
+						<para>Import of a Waf module</para>
+					</callout>
+					<callout arearefs="cop2-co" id="cop2">
+						<para>Declaration of the task generator</para>
+					</callout>
+					<callout arearefs="cop3-co" id="cop3">
+						<para>The standard output will be redirected to the file test1</para>
+					</callout>
+					<callout arearefs="cop4-co" id="cop4">
+						<para>The file 'wscript_build' will be passed to the standard input</para>
+					</callout>
+					<callout arearefs="cop5-co" id="cop5">
+						<para>The program to execute is assumed to be present in the directory of the wscript file, unless <emphasis>command_is_external</emphasis> is set to True</para>
+					</callout>
+					<callout arearefs="cop6-co" id="cop6">
+						<para>Additional parameters are provided in the argv attribute, as a list. parameters representing files must be added through the special classes input_file, output_file, input_dir and output_dir to resolve the paths properly</para>
+					</callout>
+					<callout arearefs="cop7-co" id="cop7">
+						<para>An additional dependency is added on the time, the task will be executed whenever the time changes</para>
+					</callout>
+				</calloutlist>
 			</para>
 		</sect2>
 	</section>
