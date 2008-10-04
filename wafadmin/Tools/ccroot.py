@@ -67,6 +67,8 @@ class ccroot_abstract(TaskGen.task_gen):
 @taskgen
 @feature('cc')
 @feature('cxx')
+@before('init_cc')
+@before('init_cxx')
 def default_cc(self):
 	Utils.def_attrs(self,
 		includes='',
@@ -96,6 +98,7 @@ def get_target_name(self):
 	return name[0:k+1] + pattern % name[k+1:]
 
 @taskgen
+@feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
 	if not 'objects' in self.features:
 		if not self.source:
@@ -230,7 +233,7 @@ def apply_lib_vars(self):
 	# the ancestors external libraries (uselib) will be prepended
 	uselib = self.to_list(self.uselib)
 	seen = []
-	names = [] + self.to_list(self.uselib_local) # consume a copy of the list of names
+	names = self.to_list(self.uselib_local)[:] # consume a copy of the list of names
 	while names:
 		x = names.pop(0)
 		# visit dependencies only once
@@ -242,7 +245,7 @@ def apply_lib_vars(self):
 			raise Utils.WafError("object '%s' was not found in uselib_local (required by '%s')" % (x, self.name))
 
 		# object has ancestors to process: add them to the end of the list
-		if y.uselib_local:
+		if getattr(y, 'uselib_local', None):
 			lst = y.to_list(y.uselib_local)
 			for u in lst:
 				if not u in seen:
