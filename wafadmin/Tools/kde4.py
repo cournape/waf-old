@@ -3,6 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 import os, sys, re, TaskGen, Task, Utils
+from TaskGen import taskgen, feature, after
 
 class msgfmt_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
