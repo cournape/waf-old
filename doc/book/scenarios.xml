@@ -6,6 +6,42 @@
 	<title>Advanced scenarios</title>
 	<para>This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.</para>
 
+
+	<section>
+		<title>Simple file transformations</title>
+		<para>
+			The Waf tool <emphasis>misc</emphasis> contains various routines to ease file manipulations such as substituting parameters or executing custom compilers. The objective of this section is to illustrate the principles of the current apis.
+		</para>
+		<sect2>
+			<title>File substitutions</title>
+			<para>
+				The following example illustrates how to produce a pkg-config file from a template:
+				<programlisting language="python">
+def configure(conf):
+	conf.check_tool('misc')
+
+def build(bld):
+	obj = bld.new_task_gen('subst')
+	obj.source = 'test.pc.in'
+	obj.target = 'test.pc'
+	obj.dict   = {'LIBS': '-lkdecore', CFLAGS': '-lm', 'VERSION': '1.0'}
+
+	# any kind of map will work, for example
+	# obj.dict = obj.env
+				</programlisting>
+
+				The variables must be declared in the template file by enclosing the names between <emphasis>@ characters</emphasis> (m4 syntax).
+				<programlisting language="shell">
+Name: test
+Description: @CFLAGS@
+Version: @VERSION@
+Libs: -L${libdir} @LIBS@
+Cflags: -I${includedir} @CFLAGS@
+				</programlisting>
+			</para>
+		</sect2>
+	</section>
+
 	<section>
 		<title>Same targets, different configurations (variants)</title>
 		<para>
