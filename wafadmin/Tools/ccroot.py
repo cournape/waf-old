@@ -132,7 +132,7 @@ def vars_target_cstaticlib(self):
 	self.default_install_path = '${PREFIX}/lib'
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-@after('apply_objdeps')
+@after('apply_objdeps', 'apply_link')
 def install_target_cstaticlib(self):
 	if not Options.is_install: return
 	self.link_task.install_path = self.install_path
