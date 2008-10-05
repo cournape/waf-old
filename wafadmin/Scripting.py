@@ -297,7 +297,7 @@ def main():
 	fun = getattr(Utils.g_module, 'shutdown', None)
 	if fun: fun()
 
-excludes = '.svn CVS .arch-ids {arch} SCCS BitKeeper .hg Makefile Makefile.in config.log'.split()
+excludes = '.git .svn CVS .arch-ids {arch} SCCS BitKeeper .hg Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip'.split()
 def dont_dist(name, src, build_dir):
 	global excludes, dist_exts
