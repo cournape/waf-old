@@ -247,6 +247,8 @@ def validate_c(self, kw):
 				fwk = fwk[:-2]
 			kw['header_name'] = Utils.to_list(kw['header_name']) + [fwk]
 			kw['msg'] = 'Checking for framework %s' % fwkname
+			kw['framework'] = fwkname
+			#kw['frameworkpath'] = set it yourself
 
 		l = Utils.to_list(kw['header_name'])
 		assert len(l)>0, 'list of headers in header_name is empty'
