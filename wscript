@@ -320,7 +320,7 @@ def build(bld):
 			print "Installing Waf on Windows is not possible."
 			sys.exit(0)
 
-        if Options.is_install:
+	if Options.is_install:
 		compute_revision()
 
 	if Options.commands['install']:
