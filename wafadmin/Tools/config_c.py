@@ -149,6 +149,7 @@ def exec_cfg(self, kw):
 		kw['okmsg'] = 'ok'
 
 	parse_flags(ret, kw.get('uselib_store', kw['package'].upper()), kw.get('env', self.env))
+	return ret
 
 @conf
 def check_cfg(self, *k, **kw):
