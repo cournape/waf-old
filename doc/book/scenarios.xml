@@ -152,9 +152,9 @@ for obj in copy.copy(TaskGen.all_task_gen):
 			</para>
 		</sect2>
 		<sect2>
-			<title>Cross-variant dependencies are discuraged</title>
+			<title>Cross-variant dependencies are discouraged</title>
 			<para>
-				The variant system is meant for automating the duplication of targets, which are supposed to run in in isolation. As a consequence, it is not specified how linking a program against a library created in a different variant should be processed. The general recommandation is to avoid optimizations and to duplicate the targets as necessary. The following bug tracker entry provides more details <ulink url="http://code.google.com/p/waf/issues/detail?id=171"/>
+				The variant system is meant for automating the duplication of targets, which are supposed to run in in isolation. As a consequence, it is not specified how linking a program against a library created in a different variant should be processed. The general recommendation is to avoid optimizations and to duplicate the targets as necessary. The following bug tracker entry provides more details <ulink url="http://code.google.com/p/waf/issues/detail?id=171"/>
 			</para>
 		</sect2>
 	</section>
@@ -437,7 +437,7 @@ def configure(conf):
 					<para>Indicate that the task must always be run before c++ ones</para>
 				</callout>
 				<callout arearefs="sig-co" id="sig">
-					<para>By default, the task signature is assigned to the node information. In our case the task signature is always the same, and we need a way to indicate to dependant tasks that something has changed. The solution is to compute a hash of the file produced, and to assign it to the node information.</para>
+					<para>By default, the task signature is assigned to the node information. In our case the task signature is always the same, and we need a way to indicate to dependent tasks that something has changed. The solution is to compute a hash of the file produced, and to assign it to the node information.</para>
 				</callout>
 				<callout arearefs="use-co" id="use">
 					<para>Demonstrate the manual creation of the task</para>

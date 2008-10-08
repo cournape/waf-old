@@ -363,7 +363,7 @@ Options:
   -h, --help            show this help message and exit
   -j JOBS, --jobs=JOBS  amount of parallel jobs [Default: 1]
   -f, --force           force file installation
-  -k, --keep            keep running happily on independant task groups
+  -k, --keep            keep running happily on independent task groups
   -p, --progress        -p: progress bar; -pp: ide output
   -v, --verbose         verbosity level -v -vv or -vvv [Default: 0]
   --destdir=DESTDIR     installation root [Default: '']

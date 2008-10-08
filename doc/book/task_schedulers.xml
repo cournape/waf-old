@@ -65,7 +65,7 @@ Runner.Parallel.refill_task_list = refill_task_list
 		</para>
 
 		<para>
-			The following pictures illustrate the difference in scheduling a build with different independant tasks, in which a slow task is clearly identified, and launched first:
+			The following pictures illustrate the difference in scheduling a build with different independent tasks, in which a slow task is clearly identified, and launched first:
 			<graphic format="png" fileref="duration-1.png" align="center"/>
 			<graphic format="png" fileref="duration-2.png" align="center"/>
 		</para>

@@ -63,7 +63,7 @@ def create_parser():
 	p('-k', '--keep',
 		action  = 'store_true',
 		default = False,
-		help    = 'keep running happily on independant task groups',
+		help    = 'keep running happily on independent task groups',
 		dest    = 'keep')
 
 	p('-p', '--progress',

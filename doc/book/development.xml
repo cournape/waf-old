@@ -31,13 +31,13 @@ export WAFDIR=/path/to/wafadmin
 	</section>
 
 	<section>
-		<title>Development norms and recommandations</title>
+		<title>Development norms and recommendations</title>
 		<para>
 			Though Waf is written in Python, additional restrictions apply to the source code:
 			<itemizedlist>
 				<listitem>Identation is tab-only, and the maximum line length is set to 200 characters</listitem>
 				<listitem>The development code is kept compatible to Python 2.3, to the exception of decorators in the Tools directory.</listitem>
-				<listitem>The wafadmin modules may not know anything of the Tools module to keep the Waf core small and language independant</listitem>
+				<listitem>The wafadmin modules may not know anything of the Tools module to keep the Waf core small and language independent</listitem>
 				<listitem>Api compatibility is maintained in the cycle of a minor version (from 1.5.0 to 1.5.9)</listitem>
 			</itemizedlist>
 		</para>

@@ -54,7 +54,7 @@ def build(bld):
 	<section>
 		<title>Library interaction (uselib)</title>
 		<para>
-			To link a library against another one created in the same Waf project, the attribute <emphasis>uselib_local</emphasis> may be used. The include paths, the link path and the library name are automatically exported, and the dependant binary is recompiled when the library changes:
+			To link a library against another one created in the same Waf project, the attribute <emphasis>uselib_local</emphasis> may be used. The include paths, the link path and the library name are automatically exported, and the dependent binary is recompiled when the library changes:
 			<programlisting language="python">
 def build(bld):
 	staticlib = bld.new_task_gen('cc', 'staticlib') <co id="lib-co" linkends="b1"/>
@@ -81,7 +81,7 @@ def build(bld):
 			</calloutlist>
 		</para>
 		<para>
-			To link an application against various <emphasis>system libraries</emphasis>, several compilation flags and link flags must be given at once. To reduce the maintainance, a system called <emphasis>uselib</emphasis> can be used to give all the flags at the same time:
+			To link an application against various <emphasis>system libraries</emphasis>, several compilation flags and link flags must be given at once. To reduce the maintenance, a system called <emphasis>uselib</emphasis> can be used to give all the flags at the same time:
 			<programlisting language="python">
 def configure(conf):
 	conf.env['CCFLAGS_TEST'] = '-O2' <co id="uselib-vars-co" linkends="c1"/>
@@ -148,7 +148,7 @@ build/
 	<section id="include_sys">
 		<title>The include system</title>
 		<para>
-			Include paths are used by the c/c++ compilers for finding the headers. Though some compilers (gcc) can use the folder of the source file for finding other includes implicitely, Waf requires the explicit list of the include paths. When one header changes, the files are recompiled automatically.
+			Include paths are used by the c/c++ compilers for finding the headers. Though some compilers (gcc) can use the folder of the source file for finding other includes implicitly, Waf requires the explicit list of the include paths. When one header changes, the files are recompiled automatically.
 		</para>
 
 		<para>
