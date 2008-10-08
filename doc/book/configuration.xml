@@ -143,7 +143,7 @@ def configure(conf):
 			several different configuration helpers may be called: the first one for finding the compiler and the others for finding compiler flags. In some cases, it is interesting to disable some tests (unnecessary, time consuming, etc), to insert new tests, or to modify the existing tests. The <emphasis>check_tool</emphasis> method has a parameter for passing the list of checks to perform:
 			<programlisting language="python">
 def configure(conf):
-	conf.check_tool('g++', funs="find_gxx find_cpp find_ar g++_common_flags")
+	conf.check_tool('g++', funs="find_gxx find_cpp find_ar gxx_common_flags")
 			</programlisting>
 			If no check is performed, the configuration helpers are still attached to the conf object, and may be used later:
 			<programlisting language="python">
