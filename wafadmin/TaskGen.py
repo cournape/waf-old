@@ -365,7 +365,6 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 		act = Task.simple_task_type(name, action, color=color)
 	else:
 		act = Task.task_type_from_func(name, action, color=color)
-		name = action.name
 	act.ext_in = tuple(Utils.to_list(ext_in))
 	act.ext_out = tuple(Utils.to_list(ext_out))
 	act.before = Utils.to_list(before)
