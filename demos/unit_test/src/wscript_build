@@ -5,3 +5,4 @@ obj = bld.new_task_gen('cxx', 'staticlib')
 obj.find_sources_in_dirs('.')
 obj.target = 'useless'
 obj.includes = '.'
+obj.export_incdirs = '.'
