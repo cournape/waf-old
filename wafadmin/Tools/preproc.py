@@ -204,10 +204,10 @@ def get_expr(lst, defs, ban):
 			(p2, v2) = lst[1]
 			off = 2
 			if v2 == '(':
-				(p3, v3) = lst[2]
-				if p3 != IDENT: raise PreprocError, 'expected an identifier after a "defined("'
-				(p2, v2) = lst[3]
-				if v2 != ')': raise PreprocError, 'expected a ")" after a "defined(x"'
+				(p2, v2) = lst[2]
+				if p2 != IDENT: raise PreprocError, 'expected an identifier after a "defined("'
+				(p3, v3) = lst[3]
+				if v3 != ')': raise PreprocError, 'expected a ")" after a "defined(x"'
 				off = 4
 			elif p2 != IDENT:
 				raise PreprocError, 'expected a "(" or an identifier after a defined'
