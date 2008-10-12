@@ -357,6 +357,7 @@ class Parallel(object):
 				if random.randint(0,1): self.frozen.insert(0, tsk)
 				else: self.frozen.append(tsk)
 		#print loop
+		if self.failed: return -1
 
 def get_instance(bld, njobs):
 	if njobs <= 1: executor = Serial(bld)
