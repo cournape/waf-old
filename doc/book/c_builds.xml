@@ -158,6 +158,9 @@ import preproc
 preproc.go_absolute = 1
 			</programlisting>
 		</para>
+		<para>
+			To include files conditionally, it is recommended to check the define conditions during the configuration, to store them in a <filename>config.h</filename> file, and to use simple #if/endif blocks. Variables defined by compilers internally or defined in system headers may be missed by the Waf preprocessor.
+		</para>
 	</section>
 
 	<section>
