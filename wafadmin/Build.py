@@ -98,6 +98,14 @@ class BuildContext(object):
 		self.srcnode = None
 		self.bldnode = None
 
+		# now your head will explode .. :-)
+		class node_class(Node.Node):
+			pass
+		self.node_class = node_class
+		self.node_class.__module__ = "Node"
+		self.node_class.__name__ = "Nodu"
+		self.node_class.bld = self
+
 	def load(self):
 		"load the cache from the disk"
 		try:
@@ -113,6 +121,9 @@ class BuildContext(object):
 		try:
 			gc.disable()
 			f = data = None
+
+			Node.Nodu = self.node_class
+
 			try:
 				f = open(os.path.join(self.bdir, DBFILE), 'rb')
 			except (IOError, EOFError):
@@ -139,11 +150,15 @@ class BuildContext(object):
 	def save(self):
 		"store the cache on disk, see self.load"
 		gc.disable()
+		self.root.__class__.bld = None
+
+		Node.Nodu = self.node_class
 		file = open(os.path.join(self.bdir, DBFILE), 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
 		cPickle.dump(data, file, -1) # remove the '-1' for unoptimized version
 		file.close()
+		self.root.__class__.bld = self
 		gc.enable()
 
 	# ======================================= #
@@ -350,7 +365,8 @@ class BuildContext(object):
 		if load_cache: self.load()
 
 		if not self.root:
-			self.root = Node.Node('', None, Node.DIR)
+			Node.Nodu = self.node_class
+			self.root = Node.Nodu('', None, Node.DIR)
 
 		if not self.srcnode:
 			self.srcnode = self.root.ensure_dir_node_from_path(srcdir)

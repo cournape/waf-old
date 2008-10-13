@@ -42,8 +42,8 @@ class Node(object):
 		self.parent = parent
 
 		# assumption: one build object at a time
-		Build.bld.id_nodes += 4
-		self.id = Build.bld.id_nodes + node_type
+		self.__class__.bld.id_nodes += 4
+		self.id = self.__class__.bld.id_nodes + node_type
 
 		if node_type == DIR: self.childs = {}
 
@@ -108,7 +108,7 @@ class Node(object):
 		else:
 			parent = self.find_dir(lst[:-1])
 			if not parent: return None
-		Build.bld.rescan(parent)
+		self.__class__.bld.rescan(parent)
 
 		name = lst[-1]
 		node = parent.childs.get(name, None)
@@ -117,7 +117,7 @@ class Node(object):
 			if tp == FILE or tp == BUILD:
 				return node
 
-		tree = Build.bld
+		tree = self.__class__.bld
 		if not name in tree.cache_dir_contents[parent.id]:
 			return None
 
@@ -127,7 +127,7 @@ class Node(object):
 		except IOError:
 			return None
 
-		child = Node(name, parent, FILE)
+		child = self.__class__(name, parent, FILE)
 		tree.node_sigs[0][child.id] = st
 		return child
 
@@ -141,7 +141,7 @@ class Node(object):
 		else:
 			parent = self.find_dir(lst[:-1])
 			if not parent: return None
-		Build.bld.rescan(parent)
+		self.__class__.bld.rescan(parent)
 
 		name = lst[-1]
 		node = parent.childs.get(name, None)
@@ -150,7 +150,7 @@ class Node(object):
 			if tp != BUILD:
 				raise Utils.WafError("find_or_declare returns a build node, not a source nor a directory"+str(lst))
 			return node
-		node = Node(name, parent, BUILD)
+		node = self.__class__(name, parent, BUILD)
 		return node
 
 	def find_dir(self, lst):
@@ -161,7 +161,7 @@ class Node(object):
 
 		current = self
 		for name in lst:
-			Build.bld.rescan(current)
+			self.__class__.bld.rescan(current)
 			prev = current
 
 			if not current.parent and name == current.name:
@@ -175,9 +175,9 @@ class Node(object):
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
-					dir_cont = Build.bld.cache_dir_contents
+					dir_cont = self.__class__.bld.cache_dir_contents
 					if prev.id in dir_cont and name in dir_cont[prev.id]:
-						current = Node(name, prev, DIR)
+						current = self.__class__(name, prev, DIR)
 					else:
 						return None
 		return current
@@ -200,7 +200,7 @@ class Node(object):
 				prev = current
 				current = prev.childs.get(name, None)
 				if current is None:
-					current = Node(name, prev, DIR)
+					current = self.__class__(name, prev, DIR)
 		return current
 
 	def exclusive_build_node(self, path):
@@ -222,10 +222,10 @@ class Node(object):
 				# exclusive build directory -> mark the parent as rescanned
 				# for find_dir and find_resource to work
 				parent = self.ensure_dir_node_from_path(lst[:-1])
-				Build.bld.cache_scanned_folders[parent.id] = 1
+				self.__class__.bld.cache_scanned_folders[parent.id] = 1
 			else:
 				try:
-					Build.bld.rescan(parent)
+					self.__class__.bld.rescan(parent)
 				except OSError:
 					pass
 		else:
@@ -233,7 +233,7 @@ class Node(object):
 
 		node = parent.childs.get(name, None)
 		if not node:
-			node = Node(name, parent, BUILD)
+			node = self.__class__(name, parent, BUILD)
 
 		return node
 
@@ -292,7 +292,7 @@ class Node(object):
 
 	def nice_path(self, env=None):
 		"printed in the console, open files easily from the launch directory"
-		tree = Build.bld
+		tree = self.__class__.bld
 		ln = tree.launch_node()
 		name = self.name
 
@@ -344,7 +344,7 @@ class Node(object):
 			return '/'
 
 		variant = self.variant(env)
-		ret = Build.bld.cache_node_abspath[variant].get(self.id, None)
+		ret = self.__class__.bld.cache_node_abspath[variant].get(self.id, None)
 		if ret: return ret
 
 		if not variant:
@@ -355,8 +355,8 @@ class Node(object):
 			else:
 				val = self.parent.abspath() + os.sep + self.name
 		else:
-			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.path_to_parent(Build.bld.srcnode)))
-		Build.bld.cache_node_abspath[variant][self.id] = val
+			val = os.sep.join((self.__class__.bld.bldnode.abspath(), env.variant(), self.path_to_parent(self.__class__.bld.srcnode)))
+		self.__class__.bld.cache_node_abspath[variant][self.id] = val
 		return val
 
 	def change_ext(self, ext):
@@ -370,7 +370,7 @@ class Node(object):
 
 		node = self.parent.childs.get(name, None)
 		if not node:
-			node = Node(name, self.parent, BUILD)
+			node = self.__class__(name, self.parent, BUILD)
 		return node
 
 	def src_dir(self, env):
@@ -390,16 +390,16 @@ class Node(object):
 	def bldpath(self, env=None):
 		"path seen from the build dir default/src/foo.cpp"
 		if self.id & 3 == FILE:
-			return self.relpath_gen(Build.bld.bldnode)
-		if self.path_to_parent(Build.bld.srcnode) is not '':
-			return os.path.join(env.variant(), self.path_to_parent(Build.bld.srcnode))
+			return self.relpath_gen(self.__class__.bld.bldnode)
+		if self.path_to_parent(self.__class__.bld.srcnode) is not '':
+			return os.path.join(env.variant(), self.path_to_parent(self.__class__.bld.srcnode))
 		return env.variant()
 
 	def srcpath(self, env=None):
 		"path in the srcdir from the build dir ../src/foo.cpp"
 		if self.id & 3 == BUILD:
 			return self.bldpath(env)
-		return self.relpath_gen(Build.bld.bldnode)
+		return self.relpath_gen(self.__class__.bld.bldnode)
 
 	def read(self, env):
 		"get the contents of a file, it is not used anywhere for the moment"
@@ -440,7 +440,7 @@ if sys.platform == "win32":
 
 		current = self
 		for name in lst:
-			Build.bld.rescan(current)
+			self.__class__.bld.rescan(current)
 			prev = current
 
 			if not current.parent and name == current.name:
@@ -454,9 +454,9 @@ if sys.platform == "win32":
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
-					if (name in Build.bld.cache_dir_contents[prev.id]
+					if (name in self.__class__.bld.cache_dir_contents[prev.id]
 						or (not prev.parent and name[1] == ":")):
-						current = Node(name, prev, DIR)
+						current = self.__class__(name, prev, DIR)
 					else:
 						return None
 		return current
@@ -464,7 +464,7 @@ if sys.platform == "win32":
 
 	def abspath_win32(self, env=None):
 		variant = self.variant(env)
-		ret = Build.bld.cache_node_abspath[variant].get(self.id, None)
+		ret = self.__class__.bld.cache_node_abspath[variant].get(self.id, None)
 		if ret: return ret
 
 		if not variant:
@@ -476,10 +476,14 @@ if sys.platform == "win32":
 			lst.reverse()
 			val = os.sep.join(lst)
 		else:
-			val = os.sep.join((Build.bld.bldnode.abspath(), env.variant(), self.path_to_parent(Build.bld.srcnode)))
+			val = os.sep.join((self.__class__.bld.bldnode.abspath(), env.variant(), self.path_to_parent(self.__class__.bld.srcnode)))
 		if val.startswith("\\"): val = val[1:]
 		if val.startswith("\\"): val = val[1:]
-		Build.bld.cache_node_abspath[variant][self.id] = val
+		self.__class__.bld.cache_node_abspath[variant][self.id] = val
 		return val
 	Node.abspath = abspath_win32
+
+
+class Nodu(Node):
+	pass
 
