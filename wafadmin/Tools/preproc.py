@@ -452,6 +452,9 @@ class c_parser(object):
 
 		while self.lines:
 			(type, line) = self.lines.pop(0)
+			if type == POPFILE:
+				self.currentnode_stack.pop()
+				continue
 			try:
 				self.process_line(type, line)
 			except Exception, ex:
