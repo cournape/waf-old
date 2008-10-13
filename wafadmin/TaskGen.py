@@ -117,11 +117,12 @@ class task_gen(object):
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
 
-		self.env = Build.bld.env.copy()
+		self.bld = kwargs['bld']
+		self.env = self.bld.env.copy()
 
-		self.path = Build.bld.path # emulate chdir when reading scripts
+		self.path = self.bld.path # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
-		Build.bld.all_task_gen.append(self)
+		self.bld.all_task_gen.append(self)
 
 		# provide a unique id
 		self.idx = task_gen.idx[self.path.id] = task_gen.idx.get(self.path.id, 0) + 1
@@ -253,7 +254,7 @@ class task_gen(object):
 		return task
 
 	def name_to_obj(self, name):
-		return Build.bld.name_to_obj(name, self.env)
+		return self.bld.name_to_obj(name, self.env)
 
 	def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 		"subclass if necessary"
@@ -282,13 +283,13 @@ class task_gen(object):
 			# validation:
 			# * don't use absolute path.
 			# * don't use paths outside the source tree.
-			if not anode or not anode.is_child_of(Build.bld.srcnode):
+			if not anode or not anode.is_child_of(self.bld.srcnode):
 				raise Utils.WscriptError("Unable to use '%s' - either because it's not a relative path" \
-					 ", or it's not child of '%s'." % (name, Build.bld.srcnode))
+					 ", or it's not child of '%s'." % (name, self.bld.srcnode))
 
-			Build.bld.rescan(anode)
+			self.bld.rescan(anode)
 
-			for name in Build.bld.cache_dir_contents[anode.id]:
+			for name in self.bld.cache_dir_contents[anode.id]:
 				(base, ext) = os.path.splitext(name)
 				if ext in ext_lst and not name in lst and not name in excludes:
 					lst.append((anode.relpath_gen(self.path) or '.') + os.path.sep + name)
@@ -311,11 +312,11 @@ class task_gen(object):
 
 		newobj.__class__ = self.__class__
 		if type(env) is types.StringType:
-			newobj.env = Build.bld.all_envs[env].copy()
+			newobj.env = self.bld.all_envs[env].copy()
 		else:
 			newobj.env = env.copy()
 
-		Build.bld.all_task_gen.append(newobj)
+		self.bld.all_task_gen.append(newobj)
 
 		return newobj
 
