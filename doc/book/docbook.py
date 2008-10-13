@@ -110,8 +110,8 @@ def docb_file(obj, node):
 
 # docbook objects
 class docbook_taskgen(TaskGen.task_gen):
-	def __init__(self, *k):
-		TaskGen.task_gen.__init__(self, *k)
+	def __init__(self, *k, **kw):
+		TaskGen.task_gen.__init__(self, *k, **kw)
 		self.stylesheet = None
 
 		self.ext = ['html', 'pdf', 'txt', 'ps']
