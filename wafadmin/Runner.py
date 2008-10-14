@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005 (ita)
+# Thomas Nagy, 2005-2008 (ita)
 
 "Execute the tasks"
 
@@ -56,8 +56,8 @@ class TaskConsumer(threading.Thread):
 
 class Parallel(object):
 	"""
-	The following is a small scheduler for making as many tasks available to the consumer threads
-	It uses the serial shuffling system
+	keep the consumer threads busy, and avoid consuming cpu cycles
+	when no more tasks can be added (end of the build, etc)
 	"""
 	def __init__(self, bld, j=2):
 
@@ -94,7 +94,7 @@ class Parallel(object):
 	def postpone(self, tsk):
 		"override this method to schedule the tasks in a particular order"
 		# TODO consider using a deque instead
-		if random.randint(0,1):
+		if random.randint(0, 1):
 			self.frozen.insert(0, tsk)
 		else:
 			self.frozen.append(tsk)
