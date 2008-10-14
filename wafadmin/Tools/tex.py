@@ -48,6 +48,7 @@ def scan(self):
 g_bibtex_re = re.compile('bibdata', re.M)
 def tex_build(task, command='LATEX'):
 	env = task.env
+	bld = task.generator.bld
 
 	com = '%s %s' % (env[command], env.get_flat(command+'FLAGS'))
 	if not env['PROMPT_LATEX']: com = "%s %s" % (com, '-interaction=batchmode')
@@ -73,7 +74,7 @@ def tex_build(task, command='LATEX'):
 
 	latex_compile_cmd = 'cd %s && TEXINPUTS=%s:$TEXINPUTS %s %s' % (reldir, sr2, com, sr)
 	warn('first pass on %s' % command)
-	ret = Runner.exec_command(latex_compile_cmd)
+	ret = bld.exec_command(latex_compile_cmd)
 	if ret: return ret
 
 	# look in the .aux file if there is a bibfile to process
@@ -91,7 +92,7 @@ def tex_build(task, command='LATEX'):
 			bibtex_compile_cmd = 'cd %s && BIBINPUTS=%s:$BIBINPUTS %s %s' % (reldir, sr2, env['BIBTEX'], docuname)
 
 			warn('calling bibtex')
-			ret = Runner.exec_command(bibtex_compile_cmd)
+			ret = bld.exec_command(bibtex_compile_cmd)
 			if ret:
 				error('error when calling bibtex %s' % bibtex_compile_cmd)
 				return ret
@@ -105,7 +106,7 @@ def tex_build(task, command='LATEX'):
 	else:
 		makeindex_compile_cmd = 'cd %s && %s %s' % (reldir, env['MAKEINDEX'], idx_path)
 		warn('calling makeindex')
-		ret = Runner.exec_command(makeindex_compile_cmd)
+		ret = bld.exec_command(makeindex_compile_cmd)
 		if ret:
 			error('error when calling makeindex %s' % makeindex_compile_cmd)
 			return ret
@@ -131,7 +132,7 @@ def tex_build(task, command='LATEX'):
 
 		# run the command
 		warn('calling %s' % command)
-		ret = Runner.exec_command(latex_compile_cmd)
+		ret = bld.exec_command(latex_compile_cmd)
 		if ret:
 			error('error when calling %s %s' % (command, latex_compile_cmd))
 			return ret

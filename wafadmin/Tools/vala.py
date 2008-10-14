@@ -56,7 +56,7 @@ class valac_task(Task.Task):
 			cmd.append('--pkg %s' % package)
 
 		cmd.append(" ".join(inputs))
-		result = Runner.exec_command(" ".join(cmd))
+		result = self.generator.bld.exec_command(" ".join(cmd))
 
 		if 'cshlib' in features or 'cstaticlib' in features:
 			# generate the .deps file
