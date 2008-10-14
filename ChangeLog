@@ -25,6 +25,8 @@ meaning in configuration and build)
 * Node: find_build -> find_or_declare
 * Node: find_source -> find_resource
 * Node: find_resource_lst, find_or_declare_lst, ensure_dir_node_from_path_lst, find_dir_lst disappear
+* Runner: Runner.exec_command -> Utils.exec_command
+* Runner: Runner.printout -> bld.printout
 * Remove m_ from all variables
 * installation api simplification
 * remove the configuration cache
