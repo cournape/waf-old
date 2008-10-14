@@ -10,16 +10,11 @@ import pproc
 from Logs import debug, error
 from Constants import *
 
-def printout(s):
-	f = Build.bld.log or sys.stdout
-	f.write(s)
-	f.flush()
-
 def exec_command(s, shell=1):
 	debug('runner: system command -> %s' % s)
-	log = Build.bld.log
-	if log or Logs.verbose: printout(s+'\n')
-	proc = pproc.Popen(s, shell=shell, stdout=log, stderr=log)
+	bld = Build.bld
+	if bld.log or Logs.verbose: bld.printout(s+'\n')
+	proc = pproc.Popen(s, shell=shell, stdout=bld.log, stderr=bld.log)
 	return proc.wait()
 
 if sys.platform == "win32":
@@ -28,8 +23,8 @@ if sys.platform == "win32":
 		# TODO very long command-lines are unlikely to be used in the configuration
 		if len(s) < 2000: return old_log(s, shell=shell)
 
-		log = Build.bld.log
-		if log or Logs.verbose: printout(s+'\n')
+		bld = Build.bld
+		if bld.log or Logs.verbose: bld.printout(s+'\n')
 		startupinfo = pproc.STARTUPINFO()
 		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
 		proc = pproc.Popen(s, shell=False, startupinfo=startupinfo)
@@ -52,7 +47,7 @@ class TaskConsumer(threading.Thread):
 				continue
 
 			try:
-				printout(tsk.display())
+				tsk.generator.bld.printout(tsk.display())
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
 				else: ret = tsk.call_run()
 			except Exception, e:

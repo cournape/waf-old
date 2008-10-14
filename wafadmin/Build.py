@@ -780,3 +780,11 @@ class BuildContext(object):
 			except OSError:
 				return 1
 
+	def exec_command(self, cmd, shell=1):
+		return Runner.exec_command(cmd, shell=shell)
+
+	def printout(self, s):
+		f = self.log or sys.stdout
+		f.write(s)
+		f.flush()
+

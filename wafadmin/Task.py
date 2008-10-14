@@ -648,7 +648,7 @@ class Task(TaskBase):
 			else:
 				cnt += 1
 				self.generator.bld.node_sigs[variant][node.id] = sig
-				Runner.printout('restoring from cache %r\n' % node.bldpath(env))
+				self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
 		return 1
 
 	def debug_why(self, old_sigs):
@@ -834,7 +834,7 @@ def f(task):
 	env = task.env
 	p = env.get_flat
 	cmd = "%s" %s
-	return Runner.exec_command(cmd)
+	return task.generator.bld.exec_command(cmd)
 ''' % (line, parm)
 
 	debug('action: %s' % c)
