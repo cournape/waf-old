@@ -250,6 +250,7 @@ class task_gen(object):
 
 	def create_task(self, name, env=None):
 		task = Task.TaskBase.classes[name](env or self.env)
+		task.generator = self
 		self.tasks.append(task)
 		return task
 
