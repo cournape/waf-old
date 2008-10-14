@@ -249,8 +249,7 @@ class task_gen(object):
 			except KeyError: return None
 
 	def create_task(self, name, env=None):
-		task = Task.TaskBase.classes[name](env or self.env)
-		task.generator = self
+		task = Task.TaskBase.classes[name](env or self.env, generator=self)
 		self.tasks.append(task)
 		return task
 
@@ -302,7 +301,7 @@ class task_gen(object):
 
 	def clone(self, env):
 		""
-		newobj = task_gen()
+		newobj = task_gen(bld=self.bld)
 		for x in self.__dict__:
 			if x in ["env"]:
 				continue

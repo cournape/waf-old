@@ -325,12 +325,14 @@ class TaskBase(object):
 	classes = {}
 	stat = None
 
-	def __init__(self, normal=1):
+	def __init__(self, *k, **kw):
 		self.hasrun = NOT_RUN
 
-		manager = Build.bld.task_manager
-		if normal:
-			manager.add_task(self)
+		self.generator = kw.get('generator', self)
+		self.bld = getattr(self.generator, 'bld', Build.bld)
+
+		if kw.get('normal', 1):
+			self.bld.task_manager.add_task(self)
 
 	def __repr__(self):
 		"used for debugging"
@@ -370,11 +372,11 @@ class TaskBase(object):
 		col2 = Logs.colors.NORMAL
 
 		if Options.options.progress_bar == 1:
-			return Build.bld.progress_line(self.position[0], self.position[1], col1, col2)
+			return self.bld.progress_line(self.position[0], self.position[1], col1, col2)
 
 		if Options.options.progress_bar == 2:
-			try: ini = Build.bld.ini
-			except AttributeError: ini = Build.bld.ini = time.time()
+			try: ini = self.bld.ini
+			except AttributeError: ini = self.bld.ini = time.time()
 			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
 			ins  = ','.join([n.name for n in self.inputs])
 			outs = ','.join([n.name for n in self.outputs])
@@ -422,7 +424,7 @@ class TaskBase(object):
 		* filename: install the first node in the outputs as a file with a particular name, be certain to give os.sep
 		* chmod: permissions
 		"""
-		bld = Build.bld
+		bld = self.bld
 		d = self.attr('install')
 
 		if self.attr('install_path'):
@@ -448,8 +450,8 @@ class Task(TaskBase):
        environment variables, like the CXXFLAGS in self.env
 	"""
 	vars = []
-	def __init__(self, env, normal=1):
-		TaskBase.__init__(self, normal=normal)
+	def __init__(self, env, **kw):
+		TaskBase.__init__(self, **kw)
 		self.env = env
 
 		# inputs and outputs are nodes
@@ -504,7 +506,7 @@ class Task(TaskBase):
 
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
-		node = Build.bld.current.find_resource(filename)
+		node = self.bld.current.find_resource(filename)
 		self.deps_nodes.append(node)
 
 	def signature(self):
@@ -546,14 +548,14 @@ class Task(TaskBase):
 				return ASK_LATER
 
 		env = self.env
-		tree = Build.bld
+		bld = self.bld
 
 		# look at the previous signature first
 		time = None
 		for node in self.outputs:
 			variant = node.variant(env)
 			try:
-				time = tree.node_sigs[variant][node.id]
+				time = bld.node_sigs[variant][node.id]
 			except KeyError:
 				debug("task: task %r must run as the first node does not exist" % self)
 				time = None
@@ -571,7 +573,7 @@ class Task(TaskBase):
 
 		key = self.unique_id()
 		try:
-			prev_sig = tree.task_sigs[key][0]
+			prev_sig = bld.task_sigs[key][0]
 		except KeyError:
 			debug("task: task %r must run as it was never run before or the task code changed" % self)
 			return RUN_ME
@@ -580,7 +582,7 @@ class Task(TaskBase):
 		new_sig = self.signature()
 
 		# debug if asked to
-		if Logs.verbose: self.debug_why(tree.task_sigs[key])
+		if Logs.verbose: self.debug_why(bld.task_sigs[key])
 
 		if new_sig != prev_sig:
 			return RUN_ME
@@ -588,22 +590,22 @@ class Task(TaskBase):
 
 	def post_run(self):
 		"called after a successful task run"
-		tree = Build.bld
+		bld = self.bld
 		env = self.env
 		sig = self.signature()
 
 		cnt = 0
 		for node in self.outputs:
 			variant = node.variant(env)
-			#if node in tree.node_sigs[variant]:
+			#if node in bld.node_sigs[variant]:
 			#	print "variant is ", variant
-			#	print "self sig is ", Utils.view_sig(tree.node_sigs[variant][node])
+			#	print "self sig is ", Utils.view_sig(bld.node_sigs[variant][node])
 
 			# check if the node exists ..
 			os.stat(node.abspath(env))
 
 			# important, store the signature for the next run
-			tree.node_sigs[variant][node.id] = sig
+			bld.node_sigs[variant][node.id] = sig
 
 			# We could re-create the signature of the task with the signature of the outputs
 			# in practice, this means hashing the output files
@@ -615,7 +617,7 @@ class Task(TaskBase):
 				except IOError: warn('Could not write the file to the cache')
 				cnt += 1
 
-		tree.task_sigs[self.unique_id()] = self.cache_sig
+		bld.task_sigs[self.unique_id()] = self.cache_sig
 		self.executed=1
 
 	def can_retrieve_cache(self):
@@ -642,7 +644,7 @@ class Task(TaskBase):
 				return None
 			else:
 				cnt += 1
-				Build.bld.node_sigs[variant][node.id] = sig
+				self.bld.node_sigs[variant][node.id] = sig
 				Runner.printout('restoring from cache %r\n' % node.bldpath(env))
 		return 1
 
@@ -661,23 +663,23 @@ class Task(TaskBase):
 				debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
 
 	def sig_explicit_deps(self):
-		tree = Build.bld
+		bld = self.bld
 		m = md5()
 
 		# the inputs
 		for x in self.inputs:
 			variant = x.variant(self.env)
-			m.update(tree.node_sigs[variant][x.id])
+			m.update(bld.node_sigs[variant][x.id])
 
 		# additional nodes to depend on, if provided
 		for x in getattr(self, 'dep_nodes', []):
 			variant = x.variant(self.env)
-			v = tree.node_sigs[variant][x.id]
+			v = bld.node_sigs[variant][x.id]
 			m.update(v)
 
 		# manual dependencies, they can slow down the builds
 		try:
-			additional_deps = tree.deps_man
+			additional_deps = bld.deps_man
 		except AttributeError:
 			pass
 		else:
@@ -691,10 +693,10 @@ class Task(TaskBase):
 
 				for v in d:
 					if isinstance(v, Node.Node):
-						tree.rescan(v.parent)
+						bld.rescan(v.parent)
 						variant = v.variant(self.env)
 						try:
-							v = tree.node_sigs[variant][v.id]
+							v = bld.node_sigs[variant][v.id]
 						except KeyError: # make it fatal?
 							v = ''
 					m.update(v)
@@ -702,20 +704,20 @@ class Task(TaskBase):
 
 	def sig_vars(self):
 		m = md5()
-		tree = Build.bld
+		bld = self.bld
 		env = self.env
 
 		# dependencies on the environment vars
 		fun = getattr(self.__class__, 'signature_hook', None)
 		if fun: act_sig = self.__class__.signature_hook(self)
-		else: act_sig = tree.hash_env_vars(env, self.__class__.vars)
+		else: act_sig = bld.hash_env_vars(env, self.__class__.vars)
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
 		var_sig = SIG_NIL
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
-			var_sig = tree.hash_env_vars(env, dep_vars)
+			var_sig = bld.hash_env_vars(env, dep_vars)
 			m.update(var_sig)
 
 		# additional variables to hash (command-line defines for example)
@@ -739,11 +741,12 @@ class Task(TaskBase):
 	# compute the signature, recompute it if there is no match in the cache
 	def sig_implicit_deps(self):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
-		tree = Build.bld
+
+		bld = self.bld
 
 		# get the task signatures from previous runs
 		key = self.unique_id()
-		prev_sigs = tree.task_sigs.get(key, ())
+		prev_sigs = bld.task_sigs.get(key, ())
 		if prev_sigs:
 			try:
 				if prev_sigs[2] == self.compute_sig_implicit_deps():
@@ -757,9 +760,8 @@ class Task(TaskBase):
 			debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
 
 		# store the dependencies in the cache
-		tree = Build.bld
-		tree.node_deps[self.unique_id()] = nodes
-		tree.raw_deps[self.unique_id()] = names
+		bld.node_deps[self.unique_id()] = nodes
+		bld.raw_deps[self.unique_id()] = names
 
 		# recompute the signature and return it
 		sig = self.compute_sig_implicit_deps()
@@ -773,14 +775,14 @@ class Task(TaskBase):
 		m = md5()
 		upd = m.update
 
-		tree = Build.bld
-		tstamp = tree.node_sigs
+		bld = Build.bld
+		tstamp = bld.node_sigs
 		env = self.env
 
-		for k in tree.node_deps.get(self.unique_id(), ()):
+		for k in bld.node_deps.get(self.unique_id(), ()):
 			# unlikely but necessary if it happens
-			try: tree.cache_scanned_folders[k.parent.id]
-			except KeyError: tree.rescan(k.parent)
+			try: bld.cache_scanned_folders[k.parent.id]
+			except KeyError: bld.rescan(k.parent)
 
 			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
 			else: upd(tstamp[env.variant()][k.id])
