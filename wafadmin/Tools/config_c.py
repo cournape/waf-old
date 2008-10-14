@@ -118,7 +118,7 @@ def exec_cfg(self, kw):
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'ok'
 			self.define('HAVE_%s' % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), 1, 0)
-			return
+			break
 
 	# retrieving the version of a module
 	if 'modversion' in kw:
