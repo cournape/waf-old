@@ -38,7 +38,9 @@ class valac_task(Task.Task):
 		if task.threading:
 			cmd.append('--thread')
 
-		if task.output_type in ('shlib', 'staticlib'):
+		features = self.generator.features
+
+		if 'cshlib' in features or 'cstaticlib' in features:
 			cmd.append('--library ' + task.target)
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
@@ -56,7 +58,7 @@ class valac_task(Task.Task):
 		cmd.append(" ".join(inputs))
 		result = Runner.exec_command(" ".join(cmd))
 
-		if task.output_type in ('shlib', 'staticlib'):
+		if 'cshlib' in features or 'cstaticlib' in features:
 			# generate the .deps file
 			if task.packages:
 				filename = os.path.join(task.outputs[0].bld_dir(env), "%s.deps" % task.target)
@@ -96,7 +98,6 @@ def vala_file(self, node):
 	if not valatask:
 		valatask = self.create_task('valac')
 		self.valatask = valatask
-		valatask.output_type = self.type
 		valatask.packages = []
 		valatask.vapi_dirs = []
 		valatask.target = self.target
@@ -125,7 +126,7 @@ def vala_file(self, node):
 	output_nodes = []
 	output_nodes.append(node.change_ext('.c'))
 	output_nodes.append(node.change_ext('.h'))
-	if self.type != 'program':
+	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
 		if env['VALAC_VERSION'] > (0, 1, 7):
 			output_nodes.append(self.path.find_or_declare('%s.gidl' % self.target))
