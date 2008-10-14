@@ -89,6 +89,13 @@ class valac(Task.Task):
 				shutil.move(src_gidl, dst_gidl)
 			except IOError:
 				pass
+			# handle vala >= 0.3.6 who doesn't honor --directory for the generated .gir
+			try:
+				src_gir = os.path.join(top_bld, "%s.gir" % task.target)
+				dst_gir = task.m_outputs[0].bld_dir(env)
+				shutil.move(src_gir, dst_gir)
+			except IOError:
+				pass
 		return result
 Task.g_task_types["valac"] = valac
 
@@ -161,7 +168,9 @@ def vala_file(self, node):
 	output_nodes.append(node.change_ext('.h'))
 	if self.m_type != 'program':
 		output_nodes.append(self.path.find_build('%s.vapi' % self.target))
-		if env['VALAC_VERSION'] > (0, 1, 7):
+		if env['VALAC_VERSION'] > (0, 3, 5):
+			output_nodes.append(self.path.find_build('%s.gir' % self.target))
+		elif env['VALAC_VERSION'] > (0, 1, 7):
 			output_nodes.append(self.path.find_build('%s.gidl' % self.target))
 		if valatask.packages:
 			output_nodes.append(self.path.find_build('%s.deps' % self.target))
