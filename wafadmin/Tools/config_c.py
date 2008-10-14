@@ -464,7 +464,7 @@ def define(self, define, value, quote=1):
 	elif isinstance(value, int):
 		tbl[define] = value
 	else:
-		raise TypeError
+		raise TypeError, 'define %r -> %r must be a string or an int' % (define, value)
 
 	# add later to make reconfiguring faster
 	self.env[DEFINES] = tbl
