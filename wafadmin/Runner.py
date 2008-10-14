@@ -10,18 +10,10 @@ import pproc
 from Logs import debug, error
 from Constants import *
 
-def print_log(msg, nl='\n'):
-	f = Build.bld.log
-	if f:
-		f.write(msg)
-		f.write(nl)
-		f.flush()
-
 def printout(s):
-	if not Build.bld.log:
-		sys.stdout.write(s)
-		sys.stdout.flush()
-	print_log(s, nl='')
+	f = Build.bld.log or sys.stdout
+	f.write(s)
+	f.flush()
 
 def exec_command(s, shell=1):
 	debug('runner: system command -> %s' % s)

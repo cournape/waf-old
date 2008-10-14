@@ -98,7 +98,7 @@ class TaskManager(object):
 
 	def add_finished(self, tsk):
 		self.tasks_done.append(tsk)
-		bld = Build.bld
+		bld = tsk.bld
 		if Options.is_install:
 			f = None
 			if 'install' in tsk.__dict__:
@@ -775,7 +775,7 @@ class Task(TaskBase):
 		m = md5()
 		upd = m.update
 
-		bld = Build.bld
+		bld = self.bld
 		tstamp = bld.node_sigs
 		env = self.env
 

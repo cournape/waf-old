@@ -24,7 +24,7 @@ g_modcache = {}
 "Cache for the tools (modules), re-importing raises errors"
 
 bld = None
-"more or less a singleton - only one build object is active at a time"
+"singleton - safe to use when Waf is not used as a library"
 
 class BuildError(Utils.WafError):
 	def __init__(self, b=None, t=[]):

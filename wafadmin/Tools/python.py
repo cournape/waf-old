@@ -162,7 +162,7 @@ def check_python_headers(conf):
 	except ValueError:
 		conf.fatal("Python development headers not found (-v for details).")
 
-	Runner.print_log("""Configuration returned from %r:
+	Runner.printout("""Configuration returned from %r:
 python_prefix = %r
 python_SO = %r
 python_SYSLIBS = %r
