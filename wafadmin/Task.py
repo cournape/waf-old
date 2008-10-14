@@ -98,7 +98,7 @@ class TaskManager(object):
 
 	def add_finished(self, tsk):
 		self.tasks_done.append(tsk)
-		bld = tsk.bld
+		bld = tsk.generator.bld
 		if Options.is_install:
 			f = None
 			if 'install' in tsk.__dict__:
@@ -328,11 +328,14 @@ class TaskBase(object):
 	def __init__(self, *k, **kw):
 		self.hasrun = NOT_RUN
 
-		self.generator = kw.get('generator', self)
-		self.bld = getattr(self.generator, 'bld', Build.bld)
+		try:
+			self.generator = kw['generator']
+		except KeyError:
+			self.generator = self
+			self.bld = Build.bld
 
 		if kw.get('normal', 1):
-			self.bld.task_manager.add_task(self)
+			self.generator.bld.task_manager.add_task(self)
 
 	def __repr__(self):
 		"used for debugging"
@@ -372,11 +375,11 @@ class TaskBase(object):
 		col2 = Logs.colors.NORMAL
 
 		if Options.options.progress_bar == 1:
-			return self.bld.progress_line(self.position[0], self.position[1], col1, col2)
+			return self.generator.bld.progress_line(self.position[0], self.position[1], col1, col2)
 
 		if Options.options.progress_bar == 2:
-			try: ini = self.bld.ini
-			except AttributeError: ini = self.bld.ini = time.time()
+			try: ini = self.generator.bld.ini
+			except AttributeError: ini = self.generator.bld.ini = time.time()
 			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
 			ins  = ','.join([n.name for n in self.inputs])
 			outs = ','.join([n.name for n in self.outputs])
@@ -424,7 +427,7 @@ class TaskBase(object):
 		* filename: install the first node in the outputs as a file with a particular name, be certain to give os.sep
 		* chmod: permissions
 		"""
-		bld = self.bld
+		bld = self.generator.bld
 		d = self.attr('install')
 
 		if self.attr('install_path'):
@@ -506,7 +509,7 @@ class Task(TaskBase):
 
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
-		node = self.bld.current.find_resource(filename)
+		node = self.generator.bld.current.find_resource(filename)
 		self.deps_nodes.append(node)
 
 	def signature(self):
@@ -548,7 +551,7 @@ class Task(TaskBase):
 				return ASK_LATER
 
 		env = self.env
-		bld = self.bld
+		bld = self.generator.bld
 
 		# look at the previous signature first
 		time = None
@@ -590,7 +593,7 @@ class Task(TaskBase):
 
 	def post_run(self):
 		"called after a successful task run"
-		bld = self.bld
+		bld = self.generator.bld
 		env = self.env
 		sig = self.signature()
 
@@ -644,7 +647,7 @@ class Task(TaskBase):
 				return None
 			else:
 				cnt += 1
-				self.bld.node_sigs[variant][node.id] = sig
+				self.generator.bld.node_sigs[variant][node.id] = sig
 				Runner.printout('restoring from cache %r\n' % node.bldpath(env))
 		return 1
 
@@ -663,7 +666,7 @@ class Task(TaskBase):
 				debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
 
 	def sig_explicit_deps(self):
-		bld = self.bld
+		bld = self.generator.bld
 		m = md5()
 
 		# the inputs
@@ -704,7 +707,7 @@ class Task(TaskBase):
 
 	def sig_vars(self):
 		m = md5()
-		bld = self.bld
+		bld = self.generator.bld
 		env = self.env
 
 		# dependencies on the environment vars
@@ -742,7 +745,7 @@ class Task(TaskBase):
 	def sig_implicit_deps(self):
 		"the signature obtained may not be the one if the files have changed, we do it in two steps"
 
-		bld = self.bld
+		bld = self.generator.bld
 
 		# get the task signatures from previous runs
 		key = self.unique_id()
@@ -775,7 +778,7 @@ class Task(TaskBase):
 		m = md5()
 		upd = m.update
 
-		bld = self.bld
+		bld = self.generator.bld
 		tstamp = bld.node_sigs
 		env = self.env
 
