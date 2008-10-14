@@ -10,26 +10,6 @@ import pproc
 from Logs import debug, error
 from Constants import *
 
-def exec_command(s, shell=1):
-	debug('runner: system command -> %s' % s)
-	bld = Build.bld
-	if bld.log or Logs.verbose: bld.printout(s+'\n')
-	proc = pproc.Popen(s, shell=shell, stdout=bld.log, stderr=bld.log)
-	return proc.wait()
-
-if sys.platform == "win32":
-	old_log = exec_command
-	def exec_command(s, shell=1):
-		# TODO very long command-lines are unlikely to be used in the configuration
-		if len(s) < 2000: return old_log(s, shell=shell)
-
-		bld = Build.bld
-		if bld.log or Logs.verbose: bld.printout(s+'\n')
-		startupinfo = pproc.STARTUPINFO()
-		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
-		proc = pproc.Popen(s, shell=False, startupinfo=startupinfo)
-		return proc.wait()
-
 class TaskConsumer(threading.Thread):
 	def __init__(self, m):
 		threading.Thread.__init__(self)

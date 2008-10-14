@@ -120,6 +120,21 @@ class ordered_dict(UserDict):
 		if key not in self.allkeys: self.allkeys.append(key)
 		UserDict.__setitem__(self, key, item)
 
+def exec_command(s, shell=1, log=None):
+	proc = pproc.Popen(s, shell=shell, stdout=log, stderr=log)
+	return proc.wait()
+
+if sys.platform == "win32":
+	old_log = exec_command
+	def exec_command(s, shell=1):
+		# TODO very long command-lines are unlikely to be used in the configuration
+		if len(s) < 2000: return old_log(s, shell=shell)
+
+		startupinfo = pproc.STARTUPINFO()
+		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
+		proc = pproc.Popen(s, shell=False, startupinfo=startupinfo)
+		return proc.wait()
+
 listdir = os.listdir
 if sys.platform == "win32":
 	def listdir_win32(s):

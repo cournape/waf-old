@@ -781,7 +781,8 @@ class BuildContext(object):
 				return 1
 
 	def exec_command(self, cmd, shell=1):
-		return Runner.exec_command(cmd, shell=shell)
+		debug('runner: system command -> %s' % cmd)
+		return Utils.exec_command(cmd, shell=shell, log=self.log)
 
 	def printout(self, s):
 		f = self.log or sys.stdout

@@ -20,7 +20,7 @@ def postinstall_schemas(prog_name):
 			# add the gconf schema
 			Utils.pprint('YELLOW', 'Installing GConf schema')
 			command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
-			ret = Runner.exec_command(command)
+			ret = Utils.exec_command(command)
 		else:
 			Utils.pprint('YELLOW', 'GConf schema not installed. After install, run this:')
 			Utils.pprint('YELLOW', 'gconftool-2 --install-schema-file=%s' % dir)
@@ -32,7 +32,7 @@ def postinstall_icons():
 			# update the pixmap cache directory
 			Utils.pprint('YELLOW', "Updating Gtk icon cache.")
 			command = 'gtk-update-icon-cache -q -f -t %s' % dir
-			ret = Runner.exec_command(command)
+			ret = Utils.exec_command(command)
 		else:
 			Utils.pprint('YELLOW', 'Icon cache not updated. After install, run this:')
 			Utils.pprint('YELLOW', 'gtk-update-icon-cache -q -f -t %s' % dir)
@@ -44,7 +44,7 @@ def postinstall_scrollkeeper(prog_name):
 			dir1 = Build.bld.get_install_path('${PREFIX}/var/scrollkeeper')
 			dir2 = Build.bld.get_install_path('${DATADIR}/omf/%s' % prog_name)
 			command = 'scrollkeeper-update -q -p %s -o %s' % (dir1, dir2)
-			ret = Runner.exec_command(command)
+			ret = Utils.exec_command(command)
 
 def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if schemas: postinstall_schemas(prog_name)
