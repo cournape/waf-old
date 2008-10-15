@@ -89,6 +89,13 @@ class valac_task(Task.Task):
 				shutil.move(src_gidl, dst_gidl)
 			except IOError:
 				pass
+			# handle vala >= 0.3.6 who doesn't honor --directory for the generated .gir
+			try:
+				src_gir = os.path.join(top_bld, "%s.gir" % task.target)
+				dst_gir = task.outputs[0].bld_dir(env)
+				shutil.move(src_gir, dst_gir)
+			except IOError:
+				pass
 		return result
 
 @extension(EXT_VALA)
@@ -128,7 +135,9 @@ def vala_file(self, node):
 	output_nodes.append(node.change_ext('.h'))
 	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
-		if env['VALAC_VERSION'] > (0, 1, 7):
+		if env['VALAC_VERSION'] > (0, 3, 5):
+			output_nodes.append(self.path.find_or_declare('%s.gir' % self.target))
+		elif env['VALAC_VERSION'] > (0, 1, 7):
 			output_nodes.append(self.path.find_or_declare('%s.gidl' % self.target))
 		if valatask.packages:
 			output_nodes.append(self.path.find_or_declare('%s.deps' % self.target))
