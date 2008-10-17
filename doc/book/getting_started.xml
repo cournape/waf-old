@@ -8,7 +8,7 @@
 		<title>Obtaining Waf</title>
 		<para>
 			The Waf project is located on <ulink url="http://code.google.com/p/waf">Google Code</ulink>
-			The current Waf version requires Python &ge; 2.3 and with the bzip2 compression algorithm.
+			The current Waf version requires Python &ge; 2.3 compiled with support for the bzip2 compression algorithm.
 			Installing Waf is optional, if you want to install Waf on the system, jump to the next section.
 		</para>
 		<sect2>
@@ -42,7 +42,7 @@ $ ./waf-light --make-waf
 				<listitem>Installation: installation is cumbersome, and requires administrative priviledges</listitem>
 				<listitem>Waf versions: users rarely install the appropriate software version (too old, too new)</listitem>
 				<listitem>Bugs: newer Waf versions may result in broken builds</listitem>
-				<listitem>Size: Waf is extremely small (about 80kB)</listitem>
+				<listitem>Size: Waf is extremely small (about 70kB)</listitem>
 				<listitem>Operating systems: Waf cannot be installed on Windows (yet)</listitem>
 			</orderedlist>
 		</para>
