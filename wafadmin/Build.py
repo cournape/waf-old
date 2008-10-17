@@ -165,7 +165,7 @@ class BuildContext(object):
 
 	def clean(self):
 		debug('build: clean called')
-		# FIXME this will not work for files created during the configuration dep_files
+		# does not clean files created during the configuration dep_files
 		def clean_rec(node):
 			for x in node.childs.keys():
 				nd = node.childs[x]
