@@ -199,7 +199,7 @@ class BuildContext(object):
 
 		"""
 		import cProfile, pstats
-		cProfile.run("import self.flush()", 'profi.txt')
+		cProfile.run("import Build\nBuild.bld.flush()", 'profi.txt')
 		p = pstats.Stats('profi.txt')
 		p.sort_stats('cumulative').print_stats(80)
 		"""
