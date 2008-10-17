@@ -110,17 +110,48 @@ def vala_file(self, node):
 		valatask.target = self.target
 		valatask.threading = False
 
-		if hasattr(self, 'packages'):
-			valatask.packages = Utils.to_list(self.packages)
+		packages = Utils.to_list(getattr(self, 'packages', []))
+		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))
 
-		if hasattr(self, 'vapi_dirs'):
-			vapi_dirs = Utils.to_list(self.vapi_dirs)
-			for vapi_dir in vapi_dirs:
-				try:
-					valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath())
-					valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath(self.env))
-				except AttributeError:
-					Logs.warn("Unable to locate Vala API directory: '%s'" % vapi_dir)
+		if hasattr(self, 'uselib_local'):
+			local_packages = Utils.to_list(self.uselib_local)
+			seen = []
+			while len(local_packages) > 0:
+				package = local_packages.pop()
+				if package in seen:
+					continue
+				seen.append(package)
+
+				# check if the package exists
+				package_obj = self.name_to_obj(package)
+				if not package_obj:
+					raise Utils.WafError("object '%s' was not found in uselib_local (required by '%s')" % (package, self.name))
+
+				package_name = package_obj.target
+				package_node = package_obj.path
+				package_dir = package_node.relpath_gen(self.path)
+
+				for task in package_obj.tasks:
+					for output in task.outputs:
+						if output.name == package_name + ".vapi":
+							if package_name not in packages:
+								packages.append(package_name)
+								valatask.set_run_after(task)
+							if package_dir not in vapi_dirs:
+								vapi_dirs.append(package_dir)
+
+				if hasattr(package_obj, 'uselib_local'):
+					lst = self.to_list(package_obj.uselib_local)
+					lst.reverse()
+					local_packages = [pkg for pkg in lst if pkg not in seen] + local_packages
+
+		valatask.packages = packages
+		for vapi_dir in vapi_dirs:
+			try:
+				valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath())
+				valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath(self.env))
+			except AttributeError:
+				Params.warning("Unable to locate Vala API directory: '%s'" % vapi_dir)
 
 		if hasattr(self, 'threading'):
 			valatask.threading = self.threading
