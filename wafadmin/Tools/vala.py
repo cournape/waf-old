@@ -12,6 +12,7 @@ EXT_VALA = ['.vala', '.gs']
 
 class valac_task(Task.Task):
 
+	vars = ("VALAFLAGS")
 	before = ("cc", "cxx")
 
 	def __init__(self, *args, **kwargs):
