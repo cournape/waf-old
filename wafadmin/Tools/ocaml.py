@@ -247,7 +247,7 @@ def compile_may_start(self):
 						self.set_run_after(t)
 
 		# TODO necessary to get the signature right - for now
-		delattr(self, 'sign_all')
+		delattr(self, 'cache_sig')
 		self.signature()
 
 	return Task.Task.runnable_status(self)

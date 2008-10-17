@@ -69,7 +69,7 @@ class MTask(Task.Task):
 			print "TODO"
 		else:
 			# remove the signature, it must be recomputed
-			delattr(self, 'sign_all')
+			delattr(self, 'cache_sig')
 
 		moctasks=[]
 		mocfiles=[]

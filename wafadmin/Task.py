@@ -514,7 +514,7 @@ class Task(TaskBase):
 
 	def signature(self):
 		# compute the result one time, and suppose the scan_signature will give the good result
-		try: return self.sign_all
+		try: return self.cache_sig[0]
 		except AttributeError: pass
 
 		m = md5()
@@ -534,8 +534,6 @@ class Task(TaskBase):
 		# we now have the signature (first element) and the details (for debugging)
 		ret = m.digest()
 		self.cache_sig = (ret, exp_sig, imp_sig, var_sig)
-
-		self.sign_all = ret
 		return ret
 
 	def runnable_status(self):
