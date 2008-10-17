@@ -31,7 +31,7 @@ export WAFDIR=/path/to/wafadmin
 	</section>
 
 	<section>
-		<title>Development norms and recommendations</title>
+		<title>Development standards</title>
 		<para>
 			Though Waf is written in Python, additional restrictions apply to the source code:
 			<itemizedlist>
@@ -41,6 +41,7 @@ export WAFDIR=/path/to/wafadmin
 				<listitem>Api compatibility is maintained in the cycle of a minor version (from 1.5.0 to 1.5.9)</listitem>
 			</itemizedlist>
 		</para>
+
 		<para>
 			More code always means more bugs. Whenever possible, unnecessary code must be removed, and the existing code base should be simplified.
 		</para>

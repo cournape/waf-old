@@ -24,7 +24,7 @@ def xslt_build(task):
 
 	cmd = task.env['XSLTPROC_ST'] % task.env
 	debug(cmd)
-	return Runner.exec_command(cmd)
+	return task.generator.bld.exec_command(cmd)
 
 re_xi = re.compile('''<xi:include[^>]+href=['"]([^'">]+)['"][^>]+>''', re.M)
 def xmlscan(self):

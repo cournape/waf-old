@@ -89,21 +89,25 @@
 </tgroup>
 </table>
 	</para>
-	</section>
 
-	<section>
-		<title>Essential classes from the core library</title>
-		<para>
+	<para>
 		The essential classes from the core library are represented on the following diagram:
 		<graphic format="png" fileref="classes.png" align="center"/>
-		</para>
+	</para>
 
 	</section>
 
-
 	<section>
-		<title>The tools library</title>
-		<para></para>
+		<title>The build context instance</title>
+		<para>
+			build context and persistency
+			build contexts and parallelization
+			parameter handling and environment variables
+			filesystem interface
+			Task type declaration
+			Task execution - task group and task manager
+			Task generator instantiation
+		</para>
 	</section>
 </chapter>
 
