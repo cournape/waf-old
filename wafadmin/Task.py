@@ -711,9 +711,7 @@ class Task(TaskBase):
 		env = self.env
 
 		# dependencies on the environment vars
-		fun = getattr(self.__class__, 'signature_hook', None)
-		if fun: act_sig = self.__class__.signature_hook(self)
-		else: act_sig = bld.hash_env_vars(env, self.__class__.vars)
+		act_sig = bld.hash_env_vars(env, self.__class__.vars)
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
@@ -724,7 +722,7 @@ class Task(TaskBase):
 			m.update(var_sig)
 
 		# additional variables to hash (command-line defines for example)
-		for x in getattr(self.__class__, "vars", ()):
+		for x in getattr(self.__class__, 'vars', ()):
 			k = env[x]
 			if k:
 				m.update(str(k))
