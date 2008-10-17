@@ -49,8 +49,8 @@ from Logs import debug, error, warn
 from Constants import *
 
 algotype = NORMAL
-algotype = JOBCONTROL
-algotype = MAXPARALLEL
+#algotype = JOBCONTROL
+#algotype = MAXPARALLEL
 
 """
 Enable different kind of dependency algorithms:
@@ -480,18 +480,18 @@ class Task(TaskBase):
 
 	def unique_id(self):
 		"get a unique id: hash the node paths, the variant, the class, the function"
-		x = getattr(self, 'uid', None)
-		if x: return x
-
-		m = md5()
-		up = m.update
-		up(self.env.variant())
-		for x in self.inputs + self.outputs:
-			up(x.abspath())
-		up(self.__class__.__name__)
-		up(Utils.h_fun(self.run))
-		x = self.uid = m.digest()
-		return x
+		try:
+			return self.uid
+		except AttributeError:
+			m = md5()
+			up = m.update
+			up(self.env.variant())
+			for x in self.inputs + self.outputs:
+				up(x.abspath())
+			up(self.__class__.__name__)
+			up(Utils.h_fun(self.run))
+			self.uid = m.digest()
+			return self.uid
 
 	def set_inputs(self, inp):
 		if type(inp) is types.ListType: self.inputs += inp
