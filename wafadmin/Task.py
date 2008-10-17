@@ -784,11 +784,13 @@ class Task(TaskBase):
 
 		for k in bld.node_deps.get(self.unique_id(), ()):
 			# unlikely but necessary if it happens
-			try: bld.cache_scanned_folders[k.parent.id]
-			except KeyError: bld.rescan(k.parent)
+			if not k.parent.id in bld.cache_scanned_folders:
+				bld.rescan(k.parent)
 
-			if k.id & 3 == Node.FILE: upd(tstamp[0][k.id])
-			else: upd(tstamp[env.variant()][k.id])
+			if k.id & 3 == Node.FILE:
+				upd(tstamp[0][k.id])
+			else:
+				upd(tstamp[env.variant()][k.id])
 
 		return m.digest()
 
