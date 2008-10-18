@@ -583,7 +583,7 @@ class BuildContext(object):
 			debug('task_gen: posting objects listed in compile_targets')
 
 			# ensure the target names exist, fail before any post()
-			targets_objects = {}
+			target_objects = {}
 			for target_name in Options.options.compile_targets.split(','):
 				# trim target_name (handle cases when the user added spaces to targets)
 				target_name = target_name.strip()
@@ -597,7 +597,7 @@ class BuildContext(object):
 				if not target_name in target_objects and all:
 					raise Utils.WafError("target '%s' does not exist" % target_name)
 
-			for target_obj in targets_objects.values():
+			for target_obj in target_objects.values():
 				if target_obj:
 					target_obj.post()
 		else:
