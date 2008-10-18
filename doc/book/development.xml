@@ -6,7 +6,7 @@
 	<title>Using the development version</title>
 	<section>
 		<title>Obtaining the latest source code</title>
-		<para>Waf is hosted on <ulink url="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To retrieve the development copy, use:
+		<para>Waf is hosted on <ulink url="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To obtain the development copy, use:
 		<programlisting language="sh">
 svn checkout http://waf.googlecode.com/svn/trunk/ waf-read-only
 cd waf-read-only
@@ -46,5 +46,54 @@ export WAFDIR=/path/to/wafadmin
 			More code always means more bugs. Whenever possible, unnecessary code must be removed, and the existing code base should be simplified.
 		</para>
 	</section>
+
+	<section>
+		<title>Debugging</title>
+		<para>
+			TODO
+		</para>
+	</section>
+
+	<section>
+		<title>Benchmarking</title>
+		<para>
+			The script <filename>utils/genbench.py</filename> generates a simple benchmark for Waf. The habitual use is the following:
+			<programlisting language="shell">
+utils/genbench.py /tmp/build 50 100 15 5
+cd /tmp/build
+waf configure
+waf -p -j2
+			</programlisting>
+		</para>
+
+		<para>
+			The time taken to create the tasks and to resolve the dependencies can be obtained by disabling the actual compilation, for example:
+			<programlisting language="python">
+def build(bld):
+	import Task
+	def touch_func(task):
+		for x in task.outputs:
+			open(x.abspath(task.env), 'w').close()
+	for x in Task.TaskBase.classes.keys():
+		cls = Task.TaskBase.classes[x]
+		cls.func = touch_func
+		cls.color = 'CYAN'
+			</programlisting>
+		</para>
+	</section>
+
+	<section>
+		<title>Profiling</title>
+		<para>
+			Profiling information is obtained by calling the module cProfile. Here is one example:
+			<programlisting language="python">
+import cProfile, pstats
+cProfile.run('import Build; Build.bld.compile()', 'profi.txt')
+p = pstats.Stats('profi.txt')
+p.sort_stats('time').print_stats(150)
+			</programlisting>
+		</para>
+	</section>
+
 </chapter>
 
