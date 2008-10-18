@@ -598,8 +598,8 @@ class BuildContext(object):
 					raise Utils.WafError("target '%s' does not exist" % target_name)
 
 			for target_obj in target_objects.values():
-				if target_obj:
-					target_obj.post()
+				for x in target_obj:
+					x.post()
 		else:
 			debug('task_gen: posting objects (normal)')
 			ln = self.launch_node()
