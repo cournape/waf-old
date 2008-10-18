@@ -7,15 +7,15 @@
 	<section>
 		<title>Tracing the execution</title>
 		<para>
-			The generic flags to add more information to the stack traces or to the messages is <emphasis>-v</emphasis>, it is used to display the command-lines executed during a build:
+			The generic flags to add more information to the stack traces or to the messages is <emphasis>-v</emphasis> (verbosity), it is used to display the command-lines executed during a build:
 			<programlisting language="shell">
 $ waf -v
 			</programlisting>
-			To display all the traces, use the following flag:
+			To display all the traces (useful for bug reports), use the following flag:
 			<programlisting language="shell">
 $ waf -vvv
 			</programlisting>
-			Most of the time, only specific areas are useful, for this use the flag <emphasis>zones</emphasis>.
+			Debugging information can be filtered easily with the flag <emphasis>zones</emphasis>:
 			<programlisting language="shell">
 $ waf --zones=action
 			</programlisting>
@@ -151,6 +151,29 @@ Sat Oct 18 12:20:28 2008    profi.txt
 			</programlisting>
 
 			The two most interesting methods to profile are <emphasis>flush</emphasis> and <emphasis>compile</emphasis>. The most important number from the profiling information is the amount of function calls, and reducing it results in noticeable speedups. Though the obvious bottlenecks are are the persistency layer (cPickle), and the signature computation (compute_sig_implicit_deps), they are not significant enough to justify code changes in practice. Also, profiling must be carried out on builds which last at least several seconds.
+		</para>
+	</section>
+
+	<section>
+		<title>Tracing parallel task execution</title>
+		<para>
+			A special Waf tool named <emphasis>ParallelDebug</emphasis> is used to inject code in Waf modules and obtain information on the execution. This module is provided in the folder <filename>playground</filename> and must be imported in one's project before use:
+			<programlisting language="python">
+def configure(conf):
+	conf.check_tool('ParallelDebug', tooldir='.')
+			</programlisting>
+			After executing a full build, a trace of the execution is output in <filename>/tmp/test.dat</filename>; it may be processed by other applications such as Gnuplot:
+			<programlisting language="shell">
+#! /usr/bin/gnuplot -persist
+set terminal X11
+set ylabel "Amount of jobs running in parallel"
+set xlabel "Time in seconds"
+set title "Amount of jobs running in parallel (waf -j3)"
+unset label
+set yrange [-0.1:4]
+set ytic 1
+plot 'test.dat' using 1:3 with lines title "" lt 3
+			</programlisting>
 		</para>
 	</section>
 
