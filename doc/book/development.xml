@@ -85,13 +85,36 @@ def build(bld):
 	<section>
 		<title>Profiling</title>
 		<para>
-			Profiling information is obtained by calling the module cProfile. Here is one example:
+			Profiling information is obtained by calling the module cProfile and by injecting specific code, for example:
 			<programlisting language="python">
-import cProfile, pstats
-cProfile.run('import Build; Build.bld.compile()', 'profi.txt')
-p = pstats.Stats('profi.txt')
-p.sort_stats('time').print_stats(150)
+import Build
+def ncomp(self):
+	import cProfile, pstats
+	cProfile.run('import Build; Build.bld.rep_compile()', 'profi.txt')
+	p = pstats.Stats('profi.txt')
+	p.sort_stats('time').print_stats(150)
+
+Build.bld.rep_compile = Build.bld.compile
+Build.bld.compile = ncomp
 			</programlisting>
+			Here is an example of the output obtained on a benchmark build created as explained in the previous section:
+			<programlisting language="shell">
+Sat Oct 18 12:20:28 2008    profi.txt
+
+         889841 function calls (847991 primitive calls) in 2.882 CPU seconds
+
+   Ordered by: internal time
+   List reduced from 166 to 5 due to restriction 5
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.390    0.390    0.390    0.390 {cPickle.dump}
+     5000    0.206    0.000    0.291    0.000 /compilation/waf/wafadmin/Task.py:770(compute_sig_implicit_deps)
+73950/42150    0.205    0.000    0.254    0.000 /compilation/waf/wafadmin/Environment.py:66(__getitem__)
+     5050    0.162    0.000    0.511    0.000 /compilation/waf/wafadmin/Task.py:706(sig_vars)
+   179434    0.138    0.000    0.138    0.000 {method 'update' of 'fnv' objects}
+			</programlisting>
+
+			The two most interesting methods to profile are <emphasis>flush</emphasis> and <emphasis>compile</emphasis>. The most important number from the profiling information is the amount of function calls, and reducing it results in noticeable speedups. Though the obvious bottlenecks are are the persistency layer (cPickle), and the signature computation (compute_sig_implicit_deps), they are not significant enough to justify code changes in practice. Also, profiling must be carried out on builds which last at least several seconds.
 		</para>
 	</section>
 
