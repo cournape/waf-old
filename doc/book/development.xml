@@ -63,8 +63,18 @@ Logs.debug("task: task %r must run as it was never run before or the task code c
 </row>
 
 <row>
+  <entry>env</entry>
+  <entry>environment contents</entry>
+</row>
+
+<row>
   <entry>envhash</entry>
   <entry>hashes of the environment objects - helps seeing what changes</entry>
+</row>
+
+<row>
+  <entry>build</entry>
+  <entry>build context operations such as filesystem access</entry>
 </row>
 
 <row>
