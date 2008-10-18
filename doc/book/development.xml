@@ -5,9 +5,24 @@
 <chapter>
 	<title>Using the development version</title>
 	<section>
-		<title>Debugging</title>
+		<title>Tracing the execution</title>
 		<para>
-			TODO
+			The generic flags to add more information to the stack traces or to the messages is <emphasis>-v</emphasis>:
+			<programlisting language="shell">
+$ waf -v
+			</programlisting>
+			To display all the traces, use the following flag:
+			<programlisting language="shell">
+$ waf -vvv
+			</programlisting>
+			Most of the time, only specific areas are useful, for this use the flag <emphasis>zones</emphasis>.
+			<programlisting language="shell">
+$ waf --zones=action
+			</programlisting>
+			Tracing zones must be comma-separated, for example:
+			<programlisting language="shell">
+$ waf --zones=action,envhash,task_gen
+			</programlisting>
 		</para>
 	</section>
 
