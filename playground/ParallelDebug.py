@@ -41,7 +41,7 @@ def newrun(self):
 
 		set_running(1)
 		try:
-			Runner.printout(tsk.display())
+			tsk.generator.bld.printout(tsk.display())
 			if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
 			else: ret = tsk.call_run()
 		except Exception, e:
