@@ -64,10 +64,11 @@ cd /tmp/build
 waf configure
 waf -p -j2
 			</programlisting>
+			The project created contains 50 libraries with 100 classes for each, each source file having 15 include headers pointing to the same library and 5 headers pointing to the headers of other libraries in the project.
 		</para>
 
 		<para>
-			The time taken to create the tasks and to resolve the dependencies can be obtained by disabling the actual compilation, for example:
+			The time taken to create the tasks and to resolve the dependencies can be obtained by injecting code to disable the actual compilation, for example:
 			<programlisting language="python">
 def build(bld):
 	import Task
