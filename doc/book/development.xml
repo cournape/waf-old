@@ -5,49 +5,6 @@
 <chapter>
 	<title>Using the development version</title>
 	<section>
-		<title>Obtaining the latest source code</title>
-		<para>Waf is hosted on <ulink url="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To obtain the development copy, use:
-		<programlisting language="sh">
-svn checkout http://waf.googlecode.com/svn/trunk/ waf-read-only
-cd waf-read-only
-./waf-light --make-waf
-		</programlisting>
-		</para>
-		<para>
-		To avoid regenerating Waf each time, the environment variable WAFDIR can be used to point to the directory containing wafadmin:
-		<programlisting language="sh">
-export WAFDIR=/path/to/wafadmin
-		</programlisting>
-		</para>
-		<para>
-			Although the Waf binary depends on Python 2.3, the Waf source code depends on Python 2.4. When generating Waf, a parser modifies the source code and performs the following operations:
-			<itemizedlist>
-				<listitem>Move the decorators into simple function calls</listitem>
-				<listitem>Add the imports for the module sets</listitem>
-				<listitem>Eliminate redundant spaces</listitem>
-				<listitem>Strip comments to reduce the size</listitem>
-			</itemizedlist>
-		</para>
-	</section>
-
-	<section>
-		<title>Development standards</title>
-		<para>
-			Though Waf is written in Python, additional restrictions apply to the source code:
-			<itemizedlist>
-				<listitem>Identation is tab-only, and the maximum line length should be about 200 characters</listitem>
-				<listitem>The development code is kept compatible with Python 2.3, to the exception of decorators in the Tools directory. In particular, the Waf binary can be generated using Python 2.3</listitem>
-				<listitem>The <filename>wafadmin</filename> modules must be insulated from the <filename>Tools</filename> modules to keep the Waf core small and language independent</listitem>
-				<listitem>Api compatibility is maintained in the cycle of a minor version (from 1.5.0 to 1.5.9)</listitem>
-			</itemizedlist>
-		</para>
-
-		<para>
-			More code always means more bugs. Whenever possible, unnecessary code must be removed, and the existing code base should be simplified.
-		</para>
-	</section>
-
-	<section>
 		<title>Debugging</title>
 		<para>
 			TODO
@@ -118,6 +75,50 @@ Sat Oct 18 12:20:28 2008    profi.txt
 			The two most interesting methods to profile are <emphasis>flush</emphasis> and <emphasis>compile</emphasis>. The most important number from the profiling information is the amount of function calls, and reducing it results in noticeable speedups. Though the obvious bottlenecks are are the persistency layer (cPickle), and the signature computation (compute_sig_implicit_deps), they are not significant enough to justify code changes in practice. Also, profiling must be carried out on builds which last at least several seconds.
 		</para>
 	</section>
+
+	<section>
+		<title>Obtaining the latest source code</title>
+		<para>Waf is hosted on <ulink url="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To obtain the development copy, use:
+		<programlisting language="sh">
+svn checkout http://waf.googlecode.com/svn/trunk/ waf-read-only
+cd waf-read-only
+./waf-light --make-waf
+		</programlisting>
+		</para>
+		<para>
+		To avoid regenerating Waf each time, the environment variable WAFDIR can be used to point to the directory containing wafadmin:
+		<programlisting language="sh">
+export WAFDIR=/path/to/wafadmin
+		</programlisting>
+		</para>
+		<para>
+			Although the Waf binary depends on Python 2.3, the Waf source code depends on Python 2.4. When generating Waf, a parser modifies the source code and performs the following operations:
+			<itemizedlist>
+				<listitem>Move the decorators into simple function calls</listitem>
+				<listitem>Add the imports for the module sets</listitem>
+				<listitem>Eliminate redundant spaces</listitem>
+				<listitem>Strip comments to reduce the size</listitem>
+			</itemizedlist>
+		</para>
+	</section>
+
+	<section>
+		<title>Development standards</title>
+		<para>
+			Though Waf is written in Python, additional restrictions apply to the source code:
+			<itemizedlist>
+				<listitem>Identation is tab-only, and the maximum line length should be about 200 characters</listitem>
+				<listitem>The development code is kept compatible with Python 2.3, to the exception of decorators in the Tools directory. In particular, the Waf binary can be generated using Python 2.3</listitem>
+				<listitem>The <filename>wafadmin</filename> modules must be insulated from the <filename>Tools</filename> modules to keep the Waf core small and language independent</listitem>
+				<listitem>Api compatibility is maintained in the cycle of a minor version (from 1.5.0 to 1.5.9)</listitem>
+			</itemizedlist>
+		</para>
+
+		<para>
+			More code always means more bugs. Whenever possible, unnecessary code must be removed, and the existing code base should be simplified.
+		</para>
+	</section>
+
 
 </chapter>
 
