@@ -7,7 +7,7 @@
 	<section>
 		<title>Tracing the execution</title>
 		<para>
-			The generic flags to add more information to the stack traces or to the messages is <emphasis>-v</emphasis>:
+			The generic flags to add more information to the stack traces or to the messages is <emphasis>-v</emphasis>, it is used to display the command-lines executed during a build:
 			<programlisting language="shell">
 $ waf -v
 			</programlisting>
@@ -46,6 +46,11 @@ Logs.debug("task: task %r must run as it was never run before or the task code c
 </thead>
 
 <tbody>
+
+<row>
+  <entry>runner</entry>
+  <entry>command-lines executed (enabled when -v is provided without debugging zones)</entry>
+</row>
 
 <row>
   <entry>task_gen</entry>
