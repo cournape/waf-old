@@ -9,7 +9,7 @@
 
 	<legalnotice>
 		<para>
-			 Copies may not be redistributed (yet). The book will be released at the same time as Waf 1.5.0 (trunk)
+			 This is a work in progress, so the copies may not be redistributed (yet). The book will be released at the same time as Waf 1.5.0 (trunk)
 		</para>
 	</legalnotice>
 	</bookinfo>
@@ -53,6 +53,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scenarios.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="development.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="architecture.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="conclusion.xml"/>
 
 <!--
 <note>exemple de note</note>

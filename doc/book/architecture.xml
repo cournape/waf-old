@@ -257,58 +257,13 @@ meow
 		<sect2>
 			<title>Task classes</title>
 			<para>
-				The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. The task generators automatically inherit the build context attribute <emphasis>bld</emphasis> when created from bld.new_task_gen. Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instanciation may result in problems when running Waf as a library.
+				The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. This often puzzles the programmers used to static languages where new functions or classes cannot be defined at runtime.
+			</para>
+			<para>
+				The task generators automatically inherit the build context attribute <emphasis>bld</emphasis> when created from bld.new_task_gen. Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instanciation may result in problems when running Waf as a library.
 			</para>
 			<para>
 				The tasks created by task generator methods are automatically stored on the build context task manager, which stores the task into a task group. The task groups are later used by the scheduler to obtain the task which may run (state machine). Target (un)installation is performed right after a task has run, using the method <emphasis>install</emphasis>.
-<!--
-				The task generator classes, and the task generator methods are stored on various attributes of the class task_gen, here is a quick description:
-<table>
-<title>Task generator class attributes</title>
-
-<tgroup cols='2' align='left' colsep='1' rowsep='1'>
-
-<colspec colname='c1'/>
-<colspec colname='c2'/>
-
-<thead>
-<row>
-  <entry>task_gen class attribute</entry>
-  <entry>description</entry>
-</row>
-</thead>
-
-<tbody>
-
-<row>
-  <entry>mappings</entry>
-  <entry>Map methods by filename or filename extension, used in the method apply_core</entry>
-</row>
-<row>
-  <entry>mapped</entry>
-  <entry>Map methods by the method name</entry>
-</row>
-<row>
-  <entry>traits</entry>
-  <entry>Map method names to features</entry>
-</row>
-<row>
-  <entry>prec</entry>
-  <entry>Set precedence rules between methods</entry>
-</row>
-<row>
-  <entry>classes</entry>
-  <entry>Task generator subclasses</entry>
-</row>
-<row>
-  <entry>idx</entry>
-  <entry>Provide a unique id for each task generator instance</entry>
-</row>
-
-</tbody>
-</tgroup>
-</table>
--->
 			</para>
 		</sect2>
 	</section>
