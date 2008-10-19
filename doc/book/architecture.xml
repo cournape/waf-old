@@ -241,11 +241,74 @@ $ waf meow
 meow
 				</programlisting>
 			</para>
+			<para>
+				The rest of the execution usually results in calling configuration context or build context instances. For single builds, the build context is stored on a singleton <emphasis>Build.bld</emphasis> which may be used after the build finished (shutdown function). The singleton is provided for convenience and its use should be limited to simple projects.
+			</para>
 		</sect2>
 		<sect2>
-			<title>Task manager and task groups</title>
+			<title>Filesystem access</title>
 			<para>
-			The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. This is 
+				Filesystem access is performed through an abstraction layer formed by the build context and <emphasis>Node</emphasis> instances. The data structure was carefully designed to maximize performance, so it is unlikely that it will change again in the future. The idea is to represent one file or one directory by a single Node instance. Dependent data such as file hashes are stored on the build context object and allowed to be persisted. Three kinds of nodes are declared: files, build files and folders. The nodes in a particular directory are unique, but build files used in several variant add duplicate entry on the build context cache.
+			</para>
+			<para>
+				To access a file, the methods <emphasis>Node::find_resource</emphasis>, <emphasis>Node::find_build</emphasis> (find an existing resource or declare a build node) and <emphasis>Node::find_dir</emphasis> must be used. While searching for a particular node, the folders are automatically searched once for the files. Old nodes (which do not have a corresponding file) are automatically removed, except for the build nodes. In some cases (lots of files added and removed), it may be necessary to perform a <emphasis>Waf clean</emphasis> to eliminate the information on build files which do not exist anymore.
+			</para>
+		</sect2>
+		<sect2>
+			<title>Task classes</title>
+			<para>
+				The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. The task generators automatically inherit the build context attribute <emphasis>bld</emphasis> when created from bld.new_task_gen. Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instanciation may result in problems when running Waf as a library.
+			</para>
+			<para>
+				The tasks created by task generator methods are automatically stored on the build context task manager, which stores the task into a task group. The task groups are later used by the scheduler to obtain the task which may run (state machine). Target (un)installation is performed right after a task has run, using the method <emphasis>install</emphasis>.
+<!--
+				The task generator classes, and the task generator methods are stored on various attributes of the class task_gen, here is a quick description:
+<table>
+<title>Task generator class attributes</title>
+
+<tgroup cols='2' align='left' colsep='1' rowsep='1'>
+
+<colspec colname='c1'/>
+<colspec colname='c2'/>
+
+<thead>
+<row>
+  <entry>task_gen class attribute</entry>
+  <entry>description</entry>
+</row>
+</thead>
+
+<tbody>
+
+<row>
+  <entry>mappings</entry>
+  <entry>Map methods by filename or filename extension, used in the method apply_core</entry>
+</row>
+<row>
+  <entry>mapped</entry>
+  <entry>Map methods by the method name</entry>
+</row>
+<row>
+  <entry>traits</entry>
+  <entry>Map method names to features</entry>
+</row>
+<row>
+  <entry>prec</entry>
+  <entry>Set precedence rules between methods</entry>
+</row>
+<row>
+  <entry>classes</entry>
+  <entry>Task generator subclasses</entry>
+</row>
+<row>
+  <entry>idx</entry>
+  <entry>Provide a unique id for each task generator instance</entry>
+</row>
+
+</tbody>
+</tgroup>
+</table>
+-->
 			</para>
 		</sect2>
 	</section>
