@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   id="svg7339"
+   sodipodi:version="0.32"
+   inkscape:version="0.45.1"
+   sodipodi:docbase="/compilation/waf/doc/book/src"
+   sodipodi:docname="waflogo.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <defs
+     id="defs7341" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6"
+     inkscape:cx="402.72958"
+     inkscape:cy="729.63622"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="866"
+     inkscape:window-height="653"
+     inkscape:window-x="0"
+     inkscape:window-y="0" />
+  <metadata
+     id="metadata7344">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="opacity:1;fill:#f2e100;fill-opacity:1;stroke:#000000;stroke-width:1.051;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect6090"
+       width="22.549196"
+       height="22.549196"
+       x="417.29684"
+       y="286.80188"
+       inkscape:export-filename="/tmp/waf-128x128.png"
+       inkscape:export-xdpi="488.13232"
+       inkscape:export-ydpi="488.13232" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 427.19889,298.7295 L 425.79473,298.79504 L 425.76406,300.22338 L 426.73729,301.23583 L 425.48,302.54487 L 424.0016,301.00562 C 424.26431,300.68722 424.53775,300.39695 424.80294,300.1528 L 423.86038,299.14793 C 423.61188,299.44513 423.33645,299.73532 423.04128,300.00577 L 422.55467,299.49913 L 421.86308,300.21835 L 422.26173,300.63341 C 421.54256,301.13656 420.7508,301.48515 419.95294,301.52906 C 420.18046,302.7753 421.13137,303.93689 422.45379,304.0858 C 422.52332,303.38641 422.90113,302.57104 423.39959,301.81809 L 424.78841,303.26492 L 422.08097,306.08381 L 422.77175,306.80386 L 425.48,303.98413 L 428.17615,306.79125 L 428.86693,306.0712 L 426.17159,303.26492 L 427.42807,301.95589 L 428.43278,303.00109 L 429.8676,301.50805 L 428.86289,300.462 L 429.08482,300.23095 L 428.39322,299.51174 L 428.17131,299.74279 L 427.19889,298.7295 L 427.19889,298.7295 z "
+       id="path2674"
+       inkscape:export-filename="/tmp/waf-128x128.png"
+       inkscape:export-xdpi="488.13232"
+       inkscape:export-ydpi="488.13232" />
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="420.19348"
+       y="296.8725"
+       id="text7069"
+       inkscape:export-filename="/tmp/waf-128x128.png"
+       inkscape:export-xdpi="488.13232"
+       inkscape:export-ydpi="488.13232"><tspan
+         sodipodi:role="line"
+         id="tspan7071"
+         x="420.19348"
+         y="296.8725">W</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="430.68323"
+       y="296.8725"
+       id="text7073"
+       inkscape:export-filename="/tmp/waf-128x128.png"
+       inkscape:export-xdpi="488.13232"
+       inkscape:export-ydpi="488.13232"><tspan
+         sodipodi:role="line"
+         id="tspan7075"
+         x="430.68323"
+         y="296.8725">A</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       x="430.83704"
+       y="306.21152"
+       id="text7077"
+       inkscape:export-filename="/tmp/waf-128x128.png"
+       inkscape:export-xdpi="488.13232"
+       inkscape:export-ydpi="488.13232"><tspan
+         sodipodi:role="line"
+         id="tspan7079"
+         x="430.83704"
+         y="306.21152">F</tspan></text>
+  </g>
+</svg>
