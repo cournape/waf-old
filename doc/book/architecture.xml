@@ -212,17 +212,41 @@ sulated properly. The core class representing a build is a build context.
 		</sect2>
 	</section>
 
+
 	<section>
-		<title>Organization of the task generation</title>
+		<title>Overview of the Waf execution</title>
 		<para>
 		</para>
 		<sect2>
-			<title>Task instantiation</title>
-			<para></para>
+			<title>The scripting system</title>
+			<para>
+				The Waf script contains a tarball of the <filename>wafadmin</filename> directory, it is included in a commentary line where all the newline characters have been replaced (base64 and ascii85 encodings have been used in previous releases). When Waf is launched, the <filename>wafadmin</filename> directory is automatically extracted in the current directory if it cannot be found on the system.
+			</para>
+			<para>
+				After finding the <filename>wafadmin</filename> directory, the function <emphasis>Scripting.prepare</emphasis> is executed, it loads the top-level wscript file, and then calls the function main to perform the configuration, the build or the installation. New commands may be added by overriding the main function, and catching the operations to perform (from the top-level wscript file):
+				<programlisting language="python">
+import sys, Options, Scripting
+Options.cmds.append("meow")
+oldmain = Scripting.main
+def main():
+	if Options.commands['meow']:
+		print "meow"
+		sys.exit(0)
+	oldmain()
+Scripting.main = main
+				</programlisting>
+				With the previous code snippet, the execution will be:
+				<programlisting language="shell">
+$ waf meow
+meow
+				</programlisting>
+			</para>
 		</sect2>
 		<sect2>
 			<title>Task manager and task groups</title>
-			<para></para>
+			<para>
+			The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. This is 
+			</para>
 		</sect2>
 	</section>
 
