@@ -10,20 +10,12 @@ EXT_VALA = ['.vala', '.gs']
 
 class valac_task(Task.Task):
 
-	vars = ("VALAFLAGS")
+	vars = ("VALAC", "VALAC_VERSION", "VALAFLAGS")
 	before = ("cc", "cxx")
 
-	def __init__(self, *args, **kwargs):
-		Task.Task.__init__(self, *args, **kwargs)
-
-	def get_str(self):
-		src_str = " ".join([a.name for a in self.inputs])
-		return "%s: %s\n" % (self.__class__.__name__, src_str)
-
 	def run(self):
-		task = self # TODO cleanup
-		env = task.env
-		inputs = [a.srcpath(env) for a in task.inputs]
+		env = self.env
+		inputs = [a.srcpath(env) for a in self.inputs]
 		valac = env['VALAC']
 		vala_flags = env.get_flat('VALAFLAGS')
 		top_src = self.generator.bld.srcnode.abspath()
@@ -34,23 +26,23 @@ class valac_task(Task.Task):
 		else:
 			cmd = [valac, '-C', vala_flags]
 
-		if task.threading:
+		if self.threading:
 			cmd.append('--thread')
 
 		features = self.generator.features
 
 		if 'cshlib' in features or 'cstaticlib' in features:
-			cmd.append('--library ' + task.target)
+			cmd.append('--library ' + self.target)
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
 		else:
-			output_dir = task.outputs[0].bld_dir(env)
+			output_dir = self.outputs[0].bld_dir(env)
 			cmd.append('-d %s' % output_dir)
 
-		for vapi_dir in task.vapi_dirs:
+		for vapi_dir in self.vapi_dirs:
 			cmd.append('--vapidir=%s' % vapi_dir)
 
-		for package in task.packages:
+		for package in self.packages:
 			cmd.append('--pkg %s' % package)
 
 		cmd.append(" ".join(inputs))
@@ -58,42 +50,22 @@ class valac_task(Task.Task):
 
 		if 'cshlib' in features or 'cstaticlib' in features:
 			# generate the .deps file
-			if task.packages:
-				filename = os.path.join(task.outputs[0].bld_dir(env), "%s.deps" % task.target)
+			if self.packages:
+				filename = os.path.join(self.outputs[0].bld_dir(env), "%s.deps" % self.target)
 				deps = open(filename, 'w')
-				for package in task.packages:
+				for package in self.packages:
 					deps.write(package + '\n')
 				deps.close()
 
 			# handle vala 0.1.6 who doesn't honor --directory for the generated .vapi
-			try:
-				src_vapi = os.path.join(top_bld, "..", "%s.vapi" % task.target)
-				dst_vapi = task.outputs[0].bld_dir(env)
-				shutil.move(src_vapi, dst_vapi)
-			except IOError:
-				pass
+			self._fix_output("../%s.vapi" % self.target)
 			# handle vala >= 0.1.7 who has a weid definition for --directory
-			try:
-				src_vapi = os.path.join(top_bld, "%s.vapi" % task.target)
-				dst_vapi = task.outputs[0].bld_dir(env)
-				shutil.move(src_vapi, dst_vapi)
-			except IOError:
-				pass
-
+			self._fix_output("%s.vapi" % self.target)
 			# handle vala >= 0.2.0 who doesn't honor --directory for the generated .gidl
-			try:
-				src_gidl = os.path.join(top_bld, "%s.gidl" % task.target)
-				dst_gidl = task.outputs[0].bld_dir(env)
-				shutil.move(src_gidl, dst_gidl)
-			except IOError:
-				pass
+			self._fix_output("%s.gidl" % self.target)
 			# handle vala >= 0.3.6 who doesn't honor --directory for the generated .gir
-			try:
-				src_gir = os.path.join(top_bld, "%s.gir" % task.target)
-				dst_gir = task.outputs[0].bld_dir(env)
-				shutil.move(src_gir, dst_gir)
-			except IOError:
-				pass
+			self._fix_output("%s.gir" % self.target)
+
 		return result
 
 	def install(self):
@@ -119,6 +91,15 @@ class valac_task(Task.Task):
 				bld.install_as(install_path, header.abspath(self.env), self.env)
 			for vapi in vapi_list:
 				bld.install_files("${DATAROOTDIR}/vala/vapi", vapi.abspath(self.env), self.env)
+
+	def _fix_output(self, output):
+		top_bld = self.generator.bld.srcnode.abspath(self.env)
+		try:
+			src = os.path.join(top_bld, output)
+			dst = self.outputs[0].bld_dir(self.env)
+			shutil.move(src, dst)
+		except IOError:
+			pass
 
 @extension(EXT_VALA)
 def vala_file(self, node):
