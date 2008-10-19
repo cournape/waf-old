@@ -3,10 +3,8 @@
 # Ali Sabil, 2007
 
 import os.path, shutil
-import Task, Runner, Utils, Logs, Build
+import Task, Runner, Utils, Logs, Build, Node
 from TaskGen import extension
-
-from pproc import Popen, PIPE
 
 EXT_VALA = ['.vala', '.gs']
 
@@ -28,8 +26,8 @@ class valac_task(Task.Task):
 		inputs = [a.srcpath(env) for a in task.inputs]
 		valac = env['VALAC']
 		vala_flags = env.get_flat('VALAFLAGS')
-		top_src = Build.bld.srcnode.abspath()
-		top_bld = Build.bld.srcnode.abspath(env)
+		top_src = self.generator.bld.srcnode.abspath()
+		top_bld = self.generator.bld.srcnode.abspath(env)
 
 		if env['VALAC_VERSION'] > (0, 1, 6):
 			cmd = [valac, '-C', '--quiet', vala_flags]
@@ -45,7 +43,6 @@ class valac_task(Task.Task):
 			cmd.append('--library ' + task.target)
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
-			#cmd.append('-d %s' % Build.bld.bldnode.bldpath(env))
 		else:
 			output_dir = task.outputs[0].bld_dir(env)
 			cmd.append('-d %s' % output_dir)
@@ -99,6 +96,30 @@ class valac_task(Task.Task):
 				pass
 		return result
 
+	def install(self):
+		bld = self.generator.bld
+		features = self.generator.features
+
+		if self.attr("install_path") and ("cshlib" in features or "cstaticlib" in features):
+			headers_list = [o for o in self.outputs if o.suffix() == ".h"]
+			vapi_list = [o for o in self.outputs if (o.suffix() in (".vapi", ".deps"))]
+
+			for header in headers_list:
+				top_src = self.generator.bld.srcnode
+				package = self.env['PACKAGE']
+				try:
+					api_version = Utils.g_module.API_VERSION
+				except AttributeError:
+					version = Utils.g_module.VERSION.split(".")
+					if version[0] == "0":
+						api_version = "0." + version[1]
+					else:
+						api_version = version[0] + ".0"
+				install_path = "${INCLUDEDIR}/%s-%s/%s" % (package, api_version, header.relpath_gen(top_src))
+				bld.install_as(install_path, header.abspath(self.env), self.env)
+			for vapi in vapi_list:
+				bld.install_files("${DATAROOTDIR}/vala/vapi", vapi.abspath(self.env), self.env)
+
 @extension(EXT_VALA)
 def vala_file(self, node):
 	valatask = getattr(self, "valatask", None)
@@ -110,6 +131,7 @@ def vala_file(self, node):
 		valatask.vapi_dirs = []
 		valatask.target = self.target
 		valatask.threading = False
+		valatask.install_path = self.install_path
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
 		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))
@@ -163,8 +185,13 @@ def vala_file(self, node):
 	env = valatask.env
 
 	output_nodes = []
-	output_nodes.append(node.change_ext('.c'))
+
+	c_node = node.change_ext('.c')
+	output_nodes.append(c_node)
+	self.allnodes.append(c_node)
+
 	output_nodes.append(node.change_ext('.h'))
+
 	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
 		if env['VALAC_VERSION'] > (0, 3, 5):
@@ -176,7 +203,6 @@ def vala_file(self, node):
 
 	valatask.inputs.append(node)
 	valatask.outputs.extend(output_nodes)
-	self.allnodes.append(node.change_ext('.c'))
 
 def detect(conf):
 	min_version = (0, 1, 6)
@@ -191,7 +217,7 @@ def detect(conf):
 		conf.check_cfg(package='gthread-2.0', uselib_store='GTHREAD', args='--cflags --libs')
 
 	try:
-		output = Popen([valac, "--version"], stdout=PIPE).communicate()[0]
+		output = Utils.cmd_output(valac + " --version", silent=True)
 		version = output.split(' ', 1)[-1].strip().split(".")
 		version = [int(x) for x in version]
 		valac_version = tuple(version)
@@ -202,6 +228,8 @@ def detect(conf):
 			'valac >= ' + min_version_str,
 			valac_version >= min_version,
 			"%d.%d.%d" % valac_version)
+
+	conf.check_tool('gnu_dirs')
 
 	if valac_version < min_version:
 		conf.fatal("valac version too old to be used with this tool")
