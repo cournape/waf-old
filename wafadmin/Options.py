@@ -10,6 +10,8 @@ from optparse import OptionParser
 import Logs, Utils
 from Constants import *
 
+cmds = 'dist configure clean distclean build install uninstall check distcheck'.split()
+
 options = {}
 commands = {}
 launch_dir = ''
@@ -126,15 +128,14 @@ def parse_args_impl(parser, _args=None):
 	(options, args) = parser.parse_args(args=_args)
 
 	# By default, 'waf' is equivalent to 'waf build'
-	lst = 'dist configure clean distclean build install uninstall check distcheck'.split()
 	commands = {}
-	for var in lst:    commands[var] = 0
+	for var in cmds:    commands[var] = 0
 	if len(args) == 0: commands['build'] = 1
 
 	# Parse the command arguments
 	for arg in args:
 		arg = arg.strip()
-		if arg in lst:
+		if arg in cmds:
 			commands[arg]=True
 		else:
 			print 'Error: Invalid command specified ',arg
