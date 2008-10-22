@@ -68,11 +68,13 @@ def set_options(opt):
 		print "fails, see http://code.google.com/p/waf/issues/detail?id=211"
 
 		self._test_configure()
-		self._test_build(False)
+		self._test_build(test_for_success=False)
 
 	def test_white_no_sources_specified(self):
 		# white-box test: no sources were specified
-		print "fails, see http://code.google.com/p/waf/issues/detail?id=211"
+
+		# add apply_verif to taskgen
+		import Tools.ccroot
 
 		Options.commands['configure'] = False
 		env = Environment.Environment()
@@ -81,8 +83,9 @@ def set_options(opt):
 		blddir = os.path.join(self._test_dir_root, 'b')
 		bld.load_dirs(self._test_dir_root, blddir)
 
-		obj = TaskGen.task_gen()
-		self.failUnlessRaises(Utils.WafError, obj.apply_core)
+		obj = TaskGen.task_gen(bld=bld)
+		# TODO: make sure it works with apply_core too
+		self.failUnlessRaises(Utils.WafError, obj.apply_verif)
 
 	def test_source_not_found(self):
 		# black-box test: fails if source not found
@@ -114,31 +117,32 @@ def set_options(opt):
 		bld.set_env('default', env)
 		blddir = os.path.join(self._test_dir_root, 'b')
 		bld.load_dirs(self._test_dir_root, blddir)
+		return bld
 
 	def test_missing_mapping(self):
 		# no mapping for extension
-		self.make_bld()
-		obj = TaskGen.task_gen()
+		bld = self.make_bld()
+		obj = TaskGen.task_gen(bld=bld)
 		obj.source = self._source_file_path
 		self._write_source("int main() {return 0;}")
 		self.failUnlessRaises(Utils.WafError, obj.apply_core)
 
 	def test_validate_find_srcs_excs(self):
-		# find sources in dirs 'excludes' must be a list
-		self.make_bld()
-		obj = TaskGen.task_gen()
+		# find sources in dirs 'excludes' must be a lst
+		bld = self.make_bld()
+		obj = TaskGen.task_gen(bld=bld)
 		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, 'a', 'excludes=b')
 
 	def test_validate_find_srcs_exts(self):
 		# find sources in dirs 'exts' must be a list
-		self.make_bld()
-		obj = TaskGen.task_gen()
+		bld = self.make_bld()
+		obj = TaskGen.task_gen(bld=bld)
 		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, 'a', 'exts=b')
 
 	def test_validate_find_srcs_absolute(self):
 		# find sources in dirs cannot get absoulte paths
-		self.make_bld()
-		obj = TaskGen.task_gen()
+		bld = self.make_bld()
+		obj = TaskGen.task_gen(bld=bld)
 		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, self._test_dir_root)
 
 	def test_validate_extension_decorator(self):
@@ -151,6 +155,8 @@ def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 
 	suite = unittest.TestLoader().loadTestsFromTestCase(TaskGenTester)
+	#suite = unittest.TestLoader().loadTestsFromNames(['test_white_no_sources_specified', 'test_black_no_sources_specified'], TaskGenTester)
+#	unittest.TestLoader().sortTestMethodsUsing = None
 	unittest.TextTestRunner(verbosity=verbose).run(suite)
 
 if __name__ == '__main__':
