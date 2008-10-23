@@ -60,12 +60,12 @@
 </row>
 
 <row>
-  <entry>Runner.py</entry>
+  <entry>Runner</entry>
   <entry>Contains the task execution system (threaded producer-consumer)</entry>
 </row>
 
 <row>
-  <entry>Scripting.py</entry>
+  <entry>Scripting</entry>
   <entry>Constitutes the entry point of the Waf application, use the command-line for launching the configuration, the build, etc</entry>
 </row>
 
@@ -100,8 +100,7 @@
 	<section>
 		<title>Build context instances</title>
 		<para>
-			Executing tasks, accessing the file system and consulting the results of a previous build are very different concerns which have to be encap
-sulated properly. The core class representing a build is a build context.
+			Executing tasks, accessing the file system and consulting the results of a previous build are very different concerns which have to be encapsulated properly. The core class representing a build is a build context.
 		</para>
 		<sect2>
 			<title>Build context and persistency</title>
@@ -204,7 +203,7 @@ sulated properly. The core class representing a build is a build context.
 		<sect2>
 			<title>Parallelization concerns</title>
 			<para>
-				Build contexts perform a <emphasis>os.chdir</emphasis> call before starting to execute the tasks. When running build contexts within build contexts (tasks), the current working directory may cause various problems. To work around them, it may be necessary to inject code (replace bld.compile) and to change the compilation rules (compile from the filesystem root).
+				Build contexts perform an <emphasis>os.chdir</emphasis> call before starting to execute the tasks. When running build contexts within build contexts (tasks), the current working directory may cause various problems. To work around them, it may be necessary to inject code (replace bld.compile) and to change the compilation rules (compile from the filesystem root).
 			</para>
 			<para>
 				Direct <emphasis>Node</emphasis> instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
