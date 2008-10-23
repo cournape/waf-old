@@ -54,8 +54,7 @@ blddir = 'build'
 srcdir = '.'
 
 def build(bld):
-	obj = bld.new_task_gen('cxx')
-	obj.name = 'fsfgws'
+	obj = bld.new_task_gen('cxx', 'shlib')
 
 def configure(conf):
 	conf.check_tool('g++')
@@ -65,8 +64,6 @@ def set_options(opt):
 """
 
 		self._write_wscript(wscript_contents)
-		print "fails, see http://code.google.com/p/waf/issues/detail?id=211"
-
 		self._test_configure()
 		self._test_build(test_for_success=False)
 
