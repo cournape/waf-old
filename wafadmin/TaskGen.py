@@ -117,7 +117,7 @@ class task_gen(object):
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
 
-		self.bld = kwargs['bld']
+		self.bld = kwargs.get('bld', Build.bld)
 		self.env = self.bld.env.copy()
 
 		self.path = self.bld.path # emulate chdir when reading scripts
