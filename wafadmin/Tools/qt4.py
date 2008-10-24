@@ -359,7 +359,7 @@ def detect_qt4(conf):
 						qtdir = Utils.cmd_output(qmake + " -query QT_INSTALL_PREFIX").strip()+"/"
 						qtbin = Utils.cmd_output(qmake + " -query QT_INSTALL_BINS").strip()+"/"
 						break
-		except OSError:
+		except (OSError, ValueError):
 			pass
 
 	# check for the qt libraries
@@ -423,7 +423,10 @@ def detect_qt4(conf):
 	find_bin(['uic-qt3', 'uic3'], 'QT_UIC3')
 
 	find_bin(['uic-qt4', 'uic'], 'QT_UIC')
-	version = Utils.cmd_output(env['QT_UIC'] + " -version 2>&1").strip()
+	try:
+		version = Utils.cmd_output(env['QT_UIC'] + " -version 2>&1").strip()
+	except ValueError:
+		conf.fatal('your uic compiler is for qt3, add uic for qt4 to your path')
 	version = version.replace('Qt User Interface Compiler ','')
 	version = version.replace('User Interface Compiler for Qt', '')
 	if version.find(" 3.") != -1:
@@ -444,12 +447,15 @@ def detect_qt4(conf):
 	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
 		vars_debug = [a+'_debug' for a in vars]
 
+		pkgconfig = env['pkg-config'] or 'pkg-config'
 		for i in vars_debug+vars:
-			#conf.check_pkg(i, pkgpath=qtlibs)
-			pkgconf = conf.create_pkgconfig_configurator()
-			pkgconf.name = i
-			pkgconf.pkgpath = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
-			pkgconf.run()
+			conf.check_cfg(package=i, args='--cflags --libs', path='%s %s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (pkgconfig, qtlibs, qtlibs))
+
+			#conf.check_cfg(i, pkgpath=qtlibs)
+			#pkgconf = conf.create_pkgconfig_configurator()
+			#pkgconf.name = i
+			#pkgconf.pkgpath = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
+			#pkgconf.run()
 
 
 		# the libpaths are set nicely, unfortunately they make really long command-lines
