@@ -220,17 +220,13 @@ def create_uic_task(self, node):
 class qt4_taskgen(cxx.cxx_taskgen):
 	def __init__(self, *kw):
 		cxx.cxx_taskgen.__init__(self, *kw)
-		self.link_task = None
-		self.lang = ''
-		self.langname = ''
-		self.update = 0
 		self.features.append('qt4')
 
 @taskgen
 @feature('qt4')
 @after('apply_link')
 def apply_qt4(self):
-	if self.lang:
+	if getattr(self, 'lang', None):
 		lst=[]
 		trans=[]
 		for l in self.to_list(self.lang):
@@ -242,14 +238,14 @@ def apply_qt4(self):
 			if self.update:
 				trans.append(t.inputs[0])
 
-		if self.update and Options.options.trans_qt4:
+		if getattr(self, 'update', None) and Options.options.trans_qt4:
 			# we need the cpp files given, except the rcc task we create after
 			# FIXME may be broken
 			u = Task.TaskCmd(translation_update, self.env, 2)
 			u.inputs = [a.inputs[0] for a in self.compiled_tasks]
 			u.outputs = trans
 
-		if self.langname:
+		if getattr(self, 'langname', None):
 			t = Task.TaskBase.classes['qm2rcc'](self.env)
 			t.set_inputs(lst)
 			t.set_outputs(self.path.find_or_declare(self.langname+'.qrc'))
@@ -273,6 +269,7 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 
 	ext_lst = exts or self.mappings.keys() + TaskGen.task_gen.mappings.keys()
 
+	self.lang = getattr(self, 'lang', '')
 	for name in dirnames:
 		anode = self.path.find_dir(name)
 		Build.bld.rescan(anode)
@@ -453,13 +450,6 @@ def detect_qt4(conf):
 				conf.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)
 			except ValueError:
 				pass
-
-			#conf.check_cfg(i, pkgpath=qtlibs)
-			#pkgconf = conf.create_pkgconfig_configurator()
-			#pkgconf.name = i
-			#pkgconf.pkgpath = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
-			#pkgconf.run()
-
 
 		# the libpaths are set nicely, unfortunately they make really long command-lines
 		# remove the qtcore ones from qtgui, etc
