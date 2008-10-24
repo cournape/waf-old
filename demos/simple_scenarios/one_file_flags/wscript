@@ -15,15 +15,15 @@ def configure(conf):
 
 from TaskGen import after, taskgen, feature
 @taskgen
-@after("apply_core")
+@after("apply_lib_vars")
 @feature("cc")
 def modify_flags(self):
 	for task in self.compiled_tasks:
 		if task.inputs:
-			node = task.m_inputs[0]
-			if node.m_name == "B.c":
-				task.m_env = task.m_env.copy()
-				task.m_env.append_unique("_CCINCFLAGS", "-DMYFLAG")
+			node = task.inputs[0]
+			if node.name == "B.c":
+				task.env = task.env.copy()
+				task.env.append_unique("_CCDEFFLAGS", "-DMYFLAG")
 
 def build(bld):
 	obj = bld.new_task_gen('cc', 'program')
