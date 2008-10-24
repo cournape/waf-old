@@ -51,18 +51,18 @@ class B(base):
 
 
 class I(base):
-	def must_run(self):
-		self.skipped = random.randint(0, 1)
-		return self.skipped == 0
+	def runnable_status(self):
+		if random.randint(0, 1):
+			return SKIP_ME
+		else:
+			return RUN_ME
 
 class J(base):
 	def runnable_status(self):
 		for x in getattr(self, 'run_if', ()):
-			if not x.hasrun:
+			if x.hasrun == NOT_RUN:
 				return ASK_LATER
-			elif not x.skipped:
-				return RUN_ME
-		return SKIP_ME
+		return RUN_ME
 
 class Persist(base):
 	after = "X Y Z I J A B"
