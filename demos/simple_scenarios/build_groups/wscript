@@ -24,7 +24,7 @@ def build(bld):
 	# The addition of 'savta' group separates them, so a.cpp is compiled and
 	# linked before c.cpp is compiled.
 
-	bld.add_group('savta') # <- acts like a separator
+	bld.add_group() # <- acts like a separator
 	c = bld.new_task_gen('cxx', 'program')
 	c.source = 'c.cpp'
 	c.target = 'CC'
