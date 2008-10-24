@@ -150,6 +150,7 @@ def parse_args_impl(parser, _args=None):
 
 	# TODO -k => -j0
 	if options.keep: options.jobs = 1
+	if options.jobs < 1: options.jobs = 1
 
 	Logs.verbose = options.verbose
 	Logs.init_log()
