@@ -68,6 +68,9 @@ class Parallel(object):
 
 		self.total = self.manager.total()
 
+		# TODO: make self.outstanding a queue so it is thread-safe to add
+		# tasks from a task being executed
+
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
 		self.maxjobs = sys.maxint
@@ -104,11 +107,13 @@ class Parallel(object):
 		# TODO busy loop problems
 		while self.count > self.numjobs + 5:
 			self.get_out()
-		self.outstanding = self.frozen
-		self.frozen = []
+		if self.frozen:
+			self.outstanding += self.frozen
+			self.frozen = []
 		if not self.outstanding:
 			while self.count > 0: self.get_out()
-			(self.maxjobs, self.outstanding) = self.manager.get_next_set()
+			(self.maxjobs, tmp) = self.manager.get_next_set()
+			if tmp: self.outstanding += tmp
 
 	def get_out(self):
 		"the tasks that are put to execute are all collected using get_out"
