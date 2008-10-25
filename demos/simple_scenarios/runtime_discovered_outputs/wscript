@@ -70,12 +70,13 @@ class shpip_task(Task.Task):
 			if not t.hasrun:
 				return ASK_LATER
 
+		tree = self.generator.bld
 		node = self.inputs[0]
 		try:
 			sig = self.signature()
 			key = self.unique_id()
-			deps = Build.bld.raw_deps[key]
-			prev_sig = Build.bld.task_sigs[key][0]
+			deps = tree.raw_deps[key]
+			prev_sig = tree.task_sigs[key][0]
 		except KeyError:
 			pass
 		else:
@@ -92,7 +93,6 @@ class shpip_task(Task.Task):
 		# this is necessary after a clean
 		# TODO cache is disabled
 		env = self.env
-		tree = Build.bld
 		node = self.outputs[0]
 		variant = node.variant(env)
 
@@ -121,7 +121,7 @@ class shpip_task(Task.Task):
 			task = tgen.compiled_tasks[-1]
 
 			tgen.link_task.inputs.append(task.outputs[0])
-			generator = Build.bld.generator
+			generator = self.generator.bld.generator
 			generator.outstanding.insert(0, task)
 			generator.total += 1
 
@@ -135,7 +135,7 @@ class shpip_task(Task.Task):
 		"runs a program that creates cpp files, capture the output to compile them"
 		node = self.inputs[0]
 
-		dir = Build.bld.srcnode.bldpath(self.env)
+		dir = self.generator.bld.srcnode.bldpath(self.env)
 		cmd = 'cd %s && %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
 		try:
 			# read the contents of the file and create cpp files from it
@@ -162,7 +162,7 @@ class shpip_task(Task.Task):
 			# cache the file names and the task signature
 			node = self.inputs[0]
 			sig = self.signature()
-			Build.bld.raw_deps[self.unique_id()] = [sig] + lst
+			self.generator.bld.raw_deps[self.unique_id()] = [sig] + lst
 		# 0 for all ok
 		return 0
 
