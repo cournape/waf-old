@@ -177,7 +177,7 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 
 @taskgen
 @feature('gnome_sgml2man')
-def apply(self):
+def apply_gnome_sgml2man(self):
 	assert(getattr(self, 'appname', None))
 
 	def install_result(task):
