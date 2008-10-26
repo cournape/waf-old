@@ -399,45 +399,45 @@ def detect(conf):
 	conf.define('HAVE_DCGETTEXT', 1)
 
 	#Define to 1 if you have the <dlfcn.h> header file.
-	conf.check_header('dlfcn.h', 'HAVE_DLFCN_H')
+	conf.check(header_name='dlfcn.h', define_name='HAVE_DLFCN_H')
 
 	# TODO
 	#Define if the GNU gettext() function is already present or preinstalled.
 	conf.define('HAVE_GETTEXT', 1)
 
 	#Define to 1 if you have the <inttypes.h> header file.
-	conf.check_header('inttypes.h', 'HAVE_INTTYPES_H')
+	conf.check(header_name='inttypes.h', define_name='HAVE_INTTYPES_H')
 
 	# TODO FIXME
 	#Define if your <locale.h> file defines LC_MESSAGES.
 	#conf.add_define('HAVE_LC_MESSAGES', '1')
 
 	#Define to 1 if you have the <locale.h> header file.
-	conf.check_header('locale.h', 'HAVE_LOCALE_H')
+	conf.check(header_name='locale.h', define_name='HAVE_LOCALE_H')
 
 	#Define to 1 if you have the <memory.h> header file.
-	conf.check_header('memory.h', 'HAVE_MEMORY_H')
+	conf.check(header_name='memory.h', define_name='HAVE_MEMORY_H')
 
 	#Define to 1 if you have the <stdint.h> header file.
-	conf.check_header('stdint.h', 'HAVE_STDINT_H')
+	conf.check(header_name='stdint.h', define_name='HAVE_STDINT_H')
 
 	#Define to 1 if you have the <stdlib.h> header file.
-	conf.check_header('stdlib.h', 'HAVE_STDLIB_H')
+	conf.check(header_name='stdlib.h', define_name='HAVE_STDLIB_H')
 
 	#Define to 1 if you have the <strings.h> header file.
-	conf.check_header('strings.h', 'HAVE_STRINGS_H')
+	conf.check(header_name='strings.h', define_name='HAVE_STRINGS_H')
 
 	#Define to 1 if you have the <string.h> header file.
-	conf.check_header('string.h', 'HAVE_STRING_H')
+	conf.check(header_name='string.h', define_name='HAVE_STRING_H')
 
 	#Define to 1 if you have the <sys/stat.h> header file.
-	conf.check_header('sys/stat.h', 'HAVE_SYS_STAT_H')
+	conf.check(header_name='sys/stat.h', define_name='HAVE_SYS_STAT_H')
 
 	#Define to 1 if you have the <sys/types.h> header file.
-	conf.check_header('sys/types.h', 'HAVE_SYS_TYPES_H')
+	conf.check(header_name='sys/types.h', define_name='HAVE_SYS_TYPES_H')
 
 	#Define to 1 if you have the <unistd.h> header file.
-	conf.check_header('unistd.h', 'HAVE_UNISTD_H')
+	conf.check(header_name='unistd.h', define_name='HAVE_UNISTD_H')
 
 def set_options(opt):
 	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
