@@ -29,6 +29,9 @@ class valac_task(Task.Task):
 		if self.threading:
 			cmd.append('--thread')
 
+		if self.target_glib:
+			cmd.append('--target-glib=%s' % self.target_glib)
+
 		features = self.generator.features
 
 		if 'cshlib' in features or 'cstaticlib' in features:
@@ -113,6 +116,7 @@ def vala_file(self, node):
 		valatask.target = self.target
 		valatask.threading = False
 		valatask.install_path = self.install_path
+		valatask.target_glib = None
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
 		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))
@@ -162,6 +166,9 @@ def vala_file(self, node):
 			self.uselib = self.to_list(self.uselib)
 			if not 'GTHREAD' in self.uselib:
 				self.uselib.append('GTHREAD')
+
+		if hasattr(self, 'target_glib'):
+			valatask.target_glib = self.target_glib
 
 	env = valatask.env
 
