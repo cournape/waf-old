@@ -142,9 +142,7 @@ def exec_cfg(self, kw):
 	try:
 		ret = Utils.cmd_output(cmd)
 	except:
-		if not 'errmsg' in kw:
-			kw['errmsg'] = 'TODO3'
-		raise
+		raise Configure.ConfigurationError, "no such package"
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 
