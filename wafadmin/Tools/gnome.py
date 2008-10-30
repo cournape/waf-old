@@ -202,129 +202,10 @@ def apply_gnome_sgml2man(self):
 		# in the future the scanner can be used to do more things (find dependencies, etc)
 		task.scan()
 
-# Unlike the sgml and doc processing, the dbus and marshal beast
-# generate c/c++ code that we want to mix
-# here we attach new methods to TaskGen.task_gen
-
-@taskgen
-def add_marshal_file(self, filename, prefix, mode):
-	if not hasattr(self, 'marshal_lst'): self.marshal_lst = []
-	self.meths.append('process_marshal')
-	self.marshal_lst.append([filename, prefix, mode])
-
-@taskgen
-@before('apply_core')
-def process_marshal(self):
-	for i in getattr(self, 'marshal_lst', []):
-		env = self.env.copy()
-		node = self.path.find_resource(i[0])
-
-		if not node:
-			raise Utils.WafError('file not found on gnome obj '+i[0])
-
-		if i[2] == '--header':
-
-			env['GGM_PREFIX'] = i[1]
-			env['GGM_MODE']   = i[2]
-
-			task = self.create_task('glib_genmarshal', env)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.h'))
-
-		elif i[2] == '--body':
-			env['GGM_PREFIX'] = i[1]
-			env['GGM_MODE']   = i[2]
-
-			# the c file generated will be processed too
-			outnode = node.change_ext('.c')
-			self.allnodes.append(outnode)
-
-			task = self.create_task('glib_genmarshal', env)
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext('.c'))
-		else:
-			error("unknown type for marshal "+i[2])
-
-@taskgen
-def add_dbus_file(self, filename, prefix, mode):
-	if not hasattr(self, 'dbus_lst'): self.dbus_lst = []
-	self.meths.append('process_dbus')
-	self.dbus_lst.append([filename, prefix, mode])
-
-@taskgen
-@before('apply_core')
-def process_dbus(self):
-	for i in getattr(self, 'dbus_lst', []):
-		env = self.env.copy()
-		node = self.path.find_resource(i[0])
-
-		if not node:
-			raise Utils.WafError('file not found on gnome obj '+i[0])
-
-		env['DBT_PREFIX'] = i[1]
-		env['DBT_MODE']   = i[2]
-
-		task = self.create_task('dbus_binding_tool', env)
-		task.set_inputs(node)
-		task.set_outputs(node.change_ext('.h'))
-
-@taskgen
-@before('apply_core')
-def process_enums(self):
-	for x in getattr(self, 'mk_enums', []):
-		# temporary
-		env = self.env.copy()
-		task = self.create_task('mk_enums', env)
-		inputs = []
-
-		# process the source
-		src_lst = self.to_list(x['source'])
-		if not src_lst:
-			raise Utils.WafError('missing source '+str(x))
-		src_lst = [self.path.find_resource(k) for k in src_lst]
-		inputs += src_lst
-		env['MK_SOURCE'] = [k.abspath(env) for k in src_lst]
-
-		# find the target
-		if not x['target']:
-			raise Utils.WafError('missing target '+str(x))
-		tgt_node = self.path.find_or_declare(x['target'])
-		if tgt_node.name.endswith('.c'):
-			self.allnodes.append(tgt_node)
-		env['MK_TARGET'] = tgt_node.abspath(env)
-
-		# template, if provided
-		if x['template']:
-			template_node = self.path.find_resource(x['template'])
-			env['MK_TEMPLATE'] = '--template %s' % (template_node.abspath(env))
-			inputs.append(template_node)
-
-		# update the task instance
-		task.set_inputs(inputs)
-		task.set_outputs(tgt_node)
-
-@taskgen
-def add_glib_mkenum(self, source='', template='', target=''):
-	"just a helper"
-	if not hasattr(self, 'mk_enums'): self.mk_enums = []
-	self.meths.append('process_enums')
-	self.mk_enums.append({'source':source, 'template':template, 'target':target})
-
-
-Task.simple_task_type('mk_enums', '${GLIB_MKENUM} ${MK_TEMPLATE} ${MK_SOURCE} > ${MK_TARGET}', 'PINK', before='cc')
-
 cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 cls.scan = sgml_scan
 cls.sig_implicit_deps = sig_implicit_deps
 cls.quiet = 1
-
-Task.simple_task_type('glib_genmarshal',
-	'${GGM} ${SRC} --prefix=${GGM_PREFIX} ${GGM_MODE} > ${TGT}',
-	color='BLUE', before='cc')
-
-Task.simple_task_type('dbus_binding_tool',
-	'${DBT} --prefix=${DBT_PREFIX} --mode=${DBT_MODE} --output=${TGT} ${SRC}',
-	color='BLUE', before='cc')
 
 Task.simple_task_type('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].abspath(env)}')
 
@@ -346,38 +227,14 @@ ${DB2OMF} ${SRC[1].abspath(env)}"""
 Task.simple_task_type('xsltproc2po', xslt_magic, color='BLUE')
 
 def detect(conf):
+	conf.check_tool('gnu_dirs glib2 dbus')
 	sgml2man = conf.find_program('docbook2man', var='SGML2MAN')
-	glib_genmarshal = conf.find_program('glib-genmarshal', var='GGM')
-	dbus_binding_tool = conf.find_program('dbus-binding-tool', var='DBT')
-	mk_enums_tool = conf.find_program('glib-mkenums', var='GLIB_MKENUM')
 
 	def getstr(varname):
 		return getattr(Options.options, varname, '')
 
-	prefix  = conf.env['PREFIX']
-	datadir = getstr('datadir')
-	libdir  = getstr('libdir')
-	sysconfdir  = getstr('sysconfdir')
-	localstatedir  = getstr('localstatedir')
-	if not datadir: datadir = os.path.join(prefix,'share')
-	if not libdir:  libdir  = os.path.join(prefix,'lib')
-	if not sysconfdir:
-		if os.path.normpath(prefix) ==  '/usr':
-			sysconfdir = '/etc'
-		else:
-			sysconfdir  = os.path.join(prefix, 'etc')
-	if not localstatedir:
-		if os.path.normpath(prefix) ==  '/usr':
-			localstatedir = '/var'
-		else:
-			localstatedir  = os.path.join(prefix, 'var')
-
 	# addefine also sets the variable to the env
-	conf.define('GNOMELOCALEDIR', os.path.join(datadir, 'locale'))
-	conf.define('DATADIR', datadir)
-	conf.define('LIBDIR', libdir)
-	conf.define('SYSCONFDIR', sysconfdir)
-	conf.define('LOCALSTATEDIR', localstatedir)
+	conf.define('GNOMELOCALEDIR', os.path.join(conf.env['DATADIR'], 'locale'))
 
 	xml2po = conf.find_program('xml2po', var='XML2PO')
 	xsltproc2po = conf.find_program('xsltproc', var='XSLTPROC2PO')
@@ -441,7 +298,4 @@ def detect(conf):
 
 def set_options(opt):
 	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
-
-	for i in "execprefix datadir libdir sysconfdir localstatedir".split():
-		opt.add_option('--'+i, type='string', default='', dest=i)
 
