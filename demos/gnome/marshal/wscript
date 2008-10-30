@@ -4,5 +4,6 @@ def build(bld):
 	o = bld.new_task_gen('cc', 'program')
 	o.source = 'main.c'
 	o.target = 'blah'
-	o.add_marshal_file('marshal.list', 'test_prefix', '--header')
+	o.uselib = 'GOBJECT'
+	o.add_marshal_file('marshal.list', 'test_prefix')
 

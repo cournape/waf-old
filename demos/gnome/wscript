@@ -21,6 +21,7 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('gcc gnome cs intltool')
 
+	conf.check_cfg(package='gobject-2.0', uselib_store='GOBJECT', atleast_version='2.10.0', args='--cflags --libs', mandatory=True)
 	conf.check_cfg(package='libgnome-2.0', uselib_store='GNOME', atleast_version='2.10.0', args='--cflags --libs', mandatory=True)
 	conf.check_cfg(package='libgnomeui-2.0', uselib_store='GNOMEUI', atleast_version='2.10.0', mandatory=True, args='--cflags --libs')
 	conf.check_cfg(package='gtk+-2.0', uselib_store='GTK', atleast_version='2.6.0', mandatory=True, args='--cflags --libs')

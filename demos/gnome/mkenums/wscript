@@ -4,5 +4,5 @@ def build(bld):
 	o = bld.new_task_gen('cc', 'program')
 	o.source = 'main.c'
 	o.target = 'blah'
-	o.add_glib_mkenum(source='a.h b.h', template='x.in', target='prodi.h')
+	o.add_enums_from_template(source='a.h b.h', target='prodi.h', template='x.in')
 

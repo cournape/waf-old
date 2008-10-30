@@ -13,8 +13,7 @@ obj.includes='.'
 obj.uselib='GTK GNOME GNOMEUI DBUSGLIB'
 obj.target='gnome-hello'
 obj.add_dbus_file('manager.xml', 'test_prefix', 'glib-server')
-obj.add_marshal_file('marshal.list', 'test_prefix', '--header')
-obj.add_marshal_file('marshal.list', 'test_prefix', '--body')
+obj.add_marshal_file('marshal.list', 'test_prefix')
 
 # it is also possible to add tons if libraries
 #obj.uselib='GTK GNOME GNOMEUI GLIB BONOBO BONOBOUI PRINT PRINTUI GLADE CANVAS XML GDK'
