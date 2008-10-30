@@ -4,8 +4,8 @@
 
 "GLib2 support"
 
-import Object, Action, Params, Utils
-from Object import taskgen, before, after, feature
+import Task, Utils
+from TaskGen import taskgen, before, after, feature
 
 #
 # glib-genmarshal
@@ -15,14 +15,14 @@ from Object import taskgen, before, after, feature
 def add_marshal_file(self, filename, prefix):
 	if not hasattr(self, 'marshal_list'):
 		self.marshal_list = []
-	self.meths.add('process_marshal')
-	self.marshal_list.append([filename, prefix])
+	self.meths.append('process_marshal')
+	self.marshal_list.append((filename, prefix))
 
 @taskgen
 @before('apply_core')
 def process_marshal(self):
 	for filename, prefix in getattr(self, 'marshal_list', []):
-		node = self.path.find_source(filename)
+		node = self.path.find_resource(filename)
 
 		if not node:
 			raise Utils.WafError('file not found ' + filename)
@@ -31,7 +31,7 @@ def process_marshal(self):
 		header_env = self.env.copy()
 		header_env['GLIB_GENMARSHAL_PREFIX'] = prefix
 		header_env['GLIB_GENMARSHAL_MODE'] = '--header'
-		task = self.create_task('glib_genmarshal', header_env, 2)
+		task = self.create_task('glib_genmarshal', header_env)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.h'))
 
@@ -39,7 +39,7 @@ def process_marshal(self):
 		body_env = self.env.copy()
 		body_env['GLIB_GENMARSHAL_PREFIX'] = prefix
 		body_env['GLIB_GENMARSHAL_MODE'] = '--body'
-		task = self.create_task('glib_genmarshal', body_env, 2)
+		task = self.create_task('glib_genmarshal', body_env)
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.c'))
 		# the c file generated will be processed too
@@ -55,7 +55,7 @@ def process_marshal(self):
 def add_enums_from_template(self, source='', target='', template='', comments=''):
 	if not hasattr(self, 'enums_list'):
 		self.enums_list = []
-	self.meths.add('process_enums')
+	self.meths.append('process_enums')
 	self.enums_list.append({'source': source,
 	                        'target': target,
 	                        'template': template,
@@ -74,7 +74,7 @@ def add_enums(self, source='', target='',
               value_head='', value_prod='', value_tail='', comments=''):
 	if not hasattr(self, 'enums_list'):
 		self.enums_list = []
-	self.meths.add('process_enums')
+	self.meths.append('process_enums')
 	self.enums_list.append({'source': source,
 	                        'template': '',
 	                        'target': target,
@@ -100,15 +100,15 @@ def process_enums(self):
 		source_list = self.to_list(enum['source'])
 		if not source_list:
 			raise Utils.WafError('missing source ' + str(enum))
-		source_list = [self.path.find_source(k) for k in source_list]
+		source_list = [self.path.find_resource(k) for k in source_list]
 		inputs += source_list
 		env['GLIB_MKENUMS_SOURCE'] = [k.abspath(env) for k in source_list]
 
 		# find the target
 		if not enum['target']:
 			raise Utils.WafError('missing target ' + str(enum))
-		tgt_node = self.path.find_build(enum['target'], create=True)
-		if tgt_node.m_name.endswith('.c'):
+		tgt_node = self.path.find_or_declare(enum['target'])
+		if tgt_node.name.endswith('.c'):
 			self.allnodes.append(tgt_node)
 		env['GLIB_MKENUMS_TARGET'] = tgt_node.abspath(env)
 
@@ -116,7 +116,7 @@ def process_enums(self):
 		options = []
 
 		if enum['template']: # template, if provided
-			template_node = self.path.find_source(enum['template'])
+			template_node = self.path.find_resource(enum['template'])
 			options.append('--template %s' % (template_node.abspath(env)))
 			inputs.append(template_node)
 		params = {'file-head' : '--fhead',
@@ -139,12 +139,12 @@ def process_enums(self):
 
 
 
-Action.simple_action('glib_genmarshal',
+Task.simple_task_type('glib_genmarshal',
 	'${GLIB_GENMARSHAL} ${SRC} --prefix=${GLIB_GENMARSHAL_PREFIX} ${GLIB_GENMARSHAL_MODE} > ${TGT}',
-	color='BLUE')
-Action.simple_action('glib_mkenums',
+	color='BLUE', before='cc')
+Task.simple_task_type('glib_mkenums',
 	'${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}',
-	color='PINK', prio=30)
+	color='PINK', before='cc')
 
 
 def detect(conf):
