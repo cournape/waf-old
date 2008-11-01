@@ -20,7 +20,7 @@ EXT_PY = ['.py']
 @before('apply_bundle')
 def init_pyext(self):
 	self.default_install_path = '${PYTHONDIR}'
-	self.uselib = self.to_list(self.uselib)
+	self.uselib = self.to_list(getattr(self, 'uselib', ''))
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
 	self.env['MACBUNDLE'] = True
@@ -39,7 +39,7 @@ def pyext_shlib_ext(self):
 @before('apply_incpaths')
 @feature('pyembed')
 def init_pyembed(self):
-	self.uselib = self.to_list(self.uselib)
+	self.uselib = self.to_list(getattr(self, 'uselib', ''))
 	if not 'PYEMBED' in self.uselib:
 		self.uselib.append('PYEMBED')
 
@@ -162,7 +162,7 @@ def check_python_headers(conf):
 	except ValueError:
 		conf.fatal("Python development headers not found (-v for details).")
 
-	conf.bld.printout("""Configuration returned from %r:
+	conf.log.write("""Configuration returned from %r:
 python_prefix = %r
 python_SO = %r
 python_SYSLIBS = %r
@@ -219,8 +219,8 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		result = conf.check_cc(lib=name, uselib='PYEMBED', libpath=path)
 
 	if not result:
-		env['LIBPATH_PYEMBED'] = lib.path
-		env.append_value('LIB_PYEMBED', lib.name)
+		env['LIBPATH_PYEMBED'] = path
+		env.append_value('LIB_PYEMBED', name)
 
 	## under certain conditions, python extensions must link to
 	## python libraries, not just python embedding programs.
@@ -244,9 +244,13 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 			# append include path, unless already given
 			if incstr not in includes:
 				includes.append(incstr)
+		conf.log.write("Include path for Python extensions "
+			       "(found via python-config --includes): %r\n" % (list(includes),))
 		env['CPPPATH_PYEXT'] = list(includes)
 		env['CPPPATH_PYEMBED'] = list(includes)
 	else:
+		conf.log.write("Include path for Python extensions "
+			       "(found via distutils module): %r\n" % (list(includes),))
 		env['CPPPATH_PYEXT'] = [INCLUDEPY]
 		env['CPPPATH_PYEMBED'] = [INCLUDEPY]
 
@@ -263,7 +267,13 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
 	# See if it compiles
-	conf.check_cc(header_name='Python.h', define_name='HAVE_PYTHON_H', uselib_store='PYEXT',
+	test_env = env.copy()
+	test_env.append_value('CPPPATH', env['CPPPATH_PYEMBED'])
+	test_env.append_value('LIBPATH', env['LIBPATH_PYEMBED'])
+	test_env.append_value('LIB', env['LIB_PYEMBED'])
+	test_env.append_value('CXXFLAGS', env['CXXFLAGS_PYEMBED'])
+	test_env.append_value('CCFLAGS', env['CCFLAGS_PYEMBED'])
+	conf.check_cc(header_name='Python.h', define_name='HAVE_PYTHON_H', env=test_env,
 		fragment='''#include <Python.h>\nint main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }\n''', errmsg='Could not find the python development headers', mandatory=1)
 
 @conf
