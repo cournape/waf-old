@@ -253,12 +253,12 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	# Code using the Python API needs to be compiled with -fno-strict-aliasing
 	if env['CC']:
 		version = os.popen("%s --version" % env['CC']).readline()
-		if '(GCC)' in version:
+		if '(GCC)' in version or 'gcc' in version:
 			env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
 			env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
 	if env['CXX']:
 		version = os.popen("%s --version" % env['CXX']).readline()
-		if '(GCC)' in version:
+		if '(GCC)' in version or 'g++' in version:
 			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
 			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
