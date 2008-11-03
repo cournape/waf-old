@@ -41,7 +41,7 @@ def run_tests(verbose=1):
 		suite = unittest.TestLoader().loadTestsFromTestCase(GccTester)
 		unittest.TextTestRunner(verbosity=verbose).run(suite)
 	except common_test.StartupError, e:
-		logging.warning( e.message )
+		logging.warning( str(e) )
 		raise (e)
 
 if __name__ == '__main__':
