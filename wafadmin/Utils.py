@@ -39,29 +39,28 @@ import Logs, pproc
 from Constants import *
 
 class WafError(Exception):
-	def __init__(self, message):
-		self.message = message
+	def __init__(self, *args):
+		self.args = args
 		self.stack = traceback.extract_stack()
-		Exception.__init__(self, self.message)
+		Exception.__init__(self, *args)
 	def __str__(self):
-		return self.message
+		return str(len(self.args) == 1 and self.args[0] or self.args)
 
 class WscriptError(WafError):
 	def __init__(self, message, wscript_file=None):
-		self.message = ''
-
 		if wscript_file:
 			self.wscript_file = wscript_file
 			self.wscript_line = None
 		else:
 			(self.wscript_file, self.wscript_line) = self.locate_error()
 
+		msg_file_line = ''
 		if self.wscript_file:
-			self.message += "%s:" % self.wscript_file
+			msg_file_line = "%s:" % self.wscript_file
 			if self.wscript_line:
-				self.message += "%s:" % self.wscript_line
-		self.message += " error: %s" % message
-		WafError.__init__(self, self.message)
+				msg_file_line += "%s:" % self.wscript_line
+		err_message = "%s error: %s" % (msg_file_line, message)
+		WafError.__init__(self, err_message)
 
 	def locate_error(self):
 		stack = traceback.extract_stack()
