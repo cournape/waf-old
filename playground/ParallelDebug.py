@@ -46,7 +46,7 @@ def newrun(self):
 			else: ret = tsk.call_run()
 		except Exception, e:
 			# TODO add the stack error message
-			tsk.err_msg = e.message
+			tsk.err_msg = str(e)
 			tsk.hasrun = EXCEPTION
 
 			# TODO cleanup
