@@ -205,6 +205,11 @@ def apply_gnome_sgml2man(self):
 cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 cls.scan = sgml_scan
 cls.sig_implicit_deps = sig_implicit_deps
+old_runnable_status = Task.Task.runnable_status
+def runnable_status(self):
+	old_runnable_status(self)
+	return old_runnable_status(self)
+cls.runnable_status = runnable_status
 cls.quiet = 1
 
 Task.simple_task_type('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].abspath(env)}')
