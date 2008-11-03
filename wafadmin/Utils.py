@@ -126,9 +126,9 @@ def exec_command(s, shell=1, log=None):
 
 if sys.platform == "win32":
 	old_log = exec_command
-	def exec_command(s, shell=1):
+	def exec_command(s, shell=1, log=None):
 		# TODO very long command-lines are unlikely to be used in the configuration
-		if len(s) < 2000: return old_log(s, shell=shell)
+		if len(s) < 2000: return old_log(s, shell=shell, log)
 
 		startupinfo = pproc.STARTUPINFO()
 		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
