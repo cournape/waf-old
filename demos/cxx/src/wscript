@@ -35,10 +35,8 @@ def build(bld):
 	b1.cpp b2.cpp
 	main.cpp
 	'''
-	obj.includes='.'
 	obj.target='testprogram'
 	obj.defines='LINUX=1 BIDULE'
-	obj.obj_ext = '_1.o'
 	# obj.add_obj_file('kk.o') # <- example on how to add custom object files considered source
 
 	#obj.mappings["a1.cpp"] = myfun <- example of how to modify the environment for one file
@@ -51,7 +49,6 @@ def build(bld):
 	a1.cpp
 	b1.cpp b2.cpp
 	'''
-	obj.includes     = '.'
 	#obj.name        = 'peter'
 	obj.target       = 'testshlib'
 	obj.install_path = '${SOME_INSTALL_DIR}'
@@ -62,7 +59,6 @@ def build(bld):
 	obj.source='''
 	c1.cpp
 	'''
-	obj.includes     = '.'
 	obj.name         = 'tony'
 	obj.target       = 'teststaticlib'
 
@@ -71,7 +67,6 @@ def build(bld):
 	obj.source='''
 	d1.cpp
 	'''
-	obj.includes     = '.'
 	obj.target       = 'shlib1'
 	obj.name         = 'john'
 	obj.want_libtool = 1
@@ -82,7 +77,6 @@ def build(bld):
 	obj.source='''
 	e1.cpp
 	'''
-	obj.includes     = '.'
 	obj.uselib       = 'MYPROG'
 	obj.uselib_local = 'tony john testshlib' # 'tony john peter' # look for 'peter' above
 	obj.target       = 'program_dyn_linked'
