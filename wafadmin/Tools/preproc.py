@@ -536,29 +536,43 @@ def extract_macro(txt):
 		i = 1
 		pindex = 0
 		params = {}
-		wantident = 1
+		prev = '('
 
 		while 1:
 			i += 1
 			p, v = t[i]
 
-			if wantident:
+			if prev == '(':
 				if p == IDENT:
 					params[v] = pindex
 					pindex += 1
-				elif v == '...':
-					pass
-				else:
-					raise PreprocError, "expected ident"
-			else:
-				if v == ',':
-					pass
-				elif v == ')':
+					prev = p
+				elif p == OP and v == ')':
 					break
-				elif v == '...':
+				else:
+					raise PreprocError, "unexpected token"
+			elif prev == IDENT:
+				if p == OP and v == ',':
+					prev = v
+				elif p == OP and v == ')':
+					break
+				else:
+					raise PreprocError, "comma or ... expected"
+			elif prev == ',':
+				if p == IDENT:
+					params[v] = pindex
+					pindex += 1
+					prev = p
+				elif p == OP and v == '...':
 					raise PreprocError, "not implemented"
-			wantident = not wantident
+				else:
+					raise PreprocError, "comma or ... expected"
+			elif prev == '...':
+				raise PreprocError, "not implemented"
+			else:
+				raise PreprocError, "unexpected else"
 
+		print (name, [params, t[i+1:]])
 		return (name, [params, t[i+1:]])
 	else:
 		(p, v) = t[0]
