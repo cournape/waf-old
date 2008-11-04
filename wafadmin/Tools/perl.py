@@ -15,7 +15,7 @@ EXT_XS = ['.xs']
 @before('apply_incpaths')
 @feature('perlext')
 def init_pyext(self):
-	self.uselib = self.to_list(self.uselib)
+	self.uselib = self.to_list(getattr(self, 'uselib', ''))
 	if not 'PERL' in self.uselib: self.uselib.append('PERL')
 	if not 'PERLEXT' in self.uselib: self.uselib.append('PERLEXT')
 	self.env['shlib_PATTERN'] = self.env['perlext_PATTERN']
