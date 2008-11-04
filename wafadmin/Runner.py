@@ -10,6 +10,18 @@ import pproc
 from Logs import debug, error
 from Constants import *
 
+GAP = 15
+
+run_old = threading.Thread.run
+def run(*args, **kwargs):
+	try:
+		run_old(*args, **kwargs)
+	except (KeyboardInterrupt, SystemExit):
+		raise
+	except:
+		sys.excepthook(*sys.exc_info())
+threading.Thread.run = run
+
 class TaskConsumer(threading.Thread):
 	def __init__(self, m):
 		threading.Thread.__init__(self)
@@ -18,8 +30,13 @@ class TaskConsumer(threading.Thread):
 		self.start()
 
 	def run(self):
-		m = self.master
+		try:
+			self.loop()
+		except:
+			pass
 
+	def loop(self):
+		m = self.master
 		while 1:
 			tsk = m.ready.get()
 			if m.stop:
@@ -68,9 +85,6 @@ class Parallel(object):
 
 		self.total = self.manager.total()
 
-		# TODO: make self.outstanding a queue so it is thread-safe to add
-		# tasks from a task being executed
-
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
 		self.maxjobs = sys.maxint
@@ -83,6 +97,8 @@ class Parallel(object):
 		self.out = Queue.Queue(0)
 
 		self.count = 0 # tasks not in the producer area
+		self.stuck = 0
+
 		self.processed = 1 # progress indicator
 
 		self.consumers = None # the consumer threads, created lazily
@@ -104,16 +120,24 @@ class Parallel(object):
 
 	def refill_task_list(self):
 		"called to set the next group of tasks"
-		# TODO busy loop problems
-		while self.count > self.numjobs + 5:
+
+		while self.count > self.numjobs + GAP or self.count > self.maxjobs:
 			self.get_out()
-		if self.frozen:
-			self.outstanding += self.frozen
-			self.frozen = []
-		if not self.outstanding:
-			while self.count > 0: self.get_out()
-			(self.maxjobs, tmp) = self.manager.get_next_set()
-			if tmp: self.outstanding += tmp
+
+		while not self.outstanding:
+			if self.count:
+				self.get_out()
+
+			if self.frozen:
+				self.outstanding += self.frozen
+				self.frozen = []
+			elif not self.count:
+				(self.maxjobs, tmp) = self.manager.get_next_set()
+				if tmp: self.outstanding += tmp
+				break
+
+		# 0 == cannot refill == no more tasks
+		return self.maxjobs
 
 	def get_out(self):
 		"the tasks that are put to execute are all collected using get_out"
@@ -131,15 +155,8 @@ class Parallel(object):
 
 		while not self.stop:
 
-			# optional limit on the amount of jobs to run at the same time
-			# for example, link tasks are run one by one
-			while self.count >= self.maxjobs:
-				self.get_out()
-
-			if not self.outstanding:
-				self.refill_task_list()
-				if self.maxjobs is None:
-					break
+			if not self.refill_task_list():
+				break
 
 			# consider the next task
 			tsk = self.get_next()
