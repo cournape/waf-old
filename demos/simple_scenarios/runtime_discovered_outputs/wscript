@@ -122,10 +122,11 @@ class shpip_task(Task.Task):
 
 			tgen.link_task.inputs.append(task.outputs[0])
 			generator = self.generator.bld.generator
-			generator.count += 1
+			#generator.count += 1
 			task.position = self.position
-			generator.ready.put(task)
-			generator.total += 1
+			generator.outstanding.append(task)
+			#generator.ready.put(task)
+			#generator.total += 1
 
 			# if headers are produced something like this can be done to add the include paths
 			dir = task.inputs[0].parent
