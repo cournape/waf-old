@@ -4,7 +4,7 @@
 
 import os
 import pproc
-import Task, Options
+import Task, Options, Utils
 from Configure import conf
 from TaskGen import extension, taskgen, feature, before
 
