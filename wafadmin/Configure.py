@@ -68,6 +68,8 @@ def find_program_impl(env, filename, path_list=[], var=None):
 		for directory in path_list:
 			x = os.path.join(directory, y)
 			if os.path.isfile(x):
+				# quote filenames with whitespaces in name or path.
+				x = Utils.quote_whitespace(x)
 				if var: env[var] = x
 				return x
 	return ''
