@@ -572,6 +572,7 @@ def extract_include(txt, defs):
 		if m.group('b'): return '"', m.group('b')
 
 	# perform preprocessing and look at the result, it must match an include
+	tokens = tokenize(txt)
 	tokens = process_tokens(tokens, defs, ['waf_include'])
 	p, v = tokens[0]
 	if p != STR: raise PreprocError, "could not parse include %s" % txt
