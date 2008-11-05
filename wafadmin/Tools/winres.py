@@ -4,7 +4,7 @@
 
 "This hook is called when the class cpp/cc task generator encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
 
-import os, sys
+import os, sys, re
 import TaskGen, Task
 from Utils import quote_whitespace
 from TaskGen import extension
@@ -33,7 +33,11 @@ def detect(conf):
 
 	cc = os.path.basename(''.join(v['CC']).lower())
 	cxx = os.path.basename(''.join(v['CXX']).lower())
-
+	
+	# remove trailing " from windows paths
+	cc=re.sub('"', '',cc)
+	cxx=re.sub('"', '',cxx)
+	
 	# find rc.exe
 	if cc in ['gcc', 'cc', 'g++', 'c++']:
 		winrc = conf.find_program('windres', var='WINRC')
