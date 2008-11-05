@@ -15,21 +15,10 @@ def configure(conf):
     lib_path = os.path.join(Options.launch_dir, '..', 'out', 'default')
 
     # This one is going to fail
-    first_trial = conf.create_library_configurator()
-    first_trial.name = 'a'
-    first_trial.path = [lib_path]
-    first_trial.message = "first trial failed due to dependencies between libraries"
-    first_trial.run()
+    conf.check(lib='a', path=[lib_path], errmsg="first trial failed due to dependencies between libraries")
 
     # This one should work
-    second_trial = conf.create_library_configurator()
-    second_trial.name = 'a'
-    second_trial.path = [lib_path]
-    second_trial.libs = ['b']
-    second_trial.lib_paths = [lib_path]
-    second_trial.message = "This one should have not fail!!! :("
-    second_trial.mandatory = True
-    second_trial.run()
+    conf.check(lib='a', path=[lib_path], uselib=['b'], errmsg="This one should have not fail!!! :(", mandatory=True)
 
     # Note: order matters - if you have many libs in lib_configurator.libs, you should provide independent libraries first.
 
