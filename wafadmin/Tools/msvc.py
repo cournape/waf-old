@@ -308,7 +308,7 @@ def find_msvc(conf):
 	if not cxx: conf.fatal('CL was not found (compiler)')
 
 	# c/c++ compiler - check for whitespace, and if so, add quotes
-	v['CXX']  = quote_whitespace(cxx)
+	v['CXX']  = cxx
 	v['CC'] = v['CXX']
 	v['CXX_NAME'] = 'msvc'
 	v['CC_NAME'] = 'msvc'
@@ -318,7 +318,7 @@ def find_msvc(conf):
 		link = conf.find_program('LINK')
 		if link: v['LINK_CXX'] = link
 		else: conf.fatal('LINK was not found (linker)')
-	v['LINK']            = '\"%s\"' % link
+	v['LINK']            = link
 
 	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
 
@@ -326,12 +326,12 @@ def find_msvc(conf):
 	if not v['STLIBLINK']:
 		stliblink = conf.find_program('LIB')
 		if not stliblink: return
-		v['STLIBLINK']       = '\"%s\"' % stliblink
+		v['STLIBLINK']       = stliblink
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	manifesttool = conf.find_program('MT')
 	if manifesttool:
-		v['MT'] = quote_whitespace (manifesttool)
+		v['MT'] = manifesttool
 		v['MTFLAGS']=['/NOLOGO']
 
 	conf.check_tool('winres')
