@@ -11,7 +11,7 @@ from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
 
 from Configure import conftest
-import ccroot
+import ccroot, cc, cxx
 from libtool import read_la_file
 from os.path import exists
 
@@ -190,6 +190,7 @@ def libname_msvc(self, libname, is_static=False):
 @after('apply_obj_vars_cc')
 @after('apply_obj_vars_cxx')
 def apply_msvc_obj_vars(self):
+	debug('apply_msvc_obj_vars called for msvc', 'msvc')
 	env = self.env
 	app = env.append_unique
 
@@ -198,13 +199,14 @@ def apply_msvc_obj_vars(self):
 	staticlib_st     = env['STATICLIB_ST']
 	libpath_st       = env['LIBPATH_ST']
 	staticlibpath_st = env['STATICLIBPATH_ST']
-	self.libpaths = []
 
 	for i in env['RPATH']: app('LINKFLAGS', i)
+
 	for i in env['LIBPATH']:
 		app('LINKFLAGS', libpath_st % i)
 		if not self.libpaths.count(i):
 			self.libpaths.append(i)
+
 	for i in env['LIBPATH']:
 		app('LINKFLAGS', staticlibpath_st % i)
 		if not self.libpaths.count(i):
@@ -268,10 +270,13 @@ def init_msvc(self):
 	"all methods (msvc and non-msvc) are to be executed, but we remove the ones we do not want"
 	if self.env['CC_NAME'] == 'msvc' or self.env['CXX_NAME'] == 'msvc':
 		self.meths.remove('apply_link')
+		# apply_msvc_obj_vars is the msvc specific implementation of apply_obj_vars. 
+		self.meths.remove('apply_obj_vars')
 	else:
 		for x in ['apply_link_msvc', 'apply_msvc_obj_vars']:
 			self.meths.remove(x)
-		self.libpaths = getattr(self, 'libpaths', '')
+	try: _libpaths=getattr(self,'libpaths')
+	except AttributeError: self.libpaths=[]
 
 static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Task.simple_task_type('msvc_ar_link_static', static_link_str, color='YELLOW', ext_in='.o')
