@@ -100,7 +100,7 @@ def configure(conf):
 	conf.check_tool('dang', tooldir='.')
 
 	# flags
-	conf.check_cxx(cxxflags='meeh', msg='Checking for flags meeh') # mandatory=False
+	conf.check_cxx(cxxflags='-meeh', msg='Checking for flags -meeh') # mandatory=False
 
 	# function
 	conf.check(function_name='printf', header_name='stdio.h')
