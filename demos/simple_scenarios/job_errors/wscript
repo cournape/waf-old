@@ -12,6 +12,7 @@ srcdir = '.'
 blddir = 'build'
 
 import Runner, Task, Options
+import time
 
 def error_handler(self, tsk):
 	print "task failed! %r" % tsk
@@ -30,7 +31,7 @@ class base(Task.TaskBase):
 		self.m_hasrun = 1
 
 		if self.__class__.__name__ == "X":
-			raise Exception, "test"
+			raise Exception, "test (don't panic): this exception is raised when the class name is 'X'"
 
 class X(base):
 	duration = 10
