@@ -335,7 +335,7 @@ def post_check(self, *k, **kw):
 @conf
 def check(self, *k, **kw):
 	# so this will be the generic function
-	# it will be safer to use cxx_check or cc_check
+	# it will be safer to use check_cxx or check_cc
 	self.validate_c(kw)
 	self.check_message_1(kw['msg'])
 	ret = None
