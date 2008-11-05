@@ -123,7 +123,7 @@ class shpip_task(Task.Task):
 			tgen.link_task.inputs.append(task.outputs[0])
 			generator = self.generator.bld.generator
 			#generator.count += 1
-			task.position = self.position
+			#task.position = self.position
 			generator.outstanding.append(task)
 			#generator.ready.put(task)
 			#generator.total += 1
