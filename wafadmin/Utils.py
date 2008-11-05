@@ -137,6 +137,9 @@ if sys.platform == "win32":
 listdir = os.listdir
 if sys.platform == "win32":
 	def listdir_win32(s):
+		if re.match('^[A-Z]:$', s):
+			# os.path.isdir fails if s contains only the drive name... (x:)
+			s += os.sep
 		if not os.path.isdir(s):
 			e = OSError()
 			e.errno = errno.ENOENT
