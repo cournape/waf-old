@@ -182,7 +182,7 @@ class BuildContext(object):
 					node.childs.__delitem__(x)
 
 		# take the node of current dir, or the root node if failed to get the current
-		node = self.launch_node() or self.srcnode
+		node = self.srcnode
 		clean_rec(node)
 
 		# when cleaning all, remove cache, depedencies and signatures
