@@ -47,7 +47,7 @@ def build(bld):
 
 import os
 import TaskGen, Task, Utils, Build
-from TaskGen import taskgen, feature, before, extension
+from TaskGen import taskgen, feature, before, after, extension
 from logging import debug
 from Constants import *
 
@@ -60,12 +60,16 @@ class shpip_task(Task.Task):
 	color = 'PINK'
 	quiet = 1
 
+	# important, no link before all shpip are done
+	before = ['cc_link', 'cxx_link', 'ar_link_static']
+
 	def __init__(self, *k, **kw):
 		Task.Task.__init__(self, *k, **kw)
 
 	def runnable_status(self):
 		# look at the cache, if the shpip task was already run
 		# and if the source has not changed, create the corresponding cpp tasks
+
 		for t in self.run_after:
 			if not t.hasrun:
 				return ASK_LATER
@@ -91,7 +95,6 @@ class shpip_task(Task.Task):
 
 		# this is a part of Task.Task:runnable_status: first node does not exist -> run
 		# this is necessary after a clean
-		# TODO cache is disabled
 		env = self.env
 		node = self.outputs[0]
 		variant = node.variant(env)
@@ -110,9 +113,6 @@ class shpip_task(Task.Task):
 
 		return SKIP_ME
 
-	def scan_signature(self):
-		return ''
-
 	def add_cpp_tasks(self, lst):
 		"creates cpp tasks after the build has started"
 		tgen = self.task_gen
@@ -120,13 +120,15 @@ class shpip_task(Task.Task):
 			TaskGen.task_gen.mapped['c_hook'](tgen, node)
 			task = tgen.compiled_tasks[-1]
 
+			# important, no link before compilations are all over
+			try:
+				self.generator.link_task.set_run_after(task)
+			except AttributeError:
+				pass
+
 			tgen.link_task.inputs.append(task.outputs[0])
 			generator = self.generator.bld.generator
-			#generator.count += 1
-			#task.position = self.position
 			generator.outstanding.append(task)
-			#generator.ready.put(task)
-			#generator.total += 1
 
 			# if headers are produced something like this can be done to add the include paths
 			dir = task.inputs[0].parent
@@ -145,34 +147,35 @@ class shpip_task(Task.Task):
 			files = os.popen(cmd).read().strip()
 		except:
 			# comment the following line to disable debugging
-			raise
-			return 1
-		else:
-			# the variable lst should contain a list of paths to the files produced
-			lst = Utils.to_list(files)
+			#raise
+			return 1 # error
 
-			# Waf does not know "magically" what files are produced
-			# In the most general case it may be necessary to run os.listdir() to see them
-			# In this demo the command outputs is giving us this list
+		# the variable lst should contain a list of paths to the files produced
+		lst = Utils.to_list(files)
 
-			# the files exist in the build dir only so we do not use find_or_declare
-			build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
-			self.outputs = build_nodes
+		# Waf does not know "magically" what files are produced
+		# In the most general case it may be necessary to run os.listdir() to see them
+		# In this demo the command outputs is giving us this list
 
-			# create the cpp tasks
-			self.add_cpp_tasks(build_nodes)
+		# the files exist in the build dir only so we do not use find_or_declare
+		build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
+		self.outputs = build_nodes
 
-			# cache the file names and the task signature
-			node = self.inputs[0]
-			sig = self.signature()
-			self.generator.bld.raw_deps[self.unique_id()] = [sig] + lst
-		# 0 for all ok
-		return 0
+		# create the cpp tasks
+		self.add_cpp_tasks(build_nodes)
+
+		# cache the file names and the task signature
+		node = self.inputs[0]
+		sig = self.signature()
+		self.generator.bld.raw_deps[self.unique_id()] = [sig] + lst
+
+		return 0 # no error
 
 @taskgen
+@after('apply_link')
 @extension('.shpip')
 def process_shpip(self, node):
-	tsk = shpip_task(self.env)
+	tsk = shpip_task(self.env, generator=self)
 	tsk.task_gen = self
 	tsk.set_inputs(node)
 
