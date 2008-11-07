@@ -54,7 +54,7 @@ class valac_task(Task.Task):
 		if 'cshlib' in features or 'cstaticlib' in features:
 			# generate the .deps file
 			if self.packages:
-				filename = os.path.join(self.outputs[0].bld_dir(env), "%s.deps" % self.target)
+				filename = os.path.join(self.generator.path.abspath(env), "%s.deps" % self.target)
 				deps = open(filename, 'w')
 				for package in self.packages:
 					deps.write(package + '\n')
@@ -99,7 +99,7 @@ class valac_task(Task.Task):
 		top_bld = self.generator.bld.srcnode.abspath(self.env)
 		try:
 			src = os.path.join(top_bld, output)
-			dst = self.outputs[0].bld_dir(self.env)
+			dst = self.generator.path.abspath (self.env)
 			shutil.move(src, dst)
 		except IOError:
 			pass
