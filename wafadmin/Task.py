@@ -778,7 +778,7 @@ class Task(TaskBase):
 		tstamp = bld.node_sigs
 		env = self.env
 
-		for k in bld.node_deps.get(self.unique_id(), ()):
+		for k in bld.node_deps.get(self.unique_id(), ()) + self.inputs:
 			# unlikely but necessary if it happens
 			if not k.parent.id in bld.cache_scanned_folders:
 				bld.rescan(k.parent)
