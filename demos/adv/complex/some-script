@@ -3,7 +3,10 @@
 import sys
 from optparse import OptionParser
 import fileinput
-import md5
+try:
+	from hashlib import md5
+except:
+	from md5 import md5
 
 
 def main():
@@ -16,7 +19,7 @@ def main():
 	sys.argv = args
 
 	if options.md5_out:
-		m = md5.new()
+		m = md5()
 	else:
 		m = None
 
