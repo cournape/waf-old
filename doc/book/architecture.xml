@@ -7,7 +7,7 @@
 	<section>
 		<title>The core library</title>
 		<para>
-			Waf is based on 12 modules which constitute the core library:
+			Waf is based on 12 modules which constitute the core library. They are located in the directory <filename>wafadmin/</filename>. The modules located under <filename>wafadmin/Tools</filename> add support for programming languages and more tools, but are not essential for the Waf core.
 <table>
 <title>The core library</title>
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
@@ -91,7 +91,7 @@
 	</para>
 
 	<para>
-		The essential classes from the core library are represented on the following diagram:
+		The essential classes and methods from the core library are represented on the following diagram:
 		<graphic format="png" fileref="classes.png" align="center"/>
 	</para>
 
@@ -268,7 +268,7 @@ meow
 		<sect2>
 			<title>Threading concerns</title>
 			<para>
-				Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods <emphasis>run</emphasis> from the task instances. Such methods should contain as little code as possible, and avoid sharing data with other parts. If additional code has to be run, it is recommended to overload the method <emphasis>get_out</emphasis> of the scheduler. Adding additional tasks from a running task is demonstrated <xref linkend="runtime_discovered_outputs"/>
+				Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods <emphasis>run</emphasis> from the task instances. Such methods should contain as little code as possible, and avoid sharing data with other parts of Waf. If code affecting the scheduler must be executed, it is recommended to overload the method <emphasis>get_out</emphasis> of the scheduler and to share the data in an event-like manner (data is attached to the task, and the method get_out executes the code). Adding additional tasks from a running task is demonstrated <xref linkend="runtime_discovered_outputs"/>.
 			</para>
 		</sect2>
 	</section>
