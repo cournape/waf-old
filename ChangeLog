@@ -41,6 +41,8 @@ meaning in configuration and build)
 * configuration api refactoring (c/c++)
 * The Waf binary size has been reduced by 25%
 * Functional syntax is enabled for all task generators
+* Stable apis for the 1.5.x series
+* Documentation in the Waf book
 
 NEW IN WAF 1.4.3
 ----------------
