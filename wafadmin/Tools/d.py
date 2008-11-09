@@ -207,14 +207,18 @@ def scan(self):
 	gruik.start(self.inputs[0])
 
 	if Logs.verbose:
-		debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.nodes), str(gruik.names)))
+		debug('deps: nodes found for %s: %s %s' % (str(self.inputs[0]), str(gruik.nodes), str(gruik.names)))
 		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
 	return (gruik.nodes, gruik.names)
 
 def get_target_name(self):
 	"for d programs and libs"
 	v = self.env
-	return v['D_%s_PATTERN' % self.type] % self.target
+	tp = 'program'
+	for x in self.features:
+		if x in ['dshlib', 'dstaticlib']:
+			tp = x.lstrip('d')
+	return v['D_%s_PATTERN' % tp] % self.target
 
 d_params = {
 'dflags': {'gdc':'', 'dmd':''},
@@ -355,11 +359,15 @@ def apply_d_vars(self):
 		if not dflag in env['DFLAGS'][env['COMPILER_D']]:
 			env['DFLAGS'][env['COMPILER_D']] += [dflag]
 
-	d_shlib_dflags = env['D_' + self.type + '_DFLAGS']
-	if d_shlib_dflags:
-		for dflag in d_shlib_dflags:
-			if not dflag in env['DFLAGS'][env['COMPILER_D']]:
-				env['DFLAGS'][env['COMPILER_D']] += [dflag]
+	for x in self.features:
+		if not x in ['dprogram', 'dstaticlib', 'dshlib']:
+			continue
+		x.lstrip('d')
+		d_shlib_dflags = env['D_' + x + '_DFLAGS']
+		if d_shlib_dflags:
+			for dflag in d_shlib_dflags:
+				if not dflag in env['DFLAGS'][env['COMPILER_D']]:
+					env['DFLAGS'][env['COMPILER_D']] += [dflag]
 
 	env['_DFLAGS'] = env['DFLAGS'][env['COMPILER_D']]
 
