@@ -19,7 +19,7 @@
 		<section>
 			<title>About build systems in general</title>
 			<para>As software is becoming increasingly complex, the process of creating software is becoming more complex too. Today's software uses various languages, requires various compilers, and the input data is spread into many files.</para>
-			<para>Software is now used to express the process of building software, it can take the form of simple scripts (shell scripts, makefiles), of compilers (CMake, qmake), or complete applications (Scons, Waf). The term &quot;build system&quot; is used to design the tools used to build applications.</para>
+			<para>Software is now used to express the process of building software, it can take the form of simple scripts (shell scripts, makefiles), of compilers (CMake, Qmake), or complete applications (SCons, Waf). The term &quot;build system&quot; is used to design the tools used to build applications.</para>
 		</section>
 		<section>
 			<title>The Waf approach</title>

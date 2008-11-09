@@ -51,7 +51,7 @@
 
 <row>
   <entry>Node</entry>
-  <entry>Contains the filesystem representation class</entry>
+  <entry>Contains the file system representation class</entry>
 </row>
 
 <row>
@@ -103,11 +103,11 @@
 			Executing tasks, accessing the file system and consulting the results of a previous build are very different concerns which have to be encapsulated properly. The core class representing a build is a build context.
 		</para>
 		<sect2>
-			<title>Build context and persistency</title>
+			<title>Build context and persistence</title>
 			<para>
-				The build context holds all the information necessary for a build. To accelerate the startup, a part of the information is stored and loaded between the runs. The persistent attributes are the following:
+				The build context holds all the information necessary for a build. To accelerate the start-up, a part of the information is stored and loaded between the runs. The persistent attributes are the following:
 <table>
-<title>Build context persistency</title>
+<title>Build context persistence</title>
 
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
 
@@ -125,7 +125,7 @@
 
 <row>
   <entry>root</entry>
-  <entry>Node representing the root of the filesystem</entry>
+  <entry>Node representing the root of the file system</entry>
 </row>
 <row>
   <entry>srcnode</entry>
@@ -203,7 +203,7 @@
 		<sect2>
 			<title>Parallelization concerns</title>
 			<para>
-				Build contexts perform an <emphasis>os.chdir</emphasis> call before starting to execute the tasks. When running build contexts within build contexts (tasks), the current working directory may cause various problems. To work around them, it may be necessary to inject code (replace bld.compile) and to change the compilation rules (compile from the filesystem root).
+				Build contexts perform an <emphasis>os.chdir</emphasis> call before starting to execute the tasks. When running build contexts within build contexts (tasks), the current working directory may cause various problems. To work around them, it may be necessary to inject code (replace bld.compile) and to change the compilation rules (compile from the file system root).
 			</para>
 			<para>
 				Direct <emphasis>Node</emphasis> instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
@@ -245,9 +245,9 @@ meow
 			</para>
 		</sect2>
 		<sect2>
-			<title>Filesystem access</title>
+			<title>File system access</title>
 			<para>
-				Filesystem access is performed through an abstraction layer formed by the build context and <emphasis>Node</emphasis> instances. The data structure was carefully designed to maximize performance, so it is unlikely that it will change again in the future. The idea is to represent one file or one directory by a single Node instance. Dependent data such as file hashes are stored on the build context object and allowed to be persisted. Three kinds of nodes are declared: files, build files and folders. The nodes in a particular directory are unique, but build files used in several variant add duplicate entry on the build context cache.
+				File system access is performed through an abstraction layer formed by the build context and <emphasis>Node</emphasis> instances. The data structure was carefully designed to maximize performance, so it is unlikely that it will change again in the future. The idea is to represent one file or one directory by a single Node instance. Dependent data such as file hashes are stored on the build context object and allowed to be persisted. Three kinds of nodes are declared: files, build files and folders. The nodes in a particular directory are unique, but build files used in several variant add duplicate entry on the build context cache.
 			</para>
 			<para>
 				To access a file, the methods <emphasis>Node::find_resource</emphasis>, <emphasis>Node::find_build</emphasis> (find an existing resource or declare a build node) and <emphasis>Node::find_dir</emphasis> must be used. While searching for a particular node, the folders are automatically searched once for the files. Old nodes (which do not have a corresponding file) are automatically removed, except for the build nodes. In some cases (lots of files added and removed), it may be necessary to perform a <emphasis>Waf clean</emphasis> to eliminate the information on build files which do not exist anymore.
@@ -259,7 +259,7 @@ meow
 				The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. This often puzzles the programmers used to static languages where new functions or classes cannot be defined at runtime.
 			</para>
 			<para>
-				The task generators automatically inherit the build context attribute <emphasis>bld</emphasis> when created from bld.new_task_gen. Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instanciation may result in problems when running Waf as a library.
+				The task generators automatically inherit the build context attribute <emphasis>bld</emphasis> when created from bld.new_task_gen. Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instantiation may result in problems when running Waf as a library.
 			</para>
 			<para>
 				The tasks created by task generator methods are automatically stored on the build context task manager, which stores the task into a task group. The task groups are later used by the scheduler to obtain the task which may run (state machine). Target (un)installation is performed right after a task has run, using the method <emphasis>install</emphasis>.
@@ -276,19 +276,19 @@ meow
 	<section>
 		<title>Performance and build accuracy</title>
 		<para>
-			From the experience with tools such as Scons, users may be concerned about performance and think that all build systems based on interpreted languages such as Python would not scale. We will now describe why this is not the case for Waf and why Waf should be chosen for building very large projects.
+			From the experience with tools such as SCons, users may be concerned about performance and think that all build systems based on interpreted languages such as Python would not scale. We will now describe why this is not the case for Waf and why Waf should be chosen for building very large projects.
 		</para>
 
 		<sect2>
 			<title>Comparing Waf against other build systems</title>
 			<para>
-				Since Waf considers the file contents in the build process, it is often thought that Waf would be much slower than make. For a test project having 5000 files (generated from the script located in <filename>tools/genbench.py</filename>), on a 1.5Ghz computer, the Waf runtime is actually slightly faster than the Gnu/Make one (less than one second). The reason is the time to launch a new process - make is usually called recursively, once by directory. For huge projects, calling make recursively is necessary for flexibility, but it hurts performance (launch many processes), and cpu utilization (running tasks in parallel). Make-based build systems such as CMake or autotools inherit the limitations of Make.
+				Since Waf considers the file contents in the build process, it is often thought that Waf would be much slower than make. For a test project having 5000 files (generated from the script located in <filename>tools/genbench.py</filename>), on a 1.5Ghz computer, the Waf runtime is actually slightly faster than the Gnu/Make one (less than one second). The reason is the time to launch a new process - make is usually called recursively, once by directory. For huge projects, calling make recursively is necessary for flexibility, but it hurts performance (launch many processes), and CPU utilization (running tasks in parallel). Make-based build systems such as CMake or Autotools inherit the limitations of Make.
 			</para>
 			<para>
 				Though Waf uses a similar design as SCons, Waf is about 15 times faster for similar features and without sacrificing build accuracy. There are many reasons for this, among them:
 				<itemizedlist>
-					<listitem>The Waf datastructures (filesystem representation, tasks) have been carefully chosen to minimize memory usage and data duplication</listitem>
-					<listitem>For a project of the same size, Scons requires at least 10 times as many function calls</listitem>
+					<listitem>The Waf data structures (file system representation, tasks) have been carefully chosen to minimize memory usage and data duplication</listitem>
+					<listitem>For a project of the same size, SCons requires at least 10 times as many function calls</listitem>
 				</itemizedlist>
 			</para>
 		</sect2>
@@ -319,13 +319,13 @@ Sun Nov  9 19:22:59 2008    prof.txt
 				</programlisting>
 				From the profile information, it appears that the visible hot spots are, in order:
 				<itemizedlist>
-					<listitem>The persistency implemented by the cPickle module (the cache file to serialize takes about 3Mb)</listitem>
+					<listitem>The persistence implemented by the cPickle module (the cache file to serialize takes about 3Mb)</listitem>
 					<listitem>Accessing configuration data from the Environment instances</listitem>
 					<listitem>Computing implicit dependencies (the test project contains lots of interleaved dependencies)</listitem>
 				</itemizedlist>
 			</para>
 			<para>
-				The computation of implicit dependencies (searching for headers when a c file is to be compiled) may take a significant time, but is only performed when the targets have to be compiled. The preprocessing time (<filename>preproc.py</filename>) is therefore invisible. In practice, the optimizations should aim at reducing the datastructure sizes (for cPickle) and the amount of function calls (overall runtime).
+				The computation of implicit dependencies (searching for headers when a c file is to be compiled) may take a significant time, but is only performed when the targets have to be compiled. The preprocessing time (<filename>preproc.py</filename>) is therefore invisible. In practice, the optimizations should aim at reducing the data structure sizes (for cPickle) and the amount of function calls (overall runtime).
 			</para>
 		</sect2>
 
