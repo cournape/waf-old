@@ -11,7 +11,7 @@ from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
 
 from Configure import conftest
-import ccroot, cc, cxx
+import ccroot, cc, cxx, ar
 from libtool import read_la_file
 from os.path import exists
 
