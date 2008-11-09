@@ -338,8 +338,6 @@ def apply_obj_vars(self):
 
 	for i in self.env['LIBPATH']:
 		app('LINKFLAGS', libpath_st % i)
-
-	for i in self.env['LIBPATH']:
 		app('LINKFLAGS', staticlibpath_st % i)
 
 	if self.env['STATICLIB']:
