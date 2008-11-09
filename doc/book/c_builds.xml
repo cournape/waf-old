@@ -7,7 +7,7 @@
 	<section>
 		<title>Canonical declaration for C/C++ applications</title>
 		<para>
-			The c/c++ builds consist in transforming source files into object files, and to assemble the object files at the end. In theory a single programming language should be sufficient for writing any application, but in practice small variations exist:
+			The c/c++ builds consist in transforming source files into object files, and to assemble the object files at the end. In theory a single programming language should be sufficient for writing any application, but in practice slight variations exist:
 			<itemizedlist>
 				<listitem>Applications may be divided in dynamic or static libraries</listitem>
 				<listitem>Additional files may enter in the link step (libraries, object files)</listitem>
@@ -182,7 +182,7 @@ def configure(conf):
 	conf.check_cc(header_name='time.h') <co id="cc1-co" linkends="ccl"/>
 	conf.check_cc(function_name='printf', header_name="stdio.h", mandatory=1) <co id="cc2-co" linkends="cc2"/>
 	conf.check_cc(fragment='int main() {2+2==4;}\n', define_name="boobah") <co id="cc3-co" linkends="cc3"/>
-	conf.check_cc(lib='m', ccflags='-Wall', defines=['var=foo', 'x=y']) <co id="cc4-co" linkends="cc4"/>
+	conf.check_cc(lib='m', ccflags='-Wall', defines=['var=foo', 'x=y'], uselib_store='M') <co id="cc4-co" linkends="cc4"/>
 	conf.check_cc(lib='linux', uselib='M') <co id="cc5-co" linkends="cc5"/>
 
 	conf.check_cc(fragment='''
@@ -206,7 +206,7 @@ def configure(conf):
 					<para>Try to compile a code fragment, and if the test is successful, define the name boobah</para>
 				</callout>
 				<callout arearefs="cc4-co" id="cc4">
-					<para>When this test is successful, the uselib variables LIB_M, CCFLAGS_M and DEFINE_M will be added to self.env with the values corresponding the the parameters lib, cflags and defines. Additional parameters provided by the env parameter will not be stored afterwards.</para>
+					<para>Modifications made to the task generator environment are not stored. When the test is successful and when the attribute uselib_store is provided, the names lib, cflags and defines will be converted into uselib variables LIB_M, CCFLAGS_M and DEFINE_M and the flag values are added to the configuration environment.</para>
 				</callout>
 				<callout arearefs="cc5-co" id="cc5">
 					<para>Try to compile a simple c program against a library called 'linux', and reuse the previous parameters for libm (uselib)</para>

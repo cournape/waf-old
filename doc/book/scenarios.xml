@@ -212,7 +212,7 @@ def build(bld):
 			</callout>
 		</calloutlist>
 	</section>
-	<section>
+	<section id="runtime_discovered_outputs">
 		<title>A compiler producing source files with names unknown in advance</title>
 		<para>
 			The example below demonstrates how to tackle the following requirements:
@@ -304,8 +304,8 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 		build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
 		self.outputs = build_nodes
 
-		# create the cpp tasks
-		self.more_tasks = self.add_cpp_tasks(build_nodes)
+		# create the cpp tasks, in the thread
+		self.more_tasks = self.add_cpp_tasks(build_nodes) <co id="thread-co" linkends="thread"/>
 
 		# cache the file names and the task signature
 		node = self.inputs[0]
@@ -336,7 +336,7 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 			if prev_sig == sig:
 				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
 				self.set_outputs(lst)
-				lst = self.add_cpp_tasks(lst)
+				lst = self.add_cpp_tasks(lst) <co id="mthread-co" linkends="mthread"/>
 				for tsk in lst:
 					generator = self.generator.bld.generator
 					generator.outstanding.append(tsk)
@@ -354,7 +354,7 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 		try:
 			time = tree.node_sigs[variant][node.id]
 		except KeyError:
-			debug("task #%d should run as the first node does not exist" % self.idx, 'task')
+			debug("run task #%d - the first node does not exist" % self.idx, 'task')
 			try: new_sig = self.signature()
 			except KeyError:
 				print "TODO - computing the signature failed"
@@ -384,10 +384,12 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 			tgen.link_task.inputs.append(task.outputs[0])
 			tsklst.append(task)
 
-			# if headers are produced something like this can be done to add the include paths
+			# if headers are produced something like this can be done
+			# to add the include paths
 			dir = task.inputs[0].parent
-			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c++
-			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c
+			# include paths for c++ and c
+			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env))
+			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env))
 			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
 
 		return tsklst
@@ -414,7 +416,13 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 					<para>Retrieve the information on the source files created</para>
 				</callout>
 				<callout arearefs="cpp-co" id="cpp">
-					<para>Create the c++ tasks used for processing the source files created, if the tasks are created during the processing (in an execution thread), the tasks must be reinjected by adding them to the attribute <emphasis>more_tasks</emphasis>, if the tasks are created during the task examination (runnable_status), the tasks can be injected directly in the build by using the attribute <emphasis>outstanding</emphasis> of the scheduler</para>
+					<para>Create the c++ tasks used for processing the source files found</para>
+				</callout>
+				<callout arearefs="thread-co" id="thread">
+					<para>If the tasks are created during a task execution (in an execution thread), the tasks must be reinjected by adding them to the attribute <emphasis>more_tasks</emphasis></para>
+				</callout>
+				<callout arearefs="mthread-co" id="mthread">
+					<para>If the tasks are created during the task examination (runnable_status), the tasks can be injected directly in the build by using the attribute <emphasis>outstanding</emphasis> of the scheduler</para>
 				</callout>
 			</calloutlist>
 

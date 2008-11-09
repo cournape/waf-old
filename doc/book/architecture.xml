@@ -265,6 +265,12 @@ meow
 				The tasks created by task generator methods are automatically stored on the build context task manager, which stores the task into a task group. The task groups are later used by the scheduler to obtain the task which may run (state machine). Target (un)installation is performed right after a task has run, using the method <emphasis>install</emphasis>.
 			</para>
 		</sect2>
+		<sect2>
+			<title>Threading concerns</title>
+			<para>
+				Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods <emphasis>run</emphasis> from the task instances. Such methods should contain as little code as possible, and avoid sharing data with other parts. If additional code has to be run, it is recommended to overload the method <emphasis>get_out</emphasis> of the scheduler. Adding additional tasks from a running task is demonstrated <xref linkend="runtime_discovered_outputs"/>
+			</para>
+		</sect2>
 	</section>
 
 </chapter>
