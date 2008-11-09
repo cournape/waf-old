@@ -4,7 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import os, re
+import os, sys, re
 import TaskGen, Utils, preproc, Logs, Build, Options
 from Logs import error, debug, warn
 from Utils import md5
@@ -140,7 +140,7 @@ def install_target_cstaticlib(self):
 @feature('cshlib', 'dshlib')
 @after('apply_objdeps', 'apply_link')
 def install_target_cshlib(self):
-	if getattr(self, 'vnum', '') and Options.platform != 'win32':
+	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		tsk = self.link_task
 		tsk.vnum = self.vnum
 		tsk.install = install_shlib
@@ -323,41 +323,44 @@ def apply_objdeps(self):
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
 def apply_obj_vars(self):
-	lib_st           = self.env['LIB_ST']
-	staticlib_st     = self.env['STATICLIB_ST']
-	libpath_st       = self.env['LIBPATH_ST']
-	staticlibpath_st = self.env['STATICLIBPATH_ST']
+	v = self.env
+	lib_st           = v['LIB_ST']
+	staticlib_st     = v['STATICLIB_ST']
+	libpath_st       = v['LIBPATH_ST']
+	staticlibpath_st = v['STATICLIBPATH_ST']
+	rpath_st         = v['RPATH_ST']
 
-	app = self.env.append_unique
+	app = v.append_unique
 
-	if self.env['FULLSTATIC']:
-		self.env.append_value('LINKFLAGS', self.env['FULLSTATIC_MARKER'])
+	if v['FULLSTATIC']:
+		v.append_value('LINKFLAGS', v['FULLSTATIC_MARKER'])
 
-	for i in self.env['RPATH']:
-		app('LINKFLAGS', i)
+	for i in v['RPATH']:
+		if rpath_st:
+			app('LINKFLAGS', rpath_st % i)
 
-	for i in self.env['LIBPATH']:
+	for i in v['LIBPATH']:
 		app('LINKFLAGS', libpath_st % i)
 		app('LINKFLAGS', staticlibpath_st % i)
 
-	if self.env['STATICLIB']:
-		self.env.append_value('LINKFLAGS', self.env['STATICLIB_MARKER'])
-		k = [(staticlib_st % i) for i in self.env['STATICLIB']]
+	if v['STATICLIB']:
+		v.append_value('LINKFLAGS', v['STATICLIB_MARKER'])
+		k = [(staticlib_st % i) for i in v['STATICLIB']]
 		app('LINKFLAGS', k)
 
 	# fully static binaries ?
-	if not self.env['FULLSTATIC']:
-		if self.env['STATICLIB'] or self.env['LIB']:
-			self.env.append_value('LINKFLAGS', self.env['SHLIB_MARKER'])
+	if not v['FULLSTATIC']:
+		if v['STATICLIB'] or v['LIB']:
+			v.append_value('LINKFLAGS', v['SHLIB_MARKER'])
 
-	app('LINKFLAGS', [lib_st % i for i in self.env['LIB']])
+	app('LINKFLAGS', [lib_st % i for i in v['LIB']])
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_link')
 def apply_vnum(self):
 	"use self.vnum and self.soname to modify the command line (un*x)"
 	# this is very unix-specific
-	if Options.platform != 'darwin' and Options.platform != 'win32':
+	if sys.platform != 'darwin' and sys.platform != 'win32':
 		try:
 			nums = self.vnum.split('.')
 		except AttributeError:
