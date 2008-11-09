@@ -225,141 +225,173 @@ def build(bld):
 			The main difficulty in this scenario is to store the information on the source file produced and to create the corresponding tasks each time.
 
 			<programlisting language="python">
+
+## A DEMO ##
+
 VERSION='0.0.1'
 APPNAME='unknown_outputs'
 srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-    pass
+	pass
 
 def configure(conf):
-    # used only when configured from the same folder
-    conf.check_tool('gcc')
-    conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
+	# used only when configured from the same folder
+	conf.check_tool('gcc')
+	conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
 
 def build(bld):
-    staticlib = bld.new_task_gen('cc', 'staticlib')
-    staticlib.source = 'x.c foo.shpip' <co id="exa-co" linkends="exa"/>
-    staticlib.target='teststaticlib'
-    staticlib.includes = '.'
+	staticlib = bld.new_task_gen('cc', 'staticlib')
+	staticlib.source = 'x.c foo.shpip' <co id="exa-co" linkends="exa"/>
+	staticlib.target='teststaticlib'
+	staticlib.includes = '.'
+
+
+## INTERNAL CODE BELOW ##
+
+import os
+import TaskGen, Task, Utils, Build
+from TaskGen import taskgen, feature, before, after, extension
+from logging import debug
+from Constants import *
 
 @taskgen
+@after('apply_link')
 @extension('.shpip')
 def process_shpip(self, node): <co id="virt-co" linkends="virt"/>
-    tsk = shpip_task(self.env)
-    tsk.task_gen = self
-    tsk.set_inputs(node)
+	tsk = shpip_task(self.env, generator=self)
+	tsk.task_gen = self
+	tsk.set_inputs(node)
 
 class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
-    color = 'PINK'
-    quiet = 1 <co id="quiet-co" linkends="quiet"/>
+	"""
+	A special task, which finds its outputs once it has run
+	It outputs cpp files that must be compiled too
+	"""
 
-    def __init__(self, env, normal=1):
-        Task.Task.__init__(self, env, normal)
+	color = 'PINK'
+	quiet = 1 <co id="quiet-co" linkends="quiet"/>
 
-    def scan_signature(self):
-        return ''
+	# important, no link before all shpip are done
+	before = ['cc_link', 'cxx_link', 'ar_link_static']
 
-    def run(self): <co id="run-co" linkends="run"/>
-        "runs a program that creates cpp files, capture the output to compile them"
-        node = self.inputs[0]
+	def __init__(self, *k, **kw):
+		Task.Task.__init__(self, *k, **kw)
 
-        dir = Build.bld.srcnode.bldpath(self.env)
-        cmd = 'cd %s &amp;&amp; %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
-        try:
-            # read the contents of the file and create cpp files from it
-            files = os.popen(cmd).read().strip()
-        except:
-            # comment the following line to disable debugging
-            raise
-            return 1
-        else:
-            # the variable lst should contain a list of paths to the files produced
-            lst = Utils.to_list(files)
+	def run(self): <co id="run-co" linkends="run"/>
+		"runs a program that creates cpp files, capture the output to compile them"
+		node = self.inputs[0]
 
-            # Waf does not know "magically" what files are produced
-            # In the most general case it may be necessary to run os.listdir() to see them
-            # In this demo the command outputs is giving us this list
+		dir = self.generator.bld.srcnode.bldpath(self.env)
+		cmd = 'cd %s &amp;&amp; %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
+		try:
+			# read the contents of the file and create cpp files from it
+			files = os.popen(cmd).read().strip()
+		except:
+			# comment the following line to disable debugging
+			#raise
+			return 1 # error
 
-            # the files exist in the build dir only so we do not use find_or_declare
-            build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
-            self.outputs = build_nodes
+		# the variable lst should contain a list of paths to the files produced
+		lst = Utils.to_list(files)
 
-            # create the cpp tasks
-            self.add_cpp_tasks(build_nodes)
+		# Waf does not know "magically" what files are produced
+		# In the most general case it may be necessary to run os.listdir() to see them
+		# In this demo the command outputs is giving us this list
 
-            # cache the file names and the task signature
-            node = self.inputs[0]
-            sig = self.signature()
-            Build.bld.raw_deps[self.unique_id()] = [sig] + lst
-        # 0 for all ok
-        return 0
+		# the files exist in the build dir only so we do not use find_or_declare
+		build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
+		self.outputs = build_nodes
 
-    def runnable_status(self):
-        # look at the cache, if the shpip task was already run
-        # and if the source has not changed, create the corresponding cpp tasks
-        for t in self.run_after:
-            if not t.hasrun:
-                return ASK_LATER
+		# create the cpp tasks
+		self.more_tasks = self.add_cpp_tasks(build_nodes)
 
-        node = self.inputs[0]
-        try: <co id="persist-co" linkends="persist"/>
-            sig = self.signature()
-            key = self.unique_id()
-            deps = Build.bld.raw_deps[key]
-            prev_sig = Build.bld.task_sigs[key][0]
-        except KeyError:
-            pass
-        else:
-            # if the file has not changed, create the cpp tasks
-            if prev_sig == sig:
-                lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
-                self.set_outputs(lst)
-                self.add_cpp_tasks(lst)
+		# cache the file names and the task signature
+		node = self.inputs[0]
+		sig = self.signature()
+		self.generator.bld.raw_deps[self.unique_id()] = [sig] + lst
 
-        if not self.outputs:
-            return RUN_ME
+		return 0 # no error
 
-        # this is a part of Task.Task:runnable_status: first node does not exist -> run
-        # this is necessary after a clean
-        # TODO cache is disabled
-        env = self.env
-        tree = Build.bld
-        node = self.outputs[0]
-        variant = node.variant(env)
+	def runnable_status(self):
+		# look at the cache, if the shpip task was already run
+		# and if the source has not changed, create the corresponding cpp tasks
 
-        try:
-            time = tree.node_sigs[variant][node.id]
-        except KeyError:
-            debug("task #%d should run as the first node does not exist" % self.idx, 'task')
-            try: new_sig = self.signature()
-            except KeyError:
-                print "TODO - computing the signature failed"
-                return RUN_ME
+		for t in self.run_after:
+			if not t.hasrun:
+				return ASK_LATER
 
-            ret = self.can_retrieve_cache(new_sig)
-            return ret and SKIP_ME or RUN_ME
+		tree = self.generator.bld
+		node = self.inputs[0]
+		try: <co id="persist-co" linkends="persist"/>
+			sig = self.signature()
+			key = self.unique_id()
+			deps = tree.raw_deps[key]
+			prev_sig = tree.task_sigs[key][0]
+		except KeyError:
+			pass
+		else:
+			# if the file has not changed, create the cpp tasks
+			if prev_sig == sig:
+				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
+				self.set_outputs(lst)
+				lst = self.add_cpp_tasks(lst)
+				for tsk in lst:
+					generator = self.generator.bld.generator
+					generator.outstanding.append(tsk)
 
-        return SKIP_ME
 
-    def add_cpp_tasks(self, lst): <co id="cpp-co" linkends="cpp"/>
-        "creates cpp tasks after the build has started"
-        tgen = self.task_gen
-        for node in lst:
-            TaskGen.task_gen.mapped['c_hook'](tgen, node)
-            task = tgen.compiled_tasks[-1]
+		if not self.outputs:
+			return RUN_ME
 
-            tgen.link_task.inputs.append(task.outputs[0])
-            generator = Build.bld.generator
-            generator.outstanding.insert(0, task)
-            generator.total += 1
+		# this is a part of Task.Task:runnable_status: first node does not exist -> run
+		# this is necessary after a clean
+		env = self.env
+		node = self.outputs[0]
+		variant = node.variant(env)
 
-            # if headers are produced something like this can be done to add the include paths
-            dir = task.inputs[0].parent
-            self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c++
-            self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c
-            self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
+		try:
+			time = tree.node_sigs[variant][node.id]
+		except KeyError:
+			debug("task #%d should run as the first node does not exist" % self.idx, 'task')
+			try: new_sig = self.signature()
+			except KeyError:
+				print "TODO - computing the signature failed"
+				return RUN_ME
+
+			ret = self.can_retrieve_cache(new_sig)
+			return ret and SKIP_ME or RUN_ME
+
+		return SKIP_ME
+
+	def add_cpp_tasks(self, lst): <co id="cpp-co" linkends="cpp"/>
+		"creates cpp tasks after the build has started"
+		tgen = self.task_gen
+		tsklst = []
+
+		for node in lst:
+			TaskGen.task_gen.mapped['c_hook'](tgen, node)
+			task = tgen.compiled_tasks[-1]
+			task.set_run_after(self)
+
+			# important, no link before compilations are all over
+			try:
+				self.generator.link_task.set_run_after(task)
+			except AttributeError:
+				pass
+
+			tgen.link_task.inputs.append(task.outputs[0])
+			tsklst.append(task)
+
+			# if headers are produced something like this can be done to add the include paths
+			dir = task.inputs[0].parent
+			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c++
+			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c
+			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
+
+		return tsklst
+
 			</programlisting>
 
 			<calloutlist>
@@ -382,7 +414,7 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 					<para>Retrieve the information on the source files created</para>
 				</callout>
 				<callout arearefs="cpp-co" id="cpp">
-					<para>Create the c++ tasks used for processing the source files created</para>
+					<para>Create the c++ tasks used for processing the source files created, if the tasks are created during the processing (in an execution thread), the tasks must be reinjected by adding them to the attribute <emphasis>more_tasks</emphasis>, if the tasks are created during the task examination (runnable_status), the tasks can be injected directly in the build by using the attribute <emphasis>outstanding</emphasis> of the scheduler</para>
 				</callout>
 			</calloutlist>
 
