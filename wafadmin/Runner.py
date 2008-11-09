@@ -202,5 +202,5 @@ class Parallel(object):
 					self.consumers = [TaskConsumer(self) for i in xrange(self.numjobs)]
 
 		#print loop
-		assert (self.count == 0 or stop)
+		assert (self.count == 0 or self.stop)
 
