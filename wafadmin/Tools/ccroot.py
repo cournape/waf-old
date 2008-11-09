@@ -4,7 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import os, sys, re
+import os, re
 import TaskGen, Utils, preproc, Logs, Build, Options
 from Logs import error, debug, warn
 from Utils import md5
@@ -140,7 +140,7 @@ def install_target_cstaticlib(self):
 @feature('cshlib', 'dshlib')
 @after('apply_objdeps', 'apply_link')
 def install_target_cshlib(self):
-	if getattr(self, 'vnum', '') and sys.platform != 'win32':
+	if getattr(self, 'vnum', '') and Options.platform != 'win32':
 		tsk = self.link_task
 		tsk.vnum = self.vnum
 		tsk.install = install_shlib
@@ -359,7 +359,7 @@ def apply_obj_vars(self):
 def apply_vnum(self):
 	"use self.vnum and self.soname to modify the command line (un*x)"
 	# this is very unix-specific
-	if sys.platform != 'darwin' and sys.platform != 'win32':
+	if Options.platform != 'darwin' and Options.platform != 'win32':
 		try:
 			nums = self.vnum.split('.')
 		except AttributeError:
