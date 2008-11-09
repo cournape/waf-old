@@ -88,7 +88,11 @@ class shpip_task(Task.Task):
 			if prev_sig == sig:
 				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
 				self.set_outputs(lst)
-				self.add_cpp_tasks(lst)
+				lst = self.add_cpp_tasks(lst)
+				for tsk in lst:
+					generator = self.generator.bld.generator
+					generator.outstanding.append(tsk)
+
 
 		if not self.outputs:
 			return RUN_ME
@@ -116,6 +120,8 @@ class shpip_task(Task.Task):
 	def add_cpp_tasks(self, lst):
 		"creates cpp tasks after the build has started"
 		tgen = self.task_gen
+		tsklst = []
+
 		for node in lst:
 			TaskGen.task_gen.mapped['c_hook'](tgen, node)
 			task = tgen.compiled_tasks[-1]
@@ -128,14 +134,15 @@ class shpip_task(Task.Task):
 				pass
 
 			tgen.link_task.inputs.append(task.outputs[0])
-			generator = self.generator.bld.generator
-			generator.outstanding.append(task)
+			tsklst.append(task)
 
 			# if headers are produced something like this can be done to add the include paths
 			dir = task.inputs[0].parent
 			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c++
 			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env)) # include paths for c
 			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
+
+		return tsklst
 
 	def run(self):
 		"runs a program that creates cpp files, capture the output to compile them"
@@ -163,7 +170,7 @@ class shpip_task(Task.Task):
 		self.outputs = build_nodes
 
 		# create the cpp tasks
-		self.add_cpp_tasks(build_nodes)
+		self.more_tasks = self.add_cpp_tasks(build_nodes)
 
 		# cache the file names and the task signature
 		node = self.inputs[0]
