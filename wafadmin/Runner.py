@@ -108,6 +108,8 @@ class Parallel(object):
 
 	def get_next(self):
 		"override this method to schedule the tasks in a particular order"
+		if not self.outstanding:
+			return None
 		return self.outstanding.pop(0)
 
 	def postpone(self, tsk):
@@ -136,12 +138,13 @@ class Parallel(object):
 				if tmp: self.outstanding += tmp
 				break
 
-		# 0 == cannot refill == no more tasks
-		return self.maxjobs
-
 	def get_out(self):
 		"the tasks that are put to execute are all collected using get_out"
-		self.manager.add_finished(self.out.get())
+		ret = self.out.get()
+		self.manager.add_finished(ret)
+		if not self.stop and getattr(ret, 'more_tasks', None):
+			self.outstanding += ret.more_tasks
+			self.total += len(ret.more_tasks)
 		self.count -= 1
 
 	def error_handler(self, tsk):
@@ -155,13 +158,20 @@ class Parallel(object):
 
 		while not self.stop:
 
-			if not self.refill_task_list():
-				break
+			self.refill_task_list()
 
 			# consider the next task
 			tsk = self.get_next()
+			if not tsk:
+				if self.count:
+					# tasks may add new ones after they are run
+					continue
+				else:
+					# no tasks to run, no tasks running, time to exit
+					break
+
 			if tsk.hasrun:
-				# if the task is marked as "run" already, we just skip it
+				# if the task is marked as "run", just skip it
 				self.processed += 1
 				self.manager.add_finished(tsk)
 
@@ -192,6 +202,5 @@ class Parallel(object):
 					self.consumers = [TaskConsumer(self) for i in xrange(self.numjobs)]
 
 		#print loop
-		while self.count:
-			self.get_out()
+		assert (self.count == 0)
 
