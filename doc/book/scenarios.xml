@@ -419,7 +419,7 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 					<para>Create the c++ tasks used for processing the source files found</para>
 				</callout>
 				<callout arearefs="thread-co" id="thread">
-					<para>If the tasks are created during a task execution (in an execution thread), the tasks must be reinjected by adding them to the attribute <emphasis>more_tasks</emphasis></para>
+					<para>If the tasks are created during a task execution (in an execution thread), the tasks must be re-injected by adding them to the attribute <emphasis>more_tasks</emphasis></para>
 				</callout>
 				<callout arearefs="mthread-co" id="mthread">
 					<para>If the tasks are created during the task examination (runnable_status), the tasks can be injected directly in the build by using the attribute <emphasis>outstanding</emphasis> of the scheduler</para>

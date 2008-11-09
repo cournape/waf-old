@@ -140,9 +140,9 @@ Your archive is ready -> test-0.0.1.tar.bz2
 			</itemizedlist>
 		</para>
 		<sect2>
-			<title>Providing wscript files in subfolders</title>
+			<title>Providing wscript files in sub folders</title>
 			<para>
-			The function build may reference build functions in wscript present in subfolders, for example:
+			The function build may reference build functions in wscript present in sub folders, for example:
 			<programlisting language="sh">
 .
 `-- wscript
@@ -226,9 +226,9 @@ def build(bld):
 			</itemizedlist>
 		</para>
 		<sect2>
-			<title>Indicating configuration subfolders</title>
+			<title>Indicating configuration sub folders</title>
 			<para>
-			The function configure may reference configure functions in wscript present in subfolders, for example:
+			The function configure may reference configure functions in wscript present in sub folders, for example:
 			<programlisting language="sh">
 .
 `-- wscript
@@ -384,9 +384,9 @@ False
 		</sect2>
 
 		<sect2>
-			<title>Adding options from wscript files located in subfolders</title>
+			<title>Adding options from wscript files located in sub folders</title>
 			<para>
-			The function set_options may reference build functions in wscript present in subfolders, for example:
+			The function set_options may reference build functions in wscript present in sub folders, for example:
 			<programlisting language="sh">
 .
 `-- wscript

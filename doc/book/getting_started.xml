@@ -39,7 +39,7 @@ $ ./waf-light --make-waf
 		<title>Installing</title>
 		<para>Waf installation is optional and there are many advantages of not installing Waf, among them:
 			<orderedlist>
-				<listitem>Installation: installation is cumbersome, and requires administrative priviledges</listitem>
+				<listitem>Installation: installation is cumbersome, and requires administrative privileges</listitem>
 				<listitem>Waf versions: users rarely install the appropriate software version (too old, too new)</listitem>
 				<listitem>Bugs: newer Waf versions may result in broken builds</listitem>
 				<listitem>Size: Waf is extremely small (about 70kB)</listitem>
@@ -47,12 +47,12 @@ $ ./waf-light --make-waf
 			</orderedlist>
 		</para>
 		<para>
-			If, despite the advantages enumerated previously, you really want to install the Waf application on the system, you may use the following command on unix-like systems such as Linux:
+			If, despite the advantages enumerated previously, you really want to install the Waf application on the system, you may use the following command on Unix-like systems such as Linux:
 			<programlisting language="sh">
 # ./waf-light configure --prefix=/usr/
 # ./waf-light install
 			</programlisting>
-			Root priviledges may be required depending on the final location.
+			Root privileges may be required depending on the final location.
 		</para>
 		<para>
 			Waf can be uninstalled using:
@@ -76,7 +76,7 @@ $ python waf
 			</programlisting>
 		</para>
 		<para>
-			By default, the Waf script uncompresses its library in the current directory, in a hidden folder. This means the Waf script must reside in a writeable folder. The naming is allow different Waf versions to run from the same folder:
+			By default, the Waf script uncompresses its library in the current directory, in a hidden folder. This means the Waf script must reside in a writable folder. The naming is allow different Waf versions to run from the same folder:
 			<programlisting language="sh">
 $ ls -ld .waf*
 .waf-1.5.0-ec924e3f453eb715118b9cc852291170

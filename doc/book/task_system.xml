@@ -10,7 +10,7 @@
 			When Waf tasks are created, they are not executed immediately, for example it is not necessary to rebuild an application if the source files have not changed. Some tasks may also depend on other tasks which may not be created yet. For this reasons Waf delays the execution of tasks to the point when all build functions have been executed.
 		</para>
 		<para>
-			Creating all tasks by hand is a tedious process that the task generators (<xref  linkend="task_gen"/>) may automate. Before starting the build, Waf asks each task generator to produce the corresponding tasks. If Waf is launched from a subfolder inside the source directory, it will try to avoid the creation of the tasks that are not relevant for that particular subfolder (optimization).
+			Creating all tasks by hand is a tedious process that the task generators (<xref  linkend="task_gen"/>) may automate. Before starting the build, Waf asks each task generator to produce the corresponding tasks. If Waf is launched from a sub folder inside the source directory, it will try to avoid the creation of the tasks that are not relevant for that particular sub folder (optimization).
 		</para>
 		<para>
 		 	Once the tasks are created, Waf will review each of them one by one to decide whether to execute them or not. A summary can be found on the following diagram:
@@ -31,7 +31,7 @@
 	<section>
 		<title>Task execution in parallel</title>
 		<para>
-			Tasks may be executed in parallel to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processsors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option <emphasis>-j1</emphasis>. To enhance parallelization, use the option <emphasis>-j</emphasis> with the amount of consumers:
+			Tasks may be executed in parallel to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option <emphasis>-j1</emphasis>. To enhance parallelization, use the option <emphasis>-j</emphasis> with the amount of consumers:
 			<programlisting language="sh">
 $ waf -j3
 			</programlisting>
@@ -59,7 +59,7 @@ $ waf -j3
 					<listitem>The amount of tasks and ordering constraints (graph size) can be huge and performance may be a problem</listitem>
 				</itemizedlist>
 
-				To make the problem more simple, it is divided by the different concerns, and the orderring constraints can be given on three different levels:
+				To make the problem more simple, it is divided by the different concerns, and the ordering constraints can be given on three different levels:
 				<orderedlist>
 					<listitem>groups of tasks may run only after another group of tasks has finished to run, this represents a strict sequential order between groups of tasks, for example a compiler is produced and used to compile the tasks in the next group</listitem>
 					<listitem>task types to indicate the instance will run after other task type instances, for example linking object files may only occur after compiling the source files</listitem>
