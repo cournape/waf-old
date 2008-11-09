@@ -336,7 +336,7 @@ def apply_obj_vars(self):
 		v.append_value('LINKFLAGS', v['FULLSTATIC_MARKER'])
 
 	for i in v['RPATH']:
-		if rpath_st:
+		if i and rpath_st:
 			app('LINKFLAGS', rpath_st % i)
 
 	for i in v['LIBPATH']:
