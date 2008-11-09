@@ -190,7 +190,7 @@ def libname_msvc(self, libname, is_static=False):
 @after('apply_obj_vars_cc')
 @after('apply_obj_vars_cxx')
 def apply_msvc_obj_vars(self):
-	debug('apply_msvc_obj_vars called for msvc', 'msvc')
+	debug('msvc: apply_msvc_obj_vars called for msvc')
 	env = self.env
 	app = env.append_unique
 
