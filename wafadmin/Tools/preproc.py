@@ -572,7 +572,7 @@ def extract_macro(txt):
 			else:
 				raise PreprocError, "unexpected else"
 
-		print (name, [params, t[i+1:]])
+		#~ print (name, [params, t[i+1:]])
 		return (name, [params, t[i+1:]])
 	else:
 		(p, v) = t[0]
