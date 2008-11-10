@@ -26,7 +26,7 @@ import Environment
 # The following string is a wscript for tests.
 # Note the embedded string that changed by more_config
 wscript_contents = """
-blddir = 'build'
+blddir = '%(build)s'
 srcdir = '.'
 
 def configure(conf):
@@ -41,7 +41,8 @@ class ConfigureTester(common_test.CommonTester):
 	def __init__(self, methodName):
 		common_test.CommonTester.__init__(self, methodName)
 		self._test_dic = {}
-		self._blddir = 'build' # has to be the same as in wscript above
+		self._blddir = 'build'
+		self._test_dic['build'] = self._blddir
 
 	def setUp(self):
 		# define & create temporary testing directories
@@ -86,6 +87,11 @@ class ConfigureTester(common_test.CommonTester):
 		opt_obj = Options.Handler()
 		opt_obj.parse_args()
 		return Configure.ConfigurationContext()
+	
+	def load_env(self, cache_file=''):
+		if not cache_file:
+			cache_file = os.path.join( self._blddir,  'c4che', 'default.cache.py' )
+		return Environment.Environment(cache_file)
 
 	def test_simple_configure(self):
 		# regular configuration
@@ -104,6 +110,15 @@ class CcConfigureTester(ConfigureTester):
 		self._populate_dictionary("""conf.check_cc(msg="checking for flag='-Werror'", ccflags='-Werror', mandatory=1)""")
 		self._write_files()
 		self._test_configure()
+
+	def test_library_configurator(self):
+		# black-box test: configurates a library
+		self._populate_dictionary("""conf.check_cc(lib='z', mandatory=1)""")
+		self._write_files()
+		self._test_configure()
+		
+		env = self.load_env()
+		self.assert_(env['LIB_Z']==['z'], "it seems that libz was not configured properly, run waf check -vv to see the exact error...")
 
 	def test_invalid_flag(self):
 		# black-box test: invalid flag
@@ -124,12 +139,12 @@ class CxxConfigureTester(ConfigureTester):
 		self._test_configure()
 
 	def test_library_configurator(self):
-		# black-box test: configurates a library
+		# black-box + white-box test: configurates a library
 		self._populate_dictionary("""conf.check_cxx(lib='z', mandatory=1)""")
 		self._write_files()
 		self._test_configure()
 		
-		env = Environment.Environment('build/c4che/default.cache.py')
+		env = self.load_env()
 		self.assert_(env['LIB_Z']==['z'], "it seems that libz was not configured properly, run waf check -vv to see the exact error...")
 
 	def test_invalid_flag(self):
