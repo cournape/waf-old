@@ -19,6 +19,10 @@ import Utils
 import Scripting
 import Build
 
+# import the Environment module, set configure command to False to avoid setting the prefix too...
+Options.commands['configure'] = 0
+import Environment
+
 # The following string is a wscript for tests.
 # Note the embedded string that changed by more_config
 wscript_contents = """
@@ -118,6 +122,15 @@ class CxxConfigureTester(ConfigureTester):
 		self._populate_dictionary("""conf.check_cxx(msg="checking for flag='-ansi'", cxxflags='-ansi', mandatory=1)""")
 		self._write_files()
 		self._test_configure()
+
+	def test_library_configurator(self):
+		# black-box test: configurates a library
+		self._populate_dictionary("""conf.check_cxx(msg="checking for zlib", lib='z', mandatory=1)""")
+		self._write_files()
+		self._test_configure()
+		
+		env = Environment.Environment('build/c4che/default.cache.py')
+		self.assert_(env['LIB_Z']==['z'], "it seems that libz was not configured properly, run waf check -vv to see the exact error...")
 
 	def test_invalid_flag(self):
 		# black-box test: invalid flag
