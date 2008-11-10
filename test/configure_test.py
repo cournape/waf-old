@@ -125,7 +125,7 @@ class CxxConfigureTester(ConfigureTester):
 
 	def test_library_configurator(self):
 		# black-box test: configurates a library
-		self._populate_dictionary("""conf.check_cxx(msg="checking for zlib", lib='z', mandatory=1)""")
+		self._populate_dictionary("""conf.check_cxx(lib='z', mandatory=1)""")
 		self._write_files()
 		self._test_configure()
 		
