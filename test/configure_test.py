@@ -49,16 +49,16 @@ class ConfigureTester(common_test.CommonTester):
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''
 		os.chdir(self._waf_root_dir)
-		
+
 		if os.path.isdir(self._test_dir_root):
 			shutil.rmtree(self._test_dir_root)
 
 	def _populate_dictionary(self, more_config):
 		"""
-		standard template for functions below - single (write) access point to dictionary. 
+		standard template for functions below - single (write) access point to dictionary.
 		"""
-		self._test_dic['more_config'] 	= more_config
-		self._test_dic['tool'] 	= self._tool_name
+		self._test_dic['more_config']	= more_config
+		self._test_dic['tool']	= self._tool_name
 
 	def _write_wscript(self, contents = '', use_dic=True):
 		wscript_file_path = self._wscript_file_path
@@ -160,7 +160,7 @@ def set_options(opt):
 		opt_obj.parse_args()
 		Utils.set_main_module(self._wscript_file_path)
 		self.failUnlessRaises(Configure.ConfigurationError, Scripting.configure)
-		
+
 	def test_nothing_to_store(self):
 		# white-box test: fails if all_envs are not defined.
 		conf = self._setup_configure()
