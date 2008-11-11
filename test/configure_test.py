@@ -147,6 +147,15 @@ class CxxConfigureTester(ConfigureTester):
 		env = self.load_env()
 		self.assert_(env['LIB_Z']==['z'], "it seems that libz was not configured properly, run waf check -vv to see the exact error...")
 
+	def test_remove_libpath_trailing_slash(self):
+		# black-box test: removes trailing slash from LIBPATH variables
+		self._populate_dictionary("""conf.check_cxx(lib='z', mandatory=1, libpath='/usr/lib/')""")
+		self._write_files()
+		self._test_configure()
+		
+		env = self.load_env()
+		self.assert_(env['LIBPATH_Z']==['/usr/lib'], "it seems that libz was not configured properly, or the trailing slash was not removed. run waf check -vv to see the exact error...")
+
 	def test_invalid_flag(self):
 		# black-box test: invalid flag
 		self._populate_dictionary("""conf.check_cxx(msg="checking for flag='gkerwvgew'", cxxflags='gkerwvgew', mandatory=1)""")

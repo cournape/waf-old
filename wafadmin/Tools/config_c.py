@@ -337,7 +337,7 @@ def post_check(self, *k, **kw):
 			if k == 'CXXDEFINES': lk = 'defines'
 			if k == 'CCDEFINES': lk = 'defines'
 			if lk in kw:
-				self.env.append_value(k + '_' + kw['uselib_store'], kw[lk])
+				self.env.append_value(k + '_' + kw['uselib_store'], kw[lk].rstrip(os.path.sep))
 
 @conf
 def check(self, *k, **kw):
