@@ -38,6 +38,8 @@ from UserDict import UserDict
 import Logs, pproc
 from Constants import *
 
+is_win32 = sys.platform == 'win32'
+
 class WafError(Exception):
 	def __init__(self, *args):
 		self.args = args
@@ -72,7 +74,7 @@ class WscriptError(WafError):
 				return (frame[0], frame[1])
 		return (None, None)
 
-indicator = sys.platform=='win32' and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
+indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 try:
 	from fnv import new as md5
@@ -123,7 +125,7 @@ def exec_command(s, shell=1, log=None):
 	proc = pproc.Popen(s, shell=shell, stdout=log, stderr=log)
 	return proc.wait()
 
-if sys.platform == "win32":
+if is_win32:
 	old_log = exec_command
 	def exec_command(s, shell=1, log=None):
 		# TODO very long command-lines are unlikely to be used in the configuration
@@ -135,7 +137,7 @@ if sys.platform == "win32":
 		return proc.wait()
 
 listdir = os.listdir
-if sys.platform == "win32":
+if is_win32:
 	def listdir_win32(s):
 		if re.match('^[A-Z]:$', s):
 			# os.path.isdir fails if s contains only the drive name... (x:)
@@ -257,7 +259,7 @@ def split_path(path):
 	if not path: return ['']
 	return path.split('/')
 
-if sys.platform == 'win32':
+if is_win32:
 	def split_path(path):
 		h,t = os.path.splitunc(path)
 		if not h: return __split_dirs(t)
