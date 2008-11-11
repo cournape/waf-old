@@ -5,7 +5,7 @@
 "docbook processing (may be broken)"
 
 import os, string, re
-import TaskGen, Runner, Utils, Build, Task
+import TaskGen, Utils, Build, Task
 from Logs import debug
 
 xslt_vardeps = ['XSLTPROC', 'XSLTPROC_ST']
@@ -51,7 +51,7 @@ def db2_build(task):
 	src = task.inputs[0].bldpath(task.env)
 	cmd = task.compiler % (bdir, src)
 	debug(cmd)
-	return Runner.exec_command(cmd)
+	return Utils.exec_command(cmd)
 
 xslt_vardeps = ['XSLTPROC']
 
