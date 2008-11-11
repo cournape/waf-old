@@ -781,7 +781,8 @@ class BuildContext(object):
 				return 1
 
 	def exec_command(self, cmd, shell=1):
-		debug('build: system command -> %s' % cmd)
+		# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
+		debug('runner: system command -> %s' % cmd)
 		return Utils.exec_command(cmd, shell=shell, log=self.log)
 
 	def printout(self, s):
