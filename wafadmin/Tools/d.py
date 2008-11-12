@@ -450,7 +450,7 @@ link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${
 cls = Task.simple_task_type('d', d_str, 'GREEN')
 cls.scan = scan
 Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN')
-Task.simple_task_type('d_link', link_str, color='YELLOW')
+Task.simple_task_type('d_link', link_str, color='YELLOW', after=['d'])
 
 # for feature request #104
 @taskgen
