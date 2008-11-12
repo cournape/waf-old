@@ -234,8 +234,9 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	python_config = conf.find_program(
 		'python%s-config' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
 		var='PYTHON_CONFIG')
+
+	includes = []
 	if python_config:
-		includes = []
 		for incstr in os.popen("%s %s --includes" % (python, python_config)).readline().strip().split():
 			# strip the -I or /I
 			if (incstr.startswith('-I')
