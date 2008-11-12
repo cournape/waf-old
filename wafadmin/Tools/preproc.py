@@ -228,8 +228,8 @@ def get_expr(lst, defs, ban):
 		macro_def = defs[v]
 
 		if not macro_def[0]:
-			# simple macro, substitute, and reevaluate
-			lst = macro_def[1] + lst[1:]
+			# simple macro, substitute, and reevaluate (3: is for removing the name and the two parens)
+			lst = macro_def[1] + lst[3:]
 			return get_expr(lst, defs, ban)
 		else:
 			# collect the arguments for the funcall
