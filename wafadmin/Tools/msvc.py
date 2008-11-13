@@ -276,7 +276,7 @@ def init_msvc(self):
 	try: _libpaths=getattr(self,'libpaths')
 	except AttributeError: self.libpaths=[]
 
-static_link_str = '${STLIBLINK} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
+static_link_str = '${STLIBLINK} ${STLINKFLAGS} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Task.simple_task_type('msvc_ar_link_static', static_link_str, color='YELLOW', ext_in='.o')
 Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
 Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
@@ -330,6 +330,7 @@ def find_msvc(conf):
 		stliblink = conf.find_program('LIB')
 		if not stliblink: return
 		v['STLIBLINK']       = stliblink
+		v["STLINKFLAGS"]  = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	manifesttool = conf.find_program('MT')
