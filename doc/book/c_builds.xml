@@ -262,6 +262,7 @@ def configure(conf):
 	conf.check_cfg(package='pango', max_version='9.0.0')
 	conf.check_cfg(package='pango', args='--cflags --libs') <co id="pk3-co" linkends="pk3"/>
 	pango_version = conf.check_cfg(modversion='pango') <co id="pk4-co" linkends="pk4"/>
+	conf.check_cfg(path='sdl-config', args='--cflags --libs', package='', uselib_store='SDL') <co id="pk5-co" linkends="pk5"/>
 			</programlisting>
 			<calloutlist>
 				<callout arearefs="pk1-co" id="pk1">
@@ -275,6 +276,9 @@ def configure(conf):
 				</callout>
 				<callout arearefs="pk4-co" id="pk4">
 					<para>Retrieve the module version for a package. The returned object is a string containing the version number or an empty string in case of any errors. If there were no errors, 'PANGO_VERSION' is defined, can be overridden with the attribute "uselib_store='MYPANGO'".</para>
+				</callout>
+				<callout arearefs="pk5-co" id="pk5">
+					<para>Obtain the flags for a different configuration program (sdl-config). The example is applicable for other configuration programs such as wx-config, pcre-config, etc</para>
 				</callout>
 			</calloutlist>
 		</para>
