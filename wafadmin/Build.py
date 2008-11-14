@@ -674,7 +674,7 @@ class BuildContext(object):
 			except IOError:
 				try:
 					os.stat(src)
-				except IOError:
+				except (OSError, IOError):
 					error('File %r does not exist' % src)
 				raise Utils.WafError('Could not install the file %r' % tgt)
 			return True
