@@ -133,8 +133,8 @@ class shpip_task(Task.Task):
 				nodes = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
 				self.set_outputs(nodes)
 				tsklst = self.add_cpp_tasks(nodes)
+				generator = tree.generator
 				for tsk in tsklst:
-					generator = self.generator.bld.generator
 					generator.outstanding.append(tsk)
 
 		if not self.outputs:
