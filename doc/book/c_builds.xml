@@ -155,7 +155,7 @@ build/
 			Waf uses a preprocessor written in Python for finding the headers. By default the preprocessing is limited to the paths within the project. To enable the preprocessor to find system headers, use the following code:
 			<programlisting language="python">
 import preproc
-preproc.go_absolute = 1
+preproc.go_absolute = True
 			</programlisting>
 		</para>
 		<para>
