@@ -564,16 +564,6 @@ def write_config_header(self, configfile='', env=''):
 		else:
 			dest.write('#define %s %s\n' % (key, value))
 
-	# config header hook
-	# writes custom text (includes, pragmas etc.) to the config header
-	# usage:
-	#	add function that returns string, then attach to conf.conf_header_hook:
-	#	conf.conf_header_hook = your_function_name_here
-
-	conf_header_hook = getattr(self, 'conf_header_hook', None)
-	if conf_header_hook:
-		dest.write( '\n%s\n' % conf_header_hook() )
-
 	dest.write('\n#endif /* %s */\n' % waf_guard)
 	dest.close()
 
