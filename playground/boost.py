@@ -1,48 +1,36 @@
 #!/usr/bin/env python
 # encoding: utf-8
 #
+# partially based on boost.py written by Gernot Vormayr
 # written by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008
 # modified by Bjoern Michaelsen, 2008
 # modified by Luca Fossati, 2008
+# rewritten for waf 1.5.1
 #
-# partially based on boost.py written by Gernot Vormayr
+#def set_options(opt):
+#	opt.tool_options('boost')
+#	# ...
+#
+#def configure(conf):
+#	# ... (e.g. conf.check_tool('g++'))
+#	conf.check_tool('boost')
+#
+#   conf.check_boost(lib='iostream filesystem', kind=STATIC_ONLYSTATIC,
+#      tag_version=(-1000, 1000), tag_minscore= 1000)
+#
+#	boostconf = conf.create_boost_configurator()
+#	boostconf.lib = ['iostream', 'filesystem']
+#	# we dont care about other tags, but version has to be explicitly tagged
+#	boostconf.min_score = 1000
+#	boostconf.tagscores['version'] = (1000,-1000)
+#	# we want a static lib
+#	boostconf.static = boostconf.STATIC_ONLYSTATIC
+#	boostconf.run()
+#
+#ISSUES:
+# * find_includes should be called only once!
+# * support mandatory
 
-"""
-Boost Configurator:
-
-written by Ruediger Sonderfeld <ruediger@c-plusplus.de>, 2008
-modified by Bjoern Michaelsen, 2008
-partially based on boost.py written by Gernot Vormayr
-
-Usage:
-## wscript
-# ...
-
-def set_options(opt):
-	opt.tool_options('boost')
-	# ...
-
-def configure(conf):
-	# ... (e.g. conf.check_tool('g++'))
-	conf.check_tool('boost')
-
-	boostconf = conf.create_boost_configurator()
-	boostconf.lib = ['iostream', 'filesystem']
-	# we dont care about other tags, but version has to be explicitly tagged
-	boostconf.min_score = 1000
-	boostconf.tagscores['version'] = (1000,-1000)
-	# we want a static lib
-	boostconf.static = boostconf.STATIC_ONLYSTATIC
-	boostconf.run()
-
-ISSUES:
- * find_includes should be called only once!
-
-TODO:
- * support mandatory
- * ...
-
-"""
 
 boost_code = '''
 #include <iostream>
