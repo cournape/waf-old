@@ -119,7 +119,7 @@ class shpip_task(Task.Task):
 				return ASK_LATER
 
 		tree = self.generator.bld
-		node = self.inputs[0]
+
 		try:
 			sig = self.signature()
 			key = self.unique_id()
