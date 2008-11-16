@@ -44,6 +44,11 @@ TODO:
 
 """
 
+boost_code = '''
+#include <iostream>
+#include <boost/version.hpp>
+int main() { std::cout << BOOST_VERSION << std::endl; }'''
+
 import os.path, glob, types, re, sys
 import Configure, config_c, Options, Utils
 from Logs import warn
@@ -63,6 +68,20 @@ def version_string(version):
 	else:
 		return "%d_%d_%d" % (major, minor, minor_minor)
 
+def libfiles(lib, pattern, lib_paths):
+	result = []
+	for lib_path in lib_paths:
+		libname = pattern % ('boost_' + lib + '*')
+		result += glob.glob(lib_path + '/' + libname)
+	return result
+
+@conf
+def get_boost_version_number(self, dir):
+	"""silently retrieve the boost version number"""
+	try:
+		return self.run_c_code(compiler='cxx', code=boost_code, cpppath=dir, execute=1, env=self.env.copy(), type='cprogram')
+	except Configure.ConfigurationError, e:
+		return -1
 
 @conf
 def check_boost(self, *k, **kw):
@@ -124,23 +143,6 @@ class boost_configurator(config_c.configurator_base):
 	def validate(self):
 		if self.version:
 			self.min_version = self.max_version = self.version
-
-	def get_boost_version_number(self, dir):
-		test_obj = Configure.check_data()
-		test_obj.code = '''
-#include <iostream>
-#include <boost/version.hpp>
-int main() { std::cout << BOOST_VERSION << std::endl; }
-'''
-		test_obj.env = self.conf.env.copy()
-		test_obj.env['CPPPATH'] = [dir]
-		test_obj.execute = 1
-		test_obj.force_compiler = 'cxx'
-		ret = self.conf.run_check(test_obj)
-		if ret:
-			return int(ret['result'])
-		else:
-			return -1
 
 	def find_includes(self):
 		"""
@@ -248,13 +250,6 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 					score += self.tagscores[tagname][1]
 		return score
 
-	def libfiles(self, lib, pattern, lib_paths):
-		result = []
-		for lib_path in lib_paths:
-			libname = pattern % ('boost_' + lib + '*')
-			result += glob.glob(lib_path + '/' + libname)
-		return result
-
 	def find_library_from_list(self, lib, files):
 		lib_pattern = re.compile('.*boost_(.*?)\..*')
 		result = (None, None)
@@ -285,11 +280,11 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		(libname, file) = (None, None)
 		if self.static in [boost_configurator.STATIC_NOSTATIC, boost_configurator.STATIC_BOTH]:
 			st_env_prefix = 'LIB'
-			files = self.libfiles(lib, self.conf.env['shlib_PATTERN'], lib_paths)
+			files = libfiles(lib, self.conf.env['shlib_PATTERN'], lib_paths)
 			(libname, file) = self.find_library_from_list(lib, files)
 		if libname is None and self.static in [boost_configurator.STATIC_ONLYSTATIC, boost_configurator.STATIC_BOTH]:
 			st_env_prefix = 'STATICLIB'
-			files = self.libfiles(lib, self.conf.env['staticlib_PATTERN'], lib_paths)
+			files = libfiles(lib, self.conf.env['staticlib_PATTERN'], lib_paths)
 			(libname, file) = self.find_library_from_list(lib, files)
 		if libname is not None:
 			self.conf.check_message('library', 'boost_'+lib, 1, file)
