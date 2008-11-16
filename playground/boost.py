@@ -82,23 +82,28 @@ def get_boost_version_number(self, dir):
 	except Configure.ConfigurationError, e:
 		return -1
 
+def set_default(kw, var, val):
+	if not var in kw:
+		kw[var] = val
+
 @conf
 def validate_boost(self, *k, **kw):
-	(self.min_version, self.max_version, self.version) = ('','','')
-	self.lib_path = boost_libpath
-	self.include_path = boost_cpppath
-	self.lib = ''
-	(self.threadingtag, self.abitag, self.versiontag, self.toolsettag) = (None, '^[^d]*$', None, None)
-	self.tagscores = {
-		'threading': (10,-10),
-		'abi': (10,-10),
-		'toolset': (1,-1),
-		'version': (100,-100) }
-	self.min_score = 0
-	self.static = STATIC_NOSTATIC
+	for x in 'lib min_version max_version version'.split():
+		set_default(kw, x, '')
+	set_default(kw, 'libpath', boost_libpath)
+	set_default(kw, 'cpppath', boost_cpppath)
+	for x in 'tag_threading tag_abi tag_toolset'.split():
+		set_default(kw, x, None)
+	set_default(kw, 'tag_version', '^[^d]*$')
 
-	self.conf = conf
-	self.found_includes = 0
+	set_default(kw, 'score_threading', (10, -10))
+	set_default(kw, 'score_abi', (10, -10))
+	set_default(kw, 'score_toolset', (1, -1))
+	set_default(kw, 'score_version', (100, -100))
+
+	set_default(kw, 'score_min', 0)
+	set_default(kw, 'static', STATIC_NOSTATIC)
+	set_default(kw, 'found_includes', False)
 
 @conf
 def exec_boost(self, *k, **kw):
