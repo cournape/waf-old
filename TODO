@@ -1,19 +1,15 @@
-roadmap:
---------
+Waf 1.6
+-------
 
-TOOLS:
-
-* flag conversion review (_INCFLAGS)
-* rpath system review
+* leave either tdir or tooldir in the methods check_tool and check_options
 
 ideas to watch:
 ---------------
 
 * cross-compilation settings gcc,linux -> win32 (the infrastructure is in place)
 * packaging? (rpms, debs)
-* split the gnome module?
 
 --------------------------------------
-Last update: 29/09/2008
+Last update: 16/11/2008
 Contact -> http://code.google.com/p/waf
 
