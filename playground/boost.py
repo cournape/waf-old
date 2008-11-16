@@ -49,6 +49,28 @@ import Configure, config_c, Options, Utils
 from Logs import warn
 from Configure import conf
 
+
+def string_to_version(s):
+	version = s.split('.')
+	return int(version[0])*100000 + int(version[1])*100 + int(version[2])
+
+def version_string(version):
+	major = version / 100000
+	minor = version / 100 % 1000
+	minor_minor = version % 100
+	if minor_minor == 0:
+		return "%d_%d" % (major, minor)
+	else:
+		return "%d_%d_%d" % (major, minor, minor_minor)
+
+
+@conf
+def check_boost(self, *k, **kw):
+	pass
+
+####### old code below #########
+
+
 class boost_configurator(config_c.configurator_base):
 	"""
 	- min_version
@@ -120,19 +142,6 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 		else:
 			return -1
 
-	def string_to_version(self, str):
-		version = str.split('.')
-		return int(version[0])*100000 + int(version[1])*100 + int(version[2])
-
-	def version_string(self, version):
-		major = version / 100000
-		minor = version / 100 % 1000
-		minor_minor = version % 100
-		if minor_minor == 0:
-			return "%d_%d" % (major, minor)
-		else:
-			return "%d_%d_%d" % (major, minor, minor_minor)
-
 	def find_includes(self):
 		"""
 		find_includes checks every path in self.include_path for subdir
@@ -158,10 +167,10 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 
 		min_version = 0
 		if self.min_version:
-			min_version = self.string_to_version(self.min_version)
+			min_version = string_to_version(self.min_version)
 		max_version = sys.maxint
 		if self.max_version:
-			max_version = self.string_to_version(self.max_version)
+			max_version = string_to_version(self.max_version)
 
 		version = 0
 		boost_path = ''
@@ -184,7 +193,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 				  % (self.min_version, self.max_version))
 			return 0
 
-		found_version = self.version_string(version)
+		found_version = version_string(version)
 		versiontag = '^' + found_version + '$'
 		if self.versiontag is None:
 			self.versiontag = versiontag
@@ -300,9 +309,6 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 			self.find_includes()
 		self.find_libraries()
 
-def create_boost_configurator(self):
-	return boost_configurator(self)
-
 def detect(conf):
 	pass
 
@@ -310,6 +316,3 @@ def set_options(opt):
 	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
 	opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
 
-
-
-conf(create_boost_configurator)
