@@ -43,6 +43,8 @@ def init_pyembed(self):
 	if not 'PYEMBED' in self.uselib:
 		self.uselib.append('PYEMBED')
 
+TaskGen.bind_feature('py', ['apply_core'])
+
 @extension(EXT_PY)
 def process_py(self, node):
 	if Options.is_install and self.install_path:
