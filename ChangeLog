@@ -2,6 +2,7 @@ NEW IN WAF 1.5.1
 ----------------
 * installing python files works once again
 * the waf preprocesser parses macros without parameters
+* -Wl,-rpath, <- two commas
 
 NEW IN WAF 1.5.0
 ----------------
