@@ -77,8 +77,9 @@ class shpip_task(Task.Task):
 	def run(self):
 		"runs a program that creates cpp files, capture the output to compile them"
 		node = self.inputs[0]
+		bld = self.generator.bld
 
-		dir = self.generator.bld.srcnode.bldpath(self.env)
+		dir = bld.srcnode.bldpath(self.env)
 		cmd = 'cd %s && %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
 		try:
 			# read the contents of the file and create cpp files from it
@@ -105,7 +106,7 @@ class shpip_task(Task.Task):
 		# cache the file names and the task signature
 		node = self.inputs[0]
 		sig = self.signature()
-		self.generator.bld.raw_deps[self.unique_id()] = [sig] + lst
+		bld.raw_deps[self.unique_id()] = [sig] + lst
 
 		return 0 # no error
 
@@ -131,7 +132,7 @@ class shpip_task(Task.Task):
 			if prev_sig == sig:
 				nodes = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
 				self.set_outputs(nodes)
-				tsklst = self.add_cpp_tasks(tsklst)
+				tsklst = self.add_cpp_tasks(nodes)
 				for tsk in tsklst:
 					generator = self.generator.bld.generator
 					generator.outstanding.append(tsk)
