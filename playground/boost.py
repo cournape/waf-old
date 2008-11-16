@@ -37,6 +37,14 @@ boost_code = '''
 #include <boost/version.hpp>
 int main() { std::cout << BOOST_VERSION << std::endl; }'''
 
+boost_libpath = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
+boost_cpppath = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
+
+STATIC_NOSTATIC = 'nostatic'
+STATIC_BOTH = 'both'
+STATIC_ONLYSTATIC = 'onlystatic'
+
+
 import os.path, glob, types, re, sys
 import Configure, config_c, Options, Utils
 from Logs import warn
@@ -75,8 +83,48 @@ def get_boost_version_number(self, dir):
 		return -1
 
 @conf
-def check_boost(self, *k, **kw):
+def validate_boost(self, *k, **kw):
+	(self.min_version, self.max_version, self.version) = ('','','')
+	self.lib_path = boost_libpath
+	self.include_path = boost_cpppath
+	self.lib = ''
+	(self.threadingtag, self.abitag, self.versiontag, self.toolsettag) = (None, '^[^d]*$', None, None)
+	self.tagscores = {
+		'threading': (10,-10),
+		'abi': (10,-10),
+		'toolset': (1,-1),
+		'version': (100,-100) }
+	self.min_score = 0
+	self.static = STATIC_NOSTATIC
+
+	self.conf = conf
+	self.found_includes = 0
+
+@conf
+def exec_boost(self, *k, **kw):
 	pass
+
+@conf
+def check_boost(self, *k, **kw):
+	self.validate_boost(kw)
+	if 'msg' in kw:
+		self.check_message_1(kw['msg'])
+	ret = None
+	try:
+		ret = self.exec_boost(kw)
+	except Configure.ConfigurationError, e:
+		if 'errmsg' in kw:
+			self.check_message_2(kw['errmsg'], 'YELLOW')
+		if 'mandatory' in kw:
+			if Logs.verbose > 1:
+				raise
+			else:
+				self.fatal('the configuration failed (see config.log)')
+	else:
+		if 'okmsg' in kw:
+			self.check_message_2(kw['okmsg'])
+
+	return ret
 
 ####### old code below #########
 
@@ -107,15 +155,12 @@ class boost_configurator(Configure.ConfigurationContext):
 	- min_score
 	"""
 	## __metaclass__ = config_c.attached_conf ## autohook
-	STATIC_NOSTATIC = 'nostatic'
-	STATIC_BOTH = 'both'
-	STATIC_ONLYSTATIC = 'onlystatic'
 	def __init__(self, conf):
 		config_c.configurator_base.__init__(self, conf)
 
 		(self.min_version, self.max_version, self.version) = ('','','')
-		self.lib_path = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
-		self.include_path = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
+		self.lib_path = boost_libpath
+		self.include_path = boost_cpppath
 		self.lib = ''
 		(self.threadingtag, self.abitag, self.versiontag, self.toolsettag) = (None, '^[^d]*$', None, None)
 		self.tagscores = {
@@ -124,7 +169,7 @@ class boost_configurator(Configure.ConfigurationContext):
 			'toolset': (1,-1),
 			'version': (100,-100) }
 		self.min_score = 0
-		self.static = boost_configurator.STATIC_NOSTATIC
+		self.static = STATIC_NOSTATIC
 
 		self.conf = conf
 		self.found_includes = 0
@@ -269,11 +314,11 @@ class boost_configurator(Configure.ConfigurationContext):
 		else:
 			lib_paths = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
 		(libname, file) = (None, None)
-		if self.static in [boost_configurator.STATIC_NOSTATIC, boost_configurator.STATIC_BOTH]:
+		if self.static in [STATIC_NOSTATIC, STATIC_BOTH]:
 			st_env_prefix = 'LIB'
 			files = libfiles(lib, self.conf.env['shlib_PATTERN'], lib_paths)
 			(libname, file) = self.find_library_from_list(lib, files)
-		if libname is None and self.static in [boost_configurator.STATIC_ONLYSTATIC, boost_configurator.STATIC_BOTH]:
+		if libname is None and self.static in [STATIC_ONLYSTATIC, STATIC_BOTH]:
 			st_env_prefix = 'STATICLIB'
 			files = libfiles(lib, self.conf.env['staticlib_PATTERN'], lib_paths)
 			(libname, file) = self.find_library_from_list(lib, files)
