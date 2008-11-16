@@ -99,6 +99,28 @@ class ConfigureTester(common_test.CommonTester):
 		self._write_files()
 		self._test_configure()
 
+	def test_config_header(self):
+		# simple config header is written
+		self._populate_dictionary( \
+		"""conf.define('KUKU', 'riku')
+	conf.write_config_header()""" )
+		self._write_files()
+		self._test_configure()
+		config_file = os.path.join( self._blddir, 'default', 'config.h' )
+		config_content = open( config_file ).readlines()
+		self.assert_( "".join(config_content).find("""#define KUKU""") > 1, "missing DEFINE in the config header")
+
+	def test_renamed_config_header(self):
+		# renamed config header works too
+		self._populate_dictionary( \
+		"""conf.define('KUKU', 'riku')
+	conf.write_config_header('blabla.h')""" )
+		self._write_files()
+		self._test_configure()
+		config_file = os.path.join( self._blddir, 'default', 'blabla.h' )
+		config_content = open( config_file ).readlines()
+		self.assert_( "".join(config_content).find("""#define KUKU""") > 1, "missing DEFINE in the config header")
+
 class CcConfigureTester(ConfigureTester):
 	def __init__(self, methodName):
 		self._tool_name = 'compiler_cc'
