@@ -129,13 +129,12 @@ class shpip_task(Task.Task):
 		else:
 			# if the file has not changed, create the cpp tasks
 			if prev_sig == sig:
-				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
-				self.set_outputs(lst)
-				lst = self.add_cpp_tasks(lst)
-				for tsk in lst:
+				nodes = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
+				self.set_outputs(nodes)
+				tsklst = self.add_cpp_tasks(tsklst)
+				for tsk in tsklst:
 					generator = self.generator.bld.generator
 					generator.outstanding.append(tsk)
-
 
 		if not self.outputs:
 			return RUN_ME
