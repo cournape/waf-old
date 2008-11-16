@@ -40,6 +40,11 @@ int main() { std::cout << BOOST_VERSION << std::endl; }'''
 boost_libpath = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
 boost_cpppath = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
 
+is_versiontag = re.compile('^\d+_\d+_?\d*$')
+is_threadingtag = re.compile('^mt$')
+is_abitag = re.compile('^[sgydpn]+$')
+is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*$')
+
 STATIC_NOSTATIC = 'nostatic'
 STATIC_BOTH = 'both'
 STATIC_ONLYSTATIC = 'onlystatic'
@@ -88,8 +93,13 @@ def set_default(kw, var, val):
 
 @conf
 def validate_boost(self, *k, **kw):
-	for x in 'lib min_version max_version version'.split():
-		set_default(kw, x, '')
+	ver = kw.get('version', '')
+	for x in 'min_version max_version version'.split():
+		set_default(kw, x, ver)
+
+	set_default(kw, 'lib', '')
+	kw['lib'] = Utils.to_list(kw['lib'])
+
 	set_default(kw, 'libpath', boost_libpath)
 	set_default(kw, 'cpppath', boost_cpppath)
 	for x in 'tag_threading tag_abi tag_toolset'.split():
@@ -106,8 +116,77 @@ def validate_boost(self, *k, **kw):
 	set_default(kw, 'found_includes', False)
 
 @conf
+def find_boost_includes(self, kw):
+	"""
+	check every path in kw['cpppath'] for subdir
+	that either starts with boost- or is named boost.
+
+	Then the version is checked and selected accordingly to
+	min_version/max_version. The highest possible version number is
+	selected!
+
+	If no versiontag is set the versiontag is set accordingly to the
+	selected library and CPPPATH_BOOST is set.
+	"""
+	boostPath = getattr(Options.options, 'boostincludes', '')
+	if boostPath:
+		boostPath = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
+	else:
+		boostPath = Utils.to_list(kw['cpppath'])
+
+	min_version = string_to_version(kw.get('min_version', '0'))
+	min_version = string_to_version(kw.get('max_version', '0')) or sys.maxint
+
+	version = 0
+	for include_path in include_paths:
+		boost_paths = glob.glob(os.path.join(include_path, 'boost*'))
+		for path in boost_paths:
+			pathname = os.path.split(path)[-1]
+			ret = -1
+			if pathname == 'boost':
+				path = include_path
+				ret = self.get_boost_version_number(path)
+			elif pathname.startswith('boost-'):
+				ret = self.get_boost_version_number(path)
+
+			if ret != -1 and ret >= min_version and ret <= max_version and ret > version:
+				boost_path = path
+				version = ret
+				break
+	else:
+		conf.fatal('boost headers not found! (required version min: %s max: %s)'
+			  % (kw['min_version'], kw['self.max_version']))
+		return False
+
+	found_version = version_string(version)
+	versiontag = '^' + found_version + '$'
+	if kw['tag_version'] is None:
+		kw['tag_version'] = versiontag
+	elif kw['tag_version'] != versiontag:
+		warn('boost header version and tag_version do not match!')
+	self.conf.check_message('header', 'boost', 1, 'Version ' + found_version +
+							' (' + boost_path + ')')
+	env = self.env
+	env['CPPPATH_BOOST'] = boost_path
+	env['BOOST_VERSION'] = found_version
+	self.found_includes = 1
+
+def get_toolset(env):
+	v = env
+	toolset = v['CXX_NAME']
+	if v['CXX_VERSION']:
+		version_no = v['CXX_VERSION'].split('.')
+		toolset += version_no[0]
+		if len(version_no) > 1:
+			toolset += version_no[1]
+	return toolset
+
+@conf
 def exec_boost(self, *k, **kw):
-	pass
+	if not self.found_includes:
+		self.find_includes()
+	for lib in kw['lib']:
+		self.find_library(lib)
 
 @conf
 def check_boost(self, *k, **kw):
@@ -135,129 +214,55 @@ def check_boost(self, *k, **kw):
 
 
 class boost_configurator(Configure.ConfigurationContext):
-	"""
-	- min_version
-	- max_version
-	- version
-	- include_path
-	- lib_path
-	- lib
-	- toolsettag	 - None or a regexp
-	- threadingtag	 - None or a regexp
-	- abitag		 - None or a regexp
-	- versiontag	 - WARNING: you should rather use version or min_version/max_version
-	- static		 - look for static libs (values:
-						  'nostatic'   or STATIC_NOSTATIC   - ignore static libs (default)
-						  'both'       or STATIC_BOTH       - find static libs, too
-						  'onlystatic' or STATIC_ONLYSTATIC - find only static libs
-	- tagscores['version']
-	- tagscores['abi']
-	- tagscores['threading']
-	- tagscores['toolset']
-					 - the tagscores are tuples (match_score, nomatch_score)
-						  match_score is the added to the score if the tag is matched
-						  nomatch_score is added when a tag is found and does not match
-	- min_score
-	"""
-	## __metaclass__ = config_c.attached_conf ## autohook
-	def __init__(self, conf):
-		config_c.configurator_base.__init__(self, conf)
-
-		(self.min_version, self.max_version, self.version) = ('','','')
-		self.lib_path = boost_libpath
-		self.include_path = boost_cpppath
-		self.lib = ''
-		(self.threadingtag, self.abitag, self.versiontag, self.toolsettag) = (None, '^[^d]*$', None, None)
-		self.tagscores = {
-			'threading': (10,-10),
-			'abi': (10,-10),
-			'toolset': (1,-1),
-			'version': (100,-100) }
-		self.min_score = 0
-		self.static = STATIC_NOSTATIC
-
-		self.conf = conf
-		self.found_includes = 0
-
-	def run_cache(self, retval): pass # todo
-
-	def validate(self):
-		if self.version:
-			self.min_version = self.max_version = self.version
-
-	def find_includes(self):
-		"""
-		find_includes checks every path in self.include_path for subdir
-		that either starts with boost- or is named boost.
-
-		Then the version is checked and selected accordingly to
-		min_version/max_version. The highest possible version number is
-		selected!
-
-		If no versiontag is set the versiontag is set accordingly to the
-		selected library and CPPPATH_BOOST is set.
-		"""
-		env = self.conf.env
-		guess = []
-		boostPath = getattr(Options.options, 'boostincludes', '')
-		if not boostPath:
-			if self.include_path is types.StringType:
-				include_paths = [self.include_path]
-			else:
-				include_paths = self.include_path
-		else:
-			include_paths = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
-
-		min_version = 0
-		if self.min_version:
-			min_version = string_to_version(self.min_version)
-		max_version = sys.maxint
-		if self.max_version:
-			max_version = string_to_version(self.max_version)
-
-		version = 0
-		boost_path = ''
-		for include_path in include_paths:
-			boost_paths = glob.glob(os.path.join(include_path, 'boost*'))
-			for path in boost_paths:
-				pathname = os.path.split(path)[-1]
-				ret = -1
-				if pathname == 'boost':
-					path = include_path
-					ret = self.get_boost_version_number(path)
-				elif pathname.startswith('boost-'):
-					ret = self.get_boost_version_number(path)
-				if ret != -1 and ret >= min_version and ret <= max_version and ret > version:
-					boost_path = path
-					version = ret
-
-		if version == 0 or len(boost_path) == 0:
-			conf.fatal('boost headers not found! (required version min: %s max: %s)'
-				  % (self.min_version, self.max_version))
-			return 0
-
-		found_version = version_string(version)
-		versiontag = '^' + found_version + '$'
-		if self.versiontag is None:
-			self.versiontag = versiontag
-		elif self.versiontag != versiontag:
-			warn('boost header version and versiontag do _not_ match!')
-		self.conf.check_message('header', 'boost', 1, 'Version ' + found_version +
-								' (' + boost_path + ')')
-		env['CPPPATH_BOOST'] = boost_path
-		env['BOOST_VERSION'] = found_version
-		self.found_includes = 1
-
-	def get_toolset(self):
-		v = self.conf.env
-		toolset = v['CXX_NAME']
-		if v['CXX_VERSION']:
-			version_no = v['CXX_VERSION'].split('.')
-			toolset += version_no[0]
-			if len(version_no) > 1:
-				toolset += version_no[1]
-		return toolset
-
+#
+#	- min_version
+#	- max_version
+#	- version
+#	- include_path
+#	- lib_path
+#	- lib
+#	- toolsettag	 - None or a regexp
+#	- threadingtag	 - None or a regexp
+#	- abitag		 - None or a regexp
+#	- versiontag	 - WARNING: you should rather use version or min_version/max_version
+#	- static		 - look for static libs (values:
+#						  'nostatic'   or STATIC_NOSTATIC   - ignore static libs (default)
+#						  'both'       or STATIC_BOTH       - find static libs, too
+#						  'onlystatic' or STATIC_ONLYSTATIC - find only static libs
+#	- tagscores['version']
+#	- tagscores['abi']
+#	- tagscores['threading']
+#	- tagscores['toolset']
+#					 - the tagscores are tuples (match_score, nomatch_score)
+#						  match_score is the added to the score if the tag is matched
+#						  nomatch_score is added when a tag is found and does not match
+#	- min_score
+#
+#	## __metaclass__ = config_c.attached_conf ## autohook
+#	def __init__(self, conf):
+#		config_c.configurator_base.__init__(self, conf)
+#
+#		(self.min_version, self.max_version, self.version) = ('','','')
+#		self.lib_path = boost_libpath
+#		self.include_path = boost_cpppath
+#		self.lib = ''
+#		(self.threadingtag, self.abitag, self.versiontag, self.toolsettag) = (None, '^[^d]*$', None, None)
+#		self.tagscores = {
+#			'threading': (10,-10),
+#			'abi': (10,-10),
+#			'toolset': (1,-1),
+#			'version': (100,-100) }
+#		self.min_score = 0
+#		self.static = STATIC_NOSTATIC
+#
+#		self.conf = conf
+#		self.found_includes = 0
+#
+#
+#	def validate(self):
+#		if self.version:
+#			self.min_version = self.max_version = self.version
+#
 	def tags_score(self, tags):
 		"""
 		checks library tags
@@ -265,10 +270,6 @@ class boost_configurator(Configure.ConfigurationContext):
 		see http://www.boost.org/doc/libs/1_35_0/more/getting_started/unix-variants.html 6.1
 
 		"""
-		is_versiontag = re.compile('^\d+_\d+_?\d*$')
-		is_threadingtag = re.compile('^mt$')
-		is_abitag = re.compile('^[sgydpn]+$')
-		is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*$')
 		score = 0
 		needed_tags = {
 			'threading': self.threadingtag,
@@ -276,7 +277,7 @@ class boost_configurator(Configure.ConfigurationContext):
 			'toolset': self.toolsettag,
 			'version': self.versiontag }
 		if self.toolsettag is None:
-			needed_tags['toolset'] = self.get_toolset()
+			needed_tags['toolset'] = get_toolset(self.conf.env)
 		found_tags = {}
 		for tag in tags:
 			if is_versiontag.match(tag): found_tags['version'] = tag
@@ -335,14 +336,6 @@ class boost_configurator(Configure.ConfigurationContext):
 		conf.fatal('lib boost_' + lib + ' not found!')
 
 	def find_libraries(self):
-		libs_to_find = self.lib
-		if self.lib is types.StringType: libs_to_find = [self.lib]
-		for lib in libs_to_find:
-			self.find_library(lib)
-
-	def run_test(self):
-		if not self.found_includes:
-			self.find_includes()
-		self.find_libraries()
-
+		#libs_to_find = self.lib
+		#if self.lib is types.StringType: libs_to_find = [self.lib]
 
