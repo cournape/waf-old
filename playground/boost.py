@@ -54,6 +54,9 @@ import Configure, config_c, Options, Utils
 from Logs import warn
 from Configure import conf
 
+def set_options(opt):
+	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
+	opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
 
 def string_to_version(s):
 	version = s.split('.')
@@ -90,7 +93,7 @@ def check_boost(self, *k, **kw):
 ####### old code below #########
 
 
-class boost_configurator(config_c.configurator_base):
+class boost_configurator(Configure.ConfigurationContext):
 	"""
 	- min_version
 	- max_version
@@ -304,10 +307,4 @@ class boost_configurator(config_c.configurator_base):
 			self.find_includes()
 		self.find_libraries()
 
-def detect(conf):
-	pass
-
-def set_options(opt):
-	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
-	opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
 
