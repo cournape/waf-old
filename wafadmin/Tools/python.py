@@ -268,7 +268,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 		env['CPPPATH_PYEMBED'] = list(includes)
 	else:
 		conf.log.write("Include path for Python extensions "
-			       "(found via distutils module): %r\n" % (list(includes),))
+			       "(found via distutils module): %r\n" % (INCLUDEPY,))
 		env['CPPPATH_PYEXT'] = [INCLUDEPY]
 		env['CPPPATH_PYEMBED'] = [INCLUDEPY]
 
