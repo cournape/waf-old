@@ -550,22 +550,31 @@ def write_config_header(self, configfile='', env=''):
 	dest.write('/* Configuration header created by Waf - do not edit */\n')
 	dest.write('#ifndef %s\n#define %s\n\n' % (waf_guard, waf_guard))
 
+	dest.write( self.get_config_header() )
+
 	# config files are not removed on "waf clean"
 	if not configfile in self.env['dep_files']:
 		self.env['dep_files'] += [configfile]
 
-	tbl = env[DEFINES] or Utils.ordered_dict()
+	dest.write('\n#endif /* %s */\n' % waf_guard)
+	dest.close()
+
+@conf
+def get_config_header(self):
+	"""Fill-in the contents of the config header. Override when you need to write your own config header."""
+	config_header = []
+
+	tbl = self.env[DEFINES] or Utils.ordered_dict()
 	for key in tbl.allkeys:
 		value = tbl[key]
 		if value is None:
-			dest.write('#define %s\n' % key)
+			config_header.append('#define %s' % key)
 		elif value is UNDEFINED:
-			dest.write('/* #undef %s */\n' % key)
+			config_header.append('/* #undef %s */' % key)
 		else:
-			dest.write('#define %s %s\n' % (key, value))
+			config_header.append('#define %s %s' % (key, value))
 
-	dest.write('\n#endif /* %s */\n' % waf_guard)
-	dest.close()
+	return "\n".join(config_header)
 
 @conftest
 def cc_check_features(self, kind='cc'):
