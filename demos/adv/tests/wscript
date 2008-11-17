@@ -42,16 +42,6 @@ def configure(conf):
 
 	conf.env['CCFLAGS_GLOBAL'] = []
 	conf.env['CXXFLAGS_GLOBAL'] = []
-	if conf.check_flags('-Wno-pointer-sign'):
-		conf.env['CCFLAGS_GLOBAL'].append('-Wno-pointer-sign')
-		conf.env['CXXFLAGS_GLOBAL'].append('-Wno-pointer-sign')
-	if conf.check_flags('-fvisibility=hidden'):
-		conf.env['CCFLAGS_GLOBAL'].append('-fvisibility=hidden')
-		conf.env['CXXFLAGS_GLOBAL'].append('-fvisibility=hidden')
-	if conf.check_flags('-fno-strict-aliasing'):
-		conf.env['CCFLAGS_GLOBAL'].append('-fno-strict-aliasing')
-		conf.env['CXXFLAGS_GLOBAL'].append('-fno-strict-aliasing')
-
 
 	headers='sys/wait.h fcntl.h sys/ioctl.h sys/time.h unistd.h \
 	sys/file.h string.h strings.h ctype.h stdlib.h stdarg.h stdint.h \

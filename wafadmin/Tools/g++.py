@@ -115,29 +115,6 @@ def gxx_modifier_aix5(conf):
 
 	v['SHLIB_MARKER']        = ''
 
-@conftest
-def gxx_modifier_debug(conf):
-	v = conf.env
-	# compiler debug levels
-	f = 'cxx'
-	if conf.check_flags('-O2 -DNDEBUG', kind=f):
-		v['CXXFLAGS_OPTIMIZED'] = ['-O2', '-DNDEBUG']
-		v['CXXFLAGS_RELEASE'] = ['-O2', '-DNDEBUG']
-	if conf.check_flags('-g -DDEBUG', kind=f):
-		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
-		v['LINKFLAGS_DEBUG'] = ['-g']
-	if conf.check_flags('-g3 -O0 -DDEBUG', kind=f):
-		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
-		v['LINKFLAGS_ULTRADEBUG'] = ['-g']
-	if conf.check_flags('-Wall', kind=f):
-		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CXXFLAGS_'+x, '-Wall')
-	try:
-		debug_level = Options.options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
-	v.append_value('LINKFLAGS', v['LINKFLAGS_'+debug_level])
-
 detect = '''
 find_gxx
 find_cpp
@@ -150,8 +127,3 @@ gxx_modifier_aix5
 cxx_load_tools
 cxx_add_flags
 '''
-
-# annoying checks
-#cxx_check_features
-#gxx_modifier_debug
-

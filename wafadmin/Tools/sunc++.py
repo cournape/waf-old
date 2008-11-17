@@ -56,24 +56,6 @@ def sxx_common_flags(conf):
 	v['staticlib_LINKFLAGS'] = ['-Bstatic']
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
-@conftest
-def sxx_modifier_debug(conf, kind='cpp'):
-	v = conf.env
-	v['CXXFLAGS'] = ['']
-	if conf.check_flags('-O2', kind=kind):
-		v['CXXFLAGS_OPTIMIZED'] = ['-O2']
-		v['CXXFLAGS_RELEASE'] = ['-O2']
-	if conf.check_flags('-g -DDEBUG', kind=kind):
-		v['CXXFLAGS_DEBUG'] = ['-g', '-DDEBUG']
-	if conf.check_flags('-g3 -O0 -DDEBUG', kind=kind):
-		v['CXXFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
-
-	try:
-		debug_level = Options.options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-	v.append_value('CXXFLAGS', v['CXXFLAGS_'+debug_level])
-
 detect = '''
 find_sxx
 find_cpp
@@ -81,7 +63,6 @@ find_ar
 sxx_common_flags
 cxx_load_tools
 cxx_check_features
-sxx_modifier_debug
 cxx_add_flags
 '''
 

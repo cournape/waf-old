@@ -113,29 +113,6 @@ def gcc_modifier_aix5(conf):
 
 	v['SHLIB_MARKER']        = ''
 
-@conftest
-def gcc_modifier_debug(conf):
-	v = conf.env
-	# compiler debug levels
-	if conf.check_flags('-O2'):
-		v['CCFLAGS_OPTIMIZED'] = ['-O2']
-		v['CCFLAGS_RELEASE'] = ['-O2']
-	if conf.check_flags('-g -DDEBUG'):
-		v['CCFLAGS_DEBUG'] = ['-g', '-DDEBUG']
-		v['LINKFLAGS_DEBUG'] = ['-g']
-	if conf.check_flags('-g3 -O0 -DDEBUG'):
-		v['CCFLAGS_ULTRADEBUG'] = ['-g3', '-O0', '-DDEBUG']
-		v['LINKFLAGS_ULTRADEBUG'] = ['-g']
-	if conf.check_flags('-Wall'):
-		for x in 'OPTIMIZED RELEASE DEBUG ULTRADEBUG'.split(): v.append_unique('CCFLAGS_'+x, '-Wall')
-	try:
-		debug_level = Options.options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-	v.append_value('CCFLAGS', v['CCFLAGS_'+debug_level])
-	v.append_value('LINKFLAGS', v['LINKFLAGS_'+debug_level])
-
-
 detect = '''
 find_gcc
 find_cpp
@@ -148,10 +125,6 @@ gcc_modifier_aix5
 cc_load_tools
 cc_add_flags
 '''
-
-# annoying checks
-#cc_check_features
-#gcc_modifier_debug
 
 """
 If you want to remove the tests you do not want, use something like this:
