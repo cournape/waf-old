@@ -236,6 +236,10 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	python_config = conf.find_program(
 		'python%s-config' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
 		var='PYTHON_CONFIG')
+	if not python_config:
+		python_config = conf.find_program(
+			'python-config-%s' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
+			var='PYTHON_CONFIG')
 
 	includes = []
 	if python_config:
