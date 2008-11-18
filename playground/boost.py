@@ -65,6 +65,7 @@ def set_options(opt):
 
 def string_to_version(s):
 	version = s.split('.')
+	if len(version) < 3: return 0
 	return int(version[0])*100000 + int(version[1])*100 + int(version[2])
 
 def version_string(version):
@@ -135,7 +136,7 @@ def tags_score(tags, kw):
 	return score
 
 @conf
-def validate_boost(self, *k, **kw):
+def validate_boost(self, kw):
 	ver = kw.get('version', '')
 
 	for x in 'min_version max_version version'.split():
@@ -146,6 +147,7 @@ def validate_boost(self, *k, **kw):
 
 	set_default(kw, 'libpath', boost_libpath)
 	set_default(kw, 'cpppath', boost_cpppath)
+
 	for x in 'tag_threading tag_abi tag_toolset'.split():
 		set_default(kw, x, None)
 	set_default(kw, 'tag_version', '^[^d]*$')
@@ -178,11 +180,11 @@ def find_boost_includes(self, kw):
 	else:
 		boostPath = Utils.to_list(kw['cpppath'])
 
-	min_version = string_to_version(kw.get('min_version', '0'))
-	min_version = string_to_version(kw.get('max_version', '0')) or sys.maxint
+	min_version = string_to_version(kw.get('min_version', ''))
+	max_version = string_to_version(kw.get('max_version', '')) or sys.maxint
 
 	version = 0
-	for include_path in include_paths:
+	for include_path in boostPath:
 		boost_paths = glob.glob(os.path.join(include_path, 'boost*'))
 		for path in boost_paths:
 			pathname = os.path.split(path)[-1]
@@ -198,8 +200,8 @@ def find_boost_includes(self, kw):
 				version = ret
 				break
 	else:
-		conf.fatal('boost headers not found! (required version min: %s max: %s)'
-			  % (kw['min_version'], kw['self.max_version']))
+		self.fatal('boost headers not found! (required version min: %s max: %s)'
+			  % (kw['min_version'], kw['max_version']))
 		return False
 
 	found_version = version_string(version)
@@ -291,7 +293,7 @@ def check_boost(self, *k, **kw):
 	ret = None
 	try:
 		if not kw.get('found_includes', None):
-			find_includes(kw)
+			self.find_boost_includes(kw)
 		for lib in kw['lib']:
 			find_boost_library(lib, kw)
 	except Configure.ConfigurationError, e:
