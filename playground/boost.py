@@ -148,9 +148,9 @@ def validate_boost(self, kw):
 	set_default(kw, 'libpath', boost_libpath)
 	set_default(kw, 'cpppath', boost_cpppath)
 
-	for x in 'tag_threading tag_abi tag_toolset'.split():
+	for x in 'tag_threading tag_version tag_toolset'.split():
 		set_default(kw, x, None)
-	set_default(kw, 'tag_version', '^[^d]*$')
+	set_default(kw, 'tag_abi', '^[^d]*$')
 
 	set_default(kw, 'score_threading', (10, -10))
 	set_default(kw, 'score_abi', (10, -10))
@@ -160,6 +160,7 @@ def validate_boost(self, kw):
 	set_default(kw, 'score_min', 0)
 	set_default(kw, 'static', STATIC_NOSTATIC)
 	set_default(kw, 'found_includes', False)
+	set_default(kw, 'min_score', 0)
 
 @conf
 def find_boost_includes(self, kw):
@@ -181,7 +182,7 @@ def find_boost_includes(self, kw):
 		boostPath = Utils.to_list(kw['cpppath'])
 
 	min_version = string_to_version(kw.get('min_version', ''))
-	max_version = string_to_version(kw.get('max_version', '')) or sys.maxint
+	max_version = string_to_version(kw.get('max_version', '')) or (sys.maxint - 1)
 
 	version = 0
 	for include_path in boostPath:
@@ -194,12 +195,13 @@ def find_boost_includes(self, kw):
 				ret = self.get_boost_version_number(path)
 			elif pathname.startswith('boost-'):
 				ret = self.get_boost_version_number(path)
+			ret = int(ret)
 
 			if ret != -1 and ret >= min_version and ret <= max_version and ret > version:
 				boost_path = path
 				version = ret
 				break
-	else:
+	if not version:
 		self.fatal('boost headers not found! (required version min: %s max: %s)'
 			  % (kw['min_version'], kw['max_version']))
 		return False
@@ -209,15 +211,16 @@ def find_boost_includes(self, kw):
 	if kw['tag_version'] is None:
 		kw['tag_version'] = versiontag
 	elif kw['tag_version'] != versiontag:
-		warn('boost header version and tag_version do not match!')
-	self.conf.check_message('header', 'boost', 1, 'Version ' + found_version +
+		warn('boost header version %r and tag_version %r do not match!' % (versiontag, kw['tag_version']))
+	self.check_message('header', 'boost', 1, 'Version ' + found_version +
 							' (' + boost_path + ')')
 	env = self.env
 	env['CPPPATH_BOOST'] = boost_path
 	env['BOOST_VERSION'] = found_version
 	self.found_includes = 1
 
-def find_boost_library(conf, lib, kw):
+@conf
+def find_boost_library(self, lib, kw):
 
 	def find_library_from_list(lib, files):
 		lib_pattern = re.compile('.*boost_(.*?)\..*')
@@ -234,13 +237,13 @@ def find_boost_library(conf, lib, kw):
 					resultscore = currentscore
 		return result
 
-	boostPath = getattr(Options.options, 'boostlibs', '')
-	if boostPath:
-		boostPath = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
+	lib_paths = getattr(Options.options, 'boostlibs', '')
+	if lib_paths:
+		lib_paths = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
 	else:
-		boostPath = Utils.to_list(kw['libpath'])
+		lib_paths = Utils.to_list(kw['libpath'])
 
-	v = kw['env']
+	v = kw.get('env', self.env)
 
 	(libname, file) = (None, None)
 	if kw['static'] in [STATIC_NOSTATIC, STATIC_BOTH]:
@@ -252,11 +255,11 @@ def find_boost_library(conf, lib, kw):
 		files = libfiles(lib, v['staticlib_PATTERN'], lib_paths)
 		(libname, file) = find_library_from_list(lib, files)
 	if libname is not None:
-		conf.check_message('library', 'boost_'+lib, 1, file)
+		self.check_message('library', 'boost_'+lib, 1, file)
 		v['LIBPATH_BOOST_' + lib.upper()] = os.path.split(file)[0]
 		v[st_env_prefix + '_BOOST_' + lib.upper()] = 'boost_'+libname
 		return
-	conf.fatal('lib boost_' + lib + ' not found!')
+	self.fatal('lib boost_' + lib + ' not found!')
 
 @conf
 def check_boost(self, *k, **kw):
@@ -291,11 +294,12 @@ def check_boost(self, *k, **kw):
 	if 'msg' in kw:
 		self.check_message_1(kw['msg'])
 	ret = None
-	try:
-		if not kw.get('found_includes', None):
-			self.find_boost_includes(kw)
-		for lib in kw['lib']:
-			find_boost_library(lib, kw)
+	#try:
+	if not kw.get('found_includes', None):
+		self.find_boost_includes(kw)
+	for lib in kw['lib']:
+		self.find_boost_library(lib, kw)
+	'''
 	except Configure.ConfigurationError, e:
 		if 'errmsg' in kw:
 			self.check_message_2(kw['errmsg'], 'YELLOW')
@@ -307,6 +311,6 @@ def check_boost(self, *k, **kw):
 	else:
 		if 'okmsg' in kw:
 			self.check_message_2(kw['okmsg'])
-
+	'''
 	return ret
 
