@@ -70,7 +70,6 @@ find_cpp
 find_ar
 scc_common_flags
 cc_load_tools
-cc_check_features
 cc_add_flags
 '''
 

@@ -62,7 +62,6 @@ find_cpp
 find_ar
 sxx_common_flags
 cxx_load_tools
-cxx_check_features
 cxx_add_flags
 '''
 

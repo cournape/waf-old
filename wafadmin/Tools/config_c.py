@@ -576,38 +576,3 @@ def get_config_header(self):
 
 	return "\n".join(config_header)
 
-@conftest
-def cc_check_features(self, kind='cc'):
-	v = self.env
-	# check for compiler features: programs, shared and static libraries
-	test = Configure.check_data()
-	test.code = 'int main() {return 0;}\n'
-	test.env = v
-	test.execute = 1
-	test.force_compiler = kind
-	ret = self.run_check(test)
-	self.check_message('compiler could create', 'programs', not (ret is False))
-	if not ret: self.fatal("no programs")
-
-	lib_obj = Configure.check_data()
-	lib_obj.code = "int k = 3;\n"
-	lib_obj.env = v
-	lib_obj.build_type = "shlib"
-	lib_obj.force_compiler = kind
-	ret = self.run_check(lib_obj)
-	self.check_message('compiler could create', 'shared libs', not (ret is False))
-	if not ret: self.fatal("no shared libs")
-
-	lib_obj = Configure.check_data()
-	lib_obj.code = "int k = 3;\n"
-	lib_obj.env = v
-	lib_obj.build_type = "staticlib"
-	lib_obj.force_compiler = kind
-	ret = self.run_check(lib_obj)
-	self.check_message('compiler could create', 'static libs', not (ret is False))
-	if not ret: self.fatal("no static libs")
-
-@conftest
-def cxx_check_features(self):
-	return cc_check_features(self, kind='cpp')
-
