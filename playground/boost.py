@@ -211,7 +211,7 @@ def find_boost_includes(self, kw):
 	env['CPPPATH_BOOST'] = boost_path
 	env['BOOST_VERSION'] = found_version
 	self.found_includes = 1
-	ret = 'Version ' + found_version + ' (' + boost_path + ')'
+	ret = 'Version %s (%s)' % (found_version, boost_path)
 	return ret
 
 @conf
