@@ -154,6 +154,9 @@ def validate_boost(self, kw):
 	set_default(kw, 'found_includes', False)
 	set_default(kw, 'min_score', 0)
 
+	set_default(kw, 'errmsg', 'not found')
+	set_default(kw, 'okmsg', 'ok')
+
 @conf
 def find_boost_includes(self, kw):
 	"""
@@ -204,12 +207,12 @@ def find_boost_includes(self, kw):
 		kw['tag_version'] = versiontag
 	elif kw['tag_version'] != versiontag:
 		warn('boost header version %r and tag_version %r do not match!' % (versiontag, kw['tag_version']))
-	self.check_message('header', 'boost', 1, 'Version ' + found_version +
-							' (' + boost_path + ')')
 	env = self.env
 	env['CPPPATH_BOOST'] = boost_path
 	env['BOOST_VERSION'] = found_version
 	self.found_includes = 1
+	ret = 'Version ' + found_version + ' (' + boost_path + ')'
+	return ret
 
 @conf
 def find_boost_library(self, lib, kw):
@@ -247,7 +250,6 @@ def find_boost_library(self, lib, kw):
 		files = libfiles(lib, v['staticlib_PATTERN'], lib_paths)
 		(libname, file) = find_library_from_list(lib, files)
 	if libname is not None:
-		self.check_message('library', 'boost_'+lib, 1, file)
 		v['LIBPATH_BOOST_' + lib.upper()] = os.path.split(file)[0]
 		v[st_env_prefix + '_BOOST_' + lib.upper()] = 'boost_'+libname
 		return
@@ -283,15 +285,12 @@ def check_boost(self, *k, **kw):
 	"""
 
 	self.validate_boost(kw)
-	if 'msg' in kw:
-		self.check_message_1(kw['msg'])
 	ret = None
-	#try:
-	if not kw.get('found_includes', None):
-		self.find_boost_includes(kw)
-	for lib in kw['lib']:
-		self.find_boost_library(lib, kw)
-	'''
+	try:
+		if not kw.get('found_includes', None):
+			self.check_message_1(kw.get('msg_includes', 'boost headers'))
+			ret = self.find_boost_includes(kw)
+
 	except Configure.ConfigurationError, e:
 		if 'errmsg' in kw:
 			self.check_message_2(kw['errmsg'], 'YELLOW')
@@ -302,7 +301,23 @@ def check_boost(self, *k, **kw):
 				self.fatal('the configuration failed (see config.log)')
 	else:
 		if 'okmsg' in kw:
-			self.check_message_2(kw['okmsg'])
-	'''
+			self.check_message_2(kw.get('okmsg_includes', ret))
+
+	for lib in kw['lib']:
+		self.check_message_1('library boost_'+lib)
+		try:
+			self.find_boost_library(lib, kw)
+		except Configure.ConfigurationError, e:
+			if 'errmsg' in kw:
+				self.check_message_2(kw['errmsg'], 'YELLOW')
+			if 'mandatory' in kw:
+				if Logs.verbose > 1:
+					raise
+				else:
+					self.fatal('the configuration failed (see config.log)')
+		else:
+			if 'okmsg' in kw:
+				self.check_message_2(kw['okmsg'])
+
 	return ret
 
