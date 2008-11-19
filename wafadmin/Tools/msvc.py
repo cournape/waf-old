@@ -186,10 +186,11 @@ def libname_msvc(self, libname, is_static=False):
 	return None
 
 @taskgen
-@feature('cc', 'cxx')
-@after('apply_obj_vars_cc')
-@after('apply_obj_vars_cxx')
-def apply_msvc_obj_vars(self):
+@feature('cprogram', 'cshlib', 'cstaticlib')
+@after('apply_lib_vars')
+def apply_obj_vars(self):
+	# drop-in replacement for apply_obj_vars from ccroot. taskgen and
+	# priority settings must be kept in sync with apply_obj_vars's settings.
 	debug('msvc: apply_msvc_obj_vars called for msvc')
 	env = self.env
 	app = env.append_unique
@@ -233,11 +234,11 @@ def apply_msvc_obj_vars(self):
 				app('LINKFLAGS', libname)
 
 @taskgen
-@feature('cc', 'cxx')
+@feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_core')
-@before('apply_obj_vars_cc')
-@before('apply_obj_vars_cxx')
-def apply_link_msvc(self):
+def apply_link(self):
+	# drop-in replacement for apply_link from ccroot. taskgen and priority
+	# settings must be kept in sync with apply_link's settings.
 	# if we are only building .o files, tell which ones we built
 	if 'objects' in self.features:
 		self.out_nodes = []
@@ -263,16 +264,13 @@ def apply_link_msvc(self):
 
 @taskgen
 @feature('cc', 'cxx')
+@after('init_cc')
+@after('init_cxx')
+@before('apply_type_vars')
 @before('apply_core')
 def init_msvc(self):
-	"all methods (msvc and non-msvc) are to be executed, but we remove the ones we do not want"
-	if self.env['CC_NAME'] == 'msvc' or self.env['CXX_NAME'] == 'msvc':
-		self.meths.remove('apply_link')
-		# apply_msvc_obj_vars is the msvc specific implementation of apply_obj_vars. 
-		self.meths.remove('apply_obj_vars')
-	else:
-		for x in ['apply_link_msvc', 'apply_msvc_obj_vars']:
-			self.meths.remove(x)
+	# msvc specific init. must be called after init_cc/init_cxx but before
+	# any of their @before declarations. 
 	try: _libpaths=getattr(self,'libpaths')
 	except AttributeError: self.libpaths=[]
 
