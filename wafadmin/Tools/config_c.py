@@ -14,18 +14,11 @@ import Build, Utils, Configure, Task, Options, Logs
 from Constants import *
 from Configure import conf, conftest
 
-stdincpath = ['/usr/include/', '/usr/local/include/']
-"""standard include paths"""
-
-stdlibpath = ['/usr/lib/', '/usr/local/lib/', '/lib']
-"""standard library search paths"""
-
 cfg_ver = {
 	'atleast-version': '>=',
 	'exact-version': '==',
 	'max-version': '<=',
 }
-
 
 def parse_flags(line, uselib, env):
 	"""stupidest thing ever"""
