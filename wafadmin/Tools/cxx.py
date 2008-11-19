@@ -97,11 +97,14 @@ def cxx_hook(self, node):
 
 cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
+vnum_link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[1].bldpath(env)} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS} && ln -sf ${TGT[1].name} ${TGT[0].bldpath(env)}'
 
 cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx')
 cls.scan = ccroot.scan
 cls.vars.append('CXXDEPS')
 cls = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o')
+cls.maxjobs = 1
+cls = Task.simple_task_type('vnum_cxx_link', vnum_link_str, color='CYAN', ext_in='.o')
 cls.maxjobs = 1
 
 TaskGen.declare_order('apply_incpaths', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')

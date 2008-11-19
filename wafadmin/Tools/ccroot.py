@@ -208,6 +208,8 @@ def apply_link(self):
 		if 'cstaticlib' in self.features: link = 'ar_link_static'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
+		# that's something quite ugly for unix platforms, both the .so and .so.x must be present in the build dir
+		if getattr(self, 'vnum', None): link = 'vnum_' + link
 	linktask = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
@@ -368,6 +370,7 @@ def apply_vnum(self):
 		else:
 			try: name3 = self.soname
 			except AttributeError: name3 = self.link_task.outputs[0].name + '.' + nums[0]
+			self.link_task.outputs.append(self.link_task.outputs[0].parent.find_or_declare(name3))
 			self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
 
 @taskgen
