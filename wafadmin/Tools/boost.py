@@ -78,7 +78,7 @@ def libfiles(lib, pattern, lib_paths):
 def get_boost_version_number(self, dir):
 	"""silently retrieve the boost version number"""
 	try:
-		return self.run_c_code(compiler='cxx', code=boost_code, cpppath=dir, execute=1, env=self.env.copy(), type='cprogram')
+		return self.run_c_code(compiler='cxx', code=boost_code, includes=dir, execute=1, env=self.env.copy(), type='cprogram')
 	except Configure.ConfigurationError, e:
 		return -1
 
