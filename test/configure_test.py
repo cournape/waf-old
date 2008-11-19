@@ -87,7 +87,7 @@ class ConfigureTester(common_test.CommonTester):
 		opt_obj = Options.Handler()
 		opt_obj.parse_args()
 		return Configure.ConfigurationContext()
-	
+
 	def load_env(self, cache_file=''):
 		if not cache_file:
 			cache_file = os.path.join( self._blddir,  'c4che', 'default.cache.py' )
@@ -138,7 +138,7 @@ class CcConfigureTester(ConfigureTester):
 		self._populate_dictionary("""conf.check_cc(lib='z', mandatory=1)""")
 		self._write_files()
 		self._test_configure()
-		
+
 		env = self.load_env()
 		self.assert_(env['LIB_Z']==['z'], "it seems that libz was not configured properly, run waf check -vv to see the exact error...")
 
@@ -147,6 +147,20 @@ class CcConfigureTester(ConfigureTester):
 		self._populate_dictionary("""conf.check_cc(msg="checking for flag='blah'", ccflags='blah', mandatory=1)""")
 		self._write_files()
 		self._test_configure(False)
+
+	def test_configure_header(self):
+		# black-box test: finds a header file
+		self._populate_dictionary("""conf.check_cc(header_name='time.h', mandatory=1)""")
+		self._write_files()
+		self._test_configure()
+
+	def test_configure_header_specific_path(self):
+		# black-box test: finds non-standard header file in specific path
+		header_file = open('no_way_such_header_exists4141.h', 'w')
+		header_file.close()
+		self._populate_dictionary("""conf.check_cc(header_name='no_way_such_header_exists4141.h', includes=['%s'], mandatory=1)""" % os.getcwd())
+		self._write_files()
+		self._test_configure()
 
 class CxxConfigureTester(ConfigureTester):
 	def __init__(self, methodName):
@@ -165,7 +179,7 @@ class CxxConfigureTester(ConfigureTester):
 		self._populate_dictionary("""conf.check_cxx(lib='z', mandatory=1)""")
 		self._write_files()
 		self._test_configure()
-		
+
 		env = self.load_env()
 		self.assert_(env['LIB_Z']==['z'], "it seems that libz was not configured properly, run waf check -vv to see the exact error...")
 
@@ -174,7 +188,7 @@ class CxxConfigureTester(ConfigureTester):
 		self._populate_dictionary("""conf.check_cxx(lib='z', mandatory=1, libpath='/usr/lib/')""")
 		self._write_files()
 		self._test_configure()
-		
+
 		env = self.load_env()
 		self.assert_(env['LIBPATH_Z']==['/usr/lib'], "it seems that libz was not configured properly, or the trailing slash was not removed. run waf check -vv to see the exact error...")
 
@@ -225,6 +239,20 @@ def set_options(opt):
 		conf = self._setup_configure()
 		conf.all_envs = None
 		self.failUnlessRaises(Configure.ConfigurationError, conf.store)
+
+	def test_configure_header(self):
+		# black-box test: finds a header file
+		self._populate_dictionary("""conf.check_cxx(header_name='time.h', mandatory=1)""")
+		self._write_files()
+		self._test_configure()
+
+	def test_configure_header_specific_path(self):
+		# black-box test: finds non-standard header file in specific path
+		header_file = open('no_way_such_header_exists4141.h', 'w')
+		header_file.close()
+		self._populate_dictionary("""conf.check_cxx(header_name='no_way_such_header_exists4141.h', includes=['%s'], mandatory=1)""" % os.getcwd())
+		self._write_files()
+		self._test_configure()
 
 def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
