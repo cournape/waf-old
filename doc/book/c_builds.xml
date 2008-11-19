@@ -16,7 +16,7 @@
 		The construction of c/c++ applications can be quite complicated, and several measures must be taken to ensure coherent interaction with new compilation rules. The canonical code for a task generator building a c/c++ application is the following:
 			<programlisting language="python">
 def build(bld):
-	tgen = bld.new_task_gen('c', 'program') <co id="taskgen-co" linkends="al"/>
+	tgen = bld.new_task_gen('cc', 'program') <co id="taskgen-co" linkends="al"/>
 	tgen.source = 'main.c' <co id="src-co" linkends="a2"/>
 	tgen.target = 'appname' <co id="tgt-co" linkends="a3"/>
 	tgen.includes = '.' <co id="incl-co" linkends="a4"/>
