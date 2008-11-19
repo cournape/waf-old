@@ -98,7 +98,8 @@ class BuildContext(object):
 		self.srcnode = None
 		self.bldnode = None
 
-		# now your head will explode .. :-)
+		# bind the build context to the nodes in use
+		# this means better encapsulation and no build context singleton
 		class node_class(Node.Node):
 			pass
 		self.node_class = node_class
