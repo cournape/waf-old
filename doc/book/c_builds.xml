@@ -5,7 +5,7 @@
 <chapter>
 	<title>C and C++ projects</title>
 	<section>
-		<title>Canonical declaration for C/C++ applications</title>
+		<title>Common script for C/C++ applications</title>
 		<para>
 			The c/c++ builds consist in transforming source files into object files, and to assemble the object files at the end. In theory a single programming language should be sufficient for writing any application, but in practice slight variations exist:
 			<itemizedlist>
