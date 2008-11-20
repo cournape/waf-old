@@ -48,6 +48,9 @@ class valac_task(Task.Task):
 		for package in self.packages:
 			cmd.append('--pkg %s' % package)
 
+		for package in self.packages_private:
+			cmd.append('--pkg %s' % package)
+
 		cmd.append(" ".join(inputs))
 		result = self.generator.bld.exec_command(" ".join(cmd))
 
@@ -112,6 +115,7 @@ def vala_file(self, node):
 		valatask = self.create_task('valac')
 		self.valatask = valatask
 		valatask.packages = []
+		valatask.packages_private = Utils.to_list(getattr(self, 'packages_private', []))
 		valatask.vapi_dirs = []
 		valatask.target = self.target
 		valatask.threading = False
