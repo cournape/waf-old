@@ -146,9 +146,9 @@ def vala_file(self, node):
 				for task in package_obj.tasks:
 					for output in task.outputs:
 						if output.name == package_name + ".vapi":
+							valatask.set_run_after(task)
 							if package_name not in packages:
 								packages.append(package_name)
-								valatask.set_run_after(task)
 							if package_dir not in vapi_dirs:
 								vapi_dirs.append(package_dir)
 
