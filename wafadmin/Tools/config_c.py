@@ -85,7 +85,8 @@ def validate_cfg(self, kw):
 
 @conf
 def cmd_and_log(self, cmd):
-	self.log.write(cmd+'\n')
+	Logs.debug('runner: %s\n' % cmd)
+	if self.log: self.log.write('%s\n' % cmd)
 	return Utils.cmd_output(cmd)
 
 @conf
