@@ -13,6 +13,11 @@ unused class members increase the .wafpickle file size sensibly with lots of obj
 
 3. The build is launched from the top of the build dir (for example, in _build_/)
 
+4. Node should not be instantiated directly.
+Each instance of Build.BuildContext has a Node sublass.
+(aka: 'Nodu', see BuildContext initializer)
+The BuildContext is referenced here as self.__class__.bld
+Its Node class is referenced here as self.__class__
 
 The public and advertised apis are the following:
 ${TGT}                 -> dir/to/file.ext
