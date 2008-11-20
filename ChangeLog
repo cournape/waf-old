@@ -5,6 +5,7 @@ NEW IN WAF 1.5.1
 * -Wl,-rpath, <- two commas
 * shared libraries with version numbers are symlinked in the build directory
 * return of the boost tool
+* absoulte include paths are supported now
 
 NEW IN WAF 1.5.0
 ----------------
