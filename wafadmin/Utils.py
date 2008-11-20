@@ -280,9 +280,7 @@ def copy_attrs(orig, dest, names, only_if_set=False):
 
 def def_attrs(self, **kw):
 	for k, v in kw.iteritems():
-		try:
-			getattr(self, k)
-		except AttributeError:
+		if not hasattr(self, k):
 			setattr(self, k, v)
 
 quote_define_name_table = None
