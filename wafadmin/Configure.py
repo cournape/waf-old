@@ -158,7 +158,8 @@ class ConfigurationContext(object):
 		if not os.path.isdir(self.cachedir):
 			os.makedirs(self.cachedir)
 
-		file = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
+		if not file:
+			file = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
 		file.write('version = 0x%x\n' % HEXVERSION)
 		file.write('tools = %r\n' % self.tools)
 		file.close()
