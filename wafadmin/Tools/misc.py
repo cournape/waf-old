@@ -101,6 +101,7 @@ def subst_func(tsk):
 	if not dict:
 		names = m4_re.findall(code)
 		for i in names:
+			if not env[i]: i = i.upper()
 			if env[i] and type(env[i]) is types.ListType :
 				dict[i] = " ".join(env[i])
 			else: dict[i] = env[i]
