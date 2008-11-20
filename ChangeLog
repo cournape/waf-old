@@ -4,8 +4,8 @@ NEW IN WAF 1.5.1
 * the waf preprocesser parses macros without parameters
 * -Wl,-rpath, <- two commas
 * shared libraries with version numbers are symlinked in the build directory
-* return of the boost tool
-* absoulte include paths are supported now
+* the boost tool is back
+* handle the absolute paths in includes as intended
 
 NEW IN WAF 1.5.0
 ----------------
