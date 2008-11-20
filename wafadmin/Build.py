@@ -364,7 +364,7 @@ class BuildContext(object):
 		self.bdir = blddir
 
 		# try to load the cache file, if it does not exist, nothing happens
-		if load_cache: self.load()
+		self.load()
 
 		if not self.root:
 			Node.Nodu = self.node_class

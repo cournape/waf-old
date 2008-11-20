@@ -39,8 +39,6 @@ def add_subdir(dir, bld):
 	bld.path = old
 
 def configure():
-	tree = Build.BuildContext()
-
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
 
 	src = getattr(Options.options, SRCDIR, None)
@@ -53,8 +51,8 @@ def configure():
 	if not bld: raise Utils.WscriptError(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
 	bld = os.path.abspath(bld)
 
-	tree.load_dirs(src, bld, False)
-
+	try: os.makedirs(bld)
+	except OSError: pass
 	conf = Configure.ConfigurationContext(srcdir=src, blddir=bld)
 
 	# calling to main wscript's configure()
