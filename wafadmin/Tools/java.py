@@ -108,7 +108,7 @@ def detect(conf):
 	v['JARCREATE'] = 'cf' # can use cvf
 
 @conf
-def check_java_class(conf, classname, with_classpath=None):
+def check_java_class(self, classname, with_classpath=None):
 	"""Check if the specified java class is installed"""
 
 	class_check_source = """
@@ -135,8 +135,8 @@ public class Test {
 	javatestdir = '.waf-javatest'
 
 	classpath = javatestdir
-	if conf.env['CLASSPATH']:
-		classpath += os.pathsep + conf.env['CLASSPATH']
+	if self.env['CLASSPATH']:
+		classpath += os.pathsep + self.env['CLASSPATH']
 	if isinstance(with_classpath, str):
 		classpath += os.pathsep + with_classpath
 
@@ -148,12 +148,13 @@ public class Test {
 	java_file.close()
 
 	# Compile the source
-	os.popen(conf.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
+	os.popen(self.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
 
-	(jstdin, jstdout, jstderr) = os.popen3(conf.env['JAVA'] + ' -cp ' + classpath + ' Test ' + classname)
+	cmd = self.env['JAVA'] + ' -cp ' + classpath + ' Test ' + classname
+	self.log.write("%s\n" % cmd)
+	found = Utils.exec_command(cmd, shell=True, log=self.log)
 
-	found = not bool(jstderr.read())
-	conf.check_message('Java class %s' % classname, "", found)
+	self.check_message('Java class %s' % classname, "", not found)
 
 	shutil.rmtree(javatestdir, True)
 
