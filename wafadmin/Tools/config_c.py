@@ -84,12 +84,18 @@ def validate_cfg(self, kw):
 		kw['errmsg'] = 'not found'
 
 @conf
+def cmd_and_log(self, cmd):
+	self.log.write(cmd+'\n')
+	return Utils.cmd_output(cmd)
+
+@conf
 def exec_cfg(self, kw):
 
 	# pkg-config version
 	if 'atleast_pkgconfig_version' in kw:
 		try:
-			Utils.cmd_output('%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version']))
+			cmd = '%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version'])
+			self.cmd_and_log(cmd)
 		except:
 			if not 'errmsg' in kw:
 				kw['errmsg'] = '"pkg-config" could not be found or the version found is too old.'
@@ -103,7 +109,7 @@ def exec_cfg(self, kw):
 		y = x.replace('-', '_')
 		if y in kw:
 			try:
-				Utils.cmd_output('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']))
+				self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']))
 			except:
 				if not 'errmsg' in kw:
 					kw['errmsg'] = 'Package "%s (%s %s)" could not be found or the found version is too old.' % (kw['package'], cfg_ver[x], kw[y])
@@ -116,7 +122,7 @@ def exec_cfg(self, kw):
 	# retrieving the version of a module
 	if 'modversion' in kw:
 		try:
-			version = Utils.cmd_output('%s --modversion %s' % (kw['path'], kw['modversion'])).strip()
+			version = self.cmd_and_log('%s --modversion %s' % (kw['path'], kw['modversion'])).strip()
 		except ValueError:
 			return ''
 			#self.fatal('Package %r could not be found' % kw['modversion'])
@@ -133,7 +139,7 @@ def exec_cfg(self, kw):
 	# so we assume the command-line will output flags to be parsed afterwards
 	cmd = ' '.join(lst)
 	try:
-		ret = Utils.cmd_output(cmd)
+		ret = self.cmd_and_log(cmd)
 	except:
 		raise Configure.ConfigurationError, "no such package"
 	if not 'okmsg' in kw:
