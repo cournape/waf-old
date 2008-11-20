@@ -244,7 +244,7 @@ def validate_c(self, kw):
 		l = Utils.to_list(kw['header_name'])
 		assert len(l)>0, 'list of headers in header_name is empty'
 
-		kw['code'] = to_header(kw) + 'int main(){return 0;}\n'
+		kw['code'] = to_header(kw) + simple_c_code
 
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = l[0].upper()
