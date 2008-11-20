@@ -171,7 +171,6 @@ def check_cfg(self, *k, **kw):
 # this should prevent code duplication (ita)
 
 simple_c_code = 'int main() {return 0;}\n'
-code_with_headers = ''
 
 # env: an optional environment (modified -> provide a copy)
 # compiler: cc or cxx - it tries to guess what is best
