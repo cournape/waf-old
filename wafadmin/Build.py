@@ -311,6 +311,10 @@ class BuildContext(object):
 					hash = SIG_NIL
 				self.node_sigs[env.variant()][newnode.id] = hash
 
+		# TODO: these nodes are removed from the tree when calling rescan()
+		self.bldnode = self.root.find_dir(self.bldnode.abspath())
+		self.path = self.srcnode = self.root.find_dir(self.srcnode.abspath())
+
 	def setup(self, tool, tooldir=None, funs=None):
 		"setup tools for build process"
 		if type(tool) is types.ListType:
