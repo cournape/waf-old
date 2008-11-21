@@ -83,8 +83,34 @@ def apply_java(self):
 				dirs = '.'
 				self.env['JAROPTS'] = '-C %s %s' % (self.env['OUTDIR'], dirs)
 
-Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', color='BLUE', before='jar_create')
 Task.simple_task_type('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN')
+cls = Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', before='jar_create')
+cls.color = 'BLUE'
+def post_run_javac(self):
+	"""this is for cleaning the folder
+	javac creates single files for inner classes
+	but it is not possible to know which inner classes in advance"""
+
+	par = {}
+	for x in self.inputs:
+		par[x.parent.id] = x.parent
+
+	inner = {}
+	for k in par.values():
+		path = k.abspath(self.env)
+		lst = os.listdir(path)
+
+		for u in lst:
+			if u.find('$') >= 0:
+				inner_class_node = k.find_or_declare(u)
+				inner[inner_class_node.id] = inner_class_node
+
+	to_add = set(inner.keys()) - set([x.id for x in self.outputs])
+	for x in to_add:
+		self.outputs.append(inner[x])
+
+	return Task.Task.post_run(self)
+cls.post_run = post_run_javac
 
 def detect(conf):
 	# If JAVA_PATH is set, we prepend it to the path list
