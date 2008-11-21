@@ -84,13 +84,15 @@ Task.simple_task_type('intltool',
 
 def detect(conf):
 	pocom = conf.find_program('msgfmt')
-	#if not pocom:
-	#	conf.fatal('The program msgfmt (gettext) is mandatory!')
+	if not pocom:
+		# if msgfmt should not be mandatory, catch the thrown exception in your wscript
+		conf.fatal('The program msgfmt (gettext) is mandatory!')
 	conf.env['POCOM'] = pocom
 
 	intltool = conf.find_program('intltool-merge')
-	#if not intltool:
-	#	conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
+	if not intltool:
+		# if intltool-merge should not be mandatory, catch the thrown exception in your wscript
+		conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 	conf.env['INTLTOOL'] = intltool
 
 	def getstr(varname):
