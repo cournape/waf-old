@@ -42,9 +42,9 @@ def detect(conf):
 	file = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
 	try: os.stat(file)
 	except OSError:
-		file = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
+		file = '%s/share/kde4/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
 		try: os.stat(file)
-		except: conf.fatal('could not open %s' % file)
+		except OSError: conf.fatal('could not open %s' % file)
 
 	try:
 		f = open(file, 'r')
