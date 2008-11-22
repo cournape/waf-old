@@ -20,7 +20,7 @@ def add_subdir(dir, bld):
 	old = bld.path
 	new = bld.path.find_dir(dir)
 	if new is None:
-		raise Utils.WscriptError("subdir not found (%s), restore is %s" % (dir, bld.path))
+		raise Utils.WscriptError('subdir not found (%s), restore is %s' % (dir, bld.path))
 
 	bld.path = new
 	# try to open 'wscript_build' for execution
@@ -105,7 +105,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 			candidate = calldir
 			search_for_candidate = False
 		else:
-			error("arg[0] directory does not contain a wscript file")
+			error('arg[0] directory does not contain a wscript file')
 			sys.exit(1)
 		build_dir_override = cwd
 
@@ -138,7 +138,6 @@ def prepare_impl(t, cwd, ver, wafdir):
 
 	# define the main module containing the functions init, shutdown, ..
 	Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
-
 
 	if build_dir_override:
 		d = getattr(Utils.g_module, BLDDIR, None)
@@ -412,13 +411,14 @@ def distcheck(appname='', version=''):
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	cwd_before = os.getcwd()
 	retval = pproc.Popen(
-		'%(waf)s configure && %(waf)s '
-		'&& %(waf)s check && %(waf)s install --destdir=%(instdir)s'
+		'%(waf)s configure && %(waf)s'
+		' && %(waf)s check && %(waf)s install --destdir=%(instdir)s'
 		' && %(waf)s uninstall --destdir=%(instdir)s' % vars(),
 		shell=True).wait()
 	if retval:
 		raise Utils.WafError('distcheck failed with code %i' % (retval))
 	if os.path.exists(instdir):
-		raise Utils.WafError("distcheck succeeded, but files were left in %s" % (instdir))
+		raise Utils.WafError('distcheck succeeded, but files were left in %s' % (instdir))
 	else:
 		info('distcheck finished successfully')
+
