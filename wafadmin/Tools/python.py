@@ -263,9 +263,9 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 			if incstr not in includes:
 				includes.append(incstr)
 		conf.log.write("Include path for Python extensions "
-			       "(found via python-config --includes): %r\n" % (list(includes),))
-		env['CPPPATH_PYEXT'] = list(includes)
-		env['CPPPATH_PYEMBED'] = list(includes)
+			       "(found via python-config --includes): %r\n" % (includes,))
+		env['CPPPATH_PYEXT'] = includes
+		env['CPPPATH_PYEMBED'] = includes
 	else:
 		conf.log.write("Include path for Python extensions "
 			       "(found via distutils module): %r\n" % (INCLUDEPY,))
