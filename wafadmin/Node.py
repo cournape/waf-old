@@ -333,15 +333,8 @@ class Node(object):
 
 	def abspath(self, env=None):
 		"""
-		Returns the absolute file path for this node.  If this
-		node is a build node, the absolute path will be a
-		build path, else it will be a source path.
-
-		@param env: Environment object.  This is used to
-		determine the variant we are interested in.  'env' can
-		be None if we are sure to be working with a source
-		Node, but when in doubt a real Environment object
-		should be provided.
+		absolute path
+		@param env: optional only if the node is a source node
 		"""
 		## absolute path - hot zone, so do not touch
 
