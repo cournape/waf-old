@@ -156,7 +156,7 @@ def apply_link_ml(self):
 		self.linktasks.append(linktask)
 
 	if self.native_env:
-		if getattr(self, 'c_objects', ''): ext = '.o'
+		if self.type == 'c_object': ext = '.o'
 		elif self.islibrary: ext = '.cmxa'
 		else: ext = ''
 
