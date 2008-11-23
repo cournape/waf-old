@@ -46,6 +46,7 @@ class TaskConsumer(threading.Thread):
 			try:
 				tsk.generator.bld.printout(tsk.display())
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
+				# actual call to task's run() function
 				else: ret = tsk.call_run()
 			except Exception, e:
 				tsk.err_msg = Utils.ex_stack()
@@ -192,6 +193,7 @@ class Parallel(object):
 				tsk.hasrun = SKIPPED
 				self.manager.add_finished(tsk)
 			else:
+				# run me: put the task in ready queue
 				tsk.position = (self.processed, self.total)
 				self.count += 1
 				self.ready.put(tsk)
