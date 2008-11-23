@@ -99,7 +99,7 @@ def init_envs_ml(self):
 		if self.islibrary: self.bytecode_env['OCALINKFLAGS'] = '-a'
 
 	if self.type == 'c_object':
-		self.native_env['OCALINK'] = self.native_env['OCALINK']+' -output-obj'
+		self.native_env.append_unique('OCALINKFLAGS_OPT', ' -output-obj')
 
 @taskgen
 @feature('ocaml')
