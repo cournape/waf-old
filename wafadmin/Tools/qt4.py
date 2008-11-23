@@ -62,13 +62,14 @@ class MTask(Task.Task):
 		parn = self.parent
 		node = self.inputs[0]
 
-		# to know if there is a moc file to create
 		try:
+			# compute the signature once to know if there is a moc file to create
 			self.signature()
-		except:
-			print "TODO"
+		except KeyError:
+			# the moc file may be referenced somewhere else
+			pass
 		else:
-			# remove the signature, it must be recomputed
+			# remove the signature, it must be recomputed with the moc task
 			delattr(self, 'cache_sig')
 
 		moctasks=[]
