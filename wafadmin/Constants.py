@@ -20,7 +20,6 @@ WSCRIPT_FILE       = 'wscript'
 WSCRIPT_BUILD_FILE = 'wscript_build'
 WAF_CONFIG_LOG     = 'config.log'
 WAF_CONFIG_H       = 'config.h'
-COMMON_INCLUDES    = 'COMMON_INCLUDES'
 
 SIG_NIL = 'iluvcuteoverload'
 
