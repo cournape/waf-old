@@ -6,7 +6,7 @@ NEW IN WAF 1.5.1
 * shared libraries with version numbers are symlinked in the build directory
 * the boost tool is back
 * handle the absolute paths in includes as intended
-* java tool fixes
+* minor bugfixes for java, ocaml, kde4
 
 NEW IN WAF 1.5.0
 ----------------
