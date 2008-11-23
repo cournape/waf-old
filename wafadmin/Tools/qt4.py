@@ -110,7 +110,7 @@ class MTask(Task.Task):
 			# next time we will not search for the extension (look at the 'for' loop below)
 			h_node = node.parent.find_resource(base2+i)
 			m_node = h_node.change_ext('.moc')
-			tree.node_deps[(self.unique_id(), m_node.name)] = h_node
+			tree.node_deps[(self.inputs[0].parent.id, self.env.variant(), m_node.name)] = h_node
 
 			# create the task
 			task = Task.TaskBase.classes['moc'](parn.env, normal=0)
@@ -132,7 +132,7 @@ class MTask(Task.Task):
 			name = d.name
 			if name.endswith('.moc'):
 				task = Task.TaskBase.classes['moc'](parn.env, normal=0)
-				task.set_inputs(tree.node_deps[(self.unique_id(), name)]) # 1st element in a tuple
+				task.set_inputs(tree.node_deps[(self.inputs[0].parent.id, self.env.variant(), name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
 				generator = Build.bld.generator
@@ -218,8 +218,8 @@ def create_uic_task(self, node):
 	uictask.outputs   = [node.change_ext('.h')]
 
 class qt4_taskgen(cxx.cxx_taskgen):
-	def __init__(self, *kw):
-		cxx.cxx_taskgen.__init__(self, *kw)
+	def __init__(self, *k, **kw):
+		cxx.cxx_taskgen.__init__(self, *k, **kw)
 		self.features.append('qt4')
 
 @taskgen
