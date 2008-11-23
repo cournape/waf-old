@@ -296,7 +296,7 @@ def main():
 	if fun: fun()
 
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg Makefile Makefile.in config.log'.split()
-dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip'.split()
+dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()
 def dont_dist(name, src, build_dir):
 	global excludes, dist_exts
 
