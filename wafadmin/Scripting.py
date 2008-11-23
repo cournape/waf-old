@@ -234,11 +234,12 @@ def main():
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
+	# locate and run the main build function
 	f = getattr(Utils.g_module, 'build', None)
 	if f:
 		f(bld)
 	else:
-		# find the main wscript
+		# find the main wscript path. helps the user to locate her errors. 
 		main_wscript = None
 		for (file_path, module) in Utils.g_loaded_modules.items():
 			if module.__name__ == 'wscript_main':
