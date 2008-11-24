@@ -103,11 +103,15 @@ blddir = srcdir = '.'
 def configure(conf):
 	pass
 
+def build(bld):
+	pass
+
 def set_options(opt):
 	pass
 """
 		self._write_wscript(my_wscript)
-		self._test_configure(False)
+		self._test_configure()
+		self._test_build(False)
 
 	def test_rescan_fails_file_not_readable(self):
 		# black-box test: rescan fails if file is not readable
