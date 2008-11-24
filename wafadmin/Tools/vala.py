@@ -104,7 +104,7 @@ class valac_task(Task.Task):
 			src = os.path.join(top_bld, output)
 			dst = self.generator.path.abspath (self.env)
 			shutil.move(src, dst)
-		except IOError:
+		except:
 			pass
 
 @extension(EXT_VALA)
