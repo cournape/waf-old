@@ -28,7 +28,7 @@ class BuildTester(common_test.CommonTester):
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''
 		os.chdir(self._waf_root_dir)
-		
+
 		if os.path.isdir(self._test_dir_root):
 			shutil.rmtree(self._test_dir_root)
 
@@ -80,20 +80,20 @@ def set_options(opt):
 	def test_incorrect_version(self):
 		# white-box test: configured with old version
 		Options.commands['configure'] = False
-		
+
 		bld = Build.BuildContext()
 		bld.blddir = os.path.join(self._test_dir_root, 'b')
 
 		# this will create the cachedir...
 		self.failUnlessRaises(Utils.WafError, bld.load_dirs, bld.blddir, bld.blddir)
 		os.makedirs(bld.cachedir)
-		
+
 		# create build cache file with OLD version
 		cachefile = os.path.join(bld.cachedir, 'build.config.py')
 		file = open(cachefile, 'w')
 		file.writelines("version = 0.0")
 		file.close()
-		
+
 		self.failUnlessRaises(Utils.WafError, bld.load)
 
 	def test_black_build_fails_blddir_is_srcdir(self):
@@ -125,7 +125,7 @@ def configure(conf):
 
 def set_options(opt):
 	pass
-""" 
+"""
 
 		self._write_wscript(wscript_contents)
 		self._write_source("int main() {return 0;}")
