@@ -48,7 +48,7 @@ def build(bld):
 import os
 import TaskGen, Task, Utils, Build
 from TaskGen import taskgen, feature, before, after, extension
-from logging import debug
+from Logs import debug
 from Constants import *
 
 @taskgen
@@ -149,7 +149,7 @@ class shpip_task(Task.Task):
 		try:
 			time = tree.node_sigs[variant][node.id]
 		except KeyError:
-			debug("task #%d should run as the first node does not exist" % self.idx, 'task')
+			debug("task: task #%d should run as the first node does not exist" % self.idx)
 			try: new_sig = self.signature()
 			except KeyError:
 				print "TODO - computing the signature failed"
