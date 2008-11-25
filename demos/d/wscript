@@ -19,7 +19,7 @@ def configure(conf):
 	conf.check_tool('compiler_d')
 
 	if not conf.env['D_COMPILER']:
-		Logs.fatal("either dmd or gdc is required (d compilers)")
+		conf.fatal("either dmd or gdc is required (d compilers)")
 
 	conf.env['LIB_PTHREAD'] = ['pthread']
 
