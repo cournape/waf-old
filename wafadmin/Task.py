@@ -337,9 +337,9 @@ class TaskBase(object):
 
 	def __str__(self):
 		"string to display to the user"
-		try: self.fun
-		except AttributeError: return self.__class__.__name__ + '\n'
-		else: return 'executing: %s\n' % self.fun.__name__
+		if hasattr(self, 'fun'):
+			return 'executing: %s\n' % self.fun.__name__
+		return self.__class__.__name__ + '\n'
 
 	def runnable_status(self):
 		"RUN_ME SKIP_ME or ASK_LATER"
@@ -355,9 +355,9 @@ class TaskBase(object):
 
 	def run(self):
 		"called if the task must run"
-		try: fun = self.fun
-		except: return 0
-		return fun(self)
+		if hasattr(self, 'fun'): 
+			return self.fun(self)
+		return 0
 
 	def post_run(self):
 		"update the dependency tree (node stats)"
