@@ -203,6 +203,11 @@ class Parallel(object):
 				if not self.consumers:
 					self.consumers = [TaskConsumer(self) for i in xrange(self.numjobs)]
 
+		# self.count represents the tasks that have been made available to the consumer threads
+		# collect all the tasks after an error else the message may be incomplete
+		while self.error and self.count:
+			self.get_out()
+
 		#print loop
 		assert (self.count == 0 or self.stop)
 
