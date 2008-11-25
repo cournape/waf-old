@@ -198,8 +198,7 @@ class TaskGroup(object):
 		"extract the parallelization constraints from the tasks with different constraints"
 		keys = self.cstr_groups.keys()
 		max = len(keys)
-		#a = self.__class__
-		# hopefully the lenght of this list is short
+		# hopefully the length of this list is short
 		for i in xrange(max):
 			t1 = self.cstr_groups[keys[i]][0]
 			for j in xrange(i + 1, max):
@@ -214,15 +213,13 @@ class TaskGroup(object):
 				elif val < 0:
 					self.set_order(keys[j], keys[i])
 
-		#print "the constraint groups are:", self.cstr_groups, "and the constraints ", self.cstr_order
-		# TODO extract constraints by file extensions on the actions
+		# TODO: extract constraints by file extensions on the actions
 
 	def tasks_in_parallel(self):
 		"(NORMAL) next list of tasks that may be executed in parallel"
 
 		if not self.ready: self.prepare()
 
-		#print [(a.name, cstrs[a].name) for a in cstrs]
 		keys = self.cstr_groups.keys()
 
 		unconnected = []
@@ -235,8 +232,6 @@ class TaskGroup(object):
 					break
 			else:
 				unconnected.append(u)
-
-		#print "unconnected tasks: ", unconnected, "tasks", [eq_groups[x] for x in unconnected]
 
 		toreturn = []
 		for y in unconnected:
@@ -251,7 +246,6 @@ class TaskGroup(object):
 		if not toreturn and remainder:
 			raise Utils.WafError("circular order constraint detected %r" % remainder)
 
-		#print "returning", toreturn
 		return toreturn
 
 	def tasks_by_max_jobs(self):
