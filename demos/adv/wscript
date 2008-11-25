@@ -187,7 +187,7 @@ def build(bld):
 	"""
 
 	# process subfolders from here
-	bld.add_subdirs('src complex variant tests hybrid')
+	bld.add_subdirs('src complex variant hybrid')
 
 	# compile the flex+bison test if available
 	if bld.env_of_name('default')['FLEX']:
