@@ -8,8 +8,8 @@ Custom objects:
  - copy a file somewhere else
 """
 
-import shutil, re, os, types
-import TaskGen, Node, Task, Utils, Build, pproc
+import shutil, re, os, types, new
+import TaskGen, Node, Task, Utils, Build, pproc, Constants
 from TaskGen import feature, taskgen, after
 from Logs import debug
 
@@ -229,7 +229,7 @@ class command_output(Task.Task):
 
 	def run(self):
 		task = self
-		assert len(task.inputs) > 0
+		#assert len(task.inputs) > 0
 
 		def input_path(node, template):
 			if task.cwd is None:
@@ -400,17 +400,17 @@ use command_is_external=True''') % (self.command,)
 			raise Utils.WafError("File %s not found in dir %s" % (hidden_output, self.path))
 		outputs.append(node)
 
-	if not inputs:
-		raise Utils.WafError("command-output objects must have at least one input file")
-	if not outputs:
-		raise Utils.WafError("command-output objects must have at least one output file")
+	if not (inputs or getattr(self, 'no_inputs', None)):
+		raise Utils.WafError('command-output objects must have at least one input file or give self.no_inputs')
+	if not (outputs or getattr(self, 'no_outputs', None)):
+		raise Utils.WafError('command-output objects must have at least one output file or give self.no_outputs')
 
 	task = command_output(self.env, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env, stderr)
 	Utils.copy_attrs(self, task, 'before after ext_in ext_out', only_if_set=True)
 	self.tasks.append(task)
 
-	task.set_inputs(inputs)
-	task.set_outputs(outputs)
+	task.inputs = inputs
+	task.outputs = outputs
 	task.dep_vars = self.to_list(self.dep_vars)
 
 	for dep in self.dependencies:
@@ -418,6 +418,21 @@ use command_is_external=True''') % (self.command,)
 		dep.post()
 		for dep_task in dep.tasks:
 			task.set_run_after(dep_task)
+
+	if not task.inputs:
+		# the case for svnversion, always run, and update the output nodes
+		task.runnable_status = new.instancemethod(runnable_status, task, task.__class__) # always run
+		task.post_run = new.instancemethod(post_run, task, task.__class__)
+
+	# TODO the case with no outputs?
+
+def post_run(self):
+	for x in self.outputs:
+		h = Utils.h_file(x.abspath(self.env))
+		self.generator.bld.node_sigs[self.env.variant()][x.id] = h
+
+def runnable_status(self):
+	return Constants.RUN_ME
 
 Task.task_type_from_func('copy', vars=[], func=action_process_file_func)
 TaskGen.task_gen.classes['command-output'] = cmd_output_taskgen
