@@ -218,18 +218,18 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 
 	if python_LIBDIR is not None:
 		path = [python_LIBDIR]
-		result = conf.check_cc(lib=name, uselib='PYEMBED', libpath=path)
+		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
 
 	## try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)
 	if result and python_LIBPL is not None:
 		path = [python_LIBPL]
-		result = conf.check_cc(lib=name, uselib='PYEMBED', libpath=path)
+		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
 
 	## try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)
 	if result:
 		path = [os.path.join(python_prefix, "libs")]
 		name = 'python' + env['PYTHON_VERSION'].replace('.', '')
-		result = conf.check_cc(lib=name, uselib='PYEMBED', libpath=path)
+		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
 
 	if not result:
 		env['LIBPATH_PYEMBED'] = path
@@ -291,7 +291,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	test_env.append_value('LIB', env['LIB_PYEMBED'])
 	test_env.append_value('CXXFLAGS', env['CXXFLAGS_PYEMBED'])
 	test_env.append_value('CCFLAGS', env['CCFLAGS_PYEMBED'])
-	conf.check_cc(header_name='Python.h', define_name='HAVE_PYTHON_H', env=test_env,
+	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H', env=test_env,
 		fragment='''#include <Python.h>\nint main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }\n''', errmsg='Could not find the python development headers', mandatory=1)
 
 @conf
