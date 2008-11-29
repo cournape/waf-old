@@ -78,7 +78,7 @@ def swig_ocaml(tsk):
 def i_file(self, node):
 	flags = self.to_list(getattr(self, 'swig_flags', []))
 
-	ext = '.swigwrap.c'
+	ext = '.swigwrap_%d.c' % self.idx
 	if '-c++' in flags:
 		ext += 'xx'
 
