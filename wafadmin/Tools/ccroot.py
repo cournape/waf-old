@@ -106,6 +106,7 @@ def install_shlib(self):
 	nums = self.vnum.split('.')
 
 	path = self.install_path
+	if not path: return
 	libname = self.outputs[0].name
 
 	name3 = libname + '.' + self.vnum
