@@ -144,8 +144,4 @@ def check_swig_version(conf, minver=None):
 
 def detect(conf):
 	swig = conf.find_program('swig', var='SWIG')
-	env = conf.env
-	env['SWIG']      = swig
-	env['SWIGFLAGS'] = ''
-	env['SWIG_EXT']  = ['.swig']
 

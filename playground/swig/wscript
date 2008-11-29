@@ -24,6 +24,7 @@ def build(bld):
 	obj.source = 'src1.cpp bind.swig'
 	obj.target = 'swigdemo'
 	obj.swig_flags = '-c++ -python -dump_classes'
+	# the -dump_classes is for debugging
 
 def shutdown():
 	import os, stat
