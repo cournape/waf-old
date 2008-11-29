@@ -13,6 +13,8 @@ SWIG_EXTS = ['.swig', '.i']
 swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
 Task.simple_task_type('swig', swig_str, color='BLUE', before='cc cxx')
 
+re_module = re.compile('%module(?:\s*\(.*\))?\s+(.+)', re.M)
+
 re_1 = re.compile(r'^%module.*?\s+([\w]+)\s*?$', re.M)
 re_2 = re.compile('%include "(.*)"', re.M)
 re_3 = re.compile('#include "(.*)"', re.M)
@@ -80,8 +82,11 @@ def i_file(self, node):
 	module = getattr(self, 'swig_module', None)
 	if not module:
 		# else, open the files and search
-		#txt = node.read(tsk.env)
-		module = 'swigdemo'
+		txt = node.read(self.env)
+		m = re_module.search(txt)
+		if not m:
+			raise "for now we are expecting a module name in the main swig file"
+		module = m.group(1)
 	out_node = node.parent.find_or_declare(module + ext)
 
 	# the task instance
