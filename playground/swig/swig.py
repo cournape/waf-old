@@ -11,7 +11,7 @@ from Configure import conf
 SWIG_EXTS = ['.swig', '.i']
 
 swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
-Task.simple_task_type('swig', swig_str, color='BLUE', before='cc cxx')
+cls = Task.simple_task_type('swig', swig_str, color='BLUE', before='cc cxx')
 
 re_module = re.compile('%module(?:\s*\(.*\))?\s+(.+)', re.M)
 
@@ -19,42 +19,37 @@ re_1 = re.compile(r'^%module.*?\s+([\w]+)\s*?$', re.M)
 re_2 = re.compile('%include "(.*)"', re.M)
 re_3 = re.compile('#include "(.*)"', re.M)
 
-class swig_class_scanner(object):
-	def __init__(self):
-		Scan.scanner.__init__(self)
-	def scan(self, task, node):
-		env = task.m_env
-		variant = node.variant(env)
-		tree = Params.g_build
+def scan(self):
+	env = self.env
+	node = self.inputs[0]
+	variant = node.variant(env)
 
-		lst_names = []
-		lst_src = []
+	lst_names = []
+	lst_src = []
 
-		# read the file
-		fi = open(node.abspath(env), 'r')
-		content = fi.read()
-		fi.close()
+	# read the file
+	content = node.read(env)
 
-		# module name, only for the .swig file
-		names = re_1.findall(content)
-		if names: lst_names.append(names[0])
+	# module name, only for the .swig file
+	names = re_1.findall(content)
+	if names: lst_names.append(names[0])
 
-		# find .i files (and perhaps .h files)
-		names = re_2.findall(content)
-		for n in names:
-			u = node.m_parent.find_source(n)
-			if u: lst_src.append(u)
+	# find .i files (and perhaps .h files)
+	names = re_2.findall(content)
+	for n in names:
+		u = node.parent.find_resource(n)
+		if u: lst_src.append(u)
 
-		# find project headers
-		names = re_3.findall(content)
-		for n in names:
-			u = node.m_parent.find_source(n)
-			if u: lst_src.append(u)
+	# find project headers
+	names = re_3.findall(content)
+	for n in names:
+		u = node.parent.find_resource(n)
+		if u: lst_src.append(u)
 
-		# list of nodes this one depends on, and module name if present
-		#print "result of ", node, lst_src, lst_names
-		return (lst_src, lst_names)
-
+	# list of nodes this one depends on, and module name if present
+	#print "result of ", node, lst_src, lst_names
+	return (lst_src, lst_names)
+cls.scan = scan
 
 # provide additional language processing
 swig_langs = {}
