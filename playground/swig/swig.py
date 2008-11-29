@@ -7,6 +7,7 @@ import re
 import Task, Utils
 from TaskGen import extension
 from Configure import conf
+import preproc
 
 SWIG_EXTS = ['.swig', '.i']
 
@@ -20,35 +21,43 @@ re_2 = re.compile('%include "(.*)"', re.M)
 re_3 = re.compile('#include "(.*)"', re.M)
 
 def scan(self):
+	"scan for swig dependencies, climb the .i files"
 	env = self.env
-	node = self.inputs[0]
-	variant = node.variant(env)
 
-	lst_names = []
 	lst_src = []
 
-	# read the file
-	content = node.read(env)
+	seen = []
+	to_see = [self.inputs[0]]
 
-	# module name, only for the .swig file
-	names = re_1.findall(content)
-	if names: lst_names.append(names[0])
+	while to_see:
+		node = to_see.pop(0)
+		if node.id in seen:
+			continue
+		seen.append(node.id)
+		lst_src.append(node)
 
-	# find .i files (and perhaps .h files)
-	names = re_2.findall(content)
-	for n in names:
-		u = node.parent.find_resource(n)
-		if u: lst_src.append(u)
+		# read the file
+		code = node.read(env)
+		code = preproc.re_nl.sub('', code)
+		code = preproc.re_cpp.sub(preproc.repl, code)
 
-	# find project headers
-	names = re_3.findall(content)
-	for n in names:
-		u = node.parent.find_resource(n)
-		if u: lst_src.append(u)
+		# find .i files (and perhaps .h files)
+		names = re_2.findall(code)
+		for n in names:
+			u = node.parent.find_resource(n)
+			if u:
+				to_see.append(u)
+
+		# find project headers
+		names = re_3.findall(code)
+		for n in names:
+			u = node.parent.find_resource(n)
+			if u:
+				to_see.append(u)
 
 	# list of nodes this one depends on, and module name if present
-	#print "result of ", node, lst_src, lst_names
-	return (lst_src, lst_names)
+	print "result of ", node, lst_src
+	return (lst_src, [])
 cls.scan = scan
 
 # provide additional language processing
