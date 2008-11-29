@@ -5,7 +5,10 @@
 
 import re
 import Task, Utils
+from TaskGen import extension
 from Configure import conf
+
+SWIG_EXTS = ['.swig', '.i']
 
 swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
 Task.simple_task_type('swig', swig_str, color='BLUE', before='cc cxx')
@@ -50,42 +53,61 @@ class swig_class_scanner(object):
 		#print "result of ", node, lst_src, lst_names
 		return (lst_src, lst_names)
 
+
+# provide additional language processing
+swig_langs = {}
+def swig(fun):
+	swig_langs[fun.__name__.replace('swig_', '')] = fun
+
+@swig
+def swig_python(tsk):
+	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.py'))
+
+@swig
+def swig_ocaml(tsk):
+	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.ml'))
+	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.mli'))
+
+@extension(SWIG_EXTS)
 def i_file(self, node):
+	flags = self.to_list(getattr(self, 'swig_flags', []))
+
 	ext = '.swigwrap.c'
-	if self.__class__.__name__ == 'cpp_taskgen':
-		ext = '.swigwrap.cc'
+	if '-c++' in flags:
+		ext += 'xx'
 
-	variant = node.variant(self.env)
+	if not '-outdir' in flags:
+		flags.append('-outdir')
+		flags.append(node.parent.abspath(self.env))
 
-	ltask = self.create_task('swig')
-	ltask.set_inputs(node)
+	# the user might specify the module directly
+	module = getattr(self, 'swig_module', None)
+	if not module:
+		# else, open the files and search
+		#txt = node.read(tsk.env)
+		module = 'swigdemo'
+	out_node = node.parent.find_or_declare(module + ext)
 
-	tree = Params.g_build
-	def check_rec(task, node_):
-		for j in tree.node_deps[0][node_]:
-			if j.m_name.endswith('.i'):
-				check_rec(task, j)
-	check_rec(ltask, node)
+	# the task instance
+	tsk = self.create_task('swig')
+	tsk.set_inputs(node)
+	tsk.set_outputs(out_node)
+	tsk.module = module
+	tsk.env['SWIGFLAGS'] = flags
 
-	# get the name of the swig module to process
-	try: modname = Params.g_build.raw_deps[0][node.id][0]
-	except KeyError: return
+	# add the language-specific output files as nodes
+	# call funs in the dict swig_langs
+	for x in flags:
+		# obtain the language
+		x = x[1:]
+		try:
+			fun = swig_langs[x]
+		except KeyError:
+			pass
+		else:
+			fun(tsk)
 
-	# set the output files
-	outs = [node.change_ext(ext)]
-	# swig generates a python file in python mode TODO: other modes ?
-	if '-python' in self.env['SWIGFLAGS']:
-		outs.append(node.m_parent.find_build(modname+'.py'))
-	elif '-ocaml' in self.env['SWIGFLAGS']:
-		outs.append(node.m_parent.find_build(modname+'.ml'))
-		outs.append(node.m_parent.find_build(modname+'.mli'))
-
-	ltask.set_outputs(outs)
-
-	# create the build task (c or cpp)
-	task = self.create_task(self.m_type_initials)
-	task.set_inputs(ltask.m_outputs[0])
-	task.set_outputs(node.change_ext('.swigwrap.os'))
+	self.allnodes.append(out_node)
 
 @conf
 def check_swig_version(conf, minver=None):

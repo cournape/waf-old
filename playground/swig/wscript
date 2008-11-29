@@ -18,7 +18,7 @@ def configure(conf):
 	conf.check_swig_version('1.3.27')
 
 def build(bld):
-	obj = bld.create_obj('cxx', 'program', 'pyembed')
+	obj = bld.new_task_gen('cxx', 'program', 'pyembed')
 	obj.source = 'src1.cpp bind.swig'
 	obj.target = 'swigdemo'
 	obj.swig_flags = '-c++ -python -dump_classes'
