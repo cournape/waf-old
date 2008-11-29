@@ -85,7 +85,7 @@ class TaskPrinter(threading.Thread):
 		global state
 		while self.m_master:
 			try:
-				self.stat.append( (time.time(), self.m_master.processed, state) )
+				self.stat.append( (time.time(), self.m_master.processed, state, self.m_master.count) )
 				#self.stat.append( (time.time(), self.m_master.processed, self.m_master.ready.qsize()) )
 			except:
 				raise
@@ -110,10 +110,10 @@ def do_start(self):
 		print "nothing to display! start from an empty build"
 	else:
 		file = open('/tmp/test.dat', 'w')
-		(t1, queue, run) = collector.stat[0]
-		for (time, queue, run) in collector.stat:
+		(t1, queue, run, count) = collector.stat[0]
+		for (time, queue, run, count) in collector.stat:
 			#print time, t1, queue, run
-			file.write("%f %f %f\n" % (time-t1, queue, run))
+			file.write("%f %f %f %f\n" % (time-t1, queue, run, count))
 		file.close()
 Runner.Parallel.start = do_start
 
