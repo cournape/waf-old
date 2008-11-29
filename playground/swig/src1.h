@@ -2,6 +2,7 @@
 #define SWIGTOOLDEMO_HPP
 
 // singleton shared between test app and python
+// (Note: this is a demo, remember singletons should not be used)
 class TestClass
 {
 	public:

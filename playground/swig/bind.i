@@ -1,4 +1,4 @@
 %{
-#include "swigtooldemo.hpp"
+#include "src1.h"
 %}
-%include "swigtooldemo.hpp"
+%include "src1.h"
