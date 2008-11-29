@@ -4,9 +4,11 @@ NEW IN WAF 1.5.1
 * the waf preprocesser parses macros without parameters
 * -Wl,-rpath, <- two commas
 * shared libraries with version numbers are symlinked in the build directory
-* the boost tool is back
 * handle the absolute paths in includes as intended
 * minor bugfixes for java, ocaml, kde4
+* let the python tool configure with c++
+* the boost tool is back
+* the swig module is back
 
 NEW IN WAF 1.5.0
 ----------------
