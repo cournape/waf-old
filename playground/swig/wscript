@@ -26,10 +26,9 @@ def configure(conf):
 
 def build(bld):
 	obj = bld.create_obj('cxx','program','pyembed')
-	obj.source = 'swigtooldemo.cpp swigtooldemo.swig'
+	obj.source = 'src1.cpp bind.swig'
 	obj.target = 'swigdemo'
-	obj.swigflags = '-c++ -python -dump_classes'
-
+	obj.swig_flags = '-c++ -python -dump_classes'
 
 def shutdown():
 	import os, stat

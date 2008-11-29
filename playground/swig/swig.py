@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 # encoding: UTF-8
 # Petar Forai
-# Thomas Nagy
+# Thomas Nagy 2008
 
 import re
-import Task
+import Task, Utils
 from Configure import conf
 
 swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
@@ -89,13 +89,13 @@ def i_file(self, node):
 
 @conf
 def check_swig_version(conf, minver=None):
-	"""Check for a minimum swig version  like conf.check_swig_version("1.3.28")
+	"""Check for a minimum swig version  like conf.check_swig_version('1.3.28')
 	or conf.check_swig_version((1,3,28)) """
-	import pproc as subprocess
 	reg_swig = re.compile(r'SWIG Version\s(.*)', re.M)
-	proc = subprocess.Popen([conf.env['SWIG'], "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	swig_out = proc.communicate()[0]
-	swigver = [int(s) for s in reg_swig.findall(swig_out)[0].split(".")]
+
+	swig_out = Utils.cmd_output('%s -version' % conf.env['SWIG'])
+
+	swigver = [int(s) for s in reg_swig.findall(swig_out)[0].split('.')]
 	if isinstance(minver, basestring):
 		minver = [int(s) for s in minver.split(".")]
 	if isinstance(minver, tuple):
@@ -108,7 +108,7 @@ def check_swig_version(conf, minver=None):
 	if minver is None:
 		conf.check_message_custom('swig version', '', swigver_full)
 	else:
-		conf.check_message('swig version', ">= %s" % (minver_str,), result, option=swigver_full)
+		conf.check_message('swig version', '>= %s' % (minver_str,), result, option=swigver_full)
 	return result
 
 def detect(conf):
