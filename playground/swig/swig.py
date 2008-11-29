@@ -76,10 +76,6 @@ def i_file(self, node):
 	if '-c++' in flags:
 		ext += 'xx'
 
-	if not '-outdir' in flags:
-		flags.append('-outdir')
-		flags.append(node.parent.abspath(self.env))
-
 	# the user might specify the module directly
 	module = getattr(self, 'swig_module', None)
 	if not module:
@@ -94,6 +90,14 @@ def i_file(self, node):
 	tsk.set_outputs(out_node)
 	tsk.module = module
 	tsk.env['SWIGFLAGS'] = flags
+
+	if not '-outdir' in flags:
+		flags.append('-outdir')
+		flags.append(node.parent.abspath(self.env))
+
+	if not '-o' in flags:
+		flags.append('-o')
+		flags.append(out_node.abspath(self.env))
 
 	# add the language-specific output files as nodes
 	# call funs in the dict swig_langs
