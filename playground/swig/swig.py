@@ -3,22 +3,18 @@
 # Petar Forai
 # Thomas Nagy
 
-print """
-WARNING: You are using the swig tool!
-  This tool is marked as beeing deprecated! use with caution!
-  it is not maintained actively
-"""
-
 import re
-import Action, Scan, Params, Object
+import Task
+from Configure import conf
 
-swig_str = '${SWIG} ${SWIGFLAGS} -o ${TGT[0].bldpath(env)} ${SRC}'
+swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
+Task.simple_task_type('swig', swig_str, color='BLUE', before='cc cxx')
 
 re_1 = re.compile(r'^%module.*?\s+([\w]+)\s*?$', re.M)
 re_2 = re.compile('%include "(.*)"', re.M)
 re_3 = re.compile('#include "(.*)"', re.M)
 
-class swig_class_scanner(Scan.scanner):
+class swig_class_scanner(object):
 	def __init__(self):
 		Scan.scanner.__init__(self)
 	def scan(self, task, node):
@@ -53,8 +49,6 @@ class swig_class_scanner(Scan.scanner):
 		# list of nodes this one depends on, and module name if present
 		#print "result of ", node, lst_src, lst_names
 		return (lst_src, lst_names)
-
-swig_scanner = swig_class_scanner()
 
 def i_file(self, node):
 	ext = '.swigwrap.c'
@@ -93,14 +87,7 @@ def i_file(self, node):
 	task.set_inputs(ltask.m_outputs[0])
 	task.set_outputs(node.change_ext('.swigwrap.os'))
 
-Action.simple_action('swig', swig_str, color='BLUE', prio=40)
-
-# register the hook for use with cpp and cc task generators
-try: Object.hook('cpp', 'SWIG_EXT', i_file)
-except KeyError: pass
-try: Object.hook('cc', 'SWIG_EXT', i_file)
-except KeyError: pass
-
+@conf
 def check_swig_version(conf, minver=None):
 	"""Check for a minimum swig version  like conf.check_swig_version("1.3.28")
 	or conf.check_swig_version((1,3,28)) """
@@ -130,5 +117,4 @@ def detect(conf):
 	env['SWIG']      = swig
 	env['SWIGFLAGS'] = ''
 	env['SWIG_EXT']  = ['.swig']
-	conf.hook(check_swig_version)
 
