@@ -26,7 +26,11 @@ def apply_nasm_vars(self):
 	# includes - well, if we suppose it works with c processing
 	if hasattr(self, 'includes'):
 		for inc in self.to_list(self.includes):
-			self.env.append_value('NASM_INCLUDES', '-I %s' % inc.srcpath(self.env))
+			node = self.path.find_dir(inc)
+			if not node:
+				raise ValueError, "cannot find the dir" + inc
+			self.env.append_value('NASM_INCLUDES', '-I %s' % node.srcpath(self.env))
+			self.env.append_value('NASM_INCLUDES', '-I %s' % node.bldpath(self.env))
 
 @extension(EXT_NASM)
 def nasm_file(self, node):
