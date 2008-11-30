@@ -15,27 +15,33 @@ DOXY_EXTS = """
 .idl .odl .php .php3 .inc .m .mm
 """.split()
 
+def runnable_status(self):
+	if not getattr(self, 'pars', None):
+		infile = self.inputs[0].abspath(self.env)
+		self.pars = read_into_dict(infile)
+		if not self.pars.get('OUTPUT_DIRECTORY', None):
+			self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.abspath(self.env)
+	return Task.Task.runnable_status(self)
+
 def doxy_scan(self):
+	def nodes_files_of(node):
+		node.__class__.bld.rescan(node)
+		for x in node.childs:
+			print x
+	print nodes_files_of(self.inputs[0].parent)
 	return [[], []]
 
 def doxy_run(self):
-	infile = self.inputs[0].abspath(self.env)
-
-	vars = read_into_dict(infile)
-
-	if not vars.get('OUTPUT_DIRECTORY', None):
-		vars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.abspath(self.env)
-
-	code = '\n'.join(['%s = %s' % (x, vars[x]) for x in vars])
-
-
-	self.env['DOXYFLAGS'] = ''
+	code = '\n'.join(['%s = %s' % (x, self.pars[x]) for x in self.pars])
+	if not self.env['DOXYFLAGS']:
+		self.env['DOXYFLAGS'] = ''
 	cmd = Utils.subst_vars('cd %s && ${DOXYGEN} ${DOXYFLAGS} -' % (self.inputs[0].parent.abspath()), self.env)
 	proc = pproc.Popen(cmd, shell=True, stdin=pproc.PIPE)
 	proc.communicate(code)
 	return proc.returncode
 
 cls = Task.task_type_from_func('doxygen', func=doxy_run, vars=['DOXYGEN', 'DOXYFLAGS'])
+cls.runnable_status = runnable_status
 cls.scan = doxy_scan
 cls.color = 'BLUE'
 cls.after = 'cxx_link cc_link'

@@ -17,6 +17,6 @@ def configure(conf):
 
 def build(bld):
 	#bld.rescan(bld.path.find_dir('docu_out'))
-	bld.new_task_gen(features='cxx cprogram', source='a.cpp b.cpp', target='test')
+	#bld.new_task_gen(features='cxx cprogram', source='a.cpp b.cpp', target='test')
 	bld.new_task_gen(features='doxygen', doxyfile='test.conf')
 
