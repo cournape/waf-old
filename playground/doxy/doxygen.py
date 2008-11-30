@@ -5,8 +5,9 @@
 import Task, Utils
 from TaskGen import feature
 
-doxy_str = '${DOXYGEN} ${DOXYFLAGS} ${SRC}'
+doxy_str = 'cd ${SRC[0].parent.abspath(env)} && ${DOXYGEN} ${DOXYFLAGS} ${SRC[0].abspath(env)}'
 cls = Task.simple_task_type('doxygen', doxy_str, color='BLUE')
+cls.quiet = True
 
 @feature('doxygen')
 def process_doxy(self):
@@ -14,38 +15,10 @@ def process_doxy(self):
 		return
 
 	node = self.path.find_resource(self.doxyfile)
-	print node
-
-	return
 
 	# the task instance
 	tsk = self.create_task('doxygen')
 	tsk.set_inputs(node)
-	tsk.set_outputs(out_node)
-	tsk.module = module
-	tsk.env['SWIGFLAGS'] = flags
-
-	if not '-outdir' in flags:
-		flags.append('-outdir')
-		flags.append(node.parent.abspath(self.env))
-
-	if not '-o' in flags:
-		flags.append('-o')
-		flags.append(out_node.abspath(self.env))
-
-	# add the language-specific output files as nodes
-	# call funs in the dict swig_langs
-	for x in flags:
-		# obtain the language
-		x = x[1:]
-		try:
-			fun = swig_langs[x]
-		except KeyError:
-			pass
-		else:
-			fun(tsk)
-
-	self.allnodes.append(out_node)
 
 def detect(conf):
 	swig = conf.find_program('doxygen', var='DOXYGEN')
