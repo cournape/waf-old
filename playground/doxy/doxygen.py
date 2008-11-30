@@ -5,8 +5,8 @@
 import Task, Utils
 from TaskGen import feature
 
-doxy_str = 'cd ${SRC[0].parent.abspath(env)} && ${DOXYGEN} ${DOXYFLAGS} ${SRC[0].abspath(env)}'
-cls = Task.simple_task_type('doxygen', doxy_str, color='BLUE')
+doxy_str = 'cd ${SRC[0].parent.abspath()} && ${DOXYGEN} ${DOXYFLAGS} ${SRC[0].abspath(env)}'
+cls = Task.simple_task_type('doxygen', doxy_str, color='BLUE', after='cxx_link cc_link')
 cls.quiet = True
 
 @feature('doxygen')
