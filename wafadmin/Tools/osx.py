@@ -23,6 +23,7 @@ def apply_framework(self):
 	for x in self.to_list(self.env['FRAMEWORKPATH']):
 		self.env.append_unique('CXXFLAGS', x)
 		self.env.append_unique('CCFLAGS', x)
+		self.env.append_unique('LINKFLAGS', x)
 
 	for x in self.to_list(self.env['FRAMEWORK']):
 		self.env.append_unique('LINKFLAGS', x)
