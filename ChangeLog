@@ -1,14 +1,16 @@
 NEW IN WAF 1.5.1
 ----------------
 * installing python files works once again
-* the waf preprocesser parses macros without parameters
+* let the python tool configure with c++
+* the waf preprocessor parses macros without parameters
 * -Wl,-rpath, <- two commas
-* shared libraries with version numbers are symlinked in the build directory
+* framework variable processing in osx.py
+* shared libraries with version numbers are symlinked into the build directory
 * handle the absolute paths in includes as intended
 * minor bugfixes for java, ocaml, kde4
-* let the python tool configure with c++
 * the boost tool is back
-* the swig module is back
+* swig demo
+* doxygen demo (in playground)
 
 NEW IN WAF 1.5.0
 ----------------
