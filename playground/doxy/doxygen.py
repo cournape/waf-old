@@ -2,11 +2,12 @@
 # encoding: UTF-8
 # Thomas Nagy 2008
 
-import re
+import os, re, stat
 import pproc
-import Task, Utils
+import Task, Utils, Node
 from TaskGen import feature
 
+DOXY_STR = 'cd %s && ${DOXYGEN} ${DOXYFLAGS} - >/dev/null'
 DOXY_EXTS = """
 .c .cc .cxx .cpp .c++ .C
 .h .hh .hxx .hpp .h++ .H
@@ -21,21 +22,47 @@ def runnable_status(self):
 		self.pars = read_into_dict(infile)
 		if not self.pars.get('OUTPUT_DIRECTORY', None):
 			self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.abspath(self.env)
+	self.signature()
 	return Task.Task.runnable_status(self)
 
+def filter_match(node_list):
+	buf = []
+	for x in node_list:
+		name = x.name
+		for y in DOXY_EXTS:
+			if name.endswith(y):
+				buf.append(x)
+	return buf
+
 def doxy_scan(self):
-	def nodes_files_of(node):
+	def nodes_files_of(node, recurse=False):
+		# perform the listdir in the source directory, once
 		node.__class__.bld.rescan(node)
-		for x in node.childs:
-			print x
-	print nodes_files_of(self.inputs[0].parent)
-	return [[], []]
+
+		# doxygen looks at the files under the source directory
+		buf = []
+		for x in node.__class__.bld.cache_dir_contents[node.id]:
+			filename = node.abspath() + os.sep + x
+			st = os.stat(filename)
+			if stat.S_ISREG(st[stat.ST_MODE]):
+				k = node.find_resource(x)
+				buf.append(node.find_resource(x))
+			elif stat.S_ISDIR(st[stat.ST_MODE]):
+				pass
+				# if recurse ..
+
+		return buf
+
+	ret = nodes_files_of(self.inputs[0].parent)
+	ret = filter_match(ret)
+
+	return (ret, [])
 
 def doxy_run(self):
 	code = '\n'.join(['%s = %s' % (x, self.pars[x]) for x in self.pars])
 	if not self.env['DOXYFLAGS']:
 		self.env['DOXYFLAGS'] = ''
-	cmd = Utils.subst_vars('cd %s && ${DOXYGEN} ${DOXYFLAGS} -' % (self.inputs[0].parent.abspath()), self.env)
+	cmd = Utils.subst_vars(DOXY_STR % (self.inputs[0].parent.abspath()), self.env)
 	proc = pproc.Popen(cmd, shell=True, stdin=pproc.PIPE)
 	proc.communicate(code)
 	return proc.returncode

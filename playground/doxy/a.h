@@ -1,4 +1,3 @@
-
 /*!
  * Unused class for demo a.h
  */
