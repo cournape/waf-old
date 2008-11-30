@@ -526,7 +526,7 @@ def have_define(self, name):
 	return "HAVE_%s" % Utils.quote_define_name(name)
 
 @conf
-def write_config_header(self, configfile='', env=''):
+def write_config_header(self, configfile='', env='', guard=''):
 	"save the defines into a file"
 	if not configfile: configfile = WAF_CONFIG_H
 
@@ -543,7 +543,7 @@ def write_config_header(self, configfile='', env=''):
 
 	self.env.append_value('waf_config_files', os.path.abspath(dir))
 
-	waf_guard = '_%s_WAF' % Utils.quote_define_name(configfile)
+	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
 
 	dest = open(dir, 'w')
 	dest.write('/* Configuration header created by Waf - do not edit */\n')
