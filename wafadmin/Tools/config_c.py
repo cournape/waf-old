@@ -100,7 +100,7 @@ def exec_cfg(self, kw):
 		except:
 			if not 'errmsg' in kw:
 				kw['errmsg'] = '"pkg-config" could not be found or the version found is too old.'
-			raise Configure.ConfigurationError, kw['errmsg']
+			self.fatal(kw['errmsg'])
 		if not 'okmsg' in kw:
 			kw['okmsg'] = 'ok'
 		return
@@ -114,7 +114,7 @@ def exec_cfg(self, kw):
 			except:
 				if not 'errmsg' in kw:
 					kw['errmsg'] = 'Package "%s (%s %s)" could not be found or the found version is too old.' % (kw['package'], cfg_ver[x], kw[y])
-				raise Configure.ConfigurationError, kw['errmsg']
+				self.fatal(kw['errmsg'])
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'ok'
 			self.define('HAVE_%s' % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), 1, 0)
@@ -142,7 +142,7 @@ def exec_cfg(self, kw):
 	try:
 		ret = self.cmd_and_log(cmd)
 	except:
-		raise Configure.ConfigurationError, "no such package"
+		self.fatal("no such package")
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 
@@ -299,6 +299,8 @@ def validate_c(self, kw):
 	if not 'code' in kw:
 		kw['code'] = simple_c_code
 
+	if not kw.get('success'): kw['success'] = 0
+
 	assert('msg' in kw)
 
 @conf
@@ -360,8 +362,8 @@ def check(self, *k, **kw):
 				self.fatal('the configuration failed (see config.log)')
 	else:
 		self.check_message_2(kw['okmsg'])
+		kw['success'] = ret
 
-	kw['success'] = ret
 	self.post_check(*k, **kw)
 	return ret
 
@@ -429,7 +431,7 @@ def run_c_code(self, *k, **kw):
 
 	# chdir before returning
 	if ret:
-		raise Configure.ConfigurationError, str(ret)
+		self.fatal(str(ret))
 
 	# keep the name of the program to execute
 	if kw['execute']:
@@ -437,7 +439,10 @@ def run_c_code(self, *k, **kw):
 
 	# if we need to run the program, try to get its result
 	if kw['execute']:
-		data = Utils.cmd_output('"%s"' % lastprog).strip()
+		try:
+			data = Utils.cmd_output('"%s"' % lastprog).strip()
+		except ValueError, e:
+			self.fatal(Utils.ex_stack())
 		ret = data
 
 	return ret
