@@ -35,7 +35,10 @@ def filter_match(node_list):
 	return buf
 
 def doxy_scan(self):
-	def nodes_files_of(node, recurse=False):
+
+	recurse = self.pars.get('RECURSIVE', None) == 'YES'
+
+	def nodes_files_of(node):
 		# perform the listdir in the source directory, once
 		node.__class__.bld.rescan(node)
 
@@ -48,9 +51,10 @@ def doxy_scan(self):
 				k = node.find_resource(x)
 				buf.append(node.find_resource(x))
 			elif stat.S_ISDIR(st[stat.ST_MODE]):
-				pass
-				# if recurse ..
-
+				if recurse:
+					nd = node.find_dir(x)
+					if nd.id != nd.__class__.bld.bldnode.id:
+						buf += nodes_files_of(nd)
 		return buf
 
 	ret = nodes_files_of(self.inputs[0].parent)
