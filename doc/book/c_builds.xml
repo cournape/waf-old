@@ -203,7 +203,7 @@ def configure(conf):
 					<para>Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). The parameter mandatory will make the test raise an exception if it fails.</para>
 				</callout>
 				<callout arearefs="cc3-co" id="cc3">
-					<para>Try to compile a code fragment, and if the test is successful, define the name boobah</para>
+					<para>Try to compile a piece of code, and if the test is successful, define the name boobah</para>
 				</callout>
 				<callout arearefs="cc4-co" id="cc4">
 					<para>Modifications made to the task generator environment are not stored. When the test is successful and when the attribute uselib_store is provided, the names lib, cflags and defines will be converted into uselib variables LIB_M, CCFLAGS_M and DEFINE_M and the flag values are added to the configuration environment.</para>
