@@ -355,7 +355,7 @@ class TaskBase(object):
 
 	def run(self):
 		"called if the task must run"
-		if hasattr(self, 'fun'): 
+		if hasattr(self, 'fun'):
 			return self.fun(self)
 		return 0
 
@@ -557,7 +557,7 @@ class Task(TaskBase):
 				break
 
 		# if one of the nodes does not exist, try to retrieve them from the cache
-		if time is None:
+		if time is None and self.outputs:
 			try:
 				new_sig = self.signature()
 			except KeyError:
