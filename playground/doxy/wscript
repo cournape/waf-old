@@ -1,0 +1,20 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+VERSION='0.0.1'
+APPNAME='cc_test'
+
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	pass
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def build(bld):
+	bld.new_task_gen(features='cxx cprogram', source='a.cpp b.cpp', target='test')
+
+
