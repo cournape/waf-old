@@ -17,6 +17,17 @@ from TaskGen import taskgen, feature, after, before
 from Logs import error, debug
 
 @taskgen
+@feature('cc', 'cxx')
+@after('apply_lib_vars')
+def apply_framework(self):
+	for x in self.to_list(self.env['FRAMEWORKPATH']):
+		self.env.append_unique('CXXFLAGS', x)
+		self.env.append_unique('CCFLAGS', x)
+
+	for x in self.to_list(self.env['FRAMEWORK']):
+		self.env.append_unique('LINKFLAGS', x)
+
+@taskgen
 def create_task_macapp(self):
 	if 'cprogram' in self.features and self.link_task:
 		apptask = self.create_task('macapp', self.env)
