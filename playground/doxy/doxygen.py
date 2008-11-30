@@ -15,6 +15,8 @@ DOXY_EXTS = """
 .idl .odl .php .php3 .inc .m .mm
 """.split()
 
+def doxy_scan(self):
+	return [[], []]
 
 def doxy_run(self):
 	infile = self.inputs[0].abspath(self.env)
@@ -30,15 +32,11 @@ def doxy_run(self):
 	self.env['DOXYFLAGS'] = ''
 	cmd = Utils.subst_vars('cd %s && ${DOXYGEN} ${DOXYFLAGS} -' % (self.inputs[0].parent.abspath()), self.env)
 	proc = pproc.Popen(cmd, shell=True, stdin=pproc.PIPE)
-	ret = proc.communicate(code)
+	proc.communicate(code)
+	return proc.returncode
 
-	print ret
-	return 0
-
-
-#doxy_str = 'cd ${SRC[0].parent.abspath()} && ${DOXYGEN} ${DOXYFLAGS} ${SRC[0].abspath(env)}'
-#cls = Task.simple_task_type('doxygen', doxy_str, color='BLUE', after='cxx_link cc_link')
 cls = Task.task_type_from_func('doxygen', func=doxy_run, vars=['DOXYGEN', 'DOXYFLAGS'])
+cls.scan = doxy_scan
 cls.color = 'BLUE'
 cls.after = 'cxx_link cc_link'
 cls.quiet = True
