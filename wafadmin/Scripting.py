@@ -302,6 +302,7 @@ def dont_dist(name, src, build_dir):
 
 	if (name.startswith(',,')
 		or name.startswith('++')
+		or name.startswith('.waf-1.')
 		or (src == '.' and name == Options.lockfile)
 		or name in excludes
 		or name == build_dir
