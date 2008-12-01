@@ -146,6 +146,7 @@ def exec_cfg(self, kw):
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 
+	self.define('HAVE_%s' % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), 1, 0)
 	parse_flags(ret, kw.get('uselib_store', kw['package'].upper()), kw.get('env', self.env))
 	return ret
 
