@@ -4,7 +4,7 @@
 
 import os, re, stat
 import pproc
-import Task, Utils, Node
+import Task, Utils, Node, Constants
 from TaskGen import feature
 
 DOXY_STR = 'cd %s && ${DOXYGEN} ${DOXYFLAGS} - >/dev/null'
@@ -122,8 +122,31 @@ class doxygen_task(Task.Task):
 			key = 'GENERATE_' + k.upper()
 			if self.pars.get(key, '') == 'YES':
 				if k in lst:
-					self.outputs = populate(self.inputs[0].parent, k, self.env)
+					self.outputs += populate(self.inputs[0].parent, k, self.env)
+
+		self.outputs = [x for x in self.outputs if x.id & 3 != Node.DIR]
 		return Task.Task.post_run(self)
+
+# quick tar creation
+cls = Task.simple_task_type('tar', '${TAR} ${TAROPTS} ${TGT} ${SRC}', color='RED')
+def runnable_status(self):
+	for x in getattr(self, 'input_tasks', []):
+		if not x.hasrun:
+			return Constants.ASK_LATER
+
+	if not getattr(self, 'tar_done_adding', None):
+		# execute this only once
+		self.tar_done_adding = True
+		for x in getattr(self, 'input_tasks', []):
+			self.set_inputs(x.outputs)
+	return Task.Task.runnable_status(self)
+cls.runnable_status = runnable_status
+
+def to_string(self):
+	tgt_str = ' '.join([a.nice_path(self.env) for a in self.outputs])
+	return '%s: %s\n' % (self.__class__.__name__, tgt_str)
+cls.__str__ = to_string
+
 
 @feature('doxygen')
 def process_doxy(self):
@@ -134,9 +157,21 @@ def process_doxy(self):
 	if not node: raise ValueError, 'doxygen file not found'
 
 	# the task instance
-	tsk = self.create_task('doxygen')
-	tsk.set_inputs(node)
+	dsk = self.create_task('doxygen')
+	dsk.set_inputs(node)
+
+	if getattr(self, 'doxy_tar', None):
+		tsk = self.create_task('tar')
+		tsk.input_tasks = [dsk]
+		tsk.set_outputs(self.path.find_or_declare(self.doxy_tar))
+		if self.doxy_tar.endswith('bz2'):
+			tsk.env['TAROPTS'] = ' cjf '
+		elif self.doxy_tar.endswith('gz'):
+			tsk.env['TAROPTS'] = ' czf '
+		else:
+			tsk.env['TAROPTS'] = ' cf '
 
 def detect(conf):
-	swig = conf.find_program('doxygen', var='DOXYGEN')
+	conf.find_program('doxygen', var='DOXYGEN')
+	conf.find_program('tar', var='TAR')
 
