@@ -126,6 +126,8 @@ def configure(conf):
 		define_ret=1,
 		msg='Checking for sizeof(int)')
 
+	return
+
 	# the demo code, from above
 	conf.check_features()
 

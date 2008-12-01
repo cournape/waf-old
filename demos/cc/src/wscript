@@ -8,12 +8,14 @@ def build(bld):
 	main.source='main.c'
 	main.target='test_c_program'
 	main.uselib_local='teststaticlib'
+	main.install_path = ''
 #	main.includes='. /usr/include'
 
 	# 2. A simple static lib
 	staticlib = bld.new_task_gen('cc', 'staticlib')
 	staticlib.source = 'test_staticlib.c'
 	staticlib.target='teststaticlib'
+	staticlib.install_path = ''
 
 #def set_options(opt):
 #	# options defined if src/ was to be compiled as a standalone module
