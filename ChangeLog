@@ -8,6 +8,7 @@ NEW IN WAF 1.5.1
 * shared libraries with version numbers are symlinked into the build directory
 * handle the absolute paths in includes as intended
 * no more deadlock when an exception occurs in post_run
+* waf dist does not pack the temporary waf directory anymore
 * minor bugfixes for java, ocaml, kde4
 * the boost tool is back
 * swig demo
