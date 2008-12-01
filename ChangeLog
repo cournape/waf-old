@@ -7,11 +7,11 @@ NEW IN WAF 1.5.1
 * framework variable processing in osx.py
 * shared libraries with version numbers are symlinked into the build directory
 * handle the absolute paths in includes as intended
+* no more deadlock when an exception occurs in post_run
 * minor bugfixes for java, ocaml, kde4
 * the boost tool is back
 * swig demo
-* doxygen demo (in playground)
-* no more deadlock when an exception occurs in post_run
+* doxygen+tar demo
 
 NEW IN WAF 1.5.0
 ----------------
