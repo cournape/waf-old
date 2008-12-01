@@ -9,8 +9,8 @@ maintainer: the version number is updated from the top-level wscript file
 """
 
 # do not touch these two lines, they are updated automatically
-HEXVERSION = 0x10500
-WAFVERSION="1.5.0"
+HEXVERSION = 0x10501
+WAFVERSION="1.5.1"
 ABI = 6
 
 CACHE_DIR          = 'c4che'
