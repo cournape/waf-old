@@ -18,7 +18,6 @@ main.cpp
 obj.includes     = '. ../src'
 obj.uselib_local = 'tony john'
 obj.target       = 'testprogram2'
-obj.install_path = ''
 
 # demonstrate using of custom linker for an object
 # (BTW: the '--start-group' and '--end-group' may resolve circular references between libraries.)

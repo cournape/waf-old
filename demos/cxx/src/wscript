@@ -37,7 +37,6 @@ def build(bld):
 	'''
 	obj.target='testprogram'
 	obj.defines='LINUX=1 BIDULE'
-	obj.install_path = ''
 	# obj.add_obj_file('kk.o') # <- example on how to add custom object files considered source
 
 	#obj.mappings["a1.cpp"] = myfun <- example of how to modify the environment for one file
@@ -52,8 +51,7 @@ def build(bld):
 	'''
 	#obj.name        = 'peter'
 	obj.target       = 'testshlib'
-	obj.install_path = ''
-	#obj.install_path = '${SOME_INSTALL_DIR}'
+	obj.install_path = '${SOME_INSTALL_DIR}'
 
 	# 3. A static library
 	# The extension (.a) is added automatically
@@ -63,7 +61,6 @@ def build(bld):
 	'''
 	obj.name         = 'tony'
 	obj.target       = 'teststaticlib'
-	obj.install_path = ''
 
 	# 4. Another shared library
 	obj = bld.new_task_gen('cxx', 'shlib')
@@ -74,7 +71,6 @@ def build(bld):
 	obj.name         = 'john'
 	obj.want_libtool = 1
 	obj.vnum         = '1.2.3'
-	obj.install_path = ''
 
 	# 5. A program that links against shlib1
 	obj = bld.new_task_gen('cxx', 'program')
@@ -84,7 +80,6 @@ def build(bld):
 	obj.uselib       = 'MYPROG'
 	obj.uselib_local = 'tony john testshlib' # 'tony john peter' # look for 'peter' above
 	obj.target       = 'program_dyn_linked'
-	obj.install_path = ''
 
 	# IMPORTANT WARNING:
 	# uselib_local expects *names*, that is, the field obj.name
