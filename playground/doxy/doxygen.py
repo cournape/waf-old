@@ -8,13 +8,14 @@ import Task, Utils, Node
 from TaskGen import feature
 
 DOXY_STR = 'cd %s && ${DOXYGEN} ${DOXYFLAGS} - >/dev/null'
-DOXY_EXTS = """
+DOXY_FMTS = 'html latex man rft xml'.split()
+DOXY_EXTS = '''
 .c .cc .cxx .cpp .c++ .C
 .h .hh .hxx .hpp .h++ .H
 .py .java .cs
 .ii .ixx .ipp .i++ .inl
 .idl .odl .php .php3 .inc .m .mm
-""".split()
+'''.split()
 
 def filter_match(node_list):
 	buf = []
@@ -47,6 +48,19 @@ def read_into_dict(name):
 		if len(tmp) < 2: continue
 		ret[tmp[0].strip()] = '='.join(tmp[1:]).strip()
 	return ret
+
+def populate(node, branch, env):
+	path = node.abspath(env) + os.sep + branch
+	st = os.stat(path)
+	if stat.S_ISREG(st[stat.ST_MODE]):
+		return [node.exclusive_build_node(branch)]
+	elif stat.S_ISDIR(st[stat.ST_MODE]):
+		parent = node.ensure_dir_node_from_path(branch)
+		lst = Utils.listdir(parent.abspath(env))
+		buf = [parent]
+		for x in lst:
+			buf += populate(parent, x, env)
+		return buf
 
 class doxygen_task(Task.Task):
 
@@ -100,6 +114,16 @@ class doxygen_task(Task.Task):
 		proc = pproc.Popen(cmd, shell=True, stdin=pproc.PIPE)
 		proc.communicate(code)
 		return proc.returncode
+
+	def post_run(self):
+		# look for the files that appeared in the build directory
+		lst = Utils.listdir(self.inputs[0].parent.abspath(self.env))
+		for k in DOXY_FMTS:
+			key = 'GENERATE_' + k.upper()
+			if self.pars.get(key, '') == 'YES':
+				if k in lst:
+					self.outputs = populate(self.inputs[0].parent, k, self.env)
+		return Task.Task.post_run(self)
 
 @feature('doxygen')
 def process_doxy(self):
