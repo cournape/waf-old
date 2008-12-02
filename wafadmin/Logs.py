@@ -77,9 +77,9 @@ class formatter(logging.Formatter):
 		return logging.Formatter.format(self, rec)
 
 def debug(msg):
-	# FIXME why does it eat the newlines????
-	msg = msg.replace('\n', ' ')
 	if verbose:
+		# FIXME why does it eat the newlines????
+		msg = msg.replace('\n', ' ')
 		logging.debug(msg)
 
 def error(msg):
