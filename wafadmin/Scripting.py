@@ -411,7 +411,6 @@ def distcheck(appname='', version=''):
 	t.close()
 
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
-	cwd_before = os.getcwd()
 	retval = pproc.Popen(
 		'%(waf)s configure && %(waf)s'
 		' && %(waf)s check && %(waf)s install --destdir=%(instdir)s'
