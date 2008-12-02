@@ -31,7 +31,7 @@ ${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
 """
 
 import os, sys, types
-import Utils, Build
+import Utils
 
 UNDEFINED = 0
 DIR = 1
