@@ -751,7 +751,7 @@ class Task(TaskBase):
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
-		if Logs.verbose and Logs.zones:
+		if Logs.verbose:
 			debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
 
 		# store the dependencies in the cache
