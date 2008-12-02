@@ -172,7 +172,7 @@ def apply_incpaths(self):
 		node = None
 		if os.path.isabs(path):
 			if preproc.go_absolute:
-				node = Build.bld.root.find_dir(path)
+				node = tree.root.find_dir(path)
 		else:
 			node = self.path.find_dir(path)
 
