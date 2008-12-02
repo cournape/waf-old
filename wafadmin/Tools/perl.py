@@ -14,7 +14,7 @@ EXT_XS = ['.xs']
 @taskgen
 @before('apply_incpaths')
 @feature('perlext')
-def init_pyext(self):
+def init_perlext(self):
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
 	if not 'PERL' in self.uselib: self.uselib.append('PERL')
 	if not 'PERLEXT' in self.uselib: self.uselib.append('PERLEXT')
