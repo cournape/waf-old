@@ -299,7 +299,6 @@ class Node(object):
 		"printed in the console, open files easily from the launch directory"
 		tree = self.__class__.bld
 		ln = tree.launch_node()
-		name = self.name
 
 		if self.id & 3 == FILE: return self.relpath_gen(ln)
 		else: return os.path.join(tree.bldnode.relpath_gen(ln), env.variant(), self.relpath_gen(tree.srcnode))
