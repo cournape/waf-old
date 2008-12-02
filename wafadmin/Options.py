@@ -158,7 +158,7 @@ def parse_args_impl(parser, _args=None):
 	if options.zones:
 		Logs.zones = options.zones.split(',')
 		if not Logs.verbose: Logs.verbose = 1
-	elif Logs.verbose == 1:
+	elif Logs.verbose > 0:
 		Logs.zones = ['runner']
 
 class Handler(object):
