@@ -278,10 +278,17 @@ def copy_attrs(orig, dest, names, only_if_set=False):
 		if u or not only_if_set:
 			setattr(dest, a, u)
 
-def def_attrs(self, **kw):
+def def_attrs(cls, **kw):
+	'''
+	set attributes for class.
+	@param cls [any class]: the class to update the given attributes in.
+	@param kw [dictionary]: dictionary of attributes names and values.
+
+	if the given class hasn't one (or more) of these attributes, add the attribute with its value to the class.
+	'''
 	for k, v in kw.iteritems():
-		if not hasattr(self, k):
-			setattr(self, k, v)
+		if not hasattr(cls, k):
+			setattr(cls, k, v)
 
 quote_define_name_table = None
 def quote_define_name(path):
