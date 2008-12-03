@@ -153,12 +153,15 @@ class BuildContext(object):
 		gc.disable()
 		self.root.__class__.bld = None
 
+		# some people are very nervous with ctrl+c so we have to make a temporary file
 		Node.Nodu = self.node_class
-		file = open(os.path.join(self.bdir, DBFILE), 'wb')
+		db = os.path.join(self.bdir, DBFILE)
+		file = open(db + '.tmp', 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
 		cPickle.dump(data, file, -1) # remove the '-1' for unoptimized version
 		file.close()
+		os.rename(db + '.tmp', db)
 		self.root.__class__.bld = self
 		gc.enable()
 
