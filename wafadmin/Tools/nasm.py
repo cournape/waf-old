@@ -34,11 +34,12 @@ def apply_nasm_vars(self):
 
 @extension(EXT_NASM)
 def nasm_file(self, node):
-	o_node = node.change_ext('.o')
+	try: obj_ext = self.obj_ext
+	except AttributeError: obj_ext = '_%d.o' % self.idx
 
-	task = self.create_task('nasm')
-	task.set_inputs(node)
-	task.set_outputs(o_node)
+ 	task = self.create_task('nasm')
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
 
 	self.compiled_tasks.append(task)
 
