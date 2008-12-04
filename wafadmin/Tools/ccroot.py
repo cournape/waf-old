@@ -162,9 +162,10 @@ def apply_incpaths(self):
 
 	for path in self.to_list(self.includes):
 		if not path in lst:
-			self.env.prepend_value('CPPPATH', path)
 			if preproc.go_absolute or not os.path.isabs(path):
 				lst.append(path)
+			else:
+				self.env.prepend_value('CPPPATH', path)
 
 	tree = Build.bld
 	inc_lst = []
