@@ -24,7 +24,7 @@ def configure(conf):
 	conf.env['COPY'] = os.getcwd() + os.sep + "cp.py"
 
 def build(bld):
-	TaskGen.task_gen(source="uh.coin")
+	bld.new_task_gen(source="uh.coin")
 
 	#foo = TaskGen.task_gen()
 	#foo.source = "uh.coin"
