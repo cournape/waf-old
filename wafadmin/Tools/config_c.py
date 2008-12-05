@@ -49,6 +49,8 @@ def parse_flags(line, uselib, env):
 		elif x.startswith('-std'):
 			env.append_unique('CCFLAGS_' + uselib, x)
 			env.append_unique('LINKFLAGS_' + uselib, x)
+		elif x.startswith('-Wl'):
+			env.append_unique('LINKFLAGS_' + uselib, x)
 
 @conf
 def validate_cfg(self, kw):
