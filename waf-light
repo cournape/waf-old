@@ -46,7 +46,7 @@ cwd = os.getcwd()
 join = os.path.join
 
 def err(m):
-	print '\033[91mError: %s\033[0m' % m
+	print ('\033[91mError: %s\033[0m' % m)
 	sys.exit(1)
 
 def unpack_wafdir(dir):
@@ -79,7 +79,7 @@ def unpack_wafdir(dir):
 	for x in t: t.extract(x)
 	t.close()
 
-	os.chmod(join('wafadmin','Tools'), 0755)
+	os.chmod(join('wafadmin','Tools'), 493)
 
 	os.unlink(tmp)
 	os.chdir(cwd)
