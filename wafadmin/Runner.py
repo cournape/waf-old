@@ -8,7 +8,8 @@ import sys, random, time, threading, traceback
 try: from Queue import Queue
 except ImportError: from queue import Queue
 import Build, Utils, Logs, Options
-import pproc
+try: import pproc
+except: import subprocess as pproc
 from Logs import debug, error
 from Constants import *
 
