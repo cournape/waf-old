@@ -42,7 +42,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 
 """
 
-import os, types, shutil, sys, re, new, random, time
+import os, types, shutil, sys, re, random, time
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, error, warn
@@ -853,8 +853,7 @@ def task_type_from_func(name, func, vars=[], color='GREEN', ext_in=[], ext_out=[
 		'after': Utils.to_list(after),
 	}
 
-	cls = new.classobj(name, (Task,), params)
+	cls = type(Task)(name, (Task,), params)
 	TaskBase.classes[name] = cls
 	return cls
-
 
