@@ -330,10 +330,9 @@ def h_fun(fun):
 _hash_blacklist_types = (
 	types.BuiltinFunctionType,
 	types.ModuleType,
-	types.FunctionType,
-	types.ClassType,
-	types.TypeType,
-	types.NoneType,
+	type(h_fun),
+	type(ordered_dict),
+	type(None),
 	)
 
 def hash_function_with_globals(prevhash, func):
