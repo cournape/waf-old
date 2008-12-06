@@ -8,7 +8,7 @@ c/c++ configuration routines
 The code is being written, so do not complain about trunk being broken :-)
 """
 
-import os, types, imp, cPickle, sys, shlex, shutil
+import os, types, imp, sys, shlex, shutil
 from Utils import md5
 import Build, Utils, Configure, Task, Options, Logs
 from Constants import *
