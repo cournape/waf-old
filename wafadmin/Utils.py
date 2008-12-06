@@ -34,8 +34,11 @@ Utilities, the stable ones are the following:
 """
 
 import os, sys, imp, types, string, errno, traceback, inspect, re
-from UserDict import UserDict
-import Logs, pproc
+try: from UserDict import UserDict
+except ImportError: from collections import UserDict
+try: import pproc
+except: import subprocess as pproc
+import Logs
 from Constants import *
 
 is_win32 = sys.platform == 'win32'
