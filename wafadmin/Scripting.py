@@ -213,8 +213,8 @@ def main():
 					mod = Utils.load_module(file)
 					h = Utils.hash_function_with_globals(h, mod.configure)
 				reconf = (h != proj['hash'])
-			except Exception, ex:
-				warn("Reconfiguring the project (an exception occurred: %s)" % (str(ex),))
+			except Exception, e:
+				warn("Reconfiguring the project (an exception occurred: %s)" % (str(e),))
 				reconf = 1
 
 			if reconf:

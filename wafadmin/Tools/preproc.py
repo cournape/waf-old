@@ -468,9 +468,9 @@ class c_parser(object):
 				continue
 			try:
 				self.process_line(type, line)
-			except Exception, ex:
+			except Exception, e:
 				if Logs.verbose:
-					error("line parsing failed (%s): %s" % (str(ex), line))
+					error("line parsing failed (%s): %s" % (str(e), line))
 					traceback.print_exc()
 
 	def process_line(self, token, line):
