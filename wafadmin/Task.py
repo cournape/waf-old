@@ -138,12 +138,12 @@ class TaskGroup(object):
 		global algotype
 		if algotype == NORMAL:
 			tasks = self.tasks_in_parallel()
-			maxj = sys.maxint
+			maxj = MAXJOBS
 		elif algotype == JOBCONTROL:
 			(maxj, tasks) = self.tasks_by_max_jobs()
 		elif algotype == MAXPARALLEL:
 			tasks = self.tasks_with_inner_constraints()
-			maxj = sys.maxint
+			maxj = MAXJOBS
 		else:
 			raise Utils.WafError("unknown algorithm type %s" % (algotype))
 
@@ -254,11 +254,11 @@ class TaskGroup(object):
 		if not self.temp_tasks: self.temp_tasks = self.tasks_in_parallel()
 		if not self.temp_tasks: return (None, None)
 
-		maxjobs = sys.maxint
+		maxjobs = MAXJOBS
 		ret = []
 		remaining = []
 		for t in self.temp_tasks:
-			m = getattr(t, "maxjobs", getattr(self.__class__, "maxjobs", sys.maxint))
+			m = getattr(t, "maxjobs", getattr(self.__class__, "maxjobs", MAXJOBS))
 			if m > maxjobs:
 				remaining.append(t)
 			elif m < maxjobs:
@@ -315,7 +315,7 @@ class TaskBase(object):
 	__metaclass__ = store_task_type
 
 	color = "GREEN"
-	maxjobs = sys.maxint
+	maxjobs = MAXJOBS
 	classes = {}
 	stat = None
 
@@ -394,7 +394,7 @@ class TaskBase(object):
 		names = ('before', 'after', 'ext_in', 'ext_out')
 		sum = hash((sum, self.__class__.__name__,))
 		for x in names:
-			sum = hash((sum, str(self.attr(x, sys.maxint)),))
+			sum = hash((sum, str(self.attr(x, 0)),))
 		sum = hash((sum, self.__class__.maxjobs))
 		return sum
 

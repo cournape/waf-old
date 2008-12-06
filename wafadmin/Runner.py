@@ -91,7 +91,7 @@ class Parallel(object):
 
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
-		self.maxjobs = sys.maxint
+		self.maxjobs = MAXJOBS
 
 		# tasks that are awaiting for another task to complete
 		self.frozen = []

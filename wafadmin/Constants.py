@@ -17,6 +17,8 @@ ABI = 6
 O644 = 420
 O755 = 493
 
+MAXJOBS = 99999999
+
 CACHE_DIR          = 'c4che'
 CACHE_SUFFIX       = '.cache.py'
 DBFILE             = '.wafpickle-%d' % ABI
