@@ -138,7 +138,7 @@ def parse_args_impl(parser, _args=None):
 		if arg in cmds:
 			commands[arg]=True
 		else:
-			print 'Error: Invalid command specified ',arg
+			Utils.pprint('RED', 'Error: Invalid command specified %r' % arg)
 			parser.print_help()
 			sys.exit(1)
 	if commands['check']:

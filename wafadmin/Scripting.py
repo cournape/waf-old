@@ -170,7 +170,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 def prepare(t, cwd, ver, wafdir):
 	if WAFVERSION != ver:
 		msg = 'Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (ver, WAFVERSION, wafdir)
-		print '\033[91mError: %s\033[0m' % msg
+		print('\033[91mError: %s\033[0m' % msg)
 		sys.exit(1)
 
 	try:
@@ -270,7 +270,7 @@ def main():
 		p.sort_stats('time').print_stats(150)
 		#"""
 
-		if Options.options.progress_bar: print ''
+		if Options.options.progress_bar: print('')
 
 		if Options.is_install:
 			bld.install()

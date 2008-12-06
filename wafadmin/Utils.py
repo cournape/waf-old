@@ -360,9 +360,9 @@ def hash_function_with_globals(prevhash, func):
 		#	print "hashed: ", name, " => ", value, " => ", hash(value)
 	return hash( (prevhash, inspect.getsource(func)) )
 
-def pprint(col, str, label=''):
+def pprint(col, str, label='', sep=os.linesep):
 	"print messages in color"
-	print "%s%s%s %s" % (Logs.colors(col), str, Logs.colors.NORMAL, label)
+	sys.stdout.write("%s%s%s %s%s" % (Logs.colors(col), str, Logs.colors.NORMAL, label, sep))
 
 def check_dir(dir):
 	"""If a folder doesn't exists, create it."""

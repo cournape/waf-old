@@ -414,7 +414,7 @@ All the following decorators are registration decorators, i.e add an attribute t
 For example:
    @taskgen
    def sayHi(self):
-        print "hi"
+        print("hi")
 Now taskgen.sayHi() may be called
 """
 def taskgen(func):
