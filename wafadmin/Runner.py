@@ -4,7 +4,9 @@
 
 "Execute the tasks"
 
-import sys, random, time, threading, Queue, traceback
+import sys, random, time, threading, traceback
+try: from Queue import Queue as queue
+except ImportError: from queue import queue
 import Build, Utils, Logs, Options
 import pproc
 from Logs import debug, error
@@ -97,8 +99,8 @@ class Parallel(object):
 		self.frozen = []
 
 		# tasks waiting to be run by the consumers
-		self.ready = Queue.Queue(0)
-		self.out = Queue.Queue(0)
+		self.ready = queue(0)
+		self.out = queue(0)
 
 		self.count = 0 # tasks not in the producer area
 		self.stuck = 0
