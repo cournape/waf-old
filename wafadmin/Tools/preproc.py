@@ -169,10 +169,10 @@ def get_expr(lst, defs, ban):
 			(p2, v2, lst2) = get_expr(lst[1:], defs, ban)
 
 			if v == '#':
-				if p2 != IDENT: raise PreprocError, "ident expected %s" % str(lst)
+				if p2 != IDENT: raise PreprocError("ident expected %s" % str(lst))
 				return get_expr([(STR, v2)]+lst2, defs, ban)
 
-			if p2 != NUM: raise PreprocError, "num expected %s" % str(lst)
+			if p2 != NUM: raise PreprocError("num expected %s" % str(lst))
 
 			if   v == '+': return (p2, v2, lst2)
 			elif v == '-': return (p2, - int(v2), lst2)
@@ -191,7 +191,7 @@ def get_expr(lst, defs, ban):
 				elif v == '(': count_par += 1
 				i += 1
 			else:
-				raise PreprocError, "rparen expected %s" % str(lst)
+				raise PreprocError("rparen expected %s" % str(lst))
 
 			ret = process_tokens(lst[1:i], defs, ban)
 			if len(ret) == 1:
@@ -199,7 +199,7 @@ def get_expr(lst, defs, ban):
 				return (p, v, lst[i+1:])
 			else:
 				#return (None, lst1, lst[i+1:])
-				raise PreprocError, "cannot reduce %s" % str(lst)
+				raise PreprocError("cannot reduce %s" % str(lst))
 
 	elif p == IDENT:
 		if len(lst)>1:
@@ -208,7 +208,7 @@ def get_expr(lst, defs, ban):
 				# token pasting, reevaluate the identifier obtained
 				(p3, v3) = lst[2]
 				if p3 != IDENT and p3 != NUM and p3 != OP:
-					raise PreprocError, "%s: ident expected after '##'" % str(lst)
+					raise PreprocError("%s: ident expected after '##'" % str(lst))
 				return get_expr([(p, v+v3)]+lst[3:], defs, ban)
 
 		if v.lower() == 'defined':
@@ -216,12 +216,12 @@ def get_expr(lst, defs, ban):
 			off = 2
 			if v2 == '(':
 				(p2, v2) = lst[2]
-				if p2 != IDENT: raise PreprocError, 'expected an identifier after a "defined("'
+				if p2 != IDENT: raise PreprocError('expected an identifier after a "defined("')
 				(p3, v3) = lst[3]
-				if v3 != ')': raise PreprocError, 'expected a ")" after a "defined(x"'
+				if v3 != ')': raise PreprocError('expected a ")" after a "defined(x"')
 				off = 4
 			elif p2 != IDENT:
-				raise PreprocError, 'expected a "(" or an identifier after a defined'
+				raise PreprocError('expected a "(" or an identifier after a defined')
 
 			x = 0
 			if v2 in defs: x = 1
@@ -247,7 +247,7 @@ def get_expr(lst, defs, ban):
 			params = []
 			i = 1
 			p2, v2 = lst[i]
-			if p2 != OP or v2 != '(': raise PreprocError, "invalid function call '%s'" % v
+			if p2 != OP or v2 != '(': raise PreprocError("invalid function call '%s'" % v)
 
 			one_param = []
 			count_paren = 0
@@ -265,7 +265,7 @@ def get_expr(lst, defs, ban):
 							lst = lst[i+1:]
 							break
 						elif v2 == ',':
-							if not one_param: raise PreprocError, "empty param in funcall %s" % p
+							if not one_param: raise PreprocError("empty param in funcall %s" % p)
 							params.append(one_param)
 							one_param = []
 						else:
@@ -276,7 +276,7 @@ def get_expr(lst, defs, ban):
 						elif v2 == ')': count_paren -= 1
 
 			except IndexError, e:
-				#raise PreprocError, 'invalid function call %s: missing ")"' % p
+				#raise PreprocError('invalid function call %s: missing ")"' % p)
 				raise
 
 			# substitute the arguments within the define expression
@@ -318,7 +318,7 @@ def process_tokens(lst, defs, ban):
 
 			op1, ov1 = nlst[0]
 			if op1 != OP:
-				raise PreprocError, "op expected %s" % str(lst)
+				raise PreprocError("op expected %s" % str(lst))
 
 			if ov1 == '?':
 				i = 0
@@ -328,7 +328,7 @@ def process_tokens(lst, defs, ban):
 					elif k == '(': count_par += 1
 					elif k == ':' and count_par == 0: break
 					i += 1
-				else: raise PreprocError, "ending ':' expected %s" % str(lst)
+				else: raise PreprocError("ending ':' expected %s" % str(lst))
 
 				if reduce_nums(v, 0, '+'): lst = nlst[1:i]
 				else: lst = nlst[i+1:]
@@ -339,7 +339,7 @@ def process_tokens(lst, defs, ban):
 				continue
 
 			p2, v2, nlst = get_expr(nlst[1:], defs, ban)
-			if p2 != NUM: raise PreprocError, "num expected after op %s" % str(lst)
+			if p2 != NUM: raise PreprocError("num expected after op %s" % str(lst))
 			if nlst:
 				# op precedence
 				op3, ov3 = nlst[0]
@@ -356,7 +356,7 @@ def process_tokens(lst, defs, ban):
 			continue
 
 		elif p == STR:
-			if nlst: raise PreprocError, "sequence must terminate with a string %s" % str(nlst)
+			if nlst: raise PreprocError("sequence must terminate with a string %s" % str(nlst))
 			return [(p, v)]
 
 		return (None, None, [])
@@ -364,7 +364,7 @@ def process_tokens(lst, defs, ban):
 def eval_macro(lst, adefs):
 	# look at the result, and try to return a 0/1 result
 	ret = process_tokens(lst, adefs, [])
-	if not ret: raise PreprocError, "missing tokens to evaluate %s" % str(lst)
+	if not ret: raise PreprocError("missing tokens to evaluate %s" % str(lst))
 	p, v = ret[0]
 	return int(v) != 0
 
@@ -428,7 +428,7 @@ class c_parser(object):
 		filepath = node.abspath(self.env)
 
 		self.count_files += 1
-		if self.count_files > 30000: raise PreprocError, "recursion limit exceeded, bailing out"
+		if self.count_files > 30000: raise PreprocError("recursion limit exceeded, bailing out")
 		pc = self.parse_cache
 		debug('preproc: reading file %r' % filepath)
 		try:
@@ -445,7 +445,7 @@ class c_parser(object):
 			pc[filepath] = lines # cache the lines filtered
 			self.lines = lines + self.lines
 		except IOError:
-			raise PreprocError, "could not read the file %s" % filepath
+			raise PreprocError("could not read the file %s" % filepath)
 		except Exception:
 			if Logs.verbose > 0:
 				error("parsing %s failed" % filepath)
@@ -526,7 +526,7 @@ class c_parser(object):
 				if ve: debug('preproc: define %s   %s' % (name, line))
 				self.defs[name] = line
 			else:
-				raise PreprocError, "invalid define line %s" % line
+				raise PreprocError("invalid define line %s" % line)
 		elif token == 'undef':
 			m = re_mac.search(line)
 			if m and m.group(0) in self.defs:
@@ -542,7 +542,7 @@ def extract_macro(txt):
 		p, name = t[0]
 
 		p, v = t[1]
-		if p != OP: raise PreprocError, "expected open parenthesis"
+		if p != OP: raise PreprocError("expected open parenthesis")
 
 		i = 1
 		pindex = 0
@@ -561,27 +561,27 @@ def extract_macro(txt):
 				elif p == OP and v == ')':
 					break
 				else:
-					raise PreprocError, "unexpected token"
+					raise PreprocError("unexpected token")
 			elif prev == IDENT:
 				if p == OP and v == ',':
 					prev = v
 				elif p == OP and v == ')':
 					break
 				else:
-					raise PreprocError, "comma or ... expected"
+					raise PreprocError("comma or ... expected")
 			elif prev == ',':
 				if p == IDENT:
 					params[v] = pindex
 					pindex += 1
 					prev = p
 				elif p == OP and v == '...':
-					raise PreprocError, "not implemented"
+					raise PreprocError("not implemented")
 				else:
-					raise PreprocError, "comma or ... expected"
+					raise PreprocError("comma or ... expected")
 			elif prev == '...':
-				raise PreprocError, "not implemented"
+				raise PreprocError("not implemented")
 			else:
-				raise PreprocError, "unexpected else"
+				raise PreprocError("unexpected else")
 
 		#~ print (name, [params, t[i+1:]])
 		return (name, [params, t[i+1:]])
@@ -600,11 +600,11 @@ def extract_include(txt, defs):
 	tokens = tokenize(txt)
 	tokens = process_tokens(tokens, defs, ['waf_include'])
 	p, v = tokens[0]
-	if p != STR: raise PreprocError, "could not parse include %s" % txt
+	if p != STR: raise PreprocError("could not parse include %s" % txt)
 	return ('"', v)
 
 def parse_char(txt):
-	if not txt: raise PreprocError, "attempted to parse a null char"
+	if not txt: raise PreprocError("attempted to parse a null char")
 	if txt[0] != '\\':
 		return ord(txt)
 	c = txt[1]
@@ -618,7 +618,7 @@ def parse_char(txt):
 				return (1+i, int(txt[1:1+i], 8))
 	else:
 		try: return chr_esc[c]
-		except KeyError: raise PreprocError, "could not parse char literal '%s'" % txt
+		except KeyError: raise PreprocError("could not parse char literal '%s'" % txt)
 
 def tokenize(s):
 	ret = []
@@ -681,11 +681,11 @@ if __name__ == "__main__":
 				continue
 			try:
 				self.process_line(type, line)
-			except Exception, ex:
+			except Exception, e:
 				if Logs.verbose:
-					error("line parsing failed (%s): %s" % (str(ex), line))
+					error("line parsing failed (%s): %s" % (str(e), line))
 					traceback.print_exc()
-				raise
+				raise e
 	c_parser.start_local = start_local
 
 	Logs.verbose = 2

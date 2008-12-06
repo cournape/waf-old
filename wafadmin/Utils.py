@@ -15,7 +15,7 @@ Utilities, the stable ones are the following:
 	import stat
 	def h_file(filename):
 		st = os.stat(filename)
-		if stat.S_ISDIR(st[stat.ST_MODE]): raise IOError, 'not a file'
+		if stat.S_ISDIR(st[stat.ST_MODE]): raise IOError('not a file')
 		m = Utils.md5()
 		m.update(str(st.st_mtime))
 		m.update(str(st.st_size))
@@ -86,10 +86,10 @@ try:
 		try:
 			m.hfile(filename)
 			x = m.digest()
-			if x is None: raise OSError, "not a file"
+			if x is None: raise OSError("not a file")
 			return x
 		except SystemError:
-			raise OSError, "not a file"+filename
+			raise OSError("not a file" + filename)
 
 except ImportError:
 	try:
@@ -168,7 +168,7 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 
 def python_24_guard():
 	if sys.hexversion<0x20400f0:
-		raise ImportError,"Waf requires Python >= 2.3 but the raw source requires Python 2.4"
+		raise ImportError("Waf requires Python >= 2.3 but the raw source requires Python 2.4")
 
 def ex_stack():
 	exc_type, exc_value, tb = sys.exc_info()
@@ -379,7 +379,7 @@ def cmd_output(cmd, e=None, silent=False):
 	if p.returncode:
 		if not silent:
 			msg = "command execution failed: %s -> %r" % (cmd, str(output))
-			raise ValueError, msg
+			raise ValueError(msg)
 		output = ''
 	return output
 

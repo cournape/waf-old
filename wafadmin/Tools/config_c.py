@@ -72,7 +72,7 @@ def validate_cfg(self, kw):
 		y = x.replace('-', '_')
 		if y in kw:
 			if not 'package' in kw:
-				raise ValueError, '%s requires a package' % x
+				raise ValueError('%s requires a package' % x)
 
 			if not 'msg' in kw:
 				kw['msg'] = 'Checking for %s %s %s' % (kw['package'], cfg_ver[x], kw[y])

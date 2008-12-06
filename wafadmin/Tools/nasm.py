@@ -28,7 +28,7 @@ def apply_nasm_vars(self):
 		for inc in self.to_list(self.includes):
 			node = self.path.find_dir(inc)
 			if not node:
-				raise ValueError, "cannot find the dir" + inc
+				raise ValueError("cannot find the dir" + inc)
 			self.env.append_value('NASM_INCLUDES', '-I %s' % node.srcpath(self.env))
 			self.env.append_value('NASM_INCLUDES', '-I %s' % node.bldpath(self.env))
 
