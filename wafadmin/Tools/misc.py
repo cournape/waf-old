@@ -8,7 +8,7 @@ Custom objects:
  - copy a file somewhere else
 """
 
-import shutil, re, os, types, new
+import shutil, re, os, types
 import TaskGen, Node, Task, Utils, Build, pproc, Constants
 from TaskGen import feature, taskgen, after
 from Logs import debug
@@ -421,8 +421,8 @@ use command_is_external=True''') % (self.command,)
 
 	if not task.inputs:
 		# the case for svnversion, always run, and update the output nodes
-		task.runnable_status = new.instancemethod(runnable_status, task, task.__class__) # always run
-		task.post_run = new.instancemethod(post_run, task, task.__class__)
+		task.runnable_status = type(Task.TaskBase.run)(runnable_status, task, task.__class__) # always run
+		task.post_run = type(Task.TaskBase.run)(post_run, task, task.__class__)
 
 	# TODO the case with no outputs?
 
