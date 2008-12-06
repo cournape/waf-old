@@ -108,7 +108,7 @@ class task_gen(object):
 		# not always a good idea
 		self.tasks = []
 
-		self.default_chmod = 0644
+		self.default_chmod = O644
 		self.default_install_path = None
 
 		if Options.is_install:
@@ -330,7 +330,7 @@ class task_gen(object):
 
 
 	def get_chmod(self):
-		return getattr(self, '_chmod', getattr(self, 'default_chmod', 0644))
+		return getattr(self, '_chmod', getattr(self, 'default_chmod', O644))
 
 	def set_chmod(self, val):
 		self._chmod = val

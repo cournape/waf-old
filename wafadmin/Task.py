@@ -426,7 +426,7 @@ class TaskBase(object):
 
 		if self.attr('install_path'):
 			lst = [a.relpath_gen(bld.srcnode) for a in self.outputs]
-			perm = self.attr('chmod', 0644)
+			perm = self.attr('chmod', O644)
 			if self.attr('src'):
 				# if src is given, install the sources too
 				lst += [a.relpath_gen(bld.srcnode) for a in self.inputs]

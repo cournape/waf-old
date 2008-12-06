@@ -655,7 +655,7 @@ class BuildContext(object):
 
 
 	# do_install is not used anywhere
-	def do_install(self, src, tgt, chmod=0644):
+	def do_install(self, src, tgt, chmod=O644):
 		"""returns true if the file was effectively installed or uninstalled, false otherwise"""
 		if Options.commands['install']:
 			if not Options.options.force:
@@ -705,7 +705,7 @@ class BuildContext(object):
 			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 		return destpath
 
-	def install_files(self, path, files, env=None, chmod=0644, relative_trick=False):
+	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False):
 		if not Options.is_install: return []
 		if not path: return []
 
@@ -741,7 +741,7 @@ class BuildContext(object):
 				installed_files.append(destfile)
 		return installed_files
 
-	def install_as(self, path, srcfile, env=None, chmod=0644):
+	def install_as(self, path, srcfile, env=None, chmod=O644):
 		"""returns True if the file was effectively installed, False otherwise"""
 		if not Options.is_install: return False
 		if not path: return False

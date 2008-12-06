@@ -13,6 +13,10 @@ HEXVERSION = 0x10501
 WAFVERSION="1.5.1"
 ABI = 6
 
+# permissions
+O644 = 420
+O755 = 493
+
 CACHE_DIR          = 'c4che'
 CACHE_SUFFIX       = '.cache.py'
 DBFILE             = '.wafpickle-%d' % ABI

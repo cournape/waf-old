@@ -5,6 +5,7 @@
 
 import TaskGen
 from TaskGen import taskgen, feature
+from Constants import *
 
 TaskGen.declare_chain(
 	name = 'luac',
@@ -18,7 +19,7 @@ TaskGen.declare_chain(
 @taskgen
 @feature('lua')
 def init_lua(self):
-	self.default_chmod = 0755
+	self.default_chmod = O755
 
 def detect(conf):
 	luac = conf.find_program('luac', var='LUAC')

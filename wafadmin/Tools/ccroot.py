@@ -125,7 +125,7 @@ def install_shlib(self):
 @before('apply_core')
 def vars_target_cprogram(self):
 	self.default_install_path = '${PREFIX}/bin'
-	self.default_chmod = 0755
+	self.default_chmod = O755
 
 @feature('cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @before('apply_core')
