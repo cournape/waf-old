@@ -787,8 +787,9 @@ class Task(TaskBase):
 		return m.digest()
 
 def funex(c):
-	exec(c)
-	return f
+	dc = {}
+	exec(c, dc)
+	return dc['f']
 
 reg_act = re.compile(r"(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 def compile_fun(name, line):
