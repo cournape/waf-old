@@ -113,14 +113,14 @@ def find_lt_names_msvc(self, libname, is_static=False):
 			if exists(laf):
 				ltdict=read_la_file(laf)
 				lt_libdir=None
-				if ltdict.has_key('libdir') and ltdict['libdir'] != '':
-					lt_libdir=ltdict['libdir']
-				if not is_static and ltdict.has_key('library_names') and ltdict['library_names'] != '':
+				if ltdict.get('libdir', ''):
+					lt_libdir = ltdict['libdir']
+				if not is_static and ltdict.get('library_names', ''):
 					dllnames=ltdict['library_names'].split()
 					dll=dllnames[0].lower()
 					dll=re.sub('\.dll$', '', dll)
 					return (lt_libdir, dll, False)
-				elif ltdict.has_key('old_library') and ltdict['old_library'] != '':
+				elif ltdict.get('old_library', ''):
 					olib=ltdict['old_library']
 					if exists(os.path.join(path,olib)):
 						return (path, olib, True)

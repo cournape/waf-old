@@ -118,7 +118,7 @@ def tags_score(tags, kw):
 		if is_toolsettag.match(tag): found_tags['toolset'] = tag
 
 	for tagname in needed_tags.iterkeys():
-		if needed_tags[tagname] is not None and found_tags.has_key(tagname):
+		if needed_tags[tagname] is not None and tagname in found_tags:
 			if re.compile(needed_tags[tagname]).match(found_tags[tagname]):
 				score += kw['score_' + tagname][0]
 			else:

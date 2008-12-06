@@ -117,7 +117,7 @@ def detect(conf):
 	java_path = os.environ['PATH'].split(os.pathsep)
 	v = conf.env
 
-	if os.environ.has_key('JAVA_HOME'):
+	if 'JAVA_HOME' in os.environ:
 		java_path = [os.path.join(os.environ['JAVA_HOME'], 'bin')] + java_path
 		conf.env['JAVA_HOME'] = os.environ['JAVA_HOME']
 
@@ -126,7 +126,7 @@ def detect(conf):
 	conf.find_program('jar', var='JAR', path_list=java_path)
 	v['JAVA_EXT'] = ['.java']
 
-	if os.environ.has_key('CLASSPATH'):
+	if 'CLASSPATH' in os.environ:
 		v['CLASSPATH'] = os.environ['CLASSPATH']
 
 	if not v['JAR']: conf.fatal('jar is required for making java packages')
