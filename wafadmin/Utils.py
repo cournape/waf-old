@@ -179,7 +179,7 @@ def ex_stack():
 	return ''.join(exc_lines)
 
 def to_list(sth):
-	if type(sth) is types.ListType:
+	if type(sth) is type([]):
 		return sth
 	else:
 		return sth.split()

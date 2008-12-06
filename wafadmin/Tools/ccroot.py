@@ -293,7 +293,7 @@ def apply_lib_vars(self):
 @after('apply_obj_vars', 'apply_vnum')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
- 	seen = []
+	seen = []
 	names = self.to_list(self.add_objects)
 	while names:
 		x = names[0]
