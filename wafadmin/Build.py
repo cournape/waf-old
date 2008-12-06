@@ -12,7 +12,9 @@ The class Build holds all the info related to a build:
 There is only one Build object at a time (bld singleton)
 """
 
-import os, sys, cPickle, types, imp, errno, re, glob, gc, time, shutil
+import os, sys, types, imp, errno, re, glob, gc, time, shutil
+try: import cPickle
+except: import pickle as cPickle
 import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Logs, Options
 from Logs import debug, error, info
 from Constants import *

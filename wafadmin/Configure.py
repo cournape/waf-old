@@ -19,7 +19,9 @@ logic. The data files (Environments) must contain configuration data only (flags
 Note: the c/c++ related code is in the module config_c
 """
 
-import os, types, imp, cPickle
+import os, types, imp
+try: import cPickle
+except ImportError: import pickle as cPickle
 import Environment, Utils, Options
 from Logs import warn
 from Constants import *
