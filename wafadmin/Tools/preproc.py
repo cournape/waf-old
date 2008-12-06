@@ -729,9 +729,9 @@ if __name__ == "__main__":
 	gruik.pathcontents = {}
 
 	gruik.start_local(arg)
-	print "we have found the following dependencies"
-	print gruik.deps
-	print gruik.deps_paths
+	print("we have found the following dependencies")
+	print(gruik.deps)
+	print(gruik.deps_paths)
 
 	#f = open(arg, "r")
 	#txt = f.read()
