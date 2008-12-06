@@ -48,6 +48,17 @@ g_optrans = {
 re_lines = re.compile(\
 	'^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$',
 	re.IGNORECASE | re.MULTILINE)
+
+# Reasons for using the Waf preprocessor by default
+# 1. the preprocessing is performed once for the clean build, and each time a source file changes (fast)
+# 2. unnecessary rebuilds might occur (#include in comments)
+# 3. some includes use the preprocessor, for example #include A()
+# 4. include guards might not be taken into account, resulting in infinite loops
+# 5. the bugs in the waf preprocessor are usually fixed quickly
+#
+# if you think your project does not need it, use this regexp to catch all includes
+#re_lines = re.compile('^[ \t]*(#|%:)[ \t]*(include|import)[ \t]*(.*)\r*$', re.IGNORECASE | re.MULTILINE)
+
 re_mac = re.compile("^[a-zA-Z_]\w*")
 re_fun = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
 re_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
