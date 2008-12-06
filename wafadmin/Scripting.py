@@ -28,7 +28,7 @@ def add_subdir(dir, bld):
 	try:
 		file_path = os.path.join(new.abspath(), WSCRIPT_BUILD_FILE)
 		file = open(file_path, 'r')
-		exec file
+		exec(file)
 		if file: file.close()
 	except IOError:
 		file_path = os.path.join(new.abspath(), WSCRIPT_FILE)
