@@ -45,7 +45,10 @@ def exec_rule(self):
 
 	tsk = self.create_task(name)
 	tsk.inputs=[self.path.find_resource(x) for x in self.to_list(self.source)]
-	tsk.outputs=[self.path.find_or_declare(x) for x in self.to_list(self.target)]
+	if getattr(self, 'target', None):
+		tsk.outputs=[self.path.find_or_declare(x) for x in self.to_list(self.target)]
+	else:
+		cls.quiet = True
 
 
 def set_options(opt):
@@ -58,8 +61,9 @@ def configure(conf):
 
 def build(bld):
 	bld.new_task_gen(source='uh.input')
-	bld.new_task_gen(source='uh.input', target='test.k',
-		rule='cd ${SRC[0].parent.abspath()} && ./create.py && mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}')
+	bld.new_task_gen(source='uh.input', #target='test.k',
+		rule='cd ${SRC[0].parent.abspath()} && ./create.py ')#&& mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}')
+
 
 	#foo = TaskGen.task_gen()
 	#foo.source = "uh.coin"
