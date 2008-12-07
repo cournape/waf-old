@@ -101,7 +101,7 @@ def set_options(opt):
 
 	def test_missing_set_options(self):
 		# white_box test: missing def set_options()
-		self._write_wscript(" ", use_dic=False)
+		self._write_wscript("\n", use_dic=False)
 		opt_obj = Options.Handler()
 		self.failUnlessRaises(Utils.WscriptError, opt_obj.sub_options, '')
 
