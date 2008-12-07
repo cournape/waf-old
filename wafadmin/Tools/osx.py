@@ -72,7 +72,6 @@ def apply_bundle_remove_dynamiclib(self):
 	if not 'shlib' in self.features: return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
 		self.env['LINKFLAGS'].remove('-dynamiclib')
-		self.env.append_value('LINKFLAGS', '-bundle')
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
 
