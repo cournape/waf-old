@@ -225,7 +225,6 @@ def validate_c(self, kw):
 		if not kw.get('header_name'):
 			kw['header_name'] = []
 
-
 	if 'function_name' in kw:
 		fu = kw['function_name']
 		if not 'msg' in kw:
@@ -243,6 +242,8 @@ def validate_c(self, kw):
 		# OSX
 		if 'framework_name' in kw:
 			fwkname = kw['framework_name']
+			if not 'uselib_store' in kw:
+				kw['uselib_store'] = fwkname.upper()
 			fwk = '%s/%s.h' % (fwkname, fwkname)
 			if kw.get('remove_dot_h', None):
 				fwk = fwk[:-2]
