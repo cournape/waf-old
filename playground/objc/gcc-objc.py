@@ -13,7 +13,7 @@ EXT_OBJC = ['.m']
 def objc_hook(self, node):
 	tsk = cc.c_hook(self, node)
 	tsk.env.append_unique('CCFLAGS', tsk.env['GCC-OBJC'])
-	tsk.env.append_unique('LINKFLAGS', tsk.env['GCC-OBJC'])
+	tsk.env.append_unique('LINKFLAGS', tsk.env['GCC-OBJCLINK'])
 
 @conftest
 def gccobjc_common_flags(conf):
