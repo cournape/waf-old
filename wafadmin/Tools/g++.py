@@ -66,9 +66,9 @@ def gxx_common_flags(conf):
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
 	# osx stuff
-	v['MACBUNDLE_LINKFLAGS'] = ['-bundle', '-undefined dynamic_lookup']
-	v['MACBUNDLE_CCFLAGS']   = ['-fPIC']
-	v['MACBUNDLE_PATTERN']   = '%s.bundle'
+	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined dynamic_lookup']
+	v['CCFLAGS_MACBUNDLE']   = ['-fPIC']
+	v['macbundle_PATTERN']   = '%s.bundle'
 
 @conftest
 def gxx_modifier_win32(conf):

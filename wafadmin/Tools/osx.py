@@ -57,12 +57,12 @@ def apply_link_osx(self):
 @before('apply_lib_vars')
 @feature('cc', 'cxx')
 def apply_bundle(self):
-	"""the uselib system cannot modify a few things, use env['MACBUNDLE'] to force all shlibs into mac bundles
+	"""use env['MACBUNDLE'] to force all shlibs into mac bundles
 	or use obj.mac_bundle = True for specific targets only"""
 	if not 'shlib' in self.features: return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
-		self.env['shlib_PATTERN'] = '%s.bundle'
-		uselib = self.to_list(self.uselib)
+		self.env['shlib_PATTERN'] = self.env['macbundle_PATTERN']
+		uselib = self.uselib = self.to_list(self.uselib)
 		if not 'MACBUNDLE' in uselib: uselib.append('MACBUNDLE')
 
 @taskgen
@@ -71,10 +71,8 @@ def apply_bundle(self):
 def apply_bundle_remove_dynamiclib(self):
 	if not 'shlib' in self.features: return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
-		self.env["LINKFLAGS"].remove("-dynamiclib")
-		self.env.append_value("LINKFLAGS", "-bundle")
-
-
+		self.env['LINKFLAGS'].remove('-dynamiclib')
+		self.env.append_value('LINKFLAGS', '-bundle')
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
 
