@@ -28,7 +28,7 @@ class ScriptingTester(common_test.CommonTester):
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''
 		os.chdir(self._waf_root_dir)
-		
+
 		if os.path.isdir(self._test_dir_root):
 			shutil.rmtree(self._test_dir_root)
 
@@ -68,36 +68,36 @@ def set_options(opt):
 		self.assert_(os.path.isfile(conf_code), "1st configure failed")
 		self._test_build()
 		self.assert_(os.path.isfile(built_code), "1st build failed")
-		
+
 		# this should cause reconfiguration.
 		os.remove(Options.lockfile)
-		
+
 		os.remove(conf_code)
 		os.remove(built_code)
 		self._test_build()
 		self.assert_(os.path.isfile(conf_code), "2nd configure skipped")
 		self.assert_(os.path.isfile(built_code), "2nd build failed")
-	
+
 	def test_build_without_conf(self):
 		# white-box test: make sure that waf aborts on build without configure
 		Options.commands['configure'] = False
 		Options.commands['clean'] = False
 		self.failUnlessRaises(Utils.WafError, Scripting.main)
-		
+
 		# cleanup: don't harm other tests
 		del Options.commands['configure']
 		del Options.commands['clean']
-		
+
 	def test_white_no_conf_no_clean(self):
 		# white-box test: make sure that waf aborts on build without configure
 		Options.commands['clean'] = True
 		Options.commands['configure'] = False
 		self.failUnlessRaises(Utils.WafError, Scripting.main)
-		
+
 		# cleanup: don't harm other tests
 		del Options.commands['clean']
 		del Options.commands['configure']
-		
+
 	def test_black_no_conf_no_clean(self):
 		self._write_wscript("def set_options(opt): pass")
 		self._test_clean(False)
@@ -214,7 +214,7 @@ def distcheck():
 		self.assert_(os.path.isfile('waf_waf_custom_dist.txt'), "custom dist() was not used")
 
 	def test_user_distcheck_hook(self):
-		# black-box test: 
+		# black-box test:
 		# if user wrote dist_hook() function it will be used to add something to dist
 		# to ease testing the function here creates a file
 		wscript_contents = """
