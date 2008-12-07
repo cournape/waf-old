@@ -1,8 +1,9 @@
 NEW IN WAF 1.5.2
 ----------------
-* guard for unexpected interruption (pickle file consistency)
+* guard for unexpected interruptions (pickle file consistency)
 * make nasm output files more robust to collisions
-* pkg-configuration fixes
+* minor osx fixes (add the flags -undefined dynamic_lookup)
+* pkg-config fixes
 * include processing fixes
 
 NEW IN WAF 1.5.1
