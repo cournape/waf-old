@@ -94,6 +94,7 @@ def cxx_hook(self, node):
 	task.inputs = [node]
 	task.outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
+	return task
 
 cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'

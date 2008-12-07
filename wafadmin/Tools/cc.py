@@ -89,6 +89,7 @@ def c_hook(self, node):
 	task.inputs = [node]
 	task.outputs = [node.change_ext(obj_ext)]
 	self.compiled_tasks.append(task)
+	return task
 
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
