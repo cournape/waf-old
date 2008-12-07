@@ -50,6 +50,8 @@ def exec_rule(self):
 	else:
 		cls.quiet = True
 
+	for x in ['after', 'before']:
+		setattr(cls, x, getattr(self, x, []))
 
 def set_options(opt):
 	pass
@@ -61,8 +63,13 @@ def configure(conf):
 
 def build(bld):
 	bld.new_task_gen(source='uh.input')
-	bld.new_task_gen(source='uh.input', #target='test.k',
-		rule='cd ${SRC[0].parent.abspath()} && ./create.py ')#&& mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}')
+	bld.new_task_gen(source='uh.input',
+		#target='test.k', # optional .. target or nothing
+		rule='cd ${SRC[0].parent.abspath()} && ./create.py ',
+		before='cxx_link')
+
+	# in that example, the target file was moved after creation
+		#&& mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}')
 
 
 	#foo = TaskGen.task_gen()
