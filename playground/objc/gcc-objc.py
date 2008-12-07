@@ -14,13 +14,11 @@ def objc_hook(self, node):
 	tsk = cc.c_hook(self, node)
 	tsk.env.append_unique('CCFLAGS', tsk.env['GCC-OBJC'])
 	tsk.env.append_unique('LINKFLAGS', tsk.env['GCC-OBJC'])
-	print tsk.env
 
 @conftest
 def gccobjc_common_flags(conf):
 	v = conf.env
 	v['GCC-OBJC']         = '-x objective-c'
 	v['GCC-OBJCLINK']     = '-lobjc'
-	#v['FRAMEWORKPATH_ST'] = '-F%s'
 
 detect = 'gccobjc_common_flags'
