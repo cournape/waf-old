@@ -309,7 +309,7 @@ def validate_c(self, kw):
 	if not 'code' in kw:
 		kw['code'] = simple_c_code
 
-	if not kw.get('success'): kw['success'] = 0
+	if not kw.get('success'): kw['success'] = None
 
 	assert('msg' in kw)
 
