@@ -1,0 +1,60 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+# illustrate how to enable a makefile-like syntax
+
+VERSION= '0.0.1'
+APPNAME= 'make_like'
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	pass
+
+def configure(conf):
+	pass
+
+def build(bld):
+
+	# a source file but no outputs
+	bld.new_task_gen(
+		source='wscript',
+		rule='echo ${SRC}',
+		before='cc'
+	)
+
+	# a source file and one output
+	bld.new_task_gen(
+		source='wscript',
+		target='test.k',
+		rule='cd ${SRC[0].parent.abspath()} && ./create.py && mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
+		before='cc'
+	)
+
+########### support code below ###############
+
+from TaskGen import feature, before, taskgen
+import Task
+
+@taskgen
+@feature('*')
+@before('apply_core')
+def exec_rule(self):
+	if not getattr(self, 'rule', None):
+		return
+
+	name = self.target
+	cls = Task.simple_task_type(name, self.rule)
+
+	tsk = self.create_task(name)
+	tsk.inputs=[self.path.find_resource(x) for x in self.to_list(self.source)]
+	if getattr(self, 'target', None):
+		tsk.outputs=[self.path.find_or_declare(x) for x in self.to_list(self.target)]
+	else:
+		cls.quiet = True
+
+	for x in ['after', 'before']:
+		setattr(cls, x, getattr(self, x, []))
+
+
