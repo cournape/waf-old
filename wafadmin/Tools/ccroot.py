@@ -211,8 +211,14 @@ def apply_link(self):
 		if 'cstaticlib' in self.features: link = 'ar_link_static'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
-		# that's something quite ugly for unix platforms, both the .so and .so.x must be present in the build dir
-		if getattr(self, 'vnum', None): link = 'vnum_' + link
+		# that's something quite ugly for unix platforms
+		# both the .so and .so.x must be present in the build dir
+		# for darwin the version number is forcibly undefined for a lack of specs
+		if getattr(self, 'vnum', None):
+			if sys.platform == 'darwin':
+				self.vnum = ''
+			else:
+				link = 'vnum_' + link
 	linktask = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
