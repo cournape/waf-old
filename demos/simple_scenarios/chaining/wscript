@@ -30,29 +30,6 @@ TaskGen.declare_chain(
 	reentrant = 0 # <<- this means the files produced are not reinjected as sources
 )
 
-from TaskGen import feature, before, taskgen
-import Task
-
-@taskgen
-@feature('*')
-@before('apply_core')
-def exec_rule(self):
-	if not getattr(self, 'rule', None):
-		return
-
-	name = self.target
-	cls = Task.simple_task_type(name, self.rule)
-
-	tsk = self.create_task(name)
-	tsk.inputs=[self.path.find_resource(x) for x in self.to_list(self.source)]
-	if getattr(self, 'target', None):
-		tsk.outputs=[self.path.find_or_declare(x) for x in self.to_list(self.target)]
-	else:
-		cls.quiet = True
-
-	for x in ['after', 'before']:
-		setattr(cls, x, getattr(self, x, []))
-
 def set_options(opt):
 	pass
 
@@ -60,18 +37,6 @@ def configure(conf):
 	import os
 	conf.env['COPY'] = os.getcwd() + os.sep + "cp.py"
 
-
 def build(bld):
 	bld.new_task_gen(source='uh.input')
-	bld.new_task_gen(source='uh.input',
-		#target='test.k', # optional .. target or nothing
-		rule='cd ${SRC[0].parent.abspath()} && ./create.py ',
-		before='cxx_link')
-
-	# in that example, the target file was moved after creation
-		#&& mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}')
-
-
-	#foo = TaskGen.task_gen()
-	#foo.source = "uh.coin"
 
