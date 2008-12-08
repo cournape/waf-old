@@ -9,6 +9,7 @@ The code is being written, so do not complain about trunk being broken :-)
 """
 
 import os, types, imp, sys, shlex, shutil
+import pproc
 from Utils import md5
 import Build, Utils, Configure, Task, Options, Logs
 from Constants import *
@@ -55,7 +56,7 @@ def parse_flags(line, uselib, env):
 @conf
 def validate_cfg(self, kw):
 	if not 'path' in kw:
-		kw['path'] = 'pkg-config --silence-errors'
+		kw['path'] = 'pkg-config --errors-to-stdout --print-errors'
 
 	# pkg-config version
 	if 'atleast_pkgconfig_version' in kw:
@@ -79,30 +80,31 @@ def validate_cfg(self, kw):
 			return
 
 	if not 'msg' in kw:
-		kw['msg'] = 'Checking for %s flags' % kw['package']
+		kw['msg'] = 'Checking for %s' % kw['package']
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 	if not 'errmsg' in kw:
 		kw['errmsg'] = 'not found'
 
 @conf
-def cmd_and_log(self, cmd):
+def cmd_and_log(self, cmd, kw):
 	Logs.debug('runner: %s\n' % cmd)
 	if self.log: self.log.write('%s\n' % cmd)
-	return Utils.cmd_output(cmd)
+
+	p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True)
+	output = p.communicate()[0]
+	if p.returncode:
+		kw['errmsg'] = output.strip()
+		self.fatal('fail')
+	return output
 
 @conf
 def exec_cfg(self, kw):
 
 	# pkg-config version
 	if 'atleast_pkgconfig_version' in kw:
-		try:
-			cmd = '%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version'])
-			self.cmd_and_log(cmd)
-		except:
-			if not 'errmsg' in kw:
-				kw['errmsg'] = '"pkg-config" could not be found or the version found is too old.'
-			self.fatal(kw['errmsg'])
+		cmd = '%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version'])
+		self.cmd_and_log(cmd, kw)
 		if not 'okmsg' in kw:
 			kw['okmsg'] = 'ok'
 		return
@@ -111,12 +113,7 @@ def exec_cfg(self, kw):
 	for x in cfg_ver:
 		y = x.replace('-', '_')
 		if y in kw:
-			try:
-				self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']))
-			except:
-				if not 'errmsg' in kw:
-					kw['errmsg'] = 'Package "%s (%s %s)" could not be found or the found version is too old.' % (kw['package'], cfg_ver[x], kw[y])
-				self.fatal(kw['errmsg'])
+			self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']), kw)
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'ok'
 			self.define('HAVE_%s' % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), 1, 0)
@@ -124,11 +121,7 @@ def exec_cfg(self, kw):
 
 	# retrieving the version of a module
 	if 'modversion' in kw:
-		try:
-			version = self.cmd_and_log('%s --modversion %s' % (kw['path'], kw['modversion'])).strip()
-		except ValueError:
-			return ''
-			#self.fatal('Package %r could not be found' % kw['modversion'])
+		version = self.cmd_and_log('%s --modversion %s' % (kw['path'], kw['modversion']), kw).strip()
 		self.define('%s_VERSION' % Utils.quote_define_name(kw.get('uselib_store', kw['modversion'])), version)
 		return version
 
@@ -141,10 +134,7 @@ def exec_cfg(self, kw):
 
 	# so we assume the command-line will output flags to be parsed afterwards
 	cmd = ' '.join(lst)
-	try:
-		ret = self.cmd_and_log(cmd)
-	except:
-		self.fatal("no such package")
+	ret = self.cmd_and_log(cmd, kw)
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 
