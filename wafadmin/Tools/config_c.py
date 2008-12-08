@@ -219,6 +219,12 @@ def validate_c(self, kw):
 			return ''.join(['#include <%s>\n' % x for x in dct])
 		return ''
 
+	# set the file name
+	if not 'compile_mode' in kw:
+		kw['compile_mode'] = (kw['compiler'] == 'cxx') and 'cxx' or 'cc'
+
+	if not 'compile_filename' in kw:
+		kw['compile_filename'] = 'test.c' + ((kw['compile_mode'] == 'cxx') and 'pp' or '')
 
 	#OSX
 	if 'framework_name' in kw:
@@ -373,12 +379,7 @@ def check(self, *k, **kw):
 
 @conf
 def run_c_code(self, *k, **kw):
-	if kw['compiler'] == 'cxx':
-		tp = 'cxx'
-		test_f_name = 'test.cpp'
-	else:
-		tp = 'cc'
-		test_f_name = 'test.c'
+	test_f_name = kw['compile_filename']
 
 	# create a small folder for testing
 	dir = os.path.join(self.blddir, '.wscript-trybuild')
@@ -414,7 +415,7 @@ def run_c_code(self, *k, **kw):
 
 	bld.rescan(bld.srcnode)
 
-	o = bld.new_task_gen(tp, kw['type'])
+	o = bld.new_task_gen(kw['compile_mode'], kw['type'])
 	o.source = test_f_name
 	o.target = 'testprog'
 
