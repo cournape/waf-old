@@ -95,7 +95,10 @@ def cmd_and_log(self, cmd, kw):
 	output = p.communicate()[0]
 	if p.returncode:
 		if not kw.get('errmsg', ''):
-			kw['errmsg'] = output.strip()
+			if kw.get('mandatory', False):
+				kw['errmsg'] = output.strip()
+			else:
+				kw['errmsg'] = 'fail'
 		self.fatal('fail')
 	return output
 
