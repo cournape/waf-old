@@ -421,6 +421,9 @@ def detect_qt4(conf):
 	find_bin(['uic-qt3', 'uic3'], 'QT_UIC3')
 
 	find_bin(['uic-qt4', 'uic'], 'QT_UIC')
+	if not env['QT_UIC']:
+		conf.fatal('connot find uic compiler')
+
 	try:
 		version = Utils.cmd_output(env['QT_UIC'] + " -version 2>&1").strip()
 	except ValueError:
