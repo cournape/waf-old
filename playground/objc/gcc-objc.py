@@ -24,6 +24,6 @@ def gccobjc_common_flags(conf):
 @conftest
 def gcc_test_objc(conf):
 	v = conf.env
-	conf.check(msg='Checking for compilation in objc mode', ccflags=v['GCC-OBJC'], linkflags=v['GCC-OBJCLINK'])
+	conf.check(msg='Checking for compilation in objc mode', compile_filename='test.m')
 
 detect = 'gccobjc_common_flags gcc_test_objc'
