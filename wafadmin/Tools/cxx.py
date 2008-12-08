@@ -51,8 +51,6 @@ def apply_obj_vars_cxx(self):
 	# set the library include paths
 	for i in env['CPPPATH']:
 		app('_CXXINCFLAGS', cxxpath_st % i)
-		#print self.env['_CXXINCFLAGS']
-		#print " appending include ",i
 
 	# this is usually a good idea
 	app('_CXXINCFLAGS', cxxpath_st % '.')
