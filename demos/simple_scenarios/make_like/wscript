@@ -20,17 +20,24 @@ def build(bld):
 	# a source file but no outputs
 	bld.new_task_gen(
 		source='wscript',
-		rule='echo ${SRC}',
-		before='cc'
+		rule='echo ${SRC}'
 	)
 
 	# a source file and one output
 	bld.new_task_gen(
 		source='wscript',
+		target='test.k1',
+		rule='cp ${SRC} ${TGT}'
+	)
+
+	# a source file and a target with a more complicated rule
+	bld.new_task_gen(
+		source='wscript',
 		target='test.k',
 		rule='cd ${SRC[0].parent.abspath()} && ./create.py && mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
-		before='cc'
+		before='test.k1'
 	)
+
 
 ########### support code below ###############
 
@@ -44,7 +51,7 @@ def exec_rule(self):
 	if not getattr(self, 'rule', None):
 		return
 
-	name = self.target
+	name = self.target or self.rule
 	cls = Task.simple_task_type(name, self.rule)
 
 	tsk = self.create_task(name)
