@@ -94,7 +94,8 @@ def cmd_and_log(self, cmd, kw):
 	p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True)
 	output = p.communicate()[0]
 	if p.returncode:
-		kw['errmsg'] = output.strip()
+		if not kw.get('errmsg', ''):
+			kw['errmsg'] = output.strip()
 		self.fatal('fail')
 	return output
 
