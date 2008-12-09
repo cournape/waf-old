@@ -793,7 +793,7 @@ def funex(c):
 
 reg_act = re.compile(r"(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 def compile_fun(name, line):
-	"""Compiles a string (once) into an function, eg:
+	"""Compiles a string (once) into a function, eg:
 	simple_task_type('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
 
 	The env variables (CXX, ..) on the task must not hold dicts (order)
