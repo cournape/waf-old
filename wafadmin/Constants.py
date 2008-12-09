@@ -38,7 +38,7 @@ APPNAME = 'APPNAME'
 VERSION = 'VERSION'
 
 DEFINES = 'defines'
-UNDEFINED = '#undefined#variable#for#defines#'
+UNDEFINED = ()
 
 BREAK = "break"
 CONTINUE = "continue"
