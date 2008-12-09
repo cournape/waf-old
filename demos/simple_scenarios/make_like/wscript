@@ -27,13 +27,14 @@ def build(bld):
 	bld.new_task_gen(
 		source='wscript',
 		target='test.k1',
-		rule='cp ${SRC} ${TGT}'
+		rule='echo ${SRC[0].abspath()}/${TGT[0].name} ${TGT};  cp ${SRC} ${TGT}'
 	)
 
 	# no source file but one output, the task is run whenever the variable changes
 	bld.new_task_gen(
 		target='test.k3',
-		rule='echo ${PREFIX} > ${TGT}'
+		rule='echo ${PREFIX} > ${TGT}',
+		vars=['PREFIX']
 	)
 
 	# no input and no output, the task is run when a variable changes
@@ -66,10 +67,8 @@ def exec_rule(self):
 	func = self.rule
 	vars2 = []
 	if isinstance(func, str):
-		(func, vars) = Task.compile_fun('', self.rule)
+		(func, vars2) = Task.compile_fun('', self.rule)
 	vars = getattr(self, 'vars', vars2)
-
-	#print vars2, vars
 
 	# create the task class
 	name = self.target or self.rule
