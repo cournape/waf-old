@@ -30,6 +30,17 @@ def build(bld):
 		rule='cp ${SRC} ${TGT}'
 	)
 
+	# no source file but one output, the task is run whenever the variable changes
+	bld.new_task_gen(
+		target='test.k3',
+		rule='echo ${PREFIX} > ${TGT}'
+	)
+
+	# no input and no output, the task is run when a variable changes
+	bld.new_task_gen(
+		rule='echo ${PREFIX}'
+	)
+
 	# a source file and a target with a more complicated rule
 	bld.new_task_gen(
 		source='wscript',
@@ -51,17 +62,42 @@ def exec_rule(self):
 	if not getattr(self, 'rule', None):
 		return
 
-	name = self.target or self.rule
-	cls = Task.simple_task_type(name, self.rule)
+	# get the function and the variables
+	func = self.rule
+	vars2 = []
+	if isinstance(func, str):
+		(func, vars) = Task.compile_fun('', self.rule)
+	vars = getattr(self, 'vars', vars2)
 
+	#print vars2, vars
+
+	# create the task class
+	name = self.target or self.rule
+	cls = Task.task_type_from_func(name, func, vars)
+
+	# now create one instance
 	tsk = self.create_task(name)
-	tsk.inputs=[self.path.find_resource(x) for x in self.to_list(self.source)]
+
+	# we assume that the user knows that without inputs or outputs
+	#if not getattr(self, 'target', None) and not getattr(self, 'source', None):
+	#	cls.quiet = True
+
 	if getattr(self, 'target', None):
-		tsk.outputs=[self.path.find_or_declare(x) for x in self.to_list(self.target)]
-	else:
 		cls.quiet = True
+		tsk.outputs=[self.path.find_or_declare(x) for x in self.to_list(self.target)]
+
+	if getattr(self, 'source', None):
+		cls.quiet = True
+		tsk.inputs=[self.path.find_resource(x) for x in self.to_list(self.source)]
+
+	if getattr(self, 'always', None):
+		always_run(cls)
 
 	for x in ['after', 'before']:
 		setattr(cls, x, getattr(self, x, []))
 
+def always_run(cls):
+	def always(self):
+		return Constants.RUN_ME
+	cls.runnable_status = always
 
