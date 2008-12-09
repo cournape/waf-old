@@ -1,8 +1,12 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2008 (ita)
+# Thomas Nagy, 2008 (pvm)
 
-# illustrate how to enable a makefile-like syntax
+# Illustrate how to enable a makefile-like syntax
+#
+# WARNING: this wscript file is the source of some of the tasks
+# if you modify it, the files will be rebuilt
+#
 
 VERSION= '0.0.1'
 APPNAME= 'make_like'
@@ -56,8 +60,7 @@ def build(bld):
 		before='test.k1'
 	)
 
-
-	# no input and no output, the task is executed from a function
+	# no input and no output, the task executes a function
 	def run(self):
 		print 'hi there'
 
