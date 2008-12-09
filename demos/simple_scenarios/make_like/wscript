@@ -57,6 +57,16 @@ def build(bld):
 	)
 
 
+	# no input and no output, the task is executed from a function
+	def run(self):
+		print 'hi there'
+
+	bld.new_task_gen(
+		name='hi',
+		rule=run
+	)
+
+
 ########### support code below ###############
 
 from TaskGen import feature, before, taskgen
@@ -78,7 +88,7 @@ def exec_rule(self):
 	vars = getattr(self, 'vars', vars2)
 
 	# create the task class
-	name = self.target or self.rule
+	name = getattr(self, 'name', None) or self.target or self.rule
 	cls = Task.task_type_from_func(name, func, vars)
 
 	# now create one instance
