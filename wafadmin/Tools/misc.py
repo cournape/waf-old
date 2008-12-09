@@ -130,7 +130,10 @@ def apply_subst(self):
 		node = self.path.find_resource(filename)
 		if not node: raise Utils.WafError('cannot find input file %s for processing' % filename)
 
-		newnode = node.change_ext('')
+		if self.target:
+			newnode = self.path.find_or_declare(self.target)
+		else:
+			newnode = node.change_ext('')
 
 		if self.dict and not self.env['DICT_HASH']:
 			self.env = self.env.copy()
