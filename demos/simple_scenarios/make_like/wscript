@@ -21,7 +21,7 @@ def build(bld):
 	bld.new_task_gen(
 		source='wscript',
 		target='test.k1',
-		rule='echo ${SRC[0].abspath()}/${TGT[0].name} ${TGT};  cp ${SRC} ${TGT}'
+		rule='cp ${SRC} ${TGT}'
 	)
 
 	# a source file but no outputs
@@ -36,7 +36,7 @@ def build(bld):
 		rule='echo ${PREFIX} > ${TGT}',
 	)
 
-	# no input and no output (execute when PREFIX changes)
+	# no inputs and no outputs (execute when PREFIX changes)
 	bld.new_task_gen(
 		rule='echo ${PREFIX}'
 	)
