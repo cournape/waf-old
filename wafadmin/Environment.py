@@ -96,13 +96,11 @@ class Environment(object):
 				value = copy.copy(value)
 			else:
 				value = [value]
-			self.table[key] = value
-			return value
 		else:
 			if not isinstance(value, list):
 				value = [value]
-				self.table[key] = value
-			return value
+		self.table[key] = value
+		return value
 
 	def append_value(self, var, value):
 		current_value = self._get_list_value_for_modification(var)
