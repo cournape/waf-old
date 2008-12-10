@@ -160,6 +160,8 @@ def parse_args_impl(parser, _args=None):
 		if not Logs.verbose: Logs.verbose = 1
 	elif Logs.verbose > 0:
 		Logs.zones = ['runner']
+	if Logs.verbose > 2:
+		Logs.zones = ['*']
 
 class Handler(object):
 	"loads wscript modules in folders for adding options"
