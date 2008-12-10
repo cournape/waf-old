@@ -412,14 +412,6 @@ def msvc_common_flags(conf):
 
 	v['LINKFLAGS']           = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
 
-	try:
-		debug_level = Options.options.debug_level.upper()
-	except AttributeError:
-		debug_level = ccroot.DEBUG_LEVELS.CUSTOM
-	v['CCFLAGS']   += v['CCFLAGS_'+debug_level]
-	v['CXXFLAGS']  += v['CXXFLAGS_'+debug_level]
-	v['LINKFLAGS'] += v['LINKFLAGS_'+debug_level]
-
 	# shared library
 	v['shlib_CCFLAGS']  = ['']
 	v['shlib_CXXFLAGS'] = ['']
@@ -432,12 +424,4 @@ def msvc_common_flags(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
-
-def set_options(opt):
-	opt.add_option('-d', '--debug-level',
-	action = 'store',
-	default = ccroot.DEBUG_LEVELS.DEBUG,
-	help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
-	choices = ccroot.DEBUG_LEVELS.ALL,
-	dest = 'debug_level')
 
