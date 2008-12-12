@@ -448,7 +448,7 @@ def detect_qt4(conf):
 	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
 		vars_debug = [a+'_debug' for a in vars]
 
-		pkgconfig = env['pkg-config'] or 'PKGCONFIG_PATH=%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib pkg-config --silence-errors' % (qtlibs, qtlibs)
+		pkgconfig = env['pkg-config'] or 'PKG_CONFIG_PATH=%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib pkg-config --silence-errors' % (qtlibs, qtlibs)
 		for i in vars_debug+vars:
 			try:
 				conf.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)

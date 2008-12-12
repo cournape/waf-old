@@ -4,6 +4,7 @@ NEW IN WAF 1.5.2
 * make nasm output files more robust to collisions
 * minor osx fixes (add the flags -undefined dynamic_lookup)
 * pkg-config fixes
+* fix the qt4 detection for multiple installations
 * include processing fixes
 
 NEW IN WAF 1.5.1
