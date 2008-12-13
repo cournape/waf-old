@@ -71,8 +71,10 @@ def build(bld):
 		rule=run
 	)
 
-	# no source file but one output (execute when the actual output changes)
+	# the dependant task copy_svnversion is executed
+	# when the actual output of svnversion changes (on_results attribute)
 	bld.new_task_gen(
+		name='svnversion',
 		target='ver.h',
 		rule='svnversion > ${TGT[0].abspath(env)}',
 		cwd=bld.path.abspath(),
@@ -80,6 +82,13 @@ def build(bld):
 		on_results=True
 	)
 
+	bld.new_task_gen(
+		name='copy_svnversion',
+		after='svnversion',
+		source='ver.h',
+		target='ver2.h',
+		rule='cp ${SRC} ${TGT}'
+	)
 
 ########### support code below ###############
 
