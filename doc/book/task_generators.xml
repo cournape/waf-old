@@ -9,9 +9,9 @@
 	</para>
 
 	<section>
-		<title>Make-like scheme for simple transformations</title>
+		<title>Explicit processing for simple transformations (Make-like)</title>
 		<para>
-			For simple transformation, a make-like scheme enables the creation of tasks by means of task generators. This scheme preserves the lazyness (tasks are instantiated when they are actually needed) and the encapsulation of tasks. The rules must declare explicitely the transformations to perform:
+			For simple transformations, a make-like scheme enables the creation of tasks by means of task generators. The task is created lazily, for example only if waf is called from a subdirectory of the project containing the declaration. The rules must declare the transformations to perform explicitely:
 		<programlisting language="python">
 	# a source file and one output
 	bld.new_task_gen(
@@ -63,6 +63,9 @@
 		rule=run
 	)
 			</programlisting>
+		</para>
+		<para>
+			By binding the rule to the actual declaration, <emphasis>this system limits code reuse</emphasis>. For this reason, it is recommended for solving very specific problems in which a library would not make sense. The creation of lots of small rules may also impact performance negatively.
 		</para>
 	</section>
 
@@ -194,7 +197,7 @@ processing the tst attribute: hello, world
 	</section>
 
 	<section>
-		<title>Setting the order of task generator method calls</title>
+		<title>Task generator method ordering</title>
 		<para>
 			In practice, the code for generating tasks has to be shared between different task generators. For example, applications containing different programming languages such as c and c++ at the same time will require a way to create the tasks without duplicating the source code, and by calling the methods in the right order.
 			<graphic format="png" fileref="posting.png" align="center"/>
@@ -212,6 +215,10 @@ from TaskGen import before, after, taskgen
 def asm_incflags(self):
 	if self.env['ASINCFLAGS']: self.env['_ASINCFLAGS'] = self.env['ASINCFLAGS']
 			</programlisting>
+		</para>
+
+		<para>
+			Methods may be disabled by other methods by modifying the <emphasis>meths</emphasis> attribute. TODO
 		</para>
 	</section>
 		<!--para>
