@@ -45,7 +45,7 @@ def build(bld):
 		rule='echo ${PREFIX}'
 	)
 
-	# no input and no output, the task is always executed
+	# no input and no output, ('always' attribute -> the task is always executed)
 	bld.new_task_gen(
 		rule="echo 'task always run'",
 		always=True
@@ -53,10 +53,12 @@ def build(bld):
 
 	# a source file and a target with a more complicated
 	# rule and a constraint on the order (before)
+	# a cwd attribute may be provided to set the directory to execute from
 	bld.new_task_gen(
 		source='wscript',
 		target='test.k',
-		rule='cd ${SRC[0].parent.abspath()} && ./create.py && mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
+		rule='./create.py && mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
+		cwd=bld.path.abspath(),
 		before='test.k1'
 	)
 
@@ -111,6 +113,9 @@ def exec_rule(self):
 
 	if getattr(self, 'always', None):
 		always_run(cls)
+
+	if getattr(self, 'cwd', None):
+		tsk.cwd = self.cwd
 
 	for x in ['after', 'before']:
 		setattr(cls, x, getattr(self, x, []))
