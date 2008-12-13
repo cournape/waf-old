@@ -11,42 +11,63 @@
 	<section>
 		<title>Explicit processing for simple transformations (Make-like)</title>
 		<para>
-			For simple transformations, a make-like scheme enables the creation of tasks by means of task generators. The task is created lazily, for example only if waf is called from a subdirectory of the project containing the declaration. The rules must declare the transformations to perform explicitely:
+			For simple transformations, a make-like scheme enables the creation of tasks by means of task generators. The task is created lazily, for example only if waf is called from a subdirectory of the project containing the declaration.
+		</para>
+
+		<sect2>
+			<title>Simple rules</title>
+		<para>
+			The following examples illustrate how to perform simple rule-based transformations, the attribute <emphasis>rule</emphasis> is mandatory, but the input or output files are optional:
 		<programlisting language="python">
-	# a source file and one output
-	bld.new_task_gen(
+	bld.new_task_gen( <co id="tg1-co" linkends="tg1"/>
 		source='wscript',
 		target='test.k1',
 		rule='cp ${SRC} ${TGT}'
 	)
 
-	# a source file but no outputs
-	bld.new_task_gen(
+	bld.new_task_gen( <co id="tg2-co" linkends="tg2"/>
 		source='wscript',
 		rule='echo ${SRC}'
 	)
 
-	# no source file but one output (execute when PREFIX changes)
-	bld.new_task_gen(
+	bld.new_task_gen( <co id="tg3-co" linkends="tg3"/>
 		target='test.k3',
 		rule='echo ${PREFIX} > ${TGT}',
 	)
 
-	# no inputs and no outputs (execute when PREFIX changes)
-	bld.new_task_gen(
+	bld.new_task_gen( <co id="tg4-co" linkends="tg4"/>
 		rule='echo ${PREFIX}'
 	)
+		</programlisting>
+			<calloutlist>
+				<callout arearefs="tg1-co" id="tg1">
+					<para>A basic example with an input and an output. The task is run whenever the input or the rule change</para>
+				</callout>
+				<callout arearefs="tg2-co" id="tg2">
+					<para>The task will run whenever the input or the rule change, but there is no output</para>
+				</callout>
+				<callout arearefs="tg3-co" id="tg3">
+					<para>Creates a task with no input, the output is regenerated whenever the PREFIX variable changes</para>
+				</callout>
+				<callout arearefs="tg4-co" id="tg4">
+					<para>Creates a task without inputs our outputs, it is run whenever the PREFIX variable changes</para>
+				</callout>
+			</calloutlist>
+		</para>
+		</sect2>
 
-	# no input and no output, ('always' attribute -> the task is always executed)
-	bld.new_task_gen(
+		<sect2>
+			<title>Advanced features</title>
+		<para>
+			The next examples illustrate various attributes which may be used to change the behaviour of the task execution.
+
+		<programlisting language="python">
+	bld.new_task_gen( <co id="tg5-co" linkends="tg5"/>
 		rule="echo 'task always run'",
 		always=True
 	)
 
-	# a source file and a target with a more complicated
-	# rule and a constraint on the order (before)
-	# a cwd attribute may be provided to set the directory to execute from
-	bld.new_task_gen(
+	bld.new_task_gen( <co id="tg6-co" linkends="tg6"/>
 		source='wscript',
 		target='test.k',
 		rule='./create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
@@ -54,16 +75,28 @@
 		before='test.k1'
 	)
 
-	# no input and no output, the task executes a function
 	def run(self):
 		print 'hi there'
 
-	bld.new_task_gen(
+	bld.new_task_gen( <co id="tg7-co" linkends="tg7"/>
 		name='hi',
 		rule=run
 	)
 			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="tg5-co" id="tg5">
+					<para>Make a task which is always run (always)</para>
+				</callout>
+				<callout arearefs="tg6-co" id="tg6">
+					<para>Demonstrates how to add an ordering constraint (before), and the directory from which the command is run (cwd)</para>
+				</callout>
+				<callout arearefs="tg7-co" id="tg7">
+					<para>Rules may be given as functions. In this case the task has no input or output files</para>
+				</callout>
+			</calloutlist>
 		</para>
+		</sect2>
 		<para>
 			By binding the rule to the actual declaration, <emphasis>this system limits code reuse</emphasis>. For this reason, it is recommended for solving very specific problems in which a library would not make sense. The creation of lots of small rules may also impact performance negatively.
 		</para>
