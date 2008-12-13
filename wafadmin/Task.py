@@ -827,9 +827,10 @@ def compile_fun(name, line):
 	c = '''
 def f(task):
 	env = task.env
+	wd = getattr(task, 'cwd', None)
 	p = env.get_flat
-	cmd = "%s" %s
-	return task.generator.bld.exec_command(cmd)
+	cmd = "%s" % s
+	return task.generator.bld.exec_command(cmd, cwd=wd)
 ''' % (line, parm)
 
 	debug('action: %s' % c)

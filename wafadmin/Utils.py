@@ -124,19 +124,19 @@ class ordered_dict(UserDict):
 		if key not in self.allkeys: self.allkeys.append(key)
 		UserDict.__setitem__(self, key, item)
 
-def exec_command(s, shell=1, log=None):
-	proc = pproc.Popen(s, shell=shell, stdout=log, stderr=log)
+def exec_command(s, shell=1, log=None, cwd=None):
+	proc = pproc.Popen(s, shell=shell, stdout=log, stderr=log, cwd=cwd)
 	return proc.wait()
 
 if is_win32:
 	old_log = exec_command
-	def exec_command(s, shell=1, log=None):
+	def exec_command(s, shell=1, log=None, cwd=None):
 		# TODO very long command-lines are unlikely to be used in the configuration
 		if len(s) < 2000: return old_log(s, shell=shell, log=log)
 
 		startupinfo = pproc.STARTUPINFO()
 		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
-		proc = pproc.Popen(s, shell=False, startupinfo=startupinfo)
+		proc = pproc.Popen(s, shell=False, startupinfo=startupinfo, cwd=cwd)
 		return proc.wait()
 
 listdir = os.listdir
@@ -378,8 +378,8 @@ def check_dir(dir):
 		except OSError, e:
 			raise WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
 
-def cmd_output(cmd, e=None, silent=False):
-	p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True, env=e)
+def cmd_output(cmd, e=None, silent=False, cwd=None):
+	p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True, env=e, cwd=cwd)
 	output = p.communicate()[0]
 	if p.returncode:
 		if not silent:
