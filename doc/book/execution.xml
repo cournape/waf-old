@@ -131,16 +131,16 @@ Your archive is ready -> test-0.0.1.tar.bz2
 		</para>
 	</section>
 	<section>
-		<title>Building a project</title>
+		<title>Building a project - Introduction to Tasks</title>
 		<para>
-			The function <emphasis>build</emphasis> is used for two purposes:
+			The function <emphasis>build</emphasis> indicates the start of the actual construction of the software, it is used for two main purposes:
 			<itemizedlist>
-				<listitem>Indicating new scripts that provide build functions to call</listitem>
-				<listitem>Declaring the targets to build</listitem>
+				<listitem>Declaring the location of scripts that provide other build functions</listitem>
+				<listitem>Declaring the actual targets to build</listitem>
 			</itemizedlist>
 		</para>
 		<sect2>
-			<title>Providing wscript files in sub folders</title>
+			<title>Subdirectory recursion</title>
 			<para>
 			The function build may reference build functions in wscript present in sub folders, for example:
 			<programlisting language="sh">
@@ -159,9 +159,20 @@ def build(bld):
 			</para>
 		</sect2>
 		<sect2>
-			<title>Declaring Waf tasks</title>
+			<title>Waf task declaration</title>
 			<para>
-			We will now introduce the concept of task. In Waf, tasks represent individual units of change. By change, we mean the production of one or several files, by which the process cannot be split in sub-tasks (atomicity). Waf uses objects of the class TaskBase (in the Waf library) to represent the tasks:
+			The process of building a piece of software require the transformation of source code (input) into the result (output). Since the source code is usually split in various files, the construction of the result requires the processing of each of the files. Several new concepts derive from this:
+			<itemizedlist>
+				<listitem>Intermediate results (object files) may be produced to speed up the build (no need to rebuild everything when small changes occur)</listitem>
+				<listitem>Source files may be processed in parallel to speed up the build</listitem>
+				<listitem>Source files may be transformed into other source files (sequences of transformations)</listitem>
+			</itemizedlist>
+			</para>
+			<para>
+				In a more general scope, the input necessary for a build may come from <emphasis>arbitrary data</emphasis> instead of files (database, commands to execute). The concepts of <emphasis>input, output and transformation</emphasis> and the <emphasis>transformation constraints</emphasis> (in parallel, in sequence) remain identical.
+			</para>
+			<para>
+				In Waf, the operation of transforming data is performed by <emphasis>tasks</emphasis>, which are instances of the class TaskBase (in the Waf library). The tasks in the following example illustrate the declaration of Tasks from the base class. The task instances must be located in a build context (the function build) to be taken into account in the build phase, and to obtain the reference on the source and build folders:
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
@@ -193,9 +204,9 @@ Compilation finished successfully (00:00:00)
 			</para>
 		</sect2>
 		<sect2>
-			<title>The task generators</title>
+			<title>Task generator encapsulation</title>
 			<para>
-			The tasks provided in the previous example do not do anything useful, and in practice it is desirable to automate their production. For example, if a lot of c files are provided and are to be processed into an application, a task generator will take all the source files and produce the tasks with the appropriate dependencies (compile and then assemble the object files at the end). Waf provides various task generators by default.
+				In practice, when lots of tasks are declared one by one, scripts tend to become complicated, and contain a lot of redundant code. Special objects named <emphasis>task generators</emphasis> are provided to facilitate the creation of several tasks at once. In the following example, a task generator is used to create the compilation and link tasks needed by a c++ project.
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
@@ -204,11 +215,8 @@ def configure(conf):
     conf.check_tool('gcc')
 
 def build(bld):
-    main = bld.new_task_gen('cc', 'program')
-    main.source = 'main.c test.c'
-    main.target = 'test_c_program'
+    bld.new_task_gen(features='cc cprogram', source='main.c test.c', target='myapp')
 			</programlisting>
-			The bld parameter in the function build represents the build context, it enables the creation of task generators.
 			This example provides a modified <emphasis>configure</emphasis> function, which is the topic of the next section. The task generator system and the default generators will be reviewed in detail in <xref  linkend="task_gen"/>.
 			</para>
 		</sect2>
