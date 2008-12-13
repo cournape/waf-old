@@ -59,7 +59,7 @@
 		<sect2>
 			<title>Advanced features</title>
 		<para>
-			The next examples illustrate various attributes which may be used to change the behaviour of the task execution.
+			The next examples illustrate various attributes which may be used to alter task execution.
 
 		<programlisting language="python">
 	bld.new_task_gen( <co id="tg5-co" linkends="tg5"/>
@@ -82,6 +82,23 @@
 		name='hi',
 		rule=run
 	)
+
+	bld.new_task_gen( <co id="tg8-co" linkends="tg8"/>
+		name='svnversion',
+		target='ver.h',
+		rule='svnversion > ${TGT[0].abspath(env)}',
+		cwd=bld.path.abspath(),
+		always=True,
+		on_results=True
+	)
+
+	bld.new_task_gen(
+		name='copy_svnversion',
+		after='svnversion',
+		source='ver.h',
+		target='ver2.h',
+		rule='cp ${SRC} ${TGT}'
+	)
 			</programlisting>
 
 			<calloutlist>
@@ -89,10 +106,13 @@
 					<para>Make a task which is always run (always)</para>
 				</callout>
 				<callout arearefs="tg6-co" id="tg6">
-					<para>Demonstrates how to add an ordering constraint (before), and the directory from which the command is run (cwd)</para>
+					<para>Demonstrates how to add an ordering constraint (attribute <emphasis>before</emphasis>), and the directory from which the command is run (attribute <emphasis>cwd</emphasis>)</para>
 				</callout>
 				<callout arearefs="tg7-co" id="tg7">
 					<para>Rules may be given as functions. In this case the task has no input or output files</para>
+				</callout>
+				<callout arearefs="tg8-co" id="tg8">
+					<para>the dependant task copy_svnversion is executed when the actual output of svnversion changes (attribute <emphasis>on_results</emphasis>)</para>
 				</callout>
 			</calloutlist>
 		</para>
