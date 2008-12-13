@@ -106,7 +106,7 @@
 					<para>Make a task which is always run (attribute <emphasis>always</emphasis>)</para>
 				</callout>
 				<callout arearefs="tg6-co" id="tg6">
-					<para>Demonstrates how to add an ordering constraint (attribute <emphasis>before</emphasis>) to execute that task before the task that produces test.k1, and the directory from which the command is run (attribute <emphasis>cwd</emphasis>)</para>
+					<para>Demonstrates how to add an ordering constraint (attribute <emphasis>before</emphasis>) to execute the rule before the one that produces test.k1. It also demonstrates how to set the directory from which the command is run (attribute <emphasis>cwd</emphasis>)</para>
 				</callout>
 				<callout arearefs="tg7-co" id="tg7">
 					<para>Rules may be given as functions. In this case the task has no input or output files</para>
