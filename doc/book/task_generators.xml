@@ -3,13 +3,121 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
 <chapter id="task_gen">
-	<title>Task creation automation using task generators</title>
+	<title>Task encapsulation using task generators</title>
 	<para>
-		Although task instances may be created directly, they act like global variables in the scripts, and they may lead to the creation of spaghetti code. Special containers called task generators are used for creating the tasks and keeping track of them.
+		Although task instances may be created directly, they act like global variables in the scripts, and they may lead to the creation of spaghetti code. The containers named task generators are used for creating the tasks and keeping track of them.
 	</para>
 
 	<section>
-		<title>Task generator method example</title>
+		<title>Make-like scheme for simple transformations</title>
+		<para>
+			For simple transformation, a make-like scheme enables the creation of tasks by means of task generators. This scheme preserves the lazyness (tasks are instantiated when they are actually needed) and the encapsulation of tasks. The rules must declare explicitely the transformations to perform:
+		<programlisting language="python">
+	# a source file and one output
+	bld.new_task_gen(
+		source='wscript',
+		target='test.k1',
+		rule='cp ${SRC} ${TGT}'
+	)
+
+	# a source file but no outputs
+	bld.new_task_gen(
+		source='wscript',
+		rule='echo ${SRC}'
+	)
+
+	# no source file but one output (execute when PREFIX changes)
+	bld.new_task_gen(
+		target='test.k3',
+		rule='echo ${PREFIX} > ${TGT}',
+	)
+
+	# no inputs and no outputs (execute when PREFIX changes)
+	bld.new_task_gen(
+		rule='echo ${PREFIX}'
+	)
+
+	# no input and no output, ('always' attribute -> the task is always executed)
+	bld.new_task_gen(
+		rule="echo 'task always run'",
+		always=True
+	)
+
+	# a source file and a target with a more complicated
+	# rule and a constraint on the order (before)
+	# a cwd attribute may be provided to set the directory to execute from
+	bld.new_task_gen(
+		source='wscript',
+		target='test.k',
+		rule='./create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
+		cwd=bld.path.abspath(),
+		before='test.k1'
+	)
+
+	# no input and no output, the task executes a function
+	def run(self):
+		print 'hi there'
+
+	bld.new_task_gen(
+		name='hi',
+		rule=run
+	)
+			</programlisting>
+		</para>
+	</section>
+
+	<section>
+		<title>Implicit processing based on file name or extension</title>
+		<para>
+			Providing rules explicitely is interesting, but most of the time, several files with the same file extension are processed identically.
+			The method apply_core is used to process the source files ..
+		</para>
+		<para>
+			A special method named <emphasis>apply_core</emphasis> provides file extension processing using the attribute <emphasis>source</emphasis>. On the user side, this takes the following form:
+			<programlisting language="python">
+def build(bld):
+	main = bld.new_task_gen()
+	main.features = ['cc', 'program']
+	main.source = 'main.c foo.c bar.c'
+	main.target = 'my_app'
+			</programlisting>
+			The method to process <emphasis>.c</emphasis> files (main.c) is called automatically by <emphasis>apply_core</emphasis>, and is declared in the following manner:
+			<programlisting language="python">
+from TaskGen import extension
+
+@extension('.c')
+def c_hook(self, node):
+    task = self.create_task('cc')
+    try: obj_ext = self.obj_ext
+    except AttributeError: obj_ext = '_%d.o' % self.idx
+
+    task.defines  = self.scanner_defines
+    task.inputs = [node]
+    task.outputs = [node.change_ext(obj_ext)]
+    self.compiled_tasks.append(task)
+			</programlisting>
+		</para>
+		<para>
+			When the method <emphasis>apply_core</emphasis> is called, the following operations are performed:
+			<orderedlist>
+				<listitem>If a method is mapped (<emphasis>@extension</emphasis>) to a name listed in sources, it is called with that name as a parameter</listitem>
+				<listitem>The names that do not have a mapping are supposed to be files and are transformed into Node instances</listitem>
+				<listitem>For each node (temporary variable <emphasis>self.allnodes</emphasis>), a method corresponding to the file extension is applied</listitem>
+			</orderedlist>
+		</para>
+
+		<para>
+			In this system, the list of sources for an application does not have to exactly represent files. Also, methods may re-inject new nodes to process by extension (in the temporary variable <emphasis>self.allnodes</emphasis>), without keeping an exact reference on the method that will be called.
+		</para>
+
+	</section>
+
+
+	<section>
+		<title>Custom processing by task generator methods</title>
+		<para>
+			In some cases we want to create additional tasks directly from a method and plug the code in some specific location before reinjecting the output files as source files.
+		</para>
 		<para>
 			Let us pretend we want to add a new attribute 'tst' to task generators, and call a method to print the contents of that attribute:
 			<programlisting language="python">
@@ -86,7 +194,7 @@ processing the tst attribute: hello, world
 	</section>
 
 	<section>
-		<title>Task generator method call order</title>
+		<title>Setting the order of task generator method calls</title>
 		<para>
 			In practice, the code for generating tasks has to be shared between different task generators. For example, applications containing different programming languages such as c and c++ at the same time will require a way to create the tasks without duplicating the source code, and by calling the methods in the right order.
 			<graphic format="png" fileref="posting.png" align="center"/>
@@ -106,48 +214,6 @@ def asm_incflags(self):
 			</programlisting>
 		</para>
 	</section>
-	<section>
-		<title>File extension processing</title>
-		<para>
-			A special method named <emphasis>apply_core</emphasis> provides file extension processing using the attribute <emphasis>source</emphasis>. On the user side, this takes the following form:
-			<programlisting language="python">
-def build(bld):
-	main = bld.new_task_gen()
-	main.features = ['cc', 'program']
-	main.source = 'main.c foo.c bar.c'
-	main.target = 'my_app'
-			</programlisting>
-			The method to process <emphasis>.c</emphasis> files (main.c) is called automatically by <emphasis>apply_core</emphasis>, and is declared in the following manner:
-			<programlisting language="python">
-from TaskGen import extension
-
-@extension('.c')
-def c_hook(self, node):
-    task = self.create_task('cc')
-    try: obj_ext = self.obj_ext
-    except AttributeError: obj_ext = '_%d.o' % self.idx
-
-    task.defines  = self.scanner_defines
-    task.inputs = [node]
-    task.outputs = [node.change_ext(obj_ext)]
-    self.compiled_tasks.append(task)
-			</programlisting>
-		</para>
-		<para>
-			When the method <emphasis>apply_core</emphasis> is called, the following operations are performed:
-			<orderedlist>
-				<listitem>If a method is mapped (<emphasis>@extension</emphasis>) to a name listed in sources, it is called with that name as a parameter</listitem>
-				<listitem>The names that do not have a mapping are supposed to be files and are transformed into Node instances</listitem>
-				<listitem>For each node (temporary variable <emphasis>self.allnodes</emphasis>), a method corresponding to the file extension is applied</listitem>
-			</orderedlist>
-		</para>
-
-		<para>
-			In this system, the list of sources for an application does not have to exactly represent files. Also, methods may re-inject new nodes to process by extension (in the temporary variable <emphasis>self.allnodes</emphasis>), without keeping an exact reference on the method that will be called.
-		</para>
-
-	</section>
-
 		<!--para>
 			In the past, Waf used to provide Task generators using a hierarchy of classes. This system was unmaintainable for the following reasons:
 			<itemizedlist>
