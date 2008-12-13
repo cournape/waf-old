@@ -142,6 +142,10 @@ def exec_rule(self):
 		setattr(cls, x, getattr(self, x, []))
 
 def always_run(cls):
+	"""Set all task instances of this class to be executed whenever a build is started
+	The task signature is calculated, but the result of the comparation between
+	task signatures is bypassed
+	"""
 	old = cls.runnable_status
 	def always(self):
 		old(self)
