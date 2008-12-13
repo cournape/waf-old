@@ -130,42 +130,14 @@ def exec_rule(self):
 		tsk.inputs=[self.path.find_resource(x) for x in self.to_list(self.source)]
 
 	if getattr(self, 'always', None):
-		always_run(cls)
+		Task.always_run(cls)
 
 	if getattr(self, 'cwd', None):
 		tsk.cwd = self.cwd
 
 	if getattr(self, 'on_results', None):
-		update_outputs(cls)
+		Task.update_outputs(cls)
 
 	for x in ['after', 'before']:
 		setattr(cls, x, getattr(self, x, []))
-
-def always_run(cls):
-	"""Set all task instances of this class to be executed whenever a build is started
-	The task signature is calculated, but the result of the comparation between
-	task signatures is bypassed
-	"""
-	old = cls.runnable_status
-	def always(self):
-		old(self)
-		return Constants.RUN_ME
-	cls.runnable_status = always
-
-def update_outputs(cls):
-	"""When a command is always run, it is possible that the output only change
-	sometimes. By default the build node have as a hash the signature of the task
-	which may not change. With this, the output nodes (produced) are hashed,
-	and the hashes are set to the build nodes
-
-	This may avoid unnecessary recompilations, but it uses more resources
-	(hashing the output files) so it is not used by default
-	"""
-	old_post_run = cls.post_run
-	def post_run(self):
-		old_post_run(self)
-		bld = self.outputs[0].__class__.bld
-		bld.node_sigs[self.env.variant()][self.outputs[0].id] = \
-		Utils.h_file(self.outputs[0].abspath(self.env))
-	cls.post_run = post_run
 
