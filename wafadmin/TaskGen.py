@@ -445,6 +445,9 @@ def extension(var):
 # TODO make certain the decorators may be used here
 
 def apply_core(self):
+	"""Process the attribute source
+	transform the names into file nodes
+	try to process the files by name first, later by extension"""
 	# get the list of folders to use by the scanners
 	# all our objects share the same include paths anyway
 	find_resource = self.path.find_resource
@@ -472,6 +475,8 @@ def apply_core(self):
 feature('*')(apply_core)
 
 def exec_rule(self):
+	"""Process the attribute rule, when provided the method apply_core will be disabled
+	"""
 	if not getattr(self, 'rule', None):
 		return
 
