@@ -147,32 +147,6 @@ class task_gen(object):
 		if type(value) is types.StringType: return value.split()
 		else: return value
 
-	def apply_core(self):
-		# get the list of folders to use by the scanners
-		# all our objects share the same include paths anyway
-		find_resource = self.path.find_resource
-
-		for filename in self.to_list(self.source):
-			# if self.mappings or task_gen.mappings contains a file of the same name
-			x = self.get_hook(filename)
-			if x:
-				x(self, filename)
-			else:
-				node = find_resource(filename)
-				if not node: raise Utils.WafError("source not found: '%s' in '%s'" % (filename, str(self.path)))
-				self.allnodes.append(node)
-
-		for node in self.allnodes:
-			# self.mappings or task_gen.mappings map the file extension to a function
-			filename = node.name
-			k = max(0, filename.rfind('.'))
-			x = self.get_hook(filename[k:])
-
-			if not x:
-				raise Utils.WafError( "Do not know how to process %s in %s, mappings are %s" % \
-					(str(node), str(self.__class__), str(self.__class__.mappings)))
-			x(self, node)
-
 	def apply(self):
 		"order the methods to execute using self.prec or task_gen.prec"
 		keys = set(self.meths)
@@ -218,8 +192,6 @@ class task_gen(object):
 		if prec: raise Utils.WafError("graph has a cycle %s" % str(prec))
 		out.reverse()
 		self.meths = out
-
-		if not out: out.append(self.apply_core.__name__)
 
 		# then we run the methods in order
 		debug('task_gen: posting %s %d' % (self, id(self)))
@@ -469,4 +441,83 @@ def extension(var):
 		task_gen.mapped[func.__name__] = func
 		return func
 	return deco
+
+# TODO make certain the decorators may be used here
+
+def apply_core(self):
+	# get the list of folders to use by the scanners
+	# all our objects share the same include paths anyway
+	find_resource = self.path.find_resource
+
+	for filename in self.to_list(self.source):
+		# if self.mappings or task_gen.mappings contains a file of the same name
+		x = self.get_hook(filename)
+		if x:
+			x(self, filename)
+		else:
+			node = find_resource(filename)
+			if not node: raise Utils.WafError("source not found: '%s' in '%s'" % (filename, str(self.path)))
+			self.allnodes.append(node)
+
+	for node in self.allnodes:
+		# self.mappings or task_gen.mappings map the file extension to a function
+		filename = node.name
+		k = max(0, filename.rfind('.'))
+		x = self.get_hook(filename[k:])
+
+		if not x:
+			raise Utils.WafError("Do not know how to process %s in %s, mappings are %s" % \
+				(str(node), str(self.__class__), str(self.__class__.mappings)))
+		x(self, node)
+feature('*')(apply_core)
+
+def exec_rule(self):
+	if not getattr(self, 'rule', None):
+		return
+
+	# someone may have removed it already
+	try:
+		self.meths.remove('apply_core')
+	except ValueError:
+		pass
+
+	# get the function and the variables
+	func = self.rule
+	vars2 = []
+	if isinstance(func, str):
+		(func, vars2) = Task.compile_fun('', self.rule)
+	vars = getattr(self, 'vars', vars2)
+
+	# create the task class
+	name = getattr(self, 'name', None) or self.target or self.rule
+	cls = Task.task_type_from_func(name, func, vars)
+
+	# now create one instance
+	tsk = self.create_task(name)
+
+	# we assume that the user knows that without inputs or outputs
+	#if not getattr(self, 'target', None) and not getattr(self, 'source', None):
+	#	cls.quiet = True
+
+	if getattr(self, 'target', None):
+		cls.quiet = True
+		tsk.outputs=[self.path.find_or_declare(x) for x in self.to_list(self.target)]
+
+	if getattr(self, 'source', None):
+		cls.quiet = True
+		tsk.inputs=[self.path.find_resource(x) for x in self.to_list(self.source)]
+
+	if getattr(self, 'always', None):
+		Task.always_run(cls)
+
+	if getattr(self, 'cwd', None):
+		tsk.cwd = self.cwd
+
+	if getattr(self, 'on_results', None):
+		Task.update_outputs(cls)
+
+	for x in ['after', 'before']:
+		setattr(cls, x, getattr(self, x, []))
+feature('*')(exec_rule)
+before('apply_core')(exec_rule)
 
