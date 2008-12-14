@@ -13,7 +13,7 @@ def decide_ext(self, node):
 
 TaskGen.declare_chain(
 	name = 'flex',
-	action = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}',
+	rule = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}',
 	ext_in = '.l',
 	decider = decide_ext,
 	before = 'cc cxx',
