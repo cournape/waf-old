@@ -50,7 +50,7 @@ from Constants import *
 
 algotype = NORMAL
 #algotype = JOBCONTROL
-#algotype = MAXPARALLEL
+algotype = MAXPARALLEL
 
 """
 Enable different kind of dependency algorithms:
@@ -62,6 +62,34 @@ In theory 1. will be faster than 2 for waf, but might be slower for builds
 The scheme 2 will not allow for running tasks one by one so it can cause disk thrashing on huge builds
 
 """
+
+FILE_DEPS = False
+def file_deps(tasks):
+	"""Infer dependencies from task input and output nodes
+	"""
+
+	v = {}
+	for x in tasks:
+		try:
+			(ins, outs) = v[x.env.variant()]
+		except KeyError:
+			ins = {}
+			outs = {}
+			v[x.env.variant()] = (ins, outs)
+
+		for a in getattr(x, 'inputs', []):
+			try: ins[a.id].append(x)
+			except KeyError: ins[a.id] = [x]
+		for a in getattr(x, 'outputs', []):
+			try: outs[a.id].append(x)
+			except KeyError: outs[a.id] = [x]
+
+	for n in v.values():
+		links = set(ins.keys()).intersection(outs.keys())
+		for k in links:
+			for a in ins[k]:
+				for b in outs[k]:
+					a.set_run_after(b)
 
 class TaskManager(object):
 	"""The manager is attached to the build object, it holds a list of TaskGroup"""
@@ -130,6 +158,8 @@ class TaskGroup(object):
 	def prepare(self):
 		"prepare the scheduling"
 		self.ready = 1
+		if FILE_DEPS:
+			file_deps(self.tasks)
 		self.make_cstr_groups()
 		self.extract_constraints()
 
