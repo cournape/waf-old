@@ -10,7 +10,7 @@ Custom objects:
 
 import shutil, re, os, types
 import TaskGen, Node, Task, Utils, Build, pproc, Constants
-from TaskGen import feature, taskgen, after
+from TaskGen import feature, taskgen, after, before
 from Logs import debug
 
 def copy_func(tsk):
@@ -53,11 +53,13 @@ class copy_taskgen(TaskGen.task_gen):
 
 @taskgen
 @feature('copy')
+@before('apply_core')
 def apply_copy(self):
 	Utils.def_attrs(self, fun=copy_func)
 	self.default_install_path = 0
 
 	lst = self.to_list(self.source)
+	self.meths.remove('apply_core')
 
 	for filename in lst:
 		node = self.path.find_resource(filename)
@@ -119,10 +121,12 @@ class subst_taskgen(TaskGen.task_gen):
 
 @taskgen
 @feature('subst')
+@before('apply_core')
 def apply_subst(self):
 	Utils.def_attrs(self, fun=subst_func)
 	self.default_install_path = 0
 	lst = self.to_list(self.source)
+	self.meths.remove('apply_core')
 
 	self.dict = getattr(self, 'dict', {})
 
