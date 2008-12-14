@@ -65,6 +65,18 @@ class Node(object):
 
 		if parent: parent.childs[name] = self
 
+	def __setstate__(self, data):
+		if len(data) == 4:
+			(self.parent, self.name, self.id, self.childs) = data
+		else:
+			(self.parent, self.name, self.id) = data
+
+	def __getstate__(self):
+		if getattr(self, 'childs', None):
+			return (self.parent, self.name, self.id, self.childs)
+		else:
+			return (self.parent, self.name, self.id)
+
 	def __str__(self):
 		if not self.parent: return ''
 		return "%s://%s" % (type_to_string[self.id & 3], self.abspath())
