@@ -188,10 +188,15 @@ def libname_msvc(self, libname, is_static=False):
 @taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
-def apply_obj_vars(self):
+@before('apply_obj_vars')
+def apply_obj_vars_msvc(self):
 	# drop-in replacement for apply_obj_vars from ccroot. taskgen and
 	# priority settings must be kept in sync with apply_obj_vars's settings.
-	debug('msvc: apply_msvc_obj_vars called for msvc')
+	try:
+		self.meths.remove('apply_obj_vars')
+	except ValueError:
+		pass
+
 	env = self.env
 	app = env.append_unique
 
@@ -254,7 +259,7 @@ def init_msvc(self):
 	# msvc specific init. must be called after init_cc/init_cxx but before
 	# any of their @before declarations.
 	try: getattr(self, 'libpaths')
-	except AttributeError: self.libpaths=[]
+	except AttributeError: self.libpaths = []
 
 static_link_str = '${STLIBLINK} ${STLINKFLAGS} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
 Task.simple_task_type('msvc_ar_link_static', static_link_str, color='YELLOW', ext_in='.o')
