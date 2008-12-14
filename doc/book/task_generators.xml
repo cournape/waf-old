@@ -135,7 +135,7 @@
 import TaskGen
 TaskGen.declare_chain(
     name = 'luac',
-    action = '${LUAC} -s -o ${TGT} ${SRC}',
+    rule = '${LUAC} -s -o ${TGT} ${SRC}',
     ext_in = '.lua',
     ext_out = '.luac',
     reentrant = 0,
