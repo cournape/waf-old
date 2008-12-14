@@ -84,8 +84,8 @@ def file_deps(tasks):
 			try: outs[a.id].append(x)
 			except KeyError: outs[a.id] = [x]
 
-	for n in v.values():
-		links = set(ins.keys()).intersection(outs.keys())
+	for (ins, outs) in v.values():
+		links = set(ins.iterkeys()).intersection(outs.iterkeys())
 		for k in links:
 			for a in ins[k]:
 				for b in outs[k]:
