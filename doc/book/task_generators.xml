@@ -36,7 +36,7 @@
 	)
 
 	bld.new_task_gen( <co id="tg4-co" linkends="tg4"/>
-		rule='echo ${PREFIX}'
+		rule='echo 1337'
 	)
 		</programlisting>
 			<calloutlist>
@@ -50,7 +50,7 @@
 					<para>Creates a task with no input, the output is regenerated whenever the PREFIX variable changes</para>
 				</callout>
 				<callout arearefs="tg4-co" id="tg4">
-					<para>Creates a task without inputs our outputs, it is run whenever the PREFIX variable changes</para>
+					<para>Creates a task without inputs our outputs, it is run whenever the rule text changes</para>
 				</callout>
 			</calloutlist>
 		</para>
