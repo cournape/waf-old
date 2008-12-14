@@ -369,6 +369,8 @@ def check(self, *k, **kw):
 		kw['success'] = ret
 
 	self.post_check(*k, **kw)
+	if not kw.get('execute', False):
+		return ret == 0
 	return ret
 
 @conf
