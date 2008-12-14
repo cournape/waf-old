@@ -163,7 +163,7 @@ def vala_file(self, node):
 				valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath())
 				valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath(self.env))
 			except AttributeError:
-				Params.warning("Unable to locate Vala API directory: '%s'" % vapi_dir)
+				Logs.warn("Unable to locate Vala API directory: '%s'" % vapi_dir)
 
 		if hasattr(self, 'threading'):
 			valatask.threading = self.threading

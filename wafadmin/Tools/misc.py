@@ -383,7 +383,7 @@ use command_is_external=True''') % (self.command,)
 		assert isinstance(self.stderr, basestring)
 		stderr = self.path.find_or_declare(self.stderr)
 		if stderr is None:
-			Params.fatal("File %s not found" % (self.stderr,))
+			raise Utils.WafError("File %s not found" % (self.stderr,))
 		outputs.append(stderr)
 
 	if self.stdin is None:
