@@ -346,7 +346,7 @@ def post_check(self, *k, **kw):
 				# remove trailing slash
 				if type(val) == types.StringType:
 					val = val.rstrip(os.path.sep)
-				self.env.append_value(k + '_' + kw['uselib_store'], val)
+				self.env.append_unique(k + '_' + kw['uselib_store'], val)
 
 @conf
 def check(self, *k, **kw):
@@ -545,7 +545,7 @@ def write_config_header(self, configfile='', env='', guard=''):
 
 	dir = os.path.join(dir, lst[-1])
 
-	self.env.append_value('waf_config_files', os.path.abspath(dir))
+	self.env.append_unique('waf_config_files', os.path.abspath(dir))
 
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
 
