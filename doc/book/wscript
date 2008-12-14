@@ -79,9 +79,7 @@ def build(bld):
 		for x in files:
 			if x == '.svn':
 				continue
-			foo = bld.new_task_gen('copy')
-			foo.source = k+'/'+x
-			foo.target = x
+			bld.new_task_gen(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
 
 	# now the files are copied ..
 
