@@ -29,9 +29,9 @@ def msvc_linker(task):
 	libdirs = e.get_flat('_LIBDIRFLAGS')
 	libs = e.get_flat('_LIBFLAGS')
 
-	subsystem=''
-	if task.subsystem:
-		subsystem='/subsystem:%s' % task.subsystem
+	subsystem = getattr(task.generator, subsystem, '')
+	if subsystem:
+		subsystem = '/subsystem:%s' % subsystem
 	outfile=task.outputs[0].bldpath(e)
 	manifest=outfile+'.manifest'
 	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
@@ -40,7 +40,7 @@ def msvc_linker(task):
 
 	objs=" ".join(['"%s"' % a.abspath(e) for a in task.inputs])
 
-	cmd="%s %s %s%s %s%s %s %s %s" % (linker,subsystem,srcf,objs,trgtf,outfile, linkflags, libdirs,libs)
+	cmd = "%s %s %s%s %s%s %s %s %s" % (linker, subsystem, srcf, objs, trgtf, outfile, linkflags, libdirs, libs)
 
 	# workaround: when run with shell=True, got the following error:
 	# 'C:\Program' is not recognized as an internal or external command, operable program or batch file.
@@ -60,9 +60,9 @@ def msvc_linker(task):
 		mode = ''
 		# embedding mode. Different for EXE's and DLL's.
 		# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
-		if 'cprogram' in task.features:
+		if 'cprogram' in task.generator.features:
 			mode = '1'
-		elif 'cshlib' in task.features:
+		elif 'cshlib' in task.generator.features:
 			mode = '2'
 
 		debug('msvc: embedding manifest')
@@ -235,32 +235,14 @@ def apply_obj_vars(self):
 
 @taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
-@after('apply_core')
-def apply_link(self):
-	# drop-in replacement for apply_link from ccroot. taskgen and priority
-	# settings must be kept in sync with apply_link's settings.
-	# if we are only building .o files, tell which ones we built
-	if 'objects' in self.features:
-		self.out_nodes = []
-		app = self.out_nodes.append
-		for t in self.compiled_tasks: app(t.outputs[0])
-		return
-
-	# use a custom linker is specified (self.link)
+@before('apply_link')
+def apply_link_msvc(self):
 	link = getattr(self, 'link', None)
 	if not link:
 		if 'cstaticlib' in self.features: link = 'msvc_ar_link_static'
 		elif 'cxx' in self.features: link = 'msvc_cxx_link'
 		else: link = 'msvc_cc_link'
-	linktask = self.create_task(link)
-
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_or_declare(ccroot.get_target_name(self)))
-
-	linktask.features = self.features
-	linktask.subsystem = getattr(self, 'subsystem', '')
-	self.link_task = linktask
+	self.link = link
 
 @taskgen
 @feature('cc', 'cxx')
@@ -270,8 +252,8 @@ def apply_link(self):
 @before('apply_core')
 def init_msvc(self):
 	# msvc specific init. must be called after init_cc/init_cxx but before
-	# any of their @before declarations. 
-	try: _libpaths=getattr(self,'libpaths')
+	# any of their @before declarations.
+	try: getattr(self, 'libpaths')
 	except AttributeError: self.libpaths=[]
 
 static_link_str = '${STLIBLINK} ${STLINKFLAGS} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
