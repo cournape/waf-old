@@ -6,6 +6,7 @@ NEW IN WAF 1.5.2
 * pkg-config fixes
 * fix the qt4 detection for multiple installations
 * include processing fixes
+* remove the default include paths (unresolved dependencies)
 
 NEW IN WAF 1.5.1
 ----------------
