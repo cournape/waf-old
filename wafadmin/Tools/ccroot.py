@@ -50,10 +50,11 @@ def scan(self):
 			if id(x) in seen: continue
 			seen.append(id(x))
 			all_nodes.append(x)
+		# TODO: use a set
 		for x in gruik.names:
 			if not x in all_names:
 				all_names.append(x)
-	return (all_nodes, gruik.names)
+	return (all_nodes, all_names)
 
 class ccroot_abstract(TaskGen.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
