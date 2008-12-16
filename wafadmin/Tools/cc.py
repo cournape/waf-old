@@ -49,13 +49,6 @@ def apply_obj_vars_cc(self):
 	for i in env['CPPPATH']:
 		app('_CCINCFLAGS', cpppath_st % i)
 
-	# this is usually a good idea
-	app('_CCINCFLAGS', cpppath_st % '.')
-	app('_CCINCFLAGS', cpppath_st % env.variant())
-	tmpnode = self.path
-	app('_CCINCFLAGS', cpppath_st % tmpnode.bldpath(env))
-	app('_CCINCFLAGS', cpppath_st % tmpnode.srcpath(env))
-
 @feature('cc')
 def apply_defines_cc(self):
 	tree = Build.bld

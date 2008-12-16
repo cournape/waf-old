@@ -52,13 +52,6 @@ def apply_obj_vars_cxx(self):
 	for i in env['CPPPATH']:
 		app('_CXXINCFLAGS', cxxpath_st % i)
 
-	# this is usually a good idea
-	app('_CXXINCFLAGS', cxxpath_st % '.')
-	app('_CXXINCFLAGS', cxxpath_st % self.env.variant())
-	tmpnode = self.path
-	app('_CXXINCFLAGS', cxxpath_st % tmpnode.bldpath(env))
-	app('_CXXINCFLAGS', cxxpath_st % tmpnode.srcpath(env))
-
 @feature('cxx')
 def apply_defines_cxx(self):
 	self.defines = getattr(self, 'defines', [])
