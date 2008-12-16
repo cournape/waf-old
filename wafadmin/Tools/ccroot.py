@@ -215,7 +215,7 @@ def apply_link(self):
 		# both the .so and .so.x must be present in the build dir
 		# for darwin the version number is forcibly undefined for a lack of specs
 		if getattr(self, 'vnum', None):
-			if sys.platform == 'darwin':
+			if sys.platform == 'darwin' or sys.platform == 'win32':
 				self.vnum = ''
 			else:
 				link = 'vnum_' + link
