@@ -421,6 +421,7 @@ class c_parser(object):
 		self.nodes.append(found)
 		if filename[-4:] != '.moc':
 			self.addlines(found)
+		return found
 
 	def addlines(self, node):
 
