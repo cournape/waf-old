@@ -33,11 +33,11 @@ def detect(conf):
 
 	cc = os.path.basename(''.join(v['CC']).lower())
 	cxx = os.path.basename(''.join(v['CXX']).lower())
-	
+
 	# remove trailing " from windows paths
 	cc=re.sub('"', '',cc)
 	cxx=re.sub('"', '',cxx)
-	
+
 	# find rc.exe
 	if cc in ['gcc', 'cc', 'g++', 'c++']:
 		winrc = conf.find_program('windres', var='WINRC')
@@ -48,7 +48,7 @@ def detect(conf):
 		v['WINRC_TGT_F'] = '/fo '
 		v['WINRC_SRC_F'] = ' '
 	else:
-		return 0
+		winrc = None
 
 	if not winrc:
 		conf.fatal('winrc was not found!!')
