@@ -72,10 +72,10 @@ class Node(object):
 			(self.parent, self.name, self.id) = data
 
 	def __getstate__(self):
-		if getattr(self, 'childs', None):
-			return (self.parent, self.name, self.id, self.childs)
-		else:
+		if getattr(self, 'childs', None) is None:
 			return (self.parent, self.name, self.id)
+		else:
+			return (self.parent, self.name, self.id, self.childs)
 
 	def __str__(self):
 		if not self.parent: return ''
