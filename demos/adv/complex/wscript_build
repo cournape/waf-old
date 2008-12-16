@@ -21,7 +21,7 @@
 # it also processes coin files, defined in the dang.py module (coin hook)
 obj = bld.new_task_gen('cxx', 'shlib')
 obj.find_sources_in_dirs('. gui')
-obj.includes='.'
+obj.includes='. ..'
 obj.uselib='GLIB'
 obj.target='shlib3'
 obj.want_libtool=1
@@ -104,6 +104,7 @@ genmain.argv = [misc.input_file('main.cpp')]
 obj = bld.new_task_gen('cxx', 'program')
 obj.source = 'main1.cpp'
 obj.target = 'main1'
+obj.includes = '..'
 
 foo = bld.new_task_gen('copy')
 foo.source = 'main.cpp'

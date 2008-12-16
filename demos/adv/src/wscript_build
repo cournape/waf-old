@@ -21,7 +21,7 @@ obj = bld.new_task_gen('cxx', 'program')
 obj.source='''
 main.cpp ih.coin
 '''
-obj.includes='.'
+obj.includes='. ..'
 obj.defines='bidule=34'
 obj.uselib='GLIB DEFTEST'
 obj.target='testprogram2'
@@ -32,7 +32,7 @@ obj = bld.new_task_gen('cc', 'shlib')
 obj.source='''
 stuff.c
 '''
-obj.includes='.'
+obj.includes='. ..'
 obj.target='shlib1'
 obj.vnum='4.2.1'
 obj.want_libtool=1
