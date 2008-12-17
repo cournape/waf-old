@@ -197,7 +197,7 @@ def configure(conf):
 			</programlisting>
 			<calloutlist>
 				<callout arearefs="cc1-co" id="cc1">
-					<para>Try to compile a program using the configuration header time.h, if present on the system, if the test is successful, the define TIME_H will be added</para>
+					<para>Try to compile a program using the configuration header time.h, if present on the system, if the test is successful, the define HAVE_TIME_H will be added</para>
 				</callout>
 				<callout arearefs="cc2-co" id="cc2">
 					<para>Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). The parameter mandatory will make the test raise an exception if it fails.</para>
