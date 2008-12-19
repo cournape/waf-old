@@ -33,7 +33,7 @@ def apply_gcj(self):
 	src_nodes = []
 	bld_nodes = []
 
-	all_at_once = getattr(self, 'gcj_once', None)
+	all_at_once = getattr(self, 'gcjonce', None)
 
 	prefix_path = source_root_node.abspath()
 	for (root, dirs, filenames) in os.walk(source_root_node.abspath()):
