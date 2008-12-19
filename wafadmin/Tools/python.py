@@ -213,30 +213,30 @@ extern "C" {
 int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 '''
 
-	result = 1
+	result = False
 	name = 'python' + env['PYTHON_VERSION']
 
 	if python_LIBDIR is not None:
 		path = [python_LIBDIR]
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
 
-	## try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)
-	if result and python_LIBPL is not None:
+	# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)
+	if not result and python_LIBPL is not None:
 		path = [python_LIBPL]
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
 
-	## try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)
-	if result:
+	# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)
+	if not result:
 		path = [os.path.join(python_prefix, "libs")]
 		name = 'python' + env['PYTHON_VERSION'].replace('.', '')
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
 
-	if not result:
+	if result:
 		env['LIBPATH_PYEMBED'] = path
 		env.append_value('LIB_PYEMBED', name)
 
-	## under certain conditions, python extensions must link to
-	## python libraries, not just python embedding programs.
+	# under certain conditions, python extensions must link to
+	# python libraries, not just python embedding programs.
 	if (sys.platform == 'win32' or sys.platform.startswith('os2')
 		or sys.platform == 'darwin' or Py_ENABLE_SHARED):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
