@@ -26,5 +26,5 @@ def build(bld):
 	obj.source_root = 'src'
 	obj.target = 'test'
 	obj.gcjlinkflags = '--main=es.Hello'
-	#obj.gcjonce = True
+	obj.gcjonce = True
 

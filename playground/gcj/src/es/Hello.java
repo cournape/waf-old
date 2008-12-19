@@ -1,5 +1,7 @@
 package es; // obligatory
 
+import es.Comp;
+
 public class Hello
 {
 	int m_var = 0;
@@ -28,7 +30,7 @@ public class Hello
 
 	public static void main(String args[])
 	{
-		System.out.println("Hello, world");
+		System.out.println("Hello, world" + Comp.WAF);
 	}
 }
 
