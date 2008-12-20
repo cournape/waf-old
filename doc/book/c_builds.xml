@@ -147,20 +147,60 @@ build/
 
 	<section id="include_sys">
 		<title>The include system</title>
+		<sect2>
+			<title>The Waf preprocessor</title>
 		<para>
-			Include paths are used by the c/c++ compilers for finding the headers. Though some compilers (gcc) can use the folder of the source file for finding other includes implicitly, Waf requires the explicit list of the include paths. When one header changes, the files are recompiled automatically.
+			Include paths are used by the c/c++ compilers for finding the headers. When one header changes, the files are recompiled automatically.
+		</para>
+		<para>
+			Waf uses a preprocessor written in Python for finding the headers. In most cases, a simple parser that looks at #include statements would be enough, but it would not catch constructs such as:
+		<programlisting language="c">
+#define mymacro "foo.h"
+#include mymacro
+		</programlisting>
+		Using the compiler for finding the dependencies would not work in the general case: for programs using the Qt libraries, the includes of moc files must be detected by the build system to trigger the generation of moc files before the files are compiled. The c compiler could not preprocess such files.
+		<programlisting>
+#include "foo.moc"
+		</programlisting>
 		</para>
 
-		<para>
-			Waf uses a preprocessor written in Python for finding the headers. By default the preprocessing is limited to the paths within the project. To enable the preprocessor to find system headers, use the following code:
-			<programlisting language="python">
+		</sect2>
+
+		<sect2>
+			<title>Portability recommandations</title>
+			<para>
+				By default, the preprocessing does not climb to system headers. This may lead to missed depdendencies in the cases similar to the following:
+				<programlisting language="c">
+#if SOMEMACRO
+	// an include in the project
+	#include "foo.h"
+#endif
+				</programlisting>
+				Variables defined by compilers internally or defined in system headers may be missed by the Waf preprocessor. To write portable code, the conditions used in the project should be defined in a <emphasis>config.h</emphasis> file.
+			</para>
+
+			<para>Nevertheless, it is possible to enable the preprocessor to look into system headers, use the following code:
+				<programlisting language="python">
 import preproc
 preproc.go_absolute = True
-			</programlisting>
-		</para>
-		<para>
-			To include files conditionally, it is recommended to check the define conditions during the configuration, to store them in a <filename>config.h</filename> file, and to use simple #if/endif blocks. Variables defined by compilers internally or defined in system headers may be missed by the Waf preprocessor.
-		</para>
+				</programlisting>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Debugging dependencies</title>
+			<para>
+				The Waf preprocessor contains a specific debugging zone:
+				<programlisting language="shell">
+$ waf --zones=preproc
+				</programlisting>
+				To display the dependencies obtained or missed, use the following:
+				<programlisting language="shell">
+$ waf --zones=deps
+				</programlisting>
+				The dependency computation is performed only when the files are not up-to-date, so these commands will display something only when there is a file to compile.
+			</para>
+		</sect2>
 	</section>
 
 	<section>
