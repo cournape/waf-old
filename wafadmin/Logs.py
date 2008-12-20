@@ -51,6 +51,8 @@ class log_filter(logging.Filter):
 		if rec.levelno >= logging.INFO:
 			if rec.levelno >= logging.ERROR:
 				rec.c1 = colors.RED
+			elif rec.levelno >= logging.WARNING:
+				rec.c1 = colors.YELLOW
 			else:
 				rec.c1 = colors.GREEN
 			return True
