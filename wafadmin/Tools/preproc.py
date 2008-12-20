@@ -415,10 +415,10 @@ class c_parser(object):
 		if not found:
 			if not filename in self.names:
 				self.names.append(filename)
-			return
-		self.nodes.append(found)
-		if filename[-4:] != '.moc':
-			self.addlines(found)
+		else:
+			self.nodes.append(found)
+			if filename[-4:] != '.moc':
+				self.addlines(found)
 		return found
 
 	def addlines(self, node):
@@ -461,12 +461,12 @@ class c_parser(object):
 			self.lines = [('define', x) for x in env['DEFLINES']] + self.lines
 
 		while self.lines:
-			(type, line) = self.lines.pop(0)
-			if type == POPFILE:
+			(kind, line) = self.lines.pop(0)
+			if kind == POPFILE:
 				self.currentnode_stack.pop()
 				continue
 			try:
-				self.process_line(type, line)
+				self.process_line(kind, line)
 			except Exception, e:
 				if Logs.verbose:
 					error("line parsing failed (%s): %s" % (str(e), line))
@@ -501,11 +501,11 @@ class c_parser(object):
 			if m and m.group(0) in self.defs: state[-1] = ignored
 			else: state[-1] = accepted
 		elif token == 'include' or token == 'import':
-			(type, inc) = extract_include(line, self.defs)
+			(kind, inc) = extract_include(line, self.defs)
 			if inc in self.ban_includes: return
 			if token == 'import': self.ban_includes.append(inc)
-			if ve: debug('preproc: include found %s    (%s) ' % (inc, type))
-			if type == '"' or not strict_quotes:
+			if ve: debug('preproc: include found %s    (%s) ' % (inc, kind))
+			if kind == '"' or not strict_quotes:
 				self.tryfind(inc)
 		elif token == 'elif':
 			if state[-1] == accepted:
@@ -671,12 +671,12 @@ if __name__ == "__main__":
 		self.addlines(filename)
 		#print self.lines
 		while self.lines:
-			(type, line) = self.lines.pop(0)
-			if type == POPFILE:
+			(kind, line) = self.lines.pop(0)
+			if kind == POPFILE:
 				self.currentnode_stack.pop()
 				continue
 			try:
-				self.process_line(type, line)
+				self.process_line(kind, line)
 			except Exception, e:
 				if Logs.verbose:
 					error("line parsing failed (%s): %s" % (str(e), line))
