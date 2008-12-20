@@ -29,7 +29,7 @@ def msvc_linker(task):
 	libdirs = e.get_flat('_LIBDIRFLAGS')
 	libs = e.get_flat('_LIBFLAGS')
 
-	subsystem = getattr(task.generator, subsystem, '')
+	subsystem = getattr(task.generator, 'subsystem', '')
 	if subsystem:
 		subsystem = '/subsystem:%s' % subsystem
 	outfile=task.outputs[0].bldpath(e)
