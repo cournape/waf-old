@@ -45,7 +45,7 @@ def scan(self):
 		gruik.start(node, self.env)
 		if Logs.verbose:
 			debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.nodes), str(gruik.names)))
-			debug('deps: deps found for %s: %s' % (str(node), str(gruik.deps)))
+			#debug('deps: deps found for %s: %s' % (str(node), str(gruik.deps)))
 		for x in gruik.nodes:
 			if id(x) in seen: continue
 			seen.append(id(x))

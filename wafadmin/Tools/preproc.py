@@ -382,8 +382,6 @@ class c_parser(object):
 		self.env   = None # needed for the variant when searching for files
 
 		self.count_files = 0
-		self.deps  = []
-		self.deps_paths = []
 		self.currentnode_stack = []
 
 		self.nodepaths = nodepaths or []
@@ -508,8 +506,6 @@ class c_parser(object):
 			if token == 'import': self.ban_includes.append(inc)
 			if ve: debug('preproc: include found %s    (%s) ' % (inc, type))
 			if type == '"' or not strict_quotes:
-				if not inc in self.deps:
-					self.deps.append(inc)
 				self.tryfind(inc)
 		elif token == 'elif':
 			if state[-1] == accepted:
@@ -668,7 +664,6 @@ if __name__ == "__main__":
 				np = os.path.join(p, filename)
 				# screw Qt two times
 				if filename[-4:] != '.moc': self.addlines(np)
-				self.deps_paths.append(np)
 				found = 1
 	c_parser.tryfind = tryfind
 
@@ -731,8 +726,8 @@ if __name__ == "__main__":
 
 	gruik.start_local(arg)
 	print("we have found the following dependencies")
-	print(gruik.deps)
-	print(gruik.deps_paths)
+	print(gruik.nodes)
+	print(gruik.names)
 
 	#f = open(arg, "r")
 	#txt = f.read()
