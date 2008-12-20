@@ -47,8 +47,7 @@ def apply_link_osx(self):
 		name = self.link_task.outputs[0].name
 		if self.vnum: name = name.replace('.dylib', '.%s.dylib' % self.vnum)
 
-		# XXX: lib is not defined <- what about solving the problem then???????
-		path = os.path.join(self.env['PREFIX'], lib, name)
+		path = os.path.join(self.env['PREFIX'], 'lib', name)
 		path = '-install_name %s' % path
 		self.env.append_value('LINKFLAGS', path)
 
