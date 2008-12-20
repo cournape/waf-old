@@ -131,6 +131,10 @@ def vars_target_cprogram(self):
 @before('apply_core')
 def vars_target_cstaticlib(self):
 	self.default_install_path = '${PREFIX}/lib'
+	if sys.platform in ['win32', 'cygwin']:
+		# on win32, libraries need the execute bit, else we
+		# get 'permission denied' when using them (issue 283)
+		self.default_chmod = O755
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @after('apply_objdeps', 'apply_link')
