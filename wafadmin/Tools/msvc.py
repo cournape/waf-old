@@ -185,13 +185,13 @@ def libname_msvc(self, libname, is_static=False):
 
 	return None
 
-@taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
 @before('apply_obj_vars')
 def apply_obj_vars_msvc(self):
-	# drop-in replacement for apply_obj_vars from ccroot. taskgen and
-	# priority settings must be kept in sync with apply_obj_vars's settings.
+	if self.env['CC_NAME'] != 'msvc':
+		return
+
 	try:
 		self.meths.remove('apply_obj_vars')
 	except ValueError:
@@ -238,7 +238,6 @@ def apply_obj_vars_msvc(self):
 			if libname != None:
 				app('LINKFLAGS', libname)
 
-@taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @before('apply_link')
 def apply_link_msvc(self):
@@ -252,7 +251,6 @@ def apply_link_msvc(self):
 		self.vnum = ''
 	self.link = link
 
-@taskgen
 @feature('cc', 'cxx')
 @after('init_cc')
 @after('init_cxx')
