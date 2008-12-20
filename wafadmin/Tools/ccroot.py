@@ -44,13 +44,12 @@ def scan(self):
 		gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'], defines = self.defines)
 		gruik.start(node, self.env)
 		if Logs.verbose:
-			debug('deps: nodes found for %s: %s %s' % (str(node), str(gruik.nodes), str(gruik.names)))
-			#debug('deps: deps found for %s: %s' % (str(node), str(gruik.deps)))
+			debug('deps: deps for %s: %s; unresolved %s' % (str(node), str(gruik.nodes), str(gruik.names)))
 		for x in gruik.nodes:
 			if id(x) in seen: continue
 			seen.append(id(x))
 			all_nodes.append(x)
-		# TODO: use a set
+		# TODO: use a set ?
 		for x in gruik.names:
 			if not x in all_names:
 				all_names.append(x)
