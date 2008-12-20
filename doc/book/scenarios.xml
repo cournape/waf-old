@@ -123,7 +123,8 @@ build/
 			To use the <emphasis>debug</emphasis> variant, the environment must be given directly, by default, a copy of the environment named <emphasis>default</emphasis> is set:
 			<programlisting language="python">
 def build(bld):
-	prog = bld.new_task_gen('cxx', 'program')
+	prog = bld.new_task_gen()
+	prog.features = 'cxx cprogram'
 	prog.source = 'src1.c'
 	prog.includes = '.'
 	prog.target = 'myprog'
@@ -137,7 +138,8 @@ def build(bld):
 				Task generators may be copied for different variants easily using the <emphasis>clone</emphasis> method. The parameter is the name of the environment to use (not the variant). The named environments are created during the configuration, as shown in the previous subsection.
 			<programlisting language="python">
 def build(bld):
-	prog_in_default = bld.new_task_gen('cxx', 'program')
+	prog_in_default = bld.new_task_gen
+	prog_in_default.features = 'cxx cprogram'
 	prog_in_default.source = 'src1.c'
 	prog_in_default.includes = '.'
 	prog_in_default.target = 'myprog'
@@ -220,14 +222,16 @@ def build(bld):
 			<programlisting language="python">
 def build(bld):
 	# 1. A simple program
-	main = bld.new_task_gen('cc', 'program')
+	main = bld.new_task_gen()
+	main.features = 'cc cprogram'
 	main.source = 'main.c'
 	main.target = 'test_c_program'
 	main.uselib_local = 'teststaticlib'
 	main.svn_header = 'ver.h' <co id="svn1-co" linkends="svn1"/>
 
 	# 2. A simple static lib
-	staticlib = bld.new_task_gen('cc', 'staticlib')
+	staticlib = bld.new_task_gen()
+	staticlib.features = 'cc cstaticlib'
 	staticlib.source = 'test_staticlib.c'
 	staticlib.target = 'teststaticlib'
 
@@ -339,7 +343,8 @@ def configure(conf):
 	conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
 
 def build(bld):
-	staticlib = bld.new_task_gen('cc', 'staticlib')
+	staticlib = bld.new_task_gen()
+	staticlib.features = 'cc cstaticlib'
 	staticlib.source = 'x.c foo.shpip' <co id="exa-co" linkends="exa"/>
 	staticlib.target='teststaticlib'
 	staticlib.includes = '.'

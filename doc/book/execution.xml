@@ -462,7 +462,8 @@ def build(bld):
 				By providing the attribute <emphasis>install_path</emphasis>, tasks generators will install the target (in this example, a program) in the given path.
 				<programlisting language="python">
 def build(bld):
-	main = bld.new_task_gen('cc', 'program')
+	main = bld.new_task_gen()
+	main.features = 'cc cprogram'
 	main.source = 'main.c test.c'
 	main.target = 'test_c_program'
 	main.install_path = '${PREFIX}/sbin'
@@ -475,7 +476,8 @@ def build(bld):
 				To prevent the installation of a target (by default, programs and shared libraries are installed), set <emphasis>install_path</emphasis> to <emphasis>None</emphasis>
 				<programlisting language="python">
 def build(bld):
-	main = bld.new_task_gen('cc', 'program')
+	main = bld.new_task_gen()
+	main.features = 'cc cprogram'
 	main.source = 'main.c test.c'
 	main.target = 'test_c_program'
 	main.install_path = None
