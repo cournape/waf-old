@@ -242,6 +242,8 @@ def apply_obj_vars_msvc(self):
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @before('apply_link')
 def apply_link_msvc(self):
+	if self.env['CC_NAME'] != 'msvc':
+		return
 	link = getattr(self, 'link', None)
 	if not link:
 		if 'cstaticlib' in self.features: link = 'msvc_ar_link_static'
