@@ -11,10 +11,15 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
   obj.mac_bundle = True
 """
 
-import os, shutil, sys
+import os, shutil, sys, platform
 import TaskGen, Task, Build, Options
 from TaskGen import taskgen, feature, after, before
 from Logs import error, debug
+
+if 'MACOSX_DEPLOYMENT_TARGET' not in os.environ:
+	# see issue 285
+	if sys.platform == 'darwin':
+		os.environ['MACOSX_DEPLOYMENT_TARGET'] = '.'.join(platform.mac_ver()[0].split('.')[:2])
 
 @taskgen
 @feature('cc', 'cxx')
