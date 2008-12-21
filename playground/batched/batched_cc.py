@@ -26,12 +26,21 @@ import TaskGen, Task, ccroot, Build
 from TaskGen import extension
 from Constants import *
 
-class TaskMaster(Task.Task):
-	def __init__(self, action_name, env, normal=1, master=None):
-		Task.Task.__init__(self, env, normal=normal)
+class batch_task(Task.Task):
+	#before = 'cc_link cxx_link ar_link_static'
+	before = 'cc_link'
+	after = 'cc cxx'
+	color = 'RED'
+
+	def __str__(self):
+		return '(batch compilation)\n'
+
+	def __init__(self, *k, **kw):
+		Task.Task.__init__(self, *k, **kw)
 		self.slaves=[]
-		self.inputs2=[]
-		self.outputs2=[]
+		self.inputs=[]
+		#self.outputs=[]
+		self.hasrun = 0
 
 	def add_slave(self, slave):
 		self.slaves.append(slave)
@@ -39,80 +48,86 @@ class TaskMaster(Task.Task):
 
 	def runnable_status(self):
 		for t in self.run_after:
-			if not t.hasrun: return ASK_LATER
+			if not t.hasrun:
+				return ASK_LATER
 
 		for t in self.slaves:
-			self.inputs.append(t.inputs[0])
-			self.outputs.append(t.outputs[0])
-			if t.must_run:
-				self.inputs2.append(t.inputs[0])
-				self.outputs2.append(t.outputs[0])
-		return Task.Task.runnable_status(self)
+			#if t.executed:
+			if t.hasrun != SKIPPED:
+				return RUN_ME
+
+		return SKIP_ME
 
 	def run(self):
-		tmpinputs = self.inputs
-		self.inputs = self.inputs2
-		tmpoutputs = self.outputs
-		self.outputs = self.outputs2
+		outputs = []
+		self.outputs = []
 
-		ret = self.action.run(self)
-		env = self.env
+		self.slaves = [t for t in self.slaves if t.hasrun != SKIPPED]
 
-		rootdir = Build.bld.srcnode.abspath(env)
+		for t in self.slaves:
+			self.inputs.extend(t.inputs)
+			outputs.extend(t.outputs)
 
-		# unfortunately building the files in batch mode outputs them in the current folder (the build dir)
-		# now move the files from the top of the builddir to the correct location
-		for i in self.outputs:
-			name = i.name
-			if name[-1] == "s": name = name[:-1] # extension for shlib is .os, remove the s
+		self.env['CC_TGT_F'] = '-c '
+		ret = self.slaves[0].__class__.__dict__['oldrun'](self)
+		if ret:
+			return ret
+
+		self.outputs = outputs
+
+		env = self.slaves[0].env
+		rootdir = self.generator.bld.srcnode.abspath(env)
+
+		# unfortunately building the files in batch mode outputs
+		# them into the current folder (the build dir)
+		# move them to the correct location
+		ext = '_%d' % self.generator.idx
+		for i in outputs:
+			name = i.name.replace(ext, '')
+			#print "moving", name, i.bldpath(env)
 			shutil.move(name, i.bldpath(env))
 
-		self.inputs = tmpinputs
-		self.outputs = tmpoutputs
-
-		return ret
-
-class TaskSlave(Task.Task):
-	def __init__(self, action_name, env, normal=1, master=None):
-		Task.Task.__init__(self, env, normal)
-		self.master = master
-
-	def prepare(self):
-		self.display = "* skipping "+ self.inputs[0].name
-
-	def update_stat(self):
-		self.executed=1
-
-	def runnable_status(self):
-		self.must_run = Task.Task.must_run(self)
-		return self.must_run
-
-	def run(self):
-		return 0
-
-	def can_retrieve_cache(self, sig):
 		return None
 
-@extension(EXT_C)
-def create_task_cxx_new(self, node):
-	try:
-		mm = self.mastertask
-	except AttributeError:
-		mm = TaskMaster("all_"+self.type_initials, self.env)
-		self.mastertask = mm
+	def post_run(self):
+		for t in self.slaves:
+			sig = t.signature()
+			for node in t.outputs:
+				variant = node.variant(t.env)
+				t.generator.bld.node_sigs[variant][node.id] = sig
 
-	task = TaskSlave(self.type_initials, self.env, 40, master=mm)
-	self.tasks.append(task)
-	mm.add_slave(task)
+			t.generator.bld.task_sigs[t.unique_id()] = t.cache_sig
 
-	task.set_inputs(node)
-	task.set_outputs(node.change_ext('.o'))
+from TaskGen import extension
+import cc, cxx
+def wrap(fun):
+	def foo(self, node):
+		task = fun(self, node)
+		if not getattr(self, 'master', None):
+			self.master = self.create_task('batch')
+		self.master.add_slave(task)
+		return task
+	return foo
 
-	self.compiled_tasks.append(task)
+c_hook = wrap(cc.c_hook)
+extension(cc.EXT_CC)(c_hook)
 
-cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} -c ${SRC}'
-Task.simple_task_type('all_cc', cc_str, 'GREEN')
+cxx_hook = wrap(cxx.cxx_hook)
+extension(cxx.EXT_CXX)(cxx_hook)
 
-cpp_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} -c ${SRC}'
-Task.simple_task_type('all_cpp', cpp_str, color='GREEN')
+t = Task.TaskBase.classes['cc']
+def run(self):
+	pass
+
+def post_run(self):
+	#self.executed=1
+	pass
+
+def can_retrieve_cache(self):
+	pass
+
+setattr(t, 'oldrun', t.__dict__['run'])
+setattr(t, 'run', run)
+setattr(t, 'post_run', post_run)
+setattr(t, 'can_retrieve_cache', can_retrieve_cache)
 

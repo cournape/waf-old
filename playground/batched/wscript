@@ -2,7 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2008 (ita)
 
-# test for looking at dependencies with gcc
+"""
+demonstrate how to compile tasks at once by collecting all the .c files
+"""
 
 VERSION='0.0.1'
 APPNAME='cc_test'
@@ -14,10 +16,10 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('gcc')
-	#conf.check_tool('batched_cc', tooldir='.')
+	conf.check_tool('batched_cc', tooldir='.')
 
 def build(bld):
-	bld.new_task_gen(features='cc cprogram', source='main.c foo.c', target='test', includes='.')
+	bld.new_task_gen(features='cc cprogram', source='main.c foo.c bar.c', target='test', includes='.')
 
 def shutdown():
 	import os
