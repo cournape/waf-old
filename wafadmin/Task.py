@@ -50,7 +50,7 @@ from Constants import *
 
 algotype = NORMAL
 #algotype = JOBCONTROL
-algotype = MAXPARALLEL
+#algotype = MAXPARALLEL
 
 """
 Enable different kind of dependency algorithms:
