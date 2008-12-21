@@ -12,8 +12,12 @@ Execute the tasks with gcc -MD, read the dependencies from the .d file
 and prepare the dependency calculation for the nexte run
 """
 
+import threading
 import Task, Logs
 from TaskGen import feature, before, after
+
+lock = threading.Lock()
+
 
 @feature('cc')
 @before('apply_core')
@@ -34,7 +38,9 @@ def scan(self):
 	return (nodes, names)
 
 def post_run(self):
-	#print "post_run!!!", self.outputs[0].abspath(self.env)
+	"""The following code is executed by threads, it is not safe"""
+
+	lock.acquire()
 
 	name = self.outputs[0].abspath(self.env)
 	name = name.rstrip('.o') + '.d'
@@ -54,9 +60,8 @@ def post_run(self):
 	for x in val:
 		if os.path.isabs(x):
 			node = self.generator.bld.root.find_resource(x)
-		if x.startswith('..'):
-			node = self.generator.bld.bldnode.find_resource(x)
 		else:
+			x = x.lstrip('../')
 			node = self.generator.bld.srcnode.find_resource(x)
 
 		if not node:
@@ -71,6 +76,8 @@ def post_run(self):
 
 	delattr(self, 'cache_sig')
 	Task.Task.post_run(self)
+
+	lock.release()
 
 for name in 'cc cxx'.split():
 	try:
