@@ -7,9 +7,16 @@ import preproc
 from Constants import *
 
 """
-We create a pseudo task that runs in the main thread
-to compute the dependencies the slaves then
-obtain their dependencies from it
+We create a ccdeps task that computes the dependencies for others
+
+The compilation tasks are set to run after the ccdeps task
+
+1. the ccdeps task ask its slaves if they have changed
+2. if one of the task has changed, ccdeps computes the dependencies
+   by calling gcc
+3. ccdeps clears the task signatures and marks itself as "skipped"
+4. when each of the compilation task evaluates if it has to run,
+   it asks the ccdeps task for the dependency nodes
 """
 
 ccvars = "CC CCFLAGS CPPFLAGS _CCINCFLAGS _CCDEFFLAGS".split()
@@ -27,6 +34,8 @@ class ccdeps_task(Task.TaskBase):
 		if not self.slaves:
 			return SKIP_ME
 
+		# because we are in the main thread, we may remove
+		# the dependencies for just a moment
 		for x in self.slaves:
 			try:
 				x.run_after.remove(self)
@@ -44,12 +53,16 @@ class ccdeps_task(Task.TaskBase):
 		if to_run == SKIP_ME:
 			return SKIP_ME
 
-		# ARGH!
-		if to_run == ASK_LATER:
-			for x in self.slaves:
-				x.set_run_after(self)
+		# we re-add the dependencies
+		for x in self.slaves:
+			x.set_run_after(self)
 
+		if to_run == ASK_LATER:
 			return ASK_LATER
+
+		return RUN_ME
+
+	def run(self):
 
 		if self.slaves[0].__class__.__name__ == 'cxx':
 			vars = cxxvars
@@ -102,11 +115,6 @@ class ccdeps_task(Task.TaskBase):
 				delattr(x, "cache_sig")
 			except AttributeError:
 				pass
-
-		return SKIP_ME
-
-	def run(self):
-		return None
 
 def scan(self):
 	"new scan function for c/c++ classes"
