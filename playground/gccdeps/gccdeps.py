@@ -114,20 +114,6 @@ def scan(self):
 	nodes = self.master.deps.get(self.outputs[0].name, [])
 	return (nodes, [])
 
-"""
-from TaskGen import extension
-import cc, cxx
-@extension(cc.EXT_CC)
-def c_hook(self, node):
-	task = cc.c_hook(self, node)
-	if not getattr(self, 'master', None):
-		self.master = self.create_task('ccdeps')
-	self.master.slaves.append(task)
-	task.set_run_after(self.master)
-	task.master = self.master
-	return task
-"""
-
 from TaskGen import extension
 import cc, cxx
 def wrap(fun):
@@ -146,7 +132,6 @@ extension(cc.EXT_CC)(c_hook)
 
 cxx_hook = wrap(cxx.cxx_hook)
 extension(cxx.EXT_CXX)(cxx_hook)
-
 
 
 t = Task.TaskBase.classes
