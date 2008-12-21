@@ -8,156 +8,68 @@ import preproc
 from Constants import *
 
 """
-We create a ccdeps task that computes the dependencies for others
-
-The compilation tasks are set to run after the ccdeps task
-
-1. the ccdeps task ask its slaves if they have changed
-2. if one of the task has changed, ccdeps computes the dependencies
-   by calling gcc
-3. ccdeps clears the task signatures and marks itself as "skipped"
-4. when each of the compilation task evaluates if it has to run,
-   it asks the ccdeps task for the dependency nodes
+Execute the tasks with gcc -MD, read the dependencies from the .d file
+and prepare the dependency calculation for the nexte run
 """
 
-ccvars = "CC CCFLAGS CPPFLAGS _CCINCFLAGS _CCDEFFLAGS".split()
-cxxvars = "CXX CXXFLAGS CPPFLAGS _CXXINCFLAGS _CXXDEFFLAGS".split()
+import Task, Logs
+from TaskGen import feature, before, after
 
-class ccdeps_task(Task.TaskBase):
-	color = 'RED'
-
-	def __init__(self, *k, **kw):
-		Task.TaskBase.__init__(self, *k, **kw)
-		self.slaves = []
-		self.deps = {} # map slave id to tuple (nodes, [])
-
-	def runnable_status(self):
-		"""This must be executed from the main thread"""
-
-		if not self.slaves:
-			return SKIP_ME
-
-		# because we are in the main thread, we may remove
-		# the dependencies for just a moment
-		for x in self.slaves:
-			try:
-				x.run_after.remove(self)
-			except ValueError:
-				pass
-
-		to_run = SKIP_ME
-		for x in self.slaves:
-			st = x.runnable_status()
-			if st == RUN_ME:
-				to_run = RUN_ME
-			elif st == ASK_LATER:
-				to_run = ASK_LATER
-
-		if to_run == SKIP_ME:
-			return SKIP_ME
-
-		# we re-add the dependencies
-		for x in self.slaves:
-			x.set_run_after(self)
-
-		if to_run == ASK_LATER:
-			return ASK_LATER
-
-		return RUN_ME
-
-	def run(self):
-		"""All this is for executing gcc and computing the dependencies"""
-
-		if self.slaves[0].__class__.__name__ == 'cxx':
-			vars = cxxvars
-		else:
-			vars = ccvars
-
-		env = self.slaves[0].env
-
-		# obtain the list of c files to process
-		inputs = []
-		for x in self.slaves:
-			inputs.extend(x.inputs)
-		inp = [x.abspath(env) for x in inputs]
-		inp = " ".join(inp)
-
-		# now obtain the command-line
-		vars = [env.get_flat(k) for k in vars]
-		vars.append('-M')
-		vars.append(inp)
-		cmd = " ".join(vars)
-
-		try:
-			deps = Utils.cmd_output(cmd)
-		except ValueError:
-			# errors: let it fail in the chilren tasks to display the errors
-			return ([], [])
-
-		deps = deps.replace('\\\n', '')
-		deps = deps.replace('\x1b[0m', '')
-		deps = deps.strip()
-		for line in deps.split('\n'):
-			lst = line.split(':')
-			name = lst[0]
-
-			val = ":".join(lst[1:])
-			val = val.split()
-
-			nodes = []
-			for x in val:
-				if os.path.isabs(x):
-					node = self.generator.bld.root.find_resource(x)
-				else:
-					node = self.generator.path.find_resource(x)
-				if not node:
-					print "could not find", x
-				else:
-					nodes.append(node)
-
-			# FIXME will not work for nested folders
-			name = name.replace('.o', '')
-			name += '_%d.o' % self.generator.idx
-
-			self.deps[name] = nodes
-
-		# now remove the cached signatures from the slaves
-		for x in self.slaves:
-			try:
-				delattr(x, "cache_sig")
-			except AttributeError:
-				pass
+@feature('cc', 'cxx')
+@before('apply_core')
+def add_mmd(self):
+	if self.env.get_flat('CCFLAGS').find('-MD') < 0:
+		self.env.append_value('CCFLAGS', '-MD')
 
 def scan(self):
-	"new scan function for c/c++ classes"
-	#print self.master.deps, self.run_after
-	nodes = self.master.deps.get(self.outputs[0].name, [])
-	return (nodes, [])
+	"the scanner does not do anything initially"
+	nodes = self.generator.bld.node_deps.get(self.unique_id(), [])
+	names = [] # self.generator.bld.raw_deps.get(self.unique_id(), [])
+	return (nodes, names)
 
-from TaskGen import extension
-import cc, cxx
-def wrap(fun):
-	def foo(self, node):
-		task = fun(self, node)
-		if not getattr(self, 'master', None):
-			self.master = self.create_task('ccdeps')
-		self.master.slaves.append(task)
-		task.set_run_after(self.master)
-		task.master = self.master
-		return task
-	return foo
+def post_run(self):
+	#print "post_run!!!", self.outputs[0].abspath(self.env)
 
-c_hook = wrap(cc.c_hook)
-extension(cc.EXT_CC)(c_hook)
+	name = self.outputs[0].abspath(self.env)
+	name = name.rstrip('.o') + '.d'
 
-cxx_hook = wrap(cxx.cxx_hook)
-extension(cxx.EXT_CXX)(cxx_hook)
+	f = open(name, 'r')
+	txt = f.read()
+	f.close()
+	os.unlink(name)
 
+	lst = txt.strip().split(':')
+	val = ":".join(lst[1:])
+	val = val.split()
 
-t = Task.TaskBase.classes
-if 'cc' in t:
-	t['cc'].scan = scan
+	nodes = []
+	for x in val:
+		if os.path.isabs(x):
+			node = self.generator.bld.root.find_resource(x)
+		if x.startswith('..'):
+			node = self.generator.bld.bldnode.find_resource(x)
+		else:
+			node = self.generator.bld.srcnode.find_resource(x)
 
-if 'cxx' in t:
-	t['cxx'].scan = scan
+		if not node:
+			raise ValueError, 'could not find' + x
+		else:
+			nodes.append(node)
+
+	Logs.debug('deps: scanner for %s returned %s' % (str(self), str(nodes)))
+
+	self.generator.bld.node_deps[self.unique_id()] = nodes
+	self.generator.bld.raw_deps[self.unique_id()] = []
+
+	delattr(self, 'cache_sig')
+	Task.Task.post_run(self)
+
+for name in 'cc cxx'.split():
+	try:
+		cls = Task.TaskBase.classes[name]
+	except KeyError:
+		pass
+	else:
+		cls.post_run = post_run
+		cls.scan = scan
 
