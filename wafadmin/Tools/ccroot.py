@@ -284,8 +284,15 @@ def apply_lib_vars(self):
 			if v in uselib: continue
 			uselib = [v]+uselib
 
-		if not getattr(y, 'no_export', None):
-			self.env.append_unique('INC_PATHS', y.env['INC_PATHS'])
+		# if the library task generator provides 'export_incdirs', add to the include path
+		# the export_incdirs must be a list of paths relative to the other library
+		if getattr(y, 'export_incdirs', None):
+			cpppath_st = self.env['CPPPATH_ST']
+			for x in self.to_list(y.export_incdirs):
+				node = y.path.find_dir(x)
+				if not node:
+					raise Utils.WafError('object %s: invalid folder %s in export_incdirs' % (y.target, x))
+				self.env.append_unique('INC_PATHS', node)
 
 	# 2. the case of the libs defined outside
 	for x in uselib:
