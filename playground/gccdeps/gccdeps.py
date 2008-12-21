@@ -2,6 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2008 (ita)
 
+import os
 import Task, Utils
 import preproc
 from Constants import *
@@ -23,6 +24,8 @@ ccvars = "CC CCFLAGS CPPFLAGS _CCINCFLAGS _CCDEFFLAGS".split()
 cxxvars = "CXX CXXFLAGS CPPFLAGS _CXXINCFLAGS _CXXDEFFLAGS".split()
 
 class ccdeps_task(Task.TaskBase):
+	color = 'RED'
+
 	def __init__(self, *k, **kw):
 		Task.TaskBase.__init__(self, *k, **kw)
 		self.slaves = []
@@ -92,6 +95,7 @@ class ccdeps_task(Task.TaskBase):
 			return ([], [])
 
 		deps = deps.replace('\\\n', '')
+		deps = deps.replace('\x1b[0m', '')
 		deps = deps.strip()
 		for line in deps.split('\n'):
 			lst = line.split(':')
@@ -100,9 +104,16 @@ class ccdeps_task(Task.TaskBase):
 			val = ":".join(lst[1:])
 			val = val.split()
 
-			nodes = [self.generator.bld.root.find_resource(x) for x in val]
-			# TODO: display which nodes cannot be found?
-			nodes = [x for x in nodes if x]
+			nodes = []
+			for x in val:
+				if os.path.isabs(x):
+					node = self.generator.bld.root.find_resource(x)
+				else:
+					node = self.generator.path.find_resource(x)
+				if not node:
+					print "could not find", x
+				else:
+					nodes.append(node)
 
 			# FIXME will not work for nested folders
 			name = name.replace('.o', '')
