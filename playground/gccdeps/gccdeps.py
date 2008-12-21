@@ -27,6 +27,7 @@ def scan(self):
 	deps = deps.split()
 
 	nodes = [self.generator.bld.root.find_resource(x) for x in deps]
+	nodes = [x for x in nodes if x]
 
 	return (nodes, [])
 
