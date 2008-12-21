@@ -20,13 +20,18 @@ def scan(self):
 	else:
 		vars = ccvars
 
-	deps = Utils.cmd_output(c_fun(self, vars))
+	try:
+		deps = Utils.cmd_output(c_fun(self, vars))
+	except ValueError:
+		# the code does not compile, let it fail for real to display the errors
+		return ([], [])
 
 	deps = deps.replace('\\\n', '')
 	deps = ":".join(deps.split(':')[1:])
 	deps = deps.split()
 
 	nodes = [self.generator.bld.root.find_resource(x) for x in deps]
+	# we should display which nodes cannot be found
 	nodes = [x for x in nodes if x]
 
 	return (nodes, [])
