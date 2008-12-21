@@ -17,7 +17,7 @@ def configure(conf):
 	conf.check_tool('gccdeps', tooldir='.')
 
 def build(bld):
-	bld.new_task_gen(features='cc cprogram', source='main.c', target='test', includes='.')
+	bld.new_task_gen(features='cc cprogram', source='main.c foo.c', target='test', includes='.')
 
 def shutdown():
 	import os
