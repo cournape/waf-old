@@ -176,13 +176,16 @@ def CreateLibrary(lib_number, classes, internal_includes, external_includes):
     #CreateLibJamFile(lib_number, classes)
     #CreateVCProjFile(lib_number, classes)
     CreateW(lib_number, classes)
+    CreateAutotools(lib_number, classes)
 
     os.chdir("..")
-
 
 def CreateSConstruct(libs):
     handle = file("SConstruct", "w");
     handle.write("""env = Environment(CPPFLAGS=['-Wall'], CPPDEFINES=['LINUX'], CPPPATH=[Dir('#')])\n""")
+    handle.write("""env.Decider('timestamp-newer')\n""")
+    handle.write("""env.SetOption('implicit_cache', True)\n""")
+    handle.write("""env.SourceCode('.', None)\n""")
 
     for i in xrange(libs):
         handle.write("""env.SConscript("lib_%s/SConscript", exports=['env'])\n""" % str(i))
@@ -264,6 +267,34 @@ def CreateFullSolution(libs):
                       '", "' + project_name + '", "{CF495178-8865-4D20-939D-AAA' + str(i) + '}"\n')
         handle.write('EndProject\n')
 
+def CreateAutotoolsTop(libs):
+    handle = file("configure.ac", "w")
+    handle.write('''\
+AC_INIT([bench], [1.0.0])
+AC_CONFIG_AUX_DIR([autotools-aux])
+AM_INIT_AUTOMAKE([subdir-objects nostdinc no-define tar-pax dist-bzip2])
+AM_PROG_LIBTOOL
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+''')
+
+    handle = file("Makefile.am", "w")
+    handle.write('''\
+AM_CPPFLAGS = -I$(srcdir)
+lib_LTLIBRARIES =
+''')
+    for i in xrange(libs): handle.write('include lib_%s/Makefile.am\n' % str(i))
+
+def CreateAutotools(lib_number, classes):
+
+    handle = file("Makefile.am", "w")
+    handle.write('''\
+lib_LTLIBRARIES += lib%s.la
+lib%s_la_SOURCES =''' % (str(lib_number), str(lib_number)))
+    for i in xrange(classes): handle.write(' lib_%s/class_%s.cpp' % (str(lib_number), str(i)))
+    handle.write('\n')
+
 def SetDir(dir):
     if (not os.path.exists(dir)):
         os.mkdir(dir)
@@ -289,6 +320,7 @@ def main(argv):
     CreateWtop(libs)
     #CreateFullJamfile(libs)
     #CreateFullSolution(libs)
+    CreateAutotoolsTop(libs)
 
 if __name__ == "__main__":
     main( sys.argv )
