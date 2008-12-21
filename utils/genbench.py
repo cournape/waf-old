@@ -12,6 +12,15 @@ HELP_USAGE = """Usage: generate_libs.py root libs classes internal external.
     classes  - Number of classes per library
     internal - Number of includes per file referring to that same library
     external - Number of includes per file pointing to other libraries
+
+To test the autotools part, do:
+touch README AUTHORS NEWS ChangeLog &&
+autoreconf --install --symlink --verbose &&
+mkdir autotools-build-dir &&
+cd autotools-build-dir &&
+../configure --disable-shared CXXFLAGS=-Wall &&
+time make -j4 --silent &&
+time make -j4 --silent
 """
 
 def lib_name(i):
