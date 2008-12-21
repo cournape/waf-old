@@ -63,6 +63,7 @@ class ccdeps_task(Task.TaskBase):
 		return RUN_ME
 
 	def run(self):
+		"""All this is for executing gcc and computing the dependencies"""
 
 		if self.slaves[0].__class__.__name__ == 'cxx':
 			vars = cxxvars
@@ -87,7 +88,7 @@ class ccdeps_task(Task.TaskBase):
 		try:
 			deps = Utils.cmd_output(cmd)
 		except ValueError:
-			# the code does not compile, let it fail for real to display the errors
+			# errors: let it fail in the chilren tasks to display the errors
 			return ([], [])
 
 		deps = deps.replace('\\\n', '')
