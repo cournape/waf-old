@@ -15,11 +15,17 @@ and prepare the dependency calculation for the nexte run
 import Task, Logs
 from TaskGen import feature, before, after
 
-@feature('cc', 'cxx')
+@feature('cc')
 @before('apply_core')
-def add_mmd(self):
+def add_mmd_cc(self):
 	if self.env.get_flat('CCFLAGS').find('-MD') < 0:
 		self.env.append_value('CCFLAGS', '-MD')
+
+@feature('cxx')
+@before('apply_core')
+def add_mmd_cxx(self):
+	if self.env.get_flat('CXXFLAGS').find('-MD') < 0:
+		self.env.append_value('CXXFLAGS', '-MD')
 
 def scan(self):
 	"the scanner does not do anything initially"
@@ -37,6 +43,8 @@ def post_run(self):
 	txt = f.read()
 	f.close()
 	os.unlink(name)
+
+	txt = txt.replace('\\\n', '')
 
 	lst = txt.strip().split(':')
 	val = ":".join(lst[1:])
