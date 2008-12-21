@@ -69,7 +69,7 @@ def post_run(self):
 		else:
 			nodes.append(node)
 
-	Logs.debug('deps: scanner for %s returned %s' % (str(self), str(nodes)))
+	Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
 
 	self.generator.bld.node_deps[self.unique_id()] = nodes
 	self.generator.bld.raw_deps[self.unique_id()] = []
