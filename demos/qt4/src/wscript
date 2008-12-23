@@ -9,7 +9,7 @@ def build(bld):
 		features=['qt4', 'cprogram', 'cxx'],
 		uselib = 'QTCORE QTGUI QTOPENGL QTSVG',
 		target = 'window',
-		includes = 'test',
+		includes = 'test .',
 		defines="WAF=1", # add a define around foo.moc
 	)
 
