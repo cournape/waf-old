@@ -171,7 +171,7 @@ def apply_incpaths(self):
 			else:
 				self.env.prepend_value('CPPPATH', path)
 
-	tree = Build.bld
+	bld = self.bld
 	inc_lst = []
 	for path in lst:
 		node = None
@@ -184,7 +184,9 @@ def apply_incpaths(self):
 		if node:
 			inc_lst.append(node)
 
-	self.env['INC_PATHS'] += inc_lst
+	# TODO we will need to review this
+	self.env.append_value('INC_PATHS', bld.srcnode)
+	self.env.append_value('INC_PATHS', inc_lst)
 
 @feature('cc', 'cxx')
 def apply_type_vars(self):
