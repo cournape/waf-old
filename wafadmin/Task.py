@@ -776,8 +776,8 @@ class Task(TaskBase):
 			debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
 
 		# store the dependencies in the cache
-		bld.node_deps[self.unique_id()] = nodes
-		bld.raw_deps[self.unique_id()] = names
+		bld.node_deps[key] = nodes
+		bld.raw_deps[key] = names
 
 		# recompute the signature and return it
 		sig = self.compute_sig_implicit_deps()
