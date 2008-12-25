@@ -221,10 +221,13 @@ class ConfigurationContext(object):
 		self.check_message_1(sr)
 		self.check_message_2(custom, color)
 
-	def find_program(self, filename, path_list=[], var=None):
+	def find_program(self, filename, path_list=[], var=None, mandatory=False):
 		"wrapper that adds a configuration message"
 		ret = find_program_impl(self.env, filename, path_list, var)
 		self.check_message('program', filename, ret, ret)
+		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
+		if not ret and mandatory:
+			self.fatal('The program %s could not be found' % filename)
 		return ret
 
 	def __getattr__(self, name):
