@@ -739,18 +739,9 @@ class Task(TaskBase):
 		m.update(act_sig)
 
 		# additional variable dependencies, if provided
-		var_sig = SIG_NIL
 		dep_vars = getattr(self, 'dep_vars', None)
 		if dep_vars:
-			var_sig = bld.hash_env_vars(env, dep_vars)
-			m.update(var_sig)
-
-		# additional variables to hash (command-line defines for example)
-		for x in getattr(self.__class__, 'vars', ()):
-			k = env[x]
-			if k:
-				m.update(str(k))
-				vars_sig = hash((var_sig, str(k)))
+			m.update(bld.hash_env_vars(env, dep_vars))
 
 		return m.digest()
 
