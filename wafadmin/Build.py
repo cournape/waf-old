@@ -702,6 +702,7 @@ class BuildContext(object):
 		"installation path prefixed by the destdir, the variables like in '${PREFIX}/bin' are substituted"
 		if not env: env = self.env
 		destdir = env.get_destdir()
+		path.replace('/', os.sep)
 		destpath = Utils.subst_vars(path, env)
 		if destdir:
 			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
