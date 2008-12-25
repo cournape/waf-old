@@ -171,22 +171,19 @@ def apply_incpaths(self):
 			else:
 				self.env.prepend_value('CPPPATH', path)
 
-	bld = self.bld
-	inc_lst = []
 	for path in lst:
 		node = None
 		if os.path.isabs(path):
 			if preproc.go_absolute:
-				node = tree.root.find_dir(path)
+				node = self.bld.root.find_dir(path)
 		else:
 			node = self.path.find_dir(path)
 
 		if node:
-			inc_lst.append(node)
+			self.env.append_value('INC_PATHS', node)
 
 	# TODO we will need to review this
-	self.env.append_value('INC_PATHS', bld.srcnode)
-	self.env.append_value('INC_PATHS', inc_lst)
+	self.env.append_value('INC_PATHS', self.bld.srcnode)
 
 @feature('cc', 'cxx')
 def apply_type_vars(self):
