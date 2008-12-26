@@ -215,6 +215,7 @@ class ConfigurationContext(object):
 		if state: p('ok ' + option)
 		else: p('not found', 'YELLOW')
 
+	# the parameter 'option' is not used (kept for compatibility)
 	def check_message_custom(self, th, msg, custom, option='', color='PINK'):
 		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for %s %s' % (th, msg)
