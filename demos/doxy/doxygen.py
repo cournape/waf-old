@@ -172,6 +172,6 @@ def process_doxy(self):
 			tsk.env['TAROPTS'] = ' cf '
 
 def detect(conf):
-	conf.find_program('doxygen', var='DOXYGEN')
-	conf.find_program('tar', var='TAR')
+	conf.find_program('doxygen', var='DOXYGEN', mandatory=True)
+	conf.find_program('tar', var='TAR', mandatory=True)
 

@@ -15,6 +15,5 @@ TaskGen.declare_chain(
 )
 
 def detect(conf):
-	dang = conf.find_program('cat', var='DANG')
-	if not dang: conf.fatal('cannot find the program "cat"')
+	dang = conf.find_program('cat', var='DANG', mandatory=True)
 

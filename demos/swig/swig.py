@@ -147,5 +147,5 @@ def check_swig_version(conf, minver=None):
 	return result
 
 def detect(conf):
-	swig = conf.find_program('swig', var='SWIG')
+	swig = conf.find_program('swig', var='SWIG', mandatory=True)
 

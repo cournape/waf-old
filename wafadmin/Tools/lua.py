@@ -22,6 +22,5 @@ def init_lua(self):
 	self.default_chmod = O755
 
 def detect(conf):
-	luac = conf.find_program('luac', var='LUAC')
-	if not luac: conf.fatal('cannot find the compiler "luac"')
+	conf.find_program('luac', var='LUAC', mandatory = True)
 

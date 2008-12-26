@@ -20,8 +20,7 @@ TaskGen.declare_chain(
 )
 
 def detect(conf):
-	flex = conf.find_program('flex', var='FLEX')
-	if not flex: conf.fatal("flex was not found")
+	conf.find_program('flex', var='FLEX', mandatory=True)
 	v = conf.env
 	v['FLEXFLAGS'] = ''
 
