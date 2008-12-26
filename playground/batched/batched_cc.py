@@ -115,7 +115,7 @@ extension(cc.EXT_CC)(c_hook)
 cxx_hook = wrap(cxx.cxx_hook)
 extension(cxx.EXT_CXX)(cxx_hook)
 
-t = Task.TaskBase.classes['cc']
+t = Task.TaskBase.classes['cc', 'cxx']
 def run(self):
 	pass
 
