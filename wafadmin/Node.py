@@ -30,7 +30,7 @@ ${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
 
 """
 
-import os, sys, types
+import os, sys, types, fnmatch
 import Utils
 
 UNDEFINED = 0
@@ -439,6 +439,35 @@ class Node(object):
 		if s.rfind('.') < 0:
 			return s
 		return s[s.rfind('.'):]
+
+	def find_iter(self, in_pat='*', ex_pat=None, prunes=None, build_dir=True):
+		"find nodes recursively, this returns the build nodes by default"
+		if self.id & 3 != DIR:
+			raise StopIteration
+
+		self.__class__.bld.rescan(self)
+		for name in self.__class__.bld.cache_dir_contents[self.id]:
+			if (ex_pat is None or not fnmatch.fnmatchcase(name, ex_pat)) and fnmatch.fnmatchcase(name, in_pat):
+				node = self.find_resource(name)
+				if node:
+					yield node
+				else:
+					node = self.find_dir(name)
+					if node.id != self.__class__.bld.bldnode.id:
+						yield node
+			elif self.find_resource(name) is None:
+				if prunes is not None and name in prunes:
+					continue
+				dir = self.find_dir(name)
+				if dir:
+					if dir.id == self.__class__.bld.bldnode.id:
+						continue
+					for node in dir.find_iter(in_pat, ex_pat, prunes):
+						yield node
+		for node in self.childs.values():
+			if node.id & 3 == BUILD:
+				yield node
+		raise StopIteration
 
 # win32 fixes follow
 if sys.platform == "win32":
