@@ -31,7 +31,7 @@ def apply_msgfmt(self):
 		if not Options.is_install: continue
 		langname = lang.split('/')
 		langname = langname[-1]
-		tsk.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'
+		task.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'
 		task.filename = self.appname+'.mo'
 		task.chmod = self.chmod
 
