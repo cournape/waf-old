@@ -139,6 +139,8 @@ def runnable_status(self):
 		self.tar_done_adding = True
 		for x in getattr(self, 'input_tasks', []):
 			self.set_inputs(x.outputs)
+		if not self.inputs:
+			return Constants.SKIP_ME
 	return Task.Task.runnable_status(self)
 cls.runnable_status = runnable_status
 
