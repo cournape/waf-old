@@ -26,11 +26,14 @@ import TaskGen, Task, ccroot, Build
 from TaskGen import extension
 from Constants import *
 
+#Task.algotype = JOBCONTROL
+
 class batch_task(Task.Task):
 	#before = 'cc_link cxx_link ar_link_static'
 	before = 'cc_link'
 	after = 'cc cxx'
 	color = 'RED'
+	maxjobs = 1
 
 	def __str__(self):
 		return '(batch compilation)\n'
@@ -69,6 +72,7 @@ class batch_task(Task.Task):
 			outputs.extend(t.outputs)
 
 		self.env['CC_TGT_F'] = '-c '
+		self.env['CXX_TGT_F'] = '-c '
 		ret = self.slaves[0].__class__.__dict__['oldrun'](self)
 		if ret:
 			return ret
