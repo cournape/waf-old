@@ -464,9 +464,10 @@ class Node(object):
 						continue
 					for node in dir.find_iter(in_pat, ex_pat, prunes):
 						yield node
-		for node in self.childs.values():
-			if node.id & 3 == BUILD:
-				yield node
+		if build_dir:
+			for node in self.childs.values():
+				if node.id & 3 == BUILD:
+					yield node
 		raise StopIteration
 
 # win32 fixes follow
