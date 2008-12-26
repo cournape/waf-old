@@ -14,9 +14,7 @@ class msgfmt_taskgen(TaskGen.task_gen):
 @feature('msgfmt')
 def init_msgfmt(self):
 	#langs = '' # for example "foo/fr foo/br"
-	Utils.def_attrs(self,
-		default_install_path = '${KDE4_LOCALE_INSTALL_DIR}',
-		appname = 'set_your_app_name')
+	self.default_install_path = '${KDE4_LOCALE_INSTALL_DIR}'
 
 @taskgen
 @feature('msgfmt')
@@ -32,7 +30,7 @@ def apply_msgfmt(self):
 		langname = lang.split('/')
 		langname = langname[-1]
 		task.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'
-		task.filename = self.appname+'.mo'
+		task.filename = getattr(self, 'appname', 'set_your_appname') + '.mo'
 		task.chmod = self.chmod
 
 def detect(conf):
