@@ -115,19 +115,21 @@ extension(cc.EXT_CC)(c_hook)
 cxx_hook = wrap(cxx.cxx_hook)
 extension(cxx.EXT_CXX)(cxx_hook)
 
-t = Task.TaskBase.classes['cc', 'cxx']
-def run(self):
-	pass
+for c in ['cc', 'cxx']:
+	t = Task.TaskBase.classes[c]
+	def run(self):
+		pass
 
-def post_run(self):
-	#self.executed=1
-	pass
+	def post_run(self):
+		#self.executed=1
+		pass
 
-def can_retrieve_cache(self):
-	pass
+	def can_retrieve_cache(self):
+		pass
 
-setattr(t, 'oldrun', t.__dict__['run'])
-setattr(t, 'run', run)
-setattr(t, 'post_run', post_run)
-setattr(t, 'can_retrieve_cache', can_retrieve_cache)
+	setattr(t, 'oldrun', t.__dict__['run'])
+	setattr(t, 'run', run)
+	setattr(t, 'post_run', post_run)
+	setattr(t, 'can_retrieve_cache', can_retrieve_cache)
+
 
