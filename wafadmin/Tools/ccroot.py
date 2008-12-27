@@ -96,11 +96,10 @@ def get_target_name(self):
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
-	if not 'objects' in self.features:
-		if not self.source:
-			raise Utils.WafError('no source files specified for %s' % self)
-		if not self.target:
-			raise Utils.WafError('no target for %s' % self)
+	if not self.source:
+		raise Utils.WafError('no source files specified for %s' % self)
+	if not self.target:
+		raise Utils.WafError('no target for %s' % self)
 
 def install_shlib(self):
 	nums = self.vnum.split('.')
@@ -335,7 +334,8 @@ def apply_objdeps(self):
 		y.post()
 		seen.append(x)
 
-		self.link_task.inputs += y.out_nodes
+		for t in y.compiled_tasks:
+			self.link_task.inputs.extend(t.outputs)
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
@@ -404,15 +404,6 @@ def add_obj_file(self, file):
 	if not hasattr(self, 'obj_files'): self.obj_files = []
 	if not 'process_obj_files' in self.meths: self.meths.append('process_obj_files')
 	self.obj_files.append(file)
-
-@feature('objects')
-@after('apply_core')
-def make_objects_available(self):
-	"""when we do not link; make the .o files available
-	if we are only building .o files, tell which ones we built"""
-	self.out_nodes = []
-	app = self.out_nodes.append
-	for t in self.compiled_tasks: app(t.outputs[0])
 
 c_attrs = {
 'cxxflag' : 'CXXFLAGS',
