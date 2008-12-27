@@ -2,7 +2,8 @@
 # encoding: UTF-8
 # Thomas Nagy 2008
 
-import os, re, stat
+from fnmatch import fnmatchcase
+import os, os.path, re, stat
 import pproc
 import Task, Utils, Node, Constants
 from TaskGen import feature
@@ -10,21 +11,12 @@ from TaskGen import feature
 DOXY_STR = 'cd %s && ${DOXYGEN} ${DOXYFLAGS} - >/dev/null'
 DOXY_FMTS = 'html latex man rft xml'.split()
 DOXY_EXTS = '''
-.c .cc .cxx .cpp .c++ .C
-.h .hh .hxx .hpp .h++ .H
-.py .java .cs
-.ii .ixx .ipp .i++ .inl
-.idl .odl .php .php3 .inc .m .mm
+*.c *.cc *.cxx *.cpp *.c++ *.C
+*.h *.hh *.hxx *.hpp *.h++ *.H
+*.py *.java *.cs
+*.ii *.ixx *.ipp *.i++ *.inl
+*.idl *.odl *.php *.php3 *.inc *.m *.mm
 '''.split()
-
-def filter_match(node_list):
-	buf = []
-	for x in node_list:
-		name = x.name
-		for y in DOXY_EXTS:
-			if name.endswith(y):
-				buf.append(x)
-	return buf
 
 re_join = re.compile(r'\\(\r)*\n', re.M)
 re_nl = re.compile('\r*\n', re.M)
@@ -62,6 +54,38 @@ def populate(node, branch, env):
 			buf += populate(parent, x, env)
 		return buf
 
+def nodes_files_of(node, recurse, includes, excludes):
+	"""
+	Recursively returns subnodes of this node. All node filenames that
+	matches a pattern in includes but does not match a pattern in
+	excludes is returned.
+
+	@param includes: list of wildcards to include.
+	@param excludes: list of wildcards to exclude.
+	@param recurse: whether to recurse or not.
+	"""
+	# perform the listdir in the source directory, once
+	node.__class__.bld.rescan(node)
+
+	# doxygen looks at the files under the source directory
+	buf = []
+	for x in node.__class__.bld.cache_dir_contents[node.id]:
+		filename = node.abspath() + os.sep + x
+		if any(fnmatchcase(filename, pat) for pat in excludes):
+			continue
+		st = os.stat(filename)
+		if stat.S_ISREG(st[stat.ST_MODE]):
+			k = node.find_resource(x)
+			if not any(fnmatchcase(k.abspath(), pat) for pat in includes):
+				continue
+			buf.append(k)
+		elif stat.S_ISDIR(st[stat.ST_MODE]) and recurse:
+			nd = node.find_dir(x)
+			if nd.id != nd.__class__.bld.bldnode.id:
+				buf += nodes_files_of(nd, recurse, includes, excludes)
+	return buf
+
+
 class doxygen_task(Task.Task):
 
 	vars=['DOXYGEN', 'DOXYFLAGS']
@@ -73,56 +97,42 @@ class doxygen_task(Task.Task):
 		if not getattr(self, 'pars', None):
 			infile = self.inputs[0].abspath(self.env)
 			self.pars = read_into_dict(infile)
-			if not self.pars.get('OUTPUT_DIRECTORY', None):
+			if not self.pars.get('OUTPUT_DIRECTORY'):
 				self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.abspath(self.env)
 		self.signature()
 		return Task.Task.runnable_status(self)
 
 	def scan(self):
 
-		recurse = self.pars.get('RECURSIVE', None) == 'YES'
+		recurse = self.pars.get('RECURSIVE') == 'YES'
+		excludes = self.pars.get('EXCLUDE_PATTERNS', '').split()
+		includes = self.pars.get('FILE_PATTERNS', '').split()
+		if not includes:
+			includes = DOXY_EXTS
 
-		def nodes_files_of(node):
-			# perform the listdir in the source directory, once
-			node.__class__.bld.rescan(node)
-
-			# doxygen looks at the files under the source directory
-			buf = []
-			for x in node.__class__.bld.cache_dir_contents[node.id]:
-				filename = node.abspath() + os.sep + x
-				st = os.stat(filename)
-				if stat.S_ISREG(st[stat.ST_MODE]):
-					k = node.find_resource(x)
-					buf.append(node.find_resource(x))
-				elif stat.S_ISDIR(st[stat.ST_MODE]):
-					if recurse:
-						nd = node.find_dir(x)
-						if nd.id != nd.__class__.bld.bldnode.id:
-							buf += nodes_files_of(nd)
-			return buf
-
-		ret = nodes_files_of(self.inputs[0].parent)
-		ret = filter_match(ret)
-
+		root_node = self.inputs[0].parent
+		ret = nodes_files_of(root_node, recurse, includes, excludes)
 		return (ret, [])
 
 	def run(self):
 		code = '\n'.join(['%s = %s' % (x, self.pars[x]) for x in self.pars])
 		if not self.env['DOXYFLAGS']:
 			self.env['DOXYFLAGS'] = ''
-		cmd = Utils.subst_vars(DOXY_STR % (self.inputs[0].parent.abspath()), self.env)
+		fmt = DOXY_STR % (self.inputs[0].parent.abspath())
+		cmd = Utils.subst_vars(fmt, self.env)
 		proc = pproc.Popen(cmd, shell=True, stdin=pproc.PIPE)
 		proc.communicate(code)
 		return proc.returncode
 
 	def post_run(self):
 		# look for the files that appeared in the build directory
-		lst = Utils.listdir(self.inputs[0].parent.abspath(self.env))
+		input_parent = self.inputs[0].parent
+		lst = Utils.listdir(input_parent.abspath(self.env))
 		for k in DOXY_FMTS:
 			key = 'GENERATE_' + k.upper()
-			if self.pars.get(key, '') == 'YES':
+			if self.pars.get(key) == 'YES':
 				if k in lst:
-					self.outputs += populate(self.inputs[0].parent, k, self.env)
+					self.outputs += populate(input_parent, k, self.env)
 
 		self.outputs = [x for x in self.outputs if x.id & 3 != Node.DIR]
 		return Task.Task.post_run(self)
