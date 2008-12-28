@@ -275,7 +275,7 @@ class task_gen(object):
 		""
 		newobj = task_gen(bld=self.bld)
 		for x in self.__dict__:
-			if x in ["env"]:
+			if x in ['env', 'bld']:
 				continue
 			elif x in ["path", "features"]:
 				setattr(newobj, x, getattr(self, x))
