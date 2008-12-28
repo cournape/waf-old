@@ -94,7 +94,7 @@ def get_target_name(self):
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
-	if not self.source or not self.add_objects:
+	if not self.source and not self.add_objects:
 		raise Utils.WafError('no source files specified for %s' % self)
 	if not self.target:
 		raise Utils.WafError('no target for %s' % self)
