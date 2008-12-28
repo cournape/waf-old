@@ -94,7 +94,7 @@ def get_target_name(self):
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
-	if not self.source:
+	if not self.source or not self.add_objects:
 		raise Utils.WafError('no source files specified for %s' % self)
 	if not self.target:
 		raise Utils.WafError('no target for %s' % self)
@@ -296,7 +296,7 @@ def apply_lib_vars(self):
 			val = self.env[v+'_'+x]
 			if val: self.env.append_value(v, val)
 
-@feature('cc', 'cxx')
+@feature('cprogram', 'cstaticlib', 'cshlib')
 @after('apply_obj_vars', 'apply_vnum')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
