@@ -373,7 +373,7 @@ class Node(object):
 		return val
 
 	def change_ext(self, ext):
-		"node of the same path, but with a different extension"
+		"node of the same path, but with a different extension - hot zone so do not touch"
 		name = self.name
 		k = name.rfind('.')
 		if k >= 0:
@@ -393,8 +393,7 @@ class Node(object):
 
 	def bld_base(self, env):
 		"build path without the extension: src/dir/foo(.cpp)"
-		s = self.name
-		s = s[:s.rfind('.')]
+		s = os.path.splitext(self.name)[0]
 		return os.path.join(self.bld_dir(env), s)
 
 	def bldpath(self, env=None):
@@ -429,13 +428,10 @@ class Node(object):
 
 	def file_base(self):
 		"scons-like"
-		s = self.name
-		if s.rfind('.') < 0:
-			return s
-		return s[:s.rfind('.')]
+		return os.path.splitext(self.name)[0]
 
 	def suffix(self):
-		"scons-like"
+		"scons-like - hot zone so do not touch"
 		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
