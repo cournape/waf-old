@@ -234,9 +234,9 @@ def create_waf():
 	f.close()
 
 	# now store the revision unique number in waf
-	compute_revision()
-	reg = re.compile('^REVISION=(.*)', re.M)
-	code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
+	#compute_revision()
+	#reg = re.compile('^REVISION=(.*)', re.M)
+	#code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
 	if Build.bld:
 		prefix = Build.bld.env['PREFIX']
@@ -258,6 +258,14 @@ def create_waf():
 	f = open('%s.tar.%s' % (mw, zipType), 'rb')
 	cnt = f.read()
 	f.close()
+
+	# the REVISION value is the md5 sum of the binary blob (facilitate audits)
+	m = md5()
+	m.update(cnt)
+	REVISION = m.hexdigest()
+	reg = re.compile('^REVISION=(.*)', re.M)
+	code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
+
 	def find_unused(kd, ch):
 		for i in xrange(35, 125):
 			for j in xrange(35, 125):
