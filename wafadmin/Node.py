@@ -381,10 +381,7 @@ class Node(object):
 		else:
 			name = name + ext
 
-		node = self.parent.childs.get(name, None)
-		if not node:
-			node = self.__class__(name, self.parent, BUILD)
-		return node
+		return self.parent.childs.get(name, None) or self.__class__(name, self.parent, BUILD)
 
 	def src_dir(self, env):
 		"src path without the file name"
