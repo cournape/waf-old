@@ -88,6 +88,10 @@ class Node(object):
 		"expensive, make certain it is not used"
 		raise Utils.WafError('nodes, you are doing it wrong')
 
+	def __copy__(self):
+		"nodes are not supposed to be copied"
+		raise Utils.WafError('nodes are not supposed to be cloned')
+
 	def get_type(self):
 		return self.id & 3
 
