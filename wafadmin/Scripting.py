@@ -121,7 +121,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 			break
 		if Options.lockfile in dirlst:
 			break
-		cwd = cwd[:cwd.rfind(os.sep)] # climb up
+		cwd = os.path.dirname(cwd) # climb up
 
 	if not candidate:
 		# check if the user only wanted to display the help
