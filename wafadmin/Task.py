@@ -45,7 +45,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 import os, types, shutil, sys, re, random, time
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
-from Logs import debug, error, warn
+from Logs import debug
 from Constants import *
 
 algotype = NORMAL
@@ -568,7 +568,7 @@ class Task(TaskBase):
 
 		if self.inputs and (not self.outputs):
 			if not getattr(self.__class__, 'quiet', None):
-				error("task is invalid : no inputs or outputs (override in a Task subclass?) %r" % self)
+				warn("task is probably invalid (no inputs OR outputs): override in a Task subclass or set the attribute 'quiet' %r" % self)
 
 		for t in self.run_after:
 			if not t.hasrun:
