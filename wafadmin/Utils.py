@@ -414,3 +414,6 @@ def detect_platform():
 
 	return s
 
+def nada():
+	pass
+
