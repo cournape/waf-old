@@ -10,10 +10,11 @@ from optparse import OptionParser
 import Logs, Utils
 from Constants import *
 
-cmds = 'dist configure clean distclean build install uninstall check distcheck'.split()
+cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
 
 options = {}
 commands = {}
+arg_line = []
 launch_dir = ''
 tooldir = ''
 lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
@@ -42,10 +43,10 @@ default_destdir = os.environ.get('DESTDIR', '')
 def create_parser():
 	Logs.debug('options: create_parser is called')
 
-	parser = OptionParser(conflict_handler="resolve", usage = """waf [options] [commands ...]
+	parser = OptionParser(conflict_handler="resolve", usage = '''waf [options] [commands ...]
 
-* Main commands: configure build install clean dist distclean uninstall distcheck
-* Example: ./waf build -j4""", version = 'waf %s' % WAFVERSION)
+* Main commands: ''' + ' '.join(cmds) + '''
+* Example: ./waf build -j4''', version = 'waf %s' % WAFVERSION)
 
 	parser.formatter.width = Utils.get_term_cols()
 	p = parser.add_option
@@ -124,13 +125,17 @@ def create_parser():
 	return parser
 
 def parse_args_impl(parser, _args=None):
-	global options, commands
+	global options, commands, arg_line
 	(options, args) = parser.parse_args(args=_args)
+
+	arg_line = args
 
 	# By default, 'waf' is equivalent to 'waf build'
 	commands = {}
 	for var in cmds:    commands[var] = 0
-	if len(args) == 0: commands['build'] = 1
+	if len(args) == 0:
+		commands['build'] = 1
+		arg_line.append('build')
 
 	# Parse the command arguments
 	for arg in args:
