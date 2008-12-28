@@ -89,10 +89,8 @@ def get_target_name(self):
 	pattern = self.env[tp + '_PATTERN']
 	if not pattern: pattern = '%s'
 
-	# name can be src/mylib
-	name = self.target
-	k = name.rfind('/')
-	return name[0:k+1] + pattern % name[k+1:]
+	dir, name = os.path.split(self.target)
+	return os.path.join(dir, pattern % name)
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
