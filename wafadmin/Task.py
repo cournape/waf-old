@@ -402,11 +402,16 @@ class TaskBase(object):
 			return self.generator.bld.progress_line(self.position[0], self.position[1], col1, col2)
 
 		if Options.options.progress_bar == 2:
-			try: ini = self.generator.bld.ini
-			except AttributeError: ini = self.generator.bld.ini = time.time()
+			ini = self.generator.bld.ini
 			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
-			ins  = ','.join([n.name for n in self.inputs])
-			outs = ','.join([n.name for n in self.outputs])
+			try:
+				ins  = ','.join([n.name for n in self.inputs])
+			except AttributeError:
+				ins = ''
+			try:
+				outs = ','.join([n.name for n in self.outputs])
+			except AttributeError:
+				outs = ''
 			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], self.position[0], ins, outs, ela)
 
 		total = self.position[1]
