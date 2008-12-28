@@ -435,10 +435,8 @@ class Node(object):
 
 	def suffix(self):
 		"scons-like"
-		s = self.name
-		if s.rfind('.') < 0:
-			return s
-		return s[s.rfind('.'):]
+		k = max(0, self.name.rfind('.'))
+		return self.name[k:]
 
 	def find_iter(self, in_pat='*', ex_pat=None, prunes=None, build_dir=True):
 		"find nodes recursively, this returns the build nodes by default"

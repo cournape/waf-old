@@ -464,9 +464,7 @@ def apply_core(self):
 
 	for node in self.allnodes:
 		# self.mappings or task_gen.mappings map the file extension to a function
-		filename = node.name
-		k = max(0, filename.rfind('.'))
-		x = self.get_hook(filename[k:])
+		x = self.get_hook(node.suffix())
 
 		if not x:
 			raise Utils.WafError("Do not know how to process %s in %s, mappings are %s" % \
