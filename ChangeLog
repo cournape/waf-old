@@ -1,3 +1,11 @@
+NEW IN WAF 1.5.3
+----------------
+* progress bar fixes with variants
+* progress bar fixes with -pp
+* enable libraries using only add_objects (no sources)
+* minor optimizations
+* let the digest written in the waf file match the digest of the binary archive
+
 NEW IN WAF 1.5.2
 ----------------
 * guard for unexpected interruptions (pickle file consistency)
