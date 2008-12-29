@@ -56,7 +56,6 @@ def scan(self):
 				to_see.append(u)
 
 	# list of nodes this one depends on, and module name if present
-	print "result of ", node, lst_src
 	return (lst_src, [])
 cls.scan = scan
 
@@ -73,6 +72,25 @@ def swig_python(tsk):
 def swig_ocaml(tsk):
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.ml'))
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.mli'))
+
+def add_swig_paths(self):
+	if getattr(self, 'add_swig_paths_done', None):
+		return
+	self.add_swig_paths_done = True
+
+	self.swig_dir_nodes = []
+	for x in self.to_list(self.includes):
+		node = self.path.find_dir(x)
+		if not node:
+			Logs.warn('could not find the include %r' % x)
+			continue
+		self.swig_dir_nodes.append(node)
+
+	# add the top-level, it is likely to be added
+	self.swig_dir_nodes.append(self.bld.srcnode)
+	for x in self.swig_dir_nodes:
+		self.env.append_unique('SWIGFLAGS', '-I%s' % x.abspath(self.env)) # build dir
+		self.env.append_unique('SWIGFLAGS', '-I%s' % x.abspath()) # source dir
 
 @extension(SWIG_EXTS)
 def i_file(self, node):
@@ -121,6 +139,8 @@ def i_file(self, node):
 			fun(tsk)
 
 	self.allnodes.append(out_node)
+
+	add_swig_paths(self)
 
 @conf
 def check_swig_version(conf, minver=None):
