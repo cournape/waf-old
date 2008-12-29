@@ -3,6 +3,12 @@
 # Peter Forai
 # Thomas Nagy, 2008
 
+"""
+Demonstrates how to create a c++ app that runs python scripts
+
+Useful for apps providing script extensions
+"""
+
 VERSION='0.0.1'
 APPNAME='swig_test'
 srcdir = '.'
