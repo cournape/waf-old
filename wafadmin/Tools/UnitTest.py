@@ -69,17 +69,17 @@ class unit_test(object):
 		# Gather unit tests to call
 		for obj in Build.bld.all_task_gen:
 			unit_test = getattr(obj,'unit_test', '')
-			if not unit_test: continue
-			try:
-				if 'program' in obj.features:
-					output = obj.path
-					filename = os.path.join(output.abspath(obj.env), obj.target)
-					srcdir = output.abspath()
-					label = os.path.join(output.bldpath(obj.env), obj.target)
-					self.max_label_length = max(self.max_label_length, len(label))
-					self.unit_tests[label] = (filename, srcdir)
-			except KeyError:
-				pass
+			if unit_test:
+				try:
+					if 'program' in obj.features:
+						output = obj.path
+						filename = os.path.join(output.abspath(obj.env), obj.target)
+						srcdir = output.abspath()
+						label = os.path.join(output.bldpath(obj.env), obj.target)
+						self.max_label_length = max(self.max_label_length, len(label))
+						self.unit_tests[label] = (filename, srcdir)
+				except KeyError:
+					pass
 		self.total_num_tests = len(self.unit_tests)
 		# Now run the unit tests
 		Utils.pprint('GREEN', 'Running the unit tests')
