@@ -68,8 +68,7 @@ class unit_test(object):
 
 		# Gather unit tests to call
 		for obj in Build.bld.all_task_gen:
-			if not hasattr(obj,'unit_test'): continue
-			unit_test = getattr(obj,'unit_test')
+			unit_test = getattr(obj,'unit_test', '')
 			if not unit_test: continue
 			try:
 				if 'program' in obj.features:
