@@ -4,7 +4,7 @@
 # Thomas Nagy 2008
 
 import re
-import Task, Utils
+import Task, Utils, Logs
 from TaskGen import extension
 from Configure import conf
 import preproc
@@ -41,21 +41,20 @@ def scan(self):
 		code = preproc.re_nl.sub('', code)
 		code = preproc.re_cpp.sub(preproc.repl, code)
 
-		# find .i files (and perhaps .h files)
-		names = re_2.findall(code)
+		# find .i files and project headers
+		names = re_2.findall(code) + re_3.findall(code)
 		for n in names:
-			u = node.parent.find_resource(n)
-			if u:
-				to_see.append(u)
-
-		# find project headers
-		names = re_3.findall(code)
-		for n in names:
-			u = node.parent.find_resource(n)
-			if u:
-				to_see.append(u)
+			for d in self.generator.swig_dir_nodes + [node.parent]:
+				u = d.find_resource(n)
+				if u:
+					to_see.append(u)
+					break
+			else:
+				Logs.warn('could not find %r' % n)
 
 	# list of nodes this one depends on, and module name if present
+	if Logs.verbose:
+		Logs.debug('deps: deps for %s: %s' % (str(self), str(lst_src)))
 	return (lst_src, [])
 cls.scan = scan
 
