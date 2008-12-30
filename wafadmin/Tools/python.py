@@ -167,8 +167,8 @@ def check_python_headers(conf):
 
 	try:
 		# Get some python configuration variables using distutils
-		v = 'prefix SO SYSLIBS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
-		(python_prefix, python_SO, python_SYSLIBS, python_SHLIBS,
+		v = 'prefix SO SYSLIBS LDFLAGS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED'.split()
+		(python_prefix, python_SO, python_SYSLIBS, python_LDFLAGS, python_SHLIBS,
 		 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED) = \
 			_get_python_variables(python, ["get_config_var('%s')" % x for x in v],
 					      ['from distutils.sysconfig import get_config_var'])
@@ -179,12 +179,13 @@ def check_python_headers(conf):
 python_prefix = %r
 python_SO = %r
 python_SYSLIBS = %r
+python_LDFLAGS = %r
 python_SHLIBS = %r
 python_LIBDIR = %r
 python_LIBPL = %r
 INCLUDEPY = %r
 Py_ENABLE_SHARED = %r
-""" % (python, python_prefix, python_SO, python_SYSLIBS, python_SHLIBS,
+""" % (python, python_prefix, python_SO, python_SYSLIBS, python_LDFLAGS, python_SHLIBS,
 	python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED))
 
 	env['pyext_PATTERN'] = '%s'+python_SO
@@ -200,6 +201,8 @@ Py_ENABLE_SHARED = %r
 			if lib.startswith('-l'):
 				lib = lib[2:] # strip '-l'
 			env.append_value('LIB_PYEMBED', lib)
+
+	env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS)
 
 	code = '''
 #ifdef __cplusplus
@@ -289,6 +292,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	test_env.append_value('CPPPATH', env['CPPPATH_PYEMBED'])
 	test_env.append_value('LIBPATH', env['LIBPATH_PYEMBED'])
 	test_env.append_value('LIB', env['LIB_PYEMBED'])
+	test_env.append_value('LINKFLAGS', env['LINKFLAGS_PYEMBED'])
 	test_env.append_value('CXXFLAGS', env['CXXFLAGS_PYEMBED'])
 	test_env.append_value('CCFLAGS', env['CCFLAGS_PYEMBED'])
 	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H', env=test_env,
