@@ -104,10 +104,9 @@ except ImportError:
 		f = file(filename,'rb')
 		m = md5()
 		readBytes = 100000
-		while (readBytes):
-			readString = f.read(readBytes)
-			m.update(readString)
-			readBytes = len(readString)
+		while (filename):
+			filename = f.read(100000)
+			m.update(filename)
 		f.close()
 		return m.digest()
 
@@ -414,9 +413,6 @@ def detect_platform():
 
 	return s
 
-def nada():
-	pass
-
 def load_tool(tool, tooldir=None):
 	if tooldir:
 		assert isinstance(tooldir, list)
@@ -427,4 +423,8 @@ def load_tool(tool, tooldir=None):
 		if tooldir:
 			for d in tooldir:
 				sys.path.remove(d)
+
+def nada(*k, **kw):
+	"""A function that does nothing"""
+	pass
 
