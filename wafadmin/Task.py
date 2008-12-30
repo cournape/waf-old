@@ -120,7 +120,7 @@ class TaskManager(object):
 
 	def add_task(self, task):
 		if not self.groups: self.add_group()
-		self.groups[-1].add_task(task)
+		self.groups[-1].tasks.append(task)
 
 	def total(self):
 		total = 0
@@ -191,10 +191,6 @@ class TaskGroup(object):
 			h = x.hash_constraints()
 			try: self.cstr_groups[h].append(x)
 			except KeyError: self.cstr_groups[h] = [x]
-
-	def add_task(self, task):
-		try: self.tasks.append(task)
-		except KeyError: self.tasks = [task]
 
 	def set_order(self, a, b):
 		try: self.cstr_order[a].add(b)
