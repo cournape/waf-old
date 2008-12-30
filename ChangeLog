@@ -5,6 +5,9 @@ NEW IN WAF 1.5.3
 * enable libraries using only add_objects (no sources)
 * minor optimizations
 * let the digest written in the waf file match the digest of the binary archive
+* windows: use shutil.move instead of os.rename
+* load modules only once
+* add -pthread flags for python extensions on FreeBSD
 
 NEW IN WAF 1.5.2
 ----------------
