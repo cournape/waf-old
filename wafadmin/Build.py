@@ -167,7 +167,7 @@ class BuildContext(object):
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
 		cPickle.dump(data, file, -1) # remove the '-1' for unoptimized version
 		file.close()
-		os.rename(db + '.tmp', db)
+		shutil.move(db + '.tmp', db)
 		self.root.__class__.bld = self
 		gc.enable()
 
