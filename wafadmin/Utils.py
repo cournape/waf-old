@@ -417,3 +417,14 @@ def detect_platform():
 def nada():
 	pass
 
+def load_tool(tool, tooldir=None):
+	if tooldir:
+		assert isinstance(tooldir, list)
+		sys.path = tooldir + sys.path
+	try:
+		return __import__(tool)
+	finally:
+		if tooldir:
+			for d in tooldir:
+				sys.path.remove(d)
+

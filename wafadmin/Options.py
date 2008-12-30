@@ -210,17 +210,7 @@ class Handler(object):
 
 	def tool_options(self, tool, tdir=None, option_group=None):
 		Utils.python_24_guard()
-		if type(tool) is types.ListType:
-			for i in tool: self.tool_options(i, tdir, option_group)
-			return
-
-		if not tdir: tdir = tooldir
-		tdir = Utils.to_list(tdir)
-		try:
-			file,name,desc = imp.find_module(tool, tdir)
-		except ImportError:
-			raise Utils.WscriptError("no tool named '%s' found" % tool)
-		module = imp.load_module(tool,file,name,desc)
+		module = Utils.load_tool(tool, tooldir)
 		try:
 			fun = module.set_options
 		except AttributeError:

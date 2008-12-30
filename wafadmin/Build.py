@@ -333,12 +333,7 @@ class BuildContext(object):
 		if not tooldir: tooldir = Options.tooldir
 
 		file = None
-		key = str((tool, tooldir))
-		module = g_modcache.get(key, None)
-		if not module:
-			file,name,desc = imp.find_module(tool, tooldir)
-			module = imp.load_module(tool,file,name,desc)
-			g_modcache[key] = module
+		module = Utils.load_tool(tool, tooldir)
 		if hasattr(module, "setup"): module.setup(self)
 		if file: file.close()
 

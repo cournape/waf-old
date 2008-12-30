@@ -122,12 +122,7 @@ class ConfigurationContext(object):
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
 		for tool in tools:
-			try:
-				file,name,desc = imp.find_module(tool, tooldir)
-			except ImportError:
-				self.fatal("no tool named '%s' found." % tool)
-			module = imp.load_module(tool, file, name, desc)
-
+			module = Utils.load_tool(tool, tooldir)
 			func = getattr(module, 'detect', None)
 			if func:
 				if type(func) is types.FunctionType: func(self)
