@@ -68,17 +68,17 @@ class ccroot_abstract(TaskGen.task_gen):
 @before('init_cc', 'init_cxx')
 def default_cc(self):
 	Utils.def_attrs(self,
-		includes='',
-		defines='',
-		rpaths='',
-		uselib='',
-		uselib_local='',
-		add_objects='',
-		p_flag_vars=[],
-		p_type_vars=[],
-		scanner_defines={},
-		compiled_tasks=[],
-		link_task=None)
+		includes = '',
+		defines= '',
+		rpaths = '',
+		uselib = '',
+		uselib_local = '',
+		add_objects = '',
+		p_flag_vars = [],
+		p_type_vars = [],
+		scanner_defines = {},
+		compiled_tasks = [],
+		link_task = None)
 
 def get_target_name(self):
 	tp = 'program'
@@ -94,7 +94,7 @@ def get_target_name(self):
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
-	if not self.source and not self.add_objects:
+	if not (self.source or getattr(self, 'add_objects', None)):
 		raise Utils.WafError('no source files specified for %s' % self)
 	if not self.target:
 		raise Utils.WafError('no target for %s' % self)
