@@ -22,9 +22,6 @@ from Constants import *
 SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
 
-g_modcache = {}
-"Cache for the tools (modules), re-importing raises errors"
-
 bld = None
 "singleton - safe to use when Waf is not used as a library"
 
