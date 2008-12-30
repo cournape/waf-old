@@ -63,8 +63,7 @@ The scheme 2 will not allow for running tasks one by one so it can cause disk th
 
 """
 
-FILE_DEPS = False
-def file_deps(tasks):
+def extract_outputs(tasks):
 	"""Infer dependencies from task input and output nodes
 	"""
 
@@ -90,6 +89,12 @@ def file_deps(tasks):
 			for a in ins[k]:
 				for b in outs[k]:
 					a.set_run_after(b)
+
+def extract_deps(tasks):
+	pass
+
+file_deps = Utils.nada
+"""Additional dependency pre-check may be added by replacing the function file_deps"""
 
 class TaskManager(object):
 	"""The manager is attached to the build object, it holds a list of TaskGroup"""
@@ -158,8 +163,7 @@ class TaskGroup(object):
 	def prepare(self):
 		"prepare the scheduling"
 		self.ready = 1
-		if FILE_DEPS:
-			file_deps(self.tasks)
+		file_deps(self.tasks)
 		self.make_cstr_groups()
 		self.extract_constraints()
 
@@ -242,8 +246,6 @@ class TaskGroup(object):
 					self.set_order(keys[i], keys[j])
 				elif val < 0:
 					self.set_order(keys[j], keys[i])
-
-		# TODO: extract constraints by file extensions on the actions
 
 	def tasks_in_parallel(self):
 		"(NORMAL) next list of tasks that may be executed in parallel"
