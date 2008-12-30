@@ -515,13 +515,17 @@ class Task(TaskBase):
 		try:
 			return self.uid
 		except AttributeError:
+			"this is not a real hot zone, but we want to avoid surprizes here"
 			m = md5()
 			up = m.update
-			up(self.env.variant())
-			for x in self.inputs + self.outputs:
-				up(x.abspath())
 			up(self.__class__.__name__)
-			up(Utils.h_fun(self.run))
+			up(self.env.variant())
+			p = None
+			for x in self.inputs + self.outputs:
+				if p != x.parent.id:
+					p = x.parent.id
+					up(x.parent.abspath())
+				up(x.name)
 			self.uid = m.digest()
 			return self.uid
 
