@@ -425,12 +425,13 @@ class TaskBase(object):
 
 	def hash_constraints(self):
 		"identify a task type for all the constraints relevant for the scheduler: precedence, file production"
-		sum = 0
-		names = ('before', 'after', 'ext_in', 'ext_out')
-		sum = hash((sum, self.__class__.__name__,))
-		for x in names:
-			sum = hash((sum, str(self.attr(x, 0)),))
-		sum = hash((sum, self.__class__.maxjobs))
+		a = self.attr
+		sum = hash((self.__class__.__name__,
+			str(a('before', '')),
+			str(a('after', '')),
+			str(a('ext_in', '')),
+			str(a('ext_out', '')),
+			self.__class__.maxjobs))
 		return sum
 
 	def format_error(self):
