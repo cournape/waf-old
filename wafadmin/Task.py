@@ -420,8 +420,10 @@ class TaskBase(object):
 		return fs % (self.position[0], self.position[1], col1, str(self), col2)
 
 	def attr(self, att, default=None):
-		"retrieve an attribute from the instance or from the class"
-		return getattr(self, att, getattr(self.__class__, att, default))
+		"retrieve an attribute from the instance or from the class (microoptimization here)"
+		ret = getattr(self, att, self)
+		if ret is self: return getattr(self.__class__, att, default)
+		return ret
 
 	def hash_constraints(self):
 		"identify a task type for all the constraints relevant for the scheduler: precedence, file production"
