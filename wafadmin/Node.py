@@ -356,7 +356,9 @@ class Node(object):
 		if not self.name:
 			return '/'
 
-		variant = self.variant(env)
+		# less expensive
+		variant = (env and (self.id & 3 != FILE) and env.variant()) or 0
+		#variant = self.variant(env)
 		ret = self.__class__.bld.cache_node_abspath[variant].get(self.id, None)
 		if ret: return ret
 
