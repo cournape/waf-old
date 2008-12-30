@@ -29,8 +29,7 @@ def apply_msgfmt(self):
 		if not Options.is_install: continue
 		langname = lang.split('/')
 		langname = langname[-1]
-		task.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'
-		task.filename = getattr(self, 'appname', 'set_your_appname') + '.mo'
+		task.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES' + os.sep + getattr(self, 'appname', 'set_your_appname') + '.mo'
 		task.chmod = self.chmod
 
 def detect(conf):
