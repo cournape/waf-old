@@ -131,12 +131,9 @@ class Environment(object):
 		else:
 			if value not in current_value:
 				current_value.append(value)
-
-	def store(self, filename):
-		"Write the variables into a file"
-		file = open(filename, 'w')
-
-		# compute a merged table
+	
+	def get_merged_dict(self):
+		"""compute a merged table"""
 		table_list = []
 		env = self
 		while 1:
@@ -146,7 +143,12 @@ class Environment(object):
 		merged_table = {}
 		for table in table_list:
 			merged_table.update(table)
+		return merged_table
 
+	def store(self, filename):
+		"Write the variables into a file"
+		file = open(filename, 'w')
+		merged_table = self.get_merged_dict()
 		keys = merged_table.keys()
 		keys.sort()
 		for k in keys: file.write('%s = %r\n' % (k, merged_table[k]))
