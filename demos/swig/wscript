@@ -27,18 +27,18 @@ def configure(conf):
 
 def build(bld):
 	obj = bld.new_task_gen('cxx', 'program', 'pyembed')
-	obj.source = 'src1.cpp bind.swig'
-	obj.target = 'embed_demo'
+	obj.source = 'embed/src1.cpp embed/bind.swig'
+	obj.target = 'embed/embed_demo'
 	obj.swig_flags = '-c++ -python -dump_classes'
+	obj.includes = '. embed'
 	# the -dump_classes is for debugging
-
 
 
 def shutdown():
 	import os, stat
 	try:
-		os.stat('build/default/swigdemo')
-		os.popen('PYTHONPATH=$PYTHONPATH:build/default/ build/default/embed_demo')
+		os.stat('build/default/embed/embed_demo')
+		os.popen('PYTHONPATH=$PYTHONPATH:build/default/embed/ build/default/embed/embed_demo')
 	except:
 		pass
 
