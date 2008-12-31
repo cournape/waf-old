@@ -213,7 +213,14 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
+int main(int argc, char *argv[])
+{
+   argc++; /* avoid unused variable warning */
+   argv++; /* avoid unused variable warning */
+   Py_Initialize();
+   Py_Finalize();
+   return 0;
+}
 '''
 
 	result = False
@@ -296,7 +303,7 @@ int main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }
 	test_env.append_value('CXXFLAGS', env['CXXFLAGS_PYEMBED'])
 	test_env.append_value('CCFLAGS', env['CCFLAGS_PYEMBED'])
 	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H', env=test_env,
-		fragment='''#include <Python.h>\nint main(int argc, char *argv[]) { Py_Initialize(); Py_Finalize(); return 0; }\n''', errmsg='Could not find the python development headers', mandatory=1)
+		fragment='''#include <Python.h>\nint main(int argc, char *argv[]) { argc++; argv++; Py_Initialize(); Py_Finalize(); return 0; }\n''', errmsg='Could not find the python development headers', mandatory=1)
 
 @conf
 def check_python_version(conf, minver=None):
