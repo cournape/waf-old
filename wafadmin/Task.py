@@ -918,7 +918,7 @@ def extract_deps(tasks):
 	returned by the scanners - that will only work if all tasks are created
 
 	this is aimed at people who have pathological builds and who do not care enough
-	to implement the dependencies properly
+	to implement the build dependencies properly
 
 	with two loops over the list of tasks, do not expect this to be really fast
 	"""
@@ -931,11 +931,12 @@ def extract_deps(tasks):
 	for x in tasks:
 		v = x.env.variant()
 		try:
-			o = task.outputs
+			lst = x.outputs
 		except AttributeError:
 			pass
 		else:
-			out_to_task[(v, i)] = [x]
+			for node in lst:
+				out_to_task[(v, node.id)] = x
 
 	# map the dependencies found to the tasks compiled
 	dep_to_task = {}
@@ -944,17 +945,20 @@ def extract_deps(tasks):
 			x.signature()
 		except: # this is on purpose
 			pass
-		else:
-			variant = x.env.variant()
-			for k in x.generator.bld.node_deps.get(x.unique_id(), []):
-				dep_to_task[(v, k.id)] = x
+
+		variant = x.env.variant()
+		key = x.unique_id()
+		for k in x.generator.bld.node_deps.get(x.unique_id(), []):
+			try: dep_to_task[(v, k.id)].append(x)
+			except KeyError: dep_to_task[(v, k.id)] = [x]
 
 	# now get the intersection
 	deps = set(dep_to_task.keys()).intersection(set(out_to_task.keys()))
 
 	# and add the dependencies from task to task
 	for idx in deps:
-		dep_to_task[idx].set_run_after(out_to_task[idx])
+		for k in dep_to_task[idx]:
+			k.set_run_after(out_to_task[idx])
 
 	# cleanup, remove the signatures
 	for x in tasks:
