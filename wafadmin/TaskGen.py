@@ -489,7 +489,10 @@ def exec_rule(self):
 	vars2 = []
 	if isinstance(func, str):
 		(func, vars2) = Task.compile_fun('', self.rule)
+		func.code = self.rule
 	vars = getattr(self, 'vars', vars2)
+	if not vars:
+		vars = self.rule
 
 	# create the task class
 	name = getattr(self, 'name', None) or self.target or self.rule
