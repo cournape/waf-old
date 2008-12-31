@@ -33,12 +33,33 @@ def build(bld):
 	obj.includes = '. embed'
 	# the -dump_classes is for debugging
 
+	bld.new_task_gen(
+		features = 'cxx cshlib',
+		source = 'extend/a.cpp',
+		target = 'mylib',
+		includes = 'extend',
+		export_inc_dirs = 'extend',
+		vnum = '1.2.3')
+
+	bld.new_task_gen(
+		features = 'cxx cshlib pyext',
+		source = 'extend/python/test_swig_waf.i',
+		target = '_test_swig_waf',
+		swig_flags = '-c++ -python -Wall',
+		includes = 'extend',
+		uselib_local = 'mylib')
+
 
 def shutdown():
 	import os, stat
 	try:
 		os.stat('build/default/embed/embed_demo')
-		os.popen('PYTHONPATH=$PYTHONPATH:build/default/embed/ build/default/embed/embed_demo')
+		print os.popen('PYTHONPATH=$PYTHONPATH:build/default/embed/ build/default/embed/embed_demo').read()
+	except:
+		pass
+
+	try:
+		print os.popen('PYTHONPATH=$PYTHONPATH:build/default/ LD_LIBRARY_PATH=$LD_LIBRARY_PATH:build/default/ python -c "import test_swig_waf;a=test_swig_waf.A();print \'Testing: a.add(2, 3) =\', a.add(2, 3)"').read()
 	except:
 		pass
 
