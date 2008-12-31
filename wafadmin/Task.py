@@ -60,38 +60,7 @@ Enable different kind of dependency algorithms:
 
 In theory 1. will be faster than 2 for waf, but might be slower for builds
 The scheme 2 will not allow for running tasks one by one so it can cause disk thrashing on huge builds
-
 """
-
-def extract_outputs(tasks):
-	"""Infer dependencies from task input and output nodes
-	"""
-
-	v = {}
-	for x in tasks:
-		try:
-			(ins, outs) = v[x.env.variant()]
-		except KeyError:
-			ins = {}
-			outs = {}
-			v[x.env.variant()] = (ins, outs)
-
-		for a in getattr(x, 'inputs', []):
-			try: ins[a.id].append(x)
-			except KeyError: ins[a.id] = [x]
-		for a in getattr(x, 'outputs', []):
-			try: outs[a.id].append(x)
-			except KeyError: outs[a.id] = [x]
-
-	for (ins, outs) in v.values():
-		links = set(ins.iterkeys()).intersection(outs.iterkeys())
-		for k in links:
-			for a in ins[k]:
-				for b in outs[k]:
-					a.set_run_after(b)
-
-def extract_deps(tasks):
-	pass
 
 file_deps = Utils.nada
 """Additional dependency pre-check may be added by replacing the function file_deps"""
@@ -917,4 +886,80 @@ def update_outputs(cls):
 		bld.node_sigs[self.env.variant()][self.outputs[0].id] = \
 		Utils.h_file(self.outputs[0].abspath(self.env))
 	cls.post_run = post_run
+
+def extract_outputs(tasks):
+	"""file_deps: Infer additional dependencies from task input and output nodes
+	"""
+	v = {}
+	for x in tasks:
+		try:
+			(ins, outs) = v[x.env.variant()]
+		except KeyError:
+			ins = {}
+			outs = {}
+			v[x.env.variant()] = (ins, outs)
+
+		for a in getattr(x, 'inputs', []):
+			try: ins[a.id].append(x)
+			except KeyError: ins[a.id] = [x]
+		for a in getattr(x, 'outputs', []):
+			try: outs[a.id].append(x)
+			except KeyError: outs[a.id] = [x]
+
+	for (ins, outs) in v.values():
+		links = set(ins.iterkeys()).intersection(outs.iterkeys())
+		for k in links:
+			for a in ins[k]:
+				for b in outs[k]:
+					a.set_run_after(b)
+
+def extract_deps(tasks):
+	"""file_deps: Infer additional dependencies from task input and output nodes and from implicit dependencies
+	returned by the scanners - that will only work if all tasks are created
+
+	this is aimed at people who have pathological builds and who do not care enough
+	to implement the dependencies properly
+
+	with two loops over the list of tasks, do not expect this to be really fast
+	"""
+
+	# first reuse the function above
+	extract_outputs(tasks)
+
+	# map the output nodes to the tasks producing them
+	out_to_task = {}
+	for x in tasks:
+		v = x.env.variant()
+		try:
+			o = task.outputs
+		except AttributeError:
+			pass
+		else:
+			out_to_task[(v, i)] = [x]
+
+	# map the dependencies found to the tasks compiled
+	dep_to_task = {}
+	for x in tasks:
+		try:
+			x.signature()
+		except: # this is on purpose
+			pass
+		else:
+			variant = x.env.variant()
+			for k in x.generator.bld.node_deps.get(x.unique_id(), []):
+				dep_to_task[(v, k.id)] = x
+
+	# now get the intersection
+	deps = set(dep_to_task.keys()).intersection(set(out_to_task.keys()))
+
+	# and add the dependencies from task to task
+	for idx in deps:
+		dep_to_task[idx].set_run_after(out_to_task[idx])
+
+	# cleanup, remove the signatures
+	for x in tasks:
+		try:
+			delattr(x, 'cache_sig')
+		except AttributeError:
+			pass
 
