@@ -11,6 +11,8 @@ NEW IN WAF 1.5.3
 * uselib local fixes
 * minor optimizations
 * demo scripts improvements (cc, cxx)
+* warn for invalid or missing features
+* raise an exception for the use of install_files and install_as with 1.4 apis
 
 NEW IN WAF 1.5.2
 ----------------
