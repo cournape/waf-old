@@ -58,11 +58,11 @@ def scan(self):
 class ccroot_abstract(TaskGen.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
 		# COMPAT
 		if len(k) > 1:
-			self.features.append('c' + k[1])
+			k = list(k)
+			k[1] = 'c' + k[1]
+		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('cc', 'cxx')
 @before('init_cc', 'init_cxx')
