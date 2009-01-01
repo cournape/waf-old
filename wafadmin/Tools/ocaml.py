@@ -108,13 +108,12 @@ def init_envs_ml(self):
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
 	lst = self.incpaths_lst
-	tree = Build.bld
 	for dir in inc_lst:
 		node = self.path.find_dir(dir)
 		if not node:
 			error("node not found: " + str(dir))
 			continue
-		Build.bld.rescan(node)
+		self.bld.rescan(node)
 		if not node in lst: lst.append(node)
 		self.bld_incpaths_lst.append(node)
 	# now the nodes are added to self.incpaths_lst
@@ -236,7 +235,7 @@ def compile_may_start(self):
 		else: alltasks = self.obj.native_tasks
 
 		self.signature() # ensure that files are scanned - unfortunately
-		tree = Build.bld
+		tree = self.generator.bld
 		env = self.env
 		for node in self.inputs:
 			lst = tree.node_deps[self.unique_id()]
