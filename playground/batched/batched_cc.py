@@ -26,14 +26,14 @@ import TaskGen, Task, ccroot, Build
 from TaskGen import extension
 from Constants import *
 
-#Task.algotype = JOBCONTROL
+Task.algotype = JOBCONTROL
 
 class batch_task(Task.Task):
 	#before = 'cc_link cxx_link ar_link_static'
 	before = 'cc_link'
 	after = 'cc cxx'
 	color = 'RED'
-	maxjobs = 1
+	maxjobs = 0
 
 	def __str__(self):
 		return '(batch compilation)\n'
@@ -85,11 +85,9 @@ class batch_task(Task.Task):
 		# unfortunately building the files in batch mode outputs
 		# them into the current folder (the build dir)
 		# move them to the correct location
-		ext = '_%d' % self.generator.idx
 		for i in outputs:
-			name = i.name.replace(ext, '')
 			#print "moving", name, i.bldpath(env)
-			shutil.move(name, i.bldpath(env))
+			shutil.move(i.name.replace(self.generator.obj_ext, '.o'), i.bldpath(env))
 
 		return None
 
@@ -102,7 +100,16 @@ class batch_task(Task.Task):
 
 			t.generator.bld.task_sigs[t.unique_id()] = t.cache_sig
 
-from TaskGen import extension
+from TaskGen import extension, feature, before
+
+idx = 123456789
+@feature('cc', 'cxx')
+@before('apply_core')
+def add_obj_ext(self):
+	global idx
+	idx += 1
+	self.obj_ext = '_%d.o' % idx
+
 import cc, cxx
 def wrap(fun):
 	def foo(self, node):
