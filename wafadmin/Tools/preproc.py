@@ -385,7 +385,6 @@ class c_parser(object):
 		self.currentnode_stack = []
 
 		self.nodepaths = nodepaths or []
-		#self.nodepaths.append(Build.bld.root.find_dir('/usr/include'))
 
 		self.nodes = []
 		self.names = []
@@ -393,13 +392,6 @@ class c_parser(object):
 		# file added
 		self.curfile = ''
 		self.ban_includes = []
-
-		# dynamic cache
-		try:
-			self.parse_cache = Build.bld.parse_cache
-		except AttributeError:
-			Build.bld.parse_cache = {}
-			self.parse_cache = Build.bld.parse_cache
 
 	def tryfind(self, filename):
 		self.curfile = filename
@@ -455,6 +447,12 @@ class c_parser(object):
 
 		self.env = env
 		variant = node.variant(env)
+		bld = node.__class__.bld
+		try:
+			self.parse_cache = bld.parse_cache
+		except AttributeError:
+			bld.parse_cache = {}
+			self.parse_cache = bld.parse_cache
 
 		self.addlines(node)
 		if env['DEFLINES']:
@@ -686,10 +684,6 @@ if __name__ == "__main__":
 
 	Logs.verbose = 2
 	Logs.zones = ['preproc']
-	class dum:
-		def __init__(self):
-			self.parse_cache = {}
-	Build.bld = dum()
 
 	try: arg = sys.argv[1]
 	except IndexError: arg = "file.c"
