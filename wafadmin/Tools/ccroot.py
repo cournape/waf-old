@@ -258,14 +258,15 @@ def apply_lib_vars(self):
 		y.post()
 		seen.append(x)
 
-		# some linkers can link against programs
+		# WARNING some linkers can link against programs
+		libname = y.target[y.target.rfind(os.sep) + 1:]
 		if 'cshlib' in y.features or 'cprogram' in y.features:
-			env.append_value('LIB', y.target)
+			env.append_value('LIB', libname)
 		elif 'cstaticlib' in y.features:
-			env.append_value('STATICLIB', y.target)
+			env.append_value('STATICLIB', libname)
 
 		# add the link path too
-		tmp_path = y.path.bldpath(self.env)
+		tmp_path = y.link_task.outputs[0].parent.bldpath(self.env)
 		if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
 		# set the dependency over the link task
