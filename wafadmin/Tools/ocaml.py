@@ -77,7 +77,6 @@ def init_ml(self):
 		compiled_tasks = [],
 		includes = '',
 		uselib = '',
-		out_nodes = [],
 		are_deps_set = 0)
 
 @taskgen
@@ -165,10 +164,8 @@ def apply_link_ml(self):
 		linktask.env = self.native_env
 		self.linktasks.append(linktask)
 
-		self.out_nodes += linktask.outputs
-
 		# we produce a .o file to be used by gcc
-		if self.type == 'c_object': self.compiled_tasks.append(linktask)
+		self.compiled_tasks.append(linktask)
 
 @extension(EXT_MLL)
 def mll_hook(self, node):
@@ -204,7 +201,7 @@ def mlc_hook(self, node):
 	task.set_inputs(node)
 	task.set_outputs(node.change_ext('.o'))
 
-	self.out_nodes += task.outputs
+	self.compiled_tasks.append(task)
 
 @extension(EXT_ML)
 def ml_hook(self, node):
