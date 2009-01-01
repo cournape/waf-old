@@ -111,7 +111,7 @@ def install_shlib(self):
 	name1 = libname
 
 	filename = self.outputs[0].abspath(self.env)
-	bld = Build.bld
+	bld = self.outputs[0].__class__.bld
 	bld.install_as(os.path.join(path, name3), filename, env=self.env)
 	bld.symlink_as(os.path.join(path, name2), name3)
 	bld.symlink_as(os.path.join(path, name1), name3)

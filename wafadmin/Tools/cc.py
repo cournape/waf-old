@@ -51,7 +51,6 @@ def apply_obj_vars_cc(self):
 
 @feature('cc')
 def apply_defines_cc(self):
-	tree = Build.bld
 	self.defines = getattr(self, 'defines', [])
 	lst = self.to_list(self.defines) + self.to_list(self.env['CCDEFINES'])
 	milst = []

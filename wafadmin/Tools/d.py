@@ -479,10 +479,6 @@ Task.simple_task_type('d_header', d_header_str, color='BLUE')
 # quick test #
 if __name__ == "__main__":
 	#Logs.verbose = 2
-	#class dum:
-	#	def __init__(self):
-	#		self.parse_cache_d = {}
-	#Build.bld = dum()
 
 	try: arg = sys.argv[1]
 	except IndexError: arg = "file.d"
