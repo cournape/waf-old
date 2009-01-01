@@ -123,7 +123,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 	program = list(imports)
 	program.append('')
 	for v in variables:
-		program.append("print repr(%s)" % v)
+		program.append("print(repr(%s))" % v)
 	proc = pproc.Popen([python_exe, "-c", '\n'.join(program)], stdout=pproc.PIPE)
 	output = proc.communicate()[0].split("\n")
 	if proc.returncode:
@@ -322,7 +322,7 @@ def check_python_version(conf, minver=None):
 	assert python, ("python is %r !" % (python,))
 
 	# Get python version string
-	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print str(x)"]
+	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print(str(x))"]
 	debug('python: Running python command %r' % cmd)
 	proc = pproc.Popen(cmd, stdout=pproc.PIPE)
 	lines = proc.communicate()[0].split()
