@@ -1,13 +1,16 @@
 NEW IN WAF 1.5.3
 ----------------
-* progress bar fixes with variants
-* progress bar fixes with -pp
+* progress bar fixes with variants and with -pp (ide output)
 * enable libraries using only add_objects (no sources)
-* minor optimizations
 * let the digest written in the waf file match the digest of the binary archive
 * windows: use shutil.move instead of os.rename
 * load modules only once
 * add -pthread flags for python extensions on FreeBSD
+* show how to build swig extensions besides embedded interpreters
+* fix the installation of kde4 locale files
+* uselib local fixes
+* minor optimizations
+* demo scripts improvements (cc, cxx)
 
 NEW IN WAF 1.5.2
 ----------------
