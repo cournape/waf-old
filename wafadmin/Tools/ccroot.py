@@ -319,7 +319,7 @@ def apply_objdeps(self):
 			raise Utils.WafError("object '%s' was not found in uselib_local (required by add_objects '%s')" % (x, self.name))
 
 		# object has ancestors to process first ? update the list of names
-		if y.add_objects:
+		if getattr(y, 'add_objects', None):
 			added = 0
 			lst = y.to_list(y.add_objects)
 			lst.reverse()
