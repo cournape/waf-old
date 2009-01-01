@@ -16,7 +16,7 @@ obj.source='''
 main.cpp
 '''
 obj.includes     = '. ../src'
-obj.uselib_local = 'tony john'
+obj.uselib_local = 'unique1 john'
 obj.target       = 'testprogram2'
 
 # demonstrate using of custom linker for an object
