@@ -199,6 +199,7 @@ class BuildContext(object):
 				setattr(self, v, var)
 
 	def compile(self):
+		"""The cache file is not written if nothing was build at all (build is up to date)"""
 		debug('build: compile called')
 
 		os.chdir(self.bdir)
@@ -227,7 +228,8 @@ class BuildContext(object):
 		except KeyboardInterrupt:
 			dw()
 			os.chdir(self.srcnode.abspath())
-			self.save()
+			if self.generator.consumers:
+				self.save()
 			Utils.pprint('RED', 'Build interrupted')
 			if Logs.verbose > 1: raise
 			else: sys.exit(68)
@@ -237,7 +239,8 @@ class BuildContext(object):
 			raise
 		else:
 			dw()
-			self.save()
+			if self.generator.consumers:
+				self.save()
 
 		if self.generator.error:
 			os.chdir(self.srcnode.abspath())
