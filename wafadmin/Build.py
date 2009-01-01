@@ -705,6 +705,9 @@ class BuildContext(object):
 		return destpath
 
 	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False):
+		if env:
+			assert(isinstance(env, Environment.Environment))
+
 		if not Options.is_install: return []
 		if not path: return []
 
@@ -742,6 +745,9 @@ class BuildContext(object):
 
 	def install_as(self, path, srcfile, env=None, chmod=O644):
 		"""returns True if the file was effectively installed, False otherwise"""
+		if env:
+			assert(isinstance(env, Environment.Environment))
+
 		if not Options.is_install: return False
 		if not path: return False
 
