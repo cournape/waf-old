@@ -185,10 +185,8 @@ def prepare(t, cwd, ver, wafdir):
 		{'t': t, 'cwd':cwd, 'ver':ver, 'wafdir':wafdir},
 		 'profi.txt')
 	p = pstats.Stats('profi.txt')
-	p.sort_stats('time').print_stats(25)
-
-	return
-	"""
+	p.sort_stats('time').print_stats(45)
+	#"""
 
 def main():
 	if Options.commands['configure']:
