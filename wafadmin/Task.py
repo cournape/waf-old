@@ -436,8 +436,8 @@ class TaskBase(object):
 				# if src is given, install the sources too
 				lst += [a.relpath_gen(bld.srcnode) for a in self.inputs]
 			if self.attr('filename'):
-				dir = self.install_path + self.attr('filename')
-				bld.install_as(self.install_path, lst[0], self.env, perm)
+				dir = self.install_path.rstrip(os.sep) + os.sep + self.attr('filename')
+				bld.install_as(dir, lst[0], self.env, perm)
 			else:
 				bld.install_files(self.install_path, lst, self.env, perm)
 
