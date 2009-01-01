@@ -75,7 +75,7 @@ def apply_link_libtool(self):
 		self.latask = latask
 
 	if Options.commands['install'] or Options.commands['uninstall']:
-		Build.bld.install_files('PREFIX', 'lib', linktask.outputs[0].abspath(self.env), self.env)
+		self.bld.install_files('PREFIX', 'lib', linktask.outputs[0].abspath(self.env), self.env)
 
 @taskgen
 @feature("libtool")

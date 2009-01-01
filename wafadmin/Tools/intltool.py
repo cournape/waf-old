@@ -21,7 +21,6 @@ class intltool_in_taskgen(TaskGen.task_gen):
 
 	def apply(self):
 		self.env = self.env.copy()
-		tree = Build.bld
 		for i in self.to_list(self.source):
 			node = self.path.find_resource(i)
 
@@ -51,7 +50,7 @@ class intltool_po_taskgen(TaskGen.task_gen):
 			filename = out.name
 			(langname, ext) = os.path.splitext(filename)
 			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
-			Build.bld.install_as(
+			self.bld.install_as(
 				os.path.join(self.install_path, inst_file),
 				out.abspath(self.env), chmod=self.chmod)
 

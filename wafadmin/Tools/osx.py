@@ -144,7 +144,7 @@ def install_shlib(task):
 	name1 = libname
 
 	filename = task.outputs[0].abspath(task.env)
-	bld = Build.bld
+	bld = task.outputs[0].__class__.bld
 	bld.install_as(path + name3, filename, env=task.env)
 	bld.symlink_as(path + name2, name3)
 	bld.symlink_as(path + name1, name3)

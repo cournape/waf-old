@@ -50,7 +50,7 @@ def process_py(self, node):
 	if Options.is_install and self.install_path:
 		if not hasattr(self, '_py_installed_files'):
 			self._py_installed_files = []
-		installed_files = Build.bld.install_files(
+		installed_files = self.bld.install_files(
 					self.install_path,
 					node.abspath(self.env),
 					self.env,

@@ -58,9 +58,9 @@ class MTask(Task.Task):
 
 	def add_moc_tasks(self):
 
-		tree = Build.bld
 		parn = self.parent
 		node = self.inputs[0]
+		tree = node.__class__.bld
 
 		try:
 			# compute the signature once to know if there is a moc file to create
@@ -118,7 +118,7 @@ class MTask(Task.Task):
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
-			generator = Build.bld.generator
+			generator = tree.generator
 			generator.outstanding.insert(0, task)
 			generator.total += 1
 
@@ -136,7 +136,7 @@ class MTask(Task.Task):
 				task.set_inputs(tree.node_deps[(self.inputs[0].parent.id, self.env.variant(), name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
-				generator = Build.bld.generator
+				generator = tree.generator
 				generator.outstanding.insert(0, task)
 				generator.total += 1
 
@@ -273,9 +273,9 @@ def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
 	self.lang = getattr(self, 'lang', '')
 	for name in dirnames:
 		anode = self.path.find_dir(name)
-		Build.bld.rescan(anode)
+		self.bld.rescan(anode)
 
-		for name in Build.bld.cache_dir_contents[anode.id]:
+		for name in self.bld.cache_dir_contents[anode.id]:
 			(base, ext) = os.path.splitext(name)
 			if ext in ext_lst:
 				if not name in lst:

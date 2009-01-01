@@ -85,7 +85,7 @@ def apply_gnome_doc(self):
 
 		if Options.is_install:
 			path = self.install_path + 'gnome/help/%s/%s' % (self.doc_module, x)
-			Build.bld.install_files(self.install_path + 'omf', out2.abspath(self.env))
+			self.bld.install_files(self.install_path + 'omf', out2.abspath(self.env))
 			for y in self.to_list(self.doc_figures):
 				try:
 					os.stat(self.path.abspath() + '/' + x + '/' + y)
@@ -113,7 +113,6 @@ def init_xml_to(self):
 @feature('xml_to')
 @after('init_xml_to')
 def apply_xml_to(self):
-	tree = Build.bld
 	xmlfile = self.path.find_resource(self.source)
 	xsltfile = self.path.find_resource(self.xslt)
 	tsk = self.create_task('xmlto')
@@ -141,12 +140,12 @@ def sgml_scan(self):
 def sig_implicit_deps(self):
 	"override the Task method, see the Task.py"
 
+	tree = self.generator.bld
+
 	def sgml_outputs():
-		dps = Build.bld.raw_deps[self.unique_id()]
+		dps = tree.raw_deps[self.unique_id()]
 		name = dps[0]
 		self.set_outputs(self.task_generator.path.find_or_declare(name))
-
-	tree = Build.bld
 
 	# get the task signatures from previous runs
 	key = self.unique_id()
@@ -161,7 +160,6 @@ def sig_implicit_deps(self):
 		debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
 
 	# store the dependencies in the cache
-	tree = Build.bld
 	tree.node_deps[self.unique_id()] = nodes
 	tree.raw_deps[self.unique_id()] = names
 	sgml_outputs()
@@ -185,11 +183,11 @@ def apply_gnome_sgml2man(self):
 		name = out.name
 		ext = name[-1]
 		env = task.env
-		Build.bld.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
+		self.bld.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
 
-	tree = Build.bld
+	tree = self.bld
 	tree.rescan(self.path)
-	for name in Build.bld.cache_dir_contents[self.path.id]:
+	for name in self.bld.cache_dir_contents[self.path.id]:
 		base, ext = os.path.splitext(name)
 		if ext != '.sgml': continue
 

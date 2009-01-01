@@ -158,7 +158,7 @@ def apply_tex(self):
 	if not self.type in ['latex','pdflatex']:
 		raise Utils.WafError('type %s not supported for texobj' % type)
 
-	tree = Build.bld
+	tree = self.bld
 	outs = Utils.to_list(getattr(self, 'outs', []))
 
 	# prompt for incomplete files (else the batchmode is used)
