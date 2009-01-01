@@ -173,11 +173,22 @@ def prepare(t, cwd, ver, wafdir):
 		print('\033[91mError: %s\033[0m' % msg)
 		sys.exit(1)
 
+	#"""
 	try:
 		prepare_impl(t, cwd, ver, wafdir)
 	except Utils.WafError, e:
 		error(e)
 		sys.exit(1)
+	"""
+	import cProfile, pstats
+	cProfile.runctx("import Scripting; Scripting.prepare_impl(t, cwd, ver, wafdir)", {},
+		{'t': t, 'cwd':cwd, 'ver':ver, 'wafdir':wafdir},
+		 'profi.txt')
+	p = pstats.Stats('profi.txt')
+	p.sort_stats('time').print_stats(25)
+
+	return
+	"""
 
 def main():
 	if Options.commands['configure']:
@@ -261,14 +272,7 @@ def main():
 			setattr(Task.Task, 'runnable_status', runnable_status)
 
 		ini = time.time()
-		#"""
 		bld.compile()
-		"""
-		import cProfile, pstats
-		cProfile.run("import Build; Build.bld.compile()", 'profi.txt')
-		p = pstats.Stats('profi.txt')
-		p.sort_stats('time').print_stats(150)
-		#"""
 
 		if Options.options.progress_bar: print('')
 
