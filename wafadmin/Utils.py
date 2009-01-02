@@ -347,13 +347,35 @@ def h_fun(fun):
 			pass
 		return h
 
-_hash_blacklist_types = (
-	type(max),
-	type(Logs),
-	type(h_fun),
-	type(ordered_dict),
+_hash_whitelist_types = (
+	str,
+	unicode,
+	int,
+	bool,
+	long,
+	float,
 	type(None),
+	# tuple handled separately
 	)
+
+try:
+    all
+except NameError: # for compatibility with Python < 2.5
+    def all(iterable):
+        "Returns True if all elements are true"
+        for element in iterable:
+            if not element:
+                return False
+        return True
+
+def _type_hash_is_stable(value):
+	if isinstance(value, _hash_whitelist_types):
+		return True
+	if isinstance(value, tuple):
+		# (for Python >= 2.4 you can remove the [])
+		return all([_type_hash_is_stable(item) for item in value])
+	return False
+
 
 def hash_function_with_globals(prevhash, func):
 	"""
@@ -367,17 +389,12 @@ def hash_function_with_globals(prevhash, func):
 	"""
 	assert type(func) is type(h_fun)
 	for name, value in func.func_globals.iteritems():
-		# TODO redundant?
-		if type(value) in _hash_blacklist_types:
+		# check in the whitelist
+		if not _type_hash_is_stable(value):
+			#print "NOT hashed: ", name, " (type ", type(value), ")"
 			continue
-		if isinstance(value, type):
-			continue
-		try:
-			prevhash = hash( (prevhash, name, value) )
-		except TypeError: # raised for unhashable elements
-			pass
-		#else:
-		#	print "hashed: ", name, " => ", value, " => ", hash(value)
+		prevhash = hash( (prevhash, name, value) )
+		#print "hashed: ", name, " => ", value, " => ", hash(value)
 	return hash( (prevhash, inspect.getsource(func)) )
 
 def pprint(col, str, label='', sep=os.linesep):
