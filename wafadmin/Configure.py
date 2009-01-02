@@ -19,7 +19,7 @@ logic. The data files (Environments) must contain configuration data only (flags
 Note: the c/c++ related code is in the module config_c
 """
 
-import os, imp, types
+import os
 try: import cPickle
 except ImportError: import pickle as cPickle
 import Environment, Utils, Options
@@ -121,7 +121,7 @@ class ConfigurationContext(object):
 			module = Utils.load_tool(tool, tooldir)
 			func = getattr(module, 'detect', None)
 			if func:
-				if type(func) is types.FunctionType: func(self)
+				if type(func) is type(find_file): func(self)
 				else: self.eval_rules(funs or func)
 
 			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})

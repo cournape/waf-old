@@ -33,7 +33,7 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, types, string, errno, traceback, inspect, re
+import os, sys, imp, string, errno, traceback, inspect, re
 try: from UserDict import UserDict
 except ImportError: from collections import UserDict
 try: import pproc
@@ -194,10 +194,10 @@ def ex_stack():
 	return ''.join(exc_lines)
 
 def to_list(sth):
-	if type(sth) is type([]):
-		return sth
-	else:
+	if isinstance(sth, str):
 		return sth.split()
+	else:
+		return sth
 
 g_loaded_modules = {}
 "index modules by absolute path"
@@ -348,8 +348,8 @@ def h_fun(fun):
 		return h
 
 _hash_blacklist_types = (
-	types.BuiltinFunctionType,
-	types.ModuleType,
+	type(max),
+	type(Logs),
 	type(h_fun),
 	type(ordered_dict),
 	type(None),
@@ -365,7 +365,7 @@ def hash_function_with_globals(prevhash, func):
 
 	func: a Python function object.
 	"""
-	assert type(func) is types.FunctionType
+	assert type(func) is type(h_fun)
 	for name, value in func.func_globals.iteritems():
 		if type(value) in _hash_blacklist_types:
 			continue
