@@ -303,8 +303,8 @@ int main(int argc, char *argv[])
 }
 '''
 	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
-                   env=test_env, fragment=code,
-                   errmsg='Could not find the python development headers', mandatory=1)
+		   env=test_env, fragment=code,
+		   errmsg='Could not find the python development headers', mandatory=1)
 
 @conf
 def check_python_version(conf, minver=None):
