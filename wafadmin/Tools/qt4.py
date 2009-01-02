@@ -206,7 +206,6 @@ def create_rcc_task(self, node):
 	cpptask = self.create_task('cxx')
 	cpptask.inputs  = [rcnode]
 	cpptask.outputs = [rcnode.change_ext('.o')]
-	cpptask.defines  = self.scanner_defines
 	self.compiled_tasks.append(cpptask)
 
 	return cpptask
@@ -295,8 +294,6 @@ def cxx_hook(self, node):
 	self.tasks.append(task)
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
-
-	task.defines  = self.scanner_defines
 
 	task.inputs = [node]
 	task.outputs = [node.change_ext(obj_ext)]

@@ -76,7 +76,6 @@ def default_cc(self):
 		add_objects = '',
 		p_flag_vars = [],
 		p_type_vars = [],
-		scanner_defines = {},
 		compiled_tasks = [],
 		link_task = None)
 

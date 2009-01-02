@@ -73,10 +73,10 @@ def apply_defines_cc(self):
 def c_hook(self, node):
 	# create the compilation task: cpp or cc
 	task = self.create_task('cc')
-	try: obj_ext = self.obj_ext
-	except AttributeError: obj_ext = '_%d.o' % self.idx
-
-	task.defines  = self.scanner_defines
+	if getattr(self, 'obj_ext', None):
+		obj_ext = self.obj_ext
+	else:
+		obj_ext = '_%d.o' % self.idx
 
 	task.inputs = [node]
 	task.outputs = [node.change_ext(obj_ext)]
