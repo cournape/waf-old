@@ -8,7 +8,7 @@ Custom objects:
  - copy a file somewhere else
 """
 
-import shutil, re, os, types
+import shutil, re, os
 import TaskGen, Node, Task, Utils, Build, pproc, Constants
 from TaskGen import feature, taskgen, after, before
 from Logs import debug
@@ -104,7 +104,7 @@ def subst_func(tsk):
 		names = m4_re.findall(code)
 		for i in names:
 			if not env[i]: i = i.upper()
-			if env[i] and type(env[i]) is types.ListType :
+			if env[i] and isinstance(env[i], list):
 				dict[i] = " ".join(env[i])
 			else: dict[i] = env[i]
 
