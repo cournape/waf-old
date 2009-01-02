@@ -41,7 +41,8 @@ def scan(self):
 	all_names = []
 	seen = []
 	for node in self.inputs:
-		gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'], defines = self.defines)
+		# TODO need to pass the defines
+		gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'])
 		gruik.start(node, self.env)
 		if Logs.verbose:
 			debug('deps: deps for %s: %s; unresolved %s' % (str(node), str(gruik.nodes), str(gruik.names)))
