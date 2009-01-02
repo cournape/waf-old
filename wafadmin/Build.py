@@ -796,7 +796,10 @@ class BuildContext(object):
 		# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
 		debug('runner: system command -> %s' % cmd)
 		if self.log: self.log.write('%s\n' % cmd)
-		if not cwd: cwd = self.cwd
+		try:
+			if not cwd: cwd = self.cwd
+		except AttributeError:
+			self.cwd = cwd = self.bldnode.abspath()
 		return Utils.exec_command(cmd, shell=shell, log=self.log, cwd=cwd)
 
 	def printout(self, s):
