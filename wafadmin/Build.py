@@ -12,7 +12,7 @@ The class Build holds all the info related to a build:
 There is only one Build object at a time (bld singleton)
 """
 
-import os, sys, types, imp, errno, re, glob, gc, time, shutil
+import os, sys, errno, re, glob, gc, time, shutil
 try: import cPickle
 except: import pickle as cPickle
 import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Logs, Options
@@ -329,7 +329,7 @@ class BuildContext(object):
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"setup tools for build process"
-		if type(tool) is types.ListType:
+		if isinstance(tool, list):
 			for i in tool: self.setup(i, tooldir)
 			return
 
@@ -711,7 +711,7 @@ class BuildContext(object):
 		if not path: return []
 
 		node = self.path
-		if type(files) is types.StringType and '*' in files:
+		if isinstance(files, str) and '*' in files:
 			gl = node.abspath() + os.sep + files
 			lst = glob.glob(gl)
 		else:
