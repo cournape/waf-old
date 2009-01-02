@@ -19,7 +19,7 @@ logic. The data files (Environments) must contain configuration data only (flags
 Note: the c/c++ related code is in the module config_c
 """
 
-import os, types, imp
+import os, imp, types
 try: import cPickle
 except ImportError: import pickle as cPickle
 import Environment, Utils, Options
@@ -38,12 +38,8 @@ def find_file(filename, path_list):
 	@param path_list: list of directories to search
 	@return: the first occurrence filename or '' if filename could not be found
 """
-	if type(path_list) is types.StringType:
-		lst = path_list.split()
-	else:
-		lst = path_list
-	for directory in lst:
-		if os.path.exists( os.path.join(directory, filename) ):
+	for directory in Utils.to_list(path_list):
+		if os.path.exists(os.path.join(directory, filename)):
 			return directory
 	return ''
 
