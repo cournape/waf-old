@@ -428,10 +428,11 @@ def run_c_code(self, *k, **kw):
 	else:
 		ret = 0
 
+	# chdir before returning
 	os.chdir(back)
 
-	# chdir before returning
 	if ret:
+		self.log('command returned %r' % ret)
 		self.fatal(str(ret))
 
 	# keep the name of the program to execute
