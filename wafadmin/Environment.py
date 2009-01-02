@@ -48,13 +48,14 @@ class Environment(object):
 		self.table[VARIANT] = name
 
 	def variant(self):
-		env = self
-		while 1:
-			try:
-				return env.table[VARIANT]
-			except KeyError:
-				try: env = env.parent
-				except AttributeError: return DEFAULT
+		try:
+			while 1:
+				x = self.table.get(VARIANT, None)
+				if not x is None:
+					return x
+				self = self.parent
+		except AttributeError:
+			return DEFAULT
 
 	def copy(self):
 		newenv = Environment()
@@ -64,14 +65,14 @@ class Environment(object):
 		return newenv
 
 	def __getitem__(self, key):
-		x = self.table.get(key, None)
-		if not x is None: return x
 		try:
-			u = self.parent
+			while 1:
+				x = self.table.get(key, None)
+				if not x is None:
+					return x
+				self = self.parent
 		except AttributeError:
 			return []
-		else:
-			return u[key]
 
 	def __setitem__(self, key, value):
 		self.table[key] = value
