@@ -6,7 +6,7 @@
 
 import os, re
 import Utils, TaskGen, Task, Runner, Build
-from TaskGen import taskgen, feature
+from TaskGen import feature, before
 from Logs import error, warn, debug
 
 re_tex = re.compile(r'\\(?P<type>include|input|import|bringin){(?P<file>[^{}]*)}', re.M)
@@ -152,8 +152,8 @@ class tex_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('tex')
+@before('apply_core')
 def apply_tex(self):
 	if not self.type in ['latex','pdflatex']:
 		raise Utils.WafError('type %s not supported for texobj' % type)
@@ -172,7 +172,8 @@ def apply_tex(self):
 			n = self.path.find_resource(filename)
 			if not n in deps_lst: deps_lst.append(n)
 
-	for filename in self.source.split():
+	self.source = self.to_list(self.source)
+	for filename in self.source:
 		base, ext = os.path.splitext(filename)
 
 		node = self.path.find_resource(filename)
@@ -217,6 +218,7 @@ def apply_tex(self):
 				pstask = self.create_task('pdf2ps')
 				pstask.set_inputs(task.outputs)
 				pstask.set_outputs(node.change_ext('.ps'))
+	self.source = []
 
 def detect(conf):
 	v = conf.env
