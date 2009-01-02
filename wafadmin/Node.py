@@ -30,7 +30,7 @@ ${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
 
 """
 
-import os, sys, types, fnmatch
+import os, sys, fnmatch
 import Utils
 
 UNDEFINED = 0
@@ -121,7 +121,7 @@ class Node(object):
 
 	def find_resource(self, lst):
 		"Find an existing input file: either a build node declared previously or a source node"
-		if type(lst) is types.StringType:
+		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
 		if not lst[:-1]:
@@ -154,7 +154,7 @@ class Node(object):
 
 	def find_or_declare(self, lst):
 		"Used for declaring a build node representing a file being built"
-		if type(lst) is types.StringType:
+		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
 		if not lst[:-1]:
@@ -177,7 +177,7 @@ class Node(object):
 	def find_dir(self, lst):
 		"search a folder in the filesystem"
 
-		if type(lst) is types.StringType:
+		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
 		current = self
@@ -206,7 +206,7 @@ class Node(object):
 	def ensure_dir_node_from_path(self, lst):
 		"used very rarely, force the construction of a branch of node instance for representing folders"
 
-		if type(lst) is types.StringType:
+		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
 		current = self
@@ -471,7 +471,7 @@ class Node(object):
 if sys.platform == "win32":
 	def find_dir_win32(self, lst):
 
-		if type(lst) is types.StringType:
+		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
 		current = self
