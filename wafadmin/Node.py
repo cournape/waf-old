@@ -58,10 +58,10 @@ class Node(object):
 
 		# Node name must contain only one level
 		if Utils.split_path(name)[0] != name:
-			raise Utils.WafError('name forbidden '+name)
+			raise Utils.WafError('name %r forbidden ' % name)
 
 		if parent and name in parent.childs:
-			raise Utils.WafError('node %s exists in the parent files %s already' % (name, str(parent)))
+			raise Utils.WafError('node %s exists in the parent files %r already' % (name, parent))
 
 		if parent: parent.childs[name] = self
 
@@ -169,7 +169,7 @@ class Node(object):
 		if node:
 			tp = node.id & 3
 			if tp != BUILD:
-				raise Utils.WafError("find_or_declare returns a build node, not a source nor a directory"+str(lst))
+				raise Utils.WafError("find_or_declare returns a build node, not a source nor a directory %r" % lst)
 			return node
 		node = self.__class__(name, parent, BUILD)
 		return node
