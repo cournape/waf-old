@@ -207,7 +207,6 @@ class BuildContext(object):
 
 		os.chdir(self.bdir)
 
-
 		"""
 		import cProfile, pstats
 		cProfile.run("import Build\nBuild.bld.flush()", 'profi.txt')
@@ -323,9 +322,10 @@ class BuildContext(object):
 					hash = SIG_NIL
 				self.node_sigs[env.variant()][newnode.id] = hash
 
-		# TODO: these nodes are removed from the tree when calling rescan()
+		# TODO: hmmm, these nodes are removed from the tree when calling rescan()
 		self.bldnode = self.root.find_dir(self.bldnode.abspath())
 		self.path = self.srcnode = self.root.find_dir(self.srcnode.abspath())
+		self.cwd = self.bldnode.abspath()
 
 	def setup(self, tool, tooldir=None, funs=None):
 		"setup tools for build process"
@@ -796,6 +796,7 @@ class BuildContext(object):
 		# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
 		debug('runner: system command -> %s' % cmd)
 		if self.log: self.log.write('%s\n' % cmd)
+		if not cwd: cwd = self.cwd
 		return Utils.exec_command(cmd, shell=shell, log=self.log, cwd=cwd)
 
 	def printout(self, s):
