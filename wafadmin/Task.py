@@ -114,8 +114,8 @@ class TaskGroup(object):
 	def __init__(self):
 		self.tasks = [] # this list will be consumed
 
-		self.cstr_groups = {} # tasks having equivalent constraints
-		self.cstr_order = {} # partial order between the cstr groups
+		self.cstr_groups = Utils.DefaultDict(list) # tasks having equivalent constraints
+		self.cstr_order = Utils.DefaultDict(set) # partial order between the cstr groups
 		self.temp_tasks = [] # tasks put on hold
 		self.ready = 0
 
@@ -125,8 +125,8 @@ class TaskGroup(object):
 			self.tasks += self.cstr_groups[x]
 		self.tasks = self.temp_tasks + self.tasks
 		self.temp_tasks = []
-		self.cstr_groups = []
-		self.cstr_order = {}
+		self.cstr_groups = Utils.DefaultDict(list)
+		self.cstr_order = Utils.DefaultDict(set)
 		self.ready = 0
 
 	def prepare(self):
@@ -155,15 +155,13 @@ class TaskGroup(object):
 
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
-		self.cstr_groups = {}
+		self.cstr_groups = Utils.DefaultDict(list)
 		for x in self.tasks:
 			h = x.hash_constraints()
-			try: self.cstr_groups[h].append(x)
-			except KeyError: self.cstr_groups[h] = [x]
+			self.cstr_groups[h].append(x)
 
 	def set_order(self, a, b):
-		try: self.cstr_order[a].add(b)
-		except KeyError: self.cstr_order[a] = set([b,])
+		self.cstr_order[a].add(b)
 
 	def compare_exts(self, t1, t2):
 		"extension production"
@@ -279,8 +277,8 @@ class TaskGroup(object):
 				for m in self.cstr_groups[p]:
 					for n in self.cstr_groups[v]:
 						n.set_run_after(m)
-		self.cstr_order = {}
-		self.cstr_groups = {}
+		self.cstr_order = Utils.DefaultDict(set)
+		self.cstr_groups = Utils.DefaultDict(list)
 		self.done = 1
 		return self.tasks[:] # make a copy
 

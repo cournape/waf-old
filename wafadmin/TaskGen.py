@@ -82,13 +82,13 @@ class task_gen(object):
 	__metaclass__ = register_obj
 	mappings = {}
 	mapped = {}
-	prec = {}
-	traits = {}
+	prec = Utils.DefaultDict(list)
+	traits = Utils.DefaultDict(set)
 	classes = {}
 	idx = {}
 
 	def __init__(self, *kw, **kwargs):
-		self.prec = {}
+		self.prec = Utils.DefaultDict(list)
 		"map precedence of function names to call"
 		# so we will have to play with directed acyclic graphs
 		# detect cycles, etc
@@ -326,10 +326,8 @@ def declare_order(*k):
 	for i in xrange(n):
 		f1 = k[i]
 		f2 = k[i+1]
-		try:
-			if not f1 in task_gen.prec[f2]: task_gen.prec[f2].append(f1)
-		except:
-			task_gen.prec[f2] = [f1]
+		if not f1 in task_gen.prec[f2]:
+			task_gen.prec[f2].append(f1)
 
 def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color='BLUE', install=0, before=[], after=[], decider=None, rule=None):
 	"""
@@ -377,12 +375,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 
 def bind_feature(name, methods):
 	lst = Utils.to_list(methods)
-	try:
-		l = task_gen.traits[name]
-	except KeyError:
-		l = set()
-		task_gen.traits[name] = l
-	l.update(lst)
+	task_gen.traits[name].update(lst)
 
 """
 All the following decorators are registration decorators, i.e add an attribute to current class
@@ -400,32 +393,23 @@ def feature(*k):
 	def deco(func):
 		setattr(task_gen, func.__name__, func)
 		for name in k:
-			try:
-				l = task_gen.traits[name]
-			except KeyError:
-				l = set()
-				task_gen.traits[name] = l
-			l.update([func.__name__])
+			task_gen.traits[name].update([func.__name__])
 		return func
 	return deco
 
 def before(*k):
 	def deco(func):
 		for fun_name in k:
-			try:
-				if not func.__name__ in task_gen.prec[fun_name]: task_gen.prec[fun_name].append(func.__name__)
-			except KeyError:
-				task_gen.prec[fun_name] = [func.__name__]
+			if not func.__name__ in task_gen.prec[fun_name]:
+				task_gen.prec[fun_name].append(func.__name__)
 		return func
 	return deco
 
 def after(*k):
 	def deco(func):
 		for fun_name in k:
-			try:
-				if not fun_name in task_gen.prec[func.__name__]: task_gen.prec[func.__name__].append(fun_name)
-			except KeyError:
-				task_gen.prec[func.__name__] = [fun_name]
+			if not fun_name in task_gen.prec[func.__name__]:
+				task_gen.prec[func.__name__].append(fun_name)
 		return func
 	return deco
 

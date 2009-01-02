@@ -65,6 +65,9 @@ class BuildContext(object):
 		# the folder changes everytime a wscript is read
 		self.path = None
 
+		# Manual dependencies.
+		self.deps_man = Utils.DefaultDict(list)
+
 		# ======================================= #
 		# cache variables
 
@@ -505,17 +508,13 @@ class BuildContext(object):
 	env = property(get_env, set_env)
 
 	def add_manual_dependency(self, path, value):
-		h = getattr(self, 'deps_man', {})
-
 		if isinstance(path, Node.Node):
 			node = path
 		elif os.path.isabs(path):
 			node = self.root.find_resource(path)
 		else:
 			node = self.path.find_resource(path)
-		try: h[node.id].append(value)
-		except KeyError: h[node.id] = [value]
-		self.deps_man = h
+		self.deps_man[node.id].append(value)
 
 	def launch_node(self):
 		"""return the launch directory as a node"""
@@ -592,17 +591,14 @@ class BuildContext(object):
 			debug('task_gen: posting objects listed in compile_targets')
 
 			# ensure the target names exist, fail before any post()
-			target_objects = {}
+			target_objects = Utils.DefaultDict(list)
 			for target_name in Options.options.compile_targets.split(','):
 				# trim target_name (handle cases when the user added spaces to targets)
 				target_name = target_name.strip()
 				for env in self.all_envs.values():
 					obj = self.name_to_obj(target_name, env)
 					if obj:
-						try:
-							target_objects[target_name].append(obj)
-						except KeyError:
-							target_objects[target_name] = [obj]
+						target_objects[target_name].append(obj)
 				if not target_name in target_objects and all:
 					raise Utils.WafError("target '%s' does not exist" % target_name)
 

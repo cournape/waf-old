@@ -43,6 +43,22 @@ from Constants import *
 
 is_win32 = sys.platform == 'win32'
 
+try:
+	# defaultdict in python 2.5
+	from collections import defaultdict as DefaultDict
+except ImportError:
+	class DefaultDict(dict):
+		def __init__(self, default_factory):
+			super(DefaultDict, self).__init__()
+			self.default_factory = default_factory
+		def __getitem__(self, key):
+			try:
+				return super(DefaultDict, self).__getitem__(key)
+			except KeyError:
+				value = self.default_factory()
+				self[key] = value
+				return value
+
 class WafError(Exception):
 	def __init__(self, *args):
 		self.args = args
