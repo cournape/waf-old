@@ -367,6 +367,7 @@ def hash_function_with_globals(prevhash, func):
 	"""
 	assert type(func) is type(h_fun)
 	for name, value in func.func_globals.iteritems():
+		# TODO redundant?
 		if type(value) in _hash_blacklist_types:
 			continue
 		if isinstance(value, type):
