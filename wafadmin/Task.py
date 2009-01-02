@@ -42,7 +42,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 
 """
 
-import os, types, shutil, sys, re, random, time
+import os, shutil, sys, re, random, time
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug
@@ -497,11 +497,11 @@ class Task(TaskBase):
 			return self.uid
 
 	def set_inputs(self, inp):
-		if type(inp) is types.ListType: self.inputs += inp
+		if isinstance(inp, list): self.inputs += inp
 		else: self.inputs.append(inp)
 
 	def set_outputs(self, out):
-		if type(out) is types.ListType: self.outputs += out
+		if isinstance(out, list): self.outputs += out
 		else: self.outputs.append(out)
 
 	def set_run_after(self, task):
