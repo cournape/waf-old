@@ -349,7 +349,7 @@ class BuildContext(object):
 				lstvariants.append(env.variant())
 		self.lst_variants = lstvariants
 
-		debug('build: list of variants is %s' % str(lstvariants))
+		debug('build: list of variants is %r' % lstvariants)
 
 		for name in lstvariants+[0]:
 			for v in 'node_sigs cache_node_abspath'.split():
@@ -383,7 +383,7 @@ class BuildContext(object):
 
 		if not self.srcnode:
 			self.srcnode = self.root.ensure_dir_node_from_path(srcdir)
-		debug('build: srcnode is %s and srcdir %s' % (str(self.srcnode.name), srcdir))
+		debug('build: srcnode is %s and srcdir %s' % (self.srcnode.name, srcdir))
 
 		self.path = self.srcnode
 
@@ -457,7 +457,7 @@ class BuildContext(object):
 		listed_files = set(Utils.listdir(path))
 
 		self.cache_dir_contents[parent_node.id] = listed_files
-		debug('build: folder contents '+str(listed_files))
+		debug('build: folder contents %r' % listed_files)
 
 		node_names = set([x.name for x in parent_node.childs.values() if x.id & 3 == Node.FILE])
 		cache = self.node_sigs[0]
@@ -554,7 +554,7 @@ class BuildContext(object):
 
 		lst = [env.get_flat(a) for a in vars_lst]
 		ret = Utils.h_list(lst)
-		debug("envhash: %s %s" % (ret.encode('hex'), str(lst)))
+		debug("envhash: %s %r" % (ret.encode('hex'), lst))
 
 		# next time
 		self.cache_sig_vars[idx] = ret
