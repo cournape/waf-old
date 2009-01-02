@@ -671,15 +671,12 @@ class Task(TaskBase):
 		m = md5()
 
 		# the inputs
-		for x in self.inputs:
+		for x in self.inputs + getattr(self, 'dep_nodes', []):
+			if not x.parent.id in bld.cache_scanned_folders:
+				bld.rescan(x.parent)
+
 			variant = x.variant(self.env)
 			m.update(bld.node_sigs[variant][x.id])
-
-		# additional nodes to depend on, if provided
-		for x in getattr(self, 'dep_nodes', []):
-			variant = x.variant(self.env)
-			v = bld.node_sigs[variant][x.id]
-			m.update(v)
 
 		# manual dependencies, they can slow down the builds
 		if bld.deps_man:
@@ -769,12 +766,12 @@ class Task(TaskBase):
 		tstamp = bld.node_sigs
 		env = self.env
 
-		for k in bld.node_deps.get(self.unique_id(), []) + self.inputs:
+		for k in bld.node_deps.get(self.unique_id(), []):
 			# unlikely but necessary if it happens
 			if not k.parent.id in bld.cache_scanned_folders:
 				bld.rescan(k.parent)
 
-			if k.id & 3 == Node.FILE:
+			if k.id & 3 == 2: # Node.FILE:
 				upd(tstamp[0][k.id])
 			else:
 				upd(tstamp[env.variant()][k.id])
