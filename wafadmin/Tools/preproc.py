@@ -5,7 +5,7 @@
 #C/C++ preprocessor for finding dependencies
 #TODO: more varargs, pragma once
 
-import re, sys, os, string, types
+import re, sys, os, string
 if __name__ == '__main__':
 	sys.path = ['.', '..'] + sys.path
 import Logs, Build, Utils
@@ -233,7 +233,7 @@ def get_expr(lst, defs, ban):
 			else: return (NUM, 0, lst[1:])
 
 		# tokenize on demand
-		if type(defs[v]) is types.StringType:
+		if isinstance(defs[v], str):
 			v, k = extract_macro(defs[v])
 			defs[v] = k
 		macro_def = defs[v]

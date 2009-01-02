@@ -8,7 +8,7 @@ c/c++ configuration routines
 The code is being written, so do not complain about trunk being broken :-)
 """
 
-import os, types, imp, sys, shlex, shutil
+import os, imp, sys, shlex, shutil
 import pproc
 from Utils import md5
 import Build, Utils, Configure, Task, Options, Logs
@@ -344,7 +344,7 @@ def post_check(self, *k, **kw):
 			if lk in kw:
 				val = kw[lk]
 				# remove trailing slash
-				if type(val) == types.StringType:
+				if isinstance(val, str):
 					val = val.rstrip(os.path.sep)
 				self.env.append_unique(k + '_' + kw['uselib_store'], val)
 
