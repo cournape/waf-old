@@ -13,6 +13,24 @@ from Configure import conf
 import pproc
 
 EXT_PY = ['.py']
+FRAG_2 = '''
+#ifdef __cplusplus
+extern "C" {
+#endif
+ void Py_Initialize(void);
+ void Py_Finalize(void);
+#ifdef __cplusplus
+}
+#endif
+int main(int argc, char *argv[])
+{
+   argc++; /* avoid unused variable warning */
+   argv++; /* avoid unused variable warning */
+   Py_Initialize();
+   Py_Finalize();
+   return 0;
+}
+'''
 
 @taskgen
 @before('apply_incpaths')
@@ -245,7 +263,7 @@ Py_ENABLE_SHARED = %r
 
 	includes = []
 	if python_config:
-		for incstr in os.popen("%s %s --includes" % (python, python_config)).readline().strip().split():
+		for incstr in Utils.cmd_output("%s %s --includes" % (python, python_config)).strip().split():
 			# strip the -I or /I
 			if (incstr.startswith('-I')
 			    or incstr.startswith('/I')):
@@ -265,12 +283,12 @@ Py_ENABLE_SHARED = %r
 
 	# Code using the Python API needs to be compiled with -fno-strict-aliasing
 	if env['CC']:
-		version = os.popen("%s --version" % env['CC']).readline()
+		version = Utils.cmd_output("%s --version" % env['CC']).strip()
 		if '(GCC)' in version or 'gcc' in version:
 			env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
 			env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
 	if env['CXX']:
-		version = os.popen("%s --version" % env['CXX']).readline()
+		version = Utils.cmd_output("%s --version" % env['CXX']).strip()
 		if '(GCC)' in version or 'g++' in version:
 			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
 			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
@@ -284,26 +302,8 @@ Py_ENABLE_SHARED = %r
 	test_env.append_value('CXXFLAGS', env['CXXFLAGS_PYEMBED'])
 	test_env.append_value('CCFLAGS', env['CCFLAGS_PYEMBED'])
 
-	code = '''
-#ifdef __cplusplus
-extern "C" {
-#endif
- void Py_Initialize(void);
- void Py_Finalize(void);
-#ifdef __cplusplus
-}
-#endif
-int main(int argc, char *argv[])
-{
-   argc++; /* avoid unused variable warning */
-   argv++; /* avoid unused variable warning */
-   Py_Initialize();
-   Py_Finalize();
-   return 0;
-}
-'''
 	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
-		   env=test_env, fragment=code,
+		   env=test_env, fragment=FRAG_2,
 		   errmsg='Could not find the python development headers', mandatory=1)
 
 @conf
