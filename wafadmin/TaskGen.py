@@ -21,7 +21,7 @@ Additionally, task_gen provides the method apply_core
 WARNING: subclasses must reimplement the clone method
 """
 
-import os, types, traceback, copy
+import os, traceback, copy
 import Build, Task, Utils, Logs, Options
 from Logs import debug, error, warn
 from Constants import *
@@ -144,7 +144,7 @@ class task_gen(object):
 
 	def to_list(self, value):
 		"helper: returns a list"
-		if type(value) is types.StringType: return value.split()
+		if isinstance(value, str): return value.split()
 		else: return value
 
 	def apply(self):
@@ -241,10 +241,9 @@ class task_gen(object):
 		# instead of find_sources_in_dirs('a b c')
 		err_msg = "'%s' attribute must be a list.\n" \
 		"Directories should be given either as a string separated by spaces, or as a list."
-		not_a_list = lambda x: x and type(x) is not types.ListType
-		if not_a_list(excludes):
+		if not isinstance(excludes, list):
 			raise Utils.WscriptError(err_msg % 'excludes')
-		if not_a_list(exts):
+		if not isinstance(exts, list):
 			raise Utils.WscriptError(err_msg % 'exts')
 
 		#make sure dirnames is a list helps with dirnames with spaces
@@ -286,7 +285,7 @@ class task_gen(object):
 				setattr(newobj, x, copy.copy(getattr(self, x)))
 
 		newobj.__class__ = self.__class__
-		if type(env) is types.StringType:
+		if isinstance(env, str):
 			newobj.env = self.bld.all_envs[env].copy()
 		else:
 			newobj.env = env.copy()
@@ -336,7 +335,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 	"""
 
 	action = action or rule
-	if type(action) is types.StringType:
+	if isinstance(action, str):
 		act = Task.simple_task_type(name, action, color=color)
 	else:
 		act = Task.task_type_from_func(name, action, color=color)
@@ -348,14 +347,14 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 	def x_file(self, node):
 		if decider:
 			ext = decider(self, node)
-		elif type(ext_out) is types.StringType:
+		elif isinstance(ext_out, str):
 			ext = ext_out
 
-		if type(ext) is types.StringType:
+		if isinstance(ext, str):
 			out_source = node.change_ext(ext)
 			if reentrant:
 				self.allnodes.append(out_source)
-		elif type(ext) == types.ListType:
+		elif isinstance(ext, list):
 			out_source = [node.change_ext(x) for x in ext]
 			if reentrant:
 				for i in xrange(reentrant):
@@ -414,9 +413,9 @@ def after(*k):
 	return deco
 
 def extension(var):
-	if type(var) is types.ListType:
+	if isinstance(var, list):
 		pass
-	elif type(var) is types.StringType:
+	elif isinstance(var, str):
 		var = [var]
 	else:
 		raise Utils.WafError('declare extension takes either a list or a string %s' % str(var))
