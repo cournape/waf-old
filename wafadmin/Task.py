@@ -682,11 +682,8 @@ class Task(TaskBase):
 			m.update(v)
 
 		# manual dependencies, they can slow down the builds
-		try:
+		if bld.deps_man:
 			additional_deps = bld.deps_man
-		except AttributeError:
-			pass
-		else:
 			for x in self.inputs + self.outputs:
 				try:
 					d = additional_deps[x.id]
