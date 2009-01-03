@@ -83,7 +83,7 @@ class batch_task(Task.Task):
 			name = 'batch_%d_%d.c' % (self.idx, id)
 			lst.append(name)
 			f = open(name, 'wb')
-			f.write('#include "%s"' % self.slaves[id].inputs[0].relpath_gen(self.generator.bld.bldnode))
+			f.write('#include "%s"\n' % self.slaves[id].inputs[0].relpath_gen(self.generator.bld.bldnode))
 			f.close()
 
 			if shell_move:
