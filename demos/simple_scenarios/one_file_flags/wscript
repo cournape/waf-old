@@ -7,26 +7,33 @@ APPNAME='test'
 srcdir = '.'
 blddir = 'build'
 
+"""
+Access the task after it is created, and modify its flags
+
+Run with "waf -v" to see the difference
+"""
+
+from TaskGen import after, feature
+@after('apply_lib_vars')
+@feature('cc')
+def modify_flags(self):
+	for task in self.compiled_tasks:
+		if task.inputs:
+			node = task.inputs[0]
+			if node.name == 'B.c':
+				task.env = task.env.copy()
+				task.env.append_unique('_CCDEFFLAGS', '-DMYFLAG')
+
 def set_options(opt):
 	pass
 
 def configure(conf):
 	conf.check_tool('gcc')
 
-from TaskGen import after, taskgen, feature
-@taskgen
-@after("apply_lib_vars")
-@feature("cc")
-def modify_flags(self):
-	for task in self.compiled_tasks:
-		if task.inputs:
-			node = task.inputs[0]
-			if node.name == "B.c":
-				task.env = task.env.copy()
-				task.env.append_unique("_CCDEFFLAGS", "-DMYFLAG")
-
 def build(bld):
-	obj = bld.new_task_gen('cc', 'program')
-	obj.source = 'A.c B.c'
-	obj.target= 'pimpam'
+
+	bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'A.c B.c',
+		target= 'pimpam')
 
