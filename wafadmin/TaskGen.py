@@ -290,8 +290,6 @@ class task_gen(object):
 		else:
 			newobj.env = env.copy()
 
-		self.bld.all_task_gen.append(newobj)
-
 		return newobj
 
 	def get_inst_path(self):
