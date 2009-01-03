@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005, 2006 (ita)
+# Thomas Nagy, 2005-2008 (ita)
 
 # the following two variables are used by the target "waf dist"
-VERSION='0.0.1'
-APPNAME='ocaml_test'
+VERSION = '0.0.1'
+APPNAME = 'ocaml_test'
 
 # these variables are mandatory,
 srcdir = '.'
@@ -16,7 +16,14 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('ocaml')
 
-# process subfolders from here
 def build(bld):
-	bld.add_subdirs('src')
+	# simple program
+
+	obj = bld.new_task_gen(
+		features = 'ocaml',
+		kind = 'all',
+		includes = '.',
+		target = 'camlprog')
+
+	obj.find_sources_in_dirs('.')
 
