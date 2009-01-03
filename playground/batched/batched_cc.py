@@ -74,15 +74,18 @@ class batch_task(Task.Task):
 			outputs.extend(t.outputs)
 
 		lst = []
+		lst2 = []
 		for id in xrange(len(self.slaves)):
 			name = 'batch_%d_%d.c' % (self.idx, id)
 			lst.append(name)
 			f = open(name, 'wb')
 			f.write('#include "%s"' % self.slaves[id].inputs[0].relpath_gen(self.generator.bld.bldnode))
 			f.close()
+			si = 'mv %s %s' % (name.replace('.c', '.o'), self.slaves[id].outputs[0].abspath(self.slaves[id].env))
+			lst2.append(si)
 
-		self.env['CC_TGT_F'] = '-c ' + " ".join(lst)
-		self.env['CXX_TGT_F'] = '-c ' + " ".join(lst)
+		self.env['CC_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
+		self.env['CXX_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
 		ret = self.slaves[0].__class__.__dict__['oldrun'](self)
 		if ret:
 			return ret
@@ -99,10 +102,10 @@ class batch_task(Task.Task):
 		##	#print "moving", name, i.bldpath(env)
 		#	shutil.move(i.name.replace(self.generator.obj_ext, '.o'), i.bldpath(env))
 
-		for id in xrange(len(self.slaves)):
-			name = 'batch_%d_%d.o' % (self.idx, id)
-			#print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
-			shutil.move(name, self.slaves[id].outputs[0].abspath(self.slaves[id].env))
+		#for id in xrange(len(self.slaves)):
+		#	name = 'batch_%d_%d.o' % (self.idx, id)
+		#	#print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
+		#	shutil.move(name, self.slaves[id].outputs[0].abspath(self.slaves[id].env))
 
 		return None
 
