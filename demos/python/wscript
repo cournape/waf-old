@@ -29,20 +29,23 @@ def configure(conf):
 		print "(module not found, but we ignore it)"
 
 def build(bld):
+
 	# first compile a few pyc and pyo files
-	obj = bld.new_task_gen('py')
-	#obj.source = 'foo.py'
+	obj = bld.new_task_gen(
+		features = 'py')
 	obj.find_sources_in_dirs('.', exts=['.py'])
 
 	# then a c extension module
-	obj = bld.new_task_gen('cc', 'shlib', 'pyext')
-	obj.source = 'spammodule.c'
-	obj.target = 'spam'
+	bld.new_task_gen(
+		features = 'cc cshlib pyext',
+		source = 'spammodule.c',
+		target = 'spam')
 
 	# then a c program
-	obj = bld.new_task_gen('cc', 'program', 'pyembed')
-	obj.source = 'test.c'
-	obj.target = 'test'
+	bld.new_task_gen(
+		features = 'cc cprogram pyembed',
+		source = 'test.c',
+		target = 'test')
 
 def shutdown():
 	#import os
