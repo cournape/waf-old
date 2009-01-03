@@ -31,18 +31,17 @@ def configure(conf):
 	# ...and a specific version
 	conf.check_perl_module("Devel::PPPort 4.89")
 
-	conf.env['INSTALLDIR_PERL_AUTO'] = os.path.join(conf.env['ARCHDIR_PERL'], "auto")
+	conf.env['INSTALLDIR_PERL_AUTO'] = os.path.join(conf.env['ARCHDIR_PERL'], 'auto')
 	conf.env['INSTALLDIR_PERL_LIB'] = conf.env['ARCHDIR_PERL']
 
 def build(bld):
+
 	# Build a perl extension module
-	obj = bld.new_task_gen('cc', 'shlib', 'perlext')
-	obj.source = 'Mytest.xs'
-	obj.target = 'Mytest'
-	obj.inst_var = 'INSTALLDIR_PERL_AUTO'
+	obj = bld.new_task_gen(
+		features = 'cc cshlib perlext',
+		source = 'Mytest.xs',
+		target = 'Mytest',
+		install_path = '${INSTALLDIR_PERL_AUTO}')
 
-	bld.install_files('INSTALLDIR_PERL_LIB', '', 'Mytest.pm')
-
-def shutdown():
-	pass
+	bld.install_files('${INSTALLDIR_PERL_LIB}', 'Mytest.pm')
 
