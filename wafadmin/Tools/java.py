@@ -23,14 +23,14 @@ change is only annoying for the compilation times
 import os, re
 from Configure import conf
 import TaskGen, Task, Utils
-from TaskGen import feature, taskgen
+from TaskGen import feature, before
 
 class java_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('java')
+@before('apply_core')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
 		source_root='.', jar_mf_attributes={}, jar_mf_classpath=[])
@@ -82,6 +82,9 @@ def apply_java(self):
 			else:
 				dirs = '.'
 				self.env['JAROPTS'] = '-C %s %s' % (self.env['OUTDIR'], dirs)
+
+	# FIXME
+	self.source = ''
 
 Task.simple_task_type('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN')
 cls = Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', before='jar_create')
