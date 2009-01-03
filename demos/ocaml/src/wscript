@@ -3,13 +3,14 @@
 # Thomas Nagy, 2006 (ita)
 
 def build(bld):
-	# The first example is a simple program
-	obj = bld.new_task_gen('ocaml')
+
+	# simple program
+
+	obj = bld.new_task_gen(
+		features = 'ocaml',
+		kind = 'all',
+		includes = '.',
+		target = 'camlprog')
+
 	obj.find_sources_in_dirs('.')
-	obj.kind = 'all'
-	#obj.source='''
-	#somemodule.ml main.ml
-	#'''
-	obj.includes='.'
-	obj.target='camlprog'
 
