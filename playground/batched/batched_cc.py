@@ -28,8 +28,7 @@ from Constants import *
 
 count = 12345
 class batch_task(Task.Task):
-	#before = 'cc_link cxx_link ar_link_static'
-	before = 'cc_link'
+	before = 'cc_link cxx_link ar_link_static'
 	after = 'cc cxx'
 	color = 'RED'
 
