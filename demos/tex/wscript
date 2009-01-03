@@ -17,7 +17,6 @@ def configure(conf):
 	conf.check_tool('tex')
 
 def build(bld):
-	# process subfolders from here
 	bld.add_subdirs('src')
 
 # Using variants for building ps and pdf at the same time
@@ -28,13 +27,13 @@ def build(bld):
 #	# separate build dirs are necessary
 #
 #	# build a pdf file in the default directory
-#	obj = bld.new_task_gen('tex','pdflatex')
+#	obj = bld.new_task_gen('tex', type='pdflatex')
 #	obj.source = 'document.ltx'
 #	obj.outs = 'pdf'
 #
 #	# build a ps file in the variant
 #	psenv = bld.env_of_name('psdir')
-#	obj = bld.new_task_gen('tex','latex')
+#	obj = bld.new_task_gen('tex', type='latex')
 #	obj.source = 'document.ltx'
 #	obj.outs = 'ps'
 #	obj.env = psenv

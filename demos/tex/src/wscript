@@ -9,10 +9,14 @@ def build(bld):
 	#tex.tex_regexp = re.compile('^\\\\bringin{(?P<file>.*)}', re.M)
 
 	# now create your tex object for compiling the files
-	obj = bld.new_task_gen('tex' , type='latex') # type could be pdflatex
-	obj.source = 'document.ltx' # mandatory, the source
+	obj = bld.new_task_gen(
+		features = 'tex',
+		type='latex', # type could be pdflatex
+		source = 'document.ltx' # mandatory, the source
+	)
 
 	# optional parameters
 	obj.outs   = 'ps' # we want a postscript output too - 'ps pdf' works too
 	obj.prompt = 1 # put 0 for the batchmode (conceals the debug output)
 	obj.deps   = 'crossreferencing.ltx' # use this to give dependencies directly
+
