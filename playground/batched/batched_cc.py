@@ -26,15 +26,12 @@ import TaskGen, Task, ccroot, Build
 from TaskGen import extension
 from Constants import *
 
-Task.algotype = JOBCONTROL
-
 count = 12345
 class batch_task(Task.Task):
 	#before = 'cc_link cxx_link ar_link_static'
 	before = 'cc_link'
 	after = 'cc cxx'
 	color = 'RED'
-	maxjobs = 0
 
 	def __str__(self):
 		return '(batch compilation)\n'
@@ -104,7 +101,7 @@ class batch_task(Task.Task):
 
 		for id in xrange(len(self.slaves)):
 			name = 'batch_%d_%d.o' % (self.idx, id)
-			print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
+			#print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
 			shutil.move(name, self.slaves[id].outputs[0].abspath(self.slaves[id].env))
 
 		return None
