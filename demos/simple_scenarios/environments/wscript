@@ -7,6 +7,7 @@ APPNAME='simple_tool'
 srcdir = '.'
 blddir = 'build'
 
+import os
 import TaskGen
 TaskGen.declare_chain(
 	name = 'dang',
@@ -20,7 +21,6 @@ def set_options(opt):
 	pass
 
 def configure(conf):
-	import os
 	cmd = os.getcwd() + os.sep + "cp.py"
 	conf.env['COPY'] = cmd
 
