@@ -19,6 +19,9 @@ To set this up, the method ccroot::create_task is replaced by a new version, to 
 it is only necessary to import this module in the configuration (no other change required)
 """
 
+MAX_BATCH = 50
+USE_SHELL = True
+
 EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
 import shutil, os
@@ -75,7 +78,7 @@ class batch_task(Task.Task):
 		# unfortunately building the files in batch mode outputs
 		# them into the current folder (the build dir)
 		# move them to the correct location
-		shell_move = True
+		USE_SHELL = True
 
 		lst = []
 		lst2 = []
@@ -86,11 +89,11 @@ class batch_task(Task.Task):
 			f.write('#include "%s"\n' % self.slaves[id].inputs[0].relpath_gen(self.generator.bld.bldnode))
 			f.close()
 
-			if shell_move:
-				si = 'mv %s %s' % (name.replace('.c', '.o'), self.slaves[id].outputs[0].abspath(self.slaves[id].env))
+			if USE_SHELL:
+				si = '/bin/mv -f %s %s' % (name.replace('.c', '.o'), self.slaves[id].outputs[0].abspath(self.slaves[id].env))
 				lst2.append(si)
 
-		if shell_move:
+		if USE_SHELL:
 			self.env['CC_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
 			self.env['CXX_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
 		else:
@@ -107,7 +110,7 @@ class batch_task(Task.Task):
 		env = self.slaves[0].env
 		rootdir = self.generator.bld.srcnode.abspath(env)
 
-		if not shell_move:
+		if not USE_SHELL:
 			for id in xrange(len(self.slaves)):
 				name = 'batch_%d_%d.o' % (self.idx, id)
 				#print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
@@ -132,6 +135,11 @@ def wrap(fun):
 		task = fun(self, node)
 		if not getattr(self, 'master', None):
 			self.master = self.create_task('batch')
+		else:
+			if len(self.master.slaves) > MAX_BATCH:
+				# another group
+				self.master = self.create_task('batch')
+
 		self.master.add_slave(task)
 		return task
 	return foo
