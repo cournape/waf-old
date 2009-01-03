@@ -5,8 +5,8 @@
 # Creates a simple program with c++ and c sources as input
 # compile with the appropriate compilers and link with g++
 
-out = bld.new_task_gen('cxx', 'program')
-out.source = 'a.cpp b.c'
-out.target = 'hybrid'
-out.features.append('cc')
+out = bld.new_task_gen(
+	features = 'cxx cc cprogram',
+	source = 'a.cpp b.c',
+	target = 'hybrid')
 
