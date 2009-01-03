@@ -354,7 +354,6 @@ _hash_whitelist_types = (
 	bool,
 	long,
 	float,
-	type(None),
 	# tuple handled separately
 	)
 

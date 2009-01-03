@@ -221,11 +221,11 @@ def main():
 				for file in proj['files']:
 					mod = Utils.load_module(file)
 					h = Utils.hash_function_with_globals(h, mod.configure)
-				reconf = (h != proj['hash'])
 			except Exception, e:
 				warn("Reconfiguring the project (an exception occurred: %s)" % (str(e),))
 				reconf = 1
-
+			if (h != proj['hash']):
+				reconf = 1
 			if reconf:
 				warn("Reconfiguring the project (the configuration has changed)")
 
