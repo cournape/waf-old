@@ -11,24 +11,27 @@ See also: http://code.google.com/p/waf/wiki/TaskSystem
 srcdir = '.'
 blddir = 'out'
 
+def set_options(opt):
+	opt.tool_options('g++')
+
 def configure(conf):
 	conf.check_tool('g++')
 
 def build(bld):
-	a = bld.new_task_gen('cxx', 'program')
-	a.source = 'a.cpp'
-	a.target = 'AA'
 
-	# without the following 'add_group' line, both a.cpp and c.cpp were compiled and
+	# without the 'add_group' line, both a.cpp and c.cpp are compiled and
 	# then both were linked at the same time
-	# The addition of 'savta' group separates them, so a.cpp is compiled and
-	# linked before c.cpp is compiled.
+	# a.cpp is compiled and linked before c.cpp is even compiled
+
+	bld.new_task_gen(
+		features = 'cxx cprogram',
+		source = 'a.cpp',
+		target = 'AA')
 
 	bld.add_group() # <- acts like a separator
-	c = bld.new_task_gen('cxx', 'program')
-	c.source = 'c.cpp'
-	c.target = 'CC'
 
-def set_options(opt):
-	opt.tool_options('g++')
+	bld.new_task_gen(
+		features = 'cxx cprogram',
+		source = 'c.cpp',
+		target = 'CC')
 
