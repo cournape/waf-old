@@ -73,6 +73,11 @@ class batch_task(Task.Task):
 			#self.inputs.extend(t.inputs)
 			outputs.extend(t.outputs)
 
+		# unfortunately building the files in batch mode outputs
+		# them into the current folder (the build dir)
+		# move them to the correct location
+		shell_move = True
+
 		lst = []
 		lst2 = []
 		for id in xrange(len(self.slaves)):
@@ -81,11 +86,19 @@ class batch_task(Task.Task):
 			f = open(name, 'wb')
 			f.write('#include "%s"' % self.slaves[id].inputs[0].relpath_gen(self.generator.bld.bldnode))
 			f.close()
-			si = 'mv %s %s' % (name.replace('.c', '.o'), self.slaves[id].outputs[0].abspath(self.slaves[id].env))
-			lst2.append(si)
 
-		self.env['CC_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
-		self.env['CXX_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
+			if shell_move:
+				si = 'mv %s %s' % (name.replace('.c', '.o'), self.slaves[id].outputs[0].abspath(self.slaves[id].env))
+				lst2.append(si)
+
+		if shell_move:
+			self.env['CC_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
+			self.env['CXX_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
+		else:
+			self.env['CC_TGT_F'] = '-c ' + " ".join(lst)
+			self.env['CXX_TGT_F'] = '-c ' + " ".join(lst)
+
+
 		ret = self.slaves[0].__class__.__dict__['oldrun'](self)
 		if ret:
 			return ret
@@ -95,17 +108,11 @@ class batch_task(Task.Task):
 		env = self.slaves[0].env
 		rootdir = self.generator.bld.srcnode.abspath(env)
 
-		# unfortunately building the files in batch mode outputs
-		# them into the current folder (the build dir)
-		# move them to the correct location
-		#for i in outputs:
-		##	#print "moving", name, i.bldpath(env)
-		#	shutil.move(i.name.replace(self.generator.obj_ext, '.o'), i.bldpath(env))
-
-		#for id in xrange(len(self.slaves)):
-		#	name = 'batch_%d_%d.o' % (self.idx, id)
-		#	#print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
-		#	shutil.move(name, self.slaves[id].outputs[0].abspath(self.slaves[id].env))
+		if not shell_move:
+			for id in xrange(len(self.slaves)):
+				name = 'batch_%d_%d.o' % (self.idx, id)
+				#print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
+				shutil.move(name, self.slaves[id].outputs[0].abspath(self.slaves[id].env))
 
 		return None
 
