@@ -28,6 +28,7 @@ from Constants import *
 
 Task.algotype = JOBCONTROL
 
+count = 12345
 class batch_task(Task.Task):
 	#before = 'cc_link cxx_link ar_link_static'
 	before = 'cc_link'
@@ -44,6 +45,10 @@ class batch_task(Task.Task):
 		self.inputs=[]
 		#self.outputs=[]
 		self.hasrun = 0
+
+		global count
+		count += 1
+		self.idx = count
 
 	def add_slave(self, slave):
 		self.slaves.append(slave)
@@ -68,11 +73,19 @@ class batch_task(Task.Task):
 		self.slaves = [t for t in self.slaves if t.hasrun != SKIPPED]
 
 		for t in self.slaves:
-			self.inputs.extend(t.inputs)
+			#self.inputs.extend(t.inputs)
 			outputs.extend(t.outputs)
 
-		self.env['CC_TGT_F'] = '-c '
-		self.env['CXX_TGT_F'] = '-c '
+		lst = []
+		for id in xrange(len(self.slaves)):
+			name = 'batch_%d_%d.c' % (self.idx, id)
+			lst.append(name)
+			f = open(name, 'wb')
+			f.write('#include "%s"' % self.slaves[id].inputs[0].relpath_gen(self.generator.bld.bldnode))
+			f.close()
+
+		self.env['CC_TGT_F'] = '-c ' + " ".join(lst)
+		self.env['CXX_TGT_F'] = '-c ' + " ".join(lst)
 		ret = self.slaves[0].__class__.__dict__['oldrun'](self)
 		if ret:
 			return ret
@@ -85,9 +98,14 @@ class batch_task(Task.Task):
 		# unfortunately building the files in batch mode outputs
 		# them into the current folder (the build dir)
 		# move them to the correct location
-		for i in outputs:
-			#print "moving", name, i.bldpath(env)
-			shutil.move(i.name.replace(self.generator.obj_ext, '.o'), i.bldpath(env))
+		#for i in outputs:
+		##	#print "moving", name, i.bldpath(env)
+		#	shutil.move(i.name.replace(self.generator.obj_ext, '.o'), i.bldpath(env))
+
+		for id in xrange(len(self.slaves)):
+			name = 'batch_%d_%d.o' % (self.idx, id)
+			print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
+			shutil.move(name, self.slaves[id].outputs[0].abspath(self.slaves[id].env))
 
 		return None
 
@@ -100,15 +118,7 @@ class batch_task(Task.Task):
 
 			t.generator.bld.task_sigs[t.unique_id()] = t.cache_sig
 
-from TaskGen import extension, feature, before
-
-idx = 123456789
-@feature('cc', 'cxx')
-@before('apply_core')
-def add_obj_ext(self):
-	global idx
-	idx += 1
-	self.obj_ext = '_%d.o' % idx
+from TaskGen import extension
 
 import cc, cxx
 def wrap(fun):
