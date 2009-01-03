@@ -20,7 +20,7 @@ it is only necessary to import this module in the configuration (no other change
 """
 
 MAX_BATCH = 50
-USE_SHELL = True
+USE_SHELL = False
 
 EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
@@ -94,11 +94,9 @@ class batch_task(Task.Task):
 				lst2.append(si)
 
 		if USE_SHELL:
-			self.env['CC_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
-			self.env['CXX_TGT_F'] = '-c ' + " ".join(lst) + " && " + " && ".join(lst2)
+			self.env['CC_TGT_F'] = self.env['CXX_TGT_F'] = '-c ' + " ".join(lst) + " && (%s)" % " | ".join(lst2)
 		else:
-			self.env['CC_TGT_F'] = '-c ' + " ".join(lst)
-			self.env['CXX_TGT_F'] = '-c ' + " ".join(lst)
+			self.env['CC_TGT_F'] = self.env['CXX_TGT_F'] = '-c ' + " ".join(lst)
 
 
 		ret = self.slaves[0].__class__.__dict__['oldrun'](self)
