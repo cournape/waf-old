@@ -2,9 +2,18 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# Creates a simple program with a custom compiler:
-# ih.coin -> ih.cpp -> ih.o
+# WARNING
+# nearly all the code in this file requires importing misc.py
+# the system of command-output is still provided for compatibility,
+# and for the cases where it is better to launch commands by
+# using the direct arguments, without a shell (spaces in names, speed, ..)
+#
+# these apis may be less convenient than the rule-based processing
 
+# make sure to import this somewhere else the command-output thing will not work
+import misc
+
+#######################################################################
 
 # This file is not a module, and all the code
 # from it will be executed upon compile step
@@ -15,24 +24,25 @@
 #
 
 # and look in the file misc.py!
-# for now the syntax sucks a little bit but the concepts will remain the same
+
 
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
-obj = bld.new_task_gen('cxx', 'shlib')
+obj = bld.new_task_gen(
+	features = 'cxx cshlib',
+	includes = '. ..',
+	uselib = 'GLIB',
+	target = 'shlib3',
+	vnum = '1.2.3')
 obj.find_sources_in_dirs('. gui')
-obj.includes='. ..'
-obj.uselib='GLIB'
-obj.target='shlib3'
-obj.want_libtool=1
-obj.vnum='1.2.3'
 
 # process file.pc.in -> file.pc
-obj = bld.new_task_gen('subst')
-obj.source = 'test.pc.in'
-obj.target = 'test.pc'
-obj.dict   = {'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm', 'VERSION': '1.0', 'XPM_LIBS': '-lxpm'}
-
+pars = {'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm',
+	'VERSION': '1.0', 'XPM_LIBS': '-lxpm'}
+obj = bld.new_task_gen(
+	features = 'subst',
+	target = 'test.pc',
+	dict = pars)
 
 """
 # doc for waf 1.5.1 - command-output wrappers
@@ -46,76 +56,88 @@ obj.stdout = 'foo.h'
 obj.command_is_external = True
 """
 
+# the following still works but it is better to use the rule-based processing
+#
 # a function to execute in the middle of the build
-def print_hello(task):
-	print "\n->> ahoy"
-	return 0
-
+#def print_hello(task):
+#	print "\n->> ahoy"
+#	return 0
 # execute arbitrary code in the middle of the build
-obj = bld.new_task_gen('cmd')
-obj.fun = print_hello
+#obj = bld.new_task_gen('cmd')
+#obj.fun = print_hello
+#
 
 # build dir traversal
 bld.add_subdirs('gui gui2')
 
-import misc
+# generate files from a command
+out1 = bld.new_task_gen(
+	features = 'command-output',
+	stdout = 'test1',
+	stdin = 'wscript_build',
+	command = 'some-script',
+	argv = ['--output-md5', misc.output_file('test1.md5')],
+	vars = 'COINCOIN')
+out1.env['COINCOIN'] = 'Some string to trigger rebuilds'
 
-## generate files from a command
-out1 = bld.new_task_gen('command-output')
-out1.stdout = 'test1'
-out1.stdin = 'wscript_build'
-out1.command = 'some-script'
-out1.argv = ['--output-md5', misc.output_file('test1.md5')]
-out1.vars='COINCOIN'
-out1.env['COINCOIN']='Some string to trigger rebuilds'
-#obj.command_is_external = False
 
-out2 = bld.new_task_gen('command-output')
-out2.stdout = 'test2'
-out2.command = 'some-script'
-out2.argv = ['--input', misc.input_file('test1')]
-out2.vars='MIAOU'
+out2 = bld.new_task_gen(
+	features = 'command-output',
+	stdout = 'test2',
+	command = 'some-script',
+	argv = ['--input', misc.input_file('test1')],
+	vars='MIAOU',
+	dependencies = [out1])
 out2.env['MIAOU']='Another string to trigger rebuilds'
 out2.dependencies = [out1]
 
-out3 = bld.new_task_gen('command-output')
-out3.stdin = 'test2'
-out3.stdout = 'test3'
-out3.command = 'cat'
-out3.command_is_external = True
-out3.dependencies = [out2]
 
-out4 = bld.new_task_gen('command-output')
-out4.stdin = 'test3'
-out4.stdout = 'test4'
-out4.command = 'cat'
-out4.command_is_external = True
-out4.dependencies = [out3]
+out3 = bld.new_task_gen(
+	features = 'command-output',
+	stdin = 'test2',
+	stdout = 'test3',
+	command = 'cat',
+	command_is_external = True,
+	dependencies = [out2])
 
-## --- compile a generated program ---
-genmain = bld.new_task_gen('command-output')
-genmain.before = 'cxx'
-genmain.stdout = "main1.cpp"
-genmain.command = 'cat'
-genmain.command_is_external = True
-genmain.argv = [misc.input_file('main.cpp')]
-#genmain.hidden_outputs = ['toto']
+bld.new_task_gen(
+	features = 'command-output',
+	stdin = 'test3',
+	stdout = 'test4',
+	command = 'cat',
+	command_is_external = True,
+	dependencies = [out3])
 
-obj = bld.new_task_gen('cxx', 'program')
-obj.source = 'main1.cpp'
-obj.target = 'main1'
-obj.includes = '..'
+# compile a generated cpp file into a program
+bld.new_task_gen(
+	features = 'command-output',
+	before = 'cxx',
+	stdout = 'main1.cpp',
+	command = 'cat',
+	command_is_external = True,
+	argv = [misc.input_file('main.cpp')])
 
-foo = bld.new_task_gen('copy')
-foo.source = 'main.cpp'
-foo.target = 'blah'
-# source != target!
+bld.new_task_gen(
+	features = 'cxx cprogram',
+	source = 'main1.cpp',
+	target = 'main1',
+	includes = '..')
+
+# when copying files to the build dir, it is important to name the files differently
+# a file is either in the source dir or in the build dir but not in both
+#
+# source != target
+bld.new_task_gen(
+	features = 'copy',
+	source = 'main.cpp',
+	target = 'blah')
 
 # -- run a command and retrive stderr into a file
-ls = bld.new_task_gen('command-output')
-ls.stderr = "ls-error.out"
-ls.command = 'bash'
-ls.argv = ['-c', 'ls --xpto-foo-bar || true;']
-ls.stdin = 'wscript_build'
-ls.command_is_external = True
+bld.new_task_gen(
+	features = 'command-output',
+	stderr = 'ls-error.out',
+	command = 'bash',
+	argv = ['-c', 'ls --xpto-foo-bar || true;'],
+	stdin = 'wscript_build',
+	command_is_external = True)
 
