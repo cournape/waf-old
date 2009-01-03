@@ -10,10 +10,9 @@ we recommend to add the header to compile in a separate directory without any so
 Note: the #warning will come once when the .h is compiled, it will not come when the .cpp is compiled
 """
 
-from TaskGen import taskgen, feature, after
+from TaskGen import feature, after
 import Task, ccroot
 
-@taskgen
 @feature('cxx')
 @after('apply_link')
 def process_pch(self):
@@ -25,19 +24,18 @@ def process_pch(self):
 		tsk = self.create_task('gchx')
 		tsk.set_inputs(node)
 		tsk.set_outputs(node.parent.find_or_declare(node.name + '.gch'))
-		tsk.defines = self.scanner_defines
-		tsk.env = self.env.copy()
 
-cls = Task.simple_task_type('gchx', '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${SRC} -o ${TGT}')
+comp_line = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${SRC} -o ${TGT}'
+cls = Task.simple_task_type('gchx', comp_line, before='cc cxx')
 cls.scan = ccroot.scan
-cls.before = 'cxx'
 
 def build(bld):
-	obj = bld.new_task_gen('cxx', 'program')
-	obj.source = 'main.cpp'
-	obj.includes='. subdir'
-	obj.target='test'
-	obj.pch = 'subdir/all.h'
+	bld.new_task_gen(
+		features = 'cxx cprogram',
+		source = 'main.cpp',
+		includes = '. subdir',
+		target = 'test',
+		pch = 'subdir/all.h')
 
 def configure(conf):
 	conf.check_tool('g++')
