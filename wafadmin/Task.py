@@ -599,8 +599,8 @@ class Task(TaskBase):
 		sig = self.signature()
 
 		cnt = 0
+		variant = env.variant()
 		for node in self.outputs:
-			variant = node.variant(env)
 			#if node in bld.node_sigs[variant]:
 			#	print "variant is ", variant
 			#	print "self sig is ", Utils.view_sig(bld.node_sigs[variant][node])
