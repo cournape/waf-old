@@ -16,6 +16,7 @@ def find_sxx(conf):
 	elif 'CXX' in os.environ: cc = os.environ['CXX']
 	#if not cc: cc = conf.find_program('g++', var='CXX')
 	if not cc: cc = conf.find_program('c++', var='CXX')
+	if not cc: cc = conf.find_program('CC', var='CXX') #studio
 	if not cc: conf.fatal('sunc++ was not found')
 	v['CXX']  = cc
 	v['CXX_NAME'] = 'sun'
