@@ -492,7 +492,6 @@ def detect_qt4(conf):
 	env['QTLOCALE'] = str(env['PREFIX'])+'/share/locale'
 
 def detect(conf):
-	if sys.platform=='win32': conf.fatal('Qt4.py will not work on win32 for now - ask the author')
 	detect_qt4(conf)
 
 def set_options(opt):
