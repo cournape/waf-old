@@ -52,6 +52,15 @@ algotype = NORMAL
 #algotype = JOBCONTROL
 #algotype = MAXPARALLEL
 
+COMPILE_TEMPLATE = '''
+def f(task):
+	env = task.env
+	wd = getattr(task, 'cwd', None)
+	p = env.get_flat
+	cmd = "%s" % s
+	return task.generator.bld.exec_command(cmd, cwd=wd)
+'''
+
 """
 Enable different kind of dependency algorithms:
 1 make groups: first compile all cpps and then compile all links (NORMAL)
@@ -816,14 +825,7 @@ def compile_fun(name, line):
 	if parm: parm = "%% (%s) " % (',\n\t\t'.join(parm))
 	else: parm = ''
 
-	c = '''
-def f(task):
-	env = task.env
-	wd = getattr(task, 'cwd', None)
-	p = env.get_flat
-	cmd = "%s" % s
-	return task.generator.bld.exec_command(cmd, cwd=wd)
-''' % (line, parm)
+	c = COMPILE_TEMPLATE % (line, parm)
 
 	debug('action: %s' % c)
 	return (funex(c), dvars)
