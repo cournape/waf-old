@@ -177,7 +177,7 @@ public class Test {
 	java_file.close()
 
 	# Compile the source
-	os.popen(self.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
+	Utils.exec_command(self.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
 
 	cmd = self.env['JAVA'] + ' -cp ' + classpath + ' Test ' + classname
 	self.log.write("%s\n" % cmd)
