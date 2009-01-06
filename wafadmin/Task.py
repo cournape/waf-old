@@ -852,8 +852,8 @@ def compile_fun(name, line):
 	dvars = []
 	app = buf.append
 	for x in xrange(len(extr)):
-		if params[x] and params[x] != ' ':
-			app("lst.append(%r) " % params[x].strip())
+		if params[x]:
+			app("lst.extend(%r)" % params[x].strip().split())
 		(var, meth) = extr[x]
 		if var == 'SRC':
 			if meth: app('lst.append(task.inputs%s)' % meth)
@@ -864,8 +864,8 @@ def compile_fun(name, line):
 		else:
 			app('lst.extend(task.generator.to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
-	if params[-1] and params[-1] != ' ':
-		app("lst.append(%r)" % params[-1].strip())
+	if params[-1]:
+		app("lst.extend(%r)" % params[-1].strip().split())
 
 	fun = '''
 def f(task):
@@ -873,7 +873,6 @@ def f(task):
 	wd = getattr(task, 'cwd', None)
 	lst = []
 	%s
-	#print lst
 	return task.generator.bld.exec_command(lst, cwd=wd, shell=False)
 ''' % "\n\t".join(buf)
 
