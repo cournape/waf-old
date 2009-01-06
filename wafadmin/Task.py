@@ -830,6 +830,55 @@ def compile_fun(name, line):
 	debug('action: %s' % c)
 	return (funex(c), dvars)
 
+old_compile_fun = compile_fun
+def compile_fun(name, line):
+
+	if line.find('<') > 0: return old_compile_fun(name, line)
+	if line.find('>') > 0: return old_compile_fun(name, line)
+	if line.find('&&') > 0: return old_compile_fun(name, line)
+
+	extr = []
+	def repl(match):
+		g = match.group
+		if g('dollar'): return "$"
+		elif g('subst'): extr.append((g('var'), g('code'))); return "<<|@|>>"
+		return None
+
+	line2 = reg_act.sub(repl, line)
+	params = line2.split('<<|@|>>')
+
+
+	buf = []
+	dvars = []
+	app = buf.append
+	for x in xrange(len(extr)):
+		if params[x] and params[x] != ' ':
+			app("lst.append(%r) " % params[x].strip())
+		(var, meth) = extr[x]
+		if var == 'SRC':
+			if meth: app('lst.append(task.inputs%s)' % meth)
+			else: app("lst.extend([a.srcpath(env) for a in task.inputs])")
+		elif var == 'TGT':
+			if meth: app('lst.append(task.outputs%s)' % meth)
+			else: app("lst.extend([a.bldpath(env) for a in task.outputs])")
+		else:
+			app('lst.extend(task.generator.to_list(env[%r]))' % var)
+			if not var in dvars: dvars.append(var)
+	if params[-1] and params[-1] != ' ':
+		app("lst.append(%r)" % params[-1].strip())
+
+	fun = '''
+def f(task):
+	env = task.env
+	wd = getattr(task, 'cwd', None)
+	lst = []
+	%s
+	#print lst
+	return task.generator.bld.exec_command(lst, cwd=wd, shell=False)
+''' % "\n\t".join(buf)
+
+	return (funex(fun), dvars)
+
 def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[]):
 	"""return a new Task subclass with the function run compiled from the line given"""
 	(fun, dvars) = compile_fun(name, line)
