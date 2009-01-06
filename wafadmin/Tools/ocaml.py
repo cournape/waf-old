@@ -98,7 +98,7 @@ def init_envs_ml(self):
 		if self.islibrary: self.bytecode_env['OCALINKFLAGS'] = '-a'
 
 	if self.type == 'c_object':
-		self.native_env.append_unique('OCALINKFLAGS_OPT', ' -output-obj')
+		self.native_env.append_unique('OCALINKFLAGS_OPT', '-output-obj')
 
 @taskgen
 @feature('ocaml')
@@ -123,12 +123,18 @@ def apply_incpaths_ml(self):
 def apply_vars_ml(self):
 	for i in self.incpaths_lst:
 		if self.bytecode_env:
-			self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
-			self.bytecode_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
+			app = self.bytecode_env.append_value
+			app('OCAMLPATH', '-I')
+			app('OCAMLPATH', i.srcpath(self.env))
+			app('OCAMLPATH', '-I')
+			app('OCAMLPATH', i.bldpath(self.env))
 
 		if self.native_env:
-			self.native_env.append_value('OCAMLPATH', '-I %s' % i.bldpath(self.env))
-			self.native_env.append_value('OCAMLPATH', '-I %s' % i.srcpath(self.env))
+			app = self.native_env.append_value
+			app('OCAMLPATH', '-I')
+			app('OCAMLPATH', i.bldpath(self.env))
+			app('OCAMLPATH', '-I')
+			app('OCAMLPATH', i.srcpath(self.env))
 
 	varnames = ['INCLUDES', 'OCAMLFLAGS', 'OCALINKFLAGS', 'OCALINKFLAGS_OPT']
 	for name in self.uselib.split():
