@@ -852,8 +852,9 @@ def compile_fun(name, line):
 	dvars = []
 	app = buf.append
 	for x in xrange(len(extr)):
+		params[x] = params[x].strip()
 		if params[x]:
-			app("lst.extend(%r)" % params[x].strip().split())
+			app("lst.extend(%r)" % params[x].split())
 		(var, meth) = extr[x]
 		if var == 'SRC':
 			if meth: app('lst.append(task.inputs%s)' % meth)
@@ -862,17 +863,24 @@ def compile_fun(name, line):
 			if meth: app('lst.append(task.outputs%s)' % meth)
 			else: app("lst.extend([a.bldpath(env) for a in task.outputs])")
 		else:
-			app('lst.extend(task.generator.to_list(env[%r]))' % var)
+			app('lst.extend(to_list(env[%r]))' % var)
 			if not var in dvars: dvars.append(var)
-	if params[-1]:
-		app("lst.extend(%r)" % params[-1].strip().split())
+
+	if extr:
+		params[-1] = params[-1].split()
+		if params[-1]:
+			app("lst.extend(%r)" % params[-1].split())
 
 	fun = '''
 def f(task):
 	env = task.env
 	wd = getattr(task, 'cwd', None)
+	def to_list(xx):
+		if isinstance(xx, str): return xx.split()
+		return xx
 	lst = []
 	%s
+	lst = [x for x in lst if x]
 	return task.generator.bld.exec_command(lst, cwd=wd, shell=False)
 ''' % "\n\t".join(buf)
 
