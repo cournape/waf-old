@@ -208,7 +208,11 @@ class task_gen(object):
 
 	def post(self):
 		"runs the code to create the tasks, do not subclass"
-		if not self.name: self.name = self.target
+		if not self.name:
+			if isinstance(self.target, list):
+				self.name = ' '.join(self.target)
+			else:
+				self.name = self.target
 
 		if getattr(self, 'posted', None):
 			#error("OBJECT ALREADY POSTED" + str( self))

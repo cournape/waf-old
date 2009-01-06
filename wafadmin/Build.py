@@ -571,7 +571,11 @@ class BuildContext(object):
 				if x.name:
 					cache[vt + x.name] = x
 				else:
-					v = vt + x.target
+					if isinstance(x.target, str):
+						target = x.target
+					else:
+						target = ' '.join(x.target)
+					v = vt + target
 					if not cache.get(v, None):
 						cache[v] = x
 		return cache.get(env.variant() + '_' + name, None)
