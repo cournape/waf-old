@@ -66,7 +66,7 @@ def gxx_common_flags(conf):
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
 	# osx stuff
-	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined dynamic_lookup']
+	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined', 'dynamic_lookup']
 	v['CCFLAGS_MACBUNDLE']   = ['-fPIC']
 	v['macbundle_PATTERN']   = '%s.bundle'
 
@@ -96,7 +96,7 @@ def gxx_modifier_cygwin(conf):
 def gxx_modifier_darwin(conf):
 	if sys.platform != 'darwin': return
 	v = conf.env
-	v['shlib_CXXFLAGS']      = ['-fPIC', '-compatibility_version 1', '-current_version 1']
+	v['shlib_CXXFLAGS']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
 
@@ -111,7 +111,7 @@ def gxx_modifier_aix5(conf):
 	v = conf.env
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
 
-	v['shlib_LINKFLAGS']     = ['-shared','-Wl,-brtl,-bexpfull']
+	v['shlib_LINKFLAGS']     = ['-shared', '-Wl,-brtl,-bexpfull']
 
 	v['SHLIB_MARKER']        = ''
 

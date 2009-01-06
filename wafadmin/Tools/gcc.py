@@ -39,7 +39,7 @@ def gcc_common_flags(conf):
 	# linker
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
 	v['CCLNK_SRC_F']         = ''
-	v['CCLNK_TGT_F']         = '-o '
+	v['CCLNK_TGT_F']         = '-o'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
@@ -64,7 +64,7 @@ def gcc_common_flags(conf):
 	v['staticlib_PATTERN']   = 'lib%s.a'
 
 	# osx stuff
-	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined dynamic_lookup']
+	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined', 'dynamic_lookup']
 	v['CCFLAGS_MACBUNDLE']   = ['-fPIC']
 	v['macbundle_PATTERN']   = '%s.bundle'
 
@@ -94,7 +94,7 @@ def gcc_modifier_cygwin(conf):
 def gcc_modifier_darwin(conf):
 	v = conf.env
 	if sys.platform != 'darwin': return
-	v['shlib_CCFLAGS']       = ['-fPIC', '-compatibility_version 1', '-current_version 1']
+	v['shlib_CCFLAGS']       = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
 
