@@ -36,8 +36,11 @@ Utilities, the stable ones are the following:
 import os, sys, imp, string, errno, traceback, inspect, re
 try: from UserDict import UserDict
 except ImportError: from collections import UserDict
-try: import pproc
-except: import subprocess as pproc
+if sys.hexversion > 0x2060000:
+	import subprocess as pproc
+else:
+	try: import pproc
+	except: import subprocess as pproc
 import Logs
 from Constants import *
 
