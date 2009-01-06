@@ -31,16 +31,15 @@ EXT_RCC = ['.qrc']
 EXT_UI  = ['.ui']
 EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 
-class MTask(Task.Task):
+class MTask_task(Task.Task):
 	"A cpp task that may create a moc task dynamically"
 
 	scan = ccroot.scan
 	before = ['cxx_link', 'ar_link_static']
 
-	def __init__(self, parent):
-		Task.Task.__init__(self, parent.env)
+	def __init__(self, *k, **kw):
+		Task.Task.__init__(self, *k, **kw)
 		self.moc_done = 0
-		self.parent = parent
 
 	def runnable_status(self):
 		if self.moc_done:
@@ -58,7 +57,6 @@ class MTask(Task.Task):
 
 	def add_moc_tasks(self):
 
-		parn = self.parent
 		node = self.inputs[0]
 		tree = node.__class__.bld
 
@@ -74,7 +72,7 @@ class MTask(Task.Task):
 
 		moctasks=[]
 		mocfiles=[]
-		variant = node.variant(parn.env)
+		variant = node.variant(self.env)
 		try:
 			tmp_lst = tree.raw_deps[self.unique_id()]
 			tree.raw_deps[self.unique_id()] = []
@@ -96,7 +94,7 @@ class MTask(Task.Task):
 
 			if not ext:
 				base2 = d[:-4]
-				path = node.parent.srcpath(parn.env)
+				path = node.parent.srcpath(self.env)
 				for i in MOC_H:
 					try:
 						# TODO we could use find_resource
@@ -114,7 +112,7 @@ class MTask(Task.Task):
 			tree.node_deps[(self.inputs[0].parent.id, self.env.variant(), m_node.name)] = h_node
 
 			# create the task
-			task = Task.TaskBase.classes['moc'](parn.env, normal=0)
+			task = Task.TaskBase.classes['moc'](self.env, normal=0)
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
@@ -132,7 +130,7 @@ class MTask(Task.Task):
 		for d in lst:
 			name = d.name
 			if name.endswith('.moc'):
-				task = Task.TaskBase.classes['moc'](parn.env, normal=0)
+				task = Task.TaskBase.classes['moc'](self.env, normal=0)
 				task.set_inputs(tree.node_deps[(self.inputs[0].parent.id, self.env.variant(), name)]) # 1st element in a tuple
 				task.set_outputs(d)
 
@@ -290,14 +288,13 @@ setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
 @extension(EXT_QT4)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = MTask(self)
-	self.tasks.append(task)
+	task = self.create_task('MTask')
+	self.compiled_tasks.append(task)
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
 	task.inputs = [node]
 	task.outputs = [node.change_ext(obj_ext)]
-	self.compiled_tasks.append(task)
 
 def process_qm2rcc(task):
 	outfile = task.outputs[0].abspath(task.env)
