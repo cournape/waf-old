@@ -21,11 +21,11 @@ it is only necessary to import this module in the configuration (no other change
 
 MAX_BATCH = 50
 USE_SHELL = False
-GCCDEPS = False
+GCCDEPS = True
 
 EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
-import shutil, os, threading
+import os, threading
 import TaskGen, Task, ccroot, Build, Logs
 from TaskGen import extension, feature, before
 from Constants import *
@@ -143,10 +143,17 @@ class batch_task(Task.Task):
 				#print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
 
 				task = self.slaves[id]
-				shutil.move(name, task.outputs[0].abspath(task.env))
+				dest = task.outputs[0].abspath(task.env)
+				try:
+					os.unlink(dest)
+				except OSError:
+					pass
+				os.rename(name, dest)
+				#shutil.move(name, task.outputs[0].abspath(task.env))
 
 		if GCCDEPS:
 			for id in xrange(len(self.slaves)):
+				task = self.slaves[id]
 				name = 'batch_%d_%d.d' % (self.idx, id)
 
 				f = open(name, 'r')
