@@ -21,13 +21,43 @@ it is only necessary to import this module in the configuration (no other change
 
 MAX_BATCH = 50
 USE_SHELL = False
+GCCDEPS = False
 
 EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
-import shutil, os
-import TaskGen, Task, ccroot, Build
-from TaskGen import extension
+import shutil, os, threading
+import TaskGen, Task, ccroot, Build, Logs
+from TaskGen import extension, feature, before
 from Constants import *
+
+if GCCDEPS:
+	lock = threading.Lock()
+
+	@feature('cc')
+	@before('apply_core')
+	def add_mmd_cc(self):
+		if self.env.get_flat('CCFLAGS').find('-MD') < 0:
+			self.env.append_value('CCFLAGS', '-MD')
+
+	@feature('cxx')
+	@before('apply_core')
+	def add_mmd_cxx(self):
+		if self.env.get_flat('CXXFLAGS').find('-MD') < 0:
+			self.env.append_value('CXXFLAGS', '-MD')
+
+	def scan(self):
+		"the scanner does not do anything initially"
+		nodes = self.generator.bld.node_deps.get(self.unique_id(), [])
+		names = [] # self.generator.bld.raw_deps.get(self.unique_id(), [])
+		return (nodes, names)
+
+	for name in 'cc cxx'.split():
+		try:
+			cls = Task.TaskBase.classes[name]
+		except KeyError:
+			pass
+		else:
+			cls.scan = scan
 
 count = 12345
 class batch_task(Task.Task):
@@ -78,7 +108,6 @@ class batch_task(Task.Task):
 		# unfortunately building the files in batch mode outputs
 		# them into the current folder (the build dir)
 		# move them to the correct location
-		USE_SHELL = True
 
 		lst = []
 		lst2 = []
@@ -94,7 +123,7 @@ class batch_task(Task.Task):
 				lst2.append(si)
 
 		if USE_SHELL:
-			self.env['CC_TGT_F'] = self.env['CXX_TGT_F'] = '-c ' + " ".join(lst) + " && (%s)" % " | ".join(lst2)
+			self.env['CC_TGT_F'] = self.env['CXX_TGT_F'] = '-c ' + " ".join(lst) + " && (%s)" % " && ".join(lst2)
 		else:
 			self.env['CC_TGT_F'] = self.env['CXX_TGT_F'] = '-c ' + " ".join(lst)
 
@@ -112,7 +141,52 @@ class batch_task(Task.Task):
 			for id in xrange(len(self.slaves)):
 				name = 'batch_%d_%d.o' % (self.idx, id)
 				#print "moving", name, self.slaves[id].outputs[0].abspath(self.slaves[id].env)
-				shutil.move(name, self.slaves[id].outputs[0].abspath(self.slaves[id].env))
+
+				task = self.slaves[id]
+				shutil.move(name, task.outputs[0].abspath(task.env))
+
+		if GCCDEPS:
+			for id in xrange(len(self.slaves)):
+				name = 'batch_%d_%d.d' % (self.idx, id)
+
+				f = open(name, 'r')
+				txt = f.read()
+				f.close()
+				os.unlink(name)
+
+				txt = txt.replace('\\\n', '')
+
+				lst = txt.strip().split(':')
+				val = ":".join(lst[1:])
+				val = val.split()
+
+				# remove the first two sources
+				val = val[2:]
+
+				lock.acquire()
+				nodes = []
+				for x in val:
+					if os.path.isabs(x):
+						node = self.generator.bld.root.find_resource(x)
+					else:
+						x = x.lstrip('../')
+						node = self.generator.bld.srcnode.find_resource(x)
+
+					if not node:
+						raise ValueError, 'could not find' + x
+					else:
+						nodes.append(node)
+				lock.release()
+
+				Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
+
+				id = self.unique_id()
+				self.generator.bld.node_deps[id] = nodes
+				self.generator.bld.raw_deps[id] = []
+
+				try: delattr(self, 'cache_sig')
+				except: pass
+				Task.Task.post_run(task)
 
 		return None
 
