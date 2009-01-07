@@ -22,6 +22,7 @@ it is only necessary to import this module in the configuration (no other change
 MAX_BATCH = 50
 USE_SHELL = False
 GCCDEPS = True
+MAXPARALLEL = False
 
 EXT_C = ['.c', '.cc', '.cpp', '.cxx']
 
@@ -61,9 +62,8 @@ if GCCDEPS:
 
 count = 12345
 class batch_task(Task.Task):
-	before = 'cc_link cxx_link ar_link_static'
-	after = 'cc cxx'
 	color = 'RED'
+	before = 'cc_link cxx_link ar_link_static'
 
 	def __str__(self):
 		return '(batch compilation)\n'
@@ -206,7 +206,7 @@ class batch_task(Task.Task):
 
 			t.generator.bld.task_sigs[t.unique_id()] = t.cache_sig
 
-from TaskGen import extension
+from TaskGen import extension, feature, after
 
 import cc, cxx
 def wrap(fun):
@@ -214,10 +214,18 @@ def wrap(fun):
 		task = fun(self, node)
 		if not getattr(self, 'master', None):
 			self.master = self.create_task('batch')
+			try:
+				self.all_masters.append(self.master)
+			except AttributeError:
+				self.all_masters = [self.master]
 		else:
 			if len(self.master.slaves) > MAX_BATCH:
 				# another group
 				self.master = self.create_task('batch')
+				try:
+					self.all_masters.append(self.master)
+				except AttributeError:
+					self.all_masters = [self.master]
 
 		self.master.add_slave(task)
 		return task
@@ -246,4 +254,19 @@ for c in ['cc', 'cxx']:
 	setattr(t, 'post_run', post_run)
 	setattr(t, 'can_retrieve_cache', can_retrieve_cache)
 
+if MAXPARALLEL:
+	# relax the constraints between cxx and cxx_link (in the build section)
+	Task.TaskBase.classes['cxx'].ext_out = []
+	batch_task.before = ''
+
+	@feature('cc', 'cxx')
+	@after('apply_link')
+	def masters(self):
+		try:
+			link_task = self.link_task
+		except AttributeError:
+			pass
+		else:
+			for k in self.all_masters:
+				link_task.set_run_after(k)
 
