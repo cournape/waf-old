@@ -193,11 +193,11 @@ class TaskGroup(object):
 		m = "after"
 		n = "before"
 		name = t2.__class__.__name__
-		if name in t1.attr(m, ()): return -1
-		elif name in t1.attr(n, ()): return 1
+		if name in Utils.to_list(t1.attr(m, ())): return -1
+		elif name in Utils.to_list(t1.attr(n, ())): return 1
 		name = t1.__class__.__name__
-		if name in t2.attr(m, ()): return 1
-		elif name in t2.attr(n, ()): return -1
+		if name in Utils.to_list(t2.attr(m, ())): return 1
+		elif name in Utils.to_list(t2.attr(n, ())): return -1
 		return 0
 
 	def extract_constraints(self):
