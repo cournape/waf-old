@@ -65,7 +65,7 @@ def apply_java(self):
 				node2 = node.change_ext(".class")
 				bld_nodes.append(node2)
 
-	self.env['OUTDIR'] = source_root_node.abspath(self.env)
+	self.env['OUTDIR'] = [source_root_node.abspath(self.env)]
 
 	tsk = self.create_task('javac')
 	tsk.set_inputs(src_nodes)
@@ -81,7 +81,7 @@ def apply_java(self):
 				self.env['JAROPTS'] = self.jaropts
 			else:
 				dirs = '.'
-				self.env['JAROPTS'] = '-C %s %s' % (self.env['OUTDIR'], dirs)
+				self.env['JAROPTS'] = ['-C', self.env['OUTDIR'], dirs]
 
 	# FIXME
 	self.source = ''
