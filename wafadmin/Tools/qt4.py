@@ -212,8 +212,8 @@ def create_rcc_task(self, node):
 def create_uic_task(self, node):
 	"hook for uic tasks"
 	uictask = self.create_task('ui4')
-	uictask.inputs    = [node]
-	uictask.outputs   = [node.change_ext('.h')]
+	uictask.inputs  = [node]
+	uictask.outputs = [self.env['ui_PATTERN'] % node.name.rstrip('.ui')]
 
 class qt4_taskgen(cxx.cxx_taskgen):
 	def __init__(self, *k, **kw):
@@ -437,6 +437,7 @@ def detect_qt4(conf):
 	env['UIC3_ST']= '%s -o %s'
 	env['UIC_ST'] = '%s -o %s'
 	env['MOC_ST'] = '-o'
+	env['ui_PATTERN'] = 'ui_%s.h'
 	env['QT_LRELEASE_FLAGS'] = ['-silent']
 
 	if not framework_ok: # framework_ok is false either when the platform isn't OSX, Qt4 shall not be used as framework, or Qt4 could not be found as framework
