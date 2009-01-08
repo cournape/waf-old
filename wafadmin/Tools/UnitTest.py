@@ -68,8 +68,8 @@ class unit_test(object):
 
 		# Gather unit tests to call
 		for obj in Build.bld.all_task_gen:
-			unit_test = getattr(obj,'unit_test', '')
-			if unit_test and 'program' in obj.features:
+			unit_test = getattr(obj, 'unit_test', '')
+			if unit_test and 'cprogram' in obj.features:
 				try:
 					output = obj.path
 					filename = os.path.join(output.abspath(obj.env), obj.target)
