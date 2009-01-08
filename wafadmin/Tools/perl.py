@@ -98,12 +98,15 @@ def check_perl_ext_devel(conf):
 
 	perl = conf.env['PERL']
 
-	conf.env["LINKFLAGS_PERLEXT"] = Utils.cmd_output(perl + " -MConfig -e'print $Config{lddlflags}'")
-	conf.env["CPPPATH_PERLEXT"] = Utils.cmd_output(perl + " -MConfig -e'print \"$Config{archlib}/CORE\"'")
-	conf.env["CCFLAGS_PERLEXT"] = Utils.cmd_output(perl + " -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'")
+	def read_out(cmd):
+		return Utils.to_list(Utils.cmd_output(perl + cmd))
 
-	conf.env["XSUBPP"] = Utils.cmd_output(perl + " -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'")
-	conf.env["EXTUTILS_TYPEMAP"] = Utils.cmd_output(perl + " -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'")
+	conf.env["LINKFLAGS_PERLEXT"] = read_out(" -MConfig -e'print $Config{lddlflags}'")
+	conf.env["CPPPATH_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{archlib}/CORE\"'")
+	conf.env["CCFLAGS_PERLEXT"] = read_out(" -MConfig -e'print \"$Config{ccflags} $Config{cccdlflags}\"'")
+
+	conf.env["XSUBPP"] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/xsubpp$Config{exe_ext}\"'")
+	conf.env["EXTUTILS_TYPEMAP"] = read_out(" -MConfig -e'print \"$Config{privlib}/ExtUtils/typemap\"'")
 
 	if not getattr(Options.options, 'perlarchdir', None):
 		conf.env["ARCHDIR_PERL"] = Utils.cmd_output(perl + " -MConfig -e'print $Config{sitearch}'")
