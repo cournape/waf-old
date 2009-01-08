@@ -625,7 +625,7 @@ class Task(TaskBase):
 			# this is unnecessary
 			if Options.cache_global:
 				ssig = sig.encode('hex')
-				dest = os.path.join(Options.cache_global, ssig+'-'+str(cnt))
+				dest = os.path.join(Options.cache_global, '%s_%d_%s' % (ssig, cnt, node.name))
 				try: shutil.copy2(node.abspath(env), dest)
 				except IOError: warn('Could not write the file to the cache')
 				cnt += 1
@@ -647,7 +647,7 @@ class Task(TaskBase):
 			variant = node.variant(env)
 
 			ssig = sig.encode('hex')
-			orig = os.path.join(Options.cache_global, ssig+'-'+str(cnt))
+			orig = os.path.join(Options.cache_global, '%s_%d_%s' % (ssig, cnt, node.name))
 			try:
 				shutil.copy2(orig, node.abspath(env))
 				# mark the cache file as used recently (modified)
