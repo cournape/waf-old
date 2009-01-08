@@ -177,10 +177,10 @@ public class Test {
 	java_file.close()
 
 	# Compile the source
-	Utils.exec_command(self.env['JAVAC'] + [os.path.join(javatestdir, 'Test.java')], shell=False)
+	Utils.exec_command([self.env['JAVAC'], os.path.join(javatestdir, 'Test.java')], shell=False)
 
 	# Try to run the app
-	cmd = self.env['JAVA'] + ['-cp', classpath, 'Test', classname]
+	cmd = [self.env['JAVA'], '-cp', classpath, 'Test', classname]
 	self.log.write("%s\n" % str(cmd))
 	found = Utils.exec_command(cmd, shell=False, log=self.log)
 
