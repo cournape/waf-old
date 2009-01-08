@@ -177,11 +177,12 @@ public class Test {
 	java_file.close()
 
 	# Compile the source
-	Utils.exec_command(self.env['JAVAC'] + ' ' + os.path.join(javatestdir, 'Test.java'))
+	Utils.exec_command(self.env['JAVAC'] + [os.path.join(javatestdir, 'Test.java')], shell=False)
 
-	cmd = self.env['JAVA'] + ' -cp ' + classpath + ' Test ' + classname
-	self.log.write("%s\n" % cmd)
-	found = Utils.exec_command(cmd, shell=True, log=self.log)
+	# Try to run the app
+	cmd = self.env['JAVA'] + ['-cp', classpath, 'Test', classname]
+	self.log.write("%s\n" % str(cmd))
+	found = Utils.exec_command(cmd, shell=False, log=self.log)
 
 	self.check_message('Java class %s' % classname, "", not found)
 
