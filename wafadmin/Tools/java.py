@@ -122,7 +122,7 @@ def detect(conf):
 
 	if 'JAVA_HOME' in os.environ:
 		java_path = [os.path.join(os.environ['JAVA_HOME'], 'bin')] + java_path
-		conf.env['JAVA_HOME'] = os.environ['JAVA_HOME']
+		conf.env['JAVA_HOME'] = [os.environ['JAVA_HOME']]
 
 	conf.find_program('javac', var='JAVAC', path_list=java_path)
 	conf.find_program('java', var='JAVA', path_list=java_path)
