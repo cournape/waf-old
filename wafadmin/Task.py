@@ -876,7 +876,7 @@ def f(task):
 	env = task.env
 	wd = getattr(task, 'cwd', None)
 	def to_list(xx):
-		if isinstance(xx, str): return xx.split()
+		if isinstance(xx, str): return [xx]
 		return xx
 	lst = []
 	%s
