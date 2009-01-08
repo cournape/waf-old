@@ -56,7 +56,7 @@ def find_program_impl(env, filename, path_list=[], var=None):
 	except AttributeError: pass
 
 	if var:
-		if var in os.environ: env[var] = [os.environ[var]]
+		if var in os.environ: env[var] = os.environ[var]
 		if env[var]: return env[var]
 
 	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
@@ -66,8 +66,7 @@ def find_program_impl(env, filename, path_list=[], var=None):
 		for directory in path_list:
 			x = os.path.join(directory, y)
 			if os.path.isfile(x):
-				# do not quote the names - use lists everywhere
-				if var: env[var] = [x]
+				if var: env[var] = x
 				return x
 	return ''
 
