@@ -40,7 +40,7 @@ def gxx_common_flags(conf):
 	# linker
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
 	v['CXXLNK_SRC_F']        = ''
-	v['CXXLNK_TGT_F']        = '-o '
+	v['CXXLNK_TGT_F']        = '-o'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
