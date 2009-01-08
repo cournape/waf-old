@@ -13,6 +13,8 @@ from Constants import *
 
 import config_c # <- necessary for the configuration, do not touch
 
+USE_TOP_LEVEL = True
+
 get_version_re = re.compile('\d+\.\d+(\.?\d+)*')
 def get_cc_version(conf, cc, version_var):
 	v = conf.env
@@ -173,14 +175,19 @@ def apply_incpaths(self):
 		if os.path.isabs(path):
 			if preproc.go_absolute:
 				node = self.bld.root.find_dir(path)
+		elif path[0] == '#':
+			node = self.bld.srcnode
+			if len(path) > 1:
+				node = node.find_dir(path[1:])
 		else:
 			node = self.path.find_dir(path)
 
 		if node:
 			self.env.append_value('INC_PATHS', node)
 
-	# TODO we will need to review this
-	self.env.append_value('INC_PATHS', self.bld.srcnode)
+	# TODO WAF 1.6
+	if USE_TOP_LEVEL:
+		self.env.append_value('INC_PATHS', self.bld.srcnode)
 
 @feature('cc', 'cxx')
 def apply_type_vars(self):
