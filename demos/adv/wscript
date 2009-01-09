@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
 #0;115;0c Thomas Nagy, 2006 (ita)
-from logging import fatal
 
 import Utils, Build
 # advanced tests
@@ -85,13 +84,13 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('gcc')
-	if not conf.env['CC']: fatal('gcc not found')
+	#if not conf.env['CC']: conf.fatal('gcc not found')
 
 	conf.check_tool('gas')
 	if not conf.env['AS']: conf.env['AS'] = conf.env['CC']
 
 	conf.check_tool('g++')
-	if not conf.env['CXX']: fatal('g++ not found')
+	#if not conf.env['CXX']: conf.fatal('g++ not found')
 
 	try: conf.check_tool('flex bison')
 	except: pass
@@ -116,7 +115,7 @@ def configure(conf):
 
 	# libraries, and how to reuse the checks
 	conf.check(lib='m')
-	conf.check(lib='linux', uselib='M', fatal=1)
+	conf.check(lib='linux', uselib='M', mandatory=True)
 
 	# something more complicated
 	conf.check(
