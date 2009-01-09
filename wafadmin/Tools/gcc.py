@@ -12,13 +12,17 @@ from Configure import conftest
 def find_gcc(conf):
 	v = conf.env
 	cc = None
-	if v['CC']: cc = v['CC']
-	elif 'CC' in os.environ: cc = os.environ['CC']
+	if v['CC']:
+		cc = v['CC']
+	elif 'CC' in os.environ:
+		cc = os.environ['CC']
 	if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc: conf.fatal('gcc was not found')
+
+	cc = Utils.to_list(cc)
 	try:
-		if Utils.cmd_output('%s --version' % cc).find('gcc') < 0:
+		if Utils.cmd_output('%s --version' % ' '.join(cc)).find('gcc') < 0:
 			conf.fatal('gcc was not found, see the result of gcc --version')
 	except ValueError:
 		conf.fatal('gcc --version could not be executed')

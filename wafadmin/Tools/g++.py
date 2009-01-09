@@ -18,8 +18,10 @@ def find_gxx(conf):
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx: conf.fatal('g++ was not found')
+
+	cxx = Utils.to_list(cxx)
 	try:
-		if Utils.cmd_output('%s --version' % cxx).find('g++') < 0:
+		if Utils.cmd_output('%s --version' % ' '.join(cxx)).find('g++') < 0:
 			conf.fatal('g++ was not found, see the result of g++ --version')
 	except ValueError:
 		conf.fatal('g++ --version could not be executed')

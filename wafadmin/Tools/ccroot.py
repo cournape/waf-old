@@ -18,7 +18,8 @@ USE_TOP_LEVEL = True
 get_version_re = re.compile('\d+\.\d+(\.?\d+)*')
 def get_cc_version(conf, cc, version_var):
 	v = conf.env
-	output = Utils.cmd_output('%s -dumpversion' % cc)
+	cc = Utils.to_list(cc)
+	output = Utils.cmd_output('%s -dumpversion' % ' '.join(cc))
 	if output:
 		match = get_version_re.search(output)
 		if match:
