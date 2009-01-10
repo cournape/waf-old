@@ -141,19 +141,27 @@ class ordered_dict(UserDict):
 		if key not in self.allkeys: self.allkeys.append(key)
 		UserDict.__setitem__(self, key, item)
 
-def exec_command(s, shell=1, log=None, cwd=None):
-	proc = pproc.Popen(s, shell=shell, stdout=log, stderr=log, cwd=cwd)
+def exec_command(s, **kw):
+	if 'log' in kw:
+		kw['stdout'] = kw['stderr'] = kw['log']
+		del(kw['log'])
+	proc = pproc.Popen(s, **kw)
 	return proc.wait()
 
 if is_win32:
 	old_log = exec_command
-	def exec_command(s, shell=1, log=None, cwd=None):
+	def exec_command(s, **kw):
 		# TODO very long command-lines are unlikely to be used in the configuration
-		if len(s) < 2000: return old_log(s, shell=shell, log=log)
+		if len(s) < 2000: return old_log(s, **kw)
+
+		if 'log' in kw:
+			kw['stdout'] = kw['stderr'] = kw['log']
+			del(kw['log'])
 
 		startupinfo = pproc.STARTUPINFO()
 		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
-		proc = pproc.Popen(s, shell=False, startupinfo=startupinfo, cwd=cwd)
+		kw['startupinfo'] = startupinfo
+		proc = pproc.Popen(s, **kw)
 		return proc.wait()
 
 listdir = os.listdir
