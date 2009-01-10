@@ -280,7 +280,7 @@ def main():
 		ela = ''
 		if not Options.options.progress_bar:
 			ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-		if Options.commands['install']: msg = 'Compilation and installation finished successfully%s' % ela
+		if Options.commands['install']: msg = 'Build and installation finished successfully%s' % ela
 		elif Options.commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
 		else: msg = 'Build finished successfully%s' % ela
 		info(msg)
