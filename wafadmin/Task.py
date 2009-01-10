@@ -57,7 +57,7 @@ def f(task):
 	env = task.env
 	wd = getattr(task, 'cwd', None)
 	p = env.get_flat
-	cmd = "%s" % s
+	cmd = \'\'\'%s\'\'\' % s
 	return task.generator.bld.exec_command(cmd, cwd=wd)
 '''
 
