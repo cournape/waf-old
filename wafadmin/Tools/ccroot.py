@@ -13,7 +13,7 @@ from Constants import *
 
 import config_c # <- necessary for the configuration, do not touch
 
-USE_TOP_LEVEL = True
+USE_TOP_LEVEL = False
 
 get_version_re = re.compile('\d+\.\d+(\.?\d+)*')
 def get_cc_version(conf, cc, version_var):
