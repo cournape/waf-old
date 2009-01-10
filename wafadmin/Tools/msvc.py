@@ -343,9 +343,9 @@ def msvc_common_flags(conf):
 	v['_CXXDEFFLAGS'] = []
 
 	v['CC_SRC_F']     = ''
-	v['CC_TGT_F']     = '/c /Fo'
+	v['CC_TGT_F']     = ['/c', '/Fo']
 	v['CXX_SRC_F']    = ''
-	v['CXX_TGT_F']    = '/c /Fo'
+	v['CXX_TGT_F']    = ['/c', '/Fo']
 
 	v['CPPPATH_ST']   = '/I%s' # template for adding include paths
 
@@ -357,15 +357,15 @@ def msvc_common_flags(conf):
 	v['CPPFLAGS_WINDOWSCE']	= ['/SUBSYSTEM:WINDOWSCE']
 
 	# CRT specific flags
-	v['CPPFLAGS_CRT_MULTITHREADED'] =						['/MT']
-	v['CPPFLAGS_CRT_MULTITHREADED_DLL'] =				['/MD']
-	v['CPPDEFINES_CRT_MULTITHREADED'] =					['_MT']
-	v['CPPDEFINES_CRT_MULTITHREADED_DLL'] =			['_MT', '_DLL']
+	v['CPPFLAGS_CRT_MULTITHREADED'] = ['/MT']
+	v['CPPFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
+	v['CPPDEFINES_CRT_MULTITHREADED'] = ['_MT']
+	v['CPPDEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL']
 
-	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] =				['/MTd']
-	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] =		['/MDd']
-	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] =					['_DEBUG', '_MT']
-	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] =			['_DEBUG', '_MT', '_DLL']
+	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] = ['/MTd']
+	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
+	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT']
+	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL']
 
 	# compiler debug levels
 	v['CCFLAGS']            = ['/TC']
@@ -381,7 +381,7 @@ def msvc_common_flags(conf):
 	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 
 	# linker
-	v['LIB']                 = []
+	v['LIB']               = []
 
 	v['LINK_TGT_F']        = '/OUT:'
 	v['LINK_SRC_F']        = ' '
