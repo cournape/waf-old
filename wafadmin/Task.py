@@ -867,7 +867,6 @@ def compile_fun(name, line):
 			if not var in dvars: dvars.append(var)
 
 	if extr:
-		params[-1] = params[-1].split()
 		if params[-1]:
 			app("lst.extend(%r)" % params[-1].split())
 
