@@ -115,7 +115,7 @@ def configure(conf):
 
 	# libraries, and how to reuse the checks
 	conf.check(lib='m')
-	conf.check(lib='linux', uselib='M', mandatory=True)
+	conf.check(lib='linux', uselib='M', mandatory=False)
 
 	# something more complicated
 	conf.check(
