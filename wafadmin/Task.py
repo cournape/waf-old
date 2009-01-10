@@ -881,7 +881,7 @@ def f(task):
 	lst = []
 	%s
 	lst = [x for x in lst if x]
-	return task.generator.bld.exec_command(lst, cwd=wd, shell=False)
+	return task.generator.bld.exec_command(lst, cwd=wd)
 ''' % "\n\t".join(buf)
 
 	return (funex(fun), dvars)
