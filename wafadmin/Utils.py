@@ -145,6 +145,8 @@ def exec_command(s, **kw):
 	if 'log' in kw:
 		kw['stdout'] = kw['stderr'] = kw['log']
 		del(kw['log'])
+	kw['shell'] = isinstance(s, str)
+
 	proc = pproc.Popen(s, **kw)
 	return proc.wait()
 
@@ -157,6 +159,7 @@ if is_win32:
 		if 'log' in kw:
 			kw['stdout'] = kw['stderr'] = kw['log']
 			del(kw['log'])
+		kw['shell'] = isinstance(s, str)
 
 		startupinfo = pproc.STARTUPINFO()
 		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
