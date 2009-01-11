@@ -273,15 +273,15 @@ def apply_lib_vars(self):
 		elif 'cstaticlib' in y.features:
 			env.append_value('STATICLIB', libname)
 
-		# add the link path too
-		tmp_path = y.link_task.outputs[0].parent.bldpath(self.env)
-		if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
-
 		# set the dependency over the link task
 		if y.link_task is not None:
 			self.link_task.set_run_after(y.link_task)
 			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
 			self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
+
+			# add the link path too
+			tmp_path = y.link_task.outputs[0].parent.bldpath(self.env)
+			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
 		# add ancestors uselib too
 		morelibs = y.to_list(y.uselib)
