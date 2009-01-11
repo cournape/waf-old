@@ -58,7 +58,7 @@ def f(task):
 	wd = getattr(task, 'cwd', None)
 	p = env.get_flat
 	cmd = \'\'\'%s\'\'\' % s
-	return task.generator.bld.exec_command(cmd, cwd=wd)
+	return task.exec_command(cmd, cwd=wd)
 '''
 
 """
@@ -344,6 +344,10 @@ class TaskBase(object):
 		if hasattr(self, 'fun'):
 			return 'executing: %s\n' % self.fun.__name__
 		return self.__class__.__name__ + '\n'
+
+	def exec_command(self, *k, **kw):
+		"use this for executing commands from tasks"
+		return self.generator.bld.exec_command(*k, **kw)
 
 	def runnable_status(self):
 		"RUN_ME SKIP_ME or ASK_LATER"
@@ -880,7 +884,7 @@ def f(task):
 	lst = []
 	%s
 	lst = [x for x in lst if x]
-	return task.generator.bld.exec_command(lst, cwd=wd)
+	return task.exec_command(lst, cwd=wd)
 ''' % "\n\t".join(buf)
 
 	return (funex(fun), dvars)
