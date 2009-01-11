@@ -185,7 +185,7 @@ class ConfigurationContext(object):
 	def add_os_flags(self, var, dest=None):
 		if not dest: dest = var
 		# do not use 'get' to make certain the variable is not defined
-		try: self.env[dest] = os.environ[var]
+		try: self.env[dest] = Utils.to_list(os.environ[var])
 		except KeyError: pass
 
 	def check_message_1(self, sr):
