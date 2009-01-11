@@ -19,12 +19,21 @@ def find_gxx(conf):
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx: conf.fatal('g++ was not found')
 
-	cxx = Utils.to_list(cxx)
+	# if it is a path, the stat will not fail
+	if cxx.find(' '):
+		try:
+			os.stat(cxx)
+		except OSError:
+			cxx = Utils.to_list(cxx)
+		else:
+			cxx = [cxx]
+
+	cmd = cxx+['--version']
 	try:
-		if Utils.cmd_output('%s --version' % ' '.join(cxx)).find('g++') < 0:
+		if Utils.cmd_output(cmd).find('g++') < 0:
 			conf.fatal('g++ was not found, see the result of g++ --version')
 	except ValueError:
-		conf.fatal('g++ --version could not be executed')
+		conf.fatal('%r could not be executed' % cmd)
 	v['CXX']  = cxx
 	v['CXX_NAME'] = 'gcc'
 	ccroot.get_cc_version(conf, cxx, 'CXX_VERSION')
