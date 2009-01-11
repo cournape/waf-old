@@ -19,14 +19,15 @@ get_version_re = re.compile('\d+\.\d+(\.?\d+)*')
 def get_cc_version(conf, cc, version_var):
 	v = conf.env
 	cc = Utils.to_list(cc)
-	output = Utils.cmd_output('%s -dumpversion' % ' '.join(cc))
+	cmd = cc + ['-dumpversion']
+	output = Utils.cmd_output(cmd)
 	if output:
 		match = get_version_re.search(output)
 		if match:
 			v[version_var] = match.group(0)
 			conf.check_message('compiler', 'version', 1, v[version_var])
 			return v[version_var]
-	warn('could not determine the compiler version')
+	warn('could not determine the compiler version %r' % cmd)
 
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"
