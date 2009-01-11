@@ -1,6 +1,9 @@
 Waf 1.5
 -------
 
+glossary of terms
+recursive glob for creating zips or tars - TODO
+parse the command-lines for &&, (, ) < and >
 preprocessor fixes
 make it easier to add custom commands
 
