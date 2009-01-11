@@ -315,8 +315,8 @@ def find_msvc(conf):
 	if not v['STLIBLINK']:
 		stliblink = conf.find_program('LIB')
 		if not stliblink: return
-		v['STLIBLINK']       = stliblink
-		v["STLINKFLAGS"]  = ['/NOLOGO']
+		v['STLIBLINK']   = stliblink
+		v['STLINKFLAGS'] = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	manifesttool = conf.find_program('MT')
@@ -381,24 +381,24 @@ def msvc_common_flags(conf):
 	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 
 	# linker
-	v['LIB']               = []
+	v['LIB']              = []
 
-	v['LINK_TGT_F']        = '/OUT:'
-	v['LINK_SRC_F']        = ' '
+	v['LINK_TGT_F']       = '/OUT:'
+	v['LINK_SRC_F']       = ' '
 
-	v['LIB_ST']              = '%s.lib' # template for adding libs
-	v['LIBPATH_ST']          = '/LIBPATH:%s' # template for adding libpaths
-	v['STATICLIB_ST']        = '%s.lib'
-	v['STATICLIBPATH_ST']    = '/LIBPATH:%s'
-	v['CCDEFINES_ST']       = '/D%s'
-	v['CXXDEFINES_ST']       = '/D%s'
-	v['_LIBDIRFLAGS']        = ''
-	v['_LIBFLAGS']           = ''
+	v['LIB_ST']           = '%s.lib' # template for adding libs
+	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
+	v['STATICLIB_ST']     = '%s.lib'
+	v['STATICLIBPATH_ST'] = '/LIBPATH:%s'
+	v['CCDEFINES_ST']     = '/D%s'
+	v['CXXDEFINES_ST']    = '/D%s'
+	v['_LIBDIRFLAGS']     = ''
+	v['_LIBFLAGS']        = ''
 
-	v['SHLIB_MARKER']        = ''
-	v['STATICLIB_MARKER']    = ''
+	v['SHLIB_MARKER']     = ''
+	v['STATICLIB_MARKER'] = ''
 
-	v['LINKFLAGS']           = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
+	v['LINKFLAGS']        = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
 
 	# shared library
 	v['shlib_CCFLAGS']  = ['']
