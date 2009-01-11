@@ -448,7 +448,7 @@ def cmd_output(cmd, **kw):
 		output = ''
 	return output
 
-reg_subst = re.compile(r"(\\\\)|(\\\$)|\$\{([^}]+)\}")
+reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
 def subst_vars(expr, params):
 	"substitute ${PREFIX}/bin in /usr/local/bin"
 	def repl_var(m):
