@@ -220,6 +220,16 @@ class ConfigurationContext(object):
 			self.fatal('The program %s could not be found' % filename)
 		return ret
 
+	def cmd_to_list(self, cmd):
+		"commands may be written in pseudo shell like 'ccache g++'"
+		if isinstance(cmd, str) and cmd.find(' '):
+			try:
+				os.stat(cmd)
+			except OSError:
+				return Utils.to_list(cmd)
+			else:
+				return [cmd]
+
 	def __getattr__(self, name):
 		r = self.__class__.__dict__.get(name, None)
 		if r: return r

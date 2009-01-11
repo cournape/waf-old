@@ -19,13 +19,14 @@ def find_gcc(conf):
 	if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc: conf.fatal('gcc was not found')
+	cc = conf.cmd_to_list(cc)
 
-	cc = Utils.to_list(cc)
+	cmd = cc + ['--version']
 	try:
-		if Utils.cmd_output('%s --version' % ' '.join(cc)).find('gcc') < 0:
+		if Utils.cmd_output(cmd).find('gcc') < 0:
 			conf.fatal('gcc was not found, see the result of gcc --version')
 	except ValueError:
-		conf.fatal('gcc --version could not be executed')
+		conf.fatal('%r could not be executed' % cmd)
 	v['CC']  = cc
 	v['CC_NAME'] = 'gcc'
 	ccroot.get_cc_version(conf, cc, 'CC_VERSION')

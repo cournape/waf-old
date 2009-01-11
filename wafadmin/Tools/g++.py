@@ -18,15 +18,7 @@ def find_gxx(conf):
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx: conf.fatal('g++ was not found')
-
-	# if it is a path, the stat will not fail
-	if cxx.find(' '):
-		try:
-			os.stat(cxx)
-		except OSError:
-			cxx = Utils.to_list(cxx)
-		else:
-			cxx = [cxx]
+	cxx = conf.cmd_to_list(cxx)
 
 	cmd = cxx+['--version']
 	try:
