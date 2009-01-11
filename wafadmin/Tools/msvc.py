@@ -329,6 +329,27 @@ def find_msvc(conf):
 	if not conf.env['WINRC']:
 		warn('Resource compiler not found. Compiling resource file is disabled')
 
+
+def exec_command_msvc(self, *k, **kw):
+	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
+	if self.env['CC_NAME'] == 'msvc' and isinstance(k[0], list):
+		lst = []
+		carry = ''
+		for a in k:
+			if (len(a) == 3 and (a.find('/F') == 0 or a.find('/Y') == 0)) or (a == '/doc'):
+				carry = a
+			else:
+				lst.append(carry + a)
+				carry = ''
+		k = lst
+
+	return self.generator.bld.exec_command(*k, **kw)
+
+for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_ar_link_static'.split():
+	cls = Task.TaskBase.classes.get(k, None)
+	if cls:
+		cls.exec_command = exec_command_msvc
+
 @conftest
 def msvc_common_flags(conf):
 	v = conf.env
