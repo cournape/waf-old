@@ -229,6 +229,7 @@ class ConfigurationContext(object):
 				return Utils.to_list(cmd)
 			else:
 				return [cmd]
+		return cmd
 
 	def __getattr__(self, name):
 		r = self.__class__.__dict__.get(name, None)
