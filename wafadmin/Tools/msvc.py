@@ -7,12 +7,11 @@
 import os, sys, re, string, optparse
 import Utils, TaskGen, Runner, Configure, Task, Options
 from Logs import debug, error, warn
-from TaskGen import taskgen, after, before, feature
+from TaskGen import after, before, feature
 
 from Configure import conftest
-import ccroot, cc, cxx, ar
+import ccroot, cc, cxx, ar, winres
 from libtool import read_la_file
-from os.path import exists
 
 def msvc_linker(task):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
@@ -109,7 +108,7 @@ def find_lt_names_msvc(self, libname, is_static=False):
 		for la in lt_names:
 			laf=os.path.join(path,la)
 			dll=None
-			if exists(laf):
+			if os.path.exists(laf):
 				ltdict=read_la_file(laf)
 				lt_libdir=None
 				if ltdict.get('libdir', ''):
@@ -121,9 +120,9 @@ def find_lt_names_msvc(self, libname, is_static=False):
 					return (lt_libdir, dll, False)
 				elif ltdict.get('old_library', ''):
 					olib=ltdict['old_library']
-					if exists(os.path.join(path,olib)):
+					if os.path.exists(os.path.join(path,olib)):
 						return (path, olib, True)
-					elif lt_libdir != '' and exists(os.path.join(lt_libdir,olib)):
+					elif lt_libdir != '' and os.path.exists(os.path.join(lt_libdir,olib)):
 						return (lt_libdir, olib, True)
 					else:
 						return (None, olib, True)
@@ -268,8 +267,6 @@ Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_
 
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx')
-
-import winres
 
 detect = '''
 find_msvc
