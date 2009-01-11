@@ -19,7 +19,7 @@ logic. The data files (Environments) must contain configuration data only (flags
 Note: the c/c++ related code is in the module config_c
 """
 
-import os
+import os, shlex
 try: import cPickle
 except ImportError: import pickle as cPickle
 import Environment, Utils, Options
@@ -226,7 +226,7 @@ class ConfigurationContext(object):
 			try:
 				os.stat(cmd)
 			except OSError:
-				return Utils.to_list(cmd)
+				return shlex.split(cmd)
 			else:
 				return [cmd]
 		return cmd
