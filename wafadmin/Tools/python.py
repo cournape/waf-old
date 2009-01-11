@@ -298,12 +298,12 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	# Code using the Python API needs to be compiled with -fno-strict-aliasing
 	if env['CC']:
-		version = Utils.cmd_output("%s --version" % env['CC']).strip()
+		version = Utils.cmd_output(env['CC'] + '--version').strip()
 		if '(GCC)' in version or 'gcc' in version:
 			env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
 			env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
 	if env['CXX']:
-		version = Utils.cmd_output("%s --version" % env['CXX']).strip()
+		version = Utils.cmd_output(env['CXX'] + '--version').strip()
 		if '(GCC)' in version or 'g++' in version:
 			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
 			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
