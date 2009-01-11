@@ -16,10 +16,20 @@ import TaskGen, Task, Build, Options
 from TaskGen import taskgen, feature, after, before
 from Logs import error, debug
 
-if 'MACOSX_DEPLOYMENT_TARGET' not in os.environ:
-	# see issue 285
-	if sys.platform == 'darwin':
-		os.environ['MACOSX_DEPLOYMENT_TARGET'] = '.'.join(platform.mac_ver()[0].split('.')[:2])
+
+# see WAF issue 285
+# and also http://trac.macports.org/ticket/17059
+@taskgen
+@feature('cc', 'cxx')
+@before('apply_lib_vars')
+def set_macosx_deployment_target(self):
+	if self.env['MACOSX_DEPLOYMENT_TARGET']:
+		os.environ['MACOSX_DEPLOYMENT_TARGET'] = self.env['MACOSX_DEPLOYMENT_TARGET']
+	elif 'MACOSX_DEPLOYMENT_TARGET' not in os.environ:
+		if sys.platform == 'darwin':
+			os.environ['MACOSX_DEPLOYMENT_TARGET'] = '.'.join(platform.mac_ver()[0].split('.')[:2])
+
+
 
 @taskgen
 @feature('cc', 'cxx')
@@ -63,7 +73,7 @@ def apply_link_osx(self):
 def apply_bundle(self):
 	"""use env['MACBUNDLE'] to force all shlibs into mac bundles
 	or use obj.mac_bundle = True for specific targets only"""
-	if not 'shlib' in self.features: return
+	if not ('cshlib' in self.features or 'shlib' in self.features): return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
 		self.env['shlib_PATTERN'] = self.env['macbundle_PATTERN']
 		uselib = self.uselib = self.to_list(self.uselib)
@@ -73,7 +83,7 @@ def apply_bundle(self):
 @after('apply_link')
 @feature('cc', 'cxx')
 def apply_bundle_remove_dynamiclib(self):
-	if not 'shlib' in self.features: return
+	if not ('cshlib' in self.features or 'shlib' in self.features): return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
 		self.env['LINKFLAGS'].remove('-dynamiclib')
 
