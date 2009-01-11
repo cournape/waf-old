@@ -297,16 +297,12 @@ MACOSX_DEPLOYMENT_TARGET = %r
 		env['CPPPATH_PYEMBED'] = [INCLUDEPY]
 
 	# Code using the Python API needs to be compiled with -fno-strict-aliasing
-	if env['CC']:
-		version = Utils.cmd_output(env['CC'] + '--version').strip()
-		if '(GCC)' in version or 'gcc' in version:
-			env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
-			env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
-	if env['CXX']:
-		version = Utils.cmd_output(env['CXX'] + '--version').strip()
-		if '(GCC)' in version or 'g++' in version:
-			env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
-			env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
+	if env['CC_NAME'] == 'gcc':
+		env.append_value('CCFLAGS_PYEMBED', '-fno-strict-aliasing')
+		env.append_value('CCFLAGS_PYEXT', '-fno-strict-aliasing')
+	if env['CXX_NAME'] == 'gcc':
+		env.append_value('CXXFLAGS_PYEMBED', '-fno-strict-aliasing')
+		env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
 	# See if it compiles
 	test_env = env.copy()
