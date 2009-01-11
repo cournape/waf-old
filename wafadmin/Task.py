@@ -796,18 +796,23 @@ def funex(c):
 	exec(c, dc)
 	return dc['f']
 
-reg_act = re.compile(r"(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
+reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 def compile_fun(name, line):
 	"""Compiles a string (once) into a function, eg:
 	simple_task_type('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
 
 	The env variables (CXX, ..) on the task must not hold dicts (order)
 	The reserved keywords TGT and SRC represent the task input and output nodes
+
+	quick test:
+	bld.new_task_gen(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
 	"""
+
 	extr = []
 	def repl(match):
 		g = match.group
 		if g('dollar'): return "$"
+		elif g('backslash'): return '\\\\'
 		elif g('subst'): extr.append((g('var'), g('code'))); return "%s"
 		return None
 
