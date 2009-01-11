@@ -295,12 +295,11 @@ def find_msvc(conf):
 	elif 'CXX' in os.environ: cxx = os.environ['CXX']
 	if not cxx: cxx = conf.find_program('CL', var='CXX')
 	if not cxx: conf.fatal('CL was not found (compiler)')
+	cxx = conf.cmd_to_list(cxx)
 
 	# c/c++ compiler - check for whitespace, and if so, add quotes
-	v['CXX']  = cxx
-	v['CC'] = v['CXX']
-	v['CXX_NAME'] = 'msvc'
-	v['CC_NAME'] = 'msvc'
+	v['CC'] = v['CXX']  = cxx
+	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
 
 	# linker
 	if not v['LINK_CXX']:
