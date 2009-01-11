@@ -7,7 +7,6 @@
 import os, sys, re, string, optparse
 import Utils, TaskGen, Runner, Configure, Task, Options
 from Logs import debug, error, warn
-from Utils import quote_whitespace
 from TaskGen import taskgen, after, before, feature
 
 from Configure import conftest
@@ -297,8 +296,8 @@ def find_msvc(conf):
 	if not cxx: conf.fatal('CL was not found (compiler)')
 	cxx = conf.cmd_to_list(cxx)
 
-	# c/c++ compiler - check for whitespace, and if so, add quotes
-	v['CC'] = v['CXX']  = cxx
+	# c/c++ compiler
+	v['CC'] = v['CXX'] = cxx
 	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
 
 	# linker
