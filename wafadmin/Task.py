@@ -52,7 +52,9 @@ algotype = NORMAL
 #algotype = JOBCONTROL
 #algotype = MAXPARALLEL
 
-COMPILE_TEMPLATE = '''
+use_shell = False
+
+COMPILE_TEMPLATE_SHELL = '''
 def f(task):
 	env = task.env
 	wd = getattr(task, 'cwd', None)
@@ -60,6 +62,20 @@ def f(task):
 	cmd = \'\'\'%s\'\'\' % s
 	return task.exec_command(cmd, cwd=wd)
 '''
+
+COMPILE_TEMPLATE_NOSHELL = '''
+def f(task):
+	env = task.env
+	wd = getattr(task, 'cwd', None)
+	def to_list(xx):
+		if isinstance(xx, str): return [xx]
+		return xx
+	lst = []
+	%s
+	lst = [x for x in lst if x]
+	return task.exec_command(lst, cwd=wd)
+'''
+
 
 """
 Enable different kind of dependency algorithms:
@@ -834,7 +850,7 @@ def compile_fun(name, line):
 	if parm: parm = "%% (%s) " % (',\n\t\t'.join(parm))
 	else: parm = ''
 
-	c = COMPILE_TEMPLATE % (line, parm)
+	c = COMPILE_TEMPLATE_SHELL % (line, parm)
 
 	debug('action: %s' % c)
 	return (funex(c), dvars)
@@ -842,9 +858,8 @@ def compile_fun(name, line):
 old_compile_fun = compile_fun
 def compile_fun(name, line):
 
-	if line.find('<') > 0: return old_compile_fun(name, line)
-	if line.find('>') > 0: return old_compile_fun(name, line)
-	if line.find('&&') > 0: return old_compile_fun(name, line)
+	if use_shell or line.find('<') or line.find('>') or line.find('&&'):
+		return old_compile_fun(name, line)
 
 	extr = []
 	def repl(match):
@@ -855,7 +870,6 @@ def compile_fun(name, line):
 
 	line2 = reg_act.sub(repl, line)
 	params = line2.split('<<|@|>>')
-
 
 	buf = []
 	dvars = []
@@ -879,19 +893,7 @@ def compile_fun(name, line):
 		if params[-1]:
 			app("lst.extend(%r)" % params[-1].split())
 
-	fun = '''
-def f(task):
-	env = task.env
-	wd = getattr(task, 'cwd', None)
-	def to_list(xx):
-		if isinstance(xx, str): return [xx]
-		return xx
-	lst = []
-	%s
-	lst = [x for x in lst if x]
-	return task.exec_command(lst, cwd=wd)
-''' % "\n\t".join(buf)
-
+	fun = COMPILE_TEMPLATE_NOSHELL % "\n\t".join(buf)
 	return (funex(fun), dvars)
 
 def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[]):
