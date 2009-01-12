@@ -172,6 +172,7 @@ class ConfigurationContext(object):
 			env = self.all_envs[name]
 		except KeyError:
 			env = Environment.Environment()
+			env['PREFIX'] = os.path.abspath(os.path.expanduser(Options.options.prefix))
 			self.all_envs[name] = env
 		else:
 			if fromenv: warn("The environment %s may have been configured already" % name)

@@ -22,10 +22,6 @@ class Environment(object):
 		self.table={}
 		#self.parent = None <- set only if necessary
 
-		if Options.commands['configure']:
-			# set the prefix once and for everybody on creation (configuration)
-			self.table['PREFIX'] = os.path.abspath(os.path.expanduser(Options.options.prefix))
-
 		if filename:
 			self.load(filename)
 
@@ -59,8 +55,6 @@ class Environment(object):
 
 	def copy(self):
 		newenv = Environment()
-		if Options.commands['configure']:
-			if self['PREFIX']: del newenv.table['PREFIX']
 		newenv.parent = self
 		return newenv
 
