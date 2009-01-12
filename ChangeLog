@@ -18,6 +18,7 @@ NEW IN WAF 1.5.3
 * fixed a problem with the after/before dependency reading
 * fix the string expansion for backslashes
 * try to execute the commands without the shell to avoid space issues
+* remove the PREFIX processing from Environment.py
 
 NEW IN WAF 1.5.2
 ----------------
