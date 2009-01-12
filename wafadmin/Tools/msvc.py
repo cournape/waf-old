@@ -52,7 +52,8 @@ def msvc_linker(task):
 	lst.extend(to_list(env['_LIBFLAGS']))
 	lst = [x for x in lst if x]
 
-	ret = task.exec_command(lst, cwd=getattr(task, 'cwd', None))
+	lst = [lst]
+	ret = task.exec_command(*lst, cwd=getattr(task, 'cwd', None))
 	if ret: return ret
 
 	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
@@ -89,7 +90,8 @@ def msvc_linker(task):
 
 		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
 		#	manifest, outfile, mode)
-		ret = task.exec_command(lst)
+		lst = [lst]
+		ret = task.exec_command(*lst)
 
 	return ret
 
@@ -358,7 +360,7 @@ def exec_command_msvc(self, *k, **kw):
 			else:
 				lst.append(carry + a)
 				carry = ''
-		k = lst
+		k[0] = lst
 
 	return self.generator.bld.exec_command(*k, **kw)
 
