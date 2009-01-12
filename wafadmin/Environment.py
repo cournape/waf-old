@@ -40,6 +40,19 @@ class Environment(object):
 		keys.sort()
 		return "\n".join(["%r %r" % (x, self.__getitem__(x)) for x in keys])
 
+	def __getitem__(self, key):
+		try:
+			while 1:
+				x = self.table.get(key, None)
+				if not x is None:
+					return x
+				self = self.parent
+		except AttributeError:
+			return []
+
+	def __setitem__(self, key, value):
+		self.table[key] = value
+
 	def set_variant(self, name):
 		self.table[VARIANT] = name
 
@@ -58,24 +71,10 @@ class Environment(object):
 		newenv.parent = self
 		return newenv
 
-	def __getitem__(self, key):
-		try:
-			while 1:
-				x = self.table.get(key, None)
-				if not x is None:
-					return x
-				self = self.parent
-		except AttributeError:
-			return []
-
-	def __setitem__(self, key, value):
-		self.table[key] = value
-
 	def get_flat(self, key):
 		s = self[key]
-		if not s: return ''
-		elif isinstance(s, list): return ' '.join(s)
-		else: return s
+		if isinstance(s, str): return s
+		return ' '.join(s)
 
 	def _get_list_value_for_modification(self, key):
 		"""Gets a value that must be a list for further modification.  The
