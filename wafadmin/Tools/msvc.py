@@ -19,31 +19,46 @@ def msvc_linker(task):
 	the manifest file, the binaries are unusable.
 	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
 	Problems with this tool: it is always called whether MSVC creates manifests or not."""
-	e = task.env
-	linker = e['LINK']
-	srcf = e['LINK_SRC_F']
-	trgtf = e['LINK_TGT_F']
-	linkflags = e.get_flat('LINKFLAGS')
-	libdirs = e.get_flat('_LIBDIRFLAGS')
-	libs = e.get_flat('_LIBFLAGS')
+
+	e = env = task.env
+	#linker = e['LINK']
+	#srcf = e['LINK_SRC_F']
+	#trgtf = e['LINK_TGT_F']
+	#linkflags = e.get_flat('LINKFLAGS')
+	#libdirs = e.get_flat('_LIBDIRFLAGS')
+	#libs = e.get_flat('_LIBFLAGS')
 
 	subsystem = getattr(task.generator, 'subsystem', '')
 	if subsystem:
 		subsystem = '/subsystem:%s' % subsystem
-	outfile=task.outputs[0].bldpath(e)
-	manifest=outfile+'.manifest'
-	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
-	pdbnode=task.outputs[0].change_ext('.pdb')
-	pdbfile=pdbnode.bldpath(e)
 
-	objs=" ".join(['"%s"' % a.abspath(e) for a in task.inputs])
+	outfile = task.outputs[0].bldpath(e)
+	manifest = outfile + '.manifest'
 
-	cmd = "%s %s %s%s %s%s %s %s %s" % (linker, subsystem, srcf, objs, trgtf, outfile, linkflags, libdirs, libs)
+	#objs=" ".join(['"%s"' % a.abspath(e) for a in task.inputs])
+	#cmd = "%s %s %s%s %s%s %s %s %s" % (linker, subsystem, srcf, objs, trgtf, outfile, linkflags, libdirs, libs)
 
-	# workaround: when run with shell=True, got the following error:
-	# 'C:\Program' is not recognized as an internal or external command, operable program or batch file.
-	ret = task.generator.bld.exec_command(cmd)
+	def to_list(xx):
+		if isinstance(xx, str): return [xx]
+		return xx
+
+	lst = []
+	lst.extend(to_list(env['LINK']))
+	lst.extend(to_list(subsystem))
+	lst.extend([a.srcpath(env) for a in task.inputs])
+	lst.extend(to_list('/OUT:%s' % outfile))
+	lst.append(task.outputs[1].bldpath(env))
+	lst.extend(to_list(env['LINKFLAGS']))
+	lst.extend(to_list(env['_LIBDIRFLAGS']))
+	lst.extend(to_list(env['_LIBFLAGS']))
+	lst = [x for x in lst if x]
+
+	ret = task.generator.bld.exec_command(lst, cwd=getattr(task, 'cwd', None))
 	if ret: return ret
+
+	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
+	pdbnode = task.outputs[0].change_ext('.pdb')
+	pdbfile = pdbnode.bldpath(e)
 
 	# check for the pdb file. if exists, add to the list of outputs
 	if os.path.exists(pdbfile):
@@ -399,8 +414,8 @@ def msvc_common_flags(conf):
 	# linker
 	v['LIB']              = []
 
-	v['LINK_TGT_F']       = '/OUT:'
-	v['LINK_SRC_F']       = ' '
+	#v['LINK_TGT_F']       = '/OUT:'
+	#v['LINK_SRC_F']       = ' '
 
 	v['LIB_ST']           = '%s.lib' # template for adding libs
 	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
