@@ -52,7 +52,7 @@ def msvc_linker(task):
 	lst.extend(to_list(env['_LIBFLAGS']))
 	lst = [x for x in lst if x]
 
-	ret = task.exec_command(*lst, cwd=getattr(task, 'cwd', None))
+	ret = task.exec_command(lst, cwd=getattr(task, 'cwd', None))
 	if ret: return ret
 
 	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
@@ -89,7 +89,7 @@ def msvc_linker(task):
 
 		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
 		#	manifest, outfile, mode)
-		ret = task.exec_command(*lst)
+		ret = task.exec_command(lst)
 
 	return ret
 
@@ -347,7 +347,7 @@ def find_msvc(conf):
 		warn('Resource compiler not found. Compiling resource file is disabled')
 
 
-def exec_command_msvc(self, *k, **kw):
+def exec_command_msvc(self, k, **kw):
 	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
 	if self.env['CC_NAME'] == 'msvc' and isinstance(k[0], list):
 		lst = []
@@ -360,7 +360,7 @@ def exec_command_msvc(self, *k, **kw):
 				carry = ''
 		k = lst
 
-	return self.generator.bld.exec_command(*k, **kw)
+	return self.generator.bld.exec_command(k, **kw)
 
 for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static'.split():
 	cls = Task.TaskBase.classes.get(k, None)
