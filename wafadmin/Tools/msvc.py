@@ -347,12 +347,12 @@ def find_msvc(conf):
 		warn('Resource compiler not found. Compiling resource file is disabled')
 
 
-def exec_command_msvc(self, k, **kw):
+def exec_command_msvc(self, *k, **kw):
 	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
-	if self.env['CC_NAME'] == 'msvc' and isinstance(k, list):
+	if self.env['CC_NAME'] == 'msvc' and isinstance(k[0], list):
 		lst = []
 		carry = ''
-		for a in k:
+		for a in k[0]:
 			if (len(a) == 3 and (a.startswith('/F') or a.startswith('/Y'))) or (a == '/doc'):
 				carry = a
 			else:
@@ -360,7 +360,7 @@ def exec_command_msvc(self, k, **kw):
 				carry = ''
 		k = lst
 
-	return self.generator.bld.exec_command(k, **kw)
+	return self.generator.bld.exec_command(*k, **kw)
 
 for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static'.split():
 	cls = Task.TaskBase.classes.get(k, None)
