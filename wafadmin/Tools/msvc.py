@@ -265,7 +265,7 @@ def apply_link_msvc(self):
 		return
 	link = getattr(self, 'link', None)
 	if not link:
-		if 'cstaticlib' in self.features: link = 'msvc_ar_link_static'
+		if 'cstaticlib' in self.features: link = 'msvc_link_static'
 		elif 'cxx' in self.features: link = 'msvc_cxx_link'
 		else: link = 'msvc_cc_link'
 		self.vnum = ''
@@ -283,9 +283,9 @@ def init_msvc(self):
 	except AttributeError: self.libpaths = []
 
 static_link_str = '${STLIBLINK} ${STLINKFLAGS} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
-Task.simple_task_type('msvc_ar_link_static', static_link_str, color='YELLOW', ext_in='.o')
-Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
-Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINK_TGT_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
+Task.simple_task_type('msvc_link_static', static_link_str, color='YELLOW', ext_in='.o')
+Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
+Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
 
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx')
@@ -362,7 +362,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	return self.generator.bld.exec_command(*k, **kw)
 
-for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_ar_link_static'.split():
+for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static'.split():
 	cls = Task.TaskBase.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc
@@ -421,8 +421,8 @@ def msvc_common_flags(conf):
 	# linker
 	v['LIB']              = []
 
-	#v['LINK_TGT_F']       = '/OUT:'
-	#v['LINK_SRC_F']       = ' '
+	v['LINK_TGT_F']       = '/OUT:'
+	v['LINK_SRC_F']       = ''
 
 	v['LIB_ST']           = '%s.lib' # template for adding libs
 	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
