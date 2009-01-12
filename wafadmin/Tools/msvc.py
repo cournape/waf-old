@@ -47,13 +47,12 @@ def msvc_linker(task):
 	lst.extend(to_list(subsystem))
 	lst.extend([a.srcpath(env) for a in task.inputs])
 	lst.extend(to_list('/OUT:%s' % outfile))
-	lst.append(task.outputs[1].bldpath(env))
 	lst.extend(to_list(env['LINKFLAGS']))
 	lst.extend(to_list(env['_LIBDIRFLAGS']))
 	lst.extend(to_list(env['_LIBFLAGS']))
 	lst = [x for x in lst if x]
 
-	ret = task.generator.bld.exec_command(lst, cwd=getattr(task, 'cwd', None))
+	ret = self.exec_command(lst, cwd=getattr(task, 'cwd', None))
 	if ret: return ret
 
 	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
@@ -79,11 +78,19 @@ def msvc_linker(task):
 			mode = '2'
 
 		debug('msvc: embedding manifest')
-		flags = ' '.join(e['MTFLAGS'] or [])
+		#flags = ' '.join(e['MTFLAGS'] or [])
 
-		cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
-			manifest, outfile, mode)
-		ret = task.generator.bld.exec_command(cmd)
+		lst = []
+		lst.extend(to_list(e['MT']))
+		lst.extend(to_list(e['MTFLAGS']))
+		lst.extend(to_list(manifest))
+		lst.extend(to_list(outfile))
+		lst.extend(to_list(mode))
+
+		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
+		#	manifest, outfile, mode)
+		ret = self.exec_command(lst)
+
 	return ret
 
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
