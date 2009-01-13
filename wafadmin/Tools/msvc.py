@@ -367,6 +367,7 @@ def exec_command_msvc(self, *k, **kw):
 				carry = ''
 		k[0] = lst
 
+	kw['env'] = {'PATH':';'.join(self.env['PATH'])}
 	return self.generator.bld.exec_command(*k, **kw)
 
 for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static winrc'.split():
