@@ -365,7 +365,7 @@ def exec_command_msvc(self, *k, **kw):
 			else:
 				lst.append(carry + a)
 				carry = ''
-		k[0] = lst
+		k = [lst]
 
 	kw['env'] = {'PATH':';'.join(self.env['PATH'])}
 	return self.generator.bld.exec_command(*k, **kw)
