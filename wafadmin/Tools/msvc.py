@@ -369,7 +369,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	return self.generator.bld.exec_command(*k, **kw)
 
-for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static'.split():
+for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static winrc'.split():
 	cls = Task.TaskBase.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc
@@ -443,7 +443,7 @@ def msvc_common_flags(conf):
 	v['SHLIB_MARKER']     = ''
 	v['STATICLIB_MARKER'] = ''
 
-	v['LINKFLAGS']        = ['/NOLOGO', '/MACHINE:X86', '/ERRORREPORT:PROMPT']
+	v['LINKFLAGS']        = ['/NOLOGO', '/ERRORREPORT:PROMPT']
 
 	# shared library
 	v['shlib_CCFLAGS']  = ['']
