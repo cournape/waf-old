@@ -3,6 +3,7 @@
 # Carlos Rafael Giani, 2006 (dv)
 # Tamas Pal, 2007 (folti)
 # Visual C support - beta, needs more testing
+# Screetch
 
 import os, sys, re, string, optparse
 import Utils, TaskGen, Runner, Configure, Task, Options
@@ -12,6 +13,61 @@ from TaskGen import after, before, feature
 from Configure import conftest
 import ccroot, cc, cxx, ar, winres
 from libtool import read_la_file
+
+import _winreg
+
+all_msvc_platforms = [ 'ia64', 'x64', 'x86', 'x86_amd64', 'x86_ia64' ]
+
+def setup_msvc(conf, path):
+	for target in all_msvc_platforms:
+		for l in sys.path:
+			if os.path.isfile(os.path.join(l, "print-msvc.bat")):
+				batfile = os.path.join(l, "print-msvc.bat")
+
+		# use the arguments, not the shell!
+		sout = Utils.cmd_output([batfile, os.path.join(path, 'vcvarsall.bat'), target])
+		#setupVars = subprocess.Popen(batfile+" \""+os.path.join(path, 'vcvarsall.bat')+ "\" " + target,stdout=subprocess.PIPE)
+		#(sout,serr) = setupVars.communicate()
+		error = 0
+		for line in sout.splitlines():
+			if line.startswith('PATH='):
+				MSVC_PATH = line[5:].split(';')
+			elif line.startswith('INCLUDE='):
+				MSVC_INCDIR = [i for i in line[8:].split(';') if i]
+			elif line.startswith('LIB='):
+				MSVC_LIBDIR = [i for i in line[4:].split(';') if i]
+			elif line.find(target) == -1:
+				error = 1
+		if not error:
+			return MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR
+	conf.fatal('msvc: Impossible to find a valid architecture for building')
+
+def detect_msvc(conf):
+	versions = []
+	version_pattern = re.compile('^..?\...?')
+	for vcver,vcvar in [('VCExpress','exp'), ('VisualStudio','')]:
+		for software_key in ['SOFTWARE\\Microsoft\\', 'SOFTWARE\\Wow6432node\\Microsoft\\']:
+			try:
+				all_versions = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, software_key+vcver)
+				index = 0
+				while 1:
+					version = _winreg.EnumKey(all_versions, index)
+					index = index + 1
+					if not version_pattern.match(version):
+						continue
+					try:
+						msvc_version = _winreg.OpenKey(all_versions, version + "\\Setup\\VC")
+						path,type = _winreg.QueryValueEx(msvc_version, 'ProductDir')
+						if os.path.isfile(os.path.join(path, 'vcvarsall.bat')):
+							versions.append(path)
+					except WindowsError:
+						continue
+			except WindowsError:
+				continue
+	if versions:
+		return setup_msvc(conf, versions[-1])
+	else:
+		conf.fatal('msvc: Unable to find MSVC compiler installed')
 
 def msvc_linker(task):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
@@ -309,16 +365,16 @@ def find_msvc(conf):
 
 	v = conf.env
 
-	#path,includes,libdirs = detect_msvc(conf)
-	#v['PATH'] = path
-	#v['CPPPATH'] = includes
-	#v['LIBPATH'] = libdirs
+	(path, includes, libdirs) = detect_msvc(conf)
+	v['PATH'] = path
+	v['CPPPATH'] = includes
+	v['LIBPATH'] = libdirs
 
 	# compiler
 	cxx = None
 	if v['CXX']: cxx = v['CXX']
 	elif 'CXX' in os.environ: cxx = os.environ['CXX']
-	if not cxx: cxx = conf.find_program('CL', var='CXX')
+	if not cxx: cxx = conf.find_program('CL', var='CXX', path_list=path)
 	if not cxx: conf.fatal('CL was not found (compiler)')
 	cxx = conf.cmd_to_list(cxx)
 
@@ -328,7 +384,7 @@ def find_msvc(conf):
 
 	# linker
 	if not v['LINK_CXX']:
-		link = conf.find_program('LINK')
+		link = conf.find_program('LINK', path_list=path)
 		if link: v['LINK_CXX'] = link
 		else: conf.fatal('LINK was not found (linker)')
 	v['LINK']            = link
@@ -337,22 +393,21 @@ def find_msvc(conf):
 
 	# staticlib linker
 	if not v['STLIBLINK']:
-		stliblink = conf.find_program('LIB')
+		stliblink = conf.find_program('LIB', path_list=path)
 		if not stliblink: return
 		v['STLIBLINK']   = stliblink
 		v['STLINKFLAGS'] = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
-	manifesttool = conf.find_program('MT')
+	manifesttool = conf.find_program('MT', path_list=path)
 	if manifesttool:
 		v['MT'] = manifesttool
-		v['MTFLAGS']=['/NOLOGO']
+		v['MTFLAGS'] = ['/NOLOGO']
 
 	conf.check_tool('winres')
 
 	if not conf.env['WINRC']:
 		warn('Resource compiler not found. Compiling resource file is disabled')
-
 
 def exec_command_msvc(self, *k, **kw):
 	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
