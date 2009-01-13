@@ -858,7 +858,7 @@ def compile_fun(name, line):
 old_compile_fun = compile_fun
 def compile_fun(name, line):
 
-	if use_shell or line.find('<') or line.find('>') or line.find('&&'):
+	if use_shell or line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
 		return old_compile_fun(name, line)
 
 	extr = []
