@@ -45,15 +45,15 @@ def msvc_linker(task):
 	lst = []
 	lst.extend(to_list(env['LINK']))
 	lst.extend(to_list(subsystem))
-	lst.extend([a.srcpath(env) for a in task.inputs])
-	lst.extend(to_list('/OUT:%s' % outfile))
 	lst.extend(to_list(env['LINKFLAGS']))
 	lst.extend(to_list(env['_LIBDIRFLAGS']))
 	lst.extend(to_list(env['_LIBFLAGS']))
+	lst.extend([a.srcpath(env) for a in task.inputs])
+	lst.extend(to_list('/OUT:%s' % outfile))
 	lst = [x for x in lst if x]
 
 	lst = [lst]
-	ret = task.exec_command(*lst, cwd=getattr(task, 'cwd', None))
+	ret = task.exec_command(*lst)
 	if ret: return ret
 
 	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
@@ -308,6 +308,11 @@ def find_msvc(conf):
 		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
 
 	v = conf.env
+
+	#path,includes,libdirs = detect_msvc(conf)
+	#v['PATH'] = path
+	#v['CPPPATH'] = includes
+	#v['LIBPATH'] = libdirs
 
 	# compiler
 	cxx = None
