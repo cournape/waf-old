@@ -458,16 +458,16 @@ class BuildContext(object):
 		@param parent_node [Node]: parent node of path to scan.
 		@param path [string]: path to folder to scan."""
 
-		listed_files = set(Utils.listdir(path))
+		lst = set(Utils.listdir(path))
 
-		self.cache_dir_contents[parent_node.id] = listed_files
-		debug('build: folder contents %r' % listed_files)
+		self.cache_dir_contents[parent_node.id] = lst
+		debug('build: folder contents %r' % lst)
 
 		node_names = set([x.name for x in parent_node.childs.values() if x.id & 3 == Node.FILE])
 		cache = self.node_sigs[0]
 
 		# nodes to keep
-		to_keep = listed_files & node_names
+		to_keep = lst & node_names
 		for x in to_keep:
 			node = parent_node.childs[x]
 			try:
@@ -477,7 +477,7 @@ class BuildContext(object):
 				raise Utils.WafError("The file %s is not readable or has become a dir" % node.abspath())
 
 		# remove both nodes and signatures
-		to_remove = node_names - listed_files
+		to_remove = node_names - lst
 		if to_remove:
 			# infrequent scenario
 			cache = self.node_sigs[0]
@@ -493,9 +493,9 @@ class BuildContext(object):
 
 		i_existing_nodes = [x for x in parent_node.childs.values() if x.id & 3 == Node.BUILD]
 
-		listed_files = set(Utils.listdir(path))
+		lst = set(Utils.listdir(path))
 		node_names = set([x.name for x in i_existing_nodes])
-		remove_names = node_names - listed_files
+		remove_names = node_names - lst
 
 		# remove the stamps of the build nodes that no longer exist on the filesystem
 		ids_to_remove = [x.id for x in i_existing_nodes if x.name in remove_names]
