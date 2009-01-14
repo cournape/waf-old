@@ -19,11 +19,18 @@ import _winreg
 all_msvc_platforms = [ 'ia64', 'x64', 'x86', 'x86_amd64', 'x86_ia64' ]
 
 def setup_msvc(conf, path):
+	batfile = os.path.join(conf.blddir, "waf-print-msvc.bat")
+	f = open(batfile, 'w')
+	f.write("""@echo off
+set INCLUDE=
+set LIB=
+call %1 %2
+echo PATH=%PATH%
+echo INCLUDE=%INCLUDE%
+echo LIB=%LIB%
+""")
+	f.close()
 	for target in all_msvc_platforms:
-		for l in sys.path:
-			if os.path.isfile(os.path.join(l, "print-msvc.bat")):
-				batfile = os.path.join(l, "print-msvc.bat")
-
 		# use the arguments, not the shell!
 		sout = Utils.cmd_output([batfile, os.path.join(path, 'vcvarsall.bat'), target])
 		#setupVars = subprocess.Popen(batfile+" \""+os.path.join(path, 'vcvarsall.bat')+ "\" " + target,stdout=subprocess.PIPE)
@@ -140,9 +147,9 @@ def msvc_linker(task):
 		lst = []
 		lst.extend(to_list(e['MT']))
 		lst.extend(to_list(e['MTFLAGS']))
+		lst.extend(to_list("-manifest"))
 		lst.extend(to_list(manifest))
-		lst.extend(to_list(outfile))
-		lst.extend(to_list(mode))
+		lst.extend(to_list("-outputresource:%s;%s" % (outfile, mode)))
 
 		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
 		#	manifest, outfile, mode)
@@ -422,7 +429,7 @@ def exec_command_msvc(self, *k, **kw):
 				carry = ''
 		k = [lst]
 
-	env = dict(**os.environ)
+	env = dict(os.environ)
 	env.update(PATH = ';'.join(self.env['PATH']))
 	kw['env'] = env
 	return self.generator.bld.exec_command(*k, **kw)
@@ -501,7 +508,7 @@ def msvc_common_flags(conf):
 	v['SHLIB_MARKER']     = ''
 	v['STATICLIB_MARKER'] = ''
 
-	v['LINKFLAGS']        = ['/NOLOGO', '/ERRORREPORT:PROMPT']
+	v['LINKFLAGS']        = ['/NOLOGO', '/ERRORREPORT:PROMPT', '/MANIFEST']
 
 	# shared library
 	v['shlib_CCFLAGS']  = ['']
@@ -515,4 +522,5 @@ def msvc_common_flags(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
+
 
