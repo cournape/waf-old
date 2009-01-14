@@ -437,34 +437,72 @@ class Node(object):
 		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
-	def find_iter(self, in_pat='*', ex_pat=None, prunes=None, build_dir=True):
-		"find nodes recursively, this returns the build nodes by default"
+	def find_iter(self, in_pat=['*'], ex_pat=[], prune_pat=['.svn'], src=True, bld=True, dir=False):
+		"find nodes recursively, this returns everything but folders by default"
+
+		if not (src or bld or dir):
+			raise StopIteration
+
 		if self.id & 3 != DIR:
 			raise StopIteration
 
+		in_pat = Utils.to_list(in_pat)
+		ex_pat = Utils.to_list(ex_pat)
+		prune_pat = Utils.to_list(prune_pat)
+
+		def accept_name(name):
+			for pat in ex_pat:
+				if fnmatch.fnmatchcase(name, pat):
+					return False
+			for pat in in_pat:
+				if fnmatch.fnmatchcase(name, pat):
+					return True
+			return False
+
+		def is_prune(name):
+			for pat in prune_pat:
+				if fnmatch.fnmatchcase(name, pat):
+					return True
+			return False
+
+		return self.find_iter_impl(src, bld, dir, accept_name, is_prune)
+
+	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None):
+		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
 		self.__class__.bld.rescan(self)
 		for name in self.__class__.bld.cache_dir_contents[self.id]:
-			if (ex_pat is None or not fnmatch.fnmatchcase(name, ex_pat)) and fnmatch.fnmatchcase(name, in_pat):
+			if accept_name(name):
 				node = self.find_resource(name)
 				if node:
-					yield node
+					if src and node.id & 3 == FILE:
+						yield node
 				else:
 					node = self.find_dir(name)
-					if node.id != self.__class__.bld.bldnode.id:
-						yield node
-			elif self.find_resource(name) is None:
-				if prunes is not None and name in prunes:
-					continue
-				dir = self.find_dir(name)
-				if dir:
-					if dir.id == self.__class__.bld.bldnode.id:
-						continue
-					for node in dir.find_iter(in_pat, ex_pat, prunes):
-						yield node
-		if build_dir:
+					if node and node.id != self.__class__.bld.bldnode.id:
+						if dir:
+							yield node
+						if not is_prune(name):
+							for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune):
+								yield k
+			else:
+				if not is_prune(name):
+					node = self.find_resource(name)
+					if not node:
+						# not a file, it is a dir
+						node = self.find_dir(name)
+						if node and node.id != self.__class__.bld.bldnode.id:
+							if dir:
+								yield node
+							for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune):
+								yield k
+
+		if bld:
 			for node in self.childs.values():
+				if node.id == self.__class__.bld.bldnode.id:
+					continue
 				if node.id & 3 == BUILD:
-					yield node
+					if accept_name(node.name):
+						yield node
 		raise StopIteration
 
 # win32 fixes follow
