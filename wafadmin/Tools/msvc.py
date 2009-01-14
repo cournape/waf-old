@@ -422,7 +422,9 @@ def exec_command_msvc(self, *k, **kw):
 				carry = ''
 		k = [lst]
 
-	kw['env'] = {'PATH':';'.join(self.env['PATH'])}
+	env = dict(**os.environ)
+	env.update(PATH = ';'.join(self.env['PATH']))
+	kw['env'] = env
 	return self.generator.bld.exec_command(*k, **kw)
 
 for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static winrc'.split():
