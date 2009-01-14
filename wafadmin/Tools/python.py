@@ -231,7 +231,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 				lib = lib[2:] # strip '-l'
 			env.append_value('LIB_PYEMBED', lib)
 
-	if Options.platform != 'darwin':
+	if Options.platform != 'darwin' and python_LDFLAGS:
 		env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS)
 
 	result = False
