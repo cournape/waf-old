@@ -18,7 +18,7 @@ import _winreg
 
 all_msvc_platforms = [ 'ia64', 'x64', 'x86', 'x86_amd64', 'x86_ia64' ]
 
-def setup_msvc(conf, path):
+def setup_msvc(conf, versions):
 	batfile = os.path.join(conf.blddir, "waf-print-msvc.bat")
 	f = open(batfile, 'w')
 	f.write("""@echo off
@@ -30,23 +30,29 @@ echo INCLUDE=%INCLUDE%
 echo LIB=%LIB%
 """)
 	f.close()
-	for target in all_msvc_platforms:
-		# use the arguments, not the shell!
-		sout = Utils.cmd_output([batfile, os.path.join(path, 'vcvarsall.bat'), target])
-		#setupVars = subprocess.Popen(batfile+" \""+os.path.join(path, 'vcvarsall.bat')+ "\" " + target,stdout=subprocess.PIPE)
-		#(sout,serr) = setupVars.communicate()
-		error = 0
-		for line in sout.splitlines():
-			if line.startswith('PATH='):
-				MSVC_PATH = line[5:].split(';')
-			elif line.startswith('INCLUDE='):
-				MSVC_INCDIR = [i for i in line[8:].split(';') if i]
-			elif line.startswith('LIB='):
-				MSVC_LIBDIR = [i for i in line[4:].split(';') if i]
-			elif line.find(target) == -1:
-				error = 1
-		if not error:
-			return MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR
+	platforms = conf.env['MSVC_TARGETS'] or all_msvc_platforms
+	desired_versions = conf.env['MSVC_VERSIONS'] or [v for v,_ in versions][::-1]
+	versions = dict(versions)
+
+	for version in desired_versions:
+		path = versions [version]
+		for target in platforms:
+			# use the arguments, not the shell!
+			sout = Utils.cmd_output([batfile, os.path.join(path, 'vcvarsall.bat'), target])
+			#setupVars = subprocess.Popen(batfile+" \""+os.path.join(path, 'vcvarsall.bat')+ "\" " + target,stdout=subprocess.PIPE)
+			#(sout,serr) = setupVars.communicate()
+			error = 0
+			for line in sout.splitlines():
+				if line.startswith('PATH='):
+					MSVC_PATH = line[5:].split(';')
+				elif line.startswith('INCLUDE='):
+					MSVC_INCDIR = [i for i in line[8:].split(';') if i]
+				elif line.startswith('LIB='):
+					MSVC_LIBDIR = [i for i in line[4:].split(';') if i]
+				elif line.find(target) == -1:
+					error = 1
+			if not error:
+				return MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR
 	conf.fatal('msvc: Impossible to find a valid architecture for building')
 
 def detect_msvc(conf):
@@ -66,15 +72,12 @@ def detect_msvc(conf):
 						msvc_version = _winreg.OpenKey(all_versions, version + "\\Setup\\VC")
 						path,type = _winreg.QueryValueEx(msvc_version, 'ProductDir')
 						if os.path.isfile(os.path.join(path, 'vcvarsall.bat')):
-							versions.append(path)
+							versions.append((version,path))
 					except WindowsError:
 						continue
 			except WindowsError:
 				continue
-	if versions:
-		return setup_msvc(conf, versions[-1])
-	else:
-		conf.fatal('msvc: Unable to find MSVC compiler installed')
+	return setup_msvc(conf, versions)
 
 def msvc_linker(task):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
