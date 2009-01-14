@@ -205,13 +205,7 @@ def main():
 		if Options.commands['clean']:
 			raise Utils.WafError("Nothing to clean (project not configured)")
 		else:
-			if Configure.autoconfig:
-				warn("Reconfiguring the project")
-				configure()
-				bld = Build.BuildContext()
-				proj = Environment.Environment(Options.lockfile)
-			else:
-				raise Utils.WafError("Project not configured (run 'waf configure' first)")
+                        raise Utils.WafError("Project not configured (run 'waf configure' first)")
 
 	if Configure.autoconfig:
 		if not Options.commands['clean'] and not Options.commands['uninstall']:
