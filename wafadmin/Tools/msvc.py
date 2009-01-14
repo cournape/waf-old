@@ -5,6 +5,18 @@
 # Visual C support - beta, needs more testing
 # Screetch
 
+# usage:
+#
+# conf.env['MSVC_VERSIONS'] = ['9.0', '8.0']
+# conf.env['MSVC_TARGETS'] = ['x64']
+# conf.check_tool('msvc')
+#
+# platforms and targets will be tested in the order they appear;
+# the first good configuration will be uses
+# supported platforms :
+# ia64, x64, x86, x86_amd64, x86_ia64
+
+
 import os, sys, re, string, optparse
 import Utils, TaskGen, Runner, Configure, Task, Options
 from Logs import debug, error, warn
@@ -30,8 +42,8 @@ echo INCLUDE=%INCLUDE%
 echo LIB=%LIB%
 """)
 	f.close()
-	platforms = conf.env['MSVC_TARGETS'] or all_msvc_platforms
-	desired_versions = conf.env['MSVC_VERSIONS'] or [v for v,_ in versions][::-1]
+	platforms = Utils.to_list(conf.env['MSVC_TARGETS']) or all_msvc_platforms
+	desired_versions = Utils.to_list(conf.env['MSVC_VERSIONS']) or [v for v,_ in versions][::-1]
 	versions = dict(versions)
 
 	for version in desired_versions:
