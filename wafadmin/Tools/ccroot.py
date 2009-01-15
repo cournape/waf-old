@@ -223,7 +223,7 @@ def apply_link(self):
 		# that's something quite ugly for unix platforms
 		# both the .so and .so.x must be present in the build dir
 		# for darwin the version number is forcibly undefined for a lack of specs
-		if getattr(self, 'vnum', None):
+		if 'cshlib' in self.features and getattr(self, 'vnum', None):
 			if sys.platform == 'darwin' or sys.platform == 'win32':
 				self.vnum = ''
 			else:
@@ -237,7 +237,7 @@ def apply_link(self):
 	self.link_task = linktask
 
 @feature('cc', 'cxx')
-@after('apply_vnum')
+@after('apply_link', 'apply_vnum')
 def apply_lib_vars(self):
 	env = self.env
 
@@ -307,7 +307,7 @@ def apply_lib_vars(self):
 			if val: self.env.append_value(v, val)
 
 @feature('cprogram', 'cstaticlib', 'cshlib')
-@after('apply_obj_vars', 'apply_vnum')
+@after('apply_obj_vars', 'apply_vnum', 'apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
 	if not getattr(self, 'add_objects', None): return
@@ -380,7 +380,7 @@ def apply_obj_vars(self):
 
 	app('LINKFLAGS', [lib_st % i for i in v['LIB']])
 
-@feature('cprogram', 'cshlib', 'cstaticlib')
+@feature('cshlib')
 @after('apply_link')
 def apply_vnum(self):
 	"use self.vnum and self.soname to modify the command line (un*x)"
