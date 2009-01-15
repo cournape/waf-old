@@ -98,6 +98,8 @@ def msvc_linker(task):
 	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
 	Problems with this tool: it is always called whether MSVC creates manifests or not."""
 
+	static = task.__class__.name.find('static') > 0
+
 	e = env = task.env
 	#linker = e['LINK']
 	#srcf = e['LINK_SRC_F']
@@ -121,9 +123,18 @@ def msvc_linker(task):
 		return xx
 
 	lst = []
-	lst.extend(to_list(env['LINK']))
+	if static:
+		lst.extend(to_list(env['STLIBLINK']))
+	else:
+		lst.extend(to_list(env['LINK']))
+
 	lst.extend(to_list(subsystem))
-	lst.extend(to_list(env['LINKFLAGS']))
+
+	if static:
+		lst.extend(to_list(env['STLINKFLAGS']))
+	else:
+		lst.extend(to_list(env['LINKFLAGS']))
+
 	lst.extend(to_list(env['_LIBDIRFLAGS']))
 	lst.extend(to_list(env['_LIBFLAGS']))
 	lst.extend([a.srcpath(env) for a in task.inputs])
@@ -142,7 +153,7 @@ def msvc_linker(task):
 	if os.path.exists(pdbfile):
 		task.outputs.append(pdbnode)
 
-	if os.path.exists(manifest):
+	if not static and os.path.exists(manifest):
 		debug('msvc: manifesttool')
 		mtool = e['MT']
 		if not mtool:
@@ -282,8 +293,8 @@ def libname_msvc(self, libname, is_static=False):
 			if os.path.exists(os.path.join(path,libn)):
 				debug('msvc: lib found: %s' % os.path.join(path,libn))
 				return libn
-
-	return None
+	#if no lib can be found, just return the libname as msvc expects it
+	return re.sub('\.lib$','',libname)+'.lib'
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
@@ -362,8 +373,7 @@ def init_msvc(self):
 	try: getattr(self, 'libpaths')
 	except AttributeError: self.libpaths = []
 
-static_link_str = '${STLIBLINK} ${STLINKFLAGS} ${LINK_SRC_F}${SRC} ${LINK_TGT_F}${TGT}'
-Task.simple_task_type('msvc_link_static', static_link_str, color='YELLOW', ext_in='.o')
+Task.task_type_from_func('msvc_link_static', vars=['STLIBLINK', 'STLINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS',], color='YELLOW', func=msvc_linker, ext_in='.o')
 Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
 Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
 
@@ -537,5 +547,6 @@ def msvc_common_flags(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
+
 
 
