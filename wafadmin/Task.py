@@ -677,8 +677,11 @@ class Task(TaskBase):
 				return None
 			else:
 				cnt += 1
-				self.generator.bld.node_sigs[variant][node.id] = sig
-				self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
+
+		for node in self.outputs:
+			self.generator.bld.node_sigs[variant][node.id] = sig
+			self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
+
 		return 1
 
 	def debug_why(self, old_sigs):
