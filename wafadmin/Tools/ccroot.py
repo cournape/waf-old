@@ -394,7 +394,7 @@ def apply_vnum(self):
 			try: name3 = self.soname
 			except AttributeError: name3 = self.link_task.outputs[0].name + '.' + nums[0]
 			self.link_task.outputs.append(self.link_task.outputs[0].parent.find_or_declare(name3))
-			self.env.append_value('LINKFLAGS', '-Wl,-h,'+name3)
+			self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
 
 @taskgen
 @after('apply_link')

@@ -42,6 +42,7 @@ def sxx_common_flags(conf):
 	v['STATICLIBPATH_ST']    = '-L%s'
 	v['CXXDEFINES_ST']       = '-D%s'
 
+	v['SONAME_ST']           = '-Wl,-h -Wl,%s'
 	v['SHLIB_MARKER']        = '-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Bstatic'
 

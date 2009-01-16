@@ -52,6 +52,7 @@ def gxx_common_flags(conf):
 	v['RPATH_ST']            = '-Wl,-rpath,%s'
 	v['CXXDEFINES_ST']       = '-D%s'
 
+	v['SONAME_ST']           = '-Wl,-h,%s'
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STATICLIB_MARKER']    = '-Wl,-Bstatic'
 	v['FULLSTATIC_MARKER']   = '-static'
