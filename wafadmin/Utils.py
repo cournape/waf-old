@@ -428,11 +428,11 @@ def cmd_output(cmd, **kw):
 	# the following is for backward compatibility
 	silent = kw.get('silent', False)
 	if silent:
-		kw.__del__('silent')
+		del(kw['silent'])
 
 	if 'e' in kw:
 		tmp = kw['e']
-		kw.__del__('e')
+		del(kw['e'])
 		kw['env'] = tmp
 
 	kw['shell'] = isinstance(cmd, str)
