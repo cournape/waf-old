@@ -22,7 +22,7 @@ import Utils, TaskGen, Runner, Configure, Task, Options
 from Logs import debug, error, warn
 from TaskGen import after, before, feature
 
-from Configure import conftest
+from Configure import conftest, conf
 import ccroot, cc, cxx, ar, winres
 from libtool import read_la_file
 
@@ -206,7 +206,7 @@ version vfw32 wbemuuid  webpost wiaguid wininet winmm winscard winspool winstrm
 wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xolehlp
 """.split()
 
-
+@conf
 def find_lt_names_msvc(self, libname, is_static=False):
 	"""
 	Win32/MSVC specific code to glean out information from libtool la files.
@@ -243,9 +243,10 @@ def find_lt_names_msvc(self, libname, is_static=False):
 					raise Utils.WafError('invalid libtool object file: %s' % laf)
 	return (None, None, None)
 
+@conf
 def libname_msvc(self, libname, is_static=False):
-	lib=libname.lower()
-	lib=re.sub('\.lib$','',lib)
+	lib = libname.lower()
+	lib = re.sub('\.lib$','',lib)
 
 	if lib in g_msvc_systemlibs:
 		return lib+'.lib'
@@ -255,7 +256,7 @@ def libname_msvc(self, libname, is_static=False):
 	if lib == 'm':
 		return None
 
-	(lt_path, lt_libname, lt_static) = find_lt_names_msvc(self, lib, is_static)
+	(lt_path, lt_libname, lt_static) = self.find_lt_names_msvc(lib, is_static)
 
 	if lt_path != None and lt_libname != None:
 		if lt_static == True:
@@ -290,11 +291,26 @@ def libname_msvc(self, libname, is_static=False):
 
 	for path in _libpaths:
 		for libn in libnames:
-			if os.path.exists(os.path.join(path,libn)):
+			if os.path.exists(os.path.join(path, libn)):
 				debug('msvc: lib found: %s' % os.path.join(path,libn))
 				return libn
 	#if no lib can be found, just return the libname as msvc expects it
-	return re.sub('\.lib$','',libname)+'.lib'
+	return re.sub('\.lib$', '', libname)+'.lib'
+
+@conf
+def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=False):
+	"This is the api to use"
+	libn = self.libname_msvc(libname, is_static, uselib_store=None)
+
+	if mandatory and not os.path.exists(libn):
+		conf.fatal("The library %r could not be found" % libname)
+
+	if not uselib_store:
+		uselib_store = libname.upper()
+	if is_static:
+		self.env['LIB_' + uselib_store] = [libn]
+	else:
+		self.env['STATICLIB_' + uselib_store] = [libn]
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
@@ -332,22 +348,11 @@ def apply_obj_vars_msvc(self):
 		if env['STATICLIB'] or env['LIB']:
 			app('LINKFLAGS', env['SHLIB_MARKER'])
 
-	if env['STATICLIB']:
-		app('LINKFLAGS', env['STATICLIB_MARKER'])
-		for i in env['STATICLIB']:
-			debug('msvc: libname: %s' % i)
-			libname = libname_msvc(self, i, True)
-			debug('msvc: libnamefixed: %s' % libname)
-			if libname != None:
-				app('LINKFLAGS', libname)
+	for i in env['STATICLIB']:
+		app('LINKFLAGS', i)
 
-	if self.env['LIB']:
-		for i in env['LIB']:
-			debug('msvc: libname: %s' % i)
-			libname = libname_msvc(self, i)
-			debug('msvc: libnamefixed: %s' % libname)
-			if libname != None:
-				app('LINKFLAGS', libname)
+	for i in env['LIB']:
+		app('LINKFLAGS', i)
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @before('apply_link')
@@ -363,10 +368,8 @@ def apply_link_msvc(self):
 	self.link = link
 
 @feature('cc', 'cxx')
-@after('init_cc')
-@after('init_cxx')
-@before('apply_type_vars')
-@before('apply_core')
+@after('init_cc', 'init_cxx')
+@before('apply_type_vars', 'apply_core')
 def init_msvc(self):
 	# msvc specific init. must be called after init_cc/init_cxx but before
 	# any of their @before declarations.
@@ -530,9 +533,6 @@ def msvc_common_flags(conf):
 	v['_LIBDIRFLAGS']     = ''
 	v['_LIBFLAGS']        = ''
 
-	v['SHLIB_MARKER']     = ''
-	v['STATICLIB_MARKER'] = ''
-
 	v['LINKFLAGS']        = ['/NOLOGO', '/ERRORREPORT:PROMPT', '/MANIFEST']
 
 	# shared library
@@ -547,6 +547,4 @@ def msvc_common_flags(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
-
-
 
