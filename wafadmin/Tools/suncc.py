@@ -34,13 +34,13 @@ def scc_common_flags(conf):
 	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
 
 	v['CC_SRC_F']            = ''
-	v['CC_TGT_F']            = '-c -o '
+	v['CC_TGT_F']            = ['-c', '-o']
 	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# linker
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
 	v['CCLNK_SRC_F']         = ''
-	v['CCLNK_TGT_F']         = '-o '
+	v['CCLNK_TGT_F']         = ['-o']
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
