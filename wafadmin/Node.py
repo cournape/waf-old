@@ -137,6 +137,8 @@ class Node(object):
 			tp = node.id & 3
 			if tp == FILE or tp == BUILD:
 				return node
+			else:
+				return None
 
 		tree = self.__class__.bld
 		if not name in tree.cache_dir_contents[parent.id]:
