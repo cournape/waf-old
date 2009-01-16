@@ -124,7 +124,7 @@ class Node(object):
 		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
-		if not lst[:-1]:
+		if len(lst) == 1:
 			parent = self
 		else:
 			parent = self.find_dir(lst[:-1])
@@ -159,7 +159,7 @@ class Node(object):
 		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
-		if not lst[:-1]:
+		if len(lst) == 1:
 			parent = self
 		else:
 			parent = self.find_dir(lst[:-1])
