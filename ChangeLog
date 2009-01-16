@@ -20,6 +20,7 @@ NEW IN WAF 1.5.3
 * try to execute the commands without the shell to avoid space issues
 * remove the PREFIX processing from Environment.py
 * various improvements to the msvc tool (launch commands without the shell, autodetection)
+* various fixes for use with the suncc/sunc++ compilers
 
 NEW IN WAF 1.5.2
 ----------------
