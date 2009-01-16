@@ -67,20 +67,20 @@ def build(bld):
 	main.source = 'main.c'
 	main.target = 'test_c_program'
 	main.includes = '.'
-	main.uselib_local = 'teststaticlib' <co id="uselib-co" linkends="b4"/>
+	main.uselib_local = 'teststaticlib' <co id="uselib2-co" linkends="b4"/>
 			</programlisting>
 
 			<calloutlist>
 				<callout arearefs="lib-co" id="b1">
 					<para>A static library</para>
 				</callout>
-				<callout arearefs="lib-co" id="b2">
+				<callout arearefs="uselib-co" id="b2">
 					<para>Include paths to export for use with uselib_local (include paths are not added automatically). These folders are taken relatively to the current target.</para>
 				</callout>
 				<callout arearefs="prog-co" id="b3">
 					<para>A program using the static library declared previously</para>
 				</callout>
-				<callout arearefs="uselib-co" id="b4">
+				<callout arearefs="uselib2-co" id="b4">
 					<para>A list of references to existing libraries declared in the project (either a python list or a string containing the names space-separated)</para>
 				</callout>
 			</calloutlist>
