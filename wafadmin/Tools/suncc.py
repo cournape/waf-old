@@ -40,7 +40,7 @@ def scc_common_flags(conf):
 	# linker
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
 	v['CCLNK_SRC_F']         = ''
-	v['CCLNK_TGT_F']         = ['-o']
+	v['CCLNK_TGT_F']         = ['-o', ''] # solaris hack, separate the -o from the target
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
