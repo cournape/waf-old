@@ -141,7 +141,10 @@ def apply_subst(self):
 
 		if self.dict and not self.env['DICT_HASH']:
 			self.env = self.env.copy()
-			self.env['DICT_HASH'] = str(hash(str(self.dict)))
+			keys = self.dict.keys()
+			keys.sort()
+			lst = [self.dict[x] for x in keys]
+			self.env['DICT_HASH'] = str(Utils.h_list(lst))
 
 		tsk = self.create_task('copy')
 		tsk.set_inputs(node)
