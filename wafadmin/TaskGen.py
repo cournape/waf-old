@@ -504,6 +504,9 @@ def exec_rule(self):
 	if getattr(self, 'always', None):
 		Task.always_run(cls)
 
+	if getattr(self, 'install_path', None):
+		tsk.install_path = self.install_path
+
 	if getattr(self, 'cwd', None):
 		tsk.cwd = self.cwd
 
