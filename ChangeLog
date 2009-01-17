@@ -15,9 +15,9 @@ NEW IN WAF 1.5.3
 * raise an exception for the use of install_files and install_as with 1.4 apis
 * remove the remaining Build.bld calls from the Waf library (safer for tests)
 * execute all external programs with a default current working directory to avoid mistakes
-* fixed a problem with the after/before dependency reading
+* fix a problem with the after/before dependency reading
 * fix the string expansion for backslashes
-* try to execute the commands without the shell to avoid space issues
+* execute the commands without the shell on windows to avoid space issues
 * remove the PREFIX processing from Environment.py
 * various improvements to the msvc tool (launch commands without the shell, autodetection)
 * various fixes for use with the suncc/sunc++ compilers
