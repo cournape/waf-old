@@ -649,7 +649,6 @@ class Task(TaskBase):
 				cnt += 1
 
 		bld.task_sigs[self.unique_id()] = self.cache_sig
-		self.executed=1
 
 	def can_retrieve_cache(self):
 		"""Retrieve build nodes from the cache - the file time stamps are updated
@@ -897,6 +896,8 @@ def compile_fun(name, line, shell=None):
 	"commands can be launched by the shell or not"
 	if line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
 		shell = True
+	#else:
+	#	shell = False
 
 	if shell is None:
 		if sys.platform == 'win32':
