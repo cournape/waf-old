@@ -52,8 +52,6 @@ algotype = NORMAL
 #algotype = JOBCONTROL
 #algotype = MAXPARALLEL
 
-use_shell = False
-
 COMPILE_TEMPLATE_SHELL = '''
 def f(task):
 	env = task.env
@@ -816,7 +814,7 @@ def funex(c):
 	return dc['f']
 
 reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
-def compile_fun(name, line):
+def compile_fun_shell(name, line):
 	"""Compiles a string (once) into a function, eg:
 	simple_task_type('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
 
@@ -858,11 +856,7 @@ def compile_fun(name, line):
 	debug('action: %s' % c)
 	return (funex(c), dvars)
 
-old_compile_fun = compile_fun
-def compile_fun(name, line):
-
-	if use_shell or line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
-		return old_compile_fun(name, line)
+def compile_fun_noshell(name, line):
 
 	extr = []
 	def repl(match):
@@ -899,9 +893,25 @@ def compile_fun(name, line):
 	fun = COMPILE_TEMPLATE_NOSHELL % "\n\t".join(buf)
 	return (funex(fun), dvars)
 
-def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[]):
+def compile_fun(name, line, shell=None):
+	"commands can be launched by the shell or not"
+	if line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
+		shell = True
+
+	if shell is None:
+		if sys.platform == 'win32':
+			shell = False
+		else:
+			shell = True
+
+	if shell:
+		return compile_fun_shell(name, line)
+	else:
+		return compile_fun_noshell(name, line)
+
+def simple_task_type(name, line, color='GREEN', vars=[], ext_in=[], ext_out=[], before=[], after=[], shell=None):
 	"""return a new Task subclass with the function run compiled from the line given"""
-	(fun, dvars) = compile_fun(name, line)
+	(fun, dvars) = compile_fun(name, line, shell)
 	fun.code = line
 	return task_type_from_func(name, fun, vars or dvars, color, ext_in, ext_out, before, after)
 
