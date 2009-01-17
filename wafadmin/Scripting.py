@@ -44,6 +44,7 @@ def configure():
 	src = getattr(Options.options, SRCDIR, None)
 	if not src: src = getattr(Utils.g_module, SRCDIR, None)
 	if not src: raise Utils.WscriptError(err % (SRCDIR, os.path.abspath('.'), SRCDIR, SRCDIR))
+	if src != '.': raise Utils.WscriptError("for now the only srcdir construct is '.' not %r" % src)
 	src = os.path.abspath(src)
 
 	bld = getattr(Options.options, BLDDIR, None)
