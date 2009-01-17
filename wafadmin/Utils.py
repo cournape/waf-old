@@ -456,7 +456,11 @@ def subst_vars(expr, params):
 			return '\\'
 		if m.group(2):
 			return '$'
-		return params[m.group(3)]
+		try:
+			# environments may contain lists
+			return params.get_flat(m.group(3))
+		except AttributeError:
+			return params[m.group(3)]
 	return reg_subst.sub(repl_var, expr)
 
 def detect_platform():
