@@ -18,7 +18,6 @@ def add_marshal_file(self, filename, prefix):
 	self.meths.append('process_marshal')
 	self.marshal_list.append((filename, prefix))
 
-@taskgen
 @before('apply_core')
 def process_marshal(self):
 	for filename, prefix in getattr(self, 'marshal_list', []):
@@ -87,7 +86,6 @@ def add_enums(self, source='', target='',
 	                        'value-tail': value_tail,
 	                        'comments': comments})
 
-@taskgen
 @before('apply_core')
 def process_enums(self):
 	for enum in getattr(self, 'enums_list', []):
@@ -137,15 +135,12 @@ def process_enums(self):
 		task.set_inputs(inputs)
 		task.set_outputs(tgt_node)
 
-
-
 Task.simple_task_type('glib_genmarshal',
 	'${GLIB_GENMARSHAL} ${SRC} --prefix=${GLIB_GENMARSHAL_PREFIX} ${GLIB_GENMARSHAL_MODE} > ${TGT}',
 	color='BLUE', before='cc')
 Task.simple_task_type('glib_mkenums',
 	'${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}',
 	color='PINK', before='cc')
-
 
 def detect(conf):
 	glib_genmarshal = conf.find_program('glib-genmarshal', var='GLIB_GENMARSHAL')

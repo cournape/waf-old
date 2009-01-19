@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
 }
 '''
 
-@taskgen
 @before('apply_incpaths')
 @feature('pyext')
 @before('apply_bundle')
@@ -43,7 +42,6 @@ def init_pyext(self):
 		self.uselib.append('PYEXT')
 	self.env['MACBUNDLE'] = True
 
-@taskgen
 @before('apply_link')
 @before('apply_lib_vars')
 @after('apply_bundle')
@@ -52,8 +50,6 @@ def pyext_shlib_ext(self):
 	# override shlib_PATTERN set by the osx module
 	self.env['shlib_PATTERN'] = self.env['pyext_PATTERN']
 
-
-@taskgen
 @before('apply_incpaths')
 @feature('pyembed')
 def init_pyembed(self):
@@ -128,7 +124,6 @@ class py_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @before('apply_core')
 @after('vars_target_cprogram')
 @after('vars_target_cstaticlib')

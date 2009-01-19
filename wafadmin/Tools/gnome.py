@@ -56,12 +56,10 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('gmome_doc')
 def init_gnome_doc(self):
 	self.default_install_path = '${PREFIX}/share'
 
-@taskgen
 @feature('gnome_doc')
 @after('init_gnome_doc')
 def apply_gnome_doc(self):
@@ -99,7 +97,6 @@ class xml_to_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('xml_to')
 def init_xml_to(self):
 	Utils.def_attrs(self,
@@ -109,7 +106,6 @@ def init_xml_to(self):
 		default_install_path = '${PREFIX}',
 		task_created = None)
 
-@taskgen
 @feature('xml_to')
 @after('init_xml_to')
 def apply_xml_to(self):
@@ -173,7 +169,6 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('gnome_sgml2man')
 def apply_gnome_sgml2man(self):
 	assert(getattr(self, 'appname', None))

@@ -19,7 +19,6 @@ from Logs import error, debug
 
 # see WAF issue 285
 # and also http://trac.macports.org/ticket/17059
-@taskgen
 @feature('cc', 'cxx')
 @before('apply_lib_vars')
 def set_macosx_deployment_target(self):
@@ -31,7 +30,6 @@ def set_macosx_deployment_target(self):
 
 
 
-@taskgen
 @feature('cc', 'cxx')
 @after('apply_lib_vars')
 def apply_framework(self):
@@ -51,7 +49,6 @@ def create_task_macapp(self):
 		apptask.set_outputs(self.link_task.outputs[0].change_ext('.app'))
 		self.apptask = apptask
 
-@taskgen
 @after('apply_link')
 @feature('cc', 'cxx')
 def apply_link_osx(self):
@@ -66,7 +63,6 @@ def apply_link_osx(self):
 		path = '-install_name %s' % path
 		self.env.append_value('LINKFLAGS', path)
 
-@taskgen
 @before('apply_link')
 @before('apply_lib_vars')
 @feature('cc', 'cxx')
@@ -79,7 +75,6 @@ def apply_bundle(self):
 		uselib = self.uselib = self.to_list(self.uselib)
 		if not 'MACBUNDLE' in uselib: uselib.append('MACBUNDLE')
 
-@taskgen
 @after('apply_link')
 @feature('cc', 'cxx')
 def apply_bundle_remove_dynamiclib(self):
@@ -159,7 +154,6 @@ def install_shlib(task):
 	bld.symlink_as(path + name2, name3)
 	bld.symlink_as(path + name1, name3)
 
-@taskgen
 @feature('osx')
 @after('install_target_cshlib')
 def install_target_osx_cshlib(self):

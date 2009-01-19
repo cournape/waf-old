@@ -10,13 +10,11 @@ class msgfmt_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('msgfmt')
 def init_msgfmt(self):
 	#langs = '' # for example "foo/fr foo/br"
 	self.default_install_path = '${KDE4_LOCALE_INSTALL_DIR}'
 
-@taskgen
 @feature('msgfmt')
 @after('init_msgfmt')
 def apply_msgfmt(self):

@@ -59,7 +59,6 @@ class ocaml_taskgen(TaskGen.task_gen):
 
 TaskGen.bind_feature('ocaml', 'apply_core')
 
-@taskgen
 @feature('ocaml')
 def init_ml(self):
 	Utils.def_attrs(self,
@@ -79,7 +78,6 @@ def init_ml(self):
 		uselib = '',
 		are_deps_set = 0)
 
-@taskgen
 @feature('ocaml')
 @after('init_ml')
 def init_envs_ml(self):
@@ -100,7 +98,6 @@ def init_envs_ml(self):
 	if self.type == 'c_object':
 		self.native_env.append_unique('OCALINKFLAGS_OPT', '-output-obj')
 
-@taskgen
 @feature('ocaml')
 @before('apply_vars_ml')
 @after('init_envs_ml')
@@ -117,7 +114,6 @@ def apply_incpaths_ml(self):
 		self.bld_incpaths_lst.append(node)
 	# now the nodes are added to self.incpaths_lst
 
-@taskgen
 @feature('ocaml')
 @before('apply_core')
 def apply_vars_ml(self):
@@ -144,7 +140,6 @@ def apply_vars_ml(self):
 				if self.bytecode_env: self.bytecode_env.append_value(vname, cnt)
 				if self.native_env: self.native_env.append_value(vname, cnt)
 
-@taskgen
 @feature('ocaml')
 @after('apply_core')
 def apply_link_ml(self):

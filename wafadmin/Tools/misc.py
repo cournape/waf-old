@@ -35,7 +35,6 @@ class cmd_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('cmd')
 def apply_cmd(self):
 	"call a command everytime"
@@ -51,7 +50,6 @@ class copy_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('copy')
 @before('apply_core')
 def apply_copy(self):
@@ -119,7 +117,6 @@ class subst_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('subst')
 @before('apply_core')
 def apply_subst(self):
@@ -296,7 +293,6 @@ class cmd_output_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@taskgen
 @feature('command-output')
 def init_cmd_output(self):
 	Utils.def_attrs(self,
@@ -337,7 +333,6 @@ def init_cmd_output(self):
 		# if None, use the default environment variables unchanged
 		os_env = None)
 
-@taskgen
 @feature('command-output')
 @after('init_cmd_output')
 def apply_cmd_output(self):

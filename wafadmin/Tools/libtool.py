@@ -63,7 +63,6 @@ def read_la_file(path):
 	file.close()
 	return dc
 
-@taskgen
 @feature("libtool")
 @after('apply_link')
 def apply_link_libtool(self):
@@ -77,7 +76,6 @@ def apply_link_libtool(self):
 	if Options.commands['install'] or Options.commands['uninstall']:
 		self.bld.install_files('PREFIX', 'lib', linktask.outputs[0].abspath(self.env), self.env)
 
-@taskgen
 @feature("libtool")
 @before('apply_core')
 def apply_libtool(self):

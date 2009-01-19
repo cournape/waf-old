@@ -459,7 +459,6 @@ def generate_header(self, filename, install_path):
 	self.meths.append('process_header')
 	self.header_lst.append([filename, install_path])
 
-@taskgen
 @before('apply_core')
 def process_header(self):
 	env = self.env

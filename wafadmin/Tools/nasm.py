@@ -14,7 +14,6 @@ nasm_str = '${NASM} ${NASM_FLAGS} ${NASM_INCLUDES} ${SRC} -o ${TGT}'
 
 EXT_NASM = ['.s', '.S', '.asm', '.ASM', '.spp', '.SPP']
 
-@taskgen
 @before('apply_link')
 def apply_nasm_vars(self):
 

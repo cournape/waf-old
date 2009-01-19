@@ -210,7 +210,6 @@ def apply_type_vars(self):
 			value = self.env[compvar]
 			if value: self.env.append_value(var, value)
 
-@taskgen
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_core')
 def apply_link(self):
@@ -396,7 +395,6 @@ def apply_vnum(self):
 			self.link_task.outputs.append(self.link_task.outputs[0].parent.find_or_declare(name3))
 			self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
 
-@taskgen
 @after('apply_link')
 def process_obj_files(self):
 	if not hasattr(self, 'obj_files'): return
@@ -426,7 +424,6 @@ c_attrs = {
 'rpath' : 'RPATH',
 }
 
-@taskgen
 @feature('cc', 'cxx')
 @before('init_cxx', 'init_cc')
 def add_extra_flags(self):

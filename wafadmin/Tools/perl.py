@@ -11,7 +11,6 @@ from TaskGen import extension, taskgen, feature, before
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 EXT_XS = ['.xs']
 
-@taskgen
 @before('apply_incpaths')
 @feature('perlext')
 def init_perlext(self):

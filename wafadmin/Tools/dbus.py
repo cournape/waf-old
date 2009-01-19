@@ -2,7 +2,6 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
-
 import Task, Utils
 from TaskGen import taskgen, before, after, feature
 
@@ -13,7 +12,6 @@ def add_dbus_file(self, filename, prefix, mode):
 	self.meths.append('process_dbus')
 	self.dbus_lst.append([filename, prefix, mode])
 
-@taskgen
 @before('apply_core')
 def process_dbus(self):
 	for filename, prefix, mode in getattr(self, 'dbus_lst', []):
