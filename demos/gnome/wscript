@@ -19,7 +19,7 @@ def set_options(opt):
 	pass
 
 def configure(conf):
-	conf.check_tool('gcc gnome cs intltool')
+	conf.check_tool('gcc gnome cs intltool glib2')
 
 	conf.check_cfg(package='gobject-2.0', uselib_store='GOBJECT', atleast_version='2.10.0', args='--cflags --libs', mandatory=True)
 	conf.check_cfg(package='libgnome-2.0', uselib_store='GNOME', atleast_version='2.10.0', args='--cflags --libs', mandatory=True)
@@ -27,6 +27,61 @@ def configure(conf):
 	conf.check_cfg(package='gtk+-2.0', uselib_store='GTK', atleast_version='2.6.0', mandatory=True, args='--cflags --libs')
 	conf.check_cfg(package='dbus-glib-1', uselib_store='DBUSGLIB', atleast_version='0.60', mandatory=True, args='--cflags --libs')
 	conf.check_cfg(package='gtk-sharp-2.0',	uselib_store='GTKSHARP', mandatory=False, args='--cflags --libs')
+
+	# TODO: maybe the following checks should be in a more generic module.
+
+	#always defined to indicate that i18n is enabled */
+	conf.define('ENABLE_NLS', 1)
+
+	# TODO
+	#Define to 1 if you have the `bind_textdomain_codeset' function.
+	conf.define('HAVE_BIND_TEXTDOMAIN_CODESET', 1)
+
+	# TODO
+	#Define to 1 if you have the `dcgettext' function.
+	conf.define('HAVE_DCGETTEXT', 1)
+
+	#Define to 1 if you have the <dlfcn.h> header file.
+	conf.check(header_name='dlfcn.h', define_name='HAVE_DLFCN_H')
+
+	# TODO
+	#Define if the GNU gettext() function is already present or preinstalled.
+	conf.define('HAVE_GETTEXT', 1)
+
+	#Define to 1 if you have the <inttypes.h> header file.
+	conf.check(header_name='inttypes.h', define_name='HAVE_INTTYPES_H')
+
+	# TODO FIXME
+	#Define if your <locale.h> file defines LC_MESSAGES.
+	#conf.add_define('HAVE_LC_MESSAGES', '1')
+
+	#Define to 1 if you have the <locale.h> header file.
+	conf.check(header_name='locale.h', define_name='HAVE_LOCALE_H')
+
+	#Define to 1 if you have the <memory.h> header file.
+	conf.check(header_name='memory.h', define_name='HAVE_MEMORY_H')
+
+	#Define to 1 if you have the <stdint.h> header file.
+	conf.check(header_name='stdint.h', define_name='HAVE_STDINT_H')
+
+	#Define to 1 if you have the <stdlib.h> header file.
+	conf.check(header_name='stdlib.h', define_name='HAVE_STDLIB_H')
+
+	#Define to 1 if you have the <strings.h> header file.
+	conf.check(header_name='strings.h', define_name='HAVE_STRINGS_H')
+
+	#Define to 1 if you have the <string.h> header file.
+	conf.check(header_name='string.h', define_name='HAVE_STRING_H')
+
+	#Define to 1 if you have the <sys/stat.h> header file.
+	conf.check(header_name='sys/stat.h', define_name='HAVE_SYS_STAT_H')
+
+	#Define to 1 if you have the <sys/types.h> header file.
+	conf.check(header_name='sys/types.h', define_name='HAVE_SYS_TYPES_H')
+
+	#Define to 1 if you have the <unistd.h> header file.
+	conf.check(header_name='unistd.h', define_name='HAVE_UNISTD_H')
+
 
 	# here is how to add more libraries (look in src/wscript_build too)
 	#conf.check_cfg('glib-2.0',            destvar='GLIB',     vnum='2.6.0')
@@ -63,8 +118,8 @@ def build(bld):
 	if env['HAVE_GTKSHARP'] and env['MCS']:
 		bld.add_subdirs('sharp')
 
-	if env['SGML2MAN']:
-		bld.add_subdirs('man')
+	#if env['SGML2MAN']:
+	#	bld.add_subdirs('man')
 
 def shutdown():
 	# Postinstall tasks:
