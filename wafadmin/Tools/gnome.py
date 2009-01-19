@@ -178,10 +178,9 @@ def apply_gnome_sgml2man(self):
 		name = out.name
 		ext = name[-1]
 		env = task.env
-		self.bld.install_files('DATADIR', 'man/man%s/' % ext, out.abspath(env), env)
+		self.bld.install_files('${DATADIR}/man/man%s/' % ext, out.abspath(env), env)
 
-	tree = self.bld
-	tree.rescan(self.path)
+	self.bld.rescan(self.path)
 	for name in self.bld.cache_dir_contents[self.path.id]:
 		base, ext = os.path.splitext(name)
 		if ext != '.sgml': continue
