@@ -400,6 +400,7 @@ def feature(*k):
 
 def before(*k):
 	def deco(func):
+		setattr(task_gen, func.__name__, func)
 		for fun_name in k:
 			if not func.__name__ in task_gen.prec[fun_name]:
 				task_gen.prec[fun_name].append(func.__name__)
@@ -408,6 +409,7 @@ def before(*k):
 
 def after(*k):
 	def deco(func):
+		setattr(task_gen, func.__name__, func)
 		for fun_name in k:
 			if not fun_name in task_gen.prec[func.__name__]:
 				task_gen.prec[func.__name__].append(fun_name)
