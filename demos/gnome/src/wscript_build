@@ -1,17 +1,17 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2009 (ita)
 
 # A c program that links using the GLIB library, defined in the configuration
 # the only change is that gnome is replaced by cc or cpp (as usual)
-obj = bld.new_task_gen('cc', 'program')
-#obj.source='''
-#manager.xml.h. menus.c app.c hello.c icon.c
-#'''
+obj = bld.new_task_gen(
+	features = 'cc cprogram',
+	includes = '# .', # top-level and current directory
+	uselib = 'GTK GNOME GNOMEUI DBUSGLIB',
+	target = 'gnome-hello')
+
 obj.find_sources_in_dirs('.') # take the sources in the current folder
-obj.includes='.'
-obj.uselib='GTK GNOME GNOMEUI DBUSGLIB'
-obj.target='gnome-hello'
+
 obj.add_dbus_file('manager.xml', 'test_prefix', 'glib-server')
 obj.add_marshal_file('marshal.list', 'test_prefix')
 
