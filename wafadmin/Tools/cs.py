@@ -10,7 +10,6 @@ from TaskGen import before, after, taskgen, feature
 
 flag_vars= ['FLAGS', 'ASSEMBLIES']
 
-@taskgen
 @feature('cs')
 def init_cs(self):
 	Utils.def_attrs(self,
@@ -19,7 +18,6 @@ def init_cs(self):
 		resources = '',
 		uselib = '')
 
-@taskgen
 @feature('cs')
 @after('init_cs')
 def apply_uselib_cs(self):
@@ -31,10 +29,12 @@ def apply_uselib_cs(self):
 			val = self.env[v+'_'+var]
 			if val: self.env.append_value(v, val)
 
-@taskgen
 @feature('cs')
 @after('apply_uselib_cs')
+@before('apply_core')
 def apply_cs(self):
+	try: self.meths.remove('apply_core')
+	except ValueError: pass
 
 	# process the flags for the assemblies
 	assemblies_flags = []
