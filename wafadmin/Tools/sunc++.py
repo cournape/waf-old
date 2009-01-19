@@ -28,7 +28,7 @@ def sxx_common_flags(conf):
 	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
 
 	v['CXX_SRC_F']           = ''
-	v['CXX_TGT_F']           = ['-c', '-o']
+	v['CXX_TGT_F']           = ['-c', '-o', '']
 	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# linker

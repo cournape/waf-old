@@ -34,7 +34,7 @@ def scc_common_flags(conf):
 	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
 
 	v['CC_SRC_F']            = ''
-	v['CC_TGT_F']            = ['-c', '-o']
+	v['CC_TGT_F']            = ['-c', '-o', '']
 	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
 
 	# linker
