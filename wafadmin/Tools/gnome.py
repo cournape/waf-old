@@ -240,60 +240,6 @@ def detect(conf):
 	conf.env['SCROLLKEEPER_DATADIR'] = Utils.cmd_output("scrollkeeper-config --pkgdatadir", silent=1).strip()
 	conf.env['DB2OMF'] = Utils.cmd_output("/usr/bin/pkg-config --variable db2omf gnome-doc-utils", silent=1).strip()
 
-	# TODO: maybe the following checks should be in a more generic module.
-
-	#always defined to indicate that i18n is enabled */
-	conf.define('ENABLE_NLS', 1)
-
-	# TODO
-	#Define to 1 if you have the `bind_textdomain_codeset' function.
-	conf.define('HAVE_BIND_TEXTDOMAIN_CODESET', 1)
-
-	# TODO
-	#Define to 1 if you have the `dcgettext' function.
-	conf.define('HAVE_DCGETTEXT', 1)
-
-	#Define to 1 if you have the <dlfcn.h> header file.
-	conf.check(header_name='dlfcn.h', define_name='HAVE_DLFCN_H')
-
-	# TODO
-	#Define if the GNU gettext() function is already present or preinstalled.
-	conf.define('HAVE_GETTEXT', 1)
-
-	#Define to 1 if you have the <inttypes.h> header file.
-	conf.check(header_name='inttypes.h', define_name='HAVE_INTTYPES_H')
-
-	# TODO FIXME
-	#Define if your <locale.h> file defines LC_MESSAGES.
-	#conf.add_define('HAVE_LC_MESSAGES', '1')
-
-	#Define to 1 if you have the <locale.h> header file.
-	conf.check(header_name='locale.h', define_name='HAVE_LOCALE_H')
-
-	#Define to 1 if you have the <memory.h> header file.
-	conf.check(header_name='memory.h', define_name='HAVE_MEMORY_H')
-
-	#Define to 1 if you have the <stdint.h> header file.
-	conf.check(header_name='stdint.h', define_name='HAVE_STDINT_H')
-
-	#Define to 1 if you have the <stdlib.h> header file.
-	conf.check(header_name='stdlib.h', define_name='HAVE_STDLIB_H')
-
-	#Define to 1 if you have the <strings.h> header file.
-	conf.check(header_name='strings.h', define_name='HAVE_STRINGS_H')
-
-	#Define to 1 if you have the <string.h> header file.
-	conf.check(header_name='string.h', define_name='HAVE_STRING_H')
-
-	#Define to 1 if you have the <sys/stat.h> header file.
-	conf.check(header_name='sys/stat.h', define_name='HAVE_SYS_STAT_H')
-
-	#Define to 1 if you have the <sys/types.h> header file.
-	conf.check(header_name='sys/types.h', define_name='HAVE_SYS_TYPES_H')
-
-	#Define to 1 if you have the <unistd.h> header file.
-	conf.check(header_name='unistd.h', define_name='HAVE_UNISTD_H')
-
 def set_options(opt):
 	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
 
