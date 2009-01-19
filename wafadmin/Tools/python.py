@@ -42,8 +42,7 @@ def init_pyext(self):
 		self.uselib.append('PYEXT')
 	self.env['MACBUNDLE'] = True
 
-@before('apply_link')
-@before('apply_lib_vars')
+@before('apply_link', 'apply_lib_vars')
 @after('apply_bundle')
 @feature('pyext')
 def pyext_shlib_ext(self):
@@ -125,8 +124,7 @@ class py_taskgen(TaskGen.task_gen):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @before('apply_core')
-@after('vars_target_cprogram')
-@after('vars_target_cstaticlib')
+@after('vars_target_cprogram', 'vars_target_cstaticlib')
 @feature('py')
 def init_py(self):
 	self.default_install_path = '${PYTHONDIR}'
