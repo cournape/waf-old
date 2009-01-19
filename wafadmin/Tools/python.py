@@ -299,12 +299,13 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	# See if it compiles
 	test_env = env.copy()
-	test_env.append_value('CPPPATH', env['CPPPATH_PYEMBED'])
-	test_env.append_value('LIBPATH', env['LIBPATH_PYEMBED'])
-	test_env.append_value('LIB', env['LIB_PYEMBED'])
-	test_env.append_value('LINKFLAGS', env['LINKFLAGS_PYEMBED'])
-	test_env.append_value('CXXFLAGS', env['CXXFLAGS_PYEMBED'])
-	test_env.append_value('CCFLAGS', env['CCFLAGS_PYEMBED'])
+	a = test_env.append_value
+	a('CPPPATH', env['CPPPATH_PYEMBED'])
+	a('LIBPATH', env['LIBPATH_PYEMBED'])
+	a('LIB', env['LIB_PYEMBED'])
+	a('LINKFLAGS', env['LINKFLAGS_PYEMBED'])
+	a('CXXFLAGS', env['CXXFLAGS_PYEMBED'])
+	a('CCFLAGS', env['CCFLAGS_PYEMBED'])
 
 	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
 		   env=test_env, fragment=FRAG_2,
