@@ -213,7 +213,7 @@ def create_uic_task(self, node):
 	"hook for uic tasks"
 	uictask = self.create_task('ui4')
 	uictask.inputs  = [node]
-	uictask.outputs = [self.env['ui_PATTERN'] % node.name.rstrip('.ui')]
+	uictask.outputs = [self.path.find_or_declare(self.env['ui_PATTERN'] % node.name.rstrip('.ui'))]
 
 class qt4_taskgen(cxx.cxx_taskgen):
 	def __init__(self, *k, **kw):
