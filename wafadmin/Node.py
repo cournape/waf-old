@@ -452,7 +452,7 @@ class Node(object):
 		ex_pat = Utils.to_list(ex_pat)
 		prune_pat = Utils.to_list(prune_pat)
 
-		def accept_name(name):
+		def accept_name(node, name):
 			for pat in ex_pat:
 				if fnmatch.fnmatchcase(name, pat):
 					return False
@@ -461,7 +461,7 @@ class Node(object):
 					return True
 			return False
 
-		def is_prune(name):
+		def is_prune(node, name):
 			for pat in prune_pat:
 				if fnmatch.fnmatchcase(name, pat):
 					return True
@@ -473,7 +473,7 @@ class Node(object):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
 		self.__class__.bld.rescan(self)
 		for name in self.__class__.bld.cache_dir_contents[self.id]:
-			if accept_name(name):
+			if accept_name(self, name):
 				node = self.find_resource(name)
 				if node:
 					if src and node.id & 3 == FILE:
@@ -487,7 +487,7 @@ class Node(object):
 							for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune):
 								yield k
 			else:
-				if not is_prune(name):
+				if not is_prune(self, name):
 					node = self.find_resource(name)
 					if not node:
 						# not a file, it is a dir
