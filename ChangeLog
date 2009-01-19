@@ -21,6 +21,7 @@ NEW IN WAF 1.5.3
 * remove the PREFIX processing from Environment.py
 * various improvements to the msvc tool (launch commands without the shell, autodetection)
 * various fixes for use with the suncc/sunc++ compilers
+* intltool, csharp and qt4 updates
 
 NEW IN WAF 1.5.2
 ----------------
