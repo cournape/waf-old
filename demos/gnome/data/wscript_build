@@ -1,19 +1,19 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2009 (ita)
 
 # process .in files with intl_tool
 
-obj=bld.new_task_gen('intltool_in')
-obj.source  = 'gnome-test.schemas.in'
-obj.destvar = 'PREFIX'
-obj.subdir  = 'etc/gconf/schemas'
-obj.podir   = '../po'
-obj.flags   = '-s'
+bld.new_task_gen(
+	features = 'intltool_in',
+	source   = 'gnome-test.schemas.in',
+	install_path = '${PREFIX}/etc/gconf/schemas',
+	podir    = '../po',
+	flags    = '-s')
 
-obj=bld.new_task_gen('intltool_in')
-obj.source  = 'gnome-test.desktop.in'
-obj.destvar = 'PREFIX'
-obj.subdir  = 'usr/share/gnome/autostart'
-obj.podir   = '../po'
-obj.flags   = '-d'
+bld.new_task_gen(
+	features = 'intltool_in',
+	source   = 'gnome-test.desktop.in',
+	install_path = '${PREFIX}/share/gnome/autostart',
+	podir    = '../po',
+	flags    = '-d')
