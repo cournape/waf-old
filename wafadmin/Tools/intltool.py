@@ -6,35 +6,42 @@
 
 import os, re
 import TaskGen, Task, Utils, Runner, Options, Build
-import cc
+from TaskGen import feature, before, taskgen
 from Logs import error
 
-# intltool
+"""
+Usage:
+bld.new_task_gen(features='intltool_in', source='a.po b.po', podir='po', cache='.intlcache', flags='')
+"""
 class intltool_in_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
-		self.source  = ''
-		self.flags   = ''
-		self.podir   = 'po'
-		self.intlcache = '.intlcache'
-		self.tasks = []
 
-	def apply(self):
-		self.env = self.env.copy()
-		for i in self.to_list(self.source):
-			node = self.path.find_resource(i)
+@before('apply_core')
+@feature('intltool_in')
+def iapply_intltool_in_f(self):
+	try: self.meths.remove('apply_core')
+	except ValueError: pass
 
-			podirnode = self.path.find_dir(self.podir)
+	for i in self.to_list(self.source):
+		node = self.path.find_resource(i)
 
-			self.env['INTLCACHE'] = os.path.join(self.path.bldpath(self.env), self.podir, self.intlcache)
-			self.env['INTLPODIR'] = podirnode.srcpath(self.env)
-			self.env['INTLFLAGS'] = self.flags
+		podir = getattr(self, 'podir', 'po')
+		podirnode = self.path.find_dir(podir)
+		if not podirnode:
+			error("could not find the podir %r" % podir)
+			continue
 
-			task = self.create_task('intltool')
-			task.set_inputs(node)
-			task.set_outputs(node.change_ext(''))
+		cache = getattr(self, 'intlcache', '.intlcache')
+		self.env['INTLCACHE'] = os.path.join(self.path.bldpath(self.env), podir, cache)
+		self.env['INTLPODIR'] = podirnode.srcpath(self.env)
+		self.env['INTLFLAGS'] = getattr(self, 'flags', None)
 
-			task.install_path = self.install_path
+		task = self.create_task('intltool')
+		task.set_inputs(node)
+		task.set_outputs(node.change_ext(''))
+
+		task.install_path = self.install_path
 
 class intltool_po_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
