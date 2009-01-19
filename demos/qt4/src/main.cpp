@@ -29,6 +29,7 @@
 #include <QApplication>
 
 #include "window.h"
+#include "ui_aboutDialog.h"
 
 int main(int argc, char *argv[])
 {
