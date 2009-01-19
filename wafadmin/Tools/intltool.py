@@ -11,9 +11,14 @@ from Logs import error
 
 """
 Usage:
+
 bld.new_task_gen(features='intltool_in', source='a.po b.po', podir='po', cache='.intlcache', flags='')
+
+
+
 """
 class intltool_in_taskgen(TaskGen.task_gen):
+	"""deprecated"""
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
@@ -44,44 +49,50 @@ def iapply_intltool_in_f(self):
 		task.install_path = self.install_path
 
 class intltool_po_taskgen(TaskGen.task_gen):
+	"""deprecated"""
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
-		self.default_install_path = '${LOCALEDIR}'
-		self.appname = kw.get('appname', 'set_your_app_name')
-		self.podir = ''
-		self.tasks=[]
 
-	def apply(self):
-		def install_translation(task):
-			out = task.outputs[0]
-			filename = out.name
-			(langname, ext) = os.path.splitext(filename)
-			inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + self.appname + '.mo'
-			self.bld.install_as(
-				os.path.join(self.install_path, inst_file),
-				out.abspath(self.env), chmod=self.chmod)
 
-		linguas = self.path.find_resource(os.path.join(self.podir, 'LINGUAS'))
-		if linguas:
-			# scan LINGUAS file for locales to process
-			file = open(linguas.abspath())
-			langs = []
-			for line in file.readlines():
-				# ignore lines containing comments
-				if not line.startswith('#'):
-					langs += line.split()
-			file.close()
-			re_linguas = re.compile('[-a-zA-Z_@.]+')
-			for lang in langs:
-				# Make sure that we only process lines which contain locales
-				if re_linguas.match(lang):
-					node = self.path.find_resource(os.path.join(self.podir, re_linguas.match(lang).group() + '.po'))
-					task = self.create_task('po')
-					task.set_inputs(node)
-					task.set_outputs(node.change_ext('.mo'))
-					if Options.is_install: task.install = install_translation
-		else:
-			Utils.pprint('RED', "Error no LINGUAS file found in po directory")
+@feature('intltool_po')
+def apply_intltool_po(self):
+	try: self.meths.remove('apply_core')
+	except ValueError: pass
+
+	self.default_install_path = '${LOCALEDIR}'
+	appname = getattr(self, 'appname', 'set_your_app_name')
+	podir = getattr(self, 'podir', '')
+
+	def install_translation(task):
+		out = task.outputs[0]
+		filename = out.name
+		(langname, ext) = os.path.splitext(filename)
+		inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + appname + '.mo'
+		self.bld.install_as(
+			os.path.join(self.install_path, inst_file),
+			out.abspath(self.env), chmod=self.chmod)
+
+	linguas = self.path.find_resource(os.path.join(podir, 'LINGUAS'))
+	if linguas:
+		# scan LINGUAS file for locales to process
+		file = open(linguas.abspath())
+		langs = []
+		for line in file.readlines():
+			# ignore lines containing comments
+			if not line.startswith('#'):
+				langs += line.split()
+		file.close()
+		re_linguas = re.compile('[-a-zA-Z_@.]+')
+		for lang in langs:
+			# Make sure that we only process lines which contain locales
+			if re_linguas.match(lang):
+				node = self.path.find_resource(os.path.join(podir, re_linguas.match(lang).group() + '.po'))
+				task = self.create_task('po')
+				task.set_inputs(node)
+				task.set_outputs(node.change_ext('.mo'))
+				if Options.is_install: task.install = install_translation
+	else:
+		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 
 Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
 Task.simple_task_type('intltool',
