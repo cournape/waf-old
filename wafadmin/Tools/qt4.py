@@ -267,33 +267,6 @@ def apply_qt4(self):
 			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
 
-#def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
-#	"the .ts files are added to self.lang"
-#	lst=[]
-#	excludes = self.to_list(excludes)
-#	#make sure dirnames is a list helps with dirnames with spaces
-#	dirnames = self.to_list(dirnames)
-#
-#	ext_lst = exts or self.mappings.keys() + TaskGen.task_gen.mappings.keys()
-#
-#	self.lang = getattr(self, 'lang', '')
-#	for name in dirnames:
-#		anode = self.path.find_dir(name)
-#		self.bld.rescan(anode)
-#
-#		for name in self.bld.cache_dir_contents[anode.id]:
-#			(base, ext) = os.path.splitext(name)
-#			if ext in ext_lst:
-#				if not name in lst:
-#					if name in excludes: continue
-#					lst.append((anode.path_to_parent(self.path) or '.') + '/' + name)
-#			elif ext == '.ts':
-#				self.lang += ' '+base
-#
-#	lst.sort()
-#	self.source = self.source+' '+(" ".join(lst))
-#setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
-
 @extension(EXT_QT4)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
