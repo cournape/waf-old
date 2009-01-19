@@ -21,7 +21,7 @@ else:
 
 import os, sys
 import ccroot, cxx
-import TaskGen, Task, Utils, Runner, Options, Build
+import TaskGen, Task, Utils, Runner, Options, Node
 from TaskGen import taskgen, feature, after, extension
 from Logs import error
 from Constants import *
@@ -229,6 +229,7 @@ def add_lang(self, node):
 @after('apply_link')
 def apply_qt4(self):
 	if getattr(self, 'lang', None):
+		update = getattr(self, 'update', None)
 		lst=[]
 		trans=[]
 		for l in self.to_list(self.lang):
@@ -241,10 +242,10 @@ def apply_qt4(self):
 			t.set_outputs(l.change_ext('.qm'))
 			lst.append(t.outputs[0])
 
-			if self.update:
+			if update:
 				trans.append(t.inputs[0])
 
-		if getattr(self, 'update', None) and Options.options.trans_qt4:
+		if update and Options.options.trans_qt4:
 			# we need the cpp files given, except the rcc task we create after
 			# FIXME may be broken
 			u = Task.TaskCmd(translation_update, self.env, 2)
