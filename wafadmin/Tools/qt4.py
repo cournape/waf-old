@@ -220,7 +220,11 @@ class qt4_taskgen(cxx.cxx_taskgen):
 		cxx.cxx_taskgen.__init__(self, *k, **kw)
 		self.features.append('qt4')
 
-@taskgen
+@extension('.ts')
+def add_lang(self, node):
+	"""add all the .ts file into self.lang"""
+	self.lang = self.to_list(getattr(self, 'lang', [])) + [node]
+
 @feature('qt4')
 @after('apply_link')
 def apply_qt4(self):
@@ -228,9 +232,13 @@ def apply_qt4(self):
 		lst=[]
 		trans=[]
 		for l in self.to_list(self.lang):
-			t = Task.TaskBase.classes['ts2qm'](self.env)
-			t.set_inputs(self.path.find_resource(l+'.ts'))
-			t.set_outputs(t.inputs[0].change_ext('.qm'))
+
+			if not isinstance(l, Node.Node):
+				l = self.path.find_resource(l+'.ts')
+
+			t = self.create_task('ts2qm')
+			t.set_inputs(l)
+			t.set_outputs(l.change_ext('.qm'))
 			lst.append(t.outputs[0])
 
 			if self.update:
@@ -258,32 +266,32 @@ def apply_qt4(self):
 			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
 
-def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
-	"the .ts files are added to self.lang"
-	lst=[]
-	excludes = self.to_list(excludes)
-	#make sure dirnames is a list helps with dirnames with spaces
-	dirnames = self.to_list(dirnames)
-
-	ext_lst = exts or self.mappings.keys() + TaskGen.task_gen.mappings.keys()
-
-	self.lang = getattr(self, 'lang', '')
-	for name in dirnames:
-		anode = self.path.find_dir(name)
-		self.bld.rescan(anode)
-
-		for name in self.bld.cache_dir_contents[anode.id]:
-			(base, ext) = os.path.splitext(name)
-			if ext in ext_lst:
-				if not name in lst:
-					if name in excludes: continue
-					lst.append((anode.path_to_parent(self.path) or '.') + '/' + name)
-			elif ext == '.ts':
-				self.lang += ' '+base
-
-	lst.sort()
-	self.source = self.source+' '+(" ".join(lst))
-setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
+#def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
+#	"the .ts files are added to self.lang"
+#	lst=[]
+#	excludes = self.to_list(excludes)
+#	#make sure dirnames is a list helps with dirnames with spaces
+#	dirnames = self.to_list(dirnames)
+#
+#	ext_lst = exts or self.mappings.keys() + TaskGen.task_gen.mappings.keys()
+#
+#	self.lang = getattr(self, 'lang', '')
+#	for name in dirnames:
+#		anode = self.path.find_dir(name)
+#		self.bld.rescan(anode)
+#
+#		for name in self.bld.cache_dir_contents[anode.id]:
+#			(base, ext) = os.path.splitext(name)
+#			if ext in ext_lst:
+#				if not name in lst:
+#					if name in excludes: continue
+#					lst.append((anode.path_to_parent(self.path) or '.') + '/' + name)
+#			elif ext == '.ts':
+#				self.lang += ' '+base
+#
+#	lst.sort()
+#	self.source = self.source+' '+(" ".join(lst))
+#setattr(qt4_taskgen, 'find_sources_in_dirs', find_sources_in_dirs)
 
 @extension(EXT_QT4)
 def cxx_hook(self, node):
