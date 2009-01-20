@@ -84,8 +84,8 @@ def c_hook(self, node):
 	return task
 
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS}'
-vnum_link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[1].bldpath(env)} ${LINKFLAGS} ${_LIBDIRFLAGS} ${_LIBFLAGS} && ln -sf ${TGT[1].name} ${TGT[0].bldpath(env)}'
+link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS}'
+vnum_link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[1].bldpath(env)} ${LINKFLAGS} && ln -sf ${TGT[1].name} ${TGT[0].bldpath(env)}'
 
 cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c')
 cls.scan = ccroot.scan

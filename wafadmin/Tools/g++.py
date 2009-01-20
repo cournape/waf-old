@@ -34,7 +34,7 @@ def find_gxx(conf):
 def gxx_common_flags(conf):
 	v = conf.env
 
-	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
+	# CPPFLAGS CXXDEFINES _CXXINCFLAGS _CXXDEFFLAGS
 
 	v['CXX_SRC_F']           = ''
 	v['CXX_TGT_F']           = ['-c', '-o', ''] # shell hack for -MD

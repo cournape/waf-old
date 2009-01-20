@@ -31,7 +31,7 @@ def find_scc(conf):
 def scc_common_flags(conf):
 	v = conf.env
 
-	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS _LIBDIRFLAGS _LIBFLAGS
+	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS
 
 	v['CC_SRC_F']            = ''
 	v['CC_TGT_F']            = ['-c', '-o', '']

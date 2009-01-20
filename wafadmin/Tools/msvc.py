@@ -105,8 +105,6 @@ def msvc_linker(task):
 	#srcf = e['LINK_SRC_F']
 	#trgtf = e['LINK_TGT_F']
 	#linkflags = e.get_flat('LINKFLAGS')
-	#libdirs = e.get_flat('_LIBDIRFLAGS')
-	#libs = e.get_flat('_LIBFLAGS')
 
 	subsystem = getattr(task.generator, 'subsystem', '')
 	if subsystem:
@@ -135,8 +133,6 @@ def msvc_linker(task):
 	else:
 		lst.extend(to_list(env['LINKFLAGS']))
 
-	lst.extend(to_list(env['_LIBDIRFLAGS']))
-	lst.extend(to_list(env['_LIBFLAGS']))
 	lst.extend([a.srcpath(env) for a in task.inputs])
 	lst.extend(to_list('/OUT:%s' % outfile))
 	lst = [x for x in lst if x]
@@ -376,9 +372,9 @@ def init_msvc(self):
 	try: getattr(self, 'libpaths')
 	except AttributeError: self.libpaths = []
 
-Task.task_type_from_func('msvc_link_static', vars=['STLIBLINK', 'STLINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS',], color='YELLOW', func=msvc_linker, ext_in='.o')
-Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
-Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', '_LIBDIRFLAGS', '_LIBFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
+Task.task_type_from_func('msvc_link_static', vars=['STLIBLINK', 'STLINKFLAGS'], color='YELLOW', func=msvc_linker, ext_in='.o')
+Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
+Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
 
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx')
@@ -530,8 +526,6 @@ def msvc_common_flags(conf):
 	v['STATICLIBPATH_ST'] = '/LIBPATH:%s'
 	v['CCDEFINES_ST']     = '/D%s'
 	v['CXXDEFINES_ST']    = '/D%s'
-	v['_LIBDIRFLAGS']     = ''
-	v['_LIBFLAGS']        = ''
 
 	v['LINKFLAGS']        = ['/NOLOGO', '/ERRORREPORT:PROMPT', '/MANIFEST']
 

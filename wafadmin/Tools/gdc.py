@@ -17,19 +17,19 @@ def find_gdc(conf):
 def common_flags(conf):
 	v = conf.env
 
-	# _DFLAGS _DIMPORTFLAGS _DLIBDIRFLAGS _DLIBFLAGS
+	# _DFLAGS _DIMPORTFLAGS
 
 	# for mory info about the meaning of this dict see dmd.py
 	v['DFLAGS']            = {'gdc':[], 'dmd':[]}
 
 	v['D_SRC_F']           = ''
-	v['D_TGT_F']           = '-c -o '
+	v['D_TGT_F']           = ['-c', '-o', '']
 	v['DPATH_ST']          = '-I%s' # template for adding import paths
 
 	# linker
 	v['D_LINKER']          = v['D_COMPILER']
 	v['DLNK_SRC_F']        = ''
-	v['DLNK_TGT_F']        = '-o '
+	v['DLNK_TGT_F']        = ['-o', '']
 
 	v['DLIB_ST']           = '-l%s' # template for adding libs
 	v['DLIBPATH_ST']       = '-L%s' # template for adding libpaths
@@ -62,5 +62,3 @@ def detect(conf):
 	conf.check_tool('d')
 	common_flags(conf)
 
-def set_options(opt):
-	pass

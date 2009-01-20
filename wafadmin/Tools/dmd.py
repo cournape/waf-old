@@ -18,14 +18,14 @@ def find_dmd(conf):
 def common_flags(conf):
 	v = conf.env
 
-	# _DFLAGS _DIMPORTFLAGS _DLIBDIRFLAGS _DLIBFLAGS
+	# _DFLAGS _DIMPORTFLAGS
 
 	# Compiler is dmd so 'gdc' part will be ignored, just
 	# ensure key is there, so wscript can append flags to it
 	v['DFLAGS']            = {'gdc': [], 'dmd': ['-version=Posix']}
 
 	v['D_SRC_F']           = ''
-	v['D_TGT_F']           = '-c -of'
+	v['D_TGT_F']           = ['-c', '-of']
 	v['DPATH_ST']          = '-I%s' # template for adding import paths
 
 	# linker
@@ -46,7 +46,7 @@ def common_flags(conf):
 	v['D_shlib_LINKFLAGS'] = ['-L-shared']
 
 	v['DHEADER_ext']       = '.di'
-	v['D_HDR_F']           = '-H -Hf'
+	v['D_HDR_F']           = ['-H', '-Hf']
 
 	if sys.platform == "win32":
 		v['D_program_PATTERN']   = '%s.exe'
@@ -64,5 +64,3 @@ def detect(conf):
 	conf.check_tool('d')
 	common_flags(conf)
 
-def set_options(opt):
-	pass

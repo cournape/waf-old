@@ -398,7 +398,7 @@ def apply_d_vars(self):
 
 	# now process the library paths
 	for path in libpaths:
-		env.append_unique('_DLIBDIRFLAGS', libpath_st % path)
+		env.append_unique('DLINKFLAGS', libpath_st % path)
 
 	# add libraries
 	for i in uselib:
@@ -410,7 +410,7 @@ def apply_d_vars(self):
 
 	# now process the libraries
 	for lib in libs:
-		env.append_unique('_DLIBFLAGS', lib_st % lib)
+		env.append_unique('DLINKFLAGS', lib_st % lib)
 
 	# add linker flags
 	for i in uselib:
@@ -445,7 +445,7 @@ d_with_header_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} \
 ${D_HDR_F}${TGT[1].bldpath(env)} \
 ${D_SRC_F}${SRC} \
 ${D_TGT_F}${TGT[0].bldpath(env)}'
-link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS} ${_DLIBDIRFLAGS} ${_DLIBFLAGS}'
+link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
 
 cls = Task.simple_task_type('d', d_str, 'GREEN')
 cls.scan = scan
