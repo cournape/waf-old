@@ -440,7 +440,7 @@ class TaskBase(object):
 		elif self.hasrun == MISSING:
 			return " -> missing files: %r" % self
 		else:
-			return "-> unspecified error: %r" % self
+			return ''
 
 	def install(self):
 		"""
@@ -631,7 +631,12 @@ class Task(TaskBase):
 			#	print "self sig is ", Utils.view_sig(bld.node_sigs[variant][node])
 
 			# check if the node exists ..
-			os.stat(node.abspath(env))
+			try:
+				os.stat(node.abspath(env))
+			except OSError:
+				self.has_run = MISSING
+				self.err_msg = '-> missing file: %r' % node.abspath(env)
+				raise Utils.WafError
 
 			# important, store the signature for the next run
 			bld.node_sigs[variant][node.id] = sig

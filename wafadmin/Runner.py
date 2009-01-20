@@ -64,9 +64,9 @@ class TaskConsumer(threading.Thread):
 			else:
 				try:
 					tsk.post_run()
-				except OSError:
-					tsk.hasrun = MISSING
-				except:
+				except Utils.WafError:
+					pass
+				except Exception:
 					tsk.err_msg = Utils.ex_stack()
 					tsk.hasrun = EXCEPTION
 				else:
