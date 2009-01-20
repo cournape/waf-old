@@ -131,39 +131,11 @@ def sgml_scan(self):
 	num = n2_regexp.findall(content)[0]
 
 	doc_name = name+'.'+num
+
+	if not self.outputs:
+		self.outputs = [self.generator.path.find_or_declare(doc_name)]
+
 	return ([], [doc_name])
-
-def sig_implicit_deps(self):
-	"override the Task method, see the Task.py"
-
-	tree = self.generator.bld
-
-	def sgml_outputs():
-		dps = tree.raw_deps[self.unique_id()]
-		name = dps[0]
-		self.set_outputs(self.task_generator.path.find_or_declare(name))
-
-	# get the task signatures from previous runs
-	key = self.unique_id()
-	prev_sigs = tree.task_sigs.get(key, ())
-	if prev_sigs and prev_sigs[2] == self.compute_sig_implicit_deps():
-		sgml_outputs()
-		return prev_sigs[2]
-
-	# no previous run or the signature of the dependencies has changed, rescan the dependencies
-	(nodes, names) = self.scan()
-	if Logs.verbose and Logs.zones:
-		debug('deps: scanner for %s returned %s %s' % (str(self), str(nodes), str(names)))
-
-	# store the dependencies in the cache
-	tree.node_deps[self.unique_id()] = nodes
-	tree.raw_deps[self.unique_id()] = names
-	sgml_outputs()
-
-	# recompute the signature and return it
-	sig = self.compute_sig_implicit_deps()
-
-	return sig
 
 class gnome_sgml2man_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
@@ -171,6 +143,9 @@ class gnome_sgml2man_taskgen(TaskGen.task_gen):
 
 @feature('gnome_sgml2man')
 def apply_gnome_sgml2man(self):
+	"""
+	we could make it more complicated, but for now we just scan the document each time
+	"""
 	assert(getattr(self, 'appname', None))
 
 	def install_result(task):
@@ -196,12 +171,6 @@ def apply_gnome_sgml2man(self):
 
 cls = Task.simple_task_type('sgml2man', '${SGML2MAN} -o ${TGT[0].bld_dir(env)} ${SRC}  > /dev/null', color='BLUE')
 cls.scan = sgml_scan
-cls.sig_implicit_deps = sig_implicit_deps
-old_runnable_status = Task.Task.runnable_status
-def runnable_status(self):
-	old_runnable_status(self)
-	return old_runnable_status(self)
-cls.runnable_status = runnable_status
 cls.quiet = 1
 
 Task.simple_task_type('xmlto', '${XMLTO} html -m ${SRC[1].abspath(env)} ${SRC[0].abspath(env)}')
