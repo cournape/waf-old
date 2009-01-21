@@ -22,7 +22,7 @@ def find_gxx(conf):
 
 	cmd = cxx+['--version']
 	try:
-		if Utils.cmd_output(cmd).find('g++') < 0:
+		if Utils.cmd_output(cmd).find('GCC') < 0:
 			conf.fatal('g++ was not found, see the result of g++ --version')
 	except ValueError:
 		conf.fatal('%r could not be executed' % cmd)

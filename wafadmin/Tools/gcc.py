@@ -23,7 +23,7 @@ def find_gcc(conf):
 
 	cmd = cc + ['--version']
 	try:
-		if Utils.cmd_output(cmd).find('gcc') < 0:
+		if Utils.cmd_output(cmd).find('GCC') < 0:
 			conf.fatal('gcc was not found, see the result of gcc --version')
 	except ValueError:
 		conf.fatal('%r could not be executed' % cmd)
