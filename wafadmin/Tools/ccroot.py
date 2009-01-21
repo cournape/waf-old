@@ -66,7 +66,8 @@ class ccroot_abstract(TaskGen.task_gen):
 		# COMPAT
 		if len(k) > 1:
 			k = list(k)
-			k[1] = 'c' + k[1]
+			if k[1][0] != 'c':
+				k[1] = 'c' + k[1]
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('cc', 'cxx')
