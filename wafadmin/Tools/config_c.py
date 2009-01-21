@@ -199,9 +199,9 @@ def validate_c(self, kw):
 			kw['compiler'] = 'cxx'
 
 	if not 'type' in kw:
-		kw['type'] = 'program'
+		kw['type'] = 'cprogram'
 
-	assert not(kw['type'] != 'program' and kw.get('execute', 0)), 'can only execute programs'
+	assert not(kw['type'] != 'cprogram' and kw.get('execute', 0)), 'can only execute programs'
 
 
 	#if kw['type'] != 'program' and kw.get('execute', 0):
@@ -411,9 +411,7 @@ def run_c_code(self, *k, **kw):
 
 	bld.rescan(bld.srcnode)
 
-	o = bld.new_task_gen(kw['compile_mode'], kw['type'])
-	o.source = test_f_name
-	o.target = 'testprog'
+	o = bld.new_task_gen(features=[kw['compile_mode'], kw['type']], source=test_f_name, target='testprog')
 
 	for k, v in kw.iteritems():
 		setattr(o, k, v)
