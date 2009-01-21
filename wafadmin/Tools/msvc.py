@@ -10,6 +10,10 @@
 # conf.env['MSVC_VERSIONS'] = ['9.0', '8.0']
 # conf.env['MSVC_TARGETS'] = ['x64']
 # conf.check_tool('msvc')
+# conf.check_lib_msvc('gdi32')
+# conf.check_libs_msvc('kernel32 user32', mandatory=true)
+# ...
+# obj.uselib = 'KERNEL32 USER32 GDI32'
 #
 # platforms and targets will be tested in the order they appear;
 # the first good configuration will be uses
@@ -213,7 +217,7 @@ def find_lt_names_msvc(self, libname, is_static=False):
 		'%s.la' % libname,
 	]
 
-	for path in self.libpaths:
+	for path in self.env['LIBPATH']:
 		for la in lt_names:
 			laf=os.path.join(path,la)
 			dll=None
@@ -240,12 +244,12 @@ def find_lt_names_msvc(self, libname, is_static=False):
 	return (None, None, None)
 
 @conf
-def libname_msvc(self, libname, is_static=False):
+def libname_msvc(self, libname, is_static=False, mandatory=False):
 	lib = libname.lower()
 	lib = re.sub('\.lib$','',lib)
 
 	if lib in g_msvc_systemlibs:
-		return lib+'.lib'
+		return lib
 
 	lib=re.sub('^lib','',lib)
 
@@ -260,9 +264,9 @@ def libname_msvc(self, libname, is_static=False):
 			return os.path.join(lt_path,lt_libname)
 
 	if lt_path != None:
-		_libpaths=[lt_path] + self.libpaths
+		_libpaths=[lt_path] + self.env['LIBPATH']
 	else:
-		_libpaths=self.libpaths
+		_libpaths=self.env['LIBPATH']
 
 	static_libs=[
 		'%ss.lib' % lib,
@@ -289,17 +293,17 @@ def libname_msvc(self, libname, is_static=False):
 		for libn in libnames:
 			if os.path.exists(os.path.join(path, libn)):
 				debug('msvc: lib found: %s' % os.path.join(path,libn))
-				return libn
+				return re.sub('\.lib$', '',libn)
+
 	#if no lib can be found, just return the libname as msvc expects it
-	return re.sub('\.lib$', '', libname)+'.lib'
+	if mandatory:
+		self.fatal("The library %r could not be found" % libname)
+	return re.sub('\.lib$', '', libname)
 
 @conf
 def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=False):
 	"This is the api to use"
-	libn = self.libname_msvc(libname, is_static)
-
-	if mandatory and not os.path.exists(libn):
-		conf.fatal("The library %r could not be found" % libname)
+	libn = self.libname_msvc(libname, is_static, mandatory)
 
 	if not uselib_store:
 		uselib_store = libname.upper()
@@ -307,6 +311,11 @@ def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=
 		self.env['LIB_' + uselib_store] = [libn]
 	else:
 		self.env['STATICLIB_' + uselib_store] = [libn]
+
+@conf
+def check_libs_msvc(self, libnames, is_static=False, mandatory=False):
+	for libname in Utils.to_list(libnames):
+		self.check_lib_msvc(libname, is_static, mandatory=mandatory)
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
@@ -345,10 +354,10 @@ def apply_obj_vars_msvc(self):
 			app('LINKFLAGS', env['SHLIB_MARKER'])
 
 	for i in env['STATICLIB']:
-		app('LINKFLAGS', i)
+		app('LINKFLAGS', lib_st % i)
 
 	for i in env['LIB']:
-		app('LINKFLAGS', i)
+		app('LINKFLAGS', lib_st % i)
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @before('apply_link')
