@@ -296,7 +296,7 @@ def libname_msvc(self, libname, is_static=False):
 @conf
 def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=False):
 	"This is the api to use"
-	libn = self.libname_msvc(libname, is_static, uselib_store=None)
+	libn = self.libname_msvc(libname, is_static)
 
 	if mandatory and not os.path.exists(libn):
 		conf.fatal("The library %r could not be found" % libname)
