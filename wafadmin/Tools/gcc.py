@@ -4,8 +4,9 @@
 # Ralf Habacker, 2006 (rh)
 
 import os, sys
-import Configure, Options, Utils
+import Configure, Options, Utils, TaskGen
 import ccroot, ar
+import cc
 from Configure import conftest
 
 @conftest
@@ -21,15 +22,20 @@ def find_gcc(conf):
 	if not cc: conf.fatal('gcc was not found')
 	cc = conf.cmd_to_list(cc)
 
-	cmd = cc + ['--version']
-	try:
-		if Utils.cmd_output(cmd).find('free software') < 0:
-			conf.fatal('gcc was not found, see the result of gcc --version')
-	except ValueError:
-		conf.fatal('%r could not be executed' % cmd)
-	v['CC']  = cc
+	v = conf.env
+	conf.env = conf.env.copy()
+	gcc_common_flags(conf)
+	new_env = conf.env
+	conf.env = v
+
 	v['CC_NAME'] = 'gcc'
-	ccroot.get_cc_version(conf, cc, 'CC_VERSION')
+	v['CC'] = cc
+	try:
+		ret = conf.check(fragment='#include <stdio.h>\nint main() {printf("%d,%d,%d\\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);}\n', compiler='cc', env=new_env)
+		if not ret: raise ValueError
+	except ValueError:
+		conf.fatal('The gcc compiler could not be identified')
+	v['CC_VERSION'] = ret
 
 @conftest
 def gcc_common_flags(conf):

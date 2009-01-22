@@ -5,7 +5,7 @@
 
 import os, optparse, sys, re
 import Configure, Options, Utils
-import ccroot, ar
+import ccroot, ar, cxx
 from Configure import conftest
 
 
@@ -20,15 +20,20 @@ def find_gxx(conf):
 	if not cxx: conf.fatal('g++ was not found')
 	cxx = conf.cmd_to_list(cxx)
 
-	cmd = cxx+['--version']
-	try:
-		if Utils.cmd_output(cmd).find('free software') < 0:
-			conf.fatal('g++ was not found, see the result of g++ --version')
-	except ValueError:
-		conf.fatal('%r could not be executed' % cmd)
-	v['CXX']  = cxx
+	v = conf.env
+	conf.env = conf.env.copy()
+	gxx_common_flags(conf)
+	new_env = conf.env
+	conf.env = v
+
 	v['CXX_NAME'] = 'gcc'
-	ccroot.get_cc_version(conf, cxx, 'CXX_VERSION')
+	v['CXX'] = cxx
+	try:
+		ret = conf.check(fragment='#include <stdio.h>\nclass foo { public: foo(){}};\nint main() {printf("%d,%d,%d\\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);}\n', env=new_env, compiler='cxx')
+		if not ret: raise ValueError
+	except ValueError:
+		conf.fatal('The g++ compiler could not be identified')
+	v['CXX_VERSION'] = ret
 
 @conftest
 def gxx_common_flags(conf):
