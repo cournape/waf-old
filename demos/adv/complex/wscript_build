@@ -41,7 +41,7 @@ pars = {'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm',
 	'VERSION': '1.0', 'XPM_LIBS': '-lxpm'}
 obj = bld.new_task_gen(
 	features = 'subst',
-	target = 'test.pc',
+	source = 'test.pc.in',
 	dict = pars)
 
 """
