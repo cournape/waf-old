@@ -99,12 +99,17 @@ def subst_func(tsk):
 
 	dict = tsk.dict
 	if not dict:
+		dict = {}
 		names = m4_re.findall(code)
 		for i in names:
 			if not env[i]: i = i.upper()
 			if env[i] and isinstance(env[i], list):
 				dict[i] = " ".join(env[i])
 			else: dict[i] = env[i]
+
+	else:
+		for i in dict.keys():
+			dict[i.lower()] = dict[i]
 
 	file = open(outfile, 'w')
 	file.write(s % dict)
