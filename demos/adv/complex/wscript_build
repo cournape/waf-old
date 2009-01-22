@@ -36,13 +36,13 @@ obj = bld.new_task_gen(
 	vnum = '1.2.3')
 obj.find_sources_in_dirs('. gui')
 
-# process file.pc.in -> file.pc
-pars = {'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm',
-	'VERSION': '1.0', 'XPM_LIBS': '-lxpm'}
+# process file.pc.in -> file.pc - by default it uses the task "env" attribute
 obj = bld.new_task_gen(
 	features = 'subst',
-	source = 'test.pc.in',
-	dict = pars)
+	source = 'test.pc.in')
+# next line is for adding various keys to the task env
+obj.env.table.update({'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm',
+    'VERSION': '1.0', 'XPM_LIBS': '-lxpm', 'PREFIX': 'foo'})
 
 """
 # doc for waf 1.5.1 - command-output wrappers
