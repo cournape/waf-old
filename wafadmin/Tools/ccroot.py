@@ -27,7 +27,7 @@ def get_cc_version(conf, cc, version_var):
 			v[version_var] = match.group(0)
 			conf.check_message('compiler', 'version', 1, v[version_var])
 			return v[version_var]
-	warn('could not determine the compiler version %r' % cmd)
+	conf.fatal('could not determine the compiler version %r' % cmd)
 
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"

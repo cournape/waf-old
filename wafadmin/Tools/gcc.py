@@ -22,20 +22,9 @@ def find_gcc(conf):
 	if not cc: conf.fatal('gcc was not found')
 	cc = conf.cmd_to_list(cc)
 
-	v = conf.env
-	conf.env = conf.env.copy()
-	gcc_common_flags(conf)
-	new_env = conf.env
-	conf.env = v
-
+	ccroot.get_cc_version(conf, cc, 'CC_VERSION')
 	v['CC_NAME'] = 'gcc'
 	v['CC'] = cc
-	try:
-		ret = conf.check(fragment='#include <stdio.h>\nint main() {printf("%d,%d,%d\\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);}\n', compiler='cc', env=new_env)
-		if not ret: raise ValueError
-	except ValueError:
-		conf.fatal('The gcc compiler could not be identified')
-	v['CC_VERSION'] = ret
 
 @conftest
 def gcc_common_flags(conf):

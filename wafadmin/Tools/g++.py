@@ -20,20 +20,9 @@ def find_gxx(conf):
 	if not cxx: conf.fatal('g++ was not found')
 	cxx = conf.cmd_to_list(cxx)
 
-	v = conf.env
-	conf.env = conf.env.copy()
-	gxx_common_flags(conf)
-	new_env = conf.env
-	conf.env = v
-
+	ccroot.get_cc_version(conf, cxx, 'CXX_VERSION')
 	v['CXX_NAME'] = 'gcc'
 	v['CXX'] = cxx
-	try:
-		ret = conf.check(fragment='#include <stdio.h>\nclass foo { public: foo(){}};\nint main() {printf("%d,%d,%d\\n", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);}\n', env=new_env, compiler='cxx')
-		if not ret: raise ValueError
-	except ValueError:
-		conf.fatal('The g++ compiler could not be identified')
-	v['CXX_VERSION'] = ret
 
 @conftest
 def gxx_common_flags(conf):
