@@ -97,26 +97,16 @@ def subst_func(tsk):
 
 	s = m4_re.sub(r'%(\1)s', code)
 
-	dict = tsk.dict
-	if not dict:
-		dict = {}
+	di = tsk.dict or {}
+	if not di:
 		names = m4_re.findall(code)
 		for i in names:
-			if not env[i]: i = i.upper()
-			if env[i] and isinstance(env[i], list):
-				dict[i] = " ".join(env[i])
-			else: dict[i] = env[i]
-
-	else:
-		for i in dict.keys():
-			dict[i.lower()] = dict[i]
+			di[i] = env.get_flat(i) or env.get_flat(i.upper())
 
 	file = open(outfile, 'w')
-	file.write(s % dict)
+	file.write(s % di)
 	file.close()
 	if tsk.chmod: os.chmod(outfile, tsk.chmod)
-
-	return 0
 
 class subst_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
