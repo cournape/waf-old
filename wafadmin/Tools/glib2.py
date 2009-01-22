@@ -100,7 +100,7 @@ def process_enums(self):
 			raise Utils.WafError('missing source ' + str(enum))
 		source_list = [self.path.find_resource(k) for k in source_list]
 		inputs += source_list
-		env['GLIB_MKENUMS_SOURCE'] = [k.abspath(env) for k in source_list]
+		env['GLIB_MKENUMS_SOURCE'] = [k.srcpath(env) for k in source_list]
 
 		# find the target
 		if not enum['target']:
