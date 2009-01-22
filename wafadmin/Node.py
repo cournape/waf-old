@@ -483,7 +483,7 @@ class Node(object):
 					if node and node.id != self.__class__.bld.bldnode.id:
 						if dir:
 							yield node
-						if not is_prune(name):
+						if not is_prune(self, name):
 							for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune):
 								yield k
 			else:
@@ -503,7 +503,7 @@ class Node(object):
 				if node.id == self.__class__.bld.bldnode.id:
 					continue
 				if node.id & 3 == BUILD:
-					if accept_name(node.name):
+					if accept_name(self, node.name):
 						yield node
 		raise StopIteration
 
