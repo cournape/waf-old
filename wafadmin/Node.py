@@ -200,6 +200,9 @@ class Node(object):
 				if current is None:
 					dir_cont = self.__class__.bld.cache_dir_contents
 					if prev.id in dir_cont and name in dir_cont[prev.id]:
+						if not os.path.isdir(prev.abspath() + os.sep + name):
+							# paranoid os.stat
+							return None
 						current = self.__class__(name, prev, DIR)
 					else:
 						return None
