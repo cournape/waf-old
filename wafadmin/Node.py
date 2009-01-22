@@ -203,6 +203,9 @@ class Node(object):
 						current = self.__class__(name, prev, DIR)
 					else:
 						return None
+				else:
+					if current.id & 3 != DIR:
+						return None
 		return current
 
 	def ensure_dir_node_from_path(self, lst):
