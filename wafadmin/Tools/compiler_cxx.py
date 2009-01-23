@@ -11,7 +11,7 @@ cxx_compiler = {
 'cygwin': ['g++'],
 'darwin': ['g++'],
 'aix5':   ['g++'],
-'linux':  ['g++', 'sunc++'],
+'linux':  ['g++', 'sunc++'], # add icpc in the first place
 'sunos':  ['sunc++', 'g++'],
 'irix':   ['g++'],
 'hpux':   ['g++'],
@@ -28,12 +28,17 @@ def detect(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
 	except AttributeError: raise Configure.ConfigurationError("Add set_options(opt): opt.tool_options('compiler_cxx')")
 	for cxx_compiler in test_for_compiler.split():
-		conf.check_tool(cxx_compiler)
-		if conf.env['CXX']:
-			conf.check_message("%s" %cxx_compiler, '', True)
-			conf.env["COMPILER_CXX"] = "%s" %cxx_compiler #store the selected c++ compiler
-			return
-		conf.check_message("%s" %cxx_compiler, '', False)
+		try:
+			conf.check_tool(cxx_compiler)
+		except Configure.ConfigurationError:
+			pass
+		else:
+			if conf.env['CXX']:
+				conf.check_message("%s" %cxx_compiler, '', True)
+				conf.env["COMPILER_CXX"] = "%s" %cxx_compiler #store the selected c++ compiler
+				return
+			conf.check_message("%s" %cxx_compiler, '', False)
+			break
 	conf.env["COMPILER_CXX"] = None
 
 def set_options(opt):
