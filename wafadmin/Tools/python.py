@@ -225,7 +225,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 			env.append_value('LIB_PYEMBED', lib)
 
 	if Options.platform != 'darwin' and python_LDFLAGS:
-		env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS)
+		env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS.split())
 
 	result = False
 	name = 'python' + env['PYTHON_VERSION']
