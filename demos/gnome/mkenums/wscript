@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 
 def build(bld):
-	o = bld.new_task_gen('cc', 'program')
-	o.source = 'main.c'
-	o.target = 'blah'
-	o.add_enums_from_template(source='a.h b.h', target='prodi.h', template='x.in')
+	obj = bld.new_task_gen(
+		features='cc cprogram',
+		source = 'main.c',
+		target = 'blah')
+
+	obj.add_enums_from_template(source='a.h b.h', target='prodi.h', template='x.in')
 
