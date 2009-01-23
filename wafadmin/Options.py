@@ -212,6 +212,7 @@ class Handler(object):
 		Utils.python_24_guard()
 		tools = Utils.to_list(tool)
 		for tool in tools:
+			tool = tool.replace('++', 'xx')
 			module = Utils.load_tool(tool, tooldir)
 			try:
 				fun = module.set_options

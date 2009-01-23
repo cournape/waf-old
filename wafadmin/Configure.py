@@ -116,6 +116,7 @@ class ConfigurationContext(object):
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
 		for tool in tools:
+			tool = tool.replace('++', 'xx')
 			module = Utils.load_tool(tool, tooldir)
 			func = getattr(module, 'detect', None)
 			if func:
