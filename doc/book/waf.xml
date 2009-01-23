@@ -54,6 +54,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="development.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="architecture.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="conclusion.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="glossary.xml"/>
 
 <!--
 <note>exemple de note</note>
