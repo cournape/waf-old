@@ -102,7 +102,6 @@ class Parallel(object):
 		self.out = Queue(0)
 
 		self.count = 0 # tasks not in the producer area
-		self.stuck = 0
 
 		self.processed = 1 # progress indicator
 
