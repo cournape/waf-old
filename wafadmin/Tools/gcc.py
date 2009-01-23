@@ -6,7 +6,6 @@
 import os, sys
 import Configure, Options, Utils, TaskGen
 import ccroot, ar
-import cc
 from Configure import conftest
 
 @conftest
@@ -127,21 +126,4 @@ gcc_modifier_aix5
 cc_load_tools
 cc_add_flags
 '''
-
-"""
-If you want to remove the tests you do not want, use something like this:
-
-conf.check_tool('gcc', funs='''
-find_gcc
-find_cpp
-find_ar
-gcc_common_flags
-gcc_modifier_win32
-gcc_modifier_cygwin
-gcc_modifier_darwin
-gcc_modifier_aix5
-cc_add_flags
-cc_load_tools
-'''
-)"""
 
