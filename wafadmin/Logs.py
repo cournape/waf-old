@@ -24,7 +24,7 @@ colors_lst = {
 
 if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
 	or (os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']) \
-	or (not sys.stdout.isatty()):
+	or (not sys.stderr.isatty()):
 		colors_lst['USE'] = False
 
 def get_color(cl):

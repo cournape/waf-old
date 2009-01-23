@@ -224,8 +224,8 @@ class BuildContext(object):
 
 		def dw(on=True):
 			if Options.options.progress_bar:
-				if on: sys.stdout.write(Logs.colors.cursor_on)
-				else: sys.stdout.write(Logs.colors.cursor_off)
+				if on: sys.stderr.write(Logs.colors.cursor_on)
+				else: sys.stderr.write(Logs.colors.cursor_off)
 
 		debug('build: executor starting')
 		try:
@@ -813,7 +813,7 @@ class BuildContext(object):
 		return Utils.exec_command(cmd, **kw)
 
 	def printout(self, s):
-		f = self.log or sys.stdout
+		f = self.log or sys.stderr
 		f.write(s)
 		f.flush()
 

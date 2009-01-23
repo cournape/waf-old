@@ -91,8 +91,8 @@ class unit_test(object):
 			count += 1
 			line = Build.bld.progress_line(count, self.total_num_tests, Logs.colors.GREEN, Logs.colors.NORMAL)
 			if Options.options.progress_bar and line:
-				sys.stdout.write(line)
-				sys.stdout.flush()
+				sys.stderr.write(line)
+				sys.stderr.flush()
 			try:
 				kwargs = {}
 				if self.change_to_testfile_dir:

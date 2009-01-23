@@ -270,10 +270,10 @@ try:
 except ImportError:
 	pass
 else:
-	if sys.stdout.isatty():
+	if sys.stderr.isatty():
 		def myfun():
 			dummy_lines, cols = struct.unpack("HHHH", \
-			fcntl.ioctl(sys.stdout.fileno(),termios.TIOCGWINSZ , \
+			fcntl.ioctl(sys.stderr.fileno(),termios.TIOCGWINSZ , \
 			struct.pack("HHHH", 0, 0, 0, 0)))[:2]
 			return cols
 		# we actually try the function once to see if it is suitable
@@ -411,7 +411,7 @@ def hash_function_with_globals(prevhash, func):
 
 def pprint(col, str, label='', sep=os.linesep):
 	"print messages in color"
-	sys.stdout.write("%s%s%s %s%s" % (Logs.colors(col), str, Logs.colors.NORMAL, label, sep))
+	sys.stderr.write("%s%s%s %s%s" % (Logs.colors(col), str, Logs.colors.NORMAL, label, sep))
 
 def check_dir(dir):
 	"""If a folder doesn't exists, create it."""
