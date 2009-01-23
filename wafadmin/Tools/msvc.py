@@ -420,7 +420,7 @@ def find_msvc(conf):
 
 	# before setting anything, check if the compiler is really msvc
 	try:
-		Utils.cmd_output([cxx, '/?'])
+		Utils.cmd_output([cxx, '/nologo', '/?'])
 	except ValueError:
 		conf.fatal('the msvc compiler could not be identified')
 
