@@ -11,7 +11,7 @@ c_compiler = {
 	'cygwin': ['gcc'],
 	'darwin': ['gcc'],
 	'aix5':   ['gcc'],
-	'linux':  ['gcc', 'suncc'],
+	'linux':  ['gcc', 'suncc', 'icc'],
 	'sunos':  ['suncc', 'gcc'],
 	'irix':   ['gcc'],
 	'hpux':   ['gcc'],
