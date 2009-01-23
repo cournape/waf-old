@@ -5,7 +5,7 @@
 
 import os, sys
 import Configure, Options, Utils
-import ccroot, ar
+import ccroot, ar, gcc
 from Configure import conftest
 
 @conftest
