@@ -25,15 +25,25 @@ def __list_possible_compiler(platform):
 		return c_compiler["default"]
 
 def detect(conf):
+	"""
+	for each compiler for the platform, try to configure the compiler
+	in thory the tools should raise a configuration error if the compiler
+	pretends to be something it is not (setting CC=icc and trying to configure gcc)
+	"""
 	try: test_for_compiler = Options.options.check_c_compiler
-	except AttributeError: raise Configure.ConfigurationError("Add set_options(opt): opt.tool_options('compiler_cc')")
+	except AttributeError: conf.fatal("Add set_options(opt): opt.tool_options('compiler_cc')")
 	for c_compiler in test_for_compiler.split():
-		conf.check_tool(c_compiler)
-		if conf.env['CC']:
-			conf.check_message("%s" %c_compiler, '', True)
-			conf.env["COMPILER_CC"] = "%s" % c_compiler #store the selected c compiler
-			return
-		conf.check_message("%s" %c_compiler, '', False)
+		try:
+			conf.check_tool(c_compiler)
+		except Configure.ConfigurationError:
+			pass
+		else:
+			if conf.env['CC']:
+				conf.check_message("%s" %c_compiler, '', True)
+				conf.env["COMPILER_CC"] = "%s" % c_compiler #store the selected c compiler
+				return
+			conf.check_message("%s" %c_compiler, '', False)
+			break
 	conf.env["COMPILER_CC"] = None
 
 def set_options(opt):
