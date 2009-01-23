@@ -20,9 +20,10 @@ NEW IN WAF 1.5.3
 * execute the commands without the shell on windows to avoid space issues
 * remove the PREFIX processing from Environment.py
 * various improvements to the msvc tool (launch commands without the shell, autodetection)
-* various fixes for use with the suncc/sunc++ compilers
+* various fixes for use with the suncc/suncxx compilers
 * intltool, csharp and qt4 updates
 * write all the output to stderr by default (and not to stdout)
+* support for the intel c++ compiler (icpc)
 
 NEW IN WAF 1.5.2
 ----------------
