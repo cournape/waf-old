@@ -418,6 +418,9 @@ def find_msvc(conf):
 	if not cxx: conf.fatal('CL was not found (compiler)')
 	cxx = conf.cmd_to_list(cxx)
 
+	# FIXME
+	# before setting anything, check if the compiler is really msvc
+
 	# c/c++ compiler
 	v['CC'] = v['CXX'] = cxx
 	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
