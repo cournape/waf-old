@@ -5,9 +5,8 @@
 
 import os, optparse, sys, re
 import Configure, Options, Utils
-import ccroot, ar, cxx
+import ccroot, ar
 from Configure import conftest
-
 
 @conftest
 def find_gxx(conf):
