@@ -210,13 +210,15 @@ class Handler(object):
 
 	def tool_options(self, tool, tdir=None, option_group=None):
 		Utils.python_24_guard()
-		module = Utils.load_tool(tool, tooldir)
-		try:
-			fun = module.set_options
-		except AttributeError:
-			pass
-		else:
-			fun(option_group or self)
+		tools = Utils.to_list(tool)
+		for tool in tools:
+			module = Utils.load_tool(tool, tooldir)
+			try:
+				fun = module.set_options
+			except AttributeError:
+				pass
+			else:
+				fun(option_group or self)
 
 	def parse_args(self, args=None):
 		parse_args_impl(self.parser, args)
