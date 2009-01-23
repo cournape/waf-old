@@ -24,6 +24,7 @@ NEW IN WAF 1.5.3
 * intltool, csharp and qt4 updates
 * write all the output to stderr by default (and not to stdout)
 * support for the intel c++ compiler (icpc)
+* consistency: let the gnu_dirs tool use ${} instead of $()
 
 NEW IN WAF 1.5.2
 ----------------
