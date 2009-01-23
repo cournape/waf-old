@@ -126,13 +126,13 @@ def install_shlib(self):
 @feature('cprogram', 'dprogram')
 @before('apply_core')
 def vars_target_cprogram(self):
-	self.default_install_path = '${PREFIX}/bin'
+	self.default_install_path = self.env['BINDIR'] or '${PREFIX}/bin'
 	self.default_chmod = O755
 
 @feature('cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @before('apply_core')
 def vars_target_cstaticlib(self):
-	self.default_install_path = '${PREFIX}/lib${LIB_EXT}'
+	self.default_install_path = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
 	if sys.platform in ['win32', 'cygwin']:
 		# on win32, libraries need the execute bit, else we
 		# get 'permission denied' when using them (issue 283)
