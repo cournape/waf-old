@@ -23,7 +23,7 @@ def find_icc(conf):
 	cc = conf.cmd_to_list(cc)
 
 	# check if icc is really icc
-	if not Utils.cmd_output([cc, '-help', 'codegen'], silent=True):
+	if not Utils.cmd_output(cc + ['-help', 'codegen'], silent=True):
 		conf.fatal('the icc compiler could not be identified')
 
 	v['CC'] = cc

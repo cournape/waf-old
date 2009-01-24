@@ -21,7 +21,7 @@ def find_icpc(conf):
 	cxx = conf.cmd_to_list(cxx)
 
 	# check if icc is really icpc
-	if not Utils.cmd_output([cxx, '-help', 'codegen']):
+	if not Utils.cmd_output(cxx + ['-help', 'codegen']):
 		conf.fatal('the icpc compiler could not be identified')
 
 	v['CC'] = cxx
