@@ -311,27 +311,23 @@ def validate_c(self, kw):
 def post_check(self, *k, **kw):
 	"set the variables after a test was run successfully"
 
+	is_success = 0
+	if kw['execute']:
+		if kw['success']:
+			is_success = kw['success']
+	else:
+		is_success = (kw['success'] == 0)
+
 	def define_or_stuff():
 		nm = kw['define_name']
-		if not kw['execute'] and not kw.get('define_ret', None):
-			self.define_cond(kw['define_name'], kw['success'] is not None)
+		if kw['execute'] and kw.get('define_ret', None) and isinstance(is_success, str):
+			self.define(kw['define_name'], is_success)
 		else:
-			self.define(kw['define_name'], kw['success'])
+			self.define_cond(kw['define_name'], is_success)
 
-	if 'header_name' in kw:
-		define_or_stuff()
-
-	elif 'function_name' in kw:
-		define_or_stuff()
-
-	elif 'fragment' in kw:
-		if 'define_name' in kw:
+	if 'define_name' in kw:
+		if 'header_name' in kw or 'function_name' in kw or 'fragment' in kw:
 			define_or_stuff()
-
-	if kw['execute']:
-		is_success = kw['success'] is not None
-	else:
-		is_success = kw['success'] == 0
 
 	if is_success and 'uselib_store' in kw:
 		import cc, cxx
