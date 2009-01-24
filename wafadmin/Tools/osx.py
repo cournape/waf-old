@@ -64,8 +64,7 @@ def apply_link_osx(self):
 		self.env.append_value('LINKFLAGS', '-install_name')
 		self.env.append_value('LINKFLAGS', path)
 
-@before('apply_link')
-@before('apply_lib_vars')
+@before('apply_link', 'apply_lib_vars')
 @feature('cc', 'cxx')
 def apply_bundle(self):
 	"""use env['MACBUNDLE'] to force all shlibs into mac bundles
@@ -77,11 +76,11 @@ def apply_bundle(self):
 		if not 'MACBUNDLE' in uselib: uselib.append('MACBUNDLE')
 
 @after('apply_link')
-@feature('cc', 'cxx')
+@feature('cshlib')
 def apply_bundle_remove_dynamiclib(self):
-	if not ('cshlib' in self.features or 'shlib' in self.features): return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
-		self.env['LINKFLAGS'].remove('-dynamiclib')
+		if not getattr(self, 'vnum', None):
+			self.env['LINKFLAGS'].remove('-dynamiclib')
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
 
