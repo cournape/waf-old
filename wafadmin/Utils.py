@@ -437,6 +437,8 @@ def cmd_output(cmd, **kw):
 
 	kw['shell'] = isinstance(cmd, str)
 	kw['stdout'] = pproc.PIPE
+	if silent:
+		kw['stderr'] = pproc.PIPE
 
 	p = pproc.Popen(cmd, **kw)
 	output = p.communicate()[0]
