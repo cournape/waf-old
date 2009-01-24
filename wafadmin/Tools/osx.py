@@ -61,7 +61,7 @@ def apply_link_osx(self):
 			name = name.replace('.dylib', '.%s.dylib' % self.vnum)
 
 		path = os.path.join(self.env['PREFIX'], 'lib', name)
-		path = '-install_name %s' % path
+		self.env.append_value('LINKFLAGS', '-install_name')
 		self.env.append_value('LINKFLAGS', path)
 
 @before('apply_link')
