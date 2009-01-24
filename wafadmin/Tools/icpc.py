@@ -18,6 +18,7 @@ def find_icpc(conf):
 	elif 'CXX' in os.environ: cxx = os.environ['CXX']
 	if not cxx: cxx = conf.find_program('icpc', var='CXX')
 	if not cxx: conf.fatal('Intel C++ Compiler (icpc) was not found')
+	cxx = conf.cmd_to_list(cxx)
 
 	# check if icc is really icpc
 	if not Utils.cmd_output([cxx, '-help', 'codegen']):
