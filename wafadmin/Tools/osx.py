@@ -57,7 +57,8 @@ def apply_link_osx(self):
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 		self.create_task_macapp()
 		name = self.link_task.outputs[0].name
-		if self.vnum: name = name.replace('.dylib', '.%s.dylib' % self.vnum)
+		if getattr(self, 'vnum', None):
+			name = name.replace('.dylib', '.%s.dylib' % self.vnum)
 
 		path = os.path.join(self.env['PREFIX'], 'lib', name)
 		path = '-install_name %s' % path
