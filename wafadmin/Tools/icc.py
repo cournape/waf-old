@@ -22,9 +22,7 @@ def find_icc(conf):
 	if not cc: conf.fatal('Intel C Compiler (icc) was not found')
 
 	# check if icc is really icc
-	try:
-		Utils.cmd_output([cc, '-help', 'codegen'])
-	except ValueError:
+	if not Utils.cmd_output([cc, '-help', 'codegen'], silent=True):
 		conf.fatal('the icc compiler could not be identified')
 
 	v['CC'] = cc

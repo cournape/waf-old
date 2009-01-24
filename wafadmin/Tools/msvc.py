@@ -419,9 +419,7 @@ def find_msvc(conf):
 	cxx = conf.cmd_to_list(cxx)
 
 	# before setting anything, check if the compiler is really msvc
-	try:
-		Utils.cmd_output([cxx, '/nologo', '/?'])
-	except ValueError:
+	if not Utils.cmd_output([cxx, '/nologo', '/?'], silent=True):
 		conf.fatal('the msvc compiler could not be identified')
 
 	# c/c++ compiler

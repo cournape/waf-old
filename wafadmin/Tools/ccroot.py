@@ -20,7 +20,7 @@ def get_cc_version(conf, cc, version_var):
 	v = conf.env
 	cc = Utils.to_list(cc)
 	cmd = cc + ['-dumpversion']
-	output = Utils.cmd_output(cmd)
+	output = Utils.cmd_output(cmd, silent=True)
 	if output:
 		match = get_version_re.search(output)
 		if match:
