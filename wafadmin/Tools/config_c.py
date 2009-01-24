@@ -439,8 +439,9 @@ def run_c_code(self, *k, **kw):
 
 	# if we need to run the program, try to get its result
 	if kw['execute']:
+		args = Utils.to_list(kw.get('exec_args', []))
 		try:
-			data = Utils.cmd_output('"%s"' % lastprog).strip()
+			data = Utils.cmd_output([lastprog] + args).strip()
 		except ValueError, e:
 			self.fatal(Utils.ex_stack())
 		ret = data
