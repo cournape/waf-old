@@ -29,25 +29,10 @@ def process_marshal(self):
 		h_node = node.change_ext('.h')
 		c_node = node.change_ext('.c')
 
-		# Generate the header
-		#header_env = self.env.copy()
-		#header_env['GLIB_GENMARSHAL_PREFIX'] = prefix
-		#header_env['GLIB_GENMARSHAL_MODE'] = '--header'
 		task = self.create_task('glib_genmarshal')
 		task.set_inputs(node)
 		task.set_outputs([h_node, c_node])
 		task.env['GLIB_GENMARSHAL_PREFIX'] = prefix
-
-		# Generate the body
-		#body_env = self.env.copy()
-		#body_env['GLIB_GENMARSHAL_PREFIX'] = prefix
-		#body_env['GLIB_GENMARSHAL_MODE'] = '--body'
-		#task = self.create_task('glib_genmarshal', body_env)
-		#task.set_inputs(node)
-		#task.set_outputs(node.change_ext('.c'))
-		# the c file generated will be processed too
-		#outnode = node.change_ext('.c')
-		#self.allnodes.append(outnode)
 
 def genmarshal_func(self):
 
@@ -166,7 +151,6 @@ def process_enums(self):
 		task.set_outputs(tgt_node)
 
 Task.task_type_from_func('glib_genmarshal', func=genmarshal_func, vars=['GLIB_GENMARSHAL_PREFIX', 'GLIB_GENMARSHAL'],
-	#'${GLIB_GENMARSHAL} ${SRC} --prefix=${GLIB_GENMARSHAL_PREFIX} ${GLIB_GENMARSHAL_MODE} > ${TGT}',
 	color='BLUE', before='cc')
 Task.simple_task_type('glib_mkenums',
 	'${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}',
