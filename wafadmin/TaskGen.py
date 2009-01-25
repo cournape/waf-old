@@ -236,19 +236,21 @@ class task_gen(object):
 		return self.bld.name_to_obj(name, self.env)
 
 	def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
-		"subclass if necessary"
-		lst = []
+		"""
+		The attributes "excludes" and "exts" must be lists to avoid the confusion
+		find_sources_in_dirs('a', 'b', 'c') <-> find_sources_in_dirs('a b c')
 
-		# validation: excludes and exts must be lists.
-		# the purpose: make sure a confused user didn't wrote
-		#  find_sources_in_dirs('a', 'b', 'c')
-		# instead of find_sources_in_dirs('a b c')
-		err_msg = "'%s' attribute must be a list.\n" \
-		"Directories should be given either as a string separated by spaces, or as a list."
+		do not use absolute paths
+		do not use paths outside of the source tree
+		"""
+
+		err_msg = "'%s' attribute must be a list"
 		if not isinstance(excludes, list):
 			raise Utils.WscriptError(err_msg % 'excludes')
 		if not isinstance(exts, list):
 			raise Utils.WscriptError(err_msg % 'exts')
+
+		lst = []
 
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
@@ -258,9 +260,6 @@ class task_gen(object):
 		for name in dirnames:
 			anode = self.path.find_dir(name)
 
-			# validation:
-			# * don't use absolute path.
-			# * don't use paths outside the source tree.
 			if not anode or not anode.is_child_of(self.bld.srcnode):
 				raise Utils.WscriptError("Unable to use '%s' - either because it's not a relative path" \
 					 ", or it's not child of '%s'." % (name, self.bld.srcnode))
