@@ -1,21 +1,21 @@
 Waf 1.5
 -------
 
-glossary of terms
-recursive glob for creating zips or tars - TODO
-parse the command-lines for &&, (, ) < and >
 preprocessor fixes
-make it easier to add custom commands
+docs: better example for @taskgen
+make it even easier to add custom commands
+use Node::find_iter in task_gen::find_sources_in_dirs
 
 Waf 1.6
 -------
 
+(api cleanup)
 * leave either tdir or tooldir in the methods check_tool and check_options
 
 ideas to watch:
 ---------------
 
-* cross-compilation settings gcc,linux -> win32 (the infrastructure is in place)
+* parse the command-lines for &&, (, ) < and > to avoid the shell where applicable
 * packaging? (rpms, debs)
 
 --------------------------------------
