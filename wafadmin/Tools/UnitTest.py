@@ -68,10 +68,14 @@ class unit_test(object):
 		# If waf is not building, don't run anything
 		if not Options.commands[self.run_if_waf_does]: return
 
-		# Gather unit tests to call and shared libraries to bind
+		# Get the paths for the shared libraries, and obtain the unit tests to execute
 		for obj in Build.bld.all_task_gen:
-			if 'cshlib' in obj.features:
-				lib_path = obj.path.abspath(obj.env)
+			try:
+				link_task = obj.link_task
+			except AttributeError:
+				pass
+			else:
+				lib_path = link_task.outputs[0].parent.abspath(obj.env)
 				if lib_path not in ld_library_path:
 					ld_library_path.append(lib_path)
 
