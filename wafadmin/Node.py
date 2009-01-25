@@ -445,7 +445,7 @@ class Node(object):
 		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
-	def find_iter(self, in_pat=['*'], ex_pat=[], prune_pat=['.svn'], src=True, bld=True, dir=False):
+	def find_iter(self, in_pat=['*'], ex_pat=[], prune_pat=['.svn'], src=True, bld=True, dir=False, maxdepth=1000):
 		"find nodes recursively, this returns everything but folders by default"
 
 		if not (src or bld or dir):
@@ -473,9 +473,9 @@ class Node(object):
 					return True
 			return False
 
-		return self.find_iter_impl(src, bld, dir, accept_name, is_prune)
+		return self.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth)
 
-	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None):
+	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=1000):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
 		self.__class__.bld.rescan(self)
 		for name in self.__class__.bld.cache_dir_contents[self.id]:
@@ -490,8 +490,9 @@ class Node(object):
 						if dir:
 							yield node
 						if not is_prune(self, name):
-							for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune):
-								yield k
+							if maxdepth:
+								for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth - 1):
+									yield k
 			else:
 				if not is_prune(self, name):
 					node = self.find_resource(name)
@@ -501,8 +502,9 @@ class Node(object):
 						if node and node.id != self.__class__.bld.bldnode.id:
 							if dir:
 								yield node
-							for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune):
-								yield k
+							if maxdepth:
+								for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth - 1):
+									yield k
 
 		if bld:
 			for node in self.childs.values():
