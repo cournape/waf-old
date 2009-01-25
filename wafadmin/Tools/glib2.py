@@ -36,6 +36,8 @@ def process_marshal(self):
 
 def genmarshal_func(self):
 
+	bld = self.inputs[0].__class__.bld
+
 	get = self.env.get_flat
 	cmd1 = "%s %s --prefix=%s --header > %s" % (
 		get('GLIB_GENMARSHAL'),
@@ -43,8 +45,8 @@ def genmarshal_func(self):
 		get('GLIB_GENMARSHAL_PREFIX'),
 		self.outputs[0].abspath(self.env)
 	)
-	print cmd1
-	ret = Utils.exec_command(cmd1)
+
+	ret = bld.exec_command(cmd1)
 	if ret: return ret
 
 	#print self.outputs[1].abspath(self.env)
