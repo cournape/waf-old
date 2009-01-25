@@ -362,6 +362,12 @@ def process_tokens(lst, defs, ban):
 		return (None, None, [])
 
 
+# 1. replace the arguments in the line
+# 2. apply the string concatenation
+# 3. reduce the remaining macros
+
+# lst2.reverse() for k in lst2: lst2.insert(pos, k)
+
 def reduce_paste(lst):
 	"""reduce: a##b -> ab """
 	for i in xrange(1, len(lst) - 1):
@@ -374,7 +380,7 @@ def reduce_paste(lst):
 			lst[i-1] = (p1, v1 + v2)
 
 def reduce_stringize(lst):
-	"""reduce: #foo -> "foo" """
+	"""reduce: #foo -> "foo" - but of course it only makes sense to substitute the input arguments"""
 	for i in xrange(len(lst) - 1):
 		(p0, v0) = lst[i]
 		if v0 == '#':
