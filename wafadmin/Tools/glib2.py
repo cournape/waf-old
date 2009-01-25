@@ -54,7 +54,7 @@ def genmarshal_func(self):
 	f.write('''#include "%s"\n''' % self.outputs[0].name)
 	f.close()
 
-	cmd2 = "%s %s --prefix=%s --header >> %s" % (
+	cmd2 = "%s %s --prefix=%s --body >> %s" % (
 		get('GLIB_GENMARSHAL'),
 		self.inputs[0].abspath(self.env),
 		get('GLIB_GENMARSHAL_PREFIX'),
