@@ -63,11 +63,18 @@ class unit_test(object):
 		self.unit_test_results = {}
 		self.unit_test_erroneous = {}
 
+		ld_library_path = []
+
 		# If waf is not building, don't run anything
 		if not Options.commands[self.run_if_waf_does]: return
 
-		# Gather unit tests to call
+		# Gather unit tests to call and shared libraries to bind
 		for obj in Build.bld.all_task_gen:
+			if 'cshlib' in obj.features:
+				lib_path = obj.path.abspath(obj.env)
+				if lib_path not in ld_library_path:
+					ld_library_path.append(lib_path)
+
 			unit_test = getattr(obj, 'unit_test', '')
 			if unit_test and 'cprogram' in obj.features:
 				try:
@@ -101,6 +108,12 @@ class unit_test(object):
 					kwargs['stdout'] = pproc.PIPE  # PIPE for ignoring output
 				if not self.want_to_see_test_error:
 					kwargs['stderr'] = pproc.PIPE  # PIPE for ignoring output
+				if ld_library_path:
+					if sys.platform == 'win32':
+						kwargs['env'] = {'PATH': ';'.join(ld_library_path)}
+					else:
+						kwargs['env'] = {'LD_LIBRARY_PATH': ':'.join(ld_library_path)}
+
 				pp = pproc.Popen(filename, **kwargs)
 				pp.wait()
 
