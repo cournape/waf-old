@@ -20,31 +20,61 @@ def add_marshal_file(self, filename, prefix):
 
 @before('apply_core')
 def process_marshal(self):
-	for filename, prefix in getattr(self, 'marshal_list', []):
-		node = self.path.find_resource(filename)
+	for f, prefix in getattr(self, 'marshal_list', []):
+		node = self.path.find_resource(f)
 
 		if not node:
-			raise Utils.WafError('file not found ' + filename)
+			raise Utils.WafError('file not found %r' % f)
+
+		h_node = node.change_ext('.h')
+		c_node = node.change_ext('.c')
 
 		# Generate the header
-		header_env = self.env.copy()
-		header_env['GLIB_GENMARSHAL_PREFIX'] = prefix
-		header_env['GLIB_GENMARSHAL_MODE'] = '--header'
-		task = self.create_task('glib_genmarshal', header_env)
+		#header_env = self.env.copy()
+		#header_env['GLIB_GENMARSHAL_PREFIX'] = prefix
+		#header_env['GLIB_GENMARSHAL_MODE'] = '--header'
+		task = self.create_task('glib_genmarshal')
 		task.set_inputs(node)
-		task.set_outputs(node.change_ext('.h'))
+		task.set_outputs([h_node, c_node])
+		task.env['GLIB_GENMARSHAL_PREFIX'] = prefix
 
 		# Generate the body
-		body_env = self.env.copy()
-		body_env['GLIB_GENMARSHAL_PREFIX'] = prefix
-		body_env['GLIB_GENMARSHAL_MODE'] = '--body'
-		task = self.create_task('glib_genmarshal', body_env)
-		task.set_inputs(node)
-		task.set_outputs(node.change_ext('.c'))
+		#body_env = self.env.copy()
+		#body_env['GLIB_GENMARSHAL_PREFIX'] = prefix
+		#body_env['GLIB_GENMARSHAL_MODE'] = '--body'
+		#task = self.create_task('glib_genmarshal', body_env)
+		#task.set_inputs(node)
+		#task.set_outputs(node.change_ext('.c'))
 		# the c file generated will be processed too
-		outnode = node.change_ext('.c')
-		self.allnodes.append(outnode)
+		#outnode = node.change_ext('.c')
+		#self.allnodes.append(outnode)
 
+def genmarshal_func(self):
+
+	get = self.env.get_flat
+	cmd1 = "%s %s --prefix=%s --header > %s" % (
+		get('GLIB_GENMARSHAL'),
+		self.inputs[0].abspath(self.env),
+		get('GLIB_GENMARSHAL_PREFIX'),
+		self.outputs[0].abspath(self.env)
+	)
+	print cmd1
+	ret = Utils.exec_command(cmd1)
+	if ret: return ret
+
+	#print self.outputs[1].abspath(self.env)
+	f = open(self.outputs[1].abspath(self.env), 'wb')
+	f.write('''#include "%s"\n''' % self.outputs[0].name)
+	f.close()
+
+	cmd2 = "%s %s --prefix=%s --header >> %s" % (
+		get('GLIB_GENMARSHAL'),
+		self.inputs[0].abspath(self.env),
+		get('GLIB_GENMARSHAL_PREFIX'),
+		self.outputs[1].abspath(self.env)
+	)
+	ret = Utils.exec_command(cmd2)
+	if ret: return ret
 
 #
 # glib-mkenums
@@ -135,8 +165,8 @@ def process_enums(self):
 		task.set_inputs(inputs)
 		task.set_outputs(tgt_node)
 
-Task.simple_task_type('glib_genmarshal',
-	'${GLIB_GENMARSHAL} ${SRC} --prefix=${GLIB_GENMARSHAL_PREFIX} ${GLIB_GENMARSHAL_MODE} > ${TGT}',
+Task.task_type_from_func('glib_genmarshal', func=genmarshal_func, vars=['GLIB_GENMARSHAL_PREFIX', 'GLIB_GENMARSHAL'],
+	#'${GLIB_GENMARSHAL} ${SRC} --prefix=${GLIB_GENMARSHAL_PREFIX} ${GLIB_GENMARSHAL_MODE} > ${TGT}',
 	color='BLUE', before='cc')
 Task.simple_task_type('glib_mkenums',
 	'${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}',
