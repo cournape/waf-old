@@ -46,7 +46,7 @@ datadir, read-only architecture-independent data, ${DATAROOTDIR}
 infodir, info documentation, ${DATAROOTDIR}/info
 localedir, locale-dependent data, ${DATAROOTDIR}/locale
 mandir, man documentation, ${DATAROOTDIR}/man
-docdir, documentation root, ${DATAROOTDIR)/doc/${PACKAGE}
+docdir, documentation root, ${DATAROOTDIR}/doc/${PACKAGE}
 htmldir, html documentation, ${DOCDIR}
 dvidir, dvi documentation, ${DOCDIR}
 pdfdir, pdf documentation, ${DOCDIR}
