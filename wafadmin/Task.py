@@ -570,7 +570,7 @@ class Task(TaskBase):
 
 		if self.inputs and (not self.outputs):
 			if not getattr(self.__class__, 'quiet', None):
-				warn("task is probably invalid (no inputs OR outputs): override in a Task subclass or set the attribute 'quiet' %r" % self)
+				warn("invalid task (no inputs OR outputs): override in a Task subclass or set the attribute 'quiet' %r" % self)
 
 		for t in self.run_after:
 			if not t.hasrun:
@@ -579,27 +579,14 @@ class Task(TaskBase):
 		env = self.env
 		bld = self.generator.bld
 
-		# look at the previous signature first
-		time = None
-		for node in self.outputs:
-			variant = node.variant(env)
-			try:
-				time = bld.node_sigs[variant][node.id]
-			except KeyError:
-				debug("task: task %r must run as the first node does not exist" % self)
-				time = None
-				break
-
-		# if one of the nodes does not exist, try to retrieve them from the cache
-		if time is None and self.outputs:
-			try:
-				new_sig = self.signature()
-			except KeyError:
-				debug("task: something is wrong, computing the task signature failed")
-				return RUN_ME
-
+		# first compute the signature
+		try:
+			new_sig = self.signature()
+		except KeyError:
+			debug("task: something is wrong, computing the task %r signature failed" % self)
 			return RUN_ME
 
+		# compare the signature to a signature computed previously
 		key = self.unique_id()
 		try:
 			prev_sig = bld.task_sigs[key][0]
@@ -607,8 +594,15 @@ class Task(TaskBase):
 			debug("task: task %r must run as it was never run before or the task code changed" % self)
 			return RUN_ME
 
-		#print "prev_sig is ", prev_sig
-		new_sig = self.signature()
+		# compare the signatures of the outputs
+		try:
+			for node in self.outputs:
+				variant = node.variant(env)
+				if bld.node_sigs[variant][node.id] != new_sig:
+					return RUN_ME
+		except KeyError:
+			debug("task: task %r must run as the output nodes do not exist" % self)
+			return RUN_ME
 
 		# debug if asked to
 		if Logs.verbose: self.debug_why(bld.task_sigs[key])
