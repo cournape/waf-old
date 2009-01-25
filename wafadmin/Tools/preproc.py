@@ -361,6 +361,27 @@ def process_tokens(lst, defs, ban):
 
 		return (None, None, [])
 
+
+def reduce_paste(lst):
+	"""reduce: a##b -> ab """
+	for i in xrange(1, len(lst) - 1):
+		(p0, v0) = lst[i]
+		if v0 == '##':
+			(p2, v2) = lst[i + 1]
+			del lst[i]
+			del lst[i]
+			(p1, v1) = lst[i-1]
+			lst[i-1] = (p1, v1 + v2)
+
+def reduce_stringize(lst):
+	"""reduce: #foo -> "foo" """
+	for i in xrange(len(lst) - 1):
+		(p0, v0) = lst[i]
+		if v0 == '#':
+			del lst[i]
+			(p1, v1) = lst[i]
+			lst[i] = (STR, str(v1))
+
 def eval_macro(lst, adefs):
 	# look at the result, and try to return a 0/1 result
 	ret = process_tokens(lst, adefs, [])
