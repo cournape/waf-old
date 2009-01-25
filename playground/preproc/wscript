@@ -1,0 +1,40 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+# test for looking at dependencies with gcc
+
+VERSION='0.0.1'
+APPNAME='cc_test'
+srcdir = '.'
+blddir = 'build'
+
+import preproc
+from preproc import NUM, OP, IDENT
+
+def configure(conf):
+	conf.check_tool('gcc')
+
+def build(bld):
+	m1   = [[], [(NUM, 1), (OP, '+'), (NUM, 2)]]
+	fun1 = [[(IDENT, 'x'), (IDENT, 'y')], [(IDENT, 'x'), (OP, '##'), (IDENT, 'y')]]
+	fun2 = [[(IDENT, 'x')], [(OP, '#'), (IDENT, 'x')]]
+	fun3 = [[(IDENT, 'x'), (IDENT, 'y')], [(IDENT, 'x'), (OP, '*'), (IDENT, 'y')]]
+
+	def test(x):
+		y = preproc.process_tokens(preproc.tokenize(x), {'m1':m1, 'fun1':fun1, 'fun2':fun2}, [])
+		print x, y
+
+	toks = preproc.tokenize("a##b")
+	preproc.reduce_paste(toks)
+	print toks
+
+	toks = preproc.tokenize("#b")
+	preproc.reduce_stringize(toks)
+	print toks
+
+	#test("1 + m1 + 1")
+	#test("0&&2<3")
+	#test("(5>1)*6")
+	#test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1")
+
