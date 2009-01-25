@@ -25,6 +25,7 @@ NEW IN WAF 1.5.3
 * write all the output to stderr by default (and not to stdout)
 * support for the intel c++ compiler (icpc)
 * consistency: let the gnu_dirs tool use ${} instead of $()
+* add library paths automatically for c/c++ unit tests
 
 NEW IN WAF 1.5.2
 ----------------
