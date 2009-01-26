@@ -16,29 +16,25 @@ def configure(conf):
 	conf.check_tool('gcc')
 
 def build(bld):
-	"""
-	m1   = [[], [(NUM, 1), (OP, '+'), (NUM, 2)]]
-	fun0 = [[(IDENT, 'x'), (IDENT, 'y')], [(IDENT, 'x'), (IDENT, 'y')]]
-	fun1 = [[(IDENT, 'x'), (IDENT, 'y')], [(IDENT, 'x'), (OP, '##'), (IDENT, 'y')]]
-	fun2 = [[(IDENT, 'x')], [(OP, '#'), (IDENT, 'x')]]
-	fun3 = [[(IDENT, 'x'), (IDENT, 'y')], [(IDENT, 'x'), (OP, '*'), (IDENT, 'y')]]
-	"""
-	m1 = "m1 9 + 9"
-	fun0 = "fun0(x, y) x y"
-	fun1 = "fun1(x, y) x ## y"
-	fun2 = "fun2(x) #x"
-	fun3 = "fun3(x, y) x * y"
 
-	defs = {'m1':m1, 'fun0':fun0, 'fun1':fun1, 'fun2':fun2, 'fun3': fun3}
-
+	defs = {
+		'm1'   : "m1 9 + 9",
+		'fun0' : "fun0(x, y) x y",
+		'fun1' : "fun1(x, y) x ## y",
+		'fun2' : "fun2(x) #x",
+		'fun3' : "fun3(x, y) x * y",
+		'fun4' : "fun4(x) fun2(x)",
+	}
 
 	def test(x, fun=preproc.reduce_tokens):
 		toks = preproc.tokenize(x)
 		preproc.reduce_tokens(toks, defs, [])
-		print preproc.stringize(toks)
+		print preproc.stringize(toks), toks
 
 	test("1 + m1 + 1")
 	test("1 + fun0(1, +) 1")
 	test("fun2(mmm)")
-
+	test("m1")
+	test("fun2(m1)")
+	test("fun4(m1)")
 
