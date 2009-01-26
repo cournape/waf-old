@@ -33,6 +33,7 @@ def process_marshal(self):
 		task.set_inputs(node)
 		task.set_outputs([h_node, c_node])
 		task.env['GLIB_GENMARSHAL_PREFIX'] = prefix
+	self.allnodes.append(c_node)
 
 def genmarshal_func(self):
 
