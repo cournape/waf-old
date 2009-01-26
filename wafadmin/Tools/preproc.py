@@ -394,7 +394,8 @@ def stringize(lst):
 
 def reduce_tokens(lst, defs, ban=[]):
 	i = 0
-	while i < len(lst) - 1:
+
+	while i < len(lst):
 		(p, v) = lst[i]
 
 		if p == IDENT:
