@@ -403,11 +403,8 @@ def reduce_tokens(lst, defs, ban=[]):
 
 			# tokenize on demand
 			if isinstance(defs[v], str):
-				v, k = extract_macro(defs[v])
-
-				print "macro extracted", k, v
-
-				defs[v] = k
+				a, b = extract_macro(defs[v])
+				defs[v] = b
 			macro_def = defs[v]
 			to_add = macro_def[1]
 
@@ -421,10 +418,15 @@ def reduce_tokens(lst, defs, ban=[]):
 				# collect the arguments for the funcall
 
 				args = []
-				p2, v2 = lst[i + 1]
-				if p2 != OP or v2 != '(': raise PreprocError("invalid function call '%s'" % v)
-
 				del lst[i]
+
+				if i >= len(lst):
+					raise PreprocError("expected '(' after %r (got nothing)" % v)
+
+				(p2, v2) = lst[i]
+				if p2 != OP or v2 != '(':
+					raise PreprocError("expected '(' after %r" % v)
+
 				del lst[i]
 
 				one_param = []
@@ -469,6 +471,7 @@ def reduce_tokens(lst, defs, ban=[]):
 							accu.append((p2, v2))
 					elif p2 == IDENT and v2 in arg_table:
 						toks = args[arg_table[v2]]
+						reduce_tokens(toks, defs, ban+[v])
 						accu.extend(toks)
 					else:
 						if v2 == '__VA_ARGS__':
