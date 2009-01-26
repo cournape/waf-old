@@ -33,7 +33,7 @@ class java_taskgen(TaskGen.task_gen):
 @before('apply_core')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
-		source_root='.', jar_mf_attributes={}, jar_mf_classpath=[])
+		source_root='.', source_re='/[A-Za-z0-9]+\.java$', jar_mf_attributes={}, jar_mf_classpath=[])
 
 	nodes_lst = []
 
@@ -43,7 +43,7 @@ def apply_java(self):
 	else:
 		self.env['CLASSPATH'] = self.classpath
 
-	re_foo = re.compile(self.source)
+	re_foo = re.compile(self.source_re)
 
 	source_root_node = self.path.find_dir(self.source_root)
 
@@ -82,9 +82,6 @@ def apply_java(self):
 			else:
 				dirs = '.'
 				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
-
-	# FIXME
-	self.source = ''
 
 Task.simple_task_type('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN')
 cls = Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', before='jar_create')
