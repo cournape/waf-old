@@ -378,24 +378,128 @@ def reduce_paste(lst):
 			(p1, v1) = lst[i-1]
 			lst[i-1] = (p1, v1 + v2)
 
-def reduce_stringize(lst):
-	"""reduce: #foo -> "foo" - but of course it only makes sense to substitute the input arguments"""
-	for i in xrange(len(lst) - 1):
-		(p0, v0) = lst[i]
-		if v0 == '#':
-			del lst[i]
-			(p1, v1) = lst[i]
-			lst[i] = (STR, str(v1))
-
 def reduce_string(lst):
 	"""reduce:  "foo" "bar" -> "foobar" """
 	for i in xrange(len(lst)-1, 0, -1):
-		print i
 		(p0, v0) = lst[i]
 		if p0 == STR:
 			if lst[i-1][0] == STR:
 				lst[i-1] = (STR, lst[i-1][1] + v0)
 				del lst[i]
+
+def stringize(lst):
+	"""use for converting a list of tokens to a string"""
+	lst = [str(v2) for (p2, v2) in lst]
+	return "".join(lst)
+
+def reduce_tokens(lst, defs, ban=[]):
+	i = 0
+	while i < len(lst) - 1:
+		(p, v) = lst[i]
+
+		if p == IDENT:
+			if not v in defs:
+				continue
+
+			# tokenize on demand
+			if isinstance(defs[v], str):
+				v, k = extract_macro(defs[v])
+
+				print "macro extracted", k, v
+
+				defs[v] = k
+			macro_def = defs[v]
+			to_add = macro_def[1]
+
+			if not macro_def[0]:
+				# macro without arguments
+				del lst[i]
+				for x in xrange(len(to_add)):
+					lst.insert(i, to_add[x])
+					i += 1
+			else:
+				# collect the arguments for the funcall
+
+				args = []
+				p2, v2 = lst[i + 1]
+				if p2 != OP or v2 != '(': raise PreprocError("invalid function call '%s'" % v)
+
+				del lst[i]
+				del lst[i]
+
+				one_param = []
+				count_paren = 0
+				while i < len(lst):
+					p2, v2 = lst[i]
+
+					del lst[i]
+					if p2 == OP and count_paren == 0:
+						if v2 == '(':
+							one_param.append((p2, v2))
+							count_paren += 1
+						elif v2 == ')':
+							if one_param: args.append(one_param)
+							break
+						elif v2 == ',':
+							if not one_param: raise PreprocError("empty param in funcall %s" % p)
+							args.append(one_param)
+							one_param = []
+						else:
+							one_param.append((p2, v2))
+					else:
+						one_param.append((p2, v2))
+						if   v2 == '(': count_paren += 1
+						elif v2 == ')': count_paren -= 1
+				else:
+					raise PreprocError('malformed macro')
+
+				# substitute the arguments within the define expression
+				accu = []
+				arg_table = macro_def[0]
+				j = 0
+				while j < len(to_add):
+					(p2, v2) = to_add[j]
+
+					if p2 == OP and v2 == '#':
+						if j+1 < len(to_add) and to_add[j+1][0] == IDENT and to_add[j+1][1] in arg_table:
+							toks = args[arg_table[to_add[j+1][1]]]
+							accu.append((STR, stringize(toks)))
+							j += 1
+						else:
+							accu.append((p2, v2))
+					elif p2 == IDENT and v2 in arg_table:
+						toks = args[arg_table[v2]]
+						accu.extend(toks)
+					else:
+						if v2 == '__VA_ARGS__':
+							# first collect the tokens
+							va_toks = []
+							st = len(macro_def[0])
+							pt = len(args)
+							for x in args[pt-st+1:]:
+								va_toks.extend(x)
+								va_toks.append((OP, ','))
+							if va_toks: va_toks.pop() # extra comma
+							if len(accu)>1:
+								(p3, v3) = accu[-1]
+								(p4, v4) = accu[-2]
+								if v3 == '##':
+									# remove the token paste
+									accu.pop()
+									if v4 == ',' and pt < st:
+										# remove the comma
+										accu.pop()
+							accu += va_toks
+						else:
+							accu.append((p2, v2))
+
+					j += 1
+
+
+				for x in xrange(len(accu)-1, -1, -1):
+					lst.insert(i, accu[x])
+		i += 1
+
 
 def eval_macro(lst, adefs):
 	# look at the result, and try to return a 0/1 result
