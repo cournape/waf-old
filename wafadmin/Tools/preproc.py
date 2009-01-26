@@ -500,8 +500,11 @@ def reduce_tokens(lst, defs, ban=[]):
 					j += 1
 
 
+				reduce_tokens(accu, defs, ban+[v])
+
 				for x in xrange(len(accu)-1, -1, -1):
 					lst.insert(i, accu[x])
+
 		i += 1
 
 
