@@ -81,7 +81,7 @@ def apply_java(self):
 				self.env['JAROPTS'] = self.jaropts
 			else:
 				dirs = '.'
-				self.env['JAROPTS'] = ['-C', self.env['OUTDIR'], dirs]
+				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
 
 	# FIXME
 	self.source = ''
