@@ -124,9 +124,9 @@ def detect(conf):
 		java_path = [os.path.join(os.environ['JAVA_HOME'], 'bin')] + java_path
 		conf.env['JAVA_HOME'] = [os.environ['JAVA_HOME']]
 
-	conf.find_program('javac', var='JAVAC', path_list=java_path)
-	conf.find_program('java', var='JAVA', path_list=java_path)
-	conf.find_program('jar', var='JAR', path_list=java_path)
+	for x in 'javac java jar'.split():
+		conf.find_program(x, var=x.upper(), path_list=java_path)
+		conf.env[x.upper()] = conf.cmd_to_list(conf.env[x.upper()])
 	v['JAVA_EXT'] = ['.java']
 
 	if 'CLASSPATH' in os.environ:
@@ -177,10 +177,10 @@ public class Test {
 	java_file.close()
 
 	# Compile the source
-	Utils.exec_command([self.env['JAVAC'], os.path.join(javatestdir, 'Test.java')], shell=False)
+	Utils.exec_command(self.env['JAVAC'] + [os.path.join(javatestdir, 'Test.java')], shell=False)
 
 	# Try to run the app
-	cmd = [self.env['JAVA'], '-cp', classpath, 'Test', classname]
+	cmd = self.env['JAVA'] + ['-cp', classpath, 'Test', classname]
 	self.log.write("%s\n" % str(cmd))
 	found = Utils.exec_command(cmd, shell=False, log=self.log)
 
