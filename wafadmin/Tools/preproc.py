@@ -361,7 +361,6 @@ def process_tokens(lst, defs, ban):
 
 		return (None, None, [])
 
-
 # 1. replace the arguments in the line
 # 2. apply the string concatenation
 # 3. reduce the remaining macros
@@ -387,6 +386,16 @@ def reduce_stringize(lst):
 			del lst[i]
 			(p1, v1) = lst[i]
 			lst[i] = (STR, str(v1))
+
+def reduce_string(lst):
+	"""reduce:  "foo" "bar" -> "foobar" """
+	for i in xrange(len(lst)-1, 0, -1):
+		print i
+		(p0, v0) = lst[i]
+		if p0 == STR:
+			if lst[i-1][0] == STR:
+				lst[i-1] = (STR, lst[i-1][1] + v0)
+				del lst[i]
 
 def eval_macro(lst, adefs):
 	# look at the result, and try to return a 0/1 result
@@ -671,7 +680,7 @@ def tokenize(s):
 					if v == '%:': v='#'
 					elif v == '%:%:': v='##'
 
-				ret.append((name, v))
+				ret.append((name, v.strip('"')))
 				break
 	return ret
 
