@@ -33,7 +33,7 @@ class java_taskgen(TaskGen.task_gen):
 @before('apply_core')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
-		source_root='.', source_re='/[A-Za-z0-9]+\.java$', jar_mf_attributes={}, jar_mf_classpath=[])
+		source_root='.', source_re='[A-Za-z0-9]+\.java$', jar_mf_attributes={}, jar_mf_classpath=[])
 
 	nodes_lst = []
 
@@ -43,27 +43,18 @@ def apply_java(self):
 	else:
 		self.env['CLASSPATH'] = self.classpath
 
+	source_root_node = self.path.find_dir(self.source_root)
 	re_foo = re.compile(self.source_re)
 
-	source_root_node = self.path.find_dir(self.source_root)
+	def acc(node, name):
+		return re_foo.search(name) > -1
 
-	src_nodes = []
-	bld_nodes = []
+	def prune(node, name):
+		if name == '.svn': return True
+		return False
 
-	prefix_path = source_root_node.abspath()
-	for (root, dirs, filenames) in os.walk(source_root_node.abspath()):
-		for x in filenames:
-			file = root + '/' + x
-			file = file.replace(prefix_path, '')
-			if file.startswith('/'):
-				file = file[1:]
-
-			if re_foo.search(file) > -1:
-				node = source_root_node.find_resource(file)
-				src_nodes.append(node)
-
-				node2 = node.change_ext(".class")
-				bld_nodes.append(node2)
+	src_nodes = [x for x in source_root_node.find_iter_impl(dir=False, accept_name=acc, is_prune=prune)]
+	bld_nodes = [x.change_ext('.class') for x in src_nodes]
 
 	self.env['OUTDIR'] = [source_root_node.abspath(self.env)]
 
