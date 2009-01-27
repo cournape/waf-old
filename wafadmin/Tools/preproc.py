@@ -356,6 +356,135 @@ def eval_macro(lst, adefs):
 	(p, v) = reduce_eval(lst)
 	return int(v) != 0
 
+def extract_macro(txt):
+	"""process a macro definition from "#define f(x, y) x * y" into a function or a simple macro without arguments"""
+	t = tokenize(txt)
+	if re_fun.search(txt):
+		p, name = t[0]
+
+		p, v = t[1]
+		if p != OP: raise PreprocError("expected open parenthesis")
+
+		i = 1
+		pindex = 0
+		params = {}
+		prev = '('
+
+		while 1:
+			i += 1
+			p, v = t[i]
+
+			if prev == '(':
+				if p == IDENT:
+					params[v] = pindex
+					pindex += 1
+					prev = p
+				elif p == OP and v == ')':
+					break
+				else:
+					raise PreprocError("unexpected token")
+			elif prev == IDENT:
+				if p == OP and v == ',':
+					prev = v
+				elif p == OP and v == ')':
+					break
+				else:
+					raise PreprocError("comma or ... expected")
+			elif prev == ',':
+				if p == IDENT:
+					params[v] = pindex
+					pindex += 1
+					prev = p
+				elif p == OP and v == '...':
+					raise PreprocError("not implemented")
+				else:
+					raise PreprocError("comma or ... expected")
+			elif prev == '...':
+				raise PreprocError("not implemented")
+			else:
+				raise PreprocError("unexpected else")
+
+		#~ print (name, [params, t[i+1:]])
+		return (name, [params, t[i+1:]])
+	else:
+		(p, v) = t[0]
+		return (v, [[], t[1:]])
+
+re_include = re.compile('^\s*(<(?P<a>.*)>|"(?P<b>.*)")')
+def extract_include(txt, defs):
+	"""process a line in the form "#include foo" to return a string representing the file"""
+	m = re_include.search(txt)
+	if m:
+		if m.group('a'): return '<', m.group('a')
+		if m.group('b'): return '"', m.group('b')
+
+	# perform preprocessing and look at the result, it must match an include
+	toks = tokenize(txt)
+	reduce_tokens(toks, defs, ['waf_include'])
+
+	if not toks:
+		raise PreprocError("could not parse include %s" % txt)
+
+	if len(toks) == 1:
+		if toks[0][0] == STR:
+			return '"', toks[0][1]
+	else:
+		if toks[0][1] == '<' and toks[-1][1] == '>':
+			return stringize(toks).lstrip('<').rstrip('>')
+
+	raise PreprocError("could not parse include %s" % txt)
+
+def parse_char(txt):
+	if not txt: raise PreprocError("attempted to parse a null char")
+	if txt[0] != '\\':
+		return ord(txt)
+	c = txt[1]
+	if c == 'x':
+		if len(txt) == 4 and txt[3] in string.hexdigits: return int(txt[2:], 16)
+		return int(txt[2:], 16)
+	elif c.isdigit():
+		if c == '0' and len(txt)==2: return 0
+		for i in 3, 2, 1:
+			if len(txt) > i and txt[1:1+i].isdigit():
+				return (1+i, int(txt[1:1+i], 8))
+	else:
+		try: return chr_esc[c]
+		except KeyError: raise PreprocError("could not parse char literal '%s'" % txt)
+
+def tokenize(s):
+	"""convert a string into a list of tokens (shlex.split does not apply to c/c++/d)"""
+	ret = []
+	for match in re_clexer.finditer(s):
+		m = match.group
+		for name in tok_types:
+			v = m(name)
+			if v:
+				if name == IDENT:
+					try: v = g_optrans[v]; name = OP
+					except KeyError:
+						# c++ specific
+						if v.lower() == "true":
+							v = 1
+							name = NUM
+						elif v.lower() == "false":
+							v = 0
+							name = NUM
+				elif name == NUM:
+					if m('oct'): v = int(v, 8)
+					elif m('hex'): v = int(m('hex'), 16)
+					elif m('n0'): v = m('n0')
+					else:
+						v = m('char')
+						if v: v = parse_char(v)
+						else: v = m('n2') or m('n4')
+				elif name == OP:
+					if v == '%:': v = '#'
+					elif v == '%:%:': v = '##'
+
+				ret.append((name, v.strip('"')))
+				break
+	return ret
+
 class c_parser(object):
 	def __init__(self, nodepaths=None, defines=None):
 		#self.lines = txt.split('\n')
@@ -519,132 +648,4 @@ class c_parser(object):
 			if re_pragma_once.search(line.lower()):
 				self.ban_includes.append(self.curfile)
 
-def extract_macro(txt):
-	"""process a macro definition from "#define f(x, y) x * y" into a function or a simple macro without arguments"""
-	t = tokenize(txt)
-	if re_fun.search(txt):
-		p, name = t[0]
-
-		p, v = t[1]
-		if p != OP: raise PreprocError("expected open parenthesis")
-
-		i = 1
-		pindex = 0
-		params = {}
-		prev = '('
-
-		while 1:
-			i += 1
-			p, v = t[i]
-
-			if prev == '(':
-				if p == IDENT:
-					params[v] = pindex
-					pindex += 1
-					prev = p
-				elif p == OP and v == ')':
-					break
-				else:
-					raise PreprocError("unexpected token")
-			elif prev == IDENT:
-				if p == OP and v == ',':
-					prev = v
-				elif p == OP and v == ')':
-					break
-				else:
-					raise PreprocError("comma or ... expected")
-			elif prev == ',':
-				if p == IDENT:
-					params[v] = pindex
-					pindex += 1
-					prev = p
-				elif p == OP and v == '...':
-					raise PreprocError("not implemented")
-				else:
-					raise PreprocError("comma or ... expected")
-			elif prev == '...':
-				raise PreprocError("not implemented")
-			else:
-				raise PreprocError("unexpected else")
-
-		#~ print (name, [params, t[i+1:]])
-		return (name, [params, t[i+1:]])
-	else:
-		(p, v) = t[0]
-		return (v, [[], t[1:]])
-
-re_include = re.compile('^\s*(<(?P<a>.*)>|"(?P<b>.*)")')
-def extract_include(txt, defs):
-	"""process a line in the form "#include foo" to return a string representing the file"""
-	m = re_include.search(txt)
-	if m:
-		if m.group('a'): return '<', m.group('a')
-		if m.group('b'): return '"', m.group('b')
-
-	# perform preprocessing and look at the result, it must match an include
-	toks = tokenize(txt)
-	reduce_tokens(toks, defs, ['waf_include'])
-
-	if not toks:
-		raise PreprocError("could not parse include %s" % txt)
-
-	if len(toks) == 1:
-		if toks[0][0] == STR:
-			return '"', toks[0][1]
-	else:
-		if toks[0][1] == '<' and toks[-1][1] == '>':
-			return stringize(toks).lstrip('<').rstrip('>')
-
-	raise PreprocError("could not parse include %s" % txt)
-
-def parse_char(txt):
-	if not txt: raise PreprocError("attempted to parse a null char")
-	if txt[0] != '\\':
-		return ord(txt)
-	c = txt[1]
-	if c == 'x':
-		if len(txt) == 4 and txt[3] in string.hexdigits: return int(txt[2:], 16)
-		return int(txt[2:], 16)
-	elif c.isdigit():
-		if c == '0' and len(txt)==2: return 0
-		for i in 3, 2, 1:
-			if len(txt) > i and txt[1:1+i].isdigit():
-				return (1+i, int(txt[1:1+i], 8))
-	else:
-		try: return chr_esc[c]
-		except KeyError: raise PreprocError("could not parse char literal '%s'" % txt)
-
-def tokenize(s):
-	"""convert a string into a list of tokens (shlex.split does not apply to c/c++/d)"""
-	ret = []
-	for match in re_clexer.finditer(s):
-		m = match.group
-		for name in tok_types:
-			v = m(name)
-			if v:
-				if name == IDENT:
-					try: v = g_optrans[v]; name = OP
-					except KeyError:
-						# c++ specific
-						if v.lower() == "true":
-							v = 1
-							name = NUM
-						elif v.lower() == "false":
-							v = 0
-							name = NUM
-				elif name == NUM:
-					if m('oct'): v = int(v, 8)
-					elif m('hex'): v = int(m('hex'), 16)
-					elif m('n0'): v = m('n0')
-					else:
-						v = m('char')
-						if v: v = parse_char(v)
-						else: v = m('n2') or m('n4')
-				elif name == OP:
-					if v == '%:': v = '#'
-					elif v == '%:%:': v = '##'
-
-				ret.append((name, v.strip('"')))
-				break
-	return ret
 
