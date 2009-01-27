@@ -179,8 +179,8 @@ def get_num(lst):
 			else:
 				raise PreprocError, "rparen expected %r" % lst
 
-			print lst[1:i]
-			return get_term(lst[1:i]), lst[i:]
+			(num, _) = get_term(lst[1:i])
+			return (num, lst[i+1:])
 
 		elif v == '+':
 			return get_num(lst[1:])
