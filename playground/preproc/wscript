@@ -53,3 +53,26 @@ def build(bld):
 	test("fun5(a, _, 12)", "a_12")
 	test("fun6(math, h)", "<math.h>")
 
+	def test(x, result):
+		ret = preproc.extract_include(x, defs)
+		if ret == result:
+			color = "GREEN"
+		else:
+			color = "RED"
+		Utils.pprint(color, "%s" % (ret))
+
+	test("fun6(math, h)", "math.h")
+
+	def test(x, result):
+		toks = preproc.tokenize(x)
+		preproc.reduce_tokens(toks, defs, [])
+		ret = preproc.reduce_eval(toks)
+		if ret == result:
+			color = "GREEN"
+		else:
+			color = "RED"
+		Utils.pprint(color, "%s\t\t%r" % (ret, toks))
+
+	test("1+1", 2)
+
+
