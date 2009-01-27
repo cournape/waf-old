@@ -392,6 +392,24 @@ def stringize(lst):
 	lst = [str(v2) for (p2, v2) in lst]
 	return "".join(lst)
 
+def paste_tokens(t1, t2):
+	"""
+	here is what we can paste:
+	 a b
+	 > =
+	 a 2
+	"""
+	p1 = None
+	if t1[0] == OP and t2[0] == OP:
+		p1 = OP
+	elif t1[0] == IDENT and (t2[0] == IDENT or t2[0] == NUM):
+		p1 = IDENT
+	elif t1[0] == NUM and t2[0] == NUM:
+		p1 = NUM
+	if not p1:
+		raise PreprocError('tokens do not make a valid paste %r and %r' % (t1, t2))
+	return (p1, t1[1] + t2[1])
+
 def reduce_tokens(lst, defs, ban=[]):
 	i = 0
 
@@ -471,20 +489,23 @@ def reduce_tokens(lst, defs, ban=[]):
 							accu.append((p2, v2))
 					elif p2 == OP and v2 == '##':
 						# token pasting, how can man invent such a complicated system?
+						if accu and j+1 < len(to_add):
+							# we have at least two tokens
 
-						if accu and accu[-1][0] == IDENT and j+1 < len(to_add) and to_add[j+1][0] == IDENT:
-							if to_add[j+1][1] in arg_table:
+							t1 = accu[-1]
+
+							if to_add[j+1][0] == IDENT and to_add[j+1][1] in arg_table:
 								toks = args[arg_table[to_add[j+1][1]]]
 
-								if toks and toks[0][0] == IDENT:
-									accu[-1] = (IDENT, accu[-1][1] + toks[0][1])
+								if toks:
+									accu[-1] = paste_tokens(t1, toks[0]) #(IDENT, accu[-1][1] + toks[0][1])
 									accu.extend(toks[1:])
 								else:
-									# error
+									# error, case "a##"
 									accu.append((p2, v2))
 									accu.extend(toks)
-							elif to_add[j+1][1] == '__VA_ARGS__':
-								# not sure
+							elif to_add[j+1][0] == IDENT and to_add[j+1][1] == '__VA_ARGS__':
+								# TODO not sure
 								# first collect the tokens
 								va_toks = []
 								st = len(macro_def[0])
@@ -504,11 +525,11 @@ def reduce_tokens(lst, defs, ban=[]):
 											accu.pop()
 								accu += va_toks
 							else:
-								accu[-1] = (IDENT, accu[-1][1] + to_add[j+1][1])
+								accu[-1] = paste_tokens(t1, to_add[j+1])
 
 							j += 1
 						else:
-							# ## between OPS or something
+							# invalid paste, case    "##a" or "b##"
 							accu.append((p2, v2))
 
 					elif p2 == IDENT and v2 in arg_table:
