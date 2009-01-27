@@ -666,12 +666,13 @@ class BuildContext(object):
 			if not Options.options.force:
 				# check if the file is already there to avoid a copy
 				try:
-					t1 = os.stat(tgt).st_mtime
-					t2 = os.stat(src).st_mtime
+					st1 = os.stat(tgt)
+					st2 = os.stat(src)
 				except OSError:
 					pass
 				else:
-					if t1 >= t2:
+					# same size and identical timestamps -> make no copy
+					if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
 						return False
 
 			srclbl = src.replace(self.srcnode.abspath(None)+os.sep, '')
