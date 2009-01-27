@@ -126,8 +126,8 @@ for x in range(len(ops)):
 		prec[u] = x
 
 def reduce_nums(val_1, val_2, val_op):
+	"""apply arithmetic rules and try to return an integer result"""
 	#print val_1, val_2, val_op
-	# pass two values, return a value
 
 	# now perform the operation, make certain a and b are numeric
 	try:    a = 0 + val_1
@@ -174,9 +174,9 @@ def stringize(lst):
 def paste_tokens(t1, t2):
 	"""
 	here is what we can paste:
-	 a b
-	 > =
-	 a 2
+	 a ## b  ->  ab
+	 > ## =  ->  >=
+	 a ## 2  ->  a2
 	"""
 	p1 = None
 	if t1[0] == OP and t2[0] == OP:
@@ -190,6 +190,7 @@ def paste_tokens(t1, t2):
 	return (p1, t1[1] + t2[1])
 
 def reduce_tokens(lst, defs, ban=[]):
+	"""replace the tokens in lst, using the macros provided in defs, and a list of macros that cannot be re-applied"""
 	i = 0
 
 	while i < len(lst):
@@ -350,7 +351,7 @@ def reduce_tokens(lst, defs, ban=[]):
 
 
 def eval_macro(lst, adefs):
-	# look at the result, and try to return a 0/1 result
+	"""reduce the tokens from the list lst, and try to return a 0/1 result"""
 	reduce_tokens(lst, adefs, [])
 	if not lst: raise PreprocError("missing tokens to evaluate")
 	(p, v) = reduce_eval(lst)
@@ -520,6 +521,7 @@ class c_parser(object):
 				self.ban_includes.append(self.curfile)
 
 def extract_macro(txt):
+	"""process a macro definition from "#define f(x, y) x * y" into a function or a simple macro without arguments"""
 	t = tokenize(txt)
 	if re_fun.search(txt):
 		p, name = t[0]
@@ -574,6 +576,7 @@ def extract_macro(txt):
 
 re_include = re.compile('^\s*(<(?P<a>.*)>|"(?P<b>.*)")')
 def extract_include(txt, defs):
+	"""process a line in the form "#include foo" to return a string representing the file"""
 	m = re_include.search(txt)
 	if m:
 		if m.group('a'): return '<', m.group('a')
@@ -613,6 +616,7 @@ def parse_char(txt):
 		except KeyError: raise PreprocError("could not parse char literal '%s'" % txt)
 
 def tokenize(s):
+	"""convert a string into a list of tokens (shlex.split does not apply to c/c++/d)"""
 	ret = []
 	for match in re_clexer.finditer(s):
 		m = match.group
