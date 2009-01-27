@@ -21,7 +21,7 @@ def find_gcc(conf):
 	if not cc: conf.fatal('gcc was not found')
 	cc = conf.cmd_to_list(cc)
 
-	ccroot.get_cc_version(conf, cc, 'CC_VERSION')
+	ccroot.get_cc_version(conf, cc, gcc=True)
 	v['CC_NAME'] = 'gcc'
 	v['CC'] = cc
 

@@ -10,24 +10,52 @@ from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
 from Constants import *
+from cStringIO import StringIO
 
 import config_c # <- necessary for the configuration, do not touch
 
 USE_TOP_LEVEL = False
 
-get_version_re = re.compile('\d+\.\d+(\.?\d+)*')
-def get_cc_version(conf, cc, version_var):
-	v = conf.env
-	cc = Utils.to_list(cc)
-	cmd = cc + ['-dumpversion']
-	output = Utils.cmd_output(cmd, silent=True)
-	if output:
-		match = get_version_re.search(output)
-		if match:
-			v[version_var] = match.group(0)
-			conf.check_message('compiler', 'version', 1, v[version_var])
-			return v[version_var]
-	conf.fatal('could not determine the compiler version %r' % cmd)
+def get_cc_version(conf, cc, gcc=False, icc=False):
+
+	cmd = cc + ['-dM', '-E', '-']
+	#print os.environ['TERM']
+
+	#os.environ['TERM'] = 'dumb'
+
+	#print env
+	try:
+		p = Utils.pproc.Popen(cmd, stdin=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE, stderr=Utils.pproc.PIPE)
+		p.stdin.write('\n')
+		out = p.communicate()[0]
+	except:
+		conf.fatal('could not determine the compiler version %r' % cmd)
+
+	out = str(out)
+
+	if gcc:
+		if out.find('__INTEL_COMPILER') >= 0:
+			conf.fatal('The intel compiler pretends to be gcc')
+		if out.find('__GNUC__') < 0:
+			conf.fatal('Could not determine the compiler type')
+
+	if icc and out.find('__INTEL_COMPILER') < 0:
+		conf.fatal('Not icc/icpc')
+
+	k = {}
+	if icc or gcc:
+		out = out.split('\n')
+		import shlex
+
+		for line in out:
+			lst = shlex.split(line)
+			if len(lst)>2:
+				key = lst[1]
+				val = lst[2]
+				k[key] = val
+
+		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
+	return k
 
 class DEBUG_LEVELS:
 	ULTRADEBUG = "ultradebug"

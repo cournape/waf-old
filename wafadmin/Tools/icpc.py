@@ -20,12 +20,9 @@ def find_icpc(conf):
 	if not cxx: conf.fatal('Intel C++ Compiler (icpc) was not found')
 	cxx = conf.cmd_to_list(cxx)
 
-	# check if icc is really icpc
-	if not Utils.cmd_output(cxx + ['-help', 'codegen'], silent=True):
-		conf.fatal('the icpc compiler could not be identified')
-
-	v['CC'] = cxx
-	v['CC_NAME'] = v['CXX_NAME'] = 'icc'
+	ccroot.get_cc_version(conf, cxx, icc=True)
+	v['CXX'] = cxx
+	v['CXX_NAME'] = 'icc'
 
 detect = '''
 find_icpc

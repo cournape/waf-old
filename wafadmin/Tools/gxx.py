@@ -19,7 +19,7 @@ def find_gxx(conf):
 	if not cxx: conf.fatal('g++ was not found')
 	cxx = conf.cmd_to_list(cxx)
 
-	ccroot.get_cc_version(conf, cxx, 'CXX_VERSION')
+	ccroot.get_cc_version(conf, cxx, gcc=True)
 	v['CXX_NAME'] = 'gcc'
 	v['CXX'] = cxx
 

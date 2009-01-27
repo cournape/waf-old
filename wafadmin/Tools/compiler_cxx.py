@@ -11,7 +11,7 @@ cxx_compiler = {
 'cygwin': ['g++'],
 'darwin': ['g++'],
 'aix5':   ['g++'],
-'linux':  ['icpc', 'g++', 'sunc++'],
+'linux':  ['g++', 'icpc', 'sunc++'],
 'sunos':  ['sunc++', 'g++'],
 'irix':   ['g++'],
 'hpux':   ['g++'],
