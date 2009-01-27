@@ -151,7 +151,10 @@ def reduce_nums(val_1, val_2, val_op):
 def reduce_eval(lst):
 	"""take a list of tokens and output true or false (#if/#elif conditions)"""
 	# TODO this will not handle precedence rules, ternary operators, .. but it works
-	return (NUM, str(eval(stringize(lst))))
+	try:
+		return (NUM, str(eval(stringize(lst))))
+	except:
+		return (NUM, '0')
 
 def stringize(lst):
 	"""use for converting a list of tokens to a string"""
