@@ -218,14 +218,13 @@ def reduce_tokens(lst, defs, ban=[]):
 
 		elif p == IDENT and v in defs:
 
-			# tokenize on demand
 			if isinstance(defs[v], str):
 				a, b = extract_macro(defs[v])
 				defs[v] = b
 			macro_def = defs[v]
 			to_add = macro_def[1]
 
-			if not macro_def[0]:
+			if isinstance(macro_def[0], list):
 				# macro without arguments
 				del lst[i]
 				for x in xrange(len(to_add)):

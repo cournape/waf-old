@@ -27,6 +27,7 @@ def build(bld):
 		'fun4' : "fun4(x) fun2(x)",
 		'fun5' : "fun5(x, y, z) x ## y ## z",
 		'fun6' : "fun6(x, y) <x.y>",
+		'fun7' : "fun() 7",
 	}
 
 	def test(x, result, fun=preproc.reduce_tokens):
@@ -81,6 +82,7 @@ def build(bld):
 	test("defined(m1)", "1")
 	test("defined inex", "0")
 	test("defined(inex)", "0")
+	test("fun7()", "7")
 
 
 	test("0&&2<3", "0")
@@ -89,5 +91,5 @@ def build(bld):
 	test("1,2,3*9,9", "9")
 	test("1?77:88", "77")
 	test("0?77:88", "88")
-	test("1?1,(0?5:9):3,4", "9")
+	test("1?1,(0?5:9):3,4", "0") # <- invalid
 
