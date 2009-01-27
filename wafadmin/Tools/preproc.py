@@ -1,9 +1,29 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006-2008 (ita)
+# Thomas Nagy, 2006-2009 (ita)
 
-#C/C++ preprocessor for finding dependencies
-#TODO: more varargs, pragma once
+"""
+C/C++ preprocessor for finding dependencies
+
+Reasons for using the Waf preprocessor by default
+1. Some c/c++ extensions (Qt) require a custom preprocessor for obtaining the dependencies (.moc files)
+2. Not all compilers provide .d files for obtaining the dependencies (portability)
+3. A naive file scanner will not catch the constructs such as "#include foo()"
+4. A naive file scanner will catch unnecessary dependencies (change an unused header -> recompile everything)
+
+Regarding the speed concerns:
+a. the preprocessing is performed only when files must be compiled
+b. the macros are evaluated only for #if/#elif/#include
+c. the time penalty is about 10%
+d. system headers are not scanned
+
+Now if you do not want the Waf preprocessor, the tool "gccdeps" uses the .d files produced
+during the compilation to track the dependencies (useful when used with the boost libraries).
+It only works with gcc though, and it cannot be used with Qt builds. A dumb
+file scanner will be added in the future, so we will have most bahaviours.
+"""
+# TODO: more varargs, pragma once
+# TODO: dumb file scanner tracking all includes
 
 import re, sys, os, string
 if __name__ == '__main__':
@@ -48,16 +68,6 @@ g_optrans = {
 re_lines = re.compile(\
 	'^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$',
 	re.IGNORECASE | re.MULTILINE)
-
-# Reasons for using the Waf preprocessor by default
-# 1. the preprocessing is performed once for the clean build, and each time a source file changes (fast)
-# 2. unnecessary rebuilds might occur (#include in comments)
-# 3. some includes use the preprocessor, for example #include A()
-# 4. include guards might not be taken into account, resulting in infinite loops
-# 5. the bugs in the waf preprocessor are usually fixed quickly
-#
-# if you think your project does not need it, use this regexp to catch all includes
-#re_lines = re.compile('^[ \t]*(#|%:)[ \t]*(include|import)[ \t]*(.*)\r*$', re.IGNORECASE | re.MULTILINE)
 
 re_mac = re.compile("^[a-zA-Z_]\w*")
 re_fun = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
@@ -628,8 +638,8 @@ def tokenize(s):
 						if v: v = parse_char(v)
 						else: v = m('n2') or m('n4')
 				elif name == OP:
-					if v == '%:': v='#'
-					elif v == '%:%:': v='##'
+					if v == '%:': v = '#'
+					elif v == '%:%:': v = '##'
 
 				ret.append((name, v.strip('"')))
 				break
