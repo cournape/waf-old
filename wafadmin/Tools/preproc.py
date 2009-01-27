@@ -361,31 +361,12 @@ def process_tokens(lst, defs, ban):
 
 		return (None, None, [])
 
-# 1. replace the arguments in the line
-# 2. apply the string concatenation
-# 3. reduce the remaining macros
+##############################################################################################################
+# New code below
 
-# lst2.reverse() for k in lst2: lst2.insert(pos, k)
-
-def reduce_paste(lst):
-	"""reduce: a##b -> ab """
-	for i in xrange(1, len(lst) - 1):
-		(p0, v0) = lst[i]
-		if v0 == '##':
-			(p2, v2) = lst[i + 1]
-			del lst[i]
-			del lst[i]
-			(p1, v1) = lst[i-1]
-			lst[i-1] = (p1, v1 + v2)
-
-def reduce_string(lst):
-	"""reduce:  "foo" "bar" -> "foobar" """
-	for i in xrange(len(lst)-1, 0, -1):
-		(p0, v0) = lst[i]
-		if p0 == STR:
-			if lst[i-1][0] == STR:
-				lst[i-1] = (STR, lst[i-1][1] + v0)
-				del lst[i]
+def reduce_truth(lst):
+	""" """
+	return True
 
 def stringize(lst):
 	"""use for converting a list of tokens to a string"""
@@ -781,11 +762,20 @@ def extract_include(txt, defs):
 		if m.group('b'): return '"', m.group('b')
 
 	# perform preprocessing and look at the result, it must match an include
-	tokens = tokenize(txt)
-	tokens = process_tokens(tokens, defs, ['waf_include'])
-	p, v = tokens[0]
-	if p != STR: raise PreprocError("could not parse include %s" % txt)
-	return ('"', v)
+	toks = tokenize(txt)
+	reduce_tokens(toks, defs, ['waf_include'])
+
+	if not toks:
+		raise PreprocError("could not parse include %s" % txt)
+
+	if len(toks) == 1:
+		if toks[0][0] == STR:
+			return '"', toks[0][1]
+	else:
+		if toks[0][1] == '<' and toks[-1][1] == '>':
+			return stringize(toks).lstrip('<').rstrip('>')
+
+	raise PreprocError("could not parse include %s" % txt)
 
 def parse_char(txt):
 	if not txt: raise PreprocError("attempted to parse a null char")
