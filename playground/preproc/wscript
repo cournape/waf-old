@@ -9,6 +9,7 @@ APPNAME='cc_test'
 srcdir = '.'
 blddir = 'build'
 
+import Utils
 import preproc
 from preproc import NUM, OP, IDENT
 
@@ -24,17 +25,31 @@ def build(bld):
 		'fun2' : "fun2(x) #x",
 		'fun3' : "fun3(x, y) x * y",
 		'fun4' : "fun4(x) fun2(x)",
+		'fun5' : "fun5(x, y, z) x ## y ## z",
+		'fun6' : "fun6(x, y) <x.y>",
 	}
 
-	def test(x, fun=preproc.reduce_tokens):
+	def test(x, result, fun=preproc.reduce_tokens):
 		toks = preproc.tokenize(x)
 		preproc.reduce_tokens(toks, defs, [])
-		print preproc.stringize(toks), toks
+		ret = preproc.stringize(toks)
 
-	test("1 + m1 + 1")
-	test("1 + fun0(1, +) 1")
-	test("fun2(mmm)")
-	test("m1")
-	test("fun2(m1)")
-	test("fun4(m1)")
+		if ret == result:
+			color = "GREEN"
+		else:
+			color = "RED"
+		Utils.pprint(color, "%s\t\t%r" % (ret, toks))
+
+	test("1 + m1 + 1", "1+9+9+1")
+	test("1 + fun0(1, +) 1", "1+1+1")
+	test("fun2(mmm)", "mmm")
+	test("m1", "9+9")
+	test("fun2(m1)", "m1")
+	test("fun4(m1)", "9+9")
+	test("fun1(m, m)", "mm")
+	test("fun5(a, b, c)", "abc")
+	test("fun1(>, =)", ">=")
+	test("fun1(a, 12)", "a12")
+	test("fun5(a, _, 12)", "a_12")
+	test("fun6(math, h)", "<math.h>")
 
