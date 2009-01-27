@@ -93,8 +93,9 @@ def build(bld):
 	test("(5>1)*6", 6)
 	test("1,2,3*9,9", 9)
 
-	return
 	test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1", 1)
+
+	return
 	test("1?1,(0?5:9):3,4", 0) # <- invalid expression
 
 
