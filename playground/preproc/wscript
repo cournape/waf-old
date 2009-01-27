@@ -77,6 +77,11 @@ def build(bld):
 	test("1-1", "0")
 	test("7*m1*3", "90")
 	test("m1*3", "36")
+	test("defined m1", "1")
+	test("defined(m1)", "1")
+	test("defined inex", "0")
+	test("defined(inex)", "0")
+
 
 	test("0&&2<3", "0")
 	test("(5>1)*6", "6")
@@ -85,6 +90,4 @@ def build(bld):
 	test("1?77:88", "77")
 	test("0?77:88", "88")
 	test("1?1,(0?5:9):3,4", "9")
-	test("defined inex", "0")
-	test("defined(inex)", "0")
 

@@ -185,7 +185,27 @@ def reduce_tokens(lst, defs, ban=[]):
 	while i < len(lst):
 		(p, v) = lst[i]
 
-		if p == IDENT and v in defs:
+		if p == IDENT and v == "defined":
+			del lst[i]
+			if i < len(lst):
+				(p2, v2) = lst[i]
+				if p2 == IDENT:
+					if v2 in defs:
+						lst[i] = (NUM, 1)
+					else:
+						lst[i] = (NUM, 0)
+				elif p2 == OP and v2 == '(':
+					del lst[i]
+					(p2, v2) = lst[i]
+					del lst[i] # remove the ident, and change the ) for the value
+					if v2 in defs:
+						lst[i] = (NUM, 1)
+					else:
+						lst[i] = (NUM, 0)
+				else:
+					raise PreprocError("invalid define expression %r" % lst)
+
+		elif p == IDENT and v in defs:
 
 			# tokenize on demand
 			if isinstance(defs[v], str):
