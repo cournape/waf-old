@@ -151,7 +151,7 @@ def reduce_nums(val_1, val_2, val_op):
 def reduce_eval(lst):
 	"""take a list of tokens and output true or false (#if/#elif conditions)"""
 	# TODO this will not handle precedence rules, ternary operators, .. but it works
-	return eval(stringize(lst))
+	return (NUM, str(eval(stringize(lst))))
 
 def stringize(lst):
 	"""use for converting a list of tokens to a string"""
@@ -320,8 +320,7 @@ def eval_macro(lst, adefs):
 	# look at the result, and try to return a 0/1 result
 	reduce_tokens(lst, adefs, [])
 	if not lst: raise PreprocError("missing tokens to evaluate")
-	reduce_eval(lst)
-	p, v = lst[0]
+	(p, v) = reduce_eval(lst)
 	return int(v) != 0
 
 class c_parser(object):
