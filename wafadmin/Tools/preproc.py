@@ -158,13 +158,91 @@ def reduce_nums(val_1, val_2, val_op):
 	else: c = 0
 	return c
 
+def get_num(lst):
+	if not lst: raise PreprocError("empty list for get_num")
+	(p, v) = lst[0]
+	if p == OP:
+		if v == '(':
+			count_par = 1
+			i = 1
+			while i < len(lst):
+				(p, v) = lst[i]
+
+				if p == OP:
+					if v == ')':
+						count_par -= 1
+						if count_par == 0:
+							break
+					elif v == '(':
+						count_par += 1
+				i += 1
+			else:
+				raise PreprocError, "rparen expected %r" % lst
+
+			print lst[1:i]
+			return get_term(lst[1:i]), lst[i:]
+
+		elif v == '+':
+			return get_num(lst[1:])
+		elif v == '-':
+			num, lst = get_num(lst[1:])
+			return (reduce_nums('-1', num, '*'), lst)
+		elif v == '!':
+			num, lst = get_num(lst[1:])
+			return (int(not int(num)), lst)
+		elif v == '~':
+			return (~ int(num), lst)
+		else:
+			raise PreprocError("invalid token %r for get_num" % lst)
+	elif p == NUM:
+		return v, lst[1:]
+	else:
+		raise PreprocError("invalid token %r for get_num" % lst)
+
+def get_term(lst):
+	if not lst: raise PreprocError("empty list for get_term")
+	num, lst = get_num(lst)
+	if not lst:
+		return (num, [])
+	(p, v) = lst[0]
+	if p == OP:
+		if v == ',':
+			# skip
+			return get_term(lst[1:])
+		elif v == '?':
+			count_par = 0
+			i = 1
+			while i < len(lst):
+				(p, v) = lst[i]
+
+				if p == OP:
+					if v == ')':
+						count_par -= 1
+					elif v == '(':
+						count_par += 1
+					elif v == ':':
+						if count_par == 0:
+							break
+				i += 1
+			else:
+				raise PreprocError, "rparen expected %r" % lst
+
+			if int(num):
+				return get_term(lst[1:i])
+			else:
+				return get_term(lst[i+1:])
+
+		else:
+			num2, lst = get_num(lst[1:])
+			num2 = reduce_nums(num, num2, v)
+			return get_term([(NUM, num2)] + lst)
+
+	raise PreprocError("Cannot reduce %r" % lst)
+
 def reduce_eval(lst):
 	"""take a list of tokens and output true or false (#if/#elif conditions)"""
-	# TODO this will not handle precedence rules, ternary operators, .. but it works
-	try:
-		return (NUM, str(eval(stringize(lst))))
-	except:
-		return (NUM, '0')
+	num, lst = get_term(lst)
+	return (NUM, num)
 
 def stringize(lst):
 	"""use for converting a list of tokens to a string"""
