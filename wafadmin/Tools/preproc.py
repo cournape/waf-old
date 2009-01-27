@@ -398,9 +398,7 @@ def reduce_tokens(lst, defs, ban=[]):
 	while i < len(lst):
 		(p, v) = lst[i]
 
-		if p == IDENT:
-			if not v in defs:
-				continue
+		if p == IDENT and v in defs:
 
 			# tokenize on demand
 			if isinstance(defs[v], str):
@@ -464,38 +462,61 @@ def reduce_tokens(lst, defs, ban=[]):
 					(p2, v2) = to_add[j]
 
 					if p2 == OP and v2 == '#':
+						# stringize is for arguments only
 						if j+1 < len(to_add) and to_add[j+1][0] == IDENT and to_add[j+1][1] in arg_table:
 							toks = args[arg_table[to_add[j+1][1]]]
 							accu.append((STR, stringize(toks)))
 							j += 1
 						else:
 							accu.append((p2, v2))
+					elif p2 == OP and v2 == '##':
+						# token pasting, how can man invent such a complicated system?
+
+						if accu and accu[-1][0] == IDENT and j+1 < len(to_add) and to_add[j+1][0] == IDENT:
+							if to_add[j+1][1] in arg_table:
+								toks = args[arg_table[to_add[j+1][1]]]
+
+								if toks and toks[0][0] == IDENT:
+									accu[-1] = (IDENT, accu[-1][1] + toks[0][1])
+									accu.extend(toks[1:])
+								else:
+									# error
+									accu.append((p2, v2))
+									accu.extend(toks)
+							elif to_add[j+1][1] == '__VA_ARGS__':
+								# not sure
+								# first collect the tokens
+								va_toks = []
+								st = len(macro_def[0])
+								pt = len(args)
+								for x in args[pt-st+1:]:
+									va_toks.extend(x)
+									va_toks.append((OP, ','))
+								if va_toks: va_toks.pop() # extra comma
+								if len(accu)>1:
+									(p3, v3) = accu[-1]
+									(p4, v4) = accu[-2]
+									if v3 == '##':
+										# remove the token paste
+										accu.pop()
+										if v4 == ',' and pt < st:
+											# remove the comma
+											accu.pop()
+								accu += va_toks
+							else:
+								accu[-1] = (IDENT, accu[-1][1] + to_add[j+1][1])
+
+							j += 1
+						else:
+							# ## between OPS or something
+							accu.append((p2, v2))
+
 					elif p2 == IDENT and v2 in arg_table:
 						toks = args[arg_table[v2]]
 						reduce_tokens(toks, defs, ban+[v])
 						accu.extend(toks)
 					else:
-						if v2 == '__VA_ARGS__':
-							# first collect the tokens
-							va_toks = []
-							st = len(macro_def[0])
-							pt = len(args)
-							for x in args[pt-st+1:]:
-								va_toks.extend(x)
-								va_toks.append((OP, ','))
-							if va_toks: va_toks.pop() # extra comma
-							if len(accu)>1:
-								(p3, v3) = accu[-1]
-								(p4, v4) = accu[-2]
-								if v3 == '##':
-									# remove the token paste
-									accu.pop()
-									if v4 == ',' and pt < st:
-										# remove the comma
-										accu.pop()
-							accu += va_toks
-						else:
-							accu.append((p2, v2))
+						accu.append((p2, v2))
 
 					j += 1
 
