@@ -1,7 +1,8 @@
 Waf 1.5
 -------
 
-preprocessor fixes
+make the cache retrieving less noisy
+advertise WAFCACHE
 docs: better example for @taskgen
 make it even easier to add custom commands
 use Node::find_iter in task_gen::find_sources_in_dirs
