@@ -225,7 +225,7 @@ def get_term(lst):
 							break
 				i += 1
 			else:
-				raise PreprocError, "rparen expected %r" % lst
+				raise PreprocError("rparen expected %r" % lst)
 
 			if int(num):
 				return get_term(lst[1:i])
@@ -234,8 +234,25 @@ def get_term(lst):
 
 		else:
 			num2, lst = get_num(lst[1:])
-			num2 = reduce_nums(num, num2, v)
-			return get_term([(NUM, num2)] + lst)
+
+			if not lst:
+				# no more tokens to process
+				num2 = reduce_nums(num, num2, v)
+				return get_term([(NUM, num2)] + lst)
+
+			# operator precedence
+			p2, v2 = lst[0]
+			if p2 != OP:
+				raise PreprocError("op expected %r" % lst)
+
+			if prec[v2] >= prec[v]:
+				num2 = reduce_nums(num, num2, v)
+				return get_term([(NUM, num2)] + lst)
+			else:
+				num3, lst = get_num(lst[1:])
+				num3 = reduce_nums(num2, num3, v2)
+				return get_term([(NUM, num), (p, v), (NUM, num3)] + lst)
+
 
 	raise PreprocError("Cannot reduce %r" % lst)
 
