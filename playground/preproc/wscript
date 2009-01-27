@@ -75,34 +75,16 @@ def build(bld):
 
 	test("1+1", "2")
 	test("1-1", "0")
+	test("7*m1*3", "90")
+	test("m1*3", "36")
 
-	"""
-	test("0&&2<3")
-	test("(5>1)*6")
-	test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1")
-	test("1,2,3*9,9")
-	test("1?77:88")
-	test("0?77:88")
-	test("1?1,(0?5:9):3,4")
-	test("defined inex")
-	test("defined(inex)")
-	test("m1*3")
-	test("7*m1*3")
-	test("fun1(m,1)")
-	test("fun2(2, fun1(m, 1))")
-	#test("foo##.##h")
+	test("0&&2<3", "0")
+	test("(5>1)*6", "6")
+	test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1", "1")
+	test("1,2,3*9,9", "9")
+	test("1?77:88", "77")
+	test("0?77:88", "88")
+	test("1?1,(0?5:9):3,4", "9")
+	test("defined inex", "0")
+	test("defined(inex)", "0")
 
-	gruik = c_parser()
-	gruik.strpaths = paths
-	gruik.pathcontents = {}
-
-	gruik.start_local(arg)
-	print("we have found the following dependencies")
-	print(gruik.nodes)
-	print(gruik.names)
-
-	#f = open(arg, "r")
-	#txt = f.read()
-	#f.close()
-	#print tokenize(txt)
-	"""
