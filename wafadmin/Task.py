@@ -652,6 +652,7 @@ class Task(TaskBase):
 		for cleaning the least used files from the cache dir - be careful when overridding"""
 		if not Options.cache_global: return None
 		if Options.options.nocache: return None
+		if not self.outputs: return None
 
 		env = self.env
 		sig = self.signature()
