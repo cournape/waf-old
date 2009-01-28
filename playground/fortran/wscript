@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+    conf.check_tool('gfortran')
+    conf.env['FCFLAGS'] = ['-Wall', '-W']
+
+def build(bld):
+    # 1. A simple program
+    bld.new_task_gen(
+        features = 'cc fortran cprogram',
+        source = 'hello.f',
+        target = 'hello')
