@@ -8,6 +8,9 @@ def configure(conf):
 	conf.check_tool('gfortran', tooldir='.')
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
 
+	if not conf.check_fortran():
+		conf.fatal('cannot compile a simple fortran program!')
+
 def build(bld):
 	"try using:       waf --zones=task_gen"
 

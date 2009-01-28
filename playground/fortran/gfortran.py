@@ -4,7 +4,7 @@
 import Utils, Task, TaskGen
 import ccroot # <- leave this
 from TaskGen import feature, before, after, extension
-from Configure import conftest
+from Configure import conftest, conf
 
 #################################################### Task definitions
 
@@ -90,6 +90,39 @@ def apply_gfortran_link(self):
 	self.link_task = linktask
 
 #################################################### Configuration
+
+@conf
+def check_fortran(self, *k, **kw):
+	if not 'compile_filename' in kw:
+		kw['compile_filename'] = 'test.f'
+	if 'fragment' in kw:
+		kw['code'] = kw['fragment']
+	if not 'code' in kw:
+		kw['code'] = '''        program main
+                print *, 'hello'
+        end     program main
+'''
+
+	if not 'compile_mode' in kw:
+		kw['compile_mode'] = 'fortran'
+	if not 'type' in kw:
+		kw['type'] = 'fprogram'
+	if not 'env' in kw:
+		kw['env'] = self.env.copy()
+	kw['execute'] = kw.get('execute', None)
+
+	kw['msg'] = kw.get('msg', 'Compiling a simple fortran app')
+	kw['okmsg'] = kw.get('okmsg', 'ok')
+	kw['errmsg'] = kw.get('errmsg', 'bad luck')
+
+	self.check_message_1(kw['msg'])
+	ret = self.run_c_code(*k, **kw) == 0
+	if not ret:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+	else:
+		self.check_message_2(kw['okmsg'], 'GREEN')
+
+	return ret
 
 @conftest
 def find_gfortran(conf):
