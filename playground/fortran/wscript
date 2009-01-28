@@ -6,12 +6,27 @@ srcdir = '.'
 blddir = 'build'
 
 def configure(conf):
-    conf.check_tool('gfortran')
-    conf.env['FCFLAGS'] = ['-Wall', '-W']
+	conf.check_tool('gfortran', tooldir='.')
+	conf.env['FCFLAGS'] = ['-Wall', '-W']
 
 def build(bld):
-    # 1. A simple program
-    bld.new_task_gen(
-        features = 'cc fortran cprogram',
-        source = 'hello.f',
-        target = 'hello')
+	bld.new_task_gen(
+		features = 'fortran fprogram',
+		source = 'hello.f',
+		target = 'hello')
+
+	bld.new_task_gen(
+		features = 'fortran fshlib',
+		source = 'hello.f',
+		target = 'hello')
+
+	bld.new_task_gen(
+		features = 'fortran fstaticlib',
+		source = 'hello.f',
+		target = 'hello')
+
+	bld.new_task_gen(
+		features = 'fortran',
+		source = 'hello.f')
+
+

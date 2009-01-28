@@ -1,56 +1,121 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+import Utils, Task, TaskGen
+import ccroot # <- leave this
+from TaskGen import feature, before, after, extension
 from Configure import conftest
-import Utils
-import Task
-from TaskGen import taskgen, feature, before, after, extension
+
+#################################################### Task definitions
 
 EXT_FC = ".f"
 EXT_OBJ = ".o"
 
-@conftest
-def find_gfortran(conf):
-    v = conf.env
-    fc = conf.find_program('gfortran', var='FC')
-    if not fc:
-        conf.fatal('gfortran not found')
+Task.simple_task_type('fortran',
+	'${FC} ${FCFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}',
+	'GREEN',
+	ext_out=EXT_OBJ,
+	ext_in=EXT_FC)
 
-    v['FC'] = fc
-    v['FCFLAGS'] = ''
-
-@feature('fortran')
-def default_fc(self):
-    Utils.def_attrs(self,
-        linktasks = [],
-        compiled_tasks = [],)
+Task.simple_task_type('fortran_link',
+	'${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}',
+	color='YELLOW', ext_in=EXT_OBJ)
 
 @extension(EXT_FC)
 def fortran_hook(self, node):
-    task = self.create_task('fortran')
-    task.inputs = [node]
-    task.outputs = [node.change_ext(EXT_OBJ)]
-    self.compiled_tasks.append(task)
-    return task
+	obj_ext = '_%d.o' % self.idx
 
-#@feature('fortran')
-#@after('apply_core')
-#def apply_fortran_link(self):
-#    task = self.create_task('fortran_link')
-#    task.inputs = [t.outputs[0] for t in self.compiled_tasks]
-#    task.outputs = [self.path.find_or_declare(self.target)]
-#    self.linktasks.append(task)
+	task = self.create_task('fortran')
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
+	self.compiled_tasks.append(task)
+	return task
 
-# Compile task
-cls = Task.simple_task_type('fortran',
-        '${FC} ${FCFLAGS} -c -o ${TGT} ${SRC}',
-        'GREEN',
-        ext_out=EXT_OBJ,
-        ext_in=EXT_FC)
+#################################################### Task generators
 
-# # Link task
-# cls = Task.simple_task_type('fortran_link',
-#         '${FC} -o ${TGT} ${SRC}',
-#         color='YELLOW', ext_in=EXT_OBJ)
-# cls.maxjobs = 1
+# we reuse a lot of code from ccroot.py
+
+FORTRAN = 'init_f default_cc apply_incpaths apply_type_vars apply_lib_vars add_extra_flags'.split()
+FPROGRAM = 'apply_verif vars_target_cprogram install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
+FSHLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib install_target_cshlib apply_objdeps apply_obj_vars apply_vnum'.split()
+FSTATICLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
+
+TaskGen.bind_feature('fortran', FORTRAN)
+TaskGen.bind_feature('fprogram', FPROGRAM)
+TaskGen.bind_feature('fshlib', FSHLIB)
+TaskGen.bind_feature('fstaticlib', FSTATICLIB)
+
+TaskGen.declare_order('init_f', 'apply_lib_vars')
+TaskGen.declare_order('default_cc', 'apply_core')
+
+
+@feature('fprogram', 'fshlib', 'fstaticlib')
+@after('apply_core')
+@before('apply_link', 'apply_lib_vars')
+def apply_gfortran_link(self):
+	# override the normal apply_link with c or c++ - just in case cprogram is given too
+	try: self.meths.remove('apply_link')
+	except ValueError: pass
+
+	def get_name():
+		if 'fprogram' in self.features:
+			return '%s'
+		elif 'fshlib' in self.features:
+			return 'lib%s.so'
+		else:
+			return 'lib%s.a'
+
+	linktask = self.create_task('fortran_link')
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
+	linktask.set_inputs(outputs)
+	linktask.set_outputs(self.path.find_or_declare(get_name() % self.target))
+	linktask.chmod = self.chmod
+
+	self.link_task = linktask
+
+@feature('fortran')
+@before('apply_type_vars')
+@after('default_cc')
+def init_f(self):
+	# the kinds of variables we depend on
+	self.p_flag_vars = 'FC FCFLAGS RPATH LINKFLAGS'.split()
+	self.p_type_vars = ['CFLAGS', 'LINKFLAGS']
+
+@feature('fortran')
+@after('apply_incpaths')
+def incflags_fortran(self):
+	app = self.env.append_unique
+	pat = self.env['FCPATH_ST']
+	for x in self.env['INC_PATHS']:
+		app('FCFLAGS', pat % x.bldpath(env))
+		app('FCFLAGS', pat % x.srcpath(env))
+
+#################################################### Configuration
+
+@conftest
+def find_gfortran(conf):
+	v = conf.env
+	fc = conf.find_program('gfortran', var='FC')
+	if not fc: fc = conf.find_program('gfortran-4.2', var='FC')
+	if not fc: conf.fatal('gfortran not found')
+	v['CC_NAME'] = 'GFORTRAN'
+	v['FC'] = fc
+
+@conftest
+def gfortran_flags(conf):
+	v = conf.env
+
+	v['FC_SRC_F']    = ''
+	v['FC_TGT_F']    = ['-c', '-o', ''] # shell hack for -MD
+	v['FCPATH_ST']  = '-I%s' # template for adding include paths
+
+	# linker
+	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
+	v['FCLNK_SRC_F'] = ''
+	v['FCLNK_TGT_F'] = ['-o', ''] # shell hack for -MD
 
 detect = '''
 find_gfortran
+gfortran_flags
 '''
+
