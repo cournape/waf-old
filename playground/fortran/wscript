@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-# these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
 
@@ -10,6 +9,8 @@ def configure(conf):
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
 
 def build(bld):
+	"try using:       waf --zones=task_gen"
+
 	bld.new_task_gen(
 		features = 'fortran fprogram',
 		source = 'hello.f',
@@ -29,4 +30,12 @@ def build(bld):
 		features = 'fortran',
 		source = 'hello.f')
 
+
+	# See the bottom of gfortran.py for explanations
+	# * add a particular uselib flag
+	# * change the link system, neutralizing the default
+	bld.new_task_gen(
+		features = 'fortran fprogram flink_with_c++',
+		source = 'hello.f',
+		target = 'hello')
 

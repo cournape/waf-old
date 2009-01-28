@@ -48,6 +48,22 @@ TaskGen.bind_feature('fstaticlib', FSTATICLIB)
 TaskGen.declare_order('init_f', 'apply_lib_vars')
 TaskGen.declare_order('default_cc', 'apply_core')
 
+@feature('fortran')
+@before('apply_type_vars')
+@after('default_cc')
+def init_f(self):
+	# the kinds of variables we depend on
+	self.p_flag_vars = 'FC FCFLAGS RPATH LINKFLAGS'.split()
+	self.p_type_vars = ['CFLAGS', 'LINKFLAGS']
+
+@feature('fortran')
+@after('apply_incpaths')
+def incflags_fortran(self):
+	app = self.env.append_unique
+	pat = self.env['FCPATH_ST']
+	for x in self.env['INC_PATHS']:
+		app('FCFLAGS', pat % x.bldpath(env))
+		app('FCFLAGS', pat % x.srcpath(env))
 
 @feature('fprogram', 'fshlib', 'fstaticlib')
 @after('apply_core')
@@ -73,23 +89,6 @@ def apply_gfortran_link(self):
 
 	self.link_task = linktask
 
-@feature('fortran')
-@before('apply_type_vars')
-@after('default_cc')
-def init_f(self):
-	# the kinds of variables we depend on
-	self.p_flag_vars = 'FC FCFLAGS RPATH LINKFLAGS'.split()
-	self.p_type_vars = ['CFLAGS', 'LINKFLAGS']
-
-@feature('fortran')
-@after('apply_incpaths')
-def incflags_fortran(self):
-	app = self.env.append_unique
-	pat = self.env['FCPATH_ST']
-	for x in self.env['INC_PATHS']:
-		app('FCFLAGS', pat % x.bldpath(env))
-		app('FCFLAGS', pat % x.srcpath(env))
-
 #################################################### Configuration
 
 @conftest
@@ -114,8 +113,30 @@ def gfortran_flags(conf):
 	v['FCLNK_SRC_F'] = ''
 	v['FCLNK_TGT_F'] = ['-o', ''] # shell hack for -MD
 
+	v['FCFLAGS_DEBUG'] = ['-Werror']
+
 detect = '''
 find_gfortran
 gfortran_flags
 '''
+
+#################################################### Add some flags on some feature
+
+@feature('flink_with_c++')
+@after('apply_core')
+@before('apply_link', 'apply_lib_vars', 'apply_gfortran_link')
+def apply_special_link(self):
+	linktask = self.create_task('fortran_link')
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
+	linktask.set_inputs(outputs)
+	linktask.set_outputs(self.path.find_or_declare("and_without_target"))
+	linktask.chmod = self.chmod
+	self.link_task = linktask
+
+@feature('flink_with_c++')
+@before('apply_lib_vars')
+@after('default_cc')
+def add_some_uselib_vars(self):
+	#if sys.platform == ...
+	self.uselib += ' DEBUG'
 
