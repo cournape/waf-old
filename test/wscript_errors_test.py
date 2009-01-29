@@ -101,14 +101,14 @@ def set_options(opt):
 		Utils.set_main_module(self._wscript_file_path)
 		self.failUnlessRaises(AttributeError, Scripting.configure)
 
-	def test_missing_set_options(self):
-		# white_box test: missing def set_options()
+	def test_set_options_is_optional(self):
+		# white_box test: set_options() is not required anymore
 		self._write_wscript("\n", use_dic=False)
 		opt_obj = Options.Handler()
-		self.failUnlessRaises(Utils.WscriptError, opt_obj.sub_options, '')
+		opt_obj.sub_options('')
 
 	def test_attr_err_in_set_options(self):
-		# white_box test: set_options raised AttributeError - don't raise WafError becasue of that
+		# white_box test: set_options raised AttributeError - don't raise WafError because of that
 		wscript_contents = """
 blddir = 'build'
 srcdir = '.'
