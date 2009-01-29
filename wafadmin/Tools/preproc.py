@@ -26,8 +26,6 @@ file scanner will be added in the future, so we will have most bahaviours.
 # TODO: dumb file scanner tracking all includes
 
 import re, sys, os, string
-if __name__ == '__main__':
-	sys.path = ['.', '..'] + sys.path
 import Logs, Build, Utils
 from Logs import debug, error
 import traceback
