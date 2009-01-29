@@ -485,9 +485,10 @@ def load_tool(tool, tooldir=None):
 		assert isinstance(tooldir, list)
 		sys.path = tooldir + sys.path
 	try:
-		return __import__(tool)
-	except ImportError, e:
-		raise WscriptError(e)
+		try:
+			return __import__(tool)
+		except ImportError, e:
+			raise WscriptError(e)
 	finally:
 		if tooldir:
 			for d in tooldir:
