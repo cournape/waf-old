@@ -28,6 +28,7 @@ def set_options(opt):
 		self._write_wscript(wscript_contents, use_dic=False)
 		opt_obj = Options.Handler()
 		opt_obj.parse_args()
+		Options.options.prefix = Options.default_prefix
 		Utils.set_main_module(self._wscript_file_path)
 		Scripting.configure()
 		bld = Build.BuildContext()
