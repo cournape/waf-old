@@ -86,6 +86,7 @@ class ConfigureTester(common_test.CommonTester):
 		# Configure uses arguments defined by Options
 		opt_obj = Options.Handler()
 		opt_obj.parse_args()
+		Options.options.prefix = Options.default_prefix
 		return Configure.ConfigurationContext()
 
 	def load_env(self, cache_file=''):
@@ -213,8 +214,9 @@ def set_options(opt):
 		self._write_wscript(wscript_contents, use_dic=False)
 		opt_obj = Options.Handler()
 		opt_obj.parse_args()
+		Options.options.prefix = Options.default_prefix
 		Utils.set_main_module(self._wscript_file_path)
-		self.failUnlessRaises(Configure.ConfigurationError, Scripting.configure)
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
 
 	def test_invalid_tool(self):
 		# white_box test: tool not exists
@@ -231,8 +233,9 @@ def set_options(opt):
 		self._write_wscript(wscript_contents, use_dic=False)
 		opt_obj = Options.Handler()
 		opt_obj.parse_args()
+		Options.options.prefix = Options.default_prefix
 		Utils.set_main_module(self._wscript_file_path)
-		self.failUnlessRaises(Configure.ConfigurationError, Scripting.configure)
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
 
 	def test_nothing_to_store(self):
 		# white-box test: fails if all_envs are not defined.
