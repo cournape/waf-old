@@ -2,7 +2,13 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
-"""Add options for the standard GNU directories, this tool will add the options
+"""
+To use this module do not forget to call
+opt.tool_options('gnu_dirs')
+AND
+conf.check_tool('gnu_dirs')
+
+Add options for the standard GNU directories, this tool will add the options
 found in autotools, and will update the environment with the following
 installation variables:
 
