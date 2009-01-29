@@ -37,7 +37,7 @@ if 'PSYCOWAF' in os.environ:
 	try:import psyco;psyco.full()
 	except:pass
 
-VERSION="1.5.2"
+VERSION="1.5.3"
 REVISION="x"
 INSTALL="x"
 C1='x'
@@ -62,6 +62,12 @@ def unpack_wafdir(dir):
 			break
 	if not txt: err(c % 3)
 	txt = txt[1:-1].replace(C1, '\n').replace(C2, '\r')
+
+	try: from hashlib import md5
+	except: import md5
+	print REVISION == md5(txt).hexdigest()
+	if REVISION != md5(txt).hexdigest():
+		raise "security"
 
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
