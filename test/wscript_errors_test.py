@@ -42,6 +42,12 @@ class WscriptErrorsTester(common_test.CommonTester):
 
 class WhiteWscriptTester(WscriptErrorsTester):
 	"""white-box tests for Wscript Errors"""
+	
+	def _setup_options(self):
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		Options.options.prefix = Options.default_prefix
+
 	def test_nonexist_blddir(self):
 		self._bld.load_dirs(srcdir=non_exist_path, blddir=os.path.join(non_exist_path, 'out'))
 		self.failUnlessRaises(Utils.WscriptError, Scripting.add_subdir, self._test_dir_root, self._bld)
@@ -51,16 +57,14 @@ class WhiteWscriptTester(WscriptErrorsTester):
 		self.failUnlessRaises(Utils.WscriptError, Scripting.add_subdir, non_exist_path, self._bld)
 		
 	def test_missing_blddir(self):
-		opt_obj = Options.Handler()
-		opt_obj.parse_args()
+		self._setup_options()
 		Utils.g_module = imp.new_module('main_wscript')
 		Utils.g_module.srcdir = '.'
 		# TODO: tests for WafError upon change
 		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
 
 	def test_missing_srcdir(self):
-		opt_obj = Options.Handler()
-		opt_obj.parse_args()
+		self._setup_options()
 		Utils.g_module = imp.new_module('main_wscript')
 		Utils.g_module.blddir = '.'
 		# TODO: tests for WafError upon change
@@ -76,8 +80,7 @@ def set_options(opt):
 	pass
 """
 		self._write_wscript(wscript_contents, use_dic=False)
-		opt_obj = Options.Handler()
-		opt_obj.parse_args()
+		self._setup_options()
 		Utils.set_main_module(self._wscript_file_path)
 		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
 
@@ -94,8 +97,7 @@ def set_options(opt):
 	pass
 """
 		self._write_wscript(wscript_contents, use_dic=False)
-		opt_obj = Options.Handler()
-		opt_obj.parse_args()
+		self._setup_options()
 		Utils.set_main_module(self._wscript_file_path)
 		self.failUnlessRaises(AttributeError, Scripting.configure)
 
