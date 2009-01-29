@@ -63,12 +63,6 @@ def unpack_wafdir(dir):
 	if not txt: err(c % 3)
 	txt = txt[1:-1].replace(C1, '\n').replace(C2, '\r')
 
-	try: from hashlib import md5
-	except: import md5
-	print REVISION == md5(txt).hexdigest()
-	if REVISION != md5(txt).hexdigest():
-		raise "security"
-
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
 	except OSError: pass
