@@ -39,7 +39,7 @@ class unit_test(object):
 		self.total_num_tests = 0	# Total amount of unit tests
 		self.max_label_length = 0	# Maximum label length (pretty-print the output)
 
-		self.unit_tests = {}		# Unit test dictionary. Key: the label (unit test filename relative
+		self.unit_tests = Utils.ordered_dict()		# Unit test dictionary. Key: the label (unit test filename relative
 						# to the build dir), value: unit test filename with absolute path
 		self.unit_test_results = {}	# Dictionary containing the unit test results.
 						# Key: the label, value: result (true = success false = failure)
