@@ -29,7 +29,7 @@ def configure(conf):
 def build(bld):
 	bld.new_task_gen(
 		target = 'beep.h',
-		rule = 'echo \\"#define bar 43\\" > ${TGT}',
+		rule = 'echo \"#define bar 43\" > ${TGT}',
 	)
 
 	bld.new_task_gen(
