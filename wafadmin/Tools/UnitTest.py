@@ -59,7 +59,7 @@ class unit_test(object):
 		self.total_num_tests = 0
 		self.max_label_length = 0
 
-		self.unit_tests = {}
+		self.unit_tests = Utils.ordered_dict()
 		self.unit_test_results = {}
 		self.unit_test_erroneous = {}
 
@@ -152,7 +152,8 @@ class unit_test(object):
 		p('GREEN', 'Running unit tests')
 		print
 
-		for label, filename in self.unit_tests.iteritems():
+		for label in self.unit_tests.allkeys:
+            filename = self.unit_tests[label]
 			err = 0
 			result = 0
 
