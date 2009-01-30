@@ -99,7 +99,6 @@ def check_fortran(self, *k, **kw):
 		kw['code'] = kw['fragment']
 	if not 'code' in kw:
 		kw['code'] = '''        program main
-                print *, 'hello'
         end     program main
 '''
 
