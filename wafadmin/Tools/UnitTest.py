@@ -153,7 +153,7 @@ class unit_test(object):
 		print
 
 		for label in self.unit_tests.allkeys:
-            filename = self.unit_tests[label]
+			filename = self.unit_tests[label]
 			err = 0
 			result = 0
 
