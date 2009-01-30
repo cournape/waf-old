@@ -463,6 +463,7 @@ def define(self, define, value, quote=1):
 	   header file."""
 	assert define and isinstance(define, str)
 
+	# ordered_dict is for writing the configuration header in order
 	tbl = self.env[DEFINES] or Utils.ordered_dict()
 
 	# the user forgot to tell if the value is quoted or not
