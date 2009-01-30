@@ -96,7 +96,8 @@ class unit_test(object):
 		count = 0
 		result = 1
 
-		for label, file_and_src in self.unit_tests.iteritems():
+		for label in self.unit_tests.allkeys:
+			file_and_src = self.unit_tests[label]
 			filename = file_and_src[0]
 			srcdir = file_and_src[1]
 			count += 1
