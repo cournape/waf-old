@@ -194,6 +194,137 @@ def check_fortran_verbose(self, autoadd=True, *k, **kw):
 
 	return ret
 
+# Get Fortran runtime libraries
+import shlex
+
+# linkflags which match those are ignored
+LINKFLAGS_IGNORED = [r'-lang*', r'-lcrt[a-zA-Z0-9]*\.o', r'-lc$', r'-lSystem',
+                     r'-libmil', r'-LIST:*', r'-LNO:*']
+if os.name == 'nt':
+    LINKFLAGS_IGNORED.extend([r'-lfrt*', r'-luser32',
+            r'-lkernel32', r'-ladvapi32', r'-lmsvcrt',
+            r'-lshell32', r'-lmingw', r'-lmoldname'])
+else:
+    LINKFLAGS_IGNORED.append(r'-lgcc*')
+
+RLINKFLAGS_IGNORED = [re.compile(f) for f in LINKFLAGS_IGNORED]
+
+def _match_ignore(line):
+    """True if the line should be ignored."""
+    if [i for i in RLINKFLAGS_IGNORED if i.match(line)]:
+        return True
+    else:
+        return False
+
+def parse_fortran_link(lines):
+	"""Given the output of verbose link of Fortran compiler, this returns a
+	list of flags necessary for linking using the standard linker."""
+	# TODO: On windows ?
+	final_flags = []
+	for line in lines:
+		if not GCC_DRIVER_LINE.match(line):
+			_parse_flink_line(line, final_flags)
+	return final_flags
+
+SPACE_OPTS = re.compile('^-[LRuYz]$')
+NOSPACE_OPTS = re.compile('^-[RL]')
+
+def _parse_flink_line(line, final_flags):
+    lexer = shlex.shlex(line, posix = True)
+    lexer.whitespace_split = True
+
+    t = lexer.get_token()
+    tmp_flags = []
+    while t:
+        def parse(token):
+            # Here we go (convention for wildcard is shell, not regex !)
+            #   1 TODO: we first get some root .a libraries
+            #   2 TODO: take everything starting by -bI:*
+            #   3 Ignore the following flags: -lang* | -lcrt*.o | -lc |
+            #   -lgcc* | -lSystem | -libmil | -LANG:=* | -LIST:* | -LNO:*)
+            #   4 take into account -lkernel32
+            #   5 For options of the kind -[[LRuYz]], as they take one argument
+            #   after, the actual option is the next token 
+            #   6 For -YP,*: take and replace by -Larg where arg is the old
+            #   argument
+            #   7 For -[lLR]*: take
+
+            # step 3
+            if _match_ignore(token):
+                pass
+            # step 4
+            elif token.startswith('-lkernel32') and sys.platform == 'cygwin':
+                tmp_flags.append(token)
+            # step 5
+            elif SPACE_OPTS.match(token):
+                t = lexer.get_token()
+                if t.startswith('P,'):
+                    t = t[2:]
+                for opt in t.split(os.pathsep):
+                    tmp_flags.append('-L%s' % opt)
+            # step 6
+            elif NOSPACE_OPTS.match(token):
+                tmp_flags.append(token)
+            # step 7
+            elif POSIX_LIB_FLAGS.match(token):
+                tmp_flags.append(token)
+            else:
+                # ignore anything not explicitely taken into account
+                pass
+
+            t = lexer.get_token()
+            return t
+        t = parse(t)
+
+    final_flags.extend(tmp_flags)
+    return final_flags
+@conf
+def check_fortran_clib(self, autoadd=True, *k, **kw):
+	# Get verbose flag
+	try:
+		flag = self.env["FC_VERBOSE_FLAG"]
+		if len(flag) < 1:
+			raise KeyError
+	except KeyError:
+		if self.check_fortran_verbose():
+			return 1
+
+	flag = self.env["FC_VERBOSE_FLAG"]
+
+	kw["compile_filename"] = "test.f"
+	kw["code"] = """\
+       PROGRAM MAIN
+       END
+	"""
+
+	kw['compile_mode'] = 'fortran'
+	kw['type'] = 'fprogram'
+	kw['env'] = self.env.copy()
+	kw['execute'] = 0
+
+	kw['msg'] = kw.get('msg', 'Getting fortran runtime link flags')
+	kw['errmsg'] = kw.get('errmsg', 'bad luck')
+
+	self.check_message_1(kw['msg'])
+	kw['env']['LINKFLAGS'] = flag
+	try:
+		ret, out = self.mycompile_code(*k, **kw)
+	except:
+		ret = 1
+		out = ""
+			
+	if ret == 0:
+		flags = parse_fortran_link(out.splitlines())
+
+	if ret == 0:
+		self.check_message_2('ok (%s)' % " ".join(flags), 'GREEN')
+		if autoadd:
+			self.env["FC_CLIB_LDFLAGS"] = flag	
+	else:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+
+	return ret
+
 #################################################### Add some flags on some feature
 
 @feature('flink_with_c++')
