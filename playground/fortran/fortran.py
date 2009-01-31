@@ -278,6 +278,7 @@ def _parse_flink_line(line, final_flags):
 
     final_flags.extend(tmp_flags)
     return final_flags
+
 @conf
 def check_fortran_clib(self, autoadd=True, *k, **kw):
 	# Get verbose flag
