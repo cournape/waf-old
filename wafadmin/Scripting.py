@@ -241,7 +241,7 @@ def main():
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
-	# read the scripts
+	# read the scripts - and set the path to the wscript path (useful for srcdir='/foo/bar')
 	bld.add_subdirs(os.path.split(Utils.g_module.root_path)[0])
 
 	# TODO undocumented hook
