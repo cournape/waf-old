@@ -155,7 +155,7 @@ def _got_link_verbose(lines):
         return _got_link_verbose_posix(lines)
 
 @conf
-def check_fortran_verbose(self, *k, **kw):
+def check_fortran_verbose(self, autoadd=True, *k, **kw):
 	kw["compile_filename"] = "test.f"
 	kw["code"] = """\
        PROGRAM MAIN
@@ -187,6 +187,8 @@ def check_fortran_verbose(self, *k, **kw):
 
 	if gotflag:
 		self.check_message_2('ok (%s)' % flag, 'GREEN')
+		if autoadd:
+			self.env["FC_VERBOSE_FLAG"] = flag	
 	else:
 		self.check_message_2(kw['errmsg'], 'YELLOW')
 
