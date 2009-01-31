@@ -1,10 +1,15 @@
 #! /usr/bin/env python
 # encoding: utf-8
+import re
+import sys
+import os
+import shutil
 
 import Utils, Task, TaskGen
 import ccroot # <- leave this
 from TaskGen import feature, before, after, extension
 from Configure import conftest, conf
+import Build
 
 #################################################### Task definitions
 
@@ -122,6 +127,141 @@ def check_fortran(self, *k, **kw):
 		self.check_message_2(kw['okmsg'], 'GREEN')
 
 	return ret
+
+# Get verbose flag of fortran linker
+GCC_DRIVER_LINE = re.compile('^Driving:')
+POSIX_STATIC_EXT = re.compile('\S+\.a')
+POSIX_LIB_FLAGS = re.compile('-l\S+')
+
+def _got_link_verbose_posix(lines):
+    """Returns true if useful link options can be found in output.
+
+    POSIX implementation.
+
+    Expect lines to be a list of lines."""
+    for line in lines:
+        if not GCC_DRIVER_LINE.search(line):
+            if POSIX_STATIC_EXT.search(line) or POSIX_LIB_FLAGS.search(line):
+                return True
+    return False
+
+def _got_link_verbose(lines):
+    """Return true if useful link option can be found in output."""
+    if sys.platform == 'win32':
+        raise NotImplementedError("FIXME: not implemented on win32")
+    else:
+        return _check_link_verbose_posix(lines)
+
+@conftest
+def compile_code(self, *k, **kw):
+	test_f_name = kw['compile_filename']
+
+	# create a small folder for testing
+	dir = os.path.join(self.blddir, '.wscript-trybuild')
+
+	# if the folder already exists, remove it
+	try:
+		shutil.rmtree(dir)
+	except OSError:
+		pass
+	os.makedirs(dir)
+
+	bdir = os.path.join(dir, 'testbuild')
+
+	if not os.path.exists(bdir):
+		os.makedirs(bdir)
+
+	env = kw['env']
+
+	dest = open(os.path.join(dir, test_f_name), 'w')
+	dest.write(kw['code'])
+	dest.close()
+
+	back = os.path.abspath('.')
+
+	bld = Build.BuildContext()
+	bld.log = self.log
+	bld.all_envs.update(self.all_envs)
+	bld.all_envs['default'] = env
+	bld.lst_variants = bld.all_envs.keys()
+	bld.load_dirs(dir, bdir)
+
+	os.chdir(dir)
+
+	bld.rescan(bld.srcnode)
+
+	o = bld.new_task_gen(features=[kw['compile_mode'], kw['type']],
+			source=test_f_name, target='testprog')
+
+	for k, v in kw.iteritems():
+		setattr(o, k, v)
+
+	self.log.write("==>\n%s\n<==\n" % kw['code'])
+
+	# compile the program
+	try:
+		bld.compile()
+	except:
+		ret = Utils.ex_stack()
+	else:
+		ret = 0
+
+	# chdir before returning
+	os.chdir(back)
+
+	if ret:
+		self.log.write('command returned %r' % ret)
+		self.fatal(str(ret))
+	else:
+		print self.log
+
+	# keep the name of the program to execute
+	if kw['execute']:
+		lastprog = o.link_task.outputs[0].abspath(env)
+
+	return ret
+
+def _check_link_verbose(self, *k, **kw):
+	if not 'compile_filename' in kw:
+		kw['compile_filename'] = 'test.f'
+	if 'fragment' in kw:
+		kw['code'] = kw['fragment']
+	if not 'code' in kw:
+		kw['code'] = '''\
+        PROGRAM MAIN
+        END
+'''
+
+	if not 'compile_mode' in kw:
+		kw['compile_mode'] = 'fortran'
+	if not 'type' in kw:
+		kw['type'] = 'fprogram'
+	if not 'env' in kw:
+		kw['env'] = self.env.copy()
+	kw['execute'] = 0
+
+	kw['msg'] = kw.get('msg', 'Getting fortran link verbose flag')
+	kw['errmsg'] = kw.get('errmsg', 'bad luck')
+
+	self.check_message_1(kw['msg'])
+	flags = ['-v', '--verbose', '-verbose', '-V']
+	for flag in flags:
+		kw['env']['LINKFLAGS'] = flag
+		ret = self.compile_code(*k, **kw)
+		print ret
+		if ret == 0:
+			break
+	if ret:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+	else:
+		self.check_message_2('ok (%s)' % flag, 'GREEN')
+
+	return ret
+
+@conf
+def check_fortran_verbose(self):
+    _check_link_verbose(self)
+
 
 #################################################### Add some flags on some feature
 
