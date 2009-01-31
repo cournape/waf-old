@@ -223,7 +223,8 @@ def mycompile_code(self, *k, **kw):
 
 	return ret, bld.out
 
-def _check_link_verbose(self, *k, **kw):
+@conf
+def check_fortran_verbose(self, *k, **kw):
 	kw["compile_filename"] = "test.f"
 	kw["code"] = """\
        PROGRAM MAIN
@@ -259,11 +260,6 @@ def _check_link_verbose(self, *k, **kw):
 		self.check_message_2(kw['errmsg'], 'YELLOW')
 
 	return ret
-
-@conf
-def check_fortran_verbose(self):
-    _check_link_verbose(self)
-
 
 #################################################### Add some flags on some feature
 
