@@ -18,7 +18,11 @@ def add_subdir(dir, bld):
 	except OSError: raise Utils.WscriptError("No such directory "+bld.path.abspath())
 
 	old = bld.path
-	new = bld.path.find_dir(dir)
+
+	if os.path.isabs(dir):
+		new = bld.root.find_dir(dir)
+	else:
+		new = bld.path.find_dir(dir)
 	if new is None:
 		raise Utils.WscriptError('subdir not found (%s), restore is %s' % (dir, bld.path))
 
@@ -44,7 +48,6 @@ def configure():
 	src = getattr(Options.options, SRCDIR, None)
 	if not src: src = getattr(Utils.g_module, SRCDIR, None)
 	if not src: raise Utils.WscriptError(err % (SRCDIR, os.path.abspath('.'), SRCDIR, SRCDIR))
-	if src != '.': raise Utils.WscriptError("for now the only srcdir construct is '.' not %r" % src)
 	src = os.path.abspath(src)
 
 	bld = getattr(Options.options, BLDDIR, None)
@@ -238,18 +241,8 @@ def main():
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
-	# locate and run the main build function
-	f = getattr(Utils.g_module, 'build', None)
-	if f:
-		f(bld)
-	else:
-		# find the main wscript path. helps the user to locate her errors.
-		main_wscript = None
-		for (file_path, module) in Utils.g_loaded_modules.items():
-			if module.__name__ == 'wscript_main':
-				main_wscript = file_path
-				break
-		raise Utils.WscriptError("Could not find the function 'def build(bld).'", main_wscript)
+	# read the scripts
+	bld.add_subdirs(os.path.split(Utils.g_module.root_path)[0])
 
 	# TODO undocumented hook
 	pre_build = getattr(Utils.g_module, 'pre_build', None)
