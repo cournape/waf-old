@@ -11,6 +11,8 @@ from TaskGen import feature, before, after, extension
 from Configure import conftest, conf
 import Build
 
+from myconfig import MyBuildContext
+
 #################################################### Task definitions
 
 EXT_FC = ".f"
@@ -154,6 +156,8 @@ def _got_link_verbose(lines):
 
 @conftest
 def mycompile_code(self, *k, **kw):
+	"""Like compile_code, but return output of the compiler command as well as
+	the return code."""
 	test_f_name = kw['compile_filename']
 
 	# create a small folder for testing
@@ -179,7 +183,6 @@ def mycompile_code(self, *k, **kw):
 
 	back = os.path.abspath('.')
 
-	from myconfig import MyBuildContext
 	bld = MyBuildContext()
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
@@ -221,22 +224,15 @@ def mycompile_code(self, *k, **kw):
 	return ret, bld.out
 
 def _check_link_verbose(self, *k, **kw):
-	if not 'compile_filename' in kw:
-		kw['compile_filename'] = 'test.f'
-	if 'fragment' in kw:
-		kw['code'] = kw['fragment']
-	if not 'code' in kw:
-		kw['code'] = '''\
-        PROGRAM MAIN
-        END
-'''
+	kw["compile_filename"] = "test.f"
+	kw["code"] = """\
+       PROGRAM MAIN
+       END
+	"""
 
-	if not 'compile_mode' in kw:
-		kw['compile_mode'] = 'fortran'
-	if not 'type' in kw:
-		kw['type'] = 'fprogram'
-	if not 'env' in kw:
-		kw['env'] = self.env.copy()
+	kw['compile_mode'] = 'fortran'
+	kw['type'] = 'fprogram'
+	kw['env'] = self.env.copy()
 	kw['execute'] = 0
 
 	kw['msg'] = kw.get('msg', 'Getting fortran link verbose flag')
