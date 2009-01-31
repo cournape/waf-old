@@ -152,37 +152,8 @@ def _got_link_verbose(lines):
     else:
         return _got_link_verbose_posix(lines)
 
-def exec_command(self, cmd, **kw):
-	# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
-	if self.log:
-		self.log.write('%s\n' % cmd)
-		kw['log'] = self.log
-	try:
-		if not 'cwd' in kw: kw['cwd'] = self.cwd
-	except AttributeError:
-		self.cwd = kw['cwd'] = self.bldnode.abspath()
-	ret, out = _exec_command(cmd, **kw)
-	self.out = out
-	return ret
-
-def _exec_command(s, **kw):
-	import pproc
-	if 'log' in kw:
-		kw["stdout"] = pproc.PIPE
-		kw["stderr"] = pproc.STDOUT
-		log = kw["log"]
-		del kw["log"]
-	kw['shell'] = isinstance(s, str)
-
-	p = pproc.Popen(s, **kw)
-	ret = p.wait()
-	out = p.communicate()[0]
-	log.write(out)
-	
-	return ret, out
-
 @conftest
-def compile_code(self, *k, **kw):
+def mycompile_code(self, *k, **kw):
 	test_f_name = kw['compile_filename']
 
 	# create a small folder for testing
@@ -208,9 +179,8 @@ def compile_code(self, *k, **kw):
 
 	back = os.path.abspath('.')
 
-	bld = Build.BuildContext()
-	import new
-	bld.exec_command = new.instancemethod(exec_command, bld)
+	from myconfig import MyBuildContext
+	bld = MyBuildContext()
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = env
@@ -278,7 +248,7 @@ def _check_link_verbose(self, *k, **kw):
 	for flag in flags:
 		kw['env']['LINKFLAGS'] = flag
 		try:
-			ret, out = self.compile_code(*k, **kw)
+			ret, out = self.mycompile_code(*k, **kw)
 		except:
 			ret = 1
 			out = ""
