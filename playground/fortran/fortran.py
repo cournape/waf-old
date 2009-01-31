@@ -154,6 +154,65 @@ def _got_link_verbose(lines):
     else:
         return _got_link_verbose_posix(lines)
 
+@conf
+def check_fortran_verbose(self, *k, **kw):
+	kw["compile_filename"] = "test.f"
+	kw["code"] = """\
+       PROGRAM MAIN
+       END
+	"""
+
+	kw['compile_mode'] = 'fortran'
+	kw['type'] = 'fprogram'
+	kw['env'] = self.env.copy()
+	kw['execute'] = 0
+
+	kw['msg'] = kw.get('msg', 'Getting fortran link verbose flag')
+	kw['errmsg'] = kw.get('errmsg', 'bad luck')
+
+	self.check_message_1(kw['msg'])
+	flags = ['-v', '--verbose', '-verbose', '-V']
+	gotflag = False
+	for flag in flags:
+		kw['env']['LINKFLAGS'] = flag
+		try:
+			ret, out = self.mycompile_code(*k, **kw)
+		except:
+			ret = 1
+			out = ""
+			
+		if ret == 0 and _got_link_verbose(out.splitlines()):
+			gotflag = True
+			break
+
+	if gotflag:
+		self.check_message_2('ok (%s)' % flag, 'GREEN')
+	else:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+
+	return ret
+
+#################################################### Add some flags on some feature
+
+@feature('flink_with_c++')
+@after('apply_core')
+@before('apply_link', 'apply_lib_vars', 'apply_fortran_link')
+def apply_special_link(self):
+	linktask = self.create_task('fortran_link')
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
+	linktask.set_inputs(outputs)
+	linktask.set_outputs(self.path.find_or_declare("and_without_target"))
+	linktask.chmod = self.chmod
+	self.link_task = linktask
+
+@feature('flink_with_c++')
+@before('apply_lib_vars')
+@after('default_cc')
+def add_some_uselib_vars(self):
+	#if sys.platform == ...
+	self.uselib += ' DEBUG'
+
+# XXX: things which have nothing to do here...
 @conftest
 def mycompile_code(self, *k, **kw):
 	"""Like compile_code, but return output of the compiler command as well as
@@ -222,62 +281,4 @@ def mycompile_code(self, *k, **kw):
 		lastprog = o.link_task.outputs[0].abspath(env)
 
 	return ret, bld.out
-
-@conf
-def check_fortran_verbose(self, *k, **kw):
-	kw["compile_filename"] = "test.f"
-	kw["code"] = """\
-       PROGRAM MAIN
-       END
-	"""
-
-	kw['compile_mode'] = 'fortran'
-	kw['type'] = 'fprogram'
-	kw['env'] = self.env.copy()
-	kw['execute'] = 0
-
-	kw['msg'] = kw.get('msg', 'Getting fortran link verbose flag')
-	kw['errmsg'] = kw.get('errmsg', 'bad luck')
-
-	self.check_message_1(kw['msg'])
-	flags = ['-v', '--verbose', '-verbose', '-V']
-	gotflag = False
-	for flag in flags:
-		kw['env']['LINKFLAGS'] = flag
-		try:
-			ret, out = self.mycompile_code(*k, **kw)
-		except:
-			ret = 1
-			out = ""
-			
-		if ret == 0 and _got_link_verbose(out.splitlines()):
-			gotflag = True
-			break
-
-	if gotflag:
-		self.check_message_2('ok (%s)' % flag, 'GREEN')
-	else:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
-
-	return ret
-
-#################################################### Add some flags on some feature
-
-@feature('flink_with_c++')
-@after('apply_core')
-@before('apply_link', 'apply_lib_vars', 'apply_fortran_link')
-def apply_special_link(self):
-	linktask = self.create_task('fortran_link')
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_or_declare("and_without_target"))
-	linktask.chmod = self.chmod
-	self.link_task = linktask
-
-@feature('flink_with_c++')
-@before('apply_lib_vars')
-@after('default_cc')
-def add_some_uselib_vars(self):
-	#if sys.platform == ...
-	self.uselib += ' DEBUG'
 
