@@ -15,6 +15,7 @@ def configure(conf):
 		conf.fatal('cannot compile a simple fortran program!')
 
 	conf.check_fortran_clib()
+	conf.check_fortran_mangling()
 
 def build(bld):
 	"try using:       waf --zones=task_gen"

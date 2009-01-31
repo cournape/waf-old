@@ -326,6 +326,80 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 
 	return ret
 
+def compile_subroutines(self, *k, **kw):
+	kw["compile_filename"] = "subroutines.f"
+	kw["code"] = """\
+      subroutine foobar()
+      return
+      end
+      subroutine foo_bar()
+      return
+      end
+"""
+
+	kw['compile_mode'] = 'fortran'
+	kw['type'] = 'fstaticlib'
+	kw['env'] = self.env.copy()
+	kw['execute'] = 0
+
+	#kw['msg'] = kw.get('msg', 'Getting fortran runtime link flags')
+	kw['errmsg'] = kw.get('errmsg', 'bad luck')
+
+	try:
+		ret, out = self.mycompile_code(*k, **kw)
+	except:
+		ret = 1
+
+	return ret
+
+@conf
+def check_fortran_mangling(self, *k, **kw):
+	compile_subroutines(self, *k, **kw)
+#    env = self.env
+#    main_tmpl = """
+#      int %s() { return 1; }
+#"""
+#    prog_tmpl = """
+#      void %s(void);
+#      void %s(void);
+#      int my_main() {
+#      %s();
+#      %s();
+#      return 0;
+#      }
+#"""
+    # variants:
+    #   lower-case, no underscore, no double underscore: foobar, foo_bar
+    #   ...
+    #   upper-case, underscore, double underscore: FOOBAR_, FOO_BAR__
+    #context.TryCompile(subr, ext)
+    #obj = context.lastTarget
+    #env.Append(LIBS = env.StaticLibrary(obj))
+    #under = ['', '_']
+    #doubleunder = ['', '_']
+    #casefcn = ["lower", "upper"]
+    #gen = _RecursiveGenerator(under, doubleunder, casefcn)
+    #while True:
+    #    try:
+    #        u, du, c = gen.next()
+    #        def make_mangler(u, du, c):
+    #            return lambda n: getattr(string, c)(n) +\
+    #                             u + (n.find('_') != -1 and du or '')
+    #        mangler = make_mangler(u, du, c)
+    #        foobar = mangler("foobar")
+    #        foo_bar = mangler("foo_bar")
+    #        prog = prog_tmpl % (foobar, foo_bar, foobar, foo_bar)
+    #        if m:
+    #            prog = main_tmpl % m + prog
+    #        result = context.TryLink(prog, '.c')
+    #        if result:
+    #            break
+    #    except StopIteration:
+    #        result = mangler = u = du = c = None
+    #        break
+
+    #return result, mangler, u, du, c
+
 #################################################### Add some flags on some feature
 
 @feature('flink_with_c++')
