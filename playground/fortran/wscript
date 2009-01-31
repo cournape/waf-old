@@ -4,8 +4,11 @@
 srcdir = '.'
 blddir = 'build'
 
+def set_options(opt):
+	opt.tool_options('compiler_fortran')
+
 def configure(conf):
-	conf.check_tool('gfortran', tooldir='.')
+	conf.check_tool('compiler_fortran')
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
 
 	if not conf.check_fortran():
