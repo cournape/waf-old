@@ -140,9 +140,9 @@ def _got_link_verbose_posix(lines):
 
     Expect lines to be a list of lines."""
     for line in lines:
-        if not GCC_DRIVER_LINE.search(line):
-            if POSIX_STATIC_EXT.search(line) or POSIX_LIB_FLAGS.search(line):
-                return True
+		if not GCC_DRIVER_LINE.search(line):
+			if POSIX_STATIC_EXT.search(line) or POSIX_LIB_FLAGS.search(line):
+				return True
     return False
 
 def _got_link_verbose(lines):
@@ -150,7 +150,36 @@ def _got_link_verbose(lines):
     if sys.platform == 'win32':
         raise NotImplementedError("FIXME: not implemented on win32")
     else:
-        return _check_link_verbose_posix(lines)
+        return _got_link_verbose_posix(lines)
+
+def exec_command(self, cmd, **kw):
+	# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
+	if self.log:
+		self.log.write('%s\n' % cmd)
+		kw['log'] = self.log
+	try:
+		if not 'cwd' in kw: kw['cwd'] = self.cwd
+	except AttributeError:
+		self.cwd = kw['cwd'] = self.bldnode.abspath()
+	ret, out = _exec_command(cmd, **kw)
+	self.out = out
+	return ret
+
+def _exec_command(s, **kw):
+	import pproc
+	if 'log' in kw:
+		kw["stdout"] = pproc.PIPE
+		kw["stderr"] = pproc.STDOUT
+		log = kw["log"]
+		del kw["log"]
+	kw['shell'] = isinstance(s, str)
+
+	p = pproc.Popen(s, **kw)
+	ret = p.wait()
+	out = p.communicate()[0]
+	log.write(out)
+	
+	return ret, out
 
 @conftest
 def compile_code(self, *k, **kw):
@@ -180,6 +209,8 @@ def compile_code(self, *k, **kw):
 	back = os.path.abspath('.')
 
 	bld = Build.BuildContext()
+	import new
+	bld.exec_command = new.instancemethod(exec_command, bld)
 	bld.log = self.log
 	bld.all_envs.update(self.all_envs)
 	bld.all_envs['default'] = env
@@ -212,14 +243,12 @@ def compile_code(self, *k, **kw):
 	if ret:
 		self.log.write('command returned %r' % ret)
 		self.fatal(str(ret))
-	else:
-		print self.log
 
 	# keep the name of the program to execute
 	if kw['execute']:
 		lastprog = o.link_task.outputs[0].abspath(env)
 
-	return ret
+	return ret, bld.out
 
 def _check_link_verbose(self, *k, **kw):
 	if not 'compile_filename' in kw:
@@ -245,16 +274,23 @@ def _check_link_verbose(self, *k, **kw):
 
 	self.check_message_1(kw['msg'])
 	flags = ['-v', '--verbose', '-verbose', '-V']
+	gotflag = False
 	for flag in flags:
 		kw['env']['LINKFLAGS'] = flag
-		ret = self.compile_code(*k, **kw)
-		print ret
-		if ret == 0:
+		try:
+			ret, out = self.compile_code(*k, **kw)
+		except:
+			ret = 1
+			out = ""
+			
+		if ret == 0 and _got_link_verbose(out.splitlines()):
+			gotflag = True
 			break
-	if ret:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
-	else:
+
+	if gotflag:
 		self.check_message_2('ok (%s)' % flag, 'GREEN')
+	else:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
 
 	return ret
 
