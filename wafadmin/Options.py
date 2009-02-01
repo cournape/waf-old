@@ -209,7 +209,7 @@ class Handler(object):
 		tools = Utils.to_list(tool)
 		for tool in tools:
 			tool = tool.replace('++', 'xx')
-			module = Utils.load_tool(tool, tooldir)
+			module = Utils.load_tool(tool, Utils.to_list(tdir or tooldir))
 			try:
 				fun = module.set_options
 			except AttributeError:
