@@ -27,24 +27,24 @@ def build(bld):
 
 	bld.new_task_gen(
 		features = 'fortran fshlib',
-		source = 'hello.f',
-		target = 'hello')
+		source = 'foo.f',
+		target = 'foo')
 
-	bld.new_task_gen(
-		features = 'fortran fstaticlib',
-		source = 'hello.f',
-		target = 'hello')
-
-	bld.new_task_gen(
-		features = 'fortran',
-		source = 'hello.f')
-
-
-	# See the bottom of gfortran.py for explanations
-	# * add a particular uselib flag
-	# * change the link system, neutralizing the default
-	bld.new_task_gen(
-		features = 'fortran fprogram flink_with_c++',
-		source = 'hello.f',
-		target = 'hello')
-
+#	bld.new_task_gen(
+#		features = 'fortran fstaticlib',
+#		source = 'foo.f',
+#		target = 'foo')
+#
+#	bld.new_task_gen(
+#		features = 'fortran',
+#		source = 'hello.f')
+#
+#
+#	# See the bottom of gfortran.py for explanations
+#	# * add a particular uselib flag
+#	# * change the link system, neutralizing the default
+#	bld.new_task_gen(
+#		features = 'fortran fprogram flink_with_c++',
+#		source = 'hello.f',
+#		target = 'hello')
+#
