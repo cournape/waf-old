@@ -345,7 +345,8 @@ def check_fortran_mangling(self, *k, **kw):
 
 	self.check_message_1(kw['msg'])
 
-	under = ['', '_']
+	# Order is 'optimized' for gfortran
+	under = ['_', '']
 	doubleunder = ['', '_']
 	casefcn = ["lower", "upper"]
 	gen = _RecursiveGenerator(under, doubleunder, casefcn)
