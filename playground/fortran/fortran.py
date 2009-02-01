@@ -61,16 +61,34 @@ TaskGen.declare_order('default_cc', 'apply_core')
 def init_f(self):
 	# the kinds of variables we depend on
 	self.p_flag_vars = 'FC FCFLAGS RPATH LINKFLAGS'.split()
-	self.p_type_vars = ['CFLAGS', 'LINKFLAGS']
+	self.p_type_vars = ['FCFLAGS', 'LINKFLAGS']
 
 @feature('fortran')
-@after('apply_incpaths')
+@after('apply_incpaths', 'apply_fortran_type_vars')
 def incflags_fortran(self):
 	app = self.env.append_unique
 	pat = self.env['FCPATH_ST']
 	for x in self.env['INC_PATHS']:
 		app('FCFLAGS', pat % x.bldpath(env))
 		app('FCFLAGS', pat % x.srcpath(env))
+
+@feature('fortran')
+def apply_fortran_type_vars(self):
+	for x in self.features:
+		if not x in ['fprogram', 'fstaticlib', 'fshlib']:
+			continue
+		x = x.lstrip('f')
+
+		# if the type defines uselib to add, add them
+		st = self.env[x + '_USELIB']
+		if st: self.uselib = self.uselib + ' ' + st
+
+		# each compiler defines variables like 'shlib_FCFLAGS', 'shlib_LINKFLAGS', etc
+		# so when we make a task generator of the type shlib, FCFLAGS are modified accordingly
+		for var in self.p_type_vars:
+			compvar = '%s_%s' % (x, var)
+			value = self.env[compvar]
+			if value: self.env.append_value(var, value)
 
 @feature('fprogram', 'fshlib', 'fstaticlib')
 @after('apply_core')

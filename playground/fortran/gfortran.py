@@ -29,6 +29,13 @@ def gfortran_flags(conf):
 
 	v['FCFLAGS_DEBUG'] = ['-Werror']
 
+	# shared library: XXX this is platform dependent, actually (no -fPIC on
+	# windows, etc...)
+	v['shlib_FCFLAGS'] = ['-fPIC']
+	#v['shlib_LINKFLAGS']     = ['-shared']
+	#v['shlib_PATTERN']       = 'lib%s.so'
+
+
 detect = '''
 find_gfortran
 gfortran_flags
