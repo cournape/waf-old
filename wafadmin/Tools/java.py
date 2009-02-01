@@ -23,7 +23,23 @@ change is only annoying for the compilation times
 import os, re
 from Configure import conf
 import TaskGen, Task, Utils
-from TaskGen import feature, before
+from TaskGen import feature, before, taskgen
+
+exclude_regs = """
+**/*~
+**/#*#
+**/.#*
+**/%*%
+**/._*
+**/CVS
+**/CVS/**
+**/.cvsignore
+**/SCCS
+**/SCCS/**
+**/vssver.scc
+**/.svn
+**/.svn/**
+**/.DS_Store""".split()
 
 class java_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
@@ -178,13 +194,20 @@ public class Test {
 
 	return found
 
-
-from TaskGen import taskgen
 @taskgen
-def fileset(self, *k, **kw):
-	pass
+def find_java_files(self, *k, **kw):
+	regex = jar_regexp(k[0])
+	def accept(node, name):
+		ts = node.bldpath(self.env) + '/' + name
+		return regex.match(ts)
 
-import re
+	def reject(node, name):
+		ts = node.bldpath(self.env) + '/' + name
+		return default_excludes()(ts)
+
+	nodes = [x for x in self.path.find_iter_impl(dir=0, accept_name=accept, is_prune=reject)]
+	return nodes
+
 def jar_regexp(regex):
 	if regex.endswith('/'):
 		regex += '**'
@@ -194,8 +217,25 @@ def jar_regexp(regex):
 		.replace(r"\?","[^/]"))
 	if regex.endswith(r'\/.*'):
 		regex = regex[:-4] + '([/].*)*'
+	regex += '$'
 	#print regex
-	return re.compile(regex+"$")
+	return re.compile(regex)
+
+exc_fun = None
+def default_excludes():
+	global exc_fun
+	if exc_fun:
+		return exc_fun
+
+	regs = [jar_regexp(x) for x in exclude_regs]
+	def mat(path):
+		for x in regs:
+			if x.match(path):
+				return True
+		return False
+
+	exc_fun = mat
+	return exc_fun
 
 def test_re(reg, ts, expected=True):
 	regexp = jar_regexp(reg)
@@ -229,5 +269,4 @@ test_re(r, 'foo/bar/test')
 test_re(r, 'test/bar')
 r = '**/test/'
 test_re(r, 'foo/bar/test/bar')
-
 
