@@ -3,6 +3,7 @@
 
 import ccroot # <- leave this
 import fortran
+import ar
 from Configure import conftest
 
 @conftest
@@ -35,8 +36,8 @@ def gfortran_flags(conf):
 	v['shlib_LINKFLAGS'] = ['-shared']
 	#v['shlib_PATTERN']       = 'lib%s.so'
 
-
-detect = '''
-find_gfortran
-gfortran_flags
-'''
+def detect(conf):
+	v = conf.env
+	find_gfortran(conf)
+	ar.find_ar(conf)
+	gfortran_flags(conf)
