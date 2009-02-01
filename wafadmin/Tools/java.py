@@ -192,6 +192,8 @@ def jar_regexp(regex):
 		.replace(r"\*\*", ".*")
 		.replace(r"\*","[^/]*")
 		.replace(r"\?","[^/]"))
+	if regex.endswith(r'\/.*'):
+		regex = regex[:-4] + '([/].*)*'
 	#print regex
 	return re.compile(regex+"$")
 
