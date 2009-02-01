@@ -4,6 +4,7 @@ import os
 import sys
 
 from Configure import conftest, conf
+import Configure
 from Build import BuildContext
 import Utils
 
@@ -342,16 +343,19 @@ def link_main_routines(self, *k, **kw):
 @conf
 def check_fortran_mangling(self, *k, **kw):
 	kw['msg'] = kw.get('msg', 'Getting fortran mangling scheme')
-	kw['errmsg'] = kw.get('errmsg', 'bad luck')
+	kw['errmsg'] = kw.get('errmsg', 'Failed !')
 
 	kw['dummy_func_nounder'] = 'foobar_'
 	kw['dummy_func_under'] = 'foo_bar_'
 	self.check_message_1(kw['msg'])
 
-	self.link_main_routines(*k, **kw)
+	try:
+		self.link_main_routines(*k, **kw)
+	except Configure.ConfigurationError, e:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+		return
 
 	self.check_message_2('ok', 'GREEN')
-	#self.check_message_2(kw['errmsg'], 'YELLOW')
 	#return result, mangler, u, du, c
 
 # XXX: things which have nothing to do here...
