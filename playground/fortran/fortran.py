@@ -98,6 +98,10 @@ def apply_fortran_link(self):
 	try: self.meths.remove('apply_link')
 	except ValueError: pass
 
+	link = 'fortran_link'
+	if 'fstaticlib' in self.features:
+		link = 'ar_link_static'
+
 	def get_name():
 		if 'fprogram' in self.features:
 			return '%s'
@@ -106,7 +110,7 @@ def apply_fortran_link(self):
 		else:
 			return 'lib%s.a'
 
-	linktask = self.create_task('fortran_link')
+	linktask = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	linktask.set_inputs(outputs)
 	linktask.set_outputs(self.path.find_or_declare(get_name() % self.target))

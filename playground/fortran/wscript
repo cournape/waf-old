@@ -30,11 +30,11 @@ def build(bld):
 		source = 'foo.f',
 		target = 'foo')
 
-#	bld.new_task_gen(
-#		features = 'fortran fstaticlib',
-#		source = 'foo.f',
-#		target = 'foo')
-#
+	bld.new_task_gen(
+		features = 'fortran fstaticlib',
+		source = 'foo.f',
+		target = 'foo')
+
 #	bld.new_task_gen(
 #		features = 'fortran',
 #		source = 'hello.f')
