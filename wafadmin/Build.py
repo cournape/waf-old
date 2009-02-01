@@ -458,7 +458,19 @@ class BuildContext(object):
 		@param parent_node [Node]: parent node of path to scan.
 		@param path [string]: path to folder to scan."""
 
-		lst = set(Utils.listdir(path))
+		try:
+			lst = set(Utils.listdir(path))
+		except OSError:
+			# this is only for folders created in the build directory by ill-behaving compilers
+			# WARNING: experimental
+			if not parent_node.childs:
+				raise
+			for x in parent_node.childs.values():
+				if x.id & 3 == Node.FILE:
+					# if there are files, this means this node was not eliminated automatically
+					# so this is a grave error
+					raise
+			lst = set([])
 
 		self.cache_dir_contents[parent_node.id] = lst
 		debug('build: folder contents %r' % lst)
