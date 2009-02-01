@@ -4,6 +4,7 @@
 import ccroot # <- leave this
 import fortran
 import ar
+import gcc
 from Configure import conftest
 
 @conftest
@@ -41,3 +42,6 @@ def detect(conf):
 	find_gfortran(conf)
 	ar.find_ar(conf)
 	gfortran_flags(conf)
+	gcc.gcc_modifier_win32(conf)
+	gcc.gcc_modifier_cygwin(conf)
+	gcc.gcc_modifier_darwin(conf)
