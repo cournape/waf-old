@@ -22,13 +22,23 @@ def check_fortran_dummy_main(self, *k, **kw):
 
 	self.check_message_1(kw['msg'])
 
-	try:
-		st, m = self._check_dummy_main(*k, **kw)
-	except Configure.ConfigurationError, e:
-		st = 1
+	mains = ["MAIN__", "__MAIN", "_MAIN", "MAIN_"]
+	mains.extend([string.lower(m) for m in mains])
+	mains.extend(["", "MAIN", "main"])
+	for main in mains:
+		kw['fortran_main'] = main
+		try:
+			st, m = self._check_dummy_main(*k, **kw)
+			if st == 0:
+				break
+		except Configure.ConfigurationError, e:
+			st = 1
 
 	if st == 0:
-		self.check_message_2('ok (%s)' % m, 'GREEN')
+		if m == '':
+			self.check_message_2('no', 'GREEN')
+		else:
+			self.check_message_2('yes (%s)' % m, 'GREEN')
 		ret = True
 	else:
 		self.check_message_2(kw['errmsg'], 'YELLOW')
@@ -40,12 +50,20 @@ def check_fortran_dummy_main(self, *k, **kw):
 def _check_dummy_main(self, *k, **kw):
 	# For a given main , we compile the code snippet with the C compiler, and
 	# link with the Fortran compiler.
-	main = 'MAIN__'
+	main = kw['fortran_main']
 	fcn_tmpl = """
 int %s() { return 0; }
 """
 	prog = fcn_tmpl % main
-	return 0, main
+	kw['compile_filename'] = 'test.c'
+	kw['fragment'] = fcn_tmpl % main
+	kw['code'] = kw['fragment']
+	kw['type'] = 'fprogram'
+	kw['compile_mode'] = 'cc'
+	kw['env'] = self.env.copy()
+	kw['execute'] = 0
+	st = self.run_c_code(*k, **kw)
+	return st, main
 
 #-----------------------------
 # Detecting verbose link flag
