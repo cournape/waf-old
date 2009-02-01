@@ -42,7 +42,7 @@ def genmarshal_func(self):
 	get = self.env.get_flat
 	cmd1 = "%s %s --prefix=%s --header > %s" % (
 		get('GLIB_GENMARSHAL'),
-		self.inputs[0].abspath(self.env),
+		self.inputs[0].srcpath(self.env),
 		get('GLIB_GENMARSHAL_PREFIX'),
 		self.outputs[0].abspath(self.env)
 	)
@@ -57,7 +57,7 @@ def genmarshal_func(self):
 
 	cmd2 = "%s %s --prefix=%s --body >> %s" % (
 		get('GLIB_GENMARSHAL'),
-		self.inputs[0].abspath(self.env),
+		self.inputs[0].srcpath(self.env),
 		get('GLIB_GENMARSHAL_PREFIX'),
 		self.outputs[1].abspath(self.env)
 	)
