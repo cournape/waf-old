@@ -21,9 +21,31 @@ def check_fortran_dummy_main(self, *k, **kw):
 	kw['errmsg'] = kw.get('errmsg', 'Failed !')
 
 	self.check_message_1(kw['msg'])
-	self.check_message_2('ok', 'GREEN')
 
-	return True
+	try:
+		st, m = self._check_dummy_main(*k, **kw)
+	except Configure.ConfigurationError, e:
+		st = 1
+
+	if st == 0:
+		self.check_message_2('ok (%s)' % m, 'GREEN')
+		ret = True
+	else:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+		ret = False
+
+	return ret
+
+@conftest
+def _check_dummy_main(self, *k, **kw):
+	# For a given main , we compile the code snippet with the C compiler, and
+	# link with the Fortran compiler.
+	main = 'MAIN__'
+	fcn_tmpl = """
+int %s() { return 0; }
+"""
+	prog = fcn_tmpl % main
+	return 0, main
 
 #-----------------------------
 # Detecting verbose link flag
