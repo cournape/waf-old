@@ -12,6 +12,19 @@ import Utils
 
 from myconfig import MyBuildContext
 
+#----------------------
+# Detecting dummy main
+#----------------------
+@conf
+def check_fortran_dummy_main(self, *k, **kw):
+	kw['msg'] = kw.get('msg', 'Detecting whether we need a dummy main')
+	kw['errmsg'] = kw.get('errmsg', 'Failed !')
+
+	self.check_message_1(kw['msg'])
+	self.check_message_2('ok', 'GREEN')
+
+	return True
+
 #-----------------------------
 # Detecting verbose link flag
 #-----------------------------

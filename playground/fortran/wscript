@@ -17,9 +17,11 @@ def configure(conf):
 		conf.fatal('cannot compile a simple fortran program!')
 
 	#conf.check_fortran_clib()
-	st, mangler = conf.check_fortran_mangling()
-	if not st:
-		conf.fatal('cannot detect the mangling scheme')
+	#st, mangler = conf.check_fortran_mangling()
+	#if not st:
+	#	conf.fatal('cannot detect the mangling scheme')
+
+	conf.check_fortran_dummy_main()
 
 def build(bld):
 	"try using:       waf --zones=task_gen"
