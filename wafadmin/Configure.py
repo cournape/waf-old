@@ -263,7 +263,7 @@ class ConfigurationContext(object):
 				elif ret == CONTINUE:
 					continue
 				else:
-					raise
+					self.fatal(e)
 
 	def err_handler(self, fun, error):
 		pass
