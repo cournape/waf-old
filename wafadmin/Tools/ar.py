@@ -11,9 +11,8 @@ from Configure import conftest
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
 
-# FIXME
 if sys.platform == "win32":
-	ar_str = '${AR} s${ARFLAGS} ${TGT} ${SRC}'
+	ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC}'
 cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o')
 cls.maxjobs = 1
 
@@ -26,7 +25,7 @@ def detect(conf):
 
 	v = conf.env
 	v['AR']          = comp
-	v['ARFLAGS']     = 'rc'
+	v['ARFLAGS']     = 'src'
 	v['RANLIB']      = ranlib
 	v['RANLIBFLAGS'] = ''
 
