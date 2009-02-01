@@ -47,6 +47,12 @@ def build(bld):
 		target = 'foo',
 		defines = 'USEFOO')
 
+	bld.new_task_gen(
+		features = 'fortran fprogram',
+		includes = "src/include",
+		source = 'src/hello_inc.f',
+		target = 'hello_inc')
+
 #	bld.new_task_gen(
 #		features = 'fortran',
 #		source = 'hello.f')

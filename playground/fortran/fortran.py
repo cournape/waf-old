@@ -20,14 +20,14 @@ EXT_FCPP = ".F"
 EXT_OBJ = ".o"
 
 Task.simple_task_type('fortran',
-	'${FC} ${FCFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}',
+	'${FC} ${FCFLAGS} ${_CCINCFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}',
 	'GREEN',
 	ext_out=EXT_OBJ,
 	ext_in=EXT_FC)
 
 # Task to compile fortran source which needs to be preprocessed by cpp first
 Task.simple_task_type('fortranpp',
-	'${FC} ${FCFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS}',
+	'${FC} ${FCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC} ',
 	'GREEN',
 	ext_out=EXT_OBJ,
 	ext_in=EXT_FCPP)
@@ -60,7 +60,7 @@ def fortranpp_hook(self, node):
 
 # we reuse a lot of code from ccroot.py
 
-FORTRAN = 'init_f default_cc apply_incpaths apply_defines_cc apply_type_vars apply_lib_vars add_extra_flags'.split()
+FORTRAN = 'init_f default_cc apply_incpaths apply_defines_cc apply_type_vars apply_lib_vars add_extra_flags apply_obj_vars_cc'.split()
 FPROGRAM = 'apply_verif vars_target_cprogram install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
 FSHLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib install_target_cshlib apply_objdeps apply_obj_vars apply_vnum'.split()
 FSTATICLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
@@ -82,15 +82,7 @@ def init_f(self):
 	self.p_type_vars = ['FCFLAGS', 'LINKFLAGS']
 
 @feature('fortran')
-@after('apply_incpaths', 'apply_fortran_type_vars')
-def incflags_fortran(self):
-	app = self.env.append_unique
-	pat = self.env['FCPATH_ST']
-	for x in self.env['INC_PATHS']:
-		app('FCFLAGS', pat % x.bldpath(env))
-		app('FCFLAGS', pat % x.srcpath(env))
-
-@feature('fortran')
+@after('apply_incpaths')
 def apply_fortran_type_vars(self):
 	for x in self.features:
 		if not x in ['fprogram', 'fstaticlib', 'fshlib']:
