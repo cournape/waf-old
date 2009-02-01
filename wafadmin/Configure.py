@@ -104,7 +104,7 @@ class ConfigurationContext(object):
 	def __del__(self):
 		"""cleanup function: close config.log"""
 
-		# may be ran by the gc, not always after initiazliation
+		# may be ran by the gc, not always after initialization
 		if hasattr(self, 'log') and self.log:
 			self.log.close()
 
