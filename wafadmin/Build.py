@@ -620,6 +620,12 @@ class BuildContext(object):
 			# for the pretty-printing (Node.py), the two lines below cannot be moved to Build::launch_node
 			if ln.is_child_of(self.bldnode) or not ln.is_child_of(self.srcnode):
 				ln = self.srcnode
+
+			# if the project file is located under the source directory, build all targets by default
+			proj_node = self.root.find_dir(os.path.split(Utils.g_module.root_path)[0])
+			if proj_node.id != self.srcnode.id:
+				ln = self.srcnode
+
 			for obj in self.all_task_gen:
 				if not obj.path.is_child_of(ln): continue
 				obj.post()
