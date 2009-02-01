@@ -5,17 +5,21 @@ srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
+	opt.tool_options('compiler_cc')
 	opt.tool_options('compiler_fortran')
 
 def configure(conf):
+	conf.check_tool('compiler_cc')
 	conf.check_tool('compiler_fortran')
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
 
 	if not conf.check_fortran():
 		conf.fatal('cannot compile a simple fortran program!')
 
-	conf.check_fortran_clib()
-	conf.check_fortran_mangling()
+	#conf.check_fortran_clib()
+	st, mangler = conf.check_fortran_mangling()
+	if not st:
+		conf.fatal('cannot detect the mangling scheme')
 
 def build(bld):
 	"try using:       waf --zones=task_gen"

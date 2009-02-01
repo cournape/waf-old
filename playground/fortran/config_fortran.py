@@ -2,6 +2,7 @@ import re
 import shutil
 import os
 import sys
+import string
 
 from Configure import conftest, conf
 import Configure
@@ -334,29 +335,48 @@ def link_main_routines(self, *k, **kw):
 		self.log.write('command returned %r' % ret)
 		self.fatal(str(ret))
 
-	## keep the name of the program to execute
-	#if kw['execute']:
-	#	lastprog = o.link_task.outputs[0].abspath(env)
-
 	return ret
 
 @conf
 def check_fortran_mangling(self, *k, **kw):
+	# XXX: what's the best way to return a second result ?
 	kw['msg'] = kw.get('msg', 'Getting fortran mangling scheme')
 	kw['errmsg'] = kw.get('errmsg', 'Failed !')
 
-	kw['dummy_func_nounder'] = 'foobar_'
-	kw['dummy_func_under'] = 'foo_bar_'
 	self.check_message_1(kw['msg'])
 
-	try:
-		self.link_main_routines(*k, **kw)
-	except Configure.ConfigurationError, e:
-		self.check_message_2(kw['errmsg'], 'YELLOW')
-		return
+	under = ['', '_']
+	doubleunder = ['', '_']
+	casefcn = ["lower", "upper"]
+	gen = _RecursiveGenerator(under, doubleunder, casefcn)
+	while True:
+		try:
+			u, du, c = gen.next()
+			def make_mangler(u, du, c):
+				return lambda n: getattr(string, c)(n) +\
+								 u + (n.find('_') != -1 and du or '')
+			mangler = make_mangler(u, du, c)
+			kw['dummy_func_nounder'] = mangler("foobar")
+			kw['dummy_func_under'] = mangler("foo_bar")
+			try:
+				ret = self.link_main_routines(*k, **kw)
+			except Configure.ConfigurationError, e:
+				ret = 1
+			if ret == 0:
+				break
+		except StopIteration:
+			# We ran out, mangling scheme is unknown ...
+			result = mangler = u = du = c = None
+			break
 
-	self.check_message_2('ok', 'GREEN')
-	#return result, mangler, u, du, c
+	if mangler is None:
+		self.check_message_2(kw['errmsg'], 'YELLOW')
+		result = False
+	else:
+		self.check_message_2("ok ('%s', '%s', '%s-case')" % (u, du, c),
+							 'GREEN')
+		result = True
+	return result, mangler
 
 # XXX: things which have nothing to do here...
 @conftest
