@@ -204,18 +204,25 @@ class Handler(object):
 		finally:
 			self.cwd = current
 
-	def tool_options(self, tool, tdir=None, option_group=None):
+	def tool_options(self, *k, **kw):
 		Utils.python_24_guard()
-		tools = Utils.to_list(tool)
+
+		if not k[0]:
+			raise Utils.WscriptError('invalid tool_options call %r %r' % (k, kw))
+		tools = Utils.to_list(k[0])
+
+		# TODO waf 1.6 for compatibility we have a global variable tooldir
+		path = Utils.to_list(kw.get('tdir', kw.get('tooldir', tooldir)))
+
 		for tool in tools:
 			tool = tool.replace('++', 'xx')
-			module = Utils.load_tool(tool, Utils.to_list(tdir or tooldir))
+			module = Utils.load_tool(tool, path)
 			try:
 				fun = module.set_options
 			except AttributeError:
 				pass
 			else:
-				fun(option_group or self)
+				fun(kw.get('option_group', self))
 
 	def parse_args(self, args=None):
 		parse_args_impl(self.parser, args)
