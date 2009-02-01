@@ -386,6 +386,9 @@ def check_python_module(conf, module_name):
 		conf.fatal("Python module not found.")
 
 def detect(conf):
+	if not conf.env['CC_NAME']:
+		conf.fatal('load a compiler first (gcc, g++, ..)')
+
 	python = conf.find_program('python', var='PYTHON')
 	if not python: return
 
