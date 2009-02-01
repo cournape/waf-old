@@ -258,7 +258,9 @@ def link_main_routines(self, *k, **kw):
       %s();
       return 0;
       }
-""" % ('foo_bar_', 'foobar_', 'foo_bar_', 'foobar_')
+""" % (kw['dummy_func_under'], kw['dummy_func_nounder'],
+		kw['dummy_func_under'], kw['dummy_func_nounder'])
+
 
 	# create a small folder for testing
 	dir = os.path.join(self.blddir, '.wscript-trybuild')
@@ -339,8 +341,18 @@ def link_main_routines(self, *k, **kw):
 
 @conf
 def check_fortran_mangling(self, *k, **kw):
+	kw['msg'] = kw.get('msg', 'Getting fortran mangling scheme')
+	kw['errmsg'] = kw.get('errmsg', 'bad luck')
+
+	kw['dummy_func_nounder'] = 'foobar_'
+	kw['dummy_func_under'] = 'foo_bar_'
+	self.check_message_1(kw['msg'])
+
 	self.link_main_routines(*k, **kw)
-    #return result, mangler, u, du, c
+
+	self.check_message_2('ok', 'GREEN')
+	#self.check_message_2(kw['errmsg'], 'YELLOW')
+	#return result, mangler, u, du, c
 
 # XXX: things which have nothing to do here...
 @conftest
