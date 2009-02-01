@@ -7,6 +7,11 @@ from TaskGen import feature, before, after, extension
 from Configure import conftest, conf
 import Build
 
+# TODO:
+#   - handle modules
+#   - handle multiple dialects
+#   - windows...
+
 #################################################### Task definitions
 
 EXT_FC = ".f"

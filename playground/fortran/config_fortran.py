@@ -12,6 +12,12 @@ import Utils
 
 from myconfig import MyBuildContext
 
+# TODO:
+#	- remove the mycompile_code calls -> check or run_c_code should be usable
+#	instead, using the suggestions from the waf-users ML (1/02/2009)
+#	- handling dialects (F77, F90, etc... -> needs core support first)
+#	- handling dependencies between config checks ?
+#	- fix dummy main check (AC_FC_DUMMY_MAIN vs AC_FC_MAIN)
 #----------------------
 # Detecting dummy main
 #----------------------
