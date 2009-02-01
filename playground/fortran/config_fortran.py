@@ -3,6 +3,7 @@ import shutil
 import os
 import sys
 import string
+import shlex
 
 from Configure import conftest, conf
 import Configure
@@ -11,6 +12,9 @@ import Utils
 
 from myconfig import MyBuildContext
 
+#-----------------------------
+# Detecting verbose link flag
+#-----------------------------
 GCC_DRIVER_LINE = re.compile('^Driving:')
 POSIX_STATIC_EXT = re.compile('\S+\.a')
 POSIX_LIB_FLAGS = re.compile('-l\S+')
@@ -74,9 +78,9 @@ def check_fortran_verbose(self, autoadd=True, *k, **kw):
 
 	return ret
 
-# Get Fortran runtime libraries
-import shlex
-
+#------------------------------------
+# Detecting fortran runtime libraries
+#------------------------------------
 # linkflags which match those are ignored
 LINKFLAGS_IGNORED = [r'-lang*', r'-lcrt[a-zA-Z0-9]*\.o', r'-lc$', r'-lSystem',
                      r'-libmil', r'-LIST:*', r'-LNO:*']
@@ -379,6 +383,9 @@ def check_fortran_mangling(self, *k, **kw):
 		result = True
 	return result, mangler
 
+#---------
+# Misc ...
+#---------
 # XXX: things which have nothing to do here...
 @conftest
 def mycompile_code(self, *k, **kw):
@@ -448,4 +455,3 @@ def mycompile_code(self, *k, **kw):
 		lastprog = o.link_task.outputs[0].abspath(env)
 
 	return ret, bld.out
-
