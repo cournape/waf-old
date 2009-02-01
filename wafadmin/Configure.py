@@ -254,6 +254,7 @@ class ConfigurationContext(object):
 		self.rules = Utils.to_list(rules)
 		for x in self.rules:
 			f = getattr(self, x)
+			if not f: self.fatal("No such method '%s'." % x)
 			try:
 				f()
 			except Exception, e:
