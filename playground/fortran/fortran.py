@@ -8,6 +8,7 @@ from Configure import conftest, conf
 import Build
 
 # TODO:
+#   - handle pre-processed files (FORTRANPPCOM in scons)
 #   - handle modules
 #   - handle multiple dialects
 #   - windows...
