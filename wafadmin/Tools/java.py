@@ -178,3 +178,54 @@ public class Test {
 
 	return found
 
+
+from TaskGen import taskgen
+@taskgen
+def fileset(self, *k, **kw):
+	pass
+
+import re
+def jar_regexp(regex):
+	if regex.endswith('/'):
+		regex += '**'
+	regex = (re.escape(regex).replace(r"\*\*\/", ".*")
+		.replace(r"\*\*", ".*")
+		.replace(r"\*","[^/]*")
+		.replace(r"\?","[^/]"))
+	#print regex
+	return re.compile(regex+"$")
+
+def test_re(reg, ts, expected=True):
+	regexp = jar_regexp(reg)
+	if regexp.match(ts):
+		b = True
+	else:
+		b = False
+
+	if b == expected:
+		Utils.pprint("GREEN", "ok!")
+	else:
+		Utils.pprint("RED", "bad %r %r" % (reg, ts))
+
+r = '**/CVS/*'
+test_re(r, 'CVS/Repository')
+test_re(r, 'org/apache/CVS/Entries')
+test_re(r, 'org/apache/jakarta/tools/ant/CVS/Entries')
+test_re(r, 'org/apache/CVS/foo/bar/Entries', False)
+r = 'org/apache/jakarta/**'
+test_re(r, 'org/apache/jakarta/tools/ant/docs/index.html')
+test_re(r, 'org/apache/jakarta/test.xml')
+test_re(r, 'org/apache/xyz.java', False)
+r = 'org/apache/**/CVS/*'
+test_re(r, 'org/apache/CVS/Entries')
+test_re(r, 'org/apache/jakarta/tools/ant/CVS/Entries')
+test_re(r, 'org/apache/CVS/foo/bar/Entries', False)
+r = '**/test/**'
+test_re(r, 'test')
+test_re(r, 'foo/bar/test/bar')
+test_re(r, 'foo/bar/test')
+test_re(r, 'test/bar')
+r = '**/test/'
+test_re(r, 'foo/bar/test/bar')
+
+
