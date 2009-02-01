@@ -16,6 +16,7 @@ import Build
 #################################################### Task definitions
 
 EXT_FC = ".f"
+EXT_FCPP = ".F"
 EXT_OBJ = ".o"
 
 Task.simple_task_type('fortran',
@@ -23,6 +24,13 @@ Task.simple_task_type('fortran',
 	'GREEN',
 	ext_out=EXT_OBJ,
 	ext_in=EXT_FC)
+
+# Task to compile fortran source which needs to be preprocessed by cpp first
+Task.simple_task_type('fortranpp',
+	'${FC} ${FCFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS}',
+	'GREEN',
+	ext_out=EXT_OBJ,
+	ext_in=EXT_FCPP)
 
 Task.simple_task_type('fortran_link',
 	'${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}',
@@ -38,11 +46,21 @@ def fortran_hook(self, node):
 	self.compiled_tasks.append(task)
 	return task
 
+@extension(EXT_FCPP)
+def fortranpp_hook(self, node):
+	obj_ext = '_%d.o' % self.idx
+
+	task = self.create_task('fortranpp')
+	task.inputs = [node]
+	task.outputs = [node.change_ext(obj_ext)]
+	self.compiled_tasks.append(task)
+	return task
+
 #################################################### Task generators
 
 # we reuse a lot of code from ccroot.py
 
-FORTRAN = 'init_f default_cc apply_incpaths apply_type_vars apply_lib_vars add_extra_flags'.split()
+FORTRAN = 'init_f default_cc apply_incpaths apply_defines_cc apply_type_vars apply_lib_vars add_extra_flags'.split()
 FPROGRAM = 'apply_verif vars_target_cprogram install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
 FSHLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib install_target_cshlib apply_objdeps apply_obj_vars apply_vnum'.split()
 FSTATICLIB = 'apply_verif vars_target_cstaticlib install_target_cstaticlib apply_objdeps apply_obj_vars '.split()
