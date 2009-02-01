@@ -4,6 +4,8 @@ import os
 import sys
 
 from Configure import conftest, conf
+from Build import BuildContext
+import Utils
 
 from myconfig import MyBuildContext
 
@@ -202,9 +204,40 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 
 	return ret
 
-def compile_subroutines(self, *k, **kw):
-	kw["compile_filename"] = "subroutines.f"
-	kw["code"] = """\
+#-------------------------
+# Fortran mangling scheme
+#-------------------------
+# Helper to generate combinations of lists
+def _RecursiveGenerator(*sets):
+	"""Returns a generator that yields one tuple per element combination.
+	  A set may be any iterable to which the not operator is applicable.
+	"""
+	if not sets: return
+	def calc(sets):
+		head, tail = sets[0], sets[1:]
+		if not tail:
+			for e in head:
+				yield (e,)
+		else:
+			for e in head:
+				for t in calc(tail):
+					  yield (e,) + t
+	return calc(sets)
+
+@conftest
+def link_main_routines(self, *k, **kw):
+	# This function tests one mangling scheme, defined by the correspondance
+	# fortran name <-> C name. It works as follows:
+	#	* build a fortran library subroutines with dummy functions
+	#	* compile a C main program which calls the dummy functions, and link
+	#	against the fortran library. If the link succeeds, it means the names
+	#	as used in the C program matches the mangling scheme of the fortran
+	#	compiler.
+	routines_compile_mode = 'fortran'
+	routines_type = 'fstaticlib'
+
+	routines_f_name = "subroutines.f"
+	routines_code = """\
       subroutine foobar()
       return
       end
@@ -213,67 +246,100 @@ def compile_subroutines(self, *k, **kw):
       end
 """
 
-	kw['compile_mode'] = 'fortran'
-	kw['type'] = 'fstaticlib'
-	kw['env'] = self.env.copy()
-	kw['execute'] = 0
+	main_compile_mode = 'cc'
+	main_type = 'cprogram'
+	main_f_name = "main.c"
+	# XXX: handle dummy main...
+	main_code = """\
+      void %s(void);
+      void %s(void);
+      int main() {
+      %s();
+      %s();
+      return 0;
+      }
+""" % ('foo_bar_', 'foobar_', 'foo_bar_', 'foobar_')
 
-	#kw['msg'] = kw.get('msg', 'Getting fortran runtime link flags')
-	kw['errmsg'] = kw.get('errmsg', 'bad luck')
+	# create a small folder for testing
+	dir = os.path.join(self.blddir, '.wscript-trybuild')
+
+	# if the folder already exists, remove it
+	try:
+		shutil.rmtree(dir)
+	except OSError:
+		pass
+	os.makedirs(dir)
+
+	bdir = os.path.join(dir, 'testbuild')
+
+	if not os.path.exists(bdir):
+		os.makedirs(bdir)
+
+	env = self.env.copy()
+
+	dest = open(os.path.join(dir, routines_f_name), 'w')
+	dest.write(routines_code)
+	dest.close()
+
+	dest = open(os.path.join(dir, main_f_name), 'w')
+	dest.write(main_code)
+	dest.close()
+
+	back = os.path.abspath('.')
+
+	bld = BuildContext()
+	bld.log = self.log
+	bld.all_envs.update(self.all_envs)
+	bld.all_envs['default'] = env
+	bld.lst_variants = bld.all_envs.keys()
+	bld.load_dirs(dir, bdir)
+
+	os.chdir(dir)
+
+	bld.rescan(bld.srcnode)
+
+	routines_task = bld.new_task_gen(
+			features=[routines_compile_mode, routines_type],
+			source=routines_f_name, target='subroutines')
+
+	main_task = bld.new_task_gen(
+			features=[main_compile_mode, main_type],
+			source=main_f_name, target='main')
+	main_task.uselib_local = 'subroutines'
+	env['LIB'] = ['subroutines']
+
+	for k, v in kw.iteritems():
+		setattr(routines_task, k, v)
+
+	for k, v in kw.iteritems():
+		setattr(main_task, k, v)
+
+	self.log.write("==>\nsubroutines.f\n%s\n<==\n" % routines_code)
+	self.log.write("==>\nmain.c\n%s\n<==\n" % main_code)
 
 	try:
-		ret, out = self.mycompile_code(*k, **kw)
+		bld.compile()
 	except:
-		ret = 1
+		ret = Utils.ex_stack()
+	else:
+		ret = 0
+
+	# chdir before returning
+	os.chdir(back)
+
+	if ret:
+		self.log.write('command returned %r' % ret)
+		self.fatal(str(ret))
+
+	## keep the name of the program to execute
+	#if kw['execute']:
+	#	lastprog = o.link_task.outputs[0].abspath(env)
 
 	return ret
 
 @conf
 def check_fortran_mangling(self, *k, **kw):
-	compile_subroutines(self, *k, **kw)
-#    env = self.env
-#    main_tmpl = """
-#      int %s() { return 1; }
-#"""
-#    prog_tmpl = """
-#      void %s(void);
-#      void %s(void);
-#      int my_main() {
-#      %s();
-#      %s();
-#      return 0;
-#      }
-#"""
-    # variants:
-    #   lower-case, no underscore, no double underscore: foobar, foo_bar
-    #   ...
-    #   upper-case, underscore, double underscore: FOOBAR_, FOO_BAR__
-    #context.TryCompile(subr, ext)
-    #obj = context.lastTarget
-    #env.Append(LIBS = env.StaticLibrary(obj))
-    #under = ['', '_']
-    #doubleunder = ['', '_']
-    #casefcn = ["lower", "upper"]
-    #gen = _RecursiveGenerator(under, doubleunder, casefcn)
-    #while True:
-    #    try:
-    #        u, du, c = gen.next()
-    #        def make_mangler(u, du, c):
-    #            return lambda n: getattr(string, c)(n) +\
-    #                             u + (n.find('_') != -1 and du or '')
-    #        mangler = make_mangler(u, du, c)
-    #        foobar = mangler("foobar")
-    #        foo_bar = mangler("foo_bar")
-    #        prog = prog_tmpl % (foobar, foo_bar, foobar, foo_bar)
-    #        if m:
-    #            prog = main_tmpl % m + prog
-    #        result = context.TryLink(prog, '.c')
-    #        if result:
-    #            break
-    #    except StopIteration:
-    #        result = mangler = u = du = c = None
-    #        break
-
+	self.link_main_routines(*k, **kw)
     #return result, mangler, u, du, c
 
 # XXX: things which have nothing to do here...
