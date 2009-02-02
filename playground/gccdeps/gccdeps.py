@@ -62,8 +62,7 @@ def post_run(self):
 		if os.path.isabs(x):
 			node = bld.root.find_resource(x)
 		else:
-			x = x.lstrip('../')
-			node = bld.srcnode.find_resource(x)
+			node = bld.bldnode.find_resource(x)
 
 		if not node:
 			raise ValueError, 'could not find' + x
