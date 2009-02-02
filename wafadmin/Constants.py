@@ -8,9 +8,10 @@ these constants are somewhat public, try not to mess them
 maintainer: the version number is updated from the top-level wscript file
 """
 
-# do not touch these two lines, they are updated automatically
+# do not touch these three lines, they are updated automatically
 HEXVERSION = 0x10503
 WAFVERSION="1.5.3"
+WAFREVISION = "unknown"
 ABI = 7
 
 # permissions

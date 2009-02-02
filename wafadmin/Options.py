@@ -46,7 +46,7 @@ def create_parser():
 	parser = OptionParser(conflict_handler="resolve", usage = '''waf [options] [commands ...]
 
 * Main commands: ''' + ' '.join(cmds) + '''
-* Example: ./waf build -j4''', version = 'waf %s' % WAFVERSION)
+* Example: ./waf build -j4''', version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
 
 	parser.formatter.width = Utils.get_term_cols()
 	p = parser.add_option

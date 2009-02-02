@@ -6,6 +6,7 @@ advertise WAFCACHE
 docs: better example for @taskgen
 make it even easier to add custom commands
 use Node::find_iter in task_gen::find_sources_in_dirs
+clean d.py - and refactor the decorated methods
 
 Waf 1.6
 -------
