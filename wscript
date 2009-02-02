@@ -33,10 +33,14 @@ def init():
 		os.popen("""perl -pi -e 's/^VERSION=(.*)?$/VERSION="%s"/' waf-light""" % ver).close()
 		os.popen("""perl -pi -e 's/^WAFVERSION=(.*)?$/WAFVERSION="%s"/' wafadmin/Constants.py""" % ver).close()
 		os.popen("""perl -pi -e 's/^HEXVERSION(.*)?$/HEXVERSION = %s/' wafadmin/Constants.py""" % hexver).close()
-		p = os.popen("svnversion")
-		rev =  p.read().strip()
-		p.close()
-		os.popen("""perl -pi -e 's/^WAFREVISION(.*)?$/WAFREVISION = "%s"/' wafadmin/Constants.py""" % rev).close()
+
+		try:
+			p = os.popen("svnversion")
+			rev =  p.read().strip()
+			p.close()
+			os.popen("""perl -pi -e 's/^WAFREVISION(.*)?$/WAFREVISION = "%s"/' wafadmin/Constants.py""" % rev).close()
+		except:
+			pass
 	elif Options.options.waf:
 		create_waf()
 	elif Options.commands['check']:
