@@ -11,11 +11,11 @@ if [ "$NOCOLOR" ] ; then
     YELLOW=""
     GREEN=""
 else
-    NORMAL='\\033[0m'
-    BOLD='\\033[01;1m'
-    RED='\\033[01;91m'
-    YELLOW='\\033[00;33m'
-    GREEN='\\033[01;92m'
+    NORMAL='\033[0m'
+    BOLD='\033[01;1m'
+    RED='\033[01;91m'
+    YELLOW='\033[00;33m'
+    GREEN='\033[01;92m'
 fi
 
 EXIT_SUCCESS=0
@@ -106,7 +106,7 @@ clean:
 
 distclean:
 	@$WAF distclean
-	@-rm -rf _build_
+	@-rm -rf build
 	@-rm -f Makefile
 
 check:
