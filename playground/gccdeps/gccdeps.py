@@ -57,12 +57,13 @@ def post_run(self):
 	val = val.split()
 
 	nodes = []
+	bld = self.generator.bld
 	for x in val:
 		if os.path.isabs(x):
-			node = self.generator.bld.root.find_resource(x)
+			node = bld.root.find_resource(x)
 		else:
 			x = x.lstrip('../')
-			node = self.generator.bld.srcnode.find_resource(x)
+			node = bld.srcnode.find_resource(x)
 
 		if not node:
 			raise ValueError, 'could not find' + x
@@ -71,8 +72,8 @@ def post_run(self):
 
 	Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
 
-	self.generator.bld.node_deps[self.unique_id()] = nodes
-	self.generator.bld.raw_deps[self.unique_id()] = []
+	bld.node_deps[self.unique_id()] = nodes
+	bld.raw_deps[self.unique_id()] = []
 
 	delattr(self, 'cache_sig')
 	Task.Task.post_run(self)
