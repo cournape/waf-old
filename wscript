@@ -44,6 +44,7 @@ def init():
 	elif Options.options.waf:
 		create_waf()
 	elif Options.commands['check']:
+		sys.path.insert(0,'')
 		import test.Test
 		test.Test.run_tests()
 	else:
