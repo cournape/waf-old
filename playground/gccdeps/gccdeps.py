@@ -40,42 +40,43 @@ def post_run(self):
 
 	lock.acquire()
 
-	name = self.outputs[0].abspath(self.env)
-	name = name.rstrip('.o') + '.d'
+	try:
+		name = self.outputs[0].abspath(self.env)
+		name = name.rstrip('.o') + '.d'
 
-	f = open(name, 'r')
-	txt = f.read()
-	f.close()
-	os.unlink(name)
+		f = open(name, 'r')
+		txt = f.read()
+		f.close()
+		os.unlink(name)
 
-	txt = txt.replace('\\\n', '')
+		txt = txt.replace('\\\n', '')
 
-	lst = txt.strip().split(':')
-	val = ":".join(lst[1:])
-	val = val.split()
+		lst = txt.strip().split(':')
+		val = ":".join(lst[1:])
+		val = val.split()
 
-	nodes = []
-	bld = self.generator.bld
-	for x in val:
-		if os.path.isabs(x):
-			node = bld.root.find_resource(x)
-		else:
-			node = bld.bldnode.find_resource(x)
+		nodes = []
+		bld = self.generator.bld
+		for x in val:
+			if os.path.isabs(x):
+				node = bld.root.find_resource(x)
+			else:
+				node = bld.bldnode.find_resource(x)
 
-		if not node:
-			raise ValueError, 'could not find' + x
-		else:
-			nodes.append(node)
+			if not node:
+				raise ValueError, 'could not find' + x
+			else:
+				nodes.append(node)
 
-	Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
+		Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
 
-	bld.node_deps[self.unique_id()] = nodes
-	bld.raw_deps[self.unique_id()] = []
+		bld.node_deps[self.unique_id()] = nodes
+		bld.raw_deps[self.unique_id()] = []
 
-	delattr(self, 'cache_sig')
-	Task.Task.post_run(self)
-
-	lock.release()
+		delattr(self, 'cache_sig')
+		Task.Task.post_run(self)
+	finally:
+		lock.release()
 
 for name in 'cc cxx'.split():
 	try:
