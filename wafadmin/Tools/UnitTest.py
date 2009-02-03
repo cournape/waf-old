@@ -107,6 +107,7 @@ class unit_test(object):
 				sys.stderr.flush()
 			try:
 				kwargs = {}
+				kwargs['env'] = os.environ.copy()
 				if self.change_to_testfile_dir:
 					kwargs['cwd'] = srcdir
 				if not self.want_to_see_test_output:
