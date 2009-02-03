@@ -125,7 +125,7 @@ class Environment(object):
 		else:
 			if value not in current_value:
 				current_value.append(value)
-	
+
 	def get_merged_dict(self):
 		"""compute a merged table"""
 		table_list = []
