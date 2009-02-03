@@ -173,6 +173,9 @@ def check_python_headers(conf):
 	Note: this test requires that check_python_version was previously
 	executed and successful."""
 
+	if not conf.env['CC_NAME']:
+		conf.fatal('load a compiler first (gcc, g++, ..)')
+
 	env = conf.env
 	python = env['PYTHON']
 	assert python, ("python is %r !" % (python,))
@@ -386,9 +389,6 @@ def check_python_module(conf, module_name):
 		conf.fatal("Python module not found.")
 
 def detect(conf):
-	if not conf.env['CC_NAME']:
-		conf.fatal('load a compiler first (gcc, g++, ..)')
-
 	python = conf.find_program('python', var='PYTHON')
 	if not python: return
 
