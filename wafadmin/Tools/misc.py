@@ -131,6 +131,11 @@ def apply_subst(self):
 		else:
 			newnode = node.change_ext('')
 
+		try:
+			self.dict = self.dict.get_merged_dict()
+		except AttributeError:
+			pass
+
 		if self.dict and not self.env['DICT_HASH']:
 			self.env = self.env.copy()
 			keys = self.dict.keys()
