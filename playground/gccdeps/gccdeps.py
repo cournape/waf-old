@@ -2,19 +2,15 @@
 # encoding: utf-8
 # Thomas Nagy, 2008 (ita)
 
-import os
-import Task, Utils
-import preproc
-from Constants import *
-
 """
 Execute the tasks with gcc -MD, read the dependencies from the .d file
-and prepare the dependency calculation for the nexte run
+and prepare the dependency calculation for the next run
 """
 
+import os
 import threading
 import Task, Logs
-from TaskGen import feature, before, after
+from TaskGen import feature, before
 
 lock = threading.Lock()
 
@@ -34,7 +30,7 @@ def add_mmd_cxx(self):
 def scan(self):
 	"the scanner does not do anything initially"
 	nodes = self.generator.bld.node_deps.get(self.unique_id(), [])
-	names = [] # self.generator.bld.raw_deps.get(self.unique_id(), [])
+	names = []
 	return (nodes, names)
 
 def post_run(self):
