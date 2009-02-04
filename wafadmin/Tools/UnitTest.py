@@ -151,7 +151,7 @@ class unit_test(object):
 			p('YELLOW', 'No unit tests present')
 			return
 		p('GREEN', 'Running unit tests')
-		print
+		p('NORMAL', '')
 
 		for label in self.unit_tests.allkeys:
 			filename = self.unit_tests[label]
@@ -171,16 +171,15 @@ class unit_test(object):
 
 			line = '%s %s' % (label, '.' * n)
 
-			print line,
-			if err: p('RED', 'ERROR')
-			elif result: p('GREEN', 'OK')
-			else: p('YELLOW', 'FAILED')
+			if err: p('RED', '%sERROR' % line)
+			elif result: p('GREEN', '%sOK' % line)
+			else: p('YELLOW', '%sFAILED' % line)
 
 		percentage_ok = float(self.num_tests_ok) / float(self.total_num_tests) * 100.0
 		percentage_failed = float(self.num_tests_failed) / float(self.total_num_tests) * 100.0
 		percentage_erroneous = float(self.num_tests_err) / float(self.total_num_tests) * 100.0
 
-		print '''
+		p('NORMAL', '''
 Successful tests:      %i (%.1f%%)
 Failed tests:          %i (%.1f%%)
 Erroneous tests:       %i (%.1f%%)
