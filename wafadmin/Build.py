@@ -643,9 +643,6 @@ class BuildContext(object):
 				obj.post()
 
 	def env_of_name(self, name):
-		if not name:
-			error('env_of_name called with no name!')
-			return None
 		try:
 			return self.all_envs[name]
 		except KeyError:
