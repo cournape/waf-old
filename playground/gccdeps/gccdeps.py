@@ -73,7 +73,9 @@ def post_run(self):
 		bld.node_deps[self.unique_id()] = nodes
 		bld.raw_deps[self.unique_id()] = []
 
-		if getattr(self, 'cache_sig', ''): del self.cache_sig
+		try: del self.cache_sig
+		except: pass
+
 		Task.Task.post_run(self)
 	finally:
 		lock.release()
