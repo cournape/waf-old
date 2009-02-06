@@ -2,24 +2,18 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-import os
-
 # the following two variables are used by the target "waf dist"
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 APPNAME = 'java_test'
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	conf.check_tool('java')
 	conf.check_java_class('java.io.FileOutputStream')
 	conf.check_java_class('FakeClass')
-	#conf.check_tool('java', tooldir=[os.path.abspath('.')])
 
 def build(bld):
 	obj = bld.new_task_gen(
