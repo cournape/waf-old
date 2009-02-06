@@ -194,6 +194,16 @@ public class Test {
 
 	return found
 
+@feature('seq')
+def dumb_sequence_order(self):
+	print getattr(self.bld, 'seq', None)
+
+	# awesome new trick for executing a method last
+	if self.meths and self.meths[-1] != 'dumb_sequence_order':
+		self.meths.append('dumb_sequence_order')
+		return
+	self.bld.seq = 1
+
 @taskgen
 def find_java_files(self, *k, **kw):
 	regex = jar_regexp(k[0])
