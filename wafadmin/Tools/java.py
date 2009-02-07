@@ -45,7 +45,29 @@ class java_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@feature('java')
+@feature('jar')
+@before('apply_core')
+def jar_files(self):
+	basedir = getattr(self, 'basedir', '.')
+	destfile = getattr(self, 'destfile', 'test.jar')
+	jaropts = getattr(self, 'jaropts', [])
+
+	dir = self.path.find_dir(basedir)
+	if not dir: raise
+
+	jaropts.append('-C')
+	jaropts.append(dir.abspath(self.env))
+	jaropts.append('.')
+
+	out = self.path.find_or_declare(destfile)
+
+	tsk = self.create_task('jar_create')
+	tsk.set_outputs(out)
+	tsk.inputs = [x for x in self.path.find_iter(src=0, bld=1) if x.id != out.id]
+	tsk.env['JAROPTS'] = jaropts
+	tsk.env['JARCREATE'] = 'cf'
+
+@feature('javac')
 @before('apply_core')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
@@ -91,7 +113,7 @@ def apply_java(self):
 				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
 
 Task.simple_task_type('jar_create', '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}', color='GREEN')
-cls = Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}', before='jar_create')
+cls = Task.simple_task_type('javac', '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${SRC}')
 cls.color = 'BLUE'
 def post_run_javac(self):
 	"""this is for cleaning the folder
@@ -196,13 +218,19 @@ public class Test {
 
 @feature('seq')
 def dumb_sequence_order(self):
-	print getattr(self.bld, 'seq', None)
-
-	# awesome new trick for executing a method last
+	"""awesome new trick for executing a method last"""
 	if self.meths and self.meths[-1] != 'dumb_sequence_order':
 		self.meths.append('dumb_sequence_order')
 		return
-	self.bld.seq = 1
+
+	# all the tasks previously declared must be run before these
+	if getattr(self.bld, 'prev', None):
+		self.bld.prev.post()
+		for x in self.bld.prev.tasks:
+			for y in self.tasks:
+				y.set_run_after(x)
+
+	self.bld.prev = self
 
 @taskgen
 def find_java_files(self, *k, **kw):
