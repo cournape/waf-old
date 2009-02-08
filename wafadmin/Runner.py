@@ -127,7 +127,7 @@ class Parallel(object):
 	def refill_task_list(self):
 		"called to set the next group of tasks"
 
-		while self.count > self.numjobs + GAP or self.count > self.maxjobs:
+		while self.count > self.numjobs + GAP or self.count >= self.maxjobs:
 			self.get_out()
 
 		while not self.outstanding:
