@@ -1,6 +1,8 @@
 NEW IN WAF 1.5.4
 ----------------
-*
+* the restriction srcdir='.' was removed (use with care)
+* java tool improvements
+* cosmetic changes for the unit test tool
 
 NEW IN WAF 1.5.3
 ----------------
