@@ -148,7 +148,7 @@ def build(bld):
 			</programlisting>
 			It is also possible to clone all task generators from a project using a code similar to the following:
 			<programlisting language="python">
-for obj in copy.copy(TaskGen.all_task_gen):
+for obj in copy.copy(bld.all_task_gen):
     new_obj = obj.clone('debug')
 			</programlisting>
 			</para>
