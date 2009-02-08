@@ -186,6 +186,6 @@ Erroneous tests:       %i (%.1f%%)
 
 Total number of tests: %i
 ''' % (self.num_tests_ok, percentage_ok, self.num_tests_failed, percentage_failed,
-		self.num_tests_err, percentage_erroneous, self.total_num_tests)
+		self.num_tests_err, percentage_erroneous, self.total_num_tests))
 		p('GREEN', 'Unit tests finished')
 
