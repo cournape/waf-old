@@ -236,9 +236,7 @@ class BuildContext(object):
 			os.chdir(self.srcnode.abspath())
 			if self.generator.consumers:
 				self.save()
-			Utils.pprint('RED', 'Build interrupted')
-			if Logs.verbose > 1: raise
-			else: sys.exit(68)
+			raise
 		except Exception:
 			dw()
 			# do not store anything, for something bad happened

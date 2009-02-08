@@ -183,6 +183,9 @@ def prepare(t, cwd, ver, wafdir):
 	except Utils.WafError, e:
 		error(e)
 		sys.exit(1)
+	except KeyboardInterrupt:
+		Utils.pprint('RED', 'Interrupted')
+		sys.exit(68)
 	"""
 	import cProfile, pstats
 	cProfile.runctx("import Scripting; Scripting.prepare_impl(t, cwd, ver, wafdir)", {},
