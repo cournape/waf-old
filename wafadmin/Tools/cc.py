@@ -87,11 +87,11 @@ cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS}'
 vnum_link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[1].bldpath(env)} ${LINKFLAGS} && ln -sf ${TGT[1].name} ${TGT[0].bldpath(env)}'
 
-cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c')
+cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c', shell=False)
 cls.scan = ccroot.scan
 cls.vars.append('CCDEPS')
 
-cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o')
+cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', shell=False)
 cls.maxjobs = 1
 cls = Task.simple_task_type('vnum_cc_link', vnum_link_str, color='YELLOW', ext_in='.o')
 cls.maxjobs = 1

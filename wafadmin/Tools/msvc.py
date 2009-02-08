@@ -386,7 +386,7 @@ Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS'
 Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
 
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
-Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx')
+Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx', shell=False)
 
 detect = '''
 find_msvc

@@ -91,10 +91,10 @@ cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS}'
 vnum_link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[1].bldpath(env)} ${LINKFLAGS} && ln -sf ${TGT[1].name} ${TGT[0].bldpath(env)}'
 
-cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx')
+cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx', shell=False)
 cls.scan = ccroot.scan
 cls.vars.append('CXXDEPS')
-cls = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o')
+cls = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o', shell=False)
 cls.maxjobs = 1
 cls = Task.simple_task_type('vnum_cxx_link', vnum_link_str, color='CYAN', ext_in='.o')
 cls.maxjobs = 1
