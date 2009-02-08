@@ -417,7 +417,7 @@ def run_c_code(self, *k, **kw):
 	# compile the program
 	try:
 		bld.compile()
-	except:
+	except Utils.WafError:
 		ret = Utils.ex_stack()
 	else:
 		ret = 0
