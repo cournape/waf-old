@@ -13,8 +13,6 @@ import Build, Utils, Configure, Task, Options, Logs
 from Constants import *
 from Configure import conf, conftest
 
-HAVE_PAT = 'HAVE_%s'
-
 cfg_ver = {
 	'atleast-version': '>=',
 	'exact-version': '==',
@@ -120,7 +118,7 @@ def exec_cfg(self, kw):
 			self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']), kw)
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'ok'
-			self.define(HAVE_PAT % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), 1, 0)
+			self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
 			break
 
 	# retrieving the version of a module
@@ -142,7 +140,7 @@ def exec_cfg(self, kw):
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'ok'
 
-	self.define(HAVE_PAT % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), 1, 0)
+	self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
 	parse_flags(ret, kw.get('uselib_store', kw['package'].upper()), kw.get('env', self.env))
 	return ret
 
@@ -526,7 +524,7 @@ def get_define(self, define):
 @conf
 def have_define(self, name):
 	"prefix the define with 'HAVE_' and make sure it has valid characters."
-	return HAVE_PAT % Utils.quote_define_name(name)
+	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(name)
 
 @conf
 def write_config_header(self, configfile='', env='', guard=''):
