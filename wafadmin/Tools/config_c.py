@@ -4,8 +4,6 @@
 
 """
 c/c++ configuration routines
-
-The code is being written, so do not complain about trunk being broken :-)
 """
 
 import os, imp, sys, shlex, shutil
