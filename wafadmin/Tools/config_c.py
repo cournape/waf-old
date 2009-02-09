@@ -379,7 +379,8 @@ def run_c_code(self, *k, **kw):
 		shutil.rmtree(dir)
 	except OSError:
 		pass
-	os.makedirs(dir)
+	if not os.path.exists(dir):
+		os.makedirs(dir)
 
 	bdir = os.path.join(dir, 'testbuild')
 
