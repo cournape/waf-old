@@ -6,6 +6,8 @@ import optparse
 import Utils, Configure, Options
 
 fortran_compiler = {
+	'darwin': ['gfortran', 'ifort'],
+	'linux': ['gfortran', 'ifort'],
 	'default': ['gfortran']
 }
 

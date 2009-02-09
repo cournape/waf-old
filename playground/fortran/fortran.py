@@ -1,11 +1,22 @@
 #! /usr/bin/env python
 # encoding: utf-8
-import Utils, Task, TaskGen
+import re
+
+import Utils, Task, TaskGen, Logs
 import ccroot # <- leave this
 import config_fortran # <- leave this
 from TaskGen import feature, before, after, extension
 from Configure import conftest, conf
 import Build
+
+    
+INCLUDE_REGEX = """(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
+USE_REGEX = """(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"""
+
+EXT_MOD = ".mod"
+EXT_FC = ".f"
+EXT_FCPP = ".F"
+EXT_OBJ = ".o"
 
 # TODO:
 #   - handle pre-processed files (FORTRANPPCOM in scons)
@@ -13,17 +24,129 @@ import Build
 #   - handle multiple dialects
 #   - windows...
 
+class fortran_parser(object):
+	def __init__(self, env, incpaths, modsearchpath):
+		self.allnames = []
+
+		self.re_inc = re.compile(INCLUDE_REGEX, re.IGNORECASE)
+		self.re_use = re.compile(USE_REGEX, re.IGNORECASE)
+
+		self.env = env
+
+		self.nodes = []
+		self.names = []
+		self.modules = []
+
+		self.incpaths = incpaths
+		# XXX: 
+		self.modsearchpath = modsearchpath
+
+	def tryfind_header(self, filename):
+		found = 0
+		for n in self.incpaths:
+			found = n.find_resource(filename)
+			if found:
+				self.nodes.append(found)
+				self.waiting.append(found)
+				break
+		if not found:
+			if not filename in self.names:
+				self.names.append(filename)
+
+	def tryfind_module(self, filename):
+		found = 0
+		for n in self.modsearchpath:
+			found = n.find_resource(filename + EXT_MOD)
+			if found:
+				self.nodes.append(found)
+				self.waiting.append(found)
+				break
+		if not found:
+			if not filename in self.names:
+				self.names.append(filename)
+
+	def find_deps(self, code):
+		headers = []
+		modules = []
+		for line in code.readlines():
+			m = self.re_inc.search(line)
+			if m:
+				headers.append(m.group(1))
+			m = self.re_use.search(line)
+			if m:
+				modules.append(m.group(1))
+		return headers, modules
+
+	def start(self, node):
+		self.waiting = [node]
+		# while the stack is not empty, add the dependencies
+		while self.waiting:
+			nd = self.waiting.pop(0)
+			self.iter(nd)
+
+	def iter(self, node):
+		path = node.abspath(self.env) # obtain the absolute path
+		code = open(path, 'r')
+		hnames, mnames = self.find_deps(code)
+		for x in hnames:
+			# optimization
+			if x in self.allnames: 
+				continue
+			self.allnames.append(x)
+
+			# for each name, see if it is like a node or not
+			self.tryfind_header(x)
+
+		for x in mnames:
+			# optimization
+			if x in self.allnames: 
+				continue
+			self.allnames.append(x)
+
+			# for each name, see if it is like a node or not
+			self.tryfind_module(x)
+
+def scan(self):
+	env = self.env
+	gruik = fortran_parser(env, env['INC_PATHS'], env["MODULE_SEARCH_PATH"])
+	gruik.start(self.inputs[0])
+
+	#print self.inputs, gruik.nodes, gruik.names
+	if Logs.verbose:
+		Logs.debug('deps: nodes found for %s: %s %s' % (str(self.inputs[0]), str(gruik.nodes), str(gruik.names)))
+		#debug("deps found for %s: %s" % (str(node), str(gruik.deps)), 'deps')
+	return (gruik.nodes, gruik.names)
 #################################################### Task definitions
 
-EXT_FC = ".f"
-EXT_FCPP = ".F"
-EXT_OBJ = ".o"
+def fortran_compile(task):
+	env = task.env
+	def tolist(xx):
+		if isinstance(xx, str):
+			return [xx]
+		return xx
+	cmd = []
+	cmd.extend(tolist(env["FC"]))
+	cmd.extend(tolist(env["FCFLAGS"]))
+	cmd.extend(tolist(env["_FCINCFLAGS"]))
+	cmd.extend(tolist(env["_FCMODOUTFLAGS"]))
+	for a in task.outputs:
+		cmd.extend(tolist(env["FC_TGT_F"] + tolist(a.bldpath(env))))
+	for a in task.inputs:
+		cmd.extend(tolist(env["FC_SRC_F"]) + tolist(a.srcpath(env)))
+	cmd = [x for x in cmd if x]
+	cmd = [cmd]
+	
+	ret = task.exec_command(*cmd)
+	return ret
 
-Task.simple_task_type('fortran',
-	'${FC} ${FCFLAGS} ${_CCINCFLAGS} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}',
-	'GREEN',
+fcompiler = Task.task_type_from_func('fortran',
+	vars=["FC", "FCFLAGS", "_FCINCFLAGS", "FC_TGT_F", "FC_SRC_F",
+		"FORTRANMODPATHFLAG"],
+	func=fortran_compile,
+	color='GREEN',
 	ext_out=EXT_OBJ,
 	ext_in=EXT_FC)
+fcompiler.scan = scan
 
 # Task to compile fortran source which needs to be preprocessed by cpp first
 Task.simple_task_type('fortranpp',
@@ -77,12 +200,16 @@ TaskGen.declare_order('default_cc', 'apply_core')
 @before('apply_type_vars')
 @after('default_cc')
 def init_f(self):
-	# the kinds of variables we depend on
-	self.p_flag_vars = 'FC FCFLAGS RPATH LINKFLAGS'.split()
+	# PATH flags:
+	#	- CPPPATH: same as C, for pre-processed fortran files
+	#	- FORTRANMODPATH: where to look for modules (.mod)
+	#	- FORTRANMODOUTPATH: where to *put* modules (.mod)
+	self.p_flag_vars = ['FC', 'FCFLAGS', 'RPATH', 'LINKFLAGS',
+			'FORTRANMODPATH', 'CPPPATH', 'FORTRANMODOUTPATH', '_CCINCFLAGS']
 	self.p_type_vars = ['FCFLAGS', 'LINKFLAGS']
 
 @feature('fortran')
-@after('apply_incpaths')
+@after('apply_incpaths', 'apply_obj_vars_cc')
 def apply_fortran_type_vars(self):
 	for x in self.features:
 		if not x in ['fprogram', 'fstaticlib', 'fshlib']:
@@ -99,6 +226,22 @@ def apply_fortran_type_vars(self):
 			compvar = '%s_%s' % (x, var)
 			value = self.env[compvar]
 			if value: self.env.append_value(var, value)
+
+	# Put module and header search paths into _FCINCFLAGS
+	app = self.env.append_unique
+	for i in self.env["FORTRANMODPATH"]:
+		app('_FCINCFLAGS', self.env['FCPATH_ST'] % i)
+
+	for i in self.env["_CCINCFLAGS"]:
+		app('_FCINCFLAGS', i)
+
+	#opath = self.env["FORTRANMODOUTPATH"]
+	#if not opath:
+	#	self.env["_FCMODOUTFLAGS"] = self.env["FORTRANMODFLAG"] + opath
+	#	app('_FCINCFLAGS', self.env['FCPATH_ST'] % opath)
+	#else:
+	#	# XXX: assume that compiler put .mod in cwd by default
+	#	app('_FCINCFLAGS', self.env['FCPATH_ST'] % self.bld.bdir)
 
 @feature('fprogram', 'fshlib', 'fstaticlib')
 @after('apply_core')

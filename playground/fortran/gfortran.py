@@ -23,6 +23,7 @@ def gfortran_flags(conf):
 	v['FC_SRC_F']    = ''
 	v['FC_TGT_F']    = ['-c', '-o', ''] # shell hack for -MD
 	v['FCPATH_ST']  = '-I%s' # template for adding include paths
+	v['FORTRANMODFLAG']  = ['-M', ''] # template for module path
 
 	# linker
 	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
@@ -37,8 +38,8 @@ def gfortran_flags(conf):
 	v['shlib_LINKFLAGS'] = ['-shared']
 	#v['shlib_PATTERN']       = 'lib%s.so'
 
+@conftest
 def detect(conf):
-	v = conf.env
 	find_gfortran(conf)
 	ar.find_ar(conf)
 	gfortran_flags(conf)
