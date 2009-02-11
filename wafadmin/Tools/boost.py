@@ -195,7 +195,6 @@ def find_boost_includes(self, kw):
 			if ret != -1 and ret >= min_version and ret <= max_version and ret > version:
 				boost_path = path
 				version = ret
-				break
 	if not version:
 		self.fatal('boost headers not found! (required version min: %s max: %s)'
 			  % (kw['min_version'], kw['max_version']))
