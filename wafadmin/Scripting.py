@@ -64,8 +64,9 @@ def configure():
 
 	conf.store()
 
-	# this will write a configure lock so that subsequent run will
-	# consider the current path as the root directory, to remove: use 'waf distclean'
+	# this will write a configure lock so that subsequent builds will
+	# consider the current path as the root directory (see prepare_impl).
+	# to remove: use 'waf distclean'
 	env = Environment.Environment()
 	env[BLDDIR] = bld
 	env[SRCDIR] = src
