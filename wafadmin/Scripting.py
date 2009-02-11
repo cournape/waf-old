@@ -70,10 +70,13 @@ def configure():
 	env[BLDDIR] = bld
 	env[SRCDIR] = src
 	env['argv'] = sys.argv
-	env['hash'] = conf.hash
-	env['files'] = conf.files
 	env['commands'] = Options.commands
 	env['options'] = Options.options.__dict__
+
+	# conf.hash & conf.files hold wscript files paths and hash
+	# (used only by Configure.autoconfig)
+	env['hash'] = conf.hash
+	env['files'] = conf.files
 	env.store(Options.lockfile)
 
 def prepare_impl(t, cwd, ver, wafdir):
