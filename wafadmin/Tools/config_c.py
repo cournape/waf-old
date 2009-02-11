@@ -34,6 +34,12 @@ int main() {
 }
 '''
 
+SNIP3 = '''
+int main() {
+	return 0;
+}
+'''
+
 def parse_flags(line, uselib, env):
 	"""stupidest thing ever"""
 
@@ -187,8 +193,6 @@ def check_cfg(self, *k, **kw):
 #
 # this should prevent code duplication (ita)
 
-simple_c_code = 'int main() {return 0;}\n'
-
 # env: an optional environment (modified -> provide a copy)
 # compiler: cc or cxx - it tries to guess what is best
 # type: program, shlib, staticlib, objects
@@ -278,7 +282,7 @@ def validate_c(self, kw):
 		l = Utils.to_list(kw['header_name'])
 		assert len(l)>0, 'list of headers in header_name is empty'
 
-		kw['code'] = to_header(kw) + simple_c_code
+		kw['code'] = to_header(kw) + SNIP3
 
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = l[0].upper()
@@ -324,7 +328,7 @@ def validate_c(self, kw):
 		kw['okmsg'] = 'ok'
 
 	if not 'code' in kw:
-		kw['code'] = simple_c_code
+		kw['code'] = SNIP3
 
 	if not kw.get('success'): kw['success'] = None
 
