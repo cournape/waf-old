@@ -109,6 +109,10 @@ def configure(conf):
 	conf.check(header_name='time.h')
 	conf.check(header_name='trme.h')
 
+	# type name
+	conf.check(type_name='struct')
+	conf.check(type_name='int')
+
 	# code fragment
 	conf.check(fragment='int main() {2+2==4;}\n', define_name='boobah')
 	conf.check(fragment='uncompilable code', define_name='boobar')

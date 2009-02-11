@@ -19,6 +19,21 @@ cfg_ver = {
 	'max-version': '<=',
 }
 
+SNIP1 = '''
+	int main() {
+	void *p;
+	p=(void*)(%s);
+	return 0;
+}
+'''
+
+SNIP2 = '''
+int main() {
+	if ((%(type_name)s *) 0) return 0;
+	if (sizeof (%(type_name)s)) return 0;
+}
+'''
+
 def parse_flags(line, uselib, env):
 	"""stupidest thing ever"""
 
@@ -227,11 +242,21 @@ def validate_c(self, kw):
 		fu = kw['function_name']
 		if not 'msg' in kw:
 			kw['msg'] = 'Checking for function %s' % fu
-		kw['code'] = to_header(kw) + 'int main(){\nvoid *p;\np=(void*)(%s);\nreturn 0;\n}\n' % fu
+		kw['code'] = to_header(kw) + SNIP1 % fu
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = fu.upper()
 		if not 'define_name' in kw:
 			kw['define_name'] = self.have_define(fu)
+
+	elif 'type_name' in kw:
+		tu = kw['type_name']
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for type %s' % tu
+		if not 'header_name' in kw:
+			kw['header_name'] = 'stdint.h'
+		kw['code'] = to_header(kw) + SNIP2 % {'type_name' : tu}
+		if not 'define_name' in kw:
+			kw['define_name'] = self.have_define(tu.upper())
 
 	elif 'header_name' in kw:
 		if not 'msg' in kw:
@@ -324,7 +349,7 @@ def post_check(self, *k, **kw):
 			self.define_cond(kw['define_name'], is_success)
 
 	if 'define_name' in kw:
-		if 'header_name' in kw or 'function_name' in kw or 'fragment' in kw:
+		if 'header_name' in kw or 'function_name' in kw or 'type_name' in kw or 'fragment' in kw:
 			define_or_stuff()
 
 	if is_success and 'uselib_store' in kw:
