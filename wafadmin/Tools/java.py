@@ -216,22 +216,6 @@ public class Test {
 
 	return found
 
-@feature('seq')
-def dumb_sequence_order(self):
-	"""awesome new trick for executing a method last"""
-	if self.meths and self.meths[-1] != 'dumb_sequence_order':
-		self.meths.append('dumb_sequence_order')
-		return
-
-	# all the tasks previously declared must be run before these
-	if getattr(self.bld, 'prev', None):
-		self.bld.prev.post()
-		for x in self.bld.prev.tasks:
-			for y in self.tasks:
-				y.set_run_after(x)
-
-	self.bld.prev = self
-
 @taskgen
 def find_java_files(self, *k, **kw):
 	regex = jar_regexp(k[0])
