@@ -10,7 +10,7 @@ Javac is one of the few compilers that behaves very badly:
 * it recompiles files silently behind your back
 * it outputs an undefined amount of files (inner classes)
 
-Fortunately, the convention makes it possible to use th build dir without
+Fortunately, the convention makes it possible to use the build dir without
 too many problems for the moment
 
 Inner classes must be located and cleaned when a problem arise,
@@ -25,7 +25,7 @@ from Configure import conf
 import TaskGen, Task, Utils
 from TaskGen import feature, before, taskgen
 
-exclude_regs = """
+exclude_regs = '''
 **/*~
 **/#*#
 **/.#*
@@ -39,11 +39,27 @@ exclude_regs = """
 **/vssver.scc
 **/.svn
 **/.svn/**
-**/.DS_Store""".split()
+**/.DS_Store'''.split()
 
-class java_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
+class_check_source = '''
+public class Test {
+	public static void main(String[] argv) {
+		Class lib;
+		if (argv.length < 1) {
+			System.err.println("Missing argument");
+			System.exit(77);
+		}
+		try {
+			lib = Class.forName(argv[0]);
+		} catch (ClassNotFoundException e) {
+			System.err.println("ClassNotFoundException");
+			System.exit(1);
+		}
+		lib = null;
+		System.exit(0);
+	}
+}
+'''
 
 @feature('jar')
 @before('apply_core')
@@ -166,25 +182,6 @@ def detect(conf):
 def check_java_class(self, classname, with_classpath=None):
 	"""Check if the specified java class is installed"""
 
-	class_check_source = """
-public class Test {
-	public static void main(String[] argv) {
-		Class lib;
-		if (argv.length < 1) {
-			System.err.println("Missing argument");
-			System.exit(77);
-		}
-		try {
-			lib = Class.forName(argv[0]);
-		} catch (ClassNotFoundException e) {
-			System.err.println("ClassNotFoundException");
-			System.exit(1);
-		}
-		lib = null;
-		System.exit(0);
-	}
-}
-"""
 	import shutil
 
 	javatestdir = '.waf-javatest'
