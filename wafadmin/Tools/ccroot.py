@@ -5,7 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re
-import TaskGen, Utils, preproc, Logs, Build, Options
+import TaskGen, Task, Utils, preproc, Logs, Build, Options
 from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
@@ -463,4 +463,23 @@ def add_extra_flags(self):
 			y = y[:-1]
 		if c_attrs.get(y, None):
 			self.env.append_unique(c_attrs[y], getattr(self, x))
+
+def link_vnum(self):
+	"""special case for versioned libraries on unix platforms"""
+	clsname = self.__class__.__name__.replace('vnum_', '')
+	out = self.outputs
+	self.outputs = out[1:]
+	ret = Task.TaskBase.classes[clsname].__dict__['run'](self)
+	self.outputs = out
+	if ret:
+		return ret
+	try:
+		os.remove(self.outputs[0].abspath(self.env))
+	except OSError:
+		pass
+
+	try:
+		os.symlink(self.outputs[1].name, self.outputs[0].bldpath(self.env))
+	except:
+		return 1
 
