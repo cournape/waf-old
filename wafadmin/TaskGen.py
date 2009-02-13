@@ -477,11 +477,15 @@ def exec_rule(self):
 	func = self.rule
 	vars2 = []
 	if isinstance(func, str):
-		(func, vars2) = Task.compile_fun('', self.rule)
+		# use the shell by default for user-defined commands
+		(func, vars2) = Task.compile_fun('', self.rule, shell=getattr(self, 'shell', True))
 		func.code = self.rule
 	vars = getattr(self, 'vars', vars2)
 	if not vars:
-		vars = self.rule
+		if isinstance(self.rule, str):
+			vars = self.rule
+		else:
+			vars = Utils.h_fun(self.rule)
 
 	# create the task class
 	name = getattr(self, 'name', None) or self.target or self.rule
