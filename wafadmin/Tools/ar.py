@@ -9,10 +9,7 @@ import os, sys
 import Task
 from Configure import conftest
 
-ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC} && ${RANLIB} ${RANLIBFLAGS} ${TGT}'
-
-if sys.platform == "win32":
-	ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC}'
+ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC}'
 cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o')
 cls.maxjobs = 1
 
@@ -25,7 +22,7 @@ def detect(conf):
 
 	v = conf.env
 	v['AR']          = comp
-	v['ARFLAGS']     = 'src'
+	v['ARFLAGS']     = 'rc'
 	v['RANLIB']      = ranlib
 	v['RANLIBFLAGS'] = ''
 
@@ -65,3 +62,4 @@ def cc_load_tools(conf):
 @conftest
 def cxx_load_tools(conf):
 	conf.check_tool('cxx')
+
