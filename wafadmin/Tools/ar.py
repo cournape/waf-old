@@ -32,34 +32,4 @@ def find_ar(conf):
 	conf.check_tool('ar')
 	if not v['AR']: conf.fatal('ar is required for static libraries - not found')
 
-@conftest
-def find_cpp(conf):
-	v = conf.env
-	cpp = None
-	if v['CPP']: cpp = v['CPP']
-	elif 'CPP' in os.environ: cpp = os.environ['CPP']
-	if not cpp: cpp = conf.find_program('cpp', var='CPP')
-	if not cpp: cpp = v['CC']
-	if not cpp: cpp = v['CXX']
-	v['CPP'] = cpp
-
-@conftest
-def cc_add_flags(conf):
-	conf.add_os_flags('CFLAGS', 'CCFLAGS')
-	conf.add_os_flags('CPPFLAGS')
-	conf.add_os_flags('LINKFLAGS')
-
-@conftest
-def cxx_add_flags(conf):
-	conf.add_os_flags('CXXFLAGS')
-	conf.add_os_flags('CPPFLAGS')
-	conf.add_os_flags('LINKFLAGS')
-
-@conftest
-def cc_load_tools(conf):
-	conf.check_tool('cc')
-
-@conftest
-def cxx_load_tools(conf):
-	conf.check_tool('cxx')
 
