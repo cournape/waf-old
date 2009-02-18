@@ -119,7 +119,7 @@ def configure(conf):
 
 	# libraries, and how to reuse the checks
 	conf.check(lib='m')
-	conf.check(lib='linux', uselib='M', mandatory=False)
+	conf.check(lib='linux', uselib='M', libpath='/tmp', mandatory=False)
 
 	# something more complicated
 	conf.check(
