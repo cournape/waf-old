@@ -116,9 +116,9 @@ class unit_test(object):
 					kwargs['stderr'] = pproc.PIPE  # PIPE for ignoring output
 				if ld_library_path:
 					if sys.platform == 'win32':
-						kwargs['env'] = {'PATH': ';'.join(ld_library_path + [os.environ.get('PATH', '')])}
+						kwargs['env']['PATH'] = ';'.join(ld_library_path + [os.environ.get('PATH', '')])
 					else:
-						kwargs['env'] = {'LD_LIBRARY_PATH': ':'.join(ld_library_path + [os.environ.get('LD_LIBRARY_PATH', '')])}
+						kwargs['env']['LD_LIBRARY_PATH'] = ':'.join(ld_library_path + [os.environ.get('LD_LIBRARY_PATH', '')])
 
 				pp = pproc.Popen(filename, **kwargs)
 				pp.wait()
