@@ -182,6 +182,7 @@ def check_cfg(self, *k, **kw):
 			else:
 				self.fatal('the configuration failed (see %r)' % self.log.name)
 	else:
+		kw['success'] = ret
 		if 'okmsg' in kw:
 			self.check_message_2(kw['okmsg'])
 
@@ -388,8 +389,8 @@ def check(self, *k, **kw):
 			else:
 				self.fatal('the configuration failed (see %r)' % self.log.name)
 	else:
-		self.check_message_2(kw['okmsg'])
 		kw['success'] = ret
+		self.check_message_2(kw['okmsg'])
 
 	self.post_check(*k, **kw)
 	if not kw.get('execute', False):
