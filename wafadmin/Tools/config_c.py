@@ -73,6 +73,13 @@ def parse_flags(line, uselib, env):
 			env.append_unique('LINKFLAGS_' + uselib, x)
 
 @conf
+def ret_msg(self, f, kw):
+	"""execute a function, when provided"""
+	if isinstance(f, str):
+		return f
+	return f(kw)
+
+@conf
 def validate_cfg(self, kw):
 	if not 'path' in kw:
 		kw['path'] = 'pkg-config --errors-to-stdout --print-errors'
@@ -184,7 +191,7 @@ def check_cfg(self, *k, **kw):
 	else:
 		kw['success'] = ret
 		if 'okmsg' in kw:
-			self.check_message_2(kw['okmsg'])
+			self.check_message_2(self.ret_msg(kw['okmsg'], kw))
 
 	return ret
 
@@ -390,7 +397,7 @@ def check(self, *k, **kw):
 				self.fatal('the configuration failed (see %r)' % self.log.name)
 	else:
 		kw['success'] = ret
-		self.check_message_2(kw['okmsg'])
+		self.check_message_2(self.ret_msg(kw['okmsg'], kw))
 
 	self.post_check(*k, **kw)
 	if not kw.get('execute', False):
