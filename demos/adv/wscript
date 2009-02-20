@@ -143,6 +143,11 @@ def configure(conf):
 	conf.check_cfg(package='alsa', args='--cflags --libs',
 		define_variable={'prefix':'/temp', 'exec_prefix':'/temp'})
 
+	def okmsg(kw):
+		# some customization
+		return kw['success'].strip()
+	conf.check_cfg(package='ORBit-2.0', msg='Checking for program ORBit idl', args='--variable=orbit_idl', okmsg=okmsg)
+
 	# a program
 	conf.find_program('cat', var='CAT')
 
