@@ -157,7 +157,8 @@ def parse_args_impl(parser, _args=None):
 	if options.keep: options.jobs = 1
 	if options.jobs < 1: options.jobs = 1
 
-	options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
+	# absolute path only if set
+	options.destdir = options.destdir and os.path.abspath(os.path.expanduser(options.destdir))
 
 	Logs.verbose = options.verbose
 	Logs.init_log()
