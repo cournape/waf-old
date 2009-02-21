@@ -65,7 +65,7 @@ def create_parser(module=None):
 	p('-j', '--jobs',
 		type    = 'int',
 		default = default_jobs,
-		help    = "amount of parallel jobs [Default: %s]" % default_jobs,
+		help    = 'amount of parallel jobs [default: %r]' % default_jobs,
 		dest    = 'jobs')
 
 	p('-f', '--force',
@@ -89,11 +89,11 @@ def create_parser(module=None):
 	p('-v', '--verbose',
 		action  = 'count',
 		default = 0,
-		help    = 'verbosity level -v -vv or -vvv [Default: 0]',
+		help    = 'verbosity level -v -vv or -vvv [default: 0]',
 		dest    = 'verbose')
 
 	p('--destdir',
-		help    = "installation root [Default: '%s']" % default_destdir,
+		help    = 'installation root [default: %r]' % default_destdir,
 		default = default_destdir,
 		dest    = 'destdir')
 
@@ -117,7 +117,7 @@ def create_parser(module=None):
 			dest    = 'srcdir')
 
 		p('--prefix',
-			help    = "installation prefix (configuration only) [Default: '%s']" % default_prefix,
+			help    = 'installation prefix (configuration) [default: %r]' % default_prefix,
 			default = default_prefix,
 			dest    = 'prefix')
 
@@ -130,7 +130,7 @@ def create_parser(module=None):
 	p('--targets',
 		action  = 'store',
 		default = '',
-		help    = 'compile the targets given only [targets in CSV format, e.g. "target1,target2"]',
+		help    = 'build given task generators, e.g. "target1,target2"',
 		dest    = 'compile_targets')
 
 	return parser
