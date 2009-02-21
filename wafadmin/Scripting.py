@@ -213,7 +213,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 		Utils.g_module.blddir = build_dir_override
 
 	# now parse the options from the user wscript file
-	opt_obj = Options.Handler()
+	opt_obj = Options.Handler(Utils.g_module)
 	opt_obj.curdir = cwd
 	setattr(opt_obj.__class__, 'recurse', recurse)
 	opt_obj.sub_options('')

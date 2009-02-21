@@ -40,13 +40,24 @@ if default_jobs < 1:
 
 default_destdir = os.environ.get('DESTDIR', '')
 
-def create_parser():
+def create_parser(module=None):
 	Logs.debug('options: create_parser is called')
 
-	parser = OptionParser(conflict_handler="resolve", usage = '''waf [options] [commands ...]
+	if module:
+		cmds_str = []
+		tbl = Utils.g_module.__dict__
+		for x in tbl:
+			if not x in ['set_options', 'init', 'shutdown']:
+				if type(tbl[x]) is type(parse_args_impl):
+					cmds_str.append(x)
+		cmds_str = ' '.join(cmds_str)
+	else:
+		cmd_str = ' '.join(cmds)
 
-* Main commands: ''' + ' '.join(cmds) + '''
-* Example: ./waf build -j4''', version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
+	parser = OptionParser(conflict_handler="resolve", usage = '''waf [command] [options]
+
+* Main commands: %s
+* Example: ./waf build -j4''' % cmds_str, version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
 
 	parser.formatter.width = Utils.get_term_cols()
 	p = parser.add_option
@@ -176,8 +187,8 @@ class Handler(object):
 
 	parser = None
 
-	def __init__(self):
-		self.parser = create_parser()
+	def __init__(self, module=None):
+		self.parser = create_parser(module)
 		self.cwd = os.getcwd()
 		Handler.parser = self
 
