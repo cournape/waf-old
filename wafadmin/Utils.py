@@ -495,6 +495,15 @@ def load_tool(tool, tooldir=None):
 			for d in tooldir:
 				sys.path.remove(d)
 
+def readf(fname):
+	"get the contents of a file, it is not used anywhere for the moment"
+	f = None
+	try:
+		f = open(fname, 'rb')
+		return f.read()
+	finally:
+		if f: f.close()
+
 def nada(*k, **kw):
 	"""A function that does nothing"""
 	pass

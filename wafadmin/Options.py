@@ -191,9 +191,7 @@ class Handler(object):
 		return self.parser.get_option_group(opt_str)
 
 	def sub_options(self, dir, option_group=None):
-		"""set options defined by wscripts:
-		- run by Scripting to set the options defined by main wscript.
-		- run by wscripts to set options in sub directories."""
+		"OBSOLETE - remove in Waf 1.6"
 		try:
 			current = self.cwd
 
@@ -214,7 +212,7 @@ class Handler(object):
 			raise Utils.WscriptError('invalid tool_options call %r %r' % (k, kw))
 		tools = Utils.to_list(k[0])
 
-		# TODO waf 1.6 for compatibility we have a global variable tooldir
+		# TODO waf 1.6 remove the global variable tooldir
 		path = Utils.to_list(kw.get('tdir', kw.get('tooldir', tooldir)))
 
 		for tool in tools:

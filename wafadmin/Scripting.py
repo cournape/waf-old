@@ -4,13 +4,62 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, shutil, traceback, time
+import os, sys, shutil, traceback, time, inspect
 
 import Utils, Configure, Build, Logs, Options, Environment
 from Logs import error, warn, info
 from Constants import *
 
 g_gz = 'bz2'
+
+
+class Context(object):
+	pass
+
+
+def recurse(self, dirs, name=''):
+	if not name:
+		name = inspect.stack()[1][3]
+
+	if isinstance(dirs, str):
+		dirs = Utils.to_list(dirs)
+
+	cur = getattr(self, 'curdir', None) or os.getcwd()
+
+	for x in dirs:
+		if os.path.isabs(x):
+			nexdir = x
+		else:
+			nexdir = os.path.join(cur, x)
+
+		base = os.path.join(nexdir, WSCRIPT_FILE)
+
+		try:
+			txt = Utils.readf(base + '_' + name)
+		except (OSError, IOError):
+			try:
+				module = Utils.load_module(base)
+			except OSError:
+				raise Utils.WscriptError('No such script %s' % base)
+
+			try:
+				f = module.__dict__[name]
+			except KeyError:
+				raise Utils.WscriptError('No function %s defined in %s' % (name, base))
+
+			old = self.curdir
+			self.curdir = nexdir
+			try:
+				f(self)
+			finally:
+				self.curdir = old
+		else:
+			old = self.curdir
+			self.curdir = nexdir
+			try:
+				exec txt
+			finally:
+				self.curdir = old
 
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
@@ -58,6 +107,9 @@ def configure():
 	try: os.makedirs(bld)
 	except OSError: pass
 	conf = Configure.ConfigurationContext(srcdir=src, blddir=bld)
+	# TODO cleanup this mess
+	conf.curdir = os.getcwd()
+	setattr(conf.__class__, 'recurse', recurse)
 
 	# calling to main wscript's configure()
 	conf.sub_config('')
@@ -87,6 +139,8 @@ def prepare_impl(t, cwd, ver, wafdir):
 	# some command-line options can be processed immediately
 	if '--version' in sys.argv:
 		opt_obj = Options.Handler()
+		opt_obj.curdir = cwd
+		setattr(opt_obj.__class__, 'recurse', recurse)
 		opt_obj.parse_args()
 		sys.exit(0)
 
@@ -99,6 +153,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 	build_dir_override = None
 	candidate = None
 
+	# TODO something weird - cwd is the input
 	cwd = Options.launch_dir
 	lst = os.listdir(cwd)
 
@@ -136,6 +191,8 @@ def prepare_impl(t, cwd, ver, wafdir):
 		if '-h' in sys.argv or '--help' in sys.argv:
 			warn('No wscript file found: the help message may be incomplete')
 			opt_obj = Options.Handler()
+			setattr(opt_obj.__class__, 'recurse', recurse)
+			opt_obj.curdir = cwd
 			opt_obj.parse_args()
 		else:
 			error(msg1)
@@ -157,6 +214,8 @@ def prepare_impl(t, cwd, ver, wafdir):
 
 	# now parse the options from the user wscript file
 	opt_obj = Options.Handler()
+	opt_obj.curdir = cwd
+	setattr(opt_obj.__class__, 'recurse', recurse)
 	opt_obj.sub_options('')
 	opt_obj.parse_args()
 
