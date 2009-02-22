@@ -53,6 +53,8 @@ def recurse(self, dirs, name=''):
 				f(self)
 			finally:
 				self.curdir = old
+			if getattr(self, 'post_recurse', None):
+				self.post_recurse(f, base)
 		else:
 			old = self.curdir
 			self.curdir = nexdir
@@ -60,6 +62,8 @@ def recurse(self, dirs, name=''):
 				exec txt
 			finally:
 				self.curdir = old
+			if getattr(self, 'post_recurse', None):
+				self.post_recurse(f, base + '_' + name)
 
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir"
@@ -112,7 +116,7 @@ def configure():
 	setattr(conf.__class__, 'recurse', recurse)
 
 	# calling to main wscript's configure()
-	conf.sub_config('')
+	conf.sub_config([''])
 
 	conf.store()
 

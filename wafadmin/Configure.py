@@ -74,7 +74,7 @@ class ConfigurationContext(object):
 	tests = {}
 	error_handlers = []
 	def __init__(self, env=None, blddir='', srcdir=''):
-		self.env       = None
+		self.env = None
 		self.envname = ''
 
 		self.line_just = 40
@@ -125,25 +125,18 @@ class ConfigurationContext(object):
 
 			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
-	def sub_config(self, dir):
+	def sub_config(self, k):
 		"executes the configure function of a wscript module"
+		self.recurse(k, name='configure')
 
-		current = self.cwd
-
-		self.cwd = os.path.join(self.cwd, dir)
-		cur = os.path.join(self.cwd, WSCRIPT_FILE)
-
-		mod = Utils.load_module(cur)
-		if not hasattr(mod, 'configure'):
-			self.fatal('the module %s has no configure function; make sure such a function is defined' % cur)
-
-		ret = mod.configure(self)
-		global autoconfig
-		if autoconfig:
+	def post_recurse(self, stuff, files):
+		if not autoconfig:
+			return
+		if isinstance(stuff, str):
+			self.hash = hash(self.hash, stuff)
+		else:
 			self.hash = Utils.hash_function_with_globals(self.hash, mod.configure)
-			self.files.append(os.path.abspath(cur))
-		self.cwd = current
-		return ret
+		self.files.append(files)
 
 	def store(self, file=''):
 		"save the config results into the cache file"
