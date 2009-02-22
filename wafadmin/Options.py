@@ -44,6 +44,8 @@ def create_parser(module=None):
 	Logs.debug('options: create_parser is called')
 
 	if module:
+		# create the help messages for commands
+		# TODO: extract the docstrings too
 		cmds_str = []
 		tbl = Utils.g_module.__dict__
 		for x in tbl:
@@ -182,10 +184,18 @@ def parse_args_impl(parser, _args=None):
 	if Logs.verbose > 2:
 		Logs.zones = ['*']
 
+# TODO waf 1.6
+# 1. rename the class to OptionsContext
+# 2. instead of a class attribute, use a module (static 'parser')
+# 3. parse_args_impl was made in times when we did not know about binding new methods to classes
+
 class Handler(object):
-	"loads wscript modules in folders for adding options"
+	"""loads wscript modules in folders for adding options
+	This class should be named 'OptionsContext'
+	A method named 'recurse' is bound when used by the module Scripting"""
 
 	parser = None
+	# make it possible to access the reference
 
 	def __init__(self, module=None):
 		self.parser = create_parser(module)
