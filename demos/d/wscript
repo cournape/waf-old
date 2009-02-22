@@ -26,7 +26,7 @@ def configure(conf):
 def build(bld):
 	bld.add_subdirs('src2')
 
-	obj = bld.new_task_gen('d', 'staticlib')
+	obj = bld.new_task_gen('d', 'dstaticlib')
 	obj.source = '''
 	testlib/code.d
 	'''
@@ -50,10 +50,11 @@ def build(bld):
 	obj.type = 'shlib'
 	"""
 
-	obj = bld.new_task_gen('d', 'program')
+	obj = bld.new_task_gen('d', 'dprogram')
 	obj.source = '''
 	example.d
 	'''
 	obj.target = 'd_test'
 	obj.uselib_local = 'testlib'
 	obj.uselib = 'PTHREAD'
+	obj.importpaths = '.'
