@@ -216,7 +216,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 	opt_obj = Options.Handler(Utils.g_module)
 	opt_obj.curdir = cwd
 	setattr(opt_obj.__class__, 'recurse', recurse)
-	opt_obj.sub_options('')
+	opt_obj.sub_options([''])
 	opt_obj.parse_args()
 
 	fun = getattr(Utils.g_module, 'init', None)
