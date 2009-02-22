@@ -298,8 +298,11 @@ def apply_d_libs(self):
 		y.post()
 		seen.append(x)
 
+		libname = y.target[y.target.rfind(os.sep) + 1:]
 		if 'dshlib' in y.features or 'dstaticlib' in y.features:
-			libs.append(y.target)
+			#libs.append(y.target)
+			env.append_unique('DLINKFLAGS', env['DLIBPATH_ST'] % y.link_task.outputs[0].parent.bldpath(env))
+			env.append_unique('DLINKFLAGS', env['DLIB_ST'] % libname)
 
 		# add the link path too
 		tmp_path = y.path.bldpath(env)
