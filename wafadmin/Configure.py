@@ -129,6 +129,9 @@ class ConfigurationContext(object):
 		"executes the configure function of a wscript module"
 		self.recurse(k, name='configure')
 
+	def pre_recurse(self, name_or_mod, path, hmm):
+		return {'conf': self, 'ctx': self}
+
 	def post_recurse(self, name_or_mod, path, hmm):
 		if not autoconfig:
 			return

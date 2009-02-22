@@ -59,7 +59,7 @@ def recurse(self, dirs, name=''):
 			if getattr(self.__class__, 'post_recurse', None):
 				self.post_recurse(f, base, nexdir)
 		else:
-			dc = {}
+			dc = {'ctx': self}
 			if getattr(self.__class__, 'pre_recurse', None):
 				dc = self.pre_recurse(txt, base + '_' + name, nexdir)
 			old = self.curdir
