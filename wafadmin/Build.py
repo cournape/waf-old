@@ -280,10 +280,6 @@ class BuildContext(object):
 				try: os.rmdir(x)
 				except OSError: pass
 
-	def add_subdirs(self, dirs):
-		for dir in Utils.to_list(dirs):
-			if dir: Scripting.add_subdir(dir, self)
-
 	def new_task_gen(self, *k, **kw):
 		kw['bld'] = self
 		if len(k) == 0: return TaskGen.task_gen(*k, **kw)
@@ -830,4 +826,17 @@ class BuildContext(object):
 		f = self.log or sys.stderr
 		f.write(s)
 		f.flush()
+
+	def add_subdirs(self, dirs):
+		self.recurse(dirs, 'build')
+
+	def pre_recurse(self, name_or_mod, path, nexdir):
+		self.oldpath = self.path
+		self.path = self.root.find_dir(nexdir)
+
+	def post_recurse(self, name_or_mod, path, nexdir):
+		try:
+			self.path = self.oldpath
+		except AttributeError:
+			pass
 

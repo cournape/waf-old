@@ -129,14 +129,14 @@ class ConfigurationContext(object):
 		"executes the configure function of a wscript module"
 		self.recurse(k, name='configure')
 
-	def post_recurse(self, stuff, files):
+	def post_recurse(self, name_or_mod, path, hmm):
 		if not autoconfig:
 			return
-		if isinstance(stuff, str):
-			self.hash = hash(self.hash, stuff)
+		if isinstance(name_or_mod, str):
+			self.hash = hash(self.hash, name_or_mod)
 		else:
 			self.hash = Utils.hash_function_with_globals(self.hash, mod.configure)
-		self.files.append(files)
+		self.files.append(path)
 
 	def store(self, file=''):
 		"save the config results into the cache file"

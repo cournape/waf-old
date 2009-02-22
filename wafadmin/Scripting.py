@@ -24,13 +24,14 @@ def recurse(self, dirs, name=''):
 	if isinstance(dirs, str):
 		dirs = Utils.to_list(dirs)
 
-	cur = getattr(self, 'curdir', None) or os.getcwd()
+	if not getattr(self, 'curdir', None):
+		self.curdir = os.getcwd()
 
 	for x in dirs:
 		if os.path.isabs(x):
 			nexdir = x
 		else:
-			nexdir = os.path.join(cur, x)
+			nexdir = os.path.join(self.curdir, x)
 
 		base = os.path.join(nexdir, WSCRIPT_FILE)
 
@@ -47,53 +48,31 @@ def recurse(self, dirs, name=''):
 			except KeyError:
 				raise Utils.WscriptError('No function %s defined in %s' % (name, base))
 
+			if getattr(self.__class__, 'pre_recurse', None):
+				self.pre_recurse(f, base, nexdir)
 			old = self.curdir
 			self.curdir = nexdir
 			try:
 				f(self)
 			finally:
 				self.curdir = old
-			if getattr(self, 'post_recurse', None):
-				self.post_recurse(f, base)
+			if getattr(self.__class__, 'post_recurse', None):
+				self.post_recurse(f, base, nexdir)
 		else:
+			if getattr(self.__class__, 'pre_recurse', None):
+				self.pre_recurse(txt, base + '_' + name, nexdir)
 			old = self.curdir
 			self.curdir = nexdir
 			try:
 				exec txt
 			finally:
 				self.curdir = old
-			if getattr(self, 'post_recurse', None):
-				self.post_recurse(f, base + '_' + name)
+			if getattr(self.__class__, 'post_recurse', None):
+				self.post_recurse(txt, base + '_' + name, nexdir)
 
 def add_subdir(dir, bld):
-	"each wscript calls bld.add_subdir"
-	try: bld.rescan(bld.path)
-	except OSError: raise Utils.WscriptError("No such directory "+bld.path.abspath())
-
-	old = bld.path
-
-	if os.path.isabs(dir):
-		new = bld.root.find_dir(dir)
-	else:
-		new = bld.path.find_dir(dir)
-	if new is None:
-		raise Utils.WscriptError('subdir not found (%s), restore is %s' % (dir, bld.path))
-
-	bld.path = new
-	# try to open 'wscript_build' for execution
-	# if unavailable, open the module wscript and call the build function from it
-	try:
-		file_path = os.path.join(new.abspath(), WSCRIPT_BUILD_FILE)
-		file = open(file_path, 'r')
-		exec(file)
-		if file: file.close()
-	except IOError:
-		file_path = os.path.join(new.abspath(), WSCRIPT_FILE)
-		module = Utils.load_module(file_path)
-		module.build(bld)
-
-	# restore the old node position
-	bld.path = old
+	"each wscript calls bld.add_subdir - TODO obsolete, remove in Waf 1.6"
+	bld.recurse(dir, 'build')
 
 def configure():
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
@@ -312,6 +291,7 @@ def main():
 	bld.load_envs()
 
 	# read the scripts - and set the path to the wscript path (useful for srcdir='/foo/bar')
+	setattr(bld.__class__, 'recurse', recurse)
 	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 
 	# TODO undocumented hook
