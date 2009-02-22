@@ -195,7 +195,7 @@ class Handler(object):
 	A method named 'recurse' is bound when used by the module Scripting"""
 
 	parser = None
-	# make it possible to access the reference
+	# make it possible to access the reference, like Build.bld
 
 	def __init__(self, module=None):
 		self.parser = create_parser(module)
