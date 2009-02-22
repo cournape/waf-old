@@ -192,29 +192,18 @@ class Handler(object):
 		self.cwd = os.getcwd()
 		Handler.parser = self
 
-	def add_option(self, *kw, **kwargs):
-		self.parser.add_option(*kw, **kwargs)
+	def add_option(self, *k, **kw):
+		self.parser.add_option(*k, **kw)
 
-	def add_option_group(self, *args, **kwargs):
-		return self.parser.add_option_group(*args, **kwargs)
+	def add_option_group(self, *k, **kw):
+		return self.parser.add_option_group(*k, **kw)
 
 	def get_option_group(self, opt_str):
 		return self.parser.get_option_group(opt_str)
 
-	def sub_options(self, dir, option_group=None):
-		"OBSOLETE - remove in Waf 1.6"
-		try:
-			current = self.cwd
-
-			self.cwd = os.path.join(self.cwd, dir)
-			cur = os.path.join(self.cwd, WSCRIPT_FILE)
-
-			mod = Utils.load_module(cur)
-			if hasattr(mod, 'set_options'):
-				mod.set_options(option_group or self)
-
-		finally:
-			self.cwd = current
+	def sub_options(self, *k, **kw):
+		if not k: raise Utils.WscriptError('folder expected')
+		self.recurse(k[0], name='set_options')
 
 	def tool_options(self, *k, **kw):
 		Utils.python_24_guard()
