@@ -833,6 +833,7 @@ class BuildContext(object):
 	def pre_recurse(self, name_or_mod, path, nexdir):
 		self.oldpath = self.path
 		self.path = self.root.find_dir(nexdir)
+		return {'bld': self}
 
 	def post_recurse(self, name_or_mod, path, nexdir):
 		try:
