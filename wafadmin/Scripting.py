@@ -221,9 +221,6 @@ def prepare_impl(t, cwd, ver, wafdir):
 	if not 'shutdown' in Utils.g_module.__dict__:
 		Utils.g_module.shutdown = Utils.nada
 
-	fun = getattr(Utils.g_module, 'init', None)
-	if fun: fun()
-
 	main()
 
 def prepare(t, cwd, ver, wafdir):
