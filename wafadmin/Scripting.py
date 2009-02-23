@@ -14,9 +14,14 @@ g_gz = 'bz2'
 
 
 class Context(object):
+	"""A base class for commands to be executed from Waf scripts"""
 	pass
 
 def recurse(self, dirs, name=''):
+	"""The function for calling scripts from folders, it tries to call wscript + function_name
+	and if that file does not exist, it will call the method 'function_name' from a file named wscript
+	the dirs can be a list of folders or a string containing space-separated folder paths
+	"""
 	if not name:
 		name = inspect.stack()[1][3]
 
