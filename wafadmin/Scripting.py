@@ -210,15 +210,14 @@ def prepare_impl(t, cwd, ver, wafdir):
 	opt_obj.sub_options([''])
 	opt_obj.parse_args()
 
+	if not 'init' in Utils.g_module.__dict__:
+		Utils.g_module.init = Utils.nada
+	if not 'shutdown' in Utils.g_module.__dict__:
+		Utils.g_module.shutdown = Utils.nada
+
 	fun = getattr(Utils.g_module, 'init', None)
 	if fun: fun()
 
-	# for dist, distclean and distcheck
-	for x in ['dist', 'distclean', 'distcheck']:
-		if Options.commands[x]:
-			fun = getattr(Utils.g_module, x, None)
-			fun()
-			sys.exit(0)
 	main()
 
 def prepare(t, cwd, ver, wafdir):
@@ -246,26 +245,45 @@ def prepare(t, cwd, ver, wafdir):
 	#"""
 
 def main():
-	if Options.commands['configure']:
-		ini = time.time()
-		configure()
-		ela = ''
-		if not Options.options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-		info('Configuration finished successfully%s; project is now ready to build.' % ela)
-		sys.exit(0)
+	lst = Options.arg_line[:]
+
+	while lst:
+		x = lst.pop(0)
+
+		if x == 'configure':
+			ini = time.time()
+			configure()
+			ela = ''
+			if not Options.options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+			info('Configuration finished successfully%s; project is now ready to build.' % ela)
+
+		elif x == 'build':
+			if lst:
+				y = lst.pop(0)
+				if y != 'install' and y != 'uninstall':
+					lst.insert(0, y)
+				y = None
+			build(y)
+		elif x == 'clean':
+			build(x)
+		else:
+			fun = getattr(Utils.g_module, x, None)
+			fun()
+
+def build(y):
 
 	# compile the project and/or install the files
 	bld = Build.BuildContext()
 	try:
 		proj = Environment.Environment(Options.lockfile)
 	except IOError:
-		if Options.commands['clean']:
+		if y == 'clean':
 			raise Utils.WafError("Nothing to clean (project not configured)")
 		else:
 			raise Utils.WafError("Project not configured (run 'waf configure' first)")
 
 	if Configure.autoconfig:
-		if not Options.commands['clean'] and not Options.commands['uninstall']:
+		if y != 'clean' and y != 'uninstall':
 			reconf = 0
 			h = 0
 			try:
@@ -303,12 +321,14 @@ def main():
 	if pre_build: pre_build()
 
 	# compile
-	if Options.commands['build'] or Options.is_install:
+	if y != 'clean': # Options.commands['build'] or Options.is_install:
+
 		# TODO quite ugly, no?
-		if Options.commands['uninstall']:
+		if y == 'uninstall':
 			import Task
 			def runnable_status(self):
 				return SKIP_ME
+			setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
 			setattr(Task.Task, 'runnable_status', runnable_status)
 
 		ini = time.time()
@@ -316,28 +336,28 @@ def main():
 
 		if Options.options.progress_bar: print('')
 
-		if Options.is_install:
+		if y == 'install' or y == 'uninstall':
 			bld.install()
 
 		ela = ''
 		if not Options.options.progress_bar:
 			ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-		if Options.commands['install']: msg = 'Build and installation finished successfully%s' % ela
-		elif Options.commands['uninstall']: msg = 'Uninstallation finished successfully%s' % ela
+		if y == 'install': msg = 'Build and installation finished successfully%s' % ela
+		elif y == 'uninstall': msg = 'Uninstallation finished successfully%s' % ela
 		else: msg = 'Build finished successfully%s' % ela
 		info(msg)
 
+		if y == 'uninstall':
+			import Task
+			setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
+
 	# clean
-	if Options.commands['clean']:
+	if y == 'clean':
 		try:
 			bld.clean()
 			info('Cleaning finished successfully')
 		finally:
 			bld.save()
-
-	# shutdown
-	fun = getattr(Utils.g_module, 'shutdown', None)
-	if fun: fun()
 
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()

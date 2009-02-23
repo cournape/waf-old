@@ -158,7 +158,7 @@ def parse_args_impl(parser, _args=None):
 		commands[arg] = True
 
 	# the check thing depends on the build
-	if commands['check']:
+	if 'check' in args:
 		idx = args.index('check')
 		try:
 			bidx = args.index('build')
@@ -167,6 +167,22 @@ def parse_args_impl(parser, _args=None):
 		except ValueError, e:
 			args.insert(idx, 'build')
 
+	if 'install' in args:
+		idx = args.index('install')
+		if idx == 0 or args[idx - 1] != 'build':
+			args.insert(idx, 'build')
+
+	if 'uninstall' in args:
+		idx = args.index('uninstall')
+		if idx == 0 or args[idx - 1] != 'build':
+			args.insert(idx, 'build')
+
+	if args[0] != 'init':
+		args.insert(0, 'init')
+	if args[-1] != 'shutdown':
+		args.append('shutdown')
+
+	# FIXME uh, old
 	if commands['install'] or commands['uninstall']:
 		global is_install
 		is_install = True
