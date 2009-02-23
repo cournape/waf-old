@@ -51,6 +51,7 @@ class BuildContext(object):
 
 		# instead of hashing the nodes, we assign them a unique id when they are created
 		self.id_nodes = 0
+		self.idx = {}
 
 		# map names to environments, the 'default' must be defined
 		self.all_envs = {}

@@ -85,7 +85,6 @@ class task_gen(object):
 	prec = Utils.DefaultDict(list)
 	traits = Utils.DefaultDict(set)
 	classes = {}
-	idx = {}
 
 	def __init__(self, *kw, **kwargs):
 		self.prec = Utils.DefaultDict(list)
@@ -125,7 +124,7 @@ class task_gen(object):
 		self.bld.all_task_gen.append(self)
 
 		# provide a unique id
-		self.idx = task_gen.idx[self.path.id] = task_gen.idx.get(self.path.id, 0) + 1
+		self.idx = self.bld.idx[self.path.id] = self.bld.idx.get(self.path.id, 0) + 1
 
 		for key, val in kwargs.iteritems():
 			setattr(self, key, val)
