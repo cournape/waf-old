@@ -48,7 +48,9 @@ def create_parser(module=None):
 		# TODO: extract the docstrings too
 		cmds_str = []
 		tbl = Utils.g_module.__dict__
-		for x in tbl:
+		keys = tbl.keys()
+		keys.sort()
+		for x in keys:
 			if not x in ['set_options', 'init', 'shutdown']:
 				if type(tbl[x]) is type(parse_args_impl):
 					cmds_str.append(x)
