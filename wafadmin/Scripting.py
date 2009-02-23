@@ -16,7 +16,6 @@ g_gz = 'bz2'
 class Context(object):
 	pass
 
-
 def recurse(self, dirs, name=''):
 	if not name:
 		name = inspect.stack()[1][3]
@@ -70,6 +69,8 @@ def recurse(self, dirs, name=''):
 				self.curdir = old
 			if getattr(self.__class__, 'post_recurse', None):
 				self.post_recurse(txt, base + '_' + name, nexdir)
+
+setattr(Context, 'recurse', recurse)
 
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir - TODO obsolete, remove in Waf 1.6"
@@ -267,8 +268,16 @@ def main():
 		elif x == 'clean':
 			build(x)
 		else:
+			ctx = Context()
 			fun = getattr(Utils.g_module, x, None)
-			fun()
+			if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck']:
+				# compatibility TODO remove in waf 1.6
+				try:
+					fun(ctx)
+				except TypeError:
+					fun()
+			else:
+				fun(ctx)
 
 def build(y):
 
