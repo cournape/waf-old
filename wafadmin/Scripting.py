@@ -196,6 +196,13 @@ def prepare_impl(t, cwd, ver, wafdir):
 			warn(msg)
 		Utils.g_module.blddir = build_dir_override
 
+	if not 'dist' in Utils.g_module.__dict__:
+		Utils.g_module.dist = dist
+	if not 'distclean' in Utils.g_module.__dict__:
+		Utils.g_module.distclean = distclean
+	if not 'distcheck' in Utils.g_module.__dict__:
+		Utils.g_module.distcheck = distcheck
+
 	# now parse the options from the user wscript file
 	opt_obj = Options.Handler(Utils.g_module)
 	opt_obj.curdir = cwd
@@ -210,11 +217,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 	for x in ['dist', 'distclean', 'distcheck']:
 		if Options.commands[x]:
 			fun = getattr(Utils.g_module, x, None)
-			if fun:
-				fun()
-			else:
-				# bad
-				eval(x+'()')
+			fun()
 			sys.exit(0)
 	main()
 
