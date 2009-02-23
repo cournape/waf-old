@@ -50,18 +50,22 @@ def create_parser(module=None):
 		tbl = Utils.g_module.__dict__
 		keys = tbl.keys()
 		keys.sort()
+
+		ban = ['set_options', 'init', 'shutdown']
+
+		just = max([len(x) for x in keys if not x in ban and type(tbl[x]) is type(parse_args_impl)])
+
 		for x in keys:
-			if not x in ['set_options', 'init', 'shutdown']:
-				if type(tbl[x]) is type(parse_args_impl):
-					cmds_str.append(x)
-		cmds_str = ' '.join(cmds_str)
+			if not x in ban and type(tbl[x]) is type(parse_args_impl):
+				cmds_str.append('  %s: %s' % (x.ljust(just), tbl[x].__doc__ or '-'))
+		cmds_str = '\n'.join(cmds_str)
 	else:
 		cmd_str = ' '.join(cmds)
 
 	parser = OptionParser(conflict_handler="resolve", usage = '''waf [command] [options]
 
-* Main commands: %s
-* Example: ./waf build -j4''' % cmds_str, version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
+* Main commands (example: ./waf build -j4)
+%s''' % cmds_str, version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
 
 	parser.formatter.width = Utils.get_term_cols()
 	p = parser.add_option

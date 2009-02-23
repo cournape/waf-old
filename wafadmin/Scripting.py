@@ -410,7 +410,7 @@ def copytree(src, dst, build_dir):
 			shutil.copy2(srcname, dstname)
 
 def distclean():
-	"""clean the project"""
+	'''clean the project entirely'''
 	lst = os.listdir('.')
 	for f in lst:
 		if f == Options.lockfile:
@@ -431,7 +431,8 @@ def distclean():
 	info('distclean finished successfully')
 
 def dist(appname='', version=''):
-	"""make a tarball with all the sources in it; return (distdirname, tarballname)"""
+	'''make a tarball with all the sources in it'''
+	# return return (distdirname, tarballname)
 	import tarfile
 
 	if not appname: appname = getattr(Utils.g_module, APPNAME, 'noname')
@@ -474,7 +475,7 @@ def dist(appname='', version=''):
 	return arch_name
 
 def distcheck(appname='', version=''):
-	"""Makes some sanity checks on the waf dist generated tarball"""
+	'''perform sanity checks on the generated tarball (waf dist)'''
 	import tempfile, tarfile
 	import pproc
 
