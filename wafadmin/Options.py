@@ -165,7 +165,6 @@ def parse_args_impl(parser, _args=None):
 			if bidx > idx:
 				raise ValueError, 'build before check'
 		except ValueError, e:
-			print e
 			args.insert(idx, 'build')
 
 	if commands['install'] or commands['uninstall']:
