@@ -270,6 +270,10 @@ def main():
 		else:
 			ctx = Context()
 			fun = getattr(Utils.g_module, x, None)
+
+			if not fun:
+				raise Utils.WscriptError('No such command %r' % x)
+
 			if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck']:
 				# compatibility TODO remove in waf 1.6
 				try:
