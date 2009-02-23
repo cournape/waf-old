@@ -144,25 +144,29 @@ def parse_args_impl(parser, _args=None):
 	(options, args) = parser.parse_args(args=_args)
 
 	arg_line = args
+	#arg_line = args[:] # copy
 
 	# By default, 'waf' is equivalent to 'waf build'
 	commands = {}
-	for var in cmds:    commands[var] = 0
-	if len(args) == 0:
+	for var in cmds: commands[var] = 0
+	if not args:
 		commands['build'] = 1
-		arg_line.append('build')
+		args.append('build')
 
 	# Parse the command arguments
 	for arg in args:
-		arg = arg.strip()
-		if arg in cmds:
-			commands[arg]=True
-		else:
-			Utils.pprint('RED', 'Error: Invalid command specified %r' % arg)
-			parser.print_help()
-			sys.exit(1)
+		commands[arg] = True
+
+	# the check thing depends on the build
 	if commands['check']:
-		commands['build'] = True
+		idx = args.index('check')
+		try:
+			bidx = args.index('build')
+			if bidx > idx:
+				raise ValueError, 'build before check'
+		except ValueError, e:
+			print e
+			args.insert(idx, 'build')
 
 	if commands['install'] or commands['uninstall']:
 		global is_install
