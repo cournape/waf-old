@@ -25,22 +25,6 @@ from Configure import conf
 import TaskGen, Task, Utils
 from TaskGen import feature, before, taskgen
 
-exclude_regs = '''
-**/*~
-**/#*#
-**/.#*
-**/%*%
-**/._*
-**/CVS
-**/CVS/**
-**/.cvsignore
-**/SCCS
-**/SCCS/**
-**/vssver.scc
-**/.svn
-**/.svn/**
-**/.DS_Store'''.split()
-
 class_check_source = '''
 public class Test {
 	public static void main(String[] argv) {
@@ -212,49 +196,6 @@ def check_java_class(self, classname, with_classpath=None):
 	shutil.rmtree(javatestdir, True)
 
 	return found
-
-@taskgen
-def find_java_files(self, *k, **kw):
-	regex = jar_regexp(k[0])
-	def accept(node, name):
-		ts = node.bldpath(self.env) + '/' + name
-		return regex.match(ts)
-
-	def reject(node, name):
-		ts = node.bldpath(self.env) + '/' + name
-		return default_excludes()(ts)
-
-	nodes = [x for x in self.path.find_iter_impl(dir=0, accept_name=accept, is_prune=reject)]
-	return nodes
-
-def jar_regexp(regex):
-	if regex.endswith('/'):
-		regex += '**'
-	regex = (re.escape(regex).replace(r"\*\*\/", ".*")
-		.replace(r"\*\*", ".*")
-		.replace(r"\*","[^/]*")
-		.replace(r"\?","[^/]"))
-	if regex.endswith(r'\/.*'):
-		regex = regex[:-4] + '([/].*)*'
-	regex += '$'
-	#print regex
-	return re.compile(regex)
-
-exc_fun = None
-def default_excludes():
-	global exc_fun
-	if exc_fun:
-		return exc_fun
-
-	regs = [jar_regexp(x) for x in exclude_regs]
-	def mat(path):
-		for x in regs:
-			if x.match(path):
-				return True
-		return False
-
-	exc_fun = mat
-	return exc_fun
 
 def test_re(reg, ts, expected=True):
 	regexp = jar_regexp(reg)

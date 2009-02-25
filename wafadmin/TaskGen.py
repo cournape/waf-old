@@ -241,6 +241,8 @@ class task_gen(object):
 
 		do not use absolute paths
 		do not use paths outside of the source tree
+
+		# TODO: remove in Waf 1.6
 		"""
 
 		err_msg = "'%s' attribute must be a list"

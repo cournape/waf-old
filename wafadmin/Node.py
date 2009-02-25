@@ -30,7 +30,7 @@ ${TGT[0].abspath(env)} -> /path/to/dir/to/file.ext
 
 """
 
-import os, sys, fnmatch
+import os, sys, fnmatch, re
 import Utils
 
 UNDEFINED = 0
@@ -39,6 +39,51 @@ FILE = 2
 BUILD = 3
 
 type_to_string = {UNDEFINED: "unk", DIR: "dir", FILE: "src", BUILD: "bld"}
+
+exclude_regs = '''
+**/*~
+**/#*#
+**/.#*
+**/%*%
+**/._*
+**/CVS
+**/CVS/**
+**/.cvsignore
+**/SCCS
+**/SCCS/**
+**/vssver.scc
+**/.svn
+**/.svn/**
+**/.DS_Store'''.split()
+
+exc_fun = None
+def default_excludes():
+	global exc_fun
+	if exc_fun:
+		return exc_fun
+
+	regs = [jar_regexp(x) for x in exclude_regs]
+	def mat(path):
+		for x in regs:
+			if x.match(path):
+				return True
+		return False
+
+	exc_fun = mat
+	return exc_fun
+
+def jar_regexp(regex):
+	if regex.endswith('/'):
+		regex += '**'
+	regex = (re.escape(regex).replace(r"\*\*\/", ".*")
+		.replace(r"\*\*", ".*")
+		.replace(r"\*","[^/]*")
+		.replace(r"\?","[^/]"))
+	if regex.endswith(r'\/.*'):
+		regex = regex[:-4] + '([/].*)*'
+	regex += '$'
+	#print regex
+	return re.compile(regex)
 
 class Node(object):
 	__slots__ = ("name", "parent", "id", "childs")
@@ -445,40 +490,6 @@ class Node(object):
 		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
-	def find_iter(self, in_pat=['*'], ex_pat=[], prune_pat=['.svn'], src=True, bld=True, dir=False, maxdepth=25, flat=False):
-		"find nodes recursively, this returns everything but folders by default"
-
-		if not (src or bld or dir):
-			raise StopIteration
-
-		if self.id & 3 != DIR:
-			raise StopIteration
-
-		in_pat = Utils.to_list(in_pat)
-		ex_pat = Utils.to_list(ex_pat)
-		prune_pat = Utils.to_list(prune_pat)
-
-		def accept_name(node, name):
-			for pat in ex_pat:
-				if fnmatch.fnmatchcase(name, pat):
-					return False
-			for pat in in_pat:
-				if fnmatch.fnmatchcase(name, pat):
-					return True
-			return False
-
-		def is_prune(node, name):
-			for pat in prune_pat:
-				if fnmatch.fnmatchcase(name, pat):
-					return True
-			return False
-
-		ret = self.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth)
-		if flat:
-			return " ".join([x.relpath_gen(self) for x in ret])
-
-		return ret
-
 	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
 		self.__class__.bld.rescan(self)
@@ -518,6 +529,64 @@ class Node(object):
 					if accept_name(self, node.name):
 						yield node
 		raise StopIteration
+
+	def find_iter(self, in_pat=['*'], ex_pat=[], prune_pat=['.svn'], src=True, bld=True, dir=False, maxdepth=25, flat=False):
+		"find nodes recursively, this returns everything but folders by default"
+
+		if not (src or bld or dir):
+			raise StopIteration
+
+		if self.id & 3 != DIR:
+			raise StopIteration
+
+		in_pat = Utils.to_list(in_pat)
+		ex_pat = Utils.to_list(ex_pat)
+		prune_pat = Utils.to_list(prune_pat)
+
+		def accept_name(node, name):
+			for pat in ex_pat:
+				if fnmatch.fnmatchcase(name, pat):
+					return False
+			for pat in in_pat:
+				if fnmatch.fnmatchcase(name, pat):
+					return True
+			return False
+
+		def is_prune(node, name):
+			for pat in prune_pat:
+				if fnmatch.fnmatchcase(name, pat):
+					return True
+			return False
+
+		ret = self.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth)
+		if flat:
+			return " ".join([x.relpath_gen(self) for x in ret])
+
+		return ret
+
+	def ant_glob(self, *k, **kw):
+		regex = jar_regexp(k[0])
+		def accept(node, name):
+			ts = node.relpath_gen(self) + '/' + name
+			return regex.match(ts)
+
+		def reject(node, name):
+			ts = node.relpath_gen(self) + '/' + name
+			return default_excludes()(ts)
+
+		ret = [x for x in self.find_iter_impl(
+			accept_name=accept,
+			is_prune=reject,
+			src=kw.get('src', 1),
+			bld=kw.get('bld', 1),
+			dir=kw.get('dir', 0),
+			maxdepth=kw.get('maxdepth', 25)
+			)]
+
+		if kw.get('flat', True):
+			return " ".join([x.relpath_gen(self) for x in ret])
+
+		return ret
 
 # win32 fixes follow
 if sys.platform == "win32":
