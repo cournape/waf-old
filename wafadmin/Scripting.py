@@ -211,7 +211,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 
 	# now parse the options from the user wscript file
 	opt_obj = Options.Handler(Utils.g_module)
-	opt_obj.curdir = cwd
+	opt_obj.curdir = candidate
 	setattr(opt_obj.__class__, 'recurse', recurse)
 	opt_obj.sub_options([''])
 	opt_obj.parse_args()
