@@ -147,8 +147,11 @@ def exec_command(s, **kw):
 		del(kw['log'])
 	kw['shell'] = isinstance(s, str)
 
-	proc = pproc.Popen(s, **kw)
-	return proc.wait()
+	try:
+		proc = pproc.Popen(s, **kw)
+		return proc.wait()
+	except WindowsError:
+		return -1
 
 if is_win32:
 	old_log = exec_command
@@ -441,8 +444,11 @@ def cmd_output(cmd, **kw):
 	if silent:
 		kw['stderr'] = pproc.PIPE
 
-	p = pproc.Popen(cmd, **kw)
-	output = p.communicate()[0]
+	try:
+		p = pproc.Popen(cmd, **kw)
+		output = p.communicate()[0]
+	except WindowsError, e:
+		raise ValueError(str(e))
 
 	if p.returncode:
 		if not silent:

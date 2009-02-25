@@ -117,8 +117,12 @@ def cmd_and_log(self, cmd, kw):
 	Logs.debug('runner: %s\n' % cmd)
 	if self.log: self.log.write('%s\n' % cmd)
 
-	p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True)
-	output = p.communicate()[0]
+	try:
+		p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True)
+		output = p.communicate()[0]
+	except WindowsError:
+		self.fatal('fail')
+
 	if p.returncode:
 		if not kw.get('errmsg', ''):
 			if kw.get('mandatory', False):
