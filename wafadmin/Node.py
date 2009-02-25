@@ -445,7 +445,7 @@ class Node(object):
 		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
-	def find_iter(self, in_pat=['*'], ex_pat=[], prune_pat=['.svn'], src=True, bld=True, dir=False, maxdepth=25):
+	def find_iter(self, in_pat=['*'], ex_pat=[], prune_pat=['.svn'], src=True, bld=True, dir=False, maxdepth=25, flat=False):
 		"find nodes recursively, this returns everything but folders by default"
 
 		if not (src or bld or dir):
@@ -473,7 +473,11 @@ class Node(object):
 					return True
 			return False
 
-		return self.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth)
+		ret = self.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth)
+		if flat:
+			return " ".join([x.relpath_gen(self) for x in ret])
+
+		return ret
 
 	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
