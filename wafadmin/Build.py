@@ -414,7 +414,7 @@ class BuildContext(object):
 		# remove the existing timestamps if the build files are removed
 		if sys.platform == "win32" and not src_dir_node.name:
 			return
-		self.listdir_src(src_dir_node, src_dir_node.abspath())
+		self.listdir_src(src_dir_node)
 
 		# first obtain the differences between srcnode and src_dir_node
 		#lst = self.srcnode.difflst(src_dir_node)
@@ -448,13 +448,12 @@ class BuildContext(object):
 				os.makedirs(sub_path)
 
 	# ======================================= #
-	def listdir_src(self, parent_node, path):
-		"""
-		@param parent_node [Node]: parent node of path to scan.
-		@param path [string]: path to folder to scan."""
+	def listdir_src(self, parent_node):
+		"""@param parent_node [Node]: parent node of path to scan."""
+		parent_path = parent_node.abspath()
 
 		try:
-			lst = set(Utils.listdir(path))
+			lst = set(Utils.listdir(parent_path))
 		except OSError:
 			# this is only for folders created in the build directory by ill-behaving compilers
 			# WARNING: experimental
@@ -479,7 +478,7 @@ class BuildContext(object):
 			node = parent_node.childs[x]
 			try:
 				# do not call node.abspath here
-				cache[node.id] = Utils.h_file(path + os.sep + node.name)
+				cache[node.id] = Utils.h_file(parent_path + os.sep + node.name)
 			except IOError:
 				raise Utils.WafError("The file %s is not readable or has become a dir" % node.abspath())
 
