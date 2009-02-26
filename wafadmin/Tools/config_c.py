@@ -251,8 +251,18 @@ def validate_c(self, kw):
 
 	#OSX
 	if 'framework_name' in kw:
-		if not kw.get('header_name'):
+		fwkname = kw['framework_name']
+		if not 'uselib_store' in kw:
+			kw['uselib_store'] = fwkname.upper()
+		if not 'header_name' in kw:
 			kw['header_name'] = []
+		fwk = '%s/%s.h' % (fwkname, fwkname)
+		if kw.get('remove_dot_h', None):
+			fwk = fwk[:-2]
+		kw['header_name'] = Utils.to_list(kw['header_name']) + [fwk]
+		kw['msg'] = 'Checking for framework %s' % fwkname
+		kw['framework'] = fwkname
+		#kw['frameworkpath'] = set it yourself
 
 	if 'function_name' in kw:
 		fu = kw['function_name']
@@ -277,19 +287,6 @@ def validate_c(self, kw):
 	elif 'header_name' in kw:
 		if not 'msg' in kw:
 			kw['msg'] = 'Checking for header %s' % kw['header_name']
-
-		# OSX
-		if 'framework_name' in kw:
-			fwkname = kw['framework_name']
-			if not 'uselib_store' in kw:
-				kw['uselib_store'] = fwkname.upper()
-			fwk = '%s/%s.h' % (fwkname, fwkname)
-			if kw.get('remove_dot_h', None):
-				fwk = fwk[:-2]
-			kw['header_name'] = Utils.to_list(kw['header_name']) + [fwk]
-			kw['msg'] = 'Checking for framework %s' % fwkname
-			kw['framework'] = fwkname
-			#kw['frameworkpath'] = set it yourself
 
 		l = Utils.to_list(kw['header_name'])
 		assert len(l)>0, 'list of headers in header_name is empty'
