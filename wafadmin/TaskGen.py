@@ -505,7 +505,12 @@ def exec_rule(self):
 
 	if getattr(self, 'source', None):
 		cls.quiet = True
-		tsk.inputs=[self.path.find_resource(x) for x in self.to_list(self.source)]
+		tsk.inputs = []
+		for x in self.to_list(self.source):
+			y = self.path.find_resource(x)
+			if not y:
+				raise Utils.WafError('input file %r could not be found (%r)' % (x, self.path.abspath()))
+			tsk.inputs.append(y)
 
 	if getattr(self, 'always', None):
 		Task.always_run(cls)
