@@ -9,7 +9,7 @@ c/c++ configuration routines
 import os, imp, sys, shlex, shutil
 import pproc
 from Utils import md5
-import Build, Utils, Configure, Task, Options, Logs
+import Build, Utils, Configure, Task, Options, Logs, TaskGen
 from Constants import *
 from Configure import conf, conftest
 
@@ -251,6 +251,9 @@ def validate_c(self, kw):
 
 	#OSX
 	if 'framework_name' in kw:
+		try: TaskGen.task_gen.create_task_macapp
+		except AttributeError: self.fatal('frameworks require the osx tool')
+
 		fwkname = kw['framework_name']
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = fwkname.upper()
