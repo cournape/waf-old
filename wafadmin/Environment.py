@@ -67,6 +67,7 @@ class Environment(object):
 			return DEFAULT
 
 	def copy(self):
+		# TODO waf 1.6 rename this method derive, #368
 		newenv = Environment()
 		newenv.parent = self
 		return newenv
