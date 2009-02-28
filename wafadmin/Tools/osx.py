@@ -34,12 +34,13 @@ def set_macosx_deployment_target(self):
 @after('apply_lib_vars')
 def apply_framework(self):
 	for x in self.to_list(self.env['FRAMEWORKPATH']):
-		self.env.append_unique('CXXFLAGS', x)
-		self.env.append_unique('CCFLAGS', x)
-		self.env.append_unique('LINKFLAGS', x)
+		frameworkpath_st = '-F%s'
+		self.env.append_unique('CXXFLAGS', frameworkpath_st % x)
+		self.env.append_unique('CCFLAGS', frameworkpath_st % x)
+		self.env.append_unique('LINKFLAGS', frameworkpath_st % x)
 
 	for x in self.to_list(self.env['FRAMEWORK']):
-		self.env.append_unique('LINKFLAGS', x)
+		self.env.append_value('LINKFLAGS', ['-framework', x])
 
 @taskgen
 def create_task_macapp(self):

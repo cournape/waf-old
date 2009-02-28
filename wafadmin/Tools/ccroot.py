@@ -451,6 +451,8 @@ c_attrs = {
 'staticlib': 'STATICLIB',
 'staticlibpath': 'STATICLIBPATH',
 'rpath' : 'RPATH',
+'framework' : 'FRAMEWORK',
+'frameworkpath' : 'FRAMEWORKPATH'
 }
 
 @feature('cc', 'cxx')
