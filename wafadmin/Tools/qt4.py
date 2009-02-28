@@ -327,11 +327,11 @@ def detect_qt4(conf):
 			for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
 				qmake = conf.find_program(qmk, path)
 				if qmake:
-					version = Utils.cmd_output(qmake+" -query QT_VERSION").strip().split('.')
+					version = Utils.cmd_output([qmake, '-query', 'QT_VERSION']).strip().split('.')
 					if version[0] == "4":
-						qtincludes = Utils.cmd_output(qmake+" -query QT_INSTALL_HEADERS").strip()
-						qtdir = Utils.cmd_output(qmake + " -query QT_INSTALL_PREFIX").strip()+"/"
-						qtbin = Utils.cmd_output(qmake + " -query QT_INSTALL_BINS").strip()+"/"
+						qtincludes = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_HEADERS']).strip()
+						qtdir = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_PREFIX']).strip()+"/"
+						qtbin = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_BINS']).strip()+"/"
 						break
 		except (OSError, ValueError):
 			pass
@@ -364,14 +364,11 @@ def detect_qt4(conf):
 #				env['CXXFLAGS_' + i.upper ()] += [incflag]
 
 		# now we add some static depends.
-		if conf.is_defined("HAVE_QTOPENGL") and not '-framework OpenGL' in env["LINKFLAGS_QTOPENGL"]:
-			env["LINKFLAGS_QTOPENGL"] += ['-framework OpenGL']
+		if conf.is_defined('HAVE_QTOPENGL'):
+			env.append_unique('FRAMEWORK_QTOPENGL', 'OpenGL')
 
-		if conf.is_defined("HAVE_QTGUI"):
-			if not '-framework AppKit' in env["LINKFLAGS_QTGUI"]:
-				env["LINKFLAGS_QTGUI"] += ['-framework AppKit']
-			if not '-framework ApplicationServices' in env["LINKFLAGS_QTGUI"]:
-				env["LINKFLAGS_QTGUI"] += ['-framework ApplicationServices']
+		if conf.is_defined('HAVE_QTGUI'):
+			env.append_unique('FRAMEWORK_QTGUI', ['AppKit', 'ApplicationServices'])
 
 		framework_ok = True
 
