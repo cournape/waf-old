@@ -795,18 +795,19 @@ class BuildContext(object):
 		Utils.check_dir(dir)
 
 		if Options.commands['install']:
-			try:
-				if not os.path.islink(tgt) or os.readlink(tgt) != src:
-					try:
-						os.remove(tgt)
-					except OSError:
-						return 1
+			link = False
+			if not os.path.islink(tgt):
+				link = True
+			elif os.readlink(tgt) != src:
+				link = True
+				try: os.remove(tgt)
+				except OSError: pass
 
-					info("* symlink %s (-> %s)" % (tgt, src))
-					os.symlink(src, tgt)
-				return 0
-			except OSError:
-				return 1
+			if link:
+				info('* symlink %s (-> %s)' % (tgt, src))
+				os.symlink(src, tgt)
+			return 0
+
 		elif Options.commands['uninstall']:
 			try:
 				info("* removing %s" % (tgt))
