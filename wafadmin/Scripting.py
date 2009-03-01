@@ -353,11 +353,11 @@ def build(y):
 
 		ini = time.time()
 
-		info("Waf: Entering directory `%s'" % bld.path.abspath())
+		info("Waf: Entering directory `%s'" % bld.bldnode.abspath())
 		try:
 			bld.compile()
 		finally:
-			info("Waf: Leaving directory `%s'" % bld.path.abspath())
+			info("Waf: Leaving directory `%s'" % bld.bldnode.abspath())
 
 		if Options.options.progress_bar: print('')
 
