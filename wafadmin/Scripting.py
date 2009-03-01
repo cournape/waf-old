@@ -90,7 +90,10 @@ def configure():
 	src = os.path.abspath(src)
 
 	bld = getattr(Options.options, BLDDIR, None)
-	if not bld: bld = getattr(Utils.g_module, BLDDIR, None)
+	if not bld:
+		bld = getattr(Utils.g_module, BLDDIR, None)
+		if bld == '.':
+			raise Utils.WafError('Setting blddir="." may cause distclean problems')
 	if not bld: raise Utils.WscriptError(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
 	bld = os.path.abspath(bld)
 
