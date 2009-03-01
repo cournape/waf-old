@@ -797,6 +797,11 @@ class BuildContext(object):
 		if Options.commands['install']:
 			try:
 				if not os.path.islink(tgt) or os.readlink(tgt) != src:
+					try:
+						os.remove(tgt)
+					except OSError:
+						return 1
+
 					info("* symlink %s (-> %s)" % (tgt, src))
 					os.symlink(src, tgt)
 				return 0
