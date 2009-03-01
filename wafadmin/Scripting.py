@@ -352,7 +352,12 @@ def build(y):
 			setattr(Task.Task, 'runnable_status', runnable_status)
 
 		ini = time.time()
-		bld.compile()
+
+		info('Entering directory %r' % bld.path.abspath())
+		try:
+			bld.compile()
+		finally:
+			info('Leaving directory %r' % bld.path.abspath())
 
 		if Options.options.progress_bar: print('')
 
