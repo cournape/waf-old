@@ -26,6 +26,7 @@ class WscriptErrorsTester(common_test.CommonTester):
 	def setUp(self):
 		'''setup the foundations needed for tests'''
 		self._bld = Build.BuildContext()
+		setattr(self._bld.__class__, 'recurse', Scripting.recurse)
 		# define & create temporary testing directories - 
 		# needed to make sure it will run in same manner always 
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")
@@ -45,6 +46,7 @@ class WhiteWscriptTester(WscriptErrorsTester):
 	
 	def _setup_options(self):
 		opt_obj = Options.Handler()
+		setattr(opt_obj.__class__, 'recurse', Scripting.recurse)
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
 
