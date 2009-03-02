@@ -43,10 +43,10 @@ default_destdir = os.environ.get('DESTDIR', '')
 def create_parser(module=None):
 	Logs.debug('options: create_parser is called')
 
+	cmds_str = []
 	if module:
 		# create the help messages for commands
 		# TODO: extract the docstrings too
-		cmds_str = []
 		tbl = Utils.g_module.__dict__
 		keys = tbl.keys()
 		keys.sort()
