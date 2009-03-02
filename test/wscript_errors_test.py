@@ -94,9 +94,6 @@ srcdir = '.'
 
 def configure(conf):
 	raise AttributeError
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents, use_dic=False)
 		self._setup_options()
@@ -120,7 +117,7 @@ def set_options(opt):
 """
 		self._write_wscript(wscript_contents, use_dic=False)
 		opt_obj = Options.Handler()
-		self.failUnlessRaises(AttributeError, opt_obj.sub_options, '')
+		self.failUnlessRaises(AttributeError, opt_obj.sub_options, '.')
 
 	def test_no_wscript_for_config(self):
 		conf = Configure.ConfigurationContext()
