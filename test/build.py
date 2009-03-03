@@ -93,19 +93,15 @@ def configure(conf):
 
 		self.failUnlessRaises(Utils.WafError, bld.load)
 
-	def test_black_build_fails_blddir_is_srcdir(self):
+	def test_black_configure_fails_blddir_is_srcdir(self):
 		# black-box test: build fail if blddir == srcdir
 		my_wscript = """
 blddir = srcdir = '.'
 def configure(conf):
 	pass
-
-def build(bld):
-	pass
 """
 		self._write_wscript(my_wscript)
-		self._test_configure()
-		self._test_build(False)
+		self._test_configure(False)
 
 	def test_rescan_fails_file_not_readable(self):
 		# black-box test: rescan fails if file is not readable
