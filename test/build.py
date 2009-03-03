@@ -58,9 +58,6 @@ def build(bld):
 
 def configure(conf):
 	conf.check_tool('g++')
-
-def set_options(opt):
-	pass
 """ % self._source_file_path
 
 		self._write_wscript(wscript_contents)
@@ -105,9 +102,6 @@ def configure(conf):
 
 def build(bld):
 	pass
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(my_wscript)
 		self._test_configure()
@@ -126,9 +120,6 @@ def build(bld):
 
 def configure(conf):
 	conf.check_tool('g++')
-
-def set_options(opt):
-	pass
 """
 
 		self._write_wscript(wscript_contents)
@@ -154,9 +145,6 @@ def build(bld):
 
 def configure(conf):
 	conf.check_tool('g++')
-
-def set_options(opt):
-	pass
 """  % self._source_file_path
 
 		self._write_wscript(wscript_contents)
