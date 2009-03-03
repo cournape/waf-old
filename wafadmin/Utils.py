@@ -22,7 +22,7 @@ Utilities, the stable ones are the following:
 		m.update(filename)
 		return m.digest()
 
-    To replace the function in your project, use something like this:
+	To replace the function in your project, use something like this:
 	import Utils
 	Utils.h_file = h_file
 
@@ -375,14 +375,14 @@ _hash_whitelist_types = (
 	)
 
 try:
-    all
+	all
 except NameError: # for compatibility with Python < 2.5
-    def all(iterable):
-        "Returns True if all elements are true"
-        for element in iterable:
-            if not element:
-                return False
-        return True
+	def all(iterable):
+		"Returns True if all elements are true"
+		for element in iterable:
+			if not element:
+				return False
+		return True
 
 def _type_hash_is_stable(value):
 	if isinstance(value, _hash_whitelist_types):
@@ -513,4 +513,64 @@ def readf(fname):
 def nada(*k, **kw):
 	"""A function that does nothing"""
 	pass
+
+class Context(object):
+	"""A base class for commands to be executed from Waf scripts"""
+	def recurse(self, dirs, name=''):
+		"""The function for calling scripts from folders, it tries to call wscript + function_name
+		and if that file does not exist, it will call the method 'function_name' from a file named wscript
+		the dirs can be a list of folders or a string containing space-separated folder paths
+		"""
+		if not name:
+			name = inspect.stack()[1][3]
+
+		if isinstance(dirs, str):
+			dirs = to_list(dirs)
+
+		if not getattr(self, 'curdir', None):
+			self.curdir = os.getcwd()
+
+		for x in dirs:
+			if os.path.isabs(x):
+				nexdir = x
+			else:
+				nexdir = os.path.join(self.curdir, x)
+
+			base = os.path.join(nexdir, WSCRIPT_FILE)
+
+			try:
+				txt = readf(base + '_' + name)
+			except (OSError, IOError):
+				try:
+					module = load_module(base)
+				except OSError:
+					raise WscriptError('No such script %s' % base)
+
+				try:
+					f = module.__dict__[name]
+				except KeyError:
+					raise WscriptError('No function %s defined in %s' % (name, base))
+
+				if getattr(self.__class__, 'pre_recurse', None):
+					self.pre_recurse(f, base, nexdir)
+				old = self.curdir
+				self.curdir = nexdir
+				try:
+					f(self)
+				finally:
+					self.curdir = old
+				if getattr(self.__class__, 'post_recurse', None):
+					self.post_recurse(f, base, nexdir)
+			else:
+				dc = {'ctx': self}
+				if getattr(self.__class__, 'pre_recurse', None):
+					dc = self.pre_recurse(txt, base + '_' + name, nexdir)
+				old = self.curdir
+				self.curdir = nexdir
+				try:
+					exec txt in dc
+				finally:
+					self.curdir = old
+				if getattr(self.__class__, 'post_recurse', None):
+					self.post_recurse(txt, base + '_' + name, nexdir)
 

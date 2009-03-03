@@ -70,7 +70,7 @@ def find_program_impl(env, filename, path_list=[], var=None):
 				return x
 	return ''
 
-class ConfigurationContext(object):
+class ConfigurationContext(Utils.Context):
 	tests = {}
 	error_handlers = []
 	def __init__(self, env=None, blddir='', srcdir=''):

@@ -214,7 +214,7 @@ def parse_args_impl(parser, _args=None):
 # 2. instead of a class attribute, use a module (static 'parser')
 # 3. parse_args_impl was made in times when we did not know about binding new methods to classes
 
-class Handler(object):
+class Handler(Utils.Context):
 	"""loads wscript modules in folders for adding options
 	This class should be named 'OptionsContext'
 	A method named 'recurse' is bound when used by the module Scripting"""

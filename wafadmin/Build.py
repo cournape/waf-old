@@ -39,7 +39,7 @@ class BuildError(Utils.WafError):
 			if txt: lst.append(txt)
 		return '\n'.join(lst)
 
-class BuildContext(object):
+class BuildContext(Utils.Context):
 	"holds the dependency tree"
 	def __init__(self):
 

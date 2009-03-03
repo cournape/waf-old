@@ -12,71 +12,6 @@ from Constants import *
 
 g_gz = 'bz2'
 
-
-class Context(object):
-	"""A base class for commands to be executed from Waf scripts"""
-	pass
-
-def recurse(self, dirs, name=''):
-	"""The function for calling scripts from folders, it tries to call wscript + function_name
-	and if that file does not exist, it will call the method 'function_name' from a file named wscript
-	the dirs can be a list of folders or a string containing space-separated folder paths
-	"""
-	if not name:
-		name = inspect.stack()[1][3]
-
-	if isinstance(dirs, str):
-		dirs = Utils.to_list(dirs)
-
-	if not getattr(self, 'curdir', None):
-		self.curdir = os.getcwd()
-
-	for x in dirs:
-		if os.path.isabs(x):
-			nexdir = x
-		else:
-			nexdir = os.path.join(self.curdir, x)
-
-		base = os.path.join(nexdir, WSCRIPT_FILE)
-
-		try:
-			txt = Utils.readf(base + '_' + name)
-		except (OSError, IOError):
-			try:
-				module = Utils.load_module(base)
-			except OSError:
-				raise Utils.WscriptError('No such script %s' % base)
-
-			try:
-				f = module.__dict__[name]
-			except KeyError:
-				raise Utils.WscriptError('No function %s defined in %s' % (name, base))
-
-			if getattr(self.__class__, 'pre_recurse', None):
-				self.pre_recurse(f, base, nexdir)
-			old = self.curdir
-			self.curdir = nexdir
-			try:
-				f(self)
-			finally:
-				self.curdir = old
-			if getattr(self.__class__, 'post_recurse', None):
-				self.post_recurse(f, base, nexdir)
-		else:
-			dc = {'ctx': self}
-			if getattr(self.__class__, 'pre_recurse', None):
-				dc = self.pre_recurse(txt, base + '_' + name, nexdir)
-			old = self.curdir
-			self.curdir = nexdir
-			try:
-				exec txt in dc
-			finally:
-				self.curdir = old
-			if getattr(self.__class__, 'post_recurse', None):
-				self.post_recurse(txt, base + '_' + name, nexdir)
-
-setattr(Context, 'recurse', recurse)
-
 def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir - TODO obsolete, remove in Waf 1.6"
 	bld.recurse(dir, 'build')
@@ -102,7 +37,6 @@ def configure():
 	conf = Configure.ConfigurationContext(srcdir=src, blddir=bld)
 	# TODO cleanup this mess
 	conf.curdir = os.getcwd()
-	setattr(conf.__class__, 'recurse', recurse)
 
 	# calling to main wscript's configure()
 	conf.sub_config([''])
@@ -133,7 +67,6 @@ def prepare_impl(t, cwd, ver, wafdir):
 	if '--version' in sys.argv:
 		opt_obj = Options.Handler()
 		opt_obj.curdir = cwd
-		setattr(opt_obj.__class__, 'recurse', recurse)
 		opt_obj.parse_args()
 		sys.exit(0)
 
@@ -184,7 +117,6 @@ def prepare_impl(t, cwd, ver, wafdir):
 		if '-h' in sys.argv or '--help' in sys.argv:
 			warn('No wscript file found: the help message may be incomplete')
 			opt_obj = Options.Handler()
-			setattr(opt_obj.__class__, 'recurse', recurse)
 			opt_obj.curdir = cwd
 			opt_obj.parse_args()
 		else:
@@ -220,7 +152,6 @@ def prepare_impl(t, cwd, ver, wafdir):
 	except AttributeError:
 		pass
 	else:
-		setattr(opt_obj.__class__, 'recurse', recurse)
 		opt_obj.sub_options([''])
 	opt_obj.parse_args()
 
@@ -278,7 +209,7 @@ def main():
 		elif x == 'clean':
 			build(x)
 		else:
-			ctx = Context()
+			ctx = Utils.Context()
 			fun = getattr(Utils.g_module, x, None)
 
 			if not fun:
@@ -336,7 +267,6 @@ def build(y):
 	bld.load_envs()
 
 	# read the scripts - and set the path to the wscript path (useful for srcdir='/foo/bar')
-	setattr(bld.__class__, 'recurse', recurse)
 	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 
 	# TODO undocumented hook
