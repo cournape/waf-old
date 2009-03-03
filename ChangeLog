@@ -2,11 +2,11 @@ NEW IN WAF 1.5.4
 ----------------
 * the restriction srcdir='.' was removed (use with care)
 * java tool improvements
-* new ant-like file matching: print bld.path.ant_glob('**/*.c')
+* new ant-like file matching: print bld.path.ant_glob('**/*.c', flat=True)
 * cosmetic changes for the unit test tool
 * d language tool fixes + demo update (uselib_local)
 * enable chains of commands: "waf distclean configure build"
-* enable recursion for commands by passing a context instance
+* enable recursion for commands (including custom commands) by passing a context instance
 
 NEW IN WAF 1.5.3
 ----------------
