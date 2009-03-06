@@ -246,11 +246,17 @@ def find_boost_library(self, lib, kw):
 		(libname, file) = find_library_from_list(lib, files)
 	if libname is None and kw['static'] in [STATIC_ONLYSTATIC, STATIC_BOTH]:
 		st_env_prefix = 'STATICLIB'
-		files = libfiles(lib, v['staticlib_PATTERN'], lib_paths)
+		staticLibPattern = v['staticlib_PATTERN']
+		if self.env['CC_NAME'] == 'msvc':
+			staticLibPattern = 'lib' + staticLibPattern
+		files = libfiles(lib, staticLibPattern, lib_paths)
 		(libname, file) = find_library_from_list(lib, files)
 	if libname is not None:
 		v['LIBPATH_BOOST_' + lib.upper()] = os.path.split(file)[0]
-		v[st_env_prefix + '_BOOST_' + lib.upper()] = 'boost_'+libname
+		if self.env['CC_NAME'] == 'msvc' and os.path.splitext(file)[1] == '.lib':
+			v[st_env_prefix + '_BOOST_' + lib.upper()] = 'libboost_'+libname
+		else:
+			v[st_env_prefix + '_BOOST_' + lib.upper()] = 'boost_'+libname
 		return
 	self.fatal('lib boost_' + lib + ' not found!')
 
