@@ -80,19 +80,6 @@ def set_options(opt):
 		dest='strip_comments')
 	opt.tool_options('python')
 
-	default_prefix = os.environ.get('PREFIX')
-	if not default_prefix:
-		if sys.platform == 'win32': default_prefix = tempfile.gettempdir()
-		else: default_prefix = '/usr/local/'
-
-	try:
-		opt.add_option('--prefix',
-			help    = "installation prefix (configuration only) [Default: '%s']" % default_prefix,
-			default = default_prefix,
-			dest    = 'prefix')
-	except:
-		pass
-
 def compute_revision():
 	global REVISION
 
