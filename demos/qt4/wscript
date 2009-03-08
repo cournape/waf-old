@@ -14,7 +14,7 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('g++ qt4')
-	conf.env.append_value('CXXFLAGS', '-g -D_REENTRANT  -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE -DQT_OPENGL_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED')
+	conf.env.append_value('CXXFLAGS', '-g -D_REENTRANT  -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE -DQT_OPENGL_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED'.split())
 
 def build(bld):
 	bld.add_subdirs('src')
