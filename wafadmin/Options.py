@@ -76,12 +76,6 @@ def create_parser(module=None):
 		help    = 'amount of parallel jobs [default: %r]' % default_jobs,
 		dest    = 'jobs')
 
-	p('-f', '--force',
-		action  = 'store_true',
-		default = False,
-		help    = 'force file installation',
-		dest    = 'force')
-
 	p('-k', '--keep',
 		action  = 'store_true',
 		default = False,
@@ -100,10 +94,17 @@ def create_parser(module=None):
 		help    = 'verbosity level -v -vv or -vvv [default: 0]',
 		dest    = 'verbose')
 
-	p('--destdir',
-		help    = 'installation root [default: %r]' % default_destdir,
-		default = default_destdir,
-		dest    = 'destdir')
+	if 'install' in sys.argv or 'uninstall' in sys.argv:
+		p('--destdir',
+			help    = 'installation root [default: %r]' % default_destdir,
+			default = default_destdir,
+			dest    = 'destdir')
+
+		p('-f', '--force',
+			action  = 'store_true',
+			default = False,
+			help    = 'force file installation',
+			dest    = 'force')
 
 	p('--nocache',
 		action  = 'store_true',
