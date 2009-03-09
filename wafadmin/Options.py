@@ -196,8 +196,9 @@ def parse_args_impl(parser, _args=None):
 	if options.keep: options.jobs = 1
 	if options.jobs < 1: options.jobs = 1
 
-	# absolute path only if set
-	options.destdir = options.destdir and os.path.abspath(os.path.expanduser(options.destdir))
+	if 'install' in sys.argv or 'uninstall' in sys.argv:
+		# absolute path only if set
+		options.destdir = options.destdir and os.path.abspath(os.path.expanduser(options.destdir))
 
 	Logs.verbose = options.verbose
 	Logs.init_log()
