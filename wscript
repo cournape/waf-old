@@ -234,19 +234,12 @@ def create_waf():
 	#reg = re.compile('^REVISION=(.*)', re.M)
 	#code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
+	prefix = ''
 	if Build.bld:
-		prefix = Build.bld.env['PREFIX']
-	else:
-		prefix = Options.options.prefix
-	# if the prefix is the default, let's be nice and be platform-independent
-	# just in case the created waf is used on either windows or unix
-	if prefix == Options.default_prefix:
-		prefix = "sys.platform=='win32' and 'c:/temp' or '/usr/local'"
-	else:
-		prefix = '"%s"' % prefix #encase in quotes
+		prefix = Build.bld.env['PREFIX'] or ''
 
 	reg = re.compile('^INSTALL=(.*)', re.M)
-	code1 = reg.sub(r'INSTALL=%s' % prefix, code1)
+	code1 = reg.sub(r'INSTALL=%r' % prefix, code1)
 	#change the tarfile extension in the waf script
 	reg = re.compile('bz2', re.M)
 	code1 = reg.sub(zipType, code1)
