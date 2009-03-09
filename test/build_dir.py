@@ -86,7 +86,7 @@ class TestBuildDir(common_test.CommonTester):
 
 		self._test_configure()
 		self._test_build()
-		self._test_run(os.path.join("build", "default", "src", "test_c_program"))
+		self._test_run(os.path.join("build", "default", "test_c_app"))
 		self._test_distclean()
 
 	def test_build2(self):
@@ -95,7 +95,7 @@ class TestBuildDir(common_test.CommonTester):
 
 		self._test_configure(True, ["--blddir=test_build2"])
 		self._test_build()
-		self._test_run(os.path.join("test_build2", "default", "src", "test_c_program"))
+		self._test_run(os.path.join("test_build2", "default", "test_c_app"))
 		self._test_distclean()
 
 	def test_build3(self):
@@ -110,7 +110,7 @@ class TestBuildDir(common_test.CommonTester):
 		self.assertEqual(0, self.call(["python", "../waf", "build"]), "build failed")
 
 		# XXX: the next line fails - since the previous line didn't build files under 'default' directory
-		self._test_run(os.path.join("default", "src", "test_c_program"))
+		self._test_run(os.path.join("default", "test_c_app"))
 		self.call(["touch", "test_file"]) #create a file to check the distclean
 		#attention current dir will be completely removed including the  "test_file" file
 		self.assertEqual(0, self.call(["python", "../waf", "distclean"]), "distclean failed")
