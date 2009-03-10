@@ -7,6 +7,8 @@ NEW IN WAF 1.5.4
 * d language tool fixes + demo update (uselib_local)
 * enable chains of commands: "waf distclean configure build"
 * enable recursion for commands (including custom commands) by passing a context instance
+* enable documentation for custom commands (in --help)
+* enable custom build or configuration contexts from user scripts
 
 NEW IN WAF 1.5.3
 ----------------
