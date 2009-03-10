@@ -34,7 +34,7 @@ def configure():
 
 	try: os.makedirs(bld)
 	except OSError: pass
-	conf = Configure.ConfigurationContext(srcdir=src, blddir=bld)
+	conf = getattr(Utils.g_module, 'configure_context', Configure.ConfigurationContext)(srcdir=src, blddir=bld)
 	# TODO cleanup this mess
 	conf.curdir = os.getcwd()
 
@@ -209,11 +209,12 @@ def main():
 		elif x == 'clean':
 			build(x)
 		else:
-			ctx = Utils.Context()
 			fun = getattr(Utils.g_module, x, None)
 
 			if not fun:
 				raise Utils.WscriptError('No such command %r' % x)
+
+			ctx = getattr(Utils.g_module, x + '_context', Utils.Context)()
 
 			if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck']:
 				# compatibility TODO remove in waf 1.6
@@ -227,7 +228,7 @@ def main():
 def build(y):
 
 	# compile the project and/or install the files
-	bld = Build.BuildContext()
+	bld = getattr(Utils.g_module, 'build_context', Build.BuildContext)()
 	try:
 		proj = Environment.Environment(Options.lockfile)
 	except IOError:
@@ -260,7 +261,7 @@ def build(y):
 
 				(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
-				bld = Build.BuildContext()
+				bld = getattr(Utils.g_module, 'build_context', Build.BuildContext)()
 				proj = Environment.Environment(Options.lockfile)
 
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
