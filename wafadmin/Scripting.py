@@ -271,8 +271,13 @@ def build(y):
 	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 
 	# TODO undocumented hook
+	# FIXME remove in waf 1.6
 	pre_build = getattr(Utils.g_module, 'pre_build', None)
 	if pre_build: pre_build()
+
+	# TODO stop relying on Options.commands
+	Options.commands['install'] = Options.commands['uninstall'] = 0
+	if y: Options.commands[y] = 1
 
 	# compile
 	if y != 'clean': # Options.commands['build'] or Options.is_install:
@@ -295,8 +300,7 @@ def build(y):
 
 		if Options.options.progress_bar: print('')
 
-		if y == 'install' or y == 'uninstall':
-			bld.install()
+		bld.install()
 
 		ela = ''
 		if not Options.options.progress_bar:
@@ -435,11 +439,7 @@ def distcheck(appname='', version=''):
 	t.close()
 
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
-	retval = pproc.Popen(
-		'%(waf)s configure && %(waf)s'
-		' && %(waf)s build && %(waf)s install --destdir=%(instdir)s'
-		' && %(waf)s uninstall --destdir=%(instdir)s' % vars(),
-		shell=True).wait()
+	retval = pproc.Popen('%(waf)s configure build install build uninstall --destdir=%(instdir)s' % vars(), shell=True).wait()
 	if retval:
 		raise Utils.WafError('distcheck failed with code %i' % (retval))
 	#if os.path.exists(instdir):
