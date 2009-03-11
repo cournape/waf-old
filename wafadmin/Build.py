@@ -452,6 +452,11 @@ class BuildContext(Utils.Context):
 		"""@param parent_node [Node]: parent node of path to scan."""
 		parent_path = parent_node.abspath()
 
+		# an old dependency on removed files might lead to this situation:
+		# the dependent directory not exists anymore.
+		if not os.path.isdir(parent_path):
+			return
+
 		try:
 			lst = set(Utils.listdir(parent_path))
 		except OSError:
