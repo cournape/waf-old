@@ -58,9 +58,6 @@ def build(bld):
 
 def configure(conf):
 	open('%s', 'w')
-
-def set_options(opt):
-	pass
 """ % (built_code, conf_code)
 
 		self._write_wscript(wscript_contents)
@@ -109,9 +106,6 @@ def set_options(opt):
 		wscript_contents = """
 %s = '%s'
 %s = '%s'
-
-def set_options(opt):
-	pass
 """ % (APPNAME, appname, VERSION, version)
 
 		self._write_wscript(wscript_contents)
@@ -124,9 +118,6 @@ def set_options(opt):
 		wscript_contents = """
 def dist():
 	open('waf_waf_custom_dist.txt', 'w')
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents)
 		self._test_dist()
@@ -139,9 +130,6 @@ def set_options(opt):
 		wscript_contents = """
 def dist_hook():
 	open('waf_waf_custom_dist.txt', 'w')
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents)
 		self._test_dist()
@@ -261,9 +249,6 @@ def build(bld):
 
 def configure(conf):
 	pass
-
-def set_options(opt):
-	pass
 """ % (APPNAME, appname, VERSION, version)
 
 		self._write_wscript(wscript_contents)
@@ -280,9 +265,6 @@ blddir = 'out'
 
 %s = '%s'
 %s = '%s'
-
-def set_options(opt):
-	pass
 """ % (APPNAME, appname, VERSION, version)
 
 		self._write_wscript(wscript_contents)
@@ -292,6 +274,7 @@ def run_tests(verbose=1):
 	if verbose > 1: common_test.hide_output = False
 
 	suite = unittest.TestLoader().loadTestsFromTestCase(ScriptingTester)
+	#suite = unittest.TestLoader().loadTestsFromNames(["test_build_without_conf"], ScriptingTester)
 	unittest.TextTestRunner(verbosity=verbose).run(suite)
 
 if __name__ == '__main__':
