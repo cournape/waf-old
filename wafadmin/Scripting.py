@@ -359,7 +359,8 @@ def copytree(src, dst, build_dir):
 		else:
 			shutil.copy2(srcname, dstname)
 
-def distclean():
+# TODO in waf 1.6, change this method if "srcdir == blddir" is allowed
+def distclean(ctx=None):
 	'''clean the project entirely'''
 	lst = os.listdir('.')
 	for f in lst:
@@ -375,11 +376,12 @@ def distclean():
 			except (OSError, IOError):
 				pass
 
-		# remove the local waf
+		# remove the local waf cache
 		if f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
 	info('distclean finished successfully')
 
+# FIXME waf 1.6 a unique ctx parameter, and remove the optional appname and version
 def dist(appname='', version=''):
 	'''make a tarball with all the sources in it'''
 	# return return (distdirname, tarballname)
@@ -419,11 +421,12 @@ def dist(appname='', version=''):
 	tar = tarfile.open(arch_name, 'w:' + g_gz)
 	tar.add(tmp_folder)
 	tar.close()
-	info('Your archive is ready -> %s' % arch_name)
+	info('The archive is ready: %s' % arch_name)
 
 	if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder)
 	return arch_name
 
+# FIXME waf 1.6 a unique ctx parameter, and remove the optional appname and version
 def distcheck(appname='', version=''):
 	'''perform sanity checks on the generated tarball (waf dist)'''
 	import tempfile, tarfile
