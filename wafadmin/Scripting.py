@@ -6,7 +6,7 @@
 
 import os, sys, shutil, traceback, time, inspect
 
-import Utils, Configure, Build, Logs, Options, Environment
+import Utils, Configure, Build, Logs, Options, Environment, Task
 from Logs import error, warn, info
 from Constants import *
 
@@ -16,7 +16,7 @@ def add_subdir(dir, bld):
 	"each wscript calls bld.add_subdir - TODO obsolete, remove in Waf 1.6"
 	bld.recurse(dir, 'build')
 
-def configure():
+def configure(conf):
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
 
 	src = getattr(Options.options, SRCDIR, None)
@@ -34,7 +34,11 @@ def configure():
 
 	try: os.makedirs(bld)
 	except OSError: pass
-	conf = getattr(Utils.g_module, 'configure_context', Configure.ConfigurationContext)(srcdir=src, blddir=bld)
+
+	conf.srcdir = src
+	conf.blddir = bld
+	conf.post_init()
+
 	# TODO cleanup this mess
 	conf.curdir = os.getcwd()
 
@@ -137,17 +141,41 @@ def prepare_impl(t, cwd, ver, wafdir):
 			warn(msg)
 		Utils.g_module.blddir = build_dir_override
 
+	#def set_def(obj, name=''):
+	#	if not obj.__name__ in Utils.g_module.__dict__:
+	#		setattr(Utils.g_module, obj.__name__, obj)
+
 	if not 'dist' in Utils.g_module.__dict__:
 		Utils.g_module.dist = dist
 	if not 'distclean' in Utils.g_module.__dict__:
 		Utils.g_module.distclean = distclean
 	if not 'distcheck' in Utils.g_module.__dict__:
 		Utils.g_module.distcheck = distcheck
+
+	if not 'build' in Utils.g_module.__dict__:
+		Utils.g_module.build = build
+	if not 'build_context' in Utils.g_module.__dict__:
+		Utils.g_module.build_context = Build.BuildContext
+
 	if not 'clean' in Utils.g_module.__dict__:
 		Utils.g_module.clean = clean
 	if not 'clean_context' in Utils.g_module.__dict__:
 		Utils.g_module.clean_context = Build.BuildContext
 
+	if not 'install' in Utils.g_module.__dict__:
+		Utils.g_module.install = install
+	if not 'install_context' in Utils.g_module.__dict__:
+		Utils.g_module.install_context = Build.BuildContext
+
+	if not 'uninstall' in Utils.g_module.__dict__:
+		Utils.g_module.uninstall = uninstall
+	if not 'uninstall_context' in Utils.g_module.__dict__:
+		Utils.g_module.uninstall_context = Build.BuildContext
+
+	if not 'configure' in Utils.g_module.__dict__:
+		Utils.g_module.configure = configure
+	if not 'configure_context' in Utils.g_module.__dict__:
+		Utils.g_module.configure_context = Configure.ConfigurationContext
 
 	# now parse the options from the user wscript file
 	opt_obj = Options.Handler(Utils.g_module)
@@ -197,45 +225,41 @@ def main():
 	while lst:
 		x = lst.pop(0)
 
+		ini = time.time()
+		#info('Configuration finished successfully%s; project is ready to build.' % ela)
 		if x == 'configure':
-			ini = time.time()
-			configure()
-			ela = ''
-			if not Options.options.progress_bar: ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-			info('Configuration finished successfully%s; project is now ready to build.' % ela)
-
+			fun = configure
 		elif x == 'build':
-			if lst:
-				y = lst.pop(0)
-				if y != 'install' and y != 'uninstall':
-					lst.insert(0, y)
-					y = None
-			build(y)
+			fun = build
 		else:
 			fun = getattr(Utils.g_module, x, None)
 
-			if not fun:
-				raise Utils.WscriptError('No such command %r' % x)
+		if not fun:
+			raise Utils.WscriptError('No such command %r' % x)
 
-			ctx = getattr(Utils.g_module, x + '_context', Utils.Context)()
+		ctx = getattr(Utils.g_module, x + '_context', Utils.Context)()
 
-			if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck', 'clean']:
-				# compatibility TODO remove in waf 1.6
-				try:
-					fun(ctx)
-				except TypeError:
-					fun()
-			else:
+		if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck', 'clean']:
+			# compatibility TODO remove in waf 1.6
+			try:
 				fun(ctx)
+			except TypeError:
+				fun()
+		else:
+			fun(ctx)
 
-			if x != 'init' and x != 'shutdown':
-				info('%r finished successfully' % x)
+		ela = ''
+		if not Options.options.progress_bar:
+			ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+
+		if x != 'init' and x != 'shutdown':
+			info('%r finished successfully%s' % (x, ela))
 
 def clean(bld):
 	try:
 		proj = Environment.Environment(Options.lockfile)
 	except IOError:
-		raise Utils.WafError("Nothing to clean (project not configured)")
+		raise Utils.WafError('Nothing to clean (project not configured)')
 
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
@@ -248,18 +272,8 @@ def clean(bld):
 	finally:
 		bld.save()
 
-def build(y):
-
-	# compile the project and/or install the files
-	bld = getattr(Utils.g_module, 'build_context', Build.BuildContext)()
-	try:
-		proj = Environment.Environment(Options.lockfile)
-	except IOError:
-		if y == 'clean':
-			raise Utils.WafError("Nothing to clean (project not configured)")
-		else:
-			raise Utils.WafError("Project not configured (run 'waf configure' first)")
-
+def check_configured(bld):
+	# TODO
 	if Configure.autoconfig:
 		if y != 'clean' and y != 'uninstall':
 			reconf = 0
@@ -287,14 +301,44 @@ def build(y):
 				bld = getattr(Utils.g_module, 'build_context', Build.BuildContext)()
 				proj = Environment.Environment(Options.lockfile)
 
+def install(bld):
+	Options.commands['install'] = True
+	Options.commands['uninstall'] = False
+
+	check_configured(bld)
+	build_impl(bld)
+	bld.install()
+
+def uninstall(bld):
+	Options.commands['install'] = False
+	Options.commands['uninstall'] = True
+
+	try:
+		def runnable_status(self):
+			return SKIP_ME
+		setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
+		setattr(Task.Task, 'runnable_status', runnable_status)
+
+		build_impl(bld)
+		bld.install()
+	finally:
+		setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
+
+def build(bld):
+	check_configured(bld)
+	return build_impl(bld)
+
+def build_impl(bld):
+	# compile the project and/or install the files
+	try:
+		proj = Environment.Environment(Options.lockfile)
+	except IOError:
+		raise Utils.WafError("Project not configured (run 'waf configure' first)")
+
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
-	# TODO stop relying on Options.commands
-	Options.commands['install'] = Options.commands['uninstall'] = 0
-	if y: Options.commands[y] = 1
-
-	# read the scripts - and set the path to the wscript path (useful for srcdir='/foo/bar')
+	info("Waf: Entering directory `%s'" % bld.bldnode.abspath())
 	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 
 	# TODO undocumented hook
@@ -302,19 +346,8 @@ def build(y):
 	pre_build = getattr(Utils.g_module, 'pre_build', None)
 	if pre_build: pre_build()
 
-	# compile
-
-	# TODO quite ugly, no?
-	if y == 'uninstall':
-		import Task
-		def runnable_status(self):
-			return SKIP_ME
-		setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
-		setattr(Task.Task, 'runnable_status', runnable_status)
-
 	ini = time.time()
 
-	info("Waf: Entering directory `%s'" % bld.bldnode.abspath())
 	try:
 		bld.compile()
 	finally:
@@ -324,17 +357,13 @@ def build(y):
 
 	bld.install()
 
-	ela = ''
-	if not Options.options.progress_bar:
-		ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-	if y == 'install': msg = 'Build and installation finished successfully%s' % ela
-	elif y == 'uninstall': msg = 'Uninstallation finished successfully%s' % ela
-	else: msg = 'Build finished successfully%s' % ela
-	info(msg)
-
-	if y == 'uninstall':
-		import Task
-		setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
+	#ela = ''
+	#if not Options.options.progress_bar:
+	#	ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+	#if y == 'install': msg = 'Build and installation finished successfully%s' % ela
+	#elif y == 'uninstall': msg = 'Uninstallation finished successfully%s' % ela
+	#else: msg = 'Build finished successfully%s' % ela
+	#info(msg)
 
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()
@@ -393,7 +422,6 @@ def distclean(ctx=None):
 		# remove the local waf cache
 		if f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
-	info('distclean finished successfully')
 
 # FIXME waf 1.6 a unique ctx parameter, and remove the optional appname and version
 def dist(appname='', version=''):
@@ -455,13 +483,15 @@ def distcheck(appname='', version=''):
 	for x in t: t.extract(x)
 	t.close()
 
+	path = appname + '-' + version
+
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
-	ret = pproc.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir]).wait()
+	ret = pproc.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
 	if ret:
-		raise Utils.WafError('distcheck failed with code %i' % (retval))
+		raise Utils.WafError('distcheck failed with code %i' % retval)
 
 	if os.path.exists(instdir):
-		raise Utils.WafError('distcheck succeeded, but files were left in %s' % (instdir))
-	else:
-		info('distcheck finished successfully')
+		raise Utils.WafError('distcheck succeeded, but files were left in %s' % instdir)
+
+	shutil.rmtree(path)
 

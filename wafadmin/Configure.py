@@ -81,8 +81,6 @@ class ConfigurationContext(Utils.Context):
 
 		self.blddir = blddir
 		self.srcdir = srcdir
-		self.cachedir = os.path.join(blddir, CACHE_DIR)
-
 		self.all_envs = {}
 		self.defines = {}
 		self.cwd = os.getcwd()
@@ -95,6 +93,13 @@ class ConfigurationContext(Utils.Context):
 
 		self.hash = 0
 		self.files = []
+
+		if self.blddir:
+			self.post_init()
+
+	def post_init(self):
+
+		self.cachedir = os.path.join(self.blddir, CACHE_DIR)
 
 		path = os.path.join(self.blddir, WAF_CONFIG_LOG)
 		try: os.unlink(path)
