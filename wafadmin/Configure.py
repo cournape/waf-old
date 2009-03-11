@@ -138,7 +138,7 @@ class ConfigurationContext(Utils.Context):
 		if isinstance(name_or_mod, str):
 			self.hash = hash(self.hash, name_or_mod)
 		else:
-			self.hash = Utils.hash_function_with_globals(self.hash, name_or_mod.configure)
+			self.hash = Utils.hash_function_with_globals(self.hash, name_or_mod)
 		self.files.append(path)
 
 	def store(self, file=''):
