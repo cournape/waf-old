@@ -204,7 +204,7 @@ def main():
 				y = lst.pop(0)
 				if y != 'install' and y != 'uninstall':
 					lst.insert(0, y)
-				y = None
+					y = None
 			build(y)
 		elif x == 'clean':
 			build(x)
