@@ -439,11 +439,12 @@ def distcheck(appname='', version=''):
 	t.close()
 
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
-	retval = pproc.Popen('%(waf)s configure build install build uninstall --destdir=%(instdir)s' % vars(), shell=True).wait()
-	if retval:
+	ret = pproc.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir]).wait()
+	if ret:
 		raise Utils.WafError('distcheck failed with code %i' % (retval))
-	#if os.path.exists(instdir):
-	#	raise Utils.WafError('distcheck succeeded, but files were left in %s' % (instdir))
-	#else:
-	info('distcheck finished successfully')
+
+	if os.path.exists(instdir):
+		raise Utils.WafError('distcheck succeeded, but files were left in %s' % (instdir))
+	else:
+		info('distcheck finished successfully')
 
