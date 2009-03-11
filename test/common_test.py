@@ -6,6 +6,7 @@
 Should be serve as common tester for all waf testers.
 """
 import os, sys, unittest, shutil, types
+import optparse
 
 import Test
 
@@ -15,9 +16,11 @@ sys.path.append(os.path.join( parentdir, Test.DIRS.WAFADMIN ) )
 
 import pproc
 import Environment
+import Configure
 import Options
 from Constants import *
 import Utils
+import Logs
 
 # global variable - used to control the output of tests.
 hide_output = True
@@ -43,19 +46,23 @@ class CommonTester(unittest.TestCase):
 		if not os.path.exists(file_or_directory):
 			raise StartupError("cannot find '%s', please run tests from waf root directory." % file_or_directory)
 
-	def _write_wscript(self, contents = '', use_dic=True):
-		wscript_file_path = self._wscript_file_path
+	def _write_file(self, filename, contents):
 		try:
-			wscript_file = open( wscript_file_path, 'w' )
+			a_file = open( filename, 'w' )
 			if contents:
-				if use_dic:
-					wscript_file.write( contents % self._test_dic )
-				else:
-					wscript_file.write(contents)
+				a_file.write(contents)
 			else:
-				wscript_file.write( wscript_contents % self._test_dic )
+				a_file.write(contents)
 		finally:
-			wscript_file.close()
+			a_file.close()
+
+	def _write_wscript(self, contents = '', use_dic=True):
+		if not contents:
+			contents = wscript_contents
+		if use_dic:
+			contents = contents % self._test_dic
+
+		self._write_file(self._wscript_file_path, contents)
 
 	def call(self, commands):
 		"""
@@ -225,3 +232,37 @@ class CommonTester(unittest.TestCase):
 				self.assertEqual( stored_items, expected_items,
 								"values of '%s' differ: expected = '%s', stored = '%s'"
 								% (key,expected_items, stored_items))
+
+	def _setup_configure(self, blddir='', srcdir=''):
+		if not blddir:
+			blddir = self._blddir
+			if not blddir: raise ValueError('no blddir argument, no self._blddir !')
+
+		if not srcdir:
+			blddir = self._test_dir_root
+			if not blddir: raise ValueError('no srcdir argument, no self._test_dir_root !')
+
+		# Configure uses arguments defined by Options
+		opt_obj = Options.Handler()
+		opt_obj.parse_args()
+		Options.options.prefix = Options.default_prefix
+		os.makedirs(os.path.join(blddir, Options.variant_name))
+		return Configure.ConfigurationContext(srcdir=srcdir, blddir=blddir)
+
+def get_args_options(usage=None):
+	'''
+	Parse arguments passed for the waf tests modules.
+	Returns the options class.
+	'''
+	parser = optparse.OptionParser(usage)
+	parser.add_option('-v', '--verbose', action='count', default=0, help='verbosity level -v -vv or -vvv [Default: 0]', dest='verbose')
+	(options, args) = parser.parse_args()
+
+	# adjust Waf verbosity to the tests verbosity
+	Logs.verbose = options.verbose
+
+	# on -vv show the output of the tests
+	global verbose
+	verbose= options.verbose
+
+	return options
