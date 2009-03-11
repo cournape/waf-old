@@ -143,6 +143,11 @@ def prepare_impl(t, cwd, ver, wafdir):
 		Utils.g_module.distclean = distclean
 	if not 'distcheck' in Utils.g_module.__dict__:
 		Utils.g_module.distcheck = distcheck
+	if not 'clean' in Utils.g_module.__dict__:
+		Utils.g_module.clean = clean
+	if not 'clean_context' in Utils.g_module.__dict__:
+		Utils.g_module.clean_context = Build.BuildContext
+
 
 	# now parse the options from the user wscript file
 	opt_obj = Options.Handler(Utils.g_module)
@@ -206,8 +211,6 @@ def main():
 					lst.insert(0, y)
 					y = None
 			build(y)
-		elif x == 'clean':
-			build(x)
 		else:
 			fun = getattr(Utils.g_module, x, None)
 
@@ -216,7 +219,7 @@ def main():
 
 			ctx = getattr(Utils.g_module, x + '_context', Utils.Context)()
 
-			if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck']:
+			if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck', 'clean']:
 				# compatibility TODO remove in waf 1.6
 				try:
 					fun(ctx)
@@ -224,6 +227,26 @@ def main():
 					fun()
 			else:
 				fun(ctx)
+
+			if x != 'init' and x != 'shutdown':
+				info('%r finished successfully' % x)
+
+def clean(bld):
+	try:
+		proj = Environment.Environment(Options.lockfile)
+	except IOError:
+		raise Utils.WafError("Nothing to clean (project not configured)")
+
+	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
+	bld.load_envs()
+
+	# read the scripts - and set the path to the wscript path (useful for srcdir='/foo/bar')
+	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
+
+	try:
+		bld.clean()
+	finally:
+		bld.save()
 
 def build(y):
 
@@ -280,47 +303,38 @@ def build(y):
 	if pre_build: pre_build()
 
 	# compile
-	if y != 'clean': # Options.commands['build'] or Options.is_install:
 
-		# TODO quite ugly, no?
-		if y == 'uninstall':
-			import Task
-			def runnable_status(self):
-				return SKIP_ME
-			setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
-			setattr(Task.Task, 'runnable_status', runnable_status)
+	# TODO quite ugly, no?
+	if y == 'uninstall':
+		import Task
+		def runnable_status(self):
+			return SKIP_ME
+		setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
+		setattr(Task.Task, 'runnable_status', runnable_status)
 
-		ini = time.time()
+	ini = time.time()
 
-		info("Waf: Entering directory `%s'" % bld.bldnode.abspath())
-		try:
-			bld.compile()
-		finally:
-			info("Waf: Leaving directory `%s'" % bld.bldnode.abspath())
+	info("Waf: Entering directory `%s'" % bld.bldnode.abspath())
+	try:
+		bld.compile()
+	finally:
+		info("Waf: Leaving directory `%s'" % bld.bldnode.abspath())
 
-		if Options.options.progress_bar: print('')
+	if Options.options.progress_bar: print('')
 
-		bld.install()
+	bld.install()
 
-		ela = ''
-		if not Options.options.progress_bar:
-			ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-		if y == 'install': msg = 'Build and installation finished successfully%s' % ela
-		elif y == 'uninstall': msg = 'Uninstallation finished successfully%s' % ela
-		else: msg = 'Build finished successfully%s' % ela
-		info(msg)
+	ela = ''
+	if not Options.options.progress_bar:
+		ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+	if y == 'install': msg = 'Build and installation finished successfully%s' % ela
+	elif y == 'uninstall': msg = 'Uninstallation finished successfully%s' % ela
+	else: msg = 'Build finished successfully%s' % ela
+	info(msg)
 
-		if y == 'uninstall':
-			import Task
-			setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
-
-	# clean
-	if y == 'clean':
-		try:
-			bld.clean()
-			info('Cleaning finished successfully')
-		finally:
-			bld.save()
+	if y == 'uninstall':
+		import Task
+		setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
 
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()
