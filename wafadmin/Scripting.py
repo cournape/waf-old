@@ -267,6 +267,10 @@ def build(y):
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
+	# TODO stop relying on Options.commands
+	Options.commands['install'] = Options.commands['uninstall'] = 0
+	if y: Options.commands[y] = 1
+
 	# read the scripts - and set the path to the wscript path (useful for srcdir='/foo/bar')
 	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 
@@ -274,10 +278,6 @@ def build(y):
 	# FIXME remove in waf 1.6
 	pre_build = getattr(Utils.g_module, 'pre_build', None)
 	if pre_build: pre_build()
-
-	# TODO stop relying on Options.commands
-	Options.commands['install'] = Options.commands['uninstall'] = 0
-	if y: Options.commands[y] = 1
 
 	# compile
 	if y != 'clean': # Options.commands['build'] or Options.is_install:
