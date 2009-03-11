@@ -83,7 +83,8 @@ class ConfigurationContext(Utils.Context):
 		self.srcdir = srcdir
 		self.all_envs = {}
 		self.defines = {}
-		self.cwd = os.getcwd()
+		# curdir: necessary for recursion
+		self.cwd = self.curdir = os.getcwd()
 
 		self.tools = [] # tools loaded in the configuration, and that will be loaded when building
 

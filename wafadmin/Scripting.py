@@ -12,57 +12,6 @@ from Constants import *
 
 g_gz = 'bz2'
 
-def add_subdir(dir, bld):
-	"each wscript calls bld.add_subdir - TODO obsolete, remove in Waf 1.6"
-	bld.recurse(dir, 'build')
-
-def configure(conf):
-	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
-
-	src = getattr(Options.options, SRCDIR, None)
-	if not src: src = getattr(Utils.g_module, SRCDIR, None)
-	if not src: raise Utils.WscriptError(err % (SRCDIR, os.path.abspath('.'), SRCDIR, SRCDIR))
-	src = os.path.abspath(src)
-
-	bld = getattr(Options.options, BLDDIR, None)
-	if not bld:
-		bld = getattr(Utils.g_module, BLDDIR, None)
-		if bld == '.':
-			raise Utils.WafError('Setting blddir="." may cause distclean problems')
-	if not bld: raise Utils.WscriptError(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
-	bld = os.path.abspath(bld)
-
-	try: os.makedirs(bld)
-	except OSError: pass
-
-	conf.srcdir = src
-	conf.blddir = bld
-	conf.post_init()
-
-	# TODO cleanup this mess
-	conf.curdir = os.getcwd()
-
-	# calling to main wscript's configure()
-	conf.sub_config([''])
-
-	conf.store()
-
-	# this will write a configure lock so that subsequent builds will
-	# consider the current path as the root directory (see prepare_impl).
-	# to remove: use 'waf distclean'
-	env = Environment.Environment()
-	env[BLDDIR] = bld
-	env[SRCDIR] = src
-	env['argv'] = sys.argv
-	env['commands'] = Options.commands
-	env['options'] = Options.options.__dict__
-
-	# conf.hash & conf.files hold wscript files paths and hash
-	# (used only by Configure.autoconfig)
-	env['hash'] = conf.hash
-	env['files'] = conf.files
-	env.store(Options.lockfile)
-
 def prepare_impl(t, cwd, ver, wafdir):
 	Options.tooldir = [t]
 	Options.launch_dir = cwd
@@ -255,6 +204,50 @@ def main():
 		if x != 'init' and x != 'shutdown':
 			info('%r finished successfully%s' % (x, ela))
 
+def configure(conf):
+	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
+
+	src = getattr(Options.options, SRCDIR, None)
+	if not src: src = getattr(Utils.g_module, SRCDIR, None)
+	if not src: raise Utils.WscriptError(err % (SRCDIR, os.path.abspath('.'), SRCDIR, SRCDIR))
+	src = os.path.abspath(src)
+
+	bld = getattr(Options.options, BLDDIR, None)
+	if not bld:
+		bld = getattr(Utils.g_module, BLDDIR, None)
+		if bld == '.':
+			raise Utils.WafError('Setting blddir="." may cause distclean problems')
+	if not bld: raise Utils.WscriptError(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
+	bld = os.path.abspath(bld)
+
+	try: os.makedirs(bld)
+	except OSError: pass
+
+	conf.srcdir = src
+	conf.blddir = bld
+	conf.post_init()
+
+	# calling to main wscript's configure()
+	conf.sub_config([''])
+
+	conf.store()
+
+	# this will write a configure lock so that subsequent builds will
+	# consider the current path as the root directory (see prepare_impl).
+	# to remove: use 'waf distclean'
+	env = Environment.Environment()
+	env[BLDDIR] = bld
+	env[SRCDIR] = src
+	env['argv'] = sys.argv
+	env['commands'] = Options.commands
+	env['options'] = Options.options.__dict__
+
+	# conf.hash & conf.files hold wscript files paths and hash
+	# (used only by Configure.autoconfig)
+	env['hash'] = conf.hash
+	env['files'] = conf.files
+	env.store(Options.lockfile)
+
 def clean(bld):
 	try:
 		proj = Environment.Environment(Options.lockfile)
@@ -273,33 +266,34 @@ def clean(bld):
 		bld.save()
 
 def check_configured(bld):
+	if not Configure.autoconfig:
+		return
+
 	# TODO
-	if Configure.autoconfig:
-		if y != 'clean' and y != 'uninstall':
-			reconf = 0
-			h = 0
-			try:
-				for file in proj['files']:
-					mod = Utils.load_module(file)
-					h = Utils.hash_function_with_globals(h, mod.configure)
-			except Exception, e:
-				warn("Reconfiguring the project (an exception occurred: %s)" % (str(e),))
-				reconf = 1
-			if (h != proj['hash']):
-				reconf = 1
-			if reconf:
-				warn("Reconfiguring the project (the configuration has changed)")
+	reconf = 0
+	h = 0
+	try:
+		for file in proj['files']:
+			mod = Utils.load_module(file)
+			h = Utils.hash_function_with_globals(h, mod.configure)
+	except Exception, e:
+		warn("Reconfiguring the project (an exception occurred: %s)" % (str(e),))
+		reconf = 1
+	if (h != proj['hash']):
+		reconf = 1
+	if reconf:
+		warn("Reconfiguring the project (the configuration has changed)")
 
-				back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
+		back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
 
-				Options.commands = proj['commands']
-				Options.options.__dict__ = proj['options']
-				configure()
+		Options.commands = proj['commands']
+		Options.options.__dict__ = proj['options']
+		configure()
 
-				(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
+		(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
-				bld = getattr(Utils.g_module, 'build_context', Build.BuildContext)()
-				proj = Environment.Environment(Options.lockfile)
+		bld = getattr(Utils.g_module, 'build_context', Build.BuildContext)()
+		proj = Environment.Environment(Options.lockfile)
 
 def install(bld):
 	Options.commands['install'] = True
@@ -356,14 +350,6 @@ def build_impl(bld):
 	if Options.options.progress_bar: print('')
 
 	bld.install()
-
-	#ela = ''
-	#if not Options.options.progress_bar:
-	#	ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
-	#if y == 'install': msg = 'Build and installation finished successfully%s' % ela
-	#elif y == 'uninstall': msg = 'Uninstallation finished successfully%s' % ela
-	#else: msg = 'Build finished successfully%s' % ela
-	#info(msg)
 
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()
@@ -494,4 +480,8 @@ def distcheck(appname='', version=''):
 		raise Utils.WafError('distcheck succeeded, but files were left in %s' % instdir)
 
 	shutil.rmtree(path)
+
+# FIXME remove in Waf 1.6 (kept for compatibility)
+def add_subdir(dir, bld):
+	bld.recurse(dir, 'build')
 
