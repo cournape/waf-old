@@ -269,21 +269,32 @@ def check_configured(bld):
 	if not Configure.autoconfig:
 		return
 
-	# TODO
+	for k in xrange(3):
+		try:
+			proj = Environment.Environment(Options.lockfile)
+		except IOError:
+			conf = Configure.ConfigurationContext()
+			configure(conf)
+		else:
+			break
+	else:
+		raise Utils.WafError('Auto-config: project does not configure (bug)')
+
 	reconf = 0
 	h = 0
 	try:
 		for file in proj['files']:
 			mod = Utils.load_module(file)
 			h = Utils.hash_function_with_globals(h, mod.configure)
-	except Exception, e:
-		warn("Reconfiguring the project (an exception occurred: %s)" % (str(e),))
+	except (OSError, IOError):
+		warn('Reconfiguring the project: a file is unavailable')
 		reconf = 1
-	if (h != proj['hash']):
-		reconf = 1
-	if reconf:
-		warn("Reconfiguring the project (the configuration has changed)")
+	else:
+		if (h != proj['hash']):
+			warn('Reconfiguring the project: the configuration has changed')
+			reconf = 1
 
+	if reconf:
 		back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
 
 		Options.commands = proj['commands']
@@ -291,9 +302,6 @@ def check_configured(bld):
 		configure()
 
 		(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
-
-		bld = getattr(Utils.g_module, 'build_context', Build.BuildContext)()
-		proj = Environment.Environment(Options.lockfile)
 
 def install(bld):
 	Options.commands['install'] = True
