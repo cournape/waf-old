@@ -61,14 +61,16 @@ class WhiteWscriptTester(WscriptErrorsTester):
 		Utils.g_module = imp.new_module('main_wscript')
 		Utils.g_module.srcdir = '.'
 		# TODO: tests for WafError upon change
-		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
+		conf = Configure.ConfigurationContext()
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure, conf)
 
 	def test_missing_srcdir(self):
 		self._setup_options()
 		Utils.g_module = imp.new_module('main_wscript')
 		Utils.g_module.blddir = '.'
 		# TODO: tests for WafError upon change
-		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
+		conf = Configure.ConfigurationContext()
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure, conf)
 
 	def test_missing_configure(self):
 		# white_box test: missing def configure()
@@ -79,7 +81,8 @@ srcdir = '.'
 		self._write_wscript(wscript_contents, use_dic=False)
 		self._setup_options()
 		Utils.set_main_module(self._wscript_file_path)
-		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
+		conf = Configure.ConfigurationContext()
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure, conf)
 
 	def test_attr_err_in_configure(self):
 		# white_box test: configure raised AttributeError - don't raise WafError becasue of that
@@ -93,7 +96,8 @@ def configure(conf):
 		self._write_wscript(wscript_contents, use_dic=False)
 		self._setup_options()
 		Utils.set_main_module(self._wscript_file_path)
-		self.failUnlessRaises(AttributeError, Scripting.configure)
+		conf = Configure.ConfigurationContext()
+		self.failUnlessRaises(AttributeError, Scripting.configure, conf)
 
 	def test_set_options_is_optional(self):
 		# white_box test: set_options() is not required anymore

@@ -216,7 +216,8 @@ def set_options(opt):
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
 		Utils.set_main_module(self._wscript_file_path)
-		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
+		conf = Configure.ConfigurationContext()
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure, conf)
 
 	def test_invalid_tool(self):
 		# white_box test: tool not exists
@@ -235,7 +236,8 @@ def set_options(opt):
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
 		Utils.set_main_module(self._wscript_file_path)
-		self.failUnlessRaises(Utils.WscriptError, Scripting.configure)
+		conf = Configure.ConfigurationContext()
+		self.failUnlessRaises(Utils.WscriptError, Scripting.configure, conf)
 
 	def test_nothing_to_store(self):
 		# white-box test: fails if all_envs are not defined.

@@ -5,7 +5,7 @@
 import os, sys, unittest
 import common_test
 from cxx_family_test import CxxFamilyTester
-import Logs, Utils, Options, Scripting, Build
+import Logs, Utils, Options, Scripting, Build, Configure
 
 class CxxTester(CxxFamilyTester):
 	def __init__(self, methodName):
@@ -30,7 +30,8 @@ def set_options(opt):
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
 		Utils.set_main_module(self._wscript_file_path)
-		Scripting.configure()
+		conf = Configure.ConfigurationContext()
+		Scripting.configure(conf)
 		bld = Build.BuildContext()
 		self.failUnlessRaises(Utils.WscriptError, bld.new_task_gen, 'cxx')
 
