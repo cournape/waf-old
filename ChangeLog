@@ -9,6 +9,8 @@ NEW IN WAF 1.5.4
 * enable recursion for commands (including custom commands) by passing a context instance
 * enable documentation for custom commands (in --help)
 * enable custom build or configuration contexts from user scripts
+* distcheck is executed without the shell
+* project autoconfiguration activates when the build directory is removed/does not exist
 
 NEW IN WAF 1.5.3
 ----------------
