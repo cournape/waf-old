@@ -32,14 +32,6 @@ class ScriptingTester(common_test.CommonTester):
 		if os.path.isdir(self._test_dir_root):
 			shutil.rmtree(self._test_dir_root)
 
-	def _write_wscript(self, contents):
-		wscript_file_path = self._wscript_file_path
-		try:
-			wscript_file = open( wscript_file_path, 'w' )
-			wscript_file.write(contents)
-		finally:
-			wscript_file.close()
-
 	def test_reconfigure(self):
 		# black-box test: reconfigure is done on build if lockfile is missing
 		built_code = 'waf_waf_built'
@@ -60,7 +52,7 @@ def configure(conf):
 	open('%s', 'w')
 """ % (built_code, conf_code)
 
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		self._test_configure()
 		self.assert_(os.path.isfile(conf_code), "1st configure failed")
 		self._test_build()
@@ -75,28 +67,8 @@ def configure(conf):
 		self.assert_(os.path.isfile(conf_code), "2nd configure skipped")
 		self.assert_(os.path.isfile(built_code), "2nd build failed")
 
-	def test_build_without_conf(self):
-		# white-box test: make sure that waf aborts on build without configure
-		Options.commands['configure'] = False
-		Options.commands['clean'] = False
-		self.failUnlessRaises(Utils.WafError, Scripting.main)
-
-		# cleanup: don't harm other tests
-		del Options.commands['configure']
-		del Options.commands['clean']
-
-	def test_white_no_conf_no_clean(self):
-		# white-box test: make sure that waf aborts on build without configure
-		Options.commands['clean'] = True
-		Options.commands['configure'] = False
-		self.failUnlessRaises(Utils.WafError, Scripting.main)
-
-		# cleanup: don't harm other tests
-		del Options.commands['clean']
-		del Options.commands['configure']
-
 	def test_black_no_conf_no_clean(self):
-		self._write_wscript("def set_options(opt): pass")
+		self._write_wscript("def set_options(opt): pass", 0)
 		self._test_clean(False)
 
 	def test_dist(self):
@@ -108,7 +80,7 @@ def configure(conf):
 %s = '%s'
 """ % (APPNAME, appname, VERSION, version)
 
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		self._test_dist()
 		dist_file = appname+'-'+version + '.tar.' + Scripting.g_gz
 		self.assert_(os.path.isfile(dist_file), "dist file doesn't exists")
@@ -119,7 +91,7 @@ def configure(conf):
 def dist():
 	open('waf_waf_custom_dist.txt', 'w')
 """
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		self._test_dist()
 		self.assert_(os.path.isfile('waf_waf_custom_dist.txt'), "custom dist() was not used")
 
@@ -131,7 +103,7 @@ def dist():
 def dist_hook():
 	open('waf_waf_custom_dist.txt', 'w')
 """
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		self._test_dist()
 		dist_file = 'noname-1.0.tar.' + Scripting.g_gz
 		tar = tarfile.open(dist_file)
@@ -139,7 +111,7 @@ def dist_hook():
 
 	def test_distcheck_fails(self):
 		# black-box test: distcheck fails - missing srcdir
-		self._write_wscript("def set_options(opt):	pass")
+		self._write_wscript("def set_options(opt):	pass", 0)
 		self._test_distcheck(False)
 
 	def test_distcheck(self):
@@ -166,7 +138,7 @@ def set_options(opt):
 	opt.tool_options('compiler_cxx')
 """ % (APPNAME, appname, VERSION, version)
 
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		dd_file = open('dd.cpp', 'w')
 		dd_file.writelines("int k=3;")
 		dd_file.close()
@@ -194,7 +166,7 @@ def set_options(opt):
 def distcheck():
 	open('waf_waf_custom_dist.txt', 'w')
 """
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		dd_file = open('dd.cpp', 'w')
 		dd_file.writelines("int k=3;")
 		dd_file.close()
@@ -223,7 +195,7 @@ def set_options(opt):
 def dist_hook():
 	open('waf_waf_custom_dist.txt', 'w')
 """
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		dd_file = open('dd.cpp', 'w')
 		dd_file.writelines("int k=3;")
 		dd_file.close()
@@ -251,7 +223,7 @@ def configure(conf):
 	pass
 """ % (APPNAME, appname, VERSION, version)
 
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		self._test_distcheck(False)
 
 	def test_distcheck_fails_conf_err(self):
@@ -267,7 +239,7 @@ blddir = 'out'
 %s = '%s'
 """ % (APPNAME, appname, VERSION, version)
 
-		self._write_wscript(wscript_contents)
+		self._write_wscript(wscript_contents, 0)
 		self._test_distcheck(False)
 
 def run_tests(verbose=1):
