@@ -101,8 +101,8 @@ def prepare_impl(t, cwd, ver, wafdir):
 	if not 'distcheck' in Utils.g_module.__dict__:
 		Utils.g_module.distcheck = distcheck
 
-	if not 'build' in Utils.g_module.__dict__:
-		Utils.g_module.build = build
+	#if not 'build' in Utils.g_module.__dict__:
+	#	Utils.g_module.build = build
 	if not 'build_context' in Utils.g_module.__dict__:
 		Utils.g_module.build_context = Build.BuildContext
 
@@ -121,8 +121,8 @@ def prepare_impl(t, cwd, ver, wafdir):
 	if not 'uninstall_context' in Utils.g_module.__dict__:
 		Utils.g_module.uninstall_context = Build.BuildContext
 
-	if not 'configure' in Utils.g_module.__dict__:
-		Utils.g_module.configure = configure
+	#if not 'configure' in Utils.g_module.__dict__:
+	#	Utils.g_module.configure = configure
 	if not 'configure_context' in Utils.g_module.__dict__:
 		Utils.g_module.configure_context = Configure.ConfigurationContext
 
@@ -483,7 +483,7 @@ def distcheck(appname='', version=''):
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
 	ret = pproc.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
 	if ret:
-		raise Utils.WafError('distcheck failed with code %i' % ret)
+		raise Utils.WafError('distcheck failed with code %i' % retval)
 
 	if os.path.exists(instdir):
 		raise Utils.WafError('distcheck succeeded, but files were left in %s' % instdir)
