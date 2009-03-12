@@ -7,7 +7,7 @@
 
 import os, sys, imp, types, tempfile
 from optparse import OptionParser
-import Logs, Utils
+import Logs, Utils, Configure
 from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
@@ -112,7 +112,7 @@ def create_parser(module=None):
 		help    = 'compile everything, even if WAFCACHE is set',
 		dest    = 'nocache')
 
-	if 'configure' in sys.argv:
+	if 'configure' in sys.argv or Configure.autoconfig:
 		p('-b', '--blddir',
 			action  = 'store',
 			default = '',
