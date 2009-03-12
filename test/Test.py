@@ -43,13 +43,14 @@ def run_tests():
 	import build
 	import options
 	import task_gen
+	import ar_test
 
 	if Options.options:
 		verbose = Options.options.verbose
 	else:
 		verbose = 1
 
-	tests_modules = [configure_test, build_dir, cxx_test, gcc_test,
+	tests_modules = [configure_test, build_dir, cxx_test, gcc_test, ar_test,
 						wscript_errors_test, scripting, build, options, task_gen]
 
 	all_results = []
