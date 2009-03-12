@@ -269,32 +269,7 @@ def check_configured(bld):
 	if not Configure.autoconfig:
 		return
 
-	for k in xrange(3):
-		try:
-			proj = Environment.Environment(Options.lockfile)
-		except IOError:
-			conf = Configure.ConfigurationContext()
-			configure(conf)
-		else:
-			break
-	else:
-		raise Utils.WafError('Auto-config: project does not configure (bug)')
-
-	reconf = 0
-	h = 0
-	try:
-		for file in proj['files']:
-			mod = Utils.load_module(file)
-			h = Utils.hash_function_with_globals(h, mod.configure)
-	except (OSError, IOError):
-		warn('Reconfiguring the project: a file is unavailable')
-		reconf = 1
-	else:
-		if (h != proj['hash']):
-			warn('Reconfiguring the project: the configuration has changed')
-			reconf = 1
-
-	if reconf:
+	def reconf(proj):
 		back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
 
 		Options.commands = proj['commands']
@@ -303,6 +278,37 @@ def check_configured(bld):
 		configure(conf)
 
 		(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
+
+	for k in xrange(3):
+		try:
+			proj = Environment.Environment(Options.lockfile)
+		except IOError:
+			conf = Configure.ConfigurationContext()
+			configure(conf)
+		else:
+			try:
+				bld = Build.BuildContext()
+				bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
+				bld.load_envs()
+			except Utils.WafError:
+				reconf(proj)
+				return
+			break
+	else:
+		raise Utils.WafError('Auto-config: project does not configure (bug)')
+
+	h = 0
+	try:
+		for file in proj['files']:
+			mod = Utils.load_module(file)
+			h = Utils.hash_function_with_globals(h, mod.configure)
+	except (OSError, IOError):
+		warn('Reconfiguring the project: a file is unavailable')
+		reconf(proj)
+	else:
+		if (h != proj['hash']):
+			warn('Reconfiguring the project: the configuration has changed')
+			reconf(proj)
 
 def install(bld):
 	Options.commands['install'] = True
