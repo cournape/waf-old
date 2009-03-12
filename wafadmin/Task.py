@@ -763,9 +763,10 @@ class Task(TaskBase):
 		prev_sigs = bld.task_sigs.get(key, ())
 		if prev_sigs:
 			try:
+				# for issue #379
 				if prev_sigs[2] == self.compute_sig_implicit_deps():
 					return prev_sigs[2]
-			except KeyError:
+			except (KeyError, OSError):
 				pass
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
