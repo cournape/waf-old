@@ -9,13 +9,8 @@ import common_test
 # allow importing from wafadmin dir.
 sys.path.append(os.path.abspath(os.path.pardir))
 
-try:
-	import Test
-except ImportError:
-	(curr_dir, curr_file) = os.path.split(__file__)
-	print "Failed to import wafadmin modules."
-	print "Either run 'waf check' from root waf directory, or run '%s' from '%s'" % (curr_file, curr_dir) 
-	sys.exit(1)
+# needed for directories constants
+import Test
 
 class TestBuildDir(common_test.CommonTester):
 
@@ -62,7 +57,9 @@ class TestBuildDir(common_test.CommonTester):
 		os.chdir(self.__test_waf_dir)
 
 		# make sure 'waf' file is being created by waf-light
-		self.assertEqual(0, self.call(["python", "waf-light", "--make-waf"]), "waf could not be created")
+		(ret_val, stdout, stderr) = self.call([sys.executable, 'waf-light', '--make-waf', '--nostrip'])
+		self.assertEqual(0, ret_val, "waf could not be created")
+		
 		self.assert_(os.path.isfile(self._waf_exe), "waf was not created")
 
 		os.chdir(self.__test_demos_dir)
@@ -106,20 +103,22 @@ class TestBuildDir(common_test.CommonTester):
 		os.mkdir("test_build3")
 		os.chdir("test_build3")
 
-		self.assertEqual(0, self.call(["python", "../waf", "configure"]), "configure failed")
-		self.assertEqual(0, self.call(["python", "../waf", "build"]), "build failed")
+		# self.call retruns tuple (pid, exit_code, stdout, stderr)
+		# if something went wrong, run the tests with -vv so call will print the stderr
+		self.assertEqual(0, self.call([sys.executable, "../waf", "configure"])[0], "configure failed")
+		self.assertEqual(0, self.call([sys.executable, "../waf", "build"])[0], "build failed")
 
 		# XXX: the next line fails - since the previous line didn't build files under 'default' directory
 		self._test_run(os.path.join("default", "test_c_app"))
 		self.call(["touch", "test_file"]) #create a file to check the distclean
 		#attention current dir will be completely removed including the  "test_file" file
-		self.assertEqual(0, self.call(["python", "../waf", "distclean"]), "distclean failed")
+		self.assertEqual(0, self.call([sys.executable, "../waf", "distclean"])[0], "distclean failed")
 
 def run_tests(verbose=1):
 	try:
 		suite = unittest.TestLoader().loadTestsFromTestCase(TestBuildDir)
 		# use the next line to run only specific tests: 
-#		suite = unittest.TestLoader().loadTestsFromNames(["test_build3", "test_build4"], TestBuildDir)
+#  		suite = unittest.TestLoader().loadTestsFromNames(["test_build3"], TestBuildDir)
 		return unittest.TextTestRunner(verbosity=verbose).run(suite)
 	except common_test.StartupError, e:
 		logging.error( str(e) )
