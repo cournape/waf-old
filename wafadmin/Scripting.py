@@ -299,7 +299,8 @@ def check_configured(bld):
 
 		Options.commands = proj['commands']
 		Options.options.__dict__ = proj['options']
-		configure()
+		conf = Configure.ConfigurationContext()
+		configure(conf)
 
 		(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
