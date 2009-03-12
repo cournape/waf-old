@@ -58,16 +58,15 @@ def set_options(opt):
 
 def run_tests(verbose=1):
 	try:
-		if verbose > 1: common_test.hide_output = False
-
 		suite = unittest.TestLoader().loadTestsFromTestCase(CxxTester)
 		# use the next line to run only specific tests: 
 #		suite = unittest.TestLoader().loadTestsFromName("test_customized_debug_level", CxxTester)
-		unittest.TextTestRunner(verbosity=verbose).run(suite)
+		return unittest.TextTestRunner(verbosity=verbose).run(suite)
 	except common_test.StartupError, e:
 		Logs.error(e)
 
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
 	os.chdir(os.path.pardir)
-	run_tests(2)
+	options = common_test.get_args_options()
+	run_tests(options.verbose)

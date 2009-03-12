@@ -39,12 +39,11 @@ class OptionsTester(common_test.CommonTester):
 		self.failUnlessRaises(Utils.WscriptError, opt.tool_options, 'kk', '.')
 
 def run_tests(verbose=1):
-	if verbose > 1: common_test.hide_output = False
-
 	suite = unittest.TestLoader().loadTestsFromTestCase(OptionsTester)
-	unittest.TextTestRunner(verbosity=verbose).run(suite)
+	return unittest.TextTestRunner(verbosity=verbose).run(suite)
 
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
 	os.chdir(os.path.pardir)
-	run_tests(1)
+	options = common_test.get_args_options()
+	run_tests(options.verbose)

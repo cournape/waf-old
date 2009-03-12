@@ -149,14 +149,13 @@ def set_options(opt):
 		self.failUnlessRaises(Utils.WafError, TaskGen.declare_extension, 1, None)
 
 def run_tests(verbose=1):
-	if verbose > 1: common_test.hide_output = False
-
 	suite = unittest.TestLoader().loadTestsFromTestCase(TaskGenTester)
 	#suite = unittest.TestLoader().loadTestsFromNames(['test_white_no_sources_specified', 'test_black_no_sources_specified'], TaskGenTester)
 #	unittest.TestLoader().sortTestMethodsUsing = None
-	unittest.TextTestRunner(verbosity=verbose).run(suite)
+	return unittest.TextTestRunner(verbosity=verbose).run(suite)
 
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
 	os.chdir(os.path.pardir)
-	run_tests(2)
+	options = common_test.get_args_options()
+	run_tests(options.verbose)

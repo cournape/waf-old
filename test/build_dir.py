@@ -117,16 +117,15 @@ class TestBuildDir(common_test.CommonTester):
 
 def run_tests(verbose=1):
 	try:
-		if verbose > 1: common_test.hide_output = False
-
 		suite = unittest.TestLoader().loadTestsFromTestCase(TestBuildDir)
 		# use the next line to run only specific tests: 
 #		suite = unittest.TestLoader().loadTestsFromNames(["test_build3", "test_build4"], TestBuildDir)
-		unittest.TextTestRunner(verbosity=verbose).run(suite)
+		return unittest.TextTestRunner(verbosity=verbose).run(suite)
 	except common_test.StartupError, e:
 		logging.error( str(e) )
 
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
 	os.chdir(os.path.pardir)
-	run_tests()
+	options = common_test.get_args_options()
+	run_tests(options.verbose)

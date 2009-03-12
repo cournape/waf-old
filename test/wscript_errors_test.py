@@ -149,14 +149,13 @@ def set_options(opt):
 		#Scripting.main()
 
 def run_tests(verbose=1):
-	if verbose > 1: common_test.hide_output = False
-
 	white_suite = unittest.TestLoader().loadTestsFromTestCase(WhiteWscriptTester)
 	black_suite = unittest.TestLoader().loadTestsFromTestCase(BlackWscriptTester)
 	all_tests = unittest.TestSuite((white_suite, black_suite))
-	unittest.TextTestRunner(verbosity=verbose).run(all_tests)
+	return unittest.TextTestRunner(verbosity=verbose).run(all_tests)
 
 if __name__ == '__main__':
 	# test must be ran from waf's root directory
 	os.chdir(os.path.pardir)
-	run_tests()
+	options = common_test.get_args_options()
+	run_tests(options.verbose)

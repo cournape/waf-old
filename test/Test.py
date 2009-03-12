@@ -5,7 +5,9 @@
 
 "Some waf tests - most are obsolete"
 
-import os, sys
+import os
+import sys
+import time
 
 class DIRS:
 	WAFADMIN	= "wafadmin"
@@ -19,6 +21,9 @@ sys.path.append(wafadmin)
 
 import Options
 import Utils
+
+# shortcut
+writelines = sys.stderr.write
 
 def info(msg):
 	Utils.pprint('CYAN', msg)
@@ -47,11 +52,42 @@ def run_tests():
 	tests_modules = [configure_test, build_dir, cxx_test, gcc_test,
 						wscript_errors_test, scripting, build, options, task_gen]
 
+	all_results = []
+	not_passed = []
+	total = 0
+	t1 = time.time()
+
 	for mod in tests_modules:
-		info("******** %s ********" % mod.__name__)
-		mod.run_tests(verbose)
+		writelines("******** %s ********\n" % mod.__name__)
+
+		# run_tests return a TestResult instance
+		result = mod.run_tests(verbose)
+		total += result.testsRun
+
+		# accumulate results for future stat etc.
+		if not result.wasSuccessful():
+			not_passed += (result.failures + result.errors)
+
+		# TODO: all_results is not used now, may be used for further investigation...
+		all_results.append(result)
+
+	writelines('\n' + '='*80 + '\n')
+	if not_passed:
+# 		for t in not_passed:
+# 			writelines( "%s: %s\n" % (t[0]._testMethodName, t[1]) )
+		writelines( "\n%d (out of %d) tests didn't passed !" %		(len(not_passed), total) )
+	else:
+		writelines( "\nall tests (%d) passed successfully !\n" % total )
+	t2 = time.time()
+	elapsed = t2-t1
+	writelines('\nall tests took %.2f seconds.\n' % elapsed)
+	writelines('='*80 + '\n')
+
+
+	return len(not_passed)
+
 
 if __name__ == "__main__":
 	# XXX: not works !
 	os.chdir(os.path.pardir)
-	run_tests()
+	sys.exit(run_tests())
