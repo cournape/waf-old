@@ -5,6 +5,7 @@
 """
 Should be serve as common tester for all waf testers.
 """
+
 import os, sys, unittest, shutil, types
 import optparse
 
@@ -23,7 +24,7 @@ import Utils
 import Logs
 
 # global variable - used to control the output of tests.
-hide_output = True
+verbose = 0
 
 class StartupError(Utils.WafError):
 	pass
@@ -67,16 +68,25 @@ class CommonTester(unittest.TestCase):
 	def call(self, commands):
 		"""
 		call: subprocess call method with (by default) silent stdout and stderr,
-				test its return value to make sure it succeeded"
+						test its return value to make sure it succeeded"
 		@param commands [list] commands to run.
-		@return: return code that was returned by child process.
+		@return:
+				[tuple] (returncode, stdout, stderr):
 		"""
 		kwargs = dict()
 
-		if hide_output:
-			# Don't show output, run `waf check -vv` when need to check-out what went wrong...
-			kwargs['stdout'] = kwargs['stderr'] = pproc.PIPE
-		return pproc.call( commands, **kwargs)
+		cmd = " ".join(commands)
+
+		# Don't show output, run `waf check -vv` when need to check-out what went wrong...
+		kwargs['stdout'] = kwargs['stderr'] = pproc.PIPE
+
+		proc = pproc.Popen(cmd, shell=1, **kwargs)
+		(stdout, stderr) = proc.communicate()
+		if verbose:
+ 			sys.stdout.write(stdout)
+			sys.stderr.write(stderr)
+
+		return (proc.returncode, stdout, stderr)
 
 	def _copy(self, source, target):
 		"""
@@ -93,115 +103,71 @@ class CommonTester(unittest.TestCase):
 				target = os.path.join(target, src_dirname)
 
 			shutil.copytree(source, target)
-
+			
 	def _test_configure(self, test_for_success=True, additionalArgs=[]):
-		"""
-		test configure
-		@param test_for_success [boolean]: test for success/failure ?
-			for example: to make sure configure has failed, pass False.
-		@param additionalArgs [list]: optional additional arguments to configure.
-		"""
-		if not isinstance(test_for_success, types.BooleanType):
-			raise ValueError("test_for_success must be boolean")
-
-		if not isinstance(additionalArgs, list):
-			raise ValueError("additional args must be a list")
-
-		if test_for_success:
-			test_func = self.failIf # ret val of 0 is False...
-			err_msg = "configure failed"
-		else:
-			test_func = self.assert_ # ret val of NON-Zero is True...
-			err_msg = "configure should fail"
-
-		args_list = ["python", self._waf_exe, "configure"]
-		if additionalArgs: args_list.extend(list(additionalArgs))
-		test_func(self.call(args_list), err_msg)
+		return self._run_command('configure', test_for_success, additionalArgs)
 
 	def _test_build(self, test_for_success=True, additionalArgs=[]):
+		return self._run_command('build', test_for_success, additionalArgs)
+	
+	def _test_clean(self, test_for_success=True, additionalArgs=[]):
+		return self._run_command('clean', test_for_success, additionalArgs)
+
+	def _test_distclean(self, test_for_success=True, additionalArgs=[]):
+		return self._run_command('distclean', test_for_success, additionalArgs)
+
+	def _test_dist(self, test_for_success=True, additionalArgs=[]):
+		return self._run_command('dist', test_for_success, additionalArgs)
+
+	def _test_distcheck(self, test_for_success=True, additionalArgs=[]):
+		return self._run_command('distcheck', test_for_success, additionalArgs)
+
+	def _run_command(self, command_name, test_for_success=True, additionalArgs=[]):
 		"""
-		test build
+		_run_command - tests for various commands. the specific command to test
+		is given by @command_name.
+
+		@param command_name: one of @available_commands below.
 		@param test_for_success [boolean]: test for success/failure ?
-			for example: to make sure build has failed, pass False.
-		@param additionalArgs [list]: optional additional arguments to build.
+				for example: to make sure command has failed, pass False.
+		@param additionalArgs [list]: optional additional arguments to command.
+		@returns [tuple] (stdout, stderr)
 		"""
+
 		if not isinstance(additionalArgs, list):
 			raise ValueError("additional args must be a list")
 
+		available_commands = 'build configure clean dist distcheck distclean'.split()
+
+		if not command_name in available_commands:
+			raise ValueError("The parameter 'command_name' must be on of %s (%s was given)." %
+				   (", ".join(available_commands), command_name))
+
+		err_msg = command_name
+
 		if test_for_success:
-			test_func = self.failIf # ret val of 0 is False...
-			err_msg = "build failed"
+			test_func = self.assertEquals		   # ret val of 0 is False...
+			err_msg += " failed"
 		else:
-			test_func = self.assert_ # ret val of NON-Zero is True...
-			err_msg = "build should fail"
+			test_func = self.assertNotEquals   # ret val of NON-Zero is True...
+			err_msg += " should fail"
 
-		args_list = ["python", self._waf_exe, "build"]
+		args_list = [sys.executable, self._waf_exe, command_name]
 		if additionalArgs: args_list.extend(list(additionalArgs))
-		test_func(self.call(args_list), err_msg)
+		if verbose > 1: additionalArgs.append('-' + ('v'*(verbose-1)))
+		if additionalArgs: args_list.extend(list(additionalArgs))
+		(ret_val, stdout, stderr) = self.call(args_list)
+		test_func(0, ret_val, err_msg)
+		return (stdout, stderr)
 
-	def _test_run(self, *args_list):
+	def _test_run(self, commandline):
 		"""
 		test running the generated executable succeed
-		@param expected_ret_val [int]: the expected return value of this run,
-			by default: 0 (means successful running)
-		@param additionalArgs [tuple]: optional additional arguments
+		@param commandline [string]: the commandline to run.
 		"""
-		self.assertEqual(0, self.call(args_list), "running '%s' failed" % args_list )
-
-	def _test_clean(self, test_for_success=True, *additionalArgs):
-		"""
-		test clean
-		@param test_for_success [boolean]: test for success/failure ?
-			for example: to make sure build has failed, pass False.
-		@param additionalArgs [tuple]: optional additional arguments
-		"""
-		if test_for_success:
-			test_func = self.failIf # ret val of 0 is False...
-			err_msg = "clean failed"
-		else:
-			test_func = self.assert_ # ret val of NON-Zero is True...
-			err_msg = "clean should fail"
-
-		args_list = ["python", self._waf_exe, "clean"]
-		if additionalArgs: args_list.extend(list(additionalArgs))
-		test_func(self.call(args_list), err_msg)
-
-	def _test_distclean(self, *additionalArgs):
-		"""
-		test distclean
-		@param additionalArgs [tuple]: optional additional arguments
-		"""
-		args_list = ["python", self._waf_exe, "distclean"]
-		if additionalArgs: args_list.extend(list(additionalArgs))
-		self.assertEqual(0, self.call(args_list), "distclean failed" )
-
-	def _test_dist(self, *additionalArgs):
-		"""
-		test dist
-		@param additionalArgs [tuple]: optional additional arguments
-		"""
-		args_list = ["python", self._waf_exe, "dist"]
-		if additionalArgs: args_list.extend(list(additionalArgs))
-		self.assertEqual(0, self.call(args_list), "dist failed" )
-
-	def _test_distcheck(self, test_for_success=True, *additionalArgs):
-		"""
-		test distcheck
-		@param test_for_success [boolean]: test for success/failure ?
-			for example: to make sure build has failed, pass False.
-		@param additionalArgs [tuple]: optional additional arguments
-		"""
-		args_list = ["python", self._waf_exe, "distcheck"]
-		if test_for_success:
-			test_func = self.failIf # ret val of 0 is False...
-			err_msg = "distcheck failed"
-		else:
-			test_func = self.assert_ # ret val of NON-Zero is True...
-			err_msg = "distcheck should fail"
-
-		args_list = ["python", self._waf_exe, "distcheck"]
-		if additionalArgs: args_list.extend(list(additionalArgs))
-		test_func(self.call(args_list), err_msg)
+		(ret_val, stdout, stderr) = self.call([commandline])
+		self.assertEquals(0, ret_val, "running '%s' failed" % commandline)
+		return (stdout, stderr)
 
 	def _same_env(self, expected_env, env_name='default'):
 		"""
