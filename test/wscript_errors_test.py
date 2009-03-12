@@ -75,9 +75,6 @@ class WhiteWscriptTester(WscriptErrorsTester):
 		wscript_contents = """
 blddir = 'build'
 srcdir = '.'
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents, use_dic=False)
 		self._setup_options()
@@ -135,18 +132,12 @@ blddir = 'build'
 srcdir = '.'
 
 def configure(conf):
-	 conf.check_tool('compiler_cxx')
+	pass
 
 def set_options(opt):
-	opt.tool_options('compiler_cxx')
+	pass
 """
-		wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
-		try:
-			wscript_file = open( wscript_file_path, 'w' )
-			wscript_file.write(wscript_contents)
-		finally:
-			if wscript_file: wscript_file.close()
-
+		self._write_wscript(wscript_contents, 0)
 		self._test_configure()
 		
 		# TODO: this should be white-box test - make sure the proper exception was raised
