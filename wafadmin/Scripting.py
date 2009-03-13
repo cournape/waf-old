@@ -11,6 +11,7 @@ from Logs import error, warn, info
 from Constants import *
 
 g_gz = 'bz2'
+commands = []
 
 def prepare_impl(t, cwd, ver, wafdir):
 	Options.tooldir = [t]
@@ -169,10 +170,11 @@ def prepare(t, cwd, ver, wafdir):
 	#"""
 
 def main():
-	lst = Options.arg_line[:]
+	global commands
+	commands = Options.arg_line[:]
 
-	while lst:
-		x = lst.pop(0)
+	while commands:
+		x = commands.pop(0)
 
 		ini = time.time()
 		#info('Configuration finished successfully%s; project is ready to build.' % ela)
