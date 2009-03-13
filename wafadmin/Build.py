@@ -308,7 +308,7 @@ class BuildContext(Utils.Context):
 
 		for env in self.all_envs.values():
 			for f in env['dep_files']:
-				newnode = self.srcnode.find_or_declare(f)
+				newnode = self.root.find_or_declare(f)
 				try:
 					hash = Utils.h_file(newnode.abspath(env))
 				except (IOError, AttributeError):
