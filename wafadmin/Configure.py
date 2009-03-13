@@ -82,7 +82,7 @@ class ConfigurationContext(Utils.Context):
 		self.blddir = blddir
 		self.srcdir = srcdir
 		self.all_envs = {}
-		self.defines = {}
+
 		# curdir: necessary for recursion
 		self.cwd = self.curdir = os.getcwd()
 
