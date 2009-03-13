@@ -18,13 +18,13 @@ int main(string[] args)   // string is a type alias for const(char)[]
 
 
 	// Add some people to the container and let them carry some items
-	container["Anya"] ~= "scarf";
-	container["Dimitri"] ~= "tickets";
-	container["Anya"] ~= "puppy";
+	container["Anya"] ~= cast(char[]) "scarf";
+	container["Dimitri"] ~= cast(char[]) "tickets";
+	container["Anya"] ~= cast(char[]) "puppy";
 
 	// Iterate over all the persons in the container
-	foreach (char[] person, char[][] items; container)
-		display_item_count(person, items);
+	foreach (const(char)[] person, char[][] items; container)
+		display_item_count(cast(char[]) person, items);
 	return 0;
 }
 

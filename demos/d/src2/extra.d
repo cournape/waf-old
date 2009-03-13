@@ -2,6 +2,6 @@ module extra;
 
 char[] abc()
 {
-	return "abc";
+	return cast(char[])"abc";
 }
 
