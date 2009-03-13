@@ -407,7 +407,7 @@ class BuildContext(Utils.Context):
 
 		#debug('build: rescanning %s' % str(src_dir_node))
 
-		# TODO undocumented hook
+		# FIXME remove in waf 1.6
 		if hasattr(self, 'repository'): self.repository(src_dir_node)
 
 		# list the files in the build dirs
