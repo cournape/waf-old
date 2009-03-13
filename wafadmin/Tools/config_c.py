@@ -571,31 +571,24 @@ def have_define(self, name):
 def write_config_header(self, configfile='', env='', guard=''):
 	"save the defines into a file"
 	if not configfile: configfile = WAF_CONFIG_H
-
-	lst = Utils.split_path(configfile)
-	base = lst[:-1]
-
-	if not env: env = self.env
-	base = [self.blddir, env.variant()]+base
-	dir = os.path.join(*base)
-	if not os.path.exists(dir):
-		os.makedirs(dir)
-
-	dir = os.path.join(dir, lst[-1])
-
-	self.env.append_unique('waf_config_files', os.path.abspath(dir))
-
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
 
-	dest = open(dir, 'w')
+	# configfile -> absolute path
+	if not env: env = self.env
+	configfile = os.sep.join([self.blddir, env.variant(), configfile])
+	(dir, base) = os.path.split(configfile)
+
+	try: os.makedirs(dir)
+	except: pass
+
+	dest = open(configfile, 'w')
 	dest.write('/* Configuration header created by Waf - do not edit */\n')
 	dest.write('#ifndef %s\n#define %s\n\n' % (waf_guard, waf_guard))
 
 	dest.write( self.get_config_header() )
 
 	# config files are not removed on "waf clean"
-	if not configfile in self.env['dep_files']:
-		self.env['dep_files'] += [configfile]
+	self.env.append_value('dep_files', configfile)
 
 	dest.write('\n#endif /* %s */\n' % waf_guard)
 	dest.close()
