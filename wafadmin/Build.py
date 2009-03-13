@@ -191,7 +191,7 @@ class BuildContext(Utils.Context):
 				elif tp == Node.BUILD:
 					for env in self.all_envs.values():
 						pt = nd.abspath(env)
-						if pt in env['waf_config_files']: continue
+						if pt in env['dep_files']: continue
 						try: os.remove(pt)
 						except OSError: pass
 					node.childs.__delitem__(x)
