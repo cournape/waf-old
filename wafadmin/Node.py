@@ -256,6 +256,7 @@ class Node(object):
 						return None
 		return current
 
+	# FIXME: remove in waf 1.6
 	def ensure_dir_node_from_path(self, lst):
 		"used very rarely, force the construction of a branch of node instance for representing folders"
 
