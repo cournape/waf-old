@@ -277,6 +277,7 @@ class Node(object):
 					current = self.__class__(name, prev, DIR)
 		return current
 
+	# FIXME: remove in waf 1.6
 	def exclusive_build_node(self, path):
 		"""
 		create a hierarchy in the build dir (no source folders) for ill-behaving compilers
