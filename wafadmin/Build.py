@@ -196,15 +196,10 @@ class BuildContext(Utils.Context):
 						except OSError: pass
 					node.childs.__delitem__(x)
 
-		# take the node of current dir, or the root node if failed to get the current
-		node = self.srcnode
-		clean_rec(node)
+		clean_rec(self.srcnode)
 
-		# when cleaning all, remove cache, depedencies and signatures
-		if node == self.srcnode:
-			for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
-				var = {}
-				setattr(self, v, var)
+		for v in 'node_sigs node_deps task_sigs raw_deps cache_node_abspath'.split():
+			setattr(self, v, {})
 
 	def compile(self):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
