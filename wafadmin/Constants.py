@@ -67,3 +67,5 @@ HOUR_FORMAT = "%H:%M:%S"
 
 TEST_OK = True
 
+CFG_FILES = 'cfg_files'
+

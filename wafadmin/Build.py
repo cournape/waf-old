@@ -181,10 +181,10 @@ class BuildContext(Utils.Context):
 	def clean(self):
 		debug('build: clean called')
 
-		# does not clean files created during the configuration dep_files
+		# does not clean files created during the configuration
 		precious = set([])
 		for env in self.all_envs.values():
-			for x in env['dep_files']:
+			for x in env[CFG_FILES]:
 				node = self.srcnode.find_resource(x)
 				if node:
 					precious.add(node.id)
@@ -314,7 +314,7 @@ class BuildContext(Utils.Context):
 		self.init_variants()
 
 		for env in self.all_envs.values():
-			for f in env['dep_files']:
+			for f in env[CFG_FILES]:
 				newnode = self.path.find_or_declare(f)
 				try:
 					hash = Utils.h_file(newnode.abspath(env))
