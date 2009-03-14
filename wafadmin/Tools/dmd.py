@@ -22,7 +22,7 @@ def common_flags(conf):
 
 	# Compiler is dmd so 'gdc' part will be ignored, just
 	# ensure key is there, so wscript can append flags to it
-	v['DFLAGS']            = {'gdc': [], 'dmd': ['-version=Posix']}
+	v['DFLAGS']            = ['-version=Posix']
 
 	v['D_SRC_F']           = ''
 	v['D_TGT_F']           = ['-c', '-of']

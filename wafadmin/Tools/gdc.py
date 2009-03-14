@@ -20,7 +20,7 @@ def common_flags(conf):
 	# _DFLAGS _DIMPORTFLAGS
 
 	# for mory info about the meaning of this dict see dmd.py
-	v['DFLAGS']            = {'gdc':[], 'dmd':[]}
+	v['DFLAGS']            = []
 
 	v['D_SRC_F']           = ''
 	v['D_TGT_F']           = ['-c', '-o', '']

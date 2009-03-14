@@ -221,7 +221,7 @@ def get_target_name(self):
 	return v['D_%s_PATTERN' % tp] % self.target
 
 d_params = {
-'dflags': {'gdc':'', 'dmd':''},
+'dflags': '',
 'importpaths':'',
 'libs':'',
 'libpaths':'',
@@ -249,7 +249,7 @@ TaskGen.bind_feature('d', D_METHS)
 @before('apply_d_libs')
 def init_d(self):
 	Utils.def_attrs(self,
-		dflags={'gdc':'', 'dmd':''},
+		dflags='',
 		importpaths='',
 		libs='',
 		libpaths='',
@@ -344,7 +344,7 @@ def apply_d_vars(self):
 	lib_st     = env['DLIB_ST']
 	libpath_st = env['DLIBPATH_ST']
 
-	dflags = {'gdc':[], 'dmd':[]}
+	#dflags = []
 	importpaths = self.to_list(self.importpaths)
 	libpaths = []
 	libs = []
@@ -353,14 +353,18 @@ def apply_d_vars(self):
 	# add compiler flags
 	for i in uselib:
 		if env['DFLAGS_' + i]:
-			for dflag in self.to_list(env['DFLAGS_' + i][env['COMPILER_D']]):
-				if not dflag in dflags[env['COMPILER_D']]:
-					dflags[env['COMPILER_D']] += [dflag]
-	dflags[env['COMPILER_D']] = self.to_list(self.dflags[env['COMPILER_D']]) + dflags[env['COMPILER_D']]
+			env.append_unique('DFLAGS', env['DFLAGS_' + i])
 
-	for dflag in dflags[env['COMPILER_D']]:
-		if not dflag in env['DFLAGS'][env['COMPILER_D']]:
-			env['DFLAGS'][env['COMPILER_D']] += [dflag]
+			#for dflag in self.to_list(env['DFLAGS_' + i][env['COMPILER_D']]):
+			#	if not dflag in dflags[env['COMPILER_D']]:
+			#		dflags.append(dflag)
+
+	# WTF??
+	#dflags[env['COMPILER_D']] = self.to_list(self.dflags[env['COMPILER_D']]) + dflags[env['COMPILER_D']]
+
+	#for dflag in dflags[env['COMPILER_D']]:
+	#	if not dflag in env['DFLAGS'][env['COMPILER_D']]:
+	#		env['DFLAGS'][env['COMPILER_D']] += [dflag]
 
 	for x in self.features:
 		if not x in ['dprogram', 'dstaticlib', 'dshlib']:
@@ -368,11 +372,13 @@ def apply_d_vars(self):
 		x.lstrip('d')
 		d_shlib_dflags = env['D_' + x + '_DFLAGS']
 		if d_shlib_dflags:
-			for dflag in d_shlib_dflags:
-				if not dflag in env['DFLAGS'][env['COMPILER_D']]:
-					env['DFLAGS'][env['COMPILER_D']] += [dflag]
+			env.append_unique('DFLAGS', d_shlib_dflags)
 
-	env['_DFLAGS'] = env['DFLAGS'][env['COMPILER_D']]
+			#for dflag in d_shlib_dflags:
+			#	if not dflag in env['DFLAGS'][env['COMPILER_D']]:
+			#		env['DFLAGS'][env['COMPILER_D']] += [dflag]
+
+	#env['_DFLAGS'] = env['DFLAGS'][env['COMPILER_D']]
 
 	# add import paths
 	for i in uselib:
@@ -443,8 +449,8 @@ def d_hook(self, node):
 		header_node = node.change_ext(self.env['DHEADER_ext'])
 		task.outputs += [header_node]
 
-d_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
-d_with_header_str = '${D_COMPILER} ${_DFLAGS} ${_DIMPORTFLAGS} \
+d_str = '${D_COMPILER} ${DFLAGS} ${_DIMPORTFLAGS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
+d_with_header_str = '${D_COMPILER} ${DFLAGS} ${_DIMPORTFLAGS} \
 ${D_HDR_F}${TGT[1].bldpath(env)} \
 ${D_SRC_F}${SRC} \
 ${D_TGT_F}${TGT[0].bldpath(env)}'
