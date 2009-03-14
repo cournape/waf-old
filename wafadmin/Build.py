@@ -471,29 +471,56 @@ class BuildContext(Utils.Context):
 		self.cache_dir_contents[parent_node.id] = lst
 		debug('build: folder contents %r' % lst)
 
-		node_names = set([x.name for x in parent_node.childs.values() if x.id & 3 == Node.FILE])
+		node_names = set([x.name for x in parent_node.childs.values() if x.id & 3 in (Node.FILE, Node.DIR)])
 		cache = self.node_sigs[0]
 
-		# nodes to keep
+		# update the sigs of the nodes to keep
 		to_keep = lst & node_names
 		for x in to_keep:
 			node = parent_node.childs[x]
+			if node.id & 3 == Node.DIR: continue
 			try:
 				# do not call node.abspath here
 				cache[node.id] = Utils.h_file(parent_path + os.sep + node.name)
 			except IOError:
 				raise Utils.WafError("The file %s is not readable or has become a dir" % node.abspath())
 
+
 		# remove both nodes and signatures
 		to_remove = node_names - lst
 		if to_remove:
-			# infrequent scenario
-			cache = self.node_sigs[0]
+
 			for name in to_remove:
 				nd = parent_node.childs[name]
-				if nd.id in cache:
-					cache.__delitem__(nd.id)
-				parent_node.childs.__delitem__(name)
+
+				if nd.id & 3 == Node.DIR:
+					for x in nd.childs.values():
+						if x.id & 3 == Node.FILE:
+							break
+					else:
+						# TODO for now we do not think this is recursive
+						# folder contains only build files, do not remove it
+						continue
+
+				self.remove_node(nd)
+
+	def remove_node(self, node):
+		if node.id & 3 == Node.DIR:
+			# eliminate the leaves before the branches
+			for x in node.childs.values():
+				self.remove_node(x)
+			# paranoid
+			if node.id != self.bldnode.id:
+				node.parent.childs.__delitem__(node.name)
+		elif node.id & 3 == Node.FILE:
+			if node.id in self.node_sigs[0]:
+				self.node_sigs[0].__delitem__(node.id)
+			node.parent.childs.__delitem__(node.name)
+		else:
+			for variant in self.lst_variants:
+				if node.id in self.node_sigs[variant]:
+					self.node_sigs[variant].__delitem__(node.id)
+			node.parent.childs.__delitem__(node.name)
 
 	def listdir_bld(self, parent_node, path, variant):
 		"""in this function we do not add timestamps but we remove them
