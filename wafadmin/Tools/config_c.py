@@ -575,17 +575,17 @@ def write_config_header(self, configfile='', env='', guard=''):
 
 	# configfile -> absolute path
 	if not env: env = self.env
-	configfile = os.sep.join([self.blddir, env.variant(), configfile])
-	(dir, base) = os.path.split(configfile)
+	full = os.sep.join([self.blddir, env.variant(), configfile])
+	(dir, base) = os.path.split(full)
 
 	try: os.makedirs(dir)
 	except: pass
 
-	dest = open(configfile, 'w')
+	dest = open(full, 'w')
 	dest.write('/* Configuration header created by Waf - do not edit */\n')
 	dest.write('#ifndef %s\n#define %s\n\n' % (waf_guard, waf_guard))
 
-	dest.write( self.get_config_header() )
+	dest.write(self.get_config_header())
 
 	# config files are not removed on "waf clean"
 	self.env.append_value('dep_files', configfile)

@@ -180,7 +180,15 @@ class BuildContext(Utils.Context):
 
 	def clean(self):
 		debug('build: clean called')
+
 		# does not clean files created during the configuration dep_files
+		precious = set([])
+		for env in self.all_envs.values():
+			for x in env['dep_files']:
+				node = self.srcnode.find_resource(x)
+				if node:
+					precious.add(node.id)
+
 		def clean_rec(node):
 			for x in node.childs.keys():
 				nd = node.childs[x]
@@ -189,10 +197,9 @@ class BuildContext(Utils.Context):
 				if tp == Node.DIR:
 					clean_rec(nd)
 				elif tp == Node.BUILD:
+					if nd.id in precious: continue
 					for env in self.all_envs.values():
-						pt = nd.abspath(env)
-						if pt in env['dep_files']: continue
-						try: os.remove(pt)
+						try: os.remove(nd.abspath(env))
 						except OSError: pass
 					node.childs.__delitem__(x)
 
@@ -308,7 +315,7 @@ class BuildContext(Utils.Context):
 
 		for env in self.all_envs.values():
 			for f in env['dep_files']:
-				newnode = self.root.find_or_declare(f)
+				newnode = self.path.find_or_declare(f)
 				try:
 					hash = Utils.h_file(newnode.abspath(env))
 				except (IOError, AttributeError):
