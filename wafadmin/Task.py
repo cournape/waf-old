@@ -797,8 +797,10 @@ class Task(TaskBase):
 		for k in bld.node_deps.get(self.unique_id(), []):
 			# unlikely but necessary if it happens
 			if not k.parent.id in bld.cache_scanned_folders:
+				# if the parent folder is removed, and OSError may be thrown
 				bld.rescan(k.parent)
 
+			# if the parent folder is removed, a KeyError will be thrown
 			if k.id & 3 == 2: # Node.FILE:
 				upd(tstamp[0][k.id])
 			else:
