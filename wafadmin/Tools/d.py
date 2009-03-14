@@ -350,21 +350,9 @@ def apply_d_vars(self):
 	libs = []
 	uselib = self.to_list(self.uselib)
 
-	# add compiler flags
 	for i in uselib:
 		if env['DFLAGS_' + i]:
 			env.append_unique('DFLAGS', env['DFLAGS_' + i])
-
-			#for dflag in self.to_list(env['DFLAGS_' + i][env['COMPILER_D']]):
-			#	if not dflag in dflags[env['COMPILER_D']]:
-			#		dflags.append(dflag)
-
-	# WTF??
-	#dflags[env['COMPILER_D']] = self.to_list(self.dflags[env['COMPILER_D']]) + dflags[env['COMPILER_D']]
-
-	#for dflag in dflags[env['COMPILER_D']]:
-	#	if not dflag in env['DFLAGS'][env['COMPILER_D']]:
-	#		env['DFLAGS'][env['COMPILER_D']] += [dflag]
 
 	for x in self.features:
 		if not x in ['dprogram', 'dstaticlib', 'dshlib']:
@@ -373,12 +361,6 @@ def apply_d_vars(self):
 		d_shlib_dflags = env['D_' + x + '_DFLAGS']
 		if d_shlib_dflags:
 			env.append_unique('DFLAGS', d_shlib_dflags)
-
-			#for dflag in d_shlib_dflags:
-			#	if not dflag in env['DFLAGS'][env['COMPILER_D']]:
-			#		env['DFLAGS'][env['COMPILER_D']] += [dflag]
-
-	#env['_DFLAGS'] = env['DFLAGS'][env['COMPILER_D']]
 
 	# add import paths
 	for i in uselib:
