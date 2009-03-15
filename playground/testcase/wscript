@@ -14,8 +14,7 @@ APPNAME = 'my_testcase'
 srcdir = '.'
 blddir = 'build'
 
-import Scripting, Configure
-Configure.autoconfig = 1
+import Scripting
 
 def test(ctx):
 	Scripting.commands += ['distclean', 'configure', 'setup', 'build', 'modify', 'build']
