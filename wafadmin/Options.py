@@ -50,6 +50,13 @@ def create_parser(module=None):
 		keys = tbl.keys()
 		keys.sort()
 
+		if 'build' in module.__dict__:
+			if not module.build.__doc__:
+				module.build.__doc__ = 'builds the project'
+		if 'configure' in module.__dict__:
+			if not module.configure.__doc__:
+				module.configure.__doc__ = 'configures the project'
+
 		ban = ['set_options', 'init', 'shutdown']
 
 		just = max([len(x) for x in keys if not x in ban and type(tbl[x]) is type(parse_args_impl)])
