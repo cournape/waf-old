@@ -3,9 +3,9 @@
 # Thomas Nagy, 2009 (ita)
 
 """
-demonstrates how to make testcases
+Demonstrates how to make testcases; to execute, call 'waf test'
 
-to execute, call "waf test"
+If this folder has a top-level, call 'waf configure test'
 """
 
 VERSION = '0.0.1'
@@ -14,7 +14,8 @@ APPNAME = 'my_testcase'
 srcdir = '.'
 blddir = 'build'
 
-import Scripting
+import Scripting, Configure
+Configure.autoconfig = 1
 
 def test(ctx):
 	Scripting.commands += ['distclean', 'configure', 'setup', 'build', 'modify', 'build']
