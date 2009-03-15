@@ -191,7 +191,7 @@ def parse_args_impl(parser, _args=None):
 		is_install = True
 
 	# TODO -k => -j0
-	if options.keep: options.jobs = 1
+	#if options.keep: options.jobs = 1
 	if options.jobs < 1: options.jobs = 1
 
 	if 'install' in sys.argv or 'uninstall' in sys.argv:
