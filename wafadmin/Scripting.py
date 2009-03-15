@@ -251,6 +251,7 @@ def configure(conf):
 	env.store(Options.lockfile)
 
 def clean(bld):
+	'''removes the build files'''
 	try:
 		proj = Environment.Environment(Options.lockfile)
 	except IOError:
@@ -313,6 +314,7 @@ def check_configured(bld):
 			reconf(proj)
 
 def install(bld):
+	'''installs the build files'''
 	Options.commands['install'] = True
 	Options.commands['uninstall'] = False
 
@@ -321,6 +323,7 @@ def install(bld):
 	bld.install()
 
 def uninstall(bld):
+	'''removes the installed files'''
 	Options.commands['install'] = False
 	Options.commands['uninstall'] = True
 
@@ -407,7 +410,7 @@ def copytree(src, dst, build_dir):
 
 # TODO in waf 1.6, change this method if "srcdir == blddir" is allowed
 def distclean(ctx=None):
-	'''clean the project entirely'''
+	'''removes the build directory'''
 	lst = os.listdir('.')
 	for f in lst:
 		if f == Options.lockfile:
@@ -428,7 +431,7 @@ def distclean(ctx=None):
 
 # FIXME waf 1.6 a unique ctx parameter, and remove the optional appname and version
 def dist(appname='', version=''):
-	'''make a tarball with all the sources in it'''
+	'''makes a tarball for redistributing the sources'''
 	# return return (distdirname, tarballname)
 	import tarfile
 
@@ -473,7 +476,7 @@ def dist(appname='', version=''):
 
 # FIXME waf 1.6 a unique ctx parameter, and remove the optional appname and version
 def distcheck(appname='', version=''):
-	'''perform sanity checks on the generated tarball (waf dist)'''
+	'''checks if the sources compile (tarball from 'dist')'''
 	import tempfile, tarfile
 	import pproc
 

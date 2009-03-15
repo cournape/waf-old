@@ -75,11 +75,11 @@ def create_parser(module=None):
 		help    = 'amount of parallel jobs [default: %r]' % default_jobs,
 		dest    = 'jobs')
 
-	p('-k', '--keep',
-		action  = 'store_true',
-		default = False,
-		help    = 'keep running happily on independent task groups',
-		dest    = 'keep')
+	#p('-k', '--keep',
+	#	action  = 'store_true',
+	#	default = False,
+	#	help    = 'keep running happily on independent task groups',
+	#	dest    = 'keep')
 
 	p('-v', '--verbose',
 		action  = 'count',
@@ -90,7 +90,7 @@ def create_parser(module=None):
 	p('--nocache',
 		action  = 'store_true',
 		default = False,
-		help    = 'compile everything, even if WAFCACHE is set',
+		help    = 'ignore the WAFCACHE (if set)',
 		dest    = 'nocache')
 
 	p('--zones',
