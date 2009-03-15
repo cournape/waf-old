@@ -5,12 +5,14 @@ NEW IN WAF 1.5.4
 * new ant-like file matching: print bld.path.ant_glob('**/*.c', flat=True)
 * cosmetic changes for the unit test tool
 * d language tool fixes + demo update (uselib_local)
+* d flags simplification
 * enable chains of commands: "waf distclean configure build"
 * enable recursion for commands (including custom commands) by passing a context instance
 * enable documentation for custom commands (in --help)
 * enable custom build or configuration contexts from user scripts
 * distcheck is executed without the shell
 * project autoconfiguration activates when the build directory is removed/does not exist
+* remove the static libraries before "ar" is executed
 
 NEW IN WAF 1.5.3
 ----------------
