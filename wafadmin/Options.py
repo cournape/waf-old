@@ -5,8 +5,7 @@
 
 "Custom command-line options"
 
-import os, sys, imp, types, tempfile
-from optparse import OptionParser
+import os, sys, imp, types, tempfile, optparse
 import Logs, Utils, Configure
 from Constants import *
 
@@ -62,7 +61,7 @@ def create_parser(module=None):
 	else:
 		cmd_str = ' '.join(cmds)
 
-	parser = OptionParser(conflict_handler="resolve", usage = '''waf [command] [options]
+	parser = optparse.OptionParser(conflict_handler="resolve", usage = '''waf [command] [options]
 
 * Main commands (example: ./waf build -j4)
 %s''' % cmds_str, version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
@@ -82,29 +81,11 @@ def create_parser(module=None):
 		help    = 'keep running happily on independent task groups',
 		dest    = 'keep')
 
-	p('-p', '--progress',
-		action  = 'count',
-		default = 0,
-		help    = '-p: progress bar; -pp: ide output',
-		dest    = 'progress_bar')
-
 	p('-v', '--verbose',
 		action  = 'count',
 		default = 0,
 		help    = 'verbosity level -v -vv or -vvv [default: 0]',
 		dest    = 'verbose')
-
-	if 'install' in sys.argv or 'uninstall' in sys.argv:
-		p('--destdir',
-			help    = 'installation root [default: %r]' % default_destdir,
-			default = default_destdir,
-			dest    = 'destdir')
-
-		p('-f', '--force',
-			action  = 'store_true',
-			default = False,
-			help    = 'force file installation',
-			dest    = 'force')
 
 	p('--nocache',
 		action  = 'store_true',
@@ -112,35 +93,52 @@ def create_parser(module=None):
 		help    = 'compile everything, even if WAFCACHE is set',
 		dest    = 'nocache')
 
-	if 'configure' in sys.argv or Configure.autoconfig:
-		p('-b', '--blddir',
-			action  = 'store',
-			default = '',
-			help    = 'build dir for the project (configuration)',
-			dest    = 'blddir')
-
-		p('-s', '--srcdir',
-			action  = 'store',
-			default = '',
-			help    = 'src dir for the project (configuration)',
-			dest    = 'srcdir')
-
-		p('--prefix',
-			help    = 'installation prefix (configuration) [default: %r]' % default_prefix,
-			default = default_prefix,
-			dest    = 'prefix')
-
 	p('--zones',
 		action  = 'store',
 		default = '',
 		help    = 'debugging zones (task_gen, deps, tasks, etc)',
 		dest    = 'zones')
 
+	p('-p', '--progress',
+		action  = 'count',
+		default = 0,
+		help    = '-p: progress bar; -pp: ide output',
+		dest    = 'progress_bar')
+
 	p('--targets',
 		action  = 'store',
 		default = '',
 		help    = 'build given task generators, e.g. "target1,target2"',
 		dest    = 'compile_targets')
+
+	gr = optparse.OptionGroup(parser, 'configuration options')
+	parser.add_option_group(gr)
+	gr.add_option('-b', '--blddir',
+		action  = 'store',
+		default = '',
+		help    = 'build dir for the project (configuration)',
+		dest    = 'blddir')
+	gr.add_option('-s', '--srcdir',
+		action  = 'store',
+		default = '',
+		help    = 'src dir for the project (configuration)',
+		dest    = 'srcdir')
+	gr.add_option('--prefix',
+		help    = 'installation prefix (configuration) [default: %r]' % default_prefix,
+		default = default_prefix,
+		dest    = 'prefix')
+
+	gr = optparse.OptionGroup(parser, 'installation options')
+	parser.add_option_group(gr)
+	gr.add_option('--destdir',
+		help    = 'installation root [default: %r]' % default_destdir,
+		default = default_destdir,
+		dest    = 'destdir')
+	gr.add_option('-f', '--force',
+		action  = 'store_true',
+		default = False,
+		help    = 'force file installation',
+		dest    = 'force')
 
 	return parser
 
