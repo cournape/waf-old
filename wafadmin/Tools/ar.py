@@ -14,15 +14,12 @@ cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o
 cls.maxjobs = 1
 
 # remove the output in case it already exists
-# yinon: you may uncomment this once you have a proof it is necessary
-"""
 old = cls.run
 def wrap(self):
 	try: os.remove(self.outputs[0].abspath(self.env))
 	except OSError: pass
 	return old(self)
 setattr(cls, 'run', wrap)
-"""
 
 def detect(conf):
 	comp = conf.find_program('ar', var='AR')
