@@ -207,9 +207,6 @@ srcdir = '.'
 
 def configure(conf):
 	conf.check_tool('compiler_cxx')
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents, use_dic=False)
 		opt_obj = Options.Handler()
@@ -227,9 +224,6 @@ srcdir = '.'
 
 def configure(conf):
 	conf.check_tool('no_way_such_a_tool_exists_gwerghergjekrhgker')
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents, use_dic=False)
 		opt_obj = Options.Handler()
