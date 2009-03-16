@@ -14,7 +14,8 @@ zip_types = ['bz2', 'gz']
 # exclude these modules
 forbidden = [x+'.py' for x in 'Test Weak'.split()]
 
-from tokenize import *
+#from tokenize import *
+import tokenize
 
 import os, sys, base64, shutil, re, random, StringIO, optparse, tempfile
 import Utils, Options, Build
@@ -62,7 +63,7 @@ def set_options(opt):
 		help='specify the zip type [Allowed values: %s]' % ' '.join(zip_types), dest='zip')
 
 	opt.add_option('--make-batch', action='store_true', default=False,
-		help='creates a waf.bat file that calls the waf script. (this is done automatically on win32 systems)',
+		help='creates a convenience waf.bat file (done automatically on win32 systems)',
 		dest='make_batch')
 
 	opt.add_option('--yes', action='store_true', default=False,
@@ -71,10 +72,10 @@ def set_options(opt):
 
 	# those ones are not too interesting
 	opt.add_option('--set-version', default='',
-		help='set the version number for waf releases (for the maintainer)', dest='setver')
+		help='sets the version number for waf releases (for the maintainer)', dest='setver')
 
 	opt.add_option('--strip', action='store_true', default=True,
-		help='Shrink waf (strip docstrings, saves 33kb)',
+		help='shrinks waf (strip docstrings, saves 33kb)',
 		dest='strip_comments')
 	opt.add_option('--nostrip', action='store_false', help='no shrinking',
 		dest='strip_comments')
@@ -139,14 +140,14 @@ def process_imports(body):
 
 def process_tokens(tokens):
 	accu = []
-	prev = NEWLINE
+	prev = tokenize.NEWLINE
 
 	accu_deco = []
 	indent = 0
 	line_buf = []
 
 	for (type, token, start, end, line) in tokens:
-		if type == NEWLINE:
+		if type == tokenize.NEWLINE:
 			if line_buf:
 				accu.append(indent * '\t')
 				ln = "".join(line_buf)
@@ -155,23 +156,23 @@ def process_tokens(tokens):
 				accu.append(ln)
 				accu.append('\n')
 				line_buf = []
-				prev = NEWLINE
-		elif type == INDENT:
+				prev = tokenize.NEWLINE
+		elif type == tokenize.INDENT:
 			indent += 1
-		elif type == DEDENT:
+		elif type == tokenize.DEDENT:
 			indent -= 1
-		elif type == NAME:
-			if prev == NAME or prev == NUMBER: line_buf.append(' ')
+		elif type == tokenize.NAME:
+			if prev == tokenize.NAME or prev == tokenize.NUMBER: line_buf.append(' ')
 			line_buf.append(token)
-		elif type == NUMBER:
-			if prev == NAME or prev == NUMBER: line_buf.append(' ')
+		elif type == tokenize.NUMBER:
+			if prev == tokenize.NAME or prev == tokenize.NUMBER: line_buf.append(' ')
 			line_buf.append(token)
-		elif type == STRING:
+		elif type == tokenize.STRING:
 			if not line_buf and token.startswith('"'): pass
 			else: line_buf.append(token)
-		elif type == COMMENT:
+		elif type == tokenize.COMMENT:
 			pass
-		elif type == OP:
+		elif type == tokenize.OP:
 			line_buf.append(token)
 		else:
 			if token != "\n": line_buf.append(token)
@@ -185,7 +186,7 @@ def process_tokens(tokens):
 def sfilter(path):
 	f = open(path, "r")
 	if Options.options.strip_comments:
-		cnt = process_tokens(generate_tokens(f.readline))
+		cnt = process_tokens(tokenize.generate_tokens(f.readline))
 	else:
 		cnt = f.read()
 	f.close()
