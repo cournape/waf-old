@@ -62,8 +62,8 @@ def create_parser(module=None):
 		just = max([len(x) for x in keys if not x in ban and type(tbl[x]) is type(parse_args_impl)])
 
 		for x in keys:
-			if not x in ban and type(tbl[x]) is type(parse_args_impl):
-				cmds_str.append('  %s: %s' % (x.ljust(just), tbl[x].__doc__ or '-'))
+			if not x in ban and type(tbl[x]) is type(parse_args_impl) and tbl[x].__doc__:
+				cmds_str.append('  %s: %s' % (x.ljust(just), tbl[x].__doc__))
 		cmds_str = '\n'.join(cmds_str)
 	else:
 		cmd_str = ' '.join(cmds)
