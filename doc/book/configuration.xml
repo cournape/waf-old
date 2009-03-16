@@ -86,7 +86,7 @@ def configure(conf):
 			</programlisting>
 			<calloutlist>
 				<callout arearefs="dup-co" id="dup">
-					<para>Duplicates the default configuration environment</para>
+					<para>Duplicates the default configuration environment (shallow copy)</para>
 				</callout>
 				<callout arearefs="name-co" id="name">
 					<para>Binds the configuration environment to the name 'debug'</para>
@@ -95,7 +95,7 @@ def configure(conf):
 					<para>Replaces the default configuration environment by the 'debug' one</para>
 				</callout>
 				<callout arearefs="mod-co" id="mod">
-					<para>Changes the CXXFLAGS entry in the 'debug' configuration environment</para>
+					<para>Changes the CXXFLAGS entry in the 'debug' configuration environment. Since we are using a shallow copy, we have to use the methods <emphasis>append_value</emphasis>, <emphasis>prepend_value</emphasis> or <emphasis>append_unique</emphasis> instead of '+=' or '[].append'</para>
 				</callout>
 			</calloutlist>
 			In the previous example, the file contents will be:

@@ -226,34 +226,6 @@
 		<para>
 		</para>
 		<sect2>
-			<title>The scripting system</title>
-			<para>
-				The Waf script contains a tarball of the <filename>wafadmin</filename> directory, it is included in a commentary line where all the newline characters have been replaced (base64 and ascii85 encodings have been used in previous releases). When Waf is launched, the <filename>wafadmin</filename> directory is automatically extracted in the current directory if it cannot be found on the system.
-			</para>
-			<para>
-				After finding the <filename>wafadmin</filename> directory, the function <emphasis>Scripting.prepare</emphasis> is executed, it loads the top-level wscript file, and then calls the function main to perform the configuration, the build or the installation. New commands may be added by overriding the main function, and catching the operations to perform (from the top-level wscript file):
-				<programlisting language="python">
-import sys, Options, Scripting
-Options.cmds.append("meow")
-oldmain = Scripting.main
-def main():
-	if Options.commands['meow']:
-		print "meow"
-		sys.exit(0)
-	oldmain()
-Scripting.main = main
-				</programlisting>
-				With the previous code snippet, the execution will be:
-				<programlisting language="shell">
-$ waf meow
-meow
-				</programlisting>
-			</para>
-			<para>
-				The rest of the execution usually results in calling configuration context or build context instances. For single builds, the build context is stored on a singleton <emphasis>Build.bld</emphasis> which may be used after the build finished (shutdown function). The singleton is provided for convenience and its use should be limited to simple projects.
-			</para>
-		</sect2>
-		<sect2>
 			<title>File system access</title>
 			<para>
 				File system access is performed through an abstraction layer formed by the build context and <emphasis>Node</emphasis> instances. The data structure was carefully designed to maximize performance, so it is unlikely that it will change again in the future. The idea is to represent one file or one directory by a single Node instance. Dependent data such as file hashes are stored on the build context object and allowed to be persisted. Three kinds of nodes are declared: files, build files and folders. The nodes in a particular directory are unique, but build files used in several variant add duplicate entry on the build context cache.
