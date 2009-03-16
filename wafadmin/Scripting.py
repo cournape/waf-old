@@ -190,7 +190,7 @@ def main():
 
 		ctx = getattr(Utils.g_module, x + '_context', Utils.Context)()
 
-		if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck', 'clean']:
+		if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck']:
 			# compatibility TODO remove in waf 1.6
 			try:
 				fun(ctx)
