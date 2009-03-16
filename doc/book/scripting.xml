@@ -17,6 +17,7 @@ def configure(conf):
 	print "configure"
 
 def foo(ctx):
+	"""help string for the command foo"""
 	print "test"
 			</programlisting>
 			executing the script with &quot;foo&quot; as argument will produce the following output
@@ -30,6 +31,7 @@ test
 			The parameter <emphasis>ctx</emphasis> in the function foo above is provided to enable recursion and sharing data with the scripts. In the following example, the script <filename>subdir/wscript_<emphasis>foo</emphasis></filename> will be looked up, and executed if found. Else, the script <filename>subdir/wscript</filename> will be looked up and loaded as a module. If successfully loaded, the function <emphasis>foo</emphasis> will be executed, else an exception is raised.
 			<programlisting language="python">
 def foo(ctx):
+	"""help string for the command foo"""
 	ctx.recurse('subdir')
 			</programlisting>
 		</para>
