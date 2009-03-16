@@ -125,7 +125,7 @@
 	<section>
 		<title>Implicit processing based on file name or extension</title>
 		<para>
-			The exclicit rules described in the previous section becomes limited for processing several files of the same kind. Instead of adding loops, we will now describe how to process files using the extensions. This scheme is the most common technique used in the Waf library.
+			The exclicit rules described in the previous section becomes limited for processing several files of the same kind. Instead of adding loops, we will now describe how to process files using the name or the extension, for files declared in the <emphasis>source</emphasis> attribute. This scheme is the most common technique used in the Waf library.
 		</para>
 		<sect2>
 			<title>Task chain declaration</title>
