@@ -82,11 +82,11 @@ def create_parser(module=None):
 		help    = 'amount of parallel jobs [default: %r]' % default_jobs,
 		dest    = 'jobs')
 
-	#p('-k', '--keep',
-	#	action  = 'store_true',
-	#	default = False,
-	#	help    = 'keep running happily on independent task groups',
-	#	dest    = 'keep')
+	p('-k', '--keep',
+		action  = 'store_true',
+		default = False,
+		help    = 'keep running happily on independent task groups',
+		dest    = 'keep')
 
 	p('-v', '--verbose',
 		action  = 'count',
@@ -198,7 +198,7 @@ def parse_args_impl(parser, _args=None):
 		is_install = True
 
 	# TODO -k => -j0
-	#if options.keep: options.jobs = 1
+	if options.keep: options.jobs = 1
 	if options.jobs < 1: options.jobs = 1
 
 	if 'install' in sys.argv or 'uninstall' in sys.argv:
