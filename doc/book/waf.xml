@@ -51,6 +51,7 @@
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="task_schedulers.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="c_builds.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scenarios.xml"/>
+<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="scripting.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="development.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="architecture.xml"/>
 <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="conclusion.xml"/>

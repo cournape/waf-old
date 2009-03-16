@@ -1,0 +1,128 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter>
+	<title>Customizing the scripting system</title>
+
+	<section>
+		<title>Providing custom commands</title>
+		<para>
+			Waf commands are functions defined on the top-level wscript file, for example, with the following wscript file:
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+	print "configure"
+
+def foo(ctx):
+	print "test"
+			</programlisting>
+			executing the script with &quot;foo&quot; as argument will produce the following output
+			<programlisting language="shell">
+$ waf foo
+test
+			</programlisting>
+		</para>
+
+		<para>
+			The parameter <emphasis>ctx</emphasis> in the function foo above is provided to enable recursion and sharing data with the scripts. In the following example, the script <filename>subdir/wscript_<emphasis>foo</emphasis></filename> will be looked up, and executed if found. Else, the script <filename>subdir/wscript</filename> will be looked up and loaded as a module. If successfully loaded, the function <emphasis>foo</emphasis> will be executed, else an exception is raised.
+			<programlisting language="python">
+def foo(ctx):
+	ctx.recurse('subdir')
+			</programlisting>
+		</para>
+
+		<para>
+			For backward compatibility reasons, the commands <emphasis>init, shutdown, dist</emphasis> and <emphasis>distcheck</emphasis> do not accept a context as parameter yet.
+		</para>
+	</section>
+
+	<section>
+		<title>Chaining commands</title>
+		<para>
+			Since Waf 1.5.4, it is possible to chain several commands, for example:
+			<programlisting language="shell">
+waf distclean configure build
+			</programlisting>
+			The execution will stop as soon as an error is encountered, for example if distclean fails, the configuration and the build will not be executed, so the command is equivalent to:
+			<programlisting language="shell">
+waf distclean &amp;&amp; waf configure &amp;&amp; waf
+			</programlisting>
+		</para>
+		<para>
+			A frequent usecase is to chain the execution of build and cleaning steps:
+			<programlisting language="shell">
+waf distclean configure build clean build
+			</programlisting>
+			As a special exception, the function <emphasis>init</emphasis> is always prepended to the commands to execute, and the function <emphasis>shutdown</emphasis> is always appended.
+		</para>
+	</section>
+
+	<section>
+		<title>Providing a custom command context</title>
+		<para>
+			The context for a command is created automatically, and is derived from the class <emphasis>Utils.Context</emphasis>. Custom context instance may be provided in the following manner:
+			<programlisting language="python">
+def foo(ctx):
+	pass
+
+import Utils
+def foo_context(Utils.Context):
+	def __init__(self):
+		print("a context for 'foo'")
+			</programlisting>
+		</para>
+		Custom contexts may be provided for the functions <emphasis>configure</emphasis> and <emphasis>build</emphasis>.
+	</section>
+
+	<section>
+		<title>Creating aliases / Injecting new commands</title>
+		<para>
+			New commands may be injected in the following manner:
+			<programlisting language="python">
+import Scripting
+def foo(ctx):
+	Scripting.commands += ['build', 'clean']
+			</programlisting>
+			Injecting new commands is useful for writing testcases. By executing <emphasis>waf test</emphasis>, the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
+			<programlisting language="python">
+VERSION = '0.0.1'
+APPNAME = 'my_testcase'
+
+srcdir = '.'
+blddir = 'build'
+
+import Scripting
+
+def test(ctx):
+	Scripting.commands += ['distclean', 'configure', 'setup', 'build', 'modify', 'build']
+
+def configure(conf):
+	conf.check_tool('gcc')
+
+def setup(ctx):
+	f = open('main.c', 'w')
+	f.write('#include "foo.h"\nint main() {return 0;}\n')
+	f.close()
+
+	f = open('foo.h', 'w')
+	f.write('int k = 32;\n')
+	f.close()
+
+def build(bld):
+	bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c',
+		target='tprog')
+
+def modify(ctx):
+	f = open('foo.h', 'w')
+	f.write('int k = 34;\n')
+	f.close()
+			</programlisting>
+		</para>
+	</section>
+</chapter>
+
