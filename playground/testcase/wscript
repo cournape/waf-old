@@ -17,6 +17,7 @@ blddir = 'build'
 import Scripting
 
 def test(ctx):
+	"""try executing 'waf test'"""
 	Scripting.commands += ['distclean', 'configure', 'setup', 'build', 'modify', 'build']
 
 def configure(conf):
