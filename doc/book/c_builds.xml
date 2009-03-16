@@ -16,14 +16,19 @@
 		The construction of c/c++ applications can be quite complicated, and several measures must be taken to ensure coherent interaction with new compilation rules. The canonical code for a task generator building a c/c++ application is the following:
 			<programlisting language="python">
 def build(bld):
-	tgen = bld.new_task_gen()
-	tgen.features = 'cc cprogram' <co id="taskgen-co" linkends="al"/>
-	tgen.source = 'main.c' <co id="src-co" linkends="a2"/>
-	tgen.target = 'appname' <co id="tgt-co" linkends="a3"/>
-	tgen.includes = '.' <co id="incl-co" linkends="a4"/>
-	tgen.install_path = '${SOME_PATH}/bin' <co id="inst-co" linkends="a5"/>
-	tgen.defines = 'LINUX=1 BIDULE' <co id="defi-co" linkends="a6"/>
-	tgen.ccflags = '-O2 -Wall' <co id="ccflags-co" linkends="a7"/>
+	t = bld.new_task_gen(
+		features     = 'cc cprogram', <co id="taskgen-co" linkends="al"/>
+		source       = 'main.c', <co id="src-co" linkends="a2"/>
+		target       = 'appname', <co id="tgt-co" linkends="a3"/>
+		includes     = '.', <co id="incl-co" linkends="a4"/>
+		install_path = '${SOME_PATH}/bin', <co id="inst-co" linkends="a5"/>
+		defines      = ['LINUX=1', 'BIDULE'], <co id="defi-co" linkends="a6"/>
+		ccflags      = ['-O2', '-Wall'], <co id="ccflags-co" linkends="a7"/>
+		lib          = ['m'], <co id="shlib-co" linkends="a8"/>
+		libpath      = ['/usr/lib']
+	)
+	if sys.platform != 'win32':
+		t.rpath      = '/usr/lib' <co id="rpath-co" linkends="a9"/>
 			</programlisting>
 
 			<calloutlist>
@@ -48,6 +53,12 @@ def build(bld):
 				<callout arearefs="ccflags-co" id="a7">
 					<para>Command-line compilation flags, for the c++ language the attribute is called <emphasis>cxxflags</emphasis></para>
 				</callout>
+				<callout arearefs="shlib-co" id="a8">
+					<para>Shared libraries may be given directly (use <emphasis>staticlib</emphasis> and <emphasis>staticlibpath</emphasis> for static libraries)</para>
+				</callout>
+				<callout arearefs="rpath-co" id="a9">
+					<para>Additional pararameters may be added from a task generator reference. The next section describes a technique to gather the conditions into the configuration section.</para>
+				</callout>
 			</calloutlist>
 		</para>
 	</section>
@@ -58,16 +69,18 @@ def build(bld):
 			To link a library against another one created in the same Waf project, the attribute <emphasis>uselib_local</emphasis> may be used. The include paths, the link path and the library name are automatically exported, and the dependent binary is recompiled when the library changes:
 			<programlisting language="python">
 def build(bld):
-	staticlib = bld.new_task_gen('cc', 'staticlib') <co id="lib-co" linkends="b1"/>
-	staticlib.source = 'test_staticlib.c'
-	staticlib.target = 'teststaticlib'
-	staticlib.export_incdirs = '.' <co id="uselib-co" linkends="b2"/>
+	staticlib = bld.new_task_gen(
+		features       = 'cc cstaticlib', <co id="lib-co" linkends="b1"/>
+		source         = 'test_staticlib.c',
+		target         = 'teststaticlib',
+		export_incdirs = '.') <co id="uselib-co" linkends="b2"/>
 
-	main = bld.new_task_gen('cc', 'program') <co id="prog-co" linkends="b3"/>
-	main.source = 'main.c'
-	main.target = 'test_c_program'
-	main.includes = '.'
-	main.uselib_local = 'teststaticlib' <co id="uselib2-co" linkends="b4"/>
+	main = bld.new_task_gen(
+		features       = 'cc cprogram', <co id="prog-co" linkends="b3"/>
+		source         = 'main.c',
+		target         = 'test_c_program',
+		includes       = '.',
+		uselib_local   = 'teststaticlib') <co id="uselib2-co" linkends="b4"/>
 			</programlisting>
 
 			<calloutlist>
@@ -93,10 +106,11 @@ def configure(conf):
 	conf.env['LINKFLAGS_TEST'] = '-g'
 
 def build(bld):
-	staticlib = bld.new_task_gen('cc', 'staticlib')
-	staticlib.source = 'test_staticlib.c'
-	staticlib.target = 'teststaticlib'
-	staticlib.uselib = 'TEST' <co id="uselib-use-co" linkends="c2"/>
+	staticlib = bld.new_task_gen(
+		features = 'cc cstaticlib',
+		source   = 'test_staticlib.c',
+		target   = 'teststaticlib',
+		uselib   = 'TEST') <co id="uselib-use-co" linkends="c2"/>
 			</programlisting>
 			<calloutlist>
 				<callout arearefs="uselib-vars-co" id="c1">
@@ -159,10 +173,10 @@ build/
 			<programlisting language="python">
 def build(bld):
 	bld.new_task_gen(
-		features='cxx cprogram',
-		source='main.cpp',
-		target='test',
-		includes='. .. ../../')
+		features = 'cxx cprogram',
+		source   = 'main.cpp',
+		target   = 'test',
+		includes = '. .. ../../')
 			</programlisting>
 			Local folders are given relative to the folder of the current script. The equivalent build directory folder is then added automatically for headers or source files produced in the build directory.
 		</para>
