@@ -784,7 +784,7 @@ class Task(TaskBase):
 		return sig
 
 	def compute_sig_implicit_deps(self):
-		"""it is intented for .cpp and inferred .h files
+		"""it is intended for .cpp and inferred .h files
 		there is a single list (no tree traversal)
 		this is the hot spot so ... do not touch"""
 		m = md5()
