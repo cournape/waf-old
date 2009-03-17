@@ -30,7 +30,7 @@ def detect(conf):
 
 	v = conf.env
 	v['AR']          = comp
-	v['ARFLAGS']     = 'rc'
+	v['ARFLAGS']     = 'rcs'
 	v['RANLIB']      = ranlib
 	v['RANLIBFLAGS'] = ''
 
