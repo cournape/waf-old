@@ -138,17 +138,16 @@ def build(bld):
 				Task generators may be copied for different variants easily using the <emphasis>clone</emphasis> method. The parameter is the name of the environment to use (not the variant). The named environments are created during the configuration, as shown in the previous subsection.
 			<programlisting language="python">
 def build(bld):
-	prog_in_default = bld.new_task_gen
-	prog_in_default.features = 'cxx cprogram'
-	prog_in_default.source = 'src1.c'
-	prog_in_default.includes = '.'
-	prog_in_default.target = 'myprog'
+	prog_in_default = bld.new_task_gen(
+		features = 'cxx cprogram'
+		source = 'src1.c'
+		target = 'myprog')
 
 	prog_in_debug = prog_in_default.clone('debug')
 			</programlisting>
 			It is also possible to clone all task generators from a project using a code similar to the following:
 			<programlisting language="python">
-for obj in copy.copy(bld.all_task_gen):
+for obj in [] + bld.all_task_gen:
     new_obj = obj.clone('debug')
 			</programlisting>
 			</para>
@@ -222,18 +221,19 @@ def build(bld):
 			<programlisting language="python">
 def build(bld):
 	# 1. A simple program
-	main = bld.new_task_gen()
-	main.features = 'cc cprogram'
-	main.source = 'main.c'
-	main.target = 'test_c_program'
-	main.uselib_local = 'teststaticlib'
-	main.svn_header = 'ver.h' <co id="svn1-co" linkends="svn1"/>
-
+	main = bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c',
+		target = 'test_c_program',
+		uselib_local = 'teststaticlib',
+		svn_header = 'ver.h' <co id="svn1-co" linkends="svn1"/>
+	)
 	# 2. A simple static lib
-	staticlib = bld.new_task_gen()
-	staticlib.features = 'cc cstaticlib'
-	staticlib.source = 'test_staticlib.c'
-	staticlib.target = 'teststaticlib'
+	staticlib = bld.new_task_gen(
+		features = 'cc cstaticlib',
+		source = 'test_staticlib.c',
+		target = 'teststaticlib'
+	)
 
 import subprocess
 from Constants import RUN_ME
@@ -246,7 +246,6 @@ def process_svn(self): <co id="svn2-co" linkends="svn2"/>
 	if getattr(self, 'svn_header', None):
 		tsk = self.create_task('svn_ver')
 		tsk.set_outputs(self.path.find_or_declare(self.svn_header))
-
 
 def get_svn_rev(): <co id="svn3-co" linkends="svn3"/>
 	try:
