@@ -10,7 +10,7 @@ import Task
 from Configure import conftest
 
 ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC}'
-cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o')
+cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o', shell=False)
 cls.maxjobs = 1
 
 # remove the output in case it already exists
