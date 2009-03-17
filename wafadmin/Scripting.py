@@ -206,6 +206,9 @@ def main():
 		if x != 'init' and x != 'shutdown':
 			info('%r finished successfully%s' % (x, ela))
 
+		if not commands and x != 'shutdown':
+			commands.append('shutdown')
+
 def configure(conf):
 	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
 

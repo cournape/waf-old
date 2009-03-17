@@ -189,8 +189,6 @@ def parse_args_impl(parser, _args=None):
 
 	if args[0] != 'init':
 		args.insert(0, 'init')
-	if args[-1] != 'shutdown':
-		args.append('shutdown')
 
 	# FIXME uh, old
 	if commands['install'] or commands['uninstall']:
