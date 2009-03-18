@@ -93,6 +93,12 @@ def build(bld):
 	test("(5>1)*6", 6)
 	test("1,2,3*9,9", 9)
 
+	# lazy evaluation
+	test("defined(foo) && foo > 2", 0)
+	test("defined(m1) && m1 > 20", 0)
+	test("defined(m1) || m1 > 20", 1)
+
+
 	test("1+2+((3+4)+5)+6==(6*7)/2==1*-1*-1", 1)
 
 	return
