@@ -175,7 +175,7 @@ def get_num(lst):
 						count_par += 1
 				i += 1
 			else:
-				raise PreprocError, "rparen expected %r" % lst
+				raise PreprocError("rparen expected %r" % lst)
 
 			(num, _) = get_term(lst[1:i])
 			return (num, lst[i+1:])
@@ -252,7 +252,7 @@ def get_term(lst):
 				return get_term([(NUM, num), (p, v), (NUM, num3)] + lst)
 
 
-	raise PreprocError("Cannot reduce %r" % lst)
+	raise PreprocError("cannot reduce %r" % lst)
 
 def reduce_eval(lst):
 	"""take a list of tokens and output true or false (#if/#elif conditions)"""
@@ -475,7 +475,7 @@ def extract_macro(txt):
 				elif p == OP and v == ')':
 					break
 				else:
-					raise PreprocError("unexpected token")
+					raise PreprocError("unexpected token (3)")
 			elif prev == IDENT:
 				if p == OP and v == ',':
 					prev = v
@@ -489,11 +489,11 @@ def extract_macro(txt):
 					pindex += 1
 					prev = p
 				elif p == OP and v == '...':
-					raise PreprocError("not implemented")
+					raise PreprocError("not implemented (1)")
 				else:
-					raise PreprocError("comma or ... expected")
+					raise PreprocError("comma or ... expected (2)")
 			elif prev == '...':
-				raise PreprocError("not implemented")
+				raise PreprocError("not implemented (2)")
 			else:
 				raise PreprocError("unexpected else")
 
@@ -525,7 +525,7 @@ def extract_include(txt, defs):
 		if toks[0][1] == '<' and toks[-1][1] == '>':
 			return stringize(toks).lstrip('<').rstrip('>')
 
-	raise PreprocError("could not parse include %s" % txt)
+	raise PreprocError("could not parse include %s." % txt)
 
 def parse_char(txt):
 	if not txt: raise PreprocError("attempted to parse a null char")
@@ -629,7 +629,7 @@ class c_parser(object):
 		filepath = node.abspath(self.env)
 
 		self.count_files += 1
-		if self.count_files > 30000: raise PreprocError("recursion limit exceeded, bailing out")
+		if self.count_files > 30000: raise PreprocError("recursion limit exceeded")
 		pc = self.parse_cache
 		debug('preproc: reading file %r' % filepath)
 		try:
