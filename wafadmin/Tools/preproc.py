@@ -191,7 +191,7 @@ def get_num(lst):
 		elif v == '~':
 			return (~ int(num), lst)
 		else:
-			raise PreprocError("invalid token %r for get_num" % lst)
+			raise PreprocError("invalid op token %r for get_num" % lst)
 	elif p == NUM:
 		return v, lst[1:]
 	else:
