@@ -204,7 +204,11 @@ def get_term(lst):
 		return (num, [])
 	(p, v) = lst[0]
 	if p == OP:
-		if v == ',':
+		if v == '&&' and not num:
+			return (num, [])
+		elif v == '||' and num:
+			return (num, [])
+		elif v == ',':
 			# skip
 			return get_term(lst[1:])
 		elif v == '?':
