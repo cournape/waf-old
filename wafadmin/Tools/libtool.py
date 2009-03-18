@@ -305,7 +305,7 @@ nor: %prog --libs /usr/lib/libamarok.la'''
 	if len(args) != 1 and not options.versionNumber:
 		parser.error("incorrect number of arguments")
 	if options.versionNumber:
-		print "libtool-config version %s" % REVISION
+		print("libtool-config version %s" % REVISION)
 		return 0
 	ltf = libtool_config(args[0])
 	if options.debug:
@@ -321,7 +321,7 @@ nor: %prog --libs /usr/lib/libamarok.la'''
 		sys.exit(1)
 
 	def p(x):
-		print " ".join(x)
+		print(" ".join(x))
 	if options.libs: p(ltf.get_libs())
 	elif options.libs_only_l: p(ltf.get_libs_only_l())
 	elif options.libs_only_L: p(ltf.get_libs_only_L())

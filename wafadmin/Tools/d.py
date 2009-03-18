@@ -473,7 +473,7 @@ if __name__ == "__main__":
 	try: arg = sys.argv[1]
 	except IndexError: arg = "file.d"
 
-	print "".join(filter_comments(arg))
+	print("".join(filter_comments(arg)))
 	# TODO
 	paths = ['.']
 
