@@ -7,7 +7,7 @@
 
 import os, sys
 import TaskGen, Utils, Utils, Runner, Options, Build
-from Logs import debug, warn
+from Logs import debug, warn, info
 from TaskGen import extension, taskgen, before, after, feature
 from Configure import conf
 import pproc
@@ -78,7 +78,7 @@ def byte_compile_py(self):
 		if not installed_files:
 			return
 		if Options.commands['uninstall']:
-			print "* removing byte compiled python files"
+			info("* removing byte compiled python files")
 			for fname in installed_files:
 				try:
 					os.remove(fname + 'c')
@@ -91,7 +91,7 @@ def byte_compile_py(self):
 
 		if Options.commands['install']:
 			if self.env['PYC'] or self.env['PYO']:
-				print "* byte compiling python files"
+				info("* byte compiling python files")
 
 			if self.env['PYC']:
 				program = ("""
