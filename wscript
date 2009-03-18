@@ -107,7 +107,6 @@ def compute_revision():
 #deco_re = re.compile('def\\s+([a-zA-Z_]+)\\(')
 deco_re = re.compile('(def|class)\\s+(\w+)\\(.*')
 def process_decorators(body):
-	"modify the python 2.4 decorators"
 	lst = body.split('\n')
 	accu = []
 	all_deco = []
@@ -128,7 +127,6 @@ def process_decorators(body):
 	return "\n".join(accu+all_deco)
 
 def process_imports(body):
-	"add the python 2.3 fixes to the redistributable waf"
 	header = '#! /usr/bin/env python\n# encoding: utf-8'
 	impo = ''
 	deco = ''
