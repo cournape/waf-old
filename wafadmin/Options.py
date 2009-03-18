@@ -59,7 +59,7 @@ def create_parser(module=None):
 
 		ban = ['set_options', 'init', 'shutdown']
 
-		just = max([len(x) for x in keys if not x in ban and type(tbl[x]) is type(parse_args_impl)])
+		just = max([len(x) for x in keys if not x in ban and type(tbl[x]) is type(parse_args_impl) and tbl[x].__doc__])
 
 		for x in keys:
 			if not x in ban and type(tbl[x]) is type(parse_args_impl) and tbl[x].__doc__:
