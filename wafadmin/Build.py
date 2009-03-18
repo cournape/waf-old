@@ -866,13 +866,12 @@ class BuildContext(Utils.Context):
 		self.recurse(dirs, 'build')
 
 	def pre_recurse(self, name_or_mod, path, nexdir):
-		self.oldpath = self.path
+		if not hasattr(self, 'oldpath'):
+			self.oldpath = []
+		self.oldpath.append(self.path)
 		self.path = self.root.find_dir(nexdir)
 		return {'bld': self, 'ctx': self}
 
 	def post_recurse(self, name_or_mod, path, nexdir):
-		try:
-			self.path = self.oldpath
-		except AttributeError:
-			pass
+		self.path = self.oldpath.pop()
 
