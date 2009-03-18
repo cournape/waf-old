@@ -201,16 +201,15 @@ class ConfigurationContext(Utils.Context):
 		Utils.pprint(color, sr)
 
 	def check_message(self, th, msg, state, option=''):
-		"print an checking message. This function is used by other checking functions"
 		sr = 'Checking for %s %s' % (th, msg)
 		self.check_message_1(sr)
 		p = self.check_message_2
 		if state: p('ok ' + option)
 		else: p('not found', 'YELLOW')
 
+	# FIXME remove in waf 1.6
 	# the parameter 'option' is not used (kept for compatibility)
 	def check_message_custom(self, th, msg, custom, option='', color='PINK'):
-		"""print an checking message. This function is used by other checking functions"""
 		sr = 'Checking for %s %s' % (th, msg)
 		self.check_message_1(sr)
 		self.check_message_2(custom, color)
