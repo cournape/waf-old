@@ -45,7 +45,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 import os, shutil, sys, re, random, time
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
-from Logs import debug
+from Logs import debug, warn
 from Constants import *
 
 algotype = NORMAL
