@@ -19,7 +19,7 @@ logic. The data files (Environments) must contain configuration data only (flags
 Note: the c/c++ related code is in the module config_c
 """
 
-import os, shlex
+import os, shlex, sys
 try: import cPickle
 except ImportError: import pickle as cPickle
 import Environment, Utils, Options
@@ -106,6 +106,7 @@ class ConfigurationContext(Utils.Context):
 		try: os.unlink(path)
 		except (OSError, IOError): pass
 		self.log = open(path, 'wb')
+		self.log.write('Configuration parameters %r\n' % sys.argv)
 
 	def __del__(self):
 		"""cleanup function: close config.log"""
