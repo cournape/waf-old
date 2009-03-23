@@ -891,6 +891,7 @@ def compile_fun_noshell(name, line):
 			app("lst.extend(%r)" % params[-1].split())
 
 	fun = COMPILE_TEMPLATE_NOSHELL % "\n\t".join(buf)
+	debug('action: %s' % fun)
 	return (funex(fun), dvars)
 
 def compile_fun(name, line, shell=None):
