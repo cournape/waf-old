@@ -307,7 +307,7 @@ class BuildContext(Utils.Context):
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
 				env = Environment.Environment(os.path.join(self.cachedir, file))
-				name = file.split('.')[0]
+				name = file[:-len(CACHE_SUFFIX)]
 
 				self.all_envs[name] = env
 
