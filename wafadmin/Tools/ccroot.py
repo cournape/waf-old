@@ -10,7 +10,10 @@ from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
 from Constants import *
-from cStringIO import StringIO
+try:
+	from cStringIO import StringIO
+except ImportError:
+	from io import StringIO
 
 import config_c # <- necessary for the configuration, do not touch
 

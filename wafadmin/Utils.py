@@ -239,7 +239,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	sys.path.insert(0, module_dir)
 	# Python 3.0 will be a pain to support
 	# exec(file.read(), module.__dict__)
-	exec file in module.__dict__
+	exec(file, module.__dict__)
 	sys.path.remove(module_dir)
 	if file: file.close()
 
@@ -568,7 +568,7 @@ class Context(object):
 				old = self.curdir
 				self.curdir = nexdir
 				try:
-					exec txt in dc
+					exec (txt, dc)
 				finally:
 					self.curdir = old
 				if getattr(self.__class__, 'post_recurse', None):
