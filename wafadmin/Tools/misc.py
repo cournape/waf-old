@@ -20,7 +20,7 @@ def copy_func(tsk):
 	outfile = tsk.outputs[0].abspath(env)
 	try:
 		shutil.copy2(infile, outfile)
-	except OSError, IOError:
+	except (OSError, IOError):
 		return 1
 	else:
 		if tsk.chmod: os.chmod(outfile, tsk.chmod)
