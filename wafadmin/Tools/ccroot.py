@@ -34,6 +34,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 	except:
 		conf.fatal('could not determine the compiler version %r' % cmd)
 
+	# PY3K: do not touch
 	out = str(out)
 
 	if gcc:
