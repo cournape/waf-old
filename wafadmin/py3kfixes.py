@@ -35,7 +35,7 @@ def r1(code):
 @subst('Tools/ccroot.py')
 def r2(code):
 	code = code.replace("p.stdin.write('\\n')", "p.stdin.write(b'\\n')")
-	code = code.replace("out = str(out)", "out = out.decode('utf-8')")
+	code = code.replace("out=str(out)", "out=out.decode('utf-8')")
 	return code
 
 @subst('Utils.py')
