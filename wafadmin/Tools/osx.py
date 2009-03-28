@@ -16,7 +16,6 @@ import TaskGen, Task, Build, Options
 from TaskGen import taskgen, feature, after, before
 from Logs import error, debug
 
-
 # see WAF issue 285
 # and also http://trac.macports.org/ticket/17059
 @feature('cc', 'cxx')
@@ -27,8 +26,6 @@ def set_macosx_deployment_target(self):
 	elif 'MACOSX_DEPLOYMENT_TARGET' not in os.environ:
 		if sys.platform == 'darwin':
 			os.environ['MACOSX_DEPLOYMENT_TARGET'] = '.'.join(platform.mac_ver()[0].split('.')[:2])
-
-
 
 @feature('cc', 'cxx')
 @after('apply_lib_vars')

@@ -14,8 +14,8 @@ def find_gcc(conf):
 	cc = None
 	if v['CC']:
 		cc = v['CC']
-	elif 'CC' in os.environ:
-		cc = os.environ['CC']
+	elif 'CC' in conf.environ:
+		cc = conf.environ['CC']
 	if not cc: cc = conf.find_program('gcc', var='CC')
 	if not cc: cc = conf.find_program('cc', var='CC')
 	if not cc: conf.fatal('gcc was not found')

@@ -22,11 +22,6 @@ USE_TOP_LEVEL = False
 def get_cc_version(conf, cc, gcc=False, icc=False):
 
 	cmd = cc + ['-dM', '-E', '-']
-	#print os.environ['TERM']
-
-	#os.environ['TERM'] = 'dumb'
-
-	#print env
 	try:
 		p = Utils.pproc.Popen(cmd, stdin=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE, stderr=Utils.pproc.PIPE)
 		p.stdin.write('\n')

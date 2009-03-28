@@ -309,7 +309,7 @@ def detect_qt4(conf):
 	useframework = getattr(opt, 'use_qt4_osxframework', True)
 	qtdir = getattr(opt, 'qtdir', '')
 
-	if not qtdir: qtdir = os.environ.get('QT4_ROOT', '')
+	if not qtdir: qtdir = conf.environ.get('QT4_ROOT', '')
 
 	if not qtdir:
 		try:
@@ -323,7 +323,7 @@ def detect_qt4(conf):
 
 	if not qtdir:
 		try:
-			path = os.environ['PATH'].split(':')
+			path = conf.environ['PATH'].split(':')
 			for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
 				qmake = conf.find_program(qmk, path)
 				if qmake:
@@ -383,7 +383,7 @@ def detect_qt4(conf):
 	# check for the qtbinaries
 	if not qtbin: qtbin = os.path.join(qtdir, 'bin')
 
-	binpath = [qtbin, '/usr/share/qt4/bin/'] + os.environ['PATH'].split(':')
+	binpath = [qtbin, '/usr/share/qt4/bin/'] + conf.environ['PATH'].split(':')
 	def find_bin(lst, var):
 		for f in lst:
 			ret = conf.find_program(f, path_list=binpath)

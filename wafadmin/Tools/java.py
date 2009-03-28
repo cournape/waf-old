@@ -143,20 +143,20 @@ cls.post_run = post_run_javac
 
 def detect(conf):
 	# If JAVA_PATH is set, we prepend it to the path list
-	java_path = os.environ['PATH'].split(os.pathsep)
+	java_path = conf.environ['PATH'].split(os.pathsep)
 	v = conf.env
 
-	if 'JAVA_HOME' in os.environ:
-		java_path = [os.path.join(os.environ['JAVA_HOME'], 'bin')] + java_path
-		conf.env['JAVA_HOME'] = [os.environ['JAVA_HOME']]
+	if 'JAVA_HOME' in conf.environ:
+		java_path = [os.path.join(conf.environ['JAVA_HOME'], 'bin')] + java_path
+		conf.env['JAVA_HOME'] = [conf.environ['JAVA_HOME']]
 
 	for x in 'javac java jar'.split():
 		conf.find_program(x, var=x.upper(), path_list=java_path)
 		conf.env[x.upper()] = conf.cmd_to_list(conf.env[x.upper()])
 	v['JAVA_EXT'] = ['.java']
 
-	if 'CLASSPATH' in os.environ:
-		v['CLASSPATH'] = os.environ['CLASSPATH']
+	if 'CLASSPATH' in conf.environ:
+		v['CLASSPATH'] = conf.environ['CLASSPATH']
 
 	if not v['JAR']: conf.fatal('jar is required for making java packages')
 	if not v['JAVAC']: conf.fatal('javac is required for compiling java classes')

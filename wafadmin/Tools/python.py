@@ -210,7 +210,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	if python_MACOSX_DEPLOYMENT_TARGET:
 		conf.env['MACOSX_DEPLOYMENT_TARGET'] = python_MACOSX_DEPLOYMENT_TARGET
-		os.environ['MACOSX_DEPLOYMENT_TARGET'] = python_MACOSX_DEPLOYMENT_TARGET
+		conf.environ['MACOSX_DEPLOYMENT_TARGET'] = python_MACOSX_DEPLOYMENT_TARGET
 
 	env['pyext_PATTERN'] = '%s'+python_SO
 
@@ -345,8 +345,8 @@ def check_python_version(conf, minver=None):
 		pyver = '.'.join([str(x) for x in pyver_tuple[:2]])
 		conf.env['PYTHON_VERSION'] = pyver
 
-		if 'PYTHONDIR' in os.environ:
-			pydir = os.environ['PYTHONDIR']
+		if 'PYTHONDIR' in conf.environ:
+			pydir = conf.environ['PYTHONDIR']
 		else:
 			if sys.platform == 'win32':
 				(python_LIBDEST,) = \

@@ -614,7 +614,7 @@ def find_cpp(conf):
 	v = conf.env
 	cpp = None
 	if v['CPP']: cpp = v['CPP']
-	elif 'CPP' in os.environ: cpp = os.environ['CPP']
+	elif 'CPP' in conf.environ: cpp = conf.environ['CPP']
 	if not cpp: cpp = conf.find_program('cpp', var='CPP')
 	if not cpp: cpp = v['CC']
 	if not cpp: cpp = v['CXX']

@@ -16,7 +16,7 @@ def find_icc(conf):
 	v = conf.env
 	cc = None
 	if v['CC']: cc = v['CC']
-	elif 'CC' in os.environ: cc = os.environ['CC']
+	elif 'CC' in conf.environ: cc = conf.environ['CC']
 	if not cc: cc = conf.find_program('icc', var='CC')
 	if not cc: cc = conf.find_program('ICL', var='CC')
 	if not cc: conf.fatal('Intel C Compiler (icc) was not found')

@@ -251,6 +251,7 @@ def configure(conf):
 	# (used only by Configure.autoconfig)
 	env['hash'] = conf.hash
 	env['files'] = conf.files
+	env['environ'] = dict(conf.environ)
 	env.store(Options.lockfile)
 
 def clean(bld):
@@ -281,6 +282,7 @@ def check_configured(bld):
 		Options.commands = proj['commands']
 		Options.options.__dict__ = proj['options']
 		conf = Configure.ConfigurationContext()
+		conf.environ = proj['environ']
 		configure(conf)
 
 		(Options.commands, Options.options, Logs.zones, Logs.verbose) = back

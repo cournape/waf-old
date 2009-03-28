@@ -13,7 +13,7 @@ def find_gxx(conf):
 	v = conf.env
 	cxx = None
 	if v['CXX']: cxx = v['CXX']
-	elif 'CXX' in os.environ: cxx = os.environ['CXX']
+	elif 'CXX' in conf.environ: cxx = conf.environ['CXX']
 	if not cxx: cxx = conf.find_program('g++', var='CXX')
 	if not cxx: cxx = conf.find_program('c++', var='CXX')
 	if not cxx: conf.fatal('g++ was not found')

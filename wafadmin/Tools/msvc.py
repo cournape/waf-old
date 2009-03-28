@@ -413,13 +413,13 @@ def find_msvc(conf):
 	# compiler
 	cxx = None
 	if v['CXX']: cxx = v['CXX']
-	elif 'CXX' in os.environ: cxx = os.environ['CXX']
+	elif 'CXX' in conf.environ: cxx = conf.environ['CXX']
 	if not cxx: cxx = conf.find_program('CL', var='CXX', path_list=path)
 	if not cxx: conf.fatal('CL was not found (compiler)')
 	cxx = conf.cmd_to_list(cxx)
 
 	# before setting anything, check if the compiler is really msvc
-	env = dict(os.environ)
+	env = dict(conf.environ)
 	env.update(PATH = ';'.join(path))
 	if not Utils.cmd_output([cxx, '/nologo', '/?'], silent=True, env=env):
 		conf.fatal('the msvc compiler could not be identified')

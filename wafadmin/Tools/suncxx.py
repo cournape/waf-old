@@ -13,7 +13,7 @@ def find_sxx(conf):
 	v = conf.env
 	cc = None
 	if v['CXX']: cc = v['CXX']
-	elif 'CXX' in os.environ: cc = os.environ['CXX']
+	elif 'CXX' in conf.environ: cc = conf.environ['CXX']
 	#if not cc: cc = conf.find_program('g++', var='CXX')
 	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: cc = conf.find_program('CC', var='CXX') #studio

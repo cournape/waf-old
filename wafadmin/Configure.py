@@ -83,6 +83,8 @@ class ConfigurationContext(Utils.Context):
 		self.env = None
 		self.envname = ''
 
+		self.environ = dict(os.environ)
+
 		self.line_just = 40
 
 		self.blddir = blddir
@@ -193,7 +195,7 @@ class ConfigurationContext(Utils.Context):
 	def add_os_flags(self, var, dest=None):
 		if not dest: dest = var
 		# do not use 'get' to make certain the variable is not defined
-		try: self.env[dest] = Utils.to_list(os.environ[var])
+		try: self.env[dest] = Utils.to_list(self.environ[var])
 		except KeyError: pass
 
 	def check_message_1(self, sr):
