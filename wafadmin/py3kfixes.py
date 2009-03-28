@@ -27,7 +27,7 @@ def subst(filename):
 		try:
 			all_modifs[filename] += fun
 		except KeyError:
-			all_modifs[filename] = fun
+			all_modifs[filename] = [fun]
 		return fun
 	return do_subst
 
@@ -57,7 +57,9 @@ def r4(code):
 def fixdir(dir):
 	import subprocess
 	try:
-		subprocess.Popen("2to3 -x imports -x imports2 -x import -w -n wafadmin".split()).wait()
+		proc = subprocess.Popen("2to3 -x imports -x imports2 -x import -w -n wafadmin".split(),
+			stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		stdout, setderr = proc.communicate()
 	except:
 		import sys, shutil
 		shutil.rmtree(dir)
@@ -65,5 +67,6 @@ def fixdir(dir):
 
 	global all_modifs
 	for k in all_modifs:
-		modif(os.path.join(dir, 'wafadmin', k), all_modifs[k])
+		for v in all_modifs[k]:
+			modif(os.path.join(dir, 'wafadmin', k), v)
 
