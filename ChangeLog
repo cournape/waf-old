@@ -14,6 +14,7 @@ NEW IN WAF 1.5.4
 * project autoconfiguration activates when the build directory is removed/does not exist
 * remove the static libraries before "ar" is executed
 * python 3.0 compatibility (tested for c++ projects)
+* config.log improvements
 
 NEW IN WAF 1.5.3
 ----------------
