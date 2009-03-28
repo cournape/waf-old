@@ -93,12 +93,9 @@ def unpack_wafdir(dir):
 	os.unlink(tmp)
 
 	if sys.hexversion>0x300000f:
-		import subprocess
-		subprocess.Popen("2to3 -x imports -x imports2 -x import -w wafadmin", shell=True).wait()
 		sys.path = [join(dir, 'wafadmin')] + sys.path
 		import py3kfixes
-		for k in py3kfixes.all_modifs:
-			py3kfixes.modif(join(dir, 'wafadmin', k), py3kfixes.all_modifs[k])
+		py3kfixes.fixdir(dir)
 
 	os.chdir(cwd)
 

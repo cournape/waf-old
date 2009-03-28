@@ -6,6 +6,8 @@
 Fixes for py3k go here
 """
 
+import os
+
 all_modifs = {}
 
 def modif(filename, fun):
@@ -21,6 +23,7 @@ def modif(filename, fun):
 
 def subst(filename):
 	def do_subst(fun):
+		global all_modifs
 		try:
 			all_modifs[filename] += fun
 		except KeyError:
@@ -50,4 +53,17 @@ def r4(code):
 	code = code.replace("up(x.parent.abspath())", "up(x.parent.abspath().encode())")
 	code = code.replace("up(x.name)", "up(x.name.encode())")
 	return code
+
+def fixdir(dir):
+	import subprocess
+	try:
+		subprocess.Popen("2to3 -x imports -x imports2 -x import -w -n wafadmin".split()).wait()
+	except:
+		import sys, shutil
+		shutil.rmtree(dir)
+		raise
+
+	global all_modifs
+	for k in all_modifs:
+		modif(os.path.join(dir, 'wafadmin', k), all_modifs[k])
 
