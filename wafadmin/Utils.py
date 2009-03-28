@@ -574,3 +574,16 @@ class Context(object):
 				if getattr(self.__class__, 'post_recurse', None):
 					self.post_recurse(txt, base + '_' + name, nexdir)
 
+def jar_regexp(regex):
+	if regex.endswith('/'):
+		regex += '**'
+	regex = (re.escape(regex).replace(r"\*\*\/", ".*")
+		.replace(r"\*\*", ".*")
+		.replace(r"\*","[^/]*")
+		.replace(r"\?","[^/]"))
+	if regex.endswith(r'\/.*'):
+		regex = regex[:-4] + '([/].*)*'
+	regex += '$'
+	#print regex
+	return re.compile(regex)
+

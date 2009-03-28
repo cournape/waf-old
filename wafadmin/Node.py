@@ -62,7 +62,7 @@ def default_excludes():
 	if exc_fun:
 		return exc_fun
 
-	regs = [jar_regexp(x) for x in exclude_regs]
+	regs = [Utils.jar_regexp(x) for x in exclude_regs]
 	def mat(path):
 		for x in regs:
 			if x.match(path):
@@ -71,19 +71,6 @@ def default_excludes():
 
 	exc_fun = mat
 	return exc_fun
-
-def jar_regexp(regex):
-	if regex.endswith('/'):
-		regex += '**'
-	regex = (re.escape(regex).replace(r"\*\*\/", ".*")
-		.replace(r"\*\*", ".*")
-		.replace(r"\*","[^/]*")
-		.replace(r"\?","[^/]"))
-	if regex.endswith(r'\/.*'):
-		regex = regex[:-4] + '([/].*)*'
-	regex += '$'
-	#print regex
-	return re.compile(regex)
 
 class Node(object):
 	__slots__ = ("name", "parent", "id", "childs")
@@ -567,7 +554,7 @@ class Node(object):
 		return ret
 
 	def ant_glob(self, *k, **kw):
-		regex = jar_regexp(k[0])
+		regex = Utils.jar_regexp(k[0])
 		def accept(node, name):
 			ts = node.relpath_gen(self) + '/' + name
 			return regex.match(ts)

@@ -198,7 +198,7 @@ def check_java_class(self, classname, with_classpath=None):
 	return found
 
 def test_re(reg, ts, expected=True):
-	regexp = jar_regexp(reg)
+	regexp = Utils.jar_regexp(reg)
 	if regexp.match(ts):
 		b = True
 	else:
