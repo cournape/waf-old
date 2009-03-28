@@ -49,7 +49,7 @@ def find_file(filename, path_list):
 			return directory
 	return ''
 
-def find_program_impl(env, filename, path_list=[], var=None):
+def find_program_impl(env, filename, path_list=[], var=None, environ=None):
 	"""find a program in folders path_lst, and sets env[var]
 	@param env: environment
 	@param filename: name of the program to search for
@@ -58,14 +58,18 @@ def find_program_impl(env, filename, path_list=[], var=None):
 	@return: either the value that is referenced with [var] in env or os.environ
          or the first occurrence filename or '' if filename could not be found
 """
+
+	if not environ:
+		environ = os.environ
+
 	try: path_list = path_list.split()
 	except AttributeError: pass
 
 	if var:
-		if var in os.environ: env[var] = os.environ[var]
+		if var in environ: env[var] = environ[var]
 		if env[var]: return env[var]
 
-	if not path_list: path_list = os.environ['PATH'].split(os.pathsep)
+	if not path_list: path_list = environ['PATH'].split(os.pathsep)
 
 	ext = (Options.platform == 'win32') and '.exe,.com,.bat,.cmd' or ''
 	for y in [filename+x for x in ext.split(',')]:
@@ -222,7 +226,7 @@ class ConfigurationContext(Utils.Context):
 
 	def find_program(self, filename, path_list=[], var=None, mandatory=False):
 		"wrapper that adds a configuration message"
-		ret = find_program_impl(self.env, filename, path_list, var)
+		ret = find_program_impl(self.env, filename, path_list, var, environ=self.environ)
 		self.check_message('program', filename, ret, ret)
 		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 		if not ret and mandatory:
