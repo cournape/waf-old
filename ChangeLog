@@ -13,6 +13,7 @@ NEW IN WAF 1.5.4
 * distcheck is executed without the shell
 * project autoconfiguration activates when the build directory is removed/does not exist
 * remove the static libraries before "ar" is executed
+* python 3.0 compatibility (tested for c++ projects)
 
 NEW IN WAF 1.5.3
 ----------------
