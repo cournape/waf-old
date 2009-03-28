@@ -110,7 +110,7 @@ class ConfigurationContext(Utils.Context):
 		path = os.path.join(self.blddir, WAF_CONFIG_LOG)
 		try: os.unlink(path)
 		except (OSError, IOError): pass
-		self.log = open(path, 'wb')
+		self.log = open(path, 'w')
 		self.log.write(conf_template % (time.ctime(), sys.argv))
 
 	def __del__(self):
