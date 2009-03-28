@@ -56,6 +56,11 @@ def r4(code):
 	code = code.replace("up(x.name)", "up(x.name.encode())")
 	return code
 
+@subst('Build.py')
+def r5(code):
+	code = code.replace("cPickle.dump(data,file,-1)", "cPickle.dump(data,file)")
+	return code
+
 def fixdir(dir):
 	import subprocess
 	try:
