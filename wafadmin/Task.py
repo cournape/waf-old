@@ -713,7 +713,7 @@ class Task(TaskBase):
 					d = additional_deps[x.id]
 				except KeyError:
 					continue
-				if callable(d):
+				if hasattr(d, '__call__'):
 					d = d() # dependency is a function, call it
 
 				for v in d:
