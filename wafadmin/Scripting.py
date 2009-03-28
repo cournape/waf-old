@@ -306,8 +306,11 @@ def check_configured(bld):
 	h = 0
 	try:
 		for file in proj['files']:
-			mod = Utils.load_module(file)
-			h = Utils.hash_function_with_globals(h, mod.configure)
+			if file.endswith('configure'):
+				h = hash((h, readf(file)))
+			else:
+				mod = Utils.load_module(file)
+				h = hash((h, mod.waf_hash_val))
 	except (OSError, IOError):
 		warn('Reconfiguring the project: a file is unavailable')
 		reconf(proj)

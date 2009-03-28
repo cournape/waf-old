@@ -231,15 +231,16 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	module = imp.new_module(name)
 
 	try:
-		file = open(file_path, 'r')
+		code = readf(file_path)
 	except (IOError, OSError):
 		raise WscriptError('The file %s could not be opened!' % file_path)
 
+	module.waf_hash_val = code
+
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
-	exec(file.read(), module.__dict__)
+	exec(code, module.__dict__)
 	sys.path.remove(module_dir)
-	if file: file.close()
 
 	g_loaded_modules[file_path] = module
 
@@ -362,55 +363,6 @@ def h_fun(fun):
 			pass
 		return h
 
-_hash_whitelist_types = (
-	str,
-	unicode,
-	int,
-	bool,
-	long,
-	float,
-	# tuple handled separately
-	)
-
-try:
-	all
-except NameError: # for compatibility with Python < 2.5
-	def all(iterable):
-		"Returns True if all elements are true"
-		for element in iterable:
-			if not element:
-				return False
-		return True
-
-def _type_hash_is_stable(value):
-	if isinstance(value, _hash_whitelist_types):
-		return True
-	if isinstance(value, tuple):
-		# (for Python >= 2.4 you can remove the [])
-		return all([_type_hash_is_stable(item) for item in value])
-	return False
-
-
-def hash_function_with_globals(prevhash, func):
-	"""
-	hash a function (object) and the global vars needed from outside
-	ignore unhashable global variables (lists)
-
-	prevhash: previous hash value to be combined with this one;
-	if there is no previous value, zero should be used here
-
-	func: a Python function object.
-	"""
-	assert type(func) is type(h_fun)
-	for name, value in func.func_globals.iteritems():
-		# check in the whitelist
-		if not _type_hash_is_stable(value):
-			#print "NOT hashed: ", name, " (type ", type(value), ")"
-			continue
-		prevhash = hash( (prevhash, name, value) )
-		#print "hashed: ", name, " => ", value, " => ", hash(value)
-	return hash( (prevhash, inspect.getsource(func)) )
-
 def pprint(col, str, label='', sep=os.linesep):
 	"print messages in color"
 	sys.stderr.write("%s%s%s %s%s" % (Logs.colors(col), str, Logs.colors.NORMAL, label, sep))
@@ -504,9 +456,10 @@ def readf(fname):
 	f = None
 	try:
 		f = open(fname, 'rb')
-		return f.read()
+		txt = f.read()
 	finally:
 		if f: f.close()
+	return txt
 
 def nada(*k, **kw):
 	"""A function that does nothing"""
@@ -558,7 +511,7 @@ class Context(object):
 				finally:
 					self.curdir = old
 				if getattr(self.__class__, 'post_recurse', None):
-					self.post_recurse(f, base, nexdir)
+					self.post_recurse(module, base, nexdir)
 			else:
 				dc = {'ctx': self}
 				if getattr(self.__class__, 'pre_recurse', None):
