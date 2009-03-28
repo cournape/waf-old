@@ -166,7 +166,7 @@ class BuildContext(Utils.Context):
 		file = open(db + '.tmp', 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
-		cPickle.dump(data, file, -1) # remove the '-1' for unoptimized version
+		cPickle.dump(data, file)
 		file.close()
 
 		# do not use shutil.move
@@ -593,7 +593,7 @@ class BuildContext(Utils.Context):
 
 		lst = [str(env[a]) for a in vars_lst]
 		ret = Utils.h_list(lst)
-		debug("envhash: %s %r" % (ret.encode('hex'), lst))
+		debug("envhash: %r %r" % (ret, lst))
 
 		# next time
 		self.cache_sig_vars[idx] = ret
