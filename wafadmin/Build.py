@@ -166,7 +166,7 @@ class BuildContext(Utils.Context):
 		file = open(db + '.tmp', 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
-		cPickle.dump(data, file)
+		cPickle.dump(data, file, -1)
 		file.close()
 
 		# do not use shutil.move
