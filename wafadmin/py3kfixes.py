@@ -33,7 +33,9 @@ def subst(filename):
 
 @subst('Constants.py')
 def r1(code):
-	return code.replace("'iluvcuteoverload'", "b'iluvcuteoverload'")
+	code = code.replace("'iluvcuteoverload'", "b'iluvcuteoverload'")
+	code = code.replace("ABI=7", "ABI=37")
+	return code
 
 @subst('Tools/ccroot.py')
 def r2(code):
