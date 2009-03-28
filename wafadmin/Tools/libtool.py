@@ -242,19 +242,19 @@ class libtool_config:
 	def get_libs_only_L(self):
 		if not self.__libs: self.get_libs()
 		libs = self.__libs
-		libs = filter(lambda s: str(s).startswith('-L'), libs)
+		libs = [s for s in libs if str(s).startswith('-L')]
 		return libs
 
 	def get_libs_only_l(self):
 		if not self.__libs: self.get_libs()
 		libs = self.__libs
-		libs = filter(lambda s: str(s).startswith('-l'), libs)
+		libs = [s for s in libs if str(s).startswith('-l')]
 		return libs
 
 	def get_libs_only_other(self):
 		if not self.__libs: self.get_libs()
 		libs = self.__libs
-		libs = filter(lambda s: not (str(s).startswith('-L') or str(s).startswith('-l')), libs)
+		libs = [s for s in libs if not(str(s).startswith('-L')or str(s).startswith('-l'))]
 		return libs
 
 def useCmdLine():
