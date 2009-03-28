@@ -7,7 +7,6 @@ c/c++ configuration routines
 """
 
 import os, imp, sys, shlex, shutil
-import pproc
 from Utils import md5
 import Build, Utils, Configure, Task, Options, Logs, TaskGen
 from Constants import *
@@ -118,7 +117,7 @@ def cmd_and_log(self, cmd, kw):
 	if self.log: self.log.write('%s\n' % cmd)
 
 	try:
-		p = pproc.Popen(cmd, stdout=pproc.PIPE, shell=True)
+		p = Utils.pproc.Popen(cmd, stdout=Utils.pproc.PIPE, shell=True)
 		output = p.communicate()[0]
 	except WindowsError:
 		self.fatal('fail')

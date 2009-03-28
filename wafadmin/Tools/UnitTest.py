@@ -19,7 +19,6 @@ Each object to use as a unit test must be a program and must have X{obj.unit_tes
 """
 import os, sys
 import Build, TaskGen, Utils, Options, Logs
-import pproc
 
 class unit_test(object):
 	"Unit test representation"
@@ -111,16 +110,16 @@ class unit_test(object):
 				if self.change_to_testfile_dir:
 					kwargs['cwd'] = srcdir
 				if not self.want_to_see_test_output:
-					kwargs['stdout'] = pproc.PIPE  # PIPE for ignoring output
+					kwargs['stdout'] = Utils.pproc.PIPE  # PIPE for ignoring output
 				if not self.want_to_see_test_error:
-					kwargs['stderr'] = pproc.PIPE  # PIPE for ignoring output
+					kwargs['stderr'] = Utils.pproc.PIPE  # PIPE for ignoring output
 				if ld_library_path:
 					if sys.platform == 'win32':
 						kwargs['env']['PATH'] = ';'.join(ld_library_path + [os.environ.get('PATH', '')])
 					else:
 						kwargs['env']['LD_LIBRARY_PATH'] = ':'.join(ld_library_path + [os.environ.get('LD_LIBRARY_PATH', '')])
 
-				pp = pproc.Popen(filename, **kwargs)
+				pp = Utils.pproc.Popen(filename, **kwargs)
 				pp.wait()
 
 				result = int(pp.returncode == self.returncode_ok)

@@ -481,7 +481,6 @@ def dist(appname='', version=''):
 def distcheck(appname='', version=''):
 	'''checks if the sources compile (tarball from 'dist')'''
 	import tempfile, tarfile
-	import pproc
 
 	if not appname: appname = getattr(Utils.g_module, APPNAME, 'noname')
 	if not version: version = getattr(Utils.g_module, VERSION, '1.0')
@@ -495,7 +494,7 @@ def distcheck(appname='', version=''):
 	path = appname + '-' + version
 
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
-	ret = pproc.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
+	ret = Utils.pproc.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
 	if ret:
 		raise Utils.WafError('distcheck failed with code %i' % ret)
 

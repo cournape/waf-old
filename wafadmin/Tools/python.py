@@ -10,7 +10,6 @@ import TaskGen, Utils, Utils, Runner, Options, Build
 from Logs import debug, warn, info
 from TaskGen import extension, taskgen, before, after, feature
 from Configure import conf
-import pproc
 
 EXT_PY = ['.py']
 FRAG_2 = '''
@@ -101,7 +100,7 @@ for pyfile in sys.argv[1:]:
 """)
 				argv = [self.env['PYTHON'], "-c", program ]
 				argv.extend(installed_files)
-				retval = pproc.Popen(argv).wait()
+				retval = Utils.pproc.Popen(argv).wait()
 				if retval:
 					raise Utils.WafError("bytecode compilation failed")
 
@@ -114,7 +113,7 @@ for pyfile in sys.argv[1:]:
 """)
 				argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], "-c", program ]
 				argv.extend(installed_files)
-				retval = pproc.Popen(argv).wait()
+				retval = Utils.pproc.Popen(argv).wait()
 				if retval:
 					raise Utils.WafError("bytecode compilation failed")
 
@@ -140,7 +139,7 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 		del os_env['MACOSX_DEPLOYMENT_TARGET'] # see comments in the OSX tool
 	except KeyError:
 		pass
-	proc = pproc.Popen([python_exe, "-c", '\n'.join(program)], stdout=pproc.PIPE, env=os_env)
+	proc = Utils.pproc.Popen([python_exe, "-c", '\n'.join(program)], stdout=Utils.pproc.PIPE, env=os_env)
 	output = proc.communicate()[0].split("\n")
 	if proc.returncode:
 		if Options.options.verbose:
@@ -333,7 +332,7 @@ def check_python_version(conf, minver=None):
 	# Get python version string
 	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print(str(x))"]
 	debug('python: Running python command %r' % cmd)
-	proc = pproc.Popen(cmd, stdout=pproc.PIPE)
+	proc = Utils.pproc.Popen(cmd, stdout=Utils.pproc.PIPE)
 	lines = proc.communicate()[0].split()
 	assert len(lines) == 5, "found %i lines, expected 5: %r" % (len(lines), lines)
 	pyver_tuple = (int(lines[0]), int(lines[1]), int(lines[2]), lines[3], int(lines[4]))
@@ -382,8 +381,8 @@ def check_python_module(conf, module_name):
 	"""
 	Check if the selected python interpreter can import the given python module.
 	"""
-	result = not pproc.Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
-			   stderr=pproc.PIPE, stdout=pproc.PIPE).wait()
+	result = not Utils.pproc.Popen([conf.env['PYTHON'], "-c", "import %s" % module_name],
+			   stderr=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE).wait()
 	conf.check_message('Python module', module_name, result)
 	if not result:
 		conf.fatal("Python module not found.")
