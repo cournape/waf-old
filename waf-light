@@ -31,7 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 """
 
 import os, sys
-if sys.hexversion<0x203000f: raise "Waf requires Python >= 2.3"
+if sys.hexversion<0x203000f: raise ImportError("Waf requires Python >= 2.3")
 
 if 'PSYCOWAF' in os.environ:
 	try:import psyco;psyco.full()
@@ -46,7 +46,7 @@ cwd = os.getcwd()
 join = os.path.join
 
 def err(m):
-	print ('\033[91mError: %s\033[0m' % m)
+	print(('\033[91mError: %s\033[0m' % m))
 	sys.exit(1)
 
 def unpack_wafdir(dir):
