@@ -237,9 +237,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
-	# Python 3.0 will be a pain to support
-	# exec(file.read(), module.__dict__)
-	exec(file, module.__dict__)
+	exec(file.read(), module.__dict__)
 	sys.path.remove(module_dir)
 	if file: file.close()
 
