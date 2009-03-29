@@ -197,6 +197,7 @@ def check_java_class(self, classname, with_classpath=None):
 
 	return found
 
+"""
 def test_re(reg, ts, expected=True):
 	regexp = Utils.jar_regexp(reg)
 	if regexp.match(ts):
@@ -229,4 +230,5 @@ test_re(r, 'foo/bar/test')
 test_re(r, 'test/bar')
 r = '**/test/'
 test_re(r, 'foo/bar/test/bar')
+"""
 
