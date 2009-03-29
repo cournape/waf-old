@@ -17,12 +17,12 @@ def set_options(opt):
 
 def configure(conf):
 	# if a special version of visual studio is required
-    # prefer version 8 over 9, but allow 9 if no 8 is found
-	# conf.env['MSVC_VERSIONS'] = '8.0 9.0'
+    # prefer intel version 11, or msvc version 8 over 9, but allow 9 if no 8 is found
+	# conf.env['MSVC_VERSIONS'] = ['intel 11', 'msvc 8.0', 'msvc 9.0']
     # require 8 only
-	# conf.env['MSVC_VERSIONS'] = '8.0'
+	#conf.env['MSVC_VERSIONS'] = ['msvc 7.1']
     # X86 compiler only, no AMD64
-	# conf.env['MSVC_TARGETS'] = 'x86'
+	#conf.env['MSVC_TARGETS'] = 'x86'
 	conf.check_tool('msvc')
 	conf.check_libs_msvc('kernel32 user32', mandatory = True)
 
