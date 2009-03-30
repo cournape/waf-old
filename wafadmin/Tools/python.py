@@ -172,7 +172,7 @@ def check_python_headers(conf):
 	Note: this test requires that check_python_version was previously
 	executed and successful."""
 
-	if not conf.env['CC_NAME']:
+	if not conf.env['CC_NAME'] and not conf.env['CXX_NAME']:
 		conf.fatal('load a compiler first (gcc, g++, ..)')
 
 	env = conf.env
