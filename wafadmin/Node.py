@@ -456,11 +456,7 @@ class Node(object):
 
 	def read(self, env):
 		"get the contents of a file, it is not used anywhere for the moment"
-		try:
-			file = open(self.abspath(env), 'rb')
-			return file.read()
-		finally:
-			if file: file.close()
+		return Utils.readf(self.abspath(env))
 
 	def dir(self, env):
 		"scons-like"
