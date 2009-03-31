@@ -273,7 +273,7 @@ try:
 except ImportError:
 	pass
 else:
-	if sys.stderr.isatty() and os.environ['TERM'] != dumb:
+	if sys.stderr.isatty() and os.environ['TERM'] != 'dumb':
 		def myfun():
 			dummy_lines, cols = struct.unpack("HHHH", \
 			fcntl.ioctl(sys.stderr.fileno(),termios.TIOCGWINSZ , \
