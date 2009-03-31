@@ -59,11 +59,15 @@ def create_parser(module=None):
 
 		ban = ['set_options', 'init', 'shutdown']
 
-		just = max([len(x) for x in keys if not x in ban and type(tbl[x]) is type(parse_args_impl) and tbl[x].__doc__])
+		optlst = [x for x in keys if not x in ban
+			and type(tbl[x]) is type(parse_args_impl)
+			and tbl[x].__doc__
+			and not x.startswith('_')]
 
-		for x in keys:
-			if not x in ban and type(tbl[x]) is type(parse_args_impl) and tbl[x].__doc__:
-				cmds_str.append('  %s: %s' % (x.ljust(just), tbl[x].__doc__))
+		just = max([len(x) for x in optlst])
+
+		for x in optlst:
+			cmds_str.append('  %s: %s' % (x.ljust(just), tbl[x].__doc__))
 		cmds_str = '\n'.join(cmds_str)
 	else:
 		cmd_str = ' '.join(cmds)
