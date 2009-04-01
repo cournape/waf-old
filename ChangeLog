@@ -15,6 +15,7 @@ NEW IN WAF 1.5.4
 * remove the static libraries before "ar" is executed
 * python 3.0 compatibility (tested for c++ projects)
 * config.log improvements
+* enable the single header output for vala >= 0.7.0
 
 NEW IN WAF 1.5.3
 ----------------
