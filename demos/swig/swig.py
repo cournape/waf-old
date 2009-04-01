@@ -5,7 +5,7 @@
 
 import re
 import Task, Utils, Logs
-from TaskGen import extension
+from TaskGen import extension, taskgen, feature, after
 from Configure import conf
 import preproc
 
@@ -72,27 +72,20 @@ def swig_ocaml(tsk):
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.ml'))
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.mli'))
 
+@taskgen
+@feature('swig')
+@after('apply_incpaths')
 def add_swig_paths(self):
-	if getattr(self, 'add_swig_paths_done', None):
-		return
-	self.add_swig_paths_done = True
+	"""the attribute 'after' is not used here, the method is added directly at the end"""
 
-	self.swig_dir_nodes = []
-	for x in self.to_list(self.includes):
-		node = self.path.find_dir(x)
-		if not node:
-			Logs.warn('could not find the include %r' % x)
-			continue
-		self.swig_dir_nodes.append(node)
-
-	# add the top-level, it is likely to be added
-	self.swig_dir_nodes.append(self.bld.srcnode)
-	for x in self.swig_dir_nodes:
-		self.env.append_unique('SWIGFLAGS', '-I%s' % x.abspath(self.env)) # build dir
-		self.env.append_unique('SWIGFLAGS', '-I%s' % x.abspath()) # source dir
+	self.swig_dir_nodes = self.env['INC_PATHS']
+	self.env.append_unique('SWIGFLAGS', self.env['_CXXINCFLAGS'] or self.env['_CCINCFLAGS'])
 
 @extension(SWIG_EXTS)
 def i_file(self, node):
+	if not 'add_swig_paths' in self.meths:
+		self.meths.append('add_swig_paths')
+
 	flags = self.to_list(getattr(self, 'swig_flags', []))
 
 	ext = '.swigwrap_%d.c' % self.idx
@@ -139,11 +132,9 @@ def i_file(self, node):
 
 	self.allnodes.append(out_node)
 
-	add_swig_paths(self)
-
 @conf
 def check_swig_version(conf, minver=None):
-	"""Check for a minimum swig version  like conf.check_swig_version('1.3.28')
+	"""Check for a minimum swig version like conf.check_swig_version('1.3.28')
 	or conf.check_swig_version((1,3,28)) """
 	reg_swig = re.compile(r'SWIG Version\s(.*)', re.M)
 
