@@ -5,22 +5,54 @@
 
 import re
 import Task, Utils, Logs
-from TaskGen import extension
+from TaskGen import extension, taskgen, feature, after
 from Configure import conf
 import preproc
 
 """
-the swig module must be known in advance else the compilation tasks
-must be created dynamically
+Welcome in the hell of adding tasks dynamically
 
-from the variable amount of output nodes (for example .cxx and .py)
-we do not know what to do with them
+swig interface files may be created at runtime, the module name may be unknown in advance
+
+rev 5859 is much more simple
 """
 
 SWIG_EXTS = ['.swig', '.i']
 
 swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
 cls = Task.simple_task_type('swig', swig_str, color='BLUE', before='cc cxx', shell=False)
+
+def runnable_status(self):
+	for t in self.run_after:
+		if not t.hasrun:
+			return ASK_LATER
+
+	if not getattr(self, 'init_outputs', None):
+		self.init_outputs = True
+		if not getattr(self, 'module', None):
+			# search the module name
+			txt = self.inputs[0].read(self.env)
+			m = re_module.search(txt)
+			if not m:
+				raise ValueError("could not find the swig module name")
+			self.module = m.group(1)
+
+		swig_c(self)
+
+		# add the language-specific output files as nodes
+		# call funs in the dict swig_langs
+		for x in self.env['SWIGFLAGS']:
+			# obtain the language
+			x = x[1:]
+			try:
+				fun = swig_langs[x]
+			except KeyError:
+				pass
+			else:
+				fun(self)
+
+	return Task.Task.runnable_status(self)
+setattr(cls, 'runnable_status', runnable_status)
 
 re_module = re.compile('%module(?:\s*\(.*\))?\s+(.+)', re.M)
 
@@ -71,6 +103,37 @@ swig_langs = {}
 def swig(fun):
 	swig_langs[fun.__name__.replace('swig_', '')] = fun
 
+def swig_c(self):
+	ext = '.swigwrap_%d.c' % self.generator.idx
+	flags = self.env['SWIGFLAGS']
+	if '-c++' in flags:
+		ext += 'xx'
+	out_node = self.inputs[0].parent.find_or_declare(self.module + ext)
+
+	if '-c++' in flags:
+		task = self.generator.cxx_hook(out_node)
+	else:
+		task = self.generator.cc_hook(out_node)
+
+	task.set_run_after(self)
+
+	ge = self.generator.bld.generator
+	ge.outstanding.insert(0, task)
+	ge.total += 1
+
+	try:
+		ltask = self.generator.link_task
+	except AttributeError:
+		pass
+	else:
+		ltask.inputs.append(task.outputs[0])
+
+	self.outputs.append(out_node)
+
+	if not '-o' in self.env['SWIGFLAGS']:
+		self.env.append_value('SWIGFLAGS', '-o')
+		self.env.append_value('SWIGFLAGS', self.outputs[0].abspath(self.env))
+
 @swig
 def swig_python(tsk):
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.py'))
@@ -80,78 +143,35 @@ def swig_ocaml(tsk):
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.ml'))
 	tsk.set_outputs(tsk.inputs[0].parent.find_or_declare(tsk.module + '.mli'))
 
+@taskgen
+@feature('swig')
+@after('apply_incpaths')
 def add_swig_paths(self):
-	if getattr(self, 'add_swig_paths_done', None):
-		return
-	self.add_swig_paths_done = True
+	"""the attribute 'after' is not used here, the method is added directly at the end"""
 
-	self.swig_dir_nodes = []
-	for x in self.to_list(self.includes):
-		node = self.path.find_dir(x)
-		if not node:
-			Logs.warn('could not find the include %r' % x)
-			continue
-		self.swig_dir_nodes.append(node)
-
-	# add the top-level, it is likely to be added
-	self.swig_dir_nodes.append(self.bld.srcnode)
-	for x in self.swig_dir_nodes:
-		self.env.append_unique('SWIGFLAGS', '-I%s' % x.abspath(self.env)) # build dir
-		self.env.append_unique('SWIGFLAGS', '-I%s' % x.abspath()) # source dir
+	self.swig_dir_nodes = self.env['INC_PATHS']
+	self.env.append_unique('SWIGFLAGS', self.env['_CXXINCFLAGS'] or self.env['_CCINCFLAGS'])
 
 @extension(SWIG_EXTS)
 def i_file(self, node):
-	flags = self.to_list(getattr(self, 'swig_flags', []))
-
-	ext = '.swigwrap_%d.c' % self.idx
-	if '-c++' in flags:
-		ext += 'xx'
-
-	# the user might specify the module directly
-	module = getattr(self, 'swig_module', None)
-	if not module:
-		# else, open the files and search
-		txt = node.read(self.env)
-		m = re_module.search(txt)
-		if not m:
-			raise "for now we are expecting a module name in the main swig file"
-		module = m.group(1)
-	out_node = node.parent.find_or_declare(module + ext)
+	if not 'add_swig_paths' in self.meths:
+		self.meths.append('add_swig_paths')
 
 	# the task instance
 	tsk = self.create_task('swig')
 	tsk.set_inputs(node)
-	tsk.set_outputs(out_node)
-	tsk.module = module
+	tsk.module = getattr(self, 'swig_module', None)
+
+	flags = self.to_list(getattr(self, 'swig_flags', []))
 	tsk.env['SWIGFLAGS'] = flags
 
 	if not '-outdir' in flags:
 		flags.append('-outdir')
 		flags.append(node.parent.abspath(self.env))
 
-	if not '-o' in flags:
-		flags.append('-o')
-		flags.append(out_node.abspath(self.env))
-
-	# add the language-specific output files as nodes
-	# call funs in the dict swig_langs
-	for x in flags:
-		# obtain the language
-		x = x[1:]
-		try:
-			fun = swig_langs[x]
-		except KeyError:
-			pass
-		else:
-			fun(tsk)
-
-	self.allnodes.append(out_node)
-
-	add_swig_paths(self)
-
 @conf
 def check_swig_version(conf, minver=None):
-	"""Check for a minimum swig version  like conf.check_swig_version('1.3.28')
+	"""Check for a minimum swig version like conf.check_swig_version('1.3.28')
 	or conf.check_swig_version((1,3,28)) """
 	reg_swig = re.compile(r'SWIG Version\s(.*)', re.M)
 
