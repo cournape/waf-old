@@ -12,7 +12,7 @@ import preproc
 SWIG_EXTS = ['.swig', '.i']
 
 swig_str = '${SWIG} ${SWIGFLAGS} ${SRC}'
-cls = Task.simple_task_type('swig', swig_str, color='BLUE', before='cc cxx')
+cls = Task.simple_task_type('swig', swig_str, color='BLUE', before='cc cxx', shell=False)
 
 re_module = re.compile('%module(?:\s*\(.*\))?\s+(.+)', re.M)
 
