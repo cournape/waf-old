@@ -35,7 +35,11 @@ class valac_task(Task.Task):
 		features = self.generator.features
 
 		if 'cshlib' in features or 'cstaticlib' in features:
+			output_dir = self.outputs[0].bld_dir(env)
 			cmd.append('--library ' + self.target)
+			if env['VALAC_VERSION'] >= (0, 7, 0):
+				cmd.append('--header ' + os.path.join(output_dir, self.target + '.h'))
+				self.outputs.append(self.generator.path.find_or_declare(self.target + '.h'))
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
 		else:
@@ -182,7 +186,8 @@ def vala_file(self, node):
 	output_nodes.append(c_node)
 	self.allnodes.append(c_node)
 
-	output_nodes.append(node.change_ext('.h'))
+	if env['VALAC_VERSION'] < (0, 7, 0):
+		output_nodes.append(node.change_ext('.h'))
 
 	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
