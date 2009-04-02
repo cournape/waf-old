@@ -136,13 +136,19 @@ class ConfigurationContext(Utils.Context):
 		if tooldir: tooldir = Utils.to_list(tooldir)
 		for tool in tools:
 			tool = tool.replace('++', 'xx')
-			module = Utils.load_tool(tool, tooldir)
-			func = getattr(module, 'detect', None)
-			if func:
-				if type(func) is type(find_file): func(self)
-				else: self.eval_rules(funs or func)
+			# avoid loading the same tool more than once with the same functions
+			# used by composite projects
+			for t in self.tools:
+				if t['tool'] == tool and t['funs'] == funs:
+					break
+			else:
+				module = Utils.load_tool(tool, tooldir)
+				func = getattr(module, 'detect', None)
+				if func:
+					if type(func) is type(find_file): func(self)
+					else: self.eval_rules(funs or func)
 
-			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
+				self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
 	def sub_config(self, k):
 		"executes the configure function of a wscript module"
