@@ -16,6 +16,7 @@ NEW IN WAF 1.5.4
 * python 3.0 compatibility (tested for c++ projects)
 * config.log improvements
 * enable the single header output for vala >= 0.7.0
+* avoid loading a tool twice with the same configuration functions (composite projects)
 
 NEW IN WAF 1.5.3
 ----------------
