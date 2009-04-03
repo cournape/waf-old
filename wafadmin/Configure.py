@@ -107,6 +107,8 @@ class ConfigurationContext(Utils.Context):
 		self.hash = 0
 		self.files = []
 
+		self.tool_cache = []
+
 		if self.blddir:
 			self.post_init()
 
@@ -132,23 +134,26 @@ class ConfigurationContext(Utils.Context):
 
 	def check_tool(self, input, tooldir=None, funs=None):
 		"load a waf tool"
+
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
 		for tool in tools:
 			tool = tool.replace('++', 'xx')
 			# avoid loading the same tool more than once with the same functions
 			# used by composite projects
-			for t in self.tools:
-				if t['tool'] == tool and t['funs'] == funs:
-					break
-			else:
-				module = Utils.load_tool(tool, tooldir)
-				func = getattr(module, 'detect', None)
-				if func:
-					if type(func) is type(find_file): func(self)
-					else: self.eval_rules(funs or func)
 
-				self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
+			mag = (tool, id(self.env))
+			if mag in self.tool_cache:
+				continue
+			self.tool_cache.append(mag)
+
+			module = Utils.load_tool(tool, tooldir)
+			func = getattr(module, 'detect', None)
+			if func:
+				if type(func) is type(find_file): func(self)
+				else: self.eval_rules(funs or func)
+
+			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
 	def sub_config(self, k):
 		"executes the configure function of a wscript module"
