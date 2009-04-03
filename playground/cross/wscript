@@ -16,13 +16,6 @@ def configure(conf):
 	conf.check_tool('compiler_cxx')
 	conf.check_tool('cross_linux_win32', tooldir='.')
 
-	# We must add the library and includes paths of Windows libs
-	msvc_path = '/usr/i586-mingw32msvc'
-	if not os.path.isdir(msvc_path): msvc_path = '/usr/mingw32'
-	if not os.path.isdir(msvc_path): msvc_path = ''
-	conf.env.prepend_value("LIBPATH", os.path.join(msvc_path, "lib"))
-	conf.env.prepend_value("CPPPATH", os.path.join(msvc_path, "include"))
-
 def build(bld):
 	bld.new_task_gen(
 		features='cxx cprogram',

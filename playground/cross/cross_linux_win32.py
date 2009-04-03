@@ -2,6 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2008 (ita)
 
+import os
 import Utils
 import ccroot
 from Configure import conftest
@@ -102,5 +103,16 @@ def mingw_flags(conf):
 	conf.env['shlib_PATTERN'] = '%s.dll'
 	conf.env['program_PATTERN'] = '%s.exe'
 
-detect = 'find_mingw_ar find_mingw_ranlib find_mingw_cc find_mingw_cpp find_mingw_cxx mingw_flags'
+@conftest
+def mingw_libpath(conf):
+	# We must add the library and includes paths of Windows libs
+	msvc_path = conf.env['MSVC_LIBPATH'] or os.environ.get('MSVC_LIBPATH', '')
+	if not os.path.isdir(msvc_path): msvc_path = '/usr/mingw32'
+	if not os.path.isdir(msvc_path): msvc_path = '/usr/i586-mingw32msvc'
+	if not os.path.isdir(msvc_path):
+		conf.fatal('Could not find the msvc root dir - set it through MSVC_LIBPATH in the environment')
+	conf.env.prepend_value("LIBPATH", os.path.join(msvc_path, "lib"))
+	conf.env.prepend_value("CPPPATH", os.path.join(msvc_path, "include"))
+
+detect = 'find_mingw_ar find_mingw_ranlib find_mingw_cc find_mingw_cpp find_mingw_cxx mingw_flags mingw_libpath'
 
