@@ -55,7 +55,7 @@ def find_mingw_ranlib(conf):
 
 
 @conftest
-def find_mingw_cxx(conf):
+def find_mingw_cxx_cpp(conf):
 	v = conf.env
 	v['CXX'] = None
 	cxx = conf.find_program('mingw32-g++', var='CXX')
@@ -68,27 +68,8 @@ def find_mingw_cxx(conf):
 			conf.fatal('mingw32-g++ was not found, see the result of g++ --version')
 	except ValueError:
 		conf.fatal('g++ --version could not be executed')
-	v['CXX'] = v['LINK_CXX'] = v['COMPILER_CXX'] = cxx
+	v['CXX'] = v['LINK_CXX'] = v['COMPILER_CXX'] = v['CPP'] = v['LINK_CPP'] = cxx
 	v['CXX_NAME'] = 'gcc'
-	ccroot.get_cc_version(conf, [cxx], 'CXX_VERSION')
-
-@conftest
-def find_mingw_cpp(conf):
-	v = conf.env
-	v['CPP'] = None
-	cpp = conf.find_program('mingw32-g++', var='CPP')
-	if not cpp: cpp = conf.find_program('mingw32-c++', var='CPP')
-	if not cpp: cpp = conf.find_program('i586-mingw32msvc-g++', var='CPP')
-	if not cpp: cpp = conf.find_program('i586-mingw32msvc-c++', var='CPP')
-	if not cpp: conf.fatal('mingw32-g++ was not found')
-	try:
-		if Utils.cmd_output('%s --version' % cpp).find('mingw') < 0:
-			conf.fatal('mingw32-g++ was not found, see the result of g++ --version')
-	except ValueError:
-		conf.fatal('g++ --version could not be executed')
-	v['CPP'] = v['LINK_CPP'] = cpp
-	v['CPP_NAME'] = 'gcc'
-	ccroot.get_cc_version(conf, [cpp], 'CPP_VERSION')
 
 @conftest
 def mingw_flags(conf):
@@ -114,5 +95,5 @@ def mingw_libpath(conf):
 	conf.env.prepend_value("LIBPATH", os.path.join(msvc_path, "lib"))
 	conf.env.prepend_value("CPPPATH", os.path.join(msvc_path, "include"))
 
-detect = 'find_mingw_ar find_mingw_ranlib find_mingw_cc find_mingw_cpp find_mingw_cxx mingw_flags mingw_libpath'
+detect = 'find_mingw_ar find_mingw_ranlib find_mingw_cc find_mingw_cxx_cpp mingw_flags mingw_libpath'
 
