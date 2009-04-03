@@ -7,17 +7,36 @@ APPNAME='cross_test'
 srcdir = '.'
 blddir = 'build'
 
+import os
+
 def set_options(opt):
-	pass
+	opt.tool_options('compiler_cxx')
 
 def configure(conf):
-	conf.check_tool('g++')
+	conf.check_tool('compiler_cxx')
 	conf.check_tool('cross_linux_win32', tooldir='.')
 
+        # We must add the library and includes paths of Windows libs
+        msvc_path = '/usr/i586-mingw32msvc'
+        if not os.path.isdir(msvc_path): msvc_path = '/usr/mingw32'
+        if not os.path.isdir(msvc_path): msvc_path = ''        
+        conf.env.prepend_value("LIBPATH", os.path.join(msvc_path, "lib"))
+        conf.env.prepend_value("CPPPATH", os.path.join(msvc_path, "include"))
+
+        # As we have to change target platform after the tools
+        # have been loaded there are a few variables that needs
+        # to be initiated if building for win32.
+        # Make sure we don't have -fPIC and/or -DPIC in our CCFLAGS
+        conf.env['shlib_CXXFLAGS'] = []
+        
+        # Setup various target file patterns
+        conf.env['staticlib_PATTERN'] = '%s.lib'
+        conf.env['shlib_PATTERN'] = '%s.dll'
+        conf.env['program_PATTERN'] = '%s.exe'
+
+
 def build(bld):
-	bld.new_task_gen(features='cxx cprogram', source='hello.cpp', target='test', includes='.')
-
-def shutdown():
-	import os
-	#os.popen('echo "">> a/a.h').read()
-
+	bld.new_task_gen(features='cxx cprogram',
+                         source='hello.cpp',
+                         target='test',
+                         includes='.')
