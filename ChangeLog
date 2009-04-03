@@ -17,6 +17,7 @@ NEW IN WAF 1.5.4
 * config.log improvements
 * enable the single header output for vala >= 0.7.0
 * avoid loading a tool twice with the same configuration functions (composite projects)
+* cross-compilation demo improvements (playground/cross/)
 
 NEW IN WAF 1.5.3
 ----------------
