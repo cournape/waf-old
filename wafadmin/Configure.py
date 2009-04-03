@@ -142,7 +142,7 @@ class ConfigurationContext(Utils.Context):
 			# avoid loading the same tool more than once with the same functions
 			# used by composite projects
 
-			mag = (tool, id(self.env))
+			mag = (tool, id(self.env), funs)
 			if mag in self.tool_cache:
 				continue
 			self.tool_cache.append(mag)
