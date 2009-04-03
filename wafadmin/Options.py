@@ -32,7 +32,10 @@ if not default_prefix:
 default_jobs = os.environ.get('JOBS', -1)
 if default_jobs < 1:
 	try:
-		default_jobs = os.sysconf('SC_NPROCESSORS_ONLN')
+		if os.sysconf_names.has_key('SC_NPROCESSORS_ONLN'):
+			default_jobs = os.sysconf('SC_NPROCESSORS_ONLN')
+		else:
+			default_jobs = int(Utils.cmd_output(['sysctl', '-n', 'hw.ncpu']))
 	except:
 		# environment var defined on win32
 		default_jobs = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
@@ -83,7 +86,7 @@ def create_parser(module=None):
 	p('-j', '--jobs',
 		type    = 'int',
 		default = default_jobs,
-		help    = 'amount of parallel jobs [default: %r]' % default_jobs,
+		help    = 'amount of parallel jobs (%r)' % default_jobs,
 		dest    = 'jobs')
 
 	p('-k', '--keep',
