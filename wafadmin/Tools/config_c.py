@@ -256,12 +256,15 @@ def validate_c(self, kw):
 		fwkname = kw['framework_name']
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = fwkname.upper()
-		if not 'header_name' in kw:
-			kw['header_name'] = []
-		fwk = '%s/%s.h' % (fwkname, fwkname)
-		if kw.get('remove_dot_h', None):
-			fwk = fwk[:-2]
-		kw['header_name'] = Utils.to_list(kw['header_name']) + [fwk]
+
+		if not kw.get('no_header', False):
+			if not 'header_name' in kw:
+				kw['header_name'] = []
+			fwk = '%s/%s.h' % (fwkname, fwkname)
+			if kw.get('remove_dot_h', None):
+				fwk = fwk[:-2]
+			kw['header_name'] = Utils.to_list(kw['header_name']) + [fwk]
+
 		kw['msg'] = 'Checking for framework %s' % fwkname
 		kw['framework'] = fwkname
 		#kw['frameworkpath'] = set it yourself
