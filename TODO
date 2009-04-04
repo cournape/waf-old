@@ -1,18 +1,19 @@
 Waf 1.5
 -------
 
+refactor the methods for c/c++
 make the cache retrieving less noisy
 advertise WAFCACHE
 docs: better example for @taskgen
 make it even easier to add custom commands
 use Node::find_iter in task_gen::find_sources_in_dirs
-clean d.py - and refactor the decorated methods
 
 Waf 1.6
 -------
 
 (api cleanup)
 * leave either tdir or tooldir in the methods check_tool and check_options
+* fix the TODO for 1.6
 
 ideas to watch:
 ---------------
