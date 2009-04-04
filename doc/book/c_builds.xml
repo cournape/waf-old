@@ -274,7 +274,7 @@ $ waf --zones=deps
 		</sect2>
 	</section>
 
-	<section id="config_helpers">
+	<section id="config_helpers_c">
 		<title>Configuration helpers</title>
 		<para>
 			The methods <emphasis>check_cc</emphasis> and <emphasis>check_cxx</emphasis> are used to detect parameters using a small build project. The main parameters are the following

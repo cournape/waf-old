@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" >
 
 
-<glossary>
+<glossary id="glossary">
 	<title>Glossary</title>
 	<para>
 	Waf essential terms

@@ -123,7 +123,7 @@ def build(bld):
 		</para>
 	</section>
 
-	<section>
+	<section id="config_helper_execution">
 		<title>Configuration helper execution</title>
 		<para>
 			Configuration helpers are methods provided by the conf object to help finding parameters, for example the method <emphasis>conf.find_program</emphasis>
@@ -168,7 +168,7 @@ def error_handler(fun, exc):
 		</para>
 	</section>
 
-	<section id="config_helpers">
+	<section id="adding_config_helpers">
 		<title>Adding new configuration helpers</title>
 		<para>
 			The configuration tests specific for the different languages belong to the different Waf tools representing the languages supported. For example, The configuration tests for the C language are located in the tool <filename>config_c.py</filename>.
