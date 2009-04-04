@@ -4,11 +4,11 @@
 >
 <chapter id="architecture">
 	<title>Overview of the Waf architecture</title>
-	<section id="corelib">
+	<section id="core_lib">
 		<title>The core library</title>
 		<para>
 			Waf is based on 12 modules which constitute the core library. They are located in the directory <filename>wafadmin/</filename>. The modules located under <filename>wafadmin/Tools</filename> add support for programming languages and more tools, but are not essential for the Waf core.
-<table>
+<table id="core_lib_ref">
 <title>The core library</title>
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
 
@@ -106,7 +106,7 @@
 			<title>Build context and persistence</title>
 			<para>
 				The build context holds all the information necessary for a build. To accelerate the start-up, a part of the information is stored and loaded between the runs. The persistent attributes are the following:
-<table>
+<table id="build_context_persistence">
 <title>Build context persistence</title>
 
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
@@ -165,7 +165,7 @@
 			<title>Build context access</title>
 			<para>
 				In previous Waf releases, the build context was supposed to be a unique object (one build active at a time). To enable the use of Waf as a library, the dependency on the singleton <emphasis>Build.bld</emphasis> was removed. This implies that each object should be able to obtain its build context from its attributes. Here are a few examples:
-<table>
+<table id="build_context_access">
 <title>Build context access</title>
 
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>

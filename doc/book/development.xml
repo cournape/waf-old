@@ -30,7 +30,7 @@ $ waf --zones=action,envhash,task_gen
 Logs.debug("task: task %r must run as it was never run before or the task code changed" % self)
 			</programlisting>
 			The following zones are used in Waf:
-<table>
+<table id="debugging_zones">
 <title>Debugging zones</title>
 
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>

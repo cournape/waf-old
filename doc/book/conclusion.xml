@@ -7,7 +7,7 @@
 	<para>
 		The features provided by Waf aim at building software in a maintainable manner, in which the dependencies for other piece of software is limited to the compilers and a Python installation. Due to the amount of features provided by Waf, the book is forcibly incomplete. For greater understanding and practice the following links are recommended to the reader:
 
-<table>
+<table id="links">
 <title>Recommended links</title>
 
 <tgroup cols='2' align='left' colsep='1' rowsep='1'>
