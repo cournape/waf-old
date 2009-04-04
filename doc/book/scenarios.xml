@@ -2,12 +2,12 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="advanced_scenarios">
 	<title>Advanced scenarios</title>
 	<para>This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.</para>
 
 
-	<section>
+	<section id="scenario_simple_transformation">
 		<title>Simple file transformations</title>
 		<para>
 			The Waf tool <emphasis>misc</emphasis> contains various routines to ease file manipulations such as substituting parameters or executing custom compilers. The objective of this section is to illustrate the principles of the current apis.
@@ -88,7 +88,7 @@ def build(bld):
 		</sect2>
 	</section>
 
-	<section>
+	<section id="scenario_variant">
 		<title>Same targets, different configurations (variants)</title>
 		<para>
 			In many builds, it is necessary to build the same targets for different purposes: debugging, profiling, optimizations. A system is provided for duplicating the targets easily.
@@ -160,7 +160,7 @@ for obj in [] + bld.all_task_gen:
 		</sect2>
 	</section>
 
-	<section>
+	<section id="scenario_compiler">
 		<title>Building the compiler first</title>
 		<para>
 			The example below demonstrates how to build a compiler which is used for building the remaining targets. The requirements are the following:
@@ -214,7 +214,7 @@ def build(bld):
 		</calloutlist>
 	</section>
 
-	<section>
+	<section id="scenario_header">
 		<title>Writing the output of a program into a header</title>
 		<para>
 			The example below demonstrates how to write the output of svnversion into a header. The command is always run, and the c/c++ compilation will be executed if the header changes (implicit dependencies obtained by the Waf preprocessor):
@@ -531,7 +531,7 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 
 	</section>
 
-	<section>
+	<section id="scenario_no_file">
 		<title>A task without any file dependency</title>
 		<para>
 			Given the following requirements

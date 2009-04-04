@@ -8,7 +8,7 @@
 		Although task instances may be created directly, they act like global variables in the scripts, and they may lead to the creation of spaghetti code. The containers named task generators are used for creating the tasks and keeping track of them.
 	</para>
 
-	<section>
+	<section id="make_like">
 		<title>Explicit rules for simple transformations (Make-like)</title>
 		<para>
 			For simple transformations, a make-like scheme enables the creation of tasks by means of task generators. The task is created lazily, for example only if waf is called from a subdirectory of the project containing the declaration.
@@ -122,7 +122,7 @@
 		</para>
 	</section>
 
-	<section>
+	<section id="processing_chains">
 		<title>Implicit processing based on file name or extension</title>
 		<para>
 			The exclicit rules described in the previous section becomes limited for processing several files of the same kind. Instead of adding loops, we will now describe how to process files using the name or the extension, for files declared in the <emphasis>source</emphasis> attribute. This scheme is the most common technique used in the Waf library.
@@ -192,7 +192,7 @@ def c_hook(self, node):
 	</section>
 
 
-	<section>
+	<section id="task_generator_methods">
 		<title>Custom processing by task generator methods</title>
 		<para>
 			In some cases the information to process is very specific and does not really fit in the list of sources. The data may be attached to various attribute of the task generator, and a distinct task generator method may process the attributes dynamically.
@@ -272,8 +272,8 @@ processing the tst attribute: hello, world
 		</para>
 	</section>
 
-	<section>
-		<title>Task generator method ordering</title>
+	<section id="task_gen_method_order">
+		<title>Task generator method execution order</title>
 		<para>
 			In practice, the code for generating tasks has to be shared between different task generators. For example, applications containing different programming languages such as c and c++ at the same time will require a way to create the tasks without duplicating the source code, and by calling the methods in the right order.
 			<graphic format="png" fileref="posting.png" align="center"/>

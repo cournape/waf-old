@@ -2,9 +2,9 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="distributing">
 	<title>Packaging and redistributing the source code</title>
-	<section>
+	<section id="packaging">
 		<title>Quick tarball creation</title>
 		<para>
 			Creating a tarball of the project is as simple as running
@@ -28,7 +28,7 @@ Scripting.g_gz = 'gz'
 			</para>
 	</section>
 
-	<section>
+	<section id="custom_archives">
 		<title>Custom archives</title>
 		<para>
 			Custom archives can be created by providing a function named "dist" in the top-level script file. The following example prints a checksum immediately after the archive is created:
@@ -94,7 +94,7 @@ def dont_dist(name, src, build_dir):
 		</para>
 	</section>
 
-	<section>
+	<section id="cleaning">
 		<title>Cleaning the project tree</title>
 		<para>
 			By default, all the files produced by Waf are produced into the build directory. An additional file named <emphasis>.lock-wscript</emphasis> is created to store information on the build directory:

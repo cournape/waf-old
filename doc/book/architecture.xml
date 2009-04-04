@@ -2,9 +2,9 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="architecture">
 	<title>Overview of the Waf architecture</title>
-	<section>
+	<section id="corelib">
 		<title>The core library</title>
 		<para>
 			Waf is based on 12 modules which constitute the core library. They are located in the directory <filename>wafadmin/</filename>. The modules located under <filename>wafadmin/Tools</filename> add support for programming languages and more tools, but are not essential for the Waf core.
@@ -97,7 +97,7 @@
 
 	</section>
 
-	<section>
+	<section id="build_context">
 		<title>Build context instances</title>
 		<para>
 			Executing tasks, accessing the file system and consulting the results of a previous build are very different concerns which have to be encapsulated properly. The core class representing a build is a build context.
@@ -221,7 +221,7 @@
 	</section>
 
 
-	<section>
+	<section id="execution_overview">
 		<title>Overview of the Waf execution</title>
 		<para>
 		</para>
@@ -248,7 +248,7 @@
 		</sect2>
 	</section>
 
-	<section>
+	<section id="performance">
 		<title>Performance and build accuracy</title>
 		<para>
 			From the experience with tools such as SCons, users may be concerned about performance and think that all build systems based on interpreted languages such as Python would not scale. We will now describe why this is not the case for Waf and why Waf should be chosen for building very large projects.

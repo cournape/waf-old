@@ -2,9 +2,9 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="task_system">
 	<title>The Task system</title>
-	<section>
+	<section id="task_creation">
 		<title>Task creation and execution</title>
 		<para>
 			When Waf tasks are created, they are not executed immediately, for example it is not necessary to rebuild an application if the source files have not changed. Some tasks may also depend on other tasks which may not be created yet. For this reasons Waf delays the execution of tasks to the point when all build functions have been executed.
@@ -18,7 +18,7 @@
 		</para>
 	</section>
 
-	<section>
+	<section id="task_execution">
 		<title>Task execution</title>
 		<para>
 			Executing a task consists in calling the method <emphasis>run</emphasis> on that task, and setting the task execution state.
@@ -28,7 +28,7 @@
 		</para>
 	</section>
 
-	<section>
+	<section id="task_parallel">
 		<title>Task execution in parallel</title>
 		<para>
 			Tasks may be executed in parallel to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option <emphasis>-j1</emphasis>. To enhance parallelization, use the option <emphasis>-j</emphasis> with the amount of consumers:
@@ -49,8 +49,8 @@ $ waf -j3
 		</para>
 	</section>
 
-	<section>
-		<title>Task ordering</title>
+	<section id="task_execution_order">
+		<title>Task execution order</title>
 			<para>
 				Running tasks in parallel is a simple problem, but in practice it is more complicated:
 				<itemizedlist>
@@ -117,7 +117,7 @@ task1.set_run_after(task2)
 
 	</section>
 
-	<section>
+	<section id="execution_tracking">
 		<title>Executing tasks only when something changes</title>
 		<para>The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class <emphasis>Task</emphasis> provides the necessary features for the most common builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by including them in the signature. A hashing function is used for computing the signature, by default it is md5.
 		</para>

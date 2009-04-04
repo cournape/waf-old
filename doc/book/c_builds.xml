@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="c_projects">
 	<title>C and C++ projects</title>
 	<section id="common_c">
 		<title>Common script for C/C++ applications</title>

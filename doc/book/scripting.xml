@@ -2,10 +2,10 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="scripting">
 	<title>Customizing the scripting system</title>
 
-	<section>
+	<section id="custom_commands">
 		<title>Providing custom commands</title>
 		<para>
 			Waf commands are functions defined on the top-level wscript file, for example, with the following wscript file:
@@ -41,7 +41,7 @@ def foo(ctx):
 		</para>
 	</section>
 
-	<section>
+	<section id="chaining_commands">
 		<title>Chaining commands</title>
 		<para>
 			Since Waf 1.5.4, it is possible to chain several commands, for example:
@@ -62,7 +62,7 @@ waf distclean configure build clean build
 		</para>
 	</section>
 
-	<section>
+	<section id="context_command">
 		<title>Providing a custom command context</title>
 		<para>
 			The context for a command is created automatically, and is derived from the class <emphasis>Utils.Context</emphasis>. Custom context instance may be provided in the following manner:
@@ -79,7 +79,7 @@ def foo_context(Utils.Context):
 		Custom contexts may be provided for the functions <emphasis>configure</emphasis> and <emphasis>build</emphasis>.
 	</section>
 
-	<section>
+	<section id="new_commands">
 		<title>Creating aliases / Injecting new commands</title>
 		<para>
 			New commands may be injected in the following manner:

@@ -2,10 +2,10 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="configuration">
 	<title>The configuration system</title>
 
-	<section>
+	<section id="config_overview">
 		<title>Overview of the configuration files</title>
 		<para>
 			Configuring a project consists in finding the parameters that will be used during the build step
@@ -60,7 +60,7 @@ $ waf configure
 		</para>
 	</section>
 
-	<section>
+	<section id="config_env">
 		<title>The configuration environments</title>
 		<para>
 			The build phase uses configuration environments created during the configuration phase. The configuration environments are <emphasis><ulink url="http://docs.python.org/tut/node7.html#SECTION007500000000000000000">Python Dictionaries</ulink></emphasis> which map keys to values. The configuration environment files created take the following form:
@@ -168,7 +168,7 @@ def error_handler(fun, exc):
 		</para>
 	</section>
 
-	<section>
+	<section id="config_helpers">
 		<title>Adding new configuration helpers</title>
 		<para>
 			The configuration tests specific for the different languages belong to the different Waf tools representing the languages supported. For example, The configuration tests for the C language are located in the tool <filename>config_c.py</filename>.

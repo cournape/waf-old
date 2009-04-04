@@ -2,9 +2,9 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter>
+<chapter id="development">
 	<title>Using the development version</title>
-	<section>
+	<section id="tracing">
 		<title>Tracing the execution</title>
 		<para>
 			The generic flags to add more information to the stack traces or to the messages is <emphasis>-v</emphasis> (verbosity), it is used to display the command-lines executed during a build:
@@ -89,7 +89,7 @@ Logs.debug("task: task %r must run as it was never run before or the task code c
 		</para>
 	</section>
 
-	<section>
+	<section id="benchmarking">
 		<title>Benchmarking</title>
 		<para>
 			The script <filename>utils/genbench.py</filename> generates a simple benchmark for Waf. The habitual use is the following:
@@ -165,7 +165,7 @@ Sun Nov  9 19:22:59 2008    prof.txt
 		</para>
 	</section>
 
-	<section>
+	<section id="parallel_tracing">
 		<title>Tracing parallel task execution</title>
 		<para>
 			A special Waf tool named <emphasis>ParallelDebug</emphasis> is used to inject code in Waf modules and obtain information on the execution. This module is provided in the folder <filename>playground</filename> and must be imported in one's project before use:
@@ -188,7 +188,7 @@ plot 'test.dat' using 1:3 with lines title "" lt 3
 		</para>
 	</section>
 
-	<section>
+	<section id="download">
 		<title>Obtaining the latest source code</title>
 		<para>Waf is hosted on <ulink url="http://code.google.com/p/waf/source">Google code</ulink>, and uses Subversion for source control. To obtain the development copy, use:
 		<programlisting language="sh">
@@ -214,8 +214,8 @@ export WAFDIR=/path/to/wafadmin
 		</para>
 	</section>
 
-	<section>
-		<title>Development standards</title>
+	<section id="coding">
+		<title>Programming constraints</title>
 		<para>
 			Though Waf is written in Python, additional restrictions apply to the source code:
 			<itemizedlist>
@@ -230,7 +230,6 @@ export WAFDIR=/path/to/wafadmin
 			More code always means more bugs. Whenever possible, unnecessary code must be removed, and the existing code base should be simplified.
 		</para>
 	</section>
-
 
 </chapter>
 

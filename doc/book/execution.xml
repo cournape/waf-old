@@ -3,7 +3,7 @@
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="execution">
 	<title>Introduction to the Waf scripting system</title>
-	<section>
+	<section id="empty_project">
 		<title>Empty project example</title>
 		<para>
 		The Waf scripts are based on the following concepts:
@@ -60,7 +60,7 @@ $ waf build
 		</para>
 	</section>
 
-	<section>
+	<section id="workflow">
 		<title>Workflow illustration on a more complicated example</title>
 		<para>
 			Additional functions are usually provided in the top-level wscript file:
@@ -130,7 +130,8 @@ Your archive is ready -> test-0.0.1.tar.bz2
 			<graphic format="png" fileref="waf-activity.png" align="center"/>
 		</para>
 	</section>
-	<section>
+
+	<section id="task_intro">
 		<title>Building a project - Introduction to Tasks</title>
 		<para>
 			The function <emphasis>build</emphasis> indicates the start of the actual construction of the software, it is used for two main purposes:
@@ -222,7 +223,7 @@ def build(bld):
 		</sect2>
 	</section>
 
-	<section>
+	<section id="project_config">
 		<title>Configuring a project</title>
 		<para>
 			The function <emphasis>configure</emphasis> is used for four main purposes:
@@ -336,7 +337,7 @@ def configure(conf):
 
 	</section>
 
-	<section>
+	<section id="cmdline_options">
 		<title>Adding custom command-line options</title>
 		<para>
 			The function <emphasis>set_options</emphasis> is used for three main purposes:
@@ -421,7 +422,8 @@ def set_options(opt):
 			</para>
 		</sect2>
 	</section>
-	<section>
+
+	<section id="installing">
 		<title>Installing targets</title>
 		<para>
 			Targets are installed when Waf is run with the following command-line <emphasis>waf install</emphasis>. If the targets are not built, they will be installed as soon as they are built. We will now describe the three main ways of installing the targets.
