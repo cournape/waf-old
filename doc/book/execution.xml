@@ -423,7 +423,7 @@ def set_options(opt):
 		</sect2>
 	</section>
 
-	<section id="installing">
+	<section id="target_install">
 		<title>Installing targets</title>
 		<para>
 			Targets are installed when Waf is run with the following command-line <emphasis>waf install</emphasis>. If the targets are not built, they will be installed as soon as they are built. We will now describe the three main ways of installing the targets.
