@@ -151,6 +151,7 @@ def configure(conf):
 	conf.check_tool('g++', funs=[])
 	conf.find_gxx()
 			</programlisting>
+			To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.
 		</para>
 
 		<para>
