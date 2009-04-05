@@ -212,7 +212,6 @@ class CommonTester(unittest.TestCase):
 		opt_obj = Options.Handler()
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
-		os.makedirs(os.path.join(blddir, Options.variant_name))
 		return Configure.ConfigurationContext(srcdir=srcdir, blddir=blddir)
 
 def get_args_options(usage=None):
