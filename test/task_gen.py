@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Yinon Ehrlich, 2008
+# Yinon Ehrlich, 2008, 2009
 
 """
 Tests task generator...
@@ -9,12 +9,12 @@ Tests task generator...
 import os, unittest, shutil, tempfile
 import common_test
 
-from Constants import *
+import Constants
 import Build
 import Options
 import Environment
-import TaskGen
 import Utils
+import TaskGen
 
 class TaskGenTester(common_test.CommonTester):
 	def __init__(self, methodName):
@@ -23,12 +23,23 @@ class TaskGenTester(common_test.CommonTester):
 	def setUp(self):
 		# define & create temporary testing directories
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")
-		self._wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
+		self._wscript_file_path = os.path.join(self._test_dir_root, Constants.WSCRIPT_FILE)
 		self._source_file_path = "test.cpp"
 		os.chdir(self._test_dir_root)
 
+		# reload() is used to isolate imports between tests:
+		# other tests (in other modules) call Build.new_task_gen,
+		# which, in turn, creates an instance of TaskGen (without import !)
+		# Python's garbage collector holds a reference to that instance,
+		# thus ruins tests here.
+		# to reproduce this error, delete the reload() below,
+		# then call to task_gen.test_missing_mapping AFTER calling to
+		# cxx_test.test_default_flags_patterns
+		global TaskGen
+		TaskGen=reload(TaskGen)
+
 	def tearDown(self):
-		'''tearDown - deletes the directories and files created by the tests ran '''
+		'''tearDown - deletes the directories and files created by the tests ran'''
 		os.chdir(self._waf_root_dir)
 
 		if os.path.isdir(self._test_dir_root):
@@ -58,9 +69,6 @@ def build(bld):
 
 def configure(conf):
 	conf.check_tool('g++')
-
-def set_options(opt):
-	pass
 """
 
 		self._write_wscript(wscript_contents)
@@ -97,13 +105,9 @@ def build(bld):
 
 def configure(conf):
 	conf.check_tool('g++')
-
-def set_options(opt):
-	pass
 """
 
 		self._write_wscript(wscript_contents)
-
 		self._test_configure()
 		self._test_build(False)
 
@@ -119,6 +123,7 @@ def set_options(opt):
 	def test_missing_mapping(self):
 		# no mapping for extension
 		bld = self.make_bld()
+		print TaskGen.task_gen.__class__
 		obj = TaskGen.task_gen(bld=bld)
 		obj.source = self._source_file_path
 		self._write_source("int main() {return 0;}")
@@ -150,7 +155,7 @@ def set_options(opt):
 
 def run_tests(verbose=1):
 	suite = unittest.TestLoader().loadTestsFromTestCase(TaskGenTester)
-	#suite = unittest.TestLoader().loadTestsFromNames(['test_white_no_sources_specified', 'test_black_no_sources_specified'], TaskGenTester)
+# 	suite = unittest.TestLoader().loadTestsFromNames(['test_missing_mapping'], TaskGenTester)
 #	unittest.TestLoader().sortTestMethodsUsing = None
 	return unittest.TextTestRunner(verbosity=verbose).run(suite)
 
