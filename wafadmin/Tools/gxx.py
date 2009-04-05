@@ -73,7 +73,8 @@ def gxx_modifier_win32(conf):
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
 
-	v['shlib_PATTERN']       = 'lib%s.dll'
+	v['shlib_PATTERN']       = '%s.dll'
+	v['staticlib_PATTERN']   = '%s.lib'
 	v['shlib_CXXFLAGS']      = []
 
 	v['staticlib_LINKFLAGS'] = []
@@ -81,13 +82,7 @@ def gxx_modifier_win32(conf):
 @conftest
 def gxx_modifier_cygwin(conf):
 	if sys.platform != 'cygwin': return
-	v = conf.env
-	v['program_PATTERN']     = '%s.exe'
-
-	v['shlib_PATTERN']       = 'lib%s.dll'
-	v['shlib_CXXFLAGS']      = ['']
-
-	v['staticlib_LINKFLAGS'] = ['']
+	return gxx_modifier_win32(conf)
 
 @conftest
 def gxx_modifier_darwin(conf):
