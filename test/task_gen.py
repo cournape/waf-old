@@ -123,7 +123,6 @@ def configure(conf):
 	def test_missing_mapping(self):
 		# no mapping for extension
 		bld = self.make_bld()
-		print TaskGen.task_gen.__class__
 		obj = TaskGen.task_gen(bld=bld)
 		obj.source = self._source_file_path
 		self._write_source("int main() {return 0;}")
