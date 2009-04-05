@@ -17,7 +17,8 @@ class DIRS:
 
 # allow importing from wafadmin dir.
 wafadmin = os.path.join(os.path.abspath(os.path.pardir), DIRS.WAFADMIN)
-sys.path.append(wafadmin)
+waftools = os.path.join(wafadmin, DIRS.TOOLS)
+sys.path = [wafadmin, waftools] + sys.path
 
 import Options
 import Utils
