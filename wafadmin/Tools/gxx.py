@@ -2,6 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 # Ralf Habacker, 2006 (rh)
+# Yinon Ehrlich, 2009
 
 import os, optparse, sys, re
 import Configure, Options, Utils
@@ -69,7 +70,6 @@ def gxx_common_flags(conf):
 
 @conftest
 def gxx_modifier_win32(conf):
-	if sys.platform != 'win32': return
 	v = conf.env
 	v['program_PATTERN']     = '%s.exe'
 
@@ -81,12 +81,10 @@ def gxx_modifier_win32(conf):
 
 @conftest
 def gxx_modifier_cygwin(conf):
-	if sys.platform != 'cygwin': return
 	return gxx_modifier_win32(conf)
 
 @conftest
 def gxx_modifier_darwin(conf):
-	if sys.platform != 'darwin': return
 	v = conf.env
 	v['shlib_CXXFLAGS']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
@@ -99,7 +97,6 @@ def gxx_modifier_darwin(conf):
 
 @conftest
 def gxx_modifier_aix5(conf):
-	if sys.platform != 'aix5': return
 	v = conf.env
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
 
@@ -107,15 +104,21 @@ def gxx_modifier_aix5(conf):
 
 	v['SHLIB_MARKER']        = ''
 
-detect = '''
-find_gxx
-find_cpp
-find_ar
-gxx_common_flags
-gxx_modifier_win32
-gxx_modifier_cygwin
-gxx_modifier_darwin
-gxx_modifier_aix5
-cxx_load_tools
-cxx_add_flags
-'''
+def detect(conf):
+		conf.find_gxx()
+		conf.find_cpp()
+		conf.find_ar()
+		conf.gxx_common_flags()
+
+		# * set configurations specific for a platform.
+		# * By default sys.plaform will be used as the target platform.
+		#	but you may write conf.env['TARGET_PLATFORM'] = 'my_platform' to allow
+		#	cross compilaion..
+		target_platform = conf.env['TARGET_PLATFORM'] or sys.platform
+
+		gxx_modifier_func = globals().get('gxx_modifier_'+target_platform)
+		if gxx_modifier_func:
+				gxx_modifier_func(conf)
+
+		conf.cxx_load_tools()
+		conf.cxx_add_flags()

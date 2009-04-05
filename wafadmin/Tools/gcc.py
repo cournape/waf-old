@@ -2,6 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2008 (ita)
 # Ralf Habacker, 2006 (rh)
+# Yinon Ehrlich, 2009
 
 import os, sys
 import Configure, Options, Utils, TaskGen
@@ -72,23 +73,21 @@ def gcc_common_flags(conf):
 @conftest
 def gcc_modifier_win32(conf):
 	v = conf.env
-	if sys.platform != 'win32': return
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = '%s.dll'
+	v['staticlib_PATTERN']   = '%s.lib'
 	v['shlib_CCFLAGS']       = []
 
 	v['staticlib_LINKFLAGS'] = []
 
 @conftest
 def gcc_modifier_cygwin(conf):
-	if sys.platform != 'cygwin': return
 	return conf.gcc_modifier_win32()
 
 @conftest
 def gcc_modifier_darwin(conf):
 	v = conf.env
-	if sys.platform != 'darwin': return
 	v['shlib_CCFLAGS']       = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
@@ -101,23 +100,27 @@ def gcc_modifier_darwin(conf):
 @conftest
 def gcc_modifier_aix5(conf):
 	v = conf.env
-	if sys.platform != 'aix5': return
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
 
 	v['shlib_LINKFLAGS']     = ['-shared','-Wl,-brtl,-bexpfull']
 
 	v['SHLIB_MARKER']        = ''
 
-detect = '''
-find_gcc
-find_cpp
-find_ar
-gcc_common_flags
-gcc_modifier_win32
-gcc_modifier_cygwin
-gcc_modifier_darwin
-gcc_modifier_aix5
-cc_load_tools
-cc_add_flags
-'''
+def detect(conf):
+		conf.find_gcc()
+		conf.find_cpp()
+		conf.find_ar()
+		conf.gcc_common_flags()
 
+		# * set configurations specific for a platform.
+		# * By default sys.plaform will be used as the target platform.
+		#	but you may write conf.env['TARGET_PLATFORM'] = 'my_platform' to allow
+		#	cross compilaion..
+		target_platform = conf.env['TARGET_PLATFORM'] or sys.platform
+
+		gcc_modifier_func = globals().get('gcc_modifier_'+target_platform)
+		if gcc_modifier_func:
+				gcc_modifier_func(conf)
+
+		conf.cc_load_tools()
+		conf.cc_add_flags()
