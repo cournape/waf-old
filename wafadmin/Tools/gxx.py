@@ -74,9 +74,9 @@ def gxx_modifier_win32(conf):
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = 'lib%s.dll'
-	v['shlib_CXXFLAGS']      = ['']
+	v['shlib_CXXFLAGS']      = []
 
-	v['staticlib_LINKFLAGS'] = ['']
+	v['staticlib_LINKFLAGS'] = []
 
 @conftest
 def gxx_modifier_cygwin(conf):
@@ -97,7 +97,7 @@ def gxx_modifier_darwin(conf):
 	v['shlib_LINKFLAGS']     = ['-dynamiclib']
 	v['shlib_PATTERN']       = 'lib%s.dylib'
 
-	v['staticlib_LINKFLAGS'] = ['']
+	v['staticlib_LINKFLAGS'] = []
 
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
