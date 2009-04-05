@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
-# Yinon Ehrlich, 2008
+# Yinon Ehrlich, 2008, 2009
 
-"Some waf tests - most are obsolete"
+"Some waf tests"
 
 import os
 import sys
+import imp
 import time
 
 class DIRS:
@@ -34,32 +35,24 @@ def testname(file, tests_dir='test'):
 	return open(test_file, 'r')
 
 def run_tests():
-	# could be run from test dir only !
-	import build_dir
-	import cxx_test
-	import gcc_test
-	import configure_test
-	import wscript_errors_test
-	import scripting
-	import build
-	import options
-	import task_gen
-	import ar_test
-
 	if Options.options:
 		verbose = Options.options.verbose
 	else:
 		verbose = 1
 
-	tests_modules = [configure_test, build_dir, cxx_test, gcc_test, ar_test,
-						wscript_errors_test, scripting, build, options, task_gen]
+	tests_modules = '''configure_test build_dir cxx_test gcc_test ar_test
+wscript_errors_test scripting build options task_gen'''.split()
 
 	all_results = []
 	not_passed = []
 	total = 0
 	t1 = time.time()
+	
+	curdir = os.path.dirname(__file__)
+	sys.path.append(curdir)
 
-	for mod in tests_modules:
+	for test in tests_modules:
+		mod = imp.load_source(test, os.path.join(curdir, test + '.py'))
 		writelines("******** %s ********\n" % mod.__name__)
 
 		# run_tests return a TestResult instance
