@@ -75,21 +75,15 @@ def gcc_modifier_win32(conf):
 	if sys.platform != 'win32': return
 	v['program_PATTERN']     = '%s.exe'
 
-	v['shlib_PATTERN']       = 'lib%s.dll'
+	v['shlib_PATTERN']       = '%s.dll'
 	v['shlib_CCFLAGS']       = []
 
 	v['staticlib_LINKFLAGS'] = []
 
 @conftest
 def gcc_modifier_cygwin(conf):
-	v = conf.env
 	if sys.platform != 'cygwin': return
-	v['program_PATTERN']     = '%s.exe'
-
-	v['shlib_PATTERN']       = 'lib%s.dll'
-	v['shlib_CCFLAGS']       = []
-
-	v['staticlib_LINKFLAGS'] = []
+	return conf.gcc_modifier_win32()
 
 @conftest
 def gcc_modifier_darwin(conf):
