@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Yinon Ehrlich, 2008
+# Yinon Ehrlich, 2008, 2009
 
 """
 Should be serve as common tester for all cc derivativers, currently:
@@ -102,35 +102,16 @@ class CcRootTester(common_test.CommonTester):
 	def _setup_cpp_program_with_env(self, env_line):
 		self._populate_dictionary('program', cpp_program_code, env_line)
 		self._write_files()
-		
+
 	def _setup_c_program_with_env(self, env_line):
 		self._populate_dictionary('program', c_program_code, env_line)
 		self._write_files()
 
-	def _write_wscript(self, contents = '', use_dic=True):
-		wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
-		try:
-			wscript_file = open( wscript_file_path, 'w' )
-			
-			if contents:
-				if use_dic:
-					wscript_file.write( contents % self._test_dic )
-				else:
-					wscript_file.write(contents)
-			else:
-				wscript_file.write( wscript_contents % self._test_dic )
-		finally:
-			wscript_file.close()
-
 	def _write_source(self):
-		try:
-			source_file = open( self._source_file_path, 'w' )
-			source_file.write( self._test_dic['code'] )
-		finally:
-			source_file.close()
-			
+		self._write_file(self._source_file_path, self._test_dic['code'])
+
 	def _write_files(self):
-		self._write_wscript()
+		self._write_wscript(wscript_contents % self._test_dic)
 		self._write_source()
 
 	def __init__(self, methodName):
@@ -140,7 +121,7 @@ class CcRootTester(common_test.CommonTester):
 
 		# populate specific tool's dictionary
 		self._test_dic = {}
-		try:		
+		try:
 			self._test_dic['tool'] = self.tool_name
 			self._test_dic['objname'] = self.object_name
 		except AttributeError:
@@ -172,22 +153,74 @@ class CcRootTester(common_test.CommonTester):
 		self._setup_static_lib()
 		self._test_configure()
 		self._test_build()
-#
-#	--debug-level is unused option now...		   
-#				
-#	def test_invalid_debug_level1(self):
-#		# make sure it fails on invalid option
-#		self._setup_c_program()
-#		self._test_configure( False, ["--debug-level=kuku"])
-#
-#	def test_invalid_debug_level2(self):
-#		# make sure it fails on invalid option (only lower 'debug' works now
-#		self._setup_c_program()
-#		self._test_configure( False, ["--debug-level=DEBUG"])
-		
+
+	def test_default_flags_patterns(self):
+		# white box test: makes sure that correct flags/pattersn are defined
+		self._validate_flags_patterns(sys.platform)
+
+	def test_deceived_platform_flags_patterns(self):
+		# white box test: makes sure that correct flags/pattersn are defined
+		# for other platform
+		global sys
+		deceived_platform = self._get_other_platform()
+
+		# be ware, evil in its best ! :)
+		try:
+			sys.platform = deceived_platform
+			self._validate_flags_patterns(deceived_platform)
+		finally:
+			sys=reload(sys)
+
+	def test_another_platform_flags_patterns(self):
+		# white box test: makes sure that correct flags/pattersn are defined
+		# for other platform given as parameter
+		self._validate_flags_patterns(self._get_other_platform(), set_taregt=True)
+
+	def _get_other_platform(self):
+		if sys.platform == 'linux2':
+			return 'win32'
+		return 'linux2'
+
+	def _validate_flags_patterns(self, target_platform, set_taregt=False):
+        # TODO: extend the tests for other platforms...
+		wscript_contents = """
+blddir = 'build'
+srcdir = '.'
+
+def configure(conf):
+	conf.check_tool('%(tool)s')"""
+		self._write_wscript(wscript_contents % self._test_dic)
+		conf = self._setup_configure()
+		env = conf.env
+		if set_taregt:
+			env['TARGET_PLATFORM'] = target_platform
+		conf.sub_config([''])
+		if target_platform == 'win32' or target_platform == 'cygwin':
+			self.assert_(env['program_PATTERN'] == '%s.exe', 'incorrect program pattern, was %s, target_platform = %s' % (env['program_PATTERN'], target_platform))
+			self.assert_(env['shlib_PATTERN'] == '%s.dll', 'incorrect shlib pattern')
+			self.assert_(env['staticlib_PATTERN'] == '%s.lib', 'incorrect staticlib pattern')
+			if self.tool_name == 'gcc':
+				self.assert_(env['shlib_CCFLAGS'] == [], 'incorrect shlib CCFLAGS')
+			else:
+				self.assert_(env['shlib_CXXFLAGS'] == [], 'incorrect shlib CXXFLAGS')
+			self.assert_(env['staticlib_LINKFLAGS'] == [], 'incorrect staticlib_LINKFLAGS')
+		elif target_platform == 'linux2':
+			self.assert_(env['program_PATTERN'] == '%s', 'incorrect program pattern')
+			self.assert_(env['shlib_PATTERN'] == 'lib%s.so', 'incorrect shlib pattern')
+			self.assert_(env['staticlib_PATTERN'] == 'lib%s.a', 'incorrect staticlib pattern')
+			if self.tool_name == 'gcc':
+				self.assert_(env['shlib_CCFLAGS'] == ['-fPIC', '-DPIC'], 'incorrect shlib CCFLAGS')
+			else:
+				self.assert_(env['shlib_CXXFLAGS'] == ['-fPIC', '-DPIC'], 'incorrect shlib CXXFLAGS')
+
+			self.assert_(env['staticlib_LINKFLAGS'] == ['-Wl,-Bstatic'], 'incorrect staticlib_LINKFLAGS')
+			self.assert_(env['shlib_LINKFLAGS'] == ['-shared'], 'incorrect staticlib_LINKFLAGS')
+		else:
+			raise NotImplementedError('tests for %s were not implemented yet...' % target_platform)
+
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''
 		os.chdir(self._waf_root_dir)
-		
+
 		if os.path.isdir(self._test_dir_root):
 			shutil.rmtree(self._test_dir_root)
