@@ -241,6 +241,7 @@ class task_gen(object):
 
 		do not use absolute paths
 		do not use paths outside of the source tree
+		the files or folder beginning by . are not returned
 
 		# TODO: remove in Waf 1.6
 		"""
@@ -268,6 +269,11 @@ class task_gen(object):
 			self.bld.rescan(anode)
 
 			for name in self.bld.cache_dir_contents[anode.id]:
+
+				# ignore hidden files
+				if name.startswith('.'):
+					continue
+
 				(base, ext) = os.path.splitext(name)
 				if ext in ext_lst and not name in lst and not name in excludes:
 					lst.append((anode.relpath_gen(self.path) or '.') + os.path.sep + name)
