@@ -1,5 +1,6 @@
 NEW IN WAF 1.5.4
 ----------------
+* commands are executed without the shell by default, lists are recommended for cxxflags
 * the restriction srcdir='.' was removed (use with care)
 * java tool improvements
 * new ant-like file matching: print bld.path.ant_glob('**/*.c', flat=True)
@@ -18,6 +19,7 @@ NEW IN WAF 1.5.4
 * enable the single header output for vala >= 0.7.0
 * avoid loading a tool twice with the same configuration functions (composite projects)
 * cross-compilation demo improvements (playground/cross/)
+* the swig demo has been updated to be entirely dynamic (experimental)
 
 NEW IN WAF 1.5.3
 ----------------
