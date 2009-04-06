@@ -173,7 +173,7 @@ if is_win32:
 listdir = os.listdir
 if is_win32:
 	def listdir_win32(s):
-		if re.match('^[A-Z]:$', s):
+		if re.match('^[A-Za-z]:$', s):
 			# os.path.isdir fails if s contains only the drive name... (x:)
 			s += os.sep
 		if not os.path.isdir(s):
