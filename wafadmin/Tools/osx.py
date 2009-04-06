@@ -78,7 +78,10 @@ def apply_bundle(self):
 def apply_bundle_remove_dynamiclib(self):
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
 		if not getattr(self, 'vnum', None):
-			self.env['LINKFLAGS'].remove('-dynamiclib')
+			try:
+				self.env['LINKFLAGS'].remove('-dynamiclib')
+			except ValueError:
+				pass
 
 app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
 
