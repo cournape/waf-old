@@ -452,11 +452,11 @@ def load_tool(tool, tooldir=None):
 			for d in tooldir:
 				sys.path.remove(d)
 
-def readf(fname):
+def readf(fname, m='r'):
 	"get the contents of a file, it is not used anywhere for the moment"
 	f = None
 	try:
-		f = open(fname, 'rb')
+		f = open(fname, m)
 		txt = f.read()
 	finally:
 		if f: f.close()
