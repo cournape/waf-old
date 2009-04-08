@@ -40,7 +40,7 @@ def iapply_intltool_in_f(self):
 		cache = getattr(self, 'intlcache', '.intlcache')
 		self.env['INTLCACHE'] = os.path.join(self.path.bldpath(self.env), podir, cache)
 		self.env['INTLPODIR'] = podirnode.srcpath(self.env)
-		self.env['INTLFLAGS'] = getattr(self, 'flags', None)
+		self.env['INTLFLAGS'] = getattr(self, 'flags', ['-q', '-u', '-c'])
 
 		task = self.create_task('intltool')
 		task.set_inputs(node)
@@ -94,10 +94,10 @@ def apply_intltool_po(self):
 	else:
 		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 
-Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE')
+Task.simple_task_type('po', '${POCOM} -o ${TGT} ${SRC}', color='BLUE', shell=False)
 Task.simple_task_type('intltool',
-	'${INTLTOOL} ${INTLFLAGS} -q -u -c ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
-	color='BLUE', after="cc_link cxx_link")
+	'${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',
+	color='BLUE', after="cc_link cxx_link", shell=False)
 
 def detect(conf):
 	pocom = conf.find_program('msgfmt')

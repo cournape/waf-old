@@ -28,7 +28,7 @@ def xsubpp_file(self, node):
 
 	self.allnodes.append(outnode)
 
-Task.simple_task_type('xsubpp', xsubpp_str, color='BLUE', before="cc cxx")
+Task.simple_task_type('xsubpp', xsubpp_str, color='BLUE', before="cc cxx", shell=False)
 
 @conf
 def check_perl_version(conf, minver=None):

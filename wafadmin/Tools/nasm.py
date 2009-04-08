@@ -7,7 +7,7 @@ Nasm processing
 """
 
 import os
-import TaskGen, Task
+import TaskGen, Task, Utils
 from TaskGen import taskgen, before, extension
 
 nasm_str = '${NASM} ${NASM_FLAGS} ${NASM_INCLUDES} ${SRC} -o ${TGT}'
@@ -27,9 +27,9 @@ def apply_nasm_vars(self):
 		for inc in self.to_list(self.includes):
 			node = self.path.find_dir(inc)
 			if not node:
-				raise ValueError("cannot find the dir" + inc)
-			self.env.append_value('NASM_INCLUDES', '-I %s' % node.srcpath(self.env))
-			self.env.append_value('NASM_INCLUDES', '-I %s' % node.bldpath(self.env))
+				raise Utils.WafError('cannot find the dir' + inc)
+			self.env.append_value('NASM_INCLUDES', '-I%s' % node.srcpath(self.env))
+			self.env.append_value('NASM_INCLUDES', '-I%s' % node.bldpath(self.env))
 
 @extension(EXT_NASM)
 def nasm_file(self, node):
@@ -45,7 +45,7 @@ def nasm_file(self, node):
 	self.meths.append('apply_nasm_vars')
 
 # create our action here
-Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o')
+Task.simple_task_type('nasm', nasm_str, color='BLUE', ext_out='.o', shell=False)
 
 def detect(conf):
 	nasm = conf.find_program('nasm', var='NASM')
