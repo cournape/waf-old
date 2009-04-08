@@ -26,9 +26,9 @@ import Environment, Utils, Options
 from Logs import warn
 from Constants import *
 
-conf_template = '''# project configured on %s by
-# waf %s (abi %r, python %x) using
-# %s
+conf_template = '''# project %(app)s configured on %(now)s by
+# waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
+# using %(args)s
 #
 '''
 
@@ -120,7 +120,21 @@ class ConfigurationContext(Utils.Context):
 		try: os.unlink(path)
 		except (OSError, IOError): pass
 		self.log = open(path, 'w')
-		self.log.write(conf_template % (time.ctime(), WAFVERSION, ABI, sys.hexversion, " ".join(sys.argv)))
+		print getattr(Utils.g_module, 'APPNAME', '')
+
+		app = getattr(Utils.g_module, 'APPNAME', '')
+		if app:
+			ver = getattr(Utils.g_module, 'VERSION', '')
+			if ver:
+				app = "%s (%s)" % (app, ver)
+
+		now = time.ctime()
+		pyver = sys.hexversion
+		systype = sys.platform
+		args = " ".join(sys.argv)
+		wafver = WAFVERSION
+		abi = ABI
+		self.log.write(conf_template % vars())
 
 	def __del__(self):
 		"""cleanup function: close config.log"""
