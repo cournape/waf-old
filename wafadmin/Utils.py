@@ -33,7 +33,8 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, string, errno, traceback, inspect, re
+import os, sys, imp, string, errno, traceback, inspect, re, shutil
+
 try: from UserDict import UserDict
 except ImportError: from collections import UserDict
 if sys.hexversion >= 0x2060000:
@@ -537,4 +538,11 @@ def jar_regexp(regex):
 	regex += '$'
 	#print regex
 	return re.compile(regex)
+
+if is_win32:
+	old = shutil.copy2
+	def copy2(src, dst):
+		old(src, dst)
+		shutil.copystat(src, src)
+	setattr(shutil, 'copy2', copy2)
 
