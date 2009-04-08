@@ -1,3 +1,8 @@
+NEW IN WAF 1.5.5
+----------------
+* qt4 + variants
+* make the preprocessor error messages less scary
+
 NEW IN WAF 1.5.4
 ----------------
 * commands are executed without the shell by default, lists are recommended for cxxflags
