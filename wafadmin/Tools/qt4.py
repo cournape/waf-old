@@ -34,12 +34,20 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 class MTask_task(Task.Task):
 	"A cpp task that may create a moc task dynamically"
 
-	scan = ccroot.scan
 	before = ['cxx_link', 'ar_link_static']
 
 	def __init__(self, *k, **kw):
 		Task.Task.__init__(self, *k, **kw)
 		self.moc_done = 0
+
+	def scan(self):
+		(nodes, names) = ccroot.scan(self)
+		# for some reasons (variants) the moc node may end in the list of node deps
+		for x in nodes:
+			if x.name.endswith('.moc'):
+				nodes.remove(x)
+				names.append(x.relpath_gen(self.generator.path))
+		return (nodes, names)
 
 	def runnable_status(self):
 		if self.moc_done:
