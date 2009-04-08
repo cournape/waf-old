@@ -44,9 +44,7 @@ def detect(conf):
 		except OSError: conf.fatal('could not open %s' % file)
 
 	try:
-		f = open(file, 'r')
-		txt = f.read()
-		f.close()
+		txt = Utils.readf(file)
 	except (OSError, IOError):
 		conf.fatal('could not read %s' % file)
 

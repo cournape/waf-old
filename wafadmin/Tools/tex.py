@@ -18,9 +18,7 @@ def scan(self):
 	names = []
 	if not node: return (nodes, names)
 
-	fi = open(node.abspath(env), 'r')
-	code = fi.read()
-	fi.close()
+	code = Utils.readf(node.abspath(env))
 
 	curdirnode = self.curdirnode
 	abs = curdirnode.abspath()
@@ -79,9 +77,7 @@ def tex_build(task, command='LATEX'):
 
 	# look in the .aux file if there is a bibfile to process
 	try:
-		file = open(aux_node.abspath(env), 'r')
-		ct = file.read()
-		file.close()
+		ct = Utils.readf(aux_node.abspath(env))
 	except (OSError, IOError):
 		error('error bibtex scan')
 	else:

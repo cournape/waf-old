@@ -106,9 +106,7 @@ def repl(m):
 
 def filter_comments(filename):
 	# return a list of tuples : keyword, line
-	f = open(filename, "r")
-	code = f.read()
-	f.close()
+	code = Utils.readf(filename)
 	if use_trigraphs:
 		for (a, b) in trig_def: code = code.split(a).join(b)
 	code = re_nl.sub('', code)

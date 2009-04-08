@@ -13,9 +13,7 @@ EXT_D = ['.d', '.di', '.D']
 D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps'] # additional d methods
 
 def filter_comments(filename):
-	f = open(filename, 'r')
-	txt = f.read()
-	f.close()
+	txt = Utils.readf(filename)
 	buf = []
 
 	i = 0

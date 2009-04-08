@@ -120,7 +120,7 @@ except ImportError:
 		from md5 import md5
 
 	def h_file(filename):
-		f = open(filename,'rb')
+		f = open(filename, 'rb')
 		m = md5()
 		readBytes = 100000
 		while (filename):

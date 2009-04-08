@@ -9,7 +9,7 @@ This means env['foo'] = {}; print env['foo'] will print [] not {}
 """
 
 import os, copy, re
-import Logs, Options
+import Logs, Options, Utils
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
@@ -152,9 +152,7 @@ class Environment(object):
 	def load(self, filename):
 		"Retrieve the variables from a file"
 		tbl = self.table
-		file = open(filename, 'r')
-		code = file.read()
-		file.close()
+		code = Utils.readf(filename)
 		for m in re_imp.finditer(code):
 			g = m.group
 			tbl[g(2)] = eval(g(3))

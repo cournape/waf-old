@@ -88,9 +88,7 @@ def subst_func(tsk):
 	infile = tsk.inputs[0].abspath(env)
 	outfile = tsk.outputs[0].abspath(env)
 
-	file = open(infile, 'r')
-	code = file.read()
-	file.close()
+	code = Utils.readf(infile)
 
 	# replace all % by %% to prevent errors by % signs in the input file while string formatting
 	code = code.replace('%', '%%')
