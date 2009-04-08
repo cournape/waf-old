@@ -70,7 +70,6 @@ def process_py(self, node):
 		self._py_installed_files.extend(installed_files)
 
 @feature('py')
-@after('install')
 def byte_compile_py(self):
 	if Options.is_install and self.install_path:
 		installed_files = self._py_installed_files
