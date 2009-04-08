@@ -681,8 +681,7 @@ class c_parser(object):
 				self.process_line(kind, line)
 			except Exception, e:
 				if Logs.verbose:
-					error("line parsing failed (%s): %s" % (str(e), line))
-					traceback.print_exc()
+					debug('preproc: line parsing failed (%s): %s %s' % (e, line, Utils.ex_stack()))
 
 	def process_line(self, token, line):
 		ve = Logs.verbose
