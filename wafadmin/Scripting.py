@@ -339,6 +339,7 @@ def uninstall(bld):
 	'''removes the installed files'''
 	Options.commands['install'] = False
 	Options.commands['uninstall'] = True
+	Options.is_install = True
 
 	try:
 		def runnable_status(self):
