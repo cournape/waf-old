@@ -23,7 +23,10 @@ def configure(conf):
 	#conf.env['MSVC_VERSIONS'] = ['msvc 7.1']
     # X86 compiler only, no AMD64
 	#conf.env['MSVC_TARGETS'] = 'x86'
-	conf.check_tool('msvc')
+	try:
+		conf.check_tool('msvc', funs='no_autodetect')
+	except:
+		conf.check_tool('msvc')
 	conf.check_libs_msvc('kernel32 user32', mandatory = True)
 
 

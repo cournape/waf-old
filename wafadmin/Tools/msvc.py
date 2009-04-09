@@ -10,6 +10,7 @@
 # conf.env['MSVC_VERSIONS'] = ['msvc 9.0', 'msvc 8.0', 'intel 11']
 # conf.env['MSVC_TARGETS'] = ['x64']
 # conf.check_tool('msvc')
+# OR conf.check_tool('msvc', funs='no_autodetect')
 # conf.check_lib_msvc('gdi32')
 # conf.check_libs_msvc('kernel32 user32', mandatory=true)
 # ...
@@ -456,7 +457,13 @@ Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS
 rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
 Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx', shell=False)
 
+@conftest
+def no_autodetect(conf):
+	conf.eval_rules(detect.replace('autodetect', ''))
+
+
 detect = '''
+autodetect
 find_msvc
 msvc_common_flags
 cc_load_tools
@@ -466,6 +473,16 @@ cxx_add_flags
 '''
 
 @conftest
+def autodetect(conf):
+	v = conf.env
+	compiler,path, includes, libdirs = detect_msvc(conf)
+	v['PATH'] = path
+	v['CPPPATH'] = includes
+	v['LIBPATH'] = libdirs
+	v['MSVC_COMPILER'] = compiler
+
+
+@conftest
 def find_msvc(conf):
 	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
 	if sys.platform != 'win32':
@@ -473,10 +490,8 @@ def find_msvc(conf):
 
 	v = conf.env
 
-	compiler,path, includes, libdirs = detect_msvc(conf)
-	v['PATH'] = path
-	v['CPPPATH'] = includes
-	v['LIBPATH'] = libdirs
+	compiler = v['MSVC_COMPILER'] or 'msvc'
+	path = v['PATH']
 	if compiler=='msvc':
 		compiler_name = 'CL'
 		linker_name = 'LINK'
@@ -503,6 +518,10 @@ def find_msvc(conf):
 	# c/c++ compiler
 	v['CC'] = v['CXX'] = cxx
 	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
+
+	# environment flags
+	v.prepend_value('CPPPATH', conf.environ['INCLUDE'])
+	v.prepend_value('LIBPATH', conf.environ['LIB'])
 
 	# linker
 	if not v['LINK_CXX']:
