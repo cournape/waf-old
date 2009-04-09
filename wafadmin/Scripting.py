@@ -375,17 +375,17 @@ def build_impl(bld):
 	info("Waf: Entering directory `%s'" % bld.bldnode.abspath())
 	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 
-	# TODO undocumented hook
-	# FIXME remove in waf 1.6
-	pre_build = getattr(Utils.g_module, 'pre_build', None)
-	if pre_build: pre_build()
+	# execute something immediately before the build starts
+	bld.pre_build()
 
 	ini = time.time()
-
 	try:
 		bld.compile()
 	finally:
 		info("Waf: Leaving directory `%s'" % bld.bldnode.abspath())
+
+	# execute something immediately after a successful build
+	bld.post_build()
 
 	if Options.options.progress_bar: print('')
 

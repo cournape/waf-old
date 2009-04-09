@@ -875,3 +875,23 @@ class BuildContext(Utils.Context):
 	def post_recurse(self, name_or_mod, path, nexdir):
 		self.path = self.oldpath.pop()
 
+	###### user-defined behaviour
+
+	def pre_build(self):
+		if hasattr(self, 'pre_funs'):
+			for m in self.pre_funs:
+				m(self)
+
+	def post_build(self):
+		if hasattr(self, 'post_funs'):
+			for m in self.post_funs:
+				m(self)
+
+	def add_pre_fun(self, meth):
+		try: self.pre_funs.append(meth)
+		except AttributeError: self.pre_funs = [meth]
+
+	def add_post_fun(self, meth):
+		try: self.post_funs.append(meth)
+		except AttributeError: self.post_funs = [meth]
+
