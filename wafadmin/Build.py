@@ -262,7 +262,7 @@ class BuildContext(Utils.Context):
 		self.flush()
 
 		# remove empty folders after uninstalling
-		if Options.commands['uninstall']:
+		if self.is_install < 0:
 			lst = []
 			for x in self.uninstall:
 				dir = os.path.dirname(x)
@@ -700,7 +700,7 @@ class BuildContext(Utils.Context):
 	# do_install is not used anywhere
 	def do_install(self, src, tgt, chmod=O644):
 		"""returns true if the file was effectively installed or uninstalled, false otherwise"""
-		if Options.commands['install']:
+		if self.is_install > 0:
 			if not Options.options.force:
 				# check if the file is already there to avoid a copy
 				try:
@@ -731,7 +731,7 @@ class BuildContext(Utils.Context):
 				raise Utils.WafError('Could not install the file %r' % tgt)
 			return True
 
-		elif Options.commands['uninstall']:
+		elif self.is_install < 0:
 			info("* uninstalling %s" % tgt)
 
 			self.uninstall.append(tgt)
@@ -754,7 +754,7 @@ class BuildContext(Utils.Context):
 		if env:
 			assert isinstance(env, Environment.Environment), "invalid parameter"
 
-		if not Options.is_install: return []
+		if not self.is_install: return []
 		if not path: return []
 
 		node = self.path
@@ -794,7 +794,7 @@ class BuildContext(Utils.Context):
 		if env:
 			assert isinstance(env, Environment.Environment), "invalid parameter"
 
-		if not Options.is_install: return False
+		if not self.is_install: return False
 		if not path: return False
 
 		if not env: env = self.env
@@ -815,7 +815,7 @@ class BuildContext(Utils.Context):
 		return self.do_install(src, destpath, chmod)
 
 	def symlink_as(self, path, src, env=None):
-		if not Options.is_install: return
+		if not self.is_install: return
 		if not path: return
 
 		tgt = self.get_install_path(path, env)
@@ -823,7 +823,7 @@ class BuildContext(Utils.Context):
 		dir, name = os.path.split(tgt)
 		Utils.check_dir(dir)
 
-		if Options.commands['install']:
+		if self.is_install > 0:
 			link = False
 			if not os.path.islink(tgt):
 				link = True
@@ -837,7 +837,7 @@ class BuildContext(Utils.Context):
 				os.symlink(src, tgt)
 			return 0
 
-		elif Options.commands['uninstall']:
+		else: # UNINSTALL
 			try:
 				info("* removing %s" % (tgt))
 				os.remove(tgt)

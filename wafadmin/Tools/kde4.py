@@ -24,7 +24,7 @@ def apply_msgfmt(self):
 		task.set_inputs(node)
 		task.set_outputs(node.change_ext('.mo'))
 
-		if not Options.is_install: continue
+		if not self.bld.is_install: continue
 		langname = lang.split('/')
 		langname = langname[-1]
 		task.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'

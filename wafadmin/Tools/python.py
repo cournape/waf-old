@@ -59,7 +59,7 @@ TaskGen.bind_feature('py', ['apply_core'])
 
 @extension(EXT_PY)
 def process_py(self, node):
-	if Options.is_install and self.install_path:
+	if self.bld.is_install and self.install_path:
 		if not hasattr(self, '_py_installed_files'):
 			self._py_installed_files = []
 		installed_files = self.bld.install_files(
@@ -71,11 +71,11 @@ def process_py(self, node):
 
 @feature('py')
 def byte_compile_py(self):
-	if Options.is_install and self.install_path:
+	if self.bld.is_install and self.install_path:
 		installed_files = self._py_installed_files
 		if not installed_files:
 			return
-		if Options.commands['uninstall']:
+		if self.bld.is_install > 0:
 			info("* removing byte compiled python files")
 			for fname in installed_files:
 				try:
@@ -87,7 +87,7 @@ def byte_compile_py(self):
 				except OSError:
 					pass
 
-		if Options.commands['install']:
+		if self.bld.is_install < 0:
 			if self.env['PYC'] or self.env['PYO']:
 				info("* byte compiling python files")
 

@@ -11,8 +11,11 @@ from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
 
-options = {}
+# TODO remove in waf 1.6 the following two
 commands = {}
+is_install = False
+
+options = {}
 arg_line = []
 launch_dir = ''
 tooldir = ''
@@ -21,7 +24,6 @@ try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
 platform = Utils.detect_platform()
 conf_file = 'conf-runs-%s-%d.pickle' % (platform, ABI)
-is_install = False
 
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure
 default_prefix = os.environ.get('PREFIX')

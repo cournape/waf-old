@@ -90,7 +90,7 @@ def apply_intltool_po(self):
 				task = self.create_task('po')
 				task.set_inputs(node)
 				task.set_outputs(node.change_ext('.mo'))
-				if Options.is_install: task.install = install_translation
+				if self.bld.is_install: task.install = install_translation
 	else:
 		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 

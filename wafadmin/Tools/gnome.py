@@ -14,7 +14,7 @@ n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 
 def postinstall_schemas(prog_name):
-	if Options.commands['install']:
+	if Build.bld.is_install:
 		dir = Build.bld.get_install_path('${PREFIX}/etc/gconf/schemas/%s.schemas' % prog_name)
 		if not Options.options.destdir:
 			# add the gconf schema
@@ -27,7 +27,7 @@ def postinstall_schemas(prog_name):
 
 def postinstall_icons():
 	dir = Build.bld.get_install_path('${DATADIR}/icons/hicolor')
-	if Options.commands['install']:
+	if Build.bld.is_install:
 		if not Options.options.destdir:
 			# update the pixmap cache directory
 			Utils.pprint('YELLOW', "Updating Gtk icon cache.")
@@ -38,7 +38,7 @@ def postinstall_icons():
 			Utils.pprint('YELLOW', 'gtk-update-icon-cache -q -f -t %s' % dir)
 
 def postinstall_scrollkeeper(prog_name):
-	if Options.commands['install']:
+	if Build.bld.is_install:
 		# now the scrollkeeper update if we can write to the log file
 		if os.path.iswriteable('/var/log/scrollkeeper.log'):
 			dir1 = Build.bld.get_install_path('${PREFIX}/var/scrollkeeper')
@@ -65,6 +65,7 @@ def init_gnome_doc(self):
 def apply_gnome_doc(self):
 	self.env['APPNAME'] = self.doc_module
 	lst = self.to_list(self.doc_linguas)
+	bld = self.bld
 	for x in lst:
 		tsk = self.create_task('xml2po')
 		node = self.path.find_resource(x+'/'+x+'.po')
@@ -81,16 +82,16 @@ def apply_gnome_doc(self):
 
 		tsk2.run_after.append(tsk)
 
-		if Options.is_install:
+		if bld.is_install:
 			path = self.install_path + 'gnome/help/%s/%s' % (self.doc_module, x)
-			self.bld.install_files(self.install_path + 'omf', out2.abspath(self.env))
+			bld.install_files(self.install_path + 'omf', out2.abspath(self.env))
 			for y in self.to_list(self.doc_figures):
 				try:
 					os.stat(self.path.abspath() + '/' + x + '/' + y)
-					Common.install_as(path + '/' + y, self.path.abspath() + '/' + x + '/' + y)
+					bld.install_as(path + '/' + y, self.path.abspath() + '/' + x + '/' + y)
 				except:
-					Common.install_as(path + '/' + y, self.path.abspath() + '/C/' + y)
-			Common.install_as(path + '/%s.xml' % self.doc_module, out.abspath(self.env))
+					bld.install_as(path + '/' + y, self.path.abspath() + '/C/' + y)
+			bld.install_as(path + '/%s.xml' % self.doc_module, out.abspath(self.env))
 
 # OBSOLETE
 class xml_to_taskgen(TaskGen.task_gen):
@@ -163,7 +164,7 @@ def apply_gnome_sgml2man(self):
 		task = self.create_task('sgml2man')
 		task.set_inputs(self.path.find_resource(name))
 		task.task_generator = self
-		if Options.is_install: task.install = install_result
+		if self.bld.is_install: task.install = install_result
 		# no outputs, the scanner does it
 		# no caching for now, this is not a time-critical feature
 		# in the future the scanner can be used to do more things (find dependencies, etc)

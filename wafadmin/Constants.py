@@ -69,3 +69,8 @@ TEST_OK = True
 
 CFG_FILES = 'cfg_files'
 
+# positive '->' install
+# negative '<-' uninstall
+INSTALL = 1337
+UNINSTALL = -1337
+

@@ -327,19 +327,19 @@ def install(bld):
 	Options.commands['uninstall'] = False
 	Options.is_install = True
 
+	bld.is_install = INSTALL
+
 	check_configured(bld)
 	build_impl(bld)
 	bld.install()
-
-	Options.commands['install'] = False
-	Options.commands['uninstall'] = False
-	Options.is_install = False
 
 def uninstall(bld):
 	'''removes the installed files'''
 	Options.commands['install'] = False
 	Options.commands['uninstall'] = True
 	Options.is_install = True
+
+	bld.is_install = UNINSTALL
 
 	try:
 		def runnable_status(self):
@@ -352,11 +352,13 @@ def uninstall(bld):
 	finally:
 		setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
 
+def build(bld):
 	Options.commands['install'] = False
 	Options.commands['uninstall'] = False
 	Options.is_install = False
 
-def build(bld):
+	bld.is_install = 0 # False
+
 	check_configured(bld)
 	return build_impl(bld)
 

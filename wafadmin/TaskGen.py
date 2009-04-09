@@ -372,7 +372,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 		tsk.set_inputs(node)
 		tsk.set_outputs(out_source)
 
-		if Options.is_install and install:
+		if node.__class__.bld.is_install == INSTALL:
 			tsk.install = install
 
 	declare_extension(act.ext_in, x_file)

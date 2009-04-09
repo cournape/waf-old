@@ -73,7 +73,7 @@ def apply_link_libtool(self):
 		latask.set_outputs(linktask.outputs[0].change_ext('.la'))
 		self.latask = latask
 
-	if Options.commands['install'] or Options.commands['uninstall']:
+	if self.bld.is_install:
 		self.bld.install_files('${PREFIX}/lib', linktask.outputs[0].abspath(self.env), self.env)
 
 @feature("libtool")
