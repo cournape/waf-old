@@ -575,8 +575,10 @@ def tokenize(s):
 				elif name == OP:
 					if v == '%:': v = '#'
 					elif v == '%:%:': v = '##'
-
-				ret.append((name, v.strip('"')))
+				elif name == STR:
+					# remove the quotes around the string
+					v = v[1:-1]
+				ret.append((name, v))
 				break
 	return ret
 
