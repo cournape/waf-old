@@ -186,18 +186,6 @@ def parse_args_impl(parser, _args=None):
 		except ValueError, e:
 			args.insert(idx, 'build')
 
-	"""
-	if 'install' in args:
-		idx = args.index('install')
-		if idx == 0 or args[idx - 1] != 'build':
-			args.insert(idx, 'build')
-
-	if 'uninstall' in args:
-		idx = args.index('uninstall')
-		if idx == 0 or args[idx - 1] != 'build':
-			args.insert(idx, 'build')
-	"""
-
 	if args[0] != 'init':
 		args.insert(0, 'init')
 
