@@ -264,6 +264,8 @@ def clean(bld):
 	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 	bld.load_envs()
 
+	bld.is_install = 0 # False
+
 	# read the scripts - and set the path to the wscript path (useful for srcdir='/foo/bar')
 	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 
