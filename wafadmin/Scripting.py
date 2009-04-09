@@ -325,10 +325,15 @@ def install(bld):
 	'''installs the build files'''
 	Options.commands['install'] = True
 	Options.commands['uninstall'] = False
+	Options.is_install = True
 
 	check_configured(bld)
 	build_impl(bld)
 	bld.install()
+
+	Options.commands['install'] = False
+	Options.commands['uninstall'] = False
+	Options.is_install = False
 
 def uninstall(bld):
 	'''removes the installed files'''
@@ -345,6 +350,10 @@ def uninstall(bld):
 		bld.install()
 	finally:
 		setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
+
+	Options.commands['install'] = False
+	Options.commands['uninstall'] = False
+	Options.is_install = False
 
 def build(bld):
 	check_configured(bld)
