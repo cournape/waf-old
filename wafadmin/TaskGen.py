@@ -110,9 +110,6 @@ class task_gen(object):
 		self.default_chmod = O644
 		self.default_install_path = None
 
-		if Options.is_install:
-			self.inst_files = [] # lazy list of tuples representing the files to install
-
 		# kind of private, beware of what you put in it, also, the contents are consumed
 		self.allnodes = []
 
