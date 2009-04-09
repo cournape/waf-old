@@ -105,7 +105,7 @@ class TaskManager(object):
 			else: self.current_group += 1
 		return (None, None)
 
-	def add_group(self):
+	def add_group(self, name=None):
 		if self.groups and not self.groups[0].tasks:
 			warn('add_group: an empty group is already present')
 		self.groups.append(TaskGroup())
