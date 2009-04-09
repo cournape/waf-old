@@ -2,6 +2,7 @@ NEW IN WAF 1.5.5
 ----------------
 * qt4 + variants
 * make the preprocessor error messages less scary
+* let the preprocessor tokenize hex and octal numbers properly
 
 NEW IN WAF 1.5.4
 ----------------
