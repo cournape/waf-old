@@ -22,11 +22,17 @@ TaskGen.declare_chain(
 	ext_out = '.b',
 )
 
+# an example of a scanner used with chains of transformations
+def scan(self):
+	w = self.inputs[0].parent.find_resource('wscript')
+	return ([w], [])
+
 TaskGen.declare_chain(
 	name = 'c',
 	action = '${COPY} ${SRC} ${TGT}',
 	ext_in = '.b',
 	ext_out = '.c',
+	scan = scan,
 	reentrant = 0 # <<- this means the files produced are not reinjected as sources
 )
 
