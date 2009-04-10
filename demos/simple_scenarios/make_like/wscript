@@ -82,11 +82,18 @@ def build(bld):
 		on_results=True
 	)
 
+	def scan_met(self):
+		# add additional node dependencies at runtime
+		node = self.generator.path.find_resource('wscript')
+		return ([node], [])
+
 	bld.new_task_gen(
 		name='copy_svnversion',
 		after='svnversion',
 		source='ver.h',
 		target='ver2.h',
-		rule='cp ${SRC} ${TGT}'
+		rule='cp ${SRC} ${TGT}',
+		scan = scan_met,
 	)
+
 
