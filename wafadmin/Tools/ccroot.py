@@ -97,21 +97,6 @@ class ccroot_abstract(TaskGen.task_gen):
 				k[1] = 'c' + k[1]
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@feature('cc', 'cxx')
-@before('init_cc', 'init_cxx')
-def default_cc(self):
-	Utils.def_attrs(self,
-		includes = '',
-		defines= '',
-		rpaths = '',
-		uselib = '',
-		uselib_local = '',
-		add_objects = '',
-		p_flag_vars = [],
-		p_type_vars = [],
-		compiled_tasks = [],
-		link_task = None)
-
 def get_target_name(self):
 	tp = 'program'
 	for x in self.features:
@@ -124,12 +109,21 @@ def get_target_name(self):
 	dir, name = os.path.split(self.target)
 	return os.path.join(dir, pattern % name)
 
-@feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-def apply_verif(self):
-	if not (self.source or getattr(self, 'add_objects', None)):
-		raise Utils.WafError('no source files specified for %s' % self)
-	if not self.target:
-		raise Utils.WafError('no target for %s' % self)
+@feature('cc', 'cxx')
+@before('apply_core')
+def default_cc(self):
+	"""compiled_tasks attribute must be set before the '.c->.o' tasks can be created"""
+	Utils.def_attrs(self,
+		includes = '',
+		defines= '',
+		rpaths = '',
+		uselib = '',
+		uselib_local = '',
+		add_objects = '',
+		p_flag_vars = [],
+		p_type_vars = [],
+		compiled_tasks = [],
+		link_task = None)
 
 def install_shlib(self):
 	nums = self.vnum.split('.')
@@ -147,6 +141,14 @@ def install_shlib(self):
 	bld.install_as(os.path.join(path, name3), filename, env=self.env)
 	bld.symlink_as(os.path.join(path, name2), name3)
 	bld.symlink_as(os.path.join(path, name1), name3)
+
+@feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
+def apply_verif(self):
+	"""no particular order, used for diagnostic"""
+	if not (self.source or getattr(self, 'add_objects', None)):
+		raise Utils.WafError('no source files specified for %s' % self)
+	if not self.target:
+		raise Utils.WafError('no target for %s' % self)
 
 # TODO reference the d programs, shlibs in d.py, not here
 
