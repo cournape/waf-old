@@ -335,7 +335,8 @@ def declare_order(*k):
 		if not f1 in task_gen.prec[f2]:
 			task_gen.prec[f2].append(f1)
 
-def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color='BLUE', install=0, before=[], after=[], decider=None, rule=None):
+def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color='BLUE',
+	install=0, before=[], after=[], decider=None, rule=None, scan=None):
 	"""
 	see Tools/flex.py for an example
 	while i do not like such wrappers, some people really do
@@ -350,6 +351,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 	act.ext_out = tuple(Utils.to_list(ext_out))
 	act.before = Utils.to_list(before)
 	act.after = Utils.to_list(after)
+	act.scan = scan
 
 	def x_file(self, node):
 		if decider:
