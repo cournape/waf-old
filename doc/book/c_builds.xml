@@ -33,7 +33,7 @@ def build(bld):
 
 			<calloutlist>
 				<callout arearefs="taskgen-co" id="a1">
-					<para>Task generator declaration; each element in the list represent a feature; it is possible to add several languages at once (<emphasis>ocaml and c++</emphasis> for example), but the one of <emphasis>objects, staticlib, shlib or program</emphasis> must be chosen.</para>
+					<para>Task generator declaration; each element in the list represent a feature; it is possible to add several languages at once (<emphasis>ocaml and c++</emphasis> for example), but the one of <emphasis>cstaticlib, cshlib or cprogram</emphasis> must be chosen.</para>
 				</callout>
 				<callout arearefs="src-co" id="a2">
 					<para>List of source, it may be either a python list, or a string containing the file names separated with spaces. This list may contain file names of different extensions to make hybrid applications.</para>
