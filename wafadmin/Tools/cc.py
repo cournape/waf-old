@@ -17,8 +17,6 @@ g_cc_flag_vars = [
 
 EXT_CC = ['.c']
 
-TaskGen.bind_feature('cc', ['apply_core'])
-
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
 class cc_taskgen(ccroot.ccroot_abstract):

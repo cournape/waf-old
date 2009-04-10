@@ -17,8 +17,6 @@ g_cxx_flag_vars = [
 
 EXT_CXX = ['.cpp', '.cc', '.cxx', '.C', '.c++']
 
-TaskGen.bind_feature('cxx', ['apply_core'])
-
 g_cxx_type_vars=['CXXFLAGS', 'LINKFLAGS']
 class cxx_taskgen(ccroot.ccroot_abstract):
 	pass

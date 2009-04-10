@@ -57,8 +57,6 @@ class ocaml_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-TaskGen.bind_feature('ocaml', 'apply_core')
-
 @feature('ocaml')
 def init_ml(self):
 	Utils.def_attrs(self,
