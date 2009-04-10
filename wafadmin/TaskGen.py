@@ -522,6 +522,9 @@ def exec_rule(self):
 	if getattr(self, 'always', None):
 		Task.always_run(cls)
 
+	if getattr(self, 'scan', None):
+		cls.scan = self.scan
+
 	if getattr(self, 'install_path', None):
 		tsk.install_path = self.install_path
 
