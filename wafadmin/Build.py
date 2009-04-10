@@ -110,6 +110,8 @@ class BuildContext(Utils.Context):
 		self.node_class.__name__ = "Nodu"
 		self.node_class.bld = self
 
+		self.is_install = None
+
 	def __copy__(self):
 		"nodes are not supposed to be copied"
 		raise Utils.WafError('build contexts are not supposed to be cloned')
