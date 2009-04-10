@@ -45,7 +45,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 import os, shutil, sys, re, random, time
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
-from Logs import debug, warn
+from Logs import debug, warn, error
 from Constants import *
 
 algotype = NORMAL
@@ -94,6 +94,7 @@ class TaskManager(object):
 		self.groups = []
 		self.tasks_done = []
 		self.current_group = 0
+		self.groups_names = {}
 
 	def get_next_set(self):
 		"""return the next set of tasks to execute
@@ -107,8 +108,13 @@ class TaskManager(object):
 
 	def add_group(self, name=None):
 		if self.groups and not self.groups[0].tasks:
-			warn('add_group: an empty group is already present')
-		self.groups.append(TaskGroup())
+			error('add_group: an empty group is already present')
+		g = TaskGroup()
+
+		if name in self.groups_names:
+			error('add_group: name %s already present' % name)
+		self.groups_names[name] = g
+		self.groups.append(g)
 
 	def add_task(self, task):
 		if not self.groups: self.add_group()
