@@ -285,12 +285,16 @@ class BuildContext(Utils.Context):
 
 	def new_task_gen(self, *k, **kw):
 		kw['bld'] = self
-		if len(k) == 0: return TaskGen.task_gen(*k, **kw)
-		cls_name = k[0]
-		try: cls = TaskGen.task_gen.classes[cls_name]
-		except KeyError: raise Utils.WscriptError('%s is not a valid task generator -> %s' %
-			(cls_name, [x for x in TaskGen.task_gen.classes]))
-		else: return cls(*k, **kw)
+		if len(k) == 0:
+			ret = TaskGen.task_gen(*k, **kw)
+		else:
+			cls_name = k[0]
+
+			try: cls = TaskGen.task_gen.classes[cls_name]
+			except KeyError: raise Utils.WscriptError('%s is not a valid task generator -> %s' %
+				(cls_name, [x for x in TaskGen.task_gen.classes]))
+			ret = cls(*k, **kw)
+		return ret
 
 	def load_envs(self):
 		try:
@@ -577,7 +581,6 @@ class BuildContext(Utils.Context):
 	## the following methods are candidates for the stable apis ##
 
 	def add_group(self, *k):
-		self.flush(all=0)
 		self.task_manager.add_group(*k)
 
 	def hash_env_vars(self, env, vars_lst):
@@ -645,9 +648,17 @@ class BuildContext(Utils.Context):
 				if not target_name in target_objects and all:
 					raise Utils.WafError("target '%s' does not exist" % target_name)
 
-			for target_obj in target_objects.values():
-				for x in target_obj:
-					x.post()
+			target_objects = [id(x) for x in target_objects]
+
+			# tasks must be posted in order of declaration
+			# we merely apply a filter to discard the ones we are not interested in
+			for i in xrange(len(self.task_manager.groups)):
+				g = self.task_manager.groups[i]
+				self.task_manager.current_group = i
+				for tg in g.tasks_gen:
+					if id(x) in target_objects:
+						tg.post()
+
 		else:
 			debug('task_gen: posting objects (normal)')
 			ln = self.launch_node()
@@ -661,9 +672,14 @@ class BuildContext(Utils.Context):
 			if proj_node.id != self.srcnode.id:
 				ln = self.srcnode
 
-			for obj in self.all_task_gen:
-				if not obj.path.is_child_of(ln): continue
-				obj.post()
+			# in theory this is fine
+			for i in xrange(len(self.task_manager.groups)):
+				g = self.task_manager.groups[i]
+				self.task_manager.current_group = i
+				for tg in g.tasks_gen:
+					if not tg.path.is_child_of(ln):
+						continue
+					tg.post()
 
 	def env_of_name(self, name):
 		try:

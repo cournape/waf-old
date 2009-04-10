@@ -118,13 +118,15 @@ class task_gen(object):
 
 		self.path = self.bld.path # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
-		self.bld.all_task_gen.append(self)
 
 		# provide a unique id
 		self.idx = self.bld.idx[self.path.id] = self.bld.idx.get(self.path.id, 0) + 1
 
 		for key, val in kwargs.iteritems():
 			setattr(self, key, val)
+
+		self.bld.task_manager.add_task_gen(self)
+		self.bld.all_task_gen.append(self)
 
 	def __str__(self):
 		return ("<task_gen '%s' of type %s defined in %s>"

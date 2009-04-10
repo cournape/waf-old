@@ -87,6 +87,7 @@ class Parallel(object):
 		self.numjobs = j
 
 		self.manager = bld.task_manager
+		self.manager.current_group = 0
 
 		self.total = self.manager.total()
 

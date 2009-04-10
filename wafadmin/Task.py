@@ -107,8 +107,8 @@ class TaskManager(object):
 		return (None, None)
 
 	def add_group(self, name=None):
-		if self.groups and not self.groups[0].tasks:
-			error('add_group: an empty group is already present')
+		#if self.groups and not self.groups[0].tasks:
+		#	error('add_group: an empty group is already present')
 		g = TaskGroup()
 
 		if name in self.groups_names:
@@ -116,9 +116,13 @@ class TaskManager(object):
 		self.groups_names[name] = g
 		self.groups.append(g)
 
+	def add_task_gen(self, tgen):
+		if not self.groups: self.add_group()
+		self.groups[-1].tasks_gen.append(tgen)
+
 	def add_task(self, task):
 		if not self.groups: self.add_group()
-		self.groups[-1].tasks.append(task)
+		self.groups[self.current_group].tasks.append(task)
 
 	def total(self):
 		total = 0
@@ -142,6 +146,7 @@ class TaskGroup(object):
 	"the compilation of one group does not begin until the previous group has finished (in the manager)"
 	def __init__(self):
 		self.tasks = [] # this list will be consumed
+		self.tasks_gen = []
 
 		self.cstr_groups = Utils.DefaultDict(list) # tasks having equivalent constraints
 		self.cstr_order = Utils.DefaultDict(set) # partial order between the cstr groups
