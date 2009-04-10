@@ -153,13 +153,13 @@ def apply_verif(self):
 # TODO reference the d programs, shlibs in d.py, not here
 
 @feature('cprogram', 'dprogram')
-@before('apply_core')
+@before('apply_core') # ?
 def vars_target_cprogram(self):
 	self.default_install_path = self.env['BINDIR'] or '${PREFIX}/bin'
 	self.default_chmod = O755
 
 @feature('cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-@before('apply_core')
+@before('apply_core') # ?
 def vars_target_cstaticlib(self):
 	self.default_install_path = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
 	if sys.platform in ['win32', 'cygwin']:
@@ -168,25 +168,29 @@ def vars_target_cstaticlib(self):
 		self.default_chmod = O755
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-@after('apply_objdeps', 'apply_link')
+@after('apply_objdeps', 'apply_link') # ?
 def install_target_cstaticlib(self):
 	if not self.bld.is_install: return
 	self.link_task.install_path = self.install_path
 
 @feature('cshlib', 'dshlib')
-@after('apply_objdeps', 'apply_link')
+@after('apply_link')
 def install_target_cshlib(self):
+	"""execute after the link task (apply_link)"""
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		tsk = self.link_task
 		tsk.vnum = self.vnum
 		tsk.install = install_shlib
 
 @feature('cc', 'cxx')
-@after('apply_type_vars')
-#@after('apply_core')
+@after('apply_type_vars', 'apply_lib_vars', 'apply_core')
 def apply_incpaths(self):
-	"used by the scanner"
+	"""used by the scanner
+	after processing the uselib for CPPPATH
+	after apply_core because some processing may add include paths
+	"""
 	lst = []
+	# TODO move the uselib processing out of here
 	for lib in self.to_list(self.uselib):
 		for path in self.env['CPPPATH_' + lib]:
 			if not path in lst:
@@ -223,8 +227,12 @@ def apply_incpaths(self):
 		self.env.append_value('INC_PATHS', self.bld.srcnode)
 
 @feature('cc', 'cxx')
-#@after('apply_core')
+@after('init_cc', 'init_cxx')
+@before('apply_lib_vars')
 def apply_type_vars(self):
+	"""before apply_lib_vars because we modify uselib
+	after init_cc and init_cxx because web need p_type_vars
+	"""
 	for x in self.features:
 		if not x in ['cprogram', 'cstaticlib', 'cshlib']:
 			continue
@@ -245,7 +253,8 @@ def apply_type_vars(self):
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_core')
 def apply_link(self):
-	# use a custom linker if specified (self.link='name-of-custom-link-task')
+	"""executes after apply_core for collecting 'compiled_tasks'
+	use a custom linker if specified (self.link='name-of-custom-link-task')"""
 	link = getattr(self, 'link', None)
 	if not link:
 		if 'cstaticlib' in self.features: link = 'ar_link_static'
@@ -253,23 +262,26 @@ def apply_link(self):
 		else: link = 'cc_link'
 		# that's something quite ugly for unix platforms
 		# both the .so and .so.x must be present in the build dir
-		# for darwin the version number is forcibly undefined for a lack of specs
+		# for darwin the version number is ?
 		if 'cshlib' in self.features and getattr(self, 'vnum', None):
 			if sys.platform == 'darwin' or sys.platform == 'win32':
 				self.vnum = ''
 			else:
 				link = 'vnum_' + link
-	linktask = self.create_task(link)
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
-	linktask.chmod = self.chmod
 
-	self.link_task = linktask
+	tsk = self.create_task(link)
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
+	tsk.set_inputs(outputs)
+	tsk.set_outputs(self.path.find_or_declare(get_target_name(self)))
+	tsk.chmod = self.chmod
+
+	self.link_task = tsk
 
 @feature('cc', 'cxx')
-@after('apply_link', 'apply_vnum')
+@after('apply_link', 'init_cc', 'init_cxx')
 def apply_lib_vars(self):
+	"""after apply_link because of 'link_task'
+	after default_cc because of the attribute 'uselib'"""
 	env = self.env
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
@@ -379,6 +391,7 @@ def apply_objdeps(self):
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
 def apply_obj_vars(self):
+	"""after apply_lib_vars for uselib"""
 	v = self.env
 	lib_st           = v['LIB_ST']
 	staticlib_st     = v['STATICLIB_ST']
@@ -413,8 +426,11 @@ def apply_obj_vars(self):
 
 @feature('cshlib')
 @after('apply_link')
+@before('apply_lib_vars')
 def apply_vnum(self):
-	"use self.vnum and self.soname to modify the command line (un*x)"
+	"""use self.vnum and self.soname to modify the command line (un*x)
+	before adding the uselib and uselib_local LINKFLAGS (apply_lib_vars)
+	"""
 	# this is very unix-specific
 	if sys.platform != 'darwin' and sys.platform != 'win32':
 		try:
@@ -459,9 +475,12 @@ c_attrs = {
 }
 
 @feature('cc', 'cxx')
-@before('init_cxx', 'init_cc')
+@before('init_cxx', 'init_cc') # TODO not certain why
+@before('apply_lib_vars', 'apply_obj_vars', 'apply_incpaths', 'init_cc')
 def add_extra_flags(self):
-	"case and plural insensitive"
+	"""case and plural insensitive
+	before apply_obj_vars for processing the library attributes
+	"""
 	for x in self.__dict__.keys():
 		y = x.lower()
 		if y[-1] == 's':

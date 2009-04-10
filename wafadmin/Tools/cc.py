@@ -34,7 +34,9 @@ def init_cc(self):
 		raise Utils.WafError("At least one compiler (gcc, ..) must be selected")
 
 @feature('cc')
+@after('apply_incpaths')
 def apply_obj_vars_cc(self):
+	"""after apply_incpaths for INC_PATHS"""
 	env = self.env
 	app = env.append_unique
 	cpppath_st = env['CPPPATH_ST']
@@ -50,7 +52,9 @@ def apply_obj_vars_cc(self):
 		app('_CCINCFLAGS', cpppath_st % i)
 
 @feature('cc')
+@after('apply_lib_vars')
 def apply_defines_cc(self):
+	"""after uselib is set for CCDEFINES"""
 	self.defines = getattr(self, 'defines', [])
 	lst = self.to_list(self.defines) + self.to_list(self.env['CCDEFINES'])
 	milst = []
@@ -93,6 +97,4 @@ cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', sh
 cls.maxjobs = 1
 cls2 = Task.task_type_from_func('vnum_cc_link', ccroot.link_vnum, cls.vars, color='CYAN', ext_in='.o')
 cls2.maxjobs = 1
-
-TaskGen.declare_order('apply_incpaths', 'apply_defines_cc', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cc', 'apply_obj_vars')
 

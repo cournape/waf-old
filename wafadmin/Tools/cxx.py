@@ -37,7 +37,9 @@ def init_cxx(self):
 		raise Utils.WafError("At least one compiler (g++, ..) must be selected")
 
 @feature('cxx')
+@after('apply_incpaths')
 def apply_obj_vars_cxx(self):
+	"""after apply_incpaths for INC_PATHS"""
 	env = self.env
 	app = env.append_unique
 	cxxpath_st = env['CPPPATH_ST']
@@ -53,7 +55,9 @@ def apply_obj_vars_cxx(self):
 		app('_CXXINCFLAGS', cxxpath_st % i)
 
 @feature('cxx')
+@after('apply_lib_vars')
 def apply_defines_cxx(self):
+	"""after uselib is set for CXXDEFINES"""
 	self.defines = getattr(self, 'defines', [])
 	lst = self.to_list(self.defines) + self.to_list(self.env['CXXDEFINES'])
 	milst = []
@@ -97,6 +101,4 @@ cls = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o', s
 cls.maxjobs = 1
 cls2 = Task.task_type_from_func('vnum_cxx_link', ccroot.link_vnum, cls.vars, color='CYAN', ext_in='.o')
 cls2.maxjobs = 1
-
-TaskGen.declare_order('apply_incpaths', 'apply_defines_cxx', 'apply_core', 'apply_lib_vars', 'apply_obj_vars_cxx', 'apply_obj_vars')
 
