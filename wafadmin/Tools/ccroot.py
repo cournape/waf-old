@@ -181,6 +181,7 @@ def install_target_cshlib(self):
 
 @feature('cc', 'cxx')
 @after('apply_type_vars')
+@after('apply_core')
 def apply_incpaths(self):
 	"used by the scanner"
 	lst = []
@@ -220,6 +221,7 @@ def apply_incpaths(self):
 		self.env.append_value('INC_PATHS', self.bld.srcnode)
 
 @feature('cc', 'cxx')
+@after('apply_core')
 def apply_type_vars(self):
 	for x in self.features:
 		if not x in ['cprogram', 'cstaticlib', 'cshlib']:
