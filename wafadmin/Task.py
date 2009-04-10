@@ -116,6 +116,10 @@ class TaskManager(object):
 		self.groups_names[name] = g
 		self.groups.append(g)
 
+	def set_current_group(self, idx):
+		# TODO by name too
+		self.current_group = idx
+
 	def add_task_gen(self, tgen):
 		if not self.groups: self.add_group()
 		self.groups[-1].tasks_gen.append(tgen)
