@@ -90,7 +90,7 @@ def scan(self):
 class ccroot_abstract(TaskGen.task_gen):
 	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
 	def __init__(self, *k, **kw):
-		# COMPAT
+		# COMPAT remove in waf 1.6 TODO
 		if len(k) > 1:
 			k = list(k)
 			if k[1][0] != 'c':
@@ -109,22 +109,6 @@ def get_target_name(self):
 	dir, name = os.path.split(self.target)
 	return os.path.join(dir, pattern % name)
 
-@feature('cc', 'cxx')
-@before('apply_core')
-def default_cc(self):
-	"""compiled_tasks attribute must be set before the '.c->.o' tasks can be created"""
-	Utils.def_attrs(self,
-		includes = '',
-		defines= '',
-		rpaths = '',
-		uselib = '',
-		uselib_local = '',
-		add_objects = '',
-		p_flag_vars = [],
-		p_type_vars = [],
-		compiled_tasks = [],
-		link_task = None)
-
 def install_shlib(self):
 	nums = self.vnum.split('.')
 
@@ -141,6 +125,22 @@ def install_shlib(self):
 	bld.install_as(os.path.join(path, name3), filename, env=self.env)
 	bld.symlink_as(os.path.join(path, name2), name3)
 	bld.symlink_as(os.path.join(path, name1), name3)
+
+@feature('cc', 'cxx')
+@before('apply_core')
+def default_cc(self):
+	"""compiled_tasks attribute must be set before the '.c->.o' tasks can be created"""
+	Utils.def_attrs(self,
+		includes = '',
+		defines= '',
+		rpaths = '',
+		uselib = '',
+		uselib_local = '',
+		add_objects = '',
+		p_flag_vars = [],
+		p_type_vars = [],
+		compiled_tasks = [],
+		link_task = None)
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
