@@ -393,6 +393,10 @@ For example:
    def sayHi(self):
         print("hi")
 Now taskgen.sayHi() may be called
+
+If python were really smart, it could infer itself the order of methods by looking at the
+attributes. A prerequisite for execution is to have the attribute set before.
+Intelligent compilers binding aspect-oriented programming and parallelization, what a nice topic for studies.
 """
 def taskgen(func):
 	setattr(task_gen, func.__name__, func)
