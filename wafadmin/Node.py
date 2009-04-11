@@ -423,7 +423,7 @@ class Node(object):
 		else:
 			name = name + ext
 
-		return self.parent.childs.get(name, None) or self.__class__(name, self.parent, BUILD)
+		return self.parent.find_or_declare([name])
 
 	def src_dir(self, env):
 		"src path without the file name"
