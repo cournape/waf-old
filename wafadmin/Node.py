@@ -229,7 +229,7 @@ class Node(object):
 					dir_cont = self.__class__.bld.cache_dir_contents
 					# we use rescan above, so dir_cont[prev.id *is* defined]
 					if name in dir_cont[prev.id]:
-						if not os.path.isdir(prev.abspath() + os.sep + name):
+						if not os.path.isdir((prev.name and prev.abspath() or '') + os.sep + name):
 							# paranoid os.stat
 							return None
 						current = self.__class__(name, prev, DIR)
