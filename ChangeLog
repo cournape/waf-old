@@ -6,6 +6,8 @@ NEW IN WAF 1.5.5
 * bld.add_pre_fun and bld.add_post_fun to add pre/post functions
 * enable extended build groups
 * enable scanner methods on declare_chain and make-like rules
+* vala improvements
+* fixes for Cygwin
 
 NEW IN WAF 1.5.4
 ----------------
