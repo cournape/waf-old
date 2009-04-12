@@ -226,11 +226,24 @@ class Node(object):
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
+					# TODO what a mess!
 					dir_cont = self.__class__.bld.cache_dir_contents
 					# we use rescan above, so dir_cont[prev.id *is* defined]
-					if name in dir_cont[prev.id]:
-						if not os.path.isdir((prev.name and prev.abspath() or '') + os.sep + name):
-							# paranoid os.stat
+					if prev.id in dir_cont and not prev.name and len(name) == 2 and name[1] == ':':
+						# drive letter on win32
+						current = self.__class__(name, prev, DIR)
+					elif name in dir_cont[prev.id]:
+						if not prev.name:
+							if os.sep == '/':
+								# cygwin //machine/share
+								dirname = os.sep + name
+							else:
+								# windows c:
+								dirname = name
+						else:
+							# regular path
+							dirname = prev.abspath() + os.sep + name
+						if not os.path.isdir(dirname):
 							return None
 						current = self.__class__(name, prev, DIR)
 					else:
@@ -566,58 +579,6 @@ class Node(object):
 			return " ".join([x.relpath_gen(self) for x in ret])
 
 		return ret
-
-# win32 fixes follow
-if sys.platform == "win32":
-	# FIXME TODO we will remove the following code very soon, it is left as reference
-
-	def find_dir_win32(self, lst):
-
-		if isinstance(lst, str):
-			lst = Utils.split_path(lst)
-
-		current = self
-		for name in lst:
-			self.__class__.bld.rescan(current)
-			prev = current
-
-			if not current.parent and name == current.name:
-				continue
-			if not name:
-				continue
-			elif name == '.':
-				continue
-			elif name == '..':
-				current = current.parent or current
-			else:
-				current = prev.childs.get(name, None)
-				if current is None:
-					if (name in self.__class__.bld.cache_dir_contents[prev.id]
-						or (not prev.parent and name[1] == ":")):
-						current = self.__class__(name, prev, DIR)
-					else:
-						return None
-		return current
-
-	def abspath_win32(self, env=None):
-		variant = self.variant(env)
-		ret = self.__class__.bld.cache_node_abspath[variant].get(self.id, None)
-		if ret: return ret
-
-		if not variant:
-			cur = self
-			lst = []
-			while cur:
-				lst.append(cur.name)
-				cur = cur.parent
-			lst.reverse()
-			val = os.sep.join(lst)
-		else:
-			val = os.sep.join((self.__class__.bld.bldnode.abspath(), env.variant(), self.path_to_parent(self.__class__.bld.srcnode)))
-		if val.startswith("\\"): val = val[1:]
-		if val.startswith("\\"): val = val[1:]
-		self.__class__.bld.cache_node_abspath[variant][self.id] = val
-		return val
 
 class Nodu(Node):
 	pass
