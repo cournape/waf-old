@@ -88,10 +88,6 @@ class Node(object):
 		# use the id to find out: type = id & 3
 		# for setting: new type = type + x - type & 3
 
-		# Node name must contain only one level
-		if Utils.split_path(name)[0] != name:
-			raise Utils.WafError('name %r forbidden ' % name)
-
 		if parent and name in parent.childs:
 			raise Utils.WafError('node %s exists in the parent files %r already' % (name, parent))
 
@@ -244,7 +240,7 @@ class Node(object):
 						return None
 		return current
 
-	# FIXME: remove in waf 1.6
+	# FIXME: remove in waf 1.6 ?
 	def ensure_dir_node_from_path(self, lst):
 		"used very rarely, force the construction of a branch of node instance for representing folders"
 
@@ -404,9 +400,9 @@ class Node(object):
 
 		if not variant:
 			if not self.parent:
-				val = os.sep
-			elif not self.parent.name:
-				val = os.sep + self.name
+				val = os.sep == '/' and os.sep or ''
+			elif not self.parent.name: # root
+				val = (os.sep == '/' and os.sep or '') + self.name
 			else:
 				val = self.parent.abspath() + os.sep + self.name
 		else:
@@ -573,6 +569,8 @@ class Node(object):
 
 # win32 fixes follow
 if sys.platform == "win32":
+	# FIXME TODO we will remove the following code very soon, it is left as reference
+
 	def find_dir_win32(self, lst):
 
 		if isinstance(lst, str):
@@ -600,7 +598,6 @@ if sys.platform == "win32":
 					else:
 						return None
 		return current
-	Node.find_dir = find_dir_win32
 
 	def abspath_win32(self, env=None):
 		variant = self.variant(env)
@@ -621,8 +618,6 @@ if sys.platform == "win32":
 		if val.startswith("\\"): val = val[1:]
 		self.__class__.bld.cache_node_abspath[variant][self.id] = val
 		return val
-	Node.abspath = abspath_win32
-
 
 class Nodu(Node):
 	pass

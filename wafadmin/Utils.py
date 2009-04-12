@@ -274,7 +274,7 @@ try:
 except ImportError:
 	pass
 else:
-	if sys.stderr.isatty() and os.environ['TERM'] != 'dumb':
+	if os.environ['TERM'] != 'dumb' and sys.stderr.isatty():
 		def myfun():
 			dummy_lines, cols = struct.unpack("HHHH", \
 			fcntl.ioctl(sys.stderr.fileno(),termios.TIOCGWINSZ , \
@@ -292,22 +292,31 @@ rot_idx = 0
 rot_chr = ['\\', '|', '/', '-']
 "the rotation character in the progress bar"
 
+
 def split_path(path):
 	if not path: return ['']
 	return path.split('/')
 
-if is_win32:
-	def split_path(path):
-		h,t = os.path.splitunc(path)
-		if not h: return __split_dirs(t)
-		return [h] + __split_dirs(t)[1:]
+def split_path_cygwin(path):
+	if not path: return ['']
+	if path.startswith('//'):
+		ret = path.split('/')[2:]
+		ret[0] = '/' + ret[0]
+		return ret
+	return path.split('/')
 
-	def __split_dirs(path):
-		h,t = os.path.split(path)
-		if not h: return [t]
-		if h == path: return [h.replace('\\', '')]
-		if not t: return __split_dirs(h)
-		else: return __split_dirs(h) + [t]
+def split_path_win32(path):
+	if not path: return ['']
+	if path.startswith('\\\\'):
+		ret = path.split('\\')[2:]
+		ret[0] = '\\' + ret[0]
+		return ret
+	return path.split('\\')
+
+if sys.platform == 'cygwin':
+	split_path = split_path_cygwin
+elif is_win32:
+	split_path = split_path_win32
 
 def copy_attrs(orig, dest, names, only_if_set=False):
 	for a in to_list(names):
