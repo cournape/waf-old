@@ -30,8 +30,14 @@ _waf ()
 		return
 	fi
 	cur=${COMP_WORDS[COMP_CWORD]}
-	cmds=$("$waf" --help | grep '^\* Main commands:' |  cut -d: -f2- )
-	opts=$("$waf" --help | grep '^[[:blank:]]*-' |  awk '
+	# find def foo() in wscript to use as custom commands
+	# skip private _foo() and the set_options() methods
+	custom_cmds=$(test -e wscript && (grep '^def[[:blank:]][^_]' wscript |
+		sed 's/def\(.*\)(.*/\1/g' |
+		grep -v 'set_options'))
+	# hardcode the core commands rather than use awk
+	cmds="build configure clean dist distcheck distclean install uninstall $custom_cmds"
+	opts=$("$waf" --help 2>/dev/null | grep '^[[:blank:]]*-' |  awk '
 	{ for (i = 1; i <= NF; ++i) {
 		if (($i ~ /^-/) && ($i !~ /:$/) && ($i !~ /---/)) {
 			gsub("(,|=.*)","",$i); print $i;
