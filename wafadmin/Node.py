@@ -226,13 +226,8 @@ class Node(object):
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
-					# TODO what a mess!
 					dir_cont = self.__class__.bld.cache_dir_contents
-					# we use rescan above, so dir_cont[prev.id *is* defined]
-					if prev.id in dir_cont and not prev.name and len(name) == 2 and name[1] == ':':
-						# drive letter on win32
-						current = self.__class__(name, prev, DIR)
-					elif name in dir_cont[prev.id]:
+					if prev.id in dir_cont and name in dir_cont[prev.id]:
 						if not prev.name:
 							if os.sep == '/':
 								# cygwin //machine/share
@@ -245,6 +240,9 @@ class Node(object):
 							dirname = prev.abspath() + os.sep + name
 						if not os.path.isdir(dirname):
 							return None
+						current = self.__class__(name, prev, DIR)
+					elif (not prev.name and len(name) == 2 and name[1] == ':') or name.startswith('\\\\'):
+						# drive letter or \\ path for windows
 						current = self.__class__(name, prev, DIR)
 					else:
 						return None
