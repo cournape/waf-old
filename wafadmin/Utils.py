@@ -294,24 +294,22 @@ rot_chr = ['\\', '|', '/', '-']
 
 
 def split_path(path):
-	if not path: return ['']
 	return path.split('/')
 
 def split_path_cygwin(path):
-	if not path: return ['']
 	if path.startswith('//'):
 		ret = path.split('/')[2:]
 		ret[0] = '/' + ret[0]
 		return ret
 	return path.split('/')
 
+re_sp = re.compile('[/\\\\]')
 def split_path_win32(path):
-	if not path: return ['']
 	if path.startswith('\\\\'):
-		ret = path.split('\\')[2:]
+		ret = re.split(re_sp, path)[2:]
 		ret[0] = '\\' + ret[0]
 		return ret
-	return path.split('\\')
+	return re.split(re_sp, path)
 
 if sys.platform == 'cygwin':
 	split_path = split_path_cygwin
