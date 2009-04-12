@@ -4,7 +4,7 @@
 
 import os.path, shutil
 import Task, Runner, Utils, Logs, Build, Node
-from TaskGen import extension
+from TaskGen import extension, after, before
 
 EXT_VALA = ['.vala', '.gs']
 
@@ -58,7 +58,7 @@ class valac_task(Task.Task):
 		cmd.append(" ".join(inputs))
 		result = self.generator.bld.exec_command(" ".join(cmd))
 
-		if 'cshlib' in features or 'cstaticlib' in features:
+		if not 'cprogram' in features:
 			# generate the .deps file
 			if self.packages:
 				filename = os.path.join(self.generator.path.abspath(env), "%s.deps" % self.target)
@@ -118,6 +118,7 @@ def vala_file(self, node):
 	if not valatask:
 		valatask = self.create_task('valac')
 		self.valatask = valatask
+		self.includes = Utils.to_list(getattr(self, 'includes', []))
 		valatask.packages = []
 		valatask.packages_private = Utils.to_list(getattr(self, 'packages_private', []))
 		valatask.vapi_dirs = []
@@ -128,6 +129,7 @@ def vala_file(self, node):
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
 		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))
+		includes =  []
 
 		if hasattr(self, 'uselib_local'):
 			local_packages = Utils.to_list(self.uselib_local)
@@ -155,6 +157,8 @@ def vala_file(self, node):
 								packages.append(package_name)
 							if package_dir not in vapi_dirs:
 								vapi_dirs.append(package_dir)
+							if package_dir not in includes:
+								includes.append(package_dir)
 
 				if hasattr(package_obj, 'uselib_local'):
 					lst = self.to_list(package_obj.uselib_local)
@@ -168,6 +172,15 @@ def vala_file(self, node):
 				valatask.vapi_dirs.append(self.path.find_dir(vapi_dir).abspath(self.env))
 			except AttributeError:
 				Logs.warn("Unable to locate Vala API directory: '%s'" % vapi_dir)
+
+		self.includes.append(node.bld.srcnode.abspath())
+		self.includes.append(node.bld.srcnode.abspath(self.env))
+		for include in includes:
+			try:
+				self.includes.append(self.path.find_dir(include).abspath())
+				self.includes.append(self.path.find_dir(include).abspath(self.env))
+			except AttributeError:
+				Logs.warn("Unable to locate include directory: '%s'" % include)
 
 		if hasattr(self, 'threading'):
 			valatask.threading = self.threading
@@ -188,6 +201,9 @@ def vala_file(self, node):
 
 	if env['VALAC_VERSION'] < (0, 7, 0):
 		output_nodes.append(node.change_ext('.h'))
+	else:
+		if not 'cprogram' in self.features:
+			output_nodes.append(self.path.find_or_declare('%s.h' % self.target))
 
 	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
