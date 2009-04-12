@@ -30,7 +30,7 @@ def build(bld):
 		subdirs += ' tests'
 	bld.add_subdirs(subdirs)
 
-def shutdown():
+def check(context):
 	# Unit tests are run when "check" target is used
 	ut = UnitTest.unit_test()
 	ut.change_to_testfile_dir = True
