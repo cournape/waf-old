@@ -274,7 +274,7 @@ try:
 except ImportError:
 	pass
 else:
-	if os.environ['TERM'] != 'dumb' and sys.stderr.isatty():
+	if Logs.got_tty:
 		def myfun():
 			dummy_lines, cols = struct.unpack("HHHH", \
 			fcntl.ioctl(sys.stderr.fileno(),termios.TIOCGWINSZ , \
