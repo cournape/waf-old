@@ -527,6 +527,9 @@ class Context(object):
 				old = self.curdir
 				self.curdir = nexdir
 				try:
+					if txt.find('\r') > -1:
+						# python sucks
+						txt = txt.replace('\r', '\n')
 					exec (txt, dc)
 				finally:
 					self.curdir = old
