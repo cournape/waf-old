@@ -22,10 +22,15 @@ colors_lst = {
 'cursor_off' :'\x1b[?25l',
 }
 
-if (sys.platform=='win32') or ('NOCOLOR' in os.environ) \
-	or (os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']) \
-	or (not sys.stderr.isatty()):
-		colors_lst['USE'] = False
+got_tty = not os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']
+if got_tty:
+	try:
+		got_tty = sys.stderr.isatty()
+	except AttributeError:
+		got_tty = False
+
+if not got_tty or sys.platform == 'win32' or 'NOCOLOR' in os.environ:
+	colors_lst['USE'] = False
 
 def get_color(cl):
 	if not colors_lst['USE']: return ''
