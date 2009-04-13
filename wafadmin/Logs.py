@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, re, logging, traceback, sys, Utils
+import os, re, logging, traceback, sys
 from Constants import *
 
 zones = ''
@@ -28,6 +28,8 @@ if got_tty:
 		got_tty = sys.stderr.isatty()
 	except AttributeError:
 		got_tty = False
+
+import Utils
 
 if not got_tty or sys.platform == 'win32' or 'NOCOLOR' in os.environ:
 	colors_lst['USE'] = False
