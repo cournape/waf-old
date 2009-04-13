@@ -106,7 +106,7 @@ class TaskManager(object):
 			else: self.current_group += 1
 		return (None, None)
 
-	def add_group(self, name=None):
+	def add_group(self, name=None, set=True):
 		#if self.groups and not self.groups[0].tasks:
 		#	error('add_group: an empty group is already present')
 		g = TaskGroup()
@@ -115,14 +115,20 @@ class TaskManager(object):
 			error('add_group: name %s already present' % name)
 		self.groups_names[name] = g
 		self.groups.append(g)
+		if set:
+			self.current_group = len(self.groups) - 1
 
 	def set_current_group(self, idx):
-		# TODO by name too
+		if isinstance(idx, str):
+			g = self.groups_names[idx]
+			for x in xrange(len(self.groups)):
+				if id(g) == id(self.groups[x]):
+					self.current_group = g
 		self.current_group = idx
 
 	def add_task_gen(self, tgen):
 		if not self.groups: self.add_group()
-		self.groups[-1].tasks_gen.append(tgen)
+		self.groups[self.current_group].tasks_gen.append(tgen)
 
 	def add_task(self, task):
 		if not self.groups: self.add_group()
