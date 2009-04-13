@@ -1,0 +1,48 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2009 (ita)
+
+VERSION='0.0.1'
+APPNAME='groups'
+
+srcdir = '.'
+blddir = 'build'
+
+import Options
+
+def set_options(opt):
+	opt.tool_options('compiler_cxx')
+
+def configure(conf):
+	conf.check_tool('compiler_cxx')
+
+	conf.env.append_value('CXXFLAGS', ['-O2'])
+
+	debugEnv = conf.env.copy()
+	debugEnv.set_variant('debug')
+	conf.set_env_name('debug', debugEnv)
+
+	conf.setenv('debug')
+	conf.env.append_value('CXXFLAGS', ['-O0', '-g3'])
+
+def build(bld):
+
+	bld.add_group('test1')
+	bld.add_group('test2')
+	bld.add_group('test3')
+	bld.add_group('test4')
+
+	print "tadaaam"
+
+	bld.set_group('test3')
+	bld.new_task_gen(features='cxx cprogram', source='main3.c', target='g3')
+
+	bld.set_group('test1')
+	bld.new_task_gen(features='cxx cprogram', source='main1.c', target='g1')
+
+	bld.set_group('test2')
+	obj2 = bld.new_task_gen(features='cxx cprogram', source='main2.c', target='g2')
+
+	bld.set_group('test4')
+	obj2.clone('debug')
+
