@@ -118,13 +118,14 @@ class TaskManager(object):
 		if set:
 			self.current_group = len(self.groups) - 1
 
-	def set_current_group(self, idx):
+	def set_group(self, idx):
 		if isinstance(idx, str):
 			g = self.groups_names[idx]
 			for x in xrange(len(self.groups)):
 				if id(g) == id(self.groups[x]):
-					self.current_group = g
-		self.current_group = idx
+					self.current_group = x
+		else:
+			self.current_group = idx
 
 	def add_task_gen(self, tgen):
 		if not self.groups: self.add_group()

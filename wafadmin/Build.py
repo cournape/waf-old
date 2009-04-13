@@ -585,6 +585,9 @@ class BuildContext(Utils.Context):
 	def add_group(self, *k):
 		self.task_manager.add_group(*k)
 
+	def set_group(self, *k, **kw):
+		self.task_manager.set_group(*k, **kw)
+
 	def hash_env_vars(self, env, vars_lst):
 		"""hash environment variables
 		['CXX', ..] -> [env['CXX'], ..] -> md5()"""
