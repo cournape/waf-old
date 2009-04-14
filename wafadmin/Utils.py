@@ -498,7 +498,7 @@ class Context(object):
 			base = os.path.join(nexdir, WSCRIPT_FILE)
 
 			try:
-				txt = readf(base + '_' + name, mode='rU')
+				txt = readf(base + '_' + name, m='rU')
 			except (OSError, IOError):
 				try:
 					module = load_module(base)
