@@ -228,6 +228,11 @@ def configure(conf):
 	try: os.makedirs(bld)
 	except OSError: pass
 
+	# It is not possible to compile specific targets in the configuration
+	# this may cause configuration errors if autoconfig is set
+	targets = Options.options.compile_targets
+	Options.options.compile_targets = None
+
 	conf.srcdir = src
 	conf.blddir = bld
 	conf.post_init()
@@ -253,6 +258,8 @@ def configure(conf):
 	env['files'] = conf.files
 	env['environ'] = dict(conf.environ)
 	env.store(Options.lockfile)
+
+	Options.options.compile_targets = targets
 
 def clean(bld):
 	'''removes the build files'''
