@@ -232,7 +232,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	module = imp.new_module(name)
 
 	try:
-		code = readf(file_path)
+		code = readf(file_path, m='rU')
 	except (IOError, OSError):
 		raise WscriptError('The file %s could not be opened!' % file_path)
 
