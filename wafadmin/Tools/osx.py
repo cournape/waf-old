@@ -129,7 +129,7 @@ def app_build(task):
 		debug('osx: generate Info.plist')
 		# TODO:  Support custom info.plist contents.
 
-		f = file(os.path.join(srcfile, "Contents", "Info.plist"), "w")
+		f = open(os.path.join(srcfile, "Contents", "Info.plist"), "w")
 		f.write(app_info % os.path.basename(srcprg))
 		f.close()
 

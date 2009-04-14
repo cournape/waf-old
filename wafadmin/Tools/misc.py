@@ -259,17 +259,17 @@ class command_output(Task.Task):
 				argv.append(arg.get_path(task.env, (task.cwd is not None)))
 
 		if task.stdin:
-			stdin = file(input_path(task.stdin, '%s'))
+			stdin = open(input_path(task.stdin, '%s'))
 		else:
 			stdin = None
 
 		if task.stdout:
-			stdout = file(output_path(task.stdout, '%s'), "w")
+			stdout = open(output_path(task.stdout, '%s'), "w")
 		else:
 			stdout = None
 
 		if task.stderr:
-			stderr = file(output_path(task.stderr, '%s'), "w")
+			stderr = open(output_path(task.stderr, '%s'), "w")
 		else:
 			stderr = None
 
