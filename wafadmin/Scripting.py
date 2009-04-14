@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, shutil, traceback, time, inspect
+import os, sys, shutil, traceback, datetime, inspect
 
 import Utils, Configure, Build, Logs, Options, Environment, Task
 from Logs import error, warn, info
@@ -176,8 +176,7 @@ def main():
 	while commands:
 		x = commands.pop(0)
 
-		ini = time.time()
-		#info('Configuration finished successfully%s; project is ready to build.' % ela)
+		ini = datetime.datetime.now()
 		if x == 'configure':
 			fun = configure
 		elif x == 'build':
@@ -201,7 +200,20 @@ def main():
 
 		ela = ''
 		if not Options.options.progress_bar:
-			ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+			#ela = time.strftime(' (%H:%M:%S)', time.gmtime(time.time() - ini))
+			delta = datetime.datetime.now() - ini
+			days = delta.days
+			hours = delta.seconds / 3600
+			minutes = (delta.seconds - hours * 3600) / 60
+			seconds = delta.seconds - hours * 3600 - minutes * 60 \
+				+ float(delta.microseconds) / 1000 / 1000
+			if days:
+				ela += '%dd' % days
+			if days or hours:
+				ela += '%dh' % hours
+			if days or hours or minutes:
+				ela += '%dm' % minutes
+			ela = ' (%s%.3fs)' % (ela, seconds)
 
 		if x != 'init' and x != 'shutdown':
 			info('%r finished successfully%s' % (x, ela))
@@ -387,7 +399,6 @@ def build_impl(bld):
 	# execute something immediately before the build starts
 	bld.pre_build()
 
-	ini = time.time()
 	try:
 		bld.compile()
 	finally:
