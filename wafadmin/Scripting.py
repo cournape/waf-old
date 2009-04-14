@@ -481,12 +481,13 @@ def dist(appname='', version=''):
 	# undocumented hook for additional cleanup
 	dist_hook = getattr(Utils.g_module, 'dist_hook', None)
 	if dist_hook:
+		back = os.getcwd()
 		os.chdir(tmp_folder)
 		try:
 			dist_hook()
 		finally:
 			# go back to the root directory
-			os.chdir('..')
+			os.chdir(back)
 
 	tar = tarfile.open(arch_name, 'w:' + g_gz)
 	tar.add(tmp_folder)

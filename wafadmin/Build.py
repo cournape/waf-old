@@ -214,8 +214,6 @@ class BuildContext(Utils.Context):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
 		debug('build: compile called')
 
-		os.chdir(self.bdir)
-
 		"""
 		import cProfile, pstats
 		cProfile.run("import Build\nBuild.bld.flush()", 'profi.txt')
@@ -238,7 +236,6 @@ class BuildContext(Utils.Context):
 			self.generator.start()
 		except KeyboardInterrupt:
 			dw()
-			os.chdir(self.srcnode.abspath())
 			if self.generator.consumers:
 				self.save()
 			raise
@@ -252,10 +249,7 @@ class BuildContext(Utils.Context):
 				self.save()
 
 		if self.generator.error:
-			os.chdir(self.srcnode.abspath())
 			raise BuildError(self, self.task_manager.tasks_done)
-
-		os.chdir(self.srcnode.abspath())
 
 	def install(self):
 		"this function is called for both install and uninstall"
@@ -873,7 +867,8 @@ class BuildContext(Utils.Context):
 			self.log.write('%s\n' % cmd)
 			kw['log'] = self.log
 		try:
-			if not 'cwd' in kw: kw['cwd'] = self.cwd
+			if not kw.get('cwd', None):
+				kw['cwd'] = self.cwd
 		except AttributeError:
 			self.cwd = kw['cwd'] = self.bldnode.abspath()
 		return Utils.exec_command(cmd, **kw)
