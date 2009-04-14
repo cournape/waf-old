@@ -8,7 +8,8 @@ NEW IN WAF 1.5.5
 * enable scanner methods on declare_chain and make-like rules
 * vala improvements
 * fixes for Cygwin
-* no more os.chdir in the build context (library use)
+* better Vim integration: fixes for completion+isatty, and :make
+* read the script files in mode='rU' to avoid dos mode files problems
 
 NEW IN WAF 1.5.4
 ----------------
