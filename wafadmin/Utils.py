@@ -498,7 +498,7 @@ class Context(object):
 			base = os.path.join(nexdir, WSCRIPT_FILE)
 
 			try:
-				txt = readf(base + '_' + name)
+				txt = readf(base + '_' + name, mode='rU')
 			except (OSError, IOError):
 				try:
 					module = load_module(base)
@@ -527,9 +527,6 @@ class Context(object):
 				old = self.curdir
 				self.curdir = nexdir
 				try:
-					if txt.find('\r') > -1:
-						# python sucks
-						txt = txt.replace('\r', '\n')
 					exec (txt, dc)
 				finally:
 					self.curdir = old
