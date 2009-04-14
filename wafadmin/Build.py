@@ -231,25 +231,33 @@ class BuildContext(Utils.Context):
 				else: sys.stderr.write(Logs.colors.cursor_off)
 
 		debug('build: executor starting')
-		try:
-			dw(on=False)
-			self.generator.start()
-		except KeyboardInterrupt:
-			dw()
-			if self.generator.consumers:
-				self.save()
-			raise
-		except Exception:
-			dw()
-			# do not store anything, for something bad happened
-			raise
-		else:
-			dw()
-			if self.generator.consumers:
-				self.save()
 
-		if self.generator.error:
-			raise BuildError(self, self.task_manager.tasks_done)
+		back = os.getcwd()
+		os.chdir(self.bldnode.abspath())
+
+		try:
+			try:
+				dw(on=False)
+				self.generator.start()
+			except KeyboardInterrupt:
+				dw()
+				if self.generator.consumers:
+					self.save()
+				raise
+			except Exception:
+				dw()
+				# do not store anything, for something bad happened
+				raise
+			else:
+				dw()
+				if self.generator.consumers:
+					self.save()
+
+			if self.generator.error:
+				raise BuildError(self, self.task_manager.tasks_done)
+
+		finally:
+			os.chdir(back)
 
 	def install(self):
 		"this function is called for both install and uninstall"
