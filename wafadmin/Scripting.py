@@ -412,12 +412,11 @@ def build_impl(bld):
 	try:
 		bld.compile()
 	finally:
+		if Options.options.progress_bar: print('')
 		info("Waf: Leaving directory `%s'" % bld.bldnode.abspath())
 
 	# execute something immediately after a successful build
 	bld.post_build()
-
-	if Options.options.progress_bar: print('')
 
 	bld.install()
 
