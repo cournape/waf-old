@@ -120,7 +120,6 @@ class ConfigurationContext(Utils.Context):
 		try: os.unlink(path)
 		except (OSError, IOError): pass
 		self.log = open(path, 'w')
-		print getattr(Utils.g_module, 'APPNAME', '')
 
 		app = getattr(Utils.g_module, 'APPNAME', '')
 		if app:
