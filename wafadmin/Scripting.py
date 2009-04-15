@@ -27,9 +27,8 @@ def prepare_impl(t, cwd, ver, wafdir):
 	# now find the wscript file
 	msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "%s"' % WSCRIPT_FILE
 
-	# Some people want to configure their projects gcc-style:
+	# in theory projects can be configured in a gcc manner:
 	# mkdir build && cd build && ../waf configure && ../waf
-	# check that this is really what is wanted
 	build_dir_override = None
 	candidate = None
 
@@ -40,9 +39,9 @@ def prepare_impl(t, cwd, ver, wafdir):
 	search_for_candidate = True
 	if WSCRIPT_FILE in lst:
 		candidate = cwd
+
 	elif 'configure' in sys.argv and not WSCRIPT_BUILD_FILE in lst:
-		# gcc-style configuration
-		# look in the calling directory for a wscript file "/foo/bar/configure"
+		# gcc-like configuration
 		calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
 		if WSCRIPT_FILE in os.listdir(calldir):
 			candidate = calldir
@@ -51,7 +50,6 @@ def prepare_impl(t, cwd, ver, wafdir):
 			error('arg[0] directory does not contain a wscript file')
 			sys.exit(1)
 		build_dir_override = cwd
-
 
 	# climb up to find a script if it is not found
 	while search_for_candidate:
@@ -63,6 +61,9 @@ def prepare_impl(t, cwd, ver, wafdir):
 		if 'configure' in sys.argv and candidate:
 			break
 		if Options.lockfile in dirlst:
+			env = Environment.Environment()
+			env.load(os.path.join(cwd, Options.lockfile))
+			candidate = env['cwd']
 			break
 		cwd = os.path.dirname(cwd) # climb up
 
@@ -279,6 +280,12 @@ def configure(conf):
 	env['hash'] = conf.hash
 	env['files'] = conf.files
 	env['environ'] = dict(conf.environ)
+	env['cwd'] = os.path.split(Utils.g_module.root_path)[0]
+
+	if Utils.g_module.root_path != src:
+		# in case the source dir is somewhere else
+		env.store(os.path.join(src, Options.lockfile))
+
 	env.store(Options.lockfile)
 
 	Options.options.compile_targets = targets
