@@ -222,11 +222,12 @@ def main():
 			commands.append('shutdown')
 
 def configure(conf):
-	err = 'The %s is not given in %s:\n * define a top level attribute named "%s"\n * run waf configure --%s=xxx'
 
 	src = getattr(Options.options, SRCDIR, None)
 	if not src: src = getattr(Utils.g_module, SRCDIR, None)
-	if not src: raise Utils.WscriptError(err % (SRCDIR, os.path.abspath('.'), SRCDIR, SRCDIR))
+	if not src:
+		src = '.'
+		incomplete_src = 1
 	src = os.path.abspath(src)
 
 	bld = getattr(Options.options, BLDDIR, None)
@@ -234,7 +235,9 @@ def configure(conf):
 		bld = getattr(Utils.g_module, BLDDIR, None)
 		if bld == '.':
 			raise Utils.WafError('Setting blddir="." may cause distclean problems')
-	if not bld: raise Utils.WscriptError(err % (BLDDIR, os.path.abspath('.'), BLDDIR, BLDDIR))
+	if not bld:
+		bld = 'build'
+		incomplete_bld = 1
 	bld = os.path.abspath(bld)
 
 	try: os.makedirs(bld)
@@ -248,6 +251,13 @@ def configure(conf):
 	conf.srcdir = src
 	conf.blddir = bld
 	conf.post_init()
+
+	if 'incomplete_src' in vars():
+		conf.check_message_1('Setting srcdir to')
+		conf.check_message_2(src)
+	if 'incomplete_bld' in vars():
+		conf.check_message_1('Setting blddir to')
+		conf.check_message_2(bld)
 
 	# calling to main wscript's configure()
 	conf.sub_config([''])
