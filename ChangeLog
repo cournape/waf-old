@@ -1,16 +1,17 @@
 NEW IN WAF 1.5.5
 ----------------
-* qt4 + variants
+* improve the compatibility of qt4 and variants
 * make the preprocessor error messages less scary
 * let the preprocessor tokenize hex and octal numbers properly
 * bld.add_pre_fun and bld.add_post_fun to add pre/post functions
 * enable extended build groups with names
 * enable scanner methods on declare_chain and make-like rules
 * vala improvements
-* fixes for Cygwin
+* cygwin fixes
 * better Vim integration: fixes for completion+isatty, and :make
 * read the script files in mode='rU' to avoid dos mode files problems
 * fix the autoconfig behaviour with installation and targets
+* write the configuration header to the expected location
 
 NEW IN WAF 1.5.4
 ----------------
