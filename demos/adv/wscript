@@ -170,6 +170,8 @@ def configure(conf):
 	conf.define('DEBUG', 1)
 	conf.write_config_header('config.h', env=env_variant2)
 
+	conf.sub_config('src')
+
 def build(bld):
 	"""
 	#for debugging or profiling: build empty files
