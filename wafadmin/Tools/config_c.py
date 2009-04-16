@@ -576,8 +576,10 @@ def write_config_header(self, configfile='', env='', guard=''):
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
 
 	# configfile -> absolute path
+	# there is a good reason to concatenate first and to split afterwards
 	if not env: env = self.env
-	full = os.sep.join([self.blddir, env.variant(), configfile])
+	full = os.sep.join([self.blddir, env.variant(), Utils.diff_path(self.srcdir, self.curdir), configfile])
+	full = os.path.normpath(full)
 	(dir, base) = os.path.split(full)
 
 	try: os.makedirs(dir)

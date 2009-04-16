@@ -473,8 +473,29 @@ def nada(*k, **kw):
 	"""A function that does nothing"""
 	pass
 
+def diff_path(top, subdir):
+	"""difference between two absolute paths"""
+	diff = []
+	while not os.path.samefile(top, subdir):
+		(subdir, d) = os.path.split(subdir)
+		diff.insert(0, d)
+	return "".join(diff)
+
 class Context(object):
 	"""A base class for commands to be executed from Waf scripts"""
+
+	def set_curdir(self, dir):
+		self.curdir_ = dir
+
+	def get_curdir(self):
+		try:
+			return self.curdir_
+		except AttributeError:
+			self.curdir_ = os.getcwd()
+			return self.get_curdir()
+
+	curdir = property(get_curdir, set_curdir)
+
 	def recurse(self, dirs, name=''):
 		"""The function for calling scripts from folders, it tries to call wscript + function_name
 		and if that file does not exist, it will call the method 'function_name' from a file named wscript
@@ -485,9 +506,6 @@ class Context(object):
 
 		if isinstance(dirs, str):
 			dirs = to_list(dirs)
-
-		if not getattr(self, 'curdir', None):
-			self.curdir = os.getcwd()
 
 		for x in dirs:
 			if os.path.isabs(x):
