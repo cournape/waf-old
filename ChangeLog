@@ -10,6 +10,7 @@ NEW IN WAF 1.5.5
 * fixes for Cygwin
 * better Vim integration: fixes for completion+isatty, and :make
 * read the script files in mode='rU' to avoid dos mode files problems
+* fix the autoconfig behaviour with installation and targets
 
 NEW IN WAF 1.5.4
 ----------------
