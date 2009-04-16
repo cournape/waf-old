@@ -163,3 +163,7 @@ class Environment(object):
 		if self.__getitem__('NOINSTALL'): return ''
 		return Options.options.destdir
 
+	def update(self, d):
+		for k, v in d.iteritems():
+			self[k] = v
+
