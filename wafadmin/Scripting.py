@@ -235,6 +235,7 @@ def configure(conf):
 	# this may cause configuration errors if autoconfig is set
 	targets = Options.options.compile_targets
 	Options.options.compile_targets = None
+	Options.is_install = False
 
 	conf.srcdir = src
 	conf.blddir = bld
