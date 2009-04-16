@@ -1,1 +1,10 @@
-print ("hi there")
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy 2009
+
+# ctx == conf
+# (do not use conf, it will be deprecated in waf 1.6)
+
+print ("hi there %r" % ctx)
+
+
