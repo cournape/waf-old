@@ -12,7 +12,7 @@ The class Build holds all the info related to a build:
 There is only one Build object at a time (bld singleton)
 """
 
-import os, sys, errno, re, glob, gc, time, shutil
+import os, sys, errno, re, glob, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
 import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Logs, Options
@@ -632,7 +632,7 @@ class BuildContext(Utils.Context):
 	def flush(self, all=1):
 		"""tell the task generators to create the tasks"""
 
-		self.ini = time.time()
+		self.ini = datetime.datetime.now()
 		# force the initialization of the mapping name->object in flush
 		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
@@ -704,7 +704,7 @@ class BuildContext(Utils.Context):
 		ini = self.ini
 
 		pc = (100.*state)/total
-		eta = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
+		eta = Utils.get_elapsed_time(ini)
 		fs = "[%%%dd/%%%dd][%%s%%2d%%%%%%s][%s][" % (n, n, ind)
 		left = fs % (state, total, col1, pc, col2)
 		right = '][%s%s%s]' % (col1, eta, col2)

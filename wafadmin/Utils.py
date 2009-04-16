@@ -33,7 +33,7 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, string, errno, traceback, inspect, re, shutil
+import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime
 
 try: from UserDict import UserDict
 except ImportError: from collections import UserDict
@@ -552,4 +552,21 @@ if is_win32:
 		old(src, dst)
 		shutil.copystat(src, src)
 	setattr(shutil, 'copy2', copy2)
+
+def get_elapsed_time(start):
+	"Format a time delta (datetime.timedelta) using the format DdHhMmS.MSs"
+	delta = datetime.datetime.now() - start
+	days = delta.days
+	hours = delta.seconds / 3600
+	minutes = (delta.seconds - hours * 3600) / 60
+	seconds = delta.seconds - hours * 3600 - minutes * 60 \
+		+ float(delta.microseconds) / 1000 / 1000
+	result = ''
+	if days:
+		result += '%dd' % days
+	if days or hours:
+		result += '%dh' % hours
+	if days or hours or minutes:
+		result += '%dm' % minutes
+	return '%s%.3fs' % (result, seconds)
 

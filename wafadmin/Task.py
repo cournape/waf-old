@@ -42,7 +42,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 
 """
 
-import os, shutil, sys, re, random, time
+import os, shutil, sys, re, random, datetime
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, warn, error
@@ -416,8 +416,7 @@ class TaskBase(object):
 			return self.generator.bld.progress_line(self.position[0], self.position[1], col1, col2)
 
 		if Options.options.progress_bar == 2:
-			ini = self.generator.bld.ini
-			ela = time.strftime('%H:%M:%S', time.gmtime(time.time() - ini))
+			ela = Utils.get_elapsed_time(self.generator.bld.ini)
 			try:
 				ins  = ','.join([n.name for n in self.inputs])
 			except AttributeError:
