@@ -5,6 +5,6 @@
 # ctx == conf
 # (do not use conf, it will be deprecated in waf 1.6)
 
-print ("hi there %r" % ctx)
-
+ctx.write_config_header('another_config.h', env=conf.all_envs['default'])
+ctx.write_config_header('another_config.h', env=conf.all_envs['debug'])
 

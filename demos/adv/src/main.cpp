@@ -1,5 +1,6 @@
 
 #include "config.h"
+#include "another_config.h"
 
 int hmmm = TEST_DEFINE;
 
