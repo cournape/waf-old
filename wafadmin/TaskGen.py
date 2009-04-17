@@ -152,10 +152,10 @@ class task_gen(object):
 		# add the methods listed in the features
 		self.features = Utils.to_list(self.features)
 		for x in self.features + ['*']:
-			try:
-				keys.update(task_gen.traits[x])
-			except KeyError:
+			st = task_gen.traits[x]
+			if not st:
 				warn('feature %r does not exist - bind at least one method to it' % x)
+			keys.update(st)
 
 		# copy the precedence table
 		prec = {}
