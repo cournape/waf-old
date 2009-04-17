@@ -93,7 +93,7 @@ def debug(msg):
 
 def error(msg):
 	logging.error(msg)
-	if verbose:
+	if verbose > 1:
 		if isinstance(msg, Utils.WafError):
 			st = msg.stack
 		else:
