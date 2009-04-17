@@ -192,6 +192,9 @@ def get_num(lst):
 			raise PreprocError("invalid op token %r for get_num" % lst)
 	elif p == NUM:
 		return v, lst[1:]
+	elif p == IDENT:
+		# all macros should have been replaced, remaining identifiers eval to 0
+		return 0, lst[1:]
 	else:
 		raise PreprocError("invalid token %r for get_num" % lst)
 
