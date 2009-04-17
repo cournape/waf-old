@@ -520,8 +520,10 @@ def find_msvc(conf):
 	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
 
 	# environment flags
-	v.prepend_value('CPPPATH', conf.environ['INCLUDE'])
-	v.prepend_value('LIBPATH', conf.environ['LIB'])
+	try: v.prepend_value('CPPPATH', conf.environ['INCLUDE'])
+	except KeyError: pass
+	try: v.prepend_value('LIBPATH', conf.environ['LIB'])
+	except KeyError: pass
 
 	# linker
 	if not v['LINK_CXX']:
