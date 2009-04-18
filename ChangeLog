@@ -1,8 +1,10 @@
 NEW IN WAF 1.5.5
 ----------------
 * improve the compatibility of qt4 and variants
+* rename MTask to qxx in the qt4 tool
 * make the preprocessor error messages less scary
 * let the preprocessor tokenize hex and octal numbers properly
+* let the preprocessor assume undefined macros evaluate to 0
 * bld.add_pre_fun and bld.add_post_fun to add pre/post functions
 * enable extended build groups with names
 * enable scanner methods on declare_chain and make-like rules
