@@ -46,7 +46,7 @@ class MTask_task(Task.Task):
 		for x in nodes:
 			if x.name.endswith('.moc'):
 				nodes.remove(x)
-				names.append(x.relpath_gen(self.generator.path))
+				names.append(x.relpath_gen(self.inputs[0].parent))
 		return (nodes, names)
 
 	def runnable_status(self):
