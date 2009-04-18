@@ -11,6 +11,7 @@ Utilities, the stable ones are the following:
 
   For large projects (projects with more than 15000 files) it is possible to use
   a hashing based on the path and the size (may give broken cache results)
+  The method h_file MUST raise an OSError if the file is a folder
 
 	import stat
 	def h_file(filename):
