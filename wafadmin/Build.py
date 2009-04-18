@@ -655,7 +655,10 @@ class BuildContext(Utils.Context):
 				if not target_name in target_objects and all:
 					raise Utils.WafError("target '%s' does not exist" % target_name)
 
-			target_objects = [id(x) for x in target_objects]
+			to_compile = []
+			for x in target_objects.values():
+				for y in x:
+					to_compile.append(id(y))
 
 			# tasks must be posted in order of declaration
 			# we merely apply a filter to discard the ones we are not interested in
@@ -663,7 +666,7 @@ class BuildContext(Utils.Context):
 				g = self.task_manager.groups[i]
 				self.task_manager.current_group = i
 				for tg in g.tasks_gen:
-					if id(x) in target_objects:
+					if id(tg) in to_compile:
 						tg.post()
 
 		else:
