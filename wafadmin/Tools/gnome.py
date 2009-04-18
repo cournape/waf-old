@@ -56,7 +56,7 @@ class gnome_doc_taskgen(TaskGen.task_gen):
 	def __init__(self, *k, **kw):
 		TaskGen.task_gen.__init__(self, *k, **kw)
 
-@feature('gmome_doc')
+@feature('gnome_doc')
 def init_gnome_doc(self):
 	self.default_install_path = '${PREFIX}/share'
 
