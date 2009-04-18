@@ -9,11 +9,11 @@ bld.new_task_gen(
 	source   = 'gnome-test.schemas.in',
 	install_path = '${PREFIX}/etc/gconf/schemas',
 	podir    = '../po',
-	flags    = '-s')
+	flags    = ['-s', '-q', '-u', '-c'])
 
 bld.new_task_gen(
 	features = 'intltool_in',
 	source   = 'gnome-test.desktop.in',
 	install_path = '${PREFIX}/share/gnome/autostart',
 	podir    = '../po',
-	flags    = '-d')
+	flags    = ['-d', '-q', '-u', '-c'])
