@@ -9,7 +9,7 @@
 
 def build(bld):
 	import Options
-	print "command-line parameter meow is ", Options.options.meow
+	print("command-line parameter meow is %r" % Options.options.meow)
 
 	# 1. A simple program
 	bld.new_task_gen(
@@ -63,5 +63,5 @@ def set_options(opt):
 	opt.add_option('--meow', type='string', help='option hidden in the src module', dest='meow')
 
 def configure(conf):
-	print "sub-configuration file called (demo)"
+	print ("sub-configuration file called (demo)")
 
