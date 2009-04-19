@@ -111,7 +111,7 @@ class TaskManager(object):
 		#	error('add_group: an empty group is already present')
 		g = TaskGroup()
 
-		if name in self.groups_names:
+		if name and name in self.groups_names:
 			error('add_group: name %s already present' % name)
 		self.groups_names[name] = g
 		self.groups.append(g)
