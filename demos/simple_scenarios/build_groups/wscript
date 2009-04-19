@@ -28,7 +28,7 @@ def build(bld):
 		source = 'a.cpp',
 		target = 'AA')
 
-	bld.add_group() # <- acts like a separator
+	bld.add_group('sep') # <- acts like a separator
 
 	bld.new_task_gen(
 		features = 'cxx cprogram',
