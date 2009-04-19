@@ -10,14 +10,13 @@ from TaskGen import extension, taskgen, feature, before
 xsubpp_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 EXT_XS = ['.xs']
 
-@before('apply_incpaths')
+@before('apply_incpaths', 'apply_type_vars', 'apply_lib_vars')
 @feature('perlext')
 def init_perlext(self):
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
 	if not 'PERL' in self.uselib: self.uselib.append('PERL')
 	if not 'PERLEXT' in self.uselib: self.uselib.append('PERLEXT')
 	self.env['shlib_PATTERN'] = self.env['perlext_PATTERN']
-
 
 @extension(EXT_XS)
 def xsubpp_file(self, node):
