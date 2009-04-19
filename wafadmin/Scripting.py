@@ -306,7 +306,7 @@ def check_configured(bld):
 	bld_cls = getattr(Utils.g_module, 'build_context', Utils.Context)
 
 	def reconf(proj):
-		back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
+		back = (Options.commands, Options.options.__dict__, Logs.zones, Logs.verbose)
 
 		Options.commands = proj['commands']
 		Options.options.__dict__ = proj['options']
@@ -314,7 +314,7 @@ def check_configured(bld):
 		conf.environ = proj['environ']
 		configure(conf)
 
-		(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
+		(Options.commands, Options.options.__dict__, Logs.zones, Logs.verbose) = back
 
 	try:
 		proj = Environment.Environment(Options.lockfile)
