@@ -335,7 +335,7 @@ def check_configured(bld):
 	try:
 		for file in proj['files']:
 			if file.endswith('configure'):
-				h = hash((h, readf(file)))
+				h = hash((h, Utils.readf(file)))
 			else:
 				mod = Utils.load_module(file)
 				h = hash((h, mod.waf_hash_val))
