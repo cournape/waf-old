@@ -300,35 +300,39 @@ def clean(bld):
 
 def check_configured(bld):
 	if not Configure.autoconfig:
-		return
+		return bld
+
+	conf_cls = getattr(Utils.g_module, 'configure_context', Utils.Context)
+	bld_cls = getattr(Utils.g_module, 'build_context', Utils.Context)
 
 	def reconf(proj):
 		back = (Options.commands, Options.options, Logs.zones, Logs.verbose)
 
 		Options.commands = proj['commands']
 		Options.options.__dict__ = proj['options']
-		conf = Configure.ConfigurationContext()
+		conf = conf_cls()
 		conf.environ = proj['environ']
 		configure(conf)
 
 		(Options.commands, Options.options, Logs.zones, Logs.verbose) = back
 
-	for k in xrange(3):
-		try:
-			proj = Environment.Environment(Options.lockfile)
-		except IOError:
-			conf = Configure.ConfigurationContext()
-			configure(conf)
-		else:
-			try:
-				bld = Build.BuildContext()
-				bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
-				bld.load_envs()
-			except Utils.WafError:
-				reconf(proj)
-				return
-			break
+	try:
+		proj = Environment.Environment(Options.lockfile)
+	except IOError:
+		conf = conf_cls()
+		configure(conf)
 	else:
+		try:
+			bld = bld_cls()
+			bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
+			bld.load_envs()
+		except Utils.WafError:
+			reconf(proj)
+			return bld_cls()
+
+	try:
+		proj = Environment.Environment(Options.lockfile)
+	except IOError:
 		raise Utils.WafError('Auto-config: project does not configure (bug)')
 
 	h = 0
@@ -347,6 +351,8 @@ def check_configured(bld):
 			warn('Reconfiguring the project: the configuration has changed')
 			reconf(proj)
 
+	return bld_cls()
+
 def install(bld):
 	'''installs the build files'''
 	Options.commands['install'] = True
@@ -355,7 +361,7 @@ def install(bld):
 
 	bld.is_install = INSTALL
 
-	check_configured(bld)
+	bld = check_configured(bld)
 	build_impl(bld)
 	bld.install()
 
@@ -385,7 +391,7 @@ def build(bld):
 
 	bld.is_install = 0 # False
 
-	check_configured(bld)
+	bld = check_configured(bld)
 	return build_impl(bld)
 
 def build_impl(bld):
