@@ -73,7 +73,7 @@ def byte_compile_py(self):
 		installed_files = self._py_installed_files
 		if not installed_files:
 			return
-		if self.bld.is_install > 0:
+		if self.bld.is_install < 0:
 			info("* removing byte compiled python files")
 			for fname in installed_files:
 				try:
@@ -85,7 +85,7 @@ def byte_compile_py(self):
 				except OSError:
 					pass
 
-		if self.bld.is_install < 0:
+		if self.bld.is_install > 0:
 			if self.env['PYC'] or self.env['PYO']:
 				info("* byte compiling python files")
 
