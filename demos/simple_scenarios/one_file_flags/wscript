@@ -11,6 +11,9 @@ blddir = 'build'
 Access the task after it is created, and modify its flags
 
 Run with "waf -v" to see the difference
+
+An easier solution is to create two distinct task generators,
+and add the object files from the first to the second
 """
 
 from TaskGen import after, feature
