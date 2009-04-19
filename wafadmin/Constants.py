@@ -9,9 +9,9 @@ maintainer: the version number is updated from the top-level wscript file
 """
 
 # do not touch these three lines, they are updated automatically
-HEXVERSION = 0x10504
-WAFVERSION="1.5.4"
-WAFREVISION = "5978M"
+HEXVERSION = 0x10505
+WAFVERSION="1.5.5"
+WAFREVISION = "6104:6112M"
 ABI = 7
 
 # permissions
