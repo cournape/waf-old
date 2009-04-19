@@ -149,7 +149,8 @@ class TaskManager(object):
 			f = None
 			if 'install' in tsk.__dict__:
 				f = tsk.__dict__['install']
-				f(tsk)
+				# install=0 to prevent installation
+				if f: f(tsk)
 			else:
 				tsk.install()
 
