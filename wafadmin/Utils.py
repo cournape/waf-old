@@ -480,7 +480,7 @@ def diff_path(top, subdir):
 	while not os.path.samefile(top, subdir):
 		(subdir, d) = os.path.split(subdir)
 		diff.insert(0, d)
-	return "".join(diff)
+	return os.path.join(*diff)
 
 class Context(object):
 	"""A base class for commands to be executed from Waf scripts"""
