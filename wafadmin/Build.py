@@ -922,3 +922,7 @@ class BuildContext(Utils.Context):
 		try: self.post_funs.append(meth)
 		except AttributeError: self.post_funs = [meth]
 
+	def i_am_lazy(self):
+		Task.algotype = Task.MAXPARALLEL
+		Task.file_deps = Task.extract_deps
+
