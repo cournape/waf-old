@@ -22,10 +22,14 @@ def wrap(self):
 setattr(cls, 'run', wrap)
 
 def detect(conf):
-	comp = conf.find_program('ar', var='AR')
+	comp = conf.environ.get('AR', '')
+	if not comp: comp = conf.env['AR']
+	if not comp: comp = conf.find_program('ar', var='AR')
 	if not comp: return
 
-	ranlib = conf.find_program('ranlib', var='RANLIB')
+	ranlib = conf.environ.get('RANLIB', '')
+	if not ranlib: ranlib = conf.env['RANLIB']
+	if not ranlib: ranlib = conf.find_program('ranlib', var='RANLIB')
 	if not ranlib: return
 
 	v = conf.env
