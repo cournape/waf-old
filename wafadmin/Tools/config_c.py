@@ -570,7 +570,7 @@ def have_define(self, name):
 	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(name)
 
 @conf
-def write_config_header(self, configfile='', env='', guard=''):
+def write_config_header(self, configfile='', env='', guard='', top=False):
 	"save the defines into a file"
 	if not configfile: configfile = WAF_CONFIG_H
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
@@ -578,7 +578,10 @@ def write_config_header(self, configfile='', env='', guard=''):
 	# configfile -> absolute path
 	# there is a good reason to concatenate first and to split afterwards
 	if not env: env = self.env
-	diff = Utils.diff_path(self.srcdir, self.curdir)
+	if top:
+		diff = ''
+	else:
+		diff = Utils.diff_path(self.srcdir, self.curdir)
 	full = os.sep.join([self.blddir, env.variant(), diff, configfile])
 	full = os.path.normpath(full)
 	(dir, base) = os.path.split(full)
