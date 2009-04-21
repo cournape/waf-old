@@ -60,6 +60,10 @@ class qxx_task(Task.Task):
 			self.signature()
 			return Task.Task.runnable_status(self)
 		else:
+			# yes, really, there are people who generate cxx files
+			for t in self.run_after:
+				if not t.hasrun:
+					return ASK_LATER
 			self.add_moc_tasks()
 			return ASK_LATER
 
@@ -102,8 +106,9 @@ class qxx_task(Task.Task):
 
 			if not ext:
 				base2 = d[:-4]
-				path = node.parent.srcpath(self.env)
-				for i in MOC_H:
+				paths = [node.parent.srcpath(self.env), node.parent.bldpath(self.env)]
+				poss = [(x, y) for x in MOC_H for y in paths]
+				for (i, path) in poss:
 					try:
 						# TODO we could use find_resource
 						os.stat(os.path.join(path, base2+i))
