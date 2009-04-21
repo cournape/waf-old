@@ -777,6 +777,11 @@ class BuildContext(Utils.Context):
 		return destpath
 
 	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False):
+		"""To install files only after they have been built, put the calls in a method named
+		post_build on the top-level wscript
+		
+		The relative_trick flag can be set to install folders, use bld.path.ant_glob() with it
+		"""
 		if env:
 			assert isinstance(env, Environment.Environment), "invalid parameter"
 

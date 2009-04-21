@@ -555,6 +555,7 @@ class Node(object):
 		return ret
 
 	def ant_glob(self, *k, **kw):
+		"""takes nearly the same arguments as find_iter, and by default outputs both source and build files"""
 		regex = Utils.jar_regexp(k[0])
 		def accept(node, name):
 			ts = node.relpath_gen(self) + '/' + name
