@@ -1,3 +1,9 @@
+NEW IN WAF 1.5.6
+----------------
+* let the qt4 tool operate with generated files
+* fix a problem with the config.h creation
+* look for AR in os.environ first (consistency with CC)
+
 NEW IN WAF 1.5.5
 ----------------
 * improve the compatibility of qt4 and variants
