@@ -678,11 +678,11 @@ class BuildContext(Utils.Context):
 				ln = self.srcnode
 
 			# if the project file is located under the source directory, build all targets by default
+			# else 'waf configure build' does nothing
 			proj_node = self.root.find_dir(os.path.split(Utils.g_module.root_path)[0])
 			if proj_node.id != self.srcnode.id:
 				ln = self.srcnode
 
-			# in theory this is fine
 			for i in xrange(len(self.task_manager.groups)):
 				g = self.task_manager.groups[i]
 				self.task_manager.current_group = i
