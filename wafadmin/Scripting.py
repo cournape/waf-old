@@ -90,41 +90,20 @@ def prepare_impl(t, cwd, ver, wafdir):
 			warn(msg)
 		Utils.g_module.blddir = build_dir_override
 
-	#def set_def(obj, name=''):
-	#	if not obj.__name__ in Utils.g_module.__dict__:
-	#		setattr(Utils.g_module, obj.__name__, obj)
+	# bind a few methods and classes by default
 
-	if not 'dist' in Utils.g_module.__dict__:
-		Utils.g_module.dist = dist
-	if not 'distclean' in Utils.g_module.__dict__:
-		Utils.g_module.distclean = distclean
-	if not 'distcheck' in Utils.g_module.__dict__:
-		Utils.g_module.distcheck = distcheck
+	def set_def(obj, name=''):
+		n = name or obj.__name__
+		if not n in Utils.g_module.__dict__:
+			setattr(Utils.g_module, n, obj)
 
-	#if not 'build' in Utils.g_module.__dict__:
-	#	Utils.g_module.build = build
-	if not 'build_context' in Utils.g_module.__dict__:
-		Utils.g_module.build_context = Build.BuildContext
+	for k in [dist, distclean, distcheck, build, clean, install, uninstall]:
+		set_def(k)
 
-	if not 'clean' in Utils.g_module.__dict__:
-		Utils.g_module.clean = clean
-	if not 'clean_context' in Utils.g_module.__dict__:
-		Utils.g_module.clean_context = Build.BuildContext
+	set_def(Configure.ConfigurationContext, 'configure_context')
 
-	if not 'install' in Utils.g_module.__dict__:
-		Utils.g_module.install = install
-	if not 'install_context' in Utils.g_module.__dict__:
-		Utils.g_module.install_context = Build.BuildContext
-
-	if not 'uninstall' in Utils.g_module.__dict__:
-		Utils.g_module.uninstall = uninstall
-	if not 'uninstall_context' in Utils.g_module.__dict__:
-		Utils.g_module.uninstall_context = Build.BuildContext
-
-	#if not 'configure' in Utils.g_module.__dict__:
-	#	Utils.g_module.configure = configure
-	if not 'configure_context' in Utils.g_module.__dict__:
-		Utils.g_module.configure_context = Configure.ConfigurationContext
+	for k in ['build', 'clean', 'install', 'uninstall']:
+		set_def(Build.BuildContext, k + '_context')
 
 	# now parse the options from the user wscript file
 	opt_obj = Options.Handler(Utils.g_module)
