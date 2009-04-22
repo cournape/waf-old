@@ -32,8 +32,6 @@ def prepare_impl(t, cwd, ver, wafdir):
 	build_dir_override = None
 	candidate = None
 
-	# TODO something weird - cwd is the input
-	cwd = Options.launch_dir
 	lst = os.listdir(cwd)
 
 	search_for_candidate = True
