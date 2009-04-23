@@ -93,8 +93,8 @@ class doxygen_task(Task.Task):
 
 	def runnable_status(self):
 		if not getattr(self, 'pars', None):
-			self.pars = read_into_dict(infile)
 			infile = self.inputs[0].abspath(self.env)
+			self.pars = read_into_dict(infile)
 			if not self.pars.get('OUTPUT_DIRECTORY'):
 				self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.abspath(self.env)
 			if not self.pars.get('INPUT'):
@@ -135,6 +135,11 @@ class doxygen_task(Task.Task):
 
 		self.outputs = [x for x in self.outputs if x.id & 3 != Node.DIR]
 		return Task.Task.post_run(self)
+
+	def install(self):
+		if getattr(self.generator, 'install_to', None):
+			print self.generator.bld.path.ant_glob('**', dir=0, src=0)
+			#bld.install_files(self.generator.install_to, self.generator.bld.path.ant_glob('**', dir=0))
 
 # quick tar creation
 cls = Task.simple_task_type('tar', '${TAR} ${TAROPTS} ${TGT} ${SRC}', color='RED')
