@@ -179,6 +179,7 @@ class Parallel(object):
 				# if the task is marked as "run", just skip it
 				self.processed += 1
 				self.manager.add_finished(tsk)
+				continue
 
 			try:
 				st = tsk.runnable_status()
