@@ -323,7 +323,7 @@ def declare_extension(var, func):
 		for x in var:
 			task_gen.mappings[x] = func
 	except:
-		raise Utils.WscriptError('declare extension takes either a list or a string %s' % str(var))
+		raise Utils.WscriptError('declare_extension takes either a list or a string %s' % str(var))
 	task_gen.mapped[func.__name__] = func
 
 def declare_order(*k):
@@ -433,7 +433,7 @@ def extension(var):
 	elif isinstance(var, str):
 		var = [var]
 	else:
-		raise Utils.WafError('declare extension takes either a list or a string %s' % str(var))
+		raise Utils.WafError('extension takes either a list or a string %s' % str(var))
 
 	def deco(func):
 		setattr(task_gen, func.__name__, func)
