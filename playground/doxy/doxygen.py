@@ -8,7 +8,7 @@ import pproc
 import Task, Utils, Node, Constants
 from TaskGen import feature
 
-DOXY_STR = 'cd %s && ${DOXYGEN} ${DOXYFLAGS} - >/dev/null'
+DOXY_STR = '${DOXYGEN} - '
 DOXY_FMTS = 'html latex man rft xml'.split()
 DOXY_EXTS = '''
 *.c *.cc *.cxx *.cpp *.c++ *.C
@@ -22,9 +22,7 @@ re_join = re.compile(r'\\(\r)*\n', re.M)
 re_nl = re.compile('\r*\n', re.M)
 
 def read_into_dict(name):
-	f = open(name, 'rb')
-	txt = f.read()
-	f.close()
+	txt = Utils.readf(name)
 
 	ret = {}
 
@@ -88,22 +86,23 @@ def nodes_files_of(node, recurse, includes, excludes):
 
 class doxygen_task(Task.Task):
 
-	vars=['DOXYGEN', 'DOXYFLAGS']
+	vars = ['DOXYGEN', 'DOXYFLAGS']
 	color = 'BLUE'
 	after = 'cxx_link cc_link'
 	quiet = True
 
 	def runnable_status(self):
 		if not getattr(self, 'pars', None):
-			infile = self.inputs[0].abspath(self.env)
 			self.pars = read_into_dict(infile)
+			infile = self.inputs[0].abspath(self.env)
 			if not self.pars.get('OUTPUT_DIRECTORY'):
 				self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.abspath(self.env)
+			if not self.pars.get('INPUT'):
+				self.pars['INPUT'] = self.inputs[0].parent.abspath()
 		self.signature()
 		return Task.Task.runnable_status(self)
 
 	def scan(self):
-
 		recurse = self.pars.get('RECURSIVE') == 'YES'
 		excludes = self.pars.get('EXCLUDE_PATTERNS', '').split()
 		includes = self.pars.get('FILE_PATTERNS', '').split()
@@ -118,8 +117,8 @@ class doxygen_task(Task.Task):
 		code = '\n'.join(['%s = %s' % (x, self.pars[x]) for x in self.pars])
 		if not self.env['DOXYFLAGS']:
 			self.env['DOXYFLAGS'] = ''
-		fmt = DOXY_STR % (self.inputs[0].parent.abspath())
-		cmd = Utils.subst_vars(fmt, self.env)
+		#fmt = DOXY_STR % (self.inputs[0].parent.abspath())
+		cmd = Utils.subst_vars(DOXY_STR, self.env)
 		proc = pproc.Popen(cmd, shell=True, stdin=pproc.PIPE)
 		proc.communicate(code)
 		return proc.returncode
