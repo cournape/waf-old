@@ -5,10 +5,10 @@
 """
 The tool "post_one" emulates the make behaviour for building exactly one file,
 this will not work in general (tasks may not have files!), but some users might
-use it for c
+use it for some c/c++
 
-Additionally, we try to guess the dependencies to build what is related,
-but a executing a full build first is recommended.
+Though executing a full build first is recommended, it tries to guess the
+dependencies to build exactly what is required first.
 
 Examples:
 waf distclean configure build --bf=libmy_static_lib.a
