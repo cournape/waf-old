@@ -480,6 +480,7 @@ def diff_path(top, subdir):
 	while not os.path.samefile(top, subdir):
 		(subdir, d) = os.path.split(subdir)
 		diff.insert(0, d)
+	if not diff: return ''
 	return os.path.join(*diff)
 
 class Context(object):
