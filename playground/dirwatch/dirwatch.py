@@ -293,14 +293,14 @@ class adaptor(object):
 
 ## FAM #############################################################
 
-class FamAdaptor(DirWatch.adaptor):
+class FamAdaptor(adaptor):
 	def __init__(self, event_handler):
-		DirWatch.adaptor.__init__(self, event_handler)
+		adaptor.__init__(self, event_handler)
 		global module
 		self.data = module.open()
 
 	def __del__(self):
-		DirWatch.adaptor.__del__(self)
+		adaptor.__del__(self)
 		if self.data: self.data.close()
 
 	def do_add_watch_dir(self, name, idx_name):
@@ -470,9 +470,9 @@ the modification time.
 		self._dirs[dirName].callBack(pathName, event, self._dirs[dirName].userdata)
 		del self._changeLog[pathName]
 
-class FallbackAdaptor(DirWatch.adaptor):
+class FallbackAdaptor(adaptor):
 	def __init__(self, eventHandler):
-		DirWatch.adaptor.__init__(self, event_handler)
+		adaptor.__init__(self, event_handler)
 		self.data = Fallback()
 
 	def do_add_watch_dir(self, name, idx_name):
