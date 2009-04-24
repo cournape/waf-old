@@ -20,9 +20,6 @@ blddir = 'build'
 import Task
 Task.file_deps = Task.extract_deps
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	conf.check_tool('gcc')
 
@@ -37,7 +34,4 @@ def build(bld):
 		source='main.c foo.c bar.c',
 		target='test',
 		includes='.')
-
-def shutdown():
-	pass
 
