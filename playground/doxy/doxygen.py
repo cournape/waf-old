@@ -39,18 +39,32 @@ def read_into_dict(name):
 		ret[tmp[0].strip()] = '='.join(tmp[1:]).strip()
 	return ret
 
-def populate(node, branch, env):
-	path = node.abspath(env) + os.sep + branch
-	st = os.stat(path)
-	if stat.S_ISREG(st[stat.ST_MODE]):
-		return [node.exclusive_build_node(branch)]
-	elif stat.S_ISDIR(st[stat.ST_MODE]):
-		parent = node.ensure_dir_node_from_path(branch)
-		lst = Utils.listdir(parent.abspath(env))
-		buf = [parent]
-		for x in lst:
-			buf += populate(parent, x, env)
-		return buf
+def update_build_dir(node, env):
+	"""call this method when the contents of the build dir has to be read
+	(remove or create nodes, set the cache for ant_glob, ...)
+	make certain to avoid concurrent access (execute from the main thread)"""
+	path = node.abspath(env)
+
+	lst = Utils.listdir(path)
+	try:
+		node.__class__.bld.cache_dir_contents[node.id].update(lst)
+	except KeyError:
+		node.__class__.bld.cache_dir_contents[node.id] = set(lst)
+
+	ex = node.childs.keys()
+	for k in ex:
+		if node.childs[k].id & 3 != Node.FILE:
+			if not k in lst:
+				del node.childs[k]
+
+	for k in lst:
+		npath = path + os.sep + k
+		st = os.stat(npath)
+		if stat.S_ISREG(st[stat.ST_MODE]):
+			node.exclusive_build_node(k)
+		elif stat.S_ISDIR(st[stat.ST_MODE]):
+			parent = node.ensure_dir_node_from_path(k)
+			update_build_dir(parent, env)
 
 def nodes_files_of(node, recurse, includes, excludes):
 	"""
@@ -126,20 +140,23 @@ class doxygen_task(Task.Task):
 	def post_run(self):
 		# look for the files that appeared in the build directory
 		input_parent = self.inputs[0].parent
+		update_build_dir(input_parent, self.env)
 		lst = Utils.listdir(input_parent.abspath(self.env))
 		for k in DOXY_FMTS:
 			key = 'GENERATE_' + k.upper()
 			if self.pars.get(key) == 'YES':
 				if k in lst:
-					self.outputs += populate(input_parent, k, self.env)
+					nd = input_parent.find_dir(k)
+					self.outputs += nd.find_iter(src=0, bld=1, dir=0)
 
 		self.outputs = [x for x in self.outputs if x.id & 3 != Node.DIR]
 		return Task.Task.post_run(self)
 
 	def install(self):
 		if getattr(self.generator, 'install_to', None):
-			print self.generator.bld.path.ant_glob('**', dir=0, src=0)
-			#bld.install_files(self.generator.install_to, self.generator.bld.path.ant_glob('**', dir=0))
+			update_build_dir(self.inputs[0].parent, self.env)
+			pattern = getattr(self, 'instype', 'html/*')
+			self.generator.bld.install_files(self.generator.install_to, self.generator.path.ant_glob(pattern, dir=0, src=0))
 
 # quick tar creation
 cls = Task.simple_task_type('tar', '${TAR} ${TAROPTS} ${TGT} ${SRC}', color='RED')
