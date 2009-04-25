@@ -476,11 +476,10 @@ def nada(*k, **kw):
 
 def diff_path(top, subdir):
 	"""difference between two absolute paths"""
-	diff = []
-	while not os.path.samefile(top, subdir):
-		(subdir, d) = os.path.split(subdir)
-		diff.insert(0, d)
-	if not diff: return ''
+	top = os.path.normpath(top).replace('\\', '/').split('/')
+	subdir = os.path.normpath(subdir).replace('\\', '/').split('/')
+	if len(top) == len(subdir): return ''
+	diff = subdir[len(top) - len(subdir):]
 	return os.path.join(*diff)
 
 class Context(object):
