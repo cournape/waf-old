@@ -9,7 +9,7 @@ Custom objects:
 """
 
 import shutil, re, os
-import TaskGen, Node, Task, Utils, Build, pproc, Constants
+import TaskGen, Node, Task, Utils, Build, Constants
 from TaskGen import feature, taskgen, after, before
 from Logs import debug
 
@@ -284,7 +284,7 @@ class command_output(Task.Task):
 			os_env = os.environ
 		else:
 			os_env = task.os_env
-		command = pproc.Popen(argv, stdin=stdin, stdout=stdout, stderr=stderr, cwd=task.cwd, env=os_env)
+		command = Utils.pproc.Popen(argv, stdin=stdin, stdout=stdout, stderr=stderr, cwd=task.cwd, env=os_env)
 		return command.wait()
 
 class cmd_output_taskgen(TaskGen.task_gen):
