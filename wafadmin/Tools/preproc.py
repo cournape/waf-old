@@ -771,7 +771,7 @@ def lines_includes(filename):
 	code = re_cpp.sub(repl, code)
 	return [(m.group(2), m.group(3)) for m in re.finditer(re_inc, code)]
 
-def get_deps(node, env, nodepaths=[], defines={}):
+def get_deps_simple(node, env, nodepaths=[], defines={}):
 	"""
 	Get the dependencies by just looking recursively at the #include statements
 	"""
@@ -805,6 +805,5 @@ def get_deps(node, env, nodepaths=[], defines={}):
 
 	find_deps(node)
 	return (nodes, names)
-
 
 
