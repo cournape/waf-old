@@ -63,7 +63,7 @@ def jar_files(self):
 
 	tsk = self.create_task('jar_create')
 	tsk.set_outputs(out)
-	tsk.inputs = [x for x in self.path.find_iter(src=0, bld=1) if x.id != out.id]
+	tsk.inputs = [x for x in dir.find_iter(src=0, bld=1) if x.id != out.id]
 	tsk.env['JAROPTS'] = jaropts
 	tsk.env['JARCREATE'] = 'cf'
 
