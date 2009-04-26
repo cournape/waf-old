@@ -25,7 +25,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 		sys.exit(0)
 
 	# now find the wscript file
-	msg1 = 'Waf: *** Nothing to do! Please run waf from a directory containing a file named "%s"' % WSCRIPT_FILE
+	msg1 = 'Waf: Please run waf from a directory containing a file named "%s" or run distclean' % WSCRIPT_FILE
 
 	# in theory projects can be configured in a gcc manner:
 	# mkdir build && cd build && ../waf configure && ../waf
@@ -61,7 +61,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 		if Options.lockfile in dirlst:
 			env = Environment.Environment()
 			env.load(os.path.join(cwd, Options.lockfile))
-			candidate = env['cwd']
+			candidate = env['cwd'] or cwd
 			break
 		cwd = os.path.dirname(cwd) # climb up
 
