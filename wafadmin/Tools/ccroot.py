@@ -68,21 +68,28 @@ class DEBUG_LEVELS:
 def scan(self):
 	"look for .h the .cpp need"
 	debug('ccroot: _scan_preprocessor(self, node, env, path_lst)')
+
+	# TODO waf 1.6 - assume the default input has exactly one file
+
+	if len(self.inputs) == 1:
+		node = self.inputs[0]
+		(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
+		if Logs.verbose:
+			debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
+		return (nodes, names)
+
 	all_nodes = []
 	all_names = []
 	seen = []
 	for node in self.inputs:
-		# TODO need to pass the defines
-		gruik = preproc.c_parser(nodepaths = self.env['INC_PATHS'])
-		gruik.start(node, self.env)
+		(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
 		if Logs.verbose:
-			debug('deps: deps for %s: %s; unresolved %s' % (str(node), str(gruik.nodes), str(gruik.names)))
-		for x in gruik.nodes:
+			debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
+		for x in nodes:
 			if id(x) in seen: continue
 			seen.append(id(x))
 			all_nodes.append(x)
-		# TODO: use a set ?
-		for x in gruik.names:
+		for x in names:
 			if not x in all_names:
 				all_names.append(x)
 	return (all_nodes, all_names)

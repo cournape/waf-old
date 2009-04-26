@@ -747,4 +747,8 @@ class c_parser(object):
 			if re_pragma_once.search(line.lower()):
 				self.ban_includes.append(self.curfile)
 
+def get_deps(node, env, nodepaths=[]):
+	gruik = c_parser(nodepaths)
+	gruik.start(node, env)
+	return (gruik.nodes, gruik.names)
 
