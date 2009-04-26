@@ -6,6 +6,7 @@ NEW IN WAF 1.5.6
 * doxygen demo update (playground)
 * sample tool for compiling specific files (playground)
 * fixed the regression with write_config_header on win32
+* simple include scanner for c/c++ (does not substitute macros)
 
 NEW IN WAF 1.5.5
 ----------------
