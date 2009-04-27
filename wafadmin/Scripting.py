@@ -332,13 +332,14 @@ def check_configured(bld):
 
 def install(bld):
 	'''installs the build files'''
+	bld = check_configured(bld)
+
 	Options.commands['install'] = True
 	Options.commands['uninstall'] = False
 	Options.is_install = True
 
 	bld.is_install = INSTALL
 
-	bld = check_configured(bld)
 	build_impl(bld)
 	bld.install()
 
@@ -362,13 +363,14 @@ def uninstall(bld):
 		setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
 
 def build(bld):
+	bld = check_configured(bld)
+
 	Options.commands['install'] = False
 	Options.commands['uninstall'] = False
 	Options.is_install = False
 
 	bld.is_install = 0 # False
 
-	bld = check_configured(bld)
 	return build_impl(bld)
 
 def build_impl(bld):
