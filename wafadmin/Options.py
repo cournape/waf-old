@@ -48,10 +48,7 @@ def get_usage(self):
 	cmds_str = []
 	module = Utils.g_module
 	if module:
-		print "create the usage"
-
 		# create the help messages for commands
-		# TODO: extract the docstrings too
 		tbl = module.__dict__
 		keys = tbl.keys()
 		keys.sort()
