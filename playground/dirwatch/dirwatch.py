@@ -1,24 +1,41 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Matthias Jahn <jahn.matthias@freenet.de>, 2006
+# Matthias Jahn 2006
+# rewritten by Thomas Nagy 2009
 
-"""DirWatch chooses a supported backend (fam, gamin or fallback)
-it is mainly a wrapper script without own methods beside this
+"""
+This tool is supposed to help starting a new build as soon as something changes
+in the build directory.
 
-To enable it, call start_daemon in the shutdown method, and
-the following code to the options to enable a switch:
+Fam, Gamin or file-based comparisons are supposed to do the detection
 
-	p('', '--daemon',
-		action  = 'store_true',
-		default = False,
-		help    = 'run as a daemon [Default: False]',
-		dest    = 'daemon')
+TODO: for now it will try to execute a build every 5 seconds (not optimal)
 """
 
 
 import select, errno, os, time
+import Utils, Scripting
+
+def daemon(ctx):
+	"""rebuild as soon as something changes"""
+	bld = None
+	while True:
+		try:
+			bld = Utils.g_module.build_context()
+			Scripting.build(bld)
+			time.sleep(5)
+		except KeyboardInterrupt:
+			print ("interrupted")
+			break
+
+def set_options(opt):
+	Utils.g_module.__dict__['daemon'] = daemon
+
+# TODO: all the code below
 
 module = None
+g_dirwatch = None
+
 def check_support():
 	try:
 		import gamin
@@ -49,6 +66,8 @@ def check_support():
 			module = _fam
 
 g_daemonlock = 0
+
+
 
 def call_back(idxName, pathName, event):
 	#print "idxName=%s, Path=%s, Event=%s "%(idxName, pathName, event)
@@ -169,8 +188,12 @@ class DirectoryWatcher:
 			self.disconnect()
 		global module
 		if not module:
-			self.check_support()
-		if module.__name__ == "fam":
+			check_support()
+		if module is None:
+			self._adaptor = FallbackAdaptor(self._processDirEvents)
+		if not module:
+			self._adaptor = FallbackAdaptor(self._processDirEvents)
+		elif module.__name__ == "fam":
 			self._adaptor = FamAdaptor(self._processDirEvents)
 		elif module.__name__ == "gamin":
 			self._adaptor = GaminAdaptor(self._processDirEvents)
@@ -266,7 +289,7 @@ class adaptor(object):
 		self.check_init()
 		if self.watch_handler.has_key(name):
 			raise "dir already watched"
-		self.watch_handler[name] = self.do_watch_directory(name, idxName)
+		self.watch_handler[name] = self.watch_directory(name, idxName)
 		return self.watch_handler[name]
 
 	def watch_file(self, name, idxName):
@@ -385,6 +408,25 @@ class GaminAdaptor(adaptor):
 			if errnumber != errno.EINTR:
 				raise strerr
 
+class FallbackAdaptor(adaptor):
+	def __init__(self, event_handler):
+		adaptor.__init__(self, event_handler)
+		self.data = Fallback()
+
+	def do_add_watch_dir(self, name, idx_name):
+		return self.data.watch_directory(name, self._eventHandler, idxName)
+
+	def do_add_watch_file(self, name, idx_name):
+		return self.data.watch_directory(name, self._eventHandler, idxName)
+
+	def do_stop_watch(self, name):
+		self.data.unwatch_directory(name)
+
+	def wait_for_event(self):
+		self.check_init()
+		time.sleep(1)
+
+
 ## Fallback #############################################################
 
 class Fallback:
@@ -470,25 +512,7 @@ the modification time.
 		self._dirs[dirName].callBack(pathName, event, self._dirs[dirName].userdata)
 		del self._changeLog[pathName]
 
-class FallbackAdaptor(adaptor):
-	def __init__(self, eventHandler):
-		adaptor.__init__(self, event_handler)
-		self.data = Fallback()
-
-	def do_add_watch_dir(self, name, idx_name):
-		return self.data.watch_directory(name, self._eventHandler, idxName)
-
-	def do_add_watch_file(self, name, idx_name):
-		return self.data.watch_directory(name, self._eventHandler, idxName)
-
-	def do_stop_watch(self, name):
-		self.data.unwatch_directory(name)
-
-	def wait_for_event(self):
-		self.check_init()
-		time.sleep(1)
-
-
+"""
 if __name__ == "__main__":
 	class Test:
 		def __init__(self):
@@ -502,4 +526,4 @@ if __name__ == "__main__":
 			self.fam_test.resume_watch(idxName)
 
 	Test()
-
+"""

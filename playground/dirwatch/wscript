@@ -3,13 +3,16 @@
 # Thomas Nagy, 2009 (ita)
 
 """
-TODO not finished
+Use 'waf daemon'
 """
 
 VERSION='0.0.1'
 APPNAME='cc_test'
 srcdir = '.'
 blddir = 'build'
+
+def set_options(opt):
+	opt.tool_options('dirwatch', tooldir='.')
 
 def configure(conf):
 	conf.check_tool('gcc')
