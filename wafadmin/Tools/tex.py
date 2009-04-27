@@ -151,8 +151,8 @@ class tex_taskgen(TaskGen.task_gen):
 @feature('tex')
 @before('apply_core')
 def apply_tex(self):
-	if not self.type in ['latex','pdflatex']:
-		raise Utils.WafError('type %s not supported for texobj' % type)
+	if not getattr(self, 'type', None) in ['latex', 'pdflatex']:
+		self.type = 'pdflatex'
 
 	tree = self.bld
 	outs = Utils.to_list(getattr(self, 'outs', []))
@@ -183,8 +183,6 @@ def apply_tex(self):
 			task = self.create_task('pdflatex')
 			task.set_inputs(node)
 			task.set_outputs(node.change_ext('.pdf'))
-		else:
-			raise Utils.WafError('no type or invalid type given in tex object (should be latex or pdflatex)')
 
 		task.env = self.env
 		task.curdirnode = self.path
