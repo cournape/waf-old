@@ -44,21 +44,22 @@ if default_jobs < 1:
 
 default_destdir = os.environ.get('DESTDIR', '')
 
-def create_parser(module=None):
-	Logs.debug('options: create_parser is called')
-
+def get_usage(self):
 	cmds_str = []
+	module = Utils.g_module
 	if module:
+		print "create the usage"
+
 		# create the help messages for commands
 		# TODO: extract the docstrings too
-		tbl = Utils.g_module.__dict__
+		tbl = module.__dict__
 		keys = tbl.keys()
 		keys.sort()
 
-		if 'build' in module.__dict__:
+		if 'build' in tbl:
 			if not module.build.__doc__:
 				module.build.__doc__ = 'builds the project'
-		if 'configure' in module.__dict__:
+		if 'configure' in tbl:
 			if not module.configure.__doc__:
 				module.configure.__doc__ = 'configures the project'
 
@@ -73,14 +74,21 @@ def create_parser(module=None):
 
 		for x in optlst:
 			cmds_str.append('  %s: %s' % (x.ljust(just), tbl[x].__doc__))
-		cmds_str = '\n'.join(cmds_str)
+		ret = '\n'.join(cmds_str)
 	else:
-		cmd_str = ' '.join(cmds)
+		ret = ' '.join(cmds)
+	return '''waf [command] [options]
 
-	parser = optparse.OptionParser(conflict_handler="resolve", usage = '''waf [command] [options]
+Main commands (example: ./waf build -j4)
+%s
+''' % ret
 
-* Main commands (example: ./waf build -j4)
-%s''' % cmds_str, version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
+
+setattr(optparse.OptionParser, 'get_usage', get_usage)
+
+def create_parser(module=None):
+	Logs.debug('options: create_parser is called')
+	parser = optparse.OptionParser(conflict_handler="resolve", version = 'waf %s (%s)' % (WAFVERSION, WAFREVISION))
 
 	parser.formatter.width = Utils.get_term_cols()
 	p = parser.add_option
