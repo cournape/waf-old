@@ -43,7 +43,7 @@ class BuildContext(Utils.Context):
 	"holds the dependency tree"
 	def __init__(self):
 
-		# there should be only one build dir in use at a time
+		# not a singleton, but provided for compatibility
 		global bld
 		bld = self
 
