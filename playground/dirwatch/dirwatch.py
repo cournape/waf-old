@@ -14,7 +14,7 @@ TODO: for now it will try to execute a build every 5 seconds (not optimal)
 
 
 import select, errno, os, time
-import Utils, Scripting
+import Utils, Scripting, Logs, Build
 
 def daemon(ctx):
 	"""rebuild as soon as something changes"""
@@ -23,10 +23,12 @@ def daemon(ctx):
 		try:
 			bld = Utils.g_module.build_context()
 			Scripting.build(bld)
-			time.sleep(5)
+		except Build.BuildError, e:
+			Logs.warn(e)
 		except KeyboardInterrupt:
-			print ("interrupted")
+			Utils.pprint('RED', "interrupted")
 			break
+		time.sleep(5)
 
 def set_options(opt):
 	Utils.g_module.__dict__['daemon'] = daemon
