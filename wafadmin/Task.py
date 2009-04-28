@@ -735,8 +735,6 @@ class Task(TaskBase):
 					d = additional_deps[x.id]
 				except KeyError:
 					continue
-				if hasattr(d, '__call__'):
-					d = d() # dependency is a function, call it
 
 				for v in d:
 					if isinstance(v, Node.Node):
@@ -746,6 +744,8 @@ class Task(TaskBase):
 							v = bld.node_sigs[variant][v.id]
 						except KeyError: # make it fatal?
 							v = ''
+					elif hasattr(v, '__call__'):
+						v = v() # dependency is a function, call it
 					m.update(v)
 		return m.digest()
 
