@@ -19,8 +19,8 @@ class Environment(object):
 	"""
 	__slots__ = ("table", "parent")
 	def __init__(self, filename=None):
-		self.table={}
-		#self.parent = None <- set only if necessary
+		self.table = {}
+		#self.parent = None
 
 		if filename:
 			self.load(filename)
@@ -52,6 +52,9 @@ class Environment(object):
 
 	def __setitem__(self, key, value):
 		self.table[key] = value
+
+	def __delitem__(self, key, value):
+		del self.table[key]
 
 	def set_variant(self, name):
 		self.table[VARIANT] = name
@@ -166,4 +169,23 @@ class Environment(object):
 	def update(self, d):
 		for k, v in d.iteritems():
 			self[k] = v
+
+
+	def __getattr__(self, name):
+		if name in self.__slots__:
+			return object.__getattr__(self, name)
+		else:
+			return self[name]
+
+	def __setattr__(self, name, value):
+		if name in self.__slots__:
+			object.__setattr__(self, name, value)
+		else:
+			self[name] = value
+
+	def __detattr__(self, name):
+		if name in self.__slots__:
+			object.__detattr__(self, name)
+		else:
+			del self[name]
 
