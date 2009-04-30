@@ -593,20 +593,22 @@ def find_msvc(conf):
 
 def exec_command_msvc(self, *k, **kw):
 	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
-	if self.env['CC_NAME'] == 'msvc' and isinstance(k[0], list):
-		lst = []
-		carry = ''
-		for a in k[0]:
-			if (len(a) == 3 and (a.startswith('/F') or a.startswith('/Y'))) or (a == '/doc'):
-				carry = a
-			else:
-				lst.append(carry + a)
-				carry = ''
-		k = [lst]
+	if self.env['CC_NAME'] == 'msvc'
+		if isinstance(k[0], list):
+			lst = []
+			carry = ''
+			for a in k[0]:
+				if (len(a) == 3 and (a.startswith('/F') or a.startswith('/Y'))) or (a == '/doc'):
+					carry = a
+				else:
+					lst.append(carry + a)
+					carry = ''
+			k = [lst]
 
-	env = dict(os.environ)
-	env.update(PATH = ';'.join(self.env['PATH']))
-	kw['env'] = env
+		env = dict(os.environ)
+		env.update(PATH = ';'.join(self.env['PATH']))
+		kw['env'] = env
+
 	return self.generator.bld.exec_command(*k, **kw)
 
 for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static winrc'.split():
