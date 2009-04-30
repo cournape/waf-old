@@ -12,7 +12,7 @@ c_compiler = {
 	'darwin': ['gcc'],
 	'aix5':   ['gcc'],
 	'linux':  ['gcc', 'icc', 'suncc'],
-	'sunos':  ['suncc', 'gcc'],
+	'sunos':  ['gcc', 'suncc'],
 	'irix':   ['gcc'],
 	'hpux':   ['gcc'],
 	'default': ['gcc']

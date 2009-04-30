@@ -12,7 +12,7 @@ cxx_compiler = {
 'darwin': ['g++'],
 'aix5':   ['g++'],
 'linux':  ['g++', 'icpc', 'sunc++'],
-'sunos':  ['sunc++', 'g++'],
+'sunos':  ['g++', 'sunc++'],
 'irix':   ['g++'],
 'hpux':   ['g++'],
 'default': ['g++']
