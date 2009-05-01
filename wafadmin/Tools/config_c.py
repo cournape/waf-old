@@ -40,7 +40,7 @@ int main() {
 '''
 
 def parse_flags(line, uselib, env):
-	"""stupidest thing ever"""
+	"""pkg-config still has bugs on some platforms, and there are many -config programs, parsing flags is necessary :-/"""
 
 	lst = shlex.split(line)
 	while lst:
@@ -70,6 +70,9 @@ def parse_flags(line, uselib, env):
 			env.append_unique('LINKFLAGS_' + uselib, x)
 		elif x.startswith('-Wl'):
 			env.append_unique('LINKFLAGS_' + uselib, x)
+		elif x.startswith('-m'):
+			env.append_unique('CCFLAGS_' + uselib, x)
+			env.append_unique('CXXFLAGS_' + uselib, x)
 
 @conf
 def ret_msg(self, f, kw):
