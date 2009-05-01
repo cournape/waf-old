@@ -77,7 +77,10 @@ def prepare_impl(t, cwd, ver, wafdir):
 		sys.exit(0)
 
 	# We have found wscript, but there is no guarantee that it is valid
-	os.chdir(candidate)
+	try:
+		os.chdir(candidate)
+	except OSError:
+		raise Utils.WafError("the folder %r is unreadable" % candidate)
 
 	# define the main module containing the functions init, shutdown, ..
 	Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
