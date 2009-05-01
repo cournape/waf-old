@@ -11,7 +11,7 @@ def build(bld):
 	# now create your tex object for compiling the files
 	obj = bld.new_task_gen(
 		features = 'tex',
-		type='latex', # type could be pdflatex
+		type='latex', # default is pdflatex
 		source = 'document.ltx' # mandatory, the source
 	)
 
