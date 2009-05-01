@@ -349,7 +349,7 @@ def validate_c(self, kw):
 
 	if not kw.get('success'): kw['success'] = None
 
-	assert('msg' in kw)
+	assert 'msg' in kw, 'invalid parameters, read http://freehackers.org/~tnagy/wafbook/single.html#config_helpers_c'
 
 @conf
 def post_check(self, *k, **kw):
