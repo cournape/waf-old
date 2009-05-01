@@ -593,7 +593,7 @@ def find_msvc(conf):
 
 def exec_command_msvc(self, *k, **kw):
 	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
-	if self.env['CC_NAME'] == 'msvc'
+	if self.env['CC_NAME'] == 'msvc':
 		if isinstance(k[0], list):
 			lst = []
 			carry = ''
