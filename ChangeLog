@@ -2,11 +2,12 @@ NEW IN WAF 1.5.6
 ----------------
 * let the qt4 tool operate with generated files
 * fix a problem with the config.h creation
+* fixed the regression with write_config_header on win32
 * look for AR in os.environ first (consistency with CC)
 * doxygen demo update (playground)
 * sample tool for compiling specific files (playground)
-* fixed the regression with write_config_header on win32
-* simple include scanner for c/c++ (does not substitute macros)
+* incomplete daemon tool (playground)
+* simple include scanner for c/c++ without macro substitution
 * identify gcc first on solaris/sunos platforms
 * warn if bz2 support is missing when trying to unpack waf
 
