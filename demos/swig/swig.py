@@ -150,7 +150,8 @@ def add_swig_paths(self):
 	"""the attribute 'after' is not used here, the method is added directly at the end"""
 
 	self.swig_dir_nodes = self.env['INC_PATHS']
-	self.env.append_unique('SWIGFLAGS', self.env['_CXXINCFLAGS'] or self.env['_CCINCFLAGS'])
+	include_flags = self.env['_CXXINCFLAGS'] or self.env['_CCINCFLAGS']
+	self.env.append_unique('SWIGFLAGS', [f.replace("/I", "-I") for f in include_flags])
 
 @extension(SWIG_EXTS)
 def i_file(self, node):
