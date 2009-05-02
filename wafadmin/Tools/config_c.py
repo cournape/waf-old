@@ -70,7 +70,7 @@ def parse_flags(line, uselib, env):
 			env.append_unique('LINKFLAGS_' + uselib, x)
 		elif x.startswith('-Wl'):
 			env.append_unique('LINKFLAGS_' + uselib, x)
-		elif x.startswith('-m'):
+		elif x.startswith('-m') or x.startswith('-f'):
 			env.append_unique('CCFLAGS_' + uselib, x)
 			env.append_unique('CXXFLAGS_' + uselib, x)
 
