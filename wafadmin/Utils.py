@@ -575,9 +575,10 @@ if is_win32:
 def get_elapsed_time(start):
 	"Format a time delta (datetime.timedelta) using the format DdHhMmS.MSs"
 	delta = datetime.datetime.now() - start
-	days = delta.days
-	hours = delta.seconds / 3600
-	minutes = (delta.seconds - hours * 3600) / 60
+	# cast to int necessary for python 3.0
+	days = int(delta.days)
+	hours = int(delta.seconds / 3600)
+	minutes = int((delta.seconds - hours * 3600) / 60)
 	seconds = delta.seconds - hours * 3600 - minutes * 60 \
 		+ float(delta.microseconds) / 1000 / 1000
 	result = ''
