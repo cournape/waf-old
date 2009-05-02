@@ -60,13 +60,13 @@ def get_msvc_version(conf, version, target, vcvars):
 	f.write("""@echo off
 set INCLUDE=
 set LIB=
-call %1 %2
-echo PATH=%PATH%
-echo INCLUDE=%INCLUDE%
-echo LIB=%LIB%
-""")
+call "%s" "%s"
+echo PATH=%%PATH%%
+echo INCLUDE=%%INCLUDE%%
+echo LIB=%%LIB%%
+""" % (vcvars,target)) 
 	f.close()
-	sout = Utils.cmd_output(['cmd', '/E:on', '/V:on', '/C', batfile, vcvars, target])
+	sout = Utils.cmd_output(['cmd', '/E:on', '/V:on', '/C', batfile])
 	lines = sout.splitlines()
 	if lines[0].find("Setting environment") == -1 and lines[0].find("Setting SDK environment") == -1 and lines[1].find('Intel(R) C++ Compiler') == -1:
 		conf.fatal('msvc: Impossible to find a valid architecture for building')
