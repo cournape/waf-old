@@ -28,15 +28,15 @@ def daemon(ctx):
 		except KeyboardInterrupt:
 			Utils.pprint('RED', "interrupted")
 			break
-		time.sleep(5)
+		if not watch(bld):
+			break
 
 def set_options(opt):
 	Utils.g_module.__dict__['daemon'] = daemon
 
-# TODO: all the code below
-
-module = None
-g_dirwatch = None
+def watch(bld):
+	time.sleep(5)
+	return True
 
 def check_support():
 	try:
@@ -51,8 +51,7 @@ def check_support():
 		except:
 			pass
 		else:
-			module = gamin
-
+			return gamin
 	try:
 		import _fam
 	except ImportError:
@@ -65,8 +64,16 @@ def check_support():
 		except:
 			pass
 		else:
-			module = _fam
+			return _fam
+	return None
 
+module = check_support()
+
+
+# TODO: all the code below
+
+
+g_dirwatch = None
 g_daemonlock = 0
 
 
