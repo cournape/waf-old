@@ -47,7 +47,7 @@ STATIC_ONLYSTATIC = 'onlystatic'
 is_versiontag = re.compile('^\d+_\d+_?\d*$')
 is_threadingtag = re.compile('^mt$')
 is_abitag = re.compile('^[sgydpn]+$')
-is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|msvc|qcc|sun|vacpp)\d*$')
+is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|vc|mgw|qcc|sun|vacpp)\d*$')
 
 def set_options(opt):
 	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
