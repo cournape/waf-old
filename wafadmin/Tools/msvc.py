@@ -51,7 +51,7 @@ def setup_msvc(conf, versions):
 					return compiler,p1,p2,p3
 				except KeyError: continue
 		except KeyError: continue
-	conf.fatal('msvc: Impossible to find a valid architecture for building')
+	conf.fatal('msvc: Impossible to find a valid architecture for building (in setup_msvc)')
 
 @conf
 def get_msvc_version(conf, version, target, vcvars):
@@ -60,7 +60,7 @@ def get_msvc_version(conf, version, target, vcvars):
 	f.write("""@echo off
 set INCLUDE=
 set LIB=
-call "%s" "%s"
+call "%s" %s
 echo PATH=%%PATH%%
 echo INCLUDE=%%INCLUDE%%
 echo LIB=%%LIB%%
@@ -69,7 +69,7 @@ echo LIB=%%LIB%%
 	sout = Utils.cmd_output(['cmd', '/E:on', '/V:on', '/C', batfile])
 	lines = sout.splitlines()
 	if lines[0].find("Setting environment") == -1 and lines[0].find("Setting SDK environment") == -1 and lines[1].find('Intel(R) C++ Compiler') == -1:
-		conf.fatal('msvc: Impossible to find a valid architecture for building')
+		conf.fatal('msvc: Impossible to find a valid architecture for building (in get_msvc_version)')
 	for line in lines[1:]:
 		if line.startswith('PATH='):
 			MSVC_PATH = line[5:].split(';')
