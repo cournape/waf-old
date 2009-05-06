@@ -2,7 +2,8 @@
 
 import sys
 import os.path
-import random
+from random import Random
+random = Random(0) # initialise with seed to have reproductible benches
 
 # for example: ./genbench.py /tmp/build 50 100 15 5
 
