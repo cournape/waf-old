@@ -106,11 +106,23 @@ def detect(conf):
 		conf.fatal('The program msgfmt (gettext) is mandatory!')
 	conf.env['POCOM'] = pocom
 
-	intltool = conf.find_program('intltool-merge')
+	# NOTE: it is possible to set INTLTOOL in the environment, but it must not have spaces in it
+
+	intltool = conf.find_program('intltool-merge', var='INTLTOOL')
 	if not intltool:
 		# if intltool-merge should not be mandatory, catch the thrown exception in your wscript
-		conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
-	conf.env['INTLTOOL'] = intltool
+		if sys.platform == 'win32':
+			perl = conf.find_program('perl', var='PERL')
+			if not perl:
+				conf.fatal('The program perl (required by intltool) could not be found')
+
+			intltooldir = Configure.find_file('intltool-merge', os.environ['PATH'].split(os.pathsep))
+			if not intltooldir:
+				conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
+
+			conf.env['INTLTOOL'] = Utils.to_list(conf.env['PERL']) + [intltooldir]
+		else:
+			conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
 
 	def getstr(varname):
 		return getattr(Options.options, varname, '')
