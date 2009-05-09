@@ -16,6 +16,33 @@ TODO: for now it will try to execute a build every 5 seconds (not optimal)
 import select, errno, os, time
 import Utils, Scripting, Logs, Build
 
+w_fam = w_gamin = None
+def check_support():
+	global w_fam, w_gamin
+	try:
+		import gamin as w_gamin
+	except ImportError:
+		w_gamin = None
+	else:
+		try:
+			test = w_gamin.WatchMonitor()
+			test.disconnect()
+			test = None
+		except:
+			w_gamin = None
+
+	try:
+		import _fam as w_fam
+	except ImportError:
+		w_fam = None
+	else:
+		try:
+			test = w_fam.open()
+			test.close()
+			test = None
+		except:
+			w_fam = None
+
 def daemon(ctx):
 	"""rebuild as soon as something changes"""
 	bld = None
@@ -28,47 +55,29 @@ def daemon(ctx):
 		except KeyboardInterrupt:
 			Utils.pprint('RED', "interrupted")
 			break
-		if not watch(bld):
+		if not watch(ctx, bld):
 			break
 
 def set_options(opt):
 	"""So this shows how to enable new commands from tools"""
 	Utils.g_module.__dict__['daemon'] = daemon
 
-def watch(bld):
-	time.sleep(5)
+def watch(ctx, bld):
+	try:
+		x = ctx.state
+	except AttributeError:
+		setattr(ctx, 'state', DirWatch())
+		x = ctx.state
+
+	x.wait(bld)
 	return True
 
-def check_support():
-	try:
-		import gamin
-	except ImportError:
-		pass
-	else:
-		try:
-			test = gamin.WatchMonitor()
-			test.disconnect()
-			test = None
-		except:
-			pass
-		else:
-			return gamin
-	try:
-		import _fam
-	except ImportError:
-		support = False
-	else:
-		try:
-			test = _fam.open()
-			test.close()
-			test = None
-		except:
-			pass
-		else:
-			return _fam
-	return None
+class DirWatch(object):
+	def __init__(self):
+		check_support()
+	def wait(self, bld):
+		time.sleep(5)
 
-module = check_support()
 
 
 # TODO: all the code below
