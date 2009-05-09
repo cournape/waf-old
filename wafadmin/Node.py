@@ -526,8 +526,6 @@ class Node(object):
 						# not a file, it is a dir
 						node = self.find_dir(name)
 						if node and node.id != self.__class__.bld.bldnode.id:
-							if dir:
-								yield node
 							if maxdepth:
 								for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth - 1):
 									yield k
