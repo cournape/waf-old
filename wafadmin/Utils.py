@@ -36,9 +36,10 @@ Utilities, the stable ones are the following:
 
 import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime
 
+# In python 3.0 we can get rid of all this
 try: from UserDict import UserDict
 except ImportError: from collections import UserDict
-if sys.hexversion >= 0x2060000:
+if sys.hexversion >= 0x2060000 or os.name == 'java':
 	import subprocess as pproc
 else:
 	import pproc
