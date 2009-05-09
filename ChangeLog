@@ -2,6 +2,8 @@ NEW IN WAF 1.5.7
 ----------------
 * msvc detection for project residing in a folders with spaces
 * parse config flags handle the -f flags
+* intltool detection improvements
+* jython support (the development version)
 
 NEW IN WAF 1.5.6
 ----------------
