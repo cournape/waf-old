@@ -32,6 +32,7 @@ def daemon(ctx):
 			break
 
 def set_options(opt):
+	"""So this shows how to enable new commands from tools"""
 	Utils.g_module.__dict__['daemon'] = daemon
 
 def watch(bld):
