@@ -46,7 +46,7 @@ prune_pats = '.git .bzr .hg .svn _MTN _darcs CVS SCCS'.split()
 
 # These fnmatch expressions are used by default to exclude files and dirs
 # while doing the recursive traversal in the find_iter method of the Node class.
-exclude_pats = prune_pats + ('*~ #*# .#* %*% ._* .gitignore .cvsignore vssver.scc .DS_Store').split()
+exclude_pats = prune_pats + '*~ #*# .#* %*% ._* .gitignore .cvsignore vssver.scc .DS_Store'.split()
 
 # These Utils.jar_regexp expressions are used by default to exclude files and dirs and also prune the directory tree
 # while doing the recursive traversal in the ant_glob method of the Node class.
