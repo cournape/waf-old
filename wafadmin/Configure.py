@@ -152,6 +152,7 @@ class ConfigurationContext(Utils.Context):
 		if tooldir: tooldir = Utils.to_list(tooldir)
 		for tool in tools:
 			tool = tool.replace('++', 'xx')
+			if tool == 'java': tool = 'javaw'
 			# avoid loading the same tool more than once with the same functions
 			# used by composite projects
 
