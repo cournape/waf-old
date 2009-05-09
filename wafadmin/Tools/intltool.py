@@ -5,7 +5,7 @@
 "intltool support"
 
 import os, re
-import TaskGen, Task, Utils, Runner, Options, Build
+import Configure, TaskGen, Task, Utils, Runner, Options, Build
 from TaskGen import feature, before, taskgen
 from Logs import error
 
@@ -111,7 +111,7 @@ def detect(conf):
 	intltool = conf.find_program('intltool-merge', var='INTLTOOL')
 	if not intltool:
 		# if intltool-merge should not be mandatory, catch the thrown exception in your wscript
-		if sys.platform == 'win32':
+                if Options.platform == 'win32':
 			perl = conf.find_program('perl', var='PERL')
 			if not perl:
 				conf.fatal('The program perl (required by intltool) could not be found')
