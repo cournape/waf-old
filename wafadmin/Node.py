@@ -54,8 +54,17 @@ exclude_regs = '''
 **/vssver.scc
 **/.svn
 **/.svn/**
+**/.git
+**/.git/**
+**/.bzr
+**/.bzr/**
+**/.hg
+**/.hg/**
+**/_MTN
+**/_MTN/**
+**/_darcs
+**/_darcs/**
 **/.DS_Store'''.split()
-# Note: other version control systems widely in use today use these directories: .git .bzr .hg _MTN _darcs
 
 exc_fun = None
 def default_excludes():
