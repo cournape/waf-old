@@ -390,8 +390,10 @@ def check_dir(dir):
 def cmd_output(cmd, **kw):
 
 	# the following is for backward compatibility
-	silent = kw.get('silent', False)
-	if silent:
+	silent = kw.get('silent', None)
+	if silent is None:
+		silent = False
+	else:
 		del(kw['silent'])
 
 	if 'e' in kw:
