@@ -590,3 +590,10 @@ def get_elapsed_time(start):
 		result += '%dm' % minutes
 	return '%s%.3fs' % (result, seconds)
 
+# Jython
+try:
+	gc.disable
+except AttributeError:
+	gc.disable = nada
+	gc.enable = nada
+
