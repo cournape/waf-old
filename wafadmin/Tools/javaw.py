@@ -230,5 +230,7 @@ test_re(r, 'foo/bar/test')
 test_re(r, 'test/bar')
 r = '**/test/'
 test_re(r, 'foo/bar/test/bar')
+r = 'test/**'
+test_re(r, 'test/foo.svn/bar')
 """
 
