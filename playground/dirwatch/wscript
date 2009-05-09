@@ -12,11 +12,11 @@ srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-	opt.tool_options('dirwatch', tooldir='.')
+	opt.tool_options('daemon', tooldir='.')
 
 def configure(conf):
 	conf.check_tool('gcc')
-	conf.check_tool('dirwatch', tooldir='.')
+	conf.check_tool('daemon', tooldir='.')
 
 def build(bld):
 	bld.new_task_gen(
