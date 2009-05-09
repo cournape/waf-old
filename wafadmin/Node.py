@@ -40,6 +40,16 @@ BUILD = 3
 
 type_to_string = {UNDEFINED: "unk", DIR: "dir", FILE: "src", BUILD: "bld"}
 
+# These fnmatch expressions are used by default to prune the directory tree
+# while doing the recursive traversal in the find_iter method of the Node class.
+prune_pats = '.git .bzr .hg .svn _MTN _darcs CVS SCCS'.split()
+
+# These fnmatch expressions are used by default to exclude files and dirs
+# while doing the recursive traversal in the find_iter method of the Node class.
+exclude_pats = prune_pats + ('*~ #*# .#* %*% ._* .gitignore .cvsignore vssver.scc .DS_Store').split()
+
+# These Utils.jar_regexp expressions are used by default to exclude files and dirs and also prune the directory tree
+# while doing the recursive traversal in the ant_glob method of the Node class.
 exclude_regs = '''
 **/*~
 **/#*#
@@ -56,6 +66,7 @@ exclude_regs = '''
 **/.svn/**
 **/.git
 **/.git/**
+**/.gitignore
 **/.bzr
 **/.bzr/**
 **/.hg
@@ -530,7 +541,7 @@ class Node(object):
 						yield node
 		raise StopIteration
 
-	def find_iter(self, in_pat=['*'], ex_pat=[], prune_pat=['.svn'], src=True, bld=True, dir=False, maxdepth=25, flat=False):
+	def find_iter(self, in_pat=['*'], ex_pat=exclude_pats, prune_pat=prune_pats, src=True, bld=True, dir=False, maxdepth=25, flat=False):
 		"find nodes recursively, this returns everything but folders by default"
 
 		if not (src or bld or dir):
@@ -566,18 +577,20 @@ class Node(object):
 
 	def ant_glob(self, *k, **kw):
 		"""takes nearly the same arguments as find_iter, and by default outputs both source and build files"""
+
 		regex = Utils.jar_regexp(k[0])
+
 		def accept(node, name):
 			ts = node.relpath_gen(self) + '/' + name
-			return regex.match(ts)
+			return not default_excludes()(ts) and regex.match(ts)
 
-		def reject(node, name):
+		def is_prune(node, name):
 			ts = node.relpath_gen(self) + '/' + name
 			return default_excludes()(ts)
 
 		ret = [x for x in self.find_iter_impl(
 			accept_name=accept,
-			is_prune=reject,
+			is_prune=is_prune,
 			src=kw.get('src', 1),
 			bld=kw.get('bld', 1),
 			dir=kw.get('dir', 0),
