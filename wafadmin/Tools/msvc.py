@@ -54,7 +54,8 @@ def setup_msvc(conf, versions):
 	conf.fatal('msvc: Impossible to find a valid architecture for building (in setup_msvc)')
 
 @conf
-def get_msvc_version(conf, version, target, vcvars):
+def get_msvc_version(conf, compiler, version, target, vcvars):
+	debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' ...')
 	batfile = os.path.join(conf.blddir, "waf-print-msvc.bat")
 	f = open(batfile, 'w')
 	f.write("""@echo off
@@ -69,14 +70,35 @@ echo LIB=%%LIB%%
 	sout = Utils.cmd_output(['cmd', '/E:on', '/V:on', '/C', batfile])
 	lines = sout.splitlines()
 	if lines[0].find("Setting environment") == -1 and lines[0].find("Setting SDK environment") == -1 and lines[1].find('Intel(R) C++ Compiler') == -1:
+		debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> not found')
 		conf.fatal('msvc: Impossible to find a valid architecture for building (in get_msvc_version)')
 	for line in lines[1:]:
 		if line.startswith('PATH='):
-			MSVC_PATH = line[5:].split(';')
+			path = line[5:]
+			MSVC_PATH = path.split(';')
 		elif line.startswith('INCLUDE='):
 			MSVC_INCDIR = [i for i in line[8:].split(';') if i]
 		elif line.startswith('LIB='):
 			MSVC_LIBDIR = [i for i in line[4:].split(';') if i]
+
+	# Check if the compiler is usable at all.
+	# The detection may return 64-bit versions even on 32-bit systems, and these would fail to run.
+	env = {}
+	env.update(os.environ)
+	env.update(PATH = path)
+	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
+	cxx = conf.find_program(compiler_name, path_list=MSVC_PATH)
+	import pproc
+	try:
+		p = pproc.Popen([cxx], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
+		out, err = p.communicate()
+		if p.returncode != 0:
+			raise Exception, 'return code: ' + str(p.returncode) + ': ' + err
+	except Exception, e:
+		print('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> failed: ' + str(e))
+		conf.fatal('msvc: Compiler is not runnable (in get_msvc_version)')
+	else:
+		debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> OK')
 	return (MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR)
 	
 @conf
@@ -107,7 +129,7 @@ def gather_wsdk_versions(conf, versions):
 			targets = []
 			for target,arch in all_msvc_platforms:
 				try:
-					targets.append((target, (arch, conf.get_msvc_version(version, '/'+target, os.path.join(path, 'bin', 'SetEnv.cmd')))))
+					targets.append((target, (arch, conf.get_msvc_version('wsdk', version, '/'+target, os.path.join(path, 'bin', 'SetEnv.cmd')))))
 				except Configure.ConfigurationError:
 					pass
 			versions.append(('wsdk ' + version[1:], targets))
@@ -140,12 +162,12 @@ def gather_msvc_versions(conf, versions):
 				if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
 					for target,realtarget in all_msvc_platforms[::-1]:
 						try:
-							targets.append((target, (realtarget, conf.get_msvc_version(version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
+							targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
 						except:
 							pass
 				elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
 					try:
-						targets.append(('x86', ('x86', conf.get_msvc_version(version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
+						targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
 					except Configure.ConfigurationError:
 						pass
 				versions.append(('msvc '+version, targets))
@@ -178,7 +200,7 @@ def gather_icl_versions(conf, versions):
 				path,type = _winreg.QueryValueEx(icl_version,'ProductDir')
 				if os.path.isfile(os.path.join(path, 'bin', 'iclvars.bat')):
 					try:
-						targets.append((target, (arch, conf.get_msvc_version(version, target, os.path.join(path, 'bin', 'iclvars.bat')))))
+						targets.append((target, (arch, conf.get_msvc_version('intel', version, target, os.path.join(path, 'bin', 'iclvars.bat')))))
 					except Configure.ConfigurationError:
 						pass
 			except WindowsError:
@@ -510,25 +532,13 @@ cxx_add_flags
 @conftest
 def autodetect(conf):
 	v = conf.env
-	compiler,path, includes, libdirs = detect_msvc(conf)
+	compiler, path, includes, libdirs = detect_msvc(conf)
 	v['PATH'] = path
 	v['CPPPATH'] = includes
 	v['LIBPATH'] = libdirs
 	v['MSVC_COMPILER'] = compiler
 
-
-@conftest
-def find_msvc(conf):
-	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
-	if sys.platform != 'win32':
-		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
-
-	v = conf.env
-
-	compiler,path, includes, libdirs = detect_msvc(conf)
-	v['PATH'] = path
-	v['CPPPATH'] = includes
-	v['LIBPATH'] = libdirs
+def _get_prog_names(conf, compiler):
 	if compiler=='msvc' or compiler=='wsdk':
 		compiler_name = 'CL'
 		linker_name = 'LINK'
@@ -539,6 +549,22 @@ def find_msvc(conf):
 		lib_name = 'XILIB'
 	else:
 		conf.fatal('Unknown compiler type : %s'%compiler)
+	return compiler_name, linker_name, lib_name
+
+@conftest
+def find_msvc(conf):
+	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
+	if sys.platform != 'win32':
+		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
+
+	v = conf.env
+
+	compiler, path, includes, libdirs = detect_msvc(conf)
+	v['PATH'] = path
+	v['CPPPATH'] = includes
+	v['LIBPATH'] = libdirs
+
+	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
 
 	# compiler
 	cxx = None
@@ -569,7 +595,7 @@ def find_msvc(conf):
 		link = conf.find_program(linker_name, path_list=path)
 		if link: v['LINK_CXX'] = link
 		else: conf.fatal('%s was not found (linker)' % linker_name)
-	v['LINK']            = link
+	v['LINK'] = link
 
 	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
 
@@ -694,4 +720,5 @@ def msvc_common_flags(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
+
 

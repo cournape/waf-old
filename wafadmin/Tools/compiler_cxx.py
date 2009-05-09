@@ -5,6 +5,7 @@
 import os, sys, imp, types, ccroot
 import optparse
 import Utils, Configure, Options
+from Logs import debug
 
 cxx_compiler = {
 'win32':  ['msvc', 'g++'],
@@ -30,8 +31,8 @@ def detect(conf):
 	for cxx_compiler in test_for_compiler.split():
 		try:
 			conf.check_tool(cxx_compiler)
-		except Configure.ConfigurationError:
-			pass
+		except Configure.ConfigurationError, e:
+			debug('compiler_cxx: ' + str(e))
 		else:
 			if conf.env['CXX']:
 				conf.check_message("%s" %cxx_compiler, '', True)
@@ -60,4 +61,5 @@ def set_options(opt):
 		help = "Specify the debug level, does nothing if CXXFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
 		choices = ccroot.DEBUG_LEVELS.ALL,
 		dest = 'debug_level')"""
+
 

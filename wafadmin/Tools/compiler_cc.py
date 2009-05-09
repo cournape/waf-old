@@ -5,6 +5,7 @@
 import os, sys, imp, types, ccroot
 import optparse
 import Utils, Configure, Options
+from Logs import debug
 
 c_compiler = {
 	'win32':  ['msvc', 'gcc'],
@@ -35,8 +36,8 @@ def detect(conf):
 	for c_compiler in test_for_compiler.split():
 		try:
 			conf.check_tool(c_compiler)
-		except Configure.ConfigurationError:
-			pass
+		except Configure.ConfigurationError, e:
+			debug('compiler_cc: ' + str(e))
 		else:
 			if conf.env['CC']:
 				conf.check_message("%s" %c_compiler, '', True)
@@ -65,4 +66,5 @@ def set_options(opt):
 	help = "Specify the debug level, does nothing if CFLAGS is set in the environment. [Allowed Values: '%s']" % "', '".join(ccroot.DEBUG_LEVELS.ALL),
 	choices = ccroot.DEBUG_LEVELS.ALL,
 	dest = 'debug_level')"""
+
 
