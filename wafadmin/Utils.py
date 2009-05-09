@@ -34,7 +34,7 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime
+import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime, gc
 
 # In python 3.0 we can get rid of all this
 try: from UserDict import UserDict
