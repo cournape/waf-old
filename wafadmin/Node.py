@@ -582,13 +582,9 @@ class Node(object):
 			ts = node.relpath_gen(self) + '/' + name
 			return not default_excludes()(ts) and regex.match(ts)
 
-		def is_prune(node, name):
-			ts = node.relpath_gen(self) + '/' + name
-			return default_excludes()(ts)
-
 		ret = [x for x in self.find_iter_impl(
 			accept_name=accept,
-			is_prune=is_prune,
+			is_prune=lambda node, name: False,
 			src=kw.get('src', 1),
 			bld=kw.get('bld', 1),
 			dir=kw.get('dir', 0),
