@@ -571,28 +571,3 @@ def link_vnum(self):
 	except:
 		return 1
 
-def link_dll(self):
-	"""handle a dll's import lib"""
-	clsname = self.__class__.__name__.replace('dll_', '')
-	out = self.outputs
-	if sys.platform == 'cygwin':
-		self.outputs = out[:]
-		del self.outputs[1]
-	else:
-		self.outputs = out
-	ret = Task.TaskBase.classes[clsname].__dict__['run'](self)
-	self.outputs = out
-	if ret:
-		return ret
-	if sys.platform == 'cygwin':
-		# create the import lib as a symlink to the dll
-		try:
-			os.remove(self.outputs[1].abspath(self.env))
-		except OSError:
-			pass
-		try:
-			os.symlink(self.outputs[0].name, self.outputs[1].bldpath(self.env))
-		except:
-			return 1
-	else:
-		pass # TODO
