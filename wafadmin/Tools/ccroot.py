@@ -165,14 +165,21 @@ def vars_target_cprogram(self):
 	self.default_install_path = self.env['BINDIR'] or '${PREFIX}/bin'
 	self.default_chmod = O755
 
-@feature('cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
+@feature('cstaticlib', 'dstaticlib')
 @before('apply_core') # ?
 def vars_target_cstaticlib(self):
 	self.default_install_path = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
-	if sys.platform in ['win32', 'cygwin']:
+
+@feature('cshlib', 'dshlib')
+@before('apply_core') # ?
+def vars_target_cshlib(self):
+	if sys.platform in ('win32', 'cygwin'):
+		self.default_install_path = self.env['BINDIR'] or '${PREFIX}/bin'
 		# on win32, libraries need the execute bit, else we
 		# get 'permission denied' when using them (issue 283)
 		self.default_chmod = O755
+	else:
+		self.default_install_path = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @after('apply_objdeps', 'apply_link') # ?
@@ -184,7 +191,7 @@ def install_target_cstaticlib(self):
 @after('apply_link')
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
-	if getattr(self, 'vnum', '') and sys.platform != 'win32':
+	if getattr(self, 'vnum', '') and sys.platform != 'win32' and sys.platform != 'cygwin':
 		tsk = self.link_task
 		tsk.vnum = self.vnum
 		tsk.install = install_shlib
@@ -271,7 +278,7 @@ def apply_link(self):
 		# both the .so and .so.x must be present in the build dir
 		# for darwin the version number is ?
 		if 'cshlib' in self.features and getattr(self, 'vnum', None):
-			if sys.platform == 'darwin' or sys.platform == 'win32':
+			if sys.platform == 'darwin' or sys.platform == 'win32' or sys.platform == 'cygwin':
 				self.vnum = ''
 			else:
 				link = 'vnum_' + link
@@ -439,7 +446,7 @@ def apply_vnum(self):
 	before adding the uselib and uselib_local LINKFLAGS (apply_lib_vars)
 	"""
 	# this is very unix-specific
-	if sys.platform != 'darwin' and sys.platform != 'win32':
+	if sys.platform != 'darwin' and sys.platform != 'win32' and sys.platform != 'cygwin':
 		try:
 			nums = self.vnum.split('.')
 		except AttributeError:

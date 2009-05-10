@@ -74,14 +74,18 @@ def gxx_modifier_win32(conf):
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = '%s.dll'
-	v['staticlib_PATTERN']   = '%s.lib'
+	v['staticlib_PATTERN']   = '%s.lib' # should be 'lib%s.a'
 	v['shlib_CXXFLAGS']      = []
 
 	v['staticlib_LINKFLAGS'] = []
 
 @conftest
 def gxx_modifier_cygwin(conf):
-	return gxx_modifier_win32(conf)
+	v = conf.env
+	v['program_PATTERN']     = '%s.exe'
+
+	v['shlib_PATTERN']       = 'cyg%s.dll'
+	v['shlib_CXXFLAGS']      = []
 
 @conftest
 def gxx_modifier_darwin(conf):
