@@ -114,24 +114,54 @@ def get_target_name(self):
 	if not pattern: pattern = '%s'
 
 	dir, name = os.path.split(self.target)
+
+	if getattr(self, 'vnum', '') and sys.platform == 'cygwin':
+		name = name + '-' + self.vnum.split('.')[0]
+
 	return os.path.join(dir, pattern % name)
 
 def install_shlib(self):
-	nums = self.vnum.split('.')
-
-	path = self.install_path
-	if not path: return
-	libname = self.outputs[0].name
-
-	name3 = libname + '.' + self.vnum
-	name2 = libname + '.' + nums[0]
-	name1 = libname
-
-	filename = self.outputs[0].abspath(self.env)
 	bld = self.outputs[0].__class__.bld
-	bld.install_as(os.path.join(path, name3), filename, env=self.env)
-	bld.symlink_as(os.path.join(path, name2), name3)
-	bld.symlink_as(os.path.join(path, name1), name3)
+	if sys.platform == 'cygwin':
+		# install the dll in the bindir
+		bindir = self.install_path
+		if not bindir: return
+		dll = self.outputs[0]
+		bld.install_as(os.path.join(bindir, dll.name), dll.abspath(self.env), chmod=self.chmod, env=self.env)
+
+		# create a symlink in the libdir that points to the dll in the bindir
+		implib = self.outputs[1]
+		libdir = bld.get_install_path(self.env['LIBDIR'] or '${PREFIX}/lib')
+		Utils.check_dir(libdir)
+		libdir_node = bld.root.find_dir(libdir)
+		bindir_node = bld.root.find_dir(bld.get_install_path(bindir))
+		lib_to_bin = bindir_node.relpath_gen(libdir_node)
+		bld.symlink_as(os.path.join(libdir, implib.name), os.path.join(lib_to_bin, dll.name))
+	elif sys.platform == 'win32':
+		# install the dll in the bindir
+		bindir = self.install_path
+		if not bindir: return
+		dll = self.outputs[0]
+		bld.install_as(os.path.join(bindir, dll.name), dll.abspath(self.env), chmod=self.chmod, env=self.env)
+
+		# TODO install the import lib to the libdir: lib/libfoo.dll.a (gcc) or lib/foo.lib (msvc)
+		# for gcc, the import lib is optional,
+		# but then the bindir has to be in the libpath (-L) for clients to be able to link with -lfoo
+	else:
+		nums = self.vnum.split('.')
+
+		path = self.install_path
+		if not path: return
+		libname = self.outputs[0].name
+
+		name3 = libname + '.' + self.vnum
+		name2 = libname + '.' + nums[0]
+		name1 = libname
+
+		filename = self.outputs[0].abspath(self.env)
+		bld.install_as(os.path.join(path, name3), filename, env=self.env)
+		bld.symlink_as(os.path.join(path, name2), name3)
+		bld.symlink_as(os.path.join(path, name1), name3)
 
 @feature('cc', 'cxx')
 @before('apply_core')
@@ -191,7 +221,10 @@ def install_target_cstaticlib(self):
 @after('apply_link')
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
-	if getattr(self, 'vnum', '') and sys.platform != 'win32' and sys.platform != 'cygwin':
+	if sys.platform in ('win32', 'cygwin'):
+		tsk = self.link_task
+		tsk.install = install_shlib
+	if getattr(self, 'vnum', ''):
 		tsk = self.link_task
 		tsk.vnum = self.vnum
 		tsk.install = install_shlib
@@ -277,11 +310,14 @@ def apply_link(self):
 		# that's something quite ugly for unix platforms
 		# both the .so and .so.x must be present in the build dir
 		# for darwin the version number is ?
-		if 'cshlib' in self.features and getattr(self, 'vnum', None):
-			if sys.platform == 'darwin' or sys.platform == 'win32' or sys.platform == 'cygwin':
-				self.vnum = ''
-			else:
-				link = 'vnum_' + link
+		if 'cshlib' in self.features:
+			if sys.platform in ('win32', 'cygwin'):
+				link = 'dll_' + link
+			elif getattr(self, 'vnum', ''):
+				if sys.platform == 'darwin':
+					self.vnum = ''
+				else:
+					link = 'vnum_' + link
 
 	tsk = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
@@ -364,7 +400,7 @@ def apply_lib_vars(self):
 			if val: self.env.append_value(v, val)
 
 @feature('cprogram', 'cstaticlib', 'cshlib')
-@after('apply_obj_vars', 'apply_vnum', 'apply_link')
+@after('apply_obj_vars', 'apply_vnum', 'apply_dll', 'apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
 	if not getattr(self, 'add_objects', None): return
@@ -446,7 +482,7 @@ def apply_vnum(self):
 	before adding the uselib and uselib_local LINKFLAGS (apply_lib_vars)
 	"""
 	# this is very unix-specific
-	if sys.platform != 'darwin' and sys.platform != 'win32' and sys.platform != 'cygwin':
+	if sys.platform not in ('darwin', 'win32', 'cygwin'):
 		try:
 			nums = self.vnum.split('.')
 		except AttributeError:
@@ -456,6 +492,20 @@ def apply_vnum(self):
 			except AttributeError: name3 = self.link_task.outputs[0].name + '.' + nums[0]
 			self.link_task.outputs.append(self.link_task.outputs[0].parent.find_or_declare(name3))
 			self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
+
+@feature('cshlib')
+@after('apply_link')
+@before('apply_lib_vars')
+def apply_dll(self):
+	"""handle the dll's import lib"""
+	# this is very windows-specific
+	if sys.platform == 'cygwin':
+		dir, name = os.path.split(self.target)
+		implib = 'lib' + self.target + '.dll.a' # TODO should be an env pattern var?
+		dll = self.link_task.outputs[0]
+		self.link_task.outputs.append(dll.parent.find_or_declare(implib))
+	elif sys.platform == 'win32':
+		pass # TODO
 
 @after('apply_link')
 def process_obj_files(self):
@@ -521,3 +571,28 @@ def link_vnum(self):
 	except:
 		return 1
 
+def link_dll(self):
+	"""handle a dll's import lib"""
+	clsname = self.__class__.__name__.replace('dll_', '')
+	out = self.outputs
+	if sys.platform == 'cygwin':
+		self.outputs = out[:]
+		del self.outputs[1]
+	else:
+		self.outputs = out
+	ret = Task.TaskBase.classes[clsname].__dict__['run'](self)
+	self.outputs = out
+	if ret:
+		return ret
+	if sys.platform == 'cygwin':
+		# create the import lib as a symlink to the dll
+		try:
+			os.remove(self.outputs[1].abspath(self.env))
+		except OSError:
+			pass
+		try:
+			os.symlink(self.outputs[0].name, self.outputs[1].bldpath(self.env))
+		except:
+			return 1
+	else:
+		pass # TODO

@@ -86,6 +86,7 @@ def gxx_modifier_cygwin(conf):
 
 	v['shlib_PATTERN']       = 'cyg%s.dll'
 	v['shlib_CXXFLAGS']      = []
+	v['LINKFLAGS']          += ['-Wl,--enable-auto-import'] # suppress informational messages
 
 @conftest
 def gxx_modifier_darwin(conf):

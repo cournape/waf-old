@@ -97,4 +97,5 @@ cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', sh
 cls.maxjobs = 1
 cls2 = Task.task_type_from_func('vnum_cc_link', ccroot.link_vnum, cls.vars, color='CYAN', ext_in='.o')
 cls2.maxjobs = 1
-
+cls3 = Task.task_type_from_func('dll_cc_link', ccroot.link_dll, cls.vars, color='CYAN', ext_in='.o')
+cls3.maxjobs = 1
