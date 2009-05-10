@@ -362,20 +362,20 @@ class Node(object):
 			cursor = cursor.parent
 			if cand == cursor: return cand
 
-	def relpath_gen(self, going_to):
+	def relpath_gen(self, from_node):
 		"string representing a relative path between self to another node"
 
-		if self == going_to: return '.'
-		if going_to.parent == self: return '..'
+		if self == from_node: return '.'
+		if from_node.parent == self: return '..'
 
 		# up_path is '../../../' and down_path is 'dir/subdir/subdir/file'
-		ancestor = self.find_ancestor(going_to)
+		ancestor = self.find_ancestor(from_node)
 		lst = []
 		cand = self
 		while not cand.id == ancestor.id:
 			lst.append(cand.name)
 			cand = cand.parent
-		cand = going_to
+		cand = from_node
 		while not cand.id == ancestor.id:
 			lst.append('..')
 			cand = cand.parent
