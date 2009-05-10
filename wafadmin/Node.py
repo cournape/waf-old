@@ -584,7 +584,7 @@ class Node(object):
 
 		ret = [x for x in self.find_iter_impl(
 			accept_name=accept,
-			is_prune=lambda node, name: False,
+			is_prune = Utils.nada,
 			src=kw.get('src', 1),
 			bld=kw.get('bld', 1),
 			dir=kw.get('dir', 0),
