@@ -88,7 +88,7 @@ def gcc_modifier_cygwin(conf):
 
 	v['shlib_PATTERN']       = 'cyg%s.dll'
 	v['shlib_CCFLAGS']       = []
-	v['LINKFLAGS']          += ['-Wl,--enable-auto-import'] # suppress informational messages
+	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import') # suppress information messages
 
 @conftest
 def gcc_modifier_darwin(conf):
