@@ -115,38 +115,32 @@ def get_target_name(self):
 
 	dir, name = os.path.split(self.target)
 
-	if getattr(self, 'vnum', '') and sys.platform == 'cygwin':
+	if sys.platform == 'cygwin' and getattr(self, 'vnum', '') and 'cshlib' in self.features:
+		# cygwin uses a convention to include the version in the dll file name
 		name = name + '-' + self.vnum.split('.')[0]
 
 	return os.path.join(dir, pattern % name)
 
 def install_shlib(self):
 	bld = self.outputs[0].__class__.bld
-	if sys.platform == 'cygwin':
+	if sys.platform in ('win32', 'cygwin'):
 		# install the dll in the bindir
 		bindir = self.install_path
 		if not bindir: return
 		dll = self.outputs[0]
 		bld.install_as(os.path.join(bindir, dll.name), dll.abspath(self.env), chmod=self.chmod, env=self.env)
-
-		# create a symlink in the libdir that points to the dll in the bindir
+		# install the import lib in the libdir
 		implib = self.outputs[1]
 		libdir = bld.get_install_path(self.env['LIBDIR'] or '${PREFIX}/lib')
 		Utils.check_dir(libdir)
-		libdir_node = bld.root.find_dir(libdir)
-		bindir_node = bld.root.find_dir(bld.get_install_path(bindir))
-		lib_to_bin = bindir_node.relpath_gen(libdir_node)
-		bld.symlink_as(os.path.join(libdir, implib.name), os.path.join(lib_to_bin, dll.name))
-	elif sys.platform == 'win32':
-		# install the dll in the bindir
-		bindir = self.install_path
-		if not bindir: return
-		dll = self.outputs[0]
-		bld.install_as(os.path.join(bindir, dll.name), dll.abspath(self.env), chmod=self.chmod, env=self.env)
-
-		# TODO install the import lib to the libdir: lib/libfoo.dll.a (gcc) or lib/foo.lib (msvc)
-		# for gcc, the import lib is optional,
-		# but then the bindir has to be in the libpath (-L) for clients to be able to link with -lfoo
+		if sys.platform == 'cygwin':
+			# create a symlink in the libdir that points to the dll in the bindir
+			libdir_node = bld.root.find_dir(libdir)
+			bindir_node = bld.root.find_dir(bld.get_install_path(bindir))
+			lib_to_bin = bindir_node.relpath_gen(libdir_node)
+			bld.symlink_as(os.path.join(libdir, implib.name), os.path.join(lib_to_bin, dll.name))
+		else:
+			bld.install_as(os.path.join(libdir, implib.name), implib.abspath(self.env), env=self.env)
 	else:
 		nums = self.vnum.split('.')
 
@@ -222,9 +216,8 @@ def install_target_cstaticlib(self):
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
 	if sys.platform in ('win32', 'cygwin'):
-		tsk = self.link_task
-		tsk.install = install_shlib
-	if getattr(self, 'vnum', ''):
+		self.link_task.install = install_shlib
+	elif getattr(self, 'vnum', ''):
 		tsk = self.link_task
 		tsk.vnum = self.vnum
 		tsk.install = install_shlib
@@ -334,6 +327,17 @@ def apply_lib_vars(self):
 	after default_cc because of the attribute 'uselib'"""
 	env = self.env
 
+	if False and sys.platform in ('win32', 'cygwin') and 'cshlib' in self.features and self.link_task.name.startswith('dll_'):
+		# this is very windows-specific
+		# handle dll import lib
+		dll = self.link_task.outputs[0]
+		implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
+		self.link_task.outputs.append(implib)
+		if sys.platform == 'cygwin':
+			pass # don't create any import lib, a symlink is used instead
+		elif sys.platform == 'win32':
+			self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
+
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
 	uselib = self.to_list(self.uselib)
@@ -400,7 +404,7 @@ def apply_lib_vars(self):
 			if val: self.env.append_value(v, val)
 
 @feature('cprogram', 'cstaticlib', 'cshlib')
-@after('apply_obj_vars', 'apply_vnum', 'apply_dll', 'apply_link')
+@after('apply_obj_vars', 'apply_vnum', 'apply_implib', 'apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
 	if not getattr(self, 'add_objects', None): return
@@ -481,8 +485,8 @@ def apply_vnum(self):
 	"""use self.vnum and self.soname to modify the command line (un*x)
 	before adding the uselib and uselib_local LINKFLAGS (apply_lib_vars)
 	"""
-	# this is very unix-specific
-	if sys.platform not in ('darwin', 'win32', 'cygwin'):
+	if sys.platform not in ('win32', 'cygwin', 'darwin'):
+		# this is very unix-specific
 		try:
 			nums = self.vnum.split('.')
 		except AttributeError:
@@ -496,16 +500,18 @@ def apply_vnum(self):
 @feature('cshlib')
 @after('apply_link')
 @before('apply_lib_vars')
-def apply_dll(self):
-	"""handle the dll's import lib"""
-	# this is very windows-specific
-	if sys.platform == 'cygwin':
-		dir, name = os.path.split(self.target)
-		implib = 'lib' + self.target + '.dll.a' # TODO should be an env pattern var?
+def apply_implib(self):
+	"""On mswindows, handle dlls and their import libs."""
+	if sys.platform in ('win32', 'cygwin'):# and self.link_task.name.startswith('dll_'):
+		# this is very windows-specific
+		# handle dll import lib
 		dll = self.link_task.outputs[0]
-		self.link_task.outputs.append(dll.parent.find_or_declare(implib))
-	elif sys.platform == 'win32':
-		pass # TODO
+		implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
+		self.link_task.outputs.append(implib)
+		if sys.platform == 'cygwin':
+			pass # don't create any import lib, a symlink is used instead
+		elif sys.platform == 'win32':
+			self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
 
 @after('apply_link')
 def process_obj_files(self):
@@ -565,9 +571,21 @@ def link_vnum(self):
 		os.remove(self.outputs[0].abspath(self.env))
 	except OSError:
 		pass
-
 	try:
 		os.symlink(self.outputs[1].name, self.outputs[0].bldpath(self.env))
 	except:
 		return 1
+
+def post_dll_link(self):
+	"""On cygwin make a symlink that points to the dll (no need for import libs)"""
+	if sys.platform == 'cygwin':
+		# create the import lib as a symlink to the dll
+		try:
+			os.remove(self.outputs[1].abspath(self.env))
+		except OSError:
+			pass
+		try:
+			os.symlink(self.outputs[0].name, self.outputs[1].bldpath(self.env))
+		except:
+			return 1
 

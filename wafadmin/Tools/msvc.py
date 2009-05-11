@@ -395,10 +395,10 @@ def libname_msvc(self, libname, is_static=False, mandatory=False):
 		_libpaths=self.env['LIBPATH']
 
 	static_libs=[
-		'%ss.lib' % lib,
 		'lib%ss.lib' % lib,
-		'%s.lib' %lib,
 		'lib%s.lib' % lib,
+		'%ss.lib' % lib,
+		'%s.lib' %lib,
 		]
 
 	dynamic_libs=[
@@ -477,10 +477,10 @@ def apply_obj_vars_msvc(self):
 	# i doubt that anyone will make a fully static binary anyway
 	if not env['FULLSTATIC']:
 		if env['STATICLIB'] or env['LIB']:
-			app('LINKFLAGS', env['SHLIB_MARKER'])
+			app('LINKFLAGS', env['SHLIB_MARKER']) # TODO does SHLIB_MARKER work?
 
 	for i in env['STATICLIB']:
-		app('LINKFLAGS', lib_st % i)
+		app('LINKFLAGS', staticlib_st % i)
 
 	for i in env['LIB']:
 		app('LINKFLAGS', lib_st % i)
@@ -647,8 +647,11 @@ def msvc_common_flags(conf):
 	v = conf.env
 
 	v['CPPFLAGS']     = ['/W3', '/nologo', '/EHsc']
-	v['CCDEFINES']    = ['WIN32'] # command-line defines
-	v['CXXDEFINES']   = ['WIN32'] # command-line defines
+
+	v['CCDEFINES_ST']     = '/D%s'
+	v['CXXDEFINES_ST']    = '/D%s'
+	v['CCDEFINES']    = ['WIN32'] # avoid using this, any compiler predefines the _WIN32 marcro anyway
+	v['CXXDEFINES']   = ['WIN32'] # avoid using this, any compiler predefines the _WIN32 marcro anyway
 
 	v['_CCINCFLAGS']  = []
 	v['_CCDEFFLAGS']  = []
@@ -672,13 +675,13 @@ def msvc_common_flags(conf):
 	# CRT specific flags
 	v['CPPFLAGS_CRT_MULTITHREADED'] = ['/MT']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
-	v['CPPDEFINES_CRT_MULTITHREADED'] = ['_MT']
-	v['CPPDEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL']
+	v['CPPDEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
+	v['CPPDEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
 
 	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] = ['/MTd']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
-	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT']
-	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL']
+	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
+	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
 
 	# compiler debug levels
 	v['CCFLAGS']            = ['/TC']
@@ -701,10 +704,8 @@ def msvc_common_flags(conf):
 
 	v['LIB_ST']           = '%s.lib' # template for adding libs
 	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
-	v['STATICLIB_ST']     = '%s.lib'
+	v['STATICLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
 	v['STATICLIBPATH_ST'] = '/LIBPATH:%s'
-	v['CCDEFINES_ST']     = '/D%s'
-	v['CXXDEFINES_ST']    = '/D%s'
 
 	v['LINKFLAGS']        = ['/NOLOGO', '/MANIFEST']
 
@@ -713,12 +714,12 @@ def msvc_common_flags(conf):
 	v['shlib_CXXFLAGS'] = ['']
 	v['shlib_LINKFLAGS']= ['/DLL']
 	v['shlib_PATTERN']  = '%s.dll'
+	v['implib_PATTERN'] = '%s.lib'
+	v['IMPLIB_ST']      = '/IMPLIB:%s'
 
 	# static library
 	v['staticlib_LINKFLAGS'] = ['']
-	v['staticlib_PATTERN']   = '%s.lib'
+	v['staticlib_PATTERN']   = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
-
-

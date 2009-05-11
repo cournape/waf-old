@@ -4,7 +4,7 @@
 # Ralf Habacker, 2006 (rh)
 # Yinon Ehrlich, 2009
 
-import os, optparse, sys, re
+import os, sys
 import Configure, Options, Utils
 import ccroot, ar
 from Configure import conftest
@@ -55,7 +55,7 @@ def gxx_common_flags(conf):
 	v['program_PATTERN']     = '%s'
 
 	# shared library
-	v['shlib_CXXFLAGS']      = ['-fPIC', '-DPIC']
+	v['shlib_CXXFLAGS']      = ['-fPIC', '-DPIC'] # avoid using -DPIC, -fPIC aleady defines the __PIC__ macro
 	v['shlib_LINKFLAGS']     = ['-shared']
 	v['shlib_PATTERN']       = 'lib%s.so'
 
@@ -74,19 +74,16 @@ def gxx_modifier_win32(conf):
 	v['program_PATTERN']     = '%s.exe'
 
 	v['shlib_PATTERN']       = '%s.dll'
-	v['staticlib_PATTERN']   = '%s.lib' # should be 'lib%s.a'
-	v['shlib_CXXFLAGS']      = []
-
-	v['staticlib_LINKFLAGS'] = []
+	v['implib_PATTERN']      = 'lib%s.dll.a'
+	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
+	v['shlib_CXXFLAGS']      = [] # TODO 64-bit platforms may need -fPIC
+	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import') # suppress information messages
 
 @conftest
 def gxx_modifier_cygwin(conf):
+	gxx_modifier_win32(conf)
 	v = conf.env
-	v['program_PATTERN']     = '%s.exe'
-
 	v['shlib_PATTERN']       = 'cyg%s.dll'
-	v['shlib_CXXFLAGS']      = []
-	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import') # suppress information messages
 
 @conftest
 def gxx_modifier_darwin(conf):
@@ -127,3 +124,4 @@ def detect(conf):
 
 		conf.cxx_load_tools()
 		conf.cxx_add_flags()
+
