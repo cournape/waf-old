@@ -495,7 +495,6 @@ def apply_link_msvc(self):
 		if 'cstaticlib' in self.features: link = 'msvc_link_static'
 		elif 'cxx' in self.features: link = 'msvc_cxx_link'
 		else: link = 'msvc_cc_link'
-		self.vnum = ''
 	self.link = link
 
 @feature('cc', 'cxx')
