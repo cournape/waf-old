@@ -346,17 +346,22 @@ def check_python_version(conf, minver=None):
 			pydir = conf.environ['PYTHONDIR']
 		else:
 			if sys.platform == 'win32':
-				(python_LIBDEST,) = \
-						_get_python_variables(python, ["get_config_var('LIBDEST')"],
-						['from distutils.sysconfig import get_config_var'])
+				(python_LIBDEST, pydir) = \
+						_get_python_variables(python,
+											  ["get_config_var('LIBDEST')",
+											   "get_python_lib(standard_lib=0, prefix=%r)" % conf.env['PREFIX']],
+											  ['from distutils.sysconfig import get_config_var, get_python_lib'])
 			else:
 				python_LIBDEST = None
+				(pydir,) = \
+						_get_python_variables(python,
+											  ["get_python_lib(standard_lib=0, prefix=%r)" % conf.env['PREFIX']],
+											  ['from distutils.sysconfig import get_config_var, get_python_lib'])
 			if python_LIBDEST is None:
 				if conf.env['LIBDIR']:
 					python_LIBDEST = os.path.join(conf.env['LIBDIR'], "python" + pyver)
 				else:
 					python_LIBDEST = os.path.join(conf.env['PREFIX'], "lib", "python" + pyver)
-			pydir = os.path.join(python_LIBDEST, "site-packages")
 
 		if hasattr(conf, 'define'): # conf.define is added by the C tool, so may not exist
 			conf.define('PYTHONDIR', pydir)
