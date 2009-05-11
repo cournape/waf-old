@@ -136,6 +136,7 @@ def install_shlib(self):
 		Utils.check_dir(libdir)
 		if sys.platform == 'cygwin':
 			# create a symlink in the libdir that points to the dll in the bindir
+			# FIXME if the libdir and the bindir didn't exist already, we can't get the nodes!
 			libdir_node = bld.root.find_dir(libdir)
 			bindir_node = bld.root.find_dir(bld.get_install_path(bindir))
 			lib_to_bin = bindir_node.relpath_gen(libdir_node)
