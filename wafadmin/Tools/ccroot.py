@@ -115,8 +115,9 @@ def get_target_name(self):
 
 	dir, name = os.path.split(self.target)
 
-	if sys.platform == 'cygwin' and getattr(self, 'vnum', '') and 'cshlib' in self.features:
-		# cygwin uses a convention to include the version in the dll file name
+	if sys.platform in ('win32', 'cygwin') and getattr(self, 'vnum', '') and 'cshlib' in self.features:
+		# include the version in the dll file name,
+		# the import lib file name stays unversionned.
 		name = name + '-' + self.vnum.split('.')[0]
 
 	return os.path.join(dir, pattern % name)
