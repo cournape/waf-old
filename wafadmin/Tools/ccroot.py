@@ -328,17 +328,6 @@ def apply_lib_vars(self):
 	after default_cc because of the attribute 'uselib'"""
 	env = self.env
 
-	if False and sys.platform in ('win32', 'cygwin') and 'cshlib' in self.features and self.link_task.name.startswith('dll_'):
-		# this is very windows-specific
-		# handle dll import lib
-		dll = self.link_task.outputs[0]
-		implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
-		self.link_task.outputs.append(implib)
-		if sys.platform == 'cygwin':
-			pass # don't create any import lib, a symlink is used instead
-		elif sys.platform == 'win32':
-			self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
-
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
 	uselib = self.to_list(self.uselib)
