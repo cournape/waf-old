@@ -464,8 +464,8 @@ def apply_core(self):
 		x = self.get_hook(node.suffix())
 
 		if not x:
-			raise Utils.WafError("Do not know how to process %s in %s, mappings are %s" % \
-				(str(node), str(self.__class__), str(self.__class__.mappings)))
+			raise Utils.WafError("Cannot guess how to process %s (got mappings %r in %r) -> try conf.check_tool(..)?" % \
+				(str(node), self.__class__.mappings.keys(), self.__class__))
 		x(self, node)
 feature('*')(apply_core)
 
