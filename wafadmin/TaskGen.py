@@ -36,6 +36,7 @@ typos = {
 'install_subdir':'install_path',
 'inst_var':'install_path',
 'inst_dir':'install_path',
+'feature':'features',
 }
 
 class register_obj(type):
