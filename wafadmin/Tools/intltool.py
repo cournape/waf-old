@@ -108,10 +108,10 @@ def detect(conf):
 
 	# NOTE: it is possible to set INTLTOOL in the environment, but it must not have spaces in it
 
-	intltool = conf.find_program('intltool-merger', var='INTLTOOL')
+	intltool = conf.find_program('intltool-merge', var='INTLTOOL')
 	if not intltool:
 		# if intltool-merge should not be mandatory, catch the thrown exception in your wscript
-		if 1:#Options.platform == 'win32':
+		if Options.platform == 'win32':
 			perl = conf.find_program('perl', var='PERL')
 			if not perl:
 				conf.fatal('The program perl (required by intltool) could not be found')
