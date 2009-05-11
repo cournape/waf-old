@@ -16,8 +16,8 @@ FRAG_2 = '''
 #ifdef __cplusplus
 extern "C" {
 #endif
- void Py_Initialize(void);
- void Py_Finalize(void);
+	void Py_Initialize(void);
+	void Py_Finalize(void);
 #ifdef __cplusplus
 }
 #endif
@@ -159,16 +159,16 @@ def _get_python_variables(python_exe, variables, imports=['import sys']):
 def check_python_headers(conf):
 	"""Check for headers and libraries necessary to extend or embed python.
 
-	If successful, xxx_PYEXT and xxx_PYEMBED variables are defined in the
-	environment (for uselib). PYEXT should be used for compiling
-	python extensions, while PYEMBED should be used by programs that
-	need to embed a python interpreter.
+	On success the environment variables xxx_PYEXT and xxx_PYEMBED are added for uselib
 
-	Note: this test requires that check_python_version was previously
-	executed and successful."""
+	PYEXT: for compiling python extensions
+	PYEMBED: for embedding a python interpreter"""
 
 	if not conf.env['CC_NAME'] and not conf.env['CXX_NAME']:
 		conf.fatal('load a compiler first (gcc, g++, ..)')
+
+	if not conf.env['PYTHON_VERSION']:
+		conf.check_python_version()
 
 	env = conf.env
 	python = env['PYTHON']
