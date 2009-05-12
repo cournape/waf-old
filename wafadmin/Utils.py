@@ -34,7 +34,7 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime
+import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime, gc
 
 # In python 3.0 we can get rid of all this
 try: from UserDict import UserDict
@@ -591,3 +591,9 @@ def get_elapsed_time(start):
 		result += '%dm' % minutes
 	return '%s%.3fs' % (result, seconds)
 
+# For Jython
+try:
+	gc.disable()
+	gc.enable()
+except NotImplementedError:
+	gc.disable = gc.enable
