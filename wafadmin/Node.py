@@ -559,9 +559,9 @@ class Node(object):
 
 	def ant_glob(self, *k, **kw):
 
-		src=kw.get('src', 1),
-		bld=kw.get('bld', 1),
-		dir=kw.get('dir', 0),
+		src=kw.get('src', 1)
+		bld=kw.get('bld', 1)
+		dir=kw.get('dir', 0)
 		excl = kw.get('excl', exclude_regs)
 		incl = k and k[0] or kw.get('incl', '**')
 
