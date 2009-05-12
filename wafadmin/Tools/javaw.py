@@ -18,6 +18,15 @@ for the moment waf does not track the production of inner classes.
 
 Adding all the files to a task and executing it if any of the input files
 change is only annoying for the compilation times
+
+Compilation can be run using Jython[1] rather than regular Python. Instead of
+running one of the following commands:
+    ./waf configure
+    python waf configure
+You would have to run:
+    java -jar /path/to/jython.jar waf configure
+
+[1] http://www.jython.org/
 """
 
 import os, re
