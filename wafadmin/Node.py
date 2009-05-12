@@ -75,23 +75,7 @@ exclude_regs = '''
 **/_MTN/**
 **/_darcs
 **/_darcs/**
-**/.DS_Store'''.split()
-
-exc_fun = None
-def default_excludes():
-	global exc_fun
-	if exc_fun:
-		return exc_fun
-
-	regs = [Utils.jar_regexp(x) for x in exclude_regs]
-	def mat(path):
-		for x in regs:
-			if x.match(path):
-				return True
-		return False
-
-	exc_fun = mat
-	return exc_fun
+**/.DS_Store'''
 
 class Node(object):
 	__slots__ = ("name", "parent", "id", "childs")
@@ -574,22 +558,87 @@ class Node(object):
 		return ret
 
 	def ant_glob(self, *k, **kw):
-		"""takes nearly the same arguments as find_iter, and by default outputs both source and build files"""
 
-		regex = Utils.jar_regexp(k[0])
+		src=kw.get('src', 1),
+		bld=kw.get('bld', 1),
+		dir=kw.get('dir', 0),
+		excl = kw.get('excl', exclude_regs)
+		incl = k and k[0] or kw.get('incl', '**')
 
-		def accept(node, name):
-			ts = node.relpath_gen(self) + '/' + name
-			return not default_excludes()(ts) and regex.match(ts)
+		def to_pat(s):
+			lst = Utils.to_list(s)
+			ret = []
+			for x in lst:
+				x = x.replace('//', '/')
+				if x.endswith('/'):
+					x += '**'
+				lst2 = x.split('/')
+				accu = []
+				for k in lst2:
+					if k == '**':
+						accu.append(k)
+					else:
+						k = k.replace('.', '[.]').replace('*', '.*').replace('?', '.')
+						k = '^%s$' % k
+						#print "pattern", k
+						accu.append(re.compile(k))
+				ret.append(accu)
+			return ret
 
-		ret = [x for x in self.find_iter_impl(
-			accept_name=accept,
-			is_prune = Utils.nada,
-			src=kw.get('src', 1),
-			bld=kw.get('bld', 1),
-			dir=kw.get('dir', 0),
-			maxdepth=kw.get('maxdepth', 25)
-			)]
+		def filtre(name, nn):
+			ret = []
+			for lst in nn:
+				if not lst:
+					pass
+				elif lst[0] == '**':
+					ret.append(lst)
+					if len(lst) > 1:
+						if lst[1].match(name):
+							ret.append(lst[2:])
+					else:
+						ret.append([])
+				elif lst[0].match(name):
+					ret.append(lst[1:])
+			return ret
+
+		def accept(name, pats):
+			nacc = filtre(name, pats[0])
+			nrej = filtre(name, pats[1])
+			if [] in nrej:
+				nacc = []
+			return [nacc, nrej]
+
+		def ant_iter(nodi, maxdepth=25, pats=[]):
+			nodi.__class__.bld.rescan(nodi)
+			for name in nodi.__class__.bld.cache_dir_contents[nodi.id]:
+				npats = accept(name, pats)
+				if npats and npats[0]:
+					accepted = [] in npats[0]
+					#print accepted, nodi, name
+
+					node = nodi.find_resource(name)
+					if node and accepted:
+						if src and node.id & 3 == FILE:
+							yield node
+					else:
+						node = nodi.find_dir(name)
+						if node and node.id != nodi.__class__.bld.bldnode.id:
+							if accepted and dir:
+								yield node
+							if maxdepth:
+								for k in ant_iter(node, maxdepth=maxdepth - 1, pats=npats):
+									yield k
+			if bld:
+				for node in nodi.childs.values():
+					if node.id == nodi.__class__.bld.bldnode.id:
+						continue
+					if node.id & 3 == BUILD:
+						npats = accept(node.name, pats)
+						if npats and npats[0] and [] in npats[0]:
+							yield node
+			raise StopIteration
+
+		ret = [x for x in ant_iter(self, pats=[to_pat(incl), to_pat(excl)])]
 
 		if kw.get('flat', True):
 			return " ".join([x.relpath_gen(self) for x in ret])
