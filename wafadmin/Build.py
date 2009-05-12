@@ -129,8 +129,7 @@ class BuildContext(Utils.Context):
 				self.setup(**t)
 
 		try:
-			try: gc.disable()
-			except: pass
+			gc.disable()
 			f = data = None
 
 			Node.Nodu = self.node_class
@@ -156,13 +155,11 @@ class BuildContext(Utils.Context):
 
 		finally:
 			if f: f.close()
-			try: gc.enable()
-			except: pass
+			gc.enable()
 
 	def save(self):
 		"store the cache on disk, see self.load"
-		try: gc.disable()
-		except: pass
+		gc.disable()
 		self.root.__class__.bld = None
 
 		# some people are very nervous with ctrl+c so we have to make a temporary file
@@ -179,8 +176,7 @@ class BuildContext(Utils.Context):
 		except OSError: pass
 		os.rename(db + '.tmp', db)
 		self.root.__class__.bld = self
-		try: gc.enable()
-		except: pass
+		gc.enable()
 
 	# ======================================= #
 
