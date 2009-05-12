@@ -578,9 +578,11 @@ def get_elapsed_time(start):
 		result += '%dm' % minutes
 	return '%s%.3fs' % (result, seconds)
 
-# For Jython
-try:
-	gc.disable()
-	gc.enable()
-except NotImplementedError:
-	gc.disable = gc.enable
+if os.name == 'java':
+	# For Jython (they should really fix the inconsistency)
+	try:
+		gc.disable()
+		gc.enable()
+	except NotImplementedError:
+		gc.disable = gc.enable
+
