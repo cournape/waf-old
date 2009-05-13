@@ -167,8 +167,8 @@ def build(bld):
 			Writing configuration headers can be performed using the following methods:
 			<programlisting language="python">
 def configure(conf):
-	conf.define('LIBF')
-	conf.undefine('LIBF')
+	conf.define('NOLIBF', 1)
+	conf.undefine('NOLIBF')
 	conf.define('LIBF', 1)
 	conf.define('LIBF_VERSION', '1.0.2')
 	conf.write_config_header('config.h')
