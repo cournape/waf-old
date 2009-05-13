@@ -1,12 +1,13 @@
 NEW IN WAF 1.5.7
 ----------------
 * msvc detection for project residing in folders with spaces
-* improved support for dll libraries
+* support for dll import lib on win32
 * parse config flags handle the -f flags
 * intltool detection improvements
 * jython support (the development version)
 * daemon mode (playground/dirwatch)
 * spot the typo feature -> features
+* ant_glob rewrite (solves many bugs)
 
 NEW IN WAF 1.5.6
 ----------------
