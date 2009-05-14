@@ -492,7 +492,14 @@ def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=
 
 	if not uselib_store:
 		uselib_store = libname.upper()
-	self.env['LIB_' + uselib_store] = [libn]
+
+	# Note: ideally we should be able to place the lib in the right env var, either STATICLIB or LIB,
+	# but we don't distinguish static libs from shared libs.
+	# This is ok since msvc doesn't have any special linker flag to select static libs (no env['STATICLIB_MARKER'])
+	if False and is_static: # disabled
+		self.env['STATICLIB_' + uselib_store] = [libn]
+	else:
+		self.env['LIB_' + uselib_store] = [libn]
 
 @conf
 def check_libs_msvc(self, libnames, is_static=False, mandatory=False):
