@@ -17,16 +17,19 @@ def set_options(opt):
 
 def configure(conf):
 	# if a special version of visual studio is required
-    # prefer intel version 11, or msvc version 8 over 9, but allow 9 if no 8 is found
+	# prefer intel version 11, or msvc version 8 over 9, but allow 9 if no 8 is found
 	# conf.env['MSVC_VERSIONS'] = ['intel 11', 'msvc 8.0', 'msvc 9.0']
-    # require 8 only
+	# require 7.1 only
 	#conf.env['MSVC_VERSIONS'] = ['msvc 7.1']
-    # X86 compiler only, no AMD64
-	#conf.env['MSVC_TARGETS'] = 'x86'
+	# Target SmartPhones arm
+	conf.env['MSVC_VERSIONS'] = ['Smartphone 8.0', 'Smartphone 9.0']
+	conf.env['MSVC_TARGETS'] = ['armv4i', 'armv4']
 	try:
 		conf.check_tool('msvc', funs='no_autodetect')
 	except:
 		conf.check_tool('msvc')
+	#this prints a list of compiler and targets that were detected
+	#conf.print_all_msvc_detected()
 	conf.check_libs_msvc('kernel32 user32', mandatory = True)
 
 

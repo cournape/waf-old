@@ -7,7 +7,7 @@
 
 # usage:
 #
-# conf.env['MSVC_VERSIONS'] = ['msvc 9.0', 'msvc 8.0', 'wsdk 7.0', 'intel 11']
+# conf.env['MSVC_VERSIONS'] = ['msvc 9.0', 'msvc 8.0', 'wsdk 7.0', 'intel 11', 'PocketPC 9.0', 'Smartphone 8.0']
 # conf.env['MSVC_TARGETS'] = ['x64']
 # conf.check_tool('msvc')
 # OR conf.check_tool('msvc', funs='no_autodetect')
@@ -21,10 +21,17 @@
 # supported platforms :
 # ia64, x64, x86, x86_amd64, x86_ia64
 
+# compilers supported :
+#  msvc       => Visual Studio, versions 7.1 (2003), 8,0 (2005), 9.0 (2008)
+#  wsdk       => Windows SDK, versions 6.0, 6.1, 7.0
+#  icl        => Intel compiler, versions 9,10,11
+#  Smartphone => Compiler/SDK for Smartphone devices (armv4/v4i)
+#  PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
+
 
 import os, sys, re, string, optparse
 import Utils, TaskGen, Runner, Configure, Task, Options
-from Logs import debug, error, warn
+from Logs import debug, info, warn, error
 from TaskGen import after, before, feature
 
 from Configure import conftest, conf
@@ -34,10 +41,11 @@ from libtool import read_la_file
 import _winreg
 
 all_msvc_platforms = [ ('x64', 'amd64'), ('x86', 'x86'), ('ia64', 'ia64'), ('x86_amd64', 'amd64'), ('x86_ia64', 'ia64') ]
+all_wince_platforms = [ ('armv4', 'arm'), ('armv4i', 'arm'), ('mipsii', 'mips'), ('mipsii_fp', 'mips'), ('mipsiv', 'mips'), ('mipsiv_fp', 'mips'), ('sh4', 'sh'), ('x86', 'cex86') ]
 all_icl_platforms = [ ('Itanium', 'ia64'), ('intel64', 'amd64'), ('em64t', 'amd64'), ('ia32', 'x86')]
 
 def setup_msvc(conf, versions):
-	platforms = Utils.to_list(conf.env['MSVC_TARGETS']) or [i for i,j in all_msvc_platforms+all_icl_platforms]
+	platforms = Utils.to_list(conf.env['MSVC_TARGETS']) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
 	desired_versions = conf.env['MSVC_VERSIONS'] or [v for v,_ in versions][::-1]
 	versiondict = dict(versions)
 
@@ -137,6 +145,36 @@ def gather_wsdk_versions(conf, versions):
 
 @conf
 def gather_msvc_versions(conf, versions):
+	# checks SmartPhones SDKs
+	try:
+		ce_sdk = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Wow6432node\\Microsoft\\Windows CE Tools\\SDKs')
+	except WindowsError:
+		try:
+			ce_sdk = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\Windows CE Tools\\SDKs')
+		except WindowsError:
+			ce_sdk = ''
+	if ce_sdk:
+		supported_wince_platforms = []
+		ce_index = 0
+		while 1:
+			try:
+				sdk_device = _winreg.EnumKey(ce_sdk, ce_index)
+			except WindowsError:
+				break
+			ce_index = ce_index + 1
+			sdk = _winreg.OpenKey(ce_sdk, sdk_device)
+			path,type = _winreg.QueryValueEx(sdk, 'SDKRootDir')
+			path=str(path)
+			path,device = os.path.split(path)
+			if not device:
+				path,device = os.path.split(path)
+			for arch,compiler in all_wince_platforms:
+				platforms = []
+				if os.path.isdir(os.path.join(path, device, 'Lib', arch)):
+					platforms.append((arch, compiler, os.path.join(path, device, 'Include'), os.path.join(path, device, 'Lib', arch)))
+				if platforms:
+					supported_wince_platforms.append((device, platforms))
+	# checks MSVC
 	version_pattern = re.compile('^..?\...?')
 	for vcver,vcvar in [('VCExpress','exp'), ('VisualStudio','')]:
 		try:
@@ -158,6 +196,7 @@ def gather_msvc_versions(conf, versions):
 			try:
 				msvc_version = _winreg.OpenKey(all_versions, version + "\\Setup\\VS")
 				path,type = _winreg.QueryValueEx(msvc_version, 'ProductDir')
+				path=str(path)
 				targets = []
 				if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
 					for target,realtarget in all_msvc_platforms[::-1]:
@@ -171,6 +210,19 @@ def gather_msvc_versions(conf, versions):
 					except Configure.ConfigurationError:
 						pass
 				versions.append(('msvc '+version, targets))
+				if ce_sdk:
+					for device,platforms in supported_wince_platforms:
+						cetargets = []
+						for platform,compiler,include,lib in platforms:
+							winCEpath = os.path.join(path, 'VC', 'ce')
+							if os.path.isdir(winCEpath):
+								common_bindirs,_1,_2 = conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat'))
+								if os.path.isdir(os.path.join(winCEpath, 'lib', platform)):
+									bindirs = [os.path.join(winCEpath, 'bin', compiler), os.path.join(winCEpath, 'bin', 'x86_'+compiler)] + common_bindirs
+									incdirs = [include, os.path.join(winCEpath, 'include'), os.path.join(winCEpath, 'atlmfc', 'include')]
+									libdirs = [lib, os.path.join(winCEpath, 'lib', platform), os.path.join(winCEpath, 'atlmfc', 'lib', platform)]
+									cetargets.append((platform, (platform, (bindirs,incdirs,libdirs))))
+						versions.append((device+' '+version, cetargets))
 			except WindowsError:
 				continue
 
@@ -216,6 +268,13 @@ def get_msvc_versions(conf):
 		conf.gather_wsdk_versions(conf.env['MSVC_INSTALLED_VERSIONS'])
 		conf.gather_icl_versions(conf.env['MSVC_INSTALLED_VERSIONS'])
 	return conf.env['MSVC_INSTALLED_VERSIONS']
+
+@conf
+def print_all_msvc_detected(conf):
+	for version,targets in conf.env['MSVC_INSTALLED_VERSIONS']:
+		info(version)
+		for target,l in targets:
+			info("\t"+target)
 
 def detect_msvc(conf):
 	versions = get_msvc_versions(conf)
@@ -433,10 +492,7 @@ def check_lib_msvc(self, libname, is_static=False, uselib_store=None, mandatory=
 
 	if not uselib_store:
 		uselib_store = libname.upper()
-	if is_static:
-		self.env['LIB_' + uselib_store] = [libn]
-	else:
-		self.env['STATICLIB_' + uselib_store] = [libn]
+	self.env['LIB_' + uselib_store] = [libn]
 
 @conf
 def check_libs_msvc(self, libnames, is_static=False, mandatory=False):
@@ -538,16 +594,15 @@ def autodetect(conf):
 	v['MSVC_COMPILER'] = compiler
 
 def _get_prog_names(conf, compiler):
-	if compiler=='msvc' or compiler=='wsdk':
-		compiler_name = 'CL'
-		linker_name = 'LINK'
-		lib_name = 'LIB'
-	elif compiler=='intel':
+	if compiler=='intel':
 		compiler_name = 'ICL'
 		linker_name = 'XILINK'
 		lib_name = 'XILIB'
 	else:
-		conf.fatal('Unknown compiler type : %s'%compiler)
+		# assumes CL.exe
+		compiler_name = 'CL'
+		linker_name = 'LINK'
+		lib_name = 'LIB'
 	return compiler_name, linker_name, lib_name
 
 @conftest
