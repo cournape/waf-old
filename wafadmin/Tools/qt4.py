@@ -316,41 +316,74 @@ def detect_qt4(conf):
 	env = conf.env
 	opt = Options.options
 
-	qtlibs = getattr(opt, 'qtlibs', '')
-	qtincludes = getattr(opt, 'qtincludes', '')
-	qtbin = getattr(opt, 'qtbin', '')
-	useframework = getattr(opt, 'use_qt4_osxframework', True)
 	qtdir = getattr(opt, 'qtdir', '')
+	qtbin = getattr(opt, 'qtbin', '')
+	qtlibs = getattr(opt, 'qtlibs', '')
+	useframework = getattr(opt, 'use_qt4_osxframework', True)
 
-	if not qtdir: qtdir = conf.environ.get('QT4_ROOT', '')
+	# the path to qmake has been given explicitely
+	if qtbin:
+		paths = [qtbin]
 
+	# the qt directory has been given - we deduce the qt binary path
 	if not qtdir:
+		qtdir = conf.environ.get('QT4_ROOT', '')
+		qtbin = os.path.join(qtdir, 'bin')
+		paths = [qtbin]
+
+	# no qtdir, look in the path and in /usr/local/Trolltech
+	if not qtdir:
+		paths = os.environ.get('PATH', '').split(os.pathsep)
+		paths.append('/usr/share/qt4/bin/')
 		try:
 			lst = os.listdir('/usr/local/Trolltech/')
-			lst.sort()
-			lst.reverse()
-			qtdir = '/usr/local/Trolltech/%s/' % lst[0]
-
 		except OSError:
 			pass
+		else:
+			if lst:
+				lst.sort()
+				lst.reverse()
 
-	if not qtdir:
+				# keep the highest version
+				qtdir = '/usr/local/Trolltech/%s/' % lst[0]
+				qtbin = os.path.join(qtdir, 'bin')
+				paths.append(qtbin)
+
+	# at the end, try to find qmake in the paths given
+	# keep the one with the highest version
+	cand = None
+	prev_ver = ['4', '0', '0']
+	for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
+		qmake = conf.find_program(qmk, path_list=paths)
+		if qmake:
+			version = Utils.cmd_output([qmake, '-query', 'QT_VERSION']).strip()
+			if version:
+				new_ver = version.split('.')
+				if new_ver > prev_ver:
+					cand = qmake
+					prev_ver = new_ver
+	if cand:
+		qmake = cand
+	else:
+		conf.fatal('could not find qmake for qt4')
+
+	conf.env.QMAKE = qmake
+	qtincludes = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_HEADERS']).strip()
+	qtdir = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
+	qtbin = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
+
+	if not qtlibs:
 		try:
-			path = conf.environ['PATH'].split(':')
-			for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
-				qmake = conf.find_program(qmk, path)
-				if qmake:
-					version = Utils.cmd_output([qmake, '-query', 'QT_VERSION']).strip().split('.')
-					if version[0] == "4":
-						qtincludes = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_HEADERS']).strip()
-						qtdir = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_PREFIX']).strip()+"/"
-						qtbin = Utils.cmd_output([qmake, '-query', 'QT_INSTALL_BINS']).strip()+"/"
-						break
-		except (OSError, ValueError):
-			pass
+			qtlibs = Utils.cmd_output([qmake, '-query', 'QT_LIBRARIES']).strip() + os.sep
+		except ValueError:
+			qtlibs = os.path.join(qtdir, 'lib')
 
-	# check for the qt libraries
-	if not qtlibs: qtlibs = os.path.join(qtdir, 'lib')
+	def find_bin(lst, var):
+		for f in lst:
+			ret = conf.find_program(f, path_list=paths)
+			if ret:
+				env[var]=ret
+				break
 
 	vars = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support".split()
 
@@ -388,32 +421,21 @@ def detect_qt4(conf):
 		# check for the qt includes first
 		if not conf.is_defined("HAVE_QTGUI"):
 			if not qtincludes: qtincludes = os.path.join(qtdir, 'include')
-			env['QTINCLUDEPATH'] = qtincludes
+			env.QTINCLUDEPATH = qtincludes
 
 			lst = [qtincludes, '/usr/share/qt4/include/', '/opt/qt4/include']
 			conf.check(header_name='QtGui/QFont', define_name='HAVE_QTGUI', mandatory=1, includes=lst)
 
-	# check for the qtbinaries
-	if not qtbin: qtbin = os.path.join(qtdir, 'bin')
-
-	binpath = [qtbin, '/usr/share/qt4/bin/'] + conf.environ['PATH'].split(':')
-	def find_bin(lst, var):
-		for f in lst:
-			ret = conf.find_program(f, path_list=binpath)
-			if ret:
-				env[var]=ret
-				break
-
 	find_bin(['uic-qt3', 'uic3'], 'QT_UIC3')
-
 	find_bin(['uic-qt4', 'uic'], 'QT_UIC')
 	if not env['QT_UIC']:
-		conf.fatal('connot find uic compiler')
+		conf.fatal('cannot find the uic compiler for qt4')
 
 	try:
 		version = Utils.cmd_output(env['QT_UIC'] + " -version 2>&1").strip()
 	except ValueError:
 		conf.fatal('your uic compiler is for qt3, add uic for qt4 to your path')
+
 	version = version.replace('Qt User Interface Compiler ','')
 	version = version.replace('User Interface Compiler for Qt', '')
 	if version.find(" 3.") != -1:
@@ -493,7 +515,7 @@ def set_options(opt):
 		help='header extension for moc files',
 		dest='qt_header_ext')
 
-	for i in "qtdir qtincludes qtlibs qtbin".split():
+	for i in 'qtdir qtbin qtlibs'.split():
 		opt.add_option('--'+i, type='string', default='', dest=i)
 
 	if sys.platform == "darwin":
