@@ -187,7 +187,7 @@ def parse_args_impl(parser, _args=None):
 		try:
 			bidx = args.index('build')
 			if bidx > idx:
-				raise ValueError, 'build before check'
+				raise ValueError('build before check')
 		except ValueError, e:
 			args.insert(idx, 'build')
 
