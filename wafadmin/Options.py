@@ -34,7 +34,7 @@ if not default_prefix:
 default_jobs = os.environ.get('JOBS', -1)
 if default_jobs < 1:
 	try:
-		if os.sysconf_names.has_key('SC_NPROCESSORS_ONLN'):
+		if 'SC_NPROCESSORS_ONLN' in os.sysconf_names:
 			default_jobs = os.sysconf('SC_NPROCESSORS_ONLN')
 		else:
 			default_jobs = int(Utils.cmd_output(['sysctl', '-n', 'hw.ncpu']))
