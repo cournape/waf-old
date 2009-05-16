@@ -88,10 +88,10 @@ def cxx_hook(self, node):
 
 	task.inputs = [node]
 	task.outputs = [node.change_ext(obj_ext)]
-	#try:
-	self.compiled_tasks.append(task)
-	#except AttributeError:
-	#	raise Utils.WafError('Have you forgotten to set the feature "cxx" on %s?' % str(self))
+	try:
+		self.compiled_tasks.append(task)
+	except AttributeError:
+		raise Utils.WafError('Have you forgotten to set the feature "cxx" on %s?' % str(self))
 	return task
 
 cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
