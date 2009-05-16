@@ -239,7 +239,7 @@ class TaskGroup(object):
 
 	def extract_constraints(self):
 		"extract the parallelization constraints from the tasks with different constraints"
-		keys = self.cstr_groups.keys()
+		keys = list(self.cstr_groups.keys())
 		max = len(keys)
 		# hopefully the length of this list is short
 		for i in xrange(max):
@@ -261,7 +261,7 @@ class TaskGroup(object):
 
 		if not self.ready: self.prepare()
 
-		keys = self.cstr_groups.keys()
+		keys = list(self.cstr_groups.keys())
 
 		unconnected = []
 		remainder = []

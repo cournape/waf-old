@@ -147,7 +147,7 @@ class Environment(object):
 		"Write the variables into a file"
 		file = open(filename, 'w')
 		merged_table = self.get_merged_dict()
-		keys = merged_table.keys()
+		keys = list(merged_table.keys())
 		keys.sort()
 		for k in keys: file.write('%s = %r\n' % (k, merged_table[k]))
 		file.close()

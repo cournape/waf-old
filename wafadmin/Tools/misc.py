@@ -136,7 +136,7 @@ def apply_subst(self):
 
 		if self.dict and not self.env['DICT_HASH']:
 			self.env = self.env.copy()
-			keys = self.dict.keys()
+			keys = list(self.dict.keys())
 			keys.sort()
 			lst = [self.dict[x] for x in keys]
 			self.env['DICT_HASH'] = str(Utils.h_list(lst))

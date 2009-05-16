@@ -10,7 +10,15 @@ import os
 
 all_modifs = {}
 
-def modif(filename, fun):
+def modif(dir, name, fun):
+	if name == '*':
+		lst = os.listdir(dir) + ['Tools' + os.sep + x for x in os.listdir(os.path.join(dir, 'Tools'))]
+		for x in lst:
+			if x.endswith('.py'):
+				modif(dir, x, fun)
+		return
+
+	filename = os.path.join(dir, name)
 	f = open(filename, 'r')
 	txt = f.read()
 	f.close()
@@ -54,6 +62,7 @@ def r4(code):
 	code = code.replace("up(self.env.variant())", "up(self.env.variant().encode())")
 	code = code.replace("up(x.parent.abspath())", "up(x.parent.abspath().encode())")
 	code = code.replace("up(x.name)", "up(x.name.encode())")
+	code = code.replace('class TaskBase(object):\n\t__metaclass__=store_task_type', 'class TaskBase(object, metaclass=store_task_type):')
 	return code
 
 @subst('Build.py')
@@ -61,19 +70,24 @@ def r5(code):
 	code = code.replace("cPickle.dump(data,file,-1)", "cPickle.dump(data,file)")
 	return code
 
-def fixdir(dir):
-	import subprocess
-	try:
-		proc = subprocess.Popen("2to3 -x imports -x imports2 -x import -w -n wafadmin".split(),
-			stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		stdout, setderr = proc.communicate()
-	except:
-		import sys, shutil
-		shutil.rmtree(dir)
-		raise
+@subst('*')
+def r6(code):
+	code = code.replace('xrange', 'range')
+	code = code.replace('iteritems', 'items')
+	code = code.replace('maxint', 'maxsize')
+	code = code.replace('iterkeys', 'keys')
+	code = code.replace('Error,e:', 'Error as e:')
+	code = code.replace('Exception,e:', 'Exception as e:')
+	return code
 
+@subst('TaskGen.py')
+def r7(code):
+	code = code.replace('class task_gen(object):\n\t__metaclass__=register_obj', 'class task_gen(object, metaclass=register_obj):')
+	return code
+
+def fixdir(dir):
 	global all_modifs
 	for k in all_modifs:
 		for v in all_modifs[k]:
-			modif(os.path.join(dir, 'wafadmin', k), v)
-
+			modif(os.path.join(dir, 'wafadmin'), k, v)
+	#print('substitutions finished')

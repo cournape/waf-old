@@ -50,7 +50,7 @@ def get_usage(self):
 	if module:
 		# create the help messages for commands
 		tbl = module.__dict__
-		keys = tbl.keys()
+		keys = list(tbl.keys())
 		keys.sort()
 
 		if 'build' in tbl:
