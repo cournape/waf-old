@@ -458,7 +458,6 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 			debug("run task #%d - the first node does not exist" % self.idx, 'task')
 			try: new_sig = self.signature()
 			except KeyError:
-				print "TODO - computing the signature failed"
 				return RUN_ME
 
 			ret = self.can_retrieve_cache(new_sig)

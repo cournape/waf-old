@@ -89,7 +89,7 @@ def build(bld):
 	bld.add_group('test3')
 	bld.add_group('test4')
 
-	print("adding task generators")
+	print('adding task generators')
 
 	bld.set_group('test3')
 	bld.new_task_gen(features='cxx cprogram', source='main3.c', target='g3')

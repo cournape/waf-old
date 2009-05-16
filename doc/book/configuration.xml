@@ -117,8 +117,8 @@ CXXFLAGS = ['-g']
 			In the build section, the values are retrieved using <emphasis>bld.env_of_name</emphasis>, for example
 			<programlisting language="python">
 def build(bld):
-	print bld.env_of_name('default')['CXXFLAGS']
-	print bld.env_of_name('debug')['CXXFLAGS']
+	print(bld.env_of_name('default')['CXXFLAGS'])
+	print(bld.env_of_name('debug')['CXXFLAGS'])
 			</programlisting>
 		</para>
 	</section>
@@ -160,7 +160,7 @@ def configure(conf):
 import Configure, Constants
 @conf
 def error_handler(fun, exc):
-	print "hello", str(exc)
+	print('exception %r' % exc)
 	# other optionals return values: Constants.CONTINUE or anything else to re-raise the exception
 	return Constants.BREAK
 			</programlisting>
@@ -186,7 +186,7 @@ def get_define(self, define):
 			Then the new configuration test may be used easily in wscript:
 			<programlisting language="python">
 def configure(conf):
-	print conf.get_define('DEBUG')
+	print(conf.get_define('DEBUG'))
 			</programlisting>
 		</para>
 	</section>

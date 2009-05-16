@@ -14,11 +14,11 @@ srcdir = '.'
 blddir = 'build'
 
 def configure(conf):
-	print "configure"
+	print('configure')
 
 def foo(ctx):
 	"""help string for the command foo"""
-	print "test"
+	print('test')
 			</programlisting>
 			executing the script with &quot;foo&quot; as argument will produce the following output
 			<programlisting language="shell">

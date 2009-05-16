@@ -34,11 +34,11 @@ srcdir = '.'
 blddir = 'output'
 
 def set_options(opt):
-    print '  setting the options'
+    print('  setting the options')
 def configure(conf):
-    print '  executing the configuration'
+    print('  executing the configuration')
 def build(bld):
-    print '  building the project'
+    print('  building the project')
 		</programlisting>
 		</para>
 
@@ -79,15 +79,15 @@ srcdir = '.'
 blddir = 'build'
 
 def init():
-    print "  init called"
+    print('  init called')
 def set_options(opt):
-    print "  set_options"
+    print('  set_options')
 def configure(conf):
-    print "  calling the configuration"
+    print('  calling the configuration')
 def build(bld):
-    print "  building"
+    print('  building')
 def shutdown():
-    print "  shutdown called"
+    print('  shutdown called')
 			</programlisting>
 The output will be:
 			<programlisting language="sh">
@@ -264,7 +264,7 @@ def set_options(opt):
 def configure(conf):
     conf.env['test'] = 'hello'
 def build(bld):
-    print bld.env['test']
+    print(bld.env['test'])
 				</programlisting>
 			The execution will result in:
 				<programlisting language="sh">
@@ -305,7 +305,7 @@ def set_options(opt):
 def configure(conf):
     conf.find_program('tar', var='TAR')
 def build(bld):
-    print bld.env['TAR']
+    print(bld.env['TAR'])
 				</programlisting>
 				Will produce the following results:
 				<programlisting language="sh">
@@ -357,7 +357,7 @@ def set_options(opt):
 		help='Execute the program after it is compiled')
 def shutdown():
 	import Options
-	print Options.options.exe
+	print(Options.options.exe)
 			</programlisting>
 			The command-line options can be displayed afterwards:
 			<programlisting language="sh">
@@ -450,10 +450,10 @@ def build(bld):
 				Though the substitution is only performed on the first parameter, it is possible to re-use the method <emphasis>bld.get_install_path</emphasis> or the function <emphasis>Utils.subst_vars</emphasis>
 				<programlisting language="python">
 def build(bld):
-	print bld.get_install_path('${PREFIX}/bin')
+	print(bld.get_install_path('${PREFIX}/bin'))
 
 	import Utils
-	print Utils.subst_vars('${PREFIX}/${LANG}/po', bld.env)
+	print(Utils.subst_vars('${PREFIX}/${LANG}/po', bld.env))
 				</programlisting>
 			</para>
 		</sect2>
@@ -464,12 +464,12 @@ def build(bld):
 				By providing the attribute <emphasis>install_path</emphasis>, tasks generators will install the target (in this example, a program) in the given path.
 				<programlisting language="python">
 def build(bld):
-	main = bld.new_task_gen()
-	main.features = 'cc cprogram'
-	main.source = 'main.c test.c'
-	main.target = 'test_c_program'
-	main.install_path = '${PREFIX}/sbin'
-	main.chmod = 0755
+	bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c test.c',
+		target = 'test_c_program',
+		install_path = '${PREFIX}/sbin',
+		chmod = 0755)
 				</programlisting>
 
 				The variables in curly brackets are substituted as described in the previous paragraph, using <emphasis>main.env</emphasis> instead of bld.env. The <emphasis>chmod</emphasis> attribute is optional, and is used to change the permissions of the installed file (by default it is set to 0644).
@@ -478,11 +478,11 @@ def build(bld):
 				To prevent the installation of a target (by default, programs and shared libraries are installed), set <emphasis>install_path</emphasis> to <emphasis>None</emphasis>
 				<programlisting language="python">
 def build(bld):
-	main = bld.new_task_gen()
-	main.features = 'cc cprogram'
-	main.source = 'main.c test.c'
-	main.target = 'test_c_program'
-	main.install_path = None
+	bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c test.c',
+		target = 'test_c_program',
+		install_path = None)
 				</programlisting>
 			</para>
 		</sect2>

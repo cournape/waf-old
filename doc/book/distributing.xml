@@ -48,7 +48,7 @@ def dist():
         m.update(readString)
         readBytes = len(readString)
     f.close()
-    print filename, m.hexdigest()
+    print(filename, m.hexdigest())
     sys.exit(0)
 			</programlisting>
 		</para>

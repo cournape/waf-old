@@ -68,36 +68,36 @@
 	)
 
 	bld.new_task_gen( <co id="tg6-co" linkends="tg6"/>
-		source='wscript',
-		target='test.k',
-		rule='./create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
-		cwd=bld.path.abspath(),
-		before='test.k1'
+		source = 'wscript',
+		target = 'test.k',
+		rule = './create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
+		cwd = bld.path.abspath(),
+		before = 'test.k1'
 	)
 
 	def run(self):
-		print 'hi there'
+		print('hi there')
 
 	bld.new_task_gen( <co id="tg7-co" linkends="tg7"/>
-		name='hi',
-		rule=run
+		name = 'hi',
+		rule = run
 	)
 
 	bld.new_task_gen( <co id="tg8-co" linkends="tg8"/>
-		name='svnversion',
-		target='ver.h',
-		rule='svnversion > ${TGT[0].abspath(env)}',
-		cwd=bld.path.abspath(),
-		always=True,
-		on_results=True
+		name = 'svnversion',
+		target = 'ver.h',
+		rule = 'svnversion > ${TGT[0].abspath(env)}',
+		cwd = bld.path.abspath(),
+		always = True,
+		on_results = True
 	)
 
 	bld.new_task_gen(
-		name='copy_svnversion',
-		after='svnversion',
-		source='ver.h',
-		target='ver2.h',
-		rule='cp ${SRC} ${TGT}'
+		name = 'copy_svnversion',
+		after = 'svnversion',
+		source = 'ver.h',
+		target = 'ver2.h',
+		rule = 'cp ${SRC} ${TGT}'
 	)
 			</programlisting>
 
@@ -154,10 +154,10 @@ In practice, the chaining declaration is located in a separate python file which
 			A special method named <emphasis>apply_core</emphasis> provides file extension processing using the attribute <emphasis>source</emphasis>. On the user side, this takes the following form:
 			<programlisting language="python">
 def build(bld):
-	main = bld.new_task_gen()
-	main.features = ['cc', 'program']
-	main.source = 'main.c foo.c bar.c'
-	main.target = 'my_app'
+	main = bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c foo.c bar.c',
+		target = 'my_app')
 			</programlisting>
 			The method to process <emphasis>.c</emphasis> files (main.c) is called automatically by <emphasis>apply_core</emphasis>, and is declared in the following manner:
 			<programlisting language="python">
@@ -212,7 +212,7 @@ def build(bld):
 from TaskGen import taskgen
 @taskgen
 def print_tst(self):
-	print 'processing the tst attribute:', self.tst
+	print('processing the tst attribute: %r' % self.tst)
 			</programlisting>
 		</para>
 
@@ -233,7 +233,7 @@ from TaskGen import taskgen, feature
 @taskgen
 @feature('TEST')
 def print_tst(self):
-    print 'processing the tst attribute:', self.tst
+    print('processing the tst attribute: %r' % self.tst)
 
 def build(bld):
     foo = bld.new_task_gen()
@@ -252,7 +252,7 @@ from TaskGen import taskgen, feature
 @taskgen
 @feature('*')
 def print_tst(self):
-    print 'processing the tst attribute:', self.tst
+    print('processing the tst attribute: %r' % self.tst)
 
 def build(bld):
     foo = bld.new_task_gen()
