@@ -2,10 +2,13 @@
 # encoding: utf-8
 # Jaap Haitsma, 2008
 
-obj = bld.new_task_gen('cc', 'program')
-obj.find_sources_in_dirs('.') # take the sources in the current folder
+obj = bld.new_task_gen(
+	features = 'cc cprogram',
+	packages = 'gtk+-2.0',
+	target = 'vala-gtk-example',
+	uselib = 'GTK GLIB',
+	)
+
 #obj.source='vala-gtk-example.vala'
-obj.packages = 'gtk+-2.0'
-obj.target = 'vala-gtk-example'
-obj.uselib = 'GTK GLIB'
+obj.find_sources_in_dirs('.') # take the sources in the current folder, alternate is setting
 
