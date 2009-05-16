@@ -313,6 +313,7 @@ def check_boost(self, *k, **kw):
 		try:
 			self.find_boost_library(lib, kw)
 		except Configure.ConfigurationError, e:
+			ret = False
 			if 'errmsg' in kw:
 				self.check_message_2(kw['errmsg'], 'YELLOW')
 			if 'mandatory' in kw:
