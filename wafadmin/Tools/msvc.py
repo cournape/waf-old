@@ -101,14 +101,14 @@ echo LIB=%%LIB%%
 		p = pproc.Popen([cxx], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
 		out, err = p.communicate()
 		if p.returncode != 0:
-			raise Exception, 'return code: ' + str(p.returncode) + ': ' + err
+			raise Exception('return code: ' + str(p.returncode) + ': ' + err)
 	except Exception, e:
 		print('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> failed: ' + str(e))
 		conf.fatal('msvc: Compiler is not runnable (in get_msvc_version)')
 	else:
 		debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> OK')
 	return (MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR)
-	
+
 @conf
 def gather_wsdk_versions(conf, versions):
 	version_pattern = re.compile('^v..?.?\...?.?')
