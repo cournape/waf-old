@@ -448,7 +448,7 @@ class BuildContext(Utils.Context):
 				# listdir failed, remove all sigs of nodes
 				# TODO more things to remove?
 				dict = self.node_sigs[variant]
-				for node in list(src_dir_node.childs.values()):
+				for node in src_dir_node.childs.values():
 					if node.id in dict:
 						dict.__delitem__(node.id)
 

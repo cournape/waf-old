@@ -63,11 +63,13 @@ def r4(code):
 	code = code.replace("up(x.parent.abspath())", "up(x.parent.abspath().encode())")
 	code = code.replace("up(x.name)", "up(x.name.encode())")
 	code = code.replace('class TaskBase(object):\n\t__metaclass__=store_task_type', 'class TaskBase(object, metaclass=store_task_type):')
+	code = code.replace('keys=self.cstr_groups.keys()', 'keys=list(self.cstr_groups.keys())')
 	return code
 
 @subst('Build.py')
 def r5(code):
 	code = code.replace("cPickle.dump(data,file,-1)", "cPickle.dump(data,file)")
+	code = code.replace('for node in src_dir_node.childs.values():', 'for node in list(src_dir_node.childs.values()):')
 	return code
 
 @subst('*')
