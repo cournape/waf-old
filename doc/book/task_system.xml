@@ -69,15 +69,41 @@ $ waf -j3
 			<sect2>
 				<title>Task groups</title>
 				<para>
-					The following is used to declare groups of tasks to run one after the other:
+					In some circumstances it is necessary to build a compiler and all its dependencies before using it for executing some other tasks (bootstrapping). The following demonstrates how declare groups of tasks to be executed after other groups of tasks:
 					<programlisting language="python">
 def build(bld):
-	# create a few tasks
+	bld.new_task_gen(features='cc cprogram', source='main.c', target='mycompiler')
 	bld.add_group()
-	# create new tasks
+	bld.new_task_gen(features='cc cprogram', source='user.c', target='someotherapp')
 					</programlisting>
 					The effect of task groups when running tasks in parallel is illustrated by the following diagram. Three groups of tasks have been added, and the execution of the next group only starts when the execution of the tasks in the previous group is complete.
 					<graphic format="png" fileref="output-ADDGROUP.png" align="center"/>
+				</para>
+				<para>
+					It is possible to create groups at any point in the scripts, and to add the task generators to any group previously created. Adding groups for specific folders or scripts enables a behaviour similar to projects organized in recursive Makefiles.
+					<programlisting language="python">
+def build(bld):
+
+	bld.add_group('test1')
+	bld.add_group('test2')
+	bld.add_group('test3')
+	bld.add_group('test4')
+
+	print("adding task generators")
+
+	bld.set_group('test3')
+	bld.new_task_gen(features='cxx cprogram', source='main3.c', target='g3')
+
+	bld.set_group('test1')
+	bld.new_task_gen(features='cxx cprogram', source='main1.c', target='g1')
+
+	bld.set_group('test2')
+	obj2 = bld.new_task_gen(features='cxx cprogram', source='main2.c', target='g2')
+
+	bld.set_group('test4')
+	obj2.clone('debug')
+					</programlisting>
+					Because task groups prevent parallelization, they reduce performance. On the other hand, they make projects more structured and improve the maintainance.
 				</para>
 			</sect2>
 

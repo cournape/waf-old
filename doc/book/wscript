@@ -22,7 +22,7 @@ def configure(conf):
 --stringparam admon.graphics.path ""
 --stringparam admon.graphics 1
 --stringparam html.stylesheet waf.css
---xinclude %(STYLESHEET)s %(SRC)s -o %(TGT)s'''.replace('\n', ' ')
+--xinclude %(STYLESHEET)s %(SRC)s > %(TGT)s'''.replace('\n', ' ')
 
 	return
 	conf.env['XSLTPROC'] = '/opt/sun-jdk-1.6.0.12/bin/java'
@@ -88,6 +88,7 @@ def build(bld):
 
 	obj.type = 'html'
 	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/html/chunk.xsl'
+	obj.stylesheet='/home/waf/Escritorio/docbook/docbook-xsl-snapshot/html/chunk.xsl'
 	#obj.stylesheet='/usr/share/sgml/docbook/xsl-stylesheets/html/chunk.xsl'
 	#obj.stylesheet = '/home/tnagy/docbook-xsl-snapshot/html/chunk.xsl'
 
