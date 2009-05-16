@@ -367,7 +367,7 @@ use command_is_external=True''') % (self.command,)
 	if self.stdout is None:
 		stdout = None
 	else:
-		assert isinstance(self.stdout, basestring)
+		assert isinstance(self.stdout, str)
 		stdout = self.path.find_or_declare(self.stdout)
 		if stdout is None:
 			raise Utils.WafError("File %s not found" % (self.stdout,))
@@ -376,7 +376,7 @@ use command_is_external=True''') % (self.command,)
 	if self.stderr is None:
 		stderr = None
 	else:
-		assert isinstance(self.stderr, basestring)
+		assert isinstance(self.stderr, str)
 		stderr = self.path.find_or_declare(self.stderr)
 		if stderr is None:
 			raise Utils.WafError("File %s not found" % (self.stderr,))
@@ -385,7 +385,7 @@ use command_is_external=True''') % (self.command,)
 	if self.stdin is None:
 		stdin = None
 	else:
-		assert isinstance(self.stdin, basestring)
+		assert isinstance(self.stdin, str)
 		stdin = self.path.find_resource(self.stdin)
 		if stdin is None:
 			raise Utils.WafError("File %s not found" % (self.stdin,))
