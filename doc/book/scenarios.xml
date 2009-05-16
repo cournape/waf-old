@@ -181,24 +181,24 @@ def build(bld):
 	Task.simple_task_type('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT} 2> /dev/null', color='RED')
 	Task.task_type_from_func('py2rcc', vars=[], func=compile_py, color='BLUE')
 
-	ibj = bld.create_obj('ocaml', 'native') <co id="comp-co" linkends="comp"/>
-	ibj.include = 'util'
-	ibj.find_sources_in_dirs('util')
-	ibj.target = 'util/ocaml+twt'
-	ibj.are_deps_set=1
-	ibj.uselib='PP'
+	bld.new_task_gen(
+		features='ocaml native', <co id="comp-co" linkends="comp"/>
+		include = 'util',
+		source = bld.path.ant_glob('util/*.ml'),
+		target = 'util/ocaml+twt',
+		are_deps_set = 1,
+		uselib='PP')
 
 	bld.add_group() <co id="divide-co" linkends="divide"/>
 
-	abj = bld.create_obj('ocaml', 'c_object') <co id="rem-co" linkends="rem"/>
-	abj.env = env.copy()
-	abj.source = ['src/armtlkto.c']
-	abj.find_sources_in_dirs('src')
-	abj.includes='. src'
-	abj.target='camlprog'
-	abj.are_deps_set = 1
-	abj.uselib = 'TWT'
-	abj.add_objects=[]
+	bld.new_task-gen(
+		features = 'ocaml c_object', <co id="rem-co" linkends="rem"/>
+		source = 'src/armtlkto.c ' + bld.path.ant_glob('src/*.ml'),
+		includes = '. src',
+		target = 'camlprog',
+		are_deps_set = 1,
+		uselib = 'TWT',
+		add_objects = [])
 		</programlisting>
 
 		<calloutlist>
