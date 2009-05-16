@@ -84,7 +84,10 @@ def c_hook(self, node):
 
 	task.inputs = [node]
 	task.outputs = [node.change_ext(obj_ext)]
-	self.compiled_tasks.append(task)
+	try:
+		self.compiled_tasks.append(task)
+	except AttributeError:
+		raise Utils.WafError('Have you forgotten to set the feature "cc" on %s?' % str(self))
 	return task
 
 cc_str = '${CC} ${CCFLAGS} ${CPPFLAGS} ${_CCINCFLAGS} ${_CCDEFFLAGS} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
