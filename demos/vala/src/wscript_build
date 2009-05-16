@@ -10,5 +10,5 @@ obj = bld.new_task_gen(
 	)
 
 #obj.source='vala-gtk-example.vala'
-obj.find_sources_in_dirs('.') # take the sources in the current folder, alternate is setting
+obj.find_sources_in_dirs('.') # take the sources in the current folder
 
