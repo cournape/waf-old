@@ -7,18 +7,30 @@
 This tool is supposed to help starting a new build as soon as something changes
 in the build directory.
 
-Fam, Gamin or file-based comparisons are supposed to do the detection
+PyInotify, Fam, Gamin or time-threshold are used for the detection
 
-TODO: for now it will try to execute a build every 5 seconds (not optimal)
+For now only PyInotify and time threshold are supported
 """
 
-
 import select, errno, os, time
-import Utils, Scripting, Logs, Build
+import Utils, Scripting, Logs, Build, Node
 
-w_fam = w_gamin = None
+w_pyinotify = w_fam = w_gamin = None
 def check_support():
-	global w_fam, w_gamin
+	global w_pyinotify, w_fam, w_gamin
+	try:
+		import pyinotify as w_pyinotify
+	except ImportError:
+		w_pyinotify = None
+	else:
+		try:
+			wm = w_pyinotify.WatchManager()
+			wm = w_pyinotify.Notifier(wm)
+			wm = None
+		except:
+			raise
+			w_pyinotify = None
+
 	try:
 		import gamin as w_gamin
 	except ImportError:
@@ -44,7 +56,7 @@ def check_support():
 			w_fam = None
 
 def daemon(ctx):
-	"""rebuild as soon as something changes"""
+	"""waf command: rebuild as soon as something changes"""
 	bld = None
 	while True:
 		try:
@@ -53,39 +65,82 @@ def daemon(ctx):
 		except Build.BuildError, e:
 			Logs.warn(e)
 		except KeyboardInterrupt:
-			Utils.pprint('RED', "interrupted")
+			Utils.pprint('RED', 'interrupted')
 			break
-		if not watch(ctx, bld):
-			break
+
+		try:
+			x = ctx.state
+		except AttributeError:
+			setattr(ctx, 'state', DirWatch())
+			x = ctx.state
+
+		x.wait(bld)
 
 def set_options(opt):
-	"""So this shows how to enable new commands from tools"""
+	"""So this shows how to add new commands from tools"""
 	Utils.g_module.__dict__['daemon'] = daemon
-
-def watch(ctx, bld):
-	try:
-		x = ctx.state
-	except AttributeError:
-		setattr(ctx, 'state', DirWatch())
-		x = ctx.state
-
-	x.wait(bld)
-	return True
 
 class DirWatch(object):
 	def __init__(self):
 		check_support()
-	def wait(self, bld):
-		time.sleep(5)
+		if w_pyinotify:
+			self.sup = 'pyinotify'
+		elif w_gamin:
+			self.sup = 'gamin'
+		elif w_fam:
+			self.sup = 'fam'
+		else:
+			self.sup = 'dumb'
+		#self.sup = 'dumb'
 
+	def wait(self, bld):
+		return getattr(self.__class__, 'wait_' + self.sup)(self, bld)
+
+	def enumerate(self, node):
+		yield node.abspath()
+		for x in node.childs.values():
+			if x.id & 3 == Node.DIR:
+				for k in self.enumerate(x):
+					yield k
+		raise StopIteration
+
+	def wait_pyinotify(self, bld):
+
+		class PE(w_pyinotify.ProcessEvent):
+			def stop(self, event):
+				self.notif.ev = True
+				self.notif.stop()
+				raise ValueError("stop for delete")
+
+			process_IN_DELETE = stop
+			process_IN_CLOSE = stop
+			process_default = stop
+
+		proc = PE()
+		wm = w_pyinotify.WatchManager()
+		notif = w_pyinotify.Notifier(wm, proc)
+		proc.notif = notif
+
+		# well, we should add all the folders to watch here
+		for x in self.enumerate(bld.srcnode):
+			wm.add_watch(x, w_pyinotify.IN_DELETE | w_pyinotify.IN_CLOSE_WRITE)
+
+		try:
+			# pyinotify uses an infinite loop ... not too nice, so we have to use an exception
+			notif.loop()
+		except ValueError:
+			pass
+		if not hasattr(notif, 'ev'):
+			raise KeyboardInterrupt
+
+	def wait_dumb(self, bld):
+		time.sleep(5)
 
 
 # TODO: all the code below
 
-
 g_dirwatch = None
 g_daemonlock = 0
-
 
 
 def call_back(idxName, pathName, event):
