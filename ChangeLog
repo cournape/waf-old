@@ -6,7 +6,7 @@ NEW IN WAF 1.5.7
 * support for dll import lib on win32
 * parse config flags handle the -f flags
 * intltool detection improvements
-* daemon mode (playground/dirwatch)
+* daemon mode (playground/dirwatch - pyinotify or time threshold)
 * spot the typo feature -> features
 * ant_glob rewrite (solves many bugs)
 
