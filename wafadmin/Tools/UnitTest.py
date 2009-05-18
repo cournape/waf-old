@@ -149,8 +149,6 @@ class unit_test(object):
 		if self.total_num_tests == 0:
 			p('YELLOW', 'No unit tests present')
 			return
-		p('GREEN', 'Running unit tests')
-		p('NORMAL', '')
 
 		for label in self.unit_tests.allkeys:
 			filename = self.unit_tests[label]
