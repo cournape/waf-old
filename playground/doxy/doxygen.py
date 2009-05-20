@@ -22,6 +22,7 @@ re_join = re.compile(r'\\(\r)*\n', re.M)
 re_nl = re.compile('\r*\n', re.M)
 
 def read_into_dict(name):
+	'''Reads the Doxygen configuration file into a dictionary.'''
 	txt = Utils.readf(name)
 
 	ret = {}
@@ -106,6 +107,7 @@ class doxygen_task(Task.Task):
 	quiet = True
 
 	def runnable_status(self):
+		# DoxGen parameters may be passed using self.pars
 		if not getattr(self, 'pars', None):
 			infile = self.inputs[0].abspath(self.env)
 			self.pars = read_into_dict(infile)
