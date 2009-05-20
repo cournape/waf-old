@@ -107,7 +107,10 @@ class doxygen_task(Task.Task):
 	quiet = True
 
 	def runnable_status(self):
-		# DoxGen parameters may be passed using self.pars
+		'''
+		self.pars are populated in runnable_status - because this function is being
+		run *before* both self.pars "consumers" - scan() and run()
+		'''
 		if not getattr(self, 'pars', None):
 			infile = self.inputs[0].abspath(self.env)
 			self.pars = read_into_dict(infile)
