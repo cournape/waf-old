@@ -104,7 +104,6 @@ class shpip_task(Task.Task):
 		self.more_tasks = self.add_cpp_tasks(build_nodes)
 
 		# cache the file names and the task signature
-		node = self.inputs[0]
 		sig = self.signature()
 		bld.raw_deps[self.unique_id()] = [sig] + lst
 
