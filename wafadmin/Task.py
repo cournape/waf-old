@@ -642,10 +642,6 @@ class Task(TaskBase):
 		cnt = 0
 		variant = env.variant()
 		for node in self.outputs:
-			#if node in bld.node_sigs[variant]:
-			#	print "variant is ", variant
-			#	print "self sig is ", Utils.view_sig(bld.node_sigs[variant][node])
-
 			# check if the node exists ..
 			try:
 				os.stat(node.abspath(env))
