@@ -142,9 +142,8 @@ class task_gen(object):
 		object.__setattr__(self, real, attr)
 
 	def to_list(self, value):
-		"helper: returns a list"
-		if isinstance(value, str): return value.split()
-		else: return value
+		# TODO: use Utils.to_list directly
+		return Utils.to_list(value)
 
 	def apply(self):
 		"order the methods to execute using self.prec or task_gen.prec"
