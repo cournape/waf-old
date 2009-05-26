@@ -26,7 +26,7 @@ def configure(conf):
 def build(bld):
 	bld.add_subdirs('src2')
 
-	obj = bld.new_task_gen('d', 'dstaticlib')
+	obj = bld.new_task_gen(features='d dstaticlib')
 	obj.source = '''
 	testlib/code.d
 	'''
@@ -50,7 +50,7 @@ def build(bld):
 	obj.type = 'shlib'
 	"""
 
-	obj = bld.new_task_gen('d', 'dprogram')
+	obj = bld.new_task_gen(features='d dprogram')
 	obj.source = '''
 	example.d
 	'''
