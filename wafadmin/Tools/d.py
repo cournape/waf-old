@@ -439,7 +439,7 @@ link_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${DLINKFLAGS}'
 cls = Task.simple_task_type('d', d_str, 'GREEN', before='ar_link_static d_link', shell=False)
 cls.scan = scan
 Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', before='ar_link_static d_link', shell=False)
-Task.simple_task_type('d_link', link_str, color='YELLOW', shell=False)
+Task.simple_task_type('d_link', link_str, color='YELLOW', shell=True) # TODO stupid dmd wants -offoo without spaces
 
 # for feature request #104
 @taskgen
