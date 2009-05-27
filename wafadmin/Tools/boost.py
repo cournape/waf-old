@@ -252,11 +252,11 @@ def find_boost_library(self, lib, kw):
 		files = libfiles(lib, staticLibPattern, lib_paths)
 		(libname, file) = find_library_from_list(lib, files)
 	if libname is not None:
-		v['LIBPATH_BOOST_' + lib.upper()] = os.path.split(file)[0]
+		v['LIBPATH_BOOST_' + lib.upper()] = [os.path.split(file)[0]]
 		if self.env['CC_NAME'] == 'msvc' and os.path.splitext(file)[1] == '.lib':
-			v[st_env_prefix + '_BOOST_' + lib.upper()] = 'libboost_'+libname
+			v[st_env_prefix + '_BOOST_' + lib.upper()] = ['libboost_'+libname]
 		else:
-			v[st_env_prefix + '_BOOST_' + lib.upper()] = 'boost_'+libname
+			v[st_env_prefix + '_BOOST_' + lib.upper()] = ['boost_'+libname]
 		return
 	self.fatal('lib boost_' + lib + ' not found!')
 
