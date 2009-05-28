@@ -207,7 +207,9 @@ def vala_file(self, node):
 
 	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
-		if env['VALAC_VERSION'] > (0, 3, 5):
+		if env['VALAC_VERSION'] > (0, 7, 2):
+			pass
+		elif env['VALAC_VERSION'] > (0, 3, 5):
 			output_nodes.append(self.path.find_or_declare('%s.gir' % self.target))
 		elif env['VALAC_VERSION'] > (0, 1, 7):
 			output_nodes.append(self.path.find_or_declare('%s.gidl' % self.target))
