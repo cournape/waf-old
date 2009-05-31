@@ -42,6 +42,9 @@ class valac_task(Task.Task):
 				self.outputs.append(self.generator.path.find_or_declare(self.target + '.h'))
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
+			if env['VALAC_VERSION'] > (0, 7, 2) and hasattr(self, 'gir'):
+				cmd.append('--gir=%s.gir' % self.gir)
+
 		else:
 			output_dir = self.outputs[0].bld_dir(env)
 			cmd.append('-d %s' % output_dir)
@@ -75,6 +78,8 @@ class valac_task(Task.Task):
 			self._fix_output("%s.gidl" % self.target)
 			# handle vala >= 0.3.6 who doesn't honor --directory for the generated .gir
 			self._fix_output("%s.gir" % self.target)
+			if hasattr(self, 'gir'):
+				self._fix_output("%s.gir" % self.gir)
 
 		return result
 
@@ -85,6 +90,7 @@ class valac_task(Task.Task):
 		if self.attr("install_path") and ("cshlib" in features or "cstaticlib" in features):
 			headers_list = [o for o in self.outputs if o.suffix() == ".h"]
 			vapi_list = [o for o in self.outputs if (o.suffix() in (".vapi", ".deps"))]
+			gir_list = [o for o in self.outputs if o.suffix() == ".gir"]
 
 			for header in headers_list:
 				top_src = self.generator.bld.srcnode
@@ -101,6 +107,8 @@ class valac_task(Task.Task):
 				bld.install_as(install_path, header.abspath(self.env), self.env)
 			for vapi in vapi_list:
 				bld.install_files("${DATAROOTDIR}/vala/vapi", vapi.abspath(self.env), self.env)
+			for gir in gir_list:
+				bld.install_files("${DATAROOTDIR}/gir-1.0", gir.abspath(self.env), self.env)
 
 	def _fix_output(self, output):
 		top_bld = self.generator.bld.srcnode.abspath(self.env)
@@ -191,6 +199,9 @@ def vala_file(self, node):
 		if hasattr(self, 'target_glib'):
 			valatask.target_glib = self.target_glib
 
+		if hasattr(self, 'gir'):
+			valatask.gir = self.gir
+
 	env = valatask.env
 
 	output_nodes = []
@@ -208,7 +219,8 @@ def vala_file(self, node):
 	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
 		if env['VALAC_VERSION'] > (0, 7, 2):
-			pass
+			if hasattr(self, 'gir'):
+				output_nodes.append(self.path.find_or_declare('%s.gir' % self.gir))
 		elif env['VALAC_VERSION'] > (0, 3, 5):
 			output_nodes.append(self.path.find_or_declare('%s.gir' % self.target))
 		elif env['VALAC_VERSION'] > (0, 1, 7):
