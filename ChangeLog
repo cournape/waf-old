@@ -3,12 +3,15 @@ NEW IN WAF 1.5.7
 * enhanced python 3 compatibility (does not use 2to3 for the conversion)
 * jython support (the development version)
 * msvc detection improvements (folders with spaces, 64bit systems, ...)
+* support for vala 0.7.3
 * support for dll import lib on win32
 * parse config flags handle the -f flags
 * intltool detection improvements
 * daemon mode (playground/dirwatch - pyinotify or time threshold)
 * spot the typo feature -> features
 * ant_glob rewrite (solves many bugs)
+* solution for unicode problems
+* return values can be defined unquoted in conf.check (quote=False)
 
 NEW IN WAF 1.5.6
 ----------------
