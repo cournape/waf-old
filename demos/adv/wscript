@@ -127,6 +127,7 @@ def configure(conf):
 		define_name='booeah',
 		execute=1,
 		define_ret=1,
+		#quote=0,
 		msg='Checking for sizeof(int)')
 
 	# the demo code, from above
