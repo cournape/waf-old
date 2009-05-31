@@ -365,7 +365,7 @@ def post_check(self, *k, **kw):
 	def define_or_stuff():
 		nm = kw['define_name']
 		if kw['execute'] and kw.get('define_ret', None) and isinstance(is_success, str):
-			self.define(kw['define_name'], is_success)
+			self.define(kw['define_name'], is_success, quote=kw.get('quote', 1))
 		else:
 			self.define_cond(kw['define_name'], is_success)
 
@@ -512,7 +512,7 @@ def define(self, define, value, quote=1):
 
 	# the user forgot to tell if the value is quoted or not
 	if isinstance(value, str):
-		if quote == 1:
+		if quote:
 			tbl[define] = '"%s"' % str(value)
 		else:
 			tbl[define] = value
