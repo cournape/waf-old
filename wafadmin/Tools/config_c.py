@@ -417,15 +417,33 @@ def check(self, *k, **kw):
 def run_c_code(self, *k, **kw):
 	test_f_name = kw['compile_filename']
 
-	# create a small folder for testing
-	dir = os.path.join(self.blddir, '.wscript-trybuild')
+	k = 0
+	while k < 10000:
+		# make certain to use a fresh folder - necessary for win32
+		dir = os.path.join(self.blddir, '.conf_check_%d' % k)
 
-	# if the folder already exists, remove it
+		# if the folder already exists, remove it
+		try:
+			shutil.rmtree(dir)
+		except OSError:
+			pass
+
+		try:
+			os.stat(dir)
+		except OSError:
+			break
+
+		k += 1
+
 	try:
-		shutil.rmtree(dir)
-	except OSError:
-		pass
-	os.makedirs(dir)
+		os.makedirs(dir)
+	except:
+		self.fatal('cannot create a configuration test folder %r' % dir)
+
+	try:
+		os.stat(dir)
+	except:
+		self.fatal('cannot use the configuration test folder %r' % dir)
 
 	bdir = os.path.join(dir, 'testbuild')
 
