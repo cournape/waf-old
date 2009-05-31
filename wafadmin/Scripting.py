@@ -136,7 +136,7 @@ def prepare(t, cwd, ver, wafdir):
 	try:
 		prepare_impl(t, cwd, ver, wafdir)
 	except Utils.WafError, e:
-		error(e)
+		error(str(e))
 		sys.exit(1)
 	except KeyboardInterrupt:
 		Utils.pprint('RED', 'Interrupted')
