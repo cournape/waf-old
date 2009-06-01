@@ -507,7 +507,15 @@ def dist(appname='', version=''):
 	tar = tarfile.open(arch_name, 'w:' + g_gz)
 	tar.add(tmp_folder)
 	tar.close()
-	info('The archive is ready: %s' % arch_name)
+
+	try: from hashlib import sha
+	except ImportError: from sha import sha
+	try:
+		digest = " (sha=%r)" % sha(Utils.readf(arch_name)).hexdigest()
+	except:
+		digest = ''
+
+	info('The archive is ready: %s%s' % (arch_name, digest))
 
 	if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder)
 	return arch_name
