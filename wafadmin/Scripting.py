@@ -61,7 +61,12 @@ def prepare_impl(t, cwd, ver, wafdir):
 		if Options.lockfile in dirlst:
 			env = Environment.Environment()
 			env.load(os.path.join(cwd, Options.lockfile))
-			candidate = env['cwd'] or cwd
+			try:
+				os.stat(env['cwd'])
+			except:
+				candidate = cwd
+			else:
+				candidate = env['cwd']
 			break
 		cwd = os.path.dirname(cwd) # climb up
 
