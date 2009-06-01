@@ -508,14 +508,14 @@ def dist(appname='', version=''):
 	tar.add(tmp_folder)
 	tar.close()
 
-	try: from hashlib import sha
+	try: from hashlib import sha1 as sha
 	except ImportError: from sha import sha
 	try:
 		digest = " (sha=%r)" % sha(Utils.readf(arch_name)).hexdigest()
 	except:
 		digest = ''
 
-	info('The archive is ready: %s%s' % (arch_name, digest))
+	info('New archive created: %s%s' % (arch_name, digest))
 
 	if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder)
 	return arch_name
