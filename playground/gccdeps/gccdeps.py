@@ -36,8 +36,7 @@ def scan(self):
 	return (nodes, names)
 
 def post_run(self):
-	"""The following code is executed by threads, it is not safe"""
-
+	# The following code is executed by threads, it is not safe, so a lock is needed...
 	lock.acquire()
 
 	try:
