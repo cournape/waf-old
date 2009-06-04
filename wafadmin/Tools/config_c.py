@@ -508,11 +508,15 @@ def run_c_code(self, *k, **kw):
 
 @conf
 def check_cxx(self, *k, **kw):
+	if not self.env['CXX']:
+		self.fatal('a c++ compiler is required')
 	kw['compiler'] = 'cxx'
 	return self.check(*k, **kw)
 
 @conf
 def check_cc(self, *k, **kw):
+	if not self.env['CC']:
+		self.fatal('a c compiler is required')
 	kw['compiler'] = 'cc'
 	return self.check(*k, **kw)
 
