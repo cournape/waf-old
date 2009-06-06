@@ -134,22 +134,22 @@
 				<programlisting language="python">
 import TaskGen
 TaskGen.declare_chain(
-    name = 'luac',
-    rule = '${LUAC} -s -o ${TGT} ${SRC}',
-    ext_in = '.lua',
+    name    = 'luac',
+    rule    = '${LUAC} -s -o ${TGT} ${SRC}',
+    ext_in  = '.lua',
     ext_out = '.luac',
+	install = '${LUADIR}', # env variable
     reentrant = 0,
-    install = 'LUADIR', # env variable
 )
 
 def build(bld):
 	bld.new_task_gen(source='main.lua test.lua bar.lua')
 				</programlisting>
-In practice, the chaining declaration is located in a separate python file which may be re-used for other projects.
+In practice, the chaining declaration is located in a separate python file which may be re-used for other projects. When more control over the declaration is needed, it is recommended to use the @extension decorator (see below).
 			</para>
 		</sect2>
 		<sect2>
-			<title>Using the extension decorator</title>
+			<title>Using the @extension decorator</title>
 			<para>
 			A special method named <emphasis>apply_core</emphasis> provides file extension processing using the attribute <emphasis>source</emphasis>. On the user side, this takes the following form:
 			<programlisting language="python">
@@ -159,20 +159,15 @@ def build(bld):
 		source = 'main.c foo.c bar.c',
 		target = 'my_app')
 			</programlisting>
-			The method to process <emphasis>.c</emphasis> files (main.c) is called automatically by <emphasis>apply_core</emphasis>, and is declared in the following manner:
+			The method to process <emphasis>.c</emphasis> files (main.c) is declared in the following manner:
 			<programlisting language="python">
 from TaskGen import extension
 
 @extension('.c')
 def c_hook(self, node):
-    task = self.create_task('cc')
-    try: obj_ext = self.obj_ext
-    except AttributeError: obj_ext = '_%d.o' % self.idx
-
-    task.defines  = self.scanner_defines
-    task.inputs = [node]
+    task         = self.create_task('cc')
+    task.inputs  = [node]
     task.outputs = [node.change_ext(obj_ext)]
-    self.compiled_tasks.append(task)
 			</programlisting>
 		</para>
 		<para>
@@ -183,10 +178,51 @@ def c_hook(self, node):
 				<listitem>For each node (temporary variable <emphasis>self.allnodes</emphasis>), a method corresponding to the file extension is applied</listitem>
 			</orderedlist>
 		</para>
+		<para>
+			Now let's illustrate the @extension decorator on idl file processing. Files with .idl extension are processed to produce .c and .h files (foo.idl -> foo.c + foo.h). The .c files must be compiled after being generated.
+			<programlisting language="python">
+import Task
+from TaskGen import extension
+
+Task.simple_task_type('idl', 'omniidl -bcxx ${SRC} -C${TGT}', color='BLUE', ext_out='.cxx')
+
+@extension('.idl')
+def process_idl(self, node):
+	cc_node = node.change_ext('.cc')
+	h_node  = node.change_ext('.h')
+
+	tsk         = self.create_task('idl')
+	tsk.inputs  = node
+	tsk.outputs = [cc_node, h_node]
+
+	# reinject the c++ node to the list of nodes to process
+	self.allnodes.append(cc_node)
+
+def build(bld):
+	bld.new_task_gen(
+		features = 'cxx cprogram',
+		source   = 'foo.idl main.cpp',
+		target   = 'myapp'
+		)
+			</programlisting>
+		</para>
+
 		</sect2>
 
 		<para>
-			In this system, the list of sources for an application does not have to exactly represent files. Also, methods may re-inject new nodes to process by extension (in the temporary variable <emphasis>self.allnodes</emphasis>), without keeping an exact reference on the method that will be called.
+			The @extension decorator also accepts names instead of extensions. An entry in the source list may then be an abstract name. This may be used for executing arbitrary code (task creation is not mandatory).
+			<programlisting language="python">
+@extension('debug')
+def debug_allnodes(self, code):
+	print (self.allnodes)
+
+def build(bld):
+	bld.new_task_gen(
+		features = 'cxx cprogram',
+		source   = 'debug main.cpp debug',
+		target   = 'test'
+	)
+			</programlisting>
 		</para>
 
 	</section>
