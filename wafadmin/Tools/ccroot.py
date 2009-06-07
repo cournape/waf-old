@@ -492,7 +492,8 @@ def apply_vnum(self):
 @after('apply_link')
 @before('apply_lib_vars')
 def apply_implib(self):
-	"""On mswindows, handle dlls and their import libs."""
+	"""On mswindows, handle dlls and their import libs
+	the .dll.a is the import lib and it is required for linking so it is installed too"""
 	if sys.platform in ('win32', 'cygwin'):# and self.link_task.name.startswith('dll_'):
 		# this is very windows-specific
 		# handle dll import lib
