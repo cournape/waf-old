@@ -488,7 +488,7 @@ def apply_vnum(self):
 			self.link_task.outputs.append(self.link_task.outputs[0].parent.find_or_declare(name3))
 			self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
 
-@feature('implib', 'nicelibs')
+@feature('implib')
 @after('apply_link')
 @before('apply_lib_vars')
 def apply_implib(self):
