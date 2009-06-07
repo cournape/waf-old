@@ -28,7 +28,6 @@ def __list_possible_compiler(platform):
 def detect(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
 	except AttributeError: raise Configure.ConfigurationError("Add set_options(opt): opt.tool_options('compiler_cxx')")
-	conf.env['COMPILER_CXX'] = None
 	for compiler in test_for_compiler.split():
 		try:
 			conf.check_tool(compiler)

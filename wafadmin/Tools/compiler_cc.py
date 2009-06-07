@@ -33,7 +33,6 @@ def detect(conf):
 	"""
 	try: test_for_compiler = Options.options.check_c_compiler
 	except AttributeError: conf.fatal("Add set_options(opt): opt.tool_options('compiler_cc')")
-	conf.env['COMPILER_CC'] = None
 	for compiler in test_for_compiler.split():
 		try:
 			conf.check_tool(compiler)
