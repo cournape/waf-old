@@ -28,19 +28,18 @@ def __list_possible_compiler(platform):
 def detect(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
 	except AttributeError: raise Configure.ConfigurationError("Add set_options(opt): opt.tool_options('compiler_cxx')")
-	for cxx_compiler in test_for_compiler.split():
+	conf.env['COMPILER_CXX'] = None
+	for compiler in test_for_compiler.split():
 		try:
-			conf.check_tool(cxx_compiler)
+			conf.check_tool(compiler)
 		except Configure.ConfigurationError, e:
-			debug('compiler_cxx: ' + str(e))
+			debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env['CXX']:
-				conf.check_message("%s" %cxx_compiler, '', True)
-				conf.env["COMPILER_CXX"] = "%s" %cxx_compiler #store the selected c++ compiler
-				return
-			conf.check_message("%s" %cxx_compiler, '', False)
-			break
-	conf.env["COMPILER_CXX"] = None
+				conf.check_message(compiler, '', True)
+				conf.env['COMPILER_CXX'] = compiler
+				break
+			conf.check_message(compiler, '', False)
 
 def set_options(opt):
 	detected_platform = Options.platform

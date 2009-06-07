@@ -33,19 +33,18 @@ def detect(conf):
 	"""
 	try: test_for_compiler = Options.options.check_c_compiler
 	except AttributeError: conf.fatal("Add set_options(opt): opt.tool_options('compiler_cc')")
-	for c_compiler in test_for_compiler.split():
+	conf.env['COMPILER_CC'] = None
+	for compiler in test_for_compiler.split():
 		try:
-			conf.check_tool(c_compiler)
+			conf.check_tool(compiler)
 		except Configure.ConfigurationError, e:
-			debug('compiler_cc: ' + str(e))
+			debug('compiler_cc: %r' % e)
 		else:
 			if conf.env['CC']:
-				conf.check_message("%s" %c_compiler, '', True)
-				conf.env["COMPILER_CC"] = "%s" % c_compiler #store the selected c compiler
-				return
-			conf.check_message("%s" %c_compiler, '', False)
-			break
-	conf.env["COMPILER_CC"] = None
+				conf.check_message(compiler, '', True)
+				conf.env['COMPILER_CC'] = compiler
+				break
+			conf.check_message(compiler, '', False)
 
 def set_options(opt):
 	detected_platform = Options.platform
