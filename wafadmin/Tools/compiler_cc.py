@@ -28,7 +28,7 @@ def __list_possible_compiler(platform):
 def detect(conf):
 	"""
 	for each compiler for the platform, try to configure the compiler
-	in thory the tools should raise a configuration error if the compiler
+	in theory the tools should raise a configuration error if the compiler
 	pretends to be something it is not (setting CC=icc and trying to configure gcc)
 	"""
 	try: test_for_compiler = Options.options.check_c_compiler
