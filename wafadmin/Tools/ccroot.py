@@ -488,12 +488,15 @@ def apply_vnum(self):
 			self.link_task.outputs.append(self.link_task.outputs[0].parent.find_or_declare(name3))
 			self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
 
-@feature('cshlib')
+@feature('implib', 'nicelibs')
 @after('apply_link')
 @before('apply_lib_vars')
 def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
-	the .dll.a is the import lib and it is required for linking so it is installed too"""
+	the .dll.a is the import lib and it is required for linking so it is installed too
+
+	the feature nicelibs would be bound to something that enable dlopenable libs on macos
+	"""
 	if sys.platform in ('win32', 'cygwin'):# and self.link_task.name.startswith('dll_'):
 		# this is very windows-specific
 		# handle dll import lib
