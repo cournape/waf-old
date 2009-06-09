@@ -135,8 +135,8 @@ def install_shlib(self):
 		if len(self.outputs) == 2:
 			# install the import lib in the libdir
 			implib = self.outputs[1]
-			libdir = 'LIBDIR'
-			if not self.env[libdir]:
+			libdir = '${LIBDIR}'
+			if not self.env['LIBDIR']:
 					libdir = '${PREFIX}/lib'
 			if sys.platform == 'cygwin':
 				bld.symlink_as(libdir + '/' + implib.name, self.install_path + os.sep + dll.name, env=self.env)
