@@ -1,3 +1,6 @@
+NEW IN WAF 1.5.8
+----------------
+
 NEW IN WAF 1.5.7
 ----------------
 * support for vala 0.7.3
@@ -14,6 +17,7 @@ NEW IN WAF 1.5.7
 * daemon mode (playground/dirwatch - pyinotify or time threshold)
 * spot the typo feature -> features
 * more documentation for the @extension decorator
+* use the -of flags for dmd execution (d language)
 
 NEW IN WAF 1.5.6
 ----------------
