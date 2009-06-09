@@ -217,7 +217,7 @@ def install_target_cstaticlib(self):
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
 	self.link_task.install = install_shlib
-	if not sys.platform in ('win32', 'cygwin'):
+	if getattr(self, 'vnum', '') and not sys.platform in ('win32', 'cygwin'):
 		self.link_task.vnum = self.vnum
 
 @feature('cc', 'cxx')
