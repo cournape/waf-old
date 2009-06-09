@@ -128,21 +128,20 @@ def install_shlib(self):
 		# install the dll in the bindir
 		bindir = self.install_path
 		if not bindir: return
+
 		dll = self.outputs[0]
 		bld.install_as(os.path.join(bindir, dll.name), dll.abspath(self.env), chmod=self.chmod, env=self.env)
-		# install the import lib in the libdir
-		implib = self.outputs[1]
-		libdir = bld.get_install_path(self.env['LIBDIR'] or '${PREFIX}/lib')
-		Utils.check_dir(libdir)
-		if sys.platform == 'cygwin':
-			# create a symlink in the libdir that points to the dll in the bindir
-			# FIXME if the libdir and the bindir didn't exist already, we can't get the nodes!
-			libdir_node = bld.root.find_dir(libdir)
-			bindir_node = bld.root.find_dir(bld.get_install_path(bindir))
-			lib_to_bin = bindir_node.relpath_gen(libdir_node)
-			bld.symlink_as(os.path.join(libdir, implib.name), os.path.join(lib_to_bin, dll.name))
-		else:
-			bld.install_as(os.path.join(libdir, implib.name), implib.abspath(self.env), env=self.env)
+		# fuck, import libs
+		if len(self.outputs) == 2:
+			# install the import lib in the libdir
+			implib = self.outputs[1]
+			libdir = 'LIBDIR'
+			if not self.env[libdir]:
+					libdir = '${PREFIX}/lib'
+			if sys.platform == 'cygwin':
+				bld.symlink_as(libdir + '/' + implib.name, self.install_path + os.sep + dll.name, env=self.env)
+			else:
+				bld.install_as(libdir + '/' + implib.name, implib.abspath(self.env), env=self.env)
 	else:
 		nums = self.vnum.split('.')
 
