@@ -18,6 +18,7 @@ except ImportError:
 import config_c # <- necessary for the configuration, do not touch
 
 USE_TOP_LEVEL = False
+win_platform = sys.platform in ('win32', 'cygwin')
 
 def get_cc_version(conf, cc, gcc=False, icc=False):
 
@@ -115,7 +116,7 @@ def get_target_name(self):
 
 	dir, name = os.path.split(self.target)
 
-	if sys.platform in ('win32', 'cygwin') and getattr(self, 'vnum', '') and 'cshlib' in self.features:
+	if win_platform and getattr(self, 'vnum', '') and 'cshlib' in self.features:
 		# include the version in the dll file name,
 		# the import lib file name stays unversionned.
 		name = name + '-' + self.vnum.split('.')[0]
@@ -124,7 +125,7 @@ def get_target_name(self):
 
 def install_shlib(self):
 	bld = self.outputs[0].__class__.bld
-	if sys.platform in ('win32', 'cygwin'):
+	if win_platform:
 		# install the dll in the bindir
 		bindir = self.install_path
 		if not bindir: return
@@ -198,7 +199,7 @@ def vars_target_cstaticlib(self):
 @feature('cshlib', 'dshlib')
 @before('apply_core') # ?
 def vars_target_cshlib(self):
-	if sys.platform in ('win32', 'cygwin'):
+	if win_platform:
 		self.default_install_path = self.env['BINDIR'] or '${PREFIX}/bin'
 		# on win32, libraries need the execute bit, else we
 		# get 'permission denied' when using them (issue 283)
@@ -217,7 +218,7 @@ def install_target_cstaticlib(self):
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
 	self.link_task.install = install_shlib
-	if getattr(self, 'vnum', '') and not sys.platform in ('win32', 'cygwin'):
+	if getattr(self, 'vnum', '') and not win_platform:
 		self.link_task.vnum = self.vnum
 
 @feature('cc', 'cxx')
@@ -302,7 +303,7 @@ def apply_link(self):
 		# both the .so and .so.x must be present in the build dir
 		# for darwin the version number is ?
 		if 'cshlib' in self.features:
-			if sys.platform in ('win32', 'cygwin'):
+			if win_platform:
 				link = 'dll_' + link
 			elif getattr(self, 'vnum', ''):
 				if sys.platform == 'darwin':
@@ -493,7 +494,7 @@ def apply_implib(self):
 
 	the feature nicelibs would be bound to something that enable dlopenable libs on macos
 	"""
-	if sys.platform in ('win32', 'cygwin'):# and self.link_task.name.startswith('dll_'):
+	if win_platform:
 		# this is very windows-specific
 		# handle dll import lib
 		dll = self.link_task.outputs[0]
