@@ -72,19 +72,19 @@ class CcRootTester(common_test.CommonTester):
 		self._test_dic['set_env'] 		= set_env
 		
 	def _setup_cpp_program(self):
-		self._populate_dictionary('program', cpp_program_code)
+		self._populate_dictionary('cprogram', cpp_program_code)
 		self._write_files()
 		
 	def _setup_c_program(self):
-		self._populate_dictionary('program', c_program_code)
+		self._populate_dictionary('cprogram', c_program_code)
 		self._write_files()
 		
 	def _setup_share_lib(self):
-		self._populate_dictionary('shlib', lib_code)
+		self._populate_dictionary('cshlib', lib_code)
 		self._write_files()
 	
 	def _setup_static_lib(self):
-		self._populate_dictionary('staticlib', lib_code)
+		self._populate_dictionary('cstaticlib', lib_code)
 		self._write_files()
 	
 	def _setup_cpp_objects(self):
@@ -100,11 +100,11 @@ class CcRootTester(common_test.CommonTester):
 		self._write_files()
 		
 	def _setup_cpp_program_with_env(self, env_line):
-		self._populate_dictionary('program', cpp_program_code, env_line)
+		self._populate_dictionary('cprogram', cpp_program_code, env_line)
 		self._write_files()
 
 	def _setup_c_program_with_env(self, env_line):
-		self._populate_dictionary('program', c_program_code, env_line)
+		self._populate_dictionary('cprogram', c_program_code, env_line)
 		self._write_files()
 
 	def _write_source(self):
@@ -195,25 +195,21 @@ def configure(conf):
 		if set_taregt:
 			env['TARGET_PLATFORM'] = target_platform
 		conf.sub_config([''])
+
+		self.assert_(env['staticlib_PATTERN'] == 'lib%s.a', 'incorrect staticlib pattern')
+		self.assert_(env['staticlib_LINKFLAGS'] == ['-Wl,-Bstatic'], 'incorrect staticlib_LINKFLAGS')
+		if self.tool_name == 'gcc':
+			self.assert_(env['shlib_CCFLAGS'] == ['-fPIC', '-DPIC'], 'incorrect shlib CCFLAGS')
+		else:
+			self.assert_(env['shlib_CXXFLAGS'] == [], 'incorrect shlib CXXFLAGS was %s' % env['shlib_CXXFLAGS'])
+
 		if target_platform == 'win32' or target_platform == 'cygwin':
 			self.assert_(env['program_PATTERN'] == '%s.exe', 'incorrect program pattern, was %s, target_platform = %s' % (env['program_PATTERN'], target_platform))
 			self.assert_(env['shlib_PATTERN'] == '%s.dll', 'incorrect shlib pattern')
-			self.assert_(env['staticlib_PATTERN'] == '%s.lib', 'incorrect staticlib pattern')
-			if self.tool_name == 'gcc':
-				self.assert_(env['shlib_CCFLAGS'] == [], 'incorrect shlib CCFLAGS')
-			else:
-				self.assert_(env['shlib_CXXFLAGS'] == [], 'incorrect shlib CXXFLAGS')
-			self.assert_(env['staticlib_LINKFLAGS'] == [], 'incorrect staticlib_LINKFLAGS')
 		elif target_platform == 'linux2':
 			self.assert_(env['program_PATTERN'] == '%s', 'incorrect program pattern')
 			self.assert_(env['shlib_PATTERN'] == 'lib%s.so', 'incorrect shlib pattern')
-			self.assert_(env['staticlib_PATTERN'] == 'lib%s.a', 'incorrect staticlib pattern')
-			if self.tool_name == 'gcc':
-				self.assert_(env['shlib_CCFLAGS'] == ['-fPIC', '-DPIC'], 'incorrect shlib CCFLAGS')
-			else:
-				self.assert_(env['shlib_CXXFLAGS'] == ['-fPIC', '-DPIC'], 'incorrect shlib CXXFLAGS')
 
-			self.assert_(env['staticlib_LINKFLAGS'] == ['-Wl,-Bstatic'], 'incorrect staticlib_LINKFLAGS')
 			self.assert_(env['shlib_LINKFLAGS'] == ['-shared'], 'incorrect staticlib_LINKFLAGS')
 		else:
 			raise NotImplementedError('tests for %s were not implemented yet...' % target_platform)
