@@ -1,5 +1,7 @@
 NEW IN WAF 1.5.8
 ----------------
+* installing shared libraries on unix platforms was broken
+* adding post-execution tasks made deadlocks (issue #467)
 
 NEW IN WAF 1.5.7
 ----------------
