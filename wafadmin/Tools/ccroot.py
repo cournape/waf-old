@@ -123,41 +123,43 @@ def get_target_name(self):
 
 	return os.path.join(dir, pattern % name)
 
-def install_shlib(self):
+def install_implib(self):
 	bld = self.outputs[0].__class__.bld
-	if win_platform:
-		# install the dll in the bindir
-		bindir = self.install_path
-		if not bindir: return
+	# install the dll in the bindir
+	bindir = self.install_path
 
-		dll = self.outputs[0]
-		bld.install_as(os.path.join(bindir, dll.name), dll.abspath(self.env), chmod=self.chmod, env=self.env)
-		# fuck, import libs
-		if len(self.outputs) == 2:
-			# install the import lib in the libdir
-			implib = self.outputs[1]
-			libdir = '${LIBDIR}'
-			if not self.env['LIBDIR']:
-					libdir = '${PREFIX}/lib'
-			if sys.platform == 'cygwin':
-				bld.symlink_as(libdir + '/' + implib.name, self.install_path + os.sep + dll.name, env=self.env)
-			else:
-				bld.install_as(libdir + '/' + implib.name, implib.abspath(self.env), env=self.env)
+	if not len(self.outputs) == 2:
+		raise ValueError('fail')
+
+	dll = self.outputs[0]
+	bld.install_as(bindir + os.sep + dll.name, dll.abspath(self.env), chmod=self.chmod, env=self.env)
+
+	implib = self.outputs[1]
+	libdir = '${LIBDIR}'
+	if not self.env['LIBDIR']:
+			libdir = '${PREFIX}/lib'
+	if sys.platform == 'cygwin':
+		bld.symlink_as(libdir + '/' + implib.name, bindir + os.sep + dll.name, env=self.env)
 	else:
-		nums = self.vnum.split('.')
+		bld.install_as(libdir + '/' + implib.name, implib.abspath(self.env), env=self.env)
 
-		path = self.install_path
-		if not path: return
-		libname = self.outputs[0].name
+def install_shlib(self):
+	"""it is called install_shlib but its real name is install_vnum_shlib"""
+	bld = self.outputs[0].__class__.bld
+	nums = self.vnum.split('.')
 
-		name3 = libname + '.' + self.vnum
-		name2 = libname + '.' + nums[0]
-		name1 = libname
+	path = self.install_path
+	if not path: return
+	libname = self.outputs[0].name
 
-		filename = self.outputs[0].abspath(self.env)
-		bld.install_as(os.path.join(path, name3), filename, env=self.env)
-		bld.symlink_as(os.path.join(path, name2), name3)
-		bld.symlink_as(os.path.join(path, name1), name3)
+	name3 = libname + '.' + self.vnum
+	name2 = libname + '.' + nums[0]
+	name1 = libname
+
+	filename = self.outputs[0].abspath(self.env)
+	bld.install_as(os.path.join(path, name3), filename, env=self.env)
+	bld.symlink_as(os.path.join(path, name2), name3)
+	bld.symlink_as(os.path.join(path, name1), name3)
 
 @feature('cc', 'cxx')
 @before('apply_core')
@@ -504,6 +506,8 @@ def apply_implib(self):
 			pass # don't create any import lib, a symlink is used instead
 		elif sys.platform == 'win32':
 			self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
+
+		self.link_task.install = install_implib
 
 @after('apply_link')
 def process_obj_files(self):
