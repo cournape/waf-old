@@ -5,7 +5,7 @@
 "intltool support"
 
 import os, re
-import Configure, TaskGen, Task, Utils, Runner, Options, Build
+import Configure, TaskGen, Task, Utils, Runner, Options, Build, config_c
 from TaskGen import feature, before, taskgen
 from Logs import error
 
