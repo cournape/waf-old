@@ -135,8 +135,9 @@ def detect(conf):
 	conf.define('LOCALEDIR', os.path.join(datadir, 'locale'))
 	conf.define('DATADIR', datadir)
 
-	#Define to 1 if you have the <locale.h> header file.
-	conf.check(header_name='locale.h')
+	if conf.env['CC'] or conf.env['CXX']:
+		# Define to 1 if <locale.h> is present
+		conf.check(header_name='locale.h')
 
 def set_options(opt):
 	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
