@@ -226,6 +226,8 @@ class task_gen(object):
 			try: return task_gen.mappings[ext]
 			except KeyError: return None
 
+	# TODO waf 1.6: always set the environment
+	# TODO waf 1.6: create_task(self, name, inputs, outputs)
 	def create_task(self, name, env=None):
 		task = Task.TaskBase.classes[name](env or self.env, generator=self)
 		self.tasks.append(task)
