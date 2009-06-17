@@ -138,10 +138,7 @@ def install_implib(self):
 	libdir = '${LIBDIR}'
 	if not self.env['LIBDIR']:
 			libdir = '${PREFIX}/lib'
-	if sys.platform == 'cygwin':
-		bld.symlink_as(libdir + '/' + implib.name, bindir + os.sep + dll.name, env=self.env)
-	else:
-		bld.install_as(libdir + '/' + implib.name, implib.abspath(self.env), env=self.env)
+	bld.install_as(libdir + '/' + implib.name, implib.abspath(self.env), env=self.env)
 
 def install_shlib(self):
 	"""it is called install_shlib but its real name is install_vnum_shlib"""
