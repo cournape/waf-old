@@ -301,17 +301,14 @@ def apply_link(self):
 		if 'cstaticlib' in self.features: link = 'ar_link_static'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
-		if 'cshlib' in self.features:
-			if win_platform:
-				link = 'dll_' + link # dll_cc_link and dll_cxx_link
-			elif getattr(self, 'vnum', ''):
-				# that's something quite ugly for unix platforms
-				# both the .so and .so.x must be present in the build dir
-				# for darwin the version number is ?
-				if sys.platform == 'darwin':
-					self.vnum = ''
-				else:
-					link = 'vnum_' + link
+		if 'cshlib' in self.features and getattr(self, 'vnum', ''):
+			# that's something quite ugly for unix platforms
+			# both the .so and .so.x must be present in the build dir
+			# for darwin the version number is ?
+			if sys.platform == 'darwin':
+				self.vnum = ''
+			else:
+				link = 'vnum_' + link
 
 	tsk = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
@@ -394,7 +391,7 @@ def apply_lib_vars(self):
 			if val: self.env.append_value(v, val)
 
 @feature('cprogram', 'cstaticlib', 'cshlib')
-@after('apply_obj_vars', 'apply_vnum', 'apply_implib', 'apply_link')
+@after('apply_obj_vars', 'apply_vnum', 'apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
 	if not getattr(self, 'add_objects', None): return
@@ -487,28 +484,6 @@ def apply_vnum(self):
 			self.link_task.outputs.append(self.link_task.outputs[0].parent.find_or_declare(name3))
 			self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
 
-@feature('implib')
-@after('apply_link')
-@before('apply_lib_vars')
-def apply_implib(self):
-	"""On mswindows, handle dlls and their import libs
-	the .dll.a is the import lib and it is required for linking so it is installed too
-
-	the feature nicelibs would be bound to something that enable dlopenable libs on macos
-	"""
-	if win_platform:
-		# this is very windows-specific
-		# handle dll import lib
-		dll = self.link_task.outputs[0]
-		implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
-		self.link_task.outputs.append(implib)
-		if sys.platform == 'cygwin':
-			pass # don't create any import lib, a symlink is used instead
-		elif sys.platform == 'win32':
-			self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
-
-		self.link_task.install = install_implib
-
 @after('apply_link')
 def process_obj_files(self):
 	if not hasattr(self, 'obj_files'): return
@@ -572,14 +547,51 @@ def link_vnum(self):
 	except:
 		return 1
 
+# ============ the code above must not know anything about import libs ==========
+
+@feature('implib')
+@before('apply_link')
+def set_link_task(self):
+	if not win_platform:
+		return
+	if not 'cshlib' in self.features:
+		raise Utils.WafError('feature "implib" requires "cshlib"')
+	self.link = 'dll_cc'
+	if 'cxx' in self.features:
+		self.link = 'dll_cxx_link'
+
+@feature('implib')
+@after('apply_link')
+@before('apply_lib_vars', 'apply_objdeps')
+def apply_implib(self):
+	"""On mswindows, handle dlls and their import libs
+	the .dll.a is the import lib and it is required for linking so it is installed too
+
+	the feature nicelibs would be bound to something that enable dlopenable libs on macos
+	"""
+	if not win_platform:
+		return
+
+	# this is very windows-specific
+	# handle dll import lib
+	dll = self.link_task.outputs[0]
+	implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
+	self.link_task.outputs.append(implib)
+	if sys.platform == 'cygwin':
+		pass # don't create any import lib, a symlink is used instead
+	elif sys.platform == 'win32':
+		self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
+
+	self.link_task.install = install_implib
+
 def post_dll_link(self):
 	"""
-		on cygwin make a symlink that points to the dll (no need for import libs)
+	on cygwin make a symlink that points to the dll (no need for import libs)
 
-		the code is disabled for the following unanwered questions:
-		* if there is no need for import libs, why is this used at all?
-		* a bare try-except is present (the exact exception must be caught)
-		* not clear what issue #464 implies
+	the code is disabled for the following unanwered questions:
+	* if there is no need for import libs, why is this used at all?
+	* a bare try-except is present (the exact exception must be caught)
+	* not clear what issue #464 implies
 	"""
 
 	if False:
