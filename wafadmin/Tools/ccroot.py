@@ -304,7 +304,7 @@ def apply_link(self):
 			# for darwin the version number is ?
 			if sys.platform == 'darwin':
 				self.vnum = ''
-			else:
+			elif not win_platform:
 				link = 'vnum_' + link
 
 	tsk = self.create_task(link)
