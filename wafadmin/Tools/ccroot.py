@@ -301,13 +301,13 @@ def apply_link(self):
 		if 'cstaticlib' in self.features: link = 'ar_link_static'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
-		# that's something quite ugly for unix platforms
-		# both the .so and .so.x must be present in the build dir
-		# for darwin the version number is ?
 		if 'cshlib' in self.features:
 			if win_platform:
-				link = 'dll_' + link
+				link = 'dll_' + link # dll_cc_link and dll_cxx_link
 			elif getattr(self, 'vnum', ''):
+				# that's something quite ugly for unix platforms
+				# both the .so and .so.x must be present in the build dir
+				# for darwin the version number is ?
 				if sys.platform == 'darwin':
 					self.vnum = ''
 				else:
@@ -573,9 +573,17 @@ def link_vnum(self):
 		return 1
 
 def post_dll_link(self):
-	"""On cygwin make a symlink that points to the dll (no need for import libs)"""
-	if sys.platform == 'cygwin':
-		# create the import lib as a symlink to the dll
+	"""
+		on cygwin make a symlink that points to the dll (no need for import libs)
+
+		the code is disabled for the following unanwered questions:
+		* if there is no need for import libs, why is this used at all?
+		* a bare try-except is present (the exact exception must be caught)
+		* not clear what issue #464 implies
+	"""
+
+	if False:
+	#if sys.platform == 'cygwin' and len(self.outputs) == 2:
 		try:
 			os.remove(self.outputs[1].abspath(self.env))
 		except OSError:
