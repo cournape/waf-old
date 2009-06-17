@@ -577,10 +577,5 @@ def apply_implib(self):
 	dll = self.link_task.outputs[0]
 	implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
 	self.link_task.outputs.append(implib)
-	if sys.platform == 'cygwin':
-		pass # don't create any import lib, a symlink is used instead
-	elif sys.platform == 'win32':
-		self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
-
+	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
 	self.link_task.install = install_implib
-
