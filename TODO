@@ -1,6 +1,8 @@
 Waf 1.5
 -------
 
+better error msg when the .lock file is not found
+
 refactor the methods for c/c++
 make the cache retrieving less noisy
 advertise WAFCACHE
@@ -11,15 +13,19 @@ use Node::find_iter in task_gen::find_sources_in_dirs
 Waf 1.6
 -------
 
+conf.blddir <-> bld.bdir
+
 (api cleanup)
 * leave either tdir or tooldir in the methods check_tool and check_options
 * fix the TODO for 1.6
 
-ideas to watch:
----------------
+ideas
+-----
 
 * parse the command-lines for &&, (, ) < and > to avoid the shell where applicable
 * packaging? (rpms, debs)
+* rethink the node scanning system to hash the nodes at the last moment
+
 
 --------------------------------------
 Last update: 16/11/2008
