@@ -404,17 +404,21 @@ class Node(object):
 	def abspath(self, env=None):
 		"""
 		absolute path
-		@param env: optional only if the node is a source node
+		@param env [Environment]:
+			* obligatory for build nodes: build/variant/src/dir/bar.o
+			* optional for dirs: get either src/dir or build/variant/src/dir
+			* excluded for source nodes: src/dir/bar.c
 		"""
 		## absolute path - hot zone, so do not touch
 
 		# less expensive
 		variant = (env and (self.id & 3 != FILE) and env.variant()) or 0
-		#variant = self.variant(env)
+
 		ret = self.__class__.bld.cache_node_abspath[variant].get(self.id, None)
 		if ret: return ret
 
 		if not variant:
+			# source directory
 			if not self.parent:
 				val = os.sep == '/' and os.sep or ''
 			elif not self.parent.name: # root
@@ -422,7 +426,8 @@ class Node(object):
 			else:
 				val = self.parent.abspath() + os.sep + self.name
 		else:
-			val = os.sep.join((self.__class__.bld.bldnode.abspath(), env.variant(), self.path_to_parent(self.__class__.bld.srcnode)))
+			# build directory
+			val = os.sep.join((self.__class__.bld.bldnode.abspath(), variant, self.path_to_parent(self.__class__.bld.srcnode)))
 		self.__class__.bld.cache_node_abspath[variant][self.id] = val
 		return val
 
