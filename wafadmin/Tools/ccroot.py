@@ -584,24 +584,3 @@ def apply_implib(self):
 
 	self.link_task.install = install_implib
 
-def post_dll_link(self):
-	"""
-	on cygwin make a symlink that points to the dll (no need for import libs)
-
-	the code is disabled for the following unanwered questions:
-	* if there is no need for import libs, why is this used at all?
-	* a bare try-except is present (the exact exception must be caught)
-	* not clear what issue #464 implies
-	"""
-
-	if False:
-	#if sys.platform == 'cygwin' and len(self.outputs) == 2:
-		try:
-			os.remove(self.outputs[1].abspath(self.env))
-		except OSError:
-			pass
-		try:
-			os.symlink(self.outputs[0].name, self.outputs[1].bldpath(self.env))
-		except:
-			return 1
-
