@@ -414,6 +414,11 @@ class Node(object):
 		# less expensive
 		variant = (env and (self.id & 3 != FILE) and env.variant()) or 0
 
+		# Instead of computing the absolute path each time again,
+		# store the already-computed absolute paths in one of (variants+1) dictionaries:
+		# bld.cache_node_abspath[0] holds absolute paths for source nodes.
+		# bld.cache_node_abspath[variant] holds the absolute path for the build nodes
+		# which reside in the variant given by env.
 		ret = self.__class__.bld.cache_node_abspath[variant].get(self.id, None)
 		if ret: return ret
 
