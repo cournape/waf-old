@@ -492,8 +492,9 @@ class Node(object):
 
 	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
-		self.__class__.bld.rescan(self)
-		dir_cont = self.__class__.bld.cache_dir_contents[self.id]
+		bld_ctxt = self.__class__.bld
+		bld_ctxt.rescan(self)
+		dir_cont = bld_ctxt.cache_dir_contents[self.id]
 		for name in dir_cont:
 			if accept_name(self, name):
 				node = self.find_resource(name)
@@ -502,7 +503,7 @@ class Node(object):
 						yield node
 				else:
 					node = self.find_dir(name)
-					if node and node.id != self.__class__.bld.bldnode.id:
+					if node and node.id != bld_ctxt.bldnode.id:
 						if dir:
 							yield node
 						if not is_prune(self, name):
@@ -515,14 +516,14 @@ class Node(object):
 					if not node:
 						# not a file, it is a dir
 						node = self.find_dir(name)
-						if node and node.id != self.__class__.bld.bldnode.id:
+						if node and node.id != bld_ctxt.bldnode.id:
 							if maxdepth:
 								for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth - 1):
 									yield k
 
 		if bld:
 			for node in self.childs.values():
-				if node.id == self.__class__.bld.bldnode.id:
+				if node.id == bld_ctxt.bldnode.id:
 					continue
 				if node.id & 3 == BUILD:
 					if accept_name(self, node.name):
