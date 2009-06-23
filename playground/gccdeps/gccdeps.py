@@ -17,12 +17,17 @@ lock = threading.Lock()
 # change to '-MMD' if you don't want to check system header files too.
 preprocessor_flag = '-MD'
 
-@feature('cc', 'cxx')
+@feature('cc')
 @before('apply_core')
-def add_preprocessor(self):
-	for flags in ['CCFLAGS', 'CXXFLAGS']:
-		if self.env.get_flat(flags).find(preprocessor_flag) < 0:
-			self.env.append_value(flags, preprocessor_flag)
+def add_mmd_cc(self):
+	if self.env.get_flat('CCFLAGS').find(preprocessor_flag) < 0:
+		self.env.append_value('CCFLAGS', preprocessor_flag)
+
+@feature('cxx')
+@before('apply_core')
+def add_mmd_cxx(self):
+	if self.env.get_flat('CXXFLAGS').find(preprocessor_flag) < 0:
+		self.env.append_value('CXXFLAGS', preprocessor_flag)
 
 def scan(self):
 	"the scanner does not do anything initially"
