@@ -814,6 +814,7 @@ class Task(TaskBase):
 		bld = self.generator.bld
 		tstamp = bld.node_sigs
 		env = self.env
+		variant = env.variant()
 
 		for k in bld.node_deps.get(self.unique_id(), []):
 			# unlikely but necessary if it happens
@@ -825,7 +826,7 @@ class Task(TaskBase):
 			if k.id & 3 == 2: # Node.FILE:
 				upd(tstamp[0][k.id])
 			else:
-				upd(tstamp[env.variant()][k.id])
+				upd(tstamp[variant][k.id])
 
 		return m.digest()
 
