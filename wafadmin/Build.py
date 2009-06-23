@@ -425,12 +425,7 @@ class BuildContext(Utils.Context):
 		self.listdir_src(src_dir_node)
 
 		# first obtain the differences between srcnode and src_dir_node
-		if src_dir_node.is_child_of(self.bldnode):
-			# for directories under the build dir, don't try to listdir_bld
-			# the blddir of the blddir (like build/default/build/default)
-			h1 = self.bldnode.height() + 1
-		else :
-			h1 = self.srcnode.height()
+		h1 = self.srcnode.height()
 		h2 = src_dir_node.height()
 
 		lst = []
