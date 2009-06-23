@@ -406,10 +406,12 @@ class BuildContext(Utils.Context):
 		self.init_variants()
 
 	def rescan(self, src_dir_node):
-		""" first list the files in the src dir and update the nodes
+		"""
+		first list the files in the src dir and update the nodes
 		    - for each variant build dir (multiple build dirs):
 		        - list the files in the build dir, update the nodes
-		this makes (n variant)+srdir to scan (at least 2 folders)"""
+		this makes (n variants)+srcdir to scan (at least 2 folders)
+		"""
 
 		# do not rescan over and over again
 		if self.cache_scanned_folders.get(src_dir_node.id, None): return
