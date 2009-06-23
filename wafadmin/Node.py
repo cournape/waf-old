@@ -215,6 +215,7 @@ class Node(object):
 		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
+		dir_cont = self.__class__.bld.cache_dir_contents
 		current = self
 		for name in lst:
 			self.__class__.bld.rescan(current)
@@ -231,7 +232,6 @@ class Node(object):
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
-					dir_cont = self.__class__.bld.cache_dir_contents
 					if prev.id in dir_cont and name in dir_cont[prev.id]:
 						if not prev.name:
 							if os.sep == '/':
@@ -493,7 +493,8 @@ class Node(object):
 	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
 		self.__class__.bld.rescan(self)
-		for name in self.__class__.bld.cache_dir_contents[self.id]:
+		dir_cont = self.__class__.bld.cache_dir_contents[self.id]
+		for name in dir_cont:
 			if accept_name(self, name):
 				node = self.find_resource(name)
 				if node:
@@ -615,7 +616,8 @@ class Node(object):
 
 		def ant_iter(nodi, maxdepth=25, pats=[]):
 			nodi.__class__.bld.rescan(nodi)
-			for name in nodi.__class__.bld.cache_dir_contents[nodi.id]:
+			dir_cont = nodi.__class__.bld.cache_dir_contents[nodi.id]
+			for name in dir_cont:
 				npats = accept(name, pats)
 				if npats and npats[0]:
 					accepted = [] in npats[0]
