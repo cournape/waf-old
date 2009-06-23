@@ -86,7 +86,10 @@ The scheme 2 will not allow for running tasks one by one so it can cause disk th
 """
 
 file_deps = Utils.nada
-"""Additional dependency pre-check may be added by replacing the function file_deps"""
+"""
+Additional dependency pre-check may be added by replacing the function file_deps.
+e.g. extract_outputs, extract_deps below.
+"""
 
 class TaskManager(object):
 	"""The manager is attached to the build object, it holds a list of TaskGroup"""
@@ -815,7 +818,7 @@ class Task(TaskBase):
 		for k in bld.node_deps.get(self.unique_id(), []):
 			# unlikely but necessary if it happens
 			if not k.parent.id in bld.cache_scanned_folders:
-				# if the parent folder is removed, and OSError may be thrown
+				# if the parent folder is removed, an OSError may be thrown
 				bld.rescan(k.parent)
 
 			# if the parent folder is removed, a KeyError will be thrown
