@@ -620,14 +620,14 @@ class Task(TaskBase):
 			return RUN_ME
 
 		# compare the signatures of the outputs
-			for node in self.outputs:
-				variant = node.variant(env)
-				try:
-					if bld.node_sigs[variant][node.id] != new_sig:
-						return RUN_ME
-				except KeyError:
-					debug("task: task %r must run as the output nodes do not exist" % self)
+		for node in self.outputs:
+			variant = node.variant(env)
+			try:
+				if bld.node_sigs[variant][node.id] != new_sig:
 					return RUN_ME
+			except KeyError:
+				debug("task: task %r must run as the output nodes do not exist" % self)
+				return RUN_ME
 
 		# debug if asked to
 		if Logs.verbose: self.debug_why(bld.task_sigs[key])
