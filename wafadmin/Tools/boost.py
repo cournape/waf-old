@@ -16,6 +16,8 @@
 #	conf.check_tool('boost')
 #   conf.check_boost(lib='signals filesystem', kind='STATIC_BOTH', score_version=(-1000, 1000), tag_minscore=1000)
 #
+#def build(bld):
+#   bld.new_task_gen(source='main.c', target='bar', uselib="BOOST BOOST_SYSTEM")
 #
 #ISSUES:
 # * find_includes should be called only once!
