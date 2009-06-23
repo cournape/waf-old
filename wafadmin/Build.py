@@ -417,8 +417,6 @@ class BuildContext(Utils.Context):
 		if self.cache_scanned_folders.get(src_dir_node.id, None): return
 		self.cache_scanned_folders[src_dir_node.id] = 1
 
-		#debug('build: rescanning %s' % str(src_dir_node))
-
 		# FIXME remove in waf 1.6
 		if hasattr(self, 'repository'): self.repository(src_dir_node)
 
@@ -429,7 +427,6 @@ class BuildContext(Utils.Context):
 		self.listdir_src(src_dir_node)
 
 		# first obtain the differences between srcnode and src_dir_node
-		#lst = self.srcnode.difflst(src_dir_node)
 		h1 = self.srcnode.height()
 		h2 = src_dir_node.height()
 
