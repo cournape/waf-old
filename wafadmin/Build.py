@@ -420,8 +420,6 @@ class BuildContext(Utils.Context):
 		# FIXME remove in waf 1.6
 		if hasattr(self, 'repository'): self.repository(src_dir_node)
 
-		# list the files in the build dirs
-		# remove the existing timestamps if the build files are removed
 		if sys.platform == "win32" and not src_dir_node.name:
 			return
 		self.listdir_src(src_dir_node)
@@ -438,6 +436,8 @@ class BuildContext(Utils.Context):
 			h2 -= 1
 		lst.reverse()
 
+		# list the files in the build dirs
+		# remove the existing timestamps if the build files are removed
 		for variant in self.lst_variants:
 			sub_path = os.path.join(self.bldnode.abspath(), variant , *lst)
 			try:
