@@ -69,7 +69,7 @@ class shpip_task(Task.Task):
 	quiet = 1
 
 	# important, no link before all shpip are done
-	before = ['cc_link', 'cxx_link', 'ar_link_static']
+	before = ['cc_link', 'cxx_link', 'ar_link_static', 'cc', 'cxx']
 
 	def __init__(self, *k, **kw):
 		Task.Task.__init__(self, *k, **kw)
