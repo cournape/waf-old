@@ -116,6 +116,8 @@ class unit_test(object):
 				if ld_library_path:
 					if sys.platform == 'win32':
 						kwargs['env']['PATH'] = ';'.join(ld_library_path + [os.environ.get('PATH', '')])
+					elif sys.platform == 'darwin':
+						kwargs['env']['DYLD_LIBRARY_PATH'] = ':'.join(ld_library_path + [os.environ.get('DYLD_LIBRARY_PATH', '')])
 					else:
 						kwargs['env']['LD_LIBRARY_PATH'] = ':'.join(ld_library_path + [os.environ.get('LD_LIBRARY_PATH', '')])
 
