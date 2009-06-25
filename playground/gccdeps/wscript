@@ -9,17 +9,9 @@ APPNAME='cc_test'
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	conf.check_tool('gcc')
 	conf.check_tool('gccdeps', tooldir='.')
 
 def build(bld):
 	bld.new_task_gen(features='cc cprogram', source='main.c foo.c', target='test', includes='.')
-
-def shutdown():
-	import os
-	#os.popen('echo "">> a/a.h').read()
-
