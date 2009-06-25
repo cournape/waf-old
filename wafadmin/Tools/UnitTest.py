@@ -114,12 +114,16 @@ class unit_test(object):
 				if not self.want_to_see_test_error:
 					kwargs['stderr'] = Utils.pproc.PIPE  # PIPE for ignoring output
 				if ld_library_path:
+					v = kwargs['env']
+					def add_path(dct, path, var):
+						dct[var] = path + os.pathsep + os.environ.get(var, '')
 					if sys.platform == 'win32':
-						kwargs['env']['PATH'] = ';'.join(ld_library_path + [os.environ.get('PATH', '')])
+						add_path(v, ld_library_path, 'PATH')
 					elif sys.platform == 'darwin':
-						kwargs['env']['DYLD_LIBRARY_PATH'] = ':'.join(ld_library_path + [os.environ.get('DYLD_LIBRARY_PATH', '')])
+						add_path(v, ld_library_path, 'DYLD_LIBRARY_PATH')
+						add_path(v, ld_library_path, 'LD_LIBRARY_PATH')
 					else:
-						kwargs['env']['LD_LIBRARY_PATH'] = ':'.join(ld_library_path + [os.environ.get('LD_LIBRARY_PATH', '')])
+						add_path(v, ld_library_path, 'LD_LIBRARY_PATH')
 
 				pp = Utils.pproc.Popen(filename, **kwargs)
 				pp.wait()
