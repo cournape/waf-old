@@ -192,7 +192,7 @@ class BuildContext(Utils.Context):
 					precious.add(node.id)
 
 		def clean_rec(node):
-			for x in node.childs.keys():
+			for x in list(node.childs.keys()):
 				nd = node.childs[x]
 
 				tp = nd.id & 3
