@@ -78,7 +78,7 @@ def gcc_modifier_win32(conf):
 	v['shlib_PATTERN']       = '%s.dll'
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
-	v['shlib_CXXFLAGS']      = [] # TODO 64-bit platforms may need -fPIC
+	v['shlib_CCFLAGS']      = [] # TODO 64-bit platforms may need -fPIC
 	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import') # suppress information messages
 
 @conftest
