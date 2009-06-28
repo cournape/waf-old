@@ -685,7 +685,7 @@ def exec_command_msvc(self, *k, **kw):
 			lst = []
 			carry = ''
 			for a in k[0]:
-				if a == '/doc':
+				if (len(a) == 3 and a.startswith('/F')) or a == '/doc':
 					carry = a
 				else:
 					lst.append(carry + a)
