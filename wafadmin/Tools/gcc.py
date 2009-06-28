@@ -116,9 +116,9 @@ def detect(conf):
 
 		# * set configurations specific for a platform.
 		# * By default sys.plaform will be used as the target platform.
-		#	but you may write conf.env['TARGET_PLATFORM'] = 'my_platform' to allow
+		#	but you may write conf.env['DEST_PLATFORM'] = 'my_platform' to allow
 		#	cross compilaion..
-		target_platform = conf.env['TARGET_PLATFORM'] or sys.platform
+		target_platform = conf.env['DEST_PLATFORM'] or sys.platform
 
 		gcc_modifier_func = globals().get('gcc_modifier_'+target_platform)
 		if gcc_modifier_func:
