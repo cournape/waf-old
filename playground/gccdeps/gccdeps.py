@@ -63,7 +63,7 @@ def post_run(self):
 				node = bld.srcnode.find_resource(x)
 
 			if not node:
-				raise ValueError('could not find' + x)
+				raise ValueError('could not find ' + x)
 			else:
 				nodes.append(node)
 
