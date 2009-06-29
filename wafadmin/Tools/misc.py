@@ -192,15 +192,6 @@ class output_file(cmd_arg):
 			return self.template % self.node.bldpath(env)
 
 class cmd_dir_arg(cmd_arg):
-	def __init__(self, name, template=None):
-		cmd_arg.__init__(self)
-		self.name = name
-		self.node = None
-		if template is None:
-			self.template = '%s'
-		else:
-			self.template = template
-
 	def find_node(self, base_path):
 		assert isinstance(base_path, Node.Node)
 		self.node = base_path.find_dir(self.name)
