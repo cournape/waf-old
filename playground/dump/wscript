@@ -3,23 +3,20 @@
 # Yinon Ehrlich, 2009
 
 """
-Prints Waf's internal representation of filesystem (nodes).
-Handy for debugging Node zone problems -
-For each node prints:
-	its parent id, its own id, the signature dictionary where it appears.
+Prints filesystem representation (nodes).
 
-Actually in this empty project this it's useless,
-however found to be useful for locating errors in handling generated files.
+For each node print:
+	parent id, own id, the signature dictionary where it appears.
 """
 
 def configure(conf):
 	pass
 
 def build(bld):
-	print_dynasty(bld.srcnode)
+	print(dump(bld.srcnode))
 
-def print_dynasty(node):
-	_dynasty = ''
+def dump(node):
+	_dump = ''
 	bld = node.__class__.bld
 	# print the node and its childs, recursively
 	if not node: return ''
@@ -31,7 +28,7 @@ def print_dynasty(node):
 		if child.id in bld.node_sigs[variant]:
 			if variant: signature_type = 'bld_sig'
 			else: signature_type = 'src_sig'
-		_dynasty += '%s %s (%d-->%d)\t[%s]\n' % (indent, child.name, node.id, child.id, signature_type)
-		_dynasty += print_dynasty(child)
-	
-	print _dynasty
+		_dump += '%s %s (%d-->%d)\t[%s]\n' % (indent, child.name, node.id, child.id, signature_type)
+		_dump += dump(child)
+
+	return _dump
