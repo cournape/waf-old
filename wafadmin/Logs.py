@@ -82,7 +82,10 @@ class formatter(logging.Formatter):
 
 	def format(self, rec):
 		if rec.levelno >= logging.WARNING or rec.levelno == logging.INFO:
-			return '%s%s%s' % (rec.c1, rec.msg.decode('utf-8'), rec.c2)
+			try:
+				return '%s%s%s' % (rec.c1, rec.msg.decode('utf-8'), rec.c2)
+			except:
+				return rec.c1+rec.msg+rec.c2
 		return logging.Formatter.format(self, rec)
 
 def debug(msg):
