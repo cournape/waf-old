@@ -7,7 +7,7 @@ Execute the tasks with gcc -MD, read the dependencies from the .d file
 and prepare the dependency calculation for the next run
 """
 
-import os
+import os, re
 import threading
 import Task, Logs
 from TaskGen import feature, before
@@ -45,6 +45,7 @@ def post_run(self):
 
 		f = open(name, 'r')
 		txt = f.read()
+		print txt
 		f.close()
 		os.unlink(name)
 
@@ -56,10 +57,16 @@ def post_run(self):
 
 		nodes = []
 		bld = self.generator.bld
+
+
+		f = re.compile("^("+self.env.variant()+"|\.\.)[\\/](.*)$")
 		for x in val:
 			if os.path.isabs(x):
 				node = bld.root.find_resource(x)
 			else:
+				g = re.search(f, x)
+				if g:
+					x = g.group(2)
 				node = bld.srcnode.find_resource(x)
 
 			if not node:
