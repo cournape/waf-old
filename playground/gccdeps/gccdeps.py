@@ -45,7 +45,6 @@ def post_run(self):
 
 		f = open(name, 'r')
 		txt = f.read()
-		print txt
 		f.close()
 		os.unlink(name)
 
