@@ -215,7 +215,6 @@ class Node(object):
 		if isinstance(lst, str):
 			lst = Utils.split_path(lst)
 
-		dir_cont = self.__class__.bld.cache_dir_contents
 		current = self
 		for name in lst:
 			self.__class__.bld.rescan(current)
@@ -232,6 +231,7 @@ class Node(object):
 			else:
 				current = prev.childs.get(name, None)
 				if current is None:
+					dir_cont = self.__class__.bld.cache_dir_contents
 					if prev.id in dir_cont and name in dir_cont[prev.id]:
 						if not prev.name:
 							if os.sep == '/':
@@ -498,10 +498,9 @@ class Node(object):
 
 	def find_iter_impl(self, src=True, bld=True, dir=True, accept_name=None, is_prune=None, maxdepth=25):
 		"find nodes in the filesystem hierarchy, try to instanciate the nodes passively"
-		bld_ctxt = self.__class__.bld
-		bld_ctxt.rescan(self)
-		dir_cont = bld_ctxt.cache_dir_contents[self.id]
-		for name in dir_cont:
+		bld_ctx = self.__class__.bld
+		bld_ctx.rescan(self)
+		for name in bld_ctx.cache_dir_contents[self.id]:
 			if accept_name(self, name):
 				node = self.find_resource(name)
 				if node:
@@ -509,7 +508,7 @@ class Node(object):
 						yield node
 				else:
 					node = self.find_dir(name)
-					if node and node.id != bld_ctxt.bldnode.id:
+					if node and node.id != bld_ctx.bldnode.id:
 						if dir:
 							yield node
 						if not is_prune(self, name):
@@ -522,14 +521,14 @@ class Node(object):
 					if not node:
 						# not a file, it is a dir
 						node = self.find_dir(name)
-						if node and node.id != bld_ctxt.bldnode.id:
+						if node and node.id != bld_ctx.bldnode.id:
 							if maxdepth:
 								for k in node.find_iter_impl(src, bld, dir, accept_name, is_prune, maxdepth=maxdepth - 1):
 									yield k
 
 		if bld:
 			for node in self.childs.values():
-				if node.id == bld_ctxt.bldnode.id:
+				if node.id == bld_ctx.bldnode.id:
 					continue
 				if node.id & 3 == BUILD:
 					if accept_name(self, node.name):
@@ -623,8 +622,7 @@ class Node(object):
 
 		def ant_iter(nodi, maxdepth=25, pats=[]):
 			nodi.__class__.bld.rescan(nodi)
-			dir_cont = nodi.__class__.bld.cache_dir_contents[nodi.id]
-			for name in dir_cont:
+			for name in nodi.__class__.bld.cache_dir_contents[nodi.id]:
 				npats = accept(name, pats)
 				if npats and npats[0]:
 					accepted = [] in npats[0]

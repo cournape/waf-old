@@ -269,8 +269,7 @@ class task_gen(object):
 					 ", or it's not child of '%s'." % (name, self.bld.srcnode))
 
 			self.bld.rescan(anode)
-			dir_cont = self.bld.cache_dir_contents[anode.id]
-			for name in dir_cont:
+			for name in self.bld.cache_dir_contents[anode.id]:
 
 				# ignore hidden files
 				if name.startswith('.'):
