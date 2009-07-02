@@ -39,8 +39,12 @@ if default_jobs < 1:
 		else:
 			default_jobs = int(Utils.cmd_output(['sysctl', '-n', 'hw.ncpu']))
 	except:
-		# environment var defined on win32
-		default_jobs = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
+		if os.name == 'java': # platform.system() == 'Java'
+			from java.lang import Runtime
+			default_jobs = Runtime.getRuntime().availableProcessors()
+		else:
+			# environment var defined on win32
+			default_jobs = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
 
 default_destdir = os.environ.get('DESTDIR', '')
 
