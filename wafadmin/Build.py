@@ -419,14 +419,17 @@ class BuildContext(Utils.Context):
 		"""
 
 		# do not rescan over and over again
+		# TODO use a single variable in waf 1.6
 		if self.cache_scanned_folders.get(src_dir_node.id, None): return
-		self.cache_scanned_folders[src_dir_node.id] = 1
+		self.cache_scanned_folders[src_dir_node.id] = True
 
-		# FIXME remove in waf 1.6
+		# TODO remove in waf 1.6
 		if hasattr(self, 'repository'): self.repository(src_dir_node)
 
-		if sys.platform == "win32" and not src_dir_node.name:
+		if not src_dir_node.name and sys.platform == 'win32':
+			# the root has no name, contains drive letters, and cannot be listed
 			return
+
 		self.listdir_src(src_dir_node)
 
 		# first obtain the differences between srcnode and src_dir_node
