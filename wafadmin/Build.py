@@ -416,6 +416,8 @@ class BuildContext(Utils.Context):
 		* create the build folder equivalent (mkdir) for each variant
 		src/bar -> build/default/src/bar, build/release/src/bar
 
+		when a folder in the source directory is removed, we do not check recursively
+		to remove the unused nodes. To do that, call 'waf clean' and build again.
 		"""
 
 		# do not rescan over and over again
@@ -472,70 +474,28 @@ class BuildContext(Utils.Context):
 		try:
 			lst = set(Utils.listdir(parent_path))
 		except OSError:
-			# this is only for folders created in the build directory by ill-behaving compilers
-			# WARNING: experimental
-			if not parent_node.childs:
-				raise
-			for x in parent_node.childs.values():
-				if x.id & 3 == Node.FILE:
-					# if there are files, this means this node was not eliminated automatically
-					# so this is a grave error
-					raise
 			lst = set([])
 
 		self.cache_dir_contents[parent_node.id] = lst
 		debug('build: folder contents %r' % lst)
 
-		node_names = set([x.name for x in parent_node.childs.values() if x.id & 3 in (Node.FILE, Node.DIR)])
+		# hash the existing files, remove the others
 		cache = self.node_sigs[0]
+		for x in parent_node.childs.values():
+			if x.id & 3 != Node.FILE: continue
+			if x.name in lst:
+				try:
+					cache[x.id] = Utils.h_file(x.abspath())
+				except IOError:
+					raise Utils.WafError('The file %s is not readable or has become a dir' % x.abspath())
+			else:
+				try: del cache[x.id]
+				except KeyError: pass
 
-		# update the sigs of the nodes to keep
-		to_keep = lst & node_names
-		for x in to_keep:
-			node = parent_node.childs[x]
-			if node.id & 3 == Node.DIR: continue
-			try:
-				# do not call node.abspath here
-				cache[node.id] = Utils.h_file(parent_path + os.sep + node.name)
-			except IOError:
-				raise Utils.WafError("The file %s is not readable or has become a dir" % node.abspath())
-
-
-		# remove both nodes and signatures
-		to_remove = node_names - lst
-		if to_remove:
-
-			for name in to_remove:
-				nd = parent_node.childs[name]
-
-				if nd.id & 3 == Node.DIR:
-					for x in nd.childs.values():
-						if x.id & 3 == Node.FILE:
-							break
-					else:
-						# TODO for now we do not think this is recursive
-						# folder contains only build files, do not remove it
-						continue
-
-				self.remove_node(nd)
+				del parent_node.childs[x.name]
 
 	def remove_node(self, node):
-		if node.id & 3 == Node.DIR:
-			# eliminate the leaves before the branches
-			for x in node.childs.values():
-				self.remove_node(x)
-			# paranoid
-			if node.id != self.bldnode.id:
-				node.parent.childs.__delitem__(node.name)
-		elif node.id & 3 == Node.FILE:
-			if node.id in self.node_sigs[0]:
-				self.node_sigs[0].__delitem__(node.id)
-			node.parent.childs.__delitem__(node.name)
-		else:
-			for variant in self.lst_variants:
-				if node.id in self.node_sigs[variant]:
-					self.node_sigs[variant].__delitem__(node.id)
-			node.parent.childs.__delitem__(node.name)
+		"""do not use, kept for compatibility"""
 
 	def listdir_bld(self, parent_node, path, variant):
 		"""in this function we do not add timestamps but we remove them
