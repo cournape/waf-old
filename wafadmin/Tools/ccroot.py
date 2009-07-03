@@ -60,7 +60,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 		def isT(var):
 			return var in k and k[var] != '0'
 			
-		# Some documentation is available at http://sourceforge.net/projects/predef
+		# Some documentation is available at http://predef.sourceforge.net
 
 		if isD('__linux__'):
 			conf.env.DEST_OS = 'linux'
