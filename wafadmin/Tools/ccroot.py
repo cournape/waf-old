@@ -54,15 +54,78 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 				val = lst[2]
 				k[key] = val
 
-		def isT(var):
-			return var in k and k[var] == '1'
+		def isD(var):
+			return var in k
 
-		if isT('__linux'):
+		def isT(var):
+			return var in k and k[var] != '0'
+			
+		# Some documentation is available at http://sourceforge.net/projects/predef
+
+		if isD('__linux__'):
 			conf.env.DEST_OS = 'linux'
-		if isT('__ELF__'):
+		elif isD('__FreeBSD__'):
+			conf.env.DEST_OS = 'freebsd'
+		elif isD('__NetBSD__'):
+			conf.env.DEST_OS = 'netbsd'
+		elif isD('__OpenBSD__'):
+			conf.env.DEST_OS = 'openbsd'
+		elif isD('__GNU__'):
+			conf.env.DEST_OS = 'hurd'
+		elif isD('__APPLE__') and isD('__MACH__'):
+			conf.env.DEST_OS = 'darwin'
+		elif isD('_aix'):
+			conf.env.DEST_OS = 'aix'
+		elif isD('__hpux'):
+			conf.env.DEST_OS = 'hpux'
+		elif isD('__sgi'):
+			conf.env.DEST_OS = 'irix'
+		elif isD('__sun'):
+			conf.env.DEST_OS = 'solaris'
+		elif isD('__CYGWIN__'):
+			conf.env.DEST_OS = 'cygwin'
+		elif isD('__MSYS__'):
+			conf.env.DEST_OS = 'msys'
+		elif isD('_UWIN'):
+			conf.env.DEST_OS = 'uwin'
+		elif isD('__unix__'):
+			conf.env.DEST_OS = 'unix'
+		elif isD('_WIN32'): # also defined for 64-bit versions
+			conf.env.DEST_OS = 'windows'
+		else:
+			conf.env.DEST_OS = 'unknown'
+
+		if isD('__ELF__'):
 			conf.env.DEST_BINFMT = 'elf'
-		if isT('__x86_64'):
+		elif conf.env.DEST_OS == 'darwin':
+			conf.env.DEST_BINFMT = 'mac-o'
+		elif conf.env.DEST_OS in ('windows', 'cygwin', 'msys', 'uwin'):
+			conf.env.DEST_BINFMT = 'pe'
+		else:
+			conf.env.DEST_BINFMT = 'unknown'
+
+		if isD('__x86_64__'):
 			conf.env.DEST_CPU = 'x86_64'
+		elif isD('__i386__'): # also defined even if one of __i486__, __i586__, __i686__, __k6__, __athlon__, __k8__, __nocona__ is defined too
+			conf.env.DEST_CPU = 'x86'
+		elif isD('__ia64__'):
+			conf.env.DEST_CPU = 'ia'
+		elif isD('__mips__'):
+			conf.env.DEST_CPU = 'mips'
+		elif isD('__sparc__'):
+			conf.env.DEST_CPU = 'sparc'
+		elif isD('__alpha__'):
+			conf.env.DEST_CPU = 'alpha'
+		elif isD('__arm__'):
+			conf.env.DEST_CPU = 'arm'
+		elif isD('__hppa__'):
+			conf.env.DEST_CPU = 'hppa'
+		elif isD('__powerpc__'):
+			conf.env.DEST_CPU = 'powerpc'
+		else:
+			conf.env.DEST_CPU = 'unknown'
+			
+		debug('ccroot: dest platform: ' + conf.env.DEST_OS + ' ' + conf.env.DEST_BINFMT + ' ' + conf.env.DEST_CPU)
 
 		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
