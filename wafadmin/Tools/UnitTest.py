@@ -116,7 +116,7 @@ class unit_test(object):
 				if ld_library_path:
 					v = kwargs['env']
 					def add_path(dct, path, var):
-						dct[var] = path + os.pathsep + os.environ.get(var, '')
+						dct[var] = os.pathsep.join(Utils.to_list(path) + [os.environ.get(var, '')])
 					if sys.platform == 'win32':
 						add_path(v, ld_library_path, 'PATH')
 					elif sys.platform == 'darwin':
