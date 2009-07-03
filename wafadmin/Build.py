@@ -432,7 +432,32 @@ class BuildContext(Utils.Context):
 			# the root has no name, contains drive letters, and cannot be listed
 			return
 
-		self.listdir_src(src_dir_node)
+
+		# first, take the case of the source directory
+		parent_path = src_dir_node.abspath()
+		try:
+			lst = set(Utils.listdir(parent_path))
+		except OSError:
+			lst = set([])
+
+		# TODO move this at the bottom
+		self.cache_dir_contents[src_dir_node.id] = lst
+
+		# hash the existing source files, remove the others
+		cache = self.node_sigs[0]
+		for x in src_dir_node.childs.values():
+			if x.id & 3 != Node.FILE: continue
+			if x.name in lst:
+				try:
+					cache[x.id] = Utils.h_file(x.abspath())
+				except IOError:
+					raise Utils.WafError('The file %s is not readable or has become a dir' % x.abspath())
+			else:
+				try: del cache[x.id]
+				except KeyError: pass
+
+				del src_dir_node.childs[x.name]
+
 
 		# first obtain the differences between srcnode and src_dir_node
 		h1 = self.srcnode.height()
@@ -468,37 +493,13 @@ class BuildContext(Utils.Context):
 
 	# ======================================= #
 	def listdir_src(self, parent_node):
-		"""@param parent_node [Node]: parent node of path to scan."""
-		parent_path = parent_node.abspath()
-
-		try:
-			lst = set(Utils.listdir(parent_path))
-		except OSError:
-			lst = set([])
-
-		self.cache_dir_contents[parent_node.id] = lst
-		debug('build: folder contents %r' % lst)
-
-		# hash the existing files, remove the others
-		cache = self.node_sigs[0]
-		for x in parent_node.childs.values():
-			if x.id & 3 != Node.FILE: continue
-			if x.name in lst:
-				try:
-					cache[x.id] = Utils.h_file(x.abspath())
-				except IOError:
-					raise Utils.WafError('The file %s is not readable or has become a dir' % x.abspath())
-			else:
-				try: del cache[x.id]
-				except KeyError: pass
-
-				del parent_node.childs[x.name]
+		"""do not use, kept for compatibility"""
 
 	def remove_node(self, node):
 		"""do not use, kept for compatibility"""
 
 	def listdir_bld(self, parent_node, path, variant):
-		"""in this function we do not add timestamps but we remove them
+		"""in this method we do not add timestamps but we remove them
 		when the files no longer exist (file removed in the build dir)"""
 
 		i_existing_nodes = [x for x in parent_node.childs.values() if x.id & 3 == Node.BUILD]
