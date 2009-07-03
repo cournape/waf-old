@@ -407,10 +407,15 @@ class BuildContext(Utils.Context):
 
 	def rescan(self, src_dir_node):
 		"""
-		first list the files in the src dir and update the nodes
-		    - for each variant build dir (multiple build dirs):
-		        - list the files in the build dir, update the nodes
-		this makes (n variants)+srcdir to scan (at least 2 folders)
+		look the contents of a (folder)node and update its list of childs
+
+		The intent is to perform the following steps
+		* remove the nodes for the files that have disappeared
+		* remove the signatures for the build files that have disappeared
+		* cache the results of os.listdir
+		* create the build folder equivalent (mkdir) for each variant
+		src/bar -> build/default/src/bar, build/release/src/bar
+
 		"""
 
 		# do not rescan over and over again
