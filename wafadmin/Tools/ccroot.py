@@ -54,6 +54,16 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 				val = lst[2]
 				k[key] = val
 
+		def isT(var):
+			return var in k and k[var] == '1'
+
+		if isT('_linux'):
+			conf.env.DEST_OS = 'linux'
+		if isT('_ELF_'):
+			conf.env.DEST_BINFMT = 'elf'
+		if isT('__x86_64'):
+			conf.env.CPU = 'x86_64'
+
 		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
 
