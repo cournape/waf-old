@@ -1,6 +1,7 @@
 NEW IN WAF 1.5.9
 ----------------
 * minor improvements for osx platforms
+* compatibility to Python 3.1
 * detect the amount of processors on jython
 * bison tool rewrite
 
