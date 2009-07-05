@@ -40,8 +40,12 @@ def apply_framework(self):
 		self.env.append_value('LINKFLAGS', ['-framework', x])
 
 @taskgen
+@after('apply_link')
+@feature('cprogram')
 def create_task_macapp(self):
-	if 'cprogram' in self.features and self.link_task:
+	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
+	or use obj.mac_app = True to build specific targets as Mac apps"""
+	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 		apptask = self.create_task('macapp', self.env)
 		apptask.set_inputs(self.link_task.outputs)
 		apptask.set_outputs(self.link_task.outputs[0].change_ext('.app'))
@@ -50,17 +54,13 @@ def create_task_macapp(self):
 @after('apply_link')
 @feature('cshlib')
 def apply_link_osx(self):
-	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
-	or use obj.mac_app = True to build specific targets as Mac apps"""
-	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
-		self.create_task_macapp()
-		name = self.link_task.outputs[0].name
-		if getattr(self, 'vnum', None):
-			name = name.replace('.dylib', '.%s.dylib' % self.vnum)
+	name = self.link_task.outputs[0].name
+	if getattr(self, 'vnum', None):
+		name = name.replace('.dylib', '.%s.dylib' % self.vnum)
 
-		path = os.path.join(Utils.subst_vars(self.install_path, self.env), name)
-		self.env.append_value('LINKFLAGS', '-install_name')
-		self.env.append_value('LINKFLAGS', path)
+	path = os.path.join(Utils.subst_vars(self.install_path, self.env), name)
+	self.env.append_value('LINKFLAGS', '-install_name')
+	self.env.append_value('LINKFLAGS', path)
 
 @before('apply_link', 'apply_lib_vars')
 @feature('cc', 'cxx')
