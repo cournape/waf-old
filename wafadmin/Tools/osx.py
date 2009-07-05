@@ -12,7 +12,7 @@ To make a bundled shared library (a .bundle), set the 'mac_bundle' attribute:
 """
 
 import os, shutil, sys, platform
-import TaskGen, Task, Build, Options
+import TaskGen, Task, Build, Options, Utils
 from TaskGen import taskgen, feature, after, before
 from Logs import error, debug
 
@@ -58,7 +58,7 @@ def apply_link_osx(self):
 		if getattr(self, 'vnum', None):
 			name = name.replace('.dylib', '.%s.dylib' % self.vnum)
 
-		path = os.path.join(self.env['PREFIX'], 'lib', name)
+		path = os.path.join(Utils.subst_vars(self.install_path, self.env), name)
 		self.env.append_value('LINKFLAGS', '-install_name')
 		self.env.append_value('LINKFLAGS', path)
 
