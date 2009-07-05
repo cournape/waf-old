@@ -81,6 +81,14 @@ class valac_task(Task.Task):
 			if hasattr(self, 'gir'):
 				self._fix_output("%s.gir" % self.gir)
 
+		first = None
+		for node in self.outputs:
+			if not first:
+				first = node
+			else:
+				if first.parent.id != node.parent.id:
+					# issue #483
+					shutil.move(first.parent.abspath(self.env) + os.sep + node.name, node.abspath(self.env))
 		return result
 
 	def install(self):
