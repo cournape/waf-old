@@ -5,6 +5,8 @@ NEW IN WAF 1.5.9
 * compatibility to Python 3.1
 * detect the amount of processors on jython
 * bison tool rewrite
+? Node processing improvements
+? Cross-compilation improvements
 
 NEW IN WAF 1.5.8
 ----------------
