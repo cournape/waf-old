@@ -65,6 +65,9 @@ def parse_flags(line, uselib, env):
 			env.append_unique('CCFLAGS_' + uselib, x)
 			env.append_unique('CXXFLAGS_' + uselib, x)
 			env.append_unique('LINKFLAGS_' + uselib, x)
+		elif x == '-framework':
+			framework = list.pop(0)
+			env.append_unique('FRAMEWORK_' + uselib, framework)
 		elif x.startswith('-std'):
 			env.append_unique('CCFLAGS_' + uselib, x)
 			env.append_unique('LINKFLAGS_' + uselib, x)
