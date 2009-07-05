@@ -48,7 +48,7 @@ def create_task_macapp(self):
 		self.apptask = apptask
 
 @after('apply_link')
-@feature('cc', 'cxx')
+@feature('cshlib')
 def apply_link_osx(self):
 	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
 	or use obj.mac_app = True to build specific targets as Mac apps"""
