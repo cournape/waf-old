@@ -494,9 +494,11 @@ class BuildContext(Utils.Context):
 	# ======================================= #
 	def listdir_src(self, parent_node):
 		"""do not use, kept for compatibility"""
+		pass
 
 	def remove_node(self, node):
 		"""do not use, kept for compatibility"""
+		pass
 
 	def listdir_bld(self, parent_node, path, variant):
 		"""in this method we do not add timestamps but we remove them
