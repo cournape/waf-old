@@ -96,9 +96,6 @@ def build(bld):
 	# store the results between runs, manually
 	task_p = Persist()
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	pass
 
