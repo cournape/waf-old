@@ -143,7 +143,7 @@ def app_build(task):
 	shutil.copy(task.inputs[0].srcpath(env), task.outputs[0].abspath(env))
 
 	f = open(task.outputs[1].abspath(env))
-	f.write(app_info % os.path.basename(srcprg))
+	f.write(app_info % os.path.basename(task.inputs[1].srcpath(env)))
 	f.close()
 
 	return 0
