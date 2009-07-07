@@ -49,6 +49,7 @@ def create_task_macapp(self):
 		apptask = self.create_task('macapp', self.env)
 		apptask.set_inputs(self.link_task.outputs)
 		apptask.set_outputs(self.link_task.outputs[0].change_ext('.app'))
+		apptask.install_path = self.install_path
 		self.apptask = apptask
 
 @after('apply_link')
