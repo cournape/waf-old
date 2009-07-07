@@ -84,7 +84,7 @@ def apply_bundle_remove_dynamiclib(self):
 			except ValueError:
 				pass
 
-app_dirs = ['Contents', os.path.join('Contents','MacOS'), os.path.join('Contents','Resources')]
+app_dirs = ['Contents', 'Contents/MacOS', 'Contents/Resources']
 
 app_info = '''
 <?xml version="1.0" encoding="UTF-8"?>
