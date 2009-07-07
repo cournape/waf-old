@@ -51,6 +51,8 @@ def create_task_macapp(self):
 
 		out = self.link_task.outputs[0]
 
+		bld = self.bld
+
 		name = out.name
 		k = name.rfind('.')
 		if k >= 0:
@@ -61,11 +63,11 @@ def create_task_macapp(self):
 		dir = out.parent.get_dir(name)
 		if not dir:
 			dir = out.__class__(name, out.parent, 1)
-			dir.rescan()
+			bld.rescan(dir)
 			contents = out.__class__('Contents', dir, 1)
-			contents.rescan()
+			bld.rescan(contents)
 			macos = out.__class__('MacOS', dir, 1)
-			macos.rescan()
+			bld.rescan(macos)
 			print dir, contents, macos
 
 		print dir
