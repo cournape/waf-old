@@ -61,11 +61,19 @@ def create_task_macapp(self):
 		dir = out.parent.get_dir(name)
 		if not dir:
 			dir = out.__class__(name, out.parent, 1)
+			dir.rescan()
 			contents = out.__class__('Contents', dir, 1)
+			contents.rescan()
 			macos = out.__class__('MacOS', dir, 1)
+			macos.rescan()
+			print dir, contents, macos
+
+		print dir
 
 		n1 = dir.find_or_declare(['Contents', 'MacOS', out.name])
+		print n1
 		n2 = dir.find_or_declare('Contents/MacOS/Info.plist')
+		print n2
 
 		apptask.set_outputs([n1, n2])
 		apptask.install_path = self.install_path + os.sep + name
