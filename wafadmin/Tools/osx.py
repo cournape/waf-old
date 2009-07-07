@@ -48,8 +48,27 @@ def create_task_macapp(self):
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
 		apptask = self.create_task('macapp', self.env)
 		apptask.set_inputs(self.link_task.outputs)
-		apptask.set_outputs(self.link_task.outputs[0].change_ext('.app'))
-		apptask.install_path = self.install_path
+
+		out = self.link_task.outputs[0]
+
+		name = out.name
+		k = name.rfind('.')
+		if k >= 0:
+			name = name[:k] + '.app'
+		else:
+			name = name + '.app'
+
+		dir = out.get_dir(name)
+		if not dir:
+			dir = out.__class__(name, out.parent, 1)
+			contents = out.__class__('Contents', dir, 1)
+			macos = out.__class__('MacOS', dir, 1)
+
+		n1 = dir.find_or_declare(['Contents', 'MacOS', out.name])
+		n2 = dir.find_or_declare('Contents/MacOS/Info.plst')
+
+		apptask.set_outputs([n1, n2])
+		apptask.install_path = self.install_path + os.sep + name
 		self.apptask = apptask
 
 @after('apply_link')
@@ -84,6 +103,7 @@ def apply_bundle_remove_dynamiclib(self):
 			except ValueError:
 				pass
 
+# TODO REMOVE IN 1.6 (global variable)
 app_dirs = ['Contents', 'Contents/MacOS', 'Contents/Resources']
 
 app_info = '''
@@ -109,32 +129,11 @@ def app_build(task):
 	global app_dirs
 	env = task.env
 
-	i = 0
-	for p in task.outputs:
-		srcfile = p.srcpath(env)
+	shutil.copy(task.inputs[0].srcpath(env), task.outputs[0].abspath(env))
 
-		debug('osx: creating directories')
-		try:
-			os.mkdir(srcfile)
-			[os.makedirs(os.path.join(srcfile, d)) for d in app_dirs]
-		except (OSError, IOError):
-			pass
-
-		# copy the program to the contents dir
-		srcprg = task.inputs[i].srcpath(env)
-		dst = os.path.join(srcfile, 'Contents', 'MacOS')
-		debug('osx: copy %s to %s' % (srcprg, dst))
-		shutil.copy(srcprg, dst)
-
-		# create info.plist
-		debug('osx: generate Info.plist')
-		# TODO:  Support custom info.plist contents.
-
-		f = open(os.path.join(srcfile, "Contents", "Info.plist"), "w")
-		f.write(app_info % os.path.basename(srcprg))
-		f.close()
-
-		i += 1
+	f = open(task.outputs[1].abspath(env))
+	f.write(app_info % os.path.basename(srcprg))
+	f.close()
 
 	return 0
 
