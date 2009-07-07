@@ -173,5 +173,9 @@ def install_target_osx_cshlib(self):
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		self.link_task.install = install_shlib
 
-Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
+def inst(self):
+	bld.install_files(self.install_path, self.outputs[1].parent.parent.parent.ant_glob('**/*', bld=1, src=0, dir=0), relative_trick=true, env=self.env)
+
+cls = Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
+cls.install = inst
 
