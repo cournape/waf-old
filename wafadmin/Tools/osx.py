@@ -71,6 +71,7 @@ def create_task_macapp(self):
 			print dir, contents, macos
 
 		print dir
+		print "test 1", dir.find_or_declare(['Contents', 'MacOS'])
 
 		n1 = dir.find_or_declare(['Contents', 'MacOS', out.name])
 		print n1
