@@ -66,12 +66,12 @@ def create_task_macapp(self):
 			bld.rescan(dir)
 			contents = out.__class__('Contents', dir, 1)
 			bld.rescan(contents)
-			macos = out.__class__('MacOS', dir, 1)
+			macos = out.__class__('MacOS', contents, 1)
 			bld.rescan(macos)
 			print dir, contents, macos
 
 		print dir
-		print "test 1", dir.find_or_declare(['Contents', 'MacOS'])
+		print "test 1", dir.find_dir(['Contents', 'MacOS'])
 
 		n1 = dir.find_or_declare(['Contents', 'MacOS', out.name])
 		print n1
