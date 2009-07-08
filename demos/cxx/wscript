@@ -53,6 +53,8 @@ def configure(conf):
 
 def build(bld):
 	# process subfolders from here
+	bld.env.CXXDEPS_MYPROG = '3344539'
+
 	bld.add_subdirs('src src2')
 
 	## installing resources and files - call them under build(bld) or shutdown()
@@ -61,7 +63,6 @@ def build(bld):
 	#bld.install_files('${PREFIX}', 'src/a2.h src/a1.h')
 	bld.install_files('${PREFIX}/subfolder/subsubfolder', 'src/*.h')
 	#install_as('${PREFIX}/dir/bar.png', 'foo.png')
-
 	return
 	# testcase for variants
 	for obj in copy.copy(TaskGen.g_allobjs):

@@ -38,4 +38,5 @@ for line in lst:
 	write_file(source_filename, '#include "%s"\nint get_%s() {return %s;}\n' % (os.path.split(header_filename)[1], varname, varname))
 
 	print source_filename
+	print header_filename
 

@@ -201,11 +201,11 @@ def build(bld):
 	#print bld.path.ant_glob('**/*.c')
 
 	# process subfolders from here
-	bld.add_subdirs('src complex variant hybrid')
+	#bld.add_subdirs('src complex variant hybrid')
 
 	# compile the flex+bison test if available
 	if bld.env_of_name('default')['FLEX']:
 		bld.add_subdirs('bisonflex')
-	if bld.env['AS']:
-		bld.add_subdirs('asm')
+	#if bld.env['AS']:
+	#	bld.add_subdirs('asm')
 
