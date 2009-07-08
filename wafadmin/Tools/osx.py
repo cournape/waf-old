@@ -174,7 +174,10 @@ def install_target_osx_cshlib(self):
 		self.link_task.install = install_shlib
 
 def inst(self):
-	bld.install_files(self.install_path, self.outputs[1].parent.parent.parent.ant_glob('**/*', bld=1, src=0, dir=0), relative_trick=true, env=self.env)
+	bld = self.generator.bld
+	files = self.outputs[0].parent.parent.parent.ant_glob('**/*', bld=1, src=0, dir=0)
+	print files
+	bld.install_files(self.install_path, files, relative_trick=true, env=self.env)
 
 cls = Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
 cls.install = inst
