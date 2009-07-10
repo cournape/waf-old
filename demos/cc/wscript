@@ -25,10 +25,9 @@ def build(bld):
 		features = 'cc cprogram',
 		source = bld.path.ant_glob('**/*.c'),
 		target = 'test_c_app',
-		#uselib_local = 'my_static_lib',
+		uselib_local = 'my_static_lib',
 		includes = '. /usr/include')
 
-	return
 	# 2. A simple static lib
 	bld.new_task_gen(
 		features = 'cc cstaticlib',
