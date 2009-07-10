@@ -34,7 +34,6 @@ def set_options(opt):
 def configure(conf):
 	# used only when configured from the same folder
 	conf.check_tool('gcc')
-	conf.check_tool('gccdeps', tooldir='.')
 	conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
 
 def build(bld):
