@@ -16,6 +16,26 @@ import TaskGen, Task, Build, Options, Utils
 from TaskGen import taskgen, feature, after, before
 from Logs import error, debug
 
+# plist template
+app_info = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Created by Waf</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>NOTE</key>
+	<string>THIS IS A GENERATED FILE, DO NOT MODIFY</string>
+	<key>CFBundleExecutable</key>
+	<string>%s</string>
+</dict>
+</plist>
+'''
+
 # see WAF issue 285
 # and also http://trac.macports.org/ticket/17059
 @feature('cc', 'cxx')
@@ -40,6 +60,29 @@ def apply_framework(self):
 		self.env.append_value('LINKFLAGS', ['-framework', x])
 
 @taskgen
+def create_bundle_dirs(self, name, out):
+	bld = self.bld
+	dir = out.parent.get_dir(name)
+	
+	if not dir:
+		dir = out.__class__(name, out.parent, 1)
+		bld.rescan(dir)
+		contents = out.__class__('Contents', dir, 1)
+		bld.rescan(contents)
+		macos = out.__class__('MacOS', contents, 1)
+		bld.rescan(macos)	
+	return dir
+
+def bundle_name_for_output(out):
+	name = out.name
+	k = name.rfind('.')
+	if k >= 0:
+		name = name[:k] + '.app'
+	else:
+		name = name + '.app'
+	return name
+
+@taskgen
 @after('apply_link')
 @feature('cprogram')
 def create_task_macapp(self):
@@ -51,36 +94,41 @@ def create_task_macapp(self):
 
 		out = self.link_task.outputs[0]
 
-		bld = self.bld
-
-		name = out.name
-		k = name.rfind('.')
-		if k >= 0:
-			name = name[:k] + '.app'
-		else:
-			name = name + '.app'
-
-		dir = out.parent.get_dir(name)
-		if not dir:
-			dir = out.__class__(name, out.parent, 1)
-			bld.rescan(dir)
-			contents = out.__class__('Contents', dir, 1)
-			bld.rescan(contents)
-			macos = out.__class__('MacOS', contents, 1)
-			bld.rescan(macos)
-			print dir, contents, macos
-
-		print dir
-		print "test 1", dir.find_dir(['Contents', 'MacOS'])
+		name = bundle_name_for_output(out)
+		dir = self.create_bundle_dirs(name, out)
 
 		n1 = dir.find_or_declare(['Contents', 'MacOS', out.name])
-		print n1
-		n2 = dir.find_or_declare('Contents/MacOS/Info.plist')
-		print n2
 
-		apptask.set_outputs([n1, n2])
-		apptask.install_path = self.install_path + os.sep + name
+		apptask.set_outputs([n1])
+		apptask.chmod = 0755
+		apptask.install_path = os.path.join(self.install_path, name, 'Contents', 'MacOS')
 		self.apptask = apptask
+
+@after('apply_link')
+@feature('cprogram')
+def create_task_macplist(self):
+	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
+	or use obj.mac_app = True to build specific targets as Mac apps"""
+	if  self.env['MACAPP'] or getattr(self, 'mac_app', False):
+		# check if the user specified a plist before using our template
+		if not getattr(self, 'mac_plist', False):
+			self.mac_plist = app_info
+			
+		plisttask = self.create_task('macplist', self.env)
+		plisttask.set_inputs(self.link_task.outputs)
+
+		out = self.link_task.outputs[0]
+		self.mac_plist = self.mac_plist % (out.name)
+
+		name = bundle_name_for_output(out)
+		dir = self.create_bundle_dirs(name, out)
+
+		n1 = dir.find_or_declare(['Contents', 'Info.plist'])
+
+		plisttask.set_outputs([n1])
+		plisttask.mac_plist = self.mac_plist
+		plisttask.install_path = os.path.join(self.install_path, name, 'Contents')
+		self.plisttask = plisttask
 
 @after('apply_link')
 @feature('cshlib')
@@ -117,33 +165,16 @@ def apply_bundle_remove_dynamiclib(self):
 # TODO REMOVE IN 1.6 (global variable)
 app_dirs = ['Contents', 'Contents/MacOS', 'Contents/Resources']
 
-app_info = '''
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
-<plist version="0.9">
-<dict>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleGetInfoString</key>
-	<string>Created by Waf</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>NOTE</key>
-	<string>THIS IS A GENERATED FILE, DO NOT MODIFY</string>
-	<key>CFBundleExecutable</key>
-	<string>%s</string>
-</dict>
-</plist>
-'''
-
 def app_build(task):
-	global app_dirs
 	env = task.env
+	shutil.copy2(task.inputs[0].srcpath(env), task.outputs[0].abspath(env))
 
-	shutil.copy(task.inputs[0].srcpath(env), task.outputs[0].abspath(env))
-
-	f = open(task.outputs[1].abspath(env))
-	f.write(app_info % os.path.basename(task.inputs[1].srcpath(env)))
+	return 0
+    
+def plist_build(task):
+	env = task.env
+	f = open(task.outputs[0].abspath(env), "w")
+	f.write(task.mac_plist % os.path.basename(task.outputs[0].srcpath(env)))
 	f.close()
 
 	return 0
@@ -173,12 +204,5 @@ def install_target_osx_cshlib(self):
 	if getattr(self, 'vnum', '') and sys.platform != 'win32':
 		self.link_task.install = install_shlib
 
-def inst(self):
-	bld = self.generator.bld
-	files = self.outputs[0].parent.parent.parent.ant_glob('**/*', bld=1, src=0, dir=0)
-	print files
-	bld.install_files(self.install_path, files, relative_trick=true, env=self.env)
-
-cls = Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
-cls.install = inst
-
+Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
+Task.task_type_from_func('macplist', vars=[], func=plist_build, after="cxx_link cc_link ar_link_static")
