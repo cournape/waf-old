@@ -31,12 +31,12 @@ for line in lst:
 		os.makedirs(dirs)
 	except:
 		pass
-	
+
 	header_filename = os.path.splitext(source_filename)[0] + '.h'
 	varname = name.replace('.', '_')
 	write_file(header_filename, 'int %s=4;\n' % varname)
 	write_file(source_filename, '#include "%s"\nint get_%s() {return %s;}\n' % (os.path.split(header_filename)[1], varname, varname))
 
-	print source_filename
-	print header_filename
+	print (source_filename)
+	print (header_filename)
 

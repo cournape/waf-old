@@ -165,6 +165,9 @@ class shpip_task(Task.Task):
 		tsklst = []
 
 		for node in lst:
+			if node.name.endswith('.h'):
+				continue
+
 			TaskGen.task_gen.mapped['c_hook'](tgen, node)
 			task = tgen.compiled_tasks[-1]
 			task.set_run_after(self)
