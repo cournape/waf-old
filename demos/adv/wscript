@@ -89,6 +89,25 @@ def configure(conf):
 	conf.check_tool('gas')
 	if not conf.env['AS']: conf.env['AS'] = conf.env['CC']
 
+	try:
+		conf.check_cc(compile_filename='test.s', fragment='''
+.text
+.align 2
+
+val:
+ .long 10
+
+# Multiply input value by 10...
+.global mult10
+.type mult10, function
+mult10:
+  movl val,%eax
+  imul 4(%esp),%eax
+  ret
+	''', type='cstaticlib', mandatory=True, msg='Checking for assembler')
+	except:
+		conf.env.AS = None
+
 	conf.check_tool('g++')
 	#if not conf.env['CXX']: conf.fatal('g++ not found')
 
