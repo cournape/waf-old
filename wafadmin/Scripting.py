@@ -105,7 +105,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 		if not n in Utils.g_module.__dict__:
 			setattr(Utils.g_module, n, obj)
 
-	for k in [dist, distclean, distcheck, build, clean, install, uninstall]:
+	for k in [dist, distclean, distcheck, clean, install, uninstall]:
 		set_def(k)
 
 	set_def(Configure.ConfigurationContext, 'configure_context')
