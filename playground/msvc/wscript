@@ -22,8 +22,8 @@ def configure(conf):
 	# require 7.1 only
 	#conf.env['MSVC_VERSIONS'] = ['msvc 7.1']
 	# Target SmartPhones arm
-	conf.env['MSVC_VERSIONS'] = ['Smartphone 8.0', 'Smartphone 9.0']
-	conf.env['MSVC_TARGETS'] = ['armv4i', 'armv4']
+	#conf.env['MSVC_VERSIONS'] = ['Smartphone 8.0', 'Smartphone 9.0']
+	#conf.env['MSVC_TARGETS'] = ['armv4i', 'armv4']
 	try:
 		conf.check_tool('msvc', funs='no_autodetect')
 	except:

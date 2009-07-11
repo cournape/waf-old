@@ -42,7 +42,7 @@ import _winreg
 
 all_msvc_platforms = [ ('x64', 'amd64'), ('x86', 'x86'), ('ia64', 'ia64'), ('x86_amd64', 'amd64'), ('x86_ia64', 'ia64') ]
 all_wince_platforms = [ ('armv4', 'arm'), ('armv4i', 'arm'), ('mipsii', 'mips'), ('mipsii_fp', 'mips'), ('mipsiv', 'mips'), ('mipsiv_fp', 'mips'), ('sh4', 'sh'), ('x86', 'cex86') ]
-all_icl_platforms = [ ('Itanium', 'ia64'), ('intel64', 'amd64'), ('em64t', 'amd64'), ('ia32', 'x86')]
+all_icl_platforms = [ ('intel64', 'amd64'), ('em64t', 'amd64'), ('ia32', 'x86'), ('Itanium', 'ia64')]
 
 def setup_msvc(conf, versions):
 	platforms = Utils.to_list(conf.env['MSVC_TARGETS']) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
@@ -96,9 +96,12 @@ echo LIB=%%LIB%%
 	env.update(PATH = path)
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
 	cxx = conf.find_program(compiler_name, path_list=MSVC_PATH)
+	# delete CL if exists. because it could contain parameters wich can change cl's behaviour rather catastrophically.
+	if env.has_key('CL'):
+		del(env['CL']) 
 	import pproc
 	try:
-		p = pproc.Popen([cxx], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
+		p = pproc.Popen([cxx, '/help'], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
 		out, err = p.communicate()
 		if p.returncode != 0:
 			raise Exception('return code: ' + str(p.returncode) + ': ' + err)
