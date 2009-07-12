@@ -64,12 +64,13 @@ def build(bld):
 		vnum = '1.2.3',
 		uselib_local = 'mylib')
 
+	bld.add_post_fun(exec_test)
 
-def shutdown():
+def exec_test(bld):
 	import os, stat
 	try:
 		os.stat('build/default/embed/embed_demo')
-		print os.popen('PYTHONPATH=$PYTHONPATH:build/default/embed/ build/default/embed/embed_demo').read()
+		print os.popen('PYTHONPATH=/disk/compilation/waf/demos/swig/build/default/embed/:$PYTHONPATH build/default/embed/embed_demo').read()
 	except:
 		pass
 
