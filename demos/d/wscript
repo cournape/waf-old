@@ -18,10 +18,10 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('compiler_d')
 
-	if not conf.env['D_COMPILER']:
+	if not conf.env.D_COMPILER:
 		conf.fatal("either dmd or gdc is required (d compilers)")
 
-	conf.env['LIB_PTHREAD'] = ['pthread']
+	conf.env.LIB_PTHREAD = ['pthread']
 
 def build(bld):
 	bld.add_subdirs('src2')
