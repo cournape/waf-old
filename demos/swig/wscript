@@ -64,16 +64,15 @@ def build(bld):
 		vnum = '1.2.3',
 		uselib_local = 'mylib')
 
+	bld.add_post_fun(inst_py)
 	bld.add_post_fun(exec_test)
+
+def inst_py(bld):
+	node = bld.path.find_or_declare('extend/python/test_swig_waf.py')
+	bld.install_as('${PREFIX}/lib', node.abspath(bld.env))
 
 def exec_test(bld):
 	import os, stat
-	try:
-		os.stat('build/default/embed/embed_demo')
-		print os.popen('PYTHONPATH=/disk/compilation/waf/demos/swig/build/default/embed/:$PYTHONPATH build/default/embed/embed_demo').read()
-	except:
-		pass
-
 	try:
 		print os.popen('''
 PYTHONPATH=$PYTHONPATH:build/default/extend/python
@@ -82,4 +81,12 @@ python -c "import test_swig_waf; a=test_swig_waf.A(); print 'Testing: a.add(2, 3
 '''.replace('\n', ' ')).read()
 	except:
 		pass
+
+	# why does this fail now on mandriva???
+	try:
+		os.stat('build/default/embed/embed_demo')
+		print os.popen('PYTHONPATH=$PYTHONPATH:build/default/embed/ build/default/embed/embed_demo').read()
+	except:
+		pass
+
 
