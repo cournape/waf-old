@@ -100,7 +100,7 @@ def configure(conf):
 
 	conf.env.append_value('CCFLAGS', '-DHAVE_CONFIG_H')
 
-	conf.env['ASSEMBLIES_GLIB'] = '/usr/lib/mono/gtk-sharp/glib-sharp.dll'
+	conf.env.ASSEMBLIES_GLIB = '/usr/lib/mono/gtk-sharp/glib-sharp.dll'
 
 	conf.write_config_header('config.h')
 
