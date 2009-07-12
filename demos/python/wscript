@@ -26,7 +26,7 @@ def configure(conf):
 	try:
 		conf.check_python_module('pygccxml')
 	except Configure.ConfigurationError:
-		print "(module not found, but we ignore it)"
+		print "(module pygccxml not found, but we ignore it)"
 
 def build(bld):
 
