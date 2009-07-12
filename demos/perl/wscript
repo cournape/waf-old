@@ -27,12 +27,9 @@ def configure(conf):
 	conf.check_perl_ext_devel()
 
 	# check for some perl module...
-	conf.check_perl_module("Cairo")
+	conf.check_perl_module('Cairo')
 	# ...and a specific version
-	conf.check_perl_module("Devel::PPPort 4.89")
-
-	conf.env['INSTALLDIR_PERL_AUTO'] = os.path.join(conf.env['ARCHDIR_PERL'], 'auto')
-	conf.env['INSTALLDIR_PERL_LIB'] = conf.env['ARCHDIR_PERL']
+	conf.check_perl_module('Devel::PPPort 4.89')
 
 def build(bld):
 
@@ -41,7 +38,7 @@ def build(bld):
 		features = 'cc cshlib perlext',
 		source = 'Mytest.xs',
 		target = 'Mytest',
-		install_path = '${INSTALLDIR_PERL_AUTO}')
+		install_path = '${ARCHDIR_PERL}/auto')
 
-	bld.install_files('${INSTALLDIR_PERL_LIB}', 'Mytest.pm')
+	bld.install_files('${ARCHDIR_PERL}', 'Mytest.pm')
 
