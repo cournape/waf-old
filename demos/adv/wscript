@@ -84,10 +84,10 @@ def set_options(opt):
 
 def configure(conf):
 	conf.check_tool('gcc')
-	#if not conf.env['CC']: conf.fatal('gcc not found')
+	#if not conf.env.CC: conf.fatal('gcc not found')
 
 	conf.check_tool('gas')
-	if not conf.env['AS']: conf.env['AS'] = conf.env['CC']
+	if not conf.env.AS: conf.env.AS = conf.env.CC
 
 	try:
 		conf.check_cc(compile_filename='test.s', fragment='''
@@ -109,7 +109,7 @@ mult10:
 		conf.env.AS = None
 
 	conf.check_tool('g++')
-	#if not conf.env['CXX']: conf.fatal('g++ not found')
+	#if not conf.env.CXX: conf.fatal('g++ not found')
 
 	try: conf.check_tool('flex bison')
 	except: pass
@@ -174,8 +174,8 @@ mult10:
 	# c/cxx defines
 	conf.define('HAVE_SOMETHING', 1)
 	conf.define('TEST_DEFINE', 345)
-	conf.env['CXXDEFINES_DEFTEST'] = ['truc=blah', 'boo']
-	conf.env['LIB_CALC']='fl'
+	conf.env.CXXDEFINES_DEFTEST = ['truc=blah', 'boo']
+	conf.env.LIB_CALC = 'fl'
 
 	# finally, write the configuration header
 	conf.write_config_header('config.h')
