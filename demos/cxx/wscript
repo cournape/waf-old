@@ -27,7 +27,7 @@ def set_options(opt):
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 def configure(conf):
-	# conf.env['CXX'] = Options.options.meow
+	# conf.env.CXX = Options.options.meow
 	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
 	conf.check_tool('compiler_cxx')
 
@@ -36,20 +36,19 @@ def configure(conf):
 
 	conf.sub_config('src')
 
-	conf.env['CXXFLAGS_MYPROG']='-O3'
-	conf.env['LIB_MYPROG']='m'
-	conf.env['SOME_INSTALL_DIR']='/tmp/ahoy/lib/'
+	conf.env.CXXFLAGS_MYPROG  = '-O3'
+	conf.env.LIB_MYPROG       = 'm'
+	conf.env.SOME_INSTALL_DIR = '/tmp/ahoy/lib/'
 
 	# works in a procedural way, so the order of calls does matter
 	#conf.check_tool(['KDE3'])
 
-	return
 	# testcase for variants, look below
 	env = conf.env.copy()
 	env.set_variant('debug')
 	conf.set_env_name('debug', env)
 	conf.setenv('debug')
-	conf.env['CXXFLAGS'] = '-D_REENTRANT -DDBG_ENABLED -Wall -O0 -ggdb3 -ftemplate-depth-128'
+	conf.env.CXXFLAGS = ['-D_REENTRANT', '-DDBG_ENABLED', '-Wall', '-O0', '-ggdb3', '-ftemplate-depth-128']
 
 def build(bld):
 	# process subfolders from here
