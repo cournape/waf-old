@@ -192,7 +192,7 @@ def process_idl(self, node):
 	h_node  = node.change_ext('.h')
 
 	tsk         = self.create_task('idl')
-	tsk.inputs  = node
+	tsk.inputs  = [node]
 	tsk.outputs = [cc_node, h_node]
 
 	# reinject the c++ node to the list of nodes to process
