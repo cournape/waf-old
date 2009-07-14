@@ -138,8 +138,9 @@ def apply_link_osx(self):
 		name = name.replace('.dylib', '.%s.dylib' % self.vnum)
 
 	path = os.path.join(Utils.subst_vars(self.install_path, self.env), name)
-	self.env.append_value('LINKFLAGS', '-install_name')
-	self.env.append_value('LINKFLAGS', path)
+	if '-dynamiclib' in self.env['LINKFLAGS']:
+		self.env.append_value('LINKFLAGS', '-install_name')
+		self.env.append_value('LINKFLAGS', path)
 
 @before('apply_link', 'apply_lib_vars')
 @feature('cc', 'cxx')
@@ -174,7 +175,7 @@ def app_build(task):
 def plist_build(task):
 	env = task.env
 	f = open(task.outputs[0].abspath(env), "w")
-	f.write(task.mac_plist % os.path.basename(task.outputs[0].srcpath(env)))
+	f.write(task.mac_plist)
 	f.close()
 
 	return 0
