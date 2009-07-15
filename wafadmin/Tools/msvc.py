@@ -174,7 +174,7 @@ def gather_msvc_versions(conf, versions):
 			for arch,compiler in all_wince_platforms:
 				platforms = []
 				if os.path.isdir(os.path.join(path, device, 'Lib', arch)):
-					platforms.append((arch, compiler, os.path.join(path, device, 'Include'), os.path.join(path, device, 'Lib', arch)))
+					platforms.append((arch, compiler, os.path.join(path, device, 'Include', arch), os.path.join(path, device, 'Lib', arch)))
 				if platforms:
 					supported_wince_platforms.append((device, platforms))
 	# checks MSVC
