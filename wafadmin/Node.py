@@ -295,10 +295,8 @@ class Node(object):
 			except OSError:
 				pass
 			if not parent:
-				# exclusive build directory -> mark the parent as rescanned
-				# for find_dir and find_resource to work
 				parent = self.ensure_dir_node_from_path(lst[:-1])
-				self.__class__.bld.cache_scanned_folders[parent.id] = 1
+				self.__class__.bld.rescan(parent)
 			else:
 				try:
 					self.__class__.bld.rescan(parent)
