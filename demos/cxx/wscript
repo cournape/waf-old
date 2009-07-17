@@ -62,9 +62,9 @@ def build(bld):
 	#bld.install_files('${PREFIX}', 'src/a2.h src/a1.h')
 	bld.install_files('${PREFIX}/subfolder/subsubfolder', 'src/*.h')
 	#install_as('${PREFIX}/dir/bar.png', 'foo.png')
-	return
+
 	# testcase for variants
-	for obj in copy.copy(TaskGen.g_allobjs):
+	for obj in bld.all_task_gen[:]:
 		new_obj = obj.clone('debug')
 
 def shutdown():
