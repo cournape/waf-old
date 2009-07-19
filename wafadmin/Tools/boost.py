@@ -291,6 +291,8 @@ def check_boost(self, *k, **kw):
 - min_score
 	"""
 
+	if not self.env['CXX']:
+		self.fatal('load a c++ compiler tool first, for example conf.check_tool("g++")')
 	self.validate_boost(kw)
 	ret = None
 	try:
