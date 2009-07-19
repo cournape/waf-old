@@ -30,8 +30,7 @@ detect = '''
 find_icc
 find_ar
 gcc_common_flags
-gcc_modifier_darwin
+gcc_modifier_platform
 cc_load_tools
 cc_add_flags
 '''
-

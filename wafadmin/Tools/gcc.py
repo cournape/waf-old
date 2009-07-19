@@ -108,21 +108,22 @@ def gcc_modifier_aix5(conf):
 
 	v['SHLIB_MARKER']        = ''
 
+@conftest
+def gcc_modifier_platform(conf):
+	# * set configurations specific for a platform.
+	# * By default sys.plaform will be used as the target platform.
+	#	but you may write conf.env['DEST_PLATFORM'] = 'my_platform' to allow
+	#	cross compilaion..
+	target_platform = conf.env['DEST_PLATFORM'] or sys.platform
+	gcc_modifier_func = globals().get('gcc_modifier_'+target_platform)
+	if gcc_modifier_func:
+			gcc_modifier_func(conf)
+
 def detect(conf):
 		conf.find_gcc()
 		conf.find_cpp()
 		conf.find_ar()
 		conf.gcc_common_flags()
-
-		# * set configurations specific for a platform.
-		# * By default sys.plaform will be used as the target platform.
-		#	but you may write conf.env['DEST_PLATFORM'] = 'my_platform' to allow
-		#	cross compilaion..
-		target_platform = conf.env['DEST_PLATFORM'] or sys.platform
-
-		gcc_modifier_func = globals().get('gcc_modifier_'+target_platform)
-		if gcc_modifier_func:
-				gcc_modifier_func(conf)
-
+		conf.gcc_modifier_platform()
 		conf.cc_load_tools()
 		conf.cc_add_flags()

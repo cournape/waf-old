@@ -28,8 +28,7 @@ detect = '''
 find_icpc
 find_ar
 gxx_common_flags
-gxx_modifier_darwin
+gxx_modifier_platform
 cxx_load_tools
 cxx_add_flags
 '''
-
