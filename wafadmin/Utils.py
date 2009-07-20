@@ -455,7 +455,7 @@ def load_tool(tool, tooldir=None):
 		try:
 			return __import__(tool)
 		except ImportError, e:
-			raise WscriptError(e)
+			raise WscriptError('Could not load the tool %r in %r' % (tool, sys.path))
 	finally:
 		if tooldir:
 			for d in tooldir:
