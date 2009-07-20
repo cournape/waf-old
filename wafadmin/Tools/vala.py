@@ -88,7 +88,8 @@ class valac_task(Task.Task):
 			else:
 				if first.parent.id != node.parent.id:
 					# issue #483
-					shutil.move(first.parent.abspath(self.env) + os.sep + node.name, node.abspath(self.env))
+					if env['VALAC_VERSION'] < (0, 7, 0):
+						shutil.move(first.parent.abspath(self.env) + os.sep + node.name, node.abspath(self.env))
 		return result
 
 	def install(self):
