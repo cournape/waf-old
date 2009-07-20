@@ -236,7 +236,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	try:
 		code = readf(file_path, m='rU')
 	except (IOError, OSError):
-		raise WscriptError('The file %s could not be opened!' % file_path)
+		raise WscriptError('Could not read the file %r' % file_path)
 
 	module.waf_hash_val = code
 
