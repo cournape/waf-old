@@ -78,14 +78,15 @@ def gcc_modifier_win32(conf):
 	v['shlib_PATTERN']       = '%s.dll'
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
-	v['shlib_CCFLAGS']      = [] # TODO 64-bit platforms may need -fPIC
+	v['shlib_CCFLAGS']       = ['-DPIC', '-DDLL_EXPORT'] # TODO 64-bit platforms may need -fPIC
 	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import') # suppress information messages
 
 @conftest
 def gcc_modifier_cygwin(conf):
-	gxx_modifier_win32(conf)
+	gcc_modifier_win32(conf)
 	v = conf.env
 	v['shlib_PATTERN']       = 'cyg%s.dll'
+	v.append_value('shlib_LINKFLAGS', '-Wl,--enable-auto-image-base')
 
 @conftest
 def gcc_modifier_darwin(conf):
