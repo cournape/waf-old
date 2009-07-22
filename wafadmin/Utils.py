@@ -9,8 +9,8 @@ Utilities, the stable ones are the following:
   the module fnv if it is installed (see waf/utils/fnv & http://code.google.com/p/waf/wiki/FAQ)
   else, md5 (see the python docs)
 
-  For large projects (projects with more than 15000 files) it is possible to use
-  a hashing based on the path and the size (may give broken cache results)
+  For large projects (projects with more than 15000 files) or slow hard disks and filesystems (HFS)
+  it is possible to use a hashing based on the path and the size (may give broken cache results)
   The method h_file MUST raise an OSError if the file is a folder
 
 	import stat
