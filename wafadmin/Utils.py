@@ -266,7 +266,10 @@ def load_module(file_path, name=WSCRIPT_FILE):
 
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
-	exec(code, module.__dict__)
+	try:
+		exec(code, module.__dict__)
+	except Exception:
+		raise WscriptError(traceback.format_exc(), file_path)
 	sys.path.remove(module_dir)
 
 	g_loaded_modules[file_path] = module
@@ -571,7 +574,10 @@ class Context(object):
 				old = self.curdir
 				self.curdir = nexdir
 				try:
-					exec (txt, dc)
+					try:
+						exec(txt, dc)
+					except Exception:
+						raise WscriptError(traceback.format_exc(), base)
 				finally:
 					self.curdir = old
 				if getattr(self.__class__, 'post_recurse', None):
