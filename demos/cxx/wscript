@@ -67,17 +67,19 @@ def build(bld):
 	for obj in bld.all_task_gen[:]:
 		new_obj = obj.clone('debug')
 
-def shutdown(ctx):
-	# command to execute
-	cmd = "PATH=plugins:$PATH LD_LIBRARY_PATH=build/default/src/:$LD_LIBRARY_PATH build/default/src/testprogram"
+	def post(bld):
+		# command to execute
+		cmd = "PATH=plugins:$PATH LD_LIBRARY_PATH=build/default/src/:$LD_LIBRARY_PATH build/default/src/testprogram"
 
-	# if the custom option is set, execute the program
-	import os, Options
-	if Options.options.exe:
-		os.popen(cmd)
+		# if the custom option is set, execute the program
+		import os, Options
+		if Options.options.exe:
+			os.popen(cmd)
 
-	# in case if more people ask
-	#if Options.commands['install']:
-	#	try: os.popen("/sbin/ldconfig")
-	#	except: pass
+		# in case if more people ask
+		#if Options.commands['install']:
+		#	try: os.popen("/sbin/ldconfig")
+		#	except: pass
+
+	bld.add_post_fun(post)
 
