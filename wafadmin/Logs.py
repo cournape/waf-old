@@ -116,6 +116,7 @@ info = logging.info
 def init_log():
 	log = logging.getLogger()
 	log.handlers = []
+	log.filters = []
 	hdlr = logging.StreamHandler()
 	hdlr.setFormatter(formatter())
 	log.addHandler(hdlr)
