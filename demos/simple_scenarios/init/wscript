@@ -7,7 +7,7 @@ APPNAME='test'
 srcdir = '.'
 blddir = 'build'
 
-def init():
+def init(ctx):
 	print "-> init called"
 def set_options(opt):
 	pass
@@ -15,6 +15,6 @@ def configure(conf):
 	pass
 def build(bld):
 	pass
-def shutdown():
+def shutdown(ctx):
 	pass
 

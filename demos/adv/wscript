@@ -67,7 +67,7 @@ def check_features(self):
 
 	return is_big
 
-def init():
+def init(ctx):
 	pass
 	# redefine the cpp source extensions
 	#import cpp

@@ -76,7 +76,7 @@ def set_options(opt):
 def configure(conf):
 	pass
 
-def shutdown():
+def shutdown(ctx):
 	pass
 	#print "done"
 

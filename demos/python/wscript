@@ -47,7 +47,7 @@ def build(bld):
 		source = 'test.c',
 		target = 'test')
 
-def shutdown():
+def shutdown(pass):
 	#import os
 	#print os.popen('build/default/test').read()
 	pass

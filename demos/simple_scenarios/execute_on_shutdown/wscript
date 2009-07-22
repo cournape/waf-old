@@ -17,7 +17,7 @@ def configure(conf):
 def build(bld):
 	pass
 
-def shutdown():
+def shutdown(ctx):
 	import Options
 	print "shutdown called with --exe command-line", Options.options.exe
 
