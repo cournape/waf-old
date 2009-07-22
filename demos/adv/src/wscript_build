@@ -14,7 +14,6 @@
 # By contrast, only functions can be defined in a wscript
 #
 
-
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
 bld.new_task_gen(
