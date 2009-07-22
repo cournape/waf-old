@@ -122,3 +122,6 @@ def init_log():
 	log.addFilter(log_filter())
 	log.setLevel(logging.DEBUG)
 
+# may be initialized more than once
+init_log()
+
