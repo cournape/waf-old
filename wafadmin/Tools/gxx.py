@@ -77,7 +77,11 @@ def gxx_modifier_win32(conf):
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
 	v['shlib_CXXFLAGS']      = ['-DPIC', '-DDLL_EXPORT'] # TODO 64-bit platforms may need -fPIC
-	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import') # suppress information messages
+
+	# Auto-import is enabled by default even without this option,
+	# but enabling it explicitly has the nice effect of suppressing the rather boring, debug-level messages
+	# that the linker emits otherwise.
+	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import')
 
 @conftest
 def gxx_modifier_cygwin(conf):
