@@ -212,7 +212,7 @@
 		<sect2>
 			<title>Threading concerns</title>
 			<para>
-				Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods <emphasis>run</emphasis> from the task instances. Such methods should contain as little code as possible, and access the BuildContext in a read-only manner.
+				Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods <emphasis>run</emphasis> and <emphasis>install</emphasis> from the task instances. As a consequence, such methods should contain as little code as possible, and access the BuildContext in a read-only manner. If such tasks must declare new nodes while executing the build (find_dir, find_resource, ..), then locks must be used to prevent concurrent access (concurrent directory and node creation).
 			</para>
 			<para>
 				If the run methods have to modify the build context, it is recommended to overload the method <emphasis>get_out</emphasis> of the scheduler and to execute methods in an event-like manner (data is attached to the task, and the method get_out executes the code). Adding more tasks from a running task is demonstrated <xref linkend="runtime_discovered_outputs"/>.
