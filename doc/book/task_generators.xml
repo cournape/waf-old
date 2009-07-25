@@ -122,16 +122,15 @@
 		</para>
 	</section>
 
+
 	<section id="processing_chains">
-		<title>Implicit processing based on file name or extension</title>
-		<para>
-			The exclicit rules described in the previous section becomes limited for processing several files of the same kind. Instead of adding loops, we will now describe how to process files using the name or the extension, for files declared in the <emphasis>source</emphasis> attribute. This scheme is the most common technique used in the Waf library.
-		</para>
-		<sect2>
-			<title>Task chain declaration</title>
+		<title>Task chaining</title>
 			<para>
-				The following example illustrates how to add a rule for transforming <emphasis>.lua</emphasis> files into <emphasis>.luac</emphasis> files:
-				<programlisting language="python">
+			The exclicit rules described in the previous section become limited for processing several files of the same kind. Instead of adding loops, we will now describe how to process files using the file extensions, for files declared in the <emphasis>source</emphasis> attribute.
+			</para>
+			<para>
+			The following example illustrates how to add a rule for transforming <emphasis>.lua</emphasis> files into <emphasis>.luac</emphasis> files:
+			<programlisting language="python">
 import TaskGen
 TaskGen.declare_chain(
     name    = 'luac',
@@ -144,23 +143,25 @@ TaskGen.declare_chain(
 
 def build(bld):
 	bld.new_task_gen(source='main.lua test.lua bar.lua')
-				</programlisting>
-In practice, the chaining declaration is located in a separate python file which may be re-used for other projects. When more control over the declaration is needed, it is recommended to use the @extension decorator (see below).
+			</programlisting>
+The chaining declaration is usually located in a separate python file for re-usability. In practice, chains are useful for simple cases such as processing statistical data and generating simple documents. When more control over the declaration and the output files is needed, it is more convenient to use the techniques described in the next sections.
 			</para>
-		</sect2>
-		<sect2>
-			<title>Using the @extension decorator</title>
-			<para>
-			A special method named <emphasis>apply_core</emphasis> provides file extension processing using the attribute <emphasis>source</emphasis>. On the user side, this takes the following form:
-			<programlisting language="python">
+	</section>
+
+
+	<section id="processing_extensions">
+		<title>Name or extension mappings</title>
+		<para>
+		A special method named <emphasis>apply_core</emphasis> provides file extension processing using the attribute <emphasis>source</emphasis>. On the user side, this takes the following form:
+		<programlisting language="python">
 def build(bld):
 	main = bld.new_task_gen(
 		features = 'cc cprogram',
 		source = 'main.c foo.c bar.c',
 		target = 'my_app')
-			</programlisting>
-			The method to process <emphasis>.c</emphasis> files (main.c) is declared in the following manner:
-			<programlisting language="python">
+		</programlisting>
+		The method to process <emphasis>.c</emphasis> files (main.c) is declared in the following manner:
+		<programlisting language="python">
 from TaskGen import extension
 
 @extension('.c')
@@ -168,7 +169,7 @@ def c_hook(self, node):
     task         = self.create_task('cc')
     task.inputs  = [node]
     task.outputs = [node.change_ext(obj_ext)]
-			</programlisting>
+		</programlisting>
 		</para>
 		<para>
 			When the method <emphasis>apply_core</emphasis> is called, the following operations are performed:
@@ -207,10 +208,8 @@ def build(bld):
 			</programlisting>
 		</para>
 
-		</sect2>
-
 		<para>
-			The @extension decorator also accepts names instead of extensions. An entry in the source list may then be an abstract name. This may be used for executing arbitrary code (task creation is not mandatory).
+			The @extension decorator also accepts names instead of extensions. An entry in the source list may then be an abstract name. This may be used for tracing or debugging (task creation is not mandatory).
 			<programlisting language="python">
 @extension('debug')
 def debug_allnodes(self, code):
@@ -225,6 +224,19 @@ def build(bld):
 			</programlisting>
 		</para>
 
+		<para>
+			The extensions mappings are stored on the class task_gen, which make it possible to modify them globally:
+			<programlisting language="python">
+import TaskGen
+TaskGen.task_gen.mappings['.mm'] = TaskGen.task_gen.mappings['.c']
+			</programlisting>
+			The may also be set to specific task generator:
+			<programlisting language="python">
+def build(bld):
+	obj = bld.new_task_gen(features='cxx cprogram', source='main.c', target='foo')
+	obj.mappings['.c'] = TaskGen.task_gen.mappings['.cxx']
+			</programlisting>
+		</para>
 	</section>
 
 
