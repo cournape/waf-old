@@ -78,7 +78,7 @@ out1 = bld.new_task_gen(
 	command = 'some-script',
 	argv = ['--output-md5', misc.output_file('test1.md5')],
 	vars = 'COINCOIN')
-out1.env['COINCOIN'] = 'Some string to trigger rebuilds'
+out1.env.COINCOIN = 'Some string to trigger rebuilds'
 
 
 out2 = bld.new_task_gen(
@@ -88,7 +88,7 @@ out2 = bld.new_task_gen(
 	argv = ['--input', misc.input_file('test1')],
 	vars='MIAOU',
 	dependencies = [out1])
-out2.env['MIAOU']='Another string to trigger rebuilds'
+out2.env.MIAOU = 'Another string to trigger rebuilds'
 out2.dependencies = [out1]
 
 

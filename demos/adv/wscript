@@ -186,7 +186,7 @@ mult10:
 	env_variant2.set_variant('debug')
 
 	conf.setenv('debug')
-	#conf.env['defines'] = [] # to remove defines, modify the list held by env['defines']
+	#conf.env.defines = [] # to remove defines, modify the list held by env.defines
 	conf.define('DEBUG', 1)
 	conf.write_config_header('config.h', env=env_variant2)
 
@@ -227,6 +227,6 @@ def build(bld):
 	# compile the flex+bison test if available
 	if bld.env_of_name('default')['FLEX']:
 		bld.add_subdirs('bisonflex')
-	if bld.env['AS']:
+	if bld.env.AS:
 		bld.add_subdirs('asm')
 
