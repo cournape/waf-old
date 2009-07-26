@@ -28,30 +28,24 @@ def configure(conf):
 	conf.check_cfg(package='dbus-glib-1', uselib_store='DBUSGLIB', atleast_version='0.60', mandatory=True, args='--cflags --libs')
 	conf.check_cfg(package='gtk-sharp-2.0',	uselib_store='GTKSHARP', mandatory=False, args='--cflags --libs')
 
-	# TODO: maybe the following checks should be in a more generic module.
-
 	#always defined to indicate that i18n is enabled */
 	conf.define('ENABLE_NLS', 1)
 
-	# TODO
 	#Define to 1 if you have the `bind_textdomain_codeset' function.
 	conf.define('HAVE_BIND_TEXTDOMAIN_CODESET', 1)
 
-	# TODO
 	#Define to 1 if you have the `dcgettext' function.
 	conf.define('HAVE_DCGETTEXT', 1)
 
 	#Define to 1 if you have the <dlfcn.h> header file.
 	conf.check(header_name='dlfcn.h', define_name='HAVE_DLFCN_H')
 
-	# TODO
 	#Define if the GNU gettext() function is already present or preinstalled.
 	conf.define('HAVE_GETTEXT', 1)
 
 	#Define to 1 if you have the <inttypes.h> header file.
 	conf.check(header_name='inttypes.h', define_name='HAVE_INTTYPES_H')
 
-	# TODO FIXME
 	#Define if your <locale.h> file defines LC_MESSAGES.
 	#conf.add_define('HAVE_LC_MESSAGES', '1')
 
@@ -109,16 +103,16 @@ def build(bld):
 	bld.add_subdirs('src mkenums marshal pixmaps')
 
 	env = bld.env
-	if env['XML2PO'] and env['XSLTPROC2PO']:
+	if env.XML2PO and env.XSLTPROC2PO:
 		bld.add_subdirs('help')
 
-	if env['INTLTOOL']:
+	if env.INTLTOOL:
 		bld.add_subdirs('po data')
 
-	if env['HAVE_GTKSHARP'] and env['MCS']:
+	if env.HAVE_GTKSHARP and env.MCS:
 		bld.add_subdirs('sharp')
 
-	#if env['SGML2MAN']:
+	#if env.SGML2MAN:
 	#	bld.add_subdirs('man')
 
 	def post(ctx):
