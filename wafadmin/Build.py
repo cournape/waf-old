@@ -732,8 +732,15 @@ class BuildContext(Utils.Context):
 
 			self.uninstall.append(tgt)
 
-			try: os.remove(tgt)
-			except OSError: pass
+			try:
+				os.remove(tgt)
+			except OSError, e:
+				if e.errno != errno.ENOENT:
+					if not getattr(self, 'uninstall_error', None):
+						self.uninstall_error = True
+						Logs.warn('build: some files could not be uninstalled (retry with -vv to list them)')
+					if Logs.verbose > 1:
+						Logs.warn('could not remove %s (error code %r)' % (e.filename, e.errno))
 			return True
 
 	def get_install_path(self, path, env=None):
@@ -749,7 +756,7 @@ class BuildContext(Utils.Context):
 	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False):
 		"""To install files only after they have been built, put the calls in a method named
 		post_build on the top-level wscript
-		
+
 		The relative_trick flag can be set to install folders, use bld.path.ant_glob() with it
 		"""
 		if env:
