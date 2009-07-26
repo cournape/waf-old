@@ -28,6 +28,8 @@
 ##      * the rest of the code has not really been tried
 #       * make certain a demo is provided (in demos/adv for example)
 
+# TODO: boost.py will be removed in waf 1.6
+
 import os.path, glob, types, re, sys
 import Configure, config_c, Options, Utils, Logs
 from Logs import warn
