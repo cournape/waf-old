@@ -180,7 +180,7 @@ from Configure import conf
 @conf
 def get_define(self, define):
 	"get the value of a previously stored define"
-	try: return self.env[DEFINES][define]
+	try: return self.env.defines[define]
 	except KeyError: return None
 			</programlisting>
 			Then the new configuration test may be used easily in wscript:

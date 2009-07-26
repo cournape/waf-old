@@ -58,7 +58,7 @@ def build(bld):
 	out1.command = 'some-script' <co id="cop5-co" linkends="cop5"/>
 	out1.argv = <co id="cop6-co" linkends="cop6"/> ['--output-md5', misc.output_file('test1.md5')<co id="cop7-co" linkends="cop7"/>]
 	out1.vars = 'COINCOIN'
-	out1.env['COINCOIN'] = time.time() <co id="cop8-co" linkends="cop8"/>
+	out1.env.COINCOIN = time.time() <co id="cop8-co" linkends="cop8"/>
 				</programlisting>
 
 				<calloutlist>
@@ -100,14 +100,14 @@ def build(bld):
 			<programlisting language="python">
 def configure(conf):
 	# default variant
-	conf.env['foo'] = 'bar'
+	conf.env.foo = 'bar'
 
 	# create a new environment for the variant 'debug'
 	env_variant2 = conf.env.copy()
 	conf.set_env_name('debug', env_variant2)
 	env_variant2.set_variant('debug')
 	conf.setenv('debug')
-	conf.env['foo'] = 'bar2'
+	conf.env.foo = 'bar2'
 			</programlisting>
 			After running <emphasis>waf configure</emphasis>, the build folders corresponding to the <emphasis>default</emphasis> and to the <emphasis>debug</emphasis> variants are produced:
 			<programlisting language="python">
@@ -339,7 +339,7 @@ def set_options(opt):
 def configure(conf):
 	# used only when configured from the same folder
 	conf.check_tool('gcc')
-	conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
+	conf.env.SHPIP_COMPILER = os.getcwd() + os.sep + "bad_compiler.py"
 
 def build(bld):
 	staticlib = bld.new_task_gen()
@@ -385,7 +385,7 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 		node = self.inputs[0]
 
 		dir = self.generator.bld.srcnode.bldpath(self.env)
-		cmd = 'cd %s &amp;&amp; %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
+		cmd = 'cd %s &amp;&amp; %s %s' % (dir, self.env.SHPIP_COMPILER, node.abspath(self.env))
 		try:
 			# read the contents of the file and create cpp files from it
 			files = os.popen(cmd).read().strip()

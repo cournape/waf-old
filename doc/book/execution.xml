@@ -263,9 +263,9 @@ blddir = 'build'
 def set_options(opt):
     pass
 def configure(conf):
-    conf.env['test'] = 'hello'
+    conf.env.test = 'hello'
 def build(bld):
-    print(bld.env['test'])
+    print(bld.env.test)
 				</programlisting>
 			The execution will result in:
 				<programlisting language="sh">
@@ -306,7 +306,7 @@ def set_options(opt):
 def configure(conf):
     conf.find_program('tar', var='TAR')
 def build(bld):
-    print(bld.env['TAR'])
+    print(bld.env.TAR)
 				</programlisting>
 				Will produce the following results:
 				<programlisting language="sh">
@@ -439,7 +439,7 @@ def build(bld):
 	bld.install_as('${PREFIX}/dir/bar.png', 'foo.png')
 	bld.symlink_as('${PREFIX}/lib/libfoo.so.1', 'libfoo.so.1.2.3')
 				</programlisting>
-			The variables in curly brackets are substituted by values found in <emphasis>bld.env</emphasis>, for example <emphasis>${PREFIX}</emphasis> is substituted by the value of <emphasis>bld.env['PREFIX']</emphasis>. An environment parameter may be provided if necessary:
+			The variables in curly brackets are substituted by values found in <emphasis>bld.env</emphasis>, for example <emphasis>${PREFIX}</emphasis> is substituted by the value of <emphasis>bld.env.PREFIX</emphasis>. An environment parameter may be provided if necessary:
 				<programlisting language="python">
 def build(bld):
 	env2 = bld.env.copy()

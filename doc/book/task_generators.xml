@@ -338,7 +338,7 @@ from TaskGen import before, after, taskgen
 @after('apply_obj_vars_cxx')
 @before('apply_link')
 def asm_incflags(self):
-	if self.env['ASINCFLAGS']: self.env['_ASINCFLAGS'] = self.env['ASINCFLAGS']
+	if self.env.ASINCFLAGS: self.env._ASINCFLAGS = self.env.ASINCFLAGS
 			</programlisting>
 		</para>
 

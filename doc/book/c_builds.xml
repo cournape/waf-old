@@ -102,8 +102,8 @@ def build(bld):
 			To link an application against various <emphasis>system libraries</emphasis>, several compilation flags and link flags must be given at once. To reduce the maintenance, a system called <emphasis>uselib</emphasis> can be used to give all the flags at the same time:
 			<programlisting language="python">
 def configure(conf):
-	conf.env['CCFLAGS_TEST'] = '-O2' <co id="uselib-vars-co" linkends="c1"/>
-	conf.env['LINKFLAGS_TEST'] = '-g'
+	conf.env.CCFLAGS_TEST   = '-O2' <co id="uselib-vars-co" linkends="c1"/>
+	conf.env.LINKFLAGS_TEST = '-g'
 
 def build(bld):
 	staticlib = bld.new_task_gen(
