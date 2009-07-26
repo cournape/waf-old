@@ -34,7 +34,7 @@ def set_options(opt):
 def configure(conf):
 	# used only when configured from the same folder
 	conf.check_tool('gcc')
-	conf.env["SHPIP_COMPILER"] = os.getcwd() + os.sep + "bad_compiler.py"
+	conf.env.SHPIP_COMPILER = os.getcwd() + os.sep + "bad_compiler.py"
 
 def build(bld):
 	staticlib = bld.new_task_gen('cc', 'staticlib')
@@ -80,7 +80,7 @@ class shpip_task(Task.Task):
 		bld = self.generator.bld
 
 		dir = bld.srcnode.bldpath(self.env)
-		cmd = 'cd %s && %s %s' % (dir, self.env['SHPIP_COMPILER'], node.abspath(self.env))
+		cmd = 'cd %s && %s %s' % (dir, self.env.SHPIP_COMPILER, node.abspath(self.env))
 		try:
 			# read the contents of the file and create cpp files from it
 			files = os.popen(cmd).read().strip()
@@ -183,7 +183,7 @@ class shpip_task(Task.Task):
 
 			# if headers are produced something like this can be done to add the include paths
 			dir = task.inputs[0].parent
-			cpppath_st = self.env['CPPPATH_ST']
+			cpppath_st = self.env.CPPPATH_ST
 			self.env.append_unique('_CXXINCFLAGS', cpppath_st % dir.abspath(self.env)) # include paths for c++
 			self.env.append_unique('_CCINCFLAGS', cpppath_st % dir.abspath(self.env)) # include paths for c
 			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor

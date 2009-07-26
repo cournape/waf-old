@@ -41,7 +41,7 @@ def set_options(opt):
 
 def configure(conf):
 	import os
-	conf.env['COPY'] = os.getcwd() + os.sep + "cp.py"
+	conf.env.COPY = os.getcwd() + os.sep + "cp.py"
 
 def build(bld):
 	bld.new_task_gen(source='uh.input')

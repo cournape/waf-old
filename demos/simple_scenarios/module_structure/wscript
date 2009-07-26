@@ -16,11 +16,11 @@ def set_options(opt):
 
 def configure(conf):
 	# persistent
-	conf.env["ES"] = not (not Options.options.es)
+	conf.env.ES = not (not Options.options.es)
 
 def build(bld):
 	if Options.options.fr:
 		bld.add_subdirs("fr")
-	if bld.env["ES"]:
+	if bld.env.ES:
 		bld.add_subdirs("es")
 

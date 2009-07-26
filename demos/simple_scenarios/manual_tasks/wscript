@@ -72,8 +72,8 @@ class Persist(base):
 		try: self.env.load(cachefile)
 		except (OSError, IOError): pass
 
-		self.env["myval"] = (self.env["myval"] or 0) + 1
-		print "%s %d" % (self.__class__.__name__, self.env["myval"])
+		self.env.myval = (self.env.myval or 0) + 1
+		print "%s %d" % (self.__class__.__name__, self.env.myval)
 		self.env.store(cachefile)
 
 def build(bld):

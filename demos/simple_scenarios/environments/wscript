@@ -22,13 +22,13 @@ def set_options(opt):
 
 def configure(conf):
 	cmd = os.getcwd() + os.sep + "cp.py"
-	conf.env['COPY'] = cmd
+	conf.env.COPY = cmd
 
 	env2 = conf.env.copy()
 	conf.set_env_name('debug', env2)
 	conf.setenv('debug')
 
-	conf.env['COPY'] = "echo 'the command to execute is ' %s && %s" % (cmd, cmd)
+	conf.env.COPY = "echo 'the command to execute is ' %s && %s" % (cmd, cmd)
 
 def build(bld):
 	foo = TaskGen.task_gen()

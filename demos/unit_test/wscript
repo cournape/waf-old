@@ -26,7 +26,7 @@ def build(bld):
 	# process subfolders from here
 	subdirs = 'src'
 	# if cppunit was found in the config step, build unit tests too
-	if bld.env['LIB_CPPUNIT']:
+	if bld.env.LIB_CPPUNIT:
 		subdirs += ' tests'
 	bld.add_subdirs(subdirs)
 
