@@ -24,8 +24,6 @@ def configure(conf):
         pass
 def build(bld):
         pass
-def shutdown():
-        pass
 
 $ waf configure
 			</programlisting>

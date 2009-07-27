@@ -158,6 +158,30 @@ def build(bld):
 
 			The wscript files that are not on the top-level often contain a large <emphasis>build</emphasis> function, with no additional configuration or command-line options. In this case the file only contain one method and the indentation is an annoyance. For this reason, the <emphasis>wscript_build</emphasis> files contain the body of a build function defined in a wscript file. A folder may only contain either a wscript or a wscript_build but not both.
 			</para>
+
+			<para>
+			Additionally, two methods enable the execution after the scripts are read and immediately before the build starts (bld.add_pre_fun) and immediately after the build is completed successfully (bld.add_post_fun). Here is a concrete example for executing a test after the build is finished:
+			<programlisting language="python">
+def set_options(opt):
+	opt.add_option('--exe', action='store_true', default=False,
+		help='execute the program after it is built')
+
+def pre(bld):
+	print ("before the build is started")
+
+def post(bld):
+	import Options, Utils
+	if Options.options.exe:
+		cmd = "LD_LIBRARY_PATH=build/default/src/:$LD_LIBRARY_PATH build/default/src/testprogram"
+		Utils.exec_command(cmd)
+
+def build(bld):
+	bld.add_pre_fun(pre)
+	bld.add_post_fun(post)
+			</programlisting>
+			</para>
+
+
 		</sect2>
 		<sect2>
 			<title>Waf task declaration</title>
@@ -354,11 +378,12 @@ def configure(conf):
 			Waf uses the optparse module from Python for adding command-line options, for example:
 			<programlisting language="python">
 def set_options(opt):
-	opt.add_option('--exe', action='store_true', default=False,
-		help='Execute the program after it is compiled')
-def shutdown():
+	opt.add_option('--foo', action='store_true', default=False,
+		help='Build the program in the folder foo')
+def build(bld):
 	import Options
-	print(Options.options.exe)
+	if Options.options.foo:
+		bld.add_subdirs('foo')
 			</programlisting>
 			The command-line options can be displayed afterwards:
 			<programlisting language="sh">
@@ -381,14 +406,7 @@ Options:
   --zones=ZONES         debugging zones (task_gen, deps, tasks, etc)
   --targets=COMPILE_TARGETS
                         compile the targets given only [targets in CSV format, e.g. "target1,target2"]
-  --exe                 Execute the program after it is compiled
-			</programlisting>
-			and used like this:
-			<programlisting language="sh">
-$ waf --exe
-True
-$ waf
-False
+  --foo                 Build the program in the folder foo
 			</programlisting>
 			</para>
 		</sect2>
