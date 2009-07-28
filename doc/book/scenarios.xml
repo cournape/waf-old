@@ -191,7 +191,7 @@ def build(bld):
 
 	bld.add_group() <co id="divide-co" linkends="divide"/>
 
-	bld.new_task-gen(
+	bld.new_task_gen(
 		features = 'ocaml c_object', <co id="rem-co" linkends="rem"/>
 		source = 'src/armtlkto.c ' + bld.path.ant_glob('src/*.ml'),
 		includes = '. src',
