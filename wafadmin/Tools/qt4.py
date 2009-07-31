@@ -321,6 +321,8 @@ def detect_qt4(conf):
 	qtlibs = getattr(opt, 'qtlibs', '')
 	useframework = getattr(opt, 'use_qt4_osxframework', True)
 
+	paths = []
+
 	# the path to qmake has been given explicitely
 	if qtbin:
 		paths = [qtbin]
@@ -356,12 +358,16 @@ def detect_qt4(conf):
 	for qmk in ['qmake-qt4', 'qmake4', 'qmake']:
 		qmake = conf.find_program(qmk, path_list=paths)
 		if qmake:
-			version = Utils.cmd_output([qmake, '-query', 'QT_VERSION']).strip()
-			if version:
-				new_ver = version.split('.')
-				if new_ver > prev_ver:
-					cand = qmake
-					prev_ver = new_ver
+			try:
+				version = Utils.cmd_output([qmake, '-query', 'QT_VERSION']).strip()
+			except ValueError:
+				pass
+			else:
+				if version:
+					new_ver = version.split('.')
+					if new_ver > prev_ver:
+						cand = qmake
+						prev_ver = new_ver
 	if cand:
 		qmake = cand
 	else:
