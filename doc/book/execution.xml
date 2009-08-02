@@ -445,12 +445,12 @@ def set_options(opt):
 	<section id="target_install">
 		<title>Installing targets</title>
 		<para>
-			Targets are installed when Waf is run with the following command-line <emphasis>waf install</emphasis>. If the targets are not built, they will be installed as soon as they are built. We will now describe the three main ways of installing the targets.
+			Targets are installed when Waf is run with the following command-line <emphasis>waf install</emphasis>. The actual installation is performed after the current task group has finished, which usually means at the end of the build. We will now describe the three main ways of installing the targets.
 		</para>
 		<sect2>
 			<title>Installing files directly</title>
 			<para>
-				Source files may be installed directly by using the install methods of the build context bld:
+				Source files may be installed directly by using the install methods of the build context.
 				<programlisting language="python">
 def build(bld):
 	bld.install_files('${PREFIX}/include', 'a1.h')
