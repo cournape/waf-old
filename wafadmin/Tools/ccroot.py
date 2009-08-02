@@ -83,10 +83,11 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			if isD(i):
 				conf.env.DEST_OS = mp1[i]
 				break
-		elif isD('__APPLE__') and isD('__MACH__'):
-			conf.env.DEST_OS = 'darwin'
-		elif isD('__unix__'): # unix must be tested last as it's a generic fallback
-			conf.env.DEST_OS = 'unix'
+		else:
+			if isD('__APPLE__') and isD('__MACH__'):
+				conf.env.DEST_OS = 'darwin'
+			elif isD('__unix__'): # unix must be tested last as it's a generic fallback
+				conf.env.DEST_OS = 'unix'
 
 		if isD('__ELF__'):
 			conf.env.DEST_BINFMT = 'elf'
