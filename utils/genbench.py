@@ -231,20 +231,21 @@ def CreateFullJamfile(libs):
     handle = file("Jamrules", "w")
     handle.write('INCLUDES = $(TOP) ;\n')
 
+wt = """
+def build(bld):
+	bld.new_task_gen(
+		features = 'cxx cstaticlib',
+		includes = '..',
+		source = '''%s''',
+		target = 'lib2',
+	)
+"""
+
 def CreateW(lib_number, classes):
-    handle = file("wscript", "w");
-    handle.write("def build(bld):\n")
-    handle.write("    obj = bld.new_task_gen('cxx', 'staticlib')\n")
-    handle.write("    obj.includes='..'\n")
-    handle.write("    obj.source='''\n")
-
-    for i in xrange(classes):
-        handle.write('    class_' + str(i) + '.cpp\n')
-
-    handle.write("    '''\n")
-    handle.write("    obj.target = 'lib2'\n")
-    handle.write('def set_options(opt): pass\n')
-    handle.write('def configure(conf): pass\n\n')
+	filez = "".join(['class_' + str(i) + '.cpp\n' for i in xrange(classes)])
+	f = open('wscript', 'w')
+	f.write(wt % filez)
+	f.close()
 
 def CreateWtop(libs):
     handle = file("wscript", "w")
