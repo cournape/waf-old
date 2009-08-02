@@ -59,7 +59,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 
 		def isT(var):
 			return var in k and k[var] != '0'
-			
+
 		# Some documentation is available at http://predef.sourceforge.net
 
 		if isD('__linux__'):
@@ -124,7 +124,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			conf.env.DEST_CPU = 'powerpc'
 		else:
 			conf.env.DEST_CPU = 'unknown'
-			
+
 		debug('ccroot: dest platform: ' + conf.env.DEST_OS + ' ' + conf.env.DEST_BINFMT + ' ' + conf.env.DEST_CPU)
 
 		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
@@ -196,41 +196,6 @@ def get_target_name(self):
 
 	return os.path.join(dir, pattern % name)
 
-def install_implib(self):
-	bld = self.outputs[0].__class__.bld
-	# install the dll in the bindir
-	bindir = self.install_path
-
-	if not len(self.outputs) == 2:
-		raise ValueError('fail')
-
-	dll = self.outputs[0]
-	bld.install_as(bindir + os.sep + dll.name, dll.abspath(self.env), chmod=self.chmod, env=self.env)
-
-	implib = self.outputs[1]
-	libdir = '${LIBDIR}'
-	if not self.env['LIBDIR']:
-			libdir = '${PREFIX}/lib'
-	bld.install_as(libdir + '/' + implib.name, implib.abspath(self.env), env=self.env)
-
-def install_shlib(self):
-	"""it is called install_shlib but its real name is install_vnum_shlib"""
-	bld = self.outputs[0].__class__.bld
-	nums = self.vnum.split('.')
-
-	path = self.install_path
-	if not path: return
-	libname = self.outputs[0].name
-
-	name3 = libname + '.' + self.vnum
-	name2 = libname + '.' + nums[0]
-	name1 = libname
-
-	filename = self.outputs[0].abspath(self.env)
-	bld.install_as(os.path.join(path, name3), filename, env=self.env)
-	bld.symlink_as(os.path.join(path, name2), name3)
-	bld.symlink_as(os.path.join(path, name1), name3)
-
 @feature('cc', 'cxx')
 @before('apply_core')
 def default_cc(self):
@@ -290,8 +255,26 @@ def install_target_cstaticlib(self):
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
 	if getattr(self, 'vnum', '') and not win_platform:
-		self.link_task.vnum = self.vnum
-		self.link_task.install = install_shlib
+		bld = self.bld
+		nums = self.vnum.split('.')
+
+		path = self.install_path
+		if not path: return
+		libname = self.link_task.outputs[0].name
+
+		if libname.endswith('.dylib'):
+			name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
+			name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
+		else:
+			name3 = libname + '.' + self.vnum
+			name2 = libname + '.' + nums[0]
+
+		filename = self.link_task.outputs[0].abspath(self.env)
+		bld.install_as(os.path.join(path, name3), filename, env=self.env)
+		bld.symlink_as(os.path.join(path, name2), name3)
+		bld.symlink_as(os.path.join(path, libname), name3)
+
+		self.link_task.install = None
 
 @feature('cc', 'cxx')
 @after('apply_type_vars', 'apply_lib_vars', 'apply_core')
@@ -648,4 +631,21 @@ def apply_implib(self):
 	implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
 	self.link_task.outputs.append(implib)
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
-	self.link_task.install = install_implib
+
+	bld = self.bld
+	# install the dll in the bindir
+	bindir = self.install_path
+
+	if not len(self.link_task.outputs) == 2:
+		raise ValueError('fail')
+
+	dll = self.link_task.outputs[0]
+	bld.install_as(bindir + os.sep + dll.name, dll.abspath(self.env), chmod=self.chmod, env=self.env)
+
+	implib = self.link_task.outputs[1]
+	libdir = '${LIBDIR}'
+	if not self.env['LIBDIR']:
+			libdir = '${PREFIX}/lib'
+	bld.install_as(libdir + '/' + implib.name, implib.abspath(self.env), env=self.env)
+	self.link_task.install = None
+

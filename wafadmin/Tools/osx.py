@@ -171,7 +171,7 @@ def app_build(task):
 	shutil.copy2(task.inputs[0].srcpath(env), task.outputs[0].abspath(env))
 
 	return 0
-    
+
 def plist_build(task):
 	env = task.env
 	f = open(task.outputs[0].abspath(env), "w")
@@ -180,30 +180,6 @@ def plist_build(task):
 
 	return 0
 
-def install_shlib(task):
-	"""see http://code.google.com/p/waf/issues/detail?id=173"""
-	nums = task.vnum.split('.')
-
-	path = self.install_path
-
-	libname = task.outputs[0].name
-
-	name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
-	name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
-	name1 = libname
-
-	filename = task.outputs[0].abspath(task.env)
-	bld = task.outputs[0].__class__.bld
-	bld.install_as(path + name3, filename, env=task.env)
-	bld.symlink_as(path + name2, name3)
-	bld.symlink_as(path + name1, name3)
-
-@feature('osx')
-@after('install_target_cshlib')
-def install_target_osx_cshlib(self):
-	if not self.bld.is_install: return
-	if getattr(self, 'vnum', '') and sys.platform != 'win32':
-		self.link_task.install = install_shlib
-
 Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
 Task.task_type_from_func('macplist', vars=[], func=plist_build, after="cxx_link cc_link ar_link_static")
+
