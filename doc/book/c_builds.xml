@@ -25,7 +25,8 @@ def build(bld):
 		defines      = ['LINUX=1', 'BIDULE'], <co id="defi-co" linkends="a6"/>
 		ccflags      = ['-O2', '-Wall'], <co id="ccflags-co" linkends="a7"/>
 		lib          = ['m'], <co id="shlib-co" linkends="a8"/>
-		libpath      = ['/usr/lib']
+		libpath      = ['/usr/lib'],
+		linkflags    = ['-g'],
 	)
 	if sys.platform != 'win32':
 		t.rpath      = '/usr/lib' <co id="rpath-co" linkends="a9"/>
@@ -102,8 +103,10 @@ def build(bld):
 			To link an application against various <emphasis>system libraries</emphasis>, several compilation flags and link flags must be given at once. To reduce the maintenance, a system called <emphasis>uselib</emphasis> can be used to give all the flags at the same time:
 			<programlisting language="python">
 def configure(conf):
-	conf.env.CCFLAGS_TEST   = '-O2' <co id="uselib-vars-co" linkends="c1"/>
-	conf.env.LINKFLAGS_TEST = '-g'
+	conf.env.CCFLAGS_TEST   = ['-O2'] <co id="uselib-vars-co" linkends="c1"/>
+	conf.env.LIB_TEST       = 'test'
+	conf.env.LIBPATH_TEST   = ['/usr/lib']
+	conf.env.LINKFLAGS_TEST = ['-g']
 
 def build(bld):
 	staticlib = bld.new_task_gen(
