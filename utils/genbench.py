@@ -237,14 +237,14 @@ def build(bld):
 		features = 'cxx cstaticlib',
 		includes = '..',
 		source = '''%s''',
-		target = 'lib2',
+		target = 'lib_%d',
 	)
 """
 
 def CreateW(lib_number, classes):
 	filez = "".join(['class_' + str(i) + '.cpp\n' for i in xrange(classes)])
 	f = open('wscript', 'w')
-	f.write(wt % filez)
+	f.write(wt % (filez, lib_number))
 	f.close()
 
 def CreateWtop(libs):
