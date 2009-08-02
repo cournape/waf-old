@@ -106,7 +106,9 @@ class TaskManager(object):
 		while not ret and self.current_group < len(self.groups):
 			ret = self.groups[self.current_group].get_next_set()
 			if ret: return ret
-			else: self.current_group += 1
+			else:
+				self.groups[self.current_group].process_install()
+				self.current_group += 1
 		return (None, None)
 
 	def add_group(self, name=None, set=True):
@@ -167,6 +169,7 @@ class TaskGroup(object):
 		self.cstr_order = Utils.DefaultDict(set) # partial order between the cstr groups
 		self.temp_tasks = [] # tasks put on hold
 		self.ready = 0
+		self.post_funs = []
 
 	def reset(self):
 		"clears the state of the object (put back the tasks into self.tasks)"
@@ -177,6 +180,10 @@ class TaskGroup(object):
 		self.cstr_groups = Utils.DefaultDict(list)
 		self.cstr_order = Utils.DefaultDict(set)
 		self.ready = 0
+
+	def process_install(self):
+		for (f, k, kw) in self.post_funs:
+			f(*k, **kw)
 
 	def prepare(self):
 		"prepare the scheduling"

@@ -39,6 +39,24 @@ class BuildError(Utils.WafError):
 			if txt: lst.append(txt)
 		return '\n'.join(lst)
 
+def group_method(fun):
+	"""
+	sets a build context method to execute after the current group has finished executing
+	this is useful for installing build files:
+	* calling install_files/install_as will fail if called too early
+	* people do not want to define install method in their task classes
+
+	TODO: try it
+	"""
+	def f(*k, **kw):
+		if kw.get('postpone', True):
+			m = k[0].task_manager
+			m.groups[m.current_group].post_funs.append((fun, k, kw))
+			kw['cwd'] = k[0].path
+		else:
+			fun(*k, **kw)
+	return f
+
 class BuildContext(Utils.Context):
 	"holds the dependency tree"
 	def __init__(self):
@@ -753,7 +771,7 @@ class BuildContext(Utils.Context):
 			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
 		return destpath
 
-	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False):
+	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False, cwd=None):
 		"""To install files only after they have been built, put the calls in a method named
 		post_build on the top-level wscript
 
@@ -769,9 +787,11 @@ class BuildContext(Utils.Context):
 		if not self.is_install: return []
 		if not path: return []
 
-		node = self.path
+		if not cwd:
+			cwd = self.path
+
 		if isinstance(files, str) and '*' in files:
-			gl = node.abspath() + os.sep + files
+			gl = cwd.abspath() + os.sep + files
 			lst = glob.glob(gl)
 		else:
 			lst = Utils.to_list(files)
@@ -789,9 +809,9 @@ class BuildContext(Utils.Context):
 				if isinstance(filename, Node.Node):
 					nd = filename
 				else:
-					nd = node.find_resource(filename)
+					nd = cwd.find_resource(filename)
 				if not nd:
-					raise Utils.WafError("Unable to install the file %r (not found in %s)" % (filename, node))
+					raise Utils.WafError("Unable to install the file %r (not found in %s)" % (filename, cwd))
 
 				if relative_trick:
 					destfile = os.path.join(destpath, filename)
@@ -805,7 +825,7 @@ class BuildContext(Utils.Context):
 				installed_files.append(destfile)
 		return installed_files
 
-	def install_as(self, path, srcfile, env=None, chmod=O644):
+	def install_as(self, path, srcfile, env=None, chmod=O644, cwd=None):
 		"""
 		srcfile may be a string or a Node representing the file to install
 
@@ -822,6 +842,9 @@ class BuildContext(Utils.Context):
 		if not path:
 			raise Utils.WafError("where do you want to install %r? (%r?)" % (srcfile, path))
 
+		if not cwd:
+			cwd = self.path
+
 		destpath = self.get_install_path(path, env)
 
 		dir, name = os.path.split(destpath)
@@ -833,14 +856,14 @@ class BuildContext(Utils.Context):
 		else:
 			src = srcfile
 			if not os.path.isabs(srcfile):
-				node = self.path.find_resource(srcfile)
+				node = cwd.find_resource(srcfile)
 				if not node:
-					raise Utils.WafError("Unable to install the file %r (not found in %s)" % (srcfile, self.path))
+					raise Utils.WafError("Unable to install the file %r (not found in %s)" % (srcfile, cwd))
 				src = node.abspath(env)
 
 		return self.do_install(src, destpath, chmod)
 
-	def symlink_as(self, path, src, env=None):
+	def symlink_as(self, path, src, env=None, cwd=None):
 		"""example:  bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3') """
 		if not self.is_install:
 			return
@@ -933,4 +956,8 @@ class BuildContext(Utils.Context):
 	def use_the_magic(self):
 		Task.algotype = Task.MAXPARALLEL
 		Task.file_deps = Task.extract_deps
+
+	install_as = group_method(install_as)
+	install_files = group_method(install_files)
+	symlink_as = group_method(symlink_as)
 
