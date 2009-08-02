@@ -757,10 +757,14 @@ class BuildContext(Utils.Context):
 		"""To install files only after they have been built, put the calls in a method named
 		post_build on the top-level wscript
 
+		The files must be a list and contain paths as strings or as Nodes
+
 		The relative_trick flag can be set to install folders, use bld.path.ant_glob() with it
 		"""
 		if env:
 			assert isinstance(env, Environment.Environment), "invalid parameter"
+		else:
+			env = self.env
 
 		if not self.is_install: return []
 		if not path: return []
@@ -772,41 +776,51 @@ class BuildContext(Utils.Context):
 		else:
 			lst = Utils.to_list(files)
 
-		env = env or self.env
 		destpath = self.get_install_path(path, env)
 
 		Utils.check_dir(destpath)
 
 		installed_files = []
 		for filename in lst:
-			if not os.path.isabs(filename):
-				nd = node.find_resource(filename)
+			if isinstance(filename, str) and os.path.isabs(filename):
+				alst = Utils.split_path(filename)
+				destfile = os.path.join(destpath, alst[-1])
+			else:
+				if isinstance(filename, Node.Node):
+					nd = filename
+				else:
+					nd = node.find_resource(filename)
 				if not nd:
-					raise Utils.WafError("Unable to install the file `%s': not found in %s" % (filename, node))
+					raise Utils.WafError("Unable to install the file %r (not found in %s)" % (filename, node))
+
 				if relative_trick:
 					destfile = os.path.join(destpath, filename)
 					Utils.check_dir(os.path.dirname(destfile))
 				else:
 					destfile = os.path.join(destpath, nd.name)
+
 				filename = nd.abspath(env)
-			else:
-				alst = Utils.split_path(filename)
-				destfile = os.path.join(destpath, alst[-1])
 
 			if self.do_install(filename, destfile, chmod):
 				installed_files.append(destfile)
 		return installed_files
 
 	def install_as(self, path, srcfile, env=None, chmod=O644):
-		"""returns True if the file was effectively installed, False otherwise"""
+		"""
+		srcfile may be a string or a Node representing the file to install
+
+		returns True if the file was effectively installed, False otherwise
+		"""
 		if env:
 			assert isinstance(env, Environment.Environment), "invalid parameter"
+		else:
+			env = self.env
 
-		if not self.is_install: return False
-		if not path: return False
+		if not self.is_install:
+			return False
 
-		if not env: env = self.env
-		node = self.path
+		if not path:
+			raise Utils.WafError("where do you want to install %r? (%r?)" % (srcfile, path))
 
 		destpath = self.get_install_path(path, env)
 
@@ -814,17 +828,29 @@ class BuildContext(Utils.Context):
 		Utils.check_dir(dir)
 
 		# the source path
-		if not os.path.isabs(srcfile):
-			filenode = node.find_resource(srcfile)
-			src = filenode.abspath(env)
+		if isinstance(srcfile, Node.Node):
+			src = srcfile.abspath(env)
 		else:
 			src = srcfile
+			if not os.path.isabs(srcfile):
+				node = self.path.find_resource(srcfile)
+				if not node:
+					raise Utils.WafError("Unable to install the file %r (not found in %s)" % (srcfile, self.path))
+				src = node.abspath(env)
 
 		return self.do_install(src, destpath, chmod)
 
 	def symlink_as(self, path, src, env=None):
-		if not self.is_install: return
-		if not path: return
+		"""example:  bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3') """
+		if not self.is_install:
+			return
+
+		if sys.platform == 'win32':
+			# well, this *cannot* work
+			return
+
+		if not path:
+			raise Utils.WafError("where do you want to install %r? (%r?)" % (src, path))
 
 		tgt = self.get_install_path(path, env)
 
@@ -847,7 +873,7 @@ class BuildContext(Utils.Context):
 
 		else: # UNINSTALL
 			try:
-				info("* removing %s" % (tgt))
+				info('* removing %s' % (tgt))
 				os.remove(tgt)
 				return 0
 			except OSError:
