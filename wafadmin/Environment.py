@@ -75,6 +75,20 @@ class Environment(object):
 		newenv.parent = self
 		return newenv
 
+	def detach(self):
+		"""TODO try it
+		modifying the original env will not change the copy"""
+		tbl = self.get_merged_dict()
+		try:
+			delattr(self, 'parent')
+		except AttributeError:
+			pass
+		else:
+			keys = tbl.keys()
+			for x in keys:
+				tbl[x] = copy.copy(tbl[x])
+			self.table = tbl
+
 	def get_flat(self, key):
 		s = self[key]
 		if isinstance(s, str): return s
@@ -91,7 +105,7 @@ class Environment(object):
 			try: value = self.parent[key]
 			except AttributeError: value = []
 			if isinstance(value, list):
-				value = copy.copy(value)
+				value = value[:]
 			else:
 				value = [value]
 		else:
