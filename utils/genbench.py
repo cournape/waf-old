@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# encoding: utf-8
 
 import sys
 import os.path
@@ -13,6 +14,9 @@ HELP_USAGE = """Usage: generate_libs.py root libs classes internal external.
     classes  - Number of classes per library
     internal - Number of includes per file referring to that same library
     external - Number of includes per file pointing to other libraries
+
+To try the waf part, do:
+waf configure build -p -j5
 
 To test the autotools part, do:
 touch README AUTHORS NEWS ChangeLog &&
@@ -185,7 +189,7 @@ def CreateLibrary(lib_number, classes, internal_includes, external_includes):
     CreateLibMakefile(lib_number, classes)
     #CreateLibJamFile(lib_number, classes)
     #CreateVCProjFile(lib_number, classes)
-    CreateW(lib_number, classes)
+    #CreateW(lib_number, classes)
     CreateAutotools(lib_number, classes)
 
     os.chdir("..")
@@ -231,42 +235,32 @@ def CreateFullJamfile(libs):
     handle = file("Jamrules", "w")
     handle.write('INCLUDES = $(TOP) ;\n')
 
-wt = """
+WT = """#! /usr/bin/env python
+# encoding: utf-8
+
+VERSION = '0.0.2'
+APPNAME = 'build_bench'
+srcdir  = '.'
+blddir  = 'out'
+
+def configure(conf):
+	conf.check_tool('g++')
+
 def build(bld):
-	bld.new_task_gen(
-		features = 'cxx cstaticlib',
-		includes = '..',
-		source = '''%s''',
-		target = 'lib_%d',
-	)
+	for i in xrange(%d):
+		filez = ' '.join(['lib_%%d/class_%%d.cpp' %% (i, j) for j in xrange(%d)])
+		bld.new_task_gen(
+			features = 'cxx cstaticlib',
+			source = filez,
+			target = 'lib_%%d' %% i,
+			includes = '.', # include the top-level
+		)
 """
 
-def CreateW(lib_number, classes):
-	filez = "".join(['class_' + str(i) + '.cpp\n' for i in xrange(classes)])
+def CreateWtop(libs, classes):
 	f = open('wscript', 'w')
-	f.write(wt % (filez, lib_number))
+	f.write(WT % (libs, classes))
 	f.close()
-
-def CreateWtop(libs):
-    handle = file("wscript", "w")
-
-    handle.write("VERSION='0.0.1'\n")
-    handle.write("APPNAME='build-bench'\n")
-    handle.write("srcdir = '.'\n")
-    handle.write("blddir = 'build'\n")
-
-    handle.write("def build(bld):\n")
-    handle.write("    bld.add_subdirs('''\n")
-
-    for i in xrange(libs):
-        handle.write("""lib_%s\n""" % str(i))
-
-    handle.write("    ''')\n")
-
-    handle.write("def configure(conf):\n")
-    handle.write("    conf.check_tool('g++')\n")
-    handle.write("def set_options(opt):\n")
-    handle.write("    pass\n\n")
 
 def CreateFullSolution(libs):
     handle = file("solution.sln", "w")
@@ -328,7 +322,7 @@ def main(argv):
 
     CreateSConstruct(libs)
     CreateFullMakefile(libs)
-    CreateWtop(libs)
+    CreateWtop(libs, classes)
     #CreateFullJamfile(libs)
     #CreateFullSolution(libs)
     CreateAutotoolsTop(libs)
