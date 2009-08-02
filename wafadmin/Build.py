@@ -49,6 +49,9 @@ def group_method(fun):
 	TODO: try it
 	"""
 	def f(*k, **kw):
+		if not k[0].is_install:
+			return False
+
 		if kw.get('postpone', True):
 			m = k[0].task_manager
 			m.groups[m.current_group].post_funs.append((fun, k, kw))
@@ -784,7 +787,6 @@ class BuildContext(Utils.Context):
 		else:
 			env = self.env
 
-		if not self.is_install: return []
 		if not path: return []
 
 		if not cwd:
@@ -836,9 +838,6 @@ class BuildContext(Utils.Context):
 		else:
 			env = self.env
 
-		if not self.is_install:
-			return False
-
 		if not path:
 			raise Utils.WafError("where do you want to install %r? (%r?)" % (srcfile, path))
 
@@ -865,8 +864,6 @@ class BuildContext(Utils.Context):
 
 	def symlink_as(self, path, src, env=None, cwd=None):
 		"""example:  bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3') """
-		if not self.is_install:
-			return
 
 		if sys.platform == 'win32':
 			# well, this *cannot* work
