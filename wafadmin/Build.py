@@ -365,10 +365,8 @@ class BuildContext(Utils.Context):
 
 		if not tooldir: tooldir = Options.tooldir
 
-		file = None
 		module = Utils.load_tool(tool, tooldir)
 		if hasattr(module, "setup"): module.setup(self)
-		if file: file.close()
 
 	def init_variants(self):
 		debug('build: init variants')
