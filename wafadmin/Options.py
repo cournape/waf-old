@@ -6,7 +6,7 @@
 "Custom command-line options"
 
 import os, sys, imp, types, tempfile, optparse
-import Logs, Utils, Configure
+import Logs, Utils
 from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
