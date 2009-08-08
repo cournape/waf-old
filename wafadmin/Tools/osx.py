@@ -63,14 +63,14 @@ def apply_framework(self):
 def create_bundle_dirs(self, name, out):
 	bld = self.bld
 	dir = out.parent.get_dir(name)
-	
+
 	if not dir:
 		dir = out.__class__(name, out.parent, 1)
 		bld.rescan(dir)
 		contents = out.__class__('Contents', dir, 1)
 		bld.rescan(contents)
 		macos = out.__class__('MacOS', contents, 1)
-		bld.rescan(macos)	
+		bld.rescan(macos)
 	return dir
 
 def bundle_name_for_output(out):
@@ -113,7 +113,7 @@ def create_task_macplist(self):
 		# check if the user specified a plist before using our template
 		if not getattr(self, 'mac_plist', False):
 			self.mac_plist = app_info
-			
+
 		plisttask = self.create_task('macplist', self.env)
 		plisttask.set_inputs(self.link_task.outputs)
 
