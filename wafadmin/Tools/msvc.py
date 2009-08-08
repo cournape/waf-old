@@ -552,7 +552,7 @@ def apply_obj_vars_msvc(self):
 		app('LINKFLAGS', lib_st % i)
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
-@before('apply_link')
+@before('apply_link', 'set_link_task')
 def apply_link_msvc(self):
 	if self.env['CC_NAME'] != 'msvc':
 		return

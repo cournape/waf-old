@@ -598,9 +598,10 @@ def set_link_task(self):
 		return
 	if not 'cshlib' in self.features:
 		raise Utils.WafError('feature "implib" requires "cshlib"')
-	self.link = 'dll_cc_link'
-	if 'cxx' in self.features:
-		self.link = 'dll_cxx_link'
+	if not getattr(self, 'link', None):
+		self.link = 'dll_cc_link'
+		if 'cxx' in self.features:
+			self.link = 'dll_cxx_link'
 
 @feature('implib')
 @after('apply_link')
