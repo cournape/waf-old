@@ -61,7 +61,7 @@ $ waf configure
 	<section id="config_env">
 		<title>The configuration environments</title>
 		<para>
-			The build phase uses configuration environments created during the configuration phase. The configuration environments are <emphasis><ulink url="http://docs.python.org/tut/node7.html#SECTION007500000000000000000">Python Dictionaries</ulink></emphasis> which map keys to values. The configuration environment files created take the following form:
+			The build phase uses configuration environments created during the configuration phase. The configuration environments are <emphasis><ulink url="http://docs.python.org/tutorial/datastructures.html#dictionaries">Python Dictionaries</ulink></emphasis> which map keys to values. The configuration environment files created take the following form:
 			<programlisting language="python">
 $ cat build/c4che/default.cache.py
 CXXFLAGS = ['-O2', '-Wall']
