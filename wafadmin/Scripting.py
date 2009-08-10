@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, shutil, traceback, datetime, inspect
+import os, sys, shutil, traceback, datetime, inspect, errno
 
 import Utils, Configure, Build, Logs, Options, Environment, Task
 from Logs import error, warn, info
@@ -453,14 +453,23 @@ def distclean(ctx=None):
 		if f == Options.lockfile:
 			try:
 				proj = Environment.Environment(f)
+			except:
+				Logs.warn('could not read %r' % f)
+				continue
+
+			try:
 				shutil.rmtree(proj[BLDDIR])
-			except (OSError, IOError):
+			except IOError:
 				pass
+			except OSError, e:
+				if e.errno != errno.ENOENT:
+					Logs.warn('project %r cannot be removed' % proj[BLDDIR])
 
 			try:
 				os.remove(f)
-			except (OSError, IOError):
-				pass
+			except OSError, e:
+				if e.errno != errno.ENOENT:
+					Logs.warn('file %r cannot be removed' % f)
 
 		# remove the local waf cache
 		if f.startswith('.waf-'):
