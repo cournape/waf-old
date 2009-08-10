@@ -119,7 +119,11 @@ class ConfigurationContext(Utils.Context):
 		path = os.path.join(self.blddir, WAF_CONFIG_LOG)
 		try: os.unlink(path)
 		except (OSError, IOError): pass
-		self.log = open(path, 'w')
+
+		try:
+			self.log = open(path, 'w')
+		except (OSError, IOError):
+			self.fatal('could not open %r for writing' % path)
 
 		app = getattr(Utils.g_module, 'APPNAME', '')
 		if app:
