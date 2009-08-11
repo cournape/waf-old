@@ -229,7 +229,8 @@ class task_gen(object):
 	# TODO waf 1.6: always set the environment
 	# TODO waf 1.6: create_task(self, name, inputs, outputs)
 	def create_task(self, name, env=None):
-		task = Task.TaskBase.classes[name](env or self.env, generator=self)
+		env = env or self.env
+		task = Task.TaskBase.classes[name](env.copy(), generator=self)
 		self.tasks.append(task)
 		return task
 
