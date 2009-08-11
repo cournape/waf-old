@@ -370,39 +370,43 @@ def apply_lib_vars(self):
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
 	uselib = self.to_list(self.uselib)
+	names = self.to_list(self.uselib_local)
+
 	seen = []
-	names = self.to_list(self.uselib_local)[:] # consume a copy of the list of names
-	while names:
-		x = names.pop(0)
+	tmp = names[:] # consume a copy of the list of names
+	while tmp:
+		lib_name = tmp.pop(0)
 		# visit dependencies only once
-		if x in seen:
+		if lib_name in seen:
 			continue
 
-		y = self.name_to_obj(x)
+		y = self.name_to_obj(lib_name)
 		if not y:
-			raise Utils.WafError("object '%s' was not found in uselib_local (required by '%s')" % (x, self.name))
+			raise Utils.WafError('object %r was not found in uselib_local (required by %r)' % (lib_name, self.name))
+		y.post()
+		seen.append(lib_name)
 
-		# object has ancestors to process: add them to the end of the list
+		# object has ancestors to process (shared libraries): add them to the end of the list
 		if getattr(y, 'uselib_local', None):
 			lst = y.to_list(y.uselib_local)
-			for u in lst:
-				if not u in seen:
-					names.append(u)
+			tmp.extend(lst)
 
-		# safe to process the current object
-		y.post()
-		seen.append(x)
+		# link task and flags
+		if getattr(y, 'link_task', None):
 
-		# WARNING some linkers can link against programs
-		libname = y.target[y.target.rfind(os.sep) + 1:]
-		if 'cshlib' in y.features or 'cprogram' in y.features:
-			env.append_value('LIB', libname)
-		elif 'cstaticlib' in y.features:
-			env.append_value('STATICLIB', libname)
+			link_name = y.target[y.target.rfind(os.sep) + 1:]
+			if 'cstaticlib' in y.features:
+				if not lib_name in names:
+					continue
+				env.append_value('STATICLIB', link_name)
+			elif 'cshlib' in y.features or 'cprogram' in y.features:
+				# WARNING some linkers can link against programs
+				env.append_value('LIB', link_name)
 
-		# set the dependency over the link task
-		if y.link_task is not None:
+			# the order
 			self.link_task.set_run_after(y.link_task)
+
+			# for the recompilation
 			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
 			self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
 
@@ -411,25 +415,25 @@ def apply_lib_vars(self):
 			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
 		# add ancestors uselib too
-		morelibs = y.to_list(y.uselib)
-		for v in morelibs:
+		# WARNING providing STATICLIB_FOO in env will result in broken builds
+		# TODO waf 1.6 prevent this behaviour somehow
+		for v in self.to_list(y.uselib):
 			if v in uselib: continue
-			uselib = [v]+uselib
+			uselib = [v] + uselib
 
 		# if the library task generator provides 'export_incdirs', add to the include path
 		# the export_incdirs must be a list of paths relative to the other library
 		if getattr(y, 'export_incdirs', None):
-			cpppath_st = self.env['CPPPATH_ST']
 			for x in self.to_list(y.export_incdirs):
 				node = y.path.find_dir(x)
 				if not node:
-					raise Utils.WafError('object %s: invalid folder %s in export_incdirs' % (y.target, x))
+					raise Utils.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
 				self.env.append_unique('INC_PATHS', node)
 
 	# 2. the case of the libs defined outside
 	for x in uselib:
 		for v in self.p_flag_vars:
-			val = self.env[v+'_'+x]
+			val = self.env[v + '_' + x]
 			if val: self.env.append_value(v, val)
 
 @feature('cprogram', 'cstaticlib', 'cshlib')
