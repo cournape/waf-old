@@ -608,6 +608,8 @@ def set_link_task(self):
 @feature('no_implib')
 @before('apply_implib')
 def disable_implib(self):
+	if 'cshlib' not in self.features:
+		raise Utils.WafError('feature "no_implib" requires "cshlib"')
 	# There does not seem to be a way not to generate the import lib on msvc.
 	if self.env.CC_NAME != 'msvc':
 		self.meths.remove('apply_implib')
@@ -627,35 +629,34 @@ def apply_implib(self):
 
 	# add linker flags to generate the import lib
 	dll = self.link_task.outputs[0]
-	implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
-	self.link_task.outputs.append(implib)
+	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
+	no_implib = 'no_implib' in self.features
+	if no_implib:
+		# There does not seem to be a way not to generate the import lib on msvc,
+		# so if the 'no_implib' feature was specified, we set a filename that the linker won't find.
+		implib += '.disabled'
+	implib = dll.parent.find_or_declare(implib)
+	if not no_implib:
+		self.link_task.outputs.append(implib)
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
 
 @feature('cshlib')
 @after('apply_link')
 def install_target_cshlib_implib(self):
-	"""execute after the link task (apply_link), for dlls"""
-	if not win_platform:
-		return
-
-	if not self.install_path: return
-
-	# install the import lib in the lib dir
-	libdir = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
-	implib = self.link_task.outputs[1]
-	self.bld.install_as(libdir + os.sep + implib.name, implib.abspath(self.env), env=self.env)
-	self.link_task.install = None
-
-@feature('cshlib', 'dshlib')
-@after('apply_link')
-def install_target_cshlib_dll(self):
-	"""execute after the link task (apply_link), for dlls"""
+	"""execute after the link task (apply_link), for a dll with import lib"""
 	if not win_platform:
 		return
 
 	bindir = self.install_path
 	if not bindir: return
 
+	# install the dll in the bin dir
 	dll = self.link_task.outputs[0]
 	self.bld.install_as(bindir + os.sep + dll.name, dll.abspath(self.env), chmod=self.chmod, env=self.env)
+
+	# install the import lib in the lib dir
+	libdir = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
+	implib = self.link_task.outputs[1]
+	self.bld.install_as(libdir + os.sep + implib.name, implib.abspath(self.env), env=self.env)
+
 	self.link_task.install = None
