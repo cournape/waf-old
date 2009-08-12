@@ -595,19 +595,25 @@ def link_vnum(self):
 
 # ============ the code above must not know anything about import libs ==========
 
-@feature('implib')
+@feature('cshlib')
 @before('apply_link')
 def set_link_task(self):
 	if not win_platform:
 		return
-	if not 'cshlib' in self.features:
-		raise Utils.WafError('feature "implib" requires "cshlib"')
 	if not getattr(self, 'link', None):
 		self.link = 'dll_cc_link'
 		if 'cxx' in self.features:
 			self.link = 'dll_cxx_link'
 
-@feature('implib')
+@feature('no_implib')
+@before('apply_implib')
+def disable_implib(self):
+	# There does not seem to be a way not to generate the import lib on msvc.
+	if self.env.CC_NAME != 'msvc':
+		self.meths.remove('apply_implib')
+	self.meths.remove('install_target_cshlib_implib')
+
+@feature('cshlib')
 @after('apply_link')
 @before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
@@ -619,27 +625,37 @@ def apply_implib(self):
 	if not win_platform:
 		return
 
-	# this is very windows-specific
-	# handle dll import lib
+	# add linker flags to generate the import lib
 	dll = self.link_task.outputs[0]
 	implib = dll.parent.find_or_declare(self.env['implib_PATTERN'] % os.path.split(self.target)[1])
 	self.link_task.outputs.append(implib)
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
 
-	bld = self.bld
-	# install the dll in the bindir
-	bindir = self.install_path
+@feature('cshlib')
+@after('apply_link')
+def install_target_cshlib_implib(self):
+	"""execute after the link task (apply_link), for dlls"""
+	if not win_platform:
+		return
 
-	if not len(self.link_task.outputs) == 2:
-		raise ValueError('fail')
+	if not self.install_path: return
 
-	dll = self.link_task.outputs[0]
-	bld.install_as(bindir + os.sep + dll.name, dll.abspath(self.env), chmod=self.chmod, env=self.env)
-
+	# install the import lib in the lib dir
+	libdir = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
 	implib = self.link_task.outputs[1]
-	libdir = '${LIBDIR}'
-	if not self.env['LIBDIR']:
-			libdir = '${PREFIX}/lib'
-	bld.install_as(libdir + '/' + implib.name, implib.abspath(self.env), env=self.env)
+	self.bld.install_as(libdir + os.sep + implib.name, implib.abspath(self.env), env=self.env)
 	self.link_task.install = None
 
+@feature('cshlib', 'dshlib')
+@after('apply_link')
+def install_target_cshlib_dll(self):
+	"""execute after the link task (apply_link), for dlls"""
+	if not win_platform:
+		return
+
+	bindir = self.install_path
+	if not bindir: return
+
+	dll = self.link_task.outputs[0]
+	self.bld.install_as(bindir + os.sep + dll.name, dll.abspath(self.env), chmod=self.chmod, env=self.env)
+	self.link_task.install = None
