@@ -125,7 +125,7 @@ def cmd_and_log(self, cmd, kw):
 	try:
 		p = Utils.pproc.Popen(cmd, stdout=Utils.pproc.PIPE, shell=True)
 		output = p.communicate()[0]
-	except WindowsError:
+	except OSError:
 		self.fatal('fail')
 
 	if p.returncode:
