@@ -13,8 +13,7 @@ def configure(conf):
 def build(bld):
     bld.new_task_gen(features='javac seq', source_root='src/java')
     bld.new_task_gen(features='jar seq', basedir='src/java',
-					destfile='stringUtils.jar',
-					jarcreate='cfe', jaropts=['StringUtils'])
+					destfile='stringUtils.jar')
     
     lib = bld.new_task_gen('cc', 'shlib', includes='src/jni/include',
                            target='stringUtils',
