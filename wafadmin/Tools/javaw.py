@@ -60,6 +60,7 @@ def jar_files(self):
 	basedir = getattr(self, 'basedir', '.')
 	destfile = getattr(self, 'destfile', 'test.jar')
 	jaropts = getattr(self, 'jaropts', [])
+	jarcreate = getattr(self, 'jarcreate', 'cf')
 
 	dir = self.path.find_dir(basedir)
 	if not dir: raise
@@ -74,7 +75,7 @@ def jar_files(self):
 	tsk.set_outputs(out)
 	tsk.inputs = [x for x in dir.find_iter(src=0, bld=1) if x.id != out.id]
 	tsk.env['JAROPTS'] = jaropts
-	tsk.env['JARCREATE'] = 'cf'
+	tsk.env['JARCREATE'] = jarcreate
 
 @feature('javac')
 @before('apply_core')

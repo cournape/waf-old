@@ -1,0 +1,19 @@
+srcdir = '.'
+blddir = 'target'
+
+def set_options(opt):
+    opt.tool_options('jni')
+
+def configure(conf):
+    conf.check_tool('jni')
+
+def build(bld):
+    bld.new_task_gen(features='javac seq', source_root='src/java')
+    bld.new_task_gen(features='jar seq', basedir='src/java',
+					destfile='stringUtils.jar',
+					jarcreate='cfe', jaropts=['StringUtils'])
+    
+    lib = bld.new_task_gen('cc', 'shlib', includes='src/jni/include',
+                           target='stringUtils',
+                           uselib='JAVA')
+    lib.find_sources_in_dirs('src/jni/source')
