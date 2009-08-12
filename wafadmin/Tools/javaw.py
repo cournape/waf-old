@@ -227,9 +227,9 @@ def check_jni_headers(conf):
 	if 'sunos' in Options.platform:
 		incPath.append(os.path.join(incPath[0], 'solaris'))
 
-	conf.check_cc(header_name="jni.h", define_name='HAVE_JNI_H',
-					includes=incPath, mandatory=True)
-	conf.env.append_value('CPPPATH_JAVA', incPath)
+	# why not checking for the headers and for the link at once?
+
+	conf.check_cc(header_name='jni.h', define_name='HAVE_JNI_H', includes=incPath, uselib_store='JAVA', uselib='JAVA', mandatory=True)
 
 	jreLibPath = os.path.join(javaHome, 'jre', 'lib')
 	libPaths = [os.path.join(javaHome, 'lib'), jreLibPath]
@@ -238,8 +238,5 @@ def check_jni_headers(conf):
 	elif 'sunos' in Options.platform:
 		libPaths.append(os.path.join(jreLibPath, 'sparc'))
 
-	conf.env.append_value('LIBPATH', libPaths)
-	conf.check(lib='jvm', env=conf.env, mandatory=True)
-	conf.env.append_value('LIB_JAVA', 'jvm')
-	conf.env.append_value('LIBPATH_JAVA', libPaths)
+	conf.check(lib='jvm', libpath=libPaths, uselib_store='JAVA', uselib='JAVA', mandatory=True)
 
