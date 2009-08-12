@@ -2,10 +2,13 @@ srcdir = '.'
 blddir = 'target'
 
 def set_options(opt):
-    opt.tool_options('jni')
+    opt.tool_options('compiler_cc')
+    opt.tool_options('javaw')
 
 def configure(conf):
-    conf.check_tool('jni')
+    conf.check_tool('compiler_cc')
+    conf.check_tool('java')
+    conf.check_jni_headers()
 
 def build(bld):
     bld.new_task_gen(features='javac seq', source_root='src/java')

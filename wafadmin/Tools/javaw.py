@@ -31,7 +31,7 @@ You would have to run:
 
 import os, re
 from Configure import conf
-import TaskGen, Task, Utils
+import TaskGen, Task, Utils, Options
 from TaskGen import feature, before, taskgen
 
 class_check_source = '''
@@ -207,3 +207,38 @@ def check_java_class(self, classname, with_classpath=None):
 
 	return found
 
+@conf
+def check_jni_headers(conf):
+	"""
+	Check for jni headers and libraries
+
+	On success the environment variable xxx_JAVA is added for uselib
+	"""
+	
+	if not conf.env['CC_NAME'] and not conf.env['CXX_NAME']:
+		conf.fatal('load a compiler first (gcc, g++, ..)')
+	
+	#if you plan on building JNI code, you'll want the jvm
+	javaHome = conf.env['JAVA_HOME'][0]
+	incPath = os.path.join(javaHome, 'include')
+    #also add the platform-specific dir
+	incPath = [incPath, os.path.join(incPath, Options.platform)]
+	#TODO there might be some more checks to make here..
+	if 'sunos' in Options.platform:
+		incPath.append(os.path.join(incPath[0], 'solaris'))
+    
+	if conf.check_cc(header_name="jni.h", define_name='HAVE_JNI_H',
+					includes=incPath, mandatory=True):
+		conf.env.append_value('CPPPATH_JAVA', incPath)
+    
+	jreLibPath = os.path.join(javaHome, 'jre', 'lib')
+	libPaths = [os.path.join(javaHome, 'lib'), jreLibPath]
+	if 'linux' in Options.platform:
+		libPaths.append(os.path.join(jreLibPath, 'i386', 'client'))
+	elif 'sunos' in Options.platform:
+		libPaths.append(os.path.join(jreLibPath, 'sparc'))
+		
+	conf.env.append_value('LIBPATH', libPaths)
+	if conf.check_cc(lib='jvm', env=conf.env, mandatory=True):
+		conf.env.append_value('LIB_JAVA', 'jvm')
+		conf.env.append_value('LIBPATH_JAVA', libPaths)
