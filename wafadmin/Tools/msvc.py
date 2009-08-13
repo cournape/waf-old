@@ -64,7 +64,7 @@ def setup_msvc(conf, versions):
 @conf
 def get_msvc_version(conf, compiler, version, target, vcvars):
 	debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' ...')
-	batfile = os.path.join(conf.blddir, "waf-print-msvc.bat")
+	batfile = os.path.join(conf.blddir, 'waf-print-msvc.bat')
 	f = open(batfile, 'w')
 	f.write("""@echo off
 set INCLUDE=
@@ -73,13 +73,18 @@ call "%s" %s
 echo PATH=%%PATH%%
 echo INCLUDE=%%INCLUDE%%
 echo LIB=%%LIB%%
-""" % (vcvars,target)) 
+""" % (vcvars,target))
 	f.close()
 	sout = Utils.cmd_output(['cmd', '/E:on', '/V:on', '/C', batfile])
 	lines = sout.splitlines()
-	if lines[0].find("Setting environment") == -1 and lines[0].find("Setting SDK environment") == -1 and lines[1].find('Intel(R) C++ Compiler') == -1:
-		debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> not found')
+
+	for x in ['Setting environment', 'Setting SDK environment', 'Intel(R) C++ Compiler']:
+		if lines[0].find(a) != -1:
+			break
+	else:
+		debug('msvc: get_msvc_version: %r %r %r -> not found' % (compiler, version, target))
 		conf.fatal('msvc: Impossible to find a valid architecture for building (in get_msvc_version)')
+
 	for line in lines[1:]:
 		if line.startswith('PATH='):
 			path = line[5:]
@@ -98,18 +103,20 @@ echo LIB=%%LIB%%
 	cxx = conf.find_program(compiler_name, path_list=MSVC_PATH)
 	# delete CL if exists. because it could contain parameters wich can change cl's behaviour rather catastrophically.
 	if env.has_key('CL'):
-		del(env['CL']) 
-	import pproc
+		del(env['CL'])
+
 	try:
-		p = pproc.Popen([cxx, '/help'], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
+		p = Utils.pproc.Popen([cxx, '/help'], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
 		out, err = p.communicate()
 		if p.returncode != 0:
-			raise Exception('return code: ' + str(p.returncode) + ': ' + err)
+			raise Exception('return code: %r: %r' % (p.returncode, err))
 	except Exception, e:
-		print('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> failed: ' + str(e))
-		conf.fatal('msvc: Compiler is not runnable (in get_msvc_version)')
+		debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
+		debug(str(e))
+		conf.fatal('msvc: cannot run the compiler (in get_msvc_version)')
 	else:
-		debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> OK')
+		debug('msvc: get_msvc_version: %r %r %r -> OK' % (compiler, version, target))
+
 	return (MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR)
 
 @conf
@@ -144,7 +151,6 @@ def gather_wsdk_versions(conf, versions):
 				except Configure.ConfigurationError:
 					pass
 			versions.append(('wsdk ' + version[1:], targets))
-
 
 @conf
 def gather_msvc_versions(conf, versions):
@@ -787,3 +793,4 @@ def msvc_common_flags(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
+
