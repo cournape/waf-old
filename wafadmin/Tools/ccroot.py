@@ -615,7 +615,6 @@ def disable_implib(self):
 	# There does not seem to be a way not to generate the import lib on msvc.
 	if self.env.CC_NAME != 'msvc':
 		self.meths.remove('apply_implib')
-	self.meths.remove('install_target_cshlib_implib')
 
 @feature('cshlib')
 @after('apply_link')
