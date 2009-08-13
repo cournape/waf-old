@@ -31,7 +31,7 @@ You would have to run:
 
 import os, re
 from Configure import conf
-import TaskGen, Task, Utils, Options
+import TaskGen, Task, Utils, Options, Build
 from TaskGen import feature, before, taskgen
 
 class_check_source = '''
@@ -215,28 +215,29 @@ def check_jni_headers(conf):
 	On success the environment variable xxx_JAVA is added for uselib
 	"""
 
-	if not conf.env['CC_NAME'] and not conf.env['CXX_NAME']:
+	if not conf.env.CC_NAME and not conf.env.CXX_NAME:
 		conf.fatal('load a compiler first (gcc, g++, ..)')
-	
+
 	if not conf.env.JAVA_HOME:
 		conf.fatal('set JAVA_HOME in the system environment')
 
-	#if you plan on building JNI code, you'll want the jvm
+	# jni requires the jvm
 	javaHome = conf.env['JAVA_HOME'][0]
-	
-	import Build
+
 	b = Build.BuildContext()
 	b.load_dirs(conf.srcdir, conf.blddir)
 	dir = b.root.find_dir(conf.env.JAVA_HOME[0] + '/include')
 	f = dir.ant_glob('**/(jni|jni_md).h', flat=False)
 	incDirs = [x.parent.abspath() for x in f]
-	
+
 	dir = b.root.find_dir(conf.env.JAVA_HOME[0])
 	f = dir.ant_glob('**/*jvm.(so|dll)', flat=False)
 	libDirs = [x.parent.abspath() for x in f] or [javaHome]
-	
+
 	for i, d in enumerate(libDirs):
-		mandatory = i == len(libDirs) - 1 #make the last one mandatory, thus failing if it must
 		if conf.check(header_name='jni.h', define_name='HAVE_JNI_H', lib='jvm',
-				libpath=d, includes=incDirs, uselib_store='JAVA', uselib='JAVA', mandatory=mandatory):
-			break #break out if we found it
+				libpath=d, includes=incDirs, uselib_store='JAVA', uselib='JAVA'):
+			break
+	else:
+		conf.fatal('could not find lib jvm in %r (see config.log)' % libDirs)
+
