@@ -12,6 +12,7 @@ NEW IN WAF 1.5.9
 * new env.detach() to prevent confusing data sharing
 * swig demo update
 * local static libraries are not propagated (convenience libraries)
+* jni configuration helper (java)
 ? Cross-compilation improvements
 
 NEW IN WAF 1.5.8
