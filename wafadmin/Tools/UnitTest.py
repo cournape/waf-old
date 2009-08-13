@@ -192,3 +192,59 @@ Total number of tests: %i
 		self.num_tests_err, percentage_erroneous, self.total_num_tests))
 		p('GREEN', 'Unit tests finished')
 
+
+"""
+New unit test system
+
+The targets with feature 'test' are executed after they are built
+bld.new_task_gen(features='cprogram cc test', ...)
+
+To display the results:
+import UnitTest
+bld.add_post_fun(UnitTest.summary)
+"""
+
+import threading
+testlock = threading.Lock()
+
+@TaskGen.feature('test')
+@TaskGen.after('apply_link')
+def make_test(self):
+	if not 'cprogram' in self.features:
+		Logs.error('test cannot be executed %s' % self)
+		return
+
+	tsk = self.create_task('utest')
+	tsk.set_inputs(self.link_task.outputs)
+
+def exec_test(self):
+	fail = False
+	try:
+		testlock.acquire()
+
+		filename = self.inputs[0].abspath(self.env)
+		try:
+			ret = Utils.cmd_output(filename, cwd='/cygdrive/c/home/waf-1.5.8/demos/unit_test/tests/test0')
+		except Exception, e:
+			fail = True
+			ret = ""
+		else:
+			pass
+
+		stats = getattr(self.generator.bld, 'utest_results', [])
+		stats.append((filename, fail, ret))
+		self.generator.bld.utest_results = stats
+
+		testlock.release()
+	except Exception, e:
+		print e
+
+cls = Task.task_type_from_func('utest', func=exec_test, color='RED', ext_in='.bin')
+cls.quiet = 1
+
+def summary(bld):
+	print ("SUMMARY")
+	for (f, fail, ret) in getattr(bld, 'utest_results', []):
+		col = fail and 'RED' or 'GREEN'
+		Utils.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
+
