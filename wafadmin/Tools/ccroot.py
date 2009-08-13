@@ -235,34 +235,36 @@ def vars_target_cshlib(self):
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @after('apply_objdeps', 'apply_link')
 def install_target_cstaticlib(self):
-	if not self.bld.is_install: return
 	self.link_task.install_path = self.install_path
 
 @feature('cshlib', 'dshlib')
 @after('apply_link')
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
-	if getattr(self, 'vnum', '') and not win_platform:
-		bld = self.bld
-		nums = self.vnum.split('.')
 
-		path = self.install_path
-		if not path: return
-		libname = self.link_task.outputs[0].name
+	if win_platform or not getattr(self, 'vnum', ''):
+		return
 
-		if libname.endswith('.dylib'):
-			name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
-			name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
-		else:
-			name3 = libname + '.' + self.vnum
-			name2 = libname + '.' + nums[0]
+	bld = self.bld
+	nums = self.vnum.split('.')
 
-		filename = self.link_task.outputs[0].abspath(self.env)
-		bld.install_as(os.path.join(path, name3), filename, env=self.env)
-		bld.symlink_as(os.path.join(path, name2), name3)
-		bld.symlink_as(os.path.join(path, libname), name3)
+	path = self.install_path
+	if not path: return
+	libname = self.link_task.outputs[0].name
 
-		self.link_task.install = None
+	if libname.endswith('.dylib'):
+		name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
+		name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
+	else:
+		name3 = libname + '.' + self.vnum
+		name2 = libname + '.' + nums[0]
+
+	filename = self.link_task.outputs[0].abspath(self.env)
+	bld.install_as(os.path.join(path, name3), filename, env=self.env)
+	bld.symlink_as(os.path.join(path, name2), name3)
+	bld.symlink_as(os.path.join(path, libname), name3)
+
+	self.link_task.install = None
 
 @feature('cc', 'cxx')
 @after('apply_type_vars', 'apply_lib_vars', 'apply_core')
