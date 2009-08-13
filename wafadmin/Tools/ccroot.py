@@ -617,8 +617,6 @@ def disable_implib(self):
 def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
 	the .dll.a is the import lib and it is required for linking so it is installed too
-
-	the feature nicelibs would be bound to something that enable dlopenable libs on macos
 	"""
 	if not win_platform:
 		return
