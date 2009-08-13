@@ -243,8 +243,10 @@ cls = Task.task_type_from_func('utest', func=exec_test, color='RED', ext_in='.bi
 cls.quiet = 1
 
 def summary(bld):
-	print ("SUMMARY")
-	for (f, fail, ret) in getattr(bld, 'utest_results', []):
-		col = fail and 'RED' or 'GREEN'
-		Utils.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
+	lst = getattr(bld, 'utest_results', [])
+	if lst:
+		Utils.pprint('CYAN', 'execution summary')
+		for (f, fail, ret) in lst:
+			col = fail and 'RED' or 'GREEN'
+			Utils.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
 
