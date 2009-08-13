@@ -229,7 +229,7 @@ def vars_target_cstaticlib(self):
 def vars_target_cshlib(self):
 	if sys.platform == 'win32':
 		# win32:
-		#   sno symlinks
+		#   no symlinks
 		#   set execute bit on libs to avoid 'permission denied' (issue 283)
 		self.default_chmod = O755
 		self.default_install_path = self.env.BINDIR or '${PREFIX}/bin'
@@ -625,25 +625,8 @@ def apply_implib(self):
 	if not self.win_platform:
 		return
 
-	# add linker flags to generate the import lib
-	dll = self.link_task.outputs[0]
-	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
-	no_implib = 'no_implib' in self.features
-	if no_implib:
-		# There does not seem to be a way not to generate the import lib on msvc,
-		# so if the 'no_implib' feature was specified, we set a filename that the linker won't find.
-		implib += '.disabled'
-	implib = dll.parent.find_or_declare(implib)
-	if not no_implib:
-		self.link_task.outputs.append(implib)
-	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
-
-@feature('cshlib')
-@after('apply_link')
-def install_target_cshlib_implib(self):
-	"""execute after the link task (apply_link), for a dll with import lib"""
-	if not self.win_platform:
-		return
+	# disable the normal installation
+	self.link_task.install = None
 
 	bindir = self.install_path
 	if not bindir: return
@@ -652,10 +635,23 @@ def install_target_cshlib_implib(self):
 	dll = self.link_task.outputs[0]
 	self.bld.install_as(bindir + os.sep + dll.name, dll, self.env, self.chmod)
 
-	# install the import lib in the lib dir
-	libdir = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
-	implib = self.link_task.outputs[1]
-	self.bld.install_as(libdir + os.sep + implib.name, implib, self.env)
+	# add linker flags to generate the import lib
+	dll = self.link_task.outputs[0]
+	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
+	no_implib = 'no_implib' in self.features
+	if no_implib:
+		# There does not seem to be a way not to generate the import lib on msvc,
+		# so if the 'no_implib' feature was specified, we set a filename that the linker won't find.
+		implib += '.disabled'
 
-	self.link_task.install = None
+	implib = dll.parent.find_or_declare(implib)
+	if not no_implib:
+		self.link_task.outputs.append(implib)
+	else:
+		# install the import lib in the lib dir
+		libdir = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
+		implib = self.link_task.outputs[1]
+		self.bld.install_as(libdir + os.sep + implib.name, implib, self.env)
+
+	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
 
