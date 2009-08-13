@@ -199,8 +199,7 @@ def default_cc(self):
 		p_type_vars = [],
 		compiled_tasks = [],
 		link_task = None)
-	if not self.env.DEST_OS:
-		self.env.DEST_OS = sys.platform
+	if not self.env.DEST_OS: self.env.DEST_OS = sys.platform
 	self.win_platform = self.env.DEST_OS in ('win32', 'cygwin')
 	if not self.env.BINDIR: self.env.BINDIR = self.env['${PREFIX}/bin']
 	if not self.env.LIBDIR: self.env.LIBDIR = self.env['${PREFIX}/lib${LIB_EXT}']
@@ -351,8 +350,9 @@ def apply_link(self):
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 
-		if getattr(self, 'vnum', '') and 'cshlib' in self.features and not self.win_platform:
-			link = 'vnum_' + link
+		if getattr(self, 'vnum', '') and 'cshlib' in self.features:
+			if not sys.platform in ('win32', 'cygwin'):
+				link = 'vnum_' + link
 
 	tsk = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
