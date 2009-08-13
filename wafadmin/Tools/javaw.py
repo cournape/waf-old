@@ -221,22 +221,13 @@ def check_jni_headers(conf):
 	#if you plan on building JNI code, you'll want the jvm
 	javaHome = conf.env['JAVA_HOME'][0]
 	incPath = os.path.join(javaHome, 'include')
-	#also add the platform-specific dir
-	incPath = [incPath, os.path.join(incPath, Options.platform)]
-	#TODO there might be some more checks to make here..
-	if 'sunos' in Options.platform:
-		incPath.append(os.path.join(incPath[0], 'solaris'))
+	
+	incDirs = map(lambda x: os.path.dirname(x), Utils.recursiveGlob(javaHome, 'jni.h jni_md.h'))
+	conf.check_cc(header_name='jni.h', define_name='HAVE_JNI_H',
+		includes=incDirs, uselib_store='JAVA', uselib='JAVA', mandatory=True)
 
-	# why not checking for the headers and for the link at once?
-
-	conf.check_cc(header_name='jni.h', define_name='HAVE_JNI_H', includes=incPath, uselib_store='JAVA', uselib='JAVA', mandatory=True)
-
-	jreLibPath = os.path.join(javaHome, 'jre', 'lib')
-	libPaths = [os.path.join(javaHome, 'lib'), jreLibPath]
-	if 'linux' in Options.platform:
-		libPaths.append(os.path.join(jreLibPath, 'i386', 'client'))
-	elif 'sunos' in Options.platform:
-		libPaths.append(os.path.join(jreLibPath, 'sparc'))
-
-	conf.check(lib='jvm', libpath=libPaths, uselib_store='JAVA', uselib='JAVA', mandatory=True)
-
+	libDirs = map(lambda x: os.path.dirname(x), Utils.recursiveGlob(javaHome, '*jvm.so *jvm.dll'))
+	for i, d in enumerate(libDirs):
+		mandatory = i == len(libDirs) - 1 #make the last one mandatory, thus failing if it must
+		if conf.check(lib='jvm', libpath=d, uselib_store='JAVA', uselib='JAVA', mandatory=mandatory):
+			break #break out if we found it
