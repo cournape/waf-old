@@ -18,7 +18,6 @@ except ImportError:
 import config_c # <- necessary for the configuration, do not touch
 
 USE_TOP_LEVEL = False
-win_platform = sys.platform in ('win32', 'cygwin')
 
 def get_cc_version(conf, cc, gcc=False, icc=False):
 
@@ -178,7 +177,7 @@ def get_target_name(self):
 
 	dir, name = os.path.split(self.target)
 
-	if win_platform and getattr(self, 'vnum', '') and 'cshlib' in self.features:
+	if self.win_platform and getattr(self, 'vnum', '') and 'cshlib' in self.features:
 		# include the version in the dll file name,
 		# the import lib file name stays unversionned.
 		name = name + '-' + self.vnum.split('.')[0]
@@ -202,6 +201,7 @@ def default_cc(self):
 		link_task = None)
 	if not self.env.DEST_OS:
 		self.env.DEST_OS = sys.platform
+	self.win_platform = self.env.DEST_OS in ('win32', 'cygwin')
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
@@ -228,7 +228,9 @@ def vars_target_cstaticlib(self):
 @before('apply_core')
 def vars_target_cshlib(self):
 	if sys.platform == 'win32':
-		# win32: set execute bit on libs to avoid 'permission denied' (issue 283)
+		# win32:
+		#   sno symlinks
+		#   set execute bit on libs to avoid 'permission denied' (issue 283)
 		self.default_chmod = O755
 		self.default_install_path = self.env.BINDIR or '${PREFIX}/bin'
 	else:
@@ -244,7 +246,7 @@ def install_target_cstaticlib(self):
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
 
-	if win_platform or not getattr(self, 'vnum', ''):
+	if self.win_platform or not getattr(self, 'vnum', ''):
 		return
 
 	bld = self.bld
@@ -347,7 +349,7 @@ def apply_link(self):
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 
-		if getattr(self, 'vnum', '') and 'cshlib' in self.features and not win_platform:
+		if getattr(self, 'vnum', '') and 'cshlib' in self.features and not self.win_platform:
 			link = 'vnum_' + link
 
 	tsk = self.create_task(link)
@@ -596,7 +598,7 @@ def link_vnum(self):
 @feature('cshlib')
 @before('apply_link')
 def set_link_task(self):
-	if not win_platform:
+	if not self.win_platform:
 		return
 	if not getattr(self, 'link', None):
 		self.link = 'dll_cc_link'
@@ -620,7 +622,7 @@ def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
 	the .dll.a is the import lib and it is required for linking so it is installed too
 	"""
-	if not win_platform:
+	if not self.win_platform:
 		return
 
 	# add linker flags to generate the import lib
@@ -640,7 +642,7 @@ def apply_implib(self):
 @after('apply_link')
 def install_target_cshlib_implib(self):
 	"""execute after the link task (apply_link), for a dll with import lib"""
-	if not win_platform:
+	if not self.win_platform:
 		return
 
 	bindir = self.install_path
@@ -656,3 +658,4 @@ def install_target_cshlib_implib(self):
 	self.bld.install_as(libdir + os.sep + implib.name, implib, self.env)
 
 	self.link_task.install = None
+
