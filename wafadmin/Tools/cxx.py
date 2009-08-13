@@ -100,12 +100,12 @@ cls.scan = ccroot.scan
 cls.vars.append('CXXDEPS')
 
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT} ${LINKFLAGS}'
-cls = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o', shell=False)
+cls = Task.simple_task_type('cxx_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin', shell=False)
 cls.maxjobs = 1
-cls2 = Task.task_type_from_func('vnum_cxx_link', ccroot.link_vnum, cls.vars, color='CYAN', ext_in='.o')
+cls2 = Task.task_type_from_func('vnum_cxx_link', ccroot.link_vnum, cls.vars, color='CYAN', ext_in='.o', ext_out='.bin')
 cls2.maxjobs = 1
 
 link_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath(env)} ${LINKFLAGS}'
-cls = Task.simple_task_type('dll_cxx_link', link_str, color='YELLOW', ext_in='.o', shell=False)
+cls = Task.simple_task_type('dll_cxx_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin', shell=False)
 cls.maxjobs = 1
 
