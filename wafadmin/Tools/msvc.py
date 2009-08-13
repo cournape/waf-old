@@ -346,8 +346,7 @@ def msvc_linker(task):
 		pdbfile = pdbnode.bldpath(env)
 
 		task.outputs.append(pdbnode)
-		var = getattr(task.generator, 'install_pdb_dir', '${PREFIX}/lib')
-		bld.install_files(var, pdbnode, env=env)
+		bld.install_files('${LIBDIR}', pdbnode, env=env)
 
 	if not static and os.path.exists(manifest):
 		debug('msvc: manifesttool')
