@@ -18,7 +18,7 @@ In the shutdown method, add the following code:
 Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
 """
 import os, sys
-import Build, TaskGen, Utils, Options, Logs
+import Build, TaskGen, Utils, Options, Logs, Task
 
 class unit_test(object):
 	"Unit test representation"
