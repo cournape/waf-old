@@ -292,7 +292,7 @@ def msvc_linker(task):
 
 	static = task.__class__.name.find('static') > 0
 
-	e = env = task.env
+	env = task.env
 	#linker = e['LINK']
 	#srcf = e['LINK_SRC_F']
 	#trgtf = e['LINK_TGT_F']
@@ -302,7 +302,7 @@ def msvc_linker(task):
 	if subsystem:
 		subsystem = '/subsystem:%s' % subsystem
 
-	outfile = task.outputs[0].bldpath(e)
+	outfile = task.outputs[0].bldpath(env)
 	manifest = outfile + '.manifest'
 
 	#objs=" ".join(['"%s"' % a.abspath(e) for a in task.inputs])
@@ -335,7 +335,7 @@ def msvc_linker(task):
 
 	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
 	pdbnode = task.outputs[0].change_ext('.pdb')
-	pdbfile = pdbnode.bldpath(e)
+	pdbfile = pdbnode.bldpath(env)
 
 	# check for the pdb file. if exists, add to the list of outputs
 	if os.path.exists(pdbfile):
@@ -343,7 +343,7 @@ def msvc_linker(task):
 
 	if not static and os.path.exists(manifest):
 		debug('msvc: manifesttool')
-		mtool = e['MT']
+		mtool = env['MT']
 		if not mtool:
 			return 0
 
@@ -356,11 +356,11 @@ def msvc_linker(task):
 			mode = '2'
 
 		debug('msvc: embedding manifest')
-		#flags = ' '.join(e['MTFLAGS'] or [])
+		#flags = ' '.join(env['MTFLAGS'] or [])
 
 		lst = []
-		lst.extend(to_list(e['MT']))
-		lst.extend(to_list(e['MTFLAGS']))
+		lst.extend(to_list(env['MT']))
+		lst.extend(to_list(env['MTFLAGS']))
 		lst.extend(to_list("-manifest"))
 		lst.extend(to_list(manifest))
 		lst.extend(to_list("-outputresource:%s;%s" % (outfile, mode)))
