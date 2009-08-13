@@ -200,6 +200,8 @@ def default_cc(self):
 		p_type_vars = [],
 		compiled_tasks = [],
 		link_task = None)
+	if not self.env.DEST_OS:
+		self.env.DEST_OS = sys.platform
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
