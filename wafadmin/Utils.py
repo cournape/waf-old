@@ -34,8 +34,7 @@ Utilities, the stable ones are the following:
 
 """
 
-import os, sys, imp, string, errno, traceback, inspect, re, shutil, \
-		datetime, gc, fnmatch
+import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime, gc
 
 # In python 3.0 we can get rid of all this
 try: from UserDict import UserDict
@@ -617,42 +616,3 @@ if os.name == 'java':
 	except NotImplementedError:
 		gc.disable = gc.enable
 
-
-
-class GlobDirectoryWalker:
-	""" recursively walk a directory, matching filenames """
-	def __init__(self, directory, patterns):
-		self.stack = [directory]
-		self.patterns = to_list(patterns or [])
-		self.files = []
-		self.index = 0
-		
-	def __iter__(self):
-		return self.next()
-	
-	def next(self):
-		while True:
-			try:
-				file = self.files[self.index]
-				self.index = self.index + 1
-			except IndexError:
-				# pop next directory from stack
-				if len(self.stack) == 0:
-					raise StopIteration
-				self.directory = self.stack.pop()
-				if os.path.isdir(self.directory):
-					self.files = os.listdir(self.directory)
-				else:
-					self.files, self.directory = [self.directory], ''
-				self.index = 0
-			else:
-				# got a filename
-				fullname = os.path.join(self.directory, file)
-				if os.path.isdir(fullname) and not os.path.islink(fullname):
-					self.stack.append(fullname)
-				for p in self.patterns:
-					if fnmatch.fnmatch(file, p):
-						yield fullname
-
-def recursiveGlob(directory, patterns):
-	return GlobDirectoryWalker(directory, patterns)

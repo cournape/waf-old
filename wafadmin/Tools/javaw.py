@@ -221,7 +221,7 @@ def check_jni_headers(conf):
 	#if you plan on building JNI code, you'll want the jvm
 	javaHome = conf.env['JAVA_HOME'][0]
 	incPath = os.path.join(javaHome, 'include')
-	
+
 	incDirs = map(lambda x: os.path.dirname(x), Utils.recursiveGlob(javaHome, 'jni.h jni_md.h'))
 	conf.check_cc(header_name='jni.h', define_name='HAVE_JNI_H',
 		includes=incDirs, uselib_store='JAVA', uselib='JAVA', mandatory=True)
@@ -231,3 +231,4 @@ def check_jni_headers(conf):
 		mandatory = i == len(libDirs) - 1 #make the last one mandatory, thus failing if it must
 		if conf.check(lib='jvm', libpath=d, uselib_store='JAVA', uselib='JAVA', mandatory=mandatory):
 			break #break out if we found it
+
