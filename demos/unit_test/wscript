@@ -18,7 +18,6 @@ def configure(conf):
 	if 'LIB_CPPUNIT' in conf.env:
 		if 'dl' not in conf.env.LIB_CPPUNIT:
 			l = conf.check(lib='dl', uselib_store='CPPUNIT')
-		Utils.pprint('CYAN', 'To run unit tests use "waf check"')
 	else:
 		conf.fatal('Install cppunit')
 
