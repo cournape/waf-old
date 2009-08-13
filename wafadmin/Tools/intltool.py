@@ -68,9 +68,7 @@ def apply_intltool_po(self):
 		filename = out.name
 		(langname, ext) = os.path.splitext(filename)
 		inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + appname + '.mo'
-		self.bld.install_as(
-			os.path.join(self.install_path, inst_file),
-			out.abspath(self.env), chmod=self.chmod)
+		self.bld.install_as(os.path.join(self.install_path, inst_file), out, self.env, self.chmod)
 
 	linguas = self.path.find_resource(os.path.join(podir, 'LINGUAS'))
 	if linguas:

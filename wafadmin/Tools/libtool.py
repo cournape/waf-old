@@ -74,7 +74,7 @@ def apply_link_libtool(self):
 		self.latask = latask
 
 	if self.bld.is_install:
-		self.bld.install_files('${PREFIX}/lib', linktask.outputs[0].abspath(self.env), self.env)
+		self.bld.install_files('${PREFIX}/lib', linktask.outputs[0], self.env)
 
 @feature("libtool")
 @before('apply_core')

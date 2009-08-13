@@ -652,11 +652,11 @@ def install_target_cshlib_implib(self):
 
 	# install the dll in the bin dir
 	dll = self.link_task.outputs[0]
-	self.bld.install_as(bindir + os.sep + dll.name, dll.abspath(self.env), chmod=self.chmod, env=self.env)
+	self.bld.install_as(bindir + os.sep + dll.name, dll, self.env, self.chmod)
 
 	# install the import lib in the lib dir
 	libdir = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
 	implib = self.link_task.outputs[1]
-	self.bld.install_as(libdir + os.sep + implib.name, implib.abspath(self.env), env=self.env)
+	self.bld.install_as(libdir + os.sep + implib.name, implib, self.env)
 
 	self.link_task.install = None

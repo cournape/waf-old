@@ -112,12 +112,12 @@ class valac_task(Task.Task):
 						api_version = "0." + version[1]
 					else:
 						api_version = version[0] + ".0"
-				install_path = "${INCLUDEDIR}/%s-%s/%s" % (package, api_version, header.relpath_gen(top_src))
-				bld.install_as(install_path, header.abspath(self.env), self.env)
+				install_path = '${INCLUDEDIR}/%s-%s/%s' % (package, api_version, header.relpath_gen(top_src))
+				bld.install_as(install_path, header, self.env)
 			for vapi in vapi_list:
-				bld.install_files("${DATAROOTDIR}/vala/vapi", vapi.abspath(self.env), self.env)
+				bld.install_files('${DATAROOTDIR}/vala/vapi', vapi, self.env)
 			for gir in gir_list:
-				bld.install_files("${DATAROOTDIR}/gir-1.0", gir.abspath(self.env), self.env)
+				bld.install_files('${DATAROOTDIR}/gir-1.0', gir, self.env)
 
 	def _fix_output(self, output):
 		top_bld = self.generator.bld.srcnode.abspath(self.env)
