@@ -212,29 +212,28 @@ def apply_verif(self):
 # TODO reference the d programs, shlibs in d.py, not here
 
 @feature('cprogram', 'dprogram')
-@before('apply_core') # ?
+@before('apply_core')
 def vars_target_cprogram(self):
-	self.default_install_path = self.env['BINDIR'] or '${PREFIX}/bin'
+	self.default_install_path = self.env.BINDIR or '${PREFIX}/bin'
 	self.default_chmod = O755
 
 @feature('cstaticlib', 'dstaticlib')
-@before('apply_core') # ?
+@before('apply_core')
 def vars_target_cstaticlib(self):
-	self.default_install_path = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
+	self.default_install_path = self.env.LIBDIR or '${PREFIX}/lib${LIB_EXT}'
 
 @feature('cshlib', 'dshlib')
-@before('apply_core') # ?
+@before('apply_core')
 def vars_target_cshlib(self):
-	if win_platform:
-		self.default_install_path = self.env['BINDIR'] or '${PREFIX}/bin'
-		# on win32, libraries need the execute bit, else we
-		# get 'permission denied' when using them (issue 283)
+	if sys.platform == 'win32':
+		# win32: set execute bit on libs to avoid 'permission denied' (issue 283)
 		self.default_chmod = O755
+		self.default_install_path = self.env.BINDIR or '${PREFIX}/bin'
 	else:
-		self.default_install_path = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
+		self.default_install_path = self.env.LIBDIR or '${PREFIX}/lib${LIB_EXT}'
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-@after('apply_objdeps', 'apply_link') # ?
+@after('apply_objdeps', 'apply_link')
 def install_target_cstaticlib(self):
 	if not self.bld.is_install: return
 	self.link_task.install_path = self.install_path
