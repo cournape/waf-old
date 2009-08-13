@@ -19,6 +19,7 @@ Each object to use as a unit test must be a program and must have X{obj.unit_tes
 """
 import os, sys
 import Build, TaskGen, Utils, Options, Logs, Task
+from Constants import *
 
 class unit_test(object):
 	"Unit test representation"
@@ -193,6 +194,8 @@ Total number of tests: %i
 		p('GREEN', 'Unit tests finished')
 
 
+############################################################################################
+
 """
 New unit test system
 
@@ -240,6 +243,14 @@ def exec_test(self):
 		print e
 
 cls = Task.task_type_from_func('utest', func=exec_test, color='RED', ext_in='.bin')
+
+old = cls.runnable_status
+def test_status(self):
+	if getattr(Options.options, 'all_tests', False):
+		return RUN_ME
+	return old(self)
+
+cls.runnable_status = test_status
 cls.quiet = 1
 
 def summary(bld):
@@ -249,4 +260,7 @@ def summary(bld):
 		for (f, fail, ret) in lst:
 			col = fail and 'RED' or 'GREEN'
 			Utils.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
+
+def set_options(opt):
+	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
 
