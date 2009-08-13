@@ -202,6 +202,8 @@ def default_cc(self):
 	if not self.env.DEST_OS:
 		self.env.DEST_OS = sys.platform
 	self.win_platform = self.env.DEST_OS in ('win32', 'cygwin')
+	if not self.env.BINDIR: self.env.BINDIR = self.env['${PREFIX}/bin']
+	if not self.env.LIBDIR: self.env.LIBDIR = self.env['${PREFIX}/lib${LIB_EXT}']
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
@@ -216,13 +218,13 @@ def apply_verif(self):
 @feature('cprogram', 'dprogram')
 @before('apply_core')
 def vars_target_cprogram(self):
-	self.default_install_path = self.env.BINDIR or '${PREFIX}/bin'
+	self.default_install_path = self.env.BINDIR
 	self.default_chmod = O755
 
 @feature('cstaticlib', 'dstaticlib')
 @before('apply_core')
 def vars_target_cstaticlib(self):
-	self.default_install_path = self.env.LIBDIR or '${PREFIX}/lib${LIB_EXT}'
+	self.default_install_path = self.env.LIBDIR
 
 @feature('cshlib', 'dshlib')
 @before('apply_core')
@@ -232,9 +234,9 @@ def vars_target_cshlib(self):
 		#   no symlinks
 		#   set execute bit on libs to avoid 'permission denied' (issue 283)
 		self.default_chmod = O755
-		self.default_install_path = self.env.BINDIR or '${PREFIX}/bin'
+		self.default_install_path = self.env.BINDIR
 	else:
-		self.default_install_path = self.env.LIBDIR or '${PREFIX}/lib${LIB_EXT}'
+		self.default_install_path = self.env.LIBDIR
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 @after('apply_objdeps', 'apply_link')
@@ -649,9 +651,8 @@ def apply_implib(self):
 		self.link_task.outputs.append(implib)
 	else:
 		# install the import lib in the lib dir
-		libdir = self.env['LIBDIR'] or '${PREFIX}/lib${LIB_EXT}'
-		implib = self.link_task.outputs[1]
-		self.bld.install_as(libdir + os.sep + implib.name, implib, self.env)
+		node = self.link_task.outputs[1]
+		self.bld.install_as('${LIBDIR}/%s' % node.name, node, self.env)
 
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
 
