@@ -215,7 +215,7 @@ def default_cc(self):
 		elif self.env.DEST_OS == 'darwin':
 			self.env.DEST_BINFMT = 'mac-o'
 		else:
-			self.env.DEST_BINFMT = 'unknown'
+			self.env.DEST_BINFMT = 'elf'
 
 	if not self.env.BINDIR: self.env.BINDIR = self.env['${PREFIX}/bin']
 	if not self.env.LIBDIR: self.env.LIBDIR = self.env['${PREFIX}/lib${LIB_EXT}']
