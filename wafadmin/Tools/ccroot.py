@@ -231,16 +231,19 @@ def apply_verif(self):
 # TODO reference the d programs, shlibs in d.py, not here
 
 @feature('cprogram', 'dprogram')
+@after('default_cc')
 @before('apply_core')
 def vars_target_cprogram(self):
 	self.default_install_path = self.env.BINDIR
 	self.default_chmod = O755
 
+@after('default_cc')
 @feature('cstaticlib', 'dstaticlib')
 @before('apply_core')
 def vars_target_cstaticlib(self):
 	self.default_install_path = self.env.LIBDIR
 
+@after('default_cc')
 @feature('cshlib', 'dshlib')
 @before('apply_core')
 def vars_target_cshlib(self):
@@ -631,7 +634,7 @@ def disable_implib(self):
 		self.meths.remove('apply_implib')
 
 @feature('cshlib')
-@after('apply_link')
+@after('apply_link', 'default_cc')
 @before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
