@@ -74,7 +74,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			'__CYGWIN__'  :'cygwin',
 			'__MSYS__'    :'msys',
 			'_UWIN'       :'uwin',
-			'_WIN32'      :'windows',
+			'_WIN32'      :'win32',
 			}
 
 		conf.env.DEST_OS = 'unknown'
@@ -92,7 +92,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			conf.env.DEST_BINFMT = 'elf'
 		elif conf.env.DEST_OS == 'darwin':
 			conf.env.DEST_BINFMT = 'mac-o'
-		elif conf.env.DEST_OS in ('windows', 'cygwin', 'msys', 'uwin'):
+		elif conf.env.DEST_OS in ('win3win322', 'cygwin', 'msys', 'uwin'):
 			conf.env.DEST_BINFMT = 'pe'
 		else:
 			conf.env.DEST_BINFMT = 'unknown'
@@ -204,13 +204,13 @@ def default_cc(self):
 		try:
 			self.env.DEST_OS = {
 				'linux2': 'linux',
-				'win32': 'windows',
+				'win32': 'win32',
 				# TODO etc
 			}[sys.platform]
 		except KeyError:
 			self.env.DEST_OS = 'unknown'
 
-		if self.env.DEST_OS in ('windows', 'cygwin', 'msys', 'uwin'):
+		if self.env.DEST_OS in ('win32', 'cygwin', 'msys', 'uwin'):
 			self.env.DEST_BINFMT = 'pe'
 		elif self.env.DEST_OS == 'darwin':
 			self.env.DEST_BINFMT = 'mac-o'
