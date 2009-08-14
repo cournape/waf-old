@@ -92,7 +92,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			conf.env.DEST_BINFMT = 'elf'
 		elif conf.env.DEST_OS == 'darwin':
 			conf.env.DEST_BINFMT = 'mac-o'
-		elif conf.env.DEST_OS in ('win3win322', 'cygwin', 'msys', 'uwin'):
+		elif conf.env.DEST_OS in ('win32', 'cygwin', 'msys', 'uwin'):
 			conf.env.DEST_BINFMT = 'pe'
 		else:
 			conf.env.DEST_BINFMT = 'unknown'
@@ -208,8 +208,9 @@ def default_cc(self):
 				# TODO etc
 			}[sys.platform]
 		except KeyError:
-			self.env.DEST_OS = 'unknown'
+			raise Utils.WafError('unknown platform %s' % sys.platform)
 
+	if not self.env.DEST_BINFMT:
 		if self.env.DEST_OS in ('win32', 'cygwin', 'msys', 'uwin'):
 			self.env.DEST_BINFMT = 'pe'
 		elif self.env.DEST_OS == 'darwin':
@@ -264,7 +265,7 @@ def install_target_cstaticlib(self):
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
 
-	if self.env.DEST_BINFMT == 'pe' or os.name != 'posix' or not getattr(self, 'vnum', ''):
+	if not getattr(self, 'vnum', '') or self.env.DEST_BINFMT == 'pe' or os.name != 'posix':
 		return
 
 	bld = self.bld
@@ -367,9 +368,8 @@ def apply_link(self):
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 
-		if getattr(self, 'vnum', '') and 'cshlib' in self.features:
-			if self.env.DEST_BINFMT != 'pe':
-				link = 'vnum_' + link
+		if getattr(self, 'vnum', '') and 'cshlib' in self.features and self.env.DEST_BINFMT != 'pe' and os.name == 'posix':
+			link = 'vnum_' + link
 
 	tsk = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
@@ -581,7 +581,7 @@ c_attrs = {
 }
 
 @feature('cc', 'cxx')
-@before('init_cxx', 'init_cc') # TODO not certain why
+@before('init_cxx', 'init_cc')
 @before('apply_lib_vars', 'apply_obj_vars', 'apply_incpaths', 'init_cc')
 def add_extra_flags(self):
 	"""case and plural insensitive
