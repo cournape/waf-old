@@ -340,13 +340,13 @@ def msvc_linker(task):
 	if ret: return ret
 
 	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
-	lst = env.CXXFLAGS + env.CCFLAGS
-	if '/Zi'in lst or '/ZI' in lst:
-		pdbnode = task.outputs[0].change_ext('.pdb')
-		pdbfile = pdbnode.bldpath(env)
-
-		task.outputs.append(pdbnode)
-		bld.install_files('${LIBDIR}', pdbnode, env=env)
+	for d in (f.lower for f in env.LINKFLAGS):
+		if d[1:] == 'debug':
+			pdbnode = task.outputs[0].change_ext('.pdb')
+			pdbfile = pdbnode.bldpath(env)
+			task.outputs.append(pdbnode)
+			bld.install_files('${BINDIR}', pdbnode, env=env)
+			break
 
 	if not static and os.path.exists(manifest):
 		debug('msvc: manifesttool')

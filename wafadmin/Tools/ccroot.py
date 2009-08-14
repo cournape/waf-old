@@ -177,7 +177,7 @@ def get_target_name(self):
 
 	dir, name = os.path.split(self.target)
 
-	if self.win_platform and getattr(self, 'vnum', '') and 'cshlib' in self.features:
+	if self.env.DEST_BINFMT == 'pe' and getattr(self, 'vnum', None) and 'cshlib' in self.features:
 		# include the version in the dll file name,
 		# the import lib file name stays unversionned.
 		name = name + '-' + self.vnum.split('.')[0]
@@ -199,8 +199,24 @@ def default_cc(self):
 		p_type_vars = [],
 		compiled_tasks = [],
 		link_task = None)
-	if not self.env.DEST_OS: self.env.DEST_OS = sys.platform
-	self.win_platform = self.env.DEST_OS in ('win32', 'cygwin')
+
+	if not self.env.DEST_OS:
+		try:
+			self.env.DEST_OS = {
+				'linux2': 'linux',
+				'win32': 'windows',
+				# TODO etc
+			}[sys.platform]
+		except KeyError:
+			self.env.DEST_OS = 'unknown'
+
+		if self.env.DEST_OS in ('windows', 'cygwin', 'msys', 'uwin'):
+			self.env.DEST_BINFMT = 'pe'
+		elif self.env.DEST_OS == 'darwin':
+			self.env.DEST_BINFMT = 'mac-o'
+		else:
+			self.env.DEST_BINFMT = 'unknown'
+
 	if not self.env.BINDIR: self.env.BINDIR = self.env['${PREFIX}/bin']
 	if not self.env.LIBDIR: self.env.LIBDIR = self.env['${PREFIX}/lib${LIB_EXT}']
 
@@ -228,9 +244,7 @@ def vars_target_cstaticlib(self):
 @feature('cshlib', 'dshlib')
 @before('apply_core')
 def vars_target_cshlib(self):
-	if sys.platform == 'win32':
-		# win32:
-		#   no symlinks
+	if self.env.DEST_BINFMT == 'pe':
 		#   set execute bit on libs to avoid 'permission denied' (issue 283)
 		self.default_chmod = O755
 		self.default_install_path = self.env.BINDIR
@@ -247,7 +261,7 @@ def install_target_cstaticlib(self):
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
 
-	if self.win_platform or not getattr(self, 'vnum', ''):
+	if self.env.DEST_BINFMT == 'pe' or os.name != 'posix' or not getattr(self, 'vnum', ''):
 		return
 
 	bld = self.bld
@@ -351,7 +365,7 @@ def apply_link(self):
 		else: link = 'cc_link'
 
 		if getattr(self, 'vnum', '') and 'cshlib' in self.features:
-			if not sys.platform in ('win32', 'cygwin'):
+			if self.env.DEST_BINFMT != 'pe':
 				link = 'vnum_' + link
 
 	tsk = self.create_task(link)
@@ -520,7 +534,7 @@ def apply_vnum(self):
 	"""use self.vnum and self.soname to modify the command line (un*x)
 	before adding the uselib and uselib_local LINKFLAGS (apply_lib_vars)
 	"""
-	if sys.platform not in ('win32', 'cygwin', 'darwin'):
+	if self.env.DEST_BINFMT == 'elf':
 		# this is very unix-specific
 		try:
 			nums = self.vnum.split('.')
@@ -600,7 +614,7 @@ def link_vnum(self):
 @feature('cshlib')
 @before('apply_link')
 def set_link_task(self):
-	if not self.win_platform:
+	if not self.env.DEST_BINFMT == 'pe':
 		return
 	if not getattr(self, 'link', None):
 		self.link = 'dll_cc_link'
@@ -623,7 +637,7 @@ def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
 	the .dll.a is the import lib and it is required for linking so it is installed too
 	"""
-	if not self.win_platform:
+	if not self.env.DEST_BINFMT == 'pe':
 		return
 
 	# disable the normal installation
