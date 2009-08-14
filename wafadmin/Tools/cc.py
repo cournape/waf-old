@@ -95,14 +95,9 @@ cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c', sh
 cls.scan = ccroot.scan
 cls.vars.append('CCDEPS')
 
-link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS}'
+link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath(env)} ${LINKFLAGS}'
 cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin', shell=False)
 cls.maxjobs = 1
 cls2 = Task.task_type_from_func('vnum_cc_link', ccroot.link_vnum, cls.vars, color='CYAN', ext_in='.o', ext_out='.bin')
 cls2.maxjobs = 1
-
-# no re-use possible
-link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath(env)} ${LINKFLAGS}'
-cls = Task.simple_task_type('dll_cc_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin', shell=False)
-cls.maxjobs = 1
 

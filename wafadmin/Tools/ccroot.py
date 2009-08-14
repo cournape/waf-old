@@ -616,16 +616,6 @@ def link_vnum(self):
 # ============ the code above must not know anything about import libs ==========
 
 @feature('cshlib')
-@before('apply_link')
-def set_link_task(self):
-	if not self.env.DEST_BINFMT == 'pe':
-		return
-	if not getattr(self, 'link', None):
-		self.link = 'dll_cc_link'
-		if 'cxx' in self.features:
-			self.link = 'dll_cxx_link'
-
-@feature('cshlib')
 @after('apply_link', 'default_cc')
 @before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
