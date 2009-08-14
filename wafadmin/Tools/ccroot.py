@@ -119,6 +119,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 	return k
 
 class DEBUG_LEVELS:
+	"""Will disappear in waf 1.6"""
 	ULTRADEBUG = "ultradebug"
 	DEBUG = "debug"
 	RELEASE = "release"
