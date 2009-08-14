@@ -624,15 +624,6 @@ def set_link_task(self):
 		if 'cxx' in self.features:
 			self.link = 'dll_cxx_link'
 
-@feature('no_implib')
-@before('apply_implib')
-def disable_implib(self):
-	if 'cshlib' not in self.features:
-		raise Utils.WafError('feature "no_implib" requires "cshlib"')
-	# There does not seem to be a way not to generate the import lib on msvc.
-	if self.env.CC_NAME != 'msvc':
-		self.meths.remove('apply_implib')
-
 @feature('cshlib')
 @after('apply_link', 'default_cc')
 @before('apply_lib_vars', 'apply_objdeps')
@@ -656,19 +647,10 @@ def apply_implib(self):
 	# add linker flags to generate the import lib
 	dll = self.link_task.outputs[0]
 	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
-	no_implib = 'no_implib' in self.features
-	if no_implib:
-		# There does not seem to be a way not to generate the import lib on msvc,
-		# so if the 'no_implib' feature was specified, we set a filename that the linker won't find.
-		implib += '.disabled'
 
 	implib = dll.parent.find_or_declare(implib)
-	if not no_implib:
-		self.link_task.outputs.append(implib)
-	else:
-		# install the import lib in the lib dir
-		node = self.link_task.outputs[1]
-		self.bld.install_as('${LIBDIR}/%s' % node.name, node, self.env)
+	self.link_task.outputs.append(implib)
+	self.bld.install_as('${LIBDIR}/%s' % implib.name, implib, self.env)
 
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
 
