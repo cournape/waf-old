@@ -205,7 +205,7 @@ def default_cc(self):
 		try:
 			self.env.DEST_OS = {
 				'linux2': 'linux',
-				'darwin': 'darwin'
+				'darwin': 'darwin',
 				'cygwin': 'cygwin',
 				'win32': 'win32',
 				# TODO etc
