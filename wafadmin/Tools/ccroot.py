@@ -259,12 +259,12 @@ def vars_target_cshlib(self):
 		self.default_install_path = self.env.LIBDIR
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-@after('apply_objdeps', 'apply_link')
+@after('apply_link', 'vars_target_cstaticlib')
 def install_target_cstaticlib(self):
 	self.link_task.install_path = self.install_path
 
 @feature('cshlib', 'dshlib')
-@after('apply_link')
+@after('apply_link', 'vars_target_cshlib')
 def install_target_cshlib(self):
 	"""execute after the link task (apply_link)"""
 
