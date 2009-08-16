@@ -497,7 +497,7 @@ def remove_version_from_sys_platform():
 	s = sys.platform
 	if s == 'win32' or s.endswith('os2'): return s
 	for i in reversed(xrange(len(s))):
-		if not s[i].isdigit(): return s[:i]
+		if not s[i].isdigit(): return s[:i + 1]
 	return s
 
 #@deprecated('use remove_version_from_sys_platform instead')
