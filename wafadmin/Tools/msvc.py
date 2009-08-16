@@ -692,6 +692,7 @@ def apply_obj_vars_msvc(self):
 
 # split the manifest file processing from the link task, like for the rc processing
 
+@feature('cprogram', 'cshlib')
 @after('apply_link')
 def apply_manifest(self):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
@@ -703,9 +704,6 @@ def apply_manifest(self):
 	if self.env.CC_NAME != 'msvc':
 		return
 
-	if 'cstaticlib' in self.features:
-		return
-		
 	tsk = self.create_task('mfmsvc')
 	tsk.set_inputs(self.link_task.outputs[0])
 
@@ -713,7 +711,7 @@ def exec_mf(self):
 	env = self.env
 	outfile = self.inputs[0].bldpath(env)
 	manifest = outfile + '.manifest'
-	if not static and os.path.exists(manifest):
+	if os.path.exists(manifest):
 		debug('msvc: manifesttool')
 		mtool = env['MT']
 		if not mtool:
@@ -731,11 +729,11 @@ def exec_mf(self):
 		#flags = ' '.join(env['MTFLAGS'] or [])
 
 		lst = []
-		lst.extend(to_list(env['MT']))
-		lst.extend(to_list(env['MTFLAGS']))
-		lst.extend(to_list("-manifest"))
-		lst.extend(to_list(manifest))
-		lst.extend(to_list("-outputresource:%s;%s" % (outfile, mode)))
+		lst.extend(Utils.to_list(env['MT']))
+		lst.extend(Utils.to_list(env['MTFLAGS']))
+		lst.extend(Utils.to_list("-manifest"))
+		lst.extend(Utils.to_list(manifest))
+		lst.extend(Utils.to_list("-outputresource:%s;%s" % (outfile, mode)))
 
 		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
 		#	manifest, outfile, mode)
