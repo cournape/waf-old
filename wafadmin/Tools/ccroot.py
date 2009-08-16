@@ -459,7 +459,7 @@ def apply_lib_vars(self):
 			if val: self.env.append_value(v, val)
 
 @feature('cprogram', 'cstaticlib', 'cshlib')
-@after('apply_obj_vars', 'apply_vnum', 'apply_link')
+@after('apply_link')
 def apply_objdeps(self):
 	"add the .o files produced by some other object files in the same manner as uselib_local"
 	if not getattr(self, 'add_objects', None): return
@@ -477,7 +477,7 @@ def apply_objdeps(self):
 		# object does not exist ?
 		y = self.name_to_obj(x)
 		if not y:
-			raise Utils.WafError("object '%s' was not found in uselib_local (required by add_objects '%s')" % (x, self.name))
+			raise Utils.WafError('object %r was not found in uselib_local (required by add_objects %r)' % (x, self.name))
 
 		# object has ancestors to process first ? update the list of names
 		if getattr(y, 'add_objects', None):
