@@ -14,8 +14,8 @@ def find_gxx(conf):
 	cxx = conf.find_program(['g++', 'c++'], var='CXX', mandatory=True)
 	cxx = conf.cmd_to_list(cxx)
 	ccroot.get_cc_version(conf, cxx, gcc=True)
-	v['CXX_NAME'] = 'gcc'
-	v['CXX'] = cxx
+	conf.env.CXX_NAME = 'gcc'
+	conf.env.CXX      = cxx
 
 @conftest
 def gxx_common_flags(conf):

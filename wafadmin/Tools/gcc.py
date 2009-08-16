@@ -14,8 +14,8 @@ def find_gcc(conf):
 	cc = conf.find_program(['gcc', 'cc'], var='CC', mandatory=True)
 	cc = conf.cmd_to_list(cc)
 	ccroot.get_cc_version(conf, cc, gcc=True)
-	v['CC_NAME'] = 'gcc'
-	v['CC'] = cc
+	conf.env.CC_NAME = 'gcc'
+	conf.env.CC      = cc
 
 @conftest
 def gcc_common_flags(conf):
