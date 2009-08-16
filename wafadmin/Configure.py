@@ -66,8 +66,8 @@ def find_program_impl(env, filename, path_list=[], var=None, environ=None):
 	except AttributeError: pass
 
 	if var:
-		if var in environ: env[var] = environ[var]
 		if env[var]: return env[var]
+		if var in environ: env[var] = environ[var]
 
 	if not path_list: path_list = environ.get('PATH', '').split(os.pathsep)
 
@@ -254,11 +254,24 @@ class ConfigurationContext(Utils.Context):
 
 	def find_program(self, filename, path_list=[], var=None, mandatory=False):
 		"wrapper that adds a configuration message"
-		ret = find_program_impl(self.env, filename, path_list, var, environ=self.environ)
-		self.check_message('program', filename, ret, ret)
+
+		ret = None
+		if var:
+			if self.env[var]:
+				ret = self.env[var]
+			elif var in os.environ:
+				ret = os.environ[var]
+
+		if not ret:
+			if not isinstance(filename, list): filename = [filename]
+			for x in filename:
+				ret = find_program_impl(self.env, x, path_list, var, environ=self.environ)
+				if ret: break
+
+		self.check_message('program', ' '.join(filename), ret, ret)
 		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 		if not ret and mandatory:
-			self.fatal('The program %s could not be found' % filename)
+			self.fatal('The program %r could not be found' % filename)
 		return ret
 
 	def cmd_to_list(self, cmd):

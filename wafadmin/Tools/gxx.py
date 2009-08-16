@@ -11,15 +11,8 @@ from Configure import conftest
 
 @conftest
 def find_gxx(conf):
-	v = conf.env
-	cxx = None
-	if v['CXX']: cxx = v['CXX']
-	elif 'CXX' in conf.environ: cxx = conf.environ['CXX']
-	if not cxx: cxx = conf.find_program('g++', var='CXX')
-	if not cxx: cxx = conf.find_program('c++', var='CXX')
-	if not cxx: conf.fatal('g++ was not found')
+	cxx = conf.find_program(['g++', 'c++'], var='CXX', mandatory=True)
 	cxx = conf.cmd_to_list(cxx)
-
 	ccroot.get_cc_version(conf, cxx, gcc=True)
 	v['CXX_NAME'] = 'gcc'
 	v['CXX'] = cxx

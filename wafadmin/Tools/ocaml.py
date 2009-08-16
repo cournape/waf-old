@@ -294,20 +294,20 @@ act.runnable_status = link_may_start
 act = b('ocalinkx', '${OCAMLOPT} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}', color='YELLOW', after="ocamlx ocamlcc")
 act.runnable_status = link_may_start
 
-
 def detect(conf):
 	opt = conf.find_program('ocamlopt', var='OCAMLOPT')
 	occ = conf.find_program('ocamlc', var='OCAMLC')
 	if (not opt) or (not occ):
 		conf.fatal('The objective caml compiler was not found:\ninstall it or make it available in your PATH')
 
-	conf.env['OCAMLC']       = occ
-	conf.env['OCAMLOPT']     = opt
-	conf.env['OCAMLLEX']     = conf.find_program('ocamllex', var='OCAMLLEX')
-	conf.env['OCAMLYACC']    = conf.find_program('ocamlyacc', var='OCAMLYACC')
-	conf.env['OCAMLFLAGS']   = ''
-	conf.env['OCAMLLIB']     = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
-	conf.env['LIBPATH_OCAML'] = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
-	conf.env['CPPPATH_OCAML'] = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
-	conf.env['LIB_OCAML'] = 'camlrun'
+	v = conf.env
+	v['OCAMLC']       = occ
+	v['OCAMLOPT']     = opt
+	v['OCAMLLEX']     = conf.find_program('ocamllex', var='OCAMLLEX')
+	v['OCAMLYACC']    = conf.find_program('ocamlyacc', var='OCAMLYACC')
+	v['OCAMLFLAGS']   = ''
+	v['OCAMLLIB']     = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
+	v['LIBPATH_OCAML'] = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
+	v['CPPPATH_OCAML'] = Utils.cmd_output(conf.env['OCAMLC']+' -where').strip()+os.sep
+	v['LIB_OCAML'] = 'camlrun'
 

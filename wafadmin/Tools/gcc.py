@@ -11,17 +11,8 @@ from Configure import conftest
 
 @conftest
 def find_gcc(conf):
-	v = conf.env
-	cc = None
-	if v['CC']:
-		cc = v['CC']
-	elif 'CC' in conf.environ:
-		cc = conf.environ['CC']
-	if not cc: cc = conf.find_program('gcc', var='CC')
-	if not cc: cc = conf.find_program('cc', var='CC')
-	if not cc: conf.fatal('gcc was not found')
+	cc = conf.find_program(['gcc', 'cc'], var='CC', mandatory=True)
 	cc = conf.cmd_to_list(cc)
-
 	ccroot.get_cc_version(conf, cc, gcc=True)
 	v['CC_NAME'] = 'gcc'
 	v['CC'] = cc
