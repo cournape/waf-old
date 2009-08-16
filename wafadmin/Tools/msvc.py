@@ -745,19 +745,6 @@ def exec_mf(self):
 cls = Task.task_type_from_func('mfmsvc', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 cls.quiet = 1
 
-ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${SRC}'
-cls = Task.simple_task_type('static_link', ar_str, color='YELLOW', ext_in='.o', shell=False)
-cls.maxjobs = 1
-
-# remove the output in case it already exists
-old = cls.run
-def wrap(self):
-	try: os.remove(self.outputs[0].abspath(self.env))
-	except OSError: pass
-	return old(self)
-setattr(cls, 'run', wrap)
-
-
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
 
 def exec_command_msvc(self, *k, **kw):
