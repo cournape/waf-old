@@ -603,7 +603,7 @@ def apply_vnum(self):
 		name3 = libname + '.' + self.vnum
 		name2 = libname + '.' + nums[0]
 
-	self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
+	self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name2).split())
 
 	bld = self.bld
 	nums = self.vnum.split('.')
@@ -618,7 +618,7 @@ def apply_vnum(self):
 	# the following task is just to enable execution from the build dir :-/
 	tsk = self.create_task('vnum')
 	tsk.set_inputs([node])
-	tsk.set_outputs(node.parent.find_or_declare(name3))
+	tsk.set_outputs(node.parent.find_or_declare(name2))
 
 def exec_vnum_link(self):
 	path = self.inputs[0].parent.abspath(self.env)
