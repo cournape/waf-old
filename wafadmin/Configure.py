@@ -268,7 +268,7 @@ class ConfigurationContext(Utils.Context):
 				ret = find_program_impl(self.env, x, path_list, var, environ=self.environ)
 				if ret: break
 
-		self.check_message('program', ' '.join(filename), ret, ret)
+		self.check_message('program', ','.join(filename), ret, ret)
 		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 		if not ret and mandatory:
 			self.fatal('The program %r could not be found' % filename)
