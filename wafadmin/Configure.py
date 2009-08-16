@@ -272,6 +272,8 @@ class ConfigurationContext(Utils.Context):
 		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 		if not ret and mandatory:
 			self.fatal('The program %r could not be found' % filename)
+		if var:
+			conf.env[var] = ret
 		return ret
 
 	def cmd_to_list(self, cmd):
