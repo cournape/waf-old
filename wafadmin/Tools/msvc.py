@@ -514,11 +514,11 @@ def find_msvc(conf):
 	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
 
 	# staticlib linker
-	if not v['STLIBLINK']:
+	if not v['AR']:
 		stliblink = conf.find_program(lib_name, path_list=path)
 		if not stliblink: return
-		v['STLIBLINK']   = stliblink
-		v['STLINKFLAGS'] = ['/NOLOGO']
+		v['AR']   = stliblink
+		v['ARFLAGS'] = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	manifesttool = conf.find_program('MT', path_list=path)
@@ -556,7 +556,7 @@ def msvc_common_flags(conf):
 
 	v['CPPPATH_ST']   = '/I%s' # template for adding include paths
 
-	v['STLIBLNK_TGT_F'] = v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
+	v['AR_IN'] = v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
 
 	# Subsystem specific flags
 	v['CPPFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
@@ -633,7 +633,7 @@ def apply_flags_msvc(self):
 	subsystem = getattr(self, 'subsystem', '')
 	if subsystem:
 		subsystem = '/subsystem:%s' % subsystem
-		flags = 'cstaticlib' in self.features and 'STLINKFLAGS' or 'LINKFLAGS'
+		flags = 'cstaticlib' in self.features and 'ARFLAGS' or 'LINKFLAGS'
 		self.env.append_value(flags, subsystem)
 
 	if 'cstaticlib' not in self.features:
@@ -746,7 +746,6 @@ cls = Task.task_type_from_func('mfmsvc', vars=['MT', 'MTFLAGS'], color='BLUE', f
 cls.quiet = 1
 
 ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${SRC}'
-ar_str = '${STLIBLINK} ${STLINKFLAGS} ${STLIBLNK_TGT_F}${TGT} ${SRC}'
 cls = Task.simple_task_type('static_link', ar_str, color='YELLOW', ext_in='.o', shell=False)
 cls.maxjobs = 1
 
