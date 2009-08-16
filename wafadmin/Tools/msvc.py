@@ -40,6 +40,8 @@ from libtool import read_la_file
 
 import _winreg
 
+pproc = Utils.pproc
+
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
 g_msvc_systemlibs = """
 aclui activeds ad1 adptif adsiid advapi32 asycfilt authz bhsupp bits bufferoverflowu cabinet
@@ -101,8 +103,8 @@ echo LIB=%%LIB%%
 	sout = Utils.cmd_output(['cmd', '/E:on', '/V:on', '/C', batfile])
 	lines = sout.splitlines()
 
-	for x in ['Setting environment', 'Setting SDK environment', 'Intel(R) C++ Compiler']:
-		if lines[0].find(a) != -1:
+	for x in ('Setting environment', 'Setting SDK environment', 'Intel(R) C++ Compiler'):
+		if lines[0].find(x) != -1:
 			break
 	else:
 		debug('msvc: get_msvc_version: %r %r %r -> not found' % (compiler, version, target))
@@ -129,7 +131,7 @@ echo LIB=%%LIB%%
 		del(env['CL'])
 
 	try:
-		p = Utils.pproc.Popen([cxx, '/help'], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
+		p = pproc.Popen([cxx, '/help'], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
 		out, err = p.communicate()
 		if p.returncode != 0:
 			raise Exception('return code: %r: %r' % (p.returncode, err))
@@ -537,6 +539,8 @@ def msvc_common_flags(conf):
 
 	v['CCDEFINES_ST']     = '/D%s'
 	v['CXXDEFINES_ST']    = '/D%s'
+
+	# TODO just use _WIN32, which defined by the compiler itself!
 	v['CCDEFINES']    = ['WIN32'] # avoid using this, any compiler predefines the _WIN32 marcro anyway
 	v['CXXDEFINES']   = ['WIN32'] # avoid using this, any compiler predefines the _WIN32 marcro anyway
 
@@ -564,11 +568,15 @@ def msvc_common_flags(conf):
 	# CRT specific flags
 	v['CPPFLAGS_CRT_MULTITHREADED'] = ['/MT']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
+
+	# TODO these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
 
 	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] = ['/MTd']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
+	
+	# TODO these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
 
@@ -576,12 +584,14 @@ def msvc_common_flags(conf):
 	v['CCFLAGS']            = ['/TC']
 	v['CCFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
 	v['CCFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
+	# TODO _DEBUG is defined by the compiler itself!
 	v['CCFLAGS_DEBUG']      = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 	v['CCFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 
 	v['CXXFLAGS']            = ['/TP']
 	v['CXXFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
 	v['CXXFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
+	# TODO _DEBUG is defined by the compiler itself!
 	v['CXXFLAGS_DEBUG']      = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 
@@ -623,21 +633,19 @@ def apply_flags_msvc(self):
 	subsystem = getattr(self, 'subsystem', '')
 	if subsystem:
 		subsystem = '/subsystem:%s' % subsystem
-	self.env.append('LINKFLAGS', subsystem)
+		self.env.append_value('LINKFLAGS', subsystem)
 
-	outfile = task.outputs[0].bldpath(env)
+	if 'cstaticlib' in self.features:
+		self.env.LINK = self.env.STLIBLINK
+		self.env.append_value('LINKFLAGS', self.env.STLINKFLAGS)
 
-	for d in (f.lower() for f in env.LINKFLAGS):
+	for d in (f.lower() for f in self.env.LINKFLAGS):
 		if d[1:] == 'debug':
-			pdbnode = task.outputs[0].change_ext('.pdb')
-			pdbfile = pdbnode.bldpath(env)
-			task.outputs.append(pdbnode)
-			bld.install_files('${BINDIR}', pdbnode, env=env)
+			pdbnode = self.link_task.outputs[0].change_ext('.pdb')
+			pdbfile = pdbnode.bldpath(self.env)
+			self.link_task.outputs.append(pdbnode)
+			bld.install_files('${BINDIR}', pdbnode, env=self.env)
 			break
-
-	if 'cstaticlib' in task.generator.features:
-		env.LINK = env.STLIBLINK
-		env.append_value('LINKFLAGS', env.STLINKFLAGS)
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
@@ -738,7 +746,7 @@ def exec_mf(self):
 cls = Task.task_type_from_func('mfmsvc', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 cls.quiet = 1
 
-########## stupid evil command modification: paste the tokens /Fxxx and /doc with the next token
+########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
 
 def exec_command_msvc(self, *k, **kw):
 	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
@@ -747,7 +755,7 @@ def exec_command_msvc(self, *k, **kw):
 			lst = []
 			carry = ''
 			for a in k[0]:
-				if (len(a) == 3 and a.startswith('/F')) or a == '/doc' or a == '/OUT:':
+				if len(a) == 3 and a.startswith('/F') or a == '/doc' or a[-1] == ':':
 					carry = a
 				else:
 					lst.append(carry + a)
@@ -760,7 +768,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	return self.generator.bld.exec_command(*k, **kw)
 
-for k in 'cc cxx winrc'.split():
+for k in 'cc cxx winrc cc_link cxx_link'.split():
 	cls = Task.TaskBase.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc
