@@ -260,7 +260,7 @@ class ConfigurationContext(Utils.Context):
 			if self.env[var]:
 				ret = self.env[var]
 			elif var in os.environ:
-				ret = self.env[var] = os.environ[var]
+				ret = os.environ[var]
 
 		if not isinstance(filename, list): filename = [filename]
 		if not ret:
@@ -273,7 +273,7 @@ class ConfigurationContext(Utils.Context):
 		if not ret and mandatory:
 			self.fatal('The program %r could not be found' % filename)
 		if var:
-			conf.env[var] = ret
+			self.env[var] = ret
 		return ret
 
 	def cmd_to_list(self, cmd):
