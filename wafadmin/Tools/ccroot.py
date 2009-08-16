@@ -263,35 +263,6 @@ def vars_target_cshlib(self):
 def install_target_cstaticlib(self):
 	self.link_task.install_path = self.install_path
 
-@feature('cshlib', 'dshlib')
-@after('apply_link', 'vars_target_cshlib')
-def install_target_cshlib(self):
-	"""execute after the link task (apply_link)"""
-
-	if not getattr(self, 'vnum', '') or self.env.DEST_BINFMT == 'pe' or os.name != 'posix':
-		return
-
-	bld = self.bld
-	nums = self.vnum.split('.')
-
-	path = self.install_path
-	if not path: return
-	libname = self.link_task.outputs[0].name
-
-	if libname.endswith('.dylib'):
-		name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
-		name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
-	else:
-		name3 = libname + '.' + self.vnum
-		name2 = libname + '.' + nums[0]
-
-	filename = self.link_task.outputs[0].abspath(self.env)
-	bld.install_as(os.path.join(path, name3), filename, env=self.env)
-	bld.symlink_as(os.path.join(path, name2), name3)
-	bld.symlink_as(os.path.join(path, libname), name3)
-
-	self.link_task.install = None
-
 @feature('cc', 'cxx')
 @after('apply_type_vars', 'apply_lib_vars', 'apply_core')
 def apply_incpaths(self):
@@ -370,9 +341,6 @@ def apply_link(self):
 		if 'cstaticlib' in self.features: link = 'ar_link_static'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
-
-		if getattr(self, 'vnum', '') and 'cshlib' in self.features and self.env.DEST_BINFMT != 'pe' and os.name == 'posix':
-			link = 'vnum_' + link
 
 	tsk = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
@@ -533,25 +501,6 @@ def apply_obj_vars(self):
 
 	app('LINKFLAGS', [lib_st % i for i in v['LIB']])
 
-@feature('cshlib')
-@after('apply_link')
-@before('apply_lib_vars')
-def apply_vnum(self):
-	"""use self.vnum and self.soname to modify the command line (un*x)
-	before adding the uselib and uselib_local LINKFLAGS (apply_lib_vars)
-	"""
-	if self.env.DEST_BINFMT == 'elf':
-		# this is very unix-specific
-		try:
-			nums = self.vnum.split('.')
-		except AttributeError:
-			pass
-		else:
-			try: name3 = self.soname
-			except AttributeError: name3 = self.link_task.outputs[0].name + '.' + nums[0]
-			self.link_task.outputs.append(self.link_task.outputs[0].parent.find_or_declare(name3))
-			self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
-
 @after('apply_link')
 def process_obj_files(self):
 	if not hasattr(self, 'obj_files'): return
@@ -597,24 +546,6 @@ def add_extra_flags(self):
 		if c_attrs.get(y, None):
 			self.env.append_unique(c_attrs[y], getattr(self, x))
 
-def link_vnum(self):
-	"""special case for versioned libraries on unix platforms"""
-	clsname = self.__class__.__name__.replace('vnum_', '')
-	out = self.outputs
-	self.outputs = out[1:]
-	ret = Task.TaskBase.classes[clsname].__dict__['run'](self)
-	self.outputs = out
-	if ret:
-		return ret
-	try:
-		os.remove(self.outputs[0].abspath(self.env))
-	except OSError:
-		pass
-	try:
-		os.symlink(self.outputs[1].name, self.outputs[0].bldpath(self.env))
-	except:
-		return 1
-
 # ============ the code above must not know anything about import libs ==========
 
 @feature('cshlib')
@@ -646,4 +577,41 @@ def apply_implib(self):
 	self.bld.install_as('${LIBDIR}/%s' % implib.name, implib, self.env)
 
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath(self.env)).split())
+
+# ============ the code above must not know anything about vnum processing on unix platforms =========
+
+@feature('cshlib')
+@after('apply_link')
+@before('apply_lib_vars')
+def apply_vnum(self):
+	"""
+	libfoo.so is installed as libfoo.so.1.2.3
+	"""
+	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.env.DEST_BINFMT != 'elf':
+		return
+
+	link = self.link_task
+	link.install = None
+	nums = self.vnum.split('.')
+	node = link.outputs[0]
+
+	libname = node.name
+	if libname.endswith('.dylib'):
+		name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
+		name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
+	else:
+		name3 = libname + '.' + self.vnum
+		name2 = libname + '.' + nums[0]
+
+	self.env.append_value('LINKFLAGS', (self.env['SONAME_ST'] % name3).split())
+
+	bld = self.bld
+	nums = self.vnum.split('.')
+
+	path = self.install_path
+	if not path: return
+
+	bld.install_as(path + os.sep + name3, node, env=self.env)
+	bld.symlink_as(path + os.sep + name2, name3)
+	bld.symlink_as(path + os.sep + libname, name3)
 
