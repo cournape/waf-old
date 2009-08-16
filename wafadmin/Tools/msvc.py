@@ -615,7 +615,7 @@ def msvc_common_flags(conf):
 ##### conf above, build below
 
 @after('apply_link')
-@features('cc', 'cxx')
+@feature('cc', 'cxx')
 def apply_flags_msvc(self):
 	if self.env.CC_NAME != 'msvc':
 		return
