@@ -618,8 +618,7 @@ def apply_vnum(self):
 	# the following task is just to enable execution from the build dir :-/
 	tsk = self.create_task('vnum')
 	tsk.set_inputs([node])
-	tsk.set_outputs(node.parent.find_or_declare(name2))
-	tsk.name2 = name2
+	tsk.set_outputs(node.parent.find_or_declare(name3))
 
 def exec_vnum_link(self):
 	path = self.inputs[0].parent.abspath(self.env)
