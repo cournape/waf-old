@@ -221,8 +221,8 @@ def default_cc(self):
 		else:
 			self.env.DEST_BINFMT = 'elf'
 
-	if not self.env.BINDIR: self.env.BINDIR = self.env['${PREFIX}/bin']
-	if not self.env.LIBDIR: self.env.LIBDIR = self.env['${PREFIX}/lib${LIB_EXT}']
+	if not self.env.BINDIR: self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
+	if not self.env.LIBDIR: self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
 def apply_verif(self):
