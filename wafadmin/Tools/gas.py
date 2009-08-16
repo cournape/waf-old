@@ -35,13 +35,6 @@ def asm_incflags(self):
 	else: self.env['_ASINCFLAGS'] = self.env['_CCINCFLAGS']
 
 def detect(conf):
-	comp = conf.environ.get('AS', '')
-	if not comp: comp = conf.env['AS']
-	if not comp: comp = conf.find_program('as', var='AS')
-	if not comp: comp = conf.find_program('gas', var='AS')
-	if not comp: comp = conf.env['CC']
-	if not comp: return
-
-	v = conf.env
-	v['ASFLAGS']  = ''
+	conf.find_program(['gas', 'as'], var='AS')
+	if not conf.env.AS: conf.env.AS = conf.env.CC
 
