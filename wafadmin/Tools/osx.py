@@ -180,6 +180,6 @@ def plist_build(task):
 
 	return 0
 
-Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
-Task.task_type_from_func('macplist', vars=[], func=plist_build, after="cxx_link cc_link ar_link_static")
+Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link static_link")
+Task.task_type_from_func('macplist', vars=[], func=plist_build, after="cxx_link cc_link static_link")
 

@@ -325,7 +325,7 @@ def apply_d_libs(self):
 def apply_d_link(self):
 	link = getattr(self, 'link', None)
 	if not link:
-		if 'dstaticlib' in self.features: link = 'ar_link_static'
+		if 'dstaticlib' in self.features: link = 'static_link'
 		else: link = 'd_link'
 	linktask = self.create_task(link)
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
@@ -450,11 +450,11 @@ def override_exec(cls):
 		return old_exec(self, *k, **kw)
 	cls.exec_command = exec_command
 
-cls = Task.simple_task_type('d', d_str, 'GREEN', before='ar_link_static d_link', shell=False)
+cls = Task.simple_task_type('d', d_str, 'GREEN', before='static_link d_link', shell=False)
 cls.scan = scan
 override_exec(cls)
 
-cls = Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', before='ar_link_static d_link', shell=False)
+cls = Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', before='static_link d_link', shell=False)
 override_exec(cls)
 
 cls = Task.simple_task_type('d_link', link_str, color='YELLOW', shell=False)

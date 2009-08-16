@@ -34,7 +34,7 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 class qxx_task(Task.Task):
 	"A cpp task that may create a moc task dynamically"
 
-	before = ['cxx_link', 'ar_link_static']
+	before = ['cxx_link', 'static_link']
 
 	def __init__(self, *k, **kw):
 		Task.Task.__init__(self, *k, **kw)

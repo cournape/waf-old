@@ -575,7 +575,7 @@ def msvc_common_flags(conf):
 
 	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] = ['/MTd']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
-	
+
 	# TODO these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
@@ -747,7 +747,7 @@ cls.quiet = 1
 
 ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${SRC}'
 ar_str = '${STLIBLINK} ${STLINKFLAGS} ${STLIBLNK_TGT_F}${TGT} ${SRC}'
-cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o', shell=False)
+cls = Task.simple_task_type('static_link', ar_str, color='YELLOW', ext_in='.o', shell=False)
 cls.maxjobs = 1
 
 # remove the output in case it already exists
@@ -781,7 +781,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	return self.generator.bld.exec_command(*k, **kw)
 
-for k in 'cc cxx winrc cc_link cxx_link ar_link_static'.split():
+for k in 'cc cxx winrc cc_link cxx_link static_link'.split():
 	cls = Task.TaskBase.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc

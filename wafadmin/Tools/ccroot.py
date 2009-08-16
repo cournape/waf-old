@@ -338,7 +338,7 @@ def apply_link(self):
 	use a custom linker if specified (self.link='name-of-custom-link-task')"""
 	link = getattr(self, 'link', None)
 	if not link:
-		if 'cstaticlib' in self.features: link = 'ar_link_static'
+		if 'cstaticlib' in self.features: link = 'static_link'
 		elif 'cxx' in self.features: link = 'cxx_link'
 		else: link = 'cc_link'
 
