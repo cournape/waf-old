@@ -260,7 +260,7 @@ class ConfigurationContext(Utils.Context):
 			if self.env[var]:
 				ret = self.env[var]
 			elif var in os.environ:
-				ret = os.environ[var]
+				ret = self.env[var] = os.environ[var]
 
 		if not isinstance(filename, list): filename = [filename]
 		if not ret:

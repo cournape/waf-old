@@ -4,6 +4,7 @@
 
 import sys
 import ar
+import Utils
 
 def find_gdc(conf):
 	v = conf.env
@@ -46,7 +47,9 @@ def common_flags(conf):
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = '-fintfc -fintfc-file='
 
-	if sys.platform == "win32":
+	binfmt = conf.env.DEST_BINFMT or Utils.unversionned_sys_platform_to_binary_format(
+		conf.env.DEST_OS or Utils.remove_version_from_sys_platform())
+	if binfmt == 'pe':
 		v['D_program_PATTERN']   = '%s.exe'
 		v['D_shlib_PATTERN']     = 'lib%s.dll'
 		v['D_staticlib_PATTERN'] = 'lib%s.a'

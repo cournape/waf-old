@@ -11,7 +11,7 @@ cxx_compiler = {
 'win32':  ['msvc', 'g++'],
 'cygwin': ['g++'],
 'darwin': ['g++'],
-'aix5':   ['g++'],
+'aix':    ['g++'],
 'linux':  ['g++', 'icpc', 'sunc++'],
 'sunos':  ['g++', 'sunc++'],
 'irix':   ['g++'],
@@ -41,13 +41,13 @@ def detect(conf):
 			conf.check_message(compiler, '', False)
 
 def set_options(opt):
-	detected_platform = Options.platform
-	possible_compiler_list = __list_possible_compiler(detected_platform)
+	build_platform = Utils.remove_version_from_sys_platform()
+	possible_compiler_list = __list_possible_compiler(build_platform)
 	test_for_compiler = str(" ").join(possible_compiler_list)
 	cxx_compiler_opts = opt.add_option_group("C++ Compiler Options")
 	cxx_compiler_opts.add_option('--check-cxx-compiler', default="%s" % test_for_compiler,
 		help='On this platform (%s) the following C++ Compiler will be checked by default: "%s"' %
-			(detected_platform, test_for_compiler),
+			(build_platform, test_for_compiler),
 		dest="check_cxx_compiler")
 
 	for cxx_compiler in test_for_compiler.split():

@@ -60,24 +60,24 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			return var in k and k[var] != '0'
 
 		# Some documentation is available at http://predef.sourceforge.net
-
+		# The names given to DEST_OS must match what Utils.remove_version_from_sys_platform() returns.
 		mp1 = {
-			'__linux__'   :'linux',
-			'__FreeBSD__' :'freebsd',
-			'__NetBSD__'  :'netbsd',
-			'__OpenBSD__' :'openbsd',
-			'__GNU__'     :'hurd',
-			'_aix'        :'aix',
-			'__hpux'      :'hpux',
-			'__sgi'       :'irix',
-			'__sun'       :'solaris',
-			'__CYGWIN__'  :'cygwin',
-			'__MSYS__'    :'msys',
-			'_UWIN'       :'uwin',
-			'_WIN32'      :'win32',
+			'__linux__'   : 'linux',
+			'__GNU__'     : 'hurd',
+			'__FreeBSD__' : 'freebsd',
+			'__NetBSD__'  : 'netbsd',
+			'__OpenBSD__' : 'openbsd',
+			'__sun'       : 'sunos',
+			'__hpux'      : 'hpux',
+			'__sgi'       : 'irix',
+			'_AIX'        : 'aix',
+			'__CYGWIN__'  : 'cygwin',
+			'__MSYS__'    : 'msys',
+			'_UWIN'       : 'uwin',
+			'_WIN64'      : 'win32',
+			'_WIN32'      : 'win32',
 			}
 
-		conf.env.DEST_OS = 'unknown'
 		for i in mp1:
 			if isD(i):
 				conf.env.DEST_OS = mp1[i]
@@ -86,16 +86,10 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			if isD('__APPLE__') and isD('__MACH__'):
 				conf.env.DEST_OS = 'darwin'
 			elif isD('__unix__'): # unix must be tested last as it's a generic fallback
-				conf.env.DEST_OS = 'unix'
+				conf.env.DEST_OS = 'generic'
 
 		if isD('__ELF__'):
 			conf.env.DEST_BINFMT = 'elf'
-		elif conf.env.DEST_OS == 'darwin':
-			conf.env.DEST_BINFMT = 'mac-o'
-		elif conf.env.DEST_OS in ('win32', 'cygwin', 'msys', 'uwin'):
-			conf.env.DEST_BINFMT = 'pe'
-		else:
-			conf.env.DEST_BINFMT = 'unknown'
 
 		mp2 = {
 				'__x86_64__'  : 'x86_64',
@@ -108,13 +102,12 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 				'__hppa__'    : 'hppa',
 				'__powerpc__' : 'powerpc',
 				}
-		conf.env.DEST_CPU = 'unknown'
 		for i in mp2:
 			if isD(i):
 				conf.env.DEST_CPU = mp2[i]
 				break
 
-		debug('ccroot: dest platform: %(DEST_OS)s %(DEST_BINFMT)s %(DEST_CPU)s' % conf.env.table)
+		debug('ccroot: dest platform: ' + ' '.join(conf.env[x] or '?' for x in ('DEST_OS', 'DEST_BINFMT', 'DEST_CPU')))
 		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
 
@@ -201,25 +194,13 @@ def default_cc(self):
 		compiled_tasks = [],
 		link_task = None)
 
-	if not self.env.DEST_OS:
-		try:
-			self.env.DEST_OS = {
-				'linux2': 'linux',
-				'darwin': 'darwin',
-				'cygwin': 'cygwin',
-				'win32': 'win32',
-				# TODO etc
-			}[sys.platform]
-		except KeyError:
-			raise Utils.WafError('unknown platform %s' % sys.platform)
-
+	# The only thing we need for cross-compilation is DEST_BINFMT.
+	# At some point, we may reach a case where DEST_BINFMT is not enough, but for now it's sufficient.
+	# Currently, cross-compilation is auto-detected only for the gnu and intel compilers.
 	if not self.env.DEST_BINFMT:
-		if self.env.DEST_OS in ('win32', 'cygwin', 'msys', 'uwin'):
-			self.env.DEST_BINFMT = 'pe'
-		elif self.env.DEST_OS == 'darwin':
-			self.env.DEST_BINFMT = 'mac-o'
-		else:
-			self.env.DEST_BINFMT = 'elf'
+		# Infer the binary format from the os name.
+		self.env.DEST_BINFMT = Utils.unversionned_sys_platform_to_binary_format(
+			self.env.DEST_OS or Utils.remove_version_from_sys_platform())
 
 	if not self.env.BINDIR: self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
 	if not self.env.LIBDIR: self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)

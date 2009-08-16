@@ -459,7 +459,54 @@ def subst_vars(expr, params):
 			return params[m.group(3)]
 	return reg_subst.sub(repl_var, expr)
 
+def unversionned_sys_platform_to_binary_format(unversionned_sys_platform=None):
+	"infers the binary format from the unversionned_sys_platform value."
+	
+	if unversionned_sys_platform is None: unversionned_sys_platform = remove_version_from_sys_platform()
+	
+	if unversionned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd'):
+		return 'elf'
+	elif unversionned_sys_platform == 'darwin':
+		return 'mac-o'
+	elif unversionned_sys_platform in ('win32', 'cygwin', 'uwin', 'msys'):
+		return 'pe'
+	elif unversionned_sys_platform == 'java':
+		# TODO The real OS is hidden under the JVM. We should try something like find_program('uname') to determine the actual OS.
+		# Mentionned by Richard Quirk on issue #464:
+		# 	import java
+		# 	java.lang.System.getProperty('os.name')
+		# 	This annoyingly would add the whole Java world of os names into the mix.
+		# 	(e.g. "Linux" it says here vs sys.platform's "linux2")
+		return 'elf'
+	else:
+		# TODO we assume all other operating systems are elf, which is not true.
+		# we may set this to 'unknown' and have ccroot and other tools handle the case "gracefully" (whatever that means).
+		return 'elf'
+
+def remove_version_from_sys_platform():
+	"""returns an unversionned name from sys.platform.
+	sys.plaform is not very well defined and depends directly on the python source tree.
+	The version appended to the names is unreliable as it's taken from the build environment at the time python was built,
+	i.e., it's possible to get freebsd7 on a freebsd8 system.
+	So we remove the version from the name, except for special cases where the os has a stupid name like os2 or win32.
+	Some possible values of sys.platform are, amongst others:
+		aix3 aix4 atheos beos5 darwin freebsd2 freebsd3 freebsd4 freebsd5 freebsd6 freebsd7
+		generic irix5 irix6 linux2 mac netbsd1 next3 os2emx riscos sunos5 unixware7
+	Investigating the python source tree may reveal more values.
+	"""
+	s = sys.platform
+	if s == 'win32' or s.endswith('os2'): return s
+	for i in reversed(xrange(len(s))):
+		if not s[i].isdigit(): return s[:i]
+	return s
+
+#@deprecated('use remove_version_from_sys_platform instead')
 def detect_platform():
+	"""this function has been in the Utils module for some time.
+	It's hard to guess what people have used it for.
+	It seems its goal is to return an unversionned sys.platform, but it's not handling all platforms.
+	For example, the version is not removed on freebsd and netbsd, amongst others.
+	"""
 	s = sys.platform
 
 	# known POSIX

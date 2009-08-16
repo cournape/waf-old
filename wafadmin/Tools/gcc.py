@@ -92,7 +92,7 @@ def gcc_modifier_darwin(conf):
 	v['STATICLIB_MARKER']    = ''
 
 @conftest
-def gcc_modifier_aix5(conf):
+def gcc_modifier_aix(conf):
 	v = conf.env
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
 
@@ -103,11 +103,10 @@ def gcc_modifier_aix5(conf):
 @conftest
 def gcc_modifier_platform(conf):
 	# * set configurations specific for a platform.
-	# * By default sys.plaform will be used as the target platform.
-	#	but you may write conf.env['DEST_PLATFORM'] = 'my_platform' to allow
-	#	cross compilaion..
-	target_platform = conf.env['DEST_PLATFORM'] or sys.platform
-	gcc_modifier_func = globals().get('gcc_modifier_'+target_platform)
+	# * the destination platform is detected automatically by looking at the macros the compiler predefines,
+	#   and if it's not recognised, it fallbacks to sys.platform.
+	dest_os = conf.env['DEST_OS'] or Utils.remove_version_from_sys_platform()
+	gcc_modifier_func = globals().get('gcc_modifier_' + dest_os)
 	if gcc_modifier_func:
 			gcc_modifier_func(conf)
 
