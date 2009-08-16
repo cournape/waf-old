@@ -495,7 +495,7 @@ def remove_version_from_sys_platform():
 	Investigating the python source tree may reveal more values.
 	"""
 	s = sys.platform
-	if s == 'win32' or s.endswith('os2'): return s
+	if s == 'win32' or s.endswith('os2') and s != 'sunos2': return s
 	for i in reversed(xrange(len(s))):
 		if not s[i].isdigit(): return s[:i + 1]
 	return s
