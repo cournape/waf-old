@@ -556,7 +556,7 @@ def msvc_common_flags(conf):
 
 	v['CPPPATH_ST']   = '/I%s' # template for adding include paths
 
-	v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
+	v['STLIBLNK_TGT_F'] = v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
 
 	# Subsystem specific flags
 	v['CPPFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
@@ -633,19 +633,17 @@ def apply_flags_msvc(self):
 	subsystem = getattr(self, 'subsystem', '')
 	if subsystem:
 		subsystem = '/subsystem:%s' % subsystem
-		self.env.append_value('LINKFLAGS', subsystem)
+		flags = 'cstaticlib' in self.features and 'STLINKFLAGS' or 'LINKFLAGS'
+		self.env.append_value(flags, subsystem)
 
-	if 'cstaticlib' in self.features:
-		self.env.LINK = self.env.STLIBLINK
-		self.env.append_value('LINKFLAGS', self.env.STLINKFLAGS)
-
-	for d in (f.lower() for f in self.env.LINKFLAGS):
-		if d[1:] == 'debug':
-			pdbnode = self.link_task.outputs[0].change_ext('.pdb')
-			pdbfile = pdbnode.bldpath(self.env)
-			self.link_task.outputs.append(pdbnode)
-			bld.install_files('${BINDIR}', pdbnode, env=self.env)
-			break
+	if 'cstaticlib' not in self.features:
+		for d in (f.lower() for f in self.env.LINKFLAGS):
+			if d[1:] == 'debug':
+				pdbnode = self.link_task.outputs[0].change_ext('.pdb')
+				pdbfile = pdbnode.bldpath(self.env)
+				self.link_task.outputs.append(pdbnode)
+				bld.install_files('${BINDIR}', pdbnode, env=self.env)
+				break
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
 @after('apply_lib_vars')
@@ -705,6 +703,9 @@ def apply_manifest(self):
 	if self.env.CC_NAME != 'msvc':
 		return
 
+	if 'cstaticlib' in self.features:
+		return
+		
 	tsk = self.create_task('mfmsvc')
 	tsk.set_inputs(self.link_task.outputs[0])
 
@@ -746,6 +747,20 @@ def exec_mf(self):
 cls = Task.task_type_from_func('mfmsvc', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 cls.quiet = 1
 
+ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${SRC}'
+ar_str = '${STLIBLINK} ${STLINKFLAGS} ${STLIBLNK_TGT_F}${TGT} ${SRC}'
+cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o', shell=False)
+cls.maxjobs = 1
+
+# remove the output in case it already exists
+old = cls.run
+def wrap(self):
+	try: os.remove(self.outputs[0].abspath(self.env))
+	except OSError: pass
+	return old(self)
+setattr(cls, 'run', wrap)
+
+
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
 
 def exec_command_msvc(self, *k, **kw):
@@ -768,7 +783,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	return self.generator.bld.exec_command(*k, **kw)
 
-for k in 'cc cxx winrc cc_link cxx_link'.split():
+for k in 'cc cxx winrc cc_link cxx_link ar_link_static'.split():
 	cls = Task.TaskBase.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc
