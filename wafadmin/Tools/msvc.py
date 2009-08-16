@@ -704,7 +704,7 @@ def apply_manifest(self):
 	if self.env.CC_NAME != 'msvc':
 		return
 
-	tsk = self.create_task('mfmsvc')
+	tsk = self.create_task('msvc_manifest')
 	tsk.set_inputs(self.link_task.outputs[0])
 
 def exec_mf(self):
@@ -742,7 +742,7 @@ def exec_mf(self):
 
 	return ret
 
-cls = Task.task_type_from_func('mfmsvc', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
+cls = Task.task_type_from_func('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 cls.quiet = 1
 
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
