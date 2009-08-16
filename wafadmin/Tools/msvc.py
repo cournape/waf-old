@@ -556,7 +556,7 @@ def msvc_common_flags(conf):
 
 	v['CPPPATH_ST']   = '/I%s' # template for adding include paths
 
-	v['AR_IN'] = v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
+	v['AR_TGT_F'] = v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
 
 	# Subsystem specific flags
 	v['CPPFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
