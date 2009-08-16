@@ -627,7 +627,7 @@ def apply_flags_msvc(self):
 
 	outfile = task.outputs[0].bldpath(env)
 
-	for d in (f.lower for f in env.LINKFLAGS):
+	for d in (f.lower() for f in env.LINKFLAGS):
 		if d[1:] == 'debug':
 			pdbnode = task.outputs[0].change_ext('.pdb')
 			pdbfile = pdbnode.bldpath(env)
