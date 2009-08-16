@@ -262,8 +262,8 @@ class ConfigurationContext(Utils.Context):
 			elif var in os.environ:
 				ret = os.environ[var]
 
+		if not isinstance(filename, list): filename = [filename]
 		if not ret:
-			if not isinstance(filename, list): filename = [filename]
 			for x in filename:
 				ret = find_program_impl(self.env, x, path_list, var, environ=self.environ)
 				if ret: break
