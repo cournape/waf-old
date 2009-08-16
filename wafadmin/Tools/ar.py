@@ -24,12 +24,7 @@ setattr(cls, 'run', wrap)
 def detect(conf):
 	conf.find_program('ar', var='AR')
 	conf.find_program('ranlib', var='RANLIB')
-
-	v = conf.env
-	v['AR']          = comp
-	v['ARFLAGS']     = 'rcs'
-	v['RANLIB']      = ranlib
-	v['RANLIBFLAGS'] = ''
+	conf.env.ARFLAGS = 'rcs'
 
 @conftest
 def find_ar(conf):
