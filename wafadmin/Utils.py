@@ -459,32 +459,21 @@ def subst_vars(expr, params):
 			return params[m.group(3)]
 	return reg_subst.sub(repl_var, expr)
 
-def unversionned_sys_platform_to_binary_format(unversionned_sys_platform=None):
-	"infers the binary format from the unversionned_sys_platform value."
+def unversioned_sys_platform_to_binary_format(unversioned_sys_platform):
+	"infers the binary format from the unversioned_sys_platform name."
 	
-	if unversionned_sys_platform is None: unversionned_sys_platform = remove_version_from_sys_platform()
-	
-	if unversionned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd'):
+	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos'):
 		return 'elf'
-	elif unversionned_sys_platform == 'darwin':
+	elif unversioned_sys_platform == 'darwin':
 		return 'mac-o'
-	elif unversionned_sys_platform in ('win32', 'cygwin', 'uwin', 'msys'):
+	elif unversioned_sys_platform in ('win32', 'cygwin', 'uwin', 'msys'):
 		return 'pe'
-	elif unversionned_sys_platform == 'java':
-		# TODO The real OS is hidden under the JVM. We should try something like find_program('uname') to determine the actual OS.
-		# Mentionned by Richard Quirk on issue #464:
-		# 	import java
-		# 	java.lang.System.getProperty('os.name')
-		# 	This annoyingly would add the whole Java world of os names into the mix.
-		# 	(e.g. "Linux" it says here vs sys.platform's "linux2")
-		return 'elf'
-	else:
-		# TODO we assume all other operating systems are elf, which is not true.
-		# we may set this to 'unknown' and have ccroot and other tools handle the case "gracefully" (whatever that means).
-		return 'elf'
+	# TODO we assume all other operating systems are elf, which is not true.
+	# we may set this to 'unknown' and have ccroot and other tools handle the case "gracefully" (whatever that means).
+	return 'elf'
 
-def remove_version_from_sys_platform():
-	"""returns an unversionned name from sys.platform.
+def unversioned_sys_platform():
+	"""returns an unversioned name from sys.platform.
 	sys.plaform is not very well defined and depends directly on the python source tree.
 	The version appended to the names is unreliable as it's taken from the build environment at the time python was built,
 	i.e., it's possible to get freebsd7 on a freebsd8 system.
@@ -495,12 +484,28 @@ def remove_version_from_sys_platform():
 	Investigating the python source tree may reveal more values.
 	"""
 	s = sys.platform
+	if s == 'java':
+		# The real OS is hidden under the JVM.
+		from java.lang import System
+		s = System.getProperty('os.name')
+		# see http://lopica.sourceforge.net/os.html for a list of possible values
+		if s == 'Mac OS X':
+			return 'darwin'
+		elif s.startswith('Windows '):
+			return 'win32'
+		elif s == 'OS/2':
+			return 'os2'
+		elif s == 'HP-UX':
+			return 'hpux'
+		elif s in ('SunOS', 'Solaris'):
+			return 'sunos'
+		else: s = s.lower()
 	if s == 'win32' or s.endswith('os2') and s != 'sunos2': return s
 	for i in reversed(xrange(len(s))):
 		if not s[i].isdigit(): return s[:i + 1]
 	return s
 
-#@deprecated('use remove_version_from_sys_platform instead')
+#@deprecated('use unversioned_sys_platform instead')
 def detect_platform():
 	"""this function has been in the Utils module for some time.
 	It's hard to guess what people have used it for.

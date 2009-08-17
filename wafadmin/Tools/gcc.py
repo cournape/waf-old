@@ -105,7 +105,7 @@ def gcc_modifier_platform(conf):
 	# * set configurations specific for a platform.
 	# * the destination platform is detected automatically by looking at the macros the compiler predefines,
 	#   and if it's not recognised, it fallbacks to sys.platform.
-	dest_os = conf.env['DEST_OS'] or Utils.remove_version_from_sys_platform()
+	dest_os = conf.env['DEST_OS'] or Utils.unversioned_sys_platform()
 	gcc_modifier_func = globals().get('gcc_modifier_' + dest_os)
 	if gcc_modifier_func:
 			gcc_modifier_func(conf)

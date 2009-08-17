@@ -49,8 +49,8 @@ def common_flags(conf):
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = ['-H', '-Hf']
 
-	binfmt = conf.env.DEST_BINFMT or Utils.unversionned_sys_platform_to_binary_format(
-		conf.env.DEST_OS or Utils.remove_version_from_sys_platform())
+	binfmt = conf.env.DEST_BINFMT or Utils.unversioned_sys_platform_to_binary_format(
+		conf.env.DEST_OS or Utils.unversioned_sys_platform())
 	if binfmt == 'pe':
 		v['D_program_PATTERN']   = '%s.exe'
 		v['D_shlib_PATTERN']     = 'lib%s.dll'

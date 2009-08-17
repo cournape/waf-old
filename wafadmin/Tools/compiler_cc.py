@@ -46,7 +46,7 @@ def detect(conf):
 			conf.check_message(compiler, '', False)
 
 def set_options(opt):
-	build_platform = Utils.remove_version_from_sys_platform()
+	build_platform = Utils.unversioned_sys_platform()
 	possible_compiler_list = __list_possible_compiler(build_platform)
 	test_for_compiler = str(" ").join(possible_compiler_list)
 	cc_compiler_opts = opt.add_option_group("C Compiler Options")

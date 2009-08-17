@@ -60,7 +60,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			return var in k and k[var] != '0'
 
 		# Some documentation is available at http://predef.sourceforge.net
-		# The names given to DEST_OS must match what Utils.remove_version_from_sys_platform() returns.
+		# The names given to DEST_OS must match what Utils.unversioned_sys_platform() returns.
 		mp1 = {
 			'__linux__'   : 'linux',
 			'__GNU__'     : 'hurd',
@@ -199,8 +199,8 @@ def default_cc(self):
 	# Currently, cross-compilation is auto-detected only for the gnu and intel compilers.
 	if not self.env.DEST_BINFMT:
 		# Infer the binary format from the os name.
-		self.env.DEST_BINFMT = Utils.unversionned_sys_platform_to_binary_format(
-			self.env.DEST_OS or Utils.remove_version_from_sys_platform())
+		self.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
+			self.env.DEST_OS or Utils.unversioned_sys_platform())
 
 	if not self.env.BINDIR: self.env.BINDIR = Utils.subst_vars('${PREFIX}/bin', self.env)
 	if not self.env.LIBDIR: self.env.LIBDIR = Utils.subst_vars('${PREFIX}/lib${LIB_EXT}', self.env)
