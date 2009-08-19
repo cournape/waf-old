@@ -69,7 +69,7 @@ def install_pyfile(self, node):
 		info("* removing byte compiled python files")
 		for x in 'co':
 			try:
-				os.remove(fname + x)
+				os.remove(path + x)
 			except OSError:
 				pass
 
