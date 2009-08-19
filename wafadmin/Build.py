@@ -52,7 +52,12 @@ def group_method(fun):
 		if not k[0].is_install:
 			return False
 
-		if kw.get('postpone', True):
+		postpone = False
+		if 'postpone' in kw:
+			postpone = kw['postpone']
+			del kw['postpone']
+
+		if postpone:
 			m = k[0].task_manager
 			m.groups[m.current_group].post_funs.append((fun, k, kw))
 			kw['cwd'] = k[0].path
