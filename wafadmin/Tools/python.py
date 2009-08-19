@@ -55,58 +55,49 @@ def init_pyembed(self):
 
 @extension(EXT_PY)
 def process_py(self, node):
-	if self.bld.is_install and self.install_path:
-		if not hasattr(self, '_py_installed_files'):
-			self._py_installed_files = []
-		installed_files = self.bld.install_files(self.install_path, node, self.env, self.chmod)
-		self._py_installed_files.extend(installed_files)
+	if not (self.bld.is_install or self.install_path):
+		return
+	def inst_py(ctx):
+		install_pyfile(self, node)
+	self.bld.add_post_fun(inst_py)
 
-@feature('py')
-def byte_compile_py(self):
-	if self.bld.is_install and self.install_path:
-		installed_files = self._py_installed_files
-		if not installed_files:
-			return
-		if self.bld.is_install < 0:
-			info("* removing byte compiled python files")
-			for fname in installed_files:
-				try:
-					os.remove(fname + 'c')
-				except OSError:
-					pass
-				try:
-					os.remove(fname + 'o')
-				except OSError:
-					pass
+def install_pyfile(self, node):
+	path = self.bld.get_install_path(self.install_path + os.sep + node.name, self.env)
 
-		if self.bld.is_install > 0:
-			if self.env['PYC'] or self.env['PYO']:
-				info("* byte compiling python files")
+	self.bld.install_files(self.install_path, [node], self.env, self.chmod, postpone=False)
+	if self.bld.is_install < 0:
+		info("* removing byte compiled python files")
+		for x in 'co':
+			try:
+				os.remove(fname + x)
+			except OSError:
+				pass
 
-			if self.env['PYC']:
-				program = ("""
+	if self.bld.is_install > 0:
+		if self.env['PYC'] or self.env['PYO']:
+			info("* byte compiling %r" % path)
+
+		if self.env['PYC']:
+			program = ("""
 import sys, py_compile
 for pyfile in sys.argv[1:]:
 	py_compile.compile(pyfile, pyfile + 'c')
 """)
-				argv = [self.env['PYTHON'], "-c", program ]
-				argv.extend(installed_files)
-				retval = Utils.pproc.Popen(argv).wait()
-				if retval:
-					raise Utils.WafError("bytecode compilation failed")
+			argv = [self.env['PYTHON'], '-c', program, path]
+			ret = Utils.pproc.Popen(argv).wait()
+			if ret:
+				raise Utils.WafError('bytecode compilation failed %r' % path)
 
-
-			if self.env['PYO']:
-				program = ("""
+		if self.env['PYO']:
+			program = ("""
 import sys, py_compile
 for pyfile in sys.argv[1:]:
 	py_compile.compile(pyfile, pyfile + 'o')
 """)
-				argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], "-c", program ]
-				argv.extend(installed_files)
-				retval = Utils.pproc.Popen(argv).wait()
-				if retval:
-					raise Utils.WafError("bytecode compilation failed")
+			argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], '-c', program, path]
+			ret = Utils.pproc.Popen(argv).wait()
+			if ret:
+				raise Utils.WafError('bytecode compilation failed %r' % path)
 
 # COMPAT
 class py_taskgen(TaskGen.task_gen):
