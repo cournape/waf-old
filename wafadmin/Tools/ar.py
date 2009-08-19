@@ -12,6 +12,7 @@ from Configure import conftest
 ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 cls = Task.simple_task_type('static_link', ar_str, color='YELLOW', ext_in='.o', shell=False)
 cls.maxjobs = 1
+cls.install = None
 
 # remove the output in case it already exists
 old = cls.run

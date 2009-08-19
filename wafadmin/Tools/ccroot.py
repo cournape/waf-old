@@ -223,12 +223,6 @@ def vars_target_cprogram(self):
 	self.default_chmod = O755
 
 @after('default_cc')
-@feature('cstaticlib', 'dstaticlib')
-@before('apply_core')
-def vars_target_cstaticlib(self):
-	self.default_install_path = self.env.LIBDIR
-
-@after('default_cc')
 @feature('cshlib', 'dshlib')
 @before('apply_core')
 def vars_target_cshlib(self):
@@ -240,9 +234,12 @@ def vars_target_cshlib(self):
 		self.default_install_path = self.env.LIBDIR
 
 @feature('cprogram', 'dprogram', 'cstaticlib', 'dstaticlib', 'cshlib', 'dshlib')
-@after('apply_link', 'vars_target_cstaticlib')
-def install_target_cstaticlib(self):
-	self.link_task.install_path = self.install_path
+@after('apply_link', 'vars_target_cprogram', 'vars_target_cshlib')
+def default_link_install(self):
+	"""you may kill this method to inject your own installation for the first element
+	any other install should only process its own nodes and not those from the others"""
+	if self.install_path:
+		self.bld.install_files(self.install_path, [self.link_task.outputs[0]], env=self.env)
 
 @feature('cc', 'cxx')
 @after('apply_type_vars', 'apply_lib_vars', 'apply_core')
@@ -531,7 +528,7 @@ def add_extra_flags(self):
 
 @feature('cshlib')
 @after('apply_link', 'default_cc')
-@before('apply_lib_vars', 'apply_objdeps')
+@before('apply_lib_vars', 'apply_objdeps', 'default_link_install')
 def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
 	the .dll.a is the import lib and it is required for linking so it is installed too
@@ -539,18 +536,16 @@ def apply_implib(self):
 	if not self.env.DEST_BINFMT == 'pe':
 		return
 
-	# disable the normal installation
-	self.link_task.install = None
+	self.meths.remove('default_link_install')
 
 	bindir = self.install_path
 	if not bindir: return
 
 	# install the dll in the bin dir
 	dll = self.link_task.outputs[0]
-	self.bld.install_as(bindir + os.sep + dll.name, dll, self.env, self.chmod)
+	self.bld.install_files(bindir, [dll], self.env, self.chmod)
 
 	# add linker flags to generate the import lib
-	dll = self.link_task.outputs[0]
 	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
 
 	implib = dll.parent.find_or_declare(implib)
@@ -563,7 +558,7 @@ def apply_implib(self):
 
 @feature('cshlib')
 @after('apply_link')
-@before('apply_lib_vars')
+@before('apply_lib_vars', 'default_link_install')
 def apply_vnum(self):
 	"""
 	libfoo.so is installed as libfoo.so.1.2.3
@@ -571,8 +566,9 @@ def apply_vnum(self):
 	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.env.DEST_BINFMT != 'elf':
 		return
 
+	self.meths.remove('default_link_install')
+
 	link = self.link_task
-	link.install = None
 	nums = self.vnum.split('.')
 	node = link.outputs[0]
 
