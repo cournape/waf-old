@@ -10,10 +10,12 @@ NEW IN WAF 1.5.9
 * do not eliminate the build nodes when the node directory is empty
 * enable Node parameters in bld.install_as and bld.install_files
 * new env.detach() to prevent confusing data sharing
+* installation is now performed after the build is complete by default
 * swig demo update
 * local static libraries are not propagated (convenience libraries)
 * jni configuration helper (java)
-? Cross-compilation improvements
+* fixed wrong so name in versioned libraries
+* Cross-compilation improvements
 
 NEW IN WAF 1.5.8
 ----------------
