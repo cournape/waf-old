@@ -642,8 +642,7 @@ def apply_flags_msvc(self):
 				pdbnode = self.link_task.outputs[0].change_ext('.pdb')
 				pdbfile = pdbnode.bldpath(self.env)
 				self.link_task.outputs.append(pdbnode)
-				# conflict with import libraries
-				bld.install_files('${BINDIR}', pdbnode, env=self.env)
+				bld.install_files(self.install_path, pdbnode, env=self.env)
 				break
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
