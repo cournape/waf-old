@@ -642,7 +642,7 @@ def apply_flags_msvc(self):
 				pdbnode = self.link_task.outputs[0].change_ext('.pdb')
 				pdbfile = pdbnode.bldpath(self.env)
 				self.link_task.outputs.append(pdbnode)
-				bld.install_files(self.install_path, pdbnode, env=self.env)
+				self.bld.install_files(self.install_path, [pdbnode], env=self.env)
 				break
 
 @feature('cprogram', 'cshlib', 'cstaticlib')
