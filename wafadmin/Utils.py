@@ -156,46 +156,30 @@ def exec_command(s, **kw):
 	except OSError:
 		return -1
 
-def sync_exec_command(s,**kw):
-	"""Not provided by default, so you will have to load it yourself:
-import Utils
-Utils.exec_command = Utils.sync_exec_command
-	"""
-
-	if'log'in kw:
-		kw['stdout'] = kw['stderr'] = kw['log']
-		del(kw['log'])
-	kw['shell'] = isinstance(s, str)
-
-	try:
-		if 'stdout' not in kw:
-			kw['stdout'] = pproc.PIPE
-			kw['stderr'] = pproc.STDOUT
-			proc = pproc.Popen(s,**kw)
-			(stdout, _) = proc.communicate()
-			Logs.info(stdout)
-		else:
-			proc = pproc.Popen(s,**kw)
-			return proc.wait()
-	except OSError:
-		return-1
-
 if is_win32:
-	old_log = exec_command
 	def exec_command(s, **kw):
-		# TODO very long command-lines are unlikely to be used in the configuration
-		if len(s) < 2000: return old_log(s, **kw)
-
 		if 'log' in kw:
 			kw['stdout'] = kw['stderr'] = kw['log']
 			del(kw['log'])
 		kw['shell'] = isinstance(s, str)
 
-		startupinfo = pproc.STARTUPINFO()
-		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
-		kw['startupinfo'] = startupinfo
-		proc = pproc.Popen(s, **kw)
-		return proc.wait()
+		if len(s) > 2000:
+			startupinfo = pproc.STARTUPINFO()
+			startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
+			kw['startupinfo'] = startupinfo
+
+		try:
+			if 'stdout' not in kw:
+				kw['stdout'] = pproc.PIPE
+				kw['stderr'] = pproc.STDOUT
+				proc = pproc.Popen(s,**kw)
+				(stdout, _) = proc.communicate()
+				Logs.info(stdout)
+			else:
+				proc = pproc.Popen(s,**kw)
+				return proc.wait()
+		except OSError:
+			return -1
 
 listdir = os.listdir
 if is_win32:
