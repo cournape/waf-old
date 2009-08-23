@@ -358,7 +358,7 @@ def apply_lib_vars(self):
 		if getattr(y, 'uselib_local', None):
 			lst = y.to_list(y.uselib_local)
 			if 'cshlib' in y.features or 'cprogram' in y.features:
-				lst = [x for x in lst if not 'cstaticlib' in self.name_to_obj(x)]
+				lst = [x for x in lst if not 'cstaticlib' in self.name_to_obj(x).features]
 			tmp.extend(lst)
 
 		# link task and flags
