@@ -308,9 +308,6 @@ def build(bld):
 
 def configure(conf):
     pass
-
-def set_options(opt):
-    pass
 			</programlisting>
 			Upon execution, this produces the following output:
 			<programlisting language="sh">

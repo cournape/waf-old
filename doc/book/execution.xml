@@ -210,8 +210,6 @@ def build(bld):
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-    pass
 def configure(conf):
     pass
 
@@ -293,8 +291,6 @@ def configure(conf):
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-    pass
 def configure(conf):
     conf.env.test = 'hello'
 def build(bld):
@@ -334,8 +330,6 @@ test = 'hello'
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-    pass
 def configure(conf):
     conf.find_program('tar', var='TAR')
 def build(bld):
