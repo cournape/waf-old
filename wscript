@@ -22,6 +22,9 @@ import Utils, Options, Build
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
+import Configure
+Configure.autoconfig = 1
+
 pyFileExp = re.compile(".*\.py$")
 
 print "------> Executing code from the top-level wscript <-----"
