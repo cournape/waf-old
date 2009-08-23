@@ -356,12 +356,10 @@ def apply_lib_vars(self):
 
 		# object has ancestors to process (shared libraries): add them to the end of the list
 		if getattr(y, 'uselib_local', None):
+			lst = y.to_list(y.uselib_local)
 			if 'cshlib' in y.features or 'cprogram' in y.features:
-				# prevent recursion on shared libraries
-				pass
-			else:
-				lst = y.to_list(y.uselib_local)
-				tmp.extend(lst)
+				lst = [x for x in lst if not 'cstaticlib' in self.name_to_obj(x)]
+			tmp.extend(lst)
 
 		# link task and flags
 		if getattr(y, 'link_task', None):
