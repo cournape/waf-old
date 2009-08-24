@@ -126,7 +126,7 @@
 	<section id="processing_chains">
 		<title>Task chaining</title>
 			<para>
-			The exclicit rules described in the previous section become limited for processing several files of the same kind. Instead of adding loops, we will now describe how to process files using the file extensions, for files declared in the <emphasis>source</emphasis> attribute.
+			The explicit rules described in the previous section become limited for processing several files of the same kind. Instead of adding loops, we will now describe how to process files using the file extensions, for files declared in the <emphasis>source</emphasis> attribute.
 			</para>
 			<para>
 			The following example illustrates how to add a rule for transforming <emphasis>.lua</emphasis> files into <emphasis>.luac</emphasis> files:
