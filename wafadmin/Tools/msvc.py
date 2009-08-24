@@ -232,18 +232,6 @@ def gather_msvc_versions(conf, versions):
 				path,type = _winreg.QueryValueEx(msvc_version, 'ProductDir')
 				path=str(path)
 				targets = []
-				if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
-					for target,realtarget in all_msvc_platforms[::-1]:
-						try:
-							targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
-						except:
-							pass
-				elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
-					try:
-						targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
-					except Configure.ConfigurationError:
-						pass
-				versions.append(('msvc '+version, targets))
 				if ce_sdk:
 					for device,platforms in supported_wince_platforms:
 						cetargets = []
@@ -257,6 +245,19 @@ def gather_msvc_versions(conf, versions):
 									libdirs = [lib, os.path.join(winCEpath, 'lib', platform), os.path.join(winCEpath, 'atlmfc', 'lib', platform)]
 									cetargets.append((platform, (platform, (bindirs,incdirs,libdirs))))
 						versions.append((device+' '+version, cetargets))
+				if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
+					for target,realtarget in all_msvc_platforms[::-1]:
+						try:
+							targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
+						except:
+							pass
+				elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
+					try:
+						targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
+					except Configure.ConfigurationError:
+						pass
+				versions.append(('msvc '+version, targets))
+
 			except WindowsError:
 				continue
 
