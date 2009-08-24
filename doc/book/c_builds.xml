@@ -27,9 +27,9 @@ def build(bld):
 		lib          = ['m'], <co id="shlib-co" linkends="a8"/>
 		libpath      = ['/usr/lib'],
 		linkflags    = ['-g'],
+		vnum         = '1.2.3', <co id="vnum-co" linkends="a88"/>
 	)
-	if sys.platform != 'win32':
-		t.rpath      = '/usr/lib' <co id="rpath-co" linkends="a9"/>
+	t.rpath      = '/usr/lib', <co id="rpath-co" linkends="a9"/>
 			</programlisting>
 
 			<calloutlist>
@@ -57,6 +57,10 @@ def build(bld):
 				<callout arearefs="shlib-co" id="a8">
 					<para>Shared libraries may be given directly (use <emphasis>staticlib</emphasis> and <emphasis>staticlibpath</emphasis> for static libraries)</para>
 				</callout>
+				<callout arearefs="vnum-co" id="a88">
+					<para>Version number for shared libraries</para>
+				</callout>
+
 				<callout arearefs="rpath-co" id="a9">
 					<para>Additional pararameters may be added from a task generator reference. The next section describes a technique to gather the conditions into the configuration section.</para>
 				</callout>
