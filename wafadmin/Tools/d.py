@@ -3,9 +3,9 @@
 # Carlos Rafael Giani, 2007 (dv)
 # Thomas Nagy, 2007-2008 (ita)
 
-import os, sys, re, optparse
+import os, sys, re
 import ccroot # <- leave this
-import TaskGen, Utils, Task, Configure, Logs, Build
+import TaskGen, Utils, Task, Logs
 from Logs import debug, error
 from TaskGen import taskgen, feature, after, before, extension
 
