@@ -3,17 +3,24 @@
 # Yinon Ehrlich, 2009
 
 """
-Prints filesystem representation (nodes).
-
-For each node print:
-	parent id, own id, the signature dictionary where it appears.
+* Prints filesystem representation (nodes).
+		For each node print:
+			parent id, own id, the signature dictionary where it appears.
+* Prints all dependencies in the whole build.
 """
 
 def configure(conf):
 	pass
 
 def build(bld):
+	# print filesystem representation
 	print(dump(bld.srcnode))
+
+	# print all dependencies (e.g. header files)
+	# (actuall does nothing here, because no real build, but may be useful
+	#  in real builds).
+	for nodes in bld.node_deps.itervalues():
+		print '\n'.join([n.abspath(bld.env) for n in nodes])
 
 def dump(node):
 	_dump = ''
