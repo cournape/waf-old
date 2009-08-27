@@ -445,7 +445,7 @@ def subst_vars(expr, params):
 
 def unversioned_sys_platform_to_binary_format(unversioned_sys_platform):
 	"infers the binary format from the unversioned_sys_platform name."
-	
+
 	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos'):
 		return 'elf'
 	elif unversioned_sys_platform == 'darwin':
@@ -485,9 +485,7 @@ def unversioned_sys_platform():
 			return 'sunos'
 		else: s = s.lower()
 	if s == 'win32' or s.endswith('os2') and s != 'sunos2': return s
-	for i in reversed(xrange(len(s))):
-		if not s[i].isdigit(): return s[:i + 1]
-	return s
+	return re.split('\d+$', s)[0]
 
 #@deprecated('use unversioned_sys_platform instead')
 def detect_platform():
