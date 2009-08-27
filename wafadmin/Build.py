@@ -52,7 +52,7 @@ def group_method(fun):
 		if not k[0].is_install:
 			return False
 
-		postpone = False
+		postpone = True
 		if 'postpone' in kw:
 			postpone = kw['postpone']
 			del kw['postpone']
