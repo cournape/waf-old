@@ -90,9 +90,7 @@ def module(bld, target, kind, types = ('static', 'shared'), sources = None, incl
 		else:
 			obj = bld.new_task_gen('cxx', {'static': 'staticlib', 'shared': 'shlib'}[type])
 			obj.target = target
-			if type == 'shared':
-				global VERSION
-				obj.vnum = VERSION
+			if type == 'shared': obj.vnum = VERSION
 		obj.name = target + '-' + type
 		obj.source = []
 		for s in sources:
@@ -132,7 +130,6 @@ def install_headers(bld, includes, headers):
 				for f in node.find_iter(in_pat = ['*.hpp']): headers_filenames.append(f.relpath_gen(bld.path))
 		else: headers_filenames.append(h)
 	#print 'found header files:', headers_filenames
-	global APPNAME, VERSION
 	for i in includes:
 		for h in headers_filenames:
 			if h.startswith(i):
