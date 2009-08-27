@@ -4,19 +4,22 @@
 # Thomas Nagy, 2008 (ita)
 
 import sys
-import ar
-import Utils
+import Utils, ar
+from Configure import conftest
 
+@conftest
 def find_dmd(conf):
-	v = conf.env
-	d_compiler = None
-	if v['D_COMPILER']:
-		d_compiler = v['D_COMPILER']
-	if not d_compiler: d_compiler = conf.find_program('dmd', var='D_COMPILER')
-	if not d_compiler: return 0
-	v['D_COMPILER'] = d_compiler
+	conf.find_program(['dmd', 'ldc'], var='D_COMPILER', mandatory=True)
 
-def common_flags(conf):
+@conftest
+def common_flags_ldc(conf):
+	v = conf.env
+	v['DFLAGS']         = ['-d-version=Posix']
+	v['DLINKFLAGS']     = []
+	v['D_shlib_DFLAGS'] = ['-relocation-model=pic']
+
+@conftest
+def common_flags_dmd(conf):
 	v = conf.env
 
 	# _DFLAGS _DIMPORTFLAGS
@@ -61,9 +64,11 @@ def common_flags(conf):
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
 
 def detect(conf):
-	v = conf.env
-	find_dmd(conf)
-	ar.find_ar(conf)
+	conf.find_dmd()
+	conf.check_tool('ar')
 	conf.check_tool('d')
-	common_flags(conf)
+	conf.common_flags_dmd()
+
+	if conf.env.D_LINKER == 'ldc':
+		conf.common_flags_ldc()
 
