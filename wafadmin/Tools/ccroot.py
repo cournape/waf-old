@@ -107,7 +107,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 				conf.env.DEST_CPU = mp2[i]
 				break
 
-		debug('ccroot: dest platform: ' + ' '.join(conf.env[x] or '?' for x in ('DEST_OS', 'DEST_BINFMT', 'DEST_CPU')))
+		debug('ccroot: dest platform: ' + ' '.join([conf.env[x] or '?' for x in ('DEST_OS', 'DEST_BINFMT', 'DEST_CPU')]))
 		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
 
