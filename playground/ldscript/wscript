@@ -34,4 +34,5 @@ def process_ldscript(self):
 	if not node:
 		raise Utils.WafError('could not find %r' % self.ldscript)
 	self.link_task.env.append_value('LINKFLAGS', '-Wl,-T,%s' % node.abspath(self.env))
+	self.link_task.deps_nodes.append(node)
 
