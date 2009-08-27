@@ -239,7 +239,7 @@ def default_link_install(self):
 	"""you may kill this method to inject your own installation for the first element
 	any other install should only process its own nodes and not those from the others"""
 	if self.install_path:
-		self.bld.install_files(self.install_path, [self.link_task.outputs[0]], env=self.env)
+		self.bld.install_files(self.install_path, [self.link_task.outputs[0]], env=self.env, chmod=self.chmod)
 
 @feature('cc', 'cxx')
 @after('apply_type_vars', 'apply_lib_vars', 'apply_core')
@@ -324,7 +324,6 @@ def apply_link(self):
 	outputs = [t.outputs[0] for t in self.compiled_tasks]
 	tsk.set_inputs(outputs)
 	tsk.set_outputs(self.path.find_or_declare(get_target_name(self)))
-	tsk.chmod = self.chmod
 
 	self.link_task = tsk
 
