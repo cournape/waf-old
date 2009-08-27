@@ -48,11 +48,10 @@ def detect(conf):
 def set_options(opt):
 	build_platform = Utils.unversioned_sys_platform()
 	possible_compiler_list = __list_possible_compiler(build_platform)
-	test_for_compiler = str(" ").join(possible_compiler_list)
+	test_for_compiler = ' '.join(possible_compiler_list)
 	cc_compiler_opts = opt.add_option_group("C Compiler Options")
 	cc_compiler_opts.add_option('--check-c-compiler', default="%s" % test_for_compiler,
-		help='On this platform (%s) the following C-Compiler will be checked by default: "%s"' %
-							(build_platform, test_for_compiler),
+		help='On this platform (%s) the following C-Compiler will be checked by default: "%s"' % (build_platform, test_for_compiler),
 		dest="check_c_compiler")
 
 	for c_compiler in test_for_compiler.split():
