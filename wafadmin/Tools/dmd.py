@@ -69,6 +69,6 @@ def detect(conf):
 	conf.check_tool('d')
 	conf.common_flags_dmd()
 
-	if conf.env.D_LINKER == 'ldc':
+	if conf.env.D_COMPILER.find('ldc') > -1:
 		conf.common_flags_ldc()
 

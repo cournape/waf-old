@@ -440,7 +440,7 @@ def override_exec(cls):
 	"""stupid dmd wants -of stuck to the file name"""
 	old_exec = cls.exec_command
 	def exec_command(self, *k, **kw):
-		if self.env['COMPILER_D'] == 'dmd' and isinstance(k[0], list):
+		if isinstance(k[0], list):
 			lst = k[0]
 			for i in xrange(len(lst)):
 				if lst[i] == '-of':
