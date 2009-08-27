@@ -8,6 +8,7 @@ import ccroot # <- leave this
 import TaskGen, Utils, Task, Configure, Logs, Build
 from Logs import debug, error
 from TaskGen import taskgen, feature, after, before, extension
+from Configure import conftest
 
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps'] # additional d methods
@@ -482,6 +483,20 @@ def process_header(self):
 
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
 Task.simple_task_type('d_header', d_header_str, color='BLUE', shell=False)
+
+@conftest
+def d_platform_flags(conf):
+	binfmt = conf.env.DEST_BINFMT or Utils.unversioned_sys_platform_to_binary_format(
+		conf.env.DEST_OS or Utils.unversioned_sys_platform())
+	if binfmt == 'pe':
+		v['D_program_PATTERN']   = '%s.exe'
+		v['D_shlib_PATTERN']     = 'lib%s.dll'
+		v['D_staticlib_PATTERN'] = 'lib%s.a'
+	else:
+		v['D_program_PATTERN']   = '%s'
+		v['D_shlib_PATTERN']     = 'lib%s.so'
+		v['D_staticlib_PATTERN'] = 'lib%s.a'
+
 
 # quick test #
 if __name__ == "__main__":

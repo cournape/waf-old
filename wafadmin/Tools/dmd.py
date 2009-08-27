@@ -52,22 +52,12 @@ def common_flags_dmd(conf):
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = ['-H', '-Hf']
 
-	binfmt = conf.env.DEST_BINFMT or Utils.unversioned_sys_platform_to_binary_format(
-		conf.env.DEST_OS or Utils.unversioned_sys_platform())
-	if binfmt == 'pe':
-		v['D_program_PATTERN']   = '%s.exe'
-		v['D_shlib_PATTERN']     = 'lib%s.dll'
-		v['D_staticlib_PATTERN'] = 'lib%s.a'
-	else:
-		v['D_program_PATTERN']   = '%s'
-		v['D_shlib_PATTERN']     = 'lib%s.so'
-		v['D_staticlib_PATTERN'] = 'lib%s.a'
-
 def detect(conf):
 	conf.find_dmd()
 	conf.check_tool('ar')
 	conf.check_tool('d')
 	conf.common_flags_dmd()
+	conf.d_platform_flags()
 
 	if conf.env.D_COMPILER.find('ldc') > -1:
 		conf.common_flags_ldc()
