@@ -111,10 +111,11 @@ def gcc_modifier_platform(conf):
 			gcc_modifier_func(conf)
 
 def detect(conf):
-		conf.find_gcc()
-		conf.find_cpp()
-		conf.find_ar()
-		conf.gcc_common_flags()
-		conf.gcc_modifier_platform()
-		conf.cc_load_tools()
-		conf.cc_add_flags()
+	conf.find_gcc()
+	conf.find_cpp()
+	conf.find_ar()
+	conf.gcc_common_flags()
+	conf.gcc_modifier_platform()
+	conf.cc_load_tools()
+	conf.cc_add_flags()
+

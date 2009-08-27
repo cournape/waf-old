@@ -115,10 +115,11 @@ def gxx_modifier_platform(conf):
 			gxx_modifier_func(conf)
 
 def detect(conf):
-		conf.find_gxx()
-		conf.find_cpp()
-		conf.find_ar()
-		conf.gxx_common_flags()
-		conf.gxx_modifier_platform()
-		conf.cxx_load_tools()
-		conf.cxx_add_flags()
+	conf.find_gxx()
+	conf.find_cpp()
+	conf.find_ar()
+	conf.gxx_common_flags()
+	conf.gxx_modifier_platform()
+	conf.cxx_load_tools()
+	conf.cxx_add_flags()
+
