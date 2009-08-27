@@ -753,6 +753,11 @@ class Task(TaskBase):
 					elif hasattr(v, '__call__'):
 						v = v() # dependency is a function, call it
 					m.update(v)
+
+		for x in self.deps_nodes:
+			v = bld.node_sigs[x.variant(self.env)][x.id]
+			m.update(v)
+
 		return m.digest()
 
 	def sig_vars(self):
