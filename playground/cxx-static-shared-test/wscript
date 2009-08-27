@@ -7,8 +7,8 @@
 # We build the following "variants" (not variants in the waf-sense):
 # - a dynamically linked 'main' program that dynamically links against a shared 'wrapper' library, which dynamically links against a shared 'impl' library,
 # - a dynamically linked 'main' program that contains a static 'wrapper' library, which dynamically links against a shared 'impl' library,
-# - a dynamically linked 'main' program that contains a static 'wrapper' library, which contains a static 'impl' library,
-# - a statically linked 'main' program that constains a static 'wrapper' library, which constains a static 'impl' library,
+# - a dynamically linked 'main' program that contains a static 'wrapper' library, which depends on a static 'impl' library,
+# - a statically linked 'main' program that constains a static 'wrapper' library, which depends on static 'impl' library,
 # The case of a shared 'wrapper' library that contains a static 'impl' library is not tested, as it's rarely used and needs pic/non-pic trickery.
 
 import os, Options, Build
