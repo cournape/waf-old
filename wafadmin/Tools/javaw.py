@@ -81,12 +81,13 @@ def jar_files(self):
 @before('apply_core')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
-		sourcepath='.', srcdir='.', source_re='[A-Za-z0-9]+\.java$',
-		jar_mf_attributes={}, jar_mf_classpath=[], source=None)
+		sourcepath='.', srcdir='.', source_re='**/*.java',
+		jar_mf_attributes={}, jar_mf_classpath=[])
 
 	if getattr(self, 'source_root', None):
 		# old stuff
 		self.srcdir = self.source_root
+
 
 	nodes_lst = []
 
@@ -99,16 +100,8 @@ def apply_java(self):
 	srcdir_node = self.path.find_dir(self.srcdir)
 	if not srcdir_node:
 		raise Utils.WafError('could not find srcdir %r' % self.srcdir)
-	re_foo = re.compile(self.source_re)
 
-	def acc(node, name):
-		return re_foo.search(name) > -1
-
-	def prune(node, name):
-		if name == '.svn': return True
-		return False
-
-	src_nodes = [x for x in srcdir_node.find_iter_impl(dir=False, accept_name=acc, is_prune=prune)]
+	src_nodes = [x for x in srcdir_node.ant_glob(self.source_re, flat=False)]
 	bld_nodes = [x.change_ext('.class') for x in src_nodes]
 
 	self.env['OUTDIR'] = [srcdir_node.abspath(self.env)]
@@ -116,6 +109,9 @@ def apply_java(self):
 	tsk = self.create_task('javac')
 	tsk.set_inputs(src_nodes)
 	tsk.set_outputs(bld_nodes)
+
+	if getattr(self, 'compat', None):
+		tsk.env.append_value('JAVACFLAGS', ['-source', self.compat])
 
 	if self.jarname:
 		tsk = self.create_task('jar_create')
