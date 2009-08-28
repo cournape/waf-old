@@ -16,11 +16,22 @@ def configure(conf):
 	conf.check_java_class('FakeClass')
 
 def build(bld):
-	bld.new_task_gen(features='javac seq', srcdir='src')
+
+	# in the following, the feature 'seq' is used to force a sequential order on the tasks created
+
+	# java
+	#
+	# srcdir: directory containing the sources to compile
+	# compat: java compatibility version number (compiling with a too recent jdk may cause problems)
+	bld.new_task_gen(features='javac seq', srcdir='src', compat='1.5')
+
+	# jar
+	#
+	# basedir: directory containing the .class files to package
+	# destfile: the destination file
 	bld.new_task_gen(features='jar seq', basedir='src', destfile='foo.jar')
 
 	#jaropts = '-C default/src/ .', # can be used to give files
 	#classpath = '..:.', # can be used to set a custom classpath
 	#)
-
 
