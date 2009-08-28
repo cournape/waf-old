@@ -113,6 +113,15 @@ def apply_java(self):
 	if getattr(self, 'compat', None):
 		tsk.env.append_value('JAVACFLAGS', ['-source', self.compat])
 
+	if hasattr(self, 'sourcepath'):
+		fold = [self.path.find_dir(x) for x in self.to_list(self.sourcepath)]
+		names = os.pathsep.join([x.srcpath() for x in fold])
+	else:
+		names = srcdir_node.srcpath()
+
+	if names:
+		tsk.env.append_value('JAVACFLAGS', ['-sourcepath', names])
+
 	if self.jarname:
 		tsk = self.create_task('jar_create')
 		tsk.set_inputs(bld_nodes)
