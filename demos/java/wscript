@@ -16,7 +16,7 @@ def configure(conf):
 	conf.check_java_class('FakeClass')
 
 def build(bld):
-	bld.new_task_gen(features='javac seq', source_root='src')
+	bld.new_task_gen(features='javac seq', srcdir='src')
 	bld.new_task_gen(features='jar seq', basedir='src', destfile='foo.jar')
 
 	#jaropts = '-C default/src/ .', # can be used to give files
