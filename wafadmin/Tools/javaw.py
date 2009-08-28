@@ -81,7 +81,12 @@ def jar_files(self):
 @before('apply_core')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
-		source_root='.', source_re='[A-Za-z0-9]+\.java$', jar_mf_attributes={}, jar_mf_classpath=[])
+		sourcepath='.', srcdir='.', source_re='[A-Za-z0-9]+\.java$',
+		jar_mf_attributes={}, jar_mf_classpath=[], source=None)
+
+	if getattr(self, 'source_root', None):
+		# old stuff
+		self.srcdir = self.source_root
 
 	nodes_lst = []
 
@@ -91,7 +96,9 @@ def apply_java(self):
 	else:
 		self.env['CLASSPATH'] = self.classpath
 
-	source_root_node = self.path.find_dir(self.source_root)
+	srcdir_node = self.path.find_dir(self.srcdir)
+	if not srcdir_node:
+		raise Utils.WafError('could not find srcdir %r' % self.srcdir)
 	re_foo = re.compile(self.source_re)
 
 	def acc(node, name):
@@ -101,10 +108,10 @@ def apply_java(self):
 		if name == '.svn': return True
 		return False
 
-	src_nodes = [x for x in source_root_node.find_iter_impl(dir=False, accept_name=acc, is_prune=prune)]
+	src_nodes = [x for x in srcdir_node.find_iter_impl(dir=False, accept_name=acc, is_prune=prune)]
 	bld_nodes = [x.change_ext('.class') for x in src_nodes]
 
-	self.env['OUTDIR'] = [source_root_node.abspath(self.env)]
+	self.env['OUTDIR'] = [srcdir_node.abspath(self.env)]
 
 	tsk = self.create_task('javac')
 	tsk.set_inputs(src_nodes)
