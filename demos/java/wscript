@@ -23,7 +23,7 @@ def build(bld):
 	#
 	# srcdir: directory containing the sources to compile
 	# compat: java compatibility version number (compiling with a too recent jdk may cause problems)
-	bld.new_task_gen(features='javac seq', srcdir='src', compat='1.5')
+	bld.new_task_gen(features='javac seq', srcdir='src', compat='1.5', sourcepath=['src', 'sup'])
 
 	# jar
 	#
