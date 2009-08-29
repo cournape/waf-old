@@ -157,7 +157,7 @@ else:
 		}
 
 	class AnsiTerm(object):
-		def __init__(self):
+		def __init__(self, type):
 			self.hconsole = windll.kernel32.GetStdHandle(type)
 
 		ansi_tokens = re.compile('(?:\x1b\[([0-9;]*)([a-zA-Z])|([^\x1b]+))')
