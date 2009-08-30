@@ -20,7 +20,7 @@ def build(bld):
 	# (actuall does nothing here, because no real build, but may be useful
 	#  in real builds).
 	for nodes in bld.node_deps.itervalues():
-		print '\n'.join([n.abspath(bld.env) for n in nodes])
+		print('\n'.join([n.abspath(bld.env) for n in nodes]))
 
 def dump(node):
 	_dump = ''
