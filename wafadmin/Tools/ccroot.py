@@ -597,14 +597,14 @@ def apply_vnum(self):
 	tsk.set_outputs(node.parent.find_or_declare(name2))
 
 def exec_vnum_link(self):
-	path = self.inputs[0].parent.abspath(self.env)
+	path = self.outputs[0].abspath(self.env)
 	try:
-		os.remove(self.outputs[0].abspath())
+		os.remove(path)
 	except OSError, e:
 		pass
 
 	try:
-		os.symlink(self.inputs[0].name, self.outputs[0].abspath(self.env))
+		os.symlink(self.inputs[0].name, path)
 	except Exception, e:
 		return 1
 
