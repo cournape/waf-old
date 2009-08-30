@@ -207,25 +207,16 @@ def scan(self):
 @extension(EXT_RCC)
 def create_rcc_task(self, node):
 	"hook for rcc files"
-
 	rcnode = node.change_ext('_rc.cpp')
-
-	rcctask = self.create_task('rcc')
-	rcctask.inputs = [node]
-	rcctask.outputs = [rcnode]
-
-	cpptask = self.create_task('cxx')
-	cpptask.inputs  = [rcnode]
-	cpptask.outputs = [rcnode.change_ext('.o')]
+	rcctask = self.create_task('rcc', node, rcnode)
+	cpptask = self.create_task('cxx', rcnode, rcnode.change_ext('.o'))
 	self.compiled_tasks.append(cpptask)
-
 	return cpptask
 
 @extension(EXT_UI)
 def create_uic_task(self, node):
 	"hook for uic tasks"
-	uictask = self.create_task('ui4')
-	uictask.inputs  = [node]
+	uictask = self.create_task('ui4', node)
 	uictask.outputs = [self.path.find_or_declare(self.env['ui_PATTERN'] % node.name[:-3])]
 
 class qt4_taskgen(cxx.cxx_taskgen):
@@ -250,9 +241,7 @@ def apply_qt4(self):
 			if not isinstance(l, Node.Node):
 				l = self.path.find_resource(l+'.ts')
 
-			t = self.create_task('ts2qm')
-			t.set_inputs(l)
-			t.set_outputs(l.change_ext('.qm'))
+			t = self.create_task('ts2qm', l, l.change_ext('.qm'))
 			lst.append(t.outputs[0])
 
 			if update:
@@ -283,13 +272,11 @@ def apply_qt4(self):
 @extension(EXT_QT4)
 def cxx_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = self.create_task('qxx')
-	self.compiled_tasks.append(task)
 	try: obj_ext = self.obj_ext
 	except AttributeError: obj_ext = '_%d.o' % self.idx
 
-	task.inputs = [node]
-	task.outputs = [node.change_ext(obj_ext)]
+	task = self.create_task('qxx', node, node.change_ext(obj_ext))
+	self.compiled_tasks.append(task)
 
 def process_qm2rcc(task):
 	outfile = task.outputs[0].abspath(task.env)

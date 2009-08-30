@@ -328,12 +328,9 @@ def apply_d_link(self):
 	if not link:
 		if 'dstaticlib' in self.features: link = 'static_link'
 		else: link = 'd_link'
-	linktask = self.create_task(link)
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
 
-	self.link_task = linktask
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
+	self.link_task = self.create_task(link, outputs, self.path.find_or_declare(get_target_name(self)))
 
 @feature('d')
 @after('apply_core')

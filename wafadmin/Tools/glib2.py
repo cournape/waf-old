@@ -29,10 +29,8 @@ def process_marshal(self):
 		h_node = node.change_ext('.h')
 		c_node = node.change_ext('.c')
 
-		task = self.create_task('glib_genmarshal')
-		task.set_inputs(node)
-		task.set_outputs([h_node, c_node])
-		task.env['GLIB_GENMARSHAL_PREFIX'] = prefix
+		task = self.create_task('glib_genmarshal', node, [h_node, c_node])
+		task.env.GLIB_GENMARSHAL_PREFIX = prefix
 	self.allnodes.append(c_node)
 
 def genmarshal_func(self):
@@ -107,9 +105,9 @@ def add_enums(self, source='', target='',
 @before('apply_core')
 def process_enums(self):
 	for enum in getattr(self, 'enums_list', []):
-		# temporary
-		env = self.env.copy()
-		task = self.create_task('glib_mkenums', env)
+		task = self.create_task('glib_mkenums')
+		env = task.env
+
 		inputs = []
 
 		# process the source
