@@ -600,12 +600,12 @@ def exec_vnum_link(self):
 	path = self.outputs[0].abspath(self.env)
 	try:
 		os.remove(path)
-	except OSError, e:
+	except OSError:
 		pass
 
 	try:
 		os.symlink(self.inputs[0].name, path)
-	except Exception, e:
+	except OSError:
 		return 1
 
 cls = Task.task_type_from_func('vnum', func=exec_vnum_link, ext_in='.bin', color='CYAN')
