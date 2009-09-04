@@ -536,7 +536,7 @@ def find_msvc(conf):
 def msvc_common_flags(conf):
 	v = conf.env
 
-	v['CPPFLAGS']     = ['/W3', '/nologo', '/EHsc']
+	v['CPPFLAGS']     = ['/W3', '/nologo']
 
 	v['CCDEFINES_ST']     = '/D%s'
 	v['CXXDEFINES_ST']    = '/D%s'
@@ -589,7 +589,7 @@ def msvc_common_flags(conf):
 	v['CCFLAGS_DEBUG']      = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 	v['CCFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
 
-	v['CXXFLAGS']            = ['/TP']
+	v['CXXFLAGS']            = ['/TP', '/EHsc']
 	v['CXXFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
 	v['CXXFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
 	# TODO _DEBUG is defined by the compiler itself!
