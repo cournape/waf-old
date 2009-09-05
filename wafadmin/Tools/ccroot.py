@@ -611,3 +611,11 @@ def exec_vnum_link(self):
 cls = Task.task_type_from_func('vnum', func=exec_vnum_link, ext_in='.bin', color='CYAN')
 cls.quiet = 1
 
+# ============ stupid rpath processing below (gcc-specific) =========
+
+@feature('cshlib', 'cprogram')
+@after('apply_link')
+def add_as_needed(self):
+	if self.rpath and conf.env.DEST_BINFMT == 'elf':
+		self.link_task.env.append_value('LINKFLAGS', '-Wl,--as-needed')
+

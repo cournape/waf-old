@@ -120,13 +120,6 @@ def gxx_modifier_platform(conf):
 	if gxx_modifier_func:
 			gxx_modifier_func(conf)
 
-	dest_binfmt = conf.env['DEST_BINFMT']
-	if dest_binfmt == 'elf':
-		# Waf emits spurious dependencies on the linker command line, so we have to enable the --as-needed option
-		for kind in ('shlib', 'program'): conf.env.append_value(kind + '_LINKFLAGS', '-Wl,--as-needed')
-		# "Thanks to" the spurious dependencies, when linking programs,
-		# adding the dir where .so libs are built to -rpath-link is currently not needed.
-
 def detect(conf):
 	conf.find_gxx()
 	conf.find_cpp()
