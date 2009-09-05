@@ -179,6 +179,3 @@ else:
 	if sys.platform == 'win32':
 		sys.stdout = AnsiTerm(STD_OUTPUT_HANDLE)
 		sys.stderr = AnsiTerm(STD_ERROR_HANDLE)
-		os.environ['TERM'] = 'vt100'
-
-
