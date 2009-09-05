@@ -69,8 +69,18 @@ def gcc_modifier_win32(conf):
 	v['shlib_PATTERN']       = '%s.dll'
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
-	v['shlib_CCFLAGS']       = ['-DPIC', '-DDLL_EXPORT'] # TODO 64-bit platforms may need -fPIC
-	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import') # suppress information messages
+
+	dest_arch = v['DEST_CPU']
+	if dest_arch == 'x86':
+		# On 32-bit x86, gcc emits a message telling the -fPIC option is ignored on this arch, so we remove that flag.
+		v['shlib_CCFLAGS'] = ['-DPIC'] # TODO this is a wrong define, we don't use -fPIC!
+
+	v.append_value('shlib_CCFLAGS', '-DDLL_EXPORT') # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
+
+	# Auto-import is enabled by default even without this option,
+	# but enabling it explicitly has the nice effect of suppressing the rather boring, debug-level messages
+	# that the linker emits otherwise.
+	v.append_value('LINKFLAGS', '-Wl,--enable-auto-import')
 
 @conftest
 def gcc_modifier_cygwin(conf):
