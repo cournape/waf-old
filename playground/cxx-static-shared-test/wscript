@@ -52,7 +52,7 @@ def build(bld):
 			types=(static_wrapper and 'static' or 'shared',),
 			sources=[src_dir + '/wrapper'],
 			includes=[src_dir],
-			defines=['WRAPPER=' + (static_wrapper and '-1' or '1')],
+			defines=['WRAPPER=' + (static_wrapper and '-1' or '1'), 'IMPL=' + (static_impl and '-1' or '0')],
 			uselib_local=[impl.name]
 		)
 		bld.program(
@@ -60,6 +60,7 @@ def build(bld):
 			types=(static_prog and 'static' or 'shared',),
 			sources=[src_dir + '/main'],
 			includes=[src_dir],
+			defines=['WRAPPER=' + (static_wrapper and '-1' or '0'), 'IMPL=' + (static_impl and '-1' or '0')],
 			uselib_local=[wrapper.name]
 		)
 	variant(True, True, True)
