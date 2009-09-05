@@ -27,9 +27,6 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('compiler_cxx')
 	conf.env.PREFIX = os.path.join(conf.blddir, os.pardir, '++install')
-	if conf.env['CXX_NAME'] == 'gcc':
-		conf.env.append_value('LINKFLAGS', '-Wl,--as-needed')
-		#conf.env.append_value('LINKFLAGS', '-Wl,-rpath-link,' + conf.env.PREFIX + '/lib')
 	
 def build(bld):
 	test_name = 'static-shared' #bld.srcnode.name
