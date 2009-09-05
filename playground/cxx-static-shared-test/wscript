@@ -2,7 +2,7 @@
 # encoding: utf-8
 # copyright 2009 Johan Boule <bohan@jabber.org>
 #
-# This test builds various combinations of static and shared modules.
+# This test builds various combinations of static and shared "modules".
 # The program 'main' uses the library 'wrapper', which in turn uses the library 'impl'.
 # We build the following "variants" (not variants in the waf-sense):
 # - a dynamically linked 'main' program that dynamically links against a shared 'wrapper' library, which dynamically links against a shared 'impl' library,
@@ -10,6 +10,27 @@
 # - a dynamically linked 'main' program that contains a static 'wrapper' library, which depends on a static 'impl' library,
 # - a statically linked 'main' program that contains a static 'wrapper' library, which depends on a static 'impl' library,
 # The case of a shared 'wrapper' library that contains a static 'impl' library is not tested, as it's rarely used and needs pic/non-pic trickery.
+#
+# Once built and installed, on linux, to retrieve the dependencies, use either
+# 	readelf -d ++install/{bin,lib}/xxxx | grep NEEDED, or
+# 	objdump -x ++install/{bin,lib}/xxxx | grep NEEDED
+# On cygwin, use cygcheck ++install/bin/xxxx
+# On plain windows, you can use cygcheck too (cygcheck doesn't need cygwin).
+#
+# The following dependencies are expected (filenames on linux, libstdc++.so.6, libc.so.6 are not shown):
+# 	For variant static main, static wrapper, static impl:
+# 		static-shared--st-st-st--main -> libgcc_s.so.1
+# 	For variant static wrapper, static impl:
+# 		static-shared--sh-st-st--main -> (nothing)
+# 	For variant static wrapper, shared impl:
+# 		static-shared--sh-st-sh--main -> libstatic-shared--sh-st-sh--impl.so.1
+# 	For variant shared wrapper, shared impl:
+# 		static-shared--sh-sh-sh--main -> libstatic-shared--sh-sh-sh--wrapper.so.1
+#		libstatic-shared--sh-sh-sh--wrapper.so -> libstatic-shared--sh-sh-sh--impl.so.1
+#
+# Equivalent dependencies are expected on cygwin and plain windows (just the filenames change).
+#
+# If you get results different from the above, please submit a bug report immediately.
 
 import os, Options, Build
 
