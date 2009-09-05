@@ -171,7 +171,7 @@ else:
 					windll.kernel32.SetConsoleTextAttribute(self.hconsole, attrib)
 				else:
 					chars_written = c_int()
-					windll.kernel32.WriteConsoleA(self.hconsole, txt, len(txt), byref(chars_written), None)
+					windll.kernel32.WriteConsoleA(self.hconsole, txt.encode('ascii', 'replace'), len(txt), byref(chars_written), None)
 
 		def flush(self):
 			pass
