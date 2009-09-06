@@ -562,7 +562,7 @@ def apply_vnum(self):
 	"""
 	libfoo.so is installed as libfoo.so.1.2.3
 	"""
-	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.env.DEST_BINFMT != 'elf':
+	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.env.DEST_BINFMT not in ('elf', 'mac-o'):
 		return
 
 	self.meths.remove('default_link_install')
