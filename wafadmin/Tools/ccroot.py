@@ -15,6 +15,16 @@ try:
 except ImportError:
 	from io import StringIO
 
+# double-ended queue
+try:
+	from collections import deque as delist
+except ImportError:
+	# python 2.3 compatibility: fallback to slow list operations
+	delist = list
+	def delist_pop(delist): return delist.pop(0) # slow operation!
+else:
+	delist_pop = delist.popleft # fast
+
 import config_c # <- necessary for the configuration, do not touch
 
 USE_TOP_LEVEL = False
@@ -136,14 +146,14 @@ def scan(self):
 
 	all_nodes = []
 	all_names = []
-	seen = []
+	seen = set()
 	for node in self.inputs:
 		(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
 		if Logs.verbose:
 			debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
 		for x in nodes:
 			if id(x) in seen: continue
-			seen.append(id(x))
+			seen.add(id(x))
 			all_nodes.append(x)
 		for x in names:
 			if not x in all_names:
@@ -339,10 +349,10 @@ def apply_lib_vars(self):
 	uselib = self.to_list(self.uselib)
 	names = self.to_list(self.uselib_local)
 
-	seen = []
-	tmp = names[:] # consume a copy of the list of names
+	seen = set()
+	tmp = delist(names) # consume a copy of the list of names
 	while tmp:
-		lib_name = tmp.pop(0)
+		lib_name = delist_pop(tmp)
 		# visit dependencies only once
 		if lib_name in seen:
 			continue
@@ -351,7 +361,7 @@ def apply_lib_vars(self):
 		if not y:
 			raise Utils.WafError('object %r was not found in uselib_local (required by %r)' % (lib_name, self.name))
 		y.post()
-		seen.append(lib_name)
+		seen.add(lib_name)
 
 		# object has ancestors to process (shared libraries): add them to the end of the list
 		if getattr(y, 'uselib_local', None):
