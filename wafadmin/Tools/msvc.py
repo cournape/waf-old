@@ -585,16 +585,15 @@ def msvc_common_flags(conf):
 	v['CCFLAGS']            = ['/TC']
 	v['CCFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
 	v['CCFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
-	# TODO _DEBUG is defined by the compiler itself!
-	v['CCFLAGS_DEBUG']      = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
-	v['CCFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
+	v['CCFLAGS_DEBUG']      = ['/Od', '/RTC1', '/ZI']
+	v['CCFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/ZI']
 
 	v['CXXFLAGS']            = ['/TP', '/EHsc']
 	v['CXXFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
 	v['CXXFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
-	# TODO _DEBUG is defined by the compiler itself!
-	v['CXXFLAGS_DEBUG']      = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
-	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
+
+	v['CXXFLAGS_DEBUG']      = ['/Od', '/RTC1', '/ZI']
+	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/ZI']
 
 	# linker
 	v['LIB']              = []
