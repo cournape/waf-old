@@ -23,6 +23,13 @@ def gcc_common_flags(conf):
 
 	# CPPFLAGS CCDEFINES _CCINCFLAGS _CCDEFFLAGS
 
+	# TODO: Support for ULTRADEBUG and OPTIMIZE?
+	v['CCFLAGS_DEBUG'] = ['-g'] 
+	v['CXXFLAGS_DEBUG'] = ['-g']
+
+	v['CCFLAGS_RELEASE'] = ['-O2'] 
+	v['CXXFLAGS_RELEASE'] = ['-O2']
+
 	v['CC_SRC_F']            = ''
 	v['CC_TGT_F']            = ['-c', '-o', ''] # shell hack for -MD
 	v['CPPPATH_ST']          = '-I%s' # template for adding include paths
