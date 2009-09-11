@@ -643,7 +643,7 @@ def get_config_header(self):
 		elif value is UNDEFINED:
 			config_header.append('/* #undef %s */' % key)
 		else:
-			config_header.append('#define %s %s' % (key, value))
+			config_header.append('#define %s %s' % (key, repr(value)[1:-1]))
 
 	return "\n".join(config_header)
 
