@@ -135,4 +135,5 @@ def detect(conf):
 	conf.gcc_modifier_platform()
 	conf.cc_load_tools()
 	conf.cc_add_flags()
+	conf.link_add_flags()
 

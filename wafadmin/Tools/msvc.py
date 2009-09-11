@@ -443,6 +443,7 @@ cc_load_tools
 cxx_load_tools
 cc_add_flags
 cxx_add_flags
+link_add_flags
 '''
 
 @conftest
