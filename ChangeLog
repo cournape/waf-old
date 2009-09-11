@@ -1,3 +1,8 @@
+NEW IN WAF 1.5.10
+-----------------
+* conf.define strings are now quoted by default
+? fltk support
+
 NEW IN WAF 1.5.9
 ----------------
 * process the framework flags from the pkg-config output
