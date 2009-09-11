@@ -12,10 +12,9 @@ all_modifs = {}
 
 def modif(dir, name, fun):
 	if name == '*':
-		lst = os.listdir(dir) + ['Tools' + os.sep + x for x in os.listdir(os.path.join(dir, 'Tools'))]
+		lst = [y + os.sep + x for x in os.listdir(os.path.join(dir, y)) for y in '. Tools 3rdparty'.split() if x.endswith('.py')]
 		for x in lst:
-			if x.endswith('.py'):
-				modif(dir, x, fun)
+			modif(dir, x, fun)
 		return
 
 	filename = os.path.join(dir, name)
