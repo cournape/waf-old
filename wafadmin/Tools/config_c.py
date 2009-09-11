@@ -662,13 +662,13 @@ def find_cpp(conf):
 def cc_add_flags(conf):
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')
 	conf.add_os_flags('CPPFLAGS')
-	conf.add_os_flags('LINKFLAGS')
+	conf.add_os_flags('LINKFLAGS', 'LDFLAGS')
 
 @conftest
 def cxx_add_flags(conf):
 	conf.add_os_flags('CXXFLAGS')
 	conf.add_os_flags('CPPFLAGS')
-	conf.add_os_flags('LINKFLAGS')
+	conf.add_os_flags('LINKFLAGS', 'LDFLAGS')
 
 @conftest
 def cc_load_tools(conf):
