@@ -11,7 +11,7 @@ def configure(conf):
 
 def build(bld):
 	bld.new_task_gen(
-		features = 'cxx cprogram fluid',
+		features = 'cxx cprogram',
 		target   = 'sample',
 		source   = 'main.cpp PopupDialog.fl UserInterface.fl',
 		includes = '.',
