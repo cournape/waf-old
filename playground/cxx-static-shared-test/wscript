@@ -117,7 +117,7 @@ def module(bld, target, kind, types = ('static', 'shared'), sources = None, incl
 			if node:
 				for f in node.find_iter(in_pat = ['*.cpp']): obj.source.append(f.relpath_gen(bld.path))
 			else: obj.source.append(s)
-		obj.sources.sort()
+		obj.source.sort()
 		obj.includes = includes
 		if defines is not None: obj.defines = defines
 		if type != 'static' and obj.env.DEST_BINFMT == 'elf': obj.rpath = '$ORIGIN:$ORIGIN/../lib'
