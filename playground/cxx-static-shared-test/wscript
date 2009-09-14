@@ -19,14 +19,14 @@
 #
 # The following dependencies are expected (filenames on linux, libstdc++.so.6, libc.so.6 are not shown):
 # 	For variant static main, static wrapper, static impl:
-# 		static-shared--st-st-st--main -> libgcc_s.so.1
+# 		static-shared--main-st--wrapper-st--impl-st -> libgcc_s.so.1
 # 	For variant static wrapper, static impl:
-# 		static-shared--sh-st-st--main -> (nothing)
+# 		static-shared--main-sh--wrapper-st--impl-st -> (nothing)
 # 	For variant static wrapper, shared impl:
-# 		static-shared--sh-st-sh--main -> libstatic-shared--sh-st-sh--impl.so.1
+# 		static-shared--main-sh--wrapper-st--impl-sh -> libstatic-shared--impl.so.1
 # 	For variant shared wrapper, shared impl:
-# 		static-shared--sh-sh-sh--main -> libstatic-shared--sh-sh-sh--wrapper.so.1
-#		libstatic-shared--sh-sh-sh--wrapper.so -> libstatic-shared--sh-sh-sh--impl.so.1
+# 		static-shared--main-sh--wrapper-sh--impl-sh -> libstatic-shared--wrapper--impl-sh.so.1
+#		libstatic-shared--wrapper--impl-sh.so -> libstatic-shared--impl.so.1
 #
 # Equivalent dependencies are expected on cygwin and plain windows (just the filenames change).
 #
@@ -48,56 +48,64 @@ def set_options(opt):
 def configure(conf):
 	conf.check_tool('compiler_cxx')
 	conf.env.PREFIX = os.path.join(conf.blddir, os.pardir, '++install')
+	if False: # bug
+		for static_impl in (False, True):
+			conf.write_config_header('impl-' + (static_impl and 'st' or 'sh') + '/impl/config.hpp')
+		for static_wrapper in (False, True):
+			conf.write_config_header('wrapper-' + (static_wrapper and 'st' or 'sh') + '/wrapper/config.hpp')
 	
 def build(bld):
 	test_name = 'static-shared' #bld.srcnode.name
 	src_dir = 'src'
 	
-	def variant(static_prog, static_wrapper, static_impl):
-		variant_name = \
-			(static_prog and 'st' or 'sh') + '-' + \
-			(static_wrapper and 'st' or 'sh') + '-' + \
-			(static_impl and 'st' or 'sh')
+	for static_impl in (False, True):
 		impl = bld.lib(
-			target=test_name + '--' + variant_name + '--impl',
+			target=test_name + \
+				'--impl',
 			types=(static_impl and 'static' or 'shared',),
 			sources=[src_dir + '/impl'],
 			includes=[src_dir],
+			#client_includes=['impl-' + (static_impl and 'st' or 'sh')],
 			defines=['IMPL=' + (static_impl and '-1' or '1')]
 		)
-		wrapper = bld.lib(
-			target=test_name + '--' + variant_name + '--wrapper',
-			types=(static_wrapper and 'static' or 'shared',),
-			sources=[src_dir + '/wrapper'],
-			includes=[src_dir],
-			defines=['WRAPPER=' + (static_wrapper and '-1' or '1'), 'IMPL=' + (static_impl and '-1' or '0')],
-			uselib_local=[impl.name]
-		)
-		bld.program(
-			target=test_name + '--' + variant_name + '--main',
-			types=(static_prog and 'static' or 'shared',),
-			sources=[src_dir + '/main'],
-			includes=[src_dir],
-			defines=['WRAPPER=' + (static_wrapper and '-1' or '0'), 'IMPL=' + (static_impl and '-1' or '0')],
-			uselib_local=[wrapper.name]
-		)
-	variant(True, True, True)
-	variant(False, True, True)
-	variant(False, True, False)
-	variant(False, False, False)
-	#variant(False, False, True) ... rarely used: a shared library that contains a static one needs pic/non-pic trickery.
+		for static_wrapper in (False, True):
+			if not static_wrapper and static_impl: continue # ... rarely used: a shared library that contains a static one needs pic/non-pic trickery.
+			wrapper = bld.lib(
+				target=test_name + \
+					'--wrapper' + \
+					'--impl-' + (static_impl and 'st' or 'sh'),
+				types=(static_wrapper and 'static' or 'shared',),
+				sources=[src_dir + '/wrapper'],
+				includes=[src_dir],
+				#client_includes=['wrapper-' + (static_wrapper and 'st' or 'sh')],
+				defines=['WRAPPER=' + (static_wrapper and '-1' or '1'), 'IMPL=' + (static_impl and '-1' or '0')],
+				uselib_local=[impl.name]
+			)
+			for static_prog in (False, True):
+				if static_prog and not (static_wrapper and static_impl): continue
+				bld.program(
+					target=test_name + \
+						'--main-' + (static_prog and 'st' or 'sh') + \
+						'--wrapper-' + (static_wrapper and 'st' or 'sh') + \
+						'--impl-' + (static_impl and 'st' or 'sh'),
+					types=(static_prog and 'static' or 'shared',),
+					sources=[src_dir + '/main'],
+					includes=[src_dir],
+					defines=['WRAPPER=' + (static_wrapper and '-1' or '0'), 'IMPL=' + (static_impl and '-1' or '0')],
+					uselib_local=[wrapper.name]
+				)
 	
 def shutdown(): pass
 
-def program(bld, target, types = ('static', 'shared',), sources = None, includes = None, defines = None, uselib_local = None, uselib = None):
-	return module(bld, target, 'program', types, sources, includes, None, defines, uselib_local, uselib)
+def program(bld, target, types = ('static', 'shared',), sources=None, includes=None, client_includes=None, defines=None, uselib_local=None, uselib=None):
+	return module(bld, target, 'program', types, sources, includes, client_includes, None, defines, uselib_local, uselib)
 Build.BuildContext.program = program
 
-def lib(bld, target, types = ('static', 'shared'), sources = None, includes = None, headers = None, defines = None, uselib_local = None, uselib = None):
-	return module(bld, target, 'lib', types, sources, includes, headers, defines, uselib_local, uselib)
+def lib(bld, target, types = ('static', 'shared'), sources=None, includes=None, client_includes=None, headers=None, defines=None, uselib_local=None, uselib=None):
+	return module(bld, target, 'lib', types, sources, includes, client_includes, headers, defines, uselib_local, uselib)
 Build.BuildContext.lib = lib
 
-def module(bld, target, kind, types = ('static', 'shared'), sources = None, includes = None, headers = None, defines = None, uselib_local = None, uselib = None):
+def module(bld, target, kind, types = ('static', 'shared'), sources=None, includes=None, client_includes=None, headers=None, defines=None, uselib_local=None, uselib=None):
 	for type in types:
 		if kind == 'program':
 			obj = bld.new_task_gen('cxx', 'program')
@@ -118,8 +126,9 @@ def module(bld, target, kind, types = ('static', 'shared'), sources = None, incl
 				for f in node.find_iter(in_pat = ['*.cpp']): obj.source.append(f.relpath_gen(bld.path))
 			else: obj.source.append(s)
 		obj.source.sort()
-		obj.includes = includes
-		if defines is not None: obj.defines = defines
+		if includes: obj.includes = includes
+		if client_includes: obj.export_incdirs = client_includes
+		if defines: obj.defines = defines
 		if type != 'static' and obj.env.DEST_BINFMT == 'elf': obj.rpath = '$ORIGIN:$ORIGIN/../lib'
 		if uselib_local: obj.uselib_local = uselib_local
 		if uselib: obj.uselib = uselib
