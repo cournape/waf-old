@@ -27,7 +27,7 @@ def prepare_impl(t, cwd, ver, wafdir):
 	# now find the wscript file
 	msg1 = 'Waf: Please run waf from a directory containing a file named "%s" or run distclean' % WSCRIPT_FILE
 
-	# in theory projects can be configured in a gcc manner:
+	# in theory projects can be configured in a autotools manner:
 	# mkdir build && cd build && ../waf configure && ../waf
 	build_dir_override = None
 	candidate = None
