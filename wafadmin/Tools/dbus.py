@@ -20,7 +20,7 @@ def process_dbus(self):
 		if not node:
 			raise Utils.WafError('file not found ' + filename)
 
-		tsk = elf.create_task('dbus_binding_tool', node, node.change_ext('.h'))
+		tsk = self.create_task('dbus_binding_tool', node, node.change_ext('.h'))
 
 		tsk.env.DBUS_BINDING_TOOL_PREFIX = prefix
 		tsk.env.DBUS_BINDING_TOOL_MODE   = mode
