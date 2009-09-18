@@ -46,6 +46,13 @@ else:
 import Logs
 from Constants import *
 
+try:
+	from collections import deque
+except ImportError:
+	class deque(list):
+		def popleft(self):
+			return self.pop(0)
+
 is_win32 = sys.platform == 'win32'
 
 try:

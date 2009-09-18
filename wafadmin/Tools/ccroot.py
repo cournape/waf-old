@@ -15,16 +15,6 @@ try:
 except ImportError:
 	from io import StringIO
 
-# double-ended queue
-try:
-	from collections import deque as delist
-except ImportError:
-	# python 2.3 compatibility: fallback to slow list operations
-	delist = list
-	def delist_pop(delist): return delist.pop(0) # slow operation!
-else:
-	delist_pop = delist.popleft # fast
-
 import config_c # <- necessary for the configuration, do not touch
 
 USE_TOP_LEVEL = False
@@ -349,10 +339,10 @@ def apply_lib_vars(self):
 	uselib = self.to_list(self.uselib)
 	names = self.to_list(self.uselib_local)
 
-	seen = set()
-	tmp = delist(names) # consume a copy of the list of names
+	seen = set([])
+	tmp = Utils.deque(names) # consume a copy of the list of names
 	while tmp:
-		lib_name = delist_pop(tmp)
+		lib_name = tmp.popleft()
 		# visit dependencies only once
 		if lib_name in seen:
 			continue
