@@ -2,7 +2,8 @@ import sys, os
 
 try:
 	from ctypes import *
-except ImportError:
+	windll.kernel32
+except Exception:
 	pass
 else:
 	import re
