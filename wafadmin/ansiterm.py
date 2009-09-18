@@ -209,7 +209,3 @@ else:
         sys.stderr = sys.stdout = AnsiTerm()
         os.environ['TERM'] = 'vt100'
 
-if __name__ == '__main__':
-    sys.stdout.write('\nabcd\x1b[A\x1b[01;31mHello World!\x1b[32mbye\x1b[m')
-
-

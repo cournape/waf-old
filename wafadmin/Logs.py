@@ -2,7 +2,8 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-import os, re, logging, traceback, sys, ansiterm
+import ansiterm
+import os, re, logging, traceback, sys
 from Constants import *
 
 zones = ''
@@ -34,8 +35,9 @@ import Utils
 if not got_tty or 'NOCOLOR' in os.environ:
 	colors_lst['USE'] = False
 
-if sys.platform == 'win32':
-	colors_lst['USE'] = True
+# test
+#if sys.platform == 'win32':
+#	colors_lst['USE'] = True
 
 def get_color(cl):
 	if not colors_lst['USE']: return ''
