@@ -1,9 +1,10 @@
 import sys, os
-class CONSOLE_SCREEN_BUFFER_INFO(Structure):
-	_fields_ = [("Size", COORD), ("CursorPosition", COORD), ("Attributes", c_short), ("Window", SMALL_RECT), ("MaximumWindowSize", COORD)]
-
 try:
 	from ctypes import *
+	
+	class CONSOLE_SCREEN_BUFFER_INFO(Structure):
+		_fields_ = [("Size", COORD), ("CursorPosition", COORD), ("Attributes", c_short), ("Window", SMALL_RECT), ("MaximumWindowSize", COORD)]
+
 	sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
 	hconsole = windll.kernel32.GetStdHandle(-11)
 	windll.kernel32.GetConsoleScreenBufferInfo(hconsole, byref(sbinfo))
