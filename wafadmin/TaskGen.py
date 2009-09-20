@@ -381,7 +381,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 
 		tsk = self.create_task(name, node, out_source)
 
-		if node.__class__.bld.is_install == INSTALL:
+		if node.__class__.bld.is_install:
 			tsk.install = install
 
 	declare_extension(act.ext_in, x_file)
