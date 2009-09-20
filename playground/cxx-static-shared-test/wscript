@@ -40,8 +40,6 @@ VERSION = '1.2.3'
 srcdir = '.'
 blddir = '++build'
 
-def init(): pass
-
 def set_options(opt):
 	opt.tool_options('compiler_cxx')
 
@@ -100,8 +98,6 @@ def build(bld):
 					uselib_local=[wrapper.name]
 				)
 	
-def shutdown(): pass
-
 def program(bld, target, types = ('static', 'shared',), sources=None, includes=None, client_includes=None, defines=None, uselib_local=None, uselib=None):
 	return module(bld, target, 'program', types, sources, includes, client_includes, None, defines, uselib_local, uselib)
 Build.BuildContext.program = program
