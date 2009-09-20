@@ -75,8 +75,6 @@ def build(bld):
 				pic_static_impl = impl
 			else: normal_impl = impl
 		for static_wrapper in (False, True):
-			if not static_wrapper and static_impl: impl = pic_static_impl
-			else: impl = normal_impl
 			wrapper = bld.lib(
 				target=test_name + \
 					'--wrapper' + \
@@ -86,7 +84,7 @@ def build(bld):
 				includes=[src_dir],
 				#client_includes=['wrapper-' + (static_wrapper and 'st' or 'sh')],
 				defines=['WRAPPER=' + (static_wrapper and '-1' or '1'), 'IMPL=' + (static_impl and '-1' or '0')],
-				uselib_local=[impl.name]
+				uselib_local=[((not static_wrapper and static_impl) and pic_static_impl or normal_impl).name]
 			)
 			for static_prog in (False, True):
 				if static_prog and not (static_wrapper and static_impl): continue
