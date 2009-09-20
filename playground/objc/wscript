@@ -10,22 +10,23 @@ APPNAME='objc_test'
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	conf.check_tool('gcc')
 	conf.check_tool('gcc-objc', tooldir='.')
 	#conf.check(framework_name='Foundation', framework_path='/Library/Frameworks')
 
 def build(bld):
-	main = bld.new_task_gen('cc', 'program')
-	main.source='test.m'
-	main.target='test_objc_program'
-	main.uselib_local='teststaticlib'
-	main.uselib='FOUNDATION'
+	main = bld.new_task_gen(
+		features     = 'cc cprogram',
+		source       = 'test.m',
+		target       = 'test_objc_program',
+		uselib_local = 'teststaticlib',
+		uselib       = 'FOUNDATION',
+		)
 
-	staticlib = bld.new_task_gen('cc', 'staticlib')
-	staticlib.source = 'HelloWorld.m'
-	staticlib.target='teststaticlib'
+	staticlib = bld.new_task_gen(
+		features     = 'cc cstaticlib',
+		source       = 'HelloWorld.m',
+		target       = 'teststaticlib',
+		)
 
