@@ -109,12 +109,13 @@ Build.BuildContext.lib = lib
 def module(bld, target, kind, types = ('static', 'shared'), sources=None, includes=None, client_includes=None, headers=None, defines=None, uselib_local=None, uselib=None):
 	for type in types:
 		if kind == 'program':
-			obj = bld.new_task_gen('cxx', 'program')
+			obj = bld.new_task_gen(features = 'cxx cprogram')
 			obj.target = target
 			if len(types) > 1: obj.target += '-' + type
 			if type == 'static' and obj.env.CXX_NAME == 'gcc': obj.env.append_value('LINKFLAGS', '-static')
 		else:
-			obj = bld.new_task_gen('cxx', {'static': 'staticlib', 'shared': 'shlib'}[type])
+			tp = {'static': 'cstaticlib', 'shared': 'cshlib'}[type]
+			obj = bld.new_task_gen('cxx %s' % tp)
 			obj.target = target
 			if type == 'shared': obj.vnum = VERSION
 		obj.name = target + '-' + type
