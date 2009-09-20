@@ -1,4 +1,4 @@
-#! /usr/bin/env waf
+#! /usr/bin/env python
 # encoding: utf-8
 # copyright 2009 Johan Boule <bohan@jabber.org>
 #
@@ -9,7 +9,7 @@
 # - a dynamically linked 'main' program that contains a static 'wrapper' library, which dynamically links against a shared 'impl' library,
 # - a dynamically linked 'main' program that contains a static 'wrapper' library, which depends on a static 'impl' library,
 # - a statically linked 'main' program that contains a static 'wrapper' library, which depends on a static 'impl' library,
-# The case of a shared 'wrapper' library that contains a static 'impl' library is not tested, as it's rarely used and needs pic/non-pic trickery.
+# The case of a shared 'wrapper' library that contains a static 'impl' library is also tested, and needs pic/non-pic trickery.
 #
 # Once built and installed, on linux, to retrieve the dependencies, use either
 # 	readelf -d ++install/{bin,lib}/xxxx | grep NEEDED, or
@@ -59,17 +59,24 @@ def build(bld):
 	src_dir = 'src'
 	
 	for static_impl in (False, True):
-		impl = bld.lib(
-			target=test_name + \
-				'--impl',
-			types=(static_impl and 'static' or 'shared',),
-			sources=[src_dir + '/impl'],
-			includes=[src_dir],
-			#client_includes=['impl-' + (static_impl and 'st' or 'sh')],
-			defines=['IMPL=' + (static_impl and '-1' or '1')]
-		)
+		for pic_static in static_impl and (True, False) or (False,):
+			impl = bld.lib(
+				target=test_name + \
+					'--impl' + (pic_static and '-pic' or ''),
+				types=(static_impl and 'static' or 'shared',),
+				sources=[src_dir + '/impl'],
+				includes=[src_dir],
+				#client_includes=['impl-' + (static_impl and 'st' or 'sh')],
+				defines=['IMPL=' + (static_impl and '-1' or '1')]
+			)
+			if pic_static:
+				if impl.env.CXX_NAME == 'gcc': impl.env.append_value('CXXFLAGS', '-fPIC')
+				else: pass # TODO
+				pic_static_impl = impl
+			else: normal_impl = impl
 		for static_wrapper in (False, True):
-			if not static_wrapper and static_impl: continue # ... rarely used: a shared library that contains a static one needs pic/non-pic trickery.
+			if not static_wrapper and static_impl: impl = pic_static_impl
+			else: impl = normal_impl
 			wrapper = bld.lib(
 				target=test_name + \
 					'--wrapper' + \
@@ -111,9 +118,7 @@ def module(bld, target, kind, types = ('static', 'shared'), sources=None, includ
 			obj = bld.new_task_gen('cxx', 'program')
 			obj.target = target
 			if len(types) > 1: obj.target += '-' + type
-			if type == 'static' and obj.env['CXX_NAME'] == 'gcc':
-				#obj.env = obj.env.copy()
-				obj.env.append_value('LINKFLAGS', '-static')
+			if type == 'static' and obj.env.CXX_NAME == 'gcc': obj.env.append_value('LINKFLAGS', '-static')
 		else:
 			obj = bld.new_task_gen('cxx', {'static': 'staticlib', 'shared': 'shlib'}[type])
 			obj.target = target
