@@ -61,6 +61,5 @@ def apply_cs(self):
 Task.simple_task_type('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 
 def detect(conf):
-	mcs = conf.find_program('mcs', var='MCS')
-	if not mcs: mcs = conf.find_program('gmcs', var='MCS')
+	conf.find_program(['gmcs', 'mcs'], var='MCS')
 
