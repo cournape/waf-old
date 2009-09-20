@@ -531,12 +531,11 @@ def load_tool(tool, tooldir=None):
 
 def readf(fname, m='r'):
 	"get the contents of a file, it is not used anywhere for the moment"
-	f = None
+	f = open(fname, m)
 	try:
-		f = open(fname, m)
 		txt = f.read()
 	finally:
-		if f: f.close()
+		f.close()
 	return txt
 
 def nada(*k, **kw):
