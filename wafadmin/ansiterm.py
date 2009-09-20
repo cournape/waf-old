@@ -195,8 +195,6 @@ else:
 		def isatty(self):
 			return True
 
-	got_tty = not os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']
-	if got_tty:
-		sys.stderr = sys.stdout = AnsiTerm()
-		os.environ['TERM'] = 'vt100'
+	sys.stderr = sys.stdout = AnsiTerm()
+	os.environ['TERM'] = 'vt100'
 
