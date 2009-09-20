@@ -2,7 +2,9 @@ import sys, os
 
 try:
 	from ctypes import *
-	windll.kernel32
+	sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
+	hconsole = windll.kernel32.GetStdHandle(-11)
+	windll.kernel32.GetConsoleScreenBufferInfo(hconsole, byref(sbinfo))
 except Exception:
 	pass
 else:
@@ -202,11 +204,6 @@ else:
 			return True
 
 	got_tty = not os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']
-	if got_tty:
-		try:
-			got_tty = sys.stderr.isatty()
-		except AttributeError:
-			got_tty = False
 	if got_tty:
 		sys.stderr = sys.stdout = AnsiTerm()
 		os.environ['TERM'] = 'vt100'
