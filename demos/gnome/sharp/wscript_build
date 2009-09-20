@@ -9,6 +9,11 @@ Simple.cs
 obj.includes='.'
 obj.flags  = '-pkg:gtk-sharp-2.0'
 #obj.uselib = 'GTK GNOME GNOMEUI'
+
+# tell waf that we're generating an EXE (which is the default).
+# the other popular option would be 'library' if you want a DLL.
+obj.type = 'exe'
+
 obj.target = 'mono-hello.exe'
 
 # NOTES

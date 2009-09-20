@@ -46,6 +46,9 @@ def apply_cs(self):
 	for i in self.to_list(self.resources):
 		self.env['_RESOURCES'].append('/resource:'+i)
 
+	# what kind of assembly are we generating?
+	self.env['_TYPE'] = getattr(self, 'type', 'exe')
+
 	# additional flags
 	self.env['_FLAGS'] += self.to_list(self.flags) + self.env['FLAGS']
 
@@ -58,7 +61,7 @@ def apply_cs(self):
 
 	task = self.create_task('mcs', nodes, self.path.find_or_declare(self.target))
 
-Task.simple_task_type('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
+Task.simple_task_type('mcs', '${MCS} ${SRC} /target:${_TYPE} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 
 def detect(conf):
 	conf.find_program(['gmcs', 'mcs'], var='MCS')
