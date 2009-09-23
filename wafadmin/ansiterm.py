@@ -1,6 +1,13 @@
 import sys, os
 try:
 	from ctypes import *
+
+	class COORD(Structure):
+		_fields_ = [("X", c_short), ("Y", c_short)]
+
+	class SMALL_RECT(Structure):
+		_fields_ = [("Left", c_short), ("Top", c_short), ("Right", c_short), ("Bottom", c_short)]
+
 	
 	class CONSOLE_SCREEN_BUFFER_INFO(Structure):
 		_fields_ = [("Size", COORD), ("CursorPosition", COORD), ("Attributes", c_short), ("Window", SMALL_RECT), ("MaximumWindowSize", COORD)]
@@ -17,12 +24,6 @@ else:
 
 	STD_OUTPUT_HANDLE = -11
 	STD_ERROR_HANDLE = -12
-
-	class COORD(Structure):
-		_fields_ = [("X", c_short), ("Y", c_short)]
-
-	class SMALL_RECT(Structure):
-		_fields_ = [("Left", c_short), ("Top", c_short), ("Right", c_short), ("Bottom", c_short)]
 
 	class AnsiTerm(object):
 		def __init__(self):
