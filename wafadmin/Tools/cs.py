@@ -59,10 +59,14 @@ def apply_cs(self):
 	for i in self.to_list(self.source):
 		nodes.append(curnode.find_resource(i))
 
-	task = self.create_task('mcs', nodes, self.path.find_or_declare(self.target))
+	self.create_task('mcs', nodes, self.path.find_or_declare(self.target))
 
 Task.simple_task_type('mcs', '${MCS} ${SRC} /target:${_TYPE} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 
 def detect(conf):
+
+	csc = getattr(Options.options, 'cscbinary')
+	if csc:
+		conf.env.MCS = csc
 	conf.find_program(['gmcs', 'mcs'], var='MCS')
 
