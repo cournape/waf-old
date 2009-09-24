@@ -239,7 +239,7 @@ def default_link_install(self):
 	"""you may kill this method to inject your own installation for the first element
 	any other install should only process its own nodes and not those from the others"""
 	if self.install_path:
-		self.bld.install_files(self.install_path, [self.link_task.outputs[0]], env=self.env, chmod=self.chmod)
+		self.bld.install_files(self.install_path, self.link_task.outputs[0], env=self.env, chmod=self.chmod)
 
 @feature('cc', 'cxx')
 @after('apply_type_vars', 'apply_lib_vars', 'apply_core')
@@ -542,7 +542,7 @@ def apply_implib(self):
 
 	# install the dll in the bin dir
 	dll = self.link_task.outputs[0]
-	self.bld.install_files(bindir, [dll], self.env, self.chmod)
+	self.bld.install_files(bindir, dll, self.env, self.chmod)
 
 	# add linker flags to generate the import lib
 	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]

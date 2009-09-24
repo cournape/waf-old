@@ -803,6 +803,9 @@ class BuildContext(Utils.Context):
 		else:
 			lst = Utils.to_list(files)
 
+		if not getattr(lst, '__iter__', False):
+			lst = [lst]
+
 		destpath = self.get_install_path(path, env)
 
 		Utils.check_dir(destpath)
