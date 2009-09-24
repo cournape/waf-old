@@ -4,7 +4,7 @@
 
 "C# support"
 
-import TaskGen, Utils, Task
+import TaskGen, Utils, Task, Options
 from Logs import error
 from TaskGen import before, after, taskgen, feature
 
