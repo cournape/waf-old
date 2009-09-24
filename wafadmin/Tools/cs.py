@@ -64,9 +64,11 @@ def apply_cs(self):
 Task.simple_task_type('mcs', '${MCS} ${SRC} /target:${_TYPE} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 
 def detect(conf):
-
-	csc = getattr(Options.options, 'cscbinary')
+	csc = getattr(Options.options, 'cscbinary', None)
 	if csc:
 		conf.env.MCS = csc
 	conf.find_program(['gmcs', 'mcs'], var='MCS')
+
+def set_options(opt):
+	opt.add_option('--with-csc-binary', type='string', dest='cscbinary')
 
