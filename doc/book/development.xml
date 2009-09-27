@@ -200,7 +200,7 @@ cd waf-read-only
 		<para>
 		To avoid regenerating Waf each time, the environment variable WAFDIR can be used to point to the directory containing wafadmin:
 		<programlisting language="sh">
-export WAFDIR=/path/to/wafadmin
+export WAFDIR=/path/to/directory/
 		</programlisting>
 		</para>
 		<para>
