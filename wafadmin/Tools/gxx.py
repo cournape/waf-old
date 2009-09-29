@@ -100,6 +100,7 @@ def gxx_modifier_darwin(conf):
 
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
+	v['SONAME_ST']		 = ''	
 
 @conftest
 def gxx_modifier_aix(conf):
