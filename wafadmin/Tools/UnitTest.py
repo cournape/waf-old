@@ -19,6 +19,7 @@ Each object to use as a unit test must be a program and must have X{obj.unit_tes
 """
 import os, sys
 import Build, TaskGen, Utils, Options, Logs, Task
+from TaskGen import before, after, feature
 from Constants import *
 
 class unit_test(object):
@@ -210,13 +211,14 @@ bld.add_post_fun(UnitTest.summary)
 import threading
 testlock = threading.Lock()
 
-@TaskGen.feature('test')
-@TaskGen.after('apply_link')
+@feature('test')
+@after('apply_link', 'vars_target_cprogram')
 def make_test(self):
 	if not 'cprogram' in self.features:
 		Logs.error('test cannot be executed %s' % self)
 		return
 
+	self.default_install_path = None
 	tsk = self.create_task('utest')
 	tsk.set_inputs(self.link_task.outputs)
 
