@@ -235,7 +235,7 @@ def exec_test(self):
 			self.generator.bld.all_test_paths = fu
 
 			lst = []
-			for obj in self.bld.all_task_gen:
+			for obj in self.generator.bld.all_task_gen:
 				try:
 					link_task = obj.link_task
 				except AttributeError:
@@ -246,18 +246,18 @@ def exec_test(self):
 			def add_path(dct, path, var):
 				dct[var] = os.pathsep.join(Utils.to_list(path) + [os.environ.get(var, '')])
 			if sys.platform == 'win32':
-				add_path(fu, ld_library_path, 'PATH')
+				add_path(fu, lst, 'PATH')
 			elif sys.platform == 'darwin':
-				add_path(fu, ld_library_path, 'DYLD_LIBRARY_PATH')
-				add_path(fu, ld_library_path, 'LD_LIBRARY_PATH')
+				add_path(fu, lst, 'DYLD_LIBRARY_PATH')
+				add_path(fu, lst, 'LD_LIBRARY_PATH')
 			else:
-				add_path(fu, ld_library_path, 'LD_LIBRARY_PATH')
+				add_path(fu, lst, 'LD_LIBRARY_PATH')
 
 		try:
 			ret = Utils.cmd_output(filename, cwd=self.inputs[0].parent.abspath(self.env), env=fu)
 		except Exception, e:
 			fail = True
-			ret = '' + e
+			ret = '' + str(e)
 		else:
 			pass
 
