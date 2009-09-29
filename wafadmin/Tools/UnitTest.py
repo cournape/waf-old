@@ -236,11 +236,8 @@ def exec_test(self):
 
 			lst = []
 			for obj in self.generator.bld.all_task_gen:
-				try:
-					link_task = obj.link_task
-				except AttributeError:
-					pass
-				else:
+				link_task = getattr(obj, 'link_task', None)
+				if link_task:
 					lst.append(link_task.outputs[0].parent.abspath(obj.env))
 
 			def add_path(dct, path, var):
