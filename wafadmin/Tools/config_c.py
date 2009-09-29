@@ -642,9 +642,10 @@ def get_config_header(self):
 			config_header.append('#define %s' % key)
 		elif value is UNDEFINED:
 			config_header.append('/* #undef %s */' % key)
-		else:
+		elif isinstance(value, str):
 			config_header.append('#define %s %s' % (key, repr(value)[1:-1]))
-
+		else:
+			config_header.append('#define %s %s' % (key, value))
 	return "\n".join(config_header)
 
 @conftest
