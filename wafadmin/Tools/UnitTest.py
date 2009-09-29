@@ -223,26 +223,49 @@ def make_test(self):
 	tsk.set_inputs(self.link_task.outputs)
 
 def exec_test(self):
+	testlock.acquire()
 	fail = False
 	try:
-		testlock.acquire()
-
 		filename = self.inputs[0].abspath(self.env)
+
 		try:
-			ret = Utils.cmd_output(filename, cwd='/cygdrive/c/home/waf-1.5.8/demos/unit_test/tests/test0')
+			fu = getattr(self.generator.bld, 'all_test_paths')
+		except AttributeError:
+			fu = os.environ.copy()
+			self.generator.bld.all_test_paths = fu
+
+			lst = []
+			for obj in self.bld.all_task_gen:
+				try:
+					link_task = obj.link_task
+				except AttributeError:
+					pass
+				else:
+					lst.append(link_task.outputs[0].parent.abspath(obj.env))
+
+			def add_path(dct, path, var):
+				dct[var] = os.pathsep.join(Utils.to_list(path) + [os.environ.get(var, '')])
+			if sys.platform == 'win32':
+				add_path(fu, ld_library_path, 'PATH')
+			elif sys.platform == 'darwin':
+				add_path(fu, ld_library_path, 'DYLD_LIBRARY_PATH')
+				add_path(fu, ld_library_path, 'LD_LIBRARY_PATH')
+			else:
+				add_path(fu, ld_library_path, 'LD_LIBRARY_PATH')
+
+		try:
+			ret = Utils.cmd_output(filename, cwd=self.inputs[0].parent.abspath(self.env), env=fu)
 		except Exception, e:
 			fail = True
-			ret = ""
+			ret = '' + e
 		else:
 			pass
 
 		stats = getattr(self.generator.bld, 'utest_results', [])
 		stats.append((filename, fail, ret))
 		self.generator.bld.utest_results = stats
-
+	finally:
 		testlock.release()
-	except Exception, e:
-		print e
 
 cls = Task.task_type_from_func('utest', func=exec_test, color='RED', ext_in='.bin')
 
