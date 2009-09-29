@@ -115,7 +115,7 @@ def module(bld, target, kind, types = ('static', 'shared'), sources=None, includ
 			if type == 'static' and obj.env.CXX_NAME == 'gcc': obj.env.append_value('LINKFLAGS', '-static')
 		else:
 			tp = {'static': 'cstaticlib', 'shared': 'cshlib'}[type]
-			obj = bld.new_task_gen('cxx %s' % tp)
+			obj = bld.new_task_gen(features = 'cxx %s' % tp)
 			obj.target = target
 			if type == 'shared': obj.vnum = VERSION
 		obj.name = target + '-' + type
