@@ -573,7 +573,7 @@ def apply_vnum(self):
 
 	libname = node.name
 	if libname.endswith('.dylib'):
-		name3 = libname.replace('.dylib', '.%s.dylib' % task.vnum)
+		name3 = libname.replace('.dylib', '.%s.dylib' % self.vnum)
 		name2 = libname.replace('.dylib', '.%s.dylib' % nums[0])
 	else:
 		name3 = libname + '.' + self.vnum
