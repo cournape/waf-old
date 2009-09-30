@@ -618,7 +618,7 @@ cls.quiet = 1
 @feature('cshlib', 'cprogram')
 @after('apply_link')
 def add_as_needed(self):
-	env = self.link_task.env
+	env = self.env
 	if env.DEST_BINFMT == 'elf':
 		# All ELF platforms are impacted but only the gcc compiler has a flag to fix it.
 		if 'gcc' in (env.CXX_NAME, env.CC_NAME):
