@@ -178,11 +178,12 @@ if is_win32:
 		try:
 			if 'stdout' not in kw:
 				kw['stdout'] = pproc.PIPE
-				kw['stderr'] = pproc.STDOUT
+				kw['stderr'] = pproc.PIPE
 				proc = pproc.Popen(s,**kw)
 				(stdout, stderr) = proc.communicate()
 				Logs.info(stdout)
-				Logs.error(stderr)
+				if stderr:
+					Logs.error(stderr)
 			else:
 				proc = pproc.Popen(s,**kw)
 				return proc.wait()
