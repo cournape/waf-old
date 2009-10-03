@@ -12,11 +12,43 @@ from Constants import *
 
 g_gz = 'bz2'
 commands = []
+build_dir_override = None
 
-def prepare_impl(t, cwd, ver, wafdir):
-	Options.tooldir = [t]
-	Options.launch_dir = cwd
+def waf_entry_point(tools_directory, current_directory, version, wafdir):
+	"""This is the main entry point, all Waf execution starts here."""
+	try:
+		check_wafdir_version(version)
+		
+		Options.tooldir = [tools_directory]
+		Options.launch_dir = current_directory
+		
+		handle_immediate_commands()
+		wscript_path = find_wscript_file(current_directory)
+		prepare_module(wscript_path)
+		parse_options(wscript_path)
+		run_commands()
+	
+	# Print Waf-specific errors
+	except Utils.WafError, e:
+		traceback.print_exc(file=sys.stdout)
+		error(str(e))
+		sys.exit(1)
+	# Handle keyboard interrupt
+	except KeyboardInterrupt:
+		Utils.pprint('RED', 'Interrupted')
+		sys.exit(68)
 
+def check_wafdir_version(version):
+	"""Check the version of Waf against the version of the wafadmin directory,
+	stored in the Constants module. Print an error and exit if they don't match."""
+	if WAFVERSION != version:
+		Utils.pprint('RED', 'Error: Waf script version and Waf library version are different.')
+		Utils.pprint('RED', 'Waf script version:    %s' % version)
+		Utils.pprint('RED', 'Waf library version:   %s' % WAFVERSION)
+		Utils.pprint('RED', 'Waf library directory: %s' % wafdir)
+		sys.exit(1)
+
+def handle_immediate_commands():
 	# some command-line options can be processed immediately
 	if '--version' in sys.argv:
 		opt_obj = Options.Handler()
@@ -24,19 +56,21 @@ def prepare_impl(t, cwd, ver, wafdir):
 		opt_obj.parse_args()
 		sys.exit(0)
 
-	# now find the wscript file
+def find_wscript_file(current_dir):
+	"""Search the directory from which Waf was run, and other dirs, for
+	the top-level wscript file."""
+	
 	msg1 = 'Waf: Please run waf from a directory containing a file named "%s" or run distclean' % WSCRIPT_FILE
 
 	# in theory projects can be configured in a gcc manner:
 	# mkdir build && cd build && ../waf configure && ../waf
-	build_dir_override = None
 	candidate = None
 
-	lst = os.listdir(cwd)
+	lst = os.listdir(current_dir)
 
 	search_for_candidate = True
 	if WSCRIPT_FILE in lst:
-		candidate = cwd
+		candidate = current_dir
 
 	elif 'configure' in sys.argv and not WSCRIPT_BUILD_FILE in lst:
 		# gcc-like configuration
@@ -47,35 +81,35 @@ def prepare_impl(t, cwd, ver, wafdir):
 		else:
 			error('arg[0] directory does not contain a wscript file')
 			sys.exit(1)
-		build_dir_override = cwd
+		build_dir_override = current_dir
 
 	# climb up to find a script if it is not found
 	while search_for_candidate:
-		if len(cwd) <= 3:
+		if len(current_dir) <= 3:
 			break # stop at / or c:
-		dirlst = os.listdir(cwd)
+		dirlst = os.listdir(current_dir)
 		if WSCRIPT_FILE in dirlst:
-			candidate = cwd
+			candidate = current_dir
 		if 'configure' in sys.argv and candidate:
 			break
 		if Options.lockfile in dirlst:
 			env = Environment.Environment()
-			env.load(os.path.join(cwd, Options.lockfile))
+			env.load(os.path.join(current_dir, Options.lockfile))
 			try:
 				os.stat(env['cwd'])
 			except:
-				candidate = cwd
+				candidate = current_dir
 			else:
 				candidate = env['cwd']
 			break
-		cwd = os.path.dirname(cwd) # climb up
+		current_dir = os.path.dirname(current_dir) # climb up
 
 	if not candidate:
 		# check if the user only wanted to display the help
 		if '-h' in sys.argv or '--help' in sys.argv:
 			warn('No wscript file found: the help message may be incomplete')
 			opt_obj = Options.Handler()
-			opt_obj.curdir = cwd
+			opt_obj.curdir = current_dir
 			opt_obj.parse_args()
 		else:
 			error(msg1)
@@ -86,36 +120,38 @@ def prepare_impl(t, cwd, ver, wafdir):
 		os.chdir(candidate)
 	except OSError:
 		raise Utils.WafError("the folder %r is unreadable" % candidate)
+	
+	return os.path.join(candidate, WSCRIPT_FILE)
+
+def prepare_module(wscript_path):
+	"""Load the Python module contained in the wscript file and prepare it
+	for execution. This includes adding functions that might be undefined."""
 
 	# define the main module containing the functions init, shutdown, ..
-	Utils.set_main_module(os.path.join(candidate, WSCRIPT_FILE))
+	Utils.set_main_module(wscript_path)
 
 	if build_dir_override:
 		d = getattr(Utils.g_module, BLDDIR, None)
-		if d:
-			# test if user has set the blddir in wscript.
-			msg = ' Overriding build directory %s with %s' % (d, build_dir_override)
-			warn(msg)
+		if d: # test if user has set the build directory in the wscript.
+			warn(' Overriding build directory %s with %s' % (d, build_dir_override))
 		Utils.g_module.blddir = build_dir_override
 
-	# bind a few methods and classes by default
-
-	def set_def(obj, name=''):
-		n = name or obj.__name__
-		if not n in Utils.g_module.__dict__:
-			setattr(Utils.g_module, n, obj)
-
-	for k in [dist, distclean, distcheck, clean, install, uninstall]:
+	# add default installation, uninstallation, etc. functions to the wscript
+	def set_def(obj):
+		name = obj.__name__
+		if not name in Utils.g_module.__dict__:
+			setattr(Utils.g_module, name, obj)
+	for k in [dist, distclean, distcheck]:
 		set_def(k)
+	# add dummy init and shutdown functions if they're not defined
+	if not 'init' in Utils.g_module.__dict__:
+		Utils.g_module.init = Utils.nada
+	if not 'shutdown' in Utils.g_module.__dict__:
+		Utils.g_module.shutdown = Utils.nada
 
-	set_def(Configure.ConfigurationContext, 'configure_context')
-
-	for k in ['build', 'clean', 'install', 'uninstall']:
-		set_def(Build.BuildContext, k + '_context')
-
-	# now parse the options from the user wscript file
+def parse_options(wscript_path):
 	opt_obj = Options.Handler(Utils.g_module)
-	opt_obj.curdir = candidate
+	opt_obj.curdir = os.path.dirname(wscript_path)
 	try:
 		f = Utils.g_module.set_options
 	except AttributeError:
@@ -124,289 +160,38 @@ def prepare_impl(t, cwd, ver, wafdir):
 		opt_obj.sub_options([''])
 	opt_obj.parse_args()
 
-	if not 'init' in Utils.g_module.__dict__:
-		Utils.g_module.init = Utils.nada
-	if not 'shutdown' in Utils.g_module.__dict__:
-		Utils.g_module.shutdown = Utils.nada
-
-	main()
-
-def prepare(t, cwd, ver, wafdir):
-	if WAFVERSION != ver:
-		msg = 'Version mismatch: waf %s <> wafadmin %s (wafdir %s)' % (ver, WAFVERSION, wafdir)
-		print('\033[91mError: %s\033[0m' % msg)
-		sys.exit(1)
-
-	#"""
-	try:
-		prepare_impl(t, cwd, ver, wafdir)
-	except Utils.WafError, e:
-		error(str(e))
-		sys.exit(1)
-	except KeyboardInterrupt:
-		Utils.pprint('RED', 'Interrupted')
-		sys.exit(68)
-	"""
-	import cProfile, pstats
-	cProfile.runctx("import Scripting; Scripting.prepare_impl(t, cwd, ver, wafdir)", {},
-		{'t': t, 'cwd':cwd, 'ver':ver, 'wafdir':wafdir},
-		 'profi.txt')
-	p = pstats.Stats('profi.txt')
-	p.sort_stats('time').print_stats(45)
-	#"""
-
-def main():
+def run_commands():
 	global commands
 	commands = Options.arg_line[:]
 
 	while commands:
-		x = commands.pop(0)
+		cmd_name = commands.pop(0)
 
 		ini = datetime.datetime.now()
-		if x == 'configure':
-			fun = configure
-		elif x == 'build':
-			fun = build
+		
+		# Use default context for commands that do not have a context defined
+		if cmd_name in Utils.context_dict:
+			context = Utils.context_dict[cmd_name]()
 		else:
-			fun = getattr(Utils.g_module, x, None)
+			context = Utils.Context()
 
-		if not fun:
-			raise Utils.WscriptError('No such command %r' % x)
+		# if the class attribute is missing, set an instance attribute
+		# with the function name
+		if not getattr(context.__class__, 'function_name', None):
+			setattr(context, 'function_name', cmd_name)
 
-		ctx = getattr(Utils.g_module, x + '_context', Utils.Context)()
-
-		if x in ['init', 'shutdown', 'dist', 'distclean', 'distcheck']:
-			# compatibility TODO remove in waf 1.6
-			try:
-				fun(ctx)
-			except TypeError:
-				fun()
-		else:
-			fun(ctx)
+		context.execute()
 
 		ela = ''
 		if not Options.options.progress_bar:
 			ela = ' (%s)' % Utils.get_elapsed_time(ini)
 
-		if x != 'init' and x != 'shutdown':
-			info('%r finished successfully%s' % (x, ela))
+		if cmd_name != 'init' and cmd_name != 'shutdown':
+			info('%r finished successfully%s' % (cmd_name, ela))
 
-		if not commands and x != 'shutdown':
+		# run the shutdown command at the end if it wasn't specified
+		if not commands and cmd_name != 'shutdown':
 			commands.append('shutdown')
-
-def configure(conf):
-
-	src = getattr(Options.options, SRCDIR, None)
-	if not src: src = getattr(Utils.g_module, SRCDIR, None)
-	if not src:
-		src = '.'
-		incomplete_src = 1
-	src = os.path.abspath(src)
-
-	bld = getattr(Options.options, BLDDIR, None)
-	if not bld:
-		bld = getattr(Utils.g_module, BLDDIR, None)
-		if bld == '.':
-			raise Utils.WafError('Setting blddir="." may cause distclean problems')
-	if not bld:
-		bld = 'build'
-		incomplete_bld = 1
-	bld = os.path.abspath(bld)
-
-	try: os.makedirs(bld)
-	except OSError: pass
-
-	# It is not possible to compile specific targets in the configuration
-	# this may cause configuration errors if autoconfig is set
-	targets = Options.options.compile_targets
-	Options.options.compile_targets = None
-	Options.is_install = False
-
-	conf.srcdir = src
-	conf.blddir = bld
-	conf.post_init()
-
-	if 'incomplete_src' in vars():
-		conf.check_message_1('Setting srcdir to')
-		conf.check_message_2(src)
-	if 'incomplete_bld' in vars():
-		conf.check_message_1('Setting blddir to')
-		conf.check_message_2(bld)
-
-	# calling to main wscript's configure()
-	conf.sub_config([''])
-
-	conf.store()
-
-	# this will write a configure lock so that subsequent builds will
-	# consider the current path as the root directory (see prepare_impl).
-	# to remove: use 'waf distclean'
-	env = Environment.Environment()
-	env[BLDDIR] = bld
-	env[SRCDIR] = src
-	env['argv'] = sys.argv
-	env['commands'] = Options.commands
-	env['options'] = Options.options.__dict__
-
-	# conf.hash & conf.files hold wscript files paths and hash
-	# (used only by Configure.autoconfig)
-	env['hash'] = conf.hash
-	env['files'] = conf.files
-	env['environ'] = dict(conf.environ)
-	env['cwd'] = os.path.split(Utils.g_module.root_path)[0]
-
-	if Utils.g_module.root_path != src:
-		# in case the source dir is somewhere else
-		env.store(os.path.join(src, Options.lockfile))
-
-	env.store(Options.lockfile)
-
-	Options.options.compile_targets = targets
-
-def clean(bld):
-	'''removes the build files'''
-	try:
-		proj = Environment.Environment(Options.lockfile)
-	except IOError:
-		raise Utils.WafError('Nothing to clean (project not configured)')
-
-	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
-	bld.load_envs()
-
-	bld.is_install = 0 # False
-
-	# read the scripts - and set the path to the wscript path (useful for srcdir='/foo/bar')
-	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
-
-	try:
-		bld.clean()
-	finally:
-		bld.save()
-
-def check_configured(bld):
-	if not Configure.autoconfig:
-		return bld
-
-	conf_cls = getattr(Utils.g_module, 'configure_context', Utils.Context)
-	bld_cls = getattr(Utils.g_module, 'build_context', Utils.Context)
-
-	def reconf(proj):
-		back = (Options.commands, Options.options.__dict__, Logs.zones, Logs.verbose)
-
-		Options.commands = proj['commands']
-		Options.options.__dict__ = proj['options']
-		conf = conf_cls()
-		conf.environ = proj['environ']
-		configure(conf)
-
-		(Options.commands, Options.options.__dict__, Logs.zones, Logs.verbose) = back
-
-	try:
-		proj = Environment.Environment(Options.lockfile)
-	except IOError:
-		conf = conf_cls()
-		configure(conf)
-	else:
-		try:
-			bld = bld_cls()
-			bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
-			bld.load_envs()
-		except Utils.WafError:
-			reconf(proj)
-			return bld_cls()
-
-	try:
-		proj = Environment.Environment(Options.lockfile)
-	except IOError:
-		raise Utils.WafError('Auto-config: project does not configure (bug)')
-
-	h = 0
-	try:
-		for file in proj['files']:
-			if file.endswith('configure'):
-				h = hash((h, Utils.readf(file)))
-			else:
-				mod = Utils.load_module(file)
-				h = hash((h, mod.waf_hash_val))
-	except (OSError, IOError):
-		warn('Reconfiguring the project: a file is unavailable')
-		reconf(proj)
-	else:
-		if (h != proj['hash']):
-			warn('Reconfiguring the project: the configuration has changed')
-			reconf(proj)
-
-	return bld_cls()
-
-def install(bld):
-	'''installs the build files'''
-	bld = check_configured(bld)
-
-	Options.commands['install'] = True
-	Options.commands['uninstall'] = False
-	Options.is_install = True
-
-	bld.is_install = INSTALL
-
-	build_impl(bld)
-	bld.install()
-
-def uninstall(bld):
-	'''removes the installed files'''
-	Options.commands['install'] = False
-	Options.commands['uninstall'] = True
-	Options.is_install = True
-
-	bld.is_install = UNINSTALL
-
-	try:
-		def runnable_status(self):
-			return SKIP_ME
-		setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
-		setattr(Task.Task, 'runnable_status', runnable_status)
-
-		build_impl(bld)
-		bld.install()
-	finally:
-		setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
-
-def build(bld):
-	bld = check_configured(bld)
-
-	Options.commands['install'] = False
-	Options.commands['uninstall'] = False
-	Options.is_install = False
-
-	bld.is_install = 0 # False
-
-	return build_impl(bld)
-
-def build_impl(bld):
-	# compile the project and/or install the files
-	try:
-		proj = Environment.Environment(Options.lockfile)
-	except IOError:
-		raise Utils.WafError("Project not configured (run 'waf configure' first)")
-
-	bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
-	bld.load_envs()
-
-	info("Waf: Entering directory `%s'" % bld.bldnode.abspath())
-	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
-
-	# execute something immediately before the build starts
-	bld.pre_build()
-
-	try:
-		bld.compile()
-	finally:
-		if Options.options.progress_bar: print('')
-		info("Waf: Leaving directory `%s'" % bld.bldnode.abspath())
-
-	# execute something immediately after a successful build
-	bld.post_build()
-
-	bld.install()
 
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg _MTN _darcs Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()
@@ -545,8 +330,4 @@ def distcheck(appname='', version=''):
 		raise Utils.WafError('distcheck succeeded, but files were left in %s' % instdir)
 
 	shutil.rmtree(path)
-
-# FIXME remove in Waf 1.6 (kept for compatibility)
-def add_subdir(dir, bld):
-	bld.recurse(dir, 'build')
 

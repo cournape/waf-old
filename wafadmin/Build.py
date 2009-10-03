@@ -15,9 +15,10 @@ There is only one Build object at a time (bld singleton)
 import os, sys, errno, re, glob, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Logs, Options
+import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Logs, Options, Configure
 from Logs import debug, error, info
 from Constants import *
+from Utils import command_context
 
 SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
@@ -60,6 +61,7 @@ def group_method(fun):
 			fun(*k, **kw)
 	return f
 
+@command_context('build')
 class BuildContext(Utils.Context):
 	"holds the dependency tree"
 	def __init__(self):
@@ -929,6 +931,86 @@ class BuildContext(Utils.Context):
 
 	def post_recurse(self, name_or_mod, path, nexdir):
 		self.path = self.oldpath.pop()
+	
+	def autoconfigure(self):
+		if not Configure.autoconfig:
+			return
+		config_context = Utils.context_dict['configure']
+
+		def reconf(proj):
+			back = (Options.commands, Options.options.__dict__, Logs.zones, Logs.verbose)
+			Options.commands = proj['commands']
+			Options.options.__dict__ = proj['options']
+			conf = config_context()
+			conf.environ = proj['environ']
+			conf.execute()
+			(Options.commands, Options.options.__dict__, Logs.zones, Logs.verbose) = back
+
+		try:
+			proj = Environment.Environment(Options.lockfile)
+		except IOError:
+			conf = config_context()
+			conf.execute()
+		else:
+			try:
+				bld = bld_cls()
+				bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
+				bld.load_envs()
+			except Utils.WafError:
+				reconf(proj)
+				return
+
+		try:
+			proj = Environment.Environment(Options.lockfile)
+		except IOError:
+			raise Utils.WafError('Auto-config: project does not configure (bug)')
+
+		h = 0
+		try:
+			for file in proj['files']:
+				if file.endswith('configure'):
+					h = hash((h, Utils.readf(file)))
+				else:
+					mod = Utils.load_module(file)
+					h = hash((h, mod.waf_hash_val))
+		except (OSError, IOError):
+			warn('Reconfiguring the project: a file is unavailable')
+			reconf(proj)
+		else:
+			if (h != proj['hash']):
+				warn('Reconfiguring the project: the configuration has changed')
+				reconf(proj)
+	
+	def prepare(self):
+		self.autoconfigure()
+		try:
+			temp_env = Environment.Environment(Options.lockfile)
+		except IOError:
+			raise Utils.WafError("Project not configured (run 'waf configure' first)")
+
+		self.load_dirs(temp_env[SRCDIR], temp_env[BLDDIR])
+		self.load_envs()
+		info("Waf: Entering directory `%s'" % self.bldnode.abspath())
+	
+	def run_user_code(self):
+		Options.commands['install'] = False
+		Options.commands['uninstall'] = False
+		Options.is_install = False
+		self.is_install = 0
+		self.execute_build()
+	
+	def finalize(self):
+		pass
+	
+	def execute_build(self):
+		self.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
+		self.pre_build()
+		try:
+			bld.compile()
+		finally:
+			if Options.options.progress_bar: print('')
+			info("Waf: Leaving directory `%s'" % bld.bldnode.abspath())
+		self.post_build()
 
 	###### user-defined behaviour
 
@@ -958,3 +1040,44 @@ class BuildContext(Utils.Context):
 	install_files = group_method(install_files)
 	symlink_as = group_method(symlink_as)
 
+# The classes below are stubs that integrate functionality from Scripting.py
+# for now. TODO: separate more functionality from the build context.
+
+@command_context('install','build')
+class InstallContext(BuildContext):
+	def run_user_code(self):
+		Options.commands['install'] = True
+		Options.commands['uninstall'] = False
+		Options.is_install = True
+		self.is_install = INSTALL
+		self.execute_build()
+		self.install()
+
+@command_context('uninstall','build')
+class UninstallContext(BuildContext):
+	def run_user_code(self):
+		Options.commands['install'] = False
+		Options.commands['uninstall'] = True
+		Options.is_install = True
+		self.is_install = UNINSTALL
+
+		try:
+			# do not execute any tasks
+			def runnable_status(self):
+				return SKIP_ME
+			setattr(Task.Task, 'runnable_status_back', Task.Task.runnable_status)
+			setattr(Task.Task, 'runnable_status', runnable_status)
+			self.execute_build()
+			self.install()
+		finally:
+			setattr(Task.Task, 'runnable_status', Task.Task.runnable_status_back)
+
+@command_context('clean','build')
+class CleanContext(BuildContext):
+	def run_user_code(self):
+		self.is_install = 0 # False
+		self.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
+		try:
+			self.clean()
+		finally:
+			self.save()

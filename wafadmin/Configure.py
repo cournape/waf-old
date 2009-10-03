@@ -25,6 +25,7 @@ except ImportError: import pickle as cPickle
 import Environment, Utils, Options
 from Logs import warn
 from Constants import *
+from Utils import command_context
 
 conf_template = '''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
@@ -80,6 +81,7 @@ def find_program_impl(env, filename, path_list=[], var=None, environ=None):
 				return x
 	return ''
 
+@command_context('configure')
 class ConfigurationContext(Utils.Context):
 	tests = {}
 	error_handlers = []
@@ -169,12 +171,10 @@ class ConfigurationContext(Utils.Context):
 
 			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
+	# deprecated - use recurse()
 	def sub_config(self, k):
 		"executes the configure function of a wscript module"
-		self.recurse(k, name='configure')
-
-	def pre_recurse(self, name_or_mod, path, nexdir):
-		return {'conf': self, 'ctx': self}
+		self.recurse(k)
 
 	def post_recurse(self, name_or_mod, path, nexdir):
 		if not autoconfig:
@@ -303,6 +303,72 @@ class ConfigurationContext(Utils.Context):
 
 	def err_handler(self, fun, error):
 		pass
+	
+	def prepare(self):
+		src = getattr(Options.options, SRCDIR, None)
+		if not src: src = getattr(Utils.g_module, SRCDIR, None)
+		if not src:
+			src = '.'
+			incomplete_src = 1
+		src = os.path.abspath(src)
+
+		bld = getattr(Options.options, BLDDIR, None)
+		if not bld:
+			bld = getattr(Utils.g_module, BLDDIR, None)
+			if bld == '.':
+				raise Utils.WafError('Setting blddir="." may cause distclean problems')
+		if not bld:
+			bld = 'build'
+			incomplete_bld = 1
+		bld = os.path.abspath(bld)
+
+		try: os.makedirs(bld)
+		except OSError: pass
+
+		# It is not possible to compile specific targets in the configuration
+		# this may cause configuration errors if autoconfig is set
+		self.targets = Options.options.compile_targets
+		Options.options.compile_targets = None
+		Options.is_install = False
+
+		self.srcdir = src
+		self.blddir = bld
+		self.post_init()
+
+		if 'incomplete_src' in vars():
+			self.check_message_1('Setting srcdir to')
+			self.check_message_2(src)
+		if 'incomplete_bld' in vars():
+			self.check_message_1('Setting blddir to')
+			self.check_message_2(bld)
+
+	def finalize(self):
+		self.store()
+
+		# this will write a configure lock so that subsequent builds will
+		# consider the current path as the root directory (see prepare_impl).
+		# to remove: use 'waf distclean'
+		env = Environment.Environment()
+		env[BLDDIR] = self.blddir
+		env[SRCDIR] = self.srcdir
+		env['argv'] = sys.argv
+		env['commands'] = Options.commands
+		env['options'] = Options.options.__dict__
+
+		# conf.hash & conf.files hold wscript files paths and hash
+		# (used only by Configure.autoconfig)
+		env['hash'] = self.hash
+		env['files'] = self.files
+		env['environ'] = dict(self.environ)
+		env['cwd'] = os.path.split(Utils.g_module.root_path)[0]
+
+		if Utils.g_module.root_path != self.srcdir:
+			# in case the source dir is somewhere else
+			env.store(os.path.join(self.srcdir, Options.lockfile))
+
+		env.store(Options.lockfile)
+
+		Options.options.compile_targets = self.targets
 
 def conf(f):
 	"decorator: attach new configuration functions"

@@ -510,8 +510,23 @@ def diff_path(top, subdir):
 	diff = subdir[len(top) - len(subdir):]
 	return os.path.join(*diff)
 
+context_dict = {}
+
+class command_context(object):
+	"""Command context decorator. Indicates which command should receive
+	this context as its argument(first arg), and which function should be
+	executed in user scripts (second arg)"""
+	def __init__(self, command_name, function_name=None):
+		self.command_name = command_name
+		self.function_name = function_name if function_name else command_name
+	def __call__(self, cls):
+		context_dict[self.command_name] = cls
+		setattr(cls, 'function_name', self.function_name)
+		return cls
+
 class Context(object):
-	"""A base class for commands to be executed from Waf scripts"""
+	"""A base class for command contexts - they are passed as the arguments
+	of commands defined in Waf scripts"""
 
 	def set_curdir(self, dir):
 		self.curdir_ = dir
@@ -525,63 +540,101 @@ class Context(object):
 
 	curdir = property(get_curdir, set_curdir)
 
-	def recurse(self, dirs, name=''):
+	# empty methods for overloading
+	def pre_recurse(self, obj, f, d):
+		pass
+	def post_recurse(self, obj, f, d):
+		pass
+
+	def user_function_name(self):
+		"""Get the user function name. First use an instance variable, then
+		try the class variable. The instance variable will be set by
+		Scripting.py if the class variable is not set."""
+		name = getattr(self, 'function_name', None)
+		if not name:
+			name = getattr(self.__class__, 'function_name', None)
+		if not name:
+			#name = inspect.stack()[1][3]
+			raise Utils.WafError('%s does not have an associated user function name.' % self.__class__.__name__)
+		return name
+
+	def recurse(self, dirs, name=None):
 		"""The function for calling scripts from folders, it tries to call wscript + function_name
 		and if that file does not exist, it will call the method 'function_name' from a file named wscript
 		the dirs can be a list of folders or a string containing space-separated folder paths
 		"""
-		if not name:
-			name = inspect.stack()[1][3]
+		
+		function_name = name if name else self.user_function_name()
 
-		if isinstance(dirs, str):
-			dirs = to_list(dirs)
+		# convert to absolute paths
+		dirs = to_list(dirs)
+		dirs = [x if os.path.isabs(x) else os.path.join(self.curdir, x) for x in dirs]
 
-		for x in dirs:
-			if os.path.isabs(x):
-				nexdir = x
-			else:
-				nexdir = os.path.join(self.curdir, x)
-
-			base = os.path.join(nexdir, WSCRIPT_FILE)
-
-			try:
-				txt = readf(base + '_' + name, m='rU')
-			except (OSError, IOError):
+		for d in dirs:
+			wscript_file = os.path.join(d, WSCRIPT_FILE)
+			partial_wscript_file = wscript_file + '_' + function_name
+			
+			# if there is a partial wscript with the body of the user function,
+			# use it in preference
+			if os.path.exists(partial_wscript_file):
+				exec_dict = {'ctx':self, 'conf':self, 'bld':self}
+				function_code = readf(partial_wscript_file, m='rU')
+				
+				self.pre_recurse(function_code, partial_wscript_file, d)
+				old_dir = self.curdir
+				self.curdir = d
 				try:
-					module = load_module(base)
-				except OSError:
-					raise WscriptError('No such script %s' % base)
-
-				try:
-					f = module.__dict__[name]
-				except KeyError:
-					raise WscriptError('No function %s defined in %s' % (name, base))
-
-				if getattr(self.__class__, 'pre_recurse', None):
-					self.pre_recurse(f, base, nexdir)
-				old = self.curdir
-				self.curdir = nexdir
-				try:
-					f(self)
+					exec(function_code, exec_dict)
+				except Exception:
+					raise WscriptError(traceback.format_exc(), d)
 				finally:
-					self.curdir = old
-				if getattr(self.__class__, 'post_recurse', None):
-					self.post_recurse(module, base, nexdir)
-			else:
-				dc = {'ctx': self}
-				if getattr(self.__class__, 'pre_recurse', None):
-					dc = self.pre_recurse(txt, base + '_' + name, nexdir)
-				old = self.curdir
-				self.curdir = nexdir
+					self.curdir = old_dir
+				self.post_recurse(function_code, partial_wscript_file, d)
+			
+			# if there is only a full wscript file, use a suitably named
+			# function from it
+			elif os.path.exists(wscript_file):
+				# do not catch any exceptions here
+				wscript_module = load_module(wscript_file)
+				user_function = getattr(wscript_module, function_name, None)
+				if not user_function:
+					raise WscriptError('No function %s defined in %s'
+						% (function_name, wscript_file))
+				self.pre_recurse(user_function, wscript_file, d)
+				old_dir = self.curdir
+				self.curdir = d
 				try:
-					try:
-						exec(txt, dc)
-					except Exception:
-						raise WscriptError(traceback.format_exc(), base)
+					user_function(self)
+				except TypeError:
+					user_function()
 				finally:
-					self.curdir = old
-				if getattr(self.__class__, 'post_recurse', None):
-					self.post_recurse(txt, base + '_' + name, nexdir)
+					self.curdir = old_dir
+				self.post_recurse(user_function, wscript_file, d)
+			
+			# no wscript file - raise an exception
+			else:
+				raise WscriptError('No wscript file in directory %s' % d)
+	
+	def prepare(self):
+		"""Executed before the context is passed to the user function."""
+		pass
+
+	def run_user_code(self):
+		"""Execute the user function to which this context is bound."""
+		f = getattr(g_module, self.user_function_name())
+		try:
+			f(self)
+		except TypeError:
+			f()
+
+	def finalize(self):
+		"""Executed after the user function finishes."""
+		pass
+
+	def execute(self):
+		self.prepare()
+		self.run_user_code()
+		self.finalize()
 
 if is_win32:
 	old = shutil.copy2
