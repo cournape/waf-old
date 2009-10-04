@@ -282,6 +282,7 @@ def summary(bld):
 		for (f, fail, ret) in lst:
 			col = fail and 'RED' or 'GREEN'
 			Utils.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
+			if fail: Utils.pprint('NORMAL', ret.replace('\\n', '\n'))
 
 def set_options(opt):
 	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
