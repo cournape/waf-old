@@ -478,6 +478,16 @@ def build(bld):
 	print(Utils.subst_vars('${PREFIX}/${LANG}/po', bld.env))
 				</programlisting>
 			</para>
+			<para>
+				To install the contents of a whole directory, iterate on the individual files, for example:
+				<programlisting language="python">
+def build(bld):
+	for x in bld.path.ant_glob('**/*.h'):
+		bld.install_files('${PREFIX}/includes', x)
+				</programlisting>
+				Note that a specialized builder exists to install both python and python compiled files (demos/python).
+			</para>
+
 		</sect2>
 
 		<sect2>
