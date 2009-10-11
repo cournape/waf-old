@@ -483,8 +483,9 @@ Task.simple_task_type('d_header', d_header_str, color='BLUE', shell=False)
 
 @conftest
 def d_platform_flags(conf):
-	binfmt = conf.env.DEST_BINFMT or Utils.unversioned_sys_platform_to_binary_format(
-		conf.env.DEST_OS or Utils.unversioned_sys_platform())
+	v = conf.env
+	binfmt = v.DEST_BINFMT or Utils.unversioned_sys_platform_to_binary_format(
+		v.DEST_OS or Utils.unversioned_sys_platform())
 	if binfmt == 'pe':
 		v['D_program_PATTERN']   = '%s.exe'
 		v['D_shlib_PATTERN']     = 'lib%s.dll'
@@ -493,7 +494,6 @@ def d_platform_flags(conf):
 		v['D_program_PATTERN']   = '%s'
 		v['D_shlib_PATTERN']     = 'lib%s.so'
 		v['D_staticlib_PATTERN'] = 'lib%s.a'
-
 
 # quick test #
 if __name__ == "__main__":
