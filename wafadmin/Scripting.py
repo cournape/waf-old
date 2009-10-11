@@ -60,7 +60,10 @@ def prepare_impl(t, cwd, ver, wafdir):
 			break
 		if Options.lockfile in dirlst:
 			env = Environment.Environment()
-			env.load(os.path.join(cwd, Options.lockfile))
+			try:
+				env.load(os.path.join(cwd, Options.lockfile))
+			except:
+				error('could not load %r' % Options.lockfile)
 			try:
 				os.stat(env['cwd'])
 			except:
