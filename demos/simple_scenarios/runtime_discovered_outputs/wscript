@@ -28,9 +28,6 @@ APPNAME='unknown_outputs'
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	# used only when configured from the same folder
 	conf.check_tool('gcc')
