@@ -174,14 +174,14 @@ class CcRootTester(common_test.CommonTester):
 	def test_another_platform_flags_patterns(self):
 		# white box test: makes sure that correct flags/pattersn are defined
 		# for other platform given as parameter
-		self._validate_flags_patterns(self._get_other_platform(), set_taregt=True)
+		self._validate_flags_patterns(self._get_other_platform(), set_target=True)
 
 	def _get_other_platform(self):
 		if sys.platform == 'linux2':
 			return 'win32'
 		return 'linux2'
 
-	def _validate_flags_patterns(self, dest_os, set_taregt=False):
+	def _validate_flags_patterns(self, dest_os, set_target=False):
         # TODO: extend the tests for other platforms...
 		wscript_contents = """
 blddir = 'build'
@@ -192,7 +192,7 @@ def configure(conf):
 		self._write_wscript(wscript_contents % self._test_dic)
 		conf = self._setup_configure()
 		env = conf.env
-		if set_taregt:
+		if set_target:
 			env['DEST_OS'] = dest_os
 		conf.sub_config([''])
 
@@ -206,7 +206,7 @@ def configure(conf):
 		if dest_os in ('win32', 'cygwin'):
 			self.assert_(env['program_PATTERN'] == '%s.exe', 'incorrect program pattern, was "%s", dest_os = %s' % (env['program_PATTERN'], dest_os))
 			self.assert_(env['shlib_PATTERN'] == '%s.dll', 'incorrect shlib pattern')
-		elif dest_os == 'linux2':
+		elif dest_os == 'linux2': # TODO potential problem here: ccroot.py's DEST_OS is supposed to be 'linux'
 			self.assert_(env['program_PATTERN'] == '%s', 'incorrect program pattern')
 			self.assert_(env['shlib_PATTERN'] == 'lib%s.so', 'incorrect shlib pattern')
 
