@@ -181,7 +181,7 @@ class CcRootTester(common_test.CommonTester):
 			return 'win32'
 		return 'linux2'
 
-	def _validate_flags_patterns(self, target_platform, set_taregt=False):
+	def _validate_flags_patterns(self, dest_os, set_taregt=False):
         # TODO: extend the tests for other platforms...
 		wscript_contents = """
 blddir = 'build'
@@ -193,7 +193,7 @@ def configure(conf):
 		conf = self._setup_configure()
 		env = conf.env
 		if set_taregt:
-			env['TARGET_PLATFORM'] = target_platform
+			env['DEST_OS'] = dest_os
 		conf.sub_config([''])
 
 		self.assert_(env['staticlib_PATTERN'] == 'lib%s.a', 'incorrect staticlib pattern')
@@ -201,18 +201,18 @@ def configure(conf):
 		if self.tool_name == 'gcc':
 			self.assert_(env['shlib_CCFLAGS'] == ['-fPIC', '-DPIC'], 'incorrect shlib CCFLAGS')
 		else:
-			self.assert_(env['shlib_CXXFLAGS'] == [], 'incorrect shlib CXXFLAGS was %s' % env['shlib_CXXFLAGS'])
+			self.assert_(env['shlib_CXXFLAGS'] == ['-fPIC', '-DPIC'], 'incorrect shlib CXXFLAGS was %s' % env['shlib_CXXFLAGS'])
 
-		if target_platform == 'win32' or target_platform == 'cygwin':
-			self.assert_(env['program_PATTERN'] == '%s.exe', 'incorrect program pattern, was %s, target_platform = %s' % (env['program_PATTERN'], target_platform))
+		if dest_os in ('win32', 'cygwin'):
+			self.assert_(env['program_PATTERN'] == '%s.exe', 'incorrect program pattern, was "%s", dest_os = %s' % (env['program_PATTERN'], dest_os))
 			self.assert_(env['shlib_PATTERN'] == '%s.dll', 'incorrect shlib pattern')
-		elif target_platform == 'linux2':
+		elif dest_os == 'linux2':
 			self.assert_(env['program_PATTERN'] == '%s', 'incorrect program pattern')
 			self.assert_(env['shlib_PATTERN'] == 'lib%s.so', 'incorrect shlib pattern')
 
 			self.assert_(env['shlib_LINKFLAGS'] == ['-shared'], 'incorrect staticlib_LINKFLAGS')
 		else:
-			raise NotImplementedError('tests for %s were not implemented yet...' % target_platform)
+			raise NotImplementedError('tests for %s were not implemented yet...' % dest_os)
 
 	def tearDown(self):
 		'''tearDown - deletes the directories and files created by the tests ran '''
