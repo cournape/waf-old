@@ -92,7 +92,7 @@ class CcRootTester(common_test.CommonTester):
 		self._populate_dictionary(['cxx'], 'mere.cpp', lib_code)
 		
 	def _setup_c_objects(self):
-		self._populate_dictionary(['cc'], 'mere.cpp', lib_code)
+		self._populate_dictionary(['cc'], 'mere.c', lib_code)
 
 	def _setup_cpp_program_with_env(self, env_line):
 		self._populate_dictionary(['cxx', 'cprogram'], 'main.cpp', cpp_program_code, env_line)
