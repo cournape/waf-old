@@ -67,7 +67,7 @@ class WhiteWscriptTester(WscriptErrorsTester):
 	def test_missing_srcdir(self):
 		self._setup_options()
 		Utils.g_module = imp.new_module('main_wscript')
-		Utils.g_module.blddir = '.'
+		Utils.g_module.blddir = 'out'
 		# TODO: tests for WafError upon change
 		conf = Configure.ConfigurationContext()
 		self.failUnlessRaises(Utils.WscriptError, Scripting.configure, conf)
