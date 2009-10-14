@@ -21,18 +21,17 @@ blddir = 'build'
 srcdir = '.'
 
 def build(bld):
-	obj = bld.new_task_gen('cc')
+	bld.new_task_gen(features=['cc'])
 
 def configure(conf):
 	conf.check_tool('cc')
-
-def set_options(opt):
-	pass
 """
 		self._write_wscript(wscript_contents, use_dic=False)
 		self._test_configure()
 		# TODO: check for WafError
-		self._test_build(False)
+		stderr = self._test_build(False)[1]
+		err_msg = 'At least one compiler (gcc, ..) must be selected'
+		self.assert_(err_msg in stderr, "'%s' was supposed in stderr, but '%s' was found..." % (err_msg, stderr))
 
 def run_tests(verbose=1):
 	try:
