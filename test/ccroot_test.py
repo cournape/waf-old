@@ -25,10 +25,7 @@ def configure(conf):
 	conf.check_tool('%(tool)s')
 
 def build(bld):
-	obj = bld.new_task_gen('%(objname)s', '%(build_type)s')
-	obj.code = '''%(code)s'''
-	obj.source = 'test.c'
-	obj.target = 'hello'
+	bld.new_task_gen(features=%(features)s, source='%(source)s', target='hello')
 
 def set_options(opt):
 	opt.tool_options('%(tool)s')
@@ -63,52 +60,48 @@ class CcRootTester(common_test.CommonTester):
 
 	# utilities functions:
 	
-	def _populate_dictionary(self, build_type, code, set_env='pass'):
+	def _populate_dictionary(self, features, source, code, set_env='pass'):
 		"""
 		standard template for functions below - single (write) access point to dictionary. 
 		"""
-		self._test_dic['build_type'] 	= build_type
-		self._test_dic['code'] 			= code
-		self._test_dic['set_env'] 		= set_env
+		self._test_dic['features'] = features
+		self._test_dic['source'] = source
+		self._test_dic['code'] = code
+		self._test_dic['set_env'] = set_env
+		self._write_files()
 		
 	def _setup_cpp_program(self):
-		self._populate_dictionary('cprogram', cpp_program_code)
-		self._write_files()
+		self._populate_dictionary(['cxx', 'cprogram'], 'main.cpp', cpp_program_code)
 		
 	def _setup_c_program(self):
-		self._populate_dictionary('cprogram', c_program_code)
-		self._write_files()
+		self._populate_dictionary(['cc', 'cprogram'], 'main.c', c_program_code)
 		
-	def _setup_share_lib(self):
-		self._populate_dictionary('cshlib', lib_code)
-		self._write_files()
+	def _setup_cpp_share_lib(self):
+		self._populate_dictionary(['cxx', 'cshlib'], 'lib.cpp', lib_code)
 	
-	def _setup_static_lib(self):
-		self._populate_dictionary('cstaticlib', lib_code)
-		self._write_files()
+	def _setup_cpp_static_lib(self):
+		self._populate_dictionary(['cxx', 'cstaticlib'], 'lib.cpp', lib_code)
 	
+	def _setup_c_share_lib(self):
+		self._populate_dictionary(['cc', 'cshlib'], 'lib.c', lib_code)
+	
+	def _setup_c_static_lib(self):
+		self._populate_dictionary(['cc', 'cstaticlib'], 'lib.c', lib_code)
+
 	def _setup_cpp_objects(self):
-		self._populate_dictionary('objects', cpp_program_code)
-		self._write_files()
+		self._populate_dictionary(['cxx'], 'mere.cpp', lib_code)
 		
 	def _setup_c_objects(self):
-		self._populate_dictionary('objects', c_program_code)
-		self._write_files()
+		self._populate_dictionary(['cc'], 'mere.cpp', lib_code)
 
-	def _setup_lib_objects(self):
-		self._populate_dictionary('objects', lib_code)
-		self._write_files()
-		
 	def _setup_cpp_program_with_env(self, env_line):
-		self._populate_dictionary('cprogram', cpp_program_code, env_line)
-		self._write_files()
+		self._populate_dictionary(['cxx', 'cprogram'], 'main.cpp', cpp_program_code, env_line)
 
 	def _setup_c_program_with_env(self, env_line):
-		self._populate_dictionary('cprogram', c_program_code, env_line)
-		self._write_files()
+		self._populate_dictionary(['cc', 'cprogram'], 'main.c', cpp_program_code, env_line)
 
 	def _write_source(self):
-		self._write_file(self._source_file_path, self._test_dic['code'])
+		self._write_file(self._test_dic['source'], self._test_dic['code'])
 
 	def _write_files(self):
 		self._write_wscript(wscript_contents % self._test_dic)
@@ -132,27 +125,8 @@ class CcRootTester(common_test.CommonTester):
 		self._test_dir_root = tempfile.mkdtemp("", ".waf-testing_")
 		self._srcdir = self._test_dir_root
 		self._blddir = os.path.join( self._test_dir_root, "build" )
-		self._source_file_path = os.path.join(self._srcdir, "test.c")
 		self._wscript_file_path = os.path.join(self._test_dir_root, WSCRIPT_FILE)
 		os.chdir(self._test_dir_root)
-
-	def test_common_object(self):
-		# simple default cpp object of library
-		self._setup_lib_objects()
-		self._test_configure()
-		self._test_build()
-
-	def test_share_lib(self):
-		# simple default share lib
-		self._setup_share_lib()
-		self._test_configure()
-		self._test_build()
-
-	def test_static_lib(self):
-		# simple default static lib
-		self._setup_static_lib()
-		self._test_configure()
-		self._test_build()
 
 	def test_default_flags_patterns(self):
 		# white box test: makes sure that correct flags/pattersn are defined
@@ -182,7 +156,7 @@ class CcRootTester(common_test.CommonTester):
 		return 'linux2'
 
 	def _validate_flags_patterns(self, dest_os, set_target=False):
-        # TODO: extend the tests for other platforms...
+		# TODO: extend the tests for other platforms...
 		wscript_contents = """
 blddir = 'build'
 srcdir = '.'
