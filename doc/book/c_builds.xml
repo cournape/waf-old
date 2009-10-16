@@ -15,6 +15,9 @@
 			</itemizedlist>
 		The construction of c/c++ applications can be quite complicated, and several measures must be taken to ensure coherent interaction with new compilation rules. The canonical code for a task generator building a c/c++ application is the following:
 			<programlisting language="python">
+def configure(conf):
+	conf.check_tool('compiler_cc') <co id="compiler-co" linkends="a0"/>
+
 def build(bld):
 	t = bld.new_task_gen(
 		features     = 'cc cprogram', <co id="taskgen-co" linkends="al"/>
@@ -33,6 +36,9 @@ def build(bld):
 			</programlisting>
 
 			<calloutlist>
+				<callout arearefs="compiler-co" id="a0">
+					<para>Load the c/c++ support routines (such as the features below) and try to find a suitable compiler for the build. The support for c++ is loaded by <emphasis>compiler_cxx</emphasis></para>
+				</callout>
 				<callout arearefs="taskgen-co" id="a1">
 					<para>Task generator declaration; each element in the list represent a feature; it is possible to add several languages at once (<emphasis>ocaml and c++</emphasis> for example), but the one of <emphasis>cstaticlib, cshlib or cprogram</emphasis> must be chosen.</para>
 				</callout>
