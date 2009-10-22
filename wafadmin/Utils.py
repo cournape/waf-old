@@ -131,7 +131,6 @@ except ImportError:
 	def h_file(filename):
 		f = open(filename, 'rb')
 		m = md5()
-		readBytes = 100000
 		while (filename):
 			filename = f.read(100000)
 			m.update(filename)
