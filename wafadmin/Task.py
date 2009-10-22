@@ -569,7 +569,7 @@ class Task(TaskBase):
 
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
-		node = self.generator.bld.current.find_resource(filename)
+		node = self.generator.bld.path.find_resource(filename)
 		self.deps_nodes.append(node)
 
 	def signature(self):
@@ -753,6 +753,11 @@ class Task(TaskBase):
 					elif hasattr(v, '__call__'):
 						v = v() # dependency is a function, call it
 					m.update(v)
+
+		for x in self.deps_nodes:
+			v = bld.node_sigs[x.variant(self.env)][x.id]
+			m.update(v)
+
 		return m.digest()
 
 	def sig_vars(self):

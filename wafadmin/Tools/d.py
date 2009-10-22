@@ -8,6 +8,7 @@ import ccroot # <- leave this
 import TaskGen, Utils, Task, Logs
 from Logs import debug, error
 from TaskGen import taskgen, feature, after, before, extension
+from Configure import conftest
 
 EXT_D = ['.d', '.di', '.D']
 D_METHS = ['apply_core', 'apply_vnum', 'apply_objdeps'] # additional d methods
@@ -325,14 +326,11 @@ def apply_d_libs(self):
 def apply_d_link(self):
 	link = getattr(self, 'link', None)
 	if not link:
-		if 'dstaticlib' in self.features: link = 'ar_link_static'
+		if 'dstaticlib' in self.features: link = 'static_link'
 		else: link = 'd_link'
-	linktask = self.create_task(link)
-	outputs = [t.outputs[0] for t in self.compiled_tasks]
-	linktask.set_inputs(outputs)
-	linktask.set_outputs(self.path.find_or_declare(get_target_name(self)))
 
-	self.link_task = linktask
+	outputs = [t.outputs[0] for t in self.compiled_tasks]
+	self.link_task = self.create_task(link, outputs, self.path.find_or_declare(get_target_name(self)))
 
 @feature('d')
 @after('apply_core')
@@ -440,7 +438,7 @@ def override_exec(cls):
 	"""stupid dmd wants -of stuck to the file name"""
 	old_exec = cls.exec_command
 	def exec_command(self, *k, **kw):
-		if self.env['COMPILER_D'] == 'dmd' and isinstance(k[0], list):
+		if isinstance(k[0], list):
 			lst = k[0]
 			for i in xrange(len(lst)):
 				if lst[i] == '-of':
@@ -450,11 +448,11 @@ def override_exec(cls):
 		return old_exec(self, *k, **kw)
 	cls.exec_command = exec_command
 
-cls = Task.simple_task_type('d', d_str, 'GREEN', before='ar_link_static d_link', shell=False)
+cls = Task.simple_task_type('d', d_str, 'GREEN', before='static_link d_link', shell=False)
 cls.scan = scan
 override_exec(cls)
 
-cls = Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', before='ar_link_static d_link', shell=False)
+cls = Task.simple_task_type('d_with_header', d_with_header_str, 'GREEN', before='static_link d_link', shell=False)
 override_exec(cls)
 
 cls = Task.simple_task_type('d_link', link_str, color='YELLOW', shell=False)
@@ -482,6 +480,20 @@ def process_header(self):
 
 d_header_str = '${D_COMPILER} ${D_HEADER} ${SRC}'
 Task.simple_task_type('d_header', d_header_str, color='BLUE', shell=False)
+
+@conftest
+def d_platform_flags(conf):
+	v = conf.env
+	binfmt = v.DEST_BINFMT or Utils.unversioned_sys_platform_to_binary_format(
+		v.DEST_OS or Utils.unversioned_sys_platform())
+	if binfmt == 'pe':
+		v['D_program_PATTERN']   = '%s.exe'
+		v['D_shlib_PATTERN']     = 'lib%s.dll'
+		v['D_staticlib_PATTERN'] = 'lib%s.a'
+	else:
+		v['D_program_PATTERN']   = '%s'
+		v['D_shlib_PATTERN']     = 'lib%s.so'
+		v['D_staticlib_PATTERN'] = 'lib%s.a'
 
 # quick test #
 if __name__ == "__main__":

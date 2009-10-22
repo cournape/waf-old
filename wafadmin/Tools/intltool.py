@@ -42,10 +42,7 @@ def iapply_intltool_in_f(self):
 		self.env['INTLPODIR'] = podirnode.srcpath(self.env)
 		self.env['INTLFLAGS'] = getattr(self, 'flags', ['-q', '-u', '-c'])
 
-		task = self.create_task('intltool')
-		task.set_inputs(node)
-		task.set_outputs(node.change_ext(''))
-
+		task = self.create_task('intltool', node, node.change_ext(''))
 		task.install_path = self.install_path
 
 class intltool_po_taskgen(TaskGen.task_gen):
@@ -68,9 +65,7 @@ def apply_intltool_po(self):
 		filename = out.name
 		(langname, ext) = os.path.splitext(filename)
 		inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + appname + '.mo'
-		self.bld.install_as(
-			os.path.join(self.install_path, inst_file),
-			out.abspath(self.env), chmod=self.chmod)
+		self.bld.install_as(os.path.join(self.install_path, inst_file), out, self.env, self.chmod)
 
 	linguas = self.path.find_resource(os.path.join(podir, 'LINGUAS'))
 	if linguas:

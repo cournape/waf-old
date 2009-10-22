@@ -188,6 +188,8 @@ mult10:
 	conf.setenv('debug')
 	#conf.env.defines = [] # to remove defines, modify the list held by env.defines
 	conf.define('DEBUG', 1)
+	# does not work in GCC 4.4
+	#conf.define('sep', '\\ ', quote=False)
 	conf.write_config_header('config.h', env=env_variant2)
 
 	conf.sub_config('src')

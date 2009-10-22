@@ -333,9 +333,6 @@ APPNAME='unknown_outputs'
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	# used only when configured from the same folder
 	conf.check_tool('gcc')
@@ -559,9 +556,6 @@ def build(bld):
     tsk = cls(bld.env.copy()) <co id="use-co" linkends="use"/>
     tsk.inputs = []
     tsk.outputs = [bld.path.find_or_declare('foo.h')] <co id="output-co" linkends="output"/>
-
-def set_options(opt):
-    pass
 
 def configure(conf):
 	pass

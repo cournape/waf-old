@@ -46,6 +46,13 @@ else:
 import Logs
 from Constants import *
 
+try:
+	from collections import deque
+except ImportError:
+	class deque(list):
+		def popleft(self):
+			return self.pop(0)
+
 is_win32 = sys.platform == 'win32'
 
 try:
@@ -124,7 +131,6 @@ except ImportError:
 	def h_file(filename):
 		f = open(filename, 'rb')
 		m = md5()
-		readBytes = 100000
 		while (filename):
 			filename = f.read(100000)
 			m.update(filename)
@@ -156,46 +162,32 @@ def exec_command(s, **kw):
 	except OSError:
 		return -1
 
-def sync_exec_command(s,**kw):
-	"""Not provided by default, so you will have to load it yourself:
-import Utils
-Utils.exec_command = Utils.sync_exec_command
-	"""
-
-	if'log'in kw:
-		kw['stdout'] = kw['stderr'] = kw['log']
-		del(kw['log'])
-	kw['shell'] = isinstance(s, str)
-
-	try:
-		if 'stdout' not in kw:
-			kw['stdout'] = pproc.PIPE
-			kw['stderr'] = pproc.STDOUT
-			proc = pproc.Popen(s,**kw)
-			(stdout, _) = proc.communicate()
-			Logs.info(stdout)
-		else:
-			proc = pproc.Popen(s,**kw)
-			return proc.wait()
-	except OSError:
-		return-1
-
 if is_win32:
-	old_log = exec_command
 	def exec_command(s, **kw):
-		# TODO very long command-lines are unlikely to be used in the configuration
-		if len(s) < 2000: return old_log(s, **kw)
-
 		if 'log' in kw:
 			kw['stdout'] = kw['stderr'] = kw['log']
 			del(kw['log'])
 		kw['shell'] = isinstance(s, str)
 
-		startupinfo = pproc.STARTUPINFO()
-		startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
-		kw['startupinfo'] = startupinfo
-		proc = pproc.Popen(s, **kw)
-		return proc.wait()
+		if len(s) > 2000:
+			startupinfo = pproc.STARTUPINFO()
+			startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
+			kw['startupinfo'] = startupinfo
+
+		try:
+			if 'stdout' not in kw:
+				kw['stdout'] = pproc.PIPE
+				kw['stderr'] = pproc.PIPE
+				proc = pproc.Popen(s,**kw)
+				(stdout, stderr) = proc.communicate()
+				Logs.info(stdout)
+				if stderr:
+					Logs.error(stderr)
+			else:
+				proc = pproc.Popen(s,**kw)
+				return proc.wait()
+		except OSError:
+			return -1
 
 listdir = os.listdir
 if is_win32:
@@ -459,7 +451,57 @@ def subst_vars(expr, params):
 			return params[m.group(3)]
 	return reg_subst.sub(repl_var, expr)
 
+def unversioned_sys_platform_to_binary_format(unversioned_sys_platform):
+	"infers the binary format from the unversioned_sys_platform name."
+
+	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos'):
+		return 'elf'
+	elif unversioned_sys_platform == 'darwin':
+		return 'mac-o'
+	elif unversioned_sys_platform in ('win32', 'cygwin', 'uwin', 'msys'):
+		return 'pe'
+	# TODO we assume all other operating systems are elf, which is not true.
+	# we may set this to 'unknown' and have ccroot and other tools handle the case "gracefully" (whatever that means).
+	return 'elf'
+
+def unversioned_sys_platform():
+	"""returns an unversioned name from sys.platform.
+	sys.plaform is not very well defined and depends directly on the python source tree.
+	The version appended to the names is unreliable as it's taken from the build environment at the time python was built,
+	i.e., it's possible to get freebsd7 on a freebsd8 system.
+	So we remove the version from the name, except for special cases where the os has a stupid name like os2 or win32.
+	Some possible values of sys.platform are, amongst others:
+		aix3 aix4 atheos beos5 darwin freebsd2 freebsd3 freebsd4 freebsd5 freebsd6 freebsd7
+		generic irix5 irix6 linux2 mac netbsd1 next3 os2emx riscos sunos5 unixware7
+	Investigating the python source tree may reveal more values.
+	"""
+	s = sys.platform
+	if s == 'java':
+		# The real OS is hidden under the JVM.
+		from java.lang import System
+		s = System.getProperty('os.name')
+		# see http://lopica.sourceforge.net/os.html for a list of possible values
+		if s == 'Mac OS X':
+			return 'darwin'
+		elif s.startswith('Windows '):
+			return 'win32'
+		elif s == 'OS/2':
+			return 'os2'
+		elif s == 'HP-UX':
+			return 'hpux'
+		elif s in ('SunOS', 'Solaris'):
+			return 'sunos'
+		else: s = s.lower()
+	if s == 'win32' or s.endswith('os2') and s != 'sunos2': return s
+	return re.split('\d+$', s)[0]
+
+#@deprecated('use unversioned_sys_platform instead')
 def detect_platform():
+	"""this function has been in the Utils module for some time.
+	It's hard to guess what people have used it for.
+	It seems its goal is to return an unversionned sys.platform, but it's not handling all platforms.
+	For example, the version is not removed on freebsd and netbsd, amongst others.
+	"""
 	s = sys.platform
 
 	# known POSIX
@@ -490,12 +532,11 @@ def load_tool(tool, tooldir=None):
 
 def readf(fname, m='r'):
 	"get the contents of a file, it is not used anywhere for the moment"
-	f = None
+	f = open(fname, m)
 	try:
-		f = open(fname, m)
 		txt = f.read()
 	finally:
-		if f: f.close()
+		f.close()
 	return txt
 
 def nada(*k, **kw):

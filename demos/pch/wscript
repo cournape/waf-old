@@ -21,9 +21,7 @@ def process_pch(self):
 		if not node:
 			print "not a valid header !"
 			return
-		tsk = self.create_task('gchx')
-		tsk.set_inputs(node)
-		tsk.set_outputs(node.parent.find_or_declare(node.name + '.gch'))
+		self.create_task('gchx', node, node.change_ext('.gch'))
 
 comp_line = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${SRC} -o ${TGT}'
 cls = Task.simple_task_type('gchx', comp_line, before='cc cxx')

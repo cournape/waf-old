@@ -15,6 +15,9 @@
 			</itemizedlist>
 		The construction of c/c++ applications can be quite complicated, and several measures must be taken to ensure coherent interaction with new compilation rules. The canonical code for a task generator building a c/c++ application is the following:
 			<programlisting language="python">
+def configure(conf):
+	conf.check_tool('compiler_cc') <co id="compiler-co" linkends="a0"/>
+
 def build(bld):
 	t = bld.new_task_gen(
 		features     = 'cc cprogram', <co id="taskgen-co" linkends="al"/>
@@ -27,12 +30,15 @@ def build(bld):
 		lib          = ['m'], <co id="shlib-co" linkends="a8"/>
 		libpath      = ['/usr/lib'],
 		linkflags    = ['-g'],
+		vnum         = '1.2.3', <co id="vnum-co" linkends="a88"/>
 	)
-	if sys.platform != 'win32':
-		t.rpath      = '/usr/lib' <co id="rpath-co" linkends="a9"/>
+	t.rpath      = '/usr/lib', <co id="rpath-co" linkends="a9"/>
 			</programlisting>
 
 			<calloutlist>
+				<callout arearefs="compiler-co" id="a0">
+					<para>Load the c/c++ support routines (such as the features below) and try to find a suitable compiler for the build. The support for c++ is loaded by <emphasis>compiler_cxx</emphasis></para>
+				</callout>
 				<callout arearefs="taskgen-co" id="a1">
 					<para>Task generator declaration; each element in the list represent a feature; it is possible to add several languages at once (<emphasis>ocaml and c++</emphasis> for example), but the one of <emphasis>cstaticlib, cshlib or cprogram</emphasis> must be chosen.</para>
 				</callout>
@@ -57,6 +63,10 @@ def build(bld):
 				<callout arearefs="shlib-co" id="a8">
 					<para>Shared libraries may be given directly (use <emphasis>staticlib</emphasis> and <emphasis>staticlibpath</emphasis> for static libraries)</para>
 				</callout>
+				<callout arearefs="vnum-co" id="a88">
+					<para>Version number for shared libraries</para>
+				</callout>
+
 				<callout arearefs="rpath-co" id="a9">
 					<para>Additional pararameters may be added from a task generator reference. The next section describes a technique to gather the conditions into the configuration section.</para>
 				</callout>
@@ -103,27 +113,46 @@ def build(bld):
 			To link an application against various <emphasis>system libraries</emphasis>, several compilation flags and link flags must be given at once. To reduce the maintenance, a system called <emphasis>uselib</emphasis> can be used to give all the flags at the same time:
 			<programlisting language="python">
 def configure(conf):
-	conf.env.CCFLAGS_TEST   = ['-O2'] <co id="uselib-vars-co" linkends="c1"/>
-	conf.env.LIB_TEST       = 'test'
-	conf.env.LIBPATH_TEST   = ['/usr/lib']
-	conf.env.LINKFLAGS_TEST = ['-g']
+	conf.env.CPPPATH_TEST = ['/usr/include'] <co id="uselib-cpppath-co" linkends="c1"/>
+
+	if sys.platform != win32: <co id="uselib-check-co" linkends="c2"/>
+		conf.env.CCDEFINES_TEST = ['-DTEST']
+		conf.env.CCFLAGS_TEST   = ['-O0'] <co id="uselib-names-co" linkends="c3"/>
+		conf.env.LIB_TEST       = 'test'
+		conf.env.LIBPATH_TEST   = ['/usr/lib'] <co id="uselib-list-co" linkends="c4"/>
+		conf.env.LINKFLAGS_TEST = ['-g']
 
 def build(bld):
-	staticlib = bld.new_task_gen(
+	mylib = bld.new_task_gen(
 		features = 'cc cstaticlib',
 		source   = 'test_staticlib.c',
 		target   = 'teststaticlib',
-		uselib   = 'TEST') <co id="uselib-use-co" linkends="c2"/>
+		uselib   = 'TEST') <co id="uselib-map-co" linkends="c5"/>
+
+	if mylib.env.CC_NAME == 'gcc':
+		mylib.cxxflags = ['-O2'] <co id="uselib-dontuse-co" linkends="c6"/>
 			</programlisting>
 			<calloutlist>
-				<callout arearefs="uselib-vars-co" id="c1">
+				<callout arearefs="uselib-cpppath-co" id="c1">
+					<para>For portability reasons, it is recommended to use CPPPATH instead of giving flags of the form -I/include. Note that the CPPPATH use used by both c and c++</para>
+				</callout>
+				<callout arearefs="uselib-check-co" id="c2">
+					<para>Variables may be left undefined in platform-specific settings, yet the build scripts will remain identical.</para>
+				</callout>
+				<callout arearefs="uselib-names-co" id="c3">
 					<para>Declare a few variables during the configuration, the variables follow the convention VAR_NAME</para>
 				</callout>
-				<callout arearefs="uselib-use-co" id="c2">
+				<callout arearefs="uselib-list-co" id="c4">
+					<para>Values should be declared as lists excepts for LIB and STATICLIB</para>
+				</callout>
+				<callout arearefs="uselib-map-co" id="c5">
 					<para>Add all the VAR_NAME corresponding to the uselib NAME, which is 'TEST' in this example</para>
 				</callout>
+				<callout arearefs="uselib-dontuse-co" id="c6">
+					<para><emphasis>Model to avoid</emphasis>: setting the flags and checking for the configuration must be performed in the configuration section</para>
+				</callout>
 			</calloutlist>
-			The variables used for c/c++ are the following: STATICLIB, LIB, LIBPATH, LINKFLAGS, RPATH, CXXFLAGS, CCFLAGS, CPPPATH, CPPFLAGS, CXXDEFINES, FRAMEWORK, FRAMEWORKPATH, CXXDEPS. The uselib is similar to the cascading style sheet (CSS) principle.
+			The variables used for c/c++ are the following: STATICLIB, LIB, LIBPATH, LINKFLAGS, RPATH, CXXFLAGS, CCFLAGS, CPPPATH, CPPFLAGS, CXXDEFINES, FRAMEWORK, FRAMEWORKPATH, CXXDEPS. The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, default.cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
 		</para>
 	</section>
 

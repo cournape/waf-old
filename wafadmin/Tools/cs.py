@@ -4,7 +4,7 @@
 
 "C# support"
 
-import TaskGen, Utils, Task
+import TaskGen, Utils, Task, Options
 from Logs import error
 from TaskGen import before, after, taskgen, feature
 
@@ -46,6 +46,9 @@ def apply_cs(self):
 	for i in self.to_list(self.resources):
 		self.env['_RESOURCES'].append('/resource:'+i)
 
+	# what kind of assembly are we generating?
+	self.env['_TYPE'] = getattr(self, 'type', 'exe')
+
 	# additional flags
 	self.env['_FLAGS'] += self.to_list(self.flags) + self.env['FLAGS']
 
@@ -56,14 +59,16 @@ def apply_cs(self):
 	for i in self.to_list(self.source):
 		nodes.append(curnode.find_resource(i))
 
-	# create the task
-	task = self.create_task('mcs')
-	task.inputs  = nodes
-	task.set_outputs(self.path.find_or_declare(self.target))
+	self.create_task('mcs', nodes, self.path.find_or_declare(self.target))
 
-Task.simple_task_type('mcs', '${MCS} ${SRC} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
+Task.simple_task_type('mcs', '${MCS} ${SRC} /target:${_TYPE} /out:${TGT} ${_FLAGS} ${_ASSEMBLIES} ${_RESOURCES}', color='YELLOW')
 
 def detect(conf):
-	mcs = conf.find_program('mcs', var='MCS')
-	if not mcs: mcs = conf.find_program('gmcs', var='MCS')
+	csc = getattr(Options.options, 'cscbinary', None)
+	if csc:
+		conf.env.MCS = csc
+	conf.find_program(['gmcs', 'mcs'], var='MCS')
+
+def set_options(opt):
+	opt.add_option('--with-csc-binary', type='string', dest='cscbinary')
 

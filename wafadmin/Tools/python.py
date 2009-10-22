@@ -55,62 +55,49 @@ def init_pyembed(self):
 
 @extension(EXT_PY)
 def process_py(self, node):
-	if self.bld.is_install and self.install_path:
-		if not hasattr(self, '_py_installed_files'):
-			self._py_installed_files = []
-		installed_files = self.bld.install_files(
-					self.install_path,
-					node.abspath(self.env),
-					self.env,
-					self.chmod)
-		self._py_installed_files.extend(installed_files)
+	if not (self.bld.is_install or self.install_path):
+		return
+	def inst_py(ctx):
+		install_pyfile(self, node)
+	self.bld.add_post_fun(inst_py)
 
-@feature('py')
-def byte_compile_py(self):
-	if self.bld.is_install and self.install_path:
-		installed_files = self._py_installed_files
-		if not installed_files:
-			return
-		if self.bld.is_install < 0:
-			info("* removing byte compiled python files")
-			for fname in installed_files:
-				try:
-					os.remove(fname + 'c')
-				except OSError:
-					pass
-				try:
-					os.remove(fname + 'o')
-				except OSError:
-					pass
+def install_pyfile(self, node):
+	path = self.bld.get_install_path(self.install_path + os.sep + node.name, self.env)
 
-		if self.bld.is_install > 0:
-			if self.env['PYC'] or self.env['PYO']:
-				info("* byte compiling python files")
+	self.bld.install_files(self.install_path, [node], self.env, self.chmod, postpone=False)
+	if self.bld.is_install < 0:
+		info("* removing byte compiled python files")
+		for x in 'co':
+			try:
+				os.remove(path + x)
+			except OSError:
+				pass
 
-			if self.env['PYC']:
-				program = ("""
+	if self.bld.is_install > 0:
+		if self.env['PYC'] or self.env['PYO']:
+			info("* byte compiling %r" % path)
+
+		if self.env['PYC']:
+			program = ("""
 import sys, py_compile
 for pyfile in sys.argv[1:]:
 	py_compile.compile(pyfile, pyfile + 'c')
 """)
-				argv = [self.env['PYTHON'], "-c", program ]
-				argv.extend(installed_files)
-				retval = Utils.pproc.Popen(argv).wait()
-				if retval:
-					raise Utils.WafError("bytecode compilation failed")
+			argv = [self.env['PYTHON'], '-c', program, path]
+			ret = Utils.pproc.Popen(argv).wait()
+			if ret:
+				raise Utils.WafError('bytecode compilation failed %r' % path)
 
-
-			if self.env['PYO']:
-				program = ("""
+		if self.env['PYO']:
+			program = ("""
 import sys, py_compile
 for pyfile in sys.argv[1:]:
 	py_compile.compile(pyfile, pyfile + 'o')
 """)
-				argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], "-c", program ]
-				argv.extend(installed_files)
-				retval = Utils.pproc.Popen(argv).wait()
-				if retval:
-					raise Utils.WafError("bytecode compilation failed")
+			argv = [self.env['PYTHON'], self.env['PYFLAGS_OPT'], '-c', program, path]
+			ret = Utils.pproc.Popen(argv).wait()
+			if ret:
+				raise Utils.WafError('bytecode compilation failed %r' % path)
 
 # COMPAT
 class py_taskgen(TaskGen.task_gen):
@@ -172,7 +159,8 @@ def check_python_headers(conf):
 
 	env = conf.env
 	python = env['PYTHON']
-	assert python, ("python is %r !" % (python,))
+	if not python:
+		conf.fatal('could not find the python executable')
 
 	## On Mac OSX we need to use mac bundles for python plugins
 	if Options.platform == 'darwin':
@@ -322,7 +310,8 @@ def check_python_version(conf, minver=None):
 	"""
 	assert minver is None or isinstance(minver, tuple)
 	python = conf.env['PYTHON']
-	assert python, ("python is %r !" % (python,))
+	if not python:
+		conf.fatal('could not find the python executable')
 
 	# Get python version string
 	cmd = [python, "-c", "import sys\nfor x in sys.version_info: print(str(x))"]
@@ -374,7 +363,7 @@ def check_python_version(conf, minver=None):
 		conf.check_message('Python version', ">= %s" % (minver_str,), result, option=pyver_full)
 
 	if not result:
-		conf.fatal("Python too old.")
+		conf.fatal('The python version is too old (%r)' % minver)
 
 @conf
 def check_python_module(conf, module_name):
@@ -385,11 +374,16 @@ def check_python_module(conf, module_name):
 			   stderr=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE).wait()
 	conf.check_message('Python module', module_name, result)
 	if not result:
-		conf.fatal("Python module not found.")
+		conf.fatal('Could not find the python module %r' % module_name)
 
 def detect(conf):
+
+	if not conf.env.PYTHON:
+		conf.env.PYTHON = sys.executable
+
 	python = conf.find_program('python', var='PYTHON')
-	if not python: return
+	if not python:
+		conf.fatal('Could not find the path of the python executable')
 
 	v = conf.env
 

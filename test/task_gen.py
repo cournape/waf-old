@@ -147,7 +147,20 @@ def configure(conf):
 		self.failUnlessRaises(Utils.WafError, obj.find_sources_in_dirs, self._test_dir_root)
 
 	def test_validate_extension_decorator(self):
-		self.failUnlessRaises(Utils.WafError, TaskGen.extension, 1)
+		# black-box test: fails if decorator variable is not a string or a list
+		wscript_contents = """
+from TaskGen import extension
+
+# this fails - extension must be a list or a string
+@extension(8881)
+def baba(self):
+	pass
+"""
+
+		self._write_wscript(wscript_contents)
+		stderr = self._test_configure(False)[1]
+		err_msg = 'extension takes either a list or a string'
+		self.assert_(err_msg in stderr, err_msg)
 
 	def test_validate_declare_extension(self):
 		self.failUnlessRaises(Utils.WafError, TaskGen.declare_extension, 1, None)

@@ -63,14 +63,14 @@ def apply_framework(self):
 def create_bundle_dirs(self, name, out):
 	bld = self.bld
 	dir = out.parent.get_dir(name)
-	
+
 	if not dir:
 		dir = out.__class__(name, out.parent, 1)
 		bld.rescan(dir)
 		contents = out.__class__('Contents', dir, 1)
 		bld.rescan(contents)
 		macos = out.__class__('MacOS', contents, 1)
-		bld.rescan(macos)	
+		bld.rescan(macos)
 	return dir
 
 def bundle_name_for_output(out):
@@ -89,7 +89,7 @@ def create_task_macapp(self):
 	"""Use env['MACAPP'] to force *all* executables to be transformed into Mac applications
 	or use obj.mac_app = True to build specific targets as Mac apps"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
-		apptask = self.create_task('macapp', self.env)
+		apptask = self.create_task('macapp')
 		apptask.set_inputs(self.link_task.outputs)
 
 		out = self.link_task.outputs[0]
@@ -113,8 +113,8 @@ def create_task_macplist(self):
 		# check if the user specified a plist before using our template
 		if not getattr(self, 'mac_plist', False):
 			self.mac_plist = app_info
-			
-		plisttask = self.create_task('macplist', self.env)
+
+		plisttask = self.create_task('macplist')
 		plisttask.set_inputs(self.link_task.outputs)
 
 		out = self.link_task.outputs[0]
@@ -180,6 +180,6 @@ def plist_build(task):
 
 	return 0
 
-Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link ar_link_static")
-Task.task_type_from_func('macplist', vars=[], func=plist_build, after="cxx_link cc_link ar_link_static")
+Task.task_type_from_func('macapp', vars=[], func=app_build, after="cxx_link cc_link static_link")
+Task.task_type_from_func('macplist', vars=[], func=plist_build, after="cxx_link cc_link static_link")
 

@@ -14,15 +14,15 @@ The book can be read online at http://freehackers.org/~tnagy/testdoc/index.html
 GENERATE WAF
 ------------
 
-Run './waf-light --make-waf' to generate waf or look at './waf-light --help'
-Then try 'waf --help', there are predefined targets for waf itself.
+Run 'python ./waf-light --make-waf' to generate waf or look at 'python ./waf-light --help'
+Then try 'python ./waf --help', there are predefined targets for waf itself.
 
 The waf script generated can be redistributed freely along with
 your projects. This saves time looking for the right waf version.
 
 If you want to install waf system-wide (discouraged), use:
-./waf-light configure --prefix=/some/install/dir
-./waf-light install
+python ./waf-light configure --prefix=/some/install/dir
+python ./waf-light install
 
 Though Waf is maintaining compatibility for Python 2.3, the script used for
 generating Waf requires Python 2.4

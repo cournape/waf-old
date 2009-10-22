@@ -9,6 +9,7 @@ blddir = 'build'
 
 def set_options(opt):
 	opt.tool_options('compiler_cxx')
+	opt.tool_options('UnitTest')
 
 def configure(conf):
 	conf.check_tool('compiler_cxx')
@@ -18,7 +19,6 @@ def configure(conf):
 	if 'LIB_CPPUNIT' in conf.env:
 		if 'dl' not in conf.env.LIB_CPPUNIT:
 			l = conf.check(lib='dl', uselib_store='CPPUNIT')
-		Utils.pprint('CYAN', 'To run unit tests use "waf check"')
 	else:
 		conf.fatal('Install cppunit')
 
@@ -30,9 +30,4 @@ def build(bld):
 		subdirs += ' tests'
 	bld.add_subdirs(subdirs)
 
-def check(context):
-	# Unit tests are run when "check" target is used
-	ut = UnitTest.unit_test()
-	ut.change_to_testfile_dir = True
-	ut.run()
-	ut.print_results()
+	bld.add_post_fun(UnitTest.summary)

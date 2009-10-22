@@ -60,12 +60,12 @@ checkWAF()
 	fi
 	# neither waf nor miniwaf could be found
 	if [ ! -x "$WAF" ] ; then
-	    printf $RED"not found"$NORMAL"\n"
+	    printf "$RED""not found""$NORMAL""\n"
 	    echo "Go to http://code.google.com/p/waf/"
 	    echo "and download a waf version"
 	    exit $EXIT_FAILURE
 	else
-	  printf $GREEN"$WAF"$NORMAL"\n"
+	  printf "$GREEN""$WAF""$NORMAL""\n"
 	fi
 }
 
@@ -88,18 +88,10 @@ all-progress:
 	@$WAF -p build
 
 install:
-	if test -n "\$(DESTDIR)"; then \\
-	    $WAF install --yes --destdir="\$(DESTDIR)" --prefix="$PREFIX"; \\
-	else \\
-	    $WAF install --yes --prefix="$PREFIX"; \\
-	fi;
+	$WAF install --yes;
 
 uninstall:
-	@if test -n "\$(DESTDIR)"; then \\
-	    $WAF uninstall --destdir="\$(DESTDIR)" --prefix="$PREFIX"; \\
-	else \\
-	    $WAF uninstall --prefix="$PREFIX"; \\
-	fi;
+	$WAF uninstall
 
 clean:
 	@$WAF clean
@@ -121,18 +113,7 @@ EOF
 }
 
 checkWAF
-
-PREFIX=/usr/local
-case $1 in
-    --prefix)
-        PREFIX=$2
-        ;;
-esac
-
-export PREFIX
 generateMakefile
 
-
-"${WAF}" configure --prefix "${PREFIX}"
-
+"${WAF}" configure $*
 exit $?

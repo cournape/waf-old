@@ -31,7 +31,7 @@ You would have to run:
 
 import os, re
 from Configure import conf
-import TaskGen, Task, Utils
+import TaskGen, Task, Utils, Options, Build
 from TaskGen import feature, before, taskgen
 
 class_check_source = '''
@@ -60,6 +60,7 @@ def jar_files(self):
 	basedir = getattr(self, 'basedir', '.')
 	destfile = getattr(self, 'destfile', 'test.jar')
 	jaropts = getattr(self, 'jaropts', [])
+	jarcreate = getattr(self, 'jarcreate', 'cf')
 
 	dir = self.path.find_dir(basedir)
 	if not dir: raise
@@ -74,13 +75,19 @@ def jar_files(self):
 	tsk.set_outputs(out)
 	tsk.inputs = [x for x in dir.find_iter(src=0, bld=1) if x.id != out.id]
 	tsk.env['JAROPTS'] = jaropts
-	tsk.env['JARCREATE'] = 'cf'
+	tsk.env['JARCREATE'] = jarcreate
 
 @feature('javac')
 @before('apply_core')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
-		source_root='.', source_re='[A-Za-z0-9]+\.java$', jar_mf_attributes={}, jar_mf_classpath=[])
+		sourcepath='.', srcdir='.', source_re='**/*.java',
+		jar_mf_attributes={}, jar_mf_classpath=[])
+
+	if getattr(self, 'source_root', None):
+		# old stuff
+		self.srcdir = self.source_root
+
 
 	nodes_lst = []
 
@@ -90,24 +97,30 @@ def apply_java(self):
 	else:
 		self.env['CLASSPATH'] = self.classpath
 
-	source_root_node = self.path.find_dir(self.source_root)
-	re_foo = re.compile(self.source_re)
+	srcdir_node = self.path.find_dir(self.srcdir)
+	if not srcdir_node:
+		raise Utils.WafError('could not find srcdir %r' % self.srcdir)
 
-	def acc(node, name):
-		return re_foo.search(name) > -1
-
-	def prune(node, name):
-		if name == '.svn': return True
-		return False
-
-	src_nodes = [x for x in source_root_node.find_iter_impl(dir=False, accept_name=acc, is_prune=prune)]
+	src_nodes = [x for x in srcdir_node.ant_glob(self.source_re, flat=False)]
 	bld_nodes = [x.change_ext('.class') for x in src_nodes]
 
-	self.env['OUTDIR'] = [source_root_node.abspath(self.env)]
+	self.env['OUTDIR'] = [srcdir_node.abspath(self.env)]
 
 	tsk = self.create_task('javac')
 	tsk.set_inputs(src_nodes)
 	tsk.set_outputs(bld_nodes)
+
+	if getattr(self, 'compat', None):
+		tsk.env.append_value('JAVACFLAGS', ['-source', self.compat])
+
+	if hasattr(self, 'sourcepath'):
+		fold = [self.path.find_dir(x) for x in self.to_list(self.sourcepath)]
+		names = os.pathsep.join([x.srcpath() for x in fold])
+	else:
+		names = srcdir_node.srcpath()
+
+	if names:
+		tsk.env.append_value('JAVACFLAGS', ['-sourcepath', names])
 
 	if self.jarname:
 		tsk = self.create_task('jar_create')
@@ -205,4 +218,38 @@ def check_java_class(self, classname, with_classpath=None):
 	shutil.rmtree(javatestdir, True)
 
 	return found
+
+@conf
+def check_jni_headers(conf):
+	"""
+	Check for jni headers and libraries
+
+	On success the environment variable xxx_JAVA is added for uselib
+	"""
+
+	if not conf.env.CC_NAME and not conf.env.CXX_NAME:
+		conf.fatal('load a compiler first (gcc, g++, ..)')
+
+	if not conf.env.JAVA_HOME:
+		conf.fatal('set JAVA_HOME in the system environment')
+
+	# jni requires the jvm
+	javaHome = conf.env['JAVA_HOME'][0]
+
+	b = Build.BuildContext()
+	b.load_dirs(conf.srcdir, conf.blddir)
+	dir = b.root.find_dir(conf.env.JAVA_HOME[0] + '/include')
+	f = dir.ant_glob('**/(jni|jni_md).h', flat=False)
+	incDirs = [x.parent.abspath() for x in f]
+
+	dir = b.root.find_dir(conf.env.JAVA_HOME[0])
+	f = dir.ant_glob('**/*jvm.(so|dll)', flat=False)
+	libDirs = [x.parent.abspath() for x in f] or [javaHome]
+
+	for i, d in enumerate(libDirs):
+		if conf.check(header_name='jni.h', define_name='HAVE_JNI_H', lib='jvm',
+				libpath=d, includes=incDirs, uselib_store='JAVA', uselib='JAVA'):
+			break
+	else:
+		conf.fatal('could not find lib jvm in %r (see config.log)' % libDirs)
 

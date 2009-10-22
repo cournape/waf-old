@@ -6,7 +6,7 @@
 "Custom command-line options"
 
 import os, sys, imp, types, tempfile, optparse
-import Logs, Utils, Configure
+import Logs, Utils
 from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
@@ -22,7 +22,7 @@ tooldir = ''
 lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
-platform = Utils.detect_platform()
+platform = Utils.unversioned_sys_platform()
 conf_file = 'conf-runs-%s-%d.pickle' % (platform, ABI)
 
 # Such a command-line should work:  JOBS=4 PREFIX=/opt/ DESTDIR=/tmp/ahoj/ waf configure

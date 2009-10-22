@@ -68,13 +68,10 @@ def read_la_file(path):
 def apply_link_libtool(self):
 	if self.type != 'program':
 		linktask = self.link_task
-		latask = self.create_task('fakelibtool')
-		latask.set_inputs(linktask.outputs)
-		latask.set_outputs(linktask.outputs[0].change_ext('.la'))
-		self.latask = latask
+		self.latask = self.create_task('fakelibtool', linktask.outputs, linktask.outputs[0].change_ext('.la'))
 
 	if self.bld.is_install:
-		self.bld.install_files('${PREFIX}/lib', linktask.outputs[0].abspath(self.env), self.env)
+		self.bld.install_files('${PREFIX}/lib', linktask.outputs[0], self.env)
 
 @feature("libtool")
 @before('apply_core')
@@ -115,7 +112,7 @@ def apply_libtool(self):
 				continue
 			self.env.append_unique('LINKFLAGS', v)
 
-Task.task_type_from_func('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', after="cc_link cxx_link ar_link_static")
+Task.task_type_from_func('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', after="cc_link cxx_link static_link")
 
 class libtool_la_file:
 	def __init__ (self, la_filename):

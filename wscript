@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006, 2007, 2008
 
-VERSION="1.5.8"
+VERSION="1.5.9"
 APPNAME='waf'
 REVISION=''
 srcdir='.'
@@ -10,9 +10,6 @@ blddir='build'
 
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']
-
-# exclude these modules
-forbidden = [x+'.py' for x in 'Test Weak'.split()]
 
 #from tokenize import *
 import tokenize
@@ -22,7 +19,8 @@ import Utils, Options, Build
 try: from hashlib import md5
 except ImportError: from md5 import md5
 
-pyFileExp = re.compile(".*\.py$")
+import Configure
+Configure.autoconfig = 1
 
 print "------> Executing code from the top-level wscript <-----"
 
@@ -210,11 +208,12 @@ def create_waf():
 	tar = tarfile.open('%s.tar.%s' % (mw, zipType), "w:%s" % zipType)
 	tarFiles=[]
 
-	lst = os.listdir('wafadmin')
-	files = [os.path.join('wafadmin', s) for s in lst if pyFileExp.match(s) and not s in forbidden]
-	tooldir = os.path.join('wafadmin', 'Tools')
-	lst = os.listdir(tooldir)
-	files += [os.path.join(tooldir, s) for s in lst if pyFileExp.match(s) and not s in forbidden]
+	files = []
+	for d in '. Tools 3rdparty'.split():
+		dd = os.path.join('wafadmin', d)
+		for k in os.listdir(dd):
+			if k.endswith('.py'):
+				files.append(os.path.join(dd, k))
 	for x in files:
 		tarinfo = tar.gettarinfo(x, x)
 		tarinfo.uid=tarinfo.gid=1000

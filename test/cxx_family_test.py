@@ -28,21 +28,15 @@ class CxxFamilyTester(CcRootTester):
 		self._test_configure()
 		self._test_build()
 
-	def test_c_program(self):
-		# simple default program - c program should be built with cpp too 
-		self._setup_c_program()
-		self._test_configure()
-		self._test_build()
-		self._test_run( os.path.join("build", "default", "hello") )
-
-	def test_c_object(self):
-		# simple default object - c objects should be built with cpp too 
-		self._setup_c_objects()
+	def test_share_lib(self):
+		# simple default share lib
+		self._setup_cpp_share_lib()
 		self._test_configure()
 		self._test_build()
 
-	# TODO:
-	# --debug_level is not working now, to restore the tests for the various level,
-	# refer to older versions.
-	# for example: 
-	# http://code.google.com/p/waf/source/browse/tags/waf-1.4.2/wafadmin/test/cpp_family_test.py
+	def test_static_lib(self):
+		# simple default static lib
+		self._setup_cpp_static_lib()
+		self._test_configure()
+		self._test_build()
+

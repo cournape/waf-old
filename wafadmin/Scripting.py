@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, shutil, traceback, datetime, inspect
+import os, sys, shutil, traceback, datetime, inspect, errno
 
 import Utils, Configure, Build, Logs, Options, Environment, Task
 from Logs import error, warn, info
@@ -62,7 +62,7 @@ def find_wscript_file(current_dir):
 	
 	msg1 = 'Waf: Please run waf from a directory containing a file named "%s" or run distclean' % WSCRIPT_FILE
 
-	# in theory projects can be configured in a gcc manner:
+	# in theory projects can be configured in an autotool-like manner:
 	# mkdir build && cd build && ../waf configure && ../waf
 	candidate = None
 
@@ -73,7 +73,7 @@ def find_wscript_file(current_dir):
 		candidate = current_dir
 
 	elif 'configure' in sys.argv and not WSCRIPT_BUILD_FILE in lst:
-		# gcc-like configuration
+		# autotool-like configuration
 		calldir = os.path.abspath(os.path.dirname(sys.argv[0]))
 		if WSCRIPT_FILE in os.listdir(calldir):
 			candidate = calldir
@@ -94,7 +94,11 @@ def find_wscript_file(current_dir):
 			break
 		if Options.lockfile in dirlst:
 			env = Environment.Environment()
-			env.load(os.path.join(current_dir, Options.lockfile))
+			try:
+				env.load(os.path.join(cwd, Options.lockfile))
+			except:
+				#error('could not load %r' % Options.lockfile)
+				pass
 			try:
 				os.stat(env['cwd'])
 			except:
@@ -238,14 +242,23 @@ def distclean(ctx=None):
 		if f == Options.lockfile:
 			try:
 				proj = Environment.Environment(f)
+			except:
+				Logs.warn('could not read %r' % f)
+				continue
+
+			try:
 				shutil.rmtree(proj[BLDDIR])
-			except (OSError, IOError):
+			except IOError:
 				pass
+			except OSError, e:
+				if e.errno != errno.ENOENT:
+					Logs.warn('project %r cannot be removed' % proj[BLDDIR])
 
 			try:
 				os.remove(f)
-			except (OSError, IOError):
-				pass
+			except OSError, e:
+				if e.errno != errno.ENOENT:
+					Logs.warn('file %r cannot be removed' % f)
 
 		# remove the local waf cache
 		if f.startswith('.waf-'):

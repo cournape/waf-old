@@ -67,8 +67,8 @@ def find_program_impl(env, filename, path_list=[], var=None, environ=None):
 	except AttributeError: pass
 
 	if var:
-		if var in environ: env[var] = environ[var]
 		if env[var]: return env[var]
+		if var in environ: env[var] = environ[var]
 
 	if not path_list: path_list = environ.get('PATH', '').split(os.pathsep)
 
@@ -121,7 +121,11 @@ class ConfigurationContext(Utils.Context):
 		path = os.path.join(self.blddir, WAF_CONFIG_LOG)
 		try: os.unlink(path)
 		except (OSError, IOError): pass
-		self.log = open(path, 'w')
+
+		try:
+			self.log = open(path, 'w')
+		except (OSError, IOError):
+			self.fatal('could not open %r for writing' % path)
 
 		app = getattr(Utils.g_module, 'APPNAME', '')
 		if app:
@@ -250,11 +254,26 @@ class ConfigurationContext(Utils.Context):
 
 	def find_program(self, filename, path_list=[], var=None, mandatory=False):
 		"wrapper that adds a configuration message"
-		ret = find_program_impl(self.env, filename, path_list, var, environ=self.environ)
-		self.check_message('program', filename, ret, ret)
+
+		ret = None
+		if var:
+			if self.env[var]:
+				ret = self.env[var]
+			elif var in os.environ:
+				ret = os.environ[var]
+
+		if not isinstance(filename, list): filename = [filename]
+		if not ret:
+			for x in filename:
+				ret = find_program_impl(self.env, x, path_list, var, environ=self.environ)
+				if ret: break
+
+		self.check_message('program', ','.join(filename), ret, ret)
 		self.log.write('find program=%r paths=%r var=%r -> %r\n\n' % (filename, path_list, var, ret))
 		if not ret and mandatory:
-			self.fatal('The program %s could not be found' % filename)
+			self.fatal('The program %r could not be found' % filename)
+		if var:
+			self.env[var] = ret
 		return ret
 
 	def cmd_to_list(self, cmd):

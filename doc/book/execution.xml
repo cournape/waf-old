@@ -131,8 +131,8 @@ Your archive is ready -> test-0.0.1.tar.bz2
 		</para>
 	</section>
 
-	<section id="task_intro">
-		<title>Building a project - Introduction to Tasks</title>
+	<section id="build function">
+		<title>The build function</title>
 		<para>
 			The function <emphasis>build</emphasis> indicates the start of the actual construction of the software, it is used for two main purposes:
 			<itemizedlist>
@@ -158,7 +158,10 @@ def build(bld):
 
 			The wscript files that are not on the top-level often contain a large <emphasis>build</emphasis> function, with no additional configuration or command-line options. In this case the file only contain one method and the indentation is an annoyance. For this reason, the <emphasis>wscript_build</emphasis> files contain the body of a build function defined in a wscript file. A folder may only contain either a wscript or a wscript_build but not both.
 			</para>
+		</sect2>
 
+		<sect2>
+			<title>Pre/post build execution</title>
 			<para>
 			Additionally, two methods enable the execution after the scripts are read and immediately before the build starts (bld.add_pre_fun) and immediately after the build is completed successfully (bld.add_post_fun). Here is a concrete example for executing a test after the build is finished:
 			<programlisting language="python">
@@ -180,11 +183,13 @@ def build(bld):
 	bld.add_post_fun(post)
 			</programlisting>
 			</para>
-
-
 		</sect2>
-		<sect2>
-			<title>Waf task declaration</title>
+
+		</section>
+
+
+		<section id="task_intro">
+			<title>Introduction to Waf tasks</title>
 			<para>
 			The process of building a piece of software require the transformation of source code (input) into the result (output). Since the source code is usually split in various files, the construction of the result requires the processing of each of the files. Several new concepts derive from this:
 			<itemizedlist>
@@ -196,14 +201,15 @@ def build(bld):
 			<para>
 				In a more general scope, the input necessary for a build may come from <emphasis>arbitrary data</emphasis> instead of files (database, commands to execute). The concepts of <emphasis>input, output and transformation</emphasis> and the <emphasis>transformation constraints</emphasis> (in parallel, in sequence) remain identical.
 			</para>
+
+			<sect2>
+				<title>Simple tasks</title>
 			<para>
 				In Waf, the operation of transforming data is performed by <emphasis>tasks</emphasis>, which are instances of the class TaskBase (in the Waf library). The tasks in the following example illustrate the declaration of Tasks from the base class. The task instances must be located in a build context (the function build) to be taken into account in the build phase, and to obtain the reference on the source and build folders:
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-    pass
 def configure(conf):
     pass
 
@@ -229,8 +235,9 @@ Compilation finished successfully (00:00:00)
 			<warning>By default, command-lines executed by tasks are run from the top of the build directory</warning>
 			</para>
 		</sect2>
+
 		<sect2>
-			<title>Task generator encapsulation</title>
+			<title>Encapsulation by task generators</title>
 			<para>
 				In practice, when lots of tasks are declared one by one, scripts tend to become complicated, and contain a lot of redundant code. Special objects named <emphasis>task generators</emphasis> are provided to facilitate the creation of several tasks at once. In the following example, a task generator is used to create the compilation and link tasks needed by a c++ project.
 			<programlisting language="python">
@@ -269,12 +276,12 @@ def build(bld):
 |-- src
 |   `-- wscript
 			</programlisting>
-			The top-level wscript may indicate there is a configure function to execute in src/wscript using:
+			The the directive <emphasis>sub_config</emphasis> wscript indicates another configure function to execute from the script present in another folder:
 			<programlisting language="python">
 def configure(conf):
 	conf.sub_config('src')
 			</programlisting>
-			As a matter of fact, any wscript file may indicate a sub-configuration function to execute.
+			The script may be a wscript file containing a function configure, or a file named wscript_configure containing the body of such a function.
 			</para>
 		</sect2>
 		<sect2>
@@ -284,8 +291,6 @@ def configure(conf):
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-    pass
 def configure(conf):
     conf.env.test = 'hello'
 def build(bld):
@@ -325,8 +330,6 @@ test = 'hello'
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-    pass
 def configure(conf):
     conf.find_program('tar', var='TAR')
 def build(bld):
@@ -475,6 +478,16 @@ def build(bld):
 	print(Utils.subst_vars('${PREFIX}/${LANG}/po', bld.env))
 				</programlisting>
 			</para>
+			<para>
+				To install the contents of a whole directory, iterate on the individual files, for example:
+				<programlisting language="python">
+def build(bld):
+	for x in bld.path.ant_glob('**/*.h'):
+		bld.install_files('${PREFIX}/includes', x)
+				</programlisting>
+				Note that a specialized builder exists to install both python and python compiled files (demos/python).
+			</para>
+
 		</sect2>
 
 		<sect2>

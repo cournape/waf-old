@@ -26,15 +26,17 @@ def modify_flags(self):
 			if node.name == 'B.c':
 				task.env = task.env.copy()
 				task.env.append_unique('_CCDEFFLAGS', '-DMYFLAG')
-
-def set_options(opt):
-	pass
+			elif node.name == 'A.c':
+				task.env = task.env.copy()
+				# deep copy
+				task.env.detach()
+				task.env.CCFLAGS.remove('-g')
 
 def configure(conf):
 	conf.check_tool('gcc')
+	conf.env.CCFLAGS = ['-g']
 
 def build(bld):
-
 	bld.new_task_gen(
 		features = 'cc cprogram',
 		source = 'A.c B.c',

@@ -6,12 +6,13 @@
 "ar and ranlib"
 
 import os, sys
-import Task
+import Task, Utils
 from Configure import conftest
 
-ar_str = '${AR} ${ARFLAGS} ${TGT} ${SRC}'
-cls = Task.simple_task_type('ar_link_static', ar_str, color='YELLOW', ext_in='.o', shell=False)
+ar_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
+cls = Task.simple_task_type('static_link', ar_str, color='YELLOW', ext_in='.o', shell=False)
 cls.maxjobs = 1
+cls.install = Utils.nada
 
 # remove the output in case it already exists
 old = cls.run
@@ -22,21 +23,9 @@ def wrap(self):
 setattr(cls, 'run', wrap)
 
 def detect(conf):
-	comp = conf.environ.get('AR', '')
-	if not comp: comp = conf.env['AR']
-	if not comp: comp = conf.find_program('ar', var='AR')
-	if not comp: return
-
-	ranlib = conf.environ.get('RANLIB', '')
-	if not ranlib: ranlib = conf.env['RANLIB']
-	if not ranlib: ranlib = conf.find_program('ranlib', var='RANLIB')
-	if not ranlib: return
-
-	v = conf.env
-	v['AR']          = comp
-	v['ARFLAGS']     = 'rcs'
-	v['RANLIB']      = ranlib
-	v['RANLIBFLAGS'] = ''
+	conf.find_program('ar', var='AR')
+	conf.find_program('ranlib', var='RANLIB')
+	conf.env.ARFLAGS = 'rcs'
 
 @conftest
 def find_ar(conf):

@@ -3,7 +3,10 @@
 
 def build(bld):
 	bld.add_subdirs('test0 test1')
-	obj = bld.new_task_gen('cxx', 'staticlib')
-	obj.source = 'main.cpp'
-	obj.uselib = 'CPPUNIT'
-	obj.target = 'unittestmain'
+
+	obj = bld.new_task_gen(
+			features = 'cxx cstaticlib',
+			source   = 'main.cpp',
+			uselib   = 'CPPUNIT',
+			target   = 'unittestmain')
+

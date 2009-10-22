@@ -1,3 +1,10 @@
+NEW IN WAF 1.5.10
+-----------------
+* conf.define strings are now quoted by default
+* fixed the d language support
+* fltk support
+* files can be installed with bld.declare_chain
+
 NEW IN WAF 1.5.9
 ----------------
 * process the framework flags from the pkg-config output
@@ -6,11 +13,16 @@ NEW IN WAF 1.5.9
 * compatibility to Python 3.1
 * detect the amount of processors on jython
 * bison tool rewrite
-* improved logging and error reporting
+* enhanced logging and error reporting
 * do not eliminate the build nodes when the node directory is empty
 * enable Node parameters in bld.install_as and bld.install_files
 * new env.detach() to prevent confusing data sharing
-? Cross-compilation improvements
+* installation is now performed after the build is complete by default
+* swig demo update
+* local static libraries are not propagated (convenience libraries)
+* jni configuration helper (java)
+* fixed wrong so name in versioned libraries
+* Cross-compilation improvements
 
 NEW IN WAF 1.5.8
 ----------------

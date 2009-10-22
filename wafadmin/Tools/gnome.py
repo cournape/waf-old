@@ -84,7 +84,7 @@ def apply_gnome_doc(self):
 
 		if bld.is_install:
 			path = self.install_path + 'gnome/help/%s/%s' % (self.doc_module, x)
-			bld.install_files(self.install_path + 'omf', out2.abspath(self.env))
+			bld.install_files(self.install_path + 'omf', out2, env=self.env)
 			for y in self.to_list(self.doc_figures):
 				try:
 					os.stat(self.path.abspath() + '/' + x + '/' + y)
@@ -112,9 +112,7 @@ def init_xml_to(self):
 def apply_xml_to(self):
 	xmlfile = self.path.find_resource(self.source)
 	xsltfile = self.path.find_resource(self.xslt)
-	tsk = self.create_task('xmlto')
-	tsk.set_inputs([xmlfile, xsltfile])
-	tsk.set_outputs(xmlfile.change_ext('html'))
+	tsk = self.create_task('xmlto', [xmlfile, xsltfile], xmlfile.change_ext('html'))
 	tsk.install_path = self.install_path
 
 def sgml_scan(self):
@@ -154,7 +152,7 @@ def apply_gnome_sgml2man(self):
 		name = out.name
 		ext = name[-1]
 		env = task.env
-		self.bld.install_files('${DATADIR}/man/man%s/' % ext, out.abspath(env), env)
+		self.bld.install_files('${DATADIR}/man/man%s/' % ext, out, env)
 
 	self.bld.rescan(self.path)
 	for name in self.bld.cache_dir_contents[self.path.id]:

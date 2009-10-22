@@ -11,18 +11,11 @@ from Configure import conftest
 
 @conftest
 def find_gxx(conf):
-	v = conf.env
-	cxx = None
-	if v['CXX']: cxx = v['CXX']
-	elif 'CXX' in conf.environ: cxx = conf.environ['CXX']
-	if not cxx: cxx = conf.find_program('g++', var='CXX')
-	if not cxx: cxx = conf.find_program('c++', var='CXX')
-	if not cxx: conf.fatal('g++ was not found')
+	cxx = conf.find_program(['g++', 'c++'], var='CXX', mandatory=True)
 	cxx = conf.cmd_to_list(cxx)
-
 	ccroot.get_cc_version(conf, cxx, gcc=True)
-	v['CXX_NAME'] = 'gcc'
-	v['CXX'] = cxx
+	conf.env.CXX_NAME = 'gcc'
+	conf.env.CXX      = cxx
 
 @conftest
 def gxx_common_flags(conf):
@@ -76,7 +69,13 @@ def gxx_modifier_win32(conf):
 	v['shlib_PATTERN']       = '%s.dll'
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
-	v['shlib_CXXFLAGS']      = ['-DPIC', '-DDLL_EXPORT'] # TODO 64-bit platforms may need -fPIC
+
+	dest_arch = v['DEST_CPU']
+	if dest_arch == 'x86':
+		# On 32-bit x86, gcc emits a message telling the -fPIC option is ignored on this arch, so we remove that flag.
+		v['shlib_CXXFLAGS'] = ['-DPIC'] # TODO this is a wrong define, we don't use -fPIC!
+
+	v.append_value('shlib_CXXFLAGS', '-DDLL_EXPORT') # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
 
 	# Auto-import is enabled by default even without this option,
 	# but enabling it explicitly has the nice effect of suppressing the rather boring, debug-level messages
@@ -101,9 +100,10 @@ def gxx_modifier_darwin(conf):
 
 	v['SHLIB_MARKER']        = ''
 	v['STATICLIB_MARKER']    = ''
+	v['SONAME_ST']		 = ''	
 
 @conftest
-def gxx_modifier_aix5(conf):
+def gxx_modifier_aix(conf):
 	v = conf.env
 	v['program_LINKFLAGS']   = ['-Wl,-brtl']
 
@@ -114,19 +114,19 @@ def gxx_modifier_aix5(conf):
 @conftest
 def gxx_modifier_platform(conf):
 	# * set configurations specific for a platform.
-	# * By default sys.plaform will be used as the target platform.
-	#	but you may write conf.env['DEST_PLATFORM'] = 'my_platform' to allow
-	#	cross compilaion..
-	target_platform = conf.env['DEST_PLATFORM'] or sys.platform
-	gxx_modifier_func = globals().get('gxx_modifier_'+target_platform)
+	# * the destination platform is detected automatically by looking at the macros the compiler predefines,
+	#   and if it's not recognised, it fallbacks to sys.platform.
+	dest_os = conf.env['DEST_OS'] or Utils.unversioned_sys_platform()
+	gxx_modifier_func = globals().get('gxx_modifier_' + dest_os)
 	if gxx_modifier_func:
 			gxx_modifier_func(conf)
 
 def detect(conf):
-		conf.find_gxx()
-		conf.find_cpp()
-		conf.find_ar()
-		conf.gxx_common_flags()
-		conf.gxx_modifier_platform()
-		conf.cxx_load_tools()
-		conf.cxx_add_flags()
+	conf.find_gxx()
+	conf.find_cpp()
+	conf.find_ar()
+	conf.gxx_common_flags()
+	conf.gxx_modifier_platform()
+	conf.cxx_load_tools()
+	conf.cxx_add_flags()
+

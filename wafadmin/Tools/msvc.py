@@ -40,6 +40,31 @@ from libtool import read_la_file
 
 import _winreg
 
+pproc = Utils.pproc
+
+# importlibs provided by MSVC/Platform SDK. Do NOT search them....
+g_msvc_systemlibs = """
+aclui activeds ad1 adptif adsiid advapi32 asycfilt authz bhsupp bits bufferoverflowu cabinet
+cap certadm certidl ciuuid clusapi comctl32 comdlg32 comsupp comsuppd comsuppw comsuppwd comsvcs
+credui crypt32 cryptnet cryptui d3d8thk daouuid dbgeng dbghelp dciman32 ddao35 ddao35d
+ddao35u ddao35ud delayimp dhcpcsvc dhcpsapi dlcapi dnsapi dsprop dsuiext dtchelp
+faultrep fcachdll fci fdi framedyd framedyn gdi32 gdiplus glauxglu32 gpedit gpmuuid
+gtrts32w gtrtst32hlink htmlhelp httpapi icm32 icmui imagehlp imm32 iphlpapi iprop
+kernel32 ksguid ksproxy ksuser libcmt libcmtd libcpmt libcpmtd loadperf lz32 mapi
+mapi32 mgmtapi minidump mmc mobsync mpr mprapi mqoa mqrt msacm32 mscms mscoree
+msdasc msimg32 msrating mstask msvcmrt msvcurt msvcurtd mswsock msxml2 mtx mtxdm
+netapi32 nmapinmsupp npptools ntdsapi ntdsbcli ntmsapi ntquery odbc32 odbcbcp
+odbccp32 oldnames ole32 oleacc oleaut32 oledb oledlgolepro32 opends60 opengl32
+osptk parser pdh penter pgobootrun pgort powrprof psapi ptrustm ptrustmd ptrustu
+ptrustud qosname rasapi32 rasdlg rassapi resutils riched20 rpcndr rpcns4 rpcrt4 rtm
+rtutils runtmchk scarddlg scrnsave scrnsavw secur32 sensapi setupapi sfc shell32
+shfolder shlwapi sisbkup snmpapi sporder srclient sti strsafe svcguid tapi32 thunk32
+traffic unicows url urlmon user32 userenv usp10 uuid uxtheme vcomp vcompd vdmdbg
+version vfw32 wbemuuid  webpost wiaguid wininet winmm winscard winspool winstrm
+wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xolehlp
+""".split()
+
+
 all_msvc_platforms = [ ('x64', 'amd64'), ('x86', 'x86'), ('ia64', 'ia64'), ('x86_amd64', 'amd64'), ('x86_ia64', 'ia64') ]
 all_wince_platforms = [ ('armv4', 'arm'), ('armv4i', 'arm'), ('mipsii', 'mips'), ('mipsii_fp', 'mips'), ('mipsiv', 'mips'), ('mipsiv_fp', 'mips'), ('sh4', 'sh'), ('x86', 'cex86') ]
 all_icl_platforms = [ ('intel64', 'amd64'), ('em64t', 'amd64'), ('ia32', 'x86'), ('Itanium', 'ia64')]
@@ -64,7 +89,7 @@ def setup_msvc(conf, versions):
 @conf
 def get_msvc_version(conf, compiler, version, target, vcvars):
 	debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' ...')
-	batfile = os.path.join(conf.blddir, "waf-print-msvc.bat")
+	batfile = os.path.join(conf.blddir, 'waf-print-msvc.bat')
 	f = open(batfile, 'w')
 	f.write("""@echo off
 set INCLUDE=
@@ -73,13 +98,18 @@ call "%s" %s
 echo PATH=%%PATH%%
 echo INCLUDE=%%INCLUDE%%
 echo LIB=%%LIB%%
-""" % (vcvars,target)) 
+""" % (vcvars,target))
 	f.close()
 	sout = Utils.cmd_output(['cmd', '/E:on', '/V:on', '/C', batfile])
 	lines = sout.splitlines()
-	if lines[0].find("Setting environment") == -1 and lines[0].find("Setting SDK environment") == -1 and lines[1].find('Intel(R) C++ Compiler') == -1:
-		debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> not found')
+
+	for x in ('Setting environment', 'Setting SDK environment', 'Intel(R) C++ Compiler'):
+		if lines[0].find(x) != -1:
+			break
+	else:
+		debug('msvc: get_msvc_version: %r %r %r -> not found' % (compiler, version, target))
 		conf.fatal('msvc: Impossible to find a valid architecture for building (in get_msvc_version)')
+
 	for line in lines[1:]:
 		if line.startswith('PATH='):
 			path = line[5:]
@@ -98,18 +128,20 @@ echo LIB=%%LIB%%
 	cxx = conf.find_program(compiler_name, path_list=MSVC_PATH)
 	# delete CL if exists. because it could contain parameters wich can change cl's behaviour rather catastrophically.
 	if env.has_key('CL'):
-		del(env['CL']) 
-	import pproc
+		del(env['CL'])
+
 	try:
 		p = pproc.Popen([cxx, '/help'], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
 		out, err = p.communicate()
 		if p.returncode != 0:
-			raise Exception('return code: ' + str(p.returncode) + ': ' + err)
+			raise Exception('return code: %r: %r' % (p.returncode, err))
 	except Exception, e:
-		print('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> failed: ' + str(e))
-		conf.fatal('msvc: Compiler is not runnable (in get_msvc_version)')
+		debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
+		debug(str(e))
+		conf.fatal('msvc: cannot run the compiler (in get_msvc_version)')
 	else:
-		debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' -> OK')
+		debug('msvc: get_msvc_version: %r %r %r -> OK' % (compiler, version, target))
+
 	return (MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR)
 
 @conf
@@ -144,7 +176,6 @@ def gather_wsdk_versions(conf, versions):
 				except Configure.ConfigurationError:
 					pass
 			versions.append(('wsdk ' + version[1:], targets))
-
 
 @conf
 def gather_msvc_versions(conf, versions):
@@ -201,18 +232,6 @@ def gather_msvc_versions(conf, versions):
 				path,type = _winreg.QueryValueEx(msvc_version, 'ProductDir')
 				path=str(path)
 				targets = []
-				if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
-					for target,realtarget in all_msvc_platforms[::-1]:
-						try:
-							targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
-						except:
-							pass
-				elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
-					try:
-						targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
-					except Configure.ConfigurationError:
-						pass
-				versions.append(('msvc '+version, targets))
 				if ce_sdk:
 					for device,platforms in supported_wince_platforms:
 						cetargets = []
@@ -226,6 +245,19 @@ def gather_msvc_versions(conf, versions):
 									libdirs = [lib, os.path.join(winCEpath, 'lib', platform), os.path.join(winCEpath, 'atlmfc', 'lib', platform)]
 									cetargets.append((platform, (platform, (bindirs,incdirs,libdirs))))
 						versions.append((device+' '+version, cetargets))
+				if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
+					for target,realtarget in all_msvc_platforms[::-1]:
+						try:
+							targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
+						except:
+							pass
+				elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
+					try:
+						targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
+					except Configure.ConfigurationError:
+						pass
+				versions.append(('msvc '+version, targets))
+
 			except WindowsError:
 				continue
 
@@ -282,117 +314,6 @@ def print_all_msvc_detected(conf):
 def detect_msvc(conf):
 	versions = get_msvc_versions(conf)
 	return setup_msvc(conf, versions)
-
-def msvc_linker(task):
-	"""Special linker for MSVC with support for embedding manifests into DLL's
-	and executables compiled by Visual Studio 2005 or probably later. Without
-	the manifest file, the binaries are unusable.
-	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
-	Problems with this tool: it is always called whether MSVC creates manifests or not."""
-
-	static = task.__class__.name.find('static') > 0
-
-	e = env = task.env
-	#linker = e['LINK']
-	#srcf = e['LINK_SRC_F']
-	#trgtf = e['LINK_TGT_F']
-	#linkflags = e.get_flat('LINKFLAGS')
-
-	subsystem = getattr(task.generator, 'subsystem', '')
-	if subsystem:
-		subsystem = '/subsystem:%s' % subsystem
-
-	outfile = task.outputs[0].bldpath(e)
-	manifest = outfile + '.manifest'
-
-	#objs=" ".join(['"%s"' % a.abspath(e) for a in task.inputs])
-	#cmd = "%s %s %s%s %s%s %s %s %s" % (linker, subsystem, srcf, objs, trgtf, outfile, linkflags, libdirs, libs)
-
-	def to_list(xx):
-		if isinstance(xx, str): return [xx]
-		return xx
-
-	lst = []
-	if static:
-		lst.extend(to_list(env['STLIBLINK']))
-	else:
-		lst.extend(to_list(env['LINK']))
-
-	lst.extend(to_list(subsystem))
-
-	if static:
-		lst.extend(to_list(env['STLINKFLAGS']))
-	else:
-		lst.extend(to_list(env['LINKFLAGS']))
-
-	lst.extend([a.srcpath(env) for a in task.inputs])
-	lst.extend(to_list('/OUT:%s' % outfile))
-	lst = [x for x in lst if x]
-
-	lst = [lst]
-	ret = task.exec_command(*lst)
-	if ret: return ret
-
-	# pdb file containing the debug symbols (if compiled with /Zi or /ZI and linked with /debug
-	pdbnode = task.outputs[0].change_ext('.pdb')
-	pdbfile = pdbnode.bldpath(e)
-
-	# check for the pdb file. if exists, add to the list of outputs
-	if os.path.exists(pdbfile):
-		task.outputs.append(pdbnode)
-
-	if not static and os.path.exists(manifest):
-		debug('msvc: manifesttool')
-		mtool = e['MT']
-		if not mtool:
-			return 0
-
-		mode = ''
-		# embedding mode. Different for EXE's and DLL's.
-		# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
-		if 'cprogram' in task.generator.features:
-			mode = '1'
-		elif 'cshlib' in task.generator.features:
-			mode = '2'
-
-		debug('msvc: embedding manifest')
-		#flags = ' '.join(e['MTFLAGS'] or [])
-
-		lst = []
-		lst.extend(to_list(e['MT']))
-		lst.extend(to_list(e['MTFLAGS']))
-		lst.extend(to_list("-manifest"))
-		lst.extend(to_list(manifest))
-		lst.extend(to_list("-outputresource:%s;%s" % (outfile, mode)))
-
-		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
-		#	manifest, outfile, mode)
-		lst = [lst]
-		ret = task.exec_command(*lst)
-
-	return ret
-
-# importlibs provided by MSVC/Platform SDK. Do NOT search them....
-g_msvc_systemlibs = """
-aclui activeds ad1 adptif adsiid advapi32 asycfilt authz bhsupp bits bufferoverflowu cabinet
-cap certadm certidl ciuuid clusapi comctl32 comdlg32 comsupp comsuppd comsuppw comsuppwd comsvcs
-credui crypt32 cryptnet cryptui d3d8thk daouuid dbgeng dbghelp dciman32 ddao35 ddao35d
-ddao35u ddao35ud delayimp dhcpcsvc dhcpsapi dlcapi dnsapi dsprop dsuiext dtchelp
-faultrep fcachdll fci fdi framedyd framedyn gdi32 gdiplus glauxglu32 gpedit gpmuuid
-gtrts32w gtrtst32hlink htmlhelp httpapi icm32 icmui imagehlp imm32 iphlpapi iprop
-kernel32 ksguid ksproxy ksuser libcmt libcmtd libcpmt libcpmtd loadperf lz32 mapi
-mapi32 mgmtapi minidump mmc mobsync mpr mprapi mqoa mqrt msacm32 mscms mscoree
-msdasc msimg32 msrating mstask msvcmrt msvcurt msvcurtd mswsock msxml2 mtx mtxdm
-netapi32 nmapinmsupp npptools ntdsapi ntdsbcli ntmsapi ntquery odbc32 odbcbcp
-odbccp32 oldnames ole32 oleacc oleaut32 oledb oledlgolepro32 opends60 opengl32
-osptk parser pdh penter pgobootrun pgort powrprof psapi ptrustm ptrustmd ptrustu
-ptrustud qosname rasapi32 rasdlg rassapi resutils riched20 rpcndr rpcns4 rpcrt4 rtm
-rtutils runtmchk scarddlg scrnsave scrnsavw secur32 sensapi setupapi sfc shell32
-shfolder shlwapi sisbkup snmpapi sporder srclient sti strsafe svcguid tapi32 thunk32
-traffic unicows url urlmon user32 userenv usp10 uuid uxtheme vcomp vcompd vdmdbg
-version vfw32 wbemuuid  webpost wiaguid wininet winmm winscard winspool winstrm
-wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xolehlp
-""".split()
 
 @conf
 def find_lt_names_msvc(self, libname, is_static=False):
@@ -509,76 +430,6 @@ def check_libs_msvc(self, libnames, is_static=False, mandatory=False):
 	for libname in Utils.to_list(libnames):
 		self.check_lib_msvc(libname, is_static, mandatory=mandatory)
 
-@feature('cprogram', 'cshlib', 'cstaticlib')
-@after('apply_lib_vars')
-@before('apply_obj_vars')
-def apply_obj_vars_msvc(self):
-	if self.env['CC_NAME'] != 'msvc':
-		return
-
-	try:
-		self.meths.remove('apply_obj_vars')
-	except ValueError:
-		pass
-
-	env = self.env
-	app = env.append_unique
-
-	cpppath_st       = env['CPPPATH_ST']
-	lib_st           = env['LIB_ST']
-	staticlib_st     = env['STATICLIB_ST']
-	libpath_st       = env['LIBPATH_ST']
-	staticlibpath_st = env['STATICLIBPATH_ST']
-
-	for i in env['LIBPATH']:
-		app('LINKFLAGS', libpath_st % i)
-		if not self.libpaths.count(i):
-			self.libpaths.append(i)
-
-	for i in env['LIBPATH']:
-		app('LINKFLAGS', staticlibpath_st % i)
-		if not self.libpaths.count(i):
-			self.libpaths.append(i)
-
-	# i doubt that anyone will make a fully static binary anyway
-	if not env['FULLSTATIC']:
-		if env['STATICLIB'] or env['LIB']:
-			app('LINKFLAGS', env['SHLIB_MARKER']) # TODO does SHLIB_MARKER work?
-
-	for i in env['STATICLIB']:
-		app('LINKFLAGS', staticlib_st % i)
-
-	for i in env['LIB']:
-		app('LINKFLAGS', lib_st % i)
-
-@feature('cprogram', 'cshlib', 'cstaticlib')
-@before('apply_link')
-def apply_link_msvc(self):
-	if self.env['CC_NAME'] != 'msvc':
-		return
-	link = getattr(self, 'link', None)
-	if not link:
-		if 'cstaticlib' in self.features: link = 'msvc_link_static'
-		elif 'cxx' in self.features: link = 'msvc_cxx_link'
-		else: link = 'msvc_cc_link'
-	self.link = link
-
-@feature('cc', 'cxx')
-@after('init_cc', 'init_cxx')
-@before('apply_type_vars', 'apply_core')
-def init_msvc(self):
-	# msvc specific init. must be called after init_cc/init_cxx but before
-	# any of their @before declarations.
-	try: getattr(self, 'libpaths')
-	except AttributeError: self.libpaths = []
-
-Task.task_type_from_func('msvc_link_static', vars=['STLIBLINK', 'STLINKFLAGS'], color='YELLOW', func=msvc_linker, ext_in='.o')
-Task.task_type_from_func('msvc_cc_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
-Task.task_type_from_func('msvc_cxx_link', vars=['LINK', 'LINK_SRC_F', 'LINKFLAGS', 'MT', 'MTFLAGS'] , color='YELLOW', func=msvc_linker, ext_in='.o')
-
-rc_str='${RC} ${RCFLAGS} /fo ${TGT} ${SRC}'
-Task.simple_task_type('rc', rc_str, color='GREEN', before='cc cxx', shell=False)
-
 @conftest
 def no_autodetect(conf):
 	conf.eval_rules(detect.replace('autodetect', ''))
@@ -592,6 +443,7 @@ cc_load_tools
 cxx_load_tools
 cc_add_flags
 cxx_add_flags
+link_add_flags
 '''
 
 @conftest
@@ -664,11 +516,11 @@ def find_msvc(conf):
 	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
 
 	# staticlib linker
-	if not v['STLIBLINK']:
+	if not v['AR']:
 		stliblink = conf.find_program(lib_name, path_list=path)
 		if not stliblink: return
-		v['STLIBLINK']   = stliblink
-		v['STLINKFLAGS'] = ['/NOLOGO']
+		v['AR']   = stliblink
+		v['ARFLAGS'] = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	manifesttool = conf.find_program('MT', path_list=path)
@@ -681,39 +533,16 @@ def find_msvc(conf):
 	if not conf.env['WINRC']:
 		warn('Resource compiler not found. Compiling resource file is disabled')
 
-def exec_command_msvc(self, *k, **kw):
-	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
-	if self.env['CC_NAME'] == 'msvc':
-		if isinstance(k[0], list):
-			lst = []
-			carry = ''
-			for a in k[0]:
-				if (len(a) == 3 and a.startswith('/F')) or a == '/doc':
-					carry = a
-				else:
-					lst.append(carry + a)
-					carry = ''
-			k = [lst]
-
-		env = dict(os.environ)
-		env.update(PATH = ';'.join(self.env['PATH']))
-		kw['env'] = env
-
-	return self.generator.bld.exec_command(*k, **kw)
-
-for k in 'cc cxx msvc_cc_link msvc_cxx_link msvc_link_static winrc'.split():
-	cls = Task.TaskBase.classes.get(k, None)
-	if cls:
-		cls.exec_command = exec_command_msvc
-
 @conftest
 def msvc_common_flags(conf):
 	v = conf.env
 
-	v['CPPFLAGS']     = ['/W3', '/nologo', '/EHsc']
+	v['CPPFLAGS']     = ['/W3', '/nologo']
 
 	v['CCDEFINES_ST']     = '/D%s'
 	v['CXXDEFINES_ST']    = '/D%s'
+
+	# TODO just use _WIN32, which defined by the compiler itself!
 	v['CCDEFINES']    = ['WIN32'] # avoid using this, any compiler predefines the _WIN32 marcro anyway
 	v['CXXDEFINES']   = ['WIN32'] # avoid using this, any compiler predefines the _WIN32 marcro anyway
 
@@ -729,6 +558,8 @@ def msvc_common_flags(conf):
 
 	v['CPPPATH_ST']   = '/I%s' # template for adding include paths
 
+	v['AR_TGT_F'] = v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
+
 	# Subsystem specific flags
 	v['CPPFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
 	v['CPPFLAGS_NATIVE']    = ['/SUBSYSTEM:NATIVE']
@@ -739,11 +570,15 @@ def msvc_common_flags(conf):
 	# CRT specific flags
 	v['CPPFLAGS_CRT_MULTITHREADED'] = ['/MT']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
+
+	# TODO these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
 
 	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] = ['/MTd']
 	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
+
+	# TODO these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
 	v['CPPDEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
 
@@ -751,27 +586,27 @@ def msvc_common_flags(conf):
 	v['CCFLAGS']            = ['/TC']
 	v['CCFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
 	v['CCFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
-	v['CCFLAGS_DEBUG']      = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
-	v['CCFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
+	v['CCFLAGS_DEBUG']      = ['/Od', '/RTC1', '/ZI']
+	v['CCFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/ZI']
 
-	v['CXXFLAGS']            = ['/TP']
+	v['CXXFLAGS']            = ['/TP', '/EHsc']
 	v['CXXFLAGS_OPTIMIZED']  = ['/O2', '/DNDEBUG']
 	v['CXXFLAGS_RELEASE']    = ['/O2', '/DNDEBUG']
-	v['CXXFLAGS_DEBUG']      = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
-	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/D_DEBUG', '/ZI']
+
+	v['CXXFLAGS_DEBUG']      = ['/Od', '/RTC1', '/ZI']
+	v['CXXFLAGS_ULTRADEBUG'] = ['/Od', '/RTC1', '/ZI']
 
 	# linker
 	v['LIB']              = []
-
-	v['LINK_TGT_F']       = '/OUT:'
-	v['LINK_SRC_F']       = ''
 
 	v['LIB_ST']           = '%s.lib' # template for adding libs
 	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
 	v['STATICLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
 	v['STATICLIBPATH_ST'] = '/LIBPATH:%s'
 
-	v['LINKFLAGS']        = ['/NOLOGO', '/MANIFEST']
+	v['LINKFLAGS']            = ['/NOLOGO', '/MANIFEST']
+	v['LINKFLAGS_DEBUG']      = ['/DEBUG']
+	v['LINKFLAGS_ULTRADEBUG'] = ['/DEBUG']
 
 	# shared library
 	v['shlib_CCFLAGS']  = ['']
@@ -787,3 +622,156 @@ def msvc_common_flags(conf):
 
 	# program
 	v['program_PATTERN']     = '%s.exe'
+
+
+#######################################################################################################
+##### conf above, build below
+
+@after('apply_link')
+@feature('cc', 'cxx')
+def apply_flags_msvc(self):
+	if self.env.CC_NAME != 'msvc' or not self.link_task:
+		return
+
+	subsystem = getattr(self, 'subsystem', '')
+	if subsystem:
+		subsystem = '/subsystem:%s' % subsystem
+		flags = 'cstaticlib' in self.features and 'ARFLAGS' or 'LINKFLAGS'
+		self.env.append_value(flags, subsystem)
+
+	if 'cstaticlib' not in self.features:
+		for d in (f.lower() for f in self.env.LINKFLAGS):
+			if d[1:] == 'debug':
+				pdbnode = self.link_task.outputs[0].change_ext('.pdb')
+				pdbfile = pdbnode.bldpath(self.env)
+				self.link_task.outputs.append(pdbnode)
+				self.bld.install_files(self.install_path, [pdbnode], env=self.env)
+				break
+
+@feature('cprogram', 'cshlib', 'cstaticlib')
+@after('apply_lib_vars')
+@before('apply_obj_vars')
+def apply_obj_vars_msvc(self):
+	if self.env['CC_NAME'] != 'msvc':
+		return
+
+	try:
+		self.meths.remove('apply_obj_vars')
+	except ValueError:
+		pass
+
+	libpaths = getattr(self, 'libpaths', [])
+	if not libpaths: self.libpaths = libpaths
+
+	env = self.env
+	app = env.append_unique
+
+	cpppath_st       = env['CPPPATH_ST']
+	lib_st           = env['LIB_ST']
+	staticlib_st     = env['STATICLIB_ST']
+	libpath_st       = env['LIBPATH_ST']
+	staticlibpath_st = env['STATICLIBPATH_ST']
+
+	for i in env['LIBPATH']:
+		app('LINKFLAGS', libpath_st % i)
+		if not libpaths.count(i):
+			libpaths.append(i)
+
+	for i in env['LIBPATH']:
+		app('LINKFLAGS', staticlibpath_st % i)
+		if not libpaths.count(i):
+			libpaths.append(i)
+
+	# i doubt that anyone will make a fully static binary anyway
+	if not env['FULLSTATIC']:
+		if env['STATICLIB'] or env['LIB']:
+			app('LINKFLAGS', env['SHLIB_MARKER']) # TODO does SHLIB_MARKER work?
+
+	for i in env['STATICLIB']:
+		app('LINKFLAGS', staticlib_st % i)
+
+	for i in env['LIB']:
+		app('LINKFLAGS', lib_st % i)
+
+# split the manifest file processing from the link task, like for the rc processing
+
+@feature('cprogram', 'cshlib')
+@after('apply_link')
+def apply_manifest(self):
+	"""Special linker for MSVC with support for embedding manifests into DLL's
+	and executables compiled by Visual Studio 2005 or probably later. Without
+	the manifest file, the binaries are unusable.
+	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
+	Problems with this tool: it is always called whether MSVC creates manifests or not."""
+
+	if self.env.CC_NAME != 'msvc':
+		return
+
+	tsk = self.create_task('msvc_manifest')
+	tsk.set_inputs(self.link_task.outputs[0])
+
+def exec_mf(self):
+	env = self.env
+	outfile = self.inputs[0].bldpath(env)
+	manifest = outfile + '.manifest'
+	if os.path.exists(manifest):
+		debug('msvc: manifesttool')
+		mtool = env['MT']
+		if not mtool:
+			return 0
+
+		mode = ''
+		# embedding mode. Different for EXE's and DLL's.
+		# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
+		if 'cprogram' in self.generator.features:
+			mode = '1'
+		elif 'cshlib' in self.generator.features:
+			mode = '2'
+
+		debug('msvc: embedding manifest')
+		#flags = ' '.join(env['MTFLAGS'] or [])
+
+		lst = []
+		lst.extend(Utils.to_list(env['MT']))
+		lst.extend(Utils.to_list(env['MTFLAGS']))
+		lst.extend(Utils.to_list("-manifest"))
+		lst.extend(Utils.to_list(manifest))
+		lst.extend(Utils.to_list("-outputresource:%s;%s" % (outfile, mode)))
+
+		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
+		#	manifest, outfile, mode)
+		lst = [lst]
+		ret = self.exec_command(*lst)
+
+	return ret
+
+cls = Task.task_type_from_func('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
+cls.quiet = 1
+
+########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
+
+def exec_command_msvc(self, *k, **kw):
+	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
+	if self.env['CC_NAME'] == 'msvc':
+		if isinstance(k[0], list):
+			lst = []
+			carry = ''
+			for a in k[0]:
+				if len(a) == 3 and a.startswith('/F') or a == '/doc' or a[-1] == ':':
+					carry = a
+				else:
+					lst.append(carry + a)
+					carry = ''
+			k = [lst]
+
+		env = dict(os.environ)
+		env.update(PATH = ';'.join(self.env['PATH']))
+		kw['env'] = env
+
+	return self.generator.bld.exec_command(*k, **kw)
+
+for k in 'cc cxx winrc cc_link cxx_link static_link'.split():
+	cls = Task.TaskBase.classes.get(k, None)
+	if cls:
+		cls.exec_command = exec_command_msvc
+

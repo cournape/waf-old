@@ -40,9 +40,14 @@ class CcFamilyTester(CcRootTester):
 		self._test_configure()
 		self._test_build()
 	
-	# TODO:
-	# --debug_level is not working now, to restore the tests for the various level,
-	# refer to older versions.
-	# for example: 
-	# http://code.google.com/p/waf/source/browse/tags/waf-1.4.2/wafadmin/test/cc_family_test.py
-	
+	def test_share_lib(self):
+		# simple default share lib
+		self._setup_c_share_lib()
+		self._test_configure()
+		self._test_build()
+
+	def test_static_lib(self):
+		# simple default static lib
+		self._setup_c_static_lib()
+		self._test_configure()
+		self._test_build()

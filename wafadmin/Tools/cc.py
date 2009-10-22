@@ -76,14 +76,12 @@ def apply_defines_cc(self):
 @extension(EXT_CC)
 def c_hook(self, node):
 	# create the compilation task: cpp or cc
-	task = self.create_task('cc')
 	if getattr(self, 'obj_ext', None):
 		obj_ext = self.obj_ext
 	else:
 		obj_ext = '_%d.o' % self.idx
 
-	task.inputs = [node]
-	task.outputs = [node.change_ext(obj_ext)]
+	task = self.create_task('cc', node, node.change_ext(obj_ext))
 	try:
 		self.compiled_tasks.append(task)
 	except AttributeError:
@@ -95,14 +93,8 @@ cls = Task.simple_task_type('cc', cc_str, 'GREEN', ext_out='.o', ext_in='.c', sh
 cls.scan = ccroot.scan
 cls.vars.append('CCDEPS')
 
-link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT} ${LINKFLAGS}'
-cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', shell=False)
-cls.maxjobs = 1
-cls2 = Task.task_type_from_func('vnum_cc_link', ccroot.link_vnum, cls.vars, color='CYAN', ext_in='.o')
-cls2.maxjobs = 1
-
-# no re-use possible
 link_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath(env)} ${LINKFLAGS}'
-cls = Task.simple_task_type('dll_cc_link', link_str, color='YELLOW', ext_in='.o', shell=False)
+cls = Task.simple_task_type('cc_link', link_str, color='YELLOW', ext_in='.o', ext_out='.bin', shell=False)
 cls.maxjobs = 1
+cls.install = Utils.nada
 
