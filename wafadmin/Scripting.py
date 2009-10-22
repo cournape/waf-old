@@ -51,7 +51,7 @@ def check_wafdir_version(version):
 def handle_immediate_commands():
 	# some command-line options can be processed immediately
 	if '--version' in sys.argv:
-		opt_obj = Options.Handler()
+		opt_obj = Options.OptionsContext()
 		opt_obj.curdir = cwd
 		opt_obj.parse_args()
 		sys.exit(0)
@@ -112,7 +112,7 @@ def find_wscript_file(current_dir):
 		# check if the user only wanted to display the help
 		if '-h' in sys.argv or '--help' in sys.argv:
 			warn('No wscript file found: the help message may be incomplete')
-			opt_obj = Options.Handler()
+			opt_obj = Options.OptionsContext()
 			opt_obj.curdir = current_dir
 			opt_obj.parse_args()
 		else:
@@ -154,7 +154,7 @@ def prepare_module(wscript_path):
 		Utils.g_module.shutdown = Utils.nada
 
 def parse_options(wscript_path):
-	opt_obj = Options.Handler(Utils.g_module)
+	opt_obj = Options.OptionsContext(Utils.g_module)
 	opt_obj.curdir = os.path.dirname(wscript_path)
 	try:
 		f = Utils.g_module.set_options
@@ -164,27 +164,29 @@ def parse_options(wscript_path):
 		opt_obj.sub_options([''])
 	opt_obj.parse_args()
 
+def run_command(cmd_name):
+	# Use default context for commands that do not have a context defined
+	if cmd_name in Utils.context_dict:
+		context = Utils.context_dict[cmd_name]()
+	else:
+		context = Utils.Context()
+
+	# if the class attribute is missing, set an instance attribute
+	# with the function name
+	if not getattr(context.__class__, 'function_name', None):
+		setattr(context, 'function_name', cmd_name)
+
+	context.execute()
+
 def run_commands():
 	global commands
 	commands = Options.arg_line[:]
 
 	while commands:
 		cmd_name = commands.pop(0)
-
 		ini = datetime.datetime.now()
-		
-		# Use default context for commands that do not have a context defined
-		if cmd_name in Utils.context_dict:
-			context = Utils.context_dict[cmd_name]()
-		else:
-			context = Utils.Context()
 
-		# if the class attribute is missing, set an instance attribute
-		# with the function name
-		if not getattr(context.__class__, 'function_name', None):
-			setattr(context, 'function_name', cmd_name)
-
-		context.execute()
+		run_command(cmd_name)
 
 		ela = ''
 		if not Options.options.progress_bar:

@@ -539,6 +539,32 @@ def readf(fname, m='r'):
 		f.close()
 	return txt
 
+def cpu_count():
+	"""Return the number of processors as an integer."""
+	count = 0
+	if sys.platform == 'linux2':
+		# for Linux, parse cpuinfo
+		cpuinfo = open('/proc/cpuinfo', 'r')
+		for line in cpuinfo:
+			if line.startswith('processor'):
+				count += 1
+		cpuinfo.close()
+		return count
+	elif sys.platform == 'win32':
+		# on Windows, use the NUMBER_OF_PROCESSORS environmental variable
+		return int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
+	else:
+		if hasattr(os, 'sysconf_names'):
+			if 'SC_PROCESSORS_ONLN' in os.sysconf_names:
+				return int(os.sysconf('SC_PROCESSORS_ONLN'))
+			elif 'SC_PROCESSORS_CONF' in os.sysconf_names:
+				return int(os.sysconf('SC_PROCESSORS_CONF'))
+		else:
+			count = Utils.cmd_output(['sysctl', '-n', 'hw.ncpu'])
+			if re.match('^[0-9]+$', count):
+				return int(count)
+	return 1
+
 def nada(*k, **kw):
 	"""A function that does nothing"""
 	pass
@@ -555,7 +581,7 @@ context_dict = {}
 
 class command_context(object):
 	"""Command context decorator. Indicates which command should receive
-	this context as its argument(first arg), and which function should be
+	this context as its argument (first arg), and which function should be
 	executed in user scripts (second arg)"""
 	def __init__(self, command_name, function_name=None):
 		self.command_name = command_name

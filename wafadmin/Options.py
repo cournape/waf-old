@@ -7,6 +7,7 @@
 
 import os, sys, imp, types, tempfile, optparse
 import Logs, Utils
+from Utils import command_context
 from Constants import *
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
@@ -33,18 +34,7 @@ if not default_prefix:
 
 default_jobs = os.environ.get('JOBS', -1)
 if default_jobs < 1:
-	try:
-		if 'SC_NPROCESSORS_ONLN' in os.sysconf_names:
-			default_jobs = os.sysconf('SC_NPROCESSORS_ONLN')
-		else:
-			default_jobs = int(Utils.cmd_output(['sysctl', '-n', 'hw.ncpu']))
-	except:
-		if os.name == 'java': # platform.system() == 'Java'
-			from java.lang import Runtime
-			default_jobs = Runtime.getRuntime().availableProcessors()
-		else:
-			# environment var defined on win32
-			default_jobs = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
+	default_jobs = Utils.cpu_count()
 
 default_destdir = os.environ.get('DESTDIR', '')
 
@@ -94,6 +84,7 @@ def create_parser(module=None):
 	parser.formatter.width = Utils.get_term_cols()
 	p = parser.add_option
 
+	# Add standard options here
 	p('-j', '--jobs',
 		type    = 'int',
 		default = default_jobs,
@@ -218,11 +209,11 @@ def parse_args_impl(parser, _args=None):
 		Logs.zones = ['*']
 
 # TODO waf 1.6
-# 1. rename the class to OptionsContext
 # 2. instead of a class attribute, use a module (static 'parser')
 # 3. parse_args_impl was made in times when we did not know about binding new methods to classes
 
-class Handler(Utils.Context):
+@command_context('options','set_options')
+class OptionsContext(Utils.Context):
 	"""loads wscript modules in folders for adding options
 	This class should be named 'OptionsContext'
 	A method named 'recurse' is bound when used by the module Scripting"""
@@ -233,7 +224,7 @@ class Handler(Utils.Context):
 	def __init__(self, module=None):
 		self.parser = create_parser(module)
 		self.cwd = os.getcwd()
-		Handler.parser = self
+		self.__class__.parser = self
 
 	def add_option(self, *k, **kw):
 		self.parser.add_option(*k, **kw)
@@ -244,9 +235,8 @@ class Handler(Utils.Context):
 	def get_option_group(self, opt_str):
 		return self.parser.get_option_group(opt_str)
 
-	def sub_options(self, *k, **kw):
-		if not k: raise Utils.WscriptError('folder expected')
-		self.recurse(k[0], name='set_options')
+	def sub_options(self, d):
+		self.recurse(d, name='set_options')
 
 	def tool_options(self, *k, **kw):
 		Utils.python_24_guard()
