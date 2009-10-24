@@ -542,23 +542,16 @@ def readf(fname, m='r'):
 def cpu_count():
 	"""Return the number of processors as an integer."""
 	count = 0
-	if sys.platform == 'linux2':
-		# for Linux, parse cpuinfo
-		cpuinfo = open('/proc/cpuinfo', 'r')
-		for line in cpuinfo:
-			if line.startswith('processor'):
-				count += 1
-		cpuinfo.close()
-		return count
-	elif sys.platform == 'win32':
+	if sys.platform == 'win32':
 		# on Windows, use the NUMBER_OF_PROCESSORS environmental variable
 		return int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
 	else:
+		# on everything else, first try the POSIX sysconf values
 		if hasattr(os, 'sysconf_names'):
-			if 'SC_PROCESSORS_ONLN' in os.sysconf_names:
-				return int(os.sysconf('SC_PROCESSORS_ONLN'))
-			elif 'SC_PROCESSORS_CONF' in os.sysconf_names:
-				return int(os.sysconf('SC_PROCESSORS_CONF'))
+			if 'SC_NPROCESSORS_ONLN' in os.sysconf_names:
+				return int(os.sysconf('SC_NPROCESSORS_ONLN'))
+			elif 'SC_NPROCESSORS_CONF' in os.sysconf_names:
+				return int(os.sysconf('SC_NPROCESSORS_CONF'))
 		else:
 			count = Utils.cmd_output(['sysctl', '-n', 'hw.ncpu'])
 			if re.match('^[0-9]+$', count):
