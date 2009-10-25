@@ -5,13 +5,16 @@
 "Module called for configuring, compiling and installing targets"
 
 import os, sys, shutil, traceback, datetime, inspect, errno
-
 import Utils, Configure, Build, Logs, Options, Environment, Task
 from Logs import error, warn, info
 from Constants import *
 
 g_gz = 'bz2'
-commands = []
+#commands = []
+current_command = ''
+"""Name of the currently executing command"""
+start_dir = ''
+"""Directory containing the top-level wscript from which all commands should be run"""
 build_dir_override = None
 
 def waf_entry_point(tools_directory, current_directory, version, wafdir):
@@ -24,8 +27,8 @@ def waf_entry_point(tools_directory, current_directory, version, wafdir):
 		
 		handle_immediate_commands()
 		wscript_path = find_wscript_file(current_directory)
-		prepare_module(wscript_path)
-		parse_options(wscript_path)
+		prepare_wscript(wscript_path)
+		parse_options()
 		run_commands()
 	
 	# Print Waf-specific errors
@@ -81,6 +84,7 @@ def find_wscript_file(current_dir):
 		else:
 			error('arg[0] directory does not contain a wscript file')
 			sys.exit(1)
+		global build_dir_override
 		build_dir_override = current_dir
 
 	# climb up to find a script if it is not found
@@ -124,12 +128,13 @@ def find_wscript_file(current_dir):
 		os.chdir(candidate)
 	except OSError:
 		raise Utils.WafError("the folder %r is unreadable" % candidate)
-	
+	global start_dir
+	start_dir = candidate
 	return os.path.join(candidate, WSCRIPT_FILE)
 
-def prepare_module(wscript_path):
+def prepare_wscript(wscript_path):
 	"""Load the Python module contained in the wscript file and prepare it
-	for execution. This includes adding functions that might be undefined."""
+	for execution. This includes adding standard functions that might be undefined."""
 
 	# define the main module containing the functions init, shutdown, ..
 	Utils.set_main_module(wscript_path)
@@ -138,9 +143,10 @@ def prepare_module(wscript_path):
 		d = getattr(Utils.g_module, BLDDIR, None)
 		if d: # test if user has set the build directory in the wscript.
 			warn(' Overriding build directory %s with %s' % (d, build_dir_override))
-		Utils.g_module.blddir = build_dir_override
+		Utils.g_module.BLDDIR = build_dir_override
 
 	# add default installation, uninstallation, etc. functions to the wscript
+	# TODO remove this!
 	def set_def(obj):
 		name = obj.__name__
 		if not name in Utils.g_module.__dict__:
@@ -152,52 +158,64 @@ def prepare_module(wscript_path):
 		Utils.g_module.init = Utils.nada
 	if not 'shutdown' in Utils.g_module.__dict__:
 		Utils.g_module.shutdown = Utils.nada
+	if not 'set_options' in Utils.g_module.__dict__:
+		Utils.g_module.set_options = Utils.nada
 
-def parse_options(wscript_path):
-	opt_obj = Options.OptionsContext(Utils.g_module)
-	opt_obj.curdir = os.path.dirname(wscript_path)
-	try:
-		f = Utils.g_module.set_options
-	except AttributeError:
-		pass
-	else:
-		opt_obj.sub_options([''])
-	opt_obj.parse_args()
+def parse_options():
+	opt = Options.OptionsContext(start_dir, Utils.g_module)
+	opt.execute()
+
+	# sanitize the command line - add init and shutdown
+	# Add 'build' if no command was specified
+	sanitized_commands = ['init']
+	sanitized_commands += Options.commands or ['build']
+	sanitized_commands += ['shutdown']
+	Options.commands = sanitized_commands
+
+	# TODO -k => -j0
+	if Options.options.keep: Options.options.jobs = 1
+	if Options.options.jobs < 1: Options.options.jobs = 1
+
+	if 'install' in sys.argv or 'uninstall' in sys.argv:
+		# absolute path only if set
+		Options.options.destdir = Options.options.destdir and os.path.abspath(os.path.expanduser(Options.options.destdir))
+
+	# process some internal Waf options
+	Logs.verbose = Options.options.verbose
+	Logs.init_log()
+
+	if Options.options.zones:
+		Logs.zones = Options.options.zones.split(',')
+		if not Logs.verbose: Logs.verbose = 1
+	elif Logs.verbose > 0:
+		Logs.zones = ['runner']
+	if Logs.verbose > 2:
+		Logs.zones = ['*']
 
 def run_command(cmd_name):
-	# Use default context for commands that do not have a context defined
-	if cmd_name in Utils.context_dict:
-		context = Utils.context_dict[cmd_name]()
-	else:
-		context = Utils.Context()
+	"""Run a command like it was invoked from the command line."""
+	global current_command
+	current_command = cmd_name
+	context = Utils.create_context(cmd_name, start_dir)
 
 	# if the class attribute is missing, set an instance attribute
 	# with the function name
 	if not getattr(context.__class__, 'function_name', None):
 		setattr(context, 'function_name', cmd_name)
-
 	context.execute()
 
 def run_commands():
-	global commands
-	commands = Options.arg_line[:]
-
-	while commands:
-		cmd_name = commands.pop(0)
-		ini = datetime.datetime.now()
+	for cmd_name in Options.commands:
+		timer = Utils.Timer()
 
 		run_command(cmd_name)
 
-		ela = ''
+		timer.stop()
 		if not Options.options.progress_bar:
-			ela = ' (%s)' % Utils.get_elapsed_time(ini)
+			elapsed = ' (%s)' % str(timer)
 
-		if cmd_name != 'init' and cmd_name != 'shutdown':
-			info('%r finished successfully%s' % (cmd_name, ela))
-
-		# run the shutdown command at the end if it wasn't specified
-		if not commands and cmd_name != 'shutdown':
-			commands.append('shutdown')
+		if cmd_name not in ['init', 'shutdown']:
+			info('%r finished successfully%s' % (cmd_name, elapsed))
 
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg _MTN _darcs Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()

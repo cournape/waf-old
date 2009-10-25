@@ -13,13 +13,18 @@ from Constants import *
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
 
 # TODO remove in waf 1.6 the following two
-commands = {}
+# commands = {}
 is_install = False
 
 options = {}
-arg_line = []
+"""A dictionary of options received from parsing"""
+commands = []
+"""List of commands to execute"""
 launch_dir = ''
+"""Directory from which Waf was executed"""
 tooldir = ''
+"""Directory where the tool modules are located"""
+
 lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
 except KeyError: cache_global = ''
@@ -39,6 +44,8 @@ if default_jobs < 1:
 default_destdir = os.environ.get('DESTDIR', '')
 
 def get_usage(self):
+	"""Function to replace the default get_usage function of optparse.OptionParser;
+	Provides help for Waf commands defined in a wscript"""
 	cmds_str = []
 	module = Utils.g_module
 	if module:
@@ -57,7 +64,7 @@ def get_usage(self):
 		ban = ['set_options', 'init', 'shutdown']
 
 		optlst = [x for x in keys if not x in ban
-			and type(tbl[x]) is type(parse_args_impl)
+			and type(tbl[x]) is type(get_usage)
 			and tbl[x].__doc__
 			and not x.startswith('_')]
 
@@ -158,92 +165,36 @@ def create_parser(module=None):
 
 	return parser
 
-def parse_args_impl(parser, _args=None):
-	global options, commands, arg_line
-	(options, args) = parser.parse_args(args=_args)
-
-	arg_line = args
-	#arg_line = args[:] # copy
-
-	# By default, 'waf' is equivalent to 'waf build'
-	commands = {}
-	for var in cmds: commands[var] = 0
-	if not args:
-		commands['build'] = 1
-		args.append('build')
-
-	# Parse the command arguments
-	for arg in args:
-		commands[arg] = True
-
-	# the check thing depends on the build
-	if 'check' in args:
-		idx = args.index('check')
-		try:
-			bidx = args.index('build')
-			if bidx > idx:
-				raise ValueError('build before check')
-		except ValueError, e:
-			args.insert(idx, 'build')
-
-	if args[0] != 'init':
-		args.insert(0, 'init')
-
-	# TODO -k => -j0
-	if options.keep: options.jobs = 1
-	if options.jobs < 1: options.jobs = 1
-
-	if 'install' in sys.argv or 'uninstall' in sys.argv:
-		# absolute path only if set
-		options.destdir = options.destdir and os.path.abspath(os.path.expanduser(options.destdir))
-
-	Logs.verbose = options.verbose
-	Logs.init_log()
-
-	if options.zones:
-		Logs.zones = options.zones.split(',')
-		if not Logs.verbose: Logs.verbose = 1
-	elif Logs.verbose > 0:
-		Logs.zones = ['runner']
-	if Logs.verbose > 2:
-		Logs.zones = ['*']
-
 # TODO waf 1.6
 # 2. instead of a class attribute, use a module (static 'parser')
-# 3. parse_args_impl was made in times when we did not know about binding new methods to classes
 
-@command_context('options','set_options')
+@command_context('OPTIONS','set_options')
 class OptionsContext(Utils.Context):
-	"""loads wscript modules in folders for adding options
-	This class should be named 'OptionsContext'
-	A method named 'recurse' is bound when used by the module Scripting"""
+	"""Collects custom options from wscript files and parses the command line.
+	Sets the global Options.commands and Options.options attributes."""
 
-	parser = None
-	# make it possible to access the reference, like Build.bld
-
-	def __init__(self, module=None):
+	def __init__(self, start_dir=None, module=None):
+		super(self.__class__, self).__init__(start_dir)
 		self.parser = create_parser(module)
-		self.cwd = os.getcwd()
-		self.__class__.parser = self
 
+	# pass through to optparse
 	def add_option(self, *k, **kw):
 		self.parser.add_option(*k, **kw)
-
 	def add_option_group(self, *k, **kw):
 		return self.parser.add_option_group(*k, **kw)
-
 	def get_option_group(self, opt_str):
 		return self.parser.get_option_group(opt_str)
 
+	# deprecated - use the generic "recurse" method instead
 	def sub_options(self, d):
 		self.recurse(d, name='set_options')
 
-	def tool_options(self, *k, **kw):
+	def tool_options(self, tool_list, *k, **kw):
 		Utils.python_24_guard()
 
-		if not k[0]:
-			raise Utils.WscriptError('invalid tool_options call %r %r' % (k, kw))
-		tools = Utils.to_list(k[0])
+		#if not k[0]:
+		#	raise Utils.WscriptError('invalid tool_options call %r %r' % (k, kw))
+		tools = Utils.to_list(tool_list)
 
 		# TODO waf 1.6 remove the global variable tooldir
 		path = Utils.to_list(kw.get('tdir', kw.get('tooldir', tooldir)))
@@ -258,6 +209,12 @@ class OptionsContext(Utils.Context):
 			else:
 				fun(kw.get('option_group', self))
 
-	def parse_args(self, args=None):
-		parse_args_impl(self.parser, args)
+	# parse_args is defined separately to allow parsing arguments from somewhere else
+	# than the Waf command line
+	def parse_args(self, _args=None):
+		global options, commands
+		(options, leftover_args) = self.parser.parse_args(args=_args)
+		commands = leftover_args
 
+	def finalize(self):
+		self.parse_args()

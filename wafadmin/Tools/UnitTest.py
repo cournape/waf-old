@@ -66,9 +66,6 @@ class unit_test(object):
 
 		ld_library_path = []
 
-		# If waf is not building, don't run anything
-		if not Options.commands[self.run_if_waf_does]: return
-
 		# Get the paths for the shared libraries, and obtain the unit tests to execute
 		for obj in Build.bld.all_task_gen:
 			try:
@@ -148,9 +145,6 @@ class unit_test(object):
 
 	def print_results(self):
 		"Pretty-prints a summary of all unit tests, along with some statistics"
-
-		# If waf is not building, don't output anything
-		if not Options.commands[self.run_if_waf_does]: return
 
 		p = Utils.pprint
 		# Early quit if no tests were performed

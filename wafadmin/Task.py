@@ -427,7 +427,7 @@ class TaskBase(object):
 			return self.generator.bld.progress_line(self.position[0], self.position[1], col1, col2)
 
 		if Options.options.progress_bar == 2:
-			ela = Utils.get_elapsed_time(self.generator.bld.ini)
+			ela = str(self.generator.bld.timer)
 			try:
 				ins  = ','.join([n.name for n in self.inputs])
 			except AttributeError:

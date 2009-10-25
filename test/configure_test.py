@@ -18,9 +18,6 @@ import Tools.config_c   # to make conf.create_* functions work
 import Utils
 import Scripting
 import Build
-
-# import the Environment module, set configure command to False to avoid setting the prefix too...
-Options.commands['configure'] = 0
 import Environment
 
 # The following string is a wscript for tests.
@@ -84,7 +81,7 @@ class ConfigureTester(common_test.CommonTester):
 
 	def _setup_configure(self):
 		# Configure uses arguments defined by Options
-		opt_obj = Options.Handler()
+		opt_obj = Options.OptionsContext(os.getcwd())
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
 		return Configure.ConfigurationContext()
@@ -209,12 +206,12 @@ def configure(conf):
 	conf.check_tool('compiler_cxx')
 """
 		self._write_wscript(wscript_contents, use_dic=False)
-		opt_obj = Options.Handler()
+		opt_obj = Options.OptionsContext()
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
 		Utils.set_main_module(self._wscript_file_path)
 		conf = Configure.ConfigurationContext()
-		self.failUnlessRaises(Utils.WscriptError, Scripting.configure, conf)
+		self.failUnlessRaises(Utils.WscriptError, conf.execute)
 
 	def test_invalid_tool(self):
 		# white_box test: tool not exists
@@ -226,12 +223,12 @@ def configure(conf):
 	conf.check_tool('no_way_such_a_tool_exists_gwerghergjekrhgker')
 """
 		self._write_wscript(wscript_contents, use_dic=False)
-		opt_obj = Options.Handler()
+		opt_obj = Options.OptionsContext()
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
 		Utils.set_main_module(self._wscript_file_path)
 		conf = Configure.ConfigurationContext()
-		self.failUnlessRaises(Utils.WscriptError, Scripting.configure, conf)
+		self.failUnlessRaises(Utils.WscriptError, conf.execute)
 
 	def test_nothing_to_store(self):
 		# white-box test: fails if all_envs are not defined.

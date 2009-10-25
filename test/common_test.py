@@ -157,7 +157,10 @@ class CommonTester(unittest.TestCase):
 		if verbose > 1: additionalArgs.append('-' + ('v'*(verbose-1)))
 		if additionalArgs: args_list.extend(list(additionalArgs))
 		(ret_val, stdout, stderr) = self.call(args_list)
-		test_func(0, ret_val, err_msg)
+		try:
+			test_func(0, ret_val, err_msg)
+		except AssertionError:
+			print stderr
 		return (stdout, stderr)
 
 	def _test_run(self, commandline):
@@ -182,7 +185,7 @@ class CommonTester(unittest.TestCase):
 			raise ValueError("env must contains at least one key-value pair")
 		else:
 			# Environment uses arguments defined by Options
-			opt_obj = Options.Handler()
+			opt_obj = Options.OptionsContext()
 			opt_obj.parse_args()
 
 			stored_env = Environment.Environment()
@@ -209,7 +212,7 @@ class CommonTester(unittest.TestCase):
 			if not blddir: raise ValueError('no srcdir argument, no self._test_dir_root !')
 
 		# Configure uses arguments defined by Options
-		opt_obj = Options.Handler()
+		opt_obj = Options.OptionsContext()
 		opt_obj.parse_args()
 		Options.options.prefix = Options.default_prefix
 		return Configure.ConfigurationContext(srcdir=srcdir, blddir=blddir)

@@ -8,8 +8,6 @@ Dependency tree holder
 The class Build holds all the info related to a build:
 * file system representation (tree of Node instances)
 * various cached objects (task signatures, file scan results, ..)
-
-There is only one Build object at a time (bld singleton)
 """
 
 import os, sys, errno, re, glob, gc, datetime, shutil
@@ -20,11 +18,11 @@ from Logs import debug, error, info
 from Constants import *
 from Utils import command_context
 
+# Stupid singleton - do not use
+bld = None
+
 SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
-
-bld = None
-"singleton - safe to use when Waf is not used as a library"
 
 class BuildError(Utils.WafError):
 	def __init__(self, b=None, t=[]):
@@ -71,9 +69,9 @@ def group_method(fun):
 @command_context('build')
 class BuildContext(Utils.Context):
 	"holds the dependency tree"
-	def __init__(self):
+	def __init__(self, start_dir=None):
+		super(BuildContext, self).__init__(start_dir)
 
-		# not a singleton, but provided for compatibility
 		global bld
 		bld = self
 
@@ -630,7 +628,7 @@ class BuildContext(Utils.Context):
 	def flush(self, all=1):
 		"""tell the task generators to create the tasks"""
 
-		self.ini = datetime.datetime.now()
+		self.timer = Utils.Timer()
 		# force the initialization of the mapping name->object in flush
 		# name_to_obj can be used in userland scripts, in that case beware of incomplete mapping
 		self.task_gen_cache_names = {}
@@ -702,10 +700,8 @@ class BuildContext(Utils.Context):
 		Utils.rot_idx += 1
 		ind = Utils.rot_chr[Utils.rot_idx % 4]
 
-		ini = self.ini
-
 		pc = (100.*state)/total
-		eta = Utils.get_elapsed_time(ini)
+		eta = str(self.timer) #Utils.get_elapsed_time(ini)
 		fs = "[%%%dd/%%%dd][%%s%%2d%%%%%%s][%s][" % (n, n, ind)
 		left = fs % (state, total, col1, pc, col2)
 		right = '][%s%s%s]' % (col1, eta, col2)
@@ -720,8 +716,6 @@ class BuildContext(Utils.Context):
 
 		return msg
 
-
-	# do_install is not used anywhere
 	def do_install(self, src, tgt, chmod=O644):
 		"""returns true if the file was effectively installed or uninstalled, false otherwise"""
 		if self.is_install > 0:
@@ -927,6 +921,7 @@ class BuildContext(Utils.Context):
 		f.write(s)
 		f.flush()
 
+	# deprecated - use "recurse" instead
 	def add_subdirs(self, dirs):
 		self.recurse(dirs, 'build')
 
@@ -946,22 +941,21 @@ class BuildContext(Utils.Context):
 		config_context = Utils.context_dict['configure']
 
 		def reconf(proj):
-			back = (Options.commands, Options.options.__dict__, Logs.zones, Logs.verbose)
-			Options.commands = proj['commands']
+			back = (Options.options.__dict__, Logs.zones, Logs.verbose)
 			Options.options.__dict__ = proj['options']
-			conf = config_context()
+			conf = config_context(self.curdir)
 			conf.environ = proj['environ']
 			conf.execute()
-			(Options.commands, Options.options.__dict__, Logs.zones, Logs.verbose) = back
+			(Options.options.__dict__, Logs.zones, Logs.verbose) = back
 
 		try:
 			proj = Environment.Environment(Options.lockfile)
 		except IOError:
-			conf = config_context()
+			conf = config_context(self.curdir)
 			conf.execute()
 		else:
 			try:
-				bld = bld_cls()
+				bld = Utils.create_context('build', self.curdir)
 				bld.load_dirs(proj[SRCDIR], proj[BLDDIR])
 				bld.load_envs()
 			except Utils.WafError:
@@ -1001,9 +995,6 @@ class BuildContext(Utils.Context):
 		info("Waf: Entering directory `%s'" % self.bldnode.abspath())
 	
 	def run_user_code(self):
-		Options.commands['install'] = False
-		Options.commands['uninstall'] = False
-		Options.is_install = False
 		self.is_install = 0
 		self.execute_build()
 	
@@ -1014,10 +1005,10 @@ class BuildContext(Utils.Context):
 		self.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 		self.pre_build()
 		try:
-			bld.compile()
+			self.compile()
 		finally:
 			if Options.options.progress_bar: print('')
-			info("Waf: Leaving directory `%s'" % bld.bldnode.abspath())
+			info("Waf: Leaving directory `%s'" % self.bldnode.abspath())
 		self.post_build()
 
 	###### user-defined behaviour
@@ -1054,9 +1045,6 @@ class BuildContext(Utils.Context):
 @command_context('install','build')
 class InstallContext(BuildContext):
 	def run_user_code(self):
-		Options.commands['install'] = True
-		Options.commands['uninstall'] = False
-		Options.is_install = True
 		self.is_install = INSTALL
 		self.execute_build()
 		self.install()
@@ -1064,9 +1052,6 @@ class InstallContext(BuildContext):
 @command_context('uninstall','build')
 class UninstallContext(BuildContext):
 	def run_user_code(self):
-		Options.commands['install'] = False
-		Options.commands['uninstall'] = True
-		Options.is_install = True
 		self.is_install = UNINSTALL
 
 		try:

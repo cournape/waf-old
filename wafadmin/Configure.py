@@ -85,7 +85,8 @@ def find_program_impl(env, filename, path_list=[], var=None, environ=None):
 class ConfigurationContext(Utils.Context):
 	tests = {}
 	error_handlers = []
-	def __init__(self, blddir='', srcdir=''):
+	def __init__(self, start_dir=None, blddir='', srcdir=''):
+		super(self.__class__, self).__init__(start_dir)
 		self.env = None
 		self.envname = ''
 
@@ -348,7 +349,6 @@ class ConfigurationContext(Utils.Context):
 		# this may cause configuration errors if autoconfig is set
 		self.targets = Options.options.compile_targets
 		Options.options.compile_targets = None
-		Options.is_install = False
 
 		self.srcdir = src
 		self.blddir = bld
@@ -371,7 +371,6 @@ class ConfigurationContext(Utils.Context):
 		env[BLDDIR] = self.blddir
 		env[SRCDIR] = self.srcdir
 		env['argv'] = sys.argv
-		env['commands'] = Options.commands
 		env['options'] = Options.options.__dict__
 
 		# conf.hash & conf.files hold wscript files paths and hash

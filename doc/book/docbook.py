@@ -129,9 +129,6 @@ class docbook_taskgen(TaskGen.task_gen):
 			docb_file(self, node)
 
 	def install(self):
-		if not (Options.commands['install'] or Options.commands['uninstall']):
-			return
-
 		current = Build.bld.path
 		lst = []
 		docpath = os.path.join('share', Utils.g_module.APPNAME, 'doc')

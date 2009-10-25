@@ -66,9 +66,6 @@ def configure(conf):
 		self.failUnlessRaises(Utils.WafError, bld.load_dirs, blddir, blddir)
 
 	def test_incorrect_version(self):
-		# white-box test: configured with old version
-		Options.commands['configure'] = False
-
 		bld = Build.BuildContext()
 		bld.blddir = os.path.join(self._test_dir_root, 'b')
 

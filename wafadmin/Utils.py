@@ -588,19 +588,14 @@ class Context(object):
 	"""A base class for command contexts - they are passed as the arguments
 	of commands defined in Waf scripts"""
 
-	def set_curdir(self, dir):
-		self.curdir_ = dir
-
+	def __init__(self, start_dir=None):
+		# commands should start from the top-level wscript
+		self.curdir = start_dir or os.getcwd()
 	def get_curdir(self):
-		try:
-			return self.curdir_
-		except AttributeError:
-			self.curdir_ = os.getcwd()
-			return self.get_curdir()
-
-	curdir = property(get_curdir, set_curdir)
+		return self.curdir
 
 	# empty methods for overloading
+	# TODO this hook seems useless
 	def pre_recurse(self, obj, f, d):
 		pass
 	def post_recurse(self, obj, f, d):
@@ -614,7 +609,6 @@ class Context(object):
 		if not name:
 			name = getattr(self.__class__, 'function_name', None)
 		if not name:
-			#name = inspect.stack()[1][3]
 			raise Utils.WafError('%s does not have an associated user function name.' % self.__class__.__name__)
 		return name
 
@@ -624,7 +618,7 @@ class Context(object):
 		the dirs can be a list of folders or a string containing space-separated folder paths
 		"""
 		
-		function_name = name if name else self.user_function_name()
+		function_name = name or self.user_function_name()
 
 		# convert to absolute paths
 		dirs = to_list(dirs)
@@ -637,7 +631,7 @@ class Context(object):
 			# if there is a partial wscript with the body of the user function,
 			# use it in preference
 			if os.path.exists(partial_wscript_file):
-				exec_dict = {'ctx':self, 'conf':self, 'bld':self}
+				exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
 				function_code = readf(partial_wscript_file, m='rU')
 				
 				self.pre_recurse(function_code, partial_wscript_file, d)
@@ -681,7 +675,9 @@ class Context(object):
 
 	def run_user_code(self):
 		"""Execute the user function to which this context is bound."""
-		f = getattr(g_module, self.user_function_name())
+		f = getattr(g_module, self.user_function_name(), None)
+		if f is None:
+			raise WscriptError('Undefined command: %s' % self.user_function_name())
 		try:
 			f(self)
 		except TypeError:
@@ -696,30 +692,49 @@ class Context(object):
 		self.run_user_code()
 		self.finalize()
 
+def create_context(cmd_name, *k, **kw):
+	if cmd_name in context_dict:
+		return context_dict[cmd_name](*k, **kw)
+	else:
+		return Context(*k, **kw)
+
+class Timer(object):
+	"""Simple object for timing the execution of commands.
+	The string representation is the current time."""
+	def __init__(self):
+		self.start()
+	def _now(self):
+		# use utcnow(), otherwise we can display bogus values for example when
+		# a DST change happens during a Waf run
+		return datetime.datetime.utcnow()
+	def start(self):
+		"""Start the timer."""
+		self.start_time = self._now()
+		self.stop_time = None
+	def stop(self):
+		self.stop_time = self._now()
+	def __str__(self):
+		delta = (self.stop_time or self._now()) - self.start_time
+		days = int(delta.days)
+		hours = int(delta.seconds / 3600)
+		minutes = int((delta.seconds - hours * 3600) / 60)
+		seconds = delta.seconds - hours * 3600 - minutes * 60 \
+			+ float(delta.microseconds) / 1000 / 1000
+		result = ''
+		if days:
+			result += '%dd' % days
+		if days or hours:
+			result += '%dh' % hours
+		if days or hours or minutes:
+			result += '%dm' % minutes
+		return '%s%.3fs' % (result, seconds)	
+
 if is_win32:
 	old = shutil.copy2
 	def copy2(src, dst):
 		old(src, dst)
 		shutil.copystat(src, src)
 	setattr(shutil, 'copy2', copy2)
-
-def get_elapsed_time(start):
-	"Format a time delta (datetime.timedelta) using the format DdHhMmS.MSs"
-	delta = datetime.datetime.now() - start
-	# cast to int necessary for python 3.0
-	days = int(delta.days)
-	hours = int(delta.seconds / 3600)
-	minutes = int((delta.seconds - hours * 3600) / 60)
-	seconds = delta.seconds - hours * 3600 - minutes * 60 \
-		+ float(delta.microseconds) / 1000 / 1000
-	result = ''
-	if days:
-		result += '%dd' % days
-	if days or hours:
-		result += '%dh' % hours
-	if days or hours or minutes:
-		result += '%dm' % minutes
-	return '%s%.3fs' % (result, seconds)
 
 if os.name == 'java':
 	# For Jython (they should really fix the inconsistency)

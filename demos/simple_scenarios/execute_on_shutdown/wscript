@@ -21,9 +21,6 @@ def shutdown(ctx):
 	import Options
 	print "shutdown called with --exe command-line", Options.options.exe
 
-	if Options.is_install:
-		print "shutdown when running install or uninstall!!!"
-
 	# import os
 	# os.popen("./build/default/foo --help").read()
 

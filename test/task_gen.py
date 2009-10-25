@@ -81,7 +81,6 @@ def configure(conf):
 		# add apply_verif to taskgen
 		import Tools.ccroot
 
-		Options.commands['configure'] = False
 		env = Environment.Environment()
 		bld = Build.bld = Build.BuildContext()
 		bld.set_env('default', env)
@@ -112,7 +111,6 @@ def configure(conf):
 		self._test_build(False)
 
 	def make_bld(self):
-		Options.commands['configure'] = False
 		env = Environment.Environment()
 		bld = Build.bld = Build.BuildContext()
 		bld.set_env('default', env)

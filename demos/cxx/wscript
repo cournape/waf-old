@@ -76,10 +76,5 @@ def build(bld):
 		if Options.options.exe:
 			os.popen(cmd)
 
-		# in case if more people ask
-		#if Options.commands['install']:
-		#	try: os.popen("/sbin/ldconfig")
-		#	except: pass
-
 	bld.add_post_fun(post)
 

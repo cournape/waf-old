@@ -40,15 +40,19 @@ def init():
 			os.popen("""perl -pi -e 's/^WAFREVISION(.*)?$/WAFREVISION = "%s"/' wafadmin/Constants.py""" % rev).close()
 		except:
 			pass
+		sys.exit(0)
 	elif Options.options.waf:
 		create_waf()
-	elif Options.commands['check']:
-		sys.path.insert(0,'')
-		import test.Test
-		test.Test.run_tests()
-	else:
-		return
-	sys.exit(0)
+		sys.exit(0)
+
+def check(ctx):
+	sys.path.insert(0,'')
+	# some tests clobber g_module. We must preserve it here, otherwise we get an error
+	# about an undefined shutdown function
+	mod = Utils.g_module
+	import test.Test
+	test.Test.run_tests()
+	Utils.g_module = mod
 
 # this function is called before any other for parsing the command-line
 def set_options(opt):
@@ -300,15 +304,15 @@ def build(bld):
 
 	import shutil, re
 
-	if Options.commands['install']:
+	if 'install' in Options.commands:
 		if sys.platform == 'win32':
 			print "Installing Waf on Windows is not possible."
 			sys.exit(0)
 
-	if Options.is_install:
+	if Options.current_command in ['install', 'uninstall']:
 		compute_revision()
 
-	if Options.commands['install']:
+	if 'install' in Options.commands:
 		val = Options.options.yes or (not sys.stdin.isatty() or raw_input("Installing Waf is discouraged. Proceed? [y/n]"))
 		if val != True and val != "y": sys.exit(1)
 		create_waf()

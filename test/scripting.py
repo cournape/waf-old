@@ -55,7 +55,7 @@ def configure(conf):
 		self._write_wscript(wscript_contents, 0)
 		self._test_configure()
 		self.assert_(os.path.isfile(conf_code), "1st configure failed")
-		self._test_build()
+		print self._test_build()[1]
 		self.assert_(os.path.isfile(built_code), "1st build failed")
 
 		# this should cause reconfiguration.

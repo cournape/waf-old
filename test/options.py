@@ -35,7 +35,7 @@ class OptionsTester(common_test.CommonTester):
 	def test_no_tool_to_set_options(self):
 		# white_box test: set_options raise WafError when cannot find a tool
 		Options.tooldir = os.path.join(self._waf_root_dir, Test.DIRS.WAFADMIN, Test.DIRS.TOOLS)
-		opt = Options.Handler()
+		opt = Options.OptionsContext()
 		self.failUnlessRaises(Utils.WscriptError, opt.tool_options, 'kk', '.')
 
 def run_tests(verbose=1):
