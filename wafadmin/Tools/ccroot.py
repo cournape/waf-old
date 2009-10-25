@@ -613,6 +613,7 @@ def exec_vnum_link(self):
 cls = Task.task_type_from_func('vnum', func=exec_vnum_link, ext_in='.bin', color='CYAN')
 cls.quiet = 1
 
+"""
 # ============ workaround for spurious library dependencies added by apply_lib_vars (elf/gcc-specific) =========
 
 @feature('cshlib', 'cprogram')
@@ -623,3 +624,6 @@ def add_as_needed(self):
 		# All ELF platforms are impacted but only the gcc compiler has a flag to fix it.
 		if 'gcc' in (env.CXX_NAME, env.CC_NAME):
 			env.prepend_value('LINKFLAGS', '-Wl,--as-needed')
+
+"""
+
