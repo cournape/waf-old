@@ -10,6 +10,7 @@ from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
 from Constants import *
+from Configure import conftest
 try:
 	from cStringIO import StringIO
 except ImportError:
@@ -578,7 +579,7 @@ def apply_vnum(self):
 	else:
 		name3 = libname + '.' + self.vnum
 		name2 = libname + '.' + nums[0]
-	
+
 	if self.env.SONAME_ST:
 		v = self.env.SONAME_ST % name2
 		self.env.append_value('LINKFLAGS', v.split())
@@ -613,17 +614,10 @@ def exec_vnum_link(self):
 cls = Task.task_type_from_func('vnum', func=exec_vnum_link, ext_in='.bin', color='CYAN')
 cls.quiet = 1
 
-"""
-# ============ workaround for spurious library dependencies added by apply_lib_vars (elf/gcc-specific) =========
+# ============ the --as-needed flag should added during the configuration, not at runtime =========
 
-@feature('cshlib', 'cprogram')
-@after('apply_link')
-def add_as_needed(self):
-	env = self.env
-	if env.DEST_BINFMT == 'elf':
-		# All ELF platforms are impacted but only the gcc compiler has a flag to fix it.
-		if 'gcc' in (env.CXX_NAME, env.CC_NAME):
-			env.prepend_value('LINKFLAGS', '-Wl,--as-needed')
-
-"""
+@conftest
+def add_as_needed(conf):
+	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
+		conf.env.append_unique('LINKFLAGS', '--as-needed')
 
