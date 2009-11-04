@@ -639,8 +639,9 @@ def apply_flags_msvc(self):
 		flags = 'cstaticlib' in self.features and 'ARFLAGS' or 'LINKFLAGS'
 		self.env.append_value(flags, subsystem)
 
-	if 'cstaticlib' not in self.features:
-		for d in (f.lower() for f in self.env.LINKFLAGS):
+	if getattr(self, 'link_task', None):
+		for f in self.env.LINKFLAGS:
+			d = f.lower()
 			if d[1:] == 'debug':
 				pdbnode = self.link_task.outputs[0].change_ext('.pdb')
 				pdbfile = pdbnode.bldpath(self.env)
