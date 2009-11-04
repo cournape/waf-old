@@ -416,7 +416,7 @@ class Node(object):
 		## absolute path - hot zone, so do not touch
 
 		# less expensive
-		variant = (env and (self.id & 3 != FILE) and env.variant()) or 0
+		variant = (env and (self.id & 3 == BUILD) and env.variant()) or 0
 
 		ret = self.__class__.bld.cache_node_abspath[variant].get(self.id, None)
 		if ret: return ret
