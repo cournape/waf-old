@@ -7,7 +7,7 @@ NEW IN WAF 1.5.10
 * various bugfixes in the file installation routines
 * the '--as-needed' flag must be added explicitely by calling 'conf.add_as_needed()'
 * fix for the d comment filter which could skip some dependencies
-+ fixed Node.abspath for directories outside the source directory.
+* fix for header-only libraries handling in msvc.py
 
 NEW IN WAF 1.5.9
 ----------------
