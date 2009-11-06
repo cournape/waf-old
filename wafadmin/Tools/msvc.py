@@ -639,7 +639,7 @@ def apply_flags_msvc(self):
 		flags = 'cstaticlib' in self.features and 'ARFLAGS' or 'LINKFLAGS'
 		self.env.append_value(flags, subsystem)
 
-	if getattr(self, 'link_task', None):
+	if getattr(self, 'link_task', None) and not 'cstaticlib' in self.features:
 		for f in self.env.LINKFLAGS:
 			d = f.lower()
 			if d[1:] == 'debug':
