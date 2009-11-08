@@ -305,7 +305,8 @@ def apply_d_libs(self):
 
 		# add the link path too
 		tmp_path = y.path.bldpath(env)
-		if not tmp_path in libpaths: libpaths = [tmp_path] + libpaths
+		if not tmp_path in libpaths:
+			libpaths = [tmp_path] + libpaths
 
 		# set the dependency over the link task
 		if y.link_task is not None:
@@ -340,7 +341,6 @@ def apply_d_vars(self):
 	lib_st     = env['DLIB_ST']
 	libpath_st = env['DLIBPATH_ST']
 
-	#dflags = []
 	importpaths = self.to_list(self.importpaths)
 	libpaths = []
 	libs = []
@@ -380,10 +380,11 @@ def apply_d_vars(self):
 		if env['LIBPATH_' + i]:
 			for entry in self.to_list(env['LIBPATH_' + i]):
 				if not entry in libpaths:
-					libpaths += [entry]
+					libpaths.append(entry)
 	libpaths = self.to_list(self.libpaths) + libpaths
 
 	# now process the library paths
+	# apply same path manipulation as used with import paths
 	for path in libpaths:
 		env.append_unique('DLINKFLAGS', libpath_st % path)
 
@@ -392,8 +393,12 @@ def apply_d_vars(self):
 		if env['LIB_' + i]:
 			for entry in self.to_list(env['LIB_' + i]):
 				if not entry in libs:
-					libs += [entry]
-	libs = libs + self.to_list(self.libs)
+					libs.append(entry)
+	libs.extend(self.to_list(self.libs))
+
+	# process user flags
+	for flag in self.to_list(self.dflags):
+		env.append_unique('DFLAGS', flag)
 
 	# now process the libraries
 	for lib in libs:
