@@ -1,7 +1,7 @@
 NEW IN WAF 1.5.10
 -----------------
 * conf.define strings are now quoted by default
-* fixed the d language support
+* various fixes for the d language support
 * fltk support
 * files can be installed with bld.declare_chain
 * various bugfixes in the file installation routines
