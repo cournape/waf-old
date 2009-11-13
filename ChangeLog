@@ -8,6 +8,7 @@ NEW IN WAF 1.5.10
 * the '--as-needed' flag must be added explicitely by calling 'conf.add_as_needed()'
 * fix for the d comment filter which could skip some dependencies
 * fix for header-only libraries handling in msvc.py
+* node folders are not deleted automatically anymore
 
 NEW IN WAF 1.5.9
 ----------------
