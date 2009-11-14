@@ -361,14 +361,14 @@ def def_attrs(cls, **kw):
 		if not hasattr(cls, k):
 			setattr(cls, k, v)
 
-quote_define_name_table = None
 def quote_define_name(path):
-	"Converts a string to a constant name, foo/zbr-xpto.h -> FOO_ZBR_XPTO_H"
-	global quote_define_name_table
-	if not quote_define_name_table:
-		invalid_chars = set([chr(x) for x in xrange(256)]) - set(string.digits + string.uppercase)
-		quote_define_name_table = string.maketrans(''.join(invalid_chars), '_'*len(invalid_chars))
-	return string.translate(string.upper(path), quote_define_name_table)
+	def up(m):
+		if m.group(0):
+			return m.group(0).upper()
+		return None
+	fu = re.compile("\W").sub("_", path)
+	fu = re.compile("\w").sub(up, path)
+	return fu
 
 def quote_whitespace(path):
 	return (path.strip().find(' ') > 0 and '"%s"' % path or path).replace('""', '"')
