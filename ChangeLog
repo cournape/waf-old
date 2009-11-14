@@ -10,6 +10,7 @@ NEW IN WAF 1.5.10
 * fix for the d comment filter which could skip some dependencies
 * fix for header-only libraries handling in msvc.py
 * support for fancy folder creation (demos/simple_scenarios/folders/)
+* python 3 compatibility improvements
 
 NEW IN WAF 1.5.9
 ----------------
