@@ -61,11 +61,6 @@ def r3(code):
 	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
 	return code
 
-@subst('Tools/config_c.py')
-def r8(code):
-	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
-	return code
-
 @subst('Task.py')
 def r4(code):
 	code = code.replace("up(self.__class__.__name__)", "up(self.__class__.__name__.encode())")
@@ -96,6 +91,17 @@ def r6(code):
 def r7(code):
 	code = code.replace('class task_gen(object):\n\t__metaclass__=register_obj', 'class task_gen(object, metaclass=register_obj):')
 	return code
+
+@subst('Tools/config_c.py')
+def r8(code):
+	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
+	return code
+
+@subst('Tools/glib2.py')
+def r9(code):
+	code = code.replace('f.write(c)', 'f.write(c.encode("utf-8"))')
+	return code
+
 
 def fixdir(dir):
 	global all_modifs
