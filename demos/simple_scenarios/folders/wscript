@@ -12,10 +12,8 @@ def configure(conf):
 
 def build(bld):
 	# declare the folder "AAA" as a necessary folder in the build directory
-	#node = bld.path.ensure_dir_node_from_path(['a'])
-	#bld.rescan(node)
-	#node = node.ensure_dir_node_from_path(['b'])
-	#bld.rescan(node)
+	node = bld.path.ensure_dir_node_from_path(['a', 'b'])
+	bld.rescan(node)
 
 	# or declare the build nodes
 	#bld.path.exclusive_build_node('a/b/index.html')
