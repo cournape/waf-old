@@ -1,0 +1,82 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+"""
+In general the duration of tasks is not known in advance but in some cases
+it is better to launch the time consuming tasks first
+
+This example shows how to sort independent tasks to reduce the compilation time
+"""
+
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+import time
+import Task, Options, Build, Environment
+
+
+# the following code is the useful part
+# try commenting the line that replaces get_next_set to see
+# the compilation time difference (15 secs vs 10 secs)
+def cmpi(a, b):
+	"simple heuristic: the longest task runs first"
+	x = getattr(a.__class__, 'duration', 0)
+	y = getattr(b.__class__, 'duration', 0)
+	return cmp(y, x)
+old_get = Task.TaskGroup.get_next_set
+def get_next_set(self):
+	mm = old_get(self)
+	if not mm: return mm
+	mm[1].sort(cmpi)
+	return mm
+Task.TaskGroup.get_next_set = get_next_set
+
+
+# show how to measure the task execution time
+def run_special(self):
+	t1 = time.time()
+	ret = self.run()
+	t2 = time.time()
+	self.duration = t2 - t1
+	return ret
+Task.TaskBase.stat = run_special
+
+
+# the code below is generic
+class base(Task.TaskBase):
+	def run(self):
+		print self.__class__.__name__ + " " + getattr(self, "id", "")
+		time.sleep(self.__class__.duration)
+		self.m_hasrun = 1
+
+class X(base):
+	duration = 10
+
+class Y(base):
+	duration = 4
+
+class Z(base):
+	duration = 6
+
+def build(bld):
+
+	task_a = X()
+	task_c = Z()
+	task_b = Y()
+
+	# force to run with 2 jobs
+	Options.options.jobs = 2
+
+def set_options(opt):
+	pass
+
+def configure(conf):
+	pass
+
+def shutdown(ctx):
+	pass
+	#print "done"
+

@@ -1,0 +1,54 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+import os
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='msvc_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	pass
+
+def configure(conf):
+	# if a special version of visual studio is required
+	# prefer intel version 11, or msvc version 8 over 9, but allow 9 if no 8 is found
+	# conf.env['MSVC_VERSIONS'] = ['intel 11', 'msvc 8.0', 'msvc 9.0']
+	# require 7.1 only
+	#conf.env['MSVC_VERSIONS'] = ['msvc 7.1']
+	# Target SmartPhones arm
+	#conf.env['MSVC_VERSIONS'] = ['Smartphone 8.0', 'Smartphone 9.0']
+	#conf.env['MSVC_TARGETS'] = ['armv4i', 'armv4']
+	try:
+		conf.check_tool('msvc', funs='no_autodetect')
+	except:
+		conf.check_tool('msvc')
+	#this prints a list of compiler and targets that were detected
+	#conf.print_all_msvc_detected()
+	conf.check_libs_msvc('kernel32 user32', mandatory = True)
+
+
+
+def build(bld):
+	obj = bld.new_task_gen(features = 'cxx cstaticlib')
+	obj.source = 'lib.cxx'
+	obj.target = 'lib'
+
+	obj = bld.new_task_gen(features = 'cxx cshlib')
+	obj.source = 'dll.cxx'
+	obj.target = 'dll'
+	obj.defines = ['BUILDING_DLL']
+	obj.uselib = 'KERNEL32 USER32'
+
+	obj = bld.new_task_gen(features = 'cxx cprogram')
+	obj.source = 'main.cxx resource.rc'
+	obj.target = 'msvc_test'
+	obj.uselib_local = ['dll', 'lib']
+
+def shutdown():
+	pass

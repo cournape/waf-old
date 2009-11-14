@@ -1,0 +1,111 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter id="task_schedulers">
+	<title>The scheduler for executing the tasks</title>
+
+	<section id="sheduler_model">
+		<title>The task execution model</title>
+		<para>
+			Task dependencies and task ordering specify the exact order in which tasks must be executed. When tasks are executed in parallel, different algorithms may be used to improve the compilation times. For example, tasks that are known to last longer may be launched first. Linking tasks that use a lot of ram (in the context of c++ applications) may be launched alone to avoid disk thrashing by saving RAM.</para>
+		<para>
+			To make this possible, the task execution is organized in the following manner:
+			<graphic format="png" fileref="task_grouping.png" align="center"/>
+		</para>
+	</section>
+
+	<section id="job_control">
+		<title>Job control</title>
+		<para>
+			Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks in execution, different algorithms may be used in practice
+		</para>
+		<para>
+			In the NORMAL ordering, task groups are created, and a topological sort is performed in advance. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes.
+			<graphic format="png" fileref="output-NORMAL.png" align="center"/>
+			In the JOBCONTROL ordering, groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources. For example, linking c++ object files uses a lot of RAM.
+			<graphic format="png" fileref="output-JOBCONTROL.png" align="center"/>
+			In the MAXPARALLEL ordering, Each task holds a list of tasks it must run after (there is only one list of tasks waiting to be executed). Though this version parallelizes tasks very well, it consumes more memory and processing. In practice, Waf may last 20% more on builds when all tasks are up-to-date.
+			<graphic format="png" fileref="output-MAXPARALLEL.png" align="center"/>
+		</para>
+		<para>
+			<warning>
+			Because most task classes use ordering constraints, the maximum parallelization can only be achieved if the constraints between task classes are relaxed, and if all task instances know their predecessors. In the example graph, this was achieved by removing the ordering constraints between the compilation tasks classes and the link tasks classes</warning>
+			<programlisting language="python">
+# relax the constraints between cxx and cxx_link (in the build section)
+import Task
+Task.TaskBase.classes['cxx'].ext_out = []
+
+# infer the task orderings from input and output nodes
+import Runner
+old_refill = Runner.Parallel.refill_task_list
+def refill_task_list(self):
+    old_refill(self)
+    lst = self.outstanding
+    if lst:
+        for x in lst:
+            for y in lst:
+                for i in x.inputs:
+                    for j in y.outputs:
+                        if i.id == j.id:
+                            x.set_run_after(y)
+Runner.Parallel.refill_task_list = refill_task_list
+			</programlisting>
+			From this, we can immediately notice the following:
+			<itemizedlist>
+				<listitem>An assumption is made that all tasks have input and output nodes, and that ordering constraints can be deduced from them</listitem>
+				<listitem>Deducing the constraints from the input and output nodes exhibits a n^2 behaviour</listitem>
+			</itemizedlist>
+
+			<note>In practice, the NORMAL algorithm should be used whenever possible, and the MAXPARALLEL should be used if substantial gains are expected and if the ordering is specified between all tasks. The JOBCONTROL system may be useful for tasks that consume a vast amount of resources.</note>
+		</para>
+	</section>
+
+	<section id="weak_order">
+		<title>Weak task order constraints</title>
+		<para>
+			Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called <ulink url="http://en.wikipedia.org/wiki/Job-shop_problem"><citetitle>Job Shop</citetitle></ulink>. In practice this problem can often be reduced to a critical path problem (approximation).
+		</para>
+
+		<para>
+			The following pictures illustrate the difference in scheduling a build with different independent tasks, in which a slow task is clearly identified, and launched first:
+			<graphic format="png" fileref="duration-1.png" align="center"/>
+			<graphic format="png" fileref="duration-2.png" align="center"/>
+		</para>
+
+		<para>
+			Waf provides a function for reordering the tasks before they are launched in the module Runner, the default reordering may be changed by dynamic method replacement in Python:
+			<programlisting language="python">
+import Runner
+def get_next(self):
+	# reorder the task list by a random function
+	self.outstanding.sort()
+	# return the next task
+	return self.outstanding.pop()
+Runner.Parallel.get_next = get_next
+			</programlisting>
+			If the reordering is not to be performed each time a task is retrieved, the list of task may be reordered when the next group is retrieved:
+			<programlisting language="python">
+import Runner
+old_refill = Runner.Parallel.refill_task_list
+def refill_task_list(self):
+	old_refill(self)
+	self.outstanding.sort()
+Runner.Parallel.refill_task_list = refill_task_list
+			</programlisting>
+			It is possible to measure the task execution times by intercepting the function calls. The task execution times may be re-used for optimizing the schedule for subsequent builds:
+			<programlisting language="python">
+import time
+import Task
+old_call_run = Task.TaskBase.call_run
+def new_call_run(self):
+	t1 = time.time()
+	ret = old_call_run(self)
+	t2 = time.time()
+	if not ret: print "execution time %r" % (t2 - t1)
+	return ret
+Task.TaskBase.call_run = new_call_run
+			</programlisting>
+		</para>
+	</section>
+</chapter>

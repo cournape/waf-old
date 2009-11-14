@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+# encoding: utf-8
+# Yinon Ehrlich, 2009
+
+"""
+Prints filesystem representation (nodes).
+
+For each node print:
+	parent id, own id, the signature dictionary where it appears.
+"""
+
+def configure(conf):
+	pass
+
+def build(bld):
+	print(dump(bld.srcnode))
+
+def dump(node):
+	_dump = ''
+	bld = node.__class__.bld
+	# print the node and its childs, recursively
+	if not node: return ''
+	if not getattr(node, 'childs', False): return ''
+	indent = node.height() * '   '
+	for child in node.childs.itervalues():
+		variant = child.variant(bld.env)
+		signature_type = '-'
+		if child.id in bld.node_sigs[variant]:
+			if variant: signature_type = 'bld_sig'
+			else: signature_type = 'src_sig'
+		_dump += '%s %s (%d-->%d)\t[%s]\n' % (indent, child.name, node.id, child.id, signature_type)
+		_dump += dump(child)
+
+	return _dump

@@ -1,0 +1,41 @@
+Waf 1.5
+-------
+
+better error msg when the .lock file is not found
+
+refactor the methods for c/c++
+make the cache retrieving less noisy
+advertise WAFCACHE
+make it even easier to add custom commands
+use Node::find_iter in task_gen::find_sources_in_dirs
+
+Waf 1.6
+-------
+
+conf.blddir <-> bld.bdir
+
+(api cleanup)
+* leave either tdir or tooldir in the methods check_tool and check_options
+* fix the TODO for 1.6
+
+* stop binding install methods on task classes but post install commands onto the build context
+
+remove pproc.py and forget compatibility with python < 2.6
+
+remove boost.py?
+
+unification uselib+uselib_local
+unification between features and uselib (shared_CXXFLAGS)
+
+ideas
+-----
+
+* parse the command-lines for &&, (, ) < and > to avoid the shell where applicable
+* packaging? (rpms, debs)
+* rethink the node scanning system to hash the nodes at the last moment
+
+
+--------------------------------------
+Last update: 16/11/2008
+Contact -> http://code.google.com/p/waf
+

@@ -1,0 +1,102 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='wafdocs'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
+
+def configure(conf):
+	conf.check_tool('docbook', tooldir='.')
+	conf.check_tool('misc')
+	conf.env['XSLTPROC_ST'] = '''
+%(XSLTPROC)s --output default/
+--stringparam callout.graphics.path ""
+--stringparam admon.graphics.path ""
+--stringparam admon.graphics 1
+--stringparam html.stylesheet waf.css
+--xinclude %(STYLESHEET)s %(SRC)s > %(TGT)s'''.replace('\n', ' ')
+
+	return
+	conf.env['XSLTPROC'] = '/opt/sun-jdk-1.6.0.12/bin/java'
+	conf.env['XSLTPROC_ST'] = '''
+%(XSLTPROC)s -cp /home/tnagy/saxon/saxon.jar:/home/tnagy/docbook-xsl-snapshot/extensions/saxon65.jar:/home/tnagy/xerces-2_9_1/xercesImpl.jar:/home/tnagy/xslthl-2.0.0.jar:.
+-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl
+-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl
+-Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration
+-Dxslthl.config=file:///home/tnagy/highlighters/xslthl-config.xml
+
+com.icl.saxon.StyleSheet
+%(SRC)s %(STYLESHEET)s
+html.stylesheet=waf.css
+base.dir=default/
+highlight.source=true
+admon.graphics=1
+admon.graphics.path="./"
+callout.graphics.path="./"
+
+> %(TGT)s
+	'''.replace('\n', ' ')
+
+	return
+	conf.env['XSLTPROC'] = 'java'
+	conf.env['XSLTPROC_ST'] = '''
+%(XSLTPROC)s -cp /home/waf/xslt/saxon.jar:/home/waf/xslt/docbook-xsl-snapshot/extensions/saxon65.jar:/home/waf/xslt/xerces-2_9_1/xercesImpl.jar:/home/waf/xslt/xslthl-2.0.0.jar:.
+-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl
+-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl
+-Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration
+-Dxslthl.config=file:///home/waf/xslt/docbook-xsl-snapshot/highlighting/xslthl-config.xml
+
+com.icl.saxon.StyleSheet
+%(SRC)s %(STYLESHEET)s
+html.stylesheet=waf.css
+base.dir=default/
+highlight.source=true
+admon.graphics=1
+admon.graphics.path="./"
+callout.graphics.path="./"
+
+> %(TGT)s
+	'''.replace('\n', ' ')
+
+	# for pdf
+	#conf.env['XSLTPROC_ST'] = '''
+#%s
+#--xinclude %s %s > %s'''.replace('\n', ' ')
+
+
+def build(bld):
+	import os
+	for k in ['pics', 'callouts']:
+		files = os.listdir(k)
+		for x in files:
+			if x == '.svn':
+				continue
+			bld.new_task_gen(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
+
+	# now the files are copied ..
+
+	obj = bld.new_task_gen('docbook')
+	obj.source = 'waf.xml'
+
+	obj.type = 'html'
+	obj.stylesheet='/usr/share/xml/docbook/stylesheet/nwalsh/current/html/chunk.xsl'
+	obj.stylesheet='/home/waf/Escritorio/docbook/docbook-xsl-snapshot/html/chunk.xsl'
+	#obj.stylesheet='/usr/share/sgml/docbook/xsl-stylesheets/html/chunk.xsl'
+	#obj.stylesheet = '/home/tnagy/docbook-xsl-snapshot/html/chunk.xsl'
+
+	#obj.type = 'pdf'
+	#obj.stylesheet = "/usr/share/xml/docbook/stylesheet/nwalsh/current/fo/docbook.xsl"
+
+def shutdown():
+	import os
+	import Options
+	if Options.options.exe:
+		os.popen('konqueror $PWD/build/default/index.html')

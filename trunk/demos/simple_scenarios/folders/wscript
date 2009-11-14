@@ -1,0 +1,22 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2009 (ita)
+
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+	conf.find_program('touch', mandatory=True)
+
+def build(bld):
+	# declare the folder "AAA" as a necessary folder in the build directory
+	node = bld.path.ensure_dir_node_from_path(['a', 'b'])
+	bld.rescan(node)
+
+	# or declare the build nodes
+	#bld.path.exclusive_build_node('a/b/index.html')
+	bld.new_task_gen(target='a/index.html', rule='touch ${TGT}')
+	bld.new_task_gen(target='a/b/index.html', rule='touch ${TGT}')
+

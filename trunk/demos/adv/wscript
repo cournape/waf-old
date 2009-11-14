@@ -1,0 +1,234 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2009 (ita)
+
+import sys
+import Utils, Build, Configure
+# advanced tests
+# look in src/ for an example of a new compiler that creates cpp files
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='adv_test'
+
+# these variables are mandatory ('/' are converted automatically)
+srcdir = '.'
+blddir = 'build'
+
+# make sure waf has the version we want, note: numbers should contain 2
+# periods (as of 1.5.0 --> NOT 1.5)
+Utils.waf_version(mini='1.5.0', maxi='1.5.15')
+
+features_str = '''
+#include <stdio.h>
+int is_big_endian()
+{
+	long one = 1;
+	return !(*((char *)(&one)));
+}
+int main()
+{
+	if (is_big_endian()) printf("bigendian=1\\n");
+	else printf("bigendian=0\\n");
+	printf("int_size=%d\\n", sizeof(int));
+	printf("long_int_size=%d\\n", sizeof(long int));
+	printf("long_long_int_size=%d\\n", sizeof(long long int));
+	printf("double_size=%d\\n", sizeof(double));
+	return 0;
+}
+'''
+
+def check_features(self):
+
+	mp = self.check(fragment=features_str, execute=1)
+	t = Utils.to_hashtable(mp)
+
+	try:
+		is_big = int(t['bigendian'])
+	except KeyError:
+		raise Configure.ConfigurationError('endian test failed '+code)
+
+	if is_big: strbig = 'big endian'
+	else: strbig = 'little endian'
+	self.check_message_custom('endianness', '', strbig)
+
+	self.check_message_custom('int size', '', t['int_size'])
+	self.check_message_custom('long int size', '', t['long_int_size'])
+	self.check_message_custom('long long int size', '', t['long_long_int_size'])
+	self.check_message_custom('double size', '', t['double_size'])
+
+	self.define_cond('IS_BIGENDIAN', is_big)
+	self.define_cond('INT_SIZE', int(t['int_size']))
+	self.define_cond('LONG_INT_SIZE', int(t['long_int_size']))
+	self.define_cond('LONG_LONG_INT_SIZE', int(t['long_long_int_size']))
+	self.define_cond('DOUBLE_SIZE', int(t['double_size']))
+
+	return is_big
+
+Configure.conf(check_features) # bind the method
+
+
+def init(ctx):
+	pass
+	# redefine the cpp source extensions
+	#import cpp
+	#cpp.cppobj.s_default_ext = ['.cxx', '.cxy', '.cxyz']
+
+def set_options(opt):
+	opt.add_option('--someopt', type='string', help='some option', dest='someopt')
+	opt.tool_options('gcc')
+	opt.tool_options('g++')
+#opt.sub_options('tests')
+	# the following is to use after the command-line is parsed:
+	# import Options
+	# print Options.options.someopt
+
+def configure(conf):
+	conf.check_tool('gcc')
+	#if not conf.env.CC: conf.fatal('gcc not found')
+
+	conf.check_tool('gas')
+	if not conf.env.AS: conf.env.AS = conf.env.CC
+
+	try:
+		conf.check_cc(compile_filename='test.s', fragment='''
+.text
+.align 2
+
+val:
+ .long 10
+
+# Multiply input value by 10...
+.global mult10
+.type mult10, function
+mult10:
+  movl val,%eax
+  imul 4(%esp),%eax
+  ret
+	''', type='cstaticlib', mandatory=True, msg='Checking for assembler')
+	except:
+		conf.env.AS = None
+
+	conf.check_tool('g++')
+	#if not conf.env.CXX: conf.fatal('g++ not found')
+
+	try: conf.check_tool('flex bison')
+	except: pass
+
+	conf.check_tool('misc')
+	conf.check_tool('dang', tooldir='.')
+
+	# flags
+	conf.check_cxx(cxxflags='-meeh', msg='Checking for flags -meeh') # mandatory=False
+
+	# function
+	conf.check(function_name='printf', header_name='stdio.h')
+	conf.check(function_name='prontf', header_name='stdio.h')
+
+	# header name
+	conf.check(header_name='time.h')
+	conf.check(header_name='trme.h')
+
+	# type name
+	conf.check(type_name='struct')
+	conf.check(type_name='int')
+
+	# code fragment
+	conf.check(fragment='int main() {2+2==4;}\n', define_name='boobah')
+	conf.check(fragment='uncompilable code', define_name='boobar')
+
+	# libraries, and how to reuse the checks
+	conf.check(lib='m')
+	conf.check(lib='linux', uselib='M', libpath='/tmp', mandatory=False)
+
+	# something more complicated
+	conf.check(
+		fragment='#include <stdio.h>\nint main() { printf("%d", sizeof(int)); return 0; }\n',
+		define_name='booeah',
+		execute=1,
+		define_ret=1,
+		#quote=0,
+		msg='Checking for sizeof(int)')
+
+	# the demo code, from above
+	conf.check_features()
+
+	# frameworks - for OSX
+	#conf.check(framework_name='gruik')
+
+	# pkg-config
+	conf.check_cfg(atleast_pkgconfig_version='0.0.0')
+
+	conf.check_cfg(package='pango', args='"pango = 1.0.0"')
+	conf.check_cfg(package='pango', args='--cflags --libs')
+	conf.check_cfg(package='alsa', args='--cflags --libs',
+		define_variable={'prefix':'/temp', 'exec_prefix':'/temp'})
+
+	def okmsg(kw):
+		# some customization
+		return kw['success'].strip()
+	conf.check_cfg(package='ORBit-2.0', msg='Checking for program ORBit idl', args='--variable=orbit_idl', okmsg=okmsg)
+
+	# a program
+	conf.find_program('cat', var='CAT')
+
+	# c/cxx defines
+	conf.define('HAVE_SOMETHING', 1)
+	conf.define('TEST_DEFINE', 345)
+	conf.env.CXXDEFINES_DEFTEST = ['truc=blah', 'boo']
+	conf.env.LIB_CALC = 'fl'
+
+	# finally, write the configuration header
+	conf.write_config_header('config.h')
+
+	# set a variant called "default", with another config.h
+	env_variant2 = conf.env.copy()
+	conf.set_env_name('debug', env_variant2)
+	env_variant2.set_variant('debug')
+
+	conf.setenv('debug')
+	#conf.env.defines = [] # to remove defines, modify the list held by env.defines
+	conf.define('DEBUG', 1)
+	conf.define('sep', '\\', quote=True)
+	conf.write_config_header('config.h', env=env_variant2)
+
+	conf.sub_config('src')
+
+def build(bld):
+	"""
+	#for debugging or profiling: build empty files
+
+	import Task
+	def touch_func(task):
+		for x in task.outputs:
+			open(x.abspath(task.env), 'w').close()
+	for x in Task.TaskBase.classes.keys():
+		cls = Task.TaskBase.classes[x]
+		cls.func = touch_func
+		cls.color = 'CYAN'
+
+
+	# for kernel-like output
+	def custom_str_cc(self):
+		return "C: %s\n" % ' '.join([a.nice_path(self.env) for a in self.inputs])
+	Task.TaskBase.classes['cc'].display = custom_str_cc
+
+	def custom_str_cc_link(self):
+		return "L: %s\n" % ' '.join([a.nice_path(self.env) for a in self.outputs])
+	Task.TaskBase.classes['cc_link'].display = custom_str_cc_link
+	"""
+
+
+	# to find files, you may use this:
+	#print bld.path.find_iter(flat=True)
+	#print bld.path.ant_glob('**/*.c')
+
+	# process subfolders from here
+	bld.add_subdirs('src complex variant hybrid')
+
+	# compile the flex+bison test if available
+	if bld.env_of_name('default')['FLEX']:
+		bld.add_subdirs('bisonflex')
+	if bld.env.AS:
+		bld.add_subdirs('asm')
+

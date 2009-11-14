@@ -1,0 +1,587 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter id="advanced_scenarios">
+	<title>Advanced scenarios</title>
+	<para>This chapter provides examples for advanced scenarios to demonstrate the practical use of the Waf library.</para>
+
+
+	<section id="scenario_simple_transformation">
+		<title>Simple file transformations</title>
+		<para>
+			The Waf tool <emphasis>misc</emphasis> contains various routines to ease file manipulations such as substituting parameters or executing custom compilers. The objective of this section is to illustrate the principles of the current apis.
+		</para>
+		<sect2>
+			<title>File substitutions</title>
+			<para>
+				The following example illustrates how to produce a pkg-config file from a template:
+				<programlisting language="python">
+def configure(conf):
+	conf.check_tool('misc')
+
+def build(bld):
+	obj = bld.new_task_gen('subst')
+	obj.source = 'test.pc.in'
+	obj.target = 'test.pc'
+	obj.dict   = {'LIBS': '-lm', 'CFLAGS': '-Wall', 'VERSION': '1.0'}
+
+	# any kind of map will work, for example
+	# obj.dict = obj.env
+				</programlisting>
+
+				The variables must be declared in the template file by enclosing the names between <emphasis>@ characters</emphasis> (m4 syntax).
+				<programlisting language="shell">
+Name: test
+Description: @CFLAGS@
+Version: @VERSION@
+Libs: -L${libdir} @LIBS@
+Cflags: -I${includedir} @CFLAGS@
+				</programlisting>
+
+				The default substitution function may be replaced by changing the attribute <emphasis>func</emphasis> of the task generator.
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Compiler output</title>
+			<para>
+				The <emphasis>command-output</emphasis> system enables execution of system commands without requiring a shell. The following example illustrates how to execute a script present in the source directory each time it is executed.
+				<programlisting language="python">
+import time
+import misc <co id="cop1-co" linkends="cop1"/>
+def build(bld):
+	out1 = bld.new_task_gen('command-output')
+	out1.stdout = 'test1' <co id="cop3-co" linkends="cop3"/>
+	out1.stdin = 'wscript_build' <co id="cop4-co" linkends="cop4"/>
+	#out1.command_is_external = False
+	out1.command = 'some-script' <co id="cop5-co" linkends="cop5"/>
+	out1.argv = <co id="cop6-co" linkends="cop6"/> ['--output-md5', misc.output_file('test1.md5')<co id="cop7-co" linkends="cop7"/>]
+	out1.vars = 'COINCOIN'
+	out1.env.COINCOIN = time.time() <co id="cop8-co" linkends="cop8"/>
+				</programlisting>
+
+				<calloutlist>
+					<callout arearefs="cop1-co" id="cop1">
+						<para>misc is the Waf module providing the command-output features</para>
+					</callout>
+					<callout arearefs="cop3-co" id="cop3">
+						<para>The standard output will be redirected to the file test1</para>
+					</callout>
+					<callout arearefs="cop4-co" id="cop4">
+						<para>The file 'wscript_build' will be passed to the standard input</para>
+					</callout>
+					<callout arearefs="cop5-co" id="cop5">
+						<para>The program to execute is assumed to be present in the directory of the wscript file, unless <emphasis>command_is_external</emphasis> is set to True</para>
+					</callout>
+					<callout arearefs="cop6-co" id="cop6">
+						<para>Additional parameters are provided in the argv attribute, as a list.</para>
+					</callout>
+					<callout arearefs="cop7-co" id="cop7">
+						<para>Parameters representing files must be added through the special classes input_file, output_file, input_dir and output_dir to resolve the paths properly</para>
+					</callout>
+					<callout arearefs="cop8-co" id="cop8">
+						<para>An additional dependency is added on the time, the task will be executed whenever the time changes</para>
+					</callout>
+				</calloutlist>
+			</para>
+		</sect2>
+	</section>
+
+	<section id="scenario_variant">
+		<title>Same targets, different configurations (variants)</title>
+		<para>
+			In many builds, it is necessary to build the same targets for different purposes: debugging, profiling, optimizations. A system is provided for duplicating the targets easily.
+		</para>
+		<sect2>
+			<title>Variants and environments</title>
+			<para>
+			The following code demonstrates how to create a configuration for a new variant named 'debug'
+			<programlisting language="python">
+def configure(conf):
+	# default variant
+	conf.env.foo = 'bar'
+
+	# create a new environment for the variant 'debug'
+	env_variant2 = conf.env.copy()
+	conf.set_env_name('debug', env_variant2)
+	env_variant2.set_variant('debug')
+	conf.setenv('debug')
+	conf.env.foo = 'bar2'
+			</programlisting>
+			After running <emphasis>waf configure</emphasis>, the build folders corresponding to the <emphasis>default</emphasis> and to the <emphasis>debug</emphasis> variants are produced:
+			<programlisting language="python">
+build/
+|-- c4che
+|   |-- build.config.py
+|   |-- debug.cache.py
+|   `-- default.cache.py
+|-- config.log
+|-- debug
+`-- default
+			</programlisting>
+			To use the <emphasis>debug</emphasis> variant, the environment must be given directly, by default, a copy of the environment named <emphasis>default</emphasis> is set:
+			<programlisting language="python">
+def build(bld):
+	prog = bld.new_task_gen()
+	prog.features = 'cxx cprogram'
+	prog.source = 'src1.c'
+	prog.includes = '.'
+	prog.target = 'myprog'
+	prog.env = bld.env_of_name('debug')
+			</programlisting>
+			</para>
+		</sect2>
+		<sect2>
+			<title>Cloning targets</title>
+			<para>
+				Task generators may be copied for different variants easily using the <emphasis>clone</emphasis> method. The parameter is the name of the environment to use (not the variant). The named environments are created during the configuration, as shown in the previous subsection.
+			<programlisting language="python">
+def build(bld):
+	prog_in_default = bld.new_task_gen(
+		features = 'cxx cprogram'
+		source = 'src1.c'
+		target = 'myprog')
+
+	prog_in_debug = prog_in_default.clone('debug')
+			</programlisting>
+			It is also possible to clone all task generators from a project using a code similar to the following:
+			<programlisting language="python">
+for obj in [] + bld.all_task_gen:
+    new_obj = obj.clone('debug')
+			</programlisting>
+			</para>
+		</sect2>
+		<sect2>
+			<title>Cross-variant dependencies are discouraged</title>
+			<para>
+				The variant system is meant for automating the duplication of targets, which are supposed to run in in isolation. As a consequence, it is not specified how linking a program against a library created in a different variant should be processed. The general recommendation is to avoid optimizations and to duplicate the targets as necessary. The following bug tracker entry provides more details <ulink url="http://code.google.com/p/waf/issues/detail?id=171"/>
+			</para>
+		</sect2>
+	</section>
+
+	<section id="scenario_compiler">
+		<title>Building the compiler first</title>
+		<para>
+			The example below demonstrates how to build a compiler which is used for building the remaining targets. The requirements are the following:
+			<itemizedlist>
+				<listitem>Compile the compiler with all its intermediate tasks</listitem>
+				<listitem>Re-use the compiler in a second build step</listitem>
+			</itemizedlist>
+			This scenario demonstrates the <emphasis>bld.add_group</emphasis> to segment the build into strictly sequential parts:
+		</para>
+
+		<programlisting language="python">
+def build(bld):
+	env = bld.env_of_name('default')
+
+	import Task, ocaml
+	ocaml.open_re = re.compile('open ([a-zA-Z]+)', re.M)
+
+	Task.simple_task_type('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT} 2> /dev/null', color='RED')
+	Task.task_type_from_func('py2rcc', vars=[], func=compile_py, color='BLUE')
+
+	bld.new_task_gen(
+		features='ocaml native', <co id="comp-co" linkends="comp"/>
+		include = 'util',
+		source = bld.path.ant_glob('util/*.ml'),
+		target = 'util/ocaml+twt',
+		are_deps_set = 1,
+		uselib='PP')
+
+	bld.add_group() <co id="divide-co" linkends="divide"/>
+
+	bld.new_task_gen(
+		features = 'ocaml c_object', <co id="rem-co" linkends="rem"/>
+		source = 'src/armtlkto.c ' + bld.path.ant_glob('src/*.ml'),
+		includes = '. src',
+		target = 'camlprog',
+		are_deps_set = 1,
+		uselib = 'TWT',
+		add_objects = [])
+		</programlisting>
+
+		<calloutlist>
+			<callout arearefs="comp-co" id="comp">
+				<para>Create the compiler.</para>
+			</callout>
+			<callout arearefs="divide-co" id="divide">
+				<para>Create a new group</para>
+			</callout>
+			<callout arearefs="rem-co" id="rem">
+				<para>The rest of the build follows</para>
+			</callout>
+		</calloutlist>
+	</section>
+
+	<section id="scenario_header">
+		<title>Writing the output of a program into a header</title>
+		<para>
+			The example below demonstrates how to write the output of svnversion into a header. The command is always run, and the c/c++ compilation will be executed if the header changes (implicit dependencies obtained by the Waf preprocessor):
+			<programlisting language="python">
+def build(bld):
+	# 1. A simple program
+	main = bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c',
+		target = 'test_c_program',
+		uselib_local = 'teststaticlib',
+		svn_header = 'ver.h' <co id="svn1-co" linkends="svn1"/>
+	)
+	# 2. A simple static lib
+	staticlib = bld.new_task_gen(
+		features = 'cc cstaticlib',
+		source = 'test_staticlib.c',
+		target = 'teststaticlib'
+	)
+
+import subprocess
+from Constants import RUN_ME
+from TaskGen import feature, after
+import Task, Utils
+
+@feature('cc')
+@after('apply_core')
+def process_svn(self): <co id="svn2-co" linkends="svn2"/>
+	if getattr(self, 'svn_header', None):
+		tsk = self.create_task('svn_ver')
+		tsk.set_outputs(self.path.find_or_declare(self.svn_header))
+
+def get_svn_rev(): <co id="svn3-co" linkends="svn3"/>
+	try:
+		p = subprocess.Popen(['svn', 'info', '--non-interactive'], stdout=subprocess.PIPE, \
+			stderr=subprocess.STDOUT, close_fds=False, env={'LANG' : 'C'})
+		stdout = p.communicate()[0]
+
+		if p.returncode == 0:
+			lines = stdout.splitlines(True)
+			for line in lines:
+				if line.startswith('Last Changed Rev'):
+					key, value = line.split(': ', 1)
+					return value.strip()
+		return '-1'
+	except:
+		return '-1'
+
+def svnvars(self): <co id="svn4-co" linkends="svn4"/>
+	self.ver = get_svn_rev()
+	fi = open(self.outputs[0].abspath(self.env), 'w')
+	fi.write('#define  VER "%d"\n' % self.ver)
+	fi.close()
+
+cls = Task.task_type_from_func('svn_ver', vars=[], func=svnvars, color='BLUE', before='cc') <co id="svn5-co" linkends="svn5"/>
+
+def always(self): <co id="svn6-co" linkends="svn6"/>
+	return RUN_ME
+cls.runnable_status = always
+
+def post_run(self): <co id="svn7-co" linkends="svn7"/>
+	sg = Utils.h_list(self.ver)
+	node = self.outputs[0]
+	variant = node.variant(self.env)
+	self.generator.bld.node_sigs[variant][node.id] = sg
+cls.post_run = post_run
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="svn1-co" id="svn1">
+					<para>Example in a user script, the attribute <emphasis>svn_header</emphasis> is used to indicate a header to create as a build file</para>
+				</callout>
+				<callout arearefs="svn2-co" id="svn2">
+					<para>Process the attribute svn_header when present, create a task instance</para>
+				</callout>
+				<callout arearefs="svn3-co" id="svn3">
+					<para>A function for obtaining the svn version of the project</para>
+				</callout>
+				<callout arearefs="svn4-co" id="svn4">
+					<para>Obtain the svn version and write it to the header</para>
+				</callout>
+				<callout arearefs="svn5-co" id="svn5">
+					<para>Declaration of the task which will execute the svn processing</para>
+				</callout>
+				<callout arearefs="svn6-co" id="svn6">
+					<para>The task must be run each time - there is no signature involved</para>
+				</callout>
+				<callout arearefs="svn7-co" id="svn7">
+					<para>Mark the outputs as changed if necessary by changing the signature</para>
+				</callout>
+			</calloutlist>
+		</para>
+		<para>
+			Task creation is performed through a new task generator method (process_svn) which is executed only when the task generator creates all its tasks. This organization makes it possible to compile only the code necessary for a specific target (tasks are created lazily, and are grouped by task generators). To address the scenario described, a new task type is created, and methods are replaced dynamically: runnable_status (execute each time), and post_run (change the signature of the outputs according to the contents of the file created).
+		</para>
+	</section>
+
+	<section id="runtime_discovered_outputs">
+		<title>A compiler producing source files with names unknown in advance</title>
+		<para>
+			The example below demonstrates how to tackle the following requirements:
+			<itemizedlist>
+				<listitem>A compiler <emphasis>produces source files</emphasis> (.c files) for which tasks must be created</listitem>
+				<listitem>The source file names are <emphasis>not known in advance</emphasis></listitem>
+				<listitem>The task must be <emphasis>run only if necessary</emphasis></listitem>
+				<listitem>Other tasks <emphasis>may depend on the tasks</emphasis> processing the source produced (compile and link the .c files)</listitem>
+			</itemizedlist>
+			The main difficulty in this scenario is to store the information on the source file produced and to create the corresponding tasks each time.
+
+			<programlisting language="python">
+
+## A DEMO ##
+
+VERSION='0.0.1'
+APPNAME='unknown_outputs'
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+	# used only when configured from the same folder
+	conf.check_tool('gcc')
+	conf.env.SHPIP_COMPILER = os.getcwd() + os.sep + "bad_compiler.py"
+
+def build(bld):
+	staticlib = bld.new_task_gen()
+	staticlib.features = 'cc cstaticlib'
+	staticlib.source = 'x.c foo.shpip' <co id="exa-co" linkends="exa"/>
+	staticlib.target='teststaticlib'
+	staticlib.includes = '.'
+
+
+## INTERNAL CODE BELOW ##
+
+import os
+import TaskGen, Task, Utils, Build
+from TaskGen import taskgen, feature, before, after, extension
+from logging import debug
+from Constants import *
+
+@taskgen
+@after('apply_link')
+@extension('.shpip')
+def process_shpip(self, node): <co id="virt-co" linkends="virt"/>
+	tsk = shpip_task(self.env, generator=self)
+	tsk.task_gen = self
+	tsk.set_inputs(node)
+
+class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
+	"""
+	A special task, which finds its outputs once it has run
+	It outputs cpp files that must be compiled too
+	"""
+
+	color = 'PINK'
+	quiet = 1 <co id="quiet-co" linkends="quiet"/>
+
+	# important, no link before all shpip are done
+	before = ['cc_link', 'cxx_link', 'ar_link_static']
+
+	def __init__(self, *k, **kw):
+		Task.Task.__init__(self, *k, **kw)
+
+	def run(self): <co id="run-co" linkends="run"/>
+		"runs a program that creates cpp files, capture the output to compile them"
+		node = self.inputs[0]
+
+		dir = self.generator.bld.srcnode.bldpath(self.env)
+		cmd = 'cd %s &amp;&amp; %s %s' % (dir, self.env.SHPIP_COMPILER, node.abspath(self.env))
+		try:
+			# read the contents of the file and create cpp files from it
+			files = os.popen(cmd).read().strip()
+		except:
+			# comment the following line to disable debugging
+			#raise
+			return 1 # error
+
+		# the variable lst should contain a list of paths to the files produced
+		lst = Utils.to_list(files)
+
+		# Waf does not know "magically" what files are produced
+		# In the most general case it may be necessary to run os.listdir() to see them
+		# In this demo the command outputs is giving us this list
+
+		# the files exist in the build dir only so we do not use find_or_declare
+		build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
+		self.outputs = build_nodes
+
+		# create the cpp tasks, in the thread
+		self.more_tasks = self.add_cpp_tasks(build_nodes) <co id="thread-co" linkends="thread"/>
+
+		# cache the file names and the task signature
+		node = self.inputs[0]
+		sig = self.signature()
+		self.generator.bld.raw_deps[self.unique_id()] = [sig] + lst
+
+		return 0 # no error
+
+	def runnable_status(self):
+		# look at the cache, if the shpip task was already run
+		# and if the source has not changed, create the corresponding cpp tasks
+
+		for t in self.run_after:
+			if not t.hasrun:
+				return ASK_LATER
+
+		tree = self.generator.bld
+		node = self.inputs[0]
+		try: <co id="persist-co" linkends="persist"/>
+			sig = self.signature()
+			key = self.unique_id()
+			deps = tree.raw_deps[key]
+			prev_sig = tree.task_sigs[key][0]
+		except KeyError:
+			pass
+		else:
+			# if the file has not changed, create the cpp tasks
+			if prev_sig == sig:
+				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
+				self.set_outputs(lst)
+				lst = self.add_cpp_tasks(lst) <co id="mthread-co" linkends="mthread"/>
+				for tsk in lst:
+					generator = self.generator.bld.generator
+					generator.outstanding.append(tsk)
+
+
+		if not self.outputs:
+			return RUN_ME
+
+		# this is a part of Task.Task:runnable_status: first node does not exist -> run
+		# this is necessary after a clean
+		env = self.env
+		node = self.outputs[0]
+		variant = node.variant(env)
+
+		try:
+			time = tree.node_sigs[variant][node.id]
+		except KeyError:
+			debug("run task #%d - the first node does not exist" % self.idx, 'task')
+			try: new_sig = self.signature()
+			except KeyError:
+				return RUN_ME
+
+			ret = self.can_retrieve_cache(new_sig)
+			return ret and SKIP_ME or RUN_ME
+
+		return SKIP_ME
+
+	def add_cpp_tasks(self, lst): <co id="cpp-co" linkends="cpp"/>
+		"creates cpp tasks after the build has started"
+		tgen = self.task_gen
+		tsklst = []
+
+		for node in lst:
+			TaskGen.task_gen.mapped['c_hook'](tgen, node)
+			task = tgen.compiled_tasks[-1]
+			task.set_run_after(self)
+
+			# important, no link before compilations are all over
+			try:
+				self.generator.link_task.set_run_after(task)
+			except AttributeError:
+				pass
+
+			tgen.link_task.inputs.append(task.outputs[0])
+			tsklst.append(task)
+
+			# if headers are produced something like this can be done
+			# to add the include paths
+			dir = task.inputs[0].parent
+			# include paths for c++ and c
+			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env))
+			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env))
+			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
+
+		return tsklst
+
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="exa-co" id="exa">
+					<para>An example. The source line contains a directive <emphasis>foo.shpip</emphasis> which triggers the creation of a shpip task (it does not represent a real file)</para>
+				</callout>
+				<callout arearefs="virt-co" id="virt">
+					<para>This method is used to create the shpip task when a file ending in <emphasis>.shpip</emphasis> is found</para>
+				</callout>
+				<callout arearefs="type-co" id="type">
+					<para>Create the new task type</para>
+				</callout>
+				<callout arearefs="quiet-co" id="quiet">
+					<para>Disable the warnings raised because the task has no input and outputs</para>
+				</callout>
+				<callout arearefs="run-co" id="run">
+					<para>Execute the task</para>
+				</callout>
+				<callout arearefs="persist-co" id="persist">
+					<para>Retrieve the information on the source files created</para>
+				</callout>
+				<callout arearefs="cpp-co" id="cpp">
+					<para>Create the c++ tasks used for processing the source files found</para>
+				</callout>
+				<callout arearefs="thread-co" id="thread">
+					<para>If the tasks are created during a task execution (in an execution thread), the tasks must be re-injected by adding them to the attribute <emphasis>more_tasks</emphasis></para>
+				</callout>
+				<callout arearefs="mthread-co" id="mthread">
+					<para>If the tasks are created during the task examination (runnable_status), the tasks can be injected directly in the build by using the attribute <emphasis>outstanding</emphasis> of the scheduler</para>
+				</callout>
+			</calloutlist>
+
+		</para>
+
+	</section>
+
+	<section id="scenario_no_file">
+		<title>A task without any file dependency</title>
+		<para>
+			Given the following requirements
+			<itemizedlist>
+				<listitem>A <emphasis>task x produces a header</emphasis> used in c/c++ compilations</listitem>
+				<listitem>The <emphasis>c/c++ task depends on the production of that header</emphasis></listitem>
+				<listitem>That c task must be executed <emphasis>whenever the header actually changes</emphasis></listitem>
+				<listitem>The header may or may not be updated, but the <emphasis>header production task must run each time</emphasis></listitem>
+			</itemizedlist>
+			The following example demonstrates how to create a task type fulfilling the requirements, and how to use it.
+<programlisting language="python">
+import Task, Constants, Build, Utils
+
+cls = Task.simple_task_type('svnversion', 'date > ${TGT}', color='BLUE') <co id="itype-co" linkends="itype"/>
+cls.runnable_status = lambda self: Constants.RUN_ME <co id="meth-co" linkends="meth"/>
+cls.before = 'cxx' <co id="prec-co" linkends="prec"/>
+
+old_post_run = cls.post_run
+def post_run(self):
+    old_post_run(self)
+    Build.bld.node_sigs[self.env.variant()][self.outputs[0].id] = \
+		Utils.h_file(self.outputs[0].abspath(self.env))
+cls.post_run = post_run <co id="sig-co" linkends="sig"/>
+
+def build(bld):
+    tsk = cls(bld.env.copy()) <co id="use-co" linkends="use"/>
+    tsk.inputs = []
+    tsk.outputs = [bld.path.find_or_declare('foo.h')] <co id="output-co" linkends="output"/>
+
+def configure(conf):
+	pass
+</programlisting>
+			<calloutlist>
+				<callout arearefs="itype-co" id="itype">
+					<para>Create a new task type, in this example, we pretend it runs a command to retrieve the svn version and stores it in a header.</para>
+				</callout>
+				<callout arearefs="meth-co" id="meth">
+					<para>Replace <emphasis>runnable_status</emphasis> by a new method which indicates the task must be run each time</para>
+				</callout>
+				<callout arearefs="prec-co" id="prec">
+					<para>Indicate that the task must always be run before c++ ones</para>
+				</callout>
+				<callout arearefs="sig-co" id="sig">
+					<para>By default, the task signature is assigned to the node information. In our case the task signature is always the same, and we need a way to indicate to dependent tasks that something has changed. The solution is to compute a hash of the file produced, and to assign it to the node information.</para>
+				</callout>
+				<callout arearefs="use-co" id="use">
+					<para>Demonstrate the manual creation of the task</para>
+				</callout>
+				<callout arearefs="output-co" id="output">
+					<para>The task outputs are <emphasis>Node</emphasis> instances, but there are no inputs.</para>
+				</callout>
+			</calloutlist>
+
+		</para>
+	</section>
+</chapter>
+

@@ -1,0 +1,78 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_fortran')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+	conf.check_tool('compiler_fortran')
+	conf.env['FCFLAGS'] = ['-Wall', '-W']
+	#conf.env['FORTRANMODPATH'] = ['mfloupi']
+	#conf.env['FORTRANMODOUTPATH'] = ['floupi']
+	#conf.env['CPPPATH'] = ['hfloupi']
+
+	if not conf.check_fortran():
+		conf.fatal('cannot compile a simple fortran program!')
+
+	#conf.check_fortran_clib()
+	#st, mangler = conf.check_fortran_mangling()
+	#if not st:
+	#	conf.fatal('cannot detect the mangling scheme')
+
+	conf.check_fortran_dummy_main()
+
+def build(bld):
+	"try using:       waf --zones=task_gen"
+
+#	bld.new_task_gen(
+#		features = 'fortran fprogram',
+#		source = 'hello.f',
+#		target = 'hello')
+#
+#	bld.new_task_gen(
+#		features = 'fortran fshlib',
+#		source = 'foo.f',
+#		target = 'foo')
+#
+#	bld.new_task_gen(
+#		features = 'fortran fstaticlib',
+#		source = 'foo.f',
+#		target = 'foo')
+#
+#	bld.new_task_gen(
+#		features = 'fortran fprogram',
+#		source = 'foo_pp.F',
+#		target = 'foo',
+#		defines = 'USEFOO')
+#
+#	bld.new_task_gen(
+#		features = 'fortran fprogram',
+#		includes = "src/include",
+#		source = 'src/hello_inc.f',
+#		target = 'hello_inc')
+
+	bld.new_task_gen(
+		features = 'fortran fprogram',
+		source = 'src/calculator_main.f src/calculator.f',
+		#source = 'src/calculator.f src/calculator_main.f',
+		#source = 'src/calculator.f',
+		target = 'calculator')
+
+#	bld.new_task_gen(
+#		features = 'fortran',
+#		source = 'hello.f')
+#
+#
+#	# See the bottom of gfortran.py for explanations
+#	# * add a particular uselib flag
+#	# * change the link system, neutralizing the default
+#	bld.new_task_gen(
+#		features = 'fortran fprogram flink_with_c++',
+#		source = 'hello.f',
+#		target = 'hello')
+#

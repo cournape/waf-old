@@ -1,0 +1,116 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter id="distributing">
+	<title>Packaging and redistributing the source code</title>
+	<section id="packaging">
+		<title>Quick tarball creation</title>
+		<para>
+			Creating a tarball of the project is as simple as running
+			<programlisting language="sh">
+$ waf dist
+Your archive is ready -> cpp_test-0.0.1.tar.bz2
+			</programlisting>
+			By default, the archive name uses the version and the project name found in the top-level wscript file
+			<programlisting language="python">
+VERSION = '0.0.1'
+APPNAME = 'cpp_test'
+				</programlisting>
+			</para>
+
+			<para>
+			The default compression format is <ulink url="http://www.bzip.org/">bzip2</ulink>. It may be changed to <ulink url="http://www.gzip.org/">gzip</ulink> by using the following code:
+				<programlisting language="python">
+import Scripting
+Scripting.g_gz = 'gz'
+				</programlisting>
+			</para>
+	</section>
+
+	<section id="custom_archives">
+		<title>Custom archives</title>
+		<para>
+			Custom archives can be created by providing a function named "dist" in the top-level script file. The following example prints a checksum immediately after the archive is created:
+			<programlisting language="python">
+VERSION = '0.0.1'
+APPNAME = 'cpp_test'
+
+def dist():
+    import md5
+    from Scripting import dist
+    (f, filename) = dist(APPNAME, VERSION)
+    f = file(filename,'rb')
+    m = md5.md5()
+    readBytes = 100000
+    while (readBytes):
+        readString = f.read(readBytes)
+        m.update(readString)
+        readBytes = len(readString)
+    f.close()
+    print(filename, m.hexdigest())
+    sys.exit(0)
+			</programlisting>
+		</para>
+
+		<para>
+			A function may be defined for excluding or adding more files to the archive. The hook is executed from the temporary directory after the dist function has finished to run:
+			<programlisting language="python">
+def dist_hook():
+	os.remove('foo.txt')
+			</programlisting>
+		</para>
+
+		<para>
+			When copying the files, the dist function automatically excludes temporary files. The function dont_dist in the module Scripting does the filtering, the code is reproduced below:
+			<programlisting language="python">
+excludes = '.svn CVS .arch-ids {arch} SCCS BitKeeper .hg'.split()
+dist_exts = '~ .rej .orig .pyc .pyo .bak config.log .tar.bz2 .zip Makefile Makefile.in'.split()
+def dont_dist(name, src, build_dir):
+    global excludes, dist_exts
+
+    if (name.startswith(',,')
+        or name.startswith('++')
+        or (src == '.' and name == Options.lockfile)
+        or name in excludes
+        or name == build_dir
+        ):
+        return True
+
+    for ext in dist_exts:
+        if name.endswith(ext):
+            return True
+
+    return False
+			</programlisting>
+			To exclude new files, it is possible to modify the extensions, or to provide a new method <emphasis>dont_dist</emphasis>, for example, to disable most of the filtering:
+			<programlisting language="python">
+import Scripting
+def dont_dist(name, src, build_dir):
+	if (name == build_dir or (src == '.' and name == Options.lockfile)):
+		return True
+	return False
+			</programlisting>
+		</para>
+	</section>
+
+	<section id="cleaning">
+		<title>Cleaning the project tree</title>
+		<para>
+			By default, all the files produced by Waf are produced into the build directory. An additional file named <emphasis>.lock-wscript</emphasis> is created to store information on the build directory:
+			<programlisting language="sh">
+build/
+.lock-wscript
+			</programlisting>
+			The command <emphasis>waf distclean</emphasis> removes these two elements from the filesystem. Afterwards, it is necessary to recompile the project again.
+		</para>
+
+
+		<para>
+			To remove the build files without removing the configuration, use the command <emphasis>waf clean</emphasis> instead. The files created in the build directory may be removed manually, but the modifications will not be detected by Waf.
+		</para>
+
+	</section>
+
+</chapter>
+

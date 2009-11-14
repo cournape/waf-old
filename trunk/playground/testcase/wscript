@@ -1,0 +1,45 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2009 (ita)
+
+"""
+Demonstrates how to make testcases; to execute, call 'waf test'
+
+If this folder has a top-level, call 'waf configure test'
+"""
+
+VERSION = '0.0.1'
+APPNAME = 'my_testcase'
+
+srcdir = '.'
+blddir = 'build'
+
+import Scripting
+
+def test(ctx):
+	"""try executing 'waf test'"""
+	Scripting.commands += ['distclean', 'configure', 'setup', 'build', 'modify', 'build']
+
+def configure(conf):
+	conf.check_tool('gcc')
+
+def setup(ctx):
+	f = open('main.c', 'w')
+	f.write('#include "foo.h"\nint main() {return 0;}\n')
+	f.close()
+
+	f = open('foo.h', 'w')
+	f.write('int k = 32;\n')
+	f.close()
+
+def build(bld):
+	bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c',
+		target='tprog')
+
+def modify(ctx):
+	f = open('foo.h', 'w')
+	f.write('int k = 34;\n')
+	f.close()
+

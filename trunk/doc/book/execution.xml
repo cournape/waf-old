@@ -1,0 +1,530 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<chapter id="execution">
+	<title>Introduction to the Waf scripting system</title>
+	<section id="empty_project">
+		<title>Empty project example</title>
+		<para>
+		The Waf scripts are based on the following concepts:
+			<itemizedlist>
+				<listitem>System files: files and folders which do not belong to the project</listitem>
+				<listitem>Source directory: directory containing the source files for an application, it is meant to be ultimately packaged, and redistributed to other developers or to end users.</listitem>
+				<listitem>Build directory: all files produced by Waf will be output in that folder</listitem>
+			</itemizedlist>
+		The Waf philosophy is to avoid the pollution of the source directory by letting all files into the build directory. The build directory can be located on the system, out of the source directory (like in /tmp for example).
+		</para>
+
+		<para>
+		When Waf is launched, it looks for the user-defined Waf scripts which are files written in the Python language. The most important one is the top-level Waf script file in which several functions and attributes must be provided for defining a valid Waf project:
+			<itemizedlist>
+				<listitem>srcdir: string representing the source directory</listitem>
+				<listitem>blddir: string representing the build directory</listitem>
+				<listitem>set_options: function used for adding custom command-line options</listitem>
+				<listitem>configure: function called for configuring the project</listitem>
+				<listitem>build: function used for building the project</listitem>
+			</itemizedlist>
+		The top-level Waf script file name is &quot;wscript&quot;
+		</para>
+
+		<para>
+		A simple empty Waf project can be declared using a wscript file containing the following Python code:
+		<programlisting language="python">
+srcdir = '.'
+blddir = 'output'
+
+def set_options(opt):
+    print('  setting the options')
+def configure(conf):
+    print('  executing the configuration')
+def build(bld):
+    print('  building the project')
+		</programlisting>
+		</para>
+
+		<para>
+		The minimum workflow for any project consists of the following steps:
+			<itemizedlist>
+				<listitem>Configuring the project: searching for system parameters and compilers</listitem>
+				<listitem>Building the project: building the software</listitem>
+			</itemizedlist>
+		To do this, the following shell commands will be:
+		<programlisting language="sh">
+$ waf configure
+  setting the options
+  executing the configuration
+$ waf build
+  setting the options
+  building the project
+		</programlisting>
+		</para>
+	</section>
+
+	<section id="workflow">
+		<title>Workflow illustration on a more complicated example</title>
+		<para>
+			Additional functions are usually provided in the top-level wscript file:
+			<itemizedlist>
+				<listitem>APPNAME: project name</listitem>
+				<listitem>VERSION: project version</listitem>
+				<listitem>init: function called before anything is executed</listitem>
+				<listitem>shutdown: function called after a successful build</listitem>
+				<listitem>dist: function called for packaging the application</listitem>
+			</itemizedlist>
+			We will now provide a more complicated wscript file, execute the typical commands, and look at the output:
+			<programlisting language="python">
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+def init():
+    print('  init called')
+def set_options(opt):
+    print('  set_options')
+def configure(conf):
+    print('  calling the configuration')
+def build(bld):
+    print('  building')
+def shutdown():
+    print('  shutdown called')
+			</programlisting>
+The output will be:
+			<programlisting language="sh">
+$ waf
+Project not configured (run 'waf configure' first)
+$ waf configure
+  set_options
+  init called
+  calling the configuration
+Configuration finished successfully (00:00:00); project is now ready to build.
+$ waf
+  set_options
+  init called
+  building
+Compilation finished successfully (00:00:00)
+  shutdown called
+$ waf dist
+  set_options
+  init called
+Your archive is ready -> test-0.0.1.tar.bz2
+			</programlisting>
+		</para>
+		<para>
+			A few files will be produced by Waf, let us look at them now:
+			<programlisting language="sh">
+.
+|-- build
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- default
+|-- test-0.0.1.tar.bz2
+`-- wscript
+			</programlisting>
+			A build directory was created with the name given in the wscript file. It contains a configuration log, and various cache files. The last command produced a tarball of the project (an archive) containing the source files. For now it only contains the wscript file.
+		</para>
+		<para>
+			The execution can be summed up in the following diagram:
+			<graphic format="png" fileref="waf-activity.png" align="center"/>
+		</para>
+	</section>
+
+	<section id="build function">
+		<title>The build function</title>
+		<para>
+			The function <emphasis>build</emphasis> indicates the start of the actual construction of the software, it is used for two main purposes:
+			<itemizedlist>
+				<listitem>Declaring the location of scripts that provide other build functions</listitem>
+				<listitem>Declaring the actual targets to build</listitem>
+			</itemizedlist>
+		</para>
+		<sect2>
+			<title>Subdirectory recursion</title>
+			<para>
+			The function build may reference build functions in wscript present in sub folders, for example:
+			<programlisting language="sh">
+.
+`-- wscript
+|-- src
+|   `-- wscript
+			</programlisting>
+			The top-level wscript may indicate there is a build function to execute in src/wscript using:
+			<programlisting language="python">
+def build(bld):
+	bld.add_subdirs('src')
+			</programlisting>
+
+			The wscript files that are not on the top-level often contain a large <emphasis>build</emphasis> function, with no additional configuration or command-line options. In this case the file only contain one method and the indentation is an annoyance. For this reason, the <emphasis>wscript_build</emphasis> files contain the body of a build function defined in a wscript file. A folder may only contain either a wscript or a wscript_build but not both.
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Pre/post build execution</title>
+			<para>
+			Additionally, two methods enable the execution after the scripts are read and immediately before the build starts (bld.add_pre_fun) and immediately after the build is completed successfully (bld.add_post_fun). Here is a concrete example for executing a test after the build is finished:
+			<programlisting language="python">
+def set_options(opt):
+	opt.add_option('--exe', action='store_true', default=False,
+		help='execute the program after it is built')
+
+def pre(bld):
+	print ("before the build is started")
+
+def post(bld):
+	import Options, Utils
+	if Options.options.exe:
+		cmd = "LD_LIBRARY_PATH=build/default/src/:$LD_LIBRARY_PATH build/default/src/testprogram"
+		Utils.exec_command(cmd)
+
+def build(bld):
+	bld.add_pre_fun(pre)
+	bld.add_post_fun(post)
+			</programlisting>
+			</para>
+		</sect2>
+
+		</section>
+
+
+		<section id="task_intro">
+			<title>Introduction to Waf tasks</title>
+			<para>
+			The process of building a piece of software require the transformation of source code (input) into the result (output). Since the source code is usually split in various files, the construction of the result requires the processing of each of the files. Several new concepts derive from this:
+			<itemizedlist>
+				<listitem>Intermediate results (object files) may be produced to speed up the build (no need to rebuild everything when small changes occur)</listitem>
+				<listitem>Source files may be processed in parallel to speed up the build</listitem>
+				<listitem>Source files may be transformed into other source files (sequences of transformations)</listitem>
+			</itemizedlist>
+			</para>
+			<para>
+				In a more general scope, the input necessary for a build may come from <emphasis>arbitrary data</emphasis> instead of files (database, commands to execute). The concepts of <emphasis>input, output and transformation</emphasis> and the <emphasis>transformation constraints</emphasis> (in parallel, in sequence) remain identical.
+			</para>
+
+			<sect2>
+				<title>Simple tasks</title>
+			<para>
+				In Waf, the operation of transforming data is performed by <emphasis>tasks</emphasis>, which are instances of the class TaskBase (in the Waf library). The tasks in the following example illustrate the declaration of Tasks from the base class. The task instances must be located in a build context (the function build) to be taken into account in the build phase, and to obtain the reference on the source and build folders:
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+    pass
+
+import Task
+class task_test_a(Task.TaskBase):
+	pass
+class task_test_b(Task.TaskBase):
+	after = 'task_test_a'
+
+def build(bld):
+    tb = task_test_b()
+    ta = task_test_a()
+			</programlisting>
+			The execution trace will be the following:
+			<programlisting language="sh">
+$ waf configure
+Configuration finished successfully (00:00:00); project is now ready to build.
+$ waf
+[0/2] task_test_a
+[1/2] task_test_b
+Compilation finished successfully (00:00:00)
+			</programlisting>
+			<warning>By default, command-lines executed by tasks are run from the top of the build directory</warning>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Encapsulation by task generators</title>
+			<para>
+				In practice, when lots of tasks are declared one by one, scripts tend to become complicated, and contain a lot of redundant code. Special objects named <emphasis>task generators</emphasis> are provided to facilitate the creation of several tasks at once. In the following example, a task generator is used to create the compilation and link tasks needed by a c++ project.
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+    conf.check_tool('gcc')
+
+def build(bld):
+    bld.new_task_gen(features='cc cprogram', source='main.c test.c', target='myapp')
+			</programlisting>
+			This example provides a modified <emphasis>configure</emphasis> function, which is the topic of the next section. The task generator system and the default generators will be reviewed in detail in <xref  linkend="task_gen"/>.
+			</para>
+		</sect2>
+	</section>
+
+	<section id="project_config">
+		<title>Configuring a project</title>
+		<para>
+			The function <emphasis>configure</emphasis> is used for four main purposes:
+			<itemizedlist>
+				<listitem>Indicating new scripts that provide configuration functions to call</listitem>
+				<listitem>Providing configuration contexts to hold persistent data</listitem>
+				<listitem>Providing configuration helpers</listitem>
+				<listitem>Loading various Waf tools</listitem>
+			</itemizedlist>
+		</para>
+		<sect2>
+			<title>Indicating configuration sub folders</title>
+			<para>
+			The function configure may reference configure functions in wscript present in sub folders, for example:
+			<programlisting language="sh">
+.
+`-- wscript
+|-- src
+|   `-- wscript
+			</programlisting>
+			The the directive <emphasis>sub_config</emphasis> wscript indicates another configure function to execute from the script present in another folder:
+			<programlisting language="python">
+def configure(conf):
+	conf.sub_config('src')
+			</programlisting>
+			The script may be a wscript file containing a function configure, or a file named wscript_configure containing the body of such a function.
+			</para>
+		</sect2>
+		<sect2>
+			<title>Storing and loading configuration parameters</title>
+			<para>
+				<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+    conf.env.test = 'hello'
+def build(bld):
+    print(bld.env.test)
+				</programlisting>
+			The execution will result in:
+				<programlisting language="sh">
+$ waf configure
+Configuration finished successfully (00:00:00); project is now ready to build.
+$ waf
+hello
+				</programlisting>
+			This configuration modifications (on conf.env) are persistent, they are reused during the build (using bld.env). Let us look at the files produced:
+				<programlisting language="sh">
+.
+|-- build
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- default
+`-- wscript
+				</programlisting>
+			The contents of the file <emphasis>default.cache.py</emphasis> is reproduced here:
+				<programlisting language="sh">
+$ cat build/c4che/default.cache.py
+PREFIX = '/usr/local'
+test = 'hello'
+				</programlisting>
+			</para>
+		</sect2>
+		<sect2>
+			<title>Using configuration helpers</title>
+			<para>
+				Setting up many parameters manually is a tedious process, and Waf provide configuration helpers to automate the process of finding the settings. For example:
+				<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+    conf.find_program('tar', var='TAR')
+def build(bld):
+    print(bld.env.TAR)
+				</programlisting>
+				Will produce the following results:
+				<programlisting language="sh">
+$ waf configure
+Checking for program tar                 : ok /bin/tar
+Configuration finished successfully (00:00:00); project is now ready to build.
+$ waf
+/bin/tar
+Compilation finished successfully (00:00:00)
+				</programlisting>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Loading Waf tools</title>
+			<para>
+				The Waf tools are extensions that provide task types (for languages such as c, java, ...), more configuration tests, and command-line options. To make certain that the Waf tools used during the configuration are also available during the build, they are stored during the configuration and loaded automatically afterwards. Here is an example:
+				<programlisting language="python">
+def configure(conf):
+	conf.check_tool('gcc')
+				</programlisting>
+				By default, tools are loaded from the Waf library, but it is possible to load tools from the source directory using the following:
+				<programlisting language="python">
+def configure(conf):
+	conf.check_tool('my_tool', tooldir='.')
+				</programlisting>
+			</para>
+		</sect2>
+
+	</section>
+
+	<section id="cmdline_options">
+		<title>Adding custom command-line options</title>
+		<para>
+			The function <emphasis>set_options</emphasis> is used for three main purposes:
+			<itemizedlist>
+				<listitem>Declaring custom command-line options</listitem>
+				<listitem>Indicating that scripts provide command-line options</listitem>
+				<listitem>Adding command-line options from Waf tools</listitem>
+			</itemizedlist>
+		</para>
+		<sect2>
+			<title>Adding options directly</title>
+			<para>
+			Waf uses the optparse module from Python for adding command-line options, for example:
+			<programlisting language="python">
+def set_options(opt):
+	opt.add_option('--foo', action='store_true', default=False,
+		help='Build the program in the folder foo')
+def build(bld):
+	import Options
+	if Options.options.foo:
+		bld.add_subdirs('foo')
+			</programlisting>
+			The command-line options can be displayed afterwards:
+			<programlisting language="sh">
+$ waf --help
+Usage: waf [options] [commands ...]
+
+* Main commands: configure build install clean dist distclean uninstall distcheck
+* Example: ./waf build -j4
+
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  -j JOBS, --jobs=JOBS  amount of parallel jobs [Default: 1]
+  -f, --force           force file installation
+  -k, --keep            keep running happily on independent task groups
+  -p, --progress        -p: progress bar; -pp: ide output
+  -v, --verbose         verbosity level -v -vv or -vvv [Default: 0]
+  --destdir=DESTDIR     installation root [Default: '']
+  --nocache             compile everything, even if WAFCACHE is set
+  --zones=ZONES         debugging zones (task_gen, deps, tasks, etc)
+  --targets=COMPILE_TARGETS
+                        compile the targets given only [targets in CSV format, e.g. "target1,target2"]
+  --foo                 Build the program in the folder foo
+			</programlisting>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Adding options from wscript files located in sub folders</title>
+			<para>
+			The function set_options may reference build functions in wscript present in sub folders, for example:
+			<programlisting language="sh">
+.
+`-- wscript
+|-- src
+|   `-- wscript
+			</programlisting>
+			The top-level wscript may indicate there is a build function to execute in src/wscript using:
+			<programlisting language="python">
+def set_options(opt):
+	opt.sub_options('src')
+			</programlisting>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Adding options from Waf tools</title>
+			<para>
+			Waf tool options are not added by default because the excess of command-line options is annoying.
+			Here is an example for adding the command-line options defined from a Waf tools named compiler_cxx
+			<programlisting language="python">
+def set_options(opt):
+	opt.tool_options('compiler_cxx')
+			</programlisting>
+			</para>
+		</sect2>
+	</section>
+
+	<section id="target_install">
+		<title>Installing targets</title>
+		<para>
+			Targets are installed when Waf is run with the following command-line <emphasis>waf install</emphasis>. The actual installation is performed after the current task group has finished, which usually means at the end of the build. We will now describe the three main ways of installing the targets.
+		</para>
+		<sect2>
+			<title>Installing files directly</title>
+			<para>
+				Source files may be installed directly by using the install methods of the build context.
+				<programlisting language="python">
+def build(bld):
+	bld.install_files('${PREFIX}/include', 'a1.h')
+	bld.install_as('${PREFIX}/dir/bar.png', 'foo.png')
+	bld.symlink_as('${PREFIX}/lib/libfoo.so.1', 'libfoo.so.1.2.3')
+				</programlisting>
+			The variables in curly brackets are substituted by values found in <emphasis>bld.env</emphasis>, for example <emphasis>${PREFIX}</emphasis> is substituted by the value of <emphasis>bld.env.PREFIX</emphasis>. An environment parameter may be provided if necessary:
+				<programlisting language="python">
+def build(bld):
+	env2 = bld.env.copy()
+	env2['PREFIX'] = '/opt'
+	bld.install_files('${PREFIX}/include', 'a1.h', env=env2)
+				</programlisting>
+			</para>
+			<para>
+				Though the substitution is only performed on the first parameter, it is possible to re-use the method <emphasis>bld.get_install_path</emphasis> or the function <emphasis>Utils.subst_vars</emphasis>
+				<programlisting language="python">
+def build(bld):
+	print(bld.get_install_path('${PREFIX}/bin'))
+
+	import Utils
+	print(Utils.subst_vars('${PREFIX}/${LANG}/po', bld.env))
+				</programlisting>
+			</para>
+			<para>
+				To install the contents of a whole directory, iterate on the individual files, for example:
+				<programlisting language="python">
+def build(bld):
+	for x in bld.path.ant_glob('**/*.h'):
+		bld.install_files('${PREFIX}/includes', x)
+				</programlisting>
+				Note that a specialized builder exists to install both python and python compiled files (demos/python).
+			</para>
+
+		</sect2>
+
+		<sect2>
+			<title>Installing targets (most task generators)</title>
+			<para>
+				By providing the attribute <emphasis>install_path</emphasis>, tasks generators will install the target (in this example, a program) in the given path.
+				<programlisting language="python">
+def build(bld):
+	bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c test.c',
+		target = 'test_c_program',
+		install_path = '${PREFIX}/sbin',
+		chmod = 0755)
+				</programlisting>
+
+				The variables in curly brackets are substituted as described in the previous paragraph, using <emphasis>main.env</emphasis> instead of bld.env. The <emphasis>chmod</emphasis> attribute is optional, and is used to change the permissions of the installed file (by default it is set to 0644).
+			</para>
+			<para>
+				To prevent the installation of a target (by default, programs and shared libraries are installed), set <emphasis>install_path</emphasis> to <emphasis>None</emphasis>
+				<programlisting language="python">
+def build(bld):
+	bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'main.c test.c',
+		target = 'test_c_program',
+		install_path = None)
+				</programlisting>
+			</para>
+		</sect2>
+
+		<sect2>
+			<title>Custom tasks</title>
+			<para>
+				Task installation is disabled by default for most task types. If a method named <emphasis>install</emphasis> is provided, it will be executed immediately after the task is successfully executed. Unlike the compilation, the file installation is not run in parallel (there is little gain in copying files in parallel).
+			</para>
+		</sect2>
+	</section>
+</chapter>
+

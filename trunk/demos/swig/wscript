@@ -1,0 +1,92 @@
+#! /usr/bin/env python
+# encoding: UTF-8
+# Peter Forai
+# Thomas Nagy, 2008
+
+"""
+Demonstrates how to create a c++ app that runs python scripts
+
+Useful for apps providing script extensions
+"""
+
+VERSION='0.0.1'
+APPNAME='swig_test'
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	opt.tool_options('g++')
+	opt.tool_options('python')
+
+def configure(conf):
+	conf.check_tool('g++ python')
+	conf.check_python_version((2,4,2))
+	conf.check_python_headers()
+	conf.check_tool('swig', tooldir='.')
+	conf.check_swig_version('1.3.27')
+
+def build(bld):
+
+	# embedding
+	#
+	# use swig_flags = '-c++ -python -dump_classes' for debugging
+
+	obj = bld.new_task_gen(
+		features = 'cxx cprogram pyembed',
+		source = 'embed/src1.cpp embed/bind.swig',
+		target = 'embed/embed_demo',
+		swig_flags = '-c++ -python -Wall',
+		includes = '. embed')
+
+
+	# extending
+	#
+	# be careful that the .py produced by swig is mandatory for using the library
+	#
+	# it is possible to disable 'mylib', and to add extend/a.cpp
+	# to the source of extend/python/_test_swig_waf and remeve uselib_local
+
+	bld.new_task_gen(
+		features = 'cxx cshlib',
+		source = 'extend/a.cpp',
+		target = 'extend/mylib',
+		includes = 'extend',
+		export_incdirs = 'extend',
+		vnum = '1.2.3',
+		name = 'mylib')
+
+	bld.new_task_gen(
+		features = 'cxx cshlib pyext',
+		source = 'extend/python/test_swig_waf.i',
+		target = 'extend/python/_test_swig_waf',
+		swig_flags = '-c++ -python -Wall',
+		includes = 'extend',
+		vnum = '1.2.3',
+		uselib_local = 'mylib')
+
+	bld.add_post_fun(inst_py)
+	bld.add_post_fun(exec_test)
+
+def inst_py(bld):
+	node = bld.path.find_or_declare('extend/python/test_swig_waf.py')
+	bld.install_as('${PREFIX}/lib', node.abspath(bld.env))
+
+def exec_test(bld):
+	import os, stat
+	try:
+		print os.popen('''
+PYTHONPATH=$PYTHONPATH:build/default/extend/python
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:build/default/extend/python:build/default/extend
+python -c "import test_swig_waf; a=test_swig_waf.A(); print 'Testing: a.add(2, 3) ->', a.add(2, 3)"
+'''.replace('\n', ' ')).read()
+	except:
+		pass
+
+	# why does this fail now on mandriva???
+	try:
+		os.stat('build/default/embed/embed_demo')
+		print os.popen('PYTHONPATH=$PYTHONPATH:build/default/embed/ build/default/embed/embed_demo').read()
+	except:
+		pass
+
+

@@ -1,0 +1,27 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	# define an option directly
+	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
+
+	# options provided by an existing waf tool
+	opt.tool_options('compiler_cxx')
+
+	# fetch other options from a subdirectory (different project module)
+	opt.sub_options('src')
+
+def configure(conf):
+	import Options
+	print "option uuu is", Options.options.uuu
+	if not Options.options.uuu: print "(try ./waf configure --uuu)"
+	else: print "uuu uuu uuu uuu uuu"
+def build(bld):
+	pass
+

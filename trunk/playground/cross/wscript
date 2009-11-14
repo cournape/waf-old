@@ -1,0 +1,24 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2009 (ita)
+
+VERSION='0.0.1'
+APPNAME='cross_test'
+srcdir = '.'
+blddir = 'build'
+
+import os
+
+def set_options(opt):
+	opt.tool_options('compiler_cxx')
+
+def configure(conf):
+	conf.check_tool('compiler_cxx')
+	conf.check_tool('cross_linux_win32', tooldir='.')
+
+def build(bld):
+	bld.new_task_gen(
+		features='cxx cprogram',
+		source='hello.cpp',
+		target='test',
+		includes='.')

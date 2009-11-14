@@ -1,0 +1,44 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2008 (ita)
+
+VERSION='0.0.1'
+APPNAME='test'
+srcdir = '.'
+blddir = 'build'
+
+"""
+Access the task after it is created, and modify its flags
+
+Run with "waf -v" to see the difference
+
+An easier solution is to create two distinct task generators,
+and add the object files from the first to the second
+"""
+
+from TaskGen import after, feature
+@after('apply_lib_vars')
+@feature('cc')
+def modify_flags(self):
+	for task in self.compiled_tasks:
+		if task.inputs:
+			node = task.inputs[0]
+			if node.name == 'B.c':
+				task.env = task.env.copy()
+				task.env.append_unique('_CCDEFFLAGS', '-DMYFLAG')
+			elif node.name == 'A.c':
+				task.env = task.env.copy()
+				# deep copy
+				task.env.detach()
+				task.env.CCFLAGS.remove('-g')
+
+def configure(conf):
+	conf.check_tool('gcc')
+	conf.env.CCFLAGS = ['-g']
+
+def build(bld):
+	bld.new_task_gen(
+		features = 'cc cprogram',
+		source = 'A.c B.c',
+		target= 'pimpam')
+

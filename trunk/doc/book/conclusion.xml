@@ -1,0 +1,49 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter id="conclusion">
+	<title>Conclusion</title>
+	<para>
+		The features provided by Waf aim at building software in a maintainable manner, in which the dependencies for other piece of software is limited to the compilers and a Python installation. Due to the amount of features provided by Waf, the book is forcibly incomplete. For greater understanding and practice the following links are recommended to the reader:
+
+<table id="links">
+<title>Recommended links</title>
+
+<tgroup cols='2' align='left' colsep='1' rowsep='1'>
+
+<colspec colname='c1'/>
+<colspec colname='c2'/>
+
+<thead>
+<row>
+  <entry>Link</entry>
+  <entry>Description</entry>
+</row>
+</thead>
+
+<tbody>
+
+<row>
+  <entry><ulink url="http://code.google.com/p/waf">http://code.google.com/p/waf</ulink></entry>
+  <entry>The Waf project page</entry>
+</row>
+
+<row>
+  <entry><ulink url="http://code.google.com/p/waf/w/list">http://code.google.com/p/waf/w/list</ulink></entry>
+  <entry>The Waf wiki, including the frequently asked questions (FAQ)</entry>
+</row>
+
+<row>
+  <entry><ulink url="http://groups.google.com/group/waf-users">http://groups.google.com/group/waf-users</ulink></entry>
+  <entry>The Waf mailing-list</entry>
+</row>
+
+</tbody>
+</tgroup>
+</table>
+
+
+	</para>
+</chapter>
+

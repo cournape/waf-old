@@ -1,0 +1,21 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2005, 2006 (ita)
+
+VERSION='0.0.1'
+APPNAME='qt4_test'
+
+# these variables are mandatory,
+srcdir = '.'
+blddir = 'build'
+
+def set_options(opt):
+	opt.tool_options('qt4')
+
+def configure(conf):
+	conf.check_tool('g++ qt4')
+	conf.env.append_value('CXXFLAGS', '-g -D_REENTRANT  -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE -DQT_OPENGL_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED'.split())
+
+def build(bld):
+	bld.add_subdirs('src')
+

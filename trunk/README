@@ -1,0 +1,98 @@
+WHAT YOU WILL FIND HERE
+-----------------------
+
+A python script named "Waf"
+It is used to help building software (it is also called a "build system"):
+ * detect configuration variables
+ * compile source files
+ * install programs and libraries
+
+Numerous examples for various programming languages can be found in the folder demos/
+
+The book can be read online at http://freehackers.org/~tnagy/testdoc/index.html
+
+GENERATE WAF
+------------
+
+Run 'python ./waf-light --make-waf' to generate waf or look at 'python ./waf-light --help'
+Then try 'python ./waf --help', there are predefined targets for waf itself.
+
+The waf script generated can be redistributed freely along with
+your projects. This saves time looking for the right waf version.
+
+If you want to install waf system-wide (discouraged), use:
+python ./waf-light configure --prefix=/some/install/dir
+python ./waf-light install
+
+Though Waf is maintaining compatibility for Python 2.3, the script used for
+generating Waf requires Python 2.4
+
+ENVIRONMENT VARIABLES
+---------------------
+
+WAFLOCK: name of the lock file (default: .lock-wscript)
+WAFDIR: path to the wafadmin folder (developers must set it)
+WAFCACHE: path to the target cache (replaces --usecache)
+NOCOLOR: set to 1, disables the waf coloring output
+
+QUICK HOWTO
+-----------
+
+Starting a new project with waf:
+  Copy the 'waf' script to your project.
+
+  Add sources in a subdirectory (this is how programs are built in real life), and a wscript on the top-level.
+
+Using waf:
+  To begin with, have a look at the cxx demo first (demos/cxx):
+  * configure with "waf configure"
+  * compile with "waf"
+  * install with "waf install"
+  * create a tarball with "waf dist"
+  * clean with "waf distclean"
+
+Creating scripts:
+  * The wscript are actually python modules, from which functions with particular namings
+  are imported: init, shutdown, configure(conf), build(bld) and set_options(opt)
+  * The mandatory functions are configure(conf), build(bld) and set_options(opt)
+
+DEVELOPERS
+----------
+
+Developers must set WAFDIR instead of regenerating waf all the time.
+
+PACKAGERS
+---------
+
+By default, waf uncompresses itself into its current directory (.waf-version-rev)
+The destdir is of course taken into account: "DESTDIR=/tmp/stuff waf install"
+
+SUGGESTED USAGE
+---------------
+
+Do not rely on command-line defines, generate a config.h file instead.
+Avoid includes having ".." in the path as system headers and folders out
+of the project directory could be scanned (can be slow).
+
+LIMITATIONS
+-----------
+
+A few assumptions are used over the user projects, for some they are features and for others these are limitations:
+  * all sources and headers are located in a source directory
+  * all files produced are put into a separate build directory (do not put the .o files among the sources)
+  * source file names and folders names do not contain spaces
+    (waf should work anyway, but this is not a priority)
+  * waf does not constantly watch if source files have changed (they are considered once when the build starts)
+
+See the FAQ on the Wiki:
+http://code.google.com/p/waf/wiki/FAQ
+
+API DOCS
+--------
+
+Use this command:
+epydoc -v -o wafdoc --name epydoc --css white wafadmin/
+
+---------------------------
+Thomas Nagy, 2006-2008 (ita)
+

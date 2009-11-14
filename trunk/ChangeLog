@@ -1,0 +1,254 @@
+NEW IN WAF 1.5.10
+-----------------
+* conf.define strings are now quoted by default
+* various fixes for the d language support
+* fltk support
+* c# language support improvements
+* files can be installed with bld.declare_chain
+* various bugfixes in the file installation routines
+* the '--as-needed' flag must be added explicitely by calling 'conf.add_as_needed()'
+* fix for the d comment filter which could skip some dependencies
+* fix for header-only libraries handling in msvc.py
+* support for fancy folder creation (demos/simple_scenarios/folders/)
+* python 3 compatibility improvements
+
+NEW IN WAF 1.5.9
+----------------
+* process the framework flags from the pkg-config output
+* installation improvements for c/c++ apps on osx
+* compilation improvements for c/c++ shared libraries on osx
+* compatibility to Python 3.1
+* detect the amount of processors on jython
+* bison tool rewrite
+* enhanced logging and error reporting
+* do not eliminate the build nodes when the node directory is empty
+* enable Node parameters in bld.install_as and bld.install_files
+* new env.detach() to prevent confusing data sharing
+* installation is now performed after the build is complete by default
+* swig demo update
+* local static libraries are not propagated (convenience libraries)
+* jni configuration helper (java)
+* fixed wrong so name in versioned libraries
+* Cross-compilation improvements
+
+NEW IN WAF 1.5.8
+----------------
+* installing shared libraries on unix platforms was broken
+* adding post-execution tasks made deadlocks (issue #467)
+
+NEW IN WAF 1.5.7
+----------------
+* support for vala 0.7.3
+* qt4 detection improvements
+* parse config flags handle the -f flags
+* intltool detection improvements
+* return values can be defined unquoted in conf.check (quote=False)
+* ant_glob rewrite (solves many bugs)
+* solution for unicode problems
+* enhanced python 3 compatibility (does not use 2to3 for the conversion)
+* jython support (the development version)
+* msvc detection improvements (folders with spaces, 64bit systems, ...)
+* support for dll import lib on win32
+* daemon mode (playground/dirwatch - pyinotify or time threshold)
+* spot the typo feature -> features
+* more documentation for the @extension decorator
+* use the -of flags for dmd execution (d language)
+
+NEW IN WAF 1.5.6
+----------------
+* let the qt4 tool operate with generated files
+* fix a problem with the config.h creation
+* fixed the regression with write_config_header on win32
+* look for AR in os.environ first (consistency with CC)
+* doxygen demo update (playground)
+* sample tool for compiling specific files (playground)
+* incomplete daemon tool (playground)
+* simple include scanner for c/c++ without macro substitution
+* identify gcc first on solaris/sunos platforms
+* warn if bz2 support is missing when trying to unpack waf
+
+NEW IN WAF 1.5.5
+----------------
+* improve the compatibility of qt4 and variants
+* rename MTask to qxx in the qt4 tool
+* make the preprocessor error messages less scary
+* let the preprocessor tokenize hex and octal numbers properly
+* let the preprocessor assume undefined macros evaluate to 0
+* bld.add_pre_fun and bld.add_post_fun to add pre/post functions
+* enable extended build groups with names
+* enable scanner methods on declare_chain and make-like rules
+* vala improvements
+* cygwin fixes
+* better Vim integration: fixes for completion+isatty, and :make
+* read the script files in mode='rU' to avoid dos mode files problems
+* fix the autoconfig behaviour with installation and targets
+* write the configuration header to the expected location
+* warn again for missing features
+
+NEW IN WAF 1.5.4
+----------------
+* commands are executed without the shell by default, lists are recommended for cxxflags
+* the restriction srcdir='.' was removed (use with care)
+* java tool improvements
+* new ant-like file matching: print bld.path.ant_glob('**/*.c', flat=True)
+* cosmetic changes for the unit test tool
+* d language tool fixes + demo update (uselib_local)
+* d flags simplification
+* enable chains of commands: "waf distclean configure build"
+* enable recursion for commands (including custom commands) by passing a context instance
+* enable documentation for custom commands (in --help)
+* enable custom build or configuration contexts from user scripts
+* distcheck is executed without the shell
+* project autoconfiguration activates when the build directory is removed/does not exist
+* remove the static libraries before "ar" is executed
+* python 3.0 compatibility (tested for c++ projects)
+* config.log improvements
+* enable the single header output for vala >= 0.7.0
+* avoid loading a tool twice with the same configuration functions (composite projects)
+* cross-compilation demo improvements (playground/cross/)
+* the swig demo has been updated to be entirely dynamic (experimental)
+
+NEW IN WAF 1.5.3
+----------------
+* progress bar fixes with variants and with -pp (ide output)
+* enable libraries using only add_objects (no sources)
+* let the digest written in the waf file match the digest of the binary archive
+* windows: use shutil.move instead of os.rename
+* load modules only once
+* add -pthread flags for python extensions on FreeBSD
+* show how to build swig extensions besides embedded interpreters
+* fix the installation of kde4 locale files
+* uselib local fixes
+* minor optimizations
+* demo scripts improvements (cc, cxx)
+* warn for invalid or missing features
+* raise an exception for the use of install_files and install_as with 1.4 apis
+* remove the remaining Build.bld calls from the Waf library (safer for tests)
+* execute all external programs with a default current working directory to avoid mistakes
+* fix the remaining bugs in the Waf preprocessor
+* fix a problem with the after/before dependency reading
+* fix the string expansion for backslashes
+* execute the commands without the shell on windows to avoid space issues
+* remove the PREFIX processing from Environment.py
+* various improvements to the msvc tool (launch commands without the shell, autodetection)
+* various fixes for use with the suncc/suncxx compilers
+* intltool, csharp and qt4 updates
+* write all the output to stderr by default (and not to stdout)
+* support for the intel c++ compiler (icpc)
+* consistency: let the gnu_dirs tool use ${} instead of $()
+* add library paths automatically for c/c++ unit tests
+
+NEW IN WAF 1.5.2
+----------------
+* guard for unexpected interruptions (pickle file consistency)
+* make nasm output files more robust to collisions
+* minor osx fixes (add the flags -undefined dynamic_lookup)
+* pkg-config fixes
+* fix the qt4 detection for multiple installations
+* include processing fixes
+* remove the default include paths (unresolved dependencies)
+
+NEW IN WAF 1.5.1
+----------------
+* installing python files works once again
+* let the python tool configure with c++
+* the waf preprocessor parses macros without parameters
+* -Wl,-rpath, <- two commas
+* framework variable processing in osx.py
+* shared libraries with version numbers are symlinked into the build directory
+* handle the absolute paths in includes as intended
+* no more deadlock when an exception occurs in post_run
+* waf dist does not pack the temporary waf directory anymore
+* minor bugfixes for java, ocaml, kde4
+* the boost tool is back
+* swig demo
+* doxygen+tar demo
+
+NEW IN WAF 1.5.0
+----------------
+* the module Common was removed
+* the modules UnitTest and DirWatch have been moved to Tools/
+* bld.create_obj -> bld.new_task_gen
+* bld.create_obj('cpp', 'program') -> bld.new_task_gen('cxx', 'program')
+* bld.env() -> bld.env
+* conf.test.uselib -> conf.test.uselib_store, "uselib" now has the same
+meaning in configuration and build)
+* the helper functions have been moved to Utils.py
+* Task_gen.g_allobj -> bld.all_task_gen or Params.g_build.all_task_gen
+* The old priority system was removed
+* m_tstamp_variants -> node_sigs
+* bld_sigs -> task_sigs
+* the method for scanning implicit dependencies is Task::scan(self) -> (nodes, text)
+* implicit dependencies are indexed by Task::unique_id(self)
+* The module Params disappears
+* Params.g_autoconfig -> Configure.autoconfig
+* Params.pprint -> Utils.pprint
+* Params.g_options -> Options.options
+* Params.g_commands -> Options.commands
+* Params.g_build -> Build.bld
+* Build.bld.m_scanned_folders -> Build.bld.cache_scanned_folders
+* Build.bld.m_allenvs -> Build.bld.all_envs
+* Node: find_build -> find_or_declare
+* Node: find_source -> find_resource
+* Node: find_resource_lst, find_or_declare_lst, ensure_dir_node_from_path_lst, find_dir_lst disappear
+* Runner: Runner.exec_command -> Utils.exec_command
+* Runner: Runner.printout -> bld.printout
+* Remove m_ from all variables
+* installation api simplification
+* remove the configuration cache
+* the -k behaviour was restored (keep running after errors)
+* new interfaces for custom error handling
+* new interfaces for reordering the tasks before executing them (scheduling constraints)
+* modification of the installation system: use foo.install_path = '${PREFIX}/bin' instead of inst_var and inst_dir
+* Configure.Configure -> Configure.ConfigurationContext
+* Build.Build -> Build.BuildContext
+* detect the amount of cpus automatically
+* preprocessor improvements (implicit include paths)
+* configuration api refactoring (c/c++)
+* The Waf binary size has been reduced by 25%
+* Functional syntax is enabled for all task generators
+* Stable apis for the 1.5.x series
+* Documentation in the Waf book
+
+NEW IN WAF 1.4.3
+----------------
+* elimination of the Action classes
+* quote '%' characters in subst_obj
+* boost module improvements
+* two new dependency algorithms
+* automatic dependency computation (task chaining)
+
+NEW IN WAF 1.4.2
+----------------
+* updated documentation (waf.pdf)
+* new examples (demos/simple_scenarios/)
+* node system bugfixes
+* compile multiple vala files at the same time
+* optimization of the method clone()
+
+NEW IN WAF 1.4.1
+----------------
+
+* the gnome help installation is finally correct
+* java support improvements
+* in qt4 projects, dependencies are added on files listed in the qrc
+* object extensions uses a new scheme to avoid conflicts
+* optional dependency tracking on headers out of the build directory (bug:132)
+* set the c language extension to ".c" only
+* bash completion
+* installation system fixes
+
+NEW IN WAF 1.4.0
+----------------
+
+* various optimizations - see http://freehackers.org/~tnagy/bench.txt
+* new system for adding methods dynamically (extend c/c++ builders)
+* export_incdirs will add the folders when linking against libraries given in uselib_local
+* the type 'plugin' disappears, the c/c++ types are staticlib,program,shlib
+* configuration modules simplification (gcc, g++, ..)
+* the configuration details are written to config.log
+* the configuration defines are written in order of declaration
+* the configuration process can be modified dynamically
+* autoconfiguration no longer loses the command-line options
+* clone no longer clashes with uselib_local
+
