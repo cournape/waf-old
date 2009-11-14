@@ -368,6 +368,7 @@ def quote_define_name(path):
 		return None
 	fu = re.compile("\W").sub("_", path)
 	fu = re.compile("\w").sub(up, path)
+	fu = fu.replace('.', '_')
 	return fu
 
 def quote_whitespace(path):
