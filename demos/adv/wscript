@@ -16,7 +16,7 @@ blddir = 'build'
 
 # make sure waf has the version we want, note: numbers should contain 2
 # periods (as of 1.5.0 --> NOT 1.5)
-Utils.waf_version(mini='1.5.0', maxi='1.5.9')
+Utils.waf_version(mini='1.5.0', maxi='1.5.15')
 
 features_str = '''
 #include <stdio.h>
