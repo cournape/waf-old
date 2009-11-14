@@ -12,10 +12,13 @@ def configure(conf):
 
 def build(bld):
 	# declare the folder "AAA" as a necessary folder in the build directory
-	#bld.path.exclusive_build_node('AAA/BBB/index.html')
+	#node = bld.path.ensure_dir_node_from_path(['a'])
+	#bld.rescan(node)
+	#node = node.ensure_dir_node_from_path(['b'])
+	#bld.rescan(node)
 
 	# or declare the build nodes
-	bld.path.exclusive_build_node('a/b/index.html')
+	#bld.path.exclusive_build_node('a/b/index.html')
 	bld.new_task_gen(target='a/index.html', rule='touch ${TGT}')
 	bld.new_task_gen(target='a/b/index.html', rule='touch ${TGT}')
 
