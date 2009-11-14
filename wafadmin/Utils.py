@@ -362,13 +362,8 @@ def def_attrs(cls, **kw):
 			setattr(cls, k, v)
 
 def quote_define_name(path):
-	def up(m):
-		if m.group(0):
-			return m.group(0).upper()
-		return None
-	fu = re.compile("\W").sub("_", path)
-	fu = re.compile("\w").sub(up, path)
-	fu = fu.replace('.', '_')
+	fu = re.compile("[^a-zA-Z0-9]").sub("_", path)
+	fu = fu.upper()
 	return fu
 
 def quote_whitespace(path):
