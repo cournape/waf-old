@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 # look for 'meow' below
-#import Options
+import Options
 
 # the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
@@ -12,9 +12,6 @@ APPNAME='cpp_test'
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
-
-def init(ctx):
-	pass
 
 def set_options(opt):
 	# options provided in a script in a subdirectory named "src"
@@ -25,6 +22,8 @@ def set_options(opt):
 
 	# custom options
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
+
+	opt.add_option('--build_kind', action='store', default='debug,release', help='build the selected variants')
 
 def configure(conf):
 	# conf.env.CXX = Options.options.meow
@@ -44,11 +43,18 @@ def configure(conf):
 	#conf.check_tool(['KDE3'])
 
 	# testcase for variants, look below
-	env = conf.env.copy()
-	env.set_variant('debug')
-	conf.set_env_name('debug', env)
+	dbg = conf.env.copy()
+	rel = conf.env.copy()
+
+	dbg.set_variant('debug')
+	conf.set_env_name('debug', dbg)
 	conf.setenv('debug')
 	conf.env.CXXFLAGS = ['-D_REENTRANT', '-DDBG_ENABLED', '-Wall', '-O0', '-ggdb3', '-ftemplate-depth-128']
+
+	rel.set_variant('release')
+	conf.set_env_name('release', rel)
+	conf.setenv('release')
+	conf.env.CXXFLAGS = ['-O2']
 
 def build(bld):
 	# process subfolders from here
@@ -63,9 +69,26 @@ def build(bld):
 	bld.install_files('${PREFIX}/subfolder/subsubfolder', 'src/*.h')
 	#install_as('${PREFIX}/dir/bar.png', 'foo.png')
 
+
 	# testcase for variants
+	# iterate over a copy of the list of task generators
 	for obj in bld.all_task_gen[:]:
-		new_obj = obj.clone('debug')
+		# task generators should be created in the same order to avoid unnecessary rebuilds
+		# in general task generators copies are cheap (but task copies are expensive)
+		debug_obj = obj.clone('debug')
+		release_obj = obj.clone('release')
+
+		# also, do not make clones for the same variant (default -> default)
+
+		# disable the original task generator
+		obj.posted = 1
+
+		# enable/disable the wanted build kind
+		kind = Options.options.build_kind
+		if kind.find('debug') < 0:
+			debug_obj.posted = 1
+		if kind.find('release') < 0:
+			release_obj.posted = 1
 
 	def post(bld):
 		# command to execute
