@@ -10,11 +10,10 @@ APPNAME='tex_test'
 srcdir = '.'
 blddir = 'build'
 
-def set_options(opt):
-	pass
-
 def configure(conf):
 	conf.check_tool('tex')
+	if not conf.env.PDFLATEX:
+		conf.fatal('could not find the program pdflatex')
 
 def build(bld):
 	bld.add_subdirs('src')
