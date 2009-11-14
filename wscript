@@ -22,7 +22,7 @@ except ImportError: from md5 import md5
 import Configure
 Configure.autoconfig = 1
 
-print "------> Executing code from the top-level wscript <-----"
+print ("------> Executing code from the top-level wscript <-----")
 
 def init():
 	if Options.options.setver: # maintainer only (ita)
