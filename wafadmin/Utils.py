@@ -74,7 +74,10 @@ except ImportError:
 class WafError(Exception):
 	def __init__(self, *args):
 		self.args = args
-		self.stack = traceback.extract_stack()
+		try:
+			self.stack = traceback.extract_stack()
+		except:
+			pass
 		Exception.__init__(self, *args)
 	def __str__(self):
 		return str(len(self.args) == 1 and self.args[0] or self.args)
@@ -85,7 +88,10 @@ class WscriptError(WafError):
 			self.wscript_file = wscript_file
 			self.wscript_line = None
 		else:
-			(self.wscript_file, self.wscript_line) = self.locate_error()
+			try:
+				(self.wscript_file, self.wscript_line) = self.locate_error()
+			except:
+				(self.wscript_file, self.wscript_line) = (None, None)
 
 		msg_file_line = ''
 		if self.wscript_file:
