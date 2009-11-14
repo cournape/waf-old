@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006-2009 (ita)
 
 import sys
-import Utils, Build
+import Utils, Build, Configure
 # advanced tests
 # look in src/ for an example of a new compiler that creates cpp files
 
@@ -38,9 +38,6 @@ int main()
 }
 '''
 
-from Configure import conf
-
-@conf
 def check_features(self):
 
 	mp = self.check(fragment=features_str, execute=1)
@@ -67,6 +64,9 @@ def check_features(self):
 	self.define_cond('DOUBLE_SIZE', int(t['double_size']))
 
 	return is_big
+
+Configure.conf(check_features) # bind the method
+
 
 def init(ctx):
 	pass
