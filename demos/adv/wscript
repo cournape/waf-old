@@ -2,6 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2009 (ita)
 
+import sys
 import Utils, Build
 # advanced tests
 # look in src/ for an example of a new compiler that creates cpp files
@@ -43,6 +44,8 @@ from Configure import conf
 def check_features(self):
 
 	mp = self.check(fragment=features_str, execute=1)
+	if sys.hexversion>0x300000f:
+		mp = mp.decode('utf-8')
 	t = Utils.to_hashtable(mp)
 
 	try:
