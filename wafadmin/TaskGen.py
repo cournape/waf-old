@@ -264,7 +264,7 @@ class task_gen(object):
 		#make sure dirnames is a list helps with dirnames with spaces
 		dirnames = self.to_list(dirnames)
 
-		ext_lst = exts or self.mappings.keys() + task_gen.mappings.keys()
+		ext_lst = exts or list(self.mappings.keys()) + list(task_gen.mappings.keys())
 
 		for name in dirnames:
 			anode = self.path.find_dir(name)
