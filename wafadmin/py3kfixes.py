@@ -52,12 +52,18 @@ def r1(code):
 @subst('Tools/ccroot.py')
 def r2(code):
 	code = code.replace("p.stdin.write('\\n')", "p.stdin.write(b'\\n')")
-	code = code.replace("out=str(out)", "out=out.decode('utf-8')")
+	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
 	return code
 
 @subst('Utils.py')
 def r3(code):
 	code = code.replace("m.update(str(lst))", "m.update(str(lst).encode())")
+	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
+	return code
+
+@subst('Tools/config_c.py')
+def r8(code):
+	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
 	return code
 
 @subst('Task.py')
@@ -97,3 +103,4 @@ def fixdir(dir):
 		for v in all_modifs[k]:
 			modif(os.path.join(dir, 'wafadmin'), k, v)
 	#print('substitutions finished')
+
