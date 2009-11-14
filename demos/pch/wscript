@@ -19,7 +19,7 @@ def process_pch(self):
 	if getattr(self, 'pch', ''):
 		node = self.path.find_resource(self.pch)
 		if not node:
-			print "not a valid header !"
+			print ("not a valid header !")
 			return
 		self.create_task('gchx', node, node.change_ext('.gch'))
 
