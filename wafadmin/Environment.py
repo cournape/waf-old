@@ -197,9 +197,9 @@ class Environment(object):
 		else:
 			self[name] = value
 
-	def __detattr__(self, name):
+	def __delattr__(self, name):
 		if name in self.__slots__:
-			object.__detattr__(self, name)
+			object.__delattr__(self, name)
 		else:
 			del self[name]
 
