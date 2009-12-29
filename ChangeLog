@@ -1,9 +1,16 @@
 NEW IN WAF 1.5.10
 -----------------
 * conf.define strings are now quoted by default
-* fixed the d language support
+* various fixes for the d language support
 * fltk support
+* c# language support improvements
 * files can be installed with bld.declare_chain
+* various bugfixes in the file installation routines
+* the '--as-needed' flag must be added explicitely by calling 'conf.add_as_needed()'
+* fix for the d comment filter which could skip some dependencies
+* fix for header-only libraries handling in msvc.py
+* support for fancy folder creation (demos/simple_scenarios/folders/)
+* python 3 compatibility improvements
 
 NEW IN WAF 1.5.9
 ----------------

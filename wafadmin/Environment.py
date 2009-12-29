@@ -86,7 +86,7 @@ class Environment(object):
 		else:
 			keys = tbl.keys()
 			for x in keys:
-				tbl[x] = copy.copy(tbl[x])
+				tbl[x] = copy.deepcopy(tbl[x])
 			self.table = tbl
 
 	def get_flat(self, key):
@@ -197,9 +197,9 @@ class Environment(object):
 		else:
 			self[name] = value
 
-	def __detattr__(self, name):
+	def __delattr__(self, name):
 		if name in self.__slots__:
-			object.__detattr__(self, name)
+			object.__delattr__(self, name)
 		else:
 			del self[name]
 

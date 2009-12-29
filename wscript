@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006, 2007, 2008
 
-VERSION="1.5.9"
+VERSION="1.5.10"
 APPNAME='waf'
 REVISION=''
 srcdir='.'
@@ -22,7 +22,7 @@ except ImportError: from md5 import md5
 import Configure
 Configure.autoconfig = 1
 
-print "------> Executing code from the top-level wscript <-----"
+print ("------> Executing code from the top-level wscript <-----")
 
 def init():
 	if Options.options.setver: # maintainer only (ita)

@@ -197,7 +197,6 @@ def scan(self):
 	names = []
 	root = self.inputs[0].parent
 	for x in curHandler.files:
-		x = x.encode('utf8')
 		nd = root.find_resource(x)
 		if nd: nodes.append(nd)
 		else: names.append(x)

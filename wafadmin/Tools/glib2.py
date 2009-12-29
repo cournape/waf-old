@@ -50,7 +50,8 @@ def genmarshal_func(self):
 
 	#print self.outputs[1].abspath(self.env)
 	f = open(self.outputs[1].abspath(self.env), 'wb')
-	f.write('''#include "%s"\n''' % self.outputs[0].name)
+	c = '''#include "%s"\n''' % self.outputs[0].name
+	f.write(c)
 	f.close()
 
 	cmd2 = "%s %s --prefix=%s --body >> %s" % (

@@ -10,6 +10,7 @@ from Logs import error, debug, warn
 from Utils import md5
 from TaskGen import taskgen, after, before, feature
 from Constants import *
+from Configure import conftest
 try:
 	from cStringIO import StringIO
 except ImportError:
@@ -336,7 +337,7 @@ def apply_lib_vars(self):
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended
-	uselib = self.to_list(self.uselib)
+	self.uselib = self.to_list(self.uselib)
 	names = self.to_list(self.uselib_local)
 
 	seen = set([])
@@ -381,12 +382,11 @@ def apply_lib_vars(self):
 			tmp_path = y.link_task.outputs[0].parent.bldpath(self.env)
 			if not tmp_path in env['LIBPATH']: env.prepend_value('LIBPATH', tmp_path)
 
-		# add ancestors uselib too
-		# WARNING providing STATICLIB_FOO in env will result in broken builds
-		# TODO waf 1.6 prevent this behaviour somehow
+		# add ancestors uselib too - but only propagate those that have no staticlib
 		for v in self.to_list(y.uselib):
-			if v in uselib: continue
-			uselib = [v] + uselib
+			if not env['STATICLIB_' + v]:
+				if not v in self.uselib:
+					self.uselib.insert(0, v)
 
 		# if the library task generator provides 'export_incdirs', add to the include path
 		# the export_incdirs must be a list of paths relative to the other library
@@ -398,7 +398,7 @@ def apply_lib_vars(self):
 				self.env.append_unique('INC_PATHS', node)
 
 	# 2. the case of the libs defined outside
-	for x in uselib:
+	for x in self.uselib:
 		for v in self.p_flag_vars:
 			val = self.env[v + '_' + x]
 			if val: self.env.append_value(v, val)
@@ -578,7 +578,7 @@ def apply_vnum(self):
 	else:
 		name3 = libname + '.' + self.vnum
 		name2 = libname + '.' + nums[0]
-	
+
 	if self.env.SONAME_ST:
 		v = self.env.SONAME_ST % name2
 		self.env.append_value('LINKFLAGS', v.split())
@@ -613,13 +613,10 @@ def exec_vnum_link(self):
 cls = Task.task_type_from_func('vnum', func=exec_vnum_link, ext_in='.bin', color='CYAN')
 cls.quiet = 1
 
-# ============ workaround for spurious library dependencies added by apply_lib_vars (elf/gcc-specific) =========
+# ============ the --as-needed flag should added during the configuration, not at runtime =========
 
-@feature('cshlib', 'cprogram')
-@after('apply_link')
-def add_as_needed(self):
-	env = self.env
-	if env.DEST_BINFMT == 'elf':
-		# All ELF platforms are impacted but only the gcc compiler has a flag to fix it.
-		if 'gcc' in (env.CXX_NAME, env.CC_NAME):
-			env.prepend_value('LINKFLAGS', '-Wl,--as-needed')
+@conftest
+def add_as_needed(conf):
+	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
+		conf.env.append_unique('LINKFLAGS', '--as-needed')
+

@@ -639,8 +639,9 @@ def apply_flags_msvc(self):
 		flags = 'cstaticlib' in self.features and 'ARFLAGS' or 'LINKFLAGS'
 		self.env.append_value(flags, subsystem)
 
-	if 'cstaticlib' not in self.features:
-		for d in (f.lower() for f in self.env.LINKFLAGS):
+	if getattr(self, 'link_task', None) and not 'cstaticlib' in self.features:
+		for f in self.env.LINKFLAGS:
+			d = f.lower()
 			if d[1:] == 'debug':
 				pdbnode = self.link_task.outputs[0].change_ext('.pdb')
 				pdbfile = pdbnode.bldpath(self.env)
@@ -770,7 +771,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	return self.generator.bld.exec_command(*k, **kw)
 
-for k in 'cc cxx winrc cc_link cxx_link static_link'.split():
+for k in 'cc cxx winrc cc_link cxx_link static_link qxx'.split():
 	cls = Task.TaskBase.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc

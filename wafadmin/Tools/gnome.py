@@ -83,8 +83,8 @@ def apply_gnome_doc(self):
 		tsk2.run_after.append(tsk)
 
 		if bld.is_install:
-			path = self.install_path + 'gnome/help/%s/%s' % (self.doc_module, x)
-			bld.install_files(self.install_path + 'omf', out2, env=self.env)
+			path = self.install_path + '/gnome/help/%s/%s' % (self.doc_module, x)
+			bld.install_files(self.install_path + '/omf', out2, env=self.env)
 			for y in self.to_list(self.doc_figures):
 				try:
 					os.stat(self.path.abspath() + '/' + x + '/' + y)
