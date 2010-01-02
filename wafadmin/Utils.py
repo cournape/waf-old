@@ -3,6 +3,10 @@
 # Thomas Nagy, 2005 (ita)
 
 """
+Utilities and cross-platform fixes.
+"""
+
+"""
 Utilities, the stable ones are the following:
 
 * h_file: compute a unique value for a file (hash), it uses
@@ -72,6 +76,9 @@ except ImportError:
 				return value
 
 class WafError(Exception):
+	"""
+	Base class for all Waf-specific exceptions.
+	"""
 	def __init__(self, *args):
 		self.args = args
 		try:
@@ -83,6 +90,13 @@ class WafError(Exception):
 		return str(len(self.args) == 1 and self.args[0] or self.args)
 
 class WscriptError(WafError):
+	"""
+	Exception raised when an error is encountered in user code (wscript).
+	@type  message: string
+	@param message: Message intended for the user
+	@type  wscript_file: string
+	@param wscript_file: Absolute path of wscript where the error happened
+	"""
 	def __init__(self, message, wscript_file=None):
 		if wscript_file:
 			self.wscript_file = wscript_file
@@ -102,6 +116,10 @@ class WscriptError(WafError):
 		WafError.__init__(self, err_message)
 
 	def locate_error(self):
+		"""
+		Locate the line in wscript on which the error happened,
+		based on the stack trace.
+		"""
 		stack = traceback.extract_stack()
 		stack.reverse()
 		for frame in stack:
@@ -144,7 +162,16 @@ except ImportError:
 		return m.digest()
 
 class ordered_dict(UserDict):
+	"""
+	Dictionary with well-defined ordering. Each item is stored in a dictionary
+	as well as a list.
+	"""
 	def __init__(self, dict = None):
+		"""
+		Ordered dictionary constructor.
+		@type  dict: dict
+		@param dict: Dictionary to copy (optional)
+		"""
 		self.allkeys = []
 		UserDict.__init__(self, dict)
 
@@ -157,6 +184,12 @@ class ordered_dict(UserDict):
 		UserDict.__setitem__(self, key, item)
 
 def exec_command(s, **kw):
+	"""
+	Execute a command and wait until it completes. Accepts the command
+	either as a list of arguments or as a full command line.
+	@param s: Command list or list of command arguments
+	@param log: ??
+	"""
 	if 'log' in kw:
 		kw['stdout'] = kw['stderr'] = kw['log']
 		del(kw['log'])
@@ -209,7 +242,17 @@ if is_win32:
 	listdir = listdir_win32
 
 def waf_version(mini = 0x010000, maxi = 0x100000):
-	"Halts if the waf version is wrong"
+	"""
+	Halt execution if the version of Waf is not in the range.
+	
+	Versions should be supplied as hex. 0x01000000 means 1.0.0,
+	0x010408 means 1.4.8, etc.
+	
+	@type  mini: number
+	@param mini: Minimum required version
+	@type  maxi: number
+	@param maxi: Maximum allowed version
+	"""
 	ver = HEXVERSION
 	try: min_val = mini + 0
 	except TypeError: min_val = int(mini.replace('.', '0'), 16)
@@ -226,6 +269,9 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 		sys.exit(0)
 
 def python_24_guard():
+	"""
+	Abort if running on an old (< 2.4) version of Python.
+	"""
 	if sys.hexversion<0x20400f0:
 		raise ImportError("Waf requires Python >= 2.3 but the raw source requires Python 2.4")
 
@@ -235,19 +281,39 @@ def ex_stack():
 	return ''.join(exc_lines)
 
 def to_list(sth):
+	"""
+	Convert a string argument to a list by splitting on spaces, and pass
+	through a list argument unchanged.
+	
+	@param sth: List or a string of items separated by spaces
+	@rtype: list
+	@return: Argument converted to list
+	"""
 	if isinstance(sth, str):
 		return sth.split()
 	else:
 		return sth
 
 g_loaded_modules = {}
-"index modules by absolute path"
+"""
+Dictionary holding already loaded modules, keyed by their absolute path.
+"""
 
 g_module=None
-"the main module is special"
+"""
+Currently executing module.
+"""
 
 def load_module(file_path, name=WSCRIPT_FILE):
-	"this function requires an absolute path"
+	"""
+	Load a Python source file containing user code.
+	@type  file_path: string
+	@param file_path: Directory of the python file
+	@type  name: string
+	@param name: Basename of file with user code (default: "wscript")
+	@rtype: module
+	@return: Loaded Python module
+	"""
 	try:
 		return g_loaded_modules[file_path]
 	except KeyError:
@@ -287,7 +353,13 @@ def set_main_module(file_path):
 	# sys.modules['wscript_main'] = g_module
 
 def to_hashtable(s):
-	"used for importing env files"
+	"""
+	Parse a string with key = value pairs into a dictionary.
+	@type  s: string
+	@param s: String to parse
+	@rtype: dict
+	@return: Dictionary containing parsed key-value pairs
+	"""
 	tbl = {}
 	lst = s.split('\n')
 	for line in lst:
@@ -297,31 +369,38 @@ def to_hashtable(s):
 	return tbl
 
 def get_term_cols():
-	"console width"
+	"""
+	Get console width in characters.
+	@rtype: number
+	@return: Number of characters per line
+	"""
 	return 80
+
+# If console packages are available, replace the dummy function with a real
+# implementation
 try:
 	import struct, fcntl, termios
 except ImportError:
 	pass
 else:
 	if Logs.got_tty:
-		def myfun():
+		def get_term_cols_real():
 			dummy_lines, cols = struct.unpack("HHHH", \
 			fcntl.ioctl(sys.stderr.fileno(),termios.TIOCGWINSZ , \
 			struct.pack("HHHH", 0, 0, 0, 0)))[:2]
 			return cols
 		# we actually try the function once to see if it is suitable
 		try:
-			myfun()
+			get_term_cols_real()
 		except IOError:
 			pass
 		else:
-			get_term_cols = myfun
+			get_term_cols = get_term_cols_real
 
-rot_idx = 0
 rot_chr = ['\\', '|', '/', '-']
-"the rotation character in the progress bar"
-
+"List of characters to use when displaying the throbber"
+rot_idx = 0
+"Index of the current throbber character"
 
 def split_path(path):
 	return path.split('/')
@@ -364,8 +443,15 @@ def def_attrs(cls, **kw):
 		if not hasattr(cls, k):
 			setattr(cls, k, v)
 
-def quote_define_name(path):
-	fu = re.compile("[^a-zA-Z0-9]").sub("_", path)
+def quote_define_name(s):
+	"""
+	Convert a string to an identifier suitable for C defines.
+	@type  s: string
+	@param s: String to convert
+	@rtype: string
+	@return: Identifier suitable for C defines
+	"""
+	fu = re.compile("[^a-zA-Z0-9]").sub("_", s)
 	fu = fu.upper()
 	return fu
 
@@ -379,11 +465,13 @@ def trimquotes(s):
 	return s
 
 def h_list(lst):
+	"""Hash a list."""
 	m = md5()
 	m.update(str(lst))
 	return m.digest()
 
 def h_fun(fun):
+	"""Get the source of a function for hashing."""
 	try:
 		return fun.code
 	except AttributeError:
@@ -402,7 +490,11 @@ def pprint(col, str, label='', sep=os.linesep):
 	sys.stderr.write("%s%s%s %s%s" % (Logs.colors(col), str, Logs.colors.NORMAL, label, sep))
 
 def check_dir(dir):
-	"""If a folder doesn't exists, create it."""
+	"""
+	Ensure that a directory exists. Equivalent to mkdir -p.
+	@type  dir: string
+	@param dir: Path to directory
+	"""
 	try:
 		os.stat(dir)
 	except OSError:
@@ -412,7 +504,13 @@ def check_dir(dir):
 			raise WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
 
 def cmd_output(cmd, **kw):
-
+	"""
+	Execute a command and return its output as a string.
+	Supports the same keyword arguments as subprocess.Popen.
+	@param cmd: Command line or list of arguments
+	@rtype: string
+	@return: Output of the command
+	"""
 	silent = False
 	if 'silent' in kw:
 		silent = kw['silent']
@@ -443,7 +541,14 @@ def cmd_output(cmd, **kw):
 
 reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
 def subst_vars(expr, params):
-	"substitute ${PREFIX}/bin in /usr/local/bin"
+	"""
+	Substitute variables in a string.
+	Replaces ${VAR} with the value of VAR taken from the dictionary
+	or the environment supplied as the second parameter.
+	@type  expr: string
+	@param expr: String to perform substitution on
+	@param params: Dictionary to look up variable values.
+	"""
 	def repl_var(m):
 		if m.group(1):
 			return '\\'
@@ -457,8 +562,9 @@ def subst_vars(expr, params):
 	return reg_subst.sub(repl_var, expr)
 
 def unversioned_sys_platform_to_binary_format(unversioned_sys_platform):
-	"infers the binary format from the unversioned_sys_platform name."
-
+	"""
+	Get the binary format based on the unversioned platform name.
+	"""
 	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos'):
 		return 'elf'
 	elif unversioned_sys_platform == 'darwin':
@@ -466,19 +572,19 @@ def unversioned_sys_platform_to_binary_format(unversioned_sys_platform):
 	elif unversioned_sys_platform in ('win32', 'cygwin', 'uwin', 'msys'):
 		return 'pe'
 	# TODO we assume all other operating systems are elf, which is not true.
-	# we may set this to 'unknown' and have ccroot and other tools handle the case "gracefully" (whatever that means).
+	# we may set this to 'unknown' and have ccroot and other tools handle
+	# the case "gracefully" (whatever that means).
 	return 'elf'
 
 def unversioned_sys_platform():
-	"""returns an unversioned name from sys.platform.
-	sys.plaform is not very well defined and depends directly on the python source tree.
-	The version appended to the names is unreliable as it's taken from the build environment at the time python was built,
-	i.e., it's possible to get freebsd7 on a freebsd8 system.
-	So we remove the version from the name, except for special cases where the os has a stupid name like os2 or win32.
-	Some possible values of sys.platform are, amongst others:
-		aix3 aix4 atheos beos5 darwin freebsd2 freebsd3 freebsd4 freebsd5 freebsd6 freebsd7
-		generic irix5 irix6 linux2 mac netbsd1 next3 os2emx riscos sunos5 unixware7
-	Investigating the python source tree may reveal more values.
+	"""
+	Get the unversioned platform name.
+	Some Python platform names contain versions, that depend on
+	the build environment, e.g. linux2, freebsd6, etc.
+	This returns the name without the version number. Exceptions are
+	os2 and win32, which are returned verbatim.
+	@rtype: string
+	@return: Unversioned platform name
 	"""
 	s = sys.platform
 	if s == 'java':
@@ -502,10 +608,8 @@ def unversioned_sys_platform():
 
 #@deprecated('use unversioned_sys_platform instead')
 def detect_platform():
-	"""this function has been in the Utils module for some time.
-	It's hard to guess what people have used it for.
-	It seems its goal is to return an unversionned sys.platform, but it's not handling all platforms.
-	For example, the version is not removed on freebsd and netbsd, amongst others.
+	"""
+	@deprecated
 	"""
 	s = sys.platform
 
@@ -522,6 +626,14 @@ def detect_platform():
 	return s
 
 def load_tool(tool, tooldir=None):
+	"""
+	Import the Python module that contains the specified tool from
+	the tools directory.
+	@type  tool: string
+	@param tool: Name of the tool
+	@type  tooldir: list
+	@param tooldir: List of directories to search for the tool module
+	"""
 	if tooldir:
 		assert isinstance(tooldir, list)
 		sys.path = tooldir + sys.path
@@ -536,7 +648,15 @@ def load_tool(tool, tooldir=None):
 				sys.path.remove(d)
 
 def readf(fname, m='r'):
-	"get the contents of a file, it is not used anywhere for the moment"
+	"""
+	Read an entire file into a string.
+	@type  fname: string
+	@param fname: Path to file
+	@type  m: string
+	@param m: Open mode
+	@rtype: string
+	@return: Content of the file
+	"""
 	f = open(fname, m)
 	try:
 		txt = f.read()
@@ -545,7 +665,11 @@ def readf(fname, m='r'):
 	return txt
 
 def cpu_count():
-	"""Return the number of processors as an integer."""
+	"""
+	Get the number of processors.
+	@rtype: number
+	@return: Number of processors
+	"""
 	count = 0
 	if sys.platform == 'win32':
 		# on Windows, use the NUMBER_OF_PROCESSORS environmental variable
@@ -564,7 +688,7 @@ def cpu_count():
 	return 1
 
 def nada(*k, **kw):
-	"""A function that does nothing"""
+	"""A function that does nothing."""
 	pass
 
 def diff_path(top, subdir):
@@ -578,9 +702,11 @@ def diff_path(top, subdir):
 context_dict = {}
 
 class command_context(object):
-	"""Command context decorator. Indicates which command should receive
+	"""
+	Command context decorator. Indicates which command should receive
 	this context as its argument (first arg), and which function should be
-	executed in user scripts (second arg)"""
+	executed in user scripts (second arg).
+	"""
 	def __init__(self, command_name, function_name=None):
 		self.command_name = command_name
 		self.function_name = function_name if function_name else command_name
@@ -590,26 +716,27 @@ class command_context(object):
 		return cls
 
 class Context(object):
-	"""A base class for command contexts - they are passed as the arguments
-	of commands defined in Waf scripts"""
-
+	"""
+	Base class for command contexts. Those objects are passed as the arguments
+	of user functions (commands) defined in Waf scripts.
+	"""
 	def __init__(self, start_dir=None):
-		# commands should start from the top-level wscript
 		self.curdir = start_dir or os.getcwd()
 	def get_curdir(self):
 		return self.curdir
 
-	# empty methods for overloading
-	# TODO this hook seems useless
+	# TODO these hooks seem useless
 	def pre_recurse(self, obj, f, d):
 		pass
 	def post_recurse(self, obj, f, d):
 		pass
 
 	def user_function_name(self):
-		"""Get the user function name. First use an instance variable, then
+		"""
+		Get the user function name. First use an instance variable, then
 		try the class variable. The instance variable will be set by
-		Scripting.py if the class variable is not set."""
+		Scripting.py if the class variable is not set.
+		"""
 		name = getattr(self, 'function_name', None)
 		if not name:
 			name = getattr(self.__class__, 'function_name', None)
@@ -618,11 +745,14 @@ class Context(object):
 		return name
 
 	def recurse(self, dirs, name=None):
-		"""The function for calling scripts from folders, it tries to call wscript + function_name
-		and if that file does not exist, it will call the method 'function_name' from a file named wscript
-		the dirs can be a list of folders or a string containing space-separated folder paths
 		"""
-		
+		Run user code from the supplied list of directories.
+		The directories can be either absolute, or relative to the directory
+		of the wscript file.
+		@param dirs: List of directories to visit
+		@type  name: string
+		@param name: Name of function to invoke from the wscript
+		"""
 		function_name = name or self.user_function_name()
 
 		# convert to absolute paths
@@ -679,7 +809,7 @@ class Context(object):
 		pass
 
 	def run_user_code(self):
-		"""Execute the user function to which this context is bound."""
+		"""Call the user function to which this context is bound."""
 		f = getattr(g_module, self.user_function_name(), None)
 		if f is None:
 			raise WscriptError('Undefined command: %s' % self.user_function_name())
@@ -693,6 +823,7 @@ class Context(object):
 		pass
 
 	def execute(self):
+		"""Run the command represented by this context."""
 		self.prepare()
 		self.run_user_code()
 		self.finalize()
@@ -704,8 +835,10 @@ def create_context(cmd_name, *k, **kw):
 		return Context(*k, **kw)
 
 class Timer(object):
-	"""Simple object for timing the execution of commands.
-	The string representation is the current time."""
+	"""
+	Simple object for timing the execution of commands.
+	Its string representation is the current time.
+	"""
 	def __init__(self):
 		self.start()
 	def _now(self):
@@ -713,10 +846,11 @@ class Timer(object):
 		# a DST change happens during a Waf run
 		return datetime.datetime.utcnow()
 	def start(self):
-		"""Start the timer."""
+		"""Start the timer. Note that the timer is started on construction."""
 		self.start_time = self._now()
 		self.stop_time = None
 	def stop(self):
+		"""Stop the timer."""
 		self.stop_time = self._now()
 	def __str__(self):
 		delta = (self.stop_time or self._now()) - self.start_time
