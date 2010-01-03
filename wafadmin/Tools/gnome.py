@@ -180,7 +180,7 @@ Task.simple_task_type('xml2po', '${XML2PO} ${XML2POFLAGS} ${SRC} > ${TGT}', colo
 xslt_magic = """${XSLTPROC2PO} -o ${TGT[0].abspath(env)} \
 --stringparam db2omf.basename ${APPNAME} \
 --stringparam db2omf.format docbook \
---stringparam db2omf.lang C \
+--stringparam db2omf.lang ${TGT[0].abspath(env)[:-4].split('-')[-1]} \
 --stringparam db2omf.dtd '-//OASIS//DTD DocBook XML V4.3//EN' \
 --stringparam db2omf.omf_dir ${PREFIX}/share/omf \
 --stringparam db2omf.help_dir ${PREFIX}/share/gnome/help \
