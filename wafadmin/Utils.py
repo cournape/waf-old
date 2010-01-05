@@ -189,6 +189,7 @@ if is_win32:
 				Logs.info(stdout)
 				if stderr:
 					Logs.error(stderr)
+				return proc.returncode
 			else:
 				proc = pproc.Popen(s,**kw)
 				return proc.wait()
