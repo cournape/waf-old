@@ -27,7 +27,7 @@ def build(bld):
 	obj.dict   = {'LIBS': '-lm', 'CFLAGS': '-Wall', 'VERSION': '1.0'}
 
 	# any kind of map will work, for example
-	# obj.dict = obj.env
+	# obj.dict = obj.env.get_merged_dict()
 				</programlisting>
 
 				The variables must be declared in the template file by enclosing the names between <emphasis>@ characters</emphasis> (m4 syntax).
