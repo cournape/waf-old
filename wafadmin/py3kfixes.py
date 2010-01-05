@@ -61,6 +61,11 @@ def r3(code):
 	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
 	return code
 
+@subst('ansiterm.py')
+def r33(code):
+	code = code.replace('unicode', 'str')
+	return code
+
 @subst('Task.py')
 def r4(code):
 	code = code.replace("up(self.__class__.__name__)", "up(self.__class__.__name__.encode())")

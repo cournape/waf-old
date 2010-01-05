@@ -8,7 +8,6 @@ try:
 	class SMALL_RECT(Structure):
 		_fields_ = [("Left", c_short), ("Top", c_short), ("Right", c_short), ("Bottom", c_short)]
 
-	
 	class CONSOLE_SCREEN_BUFFER_INFO(Structure):
 		_fields_ = [("Size", COORD), ("CursorPosition", COORD), ("Attributes", c_short), ("Window", SMALL_RECT), ("MaximumWindowSize", COORD)]
 
@@ -63,8 +62,7 @@ else:
 				windll.kernel32.SetConsoleCursorPosition(self.hconsole, clear_start)
 			else: # Clear from cursor position to end of screen
 				clear_start = sbinfo.CursorPosition
-				clear_length = ((sbinfo.Size.X - sbinfo.CursorPosition.X) + 
-					sbinfo.Size.X * (sbinfo.Size.Y - sbinfo.CursorPosition.Y))
+				clear_length = ((sbinfo.Size.X - sbinfo.CursorPosition.X) + sbinfo.Size.X * (sbinfo.Size.Y - sbinfo.CursorPosition.Y))
 			chars_written = c_int()
 			windll.kernel32.FillConsoleOutputCharacterA(self.hconsole, c_char(' '), clear_length, clear_start, byref(chars_written))
 			windll.kernel32.FillConsoleOutputAttribute(self.hconsole, sbinfo.Attributes, clear_length, clear_start, byref(chars_written))
@@ -189,7 +187,6 @@ else:
 						windll.kernel32.WriteConsoleW(self.hconsole, txt, len(txt), byref(chars_written), None)
 					else:
 						windll.kernel32.WriteConsoleA(self.hconsole, txt, len(txt), byref(chars_written), None)
-					
 
 		def flush(self):
 			pass
