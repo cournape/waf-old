@@ -222,6 +222,7 @@ if is_win32:
 				Logs.info(stdout)
 				if stderr:
 					Logs.error(stderr)
+				return proc.returncode
 			else:
 				proc = pproc.Popen(s,**kw)
 				return proc.wait()
@@ -244,10 +245,10 @@ if is_win32:
 def waf_version(mini = 0x010000, maxi = 0x100000):
 	"""
 	Halt execution if the version of Waf is not in the range.
-	
+
 	Versions should be supplied as hex. 0x01000000 means 1.0.0,
 	0x010408 means 1.4.8, etc.
-	
+
 	@type  mini: number
 	@param mini: Minimum required version
 	@type  maxi: number
