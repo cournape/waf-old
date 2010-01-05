@@ -11,7 +11,7 @@ c_compiler = {
 	'win32':  ['msvc', 'gcc'],
 	'cygwin': ['gcc'],
 	'darwin': ['gcc'],
-	'aix5':   ['gcc'],
+	'aix':    ['xlc', 'gcc'],
 	'linux':  ['gcc', 'icc', 'suncc'],
 	'sunos':  ['gcc', 'suncc'],
 	'irix':   ['gcc'],
