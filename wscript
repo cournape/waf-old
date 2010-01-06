@@ -18,12 +18,14 @@ import os, sys, base64, shutil, re, random, io, optparse, tempfile
 import Utils, Options, Build
 from hashlib import md5
 
-import Configure, Constants
+from Constants import *
+
+import Configure
 Configure.autoconfig = 1
 
 print("------> Executing code from the top-level wscript <-----")
 
-def init():
+def init(*k, **kw):
 	if Options.options.setver: # maintainer only (ita)
 		ver = Options.options.setver
 		hexver = '0x'+ver.replace('.','0')
@@ -161,7 +163,7 @@ def sfilter(path):
 	if path.endswith('Options.py') or path.endswith('Scripting.py'):
 		cnt = cnt.replace('Utils.python_version_guard()', '')
 
-	return (io.StringIO(cnt), len(cnt), cnt)
+	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
 
 def create_waf():
 	print ("-> preparing waf")
@@ -175,7 +177,7 @@ def create_waf():
 
 	#open a file as tar.[extension] for writing
 	tar = tarfile.open('%s.tar.%s' % (mw, zipType), "w:%s" % zipType)
-	tarFiles=[]
+	tarFiles = []
 
 	files = []
 	for d in '. Tools 3rdparty'.split():
@@ -202,11 +204,8 @@ def create_waf():
 	#code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
 	prefix = ''
-	if Build.bld:
-		prefix = Build.bld.env['PREFIX'] or ''
-
 	reg = re.compile('^INSTALL=(.*)', re.M)
-	code1 = reg.sub(r'INSTALL=%r' % prefix, code1)
+	code1 = reg.sub(r'INSTALL=%r' % prefix, code1.decode())
 	#change the tarfile extension in the waf script
 	reg = re.compile('bz2', re.M)
 	code1 = reg.sub(zipType, code1)
@@ -229,20 +228,23 @@ def create_waf():
 				if i == 39 or j == 39: continue
 				if i == 92 or j == 92: continue
 				s = chr(i) + chr(j)
-				if -1 == kd.find(s):
-					return (kd.replace(ch, s), s)
+				if -1 == kd.find(s.encode()):
+					return (kd.replace(ch.encode(), s.encode()), s)
 		raise
 
 	# The reverse order prevent collisions
 	(cnt, C2) = find_unused(cnt, '\r')
 	(cnt, C1) = find_unused(cnt, '\n')
 	f = open('waf', 'wb')
-	f.write(code1.replace("C1='x'", "C1='%s'" % C1).replace("C2='x'", "C2='%s'" % C2))
-	f.write('#==>\n')
-	f.write('#')
+
+	ccc = code1.replace("C1='x'", "C1='%s'" % C1).replace("C2='x'", "C2='%s'" % C2)
+
+	f.write(ccc.encode())
+	f.write(b'#==>\n')
+	f.write(b'#')
 	f.write(cnt)
-	f.write('\n')
-	f.write('#<==\n')
+	f.write(b'\n')
+	f.write(b'#<==\n')
 	f.close()
 
 	if sys.platform == 'win32' or Options.options.make_batch:
