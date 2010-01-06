@@ -13,7 +13,7 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, glob, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-import Runner, TaskGen, Node, Scripting, Utils, Environment, Task, Logs, Options, Configure
+import Runner, TaskGen, Node, Scripting, Utils, ConfigData, Task, Logs, Options, Configure
 from Logs import debug, error, info
 from Constants import *
 from Utils import command_context
@@ -144,7 +144,7 @@ class BuildContext(Utils.Context):
 	def load(self):
 		"load the cache from the disk"
 		try:
-			env = Environment.Environment(os.path.join(self.cachedir, 'build.config.py'))
+			env = ConfigData.ConfigData(os.path.join(self.cachedir, 'build.config.py'))
 		except (IOError, OSError):
 			pass
 		else:
@@ -332,7 +332,7 @@ class BuildContext(Utils.Context):
 
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
-				env = Environment.Environment(os.path.join(self.cachedir, file))
+				env = ConfigData.ConfigData(os.path.join(self.cachedir, file))
 				name = file[:-len(CACHE_SUFFIX)]
 
 				self.all_envs[name] = env
@@ -774,7 +774,7 @@ class BuildContext(Utils.Context):
 		The relative_trick flag can be set to install folders, use bld.path.ant_glob() with it
 		"""
 		if env:
-			assert isinstance(env, Environment.Environment), "invalid parameter"
+			assert isinstance(env, ConfigData.ConfigData), "invalid parameter"
 		else:
 			env = self.env
 
@@ -828,7 +828,7 @@ class BuildContext(Utils.Context):
 		returns True if the file was effectively installed, False otherwise
 		"""
 		if env:
-			assert isinstance(env, Environment.Environment), "invalid parameter"
+			assert isinstance(env, ConfigData.ConfigData), "invalid parameter"
 		else:
 			env = self.env
 
@@ -939,7 +939,7 @@ class BuildContext(Utils.Context):
 			(Options.options.__dict__, Logs.zones, Logs.verbose) = back
 
 		try:
-			proj = Environment.Environment(Options.lockfile)
+			proj = ConfigData.ConfigData(Options.lockfile)
 		except IOError:
 			conf = config_context(self.curdir)
 			conf.execute()
@@ -953,7 +953,7 @@ class BuildContext(Utils.Context):
 				return
 
 		try:
-			proj = Environment.Environment(Options.lockfile)
+			proj = ConfigData.ConfigData(Options.lockfile)
 		except IOError:
 			raise Utils.WafError('Auto-config: project does not configure (bug)')
 
@@ -972,25 +972,27 @@ class BuildContext(Utils.Context):
 			if (h != proj['hash']):
 				warn('Reconfiguring the project: the configuration has changed')
 				reconf(proj)
-	
+
 	def prepare(self):
 		self.autoconfigure()
 		try:
-			temp_env = Environment.Environment(Options.lockfile)
+			temp_env = ConfigData.ConfigData(Options.lockfile)
 		except IOError:
 			raise Utils.WafError("Project not configured (run 'waf configure' first)")
 
 		self.load_dirs(temp_env[SRCDIR], temp_env[BLDDIR])
 		self.load_envs()
 		info("Waf: Entering directory `%s'" % self.bldnode.abspath())
-	
+
 	def run_user_code(self):
+		# FIXME WTF?
 		self.is_install = 0
 		self.execute_build()
-	
+
 	def finalize(self):
+		# FIXME WTF?
 		pass
-	
+
 	def execute_build(self):
 		self.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 		self.pre_build()

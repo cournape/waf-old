@@ -6,15 +6,15 @@
 Configuration system
 
 A configuration instance is created when "waf configure" is called, it is used to:
-* create data dictionaries (Environment instances)
+* create data dictionaries (ConfigData instances)
 * store the list of modules to import
 
 The old model (copied from Scons) was to store logic (mapping file extensions to functions)
 along with the data. In Waf a way was found to separate that logic by adding an indirection
-layer (storing the names in the Environment instances)
+layer (storing the names in the ConfigData instances)
 
 In the new model, the logic is more object-oriented, and the user scripts provide the
-logic. The data files (Environments) must contain configuration data only (flags, ..).
+logic. The data files (ConfigDatas) must contain configuration data only (flags, ..).
 
 Note: the c/c++ related code is in the module config_c
 """
@@ -22,7 +22,7 @@ Note: the c/c++ related code is in the module config_c
 import os, shlex, sys, time
 try: import cPickle
 except ImportError: import pickle as cPickle
-import Environment, Utils, Options
+import ConfigData, Utils, Options
 from Logs import warn
 from Constants import *
 from Utils import command_context
@@ -214,7 +214,7 @@ class ConfigurationContext(Utils.Context):
 		try:
 			env = self.all_envs[name]
 		except KeyError:
-			env = Environment.Environment()
+			env = ConfigData.ConfigData()
 			env['PREFIX'] = os.path.abspath(os.path.expanduser(Options.options.prefix))
 			self.all_envs[name] = env
 		else:
@@ -367,7 +367,7 @@ class ConfigurationContext(Utils.Context):
 		# this will write a configure lock so that subsequent builds will
 		# consider the current path as the root directory (see prepare_impl).
 		# to remove: use 'waf distclean'
-		env = Environment.Environment()
+		env = ConfigData.ConfigData()
 		env[BLDDIR] = self.blddir
 		env[SRCDIR] = self.srcdir
 		env['argv'] = sys.argv

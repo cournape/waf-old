@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"""Environment representation
+"""ConfigData representation
 
 There is one gotcha: getitem returns [] if the contents evals to False
 This means env['foo'] = {}; print env['foo'] will print [] not {}
@@ -13,7 +13,7 @@ import Logs, Options, Utils
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
-class Environment(object):
+class ConfigData(object):
 	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
 	An environment instance can be stored into a file and loaded easily
 	"""
@@ -70,7 +70,7 @@ class Environment(object):
 			return DEFAULT
 
 	def derive(self):
-		newenv = Environment()
+		newenv = ConfigData()
 		newenv.parent = self
 		return newenv
 

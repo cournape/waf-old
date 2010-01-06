@@ -402,7 +402,7 @@ class Node(object):
 	def abspath(self, env=None):
 		"""
 		absolute path
-		@param env [Environment]:
+		@param env
 			* obligatory for build nodes: build/variant/src/dir/bar.o
 			* optional for dirs: get either src/dir or build/variant/src/dir
 			* excluded for source nodes: src/dir/bar.c

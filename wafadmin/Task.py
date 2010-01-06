@@ -714,7 +714,7 @@ class Task(TaskBase):
 			return x.encode('hex')
 
 		debug("Task %r" % self)
-		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency', '* Environment variable']
+		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency', '* Configuration data variable']
 		tmp = 'task: -> %s: %s %s'
 		for x in xrange(len(msgs)):
 			if (new_sigs[x] != old_sigs[x]):
