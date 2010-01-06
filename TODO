@@ -1,33 +1,34 @@
 Waf 1.6
 -------
 
+The points listed with a '+' indicate potential sub-projects (contributions will be welcome)
+
 General
-* os.environ control during task execution
-* multiprocess for distributed compilation (vs threads)
-* Maven-like updates/upgrades
-* debug builds (step-by-step execution + scheduler changes)
-* cc_root.py rewrite to reduce the amount of methods (header processing, flags processing, os fixes)
-* unification uselib <+> uselib_local
-* new global variable uselib_vars and generalization of uselib for all kinds of task generators
+- os.environ control during task execution
+- multiprocess for distributed compilation (vs threads)
+- debug builds (step-by-step execution + scheduler changes)
+- cc_root.py rewrite to reduce the amount of methods (header processing, flags processing, os fixes)
+- unification uselib <+> uselib_local
+- new global variable uselib_vars and generalization of uselib for all kinds of task generators
++ Maven-like updates/upgrades
++ CMake file interpreter
 
 API/Syntax
-* remove find_sources_in_dirs
-* bld.ant_glob -> bld.find
-* use foo.env.VAR instead of foo.env["VAR"]
-* use BuildContext.__call__(...): bld(...) may be more simple than bld.new_task_gen(...)
-* python 3.x syntax by default (no support for python 2.x)
-* conf.env -> conf.cfg; Environment -> ConfigData; etc
+- remove find_sources_in_dirs
+- bld.ant_glob -> bld.find
+- use foo.env.VAR instead of foo.env["VAR"]
+- use BuildContext.__call__(...): bld(...) may be more simple than bld.new_task_gen(...)
+- python 3.x syntax by default (no support for python 2.x)
+- conf.env -> conf.cfg; Environment -> ConfigData; etc
 
 Configuration
-* use configuration names to avoid [env.copy(), conf.setenv, ...]
-* more pkg-config helpers (issue #?)
-* re-use the configuration library from Fabricate
-* make optional parameters really optional (source dir, build dir, ...)
+- use configuration names to avoid [env.copy(), conf.setenv, ...]
+- more pkg-config helpers (issue #?)
+- make optional parameters really optional (source dir, build dir, ...)
++ autoconf-like configuration library (re-use the lib from Fabricate?)
 
 Docs
-* show a complete example of c compilation with rules vs task
-generator code (procedural vs object-oriented)
-* enable a Vigor-like mode to print suggestions (i.e. no task
-generators => print warnings, no build dir => print warnings)
-* enable magic operations by default - unless users do not need them
-(bld.use_the_magic(), etc)
+- show a complete example of c compilation with rules vs task generator code (procedural vs object-oriented)
+- enable magic operations by default - unless users do not need them (bld.use_the_magic(), etc)
++ enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
+
