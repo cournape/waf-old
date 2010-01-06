@@ -98,6 +98,7 @@ def r7(code):
 	return code
 
 @subst('Tools/config_c.py')
+@subst('Tools/python.py')
 def r8(code):
 	code = code.replace('p.communicate()[0]', 'p.communicate()[0].decode("utf-8")')
 	return code
