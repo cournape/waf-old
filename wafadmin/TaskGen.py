@@ -241,54 +241,6 @@ class task_gen(object):
 	def name_to_obj(self, name):
 		return self.bld.name_to_obj(name, self.env)
 
-	def find_sources_in_dirs(self, dirnames, excludes=[], exts=[]):
-		"""
-		The attributes "excludes" and "exts" must be lists to avoid the confusion
-		find_sources_in_dirs('a', 'b', 'c') <-> find_sources_in_dirs('a b c')
-
-		do not use absolute paths
-		do not use paths outside of the source tree
-		the files or folder beginning by . are not returned
-
-		# TODO: remove in Waf 1.6
-		"""
-
-		err_msg = "'%s' attribute must be a list"
-		if not isinstance(excludes, list):
-			raise Utils.WscriptError(err_msg % 'excludes')
-		if not isinstance(exts, list):
-			raise Utils.WscriptError(err_msg % 'exts')
-
-		lst = []
-
-		#make sure dirnames is a list helps with dirnames with spaces
-		dirnames = self.to_list(dirnames)
-
-		ext_lst = exts or list(self.mappings.keys()) + list(task_gen.mappings.keys())
-
-		for name in dirnames:
-			anode = self.path.find_dir(name)
-
-			if not anode or not anode.is_child_of(self.bld.srcnode):
-				raise Utils.WscriptError("Unable to use '%s' - either because it's not a relative path" \
-					 ", or it's not child of '%s'." % (name, self.bld.srcnode))
-
-			self.bld.rescan(anode)
-			for name in self.bld.cache_dir_contents[anode.id]:
-
-				# ignore hidden files
-				if name.startswith('.'):
-					continue
-
-				(base, ext) = os.path.splitext(name)
-				if ext in ext_lst and not name in lst and not name in excludes:
-					lst.append((anode.relpath_gen(self.path) or '.') + os.path.sep + name)
-
-		lst.sort()
-		self.source = self.to_list(self.source)
-		if not self.source: self.source = lst
-		else: self.source += lst
-
 	def clone(self, env):
 		""
 		newobj = task_gen(bld=self.bld)
