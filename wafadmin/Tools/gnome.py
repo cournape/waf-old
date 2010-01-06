@@ -13,39 +13,6 @@ from TaskGen import taskgen, before, after, feature
 n1_regexp = re.compile('<refentrytitle>(.*)</refentrytitle>', re.M)
 n2_regexp = re.compile('<manvolnum>(.*)</manvolnum>', re.M)
 
-def postinstall_schemas(prog_name):
-	if Build.bld.is_install:
-		dir = Build.bld.get_install_path('${PREFIX}/etc/gconf/schemas/%s.schemas' % prog_name)
-		if not Options.options.destdir:
-			# add the gconf schema
-			Utils.pprint('YELLOW', 'Installing GConf schema')
-			command = 'gconftool-2 --install-schema-file=%s 1> /dev/null' % dir
-			ret = Utils.exec_command(command)
-		else:
-			Utils.pprint('YELLOW', 'GConf schema not installed. After install, run this:')
-			Utils.pprint('YELLOW', 'gconftool-2 --install-schema-file=%s' % dir)
-
-def postinstall_icons():
-	dir = Build.bld.get_install_path('${DATADIR}/icons/hicolor')
-	if Build.bld.is_install:
-		if not Options.options.destdir:
-			# update the pixmap cache directory
-			Utils.pprint('YELLOW', "Updating Gtk icon cache.")
-			command = 'gtk-update-icon-cache -q -f -t %s' % dir
-			ret = Utils.exec_command(command)
-		else:
-			Utils.pprint('YELLOW', 'Icon cache not updated. After install, run this:')
-			Utils.pprint('YELLOW', 'gtk-update-icon-cache -q -f -t %s' % dir)
-
-def postinstall_scrollkeeper(prog_name):
-	if Build.bld.is_install:
-		# now the scrollkeeper update if we can write to the log file
-		if os.access('/var/log/scrollkeeper.log', os.W_OK):
-			dir1 = Build.bld.get_install_path('${PREFIX}/var/scrollkeeper')
-			dir2 = Build.bld.get_install_path('${DATADIR}/omf/%s' % prog_name)
-			command = 'scrollkeeper-update -q -p %s -o %s' % (dir1, dir2)
-			ret = Utils.exec_command(command)
-
 def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if schemas: postinstall_schemas(prog_name)
 	if icons: postinstall_icons()

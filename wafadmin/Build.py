@@ -18,9 +18,6 @@ from Logs import debug, error, info
 from Constants import *
 from Utils import command_context
 
-# Stupid singleton - do not use
-bld = None
-
 SAVED_ATTRS = 'root srcnode bldnode node_sigs node_deps raw_deps task_sigs id_nodes'.split()
 "Build class members to save"
 
@@ -242,14 +239,7 @@ class BuildContext(Utils.Context):
 		"""The cache file is not written if nothing was build at all (build is up to date)"""
 		debug('build: compile called')
 
-		"""
-		import cProfile, pstats
-		cProfile.run("import Build\nBuild.bld.flush()", 'profi.txt')
-		p = pstats.Stats('profi.txt')
-		p.sort_stats('cumulative').print_stats(80)
-		"""
 		self.flush()
-		#"""
 
 		self.generator = Runner.Parallel(self, Options.options.jobs)
 

@@ -377,7 +377,6 @@ class TaskBase(object):
 			self.generator = kw['generator']
 		except KeyError:
 			self.generator = self
-			self.bld = Build.bld
 
 		if kw.get('normal', 1):
 			self.generator.bld.task_manager.add_task(self)
@@ -507,9 +506,9 @@ class Task(TaskBase):
        environment variables, like the CXXFLAGS in self.env
 	"""
 	vars = []
-	def __init__(self, env, **kw):
-		TaskBase.__init__(self, **kw)
-		self.env = env
+	def __init__(self, *k, **kw):
+		TaskBase.__init__(self, *k, **kw)
+		self.env = kw['env']
 
 		# inputs and outputs are nodes
 		# use setters when possible
