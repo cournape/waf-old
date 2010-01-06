@@ -4,7 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import os, sys, re, subproces
+import os, sys, re, subprocess
 import TaskGen, Task, Utils, preproc, Logs, Build, Options
 from Logs import error, debug, warn
 from Utils import md5
