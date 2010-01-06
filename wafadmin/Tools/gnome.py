@@ -66,13 +66,18 @@ def apply_gnome_doc(self):
 	self.env['APPNAME'] = self.doc_module
 	lst = self.to_list(self.doc_linguas)
 	bld = self.bld
+	lst.append('C')
+
 	for x in lst:
-		tsk = self.create_task('xml2po')
-		node = self.path.find_resource(x+'/'+x+'.po')
-		src = self.path.find_resource('C/%s.xml' % self.doc_module)
-		out = self.path.find_or_declare('%s/%s.xml' % (x, self.doc_module))
-		tsk.set_inputs([node, src])
-		tsk.set_outputs(out)
+		if not x == 'C':
+			tsk = self.create_task('xml2po')
+			node = self.path.find_resource(x+'/'+x+'.po')
+			src = self.path.find_resource('C/%s.xml' % self.doc_module)
+			out = self.path.find_or_declare('%s/%s.xml' % (x, self.doc_module))
+			tsk.set_inputs([node, src])
+			tsk.set_outputs(out)
+		else:
+			out = self.path.find_resource('%s/%s.xml' % (x, self.doc_module))
 
 		tsk2 = self.create_task('xsltproc2po')
 		out2 = self.path.find_or_declare('%s/%s-%s.omf' % (x, self.doc_module, x))
@@ -92,6 +97,12 @@ def apply_gnome_doc(self):
 				except:
 					bld.install_as(path + '/' + y, self.path.abspath() + '/C/' + y)
 			bld.install_as(path + '/%s.xml' % self.doc_module, out.abspath(self.env))
+			if x == 'C':
+				xmls = self.to_list(self.doc_includes)
+				xmls.append(self.doc_entities)
+				for z in xmls:
+					out = self.path.find_resource('%s/%s' % (x, z))
+					bld.install_as(path + '/%s' % z, out.abspath(self.env))
 
 # OBSOLETE
 class xml_to_taskgen(TaskGen.task_gen):
