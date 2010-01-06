@@ -163,9 +163,6 @@ def apply_bundle_remove_dynamiclib(self):
 			except ValueError:
 				pass
 
-# TODO REMOVE IN 1.6 (global variable)
-app_dirs = ['Contents', 'Contents/MacOS', 'Contents/Resources']
-
 def app_build(task):
 	env = task.env
 	shutil.copy2(task.inputs[0].srcpath(env), task.outputs[0].abspath(env))
