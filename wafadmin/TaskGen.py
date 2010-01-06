@@ -39,18 +39,6 @@ typos = {
 'feature':'features',
 }
 
-class register_obj(type):
-	"""no decorators for classes, so we use a metaclass
-	we store into task_gen.classes the classes that inherit task_gen
-	and whose names end in '_taskgen'
-	"""
-	def __init__(cls, name, bases, dict):
-		super(register_obj, cls).__init__(name, bases, dict)
-		name = cls.__name__
-		suffix = '_taskgen'
-		if name.endswith(suffix):
-			task_gen.classes[name.replace(suffix, '')] = cls
-
 class task_gen(object):
 	"""
 	Most methods are of the form 'def meth(self):' without any parameters
@@ -80,7 +68,6 @@ class task_gen(object):
 	compiler (from self.env['MSVC']==1); more methods are added to self.meths
 	"""
 
-	__metaclass__ = register_obj
 	mappings = {}
 	mapped = {}
 	prec = Utils.DefaultDict(list)
@@ -123,7 +110,7 @@ class task_gen(object):
 		# provide a unique id
 		self.idx = self.bld.idx[self.path.id] = self.bld.idx.get(self.path.id, 0) + 1
 
-		for key, val in kwargs.iteritems():
+		for key, val in kwargs.items():
 			setattr(self, key, val)
 
 		self.bld.task_manager.add_task_gen(self)
@@ -288,7 +275,7 @@ def declare_extension(var, func):
 def declare_order(*k):
 	assert(len(k) > 1)
 	n = len(k) - 1
-	for i in xrange(n):
+	for i in range(n):
 		f1 = k[i]
 		f2 = k[i+1]
 		if not f1 in task_gen.prec[f2]:
@@ -325,7 +312,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 		elif isinstance(ext, list):
 			out_source = [node.change_ext(x) for x in ext]
 			if reentrant:
-				for i in xrange(reentrant):
+				for i in range(reentrant):
 					self.allnodes.append(out_source[i])
 		else:
 			# XXX: useless: it will fail on Utils.to_list above...

@@ -218,11 +218,6 @@ def create_uic_task(self, node):
 	uictask = self.create_task('ui4', node)
 	uictask.outputs = [self.path.find_or_declare(self.env['ui_PATTERN'] % node.name[:-3])]
 
-class qt4_taskgen(cxx.cxx_taskgen):
-	def __init__(self, *k, **kw):
-		cxx.cxx_taskgen.__init__(self, *k, **kw)
-		self.features.append('qt4')
-
 @extension('.ts')
 def add_lang(self, node):
 	"""add all the .ts file into self.lang"""

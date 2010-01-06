@@ -53,9 +53,6 @@ def scan(self):
 
 native_lst=['native', 'all', 'c_object']
 bytecode_lst=['bytecode', 'all']
-class ocaml_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('ocaml')
 def init_ml(self):

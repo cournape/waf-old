@@ -19,10 +19,6 @@ EXT_CC = ['.c']
 
 g_cc_type_vars = ['CCFLAGS', 'LINKFLAGS']
 
-# TODO remove in waf 1.6
-class cc_taskgen(ccroot.ccroot_abstract):
-	pass
-
 @feature('cc')
 @before('apply_type_vars')
 @after('default_cc')

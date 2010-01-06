@@ -426,7 +426,7 @@ def def_attrs(cls, **kw):
 
 	if the given class hasn't one (or more) of these attributes, add the attribute with its value to the class.
 	'''
-	for k, v in kw.iteritems():
+	for k, v in kw.items():
 		if not hasattr(cls, k):
 			setattr(cls, k, v)
 
@@ -454,7 +454,7 @@ def trimquotes(s):
 def h_list(lst):
 	"""Hash a list."""
 	m = md5()
-	m.update(str(lst))
+	m.update(str(lst).encode())
 	return m.digest()
 
 def h_fun(fun):
@@ -515,7 +515,7 @@ def cmd_output(cmd, **kw):
 
 	try:
 		p = subprocess.Popen(cmd, **kw)
-		output = p.communicate()[0]
+		output = p.communicate()[0].decode("utf-8")
 	except OSError as e:
 		raise ValueError(str(e))
 

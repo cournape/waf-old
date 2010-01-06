@@ -19,10 +19,6 @@ EXT_CXX = ['.cpp', '.cc', '.cxx', '.C', '.c++']
 
 g_cxx_type_vars=['CXXFLAGS', 'LINKFLAGS']
 
-# TODO remove in waf 1.6
-class cxx_taskgen(ccroot.ccroot_abstract):
-	pass
-
 @feature('cxx')
 @before('apply_type_vars')
 @after('default_cc')

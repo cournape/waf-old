@@ -233,14 +233,6 @@ def init_d(self):
 	for x in d_params:
 		setattr(self, x, getattr(self, x, d_params[x]))
 
-class d_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
-		# COMPAT
-		if len(k) > 1:
-			self.features.append('d' + k[1])
-
 # okay, we borrow a few methods from ccroot
 TaskGen.bind_feature('d', D_METHS)
 
@@ -445,7 +437,7 @@ def override_exec(cls):
 	def exec_command(self, *k, **kw):
 		if isinstance(k[0], list):
 			lst = k[0]
-			for i in xrange(len(lst)):
+			for i in range(len(lst)):
 				if lst[i] == '-of':
 					del lst[i]
 					lst[i] = '-of' + lst[i]

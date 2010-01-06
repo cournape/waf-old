@@ -223,8 +223,8 @@ def create_waf():
 	code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
 	def find_unused(kd, ch):
-		for i in xrange(35, 125):
-			for j in xrange(35, 125):
+		for i in range(35, 125):
+			for j in range(35, 125):
 				if i==j: continue
 				if i == 39 or j == 39: continue
 				if i == 92 or j == 92: continue

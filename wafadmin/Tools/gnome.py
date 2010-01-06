@@ -18,11 +18,6 @@ def postinstall(prog_name='myapp', schemas=1, icons=1, scrollkeeper=1):
 	if icons: postinstall_icons()
 	if scrollkeeper: postinstall_scrollkeeper(prog_name)
 
-# OBSOLETE
-class gnome_doc_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
 @feature('gnome_doc')
 def init_gnome_doc(self):
 	self.default_install_path = '${PREFIX}/share'
@@ -59,11 +54,6 @@ def apply_gnome_doc(self):
 				except:
 					bld.install_as(path + '/' + y, self.path.abspath() + '/C/' + y)
 			bld.install_as(path + '/%s.xml' % self.doc_module, out.abspath(self.env))
-
-# OBSOLETE
-class xml_to_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('xml_to')
 def init_xml_to(self):
@@ -102,10 +92,6 @@ def sgml_scan(self):
 		self.outputs = [self.generator.path.find_or_declare(doc_name)]
 
 	return ([], [doc_name])
-
-class gnome_sgml2man_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('gnome_sgml2man')
 def apply_gnome_sgml2man(self):

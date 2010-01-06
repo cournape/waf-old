@@ -25,8 +25,8 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 	cmd = cc + ['-dM', '-E', '-']
 	try:
 		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		p.stdin.write('\n')
-		out = p.communicate()[0]
+		p.stdin.write(b'\n')
+		out = p.communicate()[0].decode("utf-8")
 	except:
 		conf.fatal('could not determine the compiler version %r' % cmd)
 
@@ -150,16 +150,6 @@ def scan(self):
 			if not x in all_names:
 				all_names.append(x)
 	return (all_nodes, all_names)
-
-class ccroot_abstract(TaskGen.task_gen):
-	"Parent class for programs and libraries in languages c, c++ and moc (Qt)"
-	def __init__(self, *k, **kw):
-		# COMPAT remove in waf 1.6 TODO
-		if len(k) > 1:
-			k = list(k)
-			if k[1][0] != 'c':
-				k[1] = 'c' + k[1]
-		TaskGen.task_gen.__init__(self, *k, **kw)
 
 def get_target_name(self):
 	tp = 'program'

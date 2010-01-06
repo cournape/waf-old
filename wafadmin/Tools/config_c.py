@@ -125,7 +125,7 @@ def cmd_and_log(self, cmd, kw):
 
 	try:
 		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-		output = p.communicate()[0]
+		output = p.communicate()[0].decode('utf-8')
 	except OSError:
 		self.fatal('fail')
 
@@ -166,7 +166,7 @@ def exec_cfg(self, kw):
 		return version
 
 	lst = [kw['path']]
-	for key, val in kw.get('define_variable', {}).iteritems():
+	for key, val in kw.get('define_variable', {}).items():
 		lst.append('--define-variable=%s=%s' % (key, val))
 
 	lst.append(kw.get('args', ''))
@@ -480,7 +480,7 @@ def run_c_code(self, *k, **kw):
 
 	o = bld.new_task_gen(features=[kw['compile_mode'], kw['type']], source=test_f_name, target='testprog')
 
-	for k, v in kw.iteritems():
+	for k, v in kw.items():
 		setattr(o, k, v)
 
 	self.log.write("==>\n%s\n<==\n" % kw['code'])

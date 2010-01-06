@@ -325,7 +325,7 @@ def reduce_tokens(lst, defs, ban=[]):
 			if isinstance(macro_def[0], list):
 				# macro without arguments
 				del lst[i]
-				for x in xrange(len(to_add)):
+				for x in range(len(to_add)):
 					lst.insert(i, to_add[x])
 					i += 1
 			else:
@@ -441,7 +441,7 @@ def reduce_tokens(lst, defs, ban=[]):
 
 				reduce_tokens(accu, defs, ban+[v])
 
-				for x in xrange(len(accu)-1, -1, -1):
+				for x in range(len(accu)-1, -1, -1):
 					lst.insert(i, accu[x])
 
 		i += 1

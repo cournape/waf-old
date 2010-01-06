@@ -126,7 +126,7 @@ class TaskManager(object):
 	def set_group(self, idx):
 		if isinstance(idx, str):
 			g = self.groups_names[idx]
-			for x in xrange(len(self.groups)):
+			for x in range(len(self.groups)):
 				if id(g) == id(self.groups[x]):
 					self.current_group = x
 		else:
@@ -249,12 +249,12 @@ class TaskGroup(object):
 
 	def extract_constraints(self):
 		"extract the parallelization constraints from the tasks with different constraints"
-		keys = self.cstr_groups.keys()
+		keys = list(self.cstr_groups.keys())
 		max = len(keys)
 		# hopefully the length of this list is short
-		for i in xrange(max):
+		for i in range(max):
 			t1 = self.cstr_groups[keys[i]][0]
-			for j in xrange(i + 1, max):
+			for j in range(i + 1, max):
 				t2 = self.cstr_groups[keys[j]][0]
 
 				# add the constraints based on the comparisons
@@ -348,7 +348,7 @@ class store_task_type(type):
 			name = name.replace('_task', '')
 			TaskBase.classes[name] = cls
 
-class TaskBase(object):
+class TaskBase(object, metaclass=store_task_type):
 	"""Base class for all Waf tasks
 
 	The most important methods are (by usual order of call):
@@ -362,8 +362,6 @@ class TaskBase(object):
 
 	For illustration purposes, TaskBase instances try to execute self.fun (if provided)
 	"""
-
-	__metaclass__ = store_task_type
 
 	color = "GREEN"
 	maxjobs = MAXJOBS
@@ -541,14 +539,14 @@ class Task(TaskBase):
 			"this is not a real hot zone, but we want to avoid surprizes here"
 			m = md5()
 			up = m.update
-			up(self.__class__.__name__)
-			up(self.env.variant())
+			up(self.__class__.__name__.encode())
+			up(self.env.variant().encode())
 			p = None
 			for x in self.inputs + self.outputs:
 				if p != x.parent.id:
 					p = x.parent.id
-					up(x.parent.abspath())
-				up(x.name)
+					up(x.parent.abspath().encode())
+				up(x.name.encode())
 			self.uid = m.digest()
 			return self.uid
 
@@ -716,7 +714,7 @@ class Task(TaskBase):
 		debug("Task %r" % self)
 		msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency', '* Configuration data variable']
 		tmp = 'task: -> %s: %s %s'
-		for x in xrange(len(msgs)):
+		for x in range(len(msgs)):
 			if (new_sigs[x] != old_sigs[x]):
 				debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
 
@@ -903,7 +901,7 @@ def compile_fun_noshell(name, line):
 	buf = []
 	dvars = []
 	app = buf.append
-	for x in xrange(len(extr)):
+	for x in range(len(extr)):
 		params[x] = params[x].strip()
 		if params[x]:
 			app("lst.extend(%r)" % params[x].split())
@@ -1015,7 +1013,7 @@ def extract_outputs(tasks):
 			except KeyError: outs[a.id] = [x]
 
 	for (ins, outs) in v.values():
-		links = set(ins.iterkeys()).intersection(outs.iterkeys())
+		links = set(ins.keys()).intersection(outs.keys())
 		for k in links:
 			for a in ins[k]:
 				for b in outs[k]:

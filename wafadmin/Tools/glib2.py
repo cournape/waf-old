@@ -51,7 +51,7 @@ def genmarshal_func(self):
 	#print self.outputs[1].abspath(self.env)
 	f = open(self.outputs[1].abspath(self.env), 'wb')
 	c = '''#include "%s"\n''' % self.outputs[0].name
-	f.write(c)
+	f.write(c.encode("utf-8"))
 	f.close()
 
 	cmd2 = "%s %s --prefix=%s --body >> %s" % (
@@ -142,7 +142,7 @@ def process_enums(self):
 		           'value-prod' : '--vprod',
 		           'value-tail' : '--vtail',
 		           'comments': '--comments'}
-		for param, option in params.iteritems():
+		for param, option in params.items():
 			if enum[param]:
 				options.append('%s %r' % (option, enum[param]))
 

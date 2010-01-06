@@ -13,14 +13,7 @@ from Logs import error
 Usage:
 
 bld.new_task_gen(features='intltool_in', source='a.po b.po', podir='po', cache='.intlcache', flags='')
-
-
-
 """
-class intltool_in_taskgen(TaskGen.task_gen):
-	"""deprecated"""
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @before('apply_core')
 @feature('intltool_in')
@@ -44,12 +37,6 @@ def iapply_intltool_in_f(self):
 
 		task = self.create_task('intltool', node, node.change_ext(''))
 		task.install_path = self.install_path
-
-class intltool_po_taskgen(TaskGen.task_gen):
-	"""deprecated"""
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
 
 @feature('intltool_po')
 def apply_intltool_po(self):

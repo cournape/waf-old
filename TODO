@@ -19,7 +19,7 @@ API/Syntax
 - use foo.env.VAR instead of foo.env["VAR"]
 - use BuildContext.__call__(...): bld(...) may be more simple than bld.new_task_gen(...)
 - python 3.x syntax by default (no support for python 2.x)
-- conf.env -> conf.cfg; Environment -> ConfigData; etc
+- conf.env -> conf.cfg
 
 Configuration
 - use configuration names to avoid [env.copy(), conf.setenv, ...]

@@ -206,7 +206,7 @@ class Parallel(object):
 
 				# create the consumer threads only if there is something to consume
 				if not self.consumers:
-					self.consumers = [TaskConsumer(self) for i in xrange(self.numjobs)]
+					self.consumers = [TaskConsumer(self) for i in range(self.numjobs)]
 
 		# self.count represents the tasks that have been made available to the consumer threads
 		# collect all the tasks after an error else the message may be incomplete

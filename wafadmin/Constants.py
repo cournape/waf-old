@@ -28,7 +28,7 @@ WSCRIPT_BUILD_FILE = 'wscript_build'
 WAF_CONFIG_LOG     = 'config.log'
 WAF_CONFIG_H       = 'config.h'
 
-SIG_NIL = 'iluvcuteoverload'
+SIG_NIL = b'iluvcuteoverload'
 
 VARIANT = '_VARIANT_'
 DEFAULT = 'default'

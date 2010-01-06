@@ -144,10 +144,6 @@ pdflatex_vardeps  = ['PDFLATEX', 'PDFLATEXFLAGS']
 def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
 
-class tex_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
 @feature('tex')
 @before('apply_core')
 def apply_tex(self):

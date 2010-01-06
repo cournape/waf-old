@@ -193,7 +193,7 @@ class BuildContext(Utils.Context):
 		file = open(db + '.tmp', 'wb')
 		data = {}
 		for x in SAVED_ATTRS: data[x] = getattr(self, x)
-		cPickle.dump(data, file, -1)
+		cPickle.dump(data, file)
 		file.close()
 
 		# do not use shutil.move
@@ -498,7 +498,7 @@ class BuildContext(Utils.Context):
 				# listdir failed, remove all sigs of nodes
 				# TODO more things to remove?
 				dict = self.node_sigs[variant]
-				for node in src_dir_node.childs.values():
+				for node in list(src_dir_node.childs.values()):
 					if node.id in dict:
 						dict.__delitem__(node.id)
 
@@ -648,7 +648,7 @@ class BuildContext(Utils.Context):
 
 			# tasks must be posted in order of declaration
 			# we merely apply a filter to discard the ones we are not interested in
-			for i in xrange(len(self.task_manager.groups)):
+			for i in range(len(self.task_manager.groups)):
 				g = self.task_manager.groups[i]
 				self.task_manager.current_group = i
 				for tg in g.tasks_gen:
@@ -669,7 +669,7 @@ class BuildContext(Utils.Context):
 			if proj_node.id != self.srcnode.id:
 				ln = self.srcnode
 
-			for i in xrange(len(self.task_manager.groups)):
+			for i in range(len(self.task_manager.groups)):
 				g = self.task_manager.groups[i]
 				self.task_manager.current_group = i
 				for tg in g.tasks_gen:

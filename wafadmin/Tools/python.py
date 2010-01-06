@@ -99,11 +99,6 @@ for pyfile in sys.argv[1:]:
 			if ret:
 				raise Utils.WafError('bytecode compilation failed %r' % path)
 
-# COMPAT
-class py_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
 @before('apply_core')
 @after('vars_target_cprogram', 'vars_target_cstaticlib')
 @feature('py')

@@ -180,7 +180,7 @@ class ConfigData(object):
 		return Options.options.destdir
 
 	def update(self, d):
-		for k, v in d.iteritems():
+		for k, v in d.items():
 			self[k] = v
 
 

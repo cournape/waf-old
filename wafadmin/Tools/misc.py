@@ -31,10 +31,6 @@ def action_process_file_func(tsk):
 	if not tsk.fun: raise Utils.WafError('task must have a function attached to it for copy_func to work!')
 	return tsk.fun(tsk)
 
-class cmd_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
 @feature('cmd')
 def apply_cmd(self):
 	"call a command everytime"
@@ -44,11 +40,6 @@ def apply_cmd(self):
 	tsk.env = self.env
 	self.tasks.append(tsk)
 	tsk.install_path = self.install_path
-
-class copy_taskgen(TaskGen.task_gen):
-	"By default, make a file copy, if fun is provided, fun will make the copy (or call a compiler, etc)"
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('copy')
 @before('apply_core')
@@ -103,10 +94,6 @@ def subst_func(tsk):
 	file.write(s % di)
 	file.close()
 	if tsk.chmod: os.chmod(outfile, tsk.chmod)
-
-class subst_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('subst')
 @before('apply_core')
@@ -274,10 +261,6 @@ class command_output(Task.Task):
 		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, stderr=stderr, cwd=task.cwd, env=os_env)
 		return command.wait()
 
-class cmd_output_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
 @feature('command-output')
 def init_cmd_output(self):
 	Utils.def_attrs(self,
@@ -425,5 +408,4 @@ def runnable_status(self):
 	return Constants.RUN_ME
 
 Task.task_type_from_func('copy', vars=[], func=action_process_file_func)
-TaskGen.task_gen.classes['command-output'] = cmd_output_taskgen
 

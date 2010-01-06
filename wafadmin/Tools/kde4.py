@@ -6,10 +6,6 @@ import os, sys, re
 import Options, TaskGen, Task, Utils
 from TaskGen import taskgen, feature, after
 
-class msgfmt_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
-
 @feature('msgfmt')
 def init_msgfmt(self):
 	#langs = '' # for example "foo/fr foo/br"
