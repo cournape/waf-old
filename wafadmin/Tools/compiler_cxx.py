@@ -31,7 +31,7 @@ def detect(conf):
 	for compiler in test_for_compiler.split():
 		try:
 			conf.check_tool(compiler)
-		except Configure.ConfigurationError, e:
+		except Configure.ConfigurationError as e:
 			debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env['CXX']:

@@ -14,7 +14,7 @@ try:
 	sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
 	hconsole = windll.kernel32.GetStdHandle(-11)
 	windll.kernel32.GetConsoleScreenBufferInfo(hconsole, byref(sbinfo))
-except Exception:
+except Exception as e:
 	pass
 else:
 	import re

@@ -5,8 +5,7 @@
 "Execute the tasks"
 
 import sys, random, time, threading, traceback
-try: from Queue import Queue
-except ImportError: from queue import Queue
+from queue import Queue
 import Build, Utils, Logs, Options
 from Logs import debug, error
 from Constants import *
@@ -49,7 +48,7 @@ class TaskConsumer(threading.Thread):
 				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
 				# actual call to task's run() function
 				else: ret = tsk.call_run()
-			except Exception, e:
+			except Exception as e:
 				tsk.err_msg = Utils.ex_stack()
 				tsk.hasrun = EXCEPTION
 
@@ -184,7 +183,7 @@ class Parallel(object):
 
 			try:
 				st = tsk.runnable_status()
-			except Exception, e:
+			except Exception as e:
 				tsk.err_msg = Utils.ex_stack()
 				tsk.hasrun = EXCEPTION
 				self.processed += 1

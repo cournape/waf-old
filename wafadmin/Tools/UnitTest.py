@@ -61,7 +61,7 @@ def exec_test(self):
 
 		try:
 			ret = Utils.cmd_output(filename, cwd=self.inputs[0].parent.abspath(self.env), env=fu)
-		except Exception, e:
+		except Exception as e:
 			fail = True
 			ret = '' + str(e)
 		else:

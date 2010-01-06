@@ -321,7 +321,7 @@ class BuildContext(Utils.Context):
 	def load_envs(self):
 		try:
 			lst = Utils.listdir(self.cachedir)
-		except OSError, e:
+		except OSError as e:
 			if e.errno == errno.ENOENT:
 				raise Utils.WafError('The project was not configured: run "waf configure" first!')
 			else:
@@ -746,7 +746,7 @@ class BuildContext(Utils.Context):
 
 			try:
 				os.remove(tgt)
-			except OSError, e:
+			except OSError as e:
 				if e.errno != errno.ENOENT:
 					if not getattr(self, 'uninstall_error', None):
 						self.uninstall_error = True
@@ -911,8 +911,8 @@ class BuildContext(Utils.Context):
 		f.write(s)
 		f.flush()
 
-	# deprecated - use "recurse" instead
 	def add_subdirs(self, dirs):
+		debug('deprecation: use recurse instead ofadd_subdirs')
 		self.recurse(dirs, 'build')
 
 	def pre_recurse(self, name_or_mod, path, nexdir):
@@ -924,7 +924,7 @@ class BuildContext(Utils.Context):
 
 	def post_recurse(self, name_or_mod, path, nexdir):
 		self.path = self.oldpath.pop()
-	
+
 	def autoconfigure(self):
 		if not Configure.autoconfig:
 			return

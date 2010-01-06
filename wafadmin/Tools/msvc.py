@@ -36,7 +36,6 @@ from TaskGen import after, before, feature
 
 from Configure import conftest, conf
 import ccroot, cc, cxx, ar, winres
-from libtool import read_la_file
 
 import _winreg
 
@@ -133,7 +132,7 @@ echo LIB=%%LIB%%
 		out, err = p.communicate()
 		if p.returncode != 0:
 			raise Exception('return code: %r: %r' % (p.returncode, err))
-	except Exception, e:
+	except Exception as e:
 		debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
 		debug(str(e))
 		conf.fatal('msvc: cannot run the compiler (in get_msvc_version)')
@@ -329,7 +328,7 @@ def find_lt_names_msvc(self, libname, is_static=False):
 			laf=os.path.join(path,la)
 			dll=None
 			if os.path.exists(laf):
-				ltdict=read_la_file(laf)
+				ltdict = Utils.read_la_file(laf)
 				lt_libdir=None
 				if ltdict.get('libdir', ''):
 					lt_libdir = ltdict['libdir']

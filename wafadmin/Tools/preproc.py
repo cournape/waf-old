@@ -682,7 +682,7 @@ class c_parser(object):
 				continue
 			try:
 				self.process_line(kind, line)
-			except Exception, e:
+			except Exception as e:
 				if Logs.verbose:
 					debug('preproc: line parsing failed (%s): %s %s' % (e, line, Utils.ex_stack()))
 

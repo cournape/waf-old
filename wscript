@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2006, 2007, 2008
 
-VERSION="1.5.10"
+VERSION="1.6.0"
 APPNAME='waf'
 REVISION=''
 srcdir='.'
@@ -16,13 +16,12 @@ import tokenize
 
 import os, sys, base64, shutil, re, random, StringIO, optparse, tempfile
 import Utils, Options, Build
-try: from hashlib import md5
-except ImportError: from md5 import md5
+from hashlib import md5
 
 import Configure
 Configure.autoconfig = 1
 
-print ("------> Executing code from the top-level wscript <-----")
+print("------> Executing code from the top-level wscript <-----")
 
 def init():
 	if Options.options.setver: # maintainer only (ita)
@@ -106,38 +105,6 @@ def compute_revision():
 		f.close()
 	REVISION = m.hexdigest()
 
-#deco_re = re.compile('def\\s+([a-zA-Z_]+)\\(')
-deco_re = re.compile('(def|class)\\s+(\w+)\\(.*')
-def process_decorators(body):
-	lst = body.split('\n')
-	accu = []
-	all_deco = []
-	buf = [] # put the decorator lines
-	for line in lst:
-		if line.startswith('@'):
-			buf.append(line[1:])
-		elif buf:
-			name = deco_re.sub('\\2', line)
-			if not name:
-				raise IOError, "decorator not followed by a function!"+line
-			for x in buf:
-				all_deco.append("%s(%s)" % (x, name))
-			accu.append(line)
-			buf = []
-		else:
-			accu.append(line)
-	return "\n".join(accu+all_deco)
-
-def process_imports(body):
-	header = '#! /usr/bin/env python\n# encoding: utf-8'
-	impo = ''
-	deco = ''
-
-	if body.find('set(') > -1:
-		impo += 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set'
-
-	return "\n".join([header, impo, body, deco])
-
 def process_tokens(tokens):
 	accu = []
 	prev = tokenize.NEWLINE
@@ -191,10 +158,8 @@ def sfilter(path):
 		cnt = f.read()
 	f.close()
 
-	cnt = process_decorators(cnt)
-	cnt = process_imports(cnt)
 	if path.endswith('Options.py') or path.endswith('Scripting.py'):
-		cnt = cnt.replace('Utils.python_24_guard()', '')
+		cnt = cnt.replace('Utils.python_version_guard()', '')
 
 	return (StringIO.StringIO(cnt), len(cnt), cnt)
 

@@ -32,7 +32,7 @@ def waf_entry_point(tools_directory, current_directory, version, wafdir):
 		run_commands()
 
 	# Print Waf-specific errors
-	except Utils.WafError, e:
+	except Utils.WafError as e:
 		traceback.print_exc(file=sys.stdout)
 		error(str(e))
 		sys.exit(1)
@@ -270,13 +270,13 @@ def distclean(ctx=None):
 				shutil.rmtree(proj[BLDDIR])
 			except IOError:
 				pass
-			except OSError, e:
+			except OSError as e:
 				if e.errno != errno.ENOENT:
 					Logs.warn('project %r cannot be removed' % proj[BLDDIR])
 
 			try:
 				os.remove(f)
-			except OSError, e:
+			except OSError as e:
 				if e.errno != errno.ENOENT:
 					Logs.warn('file %r cannot be removed' % f)
 
@@ -326,10 +326,9 @@ def dist(appname='', version=''):
 	tar.add(tmp_folder)
 	tar.close()
 
-	try: from hashlib import sha1 as sha
-	except ImportError: from sha import sha
+	from hashlib import sha1
 	try:
-		digest = " (sha=%r)" % sha(Utils.readf(arch_name)).hexdigest()
+		digest = " (sha=%r)" % sha1(Utils.readf(arch_name)).hexdigest()
 	except:
 		digest = ''
 

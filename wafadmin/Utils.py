@@ -319,7 +319,7 @@ def load_module(file_path, name=WSCRIPT_FILE):
 	sys.path.insert(0, module_dir)
 	try:
 		exec(code, module.__dict__)
-	except Exception, e:
+	except Exception as e:
 		try:
 			raise WscriptError(traceback.format_exc(), file_path)
 		except:
@@ -516,7 +516,7 @@ def cmd_output(cmd, **kw):
 	try:
 		p = subprocess.Popen(cmd, **kw)
 		output = p.communicate()[0]
-	except OSError, e:
+	except OSError as e:
 		raise ValueError(str(e))
 
 	if p.returncode:
@@ -627,7 +627,7 @@ def load_tool(tool, tooldir=None):
 	try:
 		try:
 			return __import__(tool)
-		except ImportError, e:
+		except ImportError as e:
 			raise WscriptError('Could not load the tool %r in %r' % (tool, sys.path))
 	finally:
 		if tooldir:
@@ -749,13 +749,13 @@ class Context(object):
 		for d in dirs:
 			wscript_file = os.path.join(d, WSCRIPT_FILE)
 			partial_wscript_file = wscript_file + '_' + function_name
-			
+
 			# if there is a partial wscript with the body of the user function,
 			# use it in preference
 			if os.path.exists(partial_wscript_file):
 				exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
 				function_code = readf(partial_wscript_file, m='rU')
-				
+
 				self.pre_recurse(function_code, partial_wscript_file, d)
 				old_dir = self.curdir
 				self.curdir = d
@@ -766,7 +766,7 @@ class Context(object):
 				finally:
 					self.curdir = old_dir
 				self.post_recurse(function_code, partial_wscript_file, d)
-			
+
 			# if there is only a full wscript file, use a suitably named
 			# function from it
 			elif os.path.exists(wscript_file):
@@ -786,11 +786,11 @@ class Context(object):
 				finally:
 					self.curdir = old_dir
 				self.post_recurse(user_function, wscript_file, d)
-			
+
 			# no wscript file - raise an exception
 			else:
 				raise WscriptError('No wscript file in directory %s' % d)
-	
+
 	def prepare(self):
 		"""Executed before the context is passed to the user function."""
 		pass
@@ -829,8 +829,7 @@ class Timer(object):
 	def __init__(self):
 		self.start()
 	def _now(self):
-		# use utcnow(), otherwise we can display bogus values for example when
-		# a DST change happens during a Waf run
+		# use utcnow(), avoid confusion due to DST change during execution
 		return datetime.datetime.utcnow()
 	def start(self):
 		"""Start the timer. Note that the timer is started on construction."""
@@ -853,7 +852,7 @@ class Timer(object):
 			result += '%dh' % hours
 		if days or hours or minutes:
 			result += '%dm' % minutes
-		return '%s%.3fs' % (result, seconds)	
+		return '%s%.3fs' % (result, seconds)
 
 if is_win32:
 	old = shutil.copy2
@@ -869,4 +868,18 @@ if os.name == 'java':
 		gc.enable()
 	except NotImplementedError:
 		gc.disable = gc.enable
+
+def read_la_file(path):
+	sp = re.compile(r'^([^=]+)=\'(.*)\'$')
+	dc = {}
+	file = open(path, "r")
+	for line in file.readlines():
+		try:
+			#print sp.split(line.strip())
+			_, left, right, _ = sp.split(line.strip())
+			dc[left]=right
+		except ValueError:
+			pass
+	file.close()
+	return dc
 

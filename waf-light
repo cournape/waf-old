@@ -35,13 +35,14 @@ POSSIBILITY OF SUCH DAMAGE.
 # then jumps to the real entry point in Scripting.py.
 
 import os, sys
-if sys.hexversion<0x203000f: raise ImportError("Waf requires Python >= 2.3")
+if sys.hexversion<0x300000f:
+	raise ImportError("Waf 1.6 requires Python >= 3.0 (for now)")
 
 if 'PSYCOWAF' in os.environ:
 	try:import psyco;psyco.full()
 	except:pass
 
-VERSION="1.5.10"
+VERSION="1.6.0"
 REVISION="x"
 INSTALL="x"
 C1='x'
@@ -51,12 +52,7 @@ join = os.path.join
 
 WAF='waf'
 def b(x):
-	return x
-
-if sys.hexversion>0x300000f:
-	WAF='waf3'
-	def b(x):
-		return x.encode()
+	return x.encode()
 
 def err(m):
 	print(('\033[91mError: %s\033[0m' % m))

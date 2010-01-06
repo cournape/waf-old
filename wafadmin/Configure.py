@@ -312,7 +312,7 @@ class ConfigurationContext(Utils.Context):
 			if not f: self.fatal("No such method '%s'." % x)
 			try:
 				f()
-			except Exception, e:
+			except Exception as e:
 				ret = self.err_handler(x, e)
 				if ret == BREAK:
 					break
@@ -323,7 +323,7 @@ class ConfigurationContext(Utils.Context):
 
 	def err_handler(self, fun, error):
 		pass
-	
+
 	def prepare(self):
 		src = getattr(Options.options, SRCDIR, None)
 		if not src: src = getattr(Utils.g_module, SRCDIR, None)
