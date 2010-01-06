@@ -227,8 +227,8 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 		sys.exit(0)
 
 def python_24_guard():
-	if sys.hexversion<0x20400f0:
-		raise ImportError("Waf requires Python >= 2.3 but the raw source requires Python 2.4")
+	if sys.hexversion < 0x20400f0 or sys.hexversion >= 0x3000000:
+		raise ImportError("Waf requires Python >= 2.3 but the raw source requires Python 2.4, 2.5 or 2.6")
 
 def ex_stack():
 	exc_type, exc_value, tb = sys.exc_info()
