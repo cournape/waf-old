@@ -40,22 +40,11 @@ Utilities, the stable ones are the following:
 
 import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime, gc
 
-# In python 3.0 we can get rid of all this
-try: from UserDict import UserDict
-except ImportError: from collections import UserDict
-if sys.hexversion >= 0x2060000 or os.name == 'java':
-	import subprocess as pproc
-else:
-	import pproc
+from collections import UserDict
+import subprocess
 import Logs
 from Constants import *
-
-try:
-	from collections import deque
-except ImportError:
-	class deque(list):
-		def popleft(self):
-			return self.pop(0)
+from collections import deque
 
 is_win32 = sys.platform == 'win32'
 
@@ -196,7 +185,7 @@ def exec_command(s, **kw):
 	kw['shell'] = isinstance(s, str)
 
 	try:
-		proc = pproc.Popen(s, **kw)
+		proc = subprocess.Popen(s, **kw)
 		return proc.wait()
 	except OSError:
 		return -1
@@ -209,22 +198,22 @@ if is_win32:
 		kw['shell'] = isinstance(s, str)
 
 		if len(s) > 2000:
-			startupinfo = pproc.STARTUPINFO()
-			startupinfo.dwFlags |= pproc.STARTF_USESHOWWINDOW
+			startupinfo = subprocess.STARTUPINFO()
+			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 			kw['startupinfo'] = startupinfo
 
 		try:
 			if 'stdout' not in kw:
-				kw['stdout'] = pproc.PIPE
-				kw['stderr'] = pproc.PIPE
-				proc = pproc.Popen(s,**kw)
+				kw['stdout'] = subprocess.PIPE
+				kw['stderr'] = subprocess.PIPE
+				proc = subprocess.Popen(s,**kw)
 				(stdout, stderr) = proc.communicate()
 				Logs.info(stdout)
 				if stderr:
 					Logs.error(stderr)
 				return proc.returncode
 			else:
-				proc = pproc.Popen(s,**kw)
+				proc = subprocess.Popen(s,**kw)
 				return proc.wait()
 		except OSError:
 			return -1
@@ -269,7 +258,7 @@ def waf_version(mini = 0x010000, maxi = 0x100000):
 		Logs.error("waf version should be at most %s (%s found)" % (maxi, ver))
 		sys.exit(0)
 
-def python_24_guard():
+def python_version_guard():
 	"""
 	Abort if running on an old (< 2.4) version of Python.
 	"""
@@ -285,7 +274,7 @@ def to_list(sth):
 	"""
 	Convert a string argument to a list by splitting on spaces, and pass
 	through a list argument unchanged.
-	
+
 	@param sth: List or a string of items separated by spaces
 	@rtype: list
 	@return: Argument converted to list
@@ -523,12 +512,12 @@ def cmd_output(cmd, **kw):
 		kw['env'] = tmp
 
 	kw['shell'] = isinstance(cmd, str)
-	kw['stdout'] = pproc.PIPE
+	kw['stdout'] = subprocess.PIPE
 	if silent:
-		kw['stderr'] = pproc.PIPE
+		kw['stderr'] = subprocess.PIPE
 
 	try:
-		p = pproc.Popen(cmd, **kw)
+		p = subprocess.Popen(cmd, **kw)
 		output = p.communicate()[0]
 	except OSError, e:
 		raise ValueError(str(e))

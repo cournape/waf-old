@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, sys, shutil, traceback, datetime, inspect, errno
+import os, sys, shutil, traceback, datetime, inspect, errno, subprocess
 import Utils, Configure, Build, Logs, Options, Environment, Task
 from Logs import error, warn, info
 from Constants import *
@@ -21,16 +21,16 @@ def waf_entry_point(tools_directory, current_directory, version, wafdir):
 	"""This is the main entry point, all Waf execution starts here."""
 	try:
 		check_wafdir_version(version)
-		
+
 		Options.tooldir = [tools_directory]
 		Options.launch_dir = current_directory
-		
+
 		handle_immediate_commands()
 		wscript_path = find_wscript_file(current_directory)
 		prepare_wscript(wscript_path)
 		parse_options()
 		run_commands()
-	
+
 	# Print Waf-specific errors
 	except Utils.WafError, e:
 		traceback.print_exc(file=sys.stdout)
@@ -355,7 +355,7 @@ def distcheck(appname='', version=''):
 	path = appname + '-' + version
 
 	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
-	ret = Utils.pproc.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
+	ret = subprocess.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
 	if ret:
 		raise Utils.WafError('distcheck failed with code %i' % ret)
 

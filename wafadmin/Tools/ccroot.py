@@ -4,7 +4,7 @@
 
 "base for all c/c++ programs and libraries"
 
-import os, sys, re
+import os, sys, re, subproces
 import TaskGen, Task, Utils, preproc, Logs, Build, Options
 from Logs import error, debug, warn
 from Utils import md5
@@ -24,7 +24,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 
 	cmd = cc + ['-dM', '-E', '-']
 	try:
-		p = Utils.pproc.Popen(cmd, stdin=Utils.pproc.PIPE, stdout=Utils.pproc.PIPE, stderr=Utils.pproc.PIPE)
+		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		p.stdin.write('\n')
 		out = p.communicate()[0]
 	except:

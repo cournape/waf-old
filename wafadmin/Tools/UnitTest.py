@@ -17,7 +17,7 @@ In the shutdown method, add the following code:
 
 Each object to use as a unit test must be a program and must have X{obj.unit_test=1}
 """
-import os, sys
+import os, sys, subprocess
 import Build, TaskGen, Utils, Options, Logs, Task
 from TaskGen import before, after, feature
 from Constants import *
@@ -109,9 +109,9 @@ class unit_test(object):
 				if self.change_to_testfile_dir:
 					kwargs['cwd'] = srcdir
 				if not self.want_to_see_test_output:
-					kwargs['stdout'] = Utils.pproc.PIPE  # PIPE for ignoring output
+					kwargs['stdout'] = subprocess.PIPE  # PIPE for ignoring output
 				if not self.want_to_see_test_error:
-					kwargs['stderr'] = Utils.pproc.PIPE  # PIPE for ignoring output
+					kwargs['stderr'] = subprocess.PIPE  # PIPE for ignoring output
 				if ld_library_path:
 					v = kwargs['env']
 					def add_path(dct, path, var):
@@ -124,7 +124,7 @@ class unit_test(object):
 					else:
 						add_path(v, ld_library_path, 'LD_LIBRARY_PATH')
 
-				pp = Utils.pproc.Popen(filename, **kwargs)
+				pp = subprocess.Popen(filename, **kwargs)
 				pp.wait()
 
 				result = int(pp.returncode == self.returncode_ok)

@@ -22,8 +22,6 @@ commands = []
 """List of commands to execute"""
 launch_dir = ''
 """Directory from which Waf was executed"""
-tooldir = ''
-"""Directory where the tool modules are located"""
 
 lockfile = os.environ.get('WAFLOCK', '.lock-wscript')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
@@ -168,7 +166,7 @@ def create_parser(module=None):
 # TODO waf 1.6
 # 2. instead of a class attribute, use a module (static 'parser')
 
-@command_context('OPTIONS','set_options')
+@command_context('OPTIONS', 'set_options')
 class OptionsContext(Utils.Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
@@ -190,14 +188,13 @@ class OptionsContext(Utils.Context):
 		self.recurse(d, name='set_options')
 
 	def tool_options(self, tool_list, *k, **kw):
-		Utils.python_24_guard()
+		Utils.python_version_guard()
 
 		#if not k[0]:
 		#	raise Utils.WscriptError('invalid tool_options call %r %r' % (k, kw))
 		tools = Utils.to_list(tool_list)
 
-		# TODO waf 1.6 remove the global variable tooldir
-		path = Utils.to_list(kw.get('tdir', kw.get('tooldir', tooldir)))
+		path = Utils.to_list(kw.get('tooldir', ''))
 
 		for tool in tools:
 			tool = tool.replace('++', 'xx')

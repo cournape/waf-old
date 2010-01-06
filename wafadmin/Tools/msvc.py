@@ -29,7 +29,7 @@
 #  PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
 
 
-import os, sys, re, string, optparse
+import os, sys, re, string, optparse, subprocess
 import Utils, TaskGen, Runner, Configure, Task, Options
 from Logs import debug, info, warn, error
 from TaskGen import after, before, feature
@@ -39,8 +39,6 @@ import ccroot, cc, cxx, ar, winres
 from libtool import read_la_file
 
 import _winreg
-
-pproc = Utils.pproc
 
 # importlibs provided by MSVC/Platform SDK. Do NOT search them....
 g_msvc_systemlibs = """
@@ -131,7 +129,7 @@ echo LIB=%%LIB%%
 		del(env['CL'])
 
 	try:
-		p = pproc.Popen([cxx, '/help'], env=env, stdout=pproc.PIPE, stderr=pproc.PIPE)
+		p = subprocess.Popen([cxx, '/help'], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out, err = p.communicate()
 		if p.returncode != 0:
 			raise Exception('return code: %r: %r' % (p.returncode, err))

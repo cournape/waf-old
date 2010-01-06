@@ -2,7 +2,7 @@
 # encoding: utf-8
 # andersg at 0x63.nu 2007
 
-import os
+import os, subprocess
 import Task, Options, Utils
 from Configure import conf
 from TaskGen import extension, taskgen, feature, before
@@ -73,7 +73,7 @@ def check_perl_module(conf, module):
 	conf.check_perl_module("Some::Module 2.92")
 	"""
 	cmd = [conf.env['PERL'], '-e', 'use %s' % module]
-	r = Utils.pproc.call(cmd, stdout=Utils.pproc.PIPE, stderr=Utils.pproc.PIPE) == 0
+	r = subprocess.call(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
 	conf.check_message("perl module %s" % module, "", r)
 	return r
 

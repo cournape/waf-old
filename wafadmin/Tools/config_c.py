@@ -6,7 +6,7 @@
 c/c++ configuration routines
 """
 
-import os, imp, sys, shlex, shutil
+import os, imp, sys, shlex, shutil, subprocess
 from Utils import md5
 import Build, Utils, Configure, Task, Options, Logs, TaskGen
 from Constants import *
@@ -124,7 +124,7 @@ def cmd_and_log(self, cmd, kw):
 	if self.log: self.log.write('%s\n' % cmd)
 
 	try:
-		p = Utils.pproc.Popen(cmd, stdout=Utils.pproc.PIPE, shell=True)
+		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
 		output = p.communicate()[0]
 	except OSError:
 		self.fatal('fail')
