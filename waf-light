@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005-2009
+# Thomas Nagy, 2005-2010
 
 """
 Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,6 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-# This file is a stub that ensures the Waf library is present,
-# then jumps to the real entry point in Scripting.py.
-
 import os, sys
 if sys.hexversion<0x300000f:
 	raise ImportError("Waf 1.6 requires Python >= 3.0 (for now)")
@@ -50,8 +47,6 @@ cwd = os.getcwd()
 join = os.path.join
 
 WAF='waf'
-def b(x):
-	return x.encode()
 
 def err(m):
 	print(('\033[91mError: %s\033[0m' % m))
@@ -59,17 +54,17 @@ def err(m):
 
 def unpack_wafdir(dir):
 	f = open(sys.argv[0],'rb')
-	c = "corrupted waf (%d)"
+	c = 'corrupt archive (%d)'
 	while 1:
 		line = f.readline()
-		if not line: err("run waf-light from a folder containing wafadmin")
-		if line == b('#==>\n'):
+		if not line: err('run waf-light from a folder containing wafadmin')
+		if line == b'#==>\n':
 			txt = f.readline()
 			if not txt: err(c % 1)
-			if f.readline()!=b('#<==\n'): err(c % 2)
+			if f.readline() != b'#<==\n': err(c % 2)
 			break
 	if not txt: err(c % 3)
-	txt = txt[1:-1].replace(b(C1), b('\n')).replace(b(C2), b('\r'))
+	txt = txt[1:-1].replace(C1, b'\n').replace(C2, b'\r')
 
 	import shutil, tarfile
 	try: shutil.rmtree(dir)
@@ -100,17 +95,14 @@ def unpack_wafdir(dir):
 		os.chmod(join('wafadmin',x), 493)
 
 	os.unlink(tmp)
-
-	if sys.hexversion>0x300000f:
-		sys.path = [join(dir, 'wafadmin')] + sys.path
-		import py3kfixes
-		py3kfixes.fixdir(dir)
-
 	os.chdir(cwd)
 
 def test(dir):
-	try: os.stat(join(dir, 'wafadmin')); return os.path.abspath(dir)
-	except OSError: pass
+	try:
+		os.stat(join(dir, 'wafadmin'))
+		return os.path.abspath(dir)
+	except OSError:
+		pass
 
 def find_lib():
 	name = sys.argv[0]
@@ -124,17 +116,15 @@ def find_lib():
 	if name.endswith('waf-light'):
 		w = test(base)
 		if w: return w
-		err("waf-light requires wafadmin -> export WAFDIR=/folder")
+		err('waf-light requires wafadmin -> export WAFDIR=/folder')
 
-	dir = "/lib/%s-%s-%s/" % (WAF, VERSION, REVISION)
+	dirname = '%s-%s-%s' % (WAF, VERSION, REVISION)
 	for i in [INSTALL,'/usr','/usr/local','/opt']:
-		w = test(i+dir)
+		w = test(i + '/lib/' + dirname)
 		if w: return w
 
 	#waf-local
-	s = '.%s-%s-%s'
-	if sys.platform == 'win32': s = s[1:]
-	dir = join(base, s % (WAF, VERSION, REVISION))
+	dir = join(base, (sys.platform != 'win32' and '.' or '') + dirname)
 	w = test(dir)
 	if w: return w
 
@@ -142,14 +132,12 @@ def find_lib():
 	unpack_wafdir(dir)
 	return dir
 
-# Append wafadmin and tool directory to module path, so they can be imported
 wafdir = find_lib()
 w = join(wafdir, 'wafadmin')
 t = join(w, 'Tools')
 f = join(w, '3rdparty')
 sys.path = [w, t, f] + sys.path
 
-# Jump to the real entry point
 import Scripting
 Scripting.waf_entry_point(t, cwd, VERSION, wafdir)
 sys.exit(0)

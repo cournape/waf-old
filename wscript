@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005, 2006, 2007, 2008
+# Thomas Nagy, 2005-2010
 
 VERSION="1.6.0"
 APPNAME='waf'
@@ -237,7 +237,7 @@ def create_waf():
 	(cnt, C1) = find_unused(cnt, '\n')
 	f = open('waf', 'wb')
 
-	ccc = code1.replace("C1='x'", "C1='%s'" % C1).replace("C2='x'", "C2='%s'" % C2)
+	ccc = code1.replace("C1='x'", "C1=b'%s'" % C1).replace("C2='x'", "C2=b'%s'" % C2)
 
 	f.write(ccc.encode())
 	f.write(b'#==>\n')
