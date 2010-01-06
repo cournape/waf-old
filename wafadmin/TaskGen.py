@@ -217,7 +217,7 @@ class task_gen(object):
 	# TODO waf 1.6: create_task(self, name, inputs, outputs)
 	def create_task(self, name, src=None, tgt=None, env=None):
 		env = env or self.env
-		task = Task.TaskBase.classes[name](env.derive(), generator=self)
+		task = Task.TaskBase.classes[name](env=env.derive(), generator=self)
 		if src:
 			task.set_inputs(src)
 		if tgt:

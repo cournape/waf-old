@@ -19,13 +19,22 @@ build_dir_override = None
 
 def waf_entry_point(tools_directory, current_directory, version, wafdir):
 	"""This is the main entry point, all Waf execution starts here."""
+
+	if WAFVERSION != version:
+		error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
+		sys.exit(1)
+
+	Options.tooldir = [tools_directory]
+	Options.launch_dir = current_directory
+
+	if '--version' in sys.argv:
+		# some command-line options may be parsed immediately
+		opt_obj = Options.OptionsContext()
+		opt_obj.curdir = current_directory
+		opt_obj.parse_args()
+		sys.exit(0)
+
 	try:
-		check_wafdir_version(version)
-
-		Options.tooldir = [tools_directory]
-		Options.launch_dir = current_directory
-
-		handle_immediate_commands()
 		wscript_path = find_wscript_file(current_directory)
 		prepare_wscript(wscript_path)
 		parse_options()
@@ -41,24 +50,6 @@ def waf_entry_point(tools_directory, current_directory, version, wafdir):
 	except KeyboardInterrupt:
 		Utils.pprint('RED', 'Interrupted')
 		sys.exit(68)
-
-def check_wafdir_version(version):
-	"""Check the version of Waf against the version of the wafadmin directory,
-	stored in the Constants module. Print an error and exit if they don't match."""
-	if WAFVERSION != version:
-		Utils.pprint('RED', 'Error: Waf script version and Waf library version are different.')
-		Utils.pprint('RED', 'Waf script version:    %s' % version)
-		Utils.pprint('RED', 'Waf library version:   %s' % WAFVERSION)
-		Utils.pprint('RED', 'Waf library directory: %s' % wafdir)
-		sys.exit(1)
-
-def handle_immediate_commands():
-	# some command-line options can be processed immediately
-	if '--version' in sys.argv:
-		opt_obj = Options.OptionsContext()
-		opt_obj.curdir = cwd
-		opt_obj.parse_args()
-		sys.exit(0)
 
 def find_wscript_file(current_dir):
 	"""Search the directory from which Waf was run, and other dirs, for
