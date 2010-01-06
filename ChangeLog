@@ -1,6 +1,6 @@
 NEW IN WAF 1.6.0
 ----------------
 
-* Environment -> ConfigData
 * Python 3 syntax by default
+* Environment -> ConfigData
 

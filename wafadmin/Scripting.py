@@ -30,13 +30,14 @@ def waf_entry_point(tools_directory, current_directory, version, wafdir):
 		prepare_wscript(wscript_path)
 		parse_options()
 		run_commands()
+	except Exception as e:
+		traceback.print_exc(file=sys.stdout)
+		print(e)
 
-	# Print Waf-specific errors
 	except Utils.WafError as e:
 		traceback.print_exc(file=sys.stdout)
 		error(str(e))
 		sys.exit(1)
-	# Handle keyboard interrupt
 	except KeyboardInterrupt:
 		Utils.pprint('RED', 'Interrupted')
 		sys.exit(68)
@@ -62,7 +63,7 @@ def handle_immediate_commands():
 def find_wscript_file(current_dir):
 	"""Search the directory from which Waf was run, and other dirs, for
 	the top-level wscript file."""
-	
+
 	msg1 = 'Waf: Please run waf from a directory containing a file named "%s" or run distclean' % WSCRIPT_FILE
 
 	# in theory projects can be configured in an autotool-like manner:
