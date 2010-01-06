@@ -989,10 +989,6 @@ class BuildContext(Utils.Context):
 		self.is_install = 0
 		self.execute_build()
 
-	def finalize(self):
-		# FIXME WTF?
-		pass
-
 	def execute_build(self):
 		self.add_subdirs([os.path.split(Utils.g_module.root_path)[0]])
 		self.pre_build()
