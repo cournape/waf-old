@@ -256,7 +256,6 @@ class Node(object):
 						return None
 		return current
 
-	# FIXME: remove in waf 1.6 ?
 	def ensure_dir_node_from_path(self, lst):
 		"used very rarely, force the construction of a branch of node instance for representing folders"
 
@@ -278,7 +277,6 @@ class Node(object):
 					current = self.__class__(name, prev, DIR)
 		return current
 
-	# FIXME: remove in waf 1.6
 	def exclusive_build_node(self, path):
 		"""
 		create a hierarchy in the build dir (no source folders) for ill-behaving compilers
