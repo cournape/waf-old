@@ -14,11 +14,11 @@ zip_types = ['bz2', 'gz']
 #from tokenize import *
 import tokenize
 
-import os, sys, base64, shutil, re, random, StringIO, optparse, tempfile
+import os, sys, base64, shutil, re, random, io, optparse, tempfile
 import Utils, Options, Build
 from hashlib import md5
 
-import Configure
+import Configure, Constants
 Configure.autoconfig = 1
 
 print("------> Executing code from the top-level wscript <-----")
@@ -161,10 +161,10 @@ def sfilter(path):
 	if path.endswith('Options.py') or path.endswith('Scripting.py'):
 		cnt = cnt.replace('Utils.python_version_guard()', '')
 
-	return (StringIO.StringIO(cnt), len(cnt), cnt)
+	return (io.StringIO(cnt), len(cnt), cnt)
 
 def create_waf():
-	print "-> preparing waf"
+	print ("-> preparing waf")
 	mw = 'tmp-waf-'+VERSION
 
 	import tarfile, re
@@ -251,7 +251,7 @@ def create_waf():
 		f.close()
 
 	if sys.platform != 'win32':
-		os.chmod('waf', 0755)
+		os.chmod('waf', O755)
 	os.unlink('%s.tar.%s' % (mw, zipType))
 
 def make_copy(inf, outf):
@@ -271,7 +271,7 @@ def build(bld):
 
 	if 'install' in Options.commands:
 		if sys.platform == 'win32':
-			print "Installing Waf on Windows is not possible."
+			print ("Installing Waf on Windows is not possible.")
 			sys.exit(0)
 
 	if Options.current_command in ['install', 'uninstall']:
@@ -292,7 +292,7 @@ def build(bld):
 	tools.find_sources_in_dirs('wafadmin/Tools', exts=['.py'])
 	tools.install_path = os.path.join('${PREFIX}', dir, 'Tools')
 
-	bld.install_files('${PREFIX}/bin', 'waf', chmod=0755)
+	bld.install_files('${PREFIX}/bin', 'waf', chmod=O755)
 
 	#print "waf is now installed in %s [%s, %s]" % (prefix, wafadmindir, binpath)
 	#print "make sure the PATH contains %s/bin:$PATH" % prefix

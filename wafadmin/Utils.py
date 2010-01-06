@@ -487,7 +487,7 @@ def check_dir(dir):
 	except OSError:
 		try:
 			os.makedirs(dir)
-		except OSError, e:
+		except OSError as e:
 			raise WafError("Cannot create folder '%s' (original error: %s)" % (dir, e))
 
 def cmd_output(cmd, **kw):
