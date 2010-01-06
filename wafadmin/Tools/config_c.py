@@ -225,7 +225,7 @@ def validate_c(self, kw):
 	"""validate the parameters for the test method"""
 
 	if not 'env' in kw:
-		kw['env'] = self.env.copy()
+		kw['env'] = self.env.derive()
 
 	env = kw['env']
 	if not 'compiler' in kw:

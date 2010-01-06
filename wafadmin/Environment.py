@@ -69,8 +69,7 @@ class Environment(object):
 		except AttributeError:
 			return DEFAULT
 
-	def copy(self):
-		# TODO waf 1.6 rename this method derive, #368
+	def derive(self):
 		newenv = Environment()
 		newenv.parent = self
 		return newenv

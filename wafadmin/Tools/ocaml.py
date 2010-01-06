@@ -85,12 +85,12 @@ def init_envs_ml(self):
 	global native_lst, bytecode_lst
 	self.native_env = None
 	if self.type in native_lst:
-		self.native_env = self.env.copy()
+		self.native_env = self.env.derive()
 		if self.islibrary: self.native_env['OCALINKFLAGS']   = '-a'
 
 	self.bytecode_env = None
 	if self.type in bytecode_lst:
-		self.bytecode_env = self.env.copy()
+		self.bytecode_env = self.env.derive()
 		if self.islibrary: self.bytecode_env['OCALINKFLAGS'] = '-a'
 
 	if self.type == 'c_object':

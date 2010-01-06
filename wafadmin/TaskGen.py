@@ -115,7 +115,7 @@ class task_gen(object):
 		self.allnodes = []
 
 		self.bld = kwargs['bld']
-		self.env = self.bld.env.copy()
+		self.env = self.bld.env.derive()
 
 		self.path = self.bld.path # emulate chdir when reading scripts
 		self.name = '' # give a name to the target (static+shlib with the same targetname ambiguity)
@@ -230,7 +230,7 @@ class task_gen(object):
 	# TODO waf 1.6: create_task(self, name, inputs, outputs)
 	def create_task(self, name, src=None, tgt=None, env=None):
 		env = env or self.env
-		task = Task.TaskBase.classes[name](env.copy(), generator=self)
+		task = Task.TaskBase.classes[name](env.derive(), generator=self)
 		if src:
 			task.set_inputs(src)
 		if tgt:
@@ -254,9 +254,9 @@ class task_gen(object):
 
 		newobj.__class__ = self.__class__
 		if isinstance(env, str):
-			newobj.env = self.bld.all_envs[env].copy()
+			newobj.env = self.bld.all_envs[env].derive()
 		else:
-			newobj.env = env.copy()
+			newobj.env = env.derive()
 
 		return newobj
 

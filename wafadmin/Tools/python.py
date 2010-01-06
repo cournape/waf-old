@@ -283,7 +283,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 		env.append_value('CXXFLAGS_PYEXT', '-fno-strict-aliasing')
 
 	# See if it compiles
-	test_env = env.copy()
+	test_env = env.derive()
 	a = test_env.append_value
 	a('CPPPATH', env['CPPPATH_PYEMBED'])
 	a('LIBPATH', env['LIBPATH_PYEMBED'])
