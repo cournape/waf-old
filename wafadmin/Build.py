@@ -307,8 +307,7 @@ class BuildContext(Utils.Context):
 
 	def new_task_gen(self, *k, **kw):
 		kw['bld'] = self
-		ret = TaskGen.task_gen(*k, **kw)
-		return ret
+		return TaskGen.task_gen(*k, **kw)
 
 	__call__ = new_task_gen
 
