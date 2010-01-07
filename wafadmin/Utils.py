@@ -647,8 +647,6 @@ class Context(object):
 	"""
 	def __init__(self, start_dir=None):
 		self.curdir = start_dir or os.getcwd()
-	def get_curdir(self):
-		return self.curdir
 
 	def pre_recurse(self, obj, f, d):
 		pass
