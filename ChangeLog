@@ -1,8 +1,9 @@
 NEW IN WAF 1.5.11
 -----------------
-* fixed one regression on win32
+* fixed one regression on win32 (compiler errors were not detected)
 * more py3k fixes for win32
 * aix compilers detection
+* let compiler_cxx and compiler_cc raise an exception when no compiler is found
 
 NEW IN WAF 1.5.10
 -----------------
