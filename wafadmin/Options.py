@@ -162,7 +162,7 @@ def create_parser(module=None):
 # TODO waf 1.6
 # 2. instead of a class attribute, use a module (static 'parser')
 
-@command_context('OPTIONS', 'set_options')
+@command_context('', 'set_options')
 class OptionsContext(Utils.Context):
 	"""Collects custom options from wscript files and parses the command line.
 	Sets the global Options.commands and Options.options attributes."""
