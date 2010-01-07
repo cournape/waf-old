@@ -35,10 +35,6 @@ if not default_prefix:
 	if platform == 'win32': default_prefix = tempfile.gettempdir()
 	else: default_prefix = '/usr/local/'
 
-default_jobs = os.environ.get('JOBS', -1)
-if default_jobs < 1:
-	default_jobs = Utils.cpu_count()
-
 default_destdir = os.environ.get('DESTDIR', '')
 
 def get_usage(self):
@@ -90,10 +86,11 @@ def create_parser(module=None):
 	p = parser.add_option
 
 	# Add standard options here
+	jobs = Utils.job_count()
 	p('-j', '--jobs',
 		type    = 'int',
-		default = default_jobs,
-		help    = 'amount of parallel jobs (%r)' % default_jobs,
+		default = jobs,
+		help    = 'amount of parallel jobs (%r)' % jobs,
 		dest    = 'jobs')
 
 	p('-k', '--keep',

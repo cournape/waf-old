@@ -164,10 +164,6 @@ def parse_options():
 	sanitized_commands += ['shutdown']
 	Options.commands = sanitized_commands
 
-	# TODO -k => -j0
-	if Options.options.keep: Options.options.jobs = 1
-	if Options.options.jobs < 1: Options.options.jobs = 1
-
 	if 'install' in sys.argv or 'uninstall' in sys.argv:
 		# absolute path only if set
 		Options.options.destdir = Options.options.destdir and os.path.abspath(os.path.expanduser(Options.options.destdir))

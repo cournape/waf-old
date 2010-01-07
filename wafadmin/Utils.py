@@ -586,28 +586,31 @@ def readf(fname, m='r'):
 		f.close()
 	return txt
 
-def cpu_count():
+def job_count():
 	"""
-	Get the number of processors.
-	@rtype: number
-	@return: Number of processors
+	Amount of threads to use
 	"""
-	count = 0
-	if sys.platform == 'win32':
-		# on Windows, use the NUMBER_OF_PROCESSORS environmental variable
-		return int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
-	else:
-		# on everything else, first try the POSIX sysconf values
-		if hasattr(os, 'sysconf_names'):
-			if 'SC_NPROCESSORS_ONLN' in os.sysconf_names:
-				return int(os.sysconf('SC_NPROCESSORS_ONLN'))
-			elif 'SC_NPROCESSORS_CONF' in os.sysconf_names:
-				return int(os.sysconf('SC_NPROCESSORS_CONF'))
+	count = int(os.environ.get('JOBS', 0))
+	if count < 1:
+		if sys.platform == 'win32':
+			# on Windows, use the NUMBER_OF_PROCESSORS environmental variable
+			count = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
 		else:
-			count = cmd_output(['sysctl', '-n', 'hw.ncpu'])
-			if re.match('^[0-9]+$', count):
-				return int(count)
-	return 1
+			# on everything else, first try the POSIX sysconf values
+			if hasattr(os, 'sysconf_names'):
+				if 'SC_NPROCESSORS_ONLN' in os.sysconf_names:
+					count = int(os.sysconf('SC_NPROCESSORS_ONLN'))
+				elif 'SC_NPROCESSORS_CONF' in os.sysconf_names:
+					count = int(os.sysconf('SC_NPROCESSORS_CONF'))
+			else:
+				tmp = cmd_output(['sysctl', '-n', 'hw.ncpu'])
+				if re.match('^[0-9]+$', tmp):
+					count = int(tmp)
+	if count < 1:
+		count = 1
+	elif count > 1024:
+		count = 1024
+	return count
 
 def nada(*k, **kw):
 	"""A function that does nothing."""
