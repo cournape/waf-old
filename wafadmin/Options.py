@@ -85,7 +85,6 @@ def create_parser(module=None):
 	parser.formatter.width = Utils.get_term_cols()
 	p = parser.add_option
 
-	# Add standard options here
 	jobs = Utils.job_count()
 	p('-j', '--jobs',
 		type    = 'int',
