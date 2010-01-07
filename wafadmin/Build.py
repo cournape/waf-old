@@ -328,6 +328,10 @@ class BuildContext(Utils.Context):
 			ret = cls(*k, **kw)
 		return ret
 
+	def __call__(self, *k, **kw):
+		kw['bld'] = self
+		return TaskGen.task_gen(*k, **kw)
+
 	def load_envs(self):
 		try:
 			lst = Utils.listdir(self.cachedir)
