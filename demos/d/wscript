@@ -24,7 +24,7 @@ def configure(conf):
 	conf.env.LIB_PTHREAD = ['pthread']
 
 def build(bld):
-	bld.add_subdirs('src2')
+	bld.add_subdirs('src')
 
 	obj = bld.new_task_gen(features='d dstaticlib')
 	obj.source = '''
