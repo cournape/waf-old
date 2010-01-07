@@ -35,7 +35,6 @@ Utilities, the stable ones are the following:
 * h_fun
 * get_term_cols
 * ordered_dict
-
 """
 
 import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime, gc
@@ -107,7 +106,7 @@ indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 try:
 	from fnv import new as md5
 	import Constants
-	Constants.SIG_NIL = 'signofnv'
+	Constants.SIG_NIL = b'signofnv'
 
 	def h_file(filename):
 		m = md5()
@@ -120,10 +119,7 @@ try:
 			raise OSError("not a file" + filename)
 
 except ImportError:
-	try:
-		from hashlib import md5
-	except ImportError:
-		from md5 import md5
+	from hashlib import md5
 
 	def h_file(filename):
 		f = open(filename, 'rb')
@@ -844,14 +840,14 @@ if os.name == 'java':
 		gc.disable = gc.enable
 
 def read_la_file(path):
+	"""untested, used by msvc.py, unclosed file risk"""
 	sp = re.compile(r'^([^=]+)=\'(.*)\'$')
 	dc = {}
 	file = open(path, "r")
 	for line in file.readlines():
 		try:
-			#print sp.split(line.strip())
 			_, left, right, _ = sp.split(line.strip())
-			dc[left]=right
+			dc[left] = right
 		except ValueError:
 			pass
 	file.close()
