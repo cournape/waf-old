@@ -3,4 +3,5 @@ NEW IN WAF 1.6.0
 
 * Python 3 syntax by default
 * Environment -> ConfigData
+* new syntax "bld(...)" equivalent to "bld.new_task_gen(...)"
 
