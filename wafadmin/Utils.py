@@ -37,19 +37,17 @@ Utilities, the stable ones are the following:
 * ordered_dict
 """
 
-import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime, gc
-
+import os, sys, imp, string, errno, traceback, inspect, re, shutil, datetime, gc, subprocess
 from collections import UserDict
-import subprocess
 import Logs
 from Constants import *
 
 is_win32 = sys.platform == 'win32'
-
+indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 class WafError(Exception):
 	"""
-	Base class for all Waf-specific exceptions.
+	FIXME
 	"""
 	def __init__(self, *args):
 		self.args = args
@@ -63,11 +61,7 @@ class WafError(Exception):
 
 class WscriptError(WafError):
 	"""
-	Exception raised when an error is encountered in user code (wscript).
-	@type  message: string
-	@param message: Message intended for the user
-	@type  wscript_file: string
-	@param wscript_file: Absolute path of wscript where the error happened
+	FIXME
 	"""
 	def __init__(self, message, wscript_file=None):
 		if wscript_file:
@@ -88,10 +82,6 @@ class WscriptError(WafError):
 		WafError.__init__(self, err_message)
 
 	def locate_error(self):
-		"""
-		Locate the line in wscript on which the error happened,
-		based on the stack trace.
-		"""
 		stack = traceback.extract_stack()
 		stack.reverse()
 		for frame in stack:
@@ -100,8 +90,6 @@ class WscriptError(WafError):
 			if is_wscript:
 				return (frame[0], frame[1])
 		return (None, None)
-
-indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 try:
 	from fnv import new as md5
@@ -131,16 +119,7 @@ except ImportError:
 		return m.digest()
 
 class ordered_dict(UserDict):
-	"""
-	Dictionary with well-defined ordering. Each item is stored in a dictionary
-	as well as a list.
-	"""
 	def __init__(self, dict = None):
-		"""
-		Ordered dictionary constructor.
-		@type  dict: dict
-		@param dict: Dictionary to copy (optional)
-		"""
 		self.allkeys = []
 		UserDict.__init__(self, dict)
 
@@ -154,10 +133,8 @@ class ordered_dict(UserDict):
 
 def exec_command(s, **kw):
 	"""
-	Execute a command and wait until it completes. Accepts the command
-	either as a list of arguments or as a full command line.
-	@param s: Command list or list of command arguments
-	@param log: ??
+	@param s: args for subprocess.Popen
+	@param log: logger for suppressing the output at configuration time
 	"""
 	if 'log' in kw:
 		kw['stdout'] = kw['stderr'] = kw['log']
