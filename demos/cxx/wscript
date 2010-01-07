@@ -40,8 +40,8 @@ def configure(conf):
 	conf.sub_config('src')
 
 	# here is how to override flags
-	conf.env.CXXFLAGS_MYPROG  = '-O3'
-	conf.env.LIB_MYPROG       = 'm'
+	conf.env.CXXFLAGS_MYPROG  = ['-O3']
+	conf.env.LIB_MYPROG       = ['m']
 	conf.env.SOME_INSTALL_DIR = '/tmp/ahoy/lib/'
 
 	# create a debug and release builds (variants)
