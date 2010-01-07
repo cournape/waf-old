@@ -33,6 +33,7 @@ def build(bld):
 		target='my_static_lib')
 
 	# note: the syntax bld(...) is equivalent to bld.new_task_gen(...)
+	#       instantiates and object of the class task_gen (from the file TaskGen.py)
 
 	# if we had a subfolder we would add the following:
 	#bld.add_subdirs('src')
