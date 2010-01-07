@@ -450,10 +450,9 @@ def check_dir(dir):
 def cmd_output(cmd, **kw):
 	"""
 	Execute a command and return its output as a string.
-	Supports the same keyword arguments as subprocess.Popen.
-	@param cmd: Command line or list of arguments
+	@param cmd: Command line or list of arguments for subprocess.Popen
 	@rtype: string
-	@return: Output of the command
+	@return: Command output
 	"""
 	silent = False
 	if 'silent' in kw:
@@ -486,9 +485,7 @@ def cmd_output(cmd, **kw):
 reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
 def subst_vars(expr, params):
 	"""
-	Substitute variables in a string.
 	Replaces ${VAR} with the value of VAR taken from the dictionary
-	or the environment supplied as the second parameter.
 	@type  expr: string
 	@param expr: String to perform substitution on
 	@param params: Dictionary to look up variable values.
@@ -499,7 +496,7 @@ def subst_vars(expr, params):
 		if m.group(2):
 			return '$'
 		try:
-			# environments may contain lists
+			# ConfigData instances may contain lists
 			return params.get_flat(m.group(3))
 		except AttributeError:
 			return params[m.group(3)]
@@ -549,25 +546,6 @@ def unversioned_sys_platform():
 		else: s = s.lower()
 	if s == 'win32' or s.endswith('os2') and s != 'sunos2': return s
 	return re.split('\d+$', s)[0]
-
-#@deprecated('use unversioned_sys_platform instead')
-def detect_platform():
-	"""
-	@deprecated
-	"""
-	s = sys.platform
-
-	# known POSIX
-	for x in 'cygwin linux irix sunos hpux aix darwin'.split():
-		# sys.platform may be linux2
-		if s.find(x) >= 0:
-			return x
-
-	# unknown POSIX
-	if os.name in 'posix java os2'.split():
-		return os.name
-
-	return s
 
 def load_tool(tool, tooldir=None):
 	"""
