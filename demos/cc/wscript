@@ -21,7 +21,7 @@ def configure(conf):
 def build(bld):
 
 	# 1. A simple program
-	bld.new_task_gen(
+	bld(
 		features = 'cc cprogram',
 		source = bld.path.ant_glob('**/*.c'),
 		target = 'test_c_app',
@@ -29,7 +29,7 @@ def build(bld):
 		includes = '. /usr/include')
 
 	# 2. A simple static lib
-	bld.new_task_gen(
+	bld(
 		features = 'cc cstaticlib',
 		source = 'test_staticlib.c',
 		target='my_static_lib')
