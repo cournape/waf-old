@@ -182,7 +182,7 @@ def parse_options():
 
 def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
-	global current_command
+	global current_command, start_dir
 	current_command = cmd_name
 	context = Utils.create_context(cmd_name, start_dir)
 

@@ -625,6 +625,8 @@ def diff_path(top, subdir):
 	return os.path.join(*diff)
 
 context_dict = {}
+def create_context(cmd_name, *k, **kw):
+	return context_dict.get(cmd_name, Context)(*k, **kw)
 
 class command_context(object):
 	"""
@@ -750,12 +752,6 @@ class Context(object):
 		self.prepare()
 		self.run_user_code()
 		self.finalize()
-
-def create_context(cmd_name, *k, **kw):
-	if cmd_name in context_dict:
-		return context_dict[cmd_name](*k, **kw)
-	else:
-		return Context(*k, **kw)
 
 class Timer(object):
 	"""
