@@ -62,7 +62,7 @@ def build(bld):
 	# process subfolders from here
 	bld.env.CXXDEPS_MYPROG = '3344539'
 
-	bld.add_subdirs('src lib')
+	bld.add_subdirs('src app')
 
 	# Examples for installing resources and files when doing './waf install'
 	bld.install_files('${PREFIX}/subfolder/subsubfolder', 'src/*.h')
