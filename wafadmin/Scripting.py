@@ -276,14 +276,12 @@ def distclean(ctx=None):
 		if f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
 
-# FIXME waf 1.6 a unique ctx parameter, and remove the optional appname and version
-def dist(appname='', version=''):
+def dist(ctx):
 	'''makes a tarball for redistributing the sources'''
-	# return return (distdirname, tarballname)
 	import tarfile
 
-	if not appname: appname = getattr(Utils.g_module, APPNAME, 'noname')
-	if not version: version = getattr(Utils.g_module, VERSION, '1.0')
+	appname = getattr(Utils.g_module, APPNAME, 'noname')
+	version = getattr(Utils.g_module, VERSION, '1.0')
 
 	tmp_folder = appname + '-' + version
 	arch_name = tmp_folder+'.tar.'+g_gz
@@ -329,13 +327,12 @@ def dist(appname='', version=''):
 	if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder)
 	return arch_name
 
-# FIXME waf 1.6 a unique ctx parameter, and remove the optional appname and version
-def distcheck(appname='', version=''):
+def distcheck(ctx):
 	'''checks if the sources compile (tarball from 'dist')'''
 	import tempfile, tarfile
 
-	if not appname: appname = getattr(Utils.g_module, APPNAME, 'noname')
-	if not version: version = getattr(Utils.g_module, VERSION, '1.0')
+	appname = getattr(Utils.g_module, APPNAME, 'noname')
+	version = getattr(Utils.g_module, VERSION, '1.0')
 
 	waf = os.path.abspath(sys.argv[0])
 	tarball = dist(appname, version)
