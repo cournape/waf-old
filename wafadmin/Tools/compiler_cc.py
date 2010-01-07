@@ -44,6 +44,9 @@ def detect(conf):
 				conf.env['COMPILER_CC'] = compiler
 				break
 			conf.check_message(compiler, '', False)
+			break
+	else:
+		conf.fatal('could not configure a c compiler!')
 
 def set_options(opt):
 	build_platform = Utils.unversioned_sys_platform()
