@@ -43,6 +43,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 """
 
 import os, shutil, sys, re, random, datetime
+from collections import defaultdict
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, warn, error
@@ -165,8 +166,8 @@ class TaskGroup(object):
 		self.tasks = [] # this list will be consumed
 		self.tasks_gen = []
 
-		self.cstr_groups = Utils.DefaultDict(list) # tasks having equivalent constraints
-		self.cstr_order = Utils.DefaultDict(set) # partial order between the cstr groups
+		self.cstr_groups = defaultdict(list) # tasks having equivalent constraints
+		self.cstr_order = defaultdict(set) # partial order between the cstr groups
 		self.temp_tasks = [] # tasks put on hold
 		self.ready = 0
 		self.post_funs = []
@@ -177,8 +178,8 @@ class TaskGroup(object):
 			self.tasks += self.cstr_groups[x]
 		self.tasks = self.temp_tasks + self.tasks
 		self.temp_tasks = []
-		self.cstr_groups = Utils.DefaultDict(list)
-		self.cstr_order = Utils.DefaultDict(set)
+		self.cstr_groups = defaultdict(list)
+		self.cstr_order = defaultdict(set)
 		self.ready = 0
 
 	def process_install(self):
@@ -211,7 +212,7 @@ class TaskGroup(object):
 
 	def make_cstr_groups(self):
 		"unite the tasks that have similar constraints"
-		self.cstr_groups = Utils.DefaultDict(list)
+		self.cstr_groups = defaultdict(list)
 		for x in self.tasks:
 			h = x.hash_constraints()
 			self.cstr_groups[h].append(x)
@@ -333,8 +334,8 @@ class TaskGroup(object):
 				for m in self.cstr_groups[p]:
 					for n in self.cstr_groups[v]:
 						n.set_run_after(m)
-		self.cstr_order = Utils.DefaultDict(set)
-		self.cstr_groups = Utils.DefaultDict(list)
+		self.cstr_order = defaultdict(set)
+		self.cstr_groups = defaultdict(list)
 		self.done = 1
 		return self.tasks[:] # make a copy
 

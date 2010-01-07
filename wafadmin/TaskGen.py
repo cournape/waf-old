@@ -22,6 +22,7 @@ WARNING: subclasses must reimplement the clone method
 """
 
 import os, traceback, copy
+from collections import defaultdict
 import Build, Task, Utils, Logs, Options
 from Logs import debug, error, warn
 from Constants import *
@@ -70,12 +71,12 @@ class task_gen(object):
 
 	mappings = {}
 	mapped = {}
-	prec = Utils.DefaultDict(list)
-	traits = Utils.DefaultDict(set)
+	prec = defaultdict(list)
+	traits = defaultdict(set)
 	classes = {}
 
 	def __init__(self, *kw, **kwargs):
-		self.prec = Utils.DefaultDict(list)
+		self.prec = defaultdict(list)
 		"map precedence of function names to call"
 		# so we will have to play with directed acyclic graphs
 		# detect cycles, etc

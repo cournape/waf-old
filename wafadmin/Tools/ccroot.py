@@ -5,6 +5,7 @@
 "base for all c/c++ programs and libraries"
 
 import os, sys, re, subprocess
+from collections import deque
 import TaskGen, Task, Utils, preproc, Logs, Build, Options
 from Logs import error, debug, warn
 from Utils import md5
@@ -331,7 +332,7 @@ def apply_lib_vars(self):
 	names = self.to_list(self.uselib_local)
 
 	seen = set([])
-	tmp = Utils.deque(names) # consume a copy of the list of names
+	tmp = deque(names) # consume a copy of the list of names
 	while tmp:
 		lib_name = tmp.popleft()
 		# visit dependencies only once

@@ -4,6 +4,7 @@
 # Thomas Nagy, 2007-2008 (ita)
 
 import os, sys, re
+from collections import deque
 import ccroot # <- leave this
 import TaskGen, Utils, Task, Logs
 from Logs import debug, error
@@ -265,7 +266,7 @@ def apply_d_libs(self):
 	names = self.to_list(self.uselib_local)
 
 	seen = set([])
-	tmp = Utils.deque(names) # consume a copy of the list of names
+	tmp = deque(names) # consume a copy of the list of names
 	while tmp:
 		lib_name = tmp.popleft()
 		# visit dependencies only once
