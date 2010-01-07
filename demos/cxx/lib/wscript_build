@@ -11,7 +11,7 @@
 # By contrast, only functions can be defined in a wscript
 #
 
-obj = bld.new_task_gen(
+obj = bld(
 	features = 'cxx cprogram',
 	source = 'main.cpp',
 	includes = '. ../src',

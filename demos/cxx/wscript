@@ -2,31 +2,35 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# look for 'meow' below
+# look for a command-line option named 'meow' by using "./waf --help" (where is it defined?)
 import Options
 
-# the following two variables are used by the target "waf dist"
+# VERSION and APPNAME are required by 'waf dist'
 VERSION='0.0.1'
 APPNAME='cpp_test'
 
-# these variables are mandatory ('/' are converted automatically)
+# srcdir is almost always set to '.' except for some proprietary projects where the wscript
+# file cannot be found in the top-level; those projects usually provide: srcdir='..'
 srcdir = '.'
 blddir = 'build'
 
 def set_options(opt):
-	# options provided in a script in a subdirectory named "src"
+
+	# command-line options provided in a script in a subdirectory named "src"
 	opt.sub_options('src')
 
-	# options provided by the modules
+	# command-line options provided by a waf tool
 	opt.tool_options('compiler_cxx')
 
-	# custom options
+	# custom command-line options
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 	opt.add_option('--build_kind', action='store', default='debug,release', help='build the selected variants')
 
 def configure(conf):
+
 	# conf.env.CXX = Options.options.meow
+	# to configure using another compiler, use a command-line like this
 	# CXX=g++-3.0 ./waf.py configure will use g++-3.0 instead of 'g++'
 	conf.check_tool('compiler_cxx')
 
@@ -35,14 +39,12 @@ def configure(conf):
 
 	conf.sub_config('src')
 
+	# here is how to override flags
 	conf.env.CXXFLAGS_MYPROG  = '-O3'
 	conf.env.LIB_MYPROG       = 'm'
 	conf.env.SOME_INSTALL_DIR = '/tmp/ahoy/lib/'
 
-	# works in a procedural way, so the order of calls does matter
-	#conf.check_tool(['KDE3'])
-
-	# testcase for variants, look below
+	# create a debug and release builds (variants)
 	dbg = conf.env.copy()
 	rel = conf.env.copy()
 
@@ -60,43 +62,40 @@ def build(bld):
 	# process subfolders from here
 	bld.env.CXXDEPS_MYPROG = '3344539'
 
-	bld.add_subdirs('src src2')
+	bld.add_subdirs('src lib')
 
-	## installing resources and files - call them under build(bld) or shutdown()
-	## to trigger the glob, ad a star in the name
-	## the functions are not called if not in install mode
-	#bld.install_files('${PREFIX}', 'src/a2.h src/a1.h')
+	# Examples for installing resources and files when doing './waf install'
 	bld.install_files('${PREFIX}/subfolder/subsubfolder', 'src/*.h')
+	#bld.install_files('${PREFIX}', 'src/a2.h src/a1.h')
 	#install_as('${PREFIX}/dir/bar.png', 'foo.png')
 
-
-	# testcase for variants
-	# iterate over a copy of the list of task generators
+	# enable the debug or the release variant, depending on the one wanted
 	for obj in bld.all_task_gen[:]:
-		# task generators should be created in the same order to avoid unnecessary rebuilds
-		# in general task generators copies are cheap (but task copies are expensive)
+
+		# task generator instances (bld.new_task_gen...) should be created in the same order
+		# to avoid unnecessary rebuilds (remember that cloning task generators is cheap, but copying task instances are expensive)
 		debug_obj = obj.clone('debug')
 		release_obj = obj.clone('release')
 
-		# also, do not make clones for the same variant (default -> default)
+		# stupid reminder: do not make clones for the same variant (default -> default)
 
-		# disable the original task generator
+		# disable the original task generator for the default variant (do not use it)
 		obj.posted = 1
 
-		# enable/disable the wanted build kind
+		# disable the unwanted variant(s)
 		kind = Options.options.build_kind
 		if kind.find('debug') < 0:
 			debug_obj.posted = 1
 		if kind.find('release') < 0:
 			release_obj.posted = 1
 
+	# here is how to execute a command when the build finishes
 	def post(bld):
-		# command to execute
 		cmd = "PATH=plugins:$PATH LD_LIBRARY_PATH=build/default/src/:$LD_LIBRARY_PATH build/default/src/testprogram"
 
 		# if the custom option is set, execute the program
-		import os, Options
 		if Options.options.exe:
+			import os
 			os.popen(cmd)
 
 		# in case if more people ask
