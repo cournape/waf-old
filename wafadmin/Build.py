@@ -310,7 +310,7 @@ class BuildContext(Utils.Context):
 		ret = TaskGen.task_gen(*k, **kw)
 		return ret
 
-	#__call__
+	__call__ = new_task_gen
 
 	def load_envs(self):
 		try:
