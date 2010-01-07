@@ -2,13 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-# the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
 APPNAME='d_test'
 
-import Logs
-
-# these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
 
@@ -26,35 +22,36 @@ def configure(conf):
 def build(bld):
 	bld.add_subdirs('src')
 
-	obj = bld.new_task_gen(features='d dstaticlib')
+	# here is how to use the object-oriented notation
+	obj = bld(features='d dstaticlib')
 	obj.source = '''
 	testlib/code.d
 	'''
 	obj.importpaths = '.'
-	obj.name = 'testlib'
-	obj.target = 'testlib'
+	obj.name        = 'testlib'
+	obj.target      = 'testlib'
 
 	"""
 	compiling with d, linking with gcc:
 	* in the configuration, add conf.check_tool('gcc')
 	* in the object creation, add 3 lines
 
-	obj = bld.new_task_gen('d')
+	obj = bld('d')
 	obj.source = '''
 	testlib/code.d
 	'''
 	obj.features.append('cc')
 	obj.features.append('cshlib')
-	obj.name = 'testlib'
+	obj.name   = 'testlib'
 	obj.target = 'testlib'
-	obj.type = 'shlib'
 	"""
 
-	obj = bld.new_task_gen(features='d dprogram')
+	obj = bld(features='d dprogram')
 	obj.source = '''
 	example.d
 	'''
-	obj.target = 'd_test'
+	obj.target       = 'd_test'
 	obj.uselib_local = 'testlib'
-	obj.uselib = 'PTHREAD'
-	obj.importpaths = '.'
+	obj.uselib       = 'PTHREAD'
+	obj.importpaths  = '.'
+
