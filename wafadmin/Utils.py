@@ -669,7 +669,7 @@ def cpu_count():
 			elif 'SC_NPROCESSORS_CONF' in os.sysconf_names:
 				return int(os.sysconf('SC_NPROCESSORS_CONF'))
 		else:
-			count = Utils.cmd_output(['sysctl', '-n', 'hw.ncpu'])
+			count = cmd_output(['sysctl', '-n', 'hw.ncpu'])
 			if re.match('^[0-9]+$', count):
 				return int(count)
 	return 1
@@ -712,9 +712,9 @@ class Context(object):
 	def get_curdir(self):
 		return self.curdir
 
-	# TODO these hooks seem useless
 	def pre_recurse(self, obj, f, d):
 		pass
+
 	def post_recurse(self, obj, f, d):
 		pass
 
@@ -827,24 +827,14 @@ class Timer(object):
 	Its string representation is the current time.
 	"""
 	def __init__(self):
-		self.start()
-	def _now(self):
-		# use utcnow(), avoid confusion due to DST change during execution
-		return datetime.datetime.utcnow()
-	def start(self):
-		"""Start the timer. Note that the timer is started on construction."""
-		self.start_time = self._now()
-		self.stop_time = None
-	def stop(self):
-		"""Stop the timer."""
-		self.stop_time = self._now()
+		self.start_time = datetime.datetime.utcnow()
+
 	def __str__(self):
-		delta = (self.stop_time or self._now()) - self.start_time
+		delta = datetime.datetime.utcnow() - self.start_time
 		days = int(delta.days)
 		hours = int(delta.seconds / 3600)
 		minutes = int((delta.seconds - hours * 3600) / 60)
-		seconds = delta.seconds - hours * 3600 - minutes * 60 \
-			+ float(delta.microseconds) / 1000 / 1000
+		seconds = delta.seconds - hours * 3600 - minutes * 60 + float(delta.microseconds) / 1000 / 1000
 		result = ''
 		if days:
 			result += '%dd' % days
