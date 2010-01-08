@@ -10,7 +10,7 @@ def configure(conf):
 	conf.check_tool('fluid')
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features = 'cxx cprogram',
 		target   = 'sample',
 		source   = 'main.cpp PopupDialog.fl UserInterface.fl',
