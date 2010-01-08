@@ -79,11 +79,11 @@ def build(bld):
 		for x in files:
 			if x == '.svn':
 				continue
-			bld.new_task_gen(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
+			bld(name='copy', rule='cp ${SRC} ${TGT}', source=k+'/'+x, target=x)
 
 	# now the files are copied ..
 
-	obj = bld.new_task_gen('docbook')
+	obj = bld('docbook')
 	obj.source = 'waf.xml'
 
 	obj.type = 'html'

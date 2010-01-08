@@ -239,7 +239,7 @@ Compilation finished successfully (00:00:00)
 		<sect2>
 			<title>Encapsulation by task generators</title>
 			<para>
-				In practice, when lots of tasks are declared one by one, scripts tend to become complicated, and contain a lot of redundant code. Special objects named <emphasis>task generators</emphasis> are provided to facilitate the creation of several tasks at once. In the following example, a task generator is used to create the compilation and link tasks needed by a c++ project.
+				In practice, when lots of tasks are declared one by one, scripts tend to become complicated, and contain a lot of redundant code. Special objects named <emphasis>task generators</emphasis> are provided to facilitate the creation of several tasks at once. In the following example, a task generator is used to create the compilation and link tasks needed by a c++ project. The syntax <emphasis>bld(...)</emphasis> is a shortcut for calling the method <emphasis>BuildContext.__call__</emphasis> internally and make a new instance of the class <emphasis>task_gen</emphasis>.
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
@@ -248,7 +248,7 @@ def configure(conf):
     conf.check_tool('gcc')
 
 def build(bld):
-    bld.new_task_gen(features='cc cprogram', source='main.c test.c', target='myapp')
+    bld(features='cc cprogram', source='main.c test.c', target='myapp')
 			</programlisting>
 			This example provides a modified <emphasis>configure</emphasis> function, which is the topic of the next section. The task generator system and the default generators will be reviewed in detail in <xref  linkend="task_gen"/>.
 			</para>
@@ -496,7 +496,7 @@ def build(bld):
 				By providing the attribute <emphasis>install_path</emphasis>, tasks generators will install the target (in this example, a program) in the given path.
 				<programlisting language="python">
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features = 'cc cprogram',
 		source = 'main.c test.c',
 		target = 'test_c_program',
@@ -510,7 +510,7 @@ def build(bld):
 				To prevent the installation of a target (by default, programs and shared libraries are installed), set <emphasis>install_path</emphasis> to <emphasis>None</emphasis>
 				<programlisting language="python">
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features = 'cc cprogram',
 		source = 'main.c test.c',
 		target = 'test_c_program',

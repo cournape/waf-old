@@ -21,7 +21,7 @@ def configure(conf):
 	conf.check_tool('misc')
 
 def build(bld):
-	obj = bld.new_task_gen('subst')
+	obj = bld('subst')
 	obj.source = 'test.pc.in'
 	obj.target = 'test.pc'
 	obj.dict   = {'LIBS': '-lm', 'CFLAGS': '-Wall', 'VERSION': '1.0'}
@@ -51,7 +51,7 @@ Cflags: -I${includedir} @CFLAGS@
 import time
 import misc <co id="cop1-co" linkends="cop1"/>
 def build(bld):
-	out1 = bld.new_task_gen('command-output')
+	out1 = bld('command-output')
 	out1.stdout = 'test1' <co id="cop3-co" linkends="cop3"/>
 	out1.stdin = 'wscript_build' <co id="cop4-co" linkends="cop4"/>
 	#out1.command_is_external = False
@@ -123,7 +123,7 @@ build/
 			To use the <emphasis>debug</emphasis> variant, the environment must be given directly, by default, a copy of the environment named <emphasis>default</emphasis> is set:
 			<programlisting language="python">
 def build(bld):
-	prog = bld.new_task_gen()
+	prog = bld()
 	prog.features = 'cxx cprogram'
 	prog.source = 'src1.c'
 	prog.includes = '.'
@@ -138,7 +138,7 @@ def build(bld):
 				Task generators may be copied for different variants easily using the <emphasis>clone</emphasis> method. The parameter is the name of the environment to use (not the variant). The named environments are created during the configuration, as shown in the previous subsection.
 			<programlisting language="python">
 def build(bld):
-	prog_in_default = bld.new_task_gen(
+	prog_in_default = bld(
 		features = 'cxx cprogram'
 		source = 'src1.c'
 		target = 'myprog')
@@ -181,7 +181,7 @@ def build(bld):
 	Task.simple_task_type('ts2qm', '${QT_LRELEASE} ${SRC} -qm ${TGT} 2> /dev/null', color='RED')
 	Task.task_type_from_func('py2rcc', vars=[], func=compile_py, color='BLUE')
 
-	bld.new_task_gen(
+	bld(
 		features='ocaml native', <co id="comp-co" linkends="comp"/>
 		include = 'util',
 		source = bld.path.ant_glob('util/*.ml'),
@@ -191,7 +191,7 @@ def build(bld):
 
 	bld.add_group() <co id="divide-co" linkends="divide"/>
 
-	bld.new_task_gen(
+	bld(
 		features = 'ocaml c_object', <co id="rem-co" linkends="rem"/>
 		source = 'src/armtlkto.c ' + bld.path.ant_glob('src/*.ml'),
 		includes = '. src',
@@ -221,7 +221,7 @@ def build(bld):
 			<programlisting language="python">
 def build(bld):
 	# 1. A simple program
-	main = bld.new_task_gen(
+	main = bld(
 		features = 'cc cprogram',
 		source = 'main.c',
 		target = 'test_c_program',
@@ -229,7 +229,7 @@ def build(bld):
 		svn_header = 'ver.h' <co id="svn1-co" linkends="svn1"/>
 	)
 	# 2. A simple static lib
-	staticlib = bld.new_task_gen(
+	staticlib = bld(
 		features = 'cc cstaticlib',
 		source = 'test_staticlib.c',
 		target = 'teststaticlib'
@@ -339,7 +339,7 @@ def configure(conf):
 	conf.env.SHPIP_COMPILER = os.getcwd() + os.sep + "bad_compiler.py"
 
 def build(bld):
-	staticlib = bld.new_task_gen()
+	staticlib = bld()
 	staticlib.features = 'cc cstaticlib'
 	staticlib.source = 'x.c foo.shpip' <co id="exa-co" linkends="exa"/>
 	staticlib.target='teststaticlib'

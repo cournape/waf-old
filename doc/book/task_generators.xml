@@ -19,23 +19,23 @@
 		<para>
 			The following examples illustrate how to perform simple rule-based transformations, the attribute <emphasis>rule</emphasis> is mandatory, but the input or output files are optional:
 		<programlisting language="python">
-	bld.new_task_gen( <co id="tg1-co" linkends="tg1"/>
+	bld( <co id="tg1-co" linkends="tg1"/>
 		source='wscript',
 		target='test.k1',
 		rule='cp ${SRC} ${TGT}'
 	)
 
-	bld.new_task_gen( <co id="tg2-co" linkends="tg2"/>
+	bld( <co id="tg2-co" linkends="tg2"/>
 		source='wscript',
 		rule='echo ${SRC}'
 	)
 
-	bld.new_task_gen( <co id="tg3-co" linkends="tg3"/>
+	bld( <co id="tg3-co" linkends="tg3"/>
 		target='test.k3',
 		rule='echo ${PREFIX} > ${TGT}',
 	)
 
-	bld.new_task_gen( <co id="tg4-co" linkends="tg4"/>
+	bld( <co id="tg4-co" linkends="tg4"/>
 		rule='echo 1337'
 	)
 		</programlisting>
@@ -62,12 +62,12 @@
 			The next examples illustrate various attributes which may be used to alter task execution.
 
 		<programlisting language="python">
-	bld.new_task_gen( <co id="tg5-co" linkends="tg5"/>
+	bld( <co id="tg5-co" linkends="tg5"/>
 		rule="echo 'task always run'",
 		always=True
 	)
 
-	bld.new_task_gen( <co id="tg6-co" linkends="tg6"/>
+	bld( <co id="tg6-co" linkends="tg6"/>
 		source = 'wscript',
 		target = 'test.k',
 		rule = './create.py &amp;&amp; mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
@@ -78,12 +78,12 @@
 	def run(self):
 		print('hi there')
 
-	bld.new_task_gen( <co id="tg7-co" linkends="tg7"/>
+	bld( <co id="tg7-co" linkends="tg7"/>
 		name = 'hi',
 		rule = run
 	)
 
-	bld.new_task_gen( <co id="tg8-co" linkends="tg8"/>
+	bld( <co id="tg8-co" linkends="tg8"/>
 		name = 'svnversion',
 		target = 'ver.h',
 		rule = 'svnversion > ${TGT[0].abspath(env)}',
@@ -92,7 +92,7 @@
 		on_results = True
 	)
 
-	bld.new_task_gen(
+	bld(
 		name = 'copy_svnversion',
 		after = 'svnversion',
 		source = 'ver.h',
@@ -142,7 +142,7 @@ TaskGen.declare_chain(
 )
 
 def build(bld):
-	bld.new_task_gen(source='main.lua test.lua bar.lua')
+	bld(source='main.lua test.lua bar.lua')
 			</programlisting>
 The chaining declaration is usually located in a separate python file for re-usability. In practice, chains are useful for simple cases such as processing statistical data and generating simple documents. When more control over the declaration and the output files is needed, it is more convenient to use the techniques described in the next sections.
 			</para>
@@ -155,7 +155,7 @@ The chaining declaration is usually located in a separate python file for re-usa
 		A special method named <emphasis>apply_core</emphasis> provides file extension processing using the attribute <emphasis>source</emphasis>. On the user side, this takes the following form:
 		<programlisting language="python">
 def build(bld):
-	main = bld.new_task_gen(
+	main = bld(
 		features = 'cc cprogram',
 		source = 'main.c foo.c bar.c',
 		target = 'my_app')
@@ -200,7 +200,7 @@ def process_idl(self, node):
 	self.allnodes.append(cc_node)
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features = 'cxx cprogram',
 		source   = 'foo.idl main.cpp',
 		target   = 'myapp'
@@ -216,7 +216,7 @@ def debug_allnodes(self, code):
 	print (self.allnodes)
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features = 'cxx cprogram',
 		source   = 'debug main.cpp debug',
 		target   = 'test'
@@ -233,7 +233,7 @@ TaskGen.task_gen.mappings['.mm'] = TaskGen.task_gen.mappings['.c']
 			The may also be set to specific task generator:
 			<programlisting language="python">
 def build(bld):
-	obj = bld.new_task_gen(features='cxx cprogram', source='main.c', target='foo')
+	obj = bld(features='cxx cprogram', source='main.c', target='foo')
 	obj.mappings['.c'] = TaskGen.task_gen.mappings['.cxx']
 			</programlisting>
 		</para>
@@ -249,9 +249,9 @@ def build(bld):
 			In the following example, a new attribute 'tst' is added to task generators instances, and is used to call a method to print the contents of that attribute at the start of the build:
 			<programlisting language="python">
 def build(bld):
-	foo = bld.new_task_gen()
+	foo = bld()
 	foo.tst = 'hello, world'
-	# alternate syntax: bld.new_task_gen(tst = 'hello, world')
+	# alternate syntax: bld(tst = 'hello, world')
 			</programlisting>
 		</para>
 		<para>
@@ -268,7 +268,7 @@ def print_tst(self):
 			At this point, the function print_tst is attached to the class as a new method, but to process the attribute <emphasis>foo.tst</emphasis>, the method has to be called explicitly:
 			<programlisting language="python">
 def build(bld):
-	foo = bld.new_task_gen()
+	foo = bld()
 	foo.tst = 'hello, world'
 	foo.print_tst()
 			</programlisting>
@@ -284,7 +284,7 @@ def print_tst(self):
     print('processing the tst attribute: %r' % self.tst)
 
 def build(bld):
-    foo = bld.new_task_gen()
+    foo = bld()
     foo.features = ['TEST']
     foo.tst = 'hello, world'
 			</programlisting>
@@ -303,7 +303,7 @@ def print_tst(self):
     print('processing the tst attribute: %r' % self.tst)
 
 def build(bld):
-    foo = bld.new_task_gen()
+    foo = bld()
     foo.tst = 'hello, world'
 
 def configure(conf):

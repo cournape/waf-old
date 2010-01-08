@@ -240,7 +240,7 @@
 				The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. This often puzzles the programmers used to static languages where new functions or classes cannot be defined at runtime.
 			</para>
 			<para>
-				The task generators automatically inherit the build context attribute <emphasis>bld</emphasis> when created from bld.new_task_gen. Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instantiation may result in problems when running Waf as a library.
+				The task generators automatically inherit the build context attribute <emphasis>bld</emphasis> when created from bld(...). Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instantiation may result in problems when running Waf as a library.
 			</para>
 			<para>
 				The tasks created by task generator methods are automatically stored on the build context task manager, which stores the task into a task group. The task groups are later used by the scheduler to obtain the task which may run (state machine). Target (un)installation is performed right after a task has run, using the method <emphasis>install</emphasis>.
