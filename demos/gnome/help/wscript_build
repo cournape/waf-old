@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy 2008
+# Thomas Nagy 2008-2010
 
-obj = bld.new_task_gen("gnome_doc")
-obj.doc_module = "cheese"
-obj.doc_entities = "legal.xml"
-obj.doc_includes = ""
-obj.doc_figures = "figures/cheese-screenshot.png figures/cheese-effects-screenshot.png"
-obj.doc_linguas = "es fr"
+bld(
+	features     = 'gnome_doc',
+	doc_module   = 'cheese',
+	doc_entities = 'legal.xml',
+	doc_includes = '',
+	doc_figures  = 'figures/cheese-screenshot.png figures/cheese-effects-screenshot.png',
+	doc_linguas  = 'es fr',
+)
 
