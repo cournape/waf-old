@@ -44,5 +44,5 @@ def configure(conf):
 	conf.env.COPY = os.getcwd() + os.sep + "cp.py"
 
 def build(bld):
-	bld.new_task_gen(source='uh.input')
+	bld(source='uh.input')
 

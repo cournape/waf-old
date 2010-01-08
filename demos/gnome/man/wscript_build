@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-obj = bld.new_task_gen(features='gnome_sgml2man', appname='gnome-hello')
+obj = bld(features='gnome_sgml2man', appname='gnome-hello')
 
 #todo
 #docbook2man foo.sgml

@@ -34,7 +34,7 @@ def configure(conf):
 
 def build(bld):
 
-	obj1 = bld.new_task_gen(features='cxx cprogram', source='main.c', target='group')
+	obj1 = bld(features='cxx cprogram', source='main.c', target='group')
 
 	# IMPORTANT: compare the execution of
 	# waf clean build --usegroup

@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-obj = bld.new_task_gen(features='cs')
+obj = bld(features='cs')
 obj.source='''
 Simple.cs
 '''

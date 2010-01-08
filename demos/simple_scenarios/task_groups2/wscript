@@ -35,13 +35,13 @@ def build(bld):
 	print "tadaaam"
 
 	bld.set_group('test3')
-	bld.new_task_gen(features='cxx cprogram', source='main3.c', target='g3')
+	bld(features='cxx cprogram', source='main3.c', target='g3')
 
 	bld.set_group('test1')
-	bld.new_task_gen(features='cxx cprogram', source='main1.c', target='g1')
+	bld(features='cxx cprogram', source='main1.c', target='g1')
 
 	bld.set_group('test2')
-	obj2 = bld.new_task_gen(features='cxx cprogram', source='main2.c', target='g2')
+	obj2 = bld(features='cxx cprogram', source='main2.c', target='g2')
 
 	bld.set_group('test4')
 	obj2.clone('debug')

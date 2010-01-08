@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006-2009 (ita)
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features = 'intltool_po',
 		appname = 'gnome-hello')
 
