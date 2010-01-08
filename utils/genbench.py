@@ -249,7 +249,7 @@ def configure(conf):
 def build(bld):
 	for i in xrange(%d):
 		filez = ' '.join(['lib_%%d/class_%%d.cpp' %% (i, j) for j in xrange(%d)])
-		bld.new_task_gen(
+		bld(
 			features = 'cxx cstaticlib',
 			source = filez,
 			target = 'lib_%%d' %% i,
