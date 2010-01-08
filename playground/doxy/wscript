@@ -18,7 +18,7 @@ def configure(conf):
 def build(bld):
 	# Note: Doxgen parameters may be passed using pars attribute
 	#       e.g. pars={'EXCLUDE_PATTERNS':'*.babu'}
-	bld.new_task_gen(features='doxygen',
+	bld(features='doxygen',
 			doxyfile='test.conf',
 			doxy_tar='docs.tar.bz2',
 			install_to='${PREFIX}/share/doc/doxy_test/manual')

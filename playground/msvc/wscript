@@ -35,17 +35,17 @@ def configure(conf):
 
 
 def build(bld):
-	obj = bld.new_task_gen(features = 'cxx cstaticlib')
+	obj = bld(features = 'cxx cstaticlib')
 	obj.source = 'lib.cxx'
 	obj.target = 'lib'
 
-	obj = bld.new_task_gen(features = 'cxx cshlib')
+	obj = bld(features = 'cxx cshlib')
 	obj.source = 'dll.cxx'
 	obj.target = 'dll'
 	obj.defines = ['BUILDING_DLL']
 	obj.uselib = 'KERNEL32 USER32'
 
-	obj = bld.new_task_gen(features = 'cxx cprogram')
+	obj = bld(features = 'cxx cprogram')
 	obj.source = 'main.cxx resource.rc'
 	obj.target = 'msvc_test'
 	obj.uselib_local = ['dll', 'lib']

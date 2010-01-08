@@ -97,7 +97,7 @@ def build(bld):
 					defines=['WRAPPER=' + (static_wrapper and '-1' or '0'), 'IMPL=' + (static_impl and '-1' or '0')],
 					uselib_local=[wrapper.name]
 				)
-	
+
 def program(bld, target, types = ('static', 'shared',), sources=None, includes=None, client_includes=None, defines=None, uselib_local=None, uselib=None):
 	return module(bld, target, 'program', types, sources, includes, client_includes, None, defines, uselib_local, uselib)
 Build.BuildContext.program = program
@@ -109,13 +109,13 @@ Build.BuildContext.lib = lib
 def module(bld, target, kind, types = ('static', 'shared'), sources=None, includes=None, client_includes=None, headers=None, defines=None, uselib_local=None, uselib=None):
 	for type in types:
 		if kind == 'program':
-			obj = bld.new_task_gen(features = 'cxx cprogram')
+			obj = bld(features = 'cxx cprogram')
 			obj.target = target
 			if len(types) > 1: obj.target += '-' + type
 			if type == 'static' and obj.env.CXX_NAME == 'gcc': obj.env.append_value('LINKFLAGS', '-static')
 		else:
 			tp = {'static': 'cstaticlib', 'shared': 'cshlib'}[type]
-			obj = bld.new_task_gen(features = 'cxx %s' % tp)
+			obj = bld(features = 'cxx %s' % tp)
 			obj.target = target
 			if type == 'shared': obj.vnum = VERSION
 		obj.name = target + '-' + type

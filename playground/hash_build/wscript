@@ -16,9 +16,9 @@ def configure(conf):
 
 def build(bld):
 
-	bld.new_task_gen(rule='cp ${SRC} ${TGT}', source='atest', target='main.c', before='cc')
+	bld(rule='cp ${SRC} ${TGT}', source='atest', target='main.c', before='cc')
 
-	bld.new_task_gen(
+	bld(
 		features = 'cc cprogram',
 		source = 'main.c',
 		target = 'test_c_app')

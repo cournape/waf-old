@@ -17,7 +17,7 @@ def configure(conf):
 	conf.check_tool('cross_linux_win32', tooldir='.')
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features='cxx cprogram',
 		source='hello.cpp',
 		target='test',

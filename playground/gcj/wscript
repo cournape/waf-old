@@ -21,7 +21,7 @@ def configure(conf):
 	#conf.check_java_class('FakeClass')
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features     = 'gcj',
 		java_source  = '.*java$',
 		source_root  = 'src',

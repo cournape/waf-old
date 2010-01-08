@@ -19,7 +19,7 @@ def configure(conf):
 	conf.check_tool('batched_cc', tooldir='.')
 
 def build(bld):
-	bld.new_task_gen(features='cc cprogram', source='main.c foo.c bar.c', target='test', includes='.')
+	bld(features='cc cprogram', source='main.c foo.c bar.c', target='test', includes='.')
 
 def shutdown():
 	import os

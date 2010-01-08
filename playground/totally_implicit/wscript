@@ -24,12 +24,12 @@ def configure(conf):
 	conf.check_tool('gcc')
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		target = 'beep.h',
 		rule = 'echo \"#define bar 43\" > ${TGT}',
 	)
 
-	bld.new_task_gen(
+	bld(
 		features='cc cprogram',
 		source='main.c foo.c bar.c',
 		target='test',

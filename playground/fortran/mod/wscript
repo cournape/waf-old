@@ -12,7 +12,7 @@ def configure(conf):
 
 def build(bld):
 	"try using:       waf --zones=task_gen"
-	bld.new_task_gen(
+	bld(
 		features = 'fakecc',
 		#source = 'hello.a hello_main.a',
 		source = 'hello_main.a hello.a',

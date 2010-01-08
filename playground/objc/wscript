@@ -16,7 +16,7 @@ def configure(conf):
 	#conf.check(framework_name='Foundation', framework_path='/Library/Frameworks')
 
 def build(bld):
-	main = bld.new_task_gen(
+	main = bld(
 		features     = 'cc cprogram',
 		source       = 'test.m',
 		target       = 'test_objc_program',
@@ -24,7 +24,7 @@ def build(bld):
 		uselib       = 'FOUNDATION',
 		)
 
-	staticlib = bld.new_task_gen(
+	staticlib = bld(
 		features     = 'cc cstaticlib',
 		source       = 'HelloWorld.m',
 		target       = 'teststaticlib',

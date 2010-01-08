@@ -18,13 +18,13 @@ def configure(conf):
 
 def build(bld):
 	for x in "abcd":
-		bld.new_task_gen(
+		bld(
 		source='wscript',
 		target='%s.txt' % x,
 		rule='cp ${SRC} ${TGT}',
 		before='tar')
 
-	bld.new_task_gen(
+	bld(
 		features='archiver',
 		target='foo.tar.bz2',
 		taropts='-cjf',

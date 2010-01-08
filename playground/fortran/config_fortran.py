@@ -365,11 +365,11 @@ def link_main_routines(self, *k, **kw):
 
 	bld.rescan(bld.srcnode)
 
-	routines_task = bld.new_task_gen(
+	routines_task = bld(
 			features=[routines_compile_mode, routines_type],
 			source=routines_f_name, target='subroutines')
 
-	main_task = bld.new_task_gen(
+	main_task = bld(
 			features=[main_compile_mode, main_type],
 			source=main_f_name, target='main')
 	main_task.uselib_local = 'subroutines'
@@ -486,7 +486,7 @@ def mycompile_code(self, *k, **kw):
 
 	bld.rescan(bld.srcnode)
 
-	o = bld.new_task_gen(features=[kw['compile_mode'], kw['type']],
+	o = bld(features=[kw['compile_mode'], kw['type']],
 			source=test_f_name, target='testprog')
 
 	for k, v in kw.iteritems():

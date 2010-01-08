@@ -19,7 +19,7 @@ def configure(conf):
 	conf.check_tool('daemon', tooldir='.')
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features='cc cprogram',
 		source='main.c',
 		target='test')
