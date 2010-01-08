@@ -32,3 +32,6 @@ Docs
 - enable magic operations by default - unless users do not need them (bld.use_the_magic(), etc)
 + enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 
+Merge
+- atomic wafcache operations (#572)
+
