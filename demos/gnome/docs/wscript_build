@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2007 (ita)
+# Thomas Nagy, 2007-2010 (ita)
 
-obj=bld.new_task_gen('xmlto')
-obj.source = 'gnome-power-manager.xml'
-obj.target = 'gnome-power-manager.html'
-obj.xslt = 'config.xsl'
-obj.inst_var = 'PREFIX'
-obj.inst_subdir = 'usr/doc/PackageKit/docs'
+bld(
+	features='xml_to',
+	source = 'gnome-power-manager.xml',
+	target = 'gnome-power-manager.html',
+	xslt = 'config.xsl',
+	inst_var = 'PREFIX',
+	inst_subdir = 'usr/doc/PackageKit/docs',
+)
 
