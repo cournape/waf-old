@@ -138,7 +138,7 @@ t = join(w, 'Tools')
 f = join(w, '3rdparty')
 sys.path = [w, t, f] + sys.path
 
-import Scripting
-Scripting.waf_entry_point(t, cwd, VERSION, wafdir)
-sys.exit(0)
+if __name__ == '__main__':
+	import Scripting
+	Scripting.waf_entry_point(t, cwd, VERSION, wafdir)
 
