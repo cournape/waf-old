@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Jaap Haitsma, 2008
 
-obj = bld.new_task_gen(
+obj = bld(
 	features = 'cc cprogram',
 	packages = 'gtk+-2.0',
 	target = 'vala-gtk-example',

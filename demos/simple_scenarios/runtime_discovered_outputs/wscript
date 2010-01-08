@@ -34,7 +34,7 @@ def configure(conf):
 	conf.env.SHPIP_COMPILER = os.getcwd() + os.sep + "bad_compiler.py"
 
 def build(bld):
-	staticlib = bld.new_task_gen('cc', 'staticlib')
+	staticlib = bld(features='cc cstaticlib')
 	staticlib.source = 'x.c foo.shpip'
 	staticlib.target='teststaticlib'
 	staticlib.includes = '.'

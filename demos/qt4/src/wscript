@@ -5,7 +5,7 @@
 def build(bld):
 
 	# the functional syntax is equivalent to the object-oriented one
-	obj = bld.new_task_gen(
+	obj = bld(
 		features=['qt4', 'cprogram', 'cxx'],
 		uselib = 'QTCORE QTGUI QTOPENGL QTSVG',
 		target = 'window',

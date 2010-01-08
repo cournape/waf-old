@@ -18,11 +18,11 @@ def configure(conf):
 	conf.check_jni_headers()
 
 def build(bld):
-	bld.new_task_gen(features='javac seq', source_root='src/java')
-	bld.new_task_gen(features='jar seq', basedir='src/java',
+	bld(features='javac seq', source_root='src/java')
+	bld(features='jar seq', basedir='src/java',
 					destfile='stringUtils.jar')
 
-	lib = bld.new_task_gen(features='cc cshlib',
+	lib = bld(features='cc cshlib',
 							includes='src/jni/include',
 							target='stringUtils',
 							uselib='JAVA')

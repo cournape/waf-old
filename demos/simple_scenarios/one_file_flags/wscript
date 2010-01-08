@@ -37,7 +37,7 @@ def configure(conf):
 	conf.env.CCFLAGS = ['-g']
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features = 'cc cprogram',
 		source = 'A.c B.c',
 		target= 'pimpam')

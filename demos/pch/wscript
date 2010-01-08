@@ -28,7 +28,7 @@ cls = Task.simple_task_type('gchx', comp_line, before='cc cxx')
 cls.scan = ccroot.scan
 
 def build(bld):
-	bld.new_task_gen(
+	bld(
 		features = 'cxx cprogram',
 		source = 'main.cpp',
 		includes = '. subdir',

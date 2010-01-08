@@ -4,12 +4,12 @@
 
 # provides a demo for different objects built using different variants
 
-lib1 = bld.new_task_gen(
+lib1 = bld(
 	features='cc cshlib',
 	source = 'lib1.c',
 	target = 'lib1')
 
-prog_in_variant1 = bld.new_task_gen(
+prog_in_variant1 = bld(
 	features = 'cxx cprogram',
 	source = 'src1.c',
 	target = 'myprog',

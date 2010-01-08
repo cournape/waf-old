@@ -31,18 +31,18 @@ def configure(conf):
 def build(bld):
 
 	# first compile a few pyc and pyo files
-	obj = bld.new_task_gen(
+	obj = bld(
 		features = 'py')
 	obj.find_sources_in_dirs('.', exts=['.py'])
 
 	# then a c extension module
-	bld.new_task_gen(
+	bld(
 		features = 'cc cshlib pyext',
 		source = 'spammodule.c',
 		target = 'spam')
 
 	# then a c program
-	bld.new_task_gen(
+	bld(
 		features = 'cc cprogram pyembed',
 		source = 'test.c',
 		target = 'test')

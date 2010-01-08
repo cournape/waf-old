@@ -17,6 +17,6 @@ def build(bld):
 
 	# or declare the build nodes
 	#bld.path.exclusive_build_node('a/b/index.html')
-	bld.new_task_gen(target='a/index.html', rule='touch ${TGT}')
-	bld.new_task_gen(target='a/b/index.html', rule='touch ${TGT}')
+	bld(target='a/index.html', rule='touch ${TGT}')
+	bld(target='a/b/index.html', rule='touch ${TGT}')
 

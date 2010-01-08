@@ -19,7 +19,7 @@ def configure(conf):
 def build(bld):
 	# simple program
 
-	obj = bld.new_task_gen(
+	obj = bld(
 		features = 'ocaml',
 		kind = 'all',
 		includes = '.',

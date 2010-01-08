@@ -23,13 +23,13 @@ def build(bld):
 	#
 	# srcdir: directory containing the sources to compile
 	# compat: java compatibility version number (compiling with a too recent jdk may cause problems)
-	bld.new_task_gen(features='javac seq', srcdir='src', compat='1.5', sourcepath=['src', 'sup'])
+	bld(features='javac seq', srcdir='src', compat='1.5', sourcepath=['src', 'sup'])
 
 	# jar
 	#
 	# basedir: directory containing the .class files to package
 	# destfile: the destination file
-	bld.new_task_gen(features='jar seq', basedir='src', destfile='foo.jar')
+	bld(features='jar seq', basedir='src', destfile='foo.jar')
 
 	#jaropts = '-C default/src/ .', # can be used to give files
 	#classpath = '..:.', # can be used to set a custom classpath

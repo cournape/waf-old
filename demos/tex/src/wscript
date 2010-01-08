@@ -9,7 +9,7 @@ def build(bld):
 	#tex.tex_regexp = re.compile('^\\\\bringin{(?P<file>.*)}', re.M)
 
 	# now create your tex object for compiling the files
-	obj = bld.new_task_gen(
+	obj = bld(
 		features = 'tex',
 		type='latex', # default is pdflatex
 		source = 'document.ltx' # mandatory, the source

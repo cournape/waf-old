@@ -23,14 +23,14 @@ def build(bld):
 	# then both were linked at the same time
 	# a.cpp is compiled and linked before c.cpp is even compiled
 
-	bld.new_task_gen(
+	bld(
 		features = 'cxx cprogram',
 		source = 'a.cpp',
 		target = 'AA')
 
 	bld.add_group('sep') # <- acts like a separator
 
-	bld.new_task_gen(
+	bld(
 		features = 'cxx cprogram',
 		source = 'c.cpp',
 		target = 'CC')

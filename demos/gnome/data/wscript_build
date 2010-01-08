@@ -4,14 +4,14 @@
 
 # process .in files with intl_tool
 
-bld.new_task_gen(
+bld(
 	features = 'intltool_in',
 	source   = 'gnome-test.schemas.in',
 	install_path = '${PREFIX}/etc/gconf/schemas',
 	podir    = '../po',
 	flags    = ['-s', '-q', '-u', '-c'])
 
-bld.new_task_gen(
+bld(
 	features = 'intltool_in',
 	source   = 'gnome-test.desktop.in',
 	install_path = '${PREFIX}/share/gnome/autostart',

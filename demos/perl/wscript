@@ -34,7 +34,7 @@ def configure(conf):
 def build(bld):
 
 	# Build a perl extension module
-	obj = bld.new_task_gen(
+	obj = bld(
 		features = 'cc cshlib perlext',
 		source = 'Mytest.xs',
 		target = 'Mytest',

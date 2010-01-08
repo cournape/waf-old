@@ -6,7 +6,7 @@ def build(bld):
 	#mode = 'cxx'
 	mode = 'cc'
 
-	obj = bld.new_task_gen(
+	obj = bld(
 		features = 'cprogram ' + mode,
 		includes = '.',
 		target = 'calc',

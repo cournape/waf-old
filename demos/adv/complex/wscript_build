@@ -28,7 +28,7 @@ import misc
 
 # a program that links using the GLIB library, defined in the configuration
 # it also processes coin files, defined in the dang.py module (coin hook)
-obj = bld.new_task_gen(
+obj = bld(
 	features = 'cxx cshlib',
 	includes = '. ..',
 	uselib = 'GLIB',
@@ -37,24 +37,12 @@ obj = bld.new_task_gen(
 obj.find_sources_in_dirs('. gui')
 
 # process file.pc.in -> file.pc - by default it uses the task "env" attribute
-obj = bld.new_task_gen(
+obj = bld(
 	features = 'subst',
 	source = 'test.pc.in')
 # next line is for adding various keys to the task env
 obj.env.table.update({'LIBS': '-lkdecore', 'LIBICONV': '-lqt-mt', 'XPM_CFLAGS': '-lm',
     'VERSION': '1.0', 'XPM_LIBS': '-lxpm', 'PREFIX': 'foo'})
-
-"""
-# doc for waf 1.5.1 - command-output wrappers
-obj = bld.new_task_gen('command-output')
-obj.no_inputs = True
-obj.outputs = 'x.c'
-obj.command = 'svnversion'
-#obj.command = 'echo'
-#obj.argv = ['#define feo']
-obj.stdout = 'foo.h'
-obj.command_is_external = True
-"""
 
 # the following still works but it is better to use the rule-based processing
 #
@@ -63,7 +51,7 @@ obj.command_is_external = True
 #	print "\n->> ahoy"
 #	return 0
 # execute arbitrary code in the middle of the build
-#obj = bld.new_task_gen('cmd')
+#obj = bld('cmd')
 #obj.fun = print_hello
 #
 
@@ -71,7 +59,7 @@ obj.command_is_external = True
 bld.add_subdirs('gui gui2')
 
 # generate files from a command
-out1 = bld.new_task_gen(
+out1 = bld(
 	features = 'command-output',
 	stdout = 'test1',
 	stdin = 'wscript_build',
@@ -81,7 +69,7 @@ out1 = bld.new_task_gen(
 out1.env.COINCOIN = 'Some string to trigger rebuilds'
 
 
-out2 = bld.new_task_gen(
+out2 = bld(
 	features = 'command-output',
 	stdout = 'test2',
 	command = 'some-script',
@@ -92,7 +80,7 @@ out2.env.MIAOU = 'Another string to trigger rebuilds'
 out2.dependencies = [out1]
 
 
-out3 = bld.new_task_gen(
+out3 = bld(
 	features = 'command-output',
 	stdin = 'test2',
 	stdout = 'test3',
@@ -100,7 +88,7 @@ out3 = bld.new_task_gen(
 	command_is_external = True,
 	dependencies = [out2])
 
-bld.new_task_gen(
+bld(
 	features = 'command-output',
 	stdin = 'test3',
 	stdout = 'test4',
@@ -109,7 +97,7 @@ bld.new_task_gen(
 	dependencies = [out3])
 
 # compile a generated cpp file into a program
-bld.new_task_gen(
+bld(
 	features = 'command-output',
 	before = 'cxx',
 	stdout = 'main1.cpp',
@@ -117,7 +105,7 @@ bld.new_task_gen(
 	command_is_external = True,
 	argv = [misc.input_file('main.cpp')])
 
-bld.new_task_gen(
+bld(
 	features = 'cxx cprogram',
 	source = 'main1.cpp',
 	target = 'main1',
@@ -127,13 +115,13 @@ bld.new_task_gen(
 # a file is either in the source dir or in the build dir but not in both
 #
 # source != target
-bld.new_task_gen(
+bld(
 	features = 'copy',
 	source = 'main.cpp',
 	target = 'blah')
 
 # -- run a command and retrive stderr into a file
-bld.new_task_gen(
+bld(
 	features = 'command-output',
 	stderr = 'ls-error.out',
 	command = 'bash',

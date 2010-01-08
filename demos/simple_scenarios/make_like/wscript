@@ -22,31 +22,31 @@ def configure(conf):
 def build(bld):
 
 	# a source file and one output
-	bld.new_task_gen(
+	bld(
 		source='wscript',
 		target='test.k1',
 		rule='cp ${SRC} ${TGT}'
 	)
 
 	# a source file but no outputs
-	bld.new_task_gen(
+	bld(
 		source='wscript',
 		rule='echo ${SRC}'
 	)
 
 	# no source file but one output (execute when PREFIX changes)
-	bld.new_task_gen(
+	bld(
 		target='test.k3',
 		rule='echo ${PREFIX} > ${TGT}',
 	)
 
 	# no inputs and no outputs (execute when PREFIX changes)
-	bld.new_task_gen(
+	bld(
 		rule='echo ${PREFIX}'
 	)
 
 	# no input and no output, ('always' attribute -> the task is always executed)
-	bld.new_task_gen(
+	bld(
 		rule="echo 'task always run'",
 		always=True
 	)
@@ -54,7 +54,7 @@ def build(bld):
 	# a source file and a target with a more complicated
 	# rule and a constraint on the order (before)
 	# a cwd attribute may be provided to set the directory to execute from
-	bld.new_task_gen(
+	bld(
 		source='wscript',
 		target='test.k',
 		rule='./create.py && mv ${TGT[0].abspath()} ${TGT[0].abspath(env)}',
@@ -66,14 +66,14 @@ def build(bld):
 	def run(self):
 		print 'hi there'
 
-	bld.new_task_gen(
+	bld(
 		name='hi',
 		rule=run
 	)
 
 	# the dependant task copy_svnversion is executed
 	# when the actual output of svnversion changes (on_results attribute)
-	bld.new_task_gen(
+	bld(
 		name='svnversion',
 		target='ver.h',
 		rule='svnversion > ${TGT[0].abspath(env)}',
@@ -87,7 +87,7 @@ def build(bld):
 		node = self.generator.path.find_resource('wscript')
 		return ([node], [])
 
-	bld.new_task_gen(
+	bld(
 		name='copy_svnversion',
 		after='svnversion',
 		source='ver.h',

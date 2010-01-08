@@ -4,7 +4,7 @@
 
 # A c program that links using the GLIB library, defined in the configuration
 # the only change is that gnome is replaced by cc or cpp (as usual)
-obj = bld.new_task_gen(
+obj = bld(
 	features = 'cc cprogram',
 	includes = '# .', # top-level and current directory
 	uselib = 'GTK GNOME GNOMEUI DBUSGLIB',

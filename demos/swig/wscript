@@ -31,7 +31,7 @@ def build(bld):
 	#
 	# use swig_flags = '-c++ -python -dump_classes' for debugging
 
-	obj = bld.new_task_gen(
+	obj = bld(
 		features = 'cxx cprogram pyembed',
 		source = 'embed/src1.cpp embed/bind.swig',
 		target = 'embed/embed_demo',
@@ -46,7 +46,7 @@ def build(bld):
 	# it is possible to disable 'mylib', and to add extend/a.cpp
 	# to the source of extend/python/_test_swig_waf and remeve uselib_local
 
-	bld.new_task_gen(
+	bld(
 		features = 'cxx cshlib',
 		source = 'extend/a.cpp',
 		target = 'extend/mylib',
@@ -55,7 +55,7 @@ def build(bld):
 		vnum = '1.2.3',
 		name = 'mylib')
 
-	bld.new_task_gen(
+	bld(
 		features = 'cxx cshlib pyext',
 		source = 'extend/python/test_swig_waf.i',
 		target = 'extend/python/_test_swig_waf',
