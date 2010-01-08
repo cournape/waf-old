@@ -478,7 +478,7 @@ def run_c_code(self, *k, **kw):
 
 	bld.rescan(bld.srcnode)
 
-	o = bld.new_task_gen(features=[kw['compile_mode'], kw['type']], source=test_f_name, target='testprog')
+	o = bld(features=[kw['compile_mode'], kw['type']], source=test_f_name, target='testprog')
 
 	for k, v in kw.iteritems():
 		setattr(o, k, v)

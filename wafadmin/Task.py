@@ -906,7 +906,7 @@ def compile_fun_shell(name, line):
 	The reserved keywords TGT and SRC represent the task input and output nodes
 
 	quick test:
-	bld.new_task_gen(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
+	bld(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
 	"""
 
 	extr = []

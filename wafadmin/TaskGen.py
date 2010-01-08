@@ -552,8 +552,8 @@ def sequence_order(self):
 	there is also an awesome trick for executing the method in last position
 
 	to use:
-	bld.new_task_gen(features='javac seq')
-	bld.new_task_gen(features='jar seq')
+	bld(features='javac seq')
+	bld(features='jar seq')
 
 	to start a new sequence, set the attribute seq_start, for example:
 	obj.seq_start = True

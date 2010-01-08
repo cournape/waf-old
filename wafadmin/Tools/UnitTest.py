@@ -201,7 +201,7 @@ Total number of tests: %i
 New unit test system
 
 The targets with feature 'test' are executed after they are built
-bld.new_task_gen(features='cprogram cc test', ...)
+bld(features='cprogram cc test', ...)
 
 To display the results:
 import UnitTest
