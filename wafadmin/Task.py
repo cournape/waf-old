@@ -42,7 +42,7 @@ The role of the Task Manager is to give the tasks in order (groups of task that 
 
 """
 
-import os, shutil, sys, re, random, datetime
+import os, shutil, sys, re, random, datetime, tempfile
 from Utils import md5
 import Build, Runner, Utils, Node, Logs, Options
 from Logs import debug, warn, error
@@ -648,8 +648,8 @@ class Task(TaskBase):
 		bld = self.generator.bld
 		env = self.env
 		sig = self.signature()
+		ssig = sig.encode('hex')
 
-		cnt = 0
 		variant = env.variant()
 		for node in self.outputs:
 			# check if the node exists ..
@@ -662,35 +662,78 @@ class Task(TaskBase):
 
 			# important, store the signature for the next run
 			bld.node_sigs[variant][node.id] = sig
-
-			# We could re-create the signature of the task with the signature of the outputs
-			# in practice, this means hashing the output files
-			# this is unnecessary
-			if Options.cache_global:
-				ssig = sig.encode('hex')
-				dest = os.path.join(Options.cache_global, '%s_%d_%s' % (ssig, cnt, node.name))
-				try: shutil.copy2(node.abspath(env), dest)
-				except IOError: warn('Could not write the file to the cache')
-				cnt += 1
-
 		bld.task_sigs[self.unique_id()] = self.cache_sig
 
+		# file caching, if possible
+		# try to avoid data corruption as much as possible
+		if not Options.cache_global or Options.options.nocache or not self.outputs:
+			return None
+
+		if getattr(self, 'cached', None):
+			return None
+
+		dname = os.path.join(Options.cache_global, ssig)
+		tmpdir = tempfile.mkdtemp(prefix=Options.cache_global)
+
+		try:
+			shutil.rmtree(dname)
+		except:
+			pass
+
+		try:
+			for node in self.outputs:
+				variant = node.variant(env)
+				dest = os.path.join(tmpdir, node.name)
+				shutil.copy2(node.abspath(env), dest)
+		except (OSError, IOError):
+			try:
+				shutil.rmtree(tmpdir)
+			except:
+				pass
+		else:
+			try:
+				os.rename(tmpdir, dname)
+			except OSError:
+				try:
+					shutil.rmtree(tmpdir)
+				except:
+					pass
+			else:
+				try:
+					os.chmod(dname, O755)
+				except:
+					pass
+
 	def can_retrieve_cache(self):
-		"""Retrieve build nodes from the cache - the file time stamps are updated
-		for cleaning the least used files from the cache dir - be careful when overridding"""
-		if not Options.cache_global: return None
-		if Options.options.nocache: return None
-		if not self.outputs: return None
+		"""
+		Retrieve build nodes from the cache
+		update the file timestamps to help cleaning the least used entries from the cache
+		additionally, set an attribute 'cached' to avoid re-creating the same cache files
+
+		suppose there are files in cache/dir1/file1 and cache/dir2/file2
+		first, read the timestamp of dir1
+		then try to copy the files
+		then look at the timestamp again, if it has changed, the data may have been corrupt (cache update by another process)
+		should an exception occur, ignore the data
+		"""
+		if not Options.cache_global or Options.options.nocache or not self.outputs:
+			return None
 
 		env = self.env
 		sig = self.signature()
+		ssig = sig.encode('hex')
 
-		cnt = 0
+		# first try to access the cache folder for the task
+		dname = os.path.join(Options.cache_global, ssig)
+		try:
+			t1 = os.stat(dname).st_mtime
+		except OSError:
+			return None
+
 		for node in self.outputs:
 			variant = node.variant(env)
 
-			ssig = sig.encode('hex')
-			orig = os.path.join(Options.cache_global, '%s_%d_%s' % (ssig, cnt, node.name))
+			orig = os.path.join(dname, node.name)
 			try:
 				shutil.copy2(orig, node.abspath(env))
 				# mark the cache file as used recently (modified)
@@ -698,13 +741,21 @@ class Task(TaskBase):
 			except (OSError, IOError):
 				debug('task: failed retrieving file')
 				return None
-			else:
-				cnt += 1
+
+		# is it the same folder?
+		try:
+			t2 = os.stat(dname).st_mtime
+		except OSError:
+			return None
+
+		if t1 != t2:
+			return None
 
 		for node in self.outputs:
 			self.generator.bld.node_sigs[variant][node.id] = sig
 			self.generator.bld.printout('restoring from cache %r\n' % node.bldpath(env))
 
+		self.cached = True
 		return 1
 
 	def debug_why(self, old_sigs):
