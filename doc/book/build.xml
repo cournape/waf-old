@@ -4,7 +4,6 @@
 >
 <chapter id="build">
 	<title>The build phase</title>
-
 	<section id="targets">
 		<title>Declaring new targets</title>
 		<para>
@@ -28,7 +27,7 @@
 
 
 	<section id="pre_post_build">
-		<title>Executing specific routines before or after the build<title>
+		<title>Executing specific routines before or after the build</title>
 			<para>
 			User functions may be bound to be executed at two key moments during the build command (callbacks):
 			<itemizedlist>
