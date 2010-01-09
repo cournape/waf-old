@@ -8,27 +8,26 @@
 		<title>Obtaining Waf</title>
 		<para>
 			The Waf project is located on <ulink url="http://code.google.com/p/waf">Google Code</ulink>
-			The current Waf version requires Python &ge; 2.3 compiled with support for the bzip2 compression algorithm.
-			Installing Waf is optional, if you want to install Waf on the system, jump to the next section.
+			The current Waf version requires an interpreter for the Python programming language such as cPython (<ulink>http://www.python.org</ulink>) 2.3 to 3.1 or Jython &ge; 2.5 (<ulink>http://www.jython.org</ulink>). Note that Waf requires bzip2 compression support, which may be unavailable in self-compiled cPython installations.
 		</para>
 		<sect2>
 			<title>Using the Waf binary</title>
 			<para>
-				The Waf binary is ready to use and can be executed directly. Just rename it into &quot;waf&quot;:
+				The Waf binary does not require any installation whatsoever. It may be executed directly from a writeable folder. Just rename it into &quot;waf&quot; if necessary:
 				<programlisting language="sh">
-$ wget http://waf.googlecode.com/files/waf-1.5.0
-$ mv waf-1.5.0 waf &amp;&amp; chmod 755 waf
+$ wget http://waf.googlecode.com/files/waf-1.5.11
+$ mv waf-1.5.11 waf &amp;&amp; chmod 755 waf
 				</programlisting>
 			</para>
 		</sect2>
 		<sect2>
-			<title>Generating Waf from source</title>
+			<title>Generating the Waf binary from the source code</title>
 			<para>
-				The Waf binary is usually generated from the source distribution:
+				The Waf binary creation requires a Python interpreter in version 2.4 to 2.6. The source code is processed to support Python 2.3 and Python 3.
 				<programlisting language="sh">
-$ wget http://waf.googlecode.com/files/waf-1.5.0.tar.bz2
-$ tar xjvf waf-1.5.0.tar.bz2
-$ cd waf-1.5.0
+$ wget http://waf.googlecode.com/files/waf-1.5.11.tar.bz2
+$ tar xjvf waf-1.5.11.tar.bz2
+$ cd waf-1.5.11
 $ ./waf-light --make-waf
 				</programlisting>
 			</para>
@@ -36,26 +35,27 @@ $ ./waf-light --make-waf
 	</section>
 
 	<section id="installing">
-		<title>Installing</title>
-		<para>Waf installation is optional and there are many advantages of not installing Waf, among them:
+		<title>Installing Waf on a system</title>
+		<para>Installing the Waf script on a system is discouraged:
 			<orderedlist>
-				<listitem>Installation: installation is cumbersome, and requires administrative privileges</listitem>
-				<listitem>Waf versions: users rarely install the appropriate software version (too old, too new)</listitem>
-				<listitem>Bugs: newer Waf versions may result in broken builds</listitem>
-				<listitem>Size: Waf is extremely small (about 70kB)</listitem>
+				<listitem>Interpreter version: unlike the Waf script, the installed version will not run by using Python 3</listitem>
 				<listitem>Operating systems: Waf cannot be installed on Windows (yet)</listitem>
+				<listitem>Installation: installation is cumbersome, and requires administrative privileges</listitem>
+				<listitem>Waf versions: users rarely install the appropriate software version (too old, too new, bugs)</listitem>
+				<listitem>Bugs: different Waf versions may result in broken builds</listitem>
+				<listitem>Size: Waf is small enough to be redistributed (about 80kB)</listitem>
 			</orderedlist>
+			Instead, redistribute the appropriate Waf script along the sources using it.
 		</para>
 		<para>
-			If, despite the advantages enumerated previously, you really want to install the Waf application on the system, you may use the following command on Unix-like systems such as Linux:
+			Installation require a Python interpreter in the versions 2.4 to 2.6. It may require administrator or root privileges, depending on the target folder (prefix).
 			<programlisting language="sh">
 # ./waf-light configure --prefix=/usr/
 # ./waf-light install
 			</programlisting>
-			Root privileges may be required depending on the final location.
 		</para>
 		<para>
-			Waf can be uninstalled using:
+			Likewise, Waf can be uninstalled using:
 			<programlisting language="sh">
 # ./waf-light --prefix=/usr/
 # ./waf-light uninstall
@@ -66,7 +66,7 @@ $ ./waf-light --make-waf
 	<section id="using">
 		<title>Running Waf</title>
 		<para>
-			The Waf script can be used directly:
+			The Waf script can be used directly from a writeable folder:
 			<programlisting language="sh">
 $ ./waf
 			</programlisting>
@@ -76,10 +76,10 @@ $ python waf
 			</programlisting>
 		</para>
 		<para>
-			By default, the Waf script uncompresses its library in the current directory, in a hidden folder. This means the Waf script must reside in a writable folder. The naming is allow different Waf versions to run from the same folder:
+			By default, the Waf script uncompresses its library in the current directory, in a hidden folder. This means the Waf script must reside in a writable folder. The naming enables different Waf versions to be executed from the same folders:
 			<programlisting language="sh">
 $ ls -ld .waf*
-.waf-1.5.0-ec924e3f453eb715118b9cc852291170
+.waf-1.5.11-2c924e3f453eb715218b9cc852291170
 			</programlisting>
 		</para>
 	</section>
