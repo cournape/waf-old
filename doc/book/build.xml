@@ -1,0 +1,90 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter id="build">
+	<title>The build phase</title>
+
+	<section id="targets">
+		<title>Declaring new targets</title>
+		<para>
+			test
+		</para>
+	</section>
+
+	<section id="installing">
+		<title>Installing files</title>
+		<para>
+			test
+		</para>
+	</section>
+
+	<section id="glob">
+		<title>Finding files and folders</title>
+		<para>
+			test
+		</para>
+	</section>
+
+
+	<section id="pre_post_build">
+		<title>Executing specific routines before or after the build<title>
+			<para>
+			User functions may be bound to be executed at two key moments during the build command (callbacks):
+			<itemizedlist>
+				<listitem>immediately before the build starts (bld.add_pre_fun)</listitem>
+				<listitem>immediately after the build is completed successfully (bld.add_post_fun)</listitem>
+			</itemizedlist>
+			Here is how to execute a test after the build is finished:
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def set_options(ctx):
+	ctx.add_option('--exe', action='store_true', default=False,
+		help='execute the program after it is built')
+
+def configure(ctx):
+	pass
+
+def pre(ctx): <co id="prepost-co1" linkends="prepost1"/>
+	print ("before the build is started")
+
+def post(ctx):
+	import Options, Utils
+	if Options.options.exe: <co id="prepost-co2" linkends="prepost2"/>
+		Utils.exec_command('/sbin/ldconfig') <co id="prepost-co3" linkends="prepost3"/>
+
+def build(ctx):
+	ctx.add_pre_fun(pre) <co id="prepost-co4" linkends="prepost4"/>
+	ctx.add_post_fun(post)
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="prepost1-co" id="prepost1"><para>The callbacks take the build context as unique parameter <emphasis>ctx</emphasis></para></callout>
+				<callout arearefs="prepost1-co" id="prepost1"><para>Access to the command-line options</para></callout>
+				<callout arearefs="prepost1-co" id="prepost1"><para>A common scenario is to call ldconfig after the files are installed.</para></callout>
+				<callout arearefs="prepost1-co" id="prepost1"><para>Scheduling the functions for later execution. Remember that in Python, functions are objects too.</para></callout>
+			</callout>
+
+			Upon execution, the following output will be produced:
+
+			<programlisting language="sh">
+$ waf distclean configure build --exe
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/smallproject/build'
+before the build is started
+Waf: Leaving directory `/tmp/smallproject/build'
+hello
+'build' finished successfully (0.008s)
+			</programlisting>
+
+			</para>
+	</section>
+
+	<!-- variants ? -->
+
+
+</chapter>
+
