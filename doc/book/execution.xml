@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="execution">
-	<title>Introduction to the Waf scripting system</title>
+	<title>The scripting system</title>
 	<section id="setup">
 		<title>Setting up a project</title>
 		<para>
@@ -292,7 +292,97 @@ $ waf configure print_ping
 	</section>
 
 
-	<section id="build function">
+	<section id="build">
+		<title>Building, cleaning, installing and uninstalling a project</title>
+		<para>
+			The Waf command is used for building the actual software. Let's start again from the project file /tmp/smallfolder/wscript:
+
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build_directory'
+
+def configure(ctx):
+    print('-> configure from the top-level')
+
+def build(ctx):
+    print('building the software')
+			</programlisting>
+
+			Without surprize, the execution will look like the following:
+
+			<programlisting language="sh">
+$ cd /tmp/smallproject
+
+$ waf
+Project not configured (run 'waf configure' first)
+
+$ waf configure
+-> configure from the top-level
+'configure' finished successfully (0.001s)
+
+$ waf build
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'build' finished successfully (0.004s)
+			</programlisting>
+		</para>
+
+		<para>
+			The Waf commands <emphasis>build, clean, install, uninstall</emphasis> are shortcuts to call <emphasis>build</emphasis> with different internal options.
+
+			<programlisting language="sh">
+$ waf build install uninstall clean
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'build' finished successfully (0.004s)
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'install' finished successfully (0.003s)
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'uninstall' finished successfully (0.002s)
+building the software
+'clean' finished successfully (0.002s)
+			</programlisting>
+
+			Since the command <emphasis>waf build</emphasis> is executed very often, a shortcut is provided to call it implicitely:
+
+			<programlisting language="sh">
+$ waf
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+			</programlisting>
+
+			The meaning of the commands is the following:
+
+			<itemizedlist>
+				<listitem>build: process the source code to create the object files</listitem>
+				<listitem>clean: remove the object files that were created during a build</listitem>
+				<listitem>install: check that all object files have been generated and copy them on the system (programs, libraries, data files, etc)</listitem>
+				<listitem>uninstall: undo the installation, remove the object files from the system without touching the ones in the build directory</listitem>
+			</itemizedlist>
+
+			Object file creation and target installation will be detailed in the next chapters.
+		</para>
+
+	</section>
+
+	<section id="options">
+		<title>Customizing the command-line options</title>
+		<para>
+
+		</para>
+	</section>
+
+
+
+
+	<section id="build">
 		<title>The build function</title>
 		<para>
 			The function <emphasis>build</emphasis> indicates the start of the actual construction of the software, it is used for two main purposes:
