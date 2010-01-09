@@ -65,7 +65,7 @@ def build(ctx):
 				<callout arearefs="prepost1-co" id="prepost1"><para>Access to the command-line options</para></callout>
 				<callout arearefs="prepost1-co" id="prepost1"><para>A common scenario is to call ldconfig after the files are installed.</para></callout>
 				<callout arearefs="prepost1-co" id="prepost1"><para>Scheduling the functions for later execution. Remember that in Python, functions are objects too.</para></callout>
-			</callout>
+			</calloutlist>
 
 			Upon execution, the following output will be produced:
 
