@@ -362,7 +362,7 @@ building the software
 
 			<itemizedlist>
 				<listitem>build: process the source code to create the object files</listitem>
-				<listitem>clean: remove the object files that were created during a build</listitem>
+				<listitem>clean: remove the object files that were created during a build (unlike distclean, do not remove the configuration)</listitem>
 				<listitem>install: check that all object files have been generated and copy them on the system (programs, libraries, data files, etc)</listitem>
 				<listitem>uninstall: undo the installation, remove the object files from the system without touching the ones in the build directory</listitem>
 			</itemizedlist>
