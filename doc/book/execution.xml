@@ -161,7 +161,7 @@ $ waf distclean
 $ waf print_ping
 Project not configured (run 'waf configure' first)
 			</programlisting>
-		<para>
+		</para>
 
 		<para>
 			It is possible to override the behaviour of <emphasis>distclean</emphasis> by redefining it in the wscript file. For example, the following will cause it to avoid removing the build files.
