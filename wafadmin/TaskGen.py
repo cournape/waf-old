@@ -345,6 +345,7 @@ Intelligent compilers binding aspect-oriented programming and parallelization, w
 """
 def taskgen(func):
 	setattr(task_gen, func.__name__, func)
+	return func
 
 def feature(*k):
 	def deco(func):
