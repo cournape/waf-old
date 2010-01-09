@@ -458,7 +458,7 @@ $ waf configure --foo=test
 'configure' finished successfully (0.001s)
 			</programlisting>
 
-			The command context for set_options is a shortcut to access the optparse functionality. For more information on the optparse module, consult the Python documentation <ulink>http://docs.python.org/library/optparse.html</ulink>.
+			The command context for set_options is a shortcut to access the optparse functionality. For more information on the optparse module, consult the <ulink url="http://docs.python.org/library/optparse.html">Python documentation</ulink>.
 		</para>
 
 	</section>
