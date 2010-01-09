@@ -75,7 +75,7 @@ $ tree
 	</section>
 
 	<section id="commands">
-		<title>Project commands</title>
+		<title>Adding project commands</title>
 		<para>
 			In the last section, we have see the use of the command <emphasis>configure</emphasis> to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by <emphasis>waf commandname</emphasis>. Let us create two new commands <emphasis>print_ping</emphasis> and <emphasis>print_pong</emphasis> in the project created previously (/tmp/smallproject/)
 
@@ -234,6 +234,14 @@ $ waf dist
 New archive created: webe-2.0.tar.bz2 (sha='7ccc338e2ff99b46d97e5301793824e5941dd2be')
 'dist' finished successfully (0.006s)
 			</programlisting>
+
+			<para>
+			The default compression format is <ulink url="http://www.bzip.org/">bzip2</ulink>. It may be changed to <ulink url="http://www.gzip.org/">gzip</ulink> by using the following code:
+				<programlisting language="python">
+import Scripting
+Scripting.g_gz = 'gz'
+				</programlisting>
+			</para>
 		</para>
 
 	</section>
