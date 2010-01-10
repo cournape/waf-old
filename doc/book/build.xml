@@ -14,7 +14,82 @@
 	<section id="glob">
 		<title>Finding files and folders</title>
 		<para>
-			Listing all files and folders in a script may increase operation maintainance tasks, especially when files are renamed. Fortunately, apis are provided for accessing the file system and for finding files automatically.
+			In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed fron the build context:
+			<itemizedlist>
+				<listitem>root: node representing the root of the file system, or the folder containing the drive letters on win32 systems</listitem>
+				<listitem>path: node representing the path of the script being read (path to the wscript file)</listitem>
+			</itemizedlist>
+			Nodes are often used for low-level operations such as extending Waf, and the node manipulation is hardly ever necessary from user scripts.
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(ctx):
+    pass
+
+def build(bld):
+    print('current path %r' % bld.path)
+    print('absolute path of the root node: %r' % bld.root.abspath())
+    print('absolute path of the current node: %r' % bld.path.abspath())
+
+    etc = bld.root.find_dir('/etc')
+    var = bld.root.find_dir('/var')
+    print('the node representing /etc %r: ' % etc)
+    print('path from /var to /etc %r' % etc.relpath_gen(var))
+
+    fstab = bld.root.find_resource('/etc/fstab')
+    print('path to /etc/fstab: %r' % fstab.abspath())
+			</programlisting>
+			The following results would be observed upon execution on a unix-like system:
+			<programlisting language="sh">
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/smallproject/build'
+current path dir:///tmp/smallproject
+absolute path of the root node: '/'
+absolute path of the current node: '/tmp/smallproject'
+the node representing /etc dir:///etc:
+path from /var to /etc '../etc'
+path to /etc/fstab: '/etc/fstab'
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (0.003s)
+			</programlisting>
+		</para>
+
+		<para>
+			Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called <emphasis>ant_glob</emphasis> enables searching for files and folders on the file system. Here is an illustration:
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(ctx):
+    pass
+
+def build(bld):
+    print(bld.path.ant_glob('wsc*'))<co id="ant-co1" linkends="ant1"/>
+	print(bld.path.ant_glob('w?cr?p?'))<co id="ant-co2" linkends="ant2"/>
+    print(bld.root<co id="ant-co3" linkends="ant3"/>.ant_glob('etc/**/g*'<co id="ant-co4" linkends="ant4"/>, dir=True, src=False, bld=False)) <co id="ant-co5" linkends="ant5"/>
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="ant-co1" id="ant1"><para>The method ant_glob is called on a node object, and not on the build context</para></callout>
+				<callout arearefs="ant-co1" id="ant1"><para>The patterns may contain wildcards such as * or ?, but they are <ulink url="http://ant.apache.org/manual/CoreTypes/patternset.html">Ant patterns</ulink>, not regular expressions</para></callout>
+				<callout arearefs="ant-co1" id="ant1"><para>Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system</para></callout>
+				<callout arearefs="ant-co1" id="ant1"><para>The <emphasis>**</emphasis> indicates to consider folders recursively. Use with care.</para></callout>
+				<callout arearefs="ant-co1" id="ant1"><para>By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.</para></callout>
+			</calloutlist>
+
+			The execution will give an output similar to this:
+			<programlisting language="sh">
+$ waf
+Waf: Entering directory `/tmp/smallproject/build'
+wscript
+wscript
+etc/ghostscript etc/gconf etc/gconf/gconf.xml.mandatory etc/gnome-vfs-2.0 etc/gpm etc/gnupg etc/gre.d etc/gdm
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (12.873s)
+			</programlisting>
 		</para>
 	</section>
 
