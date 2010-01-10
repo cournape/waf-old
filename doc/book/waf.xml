@@ -29,7 +29,7 @@
 		</section>
 		<section id="objectives">
 			<title>Objectives of this book</title>
-			<para>The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and detailed review of the Waf internals. Those who are impatient to see Waf in action should open the folder <emphasis>demos/</emphasis> in the Waf distribution, and start looking at the examples.
+			<para>The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and detailed review of the Waf internals. For the impatients: open the folder <emphasis>demos/</emphasis> in the Waf distribution, and start looking at the examples.
 			</para>
 			<para>The first chapters contain a detailed description of the basic use of Waf. The chapters on Configuration, Tasks, and Task generators describe the internals. Although these chapters should be read carefully before trying to extend Waf, it may be necessary to consult the examples distributed along the Waf source code to avoid reinventing existing solutions. The next chapters detail examples for the c/c++ languages, and present techniques to address special scenarios which may occur in the most complicated builds. The last chapters are provided as a reference for modifying Waf itself and are aimed at developers.
 			</para>
