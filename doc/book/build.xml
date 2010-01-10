@@ -55,20 +55,20 @@ Waf: Leaving directory `/tmp/smallproject/build'
 'clean' finished successfully (0.002s)
 			</programlisting>
 
-			The line <emphasis>test.txt</emphasis> corresponds to the execution of the actual task. The task generator was created during the execution of both <emphasis>build</emphasis> and <emphasis>clean</emphasis> (print statement). The task was only executed during the first build, and not during the clean step. Also, the task was not executed when it was considered up-to-date (to know more, consult the next chapters).
+			The line <emphasis>test.txt</emphasis> corresponds to the execution of the actual task. The task generator was created during the execution of both <emphasis>build</emphasis> and <emphasis>clean</emphasis> (print statement). The task was only executed during the first build, and not during the clean step. Also, the task was not executed when the target was considered up-to-date (to know more, consult the next chapters).
 		</para>
 
 	</section>
 
 	<section id="glob">
-		<title>Finding files and folders</title>
+		<title>Finding folders and files through node objects</title>
 		<para>
 			In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed fron the build context:
 			<itemizedlist>
 				<listitem>root: node representing the root of the file system, or the folder containing the drive letters on win32 systems</listitem>
 				<listitem>path: node representing the path of the script being read (path to the wscript file)</listitem>
 			</itemizedlist>
-			Nodes are often used for low-level operations such as extending Waf, and the node manipulation is hardly ever necessary from user scripts.
+			Nodes are often used for low-level operations such as extending Waf, and direct node manipulation is hardly ever necessary from user scripts.
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
@@ -107,7 +107,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 		</para>
 
 		<para>
-			Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called <emphasis>ant_glob</emphasis> enables searching for files and folders on the file system. Here is an illustration:
+			Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called <emphasis>ant_glob</emphasis> enables searching for folders and files on the file system. Here is an illustration:
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
@@ -129,7 +129,7 @@ def build(bld):
 				<callout arearefs="ant-co1" id="ant1"><para>By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.</para></callout>
 			</calloutlist>
 
-			The execution will give an output similar to this:
+			The execution output will be similar to the following:
 			<programlisting language="sh">
 $ waf
 Waf: Entering directory `/tmp/smallproject/build'
