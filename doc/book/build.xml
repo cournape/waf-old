@@ -55,7 +55,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 'clean' finished successfully (0.002s)
 			</programlisting>
 
-			The line <emphasis>test.txt</emphasis> corresponds to the execution of the actual task. The task generator was created during the execution of both <emphasis>build<emphasis> and <emphasis>clean</emphasis> (print statement). The task was only executed during the first build, and not during the clean step. Also, the task was not executed when it was considered up-to-date (to know more, consult the next chapters).
+			The line <emphasis>test.txt</emphasis> corresponds to the execution of the actual task. The task generator was created during the execution of both <emphasis>build</emphasis> and <emphasis>clean</emphasis> (print statement). The task was only executed during the first build, and not during the clean step. Also, the task was not executed when it was considered up-to-date (to know more, consult the next chapters).
 		</para>
 
 	</section>
