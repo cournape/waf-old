@@ -5,122 +5,125 @@
 <chapter id="configuration">
 	<title>The configuration system</title>
 
-	<section id="config_overview">
-		<title>Overview of the configuration files</title>
+	<section id="config_data">
+		<title>Using configuration data</title>
 		<para>
-			Configuring a project consists in finding the parameters that will be used during the build step
-			<programlisting language="python">
-$ cd demos/simple_scenarios/init
-$ cat wscript
+			Configuration data is held by instances of the class <emphasis>Environment</emphasis>. The class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how configuration data is usually stored:
 
-VERSION='0.0.1'
-APPNAME='test'
+			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
 
 def configure(conf):
-        pass
-def build(bld):
-        pass
+    conf.env['CXXFLAGS'] = ['-O2'] # key-based access
+    conf.env.store('test.txt')
+    conf.env.TEST        = 'test'  # attribute-based access
 
+    new = conf.env.__class__()
+    new.load('test.txt')
+
+    print new
+    print ""
+    print conf.env
+			</programlisting>
+
+			The execution will result in the following output:
+
+			<programlisting language="sh">
 $ waf configure
-			</programlisting>
-			Several configuration files are produced and the configuration parameters are stored in the folder <emphasis>c4che</emphasis> located under the build directory
-			<programlisting language="sh">
-|-- .lock-wscript <co id="lock-co" linkends="lock"/>
-`-- build
-    |-- .wafpickle-6 <co id="pickle-co" linkends="pickle"/>
-    |-- c4che
-    |   |-- build.config.py <co id="bldconf-co" linkends="bldconf"/>
-    |   `-- default.cache.py <co id="env-co" linkends="env"/>
-    `-- config.log <co id="log-co" linkends="log"/>
-			</programlisting>
-			<calloutlist>
-				<callout arearefs="lock-co" id="lock">
-					<para>Contains a reference to the build directory and contains the command-line configuration flags. It is located at the root of the source directory.</para>
-				</callout>
-				<callout arearefs="pickle-co" id="pickle">
-					<para>Contains serialized data corresponding to the build information (cache, filesystem representation, etc)</para>
-				</callout>
-				<callout arearefs="bldconf-co" id="bldconf">
-					<para>Contains the Waf version and the list of Waf modules to open automatically</para>
-				</callout>
-				<callout arearefs="env-co" id="env">
-					<para>Represents a configuration environment (parameters such as configuration flags used during the build)</para>
-				</callout>
-				<callout arearefs="log-co" id="log">
-					<para>Contains the configuration test execution details</para>
-				</callout>
-			</calloutlist>
-			The file <emphasis>default.cache.py</emphasis> is called a configuration environment, and it may be edited by hand. We will give the details on the following section. The other files are not meant to be modified by hand, even if they are editable.
-		</para>
-	</section>
+'CXXFLAGS' ['-O2']
+'PREFIX' '/usr/local'
 
-	<section id="config_env">
-		<title>The configuration environments</title>
-		<para>
-			The build phase uses configuration environments created during the configuration phase. The configuration environments are <emphasis><ulink url="http://docs.python.org/tutorial/datastructures.html#dictionaries">Python Dictionaries</ulink></emphasis> which map keys to values. The configuration environment files created take the following form:
-			<programlisting language="python">
-$ cat build/c4che/default.cache.py
-CXXFLAGS = ['-O2', '-Wall']
-			</programlisting>
-		</para>
-		<para>
-			By default, the conf object comes with a default built-in configuration environment:
-			<programlisting language="python">
-def configure(conf):
-	conf.env.append_value('CXXFLAGS', '-O2')
-			</programlisting>
-			To replace the default configuration environment, a new one must be created and assigned:
-			<programlisting language="python">
-def configure(conf):
-	conf.env.append_value('CXXFLAGS', '-O2')
-	env2 = conf.env.copy() <co id="dup-co" linkends="dup"/>
-	conf.set_env_name('debug', env2) <co id="name-co" linkends="name"/>
-	conf.setenv('debug') <co id="repl-co" linkends="repl"/>
-	conf.env.append_value('CXXFLAGS', '-g') <co id="mod-co" linkends="mod"/>
-			</programlisting>
-			<calloutlist>
-				<callout arearefs="dup-co" id="dup">
-					<para>Duplicates the default configuration environment (shallow copy)</para>
-				</callout>
-				<callout arearefs="name-co" id="name">
-					<para>Binds the configuration environment to the name 'debug'</para>
-				</callout>
-				<callout arearefs="repl-co" id="repl">
-					<para>Replaces the default configuration environment by the 'debug' one</para>
-				</callout>
-				<callout arearefs="mod-co" id="mod">
-					<para>Changes the CXXFLAGS entry in the 'debug' configuration environment. Since we are using a shallow copy, we have to use the methods <emphasis>append_value</emphasis>, <emphasis>prepend_value</emphasis> or <emphasis>append_unique</emphasis> instead of '+=' or '[].append'</para>
-				</callout>
-			</calloutlist>
-			In the previous example, the file contents will be:
-			<programlisting language="sh">
-$ tree build
-`-- build
-    |-- c4che
-    |   |-- default.cache.py
-    |   |-- debug.cache.py
+'CXXFLAGS' ['-O2']
+'PREFIX' '/usr/local'
+'TEST' 'test'
+
+$ cat test.txt
+CXXFLAGS = ['-O2']
+PREFIX = '/usr/local'
 
 $ cat build/c4che/default.cache.py
 CXXFLAGS = ['-O2']
-
-$ cat build/c4che/debug.cache.py
-CXXFLAGS = ['-g']
+PREFIX = '/usr/local'
+TEST = 'test'
 			</programlisting>
+
+			The default configuration is stored to the cache file named <emphasis>default.cache.py</emphasis>. The configuration data will always contain the default variable PREFIX, which is used to indicate the default directory in which to install something (in case there is something to install). The cache file is written in pseudo-python, and may be edited manually if necessary.
 		</para>
+
 		<para>
-			In the build section, the values are retrieved using <emphasis>bld.env_of_name</emphasis>, for example
+			Although the conf.env object is similar to a Python dict, a few routines are present to ease value access:
 			<programlisting language="python">
-def build(bld):
-	print(bld.env_of_name('default')['CXXFLAGS'])
-	print(bld.env_of_name('debug')['CXXFLAGS'])
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+	conf.env.append_value('CXXFLAGS', ['-O2', '-g'])
+	conf.env.CCFLAGS = ['-g']
+	conf.env.append_unique('CCFLAGS', ['-g', '-O2'])
+	conf.env.prepend_value('CCFLAGS', ['-O3'])
+	print(conf.env)
+
+	import Utils
+	s = Utils.subst_vars('${CCFLAGS}', conf.env)
+	print(s)
+
+			</programlisting>
+
+			Upon execution, the output will be the following
+
+			<programlisting language="sh">
+$ waf configure
+'CCFLAGS' ['-O3', '-g', '-O2']
+'CXXFLAGS' ['-O2', '-g']
+'PREFIX' '/usr/local'
+-O3 -g -O2
 			</programlisting>
 		</para>
 	</section>
 
+
+	<section id="config_data_sharing">
+		<title>Using configuration data during the build</title>
+		<para>
+			By splitting the configuration from the build step, it is possible to stop and look at the configuration data (build/c4che/default.cache.py). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def set_options(ctx):
+	ctx.add_option('--foo', action='store', default=False, help='Silly test')
+
+def configure(ctx):
+	import Options
+	ctx.env.FOO = Options.options.foo
+	ctx.find_program('touch', var='TOUCH', mandatory=True) # a configuration helper
+
+def build(ctx):
+	print(ctx.env.TOUCH)
+	print(ctx.env.FOO)
+			</programlisting>
+
+			The default configuration data is automatically loaded during the build. Upon execution, the output will be similar to the following:
+
+			<programlisting language="sh">
+$ waf distclean configure build --foo=abcd
+'distclean' finished successfully (0.002s)
+Checking for program touch               : ok /usr/bin/touch
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/comp/waf/demos/simple_scenarios/folders/build'
+/usr/bin/touch
+abcd
+Waf: Leaving directory `/comp/waf/demos/simple_scenarios/folders/build'
+'build' finished successfully (0.003s)
+			</programlisting>
+
+		</para>
+	</section>
+
+
 	<section id="config_helper_execution">
-		<title>Configuration helper execution</title>
+		<title>Understanding configuration helpers</title>
 		<para>
 			Configuration helpers are methods provided by the conf object to help finding parameters, for example the method <emphasis>conf.find_program</emphasis>
 			<programlisting language="python">
