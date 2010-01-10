@@ -7,8 +7,53 @@
 	<section id="targets">
 		<title>Declaring new targets</title>
 		<para>
-			test
+			Since the Waf commands build, clean, install and uninstall execute the same function <emphasis>build</emphasis>, it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:
+				<itemizedlist>
+					<listitem>Execution control: targets are only produced during the calls to the commands <emphasis>build</emphasis> and <emphasis>install</emphasis></listitem>
+					<listitem>Parallel target processing to accelerate the builds: multi-core systems</listitem>
+					<listitem>Filesystem abstraction: fetching data from the network</listitem>
+					<listitem>Extensibility: adding support for new compilers and new languages from user scripts</listitem>
+					<listitem>Flexibility: changing the semantics of the declarations depending on the platform (operating system, compiler, etc)</listitem>
+				</itemizedlist>
+				These main contraints lead to the creation of an abstraction layer between the actual code execution (<emphasis>task</emphasis>) and the declaration (<emphasis>task generators</emphasis>). Here are the definitions:
+				<itemizedlist>
+					<listitem>Task: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).</listitem>
+					<listitem>Task generator: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration data, data sharing, operating system abstraction, error checking, etc</listitem>
+				</itemizedlist>
 		</para>
+
+		<para>
+			Here is a sample project script to illustrate the concepts:
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(ctx):
+    pass
+
+def build(ctx):
+    obj = ctx(target='test.txt', rule='touch ${TGT}')
+	print(obj.__class__)
+			</programlisting>
+
+			The call <emphasis>ctx(...)</emphasis> is just a shortcut to create a new task generator instance. The output will be the following:
+
+			<programlisting language="sh">
+$ waf distclean configure build clean
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/smallproject/build'
+<class 'TaskGen.task_gen'>
+[1/1] test.txt:  -> build/default/test.txt
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (0.010s)
+<class 'TaskGen.task_gen'>
+'clean' finished successfully (0.003s)
+			</programlisting>
+
+			The line <emphasis>test.txt</emphasis> corresponds to the execution of the actual task. The task generator was created during the execution of both <emphasis>build<emphasis> and <emphasis>clean</emphasis> (print statement). Yet, the task was only executed during the build.
+		</para>
+
 	</section>
 
 	<section id="glob">
