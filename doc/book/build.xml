@@ -14,7 +14,30 @@
 	<section id="installing">
 		<title>Installing files</title>
 		<para>
-			test
+			Three build context methods are provided for installing files:
+			<itemizedlist>
+				<listitem>install_files: install several files in a folder</listitem>
+				<listitem>install_as: install a target with a different name</listitem>
+				<listitem>symlink_as: create a symbolic link on the platforms that support it</listitem>
+			</itemizedlist>
+
+			<programlisting language="python">
+def build(bld):
+	bld.install_files('${PREFIX}/include', ['a1.h', 'a2.h']) <co id="inst-co1" linkends="inst1"/>
+	bld.install_as('${PREFIX}/dir/bar.png', 'foo.png') <co id="inst-co2" linkends="inst2"/>
+	bld.symlink_as('${PREFIX}/lib/libfoo.so.1', 'libfoo.so.1.2.3') <co id="inst-co3" linkends="inst3"/>
+
+	env_foo = bld.env.copy()
+	env_foo.PREFIX = '/opt'
+	bld.install_as('${PREFIX}/dir/test.png', 'foo.png', env=env_foo) <co id="inst-co4" linkends="inst4"/>
+			</programlisting>
+
+			<calloutlist>
+				<callout arearefs="inst1-co" id="inst1"><para>Install various files in the target destination</para></callout>
+				<callout arearefs="inst2-co" id="inst2"><para>Install one file, changing its name</para></callout>
+				<callout arearefs="inst3-co" id="inst3"><para>Create a symbolic link</para></callout>
+				<callout arearefs="inst4-co" id="inst4"><para>Overridding the configuration data</para></callout>
+			</calloutlist>
 		</para>
 	</section>
 
@@ -60,10 +83,10 @@ def build(ctx):
 			</programlisting>
 
 			<calloutlist>
-				<callout arearefs="prepost1-co" id="prepost1"><para>The callbacks take the build context as unique parameter <emphasis>ctx</emphasis></para></callout>
-				<callout arearefs="prepost1-co" id="prepost1"><para>Access to the command-line options</para></callout>
-				<callout arearefs="prepost1-co" id="prepost1"><para>A common scenario is to call ldconfig after the files are installed.</para></callout>
-				<callout arearefs="prepost1-co" id="prepost1"><para>Scheduling the functions for later execution. Remember that in Python, functions are objects too.</para></callout>
+				<callout arearefs="prepost-co1" id="prepost1"><para>The callbacks take the build context as unique parameter <emphasis>ctx</emphasis></para></callout>
+				<callout arearefs="prepost-co2" id="prepost2"><para>Access to the command-line options</para></callout>
+				<callout arearefs="prepost-co3" id="prepost3"><para>A common scenario is to call ldconfig after the files are installed.</para></callout>
+				<callout arearefs="prepost-co4" id="prepost4"><para>Scheduling the functions for later execution. Remember that in Python, functions are objects too.</para></callout>
 			</calloutlist>
 
 			Upon execution, the following output will be produced:
