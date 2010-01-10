@@ -82,7 +82,7 @@ $ ls -ld .waf*
 .waf-1.5.11-2c924e3f453eb715218b9cc852291170
 			</programlisting>
 
-			Obviously, the Waf script will not do much without a project to process including at least various files. The impatient might want to have a look at the examples provided under the folder <emphasis>demos</emphasis> of the <ulink="http://code.google.com/p/waf/source/browse/#svn/trunk/demos">Waf source code distribution</ulink>.
+			Obviously, the Waf script will not do much without a project to process including at least various files. The impatient might want to have a look at the examples provided under the folder <emphasis>demos</emphasis> of the <ulink url="http://code.google.com/p/waf/source/browse/#svn/trunk/demos">Waf source code distribution</ulink>.
 		</para>
 	</section>
 </chapter>
