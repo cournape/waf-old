@@ -247,7 +247,7 @@ Scripting.g_gz = 'gz'
 	</section>
 
 	<section id="recursion">
-		<title>Breaking up a project into several files</title>
+		<title>Splitting a project into several files</title>
 		<para>
 			Although a Waf project must contain a top-level wscript file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
 			<programlisting language="shell">
