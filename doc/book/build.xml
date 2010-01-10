@@ -11,6 +11,14 @@
 		</para>
 	</section>
 
+	<section id="glob">
+		<title>Finding files and folders</title>
+		<para>
+			Listing all files and folders in a script may increase operation maintainance tasks, especially when files are renamed. Fortunately, apis are provided for accessing the file system and for finding files automatically.
+		</para>
+	</section>
+
+
 	<section id="installing">
 		<title>Installing files</title>
 		<para>
@@ -38,20 +46,13 @@ def build(bld):
 			</programlisting>
 
 			<calloutlist>
-				<callout arearefs="inst1-co" id="inst1"><para>Install various files in the target destination</para></callout>
-				<callout arearefs="inst2-co" id="inst2"><para>Install one file, changing its name</para></callout>
-				<callout arearefs="inst3-co" id="inst3"><para>Create a symbolic link</para></callout>
-				<callout arearefs="inst4-co" id="inst4"><para>Overridding the configuration data (<emphasis>env</emphasis> is optional in the three methods install_files, install_as and symlink_as)</para></callout>
-				<callout arearefs="inst5-co" id="inst5"><para>Install src/bar/foo/a1.h as seen from the current script into ${PREFIX}/share/foo/a1.h</para></callout>
-				<callout arearefs="inst6-co" id="inst6"><para>Install the png files recursively, preserving the folder structure read from src/bar/</para></callout>
+				<callout arearefs="inst-co1" id="inst1"><para>Install various files in the target destination</para></callout>
+				<callout arearefs="inst-co2" id="inst2"><para>Install one file, changing its name</para></callout>
+				<callout arearefs="inst-co3" id="inst3"><para>Create a symbolic link</para></callout>
+				<callout arearefs="inst-co4" id="inst4"><para>Overridding the configuration data (<emphasis>env</emphasis> is optional in the three methods install_files, install_as and symlink_as)</para></callout>
+				<callout arearefs="inst-co5" id="inst5"><para>Install src/bar/foo/a1.h as seen from the current script into ${PREFIX}/share/foo/a1.h</para></callout>
+				<callout arearefs="inst-co6" id="inst6"><para>Install the png files recursively, preserving the folder structure read from src/bar/</para></callout>
 			</calloutlist>
-		</para>
-	</section>
-
-	<section id="glob">
-		<title>Finding files and folders</title>
-		<para>
-			test
 		</para>
 	</section>
 
