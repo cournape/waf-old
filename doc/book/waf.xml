@@ -22,7 +22,7 @@
 			<para>Software is now used to express the process of building software, it can take the form of simple scripts (shell scripts, makefiles), of compilers (CMake, Qmake), or complete applications (SCons, Waf). The term &quot;build system&quot; is used to design the tools used to build applications.</para>
 		</section>
 		<section id="waf_system">
-			<title>The Waf approach</title>
+			<title>The Waf framework</title>
 			<para>Build systems make assumptions on software it is trying to build, and are typically limited where it comes to processing other languages or different projects. For example, Ant is better suited than Make for managing Java projects, but is more limited than Make for managing simple c projects.</para>
 			<para>There are so many different languages that creating a build system to support all the possible kind of projects out-of-the-box is likely to be difficult. It looks much more interesting to create one which can be extended easily.</para>
 			<para>The Waf approach is to provide a minimalistic and very flexible framework, which is packaged with a significant amount of default build rules to be usable for most projects, and many recipes for the most complicated scenarios.</para>
