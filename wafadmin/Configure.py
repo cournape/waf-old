@@ -166,10 +166,14 @@ class ConfigurationContext(Utils.Context):
 			self.tool_cache.append(mag)
 
 			module = Utils.load_tool(tool, tooldir)
-			func = getattr(module, 'detect', None)
-			if func:
-				if type(func) is type(find_file): func(self)
-				else: self.eval_rules(funs or func)
+
+			if funs:
+				self.eval_rules(funs)
+			else:
+				func = getattr(module, 'detect', None)
+				if func:
+					if type(func) is type(find_file): func(self)
+					else: self.eval_rules(func)
 
 			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
