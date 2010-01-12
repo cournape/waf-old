@@ -6,7 +6,7 @@
 	<title>The configuration system</title>
 
 	<section id="config_data">
-		<title>Using configuration data</title>
+		<title>Storing configuration data</title>
 		<para>
 			Configuration data is held by instances of the class <emphasis>Environment</emphasis>. The class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how configuration data is usually stored:
 
