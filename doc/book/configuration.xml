@@ -228,7 +228,7 @@ def build(bld):
 				<callout arearefs="conf-co4" id="conf4"><para>Load the tool providing configuration routines for c and c++ support (the method check_cc)</para></callout>
 				<callout arearefs="conf-co5" id="conf5"><para>When tools provide a method named <emphasis>detect</emphasis>, it is executed during <emphasis>conf.check_tool</emphasis></para></callout>
 				<callout arearefs="conf-co6" id="conf6"><para>Use specific functions instead of calling the default</para></callout>
-				<callout arearefs="conf-co7" id="conf7"><para>To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.</para>
+				<callout arearefs="conf-co7" id="conf7"><para>To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.</para></callout>
 				<callout arearefs="conf-co8" id="conf8"><para>Use the build context method defined in dang.py</para></callout>
 			</calloutlist>
 
