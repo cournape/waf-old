@@ -76,6 +76,14 @@ $ tree -a
 	</section>
 
 
+	<section id="config_variants">
+		<title>Defining variants and configuration sets</title>
+		<para>
+
+		</para>
+	</section>
+
+<!--
 	<section id="variants">
 		<title>Using variants</title>
 		<para>
@@ -83,13 +91,52 @@ $ tree -a
 
 		</para>
 	</section>
+-->
 
-	<section id="config_variants">
-		<title>Defining variants and configuration sets</title>
+	<section id="cloning_taskgens">
+		<title>Cloning task generators</title>
 		<para>
 
+			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+def configure(conf):
+	dbg = conf.env.copy()
+	rel = conf.env.copy()
+
+	dbg.set_variant('debug')
+	conf.set_env_name('debug', dbg)
+	conf.setenv('debug')
+
+	rel.set_variant('release')
+	conf.set_env_name('release', rel)
+	conf.setenv('release')
+
+def build(bld):
+
+	bld(rule='touch ${TGT}', target='foo.txt')
+
+	for obj in bld.all_task_gen[:]:
+
+		debug_obj = obj.clone('debug')
+		release_obj = obj.clone('release')
+
+		# disable the original task generator for the default variant (do not use it)
+		obj.posted = 1
+
+		# disable the unwanted variant(s)
+		kind = Options.options.build_kind
+		if kind.find('debug') &lt; 0:
+			debug_obj.posted = 1
+		if kind.find('release') &lt; 0:
+			release_obj.posted = 1
+			</programlisting>
+
+			do not make clones for the current variant
 		</para>
 	</section>
+
 
 </chapter>
 
