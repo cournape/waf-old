@@ -1,0 +1,95 @@
+<?xml version='1.0'?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+>
+<chapter id="build">
+	<title>Variants</title>
+	<section id="build_duplication">
+		<title>Using several build folders</title>
+		<para>
+			It is not possible to use several Waf instances concurrently over the same build folder. Yet, several Waf instances may use the project at the same time. For this, two options must be set:
+			<itemizedlist>
+				<listitem>The environment variable <emphasis>WAFCACHE</emphasis></listitem>
+				<listitem>The build directory, using a command-line option</listitem>
+			</itemizedlist>
+			Here is an example for a simple project located in <filename>/tmp/smallfolder</filename>:
+			<programlisting language="python">
+			</programlisting>
+
+			Upon execution, the results will be the following:
+
+			<programlisting language="shell">
+$ export WAFLOCK=.lock-debug <co id="lock-co1" linkends="lock1"/>
+
+$ waf distclean configure -b debug <co id="lock-co2" linkends="lock2"/>
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.001s)
+
+$ waf
+Waf: Entering directory `/tmp/smallproject/debug'
+[1/1] foo.txt:  -> debug/default/foo.txt <co id="lock-co3" linkends="lock3"/>
+Waf: Leaving directory `/tmp/smallproject/debug'
+'build' finished successfully (0.012s)
+
+$ export WAFLOCK=.lock-release
+
+$ waf distclean configure -b release
+'distclean' finished successfully (0.001s)
+'configure' finished successfully (0.176s)
+
+$ waf
+Waf: Entering directory `/tmp/smallproject/release' <co id="lock-co4" linkends="lock4"/>
+[1/1] foo.txt:  -> release/default/foo.txt
+Waf: Leaving directory `/tmp/smallproject/release'
+'build' finished successfully (0.034s)
+
+$ tree -a
+.
+|-- .lock-debug <co id="lock-co5" linkends="lock5"/>
+|-- .lock-release
+|-- debug
+|   |-- .wafpickle-7
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- default
+|       `-- foo.txt
+|-- release
+|   |-- .wafpickle-7
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- default
+|       `-- foo.txt
+`-- wscript
+			</programlisting>
+
+			<calloutlist>
+                <callout arearefs="lock-co1" id="lock1"><para>The environment variable <emphasis>WAFLOCK</emphasis> points at the configuration of the project in use.</para></callout>
+				<callout arearefs="lock-co2" id="lock2"><para>The lockfile is created during the configuration.</para></callout>
+				<callout arearefs="lock-co3" id="lock3"><para>The files are output in the build directory<filename>debug</filename></para></callout>
+				<callout arearefs="lock-co4" id="lock4"><para>The configuration <emphasis>release</emphasis> is used with a different lock file and a different build directory.</para></callout>
+				<callout arearefs="lock-co5" id="lock5"><para>The contents of the project directory contain the two lock files and the two build folders.</para></callout>
+		</para>
+	</section>
+
+
+	<section id="variants">
+		<title>Using variants</title>
+		<para>
+
+
+		</para>
+	</section>
+
+	<section id="config_variants">
+		<title>Defining variants and configuration sets</title>
+		<para>
+
+		</para>
+	</section>
+
+</chapter>
+

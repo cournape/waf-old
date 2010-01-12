@@ -18,7 +18,7 @@
 				These main contraints lead to the creation of an abstraction layer between the actual code execution (<emphasis>task</emphasis>) and the declaration (<emphasis>task generators</emphasis>). Here are the definitions:
 				<itemizedlist>
 					<listitem>Task: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).</listitem>
-					<listitem>Task generator: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration data, data sharing, operating system abstraction, error checking, etc</listitem>
+					<listitem>Task generator: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc</listitem>
 				</itemizedlist>
 		</para>
 
@@ -173,7 +173,7 @@ def build(bld):
 				<callout arearefs="inst-co1" id="inst1"><para>Install various files in the target destination</para></callout>
 				<callout arearefs="inst-co2" id="inst2"><para>Install one file, changing its name</para></callout>
 				<callout arearefs="inst-co3" id="inst3"><para>Create a symbolic link</para></callout>
-				<callout arearefs="inst-co4" id="inst4"><para>Overridding the configuration data (<emphasis>env</emphasis> is optional in the three methods install_files, install_as and symlink_as)</para></callout>
+				<callout arearefs="inst-co4" id="inst4"><para>Overridding the configuration set (<emphasis>env</emphasis> is optional in the three methods install_files, install_as and symlink_as)</para></callout>
 				<callout arearefs="inst-co5" id="inst5"><para>Install src/bar/foo/a1.h as seen from the current script into ${PREFIX}/share/foo/a1.h</para></callout>
 				<callout arearefs="inst-co6" id="inst6"><para>Install the png files recursively, preserving the folder structure read from src/bar/</para></callout>
 			</calloutlist>
@@ -237,7 +237,10 @@ hello
 			</para>
 	</section>
 
-	<!-- variants ? -->
+	<!--
+	variants ?
+	using the lock file
+-->
 
 
 </chapter>

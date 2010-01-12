@@ -6,9 +6,9 @@
 	<title>The configuration system</title>
 
 	<section id="config_data">
-		<title>Storing configuration data</title>
+		<title>Storing configuration sets</title>
 		<para>
-			Configuration data is held by instances of the class <emphasis>Environment</emphasis>. The class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how configuration data is usually stored:
+			Configuration sets are instances of the class <emphasis>Environment</emphasis>. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within waf, and the instances are usually named 'env'. Here is how the default configuration set called <emphasis>env</emphasis> is usually stored:
 
 			<programlisting language="python">
 srcdir = '.'
@@ -48,7 +48,7 @@ PREFIX = '/usr/local'
 TEST = 'test'
 			</programlisting>
 
-			The default configuration is stored to the cache file named <emphasis>default.cache.py</emphasis>. The configuration data will always contain the default variable PREFIX, which is used to indicate the default directory in which to install something (in case there is something to install). The cache file is written in pseudo-python, and may be edited manually if necessary.
+			The default configuration is stored to the cache file named <emphasis>default.cache.py</emphasis>. The configuration set will always contain the default variable PREFIX, which is used to indicate the default directory in which to install something (in case there is something to install). The cache file is written in pseudo-python, and may be edited manually if necessary.
 		</para>
 
 		<para>
@@ -84,9 +84,9 @@ $ waf configure
 
 
 	<section id="config_data_sharing">
-		<title>Consulting configuration data during the build</title>
+		<title>Consulting configuration sets during the build</title>
 		<para>
-			By splitting the configuration from the build step, it is possible to stop and look at the configuration data (build/c4che/default.cache.py). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
+			By splitting the configuration from the build step, it is possible to stop and look at the configuration sets (for example <filename>build/c4che/default.cache.py</filename>). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
@@ -104,7 +104,7 @@ def build(ctx):
 	print(ctx.env.FOO)
 			</programlisting>
 
-			The default configuration data is automatically loaded during the build. Upon execution, the output will be similar to the following:
+			All configuration sets are automatically loaded during the build. Upon execution, the output will be similar to the following:
 
 			<programlisting language="sh">
 $ waf distclean configure build --foo=abcd
