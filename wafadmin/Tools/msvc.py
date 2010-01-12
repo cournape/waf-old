@@ -742,9 +742,8 @@ def exec_mf(self):
 		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
 		#	manifest, outfile, mode)
 		lst = [lst]
-		ret = self.exec_command(*lst)
-
-	return ret
+		return self.exec_command(*lst)
+	return None
 
 cls = Task.task_type_from_func('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 cls.quiet = 1
