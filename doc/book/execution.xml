@@ -411,10 +411,6 @@ Options:
                         build given task generators, e.g. "target1,target2"
 
   configuration options:
-    -b BLDDIR, --blddir=BLDDIR
-                        build dir for the project (configuration)
-    -s SRCDIR, --srcdir=SRCDIR
-                        src dir for the project (configuration)
     --prefix=PREFIX     installation prefix (configuration) [default: '/usr/local/']
 
   installation options:
