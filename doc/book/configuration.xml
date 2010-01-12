@@ -70,7 +70,7 @@ def configure(conf):
 
 			</programlisting>
 
-			Upon execution, the output will be the following
+			Upon execution, the output will be the following:
 
 			<programlisting language="sh">
 $ waf configure
@@ -84,7 +84,7 @@ $ waf configure
 
 
 	<section id="config_data_sharing">
-		<title>Using configuration data during the build</title>
+		<title>Consulting configuration data during the build</title>
 		<para>
 			By splitting the configuration from the build step, it is possible to stop and look at the configuration data (build/c4che/default.cache.py). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
 			<programlisting language="python">
@@ -123,32 +123,128 @@ Waf: Leaving directory `/comp/waf/demos/simple_scenarios/folders/build'
 
 
 	<section id="config_helper_execution">
-		<title>Understanding configuration helpers</title>
+		<title>Launching and catching configuration exceptions</title>
 		<para>
 			Configuration helpers are methods provided by the conf object to help finding parameters, for example the method <emphasis>conf.find_program</emphasis>
 			<programlisting language="python">
 def configure(conf):
 	conf.find_program('test')
 			</programlisting>
-			When a test fails, the exception <emphasis>Configure.ConfigurationException</emphasis> is raised.
+			When a test fails, the exception <emphasis>Configure.ConfigurationException</emphasis> is raised. For example, such exceptions are thrown when a program could not be found:
+			<programlisting language="python">
+def configure(conf):
+	import Configure
+	try:
+		conf.find_program('missing_app', mandatory=True)
+	except Configuration.ConfigurationError:
+		pass
+	conf.find_program(['gjc', 'cjg'], mandatory=True)
+			</programlisting>
+			The output will be:
+			<programlisting language="sh">
+$ waf
+Checking for program missing_app         : not found
+Checking for program gjc,cjg             : not found
+ error: The program ['gjc', 'cjg'] could not be found
+			</programlisting>
+			It is sometimes useful to raise such an exception manually by using <emphasis>conf.fatal</emphasis>:
+			<programlisting language="python">
+def configure(conf):
+	conf.fatal("I'm sorry Dave, I'm afraid I can't do that")
+			</programlisting>
+			Which will display the same kind of error
+			<programlisting language="sh">
+$ waf configure
+ error: I'm sorry Dave, I'm afraid I can't do that
+$ echo $?
+1
+			</programlisting>
 		</para>
+	</section>
 
+	<section id="loading_config_tools">
+		<title>Loading Waf tools</title>
 		<para>
-			When calling the configuration from a tool, for example:
+			For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called <emphasis>Waf tools</emphasis> and located under the folder <filename>wafadmin/Tools</filename>. The contributed tools, or the tools in testing phase are located under the folder <filename>wafadmin/3rdparty</filename>.</para>
+		<para>
+			Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named <filename>dang.py</filename>:
 			<programlisting language="python">
-def configure(conf):
-	conf.check_tool('g++')
+from Configure import conftest
+
+@conftest <co id="cconf-co1" linkends="cconf1"/>
+def detect(conf):
+    print('-> detect fron dang!')
+
+@conftest <co id="cconf-co2" linkends="cconf2"/>
+def test_hello(conf):
+    print('-> test from dang!')
+
+def build_hello(self):
+    print('-> build hello from dang!')
+
+import Build
+Build.BuildContext.build_hello = build_hello <co id="cconf-co3" linkends="cconf3"/>
 			</programlisting>
-			several different configuration helpers may be called: the first one for finding the compiler and the others for finding compiler flags. In some cases, it is interesting to disable some tests (unnecessary, time consuming, etc), to insert new tests, or to modify the existing tests. The <emphasis>check_tool</emphasis> method has a parameter for passing the list of checks to perform:
+
+			<calloutlist>
+				<callout arearefs="cconf-co2" id="cconf2"><para>The default detection method to execute when the tool is loaded is called <emphasis>detect</emphasis></para></callout>
+				<callout arearefs="cconf-co2" id="cconf2"><para>The function having <emphasis>@conftest</emphasis> are bound to the <emphasis>configuration context class</emphasis></para></callout>
+				<callout arearefs="cconf-co3" id="cconf3"><para>New methods may be bound at runtime onto the build context class</para></callout>
+			</calloutlist>
+
+			For loading a tool, the method <emphasis>check_tool</emphasis> must be used during the configuration. The same tools are then loaded during the build.
 			<programlisting language="python">
+srcdir = '.'
+blddir = 'build'
+
+#import config_c <co id="conf-co1" linkends="conf1"/>
+
 def configure(conf):
-	conf.check_tool('g++', funs="find_gxx find_cpp find_ar gxx_common_flags")
+
+	#import config_c # <co id="conf-co2" linkends="conf2"/>
+
+    def is_check_cc_present():
+        try:
+            print('# method conf.check_cc %r' % conf.check_cc) <co id="conf-co3" linkends="conf3"/>
+        except:
+            print('# there is no method conf.check_cc')
+
+    is_check_cc_present()
+    conf.check_tool('config_c') # <co id="conf-co4" linkends="conf4"/>
+    is_check_cc_present()
+
+    conf.check_tool('dang', tooldir='.') # <co id="conf-co5" linkends="conf5"/>
+    conf.check_tool('dang', tooldir='.', funs='test_hello') <co id="conf-co6" linkends="conf6"/>
+	conf.check_tool('dang', tooldir='.', funs=[])
+
+def build(bld):
+    bld.build_hello() <co id="conf-co7" linkends="conf7"/>
 			</programlisting>
-			If no check is performed, the configuration helpers are still attached to the conf object, and may be used later:
-			<programlisting language="python">
-def configure(conf):
-	conf.check_tool('g++', funs=[])
-	conf.find_gxx()
+
+			<calloutlist>
+				<callout arearefs="conf-co1" id="conf1"><para>By loading a Waf tool at the root of a script, the detection routines will not be executed (discouraged)</para></callout>
+				<callout arearefs="conf-co2" id="conf2"><para>By loading a Waf tool using 'import', the tool will not be loaded at build time (discouraged)</para></callout>
+				<callout arearefs="conf-co3" id="conf3"><para>Just an example to show if the method <emphasis>check_cc</emphasis> is present on the configuration context class</para></callout>
+				<callout arearefs="conf-co4" id="conf4"><para>Load the tool providing configuration routines for c and c++ support (the method check_cc)</para></callout>
+				<callout arearefs="conf-co5" id="conf5"><para>When tools provide a method named <emphasis>detect</emphasis>, it is executed during <emphasis>conf.check_tool</emphasis></para></callout>
+				<callout arearefs="conf-co6" id="conf6"><para>Use specific functions instead of calling the default</para></callout>
+				<callout arearefs="conf-co7" id="conf7"><para>Use the build context method defined in dang.py</para></callout>
+			</calloutlist>
+
+			Upon execution, the output will be the following:
+
+			<programlisting language="sh">
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+# there is no method conf.check_cc
+# method conf.check_cc (ConfigurationContext.check_cc)
+-> detect fron dang!
+-> test from dang!
+'configure' finished successfully (0.003s)
+Waf: Entering directory `/tmp/smallproject/build'
+-> build hello from dang!
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (0.003s)
 			</programlisting>
 			To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.
 		</para>
@@ -168,26 +264,6 @@ def error_handler(fun, exc):
 		</para>
 	</section>
 
-	<section id="adding_config_helpers">
-		<title>Adding new configuration helpers</title>
-		<para>
-			The configuration tests specific for the different languages belong to the different Waf tools representing the languages supported. For example, The configuration tests for the C language are located in the tool <filename>config_c.py</filename>.
-			To enable this, decorators are used to attach new configuration tests dynamically, for example:
-			<programlisting language="python">
-from Configure import conf
 
-@conf
-def get_define(self, define):
-	"get the value of a previously stored define"
-	try: return self.env.defines[define]
-	except KeyError: return None
-			</programlisting>
-			Then the new configuration test may be used easily in wscript:
-			<programlisting language="python">
-def configure(conf):
-	print(conf.get_define('DEBUG'))
-			</programlisting>
-		</para>
-	</section>
 </chapter>
 
