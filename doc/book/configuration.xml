@@ -253,8 +253,6 @@ Waf: Leaving directory `/tmp/smallproject/build'
 	<section id="config_exceptions">
 		<title>Handling configuration exceptions</title>
 		<para>
-
-		<para>
 			An error handler attached to the conf object is used for catching the Configuration exceptions and processing the errors. Here is how to replace the default configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception:
 			<programlisting language="python">
 import Constants
