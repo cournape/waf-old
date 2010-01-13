@@ -123,10 +123,10 @@ def build(bld):
 
 			<calloutlist>
 				<callout arearefs="ant-co1" id="ant1"><para>The method ant_glob is called on a node object, and not on the build context</para></callout>
-				<callout arearefs="ant-co1" id="ant1"><para>The patterns may contain wildcards such as * or ?, but they are <ulink url="http://ant.apache.org/manual/CoreTypes/patternset.html">Ant patterns</ulink>, not regular expressions</para></callout>
-				<callout arearefs="ant-co1" id="ant1"><para>Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system</para></callout>
-				<callout arearefs="ant-co1" id="ant1"><para>The <emphasis>**</emphasis> indicates to consider folders recursively. Use with care.</para></callout>
-				<callout arearefs="ant-co1" id="ant1"><para>By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.</para></callout>
+				<callout arearefs="ant-co2" id="ant2"><para>The patterns may contain wildcards such as * or ?, but they are <ulink url="http://ant.apache.org/manual/CoreTypes/patternset.html">Ant patterns</ulink>, not regular expressions</para></callout>
+				<callout arearefs="ant-co3" id="ant3"><para>Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system</para></callout>
+				<callout arearefs="ant-co4" id="ant4"><para>The <emphasis>**</emphasis> indicates to consider folders recursively. Use with care.</para></callout>
+				<callout arearefs="ant-co5" id="ant5"><para>By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.</para></callout>
 			</calloutlist>
 
 			The execution output will be similar to the following:

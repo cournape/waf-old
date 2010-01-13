@@ -72,6 +72,7 @@ $ tree -a
 				<callout arearefs="lock-co3" id="lock3"><para>The files are output in the build directory<filename>debug</filename></para></callout>
 				<callout arearefs="lock-co4" id="lock4"><para>The configuration <emphasis>release</emphasis> is used with a different lock file and a different build directory.</para></callout>
 				<callout arearefs="lock-co5" id="lock5"><para>The contents of the project directory contain the two lock files and the two build folders.</para></callout>
+			</calloutlist>
 		</para>
 	</section>
 
