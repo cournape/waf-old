@@ -84,11 +84,17 @@ $ tree -a
 		</para>
 	</section>
 
+	<section id="config_sets">
+		<title>Preparing configuration sets</title>
+		<para>
+			TODO
+		</para>
+	</section>
 
 	<section id="config_variants">
-		<title>Defining variants and configuration sets</title>
+		<title>Defining variants</title>
 		<para>
-			Using different build folders is very useful for checking at some point if a different configuration would compile properly. To create different configurations at once, it is possible to use <emphasis>Waf variants</emphasis> to predefine the configuration sets and to automate the build process.
+			Using different build folders is very useful for checking at some point if a different configuration would compile properly. To create different kinds of builds at once, it is possible to use <emphasis>Waf variants</emphasis> to predefine the configuration sets for specific output subdirectories.
 		</para>
 
 		<para>
@@ -99,25 +105,24 @@ blddir = 'out_bld'
 
 def configure(conf):
 	conf.env.NAME = 'default'
-    dbg = conf.env.copy() <co id="vari-co1" linkends="vari1"/>
-    rel = conf.env.copy()
+	dbg = conf.env.copy() <co id="vari-co1" linkends="vari1"/>
+	rel = conf.env.copy()
 
-    dbg.set_variant('debug') <co id="vari-co2" linkends="vari2"/>
-    conf.set_env_name('debug', dbg) <co id="vari-co3" linkends="vari3"/>
-    conf.setenv('debug') <co id="vari-co4" linkends="vari4"/>
+	dbg.set_variant('debug') <co id="vari-co2" linkends="vari2"/>
+	conf.set_env_name('debug', dbg) <co id="vari-co3" linkends="vari3"/>
+	conf.setenv('debug') <co id="vari-co4" linkends="vari4"/>
 	# conf.check_tool('gcc') <co id="vari-co44" linkends="vari44"/>
-    conf.env.NAME = 'foo' <co id="vari-co5" linkends="vari5"/>
+	conf.env.NAME = 'foo' <co id="vari-co5" linkends="vari5"/>
 
-    rel.set_variant('release') <co id="vari-co6" linkends="vari6"/>
-    conf.set_env_name('cfg_name', rel)
-    conf.setenv('cfg_name')
-    conf.env.NAME = 'bar'
+	rel.set_variant('release') <co id="vari-co6" linkends="vari6"/>
+	conf.set_env_name('cfg_name', rel)
+	conf.setenv('cfg_name')
+	conf.env.NAME = 'bar'
 
 def build(bld):
-
-    bld(rule='echo ${NAME} > ${TGT}', target='test.txt') <co id="vari-co7" linkends="vari7"/>
-    bld(rule='echo ${NAME} > ${TGT}', target='test.txt'<co id="vari-co8" linkends="vari8"/>, env=bld.env_of_name('debug').copy()) <co id="vari-co9" linkends="vari9"/>
-    bld(rule='echo ${NAME} > ${TGT}', target='test.txt', env=bld.env_of_name('cfg_name').copy())
+	bld(rule='echo ${NAME} > ${TGT}', target='test.txt') <co id="vari-co7" linkends="vari7"/>
+	bld(rule='echo ${NAME} > ${TGT}', target='test.txt'<co id="vari-co8" linkends="vari8"/>, env=bld.env_of_name('debug').copy()) <co id="vari-co9" linkends="vari9"/>
+	bld(rule='echo ${NAME} > ${TGT}', target='test.txt', env=bld.env_of_name('cfg_name').copy())
 			</programlisting>
 
 			<calloutlist>
@@ -176,18 +181,29 @@ bar
 
 		</para>
 
+		<warning>
+			<para>
+				As a general rule, tasks created for a particular variant should not share data with the tasks from another variant.
+			</para>
+		</warning>
 	</section>
+
 
 	<section id="cloning_taskgens">
 		<title>Cloning task generators</title>
 		<para>
-			A cloning scheme is provided for creating nearly identical task generators easily.
+			A cloning scheme is provided for duplicating task generators for several variants easily. A general design pattern is to duplicate the task generators for the desired variants immediately before the build starts. Here is an example, also available in the folder <filename>demos/cxx</filename> of the Waf distribution.
 
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'build'
 
-def configure(conf):
+import Options
+
+def set_options(opt):
+	opt.add_option('--build_kind', action='store', default='debug,release', help='build the selected variants') <co id="varai-co1" linkends="varai1"/>
+
+def configure(conf): <co id="varai-co2" linkends="varai2"/>
 	dbg = conf.env.copy()
 	rel = conf.env.copy()
 
@@ -203,24 +219,36 @@ def build(bld):
 
 	bld(rule='touch ${TGT}', target='foo.txt')
 
-	for obj in bld.all_task_gen[:]:
+	for obj in bld.all_task_gen[:]: <co id="varai-co3" linkends="varai3"/>
 
-		debug_obj = obj.clone('debug')
+		debug_obj = obj.clone('debug') <co id="varai-co4" linkends="varai4"/>
 		release_obj = obj.clone('release')
 
-		# disable the original task generator for the default variant (do not use it)
-		obj.posted = 1
+		obj.posted = 1 <co id="varai-co5" linkends="varai5"/>
 
-		# disable the unwanted variant(s)
-		kind = Options.options.build_kind
-		if kind.find('debug') &lt; 0:
+		kind = Options.options.build_kind <co id="varai-co6" linkends="varai6"/>
+		if kind.find('debug') &lt; 0:<co id="varai-co7" linkends="varai7"/>
 			debug_obj.posted = 1
 		if kind.find('release') &lt; 0:
 			release_obj.posted = 1
 			</programlisting>
 
+			<calloutlist>
+				<callout arearefs="varai-co1" id="varai1"><para>Add a command-line option for enabling or disabling the <emphasis>release</emphasis> and <emphasis>debug</emphasis> builds</para></callout>
+				<callout arearefs="varai-co2" id="varai2"><para>The configuration will create the <emphasis>release</emphasis> and <emphasis>debug</emphasis> configuration sets, bound to a variant of the same names</para></callout>
+				<callout arearefs="varai-co3" id="varai3"><para>A copy of the existing task generators is created to avoid the creation of an infinite loop. Task generators are added to that list upon creation</para></callout>
+				<callout arearefs="varai-co4" id="varai4"><para>Clone a task generator for the configuration set <emphasis>debug</emphasis>. Making task generator clones is a cheap operation compared to duplicating tasks.</para></callout>
+				<callout arearefs="varai-co5" id="varai5"><para>Disable the original task generator for the default configuration set (do not use it).</para></callout>
+				<callout arearefs="varai-co6" id="varai6"><para>Disable the original task generators for the <emphasis>default</emphasis> configuration set when necessary (the tasks will not be created)</para></callout>
+				<callout arearefs="varai-co7" id="varai7"><para>Look at the command-line arguments, and disable the unwanted variant(s)</para></callout>
+
+			</calloutlist>
+			Some task generators are use indexed attributes to generate unique values which may cause unnecessary rebuilds if the scripts change. To avoid problems, it is a best practice to create the task generators for the default configuration set first. Also, the method <emphasis>clone</emphasis> is not a substitute for creating instances for lots of nearly identical task generators. In such a situation, it will be better to use one task generator to create lots of tasks. As a reminder, creating task generator clones for the same variant will lead to build errors.
+
 			<warning>
-				<para>do not make clones for the current variant</para>
+				<para>
+					Do not create task generator clones for the same variant or for the same configuration set.
+				</para>
 			</warning>
 		</para>
 	</section>
