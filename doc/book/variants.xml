@@ -119,7 +119,7 @@ def build(bld):
 				<callout arearefs="lock-co4" id="vari4"><para>Replace <emphasis>conf.env</emphasis> by our new debug configuration set</para></callout>
 				<callout arearefs="lock-co44" id="vari44"><para>Waf tools store their configuration data on conf.env, in this case the <emphasis>debug</emphasis> configuration set, not in the default</para></callout>
 				<callout arearefs="lock-co5" id="vari5"><para>Store a variable on the <emphasis>debug</emphasis> configuration set</para></callout>
-				<callout arearefs="lock-co6" id="vari6"><para>Define another variant called </emphasis>release</emphasis>. The variant name and the configuration set name may be different.</para></callout>
+				<callout arearefs="lock-co6" id="vari6"><para>Define another variant called <emphasis>release</emphasis>. The variant name and the configuration set name may be different.</para></callout>
 				<callout arearefs="lock-co7" id="vari7"><para>Task generator for the default variant.</para></callout>
 				<callout arearefs="lock-co8" id="vari8"><para>The argument <emphasis>env</emphasis> is given to specify the task generator configuration set. The configuration set holds the variant definition.</para></callout>
 				<callout arearefs="lock-co9" id="vari9"><para>Environments may be retrieved by name from the build context object. It is recommended to make copies to avoid accidental data sharing.</para></callout>
