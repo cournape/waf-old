@@ -183,6 +183,7 @@ bar
 	<section id="cloning_taskgens">
 		<title>Cloning task generators</title>
 		<para>
+			A cloning scheme is provided for creating nearly identical task generators easily.
 
 			<programlisting language="python">
 srcdir = '.'
@@ -220,7 +221,9 @@ def build(bld):
 			release_obj.posted = 1
 			</programlisting>
 
-			do not make clones for the current variant
+			<warning>
+				<para>do not make clones for the current variant</para>
+			</warning>
 		</para>
 	</section>
 
