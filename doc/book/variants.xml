@@ -14,6 +14,14 @@
 			</itemizedlist>
 			Here is an example for a simple project located in <filename>/tmp/smallfolder</filename>:
 			<programlisting language="python">
+srcdir = '.'
+blddir = 'out_directory'
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bld(rule='touch ${TGT}', target='foo.txt')
 			</programlisting>
 
 			Upon execution, the results will be the following:
@@ -84,7 +92,7 @@ $ tree -a
 		</para>
 
 		<para>
-			We will now demonstrate the definition and the usage of two variants named <emphasis>default</emphasis> and <emphasis>debug</emphasis>respectively:
+			We will now demonstrate the definition and the usage of two variants named <emphasis>default</emphasis> and <emphasis>debug</emphasis> respectively:
 			<programlisting language="python">
 srcdir = '.'
 blddir = 'out_bld'
@@ -169,16 +177,6 @@ bar
 		</para>
 
 	</section>
-
-<!--
-	<section id="variants">
-		<title>Using variants</title>
-		<para>
-
-
-		</para>
-	</section>
--->
 
 	<section id="cloning_taskgens">
 		<title>Cloning task generators</title>
