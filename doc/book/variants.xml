@@ -2,8 +2,8 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
 "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
 >
-<chapter id="build">
-	<title>Variants</title>
+<chapter id="variants">
+	<title>Build copies and variants</title>
 	<section id="build_duplication">
 		<title>Using several build folders</title>
 		<para>
