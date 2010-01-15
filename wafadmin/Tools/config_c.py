@@ -307,17 +307,19 @@ def validate_c(self, kw):
 
 	elif 'type_name' in kw:
 		tu = kw['type_name']
-		if not 'msg' in kw:
-			kw['msg'] = 'Checking for type %s' % tu
 		if not 'header_name' in kw:
 			kw['header_name'] = 'stdint.h'
 		if 'field_name' in kw:
 			field = kw['field_name']
 			kw['code'] = to_header(kw) + SNIP_FIELD % {'type_name' : tu, 'field_name' : field}
+			if not 'msg' in kw:
+				kw['msg'] = 'Checking for field %s in %s' % (field, tu)
 			if not 'define_name' in kw:
 				kw['define_name'] = self.have_define((tu + '_' + field).upper())
 		else:
 			kw['code'] = to_header(kw) + SNIP_TYPE % {'type_name' : tu}
+			if not 'msg' in kw:
+				kw['msg'] = 'Checking for type %s' % tu
 			if not 'define_name' in kw:
 				kw['define_name'] = self.have_define(tu.upper())
 
