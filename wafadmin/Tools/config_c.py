@@ -18,7 +18,7 @@ cfg_ver = {
 	'max-version': '<=',
 }
 
-SNIP1 = '''
+SNIP_FUNCTION = '''
 	int main() {
 	void *p;
 	p=(void*)(%s);
@@ -26,16 +26,30 @@ SNIP1 = '''
 }
 '''
 
-SNIP2 = '''
+SNIP_TYPE = '''
 int main() {
 	if ((%(type_name)s *) 0) return 0;
 	if (sizeof (%(type_name)s)) return 0;
 }
 '''
 
-SNIP3 = '''
+SNIP_CLASS = '''
+int main() {
+	if (
+}
+'''
+
+SNIP_EMPTY_PROGRAM = '''
 int main() {
 	return 0;
+}
+'''
+
+SNIP_FIELD = '''
+int main() {
+	char *off;
+	off = (char*) &((%(type_name)s*)0)->%(field_name)s;
+	return (size_t) off < sizeof(%(type_name)s);
 }
 '''
 
@@ -285,7 +299,7 @@ def validate_c(self, kw):
 		fu = kw['function_name']
 		if not 'msg' in kw:
 			kw['msg'] = 'Checking for function %s' % fu
-		kw['code'] = to_header(kw) + SNIP1 % fu
+		kw['code'] = to_header(kw) + SNIP_FUNCTION % fu
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = fu.upper()
 		if not 'define_name' in kw:
@@ -297,9 +311,15 @@ def validate_c(self, kw):
 			kw['msg'] = 'Checking for type %s' % tu
 		if not 'header_name' in kw:
 			kw['header_name'] = 'stdint.h'
-		kw['code'] = to_header(kw) + SNIP2 % {'type_name' : tu}
-		if not 'define_name' in kw:
-			kw['define_name'] = self.have_define(tu.upper())
+		if 'field_name' in kw:
+			field = kw['field_name']
+			kw['code'] = to_header(kw) + SNIP_FIELD % {'type_name' : tu, 'field_name' : field}
+			if not 'define_name' in kw:
+				kw['define_name'] = self.have_define((tu + '_' + field).upper())
+		else:
+			kw['code'] = to_header(kw) + SNIP_TYPE % {'type_name' : tu}
+			if not 'define_name' in kw:
+				kw['define_name'] = self.have_define(tu.upper())
 
 	elif 'header_name' in kw:
 		if not 'msg' in kw:
@@ -308,7 +328,7 @@ def validate_c(self, kw):
 		l = Utils.to_list(kw['header_name'])
 		assert len(l)>0, 'list of headers in header_name is empty'
 
-		kw['code'] = to_header(kw) + SNIP3
+		kw['code'] = to_header(kw) + SNIP_EMPTY_PROGRAM
 
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = l[0].upper()
@@ -354,7 +374,7 @@ def validate_c(self, kw):
 		kw['okmsg'] = 'ok'
 
 	if not 'code' in kw:
-		kw['code'] = SNIP3
+		kw['code'] = SNIP_EMPTY_PROGRAM
 
 	if not kw.get('success'): kw['success'] = None
 
