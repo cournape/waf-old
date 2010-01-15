@@ -34,6 +34,36 @@ $ ./waf-light --make-waf
 		</sect2>
 	</section>
 
+
+	<section id="using">
+		<title>Running Waf</title>
+		<para>
+			The Waf script can be used directly from a writeable folder:
+			<programlisting language="sh">
+$ ./waf
+			</programlisting>
+			Or, if the executable permissions are not set properly:
+			<programlisting language="sh">
+$ python waf
+			</programlisting>
+		</para>
+		<para>
+			The Waf script has its own library compressed in a binary stream in the same file. Upon execution, it uncompresses its library in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+			<programlisting language="sh">
+$ ls -ld .waf*
+.waf-1.5.11-2c924e3f453eb715218b9cc852291170
+			</programlisting>
+
+			<warning>
+				The Waf script must reside in a writable folder to unpack its cache files.
+			</warning>
+		</para>
+		<para>
+			By default, the recommended Python interpreter is cPython. For maximum convenience for the user, a copy of the <ulink url="http://www.jython.org">Jython</ulink> interpreter may be redistributing along with Waf. This means a project may contain <filename>waf</filename>, <filename>jython2.5.jar</filename>, the source code and be built almost anywhere.
+		</para>
+
+	</section>
+
 	<section id="installing">
 		<title>Installing Waf on a system</title>
 		<para>Installing the Waf script on a system is discouraged:
@@ -63,27 +93,5 @@ $ ./waf-light --make-waf
 		</para>
 	</section>
 
-	<section id="using">
-		<title>Running Waf</title>
-		<para>
-			The Waf script can be used directly from a writeable folder:
-			<programlisting language="sh">
-$ ./waf
-			</programlisting>
-			Or, if the executable permissions are not set properly:
-			<programlisting language="sh">
-$ python waf
-			</programlisting>
-		</para>
-		<para>
-			By default, the Waf script uncompresses its library in the current directory, in a hidden folder. This means the Waf script must reside in a writable folder. The naming enables different Waf versions to be executed from the same folders:
-			<programlisting language="sh">
-$ ls -ld .waf*
-.waf-1.5.11-2c924e3f453eb715218b9cc852291170
-			</programlisting>
-
-			Obviously, the Waf script will not do much without a project to process including at least various files. The impatient might want to have a look at the examples provided under the folder <emphasis>demos</emphasis> of the <ulink url="http://code.google.com/p/waf/source/browse/#svn/trunk/demos">Waf source code distribution</ulink>.
-		</para>
-	</section>
 </chapter>
 
