@@ -48,14 +48,14 @@ $ python waf
 			</programlisting>
 		</para>
 		<para>
-			The Waf script has its own library compressed in a binary stream in the same file. Upon execution, it uncompresses its library in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+			The Waf script has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
 			<programlisting language="sh">
 $ ls -ld .waf*
 .waf-1.5.11-2c924e3f453eb715218b9cc852291170
 			</programlisting>
 
 			<para>
-			By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the <ulink url="http://www.jython.org">Jython</ulink> interpreter in the version 2.5 may be redistributing along with Waf.
+			By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the <ulink url="http://www.jython.org">Jython</ulink> interpreter in the version 2.5 may be redistributed along with a copy of the Waf executable.
 			</para>
 
 			<note>
