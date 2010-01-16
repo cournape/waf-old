@@ -38,7 +38,7 @@ $ ./waf-light --make-waf
 	<section id="using">
 		<title>Running Waf</title>
 		<para>
-			The Waf script can be used directly from a writeable folder:
+			The <filename>waf</filename> script can be used directly from a writeable folder:
 			<programlisting language="sh">
 $ ./waf
 			</programlisting>
@@ -48,7 +48,7 @@ $ python waf
 			</programlisting>
 		</para>
 		<para>
-			The Waf script has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+			The <filename>waf</filename> file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
 			<programlisting language="sh">
 $ ls -ld .waf*
 .waf-1.5.11-2c924e3f453eb715218b9cc852291170
@@ -63,7 +63,7 @@ $ ls -ld .waf*
 			</note>
 
 			<warning>
-				The Waf script must reside in a writable folder to unpack its cache files.
+				The <filename>waf</filename> script must reside in a writable folder to unpack its cache files.
 			</warning>
 		</para>
 
@@ -71,14 +71,14 @@ $ ls -ld .waf*
 
 	<section id="installing">
 		<title>Installing Waf on a system</title>
-		<para>Installing the Waf script on a system is unnecessary and discouraged:
+		<para>Installing Waf on a system is unnecessary and discouraged:
 			<orderedlist>
-				<listitem>Interpreter version: unlike the Waf script, the installed version will not run by using Python 3</listitem>
+				<listitem>Interpreter version: unlike the <filename>waf</filename> file, the installed version will not run on Python 3</listitem>
 				<listitem>Operating systems: Waf cannot be installed on Windows (yet)</listitem>
 				<listitem>Installation: installation is cumbersome, and requires administrative privileges</listitem>
 				<listitem>Waf versions: users rarely install the appropriate software version (too old, too new, bugs)</listitem>
-				<listitem>Bugs: different Waf versions may result in broken builds</listitem>
-				<listitem>Size: Waf is small enough to be redistributed (about 80kB)</listitem>
+				<listitem>Bugs: projects may depend on unspecified behaviour for specific Waf versions</listitem>
+				<listitem>Size: the <filename>waf</filename> file is small enough to be redistributed (about 80kB)</listitem>
 			</orderedlist>
 		</para>
 		<para>
