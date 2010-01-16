@@ -54,9 +54,13 @@ $ ls -ld .waf*
 .waf-1.5.11-2c924e3f453eb715218b9cc852291170
 			</programlisting>
 
-		<note>
-			By default, the recommended Python interpreter is cPython. For maximum convenience for the user, a copy of the <ulink url="http://www.jython.org">Jython</ulink> interpreter may be redistributing along with Waf. This means a project may contain <filename>waf</filename>, <filename>jython2.5.jar</filename>, the source code and be built almost anywhere.
-		</note>
+			<para>
+			By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the <ulink url="http://www.jython.org">Jython</ulink> interpreter in the version 2.5 may be redistributing along with Waf.
+			</para>
+
+			<note>
+				A project containing <filename>waf</filename>, <filename>jython2.5.jar</filename> and the source code may be built almost anywhere.
+			</note>
 
 			<warning>
 				The Waf script must reside in a writable folder to unpack its cache files.
@@ -67,7 +71,7 @@ $ ls -ld .waf*
 
 	<section id="installing">
 		<title>Installing Waf on a system</title>
-		<para>Installing the Waf script on a system is discouraged:
+		<para>Installing the Waf script on a system is unnecessary and discouraged:
 			<orderedlist>
 				<listitem>Interpreter version: unlike the Waf script, the installed version will not run by using Python 3</listitem>
 				<listitem>Operating systems: Waf cannot be installed on Windows (yet)</listitem>
@@ -76,7 +80,6 @@ $ ls -ld .waf*
 				<listitem>Bugs: different Waf versions may result in broken builds</listitem>
 				<listitem>Size: Waf is small enough to be redistributed (about 80kB)</listitem>
 			</orderedlist>
-			Instead, redistribute the appropriate Waf script along the sources using it.
 		</para>
 		<para>
 			Installation require a Python interpreter in the versions 2.4 to 2.6. It may require administrator or root privileges, depending on the target folder (prefix).
