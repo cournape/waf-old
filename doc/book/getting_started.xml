@@ -54,12 +54,13 @@ $ ls -ld .waf*
 .waf-1.5.11-2c924e3f453eb715218b9cc852291170
 			</programlisting>
 
+		<note>
+			By default, the recommended Python interpreter is cPython. For maximum convenience for the user, a copy of the <ulink url="http://www.jython.org">Jython</ulink> interpreter may be redistributing along with Waf. This means a project may contain <filename>waf</filename>, <filename>jython2.5.jar</filename>, the source code and be built almost anywhere.
+		</note>
+
 			<warning>
 				The Waf script must reside in a writable folder to unpack its cache files.
 			</warning>
-		</para>
-		<para>
-			By default, the recommended Python interpreter is cPython. For maximum convenience for the user, a copy of the <ulink url="http://www.jython.org">Jython</ulink> interpreter may be redistributing along with Waf. This means a project may contain <filename>waf</filename>, <filename>jython2.5.jar</filename>, the source code and be built almost anywhere.
 		</para>
 
 	</section>
