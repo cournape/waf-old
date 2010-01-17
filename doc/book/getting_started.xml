@@ -77,7 +77,7 @@ $ ls -ld .waf*
 				<listitem>Operating systems: Waf cannot be installed on Windows (yet)</listitem>
 				<listitem>Installation: installation is cumbersome, and requires administrative privileges</listitem>
 				<listitem>Waf versions: users rarely install the appropriate software version (too old, too new, bugs)</listitem>
-				<listitem>Bugs: projects may depend on unspecified behaviour for specific Waf versions</listitem>
+				<listitem>Bugs: projects may depend on unspecified behaviour in particular Waf versions</listitem>
 				<listitem>Size: the <filename>waf</filename> file is small enough to be redistributed (about 80kB)</listitem>
 			</orderedlist>
 		</para>
