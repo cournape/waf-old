@@ -7,6 +7,7 @@ NEW IN WAF 1.5.11
 * let compiler_cxx and compiler_cc raise an exception when no compiler is found
 * new chapter on variants in the Waf book
 * the three first chapters of the Waf book have been rewritten
+* fix the jarname attribute usage in java task generators
 
 NEW IN WAF 1.5.10
 -----------------
