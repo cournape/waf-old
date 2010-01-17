@@ -8,6 +8,7 @@ NEW IN WAF 1.5.11
 * new chapter on variants in the Waf book
 * the three first chapters of the Waf book have been rewritten
 * fix the jarname attribute usage in java task generators
+* let the WAFCACHE use folders to avoid errors during concurrent access
 
 NEW IN WAF 1.5.10
 -----------------
