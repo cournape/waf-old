@@ -198,39 +198,34 @@ def configure(conf): <co id="varai-co2" linkends="varai2"/>
 	dbg = conf.env.copy()
 	rel = conf.env.copy()
 
-	dbg.set_variant('debug')
-	conf.set_env_name('debug', dbg)
-	conf.setenv('debug')
-
-	rel.set_variant('release')
-	conf.set_env_name('release', rel)
-	conf.setenv('release')
+	for x in ['debug', 'release']:
+		env = conf.env.copy()
+		env.set_variant(x)
+		conf.set_env_name(x, env)
 
 def build(bld):
 
-	bld(rule='touch ${TGT}', target='foo.txt')
+	bld(rule='touch ${TGT}', target='foo.txt') <co id="varai-co3" linkends="varai3"/>
 
-	for obj in bld.all_task_gen[:]: <co id="varai-co3" linkends="varai3"/>
-
-		debug_obj = obj.clone('debug') <co id="varai-co4" linkends="varai4"/>
-		release_obj = obj.clone('release')
+	for obj in bld.all_task_gen[:]: <co id="varai-co4" linkends="varai4"/>
 
 		obj.posted = 1 <co id="varai-co5" linkends="varai5"/>
+		for x in ['debug', 'release']:
+			cloned_obj = obj.clone(x) <co id="varai-co6" linkends="varai6"/>
 
-		kind = Options.options.build_kind <co id="varai-co6" linkends="varai6"/>
-		if kind.find('debug') &lt; 0:<co id="varai-co7" linkends="varai7"/>
-			debug_obj.posted = 1
-		if kind.find('release') &lt; 0:
-			release_obj.posted = 1
+			kind = Options.options.build_kind
+			if kind.find(x) &lt; 0:<co id="varai-co7" linkends="varai7"/>
+				cloned_obj.posted = 1
+
 			</programlisting>
 
 			<calloutlist>
 				<callout arearefs="varai-co1" id="varai1"><para>Add a command-line option for enabling or disabling the <emphasis>release</emphasis> and <emphasis>debug</emphasis> builds</para></callout>
 				<callout arearefs="varai-co2" id="varai2"><para>The configuration will create the <emphasis>release</emphasis> and <emphasis>debug</emphasis> configuration sets, bound to a variant of the same names</para></callout>
-				<callout arearefs="varai-co3" id="varai3"><para>A copy of the existing task generators is created to avoid the creation of an infinite loop. Task generators are added to that list upon creation</para></callout>
-				<callout arearefs="varai-co4" id="varai4"><para>Clone a task generator for the configuration set <emphasis>debug</emphasis>. Making task generator clones is a cheap operation compared to duplicating tasks.</para></callout>
+				<callout arearefs="varai-co3" id="varai3"><para>Targets are declared normally for the default variant</para></callout>
+				<callout arearefs="varai-co4" id="varai4"><para>A copy of the existing task generators is created to avoid the creation of an infinite loop. Task generators are added to that list upon creation</para></callout>
 				<callout arearefs="varai-co5" id="varai5"><para>Disable the original task generator for the default configuration set (do not use it).</para></callout>
-				<callout arearefs="varai-co6" id="varai6"><para>Disable the original task generators for the <emphasis>default</emphasis> configuration set when necessary (the tasks will not be created)</para></callout>
+				<callout arearefs="varai-co6" id="varai6"><para>Clone a task generator for the configuration set <emphasis>debug</emphasis> or <emphasis>release</emphasis>. Making task generator clones is a cheap operation compared to duplicating tasks.</para></callout>
 				<callout arearefs="varai-co7" id="varai7"><para>Look at the command-line arguments, and disable the unwanted variant(s)</para></callout>
 
 			</calloutlist>
