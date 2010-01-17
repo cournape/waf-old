@@ -5,7 +5,7 @@
 "Module called for configuring, compiling and installing targets"
 
 import os, sys, shutil, traceback, datetime, inspect, errno, subprocess
-import Utils, Configure, Build, Logs, Options, ConfigData, Task
+import Utils, Configure, Build, Logs, Options, ConfigSet, Task
 from Logs import error, warn, info
 from Constants import *
 
@@ -89,7 +89,7 @@ def find_wscript_file(current_dir):
 		if 'configure' in sys.argv and candidate:
 			break
 		if Options.lockfile in dirlst:
-			env = ConfigData.ConfigData()
+			env = ConfigSet.ConfigSet()
 			try:
 				env.load(os.path.join(cwd, Options.lockfile))
 			except:
@@ -249,7 +249,7 @@ def distclean(ctx=None):
 	for f in lst:
 		if f == Options.lockfile:
 			try:
-				proj = ConfigData.ConfigData(f)
+				proj = ConfigSet.ConfigSet(f)
 			except:
 				Logs.warn('could not read %r' % f)
 				continue

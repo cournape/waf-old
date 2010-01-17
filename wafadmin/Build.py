@@ -13,7 +13,7 @@ The class Build holds all the info related to a build:
 import os, sys, errno, re, glob, gc, datetime, shutil
 try: import cPickle
 except: import pickle as cPickle
-import Runner, TaskGen, Node, Scripting, Utils, ConfigData, Task, Logs, Options, Configure
+import Runner, TaskGen, Node, Scripting, Utils, ConfigSet, Task, Logs, Options, Configure
 from Logs import debug, error, info
 from Constants import *
 from Utils import command_context
@@ -144,7 +144,7 @@ class BuildContext(Utils.Context):
 	def load(self):
 		"load the cache from the disk"
 		try:
-			env = ConfigData.ConfigData(os.path.join(self.cachedir, 'build.config.py'))
+			env = ConfigSet.ConfigSet(os.path.join(self.cachedir, 'build.config.py'))
 		except (IOError, OSError):
 			pass
 		else:
@@ -325,7 +325,7 @@ class BuildContext(Utils.Context):
 
 		for file in lst:
 			if file.endswith(CACHE_SUFFIX):
-				env = ConfigData.ConfigData(os.path.join(self.cachedir, file))
+				env = ConfigSet.ConfigSet(os.path.join(self.cachedir, file))
 				name = file[:-len(CACHE_SUFFIX)]
 
 				self.all_envs[name] = env
@@ -767,7 +767,7 @@ class BuildContext(Utils.Context):
 		The relative_trick flag can be set to install folders, use bld.path.ant_glob() with it
 		"""
 		if env:
-			assert isinstance(env, ConfigData.ConfigData), "invalid parameter"
+			assert isinstance(env, ConfigSet.ConfigSet), "invalid parameter"
 		else:
 			env = self.env
 
@@ -821,7 +821,7 @@ class BuildContext(Utils.Context):
 		returns True if the file was effectively installed, False otherwise
 		"""
 		if env:
-			assert isinstance(env, ConfigData.ConfigData), "invalid parameter"
+			assert isinstance(env, ConfigSet.ConfigSet), "invalid parameter"
 		else:
 			env = self.env
 
@@ -932,7 +932,7 @@ class BuildContext(Utils.Context):
 			(Options.options.__dict__, Logs.zones, Logs.verbose) = back
 
 		try:
-			proj = ConfigData.ConfigData(Options.lockfile)
+			proj = ConfigSet.ConfigSet(Options.lockfile)
 		except IOError:
 			conf = config_context(self.curdir)
 			conf.execute()
@@ -946,7 +946,7 @@ class BuildContext(Utils.Context):
 				return
 
 		try:
-			proj = ConfigData.ConfigData(Options.lockfile)
+			proj = ConfigSet.ConfigSet(Options.lockfile)
 		except IOError:
 			raise Utils.WafError('Auto-config: project does not configure (bug)')
 
@@ -969,7 +969,7 @@ class BuildContext(Utils.Context):
 	def prepare(self):
 		self.autoconfigure()
 		try:
-			temp_env = ConfigData.ConfigData(Options.lockfile)
+			temp_env = ConfigSet.ConfigSet(Options.lockfile)
 		except IOError:
 			raise Utils.WafError("Project not configured (run 'waf configure' first)")
 

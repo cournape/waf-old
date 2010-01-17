@@ -496,7 +496,7 @@ def subst_vars(expr, params):
 		if m.group(2):
 			return '$'
 		try:
-			# ConfigData instances may contain lists
+			# ConfigSet instances may contain lists
 			return params.get_flat(m.group(3))
 		except AttributeError:
 			return params[m.group(3)]

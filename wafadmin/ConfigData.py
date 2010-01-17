@@ -2,7 +2,9 @@
 # encoding: utf-8
 # Thomas Nagy, 2005 (ita)
 
-"""ConfigData representation
+"""ConfigSet representation
+
+Values must be lists. Everywhere.
 
 There is one gotcha: getitem returns [] if the contents evals to False
 This means env['foo'] = {}; print env['foo'] will print [] not {}
@@ -13,7 +15,7 @@ import Logs, Options, Utils
 from Constants import *
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
-class ConfigData(object):
+class ConfigSet(object):
 	"""A safe-to-use dictionary, but do not attach functions to it please (break cPickle)
 	An environment instance can be stored into a file and loaded easily
 	"""
@@ -70,7 +72,7 @@ class ConfigData(object):
 			return DEFAULT
 
 	def derive(self):
-		newenv = ConfigData()
+		newenv = ConfigSet()
 		newenv.parent = self
 		return newenv
 
@@ -115,33 +117,18 @@ class ConfigData(object):
 
 	def append_value(self, var, value):
 		current_value = self._get_list_value_for_modification(var)
-
-		if isinstance(value, list):
-			current_value.extend(value)
-		else:
-			current_value.append(value)
+		current_value.extend(value)
 
 	def prepend_value(self, var, value):
-		current_value = self._get_list_value_for_modification(var)
-
-		if isinstance(value, list):
-			current_value = value + current_value
-			# a new list: update the dictionary entry
-			self.table[var] = current_value
-		else:
-			current_value.insert(0, value)
+		self.table[var] =  value + self._get_list_value_for_modification(var)
 
 	# prepend unique would be ambiguous
 	def append_unique(self, var, value):
 		current_value = self._get_list_value_for_modification(var)
 
-		if isinstance(value, list):
-			for value_item in value:
-				if value_item not in current_value:
-					current_value.append(value_item)
-		else:
-			if value not in current_value:
-				current_value.append(value)
+		for value_item in value:
+			if value_item not in current_value:
+				current_value.append(value_item)
 
 	def get_merged_dict(self):
 		"""compute a merged table"""
