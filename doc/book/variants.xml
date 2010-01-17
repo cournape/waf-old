@@ -18,10 +18,10 @@ srcdir = '.'
 blddir = 'out_directory'
 
 def configure(conf):
-    pass
+	pass
 
 def build(bld):
-    bld(rule='touch ${TGT}', target='foo.txt')
+	bld(rule='touch ${TGT}', target='foo.txt')
 			</programlisting>
 
 			Upon execution, the results will be the following:
@@ -75,7 +75,7 @@ $ tree -a
 			</programlisting>
 
 			<calloutlist>
-                <callout arearefs="lock-co1" id="lock1"><para>The environment variable <emphasis>WAFLOCK</emphasis> points at the configuration of the project in use.</para></callout>
+				<callout arearefs="lock-co1" id="lock1"><para>The environment variable <emphasis>WAFLOCK</emphasis> points at the configuration of the project in use.</para></callout>
 				<callout arearefs="lock-co2" id="lock2"><para>The lockfile is created during the configuration.</para></callout>
 				<callout arearefs="lock-co3" id="lock3"><para>The files are output in the build directory<filename>debug</filename></para></callout>
 				<callout arearefs="lock-co4" id="lock4"><para>The configuration <emphasis>release</emphasis> is used with a different lock file and a different build directory.</para></callout>

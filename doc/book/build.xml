@@ -29,10 +29,10 @@ srcdir = '.'
 blddir = 'build'
 
 def configure(ctx):
-    pass
+	pass
 
 def build(ctx):
-    obj = ctx(target='test.txt', rule='touch ${TGT}')
+	obj = ctx(target='test.txt', rule='touch ${TGT}')
 	print('  ' + obj.__class__)
 			</programlisting>
 
@@ -74,20 +74,20 @@ srcdir = '.'
 blddir = 'build'
 
 def configure(ctx):
-    pass
+	pass
 
 def build(bld):
-    print('current path %r' % bld.path)
-    print('absolute path of the root node: %r' % bld.root.abspath())
-    print('absolute path of the current node: %r' % bld.path.abspath())
+	print('current path %r' % bld.path)
+	print('absolute path of the root node: %r' % bld.root.abspath())
+	print('absolute path of the current node: %r' % bld.path.abspath())
 
-    etc = bld.root.find_dir('/etc')
-    var = bld.root.find_dir('/var')
-    print('the node representing /etc %r: ' % etc)
-    print('path from /var to /etc %r' % etc.relpath_gen(var))
+	etc = bld.root.find_dir('/etc')
+	var = bld.root.find_dir('/var')
+	print('the node representing /etc %r: ' % etc)
+	print('path from /var to /etc %r' % etc.relpath_gen(var))
 
-    fstab = bld.root.find_resource('/etc/fstab')
-    print('path to /etc/fstab: %r' % fstab.abspath())
+	fstab = bld.root.find_resource('/etc/fstab')
+	print('path to /etc/fstab: %r' % fstab.abspath())
 			</programlisting>
 			The following results would be observed upon execution on a unix-like system:
 			<programlisting language="sh">
@@ -113,12 +113,12 @@ srcdir = '.'
 blddir = 'build'
 
 def configure(ctx):
-    pass
+	pass
 
 def build(bld):
-    print(bld.path.ant_glob('wsc*'))<co id="ant-co1" linkends="ant1"/>
+	print(bld.path.ant_glob('wsc*'))<co id="ant-co1" linkends="ant1"/>
 	print(bld.path.ant_glob('w?cr?p?'))<co id="ant-co2" linkends="ant2"/>
-    print(bld.root<co id="ant-co3" linkends="ant3"/>.ant_glob('etc/**/g*'<co id="ant-co4" linkends="ant4"/>, dir=True, src=False, bld=False)) <co id="ant-co5" linkends="ant5"/>
+	print(bld.root<co id="ant-co3" linkends="ant3"/>.ant_glob('etc/**/g*'<co id="ant-co4" linkends="ant4"/>, dir=True, src=False, bld=False)) <co id="ant-co5" linkends="ant5"/>
 			</programlisting>
 
 			<calloutlist>
@@ -236,12 +236,6 @@ hello
 
 			</para>
 	</section>
-
-	<!--
-	variants ?
-	using the lock file
--->
-
 
 </chapter>
 

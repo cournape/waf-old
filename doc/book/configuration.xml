@@ -15,16 +15,16 @@ srcdir = '.'
 blddir = 'build'
 
 def configure(conf):
-    conf.env['CXXFLAGS'] = ['-O2'] # key-based access
-    conf.env.store('test.txt')
-    conf.env.TEST        = 'test'  # attribute-based access
+	conf.env['CXXFLAGS'] = ['-O2'] # key-based access
+	conf.env.store('test.txt')
+	conf.env.TEST        = 'test'  # attribute-based access
 
-    new = conf.env.__class__()
-    new.load('test.txt')
+	new = conf.env.__class__()
+	new.load('test.txt')
 
-    print new
-    print ""
-    print conf.env
+	print new
+	print ""
+	print conf.env
 			</programlisting>
 
 			The execution will result in the following output:
@@ -173,14 +173,14 @@ from Configure import conftest <co id="cconf-co1" linkends="cconf1"/>
 
 @conftest
 def detect(conf): <co id="cconf-co2" linkends="cconf2"/>
-    print('-> detect fron dang!')
+	print('-> detect fron dang!')
 
 @conftest
 def test_hello(conf):
-    print('-> test from dang!')
+	print('-> test from dang!')
 
 def build_hello(self):
-    print('-> build hello from dang!')
+	print('-> build hello from dang!')
 
 import Build
 Build.BuildContext.build_hello = build_hello <co id="cconf-co3" linkends="cconf3"/>
@@ -203,22 +203,22 @@ def configure(conf):
 
 	#import config_c # <co id="conf-co2" linkends="conf2"/>
 
-    def is_check_cc_present():
-        try:
-            print('# method conf.check_cc %r' % conf.check_cc) <co id="conf-co3" linkends="conf3"/>
-        except:
-            print('# there is no method conf.check_cc')
+	def is_check_cc_present():
+		try:
+			print('# method conf.check_cc %r' % conf.check_cc) <co id="conf-co3" linkends="conf3"/>
+		except:
+			print('# there is no method conf.check_cc')
 
-    is_check_cc_present()
-    conf.check_tool('config_c') # <co id="conf-co4" linkends="conf4"/>
-    is_check_cc_present()
+	is_check_cc_present()
+	conf.check_tool('config_c') # <co id="conf-co4" linkends="conf4"/>
+	is_check_cc_present()
 
-    conf.check_tool('dang', tooldir='.') # <co id="conf-co5" linkends="conf5"/>
-    conf.check_tool('dang', tooldir='.', funs='test_hello') <co id="conf-co6" linkends="conf6"/>
+	conf.check_tool('dang', tooldir='.') # <co id="conf-co5" linkends="conf5"/>
+	conf.check_tool('dang', tooldir='.', funs='test_hello') <co id="conf-co6" linkends="conf6"/>
 	conf.check_tool('dang', tooldir='.') <co id="conf-co7" linkends="conf7"/>
 
 def build(bld):
-    bld.build_hello() <co id="conf-co8" linkends="conf8"/>
+	bld.build_hello() <co id="conf-co8" linkends="conf8"/>
 			</programlisting>
 
 			<calloutlist>
