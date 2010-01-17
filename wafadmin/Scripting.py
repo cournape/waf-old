@@ -451,6 +451,7 @@ def copytree(src, dst, build_dir):
 # TODO in waf 1.6, change this method if "srcdir == blddir" is allowed
 def distclean(ctx=None):
 	'''removes the build directory'''
+	global commands
 	lst = os.listdir('.')
 	for f in lst:
 		if f == Options.lockfile:
@@ -475,7 +476,7 @@ def distclean(ctx=None):
 					Logs.warn('file %r cannot be removed' % f)
 
 		# remove the local waf cache
-		if f.startswith('.waf-'):
+		if not commands and f.startswith('.waf-'):
 			shutil.rmtree(f, ignore_errors=True)
 
 # FIXME waf 1.6 a unique ctx parameter, and remove the optional appname and version
