@@ -5,6 +5,8 @@ NEW IN WAF 1.5.11
 * fix for manifest file creation and WAFCACHE (msvc)
 * aix compilers detection
 * let compiler_cxx and compiler_cc raise an exception when no compiler is found
+* new chapter on variants in the Waf book
+* the three first chapters of the Waf book have been rewritten
 
 NEW IN WAF 1.5.10
 -----------------
