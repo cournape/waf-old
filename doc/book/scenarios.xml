@@ -186,7 +186,7 @@ def build(bld):
 		include = 'util',
 		source = bld.path.ant_glob('util/*.ml'),
 		target = 'util/ocaml+twt',
-		are_deps_set = 1,
+		are_deps_set = True,
 		uselib='PP')
 
 	bld.add_group() <co id="divide-co" linkends="divide"/>
@@ -196,7 +196,7 @@ def build(bld):
 		source = 'src/armtlkto.c ' + bld.path.ant_glob('src/*.ml'),
 		includes = '. src',
 		target = 'camlprog',
-		are_deps_set = 1,
+		are_deps_set = True,
 		uselib = 'TWT',
 		add_objects = [])
 		</programlisting>
@@ -369,7 +369,7 @@ class shpip_task(Task.Task): <co id="type-co" linkends="type"/>
 	"""
 
 	color = 'PINK'
-	quiet = 1 <co id="quiet-co" linkends="quiet"/>
+	quiet = True <co id="quiet-co" linkends="quiet"/>
 
 	# important, no link before all shpip are done
 	before = ['cc_link', 'cxx_link', 'ar_link_static']
