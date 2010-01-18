@@ -209,8 +209,8 @@ def build(bld):
 			cloned_obj = obj.clone(x) <co id="varai-co5" linkends="varai5"/>
 			kind = Options.options.build_kind
 			if kind.find(x) &lt; 0:<co id="varai-co6" linkends="varai6"/>
-				cloned_obj.posted = 1
-		obj.posted = 1 <co id="varai-co7" linkends="varai7"/>
+				cloned_obj.posted = True
+		obj.posted = True <co id="varai-co7" linkends="varai7"/>
 			</programlisting>
 
 			<calloutlist>
