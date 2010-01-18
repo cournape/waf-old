@@ -205,12 +205,12 @@ def build(bld):
 	bld(rule='touch ${TGT}', target='foo.txt') <co id="varai-co3" linkends="varai3"/>
 
 	for obj in bld.all_task_gen[:]: <co id="varai-co4" linkends="varai4"/>
-		obj.posted = 1 <co id="varai-co5" linkends="varai5"/>
 		for x in ['debug', 'release']:
-			cloned_obj = obj.clone(x) <co id="varai-co6" linkends="varai6"/>
+			cloned_obj = obj.clone(x) <co id="varai-co5" linkends="varai5"/>
 			kind = Options.options.build_kind
-			if kind.find(x) &lt; 0:<co id="varai-co7" linkends="varai7"/>
+			if kind.find(x) &lt; 0:<co id="varai-co6" linkends="varai6"/>
 				cloned_obj.posted = 1
+		obj.posted = 1 <co id="varai-co7" linkends="varai7"/>
 			</programlisting>
 
 			<calloutlist>
@@ -218,10 +218,9 @@ def build(bld):
 				<callout arearefs="varai-co2" id="varai2"><para>The configuration will create the <emphasis>release</emphasis> and <emphasis>debug</emphasis> configuration sets, bound to a variant of the same names</para></callout>
 				<callout arearefs="varai-co3" id="varai3"><para>Targets are declared normally for the default variant</para></callout>
 				<callout arearefs="varai-co4" id="varai4"><para>A copy of the existing task generators is created to avoid the creation of an infinite loop (new task generator instances get added to that list)</para></callout>
-				<callout arearefs="varai-co5" id="varai5"><para>Disable the original task generator for the default configuration set (do not use it).</para></callout>
-				<callout arearefs="varai-co6" id="varai6"><para>Clone a task generator for the configuration set <emphasis>debug</emphasis> or <emphasis>release</emphasis>. Making task generator clones is a cheap operation compared to duplicating tasks.</para></callout>
-				<callout arearefs="varai-co7" id="varai7"><para>Look at the command-line arguments, and disable the unwanted variant(s)</para></callout>
-
+				<callout arearefs="varai-co5" id="varai5"><para>Clone a task generator for the configuration set <emphasis>debug</emphasis> or <emphasis>release</emphasis>. Making task generator clones is a cheap operation compared to duplicating tasks.</para></callout>
+				<callout arearefs="varai-co6" id="varai6"><para>Look at the command-line arguments, and disable the unwanted variant(s)</para></callout>
+				<callout arearefs="varai-co7" id="varai7"><para>Disable the original task generator for the default configuration set (do not use it).</para></callout>
 			</calloutlist>
 			Some task generators are use indexed attributes to generate unique values which may cause unnecessary rebuilds if the scripts change. To avoid problems, it is a best practice to create the task generators for the default configuration set first. Also, the method <emphasis>clone</emphasis> is not a substitute for creating instances for lots of nearly identical task generators. In such a situation, it will be better to use one task generator to create lots of tasks. As a reminder, creating task generator clones for the same variant will lead to build errors.
 
