@@ -1,3 +1,8 @@
+NEW IN WAF 1.5.12
+-----------------
+* zip file creation
+* exclude the python3 waf cache folders from 'dist' archives
+
 NEW IN WAF 1.5.11
 -----------------
 * fixed one regression on win32 (compiler errors were not detected)
