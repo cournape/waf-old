@@ -95,12 +95,14 @@ class formatter(logging.Formatter):
 
 def debug(*k, **kw):
 	if verbose:
+		k = list(k)
 		k[0] = k[0].replace('\n', ' ')
 		logging.debug(*k, **kw)
 
 def error(*k, **kw):
 	logging.error(*k, **kw)
 	if verbose > 1:
+		k = list(k)
 		if isinstance(k[0], Utils.WafError):
 			st = k[0].stack
 		else:
