@@ -102,7 +102,6 @@ def debug(*k, **kw):
 def error(*k, **kw):
 	logging.error(*k, **kw)
 	if verbose > 1:
-		k = list(k)
 		if isinstance(k[0], Utils.WafError):
 			st = k[0].stack
 		else:
