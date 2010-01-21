@@ -17,7 +17,7 @@
 		<para>
 		When Waf is launched, it looks for the top-level project file, which are Python scripts. A valid Waf project requires at least a top-level Waf script file (named 'wscript' without any extension) containing the three following elements:
 			<itemizedlist>
-				<listitem>srcdir: string representing the source directory. In general, srcdir is set to '.', except for some proprietary projects where to wscript cannot be added to the top-level, srcdir may be set to '../..' or even some other folder such as '/checkout/perforce/project'</listitem>
+				<listitem>srcdir: string representing the project directory. In general, srcdir is set to '.', except for some proprietary projects where the wscript cannot be added to the top-level, srcdir may be set to '../..' or even some other folder such as '/checkout/perforce/project'</listitem>
 				<listitem>blddir: string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as '.' or '..'</listitem>
 				<listitem>configure: function called for setting up a project (also known as a 'Waf command')</listitem>
 			</itemizedlist>
