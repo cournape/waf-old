@@ -489,15 +489,13 @@ class BuildContext(Utils.Context):
 			except OSError:
 				#debug('build: osError on ' + sub_path)
 				# listdir failed, remove all sigs of nodes
-				# TODO more things to remove?
 				dict = self.node_sigs[variant]
 				for node in list(src_dir_node.childs.values()):
+					if node.id & 3 != Node.BUILD:
+						continue
 					if node.id in dict:
 						dict.__delitem__(node.id)
-
-					# avoid deleting the build dir node
-					if node.id != self.bldnode.id:
-						src_dir_node.childs.__delitem__(node.name)
+					src_dir_node.childs.__delitem__(node.name)
 				os.makedirs(sub_path)
 
 	# ======================================= #
