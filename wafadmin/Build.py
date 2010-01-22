@@ -517,9 +517,8 @@ class BuildContext(Utils.Context):
 					if node.id in dict:
 						dict.__delitem__(node.id)
 
-					# avoid deleting the build dir node
-					if node.id != self.bldnode.id:
-						src_dir_node.childs.__delitem__(node.name)
+					# the policy is to avoid removing nodes representing directories
+					src_dir_node.childs.__delitem__(node.name)
 				os.makedirs(sub_path)
 
 	# ======================================= #
