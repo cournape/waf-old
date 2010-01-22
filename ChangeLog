@@ -2,6 +2,7 @@ NEW IN WAF 1.5.12
 -----------------
 * zip file creation
 * exclude the python3 waf cache folders from 'dist' archives
+* try to make the file rescan more robust when files are removed (#581)
 
 NEW IN WAF 1.5.11
 -----------------
