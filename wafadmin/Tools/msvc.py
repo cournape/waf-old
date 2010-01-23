@@ -710,42 +710,45 @@ def apply_manifest(self):
 	if self.env.CC_NAME != 'msvc':
 		return
 
-	tsk = self.create_task('msvc_manifest')
-	tsk.set_inputs(self.link_task.outputs[0])
+	if self.env.MSVC_MANIFEST:
+
+		out_node = self.link_task.outputs[0]
+		man_node = out_node.parent.find_or_declare(out_node.name + '.manifest')
+		self.link_task.outputs.append(man_node)
+
+		# will overwrite the node signature of man_node, on purpose
+		tsk = self.create_task('msvc_manifest', out_node, man_node)
 
 def exec_mf(self):
-	env = self.env
+	mtool = env['MT']
+	if not mtool:
+		return 0
+
 	outfile = self.inputs[0].bldpath(env)
-	manifest = outfile + '.manifest'
-	if os.path.exists(manifest):
-		debug('msvc: manifesttool')
-		mtool = env['MT']
-		if not mtool:
-			return 0
+	manifest = self.outputs[0].bldpath(env)
 
-		mode = ''
-		# embedding mode. Different for EXE's and DLL's.
-		# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
-		if 'cprogram' in self.generator.features:
-			mode = '1'
-		elif 'cshlib' in self.generator.features:
-			mode = '2'
+	# embedding mode. Different for EXE's and DLL's.
+	# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
+	mode = ''
+	if 'cprogram' in self.generator.features:
+		mode = '1'
+	elif 'cshlib' in self.generator.features:
+		mode = '2'
 
-		debug('msvc: embedding manifest')
-		#flags = ' '.join(env['MTFLAGS'] or [])
+	debug('msvc: embedding manifest')
+	#flags = ' '.join(env['MTFLAGS'] or [])
 
-		lst = []
-		lst.extend(Utils.to_list(env['MT']))
-		lst.extend(Utils.to_list(env['MTFLAGS']))
-		lst.extend(Utils.to_list("-manifest"))
-		lst.extend(Utils.to_list(manifest))
-		lst.extend(Utils.to_list("-outputresource:%s;%s" % (outfile, mode)))
+	lst = []
+	lst.extend(Utils.to_list(env['MT']))
+	lst.extend(Utils.to_list(env['MTFLAGS']))
+	lst.extend(Utils.to_list("-manifest"))
+	lst.extend(Utils.to_list(manifest))
+	lst.extend(Utils.to_list("-outputresource:%s;%s" % (outfile, mode)))
 
-		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
-		#	manifest, outfile, mode)
-		lst = [lst]
-		return self.exec_command(*lst)
-	return None
+	#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
+	#	manifest, outfile, mode)
+	lst = [lst]
+	return self.exec_command(*lst)
 
 cls = Task.task_type_from_func('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 cls.quiet = 1
