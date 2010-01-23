@@ -512,7 +512,7 @@ def find_msvc(conf):
 		link = conf.find_program(linker_name, path_list=path)
 		if link: v['LINK_CXX'] = link
 		else: conf.fatal('%s was not found (linker)' % linker_name)
-	v['LINK'] = link
+	v['LINK'] = v['LINK_CXX']
 
 	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
 
@@ -526,7 +526,7 @@ def find_msvc(conf):
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	if v['MSVC_MANIFEST']:
 		manifesttool = conf.find_program('MT', path_list=path)
-		if not manifest: conf.fatal('unable to find the manifest tool')
+		if not manifesttool: conf.fatal('unable to find the manifest tool')
 		v['MT'] = manifesttool
 		v['MTFLAGS'] = ['/NOLOGO']
 
@@ -720,6 +720,7 @@ def apply_manifest(self):
 		tsk = self.create_task('msvc_manifest', out_node, man_node)
 
 def exec_mf(self):
+	env = self.env
 	mtool = env['MT']
 	if not mtool:
 		return 0
