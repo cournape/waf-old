@@ -481,22 +481,29 @@ class BuildContext(Utils.Context):
 		lst.reverse()
 
 		# list the files in the build dirs
-		# remove the existing timestamps if the build files are removed
-		for variant in self.lst_variants:
-			sub_path = os.path.join(self.bldnode.abspath(), variant , *lst)
-			try:
+		try:
+			for variant in self.lst_variants:
+				sub_path = os.path.join(self.bldnode.abspath(), variant , *lst)
 				self.listdir_bld(src_dir_node, sub_path, variant)
-			except OSError:
-				#debug('build: osError on ' + sub_path)
-				# listdir failed, remove all sigs of nodes
-				dict = self.node_sigs[variant]
-				for node in list(src_dir_node.childs.values()):
-					if node.id & 3 != Node.BUILD:
-						continue
-					if node.id in dict:
+		except OSError:
+
+			# listdir failed, remove the build node signatures for all variants
+			for node in src_dir_node.childs.values():
+				if node.id & 3 != Node.BUILD:
+					continue
+
+				for dct in self.node_sigs:
+					if node.id in dct:
 						dict.__delitem__(node.id)
-					src_dir_node.childs.__delitem__(node.name)
-				os.makedirs(sub_path)
+
+				# the policy is to avoid removing nodes representing directories
+				src_dir_node.childs.__delitem__(node.name)
+
+			for variant in self.lst_variants:
+				try:
+					os.makedirs(sub_path)
+				except OSError:
+					pass
 
 	# ======================================= #
 	def listdir_src(self, parent_node):
