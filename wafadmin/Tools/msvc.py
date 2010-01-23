@@ -80,8 +80,8 @@ def setup_msvc(conf, versions):
 			for target in platforms:
 				try:
 					arch,(p1,p2,p3) = targets[target]
-					compiler,version = version.split()
-					return compiler,p1,p2,p3
+					compiler,revision = version.split()
+					return compiler,revision,p1,p2,p3
 				except KeyError: continue
 		except KeyError: continue
 	conf.fatal('msvc: Impossible to find a valid architecture for building (in setup_msvc)')
@@ -449,7 +449,7 @@ link_add_flags
 @conftest
 def autodetect(conf):
 	v = conf.env
-	compiler, path, includes, libdirs = detect_msvc(conf)
+	compiler, version, path, includes, libdirs = detect_msvc(conf)
 	v['PATH'] = path
 	v['CPPPATH'] = includes
 	v['LIBPATH'] = libdirs
@@ -475,12 +475,13 @@ def find_msvc(conf):
 
 	v = conf.env
 
-	compiler, path, includes, libdirs = detect_msvc(conf)
+	compiler, version, path, includes, libdirs = detect_msvc(conf)
 	v['PATH'] = path
 	v['CPPPATH'] = includes
 	v['LIBPATH'] = libdirs
 
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
+	v['MSVC_MANIFEST'] = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6)	or (compiler == 'intel' and float(version) >= 11)
 
 	# compiler
 	cxx = None
@@ -523,8 +524,9 @@ def find_msvc(conf):
 		v['ARFLAGS'] = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
-	manifesttool = conf.find_program('MT', path_list=path)
-	if manifesttool:
+	if v['MSVC_MANIFEST']:
+		manifesttool = conf.find_program('MT', path_list=path)
+		if not manifest: conf.fatal('unable to find the manifest tool')
 		v['MT'] = manifesttool
 		v['MTFLAGS'] = ['/NOLOGO']
 
