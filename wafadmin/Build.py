@@ -388,7 +388,7 @@ class BuildContext(Utils.Context):
 				lstvariants.append(env.variant())
 		self.lst_variants = lstvariants
 
-		debug('build: list of variants is %r' % lstvariants)
+		debug('build: list of variants is %r', lstvariants)
 
 		for name in lstvariants+[0]:
 			for v in 'node_sigs cache_node_abspath'.split():
@@ -422,7 +422,7 @@ class BuildContext(Utils.Context):
 
 		if not self.srcnode:
 			self.srcnode = self.root.ensure_dir_node_from_path(srcdir)
-		debug('build: srcnode is %s and srcdir %s' % (self.srcnode.name, srcdir))
+		debug('build: srcnode is %s and srcdir %s', self.srcnode.name, srcdir)
 
 		self.path = self.srcnode
 
@@ -608,7 +608,7 @@ class BuildContext(Utils.Context):
 
 		lst = [str(env[a]) for a in vars_lst]
 		ret = Utils.h_list(lst)
-		debug("envhash: %r %r" % (ret, lst))
+		debug('envhash: %r %r', ret, lst)
 
 		# next time
 		self.cache_sig_vars[idx] = ret
@@ -918,7 +918,7 @@ class BuildContext(Utils.Context):
 
 	def exec_command(self, cmd, **kw):
 		# 'runner' zone is printed out for waf -v, see wafadmin/Options.py
-		debug('runner: system command -> %s' % cmd)
+		debug('runner: system command -> %s', cmd)
 		if self.log:
 			self.log.write('%s\n' % cmd)
 			kw['log'] = self.log

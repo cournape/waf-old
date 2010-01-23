@@ -88,7 +88,7 @@ def setup_msvc(conf, versions):
 
 @conf
 def get_msvc_version(conf, compiler, version, target, vcvars):
-	debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' ...')
+	debug('msvc: get_msvc_version: %r %r %r', compiler, version, target)
 	batfile = os.path.join(conf.blddir, 'waf-print-msvc.bat')
 	f = open(batfile, 'w')
 	f.write("""@echo off
@@ -107,7 +107,7 @@ echo LIB=%%LIB%%
 		if lines[0].find(x) != -1:
 			break
 	else:
-		debug('msvc: get_msvc_version: %r %r %r -> not found' % (compiler, version, target))
+		debug('msvc: get_msvc_version: %r %r %r -> not found', compiler, version, target)
 		conf.fatal('msvc: Impossible to find a valid architecture for building (in get_msvc_version)')
 
 	for line in lines[1:]:
@@ -136,11 +136,11 @@ echo LIB=%%LIB%%
 		if p.returncode != 0:
 			raise Exception('return code: %r: %r' % (p.returncode, err))
 	except Exception, e:
-		debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
+		debug('msvc: get_msvc_version: %r %r %r -> failure', compiler, version, target)
 		debug(str(e))
 		conf.fatal('msvc: cannot run the compiler (in get_msvc_version)')
 	else:
-		debug('msvc: get_msvc_version: %r %r %r -> OK' % (compiler, version, target))
+		debug('msvc: get_msvc_version: %r %r %r -> OK', compiler, version, target)
 
 	return (MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR)
 
@@ -401,7 +401,7 @@ def libname_msvc(self, libname, is_static=False, mandatory=False):
 	for path in _libpaths:
 		for libn in libnames:
 			if os.path.exists(os.path.join(path, libn)):
-				debug('msvc: lib found: %s' % os.path.join(path,libn))
+				debug('msvc: lib found: %s', os.path.join(path,libn))
 				return re.sub('\.lib$', '',libn)
 
 	#if no lib can be found, just return the libname as msvc expects it

@@ -196,13 +196,13 @@ class task_gen(object):
 		self.meths = out
 
 		# then we run the methods in order
-		debug('task_gen: posting %s %d' % (self, id(self)))
+		debug('task_gen: posting %s %d', self, id(self))
 		for x in out:
 			try:
 				v = getattr(self, x)
 			except AttributeError:
 				raise Utils.WafError("tried to retrieve %s which is not a valid method" % x)
-			debug('task_gen: -> %s (%d)' % (x, id(self)))
+			debug('task_gen: -> %s (%d)', x, id(self))
 			v()
 
 	def post(self):
@@ -217,7 +217,7 @@ class task_gen(object):
 			#error("OBJECT ALREADY POSTED" + str( self))
 			return
 		self.apply()
-		debug('task_gen: posted %s' % self.name)
+		debug('task_gen: posted %s', self.name)
 		self.posted = True
 
 	def get_hook(self, ext):

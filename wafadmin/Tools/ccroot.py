@@ -132,7 +132,7 @@ def scan(self):
 		node = self.inputs[0]
 		(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
 		if Logs.verbose:
-			debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
+			debug('deps: deps for %s: %r; unresolved %r', str(node), nodes, names)
 		return (nodes, names)
 
 	all_nodes = []
@@ -141,7 +141,7 @@ def scan(self):
 	for node in self.inputs:
 		(nodes, names) = preproc.get_deps(node, self.env, nodepaths = self.env['INC_PATHS'])
 		if Logs.verbose:
-			debug('deps: deps for %s: %r; unresolved %r' % (str(node), nodes, names))
+			debug('deps: deps for %s: %r; unresolved %r', str(node), nodes, names)
 		for x in nodes:
 			if id(x) in seen: continue
 			seen.add(id(x))
