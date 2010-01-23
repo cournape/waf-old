@@ -508,18 +508,22 @@ class BuildContext(Utils.Context):
 			try:
 				self.listdir_bld(src_dir_node, sub_path, variant)
 			except OSError:
-				#debug('build: osError on ' + sub_path)
-				# listdir failed, remove all sigs of nodes
-				dict = self.node_sigs[variant]
+
+				# listdir failed, remove the build node signatures for all variants
 				for node in src_dir_node.childs.values():
 					if node.id & 3 != Node.BUILD:
 						continue
-					if node.id in dict:
-						dict.__delitem__(node.id)
+
+					for dct in self.node_sigs:
+						if node.id in dct:
+							dict.__delitem__(node.id)
 
 					# the policy is to avoid removing nodes representing directories
 					src_dir_node.childs.__delitem__(node.name)
+
 				os.makedirs(sub_path)
+
+				break
 
 	# ======================================= #
 	def listdir_src(self, parent_node):
