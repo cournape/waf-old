@@ -500,6 +500,7 @@ class BuildContext(Utils.Context):
 				src_dir_node.childs.__delitem__(node.name)
 
 			for variant in self.lst_variants:
+				sub_path = os.path.join(self.bldnode.abspath(), variant , *lst)
 				try:
 					os.makedirs(sub_path)
 				except OSError:
