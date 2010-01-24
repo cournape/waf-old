@@ -363,7 +363,7 @@ def declare_chain(name='', action='', ext_in='', ext_out='', reentrant=1, color=
 	def x_file(self, node):
 		if decider:
 			ext = decider(self, node)
-		elif isinstance(ext_out, str):
+		else:
 			ext = ext_out
 
 		if isinstance(ext, str):
