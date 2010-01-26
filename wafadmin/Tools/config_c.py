@@ -540,7 +540,7 @@ def define(self, define, value, quote=1):
 	# the user forgot to tell if the value is quoted or not
 	if isinstance(value, str):
 		if quote:
-			tbl[define] = '"%s"' % str(value)
+			tbl[define] = '"%s"' % repr('"'+value)[2:-1].replace('"', '\\"')
 		else:
 			tbl[define] = value
 	elif isinstance(value, int):
@@ -643,8 +643,6 @@ def get_config_header(self):
 			config_header.append('#define %s' % key)
 		elif value is UNDEFINED:
 			config_header.append('/* #undef %s */' % key)
-		elif isinstance(value, str):
-			config_header.append('#define %s %s' % (key, repr(value)[1:-1]))
 		else:
 			config_header.append('#define %s %s' % (key, value))
 	return "\n".join(config_header)
