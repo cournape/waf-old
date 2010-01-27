@@ -14,6 +14,7 @@ try:
 	sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
 	hconsole = windll.kernel32.GetStdHandle(-11)
 	windll.kernel32.GetConsoleScreenBufferInfo(hconsole, byref(sbinfo))
+	if sbinfo.Size.X < 10 or sbinfo.Size.Y < 10: raise Exception('small console')
 except Exception:
 	pass
 else:
