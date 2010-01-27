@@ -3,6 +3,7 @@
 # Thomas Nagy, 2006 (ita)
 
 # look for a command-line option named 'meow' by using "./waf --help" (where is it defined?)
+import Utils
 import Options
 
 # VERSION and APPNAME are required by 'waf dist'
@@ -41,7 +42,7 @@ def configure(conf):
 
 	# here is how to override flags
 	conf.env.CXXFLAGS_MYPROG  = ['-O3']
-	conf.env.LIB_MYPROG       = ['m']
+	if not Utils.is_win32: conf.env.LIB_MYPROG = ['m']
 	conf.env.SOME_INSTALL_DIR = '/tmp/ahoy/lib/'
 
 	# create a debug and release builds (variants)
