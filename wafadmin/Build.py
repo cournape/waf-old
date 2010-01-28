@@ -779,6 +779,7 @@ class BuildContext(Utils.Context):
 						Logs.warn('could not remove %s (error code %r)' % (e.filename, e.errno))
 			return True
 
+	red = re.compile(r"^([A-Za-z]:){0,1}[/\\\\]*")
 	def get_install_path(self, path, env=None):
 		"installation path prefixed by the destdir, the variables like in '${PREFIX}/bin' are substituted"
 		if not env: env = self.env
@@ -786,7 +787,7 @@ class BuildContext(Utils.Context):
 		path = path.replace('/', os.sep)
 		destpath = Utils.subst_vars(path, env)
 		if destdir:
-			destpath = os.path.join(destdir, destpath.lstrip(os.sep))
+			destpath = os.path.join(destdir, red.sub('', destpath))
 		return destpath
 
 	def install_files(self, path, files, env=None, chmod=O644, relative_trick=False, cwd=None):
