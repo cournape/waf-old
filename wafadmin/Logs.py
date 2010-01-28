@@ -23,10 +23,10 @@ colors_lst = {
 'cursor_off' :'\x1b[?25l',
 }
 
-got_tty = not os.environ.get('TERM', 'dumb') in ['dumb', 'emacs']
-if got_tty:
+term = os.environ.get('TERM', 'dumb')
+if not term in ['dumb', 'emacs']:
 	try:
-		got_tty = sys.stderr.isatty()
+		got_tty = sys.stderr.isatty() or (sys.platform == 'win32' and term in ['xterm', 'msys'])
 	except AttributeError:
 		got_tty = False
 
