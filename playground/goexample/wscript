@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+# encoding: utf-8
+# grt - Go Ray Tracer
+# By: Tom Wambold <tom5760@gmail.com>
+# wscript - Waf build script
+
+srcdir = '.'
+blddir = 'build'
+
+def configure(ctx):
+    ctx.check_tool('go', tooldir='.')
+
+def build(ctx):
+    ctx(
+        features = 'go gopackage',
+        target   = 'other',
+        source   = [
+            'other/a.go',
+            'other/b.go',
+        ],
+    )
+
+    ctx(
+        features = 'go goprogram',
+        target   = 'test',
+        uselib_local = 'other',
+        source   = 'main.go',
+    )
+
