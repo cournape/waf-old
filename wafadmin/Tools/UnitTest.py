@@ -251,10 +251,7 @@ def exec_test(self):
 				add_path(fu, lst, 'LD_LIBRARY_PATH')
 
 		try:
-			cwd = self.inputs[0].parent.abspath(self.env)
-			if getattr(self.generator, 'run_in_srcdir', None):
-				cwd = self.inputs[0].parent.srcpath(self.env)
-			ret = Utils.cmd_output(filename, cwd=cwd, env=fu)
+			ret = Utils.cmd_output(filename, cwd=self.inputs[0].parent.abspath(self.env), env=fu)
 		except Exception, e:
 			fail = True
 			ret = '' + str(e)
