@@ -704,20 +704,16 @@ def apply_manifest(self):
 	"""Special linker for MSVC with support for embedding manifests into DLL's
 	and executables compiled by Visual Studio 2005 or probably later. Without
 	the manifest file, the binaries are unusable.
-	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
-	Problems with this tool: it is always called whether MSVC creates manifests or not."""
+	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx"""
 
-	if self.env.CC_NAME != 'msvc':
-		return
-
-	if self.env.MSVC_MANIFEST:
-
+	if self.env.CC_NAME == 'msvc' and self.env.MSVC_MANIFEST:
 		out_node = self.link_task.outputs[0]
 		man_node = out_node.parent.find_or_declare(out_node.name + '.manifest')
 		self.link_task.outputs.append(man_node)
 
 		# will overwrite the node signature of man_node, on purpose
 		tsk = self.create_task('msvc_manifest', out_node, man_node)
+		tsk.set_run_after(self.link_task)
 
 def exec_mf(self):
 	env = self.env
@@ -751,7 +747,7 @@ def exec_mf(self):
 	lst = [lst]
 	return self.exec_command(*lst)
 
-cls = Task.task_type_from_func('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
+cls = Task.task_type_from_func('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_out='.bin')
 cls.quiet = 1
 
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
