@@ -9,50 +9,59 @@ import Task
 import Utils
 from TaskGen import feature, extension, before, after
 
-if platform.machine() == 'x86_64':
-	GO_COMPILER = '6g'
-	GO_LINKER = '6l'
-	GO_EXTENSION = '.6'
-elif platform.machine() == 'i386':
-	GO_COMPILER = '8g'
-	GO_LINKER = '8l'
-	GO_EXTENSION = '.8'
-else:
-	raise OSError('Unsupported platform ' + platform.machine())
-
-GO_PACK = 'gopack'
-GO_PACK_EXTENSION = '.a'
-
-Task.simple_task_type('gocompile', '${GOC} ${GOCFLAGS} -o ${TGT} ${SRC}')
-Task.simple_task_type('gopack', '${GOP} grc ${TGT} ${SRC}')
-Task.simple_task_type('golink', '${GOL} ${GOLFLAGS} -o ${TGT} ${SRC}')
+Task.simple_task_type('gocompile', '${GOC} ${GOCFLAGS} -o ${TGT} ${SRC}', shell=False)
+Task.simple_task_type('gopack', '${GOP} grc ${TGT} ${SRC}', shell=False)
+Task.simple_task_type('golink', '${GOL} ${GOLFLAGS} -o ${TGT} ${SRC}', shell=False)
 
 def detect(conf):
-	conf.find_program(GO_COMPILER, var='GOC', mandatory=True)
-	conf.find_program(GO_LINKER, var='GOL', mandatory=True)
-	conf.find_program(GO_PACK, var='GOP', mandatory=True)
 
-@feature('go')
-@before('apply_core')
-def apply_go(self):
-	self.go_nodes = []
-	self.go_compile_task = None
-	self.go_link_task = None
-	self.go_package_task = None
+	def set_def(var, val):
+		if not conf.env[var]:
+			conf.env[var] = val
+
+	if platform.machine() == 'x86_64':
+		set_def('GO_COMPILER')  = '6g'
+		set_def('GO_LINKER')    = '6l'
+		set_def('GO_EXTENSION') = '.6'
+	elif platform.machine() == 'i386':
+		set_def('GO_COMPILER')  = '8g'
+		set_def('GO_LINKER')    = '8l'
+		set_def('GO_EXTENSION') = '.8'
+	else:
+		raise conf.fatal('Unsupported platform ' + platform.machine())
+
+	set_def('GO_PACK', 'gopack')
+	set_def('GO_PACK_EXTENSION', '.a')
+
+	conf.find_program(conf.env.GO_COMPILER, var='GOC', mandatory=True)
+	conf.find_program(conf.env.GO_LINKER,   var='GOL', mandatory=True)
+	conf.find_program(conf.env.GO_PACK,     var='GOP', mandatory=True)
 
 @extension('.go')
 def compile_go(self, node):
-	self.go_nodes.append(node)
+	try:
+		self.go_nodes.append(node)
+	except AttributeError:
+		self.go_nodes = [node]
 
 @feature('go')
 @after('apply_core')
 def apply_compile_go(self):
-	self.go_compile_task = self.create_task('gocompile', self.go_nodes,
-			[self.path.find_or_declare(self.target + GO_EXTENSION)])
+	try:
+		nodes = self.go_nodes
+	except AttributeError:
+		self.go_compile_task = None
+	else:
+		self.go_compile_task = self.create_task('gocompile',
+			nodes,
+			[self.path.find_or_declare(self.target + self.env.GO_EXTENSION)])
 
 @feature('gopackage', 'goprogram')
 @after('apply_compile_go')
 def apply_goinc(self):
+	if not getattr(self, 'go_compile_task', None):
+		return
+
 	names = self.to_list(getattr(self, 'uselib_local', []))
 	for name in names:
 		obj = self.name_to_obj(name)
@@ -70,7 +79,7 @@ def apply_goinc(self):
 def apply_gopackage(self):
 	self.go_package_task = self.create_task('gopack',
 			self.go_compile_task.outputs[0],
-			self.path.find_or_declare(self.target + GO_PACK_EXTENSION))
+			self.path.find_or_declare(self.target + self.env.GO_PACK_EXTENSION))
 	self.go_package_task.set_run_after(self.go_compile_task)
 	self.go_package_task.deps_nodes.extend(self.go_compile_task.outputs)
 
