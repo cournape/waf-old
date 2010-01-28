@@ -8,22 +8,22 @@ srcdir = '.'
 blddir = 'build'
 
 def configure(ctx):
-    ctx.check_tool('go', tooldir='.')
+	ctx.check_tool('go', tooldir='.')
 
 def build(ctx):
-    ctx(
-        features = 'go gopackage',
-        target   = 'other',
-        source   = [
-            'other/a.go',
-            'other/b.go',
-        ],
-    )
+	ctx(
+		features = 'go gopackage',
+		target   = 'other',
+		source   = [
+			'other/a.go',
+			'other/b.go',
+		],
+	)
 
-    ctx(
-        features = 'go goprogram',
-        target   = 'test',
-        uselib_local = 'other',
-        source   = 'main.go',
-    )
+	ctx(
+		features = 'go goprogram',
+		target   = 'test',
+		uselib_local = 'other',
+		source   = 'main.go',
+	)
 
