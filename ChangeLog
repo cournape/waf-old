@@ -3,6 +3,7 @@ NEW IN WAF 1.5.12
 * zip file creation
 * exclude the python3 waf cache folders from 'dist' archives
 * removing build dir folders should no longer cause problems (#581)
+* fix for absolute win32 paths and DESTDIR
 
 NEW IN WAF 1.5.11
 -----------------
