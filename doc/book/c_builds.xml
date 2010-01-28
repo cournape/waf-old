@@ -116,7 +116,7 @@ def configure(conf):
 	conf.env.CPPPATH_TEST = ['/usr/include'] <co id="uselib-cpppath-co" linkends="c1"/>
 
 	if sys.platform != win32: <co id="uselib-check-co" linkends="c2"/>
-		conf.env.CCDEFINES_TEST = ['-DTEST']
+		conf.env.CCDEFINES_TEST = ['TEST']
 		conf.env.CCFLAGS_TEST   = ['-O0'] <co id="uselib-names-co" linkends="c3"/>
 		conf.env.LIB_TEST       = 'test'
 		conf.env.LIBPATH_TEST   = ['/usr/lib'] <co id="uselib-list-co" linkends="c4"/>
